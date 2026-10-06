@@ -25,22 +25,78 @@
   .story{max-width:560px;line-height:1.9;color:#a7a396;font-size:15px;margin-bottom:6px}
   #hud{position:fixed;inset:0;pointer-events:none;display:none;z-index:5}
   #hud.show{display:block}
-  #obj{position:absolute;left:22px;top:20px;font-size:14px;line-height:1.7;text-shadow:0 1px 4px #000}
-  #obj .t{color:var(--dim);letter-spacing:.25em;font-size:12px}
-  #keys{display:flex;gap:8px;margin-top:6px}
-  .key{width:34px;height:34px;border:1px solid #4d493f;display:flex;align-items:center;justify-content:center;font-size:18px;opacity:.35;background:rgba(0,0,0,.4)}
-  .key.on{opacity:1;border-color:#d4a73a;color:#f2c14e;box-shadow:0 0 10px rgba(212,167,58,.5)}
-  #floor{position:absolute;right:24px;top:20px;font-size:22px;letter-spacing:.2em;color:var(--dim);text-shadow:0 1px 4px #000}
-  #bars{position:absolute;left:22px;bottom:22px;width:210px;font-size:12px;color:var(--dim)}
-  .bar{height:6px;background:rgba(255,255,255,.1);margin:4px 0 12px;position:relative}
-  .bar i{position:absolute;inset:0 auto 0 0;background:#d9d3a0;width:100%}
-  #bat i{background:#e8d27a}#sta i{background:#7aa7b8}
+  .panel{background:rgba(10,14,18,.78);border:1px solid #3a4650}
+  #who{position:absolute;left:20px;top:18px;display:flex;gap:10px;align-items:center;padding:8px 12px 8px 8px;width:270px}
+  #portrait{width:58px;height:58px;border-radius:50%;border:2px solid #6a7782;background:#10161c}
+  #who .bars{flex:1;font-size:12px}
+  #who .nm{font-size:14px;margin-bottom:4px;display:flex;justify-content:space-between}
+  #stat{font-size:11px;color:#6fd08c}
+  .row{display:flex;align-items:center;gap:6px;margin:3px 0;font-size:11px;color:var(--dim)}
+  .row u{text-decoration:none;width:22px}
+  .bar{flex:1;height:7px;background:rgba(255,255,255,.12);position:relative}
+  .bar i{position:absolute;inset:0 auto 0 0;width:100%}
+  #hpBar{background:#5fc47a}#sta{background:#5a9ac8}#fearBar{background:#c04048}
+  #obj{position:absolute;left:20px;top:100px;width:300px;padding:10px 14px;font-size:13px;line-height:1.6}
+  #obj .m{color:#f2c14e;font-weight:700;margin-bottom:2px}
+  #obj .m span{display:inline-block;width:16px;height:16px;line-height:16px;text-align:center;border-radius:50%;background:#f2c14e;color:#000;font-size:11px;margin-right:6px}
+  #obj .subs{margin-top:8px;padding-top:8px;border-top:1px solid #2c3640;color:#b8b4a8}
+  #obj .subs div:before{content:'☐ ';color:#8d897d}
+  #obj .subs div.done{color:#6fd08c;text-decoration:line-through}
+  #obj .subs div.done:before{content:'☑ ';color:#6fd08c}
+  #mini{position:absolute;right:20px;top:16px;width:156px;height:156px}
+  #miniMap{width:150px;height:150px;border-radius:50%;border:2px solid #6a7782;background:rgba(8,12,16,.8);display:block}
+  #floor{position:absolute;right:-4px;top:-4px;font-size:15px;padding:1px 8px;background:#10161c;border:1px solid #6a7782}
+  #clock{position:absolute;right:0;top:160px;font-size:12px;color:var(--dim);white-space:nowrap}
+  #toasts{position:absolute;right:20px;top:210px;width:300px;display:flex;flex-direction:column;gap:8px}
+  .toast{padding:10px 14px;font-size:13px;line-height:1.5;border-left:3px solid #f2c14e;animation:tin .3s}
+  .toast b{display:block;font-size:15px;color:#f2c14e}
+  .toast.warn{border-color:#c04048}.toast.warn b{color:#e86870}
+  .toast.info{border-color:#5a9ac8}.toast.info b{color:#8cc0e8}
+  @keyframes tin{from{transform:translateX(30px);opacity:0}to{transform:none;opacity:1}}
+  #hints{position:absolute;right:20px;bottom:20px;font-size:12px;color:var(--dim);text-align:right;line-height:1.9}
+  #hints kbd{display:inline-block;min-width:24px;padding:0 6px;text-align:center;border:1px solid #5a646c;background:#10161c;color:var(--ink);font-family:inherit;font-size:11px;margin-left:8px}
+  #slots{position:absolute;left:50%;bottom:20px;transform:translateX(-50%);display:flex;gap:8px}
+  .slot{width:58px;height:58px;position:relative;background:rgba(10,14,18,.78);border:1px solid #4a545c;display:flex;align-items:center;justify-content:center;font-size:26px}
+  .slot small{position:absolute;left:4px;top:2px;font-size:10px;color:var(--dim)}
+  .slot em{position:absolute;right:4px;bottom:2px;font-size:11px;font-style:normal;color:var(--ink)}
+  .slot.off{opacity:.4}
+  .slot .sb{position:absolute;left:4px;right:4px;bottom:3px;height:3px;background:#222}
+  .slot .sb i{display:block;height:100%;background:#e8d27a}
+  #dlg{position:absolute;left:50%;bottom:104px;transform:translateX(-50%);width:min(620px,86vw);padding:10px 14px;display:none;gap:12px;align-items:center;font-size:16px;line-height:1.6}
+  #dlg.show{display:flex}
+  #dlgFace{width:48px;height:48px;border-radius:50%;border:2px solid #6a7782;flex:none}
+  #dlg b{display:block;font-size:12px;color:#f2c14e;letter-spacing:.1em}
   #prompt{position:absolute;left:50%;top:60%;transform:translateX(-50%);padding:6px 16px;font-size:17px;letter-spacing:.1em;
-    background:rgba(0,0,0,.55);border:1px solid #5a554a;display:none}
-  #msg{position:absolute;left:50%;bottom:16%;transform:translateX(-50%);max-width:80vw;text-align:center;font-size:20px;
+    background:rgba(0,0,0,.6);border:1px solid #5a554a;display:none;white-space:nowrap}
+  #msg{position:absolute;left:50%;top:22%;transform:translateX(-50%);max-width:70vw;text-align:center;font-size:19px;
     line-height:1.6;text-shadow:0 2px 6px #000;opacity:0;transition:opacity .6s}
   #msg.show{opacity:1}
   #cross{position:absolute;left:50%;top:50%;width:4px;height:4px;margin:-2px;border-radius:50%;background:rgba(255,255,255,.35)}
+  #hurt{position:fixed;inset:0;pointer-events:none;z-index:7;opacity:0;background:radial-gradient(ellipse at center,rgba(200,0,0,.2),rgba(160,0,0,.8))}
+  .win{background:rgba(10,14,18,.94);border:1px solid #4a545c;padding:20px 24px;text-align:left;max-width:92vw;pointer-events:auto}
+  .tabs{display:flex;gap:6px;align-items:center;margin-bottom:14px;font-size:12px;color:var(--dim)}
+  .tabs button{background:#151c22;border:1px solid #3a4650;color:var(--ink);padding:6px 18px;cursor:pointer;font-family:inherit;font-size:14px}
+  .tabs button.on{background:#27384a;border-color:#6a8aa8}
+  .tabs kbd{border:1px solid #5a646c;padding:0 6px;margin:0 6px}
+  #invBody{display:flex;gap:18px;width:min(840px,88vw);min-height:320px}
+  #invList{flex:1.2;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;align-content:start}
+  #invList.docs{display:block}
+  .cell{aspect-ratio:1;background:#151c22;border:1px solid #2c3640;display:flex;align-items:center;justify-content:center;font-size:30px;position:relative;cursor:pointer}
+  .cell.sel{border-color:#6a8aa8;box-shadow:0 0 10px rgba(106,138,168,.5)}
+  .cell em{position:absolute;right:4px;bottom:2px;font-size:12px;font-style:normal}
+  .doc{padding:9px 12px;background:#151c22;border:1px solid #2c3640;margin-bottom:6px;cursor:pointer;font-size:14px}
+  .doc.sel{background:#27384a;border-color:#6a8aa8}
+  #invDetail{flex:1;border-left:1px solid #2c3640;padding-left:18px;font-size:14px;line-height:1.8;color:#b8b4a8}
+  #invDetail h3{color:var(--ink);font-size:20px;margin-bottom:8px}
+  #invDetail .paper{background:#cfc7a8;color:#2a2418;padding:14px;margin-top:8px;font-family:'Noto Serif KR','Batang',serif}
+  #invDetail button{display:block;width:100%;margin-top:8px;padding:9px;background:#1e2a36;border:1px solid #4a6078;color:var(--ink);cursor:pointer;font-family:inherit;font-size:14px}
+  #invDetail button:hover{background:#2c4058}
+  #mapWrap{width:min(900px,92vw)}
+  #bigMap{width:100%;aspect-ratio:900/520;background:#0a0e12;border:1px solid #2c3640;display:block}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-size:12px;color:var(--dim);margin-top:10px}
+  .menuBtns{display:flex;flex-direction:column;gap:10px;align-items:stretch;min-width:260px}
+  #helpBox{display:none;margin-top:16px}
+  #helpBox.show{display:grid}
   #vig{position:fixed;inset:0;pointer-events:none;z-index:4;
     background:radial-gradient(ellipse at center,rgba(0,0,0,0) 40%,rgba(0,0,0,.78) 100%)}
   #fear{position:fixed;inset:0;pointer-events:none;z-index:4;opacity:0;
@@ -60,28 +116,50 @@
 <div id="vig"></div><div id="fear"></div><div id="hide"></div><div id="fade"></div><div id="flash"></div>
 
 <div id="hud">
-  <div id="obj"><div class="t">목표</div><div id="objText">정문 열쇠 조각을 모아 학교를 탈출하라</div>
-    <div id="keys"><div class="key" title="교무실">🗝</div><div class="key" title="도서실">🗝</div><div class="key" title="과학실">🗝</div><div class="key" title="음악실">🗝</div></div></div>
-  <div id="floor">외부</div>
-  <div id="bars"><div>손전등 (F)</div><div class="bar" id="bat"><i></i></div><div>체력</div><div class="bar" id="sta"><i></i></div></div>
+  <div id="who" class="panel"><canvas id="portrait" width="64" height="64"></canvas>
+    <div class="bars"><div class="nm"><span>서연</span><span id="stat">정상</span></div>
+      <div class="row"><u>HP</u><div class="bar"><i id="hpBar"></i></div></div>
+      <div class="row"><u>ST</u><div class="bar"><i id="sta"></i></div></div>
+      <div class="row"><u>공포</u><div class="bar"><i id="fearBar" style="width:0"></i></div></div></div></div>
+  <div id="obj" class="panel"><div class="m"><span>!</span>메인 목표</div><div id="objText"></div><div class="subs" id="subs"></div></div>
+  <div id="mini"><canvas id="miniMap" width="150" height="150"></canvas><div id="floor">외부</div><div id="clock"></div></div>
+  <div id="toasts"></div>
+  <div id="hints"><div>이동 <kbd>WASD</kbd></div><div>달리기 <kbd>Shift</kbd></div><div>상호작용 <kbd>E</kbd></div><div>인벤토리 <kbd>Tab</kbd></div><div>지도 <kbd>M</kbd></div></div>
+  <div id="slots">
+    <div class="slot" id="s1"><small>1</small>🔦<div class="sb"><i id="batBar"></i></div></div>
+    <div class="slot" id="s2"><small>2</small>🔋<em id="c2">0</em></div>
+    <div class="slot" id="s3"><small>3</small>🩹<em id="c3">0</em></div>
+    <div class="slot" id="s4"><small>4</small>🗝<em id="c4">0</em></div>
+  </div>
+  <div id="dlg" class="panel"><canvas id="dlgFace" width="48" height="48"></canvas><div><b>서연</b><span id="dlgText"></span></div></div>
   <div id="cross"></div><div id="prompt"></div><div id="msg"></div>
 </div>
+<div id="hurt"></div>
+
+<div id="inv" class="overlay"><div class="win">
+  <div class="tabs"><kbd>Q</kbd><button data-tab="items">아이템</button><button data-tab="docs">문서</button><button data-tab="keys">열쇠</button><kbd>E</kbd><span style="margin-left:auto">Tab 닫기</span></div>
+  <div id="invBody"><div id="invList"></div><div id="invDetail"></div></div></div></div>
+<div id="mapOv" class="overlay"><div class="win" id="mapWrap">
+  <div class="tabs"><button data-f="3">RF (옥상)</button><button data-f="2">3F</button><button data-f="1">2F</button><button data-f="0">1F / 외부</button><span style="margin-left:auto">M 닫기</span></div>
+  <canvas id="bigMap" width="900" height="520"></canvas>
+  <div class="legend"><span>🔺 현재 위치</span><span style="color:#e04048">● 목표 위치</span><span style="color:#4cc07a">● 조사 완료</span><span style="color:#9a6ad8">■ 숨을 곳(사물함)</span><span>▭ 계단</span></div></div></div>
 
 <div id="menu" class="overlay show">
   <h1>폐교</h1>
   <div class="sub">다 시 ,  여 기 서</div>
-  <p class="story">십 년 전 문을 닫은 학교. 정문이 등 뒤에서 잠겼다.<br>열쇠는 네 조각으로 부서져 교무실, 도서실, 과학실, 음악실에 흩어져 있다.<br>불이 꺼진 복도에서 그것은 소리를 듣고 있다.</p>
-  <button class="btn" id="startBtn">입장하기</button>
-  <div class="help">
-    <span><b>W A S D</b></span><span>이동</span>
-    <span><b>마우스</b></span><span>시선</span>
+  <p class="story">십 년 전 문을 닫은 학교. 휴학 중인 대학생 <b>한서연</b>은 친구의 마지막 흔적을 찾아 이곳에 왔다.<br>정문이 등 뒤에서 잠겼다. 열쇠는 네 조각으로 부서져 학교 곳곳에 흩어져 있다.<br>불이 꺼진 복도에서 그것은 소리를 듣고 있다.</p>
+  <div class="menuBtns"><button class="btn" id="startBtn">새로 시작</button><button class="btn" id="loadBtn" style="display:none">이어하기</button><button class="btn" id="helpBtn">조작 방법</button></div>
+  <div class="help" id="helpBox">
+    <span><b>W A S D / 마우스</b></span><span>이동 / 시선</span>
     <span><b>Shift</b></span><span>달리기 (소리가 납니다)</span>
     <span><b>F</b></span><span>손전등 켜기/끄기</span>
-    <span><b>E</b></span><span>줍기 / 사물함에 숨기 / 계단 오르기</span>
+    <span><b>E</b></span><span>줍기 · 쪽지 · 사물함 · 계단 오르기 · 정문</span>
     <span><b>Q</b></span><span>계단 내려가기</span>
+    <span><b>1 / 2 / 3 / 4</b></span><span>손전등 / 건전지 / 응급 밴드 / 문서</span>
+    <span><b>Tab · M</b></span><span>인벤토리 · 지도 (Esc: 일시정지/저장)</span>
   </div>
 </div>
-<div id="pause" class="overlay"><h2>일시정지</h2><button class="btn" id="resumeBtn">계속하기</button></div>
+<div id="pause" class="overlay"><h2>일시정지</h2><div class="menuBtns"><button class="btn" id="resumeBtn">계속하기</button><button class="btn" id="saveBtn">저장하기</button><button class="btn" id="titleBtn">타이틀로 돌아가기</button></div></div>
 <div id="noteBox" class="overlay"><div id="note"></div><p class="sub" style="margin-top:24px">E 또는 클릭으로 닫기</p></div>
 <div id="dead" class="overlay"><h2 style="color:#b3262e">당신은 돌아오지 못했다</h2>
   <p class="story">칠판에 한 줄이 더 늘었다.<br>“다시, 여기서.”</p><button class="btn" id="retryBtn">다시 시도</button></div>

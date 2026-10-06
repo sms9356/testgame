@@ -16,6 +16,8 @@ export const LAYOUT = [
 ];
 export const GATE_Z = 70;
 export const KEY_NAMES = ['교무실', '도서실', '과학실', '음악실'];
+export const KEY_ROOMS = [{ f: 0, x: -8, z: -5.5 }, { f: 0, x: 32, z: -5.5 }, { f: 1, x: 32, z: -5.5 }, { f: 2, x: 32, z: -5.5 }];
+export const ROOF_Y = 12.4;
 
 const NOTES = {
   n1: { title: '3학년 1반 일기', text: '오늘도 아무도 오지 않았다.<br>선생님은 칠판에 같은 말만 쓰신다.<br><b>“다시, 여기서.”</b><br>나는 이 문장을 몇 번째 읽고 있는 걸까.' },
@@ -23,6 +25,7 @@ const NOTES = {
   n3: { title: '교무회의록', text: '폐교 결정. 마지막 졸업식은 열리지 않았다.<br>정문 열쇠는 사고를 막기 위해 <b>네 조각</b>으로 나누어 보관한다.<br>3층 음악실의 피아노는 절대 건드리지 말 것.' },
   n4: { title: '도서 대출 카드', text: '같은 이름이 수백 번 적혀 있다.<br>마지막 대출일은 <b>오늘</b>이다.<br>반납란은 비어 있다.' },
   n5: { title: '실험 노트', text: '불을 끄면 그녀가 온다.<br>빛이 있는 곳에는 쉽게 다가오지 못한다.<br>하지만 건전지는 영원하지 않다.<br>달리면 소리가 난다. 그녀는 <b>듣는다</b>.' },
+  n7: { title: '옥상 일지', text: '안테나는 오래전에 끊겼다.<br>방송실의 마지막 방송이 아직도 귓가에 남아 있다.<br><b>“모두 교실로 돌아가세요.”</b><br>아무도 대답하지 않았다. 아무도.' },
   n6: { title: '찢어진 쪽지', text: '사물함 안에 숨어. 문틈으로 보면 그녀가 지나가는 게 보여.<br>숨소리를 죽이면 그냥 지나칠 때도 있어.<br>…하지만 네가 숨는 걸 봤다면, 그땐 늦었어.' },
 };
 
@@ -143,6 +146,18 @@ export function buildWorld(scene) {
     g.position.set(x, y + .1, z); cur.interior.add(g);
     items.push({ kind: 'battery', floor: cur.f, pos: new THREE.Vector3(x, cur.y0 + y + .1, z), mesh: g, taken: false, label: '건전지 줍기', baseY: y + .1 });
   }
+  function addMedkit(x, y, z) {
+    const g = new THREE.Group();
+    g.add(new THREE.Mesh(new THREE.BoxGeometry(.3, .18, .1), mWhite));
+    const red = new THREE.MeshBasicMaterial({ color: 0xc02020 });
+    g.add(Object.assign(new THREE.Mesh(new THREE.BoxGeometry(.16, .05, .11), red)));
+    g.add(Object.assign(new THREE.Mesh(new THREE.BoxGeometry(.05, .14, .11), red)));
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTexR, blending: THREE.AdditiveBlending, depthWrite: false }));
+    sp.scale.set(.8, .8, .8); g.add(sp);
+    g.position.set(x, y + .12, z); cur.interior.add(g);
+    items.push({ kind: 'medkit', floor: cur.f, pos: new THREE.Vector3(x, cur.y0 + y + .12, z), mesh: g, taken: false, label: '응급 밴드 줍기', baseY: y + .12 });
+  }
+  const glowTexR = T.makeGlow('255,90,90');
   const glowTexY = T.makeGlow('255,200,90'), glowTexG = T.makeGlow('90,255,140');
   function addKey(id, idx, x, y, z) {
     const g = new THREE.Group();
@@ -237,7 +252,7 @@ export function buildWorld(scene) {
     add(mLocker, .9, 1.7, .4, cx + 3.6, 0, -6.5, { ry: Math.PI / 2, col: true }); add(mGlass, .9, 1.7, .44, cx + 3.6, 0, -6.5, { ry: Math.PI / 2 });
     add(mWood, 1.2, .75, .6, cx - 3.2, 0, -5.4, { col: true, ry: Math.PI / 2 });
     addNote('n2', cx - 3.2, .75, -5.4);
-    addBattery(cx + 2.4, .5, -8.4);
+    addBattery(cx + 2.4, .5, -8.4); addMedkit(cx + 2.4, .66, -7.6);
     papers(cx, -8, -2.4, 7);
   }
   function counsel(cx) {
@@ -439,6 +454,8 @@ export function buildWorld(scene) {
       const t = lay.types[i];
       ({ class: classroom, office, nurse, counsel, library, lab, computer, music, art, toilet, stair: stairRoom })[t](cx, lay.names[i]);
     });
+    if (f === 2) addMedkit(SLOTS[3] + 2.6, .77, -8.6);
+    if (f === 1) addMedkit(SLOTS[1] + 2.6, .77, -8.6);
     if (f === 0) addNote('n1', SLOTS[5] + 2.0, .77, -7.2, 0.3);
 
     // 조명 (형광등) — 복도 + 각 방
@@ -487,6 +504,54 @@ export function buildWorld(scene) {
     return F;
   }
   for (let f = 0; f < 3; f++) buildFloor(f);
+
+
+  /* ---------- 옥상 (floor 3) ---------- */
+  {
+    const R = { f: 3, y0: ROOF_Y, interior: new THREE.Group(), shell: new THREE.Group(), col: [], walls: [], lamps: [], nodes: [], edges: [], adj: [] };
+    R.interior.position.y = ROOF_Y; scene.add(R.interior); floors.push(R); cur = R;
+    const X0 = -36.3, X1 = 36.3, Z0 = -9.9, Z1 = 1.75;
+    flat(R.interior, mFloorTile, X0, X1, Z0, Z1, .01, 4);
+    const rw = (a, b, c, d, h) => { R.interior.add(boxMesh(a, b, 0, h, c, d, mWall)); col(a, b, c, d, true); };
+    rw(X0 - .3, X1 + .3, Z0 - .3, Z0, 1.15); rw(X0 - .3, X0, Z0, Z1 + .3, 1.15); rw(X1, X1 + .3, Z0, Z1 + .3, 1.15); rw(X0, X1, Z1, Z1 + .3, 1.15);
+    col(X0 - 2, X1 + 2, Z0 - 2, Z0 - .3); col(X0 - 2, X0 - .3, Z0, Z1 + 2); col(X1 + .3, X1 + 2, Z0, Z1 + 2); col(X0, X1, Z1 + .3, Z1 + 2);
+    // 철망 난간
+    const rails = [], post = new THREE.BoxGeometry(.04, 1.2, .04); post.translate(0, 1.75, 0);
+    for (let x = X0; x <= X1; x += 1.2) { rails.push(MX(x, 0, Z0 - .15), MX(x, 0, Z1 + .15)); }
+    for (let z = Z0; z <= Z1; z += 1.2) { rails.push(MX(X0 - .15, 0, z), MX(X1 + .15, 0, z)); }
+    inst(R.interior, post, mRust, rails);
+    add(mRust, X1 - X0, .05, .05, 0, 2.3, Z0 - .15); add(mRust, X1 - X0, .05, .05, 0, 2.3, Z1 + .15);
+    // 계단실(탑) 출입문
+    col(-5, 5, -4.5, 1.9, true);
+    plane(R.interior, mDoor, 1.3, 2.3, 0, 1.15, -4.52, Math.PI);
+    add(mWoodDark, 1.5, .15, .2, 0, 2.3, -4.6);
+    // 물탱크
+    const tank = new THREE.Mesh(new THREE.CylinderGeometry(1.4, 1.4, 2.2, 14), mRust); tank.position.set(-20, 2.2, -6); R.interior.add(tank);
+    [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([a, b]) => add(mMetal, .15, 1.1, .15, -20 + a * 1.1, 0, -6 + b * 1.1));
+    col(-21.6, -18.4, -7.6, -4.4);
+    // 안테나
+    add(mMetal, .16, 9, .16, 22, 0, -6, { col: true }); add(mMetal, 2.4, .08, .08, 22, 7.5, -6); add(mMetal, 1.8, .08, .08, 22, 8.4, -6); add(mMetal, .08, .08, 2.0, 22, 6.8, -6);
+    // 관리실(창고)
+    rw(26, 33, -9.4, -5.4, 2.7); plane(R.interior, mDoor, 1.2, 2.2, 29, 1.1, -5.38, 0);
+    add(mWall, 7.4, .3, 4.4, 29.5, 2.7, -7.4);
+    // 상자/에어컨 실외기
+    [[-14, -3], [8, -8], [-30, -6]].forEach(([x, z]) => add(mWood, 1, .8, 1, x, 0, z, { col: true, ry: rnd() }));
+    [[14, -8], [-8, -8.4]].forEach(([x, z]) => add(mMetal, 1.2, 1, .8, x, 0, z, { col: true }));
+    addNote('n7', -14, .82, -3);
+    addBattery(-20, 0, -3.6); addMedkit(-30, .82, -6);
+    papers(0, -9, 1, 14, 34);
+    // 유령 경로 노드
+    const nid = (x, z) => { R.nodes.push({ x, z }); return R.nodes.length - 1; };
+    const A = [], B = {};
+    for (let x = -30; x <= 30; x += 6) A.push(nid(x, -7));
+    for (let i = 0; i < A.length - 1; i++) R.edges.push([A[i], A[i + 1]]);
+    let prevB = null;
+    for (let x = -30; x <= 30; x += 6) { if (Math.abs(x) >= 12) { B[x] = nid(x, 0); } }
+    const bx2 = Object.keys(B).map(Number).sort((a, b) => a - b);
+    for (let i = 0; i < bx2.length - 1; i++) if (Math.abs(bx2[i + 1] - bx2[i]) === 6) R.edges.push([B[bx2[i]], B[bx2[i + 1]]]);
+    [-12, 12].forEach(x => R.edges.push([A[(x + 30) / 6], B[x]]));
+    R.adj = R.nodes.map(() => []); R.edges.forEach(([p, q]) => { R.adj[p].push(q); R.adj[q].push(p); });
+  }
 
   /* ---------- 야외 ---------- */
   cur = floors[0];

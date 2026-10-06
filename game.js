@@ -298,7 +298,7 @@ function renderInv() {
   } else {
     KEY_NAMES.forEach((n, i) => { const c = document.createElement('div'); c.className = 'doc' + (i === invSel ? ' sel' : ''); c.style.opacity = got[i] ? 1 : .45; c.textContent = `🗝 ${n} 열쇠 조각 — ${got[i] ? '획득' : '미획득'}`; c.onclick = () => { invSel = i; renderInv(); }; list.appendChild(c); });
     invSel = Math.min(invSel, TOTAL - 1);
-    det.innerHTML = `<h3>정문 열쇠 (${P.keys}/${TOTAL})</h3>사고를 막기 위해 일곱 조각으로 나뉜 정문 열쇠.<br>${KEY_NAMES[invSel]}에서 찾을 수 있다.<br><br>${got[invSel] ? '✔ 이미 획득했다.' : '아직 찾지 못했다. 지도에 목표 위치가 표시되어 있다.'}`;
+    det.innerHTML = `<h3>정문 열쇠 (${P.keys}/${TOTAL})</h3>사고를 막기 위해 다섯 조각으로 나뉜 정문 열쇠.<br>${KEY_NAMES[invSel]}에서 찾을 수 있다.<br><br>${got[invSel] ? '✔ 이미 획득했다.' : '아직 찾지 못했다. 지도에 목표 위치가 표시되어 있다.'}`;
   }
 }
 function openUI(kind) { if (state !== 'playing') return; uiPrev = state; state = 'ui'; for (const k in keys) keys[k] = false; $('prompt').style.display = 'none'; $(kind).classList.add('show'); document.exitPointerLock?.(); }
@@ -309,7 +309,7 @@ function mapPins(f) { return KEY_ROOMS.map((r, i) => ({ ...r, i })).filter(r => 
 function renderMap() {
   document.querySelectorAll('#mapOv .tabs button').forEach(b => b.classList.toggle('on', +b.dataset.f === mapFloor));
   const c = $('bigMap'), ctx = c.getContext('2d');
-  const V = { 0: [0, 22, 5.2], 5: [38, 19, 22], 6: [-41, 38, 19], 7: [-39, 15, 24] }[mapFloor] || [0, -4, 11];
+  const V = { 0: [0, 22, 5.2], 5: [38, 19, 22], 6: [-41, 38, 19], 7: [-39, 15, 24], 8: [0, -4, 21], 9: [0, -4, 21], 10: [0, -4, 21] }[mapFloor] || [0, -4, 11];
   drawMap(ctx, c.width, c.height, { floor: mapFloor, cx: V[0], cz: V[1], scale: V[2], labels: true, pins: mapPins(mapFloor), lockers: world.lockers.filter(l => l.floor === mapFloor), player: P.floor === mapFloor ? { x: P.x, z: P.z, yaw: P.yaw } : null });
 }
 document.querySelectorAll('#inv .tabs button').forEach(b => b.onclick = () => { invTab = b.dataset.tab; invSel = 0; renderInv(); });
@@ -366,7 +366,7 @@ function findInteract() {
   }
   if (!best) {
     const si = STAIRS[P.floor];
-    const inStair = !si ? false : P.floor === 3 ? (Math.abs(P.x) < 4.5 && P.z < -5.2 && P.z > -9.5) : (P.x > -1 && P.x < 4 && P.z > -9.3 && P.z < -2);
+    const inStair = !si ? false : P.floor === 3 ? (Math.abs(P.x) < 4.5 && P.z < -5.2 && P.z > -9.5) : (() => { const z = floors[P.floor].stairZone || { x1: -1, x2: 4, z1: -9.3, z2: -2 }; return P.x > z.x1 && P.x < z.x2 && P.z > z.z1 && P.z < z.z2; })();
     const dr = world.doors.find(d => d.floor === P.floor && Math.hypot(d.x - P.x, d.z - P.z) < d.r);
     if (inStair) {
       const up = si.up != null, down = si.down != null;
@@ -396,6 +396,10 @@ function interact() {
   else if (target.type === 'stairs') changeFloor(1);
   else if (target.type === 'door') {
     const d = target.d;
+    if (d.win) {
+      if (P.keys < TOTAL) { sfx.click(); say(d.locked, 2800); return; }
+      escaped = true; sfx.gateOpen(); say('쇠사슬이 힘없이 끊어졌다…', 3000); winGame(); return;
+    }
     if (d.locked) { sfx.click(); say(d.locked, 2600); return; }
     if (d.need && P.keys < d.need) { sfx.click(); say(`굳게 잠겨 있다. 열쇠 조각이 더 필요하다 (${P.keys}/${TOTAL})`, 2600); return; }
     teleport(d.to);
@@ -416,7 +420,7 @@ function enrage() {
   ghost.active = true; ghost.enraged = true; blackout = 3.2;
   setTimeout(() => { ghostRelocate(); ghost.floor = P.floor; sfx.screech(); toast('목표가 갱신되었습니다', '정문으로 달려가라!', 'warn'); talk('그게… 깨어났어. 정문으로 뛰어!', 4000); }, 2600);
 }
-const STAIRS = { 0: { up: 1, down: 4 }, 1: { up: 2, down: 0 }, 2: { up: 3, down: 1 }, 3: { down: 2 }, 4: { up: 0 } };
+const STAIRS = { 0: { up: 1, down: 4 }, 1: { up: 2, down: 0 }, 2: { up: 3, down: 1 }, 3: { down: 2 }, 4: { up: 0 }, 8: { up: 9 }, 9: { up: 10, down: 8 }, 10: { down: 9 } };
 function teleport(to) {
   if (state !== 'playing') return;
   state = 'trans'; $('fade').style.opacity = 1; sfx.stairs();
@@ -432,12 +436,15 @@ function teleport(to) {
 }
 function changeFloor(dir) {
   const info = STAIRS[P.floor]; const nf = info && (dir > 0 ? info.up : info.down); if (nf == null) return;
-  teleport(nf === 3 ? { floor: 3, x: 0, z: -7.5, yaw: 0 } : { floor: nf, x: 2.2, z: -5.2, yaw: Math.PI });
+  const sz = floors[nf].stairZone; teleport(nf === 3 ? { floor: 3, x: 0, z: -7.5, yaw: 0 } : { floor: nf, x: sz ? sz.spawn.x : 2.2, z: sz ? sz.spawn.z : -5.2, yaw: Math.PI });
 }
 function openGate() {
   if (P.keys < TOTAL) { sfx.click(); say(`자물쇠가 굳게 잠겨 있다. 열쇠 조각이 더 필요하다 (${P.keys}/${TOTAL})`, 2800); return; }
   escaped = true; gateState = 'opening'; sfx.gateOpen(); say('열쇠가 맞물렸다…', 3000);
   gate.blockRect.x1 = 1e9; gate.blockRect.x2 = 1e9 + 1;
+  winGame();
+}
+function winGame() {
   setTimeout(() => { state = 'won'; sfx.win(); $('winText').innerHTML = `당신은 폐교를 빠져나왔다.<br>뒤돌아보지 마라.<br><br>소요 시간 ${Math.floor(playTime / 60)}분 ${Math.floor(playTime % 60)}초`; $('win').classList.add('show'); document.exitPointerLock?.(); }, 3600);
 }
 const gate = world.gate;

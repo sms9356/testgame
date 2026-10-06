@@ -1,7 +1,7 @@
 // 미니맵 / 전체 지도 렌더러
 import { SLOTS, LAYOUT, GATE_Z } from './world.js';
 
-const COL = { broadcast: '#4a2a2a', boiler: '#4a3a2a', electric: '#4a4a2a', storage: '#3a3a30', records: '#3a4030', cleaning: '#2f3f4a', generator: '#4a2f2f', pump: '#2a3f4a', exit: '#5a2a2a', class: '#27384a', office: '#4a3a28', nurse: '#2f4a46', counsel: '#3f3a4f', library: '#3a4a2c', lab: '#2c4a3a', computer: '#2c3f55', music: '#4a2f3a', art: '#4a432c', toilet: '#38334d', stair: '#5a5a58' };
+const COL = { cooking: '#3a4a4a', craft: '#4a3f2f', broadcast: '#4a2a2a', boiler: '#4a3a2a', electric: '#4a4a2a', storage: '#3a3a30', records: '#3a4030', cleaning: '#2f3f4a', generator: '#4a2f2f', pump: '#2a3f4a', exit: '#5a2a2a', class: '#27384a', office: '#4a3a28', nurse: '#2f4a46', counsel: '#3f3a4f', library: '#3a4a2c', lab: '#2c4a3a', computer: '#2c3f55', music: '#4a2f3a', art: '#4a432c', toilet: '#38334d', stair: '#5a5a58' };
 
 export function drawMap(ctx, W, H, o) {
   const { floor, cx, cz, scale: S, player, pins = [], lockers = [], labels = false, taken = [] } = o;
@@ -27,6 +27,10 @@ export function drawMap(ctx, W, H, o) {
     fillRect(28, 8, 48, 30, '#4a3a28'); fillRect(29, 8.3, 47, 12.3, '#6a2a30'); fillRect(43.2, 14, 47.7, 26, '#2a3a5a'); fillRect(28.3, 18.5, 29.8, 21.5, '#6a5a3a');
     strokeRect(28, 8, 48, 30, '#8a8a80', 2);
     if (labels) { ctx.fillStyle = '#e8e0c8'; ctx.font = '13px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('무대', X(38), Y(10.6)); ctx.fillText('농구 코트', X(37), Y(20)); ctx.fillText('관람석', X(45.5), Y(20)); ctx.fillText('기록석', X(29.8), Y(17.8)); ctx.fillText('출입문', X(38), Y(29.3)); }
+  } else if (floor === 7) {
+    fillRect(-48, 8, -30, 22, '#3a4038'); fillRect(-46.5, 12.5, -34, 13.4, '#6a6a60'); fillRect(-46.5, 9, -39.5, 11, '#4a4a48'); fillRect(-45, 15.5, -33.3, 16.5, '#6a5a3a'); fillRect(-45, 18.7, -33.3, 19.7, '#6a5a3a');
+    strokeRect(-48, 8, -30, 22, '#8a8a80', 2);
+    if (labels) { ctx.fillStyle = '#e8e8d8'; ctx.font = '13px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('조리실', X(-43), Y(9.6)); ctx.fillText('배식대', X(-38), Y(12.6)); ctx.fillText('식당 홀', X(-39), Y(17.6)); ctx.fillText('창고', X(-32), Y(9.4)); ctx.fillText('출입문', X(-39), Y(21.6)); }
   } else if (floor === 6) {
     fillRect(-48, 26, -34, 50, '#3a4048'); fillRect(-45.6, 30.5, -37.4, 45.5, '#2a6a86'); strokeRect(-48, 26, -34, 50, '#8a8a80', 2);
     fillRect(-46.6, 26.3, -42.6, 27.1, '#5a6a7a');

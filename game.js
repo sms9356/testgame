@@ -298,7 +298,7 @@ function renderInv() {
   } else {
     KEY_NAMES.forEach((n, i) => { const c = document.createElement('div'); c.className = 'doc' + (i === invSel ? ' sel' : ''); c.style.opacity = got[i] ? 1 : .45; c.textContent = `🗝 ${n} 열쇠 조각 — ${got[i] ? '획득' : '미획득'}`; c.onclick = () => { invSel = i; renderInv(); }; list.appendChild(c); });
     invSel = Math.min(invSel, TOTAL - 1);
-    det.innerHTML = `<h3>정문 열쇠 (${P.keys}/${TOTAL})</h3>사고를 막기 위해 여섯 조각으로 나뉜 정문 열쇠.<br>${KEY_NAMES[invSel]}에서 찾을 수 있다.<br><br>${got[invSel] ? '✔ 이미 획득했다.' : '아직 찾지 못했다. 지도에 목표 위치가 표시되어 있다.'}`;
+    det.innerHTML = `<h3>정문 열쇠 (${P.keys}/${TOTAL})</h3>사고를 막기 위해 일곱 조각으로 나뉜 정문 열쇠.<br>${KEY_NAMES[invSel]}에서 찾을 수 있다.<br><br>${got[invSel] ? '✔ 이미 획득했다.' : '아직 찾지 못했다. 지도에 목표 위치가 표시되어 있다.'}`;
   }
 }
 function openUI(kind) { if (state !== 'playing') return; uiPrev = state; state = 'ui'; for (const k in keys) keys[k] = false; $('prompt').style.display = 'none'; $(kind).classList.add('show'); document.exitPointerLock?.(); }
@@ -309,7 +309,7 @@ function mapPins(f) { return KEY_ROOMS.map((r, i) => ({ ...r, i })).filter(r => 
 function renderMap() {
   document.querySelectorAll('#mapOv .tabs button').forEach(b => b.classList.toggle('on', +b.dataset.f === mapFloor));
   const c = $('bigMap'), ctx = c.getContext('2d');
-  const V = { 0: [0, 22, 5.2], 5: [38, 19, 22], 6: [-41, 38, 19] }[mapFloor] || [0, -4, 11];
+  const V = { 0: [0, 22, 5.2], 5: [38, 19, 22], 6: [-41, 38, 19], 7: [-39, 15, 24] }[mapFloor] || [0, -4, 11];
   drawMap(ctx, c.width, c.height, { floor: mapFloor, cx: V[0], cz: V[1], scale: V[2], labels: true, pins: mapPins(mapFloor), lockers: world.lockers.filter(l => l.floor === mapFloor), player: P.floor === mapFloor ? { x: P.x, z: P.z, yaw: P.yaw } : null });
 }
 document.querySelectorAll('#inv .tabs button').forEach(b => b.onclick = () => { invTab = b.dataset.tab; invSel = 0; renderInv(); });
@@ -396,6 +396,7 @@ function interact() {
   else if (target.type === 'stairs') changeFloor(1);
   else if (target.type === 'door') {
     const d = target.d;
+    if (d.locked) { sfx.click(); say(d.locked, 2600); return; }
     if (d.need && P.keys < d.need) { sfx.click(); say(`굳게 잠겨 있다. 열쇠 조각이 더 필요하다 (${P.keys}/${TOTAL})`, 2600); return; }
     teleport(d.to);
   }
@@ -424,6 +425,7 @@ function teleport(to) {
     if (to.floor === 3 && !P.roofSeen) { P.roofSeen = true; refreshHud(); toast('목표 달성', '옥상 조사하기', 'info'); setTimeout(() => talk('바람 소리뿐이야… 여기도 누군가 있었어.', 3200), 600); }
     if (to.floor === 4 && !P.b1Seen) { P.b1Seen = true; setTimeout(() => talk('지하…? 이런 곳이 있었다니.', 3000), 600); }
     if (to.floor === 5 && !P.gymSeen) { P.gymSeen = true; setTimeout(() => talk('불 꺼진 체육관… 누가 박수를 치고 있어.', 3400), 600); }
+    if (to.floor === 7 && !P.cafeSeen) { P.cafeSeen = true; setTimeout(() => talk('식판이 그대로야… 방금까지 누가 있었던 것처럼.', 3400), 600); }
     if (to.floor === 6 && !P.poolSeen) { P.poolSeen = true; setTimeout(() => talk('물이 없는데… 물소리가 들려.', 3400), 600); }
     $('fade').style.opacity = 0; state = 'playing';
   }, 700);

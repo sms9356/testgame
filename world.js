@@ -9,26 +9,27 @@ export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
 export const LAYOUT = [
   { types: ['toilet', 'nurse', 'counsel', 'office', 'stair', 'class', 'class', 'class', 'library'],
     names: ['화장실', '보건실', '상담실', '교무실', '중앙계단', '1-1', '1-2', '1-3', '도서실'] },
-  { types: ['toilet', 'class', 'class', 'class', 'stair', 'class', 'class', 'computer', 'lab'],
-    names: ['화장실', '2-1', '2-2', '2-3', '중앙계단', '2-4', '2-5', '컴퓨터실', '과학실'] },
-  { types: ['toilet', 'broadcast', 'class', 'class', 'stair', 'class', 'class', 'art', 'music'],
-    names: ['화장실', '방송실', '3-2', '3-3', '중앙계단', '3-4', '3-5', '미술실', '음악실'] },
+  { types: ['toilet', 'class', 'cooking', 'class', 'stair', 'class', 'class', 'computer', 'lab'],
+    names: ['화장실', '2-1', '요리실', '2-3', '중앙계단', '2-4', '2-5', '컴퓨터실', '과학실'] },
+  { types: ['toilet', 'broadcast', 'craft', 'class', 'stair', 'class', 'class', 'art', 'music'],
+    names: ['화장실', '방송실', '공예실', '3-3', '중앙계단', '3-4', '3-5', '미술실', '음악실'] },
   null,
   { types: ['exit', 'boiler', 'electric', 'storage', 'stair', 'records', 'cleaning', 'generator', 'pump'],
     names: ['비상 통로', '보일러실', '전기실', '창고', '계단', '기록실', '청소도구실', '발전실', '펌프실'] },
 ];
 export const GATE_Z = 70;
-export const KEY_NAMES = ['교무실', '도서실', '과학실', '음악실', '체육관', '수영장'];
-export const KEY_ROOMS = [{ f: 0, x: -8, z: -5.5 }, { f: 0, x: 32, z: -5.5 }, { f: 1, x: 32, z: -5.5 }, { f: 2, x: 32, z: -5.5 }, { f: 5, x: 29.5, z: 20.5 }, { f: 6, x: -35.8, z: 44 }];
-export const AREA_NAMES = { 0: '1F', 1: '2F', 2: '3F', 3: 'RF', 4: 'B1', 5: '체육관', 6: '수영장' };
+export const KEY_NAMES = ['교무실', '도서실', '과학실', '음악실', '체육관', '수영장', '급식실'];
+export const KEY_ROOMS = [{ f: 0, x: -8, z: -5.5 }, { f: 0, x: 32, z: -5.5 }, { f: 1, x: 32, z: -5.5 }, { f: 2, x: 32, z: -5.5 }, { f: 5, x: 29.5, z: 20.5 }, { f: 6, x: -35.8, z: 44 }, { f: 7, x: -34.5, z: 12.9 }];
+export const AREA_NAMES = { 0: '1F', 1: '2F', 2: '3F', 3: 'RF', 4: 'B1', 5: '체육관', 6: '수영장', 7: '급식실' };
 export const ROOF_Y = 12.4;
 
 const NOTES = {
   n1: { title: '3학년 1반 일기', text: '오늘도 아무도 오지 않았다.<br>선생님은 칠판에 같은 말만 쓰신다.<br><b>“다시, 여기서.”</b><br>나는 이 문장을 몇 번째 읽고 있는 걸까.' },
   n2: { title: '보건 일지', text: '복도에서 쓰러진 여학생이 실려 옴.<br>그런데 아무도 이 아이의 이름을 기억하지 못한다.<br>출석부에도, 졸업앨범에도 없다.<br>아이는 불을 끄지 말라고 했다.' },
-  n3: { title: '교무회의록', text: '폐교 결정. 마지막 졸업식은 열리지 않았다.<br>정문 열쇠는 사고를 막기 위해 <b>여섯 조각</b>으로 나누어 보관한다.<br>3층 음악실의 피아노는 절대 건드리지 말 것.' },
+  n3: { title: '교무회의록', text: '폐교 결정. 마지막 졸업식은 열리지 않았다.<br>정문 열쇠는 사고를 막기 위해 <b>일곱 조각</b>으로 나누어 보관한다.<br>3층 음악실의 피아노는 절대 건드리지 말 것.' },
   n4: { title: '도서 대출 카드', text: '같은 이름이 수백 번 적혀 있다.<br>마지막 대출일은 <b>오늘</b>이다.<br>반납란은 비어 있다.' },
   n5: { title: '실험 노트', text: '불을 끄면 그녀가 온다.<br>빛이 있는 곳에는 쉽게 다가오지 못한다.<br>하지만 건전지는 영원하지 않다.<br>달리면 소리가 난다. 그녀는 <b>듣는다</b>.' },
+  n13: { title: '급식 일지', text: '오늘의 급식: 아무도 먹지 않았다.<br>식판은 매일 같은 자리에 놓여 있다. 한 명분이 모자란 채로.<br>배식대 끝에 <b>열쇠</b>를 두고 간 사람이 있다.' },
   n8: { title: '방송 대본', text: '“교내 방송입니다. 모두 교실로 돌아가세요.”<br>마지막 방송 뒤, 스피커에서 계속 숨소리가 들렸다.<br>마이크는 꺼져 있었는데도.' },
   n9: { title: '체육 일지', text: '졸업식 예행연습 중 무대 커튼 뒤에서 누군가 박수를 쳤다.<br>관람석은 비어 있었다.<br>그날 이후 체육관 불은 켜지지 않는다.' },
   n10: { title: '수영장 안전 일지', text: '물을 뺀 뒤에도 레인 쪽에서 물소리가 난다.<br>감시대 위에 앉아 있던 아이는 아무도 구하지 못했다.<br>펌프실 문은 지하로 이어져 있다.' },
@@ -403,6 +404,11 @@ export function buildWorld(scene) {
     add(mGlass, .05, 1.6, 3, cx - 2.3, .9, -5, { col: true }); add(mWoodDark, .08, 2.5, .08, cx - 2.3, 0, -6.5); add(mWoodDark, .08, 2.5, .08, cx - 2.3, 0, -3.5);
     add(mBlack, .5, .06, .5, cx + .2, .5, -6.9); add(mBlack, .5, .6, .06, cx + .2, .5, -6.65);
     add(mBlack, .04, .3, .04, cx + .8, .92, -7.7);
+    // 녹음 부스(흡음재) / 크로마키 / 카메라 삼각대
+    const foam = S(null, { color: 0x1c1c20, roughness: 1 });
+    plane(cur.interior, foam, 3.0, 2.0, cx - 3.84, 1.3, -5, Math.PI / 2); plane(cur.interior, new THREE.MeshBasicMaterial({ color: 0x14683a }), 3, 2.2, cx - 3.84, 1.3, -8.2, Math.PI / 2);
+    add(mBlack, .04, 1.5, .04, cx - 3.2, 0, -5.5); add(mBlack, .3, .02, .3, cx - 3.2, 1.5, -5.5);
+    [[cx + 2.6, -4.2], [cx - .8, -4.4]].forEach(([x, z]) => { add(mBlack, .05, 1.4, .05, x, 0, z); add(mBlack, .3, .25, .4, x, 1.4, z); });
     addNote('n8', cx + 1.8, .8, -7.6);
     addBattery(cx - 3.2, 0, -3.0);
     papers(cx, -8, -2.4, 10);
@@ -540,7 +546,7 @@ export function buildWorld(scene) {
     // 방별 가구
     SLOTS.forEach((cx, i) => {
       const t = lay.types[i];
-      ({ class: classroom, office, nurse, counsel, library, lab, computer, music, art, toilet, stair: stairRoom, broadcast, boiler, electric, storage, records, cleaning, generator, pump, exit: exitRoom })[t](cx, lay.names[i]);
+      ({ class: classroom, office, nurse, counsel, library, lab, computer, music, art, toilet, stair: stairRoom, cooking, craft, broadcast, boiler, electric, storage, records, cleaning, generator, pump, exit: exitRoom })[t](cx, lay.names[i]);
     });
     if (f === 2) addMedkit(SLOTS[3] + 2.6, .77, -8.6);
     if (f === 1) addMedkit(SLOTS[1] + 2.6, .77, -8.6);
@@ -639,6 +645,65 @@ export function buildWorld(scene) {
     for (let i = 0; i < bx2.length - 1; i++) if (Math.abs(bx2[i + 1] - bx2[i]) === 6) R.edges.push([B[bx2[i]], B[bx2[i + 1]]]);
     [-12, 12].forEach(x => R.edges.push([A[(x + 30) / 6], B[x]]));
     R.adj = R.nodes.map(() => []); R.edges.forEach(([p, q]) => { R.adj[p].push(q); R.adj[q].push(p); });
+  }
+
+  /* ---------- 급식실 (7) ---------- */
+  function cooking(cx) {
+    const zN = -9.6;
+    [-2.4, 0.2, 2.8].forEach(dx => { add(mMetal, 2.2, .9, .8, cx + dx, 0, zN + .5, { col: true }); add(mBlack, .6, .06, .5, cx + dx - .4, .9, zN + .5); });
+    add(mMetal, 3.6, .5, 1.0, cx, 2.9, zN + .5);
+    add(mMetal, 2.6, .9, 1.2, cx, 0, -6.2, { col: true }); [-.7, .7].forEach(dx => cyl(mMetal, .3, .4, cx + dx, .9, -6.2));
+    add(mMetal, .9, 1.8, .7, cx + 3.4, 0, -3.8, { col: true });
+    plane(cur.interior, mWin, 1.3, 1.45, cx - 3.05, 1.75, zN + .02);
+    addBattery(cx - 3, 0, -3.4); papers(cx, -8, -2.4, 6);
+  }
+  function craft(cx) {
+    const zN = -9.6;
+    [-2.2, 2.2].forEach(dx => [-7.2, -4.6].forEach(z => add(mWood, 2.2, .85, 1.0, cx + dx, 0, z, { col: true })));
+    add(mWoodDark, 3.6, 2.0, .45, cx, 0, zN + .3, { col: true }); plane(cur.interior, mBooks, 3.4, 1.8, cx, 1.0, zN + .54);
+    [-3.2, 3.2].forEach(dx => { add(mWoodDark, .08, 1.7, .08, cx + dx, 0, -3.2); add(mWhite, .7, .8, .04, cx + dx, .8, -3.2); });
+    papers(cx, -8, -2.4, 10);
+  }
+  function buildCafeteria() {
+    const F = areaFloor(7, 140), x0 = -48, x1 = -30, z0 = 8, z1 = 22, H = 4.5, t = .3;
+    flat(F.interior, mFloorTile, x0, x1, z0, z1, .01, 3);
+    flat(F.interior, mCeil, x0, x1, z0, z1, H - .1, 4, false);
+    awall(x0, x0 + t, z0, z1, H); awall(x1 - t, x1, z0, z1, H); awall(x0, x1, z0, z0 + t, H);
+    awall(x0, -40, z1 - t, z1, H); awall(-38, x1, z1 - t, z1, H); awall(-40, -38, z1 - t, z1, H, 2.6);
+    [-40, -38].forEach(x => add(mWoodDark, .12, 2.6, .4, x, 0, z1 - .15));
+    plane(F.interior, new THREE.MeshBasicMaterial({ map: T.makeSign('비상구', '#0a3a1a', '#7dffa0', 30) }), 1.4, .35, -39, 3.0, z1 - t - .02, Math.PI);
+    [11, 15, 19].forEach(z => plane(F.interior, mWin, 2.4, 1.6, x0 + t + .02, 2.4, z, Math.PI / 2));
+    [-45, -34].forEach(x => plane(F.interior, mWin, 3, 1.6, x, 2.4, z1 - t - .02, Math.PI));
+    // 배식대 + 조리실
+    add(mMetal, 12, .9, .9, -40.2, 0, 12.9, { col: true }); add(mGlass, 12, .35, .6, -40.2, .9, 12.9);
+    for (let k = 0; k < 8; k++) add(mMetal, .3, .04, .25, -45.5 + k * 1.4, .95, 13.3);
+    plane(F.interior, new THREE.MeshBasicMaterial({ map: T.makeSign('골고루 먹고 건강하게!', '#2a3a2a', '#d0e0c0', 24), color: 0xaab0a0 }), 3.2, .8, -41, 2.8, z0 + t + .02);
+    add(mMetal, 3, .9, 1, -45, 0, 10, { col: true }); add(mMetal, 2.4, .9, 1, -41, 0, 10, { col: true }); add(mMetal, 2.6, .5, 1.2, -41, 3.0, 10);
+    cyl(mMetal, .35, .45, -45, .9, 10); cyl(mMetal, .3, .4, -41.5, .9, 10); add(mMetal, 1.2, 1.3, 1.0, -46.9, 0, 11.6, { col: true });
+    add(mMetal, .5, 2, 3, -30.75, 0, 10.2, { col: true }); add(mWood, .8, .6, .8, -32.5, 0, 9.2, { col: true }); add(mWood, .8, .6, .8, -32.4, .6, 9.2);
+    add(mMetal, .8, 1.1, .6, -30.8, 0, 17, { col: true });
+    addMedkit(-41, .9, 10.4);
+    // 식당 홀
+    const tabs = [[-43.5, 16], [-39.2, 16], [-34.9, 16], [-43.5, 19.2], [-34.9, 19.2]];
+    const stO = [], stG = [];
+    tabs.forEach(([x, z], i) => {
+      add(mWood, 3.2, .06, .9, x, .72, z); [-1.5, 1.5].forEach(dx => add(mMetal, .06, .72, .8, x + dx, 0, z)); col(x - 1.6, x + 1.6, z - .45, z + .45);
+      for (let k = 0; k < 3; k++) [-.7, .7].forEach(dz => { if (rnd() < .2) return; (((k + (dz > 0 ? 1 : 0)) % 2) ? stO : stG).push(MX(x - 1 + k * 1.0 + rr(-.05, .05), 0, z + dz + rr(-.05, .05))); });
+    });
+    const stool = new THREE.CylinderGeometry(.17, .17, .45, 10); stool.translate(0, .225, 0);
+    inst(F.interior, stool, S(null, { color: 0xc86a20, roughness: .6 }), stO); inst(F.interior, stool, S(null, { color: 0x6a8a2a, roughness: .6 }), stG);
+    addKey('cafeteria', 6, -34.5, .95, 12.9); addNote('n13', -39.2, .76, 16);
+    addBattery(-34.9, .72, 19.2);
+    for (let k = 0; k < 8; k++) { const m = new THREE.Mesh(new THREE.PlaneGeometry(.28, .2), mDirtPaper); m.rotation.set(-Math.PI / 2, 0, rnd() * 6); m.position.set(rr(-46, -32), .02, rr(14, 21)); F.interior.add(m); }
+    add(mLocker, .62, 1.85, .55, -31.3, 0, 8.6 + .28 + 1.3, { col: true }); add(mLocker, .62, 1.85, .55, -31.3 - .66, 0, 8.6 + .28 + 1.3, { col: true });
+    lockers.push({ floor: 7, x: -31.3, z: 10.18, y: 140, dir: { x: 0, z: 1 } });
+    [-44, -39, -34].forEach(x => [10, 15, 20].forEach(z => areaLamp(x, z, H - .6)));
+    [[-43, 14.6], [-39, 14.6], [-35, 14.6], [-43, 20.4], [-35, 20.4], [-39, 20.6], [-32, 13], [-32, 10.5], [-39.5, 11.6]].forEach(([x, z]) => F.nodes.push({ x, z }));
+    F.entrance = 5;
+    [[0, 1], [1, 2], [0, 3], [2, 4], [1, 5], [3, 5], [4, 5], [2, 6], [6, 7], [7, 8]].forEach(e => F.edges.push(e));
+    F.spawns = [{ x: -43, z: 14.6 }, { x: -32, z: 10.5 }, { x: -43, z: 20.4 }];
+    finishGraph(F);
+    doors.push({ floor: 7, x: -39, z: 21.2, r: 1.8, label: '급식실 나가기', to: { floor: 0, x: -39, z: 23.6, yaw: Math.PI } });
   }
 
   /* ---------- 독립 공간: 체육관(5) / 수영장(6) ---------- */
@@ -746,6 +811,9 @@ export function buildWorld(scene) {
     // 락커(탈의실)
     for (let k = 0; k < 6; k++) add(mLocker, .62, 1.85, .55, -46.6 + k * .66, 0, z0 + t + .28, { col: true });
     lockers.push({ floor: 6, x: -46.6 + 2 * .66, z: z0 + t + .28, y: 100, dir: { x: 0, z: 1 } });
+    // 샤워 부스 칸막이 + 벤치
+    for (let k = 0; k < 5; k++) add(mMetal, .05, 1.9, 1.3, -41.5 + k * 1.1, 0, z0 + t + .65, { col: true });
+    add(mWood, 2.0, .45, .4, -44.2, 0, 29.4, { col: true });
     // 샤워기/표지판/구명환
     [-41, -40, -39, -38].forEach(x => { add(mMetal, .04, 2.2, .04, x, 0, z0 + t + .1); add(mMetal, .16, .04, .04, x + .04, 2.1, z0 + t + .1); });
     plane(F.interior, mSafety, 1.6, .8, x0 + t + .03, 2.4, 38, Math.PI / 2); plane(F.interior, mSafety, 1.6, .8, -34.3 - 1.6, 2.4, z0 + t + .02);
@@ -766,6 +834,7 @@ export function buildWorld(scene) {
   buildFloor(4, { y0: -30, lay: LAYOUT[4], basement: true });
   buildGym();
   buildPool();
+  buildCafeteria();
 
   /* ---------- 야외 ---------- */
   cur = floors[0];
@@ -788,7 +857,15 @@ export function buildWorld(scene) {
   const fenceH = 2.8;
   outWall(-50, -4.5, GATE_Z - .25, GATE_Z + .25, fenceH, mFence);
   outWall(4.5, 50, GATE_Z - .25, GATE_Z + .25, fenceH, mFence);
-  outWall(-50.25, -49.75, -26, GATE_Z, fenceH, mFence);
+  outWall(-50.25, -49.75, -26, 28.5, fenceH, mFence); outWall(-50.25, -49.75, 35.5, GATE_Z, fenceH, mFence);
+  const brick = S(T.makeWall(), { color: 0xb07a60 });
+  [28.5, 35.5].forEach(z => { OUT.add(boxMesh(-50.6, -49.4, 0, 3.2, z - .6, z + .6, brick)); col(-50.6, -49.4, z - .6, z + .6, true); });
+  OUT.add(boxMesh(-50.2, -49.8, 0, 2.2, 29.1, 34.9, mRust)); col(-50.3, -49.7, 29.1, 34.9, true);
+  for (let k = 0; k < 14; k++) { const b = new THREE.Mesh(new THREE.BoxGeometry(.06, 2.3, .06), mRust); b.position.set(-50, 1.2, 29.4 + k * .4); OUT.add(b); }
+  plane(OUT, new THREE.MeshBasicMaterial({ map: T.makeSign('서  문', '#1c1812', '#d8d0b0', 40), color: 0xa09a88 }), 1.0, .5, -49.38, 2.6, 28.5, Math.PI / 2);
+  OUT.add(boxMesh(-49.5, -46.5, 0, 2.8, 37, 40.5, brick)); col(-49.5, -46.5, 37, 40.5, true);
+  plane(OUT, mWin, 2.2, 1.2, -46.48, 1.7, 38.7, Math.PI / 2);
+  doors.push({ floor: 0, x: -48.4, z: 32.2, r: 2.2, label: '서문', locked: '녹슨 쇠사슬로 단단히 묶여 있다.' });
   outWall(49.75, 50.25, -26, GATE_Z, fenceH, mFence);
   outWall(-50, 50, -26.25, -25.75, fenceH, mFence);
   // 정문 기둥
@@ -843,6 +920,9 @@ export function buildWorld(scene) {
   const cafeRoof = new THREE.Mesh(new THREE.BoxGeometry(19, .4, 15), mRoofRed); cafeRoof.position.set(-39, 4.7, 15); cafeRoof.rotation.z = .08; OUT.add(cafeRoof);
   doors.push({ floor: 0, x: 38, z: 31.4, r: 2.0, label: '체육관 들어가기', to: { floor: 5, x: 38, z: 28.1, yaw: 0 } });
   doors.push({ floor: 0, x: -32.7, z: 38, r: 2.0, label: '수영장 들어가기', to: { floor: 6, x: -35.5, z: 38, yaw: Math.PI / 2 } });
+  doors.push({ floor: 0, x: -39, z: 23.4, r: 2.0, label: '급식실 들어가기', to: { floor: 7, x: -39, z: 20.5, yaw: 0 } });
+  plane(OUT, mDoor, 1.8, 2.4, -39, 1.2, 22.03, 0);
+  plane(OUT, new THREE.MeshBasicMaterial({ map: T.makeSign('급 식 실', '#1e2a2e', '#d9e4d0', 34), color: 0x9aa59a }), 2.2, .55, -39, 3.3, 22.04, 0);
   [[33, 8.02], [38, 8.02], [43, 8.02]].forEach(([x, z]) => plane(OUT, mWin, 3, 1.6, x, 5.2, z, Math.PI));
   [[-44, 8.02], [-39, 8.02], [-34, 8.02]].forEach(([x, z]) => plane(OUT, mWin, 3, 1.6, x, 2.4, z, Math.PI));
 

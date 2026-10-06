@@ -82,5 +82,6 @@ export const sfx = {
   },
   stairs() { for (let i = 0; i < 6; i++) setTimeout(() => noiseBurst(0.1, 500, 'lowpass', 0.35), i * 180); },
   win() { [523, 659, 784, 1047].forEach((f, i) => setTimeout(() => tone(f, 1.6, 'sine', 0.25), i * 220)); },
+  broadcast() { noiseBurst(1.8, 1800, 'bandpass', .5); tone(880, .6, 'sine', .2, 0, 1, 660); setTimeout(() => tone(660, .9, 'sine', .2, 0, 1, 440), 700); setTimeout(() => noiseBurst(1.2, 2500, 'bandpass', .4), 1500); },
   whisper() { noiseBurst(1.6, 2200, 'bandpass', 0.14); },
 };

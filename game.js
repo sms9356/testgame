@@ -1,6 +1,6 @@
 // 폐교 — 다시, 여기서 : 1인칭 학교 공포 게임 (Three.js)
 import * as THREE from './vendor/three.module.js';
-import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS } from './world.js';
+import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES } from './world.js';
 import { drawMap } from './map.js';
 import { initAudio, sfx, setProximity } from './audio.js';
 
@@ -43,7 +43,8 @@ const P = {
   x: 0, z: 77.5, floor: 0, yaw: 0, pitch: 0, light: true, battery: 100, stamina: 100, tired: false,
   keys: 0, hp: 100, invuln: 0, fear: 0, roofSeen: false, moving: false, sprinting: false, hiding: null, bob: 0, stepD: 0, noise: 0, fade: 0,
 };
-const got = [false, false, false, false];
+const TOTAL = KEY_NAMES.length;
+const got = KEY_NAMES.map(() => false);
 const inv = { battery: 0, medkit: 0 }, docs = [];
 let gateClosed = false, gateAnim = 0, gateState = 'open';
 let blackout = 0, shake = 0, nextEvent = 40, lampTimer = 0, introDone = false, escaped = false;
@@ -110,10 +111,10 @@ function findPath(F, ax, az, bx, bz) {
 function ghostRelocate() {
   const G = ghost, F = floors[P.floor];
   G.floor = P.floor;
-  const ends = [{ x: -34, z: 0 }, { x: 34, z: 0 }, { x: 0, z: -5.2 }];
+  const ends = F.spawns ? F.spawns.slice() : [{ x: -34, z: 0 }, { x: 34, z: 0 }, { x: 0, z: -5.2 }];
   ends.sort((a, b) => Math.hypot(b.x - P.x, b.z - P.z) - Math.hypot(a.x - P.x, a.z - P.z));
   let s = ends[0];
-  if (Math.hypot(ends[2].x - P.x, ends[2].z - P.z) > 14 && !G.enraged && Math.random() < .6) s = ends[2];
+  if (!F.spawns && Math.hypot(ends[2].x - P.x, ends[2].z - P.z) > 14 && !G.enraged && Math.random() < .6) s = ends[2];
   G.x = s.x; G.z = s.z; G.away = 0; G.lose = 0; G.hunt = null; G.spawnGrace = 1.5;
   if (G.enraged) { G.state = 'chase'; G.target = { x: P.x, z: P.z }; } else { G.state = 'search'; G.target = { x: P.x, z: P.z }; G.wait = 0; }
   G.path = findPath(F, G.x, G.z, G.target.x, G.target.z);
@@ -212,7 +213,7 @@ function ghostTick(dt, t) {
   // 사물함 수색
   if (P.hiding && !G.hunt) {
     const l = P.hiding;
-    if (Math.hypot(l.x - G.x, l.z - G.z) < 2.6) { G.findT += dt; if (G.findT > 5.2) G.hunt = { x: l.x, z: l.z + .6 }; } else G.findT = Math.max(0, G.findT - dt);
+    if (Math.hypot(l.x - G.x, l.z - G.z) < 2.6) { G.findT += dt; if (G.findT > 5.2) { const dr = l.dir || { x: 0, z: 1 }; G.hunt = { x: l.x + dr.x * .6, z: l.z + dr.z * .6 }; } } else G.findT = Math.max(0, G.findT - dt);
   }
 
   // 붙잡힘
@@ -240,7 +241,7 @@ function ghostVisual(dt, t) {
 let msgTimer = 0;
 function say(text, ms = 3000) { const m = $('msg'); m.textContent = text; m.classList.add('show'); clearTimeout(msgTimer); msgTimer = setTimeout(() => m.classList.remove('show'), ms); }
 function refreshHud() {
-  $('objText').textContent = P.keys >= 4 ? '정문으로 달려가 문을 열어라!' : `정문 열쇠 조각을 모아 학교를 탈출하라 (${P.keys}/4)`;
+  $('objText').textContent = P.keys >= TOTAL ? '정문으로 달려가 문을 열어라!' : `정문 열쇠 조각을 모아 학교를 탈출하라 (${P.keys}/${TOTAL})`;
   const subs = KEY_NAMES.map((n, i) => `<div class="${got[i] ? 'done' : ''}">${n} 열쇠 조각 찾기</div>`);
   subs.push(`<div class="${P.roofSeen ? 'done' : ''}">옥상 조사하기</div>`);
   $('subs').innerHTML = subs.join('');
@@ -296,8 +297,8 @@ function renderInv() {
     const d = docs[invSel]; det.innerHTML = `<h3>${d.title}</h3><div class="paper">${d.text}</div>`;
   } else {
     KEY_NAMES.forEach((n, i) => { const c = document.createElement('div'); c.className = 'doc' + (i === invSel ? ' sel' : ''); c.style.opacity = got[i] ? 1 : .45; c.textContent = `🗝 ${n} 열쇠 조각 — ${got[i] ? '획득' : '미획득'}`; c.onclick = () => { invSel = i; renderInv(); }; list.appendChild(c); });
-    invSel = Math.min(invSel, 3);
-    det.innerHTML = `<h3>정문 열쇠 (${P.keys}/4)</h3>사고를 막기 위해 네 조각으로 나뉜 정문 열쇠.<br>${KEY_NAMES[invSel]}에서 찾을 수 있다.<br><br>${got[invSel] ? '✔ 이미 획득했다.' : '아직 찾지 못했다. 지도에 목표 위치가 표시되어 있다.'}`;
+    invSel = Math.min(invSel, TOTAL - 1);
+    det.innerHTML = `<h3>정문 열쇠 (${P.keys}/${TOTAL})</h3>사고를 막기 위해 여섯 조각으로 나뉜 정문 열쇠.<br>${KEY_NAMES[invSel]}에서 찾을 수 있다.<br><br>${got[invSel] ? '✔ 이미 획득했다.' : '아직 찾지 못했다. 지도에 목표 위치가 표시되어 있다.'}`;
   }
 }
 function openUI(kind) { if (state !== 'playing') return; uiPrev = state; state = 'ui'; for (const k in keys) keys[k] = false; $('prompt').style.display = 'none'; $(kind).classList.add('show'); document.exitPointerLock?.(); }
@@ -307,8 +308,9 @@ function openMap() { if (state !== 'playing') return; mapFloor = P.floor; openUI
 function mapPins(f) { return KEY_ROOMS.map((r, i) => ({ ...r, i })).filter(r => r.f === f).map(r => ({ x: r.x, z: r.z, done: got[r.i] })); }
 function renderMap() {
   document.querySelectorAll('#mapOv .tabs button').forEach(b => b.classList.toggle('on', +b.dataset.f === mapFloor));
-  const c = $('bigMap'), ctx = c.getContext('2d'), out = mapFloor === 0;
-  drawMap(ctx, c.width, c.height, { floor: mapFloor, cx: 0, cz: out ? 22 : -4, scale: out ? 5.2 : 11, labels: true, pins: mapPins(mapFloor), lockers: world.lockers.filter(l => l.floor === mapFloor), player: P.floor === mapFloor ? { x: P.x, z: P.z, yaw: P.yaw } : null });
+  const c = $('bigMap'), ctx = c.getContext('2d');
+  const V = { 0: [0, 22, 5.2], 5: [38, 19, 22], 6: [-41, 38, 19] }[mapFloor] || [0, -4, 11];
+  drawMap(ctx, c.width, c.height, { floor: mapFloor, cx: V[0], cz: V[1], scale: V[2], labels: true, pins: mapPins(mapFloor), lockers: world.lockers.filter(l => l.floor === mapFloor), player: P.floor === mapFloor ? { x: P.x, z: P.z, yaw: P.yaw } : null });
 }
 document.querySelectorAll('#inv .tabs button').forEach(b => b.onclick = () => { invTab = b.dataset.tab; invSel = 0; renderInv(); });
 document.querySelectorAll('#mapOv .tabs button').forEach(b => b.onclick = () => { mapFloor = +b.dataset.f; renderMap(); });
@@ -363,11 +365,15 @@ function findInteract() {
     const s = f - d * .1; if (f > .35 && s > bs) { bs = s; best = { type: 'locker', l, label: '사물함에 숨기' }; }
   }
   if (!best) {
-    const inStair = P.floor === 3 ? (Math.abs(P.x) < 4.5 && P.z < -5.2 && P.z > -9.5) : (P.x > -1 && P.x < 4 && P.z > -9.3 && P.z < -2);
+    const si = STAIRS[P.floor];
+    const inStair = !si ? false : P.floor === 3 ? (Math.abs(P.x) < 4.5 && P.z < -5.2 && P.z > -9.5) : (P.x > -1 && P.x < 4 && P.z > -9.3 && P.z < -2);
+    const dr = world.doors.find(d => d.floor === P.floor && Math.hypot(d.x - P.x, d.z - P.z) < d.r);
     if (inStair) {
-      const up = P.floor < 3 && P.floor !== 3, down = P.floor > 0;
-      best = { type: 'stairs', label: [up ? (P.floor === 2 ? 'E 옥상으로' : 'E 위층') : '', down ? 'Q 아래층' : ''].filter(Boolean).join('  /  '), raw: true };
-    } else if (P.floor === 0 && P.z > GATE_Z - 4.5 && P.z < GATE_Z + 3 && Math.abs(P.x) < 6 && gateClosed && !escaped) best = { type: 'gate', label: '정문 열기' };
+      const up = si.up != null, down = si.down != null;
+      const ul = si.up === 3 ? '옥상으로' : si.up === 0 ? '1층으로' : '위층', dl = si.down === 4 ? '지하층 (B1)' : '아래층';
+      best = { type: 'stairs', label: [up ? `E ${ul}` : '', down ? `Q ${dl}` : ''].filter(Boolean).join('  /  '), raw: true };
+    } else if (dr) best = { type: 'door', d: dr, label: dr.label + (dr.need && P.keys < dr.need ? ' 🔒' : '') };
+    else if (P.floor === 0 && P.z > GATE_Z - 4.5 && P.z < GATE_Z + 3 && Math.abs(P.x) < 6 && gateClosed && !escaped) best = { type: 'gate', label: '정문 열기' };
   }
   return best;
 }
@@ -379,15 +385,20 @@ function interact() {
     it.taken = true; it.mesh.visible = false;
     if (it.kind === 'key') {
       got[it.idx] = true; P.keys++; sfx.key(); refreshHud();
-      toast('아이템을 획득했습니다', `${KEY_NAMES[it.idx]} 열쇠 조각 (${P.keys}/4)`);
+      toast('아이템을 획득했습니다', `${KEY_NAMES[it.idx]} 열쇠 조각 (${P.keys}/${TOTAL})`);
       talk(P.keys < 4 ? '열쇠 조각이다. 하나 더…' : '마지막 조각이야. 이제 정문으로!', 3000);
       if (P.keys === 1) activateGhost();
-      if (P.keys === 4) enrage();
+      if (P.keys === TOTAL) enrage();
       save(true);
     } else if (it.kind === 'battery') { inv.battery++; sfx.pickup(); toast('아이템을 획득했습니다', '건전지 (2번 키로 사용)'); refreshHud(); }
     else { inv.medkit++; sfx.pickup(); toast('아이템을 획득했습니다', '응급 밴드 (3번 키로 사용)'); refreshHud(); }
   } else if (target.type === 'locker') enterLocker(target.l);
-  else if (target.type === 'stairs') { if (P.floor < 3) changeFloor(1); }
+  else if (target.type === 'stairs') changeFloor(1);
+  else if (target.type === 'door') {
+    const d = target.d;
+    if (d.need && P.keys < d.need) { sfx.click(); say(`굳게 잠겨 있다. 열쇠 조각이 더 필요하다 (${P.keys}/${TOTAL})`, 2600); return; }
+    teleport(d.to);
+  }
   else if (target.type === 'gate') openGate();
 }
 
@@ -404,14 +415,25 @@ function enrage() {
   ghost.active = true; ghost.enraged = true; blackout = 3.2;
   setTimeout(() => { ghostRelocate(); ghost.floor = P.floor; sfx.screech(); toast('목표가 갱신되었습니다', '정문으로 달려가라!', 'warn'); talk('그게… 깨어났어. 정문으로 뛰어!', 4000); }, 2600);
 }
-function changeFloor(dir) {
+const STAIRS = { 0: { up: 1, down: 4 }, 1: { up: 2, down: 0 }, 2: { up: 3, down: 1 }, 3: { down: 2 }, 4: { up: 0 } };
+function teleport(to) {
   if (state !== 'playing') return;
-  const nf = P.floor + dir; if (nf < 0 || nf > 3) return;
   state = 'trans'; $('fade').style.opacity = 1; sfx.stairs();
-  setTimeout(() => { P.floor = nf; if (nf === 3) { P.x = 0; P.z = -7.5; P.yaw = 0; if (!P.roofSeen) { P.roofSeen = true; refreshHud(); toast('목표 달성', '옥상 조사하기', 'info'); setTimeout(() => talk('바람 소리뿐이야… 여기도 누군가 있었어.', 3200), 600); } } else { P.x = 2.2; P.z = -5.2; P.yaw = Math.PI; } P.pitch = 0; $('fade').style.opacity = 0; state = 'playing'; }, 700);
+  setTimeout(() => {
+    P.floor = to.floor; P.x = to.x; P.z = to.z; P.yaw = to.yaw; P.pitch = 0;
+    if (to.floor === 3 && !P.roofSeen) { P.roofSeen = true; refreshHud(); toast('목표 달성', '옥상 조사하기', 'info'); setTimeout(() => talk('바람 소리뿐이야… 여기도 누군가 있었어.', 3200), 600); }
+    if (to.floor === 4 && !P.b1Seen) { P.b1Seen = true; setTimeout(() => talk('지하…? 이런 곳이 있었다니.', 3000), 600); }
+    if (to.floor === 5 && !P.gymSeen) { P.gymSeen = true; setTimeout(() => talk('불 꺼진 체육관… 누가 박수를 치고 있어.', 3400), 600); }
+    if (to.floor === 6 && !P.poolSeen) { P.poolSeen = true; setTimeout(() => talk('물이 없는데… 물소리가 들려.', 3400), 600); }
+    $('fade').style.opacity = 0; state = 'playing';
+  }, 700);
+}
+function changeFloor(dir) {
+  const info = STAIRS[P.floor]; const nf = info && (dir > 0 ? info.up : info.down); if (nf == null) return;
+  teleport(nf === 3 ? { floor: 3, x: 0, z: -7.5, yaw: 0 } : { floor: nf, x: 2.2, z: -5.2, yaw: Math.PI });
 }
 function openGate() {
-  if (P.keys < 4) { sfx.click(); say(`자물쇠가 굳게 잠겨 있다. 열쇠 조각이 더 필요하다 (${P.keys}/4)`, 2800); return; }
+  if (P.keys < TOTAL) { sfx.click(); say(`자물쇠가 굳게 잠겨 있다. 열쇠 조각이 더 필요하다 (${P.keys}/${TOTAL})`, 2800); return; }
   escaped = true; gateState = 'opening'; sfx.gateOpen(); say('열쇠가 맞물렸다…', 3000);
   gate.blockRect.x1 = 1e9; gate.blockRect.x2 = 1e9 + 1;
   setTimeout(() => { state = 'won'; sfx.win(); $('winText').innerHTML = `당신은 폐교를 빠져나왔다.<br>뒤돌아보지 마라.<br><br>소요 시간 ${Math.floor(playTime / 60)}분 ${Math.floor(playTime % 60)}초`; $('win').classList.add('show'); document.exitPointerLock?.(); }, 3600);
@@ -421,14 +443,15 @@ const gate = world.gate;
 function enterLocker(l) {
   const G = ghost;
   P.hiding = l; sfx.locker();
-  P.x = l.x; P.z = l.z + .12; P.yaw = Math.PI; P.pitch = 0;
+  const dr = l.dir || { x: 0, z: 1 }; l.yaw = Math.atan2(-dr.x, -dr.z);
+  P.x = l.x + dr.x * .12; P.z = l.z + dr.z * .12; P.yaw = l.yaw; P.pitch = 0;
   $('hide').classList.add('show');
-  if (G.active && G.floor === P.floor && (G.state === 'chase') && Math.hypot(G.x - P.x, G.z - P.z) < 9 && los(floors[P.floor].walls, G.x, G.z, P.x, P.z)) G.hunt = { x: l.x, z: l.z + .6 };
+  if (G.active && G.floor === P.floor && (G.state === 'chase') && Math.hypot(G.x - P.x, G.z - P.z) < 9 && los(floors[P.floor].walls, G.x, G.z, P.x, P.z)) G.hunt = { x: l.x + dr.x * .6, z: l.z + dr.z * .6 };
   say('숨을 죽여라…  (E 나가기)', 2500);
 }
 function leaveLocker(silent) {
   const l = P.hiding; if (!l) return;
-  P.hiding = null; $('hide').classList.remove('show'); P.x = l.x; P.z = -.45; P.yaw = 0; P.pitch = 0;
+  const dr = l.dir || { x: 0, z: 1 }; P.hiding = null; $('hide').classList.remove('show'); P.x = l.x + dr.x * .85; P.z = l.z + dr.z * .85; P.yaw = l.yaw; P.pitch = 0;
   ghost.hunt = null; ghost.findT = 0; if (!silent) sfx.locker();
 }
 
@@ -485,7 +508,7 @@ addEventListener('mousemove', e => {
   if (!document.pointerLockElement && !DEBUG) return;
   if (state === 'dead') return;
   P.yaw -= e.movementX * .0022; P.pitch = clamp(P.pitch - e.movementY * .0022, -1.45, 1.45);
-  if (P.hiding) P.yaw = clamp(P.yaw, Math.PI - .7, Math.PI + .7);
+  if (P.hiding) P.yaw = clamp(P.yaw, P.hiding.yaw - .7, P.hiding.yaw + .7);
 });
 $('noteBox').addEventListener('click', closeNote);
 addEventListener('resize', () => { renderer.setSize(innerWidth, innerHeight); camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); });
@@ -495,7 +518,7 @@ document.addEventListener('pointerlockchange', () => {
 function lock() { try { const r = canvas.requestPointerLock(); if (r && r.catch) r.catch(() => {}); } catch (e) { /* ignore */ } }
 
 /* ---------- 저장 / 불러오기 ---------- */
-const SAVE = 'haegyo_save_v2';
+const SAVE = 'haegyo_save_v3';
 function save(silent) {
   if (state === 'dead' || state === 'won') return;
   const d = {
@@ -508,7 +531,7 @@ function save(silent) {
 function load() {
   let d; try { d = JSON.parse(localStorage.getItem(SAVE)); } catch (e) { return; }
   if (!d) return;
-  Object.assign(P, d.P); got.splice(0, 4, ...d.got); inv.battery = d.inv.battery; inv.medkit = d.inv.medkit;
+  Object.assign(P, d.P); got.splice(0, TOTAL, ...d.got); inv.battery = d.inv.battery; inv.medkit = d.inv.medkit;
   docs.length = 0; d.docs.forEach(id => { const n = world.NOTES[id]; if (n) docs.push({ id, title: n.title, text: n.text }); });
   world.items.forEach((it, i) => { if (d.taken[i]) { it.taken = true; it.mesh.visible = false; } });
   introDone = d.introDone; playTime = d.playTime;
@@ -562,11 +585,12 @@ function updatePlayer(dt) {
   // 정문 닫힘 연출
   if (!gateClosed && state === 'playing' && P.z < GATE_Z - 3) {
     gateClosed = true; gateState = 'closing'; sfx.gateClang(); shake = .8;
-    setTimeout(() => { toast('새로운 목표가 추가되었습니다', '정문 열쇠 조각 4개를 찾아라', 'warn'); talk('문이 잠겼어… 열쇠를 찾아야 해.', 4200); }, 800);
+    setTimeout(() => { toast('새로운 목표가 추가되었습니다', `정문 열쇠 조각 ${TOTAL}개를 찾아라`, 'warn'); talk('문이 잠겼어… 열쇠를 찾아야 해.', 4200); }, 800);
   }
   if (!introDone && P.floor === 0 && P.z < 1.2) { introDone = true; talk('안은 숨소리까지 들릴 만큼 조용해…', 3500); setTimeout(() => toast('팁', '쪽지를 읽고, 사물함에 숨어 시선을 피하세요. (Tab: 인벤토리, M: 지도)', 'info'), 1500); }
 
   P.invuln = Math.max(0, P.invuln - dt);
+  if (!P.bcast && P.floor === 2 && Math.abs(P.x + 24) < 3.8 && P.z < -2) { P.bcast = true; sfx.broadcast(); toast('교내 방송', '“…모두 교실로 돌아가세요.”', 'warn'); setTimeout(() => talk('스피커가… 켜졌어? 전원도 안 들어오는데.', 3600), 900); }
   // 손전등/배터리
   if (P.light && P.battery > 0) P.battery = Math.max(0, P.battery - .75 * dt);
   if (P.battery <= 0 && P.light) { if (inv.battery > 0) useBattery(); else { P.light = false; toast('손전등이 꺼졌습니다', '건전지가 없습니다.', 'warn'); } }
@@ -582,7 +606,7 @@ const easeOut = t => 1 - Math.pow(1 - t, 3);
 
 function updateLighting(dt) {
   const F = floors[P.floor];
-  const indoors = (P.floor > 0 && P.floor < 3) || (P.floor === 0 && P.z < 1.45 && P.z > -9.9 && Math.abs(P.x) < 36.3);
+  const indoors = P.floor >= 4 || (P.floor > 0 && P.floor < 3) || (P.floor === 0 && P.z < 1.45 && P.z > -9.9 && Math.abs(P.x) < 36.3);
   const k = Math.min(1, dt * 3);
   moonLight.intensity = lerp(moonLight.intensity, indoors ? 0 : 1.1, k);
   hemi.intensity = lerp(hemi.intensity, indoors ? .2 : .5, k);
@@ -643,7 +667,7 @@ function updateHud(dt, prox, chase) {
   const st = $('stat'); st.textContent = P.hp > 50 ? (P.fear > .6 ? '공포' : '정상') : '부상'; st.style.color = P.hp > 50 ? (P.fear > .6 ? '#e86870' : '#6fd08c') : '#e0884c';
   $('batBar').style.width = P.battery + '%'; $('s1').classList.toggle('off', !P.light);
   const outdoors = P.floor === 0 && !(P.z < 1.45 && P.z > -9.9 && Math.abs(P.x) < 36.3);
-  $('floor').textContent = P.floor === 3 ? 'RF' : outdoors ? '외부' : (P.floor + 1) + 'F';
+  $('floor').textContent = P.floor === 0 && outdoors ? '외부' : AREA_NAMES[P.floor];
   const m = Math.floor(23 * 60 + 40 + playTime / 6), h24 = Math.floor(m / 60) % 24;
   $('clock').textContent = `${h24 >= 12 ? 'PM' : 'AM'} ${String(h24 % 12 || 12).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
   miniT -= dt;
@@ -694,7 +718,7 @@ if (DEBUG) {
   window.__g = {
     P, ghost, floors, world, scene, camera, start,
     tp(x, z, f = 0, yaw = 0, pitch = 0) { P.x = x; P.z = z; P.floor = f; P.yaw = yaw; P.pitch = pitch; },
-    give() { world.items.filter(i => i.kind === 'key').forEach(i => { i.taken = true; i.mesh.visible = false; got[i.idx] = true; }); P.keys = 4; refreshHud(); },
+    give() { world.items.filter(i => i.kind === 'key').forEach(i => { i.taken = true; i.mesh.visible = false; got[i.idx] = true; }); P.keys = TOTAL; refreshHud(); },
     get state() { return state; }, set state(v) { state = v; },
     interact, die, activateGhost, enrage,
     setTarget(t) { target = t; },

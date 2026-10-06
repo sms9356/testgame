@@ -1,7 +1,7 @@
 // 미니맵 / 전체 지도 렌더러
 import { SLOTS, LAYOUT, GATE_Z } from './world.js';
 
-const COL = { class: '#27384a', office: '#4a3a28', nurse: '#2f4a46', counsel: '#3f3a4f', library: '#3a4a2c', lab: '#2c4a3a', computer: '#2c3f55', music: '#4a2f3a', art: '#4a432c', toilet: '#38334d', stair: '#5a5a58' };
+const COL = { broadcast: '#4a2a2a', boiler: '#4a3a2a', electric: '#4a4a2a', storage: '#3a3a30', records: '#3a4030', cleaning: '#2f3f4a', generator: '#4a2f2f', pump: '#2a3f4a', exit: '#5a2a2a', class: '#27384a', office: '#4a3a28', nurse: '#2f4a46', counsel: '#3f3a4f', library: '#3a4a2c', lab: '#2c4a3a', computer: '#2c3f55', music: '#4a2f3a', art: '#4a432c', toilet: '#38334d', stair: '#5a5a58' };
 
 export function drawMap(ctx, W, H, o) {
   const { floor, cx, cz, scale: S, player, pins = [], lockers = [], labels = false, taken = [] } = o;
@@ -15,15 +15,23 @@ export function drawMap(ctx, W, H, o) {
     fillRect(-50, -26, 50, 70, 'rgba(30,45,28,.55)');
     fillRect(-34, 16, 34, 60, 'rgba(110,88,60,.45)');
     fillRect(-3, 2, 3, 69, 'rgba(120,120,110,.4)');
-    fillRect(28, 8, 48, 30, '#3a2a2a'); fillRect(-48, 8, -30, 22, '#3a3030');
+    fillRect(28, 8, 48, 30, '#3a2a2a'); fillRect(-48, 8, -30, 22, '#3a3030'); fillRect(-48, 26, -34, 50, '#2a3a46');
     strokeRect(-50, -26, 50, 70, '#6a6a60', 1.5);
     fillRect(-4, GATE_Z - .6, 4, GATE_Z + .6, '#8a4a30');
     if (labels) {
       ctx.fillStyle = '#b8b4a4'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
-      ctx.fillText('운동장', X(0), Y(38)); ctx.fillText('체육관', X(38), Y(19)); ctx.fillText('급식실', X(-39), Y(15)); ctx.fillText('정문', X(0), Y(GATE_Z) - 8);
+      ctx.fillText('운동장', X(0), Y(38)); ctx.fillText('체육관', X(38), Y(19)); ctx.fillText('급식실', X(-39), Y(15)); ctx.fillText('수영장', X(-41), Y(38)); ctx.fillText('정문', X(0), Y(GATE_Z) - 8);
     }
   }
-  if (floor === 3) {
+  if (floor === 5) {
+    fillRect(28, 8, 48, 30, '#4a3a28'); fillRect(29, 8.3, 47, 12.3, '#6a2a30'); fillRect(43.2, 14, 47.7, 26, '#2a3a5a'); fillRect(28.3, 18.5, 29.8, 21.5, '#6a5a3a');
+    strokeRect(28, 8, 48, 30, '#8a8a80', 2);
+    if (labels) { ctx.fillStyle = '#e8e0c8'; ctx.font = '13px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('무대', X(38), Y(10.6)); ctx.fillText('농구 코트', X(37), Y(20)); ctx.fillText('관람석', X(45.5), Y(20)); ctx.fillText('기록석', X(29.8), Y(17.8)); ctx.fillText('출입문', X(38), Y(29.3)); }
+  } else if (floor === 6) {
+    fillRect(-48, 26, -34, 50, '#3a4048'); fillRect(-45.6, 30.5, -37.4, 45.5, '#2a6a86'); strokeRect(-48, 26, -34, 50, '#8a8a80', 2);
+    fillRect(-46.6, 26.3, -42.6, 27.1, '#5a6a7a');
+    if (labels) { ctx.fillStyle = '#e8f0f0'; ctx.font = '13px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('수영장', X(-41.5), Y(38)); ctx.fillText('락커', X(-44.5), Y(28)); ctx.fillText('펌프실', X(-40), Y(49)); ctx.fillText('출입구', X(-35), Y(38)); }
+  } else if (floor === 3) {
     fillRect(-36.3, -9.9, 36.3, 1.75, '#33373a'); fillRect(-5, -4.5, 5, 1.9, '#555'); fillRect(26, -9.4, 33, -5.4, '#4a4033'); fillRect(-21.6, -7.6, -18.4, -4.4, '#5a3a2a');
     strokeRect(-36.3, -9.9, 36.3, 1.75, '#8a8a80', 1.5);
     if (labels) { ctx.fillStyle = '#c8c4b4'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('옥상 광장', X(-8), Y(-1)); ctx.fillText('관리실', X(29.5), Y(-7.4)); ctx.fillText('물탱크', X(-20), Y(-8)); ctx.fillText('계단실', X(0), Y(-2)); }
@@ -38,7 +46,7 @@ export function drawMap(ctx, W, H, o) {
     strokeRect(-36.3, -9.9, 36.3, 1.75, '#8a8a80', 2);
     if (floor === 0) { ctx.fillStyle = '#e6c14a'; ctx.fillRect(X(-1.5), Y(1.75) - 2, 3 * S, 4); }
   }
-  if (floor < 3) { // 계단 표시
+  if (floor < 3 || floor === 4) { // 계단 표시
     ctx.fillStyle = '#d8d8d0'; ctx.fillRect(X(-1.2), Y(-8), 5 * S * .5, 6 * S * .4);
     if (labels) { ctx.fillStyle = '#111'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('계단', X(1.3), Y(-6.2)); }
   }

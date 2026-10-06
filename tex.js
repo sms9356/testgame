@@ -314,3 +314,51 @@ export const makeWarning = () => ctex(256, 160, (g, w, h) => {
   stains(g, w, h, 10, 'rgba(90,60,20,.55)', 40);
   speckle(g, w, h, 400, ['#4a2a14', '#fff'], 2, 6, .5);
 }, { repeat: false });
+
+// ---- 체육관 / 방송실 / 수영장용 ----
+export const makeCourt = () => ctex(1024, 1024, (g, w, h) => {
+  const pl = 34, s = h / pl;
+  for (let i = 0; i < pl; i++) { const v = rr(60, 88); g.fillStyle = `rgb(${v + 36},${v + 14},${v - 8})`; g.fillRect(0, i * s, w, s); for (let k = 0; k < 14; k++) { g.fillStyle = `rgba(30,12,0,${rr(.05, .2)})`; g.fillRect(rnd() * w, i * s + rnd() * s, rr(60, 300), 1); } g.fillStyle = 'rgba(0,0,0,.55)'; g.fillRect(rnd() * w, i * s, 3, s); }
+  g.fillStyle = 'rgba(0,0,0,.6)'; for (let i = 0; i <= pl; i++) g.fillRect(0, i * s, w, 2);
+  // 코트 라인
+  g.strokeStyle = 'rgba(230,226,205,.8)'; g.lineWidth = 6;
+  g.strokeRect(70, 150, w - 140, h - 300); g.beginPath(); g.moveTo(70, h / 2); g.lineTo(w - 70, h / 2); g.stroke();
+  g.beginPath(); g.arc(w / 2, h / 2, 110, 0, 6.3); g.stroke();
+  [150, h - 150].forEach((y, i) => { g.strokeRect(w / 2 - 130, i ? y - 240 : y, 260, 240); g.beginPath(); g.arc(w / 2, i ? y - 240 : y + 240, 130, i ? Math.PI : 0, i ? 6.3 : Math.PI); g.stroke(); });
+  stains(g, w, h, 40, 'rgba(15,10,6,.55)', 110); stains(g, w, h, 12, 'rgba(60,90,80,.3)', 90);
+  speckle(g, w, h, 2500, ['#1a1008', '#8a7a60'], 2, 10, .4);
+  for (let i = 0; i < 9; i++) { g.fillStyle = 'rgba(8,6,4,.85)'; g.beginPath(); const x = rnd() * w, y = rnd() * h; for (let k = 0; k < 7; k++) g.lineTo(x + Math.cos(k) * rr(20, 70), y + Math.sin(k) * rr(10, 50)); g.fill(); }
+}, { repeat: false });
+export const makePoolTile = () => ctex(256, 256, (g, w, h) => {
+  g.fillStyle = '#5f7f8a'; g.fillRect(0, 0, w, h);
+  const n = 8, s = w / n;
+  for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) { const v = rr(-14, 14); g.fillStyle = `rgb(${96 + v},${130 + v},${142 + v})`; g.fillRect(x * s + 1, y * s + 1, s - 2, s - 2); }
+  stains(g, w, h, 14, 'rgba(30,60,30,.55)', 40); stains(g, w, h, 8, 'rgba(120,70,30,.4)', 30);
+  speckle(g, w, h, 500, ['#1a2a22', '#c8d8d0'], 2, 7, .4); cracks(g, w, h, 6, 'rgba(0,0,0,.6)', 20);
+});
+export const makeBanner = () => ctex(512, 128, (g, w, h) => {
+  g.fillStyle = '#c9c4ae'; g.fillRect(0, 0, w, h); stains(g, w, h, 12, 'rgba(70,60,30,.5)', 50); speckle(g, w, h, 600, ['#5a5440', '#e8e4d0'], 2, 7, .4);
+  g.fillStyle = '#1f3a6a'; g.font = `900 46px ${FONT}`; g.textAlign = 'center'; g.fillText('건강한 몸, 밝은 미래', w / 2, 66);
+  g.font = `22px ${FONT}`; g.fillText('- ○중학교 -', w / 2, 104); g.strokeStyle = '#1f3a6a'; g.lineWidth = 4; g.strokeRect(4, 4, w - 8, h - 8);
+}, { repeat: false });
+export const makeScore = () => ctex(256, 96, (g, w, h) => {
+  g.fillStyle = '#0c0c0c'; g.fillRect(0, 0, w, h); g.fillStyle = '#c02020'; g.font = 'bold 54px monospace'; g.textAlign = 'center'; g.fillText('18 : 88', w / 2, 62);
+  g.fillStyle = '#ddd'; g.font = `16px ${FONT}`; g.fillText('홈', 28, 20); g.fillText('방문', w - 30, 20); speckle(g, w, h, 300, ['#444'], 2, 6, .5);
+}, { repeat: false });
+export const makeCurtain = () => ctex(256, 256, (g, w, h) => {
+  for (let x = 0; x < w; x += 16) { const gr = g.createLinearGradient(x, 0, x + 16, 0); gr.addColorStop(0, '#4a0c14'); gr.addColorStop(.5, '#8a1a24'); gr.addColorStop(1, '#3a0810'); g.fillStyle = gr; g.fillRect(x, 0, 16, h); }
+  stains(g, w, h, 16, 'rgba(10,6,4,.5)', 60); drips(g, w, 0, h, 18, 'rgba(10,10,10,.4)');
+});
+export const makeOnAir = () => ctex(256, 80, (g, w, h) => {
+  g.fillStyle = '#1a0606'; g.fillRect(0, 0, w, h); g.fillStyle = '#ff3a30'; g.shadowColor = '#ff2010'; g.shadowBlur = 14; g.font = `900 48px ${FONT}`; g.textAlign = 'center'; g.fillText('방 송 중', w / 2, 58);
+}, { repeat: false });
+export const makeSafetySign = () => ctex(256, 128, (g, w, h) => {
+  g.fillStyle = '#d4d0c0'; g.fillRect(0, 0, w, h); g.fillStyle = '#b3262e'; g.font = `900 34px ${FONT}`; g.textAlign = 'center'; g.fillText('깊은 곳 위험', w / 2, 54); g.fillText('뛰지 마시오', w / 2, 98);
+  stains(g, w, h, 8, 'rgba(70,50,20,.5)', 40); speckle(g, w, h, 400, ['#4a2a14', '#fff'], 2, 6, .5);
+}, { repeat: false });
+export const makeNumber = (n) => ctex(64, 64, (g, w, h) => { g.fillStyle = '#c8c8c0'; g.fillRect(0, 0, w, h); g.fillStyle = '#1a2a3a'; g.font = 'bold 48px sans-serif'; g.textAlign = 'center'; g.fillText(String(n), 32, 50); stains(g, w, h, 4, 'rgba(40,60,30,.5)', 20); }, { repeat: false });
+export const makeBasement = () => ctex(512, 512, (g, w, h) => {
+  g.fillStyle = '#6a6c68'; g.fillRect(0, 0, w, h); speckle(g, w, h, 2200, ['#3a3c38', '#8a8c86', '#2a2a28'], 2, 12, .35);
+  stains(g, w, h, 20, 'rgba(20,28,20,.55)', 90); drips(g, w, 0, h, 30, 'rgba(30,25,15,.5)'); cracks(g, w, h, 14, 'rgba(0,0,0,.6)', 30);
+  g.fillStyle = 'rgba(150,40,30,.15)'; g.fillRect(0, h * .6, w, h * .02);
+});

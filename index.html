@@ -96,6 +96,16 @@
   .legend{display:flex;gap:18px;flex-wrap:wrap;font-size:12px;color:var(--dim);margin-top:10px}
   .menuBtns{display:flex;flex-direction:column;gap:10px;align-items:stretch;min-width:260px}
   #helpBox{display:none;margin-top:16px}
+  #intro{position:fixed;inset:0;z-index:25;background:#000;display:none;flex-direction:column;align-items:center;justify-content:center;gap:18px;cursor:pointer;padding:24px;text-align:center}
+  #intro.show{display:flex}
+  #intro p{opacity:0;font-size:clamp(15px,2.2vw,21px);line-height:1.7;color:#cfc9b8;letter-spacing:.06em;animation:il 1.2s forwards}
+  #intro p.q{font-family:'Noto Serif KR','Batang',serif;color:#e8dcc0}
+  #intro p:nth-child(1){animation-delay:.2s;color:#8d897d;font-size:14px;letter-spacing:.3em}#intro p:nth-child(2){animation-delay:1.3s}#intro p:nth-child(3){animation-delay:2.5s}#intro p:nth-child(4){animation-delay:3.8s}
+  #intro small{position:absolute;bottom:22px;color:#5a574e;font-size:12px;letter-spacing:.2em}
+  @keyframes il{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  #introTitle{position:fixed;left:0;right:0;top:38%;z-index:24;text-align:center;pointer-events:none;opacity:0;transition:opacity 1.6s}
+  #introTitle.show{opacity:1}
+  #introTitle h1{font-size:clamp(46px,9vw,96px)}
   #menu{background:linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,.88)),url(assets/img/menu_bg.webp) center/cover no-repeat}
   #dead{background:linear-gradient(rgba(40,0,0,.72),rgba(0,0,0,.92)),url(assets/img/ghost_cut.webp) center/cover no-repeat}
   #win{background:linear-gradient(rgba(0,0,0,.5),rgba(0,0,0,.85)),url(assets/img/gate_night.webp) center/cover no-repeat}
@@ -171,6 +181,8 @@
   <div id="cross"></div><div id="prompt"></div><div id="msg"></div>
 </div>
 <div id="hurt"></div>
+<div id="intro"><p>10월 12일 (목) · 밤 11시 40분</p><p>휴학 중인 대학생 한서연에게 메시지 한 통이 도착했다.</p><p class="q">“여기, 아직 누군가의 흔적이 남아있어.”</p><p>보낸 사람은 십 년 전 이 학교에서 사라진 친구였다.</p><small>클릭 / Space — 건너뛰기</small></div>
+<div id="introTitle"><h1>폐교</h1><div class="sub">다 시 ,  여 기 서</div></div>
 <div id="card"><img alt=""><b></b><span></span></div>
 <div id="jump"></div>
 

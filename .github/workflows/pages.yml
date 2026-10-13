@@ -1,26 +1,21 @@
 name: Deploy to GitHub Pages
+# main 에 머지되면 사이트 파일을 gh-pages 브랜치로 동기화한다.
+# (저장소 Pages 소스: gh-pages 브랜치 / 루트)
 on:
   push:
     branches: [main]
   workflow_dispatch:
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 concurrency:
   group: pages
   cancel-in-progress: true
 jobs:
-  deploy:
+  sync-gh-pages:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
         with:
-          path: .
-      - id: deployment
-        uses: actions/deploy-pages@v4
+          fetch-depth: 0
+      - name: Push main to gh-pages
+        run: git push --force origin HEAD:refs/heads/gh-pages

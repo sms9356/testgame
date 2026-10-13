@@ -1,6 +1,6 @@
 // 폐교 — 다시, 여기서 : 1인칭 학교 공포 게임 (Three.js)
 import * as THREE from './vendor/three.module.js';
-import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES } from './world.js';
+import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX } from './world.js';
 import { drawMap } from './map.js';
 import { initAudio, sfx, setProximity } from './audio.js';
 
@@ -257,17 +257,7 @@ function toast(title, desc = '', kind = '') {
 }
 let talkTimer = 0;
 function talk(text, ms = 3200) { $('dlgText').textContent = text; $('dlg').classList.add('show'); clearTimeout(talkTimer); talkTimer = setTimeout(() => $('dlg').classList.remove('show'), ms); }
-function drawFace(c) {
-  const g = c.getContext('2d'), s = c.width / 64; g.setTransform(s, 0, 0, s, 0, 0); g.clearRect(0, 0, 64, 64);
-  g.fillStyle = '#10161c'; g.fillRect(0, 0, 64, 64);
-  g.fillStyle = '#3a2a22'; g.beginPath(); g.ellipse(51, 36, 6, 14, .4, 0, 6.3); g.fill(); g.beginPath(); g.ellipse(32, 28, 19, 21, 0, 0, 6.3); g.fill();
-  g.fillStyle = '#d8cbb0'; g.beginPath(); g.ellipse(32, 70, 30, 16, 0, 0, 6.3); g.fill(); g.fillStyle = '#8a8a92'; g.beginPath(); g.ellipse(32, 66, 22, 12, 0, 0, 6.3); g.fill();
-  g.fillStyle = '#e8c8b0'; g.beginPath(); g.ellipse(32, 32, 14, 17, 0, 0, 6.3); g.fill();
-  g.fillStyle = '#3a2a22'; g.beginPath(); g.moveTo(17, 29); g.quadraticCurveTo(32, 5, 47, 29); g.quadraticCurveTo(38, 20, 32, 23); g.quadraticCurveTo(24, 20, 17, 29); g.fill();
-  g.fillStyle = '#2a1c18'; [26, 38].forEach(x => { g.beginPath(); g.ellipse(x, 35, 1.9, 2.6, 0, 0, 6.3); g.fill(); });
-  g.strokeStyle = '#a0605a'; g.lineWidth = 1.2; g.beginPath(); g.moveTo(29, 44); g.quadraticCurveTo(32, 45.5, 35, 44); g.stroke();
-}
-drawFace($('portrait')); drawFace($('dlgFace'));
+
 
 /* ----- 인벤토리 / 지도 UI ----- */
 let invTab = 'items', invSel = 0, mapFloor = 0, uiPrev = 'playing';
@@ -277,11 +267,11 @@ function invItems() {
     { icon: '🔦', name: '손전등', desc: `어두운 곳을 비추는 손전등. 배터리 ${Math.round(P.battery)}% 남음. (F)`, act: ['켜기 / 끄기', () => { P.light = !P.light; }] },
     inv.battery > 0 && { icon: '🔋', name: '건전지', count: inv.battery, desc: '손전등용 건전지. 사용하면 배터리가 45% 회복된다.', act: ['사용하기', useBattery] },
     inv.medkit > 0 && { icon: '🩹', name: '응급 밴드', count: inv.medkit, desc: '상처 치료용 응급 밴드. 사용하면 체력이 50 회복된다.', act: ['사용하기', useMedkit] },
-    { icon: '🪪', name: '학생증', desc: '대학교 1학년 한서연. 휴학 중. 사진 속 표정이 지금보다 밝다.' },
-    { icon: '📱', name: '스마트폰', desc: '액정이 깨졌고 신호가 없다. 마지막 메시지: “여기, 아직 누군가의 흔적이 남아있어.”' },
+    { icon: '🪪', name: '학생증', img: 'face_relief', desc: '○○대학교 1학년 한서연 (20세). 휴학 중. 사진 속 표정이 지금보다 밝다.' },
+    { icon: '📱', name: '스마트폰', img: 'old_class', desc: '액정이 깨졌고 신호가 없다. 마지막으로 받은 사진: 칠판에 적힌 “다시, 여기서.”' },
     { icon: '📻', name: '무전기', desc: '잡음만 들린다. 가끔 누군가 속삭이는 것 같다.' },
     { icon: '📓', name: '노트', desc: '단서를 기록하는 노트. 모은 쪽지는 문서 탭에서 다시 읽을 수 있다.' },
-    { icon: '🗺', name: '학교 지도', desc: '직접 그린 학교 지도. 목표 위치가 표시되어 있다. (M)', act: ['지도 열기', () => { closeUI(); openMap(); }] },
+    { icon: '🗺', name: '학교 지도', img: 'map_old', desc: '직접 그린 학교 지도. 목표 위치가 표시되어 있다. (M)', act: ['지도 열기', () => { closeUI(); openMap(); }] },
   ].filter(Boolean);
 }
 function renderInv() {
@@ -290,7 +280,7 @@ function renderInv() {
   if (invTab === 'items') {
     const its = invItems(); invSel = Math.min(invSel, its.length - 1);
     its.forEach((it, i) => { const c = document.createElement('div'); c.className = 'cell' + (i === invSel ? ' sel' : ''); c.innerHTML = it.icon + (it.count ? `<em>${it.count}</em>` : ''); c.onclick = () => { invSel = i; renderInv(); }; list.appendChild(c); });
-    const it = its[invSel]; det.innerHTML = `<h3>${it.icon} ${it.name}</h3>${it.desc}`;
+    const it = its[invSel]; det.innerHTML = `<h3>${it.icon} ${it.name}</h3>${it.desc}${it.img ? `<img class="invImg" src="assets/img/${it.img}.webp" alt="">` : ''}`;
     if (it.act) { const b = document.createElement('button'); b.textContent = it.act[0]; b.onclick = () => { it.act[1](); renderInv(); }; det.appendChild(b); }
   } else if (invTab === 'docs') {
     if (!docs.length) { list.innerHTML = '<p style="color:#8d897d">아직 모은 문서가 없다.</p>'; return; }
@@ -309,13 +299,15 @@ function openInv(tab = 'items') { if (state !== 'playing') return; invTab = tab;
 function openMap() { if (state !== 'playing') return; mapFloor = P.floor; openUI('mapOv'); renderMap(); }
 function mapPins(f) { return KEY_ROOMS.map((r, i) => ({ ...r, i })).filter(r => r.f === f).map(r => ({ x: r.x, z: r.z, done: got[r.i] })); }
 function renderMap() {
-  document.querySelectorAll('#mapOv .tabs button').forEach(b => b.classList.toggle('on', +b.dataset.f === mapFloor));
+  document.querySelectorAll('#mapOv .tabs button').forEach(b => b.classList.toggle('on', b.dataset.f === String(mapFloor)));
+  const guide = mapFloor === 'guide'; $('bigMap').style.display = guide ? 'none' : 'block'; $('guide').style.display = guide ? 'grid' : 'none';
+  if (guide) return;
   const c = $('bigMap'), ctx = c.getContext('2d');
   const V = { 0: [0, 22, 5.2], 5: [38, 19, 22], 6: [-41, 38, 19], 7: [-39, 15, 24], 8: [0, -4, 21], 9: [0, -4, 21], 10: [0, -4, 21] }[mapFloor] || [0, -4, 11];
   drawMap(ctx, c.width, c.height, { floor: mapFloor, cx: V[0], cz: V[1], scale: V[2], labels: true, pins: mapPins(mapFloor), lockers: world.lockers.filter(l => l.floor === mapFloor), player: P.floor === mapFloor ? { x: P.x, z: P.z, yaw: P.yaw } : null });
 }
 document.querySelectorAll('#inv .tabs button').forEach(b => b.onclick = () => { invTab = b.dataset.tab; invSel = 0; renderInv(); });
-document.querySelectorAll('#mapOv .tabs button').forEach(b => b.onclick = () => { mapFloor = +b.dataset.f; renderMap(); });
+document.querySelectorAll('#mapOv .tabs button').forEach(b => b.onclick = () => { mapFloor = b.dataset.f === 'guide' ? 'guide' : +b.dataset.f; renderMap(); });
 
 function useBattery() {
   if (inv.battery <= 0) { toast('건전지가 없습니다', '', 'warn'); return false; }
@@ -325,13 +317,13 @@ function useBattery() {
 function useMedkit() {
   if (inv.medkit <= 0) { toast('응급 밴드가 없습니다', '', 'warn'); return false; }
   if (P.hp >= 100) { say('다친 곳이 없다', 1800); return false; }
-  inv.medkit--; P.hp = Math.min(100, P.hp + 50); sfx.paper(); toast('응급 밴드를 사용했습니다', '체력 +50', 'info'); talk('조금 낫네… 계속 가자.', 2400); refreshHud(); return true;
+  inv.medkit--; P.hp = Math.min(100, P.hp + 50); setFace('face_relief', 3); sfx.paper(); toast('응급 밴드를 사용했습니다', '체력 +50', 'info'); talk('조금 낫네… 계속 가자.', 2400); refreshHud(); return true;
 }
 function hit() {
   if (TEST && TST.god) return;
   if (P.invuln > 0 || state !== 'playing') return;
   const G = ghost;
-  P.hp -= 50; P.invuln = 3.5; shake = 1;
+  P.hp -= 50; P.invuln = 3.5; shake = 1; setFace('face_surprise', 2.6);
   sfx.screech();
   const h = $('hurt'); h.style.transition = 'none'; h.style.opacity = 1; requestAnimationFrame(() => { h.style.transition = 'opacity 1.4s'; h.style.opacity = 0; });
   if (P.hp <= 0) { P.hp = 0; die(); return; }
@@ -387,7 +379,7 @@ function interact() {
     if (it.kind === 'note') { readNote(it); return; }
     it.taken = true; it.mesh.visible = false;
     if (it.kind === 'key') {
-      got[it.idx] = true; P.keys++; sfx.key(); refreshHud();
+      got[it.idx] = true; P.keys++; sfx.key(); refreshHud(); setFace(P.keys < TOTAL ? 'face_resolve' : 'face_relief', 3);
       toast('아이템을 획득했습니다', `${KEY_NAMES[it.idx]} 열쇠 조각 (${P.keys}/${TOTAL})`);
       talk(P.keys < 4 ? '열쇠 조각이다. 하나 더…' : '마지막 조각이야. 이제 정문으로!', 3000);
       if (P.keys === 1) activateGhost();
@@ -481,6 +473,7 @@ function die() {
   sfx.screech(); shake = 1.2;
   const fl = $('flash'); fl.style.transition = 'none'; fl.style.opacity = .9; requestAnimationFrame(() => { fl.style.transition = 'opacity 1.2s'; fl.style.opacity = 0; });
   $('prompt').style.display = 'none';
+  const j = $('jump'); j.classList.remove('show'); void j.offsetWidth; j.classList.add('show');
   setTimeout(() => { $('dead').classList.add('show'); document.exitPointerLock?.(); }, 1900);
 }
 
@@ -556,7 +549,7 @@ function load() {
 
 function start() {
   initAudio(); $('menu').classList.remove('show'); $('hud').classList.add('show');
-  state = 'playing'; refreshHud(); drawFace($('portrait'));
+  state = 'playing'; refreshHud();
   setTimeout(() => talk('무서워도… 가야지. 누군가는 알아야 하니까.', 4200), 500);
 }
 $('startBtn').addEventListener('click', () => { try { localStorage.removeItem(SAVE); } catch (e) { /* ignore */ } lock(); start(); });
@@ -673,7 +666,69 @@ function updateCamera(dt, t) {
 
 
 let miniT = 0;
+/* ---------- 레퍼런스 이미지: 표정 / 장소 컷 / 자료집 ---------- */
+let faceOver = null, faceT = 0, curFace = '';
+function setFace(k, t) { faceOver = k; faceT = t; }
+function updateFace(dt) {
+  faceT -= dt;
+  const want = faceT > 0 ? faceOver : P.fear > .6 ? 'face_fear' : P.hp <= 50 ? 'face_resolve' : 'face_basic';
+  if (want !== curFace) { curFace = want; $('portrait').src = $('dlgFace').src = `assets/img/${want}.webp`; }
+}
+// [이미지, 제목, 설명, 폐교 전 사진 여부]
+const CARDS = {
+  gate: ['gate_night', '폐교 정문', '버려진 시간 속, 멈춘 교실의 풍경'], corridor: ['v_corridor', '본관 복도', '끝이 보이지 않는 복도. 발소리가 두 번 울린다.'],
+  class: ['old_class', '교실', '칠판에는 아직 “다시, 여기서.”'], office: ['old_office', '교무실', '서류 더미 사이, 누군가 막 일어난 듯한 의자'],
+  library: ['v_library', '도서실', '대출 카드의 이름은 모두 같다'], lab: ['v_lab', '과학실', '불을 끄지 마'], music: ['v_music', '음악실', '피아노 뚜껑이 열려 있다'],
+  art: ['v_art', '미술실', '캔버스 속 얼굴들이 이쪽을 본다'], computer: ['v_computer', '컴퓨터실', '꺼진 모니터에 비친 실루엣'], nurse: ['v_nurse', '보건실', '침대 시트가 아직 따뜻하다'],
+  toilet: ['v_toilet', '화장실', '거울에 금이 가 있다'], stair: ['v_stairs', '중앙 계단', '위층에서 무언가 끌리는 소리'], broadcast: ['bc_main', '방송실', '아직 꺼지지 않은 목소리'],
+  roof: ['v_roof', '옥상', '가장 높은 곳, 여전히 바람이 부는 공간'], b1: ['b1_corr', '지하층 B1', '아무도 오지 않는, 더 깊은 곳'],
+  gym: ['gym_full', '체육관', '먼지 낀 코트 위에 공 하나가 굴러간다'], gymStage: ['gym_stage', '체육관 무대', '커튼 뒤에서 박수 소리가 들렸다'],
+  pool: ['pool_main', '수영장 (폐쇄)', '물이 빠진 채 조용히 남아있는 수영장'], poolLocker: ['pool_locker', '탈의실', '폐교 전 사진 — 누군가의 사물함이 아직 잠겨 있다', 1],
+  cafe: ['cafe_hall', '급식실', '폐교 전 사진 — 한 명분이 모자란 식판', 1], annex: ['annex_ext', '별관 (특별교실동)', '폐교 전 사진 — 다양한 꿈과 재능을 키우던 곳', 1],
+  annexOut: ['annex_ext', '별관 (특별교실동)', '폐교 전 사진 — 본관 뒤편의 특별교실동', 1], westGate: ['west_gate', '서문', '폐교 전 사진 — 행복한 배움, 함께 만드는 미래', 1],
+};
+Object.values(CARDS).forEach(c => { const im = new Image(); im.src = `assets/img/${c[0]}.webp`; });
+['face_fear', 'face_resolve', 'face_surprise', 'face_relief'].forEach(k => { const im = new Image(); im.src = `assets/img/${k}.webp`; });
+const seenCards = new Set(); let cardTimer = 0, areaT = 0;
+function showCard(k) {
+  if (seenCards.has(k)) return; seenCards.add(k);
+  const c = CARDS[k]; if (!c) return;
+  const el = $('card'); el.querySelector('img').src = `assets/img/${c[0]}.webp`;
+  el.querySelector('b').textContent = c[1]; el.querySelector('span').textContent = c[2];
+  el.classList.toggle('old', !!c[3]); el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
+  clearTimeout(cardTimer); cardTimer = setTimeout(() => el.classList.remove('show'), 4600);
+}
+function areaCheck(dt) {
+  areaT -= dt; if (areaT > 0) return; areaT = .3;
+  const f = P.floor; let k = null;
+  if (f === 5) k = P.z < 15.5 ? 'gymStage' : 'gym';
+  else if (f === 6) k = P.z < 30.2 ? 'poolLocker' : 'pool';
+  else if (f === 7) k = 'cafe'; else if (f === 3) k = 'roof';
+  else if (f === 0 && !(P.z < 1.45 && P.z > -9.9 && Math.abs(P.x) < 36.3)) {
+    if (P.z > 60) k = 'gate'; else if (P.x < -40 && Math.abs(P.z - 32) < 9) k = 'westGate'; else if (Math.abs(P.x) < 22 && P.z < -10.5) k = 'annexOut';
+  } else if (f <= 2 || f === 4 || f >= 8) {
+    const an = f >= 8, sl = an ? ANNEX.slots : SLOTS, lay = an ? ANNEX.floors[f - 8] : LAYOUT[f];
+    if (P.z > -1.75) k = f === 4 ? 'b1' : an ? 'annex' : 'corridor';
+    else { const i = sl.findIndex(c => Math.abs(P.x - c) < 4); if (i >= 0) k = lay.types[i]; }
+  }
+  if (k) showCard(k);
+}
+const REF_TITLES = ['폐교 실내 공간 3D 모델링 시트', '폐교 정문 3D 배경 시트', '교실 소품 오브젝트 시트', '폐교 내부 3D 배치도', '폐교 배치도 / 건물 도면', '주인공 캐릭터 시트', '인게임 화면 · UI 구성', '특수 공간 상세 배치도', '상호작용 UI 시트', '체육관 내부 시트', '방송실 내부 배치', '수영장 내부 배치', '방송실 · 수영장 · 지하 B1', '학교 지도', '급식실 배치도', '별관 (특별교실동)', '서문 상세 안내도', '방송실 상세 배치도', '수영장 샤워실 · 탈의실'];
+function openGallery() {
+  const gw = $('galGrid'); if (!gw.children.length) REF_TITLES.forEach((t, i) => {
+    const n = String(i + 1).padStart(2, '0'), d = document.createElement('figure');
+    d.innerHTML = `<img src="assets/ref/${n}_t.webp" alt="" loading="lazy"><figcaption>${i + 1}. ${t}</figcaption>`;
+    d.onclick = () => { $('lbImg').src = `assets/ref/${n}.webp`; $('lbCap').textContent = `${i + 1}. ${t}`; $('lightbox').classList.add('show'); };
+    gw.appendChild(d);
+  });
+  $('gallery').classList.add('show');
+}
+$('galBtn').addEventListener('click', openGallery); $('galBtn2').addEventListener('click', openGallery);
+$('galClose').addEventListener('click', () => $('gallery').classList.remove('show'));
+$('lightbox').addEventListener('click', () => $('lightbox').classList.remove('show'));
+
 function updateHud(dt, prox, chase) {
+  updateFace(dt); if (state === 'playing') areaCheck(dt);
   P.fear = lerp(P.fear, clamp(prox * (chase ? 1.2 : .7), 0, 1), Math.min(1, dt * 3));
   $('hpBar').style.width = P.hp + '%'; $('hpBar').style.background = P.hp > 50 ? '#5fc47a' : '#d0583c';
   $('sta').style.width = P.stamina + '%'; $('sta').style.background = P.tired ? '#a85040' : '#5a9ac8';

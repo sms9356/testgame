@@ -298,13 +298,12 @@ export const makeGlow = (c = '255,210,110') => ctex(64, 64, (g, w, h) => {
   gr.addColorStop(0, `rgba(${c},1)`); gr.addColorStop(.35, `rgba(${c},.35)`); gr.addColorStop(1, `rgba(${c},0)`);
   g.fillStyle = gr; g.fillRect(0, 0, 64, 64);
 }, { repeat: false });
-export const makeGatePlaque = () => ctex(128, 256, (g, w, h) => {
-  g.fillStyle = '#c9c2a4'; g.fillRect(0, 0, w, h);
-  speckle(g, w, h, 400, ['#6a6248', '#e8e2c8'], 2, 8, .4);
-  stains(g, w, h, 8, 'rgba(60,50,30,.5)', 40);
-  g.fillStyle = '#1c1812'; g.font = `900 78px ${FONT}`; g.textAlign = 'center';
-  g.fillText('폐', w / 2, 100); g.fillText('교', w / 2, 200);
-  g.strokeStyle = '#4a3a22'; g.lineWidth = 6; g.strokeRect(3, 3, w - 6, h - 6);
+export const makeGatePlaque = (text = '폐교') => ctex(128, 512, (g, w, h) => {
+  g.fillStyle = '#2a2620'; g.fillRect(0, 0, w, h);
+  speckle(g, w, h, 600, ['#14120e', '#5a5444'], 2, 8, .5); stains(g, w, h, 10, 'rgba(10,10,6,.5)', 50);
+  g.fillStyle = '#c8bea0'; g.font = `900 ${Math.min(84, (h - 40) / text.length)}px ${FONT}`; g.textAlign = 'center'; g.textBaseline = 'middle';
+  const step = (h - 40) / text.length; [...text].forEach((ch, i) => g.fillText(ch, w / 2, 20 + step * (i + .5)));
+  g.strokeStyle = '#8a7a5a'; g.lineWidth = 5; g.strokeRect(6, 6, w - 12, h - 12);
 }, { repeat: false });
 export const makeWarning = () => ctex(256, 160, (g, w, h) => {
   g.fillStyle = '#d8d4c8'; g.fillRect(0, 0, w, h);
@@ -514,43 +513,63 @@ function crackLines(H, R, N, n, len, depth) {
 }
 function crackBranch(H, N, x, y, a, steps, depth) { for (let s = 0; s < steps; s++) { a += rr(-.5, .5); x += Math.cos(a) * 1.6; y += Math.sin(a) * 1.6; const i = ((((y | 0) % N) + N) % N) * N + ((((x | 0) % N) + N) % N); H[i] -= depth; } }
 
-// 벽: 회반죽 + 벗겨진 페인트 + 곰팡이 + 물 얼룩 + 하단 청회색 징두리 페인트
-export function pbrWall(N = 1024) {
-  const big = fbm(N, 3, 4), fine = fbm(N, 64, 3), peel = fbm(N, 6, 5), mold = fbm(N, 5, 5), streak = fbm(N, 48, 2);
+// 벽: 상부 = 여러 겹 칠이 벗겨진 회반죽(크림 → 옛 청회색 → 맨 시멘트) · 하부 = 유약 타일 징두리(깨짐·빠짐·줄눈 때)
+// 텍스처 1장 = 4m × 4m. 타일 24장/4m (≈16.7cm), 징두리는 아래 9줄(≈1.5m)
+export function pbrWall(N = 2048) {
+  const big = fbm(N, 3, 4), fine = fbm(N, 64, 3), peel = fbm(N, 7, 6), peel2 = fbm(N, 11, 5), mold = fbm(N, 5, 5), streak = fbm(N, 48, 2), micro = fbm(N, 256, 1);
   const H = new Float32Array(N * N), R = new Float32Array(N * N), C = new Uint8ClampedArray(N * N * 3);
-  const dado = Math.round(N * .62);
+  const TN = 24, ts = N / TN, dado = N - 9 * ts;
+  const tiles = Array.from({ length: TN * 9 }, () => ({ v: rr(-12, 12), g: rr(-6, 6), miss: rnd() < .035, crack: rnd() < .12, chip: rnd() < .22, stain: rnd() < .15, ca: rnd() * 3.14 }));
   for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
-    const i = y * N + x, low = y > dado;
-    const plasterH = fine[i] * .5 + big[i] * .3;
-    const peeled = peel[i] > (low ? .64 : .67);
-    const edge = sstep(.6, .645, peel[i]) - sstep(.645, .69, peel[i]);
+    const i = y * N + x;
     let r, g, b, h, ro;
-    if (low && !peeled) { const t = big[i]; r = mixc(64, 92, t); g = mixc(86, 112, t); b = mixc(98, 124, t); h = .55 + plasterH * .25; ro = .5 + fine[i] * .25; }
-    else if (!peeled) { const t = big[i] * .7 + fine[i] * .3; r = mixc(150, 190, t); g = mixc(146, 184, t); b = mixc(130, 166, t); h = .5 + plasterH * .35; ro = .88; }
-    else { const t = fine[i]; r = mixc(96, 128, t); g = mixc(94, 124, t); b = mixc(88, 116, t); h = .35 + plasterH * .3; ro = .95; }
-    if (edge > .1 && !peeled) { r += 18; g += 18; b += 16; h += .08; }
-    // 위에서 흘러내린 물 얼룩
-    const st = Math.max(0, streak[(x % N)] - .55) * 3.2 * (1 - y / N * .9);
-    const sfac = st * (.6 + .4 * Math.sin(y * .05 + x));
-    r -= sfac * 60; g -= sfac * 52; b -= sfac * 40; ro -= sfac * .35;
-    // 곰팡이 (위·아래 가장자리)
-    const edgeY = Math.max(1 - y / (N * .25), (y - N * .82) / (N * .18), 0);
-    const m = sstep(.5, .75, mold[i] + edgeY * .35) * (.4 + fine[i] * .6);
-    r = mixc(r, 34, m * .85); g = mixc(g, 40, m * .85); b = mixc(b, 28, m * .85);
-    // 징두리 경계 몰딩
-    if (Math.abs(y - dado) < 5) { r = 40; g = 44; b = 46; h = .7; ro = .5; }
-    const v = (big[i] - .5) * 18; C[i * 3] = r + v; C[i * 3 + 1] = g + v; C[i * 3 + 2] = b + v;
-    H[i] = h; R[i] = Math.max(.15, Math.min(1, ro));
+    if (y >= dado) {
+      const ty = ((y - dado) / ts) | 0, tx = (x / ts) | 0, T = tiles[Math.min(8, ty) * TN + tx];
+      const lx = x % ts, ly = (y - dado) % ts, gd = Math.min(lx, ly, ts - lx, ts - ly);
+      const grout = gd < 2.2, bev = sstep(2, 6, gd);
+      // 유약 타일: 청록, 타일마다 미세한 색차, 가장자리 둥근 베벨
+      r = 54 + T.v * .6; g = 96 + T.v + T.g; b = 88 + T.v * .8; h = .62 + bev * .26 + micro[i] * .01; ro = .16 + fine[i] * .12;
+      const sh = 1 - (1 - bev) * .25; r *= sh; g *= sh; b *= sh;
+      if (T.stain) { const s2 = sstep(.4, .7, big[i]); r = mixc(r, 92, s2 * .5); g = mixc(g, 84, s2 * .5); b = mixc(b, 60, s2 * .5); ro += s2 * .3; }
+      if (T.chip && lx > ts * .7 && ly < ts * .3 && fine[i] > .5) { r = 150; g = 146; b = 132; h = .4; ro = .9; }
+      if (T.crack) { const d = Math.abs((lx - ts / 2) * Math.sin(T.ca) - (ly - ts / 2) * Math.cos(T.ca) + (fine[i] - .5) * 10); if (d < 1.1) { r *= .35; g *= .35; b *= .35; h = .3; ro = .9; } }
+      if (T.miss) { const v = 96 + (fine[i] - .5) * 40; r = v; g = v - 4; b = v - 10; h = .25 + fine[i] * .15; ro = .97; if (fine[i] > .62) { r *= .6; g *= .6; b *= .6; } }
+      if (grout && !T.miss) { const v = 70 + fine[i] * 30; r = v; g = v - 4; b = v - 10; h = .3; ro = .95; }
+    } else {
+      // 상부 벽: 1층 크림 페인트 → 2층 옛 청회색 페인트 → 회반죽 · 시멘트
+      const t = big[i] * .7 + fine[i] * .3, p1 = peel[i] + (fine[i] - .5) * .05, p2 = peel2[i];
+      const l1 = p1 > .63, l2 = l1 && p2 > .58;
+      const e1 = sstep(.6, .63, p1) * (1 - sstep(.63, .66, p1));
+      if (!l1) { r = mixc(168, 196, t); g = mixc(162, 188, t); b = mixc(140, 164, t); h = .62 + fine[i] * .05; ro = .82; }
+      else if (!l2) { r = mixc(122, 142, t); g = mixc(130, 148, t); b = mixc(130, 146, t); h = .5 + fine[i] * .05; ro = .7; }
+      else { const v = mixc(98, 128, micro[i] * .5 + fine[i] * .5); r = v; g = v - 3; b = v - 9; h = .36 + micro[i] * .1; ro = .97; }
+      if (e1 > .2) { r = mixc(r, 214, e1 * .7); g = mixc(g, 208, e1 * .7); b = mixc(b, 188, e1 * .7); h += e1 * .12; }   // 들뜬 페인트 가장자리
+      if (!l1 && p1 > .57 && p1 < .6) { r *= .82; g *= .82; b *= .82; }                                                    // 가장자리 그림자
+      // 위에서 흘러내린 물 얼룩
+      const st = Math.max(0, streak[x % N] - .6) * 2.2 * (1 - y / N * .9) * (.4 + big[i]), sfac = st * (.6 + .4 * Math.sin(y * .05 + x));
+      r -= sfac * 60; g -= sfac * 52; b -= sfac * 40; ro -= sfac * .35;
+      // 징두리 위 몰딩(나무 띠)
+      if (y > dado - 14) { const k = (y - (dado - 14)) / 14; r = 74 + k * 10; g = 56 + k * 6; b = 40; h = .75 - Math.abs(k - .5) * .3; ro = .5; }
+    }
+    // 곰팡이 (천장 아래 · 바닥 위 · 징두리 경계)
+    const edgeY = Math.max(1 - y / (N * .2), (y - N * .86) / (N * .14), 1 - Math.abs(y - dado) / (N * .05), 0);
+    const m = sstep(.62, .84, mold[i] + edgeY * .28) * (.4 + fine[i] * .6);
+    r = mixc(r, 38, m * .7); g = mixc(g, 46, m * .7); b = mixc(b, 30, m * .7); ro = mixc(ro, .9, m);
+    // 바닥 근처 때 · 천장 아래 그을음
+    const grime = Math.max(0, (y - N * .92) / (N * .08)) * (.6 + fine[i] * .4) + Math.max(0, 1 - y / (N * .06)) * .5;
+    r = mixc(r, 40, grime * .55); g = mixc(g, 36, grime * .55); b = mixc(b, 30, grime * .55);
+    const v = (big[i] - .5) * 14; C[i * 3] = r + v; C[i * 3 + 1] = g + v; C[i * 3 + 2] = b + v;
+    H[i] = h + (micro[i] - .5) * .03; R[i] = Math.max(.1, Math.min(1, ro));
   }
-  crackLines(H, R, N, 14, 160, .18);
+  crackLines(H, R, N, 12, 160, .18);
   const { cv, g } = colorTex(C, N);
-  // 낙서 긁힘 · 얼룩 레이어
-  g.globalAlpha = .25; for (let k = 0; k < 6; k++) { g.strokeStyle = pick(['#2a2420', '#5a1414', '#1a1a2a']); g.lineWidth = rr(1, 3); g.beginPath(); let x = rnd() * N, y = N * rr(.3, .6); g.moveTo(x, y); for (let s = 0; s < 6; s++) { x += rr(-40, 40); y += rr(-20, 20); g.lineTo(x, y); } g.stroke(); }
+  // 긁힌 자국 · 낙서 흔적
+  g.globalAlpha = .22; for (let k = 0; k < 6; k++) { g.strokeStyle = pick(['#2a2420', '#5a1414', '#1a1a2a']); g.lineWidth = rr(1, 3); g.beginPath(); let x = rnd() * N, y = N * rr(.25, .55); g.moveTo(x, y); for (let s = 0; s < 6; s++) { x += rr(-40, 40); y += rr(-20, 20); g.lineTo(x, y); } g.stroke(); }
   g.globalAlpha = 1;
   return { map: toTex(cv, true), normalMap: normalFromHeight(H, N, 6), roughnessMap: grayTex(R, N) };
 }
 // 바닥 타일: 8×8, 줄눈, 깨진 타일, 먼지, 젖은 얼룩
-export function pbrTile(N = 1024) {
+export function pbrTile(N = 2048) {
   const n = 8, s = N / n, dirt = fbm(N, 4, 5), fine = fbm(N, 96, 2), wet = fbm(N, 3, 4);
   const H = new Float32Array(N * N), R = new Float32Array(N * N), C = new Uint8ClampedArray(N * N * 3);
   const tileVar = Array.from({ length: n * n }, () => ({ v: rr(-14, 14), miss: rnd() < .05, chip: rnd() < .2, hue: rnd() < .5 ? 0 : 1 }));
@@ -569,12 +588,15 @@ export function pbrTile(N = 1024) {
     const w = sstep(.6, .72, wet[i]); r *= 1 - w * .35; g *= 1 - w * .33; b *= 1 - w * .3; ro = mixc(ro, .08, w);
     C[i * 3] = r; C[i * 3 + 1] = g; C[i * 3 + 2] = b; H[i] = h; R[i] = ro;
   }
+  // 테라조 골재 (작은 돌 조각)
+  for (let k = 0; k < N * N / 260; k++) { const cx = rnd() * N, cy = rnd() * N, rad = rr(.8, 2.4), d = rnd() < .5 ? rr(18, 34) : -rr(18, 30);
+    for (let y = -rad; y <= rad; y++) for (let x = -rad; x <= rad; x++) { if (x * x + y * y > rad * rad) continue; const i = (((cy + y) | 0) % N) * N + (((cx + x) | 0) % N); if (H[i] < .5) continue; C[i * 3] += d; C[i * 3 + 1] += d; C[i * 3 + 2] += d * .9; } }
   crackLines(H, R, N, 22, 120, .25);
   const { cv } = colorTex(C, N);
   return { map: toTex(cv, true), normalMap: normalFromHeight(H, N, 5), roughnessMap: grayTex(R, N) };
 }
 // 나무 마루: 판재, 결, 틈, 마모, 물 피해
-export function pbrWood(N = 1024, tint = [1, 1, 1]) {
+export function pbrWood(N = 2048, tint = [1, 1, 1]) {
   const pl = 10, s = N / pl, warp = fbm(N, 8, 4), wear = fbm(N, 4, 5), fine = fbm(N, 128, 2);
   const H = new Float32Array(N * N), R = new Float32Array(N * N), C = new Uint8ClampedArray(N * N * 3);
   const planks = Array.from({ length: pl }, () => ({ off: rnd() * N, v: rr(-16, 16), f: rr(18, 34) }));
@@ -648,7 +670,7 @@ export const makeBlood = (kind = 'hand') => ctex(256, 256, (g, w, h) => {
 // 미리 구운 PBR 텍스처 (assets/tex) 불러오기
 const _pbr = {};
 export async function loadPBR() {
-  const L = new THREE.TextureLoader(), names = ['wall', 'tile', 'wood', 'ceil', 'step', 'base'];
+  const L = new THREE.TextureLoader(), names = ['wall', 'tile', 'wood', 'ceil', 'step', 'base', 'varnish', 'varnishDark', 'paint', 'locker', 'rust', 'door', 'brick', 'facade', 'dirt', 'track'];
   await Promise.all(names.flatMap(n => ['map', 'normal', 'rough'].map(async m => {
     const t = await L.loadAsync(`assets/tex/${n}_${m}.webp`).catch(() => null); if (!t) return;
     t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 8; if (m === 'map') t.colorSpace = THREE.SRGBColorSpace;
@@ -657,3 +679,158 @@ export async function loadPBR() {
 }
 // 구운 텍스처가 있으면 쓰고, 없으면 즉석에서 생성
 export const pbr = (name, gen) => (_pbr[name] && _pbr[name].map && _pbr[name].normalMap && _pbr[name].roughnessMap) ? _pbr[name] : gen();
+
+/* ---------- 2차: 극사실 재질 (가구 · 문 · 금속 · 외벽 · 지면) ---------- */
+function pack(H, R, C, N, k = 5) { const { cv } = colorTex(C, N); return { map: toTex(cv, true), normalMap: normalFromHeight(H, N, k), roughnessMap: grayTex(R, N) }; }
+function scratches(H, R, C, N, n, len, depth, col) {
+  for (let s = 0; s < n; s++) {
+    let x = rnd() * N, y = rnd() * N; const a = rnd() * 6.28, L = len * (.3 + rnd());
+    for (let t = 0; t < L; t++) { x += Math.cos(a); y += Math.sin(a) + rr(-.2, .2); const i = ((((y | 0) % N) + N) % N) * N + ((((x | 0) % N) + N) % N); H[i] -= depth; R[i] = Math.min(1, R[i] + .15); if (col) { C[i * 3] = mixc(C[i * 3], col[0], .5); C[i * 3 + 1] = mixc(C[i * 3 + 1], col[1], .5); C[i * 3 + 2] = mixc(C[i * 3 + 2], col[2], .5); } }
+  }
+}
+// 니스 칠한 학교 책상 나무: 결 + 옹이 + 낙서 긁힘 + 닳은 모서리 + 껌 자국
+export function pbrVarnish(N = 1024, base = [150, 98, 56]) {
+  const warp = fbm(N, 6, 4), fine = fbm(N, 160, 2), wear = fbm(N, 3, 5);
+  const H = new Float32Array(N * N), R = new Float32Array(N * N), C = new Uint8ClampedArray(N * N * 3);
+  const knots = Array.from({ length: 4 }, () => [rnd() * N, rnd() * N, rr(14, 30)]);
+  for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+    const i = y * N + x; let w = warp[i] * 40;
+    for (const [kx, ky, kr] of knots) { const dx = x - kx, dy = (y - ky) * 3, d = Math.hypot(dx, dy); if (d < kr * 4) w += Math.sin(d / kr * 6) * (1 - d / (kr * 4)) * 14; }
+    const g = (Math.sin((y + w) * .21 + fine[i] * 2.5) * .5 + .5) * .55 + fine[i] * .45, g2 = Math.pow(Math.abs(Math.sin((y + w * 1.7) * .043 + warp[i] * 3)), 10);
+    let r = base[0] * (.86 + g * .12 - g2 * .18), gg = base[1] * (.86 + g * .12 - g2 * .2), b = base[2] * (.84 + g * .12 - g2 * .22);
+    const wv = sstep(.55, .8, wear[i]); r = mixc(r, r * .62, wv); gg = mixc(gg, gg * .6, wv); b = mixc(b, b * .58, wv);
+    C[i * 3] = r + (fine[i] - .5) * 10; C[i * 3 + 1] = gg + (fine[i] - .5) * 8; C[i * 3 + 2] = b + (fine[i] - .5) * 6;
+    H[i] = .6 + g * .03 + fine[i] * .02; R[i] = mixc(.32, .75, wv) + fine[i] * .08;
+  }
+  scratches(H, R, C, N, 70, 90, .06, [200, 170, 130]);
+  for (let k = 0; k < 6; k++) { const cx = rnd() * N, cy = rnd() * N, rad = rr(4, 10); for (let y = -rad; y <= rad; y++) for (let x = -rad; x <= rad; x++) if (x * x + y * y < rad * rad) { const i = ((((cy + y) | 0) % N + N) % N) * N + ((((cx + x) | 0) % N + N) % N); C[i * 3] = 60; C[i * 3 + 1] = 52; C[i * 3 + 2] = 48; H[i] = .66; R[i] = .9; } }
+  return pack(H, R, C, N, 4);
+}
+// 도장된 철판 (사물함·책상 다리·문틀): 페인트 + 찍힘 + 벗겨져 드러난 녹 + 녹물 흐름
+export function pbrPaintMetal(N = 1024, paint = [112, 128, 126]) {
+  const chip = fbm(N, 10, 5), big = fbm(N, 3, 4), fine = fbm(N, 128, 2), streak = fbm(N, 64, 2);
+  const H = new Float32Array(N * N), R = new Float32Array(N * N), C = new Uint8ClampedArray(N * N * 3);
+  for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+    const i = y * N + x, rusty = chip[i] > .73, edge = sstep(.69, .73, chip[i]) * (1 - sstep(.73, .75, chip[i]));
+    let r, g, b, h, ro;
+    if (rusty) { const t = fine[i]; r = mixc(92, 140, t); g = mixc(50, 72, t); b = mixc(28, 40, t); h = .42 + fine[i] * .12; ro = .9; }
+    else { const v = (big[i] - .5) * 18 + (fine[i] - .5) * 6; r = paint[0] + v; g = paint[1] + v; b = paint[2] + v; h = .6 + fine[i] * .01; ro = .42 + big[i] * .15; }
+    if (edge > .2) { r = mixc(r, 175, .5); g = mixc(g, 178, .5); b = mixc(b, 170, .5); h += .03; }
+    const st = Math.max(0, streak[x] - .62) * 2.2 * (y / N);
+    r = mixc(r, 110, st * .6); g = mixc(g, 60, st * .6); b = mixc(b, 30, st * .6);
+    C[i * 3] = r; C[i * 3 + 1] = g; C[i * 3 + 2] = b; H[i] = h; R[i] = ro;
+  }
+  scratches(H, R, C, N, 40, 60, .05, [170, 170, 160]);
+  // 찌그러짐
+  for (let k = 0; k < 5; k++) { const cx = rnd() * N, cy = rnd() * N, rad = rr(30, 80); for (let y = -rad; y <= rad; y++) for (let x = -rad; x <= rad; x++) { const d = Math.hypot(x, y); if (d < rad) { const i = ((((cy + y) | 0) % N + N) % N) * N + ((((cx + x) | 0) % N + N) % N); H[i] -= Math.cos(d / rad * 1.57) * .08; } } }
+  return pack(H, R, C, N, 6);
+}
+// 페인트 칠한 나무 문짝: 패널 몰딩 + 벗겨진 페인트 아래 나무
+export function pbrDoor(N = 1024, paint = [104, 78, 54]) {
+  const warp = fbm(N, 6, 4), chip = fbm(N, 8, 5), fine = fbm(N, 128, 2), dirt = fbm(N, 3, 4);
+  const H = new Float32Array(N * N), R = new Float32Array(N * N), C = new Uint8ClampedArray(N * N * 3);
+  for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+    const i = y * N + x, u = x / N, v = y / N;
+    const inPanel = (u > .12 && u < .88) && ((v > .07 && v < .45) || (v > .53 && v < .93));
+    const bev = inPanel ? Math.min(u - .12, .88 - u, Math.abs(v - (v < .5 ? .07 : .53)), Math.abs((v < .5 ? .45 : .93) - v)) : 1;
+    const grain = Math.sin((x + warp[i] * 50) * .3) * .5 + .5, peeled = chip[i] > .68;
+    let r, g, b;
+    if (peeled) { r = 120 + grain * 30; g = 86 + grain * 22; b = 54 + grain * 14; }
+    else { const vv = (dirt[i] - .5) * 30; r = paint[0] + vv + grain * 6; g = paint[1] + vv + grain * 5; b = paint[2] + vv + grain * 4; }
+    const d = sstep(.55, .8, dirt[i]) * (v > .8 ? 1 : .4); r = mixc(r, 40, d * .5); g = mixc(g, 34, d * .5); b = mixc(b, 28, d * .5);
+    C[i * 3] = r; C[i * 3 + 1] = g; C[i * 3 + 2] = b;
+    H[i] = (inPanel ? .45 + sstep(0, .02, bev) * .1 : .6) + grain * .02 + (peeled ? -.03 : 0); R[i] = peeled ? .85 : .5 + dirt[i] * .2;
+  }
+  return pack(H, R, C, N, 6);
+}
+// 붉은 벽돌 (외벽): 벽돌마다 색 편차 + 깨진 모서리 + 줄눈 + 이끼 + 백화
+export function pbrBrick(N = 1024) {
+  const rows = 16, cols = 8, bh = N / rows, bw = N / cols, fine = fbm(N, 96, 3), moss = fbm(N, 4, 5), efflo = fbm(N, 6, 4);
+  const H = new Float32Array(N * N), R = new Float32Array(N * N), C = new Uint8ClampedArray(N * N * 3);
+  const bv = Array.from({ length: rows * cols * 2 }, () => [rr(-22, 22), rr(-10, 10), rnd() < .08]);
+  for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+    const i = y * N + x, row = (y / bh) | 0, off = (row & 1) ? bw / 2 : 0, xx = (x + off) % N, col = (xx / bw) | 0;
+    const lx = xx % bw, ly = y % bh, gd = Math.min(lx, ly, bw - lx, bh - ly), V = bv[row * cols + col];
+    const mortar = gd < 4 + fine[i] * 2;
+    let r, g, b, h, ro;
+    if (mortar) { r = 128; g = 122; b = 112; h = .2 + fine[i] * .1; ro = .95; }
+    else { r = 142 + V[0] + (fine[i] - .5) * 30; g = 70 + V[1] + (fine[i] - .5) * 16; b = 52 + V[1] * .6 + (fine[i] - .5) * 12; h = .6 + sstep(4, 10, gd) * .2 + fine[i] * .1 - (V[2] && fine[i] > .6 ? .3 : 0); ro = .82 + fine[i] * .1; }
+    const m = sstep(.6, .78, moss[i]) * (y / N); r = mixc(r, 54, m * .7); g = mixc(g, 70, m * .7); b = mixc(b, 40, m * .7);
+    const e = sstep(.68, .8, efflo[i]) * (1 - y / N); r = mixc(r, 210, e * .45); g = mixc(g, 206, e * .45); b = mixc(b, 196, e * .45);
+    C[i * 3] = r; C[i * 3 + 1] = g; C[i * 3 + 2] = b; H[i] = h; R[i] = ro;
+  }
+  return pack(H, R, C, N, 7);
+}
+// 외벽 콘크리트 패널: 거푸집 이음새 + 빗물 자국 + 이끼 + 균열
+export function pbrFacade(N = 1024) {
+  const big = fbm(N, 3, 5), fine = fbm(N, 96, 3), streak = fbm(N, 56, 2), moss = fbm(N, 5, 5);
+  const H = new Float32Array(N * N), R = new Float32Array(N * N), C = new Uint8ClampedArray(N * N * 3);
+  for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+    const i = y * N + x, seam = (x % (N / 2)) < 3 || (y % (N / 2)) < 3, tie = ((x % (N / 4)) - N / 8) ** 2 + ((y % (N / 4)) - N / 8) ** 2 < 30;
+    let v = 150 + (big[i] - .5) * 40 + (fine[i] - .5) * 18;
+    let r = v, g = v - 2, b = v - 8, h = .55 + fine[i] * .2 + big[i] * .08, ro = .9;
+    const st = Math.max(0, streak[x] - .6) * 2.2 * (.3 + y / N) * (.6 + big[i] * .8); r -= st * 50; g -= st * 47; b -= st * 40; ro -= st * .15;
+    const m = sstep(.58, .78, moss[i]) * Math.min(1, y / N * 1.6); r = mixc(r, 58, m * .65); g = mixc(g, 70, m * .65); b = mixc(b, 44, m * .65);
+    if (seam) { r *= .6; g *= .6; b *= .6; h = .3; }
+    if (tie) { r *= .7; g *= .7; b *= .7; h = .35; }
+    C[i * 3] = r; C[i * 3 + 1] = g; C[i * 3 + 2] = b; H[i] = h; R[i] = ro;
+  }
+  crackLines(H, R, N, 10, 140, .22);
+  return pack(H, R, C, N, 6);
+}
+// 운동장 흙: 갈라진 마른 흙 · 젖은 진흙 · 자갈 · 타이어 자국 · 발자국 · 잡초
+export function pbrDirt(N = 1024) {
+  const big = fbm(N, 4, 5), fine = fbm(N, 128, 3), wet = fbm(N, 3, 4), dry = fbm(N, 5, 4), grass = fbm(N, 9, 4);
+  const H = new Float32Array(N * N), R = new Float32Array(N * N), C = new Uint8ClampedArray(N * N * 3);
+  // 마른 땅 균열용 보로노이 (타일링)
+  const P = [], cell = N / 14; for (let gy = 0; gy < 14; gy++) for (let gx = 0; gx < 14; gx++) P.push([(gx + rnd()) * cell, (gy + rnd()) * cell]);
+  const vor = (x, y) => { let d1 = 1e9, d2 = 1e9; const gx = (x / cell) | 0, gy = (y / cell) | 0;
+    for (let oy = -1; oy <= 1; oy++) for (let ox = -1; ox <= 1; ox++) { const cx = (gx + ox + 14) % 14, cy = (gy + oy + 14) % 14, p = P[cy * 14 + cx]; let dx = p[0] - x, dy = p[1] - y; if (dx > N / 2) dx -= N; if (dx < -N / 2) dx += N; if (dy > N / 2) dy -= N; if (dy < -N / 2) dy += N; const d = dx * dx + dy * dy; if (d < d1) { d2 = d1; d1 = d; } else if (d < d2) d2 = d; }
+    return Math.sqrt(d2) - Math.sqrt(d1); };
+  for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+    const i = y * N + x, w = sstep(.6, .72, wet[i]), dz = sstep(.55, .66, dry[i]) * (1 - w);
+    let r = 104 + (big[i] - .5) * 40 + (fine[i] - .5) * 30, g = 86 + (big[i] - .5) * 32 + (fine[i] - .5) * 24, b = 64 + (big[i] - .5) * 22 + (fine[i] - .5) * 16;
+    let h = .5 + fine[i] * .3 + big[i] * .1, ro = .95;
+    if (dz > 0) { const e = vor(x, y), crack = 1 - sstep(1.2, 3.2, e + (fine[i] - .5) * 2); r = mixc(r, 150, dz * .35); g = mixc(g, 128, dz * .35); b = mixc(b, 96, dz * .35); h += dz * sstep(0, 8, e) * .15; if (crack > .3) { r *= 1 - crack * dz * .65; g *= 1 - crack * dz * .65; b *= 1 - crack * dz * .65; h -= crack * dz * .35; } }
+    const gr = sstep(.66, .8, grass[i]) * (fine[i] > .45 ? 1 : .3) * (1 - w);
+    r = mixc(r, 58, gr * .7); g = mixc(g, 76, gr * .7); b = mixc(b, 38, gr * .7); h += gr * .1;
+    r *= 1 - w * .48; g *= 1 - w * .46; b *= 1 - w * .4; h -= w * .15; ro = mixc(ro, .08, w);
+    C[i * 3] = r; C[i * 3 + 1] = g; C[i * 3 + 2] = b; H[i] = h; R[i] = ro;
+  }
+  // 타이어 자국 (두 줄, 바퀴 무늬)
+  for (let t = 0; t < 2; t++) { let x = rnd() * N, y = 0, a = rr(-.25, .25); for (let s = 0; s < N * 1.2; s++) { a += rr(-.01, .01); x += Math.sin(a); y += Math.cos(a);
+    for (const off of [-26, 26]) for (let k = -7; k <= 7; k++) { const ix = (((x + off + k) | 0) % N + N) % N, iy = ((y | 0) % N + N) % N, i = iy * N + ix, tread = ((s + Math.abs(k) * 2) % 9) < 4; H[i] -= tread ? .12 : .06; C[i * 3] *= .82; C[i * 3 + 1] *= .82; C[i * 3 + 2] *= .84; } } }
+  // 발자국
+  for (let f = 0; f < 18; f++) { let x = rnd() * N, y = rnd() * N; const a = rnd() * 6.28; for (let s = 0; s < 6; s++) { const sx = x + Math.cos(a) * s * 40 + Math.cos(a + 1.57) * (s & 1 ? 9 : -9), sy = y + Math.sin(a) * s * 40 + Math.sin(a + 1.57) * (s & 1 ? 9 : -9);
+    for (let yy = -12; yy <= 12; yy++) for (let xx = -5; xx <= 5; xx++) { const lx = xx * Math.cos(a + 1.57) + yy * Math.cos(a), ly = xx * Math.sin(a + 1.57) + yy * Math.sin(a); if ((xx * xx) / 25 + (yy * yy) / 144 > 1) continue; const i = ((((sy + ly) | 0) % N + N) % N) * N + ((((sx + lx) | 0) % N + N) % N); H[i] -= .08; C[i * 3] *= .85; C[i * 3 + 1] *= .85; C[i * 3 + 2] *= .86; } } }
+  for (let k = 0; k < 900; k++) { const cx = rnd() * N, cy = rnd() * N, rad = rr(1.5, 4.5), c = rr(70, 112); for (let y = -rad; y <= rad; y++) for (let x = -rad; x <= rad; x++) { const d = x * x + y * y; if (d < rad * rad) { const i = ((((cy + y) | 0) % N + N) % N) * N + ((((cx + x) | 0) % N + N) % N); C[i * 3] = c; C[i * 3 + 1] = c - 6; C[i * 3 + 2] = c - 14; H[i] = .8 - d / (rad * rad) * .2; R[i] = .7; } } }
+  return pack(H, R, C, N, 6);
+}
+// 우레탄 트랙: 붉은 고무 알갱이 · 닳은 자국 · 물기
+export function pbrTrack(N = 1024) {
+  const big = fbm(N, 4, 5), fine = fbm(N, 256, 1), mid = fbm(N, 32, 3), wet = fbm(N, 3, 4);
+  const H = new Float32Array(N * N), R = new Float32Array(N * N), C = new Uint8ClampedArray(N * N * 3);
+  for (let i = 0; i < N * N; i++) {
+    const gr = fine[i], wear = sstep(.6, .85, big[i]), w = sstep(.68, .8, wet[i]) * .7;
+    let r = 132 + (gr - .5) * 60 + (mid[i] - .5) * 20, g = 46 + (gr - .5) * 22, b = 38 + (gr - .5) * 16;
+    if (gr > .8) { r -= 40; g -= 14; b -= 10; }
+    r = mixc(r, 96, wear * .5); g = mixc(g, 64, wear * .5); b = mixc(b, 54, wear * .5);
+    r *= 1 - w * .35; g *= 1 - w * .35; b *= 1 - w * .3;
+    C[i * 3] = r; C[i * 3 + 1] = g; C[i * 3 + 2] = b; H[i] = .5 + gr * .35 + mid[i] * .1 - wear * .05; R[i] = mixc(.9 - wear * .1, .15, w);
+  }
+  return pack(H, R, C, N, 8);
+}
+// 담쟁이덩굴 (알파): 줄기 + 잎 무리
+export const makeIvy = () => ctex(512, 1024, (g, w, h) => {
+  g.clearRect(0, 0, w, h);
+  const leaf = (x, y, s, a) => { g.save(); g.translate(x, y); g.rotate(a); const c = rr(.7, 1.15); g.fillStyle = `rgb(${34 * c | 0},${rr(58, 82) * c | 0},${26 * c | 0})`;
+    g.beginPath(); g.moveTo(0, 0); g.bezierCurveTo(-s, -s * .4, -s * .8, -s * 1.3, 0, -s * 1.6); g.bezierCurveTo(s * .8, -s * 1.3, s, -s * .4, 0, 0); g.fill();
+    g.strokeStyle = 'rgba(10,20,8,.6)'; g.lineWidth = 1; g.beginPath(); g.moveTo(0, 0); g.lineTo(0, -s * 1.4); g.stroke(); g.restore(); };
+  for (let v = 0; v < 7; v++) {
+    let x = rr(.15, .85) * w, y = h; const pts = [];
+    g.strokeStyle = '#3a2e20'; g.lineWidth = rr(2, 4); g.beginPath(); g.moveTo(x, y);
+    while (y > rr(.05, .4) * h) { x += rr(-14, 14); y -= rr(10, 20); x = Math.max(10, Math.min(w - 10, x)); g.lineTo(x, y); pts.push([x, y]); }
+    g.stroke();
+    pts.forEach(([px, py], k) => { const n = 2 + (rnd() * 3 | 0); for (let j = 0; j < n; j++) leaf(px + rr(-26, 26), py + rr(-12, 12), rr(9, 18) * (1 - k / pts.length * .4), rr(-1.4, 1.4)); });
+  }
+}, { repeat: false });

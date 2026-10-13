@@ -7,7 +7,8 @@
 ./start.sh        # 또는: npm start / python3 -m http.server 8000
 → 브라우저(Chrome·Edge 권장)에서 http://localhost:8000 접속 → "새로 시작"
 ```
-정적 파일뿐이라 GitHub Pages 등 어떤 정적 호스팅에도 그대로 올릴 수 있습니다 (`.nojekyll` 포함). 데스크톱 키보드+마우스 전용, 헤드폰 권장.
+**온라인 플레이:** https://sms9356.github.io/testgame/ (테스트 모드: https://sms9356.github.io/testgame/?test)
+`main` 에 머지되면 워크플로가 `gh-pages` 브랜치를 갱신하고 GitHub Pages가 자동 배포합니다 (`.nojekyll` 포함). 데스크톱 키보드+마우스 전용, 헤드폰 권장.
 
 ## 테스트 모드
 주소 뒤에 `?test` 를 붙이거나 메뉴의 **테스트 모드** 버튼으로 들어갑니다 (예: `https://sms9356.github.io/testgame/?test`).

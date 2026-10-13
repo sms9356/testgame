@@ -27,7 +27,7 @@
   #hud.show{display:block}
   .panel{background:rgba(10,14,18,.78);border:1px solid #3a4650}
   #who{position:absolute;left:20px;top:18px;display:flex;gap:10px;align-items:center;padding:8px 12px 8px 8px;width:270px}
-  #portrait{width:58px;height:58px;border-radius:50%;border:2px solid #6a7782;background:#10161c}
+  #portrait{width:58px;height:58px;border-radius:50%;border:2px solid #6a7782;background:#10161c;object-fit:cover;object-position:50% 30%}
   #who .bars{flex:1;font-size:12px}
   #who .nm{font-size:14px;margin-bottom:4px;display:flex;justify-content:space-between}
   #stat{font-size:11px;color:#6fd08c}
@@ -64,7 +64,7 @@
   .slot .sb i{display:block;height:100%;background:#e8d27a}
   #dlg{position:absolute;left:50%;bottom:104px;transform:translateX(-50%);width:min(620px,86vw);padding:10px 14px;display:none;gap:12px;align-items:center;font-size:16px;line-height:1.6}
   #dlg.show{display:flex}
-  #dlgFace{width:48px;height:48px;border-radius:50%;border:2px solid #6a7782;flex:none}
+  #dlgFace{width:52px;height:52px;border-radius:50%;border:2px solid #6a7782;flex:none;object-fit:cover;object-position:50% 30%}
   #dlg b{display:block;font-size:12px;color:#f2c14e;letter-spacing:.1em}
   #prompt{position:absolute;left:50%;top:60%;transform:translateX(-50%);padding:6px 16px;font-size:17px;letter-spacing:.1em;
     background:rgba(0,0,0,.6);border:1px solid #5a554a;display:none;white-space:nowrap}
@@ -96,6 +96,32 @@
   .legend{display:flex;gap:18px;flex-wrap:wrap;font-size:12px;color:var(--dim);margin-top:10px}
   .menuBtns{display:flex;flex-direction:column;gap:10px;align-items:stretch;min-width:260px}
   #helpBox{display:none;margin-top:16px}
+  #menu{background:linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,.88)),url(assets/img/menu_bg.webp) center/cover no-repeat}
+  #dead{background:linear-gradient(rgba(40,0,0,.72),rgba(0,0,0,.92)),url(assets/img/ghost_cut.webp) center/cover no-repeat}
+  #win{background:linear-gradient(rgba(0,0,0,.5),rgba(0,0,0,.85)),url(assets/img/gate_night.webp) center/cover no-repeat}
+  #card{position:fixed;left:50%;top:84px;transform:translate(-50%,-10px);width:min(460px,46vw);z-index:6;pointer-events:none;opacity:0;transition:opacity .9s,transform .9s;
+    background:#0c0f12;border:1px solid #4a545c;padding:8px 8px 10px;box-shadow:0 10px 40px rgba(0,0,0,.7)}
+  #card.show{opacity:1;transform:translate(-50%,0)}
+  #card img{width:100%;display:block;aspect-ratio:16/9;object-fit:cover;filter:contrast(1.05) brightness(.9)}
+  #card.old img{filter:sepia(.6) saturate(.55) brightness(.8) contrast(1.1)}
+  #card b{display:block;margin-top:8px;font-size:18px;letter-spacing:.15em}
+  #card span{font-size:13px;color:#a7a396}
+  #card.old:after{content:'폐교 전 사진';position:absolute;left:16px;top:16px;font-size:11px;padding:2px 8px;background:rgba(0,0,0,.6);border:1px solid #8a7a5a;color:#d8c8a0}
+  #jump{position:fixed;inset:0;z-index:8;pointer-events:none;opacity:0;background:#000 url(assets/img/ghost_cut.webp) center 20%/auto 135% no-repeat;filter:contrast(1.35) saturate(.5) brightness(1.15)}
+  #jump.show{animation:jmp 1.9s steps(1) forwards}
+  @keyframes jmp{0%{opacity:1;transform:scale(1)}12%{opacity:0}18%{opacity:1;transform:scale(1.08)}30%{opacity:.15}38%{opacity:1;transform:scale(1.18)}90%{opacity:1}100%{opacity:0}}
+  .invImg{display:block;width:100%;margin-top:12px;border:1px solid #3a4650}
+  #guide{display:none;grid-template-columns:1.4fr 1fr;gap:8px}
+  #guide img{width:100%;display:block;border:1px solid #2c3640}
+  #gallery .win{width:min(1100px,94vw);max-height:90vh;overflow:auto}
+  #galGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px}
+  #galGrid figure{cursor:pointer;background:#151c22;border:1px solid #2c3640;margin:0}
+  #galGrid figure:hover{border-color:#6a8aa8}
+  #galGrid img{width:100%;display:block;aspect-ratio:3/2;object-fit:cover}
+  #galGrid figcaption{font-size:12px;padding:6px 8px;color:#b8b4a8}
+  #lightbox{z-index:30;cursor:zoom-out;background:rgba(0,0,0,.94)}
+  #lightbox img{max-width:96vw;max-height:88vh;object-fit:contain}
+  #lbCap{margin-top:10px;color:#b8b4a8;font-size:14px}
   #testBadge{display:none;position:absolute;right:20px;top:184px;font-size:11px;letter-spacing:.2em;padding:2px 8px;background:#7a2a10;color:#ffd9a8;border:1px solid #c06030}
   #testOv .win{width:min(820px,92vw)}
   #testOv h3{font-size:13px;color:var(--dim);letter-spacing:.2em;margin:14px 0 8px}
@@ -125,7 +151,7 @@
 <div id="vig"></div><div id="fear"></div><div id="hide"></div><div id="fade"></div><div id="flash"></div>
 
 <div id="hud">
-  <div id="who" class="panel"><canvas id="portrait" width="64" height="64"></canvas>
+  <div id="who" class="panel"><img id="portrait" src="assets/img/face_basic.webp" alt="서연">
     <div class="bars"><div class="nm"><span>서연</span><span id="stat">정상</span></div>
       <div class="row"><u>HP</u><div class="bar"><i id="hpBar"></i></div></div>
       <div class="row"><u>ST</u><div class="bar"><i id="sta"></i></div></div>
@@ -141,10 +167,12 @@
     <div class="slot" id="s3"><small>3</small>🩹<em id="c3">0</em></div>
     <div class="slot" id="s4"><small>4</small>🗝<em id="c4">0</em></div>
   </div>
-  <div id="dlg" class="panel"><canvas id="dlgFace" width="48" height="48"></canvas><div><b>서연</b><span id="dlgText"></span></div></div>
+  <div id="dlg" class="panel"><img id="dlgFace" src="assets/img/face_basic.webp" alt=""><div><b>서연</b><span id="dlgText"></span></div></div>
   <div id="cross"></div><div id="prompt"></div><div id="msg"></div>
 </div>
 <div id="hurt"></div>
+<div id="card"><img alt=""><b></b><span></span></div>
+<div id="jump"></div>
 
 <div id="inv" class="overlay"><div class="win">
   <div class="tabs"><kbd>Q</kbd><button data-tab="items">아이템</button><button data-tab="docs">문서</button><button data-tab="keys">열쇠</button><kbd>E</kbd><span style="margin-left:auto">Tab 닫기</span></div>
@@ -155,8 +183,9 @@
   <h3>치트 / 상태</h3><div class="tgrid" id="testAct"></div>
   <div id="testInfo"></div></div></div>
 <div id="mapOv" class="overlay"><div class="win" id="mapWrap">
-  <div class="tabs"><button data-f="10">별관 3F</button><button data-f="9">별관 2F</button><button data-f="8">별관 1F</button><button data-f="7">급식실</button><button data-f="6">수영장</button><button data-f="5">체육관</button><button data-f="3">RF (옥상)</button><button data-f="2">3F</button><button data-f="1">2F</button><button data-f="0">1F / 외부</button><button data-f="4">B1</button><span style="margin-left:auto">M 닫기</span></div>
+  <div class="tabs"><button data-f="10">별관 3F</button><button data-f="9">별관 2F</button><button data-f="8">별관 1F</button><button data-f="7">급식실</button><button data-f="guide">학교 안내도</button><button data-f="6">수영장</button><button data-f="5">체육관</button><button data-f="3">RF (옥상)</button><button data-f="2">3F</button><button data-f="1">2F</button><button data-f="0">1F / 외부</button><button data-f="4">B1</button><span style="margin-left:auto">M 닫기</span></div>
   <canvas id="bigMap" width="900" height="520"></canvas>
+  <div id="guide"><img src="assets/img/map_aerial.webp" alt="학교 지도"><img src="assets/img/map_floors.webp" alt="본관 층별 안내"></div>
   <div class="legend"><span>🔺 현재 위치</span><span style="color:#e04048">● 목표 위치</span><span style="color:#4cc07a">● 조사 완료</span><span style="color:#9a6ad8">■ 숨을 곳(사물함)</span><span>▭ 계단</span></div></div></div>
 
 <div id="menu" class="overlay show">
@@ -164,7 +193,7 @@
   <div class="sub">다 시 ,  여 기 서</div>
   <p class="story">십 년 전 문을 닫은 학교. 휴학 중인 대학생 <b>한서연</b>은 친구의 마지막 흔적을 찾아 이곳에 왔다.<br>정문이 등 뒤에서 잠겼다. 열쇠는 다섯 조각으로 부서져 학교 곳곳에 흩어져 있다.<br>불이 꺼진 복도에서 그것은 소리를 듣고 있다.</p>
   <div id="menuTest">테스트 모드 — 게임 중 T 키로 순간이동·치트 메뉴</div>
-  <div class="menuBtns"><button class="btn" id="startBtn">새로 시작</button><button class="btn" id="loadBtn" style="display:none">이어하기</button><button class="btn" id="helpBtn">조작 방법</button><a class="btn" id="testLink" href="?test" style="text-decoration:none;text-align:center;font-size:14px">테스트 모드</a></div>
+  <div class="menuBtns"><button class="btn" id="startBtn">새로 시작</button><button class="btn" id="loadBtn" style="display:none">이어하기</button><button class="btn" id="helpBtn">조작 방법</button><button class="btn" id="galBtn">설정 자료집</button><a class="btn" id="testLink" href="?test" style="text-decoration:none;text-align:center;font-size:14px">테스트 모드</a></div>
   <div class="help" id="helpBox">
     <span><b>W A S D / 마우스</b></span><span>이동 / 시선</span>
     <span><b>Shift</b></span><span>달리기 (소리가 납니다)</span>
@@ -175,7 +204,9 @@
     <span><b>Tab · M</b></span><span>인벤토리 · 지도 (Esc: 일시정지/저장)</span>
   </div>
 </div>
-<div id="pause" class="overlay"><h2>일시정지</h2><div class="menuBtns"><button class="btn" id="resumeBtn">계속하기</button><button class="btn" id="saveBtn">저장하기</button><button class="btn" id="titleBtn">타이틀로 돌아가기</button></div></div>
+<div id="pause" class="overlay"><h2>일시정지</h2><div class="menuBtns"><button class="btn" id="resumeBtn">계속하기</button><button class="btn" id="saveBtn">저장하기</button><button class="btn" id="galBtn2">설정 자료집</button><button class="btn" id="titleBtn">타이틀로 돌아가기</button></div></div>
+<div id="gallery" class="overlay"><div class="win"><div class="tabs"><b style="font-size:16px">설정 자료집 — 레퍼런스 시트 19장</b><button id="galClose" style="margin-left:auto">닫기</button></div><div id="galGrid"></div></div></div>
+<div id="lightbox" class="overlay"><img id="lbImg" alt=""><div id="lbCap"></div></div>
 <div id="noteBox" class="overlay"><div id="note"></div><p class="sub" style="margin-top:24px">E 또는 클릭으로 닫기</p></div>
 <div id="dead" class="overlay"><h2 style="color:#b3262e">당신은 돌아오지 못했다</h2>
   <p class="story">칠판에 한 줄이 더 늘었다.<br>“다시, 여기서.”</p><button class="btn" id="retryBtn">다시 시도</button></div>

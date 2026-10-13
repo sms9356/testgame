@@ -1,7 +1,7 @@
 // 게임 설정 (그래픽 · 조작 · 자막 · 접근성) — localStorage 에 저장된다. 볼륨은 audio.js, 음성·자막 모드는 voice.js 가 따로 저장한다.
 export const DEF = {
   quality: 'auto', scale: 1, bright: 1, fov: 72, bloom: true, grain: true, bob: true, shake: true, showFps: false,
-  sens: 1, invertY: false, runToggle: false, hints: true,
+  sens: 1, invertY: false, runToggle: false, hints: true, view: 1, camDist: 2.4,
   subBg: .45, subNames: true,
   diff: 'normal', jump: 'full', flashReduce: false, fearFx: true,
 };

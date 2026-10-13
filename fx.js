@@ -9,11 +9,11 @@ import { OutputPass } from './vendor/addons/postprocessing/OutputPass.js';
 const FinalShader = {
   uniforms: {
     tDiffuse: { value: null }, uTime: { value: 0 }, uFear: { value: 0 }, uGlitch: { value: 0 },
-    uGrain: { value: .035 }, uRes: { value: new THREE.Vector2(1, 1) }, uFlash: { value: 0 }, uHurt: { value: 0 },
+    uGrain: { value: .035 }, uRes: { value: new THREE.Vector2(1, 1) }, uFlash: { value: 0 }, uHurt: { value: 0 }, uRain: { value: 0 },
   },
   vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
   fragmentShader: `
-    uniform sampler2D tDiffuse; uniform float uTime, uFear, uGlitch, uGrain, uFlash, uHurt; uniform vec2 uRes; varying vec2 vUv;
+    uniform sampler2D tDiffuse; uniform float uTime, uFear, uGlitch, uGrain, uFlash, uHurt, uRain; uniform vec2 uRes; varying vec2 vUv;
     float h(vec2 p){ return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
     void main(){
       vec2 uv = vUv;
@@ -22,6 +22,23 @@ const FinalShader = {
         float band = floor(uv.y * 24.0 + floor(uTime * 18.0) * 7.0);
         float r = h(vec2(band, floor(uTime * 22.0)));
         if (r < uGlitch * .55) uv.x += (h(vec2(band, uTime)) - .5) * .08 * uGlitch;
+      }
+      // 렌즈에 맺힌 빗방울 (야외)
+      if (uRain > 0.0) {
+        vec2 asp = vec2(uRes.x / uRes.y, 1.0);
+        for (int L = 0; L < 2; L++) {
+          float sc = L == 0 ? 7.0 : 13.0;
+          vec2 g = uv * asp * sc; g.y += uTime * (L == 0 ? .05 : .11);
+          vec2 id = floor(g), f = fract(g) - .5;
+          float r = h(id + float(L) * 7.3);
+          if (r > .62) {
+            float life = fract(uTime * (.08 + r * .1) + r * 9.0);
+            vec2 o = vec2(h(id + 1.7) - .5, h(id + 3.1) - .5) * .5; o.y += life * .25;
+            float dd = length((f - o) * vec2(1.0, .8)), rad = .12 + .1 * h(id + 5.0);
+            float m = smoothstep(rad, rad * .55, dd) * (1.0 - life) * uRain;
+            uv += (f - o) * m * -.06;
+          }
+        }
       }
       vec2 c = uv - .5; float d = length(c);
       // 렌즈 왜곡 + 색수차
@@ -134,6 +151,38 @@ export function createFX(renderer, scene, camera) {
   });
   const petals = new THREE.Points(petG, petM); petals.frustumCulled = false; scene.add(petals);
 
+  /* ----- 범용 입자: 먼지 폭발 · 그것의 연기 · 입김 ----- */
+  const QN = 900, qpos = new Float32Array(QN * 3), qcol = new Float32Array(QN * 3), qa = new Float32Array(QN), qs = new Float32Array(QN);
+  const qv = new Float32Array(QN * 3), ql = new Float32Array(QN), qm = new Float32Array(QN), qa0 = new Float32Array(QN), qg = new Float32Array(QN), qd = new Float32Array(QN), qgr = new Float32Array(QN);
+  const qG = new THREE.BufferGeometry();
+  qG.setAttribute('position', new THREE.BufferAttribute(qpos, 3)); qG.setAttribute('color', new THREE.BufferAttribute(qcol, 3));
+  qG.setAttribute('alpha', new THREE.BufferAttribute(qa, 1)); qG.setAttribute('size', new THREE.BufferAttribute(qs, 1));
+  const qM = new THREE.ShaderMaterial({
+    vertexShader: `attribute vec3 color; attribute float alpha, size; varying vec3 vC; varying float vA;
+      void main(){ vC = color; vA = alpha; vec4 mv = modelViewMatrix * vec4(position, 1.0); gl_Position = projectionMatrix * mv; gl_PointSize = alpha > 0.0 ? clamp(size * 320.0 / -mv.z, 1.0, 260.0) : 0.0; }`,
+    fragmentShader: `varying vec3 vC; varying float vA; void main(){ float d = length(gl_PointCoord - .5); float a = smoothstep(.5, .05, d) * vA; if (a < .004) discard; gl_FragColor = vec4(vC, a); }`,
+    transparent: true, depthWrite: false, fog: false,
+  });
+  const qP = new THREE.Points(qG, qM); qP.frustumCulled = false; qP.renderOrder = 6; scene.add(qP);
+  let qHead = 0;
+  function emit(x, y, z, vx, vy, vz, life, col, a, size, grav = 0, drag = 0, grow = 0) {
+    const i = qHead++ % QN; qpos.set([x, y, z], i * 3); qv.set([vx, vy, vz], i * 3); qcol.set(col, i * 3);
+    ql[i] = qm[i] = life; qa0[i] = a; qs[i] = size; qg[i] = grav; qd[i] = drag; qgr[i] = grow; qa[i] = a;
+  }
+  const R = () => Math.random() - .5;
+  function dustBurst(x, y, z, n = 60) { for (let k = 0; k < n; k++) { const c = .45 + Math.random() * .2; emit(x + R() * .5, y + R() * .3, z + R() * .5, R() * 2.4, Math.random() * 1.2 - .2, R() * 2.4, 1.5 + Math.random() * 2, [c, c * .93, c * .82], .35, .05 + Math.random() * .08, -.6, 1.6, .06); } }
+  let smokeAcc = 0, breathAcc = 0;
+  function ghostSmoke(p, dt, k = 1) {
+    if (!p) return; smokeAcc += dt * 30 * k;
+    while (smokeAcc > 1) { smokeAcc--; const c = .03 + Math.random() * .05; emit(p.x + R() * .5, p.y + Math.random() * 1.8, p.z + R() * .5, R() * .2, .25 + Math.random() * .3, R() * .2, 1.6 + Math.random(), [c, c * .8, c * .8], .5, .12 + Math.random() * .1, 0, .5, .12); }
+  }
+  const _bd = new THREE.Vector3();
+  function breath(on, dt) {
+    if (!on) return; breathAcc += dt; if (breathAcc < 1.7) return; breathAcc = 0;
+    camera.getWorldDirection(_bd);
+    for (let k = 0; k < 10; k++) emit(camera.position.x + _bd.x * .25 + R() * .05, camera.position.y - .12 + R() * .04, camera.position.z + _bd.z * .25 + R() * .05, _bd.x * .5 + R() * .2, .08 + R() * .1, _bd.z * .5 + R() * .2, 1.2 + Math.random() * .6, [.82, .85, .9], .16, .05, -.05, 1.4, .1);
+  }
+
   /* ----- 전기 불꽃 ----- */
   const SN = 90, spos = new Float32Array(SN * 3), svel = new Float32Array(SN * 3), slife = new Float32Array(SN);
   const sparkG = new THREE.BufferGeometry(); sparkG.setAttribute('position', new THREE.BufferAttribute(spos, 3)); sparkG.setAttribute('life', new THREE.BufferAttribute(slife, 1));
@@ -188,8 +237,19 @@ export function createFX(renderer, scene, camera) {
       if (spos[i * 3 + 1] < c.floorY + .02) { spos[i * 3 + 1] = c.floorY + .02; svel[i * 3 + 1] *= -.3; svel[i * 3] *= .5; svel[i * 3 + 2] *= .5; }
     }
     if (any) { sparkG.attributes.position.needsUpdate = true; sparkG.attributes.life.needsUpdate = true; }
+    // 범용 입자
+    let qAny = false;
+    for (let i = 0; i < QN; i++) if (ql[i] > 0) {
+      qAny = true; ql[i] -= dt; const k = Math.max(0, ql[i] / qm[i]);
+      const dr = Math.exp(-qd[i] * dt); qv[i * 3] *= dr; qv[i * 3 + 1] = qv[i * 3 + 1] * dr - qg[i] * dt; qv[i * 3 + 2] *= dr;
+      qpos[i * 3] += qv[i * 3] * dt; qpos[i * 3 + 1] += qv[i * 3 + 1] * dt; qpos[i * 3 + 2] += qv[i * 3 + 2] * dt;
+      qa[i] = ql[i] > 0 ? qa0[i] * Math.min(1, k * 2.5) * Math.min(1, (1 - k) * 8 + .2) : 0; qs[i] += qgr[i] * dt;
+    }
+    if (qAny) { ['position', 'alpha', 'size', 'color'].forEach(n => { qG.attributes[n].needsUpdate = true; }); }
+    qP.visible = qAny;
+    u.uRain.value += ((c.outdoors && c.rainLens !== false ? .9 : 0) - u.uRain.value) * Math.min(1, dt * 1.5);
     sparks.visible = any;
     if (mode === 'low') renderer.render(scene, camera); else composer.render(dt);
   }
-  return { render, setQuality, setOpts, resize, lightning, glitch, spark, composer, cone };
+  return { render, setQuality, setOpts, resize, dust: dustBurst, ghostSmoke, breath, emit, lightning, glitch, spark, composer, cone };
 }

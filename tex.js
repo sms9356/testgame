@@ -341,7 +341,7 @@ export const makeBanner = () => ctex(512, 128, (g, w, h) => {
   g.font = `22px ${FONT}`; g.fillText('- ○중학교 -', w / 2, 104); g.strokeStyle = '#1f3a6a'; g.lineWidth = 4; g.strokeRect(4, 4, w - 8, h - 8);
 }, { repeat: false });
 export const makeScore = () => ctex(256, 96, (g, w, h) => {
-  g.fillStyle = '#0c0c0c'; g.fillRect(0, 0, w, h); g.fillStyle = '#c02020'; g.font = 'bold 54px monospace'; g.textAlign = 'center'; g.fillText('18 : 88', w / 2, 62);
+  g.fillStyle = '#0c0c0c'; g.fillRect(0, 0, w, h); g.fillStyle = '#c02020'; g.font = 'bold 54px monospace'; g.textAlign = 'center'; g.fillText('07 : 23', w / 2, 62);
   g.fillStyle = '#ddd'; g.font = `16px ${FONT}`; g.fillText('홈', 28, 20); g.fillText('방문', w - 30, 20); speckle(g, w, h, 300, ['#444'], 2, 6, .5);
 }, { repeat: false });
 export const makeCurtain = () => ctex(256, 256, (g, w, h) => {

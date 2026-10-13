@@ -566,8 +566,8 @@
 },
 "note_n9": {
 "spk": "narrator",
-"text": "체육 일지. 졸업식 예행연습 중, 무대 커튼 뒤에서 박수 소리. 관람석은 비어 있었다. 그날 이후 체육관 불은 켜지지 않는다.",
-"dur": 9.12
+"text": "체육 일지. 졸업식 예행연습 중, 무대 커튼 뒤에서 박수 소리. 관람석은 비어 있었다. 그날 이후 체육관 불은 켜지지 않는다. ※ 기록석 기구함 다이얼은  전광판의 마지막 경기 점수 로 맞춰 둠.",
+"dur": 14.09
 },
 "note_n10": {
 "spk": "narrator",
@@ -633,5 +633,135 @@
 "spk": "seoyeon",
 "text": "같이 가요, 선배. 이번엔 다 같이 나가요.",
 "dur": 2.74
+},
+"l_needPin_j": {
+"spk": "jihun",
+"text": "잠겨 있다. 가는 철사나 핀이라도 있으면…",
+"dur": 3.05
+},
+"l_needPin_s": {
+"spk": "seoyeon",
+"text": "잠겼어… 머리핀 같은 게 있으면 딸 수 있을 텐데.",
+"dur": 3.12
+},
+"l_pinBroken_j": {
+"spk": "jihun",
+"text": "핀이 부러졌다. 침착하게.",
+"dur": 2.4
+},
+"l_pinBroken_s": {
+"spk": "seoyeon",
+"text": "아, 부러졌어…",
+"dur": 1.44
+},
+"l_unlocked_j": {
+"spk": "jihun",
+"text": "열렸다.",
+"dur": 0.98
+},
+"l_unlocked_s": {
+"spk": "seoyeon",
+"text": "열렸다!",
+"dur": 0.98
+},
+"l_dialWrong_j": {
+"spk": "jihun",
+"text": "아니야. 다른 숫자다.",
+"dur": 1.94
+},
+"l_dialWrong_s": {
+"spk": "seoyeon",
+"text": "아니야… 다른 번호인가 봐.",
+"dur": 1.82
+},
+"l_needHook_j": {
+"spk": "jihun",
+"text": "저 아래 뭔가 반짝인다. 손이 닿지 않아… 갈고리가 필요해.",
+"dur": 4.2
+},
+"l_needHook_s": {
+"spk": "seoyeon",
+"text": "배수구 안에 뭔가 있어… 손이 안 닿아. 갈고리를 만들어야 해.",
+"dur": 3.89
+},
+"l_hookMade_j": {
+"spk": "jihun",
+"text": "자루에 철사를 감았다. 이거면 걸 수 있겠다.",
+"dur": 3.53
+},
+"l_hookMade_s": {
+"spk": "seoyeon",
+"text": "자루에 철사를 묶었어. 이걸로 낚을 수 있을 거야.",
+"dur": 3.46
+},
+"l_needFuse_j": {
+"spk": "jihun",
+"text": "퓨즈가 빠져 있다. 예비 퓨즈를 찾아야 해.",
+"dur": 3.0
+},
+"l_needFuse_s": {
+"spk": "seoyeon",
+"text": "퓨즈가 없어… 어딘가에 예비 퓨즈가 있을 거야.",
+"dur": 3.12
+},
+"l_pianoOk_j": {
+"spk": "jihun",
+"text": "피아노 아래에서 뭔가 떨어졌다.",
+"dur": 2.59
+},
+"l_pianoOk_s": {
+"spk": "seoyeon",
+"text": "피아노 밑에서… 뭔가 떨어졌어.",
+"dur": 2.33
+},
+"l_slideOk_j": {
+"spk": "jihun",
+"text": "그림 뒤에 뭔가 붙어 있다.",
+"dur": 2.3
+},
+"l_slideOk_s": {
+"spk": "seoyeon",
+"text": "그림 뒤에… 사진이 붙어 있었어.",
+"dur": 2.42
+},
+"l_breath_j": {
+"spk": "jihun",
+"text": "…숨 참아.",
+"dur": 1.03
+},
+"l_breath_s": {
+"spk": "seoyeon",
+"text": "…숨 참아, 제발.",
+"dur": 1.39
+},
+"l_repel_j": {
+"spk": "jihun",
+"text": "빛을 싫어해. 물러났다!",
+"dur": 2.14
+},
+"l_repel_s": {
+"spk": "seoyeon",
+"text": "빛을 피했어…! 지금이야!",
+"dur": 1.66
+},
+"note_n17": {
+"spk": "narrator",
+"text": "과학실 칠판 메모. 약품장 자물쇠 번호 바꿈 —  원주율 앞 세 자리 . 잊어버리는 사람은 수학 선생님께 혼남. — 과학부",
+"dur": 8.09
+},
+"note_n18": {
+"spk": "narrator",
+"text": "빛바랜 악보. [하교 음악 — 학교종]  솔 솔 라 라 솔 솔 미  “졸업식 날, 피아노 반주는 내가!” — 3-2 하늘",
+"dur": 6.98
+},
+"note_n19": {
+"spk": "narrator",
+"text": "도서실 대출 데스크 메모. 반납 안 된 열쇠는 데스크  서랍 에 넣고 잠갔음. 서랍 열쇠는 분실. 급하면 머리핀으로라도… 보건실 침대 쪽에 누가 핀을 떨어뜨리고 다님.",
+"dur": 11.74
+},
+"note_n20": {
+"spk": "narrator",
+"text": "수영장 관리 메모. 배수구 철망 아래로  열쇠 가 빠졌다. 손이 닿지 않는다. 긴 자루에 철사를 감아 갈고리를 만들면 꺼낼 수 있을 듯. 자루는 지하 청소도구실, 철사는 별관 기술·가정실에.",
+"dur": 13.63
 }
 }

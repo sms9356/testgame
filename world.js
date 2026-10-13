@@ -58,6 +58,8 @@ export function buildWorld(scene) {
   const mMetal = S(T.makeMetal(), { roughness: .6, metalness: .35 });
   const mRust = S(T.makeMetal([100, 66, 44]), { roughness: .8, metalness: .3 });
   const mLocker = S(T.makeMetal([120, 134, 138]), { roughness: .55, metalness: .4 });
+  const mLockerT = S(T.makeLocker(), { roughness: .55, metalness: .35 });
+  const mStep = S(T.makeStep());
   const mBooks = S(T.makeBooks());
   const mCork = S(T.makeCork());
   const mFlag = S(T.makeFlag());
@@ -97,7 +99,7 @@ export function buildWorld(scene) {
     m.setIndex(idx); return m;
   }
   const _o = new THREE.Object3D();
-  const MX = (x, y, z, ry = 0, rz = 0, rx = 0) => { _o.position.set(x, y, z); _o.rotation.set(rx, ry, rz); _o.updateMatrix(); return _o.matrix.clone(); };
+  const MX = (x, y, z, ry = 0, rz = 0, rx = 0) => { _o.position.set(x, y, z); _o.rotation.set(rx, ry, rz); _o.scale.set(1, 1, 1); _o.updateMatrix(); return _o.matrix.clone(); };
   function inst(parent, geo, mat, mats) {
     const im = new THREE.InstancedMesh(geo, mat, mats.length);
     mats.forEach((m, i) => im.setMatrixAt(i, m));
@@ -149,6 +151,17 @@ export function buildWorld(scene) {
     (o.parent || cur.interior).add(m);
     if (o.col) { const sw = (o.ry && Math.abs(Math.sin(o.ry)) > .7) ? d : w, sd = (o.ry && Math.abs(Math.sin(o.ry)) > .7) ? w : d; col(x - sw / 2, x + sw / 2, z - sd / 2, z + sd / 2); }
     return m;
+  }
+  // 한국 학교식 미닫이문 (복도 쪽 레일 위). 대부분 열려 있고, 가끔 한 짝이 반쯤 닫혀 있다.
+  const doorPanelG = new THREE.BoxGeometry(.95, 2.25, .04); doorPanelG.translate(0, 1.125, 0);
+  function slidingDoors(cx) {
+    add(mWoodDark, 2.2, .05, .08, cx, 2.3, -1.38);                       // 상부 레일
+    [-1, 1].forEach(s => {
+      const half = rnd() < .22;
+      const x = half ? cx + s * .55 : cx + s * (1.45 + rr(0, .05));
+      const d = new THREE.Mesh(doorPanelG, mDoor); d.position.set(x, 0, -1.39 + (s > 0 ? .045 : 0)); cur.interior.add(d);
+      if (half) col(s < 0 ? cx - 1 : cx + .075, s < 0 ? cx - .075 : cx + 1, -1.45, -1.33);
+    });
   }
   function wallSeg(x1, x2, z1, z2, y1, y2, shell = false) {
     const m = boxMesh(x1, x2, y1, y2, z1, z2, curWall);
@@ -203,22 +216,37 @@ export function buildWorld(scene) {
   }
 
   /* ---------- 학생 책상/의자 (인스턴싱) ---------- */
-  const deskTopG = merge([bx(.7, .04, .5, 0, .74, 0), bx(.62, .16, .4, 0, .62, 0)]);
-  const deskLegG = merge([[-.3, -.2], [.3, -.2], [-.3, .2], [.3, .2]].map(([x, z]) => bx(.035, .72, .035, x, .36, z)));
-  const seatG = merge([bx(.4, .04, .38, 0, .44, .56), bx(.4, .28, .04, 0, .7, .75)]);
-  const chairLegG = merge([[-.17, .42], [.17, .42], [-.17, .72], [.17, .72]].map(([x, z]) => bx(.03, .44, .03, x, .22, z)));
+  // 튜브(파이프) 지오메트리: 두 점 사이 원기둥
+  const tube = (r, x1, y1, z1, x2, y2, z2) => {
+    const dx = x2 - x1, dy = y2 - y1, dz = z2 - z1, L = Math.hypot(dx, dy, dz);
+    const g = new THREE.CylinderGeometry(r, r, L, 6); g.translate(0, L / 2, 0);
+    const q = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), new THREE.Vector3(dx / L, dy / L, dz / L));
+    g.applyQuaternion(q); g.translate(x1, y1, z1); return g;
+  };
+  // 학생 책상: 원점 = 책상 바닥 중심, 학생은 +z 쪽에 앉아 -z(칠판)를 본다
+  const deskTopG = merge([bx(.68, .03, .48, 0, .735, 0), bx(.68, .012, .02, 0, .713, .23), bx(.68, .012, .02, 0, .713, -.23)]);
+  const deskLegG = merge([
+    ...[[-.31, -.21], [.31, -.21], [-.31, .21], [.31, .21]].map(([x, z]) => tube(.014, x, 0, z, x, .72, z)),
+    tube(.012, -.31, .1, -.21, -.31, .1, .21), tube(.012, .31, .1, -.21, .31, .1, .21), tube(.012, -.31, .1, 0, .31, .1, 0),
+    bx(.6, .012, .36, 0, .6, -.02), bx(.6, .12, .012, 0, .66, -.2), bx(.012, .12, .36, -.3, .66, -.02), bx(.012, .12, .36, .3, .66, -.02),
+  ]);
+  // 학생 의자: 원점 = 의자 바닥 중심, 등받이는 +z
+  const seatG = merge([bx(.38, .022, .36, 0, .435, 0), bx(.38, .17, .018, 0, .72, .19)]);
+  const chairLegG = merge([
+    tube(.012, -.17, 0, -.16, -.17, .43, -.16), tube(.012, .17, 0, -.16, .17, .43, -.16),
+    tube(.012, -.17, 0, .16, -.17, .82, .19), tube(.012, .17, 0, .16, .17, .82, .19),
+    tube(.01, -.17, .12, -.16, -.17, .12, .16), tube(.01, .17, .12, -.16, .17, .12, .16), tube(.01, -.17, .43, -.16, .17, .43, -.16),
+  ]);
   function deskGrid(cx, offs, rows, miss = .15) {
     const tops = [], legs = [], seats = [], cl = [];
     for (const dx of offs) for (const z of rows) {
       if (rnd() < miss) continue;
-      const x = cx + dx + rr(-.06, .06), ry = rr(-.1, .1);
+      const x = cx + dx + rr(-.05, .05), ry = rr(-.06, .06);
       tops.push(MX(x, 0, z, ry)); legs.push(MX(x, 0, z, ry));
-      col(x - .38, x + .38, z - .28, z + .82);
-      if (rnd() < .78) {
-        const tip = rnd() < .15, cy = rr(-.5, .5);
-        const m = tip ? MX(x, .22, z + rr(-.2, .3), cy, rr(1.2, 1.6)) : MX(x + rr(-.08, .08), 0, z + rr(-.08, .35), cy * .4);
-        seats.push(m); cl.push(m);
-      }
+      col(x - .36, x + .36, z - .26, z + .26);
+      const r = rnd();
+      if (r < .1) { const m = MX(x + rr(-.1, .1), .2, z + .62, rr(-1, 1), Math.PI / 2); seats.push(m); cl.push(m); col(x - .45, x + .45, z + .3, z + .95); }   // 옆으로 쓰러진 의자
+      else if (r < .85) { const m = MX(x + rr(-.08, .08), 0, z + .5 + rr(-.05, .2), rr(-.35, .35)); seats.push(m); cl.push(m); }
     }
     if (!tops.length) return;
     inst(cur.interior, deskTopG, mWood, tops); inst(cur.interior, deskLegG, mMetal, legs);
@@ -247,9 +275,9 @@ export function buildWorld(scene) {
     // 게시판 (동쪽 벽)
     plane(cur.interior, mCork, 2.0, 1.1, cx + 3.84, 1.6, -5.2, -Math.PI / 2);
     // 뒤쪽 사물함(서쪽 벽)
-    for (let k = 0; k < 4; k++) add(mLocker, .45, 1.4, .5, cx - 3.55, 0, -2.9 - k * .55 - 0.0, { col: false, ry: Math.PI / 2 });
+    for (let k = 0; k < 4; k++) add(mLockerT, .45, 1.4, .5, cx - 3.55, 0, -2.9 - k * .55 - 0.0, { col: false, ry: Math.PI / 2 });
     col(cx - 3.85, cx - 3.3, -5.2, -2.6);
-    deskGrid(cx, [-3.0, -2.0, 2.0, 3.0], [-7.2, -6.0, -4.8, -3.6], .16);
+    deskGrid(cx, [-2.8, -1.9, 1.9, 2.8], [-7.2, -6.0, -4.8, -3.6], .14);
     papers(cx, -8, -2.4, 9);
   }
   function office(cx) {
@@ -264,7 +292,7 @@ export function buildWorld(scene) {
       add(mWhite, .3, .06, .22, cx + dx + rr(-.5, .5), .76, z + .15, { ry: rr(-.5, .5) });
       add(mBlack, .45, .04, .45, cx + dx, .45, z + .85); add(mMetal, .04, .45, .04, cx + dx, 0, z + .85);
     }));
-    add(mLocker, .6, 1.8, .5, cx + 3.55, 0, -8.8, { col: true }); add(mLocker, .6, 1.8, .5, cx + 3.55, 0, -8.25, { col: true });
+    add(mLockerT, .6, 1.8, .5, cx + 3.55, 0, -8.8, { col: true }); add(mLockerT, .6, 1.8, .5, cx + 3.55, 0, -8.25, { col: true });
     plane(cur.interior, mPlanMap, 2.0, 1.14, cx + 3.84, 1.6, -5.5, -Math.PI / 2);
     addKey('office', 0, cx + 2.6, .76, -7.4);
     addNote('n3', cx - 2.5, .76, -5.4);
@@ -274,7 +302,7 @@ export function buildWorld(scene) {
     const zN = -9.6;
     frontWall(cx, zN, false);
     [-2.4, 2.4].forEach(dx => { add(mMetal, 1.0, .5, 2.0, cx + dx, 0, zN + 1.2, { col: true }); add(mWhite, .95, .14, 1.9, cx + dx, .5, zN + 1.2); add(mWhite, .5, .1, .35, cx + dx, .64, zN + .4); });
-    add(mLocker, .9, 1.7, .4, cx + 3.6, 0, -6.5, { ry: Math.PI / 2, col: true }); add(mGlass, .9, 1.7, .44, cx + 3.6, 0, -6.5, { ry: Math.PI / 2 });
+    add(mLockerT, .9, 1.7, .4, cx + 3.6, 0, -6.5, { ry: Math.PI / 2, col: true }); add(mGlass, .9, 1.7, .44, cx + 3.6, 0, -6.5, { ry: Math.PI / 2 });
     add(mWood, 1.2, .75, .6, cx - 3.2, 0, -5.4, { col: true, ry: Math.PI / 2 });
     addNote('n2', cx - 3.2, .75, -5.4);
     addBattery(cx + 2.4, .5, -8.4); addMedkit(cx + 2.4, .66, -7.6);
@@ -304,7 +332,8 @@ export function buildWorld(scene) {
     addNote('n4', cx - .6, .75, -8.6);
     papers(cx, -8, -2.4, 10);
     // 쓰러진 책장
-    add(mWoodDark, 1.8, .4, .5, cx + 0.2, 0, -4.3, { rz: 0, ry: .5 });
+    add(mWoodDark, 1.6, .45, .5, cx + 1.6, 0, -3.6, { ry: .35 }); col(cx + .8, cx + 2.4, -4.0, -3.2);
+    for (let k = 0; k < 6; k++) add(S(null, { color: pick([0x5a2a22, 0x2f4a3a, 0x2a3a58, 0x6a5a2e]) }), .22, .05, .3, cx + 1.0 + rr(-.6, 1.2), 0, -3.0 + rr(-.3, .4), { ry: rnd() * 3 });
   }
   function lab(cx) {
     const zN = -9.6;
@@ -368,7 +397,7 @@ export function buildWorld(scene) {
     for (let i = 0; i < 5; i++) add(mMetal, .05, 1.9, 2.0, cx - 3.4 + i * 1.1, 0, zN + 1.0, { col: true, parent: cur.interior });
     for (let i = 0; i < 4; i++) {
       const dx = cx - 2.85 + i * 1.1;
-      add(mMetal, 1.0, 1.6, .04, dx, .3, zN + 2.0, { ry: i === 1 ? .9 : (i === 3 ? -.2 : 0) }); // 문
+      { const dg = new THREE.Mesh(new THREE.BoxGeometry(1.0, 1.6, .04), mMetal); dg.geometry.translate(.5, 1.1, 0); dg.position.set(dx - .5, 0, zN + 2.0); dg.rotation.y = [0, 1.15, .25, 1.45][i]; cur.interior.add(dg); } // 문 (경첩)
       add(mWhite, .4, .4, .55, dx, 0, zN + .45);
     }
     col(cx - 3.45, cx + 1.05, zN + 1.95, zN + 2.05);
@@ -377,14 +406,29 @@ export function buildWorld(scene) {
     col(cx + 3.25, cx + 3.85, -6.0, -2.6);
     papers(cx, -8, -3, 8);
   }
+  // 계단실 천장: 2번 계단 위로 뚫린 개구부 + 어두운 계단 통로
+  function ceilHole(P, X0, X1, Z0, Z1, cx) {
+    const hx1 = cx - 2.55, hx2 = cx - 1.2, hz1 = -7.9, hz2 = -2.9;
+    flat(P, mCeil, X0, hx1, Z0, Z1, CH, 4, false); flat(P, mCeil, hx2, X1, Z0, Z1, CH, 4, false);
+    flat(P, mCeil, hx1, hx2, Z0, hz1, CH, 4, false); flat(P, mCeil, hx1, hx2, hz2, Z1, CH, 4, false);
+    const sh = new THREE.Mesh(new THREE.BoxGeometry(hx2 - hx1, 1.6, hz2 - hz1), new THREE.MeshBasicMaterial({ color: 0x030303, side: THREE.BackSide }));
+    sh.position.set((hx1 + hx2) / 2, CH + .8, (hz1 + hz2) / 2); P.add(sh);
+  }
   function stairRoom(cx) {
-    // 계단(장식) + 창
-    const sg = new THREE.BoxGeometry(2.6, 1, .5);
-    const stepMesh = new THREE.InstancedMesh(sg, mWall, 14);
-    for (let i = 0; i < 14; i++) { const h = (i + 1) * .24; _o.position.set(cx - 2.5, h / 2, -2.45 - i * .5); _o.scale.set(1, h, 1); _o.rotation.set(0, 0, 0); _o.updateMatrix(); stepMesh.setMatrixAt(i, _o.matrix); }
-    stepMesh.instanceMatrix.needsUpdate = true; stepMesh.frustumCulled = false; cur.interior.add(stepMesh);
-    col(cx - 3.8, cx - 1.2, -9.6, -2.2);
-    add(mRust, .06, 1.0, 6.5, cx - 1.15, .6, -5.5);
+    // ㄷ자 계단: 1번(북쪽으로 오름) → 층참 → 2번(남쪽으로 오름, 천장 개구부로 이어짐)
+    const W = 1.3, xa = cx - 3.15, xb = cx - 1.85, n = 10, run = .48, rise = .19, z0 = -3.0, zl = z0 - n * run;
+    for (let i = 0; i < n; i++) { const top = (i + 1) * rise; add(mStep, W, top, run, xa, 0, z0 - run * (i + .5)); }
+    add(mStep, 2.6, 1.9, 9.55 + zl, cx - 2.5, 0, (zl - 9.55) / 2);   // 층참
+    for (let i = 0; i < n; i++) { const top = 1.9 + (i + 1) * rise; add(mStep, W, .2, run, xb, top - .2, zl + run * (i + .5)); }
+    const L = Math.hypot(n * run, n * rise), th = Math.atan2(n * rise, n * run);
+    const st = new THREE.Mesh(unit, mStep); st.scale.set(W, .22, L); st.position.set(xb, 1.9 + n * rise / 2 - .32, zl + n * run / 2); st.rotation.x = -th; cur.interior.add(st);
+    // 난간 (두 계단 사이)
+    const rails = [tube(.025, cx - 2.5, 1.0, z0, cx - 2.5, 1.9 + .95, zl), tube(.025, cx - 2.5, 1.9 + .95, zl, cx - 2.5, 1.9 + n * rise + .95, zl + n * run)];
+    for (let k = 0; k <= 5; k++) { const z = z0 - k * (n * run / 5), y = k * (n * rise / 5); rails.push(tube(.018, cx - 2.5, y, z, cx - 2.5, y + 1.0, z)); }
+    for (let k = 1; k <= 3; k++) { const z = zl + k * 1.2, y = 1.9 + k * 1.2 * rise / run; rails.push(tube(.018, cx - 2.5, y, z, cx - 2.5, y + .95, z)); }
+    rails.push(tube(.025, cx - 3.8, 2.85, zl, cx - 1.2, 2.85, zl));
+    const rm = new THREE.Mesh(merge(rails), mRust); cur.interior.add(rm);
+    col(cx - 3.85, cx - 1.2, -9.6, z0 + .1);
     if (!cur.basement) plane(cur.interior, mWin, 2.0, 1.8, cx + 1.8, 1.9, -9.58);
     // 계단 표시
     const sg2 = new THREE.MeshBasicMaterial({ map: T.makeSign('▲ 위층   ▼ 아래층', '#1e2a2e', '#d9e4d0', 26), transparent: false });
@@ -449,7 +493,7 @@ export function buildWorld(scene) {
     addBattery(cx - 3.0, 0, -3.0); papers(cx, -8, -2.4, 6);
   }
   function electric(cx) {
-    for (let k = 0; k < 4; k++) { add(mLocker, .9, 2.0, .45, cx - 2.7 + k * 1.8, 0, -9.35, { col: true }); plane(cur.interior, mWarnS, .5, .3, cx - 2.7 + k * 1.8, 1.5, -9.1); }
+    for (let k = 0; k < 4; k++) { add(mLockerT, .9, 2.0, .45, cx - 2.7 + k * 1.8, 0, -9.35, { col: true }); plane(cur.interior, mWarnS, .5, .3, cx - 2.7 + k * 1.8, 1.5, -9.1); }
     add(mBlack, .4, .15, 5, cx + 1, 0, -5.5); add(mBlack, .4, .15, 4, cx - 1.5, 0, -6);
     add(mWood, 1, .5, 1, cx + 3, 0, -3.5, { col: true }); addMedkit(cx + 3, .5, -3.5);
     papers(cx, -8, -2.4, 4);
@@ -503,7 +547,7 @@ export function buildWorld(scene) {
 
     // 바닥/천장
     flat(F.interior, mFloorTile, X0, X1, -1.75, Z1, 0);
-    flat(F.interior, mCeil, X0, X1, Z0, Z1, CH, 4, false);
+    ceilHole(F.interior, X0, X1, Z0, Z1, 0);
     SLOTS.forEach((cx, i) => {
       const t = lay.types[i];
       const wood = ['class', 'office', 'library', 'music', 'art', 'counsel', 'nurse'].includes(t);
@@ -561,10 +605,7 @@ export function buildWorld(scene) {
       wallSeg(cx - 1, cx + 1, -1.75, -1.45, 2.4, CH);
       // 문틀 & 문짝
       add(mWoodDark, .1, 2.4, .36, cx - 1.0, 0, -1.6); add(mWoodDark, .1, 2.4, .36, cx + 1.0, 0, -1.6);
-      if (lay.types[i] !== 'stair' && rnd() < .75) {
-        const dl = new THREE.Mesh(new THREE.BoxGeometry(.9, 2.2, .05), mDoor); dl.geometry.translate(.45, 1.1, 0);
-        dl.position.set(cx - .95, 0, -1.6); dl.rotation.y = rr(.9, 1.5); F.interior.add(dl);
-      }
+      if (lay.types[i] !== 'stair') slidingDoors(cx);
       // 교실 명패
       const sg = new THREE.MeshBasicMaterial({ map: T.makeSign(lay.names[i], '#1e2a2e', '#d9e4d0', lay.names[i].length > 3 ? 28 : 36), color: 0x9aa59a });
       plane(F.interior, sg, 1.0, .25, cx, 2.62, -1.43);
@@ -580,7 +621,7 @@ export function buildWorld(scene) {
     if (f === 1) addMedkit(SLOTS[1] + 2.6, .77, -8.6);
     if (f === 0) { framed('map_aerial', 2.2, 1.2, -2.6, 1.75, -1.42); framed('map_floors', 1.6, 1.17, 2.6, 1.75, -1.42); }
     if (f === 2) framed('bc_modern', 1.6, .9, SLOTS[1] - 2.6, 1.75, -1.42);
-    if (f === 0) addNote('n1', SLOTS[5] + 2.0, .77, -7.2, 0.3);
+    if (f === 0) addNote('n1', SLOTS[5] + 2.6, .77, -8.6, 0.3);
 
     // 조명 (형광등) — 복도 + 각 방
     const addLamp = (x, z, ang) => {
@@ -601,11 +642,11 @@ export function buildWorld(scene) {
     lockSlots.forEach(i => {
       const cx = SLOTS[i];
       for (let k = 0; k < 3; k++) {
-        add(mLocker, .62, 1.85, .5, cx + 2.0 + k * .66, 0, -1.2, { col: true });
-        const lx = cx + 2.0 + k * .66;
+        add(mLockerT, .62, 1.85, .5, cx + 2.35 + k * .66, 0, -1.2, { col: true });
+        const lx = cx + 2.35 + k * .66;
         plane(F.interior, new THREE.MeshBasicMaterial({ color: 0x0a0a0a }), .06, .35, lx + .12, 1.35, -.94);
       }
-      lockers.push({ floor: f, x: cx + 2.66, z: -1.2, y: F.y0, dir: { x: 0, z: 1 } });
+      lockers.push({ floor: f, x: cx + 3.01, z: -1.2, y: F.y0, dir: { x: 0, z: 1 } });
     });
 
     // 복도 잡동사니
@@ -726,7 +767,7 @@ export function buildWorld(scene) {
     addMedkit(-34.5, .95, 12.9); addNote('n13', -39.2, .76, 16);
     addBattery(-34.9, .72, 19.2);
     for (let k = 0; k < 8; k++) { const m = new THREE.Mesh(new THREE.PlaneGeometry(.28, .2), mDirtPaper); m.rotation.set(-Math.PI / 2, 0, rnd() * 6); m.position.set(rr(-46, -32), .02, rr(14, 21)); F.interior.add(m); }
-    add(mLocker, .62, 1.85, .55, -31.3, 0, 8.6 + .28 + 1.3, { col: true }); add(mLocker, .62, 1.85, .55, -31.3 - .66, 0, 8.6 + .28 + 1.3, { col: true });
+    add(mLockerT, .62, 1.85, .55, -31.3, 0, 8.6 + .28 + 1.3, { col: true }); add(mLockerT, .62, 1.85, .55, -31.3 - .66, 0, 8.6 + .28 + 1.3, { col: true });
     lockers.push({ floor: 7, x: -31.3, z: 10.18, y: 140, dir: { x: 0, z: 1 } });
     [-44, -39, -34].forEach(x => [10, 15, 20].forEach(z => areaLamp(x, z, H - .6)));
     [[-43, 14.6], [-39, 14.6], [-35, 14.6], [-43, 20.4], [-35, 20.4], [-39, 20.6], [-32, 13], [-32, 10.5], [-39.5, 11.6]].forEach(([x, z]) => F.nodes.push({ x, z }));
@@ -788,7 +829,7 @@ export function buildWorld(scene) {
     const woodT = ['music', 'art', 'craft', 'counsel', 'club'];
     flat(F.interior, mFloorTile, X0, X1, -1.75, Z1, 0);
     sl.forEach((cx, i) => flat(F.interior, woodT.includes(spec.types[i]) ? mFloorWood : mFloorTile, cx - 4, cx + 4, -9.6, -1.75, 0));
-    flat(F.interior, mCeil, X0, X1, Z0, Z1, CH, 4, false);
+    ceilHole(F.interior, X0, X1, Z0, Z1, -16);
     awall(X0, X1, Z0, -9.6, CH); awall(X0, -20, -9.6, Z1, CH); awall(20, X1, -9.6, Z1, CH);
     if (k === 0) {
       awall(X0, -1.5, 1.45, Z1, CH); awall(1.5, X1, 1.45, Z1, CH); awall(-1.5, 1.5, 1.45, Z1, CH, 2.7);
@@ -799,13 +840,14 @@ export function buildWorld(scene) {
     sl.forEach((cx, i) => {
       awall(cx - 4, cx - 1, -1.75, -1.45, CH); awall(cx + 1, cx + 4, -1.75, -1.45, CH); awall(cx - 1, cx + 1, -1.75, -1.45, CH, 2.4);
       add(mWoodDark, .1, 2.4, .36, cx - 1.0, 0, -1.6); add(mWoodDark, .1, 2.4, .36, cx + 1.0, 0, -1.6);
+      if (spec.types[i] !== 'stair') slidingDoors(cx);
       plane(F.interior, new THREE.MeshBasicMaterial({ map: T.makeSign(spec.names[i], '#1e2a2e', '#d9e4d0', spec.names[i].length > 6 ? 22 : 28), color: 0x9aa59a }), 1.4, .35, cx, 2.62, -1.43);
     });
     [-12, -4, 4, 12].forEach(b => awall(b - .15, b + .15, -9.6, -1.75, CH));
     const fn = { stair: stairRoom, cooking, tech, fusion, counsel, computer, lang, smart, club, music, art, craft, lab };
     sl.forEach((cx, i) => fn[spec.types[i]](cx, spec.names[i]));
     [-12, -4, 4, 12].forEach(x => areaLamp(x, 0, CH - .1)); sl.forEach(cx => { areaLamp(cx - 2, -5.6, CH - .1); areaLamp(cx + 2, -5.6, CH - .1); });
-    [2, 3].forEach(i => { const cx = sl[i]; for (let q = 0; q < 3; q++) add(mLocker, .62, 1.85, .5, cx + 2.0 + q * .66, 0, -1.2, { col: true }); lockers.push({ floor: f, x: cx + 2.66, z: -1.2, y: y0, dir: { x: 0, z: 1 } }); });
+    [2, 3].forEach(i => { const cx = sl[i]; for (let q = 0; q < 3; q++) add(mLockerT, .62, 1.85, .5, cx + 2.35 + q * .66, 0, -1.2, { col: true }); lockers.push({ floor: f, x: cx + 3.01, z: -1.2, y: y0, dir: { x: 0, z: 1 } }); });
     for (let q = 0; q < 24; q++) { const m = new THREE.Mesh(new THREE.PlaneGeometry(.28, .2), mDirtPaper); m.rotation.set(-Math.PI / 2, 0, rnd() * 6.28); m.position.set(rr(-19, 19), .012, rr(-1.2, 1.3)); F.interior.add(m); }
     const xs = new Set(sl); for (let x = -20; x <= 20; x += 4) xs.add(x);
     const arr = [...xs].sort((p, q) => p - q), cn = arr.map(x => { F.nodes.push({ x, z: 0 }); return F.nodes.length - 1; });
@@ -874,11 +916,11 @@ export function buildWorld(scene) {
     add(mBlack, .5, .8, .4, x0 + t + .3, 4.8, 12); add(mBlack, .5, .8, .4, x1 - t - .3, 4.8, 12);
     for (let k = 0; k < 6; k++) ball(rr(31, 45), rr(14, 27), mBall);
     for (let k = 0; k < 3; k++) { const c = new THREE.Mesh(new THREE.ConeGeometry(.15, .45, 8), S(null, { color: 0xc05a20 })); c.position.set(rr(32, 44), .22, rr(15, 26)); cur.interior.add(c); }
-    const pud = new THREE.MeshStandardMaterial({ color: 0x0a1018, roughness: .05, metalness: .5 });
+    const pud = new THREE.MeshStandardMaterial({ color: 0x2a3640, roughness: .12, metalness: 0, transparent: true, opacity: .55, depthWrite: false });
     [[35, 18], [41, 23], [37, 15]].forEach(([x, z]) => { const p = new THREE.Mesh(new THREE.CircleGeometry(rr(.8, 1.6), 18), pud); p.rotation.x = -Math.PI / 2; p.position.set(x, .03, z); cur.interior.add(p); });
     papers(38, 12, 28, 18, 8);
     // 숨을 곳 (기구함)
-    for (let k = 0; k < 3; k++) add(mLocker, .55, 1.85, .62, x0 + t + .28, 0, 23.3 + k * .66, { col: true });
+    for (let k = 0; k < 3; k++) add(mLockerT, .55, 1.85, .62, x0 + t + .28, 0, 23.3 + k * .66, { col: true });
     lockers.push({ floor: 5, x: x0 + t + .28, z: 23.96, y: 60, dir: { x: 1, z: 0 } });
     addMedkit(46, 1.12 - .0, 12.2 + .0); addBattery(44, 0, 28.4);
     [33, 38, 43].forEach(x => [12, 17, 22, 27].forEach(z => areaLamp(x, z, H - .9)));
@@ -926,7 +968,7 @@ export function buildWorld(scene) {
     awall(-41.35, -38, wz, wz + t, H); awall(-37, x1 - t, wz, wz + t, H);
     awall(-45, -44, wz, wz + t, H, 2.4); awall(-38, -37, wz, wz + t, H, 2.4);
     plane(F.interior, signM('남자 탈의실'), 1.4, .35, -44.5, 2.7, wz + t + .02, 0); plane(F.interior, signM('여자 탈의실'), 1.4, .35, -37.5, 2.7, wz + t + .02, 0);
-    for (let k = 0; k < 7; k++) { add(mLocker, .62, 1.85, .55, -47.2 + k * .66, 0, z0 + t + .28, { col: true }); add(mLocker, .62, 1.85, .55, -40.9 + k * .66, 0, z0 + t + .28, { col: true }); }
+    for (let k = 0; k < 7; k++) { add(mLockerT, .62, 1.85, .55, -47.2 + k * .66, 0, z0 + t + .28, { col: true }); add(mLockerT, .62, 1.85, .55, -40.9 + k * .66, 0, z0 + t + .28, { col: true }); }
     add(mWood, 2.0, .45, .4, -45.2, 0, 28.3, { col: true }); add(mWood, 2.0, .45, .4, -38.2, 0, 28.3, { col: true });
     framed('pool_locker', 1.0, .94, -45.2, 2.6, z0 + t + .02); framed('pool_main', 2.0, 1.07, -38.0, 4.2, wz + t + .03);
     lockers.push({ floor: 6, x: -47.2 + 3 * .66, z: z0 + t + .28, y: 100, dir: { x: 0, z: 1 } }, { floor: 6, x: -40.9 + 3 * .66, z: z0 + t + .28, y: 100, dir: { x: 0, z: 1 } });
@@ -968,7 +1010,7 @@ export function buildWorld(scene) {
   flat(OUT, pave, -46, 46, 11, 14, .005, 4);
   const asph = S(T.makeAsphalt()); flat(OUT, asph, -120, 120, 73, 82, 0.005, 8);
   // 웅덩이
-  const puddle = new THREE.MeshStandardMaterial({ color: 0x0a1018, roughness: .05, metalness: .5 });
+  const puddle = new THREE.MeshStandardMaterial({ color: 0x2a3640, roughness: .12, metalness: 0, transparent: true, opacity: .55, depthWrite: false });
   [[0, 9], [-2, 30], [1.5, 50], [-20, 40], [14, 30]].forEach(([x, z]) => { const p = new THREE.Mesh(new THREE.CircleGeometry(rr(1, 2.2), 20), puddle); p.rotation.x = -Math.PI / 2; p.position.set(x, .02, z); OUT.add(p); });
 
   // 외곽 담장
@@ -1051,6 +1093,7 @@ export function buildWorld(scene) {
   const lock = new THREE.Mesh(new THREE.BoxGeometry(.18, .22, .1), S(null, { color: 0x6a5a30, metalness: .8, roughness: .4 })); lock.position.set(0, 1.0, GATE_Z + .06); OUT.add(lock);
   const lockGlow = new THREE.Sprite(new THREE.SpriteMaterial({ map: T.makeGlow('255,40,30'), blending: THREE.AdditiveBlending, depthWrite: false }));
   lockGlow.scale.set(.9, .9, .9); lockGlow.position.set(0, 1.0, GATE_Z + .15); OUT.add(lockGlow); gate.lockGlow = lockGlow;
+  gate.lockParts = [chain, lock, lockGlow]; gate.lockParts.forEach(m => { m.visible = false; });
   gate.blockRect = { x1: -4, x2: 4, z1: GATE_Z - .12, z2: GATE_Z + .12 };
 
   // 외부 경계 (보이지 않는 벽)
@@ -1080,37 +1123,44 @@ export function buildWorld(scene) {
   // 축구 골대
   [[16], [57]].forEach(([z]) => { const m = mMetal; [-3.6, 3.6].forEach(x => addO(m, .1, 2.4, .1, x, 0, z)); addO(m, 7.3, .1, .1, 0, 2.4, z); });
 
-  // 나무
-  const trunkG = new THREE.CylinderGeometry(.18, .3, 3.2, 6); trunkG.translate(0, 1.6, 0);
-  const crown1 = new THREE.IcosahedronGeometry(1.9, 1); crown1.translate(0, 4.2, 0);
-  const crown2 = new THREE.IcosahedronGeometry(1.3, 1); crown2.translate(.7, 5.4, .3);
-  const crownG = merge([crown1, crown2].map(g => { const n = g; const idx = []; const c = n.attributes.position.count; for (let i = 0; i < c; i++) idx.push(i); n.setIndex(idx); return n; }));
-  const treeM = [];
-  const tpos = [];
-  for (let i = 0; i < 110; i++) {
-    let x, z;
-    if (i < 46) { // 담장 안쪽
+  // 나무: 건물/길을 피해서 배치, 울퉁불퉁한 수관 + 개체별 색 변화
+  const BLOCK = [[-37.5, 37.5, -11, 3.5], [-21.5, 21.5, -26, -12], [26.5, 49.5, 6.5, 31.5], [-49.5, -28.5, 6.5, 23.5], [-49.5, -32.5, 24.5, 51.5], [-51, -45.5, 27, 42], [-5, 5, 60, 72], [-17, 17, 1.5, 12]];
+  const blocked = (x, z, m = 0) => BLOCK.some(([a, b2, c, d]) => x > a - m && x < b2 + m && z > c - m && z < d + m);
+  const trunkG = merge([new THREE.CylinderGeometry(.16, .3, 3.4, 7).translate(0, 1.7, 0), tube(.07, 0, 2.2, 0, .9, 3.4, .3), tube(.06, 0, 2.6, 0, -.7, 3.7, -.4)]);
+  const lump = (r, x, y, z) => {
+    const g = new THREE.IcosahedronGeometry(r, 2), p = g.attributes.position;
+    for (let i = 0; i < p.count; i++) { const k = Math.sin(p.getX(i) * 12.9 + p.getY(i) * 78.2 + p.getZ(i) * 37.7) * 43758.5; const n = 1 + (k - Math.floor(k) - .5) * .4; p.setXYZ(i, p.getX(i) * n, p.getY(i) * n * .85, p.getZ(i) * n); }
+    g.translate(x, y, z); const idx = []; for (let i = 0; i < p.count; i++) idx.push(i); g.setIndex(idx); g.computeVertexNormals(); return g;
+  };
+  const crownG = merge([lump(1.7, 0, 4.3, 0), lump(1.3, .9, 5.2, .4), lump(1.2, -.8, 4.9, -.5), lump(.9, .1, 5.9, -.1)]);
+  const treeM = [], tpos = [];
+  for (let i = 0; i < 260 && tpos.length < 120; i++) {
+    let x, z; const inside = tpos.length < 54;
+    if (inside) {
       const side = (rnd() * 4) | 0;
-      if (side === 0) { x = rr(-48, 48); z = rr(66, 68.5); } else if (side === 1) { x = rr(-48.5, -45); z = rr(-24, 66); } else if (side === 2) { x = rr(45, 48.5); z = rr(-24, 66); } else { x = rr(-48, 48); z = rr(-24, -20); }
-      if (Math.abs(x) < 7 && z > 60) continue;
-      if (z > 11 && z < 14) continue;
-    } else { // 담장 바깥 숲
-      const a = rnd() * 6.28, r = rr(58, 130); x = Math.cos(a) * r * 1.3; z = 20 + Math.sin(a) * r * .95;
-      if (Math.abs(x) < 54 && z > -30 && z < 90) continue;
-      if (z > 70 && z < 84 && Math.abs(x) < 120) continue;
+      if (side === 0) { x = rr(-48, 48); z = rr(65.5, 68.5); } else if (side === 1) { x = rr(-48.5, -44); z = rr(-24, 66); } else if (side === 2) { x = rr(44, 48.5); z = rr(-24, 66); } else { x = rr(-48, 48); z = rr(-24, -21); }
+      if (blocked(x, z, 2.5) || (z > 10.5 && z < 14.5)) continue;
+    } else {
+      const a = rnd() * 6.28, r = rr(62, 135); x = Math.cos(a) * r * 1.3; z = 20 + Math.sin(a) * r * .95;
+      if ((Math.abs(x) < 56 && z > -32 && z < 90) || (z > 70 && z < 85) || (x < -50 && x > -95 && z > -35 && z < 110)) continue;
     }
-    tpos.push([x, z]);
+    tpos.push([x, z, inside]);
   }
-  tpos.forEach(([x, z], i) => { const s = rr(.8, 1.5); _o.position.set(x, 0, z); _o.rotation.set(0, rnd() * 6, 0); _o.scale.set(s, s * rr(.9, 1.3), s); _o.updateMatrix(); treeM.push(_o.matrix.clone()); if (i < 46 && Math.abs(x) < 49) col(x - .35, x + .35, z - .35, z + .35); });
-  inst(OUT, trunkG, S(null, { color: 0x2a1e14 }), treeM);
-  inst(OUT, crownG, new THREE.MeshStandardMaterial({ color: 0x1b2a14, roughness: 1, flatShading: true }), treeM);
-  // 풀
-  const grassG = new THREE.ConeGeometry(.07, .6, 4); grassG.translate(0, .3, 0);
-  const grM = []; for (let i = 0; i < 900; i++) {
-    let x = rr(-48, 48), z = rr(2, 68); if (Math.abs(x) < 2.5 && rnd() < .8) x += 6 * Math.sign(x || 1);
-    _o.position.set(x, 0, z); _o.rotation.set(rr(-.3, .3), rnd() * 6, rr(-.3, .3)); _o.scale.setScalar(rr(.6, 1.8)); _o.updateMatrix(); grM.push(_o.matrix.clone());
+  tpos.forEach(([x, z, inside]) => { const s2 = rr(.8, 1.4); _o.position.set(x, 0, z); _o.rotation.set(0, rnd() * 6, 0); _o.scale.set(s2, s2 * rr(.9, 1.25), s2); _o.updateMatrix(); treeM.push(_o.matrix.clone()); if (inside) col(x - .35, x + .35, z - .35, z + .35); });
+  _o.scale.set(1, 1, 1);
+  inst(OUT, trunkG, S(T.makeWood([52, 38, 26])), treeM);
+  const crowns = inst(OUT, crownG, new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 1, flatShading: true }), treeM);
+  const tc = new THREE.Color(); treeM.forEach((m, i) => { tc.setHSL(rr(.2, .3), rr(.2, .35), rr(.045, .085)); crowns.setColorAt(i, tc); }); crowns.instanceColor.needsUpdate = true;
+  // 풀: 십자형 풀잎 카드 (알파 텍스처)
+  const grassG = merge([new THREE.PlaneGeometry(.8, .55).translate(0, .27, 0), new THREE.PlaneGeometry(.8, .55).rotateY(Math.PI / 2).translate(0, .27, 0)]);
+  const grM = [];
+  for (let i = 0; i < 4000 && grM.length < 1800; i++) {
+    const x = rr(-49, 49), z = rr(-25, 69.5);
+    if (blocked(x, z, .3) || (Math.abs(x) < 3.6 && z > 1.5) || (x > -34 && x < 34 && z > 16 && z < 60 && rnd() < .85)) continue;
+    _o.position.set(x, 0, z); _o.rotation.set(0, rnd() * 6, 0); _o.scale.setScalar(rr(.6, 1.5)); _o.updateMatrix(); grM.push(_o.matrix.clone());
   }
-  inst(OUT, grassG, new THREE.MeshStandardMaterial({ color: 0x2f4a22, roughness: 1 }), grM);
+  _o.scale.set(1, 1, 1);
+  inst(OUT, grassG, new THREE.MeshStandardMaterial({ map: T.makeGrass(), alphaTest: .45, side: THREE.DoubleSide, roughness: 1, color: 0xb8c8a0 }), grM);
 
   // 하늘: 별 + 달
   const sp = []; for (let i = 0; i < 700; i++) { const a = rnd() * 6.28, e = rr(.08, 1.4); const r = 230; sp.push(Math.cos(a) * Math.cos(e) * r, Math.sin(e) * r, Math.sin(a) * Math.cos(e) * r); }

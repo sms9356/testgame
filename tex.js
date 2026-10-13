@@ -362,3 +362,58 @@ export const makeBasement = () => ctex(512, 512, (g, w, h) => {
   stains(g, w, h, 20, 'rgba(20,28,20,.55)', 90); drips(g, w, 0, h, 30, 'rgba(30,25,15,.5)'); cracks(g, w, h, 14, 'rgba(0,0,0,.6)', 30);
   g.fillStyle = 'rgba(150,40,30,.15)'; g.fillRect(0, h * .6, w, h * .02);
 });
+
+// ---- 품질 개선용 텍스처 ----
+export const makeGrass = () => ctex(128, 128, (g, w, h) => {
+  g.clearRect(0, 0, w, h);
+  for (let i = 0; i < 46; i++) {
+    const x = rr(6, w - 6), bh = rr(h * .35, h * .98), lean = rr(-18, 18), bw = rr(2, 5);
+    g.fillStyle = pick(['#2f4a22', '#3c5a2a', '#24391a', '#4a5a2c', '#5a5a34']);
+    g.beginPath(); g.moveTo(x - bw, h); g.quadraticCurveTo(x + lean * .3, h - bh * .5, x + lean, h - bh); g.quadraticCurveTo(x + lean * .3 + bw * .3, h - bh * .5, x + bw, h); g.fill();
+  }
+}, { repeat: false });
+export const makeLocker = () => ctex(128, 256, (g, w, h) => {
+  g.fillStyle = '#7a8a8e'; g.fillRect(0, 0, w, h);
+  speckle(g, w, h, 500, ['#4a585c', '#9aaaae'], 2, 8, .3);
+  g.fillStyle = 'rgba(20,24,26,.75)'; g.fillRect(0, 0, 4, h); g.fillRect(w - 4, 0, 4, h); g.fillRect(0, 0, w, 4); g.fillRect(0, h - 4, w, 4);
+  for (let i = 0; i < 6; i++) g.fillRect(34, 20 + i * 9, 60, 4);           // 환기구
+  for (let i = 0; i < 6; i++) g.fillRect(34, h - 70 + i * 9, 60, 4);
+  g.fillStyle = '#c8c0a0'; g.fillRect(14, h / 2 - 22, 6, 44);            // 손잡이
+  g.fillStyle = '#e0d8c0'; g.fillRect(40, 84, 48, 18); g.fillStyle = '#333'; g.fillRect(46, 90, 30, 3); // 이름표
+  stains(g, w, h, 12, 'rgba(140,70,25,.6)', 30); drips(g, w, 0, h, 14, 'rgba(110,55,20,.45)');
+});
+export const makeStep = () => ctex(256, 256, (g, w, h) => {
+  g.fillStyle = '#8a8880'; g.fillRect(0, 0, w, h);
+  speckle(g, w, h, 1600, ['#5a5850', '#a8a698', '#3a3a34'], 2, 9, .35);
+  stains(g, w, h, 14, 'rgba(30,25,15,.45)', 50); cracks(g, w, h, 8, 'rgba(0,0,0,.5)', 24);
+  g.fillStyle = 'rgba(30,30,28,.8)'; g.fillRect(0, 0, w, 10);
+});
+export const makeDress = () => ctex(256, 256, (g, w, h) => {
+  g.fillStyle = '#d6d0c2'; g.fillRect(0, 0, w, h);
+  for (let x = 0; x < w; x += 8) { g.fillStyle = `rgba(60,55,45,${rr(.05, .25)})`; g.fillRect(x + rr(-2, 2), 0, rr(2, 6), h); }
+  stains(g, w, h, 14, 'rgba(90,80,60,.4)', 40); stains(g, w, h, 5, 'rgba(90,20,20,.35)', 26);
+  drips(g, w, h * .3, h * .9, 16, 'rgba(70,60,45,.35)');
+  // 찢어진 밑단 (v=0 이 아래 → 캔버스 아래쪽)
+  g.globalCompositeOperation = 'destination-out';
+  g.beginPath(); g.moveTo(0, h);
+  for (let x = 0; x <= w; x += 6) g.lineTo(x, h - rr(4, 34));
+  g.lineTo(w, h); g.fill();
+  g.globalCompositeOperation = 'source-over';
+}, { repeat: true });
+export const makeHair = () => ctex(64, 256, (g, w, h) => {
+  g.clearRect(0, 0, w, h);
+  for (let i = 0; i < 26; i++) {
+    const x = rr(2, w - 2), len = rr(h * .6, h);
+    g.strokeStyle = `rgba(${rr(4, 18) | 0},${rr(3, 12) | 0},${rr(3, 10) | 0},${rr(.7, 1)})`; g.lineWidth = rr(1.5, 4);
+    g.beginPath(); g.moveTo(x, 0); g.bezierCurveTo(x + rr(-6, 6), len * .4, x + rr(-8, 8), len * .7, x + rr(-6, 6), len); g.stroke();
+  }
+}, { repeat: false });
+export const makeGhostFace = () => ctex(256, 128, (g, w, h) => {
+  g.fillStyle = '#c9c2b6'; g.fillRect(0, 0, w, h);
+  stains(g, w, h, 10, 'rgba(70,80,90,.35)', 26);
+  const cx = w * .25, cy = h * .5;   // 구의 +z 방향 = u 0.25
+  const eye = (x) => { const gr = g.createRadialGradient(x, cy - 6, 2, x, cy - 6, 15); gr.addColorStop(0, '#000'); gr.addColorStop(.6, '#0a0606'); gr.addColorStop(1, 'rgba(40,30,30,0)'); g.fillStyle = gr; g.beginPath(); g.ellipse(x, cy - 6, 11, 14, 0, 0, 6.3); g.fill(); g.fillStyle = '#e8e8e0'; g.beginPath(); g.arc(x, cy - 5, 1.6, 0, 6.3); g.fill(); };
+  eye(cx - 14); eye(cx + 14);
+  g.fillStyle = '#120808'; g.beginPath(); g.ellipse(cx, cy + 22, 6, 11, 0, 0, 6.3); g.fill();
+  g.strokeStyle = 'rgba(60,20,20,.6)'; g.lineWidth = 1.5; g.beginPath(); g.moveTo(cx - 14, cy + 6); g.lineTo(cx - 16, cy + 24); g.moveTo(cx + 14, cy + 6); g.lineTo(cx + 15, cy + 22); g.stroke();
+});

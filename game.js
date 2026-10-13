@@ -2,6 +2,7 @@
 import * as THREE from './vendor/three.module.js';
 import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX } from './world.js';
 import { drawMap } from './map.js';
+import { makeDress, makeHair, makeGhostFace } from './tex.js';
 import { initAudio, sfx, setProximity } from './audio.js';
 
 const $ = id => document.getElementById(id);
@@ -18,7 +19,9 @@ const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPrefere
 renderer.setPixelRatio(Math.min(devicePixelRatio, 1.75));
 renderer.setSize(innerWidth, innerHeight);
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.25;
+renderer.toneMappingExposure = 1.3;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x05070d);
 scene.fog = new THREE.FogExp2(0x070a12, 0.03);
@@ -32,6 +35,8 @@ moonLight.position.set(-40, 90, -120); scene.add(moonLight);
 const flash = new THREE.SpotLight(0xfff0d0, 0, 30, 0.5, 0.55, 1.3);
 flash.position.set(0.12, -0.08, 0); flash.target.position.set(0, 0, -6);
 camera.add(flash, flash.target);
+flash.castShadow = true; flash.shadow.mapSize.set(1024, 1024); flash.shadow.camera.near = .15; flash.shadow.camera.far = 26;
+flash.shadow.bias = -.0006; flash.shadow.normalBias = .03;
 const pool = [];
 for (let i = 0; i < 4; i++) { const l = new THREE.PointLight(0xcfe6d6, 0, 12, 1.7); scene.add(l); pool.push(l); }
 
@@ -49,41 +54,58 @@ const TOTAL = KEY_NAMES.length;
 const got = KEY_NAMES.map(() => false);
 const inv = { battery: 0, medkit: 0 }, docs = [];
 let gateClosed = false, gateAnim = 0, gateState = 'open';
+let lookBack = 0, introT = 0;
 let blackout = 0, shake = 0, nextEvent = 40, lampTimer = 0, introDone = false, escaped = false;
 const keys = {};
 
 /* ---------- 유령 ---------- */
 function buildGhost() {
   const g = new THREE.Group(), inner = new THREE.Group(); g.add(inner);
-  const dressM = new THREE.MeshStandardMaterial({ color: 0xd4cfc4, roughness: 1, emissive: 0x3a3630, side: THREE.DoubleSide });
-  const hairM = new THREE.MeshStandardMaterial({ color: 0x050404, roughness: 1, side: THREE.DoubleSide });
-  const skinM = new THREE.MeshStandardMaterial({ color: 0xc4bdb0, roughness: .9, emissive: 0x28251f });
-  const pts = [[.02, 0], [.36, 0], [.44, .08], [.36, .5], [.26, .95], [.2, 1.25], [.14, 1.4], [.1, 1.5]].map(p => new THREE.Vector2(p[0], p[1]));
-  const dress = new THREE.Mesh(new THREE.LatheGeometry(pts, 18), dressM); dress.position.y = .3; inner.add(dress);
-  const head = new THREE.Group(); head.position.y = 1.9; head.rotation.x = .22; inner.add(head);
-  const face = new THREE.Mesh(new THREE.SphereGeometry(.12, 14, 12), skinM); face.scale.set(.9, 1.15, .95); head.add(face);
-  const black = new THREE.MeshBasicMaterial({ color: 0x000000 }), white = new THREE.MeshBasicMaterial({ color: 0xffffff });
-  [-1, 1].forEach(s => {
-    const e = new THREE.Mesh(new THREE.SphereGeometry(.032, 8, 8), black); e.scale.set(1, 1.7, .6); e.position.set(s * .045, .02, .105); head.add(e);
-    const p = new THREE.Mesh(new THREE.SphereGeometry(.008, 6, 6), white); p.position.set(s * .045, .02, .122); head.add(p);
-  });
-  const mouth = new THREE.Mesh(new THREE.SphereGeometry(.03, 8, 8), black); mouth.scale.set(1, 1.8, .5); mouth.position.set(0, -.06, .108); head.add(mouth);
-  const hb = new THREE.Mesh(new THREE.SphereGeometry(.15, 12, 10), hairM); hb.scale.set(1, 1.15, 1); hb.position.set(0, .01, -.04); head.add(hb);
-  for (let i = 0; i < 9; i++) {
-    const a = -1.9 + i * .475;
-    const c = new THREE.Mesh(new THREE.ConeGeometry(.06, 1.35, 5), hairM); c.rotation.x = Math.PI;
-    c.position.set(Math.sin(a) * .12, -.62, -Math.cos(a) * .1 - .02 + (Math.abs(Math.sin(a)) > .8 ? .1 : 0)); head.add(c);
+  const DS = THREE.DoubleSide;
+  const dTex = makeDress(); dTex.repeat.set(3, 1);
+  const dressM = new THREE.MeshStandardMaterial({ map: dTex, color: 0x6e6a62, roughness: 1, emissive: 0x141210, side: DS, alphaTest: .4 });
+  const hairM = new THREE.MeshStandardMaterial({ map: makeHair(), color: 0x1a1612, roughness: .8, side: DS, alphaTest: .3 });
+  const capM = new THREE.MeshStandardMaterial({ color: 0x070605, roughness: .9 });
+  const skinM = new THREE.MeshStandardMaterial({ color: 0x7a756c, roughness: .9, emissive: 0x0c0b0a });
+  const faceM = new THREE.MeshStandardMaterial({ map: makeGhostFace(), color: 0x8a857c, roughness: .9 });
+  // 원피스: 주름 진 레이스 실루엣 + 찢어진 밑단(알파)
+  const prof = [[.05, 0], [.42, .02], [.47, .1], [.41, .45], [.32, .85], [.24, 1.12], [.2, 1.28], [.17, 1.38], [.12, 1.46], [.06, 1.5]].map(p => new THREE.Vector2(p[0], p[1]));
+  const dg = new THREE.LatheGeometry(prof, 40), dp = dg.attributes.position;
+  for (let i = 0; i < dp.count; i++) {
+    const x = dp.getX(i), y = dp.getY(i), z = dp.getZ(i), a = Math.atan2(z, x), k = 1 + .07 * Math.sin(a * 9 + y * 3) * Math.max(0, 1 - y / 1.4);
+    dp.setXYZ(i, x * k, y, z * k);
   }
+  dg.computeVertexNormals();
+  const dress = new THREE.Mesh(dg, dressM); dress.position.y = .22; inner.add(dress);
+  // 허공에 떠 있는 맨발
+  [-1, 1].forEach(s => { const f = new THREE.Mesh(new THREE.CylinderGeometry(.03, .022, .22, 6), skinM); f.position.set(s * .08, .14, .02); f.rotation.x = .25; inner.add(f); });
+  const neck = new THREE.Mesh(new THREE.CylinderGeometry(.04, .05, .18, 8), skinM); neck.position.y = 1.8; inner.add(neck);
+  const head = new THREE.Group(); head.position.y = 1.95; head.rotation.x = .28; inner.add(head);
+  const face = new THREE.Mesh(new THREE.SphereGeometry(.115, 24, 18), faceM); face.scale.set(.88, 1.12, .95); head.add(face);
+  const cap = new THREE.Mesh(new THREE.SphereGeometry(.128, 18, 14, 0, Math.PI * 2, 0, Math.PI * .62), capM); cap.position.set(0, .015, -.03); cap.rotation.x = -.35; head.add(cap);
+  // 길게 늘어진 머리카락 (알파 텍스처 가닥)
+  const hair = [];
+  const strand = (a, w, L, fwd = 0) => {
+    const pg = new THREE.PlaneGeometry(w, L); pg.translate(0, -L / 2, 0);
+    const m = new THREE.Mesh(pg, hairM); const r = .125 + fwd;
+    m.position.set(Math.sin(a) * r, .07, Math.cos(a) * r); m.rotation.order = 'YXZ'; m.rotation.y = a; m.rotation.x = fwd ? -.24 : -.3; head.add(m); hair.push(m); return m;
+  };
+  for (let i = 0; i < 22; i++) strand(Math.PI * (.35 + i / 21 * 1.3), .11 + Math.random() * .05, .95 + Math.random() * .5);
+  [-.42, -.22, .25, .45].forEach((a, i) => strand(a, .07, .85 + i * .08, .012));   // 얼굴을 가리는 앞머리
+  // 팔: 어깨-팔꿈치-손목, 긴 손가락
   const arms = [];
   [-1, 1].forEach(s => {
-    const pv = new THREE.Group(); pv.position.set(s * .2, 1.72, .02); inner.add(pv);
-    const arm = new THREE.Mesh(new THREE.CylinderGeometry(.03, .022, 1.15, 6), skinM); arm.position.y = -.57; pv.add(arm);
-    for (let k = -1; k <= 1; k++) { const f = new THREE.Mesh(new THREE.CylinderGeometry(.006, .004, .2, 4), skinM); f.position.set(k * .02, -1.2, 0); pv.add(f); }
-    pv.rotation.set(-.35, 0, s * .1); arms.push(pv);
+    const sh = new THREE.Group(); sh.position.set(s * .19, 1.66, .02); inner.add(sh);
+    const up = new THREE.Mesh(new THREE.CylinderGeometry(.03, .026, .36, 7), skinM); up.position.y = -.18; sh.add(up);
+    const el = new THREE.Group(); el.position.y = -.36; el.rotation.x = -.35; sh.add(el);
+    const lo = new THREE.Mesh(new THREE.CylinderGeometry(.025, .018, .34, 7), skinM); lo.position.y = -.17; el.add(lo);
+    const hand = new THREE.Mesh(new THREE.BoxGeometry(.05, .09, .022), skinM); hand.position.y = -.38; el.add(hand);
+    for (let k = 0; k < 4; k++) { const f = new THREE.Mesh(new THREE.CylinderGeometry(.0055, .003, .13, 4), skinM); f.position.set(-.018 + k * .012, -.48, 0); f.rotation.z = (k - 1.5) * .06; el.add(f); }
+    sh.rotation.set(-.3, 0, s * .08); arms.push(sh);
   });
   const glow = new THREE.PointLight(0xaa2222, 0.7, 5); glow.position.set(0, 1.8, .4); g.add(glow);
   g.visible = false; scene.add(g);
-  return { group: g, inner, head, arms, glow };
+  return { group: g, inner, head, arms, hair, glow };
 }
 const ghost = {
   ...buildGhost(), active: false, floor: 1, x: -30, z: 0, yaw: 0, state: 'patrol', path: [], target: null, wait: 2,
@@ -226,6 +248,13 @@ function ghostTick(dt, t) {
   if (G.stepT <= 0) { G.stepT = .55; const pan = ((G.x - P.x) * Math.cos(P.yaw) - (G.z - P.z) * Math.sin(P.yaw)) / Math.max(1, dist); sfx.ghostStep(dist, pan); }
 }
 
+scene.traverse(o => {
+  if (!o.isMesh) return;
+  const m = Array.isArray(o.material) ? o.material[0] : o.material;
+  if (m.isMeshBasicMaterial || m.transparent) return;
+  o.castShadow = true; o.receiveShadow = true;
+});
+
 function ghostVisual(dt, t) {
   const G = ghost; if (!G.active) { G.group.visible = false; return; }
   G.group.visible = G.floor === P.floor && !(P.floor === 0 && P.z > 1.9 && G.z > 1.8 && false);
@@ -237,6 +266,7 @@ function ghostVisual(dt, t) {
   G.inner.position.x = chasing ? (Math.random() - .5) * .04 : 0;
   G.arms.forEach((a, i) => { a.rotation.x = -.35 + Math.sin(t * (chasing ? 7 : 1.4) + i * 2) * (chasing ? .5 : .12) - (chasing ? .6 : 0); });
   G.glow.intensity = .5 + .4 * Math.sin(t * 5);
+  G.hair.forEach((h, i) => { h.rotation.z = Math.sin(t * (chasing ? 6 : 1.3) + i * .7) * (chasing ? .12 : .04); });
 }
 
 /* ---------- UI ---------- */
@@ -349,14 +379,14 @@ function findInteract() {
   for (const it of world.items) {
     if (it.taken || it.floor !== P.floor) continue;
     const dx = it.pos.x - P.x, dz = it.pos.z - P.z, d = Math.hypot(dx, dz);
-    if (d > 2.3) continue;
+    if (d > 2.3 || !los(floors[P.floor].walls, P.x, P.z, it.pos.x, it.pos.z)) continue;
     const f = (dx * fx + dz * fz) / Math.max(d, .01);
     const s = f - d * .1; if (f > .72 && s > bs) { bs = s; best = { type: 'item', it, label: it.label }; }
   }
   for (const l of world.lockers) {
     if (l.floor !== P.floor) continue;
     const dx = l.x - P.x, dz = l.z - P.z, d = Math.hypot(dx, dz);
-    if (d > 1.7) continue; const f = (dx * fx + dz * fz) / Math.max(d, .01);
+    if (d > 1.7 || !los(floors[P.floor].walls, P.x, P.z, l.x, l.z)) continue; const f = (dx * fx + dz * fz) / Math.max(d, .01);
     const s = f - d * .1; if (f > .35 && s > bs) { bs = s; best = { type: 'locker', l, label: '사물함에 숨기' }; }
   }
   if (!best) {
@@ -513,7 +543,7 @@ addEventListener('keyup', e => { keys[e.code] = false; });
 addEventListener('mousemove', e => {
   if (state !== 'playing' && state !== 'dead') return;
   if (!document.pointerLockElement && !DEBUG) return;
-  if (state === 'dead') return;
+  if (state === 'dead' || lookBack > 0) return;
   P.yaw -= e.movementX * .0022; P.pitch = clamp(P.pitch - e.movementY * .0022, -1.45, 1.45);
   if (P.hiding) P.yaw = clamp(P.yaw, P.hiding.yaw - .7, P.hiding.yaw + .7);
 });
@@ -547,14 +577,37 @@ function load() {
   refreshHud(); toast('불러오기 완료', '', 'info');
 }
 
-function start() {
-  initAudio(); $('menu').classList.remove('show'); $('hud').classList.add('show');
-  state = 'playing'; refreshHud();
+function start(skipIntro = false) {
+  initAudio(); $('menu').classList.remove('show');
+  refreshHud();
+  if (skipIntro || TEST) { finishIntro(); return; }
+  state = 'intro'; introT = 0; $('intro').classList.add('show');
+}
+function finishIntro() {
+  $('intro').classList.remove('show'); $('introTitle').classList.remove('show'); $('hud').classList.add('show');
+  P.x = 0; P.z = 77.5; P.yaw = 0; P.pitch = 0; state = 'playing';
   setTimeout(() => talk('무서워도… 가야지. 누군가는 알아야 하니까.', 4200), 500);
 }
+// 인트로: 검은 화면 텍스트(0~6초) → 폐교를 향한 카메라 돌리(6~13초)
+function updateIntro(dt) {
+  introT += dt * (DEBUG && window.__introJump ? 6 : 1);
+  const ease = t => t * t * (3 - 2 * t);
+  if (introT < 6) { camera.position.set(0, 10, 106); camera.rotation.set(-.1, 0, 0, 'YXZ'); }
+  else {
+    if ($('intro').classList.contains('show')) { $('intro').classList.remove('show'); $('introTitle').classList.add('show'); }
+    const k = ease(clamp((introT - 6) / 7, 0, 1));
+    camera.position.set(Math.sin(introT * .3) * .4 * (1 - k), lerp(10, 1.62, k), lerp(106, 77.5, k));
+    camera.rotation.set(lerp(-.1, 0, k), 0, 0, 'YXZ');
+    if (introT > 10) $('introTitle').classList.remove('show');
+  }
+  updateLighting(dt);
+  if (introT > 13.2) finishIntro();
+}
+addEventListener('keydown', e => { if (state === 'intro' && ['Space', 'Enter', 'Escape'].includes(e.code)) finishIntro(); });
+$('intro').addEventListener('click', () => { if (state === 'intro') finishIntro(); });
 $('startBtn').addEventListener('click', () => { try { localStorage.removeItem(SAVE); } catch (e) { /* ignore */ } lock(); start(); });
 $('helpBtn').addEventListener('click', () => $('helpBox').classList.toggle('show'));
-$('loadBtn').addEventListener('click', () => { lock(); start(); load(); });
+$('loadBtn').addEventListener('click', () => { lock(); start(true); load(); });
 $('saveBtn').addEventListener('click', () => save());
 $('titleBtn').addEventListener('click', () => location.reload());
 try { if (localStorage.getItem(SAVE)) $('loadBtn').style.display = 'block'; } catch (e) { /* ignore */ }
@@ -569,7 +622,10 @@ function updatePlayer(dt) {
   const fw = (keys.KeyW || keys.ArrowUp ? 1 : 0) - (keys.KeyS || keys.ArrowDown ? 1 : 0);
   const sd = (keys.KeyD || keys.ArrowRight ? 1 : 0) - (keys.KeyA || keys.ArrowLeft ? 1 : 0);
   P.moving = false; P.sprinting = false;
-  if (!P.hiding && state === 'playing') {
+  if (lookBack > 0) {
+    lookBack -= dt; let dy = Math.PI - P.yaw; while (dy > Math.PI) dy -= 6.283; while (dy < -Math.PI) dy += 6.283;
+    P.yaw += dy * Math.min(1, dt * 5); P.pitch = lerp(P.pitch, .04, Math.min(1, dt * 5));
+  } else if (!P.hiding && state === 'playing') {
     const want = !!(fw || sd);
     const wantRun = (keys.ShiftLeft || keys.ShiftRight) && want && !P.tired && P.stamina > 0;
     if (wantRun) { P.sprinting = true; P.stamina = Math.max(0, P.stamina - 20 * dt); if (P.stamina <= 0) P.tired = true; }
@@ -591,7 +647,7 @@ function updatePlayer(dt) {
 
   // 정문 닫힘 연출
   if (!gateClosed && state === 'playing' && P.z < GATE_Z - 3) {
-    gateClosed = true; gateState = 'closing'; sfx.gateClang(); shake = .8;
+    gateClosed = true; gateState = 'closing'; sfx.gateClang(); shake = .8; if (P.z > GATE_Z - 8) lookBack = 1.9;
     setTimeout(() => { toast('새로운 목표가 추가되었습니다', `정문 열쇠 조각 ${TOTAL}개를 찾아라`, 'warn'); talk('문이 잠겼어… 열쇠를 찾아야 해.', 4200); }, 800);
   }
   if (!introDone && P.floor === 0 && P.z < 1.2) { introDone = true; talk('안은 숨소리까지 들릴 만큼 조용해…', 3500); setTimeout(() => toast('팁', '쪽지를 읽고, 사물함에 숨어 시선을 피하세요. (Tab: 인벤토리, M: 지도)', 'info'), 1500); }
@@ -606,8 +662,7 @@ function updatePlayer(dt) {
 function updateGate(dt) {
   if (gateState === 'closing') { gateAnim = Math.min(1, gateAnim + dt / .9); gate.setOpen(1 - easeOut(gateAnim)); if (gateAnim >= 1) { gateState = 'closed'; gate.setOpen(0); } }
   else if (gateState === 'opening') { gateAnim = Math.max(0, gateAnim - dt / 3); gate.setOpen(1 - easeOut(gateAnim)); }
-  if (gateState === 'closed') gate.lockGlow.visible = true;
-  if (gateState === 'opening') gate.lockGlow.visible = false;
+  gate.lockParts.forEach(m => { m.visible = gateState === 'closed'; });
 }
 const easeOut = t => 1 - Math.pow(1 - t, 3);
 
@@ -615,8 +670,8 @@ function updateLighting(dt) {
   const F = floors[P.floor];
   const indoors = P.floor >= 4 || (P.floor > 0 && P.floor < 3) || (P.floor === 0 && P.z < 1.45 && P.z > -9.9 && Math.abs(P.x) < 36.3);
   const k = Math.min(1, dt * 3);
-  moonLight.intensity = lerp(moonLight.intensity, indoors ? 0 : 1.1, k);
-  hemi.intensity = lerp(hemi.intensity, indoors ? .2 : .5, k);
+  moonLight.intensity = lerp(moonLight.intensity, indoors ? 0 : 1.6, k);
+  hemi.intensity = lerp(hemi.intensity, indoors ? .2 : .68, k);
   scene.fog.density = lerp(scene.fog.density, indoors ? .05 : .024, k);
   floors.forEach(f => { f.interior.visible = f.f === P.floor; });
   // 형광등 풀: 가장 가까운 켜진 램프 4개에 PointLight 배치
@@ -773,6 +828,8 @@ function frame(now) {
     updateLighting(dt);
     ghostVisual(dt, tNow);
     updateCamera(dt, tNow);
+  } else if (state === 'intro') {
+    updateIntro(dt);
   } else if (state === 'menu') {
     camera.position.set(Math.sin(tNow * .1) * 3, 2.2, 74); camera.rotation.set(-.05, Math.sin(tNow * .1) * .1, 0, 'YXZ');
     updateLighting(dt);
@@ -817,7 +874,7 @@ if (TEST) {
 
 if (DEBUG) {
   window.__g = {
-    P, ghost, floors, world, scene, camera, start,
+    P, ghost, floors, world, scene, camera, start: () => start(true),
     tp(x, z, f = 0, yaw = 0, pitch = 0) { P.x = x; P.z = z; P.floor = f; P.yaw = yaw; P.pitch = pitch; },
     give() { world.items.filter(i => i.kind === 'key').forEach(i => { i.taken = true; i.mesh.visible = false; got[i.idx] = true; }); P.keys = TOTAL; refreshHud(); },
     get state() { return state; }, set state(v) { state = v; }, openTest,

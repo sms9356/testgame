@@ -417,3 +417,38 @@ export const makeGhostFace = () => ctex(256, 128, (g, w, h) => {
   g.fillStyle = '#120808'; g.beginPath(); g.ellipse(cx, cy + 22, 6, 11, 0, 0, 6.3); g.fill();
   g.strokeStyle = 'rgba(60,20,20,.6)'; g.lineWidth = 1.5; g.beginPath(); g.moveTo(cx - 14, cy + 6); g.lineTo(cx - 16, cy + 24); g.moveTo(cx + 14, cy + 6); g.lineTo(cx + 15, cy + 22); g.stroke();
 });
+
+// ---- 디테일 2차 ----
+export const makeBookSpine = () => ctex(64, 128, (g, w, h) => {
+  g.fillStyle = '#d8d8d8'; g.fillRect(0, 0, w, h);
+  g.fillStyle = 'rgba(0,0,0,.35)'; g.fillRect(0, 10, w, 6); g.fillRect(0, h - 18, w, 6);
+  g.fillStyle = 'rgba(255,240,200,.55)'; g.fillRect(w * .2, 30, w * .6, 40);
+  g.fillStyle = 'rgba(0,0,0,.25)'; for (let i = 0; i < 4; i++) g.fillRect(w * .28, 36 + i * 8, w * .44, 3);
+  speckle(g, w, h, 160, ['#000', '#fff'], 1, 4, .25); stains(g, w, h, 4, 'rgba(60,40,20,.35)', 20);
+}, { repeat: false });
+export const makeCalendar = () => ctex(256, 320, (g, w, h) => {
+  g.fillStyle = '#e4dfcf'; g.fillRect(0, 0, w, h);
+  g.fillStyle = '#7a1a1a'; g.fillRect(0, 0, w, 56);
+  g.fillStyle = '#f0e8d8'; g.font = `900 34px ${FONT}`; g.textAlign = 'center'; g.fillText('10월', w / 2, 40);
+  g.fillStyle = '#333'; g.font = `15px ${FONT}`;
+  const days = ['일', '월', '화', '수', '목', '금', '토'];
+  days.forEach((d, i) => g.fillText(d, 22 + i * 35, 80));
+  let day = 1;
+  for (let r = 0; r < 5; r++) for (let c = 0; c < 7; c++) {
+    if (r === 0 && c < 0) continue; if (day > 31) break;
+    const x = 22 + c * 35, y = 112 + r * 40;
+    g.fillStyle = c === 0 ? '#a02020' : '#333'; g.font = `18px ${FONT}`; g.fillText(String(day), x, y);
+    if (day === 12) { g.strokeStyle = '#c01818'; g.lineWidth = 3; g.beginPath(); g.ellipse(x, y - 6, 16, 14, 0, 0, 6.3); g.stroke(); g.fillStyle = '#c01818'; g.font = `bold 12px ${FONT}`; g.fillText('졸업식', x, y + 14); }
+    day++;
+  }
+  stains(g, w, h, 8, 'rgba(90,70,30,.4)', 40); speckle(g, w, h, 300, ['#6a5a40'], 1, 4, .3);
+}, { repeat: false });
+export const makeGraffiti = (text, col = '#8a1018') => ctex(512, 128, (g, w, h) => {
+  g.clearRect(0, 0, w, h); g.fillStyle = col; g.font = `900 72px ${FONT}`; g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.save(); g.translate(w / 2, h / 2); g.rotate(-.04); g.fillText(text, 0, 0); g.restore();
+  g.globalCompositeOperation = 'source-atop'; drips(g, w, h * .4, h * .6, 30, 'rgba(70,0,0,.9)'); speckle(g, w, h, 300, ['#200'], 2, 6, .5);
+}, { repeat: false });
+export const makeKeypad = () => ctex(64, 96, (g, w, h) => {
+  g.fillStyle = '#2a2e2c'; g.fillRect(0, 0, w, h); g.fillStyle = '#5a7a5a'; g.fillRect(8, 8, w - 16, 16);
+  g.fillStyle = '#c8c8c0'; for (let r = 0; r < 4; r++) for (let c = 0; c < 3; c++) g.fillRect(10 + c * 16, 32 + r * 15, 12, 11);
+}, { repeat: false });

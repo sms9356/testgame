@@ -437,7 +437,7 @@ export const makeCalendar = () => ctex(256, 320, (g, w, h) => {
     if (r === 0 && c < 0) continue; if (day > 31) break;
     const x = 22 + c * 35, y = 112 + r * 40;
     g.fillStyle = c === 0 ? '#a02020' : '#333'; g.font = `18px ${FONT}`; g.fillText(String(day), x, y);
-    if (day === 12) { g.strokeStyle = '#c01818'; g.lineWidth = 3; g.beginPath(); g.ellipse(x, y - 6, 16, 14, 0, 0, 6.3); g.stroke(); g.fillStyle = '#c01818'; g.font = `bold 12px ${FONT}`; g.fillText('졸업식', x, y + 14); }
+    if (day === 12) { g.strokeStyle = '#c01818'; g.lineWidth = 3; g.beginPath(); g.ellipse(x, y - 6, 16, 14, 0, 0, 6.3); g.stroke(); g.fillStyle = '#c01818'; g.font = `bold 12px ${FONT}`; g.fillText('기념방송', x, y + 14); }
     day++;
   }
   stains(g, w, h, 8, 'rgba(90,70,30,.4)', 40); speckle(g, w, h, 300, ['#6a5a40'], 1, 4, .3);

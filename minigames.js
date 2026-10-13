@@ -86,7 +86,7 @@ function lockpick({ pins, usePin, tol = 9 }) {
 }
 
 /* ---------- 2. 다이얼 자물쇠 ---------- */
-function dial({ code, title = '다이얼 자물쇠', hint = '' }) {
+function dial({ code, title = '다이얼 자물쇠', hint = '', onFail }) {
   const n = code.length, val = Array(n).fill(0); let sel = 0;
   const p = open(title, `←→ 칸 선택 · ↑↓ 또는 휠 · 클릭으로 숫자 돌리기 · Enter 열기${hint ? '<br>' + hint : ''}`);
   const box = document.createElement('div'); box.className = 'dialBox'; $('mgBody').appendChild(box);
@@ -102,7 +102,7 @@ function dial({ code, title = '다이얼 자물쇠', hint = '' }) {
   const turn = (i, d) => { val[i] = (val[i] + d + 10) % 10; sfx.dial(); render(); };
   const check = () => {
     if (val.join('') === code) { sfx.tumbler(); close(true); }
-    else { sfx.buzz(); status('열리지 않는다', 'err'); box.classList.remove('shake'); void box.offsetWidth; box.classList.add('shake'); }
+    else { sfx.buzz(); status('열리지 않는다', 'err'); if (onFail) onFail(); box.classList.remove('shake'); void box.offsetWidth; box.classList.add('shake'); }
   };
   btn.onclick = check;
   keys(e => {
@@ -186,7 +186,7 @@ function circuit({ title = '배선 퍼즐', hint = '' } = {}) {
 
 /* ---------- 4. 피아노 ---------- */
 const NOTES = [['도', 261.6], ['레', 293.7], ['미', 329.6], ['파', 349.2], ['솔', 392.0], ['라', 440.0], ['시', 493.9], ['도²', 523.3]];
-function piano({ melody, sheet }) {
+function piano({ melody, sheet, onFail }) {
   const p = open('피아노', `숫자 키 <b>1~8</b> 또는 건반 클릭 · 악보의 선율을 그대로 쳐라${sheet ? `<br>악보: <b style="color:#e8d8a8">${sheet}</b>` : '<br><span style="color:#a06a6a">어딘가에 악보가 있었을 것 같다…</span>'}`);
   const kb = document.createElement('div'); kb.className = 'pianoKb'; $('mgBody').appendChild(kb);
   const disp = document.createElement('div'); disp.className = 'pianoDisp'; $('mgBody').appendChild(disp);
@@ -196,7 +196,7 @@ function piano({ melody, sheet }) {
     const b = kb.children[i]; b.classList.add('down'); setTimeout(() => b.classList.remove('down'), 160);
     sfx.note(NOTES[i][1]); played.push(NOTES[i][0]);
     if (i === melody[idx]) { idx++; if (idx === melody.length) { setTimeout(() => close(true), 400); } }
-    else { idx = i === melody[0] ? 1 : 0; if (played.length > 1) status('…음이 어긋났다', 'err'); played = idx ? [NOTES[i][0]] : []; }
+    else { idx = i === melody[0] ? 1 : 0; if (played.length > 1) { status('…음이 어긋났다', 'err'); if (onFail) onFail(); } played = idx ? [NOTES[i][0]] : []; }
     disp.textContent = played.join(' · ') || '…';
   };
   kb.querySelectorAll('button').forEach(b => { b.onclick = () => press(+b.dataset.i); });
@@ -262,7 +262,31 @@ function fishing({ title = '배수구 — 갈고리 걸기', need = 3 }) {
   return p;
 }
 
+/* ---------- 7. 녹음 순서 맞추기 (마지막 방송) ---------- */
+// 카드를 클릭해 두 장씩 자리를 바꾸고, ▶ 로 들어 볼 수 있다. 자막(텍스트)과 파형을 함께 보여 준다
+function order({ title, frags, showTimes, onFail }) {
+  const p = open(title, `그날 밤의 녹음 조각을 <b>일어난 순서대로</b> 놓아라 — 두 카드를 차례로 눌러 자리를 바꾼다 · ▶ 다시 듣기<br>휴대폰의 <b>사건 연표</b>가 도움이 된다`);
+  let cur = frags.map((f, i) => i); do { cur.sort(() => Math.random() - .5); } while (cur.every((v, i) => v === i));
+  let pick = -1, fails = 0, times = !!showTimes;
+  const box = document.createElement('div'); box.className = 'tapeBox'; $('mgBody').appendChild(box);
+  const btn = document.createElement('button'); btn.className = 'btn pri'; btn.textContent = '이 순서로 방송 송출'; btn.style.marginTop = '10px'; $('mgBody').appendChild(btn);
+  const wave = seed => { let s = seed * 9301 + 49297, out = ''; for (let k = 0; k < 28; k++) { s = (s * 9301 + 49297) % 233280; out += `<i style="height:${4 + (s / 233280) * 22}px"></i>`; } return out; };
+  const render = () => {
+    box.innerHTML = cur.map((fi, slot) => { const f = frags[fi]; return `<div class="tape${slot === pick ? ' pick' : ''}" data-s="${slot}"><em>${slot + 1}</em><div class="wv">${wave(fi + 3)}</div><span>${f.text}</span>${times ? `<b>${f.t}</b>` : ''}<button data-play="${fi}">▶</button></div>`; }).join('');
+    box.querySelectorAll('.tape').forEach(el => { el.onclick = e => { if (e.target.dataset.play != null) { sfx.tape(); sfx.staticNoise(.6); status(frags[+e.target.dataset.play].text); return; } const s = +el.dataset.s; if (pick < 0) { pick = s; sfx.dial(); } else { [cur[pick], cur[s]] = [cur[s], cur[pick]]; pick = -1; sfx.slide(); } render(); }; });
+  };
+  btn.onclick = () => {
+    if (cur.every((v, i) => v === i)) { sfx.broadcast(); close(true); return; }
+    fails++; if (onFail) onFail(); sfx.buzz(); status('…지직. 순서가 맞지 않는다', 'err');
+    if (fails >= 2 && !times) { times = true; status('녹음 테이프에 적힌 시각이 보인다', 'err'); }
+    render();
+  };
+  keys(() => {});
+  render();
+  return p;
+}
+
 export function run(kind, opts = {}) {
   if (MG.active) return Promise.resolve({ ok: false });
-  return ({ lockpick, dial, circuit, piano, slide, fishing })[kind](opts);
+  return ({ lockpick, dial, circuit, piano, slide, fishing, order })[kind](opts);
 }

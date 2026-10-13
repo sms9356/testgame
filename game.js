@@ -1,4 +1,4 @@
-// 폐교 — 다시, 여기서 : 1인칭 학교 공포 게임 (Three.js)
+// 폐교 — 잊혀진 시간 : 1인칭 학교 공포 게임 (Three.js)
 import * as THREE from './vendor/three.module.js';
 import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX } from './world.js';
 import { drawMap } from './map.js';
@@ -6,7 +6,9 @@ import { makeDress, makeHair, makeGhostFace, loadPBR } from './tex.js';
 import { warmUp } from './bake.js';
 import { createFX } from './fx.js';
 import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes } from './audio.js';
-import { VS, saveVS, loadManifest, voiceIdFor, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, lineInfo } from './voice.js';
+import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, lineInfo } from './voice.js';
+import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES } from './story.js';
+import { SET, saveSET, resetSET, DIFF } from './settings.js';
 loadManifest();
 
 const $ = id => document.getElementById(id);
@@ -16,6 +18,17 @@ const params = new URLSearchParams(location.search);
 const DEBUG = params.has('debug');
 const TEST = params.has('test');
 const TST = { god: false, noGhost: false };
+// 주인공 (캐릭터 선택)
+let CHAR = 'seoyeon';
+try { CHAR = localStorage.getItem('haegyo_char') || 'seoyeon'; } catch (e) { /* ignore */ }
+if (!CHARACTERS[CHAR]) CHAR = 'seoyeon';
+const CH = () => CHARACTERS[CHAR], CK = () => (CHAR === 'jihun' ? 'j' : 's');
+const DF = () => DIFF[SET.diff] || DIFF.normal;
+// 이야기 진행 플래그
+const FL = { cam: false, tag: false, calm: false, mina: false, gatekey: false, opt: false };
+const msgs = [], clues = [], newItems = new Set();
+let voBusy = false;   // 중요한 연출(하교 방송) 중에는 휴대폰 메시지를 미룬다
+let chapterShown = 0;
 
 /* ---------- 렌더러 / 씬 ---------- */
 const canvas = $('c');
@@ -23,14 +36,14 @@ const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPrefere
 renderer.setPixelRatio(Math.min(devicePixelRatio, 1.75));
 renderer.setSize(innerWidth, innerHeight);
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.3;
+renderer.toneMappingExposure = 1.3 * SET.bright;
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x05070d);
 scene.fog = new THREE.FogExp2(0x070a12, 0.03);
 const FOG_IN = new THREE.Color(0x060708), FOG_OUT = new THREE.Color(0x0c1424);
-const camera = new THREE.PerspectiveCamera(72, innerWidth / innerHeight, 0.05, 320);
+const camera = new THREE.PerspectiveCamera(SET.fov, innerWidth / innerHeight, 0.05, 320);
 scene.add(camera);
 
 const hemi = new THREE.HemisphereLight(0x8aa0d0, 0x2a2018, 0.4);
@@ -171,7 +184,7 @@ function ghostStep(tx, tz, speed, dt) {
   return d - m < 0.05;
 }
 function followPath(speed, dt) {
-  const G = ghost;
+  const G = ghost; speed *= DF().speed;
   while (G.path.length && Math.hypot(G.path[0].x - G.x, G.path[0].z - G.z) < 0.25 && G.path.length > 1) G.path.shift();
   if (!G.path.length) return true;
   const last = G.path.length === 1;
@@ -207,12 +220,12 @@ function ghostTick(dt, t) {
     if (dist < range && los(F.walls, G.x, G.z, P.x, P.z) && los(F.doorWalls || [], G.x, G.z, P.x, P.z)) sees = true;
   }
   // 청각 판정
-  if (!P.hiding && !G.hunt && !(outP && !G.enraged) && G.state !== 'chase' && dist < P.noise) {
+  if (!P.hiding && !G.hunt && !(outP && !G.enraged) && G.state !== 'chase' && dist < P.noise * DF().hear) {
     G.state = 'search'; G.target = { x: P.x, z: P.z }; G.wait = 0; G.replan = 0;
   }
   if (G.hunt) { /* 사물함으로 직행 */ }
   else if (sees && G.spawnGrace <= 0) {
-    if (G.state !== 'chase') { G.state = 'chase'; sfx.alert(); fx.glitch(.5); if (Math.random() < .35) line('gh4', 'whisper'); else talk('…들켰다! 숨거나, 달려야 해!', 2600); }
+    if (G.state !== 'chase') { G.state = 'chase'; sfx.alert(); fx.glitch(.5); if (Math.random() < .35) line('gh4', 'whisper'); else talk('spotted', 2600); }
     G.target = { x: P.x, z: P.z }; G.lose = 0;
   } else if (G.state === 'chase') {
     G.lose += dt;
@@ -297,13 +310,52 @@ function ghostVisual(dt, t) {
 /* ---------- UI ---------- */
 let msgTimer = 0;
 function say(text, ms = 3000) { const m = $('msg'); m.textContent = text; m.classList.add('show'); clearTimeout(msgTimer); msgTimer = setTimeout(() => m.classList.remove('show'), ms); }
+/* ----- 목표 · 챕터 ----- */
+const LOC = {
+  entrance: { f: 0, x: 0, z: 2.5, where: '본관 현관' }, cam: { f: 0, x: 10.95, z: -8.55, where: '본관 1층 · 1-1 교실' },
+  office: { f: 0, x: -8, z: -5.5, where: '본관 1층 · 교무실' }, gate: { f: 0, x: 0, z: GATE_Z - 2.5, where: '정문' },
+  tag: { f: 4, x: 29, z: -4.5, where: '지하 B1 · 펌프실' }, breaker: { f: 4, x: -19, z: -5.4, where: '지하 B1 · 전기실' },
+  console: { f: 2, x: -25.1, z: -7, where: '본관 3층 · 방송실' }, mina: { f: 2, x: -21.7, z: -8.1, where: '본관 3층 · 방송실 장비실' },
+};
+const KEY_WHERE = ['본관 1층 · 교무실 금고', '본관 1층 · 도서실', '본관 2층 · 과학실', '체육관 · 기록석', '수영장 · 탈의실'];
+function objective() {
+  const n3 = docs.some(d => d.id === 'n3');
+  if (!FL.cam && P.keys === 0) return { ch: 1, main: gateClosed ? '1학년 1반에서 민아의 흔적을 찾아라' : '민아를 찾아 학교 안으로 들어가라', loc: gateClosed ? LOC.cam : LOC.entrance,
+    subs: [['학교 안으로 들어가기', introDone], ['1-1 교실 조사하기', FL.cam]] };
+  if (!got[0]) return { ch: 2, main: '교무실 금고를 열어 첫 번째 열쇠 조각을 찾아라', loc: LOC.office,
+    subs: [['민아의 캠코더 확인', FL.cam], ['교무회의록 읽기', n3], ['금고 열기 — 비밀번호: 그날의 날짜', got[0]]] };
+  if (P.keys < TOTAL) {
+    const left = KEY_ROOMS.map((r, i) => ({ ...r, i })).filter(r => !got[r.i]);
+    const k = left.find(r => r.f === P.floor) || left[0];
+    return { ch: 3, main: `정문 열쇠 조각을 모두 모아라 (${P.keys}/${TOTAL})`, loc: { ...k, where: KEY_WHERE[k.i] }, subs: KEY_NAMES.map((n, i) => [`${n} 열쇠 조각`, got[i]]) };
+  }
+  if (!FL.gatekey) return { ch: 4, main: '소지품(Tab)에서 열쇠 조각 다섯 개를 조합하라', loc: null, subs: [[`열쇠 조각 ${TOTAL}/${TOTAL}`, true], ['정문 열쇠 만들기', false]] };
+  return { ch: 5, main: FL.mina ? '민아와 함께 정문으로 나가라' : '정문으로 달려가 탈출하라', loc: LOC.gate, subs: FL.calm ? [['하늘의 하교 방송', true]] : [['그것에게 잡히지 않기', false]] };
+}
+function optSteps() { return [FL.tag, power, FL.calm, FL.mina]; }
+function optLoc() { const s = optSteps(), i = s.indexOf(false); return i < 0 ? null : [LOC.tag, LOC.breaker, LOC.console, LOC.mina][i]; }
+function unlockOptional() {
+  if (FL.opt) return; FL.opt = true;
+  setTimeout(() => toast('특별 목표가 추가되었습니다', '하교 방송 — 하늘의 이야기를 끝내 줄 방법이 있을지도 모른다', 'opt'), 1200); refreshHud();
+}
+function showChapter(n) {
+  const c = CHAPTERS[n - 1]; if (!c) return;
+  $('ccNum').textContent = `CHAPTER ${n}`; $('ccTitle').textContent = c.title.split('·')[1].trim();
+  const el = $('chapterCard'); el.classList.add('show'); setTimeout(() => el.classList.remove('show'), 3800);
+}
 function refreshHud() {
-  $('objText').textContent = P.keys >= TOTAL ? '정문으로 달려가 문을 열어라!' : `정문 열쇠 조각을 모아 학교를 탈출하라 (${P.keys}/${TOTAL})`;
-  const subs = KEY_NAMES.map((n, i) => `<div class="${got[i] ? 'done' : ''}">${n} 열쇠 조각 찾기</div>`);
-  subs.push(`<div class="${P.roofSeen ? 'done' : ''}">옥상 조사하기</div>`);
-  $('subs').innerHTML = subs.join('');
-  $('c2').textContent = inv.battery; $('c3').textContent = inv.medkit; $('c4').textContent = docs.length;
-  $('s2').classList.toggle('off', !inv.battery); $('s3').classList.toggle('off', !inv.medkit);
+  const o = objective();
+  if (o.ch !== chapterShown) { const prev = chapterShown; chapterShown = o.ch; if (prev && state === 'playing') { showChapter(o.ch); sfx.alert && o.ch > 1 && toast('새로운 장', CHAPTERS[o.ch - 1].title, 'info'); } }
+  $('chapter').textContent = CHAPTERS[o.ch - 1].title;
+  $('objText').textContent = o.main; $('objWhere').textContent = o.loc ? '📍 ' + o.loc.where : '';
+  $('subs').innerHTML = o.subs.map(([t, d]) => `<div class="chk${d ? ' done' : ''}">${t}</div>`).join('');
+  $('optBox').style.display = FL.opt ? 'block' : 'none';
+  $('optTitle').textContent = OPTIONAL.title;
+  const st = optSteps(); $('optSubs').innerHTML = OPTIONAL.steps.map((t, i) => `<div class="chk${st[i] ? ' done' : ''}">${t}</div>`).join('');
+  $('c2').textContent = inv.battery; $('c3').textContent = inv.medkit; $('c4').textContent = FL.gatekey ? '열쇠' : `${P.keys}/${TOTAL}`;
+  $('s2').classList.toggle('off', !inv.battery); $('s3').classList.toggle('off', !inv.medkit); $('s4').classList.toggle('off', !P.keys);
+  const un = msgs.filter(m => !m.read).length; $('phoneBadge').textContent = un; $('phoneBadge').classList.toggle('on', un > 0);
+  const con = world.props.find(p => p.kind === 'console'); if (con) con.label = FL.calm ? '방송 장비 (조용하다)' : FL.tag && power ? '하늘을 위해 하교 방송하기' : '방송 장비 사용';
 }
 function toast(title, desc = '', kind = '') {
   const t = document.createElement('div'); t.className = 'toast panel ' + kind; t.innerHTML = `<b>${title}</b>${desc}`;
@@ -311,64 +363,209 @@ function toast(title, desc = '', kind = '') {
   while ($('toasts').children.length > 4) $('toasts').firstChild.remove();
 }
 let talkTimer = 0;
-function talk(text, ms = 3200) {
-  $('dlgText').textContent = text; $('dlg').classList.toggle('show', VS.subs || VS.mode === 'off'); clearTimeout(talkTimer);
+// 주인공 대사: story.js LINES 의 id 로 부른다 (선택한 캐릭터의 대사 · 목소리)
+function talk(id, ms = 3200) {
+  const L = LINES[id], text = L ? L[CK()] : id;
+  $('dlgText').textContent = text; $('dlgName').textContent = CH().name;
+  $('dlg').classList.toggle('show', VS.subs || VS.mode === 'off'); clearTimeout(talkTimer);
   talkTimer = setTimeout(() => $('dlg').classList.remove('show'), ms);
-  const id = voiceIdFor(text);
-  if (id) speak(id).then(sec => { clearTimeout(talkTimer); talkTimer = setTimeout(() => $('dlg').classList.remove('show'), Math.max(ms, sec * 1000 + 700)); });
+  const vid = L && `l_${id}_${CK()}`;
+  if (vid && lineInfo(vid)) speak(vid).then(sec => { clearTimeout(talkTimer); talkTimer = setTimeout(() => $('dlg').classList.remove('show'), Math.max(ms, sec * 1000 + 700)); });
+}
+function addClue(id) { if (clues.includes(id)) return; clues.push(id); }
+function clockText(extra = 0) { const m = Math.floor(23 * 60 + 40 + (playTime + extra) / 6), h = Math.floor(m / 60) % 24; return `${String(h).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`; }
+
+/* ----- 문서 (쪽지 · 사진 · 녹음 · 캠코더) ----- */
+function docInfo(d) {
+  if (d.kind === 'note') { const n = world.NOTES[d.id]; return n && { icon: '📄', title: n.title, text: n.text }; }
+  if (d.kind === 'photo') { const p = world.PHOTOS[d.id]; return p && { icon: '🖼', title: p.title, text: p.text, img: p.img }; }
+  if (d.kind === 'tape') { const t = world.TAPES[d.id]; const i = lineInfo(d.id) || VO[d.id]; return t && { icon: '📼', title: t.title, text: i ? i.text : '', tape: d.id, spk: '📼 ' + t.spk }; }
+  if (d.kind === 'cam') return { icon: '📹', title: '캠코더 녹화 — 민아', text: VO.cam1.text, tape: 'cam1', spk: '📹 민아', fx: 'phone' };
+  return null;
+}
+function addDoc(d) { if (docs.some(x => x.id === d.id)) return; const i = docInfo(d); if (i) docs.push({ ...d, ...i }); }
+const DOC_TOTAL = () => world.items.filter(i => i.kind === 'note' || i.kind === 'photo').length + Object.keys(world.TAPES).length + 1;
+async function playCam() {
+  const sec = await line('cam1', 'phone', '📹 민아 (녹화)');
+  setTimeout(() => { if (state === 'playing' || state === 'ui') talk('afterCam', 3200); }, (sec + .6) * 1000);
 }
 
-
-/* ----- 인벤토리 / 지도 UI ----- */
-let invTab = 'items', invSel = 0, mapFloor = 0, uiPrev = 'playing';
+/* ----- 소지품 ----- */
+let invTab = 'items', invSel = 0, combineFrom = null, invMsg = '', mapFloor = 0;
 const TABS = ['items', 'docs', 'keys'];
-function invItems() {
-  return [
-    { icon: '🔦', name: '손전등', desc: `어두운 곳을 비추는 손전등. 배터리 ${Math.round(P.battery)}% 남음. (F)`, act: ['켜기 / 끄기', () => { P.light = !P.light; }] },
-    inv.battery > 0 && { icon: '🔋', name: '건전지', count: inv.battery, desc: '손전등용 건전지. 사용하면 배터리가 45% 회복된다.', act: ['사용하기', useBattery] },
-    inv.medkit > 0 && { icon: '🩹', name: '응급 밴드', count: inv.medkit, desc: '상처 치료용 응급 밴드. 사용하면 체력이 50 회복된다.', act: ['사용하기', useMedkit] },
-    { icon: '🪪', name: '학생증', img: 'face_relief', desc: '○○대학교 1학년 한서연 (20세). 휴학 중. 사진 속 표정이 지금보다 밝다.' },
-    { icon: '📱', name: '스마트폰', img: 'old_class', desc: '액정이 깨졌고 신호가 없다. 마지막으로 받은 사진: 칠판에 적힌 “다시, 여기서.”' },
-    { icon: '📻', name: '무전기', desc: '잡음만 들린다. 가끔 누군가 속삭이는 것 같다.' },
-    { icon: '📓', name: '노트', desc: '단서를 기록하는 노트. 모은 쪽지는 문서 탭에서 다시 읽을 수 있다.' },
-    { icon: '🗺', name: '학교 지도', img: 'map_old', desc: '직접 그린 학교 지도. 목표 위치가 표시되어 있다. (M)', act: ['지도 열기', () => { closeUI(); openMap(); }] },
-  ].filter(Boolean);
+const iconHTML = ic => /^[a-z_0-9]+$/.test(ic) ? `<img src="assets/ui/${ic}.webp" alt="">` : ic;
+function bagList() {
+  const L = CH().items.map(id => ({ id }));
+  if (inv.battery) L.push({ id: 'battery', n: inv.battery });
+  if (inv.medkit) L.push({ id: 'medkit', n: inv.medkit });
+  if (FL.gatekey) L.push({ id: 'gatekey' });
+  if (P.keys && !FL.gatekey) L.push({ id: 'keypiece', n: P.keys });
+  if (FL.tag) L.push({ id: 'nametag' });
+  if (FL.cam) L.push({ id: 'camcorder' });
+  return L.map(x => ({ ...ITEMS[x.id], ...x }));
+}
+function itemDesc(it) {
+  if (it.id === 'flashlight') return `${it.desc}<br>배터리 <b>${Math.round(P.battery)}%</b> · ${P.light ? '켜짐' : '꺼짐'}`;
+  if (it.id === 'keypiece') return `${it.desc}<br>모은 조각: <b>${P.keys} / ${TOTAL}</b>`;
+  return it.desc;
+}
+const USE = {
+  flashlight: () => { P.light = !P.light; sfx.click(); return P.light ? '손전등을 켰다.' : '손전등을 껐다.'; },
+  battery: () => (useBattery() ? '손전등에 건전지를 넣었다.' : ''),
+  medkit: () => (useMedkit() ? '응급 밴드를 붙였다.' : ''),
+  camcorder: () => { closeUI(); playCam(); },
+  phone_jihun: () => { closeUI(); openPhone('msg'); }, phone_seoyeon: () => { closeUI(); openPhone('msg'); },
+  memo_jihun: () => { closeUI(); openPhone('memo'); }, memo_seoyeon: () => { closeUI(); openPhone('memo'); },
+  keypiece: () => { startCombine('keypiece'); return '조각끼리 맞춰 보자 — 같은 칸을 한 번 더 선택'; },
+  gatekey: () => '정문 자물쇠에 쓸 수 있다. 정문 앞에서 E.',
+  nametag: () => (power ? '3층 방송실 장비에서 이 이름을 불러 줄 수 있다.' : '방송실에서 이 이름을 불러 주려면 먼저 전기가 필요하다.'),
+  necklace: () => '“첫 녹음 기념. 우리 방송, 오래 하자.” — 민아',
+  keys_jihun: () => '민아가 맡겨 둔 열쇠. 꼭 돌려줘야 한다.',
+};
+const canCombine = id => RECIPES.some(r => r.a === id || r.b === id);
+function startCombine(id) { combineFrom = id; invMsg = `「${ITEMS[id].name}」과(와) 조합할 아이템을 고르세요 · Esc 취소`; renderInv(); }
+function tryCombine(a, b) {
+  combineFrom = null;
+  const r = RECIPES.find(x => (x.a === a && x.b === b) || (x.a === b && x.b === a));
+  if (!r) { talk('combineFail', 2200); invMsg = '이 둘은 함께 쓸 수 없다.'; sfx.buzz(); renderInv(); return; }
+  if (r.fn === 'recharge') invMsg = useBattery() ? '손전등 배터리를 갈아 끼웠다.' : '';
+  else if (r.fn === 'gatekey') {
+    if (P.keys < TOTAL) { invMsg = `조각이 부족하다 — ${P.keys} / ${TOTAL}`; sfx.buzz(); }
+    else { makeGateKey(); invMsg = '다섯 조각이 맞물려 정문 열쇠가 되었다!'; }
+  }
+  renderInv();
+}
+function makeGateKey() {
+  if (FL.gatekey) return;
+  FL.gatekey = true; newItems.add('gatekey'); sfx.unlock(); setFace('resolve', 3);
+  toast('정문 열쇠를 만들었습니다', '정문 · 서문 · 지하 비상 통로를 열 수 있다');
+  setTimeout(() => talk('keyMade', 3000), 300);
+  if (FL.calm) setTimeout(() => toast('고요하다', '그것은 더 이상 쫓아오지 않는다. ' + (FL.mina ? '민아와 함께 정문으로.' : '…민아는 아직 방송실에 있다.'), 'opt'), 2600);
+  else setTimeout(() => { if (state === 'ui') closeUI(); enrage(); }, 1600);
+  refreshHud(); save(true);
+}
+function invUse(it) {
+  const f = USE[it.id]; const r = f ? f() : '지금은 쓸 곳이 없다.';
+  if (typeof r === 'string') invMsg = r;
+  if (state === 'ui' && $('inv').classList.contains('show')) renderInv();
+}
+function zoom(title, big, text) {
+  $('izName').textContent = title; $('izBig').innerHTML = big; $('izText').innerHTML = text; $('invZoom').classList.add('show');
 }
 function renderInv() {
-  document.querySelectorAll('#inv .tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === invTab));
-  const list = $('invList'), det = $('invDetail'); list.className = invTab === 'docs' ? 'docs' : ''; list.innerHTML = ''; det.innerHTML = '';
-  if (invTab === 'items') {
-    const its = invItems(); invSel = Math.min(invSel, its.length - 1);
-    its.forEach((it, i) => { const c = document.createElement('div'); c.className = 'cell' + (i === invSel ? ' sel' : ''); c.innerHTML = it.icon + (it.count ? `<em>${it.count}</em>` : ''); c.onclick = () => { invSel = i; renderInv(); }; list.appendChild(c); });
-    const it = its[invSel]; det.innerHTML = `<h3>${it.icon} ${it.name}</h3>${it.desc}${it.img ? `<img class="invImg" src="assets/img/${it.img}.webp" alt="">` : ''}`;
-    if (it.act) { const b = document.createElement('button'); b.textContent = it.act[0]; b.onclick = () => { it.act[1](); renderInv(); }; det.appendChild(b); }
-  } else if (invTab === 'docs') {
-    if (!docs.length) { list.innerHTML = '<p style="color:#8d897d">아직 모은 문서가 없다.</p>'; return; }
-    invSel = Math.min(invSel, docs.length - 1);
-    docs.forEach((d, i) => { const c = document.createElement('div'); c.className = 'doc' + (i === invSel ? ' sel' : ''); c.textContent = '📄 ' + d.title; c.onclick = () => { invSel = i; renderInv(); }; list.appendChild(c); });
-    const d = docs[invSel]; det.innerHTML = `<h3>${d.title}</h3>${d.img ? `<img class="invImg" src="assets/img/${d.img}.webp" alt="">` : ''}<div class="paper">${d.text}</div>`;
-    if (d.tape) { const b = document.createElement('button'); b.textContent = '▶ 다시 듣기'; b.onclick = () => line(d.tape, 'radio', d.spk); det.appendChild(b); }
+  document.querySelectorAll('#invTabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === invTab));
+  const grid = $('invGrid'), det = $('invDetail'); grid.innerHTML = ''; det.innerHTML = '';
+  const actBtns = acts => `<div id="invMsg">${invMsg}</div><div id="invActs">${acts.map(([l, k, dis], i) => `<button data-a="${i}"${dis ? ' disabled' : ''}>${l}${k ? ` <kbd>${k}</kbd>` : ''}</button>`).join('')}</div>`;
+  const bindActs = fns => det.querySelectorAll('#invActs button').forEach(b => { b.onclick = () => fns[+b.dataset.a](); });
+  if (invTab === 'items' || invTab === 'keys') {
+    grid.className = '';
+    const all = bagList(), its = all.filter(i => (i.cat === 'key') === (invTab === 'keys'));
+    invSel = clamp(invSel, 0, Math.max(0, its.length - 1));
+    const slots = Math.max(invTab === 'items' ? 15 : 5, Math.ceil(its.length / 5) * 5);
+    for (let i = 0; i < slots; i++) {
+      const it = its[i], c = document.createElement('div');
+      if (!it) { c.className = 'cell empty'; grid.appendChild(c); continue; }
+      c.className = 'cell' + (i === invSel ? ' sel' : '') + (combineFrom ? ' pick' : '');
+      c.innerHTML = iconHTML(it.icon) + (it.n > 1 ? `<em>×${it.n}</em>` : '') + (newItems.has(it.id) ? '<span class="new">NEW</span>' : '');
+      c.onclick = () => { if (combineFrom) { tryCombine(combineFrom, it.id); return; } invSel = i; invMsg = ''; renderInv(); };
+      grid.appendChild(c);
+    }
+    $('invCap').innerHTML = `<span>${its.length}개 · ${invTab === 'items' ? '아이템' : '열쇠 아이템'}</span><span>←→↑↓ 선택 · Enter 사용 · C 조합 · Z 자세히</span>`;
+    const it = its[invSel];
+    if (!it) { det.innerHTML = invTab === 'keys' ? keyPieceHTML() : '<p>비어 있다.</p>'; return; }
+    newItems.delete(it.id);
+    det.innerHTML = `<div class="big">${iconHTML(it.icon)}</div><h3>${it.name}${it.n > 1 ? ` <small style="color:var(--dim)">×${it.n}</small>` : ''}</h3><div class="cat">${it.cat === 'key' ? '열쇠 아이템' : '아이템'}</div><div>${itemDesc(it)}</div>${invTab === 'keys' ? keyPieceHTML() : ''}` +
+      actBtns([['사용', 'Enter'], ['조합', 'C', !canCombine(it.id)], ['자세히', 'Z']]);
+    bindActs([() => invUse(it), () => startCombine(it.id), () => zoom(it.name, iconHTML(it.icon), itemDesc(it))]);
   } else {
-    KEY_NAMES.forEach((n, i) => { const c = document.createElement('div'); c.className = 'doc' + (i === invSel ? ' sel' : ''); c.style.opacity = got[i] ? 1 : .45; c.textContent = `🗝 ${n} 열쇠 조각 — ${got[i] ? '획득' : '미획득'}`; c.onclick = () => { invSel = i; renderInv(); }; list.appendChild(c); });
-    invSel = Math.min(invSel, TOTAL - 1);
-    det.innerHTML = `<h3>정문 열쇠 (${P.keys}/${TOTAL})</h3>사고를 막기 위해 다섯 조각으로 나뉜 정문 열쇠.<br>${KEY_NAMES[invSel]}에서 찾을 수 있다.<br><br>${got[invSel] ? '✔ 이미 획득했다.' : '아직 찾지 못했다. 지도에 목표 위치가 표시되어 있다.'}`;
+    grid.className = 'list';
+    if (!docs.length) { grid.innerHTML = '<p style="color:#8d897d">아직 모은 문서가 없다.</p>'; $('invCap').innerHTML = `<span>문서 0 / ${DOC_TOTAL()}</span>`; return; }
+    invSel = clamp(invSel, 0, docs.length - 1);
+    docs.forEach((d, i) => { const c = document.createElement('div'); c.className = 'doc' + (i === invSel ? ' sel' : ''); c.innerHTML = `${d.icon} ${d.title}<small>${{ note: '쪽지', photo: '사진', tape: '녹음', cam: '영상' }[d.kind]}</small>`; c.onclick = () => { invSel = i; renderInv(); }; grid.appendChild(c); });
+    $('invCap').innerHTML = `<span>찾은 기록 ${docs.length} / ${DOC_TOTAL()}</span><span>↑↓ 선택 · Enter 다시 듣기 · Z 자세히</span>`;
+    const d = docs[invSel];
+    det.innerHTML = `<h3>${d.title}</h3><div class="cat">${{ note: '쪽지 · 문서', photo: '사진', tape: '녹음 테이프', cam: '캠코더 영상' }[d.kind]}</div>${d.img ? `<img class="photo" src="assets/img/${d.img}.webp" alt="">` : ''}<div class="paper">${d.text}</div>` +
+      actBtns([['▶ 다시 듣기', 'Enter', !d.tape], ['자세히', 'Z']]);
+    bindActs([() => line(d.tape, d.fx || 'radio', d.spk), () => zoom(d.title, d.img ? `<img src="assets/img/${d.img}.webp" alt="">` : d.icon, d.text)]);
   }
 }
-function openUI(kind) { if (state !== 'playing') return; uiPrev = state; state = 'ui'; for (const k in keys) keys[k] = false; $('prompt').style.display = 'none'; $(kind).classList.add('show'); document.exitPointerLock?.(); }
-function closeUI() { if (state !== 'ui') return; $('inv').classList.remove('show'); $('mapOv').classList.remove('show'); $('testOv').classList.remove('show'); $('keypad').classList.remove('show'); state = 'playing'; refreshHud(); lock(); }
-function openInv(tab = 'items') { if (state !== 'playing') return; invTab = tab; invSel = 0; openUI('inv'); renderInv(); }
-function openMap() { if (state !== 'playing') return; mapFloor = P.floor; openUI('mapOv'); renderMap(); }
+function keyPieceHTML() {
+  return `<div class="pieceList" style="margin-top:10px;border-top:1px solid #2c3640;padding-top:8px"><b style="font-size:12px;color:var(--dim)">정문 열쇠 조각 ${P.keys}/${TOTAL}</b>${KEY_NAMES.map((n, i) => `<div class="chk${got[i] ? ' done' : ''}">${KEY_WHERE[i]}</div>`).join('')}</div>`;
+}
+function invKey(e) {
+  const c = e.code, list = invTab === 'docs' ? docs : bagList().filter(i => (i.cat === 'key') === (invTab === 'keys'));
+  if ($('invZoom').classList.contains('show')) { if (['Escape', 'KeyZ', 'Enter', 'Tab'].includes(c)) $('invZoom').classList.remove('show'); return true; }
+  if (c === 'Escape' && combineFrom) { combineFrom = null; invMsg = ''; renderInv(); return true; }
+  if (c === 'KeyQ' || c === 'KeyE') { invTab = TABS[(TABS.indexOf(invTab) + (c === 'KeyE' ? 1 : 2)) % 3]; invSel = 0; combineFrom = null; invMsg = ''; renderInv(); return true; }
+  const cols = invTab === 'docs' ? 1 : 5;
+  const mv = { ArrowRight: 1, KeyD: 1, ArrowLeft: -1, KeyA: -1, ArrowDown: cols, KeyS: cols, ArrowUp: -cols, KeyW: -cols }[c];
+  if (mv) { invSel = clamp(invSel + mv, 0, Math.max(0, list.length - 1)); invMsg = combineFrom ? invMsg : ''; renderInv(); return true; }
+  if (c === 'Enter' || c === 'Space') { const b = $('invActs') && $('invActs').querySelector('[data-a="0"]'); if (combineFrom && invTab !== 'docs') { const it = list[invSel]; if (it) tryCombine(combineFrom, it.id); } else if (b && !b.disabled) b.click(); return true; }
+  if (c === 'KeyC' && invTab !== 'docs') { const it = list[invSel]; if (it && canCombine(it.id)) startCombine(it.id); return true; }
+  if (c === 'KeyZ') { const b = $('invActs') && [...$('invActs').querySelectorAll('button')].pop(); if (b) b.click(); return true; }
+  return false;
+}
+
+/* ----- 휴대폰 ----- */
+let phoneTab = 'msg';
+const PTABS = ['msg', 'photo', 'memo'];
+function openPhone(tab = 'msg') { if (state !== 'playing') return; phoneTab = tab; openUI('phone'); renderPhone(); sfx.click(); }
+function renderPhone() {
+  document.querySelectorAll('.pTabs button').forEach(b => b.classList.toggle('on', b.dataset.p === phoneTab));
+  $('pClock').textContent = clockText();
+  const B = $('pBody');
+  if (phoneTab === 'msg') {
+    B.innerHTML = msgs.length ? msgs.slice().reverse().map(m => `<div class="bubble${m.read ? '' : ' unread'}" data-id="${m.id}"><small>민아 · ${m.t} · ▶ 음성 메시지</small>${VO[m.id].text}</div>`).join('') : '<div class="pEmpty">메시지가 없습니다.<br>신호 없음</div>';
+    B.querySelectorAll('.bubble').forEach(b => { b.onclick = () => line(b.dataset.id, 'phone', '📱 민아'); });
+    msgs.forEach(m => { m.read = true; }); refreshHud();
+  } else if (phoneTab === 'photo') {
+    const ph = docs.filter(d => d.img);
+    B.innerHTML = ph.length ? `<div class="pPhotos">${ph.map(d => `<img src="assets/img/${d.img}.webp" alt="" title="${d.title}" data-t="${d.title}">`).join('')}</div>` : '<div class="pEmpty">저장된 사진이 없습니다.</div>';
+    B.querySelectorAll('img').forEach(im => { im.onclick = () => { $('lbImg').src = im.src; $('lbCap').textContent = im.dataset.t; $('lightbox').classList.add('show'); }; });
+  } else {
+    B.innerHTML = clues.length ? clues.slice().reverse().map(c => `<div class="memo">${CLUES[c]}</div>`).join('') : '<div class="pEmpty">아직 기록한 단서가 없습니다.</div>';
+  }
+}
+document.querySelectorAll('.pTabs button').forEach(b => { b.onclick = () => { phoneTab = b.dataset.p; renderPhone(); }; });
+
+/* ----- 열기 / 닫기 ----- */
+const UI_PANELS = ['inv', 'mapOv', 'testOv', 'keypad', 'phone', 'invZoom'];
+function openUI(kind) { if (state !== 'playing') return; state = 'ui'; for (const k in keys) keys[k] = false; $('prompt').style.display = 'none'; $(kind).classList.add('show'); document.exitPointerLock?.(); }
+function closeUI() { if (state !== 'ui') return; UI_PANELS.forEach(k => $(k).classList.remove('show')); combineFrom = null; invMsg = ''; state = 'playing'; refreshHud(); lock(); }
+function openInv(tab = 'items') { if (state !== 'playing') return; invTab = tab; invSel = 0; openUI('inv'); renderInv(); sfx.paper(); }
+document.querySelectorAll('[data-close]').forEach(b => { b.onclick = () => closeUI(); });
+$('izClose').onclick = () => $('invZoom').classList.remove('show');
+document.querySelectorAll('#invTabs button').forEach(b => { b.onclick = () => { invTab = b.dataset.tab; invSel = 0; combineFrom = null; invMsg = ''; renderInv(); }; });
+
+/* ----- 지도 ----- */
+let mapZoom = 1, mapPan = { x: 0, z: 0 };
+function openMap() { if (state !== 'playing') return; mapFloor = P.floor; const inB = P.floor === 0 && !isOutdoors(); mapZoom = inB ? 2.1 : 1; mapPan = { x: 0, z: inB ? -26 : 0 }; openUI('mapOv'); renderMap(); }
 function mapPins(f) { return KEY_ROOMS.map((r, i) => ({ ...r, i })).filter(r => r.f === f).map(r => ({ x: r.x, z: r.z, done: got[r.i] })); }
+function mapTarget(f) { const o = objective(), t = o.loc || (FL.opt && optLoc()); return t && t.f === f ? t : null; }
+function mapExtras(f) {
+  return {
+    doors: world.doorList.filter(d => d.floor === f).map(d => ({ x: d.x, z: d.kind === 'slide' ? -1.55 : d.z, open: d.target > .5, slide: d.kind === 'slide' })),
+    props: world.props.filter(p => p.floor === f && p.kind !== 'bell').map(p => ({ x: p.x, z: p.z, done: !!p.done, label: { safe: '금고', breaker: '차단기', console: '방송 장비', tape: '녹음기', mina: '민아' }[p.kind] })),
+    target: mapTarget(f),
+  };
+}
 function renderMap() {
-  document.querySelectorAll('#mapOv .tabs button').forEach(b => b.classList.toggle('on', b.dataset.f === String(mapFloor)));
+  document.querySelectorAll('#mapTabs button').forEach(b => b.classList.toggle('on', b.dataset.f === String(mapFloor)));
   const guide = mapFloor === 'guide'; $('bigMap').style.display = guide ? 'none' : 'block'; $('guide').style.display = guide ? 'grid' : 'none';
+  const o = objective(), t = o.loc || (FL.opt && optLoc());
+  $('mapObj').textContent = t ? `★ ${o.main} — ${t.where}` : `★ ${o.main}`;
   if (guide) return;
   const c = $('bigMap'), ctx = c.getContext('2d');
   const V = { 0: [0, 22, 5.2], 5: [38, 19, 22], 6: [-41, 38, 19], 7: [-39, 15, 24], 8: [0, -4, 21], 9: [0, -4, 21], 10: [0, -4, 21] }[mapFloor] || [0, -4, 11];
-  drawMap(ctx, c.width, c.height, { floor: mapFloor, cx: V[0], cz: V[1], scale: V[2], labels: true, pins: mapPins(mapFloor), lockers: world.lockers.filter(l => l.floor === mapFloor), player: P.floor === mapFloor ? { x: P.x, z: P.z, yaw: P.yaw } : null });
+  drawMap(ctx, c.width, c.height, { floor: mapFloor, cx: V[0] + mapPan.x, cz: V[1] + mapPan.z, scale: V[2] * mapZoom, labels: true, pins: mapPins(mapFloor), ...mapExtras(mapFloor), t: tNow,
+    lockers: world.lockers.filter(l => l.floor === mapFloor), player: P.floor === mapFloor ? { x: P.x, z: P.z, yaw: P.yaw } : null });
 }
-document.querySelectorAll('#inv .tabs button').forEach(b => b.onclick = () => { invTab = b.dataset.tab; invSel = 0; renderInv(); });
-document.querySelectorAll('#mapOv .tabs button').forEach(b => b.onclick = () => { mapFloor = b.dataset.f === 'guide' ? 'guide' : +b.dataset.f; renderMap(); });
+document.querySelectorAll('#mapTabs button').forEach(b => { b.onclick = () => { mapFloor = b.dataset.f === 'guide' ? 'guide' : +b.dataset.f; mapZoom = 1; mapPan = { x: 0, z: 0 }; renderMap(); }; });
+$('bigMap').addEventListener('wheel', e => { e.preventDefault(); mapZoom = clamp(mapZoom * (e.deltaY < 0 ? 1.15 : 1 / 1.15), .5, 4); renderMap(); }, { passive: false });
+{ let drag = null; const c = $('bigMap');
+  c.addEventListener('pointerdown', e => { drag = { x: e.clientX, y: e.clientY }; c.setPointerCapture(e.pointerId); });
+  c.addEventListener('pointermove', e => { if (!drag) return; const V = { 0: 5.2, 5: 22, 6: 19, 7: 24, 8: 21, 9: 21, 10: 21 }[mapFloor] || 11, k = c.width / c.clientWidth / (V * mapZoom); mapPan.x -= (e.clientX - drag.x) * k; mapPan.z -= (e.clientY - drag.y) * k; drag = { x: e.clientX, y: e.clientY }; renderMap(); });
+  c.addEventListener('pointerup', () => { drag = null; }); }
 
 function useBattery() {
   if (inv.battery <= 0) { toast('건전지가 없습니다', '', 'warn'); return false; }
@@ -378,7 +575,7 @@ function useBattery() {
 function useMedkit() {
   if (inv.medkit <= 0) { toast('응급 밴드가 없습니다', '', 'warn'); return false; }
   if (P.hp >= 100) { say('다친 곳이 없다', 1800); return false; }
-  inv.medkit--; P.hp = Math.min(100, P.hp + 50); setFace('face_relief', 3); sfx.paper(); toast('응급 밴드를 사용했습니다', '체력 +50', 'info'); talk('조금 낫네… 계속 가자.', 2400); refreshHud(); return true;
+  inv.medkit--; P.hp = Math.min(100, P.hp + 50); setFace('relief', 3); sfx.paper(); toast('응급 밴드를 사용했습니다', '체력 +50', 'info'); talk('heal', 2400); refreshHud(); return true;
 }
 const WOOD_ROOMS = ['class', 'office', 'library', 'music', 'art', 'counsel', 'nurse', 'club', 'craft'];
 function surfaceAt() {
@@ -407,7 +604,7 @@ function hit() {
   if (TEST && TST.god) return;
   if (P.invuln > 0 || state !== 'playing') return;
   const G = ghost;
-  P.hp -= 50; P.invuln = 3.5; shake = 1; hurtFx = 1; fx.glitch(.8); setFace('face_surprise', 2.6);
+  P.hp -= DF().dmg; P.invuln = 3.5; shake = 1; hurtFx = 1; fx.glitch(.8); setFace('surprise', 2.6);
   sfx.screech();
   const h = $('hurt'); h.style.transition = 'none'; h.style.opacity = 1; requestAnimationFrame(() => { h.style.transition = 'opacity 1.4s'; h.style.opacity = 0; });
   if (P.hp <= 0) { P.hp = 0; die(); return; }
@@ -416,7 +613,7 @@ function hit() {
   const F = floors[G.floor]; let far = F.nodes[0];
   F.nodes.forEach(n => { if (Math.hypot(n.x - P.x, n.z - P.z) > Math.hypot(far.x - P.x, far.z - P.z)) far = n; });
   G.target = { x: far.x, z: far.z }; G.wait = 0;
-  toast('공격당했습니다', '체력이 낮습니다. 응급 밴드가 필요합니다.', 'warn'); talk('윽…! 도망쳐야 해!', 2600);
+  toast('공격당했습니다', '체력이 낮습니다. 응급 밴드가 필요합니다.', 'warn'); talk('hit', 2600);
   refreshHud();
 }
 function showNote(it) {
@@ -468,7 +665,7 @@ function findInteract() {
       const up = si.up != null, down = si.down != null;
       const ul = si.up === 3 ? '옥상으로' : si.up === 0 ? '1층으로' : '위층', dl = si.down === 4 ? '지하층 (B1)' : '아래층';
       best = { type: 'stairs', label: [up ? `E ${ul}` : '', down ? `Q ${dl}` : ''].filter(Boolean).join('  /  '), raw: true };
-    } else if (dr) best = { type: 'door', d: dr, label: dr.label + (dr.need && P.keys < dr.need ? ' 🔒' : '') };
+    } else if (dr) best = { type: 'door', d: dr, label: dr.label + (dr.need && !FL.gatekey ? ' 🔒' : '') };
     else if (P.floor === 0 && P.z > GATE_Z - 4.5 && P.z < GATE_Z + 3 && Math.abs(P.x) < 6 && gateClosed && !escaped) best = { type: 'gate', label: '정문 열기' };
   }
   return best;
@@ -478,28 +675,36 @@ function interact() {
   if (target.type === 'item') {
     const it = target.it;
     if (it.kind === 'note') { readNote(it); return; }
-    if (it.kind === 'photo') { if (!it.taken) { it.taken = true; it.mesh.visible = false; docs.push({ id: it.id, title: it.title, text: it.text, img: it.img }); toast('사진을 획득했습니다', it.title, 'info'); refreshHud(); } showNote(it); return; }
+    if (it.kind === 'photo') { if (!it.taken) { it.taken = true; it.mesh.visible = false; addDoc({ id: it.id, kind: 'photo' }); toast('사진을 획득했습니다', it.title + ' — 휴대폰 사진첩에 저장', 'info'); refreshHud(); } showNote(it); return; }
     it.taken = true; it.mesh.visible = false;
     if (it.kind === 'key') {
-      got[it.idx] = true; P.keys++; sfx.key(); refreshHud(); setFace(P.keys < TOTAL ? 'face_resolve' : 'face_relief', 3);
+      got[it.idx] = true; P.keys++; sfx.key(); newItems.add('keypiece'); setFace(P.keys < TOTAL ? 'resolve' : 'relief', 3);
       toast('아이템을 획득했습니다', `${KEY_NAMES[it.idx]} 열쇠 조각 (${P.keys}/${TOTAL})`);
-      talk(P.keys < TOTAL ? '열쇠 조각이다. 하나 더…' : '마지막 조각이야. 이제 정문으로!', 3000);
+      talk(P.keys < TOTAL ? 'key' : 'keyLast', 3000);
       if (P.keys === 1) setTimeout(() => phoneMessage(1), 9000);
       if (P.keys === 1) activateGhost();
-      if (P.keys === TOTAL) enrage();
-      save(true);
-    } else if (it.kind === 'battery') { inv.battery++; sfx.pickup(); toast('아이템을 획득했습니다', '건전지 (2번 키로 사용)'); refreshHud(); }
-    else { inv.medkit++; sfx.pickup(); toast('아이템을 획득했습니다', '응급 밴드 (3번 키로 사용)'); refreshHud(); }
+      if (P.keys === 3) setTimeout(() => phoneMessage(2), 14000);
+      if (P.keys === TOTAL) setTimeout(() => toast('열쇠 조각을 모두 모았습니다', '소지품(Tab) → 열쇠 조각 → 조합 으로 정문 열쇠를 만드세요'), 3200);
+      refreshHud(); save(true);
+    } else if (it.kind === 'camcorder') {
+      FL.cam = true; newItems.add('camcorder'); sfx.pickup(); toast('아이템을 획득했습니다', '민아의 캠코더 — 녹화 파일이 남아 있다');
+      addDoc({ id: 'cam1', kind: 'cam' }); addClue('cam'); refreshHud();
+      setTimeout(playCam, 700); save(true);
+    } else if (it.kind === 'nametag') {
+      FL.tag = true; FL.opt = true; newItems.add('nametag'); sfx.key(); setFace('calm', 3);
+      toast('특별 목표', '윤하늘의 명찰을 찾았다', 'opt'); talk('tagFound', 3600); addClue('tag'); refreshHud(); save(true);
+    } else if (it.kind === 'battery') { inv.battery++; newItems.add('battery'); sfx.pickup(); toast('아이템을 획득했습니다', '건전지 (2번 키로 사용)'); refreshHud(); }
+    else { inv.medkit++; newItems.add('medkit'); sfx.pickup(); toast('아이템을 획득했습니다', '응급 밴드 (3번 키로 사용)'); refreshHud(); }
   } else if (target.type === 'locker') enterLocker(target.l);
   else if (target.type === 'stairs') changeFloor(1);
   else if (target.type === 'door') {
     const d = target.d;
     if (d.win) {
-      if (P.keys < TOTAL) { sfx.click(); say(d.locked, 2800); return; }
+      if (!FL.gatekey) { sfx.click(); if (P.keys >= TOTAL) talk('needCombine'); say(d.locked, 2800); return; }
       escaped = true; sfx.gateOpen(); say('쇠사슬이 힘없이 끊어졌다…', 3000); winGame(); return;
     }
     if (d.locked) { sfx.click(); say(d.locked, 2600); return; }
-    if (d.need && P.keys < d.need) { sfx.click(); say(`굳게 잠겨 있다. 열쇠 조각이 더 필요하다 (${P.keys}/${TOTAL})`, 2600); return; }
+    if (d.need && !FL.gatekey) { sfx.click(); say(`굳게 잠겨 있다. 완성된 정문 열쇠가 있어야 열린다 (조각 ${P.keys}/${TOTAL})`, 2600); return; }
     teleport(d.to);
   }
   else if (target.type === 'gate') openGate();
@@ -516,18 +721,24 @@ function toggleDoor(d, silent) {
 }
 
 function readNote(it) {
-  if (!it.taken) { it.taken = true; it.mesh.visible = false; docs.push({ id: it.id, title: it.title, text: it.text }); toast('새로운 문서를 획득했습니다', it.title, 'info'); refreshHud(); }
+  if (!it.taken) {
+    it.taken = true; it.mesh.visible = false; addDoc({ id: it.id, kind: 'note' }); toast('새로운 문서를 획득했습니다', it.title, 'info');
+    if (CLUES[it.id]) addClue(it.id);
+    if (['n7', 'n8', 'n12', 'n14'].includes(it.id)) unlockOptional();
+    refreshHud();
+  }
   showNote(it);
 }
 function activateGhost() {
   if (ghost.active || (TEST && TST.noGhost)) return;
   ghost.active = true; ghost.floor = P.floor === 2 ? 1 : 2; ghost.x = 20; ghost.z = 0; ghost.state = 'patrol'; ghost.path = []; ghost.wait = 2;
-  sfx.bang(0, .9); setTimeout(() => talk('방금… 위층에서 소리가 났어.', 3500), 900);
+  sfx.bang(0, .9); setTimeout(() => talk('wake', 3500), 900);
 }
 function enrage() {
   if (TEST && TST.noGhost) { blackout = 2; toast('테스트', '유령이 꺼져 있어 최종 추격은 생략됩니다.', 'info'); return; }
   ghost.active = true; ghost.enraged = true; blackout = 3.2;
-  setTimeout(() => { ghostRelocate(); ghost.floor = P.floor; sfx.screech(); toast('목표가 갱신되었습니다', '정문으로 달려가라!', 'warn'); talk('그게… 깨어났어. 정문으로 뛰어!', 4000); }, 2600);
+  setTimeout(() => { ghostRelocate(); ghost.floor = P.floor; sfx.screech(); toast('목표가 갱신되었습니다', '정문으로 달려가라!', 'warn'); talk('enrage', 4000); }, 2600);
+  setTimeout(() => phoneMessage(3), 16000);
 }
 const STAIRS = { 0: { up: 1, down: 4 }, 1: { up: 2, down: 0 }, 2: { up: 3, down: 1 }, 3: { down: 2 }, 4: { up: 0 }, 8: { up: 9 }, 9: { up: 10, down: 8 }, 10: { down: 9 } };
 function teleport(to) {
@@ -535,11 +746,11 @@ function teleport(to) {
   state = 'trans'; $('fade').style.opacity = 1; sfx.stairs();
   setTimeout(() => {
     P.floor = to.floor; P.x = to.x; P.z = to.z; P.yaw = to.yaw; P.pitch = 0;
-    if (to.floor === 3 && !P.roofSeen) { P.roofSeen = true; refreshHud(); toast('목표 달성', '옥상 조사하기', 'info'); setTimeout(() => talk('바람 소리뿐이야… 여기도 누군가 있었어.', 3200), 600); }
-    if (to.floor === 4 && !P.b1Seen) { P.b1Seen = true; setTimeout(() => talk('지하…? 이런 곳이 있었다니.', 3000), 600); }
-    if (to.floor === 5 && !P.gymSeen) { P.gymSeen = true; setTimeout(() => talk('불 꺼진 체육관… 누가 박수를 치고 있어.', 3400), 600); }
-    if (to.floor === 7 && !P.cafeSeen) { P.cafeSeen = true; setTimeout(() => talk('식판이 그대로야… 방금까지 누가 있었던 것처럼.', 3400), 600); }
-    if (to.floor === 6 && !P.poolSeen) { P.poolSeen = true; setTimeout(() => talk('물이 없는데… 물소리가 들려.', 3400), 600); }
+    if (to.floor === 3 && !P.roofSeen) { P.roofSeen = true; refreshHud(); setTimeout(() => talk('roof', 3200), 600); }
+    if (to.floor === 4 && !P.b1Seen) { P.b1Seen = true; setTimeout(() => talk('b1', 3000), 600); }
+    if (to.floor === 5 && !P.gymSeen) { P.gymSeen = true; setTimeout(() => talk('gym', 3400), 600); }
+    if (to.floor === 7 && !P.cafeSeen) { P.cafeSeen = true; setTimeout(() => talk('cafe', 3400), 600); }
+    if (to.floor === 6 && !P.poolSeen) { P.poolSeen = true; setTimeout(() => talk('pool', 3400), 600); }
     $('fade').style.opacity = 0; state = 'playing';
   }, 700);
 }
@@ -548,13 +759,32 @@ function changeFloor(dir) {
   const sz = floors[nf].stairZone; teleport(nf === 3 ? { floor: 3, x: 0, z: -7.5, yaw: 0 } : { floor: nf, x: sz ? sz.spawn.x : 2.2, z: sz ? sz.spawn.z : -5.2, yaw: Math.PI });
 }
 function openGate() {
-  if (P.keys < TOTAL) { sfx.click(); say(`자물쇠가 굳게 잠겨 있다. 열쇠 조각이 더 필요하다 (${P.keys}/${TOTAL})`, 2800); return; }
+  if (!FL.gatekey) {
+    sfx.click();
+    if (P.keys >= TOTAL) { talk('needCombine', 3200); say('열쇠 조각을 먼저 맞춰야 한다 — 소지품(Tab)에서 조합', 3000); }
+    else say(`자물쇠가 굳게 잠겨 있다. 정문 열쇠가 필요하다 (조각 ${P.keys}/${TOTAL})`, 2800);
+    return;
+  }
   escaped = true; gateState = 'opening'; sfx.gateOpen(); say('열쇠가 맞물렸다…', 3000);
   gate.blockRect.x1 = 1e9; gate.blockRect.x2 = 1e9 + 1;
   winGame();
 }
+// 엔딩: 민아를 깨워 함께 나가면 진 엔딩, 아니면 노멀 엔딩
 function winGame() {
-  setTimeout(() => { state = 'won'; sfx.win(); setTimeout(() => line('win'), 1200); $('winText').innerHTML = `당신은 폐교를 빠져나왔다.<br>뒤돌아보지 마라.<br><br>소요 시간 ${Math.floor(playTime / 60)}분 ${Math.floor(playTime % 60)}초`; $('win').classList.add('show'); document.exitPointerLock?.(); }, 3600);
+  const end = FL.mina ? 'true' : 'normal';
+  if (FL.mina) setTimeout(() => talk('withMina', 2800), 400);
+  setTimeout(() => {
+    state = 'won'; sfx.win(); stopSpeak(); $('hud').classList.remove('show');
+    try { const e = new Set(JSON.parse(localStorage.getItem('haegyo_endings') || '[]')); e.add(end); localStorage.setItem('haegyo_endings', JSON.stringify([...e])); localStorage.removeItem(SAVE); } catch (err) { /* ignore */ }
+    const vo = end === 'true' ? 'endTrue' : 'endNormal';
+    $('endTag').textContent = end === 'true' ? 'TRUE END' : 'NORMAL END'; $('endTag').className = end;
+    $('endTitle').textContent = end === 'true' ? '마지막 하교 방송' : '다시 닫힌 문';
+    $('winText').innerHTML = VO[vo].text + (end === 'true' ? '' : '<br><br><small style="color:#8a8678">…민아는 아직 방송실에 있다. 하늘의 이야기를 끝내면 다른 결말을 볼 수 있다.</small>');
+    const nd = docs.length, tot = DOC_TOTAL();
+    $('endStats').innerHTML = `<span>주인공</span><b>${CH().name}</b><span>플레이 시간</span><b>${Math.floor(playTime / 60)}분 ${Math.floor(playTime % 60)}초</b><span>찾은 기록</span><b>${nd} / ${tot}</b><span>난이도</span><b>${DF().label}</b><span>쓰러진 횟수</span><b>${deaths}</b>`;
+    setTimeout(() => line(vo), 1200);
+    $('win').classList.add('show'); document.exitPointerLock?.();
+  }, 3600);
 }
 const gate = world.gate;
 
@@ -584,10 +814,11 @@ function die() {
   G.group.visible = true; G.arms.forEach(a => a.rotation.x = -1.5);
   if (P.hiding) { P.hiding = null; $('hide').classList.remove('show'); }
   sfx.screech(); shake = 1.2;
-  const fl = $('flash'); fl.style.transition = 'none'; fl.style.opacity = .9; requestAnimationFrame(() => { fl.style.transition = 'opacity 1.2s'; fl.style.opacity = 0; });
+  const fl = $('flash'); fl.style.transition = 'none'; fl.style.opacity = SET.flashReduce ? .25 : .9; requestAnimationFrame(() => { fl.style.transition = 'opacity 1.2s'; fl.style.opacity = 0; });
   $('prompt').style.display = 'none';
-  const j = $('jump'); j.classList.remove('show'); void j.offsetWidth; j.classList.add('show');
-  setTimeout(() => { $('dead').classList.add('show'); document.exitPointerLock?.(); setTimeout(() => line('dead'), 700); }, 1900);
+  if (SET.jump === 'full') { const j = $('jump'); j.classList.remove('show'); void j.offsetWidth; j.classList.add('show'); }
+  deaths++; try { localStorage.setItem('haegyo_deaths', deaths); } catch (e) { /* ignore */ }
+  setTimeout(() => { $('hud').classList.remove('show'); $('dead').classList.add('show'); $('retryBtn').disabled = !hasSave(); document.exitPointerLock?.(); setTimeout(() => line('endBad'), 700); }, 1900);
 }
 
 /* ---------- 이벤트(랜덤 공포 연출) ---------- */
@@ -608,18 +839,21 @@ addEventListener('keydown', e => {
   if (state === 'note' && (e.code === 'KeyE' || e.code === 'Escape' || e.code === 'Space')) { closeNote(); return; }
   if (state === 'ui' && $('keypad').classList.contains('show')) { keypadKey(e); return; }
   if (state === 'ui') {
-    if (e.code === 'Tab' || e.code === 'Escape' || e.code === 'KeyI' || e.code === 'KeyM' || e.code === 'KeyT') closeUI();
-    else if ($('inv').classList.contains('show') && (e.code === 'KeyQ' || e.code === 'KeyE')) { invTab = TABS[(TABS.indexOf(invTab) + (e.code === 'KeyE' ? 1 : 2)) % 3]; invSel = 0; renderInv(); }
+    if ($('inv').classList.contains('show') && e.code !== 'Tab' && e.code !== 'KeyI' && invKey(e)) return;
+    if ($('phone').classList.contains('show') && (e.code === 'KeyQ' || e.code === 'KeyE')) { phoneTab = PTABS[(PTABS.indexOf(phoneTab) + (e.code === 'KeyE' ? 1 : 2)) % 3]; renderPhone(); return; }
+    if ($('mapOv').classList.contains('show') && (e.code === 'KeyZ' || e.code === 'KeyX')) { mapZoom = clamp(mapZoom * (e.code === 'KeyZ' ? 1.25 : .8), .5, 4); renderMap(); return; }
+    if (['Tab', 'Escape', 'KeyI', 'KeyM', 'KeyT', 'KeyP', 'Digit4'].includes(e.code)) closeUI();
     return;
   }
   if (state !== 'playing') return;
   if (e.code === 'Tab' || e.code === 'KeyI') { openInv(); return; }
   if (e.code === 'KeyM') { openMap(); return; }
+  if (e.code === 'KeyP' || e.code === 'Digit4') { openPhone(msgs.some(m => !m.read) ? 'msg' : phoneTab); return; }
   if (TEST && e.code === 'KeyT') { openTest(); return; }
   if (e.code === 'Digit1' || e.code === 'KeyF') { P.light = !P.light; sfx.click(); }
   if (e.code === 'Digit2') useBattery();
   if (e.code === 'Digit3') useMedkit();
-  if (e.code === 'Digit4') openInv('docs');
+  if (SET.runToggle && (e.code === 'ShiftLeft' || e.code === 'ShiftRight')) P.runOn = !P.runOn;
   if (e.code === 'KeyE') { if (P.hiding) leaveLocker(); else interact(); }
   if (e.code === 'KeyQ' && target && target.type === 'stairs') changeFloor(-1);
 });
@@ -630,51 +864,64 @@ addEventListener('mousemove', e => {
   if (state === 'dead' || lookBack > 0) return;
   // 포인터 락 직후·창 전환 시 브라우저가 보내는 비정상적으로 큰 값은 무시 (시점이 순간이동하는 문제)
   if (Math.abs(e.movementX) > 220 || Math.abs(e.movementY) > 220) return;
-  P.yaw -= e.movementX * .0022; P.pitch = clamp(P.pitch - e.movementY * .0022, -1.45, 1.45);
+  const ms = .0022 * SET.sens; P.yaw -= e.movementX * ms; P.pitch = clamp(P.pitch - e.movementY * ms * (SET.invertY ? -1 : 1), -1.45, 1.45);
   if (P.hiding) P.yaw = clamp(P.yaw, P.hiding.yaw - .7, P.hiding.yaw + .7);
 });
+canvas.addEventListener('click', () => { if (state === 'playing' && !document.pointerLockElement) lock(); });
 $('noteBox').addEventListener('click', closeNote);
 addEventListener('resize', () => { renderer.setSize(innerWidth, innerHeight); fx.resize(innerWidth, innerHeight, renderer.getPixelRatio()); camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); });
 document.addEventListener('pointerlockchange', () => {
-  if (!document.pointerLockElement && (state === 'playing' || state === 'note') && !DEBUG) { if (state === 'note') closeNote(); state = 'paused'; $('pause').classList.add('show'); for (const k in keys) keys[k] = false; }
+  if (!document.pointerLockElement && (state === 'playing' || state === 'note') && !DEBUG) { if (state === 'note') closeNote(); pauseGame(); }
 });
+function pauseGame() {
+  state = 'paused'; for (const k in keys) keys[k] = false;
+  const o = objective(); $('pauseInfo').textContent = `${CHAPTERS[o.ch - 1].title}  ·  ${CH().name}  ·  ${Math.floor(playTime / 60)}분 ${Math.floor(playTime % 60)}초`;
+  $('loadBtn2').disabled = !hasSave(); $('pause').classList.add('show');
+}
 function lock() {
   try { const r = canvas.requestPointerLock({ unadjustedMovement: true }); if (r && r.catch) r.catch(() => { try { const r2 = canvas.requestPointerLock(); if (r2 && r2.catch) r2.catch(() => {}); } catch (e) { /* ignore */ } }); }
   catch (e) { try { canvas.requestPointerLock(); } catch (e2) { /* ignore */ } }
 }
 
 /* ---------- 저장 / 불러오기 ---------- */
-const SAVE = 'haegyo_save_v3';
+const SAVE = 'haegyo_save_v4';
+let deaths = 0; try { deaths = +localStorage.getItem('haegyo_deaths') || 0; } catch (e) { /* ignore */ }
+const hasSave = () => { try { return !!localStorage.getItem(SAVE); } catch (e) { return false; } };
 function save(silent) {
   if (state === 'dead' || state === 'won') return;
   const d = {
+    meta: { char: CHAR, ch: objective().ch, time: playTime, at: Date.now() }, char: CHAR,
     P: { x: P.x, z: P.z, floor: P.floor, yaw: P.yaw, hp: P.hp, battery: P.battery, stamina: P.stamina, keys: P.keys, light: P.light, roofSeen: P.roofSeen },
-    got, inv, docs: docs.map(x => x.id), taken: world.items.map(i => i.taken), gateClosed, introDone, playTime,
+    got, inv, FL, power, msgs, clues, docs: docs.map(x => ({ id: x.id, kind: x.kind })), taken: world.items.map(i => i.taken), gateClosed, introDone, playTime,
+    props: world.props.map(p => ({ done: !!p.done, label: p.label })),
     ghost: { active: ghost.active, enraged: ghost.enraged, floor: ghost.floor, x: ghost.x, z: ghost.z },
   };
   try { localStorage.setItem(SAVE, JSON.stringify(d)); toast('저장되었습니다', silent ? '자동 저장' : '', 'info'); } catch (e) { toast('저장 실패', '', 'warn'); }
 }
+function readSave() { try { return JSON.parse(localStorage.getItem(SAVE)); } catch (e) { return null; } }
 function load() {
-  let d; try { d = JSON.parse(localStorage.getItem(SAVE)); } catch (e) { return; }
-  if (!d) return;
+  const d = readSave(); if (!d) return;
   Object.assign(P, d.P); got.splice(0, TOTAL, ...d.got); inv.battery = d.inv.battery; inv.medkit = d.inv.medkit;
-  docs.length = 0; d.docs.forEach(id => { const n = world.NOTES[id]; if (n) docs.push({ id, title: n.title, text: n.text }); });
+  Object.assign(FL, d.FL || {}); power = !!d.power; msgs.push(...(d.msgs || [])); clues.push(...(d.clues || []));
+  docs.length = 0; (d.docs || []).forEach(x => addDoc(x));
   world.items.forEach((it, i) => { if (d.taken[i]) { it.taken = true; it.mesh.visible = false; } });
+  (d.props || []).forEach((s, i) => { const p = world.props[i]; if (!p || !s.done) return; p.done = true;
+    if (p.kind === 'safe') { p.open = 1; p.opening = true; } if (p.kind === 'breaker') p.on = true; if (p.kind === 'mina') mina.visible = false; });
   introDone = d.introDone; playTime = d.playTime;
   if (d.gateClosed) { gateClosed = true; gateState = 'closed'; gateAnim = 1; gate.setOpen(0); }
-  if (d.ghost.active) { Object.assign(ghost, d.ghost, { state: 'patrol', path: [], wait: 2 }); }
-  refreshHud(); toast('불러오기 완료', '', 'info');
+  if (d.ghost.active && !FL.calm) { Object.assign(ghost, d.ghost, { state: 'patrol', path: [], wait: 2 }); }
+  chapterShown = objective().ch; refreshHud(); toast('불러오기 완료', CHAPTERS[chapterShown - 1].title, 'info');
 }
 
 function start(skipIntro = false) {
-  initAudio(); $('menu').classList.remove('show');
-  refreshHud();
+  initAudio(); closeMenus(); applyChar();
+  refreshHud(); chapterShown = objective().ch;
   if (skipIntro || TEST) { finishIntro(); return; }
   state = 'intro'; introT = 0; introText = true; $('intro').classList.add('show');
-  $('intro').querySelectorAll('p').forEach(p => p.classList.remove('on'));
-  preload(['intro1', 'intro2', 'intro3', 'intro4']);
+  const ids = ['intro1', 'intro2', 'intro3', 'intro4'], ps = [...$('intro').querySelectorAll('p')];
+  ps.forEach((p, i) => { p.classList.remove('on'); p.textContent = i === 2 ? `“${VO[ids[i]].text}”` : VO[ids[i]].text; });
+  preload(ids);
   (async () => {
-    const ps = [...$('intro').querySelectorAll('p')], ids = ['intro1', 'intro2', 'intro3', 'intro4'];
     await new Promise(r => setTimeout(r, 600));
     for (let i = 0; i < 4; i++) {
       if (state !== 'intro') return;
@@ -687,10 +934,11 @@ function start(skipIntro = false) {
 }
 function finishIntro() {
   stopSpeak(); introText = false;
-  preload(['phone1', 'phone2', 'pa1', 'gh1', 'gh2', 'gh3', 'gh4', 'talk*']);
+  preload(['phone1', 'phone2', 'phone3', 'pa1', 'gh1', 'gh2', 'gh3', 'gh4', 'cam1', ...Object.keys(LINES).map(k => `l_${k}_${CK()}`)]);
   $('intro').classList.remove('show'); $('introTitle').classList.remove('show'); $('hud').classList.add('show');
-  P.x = 0; P.z = 77.5; P.yaw = 0; P.pitch = 0; state = 'playing';
-  setTimeout(() => talk('무서워도… 가야지. 누군가는 알아야 하니까.', 4200), 500);
+  if (!readingSave) { P.x = 0; P.z = 77.5; P.yaw = 0; P.pitch = 0; }
+  state = 'playing';
+  if (!readingSave) { setTimeout(() => talk('arrive', 4200), 500); setTimeout(() => showChapter(1), 900); }
 }
 // 인트로: 검은 화면 텍스트(0~6초) → 폐교를 향한 카메라 돌리(6~13초)
 function updateIntro(dt) {
@@ -710,14 +958,88 @@ function updateIntro(dt) {
 }
 addEventListener('keydown', e => { if (state === 'intro' && ['Space', 'Enter', 'Escape'].includes(e.code)) finishIntro(); });
 $('intro').addEventListener('click', () => { if (state === 'intro') finishIntro(); });
-$('startBtn').addEventListener('click', () => { try { localStorage.removeItem(SAVE); } catch (e) { /* ignore */ } lock(); start(); });
-$('helpBtn').addEventListener('click', () => $('helpBox').classList.toggle('show'));
-$('loadBtn').addEventListener('click', () => { lock(); start(true); load(); });
+
+/* ---------- 타이틀 · 캐릭터 선택 ---------- */
+let readingSave = false;
+const MENUS = ['title', 'charsel', 'newConfirm', 'settings', 'gallery', 'credits'];
+function closeMenus() { MENUS.forEach(k => $(k).classList.remove('show')); }
+function applyChar() {
+  const c = CH();
+  document.documentElement.style.setProperty('--acc', c.color);
+  $('pName').textContent = c.name; $('pAge').textContent = `${c.age} · ${c.school.split(' ')[1] || ''}`; $('dlgName').textContent = c.name;
+  curFace = ''; updateFace(0);
+}
+function newGame() {
+  try { localStorage.removeItem(SAVE); } catch (e) { /* ignore */ }
+  lock(); start();
+}
+function continueGame() { readingSave = true; lock(); start(true); load(); }
+function refreshTitle() {
+  const d = readSave();
+  $('mContinue').style.display = d ? 'block' : 'none';
+  if (d && d.meta) { const c = CHARACTERS[d.meta.char]; $('mContInfo').textContent = `${c ? c.name : ''} · 제${d.meta.ch}장 · ${Math.floor(d.meta.time / 60)}분`; }
+  $('mCharName').textContent = CH().name;
+  let ends = []; try { ends = JSON.parse(localStorage.getItem('haegyo_endings') || '[]'); } catch (e) { /* ignore */ }
+  $('tEnd').textContent = ends.length ? `달성한 엔딩: ${ends.map(e => e === 'true' ? 'TRUE' : 'NORMAL').join(' · ')}  ·  ` : '';
+  const btns = [...$('tMenu').querySelectorAll('button')].filter(b => b.style.display !== 'none'); btns.forEach((b, i) => b.classList.toggle('sel', i === 0));
+}
+let csMode = 'view', csPick = CHAR;
+function openCharsel(mode) {
+  csMode = mode; csPick = CHAR; $('title').classList.remove('show'); $('charsel').classList.add('show');
+  $('csOk').textContent = mode === 'new' ? '결정 · 시작' : '결정'; renderCharsel(); sfx.ui && sfx.ui();
+}
+function renderCharsel() {
+  $('csCards').innerHTML = Object.entries(CHARACTERS).map(([k, c]) => `
+    <div class="cs${k === csPick ? ' on' : ''}" data-k="${k}" style="--c:${c.color}">
+      <img class="pt" src="assets/ui/${c.portrait}.webp" alt="">
+      <div><h3>${c.name}<small>${c.age} · ${c.sex}</small></h3>
+        <table><tr><td>학교</td><td>${c.school}</td></tr><tr><td>성격</td><td>${c.pers}</td></tr><tr><td>특징</td><td>${c.trait}</td></tr><tr><td>소개</td><td>${c.intro}</td></tr></table>
+        <div class="q">“${c.quote}”</div></div>
+      <img class="bd" src="assets/ui/${c.body}.webp" alt="">
+      <div class="faces">${c.faces.map((f, i) => `<figure><img src="assets/ui/${f}.webp" alt="">${c.faceNames[i]}</figure>`).join('')}</div>
+      <div class="perk">${c.perk.map(p => `<span>★ ${p}</span>`).join('')}</div>
+      <div class="kit"><b>시작 아이템</b><div class="its">${c.items.map(id => `<div class="it">${iconHTML(ITEMS[id].icon)}<span>${ITEMS[id].name.replace(/ \(.*\)/, '')}</span></div>`).join('')}</div></div>
+    </div>`).join('');
+  $('csCards').querySelectorAll('.cs').forEach(el => { el.onclick = () => { csPick = el.dataset.k; renderCharsel(); sfx.ui && sfx.ui(); }; el.ondblclick = () => $('csOk').click(); });
+}
+$('csOk').onclick = () => {
+  CHAR = csPick; try { localStorage.setItem('haegyo_char', CHAR); } catch (e) { /* ignore */ }
+  applyChar();
+  if (csMode === 'new') { $('charsel').classList.remove('show'); newGame(); }
+  else { $('charsel').classList.remove('show'); $('title').classList.add('show'); refreshTitle(); toast('주인공 선택', `${CH().name}(으)로 플레이합니다`, 'info'); }
+};
+$('csPrev').onclick = $('csBack').onclick = () => { $('charsel').classList.remove('show'); $('title').classList.add('show'); refreshTitle(); };
+$('mContinue').onclick = () => { closeMenus(); continueGame(); };
+$('mNew').onclick = () => { if (hasSave()) $('newConfirm').classList.add('show'); else openCharsel('new'); };
+$('ncYes').onclick = () => { $('newConfirm').classList.remove('show'); openCharsel('new'); };
+$('ncNo').onclick = () => $('newConfirm').classList.remove('show');
+$('mChar').onclick = () => openCharsel('view');
+$('mSet').onclick = () => openSettings('title');
+$('mGal').onclick = () => openGallery();
+$('mCred').onclick = () => { $('credTable').innerHTML = CREDITS.map(([a, b]) => `<tr><td>${a}</td><td>${b}</td></tr>`).join(''); $('credits').classList.add('show'); };
+$('credClose').onclick = () => $('credits').classList.remove('show');
+$('mQuit').onclick = () => { $('bye').classList.add('show'); try { window.close(); } catch (e) { /* ignore */ } };
+$('byeBack').onclick = () => $('bye').classList.remove('show');
+document.querySelectorAll('#tMenu button').forEach(b => b.addEventListener('mouseenter', () => { document.querySelectorAll('#tMenu button').forEach(x => x.classList.toggle('sel', x === b)); sfx.ui && sfx.ui(); }));
+addEventListener('keydown', e => {
+  if (state !== 'menu') return;
+  if ($('charsel').classList.contains('show')) {
+    if (['ArrowLeft', 'ArrowRight', 'KeyA', 'KeyD'].includes(e.code)) { csPick = csPick === 'jihun' ? 'seoyeon' : 'jihun'; renderCharsel(); }
+    else if (e.code === 'Enter') $('csOk').click(); else if (e.code === 'Escape') $('csBack').click();
+    return;
+  }
+  if (!$('title').classList.contains('show') || MENUS.slice(2).some(k => $(k).classList.contains('show'))) { if (e.code === 'Escape') MENUS.slice(2).forEach(k => $(k).classList.remove('show')); return; }
+  const btns = [...$('tMenu').querySelectorAll('button')].filter(b => b.style.display !== 'none'); let i = btns.findIndex(b => b.classList.contains('sel'));
+  if (e.code === 'ArrowDown' || e.code === 'ArrowUp' || e.code === 'KeyS' || e.code === 'KeyW') { i = (i + (e.code === 'ArrowDown' || e.code === 'KeyS' ? 1 : btns.length - 1)) % btns.length; btns.forEach((b, k) => b.classList.toggle('sel', k === i)); sfx.ui && sfx.ui(); }
+  else if (e.code === 'Enter' && i >= 0) btns[i].click();
+});
 $('saveBtn').addEventListener('click', () => save());
 $('titleBtn').addEventListener('click', () => location.reload());
-try { if (localStorage.getItem(SAVE)) $('loadBtn').style.display = 'block'; } catch (e) { /* ignore */ }
+$('loadBtn2').addEventListener('click', () => { try { sessionStorage.setItem('haegyo_auto', 'continue'); } catch (e) { /* ignore */ } location.reload(); });
 $('resumeBtn').addEventListener('click', () => { lock(); $('pause').classList.remove('show'); state = 'playing'; });
-$('retryBtn').addEventListener('click', () => location.reload());
+$('retryBtn').addEventListener('click', () => { try { sessionStorage.setItem('haegyo_auto', 'continue'); } catch (e) { /* ignore */ } location.reload(); });
+$('restartBtn').addEventListener('click', () => { try { localStorage.removeItem(SAVE); sessionStorage.setItem('haegyo_auto', 'new'); } catch (e) { /* ignore */ } location.reload(); });
+$('deadTitleBtn').addEventListener('click', () => location.reload());
 $('againBtn').addEventListener('click', () => location.reload());
 
 /* ---------- 업데이트 ---------- */
@@ -732,8 +1054,8 @@ function updatePlayer(dt) {
     P.yaw += dy * Math.min(1, dt * 5); P.pitch = lerp(P.pitch, .04, Math.min(1, dt * 5));
   } else if (!P.hiding && state === 'playing') {
     const want = !!(fw || sd);
-    const wantRun = (keys.ShiftLeft || keys.ShiftRight) && want && !P.tired && P.stamina > 0;
-    if (wantRun) { P.sprinting = true; P.stamina = Math.max(0, P.stamina - 20 * dt); if (P.stamina <= 0) P.tired = true; }
+    const wantRun = (SET.runToggle ? P.runOn : (keys.ShiftLeft || keys.ShiftRight)) && want && !P.tired && P.stamina > 0;
+    if (wantRun) { P.sprinting = true; P.stamina = Math.max(0, P.stamina - (CHAR === 'jihun' ? 16 : 20) * dt); if (P.stamina <= 0) { P.tired = true; P.runOn = false; talk('sprint', 2200); } }
     else { P.stamina = Math.min(100, P.stamina + (want ? 9 : 18) * dt); if (P.tired && P.stamina > 30) P.tired = false; }
     if (want) {
       const sp = P.sprinting ? 5.0 : 2.8;
@@ -758,14 +1080,14 @@ function updatePlayer(dt) {
   // 정문 닫힘 연출
   if (!gateClosed && state === 'playing' && P.z < GATE_Z - 3) {
     gateClosed = true; gateState = 'closing'; sfx.gateClang(); shake = .8; if (P.z > GATE_Z - 8) lookBack = 1.9;
-    setTimeout(() => { toast('새로운 목표가 추가되었습니다', `정문 열쇠 조각 ${TOTAL}개를 찾아라`, 'warn'); talk('문이 잠겼어… 열쇠를 찾아야 해.', 4200); }, 800);
+    setTimeout(() => { toast('정문이 잠겼습니다', '민아의 흔적을 따라 학교 안으로', 'warn'); talk('gate', 4200); refreshHud(); }, 800);
   }
-  if (!introDone && P.floor === 0 && P.z < 1.2) { introDone = true; talk('안은 숨소리까지 들릴 만큼 조용해…', 3500); setTimeout(() => toast('팁', '쪽지를 읽고, 사물함에 숨어 시선을 피하세요. (Tab: 인벤토리, M: 지도)', 'info'), 1500); }
+  if (!introDone && P.floor === 0 && P.z < 1.2) { introDone = true; talk('inside', 3500); refreshHud(); setTimeout(() => toast('팁', '쪽지를 읽고, 사물함에 숨어 시선을 피하세요. (Tab 소지품 · P 휴대폰 · M 지도)', 'info'), 1500); }
 
   P.invuln = Math.max(0, P.invuln - dt);
-  if (!P.bcast && P.floor === 2 && Math.abs(P.x + 24) < 3.8 && P.z < -2) { P.bcast = true; sfx.broadcast(); setTimeout(() => line('pa1', 'pa'), 900); setTimeout(() => talk('스피커가… 켜졌어? 전원도 안 들어오는데.', 3600), 8500); }
+  if (!P.bcast && P.floor === 2 && Math.abs(P.x + 24) < 3.8 && P.z < -2) { P.bcast = true; sfx.broadcast(); setTimeout(() => line('pa1', 'pa'), 900); setTimeout(() => talk('speakers', 3600), 8500); }
   // 손전등/배터리
-  if (P.light && P.battery > 0) P.battery = Math.max(0, P.battery - .75 * dt);
+  if (P.light && P.battery > 0) P.battery = Math.max(0, P.battery - .75 * dt * (CHAR === 'seoyeon' ? .75 : 1) * DF().battery);
   if (P.battery <= 0 && P.light) { if (inv.battery > 0) useBattery(); else { P.light = false; toast('손전등이 꺼졌습니다', '건전지가 없습니다.', 'warn'); } }
 }
 
@@ -810,18 +1132,18 @@ function updateLighting(dt) {
 let beatT = 0, camShakeT = 0;
 function updateCamera(dt, t) {
   const F = floors[P.floor];
-  const bob = Math.sin(P.bob) * (P.sprinting ? .05 : .028);
+  const bob = SET.bob ? Math.sin(P.bob) * (P.sprinting ? .05 : .028) : 0;
   let ey = P.hiding ? 1.45 : 1.62 + bob;
   camera.position.set(P.x, F.y0 + ey, P.z);
   let yaw = P.yaw, pitch = P.pitch;
-  if (shake > 0) { shake = Math.max(0, shake - dt * 1.4); yaw += (Math.random() - .5) * .05 * shake; pitch += (Math.random() - .5) * .05 * shake; }
+  if (shake > 0) { shake = Math.max(0, shake - dt * 1.4); const k = SET.shake ? .05 : .008; yaw += (Math.random() - .5) * k * shake; pitch += (Math.random() - .5) * k * shake; }
   const G = ghost; let prox = 0, chase = false;
   if (G.active && G.floor === P.floor) { prox = clamp(1 - Math.hypot(G.x - P.x, G.z - P.z) / 14, 0, 1); chase = G.state === 'chase' || !!G.hunt; }
   if (state === 'dead') { const dx = G.x - P.x, dz = G.z - P.z; yaw = Math.atan2(-dx, -dz); pitch = .1; }
   camera.rotation.set(pitch, yaw, 0, 'YXZ');
-  const fov = 72 + (P.sprinting ? 6 : 0) + (chase ? 4 : 0) + (state === 'dead' ? -10 : 0);
+  const fov = SET.fov + (P.sprinting ? 6 : 0) + (chase ? 4 : 0) + (state === 'dead' ? -10 : 0);
   camera.fov = lerp(camera.fov, fov, Math.min(1, dt * 6)); camera.updateProjectionMatrix();
-  $('fear').style.opacity = clamp(prox * (chase ? 1.2 : .7), 0, 1);
+  $('fear').style.opacity = SET.fearFx ? clamp(prox * (chase ? 1.2 : .7), 0, 1) : 0;
   setProximity(prox * (chase ? 1 : .6), t);
   // 심장박동
   if (state === 'playing' && (prox > .25 || chase)) {
@@ -839,8 +1161,9 @@ let faceOver = null, faceT = 0, curFace = '';
 function setFace(k, t) { faceOver = k; faceT = t; }
 function updateFace(dt) {
   faceT -= dt;
-  const want = faceT > 0 ? faceOver : P.fear > .6 ? 'face_fear' : P.hp <= 50 ? 'face_resolve' : 'face_basic';
-  if (want !== curFace) { curFace = want; $('portrait').src = $('dlgFace').src = `assets/img/${want}.webp`; }
+  const want = faceT > 0 ? faceOver : P.fear > .6 ? 'fear' : P.hp <= 50 ? 'resolve' : 'basic';
+  const src = `assets/ui/${CH().faces[FACE[want] ?? 0]}.webp`;
+  if (src !== curFace) { curFace = src; $('portrait').src = $('dlgFace').src = src; }
 }
 // [이미지, 제목, 설명, 폐교 전 사진 여부]
 const CARDS = {
@@ -856,7 +1179,7 @@ const CARDS = {
   annexOut: ['annex_ext', '별관 (특별교실동)', '폐교 전 사진 — 본관 뒤편의 특별교실동', 1], westGate: ['west_gate', '서문', '폐교 전 사진 — 행복한 배움, 함께 만드는 미래', 1],
 };
 Object.values(CARDS).forEach(c => { const im = new Image(); im.src = `assets/img/${c[0]}.webp`; });
-['face_fear', 'face_resolve', 'face_surprise', 'face_relief'].forEach(k => { const im = new Image(); im.src = `assets/img/${k}.webp`; });
+Object.values(CHARACTERS).forEach(c => c.faces.forEach(k => { const im = new Image(); im.src = `assets/ui/${k}.webp`; }));
 const seenCards = new Set(); let cardTimer = 0, areaT = 0;
 function showCard(k) {
   if (seenCards.has(k)) return; seenCards.add(k);
@@ -882,17 +1205,32 @@ function areaCheck(dt) {
   if (k) showCard(k);
 }
 const REF_TITLES = ['폐교 실내 공간 3D 모델링 시트', '폐교 정문 3D 배경 시트', '교실 소품 오브젝트 시트', '폐교 내부 3D 배치도', '폐교 배치도 / 건물 도면', '주인공 캐릭터 시트', '인게임 화면 · UI 구성', '특수 공간 상세 배치도', '상호작용 UI 시트', '체육관 내부 시트', '방송실 내부 배치', '수영장 내부 배치', '방송실 · 수영장 · 지하 B1', '학교 지도', '급식실 배치도', '별관 (특별교실동)', '서문 상세 안내도', '방송실 상세 배치도', '수영장 샤워실 · 탈의실', '전체 배치도 · 오브젝트 · 이펙트 시트'];
-function openGallery() {
-  const gw = $('galGrid'); if (!gw.children.length) REF_TITLES.forEach((t, i) => {
-    const n = String(i + 1).padStart(2, '0'), d = document.createElement('figure');
-    d.innerHTML = `<img src="assets/ref/${n}_t.webp" alt="" loading="lazy"><figcaption>${i + 1}. ${t}</figcaption>`;
-    d.onclick = () => { $('lbImg').src = `assets/ref/${n}.webp`; $('lbCap').textContent = `${i + 1}. ${t}`; $('lightbox').classList.add('show'); };
+let galTab = 'ref';
+function openGallery(tab = galTab) {
+  galTab = tab; document.querySelectorAll('#galTabs button').forEach(b => b.classList.toggle('on', b.dataset.g === galTab));
+  const gw = $('galGrid'); gw.innerHTML = '';
+  const fig = (thumb, big, cap, lock) => {
+    const d = document.createElement('figure'); if (lock) d.className = 'lock';
+    d.innerHTML = `<img src="${lock ? 'assets/ui/charsel_blur.webp' : thumb}" alt="" loading="lazy" style="${thumb.includes('/ui/') && !lock ? 'object-fit:contain;background:#0a0d10' : ''}"><figcaption>${lock ? '🔒 ' + cap : cap}</figcaption>`;
+    if (!lock) d.onclick = () => { $('lbImg').src = big; $('lbCap').textContent = cap; $('lightbox').classList.add('show'); };
     gw.appendChild(d);
+  };
+  if (galTab === 'ref') REF_TITLES.forEach((t, i) => { const n = String(i + 1).padStart(2, '0'); fig(`assets/ref/${n}_t.webp`, `assets/ref/${n}.webp`, `${i + 1}. ${t}`); });
+  else if (galTab === 'char') Object.values(CHARACTERS).forEach(c => {
+    fig(`assets/ui/${c.portrait}.webp`, `assets/ui/${c.portrait}.webp`, `${c.name} — 초상`); fig(`assets/ui/${c.body}.webp`, `assets/ui/${c.body}.webp`, `${c.name} — 전신`);
+    c.faces.forEach((f, i) => fig(`assets/ui/${f}.webp`, `assets/ui/${f}.webp`, `${c.name} — ${c.faceNames[i]}`));
   });
+  else {
+    let ends = []; try { ends = JSON.parse(localStorage.getItem('haegyo_endings') || '[]'); } catch (e) { /* ignore */ }
+    fig('assets/ui/title_main.webp', 'assets/ui/title_main.webp', 'TRUE END — 마지막 하교 방송', !ends.includes('true'));
+    fig('assets/img/gate_night.webp', 'assets/img/gate_night.webp', 'NORMAL END — 다시 닫힌 문', !ends.includes('normal'));
+    fig('assets/img/ghost_cut.webp', 'assets/img/ghost_cut.webp', 'BAD END — 다시, 여기서', deaths === 0);
+  }
   $('gallery').classList.add('show');
 }
+document.querySelectorAll('#galTabs button').forEach(b => { b.onclick = () => openGallery(b.dataset.g); });
 addEventListener('pointerdown', () => initAudio(), { once: true });
-$('galBtn').addEventListener('click', openGallery); $('galBtn2').addEventListener('click', openGallery);
+$('galBtn2').addEventListener('click', () => openGallery());
 $('galClose').addEventListener('click', () => $('gallery').classList.remove('show'));
 $('lightbox').addEventListener('click', () => $('lightbox').classList.remove('show'));
 
@@ -912,17 +1250,45 @@ function updateHud(dt, prox, chase) {
   if (miniT <= 0) {
     miniT = .1; const c = $('miniMap'), g = c.getContext('2d');
     g.save(); g.beginPath(); g.arc(75, 75, 75, 0, 6.3); g.clip();
-    drawMap(g, 150, 150, { floor: P.floor, cx: P.x, cz: P.z, scale: 2.6, pins: mapPins(P.floor), player: { x: P.x, z: P.z, yaw: P.yaw } });
+    drawMap(g, 150, 150, { floor: P.floor, cx: P.x, cz: P.z, scale: 2.6, pins: mapPins(P.floor), ...mapExtras(P.floor), t: tNow, mini: true, player: { x: P.x, z: P.z, yaw: P.yaw } });
     g.restore();
   }
+  updatePerks(dt);
+}
+// 고유 능력 — 서연: 가까운 그것의 방향 감지 / 지훈: 조사 가능한 단서가 빛나 보인다
+const glintTex = (() => { const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d');
+  const r = g.createRadialGradient(32, 32, 0, 32, 32, 32); r.addColorStop(0, 'rgba(255,250,220,1)'); r.addColorStop(.15, 'rgba(255,230,160,.8)'); r.addColorStop(1, 'rgba(255,200,120,0)');
+  g.fillStyle = r; g.fillRect(0, 0, 64, 64); g.fillStyle = 'rgba(255,255,235,.9)'; g.fillRect(31, 4, 2, 56); g.fillRect(4, 31, 56, 2);
+  return new THREE.CanvasTexture(c); })();
+const glints = [];
+for (let i = 0; i < 8; i++) { const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: glintTex, blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, fog: false })); sp.visible = false; scene.add(sp); glints.push(sp); }
+let glintT = 0;
+function updatePerks(dt) {
+  const sense = $('sense');
+  if (CHAR === 'seoyeon' && ghost.active && ghost.floor === P.floor && state === 'playing') {
+    const dx = ghost.x - P.x, dz = ghost.z - P.z, d = Math.hypot(dx, dz);
+    const rx = dx * Math.cos(P.yaw) - dz * Math.sin(P.yaw), fw = -dx * Math.sin(P.yaw) - dz * Math.cos(P.yaw);
+    sense.style.opacity = d < 22 ? clamp((22 - d) / 14, .15, .9) : 0; sense.style.transform = `rotate(${Math.atan2(rx, fw)}rad)`;
+  } else sense.style.opacity = 0;
+  glintT -= dt;
+  if (CHAR !== 'jihun' || state !== 'playing') { glints.forEach(g => { g.visible = false; }); return; }
+  if (glintT <= 0) {
+    glintT = .3;
+    const c = world.items.filter(i => !i.taken && !i.locked && i.floor === P.floor && i.kind !== 'battery' && i.kind !== 'medkit')
+      .map(i => ({ p: i.pos, d: Math.hypot(i.pos.x - P.x, i.pos.z - P.z) }))
+      .concat(world.props.filter(p => p.floor === P.floor && !p.done && (p.kind === 'tape' || p.kind === 'mina' || p.kind === 'safe')).map(p => ({ p: { x: p.x, y: floors[p.floor].y0 + (p.y ?? 1) , z: p.z }, d: Math.hypot(p.x - P.x, p.z - P.z) })))
+      .filter(o => o.d < 11).sort((a, b) => a.d - b.d).slice(0, glints.length);
+    glints.forEach((g, i) => { const o = c[i]; g.visible = !!o; if (o) g.position.set(o.p.x, o.p.y + .18, o.p.z); g.userData.d = o ? o.d : 99; });
+  }
+  glints.forEach((g, i) => { if (!g.visible) return; const k = .5 + .5 * Math.sin(tNow * 3 + i * 1.7); g.scale.setScalar(.28 + k * .22); g.material.opacity = (.35 + k * .5) * clamp((11 - g.userData.d) / 4, 0, 1); });
 }
 
 function updatePrompt() {
   const pr = $('prompt');
   if (state !== 'playing') { pr.style.display = 'none'; return; }
-  if (P.hiding) { pr.style.display = 'block'; pr.textContent = 'E  사물함에서 나가기'; return; }
+  if (P.hiding) { pr.style.display = 'block'; pr.innerHTML = '<kbd>E</kbd>사물함에서 나가기'; return; }
   target = findInteract();
-  if (target) { pr.style.display = 'block'; pr.textContent = target.raw ? target.label : `E  ${target.label}`; } else pr.style.display = 'none';
+  if (target) { pr.style.display = 'block'; pr.innerHTML = target.raw ? target.label.replace(/\b([EQ]) /g, '<kbd>$1</kbd>') : `<kbd>E</kbd>${target.label}`; } else pr.style.display = 'none';
 }
 
 let last = performance.now();
@@ -946,7 +1312,9 @@ function frame(now) {
     updateCamera(dt, tNow);
   } else if (state === 'intro') {
     updateIntro(dt);
+    if ($('intro').classList.contains('show')) { requestAnimationFrame(frame); return; }   // 검은 화면 텍스트 동안은 3D를 그리지 않는다
   } else if (state === 'menu') {
+    if (MENUS.some(k => $(k).classList.contains('show'))) { requestAnimationFrame(frame); return; }
     camera.position.set(Math.sin(tNow * .1) * 3, 2.2, 74); camera.rotation.set(-.05, Math.sin(tNow * .1) * .1, 0, 'YXZ');
     updateLighting(dt);
   }
@@ -982,12 +1350,12 @@ function useProp(p) {
   } else if (p.kind === 'breaker') {
     p.on = true; p.done = true; power = true; sfx.breaker(); shake = .5; P.noiseT = 2.5;
     toast('전력이 복구되었습니다', '3층 방송실 장비를 쓸 수 있다. 큰 소리가 났다…', 'warn');
-    talk('불이… 들어왔어. 근데 소리가 너무 컸어.', 3200);
+    talk('breaker', 3200); addClue('power'); refreshHud();
     if (ghost.active && ghost.floor === P.floor) { ghost.state = 'search'; ghost.target = { x: P.x, z: P.z }; ghost.wait = 0; ghost.replan = 0; }
   } else if (p.kind === 'tape') {
     sfx.tape(); p.label = '녹음기 다시 재생';
     setTimeout(() => line(p.id, 'radio', '📼 ' + p.spk), 450);
-    if (!docs.find(d => d.id === p.id)) { const info = lineInfo(p.id); docs.push({ id: p.id, title: p.title, text: info ? info.text : '', tape: p.id, spk: '📼 ' + p.spk }); toast('녹음 테이프를 들었습니다', p.title + ' — 문서 탭에서 다시 듣기', 'info'); refreshHud(); }
+    if (!docs.find(d => d.id === p.id)) { addDoc({ id: p.id, kind: 'tape' }); toast('녹음 테이프를 들었습니다', p.title + ' — 소지품 › 문서에서 다시 듣기', 'info'); if (CLUES[p.id]) addClue(p.id); if (p.id === 'tape4' || p.id === 'tape2') unlockOptional(); refreshHud(); }
   } else if (p.kind === 'bell') {
     if (p.cd > 0) { sfx.click(); say('벨이 아직 울리지 않는다…', 1500); return; }
     p.cd = 60; at(p.bx, floors[p.floor].y0 + 1.5, p.bz).bell(); P.noiseT = 1; shake = .25;
@@ -997,13 +1365,43 @@ function useProp(p) {
       ghost.state = 'search'; ghost.target = { x: p.bx, z: p.bz + .8 }; ghost.path = []; ghost.replan = 0; ghost.wait = 0; ghost.lureT = 20; ghost.hunt = null;
     }
   } else if (p.kind === 'console') {
-    if (!power) { sfx.click(); say('전원이 들어오지 않는다. 어딘가의 차단기를 올려야 한다.', 2800); return; }
+    if (!power) { sfx.click(); talk('needPower', 3200); say('전원이 들어오지 않는다. 지하 전기실의 차단기를 올려야 한다.', 2800); return; }
+    if (FL.calm) { say('스피커는 이제 조용하다.', 2000); return; }
+    if (FL.tag) { haneulBroadcast(); return; }
     if (consoleCD > 0) { sfx.buzz(); say(`장비가 과열됐다… (${Math.ceil(consoleCD)}초)`, 2000); return; }
     consoleCD = 90; sfx.broadcast(); setTimeout(() => line('pa1', 'pa'), 800);
     toast('교내 방송', '학교 전체에 소리가 울렸다. 그것이 방송실로 향한다 (25초)', 'warn');
-    talk('지금이야… 여기서 빨리 벗어나야 해.', 3200);
+    talk('lure', 3200); if (FL.opt) setTimeout(() => talk('needTag', 3400), 5200);
     if (ghost.active) { ghost.floor = 2; ghost.x = -24; ghost.z = -5.5; ghost.state = 'search'; ghost.target = { x: -24, z: -5.5 }; ghost.path = []; ghost.lureT = 25; ghost.spawnGrace = 2; ghost.hunt = null; }
+  } else if (p.kind === 'mina') {
+    if (!FL.calm) { talk(p.tried ? 'minaAsleep' : 'minaFound', 3200); p.tried = true; say('숨은 쉬고 있다… 무언가가 아직 그녀를 붙잡고 있다.', 3000); unlockOptional(); return; }
+    p.done = true; FL.mina = true; sfx.paper();
+    line(`mw_${CK()}`, 'none', '민아').then(sec => setTimeout(() => { talk('withMina', 3000); }, (sec + .5) * 1000));
+    fadeOut(mina, 1.2); addClue('mina'); toast('민아를 찾았습니다', '함께 정문으로 — 진 엔딩 조건 달성', 'opt'); refreshHud(); save(true);
   }
+}
+// 진 엔딩 루트: 명찰을 가진 채 방송 → 하늘의 하교 방송 → 그것이 사라진다
+function haneulBroadcast() {
+  FL.calm = true; consoleCD = 999; sfx.broadcast(); shake = .3; voBusy = true; setTimeout(() => { voBusy = false; }, 26000);
+  toast('하교 방송', '3학년 2반 윤하늘의 이름을 불렀다…', 'opt');
+  if (ghost.active) { ghost.state = 'search'; ghost.hunt = null; ghost.lureT = 60; ghost.target = { x: ghost.x, z: ghost.z }; ghost.path = []; }
+  setTimeout(async () => {
+    const sec = await line(`bc_${CK()}`, 'pa', `📢 ${CH().name}`);
+    setTimeout(async () => {
+      ghost.active = false; ghost.enraged = false; ghost.hunt = null;
+      if (P.floor === 2) showApparition(2, -24.6, -3.6, Math.atan2(P.x + 24.6, P.z + 3.6), 5, null);
+      const s2 = await line('ghThanks', 'none', '하늘');
+      setTimeout(() => {
+        talk('calm', 3200); addClue('calm'); refreshHud(); save(true);
+        toast('특별 목표 달성', '그것은 더 이상 쫓아오지 않는다', 'opt');
+        setTimeout(() => talk('findMina', 3400), 4200);
+      }, (s2 + .6) * 1000);
+    }, (sec + .8) * 1000);
+  }, 900);
+}
+function fadeOut(obj, sec) {
+  const ms = []; obj.traverse(o => { if (o.material) { o.material = o.material.clone(); o.material.transparent = true; ms.push(o.material); } });
+  let t = 0; const iv = setInterval(() => { t += .05; ms.forEach(m => { m.opacity = Math.max(0, 1 - t / sec); }); if (t >= sec) { clearInterval(iv); obj.visible = false; } }, 50);
 }
 function renderKeypad() {
   const d = $('kpDisp'); d.textContent = (kpBuf + '____').slice(0, 4).split('').join(' '); d.className = '';
@@ -1016,11 +1414,11 @@ function keypadPress(k) {
 function keypadCheck() {
   if (kpBuf === '1012') {
     $('kpDisp').textContent = 'O P E N'; $('kpDisp').className = 'ok'; sfx.unlock();
-    setTimeout(() => { closeUI(); kpProp.opening = true; kpProp.done = true; kpProp.key.locked = false; kpProp.key.mesh.visible = true; toast('금고가 열렸다', '안에 열쇠 조각이 있다'); talk('10월 12일… 마지막 졸업식 날.', 3000); }, 700);
+    setTimeout(() => { closeUI(); kpProp.opening = true; kpProp.done = true; kpProp.key.locked = false; kpProp.key.mesh.visible = true; toast('금고가 열렸다', '안에 열쇠 조각이 있다'); talk('safeOpen', 3000); addClue('safe'); }, 700);
   } else {
     $('kpDisp').textContent = 'E R R'; $('kpDisp').className = 'err'; sfx.buzz(); kpBuf = '';
     setTimeout(renderKeypad, 700);
-    if (!kpProp.hinted) { kpProp.hinted = true; setTimeout(() => talk('비밀번호… 교무회의록에 힌트가 있었던 것 같은데.', 3000), 900); }
+    if (!kpProp.hinted) { kpProp.hinted = true; setTimeout(() => talk('safeHint', 3000), 900); }
   }
 }
 function keypadKey(e) {
@@ -1046,10 +1444,16 @@ function roomAt(f, x, z) {
   const i = sl.findIndex(c => Math.abs(x - c) < 4); if (i < 0) return null;
   return { type: lay.types[i], name: lay.names[i], cx: sl[i], id: f + ':' + i };
 }
+// 민아의 음성 메시지 — 휴대폰(P) 메시지함에 쌓인다
 function phoneMessage(n) {
-  if (state !== 'playing') return;
-  sfx.phone(); toast('📱 새 메시지 1건', '발신자: 알 수 없음 · 보낸 시각: 10년 전 오늘 23:40', 'info');
-  setTimeout(() => { if (state !== 'playing') return; talk('메시지…? 신호도 안 잡히는데.', 2600); setTimeout(() => line(n === 1 ? 'phone1' : 'phone2', 'phone', '📱 음성 메시지'), 2600); }, 1200);
+  const id = 'phone' + n;
+  if (msgs.some(m => m.id === id) || (n === 3 && FL.calm)) return;
+  if (state !== 'playing' || voBusy) { setTimeout(() => phoneMessage(n), 4000); return; }
+  msgs.push({ id, t: clockText(), read: false }); sfx.phone(); toast('📱 새 메시지 — 민아', '신호가 없는데 메시지가 도착했다 (P: 휴대폰)', 'info');
+  if (CLUES[id]) addClue(id);
+  if (n === 2) unlockOptional();
+  refreshHud();
+  setTimeout(() => { if (state !== 'playing') return; talk('phone', 2600); setTimeout(() => line(id, 'phone', '📱 민아'), 2600); }, 1200);
 }
 function updateEvents(dt) {
   if (consoleCD > 0) consoleCD -= dt;
@@ -1070,13 +1474,13 @@ function updateEvents(dt) {
   // ① 문이 저절로 닫힌다
   if (room && EV.roomT > 3.5 && EV.slamCD <= 0 && P.z < -3) {
     const d = world.doorList.find(o => o.kind === 'slide' && o.floor === f && Math.abs(o.x - room.cx) < .1 && o.target > .5);
-    if (d && Math.random() < .35) { d.target = 0; d.slam = true; sfx.doorBang(0, .9); shake = .45; EV.slamCD = 100 + Math.random() * 80; setTimeout(() => talk('문이… 저절로 닫혔어.', 2400), 500); }
+    if (d && Math.random() < .35) { d.target = 0; d.slam = true; sfx.doorBang(0, .9); shake = .45; EV.slamCD = 100 + Math.random() * 80; setTimeout(() => talk('doorSlam', 2400), 500); }
     else EV.slamCD = 8;
   }
   // ② 음악실 피아노
-  if (room && room.type === 'music') evOnce('piano' + f, () => { sfx.piano(); setTimeout(() => talk('피아노가… 혼자 울리고 있어.', 2800), 1200); });
+  if (room && room.type === 'music') evOnce('piano' + f, () => { sfx.piano(); setTimeout(() => talk('piano', 2800), 1200); });
   // ③ 화장실 칸막이 문이 쾅
-  if (room && room.type === 'toilet' && EV.roomT > 1.4) evOnce('stall', () => { const d = world.doorList.find(o => o.stall && o.floor === f && o.target > .5); if (d) { d.target = 0; d.slam = true; } sfx.doorBang(-.3, 1); shake = .4; setTimeout(() => talk('…누구 있어요?', 2000), 600); });
+  if (room && room.type === 'toilet' && EV.roomT > 1.4) evOnce('stall', () => { const d = world.doorList.find(o => o.stall && o.floor === f && o.target > .5); if (d) { d.target = 0; d.slam = true; } sfx.doorBang(-.3, 1); shake = .4; setTimeout(() => talk('stall', 2000), 600); });
   // ④ 3-3 교실: 뒤를 봐
   const br = world.boardRefs.b33;
   if (br && room && f === br.floor && room.cx === br.cx) {
@@ -1095,67 +1499,152 @@ function updateEvents(dt) {
   }
   // ⑥ 2층 첫 진입: 정전 + 다가오는 발소리
   if (f === 1 && Math.abs(P.z) < 1.4) evOnce('lights1', () => {
-    setTimeout(() => { if (state !== 'playing') return; sfx.lightsOff(); blackout = 4.2; [14, 10, 7, 4.5, 3].forEach((d, i) => setTimeout(() => sfx.ghostStep(d, .4), 700 + i * 550)); setTimeout(() => talk('…방금 그거, 발소리였어?', 2600), 4400); }, 1500);
+    setTimeout(() => { if (state !== 'playing') return; sfx.lightsOff(); blackout = 4.2; [14, 10, 7, 4.5, 3].forEach((d, i) => setTimeout(() => sfx.ghostStep(d, .4), 700 + i * 550)); setTimeout(() => talk('steps', 2600), 4400); }, 1500);
   });
   // ⑦ 체육관 · 수영장 · 급식실 입장
-  if (f === 5) evOnce('gym', () => { sfx.ball(); setTimeout(() => talk('공이… 굴러왔어. 아무도 없는데.', 2800), 2400); });
-  if (f === 6) evOnce('pool', () => { sfx.drip(); setTimeout(() => { sfx.splash(); talk('물이 없는데… 물소리가 나.', 2800); }, 5200); });
+  if (f === 5) evOnce('gym', () => { sfx.ball(); setTimeout(() => talk('ball', 2800), 2400); });
+  if (f === 6) evOnce('pool', () => { sfx.drip(); setTimeout(() => { sfx.splash(); }, 5200); });
   // ⑧ 방송실 도착 시 두 번째 메시지
   if (room && room.type === 'broadcast') evOnce('bcMsg', () => setTimeout(() => phoneMessage(2), 4000));
 }
 
+/* ---------- 이야기 오브젝트: 민아의 캠코더 · 윤하늘의 명찰 · 장비실의 민아 ---------- */
+function storyItem(kind, f, x, y, z, mesh, label, glowColor) {
+  const F = floors[f]; mesh.position.set(x, F.y0 + y, z); mesh.userData.dynamic = true; F.interior.add(mesh);
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: glintTex, color: glowColor, blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, opacity: .55 }));
+  sp.scale.setScalar(.55); sp.position.y = .06; mesh.add(sp);
+  world.items.push({ kind, floor: f, pos: new THREE.Vector3(x, F.y0 + y, z), mesh, taken: false, label });
+}
+{ // 캠코더 (1-1 교실 교탁 위)
+  const g = new THREE.Group(), dark = new THREE.MeshStandardMaterial({ color: 0x1a1b1e, roughness: .45, metalness: .3 });
+  const body = new THREE.Mesh(new THREE.BoxGeometry(.08, .075, .17), dark); body.position.y = .04; g.add(body);
+  const lens = new THREE.Mesh(new THREE.CylinderGeometry(.03, .032, .06, 18).rotateX(Math.PI / 2), new THREE.MeshStandardMaterial({ color: 0x0a0a0c, roughness: .2, metalness: .6 })); lens.position.set(0, .045, -.11); g.add(lens);
+  const glass = new THREE.Mesh(new THREE.CircleGeometry(.024, 18), new THREE.MeshStandardMaterial({ color: 0x2a3a5a, roughness: .05, metalness: .9 })); glass.position.set(0, .045, -.141); glass.rotation.y = Math.PI; g.add(glass);
+  const scr = new THREE.Mesh(new THREE.BoxGeometry(.005, .05, .07), new THREE.MeshBasicMaterial({ color: 0x4a6a8a })); scr.position.set(.045, .045, .0); scr.rotation.y = .5; g.add(scr);
+  const strap = new THREE.Mesh(new THREE.TorusGeometry(.035, .006, 6, 16, Math.PI), dark); strap.position.set(-.042, .06, .02); strap.rotation.y = Math.PI / 2; g.add(strap);
+  const rec = new THREE.Mesh(new THREE.SphereGeometry(.006, 8, 6), new THREE.MeshBasicMaterial({ color: 0xff2020 })); rec.position.set(.02, .08, -.06); g.add(rec);
+  g.rotation.y = .6;
+  storyItem('camcorder', 0, SLOTS[5] + 2.95, .77, -8.5, g, '민아의 캠코더 줍기', 0xffd0a0);
+}
+{ // 윤하늘의 명찰 (지하 펌프실 바닥)
+  const c = document.createElement('canvas'); c.width = 256; c.height = 80; const x = c.getContext('2d');
+  x.fillStyle = '#e9e3d0'; x.fillRect(0, 0, 256, 80); x.fillStyle = '#2a4a7a'; x.fillRect(0, 0, 256, 16); x.fillStyle = 'rgba(120,90,50,.35)'; x.beginPath(); x.ellipse(170, 52, 70, 26, .3, 0, 7); x.fill();
+  x.fillStyle = '#1a1a1a'; x.font = 'bold 34px sans-serif'; x.textAlign = 'center'; x.fillText('3-2 윤하늘', 128, 60);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
+  const g = new THREE.Group();
+  const plate = new THREE.Mesh(new THREE.BoxGeometry(.09, .004, .028), [0, 0, new THREE.MeshStandardMaterial({ map: t, roughness: .5 }), 0, 0, 0].map(m => m || new THREE.MeshStandardMaterial({ color: 0xd8d0b8, roughness: .5 })));
+  g.add(plate); const pin = new THREE.Mesh(new THREE.BoxGeometry(.06, .003, .004), new THREE.MeshStandardMaterial({ color: 0x999999, metalness: .8, roughness: .3 })); pin.position.set(0, -.003, 0); g.add(pin);
+  g.rotation.y = .9;
+  storyItem('nametag', 4, SLOTS[8] - 3, .02, -4.5, g, '명찰 줍기', 0xc8a0ff);
+}
+// 장비실에 주저앉은 민아 (서현고 교복)
+const mina = new THREE.Group();
+{
+  const F = floors[2], navy = new THREE.MeshStandardMaterial({ color: 0x1c2233, roughness: .85 }), shirt = new THREE.MeshStandardMaterial({ color: 0xd8d6cc, roughness: .8 });
+  const skin = new THREE.MeshStandardMaterial({ color: 0xc9a48a, roughness: .7 }), hairM = new THREE.MeshStandardMaterial({ color: 0x17120f, roughness: .6 }), skirt = new THREE.MeshStandardMaterial({ color: 0x3a3440, roughness: .9 });
+  const add = (geo, m, x, y, z, rx = 0, ry = 0, rz = 0) => { const o = new THREE.Mesh(geo, m); o.position.set(x, y, z); o.rotation.set(rx, ry, rz); mina.add(o); return o; };
+  add(new THREE.CylinderGeometry(.2, .24, .16, 14), skirt, 0, .1, .02);
+  [-1, 1].forEach(s => { add(new THREE.CylinderGeometry(.055, .05, .42, 8), skin, s * .09, .1, .3, Math.PI / 2 - .15); add(new THREE.BoxGeometry(.08, .07, .2), new THREE.MeshStandardMaterial({ color: 0x111111, roughness: .6 }), s * .09, .05, .55); });
+  add(new THREE.BoxGeometry(.34, .44, .2), navy, 0, .42, -.04, -.18);
+  add(new THREE.BoxGeometry(.12, .2, .01), shirt, 0, .52, .06, -.18);
+  add(new THREE.CylinderGeometry(.045, .05, .08, 8), skin, 0, .67, -.02);
+  const head = add(new THREE.SphereGeometry(.1, 18, 14), skin, .03, .76, .0, .35, 0, .35); head.scale.set(.9, 1.1, .95);
+  add(new THREE.SphereGeometry(.112, 18, 12, 0, Math.PI * 2, 0, Math.PI * .6), hairM, .03, .79, -.02, -.05, 0, .35);
+  add(new THREE.BoxGeometry(.22, .32, .05), hairM, .06, .62, -.08, .1, 0, .3);
+  [-1, 1].forEach(s => { add(new THREE.CylinderGeometry(.04, .035, .4, 8), navy, s * .2, .36, .06, -.5, 0, s * .15); add(new THREE.SphereGeometry(.035, 8, 6), skin, s * .22, .2, .22); });
+  mina.position.set(-21.65, F.y0, -8.45); mina.userData.dynamic = true; F.interior.add(mina);
+  mina.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+  world.props.push({ kind: 'mina', floor: 2, x: -21.65, z: -7.9, y: .8, label: '민아 깨우기' });
+}
+
 /* ---------- 성능 / 그래픽 품질 ---------- */
 const QUAL = { high: { pr: 1.5, sh: 1024, label: '높음' }, mid: { pr: 1, sh: 512, label: '보통' }, low: { pr: .75, sh: 0, label: '낮음' } };
-let qMode = 'auto', qCur = 'high', perfAcc = 0, perfN = 0, perfWin = 0, fpsShown = 60;
-try { qMode = localStorage.getItem('haegyo_q') || 'auto'; } catch (e) { /* ignore */ }
+let qCur = 'high', perfAcc = 0, perfN = 0, perfWin = 0, fpsShown = 60;
 function applyQuality(q) {
   qCur = q; const c = QUAL[q];
-  renderer.setPixelRatio(Math.min(devicePixelRatio, c.pr)); renderer.setSize(innerWidth, innerHeight); fx.resize(innerWidth, innerHeight, renderer.getPixelRatio()); fx.setQuality(q);
+  renderer.setPixelRatio(Math.min(devicePixelRatio, c.pr) * SET.scale); renderer.setSize(innerWidth, innerHeight); fx.resize(innerWidth, innerHeight, renderer.getPixelRatio()); fx.setQuality(q);
   const sh = c.sh > 0;
   if (sh && flash.shadow.mapSize.x !== c.sh) { flash.shadow.mapSize.set(c.sh, c.sh); if (flash.shadow.map) { flash.shadow.map.dispose(); flash.shadow.map = null; } }
   if (renderer.shadowMap.enabled !== sh || flash.castShadow !== sh) {
     renderer.shadowMap.enabled = sh; flash.castShadow = sh;
     scene.traverse(o => { if (o.material) (Array.isArray(o.material) ? o.material : [o.material]).forEach(m => { m.needsUpdate = true; }); });
   }
-  const sel = $('quality'); if (sel) sel.value = qMode;
 }
 function perfTick(dt) {
   if (state !== 'playing') return;
   perfAcc += dt; perfN++; perfWin += dt;
   if (perfWin >= 2.5) {
     const fps = perfN / perfAcc; fpsShown = fps; perfAcc = 0; perfN = 0; perfWin = 0;
-    if (TEST) $('fps').textContent = `${fps.toFixed(0)} FPS · ${QUAL[qCur].label}`;
-    if (qMode === 'auto' && fps < 38 && qCur !== 'low') { applyQuality(qCur === 'high' ? 'mid' : 'low'); toast('그래픽 품질 자동 조정', `${QUAL[qCur].label}(으)로 낮췄습니다`, 'info'); }
+    $('fps').textContent = `${fps.toFixed(0)} FPS · ${QUAL[qCur].label}`;
+    if (SET.quality === 'auto' && fps < 38 && qCur !== 'low') { applyQuality(qCur === 'high' ? 'mid' : 'low'); toast('그래픽 품질 자동 조정', `${QUAL[qCur].label}(으)로 낮췄습니다`, 'info'); }
   }
 }
-$('quality').addEventListener('change', e => { qMode = e.target.value; try { localStorage.setItem('haegyo_q', qMode); } catch (err) { /* ignore */ } applyQuality(qMode === 'auto' ? 'high' : qMode); });
-applyQuality(qMode === 'auto' ? 'high' : qMode);
+// 설정을 실제 화면 · 조작에 반영
+function applySettings() {
+  renderer.toneMappingExposure = 1.3 * SET.bright;
+  fx.setOpts({ bloom: SET.bloom, grain: SET.grain, glitch: SET.flashReduce ? .2 : 1, flash: SET.flashReduce ? .25 : 1 });
+  $('fps').classList.toggle('on', SET.showFps || TEST); $('hints').style.display = SET.hints ? '' : 'none';
+  document.documentElement.style.setProperty('--subBg', SET.subBg);
+  document.body.classList.toggle('noNames', !SET.subNames);
+  if (state !== 'playing') { camera.fov = SET.fov; camera.updateProjectionMatrix(); }
+}
+applyQuality(SET.quality === 'auto' ? 'high' : SET.quality);
+applySettings();
 // 로딩 중에 모든 공간의 텍스처·셰이더를 미리 준비 (처음 들어가는 곳에서 멈칫하는 문제)
 warmUp(renderer, scene, camera, [...floors.map(f => f.interior), ...floors.map(f => f.shell), world.OUT, ghost.group, appar]);
 const _t3 = performance.now();
 window.__loadTimes = { textures: Math.round(_t1 - _t0), build: Math.round(_t2 - _t1), warmup: Math.round(_t3 - _t2) };
 $('loading').classList.remove('show');
 
-/* ---------- 설정 (음성·자막·볼륨·그래픽) ---------- */
-let settingsFrom = null;
-function openSettings(from) {
-  settingsFrom = from; $(from).classList.remove('show'); $('settings').classList.add('show');
-  $('setVoice').value = VS.mode; $('setSubs').checked = VS.subs; $('setNotes').checked = VS.readNotes; $('setSubSize').value = String(VS.subSize);
-  $('setVoice').querySelector('[value=browser]').disabled = !hasBrowserVoice();
+/* ---------- 설정 화면 ---------- */
+let settingsFrom = null, setTab = 'gfx';
+function showSetTab(t) { setTab = t; document.querySelectorAll('#setTabs button').forEach(b => b.classList.toggle('on', b.dataset.s === t)); document.querySelectorAll('.setPage').forEach(p => p.classList.toggle('on', p.dataset.s === t)); }
+function fillSettings() {
+  $('setScreen').value = document.fullscreenElement ? 'full' : 'win';
+  $('quality2').value = SET.quality; $('setScale').value = SET.scale * 100; $('setBright').value = SET.bright * 100; $('setFov').value = SET.fov;
+  $('setBloom').checked = SET.bloom; $('setGrain').checked = SET.grain; $('setBob').checked = SET.bob; $('setShake').checked = SET.shake; $('setFps').checked = SET.showFps;
   const v = getVolumes(); ['master', 'sfx', 'voice', 'amb', 'music'].forEach(k => { $('vol_' + k).value = Math.round(v[k] * 100); });
-  $('quality2').value = qMode;
+  $('setSens').value = SET.sens * 100; $('setInvY').checked = SET.invertY; $('setRun').value = SET.runToggle ? 'toggle' : 'hold'; $('setHints').checked = SET.hints;
+  $('setVoice').value = VS.mode; $('setVoice').querySelector('[value=browser]').disabled = !hasBrowserVoice();
+  $('setSubs').checked = VS.subs; $('setNotes').checked = VS.readNotes; $('setSubSize').value = String(VS.subSize); $('setNames').checked = SET.subNames; $('setSubBg').value = SET.subBg * 100;
+  $('setDiff').value = SET.diff; $('setJump').value = SET.jump; $('setFlash').checked = SET.flashReduce; $('setFearFx').checked = SET.fearFx;
+  vals();
 }
-$('settingsClose').onclick = () => { $('settings').classList.remove('show'); $(settingsFrom || 'menu').classList.add('show'); };
-$('setBtn').onclick = () => openSettings('menu');
+function vals() {
+  $('vScale').textContent = Math.round(SET.scale * 100) + '%'; $('vBright').textContent = Math.round(SET.bright * 100) + '%'; $('vFov').textContent = SET.fov + '°';
+  $('vSens').textContent = SET.sens.toFixed(2) + '×'; $('vSubBg').textContent = Math.round(SET.subBg * 100) + '%';
+}
+function openSettings(from) {
+  settingsFrom = from; if (from === 'pause') $('pause').classList.remove('show');
+  fillSettings(); showSetTab(setTab); $('settings').classList.add('show');
+}
+function closeSettings() { $('settings').classList.remove('show'); if (settingsFrom === 'pause') $('pause').classList.add('show'); }
+$('settingsClose').onclick = $('settingsClose2').onclick = closeSettings;
+document.querySelectorAll('#setTabs button').forEach(b => { b.onclick = () => showSetTab(b.dataset.s); });
 $('setBtn2').onclick = () => openSettings('pause');
+const setS = (k, v) => { SET[k] = v; saveSET(); applySettings(); vals(); };
+$('setScreen').onchange = e => { try { if (e.target.value === 'full') document.documentElement.requestFullscreen(); else if (document.fullscreenElement) document.exitFullscreen(); } catch (err) { /* ignore */ } };
+$('quality2').onchange = e => { setS('quality', e.target.value); applyQuality(SET.quality === 'auto' ? 'high' : SET.quality); };
+$('setScale').oninput = e => { setS('scale', e.target.value / 100); };
+$('setScale').onchange = () => applyQuality(qCur);
+$('setBright').oninput = e => setS('bright', e.target.value / 100);
+$('setFov').oninput = e => setS('fov', +e.target.value);
+$('setBloom').onchange = e => setS('bloom', e.target.checked); $('setGrain').onchange = e => setS('grain', e.target.checked);
+$('setBob').onchange = e => setS('bob', e.target.checked); $('setShake').onchange = e => setS('shake', e.target.checked); $('setFps').onchange = e => setS('showFps', e.target.checked);
+['master', 'sfx', 'voice', 'amb', 'music'].forEach(k => { $('vol_' + k).oninput = e => { setVolumes({ [k]: e.target.value / 100 }); }; });
+$('vol_voice').onchange = () => speak(`l_heal_${CK()}`);
+$('vol_sfx').onchange = () => sfx.doorBang(0, .6);
+$('setSens').oninput = e => setS('sens', e.target.value / 100); $('setInvY').onchange = e => setS('invertY', e.target.checked);
+$('setRun').onchange = e => setS('runToggle', e.target.value === 'toggle'); $('setHints').onchange = e => setS('hints', e.target.checked);
 $('setVoice').onchange = e => { VS.mode = e.target.value; saveVS(); stopSpeak(); speak('intro1'); };
 $('setSubs').onchange = e => { VS.subs = e.target.checked; saveVS(); };
 $('setNotes').onchange = e => { VS.readNotes = e.target.checked; saveVS(); };
 $('setSubSize').onchange = e => { VS.subSize = +e.target.value; saveVS(); subtitle('미리보기', '자막 크기가 이렇게 보입니다.', 2.5); };
-['master', 'sfx', 'voice', 'amb', 'music'].forEach(k => { $('vol_' + k).oninput = e => { setVolumes({ [k]: e.target.value / 100 }); }; });
-$('vol_voice').onchange = () => speak(voiceIdFor('조금 낫네… 계속 가자.'));
-$('vol_sfx').onchange = () => sfx.doorBang(0, .6);
-$('quality2').onchange = e => { $('quality').value = e.target.value; $('quality').dispatchEvent(new Event('change')); };
+$('setNames').onchange = e => { setS('subNames', e.target.checked); subtitle('미리보기', '화자 이름 표시', 2); };
+$('setSubBg').oninput = e => { setS('subBg', e.target.value / 100); subtitle('미리보기', '자막 배경 진하기', 1.5); };
+$('setDiff').onchange = e => setS('diff', e.target.value); $('setJump').onchange = e => setS('jump', e.target.value);
+$('setFlash').onchange = e => setS('flashReduce', e.target.checked); $('setFearFx').onchange = e => setS('fearFx', e.target.checked);
+$('setReset').onclick = () => { resetSET(); setVolumes({ master: 1, sfx: 1, voice: 1, amb: 1, music: 1 }); VS.mode = 'file'; VS.subs = true; VS.readNotes = true; VS.subSize = 1; saveVS(); applySettings(); applyQuality(SET.quality === 'auto' ? 'high' : SET.quality); fillSettings(); toast('설정', '기본값으로 되돌렸습니다', 'info'); };
 document.querySelectorAll('.btn').forEach(b => b.addEventListener('mouseenter', () => sfx.ui()));
 
 /* ---------- 테스트 모드 (?test) ---------- */
@@ -1167,6 +1656,7 @@ const TP = [
   ['수영장', { floor: 6, x: -35.5, z: 38, yaw: Math.PI / 2 }], ['급식실', { floor: 7, x: -39, z: 20.5, yaw: 0 }],
   ['별관 1F', { floor: 8, x: 0, z: .2, yaw: -Math.PI / 2 }], ['별관 2F', { floor: 9, x: 0, z: 0, yaw: -Math.PI / 2 }],
   ['별관 3F', { floor: 10, x: 0, z: 0, yaw: -Math.PI / 2 }], ['서문 앞', { floor: 0, x: -46.5, z: 32, yaw: Math.PI / 2 }],
+  ['1-1 교실 (캠코더)', { floor: 0, x: 8, z: -3, yaw: 0 }], ['B1 펌프실 (명찰)', { floor: 4, x: 32, z: -3, yaw: 0 }], ['방송실 장비실 (민아)', { floor: 2, x: -21.4, z: -5.0, yaw: 0 }],
   ['교무실 금고', { floor: 0, x: -10.4, z: -8.0, yaw: Math.PI / 2 }], ['보건실 녹음기', { floor: 0, x: -26.4, z: -4.6, yaw: Math.PI / 2 }], ['B1 전기실', { floor: 4, x: -16, z: -4, yaw: Math.PI / 2 }], ['3-3 교실', { floor: 2, x: -8, z: -3, yaw: 0 }], ['음악실', { floor: 2, x: 32, z: -3, yaw: 0 }],
 ];
 function testAct(fn) { closeUI(); setTimeout(fn, 60); }
@@ -1178,27 +1668,34 @@ function renderTest() {
   ac.appendChild(b(`유령 ${TST.noGhost ? 'OFF' : 'ON'}`, !TST.noGhost, () => { TST.noGhost = !TST.noGhost; if (TST.noGhost) { ghost.active = false; ghost.hunt = null; } renderTest(); }));
   ac.appendChild(b('유령 바로 깨우기', false, () => testAct(() => { TST.noGhost = false; ghost.active = true; ghostRelocate(); toast('테스트', '유령을 현재 층으로 불렀습니다.', 'warn'); })));
   ac.appendChild(b('열쇠 조각 모두 획득', false, () => testAct(() => { world.items.filter(i => i.kind === 'key').forEach(i => { i.taken = true; i.mesh.visible = false; got[i.idx] = true; }); P.keys = TOTAL; refreshHud(); toast('테스트', `열쇠 ${TOTAL}/${TOTAL} — 정문·서문·비상 통로가 열립니다.`, 'info'); })));
+  ac.appendChild(b('정문 열쇠 조합', false, () => testAct(() => { if (P.keys < TOTAL) { world.items.filter(i => i.kind === 'key').forEach(i => { i.taken = true; i.mesh.visible = false; got[i.idx] = true; }); P.keys = TOTAL; } makeGateKey(); })));
+  ac.appendChild(b('특별 목표 준비 (명찰+전력)', false, () => testAct(() => { const t = world.items.find(i => i.kind === 'nametag'); if (t && !t.taken) { t.taken = true; t.mesh.visible = false; } FL.tag = true; FL.opt = true; power = true; world.props.forEach(p => { if (p.kind === 'breaker') { p.on = true; p.done = true; } }); refreshHud(); toast('테스트', '명찰 획득 · 전력 복구 — 방송실에서 하교 방송', 'opt'); })));
   ac.appendChild(b('최종 추격 시작', false, () => testAct(() => enrage())));
   ac.appendChild(b('보급품 채우기', false, () => testAct(() => { P.hp = 100; P.battery = 100; P.stamina = 100; inv.battery = 5; inv.medkit = 5; refreshHud(); toast('테스트', 'HP·배터리·건전지·응급 밴드 보충', 'info'); })));
   ac.appendChild(b('모든 문 열기', false, () => testAct(() => world.doorList.forEach(d => { d.target = 1; }))));
   ac.appendChild(b('전력 복구', false, () => testAct(() => { power = true; world.props.forEach(p => { if (p.kind === 'breaker') { p.on = true; p.done = true; } }); toast('테스트', '전력 복구', 'info'); })));
-  ac.appendChild(b('모든 문서 획득', false, () => testAct(() => { world.items.filter(i => i.kind === 'note' && !i.taken).forEach(i => { i.taken = true; i.mesh.visible = false; docs.push({ id: i.id, title: i.title, text: i.text }); }); refreshHud(); toast('테스트', `문서 ${docs.length}개`, 'info'); })));
+  ac.appendChild(b('모든 문서 획득', false, () => testAct(() => { world.items.filter(i => i.kind === 'note' && !i.taken).forEach(i => { i.taken = true; i.mesh.visible = false; addDoc({ id: i.id, kind: 'note' }); if (CLUES[i.id]) addClue(i.id); }); refreshHud(); toast('테스트', `문서 ${docs.length}개`, 'info'); })));
   $('testInfo').textContent = `현재: ${AREA_NAMES[P.floor]} (${P.x.toFixed(1)}, ${P.z.toFixed(1)})  ·  열쇠 ${P.keys}/${TOTAL}  ·  유령 ${ghost.active ? AREA_NAMES[ghost.floor] + ' / ' + ghost.state : '비활성'}`;
 }
 function openTest() { if (state !== 'playing') return; openUI('testOv'); renderTest(); }
 if (TEST) {
   document.body.classList.add('test');
   $('testBadge').style.display = 'block';
-  $('menuTest').style.display = 'block'; $('testLink').style.display = 'none';
+  $('tTest').style.display = 'block'; $('testLink').style.display = 'none';
 }
+// 시작: 타이틀 표시 (재시도 · 처음부터는 바로 이어서)
+applyChar(); refreshTitle();
+{ let auto = null; try { auto = sessionStorage.getItem('haegyo_auto'); sessionStorage.removeItem('haegyo_auto'); } catch (e) { /* ignore */ }
+  if (auto === 'continue' && hasSave()) { closeMenus(); continueGame(); } else if (auto === 'new') { closeMenus(); newGame(); } }
 
 if (DEBUG) {
   window.__g = {
     P, ghost, floors, world, scene, camera, renderer, start: () => start(true),
     tp(x, z, f = 0, yaw = 0, pitch = 0) { P.x = x; P.z = z; P.floor = f; P.yaw = yaw; P.pitch = pitch; },
     give() { world.items.filter(i => i.kind === 'key').forEach(i => { i.taken = true; i.mesh.visible = false; got[i.idx] = true; }); P.keys = TOTAL; refreshHud(); },
-    get state() { return state; }, set state(v) { state = v; }, get tNow() { return tNow; }, openTest, EV, appar, applyQuality, get power() { return power; },
-    interact, die, activateGhost, enrage,
+    get state() { return state; }, set state(v) { state = v; }, get tNow() { return tNow; }, openTest, EV, appar, applyQuality,
+    interact, die, activateGhost, enrage, FL, docs, msgs, clues, objective, makeGateKey, openInv, openPhone, openMap, openCharsel, openSettings, refreshHud, save, load, inv, mina,
+    get power() { return power; }, set power(v) { power = v; }, get CHAR() { return CHAR; }, newGame, continueGame,
     setTarget(t) { target = t; },
   };
 }

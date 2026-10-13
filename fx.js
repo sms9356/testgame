@@ -118,6 +118,22 @@ export function createFX(renderer, scene, camera) {
   });
   const rain = new THREE.LineSegments(rainG, rainM); rain.frustumCulled = false; scene.add(rain);
 
+  /* ----- 벚꽃잎 (정문 근처) ----- */
+  const PN = 500, ppos = new Float32Array(PN * 3), pseed = new Float32Array(PN);
+  for (let i = 0; i < PN; i++) { ppos[i * 3] = Math.random() * 44 - 22; ppos[i * 3 + 1] = Math.random() * 9; ppos[i * 3 + 2] = Math.random() * 24 + 52; pseed[i] = Math.random(); }
+  const petG = new THREE.BufferGeometry(); petG.setAttribute('position', new THREE.BufferAttribute(ppos, 3)); petG.setAttribute('seed', new THREE.BufferAttribute(pseed, 1));
+  const petM = new THREE.ShaderMaterial({
+    uniforms: { uTime: { value: 0 }, uA: { value: 0 } },
+    vertexShader: `attribute float seed; uniform float uTime; varying float vS;
+      void main(){ vec3 p = position; float t = uTime * (.25 + seed * .2);
+        p.y = mod(p.y - t * 1.4, 9.0); p.x += sin(t * 2.0 + seed * 30.0) * 1.2 + t * .4; p.z += cos(t * 1.3 + seed * 20.0) * .8;
+        p.x = mod(p.x + 22.0, 44.0) - 22.0; vS = seed;
+        vec4 mv = modelViewMatrix * vec4(p, 1.0); gl_Position = projectionMatrix * mv; gl_PointSize = clamp(60.0 / -mv.z, 1.0, 6.0); }`,
+    fragmentShader: `uniform float uA; varying float vS; void main(){ vec2 c = gl_PointCoord - .5; float d = length(c * vec2(1.0, 1.8)); gl_FragColor = vec4(vec3(1.0, .72, .82) * (.6 + vS * .4) * uA * smoothstep(.5, .2, d), 1.0); }`,
+    transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+  });
+  const petals = new THREE.Points(petG, petM); petals.frustumCulled = false; scene.add(petals);
+
   /* ----- 전기 불꽃 ----- */
   const SN = 90, spos = new Float32Array(SN * 3), svel = new Float32Array(SN * 3), slife = new Float32Array(SN);
   const sparkG = new THREE.BufferGeometry(); sparkG.setAttribute('position', new THREE.BufferAttribute(spos, 3)); sparkG.setAttribute('life', new THREE.BufferAttribute(slife, 1));
@@ -136,18 +152,20 @@ export function createFX(renderer, scene, camera) {
   }
 
   let flashT = 0, glitchT = 0;
+  const opt = { bloom: true, grain: true, glitch: 1, flash: 1 };   // 설정 · 접근성
+  function setOpts(o) { Object.assign(opt, o); bloom.enabled = mode === 'high' && opt.bloom; final.uniforms.uGrain.value = opt.grain ? .035 : 0; }
   function lightning() { flashT = 1; }
-  function glitch(s = .6) { glitchT = Math.max(glitchT, s); }
-  function setQuality(q) { mode = q; bloom.enabled = q === 'high'; dust.visible = q !== 'low'; }
+  function glitch(s = .6) { glitchT = Math.max(glitchT, s * opt.glitch); }
+  function setQuality(q) { mode = q; bloom.enabled = q === 'high' && opt.bloom; dust.visible = q !== 'low'; }
   function resize(w, h, pr) { composer.setPixelRatio(pr); composer.setSize(w, h); bloom.setSize(w / 2, h / 2); }
 
   const _dir = new THREE.Vector3();
   function render(dt, c) {
     const u = final.uniforms;
     u.uTime.value += dt; u.uFear.value = c.fear; u.uHurt.value = c.hurt || 0;
-    glitchT = Math.max(0, glitchT - dt); u.uGlitch.value = Math.min(1, glitchT + (c.fear > .75 ? (c.fear - .75) * 1.2 : 0));
+    glitchT = Math.max(0, glitchT - dt); u.uGlitch.value = Math.min(1, glitchT + (c.fear > .75 ? (c.fear - .75) * 1.2 * opt.glitch : 0));
     flashT = Math.max(0, flashT - dt * 3.2);
-    u.uFlash.value = flashT > 0 ? (Math.sin(flashT * 40) > 0 ? flashT : flashT * .3) * (c.outdoors ? .9 : .25) : 0;
+    u.uFlash.value = flashT > 0 ? (Math.sin(flashT * 40) > 0 ? flashT : flashT * .3) * (c.outdoors ? .9 : .25) * opt.flash : 0;
     renderer.getSize(size); u.uRes.value.set(size.x, size.y);
     // 손전등 광선 & 먼지
     coneM.uniforms.uTime.value += dt;
@@ -161,6 +179,7 @@ export function createFX(renderer, scene, camera) {
     rainM.uniforms.uTime.value += dt; rainM.uniforms.uCam.value.copy(camera.position);
     rainM.uniforms.uA.value += ((c.outdoors ? .32 : 0) - rainM.uniforms.uA.value) * Math.min(1, dt * 3);
     rain.visible = rainM.uniforms.uA.value > .01;
+    petM.uniforms.uTime.value += dt; petM.uniforms.uA.value += (((c.outdoors && camera.position.z > 35 && camera.position.y < 20) ? .55 : 0) - petM.uniforms.uA.value) * Math.min(1, dt * 2); petals.visible = petM.uniforms.uA.value > .01;
     // 불꽃
     let any = false;
     for (let i = 0; i < SN; i++) if (slife[i] > 0) {
@@ -172,5 +191,5 @@ export function createFX(renderer, scene, camera) {
     sparks.visible = any;
     if (mode === 'low') renderer.render(scene, camera); else composer.render(dt);
   }
-  return { render, setQuality, resize, lightning, glitch, spark, composer, cone };
+  return { render, setQuality, setOpts, resize, lightning, glitch, spark, composer, cone };
 }

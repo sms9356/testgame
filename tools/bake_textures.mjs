@@ -8,12 +8,15 @@ const exe = process.argv[3];
 const ROOT = path.dirname(path.dirname(new URL(import.meta.url).pathname));
 const b = await pw.chromium.launch({ executablePath: exe, args: ['--no-sandbox'] });
 const p = await b.newPage();
-await p.goto('http://localhost:8765/index.html?nostart');
+await p.goto('http://localhost:8765/index.html?nostart' + (process.argv[4] ? '&only=' + process.argv[4] : ''));
 const out = await p.evaluate(async () => {
   const T = await import('./tex.js');
-  const jobs = { wall: () => T.pbrWall(1024), tile: () => T.pbrTile(1024), wood: () => T.pbrWood(1024), ceil: () => T.pbrCeiling(1024), step: () => T.pbrConcrete(512), base: () => T.pbrConcrete(1024, [104, 110, 102]) };
-  const res = {};
+  const jobs = { wall: () => T.pbrWall(2048), tile: () => T.pbrTile(2048), wood: () => T.pbrWood(2048), ceil: () => T.pbrCeiling(1024), step: () => T.pbrConcrete(512), base: () => T.pbrConcrete(1024, [104, 110, 102]),
+    varnish: () => T.pbrVarnish(1024), varnishDark: () => T.pbrVarnish(1024, [92, 58, 34]), paint: () => T.pbrPaintMetal(1024, [118, 126, 122]), locker: () => T.pbrPaintMetal(1024, [92, 116, 128]),
+    rust: () => T.pbrPaintMetal(512, [120, 72, 44]), door: () => T.pbrDoor(1024), brick: () => T.pbrBrick(1024), facade: () => T.pbrFacade(1024), dirt: () => T.pbrDirt(1024), track: () => T.pbrTrack(1024) };
+  const res = {}, only = new URLSearchParams(location.search).get('only');
   for (const [k, f] of Object.entries(jobs)) {
+    if (only && !only.split(',').includes(k)) continue;
     const t = f();
     res[k] = { map: t.map.image.toDataURL('image/webp', .9), normal: t.normalMap.image.toDataURL('image/webp', .92), rough: t.roughnessMap.image.toDataURL('image/webp', .85) };
   }

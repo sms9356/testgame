@@ -9,6 +9,8 @@ const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const lerp = (a, b, t) => a + (b - a) * t;
 const params = new URLSearchParams(location.search);
 const DEBUG = params.has('debug');
+const TEST = params.has('test');
+const TST = { god: false, noGhost: false };
 
 /* ---------- 렌더러 / 씬 ---------- */
 const canvas = $('c');
@@ -302,7 +304,7 @@ function renderInv() {
   }
 }
 function openUI(kind) { if (state !== 'playing') return; uiPrev = state; state = 'ui'; for (const k in keys) keys[k] = false; $('prompt').style.display = 'none'; $(kind).classList.add('show'); document.exitPointerLock?.(); }
-function closeUI() { if (state !== 'ui') return; $('inv').classList.remove('show'); $('mapOv').classList.remove('show'); state = 'playing'; refreshHud(); lock(); }
+function closeUI() { if (state !== 'ui') return; $('inv').classList.remove('show'); $('mapOv').classList.remove('show'); $('testOv').classList.remove('show'); state = 'playing'; refreshHud(); lock(); }
 function openInv(tab = 'items') { if (state !== 'playing') return; invTab = tab; invSel = 0; openUI('inv'); renderInv(); }
 function openMap() { if (state !== 'playing') return; mapFloor = P.floor; openUI('mapOv'); renderMap(); }
 function mapPins(f) { return KEY_ROOMS.map((r, i) => ({ ...r, i })).filter(r => r.f === f).map(r => ({ x: r.x, z: r.z, done: got[r.i] })); }
@@ -326,6 +328,7 @@ function useMedkit() {
   inv.medkit--; P.hp = Math.min(100, P.hp + 50); sfx.paper(); toast('응급 밴드를 사용했습니다', '체력 +50', 'info'); talk('조금 낫네… 계속 가자.', 2400); refreshHud(); return true;
 }
 function hit() {
+  if (TEST && TST.god) return;
   if (P.invuln > 0 || state !== 'playing') return;
   const G = ghost;
   P.hp -= 50; P.invuln = 3.5; shake = 1;
@@ -412,11 +415,12 @@ function readNote(it) {
   showNote(it);
 }
 function activateGhost() {
-  if (ghost.active) return;
+  if (ghost.active || (TEST && TST.noGhost)) return;
   ghost.active = true; ghost.floor = P.floor === 2 ? 1 : 2; ghost.x = 20; ghost.z = 0; ghost.state = 'patrol'; ghost.path = []; ghost.wait = 2;
   sfx.bang(0, .9); setTimeout(() => talk('방금… 위층에서 소리가 났어.', 3500), 900);
 }
 function enrage() {
+  if (TEST && TST.noGhost) { blackout = 2; toast('테스트', '유령이 꺼져 있어 최종 추격은 생략됩니다.', 'info'); return; }
   ghost.active = true; ghost.enraged = true; blackout = 3.2;
   setTimeout(() => { ghostRelocate(); ghost.floor = P.floor; sfx.screech(); toast('목표가 갱신되었습니다', '정문으로 달려가라!', 'warn'); talk('그게… 깨어났어. 정문으로 뛰어!', 4000); }, 2600);
 }
@@ -497,13 +501,14 @@ addEventListener('keydown', e => {
   keys[e.code] = true;
   if (state === 'note' && (e.code === 'KeyE' || e.code === 'Escape' || e.code === 'Space')) { closeNote(); return; }
   if (state === 'ui') {
-    if (e.code === 'Tab' || e.code === 'Escape' || e.code === 'KeyI' || e.code === 'KeyM') closeUI();
+    if (e.code === 'Tab' || e.code === 'Escape' || e.code === 'KeyI' || e.code === 'KeyM' || e.code === 'KeyT') closeUI();
     else if ($('inv').classList.contains('show') && (e.code === 'KeyQ' || e.code === 'KeyE')) { invTab = TABS[(TABS.indexOf(invTab) + (e.code === 'KeyE' ? 1 : 2)) % 3]; invSel = 0; renderInv(); }
     return;
   }
   if (state !== 'playing') return;
   if (e.code === 'Tab' || e.code === 'KeyI') { openInv(); return; }
   if (e.code === 'KeyM') { openMap(); return; }
+  if (TEST && e.code === 'KeyT') { openTest(); return; }
   if (e.code === 'Digit1' || e.code === 'KeyF') { P.light = !P.light; sfx.click(); }
   if (e.code === 'Digit2') useBattery();
   if (e.code === 'Digit3') useMedkit();
@@ -723,12 +728,44 @@ function frame(now) {
 }
 requestAnimationFrame(frame);
 
+
+/* ---------- 테스트 모드 (?test) ---------- */
+const TP = [
+  ['정문 앞 (도로)', { floor: 0, x: 0, z: 76, yaw: 0 }], ['운동장 · 본관 현관', { floor: 0, x: 0, z: 4, yaw: 0 }],
+  ['본관 1F 복도', { floor: 0, x: 0, z: 0, yaw: -Math.PI / 2 }], ['본관 2F 복도', { floor: 1, x: 0, z: 0, yaw: -Math.PI / 2 }],
+  ['본관 3F (방송실 앞)', { floor: 2, x: -24, z: 0, yaw: 0 }], ['옥상', { floor: 3, x: 0, z: -7.5, yaw: 0 }],
+  ['지하 B1', { floor: 4, x: 0, z: 0, yaw: -Math.PI / 2 }], ['체육관', { floor: 5, x: 38, z: 28.1, yaw: 0 }],
+  ['수영장', { floor: 6, x: -35.5, z: 38, yaw: Math.PI / 2 }], ['급식실', { floor: 7, x: -39, z: 20.5, yaw: 0 }],
+  ['별관 1F', { floor: 8, x: 0, z: .2, yaw: -Math.PI / 2 }], ['별관 2F', { floor: 9, x: 0, z: 0, yaw: -Math.PI / 2 }],
+  ['별관 3F', { floor: 10, x: 0, z: 0, yaw: -Math.PI / 2 }], ['서문 앞', { floor: 0, x: -46.5, z: 32, yaw: Math.PI / 2 }],
+];
+function testAct(fn) { closeUI(); setTimeout(fn, 60); }
+function renderTest() {
+  const b = (label, on, fn) => { const el = document.createElement('button'); el.textContent = label; if (on) el.classList.add('on'); el.onclick = fn; return el; };
+  const tp = $('testTp'), ac = $('testAct'); tp.innerHTML = ''; ac.innerHTML = '';
+  TP.forEach(([n, to]) => tp.appendChild(b(n, false, () => testAct(() => { if (!gateClosed && to.z < GATE_Z - 3) { gateClosed = true; gateState = 'closed'; gateAnim = 1; gate.setOpen(0); } teleport(to); }))));
+  ac.appendChild(b(`무적 ${TST.god ? 'ON' : 'OFF'}`, TST.god, () => { TST.god = !TST.god; renderTest(); }));
+  ac.appendChild(b(`유령 ${TST.noGhost ? 'OFF' : 'ON'}`, !TST.noGhost, () => { TST.noGhost = !TST.noGhost; if (TST.noGhost) { ghost.active = false; ghost.hunt = null; } renderTest(); }));
+  ac.appendChild(b('유령 바로 깨우기', false, () => testAct(() => { TST.noGhost = false; ghost.active = true; ghostRelocate(); toast('테스트', '유령을 현재 층으로 불렀습니다.', 'warn'); })));
+  ac.appendChild(b('열쇠 조각 모두 획득', false, () => testAct(() => { world.items.filter(i => i.kind === 'key').forEach(i => { i.taken = true; i.mesh.visible = false; got[i.idx] = true; }); P.keys = TOTAL; refreshHud(); toast('테스트', `열쇠 ${TOTAL}/${TOTAL} — 정문·서문·비상 통로가 열립니다.`, 'info'); })));
+  ac.appendChild(b('최종 추격 시작', false, () => testAct(() => enrage())));
+  ac.appendChild(b('보급품 채우기', false, () => testAct(() => { P.hp = 100; P.battery = 100; P.stamina = 100; inv.battery = 5; inv.medkit = 5; refreshHud(); toast('테스트', 'HP·배터리·건전지·응급 밴드 보충', 'info'); })));
+  ac.appendChild(b('모든 문서 획득', false, () => testAct(() => { world.items.filter(i => i.kind === 'note' && !i.taken).forEach(i => { i.taken = true; i.mesh.visible = false; docs.push({ id: i.id, title: i.title, text: i.text }); }); refreshHud(); toast('테스트', `문서 ${docs.length}개`, 'info'); })));
+  $('testInfo').textContent = `현재: ${AREA_NAMES[P.floor]} (${P.x.toFixed(1)}, ${P.z.toFixed(1)})  ·  열쇠 ${P.keys}/${TOTAL}  ·  유령 ${ghost.active ? AREA_NAMES[ghost.floor] + ' / ' + ghost.state : '비활성'}`;
+}
+function openTest() { if (state !== 'playing') return; openUI('testOv'); renderTest(); }
+if (TEST) {
+  document.body.classList.add('test');
+  $('testBadge').style.display = 'block';
+  $('menuTest').style.display = 'block'; $('testLink').style.display = 'none';
+}
+
 if (DEBUG) {
   window.__g = {
     P, ghost, floors, world, scene, camera, start,
     tp(x, z, f = 0, yaw = 0, pitch = 0) { P.x = x; P.z = z; P.floor = f; P.yaw = yaw; P.pitch = pitch; },
     give() { world.items.filter(i => i.kind === 'key').forEach(i => { i.taken = true; i.mesh.visible = false; got[i.idx] = true; }); P.keys = TOTAL; refreshHud(); },
-    get state() { return state; }, set state(v) { state = v; },
+    get state() { return state; }, set state(v) { state = v; }, openTest,
     interact, die, activateGhost, enrage,
     setTarget(t) { target = t; },
   };

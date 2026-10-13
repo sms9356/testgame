@@ -229,6 +229,13 @@
   .pPhotos img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:6px;cursor:pointer;filter:sepia(.3)}
   .memo{font-size:13px;line-height:1.7;padding:8px 10px;border-bottom:1px solid #20262c;color:#ccd}
   .memo:before{content:'✎ ';color:#d86a7a}
+  .pTabs button.dot{position:relative}.pTabs button.dot:after{content:'';position:absolute;right:6px;top:5px;width:7px;height:7px;border-radius:50%;background:#e05050}
+  .tlHead{font-size:12px;color:#99a;margin:2px 4px 8px}.tlHead b{color:#e8d8a8}
+  .tl{display:flex;gap:10px;padding:8px 6px;border-left:2px solid #4a5a6a;margin-left:6px;font-size:12.5px;line-height:1.6;color:#dde}
+  .tl b{flex:none;width:52px;color:#8cc0e8;font-weight:400}.tl.unk{color:#556;border-color:#2a3038}.tl.unk b{color:#445}
+  .tl.cf{border-color:#d07040}.tl em{display:block;font-style:normal;color:#ff9a6a;font-size:11px}
+  .tlEnd{margin:10px 6px;padding:8px;border:1px solid #6a5a3a;color:#e8d8a8;font-size:12.5px;line-height:1.6}
+  .epi{display:inline-block;font-size:13px;color:#a8a294;line-height:1.8;border-left:2px solid #6a5a3a;padding-left:10px;text-align:left}
   .pEmpty{color:#667;font-size:13px;text-align:center;margin-top:40px}
   .pHint{text-align:center;font-size:11px;color:#556;margin-top:6px}
 
@@ -359,6 +366,33 @@
   .slideBox{display:grid;grid-template-columns:repeat(3,120px);grid-template-rows:repeat(3,90px);gap:3px;background:#000;padding:3px;border:1px solid #4a545c}
   .sl{background-size:300% 300%;cursor:pointer;filter:sepia(.4)}
   .sl.empty{background:#0a0d10;cursor:default}
+  .tapeBox{display:flex;flex-direction:column;gap:6px;width:100%}
+  .tape{display:grid;grid-template-columns:22px 90px 1fr auto auto;gap:10px;align-items:center;padding:8px 10px;background:#151a20;border:1px solid #2c3640;cursor:pointer;text-align:left;font-size:12.5px;color:#d8d4c8;line-height:1.5}
+  .tape:hover{border-color:#5a6a78}.tape.pick{border-color:#e0b84a;box-shadow:0 0 10px rgba(224,184,74,.4)}
+  .tape em{font-style:normal;color:#8d897d}.tape b{color:#8cc0e8;font-weight:400;font-size:11px}
+  .tape .wv{display:flex;align-items:center;gap:2px;height:30px}.tape .wv i{width:2px;background:#5a9a7a;display:block}
+  .tape button{background:#1e2a36;border:1px solid #4a6078;color:#d8d4c8;cursor:pointer;padding:3px 8px}
+  #keyRemap{display:grid;grid-template-columns:150px 1fr 150px 1fr;gap:6px 12px;align-items:center;font-size:13px;color:#cfc9b8}
+  #keyRemap button{background:#151c22;border:1px solid #3a4650;color:var(--ink);padding:5px 8px;cursor:pointer;font-family:inherit}
+  #keyRemap button.wait{border-color:#e0b84a;color:#ffd060}
+  :root{--ui:1}
+  #hud > *, .overlay > .win, #tip{zoom:var(--ui)}
+  #tip{position:absolute;left:20px;bottom:106px;max-width:420px;padding:9px 14px;font-size:13px;line-height:1.6;background:rgba(10,14,20,.88);border:1px solid #5a7a9a;border-left:3px solid #8cc0e8;opacity:0;transform:translateY(8px);transition:.4s}
+  #tip.show{opacity:1;transform:none}
+  #tip small{display:block;font-size:10px;letter-spacing:.2em;color:#8cc0e8}
+  #cap{position:fixed;left:50%;top:15%;transform:translateX(-50%);z-index:12;font-size:calc(14px * var(--subScale));color:#cfd8e8;background:rgba(0,0,0,.5);padding:3px 12px;opacity:0;transition:opacity .3s;pointer-events:none;letter-spacing:.05em}
+  #cap.show{opacity:1}
+  #safeTag{position:absolute;left:50%;top:44px;transform:translateX(-50%);font-size:12px;letter-spacing:.3em;padding:3px 12px;border:1px solid #4a9a6a;color:#8ae0aa;background:rgba(10,30,20,.7);display:none}
+  #safeTag.show{display:block}
+  #perkTag{position:absolute;left:96px;bottom:96px;font-size:12px;color:var(--acc);opacity:0}
+  #perkTag.show{animation:perk 2.2s}
+  @keyframes perk{0%{opacity:0;transform:translateY(6px)}15%{opacity:1;transform:none}80%{opacity:1}100%{opacity:0}}
+  body.chase #objP{opacity:.3}body.chase #hints,body.chase #rbtns{opacity:.2}
+  #objP,#hints,#rbtns{transition:opacity .5s}
+  #mapTabs button.tgt:after{content:' ★';color:var(--gold)}
+  body.contrast #prompt{background:#000;border:2px solid #ffd84a;color:#fff;font-weight:700}
+  body.contrast .toast,body.contrast #objP{background:rgba(0,0,0,.95);border-color:#ddd}
+  body.contrast #sub{background:#000;color:#fff}
   #breath{position:fixed;z-index:7;left:50%;top:61%;transform:translateX(-50%);width:220px;text-align:center;font-size:12px;color:#cfd8e8;display:none}
   #breath.show{display:block}
   #breath .bar{height:8px;margin-top:4px}
@@ -401,12 +435,12 @@
   <div id="hints"><div>이동 <kbd>WASD</kbd></div><div>달리기 <kbd>Shift</kbd></div><div>손전등 <kbd>F</kbd></div><div>상호작용 <kbd>E</kbd></div><div>던지기 <kbd>G</kbd></div><div>시점 <kbd>V</kbd></div><div>일시정지 <kbd>Esc</kbd></div></div>
   <div id="dlg"><img id="dlgFace" src="assets/ui/seoyeon_f1.webp" alt=""><div><span id="dlgName">서연</span><span id="dlgText"></span></div></div>
   <div id="cross"></div><div id="sense"><i></i></div><div id="prompt"></div><div id="msg"></div>
-  <div id="viewTag"></div>
+  <div id="viewTag"></div><div id="tip"><small>도움말</small><span id="tipText"></span></div><div id="safeTag">안전 구역</div><div id="perkTag"></div>
   <div id="chapterCard"><small id="ccNum"></small><b id="ccTitle"></b></div>
 </div>
 <div id="hurt"></div>
 <div id="clickHint">화면을 클릭하면 시점 조작이 다시 켜집니다</div>
-<div id="breath">숨 참기 <kbd>Space</kbd><div class="bar"><i id="breathBar"></i></div></div>
+<div id="breath">숨 참기 <kbd>Space</kbd><div class="bar"><i id="breathBar"></i></div><div style="margin-top:6px;color:#e88">들킬 위험</div><div class="bar"><i id="dangerBar" style="background:#d04040;width:0"></i></div></div><div id="cap"></div>
 <div id="intro"><p></p><p></p><p class="q"></p><p></p><small>클릭 / Space — 건너뛰기</small></div>
 <div id="introTitle"><div class="logo" style="font-size:clamp(90px,14vw,150px)">폐교</div><div class="tagline">잊혀진 시간</div></div>
 <div id="sub"></div>
@@ -423,7 +457,7 @@
 <!-- 휴대폰 -->
 <div id="phone" class="overlay"><div class="phoneFrame">
   <div class="pStatus"><span id="pClock">23:40</span><b>신호 없음 ✕</b><span>🔋 12%</span></div>
-  <div class="pTabs"><button data-p="msg">메시지</button><button data-p="photo">사진</button><button data-p="memo">메모</button></div>
+  <div class="pTabs"><button data-p="msg">메시지</button><button data-p="photo">사진</button><button data-p="memo">메모</button><button data-p="tl">사건</button></div>
   <div id="pBody"></div><div class="pHint">P / Esc 닫기 · Q / E 탭 전환</div></div></div>
 <!-- 지도 -->
 <div id="mapOv" class="overlay"><div class="win" id="mapWrap">
@@ -476,7 +510,7 @@
 </div>
 
 <!-- 일시정지 -->
-<div id="pause" class="overlay"><h2>일시정지</h2><p class="sub" id="pauseInfo"></p><div class="menuBtns"><button class="btn" id="resumeBtn">계속하기</button><button class="btn" id="saveBtn">저장하기</button><button class="btn" id="loadBtn2">마지막 저장 불러오기</button><button class="btn" id="setBtn2">설정</button><button class="btn" id="galBtn2">갤러리</button><button class="btn" id="titleBtn">타이틀로 돌아가기</button></div></div>
+<div id="pause" class="overlay"><h2>일시정지</h2><p class="sub" id="pauseInfo"></p><p class="sub" id="saveInfo" style="margin-top:-18px;letter-spacing:.1em;font-size:12px"></p><div class="menuBtns"><button class="btn" id="resumeBtn">계속하기</button><button class="btn" id="saveBtn">저장하기</button><button class="btn" id="loadBtn2">마지막 저장 불러오기</button><button class="btn" id="bakBtn">이전 저장(백업) 불러오기</button><button class="btn" id="setBtn2">설정</button><button class="btn" id="galBtn2">갤러리</button><button class="btn" id="titleBtn">타이틀로 돌아가기</button></div></div>
 
 <!-- 설정 -->
 <div id="settings" class="overlay"><div class="win"><div class="head"><b>설정</b><button class="x" id="settingsClose">닫기</button></div>
@@ -515,6 +549,8 @@
     <span>기본 시점</span><select id="setView"><option value="1">1인칭</option><option value="3">3인칭 (어깨 너머)</option></select>
     <span>3인칭 거리<em class="val" id="vDist"></em></span><input type="range" id="setDist" min="15" max="40" step="1">
   </div>
+    <h4 style="font-size:11px;letter-spacing:.25em;color:var(--dim);border-bottom:1px solid #2c3640;padding-bottom:4px;margin:14px 0 8px">키 설정 — 버튼을 누른 뒤 원하는 키 (Esc 취소)</h4>
+    <div id="keyRemap"></div>
     <div class="keys"><kbd>W A S D</kbd><span>이동 · 마우스로 시선</span><kbd>Shift</kbd><span>달리기 (소리가 납니다)</span><kbd>F · 1</kbd><span>손전등 켜기/끄기</span><kbd>E</kbd><span>줍기 · 읽기 · 문 · 사물함 · 장치 · 계단 오르기</span><kbd>Q</kbd><span>계단 내려가기</span>
       <kbd>2 · 3</kbd><span>건전지 / 응급 밴드 사용</span><kbd>Tab · I</kbd><span>소지품 (Q/E 탭, Enter 사용, C 조합)</span><kbd>P · 4</kbd><span>휴대폰 (메시지 · 사진 · 메모)</span><kbd>M</kbd><span>지도</span><kbd>V</kbd><span>1인칭 / 3인칭 시점 전환</span><kbd>G</kbd><span>빈 캔 던지기 (소리로 그것을 유인)</span><kbd>Space</kbd><span>사물함 안에서 숨 참기</span><kbd>F (길게)</kbd><span>손전등을 그것에게 비추면 잠시 물러난다 (배터리 소모 큼)</span><kbd>Esc</kbd><span>일시정지 · 저장</span></div></div>
   <div class="setPage" data-s="sub"><div class="setgrid">
@@ -529,11 +565,15 @@
   </div></div>
   <div class="setPage" data-s="acc"><div class="setgrid">
     <h4>게임</h4>
-    <span>난이도</span><select id="setDiff"><option value="easy">쉬움 — 그것이 느리고, 세 번 잡혀야 쓰러짐</option><option value="normal">보통 — 두 번 잡히면 쓰러짐</option><option value="hard">어려움 — 한 번에 쓰러짐, 더 빠름</option></select>
+    <span>난이도</span><select id="setDiff"><option value="easy">쉬움 — 그것이 느리고, 세 번 잡혀야 쓰러짐</option><option value="normal">보통 — 두 번 잡히면 쓰러짐</option><option value="hard">어려움 — 한 번 붙잡히면 즉시 사망, 더 빠름</option></select>
     <h4>접근성</h4>
     <span>점프 스케어</span><select id="setJump"><option value="full">기본</option><option value="soft">약하게 (이미지 없이)</option></select>
     <span>번쩍임 · 글리치</span><label><input type="checkbox" id="setFlash"> 번개 섬광 · 화면 깨짐 효과 줄이기</label>
     <span>공포 화면 효과</span><label><input type="checkbox" id="setFearFx"> 그것이 가까울 때 붉은 테두리</label>
+    <span>효과음 자막</span><label><input type="checkbox" id="setCaps"> [발소리] [문 닫힘] 같은 소리 설명</label>
+    <span>도움말 팁</span><label><input type="checkbox" id="setTips"> 처음 10분 동안 조작 팁 표시</label>
+    <span>고대비 표시</span><label><input type="checkbox" id="setContrast"> 상호작용 · 알림을 더 진하게</label>
+    <span>UI 크기<em class="val" id="vUi"></em></span><input type="range" id="setUi" min="85" max="140" step="5">
   </div></div></div>
   <div id="setFoot"><button id="setReset">기본값 복원</button><button id="settingsClose2">확인</button></div></div></div>
 
@@ -545,7 +585,7 @@
 <div id="dead" class="overlay"><h2 style="color:#b3262e">당신은 돌아오지 못했다</h2>
   <p class="story" id="deadText">칠판에 한 줄이 더 늘었다.<br>“다시, 여기서.”</p><div class="menuBtns" style="margin-top:18px"><button class="btn pri" id="retryBtn">마지막 저장에서 다시</button><button class="btn" id="restartBtn">처음부터</button><button class="btn" id="deadTitleBtn">타이틀로</button></div></div>
 <div id="win" class="overlay"><div id="endTag">TRUE END</div><div id="endTitle"></div><p class="story" id="winText"></p><div id="endStats"></div><div class="menuBtns"><button class="btn" id="againBtn">타이틀로</button></div></div>
-<div id="bye" class="overlay"><p class="story">게임을 종료했습니다. 이 창을 닫아도 됩니다.</p><button class="btn" id="byeBack" style="margin-top:20px">타이틀로 돌아가기</button></div>
+<div id="bye" class="overlay"><p class="story">브라우저는 보안상 웹 게임이 탭을 직접 닫을 수 없습니다.<br>탭을 닫거나(<kbd>Ctrl</kbd>+<kbd>W</kbd>) 타이틀로 돌아가세요. 진행 상황은 자동 저장되어 있습니다.</p><button class="btn" id="byeBack" style="margin-top:20px">타이틀로 돌아가기</button></div>
 
 <script type="module" src="game.js"></script>
 </body>

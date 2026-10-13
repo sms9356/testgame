@@ -3,13 +3,16 @@ export const DEF = {
   quality: 'auto', scale: 1, bright: 1, fov: 72, bloom: true, grain: true, bob: true, shake: true, showFps: false,
   sens: 1, invertY: false, runToggle: false, hints: true, view: 1, camDist: 2.4,
   subBg: .45, subNames: true,
-  diff: 'normal', jump: 'full', flashReduce: false, fearFx: true,
+  diff: 'normal', jump: 'full', flashReduce: false, fearFx: true, captions: true, tips: true, contrast: false, ui: 1,
+  keys: { interact: 'KeyE', flash: 'KeyF', inv: 'Tab', map: 'KeyM', phone: 'KeyP', throwCan: 'KeyG', view: 'KeyV', run: 'ShiftLeft', down: 'KeyQ' },
 };
-export const SET = { ...DEF };
-try { Object.assign(SET, JSON.parse(localStorage.getItem('haegyo_set') || '{}')); } catch (e) { /* ignore */ }
+export const SET = { ...DEF, keys: { ...DEF.keys } };
+try { const s = JSON.parse(localStorage.getItem('haegyo_set') || '{}'); Object.assign(SET, s, { keys: { ...DEF.keys, ...(s.keys || {}) } }); } catch (e) { /* ignore */ }
 try { const q = localStorage.getItem('haegyo_q'); if (q && !localStorage.getItem('haegyo_set')) SET.quality = q; } catch (e) { /* ignore */ }
 export function saveSET() { try { localStorage.setItem('haegyo_set', JSON.stringify(SET)); } catch (e) { /* ignore */ } }
-export function resetSET() { Object.assign(SET, DEF); saveSET(); }
+export function resetSET() { Object.assign(SET, DEF, { keys: { ...DEF.keys } }); saveSET(); }
+// 키 이름 표시용
+export const keyLabel = c => c.replace(/^Key/, '').replace(/^Digit/, '').replace('ShiftLeft', 'Shift').replace('ShiftRight', 'R-Shift').replace('ControlLeft', 'Ctrl').replace('Space', 'Space');
 // 난이도: 유령 속도 · 피해량 · 배터리 소모
 export const DIFF = {
   easy: { label: '쉬움', speed: .85, dmg: 34, battery: .7, hear: .8 },

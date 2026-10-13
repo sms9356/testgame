@@ -412,7 +412,7 @@ export function buildWorld(scene) {
   }
   const PHOTOS = {
     p1: { img: 'old_class', title: '사진 — 3학년 2반', text: '칠판에 “다시, 여기서.” 라고 적힌 교실 사진.<br>뒷면: <b>“10.12 마지막 수업”</b>' },
-    p2: { img: 'gym_stage', title: '사진 — 졸업식 예행연습', text: '무대 커튼 뒤에 흐릿한 형체가 찍혀 있다.<br>뒷면: “이 사진, 버려 줘.”' },
+    p2: { img: 'gym_stage', title: '사진 — 기념 방송 리허설', text: '무대 커튼 뒤에 흐릿한 형체가 찍혀 있다.<br>뒷면: “이 사진, 버려 줘.”' },
     p3: { img: 'v_corridor', title: '사진 — 3층 복도', text: '복도 끝에 누군가 서 있다.<br>찍힌 날짜가 <b>오늘</b>이다.' },
   };
   const photoTex = {};
@@ -535,7 +535,7 @@ export function buildWorld(scene) {
     }));
     add(mLockerT, .6, 1.8, .5, cx + 3.55, 0, -8.8, { col: true }); add(mLockerT, .6, 1.8, .5, cx + 3.55, 0, -8.25, { col: true });
     plane(cur.interior, mPlanMap, 2.0, 1.14, cx + 3.84, 1.6, -5.5, -Math.PI / 2);
-    // 금고 (비밀번호: 마지막 졸업식 날짜 MMDD)
+    // 금고 (비밀번호: 그날의 날짜 MMDD)
     { const sx = cx - 3.5, sz = -8.6;
       meshAt(merge([bx(.08, .8, .66, -.27, .4, 0), bx(.62, .8, .04, 0, .4, -.31), bx(.62, .8, .04, 0, .4, .31), bx(.62, .04, .66, 0, .02, 0), bx(.62, .04, .66, 0, .78, 0), bx(.5, .02, .55, 0, .36, 0)]), S(T.makeMetal([60, 74, 64]), { roughness: .5, metalness: .5 }), sx, 0, sz);
       const piv = dyn(new THREE.Group()); piv.position.set(sx + .31, 0, sz - .31); cur.interior.add(piv);

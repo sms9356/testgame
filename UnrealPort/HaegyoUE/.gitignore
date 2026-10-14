@@ -1,0 +1,8 @@
+# 생성물 · 엔진 캐시 (tools/export_ue_textures.py 로 다시 만든다)
+Textures/
+Binaries/
+Intermediate/
+Saved/
+DerivedDataCache/
+*.sln
+.vs/

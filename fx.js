@@ -26,7 +26,7 @@ const FinalShader = {
       // 렌즈에 맺힌 빗방울 (야외)
       if (uRain > 0.0) {
         vec2 asp = vec2(uRes.x / uRes.y, 1.0);
-        for (int L = 0; L < 2; L++) {
+        for (int L = 0; L < 1; L++) {
           float sc = L == 0 ? 7.0 : 13.0;
           vec2 g = uv * asp * sc; g.y += uTime * (L == 0 ? .05 : .11);
           vec2 id = floor(g), f = fract(g) - .5;
@@ -69,6 +69,17 @@ const FinalShader = {
     }`,
 };
 
+// HDR 버퍼 정리: 아주 가까운 손전등 반사광이 반정밀도 버퍼에서 Inf/NaN 이 되면
+// 블룸이 그것을 화면 전체로 번지게 해 화면이 까맣게 된다 → 블룸 전에 NaN 제거 · 상한 제한
+const SafeShader = {
+  uniforms: { tDiffuse: { value: null } },
+  vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
+  fragmentShader: `uniform sampler2D tDiffuse; varying vec2 vUv;
+    void main(){ vec3 v = texture2D(tDiffuse, vUv).rgb;
+      if (any(isnan(v)) || any(isinf(v))) v = vec3(0.0);
+      gl_FragColor = vec4(clamp(v, 0.0, 24.0), 1.0); }`,
+};
+
 export function createFX(renderer, scene, camera) {
   const size = new THREE.Vector2(); renderer.getSize(size);
   const composer = new EffectComposer(renderer);
@@ -76,7 +87,8 @@ export function createFX(renderer, scene, camera) {
   const bloom = new UnrealBloomPass(new THREE.Vector2(size.x / 2, size.y / 2), .55, .45, .82);
   const final = new ShaderPass(FinalShader);
   const output = new OutputPass();
-  composer.addPass(renderPass); composer.addPass(bloom); composer.addPass(final); composer.addPass(output);
+  const safe = new ShaderPass(SafeShader);
+  composer.addPass(renderPass); composer.addPass(safe); composer.addPass(bloom); composer.addPass(final); composer.addPass(output);
   let mode = 'high';
 
   /* ----- 손전등 광선 (볼류메트릭 느낌의 원뿔) ----- */
@@ -209,7 +221,7 @@ export function createFX(renderer, scene, camera) {
   function glitch(s = .6) { glitchT = Math.max(glitchT, s * opt.glitch); }
   // 후처리 경로에서도 계단 현상이 없도록 MSAA (높음: 4x, 중간: 2x)
   function setMSAA(n) { [composer.renderTarget1, composer.renderTarget2].forEach(rt => { if (rt.samples !== n) { rt.samples = n; rt.dispose(); } }); }
-  function setQuality(q) { mode = q; bloom.enabled = q === 'high' && opt.bloom; dust.visible = q !== 'low'; setMSAA(q === 'high' ? 4 : q === 'mid' ? 2 : 0); }
+  function setQuality(q) { mode = q; rainG.setDrawRange(0, (q === 'high' ? 1800 : q === 'mid' ? 1100 : 600) * 2); bloom.enabled = q === 'high' && opt.bloom; dust.visible = q !== 'low'; setMSAA(q === 'high' ? 4 : q === 'mid' ? 2 : 0); }
   function resize(w, h, pr) { composer.setPixelRatio(pr); composer.setSize(w, h); bloom.setSize(w / 2, h / 2); }
 
   const _dir = new THREE.Vector3();
@@ -230,7 +242,7 @@ export function createFX(renderer, scene, camera) {
     dust.visible = mode !== 'low' && !c.outdoors;
     // 비
     rainM.uniforms.uTime.value += dt; rainM.uniforms.uCam.value.copy(camera.position);
-    rainM.uniforms.uA.value += ((c.outdoors ? .32 : 0) - rainM.uniforms.uA.value) * Math.min(1, dt * 3);
+    const ra = c.rain ?? 1; rainM.uniforms.uA.value += ((c.outdoors ? .32 * ra : 0) - rainM.uniforms.uA.value) * Math.min(1, dt * 3);
     rain.visible = rainM.uniforms.uA.value > .01;
     petM.uniforms.uTime.value += dt; petM.uniforms.uA.value += (((c.outdoors && camera.position.z > 35 && camera.position.y < 20) ? .55 : 0) - petM.uniforms.uA.value) * Math.min(1, dt * 2); petals.visible = petM.uniforms.uA.value > .01;
     // 불꽃
@@ -251,7 +263,7 @@ export function createFX(renderer, scene, camera) {
     }
     if (qAny) { ['position', 'alpha', 'size', 'color'].forEach(n => { qG.attributes[n].needsUpdate = true; }); }
     qP.visible = qAny;
-    u.uRain.value += ((c.outdoors && c.rainLens !== false ? .9 : 0) - u.uRain.value) * Math.min(1, dt * 1.5);
+    u.uRain.value += ((c.outdoors && c.rainLens !== false && mode === 'high' ? .9 * ra : 0) - u.uRain.value) * Math.min(1, dt * 1.5); if (u.uRain.value < .01) u.uRain.value = 0;
     sparks.visible = any;
     if (mode === 'low') renderer.render(scene, camera); else composer.render(dt);
   }

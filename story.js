@@ -90,10 +90,10 @@ export const MINA_WAKE = { j: '…지훈아? 나, 방송실에서 이름을 불�
 
 // 기타 화자 음성 (spk: narrator 내레이터 / mina 민아 / teacher 선생님 / pa 교내 방송 / ghost 하늘)
 export const VO = {
-  intro1: { spk: 'narrator', text: '10월 12일, 목요일. 밤 열한 시 사십 분.' },
+  intro1: { spk: 'narrator', text: '10월 12일, 목요일. 오후 다섯 시 오십 분. 해가 지기 시작했다.' },
   intro2: { spk: 'narrator', text: '서현고 방송부장 민아가, 폐교된 서문고에 들어간 뒤 연락이 끊겼다.' },
   intro3: { spk: 'mina', text: '여기, 아직 누군가의 흔적이 남아있어.' },
-  intro4: { spk: 'narrator', text: '십 년 전 오늘, 이 학교에서 한 아이가 사라졌다. 그리고 매년 이 밤, 꺼진 스피커가 울린다.' },
+  intro4: { spk: 'narrator', text: '십 년 전 오늘, 이 학교에서 한 아이가 사라졌다. 그리고 매년 이 날 밤, 꺼진 스피커가 울린다.' },
   guard1: { spk: 'guard', text: '거기 학생. 이 시간에 들어가면 안 돼. …올해도, 결국 오는구나.' },
   echo1: { spk: 'friend', text: '하늘아, 리허설 끝나면 떡볶이 먹으러 가자. 우리가 맨 앞에서 들을게.' },
   echo2: { spk: 'friend2', text: '내일 방송, 꼭 네 목소리로 해. 약속.' },

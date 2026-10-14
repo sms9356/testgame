@@ -1,5 +1,5 @@
 // 미니맵 / 전체 지도 렌더러
-import { SLOTS, LAYOUT, GATE_Z, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS } from './world.js';
+import { SLOTS, LAYOUT, GATE_Z, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY } from './world.js';
 
 const COL = { tech: '#3a4a3a', fusion: '#2c3f55', lang: '#2c3f4a', smart: '#2c3a55', club: '#3a4a2c', cooking: '#3a4a4a', craft: '#4a3f2f', broadcast: '#4a2a2a', boiler: '#4a3a2a', electric: '#4a4a2a', storage: '#3a3a30', records: '#3a4030', cleaning: '#2f3f4a', generator: '#4a2f2f', pump: '#2a3f4a', exit: '#5a2a2a', class: '#27384a', office: '#4a3a28', nurse: '#2f4a46', counsel: '#3f3a4f', library: '#3a4a2c', lab: '#2c4a3a', computer: '#2c3f55', music: '#4a2f3a', art: '#4a432c', toilet: '#38334d', stair: '#5a5a58' };
 
@@ -57,6 +57,7 @@ export function drawMap(ctx, W, H, o) {
     });
     strokeRect(-hx, -9.9, hx, LS ? MAIN_ZS : 1.75, '#8a8a80', 2);
     if (floor === 4) { fillRect(28, 1.75, 36, 9.9, '#3a2a48'); strokeRect(28, 1.75, 36, 9.9, '#0c0c0c', 1.5); if (labels) { ctx.fillStyle = '#d6d2c2'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('비밀 자료실', X(32), Y(6)); } }
+    if (floor === 0) { const W = WALKWAY; fillRect(W.x1, W.z1 - 4, W.x2, W.z2, '#3a4248'); strokeRect(W.x1, W.z1 - 4, W.x2, W.z2, '#8a8a80', 1); if (labels) { ctx.fillStyle = '#c8c4b4'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('별관 연결 통로 ↑', X((W.x1 + W.x2) / 2), Y(W.z1 - 1.5)); } }
     if (floor === 0 || floor === 8) { ctx.fillStyle = '#e6c14a'; ctx.fillRect(X(-1.5), Y(MAIN_ZS) - 2, 3 * S, 4); }
   }
   if (floor < 3 || floor === 4 || floor >= 8) { // 계단 표시

@@ -1,11 +1,12 @@
 // 폐교 — 잊혀진 시간 : 1인칭 학교 공포 게임 (Three.js)
 import * as THREE from './vendor/three.module.js';
-import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS } from './world.js';
+import { GLTFLoader } from './vendor/addons/loaders/GLTFLoader.js';
+import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY } from './world.js';
 import { drawMap } from './map.js';
 import { makeDress, makeHair, makeGhostFace, makeGraffiti, makeKeypad, loadPBR, makeGlow as makeGlowTex, makePaintingStare } from './tex.js';
 import { warmUp } from './bake.js';
 import { createFX } from './fx.js';
-import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes } from './audio.js';
+import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel } from './audio.js';
 import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js';
 import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI } from './story.js';
 import { SET, saveSET, resetSET, DIFF, keyLabel } from './settings.js';
@@ -55,7 +56,28 @@ scene.add(hemi);
 const moonLight = new THREE.DirectionalLight(0x7f9ae0, 1.0);
 moonLight.position.set(-40, 90, -120); scene.add(moonLight);
 const fillLight = new THREE.DirectionalLight(0x8a9ac8, 0); fillLight.position.set(30, 50, 150); scene.add(fillLight);   // 운동장 쪽 건물 정면을 비추는 보조 달빛
-const flash = new THREE.SpotLight(0xfff0d0, 0, 30, 0.5, 0.55, 1.3);
+// 하늘 돔: 위 · 지평선 · 아래 세 색 + 해 주변 노을 — 낮(흐린 늦은 오후) → 해 질 녘 → 밤
+const skyU = { uTop: { value: new THREE.Color() }, uHor: { value: new THREE.Color() }, uBot: { value: new THREE.Color() }, uSun: { value: new THREE.Vector3(-.8, .12, .55).normalize() }, uGlow: { value: 0 } };
+const skyDome = new THREE.Mesh(new THREE.SphereGeometry(1, 32, 16), new THREE.ShaderMaterial({
+  uniforms: skyU, side: THREE.BackSide, depthWrite: false, fog: false,
+  vertexShader: 'varying vec3 vD; void main(){ vD = normalize(position); vec4 p = modelViewMatrix * vec4(position, 1.0); gl_Position = projectionMatrix * p; }',
+  fragmentShader: `uniform vec3 uTop, uHor, uBot, uSun; uniform float uGlow; varying vec3 vD;
+    void main(){ float y = vD.y; vec3 c = y > 0.0 ? mix(uHor, uTop, pow(smoothstep(0.0, .55, y), .8)) : mix(uHor, uBot, smoothstep(0.0, .2, -y));
+      float s = max(dot(normalize(vD), uSun), 0.0); c += vec3(1.0, .55, .25) * (pow(s, 6.0) * .35 + pow(s, 60.0) * .6) * uGlow * smoothstep(-.1, .15, y);
+      gl_FragColor = vec4(c, 1.0); }`,
+}));
+skyDome.renderOrder = -10; skyDome.frustumCulled = false; scene.add(skyDome);
+// 하루의 흐름: dayK 1 = 흐린 늦은 오후, 0 = 비 오는 밤. 정문이 닫히면 해가 진다 (스토리 연계)
+const DAY = { k: .92, start: -1, dur: 75, done: false };
+const C_ = h => new THREE.Color(h);
+const SKY_N = [C_(0x03050b), C_(0x0c1424), C_(0x020304)], SKY_D = [C_(0x5d6e88), C_(0xd8a27a), C_(0x3a3430)];
+const FOG_DAY = C_(0xa69a92), FOG_IN_DAY = C_(0x2c2a28), BG_DAY = C_(0x8d97a6);
+const SUN_POS = new THREE.Vector3(-150, 42, 70), MOON_POS = new THREE.Vector3(-40, 90, -120);
+const SUN_COL = C_(0xffc896), MOON_COL = C_(0x7f9ae0), HEMI_SKY_N = C_(0x8aa0d0), HEMI_SKY_D = C_(0xc8ccd4), HEMI_GND_N = C_(0x2a2018), HEMI_GND_D = C_(0x6a5a48);
+const _c1 = new THREE.Color();
+const flash = new THREE.SpotLight(0xfff0d0, 0, 30, 0.56, 0.82, 1.3);   // 가장자리를 부드럽게 (딱딱한 원 밖이 완전히 깜깜해 보이던 문제)
+// 손전등 산란광: 빛이 벽 · 바닥에 튀어 주변이 희미하게 보이는 효과 (항상 장면에 있어 셰이더 재컴파일 없음)
+const spill = new THREE.PointLight(0xffe8cc, 0, 7, 2); camera.add(spill); spill.position.set(0, .1, -1.2);
 flash.position.set(0.12, -0.08, 0); flash.target.position.set(0, 0, -6);
 camera.add(flash, flash.target);
 flash.castShadow = true; flash.shadow.mapSize.set(1024, 1024); flash.shadow.camera.near = .15; flash.shadow.camera.far = 26;
@@ -67,8 +89,35 @@ const _t0 = performance.now();
 await loadPBR();
 const _t1 = performance.now();
 const world = buildWorld(scene);
+// 실사 스캔 소품 (Poly Haven CC0): 모델별 · 층별로 InstancedMesh 를 만들어 드로콜을 줄인다
+function loadModels() {
+  const byName = {}; world.MODELS.forEach(m => (byName[m.model] = byName[m.model] || []).push(m));
+  const loader = new GLTFLoader(), _m = new THREE.Matrix4(), _q = new THREE.Quaternion(), _e = new THREE.Euler(), _p = new THREE.Vector3(), _s = new THREE.Vector3();
+  Object.entries(byName).forEach(([name, list]) => loader.load(`assets/models/${name}/${name}.gltf`, gltf => {
+    const root = gltf.scene; root.updateMatrixWorld(true);
+    const parts = []; root.traverse(o => { if (o.isMesh) parts.push(o); });
+    const byFloor = {}; list.forEach(m => (byFloor[m.f] = byFloor[m.f] || []).push(m));
+    Object.entries(byFloor).forEach(([f, ms]) => {
+      const parent = f === 'out' ? world.OUT : floors.find(F => String(F.f) === f).interior;
+      parts.forEach(part => {
+        const mat = part.material; if (mat.isMeshStandardMaterial && mat.roughness < .14) mat.roughness = .14;
+        const im = new THREE.InstancedMesh(part.geometry, mat, ms.length); im.userData.dynamic = true;
+        ms.forEach((m, i) => { _e.set(m.rx, m.ry, m.rz, 'YXZ'); _q.setFromEuler(_e); _p.set(m.x, m.y, m.z); _s.setScalar(m.s); _m.compose(_p, _q, _s).multiply(part.matrixWorld); im.setMatrixAt(i, _m); });
+        im.instanceMatrix.needsUpdate = true; im.computeBoundingSphere(); im.castShadow = im.receiveShadow = true;
+        parent.add(im);
+      });
+    });
+  }, undefined, e => console.warn('[model]', name, e && e.message)));
+}
+// 첫 화면이 늦게 뜨지 않도록 페이지 로드가 끝난 뒤에 불러온다
+if (document.readyState === 'complete') setTimeout(loadModels, 300); else addEventListener('load', () => setTimeout(loadModels, 300), { once: true });
+// 거울처럼 매끈한 재질은 손전등이 아주 가까울 때 반사광이 과하게 튄다 → 최소 거칠기 (화면이 까매지는 문제의 원인 중 하나)
+scene.traverse(o => { const ms = o.material ? (Array.isArray(o.material) ? o.material : [o.material]) : []; ms.forEach(m => { if (m && m.isMeshStandardMaterial && m.roughness < .14) m.roughness = .14; }); });
 const _t2 = performance.now();
 const fx = createFX(renderer, scene, camera);
+// 이벤트 연출 강화: 강한 글리치에는 화면 줄무늬 흔들림, 출현 · 추격 시작에는 가장자리 붉은 맥동
+const evFx = id => { if (SET.flashReduce) return; const el = document.getElementById(id); if (!el) return; el.classList.remove('on'); void el.offsetWidth; el.classList.add('on'); };
+{ const g0 = fx.glitch; fx.glitch = (s = .6) => { g0(s); if (s >= .45) evFx('evStreak'); }; }
 let hurtFx = 0, lightningT = 25, sparkT = 3;
 const floors = world.floors;
 
@@ -274,7 +323,7 @@ function ghostTick(dt, t) {
   } else G.lightT = Math.max(0, (G.lightT || 0) - dt * 2);
   if (G.hunt) { /* 사물함으로 직행 */ }
   else if (sees && G.spawnGrace <= 0) {
-    if (G.state !== 'chase') { G.state = 'chase'; sfx.alert(); fx.glitch(.5); caption('날카로운 비명 — 들켰다'); if (Math.random() < .35) line('gh4', 'whisper'); else talk('spotted', 2600); }
+    if (G.state !== 'chase') { G.state = 'chase'; sfx.alert(); fx.glitch(.5); evFx('evPulse'); caption('날카로운 비명 — 들켰다'); if (Math.random() < .35) line('gh4', 'whisper'); else talk('spotted', 2600); }
     G.target = { x: P.x, z: P.z }; G.lose = 0;
   } else if (G.state === 'chase') {
     G.lose += dt * (safe ? 4 : 1);
@@ -447,7 +496,9 @@ function talk(id, ms = 3200) {
 // 이야기 장면(녹화 · 녹음 · 메시지 · 문서 · 퍼즐) 직후 잠시 그것이 물러나 있게 한다
 function storyCalm(sec = 40) { ghost.calmT = Math.max(ghost.calmT || 0, sec); if (ghost.active && !ghost.enraged && ghost.floor === P.floor && ghost.state !== 'chase') { ghost.state = 'patrol'; ghost.path = []; ghost.wait = 3; } }
 function addClue(id) { storyCalm(30); if (clues.includes(id)) return; clues.push(id); }
-function clockText(extra = 0) { const m = Math.floor(23 * 60 + 40 + (playTime + extra) / 6), h = Math.floor(m / 60) % 24; return `${String(h).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`; }
+// 게임 시각: 17:50 에 도착, 해가 지는 동안 한 시간 남짓 흐르고, 이후 실제 1분 = 게임 4분 (한 시간 플레이 ≈ 23시)
+const gameMin = (extra = 0) => Math.floor(17 * 60 + 50 + (playTime + extra) * 4 / 60 + 70 * (1 - DAY.k / .92));
+function clockText(extra = 0) { const m = gameMin(extra), h = Math.floor(m / 60) % 24; return `${String(h).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`; }
 
 /* ----- 문서 (쪽지 · 사진 · 녹음 · 캠코더) ----- */
 function docInfo(d) {
@@ -770,7 +821,9 @@ function updateSound(dt) {
   if (ghost.active && ghost.floor === P.floor && state === 'playing') setGhostVoice({ x: ghost.x, y: floors[ghost.floor].y0 + 1.7, z: ghost.z }, 1, chase, dt);
   else setGhostVoice(null, 0, false, dt);
 }
-function isOutdoors() { return state === 'menu' || state === 'intro' || P.floor === 3 || (P.floor === 0 && !(P.z < MAIN_ZS - .3 && P.z > -9.9 && Math.abs(P.x) < 36.3)); }
+// 본관 안 또는 본관-별관 연결 통로(지붕 · 유리벽이 있는 실내 통로) 안
+const inBldg = (x, z) => (z < MAIN_ZS - .3 && z > -9.9 && Math.abs(x) < 36.3) || (x > WALKWAY.x1 && x < WALKWAY.x2 && z > WALKWAY.z1 && z < WALKWAY.z2);
+function isOutdoors() { return state === 'menu' || state === 'intro' || P.floor === 3 || (P.floor === 0 && !inBldg(P.x, P.z)); }
 function hit() {
   if (TEST && TST.god) return;
   if (P.invuln > 0 || state !== 'playing') return;
@@ -840,7 +893,7 @@ function findInteract() {
     const si = STAIRS[P.floor];
     const inStair = !si ? false : P.floor === 3 ? (Math.abs(P.x) < 4.5 && P.z < -5.2 && P.z > -9.5) : (() => { const z = floors[P.floor].stairZone || { x1: -1, x2: 4, z1: -9.3, z2: -2 }; return P.x > z.x1 && P.x < z.x2 && P.z > z.z1 && P.z < z.z2; })();
     const dr = world.doors.find(d => d.floor === P.floor && Math.hypot(d.x - P.x, d.z - P.z) < d.r);
-    if (inStair) {
+    if (inStair && !(dr && Math.hypot(dr.x - P.x, dr.z - P.z) < 1.5)) {
       const up = si.up != null, down = si.down != null;
       const ul = si.up === 3 ? '옥상으로' : si.up === 0 ? '1층으로' : '위층', dl = si.down === 4 ? '지하층 (B1)' : '아래층';
       best = { type: 'stairs', label: [up ? `E ${ul}` : '', down ? `Q ${dl}` : ''].filter(Boolean).join('  /  '), raw: true };
@@ -1289,6 +1342,8 @@ function load(preferBackup) {
   EV.done.clear(); (d.events || []).forEach(e => EV.done.add(e)); EV.b33 = d.b33 || 0;
   tipsDone.clear(); (d.tips || []).forEach(t => tipsDone.add(t)); seenCards.clear(); (d.cards || []).forEach(c => seenCards.add(c));
   introDone = !!d.progress.introDone; playTime = d.progress.playTime || 0;
+  if (!FL.night && playTime > 200) FL.night = true;   // 이전 버전 세이브: 이미 밤
+  DAY.done = false; DAY.start = -1; DAY.k = FL.night ? 0 : .92;
   // 3) 월드: 아이템 → 장치 → 문 (장치 복원이 아이템 상태를 참고하므로 순서 중요)
   world.items.forEach(it => { if (d.world.items[it.uid]) { it.taken = true; it.mesh.visible = false; } });
   world.props.forEach(p => { const s = d.world.props[p.uid]; if (s) restoreProp(p, s); });
@@ -1309,12 +1364,13 @@ function load(preferBackup) {
 
 function start(skipIntro = false) {
   initAudio(); closeMenus(); applyChar();
+  if (!readingSave) { DAY.k = .92; DAY.start = -1; DAY.done = false; delete FL.night; }
   refreshHud(); chapterShown = objective().ch;
   if (skipIntro || TEST) { finishIntro(); return; }
   state = 'intro'; introT = 0; introText = true; introCue = 0; $('intro').classList.add('show'); $('cine').classList.add('on');
   // 순서: 날짜 → 실종 소식 → (진동) 민아의 메시지 → 십 년 전 이야기
   const ids = ['intro1', 'intro2', 'intro3', 'intro4'], ps = [...$('intro').querySelectorAll('p')];
-  ps.forEach((p, i) => { p.classList.remove('on'); p.classList.toggle('msg', i === 2); p.dataset.from = i === 2 ? '민아 · 23:38' : ''; p.textContent = i === 2 ? VO[ids[i]].text : VO[ids[i]].text; });
+  ps.forEach((p, i) => { p.classList.remove('on'); p.classList.toggle('msg', i === 2); p.dataset.from = i === 2 ? '민아 · 17:41' : ''; p.textContent = i === 2 ? VO[ids[i]].text : VO[ids[i]].text; });
   preload([...ids, 'guard1']);
   const W = s => new Promise(r => setTimeout(r, s * 1000 / (DEBUG && window.__introJump ? 6 : 1)));
   (async () => {
@@ -1545,15 +1601,23 @@ const easeOut = t => 1 - Math.pow(1 - t, 3);
 
 function updateLighting(dt) {
   const F = floors[P.floor];
-  const indoors = P.floor >= 4 || (P.floor > 0 && P.floor < 3) || (P.floor === 0 && P.z < MAIN_ZS - .3 && P.z > -9.9 && Math.abs(P.x) < 36.3);
+  const indoors = P.floor >= 4 || (P.floor > 0 && P.floor < 3) || (P.floor === 0 && inBldg(P.x, P.z));
   const k = Math.min(1, dt * 3);
-  moonLight.intensity = lerp(moonLight.intensity, indoors ? 0 : 1.6, k);
+  updateDay(dt);
+  const dk = DAY.k;
+  moonLight.color.copy(MOON_COL).lerp(SUN_COL, dk); moonLight.position.copy(MOON_POS).lerp(SUN_POS, dk);
+  moonLight.intensity = lerp(moonLight.intensity, indoors ? 0 : lerp(1.6, 2.3, dk), k);
   lightFlash = Math.max(0, lightFlash - dt * 3);
-  hemi.intensity = BRIGHT ? 1.5 : lerp(hemi.intensity, indoors ? .2 : .68, k) + (indoors && P.floor <= 2 ? lightFlash * (Math.sin(tNow * 60) > 0 ? .9 : .3) : 0);
-  fillLight.intensity = lerp(fillLight.intensity, indoors ? 0 : .85, k);
-  scene.fog.density = lerp(scene.fog.density, indoors ? .05 : .014, k);
-  scene.fog.color.lerp(indoors ? FOG_IN : FOG_OUT, k);
-  floors.forEach(f => { f.interior.visible = f.f === P.floor; if (f.f <= 2) f.shell.visible = P.floor <= 3; });
+  hemi.color.copy(HEMI_SKY_N).lerp(HEMI_SKY_D, dk); hemi.groundColor.copy(HEMI_GND_N).lerp(HEMI_GND_D, dk);
+  hemi.intensity = BRIGHT ? 1.5 : lerp(hemi.intensity, indoors ? lerp(.34, .66, dk) : lerp(.68, 1.15, dk), k) + (indoors && P.floor <= 2 ? lightFlash * (Math.sin(tNow * 60) > 0 ? .9 : .3) : 0);
+  fillLight.intensity = lerp(fillLight.intensity, indoors ? 0 : lerp(.85, .5, dk), k);
+  scene.fog.density = lerp(scene.fog.density, indoors ? lerp(.05, .03, dk) : lerp(.014, .0075, dk), k);
+  scene.fog.color.lerp(indoors ? _c1.copy(FOG_IN).lerp(FOG_IN_DAY, dk) : _c1.copy(FOG_OUT).lerp(FOG_DAY, dk), k);
+  // 밖에서 건물과 멀리 떨어져 있으면 본관 1층 내부는 그리지 않는다 (창 너머로 거의 보이지 않음 · 야외 프레임 저하의 주원인)
+  const farOut = P.floor === 0 && !indoors && (P.z > MAIN_ZS + 16 || P.z < -26 || Math.abs(P.x) > 52);
+  floors.forEach(f => { f.interior.visible = f.f === P.floor && !farOut; if (f.f <= 2) f.shell.visible = P.floor <= 3; });
+  // 야외: 손전등 그림자 범위를 줄여 그림자 패스가 캠퍼스 전체를 다시 그리지 않게 (셰이더 재컴파일 없이)
+  const sf = indoors ? 26 : 6; if (flash.shadow.camera.far !== sf) { flash.shadow.camera.far = sf; flash.shadow.camera.updateProjectionMatrix(); }
   world.OUT.visible = P.floor === 0 || P.floor === 3 || state === 'menu' || state === 'intro';
   // 형광등 풀: 가장 가까운 켜진 램프 4개에 PointLight 배치
   lampTimer -= dt;
@@ -1562,12 +1626,14 @@ function updateLighting(dt) {
     const c = F.lamps.filter(l => l.kind !== 'dead' && !l.off).map(l => ({ l, d: Math.hypot(l.x - P.x, l.z - P.z) })).filter(o => o.d < 16).sort((a, b) => a.d - b.d).slice(0, 4);
     pool.forEach((p, i) => { const o = c[i]; if (o) { p.position.set(o.l.x, o.l.y, o.l.z); p.userData.kind = o.l.kind; p.userData.lamp = o.l; p.userData.on = true; } else p.userData.on = false; });
   }
+  updateGenerator(dt, indoors);
   pool.forEach((p, i) => {
     if (!p.userData.on || blackout > 0 || !indoors) { p.intensity = 0; return; }
     const lp = p.userData.lamp, st = lp && lp.start ? tNow - lp.start : 9;
     if (st < 0) { p.intensity = 0; return; }
-    const fl = st < .9 ? (Math.random() < .45 ? .9 : .05) : p.userData.kind === 'flick' ? (Math.sin(tNow * (10 + i * 3)) * Math.sin(tNow * 23 + i) > .1 ? 1 : .1) : 1;
-    p.intensity = 7 * fl;
+    // 켤 때: 스타터가 두 번 깜빡인 뒤 안정 (무작위 점멸 대신 정해진 짧은 패턴) · 고장 램프: 램프 재질과 같은 부드러운 감광
+    const fl = st < .9 ? (SET.flashReduce || SET.noFlicker ? Math.min(1, st / .9) : st < .12 || (st > .3 && st < .42) ? .55 : st < .6 ? .25 + st : 1) : p.userData.kind === 'flick' ? (lp.mat && lp.mat.userData.v != null ? lp.mat.userData.v : 1) : 1;
+    p.intensity = 7 * fl * GEN.gain * (power ? 1 : .86);
   });
   // 손전등
   const near = ghost.active && ghost.floor === P.floor ? clamp(1 - Math.hypot(ghost.x - P.x, ghost.z - P.z) / 9, 0, 1) : 0;
@@ -1576,6 +1642,51 @@ function updateLighting(dt) {
   if (P.light && P.battery <= 0) { fi = 42; flash.distance = 14; } else flash.distance = 32;   // 배터리가 다 떨어지면 휴대폰 불빛
   if (near > .4 && fi && Math.random() < near * .12) fi = 0;
   flash.intensity = fi;
+  spill.intensity = fi ? (fi / 95) * 2.2 : 0;
+}
+
+// 비상 발전기: 전력 복구 전에는 건물 조명이 지하 발전기로 돌아간다 — 누런 빛, 아주 약한 전압 출렁임,
+// 수십 초마다 발전기가 헛돌며 층 전체 조명이 함께 처지고(비상등이 켜짐) 다시 올라온다. 복구 후에는 드물고 약하게.
+const GEN = { gain: 1, emerg: 0, t: 25, dip: null };
+function updateGenerator(dt, indoors) {
+  GEN.t -= dt;
+  if (GEN.t <= 0 && state === 'playing') {
+    GEN.t = power ? 150 + Math.random() * 150 : 28 + Math.random() * 40;
+    GEN.dip = { t: 0, dur: power ? .5 : .8 + Math.random() * 1.4, depth: power ? .25 : .55 + Math.random() * .3 };
+    if (indoors && P.floor !== 3) { sfx.genChug(power ? .4 : 1); if (!power && Math.random() < .5) setTimeout(() => caption('지하에서 발전기가 덜컹거린다'), 300); }
+  }
+  let g = power ? 1 : 1 - .035 * (.5 + .5 * Math.sin(tNow * 1.7)) * (.6 + .4 * Math.sin(tNow * .43));
+  if (GEN.dip) {
+    const d = GEN.dip; d.t += dt; const x = d.t / d.dur;
+    if (x >= 1) GEN.dip = null;
+    else { const sh = Math.sin(Math.PI * x) * (SET.flashReduce || SET.noFlicker ? 1 : .8 + .2 * Math.sin(d.t * 31)); g *= 1 - d.depth * sh; }
+  }
+  GEN.gain = g;
+  const em = blackout > 0 ? 1 : clamp((.8 - g) * 3.5, 0, 1);
+  GEN.emerg = lerp(GEN.emerg, em, Math.min(1, dt * (em > GEN.emerg ? 12 : 3)));
+  // 발전기 소리: 실내에서 전력 복구 전, 지하 발전기실(B1 동쪽)에 가까울수록 크게
+  const nearGen = P.floor === 4 ? clamp(1 - Math.hypot(P.x - 24, P.z + 5.5) / 22, 0, 1) : 0;
+  setGenHum(state === 'playing' && indoors && !power ? .25 + nearGen * .75 + (GEN.dip ? .4 : 0) : 0, dt);
+}
+
+// 해 질 녘 → 밤: 정문이 닫히면 75초에 걸쳐 해가 지고, 다 지면 비가 쏟아진다 (밖에서 오래 머물러도 2분 반 뒤엔 시작)
+function updateDay(dt) {
+  if (!DAY.done && DAY.start < 0 && state === 'playing' && (gateClosed || playTime > 150)) { DAY.start = playTime; caption('해가 학교 뒤로 넘어가기 시작한다'); sfx.swell(3, .25); }
+  if (!DAY.done && DAY.start >= 0) {
+    const x = clamp((playTime - DAY.start) / DAY.dur, 0, 1), e = x * x * (3 - 2 * x); DAY.k = .92 * (1 - e);
+    if (x >= 1) { DAY.done = true; FL.night = true; DAY.k = 0; sfx.rainGust(); sfx.thunder(1.5); toast('밤이 되었다', '비가 쏟아지기 시작한다', 'warn'); lightningT = 8; }
+  }
+  if (FL.night && !DAY.done) { DAY.done = true; DAY.k = 0; }
+  const dk = DAY.k, sky = world.sky;
+  skyDome.position.copy(camera.position); skyDome.scale.setScalar(camera.far * .9);   // 시야 거리 안쪽에서 카메라를 따라간다
+  for (let i = 0; i < 3; i++) [skyU.uTop, skyU.uHor, skyU.uBot][i].value.copy(SKY_N[i]).lerp(SKY_D[i], dk);
+  skyU.uGlow.value = clamp(dk * 1.6 - .1, 0, 1) * clamp(1.6 - dk, 0, 1);   // 해 질 녘에 가장 붉게
+  scene.background.setHex(0x05070d).lerp(BG_DAY, dk);
+  const night = clamp(1 - dk * 3, 0, 1); sky.stars.visible = sky.moon.visible = sky.moonGlow.visible = night > .02;
+  sky.stars.material.opacity = night; sky.stars.material.transparent = true; sky.moonGlow.material.opacity = night;
+  DAY.rain = clamp(1 - dk * 4, 0, 1); setRainLevel(DAY.rain);
+  // 낮의 소리: 가끔 까마귀
+  if (dk > .3 && state === 'playing' && isOutdoors() && Math.random() < dt / 14) sfx.crow(Math.random() * 2 - 1);
 }
 
 let beatT = 0, camShakeT = 0;
@@ -1647,7 +1758,7 @@ function areaCheck(dt) {
   if (f === 5) k = P.z < 15.5 ? 'gymStage' : 'gym';
   else if (f === 6) k = P.z < 30.2 ? 'poolLocker' : 'pool';
   else if (f === 7) k = 'cafe'; else if (f === 3) k = 'roof';
-  else if (f === 0 && !(P.z < MAIN_ZS - .3 && P.z > -9.9 && Math.abs(P.x) < 36.3)) {
+  else if (f === 0 && !inBldg(P.x, P.z)) {
     if (P.z > 60) k = 'gate'; else if (P.x < -40 && Math.abs(P.z - 32) < 9) k = 'westGate'; else if (Math.abs(P.x) < 22 && P.z < -10.5) k = 'annexOut';
   } else if (f <= 2 || f === 4 || f >= 8) {
     const an = f >= 8, sl = an ? ANNEX.slots : SLOTS, lay = an ? ANNEX.floors[f - 8] : LAYOUT[f];
@@ -1697,9 +1808,9 @@ function updateHud(dt, prox, chase) {
   $('fearBar').style.width = P.fear * 100 + '%';
   const st = $('stat'); st.textContent = (P.hp > 50 ? (P.fear > .6 ? '공포' : '정상') : '부상') + (P.crouch ? ' · 앉음' : ''); st.style.color = P.hp > 50 ? (P.fear > .6 ? '#e86870' : '#6fd08c') : '#e0884c';
   $('batBar').style.width = P.battery + '%'; $('s1').classList.toggle('off', !P.light);
-  const outdoors = P.floor === 0 && !(P.z < MAIN_ZS - .3 && P.z > -9.9 && Math.abs(P.x) < 36.3);
+  const outdoors = P.floor === 0 && !inBldg(P.x, P.z);
   $('floor').textContent = P.floor === 0 && outdoors ? '외부' : AREA_NAMES[P.floor];
-  const m = Math.floor(23 * 60 + 40 + playTime / 6), h24 = Math.floor(m / 60) % 24;
+  const m = gameMin(), h24 = Math.floor(m / 60) % 24;
   $('clock').textContent = `${h24 >= 12 ? 'PM' : 'AM'} ${String(h24 % 12 || 12).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
   miniT -= dt;
   if (miniT <= 0) {
@@ -1786,12 +1897,12 @@ function frame(now) {
     camera.position.set(Math.sin(tNow * .1) * 3, 2.2, 74); camera.rotation.set(-.05, Math.sin(tNow * .1) * .1, 0, 'YXZ');
     updateLighting(dt);
   }
-  world.update(tNow, blackout > 0);
+  world.update(tNow, blackout > 0, GEN.gain, power ? 0 : 1, GEN.emerg);
   // 날씨: 번개 (밖이거나 창가에서), 전기 불꽃
   const outdoorsNow = isOutdoors();
   if (state === 'playing' || state === 'menu' || state === 'intro') {
     lightningT -= dt;
-    if (lightningT <= 0) { lightningT = 22 + Math.random() * 35; fx.lightning(); lightningEvent(); const far = 1 + Math.random() * 2.5; setTimeout(() => sfx.thunder && sfx.thunder(far), far * 700); }
+    if (lightningT <= 0 && DAY.k < .2) { lightningT = 22 + Math.random() * 35; fx.lightning(); lightningEvent(); const far = 1 + Math.random() * 2.5; setTimeout(() => sfx.thunder && sfx.thunder(far), far * 700); }
   }
   if (state === 'playing') {
     sparkT -= dt;
@@ -1807,7 +1918,7 @@ function frame(now) {
   if (state === 'playing') fx.breath(P.floor === 4 || P.floor === 6 || isOutdoors() || P.fear > .5, dt);
   updateSound(dt);
   updatePings(dt); updateObjDir(dt);
-  fx.render(dt, { fear: P.fear || 0, flash: flash.intensity / 95, outdoors: outdoorsNow, floorY: floors[P.floor].y0, hurt: hurtFx });
+  fx.render(dt, { fear: P.fear || 0, flash: flash.intensity / 95, outdoors: outdoorsNow, floorY: floors[P.floor].y0, hurt: hurtFx, rain: DAY.rain ?? 1 });
   requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);
@@ -1891,6 +2002,7 @@ async function useProp(p) {
     if (!p.fused) { sfx.fuse(); p.fused = true; toast('퓨즈를 끼웠습니다', '배선을 이어 전원을 살려라'); }
     const r = await mini('circuit', { title: '주 차단기 — 배선 연결' }); if (!r.ok) return;
     p.on = true; p.done = true; power = true; sfx.breaker(); shake = .5; P.noiseT = 2.5;
+    blackout = Math.max(blackout, .7); GEN.dip = null; GEN.t = 160; setTimeout(() => { sfx.lightOn(); caption('발전기가 멈추고 본전원으로 넘어갔다 — 형광등이 하얗게 안정된다'); }, 800);
     toast('전력이 복구되었습니다', '3층 방송실 장비를 쓸 수 있다. 큰 소리가 났다…', 'warn');
     talk('breaker', 3200); addClue('power'); refreshHud();
     if (ghost.active && ghost.floor === P.floor) { ghost.state = 'search'; ghost.target = { x: P.x, z: P.z }; ghost.wait = 0; ghost.replan = 0; }
@@ -2005,7 +2117,7 @@ $('kpClose').onclick = () => closeUI();
 // 환영: 유령과 같은 모델이지만 해치지 않는다. 잠깐 보였다 사라진다.
 const appar = ghost.group.clone(true); appar.visible = false; scene.add(appar);
 let apparT = 0, apparWatch = null;
-function showApparition(f, x, z, yaw, dur, watch) { appar.position.set(x, floors[f].y0 + .08, z); appar.rotation.y = yaw; appar.visible = true; appar.userData.floor = f; apparT = dur; apparWatch = watch || null; }
+function showApparition(f, x, z, yaw, dur, watch) { evFx('evPulse'); appar.position.set(x, floors[f].y0 + .08, z); appar.rotation.y = yaw; appar.visible = true; appar.userData.floor = f; apparT = dur; apparWatch = watch || null; }
 const EV = { done: new Set(), t: 0, inRoom: null, roomT: 0, slamCD: 60, b33T: 0, b33: 0, corrT: 0 };
 const evOnce = (id, fn) => { if (EV.done.has(id)) return false; EV.done.add(id); fn(); return true; };
 function roomAt(f, x, z) {
@@ -2666,6 +2778,7 @@ function perfTick(dt) {
 // 설정을 실제 화면 · 조작에 반영
 function applySettings() {
   renderer.toneMappingExposure = 1.3 * SET.bright;
+  world.flickCfg.calm = SET.flashReduce || SET.noFlicker;
   fx.setOpts({ bloom: SET.bloom, grain: SET.grain, glitch: SET.flashReduce ? .2 : 1, flash: SET.flashReduce ? .25 : 1 });
   $('fps').classList.toggle('on', SET.showFps || TEST); $('hints').style.display = SET.hints ? '' : 'none';
   document.documentElement.style.setProperty('--subBg', SET.subBg);
@@ -2688,7 +2801,7 @@ function showSetTab(t) { setTab = t; document.querySelectorAll('#setTabs button'
 function fillSettings() {
   $('setScreen').value = document.fullscreenElement ? 'full' : 'win';
   $('quality2').value = SET.quality; $('setScale').value = SET.scale * 100; $('setBright').value = SET.bright * 100; $('setFov').value = SET.fov;
-  $('setObjArrow').checked = SET.objArrow; $('setBgm').checked = SET.bgm; $('setBgmVol').value = Math.round(SET.bgmVol * 100); $('setBloom').checked = SET.bloom; $('setGrain').checked = SET.grain; $('setBob').checked = SET.bob; $('setShake').checked = SET.shake; $('setFps').checked = SET.showFps;
+  $('setNoFlicker').checked = !!SET.noFlicker; $('setObjArrow').checked = SET.objArrow; $('setBgm').checked = SET.bgm; $('setBgmVol').value = Math.round(SET.bgmVol * 100); $('setBloom').checked = SET.bloom; $('setGrain').checked = SET.grain; $('setBob').checked = SET.bob; $('setShake').checked = SET.shake; $('setFps').checked = SET.showFps;
   const v = getVolumes(); ['master', 'sfx', 'voice', 'amb', 'music'].forEach(k => { $('vol_' + k).value = Math.round(v[k] * 100); });
   $('setView').value = String(SET.view); $('setDist').value = SET.camDist * 10;
   $('setSens').value = SET.sens * 100; $('setInvY').checked = SET.invertY; $('setRun').value = SET.runToggle ? 'toggle' : 'hold'; $('setHints').checked = SET.hints;
@@ -2718,7 +2831,7 @@ $('setScale').oninput = e => { setS('scale', e.target.value / 100); };
 $('setScale').onchange = () => applyQuality(qCur);
 $('setBright').oninput = e => setS('bright', e.target.value / 100);
 $('setFov').oninput = e => setS('fov', +e.target.value);
-$('setObjArrow').onchange = e => setS('objArrow', e.target.checked); $('setBgm').onchange = e => setS('bgm', e.target.checked); $('setBgmVol').oninput = e => setS('bgmVol', e.target.value / 100);
+$('setNoFlicker').onchange = e => setS('noFlicker', e.target.checked); $('setObjArrow').onchange = e => setS('objArrow', e.target.checked); $('setBgm').onchange = e => setS('bgm', e.target.checked); $('setBgmVol').oninput = e => setS('bgmVol', e.target.value / 100);
 $('setBloom').onchange = e => setS('bloom', e.target.checked); $('setGrain').onchange = e => setS('grain', e.target.checked);
 $('setBob').onchange = e => setS('bob', e.target.checked); $('setShake').onchange = e => setS('shake', e.target.checked); $('setFps').onchange = e => setS('showFps', e.target.checked);
 ['master', 'sfx', 'voice', 'amb', 'music'].forEach(k => { $('vol_' + k).oninput = e => { setVolumes({ [k]: e.target.value / 100 }); }; });
@@ -2813,7 +2926,7 @@ if (DEBUG) {
     get state() { return state; }, set state(v) { state = v; }, get tNow() { return tNow; }, openTest, EV, appar, applyQuality,
     interact, die, activateGhost, enrage, FL, MG, throwCan, throws, set playTime(v) { playTime = v; }, toggleView, get view() { return view; }, useProp, docs, msgs, clues, objective, makeGateKey, openInv, openPhone, openMap, openCharsel, openSettings, refreshHud, save, load, inv, mina,
     get power() { return power; }, set power(v) { power = v; }, get CHAR() { return CHAR; }, newGame, continueGame,
-    setTarget(t) { target = t; },
+    setTarget(t) { target = t; }, DAY, GEN,
   };
 }
 // 형광등 스위치 초기 상태 반영 (방마다 일부만 켜져 있다)

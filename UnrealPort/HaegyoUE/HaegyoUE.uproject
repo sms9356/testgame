@@ -1,0 +1,14 @@
+{
+	"FileVersion": 3,
+	"EngineAssociation": "5.4",
+	"Category": "",
+	"Description": "폐교: 잊혀진 시간 — UE5 병행 포트 (웹 Three.js 버전과 별도)",
+	"Modules": [
+		{ "Name": "HaegyoUE", "Type": "Runtime", "LoadingPhase": "Default", "AdditionalDependencies": [ "Engine" ] }
+	],
+	"Plugins": [
+		{ "Name": "PythonScriptPlugin", "Enabled": true },
+		{ "Name": "EditorScriptingUtilities", "Enabled": true },
+		{ "Name": "EnhancedInput", "Enabled": true }
+	]
+}

@@ -1,0 +1,258 @@
+{
+ "SchoolChair_01": {
+  "authors": [
+   "Ethan Place"
+  ],
+  "dim_mm": [
+   565.8532977104187,
+   675.2548813819885,
+   1006.035539903678
+  ],
+  "name": "School Chair 01"
+ },
+ "SchoolDesk_01": {
+  "authors": [
+   "Ethan Place"
+  ],
+  "dim_mm": [
+   711.7760181427002,
+   545.9675788879395,
+   882.6298794883769
+  ],
+  "name": "School Desk 01"
+ },
+ "korean_fire_extinguisher_01": {
+  "authors": [
+   "UM JOORIN"
+  ],
+  "dim_mm": [
+   279.957577586174,
+   367.44324862957,
+   659.2507164176169
+  ],
+  "name": "Korean Fire Extinguisher 01"
+ },
+ "wall_clock": {
+  "authors": [
+   "PierreB3D"
+  ],
+  "dim_mm": [
+   320.4909861087799,
+   47.2230945505423,
+   320.4909861087799
+  ],
+  "name": "Wall Clock"
+ },
+ "security_camera_01": {
+  "authors": [
+   "Alexander Otterbeck",
+   "Yann Kervran"
+  ],
+  "dim_mm": [
+   169.5517897605896,
+   553.6733567714691,
+   286.04651242494583
+  ],
+  "name": "Security Camera 01"
+ },
+ "metal_trash_can": {
+  "authors": [
+   "GurJas Studios"
+  ],
+  "dim_mm": [
+   1846.9352722167969,
+   556.2898814678192,
+   906.1697272554738
+  ],
+  "name": "Metal Trash Can"
+ },
+ "WetFloorSign_01": {
+  "authors": [
+   "Fran Calvente"
+  ],
+  "dim_mm": [
+   300.0548481941223,
+   358.5093021392822,
+   629.5440040994436
+  ],
+  "name": "Wet Floor Sign 01"
+ },
+ "metal_office_desk": {
+  "authors": [
+   "Ulan Cabanilla"
+  ],
+  "dim_mm": [
+   2000.0003576278687,
+   947.2135305404663,
+   787.5000089406967
+  ],
+  "name": "Metal Office Desk"
+ },
+ "steel_frame_shelves_01": {
+  "authors": [
+   "James Ray Cock"
+  ],
+  "dim_mm": [
+   1097.4148511886597,
+   502.1176338195801,
+   2140.5010361922905
+  ],
+  "name": "Steel Frame Shelves 01"
+ },
+ "cardboard_box_01": {
+  "authors": [
+   "Rahul Chaudhary"
+  ],
+  "dim_mm": [
+   387.02359795570374,
+   515.8704221248627,
+   341.7995423078537
+  ],
+  "name": "Cardboard Box 01"
+ },
+ "portable_generator": {
+  "authors": [
+   "James Ray Cock"
+  ],
+  "dim_mm": [
+   818.3408081531525,
+   564.0000104904175,
+   576.9232391612604
+  ],
+  "name": "Portable Generator"
+ },
+ "power_box_01": {
+  "authors": [
+   "Rico Cilliers",
+   "Yann Kervran"
+  ],
+  "dim_mm": [
+   377.4920701980591,
+   418.45703125,
+   503.142774105072
+  ],
+  "name": "Power Box 01"
+ },
+ "medical_box": {
+  "authors": [
+   "Ulan Cabanilla"
+  ],
+  "dim_mm": [
+   525.4814624786377,
+   350.16927123069763,
+   97.5121483206749
+  ],
+  "name": "Medical Box"
+ },
+ "wheelchair_01": {
+  "authors": [
+   "Garreth Dean"
+  ],
+  "dim_mm": [
+   824.0909576416016,
+   1090.866893529892,
+   1103.5015587694943
+  ],
+  "name": "Wheelchair 01"
+ },
+ "standing_chalkboard_01": {
+  "authors": [
+   "ParzivalCG"
+  ],
+  "dim_mm": [
+   919.5267558097839,
+   758.704662322998,
+   1509.0324000189241
+  ],
+  "name": "Standing Chalkboard 01"
+ },
+ "drawer_cabinet": {
+  "authors": [
+   "Ulan Cabanilla"
+  ],
+  "dim_mm": [
+   1141.0778760910034,
+   488.08445036411285,
+   1881.253957748413
+  ],
+  "name": "Drawer Cabinet"
+ },
+ "plastic_monobloc_chair_01": {
+  "authors": [
+   "Kuutti Siitonen"
+  ],
+  "dim_mm": [
+   641.8611407279968,
+   627.5919079780579,
+   879.8411972820759
+  ],
+  "name": "Plastic Monobloc Chair 01"
+ },
+ "fire_alarm": {
+  "authors": [
+   "Slinc"
+  ],
+  "dim_mm": [
+   99.44874793291092,
+   26.374715380370617,
+   143.64254474639893
+  ],
+  "name": "Fire Alarm"
+ },
+ "metal_tool_chest": {
+  "authors": [
+   "Yann Kervran",
+   "John Hutcheson"
+  ],
+  "dim_mm": [
+   685.3884160518646,
+   407.15324878692627,
+   651.8355906009674
+  ],
+  "name": "Metal Tool Chest"
+ },
+ "potted_plant_04": {
+  "authors": [
+   "James Ray Cock"
+  ],
+  "dim_mm": [
+   170.27407884597778,
+   185.9453096985817,
+   267.5964875961654
+  ],
+  "name": "Potted Plant 04"
+ },
+ "exterior_aircon_unit": {
+  "authors": [
+   "Monsta3D"
+  ],
+  "dim_mm": [
+   1799.971342086792,
+   374.15920197963715,
+   927.8970956802368
+  ],
+  "name": "Exterior Aircon Unit"
+ },
+ "wooden_bookshelf_worn": {
+  "authors": [
+   "Ulan Cabanilla"
+  ],
+  "dim_mm": [
+   1373.95179271698,
+   581.3020169734955,
+   2063.442051410675
+  ],
+  "name": "Wooden Bookshelf Worn"
+ },
+ "ceiling_fan": {
+  "authors": [
+   "Ulan Cabanilla"
+  ],
+  "dim_mm": [
+   1462.9170894622803,
+   1462.9170894622803,
+   516.343355178833
+  ],
+  "name": "Ceiling Fan"
+ }
+}

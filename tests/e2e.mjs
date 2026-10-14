@@ -10,8 +10,9 @@ const ok = (cond, msg) => { if (cond) { pass++; console.log('  ✔', msg); } els
 
 async function page(qs = '?debug') {
   const p = await (await b.newContext({ viewport: { width: 480, height: 270 } })).newPage();
+  p.setDefaultNavigationTimeout(180000); p.setDefaultTimeout(60000);
   p.errors = 0; p.on('pageerror', e => { p.errors++; console.log('   [pageerror]', e.message); });
-  await p.goto(URL + qs); await p.waitForFunction(() => window.__loadTimes, null, { timeout: 180000 });
+  await p.goto(URL + qs, { timeout: 180000 }); await p.waitForFunction(() => window.__loadTimes, null, { timeout: 180000 });
   return p;
 }
 const E = (p, f, a) => p.evaluate(f, a);

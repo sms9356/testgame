@@ -22,7 +22,10 @@ const out = await p.evaluate(async () => {
   }
   return res;
 });
+// Poly Haven CC0 실사 스캔으로 교체한 재질은 절차적 텍스처로 덮어쓰지 않는다 (assets/tex/CREDITS.md)
+const PHOTO = new Set(['tile', 'wood', 'base', 'dirt', 'locker']);
 for (const [k, maps] of Object.entries(out)) for (const [m, url] of Object.entries(maps)) {
+  if (PHOTO.has(k) && !process.env.FORCE_PROC) { console.log('skip (photoscan)', k); continue; }
   const f = path.join(ROOT, 'assets/tex', `${k}_${m}.webp`);
   fs.writeFileSync(f, Buffer.from(url.split(',')[1], 'base64'));
   console.log(f, fs.statSync(f).size);

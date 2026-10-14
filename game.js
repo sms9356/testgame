@@ -101,21 +101,32 @@ function loadModels() {
     const texs = new Set(); scene.traverse(o => { if (o.isInstancedMesh && o.material) ['map', 'normalMap', 'roughnessMap', 'metalnessMap', 'aoMap'].forEach(k => o.material[k] && texs.add(o.material[k])); });
     texs.forEach(t => renderer.initTexture(t)); try { renderer.compile(scene, camera); } catch (e) { /* ignore */ } };
   // 사용자 3D 소품 133종 팩 (h133/ID): 정점 색뿐인 저폴리곤 → 면 법선 · 상자 투영 UV 를 만들고, 부품 이름으로 게임 PBR 재질을 골라 재질별로 합친다
-  const h133Parts = (root, id) => {
+  // (요리실 101 팩 cr101/ID: 재질 이름(steel · steel_dirty · rust …)으로 고른다)
+  const h133Parts = (root, id, cr) => {
     const groups = new Map();
-    root.traverse(o => { if (!o.isMesh) return; const nm = (o.name || o.parent?.name || '').replace(/^\d+_/, ''), mat = world.h133Mat(id, nm);
+    root.traverse(o => { if (!o.isMesh) return; const nm = (o.name || o.parent?.name || '').replace(/^\d+_/, ''), mat = cr ? world.crMat(o.material && o.material.name) : world.h133Mat(id, nm);
       let g = o.geometry.index ? o.geometry.toNonIndexed() : o.geometry.clone(); g.deleteAttribute('color'); g.applyMatrix4(o.matrixWorld); g.computeVertexNormals();
       const P = g.attributes.position, N = g.attributes.normal, uv = new Float32Array(P.count * 2);
       for (let i = 0; i < P.count; i++) { const ax = Math.abs(N.getX(i)), ay = Math.abs(N.getY(i)), az = Math.abs(N.getZ(i));
-        const [u, v] = ax >= ay && ax >= az ? [P.getZ(i), P.getY(i)] : ay >= az ? [P.getX(i), P.getZ(i)] : [P.getX(i), P.getY(i)]; uv[i * 2] = u * 1.5; uv[i * 2 + 1] = v * 1.5; }
+        const [u, v] = ax >= ay && ax >= az ? [P.getZ(i), P.getY(i)] : ay >= az ? [P.getX(i), P.getZ(i)] : [P.getX(i), P.getY(i)]; uv[i * 2] = u * .8; uv[i * 2 + 1] = v * .8; }
       g.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
       (groups.get(mat) || groups.set(mat, []).get(mat)).push(g); });
     const out = []; groups.forEach((gs, mat) => { const m = new THREE.Mesh(gs.length > 1 ? mergeGeometries(gs) : gs[0], mat); out.push(m); });
     return out;
   };
-  Object.entries(byName).forEach(([name, list]) => loader.load(name.startsWith('h133/') ? `assets/models/${name}.glb` : `assets/models/${name}/${name}.gltf`, gltf => {
+  const packed = name => name.startsWith('h133/') || name.startsWith('cr101/') || name.startsWith('th102/');
+  // 기술·가정실 102 팩: UV 가 있는 실제 메시 — 재질별로 합쳐(그리기 호출 절약) 팩 PBR 텍스처를 입힌다
+  const thParts = root => { const groups = new Map();
+    root.traverse(o => { if (!o.isMesh) return; const mat = world.thMat(o.material && o.material.name);
+      let g = o.geometry.index ? o.geometry.toNonIndexed() : o.geometry.clone(); ['color', 'tangent'].forEach(k => g.deleteAttribute(k)); g.applyMatrix4(o.matrixWorld); if (!g.attributes.normal) g.computeVertexNormals();
+      if (!g.attributes.uv) g.setAttribute('uv', new THREE.BufferAttribute(new Float32Array(g.attributes.position.count * 2), 2));
+      (groups.get(mat) || groups.set(mat, []).get(mat)).push(g); });
+    const out = []; groups.forEach((gs, mat) => out.push(new THREE.Mesh(gs.length > 1 ? mergeGeometries(gs) : gs[0], mat))); return out; };
+  Object.entries(byName).forEach(([name, list]) => loader.load(packed(name) ? `assets/models/${name}.glb` : `assets/models/${name}/${name}.gltf`, gltf => {
     const root = gltf.scene; root.updateMatrixWorld(true);
-    const parts = []; if (name.startsWith('h133/')) parts.push(...h133Parts(root, name.slice(5))); else root.traverse(o => { if (o.isMesh) parts.push(o); });
+    const cr = name.startsWith('cr101/') || name.startsWith('th102/');
+    const parts = []; if (name.startsWith('th102/')) parts.push(...thParts(root)); else if (packed(name)) parts.push(...h133Parts(root, name.split('/')[1], cr)); else root.traverse(o => { if (o.isMesh) parts.push(o); });
+    if (cr) floors.forEach(F => F.interior.traverse(o => { if (o.userData.cr === name.slice(6)) o.visible = false; }));   // GLB 로드 성공 → 같은 자리의 절차적 대체 메시 숨김
     const byFloor = {}; list.forEach(m => (byFloor[m.f] = byFloor[m.f] || []).push(m));
     Object.entries(byFloor).forEach(([f, ms]) => {
       const parent = f === 'out' ? world.OUT : floors.find(F => String(F.f) === f).interior;
@@ -123,7 +134,7 @@ function loadModels() {
         const mat = part.material; if (mat.isMeshStandardMaterial && mat.roughness < .14) mat.roughness = .14;
         const im = new THREE.InstancedMesh(part.geometry, mat, ms.length); im.userData.dynamic = true;
         ms.forEach((m, i) => { _e.set(m.rx, m.ry, m.rz, 'YXZ'); _q.setFromEuler(_e); _p.set(m.x, m.y, m.z); _s.setScalar(m.s); _m.compose(_p, _q, _s).multiply(part.matrixWorld); im.setMatrixAt(i, _m); });
-        im.instanceMatrix.needsUpdate = true; im.computeBoundingSphere(); im.castShadow = false; im.receiveShadow = true;   // 작은 소품은 그림자 패스에서 제외 (프레임 안정)
+        im.instanceMatrix.needsUpdate = true; im.computeBoundingSphere(); im.castShadow = cr; im.receiveShadow = true;   // 큰 조리대 (요리실 팩) 만 손전등 그림자   // 작은 소품은 그림자 패스에서 제외 (프레임 안정)
         parent.add(im);
       });
     });
@@ -1027,7 +1038,7 @@ function changeFloor(dir) {
 }
 // 가구 높이: 발이 윗면보다 높으면 그 가구는 막지 않는다 · 발 아래 윗면이 지지면
 // 낮은 단(계단 한 단 높이 STEP_UP 이하: 현관 계단 · 단상 등)은 그냥 걸어 올라가고, 그보다 높은 가구는 점프로 오른다
-const STEP_UP = .22;
+const STEP_UP = .225;
 const colsAt = F => { if (F._lowCol == null) F._lowCol = F.col.some(r => r.h != null); if (!F._lowCol) return F.col; const foot = P.jy || 0; return F.col.filter(r => !(r.h != null && r.h <= foot + STEP_UP)); };
 function supportAt(F, x, z, foot) {
   let s = 0; for (const r of F.col) if (r.h != null && r.h <= foot + STEP_UP && r.h > s && x > r.x1 - .1 && x < r.x2 + .1 && z > r.z1 - .1 && z < r.z2 + .1) s = r.h;
@@ -3050,7 +3061,7 @@ applyChar(); refreshTitle();
 
 if (DEBUG) {
   window.__g = {
-    P, ghost, floors, world, scene, camera, renderer, start: () => start(true),
+    P, ghost, floors, world, scene, camera, renderer, THREE, start: () => start(true),
     setIntroT(t) { introText = false; introT = t; }, introInfo: () => ({ state, introT: +introT.toFixed(1), cue: introCue, guard: !!(introGuard && introGuard.visible), cam: camera.position.toArray().map(v => +v.toFixed(1)) }),
     tp(x, z, f = 0, yaw = 0, pitch = 0) { P.x = x; P.z = z; P.floor = f; P.yaw = yaw; P.pitch = pitch; },
     give() { world.items.filter(i => i.kind === 'key').forEach(i => { i.taken = true; i.mesh.visible = false; got[i.idx] = true; }); P.keys = TOTAL; refreshHud(); },

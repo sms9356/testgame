@@ -1470,6 +1470,9 @@ export function buildWorld(scene) {
   const CR_MAT = { steel: mStainless, steel_dirty: mStainlessD, rust: mRust, black: mDarkMetal, wood_dark: mWoodDark, wood: mWood, green: mCork, paper: mPaperN,
     blue: S(null, { color: 0x2a5aa0, roughness: .4 }), red: S(null, { color: 0xa82a20, roughness: .4 }), light: new THREE.MeshBasicMaterial({ color: 0xe8f0ff }), glass: mGlass };
   const crMat = name => CR_MAT[name] || mStainlessD;
+  // 학교 전체 V2 팩: 부품 이름의 재질 표기(darksteel · blue · steel · rust · brass)
+  const mBrassV2 = S(null, { color: 0x9a7a3a, roughness: .35, metalness: .85 });
+  const v2Mat = nm => { const s = (nm || '').toLowerCase(); return s.includes('darksteel') ? mDarkMetal : s.includes('blue') ? mBlueP : s.includes('brass') ? mBrassV2 : s.includes('rust') ? mRust : s.includes('steel') ? mStainlessD : mDarkMetal; };
   // 인쇄실 팩: 부품 이름 끝의 재질 표기 → 팩 1K PBR (BaseColor · NormalGL · Roughness · AO) 4종 + 단색 재질
   const PR_MAT = {}, prTex = new THREE.TextureLoader();
   const prPBR = (fam, met, rough) => PR_MAT[fam] || (PR_MAT[fam] = (() => { const L = k => { const t = prTex.load(`assets/models/pr/tex/${fam}/${k}.webp`); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 8; if (k === 'BaseColor') t.colorSpace = THREE.SRGBColorSpace; return t; };
@@ -1648,8 +1651,9 @@ export function buildWorld(scene) {
       flat(cur.interior, S(null, { color: 0x0e1416, roughness: .08, metalness: .3 }), t.x - .45, t.x + .45, t.z - t.d / 2, t.z + t.d / 2, .012, 1);
       const bars = []; for (let z = t.z - t.d / 2 + .1; z < t.z + t.d / 2; z += .12) bars.push(bx(.9, .02, .02, 0, .03, z - t.z)); meshAt(merge(bars), mDarkMetal, t.x, 0, t.z); }
     { const p = D(.4, 2.5, 1.7, 2.5);    // 2 배수 펌프
-      meshAt(merge([bx(1.4, .15, 1.2, 0, .075, 0), new THREE.CylinderGeometry(.4, .45, .9, 16).translate(0, .6, 0), new THREE.CylinderGeometry(.2, .2, .5, 12).translate(0, 1.3, 0)]), mBlueP, p.x, 0, p.z);
-      meshAt(tube(.08, p.x, 1.5, p.z, p.x, CH, p.z), mRust, 0, 0, 0); gauge(p.x + .3, 1.1, p.z + .4); col(p.x - .7, p.x + .7, p.z - .6, p.z + .6); }
+      // 사용자 제공 학교 전체 V2 팩의 상세 재모델링 '송수 펌프'(A050 — 모터 · 냉각 핀 · 볼류트 · 플랜지 볼트). 못 불러오면 예전 절차적 펌프
+      model('v2/A050', p.x, 0, p.z, Math.PI / 2, { s: 1.25 }); crFallback('A050', mBlueP, 1.4, 1.3, 1.3, p.x, 0, p.z);
+      meshAt(tube(.08, p.x - .1, 1.0, p.z, p.x - .1, CH, p.z), mRust, 0, 0, 0); gauge(p.x + .45, 1.1, p.z + .5); col(p.x - .7, p.x + .7, p.z - .6, p.z + .6); }
     { const l = D(4.3, 1.0, 1, 7.6);     // 3 파이프 연결 (동쪽 벽)
       meshAt(merge([tube(.12, l.x, .4, l.z - l.d / 2, l.x, .4, l.z + l.d / 2), tube(.09, l.x + .3, 1.6, l.z - l.d / 2, l.x + .3, 1.6, l.z + l.d / 2), tube(.12, l.x, .4, l.z - l.d / 2, l.x, 2.6, -9.3), tube(.12, l.x, 2.6, -9.3, cx - 3.6, 2.6, -9.3)]), mRust, 0, 0, 0);
       valveWheel(l.x - .15, .8, l.z, Math.PI / 2, .15); col(l.x - .25, l.x + .5, l.z - l.d / 2, l.z + l.d / 2); }
@@ -3248,7 +3252,7 @@ export function buildWorld(scene) {
     return .38 + .62 * d;
   }
   const flickCfg = { calm: false };
-  return { h133Mat, crMat, thMat, prMat, winMats, MODELS, floors, items, lockers, doors, gate, update, mats: { flickerMats, matLampOn, matLampDead }, flickCfg, sky: { stars, moon, moonGlow }, NOTES, TAPES, PHOTOS, doorList, props, boardRefs, OUT, bakeStats, makeBoardTex: T.makeBoard };
+  return { h133Mat, crMat, thMat, prMat, v2Mat, winMats, MODELS, floors, items, lockers, doors, gate, update, mats: { flickerMats, matLampOn, matLampDead }, flickCfg, sky: { stars, moon, moonGlow }, NOTES, TAPES, PHOTOS, doorList, props, boardRefs, OUT, bakeStats, makeBoardTex: T.makeBoard };
 }
 
 /* ---------- 충돌/시야 ---------- */

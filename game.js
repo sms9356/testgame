@@ -10,7 +10,7 @@ import { warmUp } from './bake.js';
 import { createFX } from './fx.js';
 import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel } from './audio.js';
 import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js';
-import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI } from './story.js';
+import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, SIDEQUESTS } from './story.js';
 import { SET, saveSET, resetSET, DIFF, keyLabel } from './settings.js';
 const K = () => SET.keys;
 import { run as runMini, MG } from './minigames.js';
@@ -105,8 +105,8 @@ function loadModels() {
   // (인쇄실 팩 pr/ID: 부품 이름의 재질 표기로 고르고, Z-up 으로 저장된 GLB 를 Y-up 으로 세운다)
   const h133Parts = (root, id, cr, pr) => {
     const groups = new Map();
-    root.traverse(o => { if (!o.isMesh) return; const nm = (o.name || o.parent?.name || '').replace(/^\d+_/, ''), mat = pr ? world.prMat(nm) : cr ? world.crMat(o.material && o.material.name) : world.h133Mat(id, nm);
-      let g = o.geometry.index ? o.geometry.toNonIndexed() : o.geometry.clone(); g.deleteAttribute('color'); g.applyMatrix4(o.matrixWorld); if (pr) g.rotateX(-Math.PI / 2); g.computeVertexNormals();
+    root.traverse(o => { if (!o.isMesh) return; const nm = (o.name || o.parent?.name || '').replace(/^\d+_/, ''), mat = pr === 'v2' ? world.v2Mat(nm) : pr ? world.prMat(nm) : cr ? world.crMat(o.material && o.material.name) : world.h133Mat(id, nm);
+      let g = o.geometry.index ? o.geometry.toNonIndexed() : o.geometry.clone(); g.deleteAttribute('color'); g.applyMatrix4(o.matrixWorld); if (pr === true) g.rotateX(-Math.PI / 2); g.computeVertexNormals();
       const P = g.attributes.position, N = g.attributes.normal, uv = new Float32Array(P.count * 2);
       for (let i = 0; i < P.count; i++) { const ax = Math.abs(N.getX(i)), ay = Math.abs(N.getY(i)), az = Math.abs(N.getZ(i));
         const [u, v] = ax >= ay && ax >= az ? [P.getZ(i), P.getY(i)] : ay >= az ? [P.getX(i), P.getZ(i)] : [P.getX(i), P.getY(i)]; uv[i * 2] = u * .8; uv[i * 2 + 1] = v * .8; }
@@ -115,7 +115,7 @@ function loadModels() {
     const out = []; groups.forEach((gs, mat) => { const m = new THREE.Mesh(gs.length > 1 ? mergeGeometries(gs) : gs[0], mat); out.push(m); });
     return out;
   };
-  const packed = name => name.startsWith('h133/') || name.startsWith('cr101/') || name.startsWith('th102/') || name.startsWith('pr/');
+  const packed = name => name.startsWith('h133/') || name.startsWith('cr101/') || name.startsWith('th102/') || name.startsWith('pr/') || name.startsWith('v2/');
   // 기술·가정실 102 팩: UV 가 있는 실제 메시 — 재질별로 합쳐(그리기 호출 절약) 팩 PBR 텍스처를 입힌다
   const thParts = root => { const groups = new Map();
     root.traverse(o => { if (!o.isMesh) return; const mat = world.thMat(o.material && o.material.name);
@@ -126,8 +126,8 @@ function loadModels() {
   Object.entries(byName).forEach(([name, list]) => loader.load(packed(name) ? `assets/models/${name}.glb` : `assets/models/${name}/${name}.gltf`, gltf => {
     const root = gltf.scene; root.updateMatrixWorld(true);
     const cr = name.startsWith('cr101/') || name.startsWith('th102/');
-    const parts = []; if (name.startsWith('th102/')) parts.push(...thParts(root)); else if (packed(name)) parts.push(...h133Parts(root, name.split('/')[1], cr, name.startsWith('pr/'))); else root.traverse(o => { if (o.isMesh) parts.push(o); });
-    if (cr || name.startsWith('pr/')) floors.forEach(F => F.interior.traverse(o => { if (o.userData.cr && o.userData.cr === name.split('/')[1]) o.visible = false; }));   // GLB 로드 성공 → 같은 자리의 절차적 대체 메시 숨김
+    const parts = []; if (name.startsWith('th102/')) parts.push(...thParts(root)); else if (packed(name)) parts.push(...h133Parts(root, name.split('/')[1], cr, name.startsWith('pr/') || (name.startsWith('v2/') && 'v2'))); else root.traverse(o => { if (o.isMesh) parts.push(o); });
+    if (cr || name.startsWith('pr/') || name.startsWith('v2/')) floors.forEach(F => F.interior.traverse(o => { if (o.userData.cr && o.userData.cr === name.split('/')[1]) o.visible = false; }));   // GLB 로드 성공 → 같은 자리의 절차적 대체 메시 숨김
     const byFloor = {}; list.forEach(m => (byFloor[m.f] = byFloor[m.f] || []).push(m));
     Object.entries(byFloor).forEach(([f, ms]) => {
       const parent = f === 'out' ? world.OUT : floors.find(F => String(F.f) === f).interior;
@@ -505,6 +505,9 @@ function refreshHud() {
   $('optBox').style.display = FL.opt ? 'block' : 'none';
   $('optTitle').textContent = OPTIONAL.title;
   const st = optSteps(); $('optSubs').innerHTML = OPTIONAL.steps.map((t, i) => `<div class="chk${st[i] ? ' done' : ''}">${t}</div>`).join('');
+  sqSync(); const aq = SIDEQUESTS.filter(q => sqStep(q.id) > 0 && sqStep(q.id) < q.steps.length);
+  $('sqBox').style.display = aq.length || sqDoneCount() ? 'block' : 'none'; $('sqTitle').textContent = `의뢰 · 남겨진 부탁 (${sqDoneCount()}/${SIDEQUESTS.length})`;
+  $('sqSubs').innerHTML = aq.slice(0, 3).map(q => `<div class="chk">${q.title} — ${q.steps[sqStep(q.id)].goal}</div>`).join('') + (aq.length > 3 ? `<div class="chk" style="opacity:.6">외 ${aq.length - 3}건 (휴대폰 › 사건)</div>` : '');
   $('c2').textContent = inv.battery; $('c3').textContent = inv.medkit; $('c5').textContent = inv.can; $('s5').classList.toggle('off', !inv.can); $('c4').textContent = FL.gatekey ? '열쇠' : `${P.keys}/${TOTAL}`;
   $('s2').classList.toggle('off', !inv.battery); $('s3').classList.toggle('off', !inv.medkit); $('s4').classList.toggle('off', !P.keys);
   const un = msgs.filter(m => !m.read).length; $('phoneBadge').textContent = un; $('phoneBadge').classList.toggle('on', un > 0);
@@ -564,6 +567,7 @@ function bagList() {
   if (FL.tag) L.push({ id: 'nametag' });
   ['hook', 'fuse', 'mop', 'wire'].forEach(k => { if (FL[k]) L.push({ id: k }); });
   if (FL.cam) L.push({ id: 'camcorder' });
+  ['tapeTrio', 'emBattery', 'bookHome', 'letterT'].forEach(k => { if (FL.qi && FL.qi[k]) L.push({ id: k }); });   // 의뢰 아이템
   return L.map(x => ({ ...ITEMS[x.id], ...x }));
 }
 function itemDesc(it) {
@@ -884,7 +888,7 @@ function closeNote() { $('noteBox').classList.remove('show'); if (state === 'not
 
 /* ---------- 상호작용 ---------- */
 let target = null;
-const needText = p => p.kind === 'lock' && p.lockType === 'pick' && !inv.hairpin ? '  — 머리핀 필요' : p.kind === 'drain' && !FL.hook ? '  — 갈고리 필요' : p.kind === 'breaker' && !FL.fuse ? '  — 퓨즈 필요' : p.kind === 'console' && !power ? '  — 전원 없음' : p.kind === 'lock' && p.lockType === 'dial' && !docs.some(d => d.id === p.clue) ? '  — 번호 모름' : '';
+const needText = p => p.kind === 'sq' ? sqNeedText(p) : p.kind === 'lock' && p.lockType === 'pick' && !inv.hairpin ? '  — 머리핀 필요' : p.kind === 'drain' && !FL.hook ? '  — 갈고리 필요' : p.kind === 'breaker' && !FL.fuse ? '  — 퓨즈 필요' : p.kind === 'console' && !power ? '  — 전원 없음' : p.kind === 'lock' && p.lockType === 'dial' && !docs.some(d => d.id === p.clue) ? '  — 번호 모름' : '';
 function findInteract() {
   const fx = -Math.sin(P.yaw), fz = -Math.cos(P.yaw);
   let best = null, bs = 0;
@@ -1209,7 +1213,7 @@ async function winGame() {
   await wait(2400);
   // 마지막 선택 (EV-23): 기록 수 · 민아 구출 여부에 따라 후일담이 달라진다
   const nd = docs.length, ci = await choose('마지막 선택', `정문이 열렸다. 손에는 오늘 밤 모은 기록 ${nd}개가 있다.${FL.mina ? ' 민아가 곁에 서 있다.' : ''}`, FINAL_CHOICE);
-  const pk = FINAL_CHOICE[ci].id, fin = pk === 'A' ? (nd >= 14 ? 'A' : 'A0') : pk === 'B' ? (FL.mina ? 'B' : 'B0') : 'C';
+  const pk = FINAL_CHOICE[ci].id, fin = pk === 'A' ? (nd >= 14 ? (sqDoneCount() === SIDEQUESTS.length ? 'Aplus' : 'A') : 'A0') : pk === 'B' ? (FL.mina ? 'B' : 'B0') : 'C';
   FL.final = fin;
   setTimeout(() => {
     state = 'won'; sfx.win(); stopSpeak(); $('hud').classList.remove('show');
@@ -1406,7 +1410,7 @@ function load(preferBackup) {
   if (d.progress.gateClosed) { gateClosed = true; gateState = 'closed'; gateAnim = 1; gate.setOpen(0); }
   if (d.ghost && d.ghost.active && !FL.calm) Object.assign(ghost, { active: true, enraged: !!d.ghost.enraged, floor: d.ghost.floor, x: d.ghost.x, z: d.ghost.z, state: 'patrol', path: [], wait: 2, spawnGrace: 4 });
   lastSave = d.meta;
-  chapterShown = objective().ch; refreshHud();
+  sqSync(true); chapterShown = objective().ch; refreshHud();
   toast(r.source === 'backup' ? '백업 세이브에서 불러왔습니다' : r.source === 'legacy' ? '이전 버전 세이브를 변환했습니다' : '불러오기 완료', `${CHAPTERS[chapterShown - 1].title} · ${d.meta.where || ''}`, r.source === 'main' ? 'info' : 'warn');
   if (fixes.length) console.info('[save] 진행 상태 보정:', fixes);
   return true;
@@ -2100,6 +2104,7 @@ async function useProp(p) {
   if (p.kind === 'elevator') { rideElevator(p); return; }
   if (p.kind === 'robj') { useRoomObj(p); return; }
   if (p.kind === 'guardnpc') { talkGuard(p); return; }
+  if (p.kind === 'sq') { useSideQuest(p); return; }
   if (p.kind === 'clue') { readMemory(p); return; }
   if (p.kind === 'cctvRec') { p.label = 'CCTV 다시 보기'; sfx.staticNoise(1.2); fx.glitch(.5); showNote({ title: 'CCTV 녹화 — 10.12 23:31 · B1 복도', img: 'b1_corr', text: '정지 화면이 지직거린다. 복도 끝 <b>배수실</b> 쪽에서 누군가 바닥의 <b>철제 덮개</b>를 끌어 덮고 있다.<br>23:33 — 화면이 검게 끊긴다. 마지막 프레임, 렌즈 바로 앞에 젖은 손바닥 자국.' }); addClue('cctv'); return; }
   if (p.kind === 'footprints') { p.done = true; poolFlashback(); return; }
@@ -2929,6 +2934,105 @@ function applySettings() {
   document.documentElement.style.setProperty('--ui', SET.ui);
   if (state !== 'playing') { camera.fov = SET.fov; camera.updateProjectionMatrix(); }
 }
+/* ---------- 의뢰 (서브 퀘스트): 교실마다 남겨진 부탁 — story.js SIDEQUESTS ----------
+   진행은 FL.sq[id] = 현재 단계(0 = 아직 시작 전, steps.length = 완료) · 퀘스트 아이템은 FL.qi — FL 째로 저장된다.
+   단계마다 조사 지점(prop kind 'sq')을 하나씩 만들고, 지금 단계의 지점만 활성화한다 */
+const sqStep = id => (FL.sq && FL.sq[id]) || 0;
+const sqDoneCount = () => SIDEQUESTS.filter(q => sqStep(q.id) >= q.steps.length).length;
+const sqProps = [];
+{ // 방 이름 → 방 중심 · 남쪽 줄 여부
+  const roomOf = (f, name) => {
+    const an = f >= 8, rows = an ? [[ANNEX.floors[f - 8], ANNEX.slots, false], [ANNEX_S[f - 8], ANNEX.slots, true]] : [[LAYOUT[f], SLOTS, false], [LAYOUT_S[f], SLOTS, true]];
+    for (const [L, sl, south] of rows) { if (!L) continue; const i = L.names.indexOf(name); if (i >= 0) return { cx: sl[i], south }; }
+    return null;
+  };
+  // 가구 · 벽 충돌을 피해 비어 있는 자리로 조금씩 옮긴다
+  const freeSpot = (F, x, z, r = .32) => { const hit = (a, b) => F.col.some(c => a > c.x1 - r && a < c.x2 + r && b > c.z1 - r && b < c.z2 + r);
+    if (!hit(x, z)) return [x, z]; for (let k = 1; k < 14; k++) for (let a = 0; a < 8; a++) { const ax = x + Math.cos(a * .785) * k * .18, az = z + Math.sin(a * .785) * k * .18; if (!hit(ax, az)) return [ax, az]; } return [x, z]; };
+  const M = (c, o = {}) => new THREE.MeshStandardMaterial({ color: c, roughness: .8, ...o });
+  const LOOK = {
+    board: () => { const g = new THREE.Group(), b = new THREE.Mesh(new THREE.BoxGeometry(.5, .36, .02), M(0xd8cfb8)); b.position.y = .62; b.rotation.x = -.35; g.add(b); for (let i = 0; i < 12; i++) { const s = new THREE.Mesh(new THREE.CircleGeometry(.018, 5), new THREE.MeshBasicMaterial({ color: i === 11 ? 0x333333 : 0xe8c040 })); s.position.set(-.18 + (i % 6) * .07, .66 - ((i / 6) | 0) * .1, .02); s.rotation.x = -.35; g.add(s); } return g; },
+    book: () => { const m = new THREE.Mesh(new THREE.BoxGeometry(.24, .05, .32), M(0x6a2a2a)); m.position.y = .5; return m; },
+    tape: () => { const m = new THREE.Mesh(new THREE.BoxGeometry(.12, .02, .08), M(0x1a1a1c)); m.position.y = .49; return m; },
+    deck: () => { const m = new THREE.Mesh(new THREE.BoxGeometry(.4, .14, .26), M(0x2a2b2e, { metalness: .4 })); m.position.y = .55; return m; },
+    letter: () => { const m = new THREE.Mesh(new THREE.BoxGeometry(.24, .01, .16), M(0xe8e0cc)); m.position.y = .49; return m; },
+    paper: () => { const m = new THREE.Mesh(new THREE.BoxGeometry(.24, .02, .32), M(0xd8d0bc)); m.position.y = .49; return m; },
+    drawer: () => { const m = new THREE.Mesh(new THREE.BoxGeometry(.5, .4, .45), M(0x4a4e50, { metalness: .5 })); m.position.y = .68; return m; },
+    box: () => { const m = new THREE.Mesh(new THREE.BoxGeometry(.4, .3, .3), M(0x5a6a5a, { metalness: .3 })); m.position.y = .63; return m; },
+    monitor: () => { const g = new THREE.Group(), m = new THREE.Mesh(new THREE.BoxGeometry(.4, .3, .25), M(0xc8bfa8)); m.position.y = .63; const sc = new THREE.Mesh(new THREE.PlaneGeometry(.32, .22), new THREE.MeshBasicMaterial({ color: 0x5a8ad0 })); sc.position.set(0, .64, .126); g.add(m, sc); return g; },
+    photo: () => { const m = new THREE.Mesh(new THREE.BoxGeometry(.2, .01, .15), M(0xc8b890)); m.position.y = .49; return m; },
+    flower: () => { const g = new THREE.Group(); for (let i = 0; i < 3; i++) { const st = new THREE.Mesh(new THREE.CylinderGeometry(.006, .006, .3, 5), M(0x3a6a2a)); st.position.set(i * .03 - .03, .15, 0); const fl = new THREE.Mesh(new THREE.SphereGeometry(.03, 8, 6), M(0xe8e0f0)); fl.position.set(i * .03 - .03, .31, 0); g.add(st, fl); } return g; },
+    post: () => { const g = new THREE.Group(), b = new THREE.Mesh(new THREE.BoxGeometry(.4, .5, .3), M(0xb02018)); b.position.y = 1.0; const pole = new THREE.Mesh(new THREE.CylinderGeometry(.03, .03, .75, 8), M(0x2a2a2a)); pole.position.y = .375; g.add(b, pole); return g; },
+    lamp: () => { const g = new THREE.Group(), b = new THREE.Mesh(new THREE.BoxGeometry(.36, .16, .1), M(0xd8d4c4)); b.position.y = 2.2; const h = new THREE.Mesh(new THREE.BoxGeometry(.3, .08, .04), sqLampMat); h.position.set(0, 2.18, .06); g.add(b, h); return g; },
+  };
+  const sqLampMat = new THREE.MeshStandardMaterial({ color: 0x2a2a26, emissive: 0xfff0c8, emissiveIntensity: 0 });
+  const crate = new THREE.BoxGeometry(.42, .44, .36), crateM = M(0x6a5a44);
+  SIDEQUESTS.forEach(q => q.steps.forEach((st, k) => {
+    let x = st.x, z = st.z, F = floors[st.f];
+    if (st.room) { const r = roomOf(st.f, st.room); if (!r) { console.warn('[sq] 방 없음', st.room); return; } x = r.cx + st.dx; z = r.south ? 1.75 + st.d : -1.75 - st.d; }
+    if (st.look !== 'post' && st.look !== 'lamp') [x, z] = freeSpot(F, x, z);
+    const g = new THREE.Group(); g.position.set(x, 0, z); g.userData.dynamic = true;
+    if (!['post', 'lamp', 'flower'].includes(st.look)) g.add(new THREE.Mesh(crate, crateM)).position.y = .22;
+    const v = LOOK[st.look](); g.add(v);
+    const gl = new THREE.Sprite(new THREE.SpriteMaterial({ map: glintTex, color: 0xffd8a0, blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, opacity: .5 })); gl.scale.setScalar(.6); gl.position.y = st.look === 'lamp' ? 2.2 : st.look === 'post' ? 1.1 : .6; g.add(gl);
+    (st.f === 0 && !st.room ? world.OUT : F.interior).add(g);
+    const p = { kind: 'sq', q: q.id, k, st, floor: st.f, x, z, y: st.look === 'lamp' ? 2.0 : .7, mesh: g, glint: gl, label: st.label, uid: `sq:${q.id}:${k}` };
+    if (st.look === 'lamp') p.lampMat = sqLampMat;
+    world.props.push(p); sqProps.push(p);
+  }));
+}
+// 지금 단계의 지점만 보이고 조사할 수 있다. init: 불러오기 직후 (비상등처럼 완료 상태가 남는 연출 복원)
+function sqSync(init) {
+  FL.sq = FL.sq || {}; FL.qi = FL.qi || {};
+  for (const p of sqProps) {
+    const s = sqStep(p.q), q = SIDEQUESTS.find(x => x.id === p.q);
+    // 첫 단계는 언제나 열려 있다(발견형). 이후 단계는 그 단계가 됐을 때만
+    const active = s === p.k && s < q.steps.length;
+    p.done = !active; p.mesh.visible = active || (p.st.look === 'lamp' && s >= q.steps.length) || (p.st.look === 'post' && s >= p.k);
+    if (p.glint) p.glint.visible = active;
+    if (p.lampMat) p.lampMat.emissiveIntensity = s >= q.steps.length ? 2.2 : 0;
+  }
+}
+function sqNeedOk(n) { return !n || (n === 'power' ? power : n === 'mina' ? FL.mina : n === 'key4' ? !!got[4] : n === 'hairpin' ? inv.hairpin > 0 : true); }
+function sqNeedText(p) { const n = p.st.need; if (sqNeedOk(n)) return ''; return { power: '  — 전원 없음 (지하 전기실 차단기)', mina: '  — 민아를 먼저 찾아야 한다', key4: '  — 아직 다섯 번째 조각이 없다', hairpin: '  — 머리핀 필요' }[n] || ''; }
+async function useSideQuest(p) {
+  const q = SIDEQUESTS.find(x => x.id === p.q), st = p.st;
+  if (!sqNeedOk(st.need)) { sfx.click(); say(sqNeedText(p).replace(/^\s*—\s*/, ''), 2400); return; }
+  if (st.need === 'hairpin') { inv.hairpin--; sfx.pick && sfx.pick(); }
+  let ci = 0;
+  if (st.choice) { ci = await choose(st.choice.title, st.choice.text, st.choice.opts); }
+  if (st.take) delete FL.qi[st.take];
+  if (st.give) { FL.qi[st.give] = true; newItems.add(st.give); sfx.pickup(); toast('아이템을 획득했습니다', ITEMS[st.give].name, 'info'); }
+  FL.sq[q.id] = p.k + 1;
+  const first = p.k === 0, last = p.k + 1 >= q.steps.length;
+  if (st.doc) { addDoc({ id: st.doc, kind: 'note' }); sfx.paper(); }
+  sqEvent(st.event, ci, p);
+  if (st.doc) setTimeout(() => { if (state === 'playing') showNote({ title: world.NOTES[st.doc].title, text: world.NOTES[st.doc].text }); }, st.event ? 1800 : 300);
+  if (first && !last) setTimeout(() => toast('새 의뢰', `${q.title} — 다음: ${q.steps[1].goal}`, 'opt'), 900);
+  else if (!last) setTimeout(() => toast(q.title, `다음: ${q.steps[p.k + 1].goal}`, 'info'), 900);
+  if (last) {
+    const r = ci === 0 ? (st.reward || {}) : {};
+    Object.entries(r).forEach(([k, v]) => { inv[k] = (inv[k] || 0) + v; });
+    addClue('q' + (SIDEQUESTS.indexOf(q) + 1)); storyCalm(40);
+    setTimeout(() => toast('의뢰 완료 — ' + q.title, Object.keys(r).length ? '보답: ' + Object.entries(r).map(([k, v]) => `${ITEMS[k].name} ×${v}`).join(', ') : '마음 한구석이 무겁다', 'opt'), 2400);
+    if (sqDoneCount() === SIDEQUESTS.length) setTimeout(() => { inv.medkit++; inv.battery += 2; toast('모든 부탁을 들어주었다', '남겨진 사람들의 이야기를 모두 모았다 — 진실을 알리면 다른 결말이 기다린다', 'opt'); refreshHud(); }, 6500);
+  }
+  refreshHud(); save(true);
+}
+// 의뢰 연출 — 기존 효과음 · 화면 효과 · 자막만 쓴다
+function sqEvent(ev, ci, p) {
+  if (!ev) return;
+  if (ev === 'bell') { if (ci === 0) { setTimeout(() => sfx.bell(), 300); setTimeout(() => caption('…어디선가 작은 목소리가 대답했다. “네!”'), 1400); } else { sfx.whisper(); caption('출석부를 덮자, 교실 쪽에서 의자 끄는 소리가 났다'); } }
+  else if (ev === 'song') { const mel = [392, 392, 440, 440, 392, 392, 330, 392, 392, 330, 330, 294]; sfx.tape && sfx.tape(); mel.forEach((f, i) => setTimeout(() => sfx.note(f), 900 + i * 420)); setTimeout(() => caption('스피커에서 세 사람의 노래가 흘러나온다'), 1200); setTimeout(() => { caption('“…모두, 수고 많았습니다. 집으로 돌아가세요.”'); fx.glitch(.25); }, 900 + mel.length * 420); }
+  else if (ev === 'water') { if (ci === 0) { sfx.drip(); setTimeout(() => caption('물소리가 멎었다'), 900); setTimeout(() => sfx.whisper(), 1800); } else caption('물소리는 계속된다'); }
+  else if (ev === 'pick') { sfx.tumbler && sfx.tumbler(); setTimeout(() => sfx.unlock(), 700); }
+  else if (ev === 'truth') { sfx.staticNoise(.8); fx.glitch(.4); setTimeout(() => caption('두 진술이 모두 사실이었다 — 문은 두 개였다'), 900); }
+  else if (ev === 'post') { sfx.paper(); setTimeout(() => sfx.click(), 500); setTimeout(() => caption('편지가 우편함 바닥에 닿는 소리'), 900); }
+  else if (ev === 'mina') { sfx.tape && sfx.tape(); setTimeout(() => caption('📼 민아: “언니. 하늘 언니 방송, 내가 끝까지 들었어.”'), 900); }
+  else if (ev === 'light') { sfx.lightOn ? sfx.lightOn() : sfx.click(); setTimeout(() => caption('10년 늦은 불빛'), 900); }
+  else if (ev === 'library') { sfx.lightsOff ? sfx.lightsOff() : sfx.click(); fx.glitch(.3); setTimeout(() => sfx.whisper(), 1100); setTimeout(() => caption('…다녀왔습니다.'), 1500); }
+}
+sqSync();
 initSaveIds();
 applyQuality(SET.quality === 'auto' ? 'high' : SET.quality);
 applySettings();
@@ -3069,7 +3173,7 @@ if (DEBUG) {
     get state() { return state; }, set state(v) { state = v; }, get tNow() { return tNow; }, openTest, EV, appar, applyQuality,
     interact, die, activateGhost, enrage, FL, MG, throwCan, throws, set playTime(v) { playTime = v; }, toggleView, get view() { return view; }, useProp, docs, msgs, clues, objective, makeGateKey, openInv, openPhone, openMap, openCharsel, openSettings, refreshHud, save, load, inv, mina,
     get power() { return power; }, set power(v) { power = v; }, get CHAR() { return CHAR; }, newGame, continueGame,
-    setTarget(t) { target = t; }, DAY, GEN,
+    setTarget(t) { target = t; }, DAY, GEN, SIDEQUESTS, sqStep, sqDoneCount, useSideQuest,
   };
 }
 // 형광등 스위치 초기 상태 반영 (방마다 일부만 켜져 있다)

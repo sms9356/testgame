@@ -48,6 +48,10 @@ EMO = {
 }
 
 
+# 문장 사이 쉼(초): 긴박할수록 짧게, 슬프거나 두려울수록 길게
+PAUSE = {'normal': .32, 'surprise': .2, 'fear': .42, 'urgent': .14, 'whisper': .4, 'resolve': .3, 'relief': .36, 'sad': .5}
+
+
 def emo_tables():
     """voice.js 에서 LINE_EMO · VO_EMO 를 읽는다 (브라우저 전용 코드라 import 대신 객체 리터럴만 꺼낸다)."""
     src = open(os.path.join(ROOT, 'voice.js'), encoding='utf-8').read()
@@ -62,12 +66,17 @@ def emo_of(vid, L, V):
     return (L.get(m.group(1)) if m else V.get(vid)) or 'normal'
 
 
+def probe(f):
+    return float(subprocess.run(['ffprobe', '-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', f], capture_output=True, text=True).stdout.strip() or 0)
+
+
 def pct(v): return f'{v:+d}%'
 def hz(v): return f'{v:+d}Hz'
 
 
 async def synth(text, voice, rate, pitch, vol, dst):
-    await edge_tts.Communicate(text, voice, rate=pct(rate), pitch=hz(pitch), volume=pct(vol)).save(dst)
+    px = os.environ.get('HTTPS_PROXY') or os.environ.get('https_proxy')   # 프록시 환경에서도 동작
+    await edge_tts.Communicate(text, voice, rate=pct(rate), pitch=hz(pitch), volume=pct(vol), proxy=px).save(dst)
 
 
 def main():
@@ -86,15 +95,20 @@ def main():
             tmp = tf.name
         for attempt in range(4):
             try:
-                asyncio.run(synth(say, voice, r0 + r1, p0 + p1, v1, tmp)); break
+                asyncio.run(synth(say, voice, r0 + r1, p0 + p1, v1, tmp))
+                if probe(tmp) < len(re.sub(r'\s', '', say)) * .07: raise RuntimeError('잘린 응답')   # 응답이 중간에 끊기면 다시
+                break
             except Exception as e:  # 네트워크 일시 오류는 다시 시도
                 if attempt == 3: raise
                 print('retry', vid, e)
         dst = os.path.join(OUT, vid + '.mp3')
-        flt = f'highpass=f=70,loudnorm=I=-17:TP=-2:LRA=9{efx}{extra},apad=pad_dur=0.15'
+        # 문장 사이 쉼을 감정에 맞게 줄인다 (서비스 기본 쉼은 1초 넘게 길다)
+        gap = PAUSE.get(emo, .3)
+        trim = f'silenceremove=start_periods=1:start_threshold=-50dB:start_silence=0.04:stop_periods=-1:stop_threshold=-50dB:stop_duration={gap + .05:.2f}:stop_silence={gap:.2f}'
+        flt = f'{trim},highpass=f=70,loudnorm=I=-17:TP=-2:LRA=9{efx}{extra},apad=pad_dur=0.15'
         subprocess.run(['ffmpeg', '-y', '-loglevel', 'error', '-i', tmp, '-af', flt, '-ac', '1', '-ar', '44100', '-b:a', '56k', dst], check=True)
         os.unlink(tmp)
-        dur = float(subprocess.run(['ffprobe', '-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', dst], capture_output=True, text=True).stdout.strip())
+        dur = probe(dst)
         man[vid] = {'spk': spk, 'text': re.sub(r'<[^>]+>', ' ', text), 'dur': round(dur, 2), 'baked': True}
         print(vid, spk, emo, round(dur, 2), say[:40])
     json.dump(man, open(mp, 'w', encoding='utf-8'), ensure_ascii=False, indent=0)

@@ -101,21 +101,25 @@ function loadModels() {
     const texs = new Set(); scene.traverse(o => { if (o.isInstancedMesh && o.material) ['map', 'normalMap', 'roughnessMap', 'metalnessMap', 'aoMap'].forEach(k => o.material[k] && texs.add(o.material[k])); });
     texs.forEach(t => renderer.initTexture(t)); try { renderer.compile(scene, camera); } catch (e) { /* ignore */ } };
   // 사용자 3D 소품 133종 팩 (h133/ID): 정점 색뿐인 저폴리곤 → 면 법선 · 상자 투영 UV 를 만들고, 부품 이름으로 게임 PBR 재질을 골라 재질별로 합친다
-  const h133Parts = (root, id) => {
+  // (요리실 101 팩 cr101/ID: 재질 이름(steel · steel_dirty · rust …)으로 고른다)
+  const h133Parts = (root, id, cr) => {
     const groups = new Map();
-    root.traverse(o => { if (!o.isMesh) return; const nm = (o.name || o.parent?.name || '').replace(/^\d+_/, ''), mat = world.h133Mat(id, nm);
+    root.traverse(o => { if (!o.isMesh) return; const nm = (o.name || o.parent?.name || '').replace(/^\d+_/, ''), mat = cr ? world.crMat(o.material && o.material.name) : world.h133Mat(id, nm);
       let g = o.geometry.index ? o.geometry.toNonIndexed() : o.geometry.clone(); g.deleteAttribute('color'); g.applyMatrix4(o.matrixWorld); g.computeVertexNormals();
       const P = g.attributes.position, N = g.attributes.normal, uv = new Float32Array(P.count * 2);
       for (let i = 0; i < P.count; i++) { const ax = Math.abs(N.getX(i)), ay = Math.abs(N.getY(i)), az = Math.abs(N.getZ(i));
-        const [u, v] = ax >= ay && ax >= az ? [P.getZ(i), P.getY(i)] : ay >= az ? [P.getX(i), P.getZ(i)] : [P.getX(i), P.getY(i)]; uv[i * 2] = u * 1.5; uv[i * 2 + 1] = v * 1.5; }
+        const [u, v] = ax >= ay && ax >= az ? [P.getZ(i), P.getY(i)] : ay >= az ? [P.getX(i), P.getZ(i)] : [P.getX(i), P.getY(i)]; uv[i * 2] = u * .8; uv[i * 2 + 1] = v * .8; }
       g.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
       (groups.get(mat) || groups.set(mat, []).get(mat)).push(g); });
     const out = []; groups.forEach((gs, mat) => { const m = new THREE.Mesh(gs.length > 1 ? mergeGeometries(gs) : gs[0], mat); out.push(m); });
     return out;
   };
-  Object.entries(byName).forEach(([name, list]) => loader.load(name.startsWith('h133/') ? `assets/models/${name}.glb` : `assets/models/${name}/${name}.gltf`, gltf => {
+  const packed = name => name.startsWith('h133/') || name.startsWith('cr101/');
+  Object.entries(byName).forEach(([name, list]) => loader.load(packed(name) ? `assets/models/${name}.glb` : `assets/models/${name}/${name}.gltf`, gltf => {
     const root = gltf.scene; root.updateMatrixWorld(true);
-    const parts = []; if (name.startsWith('h133/')) parts.push(...h133Parts(root, name.slice(5))); else root.traverse(o => { if (o.isMesh) parts.push(o); });
+    const cr = name.startsWith('cr101/');
+    const parts = []; if (packed(name)) parts.push(...h133Parts(root, name.split('/')[1], cr)); else root.traverse(o => { if (o.isMesh) parts.push(o); });
+    if (cr) floors.forEach(F => F.interior.traverse(o => { if (o.userData.cr === name.slice(6)) o.visible = false; }));   // GLB 로드 성공 → 같은 자리의 절차적 대체 메시 숨김
     const byFloor = {}; list.forEach(m => (byFloor[m.f] = byFloor[m.f] || []).push(m));
     Object.entries(byFloor).forEach(([f, ms]) => {
       const parent = f === 'out' ? world.OUT : floors.find(F => String(F.f) === f).interior;
@@ -123,7 +127,7 @@ function loadModels() {
         const mat = part.material; if (mat.isMeshStandardMaterial && mat.roughness < .14) mat.roughness = .14;
         const im = new THREE.InstancedMesh(part.geometry, mat, ms.length); im.userData.dynamic = true;
         ms.forEach((m, i) => { _e.set(m.rx, m.ry, m.rz, 'YXZ'); _q.setFromEuler(_e); _p.set(m.x, m.y, m.z); _s.setScalar(m.s); _m.compose(_p, _q, _s).multiply(part.matrixWorld); im.setMatrixAt(i, _m); });
-        im.instanceMatrix.needsUpdate = true; im.computeBoundingSphere(); im.castShadow = false; im.receiveShadow = true;   // 작은 소품은 그림자 패스에서 제외 (프레임 안정)
+        im.instanceMatrix.needsUpdate = true; im.computeBoundingSphere(); im.castShadow = cr; im.receiveShadow = true;   // 큰 조리대 (요리실 팩) 만 손전등 그림자   // 작은 소품은 그림자 패스에서 제외 (프레임 안정)
         parent.add(im);
       });
     });

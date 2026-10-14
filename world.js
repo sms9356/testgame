@@ -1456,6 +1456,20 @@ export function buildWorld(scene) {
     'BSM-004': () => mRust,
   };
   const h133Mat = (id, part) => (H133_MAT[id] || (() => mMetal))(part || '');
+  // 요리실 101 팩: GLB 재질 이름 → 게임 PBR 재질 (팩 GLB 에는 텍스처 · UV · 법선이 없다 — 로더가 법선 · 상자 투영 UV 를 만든다)
+  // 헤어라인(브러시드) 스테인리스: 가로 결 + 얼룩 · 물때 · 드문 녹 점 (시트의 '조리대 · 곰솥' 재질)
+  const brushed = (base, grime) => { const c = document.createElement('canvas'); c.width = c.height = 512; const g = c.getContext('2d');
+    g.fillStyle = `rgb(${base},${base + 3},${base + 5})`; g.fillRect(0, 0, 512, 512);
+    for (let i = 0; i < 2200; i++) { const y = rnd() * 512, v = (rnd() - .5) * 26; g.strokeStyle = `rgba(${v > 0 ? 255 : 0},${v > 0 ? 255 : 0},${v > 0 ? 255 : 0},${Math.abs(v) / 255})`; g.lineWidth = .6 + rnd(); g.beginPath(); const x = rnd() * 512; g.moveTo(x, y); g.lineTo(x + 40 + rnd() * 220, y + (rnd() - .5) * 1.5); g.stroke(); }
+    for (let i = 0; i < 26 * grime; i++) { const x = rnd() * 512, y = rnd() * 512, r = 14 + rnd() * 70, gr = g.createRadialGradient(x, y, 0, x, y, r); gr.addColorStop(0, `rgba(48,40,30,${.06 + rnd() * .1})`); gr.addColorStop(1, 'rgba(48,40,30,0)'); g.fillStyle = gr; g.fillRect(x - r, y - r, r * 2, r * 2); }
+    for (let i = 0; i < 9 * grime; i++) { const x = rnd() * 512, y = rnd() * 512; g.fillStyle = `rgba(${120 + rnd() * 40},${60 + rnd() * 20},30,${.25 + rnd() * .35})`; g.beginPath(); g.ellipse(x, y, 1 + rnd() * 5, 1 + rnd() * 3, rnd() * 3, 0, 7); g.fill(); }
+    for (let i = 0; i < 14 * grime; i++) { const x = rnd() * 512; g.strokeStyle = 'rgba(70,64,52,.12)'; g.lineWidth = 2 + rnd() * 6; g.beginPath(); g.moveTo(x, 0); g.lineTo(x + (rnd() - .5) * 8, 60 + rnd() * 200); g.stroke(); }   // 물때 흐른 자국
+    const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t; };
+  const mStainless = new THREE.MeshStandardMaterial({ map: brushed(178, 1), roughness: .28, metalness: .85, normalMap: _paint.normalMap, normalScale: new THREE.Vector2(.15, .15) });
+  const mStainlessD = new THREE.MeshStandardMaterial({ map: brushed(138, 3), roughness: .48, metalness: .72, normalMap: _paint.normalMap, normalScale: new THREE.Vector2(.25, .25) });
+  const CR_MAT = { steel: mStainless, steel_dirty: mStainlessD, rust: mRust, black: mDarkMetal, wood_dark: mWoodDark, wood: mWood, green: mCork, paper: mPaperN,
+    blue: S(null, { color: 0x2a5aa0, roughness: .4 }), red: S(null, { color: 0xa82a20, roughness: .4 }), light: new THREE.MeshBasicMaterial({ color: 0xe8f0ff }), glass: mGlass };
+  const crMat = name => CR_MAT[name] || mStainlessD;
   const valveWheel = (x, y, z, ry = 0, r = .16) => { const w = new THREE.Mesh(merge([new THREE.TorusGeometry(r, .02, 6, 18), bx(r * 2, .025, .025, 0, 0, 0), bx(.025, r * 2, .025, 0, 0, 0)]), mRedV); w.position.set(x, y, z); w.rotation.y = ry; cur.interior.add(w); return w; };
   const gauge = (x, y, z, ry = 0) => { const g = meshAt(new THREE.CylinderGeometry(.1, .1, .05, 16).rotateX(Math.PI / 2), mChrome, x, y, z, ry); const f = new THREE.Mesh(new THREE.CircleGeometry(.085, 16), mWhite); f.position.z = .027; g.add(f); const n = new THREE.Mesh(new THREE.BoxGeometry(.01, .07, .003), mRedV); n.position.set(.015, .01, .03); n.rotation.z = -.7; g.add(n); return g; };
   const wetSpot = (x, z, r) => { const p = new THREE.Mesh(new THREE.CircleGeometry(r, 18), new THREE.MeshStandardMaterial({ color: 0x141c1e, roughness: .04, metalness: .2, transparent: true, opacity: .6, depthWrite: false })); p.rotation.x = -Math.PI / 2; p.position.set(x, .018, z); p.scale.y = .7; cur.interior.add(p); };
@@ -2224,12 +2238,26 @@ export function buildWorld(scene) {
   }
 
   /* ---------- 급식실 (7) ---------- */
+  // 요리실 (사용자 제공 '요리실 101' 실제 3D 모델 팩 — assets/models/cr101): 뒷벽 개수대 + 가스레인지 조리대, 가운데 아일랜드 조리대 + 곰솥 2개 + 배기 후드,
+  // 앞쪽 바닥 배수 트렌치, 동쪽 벽 보조 조리대(세제 · 그릇), 출입문 옆 게시판. 문 · 창 · 표지판 · 형광등 · 방 껍데기 GLB 는 게임에 이미 있는 건축 · 문 시스템과 겹쳐 쓰지 않는다
+  // 각 자리에 GLB 와 같은 크기의 절차적 대체 메시를 두고(userData.cr), GLB 가 로드되면 숨긴다 — 파일이 없어도 방이 비지 않는다
+  function crFallback(id, mat, w, h, d, x, y, z, ry = 0) { const m = dyn(meshAt(merge([bx(w, h, d, 0, h / 2, 0)]), mat, x, y, z, ry)); m.userData.cr = id; return m; }   // (함수 선언 — 층 생성이 이 줄보다 먼저 돈다)
   function cooking(cx) {
     const zN = -9.6;
-    [-2.4, 0.2, 2.8].forEach(dx => { add(mMetal, 2.2, .9, .8, cx + dx, 0, zN + .5, { col: true }); add(mBlack, .6, .06, .5, cx + dx - .4, .9, zN + .5); });
-    add(mMetal, 3.6, .5, 1.0, cx, 2.9, zN + .5);
-    add(mMetal, 2.6, .9, 1.2, cx, 0, -6.2, { col: true }); [-.7, .7].forEach(dx => cyl(mMetal, .3, .4, cx + dx, .9, -6.2));
-    add(mMetal, .9, 1.8, .7, cx + 3.4, 0, -3.8, { col: true });
+    // 뒷벽: 개수대 (창 아래) · 가스레인지 조리대 — 앞면이 방 안(+z)을 향한다
+    model('cr101/CR-007', cx - 2.55, 0, zN + .34, 0); crFallback('CR-007', mStainlessD, 1.9, .86, .66, cx - 2.55, 0, zN + .34); col(cx - 3.5, cx - 1.6, zN, zN + .68, false, .9);
+    model('cr101/CR-006', cx + 1.0, 0, zN + .36, 0); crFallback('CR-006', mStainlessD, 2.44, .9, .69, cx + 1.0, 0, zN + .36); col(cx - .22, cx + 2.22, zN, zN + .7, false, .92);
+    // 가운데: 아일랜드 조리대 + 곰솥 2개 + 천장에 매단 배기 후드
+    const iz = -6.0;
+    model('cr101/CR-004', cx, 0, iz, 0); crFallback('CR-004', mStainlessD, 2.7, .87, 1.28, cx, 0, iz); col(cx - 1.35, cx + 1.35, iz - .64, iz + .64, false, .87);
+    [[-.62, .1, .2], [.68, -.12, -.5]].forEach(([dx, dz, r]) => { model('cr101/CR-005', cx + dx, .87, iz + dz, r); crFallback('CR-005', mStainless, .5, .39, .5, cx + dx, .87, iz + dz); });
+    model('cr101/CR-011', cx, 2.15, iz, 0); crFallback('CR-011', mStainless, 1.9, .5, 1.12, cx, 2.5, iz);
+    meshAt(merge([tube(.008, cx - .8, 3.0, iz - .4, cx - .8, CH, iz - .4), tube(.008, cx + .8, 3.0, iz - .4, cx + .8, CH, iz - .4), tube(.008, cx - .8, 3.0, iz + .4, cx - .8, CH, iz + .4), tube(.008, cx + .8, 3.0, iz + .4, cx + .8, CH, iz + .4)]), mChrome, 0, 0, 0);   // 후드 매다는 줄
+    // 바닥 배수 트렌치 (아일랜드 앞) · 동쪽 보조 조리대 + 세제 · 그릇 · 쟁반 · 게시판
+    model('cr101/CR-010', cx, 0, -4.15, 0);
+    meshAt(merge([bx(.7, .82, 2.2, 0, .41, 0), bx(.74, .04, 2.24, 0, .84, 0)]), mStainlessD, cx + 3.48, 0, -6.4); col(cx + 3.1, cx + 3.85, -7.5, -5.3, false, .86);
+    model('cr101/CR-012', cx + 3.45, .86, -6.4, -Math.PI / 2);
+    model('cr101/CR-009', cx + 2.55, 1.15, -1.78, Math.PI); crFallback('CR-009', mCork, 1.84, .92, .04, cx + 2.55, 1.15, -1.78);
     plane(cur.interior, mWin, 1.3, 1.45, cx - 3.05, 1.75, zN + .02);
     addBattery(cx - 3, 0, -3.4); papers(cx, -8, -2.4, 6);
   }
@@ -3165,7 +3193,7 @@ export function buildWorld(scene) {
     return .38 + .62 * d;
   }
   const flickCfg = { calm: false };
-  return { h133Mat, winMats, MODELS, floors, items, lockers, doors, gate, update, mats: { flickerMats, matLampOn, matLampDead }, flickCfg, sky: { stars, moon, moonGlow }, NOTES, TAPES, PHOTOS, doorList, props, boardRefs, OUT, bakeStats, makeBoardTex: T.makeBoard };
+  return { h133Mat, crMat, winMats, MODELS, floors, items, lockers, doors, gate, update, mats: { flickerMats, matLampOn, matLampDead }, flickCfg, sky: { stars, moon, moonGlow }, NOTES, TAPES, PHOTOS, doorList, props, boardRefs, OUT, bakeStats, makeBoardTex: T.makeBoard };
 }
 
 /* ---------- 충돌/시야 ---------- */

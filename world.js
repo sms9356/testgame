@@ -813,6 +813,43 @@ export function buildWorld(scene) {
     const sh = new THREE.Mesh(new THREE.BoxGeometry(hx2 - hx1, 1.6, hz2 - hz1), new THREE.MeshBasicMaterial({ color: 0x030303, side: THREE.BackSide }));
     sh.position.set((hx1 + hx2) / 2, CH + .8, (hz1 + hz2) / 2); P.add(sh);
   }
+  // 방마다 고유 오브젝트 (출입문 쪽 벽, 방 안을 향함) — 조사하면 선택 화면이 열리고 효과가 있다 (game.js ROBJ)
+  const ROBJ_OF = { nurse: 'med', sick: 'med', office: 'phone', staff: 'phone', principal: 'phone', meeting: 'phone', toilet: 'mirror', library: 'cards', reading: 'cards', archive: 'cards', records: 'cards',
+    computer: 'term', digital: 'term', av: 'term', lab: 'chem', prepS: 'chem', cooking: 'snack', counsel: 'emo', counselS: 'emo', print: 'copier', wash: 'water', student: 'ballot', tool: 'radio', equip: 'radio' };
+  const ROBJ_LABEL = { med: '약품함 열기', phone: '수화기 들기', mirror: '거울 보기', cards: '대출 카드함 뒤지기', term: '단말기 켜기', chem: '약품 선반 살피기', snack: '간식 바구니 뒤지기', emo: '감정 카드 고르기', copier: '복사 카운터 누르기', water: '수도꼭지 틀기', ballot: '투표함 열기', radio: '무전기 켜기' };
+  const mRedCross = new THREE.MeshBasicMaterial({ color: 0xb02020 }), mTermScr = new THREE.MeshBasicMaterial({ color: 0x38c070 }), mBeige = S(null, { color: 0xc8bc9c, roughness: .6 });
+  function roomObj(t, cx) {
+    const k = ROBJ_OF[t]; if (!k) return;
+    const x = cx - 2.7, z = -1.8, g = new THREE.Group(); g.position.set(x, 1.35, z); g.rotation.y = Math.PI; cur.interior.add(g);
+    const B = (m, w, h, d, px = 0, py = 0, pz = 0) => { const o = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m); o.position.set(px, py, pz); g.add(o); return o; };
+    if (k === 'med') { B(mWhite, .5, .62, .16, 0, 0, .08); B(mRedCross, .2, .06, .01, 0, .05, .165); B(mRedCross, .06, .2, .01, 0, .05, .165); B(mChrome, .03, .1, .02, .2, -.1, .17); }
+    else if (k === 'phone') { B(mBeige, .2, .3, .08, 0, 0, .04); B(mBeige, .07, .26, .07, -.13, .0, .09); for (let i = 0; i < 9; i++) B(mBlack, .03, .03, .01, -.03 + (i % 3) * .05, .06 - ((i / 3) | 0) * .05, .085); }
+    else if (k === 'mirror') { B(mChrome, .56, .76, .03, 0, .15, .015); const m = new THREE.Mesh(new THREE.PlaneGeometry(.5, .7), new THREE.MeshStandardMaterial({ color: 0x8a969a, roughness: .05, metalness: .95 })); m.position.set(0, .15, .032); g.add(m); }
+    else if (k === 'cards') { B(mWood, .6, .4, .3, 0, -.15, .15); for (let i = 0; i < 6; i++) { B(mWoodDark, .17, .1, .01, -.19 + (i % 3) * .19, -.06 - ((i / 3) | 0) * .16, .305); B(mChrome, .05, .015, .02, -.19 + (i % 3) * .19, -.08 - ((i / 3) | 0) * .16, .31); } }
+    else if (k === 'term') { B(mDarkMetal, .42, .32, .1, 0, 0, .05); const sc = new THREE.Mesh(new THREE.PlaneGeometry(.34, .22), mTermScr); sc.position.set(0, .02, .102); g.add(sc); }
+    else if (k === 'chem') { B(mWood, .7, .03, .2, 0, -.1, .1); [[0x3060d0, -.2], [0xd0c030, 0], [0xb02020, .2]].forEach(([c, dx]) => { const f = new THREE.Mesh(new THREE.CylinderGeometry(.035, .06, .18, 10), new THREE.MeshStandardMaterial({ color: c, roughness: .1, transparent: true, opacity: .8, emissive: c, emissiveIntensity: .15 })); f.position.set(dx, .0, .1); g.add(f); }); }
+    else if (k === 'snack') { B(mWood, .6, .03, .25, 0, -.12, .12); B(mCardboard, .4, .14, .2, 0, -.03, .12); [0xd04030, 0x3080c0, 0xe0b030].forEach((c, i) => B(S(null, { color: c, roughness: .5 }), .08, .1, .04, -.12 + i * .12, .07, .12)); }
+    else if (k === 'emo') { B(mCork, .6, .45, .02, 0, 0, .01); [0xe0d070, 0x80b0e0, 0xe09090, 0xa0d0a0].forEach((c, i) => B(S(null, { color: c, roughness: .8 }), .12, .16, .005, -.2 + i * .13, (i % 2) * .06 - .02, .025)); }
+    else if (k === 'copier') { B(mBeige, .3, .3, .12, 0, 0, .06); B(mBlack, .2, .06, .01, 0, .07, .125); B(mRedCross, .04, .04, .01, .08, -.07, .125); }
+    else if (k === 'water') { B(mPorc, .5, .14, .3, 0, -.45, .15); B(mChrome, .03, .03, .14, 0, -.25, .07); B(mChrome, .1, .03, .03, 0, -.2, .02); }
+    else if (k === 'ballot') { B(mWood, .5, .03, .25, 0, -.18, .12); B(S(null, { color: 0xd8d2c4, roughness: .3, transparent: true, opacity: .55 }), .36, .3, .22, 0, -.01, .12); B(mBlack, .14, .01, .02, 0, .145, .12); }
+    else if (k === 'radio') { B(mDarkMetal, .14, .26, .07, 0, 0, .04); B(mBlack, .015, .2, .015, .04, .22, .04); B(mTermScr, .08, .04, .005, 0, .06, .078); }
+    props.push({ kind: 'robj', k, t, floor: cur.f, x, z, y: 1.35, cx, label: ROBJ_LABEL[k] });
+  }
+  // 엘리베이터 (계단실 동쪽 벽): 철문 · 층 표시 · 호출 버튼 — 타면 층 선택 화면
+  const EL_LABEL = { 4: 'B1', 0: '1F', 1: '2F', 2: '3F', 8: '1F', 9: '2F', 10: '3F' };
+  function elevator(cx) {
+    const x = cx + 3.84, z = -7.0, g = new THREE.Group(); g.position.set(x, 0, z); g.rotation.y = -Math.PI / 2; cur.interior.add(g);
+    const fr = new THREE.Mesh(merge([bx(.14, 2.4, .1, -.87, 1.2, 0), bx(.14, 2.4, .1, .87, 1.2, 0), bx(1.88, .16, .1, 0, 2.44, 0)]), mChrome); g.add(fr);
+    [-.4, .4].forEach(dx => { const d = new THREE.Mesh(new THREE.BoxGeometry(.8, 2.36, .04), mMetal); d.position.set(dx, 1.18, .0); g.add(d); });
+    const seam = new THREE.Mesh(new THREE.BoxGeometry(.012, 2.36, .05), mBlack); seam.position.set(0, 1.18, .005); g.add(seam);
+    const ind = new THREE.Mesh(new THREE.PlaneGeometry(.5, .2), new THREE.MeshBasicMaterial({ map: T.makeSign(EL_LABEL[cur.f] || '', '#120806', '#ff5a2a', 34), color: 0xffb090 })); ind.position.set(0, 2.72, .06); g.add(ind);
+    const pnl = new THREE.Mesh(new THREE.BoxGeometry(.14, .3, .03), mChrome); pnl.position.set(1.15, 1.25, .03); g.add(pnl);
+    [.06, -.06].forEach((dy, k) => { const b = dyn(new THREE.Mesh(new THREE.CircleGeometry(.025, 12), new THREE.MeshBasicMaterial({ color: 0xffa040 }))); b.position.set(1.15, 1.25 + dy, .046); g.add(b);
+      const ph = k * 1.3; b.onBeforeRender = () => b.material.color.setHex(Math.sin(performance.now() / 900 + ph) > .6 ? 0xffb050 : 0x3a1a08); });
+    plane(cur.interior, new THREE.MeshStandardMaterial({ map: T.makeSign('승강기 · 정원 9명', '#d8d4c8', '#2a2a2a', 20), roughness: .8 }), .6, .14, x - .02, 1.75, z - 1.15, -Math.PI / 2);
+    props.push({ kind: 'elevator', floor: cur.f, x: x - .5, z, y: 1.25, px: x, pz: z, cx, label: '엘리베이터 타기' });
+  }
   function stairRoom(cx) {
     // ㄷ자 계단: 1번(북쪽으로 오름) → 층참 → 2번(남쪽으로 오름, 천장 개구부로 이어짐)
     const W = 1.3, xa = cx - 3.15, xb = cx - 1.85, n = 10, run = .48, rise = .19, z0 = -3.0, zl = z0 - n * run;
@@ -827,7 +864,10 @@ export function buildWorld(scene) {
     for (let k = 1; k <= 3; k++) { const z = zl + k * 1.2, y = 1.9 + k * 1.2 * rise / run; rails.push(tube(.018, cx - 2.5, y, z, cx - 2.5, y + .95, z)); }
     rails.push(tube(.025, cx - 3.8, 2.85, zl, cx - 1.2, 2.85, zl));
     const rm = new THREE.Mesh(merge(rails), mRust); cur.interior.add(rm);
-    col(cx - 3.85, cx - 1.2, -9.6, z0 + .1);
+    // 걸어서 오르내리는 계단: 높이는 game.js 의 stairH 가 계산한다. 두 계단 사이 난간 · 바깥쪽 옆판만 막는다
+    if (cur.stairCx == null) cur.stairCx = cx;
+    col(cx - 2.56, cx - 2.44, -7.7, z0 + .1); col(cx - 1.25, cx - 1.15, -9.6, z0 + .1);
+    elevator(cx);
     if (!cur.basement) win3D(cur.interior, 2.0, 1.8, cx + 1.8, 1.9, -9.58);
     // 계단 표시
     const sg2 = new THREE.MeshBasicMaterial({ map: T.makeSign('▲ 위층   ▼ 아래층', '#1e2a2e', '#d9e4d0', 26), transparent: false });
@@ -1582,9 +1622,10 @@ export function buildWorld(scene) {
     // 방별 가구
     SLOTS.forEach((cx, i) => {
       const t = lay.types[i];
+      roomObj(t, cx);
       ({ class: classroom, office, nurse, counsel, library, lab, computer, music, art, toilet, stair: stairRoom, cooking, craft, broadcast, boiler, electric, storage, records, cleaning, generator, pump, exit: exitRoom })[t](cx, lay.names[i]);
     });
-    if (LS) SLOTS.forEach((cx, i) => southRoom(cx, () => SOUTH_FN[LS.types[i]](cx, LS.names[i])));
+    if (LS) SLOTS.forEach((cx, i) => southRoom(cx, () => { SOUTH_FN[LS.types[i]](cx, LS.names[i]); roomObj(LS.types[i], cx); }));
     if (f === 2) addMedkit(SLOTS[3] + 2.6, .77, -8.6);
     if (f === 1) addMedkit(SLOTS[1] + 2.6, .77, -8.6);
     if (f === 0) { framed('map_aerial', 2.2, 1.2, -2.6, 1.75, -1.42); framed('map_floors', 1.6, 1.17, 2.6, 1.75, -1.42); }
@@ -1859,7 +1900,8 @@ export function buildWorld(scene) {
     [-12, -4, 4, 12].forEach(b => awall(b - .15, b + .15, -9.6, -1.75, CH));
     const fn = { stair: stairRoom, cooking, tech, fusion, counsel, computer, lang, smart, club, music, art, craft, lab };
     sl.forEach((cx, i) => fn[spec.types[i]](cx, spec.names[i]));
-    sl.forEach((cx, i) => southRoom(cx, () => { SOUTH_FN[AS.types[i]](cx, AS.names[i]); if (AS.types[i] === 'storeS') lostBox(cx + 1.8, -3.4, k === 1); }));
+    sl.forEach((cx, i) => roomObj(spec.types[i], cx));
+    sl.forEach((cx, i) => southRoom(cx, () => { SOUTH_FN[AS.types[i]](cx, AS.names[i]); roomObj(AS.types[i], cx); if (AS.types[i] === 'storeS') lostBox(cx + 1.8, -3.4, k === 1); }));
     [-12, -4, 4, 12].forEach(x => areaLamp(x, 0, CH - .1)); sl.forEach((cx, i) => { const rk = `${f}:${cx}`; areaLamp(cx - 2, -5.6, CH - .1, rk); areaLamp(cx + 2, -5.6, CH - .1, rk); lightSwitch(cx + 1.4, -1.78, Math.PI, rk, spec.names[i]); });
     sl.forEach((cx, i) => { const rk = `${f}:${cx}s`; areaLamp(cx - 2, 5.6, CH - .1, rk); areaLamp(cx + 2, 5.6, CH - .1, rk); lightSwitch(cx + (AS.types[i] === 'lobbyA' ? -3.25 : -1.4), 1.78, 0, rk, AS.names[i]); });
     [2, 3].forEach(i => { const cx = sl[i]; for (let q = 0; q < 3; q++) add(mLockerT, .62, 1.85, .5, cx + 2.35 + q * .66, 0, -1.2, { col: true }); lockers.push({ floor: f, x: cx + 3.01, z: -1.2, y: y0, dir: { x: 0, z: 1 } }); });

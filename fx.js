@@ -9,7 +9,7 @@ import { OutputPass } from './vendor/addons/postprocessing/OutputPass.js';
 const FinalShader = {
   uniforms: {
     tDiffuse: { value: null }, uTime: { value: 0 }, uFear: { value: 0 }, uGlitch: { value: 0 },
-    uGrain: { value: .035 }, uRes: { value: new THREE.Vector2(1, 1) }, uFlash: { value: 0 }, uHurt: { value: 0 }, uRain: { value: 0 },
+    uGrain: { value: 0 }, uRes: { value: new THREE.Vector2(1, 1) }, uFlash: { value: 0 }, uHurt: { value: 0 }, uRain: { value: 0 },
   },
   vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
   fragmentShader: `
@@ -60,9 +60,11 @@ const FinalShader = {
       // 번개 섬광
       col += uFlash * vec3(.55, .62, .8) * (.5 + .5 * v);
       // 필름 그레인 (어두운 곳에 더 강하게) + 약한 주사선
-      float g = h(uv * uRes + fract(uTime * 37.0) * 91.0) - .5;
-      col += g * uGrain * (1.2 - smoothstep(0.0, .6, l)) * (1.0 + uFear * 1.5 + uGlitch * 3.0);
-      col *= 1.0 - .035 * (uGlitch + uFear * .4) * step(.5, fract(gl_FragCoord.y * .5));
+      // 화면 좌표 기반 IGN 노이즈 — sin 해시의 정밀도 문제(모바일 GPU 의 깍두기 · 줄무늬 노이즈)를 피한다
+      vec2 fc = gl_FragCoord.xy + vec2(5.588, 3.27) * floor(mod(uTime * 24.0, 64.0));
+      float g = fract(52.9829189 * fract(dot(fc, vec2(.06711056, .00583715)))) - .5;
+      col += g * uGrain * (1.0 - smoothstep(0.0, .5, l)) * (1.0 + uFear * .6 + uGlitch * 3.0);
+      col *= 1.0 - .04 * uGlitch * step(.5, fract(gl_FragCoord.y * .5));
       gl_FragColor = vec4(col, 1.0);
     }`,
 };
@@ -202,7 +204,7 @@ export function createFX(renderer, scene, camera) {
 
   let flashT = 0, glitchT = 0;
   const opt = { bloom: true, grain: true, glitch: 1, flash: 1 };   // 설정 · 접근성
-  function setOpts(o) { Object.assign(opt, o); bloom.enabled = mode === 'high' && opt.bloom; final.uniforms.uGrain.value = opt.grain ? .035 : 0; }
+  function setOpts(o) { Object.assign(opt, o); bloom.enabled = mode === 'high' && opt.bloom; final.uniforms.uGrain.value = opt.grain ? .016 : 0; }
   function lightning() { flashT = 1; }
   function glitch(s = .6) { glitchT = Math.max(glitchT, s * opt.glitch); }
   // 후처리 경로에서도 계단 현상이 없도록 MSAA (높음: 4x, 중간: 2x)
@@ -214,7 +216,7 @@ export function createFX(renderer, scene, camera) {
   function render(dt, c) {
     const u = final.uniforms;
     u.uTime.value += dt; u.uFear.value = c.fear; u.uHurt.value = c.hurt || 0;
-    glitchT = Math.max(0, glitchT - dt); u.uGlitch.value = Math.min(1, glitchT + (c.fear > .75 ? (c.fear - .75) * 1.2 * opt.glitch : 0));
+    glitchT = Math.max(0, glitchT - dt); u.uGlitch.value = Math.min(1, glitchT + (c.fear > .9 ? (c.fear - .9) * 1.5 * opt.glitch : 0));
     flashT = Math.max(0, flashT - dt * 3.2);
     u.uFlash.value = flashT > 0 ? (Math.sin(flashT * 40) > 0 ? flashT : flashT * .3) * (c.outdoors ? .9 : .25) * opt.flash : 0;
     renderer.getSize(size); u.uRes.value.set(size.x, size.y);

@@ -101,8 +101,12 @@ export async function speak(id, fx = 'none') {
 export function stopSpeak() { stopVoice(); if ('speechSynthesis' in window) speechSynthesis.cancel(); }
 
 // 하단 자막 (주인공 외 화자: 내레이션 · 방송 · 테이프 · 전화 · 하늘)
+// 대화 기록 (휴대폰 › 기록): 최근 자막 80개
+export const SUBLOG = [];
+export function logLine(who, text) { const t = String(text).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim(); if (!t || (SUBLOG.length && SUBLOG[SUBLOG.length - 1].text === t)) return; SUBLOG.push({ who: who || '', text: t, at: Date.now() }); if (SUBLOG.length > 80) SUBLOG.shift(); }
 let subTimer = 0;
 export function subtitle(who, text, sec) {
+  logLine(who, text);
   const el = document.getElementById('sub'); if (!el) return;
   if (!VS.subs) { el.classList.remove('show'); return; }
   el.innerHTML = (who ? `<b>${who}</b>` : '') + `<span>${text}</span>`;

@@ -15,7 +15,7 @@ function loopNoise(freq, type, q = 1) {
 }
 
 export function initAudio() {
-  if (ac) { ac.resume(); return; }
+  if (ac) { ac.resume(); if (bgmEl && bgmEl.paused && bgmWant > 0) bgmEl.play().catch(() => {}); return; }
   const AC = window.AudioContext || window.webkitAudioContext;
   if (!AC) return;
   ac = new AC();
@@ -165,7 +165,19 @@ export function setGhostVoice(pos, level, chase, dt) {
 
 /* ----- 음악 (메뉴 테마 · 추격) ----- */
 let musG = {}, musMode = '', mbT = 0, mbI = 0, chaseT = 0;
+// 게임 BGM 「폐교의 그림자」 (music/bgm_shadow.mp3): 스트리밍 재생, 대사 · 추격 때 자동으로 줄어든다
+let bgmEl = null, bgmG = null, duckG = null, bgmOk = false, bgmWant = 0;
+function buildTrack() {
+  duckG = ac.createGain(); duckG.connect(bus.music);
+  try {
+    bgmEl = new Audio('music/bgm_shadow.mp3'); bgmEl.loop = true; bgmEl.preload = 'auto';
+    bgmEl.addEventListener('playing', () => { bgmOk = true; }); bgmEl.addEventListener('error', () => { bgmOk = false; });
+    const src = ac.createMediaElementSource(bgmEl); bgmG = ac.createGain(); bgmG.gain.value = 0; src.connect(bgmG); bgmG.connect(duckG);
+  } catch (e) { bgmEl = null; }
+}
+export function duckMusic(on) { if (duckG) duckG.gain.setTargetAtTime(on ? .4 : 1, ac.currentTime, on ? .15 : .8); }
 function buildMusic() {
+  buildTrack();
   musG.menu = ac.createGain(); musG.menu.gain.value = 0; musG.menu.connect(bus.music);
   musG.chase = ac.createGain(); musG.chase.gain.value = 0; musG.chase.connect(bus.music);
   // 추격: 불협 현악 드론
@@ -198,10 +210,14 @@ function menuBGM(dt) {
   if (bgmStep % 32 === 31) { const t = ac.currentTime; const n = ac.createBufferSource(); n.buffer = noiseBuf; n.loop = true; const f = ac.createBiquadFilter(); f.type = 'bandpass'; f.frequency.setValueAtTime(300, t); f.frequency.exponentialRampToValueAtTime(3000, t + 2.2); const e = ac.createGain(); e.gain.setValueAtTime(.0001, t); e.gain.exponentialRampToValueAtTime(.05, t + 2.2); e.gain.linearRampToValueAtTime(0, t + 2.3); n.connect(f); f.connect(e); e.connect(musG.menu); n.start(t); n.stop(t + 2.4); }
   bgmStep++;
 }
-export function setMusic(mode, dt) {
+// mode: menu | chase | none · game: 게임 중 BGM 크기(0 이면 끔)
+export function setMusic(mode, dt, game = 0) {
   if (!ok() || !musG.menu) return;
-  if (mode !== musMode) { musMode = mode; musG.menu.gain.setTargetAtTime(mode === 'menu' ? 1 : 0, ac.currentTime, .6); musG.chase.gain.setTargetAtTime(mode === 'chase' ? 1 : 0, ac.currentTime, mode === 'chase' ? .15 : 1.2); }
-  if (mode === 'menu') menuBGM(dt);
+  const want = mode === 'menu' ? 1 : mode === 'chase' ? 0 : game;
+  if (bgmEl && Math.abs(want - bgmWant) > .01) { bgmWant = want; bgmG.gain.setTargetAtTime(want * .9, ac.currentTime, want > .5 ? .5 : 1.2); if (want > 0 && bgmEl.paused) bgmEl.play().catch(() => {}); }
+  const synth = mode === 'menu' && !bgmOk;   // 음악 파일을 못 읽으면 합성 테마로 대신한다
+  if (mode + synth !== musMode) { musMode = mode + synth; musG.menu.gain.setTargetAtTime(synth ? 1 : 0, ac.currentTime, .6); musG.chase.gain.setTargetAtTime(mode === 'chase' ? 1 : 0, ac.currentTime, mode === 'chase' ? .15 : 1.2); }
+  if (synth) menuBGM(dt);
   if (mode === 'chase') { chaseT -= dt; if (chaseT <= 0) { chaseT = .42; musicTone(52, .25, .25, 'sine', musG.chase); setTimeout(() => ok() && musicTone(48, .2, .16, 'sine', musG.chase), 210); } }
 }
 
@@ -234,7 +250,7 @@ export async function playVoice(url, fx = 'none', emo = null) {
   }
   const g = ac.createGain(); g.gain.value = (fx === 'whisper' ? .7 : 1) * (emo && emo.gain || 1); node.connect(g); g.connect(bus.voice);
   const sendG = ac.createGain(); sendG.gain.value = fx === 'pa' ? .9 : .25; g.connect(sendG); sendG.connect(revSend);
-  s.start(); curVoice = s;
+  s.start(); curVoice = s; duckMusic(true); s.addEventListener('ended', () => { if (curVoice === s) duckMusic(false); });
   return { duration: buf.duration / rate, stop: () => { try { s.stop(); } catch (e) { /* ignore */ } } };
 }
 export function stopVoice() { if (curVoice) { try { curVoice.stop(); } catch (e) { /* ignore */ } curVoice = null; } }
@@ -279,6 +295,8 @@ export const sfx = {
   piano() { [196, 233, 220, 185, 196, 156, 175].forEach((f, i) => setTimeout(() => { tone(f, 2.2, 'triangle', .18); tone(f * 2.01, 1.6, 'sine', .05); }, i * 520 + Math.random() * 60)); },
   phone() { for (let i = 0; i < 3; i++) setTimeout(() => { noiseBurst(.35, 160, 'lowpass', .5); tone(120, .35, 'square', .05); }, i * 600); },
   beep() { tone(1400, .08, 'square', .07); },
+  ding() { tone(1318, 1.4, 'sine', .14); tone(2636, .6, 'sine', .03); setTimeout(() => { tone(1046, 1.8, 'sine', .12); tone(2092, .7, 'sine', .025); }, 260); },
+  elevator(d = 2) { tone(62, d, 'sawtooth', .05, 0, 1, 58); tone(124, d, 'sine', .05); noiseBurst(d, 260, 'lowpass', .22); for (let i = 1; i < d * 2; i++) setTimeout(() => noiseBurst(.06, 900, 'bandpass', .12), i * 500 + Math.random() * 200); },
   buzz() { tone(110, .35, 'square', .15); tone(116, .35, 'square', .12); },
   unlock() { [880, 1175, 1568].forEach((f, i) => setTimeout(() => tone(f, .25, 'square', .06), i * 90)); setTimeout(() => { noiseBurst(.25, 600, 'lowpass', .5); tone(90, .4, 'sine', .4); }, 320); },
   breaker() { noiseBurst(.2, 300, 'lowpass', 1.2); tone(60, .5, 'sine', .9, 0, 1, 40); setTimeout(() => { tone(50, 2.5, 'sawtooth', .05); tone(100, 2.5, 'sine', .04); }, 250); },

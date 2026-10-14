@@ -32,9 +32,11 @@ export function drawMap(ctx, W, H, o) {
     strokeRect(-48, 8, -30, 22, '#8a8a80', 2);
     if (labels) { ctx.fillStyle = '#e8e8d8'; ctx.font = '13px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('조리실', X(-43), Y(9.6)); ctx.fillText('배식대', X(-38), Y(12.6)); ctx.fillText('식당 홀', X(-39), Y(17.6)); ctx.fillText('창고', X(-32), Y(9.4)); ctx.fillText('출입문', X(-39), Y(21.6)); }
   } else if (floor === 6) {
-    fillRect(-48, 26, -34, 50, '#3a4048'); fillRect(-45.6, 30.5, -37.4, 45.5, '#2a6a86'); strokeRect(-48, 26, -34, 50, '#8a8a80', 2);
-    fillRect(-46.6, 26.3, -42.6, 27.1, '#5a6a7a');
-    if (labels) { ctx.fillStyle = '#e8f0f0'; ctx.font = '13px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('수영장', X(-41.5), Y(38)); ctx.fillText('락커', X(-44.5), Y(28)); ctx.fillText('펌프실', X(-40), Y(49)); ctx.fillText('출입구', X(-35), Y(38)); }
+    fillRect(-50, 20, -34, 58, '#3a4048'); fillRect(-45.6, 32, -37.4, 45.5, '#2a6a86');
+    fillRect(-50, 20, -41.65, 30.3, '#44506a'); fillRect(-41.35, 20, -34, 30.3, '#3a5a6a'); fillRect(-50, 50, -34, 58, '#4a4438');
+    fillRect(-50, 33.5, -47.25, 46.5, '#5a5048'); strokeRect(-50, 20, -34, 58, '#8a8a80', 2);
+    [[-50, 30, -34, 30.3], [-41.65, 20, -41.35, 30.3], [-50, 50, -34, 50.3], [-43.5, 50.3, -43.2, 58]].forEach(([a, b, c, d]) => fillRect(a, b, c, d, '#8a8a80'));
+    if (labels) { ctx.fillStyle = '#e8f0f0'; ctx.font = '13px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('메인 수조 (6레인)', X(-41.5), Y(38.5)); ctx.fillText('탈의실', X(-46), Y(25)); ctx.fillText('샤워실', X(-37.7), Y(25)); ctx.fillText('장비창고', X(-46.6), Y(54)); ctx.fillText('기계실', X(-38.6), Y(54)); ctx.fillText('관람석', X(-48.6), Y(40)); ctx.fillText('관리', X(-35.4), Y(34.6)); ctx.fillText('출입구', X(-35), Y(38.9)); }
   } else if (floor === 3) {
     fillRect(-36.3, -9.9, 36.3, 1.75, '#33373a'); fillRect(-5, -4.5, 5, 1.9, '#555'); fillRect(26, -9.4, 33, -5.4, '#4a4033'); fillRect(-21.6, -7.6, -18.4, -4.4, '#5a3a2a');
     strokeRect(-36.3, -9.9, 36.3, 1.75, '#8a8a80', 1.5);
@@ -48,6 +50,7 @@ export function drawMap(ctx, W, H, o) {
       if (labels) { ctx.fillStyle = '#d6d2c2'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(lay.names[i], X(c), Y(-5.8)); }
     });
     strokeRect(-hx, -9.9, hx, 1.75, '#8a8a80', 2);
+    if (floor === 4) { fillRect(28, 1.75, 36, 9.9, '#3a2a48'); strokeRect(28, 1.75, 36, 9.9, '#0c0c0c', 1.5); if (labels) { ctx.fillStyle = '#d6d2c2'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('비밀 자료실', X(32), Y(6)); } }
     if (floor === 0 || floor === 8) { ctx.fillStyle = '#e6c14a'; ctx.fillRect(X(-1.5), Y(1.75) - 2, 3 * S, 4); }
   }
   if (floor < 3 || floor === 4 || floor >= 8) { // 계단 표시

@@ -12,10 +12,13 @@ export const rr = (a, b) => a + rnd() * (b - a);
 export const pick = a => a[(rnd() * a.length) | 0];
 export const FONT = "'Noto Sans KR','Noto Sans CJK KR','Malgun Gothic','Apple SD Gothic Neo',sans-serif";
 
-export function ctex(w, h, fn, { repeat = true, aniso = 4 } = {}) {
+// 캔버스 텍스처는 2배 해상도로 그려 가까이서 봐도 흐려지지 않게 한다 (작은 텍스처만, 큰 것은 그대로)
+export function ctex(w, h, fn, { repeat = true, aniso = 8, scale } = {}) {
+  const k = scale ?? (w * h <= 512 * 512 ? 2 : 1);
   const c = document.createElement('canvas');
-  c.width = w; c.height = h;
+  c.width = w * k; c.height = h * k;
   const g = c.getContext('2d');
+  g.scale(k, k);
   fn(g, w, h);
   const t = new THREE.CanvasTexture(c);
   if (repeat) t.wrapS = t.wrapT = THREE.RepeatWrapping;
@@ -516,7 +519,7 @@ function crackBranch(H, N, x, y, a, steps, depth) { for (let s = 0; s < steps; s
 // 벽: 상부 = 여러 겹 칠이 벗겨진 회반죽(크림 → 옛 청회색 → 맨 시멘트) · 하부 = 유약 타일 징두리(깨짐·빠짐·줄눈 때)
 // 텍스처 1장 = 4m × 4m. 타일 24장/4m (≈16.7cm), 징두리는 아래 9줄(≈1.5m)
 export function pbrWall(N = 2048) {
-  const big = fbm(N, 3, 4), fine = fbm(N, 64, 3), peel = fbm(N, 7, 6), peel2 = fbm(N, 11, 5), mold = fbm(N, 5, 5), streak = fbm(N, 48, 2), micro = fbm(N, 256, 1);
+  const big = fbm(N, 3, 4), fine = fbm(N, 64, 3), peel = fbm(N, 14, 6), peel2 = fbm(N, 22, 5), mold = fbm(N, 5, 5), streak = fbm(N, 48, 2), micro = fbm(N, 256, 1);
   const H = new Float32Array(N * N), R = new Float32Array(N * N), C = new Uint8ClampedArray(N * N * 3);
   const TN = 24, ts = N / TN, dado = N - 9 * ts;
   const tiles = Array.from({ length: TN * 9 }, () => ({ v: rr(-12, 12), g: rr(-6, 6), miss: rnd() < .035, crack: rnd() < .12, chip: rnd() < .22, stain: rnd() < .15, ca: rnd() * 3.14 }));
@@ -538,13 +541,14 @@ export function pbrWall(N = 2048) {
     } else {
       // 상부 벽: 1층 크림 페인트 → 2층 옛 청회색 페인트 → 회반죽 · 시멘트
       const t = big[i] * .7 + fine[i] * .3, p1 = peel[i] + (fine[i] - .5) * .05, p2 = peel2[i];
-      const l1 = p1 > .63, l2 = l1 && p2 > .58;
-      const e1 = sstep(.6, .63, p1) * (1 - sstep(.63, .66, p1));
+      // 벗겨짐은 작고 드물게 (큰 얼룩이 벽 전체를 덮어 '깨진 텍스처'처럼 보이지 않도록)
+      const l1 = p1 > .69, l2 = l1 && p2 > .64;
+      const e1 = sstep(.67, .69, p1) * (1 - sstep(.69, .71, p1));
       if (!l1) { r = mixc(168, 196, t); g = mixc(162, 188, t); b = mixc(140, 164, t); h = .62 + fine[i] * .05; ro = .82; }
-      else if (!l2) { r = mixc(122, 142, t); g = mixc(130, 148, t); b = mixc(130, 146, t); h = .5 + fine[i] * .05; ro = .7; }
-      else { const v = mixc(98, 128, micro[i] * .5 + fine[i] * .5); r = v; g = v - 3; b = v - 9; h = .36 + micro[i] * .1; ro = .97; }
+      else if (!l2) { r = mixc(140, 160, t); g = mixc(146, 164, t); b = mixc(140, 156, t); h = .5 + fine[i] * .05; ro = .7; }
+      else { const v = mixc(120, 146, micro[i] * .5 + fine[i] * .5); r = v; g = v - 3; b = v - 9; h = .36 + micro[i] * .1; ro = .97; }
       if (e1 > .2) { r = mixc(r, 214, e1 * .7); g = mixc(g, 208, e1 * .7); b = mixc(b, 188, e1 * .7); h += e1 * .12; }   // 들뜬 페인트 가장자리
-      if (!l1 && p1 > .57 && p1 < .6) { r *= .82; g *= .82; b *= .82; }                                                    // 가장자리 그림자
+      if (!l1 && p1 > .655 && p1 < .67) { r *= .88; g *= .88; b *= .88; }                                                    // 가장자리 그림자
       // 위에서 흘러내린 물 얼룩
       const st = Math.max(0, streak[x % N] - .6) * 2.2 * (1 - y / N * .9) * (.4 + big[i]), sfac = st * (.6 + .4 * Math.sin(y * .05 + x));
       r -= sfac * 60; g -= sfac * 52; b -= sfac * 40; ro -= sfac * .35;
@@ -834,3 +838,89 @@ export const makeIvy = () => ctex(512, 1024, (g, w, h) => {
     pts.forEach(([px, py], k) => { const n = 2 + (rnd() * 3 | 0); for (let j = 0; j < n; j++) leaf(px + rr(-26, 26), py + rr(-12, 12), rr(9, 18) * (1 - k / pts.length * .4), rr(-1.4, 1.4)); });
   }
 }, { repeat: false });
+
+/* ---------- 소품 디테일 텍스처 (컴퓨터실 · 미술실 등) ---------- */
+// 키보드 자판 (윗면)
+export const makeKeyboard = () => ctex(256, 96, (g, w, h) => {
+  g.fillStyle = '#2a2b2d'; g.fillRect(0, 0, w, h);
+  const rows = [14, 14, 13, 12, 9], kw = 15.2, kh = 15;
+  rows.forEach((n, r) => {
+    let x = 6 + r * 3;
+    for (let i = 0; i < n; i++) {
+      const ww = (r === 4 && i === 4) ? kw * 5 : kw - 2;
+      g.fillStyle = r === 4 && i === 4 ? '#3c3d40' : pick(['#3a3b3e', '#37383b', '#3d3e41']);
+      g.fillRect(x, 6 + r * 17, ww, kh); g.fillStyle = 'rgba(255,255,255,.08)'; g.fillRect(x, 6 + r * 17, ww, 2);
+      g.fillStyle = 'rgba(210,210,200,.35)'; g.fillRect(x + 4, 10 + r * 17, 4, 4);
+      x += ww + 2;
+    }
+  });
+  g.fillStyle = '#323336'; for (let r = 0; r < 4; r++) for (let i = 0; i < 3; i++) g.fillRect(w - 46 + i * 14, 6 + r * 17, 12, kh);
+  stains(g, w, h, 6, 'rgba(120,110,90,.35)', 20);
+});
+// 꺼진 모니터 화면 (먼지 · 손자국 · 금 간 것)
+export const makeScreenOff = (cracked = false) => ctex(256, 160, (g, w, h) => {
+  const gr = g.createLinearGradient(0, 0, w, h); gr.addColorStop(0, '#16191c'); gr.addColorStop(.5, '#0b0d0f'); gr.addColorStop(1, '#14171a');
+  g.fillStyle = gr; g.fillRect(0, 0, w, h);
+  g.fillStyle = 'rgba(255,255,255,.05)'; g.beginPath(); g.moveTo(0, 0); g.lineTo(w * .55, 0); g.lineTo(w * .25, h); g.lineTo(0, h); g.fill();
+  stains(g, w, h, 10, 'rgba(160,160,150,.08)', 30);
+  if (cracked) {
+    const cx = rr(w * .3, w * .7), cy = rr(h * .3, h * .7);
+    g.strokeStyle = 'rgba(220,230,235,.55)'; g.lineWidth = 1;
+    for (let k = 0; k < 11; k++) { let x = cx, y = cy, a = k / 11 * 6.28 + rr(-.2, .2); g.beginPath(); g.moveTo(x, y); for (let s = 0; s < 8; s++) { a += rr(-.35, .35); x += Math.cos(a) * rr(8, 22); y += Math.sin(a) * rr(8, 22); g.lineTo(x, y); } g.stroke(); }
+    for (let r = 6; r < 40; r += rr(8, 14)) { g.beginPath(); for (let k = 0; k <= 12; k++) { const a = k / 12 * 6.28; g.lineTo(cx + Math.cos(a) * r * rr(.8, 1.2), cy + Math.sin(a) * r * rr(.8, 1.2)); } g.stroke(); }
+    g.fillStyle = 'rgba(255,255,255,.25)'; g.beginPath(); g.arc(cx, cy, 4, 0, 6.3); g.fill();
+  }
+});
+// 서버 랙 전면 (1U 장비 · LED · 통풍구)
+export const makeRack = () => ctex(128, 384, (g, w, h) => {
+  g.fillStyle = '#121315'; g.fillRect(0, 0, w, h);
+  for (let y = 8; y < h - 8; y += 22) {
+    const empty = rnd() < .18;
+    g.fillStyle = empty ? '#0a0a0b' : pick(['#24262a', '#2c2e33', '#1e2024']); g.fillRect(10, y, w - 20, 19);
+    if (empty) continue;
+    g.fillStyle = 'rgba(255,255,255,.07)'; g.fillRect(10, y, w - 20, 2);
+    g.fillStyle = '#0c0c0d'; for (let i = 0; i < 9; i++) g.fillRect(40 + i * 7, y + 5, 4, 10);
+    [['#3dff6a', .6], ['#ffb02a', .2], ['#ff3a2a', .12]].forEach(([c, p], i) => { if (rnd() < p + .2) { g.fillStyle = c; g.fillRect(16 + i * 6, y + 8, 3, 3); } });
+    g.fillStyle = '#8a8c90'; g.fillRect(12, y + 2, 2, 15); g.fillRect(w - 14, y + 2, 2, 15);
+  }
+  g.fillStyle = '#3a3c40'; g.fillRect(0, 0, 8, h); g.fillRect(w - 8, 0, 8, h);
+  g.fillStyle = '#6a6c70'; for (let y = 6; y < h; y += 7) { g.fillRect(3, y, 2, 2); g.fillRect(w - 5, y, 2, 2); }
+});
+// 그림 (미술실 캔버스: 풍경 · 정물 · 얼굴 · 추상) — 공포 연출을 위해 일부는 같은 소녀
+export const makePainting = (kind = 0) => ctex(192, 240, (g, w, h) => {
+  g.fillStyle = '#d8d0bc'; g.fillRect(0, 0, w, h);
+  const blob = (x, y, r, c, a = 1) => { g.globalAlpha = a; g.fillStyle = c; g.beginPath(); g.ellipse(x, y, r, r * rr(.6, 1.2), rr(0, 3), 0, 6.3); g.fill(); g.globalAlpha = 1; };
+  if (kind === 0) { // 풍경
+    const sky = g.createLinearGradient(0, 0, 0, h * .6); sky.addColorStop(0, '#7a92a8'); sky.addColorStop(1, '#c8b890'); g.fillStyle = sky; g.fillRect(0, 0, w, h * .6);
+    g.fillStyle = '#5a6a48'; g.beginPath(); g.moveTo(0, h * .55); for (let x = 0; x <= w; x += 12) g.lineTo(x, h * .5 + Math.sin(x * .05) * 14); g.lineTo(w, h); g.lineTo(0, h); g.fill();
+    g.fillStyle = '#7a5a3a'; g.fillRect(w * .62, h * .3, 6, h * .3); for (let k = 0; k < 14; k++) blob(w * .63 + rr(-24, 24), h * .28 + rr(-18, 14), rr(6, 12), pick(['#3a5a2a', '#4a6a32', '#2e4a22']), .9);
+    g.fillStyle = '#b8a888'; g.fillRect(w * .15, h * .42, 40, 24); g.fillStyle = '#6a3a2a'; g.beginPath(); g.moveTo(w * .15 - 4, h * .42); g.lineTo(w * .15 + 20, h * .34); g.lineTo(w * .15 + 44, h * .42); g.fill();
+  } else if (kind === 1) { // 정물
+    g.fillStyle = '#4a3a30'; g.fillRect(0, 0, w, h); g.fillStyle = '#8a6a48'; g.fillRect(0, h * .62, w, h * .38);
+    blob(w * .35, h * .58, 26, '#a82a20'); blob(w * .58, h * .6, 22, '#c8a030'); blob(w * .48, h * .52, 18, '#6a8a30');
+    g.fillStyle = '#c8c8c0'; g.fillRect(w * .66, h * .3, 22, 64); blob(w * .3, h * .55, 8, '#fff', .3);
+  } else if (kind === 2) { // 소녀 초상 (얼굴을 긁어 지운)
+    g.fillStyle = '#3a4048'; g.fillRect(0, 0, w, h);
+    g.fillStyle = '#1a1c24'; g.beginPath(); g.ellipse(w / 2, h * .42, 46, 62, 0, 0, 6.3); g.fill();
+    g.fillStyle = '#d8c0a8'; g.beginPath(); g.ellipse(w / 2, h * .42, 32, 42, 0, 0, 6.3); g.fill();
+    g.fillStyle = '#1a1c24'; g.fillRect(w / 2 - 46, h * .3, 18, 120); g.fillRect(w / 2 + 28, h * .3, 18, 120);
+    g.fillStyle = '#28324a'; g.beginPath(); g.moveTo(w * .2, h); g.lineTo(w * .3, h * .66); g.lineTo(w * .7, h * .66); g.lineTo(w * .8, h); g.fill();
+    g.fillStyle = '#e8e8e0'; g.beginPath(); g.moveTo(w * .42, h * .66); g.lineTo(w / 2, h * .76); g.lineTo(w * .58, h * .66); g.fill();
+    g.fillStyle = '#9a1a1a'; g.fillRect(w / 2 - 8, h * .68, 16, 8);
+    g.strokeStyle = 'rgba(20,10,10,.85)'; g.lineWidth = 3; for (let k = 0; k < 16; k++) { g.beginPath(); g.moveTo(w / 2 - 30 + rr(0, 10), h * .32 + rr(0, 60)); g.lineTo(w / 2 + 30 - rr(0, 10), h * .32 + rr(0, 60)); g.stroke(); }
+  } else { // 추상
+    for (let k = 0; k < 26; k++) blob(rr(0, w), rr(0, h), rr(10, 40), pick(['#8a2a2a', '#2a4a6a', '#c8a040', '#1a1a1a', '#6a6a5a']), rr(.4, .9));
+    g.strokeStyle = '#111'; g.lineWidth = 4; g.beginPath(); for (let k = 0; k < 8; k++) g.lineTo(rr(0, w), rr(0, h)); g.stroke();
+  }
+  speckle(g, w, h, 300, ['#000', '#fff'], 1, 2, .12);
+  stains(g, w, h, 4, 'rgba(90,70,40,.3)', 50);
+});
+// 철제 서류함 서랍 앞면
+export const makeCabinet = () => ctex(128, 256, (g, w, h) => {
+  g.fillStyle = '#7a8078'; g.fillRect(0, 0, w, h);
+  for (let k = 0; k < 4; k++) {
+    const y = 6 + k * 62; g.fillStyle = '#868c84'; g.fillRect(6, y, w - 12, 56); g.fillStyle = 'rgba(0,0,0,.35)'; g.fillRect(6, y + 54, w - 12, 3);
+    g.fillStyle = '#d8d4c4'; g.fillRect(w / 2 - 16, y + 10, 32, 12); g.fillStyle = '#3a3a38'; g.fillRect(w / 2 - 20, y + 28, 40, 8);
+  }
+  stains(g, w, h, 8, 'rgba(110,70,40,.45)', 30); speckle(g, w, h, 400, ['#4a4a44', '#b0b0a8'], 1, 3, .3);
+});

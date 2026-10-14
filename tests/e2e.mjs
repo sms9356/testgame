@@ -95,6 +95,14 @@ async function trueRun() {
   await saveReload(p, '방송 후'); ok(await E(p, () => __g.FL.calm && !__g.ghost.active), '복원: 방송 완료 · 그것 비활성');
   await use(p, 'mina'); await W(p, 4000); ok(await E(p, () => __g.FL.mina), '민아 깨우기');
   await saveReload(p, '민아 후'); ok(await E(p, () => __g.FL.mina) && await E(p, () => !__g.mina.visible), '복원: 민아 구출');
+  // 의뢰(서브 퀘스트): '집으로 가는 길'(조건 없음) · '민아가 여기 온 이유'(민아 구출 후) — 진행 · 아이템 주고받기 · 저장/복원
+  const sq = async (id, k) => { await E(p, ([id, k]) => { const q = __g.world.props.find(o => o.uid === `sq:${id}:${k}`); __g.state = 'playing'; __g.tp(q.x, q.z + .8, q.floor, 0, 0); __g.useSideQuest(q); }, [id, k]); await W(p, 2600); await E(p, () => { if (__g.state === 'note' || __g.state === 'ui') __g.state = 'playing'; }); };
+  ok(await E(p, () => __g.world.props.filter(o => o.kind === 'sq').length) === 20, '의뢰 조사 지점 20곳 배치');
+  await sq('book', 0); ok(await E(p, () => __g.sqStep('book') === 1 && __g.FL.qi.bookHome), '의뢰: 책을 집음 (퀘스트 아이템)');
+  await sq('book', 1); ok(await E(p, () => __g.sqStep('book') === 2 && !__g.FL.qi.bookHome && __g.docs.some(d => d.id === 'q8b')), '의뢰 완료: 반납 (아이템 소모 · 문서)');
+  for (const k of [0, 1, 2]) await sq('mina', k);
+  ok(await E(p, () => __g.sqStep('mina') === 3 && __g.sqDoneCount() === 2), '의뢰 완료: 민아가 여기 온 이유 (민아 조건)');
+  await saveReload(p, '의뢰 후'); ok(await E(p, () => __g.sqStep('book') === 2 && __g.sqStep('mina') === 3 && __g.world.props.filter(o => o.kind === 'sq' && !o.done).length === 6), '복원: 의뢰 진행 · 남은 의뢰 6건의 첫 지점');
   await E(p, () => { __g.world.items.filter(i => i.kind === 'key').forEach(i => { if (!i.taken) { i.locked = false; __g.setTarget({ type: 'item', it: i }); __g.state = 'playing'; __g.interact(); } }); __g.makeGateKey(); });
   await W(p, 2500); ok(!(await E(p, () => __g.ghost.enraged)), '방송 후엔 최종 추격 없음');
   await E(p, () => { __g.state = 'playing'; __g.P.floor = 0; __g.P.x = 0; __g.P.z = 67; __g.P.yaw = Math.PI; });

@@ -1470,6 +1470,16 @@ export function buildWorld(scene) {
   const CR_MAT = { steel: mStainless, steel_dirty: mStainlessD, rust: mRust, black: mDarkMetal, wood_dark: mWoodDark, wood: mWood, green: mCork, paper: mPaperN,
     blue: S(null, { color: 0x2a5aa0, roughness: .4 }), red: S(null, { color: 0xa82a20, roughness: .4 }), light: new THREE.MeshBasicMaterial({ color: 0xe8f0ff }), glass: mGlass };
   const crMat = name => CR_MAT[name] || mStainlessD;
+  // 기술·가정실 102 팩: GLB 재질 PBR_<이름> → 팩의 공유 PBR 텍스처 (BaseColor · Normal(OpenGL) · Roughness 512px)
+  const TH_MAT = {}, thTex = new THREE.TextureLoader();
+  const TH_PROPS = { stainless: [.85, .3], painted_steel: [.45, .5], dark_metal: [.7, .45], copper: [.9, .35], rust: [.3, .9], blue_glass: [.1, .08] };
+  const thMat = raw => { const n = (raw || '').replace(/^PBR_/, ''); if (TH_MAT[n]) return TH_MAT[n];
+    const L = k => { const t = thTex.load(`assets/models/th102/tex/${n}_${k}.webp`); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 8; if (k === 'BaseColor') t.colorSpace = THREE.SRGBColorSpace; return t; };
+    const [met, rough] = TH_PROPS[n] || [0, 1];
+    const m = new THREE.MeshStandardMaterial({ map: L('BaseColor'), normalMap: L('Normal'), roughnessMap: L('Roughness'), roughness: Math.max(.14, rough), metalness: met, normalScale: new THREE.Vector2(.7, .7) });
+    if (n === 'blue_glass') { m.transparent = true; m.opacity = .4; m.depthWrite = false; }
+    if (n === 'old_wood' || n === 'wood_edge') m.color.setRGB(.72, .62, .52);   // 팩 목재 텍스처가 너무 주황 — 오래된 실습대 색으로 낮춤
+    return TH_MAT[n] = m; };
   const valveWheel = (x, y, z, ry = 0, r = .16) => { const w = new THREE.Mesh(merge([new THREE.TorusGeometry(r, .02, 6, 18), bx(r * 2, .025, .025, 0, 0, 0), bx(.025, r * 2, .025, 0, 0, 0)]), mRedV); w.position.set(x, y, z); w.rotation.y = ry; cur.interior.add(w); return w; };
   const gauge = (x, y, z, ry = 0) => { const g = meshAt(new THREE.CylinderGeometry(.1, .1, .05, 16).rotateX(Math.PI / 2), mChrome, x, y, z, ry); const f = new THREE.Mesh(new THREE.CircleGeometry(.085, 16), mWhite); f.position.z = .027; g.add(f); const n = new THREE.Mesh(new THREE.BoxGeometry(.01, .07, .003), mRedV); n.position.set(.015, .01, .03); n.rotation.z = -.7; g.add(n); return g; };
   const wetSpot = (x, z, r) => { const p = new THREE.Mesh(new THREE.CircleGeometry(r, 18), new THREE.MeshStandardMaterial({ color: 0x141c1e, roughness: .04, metalness: .2, transparent: true, opacity: .6, depthWrite: false })); p.rotation.x = -Math.PI / 2; p.position.set(x, .018, z); p.scale.y = .7; cur.interior.add(p); };
@@ -2340,13 +2350,28 @@ export function buildWorld(scene) {
     [[cx + 3.3, -9.2], [cx - 3.3, -2.6]].forEach(([x, z]) => cyl(S(null, { color: 0x2a4a22, roughness: 1 }), .22, .7, x, 0, z));
     addNote('n14', cx, .77, -6.4); addMedkit(cx + 3.2, 0, -8.6); papers(cx, -8, -2.4, 9);
   }
+  // 기술·가정실 (102) — 사용자 제공 'Room102 Actual3D' 팩의 실제 GLB (assets/models/th102) + 팩의 공유 PBR 텍스처 14종.
+  // 팩 배치표(문 = y 0 · 뒷벽 = y 6.5m, 8.4m 폭)를 게임 방(문 z -1.75 · 뒷벽 z -9.6, 폭 8m)으로 비례 변환. 문 · 명패 · 형광등 · 창 · 벽/바닥/천장 모듈은
+  // 게임의 기존 건축 · 미닫이문 · 조명 시스템과 겹치므로 쓰지 않는다. GLB 를 못 불러오면 같은 크기의 절차적 대체 메시가 남는다
   function tech(cx) {
-    const zN = -9.6;
+    const zN = -9.6, X = x => cx + x * .92, Z = y => -1.75 - y * 1.19;
     frontWall(cx, zN, false);
-    [-2.2, 2.2].forEach(dx => [-7.2, -4.8].forEach(z => { add(mWood, 1.8, .75, .8, cx + dx, 0, z, { col: true }); add(mBlack, .4, .35, .3, cx + dx, .75, z); }));
-    add(mMetal, 3.6, 1.8, .45, cx, 0, zN + .3, { col: true });
-    add(mWhite, 1.2, .08, .35, cx + 3.0, .85, -3.4); add(mMetal, .06, .85, .06, cx + 2.6, 0, -3.4); add(mMetal, .06, .85, .06, cx + 3.4, 0, -3.4);
-    addNote('n16', cx - 2.2, .77, -7.2); addBattery(cx - 3.2, 0, -3.2); papers(cx, -8, -2.4, 8);
+    const th = (id, x, y, h, ry = 0, fb) => { model('th102/' + id, X(x), h, Z(y), ry); if (fb) crFallback(id, fb[0], fb[1], fb[2], fb[3], X(x), h, Z(y), ry); };
+    // 실습대 4 (+ 스툴 · 재봉틀 · 공구 케이스 · 재봉 도구 · 바이스 · 회로 키트)
+    [[-1.65, 1.8], [1.65, 1.8], [-1.65, 4.35], [1.65, 4.35]].forEach(([x, y], k) => {
+      th('TH-007', x, y, 0, 0, [mWood, 1.55, .84, .96]); col(X(x) - .78, X(x) + .78, Z(y) - .5, Z(y) + .5, false, .84);
+      th('TH-015', x, y - .79, 0, rnd() * 6, [mMetal, .42, .52, .42]);
+      th('TH-017', x + .36, y - .12, .84);
+    });
+    th('TH-014', -1.98, 1.9, .84); th('TH-014', 1.32, 4.45, .84); th('TH-008', 1.35, 1.9, .84); th('TH-008', -1.95, 4.45, .84);
+    th('TH-019', -1.55, 4.35, .84); th('TH-021', 1.7, 4.35, .84); th('TH-020', 1.95, 1.75, .84, .4);
+    // 벽: 서쪽 이중 싱크대 · 동쪽 유리문 재료장 · 동쪽 공구 타공판 · 뒷벽 화이트보드 (창 사이)
+    th('TH-010', -4.15, 4.92, 0, -Math.PI / 2, [mStainlessD, 1.58, 1.2, .67]); col(cx - 3.85, cx - 3.15, Z(4.92) - .8, Z(4.92) + .8, false, .86);
+    th('TH-016', 4.24, 5.3, 0, Math.PI / 2, [mMetal, 1.22, 1.95, .47]); col(cx + 3.38, cx + 3.85, Z(5.3) - .62, Z(5.3) + .62);
+    model('th102/TH-018', cx + 3.83, 1.1, Z(2.2), -Math.PI / 2);
+    model('th102/TH-022', cx, 1.15, zN + .12, 0);
+    model('th102/TH-012', X(-.15), .005, Z(2.95), .3);
+    addNote('n16', X(-1.65) + .35, .85, Z(4.35) + .1); addBattery(cx - 3.2, 0, -3.2); papers(cx, -8, -2.4, 6);
   }
 
   /* ---------- 별관 (8,9,10) ---------- */
@@ -3193,7 +3218,7 @@ export function buildWorld(scene) {
     return .38 + .62 * d;
   }
   const flickCfg = { calm: false };
-  return { h133Mat, crMat, winMats, MODELS, floors, items, lockers, doors, gate, update, mats: { flickerMats, matLampOn, matLampDead }, flickCfg, sky: { stars, moon, moonGlow }, NOTES, TAPES, PHOTOS, doorList, props, boardRefs, OUT, bakeStats, makeBoardTex: T.makeBoard };
+  return { h133Mat, crMat, thMat, winMats, MODELS, floors, items, lockers, doors, gate, update, mats: { flickerMats, matLampOn, matLampDead }, flickCfg, sky: { stars, moon, moonGlow }, NOTES, TAPES, PHOTOS, doorList, props, boardRefs, OUT, bakeStats, makeBoardTex: T.makeBoard };
 }
 
 /* ---------- 충돌/시야 ---------- */

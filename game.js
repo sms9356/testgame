@@ -114,11 +114,18 @@ function loadModels() {
     const out = []; groups.forEach((gs, mat) => { const m = new THREE.Mesh(gs.length > 1 ? mergeGeometries(gs) : gs[0], mat); out.push(m); });
     return out;
   };
-  const packed = name => name.startsWith('h133/') || name.startsWith('cr101/');
+  const packed = name => name.startsWith('h133/') || name.startsWith('cr101/') || name.startsWith('th102/');
+  // 기술·가정실 102 팩: UV 가 있는 실제 메시 — 재질별로 합쳐(그리기 호출 절약) 팩 PBR 텍스처를 입힌다
+  const thParts = root => { const groups = new Map();
+    root.traverse(o => { if (!o.isMesh) return; const mat = world.thMat(o.material && o.material.name);
+      let g = o.geometry.index ? o.geometry.toNonIndexed() : o.geometry.clone(); ['color', 'tangent'].forEach(k => g.deleteAttribute(k)); g.applyMatrix4(o.matrixWorld); if (!g.attributes.normal) g.computeVertexNormals();
+      if (!g.attributes.uv) g.setAttribute('uv', new THREE.BufferAttribute(new Float32Array(g.attributes.position.count * 2), 2));
+      (groups.get(mat) || groups.set(mat, []).get(mat)).push(g); });
+    const out = []; groups.forEach((gs, mat) => out.push(new THREE.Mesh(gs.length > 1 ? mergeGeometries(gs) : gs[0], mat))); return out; };
   Object.entries(byName).forEach(([name, list]) => loader.load(packed(name) ? `assets/models/${name}.glb` : `assets/models/${name}/${name}.gltf`, gltf => {
     const root = gltf.scene; root.updateMatrixWorld(true);
-    const cr = name.startsWith('cr101/');
-    const parts = []; if (packed(name)) parts.push(...h133Parts(root, name.split('/')[1], cr)); else root.traverse(o => { if (o.isMesh) parts.push(o); });
+    const cr = name.startsWith('cr101/') || name.startsWith('th102/');
+    const parts = []; if (name.startsWith('th102/')) parts.push(...thParts(root)); else if (packed(name)) parts.push(...h133Parts(root, name.split('/')[1], cr)); else root.traverse(o => { if (o.isMesh) parts.push(o); });
     if (cr) floors.forEach(F => F.interior.traverse(o => { if (o.userData.cr === name.slice(6)) o.visible = false; }));   // GLB 로드 성공 → 같은 자리의 절차적 대체 메시 숨김
     const byFloor = {}; list.forEach(m => (byFloor[m.f] = byFloor[m.f] || []).push(m));
     Object.entries(byFloor).forEach(([f, ms]) => {

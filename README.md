@@ -71,3 +71,4 @@ PW_CORE=<playwright-core> CHROME=<chromium> npm run test:e2e
 - three.js: MIT. 이미지 · 레퍼런스 시트: 프로젝트 소유자 제공.
 - **더빙**: 기본값 `자동` 은 브라우저에 자연스러운 한국어 음성(예: Edge 의 SunHi · InJoon Online (Natural))이 있으면 그것으로 읽고, 없으면 내장 음성 파일을 씁니다. 설정 › 더빙에서 끌 수 있습니다(자막은 그대로).
 - **내장 음성**: sherpa-onnx `vits-mimic3-ko_KO-kss_low` 로 합성 — KSS 데이터셋(**CC BY-NC-SA 4.0**) 기반이므로 **비상업적 용도만** 가능합니다. 유료 판매 · 상업적 배포 전에는 다른 음성 모델/성우 녹음으로 교체해야 합니다 (`tools/gen_voice.py` 가 `story.js` 에서 모든 음성을 다시 만들 수 있습니다).
+- **더 자연스러운 음성(무료 · 비상업)**: `pip install edge-tts` 후 `python3 tools/gen_voice_edge.py` — Microsoft Edge 신경망 음성으로 화자(나이 · 성별)와 감정에 맞춰 모든 대사를 다시 만듭니다. Edge 의 '소리 내어 읽기' 서비스를 쓰므로 개인 · 비상업 프로젝트에서만 사용하세요.

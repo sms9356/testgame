@@ -10,10 +10,8 @@ story.js 의 주인공 대사(LINES · 지훈/서연 두 버전), 기타 화자(
 voice/<id>.mp3 와 voice/manifest.json 을 만든다. 화자별로 ffmpeg 로 음높이·효과를 바꾼다.
 """
 import hashlib, json, os, re, subprocess, sys, tempfile
-import sherpa_onnx, soundfile as sf
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-MODEL = sys.argv[1]
 OUT = os.path.join(ROOT, 'voice')
 
 # 화자: (음높이 배율, 말 속도, 추가 ffmpeg 필터)
@@ -35,7 +33,7 @@ def speakable(t):
     t = re.sub(r'\s+', ' ', t).strip(' ,')
     return t
 
-def collect():
+def collect(only=None):
     """story.js 를 node 로 읽어 (id, 화자, 문장) 목록을 만든다."""
     js = "import('" + os.path.join(ROOT, 'story.js').replace('\\', '/') + "').then(m => console.log(JSON.stringify({LINES: m.LINES, BROADCAST: m.BROADCAST, MINA_WAKE: m.MINA_WAKE, VO: m.VO, NOTES: m.NOTES})))"
     S = json.loads(subprocess.run(['node', '--input-type=module', '-e', js], capture_output=True, text=True, check=True).stdout)
@@ -45,18 +43,18 @@ def collect():
     for c, t in S['BROADCAST'].items(): items.append((f'bc_{c}', CH[c], t))
     for c, t in S['MINA_WAKE'].items(): items.append((f'mw_{c}', 'mina', t))
     for nid, n in S['NOTES'].items(): items.append(('note_' + nid, 'narrator', n['title'] + '. ' + n['text']))
-    only = set(sys.argv[2].split(',')) if len(sys.argv) > 2 else None
     return [i for i in items if not only or i[0] in only]
 
 def main():
-    d = MODEL.rstrip('/') + '/'
+    import sherpa_onnx, soundfile as sf
+    d = sys.argv[1].rstrip('/') + '/'
     cfg = sherpa_onnx.OfflineTtsConfig(model=sherpa_onnx.OfflineTtsModelConfig(vits=sherpa_onnx.OfflineTtsVitsModelConfig(
         model=d + 'ko_KO-kss_low.onnx', tokens=d + 'tokens.txt', data_dir=d + 'espeak-ng-data', noise_scale=.5, noise_scale_w=.6), num_threads=4))
     tts = sherpa_onnx.OfflineTts(cfg)
     os.makedirs(OUT, exist_ok=True)
     mp = os.path.join(OUT, 'manifest.json')
     man = json.load(open(mp, encoding='utf-8')) if len(sys.argv) > 2 and os.path.exists(mp) else {}
-    for vid, spk, text in collect():
+    for vid, spk, text in collect(set(sys.argv[2].split(',')) if len(sys.argv) > 2 else None):
         k, speed, extra = SPK[spk]
         a = tts.generate(speakable(text), sid=0, speed=speed)
         with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as tf: sf.write(tf.name, a.samples, a.sample_rate)

@@ -3050,7 +3050,7 @@ applyChar(); refreshTitle();
 
 if (DEBUG) {
   window.__g = {
-    P, ghost, floors, world, scene, camera, renderer, start: () => start(true),
+    P, ghost, floors, world, scene, camera, renderer, THREE, start: () => start(true),
     setIntroT(t) { introText = false; introT = t; }, introInfo: () => ({ state, introT: +introT.toFixed(1), cue: introCue, guard: !!(introGuard && introGuard.visible), cam: camera.position.toArray().map(v => +v.toFixed(1)) }),
     tp(x, z, f = 0, yaw = 0, pitch = 0) { P.x = x; P.z = z; P.floor = f; P.yaw = yaw; P.pitch = pitch; },
     give() { world.items.filter(i => i.kind === 'key').forEach(i => { i.taken = true; i.mesh.visible = false; got[i.idx] = true; }); P.keys = TOTAL; refreshHud(); },

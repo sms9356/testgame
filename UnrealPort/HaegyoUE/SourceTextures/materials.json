@@ -1,0 +1,142 @@
+[
+  {
+    "id": "corridor_peeling_wall",
+    "desc": "복도 벗겨진 페인트 · 습기 얼룩",
+    "metalness": 0,
+    "repeat": [
+      2,
+      1
+    ],
+    "mapFiles": [
+      "albedo.webp",
+      "normal_gl.webp",
+      "roughness.webp"
+    ]
+  },
+  {
+    "id": "teal_glazed_wall_tile",
+    "desc": "복도 청록 유약 타일 · 더러워진 줄눈",
+    "metalness": 0,
+    "repeat": [
+      2,
+      1
+    ],
+    "mapFiles": [
+      "albedo.webp",
+      "normal_gl.webp",
+      "roughness.webp"
+    ]
+  },
+  {
+    "id": "terrazzo_dirty_floor",
+    "desc": "본관 테라조 바닥 · 골재 · 변색",
+    "metalness": 0,
+    "repeat": [
+      2,
+      2
+    ],
+    "mapFiles": [
+      "albedo.webp",
+      "normal_gl.webp",
+      "roughness.webp"
+    ]
+  },
+  {
+    "id": "gym_worn_wood",
+    "desc": "체육관 목재 마루 · 마모와 판재 이음",
+    "metalness": 0,
+    "repeat": [
+      2,
+      1
+    ],
+    "mapFiles": [
+      "albedo.webp",
+      "normal_gl.webp",
+      "roughness.webp"
+    ]
+  },
+  {
+    "id": "painted_rust_metal",
+    "desc": "철제 사물함 · 창틀 녹과 벗겨진 도장",
+    "metalness": 0.5,
+    "repeat": [
+      1,
+      1
+    ],
+    "mapFiles": [
+      "albedo.webp",
+      "normal_gl.webp",
+      "roughness.webp"
+    ]
+  },
+  {
+    "id": "pool_aqua_mosaic",
+    "desc": "수영장 청록 모자이크 · 줄눈 · 녹조",
+    "metalness": 0,
+    "repeat": [
+      3,
+      3
+    ],
+    "mapFiles": [
+      "albedo.webp",
+      "normal_gl.webp",
+      "roughness.webp"
+    ]
+  },
+  {
+    "id": "basement_damp_concrete",
+    "desc": "B1 지하 습기 콘크리트 · 젖은 얼룩",
+    "metalness": 0,
+    "repeat": [
+      2,
+      2
+    ],
+    "mapFiles": [
+      "albedo.webp",
+      "normal_gl.webp",
+      "roughness.webp"
+    ]
+  },
+  {
+    "id": "ceiling_acoustic_stained",
+    "desc": "낡은 흡음 천장 · 누수와 그리드",
+    "metalness": 0,
+    "repeat": [
+      2,
+      2
+    ],
+    "mapFiles": [
+      "albedo.webp",
+      "normal_gl.webp",
+      "roughness.webp"
+    ]
+  },
+  {
+    "id": "campus_cracked_asphalt",
+    "desc": "학교 도로 아스팔트 · 균열",
+    "metalness": 0,
+    "repeat": [
+      2,
+      2
+    ],
+    "mapFiles": [
+      "albedo.webp",
+      "normal_gl.webp",
+      "roughness.webp"
+    ]
+  },
+  {
+    "id": "chalkboard_dusty",
+    "desc": "오래된 칠판 · 지워진 분필 흔적",
+    "metalness": 0,
+    "repeat": [
+      1,
+      1
+    ],
+    "mapFiles": [
+      "albedo.webp",
+      "normal_gl.webp",
+      "roughness.webp"
+    ]
+  }
+]

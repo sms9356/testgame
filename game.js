@@ -1,6 +1,7 @@
 // 폐교 — 잊혀진 시간 : 1인칭 학교 공포 게임 (Three.js)
 import * as THREE from './vendor/three.module.js';
 import { GLTFLoader } from './vendor/addons/loaders/GLTFLoader.js';
+import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
 import { createNPCVisuals } from './npcVisuals.js';
 import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY } from './world.js';
 import { drawMap } from './map.js';
@@ -99,9 +100,22 @@ function loadModels() {
     // 끊김 방지: 모든 모델의 텍스처를 미리 GPU 에 올리고 셰이더를 미리 컴파일 (게임 중 처음 보일 때 멈칫하지 않게)
     const texs = new Set(); scene.traverse(o => { if (o.isInstancedMesh && o.material) ['map', 'normalMap', 'roughnessMap', 'metalnessMap', 'aoMap'].forEach(k => o.material[k] && texs.add(o.material[k])); });
     texs.forEach(t => renderer.initTexture(t)); try { renderer.compile(scene, camera); } catch (e) { /* ignore */ } };
-  Object.entries(byName).forEach(([name, list]) => loader.load(`assets/models/${name}/${name}.gltf`, gltf => {
+  // 사용자 3D 소품 133종 팩 (h133/ID): 정점 색뿐인 저폴리곤 → 면 법선 · 상자 투영 UV 를 만들고, 부품 이름으로 게임 PBR 재질을 골라 재질별로 합친다
+  const h133Parts = (root, id) => {
+    const groups = new Map();
+    root.traverse(o => { if (!o.isMesh) return; const nm = (o.name || o.parent?.name || '').replace(/^\d+_/, ''), mat = world.h133Mat(id, nm);
+      let g = o.geometry.index ? o.geometry.toNonIndexed() : o.geometry.clone(); g.deleteAttribute('color'); g.applyMatrix4(o.matrixWorld); g.computeVertexNormals();
+      const P = g.attributes.position, N = g.attributes.normal, uv = new Float32Array(P.count * 2);
+      for (let i = 0; i < P.count; i++) { const ax = Math.abs(N.getX(i)), ay = Math.abs(N.getY(i)), az = Math.abs(N.getZ(i));
+        const [u, v] = ax >= ay && ax >= az ? [P.getZ(i), P.getY(i)] : ay >= az ? [P.getX(i), P.getZ(i)] : [P.getX(i), P.getY(i)]; uv[i * 2] = u * 1.5; uv[i * 2 + 1] = v * 1.5; }
+      g.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+      (groups.get(mat) || groups.set(mat, []).get(mat)).push(g); });
+    const out = []; groups.forEach((gs, mat) => { const m = new THREE.Mesh(gs.length > 1 ? mergeGeometries(gs) : gs[0], mat); out.push(m); });
+    return out;
+  };
+  Object.entries(byName).forEach(([name, list]) => loader.load(name.startsWith('h133/') ? `assets/models/${name}.glb` : `assets/models/${name}/${name}.gltf`, gltf => {
     const root = gltf.scene; root.updateMatrixWorld(true);
-    const parts = []; root.traverse(o => { if (o.isMesh) parts.push(o); });
+    const parts = []; if (name.startsWith('h133/')) parts.push(...h133Parts(root, name.slice(5))); else root.traverse(o => { if (o.isMesh) parts.push(o); });
     const byFloor = {}; list.forEach(m => (byFloor[m.f] = byFloor[m.f] || []).push(m));
     Object.entries(byFloor).forEach(([f, ms]) => {
       const parent = f === 'out' ? world.OUT : floors.find(F => String(F.f) === f).interior;
@@ -1012,18 +1026,20 @@ function changeFloor(dir) {
   const sz = floors[nf].stairZone; teleport(nf === 3 ? { floor: 3, x: 0, z: -7.5, yaw: 0 } : { floor: nf, x: sz ? sz.spawn.x : 2.2, z: sz ? sz.spawn.z : -5.2, yaw: Math.PI });
 }
 // 가구 높이: 발이 윗면보다 높으면 그 가구는 막지 않는다 · 발 아래 윗면이 지지면
-const colsAt = F => { const foot = P.jy || 0; return foot > .05 ? F.col.filter(r => !(r.h != null && r.h <= foot + .03)) : F.col; };
+// 낮은 단(계단 한 단 높이 STEP_UP 이하: 현관 계단 · 단상 등)은 그냥 걸어 올라가고, 그보다 높은 가구는 점프로 오른다
+const STEP_UP = .22;
+const colsAt = F => { if (F._lowCol == null) F._lowCol = F.col.some(r => r.h != null); if (!F._lowCol) return F.col; const foot = P.jy || 0; return F.col.filter(r => !(r.h != null && r.h <= foot + STEP_UP)); };
 function supportAt(F, x, z, foot) {
-  let s = 0; for (const r of F.col) if (r.h != null && r.h <= foot + .12 && r.h > s && x > r.x1 - .1 && x < r.x2 + .1 && z > r.z1 - .1 && z < r.z2 + .1) s = r.h;
+  let s = 0; for (const r of F.col) if (r.h != null && r.h <= foot + STEP_UP && r.h > s && x > r.x1 - .1 && x < r.x2 + .1 && z > r.z1 - .1 && z < r.z2 + .1) s = r.h;
   return s;
 }
-// 걸어서 오르내리는 계단 (world.js stairRoom): 1번 계단(서쪽, 북쪽으로 오름 0→1.9m) → 층참 → 2번 계단(동쪽, 남쪽으로 오름 1.9→3.8m)
+// 걸어서 오르내리는 계단 (world.js stairRoom): 1번 계단(서쪽, 북쪽으로 오름 0→2.0m) → 층참 → 2번 계단(동쪽, 남쪽으로 오름 2.0→4.0m = 위층 바닥)
 // 2번 계단 꼭대기를 지나면 위층, 위층에서 2번 계단 칸으로 들어서면 아래층 계단 꼭대기로 이어진다
-const STK = .19 / .48, SZB = -2.9, SZL = -7.7;
+const STK = .2 / .48, SZB = -2.9, SZL = -7.7, SLND = FH / 2;   // 한 단 0.2m · 너비 0.48m, 층참 2.0m — 2번 계단 꼭대기 = 위층 바닥 (world.js stairRoom 과 같은 치수)
 function stairH(F, x, z) {
   const c = F.stairCx; if (c == null || x < c - 3.85 || x > c - 1.2 || z > SZB || z < -9.6) return null;
-  if (z <= SZL) return 1.9;
-  return x < c - 2.5 ? (SZB - z) * STK : 1.9 + (z - SZL) * STK;
+  if (z <= SZL) return SLND;
+  return x < c - 2.5 ? Math.min(SLND, (SZB - z) * STK) : Math.min(FH, SLND + (z - SZL) * STK);
 }
 function stairStep(px, pz) {
   const F = floors[P.floor], h = stairH(F, P.x, P.z), lane2 = F.stairCx != null && P.x > F.stairCx - 2.5;
@@ -1034,12 +1050,12 @@ function stairStep(px, pz) {
   if (Math.abs(h - P.sh) > .45) {
     // 바닥에서 2번 계단 칸으로 들어섬 → 아래층 계단 꼭대기
     const nf = info.down, NF = nf != null && floors[nf];
-    if (P.sh < .3 && lane2 && pz > SZB && NF && NF.stairCx != null) { P.floor = nf; P.x += NF.stairCx - F.stairCx; P.sh = stairH(NF, P.x, P.z) ?? 3.8; P.shV = (P.shV || 0) + FH; stairArrive(nf); return true; }
+    if (P.sh < .3 && lane2 && pz > SZB && NF && NF.stairCx != null) { P.floor = nf; P.x += NF.stairCx - F.stairCx; P.sh = stairH(NF, P.x, P.z) ?? FH; P.shV = (P.shV || 0) + FH; stairArrive(nf); return true; }
     P.x = px; P.z = pz; return true;
   }
   P.sh = h;
   // 2번 계단 꼭대기 → 위층 (옥상은 계단탑 문 앞으로)
-  if (lane2 && P.z > pz && P.z > SZB - .15 && h > 3.7) {
+  if (lane2 && P.z > pz && P.z > SZB - .15 && h > FH - .3) {
     const nf = info.up; if (nf == null) { P.x = px; P.z = pz; return true; }
     if (nf === 3) { P.sh = 0; P.shV = 0; teleport({ floor: 3, x: 0, z: -7.5, yaw: 0 }); return true; }
     const NF = floors[nf]; if (NF.stairCx == null) { P.x = px; P.z = pz; return true; }
@@ -1768,7 +1784,8 @@ function updateCamera(dt, t) {
   const F = floors[P.floor];
   const bob = SET.bob ? Math.sin(P.bob) * (P.sprinting ? .05 : .028) : 0;
   P.shV = lerp(P.shV || 0, P.sh || 0, Math.min(1, dt * 14));
-  let ey = P.hiding ? 1.45 : 1.62 - (P.crouchK || 0) * .55 + (P.jy || 0) + P.shV + bob * (1 - (P.crouchK || 0) * .5);
+  P.jyV = (P.vy || 0) !== 0 ? (P.jy || 0) : lerp(P.jyV || 0, P.jy || 0, Math.min(1, dt * 16));   // 낮은 단을 걸어 오를 때 시점이 툭 튀지 않게 (점프 중엔 그대로)
+  let ey = P.hiding ? 1.45 : 1.62 - (P.crouchK || 0) * .55 + P.jyV + P.shV + bob * (1 - (P.crouchK || 0) * .5);
   camera.position.set(P.x, F.y0 + ey, P.z);
   let yaw = P.yaw, pitch = P.pitch;
   if (shake > 0) { shake = Math.max(0, shake - dt * 1.4); const k = SET.shake ? .05 : .008; yaw += (Math.random() - .5) * k * shake; pitch += (Math.random() - .5) * k * shake; }
@@ -1855,6 +1872,10 @@ function openGallery(tab = galTab) {
     gw.appendChild(d);
   };
   if (galTab === 'ref') REF_TITLES.forEach((t, i) => { const n = String(i + 1).padStart(2, '0'); fig(`assets/ref/${n}_t.webp`, `assets/ref/${n}.webp`, `${i + 1}. ${t}`); });
+  else if (galTab === 'props') {   // 사용자 제공 3D 소품 133종 팩 — 미리보기 렌더 (게임에 배치한 것은 이름 앞에 ●)
+    const used = new Set(world.MODELS.filter(m => m.model.startsWith('h133/')).map(m => m.model.slice(5)));
+    fetch('assets/models/h133/manifest.json').then(r => r.json()).then(list => { if (galTab !== 'props') return; list.forEach(m => fig(`assets/models/h133/thumbs/${m.id}.webp`, `assets/models/h133/thumbs/${m.id}.webp`, `${used.has(m.id) ? '● ' : ''}${m.id} ${m.name} — ${m.category_kr} · ${m.description}`)); }).catch(() => {});
+  }
   else if (galTab === 'char') Object.values(CHARACTERS).forEach(c => {
     fig(`assets/ui/${c.portrait}.webp`, `assets/ui/${c.portrait}.webp`, `${c.name} — 초상`); fig(`assets/ui/${c.body}.webp`, `assets/ui/${c.body}.webp`, `${c.name} — 전신`);
     c.faces.forEach((f, i) => fig(`assets/ui/${f}.webp`, `assets/ui/${f}.webp`, `${c.name} — ${c.faceNames[i]}`));

@@ -66,6 +66,10 @@ def emo_of(vid, L, V):
     return (L.get(m.group(1)) if m else V.get(vid)) or 'normal'
 
 
+def probe(f):
+    return float(subprocess.run(['ffprobe', '-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', f], capture_output=True, text=True).stdout.strip() or 0)
+
+
 def pct(v): return f'{v:+d}%'
 def hz(v): return f'{v:+d}Hz'
 
@@ -91,7 +95,9 @@ def main():
             tmp = tf.name
         for attempt in range(4):
             try:
-                asyncio.run(synth(say, voice, r0 + r1, p0 + p1, v1, tmp)); break
+                asyncio.run(synth(say, voice, r0 + r1, p0 + p1, v1, tmp))
+                if probe(tmp) < len(re.sub(r'\s', '', say)) * .07: raise RuntimeError('잘린 응답')   # 응답이 중간에 끊기면 다시
+                break
             except Exception as e:  # 네트워크 일시 오류는 다시 시도
                 if attempt == 3: raise
                 print('retry', vid, e)
@@ -102,7 +108,7 @@ def main():
         flt = f'{trim},highpass=f=70,loudnorm=I=-17:TP=-2:LRA=9{efx}{extra},apad=pad_dur=0.15'
         subprocess.run(['ffmpeg', '-y', '-loglevel', 'error', '-i', tmp, '-af', flt, '-ac', '1', '-ar', '44100', '-b:a', '56k', dst], check=True)
         os.unlink(tmp)
-        dur = float(subprocess.run(['ffprobe', '-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', dst], capture_output=True, text=True).stdout.strip())
+        dur = probe(dst)
         man[vid] = {'spk': spk, 'text': re.sub(r'<[^>]+>', ' ', text), 'dur': round(dur, 2), 'baked': True}
         print(vid, spk, emo, round(dur, 2), say[:40])
     json.dump(man, open(mp, 'w', encoding='utf-8'), ensure_ascii=False, indent=0)

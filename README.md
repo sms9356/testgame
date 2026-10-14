@@ -74,6 +74,9 @@ PW_CORE=<playwright-core> CHROME=<chromium> npm run test:e2e
 - `npcVisuals.js` 경비원 · 민아 GLB 교체 로더 + 대사 초상화 (사용자 제공 캐릭터 코드팩)
 - `assets/` 이미지 · 미리 구운 PBR 텍스처 · `voice/` 더빙 · `tools/` 텍스처 굽기 · 음성 생성 · `tests/` 테스트
 
+## 3D 소품 133종 팩
+`assets/models/h133/<ID>.glb` (사용자 제공, 저폴리곤 절차적 초안) — `world.js` 에서 `model('h133/<ID>', …)` 로 배치하면 `game.js loadModels` 가 UV 를 만들고 `H133_MAT` 의 부품 이름 규칙으로 게임 PBR 재질을 입혀 인스턴싱한다. 목록 · 설명은 `manifest.json`, 미리보기는 갤러리 '3D 소품 133' 탭.
+
 ## 캐릭터 3D 모델 교체 (GLB)
 `assets/characters/guard.glb` · `assets/characters/mina.glb` 를 넣고 새로고침하면 지금의 간단한 절차적 경비원(인트로 · 경비실) · 민아(방송실 장비실) 대신 그 모델이 쓰인다.
 - 경비원: 키 약 1.75m, `idle` 애니메이션 · 민아: 장비실에 **주저앉은** 포즈, 높이 약 0.95m, `sitting` 애니메이션

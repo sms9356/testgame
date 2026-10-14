@@ -236,17 +236,32 @@ export const makeSign = (text, bg = '#1e2a2e', fg = '#d9e4d0', fs = 34) => ctex(
   speckle(g, w, h, 160, ['#000', '#999'], 2, 6, 0.3);
 }, { repeat: false });
 
-export const makeFlag = () => ctex(256, 170, (g, w, h) => {
-  g.fillStyle = '#ddd8c8'; g.fillRect(0, 0, w, h);
-  g.save(); g.translate(w / 2, h / 2);
-  g.fillStyle = '#9a2a2c'; g.beginPath(); g.arc(0, 0, 34, Math.PI, 0); g.fill();
-  g.fillStyle = '#2a3f78'; g.beginPath(); g.arc(0, 0, 34, 0, Math.PI); g.fill();
-  g.fillStyle = '#9a2a2c'; g.beginPath(); g.arc(-17, 0, 17, 0, Math.PI * 2); g.fill();
-  g.fillStyle = '#2a3f78'; g.beginPath(); g.arc(17, 0, 17, 0, Math.PI * 2); g.fill();
+// 태극기 (국기 제작 기준): 가로 3 : 세로 2, 태극 지름 = 세로의 1/2, 태극은 왼쪽 위 → 오른쪽 아래 대각선을 따라 기울어
+// 위쪽 빨강 · 아래쪽 파랑, 4괘는 대각선 위에 — 왼쪽 위 건(☰) · 오른쪽 위 감(☵) · 왼쪽 아래 리(☲) · 오른쪽 아래 곤(☷)
+export const makeFlag = () => ctex(300, 200, (g, w, h) => {
+  g.fillStyle = '#e4e0d4'; g.fillRect(0, 0, w, h);
+  const D = h / 2, r = D / 2, th = Math.atan2(h, w), RED = '#b8202e', BLUE = '#123a78';
+  g.save(); g.translate(w / 2, h / 2); g.rotate(th);
+  g.fillStyle = RED; g.beginPath(); g.arc(0, 0, r, Math.PI, 0); g.fill();
+  g.fillStyle = BLUE; g.beginPath(); g.arc(0, 0, r, 0, Math.PI); g.fill();
+  g.fillStyle = RED; g.beginPath(); g.arc(-r / 2, 0, r / 2, 0, Math.PI * 2); g.fill();
+  g.fillStyle = BLUE; g.beginPath(); g.arc(r / 2, 0, r / 2, 0, Math.PI * 2); g.fill();
   g.restore();
-  g.fillStyle = '#1a1a1a';
-  [[28, 22], [w - 28, 22], [28, h - 22], [w - 28, h - 22]].forEach(([x, y]) => { for (let i = -1; i <= 1; i++) g.fillRect(x - 14, y + i * 6 - 1, 28, 3); });
-  stains(g, w, h, 8, 'rgba(60,50,30,.5)', 40);
+  // 괘: 길이 = 지름의 1/2, 효 두께 = 지름의 1/12, 효 사이 = 지름의 1/24, 태극에서 지름의 1/4 떨어짐
+  const bw = D / 12, gap = D / 24, len = D / 2, dist = r + D / 4 + (3 * bw + 2 * gap) / 2;
+  const TRI = [[-1, -1, [1, 1, 1]], [1, -1, [0, 1, 0]], [-1, 1, [1, 0, 1]], [1, 1, [0, 0, 0]]];
+  g.fillStyle = '#141414';
+  TRI.forEach(([sx, sy, bars]) => {
+    const ang = Math.atan2(sy * h, sx * w);
+    g.save(); g.translate(w / 2 + Math.cos(ang) * dist, h / 2 + Math.sin(ang) * dist); g.rotate(ang);
+    bars.forEach((solid, i) => {
+      const x = (i - 1) * (bw + gap) - bw / 2;
+      if (solid) g.fillRect(x, -len / 2, bw, len);
+      else { const seg = (len - gap) / 2; g.fillRect(x, -len / 2, bw, seg); g.fillRect(x, gap / 2, bw, seg); }
+    });
+    g.restore();
+  });
+  stains(g, w, h, 5, 'rgba(70,60,40,.22)', 40);
 }, { repeat: false });
 
 export const makeGround = () => ctex(512, 512, (g, w, h) => {

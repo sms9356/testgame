@@ -1,6 +1,7 @@
 // 폐교 — 잊혀진 시간 : 1인칭 학교 공포 게임 (Three.js)
 import * as THREE from './vendor/three.module.js';
 import { GLTFLoader } from './vendor/addons/loaders/GLTFLoader.js';
+import { createNPCVisuals } from './npcVisuals.js';
 import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY } from './world.js';
 import { drawMap } from './map.js';
 import { makeDress, makeHair, makeGhostFace, makeGraffiti, makeKeypad, loadPBR, makeGlow as makeGlowTex, makePaintingStare, makeSign } from './tex.js';
@@ -89,6 +90,7 @@ const _t0 = performance.now();
 await loadPBR();
 const _t1 = performance.now();
 const world = buildWorld(scene);
+const npcVisuals = createNPCVisuals({ THREE, GLTFLoader });   // assets/characters/{guard,mina}.glb 가 있으면 절차적 모델 대신 쓴다
 // 실사 스캔 소품 (Poly Haven CC0): 모델별 · 층별로 InstancedMesh 를 만들어 드로콜을 줄인다
 function loadModels() {
   const byName = {}; world.MODELS.forEach(m => (byName[m.model] = byName[m.model] || []).push(m));
@@ -1435,6 +1437,7 @@ function buildGuard() {
   const beam = new THREE.Mesh(new THREE.ConeGeometry(.9, 5, 20, 1, true), new THREE.MeshBasicMaterial({ color: 0xfff0d0, transparent: true, opacity: .07, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide }));
   beam.geometry.translate(0, -2.5, 0); beam.rotation.x = -Math.PI / 2 - .25; beam.position.set(.25, 1.12, .5); g.add(beam);
   g.position.set(1.3, 0, GATE_Z + 4.6); g.rotation.y = -.12; g.visible = false; scene.add(g);
+  npcVisuals.load('guard', g, { url: 'assets/characters/guard.glb', height: 1.75, clipNames: ['idle', 'stand'] });
   return g;
 }
 // 경비원 NPC (서브 캐릭터 시트): 60대 · 175cm · 남색 근무복 · 표장 모자 · SECURITY 패치 · 무전기 · 손전등 · 작업화 — 해가 지기 전까지 경비실에 있다
@@ -1466,11 +1469,12 @@ function buildGuardNPC() {
   return g;
 }
 const guardNPC = buildGuardNPC(); guardNPC.position.set(20.3, 0, 65.6); guardNPC.rotation.y = .9; world.OUT.add(guardNPC);
+npcVisuals.load('guard', guardNPC, { url: 'assets/characters/guard.glb', height: 1.75, clipNames: ['idle', 'stand'] });
 const guardCap = new THREE.Mesh(new THREE.CylinderGeometry(.115, .118, .08, 18), new THREE.MeshStandardMaterial({ color: 0x283450, roughness: .8 })); guardCap.position.set(20.0, .8, 66.55); guardCap.visible = false; world.OUT.add(guardCap);
 world.props.push({ kind: 'guardnpc', floor: 0, x: 20.3, z: 65.6, y: 1.5, label: '경비 아저씨와 이야기하기' });
 let guardGift = false;
 async function talkGuard(p) {
-  const say2 = async id => { const sec = await speak(id); subtitle('경비 아저씨', VO[id].text, Math.max(2.5, sec) + .4); return sec; };
+  const say2 = async id => { const sec = await speak(id); subtitle('경비 아저씨', VO[id].text, Math.max(2.5, sec) + .4); npcVisuals.portrait('guard', '경비 아저씨', (Math.max(2.5, sec) + .4) * 1000); return sec; };
   await say2('guardHi');
   for (let n = 0; n < 4 && state === 'playing'; n++) {
     const opts = [{ label: '민아라는 학생 못 보셨어요?' }, { label: '이 학교에 무슨 일이 있었어요?' }, { label: guardGift ? '(건전지는 이미 받았다)' : '손전등 건전지 좀 있으세요?' }, { label: '이만 가 볼게요' }];
@@ -1495,7 +1499,7 @@ function updateIntro(dt) {
     cue(2, () => { sfx.swell(1.2, .4); });
     cue(3, () => { fx.lightning(); sfx.boom(); $('introTitle').classList.add('show'); sfx.musicBox(7, .6); });
     cue(4, () => { $('introTitle').classList.remove('show'); introGuard.visible = true; sfx.flashlightClick(); });
-    cue(5, async () => { const sec = await speak('guard1'); subtitle('경비 아저씨', VO.guard1.text, Math.max(sec, 3) + .4); });
+    cue(5, async () => { const sec = await speak('guard1'); subtitle('경비 아저씨', VO.guard1.text, Math.max(sec, 3) + .4); npcVisuals.portrait('guard', '경비원', (Math.max(sec, 3) + .4) * 1000); });
     cue(6, () => { fx.lightning(); sfx.thunder(.3); introGuard.visible = false; caption('…아무도 없다'); });
     // 공중 전경 → 정문 앞으로 하강
     const k1 = ease(clamp((T - 6) / 6.2, 0, 1)), k2 = ease(clamp((T - 12.2) / 5.4, 0, 1));
@@ -1839,7 +1843,7 @@ function areaCheck(dt) {
   }
   if (k) showCard(k);
 }
-const REF_TITLES = ['폐교 실내 공간 3D 모델링 시트', '폐교 정문 3D 배경 시트', '교실 소품 오브젝트 시트', '폐교 내부 3D 배치도', '폐교 배치도 / 건물 도면', '주인공 캐릭터 시트', '인게임 화면 · UI 구성', '특수 공간 상세 배치도', '상호작용 UI 시트', '체육관 내부 시트', '방송실 내부 배치', '수영장 내부 배치', '방송실 · 수영장 · 지하 B1', '학교 지도', '급식실 배치도', '별관 (특별교실동)', '서문 상세 안내도', '방송실 상세 배치도', '수영장 샤워실 · 탈의실', '전체 배치도 · 오브젝트 · 이펙트 시트', '학교 외부 창문 텍스처 시트', '폐교 외부 설정도', '학교 외관 디자인 시트', '서브 캐릭터 — 민아'];
+const REF_TITLES = ['폐교 실내 공간 3D 모델링 시트', '폐교 정문 3D 배경 시트', '교실 소품 오브젝트 시트', '폐교 내부 3D 배치도', '폐교 배치도 / 건물 도면', '주인공 캐릭터 시트', '인게임 화면 · UI 구성', '특수 공간 상세 배치도', '상호작용 UI 시트', '체육관 내부 시트', '방송실 내부 배치', '수영장 내부 배치', '방송실 · 수영장 · 지하 B1', '학교 지도', '급식실 배치도', '별관 (특별교실동)', '서문 상세 안내도', '방송실 상세 배치도', '수영장 샤워실 · 탈의실', '전체 배치도 · 오브젝트 · 이펙트 시트', '학교 외부 창문 텍스처 시트', '폐교 외부 설정도', '학교 외관 디자인 시트', '서브 캐릭터 — 민아', '서브 캐릭터 — 경비원'];
 let galTab = 'ref';
 function openGallery(tab = galTab) {
   galTab = tab; document.querySelectorAll('#galTabs button').forEach(b => b.classList.toggle('on', b.dataset.g === galTab));
@@ -1942,6 +1946,7 @@ let last = performance.now();
 function frame(now) {
   const dt = Math.min(.066, Math.max(0, (now - last) / 1000)); last = now; tNow += dt;
   perfTick(dt);
+  npcVisuals.update(dt);
   if (state === 'ui') { updateSound(dt); requestAnimationFrame(frame); return; }
   $('clickHint').classList.toggle('show', state === 'playing' && !document.pointerLockElement && !DEBUG && !TEST_NOLOCK);   // 소지품 · 지도 · 미니게임 중에는 3D를 다시 그리지 않는다 (마지막 화면 유지)
   if (state === 'playing' || state === 'trans' || state === 'dead') {
@@ -2121,6 +2126,7 @@ async function useProp(p) {
     p.done = true; p.ring = false; sfx.click(); fx.glitch(.5); shake = .3;
     line('gh1', 'phone', '📞 ???'); setTimeout(() => { if (state === 'playing') talk('steps', 2400); }, 3200);
   } else if (p.kind === 'mina') {
+    npcVisuals.portrait('mina', '민아 · 방송부장', 4500);
     if (!FL.calm) { talk(p.tried ? 'minaAsleep' : 'minaFound', 3200); p.tried = true; say('숨은 쉬고 있다… 무언가가 아직 그녀를 붙잡고 있다.', 3000); unlockOptional(); return; }
     p.done = true; FL.mina = true; sfx.paper();
     line(`mw_${CK()}`, 'none', '민아').then(sec => setTimeout(() => { talk('withMina', 3000); }, (sec + .5) * 1000));
@@ -2346,6 +2352,7 @@ const mina = new THREE.Group();
   mina.position.set(-21.65, 0, -8.45); mina.userData.dynamic = true; F.interior.add(mina);   // interior 그룹이 이미 층 높이(y0)만큼 올라가 있다
   mina.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
   world.props.push({ kind: 'mina', floor: 2, x: -21.65, z: -7.9, y: .8, label: '민아 깨우기' });
+  npcVisuals.load('mina', mina, { url: 'assets/characters/mina.glb', height: .95, clipNames: ['sitting', 'sit'] });   // 장비실에 주저앉은 모습
 }
 
 /* ---------- 추가 상호작용 오브젝트: 잠긴 보관함 · 다이얼 · 배수구 · 피아노 · 그림 · 도구 ---------- */

@@ -61,7 +61,7 @@ ES 모듈을 쓰므로 `file://` 로는 열리지 않습니다. `main` 에 머�
 
 ## 테스트
 ```
-npm test                       # 저장 시스템 단위 테스트 (node --test)
+npm test                       # 저장 시스템 · NPC 모델 로더 단위 테스트 (node --test)
 python3 -m http.server 8765 &  # 브라우저 회귀 테스트
 PW_CORE=<playwright-core> CHROME=<chromium> npm run test:e2e
 ```
@@ -71,7 +71,15 @@ PW_CORE=<playwright-core> CHROME=<chromium> npm run test:e2e
 - `game.js` 게임 상태 · 입력 · 유령 AI · 퍼즐 연결 · 이벤트 · UI · `saveSystem.js` 저장 · `minigames.js` 미니게임 7종
 - `world.js` 학교 생성 · `story.js` 인물 · 대사 · 쪽지 · 아이템 · 조합 · 챕터 · 연표 · 후일담 · `settings.js` 설정 · 키
 - `fx.js` 후처리 · 입자 · `audio.js` 합성 음향 · `voice.js` 더빙/자막 · `map.js` 지도 · `tex.js` / `bake.js` 텍스처 · 배칭
+- `npcVisuals.js` 경비원 · 민아 GLB 교체 로더 + 대사 초상화 (사용자 제공 캐릭터 코드팩)
 - `assets/` 이미지 · 미리 구운 PBR 텍스처 · `voice/` 더빙 · `tools/` 텍스처 굽기 · 음성 생성 · `tests/` 테스트
+
+## 캐릭터 3D 모델 교체 (GLB)
+`assets/characters/guard.glb` · `assets/characters/mina.glb` 를 넣고 새로고침하면 지금의 간단한 절차적 경비원(인트로 · 경비실) · 민아(방송실 장비실) 대신 그 모델이 쓰인다.
+- 경비원: 키 약 1.75m, `idle` 애니메이션 · 민아: 장비실에 **주저앉은** 포즈, 높이 약 0.95m, `sitting` 애니메이션
+- 미터 단위 · Y-up · 앞 방향 -Z (Blender glTF 2.0 내보내기). 크기 · 바닥 위치는 자동으로 맞춘다
+- 파일이 없으면 지금 모델을 그대로 쓴다 (네트워크 탭의 404 한 줄은 정상)
+- 지금 저장소에는 GLB 가 **없다** — 캐릭터 시트(2D 그림)는 3D 모델이 아니므로 별도 모델링이 필요하다. 대사 장면의 초상화(`assets/ui/npc_*.webp`)는 시트에서 잘라 바로 쓴다
 
 ## 라이선스 주의
 - three.js: MIT. 이미지 · 레퍼런스 시트: 프로젝트 소유자 제공.

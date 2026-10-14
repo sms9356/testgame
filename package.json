@@ -5,7 +5,7 @@
   "description": "폐교 — 잊혀진 시간 (1인칭/3인칭 3D 학교 공포 게임)",
   "scripts": {
     "start": "python3 -m http.server 8000",
-    "test": "node --test tests/save.test.mjs",
+    "test": "node --test tests/save.test.mjs tests/npcVisuals.test.mjs",
     "test:e2e": "node tests/e2e.mjs"
   },
   "license": "MIT"

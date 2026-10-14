@@ -173,10 +173,35 @@ function buildMusic() {
 }
 const BOX = [659, 587, 523, 587, 659, 659, 659, 0, 587, 587, 587, 0, 659, 784, 784, 0];
 function musicTone(f, dur, vol, type, g) { const o = ac.createOscillator(); o.type = type; o.frequency.value = f; const e = ac.createGain(); e.gain.setValueAtTime(vol, ac.currentTime); e.gain.exponentialRampToValueAtTime(.0005, ac.currentTime + dur); o.connect(e); e.connect(g); e.connect(revSend); o.start(); o.stop(ac.currentTime + dur + .05); }
+// 타이틀 BGM: Am – F – C – E 진행의 느린 피아노 아르페지오 + 현악 패드 + 낮은 드론 + 음이 살짝 나간 오르골(학교종) 선율
+const CHORDS = [[220, 261.6, 329.6], [174.6, 220, 261.6], [130.8, 196, 261.6], [164.8, 207.7, 246.9]];
+const BELL = [784, 784, 880, 880, 784, 784, 659, 0, 784, 784, 659, 659, 587, 0, 0, 0];
+let bgmT = 0, bgmStep = 0, padNodes = null;
+function piano(f, vol, dur = 3.2) {
+  const t = ac.currentTime;
+  [[1, 'triangle', 1], [2.001, 'sine', .35], [3.003, 'sine', .12]].forEach(([k, type, a]) => {
+    const o = ac.createOscillator(); o.type = type; o.frequency.value = f * k;
+    const e = ac.createGain(); e.gain.setValueAtTime(0, t); e.gain.linearRampToValueAtTime(vol * a, t + .008); e.gain.exponentialRampToValueAtTime(.0004, t + dur / k);
+    const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 2400; o.connect(lp); lp.connect(e); e.connect(musG.menu); e.connect(revSend); o.start(t); o.stop(t + dur + .1);
+  });
+}
+function setPad(ch) {
+  if (!padNodes) { padNodes = ch.map(() => { const o = ac.createOscillator(), o2 = ac.createOscillator(); o.type = o2.type = 'sawtooth'; o2.detune.value = 9; const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 650; const g = ac.createGain(); g.gain.value = .011; o.connect(lp); o2.connect(lp); lp.connect(g); g.connect(musG.menu); o.start(); o2.start(); return [o, o2]; }); }
+  ch.forEach((f, i) => padNodes[i].forEach(o => o.frequency.setTargetAtTime(f / 2, ac.currentTime, .9)));
+}
+function menuBGM(dt) {
+  bgmT -= dt; if (bgmT > 0) return; bgmT = .6;
+  const bar = (bgmStep / 8 | 0) % 4, ch = CHORDS[bar], i = bgmStep % 8;
+  if (i === 0) { setPad(ch); musicTone(ch[0] / 2, 5.2, .05, 'sine', musG.menu); }
+  const arp = [0, 1, 2, 1, 0, 2, 1, 2][i]; piano(ch[arp] * (i > 3 ? 2 : 1), .045 + (i === 0 ? .02 : 0));
+  const b = BELL[bgmStep % BELL.length]; if (b && bgmStep % 2 === 0 && (bgmStep / 16 | 0) % 2 === 1) { const d = 1 + (Math.random() - .5) * .01; musicTone(b * d, 2.2, .03, 'sine', musG.menu); musicTone(b * 2.004 * d, 1.1, .01, 'sine', musG.menu); }
+  if (bgmStep % 32 === 31) { const t = ac.currentTime; const n = ac.createBufferSource(); n.buffer = noiseBuf; n.loop = true; const f = ac.createBiquadFilter(); f.type = 'bandpass'; f.frequency.setValueAtTime(300, t); f.frequency.exponentialRampToValueAtTime(3000, t + 2.2); const e = ac.createGain(); e.gain.setValueAtTime(.0001, t); e.gain.exponentialRampToValueAtTime(.05, t + 2.2); e.gain.linearRampToValueAtTime(0, t + 2.3); n.connect(f); f.connect(e); e.connect(musG.menu); n.start(t); n.stop(t + 2.4); }
+  bgmStep++;
+}
 export function setMusic(mode, dt) {
   if (!ok() || !musG.menu) return;
   if (mode !== musMode) { musMode = mode; musG.menu.gain.setTargetAtTime(mode === 'menu' ? 1 : 0, ac.currentTime, .6); musG.chase.gain.setTargetAtTime(mode === 'chase' ? 1 : 0, ac.currentTime, mode === 'chase' ? .15 : 1.2); }
-  if (mode === 'menu') { mbT -= dt; if (mbT <= 0) { mbT = .42; const n = BOX[mbI++ % BOX.length]; if (n) { musicTone(n * 1.002, 1.6, .05, 'sine', musG.menu); musicTone(n * 2, .7, .015, 'triangle', musG.menu); } if (mbI % 4 === 1) musicTone(n ? n / 4 : 131, 2.4, .03, 'sine', musG.menu); } }
+  if (mode === 'menu') menuBGM(dt);
   if (mode === 'chase') { chaseT -= dt; if (chaseT <= 0) { chaseT = .42; musicTone(52, .25, .25, 'sine', musG.chase); setTimeout(() => ok() && musicTone(48, .2, .16, 'sine', musG.chase), 210); } }
 }
 
@@ -306,6 +331,10 @@ export const sfx = {
   ghostCrack() { for (let i = 0; i < 4; i++) setTimeout(() => { noiseBurst(.025, 3600, 'highpass', .45); tone(180 + Math.random() * 80, .03, 'square', .04); }, i * 90 + Math.random() * 60); },
   ghostLaugh() {   // 늘어진 낮은 웃음 (놓쳤을 때)
     for (let i = 0; i < 5; i++) setTimeout(() => { tone(240 - i * 12, .22, 'sawtooth', .025, 0, 1, 200 - i * 10); noiseBurst(.18, 800, 'bandpass', .1); }, i * 260);
+  },
+  lightOn() {   // 형광등 점등: 스타터 '틱 틱' + 웅 하는 안정기 소리
+    [0, 140, 420].forEach((d, i) => setTimeout(() => { noiseBurst(.03, 3500, 'highpass', .3); tone(100, .12, 'square', .03); }, d));
+    setTimeout(() => tone(120, 1.4, 'sawtooth', .02, 0, 1, 119), 600);
   },
   // 인트로 · 연출
   vibrate() { for (let k = 0; k < 3; k++) [0, 170].forEach(d => setTimeout(() => { tone(150, .14, 'square', .05); tone(156, .14, 'square', .04); noiseBurst(.14, 220, 'lowpass', .35); }, k * 900 + d)); },

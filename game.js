@@ -1,6 +1,6 @@
 // 폐교 — 잊혀진 시간 : 1인칭 학교 공포 게임 (Three.js)
 import * as THREE from './vendor/three.module.js';
-import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX } from './world.js';
+import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, MAIN_ZS } from './world.js';
 import { drawMap } from './map.js';
 import { makeDress, makeHair, makeGhostFace, makeGraffiti, makeKeypad, loadPBR, makeGlow as makeGlowTex, makePaintingStare } from './tex.js';
 import { warmUp } from './bake.js';
@@ -214,7 +214,7 @@ function ghostTick(dt, t) {
   const G = ghost; if (!G.active) return;
   const F = floors[G.floor];
   const same = G.floor === P.floor;
-  const outP = P.floor === 0 && P.z > 1.9;
+  const outP = P.floor === 0 && P.z > MAIN_ZS + .15;
   const dist = Math.hypot(P.x - G.x, P.z - G.z);
   G.spawnGrace = Math.max(0, G.spawnGrace - dt); G.calmT = Math.max(0, (G.calmT || 0) - dt);
 
@@ -311,14 +311,14 @@ function ghostTick(dt, t) {
   }
   // 실외 이동 제약
   if (G.floor === 0) {
-    if (!G.enraged && G.z > 1.3) G.z = 1.3;
-    if (G.z > 1.8) { const p = { x: G.x, z: G.z }; collide(floors[0].col, p, .4); G.x = p.x; G.z = p.z; }
+    if (!G.enraged && G.z > MAIN_ZS - .4) G.z = MAIN_ZS - .4;
+    if (G.z > MAIN_ZS + .1) { const p = { x: G.x, z: G.z }; collide(floors[0].col, p, .4); G.x = p.x; G.z = p.z; }
   }
 
   // 닫힌 문은 열고 지나간다
   for (const d of world.doorList) {
     if (d.floor !== G.floor || d.target > .5) continue;
-    const dz = d.kind === 'slide' ? -1.55 : d.z;
+    const dz = d.kind === 'slide' ? (d.z > 0 ? 1.55 : -1.55) : d.z;
     if (Math.hypot(G.x - d.x, G.z - dz) < 1.3) { d.target = 1; d.slam = true; const dd = Math.hypot(P.x - d.x, P.z - dz); if (G.floor === P.floor && dd < 20) { at(d.x, floors[d.floor].y0 + 1.2, dz).doorBang(0, 1); if (dd < 6) shake = .35; } }
   }
   // 사물함 수색
@@ -645,7 +645,7 @@ function mapPins(f) { return KEY_ROOMS.map((r, i) => ({ ...r, i })).filter(r => 
 function mapTarget(f) { const o = objective(), t = o.loc || (FL.opt && optLoc()); return t && t.f === f ? t : null; }
 function mapExtras(f) {
   return {
-    doors: world.doorList.filter(d => d.floor === f).map(d => ({ x: d.x, z: d.kind === 'slide' ? -1.55 : d.z, open: d.target > .5, slide: d.kind === 'slide' })),
+    doors: world.doorList.filter(d => d.floor === f).map(d => ({ x: d.x, z: d.kind === 'slide' ? (d.z > 0 ? 1.55 : -1.55) : d.z, open: d.target > .5, slide: d.kind === 'slide' })),
     props: world.props.filter(p => p.floor === f && p.kind !== 'bell' && p.kind !== 'switch').map(p => ({ x: p.x, z: p.z, done: !!p.done, label: { safe: '금고', breaker: '차단기', console: '방송 장비', tape: '녹음기', mina: '민아', lock: '잠긴 보관함', drain: '배수구', piano: '피아노', easel: '그림', phone: '전화' }[p.kind] })),
     target: mapTarget(f),
   };
@@ -658,7 +658,7 @@ function renderMap() {
   document.querySelectorAll('#mapTabs button').forEach(b => b.classList.toggle('tgt', !!t && b.dataset.f === String(t.f)));
   if (guide) return;
   const c = $('bigMap'), ctx = c.getContext('2d');
-  const V = { 0: [0, 22, 5.2], 5: [38, 19, 22], 6: [-42, 39, 12.5], 7: [-39, 15, 24], 8: [0, -4, 21], 9: [0, -4, 21], 10: [0, -4, 21] }[mapFloor] || [0, -4, 11];
+  const V = { 0: [0, 22, 5.2], 1: [0, 0, 10.5], 2: [0, 0, 10.5], 4: [0, 0, 10.5], 5: [38, 19, 22], 6: [-42, 39, 12.5], 7: [-39, 15, 24], 8: [0, -4, 21], 9: [0, -4, 21], 10: [0, -4, 21] }[mapFloor] || [0, -4, 11];
   drawMap(ctx, c.width, c.height, { floor: mapFloor, cx: V[0] + mapPan.x, cz: V[1] + mapPan.z, scale: V[2] * mapZoom, labels: true, pins: mapPins(mapFloor), ...mapExtras(mapFloor), t: tNow,
     lockers: world.lockers.filter(l => l.floor === mapFloor), player: P.floor === mapFloor ? { x: P.x, z: P.z, yaw: P.yaw } : null });
 }
@@ -682,7 +682,7 @@ function useMedkit() {
 const WOOD_ROOMS = ['class', 'office', 'library', 'music', 'art', 'counsel', 'nurse', 'club', 'craft'];
 function surfaceAt() {
   const f = P.floor;
-  if (f === 0 && isOutdoors()) return (Math.abs(P.x) < 3.4 || (P.z > 1.75 && P.z < 14 && Math.abs(P.x) < 46)) ? 'tile' : 'dirt';
+  if (f === 0 && isOutdoors()) return (Math.abs(P.x) < 3.4 || (P.z > MAIN_ZS && P.z < 14 && Math.abs(P.x) < 46)) ? 'tile' : 'dirt';
   if (f === 5) return 'wood';
   if (f >= 0 && f !== 3 && f < 11) { const r = roomAt(f, P.x, P.z); if (r && WOOD_ROOMS.includes(r.type)) return 'wood'; if (r && r.type === 'stair') return 'metal'; }
   return 'tile';
@@ -701,7 +701,7 @@ function updateSound(dt) {
   if (ghost.active && ghost.floor === P.floor && state === 'playing') setGhostVoice({ x: ghost.x, y: floors[ghost.floor].y0 + 1.7, z: ghost.z }, 1, chase, dt);
   else setGhostVoice(null, 0, false, dt);
 }
-function isOutdoors() { return state === 'menu' || state === 'intro' || P.floor === 3 || (P.floor === 0 && !(P.z < 1.45 && P.z > -9.9 && Math.abs(P.x) < 36.3)); }
+function isOutdoors() { return state === 'menu' || state === 'intro' || P.floor === 3 || (P.floor === 0 && !(P.z < MAIN_ZS - .3 && P.z > -9.9 && Math.abs(P.x) < 36.3)); }
 function hit() {
   if (TEST && TST.god) return;
   if (P.invuln > 0 || state !== 'playing') return;
@@ -748,7 +748,7 @@ function findInteract() {
   }
   for (const d of world.doorList) {
     if (d.floor !== P.floor) continue;
-    const dzc = d.kind === 'slide' ? -1.55 : d.z;
+    const dzc = d.kind === 'slide' ? (d.z > 0 ? 1.55 : -1.55) : d.z;
     const dx = d.x - P.x, dz = dzc - P.z, dd = Math.hypot(dx, dz);
     if (dd > (d.kind === 'slide' ? 1.9 : 1.4)) continue;
     const f = (dx * fx + dz * fz) / Math.max(dd, .01), s = f - dd * .15 - .15;
@@ -1330,7 +1330,7 @@ function updatePlayer(dt) {
     gateClosed = true; gateState = 'closing'; sfx.gateClang(); shake = .8; if (P.z > GATE_Z - 8) lookBack = 1.9;
     setTimeout(() => { toast('정문이 잠겼습니다', '민아의 흔적을 따라 학교 안으로', 'warn'); talk('gate', 4200); refreshHud(); }, 800);
   }
-  if (!introDone && P.floor === 0 && P.z < 1.2) { introDone = true; talk('inside', 3500); refreshHud(); setTimeout(() => toast('팁', '쪽지를 읽고, 사물함에 숨어 시선을 피하세요. (Tab 소지품 · P 휴대폰 · M 지도)', 'info'), 1500); }
+  if (!introDone && P.floor === 0 && P.z < MAIN_ZS - .5) { introDone = true; talk('inside', 3500); refreshHud(); setTimeout(() => toast('팁', '쪽지를 읽고, 사물함에 숨어 시선을 피하세요. (Tab 소지품 · P 휴대폰 · M 지도)', 'info'), 1500); }
 
   P.invuln = Math.max(0, P.invuln - dt);
   if (!P.bcast && P.floor === 2 && Math.abs(P.x + 24) < 3.8 && P.z < -2) { P.bcast = true; sfx.broadcast(); setTimeout(() => line('pa1', 'pa'), 900); setTimeout(() => talk('speakers', 3600), 8500); }
@@ -1349,7 +1349,7 @@ const easeOut = t => 1 - Math.pow(1 - t, 3);
 
 function updateLighting(dt) {
   const F = floors[P.floor];
-  const indoors = P.floor >= 4 || (P.floor > 0 && P.floor < 3) || (P.floor === 0 && P.z < 1.45 && P.z > -9.9 && Math.abs(P.x) < 36.3);
+  const indoors = P.floor >= 4 || (P.floor > 0 && P.floor < 3) || (P.floor === 0 && P.z < MAIN_ZS - .3 && P.z > -9.9 && Math.abs(P.x) < 36.3);
   const k = Math.min(1, dt * 3);
   moonLight.intensity = lerp(moonLight.intensity, indoors ? 0 : 1.6, k);
   lightFlash = Math.max(0, lightFlash - dt * 3);
@@ -1450,11 +1450,13 @@ function areaCheck(dt) {
   if (f === 5) k = P.z < 15.5 ? 'gymStage' : 'gym';
   else if (f === 6) k = P.z < 30.2 ? 'poolLocker' : 'pool';
   else if (f === 7) k = 'cafe'; else if (f === 3) k = 'roof';
-  else if (f === 0 && !(P.z < 1.45 && P.z > -9.9 && Math.abs(P.x) < 36.3)) {
+  else if (f === 0 && !(P.z < MAIN_ZS - .3 && P.z > -9.9 && Math.abs(P.x) < 36.3)) {
     if (P.z > 60) k = 'gate'; else if (P.x < -40 && Math.abs(P.z - 32) < 9) k = 'westGate'; else if (Math.abs(P.x) < 22 && P.z < -10.5) k = 'annexOut';
   } else if (f <= 2 || f === 4 || f >= 8) {
     const an = f >= 8, sl = an ? ANNEX.slots : SLOTS, lay = an ? ANNEX.floors[f - 8] : LAYOUT[f];
-    if (P.z > -1.75) k = f === 4 ? 'b1' : an ? 'annex' : 'corridor';
+    const sr = roomAt(f, P.x, P.z);
+    if (sr && sr.south) k = sr.type;
+    else if (P.z > -1.75) k = f === 4 ? 'b1' : an ? 'annex' : 'corridor';
     else { const i = sl.findIndex(c => Math.abs(P.x - c) < 4); if (i >= 0) k = lay.types[i]; }
   }
   if (k) showCard(k);
@@ -1498,7 +1500,7 @@ function updateHud(dt, prox, chase) {
   $('fearBar').style.width = P.fear * 100 + '%';
   const st = $('stat'); st.textContent = (P.hp > 50 ? (P.fear > .6 ? '공포' : '정상') : '부상') + (P.crouch ? ' · 앉음' : ''); st.style.color = P.hp > 50 ? (P.fear > .6 ? '#e86870' : '#6fd08c') : '#e0884c';
   $('batBar').style.width = P.battery + '%'; $('s1').classList.toggle('off', !P.light);
-  const outdoors = P.floor === 0 && !(P.z < 1.45 && P.z > -9.9 && Math.abs(P.x) < 36.3);
+  const outdoors = P.floor === 0 && !(P.z < MAIN_ZS - .3 && P.z > -9.9 && Math.abs(P.x) < 36.3);
   $('floor').textContent = P.floor === 0 && outdoors ? '외부' : AREA_NAMES[P.floor];
   const m = Math.floor(23 * 60 + 40 + playTime / 6), h24 = Math.floor(m / 60) % 24;
   $('clock').textContent = `${h24 >= 12 ? 'PM' : 'AM'} ${String(h24 % 12 || 12).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
@@ -1807,6 +1809,8 @@ function showApparition(f, x, z, yaw, dur, watch) { appar.position.set(x, floors
 const EV = { done: new Set(), t: 0, inRoom: null, roomT: 0, slamCD: 60, b33T: 0, b33: 0, corrT: 0 };
 const evOnce = (id, fn) => { if (EV.done.has(id)) return false; EV.done.add(id); fn(); return true; };
 function roomAt(f, x, z) {
+  // 본관 남쪽 방 줄 (복도 남쪽, z 1.75 ~ 9.6)
+  if (z > 1.8 && z < MAIN_ZS - .3 && f >= 0 && f <= 2) { const i = SLOTS.findIndex(c => Math.abs(x - c) < 4); if (i < 0) return null; const L = LAYOUT_S[f]; return { type: L.types[i], name: L.names[i], cx: SLOTS[i], id: f + ':s' + i, south: true }; }
   if (z > -1.8) return null;
   const an = f >= 8 && f <= 10, sl = an ? ANNEX.slots : SLOTS, lay = an ? ANNEX.floors[f - 8] : LAYOUT[f];
   if (!lay || (f > 4 && !an)) return null;
@@ -2264,7 +2268,7 @@ function psych(f, room, step) {
   // 다시 들어온 교실: 칠판 글씨가 바뀌어 있다 (두 번까지)
   if (room && EV.inRoom !== room.id) {
     PSY.visits[room.id] = (PSY.visits[room.id] || 0) + 1;
-    const br = world.boardRefs['cls' + f + ':' + room.cx];
+    const br = world.boardRefs['cls' + f + ':' + room.cx + (room.south ? 's' : '')];
     if (room.type === 'class' && PSY.visits[room.id] === 2 && PSY.boards < 2 && playTime > 150 && br && br.mat && room.name !== '3-3') {
       PSY.boards++; setTimeout(() => { const W = ['왜 돌아왔어?', '아직 여기 있어', '뒤를 보지 마', '같이 있자']; br.mat.map = world.makeBoardTex([W[(Math.random() * W.length) | 0]]); br.mat.needsUpdate = true; caption('칠판의 글씨가… 바뀌어 있다'); sfx.whisper(); setFace('fear', 2); }, 1600);
     }
@@ -2331,7 +2335,7 @@ function moreEvents(f, room, step) {
   // ⑰ 물 없는 수영장 바닥에 서 있는 사람
   if (f === 6 && Math.abs(P.x + 41.5) < 4.5 && P.z > 45.6 && P.pitch < -.3) evOnce('poolFigure', () => { showApparition(6, -41.5, 40, 0, 1.6, 'look'); appar.position.y = floors[6].y0 - 1.55; caption('고인 물 한가운데… 누가 서 있다'); });
   // ⑲ 3-5 교실: 그날의 잔상 — 하늘을 기다리던 두 친구 (위협 없는 기억 장면)
-  if (room && f === 2 && room.type === 'class' && room.cx === SLOTS[6] && EV.roomT > 1.5) evOnce('echo', () => memoryEcho(room.cx));
+  if (room && f === 2 && room.type === 'class' && !room.south && room.cx === SLOTS[6] && EV.roomT > 1.5) evOnce('echo', () => memoryEcho(room.cx));
   // ⑳ 수영장 샤워실: 샤워기가 저절로 틀어져 김이 차오른다
   if (f === 6 && P.x > -41.3 && P.z < 29.6 && P.z > 20.5) evOnce('showers', () => {
     caption('쏴아— 샤워기가 저절로 틀어졌다'); sfx.splash(); storyCalm(20);
@@ -2359,6 +2363,12 @@ function moreEvents(f, room, step) {
     const lamp = floors[f].lamps.filter(l => l.room && !l.off && l.kind !== 'dead' && Math.abs(l.x - P.x) < 4 && Math.abs(l.z - P.z) < 4)[0];
     if (lamp) { EV.bulbs = (EV.bulbs || 0) + 1; lamp.kind = 'dead'; lamp.mesh.material = world.mats.matLampDead; lampTimer = 0; fx.spark(lamp.x, lamp.y + .35, lamp.z, 40); at(lamp.x, lamp.y, lamp.z).spark(); sfx.pinBreak(); caption('팍— 형광등이 터졌다'); setFace('surprise', 1.5); }
   }
+  // ㉗ 3-2 — 하늘의 교실: 남은 한 자리의 휴대전화가 진동한다 (그것은 이 방에 들어오지 않는다)
+  if (room && room.south && room.name === '3-2' && EV.roomT > 1.2) evOnce('room32', () => {
+    storyCalm(120); at(room.cx, floors[f].y0 + .8, 5.6).vibrate(); fx.glitch(.2); setFace('fear', 2.5);
+    caption('국화가 놓인 책상 위에서… 휴대전화가 진동한다'); setTimeout(() => { sfx.whisper(); subtitle('???', '…오늘 방송, 들어 줄 거지?', 3.5); }, 3200);
+  });
+  if (room && room.south && room.name === '3-2') { ghost.calmT = Math.max(ghost.calmT || 0, 3); }
   // ⑱ 체육관 첫 진입: 소리가 크게 울린다
   if (f === 5) evOnce('gymEcho', () => caption('체육관 — 작은 소리도 크게 울린다'));
   // ⑭ 복도 사물함이 안에서 쾅쾅
@@ -2555,7 +2565,7 @@ const TP = [
   ['지하 B1', { floor: 4, x: 0, z: 0, yaw: -Math.PI / 2 }], ['체육관', { floor: 5, x: 38, z: 28.1, yaw: 0 }],
   ['수영장', { floor: 6, x: -35.5, z: 38, yaw: Math.PI / 2 }], ['급식실', { floor: 7, x: -39, z: 20.5, yaw: 0 }],
   ['별관 1F', { floor: 8, x: 0, z: .2, yaw: -Math.PI / 2 }], ['별관 2F', { floor: 9, x: 0, z: 0, yaw: -Math.PI / 2 }],
-  ['별관 3F', { floor: 10, x: 0, z: 0, yaw: -Math.PI / 2 }], ['서문 앞', { floor: 0, x: -46.5, z: 32, yaw: Math.PI / 2 }],
+  ['별관 3F', { floor: 10, x: 0, z: 0, yaw: -Math.PI / 2 }], ['서문 앞', { floor: 0, x: -49, z: 32, yaw: Math.PI / 2 }],
   ['1-1 교실 (캠코더)', { floor: 0, x: 8, z: -3, yaw: 0 }], ['B1 펌프실 (명찰)', { floor: 4, x: 32, z: -3, yaw: 0 }], ['방송실 장비실 (민아)', { floor: 2, x: -21.4, z: -5.0, yaw: 0 }],
   ['교무실 금고', { floor: 0, x: -10.4, z: -8.0, yaw: Math.PI / 2 }], ['도서실 서랍 (자물쇠 따기)', { floor: 0, x: 32.6, z: -7.4, yaw: 0 }], ['과학실 약품장 (다이얼)', { floor: 1, x: 31, z: -4.8, yaw: Math.PI / 2 }],
   ['체육관 기구함 (다이얼)', { floor: 5, x: 30.6, z: 20.6, yaw: Math.PI / 2 }], ['수영장 배수구 (갈고리)', { floor: 6, x: -41.5, z: 46.9, yaw: 0 }], ['음악실 피아노', { floor: 2, x: 34.2, z: -6.2, yaw: 0 }], ['미술실 그림 퍼즐', { floor: 2, x: 25, z: -4.6, yaw: 0 }], ['보건실 녹음기', { floor: 0, x: -26.4, z: -4.6, yaw: Math.PI / 2 }], ['B1 전기실', { floor: 4, x: -16, z: -4, yaw: Math.PI / 2 }], ['3-3 교실', { floor: 2, x: -8, z: -3, yaw: 0 }], ['음악실', { floor: 2, x: 32, z: -3, yaw: 0 }],

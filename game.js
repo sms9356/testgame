@@ -6,7 +6,7 @@ import { makeDress, makeHair, makeGhostFace, makeGraffiti, makeKeypad, loadPBR, 
 import { warmUp } from './bake.js';
 import { createFX } from './fx.js';
 import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes } from './audio.js';
-import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines } from './voice.js';
+import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js';
 import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI } from './story.js';
 import { SET, saveSET, resetSET, DIFF, keyLabel } from './settings.js';
 const K = () => SET.keys;
@@ -437,6 +437,7 @@ let talkTimer = 0;
 // 주인공 대사: story.js LINES 의 id 로 부른다 (선택한 캐릭터의 대사 · 목소리)
 function talk(id, ms = 3200) {
   const L = LINES[id], text = L ? L[CK()] : id;
+  logLine(CH().name, text);
   $('dlgText').textContent = text; $('dlgName').textContent = CH().name;
   $('dlg').classList.toggle('show', VS.subs || !VS.dub); clearTimeout(talkTimer);
   talkTimer = setTimeout(() => $('dlg').classList.remove('show'), ms);
@@ -596,14 +597,14 @@ function invKey(e) {
 
 /* ----- 휴대폰 ----- */
 let phoneTab = 'msg';
-const PTABS = ['msg', 'photo', 'memo', 'tl'];
+const PTABS = ['msg', 'photo', 'memo', 'tl', 'tool', 'log'];
 const phoneSeen = { photo: 0, memo: 0, tl: 0 };
 const hasDoc = id => docs.some(d => d.id === id);
 const tlKnown = () => TIMELINE.filter(e => hasDoc(e.need)).length;
 function openPhone(tab = 'msg') { if (state !== 'playing') return; phoneTab = tab; openUI('phone'); renderPhone(); sfx.click(); }
 function renderPhone() {
   document.querySelectorAll('.pTabs button').forEach(b => b.classList.toggle('on', b.dataset.p === phoneTab));
-  $('pClock').textContent = clockText();
+  $('pClock').textContent = clockText(); $('pBat').textContent = `🔋 ${Math.round(P.pbat ?? 100)}%`;
   const B = $('pBody');
   if (phoneTab === 'msg') {
     B.innerHTML = msgs.length ? msgs.slice().reverse().map(m => `<div class="bubble${m.read ? '' : ' unread'}" data-id="${m.id}"><small>민아 · ${m.t} · ▶ 음성 메시지</small>${VO[m.id].text}</div>`).join('') : '<div class="pEmpty">메시지가 없습니다.<br>신호 없음</div>';
@@ -615,6 +616,16 @@ function renderPhone() {
     B.querySelectorAll('img').forEach(im => { im.onclick = () => { $('lbImg').src = im.src; $('lbCap').textContent = im.dataset.t; $('lightbox').classList.add('show'); }; });
   } else if (phoneTab === 'memo') {
     B.innerHTML = clues.length ? clues.slice().reverse().map(c => `<div class="memo">${CLUES[c]}</div>`).join('') : '<div class="pEmpty">아직 기록한 단서가 없습니다.</div>';
+  } else if (phoneTab === 'tool') {
+    const o = objective(), d = objDir(), cd = Math.ceil(P.flashCD || 0), pb = Math.round(P.pbat ?? 100);
+    B.innerHTML = `<div class="pTool"><div class="pCard"><small>📍 현재 위치</small><b>${whereText()}</b><span>${o.main}${o.loc ? `<br>목표 위치: ${o.loc.where}` : ''}${d ? `<br><em>${d.text}</em>` : ''}</span></div>
+      <button data-t="flash"${cd || pb < 15 ? ' disabled' : ''}>📸 카메라 플래시<small>${cd ? `충전 중 ${cd}초` : '앞에 있는 그것을 잠깐 물러나게 한다 · 배터리 15%'}</small></button>
+      <button data-t="radar"${pb < 5 ? ' disabled' : ''}>📡 잡음 탐지<small>그것이 같은 층에 있는지 · 얼마나 가까운지 · 배터리 5%</small></button>
+      <button data-t="save"${ghost.state === 'chase' && ghost.active && ghost.floor === P.floor ? ' disabled' : ''}>💾 빠른 저장<small>F5 — 쫓기는 중에는 저장할 수 없다</small></button>
+      <div class="pNote">휴대폰 배터리는 천천히 충전된다 (보조 배터리 내장)</div></div>`;
+    B.querySelectorAll('button[data-t]').forEach(b => { b.onclick = () => phoneTool(b.dataset.t); });
+  } else if (phoneTab === 'log') {
+    B.innerHTML = SUBLOG.length ? SUBLOG.slice().reverse().map(l => `<div class="pLog"><b>${l.who === '·' ? '♪' : l.who || '…'}</b><span>${l.who === '·' ? `[${l.text}]` : l.text}</span></div>`).join('') : '<div class="pEmpty">기록된 대화가 없습니다.</div>';
   } else {
     const n = tlKnown();
     B.innerHTML = `<div class="tlHead">10월 12일 밤 — 사건 연표 <b>${n} / ${TIMELINE.length}</b></div>` + TIMELINE.map(e => {
@@ -628,6 +639,63 @@ function renderPhone() {
   document.querySelectorAll('.pTabs button').forEach(b => { const k = b.dataset.p; b.classList.toggle('dot', k === 'photo' ? docs.filter(d => d.img).length > phoneSeen.photo : k === 'memo' ? clues.length > phoneSeen.memo : k === 'tl' ? tlKnown() > phoneSeen.tl : false); });
 }
 document.querySelectorAll('.pTabs button').forEach(b => { b.onclick = () => { phoneTab = b.dataset.p; renderPhone(); }; });
+// 휴대폰 도구: 카메라 플래시(그것을 물러나게 함) · 잡음 탐지 · 빠른 저장
+function phoneTool(t) {
+  const G = ghost, same = G.active && G.floor === P.floor, dist = same ? Math.hypot(G.x - P.x, G.z - P.z) : 99;
+  if (t === 'flash') {
+    if ((P.flashCD || 0) > 0 || (P.pbat ?? 100) < 15) return;
+    P.pbat = (P.pbat ?? 100) - 15; P.flashCD = 60; sfx.photo(); fx.lightning(); closeUI();
+    const lx = -Math.sin(P.yaw), lz = -Math.cos(P.yaw), F = floors[P.floor];
+    if (same && dist < 10 && ((G.x - P.x) * lx + (G.z - P.z) * lz) / Math.max(dist, .01) > .8 && los(F.walls, P.x, P.z, G.x, G.z)) {
+      G.repelCD = 22; G.hunt = null; G.state = 'search'; G.spawnGrace = 3; G.path = []; G.replan = 0; G.wait = 0;
+      let far = F.nodes[0]; F.nodes.forEach(n => { if (Math.hypot(n.x - P.x, n.z - P.z) > Math.hypot(far.x - P.x, far.z - P.z)) far = n; });
+      G.target = { x: far.x, z: far.z }; sfx.screech(); fx.glitch(.6); shake = .3; talk('repel', 2600); fx.dust(G.x, floors[G.floor].y0 + 1, G.z, 25);
+    } else caption('찰칵 — 섬광이 어둠을 잠깐 밀어냈다');
+    return;
+  }
+  if (t === 'radar') {
+    if ((P.pbat ?? 100) < 5) return; P.pbat = (P.pbat ?? 100) - 5; sfx.staticNoise(.8);
+    const msg = !same ? '잡음 없음 — 이 층에는 없다' : dist < 10 ? '⚠ 잡음 최대 — 아주 가까이 있다' : dist < 22 ? '잡음 강함 — 같은 층, 가깝다' : '잡음 약함 — 같은 층 어딘가에 있다';
+    toast('📡 잡음 탐지', msg, same && dist < 22 ? 'warn' : 'info'); renderPhone(); return;
+  }
+  if (t === 'save') { if (G.active && G.state === 'chase' && same) { toast('저장할 수 없습니다', '쫓기는 중', 'warn'); return; } save(); renderPhone(); }
+}
+// 주변 살피기 (H): 가까운 조사 대상 이름을 화면에 3초 동안 띄운다
+let pingList = [], pingT = 0, scanCD = 0;
+const PING_NAME = { switch: '형광등 스위치', elevator: '엘리베이터', robj: null, clue: '책상 밑', safe: '금고', breaker: '차단기', console: '방송 장비', tape: '녹음기', piano: '피아노', lock: '보관함', drain: '배수구' };
+function scanAround() {
+  if (state !== 'playing' || scanCD > 0) return; scanCD = 4; sfx.ui();
+  const F = floors[P.floor], near = [];
+  const add = (x, y, z, name) => { const d = Math.hypot(x - P.x, z - P.z); if (d < 9 && (d < 3.5 || los(F.walls, P.x, P.z, x, z))) near.push({ x, y: F.y0 + y, z, name, d }); };
+  world.props.forEach(p => { if (p.floor !== P.floor || p.done) return; const n = p.kind === 'robj' ? p.label : PING_NAME[p.kind] ?? p.label; if (n) add(p.px ?? p.x, p.y ?? 1, p.pz ?? p.z, n); });
+  world.items.forEach(it => { if (it.floor === P.floor && !it.taken && it.pos && it.mesh && it.mesh.visible) add(it.pos.x, it.pos.y - F.y0 + .25, it.pos.z, it.kind === 'note' ? '쪽지' : it.kind === 'battery' ? '건전지' : it.kind === 'medkit' ? '응급 밴드' : it.kind === 'key' ? '열쇠 조각' : '물건'); });
+  world.lockers.forEach(l => { if (l.floor === P.floor) add(l.x, 1.2, l.z, '숨을 곳'); });
+  pingList = near.sort((a, b) => a.d - b.d).slice(0, 10); pingT = 3;
+  const box = $('pings'); box.innerHTML = pingList.map(q => `<div>${q.name}</div>`).join('');
+  if (!pingList.length) caption('주변에 눈에 띄는 것이 없다');
+}
+const _pv = new THREE.Vector3();
+function updatePings(dt) {
+  scanCD = Math.max(0, scanCD - dt); if (pingT <= 0) return; pingT -= dt;
+  const els = $('pings').children;
+  pingList.forEach((q, i) => { const el = els[i]; if (!el) return; _pv.set(q.x, q.y, q.z).project(camera); const on = _pv.z < 1 && Math.abs(_pv.x) < 1.1 && Math.abs(_pv.y) < 1.1; el.style.display = on ? '' : 'none'; if (on) { el.style.left = ((_pv.x + 1) / 2 * innerWidth) + 'px'; el.style.top = ((1 - _pv.y) / 2 * innerHeight) + 'px'; } });
+  if (pingT <= 0) $('pings').innerHTML = '';
+}
+let objDirT = 0;
+function updateObjDir(dt) {
+  if ((objDirT -= dt) > 0) return; objDirT = .12;
+  const el = $('objDir'), d = SET.objArrow && state === 'playing' ? objDir() : null; el.classList.toggle('on', !!d); if (!d) return;
+  el.querySelector('span').textContent = d.text;
+  el.querySelector('i').style.transform = d.other ? 'rotate(-90deg)' : `rotate(${(-(d.ang - P.yaw) * 180 / Math.PI) - 90}deg)`;
+}
+// 목표 방향: 같은 층이면 방위 · 거리, 다른 층이면 계단/엘리베이터 안내
+function objDir() {
+  const o = objective(), l = o && o.loc; if (!l) return null;
+  if (l.f !== P.floor) { const up = (l.f === 3 || (l.f >= 1 && l.f <= 2 && P.floor < l.f && P.floor !== 4) || (P.floor === 4 && l.f !== 4)); return { other: true, text: `${FLOOR_LABEL[l.f] || '다른 장소'} — ${l.f >= 5 && l.f <= 7 ? '밖으로 나가 건물을 찾을 것' : up ? '위층 (계단 · 엘리베이터)' : '아래층 (계단 · 엘리베이터)'}` }; }
+  const dx = l.x - P.x, dz = l.z - P.z, d = Math.hypot(dx, dz), ang = Math.atan2(-dx, -dz);
+  const dirs = ['북', '북서', '서', '남서', '남', '남동', '동', '북동'], i = ((Math.round(ang / (Math.PI / 4)) % 8) + 8) % 8;
+  return { other: false, d, ang, text: d < 2.5 ? '바로 이 근처' : `${dirs[i]}쪽 ${Math.round(d)}m` };
+}
 
 /* ----- 열기 / 닫기 ----- */
 const UI_PANELS = ['inv', 'mapOv', 'testOv', 'keypad', 'phone', 'invZoom'];
@@ -646,7 +714,7 @@ function mapTarget(f) { const o = objective(), t = o.loc || (FL.opt && optLoc())
 function mapExtras(f) {
   return {
     doors: world.doorList.filter(d => d.floor === f).map(d => ({ x: d.x, z: d.kind === 'slide' ? (d.z > 0 ? 1.55 : -1.55) : d.z, open: d.target > .5, slide: d.kind === 'slide' })),
-    props: world.props.filter(p => p.floor === f && p.kind !== 'bell' && p.kind !== 'switch').map(p => ({ x: p.x, z: p.z, done: !!p.done, label: { safe: '금고', breaker: '차단기', console: '방송 장비', tape: '녹음기', mina: '민아', lock: '잠긴 보관함', drain: '배수구', piano: '피아노', easel: '그림', phone: '전화' }[p.kind] })),
+    props: world.props.filter(p => p.floor === f && p.kind !== 'bell' && p.kind !== 'switch' && p.kind !== 'robj').map(p => ({ x: p.x, z: p.z, done: !!p.done, label: { safe: '금고', breaker: '차단기', console: '방송 장비', tape: '녹음기', mina: '민아', lock: '잠긴 보관함', drain: '배수구', piano: '피아노', easel: '그림', phone: '전화', elevator: '엘리베이터' }[p.kind] })),
     target: mapTarget(f),
   };
 }
@@ -695,7 +763,8 @@ function updateSound(dt) {
   if (isOutdoors()) a = P.floor === 3 ? 'roof' : 'out'; else if (P.floor === 4) a = 'b1'; else if (P.floor === 5 || P.floor === 6) a = 'hall'; else if (roomAt(P.floor, P.x, P.z)) a = 'room';
   setAmbience(a, dt);
   const chase = ghost.active && ghost.floor === P.floor && (ghost.state === 'chase' || !!ghost.hunt) && state === 'playing';
-  setMusic(state === 'menu' || state === 'intro' ? 'menu' : chase ? 'chase' : 'none', dt);
+  const gprox = ghost.active && ghost.floor === P.floor ? clamp(1 - Math.hypot(ghost.x - P.x, ghost.z - P.z) / 16, 0, 1) : 0;
+  setMusic(state === 'menu' || state === 'intro' ? 'menu' : chase ? 'chase' : 'none', dt, SET.bgm && (state === 'playing' || state === 'ui' || state === 'trans') ? SET.bgmVol * (1 - gprox * .85) : state === 'dead' || state === 'won' ? .35 : 0);
   const lvl = P.hiding ? .8 : P.tired ? 1 : Math.max(P.fear > .45 ? P.fear * .8 : 0, P.stamina < 45 ? (45 - P.stamina) / 45 * .8 : 0);
   setBreath(state === 'playing' ? lvl : 0, P.tired || P.sprinting ? 1.1 : P.hiding ? .4 : .55, dt);
   if (ghost.active && ghost.floor === P.floor && state === 'playing') setGhostVoice({ x: ghost.x, y: floors[ghost.floor].y0 + 1.7, z: ghost.z }, 1, chase, dt);
@@ -869,7 +938,7 @@ function teleport(to) {
   if (state !== 'playing') return;
   state = 'trans'; $('fade').style.opacity = 1; sfx.stairs();
   setTimeout(() => {
-    P.floor = to.floor; P.x = to.x; P.z = to.z; P.yaw = to.yaw; P.pitch = 0;
+    P.floor = to.floor; P.x = to.x; P.z = to.z; P.yaw = to.yaw; P.pitch = 0; P.sh = null; P.shV = 0; toastFloor(to.floor);
     if (to.floor === 3 && !P.roofSeen) { P.roofSeen = true; refreshHud(); setTimeout(() => talk('roof', 3200), 600); }
     if (to.floor === 4 && !P.b1Seen) { P.b1Seen = true; setTimeout(() => talk('b1', 3000), 600); }
     if (to.floor === 5 && !P.gymSeen) { P.gymSeen = true; setTimeout(() => talk('gym', 3400), 600); }
@@ -881,6 +950,127 @@ function teleport(to) {
 function changeFloor(dir) {
   const info = STAIRS[P.floor]; const nf = info && (dir > 0 ? info.up : info.down); if (nf == null) return;
   const sz = floors[nf].stairZone; teleport(nf === 3 ? { floor: 3, x: 0, z: -7.5, yaw: 0 } : { floor: nf, x: sz ? sz.spawn.x : 2.2, z: sz ? sz.spawn.z : -5.2, yaw: Math.PI });
+}
+// 걸어서 오르내리는 계단 (world.js stairRoom): 1번 계단(서쪽, 북쪽으로 오름 0→1.9m) → 층참 → 2번 계단(동쪽, 남쪽으로 오름 1.9→3.8m)
+// 2번 계단 꼭대기를 지나면 위층, 위층에서 2번 계단 칸으로 들어서면 아래층 계단 꼭대기로 이어진다
+const STK = .19 / .48, SZB = -2.9, SZL = -7.7;
+function stairH(F, x, z) {
+  const c = F.stairCx; if (c == null || x < c - 3.85 || x > c - 1.2 || z > SZB || z < -9.6) return null;
+  if (z <= SZL) return 1.9;
+  return x < c - 2.5 ? (SZB - z) * STK : 1.9 + (z - SZL) * STK;
+}
+function stairStep(px, pz) {
+  const F = floors[P.floor], h = stairH(F, P.x, P.z), lane2 = F.stairCx != null && P.x > F.stairCx - 2.5;
+  const hp = stairH(F, px, pz);
+  if (P.sh == null || (hp == null ? P.sh > .3 && h == null : Math.abs(hp - P.sh) > .45)) P.sh = hp ?? h ?? 0;   // 불러오기 · 순간이동 뒤 높이 다시 맞춤
+  if (h == null) { if (P.sh > .3) { P.x = px; P.z = pz; return true; } P.sh = 0; return false; }
+  const info = STAIRS[P.floor] || {};
+  if (Math.abs(h - P.sh) > .45) {
+    // 바닥에서 2번 계단 칸으로 들어섬 → 아래층 계단 꼭대기
+    const nf = info.down, NF = nf != null && floors[nf];
+    if (P.sh < .3 && lane2 && pz > SZB && NF && NF.stairCx != null) { P.floor = nf; P.x += NF.stairCx - F.stairCx; P.sh = stairH(NF, P.x, P.z) ?? 3.8; P.shV = (P.shV || 0) + FH; stairArrive(nf); return true; }
+    P.x = px; P.z = pz; return true;
+  }
+  P.sh = h;
+  // 2번 계단 꼭대기 → 위층 (옥상은 계단탑 문 앞으로)
+  if (lane2 && P.z > pz && P.z > SZB - .15 && h > 3.7) {
+    const nf = info.up; if (nf == null) { P.x = px; P.z = pz; return true; }
+    if (nf === 3) { P.sh = 0; P.shV = 0; teleport({ floor: 3, x: 0, z: -7.5, yaw: 0 }); return true; }
+    const NF = floors[nf]; if (NF.stairCx == null) { P.x = px; P.z = pz; return true; }
+    P.floor = nf; P.x += NF.stairCx - F.stairCx; P.z = SZB + .05; P.sh = 0; P.shV = (P.shV || 0) - FH; stairArrive(nf); return true;
+  }
+  return false;
+}
+function stairArrive(f) {
+  sfx.step(false, .8, 'tile');
+  if (f === 4 && !P.b1Seen) { P.b1Seen = true; setTimeout(() => talk('b1', 3000), 400); }
+  toastFloor(f);
+}
+const FLOOR_LABEL = { 0: '본관 1층', 1: '본관 2층', 2: '본관 3층', 3: '옥상', 4: '지하 1층 (B1)', 5: '체육관', 6: '수영장', 7: '급식실', 8: '별관 1층', 9: '별관 2층', 10: '별관 3층' };
+function toastFloor(f) { const t = $('floorTag'); if (!t) return; t.textContent = FLOOR_LABEL[f] || ''; t.classList.add('show'); clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('show'), 1800); }
+// 엘리베이터: 층 선택 화면 → 문 닫힘 · 운행음 · 도착 '띵'
+const EL_SET = { main: [4, 0, 1, 2], annex: [8, 9, 10] };
+async function rideElevator(p) {
+  const set = p.floor >= 8 ? EL_SET.annex : EL_SET.main, dests = set.filter(f => f !== p.floor);
+  sfx.ding();
+  const opts = dests.map(f => ({ label: FLOOR_LABEL[f], sub: f === 4 ? '설비 · 창고 · 기록' : '' })).concat([{ label: '타지 않는다' }]);
+  const i = await choose('엘리베이터', `현재 층 <b>${FLOOR_LABEL[p.floor]}</b> · 갈 층을 고르세요${power ? '' : '<br><small>전력이 끊겨 비상 전원으로 느리게 움직인다</small>'}`, opts);
+  if (i >= dests.length || state !== 'playing') return;
+  const nf = dests[i], tp = world.props.find(q => q.kind === 'elevator' && q.floor === nf); if (!tp) return;
+  state = 'trans'; $('fade').style.opacity = 1; sfx.doorSlide(.8); const ride = (power ? 1.6 : 3.0) + Math.abs(set.indexOf(nf) - set.indexOf(p.floor)) * .5;
+  setTimeout(() => sfx.elevator(ride), 500);
+  if (!power && Math.random() < .5) setTimeout(() => { sfx.ghostBreath(); caption('(엘리베이터 안, 바로 뒤에서 숨소리)'); }, 900 + ride * 400);
+  setTimeout(() => {
+    P.floor = nf; P.x = tp.px - .9; P.z = tp.pz; P.yaw = Math.PI / 2; P.pitch = 0; P.sh = 0; P.shV = 0;
+    sfx.ding(); sfx.doorSlide(.8); $('fade').style.opacity = 0; state = 'playing'; toastFloor(nf);
+    if (nf === 4 && !P.b1Seen) { P.b1Seen = true; setTimeout(() => talk('b1', 3000), 600); }
+  }, 600 + ride * 1000);
+}
+// 방마다 고유 오브젝트 — 선택 화면(1·2·3 키)으로 조작하고, 보급 · 안정 · 기록 · 공포 효과가 있다
+const calmDown = (sec, msg) => { storyCalm(sec); P.fear = Math.max(0, P.fear - .4); setFace('relief', 3); if (msg) caption(msg); };
+async function useRoomObj(p) {
+  const k = p.k, room = roomAt(p.floor, p.x, p.z - .6) || roomAt(p.floor, p.x, p.z + .6), rn = room ? room.name : '';
+  if (k === 'med') {
+    const i = await choose('약품함', `${rn} 벽에 걸린 약품함. 유통기한이 지난 약이 대부분이지만 쓸 만한 것이 몇 개 남아 있다.`, [{ label: '진통제 먹기', sub: '체력 +30' }, { label: '안정제 먹기', sub: '40초 동안 마음이 가라앉는다 (그것이 덜 다가온다)' }, { label: '응급 밴드 챙기기', sub: '소지품 +1' }, { label: '닫는다' }]);
+    if (i === 3) return;
+    if (i === 0) { P.hp = Math.min(100, P.hp + 30); toast('진통제', '체력 +30', 'info'); }
+    else if (i === 1) calmDown(40, '숨이 조금 고르게 돌아온다');
+    else { inv.medkit++; toast('응급 밴드를 챙겼습니다', '소지품 +1', 'info'); }
+    sfx.pickup(); p.done = true; refreshHud(); return;
+  }
+  if (k === 'phone') {
+    sfx.click(); const i = await choose('내선 전화', '수화기에서 낮은 신호음이 들린다. 벽에 붙은 내선 번호표가 반쯤 찢어져 있다.', [{ label: '201 — 방송실' }, { label: '100 — 경비실' }, { label: '302 — 3학년 2반' }, { label: '내려놓는다' }]);
+    if (i === 3) { sfx.click(); return; }
+    sfx.staticNoise(1.2);
+    if (i === 0) setTimeout(() => { caption('(지직거림 사이로) …오늘 수업은 끝났어…'); fx.glitch(.3); setFace('fear', 2); }, 900);
+    else if (i === 1) setTimeout(() => { caption('(신호만 계속 간다 — 아무도 받지 않는다)'); }, 900);
+    else setTimeout(() => { at(P.x, floors[P.floor].y0 + 1.6, P.z).whisper(); sfx.ghostGiggle(); caption('(수화기 너머에서, 아이가 웃는다)'); fx.glitch(.5); shake = .3; setFace('fear', 3); }, 1100);
+    return;
+  }
+  if (k === 'mirror') {
+    const i = await choose('거울', '금이 간 거울에 지친 얼굴이 비친다.', [{ label: '세수한다', sub: '마음을 가라앉힌다' }, { label: '거울을 오래 들여다본다' }, { label: '돌아선다' }]);
+    if (i === 0) { sfx.drip(); calmDown(25, '차가운 물에 정신이 든다'); }
+    else if (i === 1) { if (Math.random() < .45 || !p.tried) { p.tried = true; const bx = P.x + Math.sin(P.yaw) * 1.2, bz = P.z + Math.cos(P.yaw) * 1.2; showApparition(P.floor, bx, bz, P.yaw, .5, null); sfx.ghostBreath(); fx.glitch(.6); shake = .35; caption('거울 속, 내 어깨 너머로 누군가 서 있었다'); setFace('surprise', 2); } else caption('…내 얼굴뿐이다'); }
+    return;
+  }
+  if (k === 'cards') {
+    const i = await choose('대출 카드함', '서랍마다 손때 묻은 카드가 빼곡하다.', [{ label: 'ㄱ ~ ㅅ 서랍' }, { label: 'ㅇ 서랍' }, { label: 'ㅈ ~ ㅎ 서랍' }]);
+    sfx.paper();
+    if (i === 1) showNote({ title: '대출 카드 — 윤하늘 (3-2)', text: '『어린 왕자』 2006.09.14 대출 · <b>반납 안 됨</b><br>『방송 대본 쓰는 법』 2006.10.02 대출 · <b>반납 안 됨</b><br>『안녕, 내일』 2006.10.12 대출 · <b>반납 안 됨</b><br><br>마지막 카드 뒷면에 연필로: <i>“내일 돌려줄게요.”</i>' });
+    else caption(i === 0 ? '이름들 사이에 같은 필체가 반복된다 — 모두 반납되지 않았다' : '카드 몇 장이 젖어 붙어 있다');
+    return;
+  }
+  if (k === 'term') {
+    sfx.beep(); const o = objective();
+    $('note').innerHTML = `<pre style="font:13px/1.55 monospace;color:#7fe0a0;background:#061008;padding:14px;border:1px solid #1d4a2a;white-space:pre-wrap;text-align:left">SEOMUN-NET v2.3  (c)2004\n&gt; login: guest\n&gt; 마지막 접속: 2006-10-12 23:31 (방송실)\n&gt; 남은 작업 1건:\n    ${o.main}${o.loc ? '\n    위치: ' + o.loc.where : ''}\n&gt; 시스템 메시지: <span style="color:#e06060">하교 방송이 아직 끝나지 않았습니다</span>\n&gt; _</pre><small>— 단말기 화면</small>`;
+    state = 'note'; $('noteBox').classList.add('show'); storyCalm(10); return;
+  }
+  if (k === 'chem') {
+    const i = await choose('약품 선반', '색이 다른 시약병 세 개. 라벨은 번져서 읽을 수 없다.', [{ label: '파란 용액에 노란 용액을 섞는다' }, { label: '붉은 용액의 냄새를 맡는다' }, { label: '건드리지 않는다' }]);
+    if (i === 0) { sfx.splash(); P.battery = Math.min(100, P.battery + 35); toast('형광 용액', '병이 초록빛으로 빛난다 — 손전등 배터리 +35%', 'info'); p.done = true; refreshHud(); }
+    else if (i === 1) { sfx.gasp(); shake = .3; fx.glitch(.4); caption('머리가 핑 돈다 — 눈앞이 잠깐 흐려졌다'); P.stamina = Math.max(0, P.stamina - 40); }
+    return;
+  }
+  if (k === 'snack') { sfx.paper(); P.stamina = 100; P.tired = false; P.snackT = 60; toast('간식 바구니', '오래된 사탕과 초코바 — 1분 동안 덜 지친다', 'info'); p.done = true; return; }
+  if (k === 'emo') {
+    const i = await choose('감정 카드', '상담 선생님이 쓰던 카드. "오늘의 마음을 골라 보세요."', [{ label: '무서워요' }, { label: '괜찮아요' }, { label: '보고 싶어요' }]);
+    sfx.paper();
+    if (i === 2) { calmDown(45); setTimeout(() => caption('(카드 뒷면) 하늘: 엄마, 방송 꼭 들어 줘.'), 600); }
+    else calmDown(i === 0 ? 35 : 25, i === 0 ? '무섭다고 인정하니 조금 나아졌다' : '…괜찮아. 괜찮아.');
+    return;
+  }
+  if (k === 'copier') {
+    sfx.beep(); setTimeout(() => { sfx.slide(); fx.glitch(.2); }, 400);
+    setTimeout(() => showNote({ img: 'old_class', title: '복사된 종이', text: '전원이 없는데 복사기가 한 장을 뱉어냈다.<br>교실 사진 — 맨 뒷자리만 <b>까맣게</b> 칠해져 있다.' }), 1300);
+    p.done = true; return;
+  }
+  if (k === 'water') { sfx.drip(); setTimeout(() => { caption('녹물… 아니, 붉은 물이 한참 흐르다 맑아진다'); fx.glitch(.3); setFace('fear', 2); }, 500); return; }
+  if (k === 'ballot') { sfx.paper(); showNote({ title: '학생회 투표함', text: '2006년 2학기 방송부장 선거.<br>개표되지 않은 용지 41장 — 전부 같은 이름이다.<br><br><b>윤하늘 ○</b>' }); p.done = true; return; }
+  if (k === 'radio') {
+    sfx.staticNoise(1.6); const ga = ghost.active && ghost.floor === P.floor, d = ga ? Math.hypot(ghost.x - P.x, ghost.z - P.z) : 99;
+    setTimeout(() => caption(ga ? (d < 12 ? '(지지직!) 잡음이 거세다 — 가까이 있다' : '(지직…) 잡음이 일정하다 — 같은 층 어딘가에 있다') : '(조용한 잡음) — 이 층에는 아무것도 없는 것 같다'), 700);
+    return;
+  }
 }
 function openGate() {
   if (!FL.gatekey) {
@@ -988,7 +1178,7 @@ addEventListener('keydown', e => {
   if (state === 'ui' && $('keypad').classList.contains('show')) { keypadKey(e); return; }
   if (state === 'ui') {
     if ($('inv').classList.contains('show') && e.code !== 'Tab' && e.code !== 'KeyI' && invKey(e)) return;
-    if ($('phone').classList.contains('show') && (e.code === 'KeyQ' || e.code === 'KeyE')) { phoneTab = PTABS[(PTABS.indexOf(phoneTab) + (e.code === 'KeyE' ? 1 : 2)) % 3]; renderPhone(); return; }
+    if ($('phone').classList.contains('show') && (e.code === 'KeyQ' || e.code === 'KeyE')) { phoneTab = PTABS[(PTABS.indexOf(phoneTab) + (e.code === 'KeyE' ? 1 : PTABS.length - 1)) % PTABS.length]; renderPhone(); return; }
     if ($('mapOv').classList.contains('show') && (e.code === 'KeyZ' || e.code === 'KeyX')) { mapZoom = clamp(mapZoom * (e.code === 'KeyZ' ? 1.25 : .8), .5, 4); renderMap(); return; }
     if (['Tab', 'Escape', 'KeyI', 'KeyT', 'Digit4', K().inv, K().map, K().phone].includes(e.code)) closeUI();
     return;
@@ -996,6 +1186,8 @@ addEventListener('keydown', e => {
   if (state !== 'playing') return;
   if (e.code === K().inv || e.code === 'KeyI') { openInv(); return; }
   if (e.code === K().map) { openMap(); return; }
+  if (e.code === 'F5') { e.preventDefault(); phoneTool('save'); return; }
+  if (e.code === K().scan) { scanAround(); return; }
   if (e.code === K().phone || e.code === 'Digit4') { openPhone(msgs.some(m => !m.read) ? 'msg' : phoneTab); return; }
   if (TEST && e.code === 'KeyT') { openTest(); return; }
   if (e.code === 'Digit1' || e.code === K().flash) { P.light = !P.light; sfx.click(); if (P.light && P.battery <= 0) toast('배터리가 없습니다', inv.battery > 0 ? '2번 키로 건전지를 교체하세요 — 지금은 휴대폰 불빛' : '휴대폰 불빛으로 비춥니다 — 건전지를 찾으세요', 'warn'); }
@@ -1053,7 +1245,7 @@ function save(silent) {
   const d = {
     schemaVersion: SCHEMA, build: BUILD,
     meta: { char: CHAR, ch: objective().ch, time: playTime, savedAt: Date.now(), where: whereText() },
-    player: { x: P.x, z: P.z, floor: P.floor, yaw: P.yaw, hp: P.hp, battery: P.battery, stamina: P.stamina, keys: P.keys, light: P.light, roofSeen: !!P.roofSeen, b1Seen: !!P.b1Seen, gymSeen: !!P.gymSeen, cafeSeen: !!P.cafeSeen, poolSeen: !!P.poolSeen, bcast: !!P.bcast },
+    player: { x: P.x, z: P.z, floor: P.floor, yaw: P.yaw, hp: P.hp, battery: P.battery, stamina: P.stamina, keys: P.keys, light: P.light, pbat: Math.round(P.pbat ?? 100), roofSeen: !!P.roofSeen, b1Seen: !!P.b1Seen, gymSeen: !!P.gymSeen, cafeSeen: !!P.cafeSeen, poolSeen: !!P.poolSeen, bcast: !!P.bcast },
     progress: { got: [...got], FL: { ...FL }, power, gateClosed, introDone, playTime },
     inv: { ...inv }, docs: docs.map(x => ({ id: x.id, kind: x.kind })), msgs: msgs.map(m => ({ ...m })), clues: [...clues],
     events: [...EV.done], tips: [...tipsDone], cards: [...seenCards], b33: EV.b33,
@@ -1119,7 +1311,7 @@ function start(skipIntro = false) {
   initAudio(); closeMenus(); applyChar();
   refreshHud(); chapterShown = objective().ch;
   if (skipIntro || TEST) { finishIntro(); return; }
-  state = 'intro'; introT = 0; introText = true; introCue = 0; $('intro').classList.add('show');
+  state = 'intro'; introT = 0; introText = true; introCue = 0; $('intro').classList.add('show'); $('cine').classList.add('on');
   // 순서: 날짜 → 실종 소식 → (진동) 민아의 메시지 → 십 년 전 이야기
   const ids = ['intro1', 'intro2', 'intro3', 'intro4'], ps = [...$('intro').querySelectorAll('p')];
   ps.forEach((p, i) => { p.classList.remove('on'); p.classList.toggle('msg', i === 2); p.dataset.from = i === 2 ? '민아 · 23:38' : ''; p.textContent = i === 2 ? VO[ids[i]].text : VO[ids[i]].text; });
@@ -1140,7 +1332,8 @@ function start(skipIntro = false) {
 function finishIntro() {
   stopSpeak(); introText = false; if (introGuard) introGuard.visible = false;
   preload(['phone1', 'phone2', 'phone3', 'pa1', 'gh1', 'gh2', 'gh3', 'gh4', 'cam1', ...Object.keys(LINES).map(k => `l_${k}_${CK()}`)]);
-  $('intro').classList.remove('show'); $('introTitle').classList.remove('show'); $('hud').classList.add('show');
+  $('intro').classList.remove('show'); $('introTitle').classList.remove('show'); $('hud').classList.add('show'); $('cine').classList.remove('on');
+  if (!readingSave && !SET.flashReduce) { const b = $('blink'); b.classList.remove('go'); void b.offsetWidth; b.classList.add('go'); setTimeout(() => b.classList.remove('go'), 2700); }   // 눈을 뜨듯 시작
   if (!readingSave) { P.x = 0; P.z = 77.5; P.yaw = 0; P.pitch = 0; }
   state = 'playing';
   if (!readingSave) { setTimeout(() => talk('arrive', 4200), 500); setTimeout(() => showChapter(1), 900); }
@@ -1299,7 +1492,7 @@ function updatePlayer(dt) {
   } else if (!P.hiding && state === 'playing') {
     const want = !!(fw || sd);
     const wantRun = (SET.runToggle ? P.runOn : (keys[K().run] || keys.ShiftRight)) && want && !P.tired && P.stamina > 0 && !P.crouch;
-    if (wantRun) { P.sprinting = true; P.stamina = Math.max(0, P.stamina - (CHAR === 'jihun' ? 16 : 20) * dt); if (P.stamina <= 0) { P.tired = true; P.runOn = false; talk('sprint', 2200); sfx.gasp(); } }
+    if (wantRun) { P.sprinting = true; P.stamina = Math.max(0, P.stamina - (CHAR === 'jihun' ? 16 : 20) * ((P.snackT || 0) > 0 ? .5 : 1) * dt); if (P.stamina <= 0) { P.tired = true; P.runOn = false; talk('sprint', 2200); sfx.gasp(); } }
     else { P.stamina = Math.min(100, P.stamina + (want ? 9 : 18) * dt); if (P.tired && P.stamina > 30) P.tired = false; }
     if (want) {
       const sp = P.sprinting ? 5.0 : P.crouch ? 1.45 : 2.8;
@@ -1310,8 +1503,10 @@ function updatePlayer(dt) {
       const tot = sp * dt, n = Math.max(1, Math.ceil(tot / .06));
       for (let i = 0; i < n; i++) {
         P.x += dx * tot / n; P.z += dz * tot / n;
+        const px = P.x - dx * tot / n, pz = P.z - dz * tot / n;
         collide(F.col, P, .32);
         if (P.floor === 0 && gateClosed) collide([gate.blockRect], P, .32);
+        if (stairStep(px, pz)) break;
       }
       const mv = Math.hypot(P.x - ox, P.z - oz);
       P.moving = mv > .0005; P.bob += mv * (P.sprinting ? 2.4 : 2.9); P.stepD += mv;
@@ -1319,7 +1514,8 @@ function updatePlayer(dt) {
         if (PSY.follow > 0) { const sp = P.sprinting; setTimeout(() => at(P.x + Math.sin(P.yaw) * 3.2, floors[P.floor].y0 + .1, P.z + Math.cos(P.yaw) * 3.2).step(sp, .75, surfaceAt()), 240 + Math.random() * 60); } }
     } else P.stepD = 0;
   } else if (P.hiding) P.stamina = Math.min(100, P.stamina + 25 * dt);
-  P.noiseT = Math.max(0, (P.noiseT || 0) - dt);
+  P.flashCD = Math.max(0, (P.flashCD || 0) - dt); P.pbat = Math.min(100, (P.pbat ?? 100) + dt * .35);
+  P.noiseT = Math.max(0, (P.noiseT || 0) - dt); P.snackT = Math.max(0, (P.snackT || 0) - dt);
   P.noise = P.hiding ? 0 : P.noiseT > 0 ? 9 : P.sprinting ? 12 : P.moving ? (P.crouch ? 1.5 : 4) : 0;
   // 점프 · 웅크리기
   if (P.jy > 0 || P.vy > 0) { P.vy -= 13 * dt; P.jy = Math.max(0, (P.jy || 0) + P.vy * dt); if (P.jy === 0) { P.vy = 0; sfx.step(true, 1.1, surfaceAt()); P.noiseT = Math.max(P.noiseT, .25); } }
@@ -1386,7 +1582,8 @@ let beatT = 0, camShakeT = 0;
 function updateCamera(dt, t) {
   const F = floors[P.floor];
   const bob = SET.bob ? Math.sin(P.bob) * (P.sprinting ? .05 : .028) : 0;
-  let ey = P.hiding ? 1.45 : 1.62 - (P.crouchK || 0) * .55 + (P.jy || 0) + bob * (1 - (P.crouchK || 0) * .5);
+  P.shV = lerp(P.shV || 0, P.sh || 0, Math.min(1, dt * 14));
+  let ey = P.hiding ? 1.45 : 1.62 - (P.crouchK || 0) * .55 + (P.jy || 0) + P.shV + bob * (1 - (P.crouchK || 0) * .5);
   camera.position.set(P.x, F.y0 + ey, P.z);
   let yaw = P.yaw, pitch = P.pitch;
   if (shake > 0) { shake = Math.max(0, shake - dt * 1.4); const k = SET.shake ? .05 : .008; yaw += (Math.random() - .5) * k * shake; pitch += (Math.random() - .5) * k * shake; }
@@ -1609,6 +1806,7 @@ function frame(now) {
   if (state === 'playing' && ghost.active && ghost.floor === P.floor && ghost.group.visible) fx.ghostSmoke({ x: ghost.x, y: floors[ghost.floor].y0, z: ghost.z }, dt, ghost.state === 'chase' ? 1.6 : .8);
   if (state === 'playing') fx.breath(P.floor === 4 || P.floor === 6 || isOutdoors() || P.fear > .5, dt);
   updateSound(dt);
+  updatePings(dt); updateObjDir(dt);
   fx.render(dt, { fear: P.fear || 0, flash: flash.intensity / 95, outdoors: outdoorsNow, floorY: floors[P.floor].y0, hurt: hurtFx });
   requestAnimationFrame(frame);
 }
@@ -1680,6 +1878,8 @@ let power = false, consoleCD = 0, kpBuf = '', kpProp = null;
 const setTarget = t => { target = t; };
 async function useProp(p) {
   if (p.kind === 'switch') { flipSwitch(p, !p.on, true); return; }
+  if (p.kind === 'elevator') { rideElevator(p); return; }
+  if (p.kind === 'robj') { useRoomObj(p); return; }
   if (p.kind === 'clue') { readMemory(p); return; }
   if (p.kind === 'cctvRec') { p.label = 'CCTV 다시 보기'; sfx.staticNoise(1.2); fx.glitch(.5); showNote({ title: 'CCTV 녹화 — 10.12 23:31 · B1 복도', img: 'b1_corr', text: '정지 화면이 지직거린다. 복도 끝 <b>배수실</b> 쪽에서 누군가 바닥의 <b>철제 덮개</b>를 끌어 덮고 있다.<br>23:33 — 화면이 검게 끊긴다. 마지막 프레임, 렌즈 바로 앞에 젖은 손바닥 자국.' }); addClue('cctv'); return; }
   if (p.kind === 'footprints') { p.done = true; poolFlashback(); return; }
@@ -2150,17 +2350,17 @@ function applyThirdPerson(dt, yaw, pitch) {
   const F = floors[P.floor];
   if (camDistNow < .05) { pm.g.visible = false; flash.position.set(.12, -.08, 0); fx.cone.position.set(.12, -.08, -.15); return; }
   const fx3 = -Math.sin(yaw) * Math.cos(pitch), fy3 = Math.sin(pitch), fz3 = -Math.cos(yaw) * Math.cos(pitch), rx = Math.cos(yaw), rz = -Math.sin(yaw);
-  const pivY = F.y0 + 1.62 - (P.crouchK || 0) * .5 + (P.jy || 0);
+  const pivY = F.y0 + 1.62 - (P.crouchK || 0) * .5 + (P.jy || 0) + (P.shV || 0);
   let d = camDistNow; const side = .42 * Math.min(1, camDistNow / 1.2);
   const ok = (x, z) => los(F.walls, P.x, P.z, x, z) && los(F.doorWalls || [], P.x, P.z, x, z);
   let cx, cz;
   for (; d > .3; d -= .12) { cx = P.x - fx3 * d + rx * side; cz = P.z - fz3 * d + rz * side; const ex = cx - fx3 * .25, ez = cz - fz3 * .25; if (ok(cx, cz) && ok(ex, ez)) break; }
   if (d <= .3) { cx = P.x; cz = P.z; d = 0; }
   let cy = pivY - fy3 * d + .18; const ceil = P.floor === 3 || (P.floor === 0 && isOutdoors()) ? 60 : (P.floor === 5 ? 7.5 : P.floor === 6 ? 5.8 : 3.0);
-  cy = clamp(cy, F.y0 + .35, F.y0 + ceil - .15);
+  cy = clamp(cy, F.y0 + .35 + (P.shV || 0), F.y0 + ceil - .15 + (P.shV || 0));
   camera.position.set(cx, cy, cz);
   // 모델 — 걷기 · 달리기 · 웅크리기 · 점프 자세
-  const g = pm.g; g.visible = d > .55; g.position.set(P.x, F.y0 + (P.jy || 0), P.z); g.rotation.y = yaw;
+  const g = pm.g; g.visible = d > .55; g.position.set(P.x, F.y0 + (P.jy || 0) + (P.shV || 0), P.z); g.rotation.y = yaw;
   const cr = P.crouchK || 0, air = (P.jy || 0) > .02, run = P.sprinting ? 1 : 0;
   const ph = P.bob * 1.0, amp = P.moving ? (run ? .8 : .5) * (1 - cr * .4) : 0;
   const sw = Math.sin(ph) * amp;
@@ -2410,6 +2610,7 @@ function updateTips(dt) {
 let capTimer = 0;
 function caption(text) {
   if (!SET.captions) return;
+  logLine('·', text);
   const el = $('cap'); el.textContent = `[${text}]`; el.classList.add('show'); clearTimeout(capTimer); capTimer = setTimeout(() => el.classList.remove('show'), 2600);
 }
 /* ---------- 안전 구역: 그것이 들어오지 않는 방 (보건실 · 별관 진로상담실) ---------- */
@@ -2487,7 +2688,7 @@ function showSetTab(t) { setTab = t; document.querySelectorAll('#setTabs button'
 function fillSettings() {
   $('setScreen').value = document.fullscreenElement ? 'full' : 'win';
   $('quality2').value = SET.quality; $('setScale').value = SET.scale * 100; $('setBright').value = SET.bright * 100; $('setFov').value = SET.fov;
-  $('setBloom').checked = SET.bloom; $('setGrain').checked = SET.grain; $('setBob').checked = SET.bob; $('setShake').checked = SET.shake; $('setFps').checked = SET.showFps;
+  $('setObjArrow').checked = SET.objArrow; $('setBgm').checked = SET.bgm; $('setBgmVol').value = Math.round(SET.bgmVol * 100); $('setBloom').checked = SET.bloom; $('setGrain').checked = SET.grain; $('setBob').checked = SET.bob; $('setShake').checked = SET.shake; $('setFps').checked = SET.showFps;
   const v = getVolumes(); ['master', 'sfx', 'voice', 'amb', 'music'].forEach(k => { $('vol_' + k).value = Math.round(v[k] * 100); });
   $('setView').value = String(SET.view); $('setDist').value = SET.camDist * 10;
   $('setSens').value = SET.sens * 100; $('setInvY').checked = SET.invertY; $('setRun').value = SET.runToggle ? 'toggle' : 'hold'; $('setHints').checked = SET.hints;
@@ -2517,6 +2718,7 @@ $('setScale').oninput = e => { setS('scale', e.target.value / 100); };
 $('setScale').onchange = () => applyQuality(qCur);
 $('setBright').oninput = e => setS('bright', e.target.value / 100);
 $('setFov').oninput = e => setS('fov', +e.target.value);
+$('setObjArrow').onchange = e => setS('objArrow', e.target.checked); $('setBgm').onchange = e => setS('bgm', e.target.checked); $('setBgmVol').oninput = e => setS('bgmVol', e.target.value / 100);
 $('setBloom').onchange = e => setS('bloom', e.target.checked); $('setGrain').onchange = e => setS('grain', e.target.checked);
 $('setBob').onchange = e => setS('bob', e.target.checked); $('setShake').onchange = e => setS('shake', e.target.checked); $('setFps').onchange = e => setS('showFps', e.target.checked);
 ['master', 'sfx', 'voice', 'amb', 'music'].forEach(k => { $('vol_' + k).oninput = e => { setVolumes({ [k]: e.target.value / 100 }); }; });
@@ -2542,7 +2744,7 @@ $('setFlash').onchange = e => setS('flashReduce', e.target.checked); $('setFearF
 $('setCaps').onchange = e => { setS('captions', e.target.checked); caption('효과음 자막 미리보기'); }; $('setTips').onchange = e => setS('tips', e.target.checked); $('setPhotos').onchange = e => setS('areaPhotos', e.target.checked);
 $('setContrast').onchange = e => setS('contrast', e.target.checked); $('setUi').oninput = e => setS('ui', e.target.value / 100);
 // 키 재지정
-const KEY_ACTIONS = [['crouch', '앉기 (웅크리기)'], ['jump', '점프'], ['interact', '조사 · 상호작용'], ['flash', '손전등'], ['inv', '소지품'], ['map', '지도'], ['phone', '휴대폰'], ['throwCan', '캔 던지기'], ['view', '시점 전환'], ['run', '달리기'], ['down', '계단 내려가기']];
+const KEY_ACTIONS = [['crouch', '앉기 (웅크리기)'], ['jump', '점프'], ['interact', '조사 · 상호작용'], ['flash', '손전등'], ['inv', '소지품'], ['map', '지도'], ['phone', '휴대폰'], ['throwCan', '캔 던지기'], ['view', '시점 전환'], ['run', '달리기'], ['down', '계단 내려가기'], ['scan', '주변 살피기']];
 let remapping = null;
 function renderKeys() {
   $('keyRemap').innerHTML = KEY_ACTIONS.map(([k, n]) => `<span>${n}</span><button data-k="${k}" class="${remapping === k ? 'wait' : ''}">${remapping === k ? '키를 누르세요…' : keyLabel(SET.keys[k])}</button>`).join('');
@@ -2553,7 +2755,7 @@ addEventListener('keydown', e => {
   if (e.code !== 'Escape') { const old = SET.keys[remapping], dup = Object.keys(SET.keys).find(k => k !== remapping && SET.keys[k] === e.code); if (dup) SET.keys[dup] = old; SET.keys[remapping] = e.code; saveSET(); }
   remapping = null; renderKeys(); refreshHints();
 }, true);
-function refreshHints() { const k = SET.keys; $('hints').innerHTML = `<div>이동 <kbd>WASD</kbd></div><div>달리기 <kbd>${keyLabel(k.run)}</kbd></div><div>손전등 <kbd>${keyLabel(k.flash)}</kbd></div><div>상호작용 <kbd>${keyLabel(k.interact)}</kbd></div><div>던지기 <kbd>${keyLabel(k.throwCan)}</kbd></div><div>앉기 <kbd>${keyLabel(k.crouch)}</kbd> · 점프 <kbd>${keyLabel(k.jump)}</kbd></div><div>시점 <kbd>${keyLabel(k.view)}</kbd></div><div>일시정지 <kbd>Esc</kbd></div>`; }
+function refreshHints() { const k = SET.keys; $('hints').innerHTML = `<div>이동 <kbd>WASD</kbd></div><div>달리기 <kbd>${keyLabel(k.run)}</kbd></div><div>손전등 <kbd>${keyLabel(k.flash)}</kbd></div><div>상호작용 <kbd>${keyLabel(k.interact)}</kbd></div><div>던지기 <kbd>${keyLabel(k.throwCan)}</kbd></div><div>앉기 <kbd>${keyLabel(k.crouch)}</kbd> · 점프 <kbd>${keyLabel(k.jump)}</kbd></div><div>시점 <kbd>${keyLabel(k.view)}</kbd></div><div>주변 살피기 <kbd>${keyLabel(k.scan)}</kbd> · 빠른 저장 <kbd>F5</kbd></div><div>일시정지 <kbd>Esc</kbd></div>`; }
 refreshHints();
 $('setReset').onclick = () => { resetSET(); setVolumes({ master: 1, sfx: 1, voice: 1, amb: 1, music: 1 }); VS.dub = true; VS.engine = 'auto'; VS.subs = true; VS.readNotes = true; VS.subSize = 1; saveVS(); applySettings(); applyQuality(SET.quality === 'auto' ? 'high' : SET.quality); fillSettings(); refreshHints(); toast('설정', '기본값으로 되돌렸습니다', 'info'); };
 document.querySelectorAll('.btn').forEach(b => b.addEventListener('mouseenter', () => sfx.ui()));

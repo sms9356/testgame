@@ -321,6 +321,16 @@
   #card.old:after{content:'폐교 전 사진';position:absolute;left:16px;top:16px;font-size:11px;padding:2px 8px;background:rgba(0,0,0,.6);border:1px solid #8a7a5a;color:#d8c8a0}
   #card.noimg{width:auto;min-width:260px;text-align:center;box-shadow:none;background:linear-gradient(90deg,transparent,rgba(0,0,0,.55),transparent);border:none;padding:10px 60px}
   #card.noimg img,#card.noimg:after{display:none}
+  #choice{position:fixed;inset:0;z-index:30;display:none;align-items:flex-end;justify-content:center;background:linear-gradient(rgba(0,0,0,.35),rgba(0,0,0,.9) 60%);padding-bottom:9vh}
+  #choice.show{display:flex}
+  #choice .box{width:min(640px,92vw);text-align:center}
+  #choice b{font-size:20px;letter-spacing:.12em;color:#e8dcc0}
+  #choice p{color:#b8b2a2;font-size:14px;margin:8px 0 18px;line-height:1.6}
+  #choiceBtns button{display:block;width:100%;margin:8px 0;padding:12px 16px;background:rgba(18,22,26,.92);border:1px solid #4a545c;color:#e8e4d8;font-size:16px;cursor:pointer;text-align:left}
+  #choiceBtns button small{display:block;color:#8a8678;font-size:12px;margin-top:3px}
+  #choiceBtns button:hover,#choiceBtns button:focus{border-color:#c8a060;background:rgba(40,34,24,.95)}
+  #memTint{position:fixed;inset:0;z-index:5;pointer-events:none;opacity:0;transition:opacity 1.2s;background:radial-gradient(ellipse at center,rgba(60,190,200,.08),rgba(10,60,70,.55));mix-blend-mode:screen}
+  #memTint.on{opacity:1}
   #jump{position:fixed;inset:0;z-index:8;pointer-events:none;opacity:0;background:#000 url(assets/img/ghost_cut.webp) center 20%/auto 135% no-repeat;filter:contrast(1.35) saturate(.5) brightness(1.15)}
   #jump.show{animation:jmp 1.9s steps(1) forwards}
   @keyframes jmp{0%{opacity:1;transform:scale(1)}12%{opacity:0}18%{opacity:1;transform:scale(1.08)}30%{opacity:.15}38%{opacity:1;transform:scale(1.18)}90%{opacity:1}100%{opacity:0}}
@@ -451,6 +461,8 @@
 <div id="introTitle"><div class="logo" style="font-size:clamp(90px,14vw,150px)">폐교</div><div class="tagline">잊혀진 시간</div></div>
 <div id="sub"></div>
 <div id="card"><img alt=""><b></b><span></span></div>
+<div id="choice"><div class="box"><b id="choiceTitle"></b><p id="choiceText"></p><div id="choiceBtns"></div></div></div>
+<div id="memTint"></div>
 <div id="jump"></div>
 
 <!-- 소지품 -->

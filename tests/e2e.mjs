@@ -15,6 +15,12 @@ async function page(qs = '?debug') {
   return p;
 }
 const E = (p, f, a) => p.evaluate(f, a);
+// 정문을 연 뒤 마지막 선택(EV-23): 선택지가 뜨면 고른다
+async function finalChoice(p, i) {
+  await p.waitForFunction(() => document.getElementById('choice').classList.contains('show'), null, { timeout: 30000 });
+  await p.evaluate(i => document.querySelectorAll('#choiceBtns button')[i].click(), i);
+  await p.waitForFunction(() => document.getElementById('win').classList.contains('show'), null, { timeout: 30000 });
+}
 const W = (p, t) => p.waitForTimeout(t);
 async function ready(p) { await E(p, () => __g.applyQuality('low')); }
 // 아이템 줍기 / 장치 사용 (위치로 이동 → 상호작용)
@@ -66,8 +72,9 @@ async function normalRun(char) {
   await saveReload(p, '정문 열쇠 후'); ok(await E(p, () => __g.FL.gatekey) && await E(p, () => __g.objective().ch) === 5, '복원: 정문 열쇠 · 제5장');
   await E(p, () => { __g.ghost.active = false; __g.state = 'playing'; __g.P.floor = 0; __g.P.x = 0; __g.P.z = 67; __g.P.yaw = Math.PI; });
   await p.evaluate(s => new Promise(r => { const t0 = __g.tNow; const f = () => { if (__g.tNow - t0 >= s) r(); else requestAnimationFrame(f); }; requestAnimationFrame(f); }), .4);
-  await p.keyboard.press('KeyE'); await W(p, 5500);
+  await p.keyboard.press('KeyE'); await finalChoice(p, 2);
   ok(await E(p, () => __g.state) === 'won' && (await E(p, () => document.getElementById('endTag').textContent)) === 'NORMAL END', 'NORMAL 엔딩 도달');
+  ok(await E(p, () => __g.FL.final) === 'C' && (await E(p, () => document.getElementById('winText').textContent)).includes('END C'), '마지막 선택 C (은폐) 후일담');
   ok(p.errors === 0, '콘솔 오류 없음'); await p.close();
 }
 
@@ -90,8 +97,9 @@ async function trueRun() {
   await W(p, 2500); ok(!(await E(p, () => __g.ghost.enraged)), '방송 후엔 최종 추격 없음');
   await E(p, () => { __g.state = 'playing'; __g.P.floor = 0; __g.P.x = 0; __g.P.z = 67; __g.P.yaw = Math.PI; });
   await p.evaluate(s => new Promise(r => { const t0 = __g.tNow; const f = () => { if (__g.tNow - t0 >= s) r(); else requestAnimationFrame(f); }; requestAnimationFrame(f); }), .4);
-  await p.keyboard.press('KeyE'); await W(p, 5500);
+  await p.keyboard.press('KeyE'); await finalChoice(p, 1);
   ok((await E(p, () => document.getElementById('endTag').textContent)) === 'TRUE END', 'TRUE 엔딩 도달');
+  ok(await E(p, () => __g.FL.final) === 'B', '마지막 선택 B (민아와 함께) 후일담');
   ok(p.errors === 0, '콘솔 오류 없음'); await p.close();
 }
 

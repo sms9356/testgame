@@ -674,7 +674,7 @@ export const makeBlood = (kind = 'hand') => ctex(256, 256, (g, w, h) => {
 // 미리 구운 PBR 텍스처 (assets/tex) 불러오기
 const _pbr = {};
 export async function loadPBR() {
-  const L = new THREE.TextureLoader(), names = ['wall', 'tile', 'wood', 'ceil', 'step', 'base', 'varnish', 'varnishDark', 'paint', 'locker', 'rust', 'door', 'brick', 'facade', 'dirt', 'track'];
+  const L = new THREE.TextureLoader(), names = ['wall', 'tile', 'wood', 'ceil', 'step', 'base', 'varnish', 'varnishDark', 'paint', 'locker', 'rust', 'door', 'brick', 'facade', 'dirt', 'track', 'pooltile'];
   await Promise.all(names.flatMap(n => ['map', 'normal', 'rough'].map(async m => {
     const t = await L.loadAsync(`assets/tex/${n}_${m}.webp`).catch(() => null); if (!t) return;
     t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 8; if (m === 'map') t.colorSpace = THREE.SRGBColorSpace;
@@ -923,4 +923,39 @@ export const makeCabinet = () => ctex(128, 256, (g, w, h) => {
     g.fillStyle = '#d8d4c4'; g.fillRect(w / 2 - 16, y + 10, 32, 12); g.fillStyle = '#3a3a38'; g.fillRect(w / 2 - 20, y + 28, 40, 8);
   }
   stains(g, w, h, 8, 'rgba(110,70,40,.45)', 30); speckle(g, w, h, 400, ['#4a4a44', '#b0b0a8'], 1, 3, .3);
+});
+
+// 수영장 타일: 2.5cm 모자이크(하늘색 · 흰색 띠) · 줄눈 · 물때 띠 · 녹조 · 금 · 빠진 타일 — 텍스처 1장 = 2m
+export function pbrPoolTile(N = 1024) {
+  const n = 40, s = N / n, alg = fbm(N, 5, 5), fine = fbm(N, 80, 2), lime = fbm(N, 12, 4);
+  const H = new Float32Array(N * N), R = new Float32Array(N * N), C = new Uint8ClampedArray(N * N * 3);
+  const tv = Array.from({ length: n * n }, () => ({ v: rr(-10, 10), miss: rnd() < .012, dark: rnd() < .06 }));
+  for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+    const i = y * N + x, tx = (x / s) | 0, ty = (y / s) | 0, T = tv[ty * n + tx], lx = x % s, ly = y % s, gd = Math.min(lx, ly, s - lx, s - ly);
+    const grout = gd < 1.6, bev = sstep(1.4, 4, gd), band = (ty % 20) < 2;
+    let r = band ? 52 : 118, g = band ? 92 : 178, b = band ? 140 : 196;
+    if (T.dark) { r *= .82; g *= .86; b *= .9; }
+    r += T.v; g += T.v; b += T.v * .8;
+    let h = .55 + bev * .3 + fine[i] * .03, ro = .14 + fine[i] * .12;
+    if (grout) { const v = 120 + fine[i] * 40; r = v * .92; g = v * .95; b = v * .9; h = .25; ro = .9; }
+    if (T.miss && !grout) { const v = 70 + fine[i] * 30; r = v; g = v; b = v * .95; h = .1; ro = 1; }
+    const a = sstep(.55, .8, alg[i]); r = mixc(r, 46, a * .75); g = mixc(g, 74, a * .75); b = mixc(b, 46, a * .75); ro = mixc(ro, .7, a);   // 녹조
+    const l = sstep(.6, .78, lime[i]) * .6; r = mixc(r, 200, l * .5); g = mixc(g, 196, l * .5); b = mixc(b, 182, l * .5); ro = mixc(ro, .85, l);   // 석회 물때
+    C[i * 3] = r; C[i * 3 + 1] = g; C[i * 3 + 2] = b; H[i] = h; R[i] = ro;
+  }
+  crackLines(H, R, N, 10, 140, .3);
+  const { cv } = colorTex(C, N);
+  return { map: toTex(cv, true), normalMap: normalFromHeight(H, N, 4), roughnessMap: grayTex(R, N) };
+}
+// 얼굴이 바뀐 초상화: 지워졌던 얼굴에 눈이 뜨여 이쪽을 본다
+export const makePaintingStare = () => ctex(192, 240, (g, w, h) => {
+  g.fillStyle = '#3a2428'; g.fillRect(0, 0, w, h);
+  g.fillStyle = '#120c10'; g.beginPath(); g.ellipse(w / 2, h * .42, 48, 64, 0, 0, 6.3); g.fill();
+  g.fillStyle = '#c8b0a0'; g.beginPath(); g.ellipse(w / 2, h * .44, 31, 42, 0, 0, 6.3); g.fill();
+  g.fillStyle = '#120c10'; g.fillRect(w / 2 - 48, h * .3, 18, 130); g.fillRect(w / 2 + 30, h * .3, 18, 130);
+  [[-12, 0], [12, 0]].forEach(([dx]) => { g.fillStyle = '#f0e8e0'; g.beginPath(); g.ellipse(w / 2 + dx, h * .42, 7, 5, 0, 0, 6.3); g.fill(); g.fillStyle = '#100808'; g.beginPath(); g.arc(w / 2 + dx, h * .42, 3, 0, 6.3); g.fill(); });
+  g.strokeStyle = '#6a1010'; g.lineWidth = 2; g.beginPath(); g.moveTo(w / 2 - 9, h * .53); g.quadraticCurveTo(w / 2, h * .555, w / 2 + 9, h * .53); g.stroke();
+  g.fillStyle = 'rgba(150,10,10,.8)'; for (let k = 0; k < 6; k++) g.fillRect(w / 2 - 14 + k * 5, h * .44, 1.5, rr(14, 40));
+  g.fillStyle = '#28324a'; g.beginPath(); g.moveTo(w * .2, h); g.lineTo(w * .3, h * .66); g.lineTo(w * .7, h * .66); g.lineTo(w * .8, h); g.fill();
+  speckle(g, w, h, 300, ['#000', '#fff'], 1, 2, .12);
 });

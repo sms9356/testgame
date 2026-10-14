@@ -3,7 +3,7 @@ import * as THREE from './vendor/three.module.js';
 import { GLTFLoader } from './vendor/addons/loaders/GLTFLoader.js';
 import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY } from './world.js';
 import { drawMap } from './map.js';
-import { makeDress, makeHair, makeGhostFace, makeGraffiti, makeKeypad, loadPBR, makeGlow as makeGlowTex, makePaintingStare } from './tex.js';
+import { makeDress, makeHair, makeGhostFace, makeGraffiti, makeKeypad, loadPBR, makeGlow as makeGlowTex, makePaintingStare, makeSign } from './tex.js';
 import { warmUp } from './bake.js';
 import { createFX } from './fx.js';
 import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel } from './audio.js';
@@ -663,7 +663,7 @@ function renderPhone() {
   $('pClock').textContent = clockText(); $('pBat').textContent = `🔋 ${Math.round(P.pbat ?? 100)}%`;
   const B = $('pBody');
   if (phoneTab === 'msg') {
-    B.innerHTML = msgs.length ? msgs.slice().reverse().map(m => `<div class="bubble${m.read ? '' : ' unread'}" data-id="${m.id}"><small>민아 · ${m.t} · ▶ 음성 메시지</small>${VO[m.id].text}</div>`).join('') : '<div class="pEmpty">메시지가 없습니다.<br>신호 없음</div>';
+    B.innerHTML = msgs.length ? msgs.slice().reverse().map(m => `<div class="bubble${m.read ? '' : ' unread'}" data-id="${m.id}"><img class="av" src="assets/ui/mina_portrait.webp" alt=""><small>민아 · ${m.t} · ▶ 음성 메시지</small>${VO[m.id].text}</div>`).join('') : '<div class="pEmpty">메시지가 없습니다.<br>신호 없음</div>';
     B.querySelectorAll('.bubble').forEach(b => { b.onclick = () => line(b.dataset.id, 'phone', '📱 민아'); });
     msgs.forEach(m => { m.read = true; }); refreshHud();
   } else if (phoneTab === 'photo') {
@@ -1009,6 +1009,12 @@ function changeFloor(dir) {
   const info = STAIRS[P.floor]; const nf = info && (dir > 0 ? info.up : info.down); if (nf == null) return;
   const sz = floors[nf].stairZone; teleport(nf === 3 ? { floor: 3, x: 0, z: -7.5, yaw: 0 } : { floor: nf, x: sz ? sz.spawn.x : 2.2, z: sz ? sz.spawn.z : -5.2, yaw: Math.PI });
 }
+// 가구 높이: 발이 윗면보다 높으면 그 가구는 막지 않는다 · 발 아래 윗면이 지지면
+const colsAt = F => { const foot = P.jy || 0; return foot > .05 ? F.col.filter(r => !(r.h != null && r.h <= foot + .03)) : F.col; };
+function supportAt(F, x, z, foot) {
+  let s = 0; for (const r of F.col) if (r.h != null && r.h <= foot + .12 && r.h > s && x > r.x1 - .1 && x < r.x2 + .1 && z > r.z1 - .1 && z < r.z2 + .1) s = r.h;
+  return s;
+}
 // 걸어서 오르내리는 계단 (world.js stairRoom): 1번 계단(서쪽, 북쪽으로 오름 0→1.9m) → 층참 → 2번 계단(동쪽, 남쪽으로 오름 1.9→3.8m)
 // 2번 계단 꼭대기를 지나면 위층, 위층에서 2번 계단 칸으로 들어서면 아래층 계단 꼭대기로 이어진다
 const STK = .19 / .48, SZB = -2.9, SZL = -7.7;
@@ -1263,7 +1269,7 @@ addEventListener('keydown', e => {
   if (SET.runToggle && (e.code === K().run || e.code === 'ShiftRight')) P.runOn = !P.runOn;
   if (e.code === K().view) toggleView();
   if (e.code === K().crouch || e.code === 'ControlLeft') { P.crouch = !P.crouch; if (P.crouch) P.runOn = false; }
-  if (e.code === K().jump && !P.hiding && !(P.jy > 0) && !P.tired && P.stamina > 8) { if (P.crouch) P.crouch = false; else { P.vy = 4.1; P.jy = .001; P.stamina -= 8; sfx.throwIt(); } }
+  if (e.code === K().jump && !P.hiding && !P.vy && !P.tired && P.stamina > 8) { if (P.crouch) P.crouch = false; else { P.vy = 4.7; P.jy = (P.jy || 0) + .001; P.stamina -= 8; sfx.throwIt(); } }   // 약 0.85m — 책상(0.76m) 위로 올라설 수 있다
   if (e.code === K().throwCan) throwCan();
   if (e.code === K().interact) { if (P.hiding) leaveLocker(); else interact(); }
   if (e.code === K().down && target && target.type === 'stairs') changeFloor(-1);
@@ -1431,6 +1437,50 @@ function buildGuard() {
   g.position.set(1.3, 0, GATE_Z + 4.6); g.rotation.y = -.12; g.visible = false; scene.add(g);
   return g;
 }
+// 경비원 NPC (서브 캐릭터 시트): 60대 · 175cm · 남색 근무복 · 표장 모자 · SECURITY 패치 · 무전기 · 손전등 · 작업화 — 해가 지기 전까지 경비실에 있다
+function buildGuardNPC() {
+  const g = new THREE.Group(), M = (c, r = .8, o = {}) => new THREE.MeshStandardMaterial({ color: c, roughness: r, ...o });
+  const uni = M(0x283450, .82), pants = M(0x1c2130, .85), skin = M(0xc9a088, .62), boot = M(0x111111, .4), badge = M(0xc8a040, .35, { metalness: .7 }), blk = M(0x15161a, .5), gray = M(0x8a8a88, .7);
+  const cap = (r, h, m) => new THREE.Mesh(new THREE.CapsuleGeometry(r, h, 6, 12), m);
+  const put = (o, ...a) => { if (o.isBufferGeometry) o = new THREE.Mesh(o, a.shift()); const [x, y, z, p = g] = a; o.position.set(x, y, z); p.add(o); return o; };
+  [-1, 1].forEach(s => { put(cap(.085, .62, pants), s * .1, .5, 0); put(new THREE.BoxGeometry(.12, .1, .26), boot, s * .1, .05, .04); });
+  put(new THREE.BoxGeometry(.4, .07, .24), blk, 0, .9, 0);   // 근무 벨트
+  put(new THREE.BoxGeometry(.07, .12, .05), blk, -.2, .87, .1); put(new THREE.BoxGeometry(.06, .16, .04), blk, .2, .88, .1);   // 파우치 · 무전기
+  const body = put(cap(.2, .42, uni), 0, 1.22, 0); body.scale.set(1.05, 1, .74);
+  put(new THREE.BoxGeometry(.08, .45, .02), M(0x23283a, .7), 0, 1.25, .15);   // 지퍼 · 넥타이 선
+  const patch = new THREE.Mesh(new THREE.PlaneGeometry(.12, .045), new THREE.MeshBasicMaterial({ map: makeSign('SECURITY', '#20242c', '#d8d4c4', 22), color: 0xb0aca0 })); put(patch, .1, 1.37, .152);
+  put(new THREE.CircleGeometry(.035, 12), badge, -.11, 1.37, .152);
+  put(new THREE.BoxGeometry(.11, .025, .01), M(0xd8d8d0, .6), .1, 1.31, .152);   // 명찰
+  [-1, 1].forEach(s => { const a = put(cap(.06, .44, uni), s * .26, 1.15, 0); a.rotation.z = s * .1; put(new THREE.SphereGeometry(.045, 10, 8), skin, s * .29, .88, .02); });
+  put(new THREE.CylinderGeometry(.05, .055, .08, 10), skin, 0, 1.53, 0);
+  const head = put(new THREE.SphereGeometry(.105, 18, 14), skin, 0, 1.66, .01); head.scale.set(.95, 1.08, 1);
+  put(new THREE.BoxGeometry(.14, .02, .01), gray, 0, 1.6, .1);   // 희끗한 콧수염
+  [-1, 1].forEach(s => { put(new THREE.SphereGeometry(.012, 8, 6), blk, s * .036, 1.685, .094); put(new THREE.BoxGeometry(.04, .008, .01), gray, s * .036, 1.708, .095); put(new THREE.SphereGeometry(.026, 8, 6), skin, s * .1, 1.66, 0).scale.set(.5, 1, .8); });   // 눈 · 눈썹 · 귀
+  put(new THREE.BoxGeometry(.024, .04, .03), skin, 0, 1.65, .105);   // 코
+  put(new THREE.CylinderGeometry(.108, .104, .07, 18, 1, true, Math.PI * .6, Math.PI * .8), gray, 0, 1.7, 0);   // 모자 아래 희끗한 옆 · 뒷머리
+  put(new THREE.CylinderGeometry(.115, .118, .08, 18), uni, 0, 1.77, 0);
+  put(new THREE.BoxGeometry(.2, .015, .13), blk, 0, 1.735, .1);   // 모자 챙
+  put(new THREE.CircleGeometry(.025, 12), badge, 0, 1.79, .118);
+  put(new THREE.CylinderGeometry(.025, .02, .2, 10), blk, .3, .95, .1).rotation.x = Math.PI / 2;   // 손전등
+  g.traverse(o => { if (o.isMesh) o.castShadow = true; });
+  return g;
+}
+const guardNPC = buildGuardNPC(); guardNPC.position.set(20.3, 0, 65.6); guardNPC.rotation.y = .9; world.OUT.add(guardNPC);
+const guardCap = new THREE.Mesh(new THREE.CylinderGeometry(.115, .118, .08, 18), new THREE.MeshStandardMaterial({ color: 0x283450, roughness: .8 })); guardCap.position.set(20.0, .8, 66.55); guardCap.visible = false; world.OUT.add(guardCap);
+world.props.push({ kind: 'guardnpc', floor: 0, x: 20.3, z: 65.6, y: 1.5, label: '경비 아저씨와 이야기하기' });
+let guardGift = false;
+async function talkGuard(p) {
+  const say2 = async id => { const sec = await speak(id); subtitle('경비 아저씨', VO[id].text, Math.max(2.5, sec) + .4); return sec; };
+  await say2('guardHi');
+  for (let n = 0; n < 4 && state === 'playing'; n++) {
+    const opts = [{ label: '민아라는 학생 못 보셨어요?' }, { label: '이 학교에 무슨 일이 있었어요?' }, { label: guardGift ? '(건전지는 이미 받았다)' : '손전등 건전지 좀 있으세요?' }, { label: '이만 가 볼게요' }];
+    const i = await choose('경비 아저씨', '경비실 창가 의자에 앉아 있던 경비원이 손전등을 만지작거린다.', opts);
+    if (i === 3) { say2('guardBye'); break; }
+    if (i === 0) await wait(1000 * await say2('guardMina'));
+    else if (i === 1) await wait(1000 * await say2('guardPast'));
+    else if (!guardGift) { guardGift = true; inv.battery += 2; refreshHud(); sfx.pickup(); toast('건전지 2개를 받았다', '경비 아저씨: 열한 시 사십 분 전에는 나와야 한다', 'info'); await wait(1000 * await say2('guardGift')); }
+  }
+}
 // 인트로: 검은 화면 텍스트 → 빗속 공중 전경(번개 · 타이틀) → 정문으로 내려앉기(경비원의 잔상) → 플레이 시작
 function updateIntro(dt) {
   introT += dt * (DEBUG && window.__introJump ? 6 : 1);
@@ -1574,7 +1624,7 @@ function updatePlayer(dt) {
       for (let i = 0; i < n; i++) {
         P.x += dx * tot / n; P.z += dz * tot / n;
         const px = P.x - dx * tot / n, pz = P.z - dz * tot / n;
-        collide(F.col, P, .32);
+        collide(colsAt(F), P, .32);
         if (P.floor === 0 && gateClosed) collide([gate.blockRect], P, .32);
         if (stairStep(px, pz)) break;
       }
@@ -1588,7 +1638,11 @@ function updatePlayer(dt) {
   P.noiseT = Math.max(0, (P.noiseT || 0) - dt); P.snackT = Math.max(0, (P.snackT || 0) - dt);
   P.noise = P.hiding ? 0 : P.noiseT > 0 ? 9 : P.sprinting ? 12 : P.moving ? (P.crouch ? 1.5 : 4) : 0;
   // 점프 · 웅크리기
-  if (P.jy > 0 || P.vy > 0) { P.vy -= 13 * dt; P.jy = Math.max(0, (P.jy || 0) + P.vy * dt); if (P.jy === 0) { P.vy = 0; sfx.step(true, 1.1, surfaceAt()); P.noiseT = Math.max(P.noiseT, .25); } }
+  // 점프 · 가구 위: 발 아래 가장 높은 가구 윗면이 바닥이 된다 (가장자리를 벗어나면 떨어진다)
+  { const sup = P.sh ? 0 : supportAt(floors[P.floor], P.x, P.z, P.jy || 0);
+    if (P.vy > 0 || (P.jy || 0) > sup + .001) { P.vy -= 13 * dt; P.jy = Math.max(sup, (P.jy || 0) + P.vy * dt);
+      if (P.jy <= sup + 1e-4 && P.vy <= 0) { if (P.vy < -1.5) { sfx.step(true, 1.1, sup > .1 ? 'wood' : surfaceAt()); P.noiseT = Math.max(P.noiseT, .25); } P.vy = 0; P.jy = sup; } }
+    else if ((P.jy || 0) < sup) P.jy = sup; }
   P.crouchK = lerp(P.crouchK || 0, P.crouch && !P.hiding ? 1 : 0, Math.min(1, dt * 9));
 
   // 정문 닫힘 연출
@@ -1699,7 +1753,8 @@ function updateDay(dt) {
   const night = clamp(1 - dk * 3, 0, 1); sky.stars.visible = sky.moon.visible = sky.moonGlow.visible = night > .02;
   sky.stars.material.opacity = night; sky.stars.material.transparent = true; sky.moonGlow.material.opacity = night;
   DAY.rain = 0; setRainLevel(0);   // 비 효과 제거 (요청)
-  world.winMats[9].emissiveIntensity = night * 2.4;   // 밤이 되면 불 켜진 교실 창 몇 개 (아무도 없는데)
+  world.winMats[9].emissiveIntensity = night * 2.4;
+  { const here = dk > .3 && !FL.night; guardNPC.visible = here; guardCap.visible = !here; const gp = world.props.find(q => q.kind === 'guardnpc'); if (gp) gp.done = !here; }   // 해가 지면 경비원은 사라지고 모자만 남는다   // 밤이 되면 불 켜진 교실 창 몇 개 (아무도 없는데)
   // 낮의 소리: 가끔 까마귀
   if (dk > .3 && state === 'playing' && isOutdoors() && Math.random() < dt / 14) sfx.crow(Math.random() * 2 - 1);
 }
@@ -1784,7 +1839,7 @@ function areaCheck(dt) {
   }
   if (k) showCard(k);
 }
-const REF_TITLES = ['폐교 실내 공간 3D 모델링 시트', '폐교 정문 3D 배경 시트', '교실 소품 오브젝트 시트', '폐교 내부 3D 배치도', '폐교 배치도 / 건물 도면', '주인공 캐릭터 시트', '인게임 화면 · UI 구성', '특수 공간 상세 배치도', '상호작용 UI 시트', '체육관 내부 시트', '방송실 내부 배치', '수영장 내부 배치', '방송실 · 수영장 · 지하 B1', '학교 지도', '급식실 배치도', '별관 (특별교실동)', '서문 상세 안내도', '방송실 상세 배치도', '수영장 샤워실 · 탈의실', '전체 배치도 · 오브젝트 · 이펙트 시트'];
+const REF_TITLES = ['폐교 실내 공간 3D 모델링 시트', '폐교 정문 3D 배경 시트', '교실 소품 오브젝트 시트', '폐교 내부 3D 배치도', '폐교 배치도 / 건물 도면', '주인공 캐릭터 시트', '인게임 화면 · UI 구성', '특수 공간 상세 배치도', '상호작용 UI 시트', '체육관 내부 시트', '방송실 내부 배치', '수영장 내부 배치', '방송실 · 수영장 · 지하 B1', '학교 지도', '급식실 배치도', '별관 (특별교실동)', '서문 상세 안내도', '방송실 상세 배치도', '수영장 샤워실 · 탈의실', '전체 배치도 · 오브젝트 · 이펙트 시트', '학교 외부 창문 텍스처 시트', '폐교 외부 설정도', '학교 외관 디자인 시트', '서브 캐릭터 — 민아'];
 let galTab = 'ref';
 function openGallery(tab = galTab) {
   galTab = tab; document.querySelectorAll('#galTabs button').forEach(b => b.classList.toggle('on', b.dataset.g === galTab));
@@ -2006,6 +2061,7 @@ async function useProp(p) {
   if (p.kind === 'switch') { flipSwitch(p, !p.on, true); return; }
   if (p.kind === 'elevator') { rideElevator(p); return; }
   if (p.kind === 'robj') { useRoomObj(p); return; }
+  if (p.kind === 'guardnpc') { talkGuard(p); return; }
   if (p.kind === 'clue') { readMemory(p); return; }
   if (p.kind === 'cctvRec') { p.label = 'CCTV 다시 보기'; sfx.staticNoise(1.2); fx.glitch(.5); showNote({ title: 'CCTV 녹화 — 10.12 23:31 · B1 복도', img: 'b1_corr', text: '정지 화면이 지직거린다. 복도 끝 <b>배수실</b> 쪽에서 누군가 바닥의 <b>철제 덮개</b>를 끌어 덮고 있다.<br>23:33 — 화면이 검게 끊긴다. 마지막 프레임, 렌즈 바로 앞에 젖은 손바닥 자국.' }); addClue('cctv'); return; }
   if (p.kind === 'footprints') { p.done = true; poolFlashback(); return; }
@@ -2213,7 +2269,7 @@ function updateEvents(dt) {
 
 /* ---------- 이야기 오브젝트: 민아의 캠코더 · 윤하늘의 명찰 · 장비실의 민아 ---------- */
 function storyItem(kind, f, x, y, z, mesh, label, glowColor) {
-  const F = floors[f]; mesh.position.set(x, F.y0 + y, z); mesh.userData.dynamic = true; F.interior.add(mesh);
+  const F = floors[f]; mesh.position.set(x, y, z); mesh.userData.dynamic = true; F.interior.add(mesh);   // interior 는 이미 y0 만큼 올라가 있다
   const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: glintTex, color: glowColor, blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, opacity: .55 }));
   sp.scale.setScalar(.55); sp.position.y = .06; mesh.add(sp);
   world.items.push({ kind, floor: f, pos: new THREE.Vector3(x, F.y0 + y, z), mesh, taken: false, label });
@@ -2242,20 +2298,52 @@ function storyItem(kind, f, x, y, z, mesh, label, glowColor) {
 }
 // 장비실에 주저앉은 민아 (서현고 교복)
 const mina = new THREE.Group();
+// 민아 (서브 캐릭터 시트): 17세 · 162cm · 남색 블레이저(교표) · 흰 셔츠 · 버건디 리본 · 남색/버건디 체크 플리츠 스커트 · 흰 양말 · 검정 로퍼
+// 낮게 묶은 포니테일 + 앞머리 · 검정 백팩(토끼 키링) · 손전등 · 작은 노트 · 스마트폰 — 장비실 벽에 기대 잠든 자세
 {
-  const F = floors[2], navy = new THREE.MeshStandardMaterial({ color: 0x1c2233, roughness: .85 }), shirt = new THREE.MeshStandardMaterial({ color: 0xd8d6cc, roughness: .8 });
-  const skin = new THREE.MeshStandardMaterial({ color: 0xc9a48a, roughness: .7 }), hairM = new THREE.MeshStandardMaterial({ color: 0x17120f, roughness: .6 }), skirt = new THREE.MeshStandardMaterial({ color: 0x3a3440, roughness: .9 });
+  const F = floors[2], M = (c, r = .8, o = {}) => new THREE.MeshStandardMaterial({ color: c, roughness: r, ...o });
+  const plaid = (() => { const N = 128, cv = document.createElement('canvas'); cv.width = cv.height = N; const g = cv.getContext('2d');
+    g.fillStyle = '#2a2f45'; g.fillRect(0, 0, N, N); g.globalAlpha = .55; g.fillStyle = '#6a2232'; [8, 72].forEach(v => { g.fillRect(v, 0, 14, N); g.fillRect(0, v, N, 14); });
+    g.globalAlpha = .35; g.fillStyle = '#9a9aa8'; [40, 104].forEach(v => { g.fillRect(v, 0, 3, N); g.fillRect(0, v, N, 3); }); g.globalAlpha = .25; g.fillStyle = '#c8b070'; [56, 120].forEach(v => { g.fillRect(v, 0, 2, N); g.fillRect(0, v, N, 2); });
+    const t = new THREE.CanvasTexture(cv); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(3, 2); t.colorSpace = THREE.SRGBColorSpace; return t; })();
+  const navy = M(0x1a1f30, .78), shirt = M(0xe6e2da, .8), skin = M(0xe2bfa8, .55), hairM = M(0x1c1410, .5), skirt = M(0xffffff, .9, { map: plaid, side: THREE.DoubleSide });
+  const ribbon = M(0x6e1a28, .55), sock = M(0xe8e6e0, .85), loafer = M(0x0c0c0e, .3, { metalness: .1 }), bagM = M(0x16171a, .75), gold = M(0xb89850, .4, { metalness: .6 });
   const add = (geo, m, x, y, z, rx = 0, ry = 0, rz = 0) => { const o = new THREE.Mesh(geo, m); o.position.set(x, y, z); o.rotation.set(rx, ry, rz); mina.add(o); return o; };
-  add(new THREE.CylinderGeometry(.2, .24, .16, 14), skirt, 0, .1, .02);
-  [-1, 1].forEach(s => { add(new THREE.CylinderGeometry(.055, .05, .42, 8), skin, s * .09, .1, .3, Math.PI / 2 - .15); add(new THREE.BoxGeometry(.08, .07, .2), new THREE.MeshStandardMaterial({ color: 0x111111, roughness: .6 }), s * .09, .05, .55); });
-  add(new THREE.BoxGeometry(.34, .44, .2), navy, 0, .42, -.04, -.18);
-  add(new THREE.BoxGeometry(.12, .2, .01), shirt, 0, .52, .06, -.18);
-  add(new THREE.CylinderGeometry(.045, .05, .08, 8), skin, 0, .67, -.02);
-  const head = add(new THREE.SphereGeometry(.1, 18, 14), skin, .03, .76, .0, .35, 0, .35); head.scale.set(.9, 1.1, .95);
-  add(new THREE.SphereGeometry(.112, 18, 12, 0, Math.PI * 2, 0, Math.PI * .6), hairM, .03, .79, -.02, -.05, 0, .35);
-  add(new THREE.BoxGeometry(.22, .32, .05), hairM, .06, .62, -.08, .1, 0, .3);
-  [-1, 1].forEach(s => { add(new THREE.CylinderGeometry(.04, .035, .4, 8), navy, s * .2, .36, .06, -.5, 0, s * .15); add(new THREE.SphereGeometry(.035, 8, 6), skin, s * .22, .2, .22); });
-  mina.position.set(-21.65, F.y0, -8.45); mina.userData.dynamic = true; F.interior.add(mina);
+  const cap = (r, h, m, x, y, z, rx = 0, ry = 0, rz = 0) => add(new THREE.CapsuleGeometry(r, h, 6, 12), m, x, y, z, rx, ry, rz);
+  // 앉은 하체: 플리츠 스커트(주름 원뿔) · 무릎을 세운 다리 · 흰 양말 · 로퍼
+  add(new THREE.CylinderGeometry(.17, .27, .2, 24, 1, true), skirt, 0, .12, .06, -.25);
+  [-1, 1].forEach(s => {
+    cap(.058, .3, skin, s * .1, .26, .26, Math.PI / 2 - .55);   // 허벅지 → 무릎
+    cap(.05, .28, skin, s * .1, .2, .5, .55);                  // 정강이
+    add(new THREE.CylinderGeometry(.052, .048, .14, 10), sock, s * .1, .07, .6, .2);
+    add(new THREE.BoxGeometry(.085, .06, .22), loafer, s * .1, .03, .67);
+  });
+  // 상체 (벽에 기대 고개를 떨군 자세)
+  const torso = new THREE.Group(); torso.position.set(0, .22, -.05); torso.rotation.x = -.22; mina.add(torso);
+  const tadd = (geo, m, x, y, z, rx = 0, ry = 0, rz = 0) => { const o = new THREE.Mesh(geo, m); o.position.set(x, y, z); o.rotation.set(rx, ry, rz); torso.add(o); return o; };
+  tadd(new THREE.CapsuleGeometry(.15, .22, 6, 14), navy, 0, .24, 0).scale.set(1.08, 1, .72);   // 블레이저
+  tadd(new THREE.BoxGeometry(.11, .2, .02), shirt, 0, .32, .105);
+  [-1, 1].forEach(s => tadd(new THREE.BoxGeometry(.06, .2, .015), navy, s * .065, .3, .11, 0, 0, s * .25));  // 라펠
+  [-1, 1].forEach(s => tadd(new THREE.ConeGeometry(.035, .07, 4), ribbon, s * .035, .4, .125, 0, 0, s * Math.PI / 2));   // 리본 양쪽
+  tadd(new THREE.SphereGeometry(.018, 8, 6), ribbon, 0, .4, .13);
+  tadd(new THREE.CircleGeometry(.022, 12), gold, -.085, .36, .113);   // 교표
+  [-1, 1].forEach(s => { const arm = tadd(new THREE.CapsuleGeometry(.045, .3, 6, 10), navy, s * .19, .2, .08, -.7, 0, s * .2); tadd(new THREE.SphereGeometry(.04, 10, 8), skin, s * .16, .02, .24); });
+  tadd(new THREE.CylinderGeometry(.04, .045, .07, 10), skin, 0, .45, 0);
+  const head = tadd(new THREE.SphereGeometry(.1, 20, 16), skin, .02, .56, .03, .45, 0, .25); head.scale.set(.88, 1.08, .95);
+  tadd(new THREE.SphereGeometry(.112, 20, 14, 0, Math.PI * 2, 0, Math.PI * .58), hairM, .02, .585, .01, .3, 0, .25);   // 머리
+  tadd(new THREE.BoxGeometry(.17, .07, .03), hairM, .03, .6, .11, .7, 0, .25);   // 앞머리
+  [-1, 1].forEach(s => tadd(new THREE.BoxGeometry(.03, .16, .05), hairM, .02 + s * .085, .5, .05, .3, 0, .25));   // 옆머리
+  tadd(new THREE.CapsuleGeometry(.035, .2, 6, 8), hairM, -.02, .44, -.1, .5, 0, .1);   // 낮게 묶은 포니테일
+  // 소품: 백팩(토끼 키링) · 바닥의 손전등(희미하게 켜짐) · 노트 · 스마트폰(화면 빛)
+  add(new THREE.BoxGeometry(.3, .38, .16), bagM, .38, .19, .1, 0, -.4).geometry.translate(0, 0, 0);
+  add(new THREE.BoxGeometry(.22, .14, .05), bagM, .43, .14, .2, 0, -.4);
+  add(new THREE.SphereGeometry(.035, 10, 8), M(0xf0c8cc, .9), .5, .3, .25); add(new THREE.SphereGeometry(.022, 8, 6), M(0xf0c8cc, .9), .5, .35, .25);
+  [-1, 1].forEach(s => add(new THREE.CapsuleGeometry(.008, .03, 4, 6), M(0xf0c8cc, .9), .5 + s * .012, .385, .25));   // 토끼 귀
+  const fl = add(new THREE.CylinderGeometry(.022, .03, .2, 12), M(0x1a1a1a, .4, { metalness: .5 }), -.32, .03, .42, 0, 0, Math.PI / 2); fl.rotation.y = .6;
+  add(new THREE.CircleGeometry(.026, 12), new THREE.MeshBasicMaterial({ color: 0xffe8c0 }), -.24, .03, .48, 0, -1.0);
+  add(new THREE.BoxGeometry(.12, .015, .16), M(0x5a6a4a, .8), .2, .008, .5, 0, .3);   // 작은 노트
+  add(new THREE.BoxGeometry(.07, .008, .14), M(0x111216, .3), -.15, .006, .62, 0, -.2); add(new THREE.PlaneGeometry(.06, .12), new THREE.MeshBasicMaterial({ color: 0x8ab4e8 }), -.15, .012, .62, -Math.PI / 2, 0, .2);
+  mina.position.set(-21.65, 0, -8.45); mina.userData.dynamic = true; F.interior.add(mina);   // interior 그룹이 이미 층 높이(y0)만큼 올라가 있다
   mina.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
   world.props.push({ kind: 'mina', floor: 2, x: -21.65, z: -7.9, y: .8, label: '민아 깨우기' });
 }

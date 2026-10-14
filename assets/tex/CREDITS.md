@@ -11,6 +11,7 @@
 | base_* (지하 콘크리트) | [Damaged Concrete Floor](https://polyhaven.com/a/damaged_concrete_floor) | Rob Tuytel | CC0 |
 | dirt_* (운동장 흙) | [Brown Mud 03](https://polyhaven.com/a/brown_mud_03) | Rob Tuytel | CC0 |
 | locker_* (사물함 철판) | [Rusty Metal Sheet](https://polyhaven.com/a/rusty_metal_sheet) | Amal Kumar | CC0 |
+| step_* (계단 · 층참 콘크리트) | [Concrete Floor 02](https://polyhaven.com/a/concrete_floor_02) | Rob Tuytel | CC0 |
 | facade_* (외벽 노후 콘크리트 + 빗물 자국 합성) | [Concrete Wall 008](https://polyhaven.com/a/concrete_wall_008) | Dario Barresi, Charlotte Baglioni | CC0 |
 | roofmetal_* (체육관 · 수영장 아치 지붕) | [Corrugated Iron 02](https://polyhaven.com/a/corrugated_iron_02) | Jenelle van Heerden, Sergej Majboroda | CC0 |
 | bluemetal_* (수영장 외벽) | [Blue Metal Plate](https://polyhaven.com/a/blue_metal_plate) | Rob Tuytel | CC0 |

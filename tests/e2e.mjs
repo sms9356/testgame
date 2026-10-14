@@ -47,7 +47,8 @@ async function normalRun(char) {
   await saveReload(p, '캠코더 후'); ok(await E(p, () => __g.FL.cam) && await E(p, () => __g.CHAR) === char, '복원: 캠코더 · 캐릭터 유지');
   await take(p, 'note', 'n3'); await closeNote(p);
   // 금고: 연 직후(열쇠 줍기 전) 저장 → 복원 → 줍기 (P0)
-  await use(p, 'safe'); await W(p, 300); for (const k of '1012') await p.keyboard.press('Digit' + k); await W(p, 1500);
+  await use(p, 'safe'); await W(p, 300); for (const k of '1012') await p.keyboard.press('Digit' + k);
+  await p.waitForFunction(() => __g.world.props.find(q => q.kind === 'safe').done && __g.state === 'playing', null, { timeout: 20000 }).catch(() => {}); await W(p, 300);
   await saveReload(p, '금고 연 직후');
   ok(await E(p, () => { const k = __g.world.items.find(i => i.kind === 'key' && i.idx === 0); return !k.locked && k.mesh.visible && !k.taken; }), '복원: 금고 안 열쇠가 잠기지 않고 보임 (P0)');
   ok(await take(p, 'key', 0) === 'ok' && await E(p, () => __g.P.keys) === 1, '첫 열쇠 조각 획득');

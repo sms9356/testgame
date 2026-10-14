@@ -29,7 +29,7 @@ const LINE_EMO = {
   calm: 'relief', heal: 'relief', unlocked: 'relief', safeOpen: 'relief', hookMade: 'relief',
   tagFound: 'sad', minaFound: 'urgent',
 };
-const VO_EMO = { tape5: 'sad', phone1: 'fear', phone2: 'fear', phone3: 'whisper', tape2: 'fear', gh1: 'whisper', gh2: 'whisper', gh3: 'whisper', gh4: 'whisper', ghThanks: 'relief', echo1: 'normal', echo2: 'normal', guard1: 'sad', teacher2: 'sad', endBad: 'sad', intro3: 'fear', tape4: 'normal' };
+const VO_EMO = { tape5: 'sad', phone1: 'fear', phone2: 'fear', phone3: 'whisper', tape2: 'fear', gh1: 'whisper', gh2: 'whisper', gh3: 'whisper', gh4: 'whisper', ghThanks: 'relief', echo1: 'normal', echo2: 'normal', guard1: 'sad', guardHi: 'resolve', guardMina: 'normal', guardPast: 'sad', guardGift: 'resolve', guardBye: 'fear', teacher2: 'sad', endBad: 'sad', intro3: 'fear', tape4: 'normal' };
 export function emoFor(id) { const m = /^l_(.+)_[js]$/.exec(id); return EMO[(m ? LINE_EMO[m[1]] : VO_EMO[id]) || 'normal']; }
 let manifest = {};
 // dub: 더빙 켜기/끄기 · engine: auto(자연스러운 브라우저 음성이 있으면 사용) | file(내장) | browser

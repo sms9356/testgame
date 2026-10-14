@@ -243,7 +243,7 @@ export function createFX(renderer, scene, camera) {
     // 비
     rainM.uniforms.uTime.value += dt; rainM.uniforms.uCam.value.copy(camera.position);
     const ra = c.rain ?? 1; rainM.uniforms.uA.value += ((c.outdoors ? .32 * ra : 0) - rainM.uniforms.uA.value) * Math.min(1, dt * 3);
-    rain.visible = rainM.uniforms.uA.value > .01;
+    rain.visible = false;   // 비 효과 제거
     petM.uniforms.uTime.value += dt; petM.uniforms.uA.value += (((c.outdoors && camera.position.z > 35 && camera.position.y < 20) ? .55 : 0) - petM.uniforms.uA.value) * Math.min(1, dt * 2); petals.visible = petM.uniforms.uA.value > .01;
     // 불꽃
     let any = false;

@@ -74,7 +74,9 @@ function voiceFor(g, spk) {
   const male = pool.filter(v => MALE.test(v.name)), female = pool.filter(v => !MALE.test(v.name));
   return (g === 'm' ? (male[0] || female[0]) : (female[0] || male[0])) || null;
 }
-const useBrowser = () => VS.engine === 'browser' ? hasBrowserVoice() : VS.engine === 'auto' ? hasNaturalVoice() : false;
+// 자동: 감정 · 화자별 신경망 음성으로 만든 내장 더빙(baked)이 있으면 그것을, 없는 대사만 자연스러운 브라우저 음성으로
+const bakedSet = () => Object.values(manifest).some(m => m.baked);
+const useBrowser = id => VS.engine === 'browser' ? hasBrowserVoice() : VS.engine === 'auto' ? hasNaturalVoice() && (id ? !(manifest[id] && manifest[id].baked) : !bakedSet()) : false;
 export const engineLabel = () => (!VS.dub ? '끔' : useBrowser() ? `브라우저 음성 (${browserVoiceName()})` : '내장 더빙');
 
 // 대사 한 줄 재생 → 실제 길이(초)를 돌려준다. 음성이 없으면 글자 수로 추정.
@@ -82,7 +84,7 @@ export async function speak(id, fx = 'none') {
   const info = manifest[id];
   const est = info ? info.dur : 2.5;
   if (!VS.dub || !info) return est;
-  if (useBrowser()) {
+  if (useBrowser(id) || (info.nofile && VS.engine === 'auto' && hasNaturalVoice())) {
     speechSynthesis.cancel();
     const text = info.text.replace(/<[^>]+>/g, ' ').replace(/…/g, ', ');
     const u = new SpeechSynthesisUtterance(text), g = GENDER[info.spk] || 'f', v = voiceFor(g, info.spk);

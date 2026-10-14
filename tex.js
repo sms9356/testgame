@@ -689,10 +689,10 @@ export const makeBlood = (kind = 'hand') => ctex(256, 256, (g, w, h) => {
 // 미리 구운 PBR 텍스처 (assets/tex) 불러오기
 const _pbr = {};
 export async function loadPBR() {
-  const L = new THREE.TextureLoader(), names = ['wall', 'tile', 'wood', 'ceil', 'step', 'base', 'varnish', 'varnishDark', 'paint', 'locker', 'rust', 'door', 'brick', 'facade', 'dirt', 'track', 'pooltile'];
+  const L = new THREE.TextureLoader(), names = ['wall', 'tile', 'wood', 'ceil', 'step', 'base', 'varnish', 'varnishDark', 'paint', 'locker', 'rust', 'door', 'brick', 'facade', 'dirt', 'track', 'pooltile', 'roofmetal', 'bluemetal'];
   await Promise.all(names.flatMap(n => ['map', 'normal', 'rough'].map(async m => {
     const t = await L.loadAsync(`assets/tex/${n}_${m}.webp`).catch(() => null); if (!t) return;
-    t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 8; if (m === 'map') t.colorSpace = THREE.SRGBColorSpace;
+    t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 16; if (m === 'map') t.colorSpace = THREE.SRGBColorSpace;   // 비스듬한 바닥도 선명하게 (GPU 최대값으로 자동 제한)
     (_pbr[n] ||= {})[m === 'map' ? 'map' : m === 'normal' ? 'normalMap' : 'roughnessMap'] = t;
   })));
 }

@@ -93,6 +93,10 @@ const world = buildWorld(scene);
 function loadModels() {
   const byName = {}; world.MODELS.forEach(m => (byName[m.model] = byName[m.model] || []).push(m));
   const loader = new GLTFLoader(), _m = new THREE.Matrix4(), _q = new THREE.Quaternion(), _e = new THREE.Euler(), _p = new THREE.Vector3(), _s = new THREE.Vector3();
+  let left = Object.keys(byName).length; const done = () => { if (--left > 0) return;
+    // 끊김 방지: 모든 모델의 텍스처를 미리 GPU 에 올리고 셰이더를 미리 컴파일 (게임 중 처음 보일 때 멈칫하지 않게)
+    const texs = new Set(); scene.traverse(o => { if (o.isInstancedMesh && o.material) ['map', 'normalMap', 'roughnessMap', 'metalnessMap', 'aoMap'].forEach(k => o.material[k] && texs.add(o.material[k])); });
+    texs.forEach(t => renderer.initTexture(t)); try { renderer.compile(scene, camera); } catch (e) { /* ignore */ } };
   Object.entries(byName).forEach(([name, list]) => loader.load(`assets/models/${name}/${name}.gltf`, gltf => {
     const root = gltf.scene; root.updateMatrixWorld(true);
     const parts = []; root.traverse(o => { if (o.isMesh) parts.push(o); });
@@ -103,11 +107,12 @@ function loadModels() {
         const mat = part.material; if (mat.isMeshStandardMaterial && mat.roughness < .14) mat.roughness = .14;
         const im = new THREE.InstancedMesh(part.geometry, mat, ms.length); im.userData.dynamic = true;
         ms.forEach((m, i) => { _e.set(m.rx, m.ry, m.rz, 'YXZ'); _q.setFromEuler(_e); _p.set(m.x, m.y, m.z); _s.setScalar(m.s); _m.compose(_p, _q, _s).multiply(part.matrixWorld); im.setMatrixAt(i, _m); });
-        im.instanceMatrix.needsUpdate = true; im.computeBoundingSphere(); im.castShadow = im.receiveShadow = true;
+        im.instanceMatrix.needsUpdate = true; im.computeBoundingSphere(); im.castShadow = false; im.receiveShadow = true;   // 작은 소품은 그림자 패스에서 제외 (프레임 안정)
         parent.add(im);
       });
     });
-  }, undefined, e => console.warn('[model]', name, e && e.message)));
+    done();
+  }, undefined, e => { console.warn('[model]', name, e && e.message); done(); }));
 }
 // 첫 화면이 늦게 뜨지 않도록 페이지 로드가 끝난 뒤에 불러온다
 if (document.readyState === 'complete') setTimeout(loadModels, 300); else addEventListener('load', () => setTimeout(loadModels, 300), { once: true });
@@ -1119,6 +1124,15 @@ async function useRoomObj(p) {
   }
   if (k === 'water') { sfx.drip(); setTimeout(() => { caption('녹물… 아니, 붉은 물이 한참 흐르다 맑아진다'); fx.glitch(.3); setFace('fear', 2); }, 500); return; }
   if (k === 'ballot') { sfx.paper(); showNote({ title: '학생회 투표함', text: '2006년 2학기 방송부장 선거.<br>개표되지 않은 용지 41장 — 전부 같은 이름이다.<br><br><b>윤하늘 ○</b>' }); p.done = true; return; }
+  if (k === 'guardlog') {
+    sfx.paper(); showNote({ title: '경비 일지 — 10월 12일', text: '17:30 정문 순찰. 이상 없음.<br>17:42 서현고 교복 학생 1명, 정문으로 들어감. <b>방송부 조끼.</b> 불렀으나 대답 없음.<br>17:50 또 한 명. 친구를 찾는다고 했다.<br><br>…매년 이 날이면 꼭 누가 들어간다. 나는 들어가지 않는다.<br><i>11시 40분이 되기 전에 나와야 한다.</i>' });
+    return;
+  }
+  if (k === 'guardcctv') {
+    sfx.staticNoise(1.4); fx.glitch(.35);
+    setTimeout(() => showNote({ img: 'v_corridor', title: 'CCTV — 본관 1층 복도', text: '지직거리는 화면. 복도 끝에서 교복 차림의 누군가가 <b>카메라를 올려다보고 있다.</b><br>다음 순간 화면이 꺼졌다.' }), 900);
+    return;
+  }
   if (k === 'radio') {
     sfx.staticNoise(1.6); const ga = ghost.active && ghost.floor === P.floor, d = ga ? Math.hypot(ghost.x - P.x, ghost.z - P.z) : 99;
     setTimeout(() => caption(ga ? (d < 12 ? '(지지직!) 잡음이 거세다 — 가까이 있다' : '(지직…) 잡음이 일정하다 — 같은 층 어딘가에 있다') : '(조용한 잡음) — 이 층에는 아무것도 없는 것 같다'), 700);
@@ -1374,7 +1388,7 @@ function start(skipIntro = false) {
   preload([...ids, 'guard1']);
   const W = s => new Promise(r => setTimeout(r, s * 1000 / (DEBUG && window.__introJump ? 6 : 1)));
   (async () => {
-    sfx.rainGust(); await W(.9);
+    await W(.9);
     for (let i = 0; i < 4; i++) {
       if (state !== 'intro') return;
       if (i === 2) { sfx.vibrate(); await W(1.4); if (state !== 'intro') return; }
@@ -1674,7 +1688,7 @@ function updateDay(dt) {
   if (!DAY.done && DAY.start < 0 && state === 'playing' && (gateClosed || playTime > 150)) { DAY.start = playTime; caption('해가 학교 뒤로 넘어가기 시작한다'); sfx.swell(3, .25); }
   if (!DAY.done && DAY.start >= 0) {
     const x = clamp((playTime - DAY.start) / DAY.dur, 0, 1), e = x * x * (3 - 2 * x); DAY.k = .92 * (1 - e);
-    if (x >= 1) { DAY.done = true; FL.night = true; DAY.k = 0; sfx.rainGust(); sfx.thunder(1.5); toast('밤이 되었다', '비가 쏟아지기 시작한다', 'warn'); lightningT = 8; }
+    if (x >= 1) { DAY.done = true; FL.night = true; DAY.k = 0; sfx.swell(2.4, .3); toast('밤이 되었다', '학교에 어둠이 내려앉았다', 'warn'); }
   }
   if (FL.night && !DAY.done) { DAY.done = true; DAY.k = 0; }
   const dk = DAY.k, sky = world.sky;
@@ -1684,7 +1698,8 @@ function updateDay(dt) {
   scene.background.setHex(0x05070d).lerp(BG_DAY, dk);
   const night = clamp(1 - dk * 3, 0, 1); sky.stars.visible = sky.moon.visible = sky.moonGlow.visible = night > .02;
   sky.stars.material.opacity = night; sky.stars.material.transparent = true; sky.moonGlow.material.opacity = night;
-  DAY.rain = clamp(1 - dk * 4, 0, 1); setRainLevel(DAY.rain);
+  DAY.rain = 0; setRainLevel(0);   // 비 효과 제거 (요청)
+  world.winMats[9].emissiveIntensity = night * 2.4;   // 밤이 되면 불 켜진 교실 창 몇 개 (아무도 없는데)
   // 낮의 소리: 가끔 까마귀
   if (dk > .3 && state === 'playing' && isOutdoors() && Math.random() < dt / 14) sfx.crow(Math.random() * 2 - 1);
 }
@@ -1902,7 +1917,7 @@ function frame(now) {
   const outdoorsNow = isOutdoors();
   if (state === 'playing' || state === 'menu' || state === 'intro') {
     lightningT -= dt;
-    if (lightningT <= 0 && DAY.k < .2) { lightningT = 22 + Math.random() * 35; fx.lightning(); lightningEvent(); const far = 1 + Math.random() * 2.5; setTimeout(() => sfx.thunder && sfx.thunder(far), far * 700); }
+    if (lightningT <= 0 && DAY.k < .2) { lightningT = 50 + Math.random() * 50; fx.lightning(); lightningEvent(); const far = 1 + Math.random() * 2.5; setTimeout(() => sfx.thunder && sfx.thunder(far), far * 700); }
   }
   if (state === 'playing') {
     sparkT -= dt;
@@ -1918,7 +1933,7 @@ function frame(now) {
   if (state === 'playing') fx.breath(P.floor === 4 || P.floor === 6 || isOutdoors() || P.fear > .5, dt);
   updateSound(dt);
   updatePings(dt); updateObjDir(dt);
-  fx.render(dt, { fear: P.fear || 0, flash: flash.intensity / 95, outdoors: outdoorsNow, floorY: floors[P.floor].y0, hurt: hurtFx, rain: DAY.rain ?? 1 });
+  fx.render(dt, { fear: P.fear || 0, flash: flash.intensity / 95, outdoors: outdoorsNow, floorY: floors[P.floor].y0, hurt: hurtFx, rain: 0 });
   requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);

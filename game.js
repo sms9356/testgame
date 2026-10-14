@@ -1,5 +1,6 @@
 // 폐교 — 잊혀진 시간 : 1인칭 학교 공포 게임 (Three.js)
 import * as THREE from './vendor/three.module.js';
+import { GLTFLoader } from './vendor/addons/loaders/GLTFLoader.js';
 import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY } from './world.js';
 import { drawMap } from './map.js';
 import { makeDress, makeHair, makeGhostFace, makeGraffiti, makeKeypad, loadPBR, makeGlow as makeGlowTex, makePaintingStare } from './tex.js';
@@ -74,7 +75,9 @@ const FOG_DAY = C_(0xa69a92), FOG_IN_DAY = C_(0x2c2a28), BG_DAY = C_(0x8d97a6);
 const SUN_POS = new THREE.Vector3(-150, 42, 70), MOON_POS = new THREE.Vector3(-40, 90, -120);
 const SUN_COL = C_(0xffc896), MOON_COL = C_(0x7f9ae0), HEMI_SKY_N = C_(0x8aa0d0), HEMI_SKY_D = C_(0xc8ccd4), HEMI_GND_N = C_(0x2a2018), HEMI_GND_D = C_(0x6a5a48);
 const _c1 = new THREE.Color();
-const flash = new THREE.SpotLight(0xfff0d0, 0, 30, 0.5, 0.55, 1.3);
+const flash = new THREE.SpotLight(0xfff0d0, 0, 30, 0.56, 0.82, 1.3);   // 가장자리를 부드럽게 (딱딱한 원 밖이 완전히 깜깜해 보이던 문제)
+// 손전등 산란광: 빛이 벽 · 바닥에 튀어 주변이 희미하게 보이는 효과 (항상 장면에 있어 셰이더 재컴파일 없음)
+const spill = new THREE.PointLight(0xffe8cc, 0, 7, 2); camera.add(spill); spill.position.set(0, .1, -1.2);
 flash.position.set(0.12, -0.08, 0); flash.target.position.set(0, 0, -6);
 camera.add(flash, flash.target);
 flash.castShadow = true; flash.shadow.mapSize.set(1024, 1024); flash.shadow.camera.near = .15; flash.shadow.camera.far = 26;
@@ -86,10 +89,33 @@ const _t0 = performance.now();
 await loadPBR();
 const _t1 = performance.now();
 const world = buildWorld(scene);
+// 실사 스캔 소품 (Poly Haven CC0): 모델별 · 층별로 InstancedMesh 를 만들어 드로콜을 줄인다
+(function loadModels() {
+  const byName = {}; world.MODELS.forEach(m => (byName[m.model] = byName[m.model] || []).push(m));
+  const loader = new GLTFLoader(), _m = new THREE.Matrix4(), _q = new THREE.Quaternion(), _e = new THREE.Euler(), _p = new THREE.Vector3(), _s = new THREE.Vector3();
+  Object.entries(byName).forEach(([name, list]) => loader.load(`assets/models/${name}/${name}.gltf`, gltf => {
+    const root = gltf.scene; root.updateMatrixWorld(true);
+    const parts = []; root.traverse(o => { if (o.isMesh) parts.push(o); });
+    const byFloor = {}; list.forEach(m => (byFloor[m.f] = byFloor[m.f] || []).push(m));
+    Object.entries(byFloor).forEach(([f, ms]) => {
+      const parent = f === 'out' ? world.OUT : floors.find(F => String(F.f) === f).interior;
+      parts.forEach(part => {
+        const mat = part.material; if (mat.isMeshStandardMaterial && mat.roughness < .14) mat.roughness = .14;
+        const im = new THREE.InstancedMesh(part.geometry, mat, ms.length); im.userData.dynamic = true;
+        ms.forEach((m, i) => { _e.set(m.rx, m.ry, m.rz, 'YXZ'); _q.setFromEuler(_e); _p.set(m.x, m.y, m.z); _s.setScalar(m.s); _m.compose(_p, _q, _s).multiply(part.matrixWorld); im.setMatrixAt(i, _m); });
+        im.instanceMatrix.needsUpdate = true; im.computeBoundingSphere(); im.castShadow = im.receiveShadow = true;
+        parent.add(im);
+      });
+    });
+  }, undefined, e => console.warn('[model]', name, e && e.message)));
+})();
 // 거울처럼 매끈한 재질은 손전등이 아주 가까울 때 반사광이 과하게 튄다 → 최소 거칠기 (화면이 까매지는 문제의 원인 중 하나)
 scene.traverse(o => { const ms = o.material ? (Array.isArray(o.material) ? o.material : [o.material]) : []; ms.forEach(m => { if (m && m.isMeshStandardMaterial && m.roughness < .14) m.roughness = .14; }); });
 const _t2 = performance.now();
 const fx = createFX(renderer, scene, camera);
+// 이벤트 연출 강화: 강한 글리치에는 화면 줄무늬 흔들림, 출현 · 추격 시작에는 가장자리 붉은 맥동
+const evFx = id => { if (SET.flashReduce) return; const el = document.getElementById(id); if (!el) return; el.classList.remove('on'); void el.offsetWidth; el.classList.add('on'); };
+{ const g0 = fx.glitch; fx.glitch = (s = .6) => { g0(s); if (s >= .45) evFx('evStreak'); }; }
 let hurtFx = 0, lightningT = 25, sparkT = 3;
 const floors = world.floors;
 
@@ -295,7 +321,7 @@ function ghostTick(dt, t) {
   } else G.lightT = Math.max(0, (G.lightT || 0) - dt * 2);
   if (G.hunt) { /* 사물함으로 직행 */ }
   else if (sees && G.spawnGrace <= 0) {
-    if (G.state !== 'chase') { G.state = 'chase'; sfx.alert(); fx.glitch(.5); caption('날카로운 비명 — 들켰다'); if (Math.random() < .35) line('gh4', 'whisper'); else talk('spotted', 2600); }
+    if (G.state !== 'chase') { G.state = 'chase'; sfx.alert(); fx.glitch(.5); evFx('evPulse'); caption('날카로운 비명 — 들켰다'); if (Math.random() < .35) line('gh4', 'whisper'); else talk('spotted', 2600); }
     G.target = { x: P.x, z: P.z }; G.lose = 0;
   } else if (G.state === 'chase') {
     G.lose += dt * (safe ? 4 : 1);
@@ -1581,7 +1607,7 @@ function updateLighting(dt) {
   moonLight.intensity = lerp(moonLight.intensity, indoors ? 0 : lerp(1.6, 2.3, dk), k);
   lightFlash = Math.max(0, lightFlash - dt * 3);
   hemi.color.copy(HEMI_SKY_N).lerp(HEMI_SKY_D, dk); hemi.groundColor.copy(HEMI_GND_N).lerp(HEMI_GND_D, dk);
-  hemi.intensity = BRIGHT ? 1.5 : lerp(hemi.intensity, indoors ? lerp(.2, .62, dk) : lerp(.68, 1.15, dk), k) + (indoors && P.floor <= 2 ? lightFlash * (Math.sin(tNow * 60) > 0 ? .9 : .3) : 0);
+  hemi.intensity = BRIGHT ? 1.5 : lerp(hemi.intensity, indoors ? lerp(.34, .66, dk) : lerp(.68, 1.15, dk), k) + (indoors && P.floor <= 2 ? lightFlash * (Math.sin(tNow * 60) > 0 ? .9 : .3) : 0);
   fillLight.intensity = lerp(fillLight.intensity, indoors ? 0 : lerp(.85, .5, dk), k);
   scene.fog.density = lerp(scene.fog.density, indoors ? lerp(.05, .03, dk) : lerp(.014, .0075, dk), k);
   scene.fog.color.lerp(indoors ? _c1.copy(FOG_IN).lerp(FOG_IN_DAY, dk) : _c1.copy(FOG_OUT).lerp(FOG_DAY, dk), k);
@@ -1614,6 +1640,7 @@ function updateLighting(dt) {
   if (P.light && P.battery <= 0) { fi = 42; flash.distance = 14; } else flash.distance = 32;   // 배터리가 다 떨어지면 휴대폰 불빛
   if (near > .4 && fi && Math.random() < near * .12) fi = 0;
   flash.intensity = fi;
+  spill.intensity = fi ? (fi / 95) * 2.2 : 0;
 }
 
 // 비상 발전기: 전력 복구 전에는 건물 조명이 지하 발전기로 돌아간다 — 누런 빛, 아주 약한 전압 출렁임,
@@ -2088,7 +2115,7 @@ $('kpClose').onclick = () => closeUI();
 // 환영: 유령과 같은 모델이지만 해치지 않는다. 잠깐 보였다 사라진다.
 const appar = ghost.group.clone(true); appar.visible = false; scene.add(appar);
 let apparT = 0, apparWatch = null;
-function showApparition(f, x, z, yaw, dur, watch) { appar.position.set(x, floors[f].y0 + .08, z); appar.rotation.y = yaw; appar.visible = true; appar.userData.floor = f; apparT = dur; apparWatch = watch || null; }
+function showApparition(f, x, z, yaw, dur, watch) { evFx('evPulse'); appar.position.set(x, floors[f].y0 + .08, z); appar.rotation.y = yaw; appar.visible = true; appar.userData.floor = f; apparT = dur; apparWatch = watch || null; }
 const EV = { done: new Set(), t: 0, inRoom: null, roomT: 0, slamCD: 60, b33T: 0, b33: 0, corrT: 0 };
 const evOnce = (id, fn) => { if (EV.done.has(id)) return false; EV.done.add(id); fn(); return true; };
 function roomAt(f, x, z) {

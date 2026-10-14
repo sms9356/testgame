@@ -42,8 +42,8 @@ const FinalShader = {
       }
       vec2 c = uv - .5; float d = length(c);
       // 렌즈 왜곡 + 색수차
-      uv += c * d * d * (.035 + uFear * .05);
-      float ca = .0012 + uFear * .006 + uGlitch * .012;
+      uv += c * d * d * (.008 + uFear * .045);
+      float ca = .0003 + uFear * .004 + uGlitch * .012;
       vec3 col;
       col.r = texture2D(tDiffuse, uv + c * ca).r;
       col.g = texture2D(tDiffuse, uv).g;
@@ -205,7 +205,9 @@ export function createFX(renderer, scene, camera) {
   function setOpts(o) { Object.assign(opt, o); bloom.enabled = mode === 'high' && opt.bloom; final.uniforms.uGrain.value = opt.grain ? .035 : 0; }
   function lightning() { flashT = 1; }
   function glitch(s = .6) { glitchT = Math.max(glitchT, s * opt.glitch); }
-  function setQuality(q) { mode = q; bloom.enabled = q === 'high' && opt.bloom; dust.visible = q !== 'low'; }
+  // 후처리 경로에서도 계단 현상이 없도록 MSAA (높음: 4x, 중간: 2x)
+  function setMSAA(n) { [composer.renderTarget1, composer.renderTarget2].forEach(rt => { if (rt.samples !== n) { rt.samples = n; rt.dispose(); } }); }
+  function setQuality(q) { mode = q; bloom.enabled = q === 'high' && opt.bloom; dust.visible = q !== 'low'; setMSAA(q === 'high' ? 4 : q === 'mid' ? 2 : 0); }
   function resize(w, h, pr) { composer.setPixelRatio(pr); composer.setSize(w, h); bloom.setSize(w / 2, h / 2); }
 
   const _dir = new THREE.Vector3();

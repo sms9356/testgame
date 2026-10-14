@@ -3,8 +3,8 @@ export const DEF = {
   quality: 'auto', scale: 1, bright: 1, fov: 72, bloom: true, grain: true, bob: true, shake: true, showFps: false,
   sens: 1, invertY: false, runToggle: false, hints: true, view: 1, camDist: 2.4,
   subBg: .45, subNames: true,
-  diff: 'normal', jump: 'full', flashReduce: false, fearFx: true, captions: true, tips: true, contrast: false, ui: 1,
-  keys: { interact: 'KeyE', flash: 'KeyF', inv: 'Tab', map: 'KeyM', phone: 'KeyP', throwCan: 'KeyG', view: 'KeyV', run: 'ShiftLeft', down: 'KeyQ' },
+  diff: 'normal', jump: 'full', flashReduce: false, fearFx: true, captions: true, tips: true, areaPhotos: false, contrast: false, ui: 1,
+  keys: { interact: 'KeyE', flash: 'KeyF', inv: 'Tab', map: 'KeyM', phone: 'KeyP', throwCan: 'KeyG', view: 'KeyV', run: 'ShiftLeft', down: 'KeyQ', crouch: 'KeyC', jump: 'Space' },
 };
 export const SET = { ...DEF, keys: { ...DEF.keys } };
 try { const s = JSON.parse(localStorage.getItem('haegyo_set') || '{}'); Object.assign(SET, s, { keys: { ...DEF.keys, ...(s.keys || {}) } }); } catch (e) { /* ignore */ }
@@ -15,7 +15,7 @@ export function resetSET() { Object.assign(SET, DEF, { keys: { ...DEF.keys } });
 export const keyLabel = c => c.replace(/^Key/, '').replace(/^Digit/, '').replace('ShiftLeft', 'Shift').replace('ShiftRight', 'R-Shift').replace('ControlLeft', 'Ctrl').replace('Space', 'Space');
 // 난이도: 유령 속도 · 피해량 · 배터리 소모
 export const DIFF = {
-  easy: { label: '쉬움', speed: .85, dmg: 34, battery: .7, hear: .8 },
-  normal: { label: '보통', speed: 1, dmg: 50, battery: 1, hear: 1 },
-  hard: { label: '어려움', speed: 1.12, dmg: 100, battery: 1.25, hear: 1.25 },
+  easy: { label: '쉬움', speed: .8, dmg: 25, battery: .6, hear: .65, away: 130, visit: 35, chaseMax: 8, first: 180 },
+  normal: { label: '보통', speed: .92, dmg: 34, battery: .85, hear: .85, away: 90, visit: 50, chaseMax: 12, first: 120 },
+  hard: { label: '어려움', speed: 1.1, dmg: 100, battery: 1.2, hear: 1.2, away: 40, visit: 100, chaseMax: 22, first: 45 },
 };

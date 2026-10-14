@@ -146,8 +146,10 @@ function buildGhostVoice() {
   gvPan = panner({ x: 0, y: -100, z: 0 }); gvPan.refDistance = 2; gvG = ac.createGain(); gvG.gain.value = 0; gvG.connect(gvPan); gvPan.connect(bus.sfx);
   const v1 = ac.createOscillator(); v1.type = 'sine'; const v2 = ac.createOscillator(); v2.type = 'triangle';
   const vib = ac.createOscillator(); vib.frequency.value = 5.2; const vibG = ac.createGain(); vibG.gain.value = 6; vib.connect(vibG); vibG.connect(v1.frequency); vibG.connect(v2.frequency); vib.start();
-  const f = ac.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 700; f.Q.value = .8;
-  v1.connect(f); v2.connect(f); const vg = ac.createGain(); vg.gain.value = .5; f.connect(vg); vg.connect(gvG); v1.start(); v2.start();
+  // 사람의 콧노래처럼 들리도록 모음 '우' 의 포먼트 두 개(약 320 · 800Hz)로 거른다
+  const f = ac.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 320; f.Q.value = 2.2;
+  const f2 = ac.createBiquadFilter(); f2.type = 'bandpass'; f2.frequency.value = 800; f2.Q.value = 3;
+  const vg = ac.createGain(); vg.gain.value = .9; v1.connect(f); v2.connect(f); v1.connect(f2); v2.connect(f2); f.connect(vg); const vg2 = ac.createGain(); vg2.gain.value = .4; f2.connect(vg2); vg2.connect(gvG); vg.connect(gvG); v1.start(); v2.start();
   gvNotes = [v1, v2];
   const wh = loopNoise(2600, 'bandpass', 2); const whG = ac.createGain(); whG.gain.value = .35; wh.connect(whG); whG.connect(gvG);
 }
@@ -186,22 +188,29 @@ export async function loadVoice(url) {
   vcache.set(url, p); return p;
 }
 let curVoice = null;
-export async function playVoice(url, fx = 'none') {
+export async function playVoice(url, fx = 'none', emo = null) {
   const buf = await loadVoice(url); if (!buf || !ok()) return null;
   if (curVoice) { try { curVoice.stop(); } catch (e) { /* ignore */ } }
   const s = ac.createBufferSource(); s.buffer = buf;
+  // 감정: 재생 속도(=약간의 음높이) · 크기 · 떨림(공포) · 숨소리(속삭임)
+  const rate = emo ? Math.max(.85, Math.min(1.15, (emo.rate + emo.pitch) / 2)) : 1; s.playbackRate.value = rate;
   let node = s;
+  if (emo && (emo.trem || emo.airy)) {
+    const tg = ac.createGain(); tg.gain.value = 1; s.connect(tg); node = tg;
+    if (emo.trem) { const lfo = ac.createOscillator(); lfo.frequency.value = emo.trem; const lg = ac.createGain(); lg.gain.value = .14; lfo.connect(lg); lg.connect(tg.gain); lfo.start(); lfo.stop(ac.currentTime + buf.duration / rate + .2); }
+    if (emo.airy) { const hp = ac.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 260; tg.connect(hp); node = hp; }
+  }
   if (fx === 'phone' || fx === 'radio' || fx === 'pa') {
     const hp = ac.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = fx === 'pa' ? 350 : 500;
     const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = fx === 'pa' ? 4200 : 3000;
     const sh = ac.createWaveShaper(); const c = new Float32Array(256); for (let i = 0; i < 256; i++) { const x = i / 128 - 1; c[i] = Math.tanh(x * (fx === 'radio' ? 3 : 1.8)); } sh.curve = c;
-    s.connect(hp); hp.connect(lp); lp.connect(sh); node = sh;
+    node.connect(hp); hp.connect(lp); lp.connect(sh); node = sh;
     if (fx !== 'phone') { const n = loopNoise(3000, 'bandpass', .7); const ng = ac.createGain(); ng.gain.value = fx === 'radio' ? .05 : .015; n.connect(ng); ng.connect(bus.voice); s.onended = () => ng.disconnect(); }
   }
-  const g = ac.createGain(); g.gain.value = fx === 'whisper' ? .7 : 1; node.connect(g); g.connect(bus.voice);
+  const g = ac.createGain(); g.gain.value = (fx === 'whisper' ? .7 : 1) * (emo && emo.gain || 1); node.connect(g); g.connect(bus.voice);
   const sendG = ac.createGain(); sendG.gain.value = fx === 'pa' ? .9 : .25; g.connect(sendG); sendG.connect(revSend);
   s.start(); curVoice = s;
-  return { duration: buf.duration, stop: () => { try { s.stop(); } catch (e) { /* ignore */ } } };
+  return { duration: buf.duration / rate, stop: () => { try { s.stop(); } catch (e) { /* ignore */ } } };
 }
 export function stopVoice() { if (curVoice) { try { curVoice.stop(); } catch (e) { /* ignore */ } curVoice = null; } }
 
@@ -275,4 +284,43 @@ export const sfx = {
   staticNoise(d = 1.5) { noiseBurst(d, 4500, 'highpass', .18); noiseBurst(d, 900, 'bandpass', .08); },
   knock() { for (let i = 0; i < 3; i++) setTimeout(() => { noiseBurst(.07, 420, 'lowpass', .9); tone(95, .1, 'sine', .5); }, i * 280); },
   whisper() { noiseBurst(1.6, 2200, 'bandpass', 0.14); },
+  // 그것의 소리 (at(x, y, z).ghostGiggle() 처럼 3D 위치에서 재생)
+  ghostGiggle() {   // 높고 짧게 끊기는 어린 웃음
+    const base = 560 + Math.random() * 120;
+    for (let i = 0; i < 6; i++) setTimeout(() => { tone(base * (1 - i * .035), .09, 'sine', .07, 0, 1, base * .9); noiseBurst(.07, 1900 + Math.random() * 600, 'bandpass', .12); }, i * 115 + Math.random() * 25);
+  },
+  ghostSob() {     // 숨 섞인 흐느낌 세 번
+    for (let i = 0; i < 3; i++) setTimeout(() => { noiseBurst(.45, 950, 'bandpass', .22); tone(330 - i * 18, .5, 'triangle', .035, 0, 1, 270 - i * 15); }, i * 720 + Math.random() * 120);
+  },
+  ghostWhisper() { // 알아들을 수 없는 속삭임 (음절처럼 끊기는 숨소리)
+    const n = 4 + (Math.random() * 4 | 0); let t = 0;
+    for (let i = 0; i < n; i++) { const d = .08 + Math.random() * .12, f = 1300 + Math.random() * 2200; setTimeout(() => noiseBurst(d, f, 'bandpass', .2), t * 1000); t += d + .05 + Math.random() * .12; }
+  },
+  ghostDrag() {    // 젖은 무언가를 끄는 소리 + 물방울
+    for (let i = 0; i < 7; i++) setTimeout(() => noiseBurst(.28, 300 + Math.random() * 200, 'lowpass', .35), i * 210);
+    setTimeout(() => { for (let i = 0; i < 4; i++) setTimeout(() => tone(1300 + Math.random() * 700, .1, 'sine', .05, 0, 1, 600), i * 260); }, 1500);
+  },
+  ghostBreath() {  // 아주 가까운 들숨 · 날숨
+    noiseBurst(1.1, 700, 'bandpass', .18); setTimeout(() => noiseBurst(1.4, 420, 'bandpass', .22), 1250);
+  },
+  ghostCrack() { for (let i = 0; i < 4; i++) setTimeout(() => { noiseBurst(.025, 3600, 'highpass', .45); tone(180 + Math.random() * 80, .03, 'square', .04); }, i * 90 + Math.random() * 60); },
+  ghostLaugh() {   // 늘어진 낮은 웃음 (놓쳤을 때)
+    for (let i = 0; i < 5; i++) setTimeout(() => { tone(240 - i * 12, .22, 'sawtooth', .025, 0, 1, 200 - i * 10); noiseBurst(.18, 800, 'bandpass', .1); }, i * 260);
+  },
+  // 인트로 · 연출
+  vibrate() { for (let k = 0; k < 3; k++) [0, 170].forEach(d => setTimeout(() => { tone(150, .14, 'square', .05); tone(156, .14, 'square', .04); noiseBurst(.14, 220, 'lowpass', .35); }, k * 900 + d)); },
+  swell(dur = 2.4, v = .5) {   // 역재생 심벌처럼 차오르다 끊기는 소리
+    if (!ok()) return; const t = ac.currentTime;
+    const s = ac.createBufferSource(); s.buffer = noiseBuf; s.loop = true;
+    const f = ac.createBiquadFilter(); f.type = 'bandpass'; f.Q.value = .8; f.frequency.setValueAtTime(250, t); f.frequency.exponentialRampToValueAtTime(4200, t + dur);
+    const e = ac.createGain(); e.gain.setValueAtTime(.0001, t); e.gain.exponentialRampToValueAtTime(v, t + dur); e.gain.linearRampToValueAtTime(0, t + dur + .06);
+    s.connect(f); f.connect(e); e.connect(out(0, 1)); s.start(t); s.stop(t + dur + .1);
+  },
+  boom(v = 1) { tone(48, 3.2, 'sine', .9 * v, 0, 1, 30); tone(96, 1.4, 'triangle', .2 * v, 0, 1, 60); noiseBurst(1.8, 160, 'lowpass', .8 * v); noiseBurst(.25, 1400, 'lowpass', .35 * v); },
+  musicBox(n = 8, step = .55) {   // 살짝 음이 나간 오르골 (학교종 선율)
+    const M = [784, 784, 880, 880, 784, 784, 659, 0, 784, 784, 659, 659, 587];
+    for (let i = 0; i < Math.min(n, M.length); i++) if (M[i]) setTimeout(() => { const d = 1 + (Math.random() - .5) * .012; tone(M[i] * d, 1.8, 'sine', .07); tone(M[i] * 2.005 * d, .9, 'sine', .025); tone(M[i] * 3.01, .3, 'triangle', .01); }, i * step * 1000 * (1 + i * .02));
+  },
+  rainGust() { noiseBurst(3.5, 1800, 'bandpass', .18); noiseBurst(3, 5200, 'highpass', .1); },
+  flashlightClick() { noiseBurst(.03, 3000, 'highpass', .4); tone(900, .03, 'square', .03); },
 };

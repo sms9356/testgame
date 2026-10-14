@@ -102,10 +102,11 @@ function loadModels() {
     texs.forEach(t => renderer.initTexture(t)); try { renderer.compile(scene, camera); } catch (e) { /* ignore */ } };
   // 사용자 3D 소품 133종 팩 (h133/ID): 정점 색뿐인 저폴리곤 → 면 법선 · 상자 투영 UV 를 만들고, 부품 이름으로 게임 PBR 재질을 골라 재질별로 합친다
   // (요리실 101 팩 cr101/ID: 재질 이름(steel · steel_dirty · rust …)으로 고른다)
-  const h133Parts = (root, id, cr) => {
+  // (인쇄실 팩 pr/ID: 부품 이름의 재질 표기로 고르고, Z-up 으로 저장된 GLB 를 Y-up 으로 세운다)
+  const h133Parts = (root, id, cr, pr) => {
     const groups = new Map();
-    root.traverse(o => { if (!o.isMesh) return; const nm = (o.name || o.parent?.name || '').replace(/^\d+_/, ''), mat = cr ? world.crMat(o.material && o.material.name) : world.h133Mat(id, nm);
-      let g = o.geometry.index ? o.geometry.toNonIndexed() : o.geometry.clone(); g.deleteAttribute('color'); g.applyMatrix4(o.matrixWorld); g.computeVertexNormals();
+    root.traverse(o => { if (!o.isMesh) return; const nm = (o.name || o.parent?.name || '').replace(/^\d+_/, ''), mat = pr ? world.prMat(nm) : cr ? world.crMat(o.material && o.material.name) : world.h133Mat(id, nm);
+      let g = o.geometry.index ? o.geometry.toNonIndexed() : o.geometry.clone(); g.deleteAttribute('color'); g.applyMatrix4(o.matrixWorld); if (pr) g.rotateX(-Math.PI / 2); g.computeVertexNormals();
       const P = g.attributes.position, N = g.attributes.normal, uv = new Float32Array(P.count * 2);
       for (let i = 0; i < P.count; i++) { const ax = Math.abs(N.getX(i)), ay = Math.abs(N.getY(i)), az = Math.abs(N.getZ(i));
         const [u, v] = ax >= ay && ax >= az ? [P.getZ(i), P.getY(i)] : ay >= az ? [P.getX(i), P.getZ(i)] : [P.getX(i), P.getY(i)]; uv[i * 2] = u * .8; uv[i * 2 + 1] = v * .8; }
@@ -114,7 +115,7 @@ function loadModels() {
     const out = []; groups.forEach((gs, mat) => { const m = new THREE.Mesh(gs.length > 1 ? mergeGeometries(gs) : gs[0], mat); out.push(m); });
     return out;
   };
-  const packed = name => name.startsWith('h133/') || name.startsWith('cr101/') || name.startsWith('th102/');
+  const packed = name => name.startsWith('h133/') || name.startsWith('cr101/') || name.startsWith('th102/') || name.startsWith('pr/');
   // 기술·가정실 102 팩: UV 가 있는 실제 메시 — 재질별로 합쳐(그리기 호출 절약) 팩 PBR 텍스처를 입힌다
   const thParts = root => { const groups = new Map();
     root.traverse(o => { if (!o.isMesh) return; const mat = world.thMat(o.material && o.material.name);
@@ -125,8 +126,8 @@ function loadModels() {
   Object.entries(byName).forEach(([name, list]) => loader.load(packed(name) ? `assets/models/${name}.glb` : `assets/models/${name}/${name}.gltf`, gltf => {
     const root = gltf.scene; root.updateMatrixWorld(true);
     const cr = name.startsWith('cr101/') || name.startsWith('th102/');
-    const parts = []; if (name.startsWith('th102/')) parts.push(...thParts(root)); else if (packed(name)) parts.push(...h133Parts(root, name.split('/')[1], cr)); else root.traverse(o => { if (o.isMesh) parts.push(o); });
-    if (cr) floors.forEach(F => F.interior.traverse(o => { if (o.userData.cr === name.slice(6)) o.visible = false; }));   // GLB 로드 성공 → 같은 자리의 절차적 대체 메시 숨김
+    const parts = []; if (name.startsWith('th102/')) parts.push(...thParts(root)); else if (packed(name)) parts.push(...h133Parts(root, name.split('/')[1], cr, name.startsWith('pr/'))); else root.traverse(o => { if (o.isMesh) parts.push(o); });
+    if (cr || name.startsWith('pr/')) floors.forEach(F => F.interior.traverse(o => { if (o.userData.cr && o.userData.cr === name.split('/')[1]) o.visible = false; }));   // GLB 로드 성공 → 같은 자리의 절차적 대체 메시 숨김
     const byFloor = {}; list.forEach(m => (byFloor[m.f] = byFloor[m.f] || []).push(m));
     Object.entries(byFloor).forEach(([f, ms]) => {
       const parent = f === 'out' ? world.OUT : floors.find(F => String(F.f) === f).interior;

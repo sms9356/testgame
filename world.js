@@ -1470,6 +1470,22 @@ export function buildWorld(scene) {
   const CR_MAT = { steel: mStainless, steel_dirty: mStainlessD, rust: mRust, black: mDarkMetal, wood_dark: mWoodDark, wood: mWood, green: mCork, paper: mPaperN,
     blue: S(null, { color: 0x2a5aa0, roughness: .4 }), red: S(null, { color: 0xa82a20, roughness: .4 }), light: new THREE.MeshBasicMaterial({ color: 0xe8f0ff }), glass: mGlass };
   const crMat = name => CR_MAT[name] || mStainlessD;
+  // 인쇄실 팩: 부품 이름 끝의 재질 표기 → 팩 1K PBR (BaseColor · NormalGL · Roughness · AO) 4종 + 단색 재질
+  const PR_MAT = {}, prTex = new THREE.TextureLoader();
+  const prPBR = (fam, met, rough) => PR_MAT[fam] || (PR_MAT[fam] = (() => { const L = k => { const t = prTex.load(`assets/models/pr/tex/${fam}/${k}.webp`); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 8; if (k === 'BaseColor') t.colorSpace = THREE.SRGBColorSpace; return t; };
+    return new THREE.MeshStandardMaterial({ map: L('BaseColor'), normalMap: L('NormalGL'), roughnessMap: L('Roughness'), aoMap: L('AO'), roughness: rough, metalness: met }); })());
+  const mPrRubber = S(null, { color: 0x1a1a1c, roughness: .85 }), mPrBlue = new THREE.MeshStandardMaterial({ color: 0x3a6aa8, emissive: 0x0a1830, roughness: .3 });
+  const mPrLed = { red: new THREE.MeshBasicMaterial({ color: 0xd02018 }), green: new THREE.MeshBasicMaterial({ color: 0x30a048 }), yellow: S(null, { color: 0xd8b030, roughness: .5 }) };
+  const prMat = nm => { const s = (nm || '').toLowerCase();
+    if (s.includes('paper')) return prPBR('aged_ream_paper', 0, .95);
+    if (s.includes('ivory') || s.includes('aged_white')) { const m = prPBR('copier_ivory', 0, .75); if (!m.userData.tinted) { m.userData.tinted = true; m.map = detailMap; m.color.set(0xcfc7b0); m.normalScale.set(.35, .35); } return m; }   // 팩 BaseColor 가 화강암처럼 얼룩덜룩 — 누렇게 바랜 플라스틱색 + 팩 노멀 · 거칠기 · AO
+    if (s.includes('wood')) return prPBR('aged_wood_counter', 0, .8);
+    if (s.includes('stainless')) return mStainlessD;
+    if (s.includes('glass')) return mGlass;
+    if (s.includes('steel') || s.includes('rust')) return prPBR('painted_rust_steel', .55, .7);
+    if (s.includes('blue')) return mPrBlue;
+    for (const k of ['red', 'green', 'yellow']) if (s.endsWith(k)) return mPrLed[k];
+    return mPrRubber; };
   // 기술·가정실 102 팩: GLB 재질 PBR_<이름> → 팩의 공유 PBR 텍스처 (BaseColor · Normal(OpenGL) · Roughness 512px)
   const TH_MAT = {}, thTex = new THREE.TextureLoader();
   const TH_PROPS = { stainless: [.85, .3], painted_steel: [.45, .5], dark_metal: [.7, .45], copper: [.9, .35], rust: [.3, .9], blue_glass: [.1, .08] };
@@ -1791,12 +1807,26 @@ export function buildWorld(scene) {
     papers(cx, -8, -2.4, 10);
   }
   // 인쇄실
+  // 인쇄실 — 사용자 제공 'PrintRoom AAA' 팩의 실제 GLB (assets/models/pr) + 팩 1K PBR 4종. 팩 배치표(문 y -3.05 · 뒷벽 y 3.04)를 게임 방 깊이로 비례 변환,
+  // 벽에 붙는 가구는 벽에 맞춰 붙인다. 문 · 표지판 · 형광등 · 창 · 벽 패널 GLB 는 기존 건축 · 조명과 겹쳐 쓰지 않는다 (남쪽 방이라 southRoom 이 통째로 돌린다)
   function print(cx) {
-    [[-2.6, -8.6], [-.4, -8.6]].forEach(([dx, z]) => { meshAt(merge([bx(1.0, .9, .7, 0, .45, 0), bx(1.0, .12, .7, 0, .96, 0), bx(.3, .03, .25, .2, 1.03, .2)]), mPlastic, cx + dx, 0, z); col(cx + dx - .5, cx + dx + .5, z - .35, z + .35); glowAt(cx + dx + .3, 1.0, z + .36, .15, glowGreen); });
-    add(mWood, 2.4, .8, .7, cx + 2.4, 0, -5.4, { col: true, ry: Math.PI / 2 });
-    for (let k = 0; k < 6; k++) add(S(null, { color: 0xeeeeea, roughness: .8 }), .3, .2 + rr(0, .25), .22, cx + 2.4 + rr(-.2, .2), .8, -6.4 + k * .4, { ry: rr(-.2, .2) });
-    rackShelf(cx - 3.45, -5.0, 2.6, Math.PI / 2, .6, 2.0, .8); col(cx - 3.8, cx - 3.1, -6.3, -3.7);
-    printer(cx + 2.4, .8, -7.2, -Math.PI / 2); papers(cx, -8, -2.4, 18);
+    const zN = -9.6, Z = y => -1.75 - (y + 3.05) * 1.287;
+    const pr = (id, x, z, y = 0, ry = 0, fb) => { model('pr/' + id, x, y, z, ry); if (fb) crFallback(id, fb[0], fb[1], fb[2], fb[3], x, y, z, ry); };
+    // 뒷벽: 복사기 2대 (스캐너 뚜껑 열림 · 배출 트레이) · 유틸리티 싱크대 · 휴지통
+    [[-.68, 0], [.85, 0]].forEach(([x], k) => { pr('PR-005', cx + x * 1.2, zN + .45, 0, 0, [mPlastic, .9, .91, .72]); col(cx + x * 1.2 - .45, cx + x * 1.2 + .45, zN + .05, zN + .85, false, .91); });
+    pr('PR-007', cx + 2.75, zN + .3, 0, 0, [mPorc, .62, .85, .46]); col(cx + 2.44, cx + 3.06, zN, zN + .55);
+    model('pr/PR-014', cx + 2.0, 0, zN + .45, .3); col(cx + 1.84, cx + 2.16, zN + .29, zN + .61);
+    // 서쪽 벽: 철제 수납 선반 (상자 · 용지 더미) + 바닥 보관 상자
+    pr('PR-008', cx - 3.62, Z(-.6), 0, Math.PI / 2, [mMetal, 1.75, 1.86, .42]); col(cx - 3.85, cx - 3.4, Z(-.6) - .9, Z(-.6) + .9);
+    model('pr/PR-009', cx - 3.0, 0, -8.6, .2); model('pr/PR-010', cx - 2.85, 0, -7.9, -.3); model('pr/PR-009', cx - 3.0, .2, -8.6, -.1); col(cx - 3.3, cx - 2.55, -8.9, -7.65, false, .4);
+    // 동쪽 벽: 용지 카운터 + 재단기 + A4 용지 더미 3, 벽부 전기 제어함
+    const kx = cx + 3.85 - .34, kz = Z(-.4);
+    pr('PR-012', kx, kz, 0, -Math.PI / 2, [mWood, 1.84, .77, .66]); col(kx - .34, cx + 3.85, kz - .93, kz + .93, false, .77);
+    model('pr/PR-006', kx - .02, .77, kz - .55, -Math.PI / 2); [.05, .45, .82].forEach((d, k) => model('pr/PR-011', kx, .77, kz + d, -Math.PI / 2 + k * .2));
+    model('pr/PR-013', cx + 3.84, 1.25, -8.3, -Math.PI / 2);
+    // 바닥 종이
+    [[-1.1, -.4, 0], [.7, -.3, .4], [.2, 1.2, -.26]].forEach(([x, y, r]) => model('pr/PR-015', cx + x, .006, Z(y), r));
+    papers(cx, -8, -2.4, 10);
   }
   // 창고 · 보관실
   function storeS(cx) {
@@ -3218,7 +3248,7 @@ export function buildWorld(scene) {
     return .38 + .62 * d;
   }
   const flickCfg = { calm: false };
-  return { h133Mat, crMat, thMat, winMats, MODELS, floors, items, lockers, doors, gate, update, mats: { flickerMats, matLampOn, matLampDead }, flickCfg, sky: { stars, moon, moonGlow }, NOTES, TAPES, PHOTOS, doorList, props, boardRefs, OUT, bakeStats, makeBoardTex: T.makeBoard };
+  return { h133Mat, crMat, thMat, prMat, winMats, MODELS, floors, items, lockers, doors, gate, update, mats: { flickerMats, matLampOn, matLampDead }, flickCfg, sky: { stars, moon, moonGlow }, NOTES, TAPES, PHOTOS, doorList, props, boardRefs, OUT, bakeStats, makeBoardTex: T.makeBoard };
 }
 
 /* ---------- 충돌/시야 ---------- */

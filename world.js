@@ -31,7 +31,9 @@ export const ANNEX_S = [
   { types: ['prepS', 'digital', 'storeS', 'counselS', 'toilet'], names: ['과학 준비실', '디지털실습실', '교재 창고', '상담실', '화장실'] },
   { types: ['work', 'storeS', 'equip', 'gallery', 'toilet'], names: ['작업실', '보관실', '기자재실', '전시 공간', '화장실'] },
 ];
-export const MAIN_ZS = 9.9;   // 본관 남쪽 외벽 바깥면 (남쪽 방: z 1.75 ~ 9.6)
+export const MAIN_ZS = 9.9;
+// 본관 1층 계단실 북쪽 문 ↔ 별관 현관을 잇는 유리 연결 통로 (본관 북벽 z -9.9 ~ 별관 남벽 z -13.5)
+export const WALKWAY = { x1: -1.6, x2: 3.6, z1: -13.5, z2: -9.9 };   // 본관 남쪽 외벽 바깥면 (남쪽 방: z 1.75 ~ 9.6)
 export const ANNEX = { slots: [-16, -8, 0, 8, 16], floors: [
   { types: ['stair', 'cooking', 'tech', 'fusion', 'counsel'], names: ['계단', '요리실 (101)', '기술·가정실 (102)', '창의융합실 (103)', '진로상담실 (104)'] },
   { types: ['stair', 'computer', 'lang', 'smart', 'club'], names: ['계단', '컴퓨터실 (201)', '언어실 (202)', '스마트교실 (203)', '동아리실 (204)'] },
@@ -384,6 +386,17 @@ export function buildWorld(scene) {
     }
   }
   const pipeMat = S(T.makeMetal([96, 104, 98]), { roughness: .6, metalness: .4 });
+  // 비상 조명등 (복도 벽 위): 정전 · 전압 강하 때 두 개의 등이 켜진다 — 재질 · 빛무리는 공유해서 한 번에 켜고 끈다
+  const matEmBox = S(null, { color: 0xd8d4c4, roughness: .6 }), matEmHead = new THREE.MeshBasicMaterial({ color: 0x2a2a26 });
+  const spEm = new THREE.SpriteMaterial({ map: T.makeGlow('255,236,200'), blending: THREE.AdditiveBlending, depthWrite: false, opacity: 0 });
+  const matEmLed = new THREE.MeshBasicMaterial({ color: 0x30ff60 });
+  function emergLight(x, y, z, ry = 0) {
+    const g = dyn(new THREE.Group()); g.position.set(x, y, z); g.rotation.y = ry; cur.interior.add(g);
+    const bxm = new THREE.Mesh(new THREE.BoxGeometry(.34, .14, .1), matEmBox); bxm.position.z = .05; g.add(bxm);
+    const led = new THREE.Mesh(new THREE.BoxGeometry(.02, .02, .01), matEmLed); led.position.set(.12, .02, .105); g.add(led);
+    [-.12, .12].forEach(dx => { const h = new THREE.Mesh(new THREE.SphereGeometry(.055, 10, 8, 0, Math.PI * 2, 0, Math.PI / 2), matEmHead); h.rotation.x = Math.PI / 2 + .5; h.position.set(dx, -.1, .12); g.add(h);
+      const sp = new THREE.Sprite(spEm); sp.scale.set(.8, .8, .8); sp.position.set(dx, -.14, .2); g.add(sp); });
+  }
   function corridorPipes(x1, x2) {
     const p = [tube(.06, x1, CH - .16, 1.25, x2, CH - .16, 1.25), tube(.035, x1, CH - .12, 1.05, x2, CH - .12, 1.05)];
     for (let x = x1 + 2; x < x2; x += 4) p.push(bx(.04, .16, .3, x, CH - .08, 1.15));
@@ -868,7 +881,12 @@ export function buildWorld(scene) {
     if (cur.stairCx == null) cur.stairCx = cx;
     col(cx - 2.56, cx - 2.44, -7.7, z0 + .1); col(cx - 1.25, cx - 1.15, -9.6, z0 + .1);
     elevator(cx);
-    if (!cur.basement) win3D(cur.interior, 2.0, 1.8, cx + 1.8, 1.9, -9.58);
+    if (cur.f === 0) {   // 본관 1층: 창 대신 별관 연결 통로로 나가는 문
+      add(mWoodDark, .1, 2.4, .2, cx + 1.1, 0, -9.5); add(mWoodDark, .1, 2.4, .2, cx + 2.5, 0, -9.5); add(mWoodDark, 1.5, .12, .2, cx + 1.8, 2.4, -9.5);
+      plane(cur.interior, mDoor, 1.3, 2.3, cx + 1.8, 1.15, -9.57);
+      plane(cur.interior, new THREE.MeshBasicMaterial({ map: T.makeSign('별관 연결 통로 →', '#1e2a2e', '#d9e4d0', 24), color: 0x9aa59a }), 1.4, .32, cx + 1.8, 2.75, -9.56);
+      doors.push({ floor: 0, x: cx + 1.8, z: -9.0, r: 1.3, label: '별관 연결 통로로', to: { floor: 0, x: cx + 1.8, z: -11.2, yaw: 0 } });
+    } else if (!cur.basement) win3D(cur.interior, 2.0, 1.8, cx + 1.8, 1.9, -9.58);
     // 계단 표시
     const sg2 = new THREE.MeshBasicMaterial({ map: T.makeSign('▲ 위층   ▼ 아래층', '#1e2a2e', '#d9e4d0', 26), transparent: false });
     plane(cur.interior, sg2, 1.8, .45, cx + 1.8, 2.6, -9.57);
@@ -1651,6 +1669,7 @@ export function buildWorld(scene) {
 
     // 복도 디테일: 배관, 천장 손상, 비상구, 소화기, 낙서
     corridorPipes(-36, 36);
+    [-30, -10, 10, 30].forEach(x => emergLight(x + 2.2, 2.85, -1.44));
     ceilingDamage(-34, 34, -1.2, 1.2, 9); SLOTS.forEach(cx => { if (rnd() < .5) ceilingDamage(cx - 3, cx + 3, -8.5, -2.5, 1); });
     exitSign(0, 2.95, -1.43); exitSign(-35, 2.9, 0, Math.PI / 2); exitSign(35, 2.9, 0, -Math.PI / 2);
     extinguisher(-1.6, -1.25); extinguisher(33.5, 1.2);
@@ -1890,6 +1909,7 @@ export function buildWorld(scene) {
       plane(F.interior, new THREE.MeshBasicMaterial({ map: T.makeSign(AS.names[i], '#1e2a2e', '#d9e4d0', AS.names[i].length > 6 ? 22 : 28), color: 0x9aa59a }), 1.4, .35, cx, 2.62, 1.43, Math.PI);
     });
     [-12, -4, 4, 12].forEach(b => awall(b - .15, b + .15, 1.75, 9.6, CH));
+    [-10, 10].forEach(x => emergLight(x + 2.2, 2.85, -1.44));
     corridorPipes(-20, 20); ceilingDamage(-19, 19, -1.2, 1.2, 4); exitSign(-20.2, 2.9, 0, Math.PI / 2);
     sl.forEach((cx, i) => {
       awall(cx - 4, cx - 1, -1.75, -1.45, CH); awall(cx + 1, cx + 4, -1.75, -1.45, CH); awall(cx - 1, cx + 1, -1.75, -1.45, CH, 2.4);
@@ -2328,8 +2348,34 @@ export function buildWorld(scene) {
   for (let k = 0; k < 6; k++) { const r = new THREE.Mesh(new THREE.BoxGeometry(.05, .9, .5), mMetal); r.position.set(-51.4, .45, 22 + k * .6); OUT.add(r); }
   // 별관(특별교실동) 외관
   OUT.add(boxMesh(-20, 20, 0, 12.4, -25, -13.5, mBrick, 2.5)); col(-20, 20, -25, -13.5, true);
-  OUT.add(boxMesh(-20.4, 20.4, 12.4, 12.9, -25.4, -13.1, mWall));
+  OUT.add(boxMesh(-20.4, 20.4, 12.4, 12.7, -25.4, -13.1, mFacade, 3));
   [1.8, 5.8, 9.8].forEach((y, r) => { for (let x = -18; x <= 18; x += 4) { if (r === 0 && Math.abs(x) < 3) continue; plane(OUT, mWin, 2.4, 1.6, x, y, -13.47, 0); } });
+  // 별관 북 · 동 · 서쪽 창 (예전에는 남쪽 면에만 창이 있었다)
+  [1.8, 5.8, 9.8].forEach(y => { for (let x = -18; x <= 18; x += 4) plane(OUT, mWin, 2.4, 1.6, x, y, -25.03, Math.PI); [-22, -17].forEach(z => { plane(OUT, mWin, 1.8, 1.6, -20.03, y, z, -Math.PI / 2); plane(OUT, mWin, 1.8, 1.6, 20.03, y, z, Math.PI / 2); }); });
+  // 별관 옥상 파라펫
+  OUT.add(boxMesh(-20.4, 20.4, 12.7, 13.6, -25.4, -25.1, mFacade, 3), boxMesh(-20.4, 20.4, 12.7, 13.6, -13.4, -13.1, mFacade, 3), boxMesh(-20.4, -20.1, 12.7, 13.6, -25.4, -13.1, mFacade, 3), boxMesh(20.1, 20.4, 12.7, 13.6, -25.4, -13.1, mFacade, 3));
+  // 본관-별관 연결 통로: 바닥 · 지붕 · 기둥 · 유리 벽 (동쪽에 바깥 출입문), 1층 위로는 2 · 3층 구름다리 외관
+  {
+    const W = WALKWAY, g = [], gl = [];
+    g.push(bx(W.x2 - W.x1, .12, W.z2 - W.z1, (W.x1 + W.x2) / 2, .06, (W.z1 + W.z2) / 2, 2));
+    g.push(bx(W.x2 - W.x1 + .4, .3, W.z2 - W.z1, (W.x1 + W.x2) / 2, 3.25, (W.z1 + W.z2) / 2, 2));
+    [W.x1, W.x2].forEach(x => [W.z1 + .2, (W.z1 + W.z2) / 2, W.z2 - .2].forEach(z => g.push(bx(.2, 3.2, .2, x, 1.6, z, 2))));
+    for (let f = 1; f < 3; f++) { const y = f * FH; g.push(bx(W.x2 - W.x1, .3, W.z2 - W.z1, (W.x1 + W.x2) / 2, y + 3.25, (W.z1 + W.z2) / 2, 2), bx(W.x2 - W.x1, .9, .2, (W.x1 + W.x2) / 2, y + .45, W.z1 + .1, 2)); [W.x1, W.x2].forEach(x => g.push(bx(.2, 3.2, .2, x, y + 1.6, W.z1 + .2, 2), bx(.2, 3.2, .2, x, y + 1.6, W.z2 - .2, 2), bx(.12, 1.0, W.z2 - W.z1, x, y + .5, (W.z1 + W.z2) / 2, 2))); [W.x1, W.x2].forEach(x => gl.push([x, y + 2.1, 1.9])); }
+    const fm = new THREE.Mesh(merge(g), mFacade); OUT.add(fm);
+    const mGl = new THREE.MeshStandardMaterial({ color: 0x8aa0a8, roughness: .2, metalness: .1, transparent: true, opacity: .32, side: THREE.DoubleSide, depthWrite: false });
+    // 서쪽 유리벽 (전체) · 동쪽 유리벽 (가운데 출입문 비움)
+    plane(OUT, mGl, W.z2 - W.z1, 2.9, W.x1, 1.6, (W.z1 + W.z2) / 2, Math.PI / 2);
+    const dz1 = (W.z1 + W.z2) / 2 - .9, dz2 = (W.z1 + W.z2) / 2 + .9;
+    plane(OUT, mGl, dz1 - W.z1, 2.9, W.x2, 1.6, (W.z1 + dz1) / 2, -Math.PI / 2); plane(OUT, mGl, W.z2 - dz2, 2.9, W.x2, 1.6, (dz2 + W.z2) / 2, -Math.PI / 2);
+    gl.forEach(([x, y, h]) => plane(OUT, mGl, W.z2 - W.z1, h, x, y, (W.z1 + W.z2) / 2, x < 0 ? Math.PI / 2 : -Math.PI / 2));
+    col(W.x1 - .1, W.x1 + .1, W.z1, W.z2, true); col(W.x2 - .1, W.x2 + .1, W.z1, dz1, true); col(W.x2 - .1, W.x2 + .1, dz2, W.z2, true);
+    plane(OUT, new THREE.MeshBasicMaterial({ map: T.makeSign('본관 ⇄ 별관 연결 통로', '#1e2a2e', '#d9e4d0', 22), color: 0x9aa59a }), 2.2, .4, W.x2 + .12, 2.75, (W.z1 + W.z2) / 2, Math.PI / 2);
+    // 통로 천장등 (지붕 아래) · 바닥 매트
+    for (let z = W.z1 + .9; z < W.z2; z += 1.8) { const l = new THREE.Mesh(new THREE.BoxGeometry(1.2, .05, .12), matLampOn); l.position.set((W.x1 + W.x2) / 2, 3.08, z); OUT.add(l); }
+    // 본관 쪽 출입문 (계단실 북벽) · 별관 쪽은 기존 현관
+    plane(OUT, mDoor, 1.3, 2.3, 1.8, 1.15, -9.92, Math.PI);
+    doors.push({ floor: 0, x: 1.8, z: -10.5, r: 1.3, label: '본관 들어가기 (계단실)', to: { floor: 0, x: 1.8, z: -8.7, yaw: Math.PI } });
+  }
   plane(OUT, mDoor, 1.8, 2.4, 0, 1.2, -13.47, 0);
   plane(OUT, new THREE.MeshBasicMaterial({ map: T.makeSign('별관 (특별교실동)', '#1e2a2e', '#d9e4d0', 26), color: 0x9aa59a }), 3.4, .85, 0, 3.6, -13.46, 0);
   doors.push({ floor: 0, x: 0, z: -12.4, r: 2.0, label: '별관 들어가기', to: { floor: 8, x: 0, z: 8.3, yaw: 0 } });
@@ -2517,7 +2563,8 @@ export function buildWorld(scene) {
   { const r = bakeStatic(OUT); bakeStats.merged += r.merged; bakeStats.meshes += r.meshes; }
 
   let lastT = 0;
-  function update(t, blackout) {
+  // gain: 발전기 출력(전압 강하 때 낮아짐) · warm: 비상 발전기 전원일 때 따뜻하고 누런 빛 · emerg: 비상등 밝기
+  function update(t, blackout, gain = 1, warm = 0, emerg = 0) {
     const dt = Math.min(.1, Math.max(0, t - lastT)); lastT = t;
     for (const d of doorList) {
       if (d.open !== d.target) { const s = d.kind === 'slide' ? 2.2 : (d.slam ? 7 : 2.6); d.open = d.target > d.open ? Math.min(d.target, d.open + dt * s) : Math.max(d.target, d.open - dt * s); if (d.open === d.target) d.slam = false; }
@@ -2530,17 +2577,24 @@ export function buildWorld(scene) {
       if (p.kind === 'breaker') p.lev.rotation.z += ((p.on ? -.6 : -2.4) - p.lev.rotation.z) * Math.min(1, dt * 10);
       else if (p.kind === 'switch') { p.key.rotation.x += ((p.on ? -.35 : .35) - p.key.rotation.x) * Math.min(1, dt * 18); p.led.visible = !p.on; }
     }
-    flickerMats.forEach((m, i) => {
-      const k = Math.sin(t * (9 + i * 3.1) + i) * Math.sin(t * (23 + i * 5.3));
-      const v = blackout ? 0.0 : (k > .35 ? 1 : (k > -.2 ? .08 : .45));
-      m.color.setRGB(.87 * v + .02, .92 * v + .02, v + .02);
-    });
-    matLampOn.color.setRGB(blackout ? .02 : .87, blackout ? .02 : .92, blackout ? .02 : 1);
+    // 고장 난 형광등: 대부분 켜져 있다가 몇 초에 한 번 부드럽게 두세 번 어두워진다 (점멸 피로를 줄인 패턴)
+    const cr = .87 + .13 * warm, cg = .92 - .02 * warm, cb = 1 - .22 * warm;
+    flickerMats.forEach((m, i) => { const v = blackout ? 0 : flickVal(t, i) * gain; m.userData.v = v; m.color.setRGB(cr * v + .02, cg * v + .02, cb * v + .02); });
+    matLampOn.color.setRGB(blackout ? .02 : cr * gain, blackout ? .02 : cg * gain, blackout ? .02 : cb * gain);
+    spEm.opacity = emerg * .9; matEmHead.color.setRGB(.16 + emerg * .84, .16 + emerg * .76, .15 + emerg * .6); matEmLed.color.setHex(emerg > .1 ? 0xff4020 : 0x30ff60);
     for (const it of items) if (!it.taken && it.kind !== 'note') { it.mesh.position.y = it.pos.y - floors[it.floor].y0 + Math.sin(t * 2 + it.pos.x) * .03; it.mesh.rotation.y = t * 1.2; }
     lockGlow.material.opacity = .6 + .4 * Math.sin(t * 3);
   }
 
-  return { floors, items, lockers, doors, gate, update, mats: { flickerMats, matLampOn, matLampDead }, NOTES, TAPES, PHOTOS, doorList, props, boardRefs, OUT, bakeStats, makeBoardTex: T.makeBoard };
+  function flickVal(t, i) {
+    if (flickCfg.calm) return 1;
+    const per = 7 + i * 2.3, ph = (t + i * 3.7) % per, len = .55 + i * .08;
+    if (ph > len) return 1 - .04 * Math.sin(t * 2.1 + i);               // 거의 일정 (아주 약한 웅웅거림)
+    const d = .5 + .5 * Math.cos(ph / len * Math.PI * 2 * (2 + (i % 2)));  // 두세 번 부드럽게 꺼질 듯 어두워짐
+    return .38 + .62 * d;
+  }
+  const flickCfg = { calm: false };
+  return { floors, items, lockers, doors, gate, update, mats: { flickerMats, matLampOn, matLampDead }, flickCfg, sky: { stars, moon, moonGlow }, NOTES, TAPES, PHOTOS, doorList, props, boardRefs, OUT, bakeStats, makeBoardTex: T.makeBoard };
 }
 
 /* ---------- 충돌/시야 ---------- */

@@ -90,7 +90,10 @@ function tone(freq, dur, type, vol, pan = 0, v = 1, slide = null) {
 }
 
 /* ----- 구역별 환경음 ----- */
-const AMB = {};
+const AMB = {}, rainNodes = [];
+let rainLv = -1;
+// 비의 세기 (해가 지기 전에는 비가 오지 않는다)
+export function setRainLevel(k) { if (!ok() || Math.abs(k - rainLv) < .01) return; rainLv = k; rainNodes.forEach(([g, v]) => g.gain.setTargetAtTime(v * k, ac.currentTime, .8)); }
 function amb(name, nodes) { const g = ac.createGain(); g.gain.value = 0; nodes.forEach(n => n.connect(g)); g.connect(bus.amb); AMB[name] = g; }
 function buildAmbience() {
   // 바람
@@ -98,7 +101,7 @@ function buildAmbience() {
   const windG = ac.createGain(); windG.gain.value = .14; wind.connect(windG);
   // 빗소리 (고역 노이즈 + 저역 웅웅)
   const rainHi = loopNoise(5200, 'highpass'), rainLo = loopNoise(900, 'lowpass');
-  const rH = ac.createGain(); rH.gain.value = .07; rainHi.connect(rH); const rL = ac.createGain(); rL.gain.value = .05; rainLo.connect(rL);
+  const rH = ac.createGain(); rH.gain.value = .07; rainHi.connect(rH); const rL = ac.createGain(); rL.gain.value = .05; rainLo.connect(rL); rainNodes.push([rH, .07], [rL, .05]);
   // 귀뚜라미
   const cr = ac.createOscillator(); cr.frequency.value = 4400; const crA = ac.createGain(); crA.gain.value = 0; cr.connect(crA);
   const crL = ac.createOscillator(); crL.type = 'square'; crL.frequency.value = 18; const crLG = ac.createGain(); crLG.gain.value = .006; crL.connect(crLG); crLG.connect(crA.gain); cr.start(); crL.start();
@@ -106,7 +109,7 @@ function buildAmbience() {
   // 실내 복도: 룸톤 + 형광등 웅 (120Hz)
   const room = loopNoise(260, 'lowpass'); const roomG = ac.createGain(); roomG.gain.value = .05; room.connect(roomG);
   const hum = ac.createOscillator(); hum.type = 'sawtooth'; hum.frequency.value = 120; const humF = ac.createBiquadFilter(); humF.type = 'lowpass'; humF.frequency.value = 600; const humG = ac.createGain(); humG.gain.value = .006; hum.connect(humF); humF.connect(humG); hum.start();
-  const rainIn = loopNoise(1400, 'lowpass'); const rainInG = ac.createGain(); rainInG.gain.value = .025; rainIn.connect(rainInG);
+  const rainIn = loopNoise(1400, 'lowpass'); const rainInG = ac.createGain(); rainInG.gain.value = .025; rainIn.connect(rainInG); rainNodes.push([rainInG, .025]);
   amb('in', [roomG, humG, rainInG]);
   // 지하: 기계 웅웅 + 배관
   const mh = ac.createOscillator(); mh.type = 'sawtooth'; mh.frequency.value = 50; const mhF = ac.createBiquadFilter(); mhF.type = 'lowpass'; mhF.frequency.value = 180; const mhG = ac.createGain(); mhG.gain.value = .05; mh.connect(mhF); mhF.connect(mhG); mh.start();
@@ -162,6 +165,18 @@ export function setGhostVoice(pos, level, chase, dt) {
   if (n) gvNotes.forEach((o, i) => o.frequency.setTargetAtTime(n * (i ? 1.002 : 1) * (chase ? 1 + Math.sin(gvT * 9) * .03 : 1), ac.currentTime, .06));
   gvG.gain.setTargetAtTime(pos && n ? level * (chase ? .16 : .1) : 0, ac.currentTime, .12);
 }
+
+/* ----- 비상 발전기 웅웅거림 (디젤 엔진의 낮은 고동 + 50Hz 험) ----- */
+let genG = null, genLv = 0;
+function buildGen() {
+  genG = ac.createGain(); genG.gain.value = 0; genG.connect(bus.amb);
+  const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 220; lp.connect(genG);
+  const am = ac.createGain(); am.gain.value = .6; am.connect(lp);
+  [[50, 'sawtooth', .5], [25, 'square', .25], [100, 'sine', .25]].forEach(([f, t, v]) => { const o = ac.createOscillator(); o.type = t; o.frequency.value = f; const g = ac.createGain(); g.gain.value = v; o.connect(g); g.connect(am); o.start(); });
+  const lfo = ac.createOscillator(); lfo.frequency.value = 7.3; const lg = ac.createGain(); lg.gain.value = .35; lfo.connect(lg); lg.connect(am.gain); lfo.start();   // 엔진 고동
+  const n = loopNoise(160, 'lowpass', .8); const ng = ac.createGain(); ng.gain.value = .5; n.connect(ng); ng.connect(genG);
+}
+export function setGenHum(v, dt) { if (!ok()) return; if (!genG) buildGen(); const t = v * .09; if (Math.abs(t - genLv) > .002) { genLv = t; genG.gain.setTargetAtTime(t, ac.currentTime, .4); } }
 
 /* ----- 음악 (메뉴 테마 · 추격) ----- */
 let musG = {}, musMode = '', mbT = 0, mbI = 0, chaseT = 0;
@@ -295,6 +310,8 @@ export const sfx = {
   piano() { [196, 233, 220, 185, 196, 156, 175].forEach((f, i) => setTimeout(() => { tone(f, 2.2, 'triangle', .18); tone(f * 2.01, 1.6, 'sine', .05); }, i * 520 + Math.random() * 60)); },
   phone() { for (let i = 0; i < 3; i++) setTimeout(() => { noiseBurst(.35, 160, 'lowpass', .5); tone(120, .35, 'square', .05); }, i * 600); },
   beep() { tone(1400, .08, 'square', .07); },
+  genChug(v = 1) { tone(38, .9, 'sawtooth', .22 * v, 0, 1, 26); noiseBurst(.7, 140, 'lowpass', .55 * v); setTimeout(() => { tone(44, .6, 'sawtooth', .16 * v, 0, 1, 52); noiseBurst(.35, 2600, 'highpass', .05 * v); }, 650); },
+  crow(pan = 0) { [0, 380, 760].forEach((d, i) => setTimeout(() => { tone(620 - i * 30, .28, 'sawtooth', .05, pan, 1, 420); noiseBurst(.22, 1300, 'bandpass', .07, pan); }, d)); },
   ding() { tone(1318, 1.4, 'sine', .14); tone(2636, .6, 'sine', .03); setTimeout(() => { tone(1046, 1.8, 'sine', .12); tone(2092, .7, 'sine', .025); }, 260); },
   elevator(d = 2) { tone(62, d, 'sawtooth', .05, 0, 1, 58); tone(124, d, 'sine', .05); noiseBurst(d, 260, 'lowpass', .22); for (let i = 1; i < d * 2; i++) setTimeout(() => noiseBurst(.06, 900, 'bandpass', .12), i * 500 + Math.random() * 200); },
   buzz() { tone(110, .35, 'square', .15); tone(116, .35, 'square', .12); },

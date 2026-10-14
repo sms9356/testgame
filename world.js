@@ -2725,26 +2725,75 @@ export function buildWorld(scene) {
 
   // 지면
   const groundMat = S(T.makeGround()); flat(OUT, groundMat, -300, 300, -250, 300, -.02, 8);
-  const dirtMat = PB('dirt', () => T.pbrDirt(512)); flat(OUT, dirtMat, -34, 34, 16, 60, 0, 6);
-  // 우레탄 트랙 (직선 2 + 반원 2) · 흰 레인 선
+  const dirtMat = PB('dirt', () => T.pbrDirt(512)); flat(OUT, dirtMat, -27, 27, 15, 59, 0, 6);   // 운동장 흙 (체육관 · 급식실 · 수영장 외벽 안쪽으로)
+  // 운동장 (재배치): 동서로 긴 200m 급 우레탄 트랙 — 체육관(x 28) · 수영장(x -34) · 급식실과 3m 이상 띄움. 안쪽은 흙 축구장 (선 · 골대 · 그물)
+  const PG = { CZ: 40, SX: 11, R0: 9.6, R1: 13.2 };
+  const mNet = (() => { const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d'); g.strokeStyle = '#e8e8e0'; g.lineWidth = 3; for (let i = 0; i <= 64; i += 16) { g.beginPath(); g.moveTo(i, 0); g.lineTo(i, 64); g.stroke(); g.beginPath(); g.moveTo(0, i); g.lineTo(64, i); g.stroke(); } const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.colorSpace = THREE.SRGBColorSpace; return new THREE.MeshStandardMaterial({ map: t, alphaTest: .45, side: THREE.DoubleSide, roughness: .9 }); })();
   { const trM = PB('track', () => T.pbrTrack(512)); trM.polygonOffset = true; trM.polygonOffsetFactor = -1;
-    const lineM = new THREE.MeshStandardMaterial({ color: 0xc8c4b8, roughness: .8, transparent: true, opacity: .75, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 });
-    const CZ = 38, R0 = 13.2, R1 = 17.2, SX = 15, Y = .013;
+    const lineM = new THREE.MeshStandardMaterial({ color: 0xd8d4c8, roughness: .8, transparent: true, opacity: .8, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 });
+    const { CZ, SX, R0, R1 } = PG, Y = .013, LW = (R1 - R0) / 4;
     const uvPlanar = (geo, sc) => { const p = geo.attributes.position, uv = geo.attributes.uv; for (let i = 0; i < p.count; i++) uv.setXY(i, p.getX(i) / sc, p.getY(i) / sc); return geo; };
+    const line = (w, d, x, z, ry = 0) => { const l = new THREE.Mesh(new THREE.PlaneGeometry(w, d), lineM); l.rotation.set(-Math.PI / 2, 0, ry); l.position.set(x, Y + .004, z); OUT.add(l); };
+    const arc = (r, x, z, a0, len, w = .07) => { const c = new THREE.Mesh(new THREE.RingGeometry(r - w / 2, r + w / 2, 56, 1, a0, len), lineM); c.rotation.x = -Math.PI / 2; c.position.set(x, Y + .004, z); OUT.add(c); };
     [-1, 1].forEach(sd => {
       const st = new THREE.Mesh(uvPlanar(new THREE.PlaneGeometry(SX * 2, R1 - R0), 4), trM); st.rotation.x = -Math.PI / 2; st.position.set(0, Y, CZ + sd * (R0 + R1) / 2); OUT.add(st);
-      const ring = new THREE.Mesh(uvPlanar(new THREE.RingGeometry(R0, R1, 48, 1, sd > 0 ? -Math.PI / 2 : Math.PI / 2, Math.PI), 4), trM); ring.rotation.x = -Math.PI / 2; ring.position.set(sd * SX, Y, CZ); OUT.add(ring);
-      [R0, (R0 + R1) / 2 - .9, (R0 + R1) / 2 + .9, R1].forEach(r => {
-        const l = new THREE.Mesh(new THREE.PlaneGeometry(SX * 2, .07), lineM); l.rotation.x = -Math.PI / 2; l.position.set(0, Y + .004, CZ + sd * r); OUT.add(l);
-        const c = new THREE.Mesh(new THREE.RingGeometry(r - .035, r + .035, 48, 1, sd > 0 ? -Math.PI / 2 : Math.PI / 2, Math.PI), lineM); c.rotation.x = -Math.PI / 2; c.position.set(sd * SX, Y + .004, CZ); OUT.add(c);
-      });
+      const ring = new THREE.Mesh(uvPlanar(new THREE.RingGeometry(R0, R1, 64, 1, sd > 0 ? -Math.PI / 2 : Math.PI / 2, Math.PI), 4), trM); ring.rotation.x = -Math.PI / 2; ring.position.set(sd * SX, Y, CZ); OUT.add(ring);
+      for (let k = 0; k <= 4; k++) { const r = R0 + k * LW; line(SX * 2, .07, 0, CZ + sd * r); arc(r, sd * SX, CZ, sd > 0 ? -Math.PI / 2 : Math.PI / 2, Math.PI); }
     });
-    for (let k = 0; k < 5; k++) { const l = new THREE.Mesh(new THREE.PlaneGeometry(.07, R1 - R0), lineM); l.rotation.x = -Math.PI / 2; l.position.set(-8 + k * .9, Y + .004, CZ + (R0 + R1) / 2); OUT.add(l); }   // 출발선
+    for (let k = 0; k <= 4; k++) line(.07, R1 - R0, -6 + k * .6, CZ + (R0 + R1) / 2);   // 출발선
+    for (let k = 0; k < 4; k++) { const t = new THREE.Mesh(new THREE.PlaneGeometry(.5, .5), new THREE.MeshBasicMaterial({ map: T.makeSign(String(k + 1), 'rgba(0,0,0,0)', '#e8e4d8', 60), transparent: true, depthWrite: false })); t.rotation.x = -Math.PI / 2; t.position.set(-7, Y + .006, CZ + R0 + LW * (k + .5)); OUT.add(t); }
+    // 축구장 선: 중앙선 · 센터서클 · 양쪽 골 에어리어 · 페널티 에어리어
+    line(.08, R0 * 2 - .4, 0, CZ); arc(3, 0, CZ, 0, Math.PI * 2, .08);
+    [-1, 1].forEach(sd => { const gx = sd * 19.2;
+      line(.08, 14, gx - sd * 5, CZ); line(5, .08, gx - sd * 2.5, CZ - 7); line(5, .08, gx - sd * 2.5, CZ + 7);   // 페널티 에어리어
+      line(.08, 8, gx - sd * 2, CZ); line(2, .08, gx - sd * 1, CZ - 4); line(2, .08, gx - sd * 1, CZ + 4);         // 골 에어리어
+      // 골대: 흰 기둥 · 크로스바 · 뒤로 기운 그물 프레임 + 그물
+      const gp = [tube(.06, gx, 0, CZ - 3.66, gx, 2.44, CZ - 3.66), tube(.06, gx, 0, CZ + 3.66, gx, 2.44, CZ + 3.66), tube(.06, gx, 2.44, CZ - 3.66, gx, 2.44, CZ + 3.66),
+        tube(.025, gx, 2.44, CZ - 3.66, gx + sd * 1.6, 0, CZ - 3.66), tube(.025, gx, 2.44, CZ + 3.66, gx + sd * 1.6, 0, CZ + 3.66), tube(.025, gx + sd * 1.6, 0, CZ - 3.66, gx + sd * 1.6, 0, CZ + 3.66)];
+      OUT.add(new THREE.Mesh(merge(gp), mPoleW));
+      const nt = mNet.clone(); nt.map = mNet.map.clone(); nt.map.repeat.set(1, 1); nt.map.needsUpdate = true;
+      // 그물: 크로스바(위) → 바닥 뒤쪽으로 기운 뒷면 + 양 옆 삼각형 — 정점을 직접 놓고 UV 는 0.12m 칸
+      const q = (pts, uvs) => { const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pts.flat(), 3)); g.setAttribute('uv', new THREE.Float32BufferAttribute(uvs.flat(), 2)); g.computeVertexNormals(); OUT.add(new THREE.Mesh(g, nt)); };
+      const bx2 = gx + sd * 1.6, zA = CZ - 3.66, zB = CZ + 3.66, nu = 7.32 / .5, nv = Math.hypot(1.6, 2.44) / .5;   // UV 1 = 0.5m (그물 한 칸 12.5cm)
+      q([[gx, 2.44, zA], [gx, 2.44, zB], [bx2, 0, zB], [gx, 2.44, zA], [bx2, 0, zB], [bx2, 0, zA]], [[0, nv], [nu, nv], [nu, 0], [0, nv], [nu, 0], [0, 0]]);
+      [zA, zB].forEach(z => q([[gx, 0, z], [gx, 2.44, z], [bx2, 0, z]], [[0, 0], [0, 2.44 / .5], [1.6 / .5, 0]]));
+      col(gx - .08, gx + .08, CZ - 3.74, CZ - 3.58, true); col(gx - .08, gx + .08, CZ + 3.58, CZ + 3.74, true); col(Math.min(gx, gx + sd * 1.6), Math.max(gx, gx + sd * 1.6), CZ - 3.7, CZ + 3.7);
+    });
   }
-  const pave = S(T.makePaving()); flat(OUT, pave, -3.2, 3.2, MAIN_ZS, 69.5, .01, 4); flat(OUT, pave, -16, 16, MAIN_ZS, 11, .01, 4);
+  // 조회대 (본관 쪽 · 운동장을 바라봄): 콘크리트 단 + 계단 + 난간 · 국기게양대 3개
+  { const x0 = -11, z0 = 18.6, W = 6, D = 3, H = 1.1, g = [];
+    g.push(bx(W, H, D, x0, H / 2, z0, 2)); const sx = x0 + W / 2 - 1.0; for (let k = 0; k < 4; k++) { const h = (k + 1) * H / 5, zf = z0 + D / 2 + (4 - k) * .32; g.push(bx(1.6, h, zf - z0 - D / 2, sx, h / 2, (z0 + D / 2 + zf) / 2, 2)); col(sx - .8, sx + .8, z0 + D / 2, zf, false, h); }   // 계단 5단(한 단 0.22m)
+    OUT.add(new THREE.Mesh(merge(g), mStep));
+    meshAt(merge([tube(.03, x0 - W / 2 + .1, H, z0 - D / 2 + .1, x0 - W / 2 + .1, H + 1, z0 - D / 2 + .1), tube(.03, x0 + W / 2 - .1, H, z0 - D / 2 + .1, x0 + W / 2 - .1, H + 1, z0 - D / 2 + .1), tube(.03, x0 - W / 2 + .1, H + 1, z0 - D / 2 + .1, x0 + W / 2 - .1, H + 1, z0 - D / 2 + .1), tube(.03, x0 - W / 2 + .1, H, z0 + D / 2 - .1, x0 - W / 2 + .1, H + 1, z0 + D / 2 - .1), tube(.03, x0 - W / 2 + .1, H + 1, z0 - D / 2 + .1, x0 - W / 2 + .1, H + 1, z0 + D / 2 - .1)]), mRailSteel, 0, 0, 0, 0, OUT);
+    meshAt(merge([bx(.9, 1.1, .5, 0, .55, 0)]), mWoodDark, x0, H, z0 - .4, 0, OUT);   // 연설대
+    plane(OUT, new THREE.MeshStandardMaterial({ map: T.makeSign('조 회 대', '#2a2420', '#d8d0b8', 30), roughness: .9 }), 1.6, .35, x0, H / 2, z0 + D / 2 + .01);
+    col(x0 - W / 2, x0 + W / 2, z0 - D / 2, z0 + D / 2, false, H);
+    col(x0 - W / 2, x0 + W / 2, z0 - D / 2, z0 - D / 2 + .16, false, H + 1); col(x0 - W / 2, x0 - W / 2 + .16, z0 - D / 2, z0 + D / 2, false, H + 1);   // 뒤 · 서쪽 난간 (위에서 떨어지지 않게)
+    for (let k = 0; k < 3; k++) { const fx = x0 - W / 2 - 1.6 - k * 1.2, fh = k === 1 ? 9 : 8; OUT.add(new THREE.Mesh(merge([new THREE.CylinderGeometry(.05, .08, fh, 10).translate(fx, fh / 2, z0 - .6), new THREE.SphereGeometry(.1, 10, 8).translate(fx, fh + .05, z0 - .6), new THREE.CylinderGeometry(.35, .4, .3, 12).translate(fx, .15, z0 - .6)]), mPoleW)); col(fx - .4, fx + .4, z0 - 1, z0 - .2); }
+  }
+  // 스탠드 (본관 쪽 동편): 운동장을 바라보는 콘크리트 계단식 관람석 4단 (한 단 0.22m — 걸어서 오른다)
+  { const x1 = 5, x2 = 22, z0 = 13.4; for (let k = 0; k < 4; k++) { const zf = z0 + (3 - k) * .8; OUT.add(boxMesh(x1, x2, 0, (k + 1) * .22, z0, zf + .8, mStep, 2)); col(x1, x2, z0, zf + .8, false, (k + 1) * .22); } }
+  // 철봉 3단 · 평행봉 (서남쪽)
+  { const bars = [], posts = [];
+    [[1.2, -29], [1.6, -27.6], [2.0, -26.2]].forEach(([h, x]) => { posts.push(tube(.045, x - .6, 0, 58, x - .6, h + .05, 58), tube(.045, x + .6, 0, 58, x + .6, h + .05, 58)); bars.push(tube(.02, x - .6, h, 58, x + .6, h, 58)); col(x - .7, x + .7, 57.9, 58.1); });
+    [-.25, .25].forEach(d => { posts.push(tube(.045, -22.6, 0, 57 + d, -22.6, 1.3, 57 + d), tube(.045, -20.4, 0, 57 + d, -20.4, 1.3, 57 + d)); bars.push(tube(.025, -22.8, 1.3, 57 + d, -20.2, 1.3, 57 + d)); });
+    col(-22.8, -20.2, 56.7, 57.3);
+    OUT.add(new THREE.Mesh(merge(posts), mRust), new THREE.Mesh(merge(bars), mChrome));
+    flat(OUT, S(null, { color: 0x8a7a5a, roughness: 1 }), -30.2, -19.6, 55.6, 60.2, .008, 2);   // 모래밭 }
+  }
+  // 야외 농구장 (체육관 남쪽): 코트 바닥 · 선 · 골대 2개
+  { const cx = 36, cz = 46, cw = 14, cd = 15; flat(OUT, PB('track', () => T.pbrTrack(512)), cx - cw / 2, cx + cw / 2, cz - cd / 2, cz + cd / 2, .006, 3);
+    const lm = new THREE.MeshStandardMaterial({ color: 0xd8d4c8, roughness: .8, transparent: true, opacity: .8, depthWrite: false });
+    const ln = (w, d, x, z) => { const l = new THREE.Mesh(new THREE.PlaneGeometry(w, d), lm); l.rotation.x = -Math.PI / 2; l.position.set(x, .012, z); OUT.add(l); };
+    ln(cw - .4, .07, cx, cz - cd / 2 + .2); ln(cw - .4, .07, cx, cz + cd / 2 - .2); ln(.07, cd - .4, cx - cw / 2 + .2, cz); ln(.07, cd - .4, cx + cw / 2 - .2, cz); ln(cw - .4, .07, cx, cz);
+    [-1, 1].forEach(sd => { const z = cz + sd * (cd / 2 - .6); OUT.add(new THREE.Mesh(merge([tube(.07, cx, 0, z, cx, 3.2, z), tube(.04, cx, 3.0, z, cx, 3.05, z - sd * .9)]), mPoleW));
+      const bb = new THREE.Mesh(new THREE.BoxGeometry(1.8, 1.05, .05), S(null, { color: 0xd8d8d0, roughness: .5 })); bb.position.set(cx, 3.35, z - sd * .95); OUT.add(bb);
+      const rim = new THREE.Mesh(new THREE.TorusGeometry(.23, .018, 6, 16), mRust); rim.rotation.x = Math.PI / 2; rim.position.set(cx, 3.05, z - sd * 1.22); OUT.add(rim); col(cx - .15, cx + .15, z - .15, z + .15); });
+  }
+  const pave = S(T.makePaving()); flat(OUT, pave, -3.2, 3.2, MAIN_ZS, PG.CZ - PG.R1 - .2, .01, 4); flat(OUT, pave, -3.2, 3.2, PG.CZ + PG.R1 + .2, 69.5, .01, 4); flat(OUT, pave, -16, 16, MAIN_ZS, 11, .01, 4);   // 정문 길은 운동장(트랙 · 흙)을 가로지른다
   // 진입로 가로등 (불 꺼진 채) · 현관 앞 벤치 — 3D 소품 133종 팩 EXT-003 · EXT-004
-  [[-4.3, 15.5], [4.3, 15.5], [-4.3, 58.5], [4.3, 58.5], [-4.3, 65.5], [4.3, 65.5], [-14.5, 13.2], [14.5, 13.2]].forEach(([x, z]) => model('h133/EXT-003', x, 0, z, x < 0 ? Math.PI / 2 : -Math.PI / 2, { out: true, col: [.3, .3] }));
-  [[-9, 13.6], [9, 13.6]].forEach(([x, z]) => model('h133/EXT-004', x, 0, z, 0, { out: true, col: [1.45, .44] }));
+  [[-4.3, 15.5], [4.3, 15.5], [-4.3, 58.5], [4.3, 58.5], [-4.3, 65.5], [4.3, 65.5], [-15.5, 12.2], [23.5, 12.2]].forEach(([x, z]) => model('h133/EXT-003', x, 0, z, x < 0 ? Math.PI / 2 : -Math.PI / 2, { out: true, col: [.3, .3] }));
+  [[-6.5, 13.0], [-24, 24], [24, 56.5]].forEach(([x, z], k) => model('h133/EXT-004', x, 0, z, k === 1 ? Math.PI / 2 : 0, { out: true, col: [1.45, .44] }));   // 현관 앞 · 운동장 가장자리 벤치
   flat(OUT, pave, -46, 46, 11, 14, .005, 4);
   const asph = S(T.makeAsphalt()); flat(OUT, asph, -120, 120, 73, 82, 0.005, 8);
   // 웅덩이
@@ -2923,7 +2972,7 @@ export function buildWorld(scene) {
     const gw = (a, b, c, d, y1 = 0, y2 = 2.9) => { OUT.add(boxMesh(a, b, y1, y2, c, d, mFacade, 2)); if (y1 < 1) col(a, b, c, d, true); };
     gw(x1, x2, z1, z1 + t); gw(x1, x1 + t, z1, z2); gw(x2 - t, x2, z1, z2);
     gw(x1, dA, z2 - t, z2); gw(dB, x2, z2 - t, z2); gw(dA, dB, z2 - t, z2, 2.15, 2.9);
-    OUT.add(boxMesh(x1 - .35, x2 + .35, 2.9, 3.15, z1 - .35, z2 + .35, mWall));
+    OUT.add(boxMesh(x1 - .35, x2 + .35, 2.9, 3.15, z1 - .35, z2 + .35, mFacade));   // 지붕 슬래브 (예전엔 벽 재질이라 지붕 위에 타일 띠가 보였다)
     flat(OUT, mFloorTile, x1 + t, x2 - t, z1 + t, z2 - t, .02, 2);
     plane(OUT, pickWin(), 2.6, 1.2, gx - .6, 1.6, z2 + .02, 0); plane(OUT, mWinIn, 2.6, 1.2, gx - .6, 1.6, z2 - t - .02, Math.PI);
     plane(OUT, pickWin(), 1.6, 1.2, x1 - .02, 1.6, gz, -Math.PI / 2); plane(OUT, mWinIn, 1.6, 1.2, x1 + t + .02, 1.6, gz, Math.PI / 2);
@@ -3021,8 +3070,6 @@ export function buildWorld(scene) {
   [[33, 12.48], [38, 12.48], [43, 12.48]].forEach(([x, z]) => plane(OUT, pickWin(), 3, 1.6, x, 5.2, z, Math.PI));
   [[-44, 12.48], [-39, 12.48], [-34, 12.48]].forEach(([x, z]) => plane(OUT, pickWin(), 3, 1.6, x, 2.4, z, Math.PI));
 
-  // 축구 골대
-  [[16], [57]].forEach(([z]) => { const m = mMetal; [-3.6, 3.6].forEach(x => addO(m, .1, 2.4, .1, x, 0, z)); addO(m, 7.3, .1, .1, 0, 2.4, z); });
 
   // 나무: 건물/길을 피해서 배치, 울퉁불퉁한 수관 + 개체별 색 변화
   const BLOCK = [[18.6, 24.9, 62.2, 67.8], [-22.5, -17.5, 62.2, 65.8], [-1.8, 3.8, -13.6, -9.8], [-37.5, 37.5, -11, 11.5], [-21.5, 21.5, -26, -12], [26.5, 49.5, 11, 36], [-49.5, -28.5, 11, 26.5], [-49.5, -32.5, 29.5, 52.5], [-5, 5, 60, 72], [-17, 17, 1.5, 12]];
@@ -3057,7 +3104,7 @@ export function buildWorld(scene) {
   const grM = [];
   for (let i = 0; i < 4000 && grM.length < 1800; i++) {
     const x = rr(-49, 49), z = rr(-25, 69.5);
-    if (blocked(x, z, .3) || (Math.abs(x) < 3.6 && z > 1.5) || (x > -34 && x < 34 && z > 16 && z < 60 && rnd() < .85)) continue;
+    if (blocked(x, z, .3) || (Math.abs(x) < 3.6 && z > 1.5) || (x > -27 && x < 27 && z > 15 && z < 59 && rnd() < .9) || (x > 28.5 && x < 43.5 && z > 38 && z < 54)) continue;
     _o.position.set(x, 0, z); _o.rotation.set(0, rnd() * 6, 0); _o.scale.setScalar(rr(.6, 1.5)); _o.updateMatrix(); grM.push(_o.matrix.clone());
   }
   _o.scale.set(1, 1, 1);

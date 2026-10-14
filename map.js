@@ -13,14 +13,16 @@ export function drawMap(ctx, W, H, o) {
 
   if (floor === 0) { // 외부
     fillRect(-50, -26, 50, 70, 'rgba(30,45,28,.55)');
-    fillRect(-34, 16, 34, 60, 'rgba(110,88,60,.45)');
+    fillRect(-27, 15, 27, 59, 'rgba(110,88,60,.45)');
+    { const r = 11.4 * S; ctx.strokeStyle = 'rgba(150,60,50,.75)'; ctx.lineWidth = 3.6 * S; ctx.beginPath(); ctx.moveTo(X(-11), Y(40) - r); ctx.lineTo(X(11), Y(40) - r); ctx.arc(X(11), Y(40), r, -Math.PI / 2, Math.PI / 2); ctx.lineTo(X(-11), Y(40) + r); ctx.arc(X(-11), Y(40), r, Math.PI / 2, Math.PI * 1.5); ctx.stroke(); }   // 트랙
+    fillRect(-14, 17.1, -8, 20.1, '#6a6a60'); fillRect(5, 13.4, 22, 16.6, '#5a5a54'); fillRect(29, 38.5, 43, 53.5, 'rgba(120,60,50,.5)');   // 조회대 · 스탠드 · 농구장
     fillRect(-3, 2, 3, 69, 'rgba(120,120,110,.4)');
     fillRect(28, 12.5, 48, 34.5, '#3a2a2a'); fillRect(-48, 12.5, -30, 25, '#3a3030'); fillRect(-48, 31, -34, 51, '#2a3a46'); fillRect(19.15, 62.8, 24.35, 67.2, '#4a4a40');   // 체육관 · 급식실 · 수영장 · 경비실 (외관 실제 위치)
     strokeRect(-50, -26, 50, 70, '#6a6a60', 1.5);
     fillRect(-4, GATE_Z - .6, 4, GATE_Z + .6, '#8a4a30');
     if (labels) {
       ctx.fillStyle = '#b8b4a4'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
-      ctx.fillText('운동장', X(0), Y(38)); ctx.fillText('체육관', X(38), Y(23.5)); ctx.fillText('급식실', X(-39), Y(19)); ctx.fillText('수영장', X(-41), Y(41)); ctx.fillText('경비실', X(21.75), Y(65)); ctx.fillText('별관', X(0), Y(-19)); ctx.fillText('서문', X(-47), Y(32)); ctx.fillText('정문', X(0), Y(GATE_Z) - 8);
+      ctx.fillText('운동장', X(0), Y(36)); ctx.fillText('조회대', X(-11), Y(16.4)); ctx.fillText('스탠드', X(13.5), Y(12.6)); ctx.fillText('농구장', X(36), Y(46)); ctx.fillText('체육관', X(38), Y(23.5)); ctx.fillText('급식실', X(-39), Y(19)); ctx.fillText('수영장', X(-41), Y(41)); ctx.fillText('경비실', X(21.75), Y(65)); ctx.fillText('별관', X(0), Y(-19)); ctx.fillText('서문', X(-47), Y(32)); ctx.fillText('정문', X(0), Y(GATE_Z) - 8);
     }
   }
   if (floor === 5) {

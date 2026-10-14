@@ -1027,7 +1027,7 @@ function changeFloor(dir) {
 }
 // 가구 높이: 발이 윗면보다 높으면 그 가구는 막지 않는다 · 발 아래 윗면이 지지면
 // 낮은 단(계단 한 단 높이 STEP_UP 이하: 현관 계단 · 단상 등)은 그냥 걸어 올라가고, 그보다 높은 가구는 점프로 오른다
-const STEP_UP = .22;
+const STEP_UP = .225;
 const colsAt = F => { if (F._lowCol == null) F._lowCol = F.col.some(r => r.h != null); if (!F._lowCol) return F.col; const foot = P.jy || 0; return F.col.filter(r => !(r.h != null && r.h <= foot + STEP_UP)); };
 function supportAt(F, x, z, foot) {
   let s = 0; for (const r of F.col) if (r.h != null && r.h <= foot + STEP_UP && r.h > s && x > r.x1 - .1 && x < r.x2 + .1 && z > r.z1 - .1 && z < r.z2 + .1) s = r.h;

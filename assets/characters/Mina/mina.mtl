@@ -1,0 +1,185 @@
+# Blender 5.2.2 LTS MTL File: 'mina.blend'
+# www.blender.org
+
+newmtl Mina_Backpack
+Ns 90.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd ..//tmp/claude-0/-home-user-testgame/fdfd7214-ba27-557e-a3d2-82d60d020e16/scratchpad/mina/pkg/Mina/Textures/nylon_diffuse.jpg
+map_Bump -bm 1.000000 ..//tmp/claude-0/-home-user-testgame/fdfd7214-ba27-557e-a3d2-82d60d020e16/scratchpad/mina/pkg/Mina/Textures/nylon_normal.jpg
+
+newmtl Mina_Bangs
+Ns 202.500000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd ..//tmp/claude-0/-home-user-testgame/fdfd7214-ba27-557e-a3d2-82d60d020e16/scratchpad/mina/pkg/Mina/Textures/bangs.png
+map_d ..//tmp/claude-0/-home-user-testgame/fdfd7214-ba27-557e-a3d2-82d60d020e16/scratchpad/mina/pkg/Mina/Textures/bangs.png
+
+newmtl Mina_Brow
+Ns 39.999996
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd ..//tmp/claude-0/-home-user-testgame/fdfd7214-ba27-557e-a3d2-82d60d020e16/scratchpad/mina/pkg/Mina/Textures/mina_brow.png
+map_d ..//tmp/claude-0/-home-user-testgame/fdfd7214-ba27-557e-a3d2-82d60d020e16/scratchpad/mina/pkg/Mina/Textures/mina_brow.png
+
+newmtl Mina_Bunny
+Ns 2.500001
+Ka 1.000000 1.000000 1.000000
+Kd 0.940000 0.800000 0.820000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+
+newmtl Mina_BunnyEye
+Ns 640.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.020000 0.020000 0.020000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+
+newmtl Mina_Button
+Ns 490.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.750000 0.600000 0.300000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 3
+
+newmtl Mina_Emblem
+Ns 422.499969
+Ka 0.900000 0.900000 0.900000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 3
+map_Kd ..//tmp/claude-0/-home-user-testgame/fdfd7214-ba27-557e-a3d2-82d60d020e16/scratchpad/mina/pkg/Mina/Textures/emblem.png
+map_d ..//tmp/claude-0/-home-user-testgame/fdfd7214-ba27-557e-a3d2-82d60d020e16/scratchpad/mina/pkg/Mina/Textures/emblem.png
+
+newmtl Mina_Eye
+Ns 883.599976
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd ..//tmp/claude-0/-home-user-testgame/fdfd7214-ba27-557e-a3d2-82d60d020e16/scratchpad/mina/pkg/Mina/Textures/brown_eye.png
+
+newmtl Mina_Hair
+Ns 78.399986
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd ..//tmp/claude-0/-home-user-testgame/fdfd7214-ba27-557e-a3d2-82d60d020e16/scratchpad/mina/pkg/Mina/Textures/mina_hair_diffuse.png
+map_d ..//tmp/claude-0/-home-user-testgame/fdfd7214-ba27-557e-a3d2-82d60d020e16/scratchpad/mina/pkg/Mina/Textures/mina_hair_diffuse.png
+
+newmtl Mina_Lash
+Ns 39.999996
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd ..//tmp/claude-0/-home-user-testgame/fdfd7214-ba27-557e-a3d2-82d60d020e16/scratchpad/mina/pkg/Mina/Textures/eyelashes02.png
+map_d ..//tmp/claude-0/-home-user-testgame/fdfd7214-ba27-557e-a3d2-82d60d020e16/scratchpad/mina/pkg/Mina/Textures/eyelashes02.png
+
+newmtl Mina_Loafers
+Ns 490.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd ..//tmp/claude-0/-home-user-testgame/fdfd7214-ba27-557e-a3d2-82d60d020e16/scratchpad/mina/pkg/Mina/Textures/mina_shoes_diffuse.jpg
+map_Bump -bm 1.000000 ..//tmp/claude-0/-home-user-testgame/fdfd7214-ba27-557e-a3d2-82d60d020e16/scratchpad/mina/pkg/Mina/Textures/shoes01_normal.jpg
+
+newmtl Mina_Ribbon
+Ns 384.399994
+Ka 1.000000 1.000000 1.000000
+Kd 0.300000 0.045000 0.070000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+
+newmtl Mina_Skin
+Ns 270.399994
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd ..//tmp/claude-0/-home-user-testgame/fdfd7214-ba27-557e-a3d2-82d60d020e16/scratchpad/mina/pkg/Mina/Textures/mina_skin_diffuse.jpg
+
+newmtl Mina_Strap
+Ns 159.999985
+Ka 1.000000 1.000000 1.000000
+Kd 0.020000 0.020000 0.022000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+
+newmtl Mina_Teeth
+Ns 490.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.860000 0.840000 0.780000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+
+newmtl Mina_Tongue
+Ns 360.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.600000 0.300000 0.320000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+
+newmtl Mina_Uniform
+Ns 19.599997
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd ..//tmp/claude-0/-home-user-testgame/fdfd7214-ba27-557e-a3d2-82d60d020e16/scratchpad/mina/pkg/Mina/Textures/mina_suit_diffuse.jpg
+map_Bump -bm 0.600000 ..//tmp/claude-0/-home-user-testgame/fdfd7214-ba27-557e-a3d2-82d60d020e16/scratchpad/mina/pkg/Mina/Textures/female_elegantsuit01_normal.jpg
+
+newmtl Mina_Zipper
+Ns 490.000000
+Ka 0.900000 0.900000 0.900000
+Kd 0.550000 0.550000 0.550000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 3

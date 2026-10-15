@@ -5,4 +5,5 @@
    - 경비원: `native: true`(실제 미터 크기 그대로) · 경비실은 `Idle`, 정문 순찰은 `FlashlightHold` 동작
    - 모프 `Blink` 가 있으면 자동으로 눈을 깜빡인다. `setExpression(holder, 'Fear', 1)` 로 표정
 3. 로딩 실패 시 기존 절차적 모델 + 초상화 유지.
-4. 현재 상태: **guard = true (적용)** · mina = false (미제작)
+4. 현재 상태: **guard = true · mina = true (둘 다 적용)**
+   - 민아: `native: true` · `offset: [0,0,.36]`(앉은 자세 백팩이 장비 랙에 닿게) · `SittingAgainstWall` 동작 + `Asleep` 표정. 깨우면 `npcVisuals.play(holder, "Recovery", {once:true})` → `StandUp` → `Idle` (`game.js` 의 `minaWake`)

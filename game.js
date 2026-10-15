@@ -1502,7 +1502,7 @@ function restoreProp(p, s) {
   p.done = true;
   if (p.kind === 'safe') { p.open = 1; p.opening = true; p.key.locked = false; p.key.mesh.visible = !p.key.taken; }
   else if (p.kind === 'lock') openLockVisual(p);
-  else if (p.kind === 'mina') mina.visible = false;
+  else if (p.kind === 'mina') { mina.visible = false; minaProps.visible = false; }
 }
 function load(preferBackup) {
   const r = (() => { try { return readSlot(localStorage, SKEYS, SCTX, preferBackup); } catch (e) { return { data: null }; } })();
@@ -2309,10 +2309,14 @@ async function useProp(p) {
     line('gh1', 'phone', '📞 ???'); setTimeout(() => { if (state === 'playing') talk('steps', 2400); }, 3200);
   } else if (p.kind === 'mina') {
     npcVisuals.portrait('mina', '민아 · 방송부장', 4500);
-    if (!FL.calm) { talk(p.tried ? 'minaAsleep' : 'minaFound', 3200); p.tried = true; say('숨은 쉬고 있다… 무언가가 아직 그녀를 붙잡고 있다.', 3000); unlockOptional(); return; }
+    if (!FL.calm) {
+      talk(p.tried ? 'minaAsleep' : 'minaFound', 3200); p.tried = true; say('숨은 쉬고 있다… 무언가가 아직 그녀를 붙잡고 있다.', 3000); unlockOptional();
+      if (npcVisuals.has(mina)) { npcVisuals.setExpression(mina, 'Pain', .6); setTimeout(() => npcVisuals.setExpression(mina, 'Pain', 0), 1800); }   // 잠결에 얼굴을 찌푸린다
+      return;
+    }
     p.done = true; FL.mina = true; sfx.paper();
     line(`mw_${CK()}`, 'none', '민아').then(sec => setTimeout(() => { talk('withMina', 3000); }, (sec + .5) * 1000));
-    fadeOut(mina, 1.2); addClue('mina'); toast('민아를 찾았습니다', '함께 정문으로 — 진 엔딩 조건 달성', 'opt'); refreshHud(); save(true);
+    minaWake(); addClue('mina'); toast('민아를 찾았습니다', '함께 정문으로 — 진 엔딩 조건 달성', 'opt'); refreshHud(); save(true);
   }
 }
 // 진 엔딩 루트: 명찰을 가진 채 방송 → 하늘의 하교 방송 → 그것이 사라진다
@@ -2338,6 +2342,17 @@ async function haneulBroadcast() {
       }, (s2 + .6) * 1000);
     }, (sec + .8) * 1000);
   }, 900);
+}
+// 민아 깨우기: 3D 모델이면 깨어남(이마 짚기 · 두리번) → 일어서기 → 안도 표정 뒤 사라짐. 아니면 바로 사라짐
+async function minaWake() {
+  if (!npcVisuals.has(mina)) { fadeOut(mina, 1.2); fadeOut(minaProps, 1.2); return; }
+  const E = (n, v) => npcVisuals.setExpression(mina, n, v);
+  E('Asleep', 0); mina.userData.noBlink = false; E('Pain', .55);
+  await npcVisuals.play(mina, 'Recovery', { once: true, fade: .4 });
+  E('Pain', 0); E('Sad', .35);
+  await npcVisuals.play(mina, 'StandUp', { once: true, fade: .25 });
+  E('Sad', 0); E('Relief', .8); npcVisuals.play(mina, 'Idle', { fade: .4 });
+  setTimeout(() => { fadeOut(mina, 1.4); fadeOut(minaProps, 1.4); }, 1600);
 }
 function fadeOut(obj, sec) {
   const ms = []; obj.traverse(o => { if (o.material) { o.material = o.material.clone(); o.material.transparent = true; ms.push(o.material); } });
@@ -2493,7 +2508,7 @@ function storyItem(kind, f, x, y, z, mesh, label, glowColor) {
   storyItem('nametag', 4, SLOTS[8] - 3, .02, -4.5, g, '명찰 줍기', 0xc8a0ff);
 }
 // 장비실에 주저앉은 민아 (서현고 교복)
-const mina = new THREE.Group();
+const mina = new THREE.Group(), minaProps = new THREE.Group();
 // 민아 (서브 캐릭터 시트): 17세 · 162cm · 남색 블레이저(교표) · 흰 셔츠 · 버건디 리본 · 남색/버건디 체크 플리츠 스커트 · 흰 양말 · 검정 로퍼
 // 낮게 묶은 포니테일 + 앞머리 · 검정 백팩(토끼 키링) · 손전등 · 작은 노트 · 스마트폰 — 장비실 벽에 기대 잠든 자세
 {
@@ -2535,14 +2550,20 @@ const mina = new THREE.Group();
   add(new THREE.BoxGeometry(.22, .14, .05), bagM, .43, .14, .2, 0, -.4);
   add(new THREE.SphereGeometry(.035, 10, 8), M(0xf0c8cc, .9), .5, .3, .25); add(new THREE.SphereGeometry(.022, 8, 6), M(0xf0c8cc, .9), .5, .35, .25);
   [-1, 1].forEach(s => add(new THREE.CapsuleGeometry(.008, .03, 4, 6), M(0xf0c8cc, .9), .5 + s * .012, .385, .25));   // 토끼 귀
-  const fl = add(new THREE.CylinderGeometry(.022, .03, .2, 12), M(0x1a1a1a, .4, { metalness: .5 }), -.32, .03, .42, 0, 0, Math.PI / 2); fl.rotation.y = .6;
-  add(new THREE.CircleGeometry(.026, 12), new THREE.MeshBasicMaterial({ color: 0xffe8c0 }), -.24, .03, .48, 0, -1.0);
-  add(new THREE.BoxGeometry(.12, .015, .16), M(0x5a6a4a, .8), .2, .008, .5, 0, .3);   // 작은 노트
-  add(new THREE.BoxGeometry(.07, .008, .14), M(0x111216, .3), -.15, .006, .62, 0, -.2); add(new THREE.PlaneGeometry(.06, .12), new THREE.MeshBasicMaterial({ color: 0x8ab4e8 }), -.15, .012, .62, -Math.PI / 2, 0, .2);
+  // 바닥 소품은 따로 둔다 (3D 모델로 바뀌어도 남는다): 오른손 옆 손전등(희미하게 켜짐) · 발치의 스마트폰(화면 빛) · 왼쪽 노트
+  const padd = (geo, m, x, y, z, rx = 0, ry = 0, rz = 0) => { const o = new THREE.Mesh(geo, m); o.position.set(x, y, z); o.rotation.set(rx, ry, rz); minaProps.add(o); return o; };
+  const fl = padd(new THREE.CylinderGeometry(.022, .03, .2, 12), M(0x1a1a1a, .4, { metalness: .5 }), -.5, .03, .18, 0, 0, Math.PI / 2); fl.rotation.y = .6;
+  padd(new THREE.CircleGeometry(.026, 12), new THREE.MeshBasicMaterial({ color: 0xffe8c0 }), -.42, .03, .24, 0, -1.0);
+  padd(new THREE.BoxGeometry(.12, .015, .16), M(0x5a6a4a, .8), .36, .008, .5, 0, .3);   // 작은 노트
+  padd(new THREE.BoxGeometry(.07, .008, .14), M(0x111216, .3), -.2, .006, .78, 0, -.2); padd(new THREE.PlaneGeometry(.06, .12), new THREE.MeshBasicMaterial({ color: 0x8ab4e8 }), -.2, .012, .78, -Math.PI / 2, 0, .2);
   mina.position.set(-21.65, 0, -8.45); mina.userData.dynamic = true; F.interior.add(mina);   // interior 그룹이 이미 층 높이(y0)만큼 올라가 있다
-  mina.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+  minaProps.position.copy(mina.position); minaProps.userData.dynamic = true; F.interior.add(minaProps);
+  [mina, minaProps].forEach(g => g.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } }));
   world.props.push({ kind: 'mina', floor: 2, x: -21.65, z: -7.9, y: .8, label: '민아 깨우기' });
-  npcLoad('mina', mina, { url: 'assets/characters/mina.glb', height: .95, clipNames: ['sitting', 'sit'] });   // 장비실에 주저앉은 모습
+  // 3D 모델(162cm 실제 크기 · native): 서 있는 몸 그대로 '벽에 기대 앉기' 동작으로 앉힌다 — 크기를 앉은 키에 맞춰 줄이지 않는다(비율 왜곡 없음)
+  // offset z: 앉은 자세의 백팩 뒷면이 장비 랙 앞면(z -8.94)에 닿도록
+  npcLoad('mina', mina, { url: 'assets/characters/mina.glb', native: true, offset: [0, 0, .36], clipNames: ['sittingagainstwall'],
+    onLoad: () => { mina.userData.noBlink = true; npcVisuals.setExpression(mina, 'Asleep', 1); } });
 }
 
 /* ---------- 추가 상호작용 오브젝트: 잠긴 보관함 · 다이얼 · 배수구 · 피아노 · 그림 · 도구 ---------- */

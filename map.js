@@ -1,5 +1,5 @@
 // 미니맵 / 전체 지도 렌더러
-import { SLOTS, LAYOUT, GATE_Z, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY } from './world.js';
+import { SLOTS, LAYOUT, GATE_Z, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z } from './world.js';
 
 const COL = { tech: '#3a4a3a', fusion: '#2c3f55', lang: '#2c3f4a', smart: '#2c3a55', club: '#3a4a2c', cooking: '#3a4a4a', craft: '#4a3f2f', broadcast: '#4a2a2a', boiler: '#4a3a2a', electric: '#4a4a2a', storage: '#3a3a30', records: '#3a4030', cleaning: '#2f3f4a', generator: '#4a2f2f', pump: '#2a3f4a', exit: '#5a2a2a', class: '#27384a', office: '#4a3a28', nurse: '#2f4a46', counsel: '#3f3a4f', library: '#3a4a2c', lab: '#2c4a3a', computer: '#2c3f55', music: '#4a2f3a', art: '#4a432c', toilet: '#38334d', stair: '#5a5a58' };
 
@@ -12,13 +12,13 @@ export function drawMap(ctx, W, H, o) {
   const strokeRect = (x1, z1, x2, z2, c, w = 1) => { ctx.strokeStyle = c; ctx.lineWidth = w; ctx.strokeRect(X(x1), Y(z1), (x2 - x1) * S, (z2 - z1) * S); };
 
   if (floor === 0) { // 외부
-    fillRect(-50, -26, 50, 70, 'rgba(30,45,28,.55)');
+    fillRect(-50, NORTH_Z, 50, 70, 'rgba(30,45,28,.55)');
     fillRect(-27, 15, 27, 59, 'rgba(110,88,60,.45)');
     { const r = 11.4 * S; ctx.strokeStyle = 'rgba(150,60,50,.75)'; ctx.lineWidth = 3.6 * S; ctx.beginPath(); ctx.moveTo(X(-11), Y(40) - r); ctx.lineTo(X(11), Y(40) - r); ctx.arc(X(11), Y(40), r, -Math.PI / 2, Math.PI / 2); ctx.lineTo(X(-11), Y(40) + r); ctx.arc(X(-11), Y(40), r, Math.PI / 2, Math.PI * 1.5); ctx.stroke(); }   // 트랙
     fillRect(-14, 17.1, -8, 20.1, '#6a6a60'); fillRect(5, 13.4, 22, 16.6, '#5a5a54'); fillRect(29, 38.5, 43, 53.5, 'rgba(120,60,50,.5)');   // 조회대 · 스탠드 · 농구장
     fillRect(-3, 2, 3, 69, 'rgba(120,120,110,.4)');
     fillRect(28, 12.5, 48, 34.5, '#3a2a2a'); fillRect(-48, 12.5, -30, 25, '#3a3030'); fillRect(-48, 31, -34, 51, '#2a3a46'); fillRect(19.15, 62.8, 24.35, 67.2, '#4a4a40');   // 체육관 · 급식실 · 수영장 · 경비실 (외관 실제 위치)
-    strokeRect(-50, -26, 50, 70, '#6a6a60', 1.5);
+    strokeRect(-50, NORTH_Z, 50, 70, '#6a6a60', 1.5);
     fillRect(-4, GATE_Z - .6, 4, GATE_Z + .6, '#8a4a30');
     if (labels) {
       ctx.fillStyle = '#b8b4a4'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';

@@ -169,19 +169,22 @@ async function reachAudit() {
   const bad = await E(p, () => {
     const g = __g, out = []; g.ghost.active = false; g.state = 'playing';
     g.world.doorList.forEach(d => { if (d.rect) d.rect.off = true; });
+    g.floors.forEach(F => F && F.col.forEach(c => { if (c.gate) c.off = true; }));   // 미션으로 여는 문(옥상 녹슨 철문 등)도 열린 것으로
+    const SEEDS = { 0: [[0.8, -11.2]] };   // 순간이동 문으로만 들어가는 공간 (본관 ↔ 별관 실내 연결복도)
     const S = .2, r = .3, FF = {};
-    const AREA = { 0: [-60, 60, -14, 90, [0, 40]], 1: [-36, 36, -10, 10, [4, 0]], 2: [-36, 36, -10, 10, [4, 0]], 3: [-36, 36, -10, 10, [0, -7]], 4: [-36, 36, -10, 10, [4, 0]], 5: [27, 49, 7, 31, [38, 27]], 6: [-50, -30, 22, 52, [-35.5, 38]], 7: [-49, -29, 7, 23, [-39, 20]], 8: [-21, 21, -10, 10, [-13.8, -5.2]], 9: [-21, 21, -10, 10, [-13.8, -5.2]], 10: [-21, 21, -10, 10, [-13.8, -5.2]] };
+    const AREA = { 0: [-60, 60, -14, 90, [0, 40]], 1: [-36, 36, -10, 10, [4, 0]], 2: [-36, 36, -10, 10, [4, 0]], 3: [-36, 36, -10, 10, [0, -7]], 4: [-36, 36, -10, 10, [4, 0]], 5: [27, 49, 7, 31, [38, 27]], 6: [-50, -30, 22, 58, [-35.5, 38]], 7: [-49, -29, 7, 23, [-39, 20]], 8: [-21, 21, -10, 10, [-13.8, -5.2]], 9: [-21, 21, -10, 10, [-13.8, -5.2]], 10: [-21, 21, -10, 10, [-13.8, -5.2]] };
     const flood = f => { if (FF[f]) return FF[f]; const F = g.floors[f]; const [x0, x1, z0, z1, [sx, sz]] = AREA[f]; const nx = Math.round((x1 - x0) / S), nz = Math.round((z1 - z0) / S);
       const blocked = (x, z) => F.col.some(c => !c.off && !(c.h != null && c.h <= .4) && x > c.x1 - r && x < c.x2 + r && z > c.z1 - r && z < c.z2 + r);
-      const seen = new Uint8Array(nx * nz), q = []; let si = Math.round((sx - x0) / S), sk = Math.round((sz - z0) / S);
+      const seen = new Uint8Array(nx * nz), q = [];
+      for (const [ax, az] of [[sx, sz], ...(SEEDS[f] || [])]) { let si = Math.round((ax - x0) / S), sk = Math.round((az - z0) / S);
       outer: for (let d = 0; d < 20; d++) for (let a = -d; a <= d; a++) for (const [i, k] of [[si + a, sk - d], [si + a, sk + d], [si - d, sk + a], [si + d, sk + a]]) if (i >= 0 && k >= 0 && i < nx && k < nz && !blocked(x0 + i * S, z0 + k * S)) { si = i; sk = k; break outer; }
-      seen[sk * nx + si] = 1; q.push([si, sk]);
+      seen[sk * nx + si] = 1; q.push([si, sk]); }
       while (q.length) { const [i, k] = q.pop(); for (const [di, dk] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const a = i + di, c = k + dk; if (a < 0 || c < 0 || a >= nx || c >= nz) continue; const id = c * nx + a; if (seen[id]) continue; if (blocked(x0 + a * S, z0 + c * S)) { seen[id] = 2; continue; } seen[id] = 1; q.push([a, c]); } }
       return FF[f] = (x, z) => { const i = Math.round((x - x0) / S), k = Math.round((z - z0) / S); return i >= 0 && k >= 0 && i < nx && k < nz && seen[k * nx + i] === 1; }; };
     const T = [];
     g.world.items.forEach(it => { if (!it.taken && it.kind !== 'key' && it.id !== 'n27') T.push({ o: it, f: it.floor, x: it.pos.x, z: it.pos.z, id: it.kind + ':' + (it.id ?? '') }); });
     g.world.props.forEach(q => { if (q.kind !== 'switch' && !(q.kind === 'tape' && q.id === 'tape5')) T.push({ o: q, f: q.floor, x: q.x, z: q.z, id: q.kind + ':' + (q.uid || q.k || '') }); });
-    g.world.lockers.forEach((l, i) => T.push({ o: l, f: l.floor, x: l.x, z: l.z, id: 'locker:' + i, l: true }));
+    g.world.lockers.forEach((l, i) => { if (!l.noPick) T.push({ o: l, f: l.floor, x: l.x, z: l.z, id: 'locker:' + i, l: true }); });   // noPick: 국솥 · 청소도구함은 자기 조사 지점으로 숨는다
     for (const t of T) {
       if (!AREA[t.f]) continue; const ok2 = flood(t.f), wd = t.o.done, wl = t.o.locked; if (!t.l) { t.o.done = false; t.o.locked = false; }
       let ok = false;

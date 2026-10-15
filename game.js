@@ -4186,7 +4186,7 @@ function skeletonModel(parent) {
   const lock = new THREE.Group(); door.add(lock);
   pmesh(new THREE.TorusGeometry(.06, .012, 6, 12), PM(0x6a4a30, .7, .6), .98, .05, .07, lock); pbox(.07, .08, .03, PM(0x4a3a2a, .6, .7), .98, -.02, .08, lock);
   pmesh(new THREE.PlaneGeometry(.5, .3), new THREE.MeshBasicMaterial({ map: makeSign('관계자 외 출입금지 · 비상발전기', '#c8a020', '#1a1a1a', 20) }), .55, .45, .055, door, { cast: false });
-  FZ.doorLock = lock; FZ.doorCol = { x1: X1 - .06, x2: X1 + .06, z1: D1, z2: D2 }; R.col.push(FZ.doorCol); R.walls.push(FZ.doorCol);
+  FZ.doorLock = lock; FZ.doorCol = { x1: X1 - .06, x2: X1 + .06, z1: D1, z2: D2, gate: true }; R.col.push(FZ.doorCol); R.walls.push(FZ.doorCol);
   // 발전기: 받침 · 라디에이터 · 배기관 · 연료통 · 조작반 + 경광등
   gen.position.set(19.6, .62, 4.4); gen.material.color.setHex(0x3a4a34);
   pbox(1.6, .12, 1.0, PM(0x2a2a2a, .7, .5), 19.6, .06, 4.4, g);
@@ -4702,7 +4702,7 @@ const SIT = { chair: null, back: null };
   const byRoom = new Map();
   (world.CHAIRS || []).forEach(c => { const k = c.f + ':' + c.room; if (!byRoom.has(k)) byRoom.set(k, []); byRoom.get(k).push(c); });
   byRoom.forEach(list => {
-    const st = list.filter(c => !c.teacher).sort((a, b) => a.z - b.z || a.x - b.x), pick = [];
+    const st = list.filter(c => !c.teacher && c.z < -3.3).sort((a, b) => a.z - b.z || a.x - b.x), pick = [];
     // 앞 · 뒤 · 창가 · 복도 쪽으로 고르게 4개
     [[0, 0], [.33, 1], [.66, 0], [1, 1]].forEach(([q]) => { const c = st[Math.min(st.length - 1, Math.round(q * (st.length - 1)))]; if (c && !pick.includes(c)) pick.push(c); });
     list.filter(c => c.teacher).forEach(c => pick.push(c));

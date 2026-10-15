@@ -47,13 +47,17 @@ export async function loadManifest() {
   try { manifest = await (await fetch('voice/manifest.json')).json(); } catch (e) { manifest = {}; }
 }
 export const lineInfo = id => manifest[id];
+export const allLines = () => manifest;   // 음성 생성기(tools/gen_voice_edge.py --dump)용
 // 내장 음성 파일이 없는 새 대사: 자막과 브라우저 음성으로만 재생한다 (길이는 글자 수로 추정)
 export function registerLines(map) {
-  Object.entries(map).forEach(([id, v]) => { if (!manifest[id]) manifest[id] = { spk: v.spk, text: v.text.replace(/<[^>]+>/g, ' '), dur: Math.max(1.6, v.text.length * .11), nofile: true }; });
+  Object.entries(map).forEach(([id, v]) => {
+    if (!manifest[id]) manifest[id] = { spk: v.spk, text: v.text.replace(/<[^>]+>/g, ' '), dur: Math.max(1.6, v.text.length * .11), nofile: true };
+    if (v.parts) manifest[id].parts = v.parts;   // 번역 음성: 제목 · 본문을 따로 번역해 잇는다 (사전은 원문 조각 단위)
+  });
 }
 export function preload(ids) {
   if (!VS.dub || useBrowser()) return;
-  ids.forEach(id => manifest[id] && !manifest[id].nofile && loadVoice(`voice/${id}.mp3`));
+  ids.forEach(id => { const i = manifest[id]; if (!i) return; const u = VHOOK.file && VHOOK.file(id, i); if (u !== undefined) { if (u) loadVoice(u); return; } if (!i.nofile) loadVoice(`voice/${id}.mp3`); });
 }
 
 let voices = [];
@@ -80,12 +84,12 @@ const useBrowser = id => VS.engine === 'browser' ? hasBrowserVoice() : VS.engine
 export const engineLabel = () => (!VS.dub ? '끔' : useBrowser() ? `브라우저 음성 (${browserVoiceName()})` : '내장 더빙');
 
 // 대사 한 줄 재생 → 실제 길이(초)를 돌려준다. 음성이 없으면 글자 수로 추정.
-export const VHOOK = { speak: null };   // 언어 패치(i18n.js): 번역 대사를 그 언어 목소리로
+export const VHOOK = { speak: null, file: null };   // file(id, info): 언어 팩 음성 파일 경로 (undefined = 한국어 기본)   // 언어 패치(i18n.js): 번역 대사를 그 언어 목소리로
 export async function speak(id, fx = 'none') {
   const info = manifest[id];
   const est = info ? info.dur : 2.5;
   if (!VS.dub || !info) return est;
-  if (VHOOK.speak) { const r = VHOOK.speak(id, info); if (r != null) return r; }
+  if (VHOOK.speak) { const r = VHOOK.speak(id, info, fx); if (r != null) return r; }
   if (useBrowser(id) || (info.nofile && VS.engine === 'auto' && hasNaturalVoice())) {
     speechSynthesis.cancel();
     const text = info.text.replace(/<[^>]+>/g, ' ').replace(/…/g, ', ');

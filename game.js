@@ -12,6 +12,7 @@ import './sanitySystem.js';   // 공포 환각 엔진 (사용자 제공) → win
 import { GhostCameraSystem } from './ghostCamera.js';   // 심령 카메라 엔진 (사용자 제공)
 import { CraftingSystem } from './craftingSystem.js';   // 조합 · 생존 도구 (사용자 제공)
 import { SchoolPowerEventSystem } from './schoolPowerSystem.js';   // 배전반 · 차임벨 (사용자 제공)
+import { RestroomSystem } from './restroomSystem.js';   // 화장실 세면대 · 변기 (사용자 제공)
 import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil } from './audio.js';
 import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js';
 import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, SIDEQUESTS, HEADQUEST, COLLECT, LOCKER_SCARES, CHALK_QA, OUIJA_QS, PARA, TOILET_FX, MIRROR_WORDS } from './story.js';
@@ -1023,7 +1024,7 @@ function findInteract() {
     if (l.floor !== P.floor) continue;
     const dx = l.x - P.x, dz = l.z - P.z, d = Math.hypot(dx, dz);
     if (d > 1.7 || !los(floors[P.floor].walls, P.x, P.z, l.x, l.z)) continue; const f = (dx * fx + dz * fz) / Math.max(d, .01);
-    const s = f - d * .1; if (f > .35 && s > bs) { bs = s; best = { type: 'locker', l, label: '사물함에 숨기' }; }
+    const s = f - d * .1; if (f > .35 && s > bs) { bs = s; best = { type: 'locker', l, label: l.label || '사물함에 숨기' }; }
   }
   for (const d of world.doorList) {
     if (d.floor !== P.floor) continue;
@@ -1111,6 +1112,7 @@ function interact() {
   else if (target.type === 'prop') useProp(target.p);
 }
 function toggleDoor(d, silent) {
+  if (d.locked && d.target < .5) { at(d.x, floors[d.floor].y0 + 1.1, d.z).knock(); say('안에서 잠겨 있다… 문 아래로 실내화 두 짝이 보인다', 2400); setFace('fear', 2); return; }   // 여자화장실 3번 칸
   if (d.target > .5) {
     const r = d.rect, m = .33;
     if (P.floor === d.floor && P.x > r.x1 - m && P.x < r.x2 + m && P.z > r.z1 - m && P.z < r.z2 + m) { say('문틀에서 비켜야 닫을 수 있다', 1600); return; }
@@ -1353,7 +1355,7 @@ const gate = world.gate;
 
 function enterLocker(l) {
   const G = ghost;
-  P.hiding = l; sfx.locker(); P.hideCount = (P.hideCount || 0) + 1;
+  P.hiding = l; sfx.locker(); P.hideCount = (P.hideCount || 0) + 1; if (l.stallDoor) { l.stallDoor.target = 0; sfx.doorHinge(.6); }   // 칸막이: 들어가서 문을 닫는다
   const dr = l.dir || { x: 0, z: 1 }; l.yaw = Math.atan2(-dr.x, -dr.z);
   P.x = l.x + dr.x * .12; P.z = l.z + dr.z * .12; P.yaw = l.yaw; P.pitch = 0;
   $('hide').classList.add('show');
@@ -1363,6 +1365,7 @@ function enterLocker(l) {
 function leaveLocker(silent) {
   const l = P.hiding; if (!l) return;
   const dr = l.dir || { x: 0, z: 1 }; P.hiding = null; $('hide').classList.remove('show'); P.x = l.x + dr.x * .85; P.z = l.z + dr.z * .85; P.yaw = l.yaw; P.pitch = 0;
+  if (l.stallDoor && !l.stallDoor.locked) l.stallDoor.target = 1;
   ghost.hunt = null; ghost.findT = 0; ghost.fake = null; ghost.lockSearch = null; $('peekEye').classList.remove('on'); if (!silent) sfx.locker();
 }
 
@@ -2248,6 +2251,8 @@ async function useProp(p) {
   if (p.kind === 'safe') {
     if (p.open > 0) return;
     kpProp = p; kpBuf = ''; $('kpTitle').textContent = '교무실 금고'; if (!p.fails) $('kpHint').textContent = '숫자 키 · Enter · Backspace 사용 가능'; renderKeypad(); openUI('keypad'); sfx.beep();
+  } else if (p.kind === 'sink') { useSink(p);
+  } else if (p.kind === 'flush') { useFlush(p);
   } else if (p.kind === 'cbreaker') { useCBreaker(p);
   } else if (p.kind === 'pick') { usePick(p);
   } else if (p.kind === 'breaker') {
@@ -2683,7 +2688,7 @@ function updateThrows(dt) {
 
 
 // 조합 재료 줍기: 절연 테이프(공예실 · 별관 작업실 · 방송실) · 보건실 진정제(보건실 · 보건실 보조)
-const PICK_SPOTS = [['tape', 2, -13.8, .87, -4.6], ['tape', 9, -18.0, .87, 4.8], ['tape', 1, 10.0, .02, 1.35], ['sedative', 0, -21.0, .02, -1.35], ['sedative', 8, 6.0, .02, 1.35]];
+const PICK_SPOTS = [['tape', 2, -13.8, .87, -4.6], ['tape', 9, -18.0, .87, 4.8], ['tape', 1, 10.0, .02, 1.35], ['sedative', 0, -18.6, .02, .7], ['sedative', 8, 6.0, .02, 1.35]];
 function spawnPicks() {
   const tapeG = new THREE.TorusGeometry(.06, .028, 8, 18), botG = new THREE.CylinderGeometry(.035, .035, .1, 12);
   const tapeM = new THREE.MeshStandardMaterial({ color: 0x141414, roughness: .55 }), botM = new THREE.MeshStandardMaterial({ color: 0x8a5a24, roughness: .25, transparent: true, opacity: .9 });
@@ -3543,7 +3548,8 @@ function toiletTick(f, room, step) {
   if (state !== 'playing' || (ghost.active && ghost.floor === f && (ghost.state === 'chase' || ghost.hunt))) return;
   TE.t -= step; if (TE.t > 0) return;
   TE.t = 20 + Math.random() * 20;
-  const ks = Object.keys(TOILET_FX).concat(FL.redblue ? [] : ['tissue', 'tissue']).filter(k => !TE.last.includes(k));
+  const fem = (room.south || f === 2) && !(f === 8 || f === 10);   // 여자화장실에서만 3번 칸 실내화 · 빨간 휴지 파란 휴지
+  const ks = Object.keys(TOILET_FX).filter(k => fem || k !== 'shoes').concat(FL.redblue || !fem ? [] : ['tissue', 'tissue']).filter(k => !TE.last.includes(k));
   const k = ks[(Math.random() * ks.length) | 0]; TE.last.push(k); if (TE.last.length > 3) TE.last.shift();
   toiletFx(k, f, room);
 }
@@ -3823,6 +3829,49 @@ function breakerTick(dt) {
   if (ch && !chimeWas) sfx.chimeWarp(15); $('chimeBar').classList.toggle('on', ch); chimeWas = ch;
 }
 
+
+// ── 7. 화장실 연결 (사용자 제공 RestroomSystem): 세면대 세수(공포 -25) ↔ 핏물 역류(28% · 같은 세면대 3번째부터, 공포 +18 · 거울 핏빛 글씨) · 물소리 14m 유인 ──
+//   세면대 모양은 이미 화장실에 있으므로 클래스가 만드는 상자 세면대는 숨기고 상호작용만 쓴다. 변기 물 내리기는 22m 유인
+class GameRestroom extends RestroomSystem {
+  createSinkUnit(position, rotationY, sinkId, ctx) {
+    const grp = super.createSinkUnit(position, rotationY, sinkId), obj = this.interactables[this.interactables.length - 1]; obj.mesh.visible = false; obj.uses = 0;
+    obj.onInteract = (ps, notifyUI, alertFn) => {
+      obj.uses++; const blood = obj.uses >= 3 || Math.random() < .28;
+      sinkStream(ctx, blood); at(position.x, position.y + .9, position.z).faucet(5);
+      if (blood) { ps.fear = Math.min(100, ps.fear + 18); notifyUI('수도꼭지에서 검붉은 핏물이 쏟아진다! 거울이 붉게 물든다 (공포 +18%)'); sinkMirror(ctx); sfx.stinger(.6); fx.glitch(.5); shake = .3; setFace('surprise', 2.4); }
+      else { ps.fear = Math.max(0, ps.fear - 25); notifyUI('시원한 수돗물로 세수를 했다 (공포 -25%) — 물소리가 복도로 퍼진다'); setFace('relief', 2.4); }
+      alertFn(position, 14);
+    };
+    return grp;
+  }
+}
+const restroom = window.restroomSystem = new GameRestroom(scene);
+function buildRestrooms() {
+  world.props.filter(p => p.kind === 'sink').forEach((p, i) => {
+    const r = roomAt(p.floor, p.x, p.z), wx = r && r.south ? p.x - .3 : p.x + .3;   // 벽 쪽 수전 위치 (남쪽 방은 반대)
+    const zl = r.south ? -p.z : p.z; p.ctx = { f: p.floor, r, tap: tPos(r, r.cx + 3.85 - .21, zl), zl };
+    p.sink = restroom.createSinkUnit(new THREE.Vector3(wx, floors[p.floor].y0, p.z), r && r.south ? Math.PI / 2 : -Math.PI / 2, `sink_${p.floor}_${i}`, p.ctx);
+    p.sinkObj = restroom.interactables[restroom.interactables.length - 1];
+  });
+}
+function sinkStream(c, blood) {
+  const m = new THREE.Mesh(new THREE.CylinderGeometry(.008, .012, .19, 8), new THREE.MeshStandardMaterial({ color: blood ? 0x6a0606 : 0xa8c8d0, roughness: .05, transparent: true, opacity: .8 }));
+  m.position.set(c.tap.x, .875, c.tap.z); m.userData.tick = () => { m.scale.x = m.scale.z = .8 + Math.random() * .5; if (Math.random() < .35) fx.emit(c.tap.x, floors[c.f].y0 + .8, c.tap.z, (Math.random() - .5) * .4, .4, (Math.random() - .5) * .4, .3, blood ? [.45, .03, .03] : [.7, .8, .85], .4, .015, 6); };
+  addTmp(c.f, m, 5, .2, .4);
+}
+function sinkMirror(c) {   // 거울이 핏빛으로 번지고 '뒤에 누구야'
+  const r = c.r, p = tPos(r, r.cx + 3.85 - .043, c.zl, -Math.PI / 2), g = new THREE.Group();
+  const red = new THREE.Mesh(new THREE.PlaneGeometry(1.2, .9), new THREE.MeshBasicMaterial({ color: 0x5a0000, transparent: true, opacity: .55, depthWrite: false })); g.add(red);
+  const w = new THREE.Mesh(new THREE.PlaneGeometry(1.1, .28), new THREE.MeshBasicMaterial({ map: makeGraffiti('뒤에 누구야', '#c01010'), transparent: true, depthWrite: false })); w.position.set(0, .1, .002); g.add(w);
+  g.position.set(p.x, 1.65, p.z); g.rotation.y = p.ry; addTmp(c.f, g, 12, 1.2, 3);
+}
+const lureTo = (f, pos, radius) => { const G = ghost; if (!G.active || G.floor !== f || G.enraged || Math.hypot(G.x - pos.x, G.z - pos.z) > radius) return false; G.state = 'search'; G.target = { x: pos.x, z: pos.z }; G.path = []; G.replan = 0; G.wait = 0; G.hunt = null; return true; };
+function useSink(p) { p.sinkObj.onInteract(PS, notify, (pos, radius) => lureTo(p.floor, pos, radius)); P.noiseT = 1.2; }
+function useFlush(p) {
+  at(p.x, floors[p.floor].y0 + .5, p.z).flush(); P.noiseT = 2.5; shake = .15;
+  const lured = lureTo(p.floor, p, 22); caption(lured ? '쏴아 — 요란한 물소리에 발소리가 이쪽으로 방향을 튼다' : '쏴아 — 물 내려가는 소리가 화장실을 울린다');
+}
+
 // ── 6. 그것: 사물함 수색 · 페이크 퇴장 ──
 function lockerSearchStart(G) {
   if (!P.hiding || G.lockSearch || G.hunt) return;
@@ -3871,7 +3920,7 @@ function extrasTick(dt) {
     if (XT.para <= 0) { const ch = objective().ch; XT.para = (ch >= 4 ? 55 : ch >= 3 ? 75 : 100) + Math.random() * 50; if (!paraEvent()) XT.para = 15; }
   }
 }
-buildCamClues(); buildBreakers(); spawnPicks();
+buildCamClues(); buildBreakers(); buildRestrooms(); spawnPicks();
 sqSync();
 initSaveIds();
 applyQuality(SET.quality === 'auto' ? 'high' : SET.quality);
@@ -4017,7 +4066,7 @@ if (DEBUG) {
     get state() { return state; }, set state(v) { state = v; }, get tNow() { return tNow; }, openTest, EV, appar, applyQuality,
     interact, findInteract, hit, die, activateGhost, enrage, FL, MG, throwCan, throws, set playTime(v) { playTime = v; }, toggleView, get view() { return view; }, useProp, docs, msgs, clues, objective, makeGateKey, openInv, openPhone, openMap, openCharsel, openSettings, refreshHud, save, load, inv, mina,
     get power() { return power; }, set power(v) { power = v; }, get CHAR() { return CHAR; }, newGame, continueGame,
-    setTarget(t) { target = t; }, DAY, GEN, SIDEQUESTS, sqStep, sqDoneCount, useSideQuest, HEADQUEST, useHead, COLLECT, paraEvent, toiletFx, tmpFx, TE, roomAt, camMode, camShoot, CAM, MIC, SAN, BRK, setBreaker, schoolPower, craftingSystem, ghostCam, placeAlarm, throwShock, useFirstAid, tryCombine, stunGhost, lockerSearchStart, enterLocker, leaveLocker, startSearch, useMiniSpot, openChalk, chalkAsk, XT,
+    setTarget(t) { target = t; }, DAY, GEN, SIDEQUESTS, sqStep, sqDoneCount, useSideQuest, HEADQUEST, useHead, COLLECT, paraEvent, toiletFx, tmpFx, TE, roomAt, camMode, camShoot, CAM, MIC, SAN, BRK, setBreaker, schoolPower, craftingSystem, ghostCam, restroom, useSink, useFlush, placeAlarm, throwShock, useFirstAid, tryCombine, stunGhost, lockerSearchStart, enterLocker, leaveLocker, startSearch, useMiniSpot, openChalk, chalkAsk, XT,
   };
 }
 // 형광등 스위치 초기 상태 반영 (방마다 일부만 켜져 있다)

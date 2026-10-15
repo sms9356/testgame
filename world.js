@@ -86,7 +86,8 @@ export function buildWorld(scene) {
   const mLockerT = S(T.makeLocker(), { roughness: 1, metalness: .35 });
   { const lk = T.pbr('locker', () => T.pbrPaintMetal(256)); mLockerT.normalMap = lk.normalMap; mLockerT.roughnessMap = lk.roughnessMap; }
   mLockerT.userData.locker = true;   // 사물함 상자: 3D 철제 캐비닛 패치(game.js)가 이 목록으로 외형을 바꾼다
-  const LOCKER_BOXES = [];
+  const POOL = { water: null };   // 수영장 고인 물 — 수영장 패치(game.js)가 청록 수면으로 바꾼다
+  const LOCKER_BOXES = [], CHAIRS = [];   // CHAIRS: 교실 학생 의자 · 교탁 의자 (교실 리모델링 패치 — 의자에 앉기)
   const B_BOIL = { b: null, cx: 0, m: [] }, keepB = m => { m.userData.dynamic = true; B_BOIL.m.push(m); return m; };   // B1 보일러 본체 — 보일러실 패치(game.js)가 같은 자리에 녹슨 보일러로 바꾼다
   const mStep = P(T.pbr('step', () => T.pbrConcrete(512)));
   const mBooks = S(T.makeBooks());
@@ -310,16 +311,16 @@ export function buildWorld(scene) {
   ]);
   // V4 실사 모델 (사용자 제작 지시서 R02-01 책상 · R02-02 의자 · R02-03 교탁, Blender 제작 · Poly Haven CC0 2K PBR + AO): 일반 교실 전부 — ?v4=0 이면 예전 절차 가구
   const V4_PILOT = !(typeof location !== 'undefined' && new URLSearchParams(location.search).get('v4') === '0');
-  function deskGrid(cx, offs, rows, miss = .15, v4 = false) {
-    const tops = [], legs = [], seats = [], cl = [];
+  function deskGrid(cx, offs, rows, miss = .15, v4 = false, o = {}) {
+    const tops = [], legs = [], seats = [], cl = [], keep = o.keep || [], knock = o.knock ?? .1;
     for (const dx of offs) for (const z of rows) {
-      if (rnd() < miss) continue;
+      if (rnd() < miss && !keep.some(([kx, kz]) => Math.abs(kx - cx - dx) < .5 && Math.abs(kz - z) < .4)) continue;   // keep: 위에 소품이 놓인 책상은 빼지 않는다
       const x = cx + dx + rr(-.05, .05), ry = rr(-.06, .06);
       if (v4) model('v4_R02-01', x, 0, z, ry); else { tops.push(MX(x, 0, z, ry)); legs.push(MX(x, 0, z, ry)); }
       col(x - .35, x + .35, z - .25, z + .25, false, v4 ? .73 : .76);   // 책상 윗면 — 점프로 올라설 수 있다
       const r = rnd();
-      if (r < .1) { const px = x + rr(-.1, .1), pry = rr(-1, 1); if (v4) model('v4_R02-02', px, .218, z + .62, pry, { rz: Math.PI / 2 }); else { const m = MX(px, .2, z + .62, pry, Math.PI / 2); seats.push(m); cl.push(m); } }   // 옆으로 쓰러진 의자 (통로를 막지 않게 충돌 없음)
-      else if (r < .85) { const px = x + rr(-.08, .08), pz = z + .5 + rr(-.05, .2), pry = rr(-.35, .35); if (v4) model('v4_R02-02', px, 0, pz, pry); else { const m = MX(px, 0, pz, pry); seats.push(m); cl.push(m); } }
+      if (r < knock) { const px = x + rr(-.1, .1), pry = rr(-1, 1); if (v4) model('v4_R02-02', px, .218, z + .62, pry, { rz: Math.PI / 2 }); else { const m = MX(px, .2, z + .62, pry, Math.PI / 2); seats.push(m); cl.push(m); } }   // 옆으로 쓰러진 의자 (통로를 막지 않게 충돌 없음)
+      else if (r < .85) { const tidy = o.tidy, px = x + rr(-.08, .08), pz = z + (tidy ? .38 : .5 + rr(-.05, .2)), pry = tidy ? rr(-.05, .05) : rr(-.35, .35); if (v4) model('v4_R02-02', px, 0, pz, pry); else { const m = MX(px, 0, pz, pry); seats.push(m); cl.push(m); } CHAIRS.push({ f: cur.f, x: px, z: pz, ry: pry, room: o.room }); }
     }
     if (!tops.length && !v4) return;
     if (tops.length) { inst(cur.interior, deskTopG, mWood, tops); inst(cur.interior, deskLegG, mMetal, legs); }
@@ -630,15 +631,18 @@ export function buildWorld(scene) {
     const gl = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTexG, color: 0xffb0a0, blending: THREE.AdditiveBlending, depthWrite: false, opacity: .5 })); gl.scale.setScalar(.45); gl.position.y = .05; g.add(gl);
     props.push({ kind: 'clue', id: 'cls' + name, floor: cur.f, x, z, y: .35, mesh: g, title, state, room: name, label: `${title} 조사하기` });
   }
+  // 교실 배치 시드 (교실 리모델링 패치 — 비반복 배치): 1 기본 · 2 가지런한 줄 + 교탁 · 게시판 좌우 반전 · 3 폐허(의자 쓰러짐 · 책상 빠짐 · 넘어진 책상)
+  //   책상 자리는 그대로 둔다 (책상 위 노트 · 필통 같은 소품이 공중에 뜨지 않게) — 대신 위에 소품이 있는 책상은 빠지지 않는다
+  const classSeed = (cx, name) => { let h = cur.f * 31 + (curSouth ? 7 : 0); for (const ch of String(name)) h = h * 33 + ch.charCodeAt(0); return Math.abs(h) % 3 + 1; };
   function classroom(cx, name) {
-    const zN = -9.6;
+    const zN = -9.6, seed = classSeed(cx, name), mir = seed === 2 ? -1 : 1;
     frontWall(cx, zN, true, name === '3-3' ? ['자습'] : undefined);
     boardRefs['cls' + cur.f + ':' + cx + (curSouth ? 's' : '')] = { mat: frontWall.last, floor: cur.f, cx, name };
     if (name === '3-3') boardRefs.b33 = { mat: frontWall.last, floor: cur.f, cx };
-    teacherDesk(cx + 2.6, zN + 1.0);
+    teacherDesk(cx + 2.6 * mir, zN + 1.0); CHAIRS.push({ f: cur.f, x: cx + 2.6 * mir, z: zN + 1.75, ry: 0, room: name, teacher: true });
     model('wall_clock', cx + 2.2, 2.85, -1.79, Math.PI);   // 뒷벽(복도 쪽) 시계
-    monitor(cx + 2.35, .78, zN + .82, -.2, { crt: true, cracked: rnd() < .3 });
-    lectern(cx - 1.2, zN + 1.05);
+    monitor(cx + 2.35 * mir, .78, zN + .82, -.2 * mir, { crt: true, cracked: rnd() < .3 });
+    lectern(cx - 1.2 * mir, zN + 1.05);
     fan(cx, -7.3); fan(cx, -3.9);
     // 빔프로젝터(천장) + 말아 올린 스크린 + 스피커
     { const pj = meshAt(merge([bx(.36, .12, .3, 0, 0, 0), new THREE.CylinderGeometry(.045, .045, .04, 12).rotateX(Math.PI / 2).translate(0, 0, -.17), bx(.04, .3, .04, 0, .2, 0), bx(.25, .02, .25, 0, .35, 0)]), mProj, cx, CH - .45, -6.3); pj.rotation.y = Math.PI;
@@ -653,15 +657,18 @@ export function buildWorld(scene) {
     [-3.05, 3.05].forEach(dx => potPlant(cx + dx + rr(-.4, .4), .92, zN + .22));
     if (rnd() < .5) graffiti(pick(['다시, 여기서', '돌아와', '보고 있어']), cx - 2.4, 1.7, -1.765, Math.PI, 1.8);
     // 게시판 (동쪽 벽) + 붙은 안내문
-    plane(cur.interior, mCork, 2.0, 1.1, cx + 3.84, 1.6, -5.2, -Math.PI / 2);
-    for (let k = 0; k < 5; k++) { const pp = new THREE.Mesh(new THREE.PlaneGeometry(.26, .34), mPaperN); pp.position.set(cx + 3.82, 1.4 + (k % 2) * .4 + rr(-.05, .05), -5.9 + k * .32); pp.rotation.set(0, -Math.PI / 2, rr(-.15, .15)); cur.interior.add(pp); }
+    plane(cur.interior, mCork, 2.0, 1.1, cx + 3.84 * mir, 1.6, -5.2, -Math.PI / 2 * mir);
+    for (let k = 0; k < 5; k++) { const pp = new THREE.Mesh(new THREE.PlaneGeometry(.26, .34), mPaperN); pp.position.set(cx + 3.82 * mir, 1.4 + (k % 2) * .4 + rr(-.05, .05), -5.9 + k * .32); pp.rotation.set(0, -Math.PI / 2 * mir, rr(-.15, .15)); cur.interior.add(pp); }
     // 뒤쪽: 청소도구함(왼쪽 구석) + 개인 사물함 + 책장
     add(mPanelG, .55, 1.8, .45, cx - 3.5, 0, -2.05, { col: true });
     for (let k = 0; k < 4; k++) add(mLockerT, .48, 1.4, .45, cx - 2.9 + k * .5, 0, -2.0, { ry: Math.PI });
     col(cx - 3.2, cx - 1.1, -2.25, -1.75);
     shelf3D(cx - 3.62, -3.8, Math.PI / 2, 1.2, 1.2, .35, 3, .7); col(cx - 3.85, cx - 3.4, -4.4, -3.2);
     // 학생 책상 25세트 (5 × 5)
-    deskGrid(cx, [-3.0, -1.5, 0, 1.5, 3.0], [-7.3, -6.05, -4.8, -3.55], .12, V4_PILOT);   // 5×4 · 책상 사이 통로 0.8m (예전 5×5 는 줄 사이 0.48m 로 지나갈 수 없었다)
+    const dCls = CLS[name], keep = dCls && dCls.c.length ? dCls.c.map(([X, Y]) => csvXZ(cx, X, Y)) : [];
+    deskGrid(cx, [-3.0, -1.5, 0, 1.5, 3.0], [-7.3, -6.05, -4.8, -3.55], seed === 3 ? .3 : seed === 2 ? .04 : .12, V4_PILOT, { keep, knock: seed === 3 ? .42 : seed === 2 ? .02 : .1, tidy: seed === 2, room: name });
+    if (seed === 3) [[-3.0, -3.55], [1.5, -7.3]].forEach(([dx, z]) => { const x = cx + dx; if (keep.some(([kx, kz]) => Math.abs(kx - x) < .9 && Math.abs(kz - z) < .9)) return;   // 폐허 교실: 뒤집힌 책상 2개
+      const g = meshAt(merge([bx(.7, .03, .5, 0, .74, 0), bx(.04, .72, .04, -.32, .36, -.22), bx(.04, .72, .04, .32, .36, -.22), bx(.04, .72, .04, -.32, .36, .22), bx(.04, .72, .04, .32, .36, .22)]), mWood, x + .55, 0, z + .3, rr(-.6, .6)); g.rotation.z = Math.PI / 2; g.position.y = .37; col(x + .15, x + .95, z - .1, z + .7, false, .74); });   // 5×4 · 책상 사이 통로 0.8m (예전 5×5 는 줄 사이 0.48m 로 지나갈 수 없었다)
     // CSV 소모품: 노트 · 필통 · 물병/종이컵 · 쓰레기/파손물 + 분필 · 지우개는 칠판 아래
     const d = CLS[name];
     if (d && d.c.length) {
@@ -2776,7 +2783,7 @@ export function buildWorld(scene) {
     [[bx0 - .55, bx0 - .3, bz0 - .55, bz1 + .55], [bx1 + .3, bx1 + .55, bz0 - .55, bz1 + .55]].forEach(([a, b, c, d]) => flat(F.interior, mDrain, a, b, c, d, .015, .3));
     // 고인 물: 탁한 녹색, 낙엽 · 부유물
     const water = new THREE.Mesh(new THREE.PlaneGeometry(bx1 - bx0, bz1 - bz0), new THREE.MeshStandardMaterial({ color: 0x1e3c34, roughness: .04, metalness: .35, transparent: true, opacity: .74, depthWrite: false }));
-    water.rotation.x = -Math.PI / 2; water.position.set((bx0 + bx1) / 2, WL, (bz0 + bz1) / 2); F.interior.add(water);
+    water.rotation.x = -Math.PI / 2; water.position.set((bx0 + bx1) / 2, WL, (bz0 + bz1) / 2); F.interior.add(water); water.userData.dynamic = true; POOL.water = water;
     { const leafG = new THREE.CircleGeometry(.07, 5); leafG.rotateX(-Math.PI / 2); const lm = [];
       for (let k = 0; k < 160; k++) lm.push(MX(rr(bx0 + .1, bx1 - .1), WL + .005, rr(bz0 + .1, bz1 - .1), rnd() * 6));
       const im = inst(F.interior, leafG, S(null, { color: 0xffffff, roughness: .9, side: THREE.DoubleSide }), lm); lm.forEach((_, i) => im.setColorAt(i, new THREE.Color(pick([0x7a6a30, 0x5a4a22, 0x8a5a2a, 0x4a5a2a])))); }
@@ -3458,7 +3465,7 @@ export function buildWorld(scene) {
     return .38 + .62 * d;
   }
   const flickCfg = { calm: false };
-  return { B_BOIL, LOCKER_BOXES, h133Mat, crMat, thMat, prMat, v2Mat, winMats, MODELS, floors, items, lockers, doors, gate, update, mats: { flickerMats, matLampOn, matLampDead }, flickCfg, sky: { stars, moon, moonGlow }, NOTES, TAPES, PHOTOS, doorList, props, boardRefs, OUT, bakeStats, makeBoardTex: T.makeBoard };
+  return { POOL, CHAIRS, B_BOIL, LOCKER_BOXES, h133Mat, crMat, thMat, prMat, v2Mat, winMats, MODELS, floors, items, lockers, doors, gate, update, mats: { flickerMats, matLampOn, matLampDead }, flickCfg, sky: { stars, moon, moonGlow }, NOTES, TAPES, PHOTOS, doorList, props, boardRefs, OUT, bakeStats, makeBoardTex: T.makeBoard };
 }
 
 /* ---------- 충돌/시야 ---------- */

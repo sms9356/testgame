@@ -101,7 +101,8 @@ PW_CORE=<playwright-core> CHROME=<chromium> npm run test:e2e
 
 ## 캐릭터 3D 모델 교체 (GLB)
 `assets/characters/guard.glb` · `assets/characters/mina.glb` 를 넣고 새로고침하면 지금의 간단한 절차적 경비원(인트로 · 경비실) · 민아(방송실 장비실) 대신 그 모델이 쓰인다.
-- 경비원: 키 약 1.75m, `idle` 애니메이션 · 민아: 장비실에 **주저앉은** 포즈, 높이 약 0.95m, `sitting` 애니메이션
+- 경비원: 키 약 1.75m, `idle` 애니메이션 · 민아: 키 1.62m 모델을 `SittingAgainstWall` 동작으로 앉힘(크기 그대로, `native`) — 깨우면 `Recovery` → `StandUp`
+- 현재 둘 다 적용됨 (`assets/characters/Guard`, `assets/characters/Mina`, 검사 기록 `QualityControl/`)
 - 미터 단위 · Y-up · 앞 방향 -Z (Blender glTF 2.0 내보내기). 크기 · 바닥 위치는 자동으로 맞춘다
 - 파일이 없으면 지금 모델을 그대로 쓴다 (네트워크 탭의 404 한 줄은 정상)
 - 지금 저장소에는 GLB 가 **없다** — 캐릭터 시트(2D 그림)는 3D 모델이 아니므로 별도 모델링이 필요하다. 대사 장면의 초상화(`assets/ui/npc_*.webp`)는 시트에서 잘라 바로 쓴다

@@ -48,6 +48,7 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
       pivot.name = `${id}_VISUAL`;
       pivot.rotation.y = yaw;
       pivot.position.y = Number(options.yOffset) || 0;
+      if (Array.isArray(options.offset)) { pivot.position.x += options.offset[0] || 0; pivot.position.y += options.offset[1] || 0; pivot.position.z += options.offset[2] || 0; }
       pivot.add(model);
 
       model.traverse(obj => {
@@ -74,7 +75,7 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
         const action = mixer.clipAction(clip);
         action.setLoop(THREE.LoopRepeat);
         action.play();
-        mixers.set(holder, mixer);
+        mixers.set(holder, mixer); holder.userData.npcClips = clips; holder.userData.npcAction = action;
         console.info(`[NPC] ${id}: animation=${clip.name}`);
       } else {
         console.warn(`[NPC] ${id}: GLB에 애니메이션이 없습니다. T-Pose 여부를 확인하세요.`);
@@ -87,7 +88,8 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
       holder.add(pivot);
       holder.userData.characterModel = pivot;
       const bl = []; model.traverse(o => { if (o.morphTargetDictionary && o.morphTargetDictionary.Blink != null) bl.push([o, o.morphTargetDictionary.Blink]); });
-      if (bl.length) blinkers.push({ meshes: bl, t: 1 + Math.random() * 3 });
+      if (bl.length) blinkers.push({ holder, meshes: bl, t: 1 + Math.random() * 3 });
+      if (options.onLoad) { try { options.onLoad(pivot); } catch (e) { console.warn('[NPC] onLoad', e); } }
       console.info(`[NPC] ${id}: 3D 모델 연결 성공 (${url})`);
       return { ok: true, id, url, clips: clips.length };
     }).catch(err => {
@@ -145,6 +147,7 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
     if (!Number.isFinite(dt) || dt <= 0) return;
     mixers.forEach((m, holder) => { if (holder.visible) m.update(Math.min(.067, dt)); });
     for (const b of blinkers) {
+      if (b.holder.userData.noBlink) continue;
       b.t -= dt; if (b.t < -.16) b.t = 2.5 + Math.random() * 3.5;
       const v = b.t < 0 ? Math.sin((-b.t / .16) * Math.PI) : 0;
       b.meshes.forEach(([o, i]) => { o.morphTargetInfluences[i] = v; });
@@ -156,5 +159,17 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
     return hit;
   }
 
-  return { load, portrait, update, setExpression };
+  // 동작 바꾸기: 이름(대소문자 무시)으로 찾아 fade 초 동안 섞는다. once=true 면 한 번만 재생하고 마지막 자세에 멈춘 뒤 Promise 가 끝난다
+  function play(holder, name, { once = false, fade = .35, speed = 1 } = {}) {
+    const mixer = mixers.get(holder), clips = holder && holder.userData.npcClips; if (!mixer || !clips) return Promise.resolve(false);
+    const clip = clips.find(c => c.name.toLowerCase() === String(name).toLowerCase()); if (!clip) return Promise.resolve(false);
+    const prev = holder.userData.npcAction, act = mixer.clipAction(clip);
+    act.reset(); act.timeScale = speed; act.setLoop(once ? THREE.LoopOnce : THREE.LoopRepeat, once ? 1 : Infinity); act.clampWhenFinished = once; act.play();
+    if (prev && prev !== act) prev.crossFadeTo(act, fade, false);
+    holder.userData.npcAction = act;
+    if (!once) return Promise.resolve(true);
+    return new Promise(res => { const h = e => { if (e.action === act) { mixer.removeEventListener('finished', h); res(true); } }; mixer.addEventListener('finished', h); });
+  }
+  const has = holder => !!(holder && holder.userData.characterModel);
+  return { load, portrait, update, setExpression, play, has };
 }

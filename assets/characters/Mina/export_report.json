@@ -1,0 +1,374 @@
+{
+ "source": {
+  "meshes": 26,
+  "triangles": 53682,
+  "bones": 53,
+  "materials": 18,
+  "actions": [
+   "Frightened",
+   "Idle",
+   "Recovery",
+   "Run",
+   "ScaredIdle",
+   "SittingAgainstWall",
+   "StandUp",
+   "Walk"
+  ],
+  "shape_keys": [
+   "Asleep",
+   "Basis",
+   "Blink",
+   "Fear",
+   "Pain",
+   "Relief",
+   "Sad",
+   "Surprised",
+   "Talk"
+  ],
+  "images": [
+   [
+    "bangs.png",
+    1024
+   ],
+   [
+    "brown_eye.png",
+    1024
+   ],
+   [
+    "emblem.png",
+    512
+   ],
+   [
+    "eyelashes02.png",
+    512
+   ],
+   [
+    "female_elegantsuit01_ao.png",
+    2048
+   ],
+   [
+    "female_elegantsuit01_normal.png",
+    2048
+   ],
+   [
+    "mina_brow.png",
+    512
+   ],
+   [
+    "mina_hair_diffuse.png",
+    2048
+   ],
+   [
+    "mina_shoes_diffuse.png",
+    1024
+   ],
+   [
+    "mina_skin_diffuse.png",
+    2048
+   ],
+   [
+    "mina_suit_diffuse.png",
+    2048
+   ],
+   [
+    "nylon_diffuse.png",
+    1024
+   ],
+   [
+    "nylon_normal.png",
+    1024
+   ],
+   [
+    "shoes01_normal.png",
+    1024
+   ]
+  ]
+ },
+ "lod1": {
+  "meshes": 26,
+  "triangles": 28424,
+  "bones": 53,
+  "materials": 18,
+  "actions": [
+   "Frightened",
+   "Idle",
+   "Recovery",
+   "Run",
+   "ScaredIdle",
+   "SittingAgainstWall",
+   "StandUp",
+   "Walk"
+  ],
+  "shape_keys": [],
+  "images": [
+   [
+    "bangs.png",
+    1024
+   ],
+   [
+    "brown_eye.png",
+    1024
+   ],
+   [
+    "emblem.png",
+    512
+   ],
+   [
+    "eyelashes02.png",
+    512
+   ],
+   [
+    "female_elegantsuit01_ao.png",
+    2048
+   ],
+   [
+    "female_elegantsuit01_normal.png",
+    2048
+   ],
+   [
+    "mina_brow.png",
+    512
+   ],
+   [
+    "mina_hair_diffuse.png",
+    2048
+   ],
+   [
+    "mina_shoes_diffuse.png",
+    1024
+   ],
+   [
+    "mina_skin_diffuse.png",
+    2048
+   ],
+   [
+    "mina_suit_diffuse.png",
+    2048
+   ],
+   [
+    "nylon_diffuse.png",
+    1024
+   ],
+   [
+    "nylon_normal.png",
+    1024
+   ],
+   [
+    "shoes01_normal.png",
+    1024
+   ]
+  ]
+ },
+ "lod2": {
+  "meshes": 26,
+  "triangles": 15795,
+  "bones": 53,
+  "materials": 18,
+  "actions": [
+   "Frightened",
+   "Idle",
+   "Recovery",
+   "Run",
+   "ScaredIdle",
+   "SittingAgainstWall",
+   "StandUp",
+   "Walk"
+  ],
+  "shape_keys": [],
+  "images": [
+   [
+    "bangs.png",
+    1024
+   ],
+   [
+    "brown_eye.png",
+    1024
+   ],
+   [
+    "emblem.png",
+    512
+   ],
+   [
+    "eyelashes02.png",
+    512
+   ],
+   [
+    "female_elegantsuit01_ao.png",
+    2048
+   ],
+   [
+    "female_elegantsuit01_normal.png",
+    2048
+   ],
+   [
+    "mina_brow.png",
+    512
+   ],
+   [
+    "mina_hair_diffuse.png",
+    2048
+   ],
+   [
+    "mina_shoes_diffuse.png",
+    1024
+   ],
+   [
+    "mina_skin_diffuse.png",
+    2048
+   ],
+   [
+    "mina_suit_diffuse.png",
+    2048
+   ],
+   [
+    "nylon_diffuse.png",
+    1024
+   ],
+   [
+    "nylon_normal.png",
+    1024
+   ],
+   [
+    "shoes01_normal.png",
+    1024
+   ]
+  ]
+ },
+ "reimport_mina.glb": {
+  "meshes": 27,
+  "triangles": 53762,
+  "bones": 53,
+  "materials": 18,
+  "actions": [
+   "Frightened",
+   "Idle",
+   "Recovery",
+   "Run",
+   "ScaredIdle",
+   "SittingAgainstWall",
+   "StandUp",
+   "Walk"
+  ],
+  "shape_keys": [
+   "Asleep",
+   "Basis",
+   "Blink",
+   "Fear",
+   "Pain",
+   "Relief",
+   "Sad",
+   "Surprised",
+   "Talk"
+  ],
+  "height_m": 2.462,
+  "size_mb": 5.4
+ },
+ "reimport_mina.fbx": {
+  "meshes": 26,
+  "triangles": 53682,
+  "bones": 53,
+  "materials": 18,
+  "actions": [
+   "Key.001|Mina_Rig|Frightened",
+   "Key.001|Mina_Rig|Idle",
+   "Key.001|Mina_Rig|Recovery",
+   "Key.001|Mina_Rig|Run",
+   "Key.001|Mina_Rig|ScaredIdle",
+   "Key.001|Mina_Rig|SittingAgainstWall",
+   "Key.001|Mina_Rig|StandUp",
+   "Key.001|Mina_Rig|Walk",
+   "Key.002|Mina_Rig|Frightened",
+   "Key.002|Mina_Rig|Idle",
+   "Key.002|Mina_Rig|Recovery",
+   "Key.002|Mina_Rig|Run",
+   "Key.002|Mina_Rig|ScaredIdle",
+   "Key.002|Mina_Rig|SittingAgainstWall",
+   "Key.002|Mina_Rig|StandUp",
+   "Key.002|Mina_Rig|Walk",
+   "Key.003|Mina_Rig|Frightened",
+   "Key.003|Mina_Rig|Idle",
+   "Key.003|Mina_Rig|Recovery",
+   "Key.003|Mina_Rig|Run",
+   "Key.003|Mina_Rig|ScaredIdle",
+   "Key.003|Mina_Rig|SittingAgainstWall",
+   "Key.003|Mina_Rig|StandUp",
+   "Key.003|Mina_Rig|Walk",
+   "Key.004|Mina_Rig|Frightened",
+   "Key.004|Mina_Rig|Idle",
+   "Key.004|Mina_Rig|Recovery",
+   "Key.004|Mina_Rig|Run",
+   "Key.004|Mina_Rig|ScaredIdle",
+   "Key.004|Mina_Rig|SittingAgainstWall",
+   "Key.004|Mina_Rig|StandUp",
+   "Key.004|Mina_Rig|Walk",
+   "Key|Mina_Rig|Frightened",
+   "Key|Mina_Rig|Idle",
+   "Key|Mina_Rig|Recovery",
+   "Key|Mina_Rig|Run",
+   "Key|Mina_Rig|ScaredIdle",
+   "Key|Mina_Rig|SittingAgainstWall",
+   "Key|Mina_Rig|StandUp",
+   "Key|Mina_Rig|Walk",
+   "Mina_Rig|Mina_Rig|Frightened",
+   "Mina_Rig|Mina_Rig|Idle",
+   "Mina_Rig|Mina_Rig|Recovery",
+   "Mina_Rig|Mina_Rig|Run",
+   "Mina_Rig|Mina_Rig|ScaredIdle",
+   "Mina_Rig|Mina_Rig|SittingAgainstWall",
+   "Mina_Rig|Mina_Rig|StandUp",
+   "Mina_Rig|Mina_Rig|Walk"
+  ],
+  "shape_keys": [
+   "Asleep",
+   "Basis",
+   "Blink",
+   "Fear",
+   "Pain",
+   "Relief",
+   "Sad",
+   "Surprised",
+   "Talk"
+  ],
+  "height_m": 1.468,
+  "size_mb": 18.35
+ },
+ "reimport_mina.obj": {
+  "meshes": 26,
+  "triangles": 53682,
+  "bones": 0,
+  "materials": 18,
+  "actions": [],
+  "shape_keys": [],
+  "height_m": 1.627,
+  "size_mb": 4.0
+ },
+ "reimport_mina.blend": {
+  "meshes": 26,
+  "triangles": 53682,
+  "bones": 53,
+  "materials": 18,
+  "actions": [
+   "Frightened",
+   "Idle",
+   "Recovery",
+   "Run",
+   "ScaredIdle",
+   "SittingAgainstWall",
+   "StandUp",
+   "Walk"
+  ],
+  "shape_keys": [
+   "Asleep",
+   "Basis",
+   "Blink",
+   "Fear",
+   "Pain",
+   "Relief",
+   "Sad",
+   "Surprised",
+   "Talk"
+  ],
+  "height_m": 1.627,
+  "size_mb": 2.93
+ }
+}

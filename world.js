@@ -3028,7 +3028,7 @@ export function buildWorld(scene) {
         p.needsUpdate = true; g.computeVertexNormals(); };
       OUT.add(m);
     });
-    for (let k = 0; k < 3; k++) { const fx = x0 - W / 2 - 1.6 - k * 1.2, fh = [8, 9, 7.4][k]; meshAt(tube(.006, fx + .07, 1.1, z0 - .6, fx + .07, fh - .05, z0 - .6), mRope, 0, 0, 0, OUT); meshAt(new THREE.CylinderGeometry(.025, .025, .12, 8), mPoleW, fx + .07, 1.1, z0 - .6, 0, OUT); }   // 깃줄 · 줄걸이
+    for (let k = 0; k < 3; k++) { const fx = x0 - W / 2 - 1.6 - k * 1.2, fh = [8, 9, 7.4][k]; meshAt(tube(.006, fx + .07, 1.1, z0 - .6, fx + .07, fh - .05, z0 - .6), mRope, 0, 0, 0, 0, OUT); meshAt(new THREE.CylinderGeometry(.025, .025, .12, 8), mPoleW, fx + .07, 1.1, z0 - .6, 0, OUT); }   // 깃줄 · 줄걸이
   }
   // 스탠드 (본관 쪽 동편): 운동장을 바라보는 콘크리트 계단식 관람석 4단 (한 단 0.22m — 걸어서 오른다)
   { const x1 = 5, x2 = 22, z0 = 13.4; for (let k = 0; k < 4; k++) { const zf = z0 + (3 - k) * .8; OUT.add(boxMesh(x1, x2, 0, (k + 1) * .22, z0, zf + .8, mStep, 2)); col(x1, x2, z0, zf + .8, false, (k + 1) * .22); } }

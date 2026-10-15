@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="style.css">
 <link rel="icon" href="data:,">
 <title>폐교 — 잊혀진 시간</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -440,26 +441,11 @@
   #chalk .opts{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:14px}
   #paraVig{position:fixed;inset:0;pointer-events:none;z-index:6;opacity:0;transition:opacity .6s;background:radial-gradient(ellipse at center,transparent 45%,rgba(60,0,0,.55) 100%)}
   #paraVig.on{opacity:1}
+  #invGrid.craftList{display:flex!important;flex-direction:column;gap:8px} #invGrid .craftRow{width:auto!important;height:auto!important;aspect-ratio:auto!important;display:flex!important;align-items:center;gap:12px;padding:8px 12px;justify-content:flex-start!important;text-align:left;font-size:14px} #invGrid .craftRow img,#invGrid .craftRow svg{width:44px;height:44px;flex:none} #invGrid .craftRow.empty{opacity:.55}
   /* 마이크 감지 미터 */
   #micMeter{position:fixed;right:18px;bottom:96px;width:132px;padding:6px 8px;background:rgba(8,10,12,.72);border:1px solid #3a444a;z-index:7;display:none;font-size:10px;color:#9ab;letter-spacing:.08em}
   #micMeter.on{display:block} #micMeter canvas{display:block;width:116px;height:26px} #micMeter .bar{height:4px;background:#222;margin-top:3px} #micMeter .bar i{display:block;height:100%;width:0;background:#7ac08a} #micMeter .bar i#micRisk{background:#d04040}
-  /* 심령 카메라 뷰파인더 */
-  body.camOn #c{filter:grayscale(1) sepia(1) hue-rotate(62deg) saturate(2.2) brightness(1.5) contrast(1.4)}
-  #viewfinder{position:fixed;inset:0;pointer-events:none;z-index:7;display:none;font:600 14px/1 monospace;color:#c8ffd0;text-shadow:0 0 6px #0f0}
-  #viewfinder.on{display:block}
-  #viewfinder:before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,.18) 0 1px,transparent 1px 3px),radial-gradient(ellipse at center,transparent 50%,rgba(0,20,0,.75) 100%);animation:vfNoise .15s steps(2) infinite}
-  @keyframes vfNoise{50%{transform:translateY(1px);opacity:.85}}
-  #viewfinder .rec{position:absolute;left:32px;top:28px} #viewfinder .rec b{display:inline-block;width:12px;height:12px;border-radius:50%;background:#f33;margin-right:8px;animation:recB 1s steps(2) infinite;vertical-align:-1px}
-  @keyframes recB{50%{opacity:0}}
-  #viewfinder .bat{position:absolute;right:32px;top:28px} #viewfinder .tm{position:absolute;left:32px;bottom:30px} #viewfinder .hint{position:absolute;right:32px;bottom:30px;font-size:12px;opacity:.8}
-  #viewfinder .focus{position:absolute;left:50%;top:50%;width:200px;height:140px;transform:translate(-50%,-50%)}
-  #viewfinder .focus i{position:absolute;width:26px;height:26px;border:2px solid #c8ffd0}
-  #viewfinder .focus i:nth-child(1){left:0;top:0;border-right:0;border-bottom:0}#viewfinder .focus i:nth-child(2){right:0;top:0;border-left:0;border-bottom:0}#viewfinder .focus i:nth-child(3){left:0;bottom:0;border-right:0;border-top:0}#viewfinder .focus i:nth-child(4){right:0;bottom:0;border-left:0;border-top:0}
   /* 환각 · 함정 마커 · 차임벨 · 틈새의 눈 */
-  #sanVig{position:fixed;inset:0;pointer-events:none;z-index:5;opacity:0;transition:opacity 1s;background:radial-gradient(ellipse at center,transparent 35%,rgba(40,0,10,.55) 80%,rgba(0,0,0,.9) 100%);mix-blend-mode:multiply;animation:sanW 3.2s ease-in-out infinite}
-  @keyframes sanW{50%{transform:scale(1.04) skewX(.6deg)}}
-  .sanGlitch{color:#ff3a3a!important;text-shadow:2px 0 #0ff,-2px 0 #f00;animation:sanG .12s steps(2) infinite}
-  @keyframes sanG{50%{transform:translateX(2px)}}
   #ghostMark{position:fixed;z-index:7;pointer-events:none;display:none;width:26px;height:26px;margin:-13px 0 0 -13px;border:2px solid #ff3030;border-radius:50%;box-shadow:0 0 14px #f00}
   #ghostMark.on{display:block;animation:gmP .6s ease-in-out infinite} @keyframes gmP{50%{transform:scale(1.35)}}
   #chimeBar{position:fixed;left:50%;top:14px;transform:translateX(-50%);z-index:7;display:none;padding:6px 16px;background:rgba(60,40,10,.85);border:1px solid #c89a40;color:#ffd890;font-size:13px;letter-spacing:.08em}
@@ -626,7 +612,7 @@
 <!-- 소지품 -->
 <div id="inv" class="overlay"><div class="win">
   <div class="head"><img src="assets/ui/it_bag.webp" alt="" style="height:26px"><b>소지품</b>
-    <div class="tabs" id="invTabs" style="margin:0 0 0 18px"><kbd>Q</kbd><button data-tab="items">아이템</button><button data-tab="docs">문서</button><button data-tab="keys">열쇠 아이템</button><button data-tab="col">수집품</button><kbd>E</kbd></div>
+    <div class="tabs" id="invTabs" style="margin:0 0 0 18px"><kbd>Q</kbd><button data-tab="items">아이템</button><button data-tab="docs">문서</button><button data-tab="keys">열쇠 아이템</button><button data-tab="col">수집품</button><button data-tab="craft">조합 (C)</button><kbd>E</kbd></div>
     <button class="x" data-close>닫기 <kbd>Tab</kbd></button></div>
   <div id="invBody"><div id="invLeft"><div id="invGrid"></div><div id="invCap"></div></div><div id="invDetail"></div></div></div></div>
 <div id="invZoom" class="overlay"><div class="win"><div class="head"><b id="izName"></b><button class="x" id="izClose">닫기</button></div><div class="big" id="izBig"></div><p id="izText"></p></div></div>
@@ -648,7 +634,7 @@
   <h3>순간이동</h3><div class="tgrid" id="testTp"></div>
   <h3>치트 / 상태</h3><div class="tgrid" id="testAct"></div>
   <div id="testInfo"></div></div></div>
-<div id="searchBar">사물함을 뒤지는 중…<i><b></b></i></div><div id="lootCard"></div><div id="paraVig"></div><div id="micMeter">마이크 · 들킬 위험<canvas id="micCv" width="232" height="52"></canvas><div class="bar"><i id="micLv"></i></div><div class="bar"><i id="micRisk"></i></div></div><div id="viewfinder"><div class="rec"><b></b>REC · 심령 모드</div><div class="bat">🔋 <span id="vfBat">100%</span></div><div class="focus"><i></i><i></i><i></i><i></i></div><div class="tm" id="vfTime"></div><div class="hint">클릭: 촬영(플래시 20%) · 우클릭/X: 끄기</div></div><div id="sanVig"></div><div id="ghostMark"></div><div id="chimeBar">📢 방송 소음 발생 중 — 발소리가 묻힌다</div><div id="peekEye"></div><div id="mobileNote">이 게임은 PC(마우스 · 키보드)와 헤드폰 환경에 맞춰져 있습니다. 모바일에서는 조작이 제한됩니다.</div><div id="bloodVig"></div><div id="frostVig"></div>
+<div id="searchBar">사물함을 뒤지는 중…<i><b></b></i></div><div id="lootCard"></div><div id="paraVig"></div><div id="micMeter">마이크 · 들킬 위험<canvas id="micCv" width="232" height="52"></canvas><div class="bar"><i id="micLv"></i></div><div class="bar"><i id="micRisk"></i></div></div><div id="ghostMark"></div><div id="chimeBar">📢 방송 소음 발생 중 — 발소리가 묻힌다</div><div id="peekEye"></div><div id="mobileNote">이 게임은 PC(마우스 · 키보드)와 헤드폰 환경에 맞춰져 있습니다. 모바일에서는 조작이 제한됩니다.</div><div id="bloodVig"></div><div id="frostVig"></div>
 <div id="chalk" class="overlay"><div class="win" style="width:min(700px,96vw)"><div class="tabs"><b style="font-size:15px" id="chalkTitle">칠판</b><button id="chalkClose" style="margin-left:auto">닫기</button></div><div class="board" id="chalkBoard"></div><div class="opts" id="chalkOpts"></div></div></div>
 <div id="keypad" class="overlay"><div class="win"><div class="tabs"><b style="font-size:15px" id="kpTitle">교무실 금고</b><button id="kpClose" style="margin-left:auto">닫기</button></div>
   <div id="kpDisp">_ _ _ _</div>

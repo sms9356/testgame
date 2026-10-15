@@ -1375,6 +1375,7 @@ export function buildWorld(scene) {
     const g = new THREE.Group(); g.position.set(x, 0, z); g.rotation.y = ry; cur.interior.add(g);
     g.add(new THREE.Mesh(ocBase, mPlasticD), new THREE.Mesh(ocPost, mChrome), new THREE.Mesh(ocSeat, mSeatFab), new THREE.Mesh(ocArm, mPlasticD));
     if (tipped) { g.rotation.z = Math.PI / 2 - .1; g.position.y = .32; }
+    else col(x - .28, x + .28, z - .28, z + .28);
     return g;
   }
   // 모니터 (LCD: 얇은 베젤 + 목 + 받침 / CRT: 뒤가 불룩한 브라운관). 화면 위치를 돌려준다
@@ -1508,7 +1509,7 @@ export function buildWorld(scene) {
     return BM;
   };
   // 사무용 의자 (오염된 패브릭 · 5발 다리)
-  function officeChair(x, z, ry = 0) {
+  function bcChair(x, z, ry = 0) {
     const B = bcMats(), legs = []; for (let k = 0; k < 5; k++) legs.push(new THREE.BoxGeometry(.04, .03, .3).translate(0, .07, .15).rotateY(k * 1.2566), new THREE.SphereGeometry(.025, 6, 4).translate(0, .025, .29).rotateY(k * 1.2566));
     meshAt(merge([...legs, new THREE.CylinderGeometry(.025, .03, .38, 8).translate(0, .27, 0), bx(.05, .04, .3, .26, .68, 0), bx(.05, .04, .3, -.26, .68, 0), bx(.03, .2, .03, .26, .56, .05), bx(.03, .2, .03, -.26, .56, .05)]), mDarkMetal, x, 0, z, ry);
     meshAt(merge([bx(.5, .09, .48, 0, .49, 0), bx(.48, .56, .08, 0, .86, -.24)]), B.seat, x, 0, z, ry);
@@ -1558,7 +1559,7 @@ export function buildWorld(scene) {
     meshAt(merge([tube(.01, cx - 3.4, 0, -7.25, cx - 3.4, 1.1, -7.25), bx(.42, .3, .02, cx - 3.4, 1.22, -7.32)]), mBlack, 0, 0, 0);   // 보면대
     plane(cur.interior, mPaperN, .3, .22, cx - 3.4, 1.23, -7.305, 0, -.35);
     tbl(mWood, .8, .74, .5, cx - 3.35, 0, -9.25, { col: true, legMat: mLegMetal }); headphones(cx - 3.55, .74, -9.2, .3); meshAt(new THREE.BoxGeometry(.22, .01, .3), mPaperN, cx - 3.15, .745, -9.2, -.2);
-    officeChair(cx - 3.3, -8.55, Math.PI + .3);
+    bcChair(cx - 3.3, -8.55, Math.PI + .3);
     // ── 메인 콘솔 (북쪽): 책상 + 경사진 믹서 + VU 미터 브리지 · 모니터 벽 · 스피커 · 방송중 표시등
     const dx = cx - .35, dz = -9.05;
     meshAt(merge([bx(3.0, .05, 1.0, 0, .755, 0), bx(.05, .73, .95, -1.47, .365, 0), bx(.05, .73, .95, 1.47, .365, 0), bx(2.9, .55, .03, 0, .46, .45), bx(.55, .6, .9, 1.15, .3, 0)]), mWoodDark, dx, 0, dz);
@@ -1576,7 +1577,7 @@ export function buildWorld(scene) {
     { const gx = dx - .9, gz = dz + .38; meshAt(merge([new THREE.CylinderGeometry(.06, .07, .03, 14).translate(gx, .795, gz), tube(.008, gx, .8, gz, gx + .02, 1.0, gz + .05), tube(.008, gx + .02, 1.0, gz + .05, gx + .05, 1.08, gz + .14), new THREE.CylinderGeometry(.018, .02, .09, 10).rotateX(1.2).translate(gx + .06, 1.09, gz + .18)]), mBlack, 0, 0, 0); }
     headphones(dx + .45, .78, dz + .32, -.4); cyl(S(null, { color: 0xd8d0c0, roughness: .4 }), .04, .1, dx + 1.3, .78, dz + .25, 12);
     meshAt(new THREE.BoxGeometry(.28, .012, .2), mPaperN, dx + 1.0, .79, dz + .3, .3);
-    officeChair(dx - .3, -8.0, .2); officeChair(dx + 1.0, -7.75, -.5);
+    bcChair(dx - .3, -8.0, .2); bcChair(dx + 1.0, -7.75, -.5);
     props.push({ kind: 'console', floor: cur.f, x: dx - .25, z: -8.3, label: '방송 장비 사용' });
     // ── 크로마키 (서쪽 벽) + 삼각대 카메라 · 스튜디오 조명
     { const gx = W0 + .3, z1 = -6.3, z2 = -3.4, g = new THREE.PlaneGeometry(z2 - z1, 2.3, 18, 8), p = g.attributes.position;
@@ -1597,7 +1598,7 @@ export function buildWorld(scene) {
     headphones(mx + .45, .76, mz - .15, .5); meshAt(new THREE.BoxGeometry(.22, .012, .3), mPaperN, mx - .05, .766, mz + .12, .15); meshAt(new THREE.BoxGeometry(.22, .012, .3), mPaperN, mx + .15, .772, mz + .18, -.2);
     tapeRecorder('tape2', mx + .1, .76, mz - .18, -.3);
     addNote('n8', mx - .55, .76, mz + .2);
-    officeChair(mx, mz + .75, Math.PI);
+    bcChair(mx, mz + .75, Math.PI);
     // ── 동쪽: 보관함 (사물함 4칸) · 릴 테이프 레코더 · 음향 장비 케이스
     const lz = -4.6; meshAt(merge([bx(.45, 1.8, 1.2, 0, .9, 0)]), mLocker, E0 - .225, 0, lz);
     for (let i = 0; i < 4; i++) plane(cur.interior, mLockerT, .28, 1.72, E0 - .452, .9, lz - .45 + i * .3, -Math.PI / 2);

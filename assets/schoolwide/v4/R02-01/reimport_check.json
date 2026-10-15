@@ -1,0 +1,77 @@
+{
+ "R02-01.glb": {
+  "meshes": 1,
+  "size_xyz_m (Blender Z-up)": [
+   0.7276,
+   0.45,
+   0.73
+  ],
+  "min_z": 0.0,
+  "materials": [
+   "R02_rubber",
+   "R02_steel_dusty",
+   "R02_wood_varnish"
+  ],
+  "images": [
+   "locker_map",
+   "locker_normal",
+   "locker_rough",
+   "varnishDark_map",
+   "varnishDark_normal",
+   "varnishDark_rough"
+  ],
+  "uv": [
+   "UVMap"
+  ]
+ },
+ "R02-01.fbx": {
+  "meshes": 1,
+  "size_xyz_m (Blender Z-up)": [
+   0.7276,
+   0.45,
+   0.73
+  ],
+  "min_z": -0.0,
+  "materials": [
+   "R02_rubber",
+   "R02_steel_dusty",
+   "R02_wood_varnish"
+  ],
+  "images": [
+   "locker_map.jpg",
+   "locker_normal.jpg",
+   "locker_rough.jpg",
+   "varnishDark_map.jpg",
+   "varnishDark_normal.jpg",
+   "varnishDark_rough.jpg"
+  ],
+  "uv": [
+   "UVMap"
+  ]
+ },
+ "R02-01.obj": {
+  "meshes": 1,
+  "size_xyz_m (Blender Z-up)": [
+   0.7276,
+   0.45,
+   0.73
+  ],
+  "min_z": -0.0,
+  "materials": [
+   "R02_rubber",
+   "R02_steel_dusty",
+   "R02_wood_varnish"
+  ],
+  "images": [
+   "locker_map.jpg",
+   "locker_normal.jpg",
+   "locker_rough.jpg",
+   "varnishDark_map.jpg",
+   "varnishDark_normal.jpg",
+   "varnishDark_rough.jpg"
+  ],
+  "uv": [
+   "UVMap"
+  ]
+ }
+}

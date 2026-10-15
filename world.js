@@ -291,19 +291,21 @@ export function buildWorld(scene) {
     tube(.012, -.17, 0, .16, -.17, .82, .19), tube(.012, .17, 0, .16, .17, .82, .19),
     tube(.01, -.17, .12, -.16, -.17, .12, .16), tube(.01, .17, .12, -.16, .17, .12, .16), tube(.01, -.17, .43, -.16, .17, .43, -.16),
   ]);
-  function deskGrid(cx, offs, rows, miss = .15) {
+  // V4 시범 (사용자 제작 지시서 R02-01 학생용 책상): 본관 1-1 교실만 Blender 로 만든 실제 모델로 — ?v4=0 이면 예전 절차 책상
+  const V4_PILOT = !(typeof location !== 'undefined' && new URLSearchParams(location.search).get('v4') === '0');
+  function deskGrid(cx, offs, rows, miss = .15, v4 = false) {
     const tops = [], legs = [], seats = [], cl = [];
     for (const dx of offs) for (const z of rows) {
       if (rnd() < miss) continue;
       const x = cx + dx + rr(-.05, .05), ry = rr(-.06, .06);
-      tops.push(MX(x, 0, z, ry)); legs.push(MX(x, 0, z, ry));
-      col(x - .35, x + .35, z - .25, z + .25, false, .76);   // 책상 윗면 — 점프로 올라설 수 있다
+      if (v4) model('v4_R02-01', x, 0, z, ry); else { tops.push(MX(x, 0, z, ry)); legs.push(MX(x, 0, z, ry)); }
+      col(x - .35, x + .35, z - .25, z + .25, false, v4 ? .73 : .76);   // 책상 윗면 — 점프로 올라설 수 있다
       const r = rnd();
       if (r < .1) { const m = MX(x + rr(-.1, .1), .2, z + .62, rr(-1, 1), Math.PI / 2); seats.push(m); cl.push(m); }   // 옆으로 쓰러진 의자 (통로를 막지 않게 충돌 없음)
       else if (r < .85) { const m = MX(x + rr(-.08, .08), 0, z + .5 + rr(-.05, .2), rr(-.35, .35)); seats.push(m); cl.push(m); }
     }
-    if (!tops.length) return;
-    inst(cur.interior, deskTopG, mWood, tops); inst(cur.interior, deskLegG, mMetal, legs);
+    if (!tops.length && !v4) return;
+    if (tops.length) { inst(cur.interior, deskTopG, mWood, tops); inst(cur.interior, deskLegG, mMetal, legs); }
     if (seats.length) { inst(cur.interior, seatG, mWood, seats); inst(cur.interior, chairLegG, mMetal, cl); }
     for (const dx of offs) for (const z of rows) if (rnd() < .14) backpack(cx + dx + rr(.3, .45) * (dx < 0 ? -1 : 1), z + rr(.2, .5), rnd() * 6, rnd() < .4);
   }
@@ -641,7 +643,7 @@ export function buildWorld(scene) {
     col(cx - 3.2, cx - 1.1, -2.25, -1.75);
     shelf3D(cx - 3.62, -3.8, Math.PI / 2, 1.2, 1.2, .35, 3, .7); col(cx - 3.85, cx - 3.4, -4.4, -3.2);
     // 학생 책상 25세트 (5 × 5)
-    deskGrid(cx, [-3.0, -1.5, 0, 1.5, 3.0], [-7.3, -6.05, -4.8, -3.55], .12);   // 5×4 · 책상 사이 통로 0.8m (예전 5×5 는 줄 사이 0.48m 로 지나갈 수 없었다)
+    deskGrid(cx, [-3.0, -1.5, 0, 1.5, 3.0], [-7.3, -6.05, -4.8, -3.55], .12, V4_PILOT && cur.f === 0 && name === '1-1' && !curSouth);   // 5×4 · 책상 사이 통로 0.8m (예전 5×5 는 줄 사이 0.48m 로 지나갈 수 없었다)
     // CSV 소모품: 노트 · 필통 · 물병/종이컵 · 쓰레기/파손물 + 분필 · 지우개는 칠판 아래
     const d = CLS[name];
     if (d && d.c.length) {
@@ -2317,9 +2319,9 @@ export function buildWorld(scene) {
     flat(F.interior, mFloorTile, x0, x1, z0, z1, .01, 3);
     flat(F.interior, mCeil, x0, x1, z0, z1, H - .1, 4, false);
     awall(x0, x0 + t, z0, z1, H); awall(x1 - t, x1, z0, z1, H); awall(x0, x1, z0, z0 + t, H);
-    awall(x0, -40, z1 - t, z1, H); awall(-38, x1, z1 - t, z1, H); awall(-40, -38, z1 - t, z1, H, 2.6); exitDoors(-40, -38, z1 - t, z1, true);
-    [-40, -38].forEach(x => add(mWoodDark, .12, 2.6, .4, x, 0, z1 - .15));
-    plane(F.interior, new THREE.MeshBasicMaterial({ map: T.makeSign('비상구', '#0a3a1a', '#7dffa0', 30) }), 1.4, .35, -39, 3.0, z1 - t - .02, Math.PI);
+    awall(x0, -40.5, z1 - t, z1, H); awall(-37.5, x1, z1 - t, z1, H); awall(-40.5, -37.5, z1 - t, z1, H, 3.1); exitDoors(-40.5, -37.5, z1 - t, z1, true, 3.05);   // 출입문 폭 3m · 높이 3m (예전 2m × 2.5m 는 사람 키에 비해 낮았다)
+    [-40.5, -37.5].forEach(x => add(mWoodDark, .12, 3.1, .4, x, 0, z1 - .15)); add(mWoodDark, 3.12, .12, .4, -39, 3.04, z1 - .15);
+    plane(F.interior, new THREE.MeshBasicMaterial({ map: T.makeSign('비상구', '#0a3a1a', '#7dffa0', 30) }), 1.4, .35, -39, 3.5, z1 - t - .02, Math.PI);
     [11, 15, 19].forEach(z => win3D(F.interior, 2.4, 1.6, x0 + t + .02, 2.4, z, Math.PI / 2));
     [-45, -34].forEach(x => plane(F.interior, mWin, 3, 1.6, x, 2.4, z1 - t - .02, Math.PI));
     // 배식대 + 조리실
@@ -2461,13 +2463,13 @@ export function buildWorld(scene) {
     F.interior.position.y = y0; scene.add(F.interior); floors.push(F); cur = F; return F;
   }
   // 독립 공간(체육관 · 수영장 · 급식실)의 바깥 출입구: 예전에는 구멍만 있어 걸어 나가면 맵 밖(허공)으로 빠졌다 → 닫힌 양여닫이 문 + 충돌
-  function exitDoors(a, b, c, d, alongX) {
+  function exitDoors(a, b, c, d, alongX, h = 2.5) {
     col(Math.min(a, b), Math.max(a, b), Math.min(c, d), Math.max(c, d), true);
     const w = Math.abs(b - a) / 2 - .02, mid = (c + d) / 2;
     [0, 1].forEach(k => {
       const cpos = a + (k + .5) * (b - a) / 2;
-      const m = new THREE.Mesh(new THREE.BoxGeometry(alongX ? w : .06, 2.5, alongX ? .06 : w), mDoor);
-      alongX ? m.position.set(cpos, 1.25, mid) : m.position.set(mid, 1.25, cpos); cur.interior.add(m);
+      const m = new THREE.Mesh(new THREE.BoxGeometry(alongX ? w : .06, h, alongX ? .06 : w), mDoor);
+      alongX ? m.position.set(cpos, h / 2, mid) : m.position.set(mid, h / 2, cpos); cur.interior.add(m);
       const bar = new THREE.Mesh(new THREE.BoxGeometry(alongX ? w * .8 : .08, .06, alongX ? .08 : w * .8), mChrome);
       alongX ? bar.position.set(cpos, 1.05, mid) : bar.position.set(mid, 1.05, cpos); cur.interior.add(bar);
     });
@@ -2501,9 +2503,9 @@ export function buildWorld(scene) {
     plane(F.interior, mCourt, x1 - x0 - 2 * t, z1 - z0 - 2 * t, 38, .01, 19, 0, -Math.PI / 2);
     flat(F.interior, mCeil, x0, x1, z0, z1, H - .1, 4, false);
     awall(x0, x0 + t, z0, z1, H); awall(x1 - t, x1, z0, z1, H); awall(x0, x1, z0, z0 + t, H);
-    awall(x0, 37, z1 - t, z1, H); awall(39, x1, z1 - t, z1, H); awall(37, 39, z1 - t, z1, H, 2.6); exitDoors(37, 39, z1 - t, z1, true);
-    add(mWoodDark, .12, 2.6, .4, 37, 0, z1 - .15); add(mWoodDark, .12, 2.6, .4, 39, 0, z1 - .15);
-    plane(F.interior, new THREE.MeshBasicMaterial({ map: T.makeSign('비상구', '#0a3a1a', '#7dffa0', 30) }), 1.4, .35, 38, 3.0, z1 - t - .02, Math.PI);
+    awall(x0, 36.5, z1 - t, z1, H); awall(39.5, x1, z1 - t, z1, H); awall(36.5, 39.5, z1 - t, z1, H, 3.3); exitDoors(36.5, 39.5, z1 - t, z1, true, 3.25);
+    add(mWoodDark, .12, 3.3, .4, 36.5, 0, z1 - .15); add(mWoodDark, .12, 3.3, .4, 39.5, 0, z1 - .15); add(mWoodDark, 3.12, .12, .4, 38, 3.24, z1 - .15);
+    plane(F.interior, new THREE.MeshBasicMaterial({ map: T.makeSign('비상구', '#0a3a1a', '#7dffa0', 30) }), 1.4, .35, 38, 3.7, z1 - t - .02, Math.PI);
     plane(F.interior, mClockM, .9, .9, 43, 5.4, z1 - t - .02, Math.PI);
     plane(F.interior, new THREE.MeshStandardMaterial({ map: T.makeSign('제 32회 서문 체육대회', '#20304a', '#e0d8b0', 22), roughness: .9 }), 3.4, .8, 33, 3.6, z1 - t - .03, Math.PI);
     [11, 15, 19, 23, 27].forEach(z => { win3D(F.interior, 2.4, 1.8, x0 + t + .02, 5.2, z, Math.PI / 2); win3D(F.interior, 2.4, 1.8, x1 - t - .02, 5.2, z, -Math.PI / 2); });
@@ -3143,17 +3145,31 @@ export function buildWorld(scene) {
   const poolB = boxMesh(-48, -34, 0, 6.4, 31, 51, mBlueMetal, 2.5); OUT.add(poolB); col(-48, -34, 31, 51, true);   // 급식실과 6m 띄움
   OUT.add(boxMesh(-48.2, -33.8, 6.3, 6.5, 30.8, 51.2, mFacade, 3)); barrelRoof(-41, 41, 15, 20.6, 6.5, 2.5);
   [33, 36.5, 45.5, 49].forEach(z => plane(OUT, pickWin(), 2.4, 1.8, -33.98, 3.6, z, Math.PI / 2));
-  plane(OUT, new THREE.MeshBasicMaterial({ map: T.makeSign('수 영 장', '#1e2a2e', '#d9e4d0', 34), color: 0x9aa59a }), 2.2, .55, -33.97, 3.3, 41, Math.PI / 2);
-  plane(OUT, mDoor, 1.8, 2.4, -33.97, 1.2, 41, Math.PI / 2);
-  plane(OUT, mDoor, 1.8, 2.4, 38, 1.2, 34.53, 0);
-  plane(OUT, new THREE.MeshBasicMaterial({ map: T.makeSign('체 육 관', '#1e2a2e', '#d9e4d0', 34), color: 0x9aa59a }), 2.2, .55, 38, 3.3, 34.54, 0);
+  plane(OUT, new THREE.MeshBasicMaterial({ map: T.makeSign('수 영 장', '#1e2a2e', '#d9e4d0', 34), color: 0x9aa59a }), 2.2, .55, -33.97, 3.8, 41, Math.PI / 2);
+  // 큰 건물 출입문: 문틀 + 양여닫이(유리창 · 밀대) + 콘크리트 차양 — 건물 높이에 맞춘 사람 크기 (w × h)
+  function bigDoor(x, z, ry, w, h) {
+    const g = new THREE.Group(), lw = w / 2 - .05;
+    const fr = [bx(.14, h + .14, .16, -w / 2 - .07, (h + .14) / 2, .04), bx(.14, h + .14, .16, w / 2 + .07, (h + .14) / 2, .04), bx(w + .28, .14, .16, 0, h + .07, .04)];
+    g.add(new THREE.Mesh(merge(fr), mRust));
+    [-1, 1].forEach(sd => {
+      const leaf = new THREE.Mesh(new THREE.BoxGeometry(lw, h - .02, .05), mDoor); leaf.position.set(sd * (lw / 2 + .02), h / 2, .03); g.add(leaf);
+      const gl = new THREE.Mesh(new THREE.PlaneGeometry(lw * .55, h * .32), mGlass); gl.position.set(sd * (lw / 2 + .02), h * .68, .06); g.add(gl);
+      const bar = new THREE.Mesh(new THREE.BoxGeometry(lw * .7, .05, .06), mChrome); bar.position.set(sd * (lw / 2 + .02), 1.05, .09); g.add(bar);
+    });
+    const can = new THREE.Mesh(new THREE.BoxGeometry(w + 1.0, .16, 1.3), mFacade); can.position.set(0, h + .35, .65); g.add(can);
+    const step = new THREE.Mesh(new THREE.BoxGeometry(w + .8, .12, 1.0), mFacade); step.position.set(0, .06, .5); g.add(step);
+    g.position.set(x, 0, z); g.rotation.y = ry; OUT.add(g);
+  }
+  bigDoor(-33.96, 41, Math.PI / 2, 2.6, 2.9);
+  bigDoor(38, 34.52, 0, 3.0, 3.2);
+  plane(OUT, new THREE.MeshBasicMaterial({ map: T.makeSign('체 육 관', '#1e2a2e', '#d9e4d0', 34), color: 0x9aa59a }), 2.6, .65, 38, 4.2, 34.54, 0);
   const cafe = boxMesh(-48, -30, 0, 4.5, 12.5, 25, mFacade, 3); OUT.add(cafe); col(-48, -30, 12.5, 25, true);
   OUT.add(boxMesh(-48.4, -29.6, 4.5, 4.75, 12.1, 25.4, mFacade, 3), boxMesh(-48.4, -29.6, 4.75, 5.4, 12.1, 12.35, mFacade, 3), boxMesh(-48.4, -29.6, 4.75, 5.4, 25.15, 25.4, mFacade, 3), boxMesh(-48.4, -48.15, 4.75, 5.4, 12.1, 25.4, mFacade, 3), boxMesh(-29.85, -29.6, 4.75, 5.4, 12.1, 25.4, mFacade, 3));   // 평지붕 + 파라펫
   doors.push({ floor: 0, x: 38, z: 35.9, r: 2.0, label: '체육관 들어가기', to: { floor: 5, x: 38, z: 28.1, yaw: 0 } });
   doors.push({ floor: 0, x: -32.7, z: 41, r: 2.0, label: '수영장 들어가기', to: { floor: 6, x: -35.5, z: 38, yaw: Math.PI / 2 } });
   doors.push({ floor: 0, x: -39, z: 26.4, r: 2.0, label: '급식실 들어가기', to: { floor: 7, x: -39, z: 20.5, yaw: 0 } });
-  plane(OUT, mDoor, 1.8, 2.4, -39, 1.2, 25.03, 0);
-  plane(OUT, new THREE.MeshBasicMaterial({ map: T.makeSign('급 식 실', '#1e2a2e', '#d9e4d0', 34), color: 0x9aa59a }), 2.2, .55, -39, 3.3, 25.04, 0);
+  bigDoor(-39, 25.02, 0, 3.0, 3.0);
+  plane(OUT, new THREE.MeshBasicMaterial({ map: T.makeSign('급 식 실', '#1e2a2e', '#d9e4d0', 34), color: 0x9aa59a }), 2.2, .55, -39, 3.85, 25.04, 0);
   [[33, 12.48], [38, 12.48], [43, 12.48]].forEach(([x, z]) => plane(OUT, pickWin(), 3, 1.6, x, 5.2, z, Math.PI));
   [[-44, 12.48], [-39, 12.48], [-34, 12.48]].forEach(([x, z]) => plane(OUT, pickWin(), 3, 1.6, x, 2.4, z, Math.PI));
 

@@ -139,6 +139,13 @@ async function extrasRun() {
   await E(p, () => { const q = __g.world.props.find(o => o.kind === 'chalk'); __g.state = 'playing'; __g.tp(q.x, q.z + 1.4, q.floor, 0, 0); __g.openChalk(q); __g.chalkAsk(0); }); await W(p, 3500);
   ok(await E(p, () => __g.FL.chalk >= 1), '칠판에 질문 → 대답'); await E(p, () => { document.getElementById('chalkClose').click(); __g.state = 'playing'; });
   ok(await E(p, () => { __g.state = 'playing'; return ['door', 'lights', 'shadow', 'cold', 'phone'].every(k => __g.paraEvent(k)); }), '초자연 현상 5종 발생');
+  ok(await E(p, () => { __g.state = 'playing'; __g.tp(-8, -5, 0, 0, 0); return ['steps', 'scream', 'thump', 'chair', 'torch', 'hands', 'eyes', 'bell', 'radio', 'rattle', 'bleed', 'count', 'heart', 'glass'].every(k => __g.paraEvent(k)); }), '새 초자연 현상 14종 발생');
+  // 화장실 괴담: 6종 + 3번 칸의 질문(침묵 → 노란 부적), 선택은 저장된다
+  await E(p, () => { __g.state = 'playing'; __g.tp(-31.2, -5.4, 0, -Math.PI / 2, 0); const r = __g.roomAt(0, -31.2, -5.4); ['faucet', 'flush', 'shoes', 'mirror', 'stall', 'flicker'].forEach(k => __g.toiletFx(k, 0, r)); __g.toiletFx('tissue', 0, r); });
+  await p.waitForFunction(() => document.getElementById('choice').classList.contains('show'), null, { timeout: 120000 });
+  const charm0 = await E(p, () => __g.inv.charm || 0); await p.keyboard.press('Digit3');
+  await p.waitForFunction(c => (__g.inv.charm || 0) > c, charm0, { timeout: 120000 });
+  ok(await E(p, () => __g.FL.redblue === 3 && __g.tmpFx.length > 0), '화장실 괴담 7종 · 빨간 휴지 파란 휴지(침묵 → 노란 부적)');
   ok(await E(p, () => { __g.state = 'playing'; __g.inv.charm = 1; __g.P.invuln = 0; __g.ghost.active = true; __g.ghost.floor = __g.P.floor; __g.ghost.x = __g.P.x + 1; __g.ghost.z = __g.P.z; const hp = __g.P.hp; __g.hit(); const r = __g.P.hp === hp && __g.inv.charm === 0; __g.ghost.active = false; return r; }), '노란 부적이 공격을 대신 받음');
   await saveReload(p, '수색 후'); ok(await E(p, () => Object.keys(__g.FL.col).length === 4 && __g.world.props.filter(q => q.kind === 'search' && q.done).length === 3 && __g.FL.ms.lab === 1), '복원: 수집품 · 뒤진 사물함 · 미니게임 보답');
   ok(p.errors === 0, '콘솔 오류 없음'); await p.close();

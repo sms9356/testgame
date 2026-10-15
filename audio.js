@@ -89,6 +89,18 @@ function tone(freq, dur, type, vol, pan = 0, v = 1, slide = null) {
   o.connect(e); e.connect(out(pan, v)); o.start(); o.stop(ac.currentTime + dur + 0.05);
 }
 
+// at(...) 으로 부른 소리의 뒤따르는 부분도 같은 자리에서 나도록 위치를 기억해 두었다가 재생
+function later(ms, fn) { const p = sfxPos; setTimeout(() => { const o = sfxPos; sfxPos = p; try { fn(); } finally { sfxPos = o; } }, ms); }
+// 흐르는 물 · 바람: 대역 노이즈 + 느린 흔들림 (dur 초)
+function flow(dur, freq, vol, wob = .2, q = .7) {
+  if (!ok()) return; const t = ac.currentTime;
+  const s = ac.createBufferSource(); s.buffer = noiseBuf; s.loop = true;
+  const f = ac.createBiquadFilter(); f.type = 'bandpass'; f.Q.value = q; f.frequency.value = freq;
+  const lfo = ac.createOscillator(); lfo.frequency.value = 2 + Math.random() * 4; const lg = ac.createGain(); lg.gain.value = freq * wob; lfo.connect(lg); lg.connect(f.frequency);
+  const e = ac.createGain(); e.gain.setValueAtTime(.0001, t); e.gain.exponentialRampToValueAtTime(vol, t + Math.min(.4, dur * .2)); e.gain.setValueAtTime(vol, t + dur * .7); e.gain.exponentialRampToValueAtTime(.0001, t + dur);
+  s.connect(f); f.connect(e); e.connect(out(0, 1)); s.start(t, Math.random()); s.stop(t + dur + .1); lfo.start(t); lfo.stop(t + dur + .1);
+}
+
 /* ----- 구역별 환경음 ----- */
 const AMB = {}, rainNodes = [];
 let rainLv = -1;
@@ -387,4 +399,33 @@ export const sfx = {
   },
   rainGust() { noiseBurst(3.5, 1800, 'bandpass', .18); noiseBurst(3, 5200, 'highpass', .1); },
   flashlightClick() { noiseBurst(.03, 3000, 'highpass', .4); tone(900, .03, 'square', .03); },
+  // ── 초자연 현상 · 화장실 ──
+  flush() {   // 변기 물 내리는 소리: 손잡이 → 쏟아지는 물 → 꾸르륵 → 물탱크 채우는 쉿 소리
+    noiseBurst(.06, 1800, 'bandpass', .4); tone(260, .08, 'square', .03);
+    later(120, () => { flow(2.4, 700, .45, .45, .5); noiseBurst(1.6, 260, 'lowpass', .55); });
+    for (let i = 0; i < 9; i++) later(1500 + i * 150 + Math.random() * 60, () => tone(160 + Math.random() * 180, .1, 'sine', .07, 0, 1, 80));
+    later(2700, () => flow(4.5, 2600, .07, .08, 1.5));
+  },
+  faucet(d = 6) { noiseBurst(.1, 700, 'bandpass', .25); tone(320, .15, 'square', .02, 0, 1, 240); later(150, () => flow(d, 2300, .2, .12, .9)); later(d * 1000 + 200, () => this.drip()); },
+  scream() {   // 아득한 비명: 떨리는 두 음 + 잔향
+    for (let k = 0; k < 6; k++) later(k * 160, () => { const f = 880 - k * 45 + Math.random() * 30; tone(f, .3, 'sawtooth', .035, 0, 1, f * .94); tone(f * 1.5, .25, 'sine', .02); });
+    noiseBurst(1.1, 1500, 'bandpass', .1); later(1000, () => tone(560, 1.2, 'sawtooth', .025, 0, 1, 380));
+  },
+  thump(n = 4) { for (let i = 0; i < n; i++) later(i * 640 + Math.random() * 80, () => { noiseBurst(.28, 120, 'lowpass', .95); tone(46, .32, 'sine', .7, 0, 1, 30); noiseBurst(.4, 2600, 'highpass', .03); }); },
+  chairScrape() { tone(210, .9, 'sawtooth', .05, 0, 1, 150); noiseBurst(.9, 700, 'bandpass', .3); later(1150, () => { tone(180, .5, 'sawtooth', .045, 0, 1, 140); noiseBurst(.5, 650, 'bandpass', .22); }); },
+  glassCrack() { noiseBurst(.07, 6500, 'highpass', .65); tone(3400, .4, 'sine', .05, 0, 1, 2900); for (let i = 1; i < 5; i++) later(i * 70 + Math.random() * 50, () => { noiseBurst(.04, 5000, 'highpass', .35); tone(2800 + Math.random() * 1500, .15, 'sine', .03); }); },
+  rattle(n = 16) { for (let i = 0; i < n; i++) later(i * 65 + Math.random() * 35, () => { noiseBurst(.05, 800 + Math.random() * 700, 'bandpass', .55); tone(150 + Math.random() * 90, .05, 'square', .04); }); },
+  stinger(v = 1) {   // 불협화음이 차오르다 꺼지는 놀람 효과
+    [196, 207.7, 277.2, 293.7, 415.3].forEach(f => tone(f, 2.4, 'sawtooth', .035 * v, 0, 1, f * .9));
+    noiseBurst(1.6, 3200, 'bandpass', .22 * v); tone(42, 2.2, 'sine', .6 * v, 0, 1, 28);
+  },
+  pipeKnock() { for (let i = 0; i < 3; i++) later(i * 300 + Math.random() * 90, () => { tone(310 + Math.random() * 40, .22, 'square', .035, 0, 1, 280); noiseBurst(.12, 1100, 'bandpass', .4); tone(95, .15, 'sine', .25); }); },
+  wind() { flow(4, 420, .16, .6, 1.2); tone(300, 3.5, 'sine', .015, 0, 1, 420); },
+  stepBehind(v = 1) { noiseBurst(.07, 2400, 'bandpass', .24 * v); noiseBurst(.08, 600, 'lowpass', .24 * v); },
+  bellFar() { for (let i = 0; i < 18; i++) later(i * 110, () => { tone(1250, .1, 'square', .03); tone(1880, .08, 'square', .012); }); },
+  tissue() { noiseBurst(.5, 4200, 'highpass', .18); later(380, () => noiseBurst(.35, 3600, 'highpass', .14)); },
+  stallCreak() { tone(180, 2.4, 'sawtooth', .045, 0, 1, 120); noiseBurst(2.2, 900, 'bandpass', .08); },
+  heartWall() { for (let i = 0; i < 6; i++) later(i * 820, () => { tone(52, .16, 'sine', .55); later(140, () => tone(44, .2, 'sine', .4)); }); },
+  slap() { noiseBurst(.09, 900, 'lowpass', .55); noiseBurst(.05, 2600, 'bandpass', .12); },
+  radioVoice() { noiseBurst(2.4, 2600, 'bandpass', .22); for (let i = 0; i < 9; i++) later(300 + i * 190, () => { const f = 300 + Math.random() * 260; tone(f, .16, 'sawtooth', .02, 0, 1, f * .85); noiseBurst(.12, 1400 + Math.random() * 800, 'bandpass', .12); }); },
 };

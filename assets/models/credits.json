@@ -254,5 +254,38 @@
    516.343355178833
   ],
   "name": "Ceiling Fan"
+ },
+ "plunger": {
+  "authors": [
+   "James Ray Cock"
+  ],
+  "dim_mm": [
+   172.05405235290527,
+   172.05404490232468,
+   421.1148992180824
+  ],
+  "name": "Plunger"
+ },
+ "bleach_bottle": {
+  "authors": [
+   "James Ray Cock"
+  ],
+  "dim_mm": [
+   88.39113637804985,
+   61.21089309453964,
+   293.7394976615906
+  ],
+  "name": "Bleach Bottle"
+ },
+ "multi_cleaner_bottle": {
+  "authors": [
+   "James Ray Cock"
+  ],
+  "dim_mm": [
+   88.47218751907349,
+   89.751485735178,
+   228.56293622158105
+  ],
+  "name": "Multi Cleaner Bottle"
  }
 }

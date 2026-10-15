@@ -1051,7 +1051,7 @@ function findInteract() {
     if (f > .2 && s > bs) { bs = s; best = { type: 'idoor', d, label: (d.target > .5 ? `${d.name} 닫기` : `${d.name} 열기`) }; }
   }
   for (const p of world.props) {
-    if (p.floor !== P.floor || p.done) continue;
+    if (p.floor !== P.floor || p.done || (p.after && !p.after.done)) continue;   /* after: 수색을 마친 뒤에야 나오는 조사 (사물함 문 여닫기) */
     let dx = p.x - P.x, dz = p.z - P.z, dd = Math.hypot(dx, dz);
     if (p.kind === 'switch') {   // 스위치: 벽 앞쪽(방 안)에서, 스위치를 바라볼 때만
       if ((P.x - p.px) * (p.x - p.px) + (P.z - p.pz) * (p.z - p.pz) <= 0) continue;
@@ -1136,7 +1136,7 @@ function toggleDoor(d, silent) {
     if (P.floor === d.floor && P.x > r.x1 - m && P.x < r.x2 + m && P.z > r.z1 - m && P.z < r.z2 + m) { say('문틀에서 비켜야 닫을 수 있다', 1600); return; }
     d.target = 0;
   } else d.target = 1;
-  if (!silent) { d.kind === 'slide' ? sfx.doorSlide() : sfx.doorHinge(); P.noiseT = .6; }
+  if (!silent) { d.kind === 'slide' && !d.leaves ? sfx.doorSlide() : sfx.doorHinge(); P.noiseT = .6; }
 }
 
 function readNote(it) {
@@ -1568,7 +1568,7 @@ function start(skipIntro = false) {
   if (!readingSave) { DAY.k = .92; DAY.start = -1; DAY.done = false; delete FL.night; }
   refreshHud(); chapterShown = objective().ch;
   if (skipIntro || TEST) { finishIntro(); return; }
-  state = 'intro'; introT = 0; introText = true; introCue = 0; $('intro').classList.add('show'); $('cine').classList.add('on');
+  state = 'intro'; introT = 0; introText = true; introCue = 0; introGuardEnd = 0; introEndT = 99; $('intro').classList.add('show'); $('cine').classList.add('on');
   // 순서: 날짜 → 실종 소식 → (진동) 민아의 메시지 → 십 년 전 이야기
   const ids = ['intro1', 'intro2', 'intro3', 'intro4'], ps = [...$('intro').querySelectorAll('p')];
   ps.forEach((p, i) => { p.classList.remove('on'); p.classList.toggle('msg', i === 2); p.dataset.from = i === 2 ? '민아 · 17:41' : ''; p.textContent = i === 2 ? VO[ids[i]].text : VO[ids[i]].text; });
@@ -1593,10 +1593,14 @@ function finishIntro() {
   if (!readingSave && !SET.flashReduce) { const b = $('blink'); b.classList.remove('go'); void b.offsetWidth; b.classList.add('go'); setTimeout(() => b.classList.remove('go'), 2700); }   // 눈을 뜨듯 시작
   if (!readingSave) { P.x = 0; P.z = 77.5; P.yaw = 0; P.pitch = 0; }
   state = 'playing';
-  if (!readingSave) { setTimeout(() => talk('arrive', 4200), 500); setTimeout(() => showChapter(1), 900); }
+  if (!readingSave) {   // 겹치지 않게 차례로: 장 카드 → 주인공 첫마디 → (장소 카드) → 정문 앞 휴대폰 진동
+    startQuietT = performance.now() + 6500;
+    setTimeout(() => showChapter(1), 600); setTimeout(() => talk('arrive', 4200), 1500);
+    setTimeout(() => { if (state === 'playing' && P.floor === 0 && isOutdoors()) phoneMessage(0); }, 10500);   /* 아직 정문 · 운동장에 있을 때만 */
+  }
 }
 // 정문 앞 경비원 — 인트로에만 나타나는 '그날 밤의 잔상' (번개가 치면 사라진다)
-let introGuard = null, introCue = 0;
+let introGuard = null, introCue = 0, introGuardEnd = 0, introEndT = 0;
 function buildGuard() {
   const g = new THREE.Group(), M = (c, o = {}) => new THREE.MeshStandardMaterial({ color: c, roughness: .8, transparent: true, opacity: .92, ...o });
   const uni = M(0x34466a, { emissive: 0x1a2a44 }), dark = M(0x23283a, { emissive: 0x0c0f18 }), skin = M(0xc8aa94, { emissive: 0x3a2e26 }), badge = M(0xc8a040, { metalness: .7, roughness: .4 });
@@ -1678,8 +1682,9 @@ function updateIntro(dt) {
     cue(2, () => { sfx.swell(1.2, .4); });
     cue(3, () => { fx.lightning(); sfx.boom(); $('introTitle').classList.add('show'); sfx.musicBox(7, .6); });
     cue(4, () => { $('introTitle').classList.remove('show'); introGuard.visible = true; sfx.flashlightClick(); });
-    cue(5, async () => { const sec = await speak('guard1'); subtitle('경비 아저씨', VO.guard1.text, Math.max(sec, 3) + .4); npcVisuals.portrait('guard', '경비원', (Math.max(sec, 3) + .4) * 1000); });
-    cue(6, () => { fx.lightning(); sfx.thunder(.3); introGuard.visible = false; caption('…아무도 없다'); });
+    cue(5, async () => { introGuardEnd = T + 12; const sec = await speak('guard1'); introGuardEnd = introT + Math.max(sec, 3) + .3; subtitle('경비 아저씨', VO.guard1.text, Math.max(sec, 3) + .4); npcVisuals.portrait('guard', '경비원', (Math.max(sec, 3) + .4) * 1000); });
+    // 경비원 대사가 끝난 뒤에 번개 · 사라짐 (예전엔 17.2초에 사라지고 19.2초에 인트로가 끝나며 9초짜리 대사가 중간에 끊겼다)
+    if (introCue === 5 && T >= Math.max(17.2, introGuardEnd)) { introCue = 6; fx.lightning(); sfx.thunder(.3); introGuard.visible = false; caption('…아무도 없다'); introEndT = T + 1.8; }
     // 공중 전경 → 정문 앞으로 하강
     const k1 = ease(clamp((T - 6) / 6.2, 0, 1)), k2 = ease(clamp((T - 12.2) / 5.4, 0, 1));
     const ax = lerp(-26, 0, k1), ay = lerp(24, 8, k1), az = lerp(104, 92, k1);
@@ -1688,7 +1693,7 @@ function updateIntro(dt) {
     camera.lookAt(tx, ty, tz); camera.rotation.reorder('YXZ'); camera.rotation.z = 0;
   }
   updateLighting(dt);
-  if (T > 19.2) finishIntro();
+  if (T > Math.max(19.2, introEndT)) finishIntro();
 }
 addEventListener('keydown', e => { if (state === 'intro' && ['Space', 'Enter', 'Escape'].includes(e.code)) finishIntro(); });
 $('intro').addEventListener('click', () => { if (state === 'intro') finishIntro(); });
@@ -2005,7 +2010,9 @@ const CARDS = {
 Object.values(CARDS).forEach(c => { const im = new Image(); im.src = `assets/img/${c[0]}.webp`; });
 Object.values(CHARACTERS).forEach(c => c.faces.forEach(k => { const im = new Image(); im.src = `assets/ui/${k}.webp`; }));
 const seenCards = new Set(); let cardTimer = 0, areaT = 0;
+let startQuietT = 0;   // 게임 시작 직후 장 카드 · 첫 대사와 겹치지 않게 장소 카드를 잠시 미룬다
 function showCard(k) {
+  if (performance.now() < startQuietT) { setTimeout(() => showCard(k), startQuietT - performance.now() + 50); return; }
   if (seenCards.has(k)) return; seenCards.add(k);
   const c = CARDS[k]; if (!c) return;
   const el = $('card'); el.querySelector('img').src = `assets/img/${c[0]}.webp`; el.classList.toggle('noimg', !SET.areaPhotos);
@@ -2267,6 +2274,7 @@ async function useProp(p) {
   if (p.kind === 'guardnpc') { talkGuard(p); return; }
   if (p.kind === 'sq') { p.main ? useHead(p) : useSideQuest(p); return; }
   if (p.kind === 'search') { startSearch(p); return; }
+  if (p.kind === 'ldoor') { lockerDoorToggle(p); return; }
   if (p.kind === 'mspot') { useMiniSpot(p); return; }
   if (p.kind === 'chalk') { openChalk(p); return; }
   if (p.kind === 'clue') { readMemory(p); return; }
@@ -2441,7 +2449,8 @@ function phoneMessage(n) {
   const id = 'phone' + n;
   if (msgs.some(m => m.id === id) || (n === 3 && FL.calm)) return;
   if (state !== 'playing' || voBusy) { setTimeout(() => phoneMessage(n), 4000); return; }
-  msgs.push({ id, t: clockText(), read: false }); storyCalm(35); sfx.phone(); toast('📱 새 메시지 — 민아', '신호가 없는데 메시지가 도착했다 (P: 휴대폰)', 'info');
+  msgs.push({ id, t: clockText(), read: false }); storyCalm(35); sfx.phone(); if (n === 0) sfx.vibrate();
+  toast('📱 새 메시지 — 민아', n === 0 ? '연락이 끊겼던 민아에게서… 지금? (P: 휴대폰)' : '신호가 없는데 메시지가 도착했다 (P: 휴대폰)', 'info');
   if (CLUES[id]) addClue(id);
   if (n === 2) unlockOptional();
   refreshHud();
@@ -4401,6 +4410,17 @@ function steelHide(l, on) {
 }
 function steelOpen(f, x, z, open, r = .9) { const s = steelNear(f, x, z, r); if (s && s.data.isOpen !== open) s.data.toggleDoor(open); return s; }
 
+// 수색을 마친 철제 사물함: E 로 문을 열고 닫는다 (닫아 둔 상태는 저장된다)
+world.props.filter(p => p.kind === 'search').forEach(p => {
+  const s = steelNear(p.floor, p.x, p.z, .9); if (!s) return;
+  world.props.push({ kind: 'ldoor', floor: p.floor, x: p.x, z: p.z, y: 1.0, after: p, steel: s, uid: 'ld:' + p.uid, get label() { return s.data.isOpen ? '사물함 문 닫기' : '사물함 문 열기'; } });
+});
+function lockerDoorToggle(p) {
+  const s = p.steel, open = !s.data.isOpen; s.data.toggleDoor(open);
+  FL.ldShut ||= {}; if (open) delete FL.ldShut[p.after.uid]; else FL.ldShut[p.after.uid] = 1;
+  sfx.locker ? sfx.locker() : sfx.click(); P.noiseT = Math.max(P.noiseT, open ? .3 : .5);   /* 닫을 때 쾅 — 조금 더 시끄럽다 */
+}
+
 /* ── 9-2. 본관 1 · 2 · 3층 복도 리모델링: 18m 구간 4개씩 — 클래스가 만든 소품을 실제 벽 · 문 · 형광등 자리로 옮긴다 ── */
 {
   const CW = 2.9, segs = [[-27, [0, 1]], [-9, [2, 3]], [9, [4, 5, 6]], [27, [7, 8]]];
@@ -4424,8 +4444,8 @@ function steelOpen(f, x, z, open, r = .9) { const s = steelNear(f, x, z, r); if 
         else if (sizeIs(m, .06, 1.1, 2.1)) { if (cx === 9 || cx === 27) { put(m, cx === 9 ? 13.6 : 21.5, 1.6, m.position.x); for (let k = 0; k < 6; k++) { const pp = new THREE.Mesh(new THREE.PlaneGeometry(.26, .34), PM([0xe8e0c8, 0xd8c8a0, 0xc8d8e0][k % 3], .9)); pp.position.set(-.032, (k % 2) * .4 - .2, -.8 + k * .32); pp.rotation.set(0, -Math.PI / 2, (Math.random() - .5) * .25); m.add(pp); } } else m.visible = false; }
       });
       // 채광창: 남쪽 교실 벽(문 사이 3m 벽) 위쪽
-      const spots = []; idx.forEach(i => { if (LS && !['lobby', 'hall'].includes(LS.types[i])) spots.push(SLOTS[i] - 2.5, SLOTS[i] + 2.5); });
-      wins.forEach((w, k) => { if (k < spots.length) { put(w, spots[k], 2.05, w.position.x); w.scale.z = .84; srgb(w.material.map); } else w.visible = false; });
+      const spots = []; idx.forEach(i => { if (LS && !['lobby', 'hall'].includes(LS.types[i])) spots.push(SLOTS[i] - 2.55, SLOTS[i] + 2.55); });   /* 문틀(±1.1) 과 방 칸막이(±4) 사이 벽 가운데 */
+      wins.forEach((w, k) => { if (k < spots.length) { put(w, spots[k], 2.05, w.position.x); w.scale.z = .6; /* 3.2m → 1.9m: 문틀과 겹치지 않게 */ srgb(w.material.map); } else w.visible = false; });
       signs.forEach((s, k) => { const L = labels[k]; put(s, L.x - 1.32, 2.5, L.north ? CW / 2 - .26 : -(CW / 2 - .26)); srgb(s.material.map); });
       const myLamps = lamps.filter(x => x >= cx - 9 && x < cx + 9);
       fixtures.forEach((fx_, k) => { if (k < myLamps.length) { put(fx_, myLamps[k], CH_ - .04, 0); fx_.scale.z = 1.22; } else fx_.visible = false; });
@@ -4450,7 +4470,7 @@ function patchTick(dt) {
   // 9. 철제 사물함 문 보간 · 수색 끝난 사물함은 열린 채로(불러오기 포함)
   clP.update(dt);
   if ((patchSyncT -= dt) <= 0) { patchSyncT = 1;
-    world.props.forEach(p => { if (p.kind === 'search' && p.done) { const s = steelNear(p.floor, p.x, p.z, .9); if (s && !s.data.isOpen && !s.data.isPlayerInside) { s.data.isOpen = true; s.data.targetRotationY = -Math.PI * .62; } } });
+    world.props.forEach(p => { if (p.kind === 'search' && p.done && !(FL.ldShut && FL.ldShut[p.uid])) { const s = steelNear(p.floor, p.x, p.z, .9); if (s && !s.data.isOpen && !s.data.isPlayerInside) { s.data.isOpen = true; s.data.targetRotationY = -Math.PI * .62; } } });
     if (!P.hiding && document.body.classList.contains('patch-inside-locker')) document.body.classList.remove('patch-inside-locker');
     const z = zoneLabel(); if (z && z !== '실내 연결복도' && !FL.fzSeen && state === 'playing') { FL.fzSeen = true; refreshHud(); toast('구역 미션', `${z} — 이곳에서 할 수 있는 일이 있다 (목표 패널 · 구역 미션)`, 'info'); }
   }
@@ -4541,6 +4561,12 @@ const BM = { ex: SLOTS[2], bx: SLOTS[1], boomT: 6, steamT: 9, said: false };
     const bg = bmP.buildBoilerRoom(V3(b.x, y0, b.z), -Math.PI / 2); R.add(bg); bg.position.set(b.x, 1.35 - 1.3 * k, b.z); bg.scale.set(len / 2.6, k, k);
     bg.traverse(o => { o.userData.dynamic = true; if (o.isMesh) o.castShadow = o.receiveShadow = true; });
     BM.boiler = { x: b.x, z: b.z, front: b.z + len / 2 + .2 };
+    // 클래스 버그 보정: 앞 해치(원판)를 rotation.y 로 돌려 바닥과 평행한 판처럼 튀어나왔다 → 원통 축(앞쪽)을 보게 세운다
+    const hatch = bg.children[1]; if (hatch) hatch.rotation.set(0, 0, Math.PI / 2);
+    // 원래 보일러의 받침대는 숨긴 메시와 함께 사라져 새 보일러가 바닥에서 20cm 떠 있었다 → 콘크리트 받침 + 철제 새들 2개
+    const conc = PM(0x5a5a56, .95), sad = PM(0x2a2622, .6, .6);
+    pbox(1.9, .1, len * .95, conc, b.x, .05, b.z, R);
+    [-.3, .3].forEach(t => { pbox(1.5, .42, .22, sad, b.x, .31, b.z + t * len, R); pbox(1.7, .05, .32, sad, b.x, .125, b.z + t * len, R); });
     // 바닥 기름때 · 찢어진 단열재 배관
     pmesh(new THREE.CircleGeometry(.95, 24).scale(1.3, .8, 1), PM(0x050403, .06, .4), b.x + 1.7, .012, b.z + 1.2, R, { rx: -Math.PI / 2, cast: false });
     const ins = PM(0xb8bcc0, .45, .7); pcyl(.13, .13, 2.4, ins, b.x + 1.6, 2.7, b.z - .6, R, { rx: Math.PI / 2 });
@@ -4888,11 +4914,28 @@ registerLines(Object.fromEntries(SG_ZONES.map(z => ['sg_' + z.id, { spk: 'ghost'
     const url = await ok('assets/img/sub_ghost_sheet.webp') ? 'assets/img/sub_ghost_sheet.webp' : await ok('assets/img/sub_ghost_sheet.png') ? 'assets/img/sub_ghost_sheet.png' : null;
     SG.sheet = !!url;
     await sgP.init({ scene, camera, audioCtx: sfxCtx, sheetUrl: url || 'assets/img/__no_sheet__.png' });
+    // 끊김 방지: 시트지 조각(표정 · 동작 · 소품)은 한 번만 잘라 재사용하고, 8명을 미리(숨긴 채) 만들어 텍스처 업로드 · 셰이더 컴파일을 타이틀 화면에서 끝내 둔다
+    { const crop = sgP.cropSheetRegionToTexture.bind(sgP), cache = new Map();
+      sgP.cropSheetRegionToTexture = (uv, o = {}) => { const k = uv.join(',') + '|' + JSON.stringify(o); let t = cache.get(k); if (!t) { t = srgb(crop(uv, o)); cache.set(k, t); } return t; }; }
+    if (url) {
+      const pool = {};
+      for (const z of SG_ZONES) { const g = sgSpawn(z); if (!g) continue; SG.list.splice(SG.list.indexOf(g), 1); sgP.ghostInstances.splice(sgP.ghostInstances.indexOf(g), 1); pool[z.id] = g; }
+      ['scream', 'creepy', 'crying', 'sad', 'blank', 'empty'].forEach(k => sgP.cropSheetRegionToTexture(sgP.EXPRESSIONS[k].uv));
+      ['attack', 'fade', 'crawl', 'float', 'behind_you'].forEach(k => sgP.cropSheetRegionToTexture(sgP.ANIMATIONS[k].uv));
+      for (const g of Object.values(pool)) {
+        g.root.traverse(o => { if (o.material) ['map', 'normalMap'].forEach(k => o.material[k] && renderer.initTexture(o.material[k])); });
+        try { await renderer.compileAsync(g.root, camera, scene); } catch (e) { /* ignore */ }
+        g.root.visible = false; await new Promise(r => requestAnimationFrame(r));
+      }
+      SG.pool = pool;
+    }
     SG.ready = true;
     if (!url) console.info('[SubGhost] 시트지 이미지(assets/img/sub_ghost_sheet.webp/.png)가 없어 구역 유령 8명은 배치하지 않았다 — T 메뉴에서 테스트 스폰만 가능');
   } catch (e) { console.warn('[SubGhost]', e && e.message); }
 })();
 function sgSpawn(z, pos) {
+  const pre = !pos && SG.pool && SG.pool[z.id];   // 미리 만들어 둔 유령을 꺼낸다
+  if (pre) { delete SG.pool[z.id]; pre.root.visible = true; sgP.ghostInstances.push(pre); SG.list.push(pre); return pre; }
   const F = floors[z.f], g = sgP.spawnGhostNPC({ id: z.id, position: pos || V3(z.x, F.y0, z.z), outfitKey: z.outfit, expressionKey: z.exp, animState: z.anim, propKey: z.prop, behavior: z.beh, dialogue: z.line });
   if (!g) return null;
   // 점광원 → 차가운 빛무리 (클래스는 ghostLight.intensity 만 바꾼다)

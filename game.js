@@ -3,7 +3,7 @@ import * as THREE from './vendor/three.module.js';
 import { GLTFLoader } from './vendor/addons/loaders/GLTFLoader.js';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
 import { createNPCVisuals } from './npcVisuals.js';
-import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, CH as CH_, ROOF_Y } from './world.js';
+import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, CH as CH_, ROOF_Y } from './world.js';
 import { drawMap } from './map.js';
 import { makeDress, makeHair, makeGhostFace, makeGraffiti, makeKeypad, loadPBR, makeGlow as makeGlowTex, makePaintingStare, makeSign, makeBlood } from './tex.js';
 import { warmUp } from './bake.js';
@@ -1903,7 +1903,7 @@ function updateLighting(dt) {
   scene.fog.density = lerp(scene.fog.density, indoors ? lerp(.05, .03, dk) : lerp(.014, .0075, dk), k);
   scene.fog.color.lerp(indoors ? _c1.copy(FOG_IN).lerp(FOG_IN_DAY, dk) : _c1.copy(FOG_OUT).lerp(FOG_DAY, dk), k);
   // 밖에서 건물과 멀리 떨어져 있으면 본관 1층 내부는 그리지 않는다 (창 너머로 거의 보이지 않음 · 야외 프레임 저하의 주원인)
-  const farOut = P.floor === 0 && !indoors && (P.z > MAIN_ZS + 16 || P.z < -26 || Math.abs(P.x) > 52);
+  const farOut = P.floor === 0 && !indoors && (P.z > MAIN_ZS + 16 || P.z < NORTH_Z || Math.abs(P.x) > 52);
   floors.forEach(f => { f.interior.visible = f.f === P.floor && !farOut; if (f.f <= 2) f.shell.visible = P.floor <= 3; });
   // 야외: 손전등 그림자 범위를 줄여 그림자 패스가 캠퍼스 전체를 다시 그리지 않게 (셰이더 재컴파일 없이)
   const sf = indoors ? 26 : 6; if (flash.shadow.camera.far !== sf) { flash.shadow.camera.far = sf; flash.shadow.camera.updateProjectionMatrix(); }
@@ -4330,12 +4330,13 @@ function zoneLabel() {
   if (f === 3) return '옥상';
   return null;
 }
-const ZONE_MAP = { 0: [[21.75, 61.6, '경비실 · 정문 개폐기'], [-11, 15.6, '조회대 마이크'], [-21.6, 61.4, '모래밭 · 타임캡슐'], [.8, -11.2, '실내 연결복도']],
+const ZONE_MAP = { 0: [[21.75, 61.6, '경비실 · 정문 개폐기'], [-11, 15.6, '조회대 마이크'], [-21.6, 61.4, '모래밭 · 타임캡슐'], [.8, (WALKWAY.z1 + WALKWAY.z2) / 2, '실내 연결복도']],
   1: [[32, -6.2, '과학실 · 시약'], [28.8, -8.6, '골격 모형']], 3: [[19, 2.3, '비상발전기'], [21.1, -4.2, '안테나']], 7: [[-37.4, 9.4, '냉동창고'], [-45.4, 11.6, '국솥'], [-40.6, 10.2, '가스 화구']] };
 
 /* ── 8. 실내 연결복도: 유리 통로(x -1.6 ~ 3.6) 안쪽에 막힌 실내 복도(폭 3.4m · 천장 2.9m)를 짓는다 ──
    본관 계단실 북문(x 1.8) · 별관 현관(x 0)이 모두 안에 들어오게 가운데 x 0.8. 방화문은 별관 현관 바로 앞(z −12.95) — 닫으면 별관 출입이 막힌다 */
-const PASS = { x1: -.9, x2: 2.5, z1: WALKWAY.z1, z2: WALKWAY.z2, doorZ: -12.95, col: { x1: -.9, x2: 2.5, z1: -13.02, z2: -12.88 }, bangT: 0, warned: false, frame: null, frameFell: false, prevBlack: false, tubes: [] };
+const PASS_DOOR = WALKWAY.z1 + .55, PASS_MID = (WALKWAY.z1 + WALKWAY.z2) / 2;   // 통로 10.6m: 방화문은 별관 끝 · 밸브는 가운데 · 청소도구함은 본관 끝
+const PASS = { x1: -.9, x2: 2.5, z1: WALKWAY.z1, z2: WALKWAY.z2, doorZ: PASS_DOOR, valveZ: PASS_MID, frameZ: PASS_MID + 2.4, pileZ: PASS_MID + 1.2, col: { x1: -.9, x2: 2.5, z1: PASS_DOOR - .07, z2: PASS_DOOR + .07 }, bangT: 0, warned: false, frame: null, frameFell: false, prevBlack: false, tubes: [] };
 function inPassage() { return P.floor === 0 && P.x > PASS.x1 && P.x < PASS.x2 && P.z > PASS.z1 && P.z < PASS.z2; }
 {
   const O = world.OUT, F0 = floors[0], cz = (WALKWAY.z1 + WALKWAY.z2) / 2;
@@ -4346,7 +4347,7 @@ function inPassage() { return P.floor === 0 && P.x > PASS.x1 && P.x < PASS.x2 &&
   floor.position.y = -.07;   // 기존 통로 바닥(0.015) 위로
   const L2 = z => cz - z;    // 월드 z → 그룹 z (그룹이 180° 돌아 있다)
   lPiv.position.z = rPiv.position.z = L2(PASS.doorZ);
-  valve.position.z = L2(-11.6); steam.position.set(0, 1.5, L2(-11.5));
+  valve.position.z = L2(PASS.valveZ); steam.position.set(0, 1.5, L2(PASS.valveZ + .1));
   // 증기: 구 하나 대신 둥근 그라데이션 판 3장을 엇갈려 — 가장자리가 부드럽다 (클래스는 material.opacity 만 바꾼다)
   { const c = document.createElement('canvas'); c.width = c.height = 128; const x = c.getContext('2d'), gr = x.createRadialGradient(64, 64, 4, 64, 64, 62); gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(.5, 'rgba(255,255,255,.45)'); gr.addColorStop(1, 'rgba(255,255,255,0)'); x.fillStyle = gr; x.fillRect(0, 0, 128, 128);
     const gs = [0, 1, 2].map(k => new THREE.PlaneGeometry(2.8, 2.4).rotateY(k * Math.PI / 3)); steam.geometry = mergeGeometries(gs); steam.material.alphaMap = new THREE.CanvasTexture(c); steam.material.side = THREE.DoubleSide; steam.material.needsUpdate = true; }
@@ -4366,7 +4367,7 @@ function inPassage() { return P.floor === 0 && P.x > PASS.x1 && P.x < PASS.x2 &&
   pmesh(new THREE.PlaneGeometry(1.2, .32), new THREE.MeshBasicMaterial({ map: makeSign('별관 (증축 1998)', '#1e2a2e', '#d9e4d0', 24), color: 0x9aa59a }), .8, 2.62, PASS.doorZ + .115, O, { cast: false });
   // 천장 형광등 3개 (점광원 대신 발광 메시) — 별관 쪽부터 순서대로 꺼지게 배열 순서를 맞춘다
   ipP.ceilingLights.forEach(l => pg.remove(l));
-  ipP.ceilingLights = [-12.85, cz, -10.55].map(z => {
+  ipP.ceilingLights = [0, 1, 2, 3, 4].map(k => WALKWAY.z1 + .65 + k * (WALKWAY.z2 - WALKWAY.z1 - 1.3) / 4).map(z => {   // 별관 끝부터 5개
     const m = new THREE.MeshStandardMaterial({ color: 0xe8f4ff, emissive: 0xd8f0ff, emissiveIntensity: 1.5 });
     pbox(.34, .05, 1.3, PM(0xc8ccce, .4, .5), .8, 2.86, z, O, { cast: false }); pbox(.12, .04, 1.2, m, .8, 2.82, z, O, { cast: false });
     let v = .85; return { get intensity() { return v; }, set intensity(x) { v = x; m.emissiveIntensity = x * 1.8; m.color.setScalar(x > .3 ? 1 : .35); } };
@@ -4377,23 +4378,24 @@ function inPassage() { return P.floor === 0 && P.x > PASS.x1 && P.x < PASS.x2 &&
     x.fillStyle = '#2a2016'; x.font = 'bold 16px sans-serif'; x.textAlign = 'center'; x.fillText('제 47 회 졸업 · 1998', 128, 182); return srgb(new THREE.CanvasTexture(c)); })();
   const frame = (z, rz) => { const f = new THREE.Group(); f.position.set(2.38, 1.78, z); f.rotation.set(0, -Math.PI / 2, rz); f.userData.dynamic = true; O.add(f);
     pbox(.72, .56, .04, PM(0x3a2416, .6), 0, 0, 0, f); pmesh(new THREE.PlaneGeometry(.64, .48), new THREE.MeshStandardMaterial({ map: photo, roughness: .3 }), 0, 0, .022, f, { cast: false }); return f; };
-  frame(-10.55, .05); PASS.frame = frame(-11.85, -.07);
-  const board = pbox(.04, .7, 1.0, PM(0x2a4a34, .9), -.78, 1.6, -12.4, O, { rx: .04 });
+  frame(-10.55, .05); frame(PASS_DOOR + 2.2, .03); PASS.frame = frame(PASS.frameZ, -.07);
+  const board = pbox(.04, .7, 1.0, PM(0x2a4a34, .9), -.78, 1.6, PASS_DOOR + .55, O, { rx: .04 });
   for (let k = 0; k < 4; k++) pmesh(new THREE.PlaneGeometry(.2, .27), PM(0xe0d8c0, .9), .025, (k % 2) * .25 - .1, -.3 + k * .18, board, { ry: Math.PI / 2, rz: (Math.random() - .5) * .2, cast: false });
   // 폐책걸상 더미 (동쪽 벽 · 일직선으로 못 달리고 돌아가야 한다)
-  F0.col.push({ x1: 1.0, x2: 2.4, z1: -12.1, z2: -11.55 });
+  const PZ = PASS.pileZ + 11.85;   // 책걸상 더미 위치 (예전 z −11.85 기준 상대값)
+  F0.col.push({ x1: 1.0, x2: 2.4, z1: -12.1 + PZ, z2: -11.55 + PZ });
   // 벽 · 문 충돌: 새 벽 안쪽 + 옛 유리 통로 동쪽 바깥문(이제 막힌 실내 복도) · 벽 뒤 빈틈
   [{ x1: -1.62, x2: -.8, z1: WALKWAY.z1, z2: WALKWAY.z2 }, { x1: 2.4, x2: 3.75, z1: WALKWAY.z1, z2: WALKWAY.z2 }].forEach(r => { F0.col.push(r); F0.walls.push(r); });
   F0.col.push({ x1: -.42 - .38, x2: -.42 + .38, z1: -10.73, z2: -10.07 });
   const mopHide = { floor: 0, x: -.42, z: -10.4, y: 0, dir: { x: 1, z: 0 }, noPick: true, mop: true, label: '청소도구함에 숨기' }; world.lockers.push(mopHide);
   const fd = IA(ipP, 'passage_fire_door'), sv = IA(ipP, 'passage_steam_valve'), mp = IA(ipP, 'passage_mop_locker');
-  fzProp(fd, 0, -.55, -12.7, 1.3, { r: .95, pass: 'door' });
-  fzProp(sv, 0, -.6, -11.6, 1.35, { r: 1.15 });
+  fzProp(fd, 0, -.55, PASS_DOOR + .25, 1.3, { r: .95, pass: 'door' });
+  fzProp(sv, 0, -.6, PASS.valveZ, 1.35, { r: 1.15 });
   fzProp(mp, 0, .2, -10.4, 1.0, { r: 1.0, hide: mopHide });
   // 책걸상 모델 (실사 소품) 따로 불러와 쌓는다
   const ld = new GLTFLoader(), put = (name, list) => ld.load(`assets/models/${name}/${name}.gltf`, gl => list.forEach(([x, y, z, ry, rx = 0, rz = 0]) => { const m = gl.scene.clone(); m.position.set(x, y, z); m.rotation.set(rx, ry, rz); m.traverse(o => { o.userData.dynamic = true; if (o.isMesh) { o.castShadow = o.receiveShadow = true; } }); O.add(m); }), undefined, () => {});
-  put('SchoolDesk_01', [[1.75, 0, -11.85, .2], [1.6, .76, -11.8, 2.9, Math.PI]]);
-  put('SchoolChair_01', [[1.25, 0, -11.7, 1.3, 0, Math.PI / 2], [2.05, .78, -11.95, .6], [1.4, 1.5, -11.75, 2.2, .4, .3]]);
+  put('SchoolDesk_01', [[1.75, 0, -11.85 + PZ, .2], [1.6, .76, -11.8 + PZ, 2.9, Math.PI]]);
+  put('SchoolChair_01', [[1.25, 0, -11.7 + PZ, 1.3, 0, Math.PI / 2], [2.05, .78, -11.95 + PZ, .6], [1.4, 1.5, -11.75 + PZ, 2.2, .4, .3]]);
 }
 function passBlock(on) {
   const F0 = floors[0];
@@ -4571,11 +4573,11 @@ function patchTick(dt) {
   // 8. 실내 연결복도 (복도 안에 있을 때만 실제 위치를 넘긴다 — 바깥 · 다른 층에서 소등 이벤트가 먼저 터지지 않게)
   ipP.update(dt, inPassage() ? _pp.set(P.x, 0, P.z) : _far, notify);
   if (ipP.state.blackoutTriggered && !PASS.prevBlack) { PASS.prevBlack = true; setTimeout(() => {
-    if (PASS.frameFell) return; PASS.frameFell = true; const f = PASS.frame; let t = 0; at(2.3, 1.7, -11.85).glassCrack();
+    if (PASS.frameFell) return; PASS.frameFell = true; const f = PASS.frame; let t = 0; at(2.3, 1.7, PASS.frameZ).glassCrack();
     const iv = setInterval(() => { t = Math.min(1, t + .08); f.position.y = 1.78 - t * t * 1.72; f.position.x = 2.38 - t * .25; f.rotation.z = -.07 - t * 1.2; f.rotation.x = t * .5; if (t >= 1) { clearInterval(iv); sfx.glassCrack(); at(2.1, .1, -11.85).thump(); fx.dust(2.1, .1, -11.85, 14); shake = .25; caption('…졸업 앨범 액자가 떨어져 유리가 산산이 깨졌다'); } }, 30);
   }, 2250); }
   if (!ipP.state.fireDoorClosed && floors[0].col.includes(PASS.col)) passBlock(false);
-  if (ipP.state.steamActive && Math.random() < dt * 22) fx.emit(-.6 + Math.random() * .3, 2.55, -11.6 + (Math.random() - .5) * .3, .3 + Math.random() * .7, -.1 - Math.random() * .3, (Math.random() - .5) * .8, 2.2, [.9, .93, .95], .32, .5, -.05, .7, 1.4);
+  if (ipP.state.steamActive && Math.random() < dt * 22) fx.emit(-.6 + Math.random() * .3, 2.55, PASS.valveZ + (Math.random() - .5) * .3, .3 + Math.random() * .7, -.1 - Math.random() * .3, (Math.random() - .5) * .8, 2.2, [.9, .93, .95], .32, .5, -.05, .7, 1.4);
   if (ghost.active && passBlocks(G.floor, P.floor) && G.away > 4) passBang(dt);
   world.props.forEach(p => { if (p.pass === 'door') p.label = ipP.state.fireDoorClosed ? `방화문 빗장 풀고 열기 (${Math.ceil(ipP.state.barricadeTimer)}초 뒤 저절로 부서진다)` : p.fz.promptText.replace(/^\[E\]\s*/, ''); });
 }

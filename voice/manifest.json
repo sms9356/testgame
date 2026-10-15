@@ -1282,5 +1282,11 @@
 "text": "아래에서... 누가 내 이름을 불렀어...",
 "dur": 4.31,
 "baked": true
+},
+"sg_sg_pool": {
+"spk": "ghost",
+"text": "물이... 아직도 차가워...",
+"dur": 3.5,
+"baked": true
 }
 }

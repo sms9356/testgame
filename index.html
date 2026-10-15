@@ -133,6 +133,22 @@
   #objWhere{font-size:11px;color:#8cc0e8;margin-top:2px}
   #objDir{font-size:12px;color:#f2c14e;margin-top:3px;display:none;align-items:center;gap:6px}#objDir.on{display:flex}
   #objDir i{display:inline-block;font-style:normal;transition:transform .15s linear}
+  /* 목표 바: 펼침(full) · 한 줄(compact, 상태 표시줄처럼) · 숨김(hidden) — J 키 또는 오른쪽 위 버튼 */
+  #objP{transition:opacity .5s,width .25s,padding .25s,transform .25s}
+  #objTog{position:absolute;right:6px;top:6px;display:flex;align-items:center;gap:4px;background:rgba(0,0,0,.35);border:1px solid var(--line);color:#c9b48a;font-size:11px;padding:1px 6px;cursor:pointer;pointer-events:auto;border-radius:3px}
+  #objTog kbd{font-size:9px;padding:0 3px}#objTog:hover{color:var(--gold);border-color:var(--gold)}
+  #objMini{display:none;align-items:center;gap:8px;white-space:nowrap;overflow:hidden;padding-right:58px}
+  #omCh{color:#c09a50;font-size:10px;letter-spacing:.18em;flex:none}#omText{color:#eee7d4;overflow:hidden;text-overflow:ellipsis;min-width:0}
+  #omProg{font-style:normal;font-size:11px;color:#9ec8a8;flex:none;border:1px solid rgba(158,200,168,.35);padding:0 5px;border-radius:8px}#omProg:empty{display:none}
+  #objP.compact{width:auto;max-width:min(560px,60vw);padding:5px 12px 5px 12px}
+  #objP.compact #objMini{display:flex}
+  #objP.compact>:not(#objMini):not(#objTog):not(#objDir){display:none!important}
+  #objP.compact #objDir.on{display:none!important}
+  #objP.hidden{opacity:0;transform:translateX(-24px);pointer-events:none}
+  #objTab{position:absolute;left:0;top:18px;display:none;background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--gold);color:#c9b48a;font-size:11px;padding:3px 9px;cursor:pointer;pointer-events:auto;letter-spacing:.08em}
+  #objTab kbd{font-size:9px;padding:0 3px;margin-left:4px}
+  #objTab.on{display:block}
+  #objP.peek{box-shadow:0 0 0 1px var(--gold),0 0 18px rgba(240,190,90,.25)}
   #pings{position:fixed;inset:0;pointer-events:none;z-index:6}
   #pings div{position:absolute;transform:translate(-50%,-50%);font-size:11px;color:#fff;background:rgba(20,26,32,.72);border:1px solid rgba(242,193,78,.7);border-radius:10px;padding:2px 8px;white-space:nowrap;animation:ping 3s ease-out forwards}
   @keyframes ping{0%{opacity:0;transform:translate(-50%,-30%)}10%{opacity:1;transform:translate(-50%,-50%)}80%{opacity:1}100%{opacity:0}}
@@ -596,7 +612,8 @@
 <div id="vig"></div><div id="fear"></div><div id="hide"></div><div id="fade"></div><div id="flash"></div>
 
 <div id="hud">
-  <div id="objP" class="panel"><div id="chapter"></div><div class="m">메인 목표</div><div id="objText"></div><div id="objWhere"></div><div id="objDir"><i>➤</i><span></span></div><div id="subs"></div>
+  <div id="objTab" title="목표 바 펼치기 (J)">◆ 목표 <kbd>J</kbd></div>
+  <div id="objP" class="panel"><button id="objTog" title="목표 바: 펼치기 · 한 줄 · 숨기기 (J)"><span id="objTogI">▾</span><kbd>J</kbd></button><div id="objMini"><b id="omCh"></b><span id="omText"></span><em id="omProg"></em></div><div id="chapter"></div><div class="m">메인 목표</div><div id="objText"></div><div id="objWhere"></div><div id="objDir"><i>➤</i><span></span></div><div id="subs"></div>
     <div id="optBox"><b id="optTitle"></b><div id="optSubs"></div></div><div id="sqBox"><b id="sqTitle"></b><div id="sqSubs"></div></div><div id="zoneBox"><b id="zoneTitle"></b><div id="zoneSubs"></div></div></div>
   <div id="mini"><canvas id="miniMap" width="150" height="150"></canvas><div id="floor">외부</div><div id="clock"></div><div id="ptime" title="플레이 시간"></div></div>
   <div id="rbtns">
@@ -618,7 +635,7 @@
     <div class="slot" id="s4"><small>4</small><img src="assets/ui/it_keypiece.webp" alt=""><em id="c4">0/5</em></div>
     <div class="slot" id="s5"><small>G</small><img src="assets/ui/it_can.webp" alt=""><em id="c5">0</em></div>
   </div>
-  <div id="hints"><div>이동 <kbd>WASD</kbd></div><div>달리기 <kbd>Shift</kbd></div><div>손전등 <kbd>F</kbd></div><div>상호작용 <kbd>E</kbd></div><div>던지기 <kbd>G</kbd></div><div>시점 <kbd>V</kbd></div><div>일시정지 <kbd>Esc</kbd></div></div>
+  <div id="hints"><div>이동 <kbd>WASD</kbd></div><div>달리기 <kbd>Shift</kbd></div><div>손전등 <kbd>F</kbd></div><div>상호작용 <kbd>E</kbd></div><div>던지기 <kbd>G</kbd></div><div>시점 <kbd>V</kbd></div><div>목표 바 <kbd>J</kbd></div><div>일시정지 <kbd>Esc</kbd></div></div>
   <div id="dlg"><img id="dlgFace" src="assets/ui/seoyeon_f1.webp" alt=""><div><span id="dlgName">서연</span><span id="dlgText"></span></div></div>
   <div id="cross"></div><div id="sense"><i></i></div><div id="prompt"></div><div id="msg"></div>
   <div id="viewTag"></div><div id="floorTag"></div><div id="tip"><small>도움말</small><span id="tipText"></span></div><div id="safeTag">안전 구역</div><div id="perkTag"></div>

@@ -1,0 +1,24 @@
+<!doctype html>
+<!-- 서브 유령 3D 모델 확인용 뷰어: tools/ghost_viewer.html?m=rooftop (assets/characters/ghosts/<m>.glb) · 마우스 끌기 회전 -->
+<html lang="ko"><head><meta charset="utf-8"><title>Ghost viewer</title>
+<style>html,body{margin:0;height:100%;background:#0b0e12;overflow:hidden;color:#cfd8e0;font:13px sans-serif}#info{position:fixed;left:8px;top:6px}</style></head>
+<body><div id="info"></div>
+<script type="module">
+import * as THREE from '../vendor/three.module.js';
+import { GLTFLoader } from '../vendor/addons/loaders/GLTFLoader.js';
+const q = new URLSearchParams(location.search), names = (q.get('m') || 'rooftop').split(',');
+const R = new THREE.WebGLRenderer({ antialias: true }); R.setSize(innerWidth, innerHeight); R.toneMapping = THREE.ACESFilmicToneMapping; document.body.appendChild(R.domElement);
+const S = new THREE.Scene(), C = new THREE.PerspectiveCamera(30, innerWidth / innerHeight, .05, 50);
+S.add(new THREE.HemisphereLight(0xb8c8e0, 0x202428, 1.2)); const k = new THREE.DirectionalLight(0xffffff, 2.2); k.position.set(1.5, 2.5, 3); S.add(k);
+const fl = q.get('face') ? 1 : 0; C.position.set(0, fl ? 1.5 : .95, fl ? .75 : 3.6 + names.length * .5); C.lookAt(0, fl ? 1.5 : .85, 0);
+let yaw = +(q.get('yaw') || 0), grp = new THREE.Group(); S.add(grp);
+const L = new GLTFLoader(); let info = [];
+await Promise.all(names.map((n, i) => L.loadAsync(`../assets/characters/ghosts/${n}.glb`).then(g => {
+  const m = g.scene; m.position.x = (i - (names.length - 1) / 2) * .75; grp.add(m);
+  let tris = 0; m.traverse(o => { if (o.isMesh) tris += o.geometry.index ? o.geometry.index.count / 3 : o.geometry.attributes.position.count / 3; });
+  const b = new THREE.Box3().setFromObject(m); info.push(`${n}: ${Math.round(tris)} tris · h ${(b.max.y - b.min.y).toFixed(2)}m`);
+})));
+document.getElementById('info').textContent = info.join(' | '); window.__ready = true;
+let drag = null; addEventListener('pointerdown', e => drag = e.clientX); addEventListener('pointerup', () => drag = null); addEventListener('pointermove', e => { if (drag != null) { yaw += (e.clientX - drag) * .01; drag = e.clientX; } });
+R.setAnimationLoop(() => { grp.rotation.y = yaw; R.render(S, C); });
+</script></body></html>

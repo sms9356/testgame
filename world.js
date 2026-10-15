@@ -85,6 +85,9 @@ export function buildWorld(scene) {
   const mLocker = grunge(S(T.makeMetal([120, 134, 138]), { roughness: .55, metalness: .4 }));
   const mLockerT = S(T.makeLocker(), { roughness: 1, metalness: .35 });
   { const lk = T.pbr('locker', () => T.pbrPaintMetal(256)); mLockerT.normalMap = lk.normalMap; mLockerT.roughnessMap = lk.roughnessMap; }
+  mLockerT.userData.locker = true;   // 사물함 상자: 3D 철제 캐비닛 패치(game.js)가 이 목록으로 외형을 바꾼다
+  const LOCKER_BOXES = [];
+  const B_BOIL = { b: null, cx: 0, m: [] }, keepB = m => { m.userData.dynamic = true; B_BOIL.m.push(m); return m; };   // B1 보일러 본체 — 보일러실 패치(game.js)가 같은 자리에 녹슨 보일러로 바꾼다
   const mStep = P(T.pbr('step', () => T.pbrConcrete(512)));
   const mBooks = S(T.makeBooks());
   const mCork = S(T.makeCork());
@@ -202,6 +205,7 @@ export function buildWorld(scene) {
     const m = new THREE.Mesh(boxGeo(w, h, d, mat === mLockerT || !mat.map || mat.map.wrapS !== THREE.RepeatWrapping), mat); m.position.set(x, y + h / 2, z);
     if (o.ry) m.rotation.y = o.ry; if (o.rz) m.rotation.z = o.rz;
     (o.parent || cur.interior).add(m);
+    if (mat.userData.locker) { m.userData.dynamic = true; LOCKER_BOXES.push({ mesh: m, f: cur.f, w, h, d, x, y, z, ry: o.ry || 0 }); }   // 합치지 않는다 (나중에 3D 캐비닛으로 교체)
     if (o.col) { const sw = (o.ry && Math.abs(Math.sin(o.ry)) > .7) ? d : w, sd = (o.ry && Math.abs(Math.sin(o.ry)) > .7) ? w : d; col(x - sw / 2, x + sw / 2, z - sd / 2, z + sd / 2, false, y + h <= 1.25 ? y + h : undefined); }   // 낮은 가구는 올라설 수 있다
     return m;
   }
@@ -1698,8 +1702,8 @@ export function buildWorld(scene) {
   function boiler(cx) {
     const B = sheetRoom(cx, 10, 11);
     { const b = B(.8, 1.5, 4, 5.5);   // 1 보일러 본체: 누운 원통 + 화실 문 + 리벳 띠 + 연통
-      meshAt(merge([new THREE.CylinderGeometry(1.15, 1.15, b.d * .92, 22).rotateX(Math.PI / 2).translate(0, 1.35, 0), ...[-1, -.3, .4, 1.1].map(k => new THREE.TorusGeometry(1.17, .035, 6, 22).translate(0, 1.35, k * b.d * .35)), bx(1.6, .2, b.d * .8, 0, .1, 0)]), mRust, b.x, 0, b.z);
-      meshAt(merge([new THREE.CylinderGeometry(.5, .5, .08, 18).rotateX(Math.PI / 2).translate(0, 1.2, 0), bx(.3, .06, .06, .2, 1.2, .05)]), mDarkMetal, b.x, 0, b.z + b.d * .46);
+      B_BOIL.b = b; B_BOIL.cx = cx; keepB(meshAt(merge([new THREE.CylinderGeometry(1.15, 1.15, b.d * .92, 22).rotateX(Math.PI / 2).translate(0, 1.35, 0), ...[-1, -.3, .4, 1.1].map(k => new THREE.TorusGeometry(1.17, .035, 6, 22).translate(0, 1.35, k * b.d * .35)), bx(1.6, .2, b.d * .8, 0, .1, 0)]), mRust, b.x, 0, b.z));
+      keepB(meshAt(merge([new THREE.CylinderGeometry(.5, .5, .08, 18).rotateX(Math.PI / 2).translate(0, 1.2, 0), bx(.3, .06, .06, .2, 1.2, .05)]), mDarkMetal, b.x, 0, b.z + b.d * .46));
       glowAt(b.x, 1.2, b.z + b.d * .47 + .05, .7, glowRed);
       meshAt(merge([tube(.18, 0, 2.4, -b.d * .3, 0, CH, -b.d * .3)]), mRust, b.x, 0, b.z);
       gauge(b.x + .6, 2.1, b.z + b.d * .47, 0); gauge(b.x - .5, 2.2, b.z + b.d * .47, 0);
@@ -2349,7 +2353,7 @@ export function buildWorld(scene) {
       for (let k = 0; k < 3; k++) {
         add(mLockerT, .62, 1.85, .5, cx + 2.35 + k * .66, 0, -1.2, { col: true });
         const lx = cx + 2.35 + k * .66;
-        plane(F.interior, new THREE.MeshBasicMaterial({ color: 0x0a0a0a }), .06, .35, lx + .12, 1.35, -.94);
+        const sl = plane(F.interior, new THREE.MeshBasicMaterial({ color: 0x0a0a0a }), .06, .35, lx + .12, 1.35, -.94); if (sl) { sl.userData.dynamic = true; LOCKER_BOXES.push({ slot: sl, f, x: lx }); }
       }
       lockers.push({ floor: f, x: cx + 3.01, z: -1.2, y: F.y0, dir: { x: 0, z: 1 } });
     });
@@ -3454,7 +3458,7 @@ export function buildWorld(scene) {
     return .38 + .62 * d;
   }
   const flickCfg = { calm: false };
-  return { h133Mat, crMat, thMat, prMat, v2Mat, winMats, MODELS, floors, items, lockers, doors, gate, update, mats: { flickerMats, matLampOn, matLampDead }, flickCfg, sky: { stars, moon, moonGlow }, NOTES, TAPES, PHOTOS, doorList, props, boardRefs, OUT, bakeStats, makeBoardTex: T.makeBoard };
+  return { B_BOIL, LOCKER_BOXES, h133Mat, crMat, thMat, prMat, v2Mat, winMats, MODELS, floors, items, lockers, doors, gate, update, mats: { flickerMats, matLampOn, matLampDead }, flickCfg, sky: { stars, moon, moonGlow }, NOTES, TAPES, PHOTOS, doorList, props, boardRefs, OUT, bakeStats, makeBoardTex: T.makeBoard };
 }
 
 /* ---------- 충돌/시야 ---------- */

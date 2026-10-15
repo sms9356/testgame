@@ -4,7 +4,7 @@ import { SLOTS, LAYOUT, GATE_Z, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY } fro
 const COL = { tech: '#3a4a3a', fusion: '#2c3f55', lang: '#2c3f4a', smart: '#2c3a55', club: '#3a4a2c', cooking: '#3a4a4a', craft: '#4a3f2f', broadcast: '#4a2a2a', boiler: '#4a3a2a', electric: '#4a4a2a', storage: '#3a3a30', records: '#3a4030', cleaning: '#2f3f4a', generator: '#4a2f2f', pump: '#2a3f4a', exit: '#5a2a2a', class: '#27384a', office: '#4a3a28', nurse: '#2f4a46', counsel: '#3f3a4f', library: '#3a4a2c', lab: '#2c4a3a', computer: '#2c3f55', music: '#4a2f3a', art: '#4a432c', toilet: '#38334d', stair: '#5a5a58' };
 
 export function drawMap(ctx, W, H, o) {
-  const { floor, cx, cz, scale: S, player, pins = [], lockers = [], labels = false, doors = [], props = [], target = null, t = 0, mini = false } = o;
+  const { floor, cx, cz, scale: S, player, pins = [], lockers = [], labels = false, zones = [], doors = [], props = [], target = null, t = 0, mini = false } = o;
   const X = x => W / 2 + (x - cx) * S, Y = z => H / 2 + (z - cz) * S;
   ctx.clearRect(0, 0, W, H);
   ctx.save();
@@ -76,6 +76,8 @@ export function drawMap(ctx, W, H, o) {
     ctx.beginPath(); ctx.moveTo(x, y - 5); ctx.lineTo(x + 4, y); ctx.lineTo(x, y + 5); ctx.lineTo(x - 4, y); ctx.closePath(); ctx.fill();
     if (labels && p.label) { ctx.fillStyle = '#d8c8e8'; ctx.font = '11px sans-serif'; ctx.textAlign = 'left'; ctx.fillText(p.label, x + 6, y + 4); }
   });
+  // 구역 미션 표시 (5대 구역 · 실내 연결복도): 금색 테두리 이름표
+  if (labels) zones.forEach(([zx, zz, t]) => { const x = X(zx), y = Y(zz); ctx.font = 'bold 12px sans-serif'; const w = ctx.measureText(t).width + 12; ctx.fillStyle = 'rgba(20,16,8,.82)'; ctx.fillRect(x - w / 2, y - 9, w, 18); ctx.strokeStyle = '#e8c870'; ctx.lineWidth = 1.2; ctx.strokeRect(x - w / 2, y - 9, w, 18); ctx.fillStyle = '#f0d890'; ctx.textAlign = 'center'; ctx.fillText(t, x, y + 4); });
   pins.forEach(p => {
     ctx.fillStyle = p.done ? '#4cc07a' : '#e04048';
     ctx.beginPath(); ctx.arc(X(p.x), Y(p.z) - 4, 5, 0, 6.3); ctx.fill();

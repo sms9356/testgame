@@ -442,3 +442,6 @@ export const sfx = {
   slap() { noiseBurst(.09, 900, 'lowpass', .55); noiseBurst(.05, 2600, 'bandpass', .12); },
   radioVoice() { noiseBurst(2.4, 2600, 'bandpass', .22); for (let i = 0; i < 9; i++) later(300 + i * 190, () => { const f = 300 + Math.random() * 260; tone(f, .16, 'sawtooth', .02, 0, 1, f * .85); noiseBurst(.12, 1400 + Math.random() * 800, 'bandpass', .12); }); },
 };
+// 사용자 제공 패치 모듈(자체 Web Audio 합성음)이 쓰는 컨텍스트: 게임 오디오 컨텍스트를 그대로 주되, 출력(destination)은 효과음 버스로 —
+// 설정의 마스터 · 효과음 볼륨이 패치 소리에도 적용된다
+export const sfxCtx = new Proxy({}, { get(_, k) { if (!ac) initAudio(); if (!ac) return undefined; if (k === 'destination') return bus.sfx; const v = ac[k]; return typeof v === 'function' ? v.bind(ac) : v; } });

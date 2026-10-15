@@ -144,6 +144,9 @@
   #optBox{margin-top:8px;padding-top:6px;border-top:1px dashed #4a3a50;font-size:12px;color:#c8b8d8;display:none}
   #optBox b{color:#c89af0;font-size:11px;letter-spacing:.15em;display:block;margin-bottom:2px}
   #sqBox{margin-top:8px;padding-top:6px;border-top:1px dashed #4a4a38;font-size:12px;color:#d8d0b0;display:none}
+  #zoneBox{margin-top:8px;padding-top:6px;border-top:1px dashed #3a4a38;font-size:12px;color:#c8d8b8;display:none}
+  #zoneBox b{color:#a8d878;font-size:11px;letter-spacing:.12em;display:block;margin-bottom:2px}
+  body.patch-freezer-locked #frostVig{opacity:1;background:radial-gradient(ellipse at center,rgba(200,230,255,.08) 25%,rgba(170,210,245,.32) 66%,rgba(225,240,255,.72) 100%)}
   #sqBox b{color:#e8c870;font-size:11px;letter-spacing:.12em;display:block;margin-bottom:2px}
   #mini{position:absolute;right:20px;top:16px;width:156px;height:156px}
   #miniMap{width:150px;height:150px;border-radius:50%;border:2px solid #6a7782;background:rgba(8,12,16,.8);display:block}
@@ -571,7 +574,7 @@
 
 <div id="hud">
   <div id="objP" class="panel"><div id="chapter"></div><div class="m">메인 목표</div><div id="objText"></div><div id="objWhere"></div><div id="objDir"><i>➤</i><span></span></div><div id="subs"></div>
-    <div id="optBox"><b id="optTitle"></b><div id="optSubs"></div></div><div id="sqBox"><b id="sqTitle"></b><div id="sqSubs"></div></div></div>
+    <div id="optBox"><b id="optTitle"></b><div id="optSubs"></div></div><div id="sqBox"><b id="sqTitle"></b><div id="sqSubs"></div></div><div id="zoneBox"><b id="zoneTitle"></b><div id="zoneSubs"></div></div></div>
   <div id="mini"><canvas id="miniMap" width="150" height="150"></canvas><div id="floor">외부</div><div id="clock"></div><div id="ptime" title="플레이 시간"></div></div>
   <div id="rbtns">
     <div class="rb">휴대폰 <kbd>P</kbd><i id="rbPhone"><img src="assets/ui/ui_phone.webp" alt=""><em id="phoneBadge"></em></i></div>

@@ -1,22 +1,17 @@
-# R02-01 학생용 책상 — QC (V4 1단계 시범)
+# R02-01 학생용 책상 — QC (V4 1단계)
 
 | 항목 | 값 |
 |---|---|
-| 대상 방 | 본관 1층 1-1 (북쪽 교실, `world.js classroom` → `deskGrid`) · 기능 플래그 `?v4=0` 이면 예전 절차 책상 |
-| 원래 오브젝트 | 절차 생성 책상(`deskTopG` + `deskLegG` 인스턴싱) |
-| 신규 모델 | `v4_R02-01` (게임: `assets/models/v4_R02-01/v4_R02-01.gltf`) · 납품: `R02-01.glb / .fbx / .obj+.mtl / .blend` |
 | 사양서 W/D/H | 650 × 450 × 730 mm |
-| 실제 바운딩박스 | 본체 650 × 450 × 730 mm, 가방걸이 포함 폭 727.6 mm (양옆 고리 각 38.8 mm 돌출) |
-| 축 · 피벗 | glTF Y-up, 원점 = 바닥 중심(발 밑면 y = 0), 학생 쪽(+Z)으로 선반이 열림 |
-| 부품 (실제 별도 형상) | 18 mm 합판 상판(모서리 라운드 4 mm) · 20×20 각관 상판 프레임 4 · 25×25 각관 다리 4 · 고무 발 4 · 옆 하부 가로대 2 · 뒤(칠판 쪽) 가로대 · 철판 책 선반(바닥 · 뒤 립 · 옆 립 2 · 걸이 2) · 가방걸이 2(굽힌 봉) · 고정 나사 16 |
-| 삼각형 | LOD0 3,576 · LOD1 1,430 (.blend 안 별도 객체, 게임은 LOD0) |
-| UV | UV0 1개 (상자 투영, 실치수 비례) |
-| 재질 · 맵 | 목재: BaseColor · Normal(OpenGL) · Roughness / 철제: BaseColor · Normal · Roughness + Metallic 0.55 / 고무: 상수 — glTF 에서는 Roughness·Metallic 이 ORM 규칙대로 한 장(G·B)으로 합쳐짐 |
-| 텍스처 해상도 | 1024 px (사양 목표 2K/4K 미달 — 이번 단계는 1K) · AO 맵 없음 (미완료) |
-| 출처 · 라이선스 | 목재 `varnishDark_*` = 프로젝트 자체 절차 생성 원본 · 철제 `locker_*` = Poly Haven “Rusty Metal Sheet” (Amal Kumar, CC0) |
-| 재임포트 검사 | Blender 5.2 로 GLB · FBX · OBJ 다시 가져오기 → 메시 1 · 재질 3 · 텍스처 6 · UV 1 · 크기 동일 (`reimport_check.json`) |
-| 렌더 | `render_front/side/back/persp/detail.webp` (Cycles, 흰 배경) — AI 콘셉트 이미지가 아님 |
-| 게임 안 | 1-1 교실 책상 17개 (빠진 자리 · 의자 · 쓰러진 의자 · 가방 · 충돌은 기존 규칙 그대로, 윗면 충돌 높이 0.73 m) · 재질 3개 인스턴싱 = 그리기 호출 +3, 예전 책상 인스턴싱 2개 제거 |
-| 퍼즐 · 조사 | 1-1 의 캠코더 · 의뢰(개근 스티커판) · 수색 사물함 · 칠판 · 교실의 기억 그대로 (e2e 통과) |
-| 판정 | **시범 승인 대기** — 1K 텍스처 · AO 없음 · 의자(R02-02)는 아직 예전 모델 |
-| 다음 | R02-02 의자 → R02-03 교탁 → R02-04 칠판 순서, 사용자 확인 뒤 다른 교실로 확장 |
+| 실제 바운딩박스 | 가방걸이 포함 폭 708 mm (고리 각 29 mm 돌출) |
+| 축 · 피벗 | glTF Y-up, 원점 = 바닥 중심(y = 0), 학생 쪽 = +Z |
+| 부품 (실제 별도 형상) | 18 mm 합판 상판(라운드 4 mm) · 20×20 각관 상판 프레임 4 · 25×25 각관 다리 4 · 고무 발 4 · 옆 하부 가로대 2 · 뒤 가로대 · 철판 책 선반(바닥 · 뒤 립 · 옆 립 2) · 가방걸이 2(굽힌 봉) · 고정 나사 8 |
+| 삼각형 | LOD0 3,584 · LOD1 1,432 (.blend 안 별도 객체, 게임은 LOD0) |
+| UV | UV0 (상자 투영, 실치수 비례 — 철제는 녹 반점 크기 때문에 0.5 배율) |
+| 재질 · 맵 | V4_wood_worn, V4_steel_dusty, V4_rubber — 목재 · 철제: BaseColor · Normal(OpenGL) · ARM(R=AO · G=Roughness · B=Metallic → glTF occlusion + metallicRoughness 한 장) / 고무 · 걸레받이 · 명판: 상수 |
+| 텍스처 | 2048 px JPEG (q82), 게임에서는 세 모델이 `assets/models/v4_tex/` 한 벌을 함께 씀 |
+| 출처 · 라이선스 | 목재 Poly Haven “Wood Table Worn” (Dimitrios Savva · Rico Cilliers, CC0) · 철제 Poly Haven “Rusty Metal 02” (Rob Tuytel, CC0) — 색만 시트에 맞게 조정(녹 채도 ↓ · 회색 먼지 톤 / 목재 어둡게) |
+| 재임포트 | Blender 5.2: GLB · FBX · OBJ · 게임용 glTF 모두 메시 1 · 크기 동일 · 재질 동일 → 통과 (`reimport_check.json`) |
+| 렌더 | `render_front/side/back/persp/detail.webp` (Cycles, 흰 배경) |
+| 게임 안 | 일반 교실 전부: 기존 책상 자리(빠진 자리 · 충돌 그대로, 윗면 0.73 m — 점프로 올라섬) · 끄기 `?v4=0` |
+| 판정 | 적용 (게임 회귀 테스트 통과) |

@@ -92,6 +92,9 @@ await loadPBR();
 const _t1 = performance.now();
 const world = buildWorld(scene);
 const npcVisuals = createNPCVisuals({ THREE, GLTFLoader });   // assets/characters/{guard,mina}.glb 가 있으면 절차적 모델 대신 쓴다
+// 캐릭터 GLB 는 assets/characters/manifest.json 에 true 로 적힌 것만 요청한다 (없는 파일을 매번 요청해 404 가 나던 문제)
+const NPC_AVAIL = fetch('assets/characters/manifest.json').then(r => (r.ok ? r.json() : {})).catch(() => ({}));
+function npcLoad(id, holder, opts) { NPC_AVAIL.then(m => { if (m && m[id]) npcVisuals.load(id, holder, opts).catch(e => console.warn('[npc]', id, e && e.message)); }); }
 // 실사 스캔 소품 (Poly Haven CC0): 모델별 · 층별로 InstancedMesh 를 만들어 드로콜을 줄인다
 function loadModels() {
   const byName = {}; world.MODELS.forEach(m => (byName[m.model] = byName[m.model] || []).push(m));
@@ -1538,7 +1541,7 @@ function buildGuard() {
   const beam = new THREE.Mesh(new THREE.ConeGeometry(.9, 5, 20, 1, true), new THREE.MeshBasicMaterial({ color: 0xfff0d0, transparent: true, opacity: .07, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide }));
   beam.geometry.translate(0, -2.5, 0); beam.rotation.x = -Math.PI / 2 - .25; beam.position.set(.25, 1.12, .5); g.add(beam);
   g.position.set(1.3, 0, GATE_Z + 4.6); g.rotation.y = -.12; g.visible = false; scene.add(g);
-  npcVisuals.load('guard', g, { url: 'assets/characters/guard.glb', height: 1.75, clipNames: ['idle', 'stand'] });
+  npcLoad('guard', g, { url: 'assets/characters/guard.glb', height: 1.75, clipNames: ['idle', 'stand'] });
   return g;
 }
 // 경비원 NPC (서브 캐릭터 시트): 60대 · 175cm · 남색 근무복 · 표장 모자 · SECURITY 패치 · 무전기 · 손전등 · 작업화 — 해가 지기 전까지 경비실에 있다
@@ -1570,7 +1573,7 @@ function buildGuardNPC() {
   return g;
 }
 const guardNPC = buildGuardNPC(); guardNPC.position.set(20.3, 0, 65.6); guardNPC.rotation.y = .9; world.OUT.add(guardNPC);
-npcVisuals.load('guard', guardNPC, { url: 'assets/characters/guard.glb', height: 1.75, clipNames: ['idle', 'stand'] });
+npcLoad('guard', guardNPC, { url: 'assets/characters/guard.glb', height: 1.75, clipNames: ['idle', 'stand'] });
 const guardCap = new THREE.Mesh(new THREE.CylinderGeometry(.115, .118, .08, 18), new THREE.MeshStandardMaterial({ color: 0x283450, roughness: .8 })); guardCap.position.set(20.0, .8, 66.55); guardCap.visible = false; world.OUT.add(guardCap);
 world.props.push({ kind: 'guardnpc', floor: 0, x: 20.3, z: 65.6, y: 1.5, label: '경비 아저씨와 이야기하기' });
 let guardGift = false;
@@ -2476,7 +2479,7 @@ const mina = new THREE.Group();
   mina.position.set(-21.65, 0, -8.45); mina.userData.dynamic = true; F.interior.add(mina);   // interior 그룹이 이미 층 높이(y0)만큼 올라가 있다
   mina.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
   world.props.push({ kind: 'mina', floor: 2, x: -21.65, z: -7.9, y: .8, label: '민아 깨우기' });
-  npcVisuals.load('mina', mina, { url: 'assets/characters/mina.glb', height: .95, clipNames: ['sitting', 'sit'] });   // 장비실에 주저앉은 모습
+  npcLoad('mina', mina, { url: 'assets/characters/mina.glb', height: .95, clipNames: ['sitting', 'sit'] });   // 장비실에 주저앉은 모습
 }
 
 /* ---------- 추가 상호작용 오브젝트: 잠긴 보관함 · 다이얼 · 배수구 · 피아노 · 그림 · 도구 ---------- */
@@ -3226,7 +3229,7 @@ const XT = { search: null, para: 75 + Math.random() * 40, paraLast: [], mbox: nu
   const MS = [
     { id: 'music', f: 2, room: '음악실', dx: -1.6, d: 3.4, look: 'xylo', label: '실로폰 — 남겨진 음 따라 치기', game: 'simon', opts: { title: '실로폰 — 하늘의 연습곡' }, reward: { col: 'c07', item: { candy: 1 } }, cap: '마지막 음이 끝나자, 누군가 박수를 쳤다. 두 번.' },
     { id: 'comp', f: 1, room: '컴퓨터실', dx: 1.8, d: 3.4, look: 'pc', label: '고장 난 PC — 깨진 파일 복구', game: 'memory', opts: { title: '깨진 파일 아이콘 짝 맞추기', icons: ['💾', '🖥', '📁', '🖨', '📀', '⌨'] }, reward: { item: { battery: 2 } }, cap: '복구된 폴더 이름: 「HANEUL_방송원고_최종_진짜최종」' },
-    { id: 'bcast', f: 2, room: '방송실', dx: 2.4, d: 4.6, look: 'radio', label: '낡은 라디오 — 주파수 맞추기', game: 'tune', opts: { title: '라디오 주파수', label: '…3학년 2반 윤하늘입니다. 오늘도 수고 많았어요…' }, reward: { item: { charm: 1 } }, cap: '라디오가 꺼진 뒤에도 목소리가 한 마디 더 이어졌다. “…고마워.”' },
+    { id: 'bcast', f: 2, room: '방송실', dx: -2.9, d: 4.0, look: 'radio', label: '낡은 라디오 — 주파수 맞추기', game: 'tune', opts: { title: '라디오 주파수', label: '…3학년 2반 윤하늘입니다. 오늘도 수고 많았어요…' }, reward: { item: { charm: 1 } }, cap: '라디오가 꺼진 뒤에도 목소리가 한 마디 더 이어졌다. “…고마워.”' },
     { id: 'lab', f: 1, room: '과학실', dx: 1.4, d: 4.2, look: 'beaker', label: '실험대 — 비커 눈금 맞추기', game: 'timing', opts: { title: '시약 붓기', hint: '눈금이 <b style="color:#60e0a0">초록 구간</b>일 때 <b>Space</b> — 조금이라도 넘치면 실패', icon: '🧪', okText: '딱 맞다', missText: '넘쳤다…' }, reward: { item: { salt: 2 } }, cap: '비커 바닥에 하얀 결정이 맺혔다 — 굵은 소금이다.' },
     { id: 'gym', f: 5, x: 32.4, z: 18.5, look: 'hoop', label: '농구공 — 자유투 던지기', game: 'timing', opts: { title: '자유투 (5번 중 3골)', hint: '공이 <b style="color:#60e0a0">초록 구간</b>에 오면 <b>Space</b>', icon: '🏀', okText: '골!', missText: '림을 맞고 튀었다…' }, reward: { item: { candy: 2 } }, replay: true, cap: '마지막 골이 들어가자, 텅 빈 관람석에서 환호성이 아주 작게 들렸다.' },
     { id: 'cafe', f: 7, x: -30.7, z: 15.6, look: 'gacha', label: '뽑기 기계 돌리기', game: 'gacha', replay: true },

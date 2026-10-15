@@ -290,7 +290,7 @@ function order({ title, frags, showTimes, onFail }) {
 /* ---------- 8. 짝 맞추기 (기억력) ---------- */
 // 카드를 두 장씩 뒤집어 같은 그림을 찾는다. 틀린 횟수가 많으면 실패
 function memory({ title = '짝 맞추기', icons = ['📻', '🎹', '📼', '🔔', '📕', '🗝'], maxMiss = 8 }) {
-  const p = open(title, '카드를 두 장씩 뒤집어 <b>같은 그림</b>을 모두 찾아라 · 클릭 또는 숫자 키는 쓰지 않는다');
+  const p = open(title, '카드를 클릭해 두 장씩 뒤집고 <b>같은 그림</b>을 모두 찾아라 · 틀린 횟수가 다 차면 실패');
   const deck = [...icons, ...icons].map((ic, i) => ({ ic, id: i, open: false, done: false })).sort(() => Math.random() - .5);
   const box = document.createElement('div'); box.className = 'memGrid'; box.style.gridTemplateColumns = `repeat(${deck.length > 12 ? 5 : 4}, 64px)`; $('mgBody').appendChild(box);
   const info = document.createElement('div'); info.className = 'mgInfo'; $('mgBody').appendChild(info);

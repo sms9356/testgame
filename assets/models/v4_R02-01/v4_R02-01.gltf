@@ -21,44 +21,48 @@
 	"materials":[
 		{
 			"doubleSided":true,
-			"name":"R02_wood_varnish",
+			"name":"V4_wood_worn",
 			"normalTexture":{
 				"index":0
 			},
-			"pbrMetallicRoughness":{
-				"baseColorTexture":{
-					"index":1
-				},
-				"metallicFactor":0,
-				"metallicRoughnessTexture":{
-					"index":2
-				}
-			}
-		},
-		{
-			"doubleSided":true,
-			"name":"R02_steel_dusty",
-			"normalTexture":{
-				"index":3
+			"occlusionTexture":{
+				"index":1
 			},
 			"pbrMetallicRoughness":{
 				"baseColorTexture":{
-					"index":4
+					"index":2
 				},
-				"metallicFactor":0.550000011920929,
 				"metallicRoughnessTexture":{
-					"index":5
+					"index":1
 				}
 			}
 		},
 		{
 			"doubleSided":true,
-			"name":"R02_rubber",
+			"name":"V4_steel_dusty",
+			"normalTexture":{
+				"index":3
+			},
+			"occlusionTexture":{
+				"index":4
+			},
+			"pbrMetallicRoughness":{
+				"baseColorTexture":{
+					"index":5
+				},
+				"metallicRoughnessTexture":{
+					"index":4
+				}
+			}
+		},
+		{
+			"doubleSided":true,
+			"name":"V4_rubber",
 			"pbrMetallicRoughness":{
 				"baseColorFactor":[
-					0.029999999329447746,
-					0.029999999329447746,
-					0.029999999329447746,
+					0.02500000037252903,
+					0.02500000037252903,
+					0.02500000037252903,
 					1
 				],
 				"metallicFactor":0,
@@ -129,33 +133,33 @@
 	"images":[
 		{
 			"mimeType":"image/jpeg",
-			"name":"varnishDark_normal",
-			"uri":"varnishDark_normal.jpg"
+			"name":"wood_table_worn_nor_gl",
+			"uri":"../v4_tex/wood_table_worn_nor_gl.jpg"
 		},
 		{
 			"mimeType":"image/jpeg",
-			"name":"varnishDark_map",
-			"uri":"varnishDark_map.jpg"
+			"name":"wood_table_worn_arm",
+			"uri":"../v4_tex/wood_table_worn_arm.jpg"
 		},
 		{
 			"mimeType":"image/jpeg",
-			"name":"varnishDark_rough",
-			"uri":"varnishDark_rough.jpg"
+			"name":"wood_table_worn_diff",
+			"uri":"../v4_tex/wood_table_worn_diff.jpg"
 		},
 		{
 			"mimeType":"image/jpeg",
-			"name":"locker_normal",
-			"uri":"locker_normal.jpg"
+			"name":"rusty_metal_02_nor_gl",
+			"uri":"../v4_tex/rusty_metal_02_nor_gl.jpg"
 		},
 		{
 			"mimeType":"image/jpeg",
-			"name":"locker_map",
-			"uri":"locker_map.jpg"
+			"name":"rusty_metal_02_arm",
+			"uri":"../v4_tex/rusty_metal_02_arm.jpg"
 		},
 		{
 			"mimeType":"image/jpeg",
-			"name":"locker_rough",
-			"uri":"locker_rough.jpg"
+			"name":"rusty_metal_02_diff",
+			"uri":"../v4_tex/rusty_metal_02_diff.jpg"
 		}
 	],
 	"accessors":[
@@ -196,14 +200,14 @@
 		{
 			"bufferView":4,
 			"componentType":5126,
-			"count":2436,
+			"count":2364,
 			"max":[
-				0.36380425095558167,
+				0.3540000021457672,
 				0.7120000123977661,
 				0.2084999978542328
 			],
 			"min":[
-				-0.36380425095558167,
+				-0.3540000021457672,
 				0.01199999451637268,
 				-0.2084999978542328
 			],
@@ -212,19 +216,19 @@
 		{
 			"bufferView":5,
 			"componentType":5126,
-			"count":2436,
+			"count":2364,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":6,
 			"componentType":5126,
-			"count":2436,
+			"count":2364,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":7,
 			"componentType":5123,
-			"count":7908,
+			"count":7932,
 			"type":"SCALAR"
 		},
 		{
@@ -289,50 +293,50 @@
 		},
 		{
 			"buffer":0,
-			"byteLength":29232,
+			"byteLength":28368,
 			"byteOffset":6504,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":29232,
-			"byteOffset":35736,
+			"byteLength":28368,
+			"byteOffset":34872,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":19488,
-			"byteOffset":64968,
+			"byteLength":18912,
+			"byteOffset":63240,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":15816,
-			"byteOffset":84456,
+			"byteLength":15864,
+			"byteOffset":82152,
 			"target":34963
 		},
 		{
 			"buffer":0,
 			"byteLength":7296,
-			"byteOffset":100272,
+			"byteOffset":98016,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":7296,
-			"byteOffset":107568,
+			"byteOffset":105312,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":4864,
-			"byteOffset":114864,
+			"byteOffset":112608,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":4512,
-			"byteOffset":119728,
+			"byteOffset":117472,
 			"target":34963
 		}
 	],
@@ -344,7 +348,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":124240,
+			"byteLength":121984,
 			"uri":"v4_R02-01.bin"
 		}
 	]

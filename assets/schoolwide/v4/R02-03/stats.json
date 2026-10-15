@@ -1,0 +1,20 @@
+{
+ "name": "R02-03_TeacherPodium",
+ "tris_lod0": 1436,
+ "tris_lod1": 574,
+ "dims_m_xyz_zup": [
+  1.2,
+  0.6,
+  0.85
+ ],
+ "materials": [
+  "V4_wood_worn",
+  "V4_steel_dusty",
+  "V4_plinth",
+  "V4_brass",
+  "V4_rubber"
+ ],
+ "uv_layers": [
+  "UVMap"
+ ]
+}

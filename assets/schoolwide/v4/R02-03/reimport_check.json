@@ -1,0 +1,106 @@
+{
+ "R02-03.glb": {
+  "meshes": 1,
+  "size_m": [
+   1.2,
+   0.6,
+   0.85
+  ],
+  "min_z": 0.0,
+  "materials": [
+   "V4_brass",
+   "V4_plinth",
+   "V4_rubber",
+   "V4_steel_dusty",
+   "V4_wood_worn"
+  ],
+  "images": [
+   "rusty_metal_02_arm",
+   "rusty_metal_02_diff",
+   "rusty_metal_02_nor_gl",
+   "wood_table_worn_arm",
+   "wood_table_worn_diff",
+   "wood_table_worn_nor_gl"
+  ],
+  "uv": [
+   1
+  ]
+ },
+ "R02-03.fbx": {
+  "meshes": 1,
+  "size_m": [
+   1.2,
+   0.6,
+   0.85
+  ],
+  "min_z": -0.0,
+  "materials": [
+   "V4_brass",
+   "V4_plinth",
+   "V4_rubber",
+   "V4_steel_dusty",
+   "V4_wood_worn"
+  ],
+  "images": [
+   "rusty_metal_02_diff.jpg",
+   "rusty_metal_02_nor_gl.jpg",
+   "wood_table_worn_diff.jpg",
+   "wood_table_worn_nor_gl.jpg"
+  ],
+  "uv": [
+   1
+  ]
+ },
+ "R02-03.obj": {
+  "meshes": 1,
+  "size_m": [
+   1.2,
+   0.6,
+   0.85
+  ],
+  "min_z": -0.0,
+  "materials": [
+   "V4_brass",
+   "V4_plinth",
+   "V4_rubber",
+   "V4_steel_dusty",
+   "V4_wood_worn"
+  ],
+  "images": [
+   "rusty_metal_02_diff.jpg",
+   "rusty_metal_02_nor_gl.jpg",
+   "wood_table_worn_diff.jpg",
+   "wood_table_worn_nor_gl.jpg"
+  ],
+  "uv": [
+   1
+  ]
+ },
+ "game/v4_R02-03/v4_R02-03.gltf": {
+  "meshes": 1,
+  "size_m": [
+   1.2,
+   0.6,
+   0.85
+  ],
+  "min_z": 0.0,
+  "materials": [
+   "V4_brass",
+   "V4_plinth",
+   "V4_rubber",
+   "V4_steel_dusty",
+   "V4_wood_worn"
+  ],
+  "images": [
+   "rusty_metal_02_arm",
+   "rusty_metal_02_diff",
+   "rusty_metal_02_nor_gl",
+   "wood_table_worn_arm",
+   "wood_table_worn_diff",
+   "wood_table_worn_nor_gl"
+  ],
+  "uv": [
+   1
+  ]
+ }
+}

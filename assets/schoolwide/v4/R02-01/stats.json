@@ -1,15 +1,16 @@
 {
- "tris_lod0": 3576,
- "tris_lod1": 1430,
- "dims_m": [
-  0.7276,
+ "name": "R02-01_StudentDesk",
+ "tris_lod0": 3584,
+ "tris_lod1": 1432,
+ "dims_m_xyz_zup": [
+  0.708,
   0.45,
   0.73
  ],
  "materials": [
-  "R02_wood_varnish",
-  "R02_steel_dusty",
-  "R02_rubber"
+  "V4_wood_worn",
+  "V4_steel_dusty",
+  "V4_rubber"
  ],
  "uv_layers": [
   "UVMap"

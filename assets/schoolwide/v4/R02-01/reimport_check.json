@@ -1,77 +1,98 @@
 {
  "R02-01.glb": {
   "meshes": 1,
-  "size_xyz_m (Blender Z-up)": [
-   0.7276,
+  "size_m": [
+   0.708,
    0.45,
    0.73
   ],
   "min_z": 0.0,
   "materials": [
-   "R02_rubber",
-   "R02_steel_dusty",
-   "R02_wood_varnish"
+   "V4_rubber",
+   "V4_steel_dusty",
+   "V4_wood_worn"
   ],
   "images": [
-   "locker_map",
-   "locker_normal",
-   "locker_rough",
-   "varnishDark_map",
-   "varnishDark_normal",
-   "varnishDark_rough"
+   "rusty_metal_02_arm",
+   "rusty_metal_02_diff",
+   "rusty_metal_02_nor_gl",
+   "wood_table_worn_arm",
+   "wood_table_worn_diff",
+   "wood_table_worn_nor_gl"
   ],
   "uv": [
-   "UVMap"
+   1
   ]
  },
  "R02-01.fbx": {
   "meshes": 1,
-  "size_xyz_m (Blender Z-up)": [
-   0.7276,
+  "size_m": [
+   0.708,
    0.45,
    0.73
   ],
   "min_z": -0.0,
   "materials": [
-   "R02_rubber",
-   "R02_steel_dusty",
-   "R02_wood_varnish"
+   "V4_rubber",
+   "V4_steel_dusty",
+   "V4_wood_worn"
   ],
   "images": [
-   "locker_map.jpg",
-   "locker_normal.jpg",
-   "locker_rough.jpg",
-   "varnishDark_map.jpg",
-   "varnishDark_normal.jpg",
-   "varnishDark_rough.jpg"
+   "rusty_metal_02_diff.jpg",
+   "rusty_metal_02_nor_gl.jpg",
+   "wood_table_worn_diff.jpg",
+   "wood_table_worn_nor_gl.jpg"
   ],
   "uv": [
-   "UVMap"
+   1
   ]
  },
  "R02-01.obj": {
   "meshes": 1,
-  "size_xyz_m (Blender Z-up)": [
-   0.7276,
+  "size_m": [
+   0.708,
    0.45,
    0.73
   ],
   "min_z": -0.0,
   "materials": [
-   "R02_rubber",
-   "R02_steel_dusty",
-   "R02_wood_varnish"
+   "V4_rubber",
+   "V4_steel_dusty",
+   "V4_wood_worn"
   ],
   "images": [
-   "locker_map.jpg",
-   "locker_normal.jpg",
-   "locker_rough.jpg",
-   "varnishDark_map.jpg",
-   "varnishDark_normal.jpg",
-   "varnishDark_rough.jpg"
+   "rusty_metal_02_diff.jpg",
+   "rusty_metal_02_nor_gl.jpg",
+   "wood_table_worn_diff.jpg",
+   "wood_table_worn_nor_gl.jpg"
   ],
   "uv": [
-   "UVMap"
+   1
+  ]
+ },
+ "game/v4_R02-01/v4_R02-01.gltf": {
+  "meshes": 1,
+  "size_m": [
+   0.708,
+   0.45,
+   0.73
+  ],
+  "min_z": 0.0,
+  "materials": [
+   "V4_rubber",
+   "V4_steel_dusty",
+   "V4_wood_worn"
+  ],
+  "images": [
+   "rusty_metal_02_arm",
+   "rusty_metal_02_diff",
+   "rusty_metal_02_nor_gl",
+   "wood_table_worn_arm",
+   "wood_table_worn_diff",
+   "wood_table_worn_nor_gl"
+  ],
+  "uv": [
+   1
   ]
  }
 }

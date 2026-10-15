@@ -291,7 +291,7 @@ export function buildWorld(scene) {
     tube(.012, -.17, 0, .16, -.17, .82, .19), tube(.012, .17, 0, .16, .17, .82, .19),
     tube(.01, -.17, .12, -.16, -.17, .12, .16), tube(.01, .17, .12, -.16, .17, .12, .16), tube(.01, -.17, .43, -.16, .17, .43, -.16),
   ]);
-  // V4 시범 (사용자 제작 지시서 R02-01 학생용 책상): 본관 1-1 교실만 Blender 로 만든 실제 모델로 — ?v4=0 이면 예전 절차 책상
+  // V4 실사 모델 (사용자 제작 지시서 R02-01 책상 · R02-02 의자 · R02-03 교탁, Blender 제작 · Poly Haven CC0 2K PBR + AO): 일반 교실 전부 — ?v4=0 이면 예전 절차 가구
   const V4_PILOT = !(typeof location !== 'undefined' && new URLSearchParams(location.search).get('v4') === '0');
   function deskGrid(cx, offs, rows, miss = .15, v4 = false) {
     const tops = [], legs = [], seats = [], cl = [];
@@ -301,8 +301,8 @@ export function buildWorld(scene) {
       if (v4) model('v4_R02-01', x, 0, z, ry); else { tops.push(MX(x, 0, z, ry)); legs.push(MX(x, 0, z, ry)); }
       col(x - .35, x + .35, z - .25, z + .25, false, v4 ? .73 : .76);   // 책상 윗면 — 점프로 올라설 수 있다
       const r = rnd();
-      if (r < .1) { const m = MX(x + rr(-.1, .1), .2, z + .62, rr(-1, 1), Math.PI / 2); seats.push(m); cl.push(m); }   // 옆으로 쓰러진 의자 (통로를 막지 않게 충돌 없음)
-      else if (r < .85) { const m = MX(x + rr(-.08, .08), 0, z + .5 + rr(-.05, .2), rr(-.35, .35)); seats.push(m); cl.push(m); }
+      if (r < .1) { const px = x + rr(-.1, .1), pry = rr(-1, 1); if (v4) model('v4_R02-02', px, .218, z + .62, pry, { rz: Math.PI / 2 }); else { const m = MX(px, .2, z + .62, pry, Math.PI / 2); seats.push(m); cl.push(m); } }   // 옆으로 쓰러진 의자 (통로를 막지 않게 충돌 없음)
+      else if (r < .85) { const px = x + rr(-.08, .08), pz = z + .5 + rr(-.05, .2), pry = rr(-.35, .35); if (v4) model('v4_R02-02', px, 0, pz, pry); else { const m = MX(px, 0, pz, pry); seats.push(m); cl.push(m); } }
     }
     if (!tops.length && !v4) return;
     if (tops.length) { inst(cur.interior, deskTopG, mWood, tops); inst(cur.interior, deskLegG, mMetal, legs); }
@@ -357,6 +357,7 @@ export function buildWorld(scene) {
   }
   // 교탁
   function lectern(x, z) {
+    if (V4_PILOT) { model('v4_R02-03', x, 0, z, 0); col(x - .6, x + .6, z - .3, z + .3); return; }   // V4 교탁 1.2 × 0.6 × 0.85
     meshAt(merge([bx(.62, .88, .46, 0, .44, 0), bx(.5, .02, .4, 0, .55, .02)]), mWood, x, 0, z);
     const top = meshAt(new THREE.BoxGeometry(.72, .04, .56), mWoodDark, x, 1.0, z + .02); top.rotation.x = .18;
     col(x - .36, x + .36, z - .28, z + .28);
@@ -643,7 +644,7 @@ export function buildWorld(scene) {
     col(cx - 3.2, cx - 1.1, -2.25, -1.75);
     shelf3D(cx - 3.62, -3.8, Math.PI / 2, 1.2, 1.2, .35, 3, .7); col(cx - 3.85, cx - 3.4, -4.4, -3.2);
     // 학생 책상 25세트 (5 × 5)
-    deskGrid(cx, [-3.0, -1.5, 0, 1.5, 3.0], [-7.3, -6.05, -4.8, -3.55], .12, V4_PILOT && cur.f === 0 && name === '1-1' && !curSouth);   // 5×4 · 책상 사이 통로 0.8m (예전 5×5 는 줄 사이 0.48m 로 지나갈 수 없었다)
+    deskGrid(cx, [-3.0, -1.5, 0, 1.5, 3.0], [-7.3, -6.05, -4.8, -3.55], .12, V4_PILOT);   // 5×4 · 책상 사이 통로 0.8m (예전 5×5 는 줄 사이 0.48m 로 지나갈 수 없었다)
     // CSV 소모품: 노트 · 필통 · 물병/종이컵 · 쓰레기/파손물 + 분필 · 지우개는 칠판 아래
     const d = CLS[name];
     if (d && d.c.length) {

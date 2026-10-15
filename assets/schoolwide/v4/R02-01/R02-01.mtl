@@ -1,34 +1,34 @@
 # Blender 5.2.2 LTS MTL File: 'R02-01.blend'
 # www.blender.org
 
-newmtl R02_rubber
+newmtl V4_rubber
 Ns 22.499992
 Ka 1.000000 1.000000 1.000000
-Kd 0.030000 0.030000 0.030000
+Kd 0.025000 0.025000 0.025000
 Ks 0.500000 0.500000 0.500000
 Ke 0.000000 0.000000 0.000000
 Ni 1.500000
 d 1.000000
 illum 2
 
-newmtl R02_steel_dusty
-Ka 0.550000 0.550000 0.550000
-Ks 0.500000 0.500000 0.500000
-Ke 0.000000 0.000000 0.000000
-Ni 1.500000
-d 1.000000
-illum 3
-map_Kd locker_map.jpg
-map_Ns locker_rough.jpg
-map_Bump -bm 1.000000 locker_normal.jpg
-
-newmtl R02_wood_varnish
+newmtl V4_steel_dusty
+Ns 250.000000
 Ka 1.000000 1.000000 1.000000
 Ks 0.500000 0.500000 0.500000
 Ke 0.000000 0.000000 0.000000
 Ni 1.500000
 d 1.000000
 illum 2
-map_Kd varnishDark_map.jpg
-map_Ns varnishDark_rough.jpg
-map_Bump -bm 1.000000 varnishDark_normal.jpg
+map_Kd rusty_metal_02_diff.jpg
+map_Bump -bm 1.000000 rusty_metal_02_nor_gl.jpg
+
+newmtl V4_wood_worn
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd wood_table_worn_diff.jpg
+map_Bump -bm 1.000000 wood_table_worn_nor_gl.jpg

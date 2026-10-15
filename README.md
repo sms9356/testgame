@@ -83,7 +83,10 @@ PW_CORE=<playwright-core> CHROME=<chromium> npm run test:e2e
 `story.js` 의 `SIDEQUESTS` — 단계마다 방 이름(층) + 방 안 위치(dx, 문에서 안쪽 d m)를 적으면 `game.js` 가 조사 지점을 만든다. 조건(`need`: power · mina · key4 · hairpin), 퀘스트 아이템(`give`/`take`), 문서(`doc` → `NOTES`), 선택지(`choice`), 연출(`event`), 보답(`reward`). 진행은 `FL.sq` · `FL.qi` 로 저장된다.
 
 ## V4 실사 모델 제작 (사용자 제작 지시서)
-`assets/schoolwide/v4/<ID>/` — Blender 로 만든 원본(.blend) · GLB · FBX · OBJ · 텍스처 · 재임포트 검사 · 4방향 렌더 · `QC.md` · 제작 스크립트. 게임용은 `assets/models/v4_<ID>/` (glTF + 텍스처). 1단계 시범: **R02-01 학생용 책상 → 본관 1-1 교실만** (`?v4=0` 이면 예전 책상).
+`assets/schoolwide/v4/<ID>/` — Blender 로 만든 원본(.blend) · GLB · FBX · OBJ · 재임포트 검사 · 렌더 · `QC.md`, 제작 스크립트는 `assets/schoolwide/v4/tools/` (`blender --python models.py`). 게임용은 `assets/models/v4_<ID>/` (glTF) + 공용 텍스처 `assets/models/v4_tex/` (Poly Haven CC0 2K · AO). 적용: **R02-01 학생용 책상 · R02-02 학생용 의자 · R02-03 교탁 → 일반 교실 전부** (`?v4=0` 이면 예전 가구).
+
+## 캐릭터 GLB
+`assets/characters/guard.glb` · `mina.glb` 를 넣고 `assets/characters/manifest.json` 의 해당 항목을 true 로 바꾸면 불러온다 (false 면 요청하지 않음).
 
 ## 3D 소품 133종 팩
 `assets/models/h133/<ID>.glb` (사용자 제공, 저폴리곤 절차적 초안) — `world.js` 에서 `model('h133/<ID>', …)` 로 배치하면 `game.js loadModels` 가 UV 를 만들고 `H133_MAT` 의 부품 이름 규칙으로 게임 PBR 재질을 입혀 인스턴싱한다. 목록 · 설명은 `manifest.json`, 미리보기는 갤러리 '3D 소품 133' 탭.

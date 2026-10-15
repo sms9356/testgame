@@ -1597,6 +1597,7 @@ export function buildWorld(scene) {
   // 사용자 제공 3D 소품 133종 팩(assets/models/h133): GLB 에 재질 · UV 가 없고 정점 색만 있어서, 부품 이름으로 게임의 PBR 재질을 고른다 (game.js loadModels 가 UV 를 만든다)
   const mBone = S(null, { color: 0xd8d0bc, roughness: .55 }), mGlassP = new THREE.MeshStandardMaterial({ color: 0xa8c4bc, transparent: true, opacity: .42, roughness: .06, metalness: .1, depthWrite: false });
   const mEnamel = S(null, { color: 0x24282c, roughness: .35, metalness: .3 }), mPoleW = grunge(S(T.makeMetal([196, 198, 192]), { roughness: .45, metalness: .35 })), mMatBlue = S(null, { color: 0x24406a, roughness: .9 }), mPaperW = S(null, { color: 0xe8e4d8, roughness: .9 });
+  const mRope = S(null, { color: 0xb8b2a0, roughness: .95 });
   const H133_MAT = {
     'SCI-007': () => mBone,
     'SCI-005': n => /knob|turret|lens/i.test(n) ? mChrome : mEnamel,
@@ -3013,7 +3014,21 @@ export function buildWorld(scene) {
     plane(OUT, new THREE.MeshStandardMaterial({ map: T.makeSign('조 회 대', '#2a2420', '#d8d0b8', 30), roughness: .9 }), 1.6, .35, x0, H / 2, z0 + D / 2 + .01);
     col(x0 - W / 2, x0 + W / 2, z0 - D / 2, z0 + D / 2, false, H);
     col(x0 - W / 2, x0 + W / 2, z0 - D / 2, z0 - D / 2 + .16, false, H + 1); col(x0 - W / 2, x0 - W / 2 + .16, z0 - D / 2, z0 + D / 2, false, H + 1);   // 뒤 · 서쪽 난간 (위에서 떨어지지 않게)
-    for (let k = 0; k < 3; k++) { const fx = x0 - W / 2 - 1.6 - k * 1.2, fh = k === 1 ? 9 : 8; OUT.add(new THREE.Mesh(merge([new THREE.CylinderGeometry(.05, .08, fh, 10).translate(fx, fh / 2, z0 - .6), new THREE.SphereGeometry(.1, 10, 8).translate(fx, fh + .05, z0 - .6), new THREE.CylinderGeometry(.35, .4, .3, 12).translate(fx, .15, z0 - .6)]), mPoleW)); col(fx - .4, fx + .4, z0 - 1, z0 - .2); }
+    for (let k = 0; k < 3; k++) { const fx = x0 - W / 2 - 1.6 - k * 1.2, fh = [8, 9, 7.4][k]; OUT.add(new THREE.Mesh(merge([new THREE.CylinderGeometry(.05, .08, fh, 10).translate(fx, fh / 2, z0 - .6), new THREE.SphereGeometry(.1, 10, 8).translate(fx, fh + .05, z0 - .6), new THREE.CylinderGeometry(.35, .4, .3, 12).translate(fx, .15, z0 - .6)]), mPoleW)); col(fx - .4, fx + .4, z0 - 1, z0 - .2); }
+    // 깃발 (사용자 제공 이미지): 가운데 높은 기둥 = 태극기(서쪽으로 펄럭), 조회대 쪽 기둥 = 교기(동쪽으로), 세 번째 기둥은 빈 줄만
+    // 기둥 쪽 끝은 고정, 바깥으로 갈수록 크게 물결친다 — 보일 때만 정점을 갱신
+    [[x0 - W / 2 - 1.6 - 1.2, 9, 'flag_korea', 1.8, 1.18, -1, 0], [x0 - W / 2 - 1.6, 8, 'flag_school', 1.7, 1.16, 1, 1.4]].forEach(([fx, fh, img, fw, fhh, dir, ph]) => {
+      const g = new THREE.PlaneGeometry(fw, fhh, 20, 12); g.translate(fw / 2, 0, 0); if (dir < 0) { g.scale(-1, 1, 1); const uv = g.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setX(i, 1 - uv.getX(i)); g.index.array.reverse(); }
+      const base = Float32Array.from(g.attributes.position.array);
+      const m = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ map: imgTex(img), side: THREE.DoubleSide, roughness: .85 }));
+      m.position.set(fx + dir * .06, fh - .12 - fhh / 2, z0 - .6); m.userData.dynamic = true; m.castShadow = true; m.frustumCulled = false;
+      let last = 0; m.onBeforeRender = () => { const t = performance.now() / 1000; if (t - last < .033) return; last = t; const p = g.attributes.position;
+        for (let i = 0; i < p.count; i++) { const ax = Math.abs(base[i * 3]), y = base[i * 3 + 1], k = Math.min(1, ax / fw);
+          p.setZ(i, (Math.sin(ax * 3.8 - t * 3.2 + ph) * .1 + Math.cos(y * 2.5 - t * 2.1 + ph) * .035) * k); p.setX(i, base[i * 3] * (1 - .04 * k * (.5 + .5 * Math.sin(t * 1.3 + ph)))); }
+        p.needsUpdate = true; g.computeVertexNormals(); };
+      OUT.add(m);
+    });
+    for (let k = 0; k < 3; k++) { const fx = x0 - W / 2 - 1.6 - k * 1.2, fh = [8, 9, 7.4][k]; meshAt(tube(.006, fx + .07, 1.1, z0 - .6, fx + .07, fh - .05, z0 - .6), mRope, 0, 0, 0, OUT); meshAt(new THREE.CylinderGeometry(.025, .025, .12, 8), mPoleW, fx + .07, 1.1, z0 - .6, 0, OUT); }   // 깃줄 · 줄걸이
   }
   // 스탠드 (본관 쪽 동편): 운동장을 바라보는 콘크리트 계단식 관람석 4단 (한 단 0.22m — 걸어서 오른다)
   { const x1 = 5, x2 = 22, z0 = 13.4; for (let k = 0; k < 4; k++) { const zf = z0 + (3 - k) * .8; OUT.add(boxMesh(x1, x2, 0, (k + 1) * .22, z0, zf + .8, mStep, 2)); col(x1, x2, z0, zf + .8, false, (k + 1) * .22); } }

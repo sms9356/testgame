@@ -1958,8 +1958,9 @@ export function buildWorld(scene) {
   // 디지털실습실: PC 두 줄
   function digital(cx) {
     winsFar(cx);
-    [-6.8, -4.6].forEach(z => { add(mWood, 6.4, .74, .7, cx, 0, z, { col: true }); for (let k = 0; k < 4; k++) { const x = cx - 2.4 + k * 1.6; monitor(x, .76, z - .14, 0, { cracked: rnd() < .2 }); keyboard(x, .76, z + .14, 0); officeChair(x, z + .75, Math.PI + rr(-.4, .4), rnd() < .1); } });
-    termLed(cx + 2.95, .8, -6.95);
+    // 책상 줄은 폭 5.4m 로 서쪽에 붙이고 동쪽에 1.6m 통로 (예전 6.4m 는 벽까지 0.65m 라 방 뒤쪽으로 걸어 들어갈 수 없었다)
+    [-6.8, -4.6].forEach(z => { add(mWood, 5.4, .74, .7, cx - .5, 0, z, { col: true }); for (let k = 0; k < 4; k++) { const x = cx - 2.6 + k * 1.4; monitor(x, .76, z - .14, 0, { cracked: rnd() < .2 }); keyboard(x, .76, z + .14, 0); officeChair(x, z + .75, Math.PI + rr(-.4, .4), rnd() < .1); } });
+    termLed(cx + 1.95, .8, -6.95);
     papers(cx, -8, -2.4, 6);
   }
   // 작업실: 바이스가 달린 작업대 · 나무 부품 · 톱밥

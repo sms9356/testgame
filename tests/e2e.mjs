@@ -144,6 +144,44 @@ async function extrasRun() {
   ok(p.errors === 0, '콘솔 오류 없음'); await p.close();
 }
 
+
+// 도달성 감사: 모든 문을 연 상태에서 바닥을 격자로 채워(플레이어 반지름 0.3m · 0.4m 이하 단은 올라섬) 복도에서 걸어갈 수 있는 곳을 구하고,
+// 모든 아이템 · 장치 · 의뢰 · 수색 · 미니게임 · 칠판 · 숨는 사물함을 '걸어갈 수 있는 자리에서 바라보고 E' 로 고를 수 있는지 확인한다.
+// 예외: 잠긴 보관함 · 금고 · 서랍 속 물건(먼저 열어야 함), 철제 덮개로만 들어가는 비밀 자료실
+async function reachAudit() {
+  console.log('\n■ 도달성 감사 (막힌 통로 · 가려진 조사 지점)');
+  const p = await page();
+  await E(p, () => { localStorage.clear(); __g.newGame(); }); await W(p, 800); await p.keyboard.press('Space'); await W(p, 600);
+  const bad = await E(p, () => {
+    const g = __g, out = []; g.ghost.active = false; g.state = 'playing';
+    g.world.doorList.forEach(d => { if (d.rect) d.rect.off = true; });
+    const S = .2, r = .3, FF = {};
+    const AREA = { 0: [-60, 60, -14, 90, [0, 40]], 1: [-36, 36, -10, 10, [4, 0]], 2: [-36, 36, -10, 10, [4, 0]], 3: [-36, 36, -10, 10, [0, -7]], 4: [-36, 36, -10, 10, [4, 0]], 5: [27, 49, 7, 31, [38, 27]], 6: [-50, -30, 22, 52, [-35.5, 38]], 7: [-49, -29, 7, 23, [-39, 20]], 8: [-21, 21, -10, 10, [-13.8, -5.2]], 9: [-21, 21, -10, 10, [-13.8, -5.2]], 10: [-21, 21, -10, 10, [-13.8, -5.2]] };
+    const flood = f => { if (FF[f]) return FF[f]; const F = g.floors[f]; const [x0, x1, z0, z1, [sx, sz]] = AREA[f]; const nx = Math.round((x1 - x0) / S), nz = Math.round((z1 - z0) / S);
+      const blocked = (x, z) => F.col.some(c => !c.off && !(c.h != null && c.h <= .4) && x > c.x1 - r && x < c.x2 + r && z > c.z1 - r && z < c.z2 + r);
+      const seen = new Uint8Array(nx * nz), q = []; let si = Math.round((sx - x0) / S), sk = Math.round((sz - z0) / S);
+      outer: for (let d = 0; d < 20; d++) for (let a = -d; a <= d; a++) for (const [i, k] of [[si + a, sk - d], [si + a, sk + d], [si - d, sk + a], [si + d, sk + a]]) if (i >= 0 && k >= 0 && i < nx && k < nz && !blocked(x0 + i * S, z0 + k * S)) { si = i; sk = k; break outer; }
+      seen[sk * nx + si] = 1; q.push([si, sk]);
+      while (q.length) { const [i, k] = q.pop(); for (const [di, dk] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const a = i + di, c = k + dk; if (a < 0 || c < 0 || a >= nx || c >= nz) continue; const id = c * nx + a; if (seen[id]) continue; if (blocked(x0 + a * S, z0 + c * S)) { seen[id] = 2; continue; } seen[id] = 1; q.push([a, c]); } }
+      return FF[f] = (x, z) => { const i = Math.round((x - x0) / S), k = Math.round((z - z0) / S); return i >= 0 && k >= 0 && i < nx && k < nz && seen[k * nx + i] === 1; }; };
+    const T = [];
+    g.world.items.forEach(it => { if (!it.taken && it.kind !== 'key' && it.id !== 'n27') T.push({ o: it, f: it.floor, x: it.pos.x, z: it.pos.z, id: it.kind + ':' + (it.id ?? '') }); });
+    g.world.props.forEach(q => { if (q.kind !== 'switch' && !(q.kind === 'tape' && q.id === 'tape5')) T.push({ o: q, f: q.floor, x: q.x, z: q.z, id: q.kind + ':' + (q.uid || q.k || '') }); });
+    g.world.lockers.forEach((l, i) => T.push({ o: l, f: l.floor, x: l.x, z: l.z, id: 'locker:' + i, l: true }));
+    for (const t of T) {
+      if (!AREA[t.f]) continue; const ok2 = flood(t.f), wd = t.o.done, wl = t.o.locked; if (!t.l) { t.o.done = false; t.o.locked = false; }
+      let ok = false;
+      for (const rr of [.5, .7, .9, 1.1, 1.3, 1.6]) { for (let a = 0; a < 24 && !ok; a++) { const an = a / 24 * Math.PI * 2, px = t.x + Math.cos(an) * rr, pz = t.z + Math.sin(an) * rr; if (!ok2(px, pz)) continue;
+        g.P.floor = t.f; g.P.x = px; g.P.z = pz; g.P.yaw = Math.atan2(-(t.x - px), -(t.z - pz)); const h = g.findInteract(); if (h && (h.it === t.o || h.p === t.o || h.l === t.o)) ok = true; } if (ok) break; }
+      if (!t.l) { t.o.done = wd; t.o.locked = wl; }
+      if (!ok) out.push(`${t.id} (${t.f}: ${t.x.toFixed(1)}, ${t.z.toFixed(1)})`);
+    }
+    return out;
+  });
+  ok(bad.length === 0, `조사 대상 전부 걸어가서 고를 수 있음${bad.length ? ' — 문제: ' + bad.join(' · ') : ''}`);
+  await p.close();
+}
+
 async function saveEdgeCases() {
   console.log('\n■ 저장 예외: 캐릭터 유지 · 손상 세이브 백업 복구 · 테스트 세이브 분리');
   const p = await page();
@@ -169,6 +207,7 @@ await normalRun('jihun');
 await normalRun('seoyeon');
 await trueRun();
 await extrasRun();
+await reachAudit();
 await saveEdgeCases();
 console.log(`\n결과: 통과 ${pass} · 실패 ${fail} · 저장/복원 ${restores}회`);
 await b.close();

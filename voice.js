@@ -80,10 +80,12 @@ const useBrowser = id => VS.engine === 'browser' ? hasBrowserVoice() : VS.engine
 export const engineLabel = () => (!VS.dub ? '끔' : useBrowser() ? `브라우저 음성 (${browserVoiceName()})` : '내장 더빙');
 
 // 대사 한 줄 재생 → 실제 길이(초)를 돌려준다. 음성이 없으면 글자 수로 추정.
+export const VHOOK = { speak: null };   // 언어 패치(i18n.js): 번역 대사를 그 언어 목소리로
 export async function speak(id, fx = 'none') {
   const info = manifest[id];
   const est = info ? info.dur : 2.5;
   if (!VS.dub || !info) return est;
+  if (VHOOK.speak) { const r = VHOOK.speak(id, info); if (r != null) return r; }
   if (useBrowser(id) || (info.nofile && VS.engine === 'auto' && hasNaturalVoice())) {
     speechSynthesis.cancel();
     const text = info.text.replace(/<[^>]+>/g, ' ').replace(/…/g, ', ');

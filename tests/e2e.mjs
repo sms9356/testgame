@@ -77,7 +77,7 @@ async function normalRun(char) {
   await saveReload(p, '제4장 중간'); ok(await E(p, () => __g.sqStep('head')) === 2 && await E(p, () => __g.objective().ch) === 4, '복원: 제4장 진행 (교장 수첩 · 머릿돌)');
   await hd(2); await winMini(p); await closeNote(p); ok(await E(p, () => __g.FL.anPow), '별관 분전반 → 별관 전원');
   await hd(3); await winMini(p); await closeNote(p);
-  await hd(4); await W(p, 300); for (const k of '0302') await p.keyboard.press('Digit' + k); await W(p, 1500); await E(p, () => { __g.ghost.active = false; }); await closeNote(p);
+  await hd(4); await p.waitForFunction(() => document.getElementById('keypad').classList.contains('show'), null, { timeout: 60000 }); await W(p, 300); for (const k of '0302') await p.keyboard.press('Digit' + k); await W(p, 1500); await E(p, () => { __g.ghost.active = false; }); await closeNote(p);
   ok(await E(p, () => __g.FL.keyhead) && await E(p, () => __g.objective().ch) === 5 && await E(p, () => ['h1', 'h2', 'h3', 'h4', 'h5'].every(id => __g.docs.some(d => d.id === id))), '진열장(0302) → 열쇠 머리 · 제5장 · 문서 5종');
   await saveReload(p, '열쇠 머리 후'); ok(await E(p, () => __g.FL.keyhead && __g.objective().ch === 5), '복원: 열쇠 머리');
   await E(p, () => __g.makeGateKey()); await W(p, 2500); await E(p, () => { __g.ghost.active = false; __g.ghost.enraged = false; });

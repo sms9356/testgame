@@ -1896,7 +1896,7 @@ function updateLighting(dt) {
   });
   // 손전등
   const near = ghost.active && ghost.floor === P.floor ? clamp(1 - Math.hypot(ghost.x - P.x, ghost.z - P.z) / 9, 0, 1) : 0;
-  let fi = P.light && P.battery > 0 ? 95 : 0;
+  let fi = P.light && P.battery > 0 ? 80 : 0;
   if (P.battery < 15 && fi) fi *= .72 + .28 * Math.sin(tNow * 11) * Math.sin(tNow * 2.7 + 1);   // 부드러운 깜빡임
   if (P.light && P.battery <= 0) { fi = 42; flash.distance = 14; } else flash.distance = 32;   // 배터리가 다 떨어지면 휴대폰 불빛
   if (near > .4 && fi && Math.random() < near * .12) fi = 0;
@@ -1905,8 +1905,20 @@ function updateLighting(dt) {
   } else flash.color.setHex(0xfff0d0);
   setCoil(fi ? repelK : 0); if (repelK > .05) shake = Math.max(shake, .22 * repelK);
   if (CAM.on) fi *= .3;   // 심령 카메라: 야간 투시라 손전등 빛을 줄인다 (흔적이 묻히지 않게)
-  flash.intensity = fi;
-  spill.intensity = fi ? (fi / 95) * 2.2 : 0;
+  // 가까운 벽 · 가구를 비출 때 하얗게 날아가던 반사: 앞쪽 장애물까지 거리에 따라 세기를 줄인다 (2.5m 안)
+  const nd = flashNear(), nk = nd < 2.5 ? clamp(Math.pow(nd / 2.5, 1.5), .07, 1) : 1;   /* 거리 감쇠(decay 1.3)를 상쇄 → 가까워도 비친 면 밝기가 거의 같다 */
+  flash.intensity = fi * nk;
+  spill.intensity = fi ? (fi / 95) * 1.2 * Math.max(.12, nk) : 0;
+}
+
+// 손전등 앞 장애물까지 거리 (2D 충돌 상자 · 0.1초마다): 시선 방향으로 0.1m 씩 3m 까지
+const FN = { t: 0, d: 9 };
+function flashNear() {
+  const now = performance.now(); if (now - FN.t < 100) return FN.d; FN.t = now;
+  const F = floors[P.floor], fx0 = -Math.sin(P.yaw), fz0 = -Math.cos(P.yaw), down = Math.max(0, -P.pitch);
+  let d = 9; const floorD = down > .25 ? 1.55 / Math.tan(down) : 9;   /* 바닥을 비추면 바닥까지 거리 */
+  for (let s = .1; s < 3; s += .1) { const x = P.x + fx0 * s, z = P.z + fz0 * s; if (F.col.some(c => !c.off && x >= c.x1 && x <= c.x2 && z >= c.z1 && z <= c.z2)) { d = s; break; } }
+  return (FN.d = Math.min(d, floorD));
 }
 
 // 비상 발전기: 전력 복구 전에는 건물 조명이 지하 발전기로 돌아간다 — 누런 빛, 아주 약한 전압 출렁임,

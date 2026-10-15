@@ -584,6 +584,11 @@
   .pCHead{font-size:11px;letter-spacing:.14em;color:#9ab89a;margin:6px 0 2px;display:flex;justify-content:space-between}
   .pCHead em{font-style:normal;color:#e8c870}
   body.zooming::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:5;background:radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.55) 100%)}
+  html:not([lang=ko]) .pTabs button{font-size:10.5px;padding-left:2px;padding-right:2px;word-break:keep-all;overflow-wrap:normal;line-height:1.15}
+  #tLang{display:flex;gap:6px;justify-content:center;margin:14px 0 4px;flex-wrap:wrap}
+  #tLang button{background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.18);color:#cfc6b8;font-size:12px;padding:4px 10px;border-radius:12px;cursor:pointer;letter-spacing:.04em}
+  #tLang button.on{border-color:#e8c870;color:#ffe6a8;background:rgba(232,200,112,.14)}
+  html[lang=en] body,html[lang=ja] body,html[lang=zh] body{word-break:normal;overflow-wrap:anywhere}
 </style>
 </head>
 <body>
@@ -682,6 +687,7 @@
     <button id="mDub">더빙 ON</button>
     <button id="mQuit">게임 종료</button>
   </div>
+  <div id="tLang"><button data-lang="ko">한국어</button><button data-lang="en">English</button><button data-lang="ja">日本語</button><button data-lang="zh">中文</button></div>
   <div id="tFoot">1인칭 공포 어드벤처 · 헤드폰 권장<br><span id="tEnd"></span><a id="testLink" href="?test" style="display:none">테스트 모드로 실행</a></div>
 </div></div>
 <div id="newConfirm" class="overlay"><div class="win"><p class="story" style="margin:0 auto 18px">새 게임을 시작하면 저장된 진행 상황이 지워집니다.<br>계속할까요?</p>
@@ -759,6 +765,7 @@
     <span>난이도</span><select id="setDiff"><option value="easy">쉬움 — 그것이 드물게 나타나고 느림, 네 번 잡혀야 쓰러짐</option><option value="normal">보통 — 세 번 잡히면 쓰러짐</option><option value="hard">어려움 — 한 번 붙잡히면 즉시 사망, 더 빠름</option></select>
     <span>마이크 소리 감지</span><label><input type="checkbox" id="setMic"> 비명 · 소음 주의 — 숨었을 때나 그것이 10m 안에 있을 때 큰 소리를 내면 들킨다 (마이크 권한 필요)</label>
     <h4>접근성</h4>
+    <span>언어 · Language</span><select id="setLang"><option value="ko">한국어</option><option value="en">English</option><option value="ja">日本語</option><option value="zh">中文</option></select>
     <span>점프 스케어</span><select id="setJump"><option value="full">기본</option><option value="soft">약하게 (이미지 없이)</option></select>
     <span>번쩍임 · 글리치</span><label><input type="checkbox" id="setFlash"> 번개 섬광 · 화면 깨짐 효과 줄이기</label>
     <span>공포 화면 효과</span><label><input type="checkbox" id="setFearFx"> 그것이 가까울 때 붉은 테두리</label>

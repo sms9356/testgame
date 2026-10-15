@@ -587,11 +587,30 @@ function showChapter(n) {
   $('ccNum').textContent = `CHAPTER ${n}`; $('ccTitle').textContent = c.title.split('·')[1].trim();
   const el = $('chapterCard'); el.classList.add('show'); setTimeout(() => el.classList.remove('show'), 3800);
 }
+// 목표 바 모드: 펼침 → 한 줄(상태 표시줄) → 숨김 → 펼침 (J 키 · 버튼). 새 목표가 생기면 접혀 있어도 4.5초 동안 펼쳐 보여 준다
+const OBJ_MODES = ['full', 'compact', 'hidden'], OBJ_ICON = { full: '▾', compact: '▸', hidden: '◂' };
+let objPeekT = 0, objLastMain = null;
+function objApply() {
+  const m = OBJ_MODES.includes(SET.objMode) ? SET.objMode : 'full', peek = objPeekT > performance.now(), el = $('objP');
+  const eff = peek ? 'full' : m;
+  el.classList.toggle('compact', eff === 'compact'); el.classList.toggle('hidden', eff === 'hidden'); el.classList.toggle('peek', peek && m !== 'full');
+  $('objTab').classList.toggle('on', eff === 'hidden'); $('objTogI').textContent = OBJ_ICON[m];
+}
+function objModeCycle() { SET.objMode = OBJ_MODES[(OBJ_MODES.indexOf(SET.objMode) + 1) % OBJ_MODES.length]; saveSET(); objPeekT = 0; objApply(); sfx.ui && sfx.ui(); toast('목표 바', { full: '펼침', compact: '한 줄로 접기', hidden: '숨김 — J 키로 다시 펼치기' }[SET.objMode], 'info'); }
+function objMini(o) {
+  $('omCh').textContent = 'CH ' + o.ch; $('omText').textContent = o.main;
+  const n = o.subs.length, d = o.subs.filter(s => s[1]).length; $('omProg').textContent = n ? `${d}/${n}` : '';
+  if (objLastMain !== null && objLastMain !== o.main && SET.objMode !== 'full') { objPeekT = performance.now() + 4500; setTimeout(objApply, 4600); }
+  objLastMain = o.main; objApply();
+}
+$('objTog').onclick = e => { e.stopPropagation(); objModeCycle(); };
+$('objTab').onclick = e => { e.stopPropagation(); SET.objMode = 'hidden'; objModeCycle(); };
 function refreshHud() {
   const o = objective();
   if (o.ch !== chapterShown) { const prev = chapterShown; chapterShown = o.ch; if (prev && state === 'playing') { showChapter(o.ch); sfx.alert && o.ch > 1 && toast('새로운 장', CHAPTERS[o.ch - 1].title, 'info'); } }
   $('chapter').textContent = CHAPTERS[o.ch - 1].title;
   $('objText').textContent = o.main; $('objWhere').textContent = o.loc ? '📍 ' + o.loc.where : '';
+  objMini(o);
   $('subs').innerHTML = o.subs.map(([t, d]) => `<div class="chk${d ? ' done' : ''}">${t}</div>`).join('');
   $('optBox').style.display = FL.opt ? 'block' : 'none';
   $('optTitle').textContent = OPTIONAL.title;
@@ -1449,6 +1468,7 @@ addEventListener('keydown', e => {
   if (e.code === K().map) { openMap(); return; }
   if (e.code === 'F5') { e.preventDefault(); phoneTool('save'); return; }
   if (e.code === K().scan) { scanAround(); return; }
+  if (e.code === K().quest) { objModeCycle(); return; }
   if (CALL.ring && (e.code === K().phone || e.code === 'Backspace')) { e.preventDefault(); e.code === 'Backspace' ? callDecline(false) : callAnswer(); return; }   // 걸려 온 전화: P 받기 · Backspace 끊기
   if (e.code === K().phone) { openPhone(msgs.some(m => !m.read) ? 'msg' : phoneTab); return; }
   if (TEST && e.code === 'KeyT') { openTest(); return; }
@@ -5262,7 +5282,7 @@ addEventListener('pointerdown', () => { if (SET.mic && !MIC.on) micStart(); }, {
 if (matchMedia('(pointer: coarse)').matches || !('exitPointerLock' in document)) $('mobileNote').style.display = 'block';
 $('setContrast').onchange = e => setS('contrast', e.target.checked); $('setUi').oninput = e => setS('ui', e.target.value / 100);
 // 키 재지정
-const KEY_ACTIONS = [['camera', '휴대폰 심령 카메라'], ['crouch', '앉기 (웅크리기)'], ['jump', '점프'], ['interact', '조사 · 상호작용'], ['flash', '손전등'], ['inv', '소지품'], ['map', '지도'], ['phone', '휴대폰'], ['throwCan', '캔 던지기'], ['view', '시점 전환'], ['run', '달리기'], ['down', '계단 내려가기'], ['scan', '주변 살피기']];
+const KEY_ACTIONS = [['camera', '휴대폰 심령 카메라'], ['crouch', '앉기 (웅크리기)'], ['jump', '점프'], ['interact', '조사 · 상호작용'], ['flash', '손전등'], ['inv', '소지품'], ['map', '지도'], ['phone', '휴대폰'], ['throwCan', '캔 던지기'], ['view', '시점 전환'], ['run', '달리기'], ['down', '계단 내려가기'], ['scan', '주변 살피기'], ['quest', '목표 바 펼치기 · 한 줄 · 숨기기']];
 let remapping = null;
 function renderKeys() {
   $('keyRemap').innerHTML = KEY_ACTIONS.map(([k, n]) => `<span>${n}</span><button data-k="${k}" class="${remapping === k ? 'wait' : ''}">${remapping === k ? '키를 누르세요…' : keyLabel(SET.keys[k])}</button>`).join('');

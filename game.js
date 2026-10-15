@@ -33,6 +33,8 @@ import { SCHEMA, BUILD, storageKeys, itemUid, propUid, doorUid, assignUids, read
 loadManifest().then(() => registerLines({ ...VO, ...Object.fromEntries(Object.entries(STORY_NOTES).filter(([, n]) => n.text).map(([k, n]) => ['note_' + k, { spk: 'narrator', text: n.title + '. ' + n.text }])) }));
 
 const $ = id => document.getElementById(id);
+// 매 프레임 갱신하는 HUD 글자: 바뀔 때만 쓴다 (같은 글자를 다시 쓰면 레이아웃 · 번역 감시가 매 프레임 돈다)
+const setTxt = (el, v, html) => { if (el._v === v) return; el._v = v; if (html) el.innerHTML = v; else el.textContent = v; };
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const lerp = (a, b, t) => a + (b - a) * t;
 const params = new URLSearchParams(location.search);
@@ -59,6 +61,14 @@ renderer.setPixelRatio(Math.min(devicePixelRatio, 1.75));
 renderer.setSize(innerWidth, innerHeight);
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.3 * SET.bright;
+// 안정화: 그래픽 장치 초기화(WebGL 컨텍스트 손실 — 드라이버 재시작 · 메모리 부족 · 오래 잠든 탭)면 검은 화면에 멈추지 않게 자동 저장 후 다시 불러온다
+renderer.domElement.addEventListener('webglcontextlost', e => {
+  e.preventDefault();
+  try { if (typeof state !== 'undefined' && (state === 'playing' || state === 'ui')) { state = 'playing'; save(true); } } catch (er) { /* ignore */ }
+  const d = document.createElement('div'); d.style.cssText = 'position:fixed;inset:0;z-index:99999;display:grid;place-items:center;background:#05070a;color:#d8d0c0;font:16px sans-serif;text-align:center;padding:20px';
+  d.textContent = '그래픽 장치가 초기화되었습니다 — 진행 상황을 저장하고 다시 불러옵니다…'; document.body.appendChild(d);
+  setTimeout(() => location.reload(), 1800);
+}, false);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 const scene = new THREE.Scene();
@@ -70,7 +80,7 @@ scene.add(camera);
 // 심령 카메라: scene · camera · renderer 생성 직후 초기화. 장면에 조명을 더하면 모든 재질 셰이더가 다시 컴파일되고 매 프레임 비용이 늘어나서,
 // 클래스의 야간투시 · 플래시 보조광(PointLight 2개) 대신 CSS 야간투시 필터 · 화면 섬광 · 손전등 감광으로 같은 연출을 낸다
 class GameGhostCam extends GhostCameraSystem { _initLights() {} }
-const ghostCam = window.ghostCam = new GameGhostCam({ scene, camera, renderer });
+const ghostCam = window.ghostCam = new GameGhostCam({ scene, camera, renderer, audioCtx: sfxCtx });   /* 효과음 볼륨 설정을 따르게 (예전엔 모듈마다 AudioContext 를 따로 만들었다) */
 
 const hemi = new THREE.HemisphereLight(0x8aa0d0, 0x2a2018, 0.4);
 scene.add(hemi);
@@ -2095,12 +2105,12 @@ function updateHud(dt, prox, chase) {
   $('hpBar').style.width = P.hp + '%'; $('hpBar').style.background = P.hp > 50 ? '#5fc47a' : '#d0583c';
   $('sta').style.width = P.stamina + '%'; $('sta').style.background = P.tired ? '#a85040' : '#5a9ac8';
   $('fearBar').style.width = P.fear * 100 + '%';
-  const st = $('stat'); st.textContent = (P.hp > 50 ? (P.fear > .6 ? '공포' : '정상') : '부상') + (P.sitting ? ' · 의자에 앉음' : P.crouch ? ' · 앉음' : ''); st.style.color = P.hp > 50 ? (P.fear > .6 ? '#e86870' : '#6fd08c') : '#e0884c';
+  const st = $('stat'); setTxt(st, (P.hp > 50 ? (P.fear > .6 ? '공포' : '정상') : '부상') + (P.sitting ? ' · 의자에 앉음' : P.crouch ? ' · 앉음' : '')); st.style.color = P.hp > 50 ? (P.fear > .6 ? '#e86870' : '#6fd08c') : '#e0884c';
   $('batBar').style.width = P.battery + '%'; $('s1').classList.toggle('off', !P.light);
   const outdoors = P.floor === 0 && !inBldg(P.x, P.z);
-  $('floor').textContent = zoneLabel() || (P.floor === 0 && outdoors ? '외부' : AREA_NAMES[P.floor]);
+  setTxt($('floor'), zoneLabel() || (P.floor === 0 && outdoors ? '외부' : AREA_NAMES[P.floor]));
   const m = gameMin(), h24 = Math.floor(m / 60) % 24;
-  $('clock').textContent = `${h24 >= 12 ? 'PM' : 'AM'} ${String(h24 % 12 || 12).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
+  setTxt($('clock'), `${h24 >= 12 ? 'PM' : 'AM'} ${String(h24 % 12 || 12).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`);
   const ps = Math.floor(playTime); if (ps !== ptShown) { ptShown = ps; $('ptime').textContent = '⏱ ' + fmtPT(ps); }
   miniT -= dt;
   if (miniT <= 0) {
@@ -2153,17 +2163,17 @@ function updatePerks(dt) {
 function updatePrompt() {
   const pr = $('prompt');
   if (state !== 'playing') { pr.style.display = 'none'; return; }
-  if (P.hiding) { pr.style.display = 'block'; pr.innerHTML = '<kbd>E</kbd>사물함에서 나가기'; return; }
+  if (P.hiding) { pr.style.display = 'block'; setTxt(pr, '<kbd>E</kbd>사물함에서 나가기', true); return; }
   target = findInteract();
-  if (target) { pr.style.display = 'block'; pr.innerHTML = target.raw ? target.label.replace(/\b([EQ]) /g, '<kbd>$1</kbd>') : `<kbd>E</kbd>${target.label}`; } else pr.style.display = 'none';
+  if (target) { pr.style.display = 'block'; setTxt(pr, target.raw ? target.label.replace(/\b([EQ]) /g, '<kbd>$1</kbd>') : `<kbd>E</kbd>${target.label}`, true); } else pr.style.display = 'none';
 }
 
 let last = performance.now();
-function frame(now) {
+function frameBody(now) {
   const dt = Math.min(.066, Math.max(0, (now - last) / 1000)); last = now; tNow += dt;
   perfTick(dt);
   npcVisuals.update(dt);
-  if (state === 'ui') { updateSound(dt); requestAnimationFrame(frame); return; }
+  if (state === 'ui') { updateSound(dt); return; }
   $('clickHint').classList.toggle('show', state === 'playing' && !document.pointerLockElement && !DEBUG && !TEST_NOLOCK);   // 소지품 · 지도 · 미니게임 중에는 3D를 다시 그리지 않는다 (마지막 화면 유지)
   if (state === 'playing' || state === 'trans' || state === 'dead') {
     if (state === 'playing') { playTime += dt; statAcc += dt; if (statAcc > 30) statFlush(); }
@@ -2182,9 +2192,9 @@ function frame(now) {
     updateCamera(dt, tNow);
   } else if (state === 'intro') {
     updateIntro(dt);
-    if ($('intro').classList.contains('show')) { requestAnimationFrame(frame); return; }   // 검은 화면 텍스트 동안은 3D를 그리지 않는다
+    if ($('intro').classList.contains('show')) { return; }   // 검은 화면 텍스트 동안은 3D를 그리지 않는다
   } else if (state === 'menu') {
-    if (MENUS.some(k => $(k).classList.contains('show'))) { requestAnimationFrame(frame); return; }
+    if (MENUS.some(k => $(k).classList.contains('show'))) { return; }
     camera.position.set(Math.sin(tNow * .1) * 3, 2.2, 74); camera.rotation.set(-.05, Math.sin(tNow * .1) * .1, 0, 'YXZ');
     updateLighting(dt);
   }
@@ -2211,7 +2221,15 @@ function frame(now) {
   updatePings(dt); updateObjDir(dt);
   fx.render(dt, { fear: P.fear || 0, flash: flash.intensity / 95, outdoors: outdoorsNow, floorY: floors[P.floor].y0, hurt: hurtFx, rain: 0 });
   if (SHOT.req) shotGrab();   // 카메라 앨범: 방금 그린 화면
+  
+}
+
+// 안정화: 다음 프레임을 먼저 예약하고 본문은 오류를 잡아 실행한다 — 어느 기능에서 예외가 나도 게임 전체가 멈추지 않는다
+let frameErrs = 0;
+function frame(now) {
   requestAnimationFrame(frame);
+  try { frameBody(now); }
+  catch (e) { if (frameErrs++ < 5) console.error('[frame]', e); window.__frameErrs = frameErrs; }
 }
 requestAnimationFrame(frame);
 
@@ -3792,6 +3810,7 @@ function camTick(dt) {
 // ── 3. 환각 (공포 75% 이상) ──
 // 공포 환각 연결 (사용자 제공 SanityHallucinationSystem): 공포 0~100 · 접근성 '공포 화면 효과'를 끄면 실행하지 않는다
 const fakeMsgs = [];   // 환각 문자 — 휴대폰 메시지함에 잠시 끼어들었다가 공포가 50% 이하로 내려가면 사라진다 (저장하지 않음)
+window.sanitySystem.audioCtx = sfxCtx;
 { const S = window.sanitySystem, orig = S.triggerFakePhoneNotification.bind(S);
   S.triggerFakePhoneNotification = () => { orig(); fakeMsgs.push({ who: $('sanity-sms-sender').textContent, text: $('sanity-sms-body').textContent, t: clockText() }); refreshHud(); }; }
 function sanityTick(dt) {
@@ -3826,7 +3845,7 @@ class GameCrafting extends CraftingSystem {
   }
   playThrowSound() { sfx.throwIt(); } playHealSound() { sfx.pickup(); } playTrapTriggerSound() {} playSparkExplosionSound() {}
 }
-const craftingSystem = window.craftingSystem = new GameCrafting(scene, playerRef);
+const craftingSystem = window.craftingSystem = new GameCrafting(scene, playerRef, sfxCtx);
 craftingSystem.inventory.items = new Proxy({}, { get: (_, k) => inv[CRAFT_MAP[k] || k] || 0, set: (_, k, v) => { inv[CRAFT_MAP[k] || k] = v; return true; } });
 // 함정 · 쇼트 폭탄이 터질 때: 소리 · 스파크 · 그것을 끌어들이거나 마비 · (함정) 12초 위치 표시
 function alertMonsterFn(pos, radius, stunSec, f) {
@@ -3857,7 +3876,7 @@ function revealDraw(g) {
 
 // ── 5. 배전반 · 차임벨 연결 (사용자 제공 SchoolPowerEventSystem) ──
 //   배전반은 층마다 복도 서쪽 끝(본관 2층 복도 끝 포함) + 교무실 앞 복도. 비상등 불빛 · 안전 구역(배전반 6m 안 공포 감소) · 3분 30초 뒤 과부하
-const schoolPower = window.schoolPowerSystem = new SchoolPowerEventSystem(scene, playerRef);
+const schoolPower = window.schoolPowerSystem = new SchoolPowerEventSystem(scene, playerRef, sfxCtx);
 const BRK = {};   // f → { on, lamps, box } — 비상등 연출 (전구 · 빛무리)
 function buildBreakers() {
   const lampM = new THREE.MeshBasicMaterial({ color: 0xffb060 }), offM = new THREE.MeshBasicMaterial({ color: 0x2a2620 });
@@ -5264,7 +5283,7 @@ if (DEBUG) {
     interact, findInteract, hit, die, activateGhost, enrage, FL, MG, throwCan, throws, set playTime(v) { playTime = v; }, toggleView, get view() { return view; }, useProp, docs, msgs, clues, objective, makeGateKey, openInv, openPhone, openMap, openCharsel, openSettings, refreshHud, save, load, inv, mina,
     get power() { return power; }, set power(v) { power = v; }, get CHAR() { return CHAR; }, newGame, continueGame,
     setTarget(t) { target = t; }, DAY, GEN, SIDEQUESTS, sqStep, sqDoneCount, useSideQuest, HEADQUEST, useHead, COLLECT, paraEvent, toiletFx, tmpFx, TE, roomAt, camMode, camShoot, CAM, MIC, SAN, BRK, setBreaker, schoolPower, craftingSystem, ghostCam, restroom, useSink, useFlush, placeAlarm, throwShock, useFirstAid, tryCombine, stunGhost, lockerSearchStart, enterLocker, leaveLocker, startSearch, useMiniSpot, openChalk, chalkAsk, XT,
-    SG, sgTestSpawn, PL, CALL, SIT, ZOOM, SHOT, closeUI, TP, objective, whereText, FLOOR_LABEL, S37,
+    SG, sgTestSpawn, PL, CALL, SIT, ZOOM, SHOT, closeUI, TP, whereText, FLOOR_LABEL, S37,
     get target() { return target; },
   };
 }

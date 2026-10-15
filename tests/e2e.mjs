@@ -146,6 +146,9 @@ async function extrasRun() {
   const charm0 = await E(p, () => __g.inv.charm || 0); await p.keyboard.press('Digit3');
   await p.waitForFunction(c => (__g.inv.charm || 0) > c, charm0, { timeout: 120000 });
   ok(await E(p, () => __g.FL.redblue === 3 && __g.tmpFx.length > 0), '화장실 괴담 7종 · 빨간 휴지 파란 휴지(침묵 → 노란 부적)');
+  ok(await E(p, () => { __g.state = 'playing'; const i = __g.inv; i.can = 2; i.tape = 1; i.battery = 1; i.medkit = 1; i.sedative = 1; __g.tryCombine('can', 'tape'); __g.tryCombine('battery', 'can'); __g.tryCombine('medkit', 'sedative'); __g.P.hp = 40; __g.useFirstAid(); return i.alarm === 1 && i.shock === 1 && i.firstaid === 0 && __g.P.hp === 100; }), '조합 3종 (경보 함정 · 쇼트 폭탄 · 응급 처치 키트)');
+  ok(await E(p, () => { __g.state = 'playing'; __g.camMode(true); const on = __g.CAM.on && __g.camera.layers.isEnabled(2); const b0 = __g.P.pbat; __g.camShoot(); const shot = __g.P.pbat <= b0 - 19.9; __g.camMode(false); return on && shot && !__g.camera.layers.isEnabled(2) && __g.CAM.clues.length > 50; }), '심령 카메라 (숨은 단서 레이어 · 플래시 촬영)');
+  ok(await E(p, () => { __g.state = 'playing'; __g.setBreaker(0, true); const on = __g.BRK[0].on; __g.setBreaker(0, false); __g.CHIME.next = 0; return on && __g.world.props.filter(q => q.kind === 'cbreaker').length === 6; }), '복도 배전반 6곳 · 차임벨');
   ok(await E(p, () => { __g.state = 'playing'; __g.inv.charm = 1; __g.P.invuln = 0; __g.ghost.active = true; __g.ghost.floor = __g.P.floor; __g.ghost.x = __g.P.x + 1; __g.ghost.z = __g.P.z; const hp = __g.P.hp; __g.hit(); const r = __g.P.hp === hp && __g.inv.charm === 0; __g.ghost.active = false; return r; }), '노란 부적이 공격을 대신 받음');
   await saveReload(p, '수색 후'); ok(await E(p, () => Object.keys(__g.FL.col).length === 4 && __g.world.props.filter(q => q.kind === 'search' && q.done).length === 3 && __g.FL.ms.lab === 1), '복원: 수집품 · 뒤진 사물함 · 미니게임 보답');
   ok(p.errors === 0, '콘솔 오류 없음'); await p.close();

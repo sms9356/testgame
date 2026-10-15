@@ -187,8 +187,8 @@ export const NOTES = {
 // 아이템 카탈로그 (icon: assets/ui 이미지 또는 이모지)
 export const ITEMS = {
   flashlight: { name: '손전등', icon: 'it_flash', cat: 'item', desc: '낡았지만 아직 사용할 수 있다. 어두운 곳을 비출 수 있다. (F)' },
-  battery: { name: '건전지', icon: '🔋', cat: 'item', desc: '손전등용 건전지. 손전등과 조합하면 배터리가 45% 회복된다.', stack: true },
-  medkit: { name: '응급 밴드', icon: '🩹', cat: 'item', desc: '상처 치료용 응급 밴드. 사용하면 체력이 50 회복된다.', stack: true },
+  battery: { name: '건전지', icon: 'it_battery', cat: 'item', desc: '손전등용 건전지. 손전등과 조합하면 배터리가 45% 회복된다.', stack: true },
+  medkit: { name: '응급 밴드', icon: 'it_bandage', cat: 'item', desc: '상처 치료용 응급 밴드. 사용하면 체력이 50 회복된다.', stack: true },
   id_jihun: { name: '학생증 (지훈)', icon: 'it_id_jihun', cat: 'item', desc: '서현고등학교 3학년 지훈. 사진 속 표정이 지금보다 밝다.' },
   id_seoyeon: { name: '학생증 (서연)', icon: 'it_id_seoyeon', cat: 'item', desc: '서현고등학교 2학년 서연. 방송부 출입증 겸용.' },
   phone_jihun: { name: '휴대폰', icon: 'it_phone_jihun', cat: 'item', desc: '신호가 잡히지 않는다. 그런데도 메시지가 온다. (1)' },
@@ -197,14 +197,14 @@ export const ITEMS = {
   memo_seoyeon: { name: '메모 수첩', icon: 'it_memo_seoyeon', cat: 'item', desc: '“조금은 다르게 보일지도 몰라.” 찾은 단서가 자동으로 기록된다.' },
   keys_jihun: { name: '방송실 열쇠 (서현고)', icon: 'it_keys', cat: 'item', desc: '민아가 맡겨 둔 서현고 방송실 열쇠. 여기서는 쓸 데가 없다.' },
   hairpin: { name: '머리핀', icon: '📍', cat: 'item', desc: '가는 철 머리핀. 잠긴 서랍이나 보관함을 딸 수 있다. 무리하면 부러진다.', stack: true },
-  can: { name: '빈 캔', icon: '🥫', cat: 'item', desc: '찌그러진 음료수 캔. G 키로 던지면 떨어진 곳에서 소리가 나 그것을 유인할 수 있다.', stack: true },
+  can: { name: '빈 캔', icon: 'it_can', cat: 'item', desc: '찌그러진 음료수 캔. G 키로 던지면 떨어진 곳에서 소리가 나 그것을 유인할 수 있다.', stack: true },
   fuse: { name: '예비 퓨즈', icon: '🔌', cat: 'key', desc: '먼지 쌓인 유리관 퓨즈. 지하 전기실 차단기에 끼울 수 있을 것 같다.' },
   mop: { name: '대걸레 자루', icon: '🦯', cat: 'key', desc: '헤드가 빠진 긴 나무 자루. 뭔가를 묶으면 쓸모가 있을지도.' },
   wire: { name: '철사 뭉치', icon: '➰', cat: 'key', desc: '기술실에서 찾은 굵은 철사. 구부려서 갈고리를 만들 수 있다.' },
   hook: { name: '갈고리 장대', icon: '🪝', cat: 'key', desc: '대걸레 자루 끝에 철사 갈고리를 감았다. 손이 닿지 않는 곳의 물건을 걸어 올릴 수 있다.' },
   necklace: { name: '하트 목걸이', icon: 'it_necklace', cat: 'item', desc: '민아 선배가 방송부 첫 녹음 기념으로 준 목걸이.' },
   camcorder: { name: '민아의 캠코더', icon: '📹', cat: 'key', desc: '민아가 들고 들어간 캠코더. 마지막 녹화 파일이 남아 있다. (사용: 재생)' },
-  keypiece: { name: '정문 열쇠 조각', icon: '🗝', cat: 'key', desc: '다섯 조각으로 나뉜 정문 열쇠의 일부. 다섯 개를 모두 조합하면 정문 열쇠가 된다.', stack: true },
+  keypiece: { name: '정문 열쇠 조각', icon: 'it_keypiece', cat: 'key', desc: '다섯 조각으로 나뉜 정문 열쇠의 일부. 다섯 개를 모두 조합하면 정문 열쇠가 된다.', stack: true },
   gatekey: { name: '정문 열쇠', icon: '🔑', cat: 'key', desc: '다섯 조각을 맞춘 정문 열쇠. 정문과 서문, 지하 비상 통로를 열 수 있다.' },
   tapeTrio: { name: '반주 테이프', icon: '📼', cat: 'key', desc: '라벨: 「기념 방송 끝곡 — 학교종 (반주)」. 수아의 글씨. 방송실 마이크 데스크에서 틀 수 있다.' },
   emBattery: { name: '비상등 배터리팩', icon: '🔋', cat: 'key', desc: '과학부가 10년 전 준비해 둔 예비 배터리팩. 지하 펌프실 비상등에 끼울 수 있다.' },
@@ -218,6 +218,12 @@ export const ITEMS = {
   charm: { name: '노란 부적', icon: '🧧', cat: 'item', desc: '붉은 글씨의 부적. 지니고 있으면 한 번, 그것의 손길을 대신 받아 준다 (자동으로 사용).', stack: true },
   musicbox: { name: '태엽 오르골', icon: '🎶', cat: 'item', desc: '태엽을 감아 발밑에 내려놓으면 12초 동안 「학교종」이 울린다. 그것이 소리 쪽으로 간다.', stack: true },
   matches: { name: '성냥', icon: '🔥', cat: 'item', desc: '눅눅하지만 몇 개비는 켜진다. 불을 켜면 가까이 있는 그것이 8초 동안 머뭇거린다.', stack: true },
+  // 조합 재료 · 결과물 (아이콘은 인라인 SVG)
+  tape: { name: '절연 테이프', icon: "<svg viewBox='0 0 64 64' class='svgIc'><defs><radialGradient id='tg' cx='.4' cy='.35'><stop offset='0' stop-color='#4a4a4a'/><stop offset='1' stop-color='#0e0e0e'/></radialGradient></defs><ellipse cx='32' cy='36' rx='24' ry='22' fill='url(#tg)'/><ellipse cx='32' cy='34' rx='11' ry='10' fill='#8a7a5a'/><ellipse cx='32' cy='34' rx='7' ry='6' fill='#1a1612'/><path d='M50 44 L60 58 L54 60 L46 47 Z' fill='#1c1c1c'/><path d='M14 28 Q20 18 30 15' stroke='#777' stroke-width='2' fill='none' opacity='.6'/></svg>", cat: 'item', desc: '검은 절연 테이프 한 롤. 빈 캔과 묶으면 경보 함정을 만들 수 있다.', stack: true },
+  sedative: { name: '보건실 진정제', icon: "<svg viewBox='0 0 64 64' class='svgIc'><rect x='20' y='8' width='24' height='8' rx='2' fill='#c8c4b8'/><rect x='18' y='15' width='28' height='42' rx='5' fill='#a8763a' opacity='.92'/><rect x='18' y='26' width='28' height='18' fill='#e8e2d0'/><path d='M24 35h16M32 29v12' stroke='#a02020' stroke-width='3'/><circle cx='26' cy='52' r='2' fill='#e8d8b8' opacity='.7'/><path d='M20 50 Q32 46 44 52' stroke='#5a3a18' stroke-width='2' fill='none' opacity='.5'/></svg>", cat: 'item', desc: '갈색 약병. 라벨: “불안 · 공황 시 1정”. 응급 밴드와 함께 쓰면 응급 처치 키트가 된다.', stack: true },
+  alarm: { name: '경보 함정', icon: "<svg viewBox='0 0 64 64' class='svgIc'><rect x='12' y='28' width='14' height='26' rx='2' fill='#9a948a'/><rect x='30' y='24' width='14' height='30' rx='2' fill='#b0aaa0'/><rect x='22' y='10' width='14' height='18' rx='2' fill='#8a847a' transform='rotate(-14 29 19)'/><path d='M10 40 H48' stroke='#151515' stroke-width='5'/><path d='M50 18 l6 -4 M52 26 l8 0 M50 34 l6 4' stroke='#e05040' stroke-width='3'/></svg>", cat: 'item', desc: '테이프로 묶은 빈 캔 꾸러미. 발밑에 설치하면 그것이 2m 안을 지날 때 요란하게 울리고, 10초 동안 그것의 위치가 화면과 미니맵에 붉게 표시된다.', stack: true },
+  shock: { name: '쇼트 폭탄', icon: "<svg viewBox='0 0 64 64' class='svgIc'><rect x='18' y='18' width='22' height='38' rx='3' fill='#9aa0a4'/><rect x='18' y='30' width='22' height='10' fill='#1a1a1a'/><rect x='24' y='10' width='10' height='9' fill='#c8a040'/><path d='M44 8 L36 26 H46 L38 46' stroke='#6ad0ff' stroke-width='3' fill='none'/><circle cx='40' cy='30' r='14' fill='#5ac8ff' opacity='.18'/></svg>", cat: 'item', desc: '건전지를 캔에 쑤셔 넣어 합선시킨다. 던지면(사용) 떨어진 곳에서 푸른 스파크 — 근처의 그것을 4초 동안 마비시키고 소리로 유인한다.', stack: true },
+  firstaid: { name: '응급 처치 키트', icon: "<svg viewBox='0 0 64 64' class='svgIc'><rect x='8' y='18' width='48' height='36' rx='5' fill='#d8d4c8'/><rect x='24' y='12' width='16' height='8' rx='2' fill='none' stroke='#8a8a80' stroke-width='3'/><path d='M32 26v20M22 36h20' stroke='#b02020' stroke-width='7'/><path d='M8 46 Q30 40 56 50' stroke='#6a4a2a' stroke-width='2' fill='none' opacity='.5'/></svg>", cat: 'item', desc: '응급 밴드 + 진정제. 체력 100% · 공포 0 · 20초 동안 달려도 지치지 않는다.', stack: true },
   nametag: { name: '윤하늘의 명찰', icon: '📛', cat: 'key', desc: '“3-2 윤하늘”. 물에 젖었다 마른 자국. 방송실에서 그녀의 이름을 불러 줄 수 있을 것 같다.' },
 };
 export const RECIPES = [
@@ -225,6 +231,9 @@ export const RECIPES = [
   { a: 'keypiece', b: 'keypiece', fn: 'gatekey' },
   { a: 'keyhead', b: 'keypiece', fn: 'gatekey' },
   { a: 'mop', b: 'wire', fn: 'hook' },
+  { a: 'can', b: 'tape', fn: 'alarm' },
+  { a: 'battery', b: 'can', fn: 'shock' },
+  { a: 'medkit', b: 'sedative', fn: 'firstaid' },
 ];
 
 // 챕터 · 목표

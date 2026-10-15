@@ -188,6 +188,14 @@ function buildGen() {
   const lfo = ac.createOscillator(); lfo.frequency.value = 7.3; const lg = ac.createGain(); lg.gain.value = .35; lfo.connect(lg); lg.connect(am.gain); lfo.start();   // 엔진 고동
   const n = loopNoise(160, 'lowpass', .8); const ng = ac.createGain(); ng.gain.value = .5; n.connect(ng); ng.connect(genG);
 }
+// 손전등 집중 조사: 코일 과부하처럼 높아지는 고주파 윙 소리 (level 0~1)
+let coilG = null, coilO = null, coilLv = 0;
+export function setCoil(level) {
+  if (!ok()) return;
+  if (!coilG) { coilO = ac.createOscillator(); coilO.type = 'sawtooth'; const f = ac.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 3000; f.Q.value = 3; coilG = ac.createGain(); coilG.gain.value = 0; coilO.connect(f); f.connect(coilG); coilG.connect(bus.sfx); coilO.start(); }
+  if (Math.abs(level - coilLv) < .01) return; coilLv = level;
+  coilO.frequency.setTargetAtTime(900 + level * 3200 + Math.random() * 120, ac.currentTime, .05); coilG.gain.setTargetAtTime(level * .09, ac.currentTime, .06);
+}
 export function setGenHum(v, dt) { if (!ok()) return; if (!genG) buildGen(); const t = v * .09; if (Math.abs(t - genLv) > .002) { genLv = t; genG.gain.setTargetAtTime(t, ac.currentTime, .4); } }
 
 /* ----- 음악 (메뉴 테마 · 추격) ----- */
@@ -426,6 +434,11 @@ export const sfx = {
   tissue() { noiseBurst(.5, 4200, 'highpass', .18); later(380, () => noiseBurst(.35, 3600, 'highpass', .14)); },
   stallCreak() { tone(180, 2.4, 'sawtooth', .045, 0, 1, 120); noiseBurst(2.2, 900, 'bandpass', .08); },
   heartWall() { for (let i = 0; i < 6; i++) later(i * 820, () => { tone(52, .16, 'sine', .55); later(140, () => tone(44, .2, 'sine', .4)); }); },
+  chimeWarp(d = 15) {   // 기괴하게 늘어진 학교 종 (딩동댕동을 반음 낮추고 느리게, 음이 흔들린다) + 지지직 잡음
+    const M = [659, 523, 587, 392, 0, 392, 587, 659, 523];
+    M.forEach((f, i) => { if (f) later(i * 1300, () => { const g = f * .5 * (1 - i * .012); tone(g, 2.6, 'sine', .14, 0, 1, g * .94); tone(g * 2.01, 1.8, 'sine', .05, 0, 1, g * 1.9); tone(g * 2.98, .9, 'triangle', .02); }); });
+    for (let k = 0; k < d / 1.5; k++) later(k * 1500 + Math.random() * 400, () => { noiseBurst(1.6, 3200 + Math.random() * 1500, 'bandpass', .07); noiseBurst(.3, 900, 'bandpass', .06); });
+  },
   slap() { noiseBurst(.09, 900, 'lowpass', .55); noiseBurst(.05, 2600, 'bandpass', .12); },
   radioVoice() { noiseBurst(2.4, 2600, 'bandpass', .22); for (let i = 0; i < 9; i++) later(300 + i * 190, () => { const f = 300 + Math.random() * 260; tone(f, .16, 'sawtooth', .02, 0, 1, f * .85); noiseBurst(.12, 1400 + Math.random() * 800, 'bandpass', .12); }); },
 };

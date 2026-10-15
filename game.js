@@ -1049,12 +1049,12 @@ function findInteract() {
   }
   if (!best) {
     const si = STAIRS[P.floor];
-    const inStair = !si ? false : P.floor === 3 ? (Math.abs(P.x) < 4.5 && P.z < -5.2 && P.z > -9.5) : (() => { const z = floors[P.floor].stairZone || { x1: -1, x2: 4, z1: -9.3, z2: -2 }; return P.x > z.x1 && P.x < z.x2 && P.z > z.z1 && P.z < z.z2; })();
+    const inStair = !si ? false : P.floor === 3 ? (Math.abs(P.x) < 4.5 && P.z < -4.35 && P.z > -9.5) : (() => { const z = floors[P.floor].stairZone || { x1: -1, x2: 4, z1: -9.3, z2: -2 }; return P.x > z.x1 && P.x < z.x2 && P.z > z.z1 && P.z < z.z2; })();
     const dr = world.doors.find(d => d.floor === P.floor && Math.hypot(d.x - P.x, d.z - P.z) < d.r);
     if (inStair && !(dr && Math.hypot(dr.x - P.x, dr.z - P.z) < 1.5)) {
       const up = si.up != null, down = si.down != null;
       const ul = si.up === 3 ? '옥상으로' : si.up === 0 ? '1층으로' : '위층', dl = si.down === 4 ? '지하층 (B1)' : '아래층';
-      best = { type: 'stairs', label: [up ? `E 길게 · ${ul}` : '', down ? `Q 길게 · ${dl}` : ''].filter(Boolean).join('  /  '), raw: true };
+      best = { type: 'stairs', label: [up ? `E 길게 · ${ul}` : '', down ? `Q · ${dl}` : ''].filter(Boolean).join('  /  '), raw: true };
     } else if (dr) best = { type: 'door', d: dr, label: dr.label + (dr.need && !FL.gatekey ? ' 🔒' : '') };
     else if (P.floor === 0 && P.z > GATE_Z - 4.5 && P.z < GATE_Z + 3 && Math.abs(P.x) < 6 && gateClosed && !escaped) best = { type: 'gate', label: '정문 열기' };
   }
@@ -1430,7 +1430,8 @@ addEventListener('keydown', e => {
   if (e.code === K().crouch || e.code === 'ControlLeft') { P.crouch = !P.crouch; if (P.crouch) P.runOn = false; }
   if (e.code === K().jump && !e.repeat) tryJump();
   if (e.code === K().throwCan) { if (inv.shock > 0) throwShock(); else throwCan(); }   // 쇼트 폭탄이 있으면 캔 대신
-  if (target && target.type === 'stairs' && !P.hiding && (e.code === K().interact || e.code === K().down)) { if (!e.repeat) STH = { code: e.code, dir: e.code === K().down ? -1 : 1, t: 0 }; return; }   // 계단: 길게 눌러야 층 이동 (파밍 중 실수 방지)
+  if (target && target.type === 'stairs' && !P.hiding && e.code === K().down) { STH = null; changeFloor(-1); return; }   // Q 는 다른 기능이 없어 한 번 누르면 바로 내려간다
+  if (target && target.type === 'stairs' && !P.hiding && e.code === K().interact) { if (!e.repeat) STH = { code: e.code, dir: 1, t: 0 }; return; }   // E 는 조사 키와 같아서 길게 눌러야 올라간다 (파밍 중 실수 방지)   // 계단: 길게 눌러야 층 이동 (파밍 중 실수 방지)
   if (e.code === K().interact) { if (P.hiding) leaveLocker(); else interact(); }
 });
 addEventListener('keyup', e => { keys[e.code] = false; });
@@ -3815,7 +3816,7 @@ const schoolPower = window.schoolPowerSystem = new SchoolPowerEventSystem(scene,
 const BRK = {};   // f → { on, lamps, box } — 비상등 연출 (전구 · 빛무리)
 function buildBreakers() {
   const lampM = new THREE.MeshBasicMaterial({ color: 0xffb060 }), offM = new THREE.MeshBasicMaterial({ color: 0x2a2620 });
-  const spots = [0, 1, 2, 8, 9, 10].map(f => [f, f >= 8 ? -19.93 : -35.93, -1.0, Math.PI / 2]).concat([[0, -8.0, -1.68, 0]]);   // 마지막: 교무실 앞 복도 벽
+  const spots = [0, 1, 2, 8, 9, 10].map(f => [f, f >= 8 ? -19.93 : -35.93, -1.0, Math.PI / 2]).concat([[0, -10.6, -1.43, 0]]);   // 마지막: 교무실 앞 복도 벽 (문 옆 벽 — 예전 x −8 은 교무실 문 한가운데였다)
   spots.forEach(([f, x, z, ry], i) => {
     const F = floors[f]; if (!F) return;
     const grp = schoolPower.createPowerBox(new THREE.Vector3(x, F.y0, z), ry, `pb_${f}_${i}`), box = schoolPower.powerBoxes[schoolPower.powerBoxes.length - 1];
@@ -3929,7 +3930,8 @@ function fakeTick(G, dt, F) {
   return true;
 }
 function featTick(dt) {
-  if (STH) { if (!keys[STH.code] || !target || target.type !== 'stairs' || state !== 'playing') STH = null; else if ((STH.t += dt) > .45) { const d = STH.dir; STH = null; changeFloor(d); } } for (const p of world.props) if (p.kind === 'pick' && p.done && p.mesh.visible) p.mesh.visible = false;
+  if (STH) { if (!keys[STH.code] || !target || target.type !== 'stairs' || state !== 'playing') STH = null; else if ((STH.t += dt) > .35) { const d = STH.dir; STH = null; changeFloor(d); } }
+  { const pr = $('prompt'), k = STH ? Math.min(1, STH.t / .35) : 0; pr.style.backgroundImage = k > 0 ? `linear-gradient(90deg, rgba(232,200,112,.45) ${k * 100}%, transparent ${k * 100}%)` : ''; }   // 계단 길게 누르기 진행 표시 for (const p of world.props) if (p.kind === 'pick' && p.done && p.mesh.visible) p.mesh.visible = false;
   micTick(dt); camTick(dt); sanityTick(dt); trapTick(dt); breakerTick(dt); if ((P.stamInfT || 0) > 0) { P.stamInfT -= dt; if (P.stamInfT < 0) P.stamInfT = 0; P.stamina = 100; P.tired = false; } }
 
 function extrasTick(dt) {

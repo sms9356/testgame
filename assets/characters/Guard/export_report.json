@@ -1,0 +1,469 @@
+{
+ "source": {
+  "meshes": 31,
+  "triangles": 45612,
+  "bones": 53,
+  "materials": 23,
+  "actions": [
+   "FlashlightHold",
+   "Frightened",
+   "GuardStance",
+   "Idle",
+   "Inspect",
+   "RadioUse",
+   "Run",
+   "Surprised",
+   "Walk"
+  ],
+  "shape_keys": [
+   "Alert",
+   "Angry",
+   "Basis",
+   "Blink",
+   "Fear",
+   "Sad",
+   "Surprised",
+   "Talk",
+   "Tense"
+  ],
+  "images": [
+   [
+    "badge_diffuse.png",
+    512
+   ],
+   [
+    "badge_normal.png",
+    512
+   ],
+   [
+    "brown_eye.png",
+    1024
+   ],
+   [
+    "cap_fabric_diffuse.png",
+    1024
+   ],
+   [
+    "cap_fabric_normal.png",
+    1024
+   ],
+   [
+    "eyebrow009.png",
+    512
+   ],
+   [
+    "eyelashes02.png",
+    512
+   ],
+   [
+    "guard_hair_diffuse.png",
+    2048
+   ],
+   [
+    "guard_skin_diffuse.png",
+    2048
+   ],
+   [
+    "guard_skin_normal.png",
+    2048
+   ],
+   [
+    "guard_suit_diffuse.png",
+    2048
+   ],
+   [
+    "leather_diffuse.png",
+    1024
+   ],
+   [
+    "leather_normal.png",
+    1024
+   ],
+   [
+    "leather_rough.png",
+    1024
+   ],
+   [
+    "male_casualsuit05_ao.png",
+    2048
+   ],
+   [
+    "male_casualsuit05_normal.png",
+    4096
+   ],
+   [
+    "nametag.png",
+    512
+   ],
+   [
+    "patch_chest.png",
+    512
+   ],
+   [
+    "patch_shoulder.png",
+    512
+   ],
+   [
+    "shoes03_diffuse.png",
+    1024
+   ],
+   [
+    "tie_diffuse.png",
+    512
+   ]
+  ]
+ },
+ "lod1": {
+  "meshes": 31,
+  "triangles": 24464,
+  "bones": 53,
+  "materials": 23,
+  "actions": [
+   "FlashlightHold",
+   "Frightened",
+   "GuardStance",
+   "Idle",
+   "Inspect",
+   "RadioUse",
+   "Run",
+   "Surprised",
+   "Walk"
+  ],
+  "shape_keys": [],
+  "images": [
+   [
+    "badge_diffuse.png",
+    512
+   ],
+   [
+    "badge_normal.png",
+    512
+   ],
+   [
+    "brown_eye.png",
+    1024
+   ],
+   [
+    "cap_fabric_diffuse.png",
+    1024
+   ],
+   [
+    "cap_fabric_normal.png",
+    1024
+   ],
+   [
+    "eyebrow009.png",
+    512
+   ],
+   [
+    "eyelashes02.png",
+    512
+   ],
+   [
+    "guard_hair_diffuse.png",
+    2048
+   ],
+   [
+    "guard_skin_diffuse.png",
+    2048
+   ],
+   [
+    "guard_skin_normal.png",
+    2048
+   ],
+   [
+    "guard_suit_diffuse.png",
+    2048
+   ],
+   [
+    "leather_diffuse.png",
+    1024
+   ],
+   [
+    "leather_normal.png",
+    1024
+   ],
+   [
+    "leather_rough.png",
+    1024
+   ],
+   [
+    "male_casualsuit05_ao.png",
+    2048
+   ],
+   [
+    "male_casualsuit05_normal.png",
+    4096
+   ],
+   [
+    "nametag.png",
+    512
+   ],
+   [
+    "patch_chest.png",
+    512
+   ],
+   [
+    "patch_shoulder.png",
+    512
+   ],
+   [
+    "shoes03_diffuse.png",
+    1024
+   ],
+   [
+    "tie_diffuse.png",
+    512
+   ]
+  ]
+ },
+ "lod2": {
+  "meshes": 31,
+  "triangles": 13888,
+  "bones": 53,
+  "materials": 23,
+  "actions": [
+   "FlashlightHold",
+   "Frightened",
+   "GuardStance",
+   "Idle",
+   "Inspect",
+   "RadioUse",
+   "Run",
+   "Surprised",
+   "Walk"
+  ],
+  "shape_keys": [],
+  "images": [
+   [
+    "badge_diffuse.png",
+    512
+   ],
+   [
+    "badge_normal.png",
+    512
+   ],
+   [
+    "brown_eye.png",
+    1024
+   ],
+   [
+    "cap_fabric_diffuse.png",
+    1024
+   ],
+   [
+    "cap_fabric_normal.png",
+    1024
+   ],
+   [
+    "eyebrow009.png",
+    512
+   ],
+   [
+    "eyelashes02.png",
+    512
+   ],
+   [
+    "guard_hair_diffuse.png",
+    2048
+   ],
+   [
+    "guard_skin_diffuse.png",
+    2048
+   ],
+   [
+    "guard_skin_normal.png",
+    2048
+   ],
+   [
+    "guard_suit_diffuse.png",
+    2048
+   ],
+   [
+    "leather_diffuse.png",
+    1024
+   ],
+   [
+    "leather_normal.png",
+    1024
+   ],
+   [
+    "leather_rough.png",
+    1024
+   ],
+   [
+    "male_casualsuit05_ao.png",
+    2048
+   ],
+   [
+    "male_casualsuit05_normal.png",
+    4096
+   ],
+   [
+    "nametag.png",
+    512
+   ],
+   [
+    "patch_chest.png",
+    512
+   ],
+   [
+    "patch_shoulder.png",
+    512
+   ],
+   [
+    "shoes03_diffuse.png",
+    1024
+   ],
+   [
+    "tie_diffuse.png",
+    512
+   ]
+  ]
+ },
+ "reimport_guard.glb": {
+  "meshes": 32,
+  "triangles": 45692,
+  "bones": 53,
+  "materials": 24,
+  "actions": [
+   "FlashlightHold",
+   "Frightened",
+   "GuardStance",
+   "Idle",
+   "Inspect",
+   "RadioUse",
+   "Run",
+   "Surprised",
+   "Walk"
+  ],
+  "shape_keys": [
+   "Alert",
+   "Angry",
+   "Basis",
+   "Blink",
+   "Fear",
+   "Sad",
+   "Surprised",
+   "Talk",
+   "Tense"
+  ],
+  "height_m": 2.818,
+  "size_mb": 8.14
+ },
+ "reimport_guard.fbx": {
+  "meshes": 31,
+  "triangles": 45612,
+  "bones": 53,
+  "materials": 23,
+  "actions": [
+   "Guard_Rig|Guard_Rig|FlashlightHold",
+   "Guard_Rig|Guard_Rig|Frightened",
+   "Guard_Rig|Guard_Rig|GuardStance",
+   "Guard_Rig|Guard_Rig|Idle",
+   "Guard_Rig|Guard_Rig|Inspect",
+   "Guard_Rig|Guard_Rig|RadioUse",
+   "Guard_Rig|Guard_Rig|Run",
+   "Guard_Rig|Guard_Rig|Surprised",
+   "Guard_Rig|Guard_Rig|Walk",
+   "Key.001|Guard_Rig|FlashlightHold",
+   "Key.001|Guard_Rig|Frightened",
+   "Key.001|Guard_Rig|GuardStance",
+   "Key.001|Guard_Rig|Idle",
+   "Key.001|Guard_Rig|Inspect",
+   "Key.001|Guard_Rig|RadioUse",
+   "Key.001|Guard_Rig|Run",
+   "Key.001|Guard_Rig|Surprised",
+   "Key.001|Guard_Rig|Walk",
+   "Key.002|Guard_Rig|FlashlightHold",
+   "Key.002|Guard_Rig|Frightened",
+   "Key.002|Guard_Rig|GuardStance",
+   "Key.002|Guard_Rig|Idle",
+   "Key.002|Guard_Rig|Inspect",
+   "Key.002|Guard_Rig|RadioUse",
+   "Key.002|Guard_Rig|Run",
+   "Key.002|Guard_Rig|Surprised",
+   "Key.002|Guard_Rig|Walk",
+   "Key.003|Guard_Rig|FlashlightHold",
+   "Key.003|Guard_Rig|Frightened",
+   "Key.003|Guard_Rig|GuardStance",
+   "Key.003|Guard_Rig|Idle",
+   "Key.003|Guard_Rig|Inspect",
+   "Key.003|Guard_Rig|RadioUse",
+   "Key.003|Guard_Rig|Run",
+   "Key.003|Guard_Rig|Surprised",
+   "Key.003|Guard_Rig|Walk",
+   "Key.004|Guard_Rig|FlashlightHold",
+   "Key.004|Guard_Rig|Frightened",
+   "Key.004|Guard_Rig|GuardStance",
+   "Key.004|Guard_Rig|Idle",
+   "Key.004|Guard_Rig|Inspect",
+   "Key.004|Guard_Rig|RadioUse",
+   "Key.004|Guard_Rig|Run",
+   "Key.004|Guard_Rig|Surprised",
+   "Key.004|Guard_Rig|Walk",
+   "Key|Guard_Rig|FlashlightHold",
+   "Key|Guard_Rig|Frightened",
+   "Key|Guard_Rig|GuardStance",
+   "Key|Guard_Rig|Idle",
+   "Key|Guard_Rig|Inspect",
+   "Key|Guard_Rig|RadioUse",
+   "Key|Guard_Rig|Run",
+   "Key|Guard_Rig|Surprised",
+   "Key|Guard_Rig|Walk"
+  ],
+  "shape_keys": [
+   "Alert",
+   "Angry",
+   "Basis",
+   "Blink",
+   "Fear",
+   "Sad",
+   "Surprised",
+   "Talk",
+   "Tense"
+  ],
+  "height_m": 1.845,
+  "size_mb": 37.83
+ },
+ "reimport_guard.obj": {
+  "meshes": 31,
+  "triangles": 45612,
+  "bones": 0,
+  "materials": 23,
+  "actions": [],
+  "shape_keys": [],
+  "height_m": 1.845,
+  "size_mb": 3.41
+ },
+ "reimport_guard.blend": {
+  "meshes": 31,
+  "triangles": 45612,
+  "bones": 53,
+  "materials": 23,
+  "actions": [
+   "FlashlightHold",
+   "Frightened",
+   "GuardStance",
+   "Idle",
+   "Inspect",
+   "RadioUse",
+   "Run",
+   "Surprised",
+   "Walk"
+  ],
+  "shape_keys": [
+   "Alert",
+   "Angry",
+   "Basis",
+   "Blink",
+   "Fear",
+   "Sad",
+   "Surprised",
+   "Talk",
+   "Tense"
+  ],
+  "height_m": 1.845,
+  "size_mb": 2.63
+ }
+}

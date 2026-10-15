@@ -4,7 +4,7 @@
  * GLB를 아직 만들지 않았거나 로딩에 실패해도 기존 절차적 캐릭터를 그대로 보존한다.
  * (사용자 제공 코드팩 Haegyo_Guard_Mina_Character_CodePack — 초상화 패널만 HUD 와 겹치지 않게 왼쪽으로 옮김)
  */
-export function createNPCVisuals({ THREE, GLTFLoader }) {
+export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
   const loader = new GLTFLoader();
   const mixers = new Map();
   const portraitSrc = {
@@ -26,7 +26,7 @@ export function createNPCVisuals({ THREE, GLTFLoader }) {
     const yaw = ((Number(options.yawDegrees) || 0) * Math.PI) / 180;
     const originalChildren = [...holder.children];
 
-    const task = loader.loadAsync(url).then(gltf => {
+    const task = loader.loadAsync(url).then(async gltf => {
       const model = gltf.scene;
       model.updateMatrixWorld(true);
       const box = new THREE.Box3().setFromObject(model);
@@ -36,7 +36,8 @@ export function createNPCVisuals({ THREE, GLTFLoader }) {
       }
 
       // GLB 기본 단위를 m로 정규화하고 발 위치를 y=0에 맞춘다.
-      model.scale.multiplyScalar(targetHeight / height);
+      // native: 이미 실제 미터 크기로 만든 모델(모자 · 소품 포함 높이)이면 크기를 바꾸지 않는다
+      if (!options.native) model.scale.multiplyScalar(targetHeight / height);
       model.updateMatrixWorld(true);
       const b = new THREE.Box3().setFromObject(model);
       model.position.x -= (b.min.x + b.max.x) / 2;
@@ -66,7 +67,10 @@ export function createNPCVisuals({ THREE, GLTFLoader }) {
         const wanted = (options.clipNames ||
           (id === 'mina' ? ['sitting', 'sit', 'idle'] : ['idle', 'breathe', 'stand']))
           .map(s => s.toLowerCase());
-        const clip = clips.find(c => wanted.some(w => c.name.toLowerCase().includes(w))) || clips[0];
+        // 원하는 이름 순서대로 고른다 (예: 'idle' 이 'GuardStance'(stand 포함)보다 먼저)
+        let clip = null;
+        for (const w of wanted) { clip = clips.find(c => c.name.toLowerCase() === w) || clips.find(c => c.name.toLowerCase().includes(w)); if (clip) break; }
+        clip = clip || clips[0];
         const action = mixer.clipAction(clip);
         action.setLoop(THREE.LoopRepeat);
         action.play();
@@ -76,10 +80,14 @@ export function createNPCVisuals({ THREE, GLTFLoader }) {
         console.warn(`[NPC] ${id}: GLB에 애니메이션이 없습니다. T-Pose 여부를 확인하세요.`);
       }
 
+      // 화면에 넣기 전에 텍스처 업로드 · 셰이더 컴파일을 미리 (넣는 순간 멈칫하지 않도록)
+      if (prepare) { try { await prepare(pivot); } catch (e) { /* 준비 실패해도 그대로 붙인다 */ } }
       // 모든 검증과 초기화를 끝내고 나서만 기존 모델을 숨긴다.
       originalChildren.forEach(child => { child.visible = false; });
       holder.add(pivot);
       holder.userData.characterModel = pivot;
+      const bl = []; model.traverse(o => { if (o.morphTargetDictionary && o.morphTargetDictionary.Blink != null) bl.push([o, o.morphTargetDictionary.Blink]); });
+      if (bl.length) blinkers.push({ meshes: bl, t: 1 + Math.random() * 3 });
       console.info(`[NPC] ${id}: 3D 모델 연결 성공 (${url})`);
       return { ok: true, id, url, clips: clips.length };
     }).catch(err => {
@@ -131,10 +139,22 @@ export function createNPCVisuals({ THREE, GLTFLoader }) {
     timeout = window.setTimeout(() => { p.classList.remove('open'); document.body.classList.remove('npc-portrait'); }, Math.max(800, durationMs));
   }
 
+  // 표정 모프(Blink 등)가 있으면 가끔 눈을 깜빡인다
+  const blinkers = [];
   function update(dt) {
     if (!Number.isFinite(dt) || dt <= 0) return;
     mixers.forEach((m, holder) => { if (holder.visible) m.update(Math.min(.067, dt)); });
+    for (const b of blinkers) {
+      b.t -= dt; if (b.t < -.16) b.t = 2.5 + Math.random() * 3.5;
+      const v = b.t < 0 ? Math.sin((-b.t / .16) * Math.PI) : 0;
+      b.meshes.forEach(([o, i]) => { o.morphTargetInfluences[i] = v; });
+    }
+  }
+  function setExpression(holder, name, v = 1) {
+    const m = holder && holder.userData.characterModel; if (!m) return false; let hit = false;
+    m.traverse(o => { if (o.morphTargetDictionary && o.morphTargetDictionary[name] != null) { o.morphTargetInfluences[o.morphTargetDictionary[name]] = v; hit = true; } });
+    return hit;
   }
 
-  return { load, portrait, update };
+  return { load, portrait, update, setExpression };
 }

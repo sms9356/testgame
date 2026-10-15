@@ -689,7 +689,7 @@ export const makeBlood = (kind = 'hand') => ctex(256, 256, (g, w, h) => {
 // 미리 구운 PBR 텍스처 (assets/tex) 불러오기
 const _pbr = {};
 export async function loadPBR() {
-  const L = new THREE.TextureLoader(), names = ['wall', 'tile', 'wood', 'ceil', 'step', 'base', 'varnish', 'varnishDark', 'paint', 'locker', 'rust', 'door', 'brick', 'facade', 'dirt', 'track', 'pooltile', 'roofmetal', 'bluemetal'];
+  const L = new THREE.TextureLoader(), names = ['wall', 'tile', 'wood', 'ceil', 'step', 'base', 'varnish', 'varnishDark', 'paint', 'locker', 'rust', 'door', 'brick', 'facade', 'dirt', 'track', 'pooltile', 'roofmetal', 'bluemetal', 'twall', 'tfloor'];
   await Promise.all(names.flatMap(n => ['map', 'normal', 'rough'].map(async m => {
     const t = await L.loadAsync(`assets/tex/${n}_${m}.webp`).catch(() => null); if (!t) return;
     t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 16; if (m === 'map') t.colorSpace = THREE.SRGBColorSpace;   // 비스듬한 바닥도 선명하게 (GPU 최대값으로 자동 제한)
@@ -974,3 +974,36 @@ export const makePaintingStare = () => ctex(192, 240, (g, w, h) => {
   g.fillStyle = '#28324a'; g.beginPath(); g.moveTo(w * .2, h); g.lineTo(w * .3, h * .66); g.lineTo(w * .7, h * .66); g.lineTo(w * .8, h); g.fill();
   speckle(g, w, h, 300, ['#000', '#fff'], 1, 2, .12);
 });
+// 화장실 벽 타일: 1장 = 2m × 2m, 아이보리 유약 타일 12장(≈16.7cm) — 줄눈 때 · 금 · 깨진 모서리 · 빠진 타일 · 위에서 흘러내린 녹물 · 곰팡이 점
+export function pbrToiletWall(N = 1024) {
+  const n = 12, s = N / n, big = fbm(N, 4, 5), fine = fbm(N, 96, 2), mold = fbm(N, 24, 4), micro = fbm(N, 256, 1);
+  const H = new Float32Array(N * N), R = new Float32Array(N * N), C = new Uint8ClampedArray(N * N * 3);
+  const tv = Array.from({ length: n * n }, () => ({ v: rr(-9, 9), y: rnd() < .07, miss: rnd() < .02, crack: rnd() < .1, chip: rnd() < .18, ca: rnd() * 3.14 }));
+  const streaks = Array.from({ length: 22 }, () => ({ x: rnd() * N, w: rr(5, 18), y0: rnd() * N, len: rr(.2, .8) * N, a: rr(.18, .5), rust: rnd() < .5 }));
+  for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+    const i = y * N + x, tx = (x / s) | 0, ty = (y / s) | 0, T = tv[ty * n + tx], lx = x % s, ly = y % s, gd = Math.min(lx, ly, s - lx, s - ly);
+    const grout = gd < 2, bev = sstep(1.6, 6, gd);
+    let r = 200 + T.v, g = 196 + T.v, b = 180 + T.v * .8;
+    if (T.y) { r -= 8; g -= 10; b -= 18; }   // 누렇게 바랜 타일
+    let h = .6 + bev * .28 + micro[i] * .01, ro = .1 + fine[i] * .1;
+    const sh = 1 - (1 - bev) * .18; r *= sh; g *= sh; b *= sh;
+    const dirt = sstep(.42, .85, big[i]), wst = sstep(.55, .7, mold[i]) * .35; r = mixc(r, 140, dirt * .55); g = mixc(g, 130, dirt * .55); b = mixc(b, 104, dirt * .55); ro += dirt * .25;
+    r = mixc(r, 168, wst); g = mixc(g, 160, wst); b = mixc(b, 140, wst);   // 물 얼룩 테두리
+    if (T.chip && lx > s * .8 && ly < s * .2 && fine[i] > .5) { r = 168; g = 160; b = 146; h = .42; ro = .9; }
+    if (T.crack) { const d = Math.abs((lx - s / 2) * Math.sin(T.ca) - (ly - s / 2) * Math.cos(T.ca) + (fine[i] - .5) * 12); if (d < 1) { r *= .4; g *= .4; b *= .38; h = .3; ro = .9; } }
+    if (T.miss) { const v = 112 + (fine[i] - .5) * 50; r = v; g = v - 4; b = v - 12; h = .22 + fine[i] * .15; ro = .97; }
+    if (grout && !T.miss) { const v = 92 + fine[i] * 34 - dirt * 30; r = v; g = v - 3; b = v - 10; h = .3; ro = .95; if (mold[i] > .62) { r *= .45; g *= .5; b *= .42; } }
+    C[i * 3] = r; C[i * 3 + 1] = g; C[i * 3 + 2] = b; H[i] = h; R[i] = ro;
+  }
+  // 흘러내린 녹물 · 때 자국 (세로 줄무늬, 아래로 갈수록 옅어진다)
+  for (const st of streaks) for (let k = 0; k < st.len; k++) {
+    const yy = ((st.y0 + k) | 0) % N, fade = st.a * (1 - k / st.len), wob = Math.sin(k * .05 + st.x) * 2;
+    for (let dx = -st.w; dx <= st.w; dx++) {
+      const xx = ((((st.x + dx + wob) | 0) % N) + N) % N, i = yy * N + xx, q = dx / st.w, e = fade * Math.exp(-q * q * 3) * (.75 + fine[i] * .5);
+      if (st.rust) { C[i * 3] = mixc(C[i * 3], 120, e * .6); C[i * 3 + 1] = mixc(C[i * 3 + 1], 72, e * .6); C[i * 3 + 2] = mixc(C[i * 3 + 2], 40, e * .6); }
+      else { C[i * 3] = mixc(C[i * 3], 96, e * .45); C[i * 3 + 1] = mixc(C[i * 3 + 1], 92, e * .45); C[i * 3 + 2] = mixc(C[i * 3 + 2], 80, e * .45); }
+      R[i] = Math.min(1, R[i] + e * .3);
+    }
+  }
+  return pack(H, R, C, N, 4);
+}

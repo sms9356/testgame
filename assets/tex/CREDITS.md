@@ -15,6 +15,8 @@
 | facade_* (외벽 노후 콘크리트 + 빗물 자국 합성) | [Concrete Wall 008](https://polyhaven.com/a/concrete_wall_008) | Dario Barresi, Charlotte Baglioni | CC0 |
 | roofmetal_* (체육관 · 수영장 아치 지붕) | [Corrugated Iron 02](https://polyhaven.com/a/corrugated_iron_02) | Jenelle van Heerden, Sergej Majboroda | CC0 |
 | bluemetal_* (수영장 외벽) | [Blue Metal Plate](https://polyhaven.com/a/blue_metal_plate) | Rob Tuytel | CC0 |
+| tfloor_* (화장실 바닥) | [Worn Tile Floor](https://polyhaven.com/a/worn_tile_floor) | Dimitrios Savva | CC0 |
+| twall_* (화장실 벽 타일) | 직접 생성 (`tex.js` pbrToiletWall) | — | 프로젝트 원본 |
 | win_atlas.webp (외벽 창 12종) | 직접 생성 (외부 창문 텍스처 시트 참고) | — | 프로젝트 원본 |
 
 바닥(tile · wood) · 외벽(facade)은 2K, 나머지는 1K.

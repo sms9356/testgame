@@ -30,7 +30,7 @@ initI18n();
 const K = () => SET.keys;
 import { run as runMini, MG } from './minigames.js';
 import { SCHEMA, BUILD, storageKeys, itemUid, propUid, doorUid, assignUids, readSlot, writeSlot, hasSlot, clearSlot, repairProgress } from './saveSystem.js';
-loadManifest().then(() => registerLines({ ...VO, ...Object.fromEntries(Object.entries(STORY_NOTES).filter(([, n]) => n.text).map(([k, n]) => ['note_' + k, { spk: 'narrator', text: n.title + '. ' + n.text }])) }));
+loadManifest().then(() => registerLines({ ...VO, ...Object.fromEntries(Object.entries(STORY_NOTES).filter(([, n]) => n.text).map(([k, n]) => ['note_' + k, { spk: 'narrator', text: n.title + '. ' + n.text, parts: [n.title, n.text] }])) }));
 
 const $ = id => document.getElementById(id);
 // 매 프레임 갱신하는 HUD 글자: 바뀔 때만 쓴다 (같은 글자를 다시 쓰면 레이아웃 · 번역 감시가 매 프레임 돈다)

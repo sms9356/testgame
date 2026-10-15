@@ -2,14 +2,14 @@
 // 게임 코드의 한국어 문장은 그대로 두고, 화면에 나타나는 순간 번역한다 (패치 방식):
 //   · 화면 글자: 문서의 글자 노드가 바뀔 때마다(MutationObserver) 사전에서 찾아 바꾼다 — 메뉴 · HUD · 토스트 · 자막 · 휴대폰 · 쪽지 전부
 //   · 지도 · 미니맵 · 마이크 미터처럼 화면에 붙은 캔버스 글자도 번역 (3D 표지판 · 칠판 · 포스터는 학교 안의 한국어 그대로 둔다)
-//   · 음성: 영어 · 일본어 · 중국어는 번역된 대사를 브라우저 음성(그 언어 목소리)으로 읽는다. 그 언어 목소리가 없으면 원래 한국어 더빙
+//   · 음성: 영어 · 일본어 · 중국어는 voice/<언어>/ 의 신경망 음성 팩(미리 만든 파일)을 재생하고, 팩에 없는 대사만 브라우저 음성(그 언어 목소리)으로 읽는다
 // 사전: lang/<en|ja|zh>.json — { "한국어 원문": "번역" } · 원문 속 {} 는 실행 중 들어가는 값(이름 · 숫자 등)
 import { SET, saveSET } from './settings.js';
 
 export const LANGS = { ko: '한국어', en: 'English', ja: '日本語', zh: '中文' };
 export const SPEECH_LANG = { ko: 'ko-KR', en: 'en-US', ja: 'ja-JP', zh: 'zh-CN' };
 const HG = /[가-힣]/;
-let dict = null, tpls = [], cache = new Map();
+let dict = null, tpls = [], cache = new Map(), vpack = null;
 const MISS = new Set();
 export const lang = () => (LANGS[SET.lang] ? SET.lang : 'ko');
 
@@ -29,6 +29,7 @@ function build(obj) {
 export async function loadLang(code = lang()) {
   document.documentElement.lang = code;
   if (code === 'ko') { dict = null; tpls = []; cache = new Map(); return; }
+  fetch(`voice/${code}/manifest.json`).then(r => r.ok ? r.json() : null).then(m => { vpack = m; }).catch(() => { vpack = null; });   // 신경망 음성 팩
   try { build(await (await fetch(`lang/${code}.json`, { cache: 'no-cache' })).json()); }
   catch (e) { console.warn('[i18n] 사전을 불러오지 못했다:', code, e && e.message); dict = null; }
 }
@@ -125,12 +126,22 @@ export function voiceFor(code) {
 export const hasVoiceFor = code => !!voiceFor(code);
 window.__i18n = { get miss() { return [...MISS]; }, tr, lang, LANGS, setLang, hasVoiceFor, get size() { return dict ? dict.size + tpls.length : 0; } };
 
-// 음성 연결: 한국어가 아니고 그 언어 목소리가 있으면 번역 대사를 읽는다 (없으면 null → 원래 한국어 더빙)
-import { VHOOK } from './voice.js';
-VHOOK.speak = (id, info) => {
+// 음성 연결 (영어 · 일본어 · 중국어):
+//   1) voice/<언어>/ 의 신경망 음성 팩(Microsoft Edge 신경망 음성으로 미리 만든 파일 — tools/gen_voice_pack.py)에 그 대사가 있으면 그것을 재생
+//   2) 없으면 번역된 대사를 브라우저 음성(그 언어 목소리)으로 읽는다. 그 언어 목소리도 없으면 null → 원래 한국어 더빙
+import { VHOOK, emoFor } from './voice.js';
+import { playVoice } from './audio.js';
+// 대사 → 번역문 (쪽지처럼 제목 · 본문 조각으로 등록된 대사는 조각별로 번역해 잇는다)
+export const voiceText = info => (info.parts ? info.parts.map(p => tr(p)).join('. ') : tr(info.text.replace(/<[^>]+>/g, ' '))).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+VHOOK.speak = (id, info, fx) => {
   const code = lang(); if (code === 'ko' || !dict) return null;
+  const pk = vpack && vpack[id];
+  if (pk && pk.src === info.text) {   // 원문이 바뀐 대사는 팩을 쓰지 않는다 (다시 만들 때까지 브라우저 음성)
+    const e = emoFor(id);
+    return playVoice(`voice/${code}/${id}.mp3`, fx, { ...e, rate: 1, pitch: 1, trem: 0 }).then(r => r ? r.duration : pk.dur);
+  }
   const v = voiceFor(code); if (!v) return null;
-  const text = tr(info.text.replace(/<[^>]+>/g, ' ')).replace(/…+/g, ', ');
+  const text = voiceText(info).replace(/…+/g, ', ');
   speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text); u.voice = v; u.lang = SPEECH_LANG[code];
   const g = info.spk; u.pitch = g === 'ghost' ? .7 : ['jihun', 'narrator', 'teacher', 'pa', 'guard'].includes(g) ? .85 : 1.05; u.rate = g === 'ghost' ? .75 : .95;
@@ -138,3 +149,5 @@ VHOOK.speak = (id, info) => {
   const per = code === 'en' ? .065 : .14;   // 글자 수로 길이 추정
   return Math.max(1.2, text.length * per / u.rate);
 };
+VHOOK.file = (id, info) => { const code = lang(); if (code === 'ko' || !dict) return undefined; const pk = vpack && vpack[id]; return pk && pk.src === info.text ? `voice/${code}/${id}.mp3` : null; };
+window.__i18n.voiceText = voiceText;

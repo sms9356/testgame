@@ -4872,14 +4872,14 @@ function shotsHtml() {
 const sgP = window.subGhostSystem;
 const SG = { ready: false, sheet: false, list: [], spawned: false };
 const SG_ZONES = [
-  { id: 'sg_class', f: 2, x: -9.5, z: -5.6, outfit: 'default_uniform', exp: 'blank', anim: 'idle', prop: 'sketchbook', beh: 'haunt', line: '다들... 여기 있어... 내 자리 지우지 마...' },
-  { id: 'sg_corr', f: 1, x: 14, z: 0, outfit: 'white_dress', exp: 'empty', anim: 'float', prop: null, beh: 'patrol', line: '집에 갈 시간이 지났는데...' },
-  { id: 'sg_toilet', f: 0, x: -30.6, z: -3.4, outfit: 'bloody_uniform', exp: 'crying', anim: 'behind_you', prop: null, beh: 'mirror', line: '거울 속에... 내가 안 보여...' },
-  { id: 'sg_stairs', f: 1, x: 1.6, z: -6.2, outfit: 'old_uniform', exp: 'sad', anim: 'idle', prop: null, beh: 'stairs_ambush', line: '위층엔... 아무도 없어...' },
-  { id: 'sg_art', f: 2, x: 25.5, z: -7.4, outfit: 'art_apron', exp: 'blank', anim: 'idle', prop: 'palette', beh: 'art_event', line: '빨간색이... 아직 부족해...' },
-  { id: 'sg_music', f: 2, x: 30.6, z: -7.8, outfit: 'umbrella_girl', exp: 'sad', anim: 'idle', prop: 'doll', beh: 'haunt', line: '피아노... 같이 칠래...?' },
-  { id: 'sg_gym', f: 5, x: 34, z: 26, outfit: 'gym_suit', exp: 'empty', anim: 'idle', prop: 'schoolbag', beh: 'haunt', line: '체육 시간... 끝났어...?' },
-  { id: 'sg_roof', f: 3, x: -10, z: -7.5, outfit: 'rooftop_suicide', exp: 'sad', anim: 'idle', prop: 'umbrella', beh: 'haunt', line: '아래에서... 누가 내 이름을 불렀어...' },
+  { id: 'sg_class', ch: [2, 2], aggro: false, f: 2, x: -9.5, z: -5.6, outfit: 'default_uniform', exp: 'blank', anim: 'idle', prop: 'sketchbook', beh: 'haunt', line: '다들... 여기 있어... 내 자리 지우지 마...' },
+  { id: 'sg_corr', ch: [3, 3], aggro: false, f: 1, x: 14, z: 0, outfit: 'white_dress', exp: 'empty', anim: 'float', prop: null, beh: 'patrol', line: '집에 갈 시간이 지났는데...' },
+  { id: 'sg_toilet', ch: [1, 1], aggro: false, f: 0, x: -30.6, z: -3.4, outfit: 'bloody_uniform', exp: 'crying', anim: 'behind_you', prop: null, beh: 'mirror', line: '거울 속에... 내가 안 보여...' },
+  { id: 'sg_stairs', ch: [4, 5], aggro: true, f: 1, x: 1.6, z: -6.2, outfit: 'old_uniform', exp: 'sad', anim: 'idle', prop: null, beh: 'stairs_ambush', line: '위층엔... 아무도 없어...' },
+  { id: 'sg_art', ch: [3, 3], aggro: false, f: 2, x: 25.5, z: -7.4, outfit: 'art_apron', exp: 'blank', anim: 'idle', prop: 'palette', beh: 'art_event', line: '빨간색이... 아직 부족해...' },
+  { id: 'sg_music', ch: [3, 4], aggro: false, f: 2, x: 30.6, z: -7.8, outfit: 'umbrella_girl', exp: 'sad', anim: 'idle', prop: 'doll', beh: 'haunt', line: '피아노... 같이 칠래...?' },
+  { id: 'sg_gym', ch: [3, 4], aggro: false, f: 5, x: 34, z: 26, outfit: 'gym_suit', exp: 'empty', anim: 'idle', prop: 'schoolbag', beh: 'haunt', line: '체육 시간... 끝났어...?' },
+  { id: 'sg_roof', ch: [5, 6], aggro: false, f: 3, x: -10, z: -7.5, outfit: 'rooftop_suicide', exp: 'sad', anim: 'idle', prop: 'umbrella', beh: 'haunt', line: '아래에서... 누가 내 이름을 불렀어...' },
 ];
 registerLines(Object.fromEntries(SG_ZONES.map(z => ['sg_' + z.id, { spk: 'ghost', text: z.line }])));
 (async () => {
@@ -4904,10 +4904,23 @@ function sgSpawn(z, pos) {
   if (z.anim && z.anim !== 'idle') g.setAnimationPose(z.anim);
   g.f = z.f; g.zone = z; SG.list.push(g); return g;
 }
+// 이야기 장(章)마다 정해진 유령만 나온다 — 한꺼번에 1~3명 · 장이 지나면 조용히 사라지고, 마지막 장(제6장)이 끝나면 아무도 남지 않는다
+// 공격하는 유령은 계단 유령 하나뿐 (기어 와서 근접 연출 · 공포 +22). 나머지 7명은 공격하지 않는다: 다가가거나 비추면 울며 한마디 남기고 사라진다
 function sgSpawnZones() {
-  if (SG.spawned || !SG.ready || !SG.sheet) return; SG.spawned = true;
-  FL.sgSeen ||= {};
-  SG_ZONES.forEach(z => { if (!FL.sgSeen[z.id]) sgSpawn(z); });
+  if (!SG.ready || !SG.sheet || state !== 'playing') return;
+  const now = performance.now(); if (now - (SG.chkT || 0) < 1000) return; SG.chkT = now;   // 1초마다
+  FL.sgSeen ||= {}; const ch = objective().ch, end = state === 'win';
+  SG_ZONES.forEach(z => {
+    const on = !end && ch >= z.ch[0] && ch <= z.ch[1], g = SG.list.find(q => q.zone && q.zone.id === z.id && !q.test);
+    if (on && !g && !FL.sgSeen[z.id]) { const n = sgSpawn(z); if (n && !z.aggro) { n.passive = true; n.isTriggered = true; } }
+    else if (!on && g && g.behavior !== 'fading_out') g.behavior = 'fading_out';   // 장이 지나면 사라진다
+  });
+}
+function sgPassiveMeet(g) {   // 공격성 없는 유령: 슬픈 얼굴로 한마디 → 연기처럼 사라짐 (공포 약간)
+  if (g.met) return; g.met = true; FL.sgSeen[g.zone.id] = true;
+  g.setExpression(Math.random() < .5 ? 'crying' : 'sad'); g.setAnimationPose('fade');
+  sgSub(g)('???', g.zone.line); P.fear = Math.min(1, P.fear + .06); sfx.stinger(.25);
+  setTimeout(() => { g.behavior = 'fading_out'; }, 1600);
 }
 function sgTestSpawn() {   // T 메뉴: 플레이어 앞 반원에 8종을 늘어놓는다 (근접 연출은 하지 않는다)
   if (!SG.ready) { toast('서브 유령', '아직 불러오는 중', 'info'); return; }
@@ -4921,17 +4934,19 @@ function sgTestSpawn() {   // T 메뉴: 플레이어 앞 반원에 8종을 늘�
 const sgSub = g => (who, text) => { const id = 'sg_' + (g.zone && SG_ZONES.some(z => z.id === g.zone.id) ? g.zone.id : ''); if (lineInfo(id)) line(id, 'none', '???'); else subtitle('???', text, 3.2); };
 function sgTick(dt) {
   if (!SG.ready) return;
-  if (!SG.spawned && SG.sheet && state === 'playing') sgSpawnZones();
+  sgSpawnZones();
   if (!SG.list.length) return;
   const cl = document.getElementById('patch-subghost-closeup'); if (cl) cl.style.display = SET.jump === 'full' ? '' : 'none';   // 점프 스케어 '약하게': 클로즈업 이미지 없이
   const y0 = floors[P.floor].y0, fx0 = -Math.sin(P.yaw) * Math.cos(P.pitch), fz0 = -Math.cos(P.yaw) * Math.cos(P.pitch);
   // 손전등을 똑바로 비춘 유령: 같은 층 · 9m 안 · 시선 12° 안 · 벽에 가리지 않음 → 비명 + 손 뻗기 → 근접 연출
   if (P.light && P.battery > 0 && state === 'playing') SG.list.forEach(g => {
-    if (g.isTriggered || g.f !== P.floor) return; const dx = g.root.position.x - P.x, dz = g.root.position.z - P.z, d = Math.hypot(dx, dz);
+    if ((g.isTriggered && !g.passive) || g.met || g.test || g.f !== P.floor) return; const dx = g.root.position.x - P.x, dz = g.root.position.z - P.z, d = Math.hypot(dx, dz);
     if (d > 9 || d < .5 || (dx * fx0 + dz * fz0) / d < .978 || !los(floors[P.floor].walls, P.x, P.z, g.root.position.x, g.root.position.z)) return;
+    if (g.passive) { sgPassiveMeet(g); return; }
     if (!g.litT) { g.litT = .01; g.setExpression(Math.random() < .5 ? 'scream' : 'creepy'); g.setAnimationPose('attack'); }
   });
   SG.list.forEach(g => { if (g.litT && !g.isTriggered && (g.litT += dt) > .6) { FL.sgSeen[g.zone.id] = true; sgP.triggerCloseUpEncounter(g, m => say(m, 3000), sgSub(g)); } });
+  SG.list.forEach(g => { if (g.passive && !g.met && g.f === P.floor && Math.hypot(g.root.position.x - P.x, g.root.position.z - P.z) < 3) sgPassiveMeet(g); });
   // 다른 층 유령은 멀리 둔 것처럼 (클래스는 3D 거리로 판정한다 — 층마다 y0 가 달라 위아래 층은 저절로 멀다)
   const before = new Set(SG.list.filter(g => g.isTriggered));
   sgP.update(dt, V3(P.x, y0, P.z), m => say(m, 3000), (w, t) => { const g = SG.list.find(q => q.isTriggered && !before.has(q)); if (g) sgSub(g)(w, t); else subtitle('???', t, 3.2); });

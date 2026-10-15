@@ -4938,6 +4938,7 @@ const SG_ZONES = [
   { id: 'sg_music', ch: [3, 4], aggro: false, f: 2, x: 30.6, z: -7.8, outfit: 'umbrella_girl', exp: 'sad', anim: 'idle', prop: 'doll', beh: 'haunt', line: '피아노... 같이 칠래...?' },
   { id: 'sg_gym', ch: [3, 4], aggro: false, f: 5, x: 34, z: 26, outfit: 'gym_suit', exp: 'empty', anim: 'idle', prop: 'schoolbag', beh: 'haunt', line: '체육 시간... 끝났어...?' },
   { id: 'sg_roof', ch: [5, 6], aggro: false, f: 3, x: -10, z: -7.5, outfit: 'rooftop_suicide', exp: 'sad', anim: 'idle', prop: 'umbrella', beh: 'haunt', line: '아래에서... 누가 내 이름을 불렀어...' },
+  { id: 'sg_pool', ch: [5, 5], aggro: false, f: 6, x: -43, z: 30.9, outfit: 'white_dress', exp: 'sad', anim: 'idle', prop: null, beh: 'haunt', line: '물이... 아직도 차가워...' },   // 3D 모델 전용 (사용자 제공 수영장 유령)
 ];
 registerLines(Object.fromEntries(SG_ZONES.map(z => ['sg_' + z.id, { spk: 'ghost', text: z.line }])));
 (async () => {
@@ -4967,7 +4968,7 @@ registerLines(Object.fromEntries(SG_ZONES.map(z => ['sg_' + z.id, { spk: 'ghost'
 })();
 function sgSpawn(z, pos) {
   const pre = !pos && SG.pool && SG.pool[z.id];   // 미리 만들어 둔 유령을 꺼낸다
-  if (pre) { delete SG.pool[z.id]; pre.root.visible = true; sgP.ghostInstances.push(pre); SG.list.push(pre); return pre; }
+  if (pre) { delete SG.pool[z.id]; pre.root.visible = true; sgP.ghostInstances.push(pre); SG.list.push(pre); sg3dAttach(pre); return pre; }
   const F = floors[z.f], g = sgP.spawnGhostNPC({ id: z.id, position: pos || V3(z.x, F.y0, z.z), outfitKey: z.outfit, expressionKey: z.exp, animState: z.anim, propKey: z.prop, behavior: z.beh, dialogue: z.line });
   if (!g) return null;
   // 점광원 → 차가운 빛무리 (클래스는 ghostLight.intensity 만 바꾼다)
@@ -4977,7 +4978,7 @@ function sgSpawn(z, pos) {
   let v = .45; g.ghostLight = { get intensity() { return v; }, set intensity(x) { v = x; glow.material.opacity = x / .45 * .35; } };
   g.root.traverse(o => { o.userData.dynamic = true; });
   if (z.anim && z.anim !== 'idle') g.setAnimationPose(z.anim);
-  g.f = z.f; g.zone = z; SG.list.push(g); return g;
+  g.f = z.f; g.zone = z; SG.list.push(g); sg3dAttach(g); return g;
 }
 // 이야기 장(章)마다 정해진 유령만 나온다 — 한꺼번에 1~3명 · 장이 지나면 조용히 사라지고, 마지막 장(제6장)이 끝나면 아무도 남지 않는다
 // 공격하는 유령은 계단 유령 하나뿐 (기어 와서 근접 연출 · 공포 +22). 나머지 7명은 공격하지 않는다: 다가가거나 비추면 울며 한마디 남기고 사라진다
@@ -5001,7 +5002,8 @@ function sgTestSpawn() {   // T 메뉴: 플레이어 앞 반원에 8종을 늘�
   if (!SG.ready) { toast('서브 유령', '아직 불러오는 중', 'info'); return; }
   sgP.ghostInstances.filter(g => g.test).forEach(g => { scene.remove(g.root); sgP.ghostInstances.splice(sgP.ghostInstances.indexOf(g), 1); });   // 이전 테스트 유령은 지운다
   const F = floors[P.floor], fx0 = -Math.sin(P.yaw), fz0 = -Math.cos(P.yaw), sx = Math.cos(P.yaw), sz = -Math.sin(P.yaw);
-  SG_ZONES.forEach((z, i) => { const s = (i - 3.5) * 1.15, d = 4.2 + Math.abs(i - 3.5) * .2;
+  const mid = (SG_ZONES.length - 1) / 2;
+  SG_ZONES.forEach((z, i) => { const s = (i - mid) * 1.15, d = 4.2 + Math.abs(i - mid) * .2;
     const g = sgSpawn({ ...z, id: 'test_' + z.id + '_' + Date.now(), beh: 'test' }, V3(P.x + fx0 * d + sx * s, F.y0, P.z + fz0 * d + sz * s));
     if (g) { g.test = true; g.isTriggered = true; g.setExpression(['sad', 'blank', 'crying', 'empty', 'scream', 'creepy', 'angry', 'neutral'][i]); } });
   toast('서브 유령 8종 테스트', SG.sheet ? '복장 · 표정 · 소품 확인 (근접 연출 없음)' : '시트지 이미지가 없어 절차적 실루엣으로 표시 — assets/img/sub_ghost_sheet.webp 를 넣으면 시트지 그림으로', 'info');
@@ -5029,6 +5031,60 @@ function sgTick(dt) {
   for (let i = SG.list.length - 1; i >= 0; i--) if (!sgP.ghostInstances.includes(SG.list[i])) SG.list.splice(i, 1);
   // 층에 따라 보이기 (다른 층 유령이 바닥 · 천장을 뚫고 보이지 않게)
   SG.list.forEach(g => { g.root.visible = g.f === P.floor; });
+  sg3dTick(dt);
+}
+
+/* ── 14-b. 서브 유령 3D 모델 (사용자 제공 .blend 7종 → GLB, tools/ghost_blend_to_glb.py) ──
+   · 옥상 · 수영장 · 음악실 · 미술실 · 화장실 · 복도 · 교실 유령은 시트지 그림(빌보드) 대신 3D 모델로 보인다 (체육관 · 계단 유령은 그대로 시트지)
+   · 원본은 리깅 · 애니메이션이 없는 정지 모델이라 움직임은 코드로: 플레이어 쪽으로 천천히 고개(몸)를 돌림 · 숨 · 미세한 흔들림 ·
+     손전등에 비치면 앞으로 기울며 떨림 · 사라질 때 깜빡이며 투명해짐. 차가운 자체광을 약하게 넣어 어둠 속에서도 형체가 보인다
+   · 모델은 그 유령이 나올 장(章)이 가까워지면 미리 받아 두고, 받기 전에는 시트지 그림으로 보인다 */
+const SG3D_FILE = { sg_roof: 'rooftop', sg_pool: 'pool', sg_music: 'music', sg_art: 'art', sg_toilet: 'restroom', sg_corr: 'corridor', sg_class: 'classroom' };
+const SG3D = { cache: new Map(), loader: new GLTFLoader() };
+const sg3dKey = g => g.zone && SG3D_FILE[g.zone.id.replace(/^test_(sg_[a-z]+)_\d+$/, '$1')];
+function sg3dLoad(name) {
+  let p = SG3D.cache.get(name);
+  if (!p) {
+    p = SG3D.loader.loadAsync(`assets/characters/ghosts/${name}.glb`).then(gl => {
+      gl.scene.traverse(o => { if (!o.isMesh) return; o.castShadow = true; o.receiveShadow = false;
+        const m = o.material; if (m.map) { srgb(m.map); m.map.anisotropy = 4; m.emissiveMap = m.map; }
+        m.emissive = new THREE.Color(0x8fa4c0); m.emissiveIntensity = m.map ? .22 : .08; m.side = THREE.DoubleSide; });
+      return gl.scene;
+    }).catch(e => { console.warn('[SubGhost3D]', name, e && e.message); return null; });
+    SG3D.cache.set(name, p);
+  }
+  return p;
+}
+function sg3dAttach(g) {
+  const name = sg3dKey(g); if (!name || g.model3d !== undefined) return;
+  g.model3d = null;
+  sg3dLoad(name).then(src => {
+    if (!src || !g.root.parent) return;
+    const m = src.clone(true), mats = [];
+    m.traverse(o => { if (o.isMesh) { o.material = o.material.clone(); mats.push(o.material); o.userData.dynamic = true; } });
+    m.scale.setScalar(.95); g.root.add(m); g.model3d = m; g.mats3d = mats; g.yaw3d = null;
+    [g.mainPlane, g.volumeCore, g.faceOverlay, g.propMesh].forEach(o => { if (o) o.visible = false; });
+  });
+}
+function sg3dTick(dt) {
+  // 다음 장에 나올 유령 모델을 미리 받아 둔다
+  if (SG.sheet !== undefined && state === 'playing') { const ch = objective().ch; SG_ZONES.forEach(z => { if (SG3D_FILE[z.id] && ch + 1 >= z.ch[0] && ch <= z.ch[1]) sg3dLoad(SG3D_FILE[z.id]); }); }
+  SG.list.forEach(g => {
+    const m = g.model3d; if (!m) return;
+    // 숨겨 둔 빌보드를 클래스가 다시 보이게 해도(표정 · 동작 바꿈) 3D 모델만 보이게
+    [g.mainPlane, g.faceOverlay, g.propMesh].forEach(o => { if (o) o.visible = false; });
+    const t = performance.now() / 1000 + (g.phase || 0), dx = camera.position.x - g.root.position.x, dz = camera.position.z - g.root.position.z;
+    const want = Math.atan2(dx, dz); if (g.yaw3d == null) g.yaw3d = want;
+    let d = want - g.yaw3d; d = Math.atan2(Math.sin(d), Math.cos(d)); g.yaw3d += d * Math.min(1, dt * (g.litT ? 6 : .9));   // 천천히 돌아본다
+    const lit = !!g.litT || g.animState === 'attack', fade = g.behavior === 'fading_out';
+    m.rotation.set(lit ? .16 : Math.sin(t * .7) * .012, g.yaw3d, Math.sin(t * .9) * .018);
+    m.position.set(lit ? Math.sin(t * 41) * .012 : 0, Math.sin(t * 1.3) * .012, lit ? Math.cos(t * 37) * .01 : 0);
+    m.scale.set(.95, .95 * (1 + Math.sin(t * 1.9) * .006), .95);
+    let op = fade ? Math.max(0, g.opacity) : 1;
+    if (g.animState === 'fade' || fade) op *= .75 + .25 * Math.sin(t * 23) * Math.sin(t * 7.3);   // 깜빡이며 옅어짐
+    else if (Math.sin(t * .37) > .985) op *= .55;                                                // 가끔 지직— 흐려짐
+    g.mats3d.forEach(mt => { const tr = op < .999; if (mt.transparent !== tr) { mt.transparent = tr; mt.needsUpdate = true; } mt.opacity = op; mt.depthWrite = op > .5; });
+  });
 }
 
 /* ── 15. 본관 18실 · 별관 19실 (37개 특별실 · 보조실) 가구 · PBR · 동선 (school37RoomsPatch.js · 사용자 제공) ──
@@ -5283,7 +5339,7 @@ if (DEBUG) {
     interact, findInteract, hit, die, activateGhost, enrage, FL, MG, throwCan, throws, set playTime(v) { playTime = v; }, toggleView, get view() { return view; }, useProp, docs, msgs, clues, objective, makeGateKey, openInv, openPhone, openMap, openCharsel, openSettings, refreshHud, save, load, inv, mina,
     get power() { return power; }, set power(v) { power = v; }, get CHAR() { return CHAR; }, newGame, continueGame,
     setTarget(t) { target = t; }, DAY, GEN, SIDEQUESTS, sqStep, sqDoneCount, useSideQuest, HEADQUEST, useHead, COLLECT, paraEvent, toiletFx, tmpFx, TE, roomAt, camMode, camShoot, CAM, MIC, SAN, BRK, setBreaker, schoolPower, craftingSystem, ghostCam, restroom, useSink, useFlush, placeAlarm, throwShock, useFirstAid, tryCombine, stunGhost, lockerSearchStart, enterLocker, leaveLocker, startSearch, useMiniSpot, openChalk, chalkAsk, XT,
-    SG, sgTestSpawn, PL, CALL, SIT, ZOOM, SHOT, closeUI, TP, whereText, FLOOR_LABEL, S37,
+    SG, sgTestSpawn, sgSpawn, SG_ZONES, PL, CALL, SIT, ZOOM, SHOT, closeUI, TP, whereText, FLOOR_LABEL, S37,
     get target() { return target; },
   };
 }

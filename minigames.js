@@ -1,4 +1,4 @@
-// 미니게임: 자물쇠 따기 · 다이얼 자물쇠 · 배선 퍼즐 · 피아노 · 슬라이딩 퍼즐 · 갈고리 낚기
+// 미니게임: 자물쇠 따기 · 다이얼 자물쇠 · 배선 퍼즐 · 피아노 · 슬라이딩 퍼즐 · 갈고리 낚기 · 녹음 순서 · 짝 맞추기 · 주파수 · 순서 따라 하기 · 타이밍 · 분신사바
 // run(kind, opts) → Promise<{ ok }>. 열려 있는 동안 MG.active 가 true 이고, 키 입력은 여기서 처리한다.
 import { sfx } from './audio.js';
 
@@ -286,7 +286,161 @@ function order({ title, frags, showTimes, onFail }) {
   return p;
 }
 
+
+/* ---------- 8. 짝 맞추기 (기억력) ---------- */
+// 카드를 두 장씩 뒤집어 같은 그림을 찾는다. 틀린 횟수가 많으면 실패
+function memory({ title = '짝 맞추기', icons = ['📻', '🎹', '📼', '🔔', '📕', '🗝'], maxMiss = 8 }) {
+  const p = open(title, '카드를 두 장씩 뒤집어 <b>같은 그림</b>을 모두 찾아라 · 클릭 또는 숫자 키는 쓰지 않는다');
+  const deck = [...icons, ...icons].map((ic, i) => ({ ic, id: i, open: false, done: false })).sort(() => Math.random() - .5);
+  const box = document.createElement('div'); box.className = 'memGrid'; box.style.gridTemplateColumns = `repeat(${deck.length > 12 ? 5 : 4}, 64px)`; $('mgBody').appendChild(box);
+  const info = document.createElement('div'); info.className = 'mgInfo'; $('mgBody').appendChild(info);
+  let first = null, lock = false, miss = 0, pairs = 0;
+  const render = () => {
+    box.innerHTML = deck.map((c, i) => `<button class="memCard${c.open || c.done ? ' open' : ''}${c.done ? ' done' : ''}" data-i="${i}">${c.open || c.done ? c.ic : '?'}</button>`).join('');
+    info.innerHTML = `찾은 짝 <b>${pairs}</b> / ${icons.length} · 남은 실수 <b>${maxMiss - miss}</b>`;
+    box.querySelectorAll('.memCard').forEach(b => { b.onclick = () => flip(+b.dataset.i); });
+  };
+  const flip = i => {
+    const c = deck[i]; if (lock || c.open || c.done) return;
+    c.open = true; sfx.paper(); render();
+    if (!first) { first = c; return; }
+    if (first.ic === c.ic) { first.done = c.done = true; first = null; pairs++; sfx.ding ? sfx.ding() : sfx.unlock(); render(); if (pairs >= icons.length) setTimeout(() => close(true), 350); return; }
+    lock = true; miss++; sfx.buzz(); const a = first; first = null;
+    setTimeout(() => { a.open = c.open = false; lock = false; render(); if (miss >= maxMiss) { status('…카드가 모두 뒤집혔다', 'err'); setTimeout(() => close(false), 600); } }, 650);
+  };
+  keys(() => {});
+  render();
+  return p;
+}
+
+/* ---------- 9. 주파수 맞추기 (라디오) ---------- */
+// A · D / 마우스로 다이얼을 돌려 잡음이 사라지는 주파수를 찾고, 그 자리에서 1.5초 버티면 성공
+function tune({ title = '라디오 주파수 맞추기', label = '…이 방송을 듣는 사람에게…' }) {
+  const p = open(title, '<b>A · D / 마우스</b>로 다이얼을 돌려 잡음이 사라지는 곳을 찾아라 — 찾으면 그대로 <b>잠시 버티기</b>');
+  const c = canvas(440, 170), g = c.getContext('2d');
+  const target = .15 + Math.random() * .7; let f = Math.random() < .5 ? .05 : .95, hold = 0, lastT = performance.now(), t = 0, dir = 0, lastTick = 0;
+  c.addEventListener('mousemove', e => { const r = c.getBoundingClientRect(); f = clamp((e.clientX - r.left) / r.width, 0, 1); });
+  keys(e => { const dn = e.type === 'keydown'; if (e.code === 'KeyA' || e.code === 'ArrowLeft') dir = dn ? -1 : (dir === -1 ? 0 : dir); if (e.code === 'KeyD' || e.code === 'ArrowRight') dir = dn ? 1 : (dir === 1 ? 0 : dir); });
+  const loop = now => {
+    const dt = Math.min(.12, (now - lastT) / 1000); lastT = now; t += dt; f = clamp(f + dir * dt * .32, 0, 1);
+    const d = Math.abs(f - target), clear = clamp(1 - d / .06, 0, 1);
+    if (Math.abs(f - lastTick) > .02) { lastTick = f; sfx.dial(); }
+    hold = clear > .75 ? hold + dt : Math.max(0, hold - dt * 2);
+    g.fillStyle = '#0b0f0c'; g.fillRect(0, 0, 440, 170);
+    // 잡음 · 파형
+    g.strokeStyle = `rgba(120,230,150,${.35 + clear * .6})`; g.lineWidth = 2; g.beginPath();
+    for (let x = 0; x < 440; x += 4) { const n = (Math.random() - .5) * 60 * (1 - clear), w = Math.sin(x * .05 + t * 6) * 22 * clear; const y = 62 + n + w; x ? g.lineTo(x, y) : g.moveTo(x, y); }
+    g.stroke();
+    // 눈금 · 바늘
+    g.fillStyle = '#18221c'; g.fillRect(20, 120, 400, 26);
+    g.fillStyle = '#7a8a7a'; g.font = '11px monospace'; for (let k = 0; k <= 10; k++) { g.fillRect(20 + k * 40, 120, 1, k % 5 ? 6 : 12); if (k % 2 === 0) g.fillText(String(88 + k * 2), 12 + k * 40, 162); }
+    g.fillStyle = '#ff6a4a'; g.fillRect(20 + f * 400 - 1, 112, 3, 38);
+    g.fillStyle = `rgba(232,200,112,${clear})`; g.font = '14px sans-serif'; g.textAlign = 'center'; g.fillText(clear > .6 ? label : '지지직……', 220, 26); g.textAlign = 'left';
+    g.fillStyle = '#2c3640'; g.fillRect(140, 92, 160, 8); g.fillStyle = '#60e0a0'; g.fillRect(140, 92, 160 * clamp(hold / 1.5, 0, 1), 8);
+    if (hold >= 1.5) { sfx.radio ? sfx.radio() : sfx.beep(); return close(true); }
+    raf = requestAnimationFrame(loop);
+  };
+  raf = requestAnimationFrame(loop);
+  return p;
+}
+
+/* ---------- 10. 순서 따라 하기 (사이먼) ---------- */
+// 불이 켜지는 순서를 기억했다가 그대로 누른다 (1 · 2 · 3 · 4 키 또는 클릭). 라운드마다 하나씩 길어진다
+function simon({ title = '순서 따라 하기', pads = ['도', '레', '미', '솔'], rounds = [3, 4, 5], notes = [262, 294, 330, 392] }) {
+  const p = open(title, '불이 켜지는 <b>순서</b>를 기억했다가 그대로 눌러라 — <b>1 · 2 · 3 · 4</b> 키 또는 클릭 · 3번 틀리면 실패');
+  const box = document.createElement('div'); box.className = 'simGrid'; $('mgBody').appendChild(box);
+  const info = document.createElement('div'); info.className = 'mgInfo'; $('mgBody').appendChild(info);
+  const cols = ['#c84a3a', '#d8b040', '#4aa86a', '#4a7ad0'];
+  box.innerHTML = pads.map((n, i) => `<button class="simPad" data-i="${i}" style="--c:${cols[i]}">${i + 1}<small>${n}</small></button>`).join('');
+  const el = [...box.querySelectorAll('.simPad')];
+  let r = 0, seq = [], input = 0, busy = true, miss = 0;
+  const light = (i, ms = 380) => { el[i].classList.add('on'); sfx.note(notes[i]); setTimeout(() => el[i].classList.remove('on'), ms); };
+  const play = () => {
+    busy = true; input = 0; while (seq.length < rounds[r]) seq.push((Math.random() * 4) | 0);
+    info.innerHTML = `라운드 <b>${r + 1}</b> / ${rounds.length} · 실수 ${miss}/3 — 잘 봐라`;
+    seq.forEach((v, k) => setTimeout(() => light(v), 600 + k * 560));
+    setTimeout(() => { busy = false; info.innerHTML = `라운드 <b>${r + 1}</b> / ${rounds.length} · 실수 ${miss}/3 — 이제 따라 눌러라`; }, 600 + seq.length * 560);
+  };
+  const press = i => {
+    if (busy || !finish) return; light(i, 200);
+    if (seq[input] !== i) { miss++; sfx.buzz(); status('틀렸다…', 'err'); if (miss >= 3) { busy = true; setTimeout(() => close(false), 500); return; } seq = seq.slice(0, rounds[r]); setTimeout(play, 700); return; }
+    input++;
+    if (input >= seq.length) { r++; status(r >= rounds.length ? '' : '좋아!', 'ok'); if (r >= rounds.length) { busy = true; setTimeout(() => close(true), 400); return; } busy = true; setTimeout(play, 800); }
+  };
+  el.forEach((b, i) => { b.onclick = () => press(i); });
+  keys(e => { if (e.type === 'keydown' && /^(Digit|Numpad)[1-4]$/.test(e.code)) press(+e.code.slice(-1) - 1); });
+  play();
+  return p;
+}
+
+/* ---------- 11. 타이밍 (게이지) ---------- */
+// 왕복하는 바늘이 초록 구간에 들어왔을 때 Space / 클릭. need 번 성공하면 끝 (농구 슛 · 비커 눈금 · 부적 붙이기 등)
+function timing({ title = '타이밍', hint = '바늘이 <b style="color:#60e0a0">초록 구간</b>에 들어왔을 때 <b>Space / 클릭</b>', need = 3, tries = 5, icon = '', okText = '성공!', missText = '빗나갔다…' }) {
+  const p = open(title, hint + ` — <b>${tries}</b>번 중 <b>${need}</b>번`);
+  const c = canvas(440, 140), g = c.getContext('2d');
+  let t = 0, sp = 1.1, hits = 0, used = 0, zone = .3 + Math.random() * .4, w = .18, lastT = performance.now(), flash = 0, fc = '#60e0a0';
+  const act = () => {
+    if (!finish) return; const pos = (Math.sin(t * sp * 2.4) + 1) / 2; used++;
+    if (Math.abs(pos - zone) < w / 2) { hits++; flash = 1; fc = '#60e0a0'; sfx.ball ? sfx.ball() : sfx.click(); status(`${okText} (${hits}/${need})`, 'ok'); zone = .15 + Math.random() * .7; w *= .88; sp *= 1.12; }
+    else { flash = 1; fc = '#e06a5a'; sfx.buzz(); status(`${missText} (남은 기회 ${tries - used})`, 'err'); }
+    if (hits >= need) setTimeout(() => close(true), 350);
+    else if (tries - used < need - hits) setTimeout(() => close(false), 600);
+  };
+  c.addEventListener('click', act);
+  keys(e => { if (e.type === 'keydown' && (e.code === 'Space' || e.code === 'Enter')) act(); });
+  const loop = now => {
+    const dt = Math.min(.12, (now - lastT) / 1000); lastT = now; t += dt; flash = Math.max(0, flash - dt * 3);
+    const x = (Math.sin(t * sp * 2.4) + 1) / 2;
+    g.fillStyle = '#0a0d10'; g.fillRect(0, 0, 440, 140);
+    g.fillStyle = '#1e2a30'; g.fillRect(20, 54, 400, 28);
+    g.fillStyle = 'rgba(80,230,150,.6)'; g.fillRect(20 + (zone - w / 2) * 400, 54, w * 400, 28);
+    if (flash > 0) { g.fillStyle = fc; g.globalAlpha = flash * .35; g.fillRect(0, 0, 440, 140); g.globalAlpha = 1; }
+    g.fillStyle = '#f0e8d0'; g.fillRect(20 + x * 400 - 2, 44, 4, 48);
+    if (icon) { g.font = '26px sans-serif'; g.textAlign = 'center'; g.fillText(icon, 20 + x * 400, 36); g.textAlign = 'left'; }
+    for (let k = 0; k < tries; k++) { g.fillStyle = k < used ? '#3a4650' : '#8a96a0'; g.beginPath(); g.arc(160 + k * 22, 116, 6, 0, 7); g.fill(); }
+    for (let k = 0; k < need; k++) { g.fillStyle = k < hits ? '#60e0a0' : '#2c3640'; g.fillRect(150 + k * 26 + 160, 110, 18, 12); }
+    raf = requestAnimationFrame(loop);
+  };
+  raf = requestAnimationFrame(loop);
+  return p;
+}
+
+/* ---------- 12. 분신사바 (위저 보드) ---------- */
+// 질문을 고르면 말판이 저절로 움직여 글자를 짚는다. 플레이어는 손을 떼지 않게 Space 를 계속 누르고 있어야 한다 (떼면 실패)
+function ouija({ title = '분신사바', qs = [] }) {
+  const p = open(title, '질문을 고른 뒤, 말판이 대답을 마칠 때까지 <b>Space / 마우스 버튼</b>을 계속 누르고 있어라 — 손을 떼면 안 된다');
+  const c = canvas(440, 220), g = c.getContext('2d');
+  const L = 'ㄱㄴㄷㄹㅁㅂㅅㅇㅈㅊㅋㅌㅍㅎ'.split('').concat(['예', '아니오']);
+  const pos = L.map((ch, i) => i < 14 ? { ch, x: 40 + (i % 7) * 60, y: 70 + ((i / 7) | 0) * 56 } : { ch, x: i === 14 ? 70 : 370, y: 26 });
+  const qbox = document.createElement('div'); qbox.className = 'ouQ'; $('mgBody').appendChild(qbox);
+  qbox.innerHTML = qs.map((q, i) => `<button class="btn" data-i="${i}">${q.q}</button>`).join('');
+  let hold = false, ans = null, k = 0, px = 220, py = 120, t = 0, lastT = performance.now(), shown = '', started = false, lost = 0;
+  const down = () => { hold = true; }, up = () => { hold = false; };
+  c.addEventListener('mousedown', down); addEventListener('mouseup', up); cleanups.push(() => removeEventListener('mouseup', up));
+  keys(e => { if (e.code === 'Space') hold = e.type === 'keydown'; });
+  qbox.querySelectorAll('button').forEach(b => { b.onclick = () => { if (ans) return; ans = qs[+b.dataset.i]; qbox.innerHTML = `<div class="mgInfo">“${ans.q}”</div>`; sfx.whisper && sfx.whisper(); started = true; }; });
+  const loop = now => {
+    const dt = Math.min(.12, (now - lastT) / 1000); lastT = now; t += dt;
+    g.fillStyle = '#20160e'; g.fillRect(0, 0, 440, 220); g.strokeStyle = '#6a5038'; g.strokeRect(6, 6, 428, 208);
+    g.font = '20px serif'; g.textAlign = 'center'; g.fillStyle = '#d8c8a0'; pos.forEach(o => g.fillText(o.ch, o.x, o.y + 7));
+    if (started && ans) {
+      if (!hold) { lost += dt; if (lost > .6) { status('손을 뗐다 — 말판이 바닥으로 떨어졌다', 'err'); sfx.ghostLaugh ? sfx.ghostLaugh() : sfx.buzz(); started = false; setTimeout(() => close(false), 700); } }
+      else lost = 0;
+      const seq = ans.a, tgt = pos.find(o => o.ch === seq[k]) || pos[0];
+      px += (tgt.x - px) * Math.min(1, dt * 2.2) + Math.sin(t * 9) * .6; py += (tgt.y - py) * Math.min(1, dt * 2.2) + Math.cos(t * 7) * .6;
+      if (Math.hypot(tgt.x - px, tgt.y - py) < 3) { shown += seq[k] === '예' || seq[k] === '아니오' ? `[${seq[k]}] ` : seq[k]; k++; sfx.knock ? sfx.knock() : sfx.click(); if (k >= seq.length) { started = false; status(`…${ans.r || shown}`, 'ok'); setTimeout(() => close(true), 1400); } }
+    }
+    g.strokeStyle = 'rgba(240,220,170,.9)'; g.lineWidth = 3; g.beginPath(); g.moveTo(px, py - 26); g.lineTo(px - 20, py + 14); g.lineTo(px + 20, py + 14); g.closePath(); g.stroke();
+    g.beginPath(); g.arc(px, py, 8, 0, 7); g.stroke(); g.lineWidth = 1;
+    g.fillStyle = '#e8c870'; g.font = '15px sans-serif'; g.fillText(shown, 220, 205); g.textAlign = 'left';
+    if (started && !hold) { g.fillStyle = 'rgba(200,60,40,.35)'; g.fillRect(0, 0, 440, 220); }
+    raf = requestAnimationFrame(loop);
+  };
+  raf = requestAnimationFrame(loop);
+  return p;
+}
+
 export function run(kind, opts = {}) {
   if (MG.active) return Promise.resolve({ ok: false });
-  return ({ lockpick, dial, circuit, piano, slide, fishing, order })[kind](opts);
+  return ({ lockpick, dial, circuit, piano, slide, fishing, order, memory, tune, simon, timing, ouija })[kind](opts);
 }

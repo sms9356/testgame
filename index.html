@@ -148,6 +148,10 @@
   #miniMap{width:150px;height:150px;border-radius:50%;border:2px solid #6a7782;background:rgba(8,12,16,.8);display:block}
   #floor{position:absolute;right:-4px;top:-4px;font-size:14px;padding:1px 8px;background:#10161c;border:1px solid #6a7782}
   #clock{position:absolute;left:-4px;top:-4px;font-size:11px;padding:1px 6px;background:#10161c;border:1px solid #3a4650;color:var(--dim)}
+  #ptime{position:absolute;left:-4px;bottom:-2px;font-size:11px;padding:1px 6px;background:#10161c;border:1px solid #3a4650;color:var(--dim);font-variant-numeric:tabular-nums;letter-spacing:.04em}
+  #ptime.off{display:none}
+  .galStats{grid-column:1/-1;display:grid;grid-template-columns:auto 1fr;gap:4px 18px;padding:12px 16px;margin-bottom:6px;background:#11161b;border:1px solid #3a4650;font-size:13px;color:var(--dim)}
+  .galStats b{color:#e8dcc0;font-weight:500;font-variant-numeric:tabular-nums}
   #rbtns{position:absolute;right:22px;top:186px;display:flex;flex-direction:column;gap:10px;align-items:flex-end}
   .rb{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--dim)}
   .rb i{position:relative;width:46px;height:46px;border-radius:50%;background:var(--panel);border:1px solid #5a646c;display:flex;align-items:center;justify-content:center;font-style:normal;font-size:20px}
@@ -410,6 +414,33 @@
   .mgInfo{font-size:13px;color:#cfc9b8}
   #mgStatus{min-height:22px;margin-top:8px;font-size:14px;color:#cfc9b8}
   #mgStatus.ok{color:#6fe09c}#mgStatus.err{color:#ff7a6a}
+  .memGrid{display:grid;gap:8px;justify-content:center}
+  .memCard{width:64px;height:78px;font-size:30px;background:linear-gradient(160deg,#2a3440,#151b22);border:1px solid #4a5662;color:#8a96a0;cursor:pointer;transition:transform .18s,background .18s}
+  .memCard.open{background:#e8e0cc;color:#222;transform:rotateY(180deg) scaleX(-1)}
+  .memCard.done{background:#cfe8d0;box-shadow:0 0 12px rgba(96,224,160,.5)}
+  .simGrid{display:grid;grid-template-columns:repeat(2,120px);gap:10px}
+  .simPad{height:90px;font-size:22px;color:#fff;background:color-mix(in srgb,var(--c) 35%,#111);border:2px solid var(--c);opacity:.75;cursor:pointer;transition:all .12s}
+  .simPad small{display:block;font-size:12px;opacity:.8}
+  .simPad.on{background:var(--c);opacity:1;box-shadow:0 0 26px var(--c);transform:scale(1.04)}
+  .ouQ{display:flex;flex-direction:column;gap:6px;width:100%}
+  .ouQ .btn{font-size:13px;padding:7px}
+  /* 사물함 수색 · 획득 카드 · 칠판 · 초자연 현상 */
+  #searchBar{position:fixed;left:50%;top:58%;transform:translateX(-50%);width:240px;padding:8px 12px;background:rgba(10,14,18,.86);border:1px solid #4a5662;font-size:12px;color:#d8d0b8;text-align:center;display:none;z-index:15}
+  #searchBar.on{display:block}
+  #searchBar i{display:block;height:6px;margin-top:6px;background:#2c3640;overflow:hidden}#searchBar i b{display:block;height:100%;width:0;background:linear-gradient(90deg,#c8a050,#f0d890)}
+  #lootCard{position:fixed;left:50%;top:40%;transform:translate(-50%,-50%) scale(.9);min-width:280px;max-width:min(420px,92vw);padding:18px 22px;background:linear-gradient(170deg,rgba(28,24,18,.96),rgba(12,12,14,.96));border:1px solid #8a7040;box-shadow:0 0 40px rgba(200,160,80,.25);color:#e8dcc0;text-align:center;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;z-index:16}
+  #lootCard.on{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  #lootCard .ic{font-size:44px;line-height:1.1}#lootCard .ic img{width:56px;height:56px;object-fit:contain}
+  #lootCard h4{margin:6px 0 2px;font-size:17px;color:#f0d890}#lootCard .tag{font-size:11px;letter-spacing:.16em;color:#a89870}
+  #lootCard p{font-size:13px;line-height:1.55;color:#cfc6b0;margin:8px 0 0}
+  #lootCard.scare{border-color:#8a2a22;box-shadow:0 0 50px rgba(200,40,30,.35)}#lootCard.scare h4{color:#ff7a6a}
+  #chalk{z-index:26;background:rgba(0,0,0,.7)}
+  #chalk .board{width:min(640px,94vw);height:300px;margin:0 auto;background:radial-gradient(ellipse at 40% 40%,#2f4a3c,#1a2a22);border:12px solid #5a3e26;box-shadow:inset 0 0 40px rgba(0,0,0,.6);position:relative;font-family:'Nanum Pen Script','Gaegu',cursive,serif;color:#f2f0e6;font-size:30px;padding:24px;text-align:left;overflow:hidden}
+  #chalk .board .reply{color:#ff9a8a;text-shadow:0 0 8px rgba(255,80,60,.6)}
+  #chalk .opts{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:14px}
+  #paraVig{position:fixed;inset:0;pointer-events:none;z-index:6;opacity:0;transition:opacity .6s;background:radial-gradient(ellipse at center,transparent 45%,rgba(60,0,0,.55) 100%)}
+  #paraVig.on{opacity:1}
+  #colPage{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:8px}
   .dialBox{display:flex;gap:10px;padding:14px 18px;background:linear-gradient(#2a2a2e,#151518);border:2px solid #4a4a52;border-radius:10px}
   .dialBox.shake{animation:shk .4s}
   @keyframes shk{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
@@ -512,7 +543,7 @@
 <div id="hud">
   <div id="objP" class="panel"><div id="chapter"></div><div class="m">메인 목표</div><div id="objText"></div><div id="objWhere"></div><div id="objDir"><i>➤</i><span></span></div><div id="subs"></div>
     <div id="optBox"><b id="optTitle"></b><div id="optSubs"></div></div><div id="sqBox"><b id="sqTitle"></b><div id="sqSubs"></div></div></div>
-  <div id="mini"><canvas id="miniMap" width="150" height="150"></canvas><div id="floor">외부</div><div id="clock"></div></div>
+  <div id="mini"><canvas id="miniMap" width="150" height="150"></canvas><div id="floor">외부</div><div id="clock"></div><div id="ptime" title="플레이 시간"></div></div>
   <div id="rbtns">
     <div class="rb">휴대폰 <kbd>P</kbd><i id="rbPhone">📱<em id="phoneBadge"></em></i></div>
     <div class="rb">소지품 <kbd>Tab</kbd><i><img src="assets/ui/it_bag.webp" alt=""></i></div>
@@ -552,7 +583,7 @@
 <!-- 소지품 -->
 <div id="inv" class="overlay"><div class="win">
   <div class="head"><img src="assets/ui/it_bag.webp" alt="" style="height:26px"><b>소지품</b>
-    <div class="tabs" id="invTabs" style="margin:0 0 0 18px"><kbd>Q</kbd><button data-tab="items">아이템</button><button data-tab="docs">문서</button><button data-tab="keys">열쇠 아이템</button><kbd>E</kbd></div>
+    <div class="tabs" id="invTabs" style="margin:0 0 0 18px"><kbd>Q</kbd><button data-tab="items">아이템</button><button data-tab="docs">문서</button><button data-tab="keys">열쇠 아이템</button><button data-tab="col">수집품</button><kbd>E</kbd></div>
     <button class="x" data-close>닫기 <kbd>Tab</kbd></button></div>
   <div id="invBody"><div id="invLeft"><div id="invGrid"></div><div id="invCap"></div></div><div id="invDetail"></div></div></div></div>
 <div id="invZoom" class="overlay"><div class="win"><div class="head"><b id="izName"></b><button class="x" id="izClose">닫기</button></div><div class="big" id="izBig"></div><p id="izText"></p></div></div>
@@ -574,7 +605,9 @@
   <h3>순간이동</h3><div class="tgrid" id="testTp"></div>
   <h3>치트 / 상태</h3><div class="tgrid" id="testAct"></div>
   <div id="testInfo"></div></div></div>
-<div id="keypad" class="overlay"><div class="win"><div class="tabs"><b style="font-size:15px">교무실 금고</b><button id="kpClose" style="margin-left:auto">닫기</button></div>
+<div id="searchBar">사물함을 뒤지는 중…<i><b></b></i></div><div id="lootCard"></div><div id="paraVig"></div>
+<div id="chalk" class="overlay"><div class="win" style="width:min(700px,96vw)"><div class="tabs"><b style="font-size:15px" id="chalkTitle">칠판</b><button id="chalkClose" style="margin-left:auto">닫기</button></div><div class="board" id="chalkBoard"></div><div class="opts" id="chalkOpts"></div></div></div>
+<div id="keypad" class="overlay"><div class="win"><div class="tabs"><b style="font-size:15px" id="kpTitle">교무실 금고</b><button id="kpClose" style="margin-left:auto">닫기</button></div>
   <div id="kpDisp">_ _ _ _</div>
   <div id="kpGrid"><button data-k="1">1</button><button data-k="2">2</button><button data-k="3">3</button><button data-k="4">4</button><button data-k="5">5</button><button data-k="6">6</button><button data-k="7">7</button><button data-k="8">8</button><button data-k="9">9</button><button data-k="C">C</button><button data-k="0">0</button><button data-k="OK">OK</button></div>
   <div id="kpHint">숫자 키 · Enter · Backspace 사용 가능</div></div></div>
@@ -633,6 +666,7 @@
     <span>걸을 때 화면 흔들림</span><label><input type="checkbox" id="setBob"> 켜기</label>
     <span>충격 화면 흔들림</span><label><input type="checkbox" id="setShake"> 켜기</label>
     <span>FPS 표시</span><label><input type="checkbox" id="setFps"> 켜기</label>
+    <span>플레이 시간 표시</span><label><input type="checkbox" id="setPlay"> 미니맵 아래에 누적 플레이 시간</label>
   </div></div>
   <div class="setPage" data-s="aud"><div class="setgrid">
     <h4>볼륨</h4>

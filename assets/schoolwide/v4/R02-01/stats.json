@@ -1,0 +1,17 @@
+{
+ "tris_lod0": 3576,
+ "tris_lod1": 1430,
+ "dims_m": [
+  0.7276,
+  0.45,
+  0.73
+ ],
+ "materials": [
+  "R02_wood_varnish",
+  "R02_steel_dusty",
+  "R02_rubber"
+ ],
+ "uv_layers": [
+  "UVMap"
+ ]
+}

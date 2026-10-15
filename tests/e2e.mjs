@@ -70,8 +70,18 @@ async function normalRun(char) {
   ok(await E(p, () => __g.FL.hook), '조합: 갈고리 장대'); await p.keyboard.press('Tab'); await W(p, 200);
   await use(p, 'drain'); await winMini(p); ok(await E(p, () => __g.P.keys) === 5, '수영장 조각 (낚기) — 5/5');
   await saveReload(p, '조각 5개'); ok(await E(p, () => __g.P.keys) === 5 && await E(p, () => __g.objective().ch) === 4, '복원: 조각 5 · 제4장');
+  // 제4장 · 열쇠의 머리: 머리 없이는 조합 불가 → 교장실 → 별관 머릿돌 → 분전반(배선) → 보안 PC(사진 맞추기) → 진열장(0302)
+  await E(p, () => __g.makeGateKey()); ok(!(await E(p, () => __g.FL.gatekey)), '열쇠 머리 없이는 정문 열쇠를 만들 수 없음');
+  const hd = async k => { await E(p, k => { const q = __g.world.props.find(o => o.uid === `sq:head:${k}`); __g.state = 'playing'; __g.ghost.active = false; __g.tp(q.x, q.z + (q.z > 0 ? -1 : 1), q.floor, 0, 0); __g.useHead(q); }, k); };
+  await hd(0); await W(p, 600); await closeNote(p); await hd(1); await W(p, 600); await closeNote(p);
+  await saveReload(p, '제4장 중간'); ok(await E(p, () => __g.sqStep('head')) === 2 && await E(p, () => __g.objective().ch) === 4, '복원: 제4장 진행 (교장 수첩 · 머릿돌)');
+  await hd(2); await winMini(p); await closeNote(p); ok(await E(p, () => __g.FL.anPow), '별관 분전반 → 별관 전원');
+  await hd(3); await winMini(p); await closeNote(p);
+  await hd(4); await W(p, 300); for (const k of '0302') await p.keyboard.press('Digit' + k); await W(p, 1500); await E(p, () => { __g.ghost.active = false; }); await closeNote(p);
+  ok(await E(p, () => __g.FL.keyhead) && await E(p, () => __g.objective().ch) === 5 && await E(p, () => ['h1', 'h2', 'h3', 'h4', 'h5'].every(id => __g.docs.some(d => d.id === id))), '진열장(0302) → 열쇠 머리 · 제5장 · 문서 5종');
+  await saveReload(p, '열쇠 머리 후'); ok(await E(p, () => __g.FL.keyhead && __g.objective().ch === 5), '복원: 열쇠 머리');
   await E(p, () => __g.makeGateKey()); await W(p, 2500); await E(p, () => { __g.ghost.active = false; __g.ghost.enraged = false; });
-  await saveReload(p, '정문 열쇠 후'); ok(await E(p, () => __g.FL.gatekey) && await E(p, () => __g.objective().ch) === 5, '복원: 정문 열쇠 · 제5장');
+  await saveReload(p, '정문 열쇠 후'); ok(await E(p, () => __g.FL.gatekey) && await E(p, () => __g.objective().ch) === 6, '복원: 정문 열쇠 · 제6장');
   await E(p, () => { __g.ghost.active = false; __g.state = 'playing'; __g.P.floor = 0; __g.P.x = 0; __g.P.z = 67; __g.P.yaw = Math.PI; });
   await p.evaluate(s => new Promise(r => { const t0 = __g.tNow; const f = () => { if (__g.tNow - t0 >= s) r(); else requestAnimationFrame(f); }; requestAnimationFrame(f); }), .4);
   await p.keyboard.press('KeyE'); await finalChoice(p, 2);
@@ -97,19 +107,40 @@ async function trueRun() {
   await saveReload(p, '민아 후'); ok(await E(p, () => __g.FL.mina) && await E(p, () => !__g.mina.visible), '복원: 민아 구출');
   // 의뢰(서브 퀘스트): '집으로 가는 길'(조건 없음) · '민아가 여기 온 이유'(민아 구출 후) — 진행 · 아이템 주고받기 · 저장/복원
   const sq = async (id, k) => { await E(p, ([id, k]) => { const q = __g.world.props.find(o => o.uid === `sq:${id}:${k}`); __g.state = 'playing'; __g.tp(q.x, q.z + .8, q.floor, 0, 0); __g.useSideQuest(q); }, [id, k]); await W(p, 2600); await E(p, () => { if (__g.state === 'note' || __g.state === 'ui') __g.state = 'playing'; }); };
-  ok(await E(p, () => __g.world.props.filter(o => o.kind === 'sq').length) === 20, '의뢰 조사 지점 20곳 배치');
+  ok(await E(p, () => __g.world.props.filter(o => o.kind === 'sq' && !o.main).length) === 20 && await E(p, () => __g.world.props.filter(o => o.kind === 'sq' && o.main).length) === 5, '의뢰 조사 지점 20곳 · 제4장 지점 5곳 배치');
   await sq('book', 0); ok(await E(p, () => __g.sqStep('book') === 1 && __g.FL.qi.bookHome), '의뢰: 책을 집음 (퀘스트 아이템)');
   await sq('book', 1); ok(await E(p, () => __g.sqStep('book') === 2 && !__g.FL.qi.bookHome && __g.docs.some(d => d.id === 'q8b')), '의뢰 완료: 반납 (아이템 소모 · 문서)');
   for (const k of [0, 1, 2]) await sq('mina', k);
   ok(await E(p, () => __g.sqStep('mina') === 3 && __g.sqDoneCount() === 2), '의뢰 완료: 민아가 여기 온 이유 (민아 조건)');
   await saveReload(p, '의뢰 후'); ok(await E(p, () => __g.sqStep('book') === 2 && __g.sqStep('mina') === 3 && __g.world.props.filter(o => o.kind === 'sq' && !o.done).length === 6), '복원: 의뢰 진행 · 남은 의뢰 6건의 첫 지점');
-  await E(p, () => { __g.world.items.filter(i => i.kind === 'key').forEach(i => { if (!i.taken) { i.locked = false; __g.setTarget({ type: 'item', it: i }); __g.state = 'playing'; __g.interact(); } }); __g.makeGateKey(); });
+  await E(p, () => { __g.world.items.filter(i => i.kind === 'key').forEach(i => { if (!i.taken) { i.locked = false; __g.setTarget({ type: 'item', it: i }); __g.state = 'playing'; __g.interact(); } }); __g.FL.keyhead = true; __g.makeGateKey(); });
   await W(p, 2500); ok(!(await E(p, () => __g.ghost.enraged)), '방송 후엔 최종 추격 없음');
   await E(p, () => { __g.state = 'playing'; __g.P.floor = 0; __g.P.x = 0; __g.P.z = 67; __g.P.yaw = Math.PI; });
   await p.evaluate(s => new Promise(r => { const t0 = __g.tNow; const f = () => { if (__g.tNow - t0 >= s) r(); else requestAnimationFrame(f); }; requestAnimationFrame(f); }), .4);
   await p.keyboard.press('KeyE'); await finalChoice(p, 1);
   ok((await E(p, () => document.getElementById('endTag').textContent)) === 'TRUE END', 'TRUE 엔딩 도달');
   ok(await E(p, () => __g.FL.final) === 'B', '마지막 선택 B (민아와 함께) 후일담');
+  ok(p.errors === 0, '콘솔 오류 없음'); await p.close();
+}
+
+async function extrasRun() {
+  console.log('\n■ 사물함 수색 · 수집품 · 소모품 · 방 미니게임 · 칠판 · 초자연 현상');
+  const p = await page();
+  await E(p, () => { localStorage.clear(); localStorage.setItem('haegyo_char', 'jihun'); }); await p.reload(); await p.waitForFunction(() => window.__loadTimes, null, { timeout: 180000 }); await ready(p);
+  await E(p, () => __g.newGame()); await W(p, 600); await p.keyboard.press('Space'); await W(p, 500); await E(p, () => { __g.ghost.active = false; });
+  ok(await E(p, () => __g.world.props.filter(q => q.kind === 'search').length) >= 40 && await E(p, () => __g.world.props.filter(q => q.kind === 'mspot').length) === 10, '수색 지점 40곳 이상 · 방 미니게임 10곳');
+  // 수집품이 든 사물함 3곳을 실제로 뒤진다 (가만히 1.1초)
+  const n = await E(p, async () => { let k = 0; for (const q of __g.world.props.filter(q => q.kind === 'search' && q.loot && q.loot.col).slice(0, 3)) { __g.state = 'playing'; __g.tp(q.x, q.z + (q.where === '복도' ? .7 : q.z < 0 ? -.5 : .5), q.floor, 0, 0); __g.startSearch(q); if (__g.XT.search) __g.XT.search.t = 1.09; const t0 = performance.now(); while (__g.XT.search && performance.now() - t0 < 8000) await new Promise(r => setTimeout(r, 50)); if (q.done) k++; } return k; });
+  ok(n === 3 && await E(p, () => Object.keys(__g.FL.col || {}).length) === 3, '사물함 수색 → 수집품 3개');
+  await E(p, () => { const q = __g.world.props.find(o => o.uid === 'ms:lab'); __g.state = 'playing'; __g.tp(q.x, q.z + 1.2, q.floor, 0, 0); __g.useMiniSpot(q); }); await winMini(p);
+  ok(await E(p, () => __g.FL.ms && __g.FL.ms.lab === 1 && __g.inv.salt >= 2), '과학실 미니게임(타이밍) → 굵은 소금');
+  await E(p, () => { const q = __g.world.props.find(o => o.uid === 'ms:music'); __g.state = 'playing'; __g.tp(q.x, q.z + 1.2, q.floor, 0, 0); __g.useMiniSpot(q); }); await winMini(p);
+  ok(await E(p, () => __g.FL.col.c07 === 1), '음악실 미니게임(순서 따라 하기) → 수집품');
+  await E(p, () => { const q = __g.world.props.find(o => o.kind === 'chalk'); __g.state = 'playing'; __g.tp(q.x, q.z + 1.4, q.floor, 0, 0); __g.openChalk(q); __g.chalkAsk(0); }); await W(p, 3500);
+  ok(await E(p, () => __g.FL.chalk >= 1), '칠판에 질문 → 대답'); await E(p, () => { document.getElementById('chalkClose').click(); __g.state = 'playing'; });
+  ok(await E(p, () => { __g.state = 'playing'; return ['door', 'lights', 'shadow', 'cold', 'phone'].every(k => __g.paraEvent(k)); }), '초자연 현상 5종 발생');
+  ok(await E(p, () => { __g.state = 'playing'; __g.inv.charm = 1; __g.P.invuln = 0; __g.ghost.active = true; __g.ghost.floor = __g.P.floor; __g.ghost.x = __g.P.x + 1; __g.ghost.z = __g.P.z; const hp = __g.P.hp; __g.hit(); const r = __g.P.hp === hp && __g.inv.charm === 0; __g.ghost.active = false; return r; }), '노란 부적이 공격을 대신 받음');
+  await saveReload(p, '수색 후'); ok(await E(p, () => Object.keys(__g.FL.col).length === 4 && __g.world.props.filter(q => q.kind === 'search' && q.done).length === 3 && __g.FL.ms.lab === 1), '복원: 수집품 · 뒤진 사물함 · 미니게임 보답');
   ok(p.errors === 0, '콘솔 오류 없음'); await p.close();
 }
 
@@ -137,6 +168,7 @@ async function saveEdgeCases() {
 await normalRun('jihun');
 await normalRun('seoyeon');
 await trueRun();
+await extrasRun();
 await saveEdgeCases();
 console.log(`\n결과: 통과 ${pass} · 실패 ${fail} · 저장/복원 ${restores}회`);
 await b.close();

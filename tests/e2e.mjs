@@ -77,7 +77,7 @@ async function normalRun(char) {
   await saveReload(p, '제4장 중간'); ok(await E(p, () => __g.sqStep('head')) === 2 && await E(p, () => __g.objective().ch) === 4, '복원: 제4장 진행 (교장 수첩 · 머릿돌)');
   await hd(2); await winMini(p); await closeNote(p); ok(await E(p, () => __g.FL.anPow), '별관 분전반 → 별관 전원');
   await hd(3); await winMini(p); await closeNote(p);
-  await hd(4); await W(p, 300); for (const k of '0302') await p.keyboard.press('Digit' + k); await W(p, 1500); await E(p, () => { __g.ghost.active = false; }); await closeNote(p);
+  await hd(4); await p.waitForFunction(() => document.getElementById('keypad').classList.contains('show'), null, { timeout: 60000 }); await W(p, 300); for (const k of '0302') await p.keyboard.press('Digit' + k); await W(p, 1500); await E(p, () => { __g.ghost.active = false; }); await closeNote(p);
   ok(await E(p, () => __g.FL.keyhead) && await E(p, () => __g.objective().ch) === 5 && await E(p, () => ['h1', 'h2', 'h3', 'h4', 'h5'].every(id => __g.docs.some(d => d.id === id))), '진열장(0302) → 열쇠 머리 · 제5장 · 문서 5종');
   await saveReload(p, '열쇠 머리 후'); ok(await E(p, () => __g.FL.keyhead && __g.objective().ch === 5), '복원: 열쇠 머리');
   await E(p, () => __g.makeGateKey()); await W(p, 2500); await E(p, () => { __g.ghost.active = false; __g.ghost.enraged = false; });
@@ -146,6 +146,13 @@ async function extrasRun() {
   const charm0 = await E(p, () => __g.inv.charm || 0); await p.keyboard.press('Digit3');
   await p.waitForFunction(c => (__g.inv.charm || 0) > c, charm0, { timeout: 120000 });
   ok(await E(p, () => __g.FL.redblue === 3 && __g.tmpFx.length > 0), '화장실 괴담 7종 · 빨간 휴지 파란 휴지(침묵 → 노란 부적)');
+  ok(await E(p, () => { __g.state = 'playing'; const i = __g.inv; i.can = 2; i.tape = 1; i.battery = 1; i.medkit = 1; i.sedative = 1; __g.tryCombine('can', 'tape'); __g.tryCombine('battery', 'can'); __g.tryCombine('medkit', 'sedative'); __g.P.hp = 40; __g.useFirstAid(); __g.tp(0, 0, 0, 0, 0); __g.placeAlarm(); return i.alarm === 0 && i.shock === 1 && i.firstaid === 0 && __g.P.hp === 100 && __g.craftingSystem.activeTraps.length === 1; }), '조합 3종 (CraftingSystem: 경보 함정 설치 · 쇼트 폭탄 · 응급 처치 키트)');
+  ok(await E(p, () => { __g.state = 'playing'; __g.camMode(true); const on = __g.CAM.on && __g.camera.layers.isEnabled(2); __g.P.pbat = 100; const b0 = __g.P.pbat; __g.camShoot(); const shot = __g.P.pbat <= b0 - 19.9; const ov = document.body.classList.contains('ghost-cam-active'); __g.camMode(false); return on && ov && shot && !__g.camera.layers.isEnabled(2) && __g.CAM.clues.length > 50 && __g.ghostCam.hiddenClues.length === 3; }), '심령 카메라 (GhostCameraSystem: 숨은 단서 레이어 · 플래시 촬영)');
+  ok(await E(p, () => { __g.state = 'playing'; __g.setBreaker(0, true); const on = __g.BRK[0].on; __g.setBreaker(0, false); __g.schoolPower.chimeTimer = 0; return on && __g.world.props.filter(q => q.kind === 'cbreaker').length === 7 && __g.schoolPower.powerBoxes.length === 7; }), '배전반 7곳 (SchoolPowerEventSystem) · 차임벨');
+  ok(await E(p, () => { __g.state = 'playing'; const W = __g.world, sinks = W.props.filter(q => q.kind === 'sink'), fl = W.props.filter(q => q.kind === 'flush'), st = W.lockers.filter(l => l.stallDoor), lk = W.doorList.filter(d => d.locked);
+    const s0 = sinks.find(q => q.floor === 0); __g.P.fear = .5; __g.useSink(s0); __g.useSink(s0); __g.useSink(s0); const f3 = __g.P.fear; __g.useFlush(fl[0]);
+    const l = st.find(o => o.floor === 0); __g.enterLocker(l); const closed = l.stallDoor.target === 0; __g.leaveLocker(true); const reopened = l.stallDoor.target === 1;
+    return sinks.length >= 24 && fl.length > 10 && st.length === fl.length && lk.length >= 3 && closed && reopened && s0.sinkObj.uses === 3 && Math.abs(f3 - .5) > .01; }), '남/녀 화장실 (RestroomSystem 세면대 · 변기 물 내리기 · 칸막이 은신 · 잠긴 3번 칸)');
   ok(await E(p, () => { __g.state = 'playing'; __g.inv.charm = 1; __g.P.invuln = 0; __g.ghost.active = true; __g.ghost.floor = __g.P.floor; __g.ghost.x = __g.P.x + 1; __g.ghost.z = __g.P.z; const hp = __g.P.hp; __g.hit(); const r = __g.P.hp === hp && __g.inv.charm === 0; __g.ghost.active = false; return r; }), '노란 부적이 공격을 대신 받음');
   await saveReload(p, '수색 후'); ok(await E(p, () => Object.keys(__g.FL.col).length === 4 && __g.world.props.filter(q => q.kind === 'search' && q.done).length === 3 && __g.FL.ms.lab === 1), '복원: 수집품 · 뒤진 사물함 · 미니게임 보답');
   ok(p.errors === 0, '콘솔 오류 없음'); await p.close();

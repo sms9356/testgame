@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="style.css">
 <link rel="icon" href="data:,">
 <title>폐교 — 잊혀진 시간</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -179,7 +180,7 @@
   #hpBar{background:#5fc47a}#sta{background:#5a9ac8}#fearBar{background:#c04048}
   #slots{position:absolute;left:50%;bottom:20px;transform:translateX(-50%);display:flex;gap:8px}
   .slot{width:60px;height:60px;position:relative;background:var(--panel);border:1px solid #4a545c;display:flex;align-items:center;justify-content:center;font-size:24px}
-  .slot img{max-width:46px;max-height:34px;object-fit:contain}
+  .slot img{max-width:48px;max-height:42px;object-fit:contain;filter:drop-shadow(0 2px 4px rgba(0,0,0,.85)) contrast(1.08)}
   .slot small{position:absolute;left:4px;top:2px;font-size:10px;color:var(--dim)}
   .slot em{position:absolute;right:4px;bottom:2px;font-size:11px;font-style:normal;color:var(--ink)}
   .slot.off{opacity:.4}
@@ -440,6 +441,29 @@
   #chalk .opts{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:14px}
   #paraVig{position:fixed;inset:0;pointer-events:none;z-index:6;opacity:0;transition:opacity .6s;background:radial-gradient(ellipse at center,transparent 45%,rgba(60,0,0,.55) 100%)}
   #paraVig.on{opacity:1}
+  #invGrid.craftList{display:flex!important;flex-direction:column;gap:8px} #invGrid .craftRow{width:auto!important;height:auto!important;aspect-ratio:auto!important;display:flex!important;align-items:center;gap:12px;padding:8px 12px;justify-content:flex-start!important;text-align:left;font-size:14px} #invGrid .craftRow img,#invGrid .craftRow svg{width:44px;height:44px;flex:none} #invGrid .craftRow.empty{opacity:.55}
+  /* 마이크 감지 미터 */
+  #micMeter{position:fixed;right:18px;bottom:96px;width:132px;padding:6px 8px;background:rgba(8,10,12,.72);border:1px solid #3a444a;z-index:7;display:none;font-size:10px;color:#9ab;letter-spacing:.08em}
+  #micMeter.on{display:block} #micMeter canvas{display:block;width:116px;height:26px} #micMeter .bar{height:4px;background:#222;margin-top:3px} #micMeter .bar i{display:block;height:100%;width:0;background:#7ac08a} #micMeter .bar i#micRisk{background:#d04040}
+  /* 환각 · 함정 마커 · 차임벨 · 틈새의 눈 */
+  #ghostMark{position:fixed;z-index:7;pointer-events:none;display:none;width:26px;height:26px;margin:-13px 0 0 -13px;border:2px solid #ff3030;border-radius:50%;box-shadow:0 0 14px #f00}
+  #ghostMark.on{display:block;animation:gmP .6s ease-in-out infinite} @keyframes gmP{50%{transform:scale(1.35)}}
+  #chimeBar{position:fixed;left:50%;top:14px;transform:translateX(-50%);z-index:7;display:none;padding:6px 16px;background:rgba(60,40,10,.85);border:1px solid #c89a40;color:#ffd890;font-size:13px;letter-spacing:.08em}
+  #chimeBar.on{display:block;animation:chB 1.2s steps(2) infinite} @keyframes chB{50%{opacity:.7}}
+  #peekEye{position:fixed;left:50%;top:44%;width:180px;height:60px;transform:translate(-50%,-50%);z-index:6;pointer-events:none;display:none;background:radial-gradient(ellipse at 50% 50%,#000 0 9%,#b02010 10% 16%,#e8d8c8 17% 40%,transparent 62%)}
+  #peekEye.on{display:block;animation:peek .25s ease-out}
+  @keyframes peek{from{opacity:0;transform:translate(-50%,-50%) scaleY(.1)}}
+  /* 초상화: 체력 · 공포 상태 */
+  #who.pale #portrait{filter:saturate(.45) brightness(.85) contrast(1.1)} #who.panic #portrait{filter:saturate(.35) brightness(.8) contrast(1.2) hue-rotate(-8deg);animation:pnc .18s steps(2) infinite}
+  #who.panic{box-shadow:inset 0 0 26px rgba(160,0,0,.55)} @keyframes pnc{50%{transform:translateX(1px)}}
+  /* 장소 카드: 필름 그레인 · 비네팅 · 청록/암갈색 톤 */
+  #card{position:fixed} #card:after{content:'';position:absolute;left:0;right:0;top:0;aspect-ratio:16/9;pointer-events:none;background:radial-gradient(ellipse at center,transparent 45%,rgba(0,0,0,.7) 100%),repeating-radial-gradient(circle at 30% 40%,rgba(255,255,255,.035) 0 1px,transparent 1px 3px);mix-blend-mode:multiply}
+  #card img{filter:contrast(1.08) brightness(.82) saturate(.7) sepia(.18) hue-rotate(150deg)!important}
+  #card.old img{filter:sepia(.6) saturate(.55) brightness(.8) contrast(1.1)!important}
+  #mobileNote{position:fixed;left:0;right:0;top:0;z-index:50;padding:10px 16px;background:#3a1010;color:#ffd8c8;font-size:13px;text-align:center;display:none}
+  .svgIc{width:100%;height:100%;max-width:56px;max-height:56px}
+  #note{background:#cfc7a8 url(assets/ui/ui_note_paper.webp) center/cover}
+
   #bloodVig,#frostVig{position:fixed;inset:0;pointer-events:none;z-index:6;opacity:0;transition:opacity .9s}
   #bloodVig{background:radial-gradient(ellipse at center,transparent 30%,rgba(120,0,0,.45) 70%,rgba(60,0,0,.9) 100%);animation:bloodPulse 1.1s ease-in-out infinite}
   #frostVig{background:radial-gradient(ellipse at center,transparent 40%,rgba(150,190,230,.25) 72%,rgba(200,225,255,.7) 100%);backdrop-filter:saturate(.4) hue-rotate(-10deg)}
@@ -550,9 +574,9 @@
     <div id="optBox"><b id="optTitle"></b><div id="optSubs"></div></div><div id="sqBox"><b id="sqTitle"></b><div id="sqSubs"></div></div></div>
   <div id="mini"><canvas id="miniMap" width="150" height="150"></canvas><div id="floor">외부</div><div id="clock"></div><div id="ptime" title="플레이 시간"></div></div>
   <div id="rbtns">
-    <div class="rb">휴대폰 <kbd>P</kbd><i id="rbPhone">📱<em id="phoneBadge"></em></i></div>
+    <div class="rb">휴대폰 <kbd>P</kbd><i id="rbPhone"><img src="assets/ui/ui_phone.webp" alt=""><em id="phoneBadge"></em></i></div>
     <div class="rb">소지품 <kbd>Tab</kbd><i><img src="assets/ui/it_bag.webp" alt=""></i></div>
-    <div class="rb">지도 <kbd>M</kbd><i>🗺</i></div>
+    <div class="rb">지도 <kbd>M</kbd><i><img src="assets/ui/ui_map.webp" alt=""></i></div>
   </div>
   <div id="testBadge">TEST · T 메뉴</div><div id="fps"></div>
   <div id="toasts"></div>
@@ -563,10 +587,10 @@
       <div class="row"><u>공포</u><div class="bar"><i id="fearBar" style="width:0"></i></div></div></div></div>
   <div id="slots">
     <div class="slot" id="s1"><small>1</small><img src="assets/ui/it_flash.webp" alt=""><div class="sb"><i id="batBar"></i></div></div>
-    <div class="slot" id="s2"><small>2</small>🔋<em id="c2">0</em></div>
-    <div class="slot" id="s3"><small>3</small>🩹<em id="c3">0</em></div>
-    <div class="slot" id="s4"><small>4</small>🗝<em id="c4">0/5</em></div>
-    <div class="slot" id="s5"><small>G</small>🥫<em id="c5">0</em></div>
+    <div class="slot" id="s2"><small>2</small><img src="assets/ui/it_battery.webp" alt=""><em id="c2">0</em></div>
+    <div class="slot" id="s3"><small>3</small><img src="assets/ui/it_bandage.webp" alt=""><em id="c3">0</em></div>
+    <div class="slot" id="s4"><small>4</small><img src="assets/ui/it_keypiece.webp" alt=""><em id="c4">0/5</em></div>
+    <div class="slot" id="s5"><small>G</small><img src="assets/ui/it_can.webp" alt=""><em id="c5">0</em></div>
   </div>
   <div id="hints"><div>이동 <kbd>WASD</kbd></div><div>달리기 <kbd>Shift</kbd></div><div>손전등 <kbd>F</kbd></div><div>상호작용 <kbd>E</kbd></div><div>던지기 <kbd>G</kbd></div><div>시점 <kbd>V</kbd></div><div>일시정지 <kbd>Esc</kbd></div></div>
   <div id="dlg"><img id="dlgFace" src="assets/ui/seoyeon_f1.webp" alt=""><div><span id="dlgName">서연</span><span id="dlgText"></span></div></div>
@@ -588,14 +612,14 @@
 <!-- 소지품 -->
 <div id="inv" class="overlay"><div class="win">
   <div class="head"><img src="assets/ui/it_bag.webp" alt="" style="height:26px"><b>소지품</b>
-    <div class="tabs" id="invTabs" style="margin:0 0 0 18px"><kbd>Q</kbd><button data-tab="items">아이템</button><button data-tab="docs">문서</button><button data-tab="keys">열쇠 아이템</button><button data-tab="col">수집품</button><kbd>E</kbd></div>
+    <div class="tabs" id="invTabs" style="margin:0 0 0 18px"><kbd>Q</kbd><button data-tab="items">아이템</button><button data-tab="docs">문서</button><button data-tab="keys">열쇠 아이템</button><button data-tab="col">수집품</button><button data-tab="craft">조합 (C)</button><kbd>E</kbd></div>
     <button class="x" data-close>닫기 <kbd>Tab</kbd></button></div>
   <div id="invBody"><div id="invLeft"><div id="invGrid"></div><div id="invCap"></div></div><div id="invDetail"></div></div></div></div>
 <div id="invZoom" class="overlay"><div class="win"><div class="head"><b id="izName"></b><button class="x" id="izClose">닫기</button></div><div class="big" id="izBig"></div><p id="izText"></p></div></div>
 <!-- 휴대폰 -->
 <div id="phone" class="overlay"><div class="phoneFrame">
   <div class="pStatus"><span id="pClock">23:40</span><b>신호 없음 ✕</b><span id="pBat">🔋 100%</span></div>
-  <div class="pTabs"><button data-p="msg">메시지</button><button data-p="photo">사진</button><button data-p="memo">메모</button><button data-p="tl">사건</button><button data-p="tool">도구</button><button data-p="log">기록</button></div>
+  <div class="pTabs"><button data-p="msg">메시지</button><button data-p="photo">사진</button><button data-p="memo">메모</button><button data-p="tl">사건</button><button data-p="tool">도구</button><button data-p="cam">카메라</button><button data-p="log">기록</button></div>
   <div id="pBody"></div><div class="pHint">P / Esc 닫기 · Q / E 탭 전환</div></div></div>
 <!-- 지도 -->
 <div id="mapOv" class="overlay"><div class="win" id="mapWrap">
@@ -610,7 +634,7 @@
   <h3>순간이동</h3><div class="tgrid" id="testTp"></div>
   <h3>치트 / 상태</h3><div class="tgrid" id="testAct"></div>
   <div id="testInfo"></div></div></div>
-<div id="searchBar">사물함을 뒤지는 중…<i><b></b></i></div><div id="lootCard"></div><div id="paraVig"></div><div id="bloodVig"></div><div id="frostVig"></div>
+<div id="searchBar">사물함을 뒤지는 중…<i><b></b></i></div><div id="lootCard"></div><div id="paraVig"></div><div id="micMeter">마이크 · 들킬 위험<canvas id="micCv" width="232" height="52"></canvas><div class="bar"><i id="micLv"></i></div><div class="bar"><i id="micRisk"></i></div></div><div id="ghostMark"></div><div id="chimeBar">📢 방송 소음 발생 중 — 발소리가 묻힌다</div><div id="peekEye"></div><div id="mobileNote">이 게임은 PC(마우스 · 키보드)와 헤드폰 환경에 맞춰져 있습니다. 모바일에서는 조작이 제한됩니다.</div><div id="bloodVig"></div><div id="frostVig"></div>
 <div id="chalk" class="overlay"><div class="win" style="width:min(700px,96vw)"><div class="tabs"><b style="font-size:15px" id="chalkTitle">칠판</b><button id="chalkClose" style="margin-left:auto">닫기</button></div><div class="board" id="chalkBoard"></div><div class="opts" id="chalkOpts"></div></div></div>
 <div id="keypad" class="overlay"><div class="win"><div class="tabs"><b style="font-size:15px" id="kpTitle">교무실 금고</b><button id="kpClose" style="margin-left:auto">닫기</button></div>
   <div id="kpDisp">_ _ _ _</div>
@@ -637,7 +661,7 @@
     <button id="mDub">더빙 ON</button>
     <button id="mQuit">게임 종료</button>
   </div>
-  <div id="tFoot">1인칭 공포 어드벤처 · 헤드폰 권장<br><span id="tEnd"></span><a id="testLink" href="?test">테스트 모드로 실행</a></div>
+  <div id="tFoot">1인칭 공포 어드벤처 · 헤드폰 권장<br><span id="tEnd"></span><a id="testLink" href="?test" style="display:none">테스트 모드로 실행</a></div>
 </div></div>
 <div id="newConfirm" class="overlay"><div class="win"><p class="story" style="margin:0 auto 18px">새 게임을 시작하면 저장된 진행 상황이 지워집니다.<br>계속할까요?</p>
   <div style="display:flex;gap:10px;justify-content:center"><button class="btn pri" id="ncYes">새로 시작</button><button class="btn" id="ncNo">취소</button></div></div></div>
@@ -697,7 +721,7 @@
     <h4 style="font-size:11px;letter-spacing:.25em;color:var(--dim);border-bottom:1px solid #2c3640;padding-bottom:4px;margin:14px 0 8px">키 설정 — 버튼을 누른 뒤 원하는 키 (Esc 취소)</h4>
     <div id="keyRemap"></div>
     <div class="keys"><kbd>W A S D</kbd><span>이동 · 마우스로 시선</span><kbd>Shift</kbd><span>달리기 (소리가 납니다)</span><kbd>F · 1</kbd><span>손전등 켜기/끄기</span><kbd>E</kbd><span>줍기 · 읽기 · 문 · 사물함 · 장치 · 계단 오르기</span><kbd>Q</kbd><span>계단 내려가기</span>
-      <kbd>2 · 3</kbd><span>건전지 / 응급 밴드 사용</span><kbd>Tab · I</kbd><span>소지품 (Q/E 탭, Enter 사용, C 조합)</span><kbd>P · 4</kbd><span>휴대폰 (메시지 · 사진 · 메모)</span><kbd>M</kbd><span>지도</span><kbd>V</kbd><span>1인칭 / 3인칭 시점 전환</span><kbd>G</kbd><span>빈 캔 던지기 (소리로 그것을 유인)</span><kbd>Space</kbd><span>사물함 안에서 숨 참기</span><kbd>F (길게)</kbd><span>손전등을 그것에게 비추면 잠시 물러난다 (배터리 소모 큼)</span><kbd>Esc</kbd><span>일시정지 · 저장</span></div></div>
+      <kbd>2 · 3</kbd><span>건전지 / 응급 밴드 사용</span><kbd>Tab · I</kbd><span>소지품 (Q/E 탭, Enter 사용, C 조합)</span><kbd>P</kbd><span>휴대폰 (메시지 · 사진 · 메모)</span><kbd>M</kbd><span>지도</span><kbd>V</kbd><span>1인칭 / 3인칭 시점 전환</span><kbd>G</kbd><span>빈 캔 던지기 (소리로 그것을 유인)</span><kbd>Space</kbd><span>사물함 안에서 숨 참기</span><kbd>F (길게)</kbd><span>손전등을 그것에게 비추면 잠시 물러난다 (배터리 소모 큼)</span><kbd>Esc</kbd><span>일시정지 · 저장</span></div></div>
   <div class="setPage" data-s="sub"><div class="setgrid">
     <h4>음성</h4>
     <span>더빙</span><label><input type="checkbox" id="setDub"> 켜기 (끄면 자막만)</label>
@@ -712,6 +736,7 @@
   <div class="setPage" data-s="acc"><div class="setgrid">
     <h4>게임</h4>
     <span>난이도</span><select id="setDiff"><option value="easy">쉬움 — 그것이 드물게 나타나고 느림, 네 번 잡혀야 쓰러짐</option><option value="normal">보통 — 세 번 잡히면 쓰러짐</option><option value="hard">어려움 — 한 번 붙잡히면 즉시 사망, 더 빠름</option></select>
+    <span>마이크 소리 감지</span><label><input type="checkbox" id="setMic"> 비명 · 소음 주의 — 숨었을 때나 그것이 10m 안에 있을 때 큰 소리를 내면 들킨다 (마이크 권한 필요)</label>
     <h4>접근성</h4>
     <span>점프 스케어</span><select id="setJump"><option value="full">기본</option><option value="soft">약하게 (이미지 없이)</option></select>
     <span>번쩍임 · 글리치</span><label><input type="checkbox" id="setFlash"> 번개 섬광 · 화면 깨짐 효과 줄이기</label>

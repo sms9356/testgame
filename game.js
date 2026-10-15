@@ -19,6 +19,7 @@ import './corridorLockerPatch.js';    // 3D 철제 캐비닛 사물함 · 복도
 import './basementRoomsPatch.js';     // 지하 전기실 · 보일러실 (사용자 제공) → window.basementRoomsPatch
 import './classroomRemodelPatch.js';  // 교실 리모델링 · 의자에 앉기 (사용자 제공) → window.classroomRemodelPatch
 import './subGhostSystem.js';         // 서브 유령 8종 시트지 엔진 (사용자 제공) → window.subGhostSystem
+import './school37RoomsPatch.js';    // 본관 · 별관 37개 특별실 가구 · 동선 (사용자 제공) → window.school37RoomsPatch
 import './poolMachineryPatch.js';     // 수영장 · 남/녀 탈의실·샤워실 · 기계실 철문 (사용자 제공) → window.poolAndMachineryPatch
 import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx } from './audio.js';
 import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js';
@@ -4529,7 +4530,7 @@ function patchTick(dt) {
 }
 function patchRestore() {
   if (FL.fz && FL.fz !== fzP.missions) Object.assign(fzP.missions, FL.fz);
-  FL.fz = fzP.missions; fzApply(); poolRestore();
+  FL.fz = fzP.missions; fzApply(); poolRestore(); s37Restore();
 }
 
 /* ── 10. 지하 전기실 · 보일러실 (basementRoomsPatch.js · 사용자 제공) ──
@@ -4730,10 +4731,10 @@ const SIT = { chair: null, back: null };
   const byRoom = new Map();
   (world.CHAIRS || []).forEach(c => { const k = c.f + ':' + c.room; if (!byRoom.has(k)) byRoom.set(k, []); byRoom.get(k).push(c); });
   byRoom.forEach(list => {
-    const st = list.filter(c => !c.teacher && c.z < -3.3).sort((a, b) => a.z - b.z || a.x - b.x), pick = [];
+    const st = list.filter(c => !c.teacher && Math.abs(c.z) > 3.3).sort((a, b) => Math.abs(b.z) - Math.abs(a.z) || a.x - b.x), pick = [];   /* 남쪽 방도 (|z|) · 뒷줄 사물함 옆은 뺀다 */
     // 앞 · 뒤 · 창가 · 복도 쪽으로 고르게 4개
     [[0, 0], [.33, 1], [.66, 0], [1, 1]].forEach(([q]) => { const c = st[Math.min(st.length - 1, Math.round(q * (st.length - 1)))]; if (c && !pick.includes(c)) pick.push(c); });
-    list.filter(c => c.teacher).forEach(c => pick.push(c));
+    /* 교탁 의자는 앉기 지점을 두지 않는다 — 교탁 위 이야기 소품(캠코더 등)과 조사 지점이 겹친다 */
     pick.forEach((c, i) => {
       const label = c.teacher ? '교탁 의자' : `${c.room} 교실 의자`;
       const data = { id: `chair_${c.f}_${c.room}_${i}`, type: 'classroom_chair', label, promptText: `[E] ${label}에 앉기 (숨기 / 경계)`, chairGroup: { position: V3(c.x, floors[c.f].y0, c.z) },
@@ -4999,11 +5000,93 @@ function sgTick(dt) {
   SG.list.forEach(g => { g.root.visible = g.f === P.floor; });
 }
 
+/* ── 15. 본관 18실 · 별관 19실 (37개 특별실 · 보조실) 가구 · PBR · 동선 (school37RoomsPatch.js · 사용자 제공) ──
+   · 37개 방은 모두 이미 맵에 있다 (본관 B1 4 · 1층 6 · 2층 4 · 3층 4 · 별관 1층 7 · 2층 6 · 3층 6) — 방마다 populateRoomByType 으로 이름에 맞는 가구를 채운다
+   · 겹침 방지: 배치 전에 그 방의 기존 가구 충돌 상자 · 아이템 · 조사 지점 · 사물함 · 그것의 이동 경로 점을 roomOccupancyMap 에 먼저 등록하고,
+     실제 문 위치(문 목록)를 doors 로 넘겨 문 앞 1.65m · 가운데 통로는 클래스의 _canPlaceFurniture 가 비운다 (자리가 없으면 클래스가 그 가구를 건너뛴다)
+   · 남쪽 방은 그룹을 180° 돌려 클래스의 '뒷벽(−z)'이 복도 반대쪽이 되게 한다
+   · 새 가구의 바닥 상자는 게임 충돌(벽 타고 미끄러지는 기존 충돌)에 넣고, 클래스의 resolvePlayerMovementCollision 도 매 프레임 이동 뒤에 부른다
+   · 클래스의 상호작용(promptText 만 있음)은 방 성격대로 실제 동작에 연결: 커튼 침대 숨기 · 소파 숨 고르기(공포 −15%) · 피아노 · 밸브(소리로 그것 유인) · 선반 수색(소모품) · 서류 읽기 · 단말기 · 수도 · 가마 */
+const s37 = window.school37RoomsPatch; s37.init({ scene, audioCtx: sfxCtx });
+Object.values(s37.textures).forEach(srgb);
+const S37 = { rooms: [], props: [], placed: 0, skipped: 0 };
+const S37_LIST = { 4: ['청소도구실', '기계실', '펌프실', '시설 창고'], 0: ['상담실', '교장실', '회의실', '창고', '보건실 보조', '보건실'], 1: ['2층 홀', '창고', '요리실', '교사 휴게실'], 2: ['3층 홀', '학생회실', '상담실', '보관실'],
+  8: ['공구실', '세척실', '자재 창고', '진로상담실 (104)', '창의융합실 (103)', '요리실 (101)', '실습 준비실'], 9: ['과학 준비실', '언어실 (202)', '교재 창고', '상담실', '스마트교실 (203)', '동아리실 (204)'], 10: ['작업실', '음악실 (301)', '보관실', '기자재실', '전시 공간', '공예실 (303)'] };
+const S37_TYPE = { '시설 창고': '시설창고실', '보건실 보조': '보건실보조', '교사 휴게실': '교사휴게실', '2층 홀': '2층홀', '3층 홀': '3층홀', '실습 준비실': '실습준비실', '자재 창고': '자재창고', '진로상담실 (104)': '진로상담실', '창의융합실 (103)': '창의융합실(103)', '요리실 (101)': '요리실(101)', '과학 준비실': '과학준비실', '언어실 (202)': '언어실', '교재 창고': '교재창고실', '스마트교실 (203)': '스마트교실', '동아리실 (204)': '동아리실', '음악실 (301)': '음악실', '전시 공간': '전시공간', '공예실 (303)': '공예실' };
+{
+  const RW = 7.6, RD = 7.5;
+  Object.entries(S37_LIST).forEach(([fs, names]) => {
+    const f = +fs, F = floors[f]; if (!F) return;
+    const an = f >= 8, north = an ? ANNEX.floors[f - 8] : LAYOUT[f], south = an ? ANNEX_S[f - 8] : LAYOUT_S[f], sl = an ? ANNEX.slots : SLOTS;
+    const rooms = []; north && north.names.forEach((n, i) => rooms.push({ n, cx: sl[i], s: 1 })); south && south.names.forEach((n, i) => rooms.push({ n, cx: sl[i], s: -1 }));
+    names.forEach(nm => {
+      const R = rooms.find(r => r.n === nm); if (!R) { console.warn('[37실] 방 없음', f, nm); return; }
+      const cx = R.cx, s = R.s, cz = -s * 5.675, key = `${f}:${cx}:${s}`;
+      const toL = (x, z) => [(x - cx) * s, (z - cz) * s], inR = (x, z) => Math.abs(x - cx) < 3.9 && Math.abs(z - cz) < 3.9;
+      // 1) 기존 점유 등록: 가구 충돌 상자(방 둘레 벽은 빼고) · 아이템 · 조사 지점 · 사물함 · 그것의 경로 점
+      const occ = [];
+      F.col.forEach(c => { const x = (c.x1 + c.x2) / 2, z = (c.z1 + c.z2) / 2; if (!inR(x, z)) return; const w = c.x2 - c.x1, d = c.z2 - c.z1; if (F.walls.includes(c) && Math.max(w, d) > 2) return; const [lx, lz] = toL(x, z); occ.push({ x: lx, z: lz, w, d }); });
+      const pt = (x, z, r = .8) => { if (inR(x, z)) { const [lx, lz] = toL(x, z); occ.push({ x: lx, z: lz, w: r, d: r }); } };
+      world.items.forEach(it => it.floor === f && pt(it.pos.x, it.pos.z));
+      world.props.forEach(p => p.floor === f && pt(p.x, p.z));
+      world.lockers.forEach(l => l.floor === f && pt(l.x, l.z));
+      (F.nodes || []).forEach(n => pt(n.x, n.z, .9));
+      s37.roomOccupancyMap.set(key, occ);
+      // 2) 문: 문 목록에서 이 방 쪽 문을 찾는다 (홀처럼 트인 방은 개구부 전체)
+      let doors = world.doorList.filter(d => d.floor === f && Math.abs(d.x - cx) < 3.5 && Math.sign(d.z) === -s).map(d => ({ x: (d.x - cx) * s, z: RD / 2 }));
+      if (/홀|전시/.test(nm)) doors = [-2.4, -1.2, 0, 1.2, 2.4].map(x => ({ x, z: RD / 2 }));
+      if (!doors.length) doors = [{ x: 0, z: RD / 2 }];
+      const before = s37.walkableColliders.length, beforeI = s37.interactables.length;
+      const g = s37.populateRoomByType({ roomKey: key, roomName: S37_TYPE[nm] || nm, centerPos: V3(cx, F.y0, cz), roomW: RW, roomD: RD, doors });
+      if (!g) return;
+      FLR(f).add(g); g.position.set(cx, 0, cz); g.rotation.y = s > 0 ? 0 : Math.PI;
+      g.traverse(o => { o.userData.dynamic = true; if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } }); g.updateMatrixWorld(true);
+      // 3) 새 가구 바닥 상자 → 게임 충돌 (실제 좌표)
+      const cols = s37.walkableColliders.slice(before);
+      cols.forEach(c => { const x = cx + c.localX * s, z = cz + c.localZ * s; F.col.push({ x1: x - c.width / 2, x2: x + c.width / 2, z1: z - c.depth / 2, z2: z + c.depth / 2, s37: true }); });
+      S37.placed += cols.length;
+      S37.rooms.push({ f, name: nm, cx, cz, s, placed: cols.length });
+      // 4) 상호작용 → 게임 조사 지점
+      s37.interactables.slice(beforeI).forEach((it, k) => {
+        const wp = new THREE.Vector3(); it.mesh.getWorldPosition(wp); const x = wp.x, z = wp.z;
+        const data = { id: `s37_${f}_${cx}_${s}_${k}`, promptText: it.promptText, onInteract: ctx => s37Act(p, ctx) };
+        const p = fzProp(data, f, x + (cx - x) * .25, z + (cz - z) * .25, 1.0, { r: 1.7, s37: true, room: nm });
+        if (/숨기/.test(it.promptText)) { const L = { floor: f, x, z, y: F.y0, dir: { x: Math.sign(cx - x) || 1, z: 0 }, noPick: true, label: '커튼 침대에 숨기' }; world.lockers.push(L); p.hide = L; }
+        S37.props.push(p);
+      });
+    });
+  });
+  console.info(`[37실] 방 ${S37.rooms.length}개 · 새 가구 ${S37.placed}개 배치 (겹치거나 동선을 막는 자리는 건너뜀)`);
+}
+function s37Act(p, ctx) {
+  const t = p.fz.promptText, F = floors[p.floor], pos = V3(p.x, F.y0 + 1, p.z);
+  if (/숨기/.test(t) && ctx.togglePlayerHide) { ctx.togglePlayerHide(); return; }
+  if (/숨 고르기/.test(t)) { if ((p.restT || 0) > performance.now()) { say('아직 숨이 진정되지 않았다 — 조금 뒤에 다시', 2200); return; } p.restT = performance.now() + 60000; P.fear = Math.max(0, P.fear - .15); sfx.breath ? sfx.breath() : sfx.click(); say('소파에 기대 숨을 골랐다 — 공포가 조금 가라앉는다', 3000); return; }
+  if (/피아노/.test(t)) { sfx.musicBox ? sfx.musicBox(2.5, .8) : sfx.stinger(.4); caption('쾅— 건반 소리가 건물 전체에 울려 퍼진다'); fzLure(pos, 26); return; }
+  if (/밸브/.test(t)) { const A = at(p.x, F.y0 + 1.2, p.z); A.pipeKnock ? A.pipeKnock() : A.thump(); shake = Math.max(shake, .25); caption('배관이 쿵쿵 울린다'); fzLure(pos, 18); return; }
+  if (/수색|뒤지기|탐색|파밍|약품장/.test(t)) {
+    if (p.done) return; p.done = true; FL.s37 ||= {}; FL.s37[p.uid] = 1;
+    const loot = ['battery', 'candy', 'medkit', 'matches', 'salt', 'thermos'][Math.floor(Math.random() * 6)];
+    giveItem(loot, 1, true); sfx.pickup(); lootCard(loot, '수색', ITEMS[loot].name, `${p.room}에서 찾았다`); refreshHud(); return;
+  }
+  if (/전원/.test(t)) { sfx.click(); fx.glitch(.2); say('지직— 꺼져 있던 화면에 한 줄이 떠올랐다: "아직 수업 중"', 3600); return; }
+  if (/수도/.test(t)) { sfx.drip(); say('녹물이 콸콸 쏟아지다가 뚝 멈췄다', 2800); return; }
+  if (/전시|작품|명패/.test(t)) { say('유리 너머 상패 — 수상자 이름 한 줄만 날카롭게 긁혀 지워져 있다', 3600); return; }
+  if (/가마|물레/.test(t)) { say('가마 안에 굳은 점토 인형 하나 — 누군가 이름을 새겨 두었다. "하늘"', 3800); return; }
+  say(`${p.room} — 서류는 모두 10월 12일에서 멈춰 있다`, 3400);
+}
+function s37Tick() {   // 클래스의 미끄러짐 충돌 보정 (게임 충돌 다음 · 같은 층 가구만)
+  if (state !== 'playing' || P.hiding || !S37.placed) return;
+  const y0 = floors[P.floor].y0, pp = V3(P.x, y0, P.z); s37.resolvePlayerMovementCollision(pp, .3);
+  if (pp.x !== P.x || pp.z !== P.z) { P.x = pp.x; P.z = pp.z; }
+}
+function s37Restore() { if (FL.s37) S37.props.forEach(p => { if (FL.s37[p.uid]) p.done = true; }); }
+
 function featTick(dt) {
   if (STH) { if (!keys[STH.code] || !target || target.type !== 'stairs' || state !== 'playing') STH = null; else if ((STH.t += dt) > .35) { const d = STH.dir; STH = null; changeFloor(d); } }
   { const pr = $('prompt'), k = STH ? Math.min(1, STH.t / .35) : 0; pr.style.backgroundImage = k > 0 ? `linear-gradient(90deg, rgba(232,200,112,.45) ${k * 100}%, transparent ${k * 100}%)` : ''; }   // 계단 길게 누르기 진행 표시
   for (const p of world.props) if (p.kind === 'pick' && p.done && p.mesh.visible) p.mesh.visible = false;
-  micTick(dt); camTick(dt); sanityTick(dt); trapTick(dt); breakerTick(dt); patchTick(dt); basementTick(dt); poolTick(dt); sitTick(); zoomTick(dt); callTick(dt); sgTick(dt); if ((P.stamInfT || 0) > 0) { P.stamInfT -= dt; if (P.stamInfT < 0) P.stamInfT = 0; P.stamina = 100; P.tired = false; } }
+  micTick(dt); camTick(dt); sanityTick(dt); trapTick(dt); breakerTick(dt); patchTick(dt); basementTick(dt); poolTick(dt); sitTick(); zoomTick(dt); callTick(dt); sgTick(dt); s37Tick(); if ((P.stamInfT || 0) > 0) { P.stamInfT -= dt; if (P.stamInfT < 0) P.stamInfT = 0; P.stamina = 100; P.tired = false; } }
 
 function extrasTick(dt) {
   searchTick(dt); tmpTick(dt); ambientTick(dt); featTick(dt);
@@ -5109,6 +5192,8 @@ $('setReset').onclick = () => { resetSET(); setVolumes({ master: 1, sfx: 1, voic
 document.querySelectorAll('.btn').forEach(b => b.addEventListener('mouseenter', () => sfx.ui()));
 
 /* ---------- 테스트 모드 (?test) ---------- */
+// 37개 특별실 · 보조실 순간이동 (방 문 안쪽에서 방을 바라보게)
+function S37_TP() { return S37.rooms.map(r => [`[37실] ${{ 4: 'B1', 0: '1F', 1: '2F', 2: '3F', 8: '별관 1F', 9: '별관 2F', 10: '별관 3F' }[r.f]} ${r.name}`, { floor: r.f, x: r.cx, z: -r.s * 2.6, yaw: r.s > 0 ? 0 : Math.PI }]); }
 const TP = [
   ['정문 앞 (도로)', { floor: 0, x: 0, z: 76, yaw: 0 }], ['운동장 · 본관 현관', { floor: 0, x: 0, z: 4, yaw: 0 }],
   ['본관 1F 복도', { floor: 0, x: 0, z: 0, yaw: -Math.PI / 2 }], ['본관 2F 복도', { floor: 1, x: 0, z: 0, yaw: -Math.PI / 2 }],
@@ -5119,7 +5204,7 @@ const TP = [
   ['별관 3F', { floor: 10, x: 0, z: 0, yaw: -Math.PI / 2 }], ['서문 앞', { floor: 0, x: -49, z: 32, yaw: Math.PI / 2 }],
   ['1-1 교실 (캠코더)', { floor: 0, x: 8, z: -3, yaw: 0 }], ['B1 펌프실 (명찰)', { floor: 4, x: 32, z: -3, yaw: 0 }], ['방송실 장비실 (민아)', { floor: 2, x: -21.4, z: -5.0, yaw: 0 }],
   ['구역: 경비실', { floor: 0, x: 21.75, z: 65.6, yaw: 0 }], ['구역: 운동장 조회대', { floor: 0, x: -10.2, z: 16.2, yaw: 0 }], ['구역: 과학실 (본관 2층)', { floor: 1, x: 32, z: -2.6, yaw: 0 }],
-  ['구역: 급식실 조리실', { floor: 7, x: -33.5, z: 11.6, yaw: Math.PI / 2 }], ['구역: 옥상 발전기', { floor: 3, x: 14.5, z: 5.2, yaw: -Math.PI / 2 }], ['실내 연결복도', { floor: 0, x: 1.6, z: -11.0, yaw: 0 }], ['B1 전기실 (고압 분전반)', { floor: 4, x: -15.4, z: -3.0, yaw: 0 }], ['B1 보일러실', { floor: 4, x: -21.5, z: -2.6, yaw: 0 }], ['수영장 수조 (청록 수중등)', { floor: 6, x: -36.6, z: 32.6, yaw: Math.PI * .75 }], ['남/녀 탈의실·샤워실 입구', { floor: 6, x: -41.0, z: 34.0, yaw: 0 }], ['기계실 철문', { floor: 6, x: -40.0, z: 47.6, yaw: Math.PI }],
+  ['구역: 급식실 조리실', { floor: 7, x: -33.5, z: 11.6, yaw: Math.PI / 2 }], ['구역: 옥상 발전기', { floor: 3, x: 14.5, z: 5.2, yaw: -Math.PI / 2 }], ['실내 연결복도', { floor: 0, x: 1.6, z: -11.0, yaw: 0 }], ['B1 전기실 (고압 분전반)', { floor: 4, x: -15.4, z: -3.0, yaw: 0 }], ['B1 보일러실', { floor: 4, x: -21.5, z: -2.6, yaw: 0 }], ['수영장 수조 (청록 수중등)', { floor: 6, x: -36.6, z: 32.6, yaw: Math.PI * .75 }], ['남/녀 탈의실·샤워실 입구', { floor: 6, x: -41.0, z: 34.0, yaw: 0 }], ['기계실 철문', { floor: 6, x: -40.0, z: 47.6, yaw: Math.PI }], ...S37_TP(),
   ['교무실 금고', { floor: 0, x: -10.4, z: -8.0, yaw: Math.PI / 2 }], ['도서실 서랍 (자물쇠 따기)', { floor: 0, x: 32.6, z: -7.4, yaw: 0 }], ['과학실 약품장 (다이얼)', { floor: 1, x: 31, z: -4.8, yaw: Math.PI / 2 }],
   ['체육관 기구함 (다이얼)', { floor: 5, x: 30.6, z: 20.6, yaw: Math.PI / 2 }], ['수영장 배수구 (갈고리)', { floor: 6, x: -41.5, z: 46.9, yaw: 0 }], ['음악실 피아노', { floor: 2, x: 34.2, z: -6.2, yaw: 0 }], ['미술실 그림 퍼즐', { floor: 2, x: 25, z: -4.6, yaw: 0 }], ['보건실 녹음기', { floor: 0, x: -26.4, z: -4.6, yaw: Math.PI / 2 }], ['B1 전기실', { floor: 4, x: -16, z: -4, yaw: Math.PI / 2 }], ['3-3 교실', { floor: 2, x: -8, z: -3, yaw: 0 }], ['음악실', { floor: 2, x: 32, z: -3, yaw: 0 }],
 ];
@@ -5167,7 +5252,7 @@ if (DEBUG) {
     interact, findInteract, hit, die, activateGhost, enrage, FL, MG, throwCan, throws, set playTime(v) { playTime = v; }, toggleView, get view() { return view; }, useProp, docs, msgs, clues, objective, makeGateKey, openInv, openPhone, openMap, openCharsel, openSettings, refreshHud, save, load, inv, mina,
     get power() { return power; }, set power(v) { power = v; }, get CHAR() { return CHAR; }, newGame, continueGame,
     setTarget(t) { target = t; }, DAY, GEN, SIDEQUESTS, sqStep, sqDoneCount, useSideQuest, HEADQUEST, useHead, COLLECT, paraEvent, toiletFx, tmpFx, TE, roomAt, camMode, camShoot, CAM, MIC, SAN, BRK, setBreaker, schoolPower, craftingSystem, ghostCam, restroom, useSink, useFlush, placeAlarm, throwShock, useFirstAid, tryCombine, stunGhost, lockerSearchStart, enterLocker, leaveLocker, startSearch, useMiniSpot, openChalk, chalkAsk, XT,
-    SG, sgTestSpawn, PL, CALL, SIT, ZOOM, SHOT, closeUI, TP, objective, whereText, FLOOR_LABEL,
+    SG, sgTestSpawn, PL, CALL, SIT, ZOOM, SHOT, closeUI, TP, objective, whereText, FLOOR_LABEL, S37,
     get target() { return target; },
   };
 }

@@ -1931,7 +1931,7 @@ export function buildWorld(scene) {
   let curSouth = false;
   function southRoom(cx, fn) {
     const F = cur, real = F.interior, g = new THREE.Group(); g.position.x = 2 * cx; g.rotation.y = Math.PI; real.add(g);
-    const n = { models: MODELS.length, col: F.col.length, walls: F.walls.length, dw: (F.doorWalls || []).length, props: props.length, items: items.length, doors: doors.length, dl: doorList.length, lockers: lockers.length, books: (F.books || []).length, sparks: (F.sparks || []).length };
+    const n = { models: MODELS.length, col: F.col.length, walls: F.walls.length, dw: (F.doorWalls || []).length, props: props.length, items: items.length, doors: doors.length, dl: doorList.length, lockers: lockers.length, books: (F.books || []).length, sparks: (F.sparks || []).length, chairs: CHAIRS.length };
     const refKeys = new Set(Object.keys(boardRefs));
     F.interior = g; curSouth = true;
     try { fn(); } finally { F.interior = real; curSouth = false; }
@@ -1946,7 +1946,7 @@ export function buildWorld(scene) {
       if (o.dir) o.dir = { x: -o.dir.x, z: -o.dir.z };
       if (o.rect) tr(o.rect);
     };
-    [MODELS.slice(n.models), F.col.slice(n.col), F.walls.slice(n.walls), (F.doorWalls || []).slice(n.dw), props.slice(n.props), items.slice(n.items), doors.slice(n.doors), doorList.slice(n.dl), lockers.slice(n.lockers), (F.sparks || []).slice(n.sparks)].forEach(l => l.forEach(tr));
+    [MODELS.slice(n.models), F.col.slice(n.col), F.walls.slice(n.walls), (F.doorWalls || []).slice(n.dw), props.slice(n.props), items.slice(n.items), doors.slice(n.doors), doorList.slice(n.dl), lockers.slice(n.lockers), (F.sparks || []).slice(n.sparks), CHAIRS.slice(n.chairs)].forEach(l => l.forEach(tr));   /* 의자(앉기)도 남쪽 방 좌표로 */
     Object.keys(boardRefs).filter(k => !refKeys.has(k)).forEach(k => tr(boardRefs[k]));
     if (F.books) { g.updateMatrix(); F.books.slice(n.books).forEach(b => b.m.premultiply(g.matrix)); }
   }

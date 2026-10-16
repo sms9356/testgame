@@ -184,7 +184,7 @@ test('paving: narrowed warm gray range and genuinely finer speckle sizes', async
     Number(m[2]) >= Number(m[1]) && Number(m[2]) < 9), 'fine speckle min and max both shrink from 2..9');
 });
 
-const patches = ['classroomRemodelPatch.js', 'basementRoomsPatch.js', 'school37RoomsPatch.js',
+test('signs: long text fits and damage speckles stay fine', async () => { const tex = await source('tex.js'); const m = tex.match(/export const makeSign =([\s\S]*?)(?=\/\/ 태극기)/); assert.ok(m); const makeSign = new Function('ctex','FONT','speckle', 'return (' + m[1].trim().replace(/;$/, '') + ');')((w,h,paint) => { const result = {}, g = { font: '', fillRect() {}, strokeRect() {}, measureText(t) { return { width: String(t).length * Number(this.font.match(/[\d.]+/)[0]) * .7 }; }, fillText(t,x,y,maxWidth) { Object.assign(result, { text:t, maxWidth, font:this.font, width:this.measureText(t).width }); } }; paint(g,w,h); return result; }, 'sans-serif', (g,w,h,n,cols,smin,smax,amax) => { assert.ok(smin > 0 && smax <= 1.5 && amax <= .1); }); for (const text of ['음악실','서 문 고 등 학 교','본관 북쪽 연결 통로 및 별관 안내']) { const r = makeSign(text, '#222', '#ddd', 40); assert.equal(r.maxWidth, 236); assert.ok(r.width <= 236.001); } }); const patches = ['classroomRemodelPatch.js', 'basementRoomsPatch.js', 'school37RoomsPatch.js',
   'poolMachineryPatch.js', 'indoorPassagePatch.js', 'new37UniquePatch.js'];
 for (const file of patches) {
   test(`${file}: local makeTex assigns SRGBColorSpace before returning texture`, async () => {

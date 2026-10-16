@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as THREE from '../vendor/three.module.js';
-import { installInfirmaryAssets } from '../infirmaryAssets.js';
+import { installInfirmaryAssets, updateInfirmaryCabinets } from '../infirmaryAssets.js';
+import { readFile } from 'node:fs/promises';
 
 function fixture(kind = 'bed', count = 1) {
   const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera();
@@ -201,3 +202,52 @@ test('batch grouping honors distinct authored cast/receive flags', async () => {
   });
   assert.equal(f.mesh.castShadow, false); assert.equal(f.mesh.receiveShadow, false);
 });
+
+
+test('cabinet closed/open state waits for successful models and follows restored loot state', () => {
+  let done = false;
+  const view = { closedId: 'closed', openId: 'open', closedHolder: new THREE.Group(), openHolder: new THREE.Group(), fallback: new THREE.Group(), getOpen: () => done };
+  const records = [{ id: 'closed', status: 'loading' }, { id: 'open', status: 'loading' }];
+  updateInfirmaryCabinets([view], records);
+  assert.equal(view.closedHolder.visible, true); assert.equal(view.openHolder.visible, false); assert.equal(view.fallback.visible, true);
+  records[0].status = 'ready'; updateInfirmaryCabinets([view], records);
+  assert.equal(view.fallback.visible, false);
+  done = true; updateInfirmaryCabinets([view], records);
+  assert.equal(view.closedHolder.visible, true); assert.equal(view.openHolder.visible, false);
+  records[1].status = 'ready'; updateInfirmaryCabinets([view], records);
+  assert.equal(view.closedHolder.visible, false); assert.equal(view.openHolder.visible, true); assert.equal(view.fallback.visible, false);
+  done = false; updateInfirmaryCabinets([view], records);
+  assert.equal(view.closedHolder.visible, true); assert.equal(view.openHolder.visible, false);
+});
+
+test('cabinet model failures preserve either loaded closed model or original fallback', () => {
+  const view = { closedId: 'closed', openId: 'open', closedHolder: new THREE.Group(), openHolder: new THREE.Group(), fallback: new THREE.Group(), getOpen: () => true };
+  const records = [{ id: 'closed', status: 'ready' }, { id: 'open', status: 'error' }];
+  updateInfirmaryCabinets([view], records);
+  assert.equal(view.closedHolder.visible, true); assert.equal(view.openHolder.visible, false); assert.equal(view.fallback.visible, false);
+  records[0].status = 'error'; updateInfirmaryCabinets([view], records);
+  assert.equal(view.fallback.visible, true);
+});
+
+for (const [file, limits, repaired] of [
+  ['infirmary_bed.glb', [2.2, 1.1, .9], 40],
+  ['medicine_cabinet_closed.glb', [1.0, .6, 1.85], 0],
+  ['medicine_cabinet_open.glb', [1.45, .9, 1.85], 30]
+]) {
+  test('bundled GLB validation: ' + file, async () => {
+    const buf = await readFile(new URL('../assets/infirmary/' + file, import.meta.url));
+    assert.equal(buf.readUInt32LE(0), 0x46546c67); assert.equal(buf.readUInt32LE(4), 2); assert.equal(buf.readUInt32LE(8), buf.length);
+    const jsonLength = buf.readUInt32LE(12); assert.equal(buf.readUInt32LE(16), 0x4e4f534a);
+    const gltf = JSON.parse(buf.subarray(20, 20 + jsonLength).toString('utf8').trim());
+    assert.equal(gltf.asset.version, '2.0'); assert.equal(gltf.asset.extras.asideCorrection.correctedParts, repaired);
+    assert.equal((gltf.animations || []).length, 0);
+    assert.ok(gltf.images.length && gltf.images.every(image => image.bufferView !== undefined));
+    const min = [Infinity, Infinity, Infinity], max = [-Infinity, -Infinity, -Infinity];
+    for (const mesh of gltf.meshes) for (const primitive of mesh.primitives) {
+      assert.ok(primitive.attributes.NORMAL !== undefined && primitive.attributes.TEXCOORD_0 !== undefined);
+      const a = gltf.accessors[primitive.attributes.POSITION];
+      for (let k = 0; k < 3; k++) { assert.ok(Number.isFinite(a.min[k]) && Number.isFinite(a.max[k])); min[k] = Math.min(min[k], a.min[k]); max[k] = Math.max(max[k], a.max[k]); }
+    }
+    for (let k = 0; k < 3; k++) assert.ok(max[k] - min[k] <= limits[k], file + ': oversized axis ' + k);
+  });
+}

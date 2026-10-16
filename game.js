@@ -1,6 +1,6 @@
 // 폐교 — 잊혀진 시간 : 1인칭 학교 공포 게임 (Three.js)
 import * as THREE from './vendor/three.module.js';
-import { elevatorLocal, elevatorWorld, elevatorRoute } from './elevatorLayout.js';
+import { elevatorLocal, elevatorWorld, elevatorRoute, restoreOutsideElevatorBay } from './elevatorLayout.js';
 import { buildMissionGroups, recordCompleted, normalizeCompletedLog } from './mysteryMissions.js';
 import { createPsychologicalDirector, PHENOMENON_LABELS } from './psychologicalHorror.js';
 import { settleStoryGhost, tickStoryGhost, showStoryGhost } from './storyGhost.js';
@@ -845,7 +845,7 @@ function mapExtras(f) {
   return {
     doors: [ ...world.doorList.filter(d => d.floor === f).map(d => ({ x: d.x, z: d.kind === 'slide' ? (d.z > 0 ? 1.55 : -1.55) : d.z, open: d.target > .5, slide: d.kind === 'slide' })), ...world.doors.filter(d => d.floor === f && d.to).map(d => ({ x: d.x, z: d.z, transition: true })), ],
     props: world.props.filter(p => p.floor === f && p.kind !== 'bell' && p.kind !== 'switch' && p.kind !== 'robj' && p.kind !== 'search' && p.kind !== 'chalk').map(p => ({ x: p.x, z: p.z, done: !!p.done, label: { safe: '금고', breaker: '차단기', console: '방송 장비', tape: '녹음기', mina: '민아', lock: '잠긴 보관함', drain: '배수구', piano: '피아노', easel: '그림', phone: '전화', elevator: '엘리베이터', mspot: '🎲' }[p.kind] })),
-    target: mapTarget(f), zones: ZONE_MAP[f] || [],
+    elevatorBay:floors[f]?.elevatorBay, target: mapTarget(f), zones: ZONE_MAP[f] || [],
   };
 }
 function renderMap() {
@@ -1079,7 +1079,7 @@ function teleport(to) {
 }
 function changeFloor(dir) {
   const info = STAIRS[P.floor]; const nf = info && (dir > 0 ? info.up : info.down); if (nf == null) return;
-  const sz = floors[nf].stairZone; teleport(nf === 3 ? { floor: 3, x: 0, z: -7.5, yaw: 0 } : { floor: nf, x: sz ? sz.spawn.x : 2.2, z: sz ? sz.spawn.z : -5.2, yaw: Math.PI });
+  const sz = floors[nf].stairZone; teleport(nf === 3 ? { floor: 3, x: 0, z: -7.5, yaw: 0 } : { floor: nf, x: sz ? sz.spawn.x : (floors[nf].stairCx||0)+.8, z: sz ? sz.spawn.z : -5.2, yaw: Math.PI });
 }
 // 가구 높이: 발이 윗면보다 높으면 그 가구는 막지 않는다 · 발 아래 윗면이 지지면
 // 낮은 단(계단 한 단 높이 STEP_UP 이하: 현관 계단 · 단상 등)은 그냥 걸어 올라가고, 그보다 높은 가구는 점프로 오른다
@@ -1597,7 +1597,7 @@ function load(preferBackup) {
   if (CHARACTERS[d.meta.char]) { CHAR = d.meta.char; try { localStorage.setItem('haegyo_char', CHAR); } catch (e) { /* ignore */ } }
   applyChar();
   // 2) 플레이어 · 진행
-  Object.assign(P, d.player); P.hiding = null; $('hide').classList.remove('show');$('peekEye').classList.remove('on');
+  Object.assign(P, d.player);if(restoreOutsideElevatorBay(P,floors[P.floor]?.elevatorBay)){P.sh=P.shV=P.jy=P.jyV=P.vy=0;} P.hiding = null; $('hide').classList.remove('show');$('peekEye').classList.remove('on');
   got.splice(0, TOTAL, ...d.progress.got.slice(0, TOTAL).map(Boolean));
   Object.assign(inv, d.inv); Object.assign(FL, d.progress.FL || {}); power = !!d.progress.power;
   msgs.length = 0; msgs.push(...(d.msgs || [])); clues.length = 0; clues.push(...(d.clues || []));
@@ -4401,7 +4401,7 @@ const ZONE_MAP = { 0: [[21.75, 61.6, '경비실 · 정문 개폐기'], [-11, 15.
   1: [[32, -6.2, '과학실 · 시약'], [28.8, -8.6, '골격 모형']], 3: [[19, 2.3, '비상발전기'], [21.1, -4.2, '안테나']], 7: [[-37.4, 9.4, '냉동창고'], [-45.4, 11.6, '국솥'], [-40.6, 10.2, '가스 화구']] };
 
 /* ── 8. 실내 연결복도: 유리 통로(x -1.6 ~ 3.6) 안쪽에 막힌 실내 복도(폭 3.4m · 천장 2.9m)를 짓는다 ──
-   본관 계단실 북문(x 1.8) · 별관 현관(x 0)이 모두 안에 들어오게 가운데 x 0.8. 방화문은 별관 현관 바로 앞(z −12.95) — 닫으면 별관 출입이 막힌다 */
+   본관 계단실 북문(x 1.25) · 별관 현관(x 0)이 모두 안에 들어오게 가운데 x 0.8. 방화문은 별관 현관 바로 앞(z −12.95) — 닫으면 별관 출입이 막힌다 */
 // 사물함 수색 지점 앞에 가구가 붙어 설 자리가 없으면(예전엔 벽 너머에서만 고를 수 있었다) 옆으로 설 자리가 있는 곳까지 지점을 민다
 world.props.filter(q => q.kind === 'search').forEach(q => {
   const F = floors[q.floor]; if (!F || Math.abs(q.z) < 1.8) return; const into = q.z < 0 ? -1 : 1, R = .32;   // 교실 사물함만 (복도 사물함은 복도 쪽을 본다)

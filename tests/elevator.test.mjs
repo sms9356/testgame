@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import vm from 'node:vm';import crypto from 'node:crypto';
-import {elevatorLocal,elevatorWorld,elevatorRoute} from '../elevatorLayout.js';
+import {elevatorLocal,elevatorWorld,elevatorRoute,elevatorBay,restoreOutsideElevatorBay} from '../elevatorLayout.js';
 test('west-facing cabin and real landing share position and direction without a portal',()=>{
  for(const p of [{px:2,pz:-7},{px:-14,pz:-7}])for(const [x,z] of [[0,-1],[.2,-.3],[-.2,.5]]){
   const world=elevatorWorld(p,x,z);const local=elevatorLocal(p,world.x,world.z);assert.ok(Math.abs(local.x-x)<1e-10&&Math.abs(local.z-z)<1e-10);
@@ -21,4 +21,12 @@ test('a destination cannot start travel while a passenger is standing in the doo
  let notices=0;const ctx={ELV:{moving:false,p:{px:2,pz:-7},cur:0},P:{x:1.9,z:-7},sfx:{elevatorButton(){}},performance:{now:()=>0},setTimeout(){},elevatorLocal,say(){notices++;}};
  vm.createContext(ctx);vm.runInContext(extract('async function elvPress(b){','// 카 안 조준:'),ctx);
  await ctx.elvPress({a:'f',f:2,mesh:{material:{color:{setHex(){}}}}});assert.equal(ctx.ELV.moving,false);assert.equal(notices,1);
+});
+
+test('reserved shafts enclose the cabin behind a flush wall while retaining the stair landing',()=>{
+ for(const cx of [0,-16]){const b=elevatorBay(cx);assert.ok(b.doorX>b.front);assert.ok(b.doorX+1.65<b.rear);assert.ok(b.clearSpawnX+.32<b.front);assert.ok(b.front-(cx-1.2)>3);}
+});
+test('legacy saves inside the reserved shaft recover to the clear landing',()=>{
+ const b=elevatorBay(-16),p={x:-13,z:-5.2};assert.equal(restoreOutsideElevatorBay(p,b),true);assert.ok(p.x+.32<b.front);assert.equal(p.z,b.doorZ);
+ const safe={x:-16,z:-5};assert.equal(restoreOutsideElevatorBay(safe,b),false);assert.deepEqual(safe,{x:-16,z:-5});
 });

@@ -74,6 +74,8 @@ export function drawMap(ctx, W, H, o) {
     ctx.fillStyle = '#d8d8d0'; ctx.fillRect(X(sx), Y(-8), 5 * S * .5, 6 * S * .4);
     if (labels) { ctx.fillStyle = '#111'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('계단', X(sx + 2.5), Y(-6.2)); }
   }
+  if(o.elevatorBay){const b=o.elevatorBay;fillRect(b.front,b.z1,b.rear,b.z2,'#23282c');strokeRect(b.front,b.z1,b.rear,b.z2,'#83919a');
+    if(labels){ctx.fillStyle='#b5c8d0';ctx.font='10px sans-serif';ctx.textAlign='center';ctx.fillText('승강로',X((b.front+b.rear)/2),Y(b.doorZ));}}
   lockers.forEach(l => { ctx.fillStyle = '#9a6ad8'; ctx.fillRect(X(l.x) - 2, Y(l.z) - 2, 4, 4); });
   // 문 상태 (열림: 초록 / 닫힘: 빨강)
   doors.forEach(d => { ctx.fillStyle = d.transition ? '#74b9e8' : d.open ? '#5fc47a' : '#b04040'; const w = Math.max(4, (d.slide ? 1.4 : .9) * S); ctx.fillRect(X(d.x) - w / 2, Y(d.z) - 1.5, w, 3); });

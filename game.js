@@ -605,6 +605,24 @@ function objMini(o) {
 }
 $('objTog').onclick = e => { e.stopPropagation(); objModeCycle(); };
 $('objTab').onclick = e => { e.stopPropagation(); SET.objMode = 'hidden'; objModeCycle(); };
+// 목표 바: 끝낸 항목은 '완료된 목표' 목록으로 빼고, 지금 할 일만 남긴다 (주 미션 · 선택 미션 · 의뢰 · 구역 미션별). 완료 목록은 저장되고 클릭(또는 K 키)으로 펼친다
+const DONE_SEC = { subs: '주 미션', optSubs: '선택 미션', sqSubs: '의뢰', zoneSubs: '구역 미션' };
+let objDoneOpen = false;
+function objDoneSplit() {
+  FL.doneLog ||= [];
+  Object.entries(DONE_SEC).forEach(([id, sec]) => {
+    const el = $(id); if (!el) return;
+    el.querySelectorAll('.chk.done').forEach(c => { const t = c.textContent.trim(); if (t && !FL.doneLog.some(d => d.t === t)) { FL.doneLog.push({ s: sec, t, ch: objective().ch }); if (FL.doneLog.length > 80) FL.doneLog.shift(); } c.remove(); });
+    const box = id === 'subs' ? null : el.parentElement;   // 남은 항목이 없는 상자는 숨긴다 (주 미션 목록은 메인 목표 아래라 그대로)
+    if (box && box.style.display !== 'none' && !el.children.length) box.style.display = 'none';
+  });
+  let d = $('objDone');
+  if (!d) { d = document.createElement('div'); d.id = 'objDone'; $('objP').appendChild(d); d.onclick = e => { e.stopPropagation(); objDoneOpen = !objDoneOpen; objDoneSplit(); }; }
+  const L = FL.doneLog, by = {};
+  L.forEach(x => (by[x.s] ||= []).push(x.t));
+  d.style.display = L.length ? '' : 'none';
+  d.innerHTML = `<b>✓ 완료된 목표 ${L.length}</b> <span class="odT">${objDoneOpen ? '▾ 접기' : '▸ 펼치기'} <kbd>K</kbd></span>` + (objDoneOpen ? Object.entries(by).map(([sec, ts]) => `<div class="odS">${sec}</div>` + ts.slice(-8).map(t => `<div class="chk done">${t}</div>`).join('')).join('') : '');
+}
 function refreshHud() {
   const o = objective();
   if (o.ch !== chapterShown) { const prev = chapterShown; chapterShown = o.ch; if (prev && state === 'playing') { showChapter(o.ch); sfx.alert && o.ch > 1 && toast('새로운 장', CHAPTERS[o.ch - 1].title, 'info'); } }
@@ -621,6 +639,7 @@ function refreshHud() {
   $('sqSubs').innerHTML = aq.slice(0, 3).map(q => `<div class="chk">${q.title} — ${q.steps[sqStep(q.id)].goal}</div>`).join('') + (aq.length > 3 ? `<div class="chk" style="opacity:.6">외 ${aq.length - 3}건 (휴대폰 › 사건)</div>` : '');
   $('c2').textContent = inv.battery; $('c3').textContent = inv.medkit; $('c5').textContent = inv.can; $('s5').classList.toggle('off', !inv.can); $('c4').textContent = FL.gatekey ? '열쇠' : `${P.keys}/${TOTAL}`;
   $('s2').classList.toggle('off', !inv.battery); $('s3').classList.toggle('off', !inv.medkit); $('s4').classList.toggle('off', !P.keys);
+  objDoneSplit();
   const un = msgs.filter(m => !m.read).length; $('phoneBadge').textContent = un; $('phoneBadge').classList.toggle('on', un > 0);
   const con = world.props.find(p => p.kind === 'console'); if (con) con.label = FL.calm ? '방송 장비 (조용하다)' : FL.tag && power ? '하늘을 위해 하교 방송하기' : '방송 장비 사용';
 }
@@ -1469,6 +1488,7 @@ addEventListener('keydown', e => {
   if (e.code === 'F5') { e.preventDefault(); phoneTool('save'); return; }
   if (e.code === K().scan) { scanAround(); return; }
   if (e.code === K().quest) { objModeCycle(); return; }
+  if (e.code === 'KeyK') { objDoneOpen = !objDoneOpen; objDoneSplit(); return; }
   if (CALL.ring && (e.code === K().phone || e.code === 'Backspace')) { e.preventDefault(); e.code === 'Backspace' ? callDecline(false) : callAnswer(); return; }   // 걸려 온 전화: P 받기 · Backspace 끊기
   if (e.code === K().phone) { openPhone(msgs.some(m => !m.read) ? 'msg' : phoneTab); return; }
   if (TEST && e.code === 'KeyT') { openTest(); return; }
@@ -1926,7 +1946,7 @@ function updateLighting(dt) {
   });
   // 손전등
   const near = ghost.active && ghost.floor === P.floor ? clamp(1 - Math.hypot(ghost.x - P.x, ghost.z - P.z) / 9, 0, 1) : 0;
-  let fi = P.light && P.battery > 0 ? 80 : 0;
+  let fi = P.light && P.battery > 0 ? 45 : 0;   // 80 → 45: 모든 면이 번들거리던 반사 줄이기
   if (P.battery < 15 && fi) fi *= .72 + .28 * Math.sin(tNow * 11) * Math.sin(tNow * 2.7 + 1);   // 부드러운 깜빡임
   if (P.light && P.battery <= 0) { fi = 42; flash.distance = 14; } else flash.distance = 32;   // 배터리가 다 떨어지면 휴대폰 불빛
   if (near > .4 && fi && Math.random() < near * .12) fi = 0;
@@ -1936,9 +1956,10 @@ function updateLighting(dt) {
   setCoil(fi ? repelK : 0); if (repelK > .05) shake = Math.max(shake, .22 * repelK);
   if (CAM.on) fi *= .3;   // 심령 카메라: 야간 투시라 손전등 빛을 줄인다 (흔적이 묻히지 않게)
   // 가까운 벽 · 가구를 비출 때 하얗게 날아가던 반사: 앞쪽 장애물까지 거리에 따라 세기를 줄인다 (2.5m 안)
-  const nd = flashNear(), nk = nd < 2.5 ? clamp(Math.pow(nd / 2.5, 1.5), .07, 1) : 1;   /* 거리 감쇠(decay 1.3)를 상쇄 → 가까워도 비친 면 밝기가 거의 같다 */
+  const nd = flashNear(), nk = nd < 3.5 ? clamp(Math.pow(nd / 3.5, 2), .03, 1) : 1;   /* 거리 감쇠(decay 1.3)를 상쇄 → 가까워도 비친 면 밝기가 거의 같다 */
   flash.intensity = fi * nk;
-  spill.intensity = fi ? (fi / 95) * 1.2 * Math.max(.12, nk) : 0;
+  spill.intensity = fi ? (fi / 95) * .8 * Math.max(.12, nk) : 0;
+  antiGlareTick();
 }
 
 // 손전등 앞 장애물까지 거리 (2D 충돌 상자 · 0.1초마다): 시선 방향으로 0.1m 씩 3m 까지
@@ -1948,8 +1969,23 @@ function flashNear() {
   const F = floors[P.floor], fx0 = -Math.sin(P.yaw), fz0 = -Math.cos(P.yaw), down = Math.max(0, -P.pitch);
   let d = 9; const floorD = down > .25 ? 1.55 / Math.tan(down) : 9;   /* 바닥을 비추면 바닥까지 거리 */
   for (let s = .1; s < 3; s += .1) { const x = P.x + fx0 * s, z = P.z + fz0 * s; if (F.col.some(c => !c.off && x >= c.x1 && x <= c.x2 && z >= c.z1 && z <= c.z2)) { d = s; break; } }
+  // 충돌 상자가 없는 벽 · 칸막이 · 가구(메시)도: 시선 광선으로 3m 안 실제 면까지 거리
+  FN.ray.set(camera.getWorldPosition(FN.v), camera.getWorldDirection(FN.w)); FN.ray.far = 3;
+  const hitM = FN.ray.intersectObjects([F.interior, F.shell, world.OUT].filter(Boolean), true).find(h => h.object.visible && h.object.isMesh && !(h.object.material && h.object.material.transparent && h.object.material.opacity < .5));
+  if (hitM) d = Math.min(d, hitM.distance);
   return (FN.d = Math.min(d, floorD));
 }
+FN.ray = new THREE.Raycaster(); FN.ray.camera = camera; FN.v = new THREE.Vector3(); FN.w = new THREE.Vector3();
+// 반사 줄이기: 손전등이 닿는 불투명 재질은 거칠기 하한(0.62)을 두어 반짝이는 하이라이트(타일 · 니스 칠 · 금속)가 하얗게 터지지 않게 한다.
+// 유리 · 물 · 거울(투명 · 아주 매끈하게 일부러 만든 것)은 그대로. 나중에 불러오는 모델도 5초마다 새 재질만 처리
+const AG = { seen: new WeakSet(), t: 0 };
+function antiGlare(root) {
+  root.traverse(o => { if (!o.isMesh) return; (Array.isArray(o.material) ? o.material : [o.material]).forEach(m => {
+    if (!m || AG.seen.has(m)) return; AG.seen.add(m);
+    if (!m.isMeshStandardMaterial || m.transparent || m.roughness < .12 || /water|glass|mirror|pool/i.test(m.name || '')) return;
+    m.roughness = Math.max(m.roughness, .62); m.metalness = Math.min(m.metalness, .5); m.envMapIntensity = Math.min(m.envMapIntensity ?? 1, .6); }); });
+}
+function antiGlareTick() { const now = performance.now(); if (now - AG.t < 5000) return; AG.t = now; antiGlare(scene); }
 
 // 비상 발전기: 전력 복구 전에는 건물 조명이 지하 발전기로 돌아간다 — 누런 빛, 아주 약한 전압 출렁임,
 // 수십 초마다 발전기가 헛돌며 층 전체 조명이 함께 처지고(비상등이 켜짐) 다시 올라온다. 복구 후에는 드물고 약하게.
@@ -2374,6 +2410,7 @@ async function useProp(p) {
     const r = await mini('fishing', {}); if (!r.ok) { say('갈고리가 미끄러졌다… 다시 해 보자', 2000); return; }
     p.done = true; sfx.splash(); const it = world.items.find(i => i.kind === 'key' && i.idx === 4);
     it.locked = false; setTarget({ type: 'item', it, label: '' }); interact();
+  } else if (p.kind === 'passSwitch') { usePassSwitch();
   } else if (p.kind === 'piano') {
     const r = await mini('piano', { melody: [4, 4, 5, 5, 4, 4, 2], sheet: (docs.some(d => d.id === 'n18') || (p.fails || 0) >= 2) ? '솔 솔 라 라 솔 솔 미' : null, onFail: () => { p.fails = (p.fails || 0) + 1; } });
     if (!r.ok) return;
@@ -2746,6 +2783,12 @@ async function mini(kind, opts) {
   const r = await runMini(kind, opts);
   if (state === 'ui') { state = 'playing'; refreshHud(); lock(); }
   return r;
+}
+function usePassSwitch() {
+  sfx.click(); PASS.lightOn = !PASS.lightOn;
+  if (ipP.state.blackoutTriggered && PASS.lightOn) { ipP.ceilingLights.forEach((l, i) => setTimeout(() => { l.intensity = .7; setTimeout(() => { l.intensity = .05; }, 120); }, i * 90)); say('딸깍— 형광등이 한 번 깜빡이고 다시 꺼졌다. 전기가 약하다', 2600); PASS.lightOn = false; return; }
+  ipP.ceilingLights.forEach((l, i) => setTimeout(() => { l.intensity = PASS.lightOn ? .85 : 0; }, i * 70));
+  say(PASS.lightOn ? '딸깍— 복도 형광등이 차례로 켜진다' : '딸깍— 복도가 어두워졌다. 어둠 속이 더 안전할지도', 2200);
 }
 async function openLock(p) {
   if (p.lockType === 'pick') {
@@ -3918,7 +3961,7 @@ function buildBreakers() {
 async function useCBreaker(p) {
   const box = p.box;
   box.onInteract(PS, notify, async () => {   // 클래스의 상호작용 → 스위치 미니게임 → restorePower
-    sfx.click(); const r = await mini('timing', { title: '배전반 — 스위치를 눈금에 맞춰 올려라' }); if (!r.ok) { sfx.spark(); say('스파크가 튄다 — 실패', 1500); return; }
+    sfx.click(); const r = await mini('fuse', { title: '배전반 — 퓨즈를 모두 살려라' }); if (!r.ok) { sfx.spark(); P.noiseT = 1.2; say('스파크가 튄다 — 소리가 복도로 퍼졌다', 1800); return; }
     schoolPower.restorePower(notify); box.isRestored = true; box.led.material.color.setHex(0x22ff44); setBreaker(p.floor, true); sfx.breaker(); P.noiseT = 1.5;
   });
 }
@@ -4381,6 +4424,38 @@ function inPassage() { return P.floor === 0 && P.x > PASS.x1 && P.x < PASS.x2 &&
   frame(-10.55, .05); frame(PASS_DOOR + 2.2, .03); PASS.frame = frame(PASS.frameZ, -.07);
   const board = pbox(.04, .7, 1.0, PM(0x2a4a34, .9), -.78, 1.6, PASS_DOOR + .55, O, { rx: .04 });
   for (let k = 0; k < 4; k++) pmesh(new THREE.PlaneGeometry(.2, .27), PM(0xe0d8c0, .9), .025, (k % 2) * .25 - .1, -.3 + k * .18, board, { ry: Math.PI / 2, rz: (Math.random() - .5) * .2, cast: false });
+  // ── 긴 창문 (밖의 안뜰이 보인다): 클래스의 통짜 옆벽을 숨기고, 허리벽 · 창틀 · 기둥 · 상인방으로 다시 짓는다 ──
+  //    창: 서쪽 [-18.7, -16.2] · [-14.2, -11.4] (가운데 스팀 밸브 · 끝의 게시판 · 청소도구함 자리는 벽) · 동쪽 [-16.9, -13.4]
+  eWall.visible = wWall.visible = false;
+  { const mLow = PM(0x42524c, .85), mUp = PM(0xb8b3a6, .92), mRail = PM(0x2b241d, .7), mFr = PM(0x6a6e6c, .45, .6);
+    const mGlass = new THREE.MeshStandardMaterial({ color: 0x9ab0b8, roughness: .08, metalness: .1, transparent: true, opacity: .16, depthWrite: false, side: THREE.DoubleSide, name: 'passGlass' });
+    const z0 = WALKWAY.z1, z1 = WALKWAY.z2, SILL = 1.0, HEAD = 2.3, H = 2.9;
+    const WIN = { w: [[-18.7, -16.2], [-14.2, -11.4]], e: [[-16.9, -13.4]] };
+    [['w', -.85], ['e', 2.45]].forEach(([side, x]) => {
+      const ins = side === 'w' ? .055 : -.055;   // 복도 쪽 면
+      pbox(.1, SILL, z1 - z0, mLow, x, SILL / 2, (z0 + z1) / 2, O);                 // 허리벽 (청록 유성페인트)
+      pbox(.12, .06, z1 - z0, mRail, x + ins * .2, SILL, (z0 + z1) / 2, O);           // 창턱 겸 띠
+      pbox(.1, H - HEAD, z1 - z0, mUp, x, (HEAD + H) / 2, (z0 + z1) / 2, O);          // 상인방 위 벽
+      // 창 사이 기둥 벽
+      let zc = z0; const ws = WIN[side].slice().sort((a, b) => a[0] - b[0]);
+      ws.concat([[z1, z1]]).forEach(([a, b]) => { if (a - zc > .01) pbox(.1, HEAD - SILL, a - zc, mUp, x, (SILL + HEAD) / 2, (zc + a) / 2, O); zc = b; });
+      ws.forEach(([a, b]) => {
+        pmesh(new THREE.PlaneGeometry(b - a, HEAD - SILL), mGlass, x, (SILL + HEAD) / 2, (a + b) / 2, O, { ry: Math.PI / 2, cast: false });
+        const n = Math.max(2, Math.round((b - a) / .9));   // 세로 창살 · 가로 창틀
+        for (let k = 0; k <= n; k++) pbox(.08, HEAD - SILL, .05, mFr, x, (SILL + HEAD) / 2, a + (b - a) * k / n, O);
+        [SILL + .03, (SILL + HEAD) / 2 + .2, HEAD - .03].forEach(y => pbox(.08, .05, b - a, mFr, x, y, (a + b) / 2, O));
+      });
+    });
+    // 별관 쪽 끝벽: 문 옆으로 바깥 벽돌이 보이던 빈틈을 막는다 (문 너비 1.8 · 가운데 x 0)
+    [[-.9, -.9], [.9, 2.5]].forEach(([a, b]) => { if (b - a > .01) pbox(b - a, H, .1, mUp, (a + b) / 2, H / 2, z0 + .06, O); });
+    pbox(3.4, H - 2.45, .1, mUp, .8, (2.45 + H) / 2, z0 + .06, O);
+    pbox(3.4, SILL, .102, mLow, .8, SILL / 2, z0 + .06, O);   // 끝벽도 아래는 같은 페인트
+  }
+  // ── 전등 스위치 (본관 쪽 서쪽 벽): 통로 형광등 켜기 · 끄기. 순차 소등 뒤 비상 전력일 때는 깜빡이기만 한다 ──
+  { const plate = pbox(.02, .14, .09, PM(0xd8d4c8, .6), -.79, 1.35, -11.05, O); pbox(.025, .05, .03, PM(0x8a8478, .5), -.775, 1.35, -11.05, O);
+    pmesh(new THREE.PlaneGeometry(.2, .06), new THREE.MeshBasicMaterial({ map: makeSign('복도 전등', '#d8d4c4', '#2a2a2a', 26) }), -.785, 1.5, -11.05, O, { ry: Math.PI / 2, cast: false });
+    PASS.lightOn = true;
+    world.props.push({ kind: 'passSwitch', floor: 0, x: -.4, z: -11.05, y: 1.35, label: '전등 스위치 (연결복도)', plate }); }
   // 폐책걸상 더미 (동쪽 벽 · 일직선으로 못 달리고 돌아가야 한다)
   const PZ = PASS.pileZ + 11.85;   // 책걸상 더미 위치 (예전 z −11.85 기준 상대값)
   F0.col.push({ x1: 1.0, x2: 2.4, z1: -12.1 + PZ, z2: -11.55 + PZ });
@@ -5167,21 +5242,26 @@ const S37_TYPE = { '시설 창고': '시설창고실', '보건실 보조': '보�
   });
   console.info(`[37실] 방 ${S37.rooms.length}개 · 새 가구 ${S37.placed}개 배치 (겹치거나 동선을 막는 자리는 건너뜀)`);
 }
-function s37Act(p, ctx) {
+async function s37Act(p, ctx) {
   const t = p.fz.promptText, F = floors[p.floor], pos = V3(p.x, F.y0 + 1, p.z);
   if (/숨기/.test(t) && ctx.togglePlayerHide) { ctx.togglePlayerHide(); return; }
   if (/숨 고르기/.test(t)) { if ((p.restT || 0) > performance.now()) { say('아직 숨이 진정되지 않았다 — 조금 뒤에 다시', 2200); return; } p.restT = performance.now() + 60000; P.fear = Math.max(0, P.fear - .15); sfx.breath ? sfx.breath() : sfx.click(); say('소파에 기대 숨을 골랐다 — 공포가 조금 가라앉는다', 3000); return; }
   if (/피아노/.test(t)) { sfx.musicBox ? sfx.musicBox(2.5, .8) : sfx.stinger(.4); caption('쾅— 건반 소리가 건물 전체에 울려 퍼진다'); fzLure(pos, 26); return; }
+  if (/밸브/.test(t) && !p.solved) { const r = await mini('pipes', { title: `${p.room} — 증기 배관 압력 빼기` }); if (!r.ok) { sfx.boom ? sfx.boom() : sfx.bang(); P.fear = Math.min(1, P.fear + .12); fzLure(pos, 30); say('펑— 배관이 터지며 증기가 쏟아진다. 소리가 퍼졌다', 3000); return; } p.solved = true; }
   if (/밸브/.test(t)) { const A = at(p.x, F.y0 + 1.2, p.z); A.pipeKnock ? A.pipeKnock() : A.thump(); shake = Math.max(shake, .25); caption('배관이 쿵쿵 울린다'); fzLure(pos, 18); return; }
   if (/수색|뒤지기|탐색|파밍|약품장/.test(t)) {
-    if (p.done) return; p.done = true; FL.s37 ||= {}; FL.s37[p.uid] = 1;
+    if (p.done) return;
+    if (p.floor === 4) { const r = await mini('maze', { title: `${p.room} — 어둠 속 선반 사이`, item: '물건' }); if (!r.ok) { P.hp = Math.max(5, P.hp - 12); P.fear = Math.min(1, P.fear + .2); sfx.stinger(.5); shake = Math.max(shake, .4); say('어둠 속에서 무언가에 붙잡혔다 — 겨우 뿌리쳤다', 2600); refreshHud(); return; } }   // B1: 손전등 미로
+    p.done = true; FL.s37 ||= {}; FL.s37[p.uid] = 1;
     const loot = ['battery', 'candy', 'medkit', 'matches', 'salt', 'thermos'][Math.floor(Math.random() * 6)];
     giveItem(loot, 1, true); sfx.pickup(); lootCard(loot, '수색', ITEMS[loot].name, `${p.room}에서 찾았다`); refreshHud(); return;
   }
+  if (/전원/.test(t) && !p.solved) { const r = await mini('rings', { title: `${p.room} — 단말기 잠금 해제` }); if (!r.ok) { sfx.buzz(); say('삐— 잠금이 다시 걸렸다', 2000); return; } p.solved = true; giveItem('battery', 1, true); lootCard('battery', '단말기', ITEMS.battery.name, '보조 전원함에서 꺼냈다'); }
   if (/전원/.test(t)) { sfx.click(); fx.glitch(.2); say('지직— 꺼져 있던 화면에 한 줄이 떠올랐다: "아직 수업 중"', 3600); return; }
   if (/수도/.test(t)) { sfx.drip(); say('녹물이 콸콸 쏟아지다가 뚝 멈췄다', 2800); return; }
   if (/전시|작품|명패/.test(t)) { say('유리 너머 상패 — 수상자 이름 한 줄만 날카롭게 긁혀 지워져 있다', 3600); return; }
   if (/가마|물레/.test(t)) { say('가마 안에 굳은 점토 인형 하나 — 누군가 이름을 새겨 두었다. "하늘"', 3800); return; }
+  if (!p.solved) { const r = await mini('spotdiff', { title: `${p.room} — 두 장의 같은 기록` }); if (r.ok) { p.solved = true; P.fear = Math.max(0, P.fear - .1); say(`${p.room} — 두 기록이 다르다. 누군가 나중에 고쳐 썼다… 10월 12일 밤의 이름 하나가 지워져 있다`, 4200); return; } }
   say(`${p.room} — 서류는 모두 10월 12일에서 멈춰 있다`, 3400);
 }
 function s37Tick() {   // 클래스의 미끄러짐 충돌 보정 (게임 충돌 다음 · 같은 층 가구만)

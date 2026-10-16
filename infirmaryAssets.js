@@ -2,7 +2,7 @@ import * as THREE from './vendor/three.module.js';
 import { GLTFLoader } from './vendor/addons/loaders/GLTFLoader.js';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
 
-const URLS = {
+export function updateInfirmaryCabinets(views, records) { for (const view of views) { const closed = records.find(r => r.id === view.closedId), opened = records.find(r => r.id === view.openId); const showOpen = !!view.getOpen?.() && opened?.status === "ready"; view.closedHolder.visible = !showOpen; view.openHolder.visible = showOpen; if (view.fallback) view.fallback.visible = !showOpen && closed?.status !== "ready"; } } const URLS = {
   bed: 'assets/infirmary/infirmary_bed.glb',
   cabinetClosed: 'assets/infirmary/medicine_cabinet_closed.glb',
   cabinetOpen: 'assets/infirmary/medicine_cabinet_open.glb'

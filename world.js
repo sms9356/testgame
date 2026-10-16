@@ -101,13 +101,15 @@ export function buildWorld(scene) {
   const mFlag = S(T.makeFlag());
   const mDoor = S(T.makeDoor(), { side: THREE.DoubleSide });
   const mDoorP = PB('door', () => T.pbrDoor(512)); mDoorP.color.setScalar(.72);   // 밝은 베이지 문짝이 손전등에 하얗게 뜨지 않게
-  const mWin = new THREE.MeshBasicMaterial({ map: T.makeWindow(), color: 0x9fb2c8, side: THREE.DoubleSide });
-  const mWinIn = new THREE.MeshBasicMaterial({ map: mWin.map, color: 0x9fb2c8 });   // 실내 쪽에서 보는 창 (한 면)
+  // 창 유리: 반투명 — 안에서 밖(달빛 · 운동장 · 맞은편 건물)이, 밖에서 안(어두운 교실)이 보인다. 먼지 · 금 간 무늬는 유리 위에 옅게
+  const mWin = new THREE.MeshBasicMaterial({ map: T.makeWindow(), color: 0x9fb2c8, side: THREE.DoubleSide, transparent: true, opacity: .26, depthWrite: false });
+  const mWinIn = new THREE.MeshBasicMaterial({ map: mWin.map, color: 0x9fb2c8, transparent: true, opacity: .26, depthWrite: false });   // 실내 쪽에서 보는 창 (한 면)
   // 외벽 창 텍스처 시트 (assets/tex/win_atlas.webp, 4×3): 깨끗 · 먼지 · 금 간 · 깨진 · 테이프 X · 빗물 · 김서림 · 커튼 · 블라인드 · 야간 점등 · 완전 어둠 · 먼지+금
   const winAtlas = new THREE.TextureLoader().load('assets/tex/win_atlas.webp'); winAtlas.colorSpace = THREE.SRGBColorSpace; winAtlas.anisotropy = 4;
   const winMats = Array.from({ length: 12 }, (_, i) => {
     const t = winAtlas.clone(); t.repeat.set(1 / 4, 1 / 3); t.offset.set((i % 4) / 4, 1 - ((i / 4 | 0) + 1) / 3);
-    return new THREE.MeshStandardMaterial({ map: t, roughness: .16, metalness: .35, emissive: i === 9 ? 0xffe2b0 : 0x000000, emissiveMap: i === 9 ? t : null, emissiveIntensity: 0 });
+    const see = [0, 1, 2, 3, 5, 6, 11].includes(i);   // 깨끗 · 먼지 · 금 간 · 깨진 · 빗물 · 김서림 · 먼지+금 → 비치는 유리 (커튼 · 블라인드 · 테이프 · 점등 · 어둠은 그대로)
+    return new THREE.MeshStandardMaterial({ map: t, roughness: .16, metalness: .35, emissive: i === 9 ? 0xffe2b0 : 0x000000, emissiveMap: i === 9 ? t : null, emissiveIntensity: 0, transparent: see, opacity: see ? .42 : 1, depthWrite: !see });
   });
   const WIN_W = [10, 9, 6, 4, 3, 5, 4, 5, 6, 9, 5, 4];   // 변형별 빈도 (밤에 불이 비치는 창 약 13%)
   const pickWin = () => { let r = rnd() * WIN_W.reduce((a, b) => a + b); for (let i = 0; i < 12; i++) { r -= WIN_W[i]; if (r < 0) return winMats[i]; } return winMats[0]; };
@@ -1259,7 +1261,7 @@ export function buildWorld(scene) {
     props.push({ kind: 'elevator', floor: cur.f, x: x - .5, z, y: 1.25, px: x, pz: z, cx, hall, cab, label: '엘리베이터 호출' });
   }
   const mStairPlate = (() => { const c = document.createElement('canvas'); c.width = c.height = 128; const g = c.getContext('2d'); g.fillStyle = '#5a5c58'; g.fillRect(0, 0, 128, 128); g.fillStyle = '#7a7c76'; for (let y = 0; y < 128; y += 16) for (let x = (y / 16 % 2) * 8; x < 128; x += 16) { g.save(); g.translate(x + 4, y + 8); g.rotate(.7); g.fillRect(-5, -1.5, 10, 3); g.restore(); } const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.colorSpace = THREE.SRGBColorSpace; return grunge(new THREE.MeshStandardMaterial({ map: t, roughness: .5, metalness: .6 })); })();   // 줄무늬(체커) 철판
-  const mStairNose = S(null, { color: 0x24221f, roughness: .8 }), mRailSteel = grunge(S(T.makeMetal([70, 78, 74]), { roughness: .5, metalness: .5 }));
+  const mStairNose = S(null, { color: 0xc8a030, roughness: .7 }), mRailSteel = grunge(S(T.makeMetal([70, 78, 74]), { roughness: .5, metalness: .5 }));
   function stairRoom(cx) {
     // ㄷ자 계단 — 층고 FH(4m) = 1번 계단 10단(0.2m) 2.0m + 층참 + 2번 계단 10단 2.0m. 2번 계단 꼭대기가 위층 바닥과 정확히 같은 높이
     // 1번(북쪽으로 오름) → 층참 → 2번(남쪽으로 오름, 천장 개구부를 지나 위층 바닥에 닿음)
@@ -1278,7 +1280,7 @@ export function buildWorld(scene) {
         add(mStep, 2.6, .25, 9.55 + zl, cx - 2.5, dy + LND - .25, (zl - 9.55) / 2);   // 층참 슬래브
       }
       if (!top) for (let i = 0; i < n; i++) { const top = LND + (i + 1) * rise; const m = add(mStep, W, .44, run, xb, dy + top - .44, zl + run * (i + .5)); if (dy < 0) m.userData.dynamic = true; }   // 아래 경사 슬래브까지 닿는 디딤판
-      const nos = []; for (let i = 0; i < n; i++) { nos.push(bx(W - .08, .008, .06, xa, dy + (i + 1) * rise + .004, z0 - run * i - .04)); if (!top) nos.push(bx(W - .08, .008, .06, xb, dy + LND + (i + 1) * rise + .004, zl + run * i + .04)); }
+      const nos = []; for (let i = 0; i < n; i++) { nos.push(bx(W - .08, .014, .07, xa, dy + (i + 1) * rise + .007, z0 - run * i - .045), bx(W - .08, .05, .012, xa, dy + (i + 1) * rise - .02, z0 - run * i - .004)); if (!top) nos.push(bx(W - .08, .014, .07, xb, dy + LND + (i + 1) * rise + .007, zl + run * i + .045), bx(W - .08, .05, .012, xb, dy + LND + (i + 1) * rise - .02, zl + run * i + .004)); }
       meshAt(merge(nos), mStairNose, 0, 0, 0);   // 디딤판 앞 미끄럼 방지 띠
       if (!top) { const st = meshAt(merge([bx(W, .22, L, 0, 0, 0)]), mStep, xb, dy + LND + LND / 2 - .32, zl + n * run / 2); st.rotation.x = -th; }   // 2번 계단 아래 경사 슬래브 (실제 크기 → UV 안 늘어남)
       // 난간: 나무 손잡이 + 철제 난간동자
@@ -3496,9 +3498,9 @@ export function buildWorld(scene) {
     for (const d of doorList) {
       if (d.open !== d.target) { const s = d.kind === 'slide' ? 2.2 : (d.slam ? 7 : 2.6); d.open = d.target > d.open ? Math.min(d.target, d.open + dt * s) : Math.max(d.target, d.open - dt * s); if (d.open === d.target) d.slam = false; }
       d.rect.off = d.open > .4;
-      if (d.leaves) d.leaves.forEach(l => { l.piv.rotation.y = l.a * d.open; });
+      if (d.leaves) d.leaves.forEach(l => { l.piv.rotation.y = l.a * d.open * (d.dir || 1); });   // dir: 여는 쪽 (game.js doorDir — 방 안쪽)
       else if (d.kind === 'slide') d.panels.forEach(p => { p.m.position.x = p.x0 + (p.x1 - p.x0) * d.open; });
-      else d.piv.rotation.y = d.open * d.angOpen;
+      else d.piv.rotation.y = d.open * d.angOpen * (d.dir || 1);
     }
     for (const p of props) {
       if (p.kind === 'safe') p.piv.rotation.y = -p.open * 1.7;

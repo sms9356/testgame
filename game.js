@@ -1188,6 +1188,7 @@ function interact() {
   else if (target.type === 'prop') useProp(target.p);
 }
 function toggleDoor(d, silent) {
+  if (d.target < .5 && !d.locked) doorDir(d, P.x, P.z);   // 여는 방향 (§18)
   if (d.locked && d.target < .5) { at(d.x, floors[d.floor].y0 + 1.1, d.z).knock(); say('안에서 잠겨 있다… 문 아래로 실내화 두 짝이 보인다', 2400); setFace('fear', 2); return; }   // 여자화장실 3번 칸
   if (d.target > .5) {
     const r = d.rect, m = .33;
@@ -1285,7 +1286,7 @@ function roofDoor(fromRoof) {
   state = 'trans'; $('fade').style.opacity = 1;
   setTimeout(() => {
     if (fromRoof) { const F = floors[2], c = F.stairCx; P.floor = 2; P.x = c - 1.85; P.z = SZB - .45; P.sh = stairH(F, P.x, P.z) ?? FH - .2; P.shV = 0; P.yaw = 0; P.pitch = -.25; toastFloor(2); }
-    else { P.floor = 3; P.x = 0; P.z = -3.6; P.sh = 0; P.shV = 0; P.yaw = Math.PI; P.pitch = 0; toastFloor(3); }   // 계단탑 문 밖, 옥상 쪽을 보고 선다 (예전엔 계단탑 안 계단 구멍을 보고 섰다)
+    else { P.floor = 3; P.x = 0; P.z = -6.0; P.sh = 0; P.shV = 0; P.yaw = 0; P.pitch = 0; toastFloor(3); }   // 계단탑(z −4.5 ~ 1.9) 북쪽 문 밖, 옥상 쪽을 보고 선다
     sfx.doorBang ? sfx.doorBang(0, .6) : 0; $('fade').style.opacity = 0; state = 'playing';
     setTimeout(() => { ROOF.open = false; sfx.doorHinge && sfx.doorHinge(); }, 1500);   // 뒤에서 문이 천천히 닫힌다
   }, 650);
@@ -2060,10 +2061,11 @@ function updateLighting(dt) {
   scene.fog.color.lerp(indoors ? _c1.copy(FOG_IN).lerp(FOG_IN_DAY, dk) : _c1.copy(FOG_OUT).lerp(FOG_DAY, dk), k);
   // 밖에서 건물과 멀리 떨어져 있으면 본관 1층 내부는 그리지 않는다 (창 너머로 거의 보이지 않음 · 야외 프레임 저하의 주원인)
   const farOut = P.floor === 0 && !indoors && (P.z > MAIN_ZS + 16 || P.z < NORTH_Z || Math.abs(P.x) > 52);
-  floors.forEach(f => { f.interior.visible = f.f === P.floor && !farOut; if (f.f <= 2) f.shell.visible = P.floor <= 3; });
+  const nearOut = P.floor === 0 && !indoors && !farOut && Math.abs(P.x) < 46 && P.z > -24 && P.z < MAIN_ZS + 14;   // 건물 가까운 바깥: 창 너머 2 · 3층 교실도 보이게
+  floors.forEach(f => { f.interior.visible = (f.f === P.floor && !farOut) || (nearOut && (f.f === 1 || f.f === 2)); if (f.f <= 2) f.shell.visible = P.floor <= 3 && !(P.floor === 2 && (P.sh || 0) > 2.4); });   // 3층 계단 위쪽: 눈높이가 건물 지붕보다 높아 외벽 상자 지붕면이 계단을 덮어 보였다
   // 야외: 손전등 그림자 범위를 줄여 그림자 패스가 캠퍼스 전체를 다시 그리지 않게 (셰이더 재컴파일 없이)
   const sf = indoors ? 26 : 6; if (flash.shadow.camera.far !== sf) { flash.shadow.camera.far = sf; flash.shadow.camera.updateProjectionMatrix(); }
-  world.OUT.visible = P.floor === 0 || P.floor === 3 || state === 'menu' || state === 'intro';
+  world.OUT.visible = P.floor <= 3 || state === 'menu' || state === 'intro';   // 본관 2 · 3층에서도 창밖(운동장 · 별관 · 하늘)이 보이게
   // 형광등 풀: 가장 가까운 켜진 램프 4개에 PointLight 배치
   lampTimer -= dt;
   if (lampTimer <= 0) {
@@ -4561,13 +4563,12 @@ floors[6].col.push({ x1: -34.65, x2: -34.05, z1: 36.9, z2: 39.15 }); floors[6].w
 // 옥상 문 지점 · 3층 계단 꼭대기 철문
 { const c = floors[2].stairCx; if (c != null) world.props.push({ kind: 'roofDoor', floor: 2, x: c - 1.85, z: SZB - .2, y: FH + 1.2, r: 1.3, minSh: FH - .7, label: '옥상 문 열기' });
   // 옥상 계단탑: 문만 서 있고 계단 구멍이 그대로 보이던 것 → 사방 벽 · 지붕 슬래브 (남쪽 벽 가운데 문) · 충돌
-  { const R = FLR(3), cm = PM(0x8a8780, .9), X1 = -4.6, X2 = 4.6, Z1 = -9.8, Z2 = -4.35, H = 3.0, T = .2, g = new THREE.Group(); R.add(g); g.userData.dynamic = true;
-    pbox(X2 - X1, H, T, cm, 0, H / 2, Z1, g); pbox(T, H, Z2 - Z1, cm, X1, H / 2, (Z1 + Z2) / 2, g); pbox(T, H, Z2 - Z1, cm, X2, H / 2, (Z1 + Z2) / 2, g);
-    pbox(-.6 - X1, H, T, cm, (X1 - .6) / 2, H / 2, Z2, g); pbox(X2 - .6, H, T, cm, (X2 + .6) / 2, H / 2, Z2, g); pbox(1.2, H - 2.3, T, cm, 0, 2.3 + (H - 2.3) / 2, Z2, g);
-    pbox(X2 - X1 + .4, .25, Z2 - Z1 + .4, PM(0x5a5852, .9), 0, H + .12, (Z1 + Z2) / 2, g);
-    const F3 = floors[3]; [{ x1: X1 - .1, x2: X2 + .1, z1: Z1 - .1, z2: Z1 + .1 }, { x1: X1 - .1, x2: X1 + .1, z1: Z1, z2: Z2 }, { x1: X2 - .1, x2: X2 + .1, z1: Z1, z2: Z2 }, { x1: X1, x2: -.6, z1: Z2 - .1, z2: Z2 + .1 }, { x1: .6, x2: X2, z1: Z2 - .1, z2: Z2 + .1 }, { x1: -.6, x2: .6, z1: Z2 - .1, z2: Z2 + .1 }]
-      .forEach(r => { F3.col.push(r); F3.walls.push(r); }); }   // 문은 E 로만 (안은 계단 구멍)
-  world.props.push({ kind: 'roofDoor', floor: 3, x: 0, z: -4.2, y: 1.2, r: 1.6, roof: true, label: '옥상 문 열고 계단으로 내려가기' });
+  // 옥상 계단탑: 충돌 상자(x −5 ~ 5, z −4.5 ~ 1.9)만 있고 벽이 없어 문만 서 있고 안의 계단 구멍이 보였다 → 그 자리에 벽 · 지붕 (문은 북쪽 면 가운데)
+  { const R = FLR(3), cm = PM(0x8a8780, .9), X1 = -5, X2 = 5, Z1 = -4.5, Z2 = 1.9, H = 3.0, T = .2, g = new THREE.Group(); R.add(g); g.userData.dynamic = true;
+    pbox(X2 - X1, H, T, cm, 0, H / 2, Z2, g); pbox(T, H, Z2 - Z1, cm, X1, H / 2, (Z1 + Z2) / 2, g); pbox(T, H, Z2 - Z1, cm, X2, H / 2, (Z1 + Z2) / 2, g);
+    pbox(-.6 - X1, H, T, cm, (X1 - .6) / 2, H / 2, Z1, g); pbox(X2 - .6, H, T, cm, (X2 + .6) / 2, H / 2, Z1, g); pbox(1.2, H - 2.3, T, cm, 0, 2.3 + (H - 2.3) / 2, Z1, g);
+    pbox(X2 - X1 + .4, .25, Z2 - Z1 + .4, PM(0x5a5852, .9), 0, H + .12, (Z1 + Z2) / 2, g); }
+  world.props.push({ kind: 'roofDoor', floor: 3, x: 0, z: -5.2, y: 1.2, r: 1.6, roof: true, label: '옥상 문 열고 계단으로 내려가기' });
   // 3층 계단 꼭대기 철문 (보이는 문)
   if (c != null) { const g = new THREE.Group(); g.position.set(c - 1.85, FH, SZB + .05); FLR(2).add(g); g.userData.dynamic = true;
     pbox(1.3, 2.2, .06, PM(0x4a4e50, .55, .6), 0, 1.1, 0, g); pbox(1.5, .12, .14, PM(0x2a2c2e, .6), 0, 2.26, 0, g);
@@ -4871,6 +4872,50 @@ function steamTick(dt) {
   STM.el.style.opacity = (STM.haze * .85).toFixed(3); if (near > .4) shake = Math.max(shake, .02 * near);
 }
 function steamOff() { if (STM.el && STM.haze > 0) { STM.haze *= .9; STM.el.style.opacity = (STM.haze * .85).toFixed(3); } }
+/* ── 18. 문: 모두 닫힌 채 시작 · 방 안쪽으로 열림 · 열린 문짝 충돌 · 초자연 현상으로 저절로 열림 ──
+   · 처음엔 모든 문이 닫혀 있다 (불러오기는 저장된 문 상태가 덮어씀)
+   · 여는 방향: 복도(본관 · 별관 z −1.75 ~ 1.75) 쪽 문은 방 안쪽으로, 그 밖의 문은 연 사람 반대쪽으로 — 문짝이 플레이어를 향해 휘둘러 오지 않는다
+   · 열린 문짝도 얇은 충돌 판이 된다 (예전엔 열린 문짝을 그대로 뚫고 지나갔다) · 문틀에 서 있으면 문이 닫히지 않는다 (그것 · 이벤트가 닫아도) */
+const DOORX = { v: new THREE.Vector3(), haunt: 70 + Math.random() * 40 };
+function doorLeaves(d) { return d.leaves ? d.leaves.map(l => ({ p: l.piv, a: l.a })) : d.piv ? [{ p: d.piv, a: d.angOpen }] : null; }
+function doorDir(d, ox, oz) {
+  const L = doorLeaves(d); if (!L) return; const r = d.rect, cx = (r.x1 + r.x2) / 2, cz = (r.z1 + r.z2) / 2, zThin = (r.z2 - r.z1) <= (r.x2 - r.x1);
+  const F = floors[d.floor], corr = zThin && Math.abs(cz) > 1.2 && Math.abs(cz) < 2.2 && (d.floor <= 2 || d.floor >= 8) && !F.area;
+  const want = corr ? Math.sign(cz) : -Math.sign(zThin ? oz - cz : ox - cx) || 1;   // 문짝이 갈 쪽: 복도 문은 방 안쪽(복도 반대), 아니면 연 사람 반대쪽
+  let s = 0; const keep = d.dir;
+  L.forEach(({ p, a }) => { const r0 = p.rotation.y; p.rotation.y = a; p.updateMatrixWorld(true); p.children[0].getWorldPosition(DOORX.v); s += zThin ? DOORX.v.z - cz : DOORX.v.x - cx; p.rotation.y = r0; p.updateMatrixWorld(true); });
+  d.dir = Math.sign(s) === want ? 1 : -1; if (keep != null && keep !== d.dir && d.open > .05) d.dir = keep;   // 열려 있는 도중엔 방향을 바꾸지 않는다
+}
+// 시작: 모두 닫힘 + 방향 미리 정함 + 문짝 충돌 판
+world.doorList.forEach(d => { d.target = d.open = 0; d.rect.off = false; doorDir(d, P.x, P.z);
+  const L = doorLeaves(d); if (L) { d.leafCols = L.map(() => ({ x1: 0, x2: 0, z1: 0, z2: 0, off: true, leaf: true })); d.leafCols.forEach(c => floors[d.floor].col.push(c)); } });
+const _lb = new THREE.Box3();
+function doorTick(dt) {
+  for (const d of world.doorList) {
+    const r = d.rect, m = .42;
+    // 문틀에 사람이 있으면 닫히지 않는다 (닫히는 문이 플레이어를 밀어 벽 너머로 튕기던 문제)
+    if (d.target < .5 && d.open > .02 && d.floor === P.floor && !P.inElev && P.x > r.x1 - m && P.x < r.x2 + m && P.z > r.z1 - m && P.z < r.z2 + m) d.target = 1;
+    if (!d.leafCols) continue;
+    const L = doorLeaves(d), on = d.open > .9;
+    L.forEach(({ p }, i) => { const c = d.leafCols[i]; if (!on) { c.off = true; return; } if (!c.off && c.o === d.open) return; c.o = d.open;
+      _lb.setFromObject(p.children[0]); c.x1 = _lb.min.x; c.x2 = _lb.max.x; c.z1 = _lb.min.z; c.z2 = _lb.max.z; c.off = false; });
+  }
+  // 초자연 현상: 닫힌 문이 저절로 천천히 열린다 (아무도 없는데) — 쫓기지 않을 때 1 ~ 2분마다
+  if (state !== 'playing' || P.hiding || P.inElev) return;
+  if ((DOORX.haunt -= dt) > 0) return;
+  DOORX.haunt = 60 + Math.random() * 70;
+  if (ghost.active && ghost.floor === P.floor && (ghost.state === 'chase' || ghost.hunt)) return;
+  const fx_ = -Math.sin(P.yaw), fz_ = -Math.cos(P.yaw);
+  const cand = world.doorList.filter(d => d.floor === P.floor && d.target < .5 && !d.locked && doorLeaves(d)).map(d => { const dx = d.x - P.x, dz = d.z - P.z, dd = Math.hypot(dx, dz); return { d, dd, f: (dx * fx_ + dz * fz_) / Math.max(dd, .01) }; })
+    .filter(o => o.dd > 2.5 && o.dd < 13).sort((a, b) => (b.f - b.dd * .05) - (a.f - a.dd * .05));   // 보이는 쪽 · 가까운 문 먼저
+  const o = cand[0]; if (!o) return; const d = o.d, F = floors[d.floor];
+  doorDir(d, d.x * 2 - P.x, d.z * 2 - P.z);   // 플레이어 쪽으로 열린다 — 안에서 누군가 민 것처럼
+  const slam = Math.random() < .3;
+  if (slam) { d.slam = true; d.target = 1; at(d.x, F.y0 + 1.2, d.z).doorBang(0, 1); shake = Math.max(shake, .3); caption('쾅— 아무도 없는 문이 벌컥 열렸다'); }
+  else { d.target = .0001; let t = 0; const iv = setInterval(() => { t += .05; d.target = Math.min(1, t * t * .55); if (t >= 1.35 || d.target >= 1) clearInterval(iv); }, 50);   // 끼이익… 아주 천천히
+    const A = at(d.x, F.y0 + 1.2, d.z); A.creak ? A.creak() : sfx.creak ? sfx.creak() : sfx.doorHinge(); caption('끼이익… 닫혀 있던 문이 저절로 열린다'); }
+  P.fear = Math.min(1, P.fear + (slam ? .18 : .1)); setFace('fear', 2.5); if (o.f > .5) fx.glitch(.15);
+}
 function patchRestore() {
   if (FL.fz && FL.fz !== fzP.missions) Object.assign(fzP.missions, FL.fz);
   FL.fz = fzP.missions; fzApply(); poolRestore(); s37Restore(); n37Restore(); megaRestore();
@@ -5726,7 +5771,7 @@ function featTick(dt) {
   if (STH) { if (!keys[STH.code] || !target || target.type !== 'stairs' || state !== 'playing') STH = null; else if ((STH.t += dt) > .35) { const d = STH.dir; STH = null; changeFloor(d); } }
   { const pr = $('prompt'), k = STH ? Math.min(1, STH.t / .35) : 0; pr.style.backgroundImage = k > 0 ? `linear-gradient(90deg, rgba(232,200,112,.45) ${k * 100}%, transparent ${k * 100}%)` : ''; }   // 계단 길게 누르기 진행 표시
   for (const p of world.props) if (p.kind === 'pick' && p.done && p.mesh.visible) p.mesh.visible = false;
-  micTick(dt); camTick(dt); sanityTick(dt); trapTick(dt); breakerTick(dt); patchTick(dt); basementTick(dt); poolTick(dt); sitTick(); zoomTick(dt); callTick(dt); sgTick(dt); s37Tick(); elvTick(dt); n37.update(dt); megaTick(dt); if ((P.stamInfT || 0) > 0) { P.stamInfT -= dt; if (P.stamInfT < 0) P.stamInfT = 0; P.stamina = 100; P.tired = false; } }
+  micTick(dt); camTick(dt); sanityTick(dt); trapTick(dt); breakerTick(dt); patchTick(dt); basementTick(dt); poolTick(dt); sitTick(); zoomTick(dt); callTick(dt); sgTick(dt); s37Tick(); elvTick(dt); doorTick(dt); n37.update(dt); megaTick(dt); if ((P.stamInfT || 0) > 0) { P.stamInfT -= dt; if (P.stamInfT < 0) P.stamInfT = 0; P.stamina = 100; P.tired = false; } }
 
 function extrasTick(dt) {
   searchTick(dt); tmpTick(dt); ambientTick(dt); featTick(dt);

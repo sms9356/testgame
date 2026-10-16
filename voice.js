@@ -85,12 +85,15 @@ export const engineLabel = () => (!VS.dub ? '끔' : useBrowser() ? `브라우저
 
 // 대사 한 줄 재생 → 실제 길이(초)를 돌려준다. 음성이 없으면 글자 수로 추정.
 export const VHOOK = { speak: null, file: null };   // file(id, info): 언어 팩 음성 파일 경로 (undefined = 한국어 기본)   // 언어 패치(i18n.js): 번역 대사를 그 언어 목소리로
+let speechRequest = 0;
 export async function speak(id, fx = 'none') {
+  ++speechRequest;
   const info = manifest[id];
   const est = info ? info.dur : 2.5;
   if (!VS.dub || !info) return est;
   if (VHOOK.speak) { const r = VHOOK.speak(id, info, fx); if (r != null) return r; }
   if (useBrowser(id) || (info.nofile && VS.engine === 'auto' && hasNaturalVoice())) {
+    stopVoice();
     speechSynthesis.cancel();
     const text = info.text.replace(/<[^>]+>/g, ' ').replace(/…/g, ', ');
     const u = new SpeechSynthesisUtterance(text), g = GENDER[info.spk] || 'f', v = voiceFor(g, info.spk);
@@ -103,10 +106,11 @@ export async function speak(id, fx = 'none') {
     return Math.max(1.2, text.length * .105 / u.rate + (text.match(/[,.?!]/g) || []).length * .12);
   }
   if (info.nofile) return est;
-  const e = emoFor(id), r = await playVoice(`voice/${id}.mp3`, fx, info.baked ? { ...e, rate: 1, pitch: 1, trem: 0, airy: 0, dry: true } : e);   // baked: 감정이 이미 녹음에 들어 있다
+  if ('speechSynthesis' in window) speechSynthesis.cancel();
+  const e = emoFor(id), r = await playVoice(`voice/${id}.mp3`, fx, info.baked ? { ...e, gain: info.generation ? 1 : e.gain, rate: 1, pitch: 1, trem: 0, airy: 0, dry: true } : e);   // 새 녹음은 음량에도 상황 연기가 반영되어 있다
   return r ? r.duration : est;
 }
-export function stopSpeak() { stopVoice(); if ('speechSynthesis' in window) speechSynthesis.cancel(); }
+export function stopSpeak() { ++speechRequest; stopVoice(); if ('speechSynthesis' in window) speechSynthesis.cancel(); }
 
 // 하단 자막 (주인공 외 화자: 내레이션 · 방송 · 테이프 · 전화 · 하늘)
 // 대화 기록 (휴대폰 › 기록): 최근 자막 80개
@@ -122,7 +126,9 @@ export function subtitle(who, text, sec) {
 }
 export async function line(id, fx, whoOverride) {
   const info = manifest[id]; if (!info) return 0;
-  const sec = await speak(id, fx);
+  const pending = speak(id, fx), request = speechRequest;
+  const sec = await pending;
+  if (request !== speechRequest) return 0;
   subtitle(whoOverride ?? SPEAKER[info.spk], info.text, sec + .5);
   return sec;
 }

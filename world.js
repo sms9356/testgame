@@ -2292,7 +2292,7 @@ export function buildWorld(scene) {
       F.shell.add(boxMesh(-3.0, 3.0, 2.95, 3.2, zs1, zs1 + 2.85, mCanopy, 3)); F.shell.add(boxMesh(-3.05, 3.05, 3.02, 3.18, zs1 + 2.85, zs1 + 2.94, mFacadeTrim, 3)); for (let k = 0; k < 6; k++) F.shell.add(boxMesh(-2.8, 2.8, 2.91, 2.95, zs1 + .22 + k * .45, zs1 + .29 + k * .45, mCanopy, 3));
       [-2.6, 2.6].forEach(x => F.shell.add(boxMesh(x - .18, x + .18, 0, 2.95, zs1 + 2.3, zs1 + 2.66, mFacadeTrim, 3)));
       const sg = new THREE.MeshStandardMaterial({ map: T.makeSign('서 문 고 등 학 교', 'rgba(0,0,0,0)', '#c8c0a8', 40), transparent: true, metalness: .6, roughness: .45 });
-      plane(F.shell, sg, 4.6, 1.15, 0, 3.55, zs1 + .03);
+      plane(F.shell, sg, 4.6, 1.15, 0, 4.7, zs1 + .35);
     }
     // 충돌 보정: 창문 구간도 벽이므로 단일 충돌체로 대체 (현관 제외)
     F.col = F.col.filter(r => !(r.z1 === zs0 && r.z2 === zs1));

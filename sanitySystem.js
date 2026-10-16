@@ -17,15 +17,15 @@ class SanityHallucinationSystem {
 
     // 환각 텍스트 풀 (목표창, 단축키 안내, 상태창 오염용)
     this.creepyPhrases = [
-      "뒤를 돌아보지 마",
-      "사물함 밖에서 보고 있어",
-      "숨을 참아도 소용없어",
-      "도망칠 곳은 없다",
+      "아까 지운 이름이 다시 적혀 있어",
+      "빈 자리에 누군가의 출석이 남아 있어",
+      "그날의 방송은 아직 끝나지 않았어",
+      "시계가 다시 같은 시각을 가리킨다",
       "방금 발소리 들었어?",
-      "여기서 못 나가",
+      "오늘 날짜를 이미 적었던 것 같아",
       "교무실에 누군가 있어",
-      "불을 꺼... 빨리",
-      "네 뒤에 서 있어"
+      "불이 꺼져도 글씨는 남아 있어",
+      "내 발소리보다 한 걸음이 더 들린다"
     ];
 
     // 가짜 휴대폰 문자 메시지 풀
@@ -74,7 +74,7 @@ class SanityHallucinationSystem {
    * @param {number} currentFear - 현재 플레이어 공포 수치 (0 ~ 100)
    * @param {boolean} isPaused - 일시정지나 모달 열림 여부
    */
-  update(dt, currentFear, isPaused = false) {
+  update(dt, currentFear, isPaused = false, allowEvents = true) {
     this.fearLevel = currentFear;
 
     if (isPaused || this.fearLevel < this.threshold) {
@@ -92,14 +92,14 @@ class SanityHallucinationSystem {
 
     // 1. 공포 수치가 높을수록 빨라지는 묵직한 심장 박동 소리
     this.heartbeatTimer -= dt;
-    const beatInterval = 1.15 - intensity * 0.55; // 1.15초 ~ 0.6초 간격
+    const beatInterval = 1.4 - intensity * 0.3; // 1.15초 ~ 0.6초 간격
     if (this.heartbeatTimer <= 0) {
       this.heartbeatTimer = beatInterval;
-      this.playHeartbeat(0.18 + intensity * 0.35);
+      this.playHeartbeat(0.06 + intensity * 0.08);
     }
 
     // 2. 랜덤 환각 이벤트 트리거 (공포도 80% 이상)
-    if (this.fearLevel >= 80) {
+    if (allowEvents && this.fearLevel >= 80) {
       this.eventCooldown -= dt;
       if (this.eventCooldown <= 0) {
         // 다음 환각까지 대기 시간 (공포 100%에 가까울수록 4~8초마다 발생)
@@ -274,13 +274,8 @@ class SanityHallucinationSystem {
      ========================================================= */
   corruptUIElements() {
     // 현재 게임 DOM에서 텍스트가 들어있는 주요 HUD 요소 탐색
-    const candidates = Array.from(document.querySelectorAll("div, span, b")).filter(el => {
-      const txt = el.textContent.trim();
-      return (
-        el.children.length === 0 &&
-        (txt === "메인 목표" || txt === "정상" || txt === "안전 구역" || txt === "외부" || txt.includes("열쇠") || txt.includes("교무실"))
-      );
-    });
+    // Never overwrite mission text, puzzle clues, inventory or controls.
+    const candidates = Array.from(document.querySelectorAll("[data-memory-echo]"));
 
     if (candidates.length === 0) return;
 
@@ -295,7 +290,7 @@ class SanityHallucinationSystem {
     target.classList.add("hallucination-text");
 
     const restore = () => {
-      target.textContent = originalText;
+      if(target.textContent === creepyText) target.textContent = originalText;
       target.classList.remove("hallucination-text");
       delete target.dataset.corrupted;
     };

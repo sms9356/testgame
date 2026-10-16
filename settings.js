@@ -3,11 +3,13 @@ export const DEF = {
   quality: 'auto', scale: 1, bright: 1, fov: 72, bloom: true, grain: false, bgm: true, bgmVol: .3, objArrow: true, objMode: 'full', bob: true, shake: true, showFps: false, showPlay: true,
   sens: 1, invertY: false, runToggle: false, hints: true, view: 1, camDist: 2.4,
   subBg: .45, subNames: true,
-  diff: 'normal', jump: 'full', flashReduce: false, fearFx: true, captions: true, tips: true, areaPhotos: false, contrast: false, ui: 1, mic: false, lang: 'ko',
+  diff: 'normal', jump: 'soft', flashReduce: false, fearFx: true, captions: true, tips: true, areaPhotos: false, contrast: false, ui: 1, mic: false, lang: 'ko',
   keys: { interact: 'KeyE', flash: 'KeyF', inv: 'Tab', map: 'KeyM', phone: 'KeyP', throwCan: 'KeyG', view: 'KeyV', run: 'ShiftLeft', down: 'KeyQ', crouch: 'KeyC', jump: 'Space', scan: 'KeyH', camera: 'KeyX', quest: 'KeyO' },
 };
 export const SET = { ...DEF, keys: { ...DEF.keys } };
 try { const s = JSON.parse(localStorage.getItem('haegyo_set') || '{}'); Object.assign(SET, s, { keys: { ...DEF.keys, ...(s.keys || {}) } }); } catch (e) { /* ignore */ }
+// Psychological horror replaces legacy full-screen shock settings.
+SET.jump = 'soft';
 // 목표 바 키 J → O (J 는 사건 기록 도감)
 if (SET.keys.quest === 'KeyJ') SET.keys.quest = 'KeyO';
 // 화면 노이즈 수정(v2): 예전 설정에 켜져 있던 필름 그레인을 한 번 끈다

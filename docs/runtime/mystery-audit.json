@@ -1,0 +1,53 @@
+{
+  "checks": [
+    {
+      "name": "intro explicitly names the senior missing after a courage test",
+      "pass": true
+    },
+    {
+      "name": "mission journal has main, side, special sections",
+      "pass": true
+    },
+    {
+      "name": "main searches for senior; special compares evidence",
+      "pass": true
+    },
+    {
+      "name": "memory effect leaves mission text intact",
+      "pass": true
+    },
+    {
+      "name": "old optional data recovers; mission states restore from save",
+      "pass": true
+    },
+    {
+      "name": "duplicate choice activation commits once",
+      "pass": true
+    },
+    {
+      "name": "page and frame loop remain error-free",
+      "pass": true
+    }
+  ],
+  "errors": [],
+  "loading": {
+    "textures": 397,
+    "build": 2983,
+    "warmup": 43111
+  },
+  "models": {
+    "total": 69,
+    "completed": 69,
+    "failed": [],
+    "active": 0
+  },
+  "reachability": {
+    "unreachable": [],
+    "total": 531
+  },
+  "method": {
+    "rendering": "real startup then renderer suspended for logical checks",
+    "reachability": "doors open; 0.2m grid; player radius 0.3m; findInteract from walkable locations",
+    "limitations": "Not a complete manual walk-through or real GPU performance test."
+  }
+}

@@ -26,3 +26,11 @@ test('all school cue files match the credited asset manifest',()=>{
  for(const cue of pack.cues){assert.equal(sha(read(`assets/sfx/${cue.file}`)),cue.sha256);assert.ok(read(`assets/sfx/${cue.file}`).length>1000);}
  assert.match(read('assets/sfx/CREDITS.md').toString(),/Membeth[\s\S]*CC0/);
 });
+test('mystery premise and exploration recordings match subtitles and recorded hashes',async()=>{
+ const {VO,NOTES}=await import('../story.js');
+ const config=JSON.parse(read('tools/korean_performance.json'));
+ for(const id of ['intro2','intro3','cam1','note_n5','note_n6']){
+  const line=manifest[id],text=id.startsWith('note_')?NOTES[id.slice(5)].title+'. '+NOTES[id.slice(5)].text.replace(/<[^>]+>/g,' '):VO[id].text;
+  assert.equal(line.text,text,id);assert.equal(sha(read(`voice/${id}.mp3`)),line.generation.audio_sha256,id);assert.equal(sha(JSON.stringify(line.text)),config.lines[id].source_sha256,id);
+ }
+});

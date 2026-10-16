@@ -1,5 +1,5 @@
 // 더빙 · 자막: voice/manifest.json 의 사전 생성 음성(내장) 또는 브라우저 음성 합성(Web Speech)으로 대사를 읽는다.
-import { playVoice, stopVoice, loadVoice } from './audio.js';
+import { playVoice, stopVoice, loadVoice, isVoicePlaying } from './audio.js';
 
 const SPEAKER = { witness_nurse: '보건교사', witness_counselor: '상담교사', witness_science: '과학교사', witness_principal: '당시 교장', seoyeon: '서연', jihun: '지훈', narrator: '', mina: '민아', haneul: '하늘', teacher: '선생님', pa: '교내 방송', ghost: '???', guard: '경비 아저씨', friend: '수아', friend2: '다은' };
 // 브라우저 음성: 화자별 성별 · 음높이 (자연스러운 음성은 음높이를 거의 건드리지 않는다)
@@ -89,6 +89,7 @@ let speechRequest = 0, playbackDone = null;
 let protectedUntil = 0, storyTail = Promise.resolve(), storyEpoch = 0;
 let storyPending = 0;
 const pendingLines = new Map();
+export const isSpeechBusy = () => storyPending > 0 || isVoicePlaying() || !!window.speechSynthesis?.speaking;
 export async function speak(id, fx = 'none', story = false) {
   // Ambient reactions must not cut off a recording, testimony or announcement.
   if (!story && (storyPending || performance.now() < protectedUntil)) return 0;
@@ -117,7 +118,7 @@ export async function speak(id, fx = 'none', story = false) {
   playbackDone = r?.finished || null;
   return r ? r.duration : est;
 }
-export function stopSpeak() { ++storyEpoch; pendingLines.clear(); storyPending = 0; storyTail = Promise.resolve(); protectedUntil = 0; ++speechRequest; stopVoice(); if ('speechSynthesis' in window) speechSynthesis.cancel(); }
+export function stopSpeak() { clearTimeout(subTimer);document.getElementById('sub')?.classList.remove('show'); ++storyEpoch; pendingLines.clear(); storyPending = 0; storyTail = Promise.resolve(); protectedUntil = 0; ++speechRequest; stopVoice(); if ('speechSynthesis' in window) speechSynthesis.cancel(); }
 
 // 하단 자막 (주인공 외 화자: 내레이션 · 방송 · 테이프 · 전화 · 하늘)
 // 대화 기록 (휴대폰 › 기록): 최근 자막 80개

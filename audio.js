@@ -278,6 +278,7 @@ function schoolCue(name, volume = .5, rate = 1) {
   return true;
 }
 let curVoice = null, voiceRequest = 0;
+export const isVoicePlaying = () => !!curVoice;
 export async function playVoice(url, fx = 'none', emo = null) {
   const request = ++voiceRequest;
   const buf = await loadVoice(url); if (request !== voiceRequest || !buf || !ok()) return null;
@@ -335,11 +336,8 @@ export const sfx = {
   gateOpen() { tone(90, 3, 'sawtooth', 0.12, 0, 1, 60); noiseBurst(2.5, 600, 'bandpass', 0.2); },
   bang(pan = 0, v = 1) { noiseBurst(0.35, 500, 'lowpass', 1.0, pan, v); tone(60, 0.4, 'sine', 1.0, pan, v, 35); },
   creak(pan = 0) { tone(150, 1.2, 'sawtooth', 0.07, pan, 1, 95); },
-  alert() { tone(300, 0.9, 'sawtooth', 0.22, 0, 1, 110); noiseBurst(0.7, 1500, 'bandpass', 0.25); },
-  screech() {
-    tone(500, 1.4, 'sawtooth', 0.5, 0, 1, 2400); tone(333, 1.4, 'square', 0.3, 0, 1, 1900);
-    noiseBurst(1.4, 3000, 'bandpass', 0.9); tone(50, 1.4, 'sine', 1, 0, 1, 30);
-  },
+  alert() { tone(392, 1.8, 'sine', .025); },
+  screech() { flow(2.4, 780, .04, .35, 1.1); },
   stairs() { for (let i = 0; i < 6; i++) setTimeout(() => noiseBurst(0.1, 500, 'lowpass', 0.35), i * 180); },
   win() { [523, 659, 784, 1047].forEach((f, i) => setTimeout(() => tone(f, 1.6, 'sine', 0.25), i * 220)); },
   broadcast() { if (schoolCue('pa-chime', .6)) { noiseBurst(.3, 1800, 'bandpass', .025); return; } noiseBurst(.4, 1800, 'bandpass', .08); tone(880, .6, 'sine', .2, 0, 1, 660); setTimeout(() => tone(660, .9, 'sine', .2, 0, 1, 440), 700); setTimeout(() => noiseBurst(1.2, 2500, 'bandpass', .4), 1500); },
@@ -403,7 +401,7 @@ export const sfx = {
   ghostBreath() {  // 아주 가까운 들숨 · 날숨
     noiseBurst(1.1, 700, 'bandpass', .18); setTimeout(() => noiseBurst(1.4, 420, 'bandpass', .22), 1250);
   },
-  ghostCrack() { for (let i = 0; i < 4; i++) setTimeout(() => { noiseBurst(.025, 3600, 'highpass', .45); tone(180 + Math.random() * 80, .03, 'square', .04); }, i * 90 + Math.random() * 60); },
+  ghostCrack() { noiseBurst(.7, 1000, 'bandpass', .025); },
   ghostLaugh() {   // 늘어진 낮은 웃음 (놓쳤을 때)
     for (let i = 0; i < 5; i++) setTimeout(() => { tone(240 - i * 12, .22, 'sawtooth', .025, 0, 1, 200 - i * 10); noiseBurst(.18, 800, 'bandpass', .1); }, i * 260);
   },
@@ -435,18 +433,12 @@ export const sfx = {
     later(2700, () => flow(4.5, 2600, .07, .08, 1.5));
   },
   faucet(d = 6) { noiseBurst(.1, 700, 'bandpass', .25); tone(320, .15, 'square', .02, 0, 1, 240); later(150, () => flow(d, 2300, .2, .12, .9)); later(d * 1000 + 200, () => this.drip()); },
-  scream() {   // 아득한 비명: 떨리는 두 음 + 잔향
-    for (let k = 0; k < 6; k++) later(k * 160, () => { const f = 880 - k * 45 + Math.random() * 30; tone(f, .3, 'sawtooth', .035, 0, 1, f * .94); tone(f * 1.5, .25, 'sine', .02); });
-    noiseBurst(1.1, 1500, 'bandpass', .1); later(1000, () => tone(560, 1.2, 'sawtooth', .025, 0, 1, 380));
-  },
+  scream() { flow(2.8, 1100, .035, .4, 1.2); },
   thump(n = 4) { for (let i = 0; i < n; i++) later(i * 640 + Math.random() * 80, () => { noiseBurst(.28, 120, 'lowpass', .95); tone(46, .32, 'sine', .7, 0, 1, 30); noiseBurst(.4, 2600, 'highpass', .03); }); },
   chairScrape() { tone(210, .9, 'sawtooth', .05, 0, 1, 150); noiseBurst(.9, 700, 'bandpass', .3); later(1150, () => { tone(180, .5, 'sawtooth', .045, 0, 1, 140); noiseBurst(.5, 650, 'bandpass', .22); }); },
   glassCrack() { noiseBurst(.07, 6500, 'highpass', .65); tone(3400, .4, 'sine', .05, 0, 1, 2900); for (let i = 1; i < 5; i++) later(i * 70 + Math.random() * 50, () => { noiseBurst(.04, 5000, 'highpass', .35); tone(2800 + Math.random() * 1500, .15, 'sine', .03); }); },
   rattle(n = 16) { for (let i = 0; i < n; i++) later(i * 65 + Math.random() * 35, () => { noiseBurst(.05, 800 + Math.random() * 700, 'bandpass', .55); tone(150 + Math.random() * 90, .05, 'square', .04); }); },
-  stinger(v = 1) {   // 불협화음이 차오르다 꺼지는 놀람 효과
-    [196, 207.7, 277.2, 293.7, 415.3].forEach(f => tone(f, 2.4, 'sawtooth', .035 * v, 0, 1, f * .9));
-    noiseBurst(1.6, 3200, 'bandpass', .22 * v); tone(42, 2.2, 'sine', .6 * v, 0, 1, 28);
-  },
+  stinger(v = 1) { tone(196, 2.8, 'sine', .018 * Math.min(1,v)); tone(207.7, 3.1, 'sine', .012 * Math.min(1,v)); },
   pipeKnock() { for (let i = 0; i < 3; i++) later(i * 300 + Math.random() * 90, () => { tone(310 + Math.random() * 40, .22, 'square', .035, 0, 1, 280); noiseBurst(.12, 1100, 'bandpass', .4); tone(95, .15, 'sine', .25); }); },
   wind() { flow(4, 420, .16, .6, 1.2); tone(300, 3.5, 'sine', .015, 0, 1, 420); },
   stepBehind(v = 1) { noiseBurst(.07, 2400, 'bandpass', .24 * v); noiseBurst(.08, 600, 'lowpass', .24 * v); },

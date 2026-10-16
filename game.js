@@ -1,5 +1,7 @@
 // 폐교 — 잊혀진 시간 : 1인칭 학교 공포 게임 (Three.js)
 import * as THREE from './vendor/three.module.js';
+import { buildMissionGroups, recordCompleted, normalizeCompletedLog } from './mysteryMissions.js';
+import { createPsychologicalDirector, PHENOMENON_LABELS } from './psychologicalHorror.js';
 import { settleStoryGhost, tickStoryGhost, showStoryGhost } from './storyGhost.js';
 import { GLTFLoader } from './vendor/addons/loaders/GLTFLoader.js';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
@@ -31,6 +33,7 @@ import './poolMachineryPatch.js';     // 수영장 · 남/녀 탈의실·샤워�
 import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx } from './audio.js';
 import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js';
 import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, SIDEQUESTS, HEADQUEST, COLLECT, LOCKER_SCARES, CHALK_QA, OUIJA_QS, PARA, TOILET_FX, MIRROR_WORDS } from './story.js';
+import { isSpeechBusy } from './voice.js';
 import { SET, saveSET, resetSET, DIFF, keyLabel } from './settings.js';
 import { initI18n, setLang, lang as curLang } from './i18n.js';   // 언어 패치 (한국어 · English · 日本語 · 中文)
 initI18n();
@@ -58,6 +61,10 @@ const DF = () => DIFF[SET.diff] || DIFF.normal;
 // 이야기 진행 플래그
 const FL = { cam: false, tag: false, calm: false, mina: false, gatekey: false, opt: false, fuse: false, mop: false, wire: false, hook: false };
 const msgs = [], clues = [], newItems = new Set();
+let storySession = 0;
+const pendingMessages = new Map();
+function beginStorySession(){++storySession;voBusy=false;stopSpeak();document.getElementById('memTint')?.classList.remove('on');++talkRequest;clearTimeout(talkTimer);document.getElementById('dlg')?.classList.remove('show');for(const timer of pendingMessages.values())clearTimeout(timer);pendingMessages.clear();}
+const psychologicalDirector = createPsychologicalDirector();
 let voBusy = false;   // 중요한 연출(하교 방송) 중에는 휴대폰 메시지를 미룬다
 let chapterShown = 0;
 
@@ -209,7 +216,7 @@ scene.traverse(o => { const ms = o.material ? (Array.isArray(o.material) ? o.mat
 const _t2 = performance.now();
 const fx = createFX(renderer, scene, camera);
 // 이벤트 연출 강화: 강한 글리치에는 화면 줄무늬 흔들림, 출현 · 추격 시작에는 가장자리 붉은 맥동
-const evFx = id => { if (SET.flashReduce) return; const el = document.getElementById(id); if (!el) return; el.classList.remove('on'); void el.offsetWidth; el.classList.add('on'); };
+const evFx = id => { if (SET.flashReduce || id==='evPulse' || id==='evStreak') return; const el = document.getElementById(id); if (!el) return; el.classList.remove('on'); void el.offsetWidth; el.classList.add('on'); };
 { const g0 = fx.glitch; fx.glitch = (s = .6) => { g0(s); if (s >= .45) evFx('evStreak'); }; }
 let hurtFx = 0, lightningT = 25, sparkT = 3;
 const floors = world.floors;
@@ -388,9 +395,9 @@ const KEY_HINT = ['비밀번호: 그날의 날짜', '잠긴 서랍 — 머리핀
 function objective() {
   if (FL.gatePower) return { ch: 6, main: FL.mina ? '민아와 함께 열린 정문으로 나가자' : '열린 정문으로 나가자', loc: LOC.gate, subs: [['정문 전동 개폐기 작동', true], ['정문 밖으로 나가기', false]] };
   const n3 = docs.some(d => d.id === 'n3');
-  if (!FL.cam && P.keys === 0) return { ch: 1, main: gateClosed ? '1학년 1반에서 민아의 흔적을 찾아라' : '민아를 찾아 학교 안으로 들어가라', loc: gateClosed ? LOC.cam : LOC.entrance,
+  if (!FL.mina && !FL.cam && P.keys === 0) return { ch: 1, main: gateClosed ? '담력체험 뒤 실종된 민아 선배의 녹화를 찾아라' : '민아 선배를 찾아 담력체험 장소에 들어가라', loc: gateClosed ? LOC.cam : LOC.entrance,
     subs: [['학교 안으로 들어가기', introDone], ['1-1 교실 조사하기', FL.cam]] };
-  if (!got[0]) return { ch: 2, main: '교무실 금고를 열어 첫 번째 열쇠 조각을 찾아라', loc: LOC.office,
+  if (!got[0]) return { ch: 2, main: '교무회의록의 날짜를 추리해 첫 금고를 열어라', loc: LOC.office,
     subs: [['민아의 캠코더 확인', FL.cam], ['교무회의록 읽기', n3], ['금고 열기 — 비밀번호: 그날의 날짜', got[0]]] };
   if (P.keys < TOTAL) {
     const left = KEY_ROOMS.map((r, i) => ({ ...r, i })).filter(r => !got[r.i]);
@@ -406,21 +413,28 @@ function objective() {
         return { ch: 3, main: '소지품(Tab) › 열쇠 아이템에서 대걸레 자루와 철사를 조합하라', loc: null, subs };
       }
     }
-    return { ch: 3, main: `정문 열쇠 조각을 모두 모아라 (${P.keys}/${TOTAL})`, loc: { ...k, where: `${KEY_WHERE[k.i]} — ${KEY_HINT[k.i]}` }, subs };
+    return { ch: 3, main: `기록이 가리키는 다섯 장소에서 열쇠 조각을 찾아라 (${P.keys}/${TOTAL})`, loc: { ...k, where: `${KEY_WHERE[k.i]} — ${KEY_HINT[k.i]}` }, subs };
   }
   if (!FL.gatekey && !FL.keyhead) {   // 제4장 · 열쇠의 머리 (별관)
     const s = (FL.sq && FL.sq.head) || 0, st = HEADQUEST.steps[Math.min(s, HEADQUEST.steps.length - 1)], hp = world.props.find(q => q.uid === `sq:head:${s}`);
-    return { ch: 4, main: s === 0 ? '열쇠의 머리가 없다 — 교장실에서 단서를 찾아라' : '별관 진열장에 숨겨진 열쇠의 머리를 찾아라', loc: hp ? { f: hp.floor, x: hp.x, z: hp.z, where: st.where } : null,
+    return { ch: 4, main: s === 0 ? '열쇠의 머리가 없다 — 교장실에서 단서를 찾아라' : '별관의 봉인된 기록으로 마지막 열쇠 위치를 추리하라', loc: hp ? { f: hp.floor, x: hp.x, z: hp.z, where: st.where } : null,
       subs: HEADQUEST.steps.map((x, i) => [x.goal, s > i]) };
   }
   if (!FL.gatekey) return { ch: 5, main: '소지품(Tab)에서 열쇠 머리와 조각 다섯 개를 조합하라', loc: null, subs: [[`열쇠 조각 ${TOTAL}/${TOTAL}`, true], ['열쇠 머리', true], ['정문 열쇠 만들기', false]] };
-  return { ch: 6, main: FL.mina ? '민아와 함께 정문으로 나가라' : '정문으로 달려가 탈출하라', loc: LOC.gate, subs: FL.calm ? [['하늘의 하교 방송', true]] : [['정문 밖으로 나가기', false]] };
+  if (!FL.mina) {
+    const i=optSteps().indexOf(false), steps=['명찰로 방송 속 이름 확인','예비 퓨즈와 차단기로 전력 복구','녹음의 시간 순서를 추리해 하교 방송 복원','장비실에서 민아 선배 깨우기'];
+    const fuse=world.items.find(it=>it.kind==='fuse');
+    const loc=i===1&&!FL.fuse&&fuse?{f:fuse.floor,x:fuse.pos.x,z:fuse.pos.z,where:'예비 퓨즈 — 지하 창고'}:optLoc();
+    return {ch:6,main:'민아 선배를 깨우고 함께 돌아갈 방법을 찾아라',loc,subs:steps.map((t,k)=>[t,optSteps()[k]])};
+  }
+  return {ch:6,main:'민아 선배와 함께 정문으로 돌아가라',loc:LOC.gate,subs:[['민아 선배 구출',true],['정문 밖으로 나가기',false]]};
 }
+function missionGroups() { return buildMissionGroups({flags:FL,documents:docs,quests:SIDEQUESTS,objective:objective()}); }
 function optSteps() { return [FL.tag, power, FL.calm, FL.mina]; }
 function optLoc() { const s = optSteps(), i = s.indexOf(false); return i < 0 ? null : [LOC.tag, LOC.breaker, LOC.console, LOC.mina][i]; }
 function unlockOptional() {
   if (FL.opt) return; FL.opt = true;
-  setTimeout(() => toast('특별 목표가 추가되었습니다', '하교 방송 — 하늘의 이야기를 끝내 줄 방법이 있을지도 모른다', 'opt'), 1200); refreshHud();
+  setTimeout(() => toast('수색 단서가 연결되었습니다', '그날의 방송을 복원하면 선배가 멈춘 기억을 풀 수 있을지도 모른다', 'opt'), 1200); refreshHud();
 }
 function showChapter(n) {
   const c = CHAPTERS[n - 1]; if (!c) return;
@@ -446,13 +460,13 @@ function objMini(o) {
 $('objTog').onclick = e => { e.stopPropagation(); objModeCycle(); };
 $('objTab').onclick = e => { e.stopPropagation(); SET.objMode = 'hidden'; objModeCycle(); };
 // 목표 바: 끝낸 항목은 '완료된 목표' 목록으로 빼고, 지금 할 일만 남긴다 (주 미션 · 선택 미션 · 의뢰 · 구역 미션별). 완료 목록은 저장되고 클릭(또는 K 키)으로 펼친다
-const DONE_SEC = { subs: '주 미션', optSubs: '선택 미션', sqSubs: '의뢰', zoneSubs: '구역 미션', phSubs: '사진 미션' };
+const DONE_SEC = { subs: '메인 미션', optSubs: '특별 미션', sqSubs: '서브 미션', zoneSubs: '서브 미션 · 구역', phSubs: '서브 미션 · 사진' };
 let objDoneOpen = false;
 function objDoneSplit() {
-  FL.doneLog ||= [];
+  FL.doneLog = normalizeCompletedLog(FL.doneLog);
   Object.entries(DONE_SEC).forEach(([id, sec]) => {
     const el = $(id); if (!el) return;
-    el.querySelectorAll('.chk.done').forEach(c => { const t = c.textContent.trim(); if (t && !FL.doneLog.some(d => d.t === t)) { FL.doneLog.push({ s: sec, t, ch: objective().ch }); if (FL.doneLog.length > 80) FL.doneLog.shift(); } c.remove(); });
+    el.querySelectorAll('.chk.done').forEach(c => { const t = c.textContent.trim(); recordCompleted(FL.doneLog, sec, t, objective().ch); c.remove(); });
     const box = id === 'subs' ? null : el.parentElement;   // 남은 항목이 없는 상자는 숨긴다 (주 미션 목록은 메인 목표 아래라 그대로)
     if (box && box.style.display !== 'none' && !el.children.length) box.style.display = 'none';
   });
@@ -471,11 +485,12 @@ function refreshHud() {
   objMini(o);
   $('subs').innerHTML = o.subs.map(([t, d]) => `<div class="chk${d ? ' done' : ''}">${t}</div>`).join('');
   $('optBox').style.display = FL.opt ? 'block' : 'none';
-  $('optTitle').textContent = OPTIONAL.title;
-  const st = optSteps(); $('optSubs').innerHTML = OPTIONAL.steps.map((t, i) => `<div class="chk${st[i] ? ' done' : ''}">${t}</div>`).join('');
+  const special=missionGroups()[2];
+  $('optTitle').textContent = special.title;
+  $('optSubs').innerHTML = special.items.map(t=>`<div class="chk${t.done?' done':''}">${t.title}${t.progress?` (${t.progress})`:''}</div>`).join('');
   sqSync(); const aq = SIDEQUESTS.filter(q => sqStep(q.id) > 0 && sqStep(q.id) < q.steps.length);
   zoneHud(); pqHud();
-  $('sqBox').style.display = aq.length || sqDoneCount() ? 'block' : 'none'; $('sqTitle').textContent = `의뢰 · 남겨진 부탁 (${sqDoneCount()}/${SIDEQUESTS.length})`;
+  $('sqBox').style.display = aq.length || sqDoneCount() ? 'block' : 'none'; $('sqTitle').textContent = `서브 미션 · 남겨진 부탁 (${sqDoneCount()}/${SIDEQUESTS.length})`;
   $('sqSubs').innerHTML = aq.slice(0, 3).map(q => `<div class="chk">${q.title} — ${q.steps[sqStep(q.id)].goal}</div>`).join('') + (aq.length > 3 ? `<div class="chk" style="opacity:.6">외 ${aq.length - 3}건 (휴대폰 › 사건)</div>` : '');
   $('c2').textContent = inv.battery; $('c3').textContent = inv.medkit; $('c5').textContent = inv.can; $('s5').classList.toggle('off', !inv.can); $('c4').textContent = FL.gatekey ? '열쇠' : `${P.keys}/${TOTAL}`;
   $('s2').classList.toggle('off', !inv.battery); $('s3').classList.toggle('off', !inv.medkit); $('s4').classList.toggle('off', !P.keys);
@@ -501,7 +516,7 @@ function talk(id, ms = 3200) {
   if (vid && lineInfo(vid)) speak(vid).then(sec => { if (request !== talkRequest) return; clearTimeout(talkTimer); talkTimer = setTimeout(() => $('dlg').classList.remove('show'), Math.max(ms, sec * 1000 + 700)); });
 }
 // 이야기 장면(녹화 · 녹음 · 메시지 · 문서 · 퍼즐) 직후 잠시 그것이 물러나 있게 한다
-function storyCalm(sec = 40) { ghost.calmT = Math.max(ghost.calmT || 0, sec); if (ghost.active && !ghost.enraged && ghost.floor === P.floor && ghost.state !== 'chase') { ghost.state = 'patrol'; ghost.path = []; ghost.wait = 3; } }
+function storyCalm(sec = 40) { psychologicalDirector.quiet(Math.max(18,sec)); ghost.calmT = Math.max(ghost.calmT || 0, sec); if (ghost.active && !ghost.enraged && ghost.floor === P.floor && ghost.state !== 'chase') { ghost.state = 'patrol'; ghost.path = []; ghost.wait = 3; } }
 function addClue(id) { storyCalm(30); if (clues.includes(id)) return; clues.push(id); }
 // 게임 시각: 17:50 에 도착, 해가 지는 동안 한 시간 남짓 흐르고, 이후 실제 1분 = 게임 4분 (한 시간 플레이 ≈ 23시)
 const gameMin = (extra = 0) => Math.floor(17 * 60 + 50 + (playTime + extra) * 4 / 60 + 70 * (1 - DAY.k / .92));
@@ -518,9 +533,10 @@ function docInfo(d) {
 function addDoc(d) { if (docs.some(x => x.id === d.id)) return; const i = docInfo(d); if (i) docs.push({ ...d, ...i }); }
 const DOC_TOTAL = () => world.items.filter(i => i.kind === 'note' || i.kind === 'photo').length + Object.keys(world.TAPES).length + 1;
 async function playCam() {
+  const epoch=storySession;
   storyCalm(45);
   const sec = await line('cam1', 'phone', '📹 민아 (녹화)');
-  setTimeout(() => { if (state === 'playing' || state === 'ui') talk('afterCam', 3200); }, (sec + .6) * 1000);
+  setTimeout(() => { if (epoch===storySession&&(state === 'playing' || state === 'ui')) talk('afterCam', 3200); }, (sec + .6) * 1000);
 }
 
 /* ----- 소지품 ----- */
@@ -609,7 +625,7 @@ function makeGateKey() {
   FL.gatekey = true; newItems.add('gatekey'); sfx.unlock(); setFace('resolve', 3);
   toast('정문 열쇠를 만들었습니다', '정문 · 서문 · 지하 비상 통로를 열 수 있다');
   setTimeout(() => talk('keyMade', 3000), 300);
-  if (FL.calm) setTimeout(() => toast('고요하다', '그것은 더 이상 쫓아오지 않는다. ' + (FL.mina ? '민아와 함께 정문으로.' : '…민아는 아직 방송실에 있다.'), 'opt'), 2600);
+  if (FL.calm) setTimeout(() => toast('고요하다', '꺼지지 않던 방송이 멎고, 기억 속 교실이 조용해졌다. ' + (FL.mina ? '민아와 함께 정문으로.' : '…민아는 아직 방송실에 있다.'), 'opt'), 2600);
   else setTimeout(() => { if (state === 'ui') closeUI(); enrage(); }, 1600);
   refreshHud(); save(true);
 }
@@ -720,12 +736,16 @@ function renderPhone() {
     B.querySelectorAll('img').forEach(im => { im.onclick = () => { $('lbImg').src = im.src; $('lbCap').textContent = im.dataset.t; $('lightbox').classList.add('show'); }; });
   } else if (phoneTab === 'memo') {
     const sp = (FL.spirit || []).slice().reverse().map(x => `<div class="memo">📷 <b>심령 사진</b> (${x.t || ''}) — ${x.text}<br><i>${x.subText}</i></div>`).join('');
-    B.innerHTML = clues.length || sp ? sp + clues.slice().reverse().map(c => `<div class="memo">${CLUES[c]}</div>`).join('') : '<div class="pEmpty">아직 기록한 단서가 없습니다.</div>';
+    const observations=(Array.isArray(FL.observations)?FL.observations:[]).filter(x=>x&&PHENOMENON_LABELS[x.id]).map(x=>`<div class="memo">관찰 기록 · ${PHENOMENON_LABELS[x.id]} · ${String(x.time||'').replace(/[<>]/g,'')}<br><small>기억의 잔향 — 객관적 증거와 대조 필요</small></div>`).join('');
+    B.innerHTML = observations + (clues.length || sp ? sp + clues.slice().reverse().map(c => `<div class="memo">${CLUES[c]}</div>`).join('') : '<div class="pEmpty">아직 기록한 단서가 없습니다.</div>');
+  } else if (phoneTab === 'missions') {
+    B.innerHTML='<nav class="missionNav"><button data-mission-nav="main">메인</button><button data-mission-nav="side">서브</button><button data-mission-nav="special">특별</button></nav>'+missionGroups().map(g=>`<section class="missionGroup" data-mission="${g.id}" id="mission-${g.id}"><h3>${g.title}</h3><p>${g.purpose}</p>${g.items.map(it=>`<div class="memo${it.done?' missionDone':''}"><b>${it.done?'✓ ':''}${it.title}</b>${it.progress?` · ${it.progress}`:''}${it.where?`<br><small>${it.where}</small>`:''}</div>`).join('')}</section>`).join('');
+    B.querySelectorAll('[data-mission-nav]').forEach(b=>{b.onclick=()=>B.querySelector('#mission-'+b.dataset.missionNav).scrollIntoView({block:'start',behavior:'smooth'});});
   } else if (phoneTab === 'tool') {
     const o = objective(), d = objDir(), cd = Math.ceil(P.flashCD || 0), pb = Math.round(P.pbat ?? 100);
     B.innerHTML = `<div class="pTool"><div class="pCard"><small>📍 현재 위치</small><b>${whereText()}</b><span>${o.main}${o.loc ? `<br>목표 위치: ${o.loc.where}` : ''}${d ? `<br><em>${d.text}</em>` : ''}</span></div>
-      <button data-t="flash"${cd || pb < 15 ? ' disabled' : ''}>📸 카메라 플래시<small>${cd ? `충전 중 ${cd}초` : '앞에 있는 그것을 잠깐 물러나게 한다 · 배터리 15%'}</small></button>
-      <button data-t="radar"${pb < 5 ? ' disabled' : ''}>📡 잡음 탐지<small>그것이 같은 층에 있는지 · 얼마나 가까운지 · 배터리 5%</small></button>
+      <button data-t="flash"${cd || pb < 15 ? ' disabled' : ''}>📸 카메라 플래시<small>${cd ? `충전 중 ${cd}초` : '어둠 속 흔적을 비춘다 · 배터리 15%'}</small></button>
+      <button data-t="radar"${pb < 5 ? ' disabled' : ''}>📡 잡음 탐지<small>같은 층의 이상한 전파 흔적을 확인 · 배터리 5%</small></button>
       <button data-t="save"${ghost.state === 'chase' && ghost.active && ghost.floor === P.floor ? ' disabled' : ''}>💾 빠른 저장<small>F5 — 현재 진행을 저장합니다</small></button>
       <div class="pNote">휴대폰 배터리는 천천히 충전된다 (보조 배터리 내장)</div></div>`;
     B.querySelectorAll('button[data-t]').forEach(b => { b.onclick = () => phoneTool(b.dataset.t); });
@@ -808,8 +828,8 @@ function objDir() {
 
 /* ----- 열기 / 닫기 ----- */
 const UI_PANELS = ['inv', 'mapOv', 'testOv', 'keypad', 'phone', 'invZoom', 'chalk'];
-function openUI(kind) { if (state !== 'playing') return; if (CAM.on) camMode(false); state = 'ui'; for (const k in keys) keys[k] = false; $('prompt').style.display = 'none'; $(kind).classList.add('show'); document.exitPointerLock?.(); }
-function closeUI() { if (state !== 'ui') return; UI_PANELS.forEach(k => $(k).classList.remove('show')); combineFrom = null; invMsg = ''; state = 'playing'; refreshHud(); lock(); }
+function openUI(kind) { if (state !== 'playing') return; $('chapterCard').classList.remove('show');$('dlg').classList.remove('show'); if (CAM.on) camMode(false); state = 'ui'; for (const k in keys) keys[k] = false; $('prompt').style.display = 'none'; $(kind).classList.add('show'); document.exitPointerLock?.(); }
+function closeUI() { if (state !== 'ui') return; if($('keypad').classList.contains('show')){++keypadSequence;kpOpening=false;} UI_PANELS.forEach(k => $(k).classList.remove('show')); combineFrom = null; invMsg = ''; state = 'playing'; refreshHud(); lock(); }
 function openInv(tab = 'items') { if (state !== 'playing') return; invTab = tab; invSel = 0; openUI('inv'); renderInv(); sfx.paper(); }
 document.querySelectorAll('[data-close]').forEach(b => { b.onclick = () => closeUI(); });
 $('izClose').onclick = () => $('invZoom').classList.remove('show');
@@ -977,7 +997,7 @@ function interact() {
       setTimeout(playCam, 700); save(true);
     } else if (it.kind === 'nametag') {
       FL.tag = true; FL.opt = true; newItems.add('nametag'); sfx.key(); setFace('calm', 3);
-      toast('특별 목표', '윤하늘의 명찰을 찾았다', 'opt'); talk('tagFound', 3600); addClue('tag'); refreshHud(); save(true);
+      toast('이름 단서 발견', '방송 기록 속 윤하늘의 명찰을 찾았다', 'opt'); talk('tagFound', 3600); addClue('tag'); refreshHud(); save(true);
     } else if (it.kind === 'hairpin' || it.kind === 'can') {
       inv[it.kind]++; newItems.add(it.kind); sfx.pickup(); toast('아이템을 획득했습니다', `${ITEMS[it.kind].name} (보유 ${inv[it.kind]})` + (it.kind === 'can' ? ' — G 키로 던지기' : ''));
       refreshHud();
@@ -1039,7 +1059,7 @@ function enrage() {
   if (TEST && TST.noGhost) return;
   showStoryGhost(ghost, P, floors, 8);
   caption('그날의 그림자가 길을 비킨다. 이제 정문으로 돌아가자');
-  setTimeout(() => phoneMessage(3), 16000);
+  const epoch=storySession;setTimeout(() => phoneMessage(3,epoch), 16000);
 }
 
 const STAIRS = { 0: { up: 1, down: 4 }, 1: { up: 2, down: 0 }, 2: { up: 3, down: 1 }, 3: { down: 2 }, 4: { up: 0 }, 8: { up: 9 }, 9: { up: 10, down: 8 }, 10: { down: 9 } };
@@ -1344,7 +1364,8 @@ function choose(title, text, opts) {
     const hudOn = $('hud').classList.contains('show'); $('hud').classList.remove('show');
     $('choiceTitle').textContent = title; $('choiceText').innerHTML = text || '';
     const box = $('choiceBtns'); box.innerHTML = '';
-    const done = i => { removeEventListener('keydown', kd, true); $('choice').classList.remove('show'); if (hudOn) $('hud').classList.add('show'); sfx.ui(); if (state === 'ui') { state = prev === 'ui' ? 'playing' : prev; if (state === 'playing') lock(); } res(i); };
+    let settled=false;
+    const done = i => { if(settled)return;settled=true; removeEventListener('keydown', kd, true); $('choice').classList.remove('show'); if (hudOn) $('hud').classList.add('show'); sfx.ui(); if (state === 'ui') { state = prev === 'ui' ? 'playing' : prev; if (state === 'playing') lock(); } res(i); };
     const kd = e => { const i = ['Digit1', 'Digit2', 'Digit3', 'Digit4'].indexOf(e.code); if (i >= 0 && i < opts.length) { e.preventDefault(); e.stopPropagation(); done(i); } };
     opts.forEach((o, i) => { const b = document.createElement('button'); b.innerHTML = `${i + 1}. ${o.label}${o.sub ? `<small>${o.sub}</small>` : ''}`; b.onclick = () => done(i); box.appendChild(b); });
     addEventListener('keydown', kd, true);
@@ -1409,12 +1430,20 @@ function die() {
 
 /* ---------- 이벤트(랜덤 공포 연출) ---------- */
 function randomEvent() {
-  const r = Math.random();
-  const pan = Math.random() * 2 - 1;
-  if (r < .35) { sfx.bang(pan, .7); }
-  else if (r < .6) { blackout = 1.0 + Math.random() * 1.2; sfx.creak(pan); }
-  else if (r < .8) { sfx.whisper(); if (Math.random() < .6) line(['gh1', 'gh2', 'gh3'][(Math.random() * 3) | 0], 'whisper'); }
-  else { sfx.creak(pan); setTimeout(() => sfx.bang(pan, .5), 700); }
+  const id=psychologicalDirector.tick(.1,{playing:state==='playing',indoors:!isOutdoors(),busy:isSpeechBusy()||voBusy,chapter:objective().ch});
+  if(id) psychologicalPhenomenon(id);
+}
+function psychologicalPhenomenon(id) {
+  const y=floors[P.floor].y0, behind=at(P.x+Math.sin(P.yaw)*6,y+.2,P.z+Math.cos(P.yaw)*6);
+  const events={
+    attendance:()=>{sfx.paper();caption('빈 교실에서 출석을 부르는 듯하다. 대답하는 목소리는 없다.');},
+    clock:()=>{sfx.click();caption('벽시계는 멈춰 있다. 방금도 같은 시각을 보았던 것 같다.');},
+    paper:()=>{sfx.paper();caption('창문은 닫혀 있는데, 누군가 종이를 넘기는 소리가 들린다.');},
+    'empty-bell':()=>{sfx.bellFar();caption('수업이 끝난 지 오래인데, 멀리서 종이 한 번 울린다.');},
+    footsteps:()=>{behind.stepBehind(.18);caption('내가 멈춘 뒤에도 발소리가 한 걸음 더 이어졌다.');},
+    'radio-memory':()=>{sfx.whisper();caption('전원이 꺼진 방송에서, 선배가 보낸 메시지의 마지막 말이 떠오른다.');window.sanitySystem.corruptUIElements();}
+  };if(!events[id])return;events[id]();
+  FL.observations=Array.isArray(FL.observations)?FL.observations:[];FL.observations.push({id,floor:P.floor,time:clockText()});FL.observations=FL.observations.slice(-24);
 }
 
 /* ---------- 입력 ---------- */
@@ -1532,12 +1561,13 @@ function load(preferBackup) {
   const r = (() => { try { return readSlot(localStorage, SKEYS, SCTX, preferBackup); } catch (e) { return { data: null }; } })();
   const d = r.data;
   if (!d) { toast('세이브를 불러올 수 없습니다', '저장 데이터가 없거나 손상되었습니다', 'warn'); return false; }
+  beginStorySession(); psychologicalDirector.quiet(25);
   const fixes = repairProgress(d, TOTAL);
   // 1) 주인공 — 세이브의 캐릭터로 맞춘다 (외형 · 능력 · 대사)
   if (CHARACTERS[d.meta.char]) { CHAR = d.meta.char; try { localStorage.setItem('haegyo_char', CHAR); } catch (e) { /* ignore */ } }
   applyChar();
   // 2) 플레이어 · 진행
-  Object.assign(P, d.player); P.hiding = null;
+  Object.assign(P, d.player); P.hiding = null; $('hide').classList.remove('show');$('peekEye').classList.remove('on');
   got.splice(0, TOTAL, ...d.progress.got.slice(0, TOTAL).map(Boolean));
   Object.assign(inv, d.inv); Object.assign(FL, d.progress.FL || {}); power = !!d.progress.power;
   msgs.length = 0; msgs.push(...(d.msgs || [])); clues.length = 0; clues.push(...(d.clues || []));
@@ -1567,6 +1597,7 @@ function load(preferBackup) {
 }
 
 function start(skipIntro = false) {
+  beginStorySession(); const epoch=storySession; psychologicalDirector.quiet(35);
   initAudio(); closeMenus(); applyChar();
   if (!readingSave) { DAY.k = .92; DAY.start = -1; DAY.done = false; delete FL.night; }
   refreshHud(); chapterShown = objective().ch;
@@ -1580,16 +1611,17 @@ function start(skipIntro = false) {
   (async () => {
     await W(.9);
     for (let i = 0; i < 4; i++) {
-      if (state !== 'intro') return;
-      if (i === 2) { sfx.vibrate(); await W(1.4); if (state !== 'intro') return; }
+      if (epoch!==storySession || state !== 'intro') return;
+      if (i === 2) { sfx.vibrate(); await W(1.4); if (epoch!==storySession || state !== 'intro') return; }
       ps[i].classList.add('on');
       const sec = await speak(ids[i], i === 2 ? 'phone' : 'none');
       await W(Math.max(sec, 1.6) + .5);
     }
-    if (state === 'intro') { sfx.swell(1.6, .35); await W(1.5); introText = false; introT = 6; }
+    if (epoch===storySession && state === 'intro') { sfx.swell(1.6, .35); await W(1.5); if(epoch!==storySession||state!=='intro')return;introText = false; introT = 6; }
   })();
 }
 function finishIntro() {
+  const epoch=storySession;
   stopSpeak(); introText = false; if (introGuard) introGuard.visible = false;
   preload(['phone1', 'phone2', 'phone3', 'pa1', 'gh1', 'gh2', 'gh3', 'gh4', 'cam1', ...Object.keys(LINES).map(k => `l_${k}_${CK()}`)]);
   $('intro').classList.remove('show'); $('introTitle').classList.remove('show'); $('hud').classList.add('show'); $('cine').classList.remove('on');
@@ -1598,8 +1630,8 @@ function finishIntro() {
   state = 'playing';
   if (!readingSave) {   // 겹치지 않게 차례로: 장 카드 → 주인공 첫마디 → (장소 카드) → 정문 앞 휴대폰 진동
     startQuietT = performance.now() + 6500;
-    setTimeout(() => showChapter(1), 600); setTimeout(() => talk('arrive', 4200), 1500);
-    setTimeout(() => { if (state === 'playing' && P.floor === 0 && isOutdoors()) phoneMessage(0); }, 10500);   /* 아직 정문 · 운동장에 있을 때만 */
+    setTimeout(() => {if(epoch===storySession&&state==='playing')showChapter(1);}, 600); setTimeout(() => {if(epoch===storySession&&state==='playing')talk('arrive', 4200);}, 1500);
+    setTimeout(() => { if (epoch===storySession && state === 'playing' && P.floor === 0 && isOutdoors()) phoneMessage(0,epoch); }, 10500);   /* 아직 정문 · 운동장에 있을 때만 */
   }
 }
 // 정문 앞 경비원 — 인트로에만 나타나는 '그날 밤의 잔상' (번개가 치면 사라진다)
@@ -2194,7 +2226,8 @@ function frameBody(now) {
     if (state === 'playing') {
       ghostTick(dt, tNow);
       // 랜덤 이벤트
-      if (introDone && ghost.active) { nextEvent -= dt; if (nextEvent <= 0) { nextEvent = 60 + Math.random() * 60; randomEvent(); } }
+      const phenomenon=psychologicalDirector.tick(dt,{playing:true,indoors:!isOutdoors(),busy:isSpeechBusy()||voBusy||performance.now()<startQuietT,chapter:objective().ch});
+      if(phenomenon) psychologicalPhenomenon(phenomenon);
       updatePrompt();
       updateEvents(dt);
     }
@@ -2269,25 +2302,29 @@ function litAt(f, x, z) {
   return F.lamps.some(l => l.room && !l.off && l.kind !== 'dead' && Math.abs(l.x - x) < 3.6 && Math.abs(l.z - z) < 4.2) && blackout <= 0;
 }
 
-/* ---------- 수영장의 기억 (EV-17~19): 플래시백 → 관람석의 소녀 → 선택 → (도망) 추격 ---------- */
+/* ---------- 수영장의 기억 (EV-17~19): 플래시백 → 관람석의 소녀 → 선택 ---------- */
 async function poolFlashback() {
+  const epoch=storySession,current=()=>epoch===storySession&&P.floor===6&&['playing','ui','note'].includes(state);
+  try {
   storyCalm(120); $('memTint').classList.add('on'); fx.glitch(.5); sfx.drip(); setFace('fear', 3);
   caption('…물방울이 거꾸로 떨어진다. 물이 가득하던 그날의 수영장');
   for (let k = 0; k < 40; k++) fx.emit(-46 + Math.random() * 8, floors[6].y0 - 1.3, 33 + Math.random() * 12, 0, 1.5 + Math.random(), 0, 1.6, [.6, .9, .95], .3, .03, -2);
-  line('echo1'); await wait(5600); line('echo2'); await wait(4200);
+  const e1=await line('echo1');await wait((e1+.4)*1000);if(!current())return;const e2=await line('echo2');await wait((e2+.4)*1000);if(!current())return;
   $('memTint').classList.remove('on'); addClue('pool3'); FL.mem3 = true;
   toast('기억 조각을 얻었다', '물이 가득하던 수영장 — 관람석에서 누군가 이쪽을 내려다본다', 'opt');
   showApparition(6, -48.6, 40, Math.atan2(P.x + 48.6, P.z - 40), 40, null); sfx.whisper(); await wait(2000);
-  if (state !== 'playing' || P.floor !== 6) { apparT = .3; return; }
-  const i = await choose('관람석의 소녀', '젖은 머리카락 사이로, 교복 차림의 소녀가 당신을 내려다본다.', [{ label: '사과한다', sub: '“미안해. 아무도 너를 찾으러 오지 않았어.”' }, { label: '묻는다', sub: '“그날 밤, 무슨 일이 있었어?”' }, { label: '도망친다', sub: '지금 당장 이곳을 벗어난다' }]);
+  if (!current() || state !== 'playing') { if(epoch===storySession)apparT = .3; return; }
+  const i = await choose('관람석의 소녀', '젖은 머리카락 사이로, 교복 차림의 소녀가 당신을 내려다본다.', [{ label: '사과한다', sub: '“미안해. 아무도 너를 찾으러 오지 않았어.”' }, { label: '묻는다', sub: '“그날 밤, 무슨 일이 있었어?”' }, { label: '조용히 자리를 뜬다', sub: '지금 본 장면을 기록해 두고 돌아간다' }]);
+  if(!current())return;
   apparT = .4; FL.girl = ['sorry', 'ask', 'run'][i];
   if (i === 0) { subtitle('하늘', '…괜찮아. 이제, 누군가는 알잖아.', 4.5); storyCalm(160); setFace('calm', 3); }
   else if (i === 1) { subtitle('하늘', '그날 밤, 문은 밖에서 잠겨 있었어. 열쇠는… 선생님 주머니에 있었고.', 5.5); addClue('girl'); storyCalm(110); }
   else {
-    sfx.screech(); shake = .6; fx.glitch(.6); caption('그것이 관람석에서 뛰어내렸다 — 출구로 달려!');
-    if (ghost.active && !ghost.enraged) Object.assign(ghost, { floor: 6, x: -47.2, z: 40, state: 'chase', target: { x: P.x, z: P.z }, spawnGrace: 2.5, calmT: 0, visitT: 0, chaseT: 0, path: [], replan: 0, hunt: null });
+    sfx.screech(); shake = .6; fx.glitch(.6); caption('관람석의 형체가 사라졌다. 방금 본 모습이 정말 있었던 걸까?');
+    settleStoryGhost(ghost);
   }
   save(true);
+  } finally { if(epoch===storySession)$('memTint').classList.remove('on'); }
 }
 
 /* ---------- 교실의 기억 (수집 요소) ---------- */
@@ -2306,7 +2343,7 @@ function readMemory(p) {
 }
 
 /* ---------- 퍼즐 · 장치 ---------- */
-let power = false, consoleCD = 0, kpBuf = '', kpProp = null;
+let power = false, consoleCD = 0, kpBuf = '', kpProp = null, keypadSequence = 0, kpOpening = false;
 const setTarget = t => { target = t; };
 async function useProp(p) {
   if (p.kind === 'fz') { fzUse(p); return; }   // 사용자 패치(5대 구역 · 실내 연결복도) 상호작용
@@ -2325,7 +2362,7 @@ async function useProp(p) {
   if (p.kind === 'footprints') { p.done = true; poolFlashback(); return; }
   if (p.kind === 'safe') {
     if (p.open > 0) return;
-    kpProp = p; kpBuf = ''; $('kpTitle').textContent = '교무실 금고'; if (!p.fails) $('kpHint').textContent = '숫자 키 · Enter · Backspace 사용 가능'; renderKeypad(); openUI('keypad'); sfx.beep();
+    kpProp = p; kpBuf = '';++keypadSequence;kpOpening=false; $('kpTitle').textContent = '교무실 금고'; if (!p.fails) $('kpHint').textContent = '숫자 키 · Enter · Backspace 사용 가능'; renderKeypad(); openUI('keypad'); sfx.beep();
   } else if (p.kind === 'sink') { useSink(p);
   } else if (p.kind === 'flush') { useFlush(p);
   } else if (p.kind === 'cbreaker') { useCBreaker(p);
@@ -2346,7 +2383,7 @@ async function useProp(p) {
   } else if (p.kind === 'bell') {
     if (p.cd > 0) { sfx.click(); say('벨이 아직 울리지 않는다…', 1500); return; }
     p.cd = 60; at(p.bx, floors[p.floor].y0 + 1.5, p.bz).bell(); P.noiseT = 1; shake = .25;
-    toast('비상벨', '학교에 벨이 울린다. 그것이 이곳으로 온다 — 숨어!', 'warn');
+    toast('비상벨', '빈 교실마다 같은 종소리가 돌아온다. 응답은 없다.', 'warn');
     if (ghost.active) {
       if (ghost.floor !== p.floor) { const sz = floors[p.floor].stairZone; ghost.floor = p.floor; ghost.x = sz ? sz.spawn.x : 2.2; ghost.z = sz ? sz.spawn.z : -5.2; ghost.spawnGrace = 2; }
       ghost.state = 'search'; ghost.target = { x: p.bx, z: p.bz + .8 }; ghost.path = []; ghost.replan = 0; ghost.wait = 0; ghost.lureT = 20; ghost.hunt = null;
@@ -2357,7 +2394,7 @@ async function useProp(p) {
     if (FL.tag) { haneulBroadcast(); return; }
     if (consoleCD > 0) { sfx.buzz(); say(`장비가 과열됐다… (${Math.ceil(consoleCD)}초)`, 2000); return; }
     consoleCD = 90; sfx.broadcast(); setTimeout(() => line('pa1', 'pa'), 800);
-    toast('교내 방송', '학교 전체에 소리가 울렸다. 그것이 방송실로 향한다 (25초)', 'warn');
+    toast('교내 방송', '빈 교실의 스피커에서 같은 문장이 반복된다', 'warn');
     talk('lure', 3200); if (FL.opt) setTimeout(() => talk('needTag', 3400), 5200);
     if (ghost.active) { ghost.floor = 2; ghost.x = -24; ghost.z = -5.5; ghost.state = 'search'; ghost.target = { x: -24, z: -5.5 }; ghost.path = []; ghost.lureT = 25; ghost.spawnGrace = 2; ghost.hunt = null; }
   } else if (p.kind === 'lock') openLock(p);
@@ -2399,27 +2436,29 @@ async function useProp(p) {
 }
 // 진 엔딩 루트: 명찰을 가진 채 방송 → 하늘의 하교 방송 → 그것이 사라진다
 async function haneulBroadcast() {
-  if (!FL.tapesDone) {
-    const r = await mini('order', { title: '마지막 방송 — 그날 밤의 녹음 복원', frags: TAPE_FRAGS, showTimes: tlKnown() >= 6, onFail: () => { FL.tapeFails = (FL.tapeFails || 0) + 1; } });
-    if (!r.ok) { say('녹음 순서가 맞지 않는다… 휴대폰의 사건 연표를 떠올려 보자', 2800); return; }
-    FL.tapesDone = true; save(true);
-  }
-  FL.calm = true; consoleCD = 999; sfx.broadcast(); shake = .3; voBusy = true; setTimeout(() => { voBusy = false; }, 26000);
-  toast('하교 방송', '3학년 2반 윤하늘의 이름을 불렀다…', 'opt');
-  if (ghost.active) { ghost.state = 'search'; ghost.hunt = null; ghost.lureT = 60; ghost.target = { x: ghost.x, z: ghost.z }; ghost.path = []; }
-  setTimeout(async () => {
-    const sec = await line(`bc_${CK()}`, 'pa', `📢 ${CH().name}`);
-    setTimeout(async () => {
-      ghost.active = false; ghost.enraged = false; ghost.hunt = null;
-      if (P.floor === 2) showApparition(2, -24.6, -3.6, Math.atan2(P.x + 24.6, P.z + 3.6), 5, null);
-      const s2 = await line('ghThanks', 'none', '하늘');
-      setTimeout(() => {
-        talk('calm', 3200); addClue('calm'); refreshHud(); save(true);
-        toast('특별 목표 달성', '그것은 더 이상 쫓아오지 않는다', 'opt');
-        setTimeout(() => talk('findMina', 3400), 4200);
-      }, (s2 + .6) * 1000);
-    }, (sec + .8) * 1000);
-  }, 900);
+  const epoch=storySession, current=()=>epoch===storySession&&['playing','ui','note'].includes(state);
+  if(voBusy)return;
+  voBusy=true;
+  try {
+    if(!FL.tapesDone){
+      const r=await mini('order',{title:'마지막 방송 — 그날 밤의 녹음 복원',frags:TAPE_FRAGS,showTimes:tlKnown()>=6,onFail:()=>{FL.tapeFails=(FL.tapeFails||0)+1;}});
+      if(!current())return;
+      if(!r.ok){say('시간이 맞지 않는다. 사건 연표의 기록을 다시 비교해 보자',2800);return;}
+      FL.tapesDone=true;
+    }
+    if(!current())return;
+    FL.calm=true;consoleCD=999;sfx.broadcast();storyCalm(40);refreshHud();save(true);
+    toast('방송 복원','기록 속 이름과 시간이 이어졌다. 장비실의 선배를 확인하자','opt');
+    await wait(900);if(!current())return;
+    const sec=await line(`bc_${CK()}`,'pa',`📢 ${CH().name}`);
+    await wait((sec+.8)*1000);if(!current())return;
+    ghost.active=false;ghost.enraged=false;ghost.hunt=null;
+    if(P.floor===2)showApparition(2,-24.6,-3.6,Math.atan2(P.x+24.6,P.z+3.6),5,null);
+    const thanks=await line('ghThanks','none','하늘');
+    await wait((thanks+.6)*1000);if(!current())return;
+    talk('calm',3200);addClue('calm');refreshHud();save(true);
+    toast('방송 복원 완료','꺼지지 않던 방송이 멎고, 기억 속 교실이 조용해졌다','opt');
+  } finally {if(epoch===storySession)voBusy=false;}
 }
 // 민아 깨우기: 3D 모델이면 깨어남(이마 짚기 · 두리번) → 일어서기 → 안도 표정 뒤 사라짐. 아니면 바로 사라짐
 async function minaWake() {
@@ -2440,27 +2479,31 @@ function renderKeypad() {
   const d = $('kpDisp'); d.textContent = (kpBuf + '____').slice(0, 4).split('').join(' '); d.className = '';
 }
 function keypadPress(k) {
+  if(kpOpening)return;
   if (k === 'C') { kpBuf = ''; sfx.beep(); renderKeypad(); return; }
   if (k === 'OK') return keypadCheck();
-  if (kpBuf.length < 4) { kpBuf += k; sfx.beep(); renderKeypad(); if (kpBuf.length === 4) setTimeout(keypadCheck, 250); }
+  if (kpBuf.length < 4) { kpBuf += k; sfx.beep(); renderKeypad(); if (kpBuf.length === 4) {const sequence=keypadSequence,epoch=storySession;setTimeout(()=>{if(sequence===keypadSequence&&epoch===storySession)keypadCheck();},250);} }
 }
 function keypadCheck() {
+  if(kpOpening||!kpProp||kpBuf.length!==4||state!=='ui')return;
+  const sequence=keypadSequence,epoch=storySession,targetPad=kpProp,current=()=>sequence===keypadSequence&&epoch===storySession&&kpProp===targetPad&&state==='ui';
   if (kpProp.code) {   // 제4장 별관 진열장 (전자식 잠금)
     const p = kpProp.prop;
-    if (kpBuf === kpProp.code) { $('kpDisp').textContent = 'O P E N'; $('kpDisp').className = 'ok'; sfx.unlock(); setTimeout(() => { closeUI(); headAdvance(p); }, 700); return; }
-    $('kpDisp').textContent = 'E R R'; $('kpDisp').className = 'err'; sfx.buzz(); kpBuf = ''; setTimeout(renderKeypad, 700);
+    if (kpBuf === kpProp.code) { kpOpening=true;$('kpDisp').textContent = 'O P E N'; $('kpDisp').className = 'ok'; sfx.unlock(); setTimeout(() => { if(!current())return;closeUI();headAdvance(p); }, 700); return; }
+    $('kpDisp').textContent = 'E R R'; $('kpDisp').className = 'err'; sfx.buzz(); kpBuf = ''; setTimeout(()=>{if(current())renderKeypad();}, 700);
     p.fails = (p.fails || 0) + 1;
     $('kpHint').innerHTML = p.fails >= 3 ? '힌트 ③ 머릿돌: 1974년 <b>3월 2일</b> 개교 → 0 3 0 2' : p.fails === 2 ? '힌트 ② 별관 현관의 <b>개교 머릿돌</b> — 월일 4자리' : '힌트 ① 교장 수첩: 잠금 번호는 <b>“이 학교가 태어난 날”</b>';
     return;
   }
   if (kpBuf === '1012') {
+    kpOpening=true;
     $('kpDisp').textContent = 'O P E N'; $('kpDisp').className = 'ok'; sfx.unlock();
-    setTimeout(() => { closeUI(); kpProp.opening = true; kpProp.done = true; kpProp.key.locked = false; kpProp.key.mesh.visible = true; toast('금고가 열렸다', '안에 열쇠 조각이 있다'); talk('safeOpen', 3000); addClue('safe'); }, 700);
+    setTimeout(() => { if(!current())return;closeUI();targetPad.opening = true; targetPad.done = true; targetPad.key.locked = false; targetPad.key.mesh.visible = true; toast('금고가 열렸다', '안에 열쇠 조각이 있다'); talk('safeOpen', 3000); addClue('safe'); }, 700);
   } else {
     $('kpDisp').textContent = 'E R R'; $('kpDisp').className = 'err'; sfx.buzz(); kpBuf = '';
-    setTimeout(renderKeypad, 700);
+    setTimeout(()=>{if(current())renderKeypad();}, 700);
     kpProp.fails = (kpProp.fails || 0) + 1;
-    if (kpProp.fails === 1) setTimeout(() => talk('safeHint', 3000), 900);
+    if (kpProp.fails === 1) setTimeout(() => {if(current())talk('safeHint',3000);},900);
     $('kpHint').innerHTML = kpProp.fails >= 3 ? '힌트 ③ 달력의 붉은 동그라미 — <b>10월 12일</b> → 1 0 1 2' : kpProp.fails === 2 ? '힌트 ② 교무회의록: 비밀번호는 <b>그날의 날짜</b> (월일 4자리)' : '힌트 ① 그날… 무슨 날이었지? 교무실 어딘가에 기록이 있을 것이다';
   }
 }
@@ -2491,16 +2534,17 @@ function roomAt(f, x, z) {
   return { type: lay.types[i], name: lay.names[i], cx: sl[i], id: f + ':' + i };
 }
 // 민아의 음성 메시지 — 휴대폰(P) 메시지함에 쌓인다
-function phoneMessage(n) {
+function phoneMessage(n,epoch=storySession) {
+  if(epoch!==storySession||['won','dead'].includes(state))return;
   const id = 'phone' + n;
   if (msgs.some(m => m.id === id) || (n === 3 && FL.calm)) return;
-  if (state !== 'playing' || voBusy) { setTimeout(() => phoneMessage(n), 4000); return; }
+  if (state !== 'playing' || voBusy || isSpeechBusy()) { if(!pendingMessages.has(n))pendingMessages.set(n,setTimeout(()=>{pendingMessages.delete(n);phoneMessage(n,epoch);},4000));return; }
   msgs.push({ id, t: clockText(), read: false }); storyCalm(35); sfx.phone(); if (n === 0) sfx.vibrate();
   toast('📱 새 메시지 — 민아', n === 0 ? '연락이 끊겼던 민아에게서… 지금? (P: 휴대폰)' : '신호가 없는데 메시지가 도착했다 (P: 휴대폰)', 'info');
   if (CLUES[id]) addClue(id);
   if (n === 2) unlockOptional();
   refreshHud();
-  setTimeout(() => { if (state !== 'playing') return; talk('phone', 2600); setTimeout(() => line(id, 'phone', '📱 민아'), 2600); }, 1200);
+  setTimeout(() => { if (epoch!==storySession||state !== 'playing') return; talk('phone', 2600); setTimeout(() => {if(epoch===storySession&&state==='playing')line(id,'phone','📱 민아');}, 2600); }, 1200);
 }
 function updateEvents(dt) {
   if (consoleCD > 0) consoleCD -= dt;
@@ -2736,9 +2780,11 @@ world.PHOTOS.p5 = { img: 'old_lab', title: '사진 — 과학실 (10년 전)', t
 // 미니게임 실행: 게임을 멈추고(사물함처럼 안전) 결과를 돌려준다
 async function mini(kind, opts) {
   if (state !== 'playing') return { ok: false };
+  const epoch=storySession;
   storyCalm(20);
   state = 'ui'; for (const k in keys) keys[k] = false; $('prompt').style.display = 'none'; document.exitPointerLock?.();
   const r = await runMini(kind, opts);
+  if(epoch!==storySession)return {ok:false,cancelled:true};
   if (state === 'ui') { state = 'playing'; refreshHud(); lock(); }
   return r;
 }
@@ -3003,7 +3049,7 @@ function updateEvents2(dt) {
 /* ---------- 심리적 공포: 따라오는 발소리 · 바뀐 칠판 · 시야 끝의 그림자 · 이름을 부르는 속삭임 ---------- */
 const PSY = { followCD: 75, follow: 0, shadowCD: 55, nameCD: 100, boards: 0, visits: {} };
 function psych(f, room, step) {
-  if (state !== 'playing' || !introDone) return;
+  if (state !== 'playing' || !introDone || isSpeechBusy() || voBusy) return;
   const chase = false;
   // 불안도: 그것과의 거리 + 그것이 깨어났는지 + 어둠 (밝은 방에서는 덜하다)
   const fear = (P.fear || 0) + (ghost.active ? .15 : 0) + (P.light ? 0 : .15) - (litAt(f, P.x, P.z) ? .15 : 0);
@@ -3052,7 +3098,7 @@ function psych(f, room, step) {
   }
 }
 function moreEvents(f, room, step) {
-  if (state !== 'playing') return;
+  if (state !== 'playing' || isSpeechBusy() || voBusy) return;
   // ⑨ 천장 타일 낙하 (복도, 그것이 깨어난 뒤)
   if (ghost.active && f <= 2 && Math.abs(P.z) < 1.5 && playTime > 90 && P.moving) evOnce('tile' + f, () => {
     const fx2 = -Math.sin(P.yaw); const x = P.x + Math.sign(fx2 || 1) * 3.2;
@@ -3332,7 +3378,7 @@ async function useHead(p) {
     const r = await mini(st.mini, st.mini === 'slide' ? { img: 'assets/img/annex_ext.webp', title: '보안 PC — 끊긴 CCTV 화면 맞추기' } : { title: '별관 분전반 — 배선 연결' });
     if (!r.ok) return;
   }
-  if (st.code) { kpProp = { code: st.code, prop: p }; kpBuf = ''; $('kpTitle').textContent = '전시 공간 진열장'; $('kpHint').innerHTML = p.fails ? '힌트 ① 교장 수첩: 잠금 번호는 <b>“이 학교가 태어난 날”</b>' : '전자식 잠금 — 숫자 4자리'; renderKeypad(); openUI('keypad'); sfx.beep(); return; }
+  if (st.code) { kpProp = { code: st.code, prop: p }; kpBuf = '';++keypadSequence;kpOpening=false; $('kpTitle').textContent = '전시 공간 진열장'; $('kpHint').innerHTML = p.fails ? '힌트 ① 교장 수첩: 잠금 번호는 <b>“이 학교가 태어난 날”</b>' : '전자식 잠금 — 숫자 4자리'; renderKeypad(); openUI('keypad'); sfx.beep(); return; }
   headAdvance(p);
 }
 function headAdvance(p) {
@@ -3564,6 +3610,8 @@ function chalkAsk(i) {
 $('chalkClose').onclick = () => closeUI();
 // ── 초자연 현상 감독: 쫓기지 않을 때 1~2분마다 하나씩 (장이 진행될수록 잦아진다)
 function paraEvent(force) {
+  const quiet={scream:'radio-memory',hands:'paper',eyes:'attendance',bleed:'clock',count:'attendance',heart:'clock',thump:'paper',steps:'footsteps'};
+  if(typeof force==='string'&&quiet[force]){psychologicalPhenomenon(quiet[force]);return true;}
   if (!force && (state !== 'playing' || P.hiding || (ghost.active && ghost.floor === P.floor && (ghost.state === 'chase' || ghost.hunt)))) return false;
   if (TEST && TST.noGhost && !force) return false;
   const OUT_OK = ['giggle', 'name', 'cold', 'steps', 'scream', 'bell', 'torch', 'count', 'sob'], out = isOutdoors();
@@ -3797,7 +3845,7 @@ function pqHud() {
   const box = $('phBox'); if (!box) return; const k = pqStep(), on = objective().ch >= 2;
   if (on && !FL.pqStart) { FL.pqStart = true; setTimeout(() => toast('사진 미션 — 사라진 앨범', PQ_MSG[0] + ' (심령 카메라 X · 클릭으로 촬영)', 'opt'), 1500); }
   box.style.display = on ? 'block' : 'none';
-  $('phTitle').textContent = `사진 미션 · 사라진 앨범 (${k}/${PHOTOQ.length})`;
+  $('phTitle').textContent = `서브 미션 · 사라진 앨범 (${k}/${PHOTOQ.length})`;
   $('phSubs').innerHTML = PHOTOQ.map((T, i) => i < k ? `<div class="chk done">📷 ${T.where}</div>` : i === k ? `<div class="chk">📷 ${T.hint}</div>` : '').join('');
 }
 // 심령 사진: FL.spirit 에 저장(세이브 유지) → 휴대폰 사진 · 메모 탭
@@ -3857,7 +3905,7 @@ window.sanitySystem.audioCtx = sfxCtx;
   S.triggerFakePhoneNotification = () => { orig(); fakeMsgs.push({ who: $('sanity-sms-sender').textContent, text: $('sanity-sms-body').textContent, t: clockText() }); refreshHud(); }; }
 function sanityTick(dt) {
   const S = window.sanitySystem;
-  if (SET.fearFx) S.update(dt, P.fear * 100, state !== 'playing'); else if (S.isActive) S.update(dt, 0, true);
+  if (SET.fearFx) S.update(dt, P.fear * 100, state !== 'playing'||isSpeechBusy()||voBusy, false); else if (S.isActive) S.update(dt, 0, true);
   if (fakeMsgs.length && P.fear <= .5) fakeMsgs.length = 0;
   const gl = document.body.classList.contains('sanity-glitch-frame');   // 화면이 뒤틀리는 순간 시야각 +6° → 원래 FOV 로 부드럽게 (매 프레임 보간)
   if (gl && !SAN.gl && P.fear >= .8) { camera.fov += 6; camera.updateProjectionMatrix(); } SAN.gl = gl;
@@ -4299,7 +4347,7 @@ function zoneHud() {
   const box = $('zoneBox'); if (!box) return;
   box.style.display = FL.fzSeen || Object.values(fzP.missions).some(Boolean) ? 'block' : 'none';
   const L = zoneMissions(), done = L.filter(([, s]) => s.every(([, d]) => d)).length;
-  $('zoneTitle').textContent = `구역 미션 · 5대 구역 (${done}/${L.length})`;
+  $('zoneTitle').textContent = `서브 미션 · 구역 조사 (${done}/${L.length})`;
   $('zoneSubs').innerHTML = L.map(([t, s]) => { const n = s.filter(([, d]) => d).length, nx = s.find(([, d]) => !d);
     return `<div class="chk${nx ? '' : ' done'}">${t} (${n}/${s.length})${nx ? ` — ${nx[0]}` : ''}</div>`; }).join('');
 }
@@ -4569,7 +4617,7 @@ function patchTick(dt) {
   if ((patchSyncT -= dt) <= 0) { patchSyncT = 1;
     world.props.forEach(p => { if (p.kind === 'search' && p.done && !(FL.ldShut && FL.ldShut[p.uid])) { const s = steelNear(p.floor, p.x, p.z, .9); if (s && !s.data.isOpen && !s.data.isPlayerInside) { s.data.isOpen = true; s.data.targetRotationY = -Math.PI * .62; } } });
     if (!P.hiding && document.body.classList.contains('patch-inside-locker')) document.body.classList.remove('patch-inside-locker');
-    const z = zoneLabel(); if (z && z !== '실내 연결복도' && !FL.fzSeen && state === 'playing') { FL.fzSeen = true; refreshHud(); toast('구역 미션', `${z} — 이곳에서 할 수 있는 일이 있다 (목표 패널 · 구역 미션)`, 'info'); }
+    const z = zoneLabel(); if (z && z !== '실내 연결복도' && !FL.fzSeen && state === 'playing') { FL.fzSeen = true; refreshHud(); toast('서브 미션 · 구역 조사', `${z} — 남겨진 설비와 기록을 조사할 수 있다`, 'info'); }
   }
   // 7. 5대 구역: 냉동창고 저체온 · 해골 모형 (해골은 과학실 안에 있을 때만, 층 기준 좌표로)
   const inLab = P.floor === 1 && P.x > 28.1 && P.x < 35.9 && P.z < -1.75 && P.z > -9.6;
@@ -5558,10 +5606,7 @@ function extrasTick(dt) {
   searchTick(dt); tmpTick(dt); ambientTick(dt); featTick(dt);
   if (XT.mbox) { XT.mbox.t -= dt; if (XT.mbox.t <= 0) XT.mbox = null; }
   if (ghost.slowT > 0) ghost.slowT -= dt;
-  if (state === 'playing' && introDone) {
-    XT.para -= dt;
-    if (XT.para <= 0) { const ch = objective().ch; XT.para = (ch >= 4 ? 55 : ch >= 3 ? 75 : 100) + Math.random() * 50; if (!paraEvent()) XT.para = 15; }
-  }
+  // Incidental phenomena are scheduled by one psychological director above.
 }
 buildCamClues(); buildBreakers(); buildRestrooms(); spawnPicks();
 sqSync();
@@ -5721,7 +5766,7 @@ if (DEBUG) {
     interact, findInteract, hit, die, activateGhost, enrage, FL, MG, throwCan, throws, set playTime(v) { playTime = v; }, toggleView, get view() { return view; }, useProp, docs, msgs, clues, objective, makeGateKey, openInv, openPhone, openMap, openCharsel, openSettings, refreshHud, save, load, inv, mina,
     get power() { return power; }, set power(v) { power = v; }, get CHAR() { return CHAR; }, newGame, continueGame,
     setTarget(t) { target = t; }, DAY, GEN, SIDEQUESTS, sqStep, sqDoneCount, useSideQuest, HEADQUEST, useHead, COLLECT, paraEvent, toiletFx, tmpFx, TE, roomAt, camMode, camShoot, CAM, MIC, SAN, BRK, setBreaker, schoolPower, craftingSystem, ghostCam, restroom, useSink, useFlush, placeAlarm, throwShock, useFirstAid, tryCombine, stunGhost, enterLocker, leaveLocker, startSearch, useMiniSpot, openChalk, chalkAsk, XT,
-    ghostTick, enrage, activateGhost, ELV, elvPress, elvTick, SG, sgTestSpawn, sgSpawn, SG_ZONES, PL, CALL, SIT, ZOOM, SHOT, closeUI, TP, whereText, FLOOR_LABEL, S37,
+    choose, missionGroups, psychologicalPhenomenon, ghostTick, enrage, activateGhost, ELV, elvPress, elvTick, SG, sgTestSpawn, sgSpawn, SG_ZONES, PL, CALL, SIT, ZOOM, SHOT, closeUI, TP, whereText, FLOOR_LABEL, S37,
     get target() { return target; },
   };
 }

@@ -1,0 +1,20 @@
+{
+  "passed": true,
+  "checks": "cancellation, latest request wins, recording duration, stale subtitles, queue priority, school sound samples",
+  "measurements": {
+    "cancelled": null,
+    "afterStop": 0,
+    "superseded": null,
+    "afterLatest": 1,
+    "newerDuration": 3.84,
+    "lateDuration": 0,
+    "subtitleVisible": false,
+    "afterLate": 1,
+    "blockedAmbient": 0,
+    "queueWait": 1599.8999999985099,
+    "secondSubtitle": "경비 아저씨다음 증언",
+    "cancelledQueuedDuration": 0,
+    "sampleStarts": 4,
+    "sampleStops": 0
+  }
+}

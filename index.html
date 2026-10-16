@@ -125,7 +125,7 @@
   #hud{position:fixed;inset:0;pointer-events:none;display:none;z-index:5}
   #hud.show{display:block}
   .panel{background:var(--panel);border:1px solid var(--line)}
-  #objP{position:absolute;left:20px;top:18px;width:330px;padding:10px 14px 12px;font-size:13px;line-height:1.6;border-left:3px solid var(--gold)}
+  #objP{max-height:calc(100vh - 220px);overflow-y:auto;scrollbar-width:thin;position:absolute;left:20px;top:18px;width:330px;padding:10px 14px 12px;font-size:13px;line-height:1.6;border-left:3px solid var(--gold)}
   #chapter{font-size:11px;letter-spacing:.25em;color:#c09a50;margin-bottom:4px}
   #objP .m{color:var(--gold);font-weight:700;display:flex;gap:6px;align-items:center}
   #objP .m:before{content:'!';display:inline-block;width:16px;height:16px;line-height:16px;text-align:center;border-radius:50%;background:var(--gold);color:#000;font-size:11px;flex:none}
@@ -613,6 +613,9 @@
   #tLang button{background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.18);color:#cfc6b8;font-size:12px;padding:4px 10px;border-radius:12px;cursor:pointer;letter-spacing:.04em}
   #tLang button.on{border-color:#e8c870;color:#ffe6a8;background:rgba(232,200,112,.14)}
   html[lang=en] body,html[lang=ja] body,html[lang=zh] body{word-break:normal;overflow-wrap:anywhere}
+#memoryEcho{position:fixed;top:24%;left:50%;transform:translateX(-50%);opacity:0;pointer-events:none;font-size:15px;color:#bdb9aa;z-index:20}#memoryEcho.hallucination-text{opacity:.8;color:#bdb9aa!important;animation:none!important}
+.pTabs{overflow-x:auto;flex-wrap:nowrap;scrollbar-width:thin}.pTabs button{flex:0 0 auto;min-width:44px;white-space:nowrap}
+.missionNav{display:flex;gap:8px;position:sticky;top:0;background:#151a1c;padding:6px;z-index:1}.missionNav button{flex:1;background:#26323b;color:#e0e4e7;border:1px solid #42515c;border-radius:6px;padding:7px;font:inherit;cursor:pointer}.missionNav button:hover,.missionNav button:focus-visible{background:#3b4c59;outline:1px solid #c4b883}.missionGroup{margin:0 0 20px;scroll-margin-top:64px}.missionGroup h3{color:#d0c59f;margin-bottom:5px}.missionGroup p{font-size:12px;color:#a7aea8}.missionDone{opacity:.6}
 </style>
 </head>
 <body>
@@ -621,7 +624,7 @@
 
 <div id="hud">
   <div id="objTab" title="목표 바 펼치기 (O)">◆ 목표 <kbd>O</kbd></div>
-  <div id="objP" class="panel"><button id="objTog" title="목표 바: 펼치기 · 한 줄 · 숨기기 (O)"><span id="objTogI">▾</span><kbd>O</kbd></button><div id="objMini"><b id="omCh"></b><span id="omText"></span><em id="omProg"></em></div><div id="chapter"></div><div class="m">메인 목표</div><div id="objText"></div><div id="objWhere"></div><div id="objDir"><i>➤</i><span></span></div><div id="subs"></div>
+  <div id="objP" class="panel"><button id="objTog" title="목표 바: 펼치기 · 한 줄 · 숨기기 (O)"><span id="objTogI">▾</span><kbd>O</kbd></button><div id="objMini"><b id="omCh"></b><span id="omText"></span><em id="omProg"></em></div><div id="chapter"></div><div class="m">메인 미션 · 실종된 선배</div><div id="objText"></div><div id="objWhere"></div><div id="objDir"><i>➤</i><span></span></div><div id="subs"></div>
     <div id="optBox"><b id="optTitle"></b><div id="optSubs"></div></div><div id="sqBox"><b id="sqTitle"></b><div id="sqSubs"></div></div><div id="zoneBox"><b id="zoneTitle"></b><div id="zoneSubs"></div></div><div id="phBox"><b id="phTitle"></b><div id="phSubs"></div></div></div>
   <div id="mini"><canvas id="miniMap" width="150" height="150"></canvas><div id="floor">외부</div><div id="clock"></div><div id="ptime" title="플레이 시간"></div></div>
   <div id="rbtns">
@@ -654,11 +657,11 @@
 <div id="breath">숨 참기 <kbd>Space</kbd><div class="bar"><i id="breathBar"></i></div><div style="margin-top:6px;color:#e88">주변 소리</div><div class="bar"><i id="dangerBar" style="background:#d04040;width:0"></i></div></div><div id="cap"></div>
 <div id="intro"><p></p><p></p><p class="q"></p><p></p><small>클릭 / Space — 건너뛰기</small></div>
 <div id="evPulse"></div><div id="evStreak"></div><div id="pings"></div><div id="cine"></div><div id="blink"></div><div id="introTitle"><div class="logo" style="font-size:clamp(90px,14vw,150px)">폐교</div><div class="tagline">잊혀진 시간</div></div>
-<div id="sub"></div>
+<div id="memoryEcho" data-memory-echo aria-hidden="true">기억의 잔향</div><div id="sub"></div>
 <div id="card"><img alt=""><b></b><span></span></div>
 <div id="choice"><div class="box"><b id="choiceTitle"></b><p id="choiceText"></p><div id="choiceBtns"></div></div></div>
 <div id="memTint"></div>
-<div id="jump"></div>
+<div id="jump" hidden></div>
 
 <!-- 소지품 -->
 <div id="inv" class="overlay"><div class="win">
@@ -670,7 +673,7 @@
 <!-- 휴대폰 -->
 <div id="phone" class="overlay"><div class="phoneFrame">
   <div class="pStatus"><span id="pClock">23:40</span><b>신호 없음 ✕</b><span id="pBat">🔋 100%</span></div>
-  <div class="pTabs"><button data-p="msg">메시지</button><button data-p="photo">사진</button><button data-p="memo">메모</button><button data-p="tl">사건</button><button data-p="tool">도구</button><button data-p="call">전화</button><button data-p="cam">카메라</button><button data-p="log">기록</button></div>
+  <div class="pTabs"><button data-p="msg">메시지</button><button data-p="photo">사진</button><button data-p="memo">메모</button><button data-p="tl">사건</button><button data-p="missions">미션</button><button data-p="tool">도구</button><button data-p="call">전화</button><button data-p="cam">카메라</button><button data-p="log">기록</button></div>
   <div id="pBody"></div><div class="pHint">P / Esc 닫기 · Q / E 탭 전환</div></div></div>
 <!-- 지도 -->
 <div id="mapOv" class="overlay"><div class="win" id="mapWrap">
@@ -791,7 +794,7 @@
     <span>마이크 소리 감지</span><label><input type="checkbox" id="setMic"> 주변 소리 시각화 · 녹음 분위기 연출 (마이크 권한 필요)</label>
     <h4>접근성</h4>
     <span>언어 · Language</span><select id="setLang"><option value="ko">한국어</option><option value="en">English</option><option value="ja">日本語</option><option value="zh">中文</option></select>
-    <span>점프 스케어</span><select id="setJump"><option value="full">기본</option><option value="soft">약하게 (이미지 없이)</option></select>
+    <span>공포 연출</span><select id="setJump"><option value="soft">심리적 공포 · 전체 화면 기습 이미지 없음</option></select>
     <span>번쩍임 · 글리치</span><label><input type="checkbox" id="setFlash"> 번개 섬광 · 화면 깨짐 효과 줄이기</label>
     <span>공포 화면 효과</span><label><input type="checkbox" id="setFearFx"> 그것이 가까울 때 붉은 테두리</label>
     <span>효과음 자막</span><label><input type="checkbox" id="setCaps"> [발소리] [문 닫힘] 같은 소리 설명</label>

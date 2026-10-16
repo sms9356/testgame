@@ -224,7 +224,7 @@ export function createFX(renderer, scene, camera) {
   const opt = { bloom: true, grain: true, glitch: 1, flash: 1 };   // 설정 · 접근성
   function setOpts(o) { Object.assign(opt, o); bloom.enabled = mode === 'high' && opt.bloom; final.uniforms.uGrain.value = opt.grain ? .016 : 0; }
   function lightning() { flashT = 1; }
-  function glitch(s = .6) { glitchT = Math.max(glitchT, s * opt.glitch); }
+  function glitch(s = .6) { glitchT = Math.max(glitchT, Math.min(.12,s) * opt.glitch); }
   // 후처리 경로에서도 계단 현상이 없도록 MSAA (높음: 4x, 중간: 2x)
   function setMSAA(n) { [composer.renderTarget1, composer.renderTarget2].forEach(rt => { if (rt.samples !== n) { rt.samples = n; rt.dispose(); } }); }
   function setQuality(q) { mode = q; rainG.setDrawRange(0, (q === 'high' ? 1800 : q === 'mid' ? 1100 : 600) * 2); bloom.enabled = q === 'high' && opt.bloom; dust.visible = q !== 'low'; setMSAA(q === 'high' ? 4 : q === 'mid' ? 2 : 0); }

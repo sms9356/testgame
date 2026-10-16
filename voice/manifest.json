@@ -1,1549 +1,4422 @@
 {
-"intro1": {
-"spk": "narrator",
-"text": "10월 12일, 목요일. 오후 다섯 시 오십 분. 해가 지기 시작했다.",
-"dur": 6.03,
-"baked": true,
-"eleven": true
-},
-"intro2": {
-"spk": "narrator",
-"text": "서현고 방송부장 민아가, 폐교된 서문고에 들어간 뒤 연락이 끊겼다.",
-"dur": 4.86,
-"baked": true,
-"eleven": true
-},
-"intro3": {
-"spk": "mina",
-"text": "여기, 아직 누군가의 흔적이 남아있어.",
-"dur": 2.85,
-"baked": true,
-"eleven": true
-},
-"intro4": {
-"spk": "narrator",
-"text": "십 년 전 오늘, 이 학교에서 한 아이가 사라졌다. 그리고 매년 이 날 밤, 꺼진 스피커가 울린다.",
-"dur": 9.46,
-"baked": true,
-"eleven": true
-},
-"cam1": {
-"spk": "mina",
-"text": "녹화 중. 여긴 1학년 1반. 칠판에, 다시 여기서, 라고 쓰여 있어. 방금 교무실 쪽에서 소리가 났어. 가 볼게.",
-"dur": 9.01,
-"baked": true,
-"eleven": true
-},
-"phone1": {
-"spk": "mina",
-"text": "3층 방송실. 그 방송, 나도 들었어. 누가 내 이름을 불러.",
-"dur": 5.09,
-"baked": true,
-"eleven": true
-},
-"phone2": {
-"spk": "mina",
-"text": "지하에 아이가 있어. 펌프실. 그 애는 아직 집에 못 갔어.",
-"dur": 4.47,
-"baked": true,
-"eleven": true
-},
-"phone3": {
-"spk": "mina",
-"text": "늦었어. 이번엔 꼭, 다시, 여기서.",
-"dur": 2.85,
-"baked": true,
-"eleven": true
-},
-"pa1": {
-"spk": "pa",
-"text": "교내 방송입니다. 모두 교실로 돌아가세요. 다시 한 번 알립니다. 모두, 교실로, 돌아가세요.",
-"dur": 8.31,
-"baked": true,
-"eleven": true
-},
-"gh1": {
-"spk": "ghost",
-"text": "다시, 여기서.",
-"dur": 1.67,
-"baked": true,
-"eleven": true
-},
-"gh2": {
-"spk": "ghost",
-"text": "같이 놀자.",
-"dur": 1.25,
-"baked": true,
-"eleven": true
-},
-"gh3": {
-"spk": "ghost",
-"text": "어디 가?",
-"dur": 1.28,
-"baked": true,
-"eleven": true
-},
-"gh4": {
-"spk": "ghost",
-"text": "찾았다.",
-"dur": 1.2,
-"baked": true,
-"eleven": true
-},
-"ghThanks": {
-"spk": "haneul",
-"text": "고마워. 이제, 집에 갈게.",
-"dur": 3.29,
-"baked": true,
-"eleven": true
-},
-"tape1": {
-"spk": "teacher",
-"text": "보건 교사 기록. 정전이 났다. 지하 펌프가 멈췄다는 연락. 아이 하나가 아직 학교에 있다고 했는데, 아무도 이름을 대지 못했다.",
-"dur": 9.27,
-"baked": true,
-"eleven": true
-},
-"tape2": {
-"spk": "mina",
-"text": "녹음 시작. 지금 방송실이야. 스피커에서 누가 우리 이름을 불러. 한 명씩. 장비실에 숨을게. 누구든 이걸 들으면, 와 줘.",
-"dur": 8.54,
-"baked": true,
-"eleven": true
-},
-"tape3": {
-"spk": "teacher",
-"text": "교무부장 기록. 사고는 실종으로 정리한다. 그날 밤 남아 있던 다섯 명이 정문 열쇠를 한 조각씩 나눠 갖는다. 교무실 금고, 도서실, 과학실, 체육관, 수영장. 다섯이 모두 모이기 전엔, 아무도 그날을 열 수 없다.",
-"dur": 15.44,
-"baked": true,
-"eleven": true
-},
-"tape4": {
-"spk": "haneul",
-"text": "기념 방송 날엔, 내 목소리로 하교 방송을 할 거야. 오늘 하루도 수고 많았습니다. 모두, 집으로 돌아가세요.",
-"dur": 9.25,
-"baked": true,
-"eleven": true
-},
-"endTrue": {
-"spk": "narrator",
-"text": "그날 밤, 서문고의 마지막 하교 방송이 끝났다. 민아는 아무것도 기억하지 못했다. 정문을 나서는 순간, 누군가 뒤에서 작게 손을 흔들었다.",
-"dur": 12.93,
-"baked": true,
-"eleven": true
-},
-"endNormal": {
-"spk": "narrator",
-"text": "정문은 다시 닫혔다. 그리고 다음 해 10월 12일 밤 11시 40분, 민아의 휴대폰이 다시 울렸다.",
-"dur": 10.37,
-"baked": true,
-"eleven": true
-},
-"endBad": {
-"spk": "narrator",
-"text": "칠판에 한 줄이 더 늘었다. 다시, 여기서.",
-"dur": 4.62,
-"baked": true,
-"eleven": true
-},
-"l_arrive_j": {
-"spk": "jihun",
-"text": "민아야… 정말 여기 들어간 거야?",
-"dur": 1.93,
-"baked": true,
-"eleven": true
-},
-"l_arrive_s": {
-"spk": "seoyeon",
-"text": "선배… 여기 있는 거죠? 무서워도, 가야지.",
-"dur": 3.34,
-"baked": true,
-"eleven": true
-},
-"l_gate_j": {
-"spk": "jihun",
-"text": "문이 잠겼다. 열쇠 없이는 못 나가.",
-"dur": 2.4,
-"baked": true,
-"eleven": true
-},
-"l_gate_s": {
-"spk": "seoyeon",
-"text": "문이 잠겼어… 열쇠를 찾아야 해.",
-"dur": 2.3,
-"baked": true,
-"eleven": true
-},
-"l_inside_j": {
-"spk": "jihun",
-"text": "공기가 차갑다. 숨소리까지 들릴 것 같아.",
-"dur": 2.69,
-"baked": true,
-"eleven": true
-},
-"l_inside_s": {
-"spk": "seoyeon",
-"text": "안은 숨소리까지 들릴 만큼 조용해…",
-"dur": 2.43,
-"baked": true,
-"eleven": true
-},
-"l_camFound_j": {
-"spk": "jihun",
-"text": "민아 캠코더다. 녹화된 게 남아 있어.",
-"dur": 2.3,
-"baked": true,
-"eleven": true
-},
-"l_camFound_s": {
-"spk": "seoyeon",
-"text": "선배 캠코더…! 아직 녹화 파일이 있어.",
-"dur": 2.77,
-"baked": true,
-"eleven": true
-},
-"l_afterCam_j": {
-"spk": "jihun",
-"text": "교무실 쪽에서 소리가 났다고 했지. 가 보자.",
-"dur": 2.64,
-"baked": true,
-"eleven": true
-},
-"l_afterCam_s": {
-"spk": "seoyeon",
-"text": "교무실… 선배가 마지막으로 간 곳이야.",
-"dur": 2.35,
-"baked": true,
-"eleven": true
-},
-"l_office_j": {
-"spk": "jihun",
-"text": "교무회의록… 열쇠를 다섯 조각으로 나눴다고?",
-"dur": 3.11,
-"baked": true,
-"eleven": true
-},
-"l_office_s": {
-"spk": "seoyeon",
-"text": "열쇠가 다섯 조각이라니… 하나는 금고 안에 있대.",
-"dur": 2.93,
-"baked": true,
-"eleven": true
-},
-"l_safeHint_j": {
-"spk": "jihun",
-"text": "그날의 날짜를 네 자리로… 달력을 보자.",
-"dur": 2.43,
-"baked": true,
-"eleven": true
-},
-"l_safeHint_s": {
-"spk": "seoyeon",
-"text": "비밀번호… 그날의 날짜라고 했어. 어딘가에 적혀 있을 거야.",
-"dur": 3.5,
-"baked": true,
-"eleven": true
-},
-"l_safeOpen_j": {
-"spk": "jihun",
-"text": "10월 12일. 기념 방송이 있던 그날 밤.",
-"dur": 3.06,
-"baked": true,
-"eleven": true
-},
-"l_safeOpen_s": {
-"spk": "seoyeon",
-"text": "10월 12일… 오늘이잖아.",
-"dur": 2.06,
-"baked": true,
-"eleven": true
-},
-"l_key_j": {
-"spk": "jihun",
-"text": "하나 찾았다. 아직 더 있어.",
-"dur": 2.06,
-"baked": true,
-"eleven": true
-},
-"l_key_s": {
-"spk": "seoyeon",
-"text": "열쇠 조각이다. 하나 더…",
-"dur": 2.09,
-"baked": true,
-"eleven": true
-},
-"l_keyLast_j": {
-"spk": "jihun",
-"text": "마지막 조각이다. 가방에서 맞춰 보자.",
-"dur": 2.38,
-"baked": true,
-"eleven": true
-},
-"l_keyLast_s": {
-"spk": "seoyeon",
-"text": "마지막 조각이야. 가방에서 열쇠를 맞춰 보자.",
-"dur": 2.56,
-"baked": true,
-"eleven": true
-},
-"l_keyMade_j": {
-"spk": "jihun",
-"text": "맞춰졌다. 이제 정문으로 간다.",
-"dur": 2.3,
-"baked": true,
-"eleven": true
-},
-"l_keyMade_s": {
-"spk": "seoyeon",
-"text": "열쇠가 완성됐어. 정문으로 가자.",
-"dur": 2.3,
-"baked": true,
-"eleven": true
-},
-"l_wake_j": {
-"spk": "jihun",
-"text": "위층에서… 뭔가 끌리는 소리가 났어.",
-"dur": 2.22,
-"baked": true,
-"eleven": true
-},
-"l_wake_s": {
-"spk": "seoyeon",
-"text": "방금… 위층에서 소리가 났어.",
-"dur": 4.18,
-"baked": true,
-"eleven": true
-},
-"l_spotted_j": {
-"spk": "jihun",
-"text": "봤어. 나를 봤어. 뛰어!",
-"dur": 1.85,
-"baked": true,
-"eleven": true
-},
-"l_spotted_s": {
-"spk": "seoyeon",
-"text": "들켰다! 숨거나, 달려야 해!",
-"dur": 2.25,
-"baked": true,
-"eleven": true
-},
-"l_hit_j": {
-"spk": "jihun",
-"text": "크윽…! 여기서 멈추면 안 돼.",
-"dur": 1.72,
-"baked": true,
-"eleven": true
-},
-"l_hit_s": {
-"spk": "seoyeon",
-"text": "윽…! 도망쳐야 해!",
-"dur": 1.2,
-"baked": true,
-"eleven": true
-},
-"l_heal_j": {
-"spk": "jihun",
-"text": "괜찮아. 아직 움직일 수 있어.",
-"dur": 1.83,
-"baked": true,
-"eleven": true
-},
-"l_heal_s": {
-"spk": "seoyeon",
-"text": "조금 낫네… 계속 가자.",
-"dur": 1.72,
-"baked": true,
-"eleven": true
-},
-"l_enrage_j": {
-"spk": "jihun",
-"text": "그게 깨어났다. 정문까지 멈추지 마!",
-"dur": 2.53,
-"baked": true,
-"eleven": true
-},
-"l_enrage_s": {
-"spk": "seoyeon",
-"text": "그게… 깨어났어. 정문으로 뛰어!",
-"dur": 2.12,
-"baked": true,
-"eleven": true
-},
-"l_roof_j": {
-"spk": "jihun",
-"text": "바람 소리뿐이야. 여기도 누군가 있었어.",
-"dur": 2.38,
-"baked": true,
-"eleven": true
-},
-"l_roof_s": {
-"spk": "seoyeon",
-"text": "바람 소리뿐이야… 여기도 누군가 있었어.",
-"dur": 2.22,
-"baked": true,
-"eleven": true
-},
-"l_b1_j": {
-"spk": "jihun",
-"text": "지하… 이런 곳이 있었다니.",
-"dur": 1.67,
-"baked": true,
-"eleven": true
-},
-"l_b1_s": {
-"spk": "seoyeon",
-"text": "지하…? 이런 곳이 있었다니.",
-"dur": 1.8,
-"baked": true,
-"eleven": true
-},
-"l_gym_j": {
-"spk": "jihun",
-"text": "불 꺼진 체육관에서… 박수 소리?",
-"dur": 3.13,
-"baked": true,
-"eleven": true
-},
-"l_gym_s": {
-"spk": "seoyeon",
-"text": "불 꺼진 체육관… 누가 박수를 치고 있어.",
-"dur": 2.46,
-"baked": true,
-"eleven": true
-},
-"l_pool_j": {
-"spk": "jihun",
-"text": "물이 없는데 물소리가 난다.",
-"dur": 1.88,
-"baked": true,
-"eleven": true
-},
-"l_pool_s": {
-"spk": "seoyeon",
-"text": "물이 없는데… 물소리가 들려.",
-"dur": 1.8,
-"baked": true,
-"eleven": true
-},
-"l_cafe_j": {
-"spk": "jihun",
-"text": "식판이 그대로다. 방금까지 누가 있었던 것처럼.",
-"dur": 3.06,
-"baked": true,
-"eleven": true
-},
-"l_cafe_s": {
-"spk": "seoyeon",
-"text": "식판이 그대로야… 방금까지 누가 있었던 것처럼.",
-"dur": 2.77,
-"baked": true,
-"eleven": true
-},
-"l_piano_j": {
-"spk": "jihun",
-"text": "피아노가 혼자 울린다.",
-"dur": 1.65,
-"baked": true,
-"eleven": true
-},
-"l_piano_s": {
-"spk": "seoyeon",
-"text": "피아노가… 혼자 울리고 있어.",
-"dur": 4.94,
-"baked": true,
-"eleven": true
-},
-"l_doorSlam_j": {
-"spk": "jihun",
-"text": "문이 저절로 닫혔어.",
-"dur": 1.41,
-"baked": true,
-"eleven": true
-},
-"l_doorSlam_s": {
-"spk": "seoyeon",
-"text": "문이… 저절로 닫혔어.",
-"dur": 1.49,
-"baked": true,
-"eleven": true
-},
-"l_stall_j": {
-"spk": "jihun",
-"text": "…누구 있어?",
-"dur": 0.86,
-"baked": true,
-"eleven": true
-},
-"l_stall_s": {
-"spk": "seoyeon",
-"text": "…누구 있어요?",
-"dur": 0.97,
-"baked": true,
-"eleven": true
-},
-"l_steps_j": {
-"spk": "jihun",
-"text": "방금 그거, 발소리였어.",
-"dur": 1.83,
-"baked": true,
-"eleven": true
-},
-"l_steps_s": {
-"spk": "seoyeon",
-"text": "…방금 그거, 발소리였어?",
-"dur": 1.99,
-"baked": true,
-"eleven": true
-},
-"l_ball_j": {
-"spk": "jihun",
-"text": "공이 굴러왔다. 아무도 없는데.",
-"dur": 2.22,
-"baked": true,
-"eleven": true
-},
-"l_ball_s": {
-"spk": "seoyeon",
-"text": "공이… 굴러왔어. 아무도 없는데.",
-"dur": 3.55,
-"baked": true,
-"eleven": true
-},
-"l_speakers_j": {
-"spk": "jihun",
-"text": "스피커가 켜졌다고? 전기도 안 들어오는데.",
-"dur": 2.48,
-"baked": true,
-"eleven": true
-},
-"l_speakers_s": {
-"spk": "seoyeon",
-"text": "스피커가… 켜졌어? 전원도 안 들어오는데.",
-"dur": 7.0,
-"baked": true,
-"eleven": true
-},
-"l_breaker_j": {
-"spk": "jihun",
-"text": "불이 들어왔다. 근데 소리가 너무 컸어.",
-"dur": 2.59,
-"baked": true,
-"eleven": true
-},
-"l_breaker_s": {
-"spk": "seoyeon",
-"text": "불이… 들어왔어. 근데 소리가 너무 컸어.",
-"dur": 2.32,
-"baked": true,
-"eleven": true
-},
-"l_lure_j": {
-"spk": "jihun",
-"text": "지금이야. 여기서 빨리 벗어나자.",
-"dur": 1.91,
-"baked": true,
-"eleven": true
-},
-"l_lure_s": {
-"spk": "seoyeon",
-"text": "지금이야… 여기서 빨리 벗어나야 해.",
-"dur": 2.12,
-"baked": true,
-"eleven": true
-},
-"l_phone_j": {
-"spk": "jihun",
-"text": "메시지? 신호도 안 잡히는데.",
-"dur": 1.96,
-"baked": true,
-"eleven": true
-},
-"l_phone_s": {
-"spk": "seoyeon",
-"text": "메시지…? 신호도 안 잡히는데.",
-"dur": 3.84,
-"baked": true,
-"eleven": true
-},
-"l_tagFound_j": {
-"spk": "jihun",
-"text": "윤하늘… 이 명찰, 계속 여기 있었구나.",
-"dur": 2.85,
-"baked": true,
-"eleven": true
-},
-"l_tagFound_s": {
-"spk": "seoyeon",
-"text": "윤하늘… 선배. 여기서 기다리고 있었구나.",
-"dur": 2.85,
-"baked": true,
-"eleven": true
-},
-"l_needPower_j": {
-"spk": "jihun",
-"text": "방송을 하려면 먼저 전기를 살려야 해.",
-"dur": 2.46,
-"baked": true,
-"eleven": true
-},
-"l_needPower_s": {
-"spk": "seoyeon",
-"text": "전원이 없어… 지하 전기실 차단기부터 올려야 해.",
-"dur": 2.95,
-"baked": true,
-"eleven": true
-},
-"l_needTag_j": {
-"spk": "jihun",
-"text": "방송을 해도… 누구 이름을 불러야 하지?",
-"dur": 2.43,
-"baked": true,
-"eleven": true
-},
-"l_needTag_s": {
-"spk": "seoyeon",
-"text": "누구에게 하는 방송인지… 아직 모르겠어.",
-"dur": 2.51,
-"baked": true,
-"eleven": true
-},
-"l_calm_j": {
-"spk": "jihun",
-"text": "…끝났어. 이제 조용해.",
-"dur": 1.54,
-"baked": true,
-"eleven": true
-},
-"l_calm_s": {
-"spk": "seoyeon",
-"text": "…가 버렸어. 이번엔 집으로.",
-"dur": 1.52,
-"baked": true,
-"eleven": true
-},
-"l_findMina_j": {
-"spk": "jihun",
-"text": "민아는 방송실 장비실에 있을 거야.",
-"dur": 2.25,
-"baked": true,
-"eleven": true
-},
-"l_findMina_s": {
-"spk": "seoyeon",
-"text": "선배는 장비실에… 거기서 이름을 불렀다고 했어.",
-"dur": 3.68,
-"baked": true,
-"eleven": true
-},
-"l_minaFound_j": {
-"spk": "jihun",
-"text": "민아! 정신 차려, 나야.",
-"dur": 1.41,
-"baked": true,
-"eleven": true
-},
-"l_minaFound_s": {
-"spk": "seoyeon",
-"text": "선배! 저예요, 서연이!",
-"dur": 1.93,
-"baked": true,
-"eleven": true
-},
-"l_sprint_j": {
-"spk": "jihun",
-"text": "숨이 차… 조금만 쉬자.",
-"dur": 1.52,
-"baked": true,
-"eleven": true
-},
-"l_sprint_s": {
-"spk": "seoyeon",
-"text": "하아… 숨이…",
-"dur": 1.07,
-"baked": true,
-"eleven": true
-},
-"l_hide_j": {
-"spk": "jihun",
-"text": "숨죽여. 지나가길 기다리자.",
-"dur": 1.99,
-"baked": true,
-"eleven": true
-},
-"l_hide_s": {
-"spk": "seoyeon",
-"text": "숨을 죽여… 제발 지나가.",
-"dur": 1.72,
-"baked": true,
-"eleven": true
-},
-"l_combineFail_j": {
-"spk": "jihun",
-"text": "이건 서로 안 맞아.",
-"dur": 1.25,
-"baked": true,
-"eleven": true
-},
-"l_combineFail_s": {
-"spk": "seoyeon",
-"text": "이건 같이 쓸 수 없어.",
-"dur": 1.52,
-"baked": true,
-"eleven": true
-},
-"l_locked_j": {
-"spk": "jihun",
-"text": "잠겨 있다.",
-"dur": 0.89,
-"baked": true,
-"eleven": true
-},
-"l_locked_s": {
-"spk": "seoyeon",
-"text": "잠겨 있어…",
-"dur": 0.91,
-"baked": true,
-"eleven": true
-},
-"bc_j": {
-"spk": "jihun",
-"text": "3학년 2반 윤하늘. 오늘 수업은 끝났어. 이제, 집에 가도 돼.",
-"dur": 4.6,
-"baked": true,
-"eleven": true
-},
-"bc_s": {
-"spk": "seoyeon",
-"text": "3학년 2반 윤하늘 선배. 오늘 방송은 제가 대신할게요. 이제, 집에 가도 돼요.",
-"dur": 4.94,
-"baked": true,
-"eleven": true
-},
-"mw_j": {
-"spk": "mina",
-"text": "…지훈아? 나, 방송실에서 이름을 불렀어. 누가 대답했어.",
-"dur": 3.66,
-"baked": true,
-"eleven": true
-},
-"mw_s": {
-"spk": "mina",
-"text": "…서연아? 나, 방송실에서 이름을 불렀어. 누가 대답했어.",
-"dur": 3.74,
-"baked": true,
-"eleven": true
-},
-"note_n1": {
-"spk": "narrator",
-"text": "누군가의 일기. 10월 11일. 내일 밤은  방송부 창립 30주년 기념 방송  리허설. 하늘이는 방송 원고를 몇 번이나 고쳐 썼다.  “기념 방송 날엔 꼭 내 목소리로 하교 방송을 할 거야.” ",
-"dur": 16.77,
-"baked": true,
-"eleven": true
-},
-"note_n2": {
-"spk": "narrator",
-"text": "보건 일지. 10월 12일 밤 11시 20분, 정전. 비상등도 켜지지 않았다. 지하에서 물 빼는 펌프가 멈췄다는 연락. 아이 하나가 아직 학교에 있다고 했는데, 아무도 이름을 대지 못했다.",
-"dur": 17.71,
-"baked": true,
-"eleven": true
-},
-"note_n3": {
-"spk": "narrator",
-"text": "교무회의록. 사고 경위는  “실종” 으로 정리한다. 펌프실은 폐쇄. 그날 밤 학교에 남아 있던  다섯 명 이 정문 열쇠를 한 조각씩 나눠 맡는다 — 다섯이 모두 동의하기 전엔 누구도 그날을 다시 열 수 없도록. 조각은 각자의 자리에: 교무실 금고, 도서실, 과학실, 체육관, 수영장. 금고 비밀번호는  그날의 날짜 (월일 4자리).",
-"dur": 33.33,
-"baked": true,
-"eleven": true
-},
-"note_n4": {
-"spk": "narrator",
-"text": "도서 대출 카드. 같은 이름이 수백 번 적혀 있다.  윤하늘 . 마지막 대출일 10월 12일. 『집으로 가는 길』. 반납란은 비어 있다.",
-"dur": 12.9,
-"baked": true,
-"eleven": true
-},
-"note_n5": {
-"spk": "narrator",
-"text": "실험 노트. 불을 끄면 그 애가 온다. 빛이 있는 곳에는 쉽게 다가오지 못한다. 달리면 소리가 난다. 그 애는  듣는다 .",
-"dur": 13.53,
-"baked": true,
-"eleven": true
-},
-"note_n6": {
-"spk": "narrator",
-"text": "찢어진 쪽지. 사물함 안에 숨어. 문틈으로 지나가는 게 보여. 문을 닫으면 잠깐은 못 봐. …하지만 숨는 걸 들키면, 그땐 늦어.",
-"dur": 14.34,
-"baked": true,
-"eleven": true
-},
-"note_n7": {
-"spk": "narrator",
-"text": "옥상 일지. 방송부 아이들이 담력 체험이라며 하늘이를  지하 펌프실 에 넣고 문을 잠갔다고 했다. 십 분이면 꺼내 줄 장난이었다고. 그때, 정전이 났다.",
-"dur": 16.74,
-"baked": true,
-"eleven": true
-},
-"note_n8": {
-"spk": "narrator",
-"text": "하교 방송 원고. [원고 — 3학년 2반 윤하늘] “오늘 하루도 수고 많았습니다. 모두, 집으로 돌아가세요.” ※ 기념 방송 날 내가 읽을 거야!  — 이 방송은 끝내 나가지 못했다. ",
-"dur": 16.43,
-"baked": true,
-"eleven": true
-},
-"note_n9": {
-"spk": "narrator",
-"text": "체육 일지. 10월 12일, 기념 방송 리허설 날 밤. 무대 커튼 뒤에서 박수 소리. 관람석은 비어 있었다. 그날 이후 체육관 불은 켜지지 않는다. ※ 기록석 기구함 다이얼은  전광판의 마지막 경기 점수 로 맞춰 둠.",
-"dur": 20.45,
-"baked": true,
-"eleven": true
-},
-"note_n10": {
-"spk": "narrator",
-"text": "수영장 안전 일지. 물을 뺀 뒤에도 레인 쪽에서 물소리가 난다.  펌프실 문은 지하 B1로 이어진다.  그날 밤 펌프실 바닥은 물에 잠겨 있었다.",
-"dur": 13.64,
-"baked": true,
-"eleven": true
-},
-"note_n11": {
-"spk": "narrator",
-"text": "보일러실 점검표. 지하 B1 점검 완료. 비상 통로는 폐쇄. 단,  정문 열쇠가 완성되면  비상 통로 자물쇠가 풀린다. 그 길은 정문 쪽 담장으로 이어진다.",
-"dur": 14.11,
-"baked": true,
-"eleven": true
-},
-"note_n12": {
-"spk": "narrator",
-"text": "낡은 명부. 졸업생 명부. 3학년 2반  윤하늘  — 이름이 붉게 지워져 있다. 이름 옆에 적힌 말:  “아직 집에 못 갔어요.” ",
-"dur": 15.7,
-"baked": true,
-"eleven": true
-},
-"note_n13": {
-"spk": "narrator",
-"text": "급식 일지. 오늘의 급식: 아무도 먹지 않았다. 식판은 매일 같은 자리에 놓여 있다. 한 명분이 모자란 채로.",
-"dur": 12.2,
-"baked": true,
-"eleven": true
-},
-"note_n14": {
-"spk": "narrator",
-"text": "방송부 회의록. 10월 12일 담력 체험 계획. 참가 4명. 장소: 지하 펌프실. 문 잠그는 사람: ___ …아무도 그 다음 줄을 쓰지 않았다.",
-"dur": 14.21,
-"baked": true,
-"eleven": true
-},
-"note_n15": {
-"spk": "narrator",
-"text": "스마트교실 로그. 전자칠판이 혼자 켜진다. 화면에는 매번 같은 교실 사진. 칠판에는  “다시, 여기서.” ",
-"dur": 11.08,
-"baked": true,
-"eleven": true
-},
-"note_n16": {
-"spk": "narrator",
-"text": "가정 실습 노트. 실밥이 풀린 교복 한 벌이 의자에 걸려 있다. 이름표에는  “윤” 이라는 글자만 남아 있다.",
-"dur": 8.75,
-"baked": true,
-"eleven": true
-},
-"l_needCombine_j": {
-"spk": "jihun",
-"text": "조각만으론 안 돼. 먼저 열쇠를 맞춰야 해.",
-"dur": 2.66,
-"baked": true,
-"eleven": true
-},
-"l_needCombine_s": {
-"spk": "seoyeon",
-"text": "조각만으로는 안 열려… 가방에서 맞춰 봐야 해.",
-"dur": 3.06,
-"baked": true,
-"eleven": true
-},
-"l_minaAsleep_j": {
-"spk": "jihun",
-"text": "숨은 쉬고 있어. 그런데 아무리 불러도…",
-"dur": 2.25,
-"baked": true,
-"eleven": true
-},
-"l_minaAsleep_s": {
-"spk": "seoyeon",
-"text": "숨은 쉬어… 그런데 깨어나질 않아.",
-"dur": 2.46,
-"baked": true,
-"eleven": true
-},
-"l_withMina_j": {
-"spk": "jihun",
-"text": "같이 나가자, 민아야. 이번엔 다 같이.",
-"dur": 2.14,
-"baked": true,
-"eleven": true
-},
-"l_withMina_s": {
-"spk": "seoyeon",
-"text": "같이 가요, 선배. 이번엔 다 같이 나가요.",
-"dur": 2.19,
-"baked": true,
-"eleven": true
-},
-"l_needPin_j": {
-"spk": "jihun",
-"text": "잠겨 있다. 가는 철사나 핀이라도 있으면…",
-"dur": 3.16,
-"baked": true,
-"eleven": true
-},
-"l_needPin_s": {
-"spk": "seoyeon",
-"text": "잠겼어… 머리핀 같은 게 있으면 딸 수 있을 텐데.",
-"dur": 3.11,
-"baked": true,
-"eleven": true
-},
-"l_pinBroken_j": {
-"spk": "jihun",
-"text": "핀이 부러졌다. 침착하게.",
-"dur": 2.12,
-"baked": true,
-"eleven": true
-},
-"l_pinBroken_s": {
-"spk": "seoyeon",
-"text": "아, 부러졌어…",
-"dur": 1.1,
-"baked": true,
-"eleven": true
-},
-"l_unlocked_j": {
-"spk": "jihun",
-"text": "열렸다.",
-"dur": 0.73,
-"baked": true,
-"eleven": true
-},
-"l_unlocked_s": {
-"spk": "seoyeon",
-"text": "열렸다!",
-"dur": 0.84,
-"baked": true,
-"eleven": true
-},
-"l_dialWrong_j": {
-"spk": "jihun",
-"text": "아니야. 다른 숫자다.",
-"dur": 1.59,
-"baked": true,
-"eleven": true
-},
-"l_dialWrong_s": {
-"spk": "seoyeon",
-"text": "아니야… 다른 번호인가 봐.",
-"dur": 1.49,
-"baked": true,
-"eleven": true
-},
-"l_needHook_j": {
-"spk": "jihun",
-"text": "저 아래 뭔가 반짝인다. 손이 닿지 않아… 갈고리가 필요해.",
-"dur": 3.74,
-"baked": true,
-"eleven": true
-},
-"l_needHook_s": {
-"spk": "seoyeon",
-"text": "배수구 안에 뭔가 있어… 손이 안 닿아. 갈고리를 만들어야 해.",
-"dur": 5.17,
-"baked": true,
-"eleven": true
-},
-"l_hookMade_j": {
-"spk": "jihun",
-"text": "자루에 철사를 감았다. 이거면 걸 수 있겠다.",
-"dur": 3.08,
-"baked": true,
-"eleven": true
-},
-"l_hookMade_s": {
-"spk": "seoyeon",
-"text": "자루에 철사를 묶었어. 이걸로 낚을 수 있을 거야.",
-"dur": 3.06,
-"baked": true,
-"eleven": true
-},
-"l_needFuse_j": {
-"spk": "jihun",
-"text": "퓨즈가 빠져 있다. 예비 퓨즈를 찾아야 해.",
-"dur": 2.61,
-"baked": true,
-"eleven": true
-},
-"l_needFuse_s": {
-"spk": "seoyeon",
-"text": "퓨즈가 없어… 어딘가에 예비 퓨즈가 있을 거야.",
-"dur": 2.61,
-"baked": true,
-"eleven": true
-},
-"l_pianoOk_j": {
-"spk": "jihun",
-"text": "피아노 아래에서 뭔가 떨어졌다.",
-"dur": 1.99,
-"baked": true,
-"eleven": true
-},
-"l_pianoOk_s": {
-"spk": "seoyeon",
-"text": "피아노 밑에서… 뭔가 떨어졌어.",
-"dur": 2.51,
-"baked": true,
-"eleven": true
-},
-"l_slideOk_j": {
-"spk": "jihun",
-"text": "그림 뒤에 뭔가 붙어 있다.",
-"dur": 1.75,
-"baked": true,
-"eleven": true
-},
-"l_slideOk_s": {
-"spk": "seoyeon",
-"text": "그림 뒤에… 사진이 붙어 있었어.",
-"dur": 2.69,
-"baked": true,
-"eleven": true
-},
-"l_breath_j": {
-"spk": "jihun",
-"text": "…숨 참아.",
-"dur": 0.86,
-"baked": true,
-"eleven": true
-},
-"l_breath_s": {
-"spk": "seoyeon",
-"text": "…숨 참아, 제발.",
-"dur": 1.2,
-"baked": true,
-"eleven": true
-},
-"l_repel_j": {
-"spk": "jihun",
-"text": "빛을 싫어해. 물러났다!",
-"dur": 1.72,
-"baked": true,
-"eleven": true
-},
-"l_repel_s": {
-"spk": "seoyeon",
-"text": "빛을 피했어…! 지금이야!",
-"dur": 1.52,
-"baked": true,
-"eleven": true
-},
-"note_n17": {
-"spk": "narrator",
-"text": "과학실 칠판 메모. 약품장 자물쇠 번호 바꿈 —  원주율 앞 세 자리 . 잊어버리는 사람은 수학 선생님께 혼남. — 과학부",
-"dur": 10.19,
-"baked": true,
-"eleven": true
-},
-"note_n18": {
-"spk": "narrator",
-"text": "빛바랜 악보. [하교 음악 — 학교종]  솔 솔 라 라 솔 솔 미  “기념 방송 날, 피아노 반주는 내가!” — 3-2 하늘",
-"dur": 13.79,
-"baked": true,
-"eleven": true
-},
-"note_n19": {
-"spk": "narrator",
-"text": "도서실 대출 데스크 메모. 반납 안 된 열쇠는 데스크  서랍 에 넣고 잠갔음. 서랍 열쇠는 분실. 급하면 머리핀으로라도… 보건실 침대 쪽에 누가 핀을 떨어뜨리고 다님.",
-"dur": 13.84,
-"baked": true,
-"eleven": true
-},
-"note_n20": {
-"spk": "narrator",
-"text": "수영장 관리 메모. 배수구 철망 아래로  열쇠 가 빠졌다. 손이 닿지 않는다. 긴 자루에 철사를 감아 갈고리를 만들면 꺼낼 수 있을 듯. 자루는 지하 청소도구실, 철사는 별관 기술·가정실에.",
-"dur": 19.04,
-"baked": true,
-"eleven": true
-},
-"note_n21": {
-"spk": "narrator",
-"text": "학교 행사 안내문. [가정통신문] 10월 12일(목)  방송부 창립 30주년 기념 특별 하교 방송 . 방송부원은 밤 10시까지 방송실에서 리허설을 진행합니다. — 서문고등학교장",
-"dur": 13.43,
-"baked": true,
-"eleven": true
-},
-"note_n22": {
-"spk": "narrator",
-"text": "봉인 서약서. 우리 다섯은 10월 12일 밤의 일을 각자의 자리에 묻는다. 교무부장 · 보건교사 · 사서 · 과학부장 · 체육부장. 열쇠 한 조각씩.  다섯 조각이 다시 모이는 날, 그날 밤도 다시 열린다.  (아래에 다섯 개의 서명 — 하나는 번져 있다)",
-"dur": 21.79,
-"baked": true,
-"eleven": true
-},
-"note_n23": {
-"spk": "narrator",
-"text": "방송부원 진술서. “우리는 10분 만에 돌아왔어요. 그런데 펌프실 문은  이미 열려 있었고 , 하늘이는 없었어요. 그래서 먼저 집에 간 줄 알았어요.” — 방송부 2학년 (진술 일시: 10.13)",
-"dur": 14.29,
-"baked": true,
-"eleven": true
-},
-"note_n24": {
-"spk": "narrator",
-"text": "경비 일지. 10.12 23:30 순찰. 지하 펌프실 문이  밖에서 잠겨 있음 . 안에서 노랫소리 같은 것이 들림. 열쇠를 찾으러 교무실에 갔더니 교무부장이 “내가 처리한다”며 가져감. ※ 이 일지는 다음 날 회수됨",
-"dur": 18.26,
-"baked": true,
-"eleven": true
-},
-"note_n25": {
-"spk": "narrator",
-"text": "사서의 메모. 하늘이가 그날 밤 『집으로 가는 길』을 빌려 갔다는 대출 기록은  내가 나중에 적었다 . 시키는 대로. 집에 가는 길에 사라진 걸로 보이게. …미안해.",
-"dur": 14.52,
-"baked": true,
-"eleven": true
-},
-"note_n26": {
-"spk": "narrator",
-"text": "대출 카드 (오늘). 『집으로 가는 길』 — 반납일:  10월 12일 (오늘) . 반납 도장이 아직 젖어 있다. 대출자 이름 칸: 윤하늘.",
-"dur": 11.55,
-"baked": true,
-"eleven": true
-},
-"guard1": {
-"spk": "guard",
-"text": "거기 학생. 이 시간에 들어가믄 안 되여. …올해도, 결국 오는구먼.",
-"dur": 5.98,
-"baked": true,
-"eleven": true
-},
-"tape5": {
-"spk": "teacher",
-"text": "교무부장, 마지막 녹음. 펌프실 열쇠는 그날 밤 내 주머니에 있었다. 문을 열었더라면, 그 아이는 방송을 했을 것이다. 나는 학교를 지킨다고 믿었다. 그날 밤의 사진을 전부 이 방에 묻는다. 누군가 이걸 듣는다면, 그 아이의 이름을 불러 주길.",
-"dur": 17.5,
-"baked": true,
-"eleven": true
-},
-"echo1": {
-"spk": "friend",
-"text": "하늘아, 리허설 끝나면 떡볶이 먹으러 가자. 우리가 맨 앞에서 들을게.",
-"dur": 5.72,
-"baked": true,
-"eleven": true
-},
-"echo2": {
-"spk": "friend2",
-"text": "내일 방송, 꼭 네 목소리로 해. 약속.",
-"dur": 4.0,
-"baked": true,
-"eleven": true
-},
-"teacher2": {
-"spk": "teacher",
-"text": "출석부에 윤하늘, 결석이라고 적으라더군. 나는 끝까지 쓰지 않았다. 그 아이는 결석한 적이 없으니까.",
-"dur": 6.66,
-"baked": true,
-"eleven": true
-},
-"note_n27": {
-"spk": "narrator",
-"text": "담임 수첩 (3학년 2반). 10월 13일. 조회 시간, 하늘이 자리가 비어 있다. 교감은 출석부에  “결석” 이라 적으라 했다. 나는 끝까지 쓰지 않았다. 그 아이는 3년 동안 한 번도 결석한 적이 없다. 펌프실 이야기를 꺼냈더니, 다음 주에 전근 발령이 났다. — 담임 정은수",
-"dur": 24.16,
-"baked": true,
-"eleven": true
-},
-"note_n28": {
-"spk": "narrator",
-"text": "교환일기. [수아] 하늘아, 리허설 끝나면 떡볶이! 우리가 맨 앞에서 들을게 ♡ [다은] 내일 방송 꼭 네 목소리로 해. 약속. …마지막 장, 다른 글씨:  “하늘이 없이 졸업했다. 기념 방송은 셋이 하기로 했는데.” ",
-"dur": 22.41,
-"baked": true,
-"eleven": true
-},
-"note_n29": {
-"spk": "narrator",
-"text": "첫 번째 메모. 「3층 방송실, 밤 10시. 리허설 시작 — 늦으면 하교 방송 못 해!」 하늘의 동글동글한 글씨. 뒷면에 다른 사람의 글씨가 덧붙어 있다:  「10시 반, 지하 펌프실. 담력 체험 ㅋㅋ」 ",
-"dur": 19.91,
-"baked": true,
-"eleven": true
-},
-"note_nC": {
-"spk": "narrator",
-"text": "개인 기록. ",
-"dur": 0.84,
-"baked": true,
-"eleven": true
-},
-"guardHi": {
-"spk": "guard",
-"text": "해 지기 전에 돌아가유. 오늘이 무슨 날인지 알고 온겨?",
-"dur": 4.23,
-"baked": true,
-"eleven": true
-},
-"guardMina": {
-"spk": "guard",
-"text": "방송부 조끼 입은 여학생? 아까 들어갔지. 불렀는디 뒤도 안 돌아보더라고.",
-"dur": 6.06,
-"baked": true,
-"eleven": true
-},
-"guardPast": {
-"spk": "guard",
-"text": "십 년 전 오늘, 한 아이가 지하에서 못 나왔어. 그 뒤로 해마다 이날 밤이믄, 꺼진 스피커가 울려유.",
-"dur": 7.97,
-"baked": true,
-"eleven": true
-},
-"guardGift": {
-"spk": "guard",
-"text": "가져가유. 건전지 두 개. 그리구 열한 시 사십 분 되기 전엔 꼭 나와야 혀.",
-"dur": 6.3,
-"baked": true,
-"eleven": true
-},
-"guardBye": {
-"spk": "guard",
-"text": "…조심혀. 이상한 소리가 나도, 대답허지 말어.",
-"dur": 3.74,
-"baked": true,
-"eleven": true
-},
-"phone0": {
-"spk": "mina",
-"text": "……정문 앞이야? 경비실 창문 봐. 불, 켜져 있지. 거기 아무도 없어. 들어오면… 뒤돌아보지 마.",
-"dur": 6.77,
-"baked": true,
-"eleven": true
-},
-"note_q1b": {
-"spk": "narrator",
-"text": "고쳐 쓴 출석부. 10월 13일 3학년 2반 —  윤하늘: 출석 . 10년 동안 비어 있던 칸에 처음으로 글씨가 들어갔다. 교무실 어딘가에서 아주 작은 목소리가 대답했다. “네!”",
-"dur": 18.47,
-"baked": true,
-"eleven": true
-},
-"note_q1a": {
-"spk": "narrator",
-"text": "개근 스티커판 (1-1). 「윤하늘 — 3년 개근에 도전!」 칸마다 별 스티커가 빼곡하다. 마지막 칸  10월 13일 만 비어 있다. 귀퉁이에 연필로: 「내일도 1등으로 와야지」",
-"dur": 13.79,
-"baked": true,
-"eleven": true
-},
-"note_q3b": {
-"spk": "narrator",
-"text": "물길 앞에서. 조각을 쥐고 배수구 앞에 잠시 서 있었다. 물소리가 멎었다. 젖은 타일 위로, 아주 작은 발자국 하나가 펌프실 쪽으로 이어졌다가 사라졌다.",
-"dur": 16.14,
-"baked": true,
-"eleven": true
-},
-"note_q2b": {
-"spk": "narrator",
-"text": "세 사람의 방송. 반주가 끝나고, 아무도 없는 방송실 스피커에서 세 사람의 목소리가 겹쳐 들렸다. “…모두, 수고 많았습니다. 집으로 돌아가세요.”  10년 만에, 처음으로 끝까지 나간 방송. ",
-"dur": 20.38,
-"baked": true,
-"eleven": true
-},
-"note_q2a": {
-"spk": "narrator",
-"text": "교환일기 마지막 장. [하늘] 기념 방송 끝 곡은  학교종 ! 수아가 1절, 다은이가 2절, 나는 마지막에 하교 인사. [수아] 반주 테이프는 음악실 카세트 서랍에 넣어 놨어 ♪ [다은] 리허설 끝나면 진짜로 떡볶이다?",
-"dur": 17.01,
-"baked": true,
-"eleven": true
-},
-"note_q3a": {
-"spk": "narrator",
-"text": "보건교사 임소연의 편지. 봉인 서약서에 서명한 날, 나는 내 몫의 열쇠 조각을 지키지 못했다. 그날 밤 펌프실로 달려갔을 땐 이미 물이 차 있었다. 나는 아무것도 하지 못했다. 그래서 조각을  수영장 배수구 에 던졌다. 펌프실로 이어진 그 물길이 그 아이에게 데려다주기를. — 정문 열쇠의 다섯 번째 조각이 왜 물속에 있는지, 이제 안다.",
-"dur": 32.81,
-"baked": true,
-"eleven": true
-},
-"note_q4b": {
-"spk": "narrator",
-"text": "봉인된 진술서 4장. [세진 · 유리 · 동민] “문은 준호 선배가 잠갔어요. 10분 뒤에 가 보니 문이 열려 있었어요.” [준호] “잠근 건 저예요. 그런데 열쇠는 바로  교무부장님께 드렸어요 . ‘버릇 좀 고쳐 주마, 이따 내가 꺼내마’ 하셔서.” — 진술서 위에 붉은 도장:  외부 유출 금지 ",
-"dur": 23.25,
-"baked": true,
-"eleven": true
-},
-"note_q4a": {
-"spk": "narrator",
-"text": "방송부 담력 체험 명단. 10.12 담력 체험 — 3학년  이준호 (부장) · 2학년  박세진  ·  최유리  · 1학년  한동민 . 장소: 지하 펌프실. 대상: 윤하늘 (기념 방송 진행자 — “긴장 풀어 주기”) 문 잠그는 사람: ___ (빈칸)",
-"dur": 15.31,
-"baked": true,
-"eleven": true
-},
-"note_q4c": {
-"spk": "narrator",
-"text": "두 개의 문. 큐시트 뒷면의 펌프실 도면 — 펌프실 문은  두 개 다. 아이들이 10분 뒤 확인한 건  수영장 쪽 점검문 (늘 열려 있다). 하늘이 갇힌 건  B1 복도 쪽 철문 , 그 열쇠는 교무부장의 주머니에 있었다. “문은 열려 있었다”와 “밖에서 잠겨 있었다” — 둘 다 사실이었다.",
-"dur": 23.09,
-"baked": true,
-"eleven": true
-},
-"note_q5a": {
-"spk": "narrator",
-"text": "부치지 못한 편지 (3-2). 하늘이 어머님께. 학교는 하늘이가 그날 밤 집에 가다 사라졌다고 말할 것입니다. 사실이 아닙니다. 하늘이는 3년 동안 단 하루도 결석하지 않았고, 그날 밤에도 학교에 있었습니다. 저는 이 편지를 부칠 용기가 아직 없습니다. — 3학년 2반 담임  정은수 ",
-"dur": 25.18,
-"baked": true,
-"eleven": true
-},
-"note_q5b": {
-"spk": "narrator",
-"text": "우표 한 장. 교사 휴게실 우편함에 정은수 선생님 앞으로 온 반송 우편. 주소가 적힌 봉투와 쓰지 않은 우표 한 장. 받는 사람:  윤하늘 어머님  — 주소는 10년 전 그대로다.",
-"dur": 17.63,
-"baked": true,
-"eleven": true
-},
-"note_q6b": {
-"spk": "narrator",
-"text": "셋, 그리고 한 명. 방송실 앞에서 찍은 사진. 하늘 · 수아 · 다은이 마이크를 들고 웃는다. 그 옆에 다은의 손을 잡은 꼬마 — 뒷면: 「동생  민아 , 처음으로 방송실 구경 온 날」",
-"dur": 17.82,
-"baked": true,
-"eleven": true
-},
-"note_q5c": {
-"spk": "narrator",
-"text": "10년 늦은 편지. 정문 경비실 우편함에 편지를 넣었다. 소인 날짜 칸에 누군가 미리 적어 둔 날짜:  10월 13일 . …그날 아침 부쳐졌어야 할 편지였다.",
-"dur": 15.54,
-"baked": true,
-"eleven": true
-},
-"note_q6c": {
-"spk": "narrator",
-"text": "민아의 녹음 — 언니에게. “언니. 하늘 언니 방송, 내가 끝까지 들었어. 이번엔 아무도 혼자 두지 않았어. …이제 라디오 꺼도 돼.”",
-"dur": 16.93,
-"baked": true,
-"eleven": true
-},
-"note_q7b": {
-"spk": "narrator",
-"text": "10년 늦은 불빛. 배터리팩을 끼우자 펌프실 비상등이 깜빡이다 켜졌다. 그날 밤 이 불이 켜져 있었다면, 하늘은 어둠 속에서 혼자가 아니었을 것이다.",
-"dur": 11.99,
-"baked": true,
-"eleven": true
-},
-"note_q7a": {
-"spk": "narrator",
-"text": "과학부장의 점검 메모. 펌프실 비상등 배터리 교체 요청 — 3회째. 교무부장 회신:  “예산 없음, 다음 학기” . 예비 배터리팩은 과학실 공구함에 둔다. 누구든 먼저 가는 사람이 갈아 끼울 것. …그날 밤, 아무도 가지 않았다.",
-"dur": 22.75,
-"baked": true,
-"eleven": true
-},
-"note_h2": {
-"spk": "narrator",
-"text": "별관 머릿돌.  서문고등학교  1974년  3월 2일  개교 「배움은 집으로 가는 길을 밝힌다」  동판 아래 누군가 못으로 긁어 놓았다:  “집에 못 간 애도 있어요” ",
-"dur": 14.42,
-"baked": true,
-"eleven": true
-},
-"note_q6a": {
-"spk": "narrator",
-"text": "민아의 임시저장 글. [비공개] 언니는 10년째 10월 12일 밤이면 라디오를 켜 둔 채 잠든다. 하늘 언니의 방송을 기다린다고. 언니( 서다은 )는 그날 밤 리허설이 끝나고 떡볶이집에서 하늘 언니를 한 시간이나 기다렸다고 했다. 그래서 내가 간다. 그 학교에. 언니 대신.",
-"dur": 22.15,
-"baked": true,
-"eleven": true
-},
-"note_q8a": {
-"spk": "narrator",
-"text": "『집으로 가는 길』. 도서실 바코드가 붙은 낡은 소설책. 마지막 장 여백에 동글동글한 글씨: 「엄마, 오늘 방송 꼭 들어. 끝나면  바로 집에 갈게 . — 하늘」 반납 기한: 10월 12일.",
-"dur": 20.19,
-"baked": true,
-"eleven": true
-},
-"note_h1": {
-"spk": "narrator",
-"text": "교장 수첩 — 10월 13일 새벽. 다섯이 조각을 나누기로 했다. 나는  그 자리에 없었던 사람 으로 남는다. 다만 열쇠의  머리 는 내가 갖는다 — 다섯이 다 모여도, 머리 없이는 문이 돌아가지 않도록. 머리는  별관 3층 전시 공간 의 개교 기념 진열장에 둔다. 이름표는 “개교 기념 열쇠”. 아무도 진열품을 의심하지 않는다. 진열장 잠금 번호는  이 학교가 태어난 날 . 별관 전원은 폐쇄와 함께 공구실 분전반에서 내린다.",
-"dur": 38.56,
-"baked": true,
-"eleven": true
-},
-"note_h3": {
-"spk": "narrator",
-"text": "별관 분전반 점검표. 별관은 본관과  다른 계통 . 10.12 23:20 본관 정전 때도 별관 조명은 정상. 10.13 06:10 별관 전원 차단 — 지시: 교장 · 사유: 별관 폐쇄. 비고: 3층 전시 공간 진열장(전자식)은 전원이 있어야 열림.",
-"dur": 26.78,
-"baked": true,
-"eleven": true
-},
-"note_h4": {
-"spk": "narrator",
-"text": "보안 PC — 전시 공간 CCTV 기록. 10.12 23:31 전시 공간 — 교장, 개교 기념 전시 준비. 23:33 창가로 가서  불이 꺼진 본관  쪽을 오래 바라봄. 23:34 통화 (음성 기록 일부):  “…펌프실 열쇠는 자네가 갖고 있게. 내일 아침에 얘기하지.”  23:40 다시 진열장 정리. 23:52 퇴근.",
-"dur": 38.84,
-"baked": true,
-"eleven": true
-},
-"call_mina1": {
-"spk": "mina",
-"text": "……여보세요? 들려? ……나야, 민아. 학교 안이야. 계속 누가 복도에서 걸어 다녀. 3층은…… 3층은 가지 마.",
-"dur": 7.97,
-"baked": true,
-"eleven": true
-},
-"note_q8b": {
-"spk": "narrator",
-"text": "반납 완료. 반납함에 책을 넣자 도서실 형광등이 하나씩 켜졌다가 꺼졌다. 대출 카드의 반납 도장 칸이 마침내 채워졌다. 그리고 아주 작게: “다녀왔습니다.”",
-"dur": 14.24,
-"baked": true,
-"eleven": true
-},
-"call_unk1": {
-"spk": "ghost",
-"text": "……하아…… 하아…… 왜…… 나만 두고 갔어……",
-"dur": 5.36,
-"baked": true,
-"eleven": true
-},
-"call_mina2": {
-"spk": "mina",
-"text": "……지지직…… 거기 있어? 별관 쪽 불이 켜졌어. 누가 켰어? ……끊지 마, 제발…… 끊지……",
-"dur": 5.41,
-"baked": true,
-"eleven": true
-},
-"call_unk2": {
-"spk": "ghost",
-"text": "……지금 네 뒤에 있는 의자…… 거기가 내 자리야……",
-"dur": 3.53,
-"baked": true,
-"eleven": true
-},
-"call_home": {
-"spk": "friend2",
-"text": "여보세요? 얘, 너 어디야! 왜 이렇게 안 들려…… 학교? 거기 꼼짝 말고 있어, 지금 바로 갈게!",
-"dur": 7.5,
-"baked": true,
-"eleven": true
-},
-"call_guard": {
-"spk": "guard",
-"text": "여기 경비실이여. 학생, 아직 안에 있는겨? ……지지직…… 그 건물서 혼자 댕기지 말어. 밤엔 그 애가…… 지지직……",
-"dur": 9.95,
-"baked": true,
-"eleven": true
-},
-"sg_sg_class": {
-"spk": "ghost",
-"text": "다들... 여기 있어... 내 자리 지우지 마...",
-"dur": 3.58,
-"baked": true,
-"eleven": true
-},
-"note_h5": {
-"spk": "narrator",
-"text": "진열장 속 쪽지. 「개교 기념 열쇠 — 기증: 제9대 교장」 이름표 뒤에 접힌 쪽지.  “이 문을 다시 여는 사람에게. 그날 밤 나는  불 켜진 곳 에 있었다. 내려가지 않았다. 다섯 조각은 그들의 몫이고, 이 머리는 내 몫이다. 무거워서 아무 데도 두지 못했다.”",
-"dur": 26.15,
-"baked": true,
-"eleven": true
-},
-"sg_sg_corr": {
-"spk": "ghost",
-"text": "집에 갈 시간이 지났는데...",
-"dur": 2.19,
-"baked": true,
-"eleven": true
-},
-"sg_sg_toilet": {
-"spk": "ghost",
-"text": "거울 속에... 내가 안 보여...",
-"dur": 2.14,
-"baked": true,
-"eleven": true
-},
-"sg_sg_stairs": {
-"spk": "ghost",
-"text": "위층엔... 아무도 없어...",
-"dur": 2.59,
-"baked": true,
-"eleven": true
-},
-"call_fail": {
-"spk": "narrator",
-"text": "지금 거신 전화는 연결할 수 없습니다. 잠시 후 다시 걸어 주십시오.",
-"dur": 4.44,
-"baked": true,
-"eleven": true
-},
-"sg_sg_art": {
-"spk": "ghost",
-"text": "빨간색이... 아직 부족해...",
-"dur": 2.87,
-"baked": true,
-"eleven": true
-},
-"sg_sg_gym": {
-"spk": "ghost",
-"text": "체육 시간... 끝났어...?",
-"dur": 1.91,
-"baked": true,
-"eleven": true
-},
-"sg_sg_music": {
-"spk": "ghost",
-"text": "피아노... 같이 칠래...?",
-"dur": 2.35,
-"baked": true,
-"eleven": true
-},
-"call_119": {
-"spk": "narrator",
-"text": "119 상황실입니다. 신호가 약합니다. ……학교 안이라고요? 위치 확인했습니다. 구조대가 정문으로 가겠습니다. 정문 쪽으로 이동하세요.",
-"dur": 13.4,
-"baked": true,
-"eleven": true
-},
-"sg_sg_roof": {
-"spk": "ghost",
-"text": "아래에서... 누가 내 이름을 불렀어...",
-"dur": 3.13,
-"baked": true,
-"eleven": true
-},
-"sg_sg_pool": {
-"spk": "ghost",
-"text": "물이... 아직도 차가워...",
-"dur": 2.46,
-"baked": true,
-"eleven": true
-},
-"mtape_4": {
-"spk": "friend2",
-"text": "누구라도 이 테이프를 듣는다면 옥상 안테나로 올라가세요. 학교 안에서는 전파가 전부 차단되어 있어요... 제발...",
-"dur": 9.72,
-"baked": true,
-"eleven": true
-},
-"mtape_2": {
-"spk": "guard",
-"text": "23시 40분... 시계 바늘이 멈췄다. 본관과 별관 연결통로 방화문을 잠가라. 그것은 빛과 큰 공명음을 싫어한다.",
-"dur": 16.25,
-"baked": true,
-"eleven": true
-},
-"mtape_6": {
-"spk": "seoyeon",
-"text": "어...? 이건 내 목소리잖아? 내가 이미 이 학교에 왔었다고...? 명찰 12개를 모두 모아야만 이 밤이 끝나...",
-"dur": 6.09,
-"baked": true,
-"eleven": true
-},
-"mtape_3": {
-"spk": "teacher",
-"text": "지하 수영장 아래 수맥에서 검출된 파장이 사람들의 공포를 먹고 자란다. 주파수 98.4MHz에서 그것의 위치가 드러난다.",
-"dur": 8.91,
-"baked": true,
-"eleven": true
-},
-"mtape_1": {
-"spk": "teacher",
-"text": "아이들이 하나둘씩 밤만 되면 눈이 풀린 채 지하 보일러실 쪽으로 걸어 내려갑니다... 교장 선생님은 단순한 집단 스트레스라고만 하시는데...",
-"dur": 8.93,
-"baked": true,
-"eleven": true
-},
-"mtape_5": {
-"spk": "teacher",
-"text": "교장실 괘종시계를 자정에 맞추면 서고로 통하는 금고가 열린다. 열쇠 조각 5개 없이는 정문 자물쇠를 절대 열 수 없을 것이다.",
-"dur": 8.49,
-"baked": true,
-"eleven": true
-}
+  "intro1": {
+    "spk": "narrator",
+    "text": "10월 12일, 목요일. 오후 다섯 시 오십 분. 해가 지기 시작했다.",
+    "dur": 5.878,
+    "baked": true,
+    "eleven": "10월 12일, 목요일. 오후 다섯 시 오십 분. 해가 지기 시작했다.",
+    "generation": {
+      "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "325e0dc393354aa2539fe80f3039cf07318a7f788f5efc184b66bdfc5512e46c",
+      "audio_sha256": "427a161dd8430bcb8c4cde9637b961f5f6009cffbbdbf89e027366d87d52e3c1",
+      "request_id": "UX0hsO4NncivhfKx4tWM",
+      "review_status": "listening_required"
+    }
+  },
+  "intro2": {
+    "spk": "narrator",
+    "text": "서현고 방송부장 민아가, 폐교된 서문고에 들어간 뒤 연락이 끊겼다.",
+    "dur": 5.146,
+    "baked": true,
+    "eleven": "서현고 방송부장 민아가, 폐교된 서문고에 들어간 뒤 연락이 끊겼다.",
+    "generation": {
+      "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "0c3455584d94ffbfce5143d26232bb6a93d6cd5d8e8ecacce553946501b711a0",
+      "audio_sha256": "82507450c4f5fa244afea387304fab3c6a1d77f3f8d3a196b67a851e78b14726",
+      "request_id": "to8jtpoZvE9rHAwGufpr",
+      "review_status": "listening_required"
+    }
+  },
+  "intro3": {
+    "spk": "mina",
+    "text": "여기, 아직 누군가의 흔적이 남아있어.",
+    "dur": 3.866,
+    "baked": true,
+    "eleven": "여기, 아직 누군가의 흔적이 남아있어.",
+    "generation": {
+      "voice_id": "vJ170fCwESgE1tjW39So",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "fear",
+      "input_sha256": "040540d55f9a3936ff2c8ecd00831bb927b86ee20fc93a7c2c6972c8f3e06092",
+      "audio_sha256": "0a75d75e62e797adeca97f2007dd207bcfbede40fbb8da83ab87f1af96ff8a2f",
+      "request_id": "TFQVPQuM6QuDCV4bazBH",
+      "review_status": "listening_required"
+    }
+  },
+  "intro4": {
+    "spk": "narrator",
+    "text": "십 년 전 오늘, 이 학교에서 한 아이가 사라졌다. 그리고 매년 이 날 밤, 꺼진 스피커가 울린다.",
+    "dur": 8.046,
+    "baked": true,
+    "eleven": "십 년 전 오늘, 이 학교에서 한 아이가 사라졌다. 그리고 매년 이 날 밤, 꺼진 스피커가 울린다.",
+    "generation": {
+      "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "a4311359177602277d3a12a690713d2164e1d088daae207ac0f93ab773ab4ecf",
+      "audio_sha256": "37ae48926912ae7a8784577bd0deccbc37dbf0a6bac190c8df91fdea9e8481a7",
+      "request_id": "SkX1p7k4j7RRRqVvN4rW",
+      "review_status": "listening_required"
+    }
+  },
+  "cam1": {
+    "spk": "mina",
+    "text": "녹화 중. 여긴 1학년 1반. 칠판에, 다시 여기서, 라고 쓰여 있어. 방금 교무실 쪽에서 소리가 났어. 가 볼게.",
+    "dur": 10.449,
+    "baked": true,
+    "eleven": "녹화 중. 여긴 1학년 1반. 칠판에, 다시 여기서, 라고 쓰여 있어. 방금 교무실 쪽에서 소리가 났어. 가 볼게.",
+    "generation": {
+      "voice_id": "vJ170fCwESgE1tjW39So",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "a21a320e121af4df7f79b225ce60aba159221e22b39968568c74cb12f101ee87",
+      "audio_sha256": "da21315b760064907c0afce4ece9160d87e4c195c0fc64caa57a9f226e4a7b12",
+      "request_id": "JSOUdpB6MZckbpDMKGmr",
+      "review_status": "listening_required"
+    }
+  },
+  "phone1": {
+    "spk": "mina",
+    "text": "3층 방송실. 그 방송, 나도 들었어. 누가 내 이름을 불러.",
+    "dur": 5.956,
+    "baked": true,
+    "eleven": "3층 방송실. 그 방송, 나도 들었어. 누가 내 이름을 불러.",
+    "generation": {
+      "voice_id": "vJ170fCwESgE1tjW39So",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "fear",
+      "input_sha256": "33d46f44e4006fb57747c401a1390bf0787cc61b746c0f4c623368def41cc125",
+      "audio_sha256": "5a82e6d4913b49a34a2f07ccd714624c472bff512d69458cdd86f2bf07365692",
+      "request_id": "orIDCJkRs2jseOP1c8wx",
+      "review_status": "listening_required"
+    }
+  },
+  "phone2": {
+    "spk": "mina",
+    "text": "지하에 아이가 있어. 펌프실. 그 애는 아직 집에 못 갔어.",
+    "dur": 5.721,
+    "baked": true,
+    "eleven": "지하에 아이가 있어. 펌프실. 그 애는 아직 집에 못 갔어.",
+    "generation": {
+      "voice_id": "vJ170fCwESgE1tjW39So",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "fear",
+      "input_sha256": "7e341932f1fa0175b02f48cfa1db10c1483b50c7c9aadf2e1e97666ec7386671",
+      "audio_sha256": "34ec85ee8b59e871271335eebcc615119b6bab404e28cfa19207d2196569946d",
+      "request_id": "HTQBeoroNd2SmjM1lXyb",
+      "review_status": "listening_required"
+    }
+  },
+  "phone3": {
+    "spk": "mina",
+    "text": "늦었어. 이번엔 꼭, 다시, 여기서.",
+    "dur": 4.049,
+    "baked": true,
+    "eleven": "늦었어. 이번엔 꼭, 다시, 여기서.",
+    "generation": {
+      "voice_id": "vJ170fCwESgE1tjW39So",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "whisper",
+      "input_sha256": "f1672696d5c4b8ab6481117255fe772e56404e7410712fe3fb53321c0f8c5e34",
+      "audio_sha256": "f72aff74642aeeaf19a8bf1f0509b2524d49ebbbb2d3639f01f45ed10a95bb3f",
+      "request_id": "GaziaMCoeffYtdBXjmXS",
+      "review_status": "listening_required"
+    }
+  },
+  "pa1": {
+    "spk": "pa",
+    "text": "교내 방송입니다. 모두 교실로 돌아가세요. 다시 한 번 알립니다. 모두, 교실로, 돌아가세요.",
+    "dur": 7.079,
+    "baked": true,
+    "eleven": "교내 방송입니다. 모두 교실로 돌아가세요. 다시 한 번 알립니다. 모두, 교실로, 돌아가세요.",
+    "generation": {
+      "voice_id": "6wIijutElRjsgwLbECzl",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "783a767b97ad0190ba8acf2bd3b4ec4c4a686ff36fedec0df5768ac22d4b7eae",
+      "audio_sha256": "8140da1e36dc467680253323eca26ae4b1ef7059423f217f8f38923fd931cf17",
+      "request_id": "io1niTlgjsFpcWaEZdp9",
+      "review_status": "listening_required"
+    }
+  },
+  "gh1": {
+    "spk": "ghost",
+    "text": "다시, 여기서.",
+    "dur": 1.881,
+    "baked": true,
+    "eleven": "다시, 여기서.",
+    "generation": {
+      "voice_id": "UvgKIGQwdeBJcpRJvb3P",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "whisper",
+      "input_sha256": "2640fecd340d03cd25883431e8c342abab6977c52a43f19ca60270a6b46402a0",
+      "audio_sha256": "e52e89ea1a9a496b3c1e5d7247a287471abb763a4a36ba569655908c7af73d0d",
+      "request_id": "wf0Rhcr4f4L1Jb4CJYXj",
+      "review_status": "listening_required"
+    }
+  },
+  "gh2": {
+    "spk": "ghost",
+    "text": "같이 놀자.",
+    "dur": 1.306,
+    "baked": true,
+    "eleven": "같이 놀자.",
+    "generation": {
+      "voice_id": "UvgKIGQwdeBJcpRJvb3P",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "whisper",
+      "input_sha256": "5289efc0130f48764be8a4b0a2e0bfa5a40e1e9d5bcfe2e90627118e8cbb070b",
+      "audio_sha256": "ad925b2b13a501e1a4f983928b45bb2a28ca306a332b118159ab4721f14e6590",
+      "request_id": "3wVwZS4dgeGDWciaI7wO",
+      "review_status": "listening_required"
+    }
+  },
+  "gh3": {
+    "spk": "ghost",
+    "text": "어디 가?",
+    "dur": 1.071,
+    "baked": true,
+    "eleven": "어디 가?",
+    "generation": {
+      "voice_id": "UvgKIGQwdeBJcpRJvb3P",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "whisper",
+      "input_sha256": "5b9202163882b4d4c0ba83c1e3a792a4a7ef1178ec552ffe739c02639ced99ea",
+      "audio_sha256": "94abc7ff7c469464431e7ac9c4b704c21f1346ca61e7e0ab8787b2deac537a1b",
+      "request_id": "FS1joOEvAL0oa4xKoMza",
+      "review_status": "listening_required"
+    }
+  },
+  "gh4": {
+    "spk": "ghost",
+    "text": "찾았다.",
+    "dur": 1.228,
+    "baked": true,
+    "eleven": "찾았다.",
+    "generation": {
+      "voice_id": "UvgKIGQwdeBJcpRJvb3P",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "whisper",
+      "input_sha256": "fc34f3e6e34711abb954bf6d4adaac71f4fce69210d60260320c79f96ab617c0",
+      "audio_sha256": "4084676d3dce7a467b87e78649e83b56e0bf034708043d49ecfeff3dd4bfb464",
+      "request_id": "1zifarvK1fdqOsAbTLka",
+      "review_status": "listening_required"
+    }
+  },
+  "ghThanks": {
+    "spk": "haneul",
+    "text": "고마워. 이제, 집에 갈게.",
+    "dur": 3.866,
+    "baked": true,
+    "eleven": "고마워. 이제, 집에 갈게.",
+    "generation": {
+      "voice_id": "oGV8pbtfEm7fbDPdSfrx",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "relief",
+      "input_sha256": "c55fed8ac0f466832851f3fc3cbc721afd419044b1352c4fe1ae6b3911edbcc6",
+      "audio_sha256": "b2d9d44fea2086c5cdbe8da5f80cd4582842e746ab49f773cf3615a093f5cb59",
+      "request_id": "22armJDvBMw37UAK8jc4",
+      "review_status": "listening_required"
+    }
+  },
+  "tape1": {
+    "spk": "teacher",
+    "text": "보건 교사 기록. 정전이 났다. 지하 펌프가 멈췄다는 연락. 아이 하나가 아직 학교에 있다고 했는데, 아무도 이름을 대지 못했다.",
+    "dur": 10.109,
+    "baked": true,
+    "eleven": "보건 교사 기록. 정전이 났다. 지하 펌프가 멈췄다는 연락. 아이 하나가 아직 학교에 있다고 했는데, 아무도 이름을 대지 못했다.",
+    "generation": {
+      "voice_id": "dYYoaNsbIzON6ZOkqrct",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "0f84ba93d88cdaef650938a19f6dbcd458f072191e49f240652d3b0484148797",
+      "audio_sha256": "ee19a1a76bd1a1853cc94988711ccf071c41515f03c73beae8fc104e6bdac03a",
+      "request_id": "M3x3Sdas4JPSog48sJ3b",
+      "review_status": "listening_required"
+    }
+  },
+  "tape2": {
+    "spk": "mina",
+    "text": "녹음 시작. 지금 방송실이야. 스피커에서 누가 우리 이름을 불러. 한 명씩. 장비실에 숨을게. 누구든 이걸 들으면, 와 줘.",
+    "dur": 9.639,
+    "baked": true,
+    "eleven": "녹음 시작. 지금 방송실이야. 스피커에서 누가 우리 이름을 불러. 한 명씩. 장비실에 숨을게. 누구든 이걸 들으면, 와 줘.",
+    "generation": {
+      "voice_id": "vJ170fCwESgE1tjW39So",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "fear",
+      "input_sha256": "888cdb698ffa9d70b47dc93a213831e4d41206eaa46651b0b7ac8814bdca0bd0",
+      "audio_sha256": "ff033cc8d506f5fe058fef93b9fd9713b782b4fab95b0638487bfbb4828e475a",
+      "request_id": "OTrmjiFigl0Kg5LBprWc",
+      "review_status": "listening_required"
+    }
+  },
+  "tape3": {
+    "spk": "teacher",
+    "text": "교무부장 기록. 사고는 실종으로 정리한다. 그날 밤 남아 있던 다섯 명이 정문 열쇠를 한 조각씩 나눠 갖는다. 교무실 금고, 도서실, 과학실, 체육관, 수영장. 다섯이 모두 모이기 전엔, 아무도 그날을 열 수 없다.",
+    "dur": 18.678,
+    "baked": true,
+    "eleven": "교무부장 기록. 사고는 실종으로 정리한다. 그날 밤 남아 있던 다섯 명이 정문 열쇠를 한 조각씩 나눠 갖는다. 교무실 금고, 도서실, 과학실, 체육관, 수영장. 다섯이 모두 모이기 전엔, 아무도 그날을 열 수 없다.",
+    "generation": {
+      "voice_id": "dYYoaNsbIzON6ZOkqrct",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "3536c384314f7bd2bf72a9123f0eef5ceae0852113e2e25d7d24454837fc9811",
+      "audio_sha256": "e916fc08da24fc0d007bf0a022c7f8ca5cec99767681ccbc34b3feadfd387545",
+      "request_id": "AYQlyJM89dPEojod0AfI",
+      "review_status": "listening_required"
+    }
+  },
+  "tape4": {
+    "spk": "haneul",
+    "text": "기념 방송 날엔, 내 목소리로 하교 방송을 할 거야. 오늘 하루도 수고 많았습니다. 모두, 집으로 돌아가세요.",
+    "dur": 8.594,
+    "baked": true,
+    "eleven": "기념 방송 날엔, 내 목소리로 하교 방송을 할 거야. 오늘 하루도 수고 많았습니다. 모두, 집으로 돌아가세요.",
+    "generation": {
+      "voice_id": "oGV8pbtfEm7fbDPdSfrx",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "4e6e451d385fba3574d0bd4f97834427b590a9125b0bb441170769c22b52337b",
+      "audio_sha256": "c891bc376286e3f3e8b7ab3c265783d33a38281154f8523379b3328fab10635c",
+      "request_id": "ymxVnwTvwtpXQpP4DbCD",
+      "review_status": "listening_required"
+    }
+  },
+  "endTrue": {
+    "spk": "narrator",
+    "text": "그날 밤, 서문고의 마지막 하교 방송이 끝났다. 민아는 아무것도 기억하지 못했다. 정문을 나서는 순간, 누군가 뒤에서 작게 손을 흔들었다.",
+    "dur": 13.322,
+    "baked": true,
+    "eleven": "그날 밤, 서문고의 마지막 하교 방송이 끝났다. 민아는 아무것도 기억하지 못했다. 정문을 나서는 순간, 누군가 뒤에서 작게 손을 흔들었다.",
+    "generation": {
+      "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "relief",
+      "input_sha256": "47215966d0a32f092848eec9f85c919564e372098aae57d7a86fefb60a032a7b",
+      "audio_sha256": "c522f40d00f23e106f336c0009880d019390b5521bfb6cca323a5eb6754648dd",
+      "request_id": "FV6yp6NRlM3x0shnSV3a",
+      "review_status": "listening_required"
+    }
+  },
+  "endNormal": {
+    "spk": "narrator",
+    "text": "정문은 다시 닫혔다. 그리고 다음 해 10월 12일 밤 11시 40분, 민아의 휴대폰이 다시 울렸다.",
+    "dur": 8.594,
+    "baked": true,
+    "eleven": "정문은 다시 닫혔다. 그리고 다음 해 10월 12일 밤 11시 40분, 민아의 휴대폰이 다시 울렸다.",
+    "generation": {
+      "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "7f8a5d685fbfc27b8d3fd8ca97ee727725168d5a54a7c47996dffd818c4e723b",
+      "audio_sha256": "b55635d8c79169eb5f25d6fdab7b4e1006aebe418930090b7c7dd38abf7ac0ae",
+      "request_id": "nUpVHhrB8omKWJM2nLb7",
+      "review_status": "listening_required"
+    }
+  },
+  "endBad": {
+    "spk": "narrator",
+    "text": "칠판에 한 줄이 더 늘었다. 다시, 여기서.",
+    "dur": 5.329,
+    "baked": true,
+    "eleven": "칠판에 한 줄이 더 늘었다. 다시, 여기서.",
+    "generation": {
+      "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "sad",
+      "input_sha256": "689ec5147fea31b10bf7a4658fc74a5b533d59f67a50d634f85f7037a8184d79",
+      "audio_sha256": "7486d9189658cb3ead6b152d62f7ff53c5d70dc143bc9a2f010b49fd1684a871",
+      "request_id": "fIfSy1Q8hnNHvYqSrZ8a",
+      "review_status": "listening_required"
+    }
+  },
+  "l_arrive_j": {
+    "spk": "jihun",
+    "text": "민아야… 정말 여기 들어간 거야?",
+    "dur": 3.396,
+    "baked": true,
+    "eleven": "민아야… 정말 여기 들어간 거야?",
+    "generation": {
+      "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "fear",
+      "input_sha256": "e29ca8c7e33edfc49fb5285d896d921638272208e236514d73c45602c52e71c6",
+      "audio_sha256": "b8deee6d44afbe4f42f7a2021b1bee27dc23425e8795bfd1c5d15dcc1015693a",
+      "request_id": "OMXH3yOLpZGZ9VRlQqw8",
+      "review_status": "listening_required"
+    }
+  },
+  "l_arrive_s": {
+    "spk": "seoyeon",
+    "text": "선배… 여기 있는 거죠? 무서워도, 가야지.",
+    "dur": 5.329,
+    "baked": true,
+    "eleven": "선배… 여기 있는 거죠? 무서워도, 가야지.",
+    "generation": {
+      "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "fear",
+      "input_sha256": "88691d1e84530bdaa364885daef10e8a3d08c5aa66310ba2d529ebeff2968e4e",
+      "audio_sha256": "fd076767f187d818a308f8a219acdcf2b324f4eda28b398e7c87ebd37ea62126",
+      "request_id": "Nnn97Pf9KAHxtFZsPtQ2",
+      "review_status": "listening_required"
+    }
+  },
+  "l_gate_j": {
+    "spk": "jihun",
+    "text": "문이 잠겼다. 열쇠 없이는 못 나가.",
+    "dur": 2.847,
+    "baked": true,
+    "eleven": "문이 잠겼다. 열쇠 없이는 못 나가.",
+    "generation": {
+      "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "resolve",
+      "input_sha256": "7a1975af6834bc984ae3ba5167b0789ab5dc83e86d76d9d163572fb424b148cd",
+      "audio_sha256": "f2024879336c79fa1396fee03113899eecf667024dfb8c2f910d256391b95751",
+      "request_id": "27eZAPcnsZDQDuRW5dov",
+      "review_status": "listening_required"
+    }
+  },
+  "l_gate_s": {
+    "spk": "seoyeon",
+    "text": "문이 잠겼어… 열쇠를 찾아야 해.",
+    "dur": 2.926,
+    "baked": true,
+    "eleven": "문이 잠겼어… 열쇠를 찾아야 해.",
+    "generation": {
+      "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "resolve",
+      "input_sha256": "46f32d2f18877783c1b0a79d12d69079d30ea06713dee908a9e86c5ab26e2fb1",
+      "audio_sha256": "606ba52e0ef868ce669c82679da5416b9845c038d2fea9655cfc0dd626bd8afa",
+      "request_id": "sdzUH0MNaiRdIGSv5ZIh",
+      "review_status": "listening_required"
+    }
+  },
+  "l_inside_j": {
+    "spk": "jihun",
+    "text": "공기가 차갑다. 숨소리까지 들릴 것 같아.",
+    "dur": 3.631,
+    "baked": true,
+    "eleven": "공기가 차갑다. 숨소리까지 들릴 것 같아.",
+    "generation": {
+      "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "fear",
+      "input_sha256": "cb735ce3e655c6068bc9d1b1708c37775eae1c5984b60ddf94dd4a1aa01e03dd",
+      "audio_sha256": "e55729798e3b8de56f5083b632b905715b5b78e765a4c025b2b14ce55df8d59c",
+      "request_id": "FmpLR468LQz1YZMvljfJ",
+      "review_status": "listening_required"
+    }
+  },
+  "l_inside_s": {
+    "spk": "seoyeon",
+    "text": "안은 숨소리까지 들릴 만큼 조용해…",
+    "dur": 3.474,
+    "baked": true,
+    "eleven": "안은 숨소리까지 들릴 만큼 조용해…",
+    "generation": {
+      "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "fear",
+      "input_sha256": "b3368041d782b9c2d2ae5971b5e29152a5449d8647f880b8a0ac9cc3959f96c1",
+      "audio_sha256": "48a3736df055433573aff5568aacf52e10b0d458f51601a43bbe24b535c4b906",
+      "request_id": "lvuyUfxVfugap5pv02dO",
+      "review_status": "listening_required"
+    }
+  },
+  "l_camFound_j": {
+    "spk": "jihun",
+    "text": "민아 캠코더다. 녹화된 게 남아 있어.",
+    "dur": 2.769,
+    "baked": true,
+    "eleven": "민아 캠코더다. 녹화된 게 남아 있어.",
+    "generation": {
+      "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "cf2d0cead7be161e28a166195288c53f1430415eddaa1efff7e004ae385e21cc",
+      "audio_sha256": "7055731cc507f52e4f605db4763fe784e128c95611effa2c6d712a4ddb8e103d",
+      "request_id": "Y7T0Mrls6N1KB0F4SrDN",
+      "review_status": "listening_required"
+    }
+  },
+  "l_camFound_s": {
+    "spk": "seoyeon",
+    "text": "선배 캠코더…! 아직 녹화 파일이 있어.",
+    "dur": 3.318,
+    "baked": true,
+    "eleven": "선배 캠코더…! 아직 녹화 파일이 있어.",
+    "generation": {
+      "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "af94de08203ee4e37f1a82d19e9ea6a764efc9dc33386f539e5b16e2a0ffd9d3",
+      "audio_sha256": "52be9fe2b06fa5eb22b9e67f812b088c3fcfbf7641c830db251173c7f1e31fbf",
+      "request_id": "X6xTEGn7FXwwXT6MaHhH",
+      "review_status": "listening_required"
+    }
+  },
+  "l_afterCam_j": {
+    "spk": "jihun",
+    "text": "교무실 쪽에서 소리가 났다고 했지. 가 보자.",
+    "dur": 3.161,
+    "baked": true,
+    "eleven": "교무실 쪽에서 소리가 났다고 했지. 가 보자.",
+    "generation": {
+      "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "resolve",
+      "input_sha256": "87c9729028e2a0136ce1b2bae0c49b0fcb07f5e7897ee7bfe54d96c0e0403f1e",
+      "audio_sha256": "cd42b14dc0aa73901c61d7fb6baf0a5984a15819314ad354a679aa467f81bbab",
+      "request_id": "lPPn97rQ7G67mWi5IzDn",
+      "review_status": "listening_required"
+    }
+  },
+  "l_afterCam_s": {
+    "spk": "seoyeon",
+    "text": "교무실… 선배가 마지막으로 간 곳이야.",
+    "dur": 3.553,
+    "baked": true,
+    "eleven": "교무실… 선배가 마지막으로 간 곳이야.",
+    "generation": {
+      "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "resolve",
+      "input_sha256": "4775033456e47770803594636371d64fad57e36a0ca76fcd1a8d2b683d8095b3",
+      "audio_sha256": "f92f72d15e8996e02005a75222651c73a20e685528174ff53d3fba439a47da50",
+      "request_id": "lfk0yUZJBFO1LjvlcH5A",
+      "review_status": "listening_required"
+    }
+  },
+  "l_office_j": {
+    "spk": "jihun",
+    "text": "교무회의록… 열쇠를 다섯 조각으로 나눴다고?",
+    "dur": 4.206,
+    "baked": true,
+    "eleven": "교무회의록… 열쇠를 다섯 조각으로 나눴다고?",
+    "generation": {
+      "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "f050fa8c190f732a8997bb834b1be02eaa646f29757a3d63def8d8aa3ee2b0f1",
+      "audio_sha256": "f90cd1d9dbb074590395c3f1fcbb0e34456cbed2fc719d8b89a22058f93c07f2",
+      "request_id": "eOr04ntT21Au65IwRImO",
+      "review_status": "listening_required"
+    }
+  },
+  "l_office_s": {
+    "spk": "seoyeon",
+    "text": "열쇠가 다섯 조각이라니… 하나는 금고 안에 있대.",
+    "dur": 4.362,
+    "baked": true,
+    "eleven": "열쇠가 다섯 조각이라니… 하나는 금고 안에 있대.",
+    "generation": {
+      "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "fae1b7b6c35671f2704e385bd0f76b7f053453101fc8e9aa937353f2209a9d6b",
+      "audio_sha256": "9a4c7d4de1fb51b6de1812ecc9ef10597b1de4929793cf22ecf27db0a650d2e8",
+      "request_id": "7tqx2timkraWAxFprJnv",
+      "review_status": "listening_required"
+    }
+  },
+  "l_safeHint_j": {
+    "spk": "jihun",
+    "text": "그날의 날짜를 네 자리로… 달력을 보자.",
+    "dur": 3.396,
+    "baked": true,
+    "eleven": "그날의 날짜를 네 자리로… 달력을 보자.",
+    "generation": {
+      "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "cf1c94be19daa421ca2bb17afea1c2fdf30c2b100047fa2392a73e7a97f77607",
+      "audio_sha256": "5be6db2b8caf62f5ffcbe887d3431c737b32d1c8f266c045a5e1067f07f600a0",
+      "request_id": "gTszhsUiv7LambaynDLv",
+      "review_status": "listening_required"
+    }
+  },
+  "l_safeHint_s": {
+    "spk": "seoyeon",
+    "text": "비밀번호… 그날의 날짜라고 했어. 어딘가에 적혀 있을 거야.",
+    "dur": 4.989,
+    "baked": true,
+    "eleven": "비밀번호… 그날의 날짜라고 했어. 어딘가에 적혀 있을 거야.",
+    "generation": {
+      "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "01730555fc734da6a4991118669357a562849cb1f7269bc0c3901bf05ae8dc56",
+      "audio_sha256": "4a4338aa8963065a364e6720940d21634050921a21232b010c8d9c69d55dc83a",
+      "request_id": "P6FX0sf99O9WTra0dxsF",
+      "review_status": "listening_required"
+    }
+  },
+  "l_safeOpen_j": {
+    "spk": "jihun",
+    "text": "10월 12일. 기념 방송이 있던 그날 밤.",
+    "dur": 5.068,
+    "baked": true,
+    "eleven": "10월 12일. 기념 방송이 있던 그날 밤.",
+    "generation": {
+      "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "relief",
+      "input_sha256": "749713f433042b799945ddcde4013ffd6fa872e95b9c0531c185f4cf0e64fc80",
+      "audio_sha256": "212511c01c89fd949b7d0b0fe5401150cf7225ab63f033fa3ef69e3147483d85",
+      "request_id": "Le95zO3UWeKNEZDlunJu",
+      "review_status": "listening_required"
+    }
+  },
+  "l_safeOpen_s": {
+    "spk": "seoyeon",
+    "text": "10월 12일… 오늘이잖아.",
+    "dur": 4.362,
+    "baked": true,
+    "eleven": "10월 12일… 오늘이잖아.",
+    "generation": {
+      "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "relief",
+      "input_sha256": "4168ef99370a9390605facc0c2e36a09c96ff14a2bbd1e96b02cb5c2a0503878",
+      "audio_sha256": "6e0509d5e1faea6f36a4a33f32a366b25b5439eba04f9b8aaa408a1d06b1360b",
+      "request_id": "j45HDvRihMQfxEhjyZRL",
+      "review_status": "listening_required"
+    }
+  },
+  "l_key_j": {
+    "spk": "jihun",
+    "text": "하나 찾았다. 아직 더 있어.",
+    "dur": 2.351,
+    "baked": true,
+    "eleven": "하나 찾았다. 아직 더 있어.",
+    "generation": {
+      "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "resolve",
+      "input_sha256": "f5134208a05cf6ce6f3878f44cb6fd04240a32bbbfc9d5ec6c8886bb127fbe16",
+      "audio_sha256": "8fefedb9583599fe7567ab595933dc35939cd3ff5298ca99b8ca4d68f4bfb4d5",
+      "request_id": "8NKkvw6g1MMCoqSEWVXF",
+      "review_status": "listening_required"
+    }
+  },
+  "l_key_s": {
+    "spk": "seoyeon",
+    "text": "열쇠 조각이다. 하나 더…",
+    "dur": 2.351,
+    "baked": true,
+    "eleven": "열쇠 조각이다. 하나 더…",
+    "generation": {
+      "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "resolve",
+      "input_sha256": "0deeaa6aa508e2d70c2281930cfe21c8debaa0f5bc956119021f768f6489d759",
+      "audio_sha256": "9529d7773d9760ddfafab1177ecafa8fa8575ee8a66933401c63edcb502a76ac",
+      "request_id": "jFPeSflYwvM0lSoGTRIK",
+      "review_status": "listening_required"
+    }
+  },
+  "l_keyLast_j": {
+    "spk": "jihun",
+    "text": "마지막 조각이다. 가방에서 맞춰 보자.",
+    "dur": 2.847,
+    "baked": true,
+    "eleven": "마지막 조각이다. 가방에서 맞춰 보자.",
+    "generation": {
+      "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "resolve",
+      "input_sha256": "5a486a32cfa613a49ed41623ec759589cd155840137fe5e961dfdf67c2479dad",
+      "audio_sha256": "af5419bc167b17311e63466fa3e675e238d28593a89992e939ce372b46fee287",
+      "request_id": "KOjgx6m542oAXCoWqZ6c",
+      "review_status": "listening_required"
+    }
+  },
+  "l_keyLast_s": {
+    "spk": "seoyeon",
+    "text": "마지막 조각이야. 가방에서 열쇠를 맞춰 보자.",
+    "dur": 3.239,
+    "baked": true,
+    "eleven": "마지막 조각이야. 가방에서 열쇠를 맞춰 보자.",
+    "generation": {
+      "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "resolve",
+      "input_sha256": "7423236cc4e2a708d072f1e9c90862be0db5406e5f36e196c1e97438926d0158",
+      "audio_sha256": "54e6ef83cddb345f0190770b03c8afeecd84b75e64d98451c483aee6f4c1bb15",
+      "request_id": "5UqrdM3M43Q3nqLGI6eZ",
+      "review_status": "listening_required"
+    }
+  },
+  "l_keyMade_j": {
+    "spk": "jihun",
+    "text": "맞춰졌다. 이제 정문으로 간다.",
+    "dur": 2.586,
+    "baked": true,
+    "eleven": "맞춰졌다. 이제 정문으로 간다.",
+    "generation": {
+      "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "resolve",
+      "input_sha256": "c719b7964a9e6b5f7822d609a925a6f485731018b7737ecc7dae0696da78e3ff",
+      "audio_sha256": "733af7f68660d4e868db7ced80ed1e8ff1da5d9d2825ab582408fd7c468ec645",
+      "request_id": "LkCkx4yEVir7PnCogFLm",
+      "review_status": "listening_required"
+    }
+  },
+  "l_keyMade_s": {
+    "spk": "seoyeon",
+    "text": "열쇠가 완성됐어. 정문으로 가자.",
+    "dur": 2.769,
+    "baked": true,
+    "eleven": "열쇠가 완성됐어. 정문으로 가자.",
+    "generation": {
+      "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "resolve",
+      "input_sha256": "43db19bddb204b5d7823a13b8dcc87d1100dd863bc4dcce34048885ebd3d02b6",
+      "audio_sha256": "8ab4673bacb88a1ad4eea2170c799771f121341cac19a5c58c8b3bd01069f724",
+      "request_id": "zz1KKOGjcxzQAeqxCLz9",
+      "review_status": "listening_required"
+    }
+  },
+  "l_wake_j": {
+    "spk": "jihun",
+    "text": "위층에서… 뭔가 끌리는 소리가 났어.",
+    "dur": 3.396,
+    "baked": true,
+    "eleven": "위층에서… 뭔가 끌리는 소리가 났어.",
+    "generation": {
+      "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "surprise",
+      "input_sha256": "5887406e1c0211a1d3d4f768a1d8f91ea30381fa025df4bed2d56481fea71080",
+      "audio_sha256": "0ff099d223560ced7c9726d27fd5e5ba61d7973534b9db3072142175d7404678",
+      "request_id": "lygTmyQAtNyXqU0f1fgw",
+      "review_status": "listening_required"
+    }
+  },
+  "l_wake_s": {
+    "spk": "seoyeon",
+    "text": "방금… 위층에서 소리가 났어.",
+    "dur": 2.691,
+    "baked": true,
+    "eleven": "방금… 위층에서 소리가 났어.",
+    "generation": {
+      "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "surprise",
+      "input_sha256": "4c4dce9c8581985edb2ce3ea50f8dde388968fbd2ff917c5b248dd0a035614b6",
+      "audio_sha256": "8410beb4336ff0604166d2e11418ed9738185fffa20695c1f1e8cbac85520f6d",
+      "request_id": "DnmEX5zYyF5O7hz83RMq",
+      "review_status": "listening_required"
+    }
+  },
+  "l_spotted_j": {
+    "spk": "jihun",
+    "text": "봤어. 나를 봤어. 뛰어!",
+    "dur": 2.769,
+    "baked": true,
+    "eleven": "봤어. 나를 봤어. 뛰어!",
+    "generation": {
+      "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "urgent",
+      "input_sha256": "9603bec03396908622f42c8cc8f542355eb50a0d16cf6662f177f79aa7d465a8",
+      "audio_sha256": "e4e173941aec5d77a3e97386290ad82ab86030022cf14263d0864c0b08b8b5df",
+      "request_id": "NoVFgeZxRKVV3cwA0Djf",
+      "review_status": "listening_required"
+    }
+  },
+  "l_spotted_s": {
+    "spk": "seoyeon",
+    "text": "들켰다! 숨거나, 달려야 해!",
+    "dur": 2.769,
+    "baked": true,
+    "eleven": "들켰다! 숨거나, 달려야 해!",
+    "generation": {
+      "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "urgent",
+      "input_sha256": "4277a102a7d3f79ada01d6c054f20a3e5844192356cb181f22e414abe0c5fdab",
+      "audio_sha256": "6cec47ab7b8e92925e28c10ebe869532c20b88f05069f8fa9bd9381c7947fb2b",
+      "request_id": "TaFO0fAeTyPeaZT4agY1",
+      "review_status": "listening_required"
+    }
+  },
+  "l_hit_j": {
+    "spk": "jihun",
+    "text": "크윽…! 여기서 멈추면 안 돼.",
+    "dur": 2.429,
+    "baked": true,
+    "eleven": "크윽…! 여기서 멈추면 안 돼.",
+    "generation": {
+      "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "urgent",
+      "input_sha256": "ab6b291b350d626e7b1297b920233ee8bb5af394023618ce7be7c0717e296b28",
+      "audio_sha256": "52ce840abb848bd2f0d081b64121af6b40dad490768fa48a55f634a2d59d63d8",
+      "request_id": "vI2VC5GBrKUXEypvXdbW",
+      "review_status": "listening_required"
+    }
+  },
+  "l_hit_s": {
+    "spk": "seoyeon",
+    "text": "윽…! 도망쳐야 해!",
+    "dur": 2.194,
+    "baked": true,
+    "eleven": "윽…! 도망쳐야 해!",
+    "generation": {
+      "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "urgent",
+      "input_sha256": "0d472fdce126e5cec3167a046d92fc448594df3ce0d764ede05ebdc971ea9c3c",
+      "audio_sha256": "d9b46d7ad9382f8c92f2c3448bfc2bfd591988dcd2bc048dc7b128570ce97973",
+      "request_id": "wDNbw2R1MFCsBbmCvAOy",
+      "review_status": "listening_required"
+    }
+  },
+  "l_heal_j": {
+    "spk": "jihun",
+    "text": "괜찮아. 아직 움직일 수 있어.",
+    "dur": 3.788,
+    "baked": true,
+    "eleven": "괜찮아. 아직 움직일 수 있어.",
+    "generation": {
+      "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "relief",
+      "input_sha256": "c368447cb3b813e3d87733e1ac6c4c9c1510648a0c5af4a5aa62b9f59394e253",
+      "audio_sha256": "6e4c10c775516bafd0b5f1004714bba613bbe348563f528ca1dc797b760c039b",
+      "request_id": "7hCooxnq7Rb7LYdvW46u",
+      "review_status": "listening_required"
+    }
+  },
+  "l_heal_s": {
+    "spk": "seoyeon",
+    "text": "조금 낫네… 계속 가자.",
+    "dur": 3.553,
+    "baked": true,
+    "eleven": "조금 낫네… 계속 가자.",
+    "generation": {
+      "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "relief",
+      "input_sha256": "8044088ecd97869a7c3fab73ee9b73346fab57347a324d7f7f9e0f1398e9d2fe",
+      "audio_sha256": "a7db7afa73fc8990ba09addeb699c2d320a9b62a8b69aba3e4d6443a933d55a2",
+      "request_id": "0l4RbFuyBKITqt3JI8bb",
+      "review_status": "listening_required"
+    }
+  },
+  "l_enrage_j": {
+    "spk": "jihun",
+    "text": "그게 깨어났다. 정문까지 멈추지 마!",
+    "dur": 2.691,
+    "baked": true,
+    "eleven": "그게 깨어났다. 정문까지 멈추지 마!",
+    "generation": {
+      "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "urgent",
+      "input_sha256": "ac953f0dba1069a612d2cd521667df9a9d597a18840e80ac59222f8f5a938fed",
+      "audio_sha256": "c0f370744d9b47a09a912bfee79049203c95a8554da2a156ae47f62f1586f7fe",
+      "request_id": "BjWirC6XyZUixFrv8hTf",
+      "review_status": "listening_required"
+    }
+  },
+  "l_enrage_s": {
+    "spk": "seoyeon",
+    "text": "그게… 깨어났어. 정문으로 뛰어!",
+    "dur": 2.926,
+    "baked": true,
+    "eleven": "그게… 깨어났어. 정문으로 뛰어!",
+    "generation": {
+      "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "urgent",
+      "input_sha256": "ae686094302fad3c90b69e209b4d72e26a6f45633bc6802d15bce58b8df4990e",
+      "audio_sha256": "66985c17239bf689783ba46ee87c6b239ab5e4e241d33e3262dc890da067e99c",
+      "request_id": "vbsmz1PKWHnHtK79xQUj",
+      "review_status": "listening_required"
+    }
+  },
+  "l_roof_j": {
+    "spk": "jihun",
+    "text": "바람 소리뿐이야. 여기도 누군가 있었어.",
+    "dur": 3.866,
+    "baked": true,
+    "eleven": "바람 소리뿐이야. 여기도 누군가 있었어.",
+    "generation": {
+      "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "fear",
+      "input_sha256": "8cbd3a647a6a146c148881b327f4f02b5bab1d2ac2209805224a831a6757caec",
+      "audio_sha256": "28e3582e1611dc2c4404746fbb980ec2fcff9a881a5050c386d06c447d3a23ba",
+      "request_id": "WUydpoTOSi0nnLlzOqeL",
+      "review_status": "listening_required"
+    }
+  },
+  "l_roof_s": {
+    "spk": "seoyeon",
+    "text": "바람 소리뿐이야… 여기도 누군가 있었어.",
+    "dur": 4.049,
+    "baked": true,
+    "eleven": "바람 소리뿐이야… 여기도 누군가 있었어.",
+    "generation": {
+      "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "fear",
+      "input_sha256": "23c9989bae6c74006b923738366c90a43959281ef0e3f752d1560490de81938d",
+      "audio_sha256": "a81aeb1c197e21abc6ba85c9bc8cb20d0d315554707917f24896716389da7016",
+      "request_id": "dMaOxb9MkDlJ3vQmAgX3",
+      "review_status": "listening_required"
+    }
+  },
+  "l_b1_j": {
+    "spk": "jihun",
+    "text": "지하… 이런 곳이 있었다니.",
+    "dur": 3.082,
+    "baked": true,
+    "eleven": "지하… 이런 곳이 있었다니.",
+    "generation": {
+      "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "fear",
+      "input_sha256": "48064f1d74f8a023580d691b6cf17c3f9b1d35cf303b31f1d4f261705c15b3c5",
+      "audio_sha256": "23446b4731696e88d7b8fbdb5bb849f761c10f8d52df93a8afed69925ee95cef",
+      "request_id": "Fm466WTZBRj5NirFLO2g",
+      "review_status": "listening_required"
+    }
+  },
+  "l_b1_s": {
+    "spk": "seoyeon",
+    "text": "지하…? 이런 곳이 있었다니.",
+    "dur": 3.161,
+    "baked": true,
+    "eleven": "지하…? 이런 곳이 있었다니.",
+    "generation": {
+      "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "fear",
+      "input_sha256": "d99b16924576e403811fa154e98e27b3e64f03fabfefbe863ef3370a511d22e4",
+      "audio_sha256": "a4b94a82435185103bac33ab8726d48f30bb4abda9f1952dbf3954e11598f234",
+      "request_id": "knuqalftVrWE7QlNC28z",
+      "review_status": "listening_required"
+    }
+  },
+  "l_gym_j": {
+    "spk": "jihun",
+    "text": "불 꺼진 체육관에서… 박수 소리?",
+    "dur": 3.396,
+    "baked": true,
+    "eleven": "불 꺼진 체육관에서… 박수 소리?",
+    "generation": {
+      "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "fear",
+      "input_sha256": "39f74ec960f3e9f4a9400e499450eac6557972c4189c22e07ad529d2486fca01",
+      "audio_sha256": "45661b988f465ab481960379e5f6e83be7cefd5e18ffcf01e928d59688864d02",
+      "request_id": "gPabHFD2G8vkRHDQg4Z3",
+      "review_status": "listening_required"
+    }
+  },
+  "l_gym_s": {
+    "spk": "seoyeon",
+    "text": "불 꺼진 체육관… 누가 박수를 치고 있어.",
+    "dur": 3.971,
+    "baked": true,
+    "eleven": "불 꺼진 체육관… 누가 박수를 치고 있어.",
+    "generation": {
+      "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "fear",
+      "input_sha256": "ecdd0a0ea18dfc664c84b510ba459121f76bb1372c303d2dacbd357e8a9d0765",
+      "audio_sha256": "a53a95be8bf7c94b99ca9f32e1443ef64204c116457dda6d89302af18ebe87d5",
+      "request_id": "oJb9BeUrw5g0PCJH610k",
+      "review_status": "listening_required"
+    }
+  },
+  "l_pool_j": {
+    "spk": "jihun",
+    "text": "물이 없는데 물소리가 난다.",
+    "dur": 2.926,
+    "baked": true,
+    "eleven": "물이 없는데 물소리가 난다.",
+    "generation": {
+      "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "fear",
+      "input_sha256": "9d68bd5a22ea41fa78a59221c6fac94010f7d3b387919810e672bc7731bc9043",
+      "audio_sha256": "02880118e69185e15c61e6e589c9125909c6d6a3febbc0f1b07d8ba87cf4ef95",
+      "request_id": "lVzFC12HnYuSXsnQGKHZ",
+      "review_status": "listening_required"
+    }
+  },
+  "l_pool_s": {
+    "spk": "seoyeon",
+    "text": "물이 없는데… 물소리가 들려.",
+    "dur": 3.553,
+    "baked": true,
+    "eleven": "물이 없는데… 물소리가 들려.",
+    "generation": {
+      "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "fear",
+      "input_sha256": "375ed3c127ee5f2364a390ad79189882fc4eda310ce962725a7a09d2682e0f9e",
+      "audio_sha256": "aa6c6a3b0b749c59b67f6390eb6bbdc8d5ea4e8549c9faa229947b0f50bc2195",
+      "request_id": "xaUtSUzin6AxUe3svMvg",
+      "review_status": "listening_required"
+    }
+  },
+  "l_cafe_j": {
+    "spk": "jihun",
+    "text": "식판이 그대로다. 방금까지 누가 있었던 것처럼.",
+    "dur": 4.362,
+    "baked": true,
+    "eleven": "식판이 그대로다. 방금까지 누가 있었던 것처럼.",
+    "generation": {
+      "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "fear",
+      "input_sha256": "ebf7ace4bec45dc7c8d11395c51a480dcd5450566625f3d9e197da419e24b23d",
+      "audio_sha256": "75c267937a44c4e7d29a879e047f3da52fe31fc792013b936dc66907d3b9799f",
+      "request_id": "UjDfcbyy0IZzDCo9qv6x",
+      "review_status": "listening_required"
+    }
+  },
+  "l_cafe_s": {
+    "spk": "seoyeon",
+    "text": "식판이 그대로야… 방금까지 누가 있었던 것처럼.",
+    "dur": 4.519,
+    "baked": true,
+    "eleven": "식판이 그대로야… 방금까지 누가 있었던 것처럼.",
+    "generation": {
+      "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "fear",
+      "input_sha256": "30b477845d6f2aab7fe747273a64b83173183f0ad119d0abad175bce3dcd6303",
+      "audio_sha256": "08907ad7c63c31c9948c864bfcaaac7fa9b07e7fb46c7d77304d17a377788aa6",
+      "request_id": "fxkT5mL2dopo8mgVLdlR",
+      "review_status": "listening_required"
+    }
+  },
+  "l_piano_j": {
+    "spk": "jihun",
+    "text": "피아노가 혼자 울린다.",
+    "dur": 1.959,
+    "baked": true,
+    "eleven": "피아노가 혼자 울린다.",
+    "generation": {
+      "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "surprise",
+      "input_sha256": "398ed681a5649150d68de5282ca3c69045caffe2f713972aa8e2d4947147255c",
+      "audio_sha256": "85e569059c133115237fd69aa664566ab6682b6a27597cff95544473339bfdb3",
+      "request_id": "ZSnSy1WaNDiq0ze9dag6",
+      "review_status": "listening_required"
+    }
+  },
+  "l_piano_s": {
+    "spk": "seoyeon",
+    "text": "피아노가… 혼자 울리고 있어.",
+    "dur": 2.926,
+    "baked": true,
+    "eleven": "피아노가… 혼자 울리고 있어.",
+    "generation": {
+      "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "surprise",
+      "input_sha256": "466a7e64a7e199c4352ed417eacc838ccdbb350e64f53f594ca32a6e3d124c0f",
+      "audio_sha256": "30416b2354a17c78702bad2a82a69bcdefa68b1ea5f4f9d0fd11ec617bbf1cb2",
+      "request_id": "9TH9q9O1kTbUQ6i57tYg",
+      "review_status": "listening_required"
+    }
+  },
+  "l_doorSlam_j": {
+    "spk": "jihun",
+    "text": "문이 저절로 닫혔어.",
+    "dur": 1.881,
+    "baked": true,
+    "eleven": "문이 저절로 닫혔어.",
+    "generation": {
+      "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "surprise",
+      "input_sha256": "8328cc0c29b52575f9bc4c7367ba6e1f554c011bffce2c5196125766356c5850",
+      "audio_sha256": "331c876dead6684fb075f4da93f5424a8009e60da0703c78e6db0e4abacb7b6d",
+      "request_id": "zViiNow7A9US9POwnlpA",
+      "review_status": "listening_required"
+    }
+  },
+  "l_doorSlam_s": {
+    "spk": "seoyeon",
+    "text": "문이… 저절로 닫혔어.",
+    "dur": 2.586,
+    "baked": true,
+    "eleven": "문이… 저절로 닫혔어.",
+    "generation": {
+      "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "surprise",
+      "input_sha256": "aec7001ccd51ee34e19987bd668ac6365d73775d2fdf8f4a30d1e3119a3e0ed0",
+      "audio_sha256": "54c526c33203b37825df5a93036d7e5e78dceb7a3f2136d164684101e0cebd33",
+      "request_id": "dTkbTf0Hwf8hNY0M4W6Q",
+      "review_status": "listening_required"
+    }
+  },
+  "l_stall_j": {
+    "spk": "jihun",
+    "text": "…누구 있어?",
+    "dur": 2.038,
+    "baked": true,
+    "eleven": "…누구 있어?",
+    "generation": {
+      "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "fear",
+      "input_sha256": "a7329cd576971a7a85dfc21c0842be17d9c0f22d9031acf562e2d2ca94ee118f",
+      "audio_sha256": "ccc296788fcc1cb899b5cf055e2e251efef2a9e98b6fbfacb00c75b263ce2434",
+      "request_id": "ExooSrUFqadkYacAb8MG",
+      "review_status": "listening_required"
+    }
+  },
+  "l_stall_s": {
+    "spk": "seoyeon",
+    "text": "…누구 있어요?",
+    "dur": 2.116,
+    "baked": true,
+    "eleven": "…누구 있어요?",
+    "generation": {
+      "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "fear",
+      "input_sha256": "ac4354ce804311e6b1f49d3f6ba79cf708dd6cd1ec47ee4fb0a92f364041137c",
+      "audio_sha256": "bfee1ed20567912e27b63fdaa05cf5e57c8fdac377d7c7b00e861a480020e2e7",
+      "request_id": "74xianJDz6hLaFkGysPO",
+      "review_status": "listening_required"
+    }
+  },
+  "l_steps_j": {
+    "spk": "jihun",
+    "text": "방금 그거, 발소리였어.",
+    "dur": 2.273,
+    "baked": true,
+    "eleven": "방금 그거, 발소리였어.",
+    "generation": {
+      "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "surprise",
+      "input_sha256": "df797b035b655c15d068364d77894eacb76fb9abe9dea7ed59afe3d958b4b4cc",
+      "audio_sha256": "8bf86b8246bcdbfe3484a145630b1a62b06f9f02ca8ee9db665541a77893e11e",
+      "request_id": "P8EKgLYBnd6oBi66k3ea",
+      "review_status": "listening_required"
+    }
+  },
+  "l_steps_s": {
+    "spk": "seoyeon",
+    "text": "…방금 그거, 발소리였어?",
+    "dur": 2.194,
+    "baked": true,
+    "eleven": "…방금 그거, 발소리였어?",
+    "generation": {
+      "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "surprise",
+      "input_sha256": "e8e48f91621adb8f3204dc1b9d1b6e9844b32650a18945baf12f5f418258a5f8",
+      "audio_sha256": "908814c16c4ec6249ea69021d9a28c96a112a2f57d522851efd1b75e57a2d696",
+      "request_id": "oHDa5gMjbuF4GTBQJnSk",
+      "review_status": "listening_required"
+    }
+  },
+  "l_ball_j": {
+    "spk": "jihun",
+    "text": "공이 굴러왔다. 아무도 없는데.",
+    "dur": 2.769,
+    "baked": true,
+    "eleven": "공이 굴러왔다. 아무도 없는데.",
+    "generation": {
+      "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "surprise",
+      "input_sha256": "420c05268a215f6a04c2f2dfd89d64b574eb515f34c9637cc793f31d69487cf4",
+      "audio_sha256": "65092c8637bce44d6abdd290cf25fb64cab08e4776b2c81087875fb72fb500af",
+      "request_id": "FkRhscauPe4L2pRLAWvg",
+      "review_status": "listening_required"
+    }
+  },
+  "l_ball_s": {
+    "spk": "seoyeon",
+    "text": "공이… 굴러왔어. 아무도 없는데.",
+    "dur": 3.474,
+    "baked": true,
+    "eleven": "공이… 굴러왔어. 아무도 없는데.",
+    "generation": {
+      "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "surprise",
+      "input_sha256": "0ae2c283a2850235d2f3cf5e0e6af3ca7f7c5251068adf2348cbdf9673febd3d",
+      "audio_sha256": "2ca33127a3d7c165caf96d61bdd1f36cfe41da1d75ab040ed31b2d9d02f8cc64",
+      "request_id": "re5KjKaqlOm9smq0Wkgw",
+      "review_status": "listening_required"
+    }
+  },
+  "l_speakers_j": {
+    "spk": "jihun",
+    "text": "스피커가 켜졌다고? 전기도 안 들어오는데.",
+    "dur": 3.396,
+    "baked": true,
+    "eleven": "스피커가 켜졌다고? 전기도 안 들어오는데.",
+    "generation": {
+      "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "surprise",
+      "input_sha256": "e74d4a45305f55f560a793ae9a67edd10b87deb79f764377631a5f8ac7673ed4",
+      "audio_sha256": "befcd445f085e1f2483e65e5e71c9b671faeacac976b3d0cabf4471cf90d7b89",
+      "request_id": "yjOcBm0FALv5NZPPH343",
+      "review_status": "listening_required"
+    }
+  },
+  "l_speakers_s": {
+    "spk": "seoyeon",
+    "text": "스피커가… 켜졌어? 전원도 안 들어오는데.",
+    "dur": 3.866,
+    "baked": true,
+    "eleven": "스피커가… 켜졌어? 전원도 안 들어오는데.",
+    "generation": {
+      "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "surprise",
+      "input_sha256": "738e015c7efbb553e50cc7b3ac632bd454696bc6b5cc6a708e6220bd2fa8efcf",
+      "audio_sha256": "95dc818b34035731fb9c28fd5579c4461022ae98390f773f1a949e772e56df81",
+      "request_id": "MJXnYmMG7GJL3KlA1XDU",
+      "review_status": "listening_required"
+    }
+  },
+  "l_breaker_j": {
+    "spk": "jihun",
+    "text": "불이 들어왔다. 근데 소리가 너무 컸어.",
+    "dur": 3.239,
+    "baked": true,
+    "eleven": "불이 들어왔다. 근데 소리가 너무 컸어.",
+    "generation": {
+      "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "surprise",
+      "input_sha256": "3b834f7e0fa6a3ebb202ca2b174e3415e96ab82af8b5e7d681e38ddc6b4e7e35",
+      "audio_sha256": "60ce575599fa92b2e83b0800ad17af7932ad7c0d445cd3ceac7bb6395f55ce83",
+      "request_id": "Ftjd5exRi1bvnAwSsPKg",
+      "review_status": "listening_required"
+    }
+  },
+  "l_breaker_s": {
+    "spk": "seoyeon",
+    "text": "불이… 들어왔어. 근데 소리가 너무 컸어.",
+    "dur": 4.049,
+    "baked": true,
+    "eleven": "불이… 들어왔어. 근데 소리가 너무 컸어.",
+    "generation": {
+      "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "surprise",
+      "input_sha256": "f6015c9d735d0696171c99f2857ddebe73c12d03766820a6f781dbb0fc6ccdd8",
+      "audio_sha256": "222559c1d6bf1656f109327ef131c37c8dbea6c0824e84b4b4d1196d8bf5b331",
+      "request_id": "o3tyeahjnjLU42eyN9pb",
+      "review_status": "listening_required"
+    }
+  },
+  "l_lure_j": {
+    "spk": "jihun",
+    "text": "지금이야. 여기서 빨리 벗어나자.",
+    "dur": 2.429,
+    "baked": true,
+    "eleven": "지금이야. 여기서 빨리 벗어나자.",
+    "generation": {
+      "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "urgent",
+      "input_sha256": "d113a966cb3df9558505acc84f952337bab9ec1c2ec52381161ccad515dc59e0",
+      "audio_sha256": "034abc6d2c056ac264a4c2b5000045ec1d7d98ce4f9ff3d090f07af021daf6aa",
+      "request_id": "y3OkAbxhMBHGcgCxvNIO",
+      "review_status": "listening_required"
+    }
+  },
+  "l_lure_s": {
+    "spk": "seoyeon",
+    "text": "지금이야… 여기서 빨리 벗어나야 해.",
+    "dur": 2.769,
+    "baked": true,
+    "eleven": "지금이야… 여기서 빨리 벗어나야 해.",
+    "generation": {
+      "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "urgent",
+      "input_sha256": "9b5133a3c4ab634202fb08f8c87f262b4a02142b1e4b8e4c20716e8db702fba5",
+      "audio_sha256": "bdf45cd1f4d6e25825a94607b0424aff8f05c136b413c2f9a1987268e6270f43",
+      "request_id": "5ik9oSkVy3ru4kLm9433",
+      "review_status": "listening_required"
+    }
+  },
+  "l_phone_j": {
+    "spk": "jihun",
+    "text": "메시지? 신호도 안 잡히는데.",
+    "dur": 2.586,
+    "baked": true,
+    "eleven": "메시지? 신호도 안 잡히는데.",
+    "generation": {
+      "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "surprise",
+      "input_sha256": "17c8a2258b50538df39f24ff4aa928fd1ce6a51e640dc7700cfc06add93b7650",
+      "audio_sha256": "dff97f908d5f1752a22d363fcba7df12b4876089f0f2ab0dddb842359491b2e1",
+      "request_id": "6LKKL3LFCykM7w3d453S",
+      "review_status": "listening_required"
+    }
+  },
+  "l_phone_s": {
+    "spk": "seoyeon",
+    "text": "메시지…? 신호도 안 잡히는데.",
+    "dur": 2.847,
+    "baked": true,
+    "eleven": "메시지…? 신호도 안 잡히는데.",
+    "generation": {
+      "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "surprise",
+      "input_sha256": "7394e0f8d4cef183ef8234b7211c38b7957f9ea8fd9f1b6dbedb5e6fbf37d8d2",
+      "audio_sha256": "112103246c09edfe5e3215ec48c11752bc3a2aa86ea1d62b51b46f4f7f0cb73a",
+      "request_id": "S31qScKsgRBZN3zHXjZ1",
+      "review_status": "listening_required"
+    }
+  },
+  "l_tagFound_j": {
+    "spk": "jihun",
+    "text": "윤하늘… 이 명찰, 계속 여기 있었구나.",
+    "dur": 4.989,
+    "baked": true,
+    "eleven": "윤하늘… 이 명찰, 계속 여기 있었구나.",
+    "generation": {
+      "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "sad",
+      "input_sha256": "0052933df68e7475aa0f862a5e2c79321bef93b62334602ab600bb9bbd86988f",
+      "audio_sha256": "f91deeadbaeeb080ae6820ac9b7fcf7d209af289cd8bd44ec88e8063e92c454c",
+      "request_id": "x0MjKiOorzzwP3ZMnuJv",
+      "review_status": "listening_required"
+    }
+  },
+  "l_tagFound_s": {
+    "spk": "seoyeon",
+    "text": "윤하늘… 선배. 여기서 기다리고 있었구나.",
+    "dur": 5.329,
+    "baked": true,
+    "eleven": "윤하늘… 선배. 여기서 기다리고 있었구나.",
+    "generation": {
+      "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "sad",
+      "input_sha256": "f2a3fa5529f0a9ecd4dafe525c5eba04d67bac93a507a00bf51e11228aa6a1c4",
+      "audio_sha256": "8a9f09f554d42c5855be54f22d05ec1292ac8bd7d21a903ccdef43501407a2c4",
+      "request_id": "34juHkTFCGJqI7sYS1js",
+      "review_status": "listening_required"
+    }
+  },
+  "l_needPower_j": {
+    "spk": "jihun",
+    "text": "방송을 하려면 먼저 전기를 살려야 해.",
+    "dur": 3.318,
+    "baked": true,
+    "eleven": "방송을 하려면 먼저 전기를 살려야 해.",
+    "generation": {
+      "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "resolve",
+      "input_sha256": "87accd7123625bd6366324a90f684980033ce0dd15bedccbdf81607fd6295662",
+      "audio_sha256": "56166af4e47822dbc79de4686b4b34246adb800bdfca30e96677b08d8cec955f",
+      "request_id": "5FySB2ybRvhOHhacNR8O",
+      "review_status": "listening_required"
+    }
+  },
+  "l_needPower_s": {
+    "spk": "seoyeon",
+    "text": "전원이 없어… 지하 전기실 차단기부터 올려야 해.",
+    "dur": 3.971,
+    "baked": true,
+    "eleven": "전원이 없어… 지하 전기실 차단기부터 올려야 해.",
+    "generation": {
+      "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "resolve",
+      "input_sha256": "3b6755872a03268fa479f4d3beb53f9097ade563c232ec5256a970170b6e90a9",
+      "audio_sha256": "72b89413b831ad4819e77ee973a3bc61ca042d1af9327f5b8d93ef4af4e0e5cd",
+      "request_id": "hNIVkAIgxBuElRQ12rpn",
+      "review_status": "listening_required"
+    }
+  },
+  "l_needTag_j": {
+    "spk": "jihun",
+    "text": "방송을 해도… 누구 이름을 불러야 하지?",
+    "dur": 3.318,
+    "baked": true,
+    "eleven": "방송을 해도… 누구 이름을 불러야 하지?",
+    "generation": {
+      "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "c461c059ae9e511ce53f5280c96309160a75c3bb5a7df75cdc4bbc2326d8d7a3",
+      "audio_sha256": "5c1708ccd79225d71f47bfe6998fb48ab0ae7ec3044e0d06a45eb80875c84cca",
+      "request_id": "TgtBC55PXvkFfkqHjoek",
+      "review_status": "listening_required"
+    }
+  },
+  "l_needTag_s": {
+    "spk": "seoyeon",
+    "text": "누구에게 하는 방송인지… 아직 모르겠어.",
+    "dur": 3.971,
+    "baked": true,
+    "eleven": "누구에게 하는 방송인지… 아직 모르겠어.",
+    "generation": {
+      "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "99a3b3b43e642f82e53eff7ad2d29b1f32aa131ef8dcb95ebc256fb5fb351cdb",
+      "audio_sha256": "3616e2006befe2b5fcf5256a182afea73046519c7a1ba5d25241da8ffa31e6c9",
+      "request_id": "tuo4KQCRWcjy9mvBF0ho",
+      "review_status": "listening_required"
+    }
+  },
+  "l_calm_j": {
+    "spk": "jihun",
+    "text": "…끝났어. 이제 조용해.",
+    "dur": 3.396,
+    "baked": true,
+    "eleven": "…끝났어. 이제 조용해.",
+    "generation": {
+      "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "relief",
+      "input_sha256": "f1576a23ab13301f7fc6b04697fbf6ffeff834a1f31e016d14b874c62397c659",
+      "audio_sha256": "2b3698ec6dc50bfe82030f337ee860ad34502d36b13f9a3ee68de8109c3dcb22",
+      "request_id": "vogbvGbnBXEJMnNpY3CD",
+      "review_status": "listening_required"
+    }
+  },
+  "l_calm_s": {
+    "spk": "seoyeon",
+    "text": "…가 버렸어. 이번엔 집으로.",
+    "dur": 4.127,
+    "baked": true,
+    "eleven": "…가 버렸어. 이번엔 집으로.",
+    "generation": {
+      "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "relief",
+      "input_sha256": "63db6d5b39b7175a8759d09e73730ced6ec61ac444ed2140cf775d3474a1d2c4",
+      "audio_sha256": "1f0f95f4440f36ba49e36ed785d9ce5bf3883cdd396811de641f78d6deff6d61",
+      "request_id": "QXCQvAPELsX80zTy6aE2",
+      "review_status": "listening_required"
+    }
+  },
+  "l_findMina_j": {
+    "spk": "jihun",
+    "text": "민아는 방송실 장비실에 있을 거야.",
+    "dur": 2.691,
+    "baked": true,
+    "eleven": "민아는 방송실 장비실에 있을 거야.",
+    "generation": {
+      "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "resolve",
+      "input_sha256": "4816ab10d1dedbbaaf56a413fd6324d15d85cb7c77b4ef7476ecf0ff6fff7790",
+      "audio_sha256": "afa101220d608d8555b68f97d2585c7930d4bf6d0d512ad74d0152b91e8362bc",
+      "request_id": "ZbmVtesGrtXUvniFZUyi",
+      "review_status": "listening_required"
+    }
+  },
+  "l_findMina_s": {
+    "spk": "seoyeon",
+    "text": "선배는 장비실에… 거기서 이름을 불렀다고 했어.",
+    "dur": 4.127,
+    "baked": true,
+    "eleven": "선배는 장비실에… 거기서 이름을 불렀다고 했어.",
+    "generation": {
+      "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "resolve",
+      "input_sha256": "156631bbc85947573a7781279b6911840c05b3f18db02c6edfb407b12d8fbc3c",
+      "audio_sha256": "740d0f87a6f58bb3d67365b40d795fc231e69a37d3fadce22f98dd81e005ccb8",
+      "request_id": "VhMNbazCxcOO1P3XcjUL",
+      "review_status": "listening_required"
+    }
+  },
+  "l_minaFound_j": {
+    "spk": "jihun",
+    "text": "민아! 정신 차려, 나야.",
+    "dur": 2.508,
+    "baked": true,
+    "eleven": "민아! 정신 차려, 나야.",
+    "generation": {
+      "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "urgent",
+      "input_sha256": "608739099c35480e82b55b59b687b011736b607d9b159fc29439bc2634892f02",
+      "audio_sha256": "d2ffb138e5766a8b021cdb5914bdb160ef3e46865196de546a261dceebd6dc29",
+      "request_id": "v3YAwNqg0yPquXptOZd1",
+      "review_status": "listening_required"
+    }
+  },
+  "l_minaFound_s": {
+    "spk": "seoyeon",
+    "text": "선배! 저예요, 서연이!",
+    "dur": 2.508,
+    "baked": true,
+    "eleven": "선배! 저예요, 서연이!",
+    "generation": {
+      "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "urgent",
+      "input_sha256": "01154c5f902151952b494a6356a7dd1cf2280a99498f36d17be487d649f1768a",
+      "audio_sha256": "5143ee56d84b12bf85c4649a5b5d7633cad4c5d8c9086b87f0ccd05261fcac40",
+      "request_id": "iJXjQx7zvb9yzf98fLXy",
+      "review_status": "listening_required"
+    }
+  },
+  "l_sprint_j": {
+    "spk": "jihun",
+    "text": "숨이 차… 조금만 쉬자.",
+    "dur": 2.769,
+    "baked": true,
+    "eleven": "숨이 차… 조금만 쉬자.",
+    "generation": {
+      "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "fear",
+      "input_sha256": "4bf0f5abb6efa72194088ced504389160bdf1393b82cb047dddb1a924bf656ad",
+      "audio_sha256": "4409e9d829df8be40a07768e88b8c9fe90cecefe04e0ab49a90641a215b35edb",
+      "request_id": "HqTEYOFmPYscjMgoBwtu",
+      "review_status": "listening_required"
+    }
+  },
+  "l_sprint_s": {
+    "spk": "seoyeon",
+    "text": "하아… 숨이…",
+    "dur": 1.959,
+    "baked": true,
+    "eleven": "하아… 숨이…",
+    "generation": {
+      "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "fear",
+      "input_sha256": "0c06dfab77eaae71da8c98b90abba921e5990593a1e7e81e335e22919b002a78",
+      "audio_sha256": "b7558e5a30b337c61b5bc92478a8c3b5522491dcd79c1115931adb086e18eae4",
+      "request_id": "rHqbvBw8PhC8yGbsq41t",
+      "review_status": "listening_required"
+    }
+  },
+  "l_hide_j": {
+    "spk": "jihun",
+    "text": "숨죽여. 지나가길 기다리자.",
+    "dur": 2.769,
+    "baked": true,
+    "eleven": "숨죽여. 지나가길 기다리자.",
+    "generation": {
+      "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "whisper",
+      "input_sha256": "5ced8fd084f1b0d77623101de1e6e152577093f0c264eb0c9b7d7c02c6e04567",
+      "audio_sha256": "97a4bf0d60915fed634149cc8b125743fa501ee66aee49a3f080274cb5d0c3bc",
+      "request_id": "IoZ4NTh59CqUGOvIc8U3",
+      "review_status": "listening_required"
+    }
+  },
+  "l_hide_s": {
+    "spk": "seoyeon",
+    "text": "숨을 죽여… 제발 지나가.",
+    "dur": 3.004,
+    "baked": true,
+    "eleven": "숨을 죽여… 제발 지나가.",
+    "generation": {
+      "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "whisper",
+      "input_sha256": "87dd38e1f957e5ffd5548bd2853be5f900f8976417720e1355a1eee7262b5789",
+      "audio_sha256": "b4231d49997dc8f0a1b695b5b48318312107cb8294b9d741f5d13f19e8c3ce4b",
+      "request_id": "rlaoe2ePbu2qggHG6pta",
+      "review_status": "listening_required"
+    }
+  },
+  "l_combineFail_j": {
+    "spk": "jihun",
+    "text": "이건 서로 안 맞아.",
+    "dur": 1.724,
+    "baked": true,
+    "eleven": "이건 서로 안 맞아.",
+    "generation": {
+      "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "a83dd4e2d5030791cb12f1c19cc41743c573522986e29c4ad781209470386e0e",
+      "audio_sha256": "445b44f22ea2be114f5ab82d7f47f29515b2873f64e0977a14aa9596ee8c6de4",
+      "request_id": "sOuENW1RwdUFD2YW9IaF",
+      "review_status": "listening_required"
+    }
+  },
+  "l_combineFail_s": {
+    "spk": "seoyeon",
+    "text": "이건 같이 쓸 수 없어.",
+    "dur": 2.116,
+    "baked": true,
+    "eleven": "이건 같이 쓸 수 없어.",
+    "generation": {
+      "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "c712183e598a28a2091bf5f4fece371c518a9e932e91e9266614f185f67a630d",
+      "audio_sha256": "a632c5328068fc592d1bd4f11dfa0d9b099492ab4af3b5a0323fa59af4052bfe",
+      "request_id": "ZuelLTKXuCWypkzRKJxr",
+      "review_status": "listening_required"
+    }
+  },
+  "l_locked_j": {
+    "spk": "jihun",
+    "text": "잠겨 있다.",
+    "dur": 1.802,
+    "baked": true,
+    "eleven": "잠겨 있다.",
+    "generation": {
+      "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "fear",
+      "input_sha256": "7b1555d1cf1f6e4438856a0033900029b743f3e475352aa18329469a04130273",
+      "audio_sha256": "00d8e02e8d8413c99e8bbb14c64e1f262831169ac58f1aa14450b8d7906c364e",
+      "request_id": "1fQp6nQ6XARYPFuNAPAt",
+      "review_status": "listening_required"
+    }
+  },
+  "l_locked_s": {
+    "spk": "seoyeon",
+    "text": "잠겨 있어…",
+    "dur": 1.802,
+    "baked": true,
+    "eleven": "잠겨 있어…",
+    "generation": {
+      "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "fear",
+      "input_sha256": "4eb7e5eeca5bd06d3c964152698c1d09ba368ca26f69d8486830b98f03753881",
+      "audio_sha256": "f6687dd741cf60d91138fd2a6a99a9fceca0d1c60b8481bd2a535979696df7f3",
+      "request_id": "Rq6MlqMkSHxG1xK3aXgl",
+      "review_status": "listening_required"
+    }
+  },
+  "bc_j": {
+    "spk": "jihun",
+    "text": "3학년 2반 윤하늘. 오늘 수업은 끝났어. 이제, 집에 가도 돼.",
+    "dur": 7.393,
+    "baked": true,
+    "eleven": "3학년 2반 윤하늘. 오늘 수업은 끝났어. 이제, 집에 가도 돼.",
+    "generation": {
+      "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "relief",
+      "input_sha256": "0633049f734e16f8b0e375962378dc1c305238b826334e38c44c3724fa9dd756",
+      "audio_sha256": "efd23d2895da571d18bf00ce51acbd2bfed05bf04fdd42e6b8be7beddd2adb8f",
+      "request_id": "NRDl6pbX0OPt9HXl19tc",
+      "review_status": "listening_required"
+    }
+  },
+  "bc_s": {
+    "spk": "seoyeon",
+    "text": "3학년 2반 윤하늘 선배. 오늘 방송은 제가 대신할게요. 이제, 집에 가도 돼요.",
+    "dur": 8.751,
+    "baked": true,
+    "eleven": "3학년 2반 윤하늘 선배. 오늘 방송은 제가 대신할게요. 이제, 집에 가도 돼요.",
+    "generation": {
+      "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "relief",
+      "input_sha256": "27bfd94f65db91a886b8499ab0cdee2a840ff208c8373de681332bf5b2e9a0a2",
+      "audio_sha256": "661475a5b0cced3768c05252fea962e3fffb2a98c41be66ba2bb76f8ade16e85",
+      "request_id": "ZNYIqao8SX3lWbkyhRu0",
+      "review_status": "listening_required"
+    }
+  },
+  "mw_j": {
+    "spk": "mina",
+    "text": "…지훈아? 나, 방송실에서 이름을 불렀어. 누가 대답했어.",
+    "dur": 5.486,
+    "baked": true,
+    "eleven": "…지훈아? 나, 방송실에서 이름을 불렀어. 누가 대답했어.",
+    "generation": {
+      "voice_id": "vJ170fCwESgE1tjW39So",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "fear",
+      "input_sha256": "7530e452bb24af561edcd7843f2be8306f5eed24a463d2e300bb21843ab2b098",
+      "audio_sha256": "0d100347b9c242b7f52ec64e7f032796ad279f68681dd9d97ef3b5e3223deed3",
+      "request_id": "EsgyvRFi9ENwzN3Mdify",
+      "review_status": "listening_required"
+    }
+  },
+  "mw_s": {
+    "spk": "mina",
+    "text": "…서연아? 나, 방송실에서 이름을 불렀어. 누가 대답했어.",
+    "dur": 5.329,
+    "baked": true,
+    "eleven": "…서연아? 나, 방송실에서 이름을 불렀어. 누가 대답했어.",
+    "generation": {
+      "voice_id": "vJ170fCwESgE1tjW39So",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "fear",
+      "input_sha256": "b1c7a1a6dff023d4fdf5a1e70f291acfee7dcceb569a95eba5f56f7a153497f3",
+      "audio_sha256": "4818b6e44c546718c3a1c7ebc396e216fb36584e02a205e6693e0226482aad6c",
+      "request_id": "bKd0sO39c54QOlf6qDVt",
+      "review_status": "listening_required"
+    }
+  },
+  "note_n1": {
+    "spk": "narrator",
+    "text": "누군가의 일기. 10월 11일. 내일 밤은  방송부 창립 30주년 기념 방송  리허설. 하늘이는 방송 원고를 몇 번이나 고쳐 썼다.  “기념 방송 날엔 꼭 내 목소리로 하교 방송을 할 거야.” ",
+    "dur": 15.386,
+    "baked": true,
+    "eleven": "누군가의 일기. 10월 11일. 내일 밤은  방송부 창립 30주년 기념 방송  리허설. 하늘이는 방송 원고를 몇 번이나 고쳐 썼다.  “기념 방송 날엔 꼭 내 목소리로 하교 방송을 할 거야.” ",
+    "generation": {
+      "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "33821c997077599073146ae484b5c9de6945633b2c4437e910b440c1a48b1ad0",
+      "audio_sha256": "d53c96eebb823b30011b0f384b3e24ce44481347f19fb0f7f3b33014ac2b82f9",
+      "request_id": "XWukiqcdfZN1IW2PPwah",
+      "review_status": "listening_required"
+    }
+  },
+  "note_n2": {
+    "spk": "narrator",
+    "text": "보건 일지. 10월 12일 밤 11시 20분, 정전. 비상등도 켜지지 않았다. 지하에서 물 빼는 펌프가 멈췄다는 연락. 아이 하나가 아직 학교에 있다고 했는데, 아무도 이름을 대지 못했다.",
+    "dur": 16.039,
+    "baked": true,
+    "eleven": "보건 일지. 10월 12일 밤 11시 20분, 정전. 비상등도 켜지지 않았다. 지하에서 물 빼는 펌프가 멈췄다는 연락. 아이 하나가 아직 학교에 있다고 했는데, 아무도 이름을 대지 못했다.",
+    "generation": {
+      "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "84a2a6d78e152c26ca236f7da77f20f05d98d536067a3b0b767811142d0de5e5",
+      "audio_sha256": "ecdf629556ab5633c2f0ff5395e16011b33377aae48e1adcbf92488eb36114aa",
+      "request_id": "2xP1vmHljAQX0mFP9GBZ",
+      "review_status": "listening_required"
+    }
+  },
+  "note_n3": {
+    "spk": "narrator",
+    "text": "교무회의록. 사고 경위는  “실종” 으로 정리한다. 펌프실은 폐쇄. 그날 밤 학교에 남아 있던  다섯 명 이 정문 열쇠를 한 조각씩 나눠 맡는다 — 다섯이 모두 동의하기 전엔 누구도 그날을 다시 열 수 없도록. 조각은 각자의 자리에: 교무실 금고, 도서실, 과학실, 체육관, 수영장. 금고 비밀번호는  그날의 날짜 (월일 4자리).",
+    "dur": 27.246,
+    "baked": true,
+    "eleven": "교무회의록. 사고 경위는  “실종” 으로 정리한다. 펌프실은 폐쇄. 그날 밤 학교에 남아 있던  다섯 명 이 정문 열쇠를 한 조각씩 나눠 맡는다 — 다섯이 모두 동의하기 전엔 누구도 그날을 다시 열 수 없도록. 조각은 각자의 자리에: 교무실 금고, 도서실, 과학실, 체육관, 수영장. 금고 비밀번호는  그날의 날짜 (월일 4자리).",
+    "generation": {
+      "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "26a5e3a69d8e7be40d9a6ff9c063893d30d66ff2bdc0abbcb3750662390e04fa",
+      "audio_sha256": "d644f92f17cc64cb88734b24452f245ed365886334750999a44f2c5707a15ad2",
+      "request_id": "tznF79azRswtBEX0st5b",
+      "review_status": "listening_required"
+    }
+  },
+  "note_n4": {
+    "spk": "narrator",
+    "text": "도서 대출 카드. 같은 이름이 수백 번 적혀 있다.  윤하늘 . 마지막 대출일 10월 12일. 『집으로 가는 길』. 반납란은 비어 있다.",
+    "dur": 11.651,
+    "baked": true,
+    "eleven": "도서 대출 카드. 같은 이름이 수백 번 적혀 있다.  윤하늘 . 마지막 대출일 10월 12일. 『집으로 가는 길』. 반납란은 비어 있다.",
+    "generation": {
+      "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "2c11e32ada2fc076e106cad99aed3a8f39c89cf2c137b45e748d6c993584284a",
+      "audio_sha256": "2b62aba6d751b53c4b9a81a45707a125340305b2329612a33d1ae35df36d6f44",
+      "request_id": "4fEo6XL69tnP4NB612sU",
+      "review_status": "listening_required"
+    }
+  },
+  "note_n5": {
+    "spk": "narrator",
+    "text": "실험 노트. 불을 끄면 그 애가 온다. 빛이 있는 곳에는 쉽게 다가오지 못한다. 달리면 소리가 난다. 그 애는  듣는다 .",
+    "dur": 10.684,
+    "baked": true,
+    "eleven": "실험 노트. 불을 끄면 그 애가 온다. 빛이 있는 곳에는 쉽게 다가오지 못한다. 달리면 소리가 난다. 그 애는  듣는다 .",
+    "generation": {
+      "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "dbc0c95d0e73fdf2e49734ffccdbe57028b6fa701eae1a05a6e3cdbb8a7b374d",
+      "audio_sha256": "a67eecf1119644429c0024b5d2bf5ba85ac1eb5de22b9ece7094e45839c2ac29",
+      "request_id": "lewoyxUTuMCXgcR2JEud",
+      "review_status": "listening_required"
+    }
+  },
+  "note_n6": {
+    "spk": "narrator",
+    "text": "찢어진 쪽지. 사물함 안에 숨어. 문틈으로 지나가는 게 보여. 문을 닫으면 잠깐은 못 봐. …하지만 숨는 걸 들키면, 그땐 늦어.",
+    "dur": 11.389,
+    "baked": true,
+    "eleven": "찢어진 쪽지. 사물함 안에 숨어. 문틈으로 지나가는 게 보여. 문을 닫으면 잠깐은 못 봐. …하지만 숨는 걸 들키면, 그땐 늦어.",
+    "generation": {
+      "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "a29366ca0654ebb82594c8db293a83c646e8ad997ec9fd3571efdff1710421ea",
+      "audio_sha256": "eee4567254edea95f638ddf9ca46cf3b29d83a6dc432658651676dbf112eb105",
+      "request_id": "3CKWbXQObjp9YwefDBEK",
+      "review_status": "listening_required"
+    }
+  },
+  "note_n7": {
+    "spk": "narrator",
+    "text": "옥상 일지. 방송부 아이들이 담력 체험이라며 하늘이를  지하 펌프실 에 넣고 문을 잠갔다고 했다. 십 분이면 꺼내 줄 장난이었다고. 그때, 정전이 났다.",
+    "dur": 12.042,
+    "baked": true,
+    "eleven": "옥상 일지. 방송부 아이들이 담력 체험이라며 하늘이를  지하 펌프실 에 넣고 문을 잠갔다고 했다. 십 분이면 꺼내 줄 장난이었다고. 그때, 정전이 났다.",
+    "generation": {
+      "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "8ec4a13d277abe4f989bb5db96f72afac4ce7d885d28f0337c05635eab4eef8a",
+      "audio_sha256": "228304062e7802c4833a1ff8b481322afb3ac6e293875caff6e0720333dfe6a2",
+      "request_id": "o3XOSn6EMAWFFF3uN5OE",
+      "review_status": "listening_required"
+    }
+  },
+  "note_n8": {
+    "spk": "narrator",
+    "text": "하교 방송 원고. [원고 — 3학년 2반 윤하늘] “오늘 하루도 수고 많았습니다. 모두, 집으로 돌아가세요.” ※ 기념 방송 날 내가 읽을 거야!  — 이 방송은 끝내 나가지 못했다. ",
+    "dur": 13.244,
+    "baked": true,
+    "eleven": "하교 방송 원고. [원고 — 3학년 2반 윤하늘] “오늘 하루도 수고 많았습니다. 모두, 집으로 돌아가세요.” ※ 기념 방송 날 내가 읽을 거야!  — 이 방송은 끝내 나가지 못했다. ",
+    "generation": {
+      "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "d9393e441482ada5c81aaf3733b57e5b5ab44aa0b8c868234df4f263fd5c9bb6",
+      "audio_sha256": "4fd493a5bbd49f2f2ad04e7aa564b32627aea5f7a7a6e0c36955e3dafd013e13",
+      "request_id": "IWFH9bw6iRK9M8W6UDSo",
+      "review_status": "listening_required"
+    }
+  },
+  "note_n9": {
+    "spk": "narrator",
+    "text": "체육 일지. 10월 12일, 기념 방송 리허설 날 밤. 무대 커튼 뒤에서 박수 소리. 관람석은 비어 있었다. 그날 이후 체육관 불은 켜지지 않는다. ※ 기록석 기구함 다이얼은  전광판의 마지막 경기 점수 로 맞춰 둠.",
+    "dur": 17.711,
+    "baked": true,
+    "eleven": "체육 일지. 10월 12일, 기념 방송 리허설 날 밤. 무대 커튼 뒤에서 박수 소리. 관람석은 비어 있었다. 그날 이후 체육관 불은 켜지지 않는다. ※ 기록석 기구함 다이얼은  전광판의 마지막 경기 점수 로 맞춰 둠.",
+    "generation": {
+      "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "66b84e395c37e58b9e8d309356d61949364d1b1bc67c512b76bb7d7c4f9a399a",
+      "audio_sha256": "e63a23678c4ee5aeadb44ec0ee864f5b667145061a095d1a5c2e8e067c3cf3cd",
+      "request_id": "bjWL5LnERnO9Yo4kJFim",
+      "review_status": "listening_required"
+    }
+  },
+  "note_n10": {
+    "spk": "narrator",
+    "text": "수영장 안전 일지. 물을 뺀 뒤에도 레인 쪽에서 물소리가 난다.  펌프실 문은 지하 B1로 이어진다.  그날 밤 펌프실 바닥은 물에 잠겨 있었다.",
+    "dur": 12.121,
+    "baked": true,
+    "eleven": "수영장 안전 일지. 물을 뺀 뒤에도 레인 쪽에서 물소리가 난다.  펌프실 문은 지하 B1로 이어진다.  그날 밤 펌프실 바닥은 물에 잠겨 있었다.",
+    "generation": {
+      "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "9a5e3495859cd1af5731a5450e1afff8cc895a8533757b9fa4a6ede860cc9bce",
+      "audio_sha256": "1ca08e0a92b3685212e7337e299429438da5d10b08f575bbf22b5789f2acae6c",
+      "request_id": "3aIZscApkbkep7jKTBYV",
+      "review_status": "listening_required"
+    }
+  },
+  "note_n11": {
+    "spk": "narrator",
+    "text": "보일러실 점검표. 지하 B1 점검 완료. 비상 통로는 폐쇄. 단,  정문 열쇠가 완성되면  비상 통로 자물쇠가 풀린다. 그 길은 정문 쪽 담장으로 이어진다.",
+    "dur": 13.166,
+    "baked": true,
+    "eleven": "보일러실 점검표. 지하 B1 점검 완료. 비상 통로는 폐쇄. 단,  정문 열쇠가 완성되면  비상 통로 자물쇠가 풀린다. 그 길은 정문 쪽 담장으로 이어진다.",
+    "generation": {
+      "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "a4c75038384e6862b6b3966cd00af6c0407a4ba98ffe053b3e844544ac9c0cef",
+      "audio_sha256": "e37bdacc99bf36dbc737866df0269f883bfb10843a2a354b2ca3854cb824b4e5",
+      "request_id": "jwlVNhUEKU7dUmviUDul",
+      "review_status": "listening_required"
+    }
+  },
+  "note_n12": {
+    "spk": "narrator",
+    "text": "낡은 명부. 졸업생 명부. 3학년 2반  윤하늘  — 이름이 붉게 지워져 있다. 이름 옆에 적힌 말:  “아직 집에 못 갔어요.” ",
+    "dur": 11.651,
+    "baked": true,
+    "eleven": "낡은 명부. 졸업생 명부. 3학년 2반  윤하늘  — 이름이 붉게 지워져 있다. 이름 옆에 적힌 말:  “아직 집에 못 갔어요.” ",
+    "generation": {
+      "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "d3b22e5c4adcd5cb07b03ebbd88a51a0721bb0cb2ddd25ac509c5b0f83572603",
+      "audio_sha256": "7eea5142e11021a5301d355420272d2ae3d64f504212441a0418250ef109b6ec",
+      "request_id": "gjnlsYx1lIclrzm7uwGj",
+      "review_status": "listening_required"
+    }
+  },
+  "note_n13": {
+    "spk": "narrator",
+    "text": "급식 일지. 오늘의 급식: 아무도 먹지 않았다. 식판은 매일 같은 자리에 놓여 있다. 한 명분이 모자란 채로.",
+    "dur": 9.326,
+    "baked": true,
+    "eleven": "급식 일지. 오늘의 급식: 아무도 먹지 않았다. 식판은 매일 같은 자리에 놓여 있다. 한 명분이 모자란 채로.",
+    "generation": {
+      "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "80cc3ee6b657d1e424f8b140f7d111e11d6a8fd0134cdff8cb64b611a0e2c4aa",
+      "audio_sha256": "3c7b5a48c40dc92b1def69a7c162645e4c894c2c2f82a3a3d67f1fd38ee0be12",
+      "request_id": "Xg1oIwKgA6uVHvr9z39t",
+      "review_status": "listening_required"
+    }
+  },
+  "note_n14": {
+    "spk": "narrator",
+    "text": "방송부 회의록. 10월 12일 담력 체험 계획. 참가 4명. 장소: 지하 펌프실. 문 잠그는 사람: ___ …아무도 그 다음 줄을 쓰지 않았다.",
+    "dur": 13.087,
+    "baked": true,
+    "eleven": "방송부 회의록. 10월 12일 담력 체험 계획. 참가 4명. 장소: 지하 펌프실. 문 잠그는 사람: ___ …아무도 그 다음 줄을 쓰지 않았다.",
+    "generation": {
+      "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "710041b75fb45d05dc027dcd0d78d6637fc70c98b75e49ef65227047eda85d39",
+      "audio_sha256": "554c9961e02561240530b7dfc8aa747f2c670b1b2d04f36f505b45ea32581db1",
+      "request_id": "dvG66WnDXDjpIuGlv8sL",
+      "review_status": "listening_required"
+    }
+  },
+  "note_n15": {
+    "spk": "narrator",
+    "text": "스마트교실 로그. 전자칠판이 혼자 켜진다. 화면에는 매번 같은 교실 사진. 칠판에는  “다시, 여기서.” ",
+    "dur": 10.266,
+    "baked": true,
+    "eleven": "스마트교실 로그. 전자칠판이 혼자 켜진다. 화면에는 매번 같은 교실 사진. 칠판에는  “다시, 여기서.” ",
+    "generation": {
+      "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "b3b604754a6c8d24190c561a2918a55522eb8783ae234b2d22cd2efc9b511bc3",
+      "audio_sha256": "a48a2e9381f064a40b74a187a72db82a3e02664889411f51251ee32da0e4ceaf",
+      "request_id": "I0TwVgEIPTUWWZzuNOKA",
+      "review_status": "listening_required"
+    }
+  },
+  "note_n16": {
+    "spk": "narrator",
+    "text": "가정 실습 노트. 실밥이 풀린 교복 한 벌이 의자에 걸려 있다. 이름표에는  “윤” 이라는 글자만 남아 있다.",
+    "dur": 9.326,
+    "baked": true,
+    "eleven": "가정 실습 노트. 실밥이 풀린 교복 한 벌이 의자에 걸려 있다. 이름표에는  “윤” 이라는 글자만 남아 있다.",
+    "generation": {
+      "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "9fa0339ba264d0c4d58edefcad87c9600d25580f044e689ab3e85d604e73dfb6",
+      "audio_sha256": "ec94042958b622eae68859cd4bf9774c1123afa0a564655b3096658c196be40d",
+      "request_id": "AX5qjVN6JaGZDuZ0EpWf",
+      "review_status": "listening_required"
+    }
+  },
+  "l_needCombine_j": {
+    "spk": "jihun",
+    "text": "조각만으론 안 돼. 먼저 열쇠를 맞춰야 해.",
+    "dur": 3.474,
+    "baked": true,
+    "eleven": "조각만으론 안 돼. 먼저 열쇠를 맞춰야 해.",
+    "generation": {
+      "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "7fb5fbffb51d4643d24e276ac8ae5224732517441b1d72068c53b7363d5478e9",
+      "audio_sha256": "389e69f160127f5efbf13476d11ac0b656350a05b76006949d2b8a228733120a",
+      "request_id": "rydi6CRwTdxmZVBDrxZ2",
+      "review_status": "listening_required"
+    }
+  },
+  "l_needCombine_s": {
+    "spk": "seoyeon",
+    "text": "조각만으로는 안 열려… 가방에서 맞춰 봐야 해.",
+    "dur": 3.971,
+    "baked": true,
+    "eleven": "조각만으로는 안 열려… 가방에서 맞춰 봐야 해.",
+    "generation": {
+      "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "cd9a1e2a9c86701f61a605c08e84c987b7135dc9cc20e10cbbee0193bc78057d",
+      "audio_sha256": "db1dc2c02308273f090eefbe8670cf4bb4a1e250252412e746a23e71eb344fea",
+      "request_id": "PUACTiUIWlHUh9uC3pk3",
+      "review_status": "listening_required"
+    }
+  },
+  "l_minaAsleep_j": {
+    "spk": "jihun",
+    "text": "숨은 쉬고 있어. 그런데 아무리 불러도…",
+    "dur": 4.206,
+    "baked": true,
+    "eleven": "숨은 쉬고 있어. 그런데 아무리 불러도…",
+    "generation": {
+      "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "fear",
+      "input_sha256": "d853e7d60d4b0d73ab4bcebdbd90a6ee99a05b5b17eb62533b16eee59a7fa2a2",
+      "audio_sha256": "9a11537789b6a18bea12659ae6b55ece5ed4f66f2b4c9109604f24de22fa497d",
+      "request_id": "WL6uTi0REp1SkTkEXnyP",
+      "review_status": "listening_required"
+    }
+  },
+  "l_minaAsleep_s": {
+    "spk": "seoyeon",
+    "text": "숨은 쉬어… 그런데 깨어나질 않아.",
+    "dur": 3.971,
+    "baked": true,
+    "eleven": "숨은 쉬어… 그런데 깨어나질 않아.",
+    "generation": {
+      "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "fear",
+      "input_sha256": "2213dd465742605cb26e54a3ed4507391e3e22b68e75446e1f7bda78230a03db",
+      "audio_sha256": "54bd310e36520466a2cdf86d7bfc83b7eec2eb91d834e35ced2d4c3c7d15d804",
+      "request_id": "egqQMyELFofoigNyVyCw",
+      "review_status": "listening_required"
+    }
+  },
+  "l_withMina_j": {
+    "spk": "jihun",
+    "text": "같이 나가자, 민아야. 이번엔 다 같이.",
+    "dur": 3.082,
+    "baked": true,
+    "eleven": "같이 나가자, 민아야. 이번엔 다 같이.",
+    "generation": {
+      "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "resolve",
+      "input_sha256": "685b510338077931304c35173b718bb3d39256f06894337efac11e9a1ccf961f",
+      "audio_sha256": "69585c0cc8418ed0280946cc2d31e90f0af8cf2a62c8d6cf88d6c798e2f322d1",
+      "request_id": "EIq5SpXeYoOFcQYasNOQ",
+      "review_status": "listening_required"
+    }
+  },
+  "l_withMina_s": {
+    "spk": "seoyeon",
+    "text": "같이 가요, 선배. 이번엔 다 같이 나가요.",
+    "dur": 3.239,
+    "baked": true,
+    "eleven": "같이 가요, 선배. 이번엔 다 같이 나가요.",
+    "generation": {
+      "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "resolve",
+      "input_sha256": "fe0bb53e8b05c7ecfeef0bed85851f524d59b8d16482c04afd73778e48c2434d",
+      "audio_sha256": "15e9da5699cc41e29d4aea290594fc7d80d2e46da065bd722fae7a09da30fbb9",
+      "request_id": "7XBLodlpYBSnx3G79zIi",
+      "review_status": "listening_required"
+    }
+  },
+  "l_needPin_j": {
+    "spk": "jihun",
+    "text": "잠겨 있다. 가는 철사나 핀이라도 있으면…",
+    "dur": 4.206,
+    "baked": true,
+    "eleven": "잠겨 있다. 가는 철사나 핀이라도 있으면…",
+    "generation": {
+      "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "fear",
+      "input_sha256": "a3e80020f556551e2ce94b8dc257fc1bdc1a15b7ff5ceaea79a3220c056ea70d",
+      "audio_sha256": "417f1fb4f6fb3e4ad4617169e4a021097413f5912cf7b2c42faebf2c3cb13f01",
+      "request_id": "hodpSNlghFqTTsxL6091",
+      "review_status": "listening_required"
+    }
+  },
+  "l_needPin_s": {
+    "spk": "seoyeon",
+    "text": "잠겼어… 머리핀 같은 게 있으면 딸 수 있을 텐데.",
+    "dur": 4.441,
+    "baked": true,
+    "eleven": "잠겼어… 머리핀 같은 게 있으면 딸 수 있을 텐데.",
+    "generation": {
+      "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "fear",
+      "input_sha256": "f3f87ffc002ec1b1d4c8acd7466479bf8efce23c8daa998d3fef8af9cea2c1a6",
+      "audio_sha256": "a9ae3f9479c99fea32ae981294c8b3e855303eef39b45609979a55e9309a5a4f",
+      "request_id": "uePxFyFuju9XcsKu0C4g",
+      "review_status": "listening_required"
+    }
+  },
+  "l_pinBroken_j": {
+    "spk": "jihun",
+    "text": "핀이 부러졌다. 침착하게.",
+    "dur": 2.769,
+    "baked": true,
+    "eleven": "핀이 부러졌다. 침착하게.",
+    "generation": {
+      "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "surprise",
+      "input_sha256": "77ced903c3740f2e4f6e5de86d82dbea6be3034524e5027cb39a5d84c3875ac4",
+      "audio_sha256": "47015ae4f049c27565d715453eecbe0758bd327352825bb511544cb412fbc38d",
+      "request_id": "LabmFYSIirjLsU9xZ9h2",
+      "review_status": "listening_required"
+    }
+  },
+  "l_pinBroken_s": {
+    "spk": "seoyeon",
+    "text": "아, 부러졌어…",
+    "dur": 1.959,
+    "baked": true,
+    "eleven": "아, 부러졌어…",
+    "generation": {
+      "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "surprise",
+      "input_sha256": "2d37800c864ce76f725b1f653cabd2d09aaa060a59bda5694d8b43d32ef1870a",
+      "audio_sha256": "d67c994ab3ac30f4b8d4e8baa8c02faf3852286dfa27b64b82f5db6f04ab9b97",
+      "request_id": "qEE7L3uTzEMkdImODbSW",
+      "review_status": "listening_required"
+    }
+  },
+  "l_unlocked_j": {
+    "spk": "jihun",
+    "text": "열렸다.",
+    "dur": 2.351,
+    "baked": true,
+    "eleven": "열렸다.",
+    "generation": {
+      "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "relief",
+      "input_sha256": "b9c784c4602a67964a22859bb1942664b3259289894edf55c25d50a91985ed91",
+      "audio_sha256": "9bc6a90e09092402698a80cbe9a9ee28e64bf7e08a0aa5ccfb10d9a6f71349e4",
+      "request_id": "rhsFl5qadEJ4aVWMULoA",
+      "review_status": "listening_required"
+    }
+  },
+  "l_unlocked_s": {
+    "spk": "seoyeon",
+    "text": "열렸다!",
+    "dur": 2.351,
+    "baked": true,
+    "eleven": "열렸다!",
+    "generation": {
+      "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "relief",
+      "input_sha256": "d66d4ae4e200e7b253341d1932f991a974a881d97a0d756b9c8785c475782a99",
+      "audio_sha256": "6c0f4e0db7b69849f557ce7276b950449384905d78b3a27a9f6eb9525bc4e902",
+      "request_id": "CaccGIPH8QHNzC3GPZxN",
+      "review_status": "listening_required"
+    }
+  },
+  "l_dialWrong_j": {
+    "spk": "jihun",
+    "text": "아니야. 다른 숫자다.",
+    "dur": 1.802,
+    "baked": true,
+    "eleven": "아니야. 다른 숫자다.",
+    "generation": {
+      "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "32690dc3ccc3cac1c4964e2bdf5c5158550279f32d7b6811423dd81f1c861968",
+      "audio_sha256": "5542d1aa6396b5e29eddd8fd0154bb03e48d5b49f70b0fcc4e400993e793dea7",
+      "request_id": "O3av5IcDUHkkLZCu2WJc",
+      "review_status": "listening_required"
+    }
+  },
+  "l_dialWrong_s": {
+    "spk": "seoyeon",
+    "text": "아니야… 다른 번호인가 봐.",
+    "dur": 2.508,
+    "baked": true,
+    "eleven": "아니야… 다른 번호인가 봐.",
+    "generation": {
+      "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "7827dc20ab43bd802565445c1eabb05e255890ff282c971df5c1d0e8e55e89ed",
+      "audio_sha256": "021d4e0201103cd99be09250511a9960af4fb9938a67d73312b9d717e5a1c1ad",
+      "request_id": "0rvxuyvYaS5e70yHfpxy",
+      "review_status": "listening_required"
+    }
+  },
+  "l_needHook_j": {
+    "spk": "jihun",
+    "text": "저 아래 뭔가 반짝인다. 손이 닿지 않아… 갈고리가 필요해.",
+    "dur": 4.989,
+    "baked": true,
+    "eleven": "저 아래 뭔가 반짝인다. 손이 닿지 않아… 갈고리가 필요해.",
+    "generation": {
+      "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "134a1f26afb95dbc9b45609cf057ec69f7670c822a7b355596e6cc55cd1c8dc7",
+      "audio_sha256": "ce9f0d535a47d8533df09ce66146f315857fe8d719b64ba4f6e9b2c537d13fb2",
+      "request_id": "94nEWebPlCcXk1tRekbW",
+      "review_status": "listening_required"
+    }
+  },
+  "l_needHook_s": {
+    "spk": "seoyeon",
+    "text": "배수구 안에 뭔가 있어… 손이 안 닿아. 갈고리를 만들어야 해.",
+    "dur": 4.911,
+    "baked": true,
+    "eleven": "배수구 안에 뭔가 있어… 손이 안 닿아. 갈고리를 만들어야 해.",
+    "generation": {
+      "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "bcf8db3b810ccc4f075261a74f9612286cd9a65eff0f5ddb7c02d9203d6944b5",
+      "audio_sha256": "f0abbdf3f03d2cb95c72bcb7321f0fc1fcd743aa9bdada0f72db7865bbabf660",
+      "request_id": "mJsSxpi7J3ns5MOdBx6B",
+      "review_status": "listening_required"
+    }
+  },
+  "l_hookMade_j": {
+    "spk": "jihun",
+    "text": "자루에 철사를 감았다. 이거면 걸 수 있겠다.",
+    "dur": 5.146,
+    "baked": true,
+    "eleven": "자루에 철사를 감았다. 이거면 걸 수 있겠다.",
+    "generation": {
+      "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "relief",
+      "input_sha256": "47c1c9056bb0d28f0e6c6de62c2088654a7e6f9c34e0dcf00da3c6bd7d770dab",
+      "audio_sha256": "ac5b1fc2a3be07b27970589e578b38a6f9c03f6f05cc602d2ecf2f8b2b564078",
+      "request_id": "zRkVTkxTUMLNf3DgztQW",
+      "review_status": "listening_required"
+    }
+  },
+  "l_hookMade_s": {
+    "spk": "seoyeon",
+    "text": "자루에 철사를 묶었어. 이걸로 낚을 수 있을 거야.",
+    "dur": 4.989,
+    "baked": true,
+    "eleven": "자루에 철사를 묶었어. 이걸로 낚을 수 있을 거야.",
+    "generation": {
+      "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "relief",
+      "input_sha256": "b28a56905ef4ccbf1996ac3a5a2ce12262e2989c4370ec655cc63ab1721405e4",
+      "audio_sha256": "03d3987e93201524a4e11bc180613fc9388d803c1f776ed8b471b58f878d5afa",
+      "request_id": "zeCs4qu8GmYrJHHZIhnW",
+      "review_status": "listening_required"
+    }
+  },
+  "l_needFuse_j": {
+    "spk": "jihun",
+    "text": "퓨즈가 빠져 있다. 예비 퓨즈를 찾아야 해.",
+    "dur": 3.161,
+    "baked": true,
+    "eleven": "퓨즈가 빠져 있다. 예비 퓨즈를 찾아야 해.",
+    "generation": {
+      "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "40e3423db7571261347527f6140436fdfd90ef8fc979dfe53f3e7fb2e693ed4a",
+      "audio_sha256": "bac3cd335fa1c59134ae5b7ae743a8cab4f948e72388485168b1e96b1576b7e8",
+      "request_id": "JTpAFQI3m3gTzeiFQxL7",
+      "review_status": "listening_required"
+    }
+  },
+  "l_needFuse_s": {
+    "spk": "seoyeon",
+    "text": "퓨즈가 없어… 어딘가에 예비 퓨즈가 있을 거야.",
+    "dur": 4.049,
+    "baked": true,
+    "eleven": "퓨즈가 없어… 어딘가에 예비 퓨즈가 있을 거야.",
+    "generation": {
+      "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "56c4a777d0762521eb8bbf3837f699a0f96b702a37a737805ae3fc9caac261d4",
+      "audio_sha256": "bc3c2450ab05b011f74da7bfbbed18ee404925e10f84a96e241b8558d469e351",
+      "request_id": "wg0WmgltySpkPbEbUVDk",
+      "review_status": "listening_required"
+    }
+  },
+  "l_pianoOk_j": {
+    "spk": "jihun",
+    "text": "피아노 아래에서 뭔가 떨어졌다.",
+    "dur": 2.351,
+    "baked": true,
+    "eleven": "피아노 아래에서 뭔가 떨어졌다.",
+    "generation": {
+      "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "surprise",
+      "input_sha256": "4bff8899775218ad62614e3f4b6783d594b96ab9d5a840092681d8eff25afa1e",
+      "audio_sha256": "01e406e2ba070542abf4793b0a4dca3567eb51b710543dbe8ee5bd87cbb7bbef",
+      "request_id": "qLkxITWa5ZhTICmAj8qy",
+      "review_status": "listening_required"
+    }
+  },
+  "l_pianoOk_s": {
+    "spk": "seoyeon",
+    "text": "피아노 밑에서… 뭔가 떨어졌어.",
+    "dur": 2.847,
+    "baked": true,
+    "eleven": "피아노 밑에서… 뭔가 떨어졌어.",
+    "generation": {
+      "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "surprise",
+      "input_sha256": "508eaea77733d6b1772e2f8c78a90d008fedbbd49447a5e3d4475fc95fa98e0f",
+      "audio_sha256": "1c52989666e51ff36afb75ff7ea16198da072148427761fb595ec60f2349cf26",
+      "request_id": "NSQhpghYlLy5YPTlvn0A",
+      "review_status": "listening_required"
+    }
+  },
+  "l_slideOk_j": {
+    "spk": "jihun",
+    "text": "그림 뒤에 뭔가 붙어 있다.",
+    "dur": 2.194,
+    "baked": true,
+    "eleven": "그림 뒤에 뭔가 붙어 있다.",
+    "generation": {
+      "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "surprise",
+      "input_sha256": "cddfd228f18d852fed3c1fcb5d330a458770014efd871a5a199d9b1eee86f891",
+      "audio_sha256": "501019cafff157dcdf9bfad36d9808a95066e7d18813bc44fe3af93450a1c6dc",
+      "request_id": "ZYIAx3THNBuCnQmmW3oH",
+      "review_status": "listening_required"
+    }
+  },
+  "l_slideOk_s": {
+    "spk": "seoyeon",
+    "text": "그림 뒤에… 사진이 붙어 있었어.",
+    "dur": 3.082,
+    "baked": true,
+    "eleven": "그림 뒤에… 사진이 붙어 있었어.",
+    "generation": {
+      "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "surprise",
+      "input_sha256": "6a4779a5d0ac29527c1c97e2911891d0e21a6f28fd98a4a1dd16ee5d8e385cec",
+      "audio_sha256": "9cf3fe05ce3db6b24b98c71bab6b9830e060fdf38908e7e9e692f400037ee4a6",
+      "request_id": "tCd1F15rCp7f5S172UQM",
+      "review_status": "listening_required"
+    }
+  },
+  "l_breath_j": {
+    "spk": "jihun",
+    "text": "…숨 참아.",
+    "dur": 1.306,
+    "baked": true,
+    "eleven": "…숨 참아.",
+    "generation": {
+      "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "whisper",
+      "input_sha256": "dae6b858da6d2c72d9a435faaf4e2b8e40256a359c7a4cd19c78c4a0e09cea3d",
+      "audio_sha256": "0599255b80a22cf523f8d6086d6cca4cf0212b4f6814f61b08f8a032ff2fbda5",
+      "request_id": "ALedJXgzRq4wPPNxwAsB",
+      "review_status": "listening_required"
+    }
+  },
+  "l_breath_s": {
+    "spk": "seoyeon",
+    "text": "…숨 참아, 제발.",
+    "dur": 2.194,
+    "baked": true,
+    "eleven": "…숨 참아, 제발.",
+    "generation": {
+      "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "whisper",
+      "input_sha256": "d5988dbf1a0dba303fe69f85700818168857f522b597cdafe79b4b8051ea004f",
+      "audio_sha256": "7b1a4daab7a201380eb7ebc739ed6e30d5bf5a409a7fdd16f14568a9e66634f1",
+      "request_id": "MZ9D2aohZrno2RejivdL",
+      "review_status": "listening_required"
+    }
+  },
+  "l_repel_j": {
+    "spk": "jihun",
+    "text": "빛을 싫어해. 물러났다!",
+    "dur": 2.116,
+    "baked": true,
+    "eleven": "빛을 싫어해. 물러났다!",
+    "generation": {
+      "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "urgent",
+      "input_sha256": "20eb25c56a51190387eada724f58f8ba9d21a7deb1fbdb674f50aba654668c1c",
+      "audio_sha256": "c2411a0564d6a094777bfa2a743b366c7416983f7fd16f4024c754c19e832cbe",
+      "request_id": "Z5731D1EdQmX8bqe3O54",
+      "review_status": "listening_required"
+    }
+  },
+  "l_repel_s": {
+    "spk": "seoyeon",
+    "text": "빛을 피했어…! 지금이야!",
+    "dur": 2.116,
+    "baked": true,
+    "eleven": "빛을 피했어…! 지금이야!",
+    "generation": {
+      "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "urgent",
+      "input_sha256": "8fdf14706725b1ec10d7ba27c5e40641f1a3706c3c949f0eeab71f45ea9f122f",
+      "audio_sha256": "27ed5a1c23d771b7859942fd8c42f544d54d736a91484eba69aebb4abce990a2",
+      "request_id": "X3wZHM11HV2a5bGJ2RnK",
+      "review_status": "listening_required"
+    }
+  },
+  "note_n17": {
+    "spk": "narrator",
+    "text": "과학실 칠판 메모. 약품장 자물쇠 번호 바꿈 —  원주율 앞 세 자리 . 잊어버리는 사람은 수학 선생님께 혼남. — 과학부",
+    "dur": 10.188,
+    "baked": true,
+    "eleven": "과학실 칠판 메모. 약품장 자물쇠 번호 바꿈 —  원주율 앞 세 자리 . 잊어버리는 사람은 수학 선생님께 혼남. — 과학부",
+    "generation": {
+      "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "ab726881e8f624b7e38b63156cab83ca14fc64ba45019a2f9c84cc0dceeff7ea",
+      "audio_sha256": "e1a4fe1f4403079e027a6541265232a849ffef691acfe5f108be5079677d8353",
+      "request_id": "jITwbxa2QtpQztMs49el",
+      "review_status": "listening_required"
+    }
+  },
+  "note_n18": {
+    "spk": "narrator",
+    "text": "빛바랜 악보. [하교 음악 — 학교종]  솔 솔 라 라 솔 솔 미  “기념 방송 날, 피아노 반주는 내가!” — 3-2 하늘",
+    "dur": 10.031,
+    "baked": true,
+    "eleven": "빛바랜 악보. [하교 음악 — 학교종]  솔 솔 라 라 솔 솔 미  “기념 방송 날, 피아노 반주는 내가!” — 3-2 하늘",
+    "generation": {
+      "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "db3650ba561bb8e3ddb2ada36b7fa739e69c8c507d68cbb15849c636f8b99ee4",
+      "audio_sha256": "d9eb6725892ecac55b089668a6252f8200ed92635588b12f5d06197c34022b46",
+      "request_id": "1oB6T1vVv4SriIFnDKUP",
+      "review_status": "listening_required"
+    }
+  },
+  "note_n19": {
+    "spk": "narrator",
+    "text": "도서실 대출 데스크 메모. 반납 안 된 열쇠는 데스크  서랍 에 넣고 잠갔음. 서랍 열쇠는 분실. 급하면 머리핀으로라도… 보건실 침대 쪽에 누가 핀을 떨어뜨리고 다님.",
+    "dur": 13.401,
+    "baked": true,
+    "eleven": "도서실 대출 데스크 메모. 반납 안 된 열쇠는 데스크  서랍 에 넣고 잠갔음. 서랍 열쇠는 분실. 급하면 머리핀으로라도… 보건실 침대 쪽에 누가 핀을 떨어뜨리고 다님.",
+    "generation": {
+      "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "a3be5cf766c440f7c1c2c260c4b39d924c5d614be54a05a38ad4bf0bdca5a73c",
+      "audio_sha256": "1ff6726a4ec91c5ab7a65124c5bc7951c71a855d00cc075715a376dcde3f02d3",
+      "request_id": "MKiyfyxKHuKXsRdpj664",
+      "review_status": "listening_required"
+    }
+  },
+  "note_n20": {
+    "spk": "narrator",
+    "text": "수영장 관리 메모. 배수구 철망 아래로  열쇠 가 빠졌다. 손이 닿지 않는다. 긴 자루에 철사를 감아 갈고리를 만들면 꺼낼 수 있을 듯. 자루는 지하 청소도구실, 철사는 별관 기술·가정실에.",
+    "dur": 15.073,
+    "baked": true,
+    "eleven": "수영장 관리 메모. 배수구 철망 아래로  열쇠 가 빠졌다. 손이 닿지 않는다. 긴 자루에 철사를 감아 갈고리를 만들면 꺼낼 수 있을 듯. 자루는 지하 청소도구실, 철사는 별관 기술·가정실에.",
+    "generation": {
+      "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "06405517b29ad6247d32728f16ae6b810360c2900c6f079017134e32ba252e0f",
+      "audio_sha256": "715a3e95a840dea5e292910cd38be0976ff8fe4adc6c932f6838193a43f5f898",
+      "request_id": "2h4hIT22swNOsYqM18aZ",
+      "review_status": "listening_required"
+    }
+  },
+  "note_n21": {
+    "spk": "narrator",
+    "text": "학교 행사 안내문. [가정통신문] 10월 12일(목)  방송부 창립 30주년 기념 특별 하교 방송 . 방송부원은 밤 10시까지 방송실에서 리허설을 진행합니다. — 서문고등학교장",
+    "dur": 13.871,
+    "baked": true,
+    "eleven": "학교 행사 안내문. [가정통신문] 10월 12일(목)  방송부 창립 30주년 기념 특별 하교 방송 . 방송부원은 밤 10시까지 방송실에서 리허설을 진행합니다. — 서문고등학교장",
+    "generation": {
+      "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "9750b0fc9ecf54c850cce37cbd070a9af6e2936b0d737cb53b773eea5cef1ccd",
+      "audio_sha256": "678363405f5d0d5a96306291b027063a20464a01ae57b30f60a9c8a4257d66e9",
+      "request_id": "CtliqH6AwWKFypqSEqAu",
+      "review_status": "listening_required"
+    }
+  },
+  "note_n22": {
+    "spk": "narrator",
+    "text": "봉인 서약서. 우리 다섯은 10월 12일 밤의 일을 각자의 자리에 묻는다. 교무부장 · 보건교사 · 사서 · 과학부장 · 체육부장. 열쇠 한 조각씩.  다섯 조각이 다시 모이는 날, 그날 밤도 다시 열린다.  (아래에 다섯 개의 서명 — 하나는 번져 있다)",
+    "dur": 20.611,
+    "baked": true,
+    "eleven": "봉인 서약서. 우리 다섯은 10월 12일 밤의 일을 각자의 자리에 묻는다. 교무부장 · 보건교사 · 사서 · 과학부장 · 체육부장. 열쇠 한 조각씩.  다섯 조각이 다시 모이는 날, 그날 밤도 다시 열린다.  (아래에 다섯 개의 서명 — 하나는 번져 있다)",
+    "generation": {
+      "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "1a256005b5b05f85c39eb46acb2b7fd3b70dda52bb22621a290d5accdc434d4e",
+      "audio_sha256": "626ed9b1846f1494a651c5da492ff068ac53250bccdd449162ec2875f27a6747",
+      "request_id": "02LsLCPEhvE5GwHSsaSo",
+      "review_status": "listening_required"
+    }
+  },
+  "note_n23": {
+    "spk": "narrator",
+    "text": "방송부원 진술서. “우리는 10분 만에 돌아왔어요. 그런데 펌프실 문은  이미 열려 있었고 , 하늘이는 없었어요. 그래서 먼저 집에 간 줄 알았어요.” — 방송부 2학년 (진술 일시: 10.13)",
+    "dur": 14.838,
+    "baked": true,
+    "eleven": "방송부원 진술서. “우리는 10분 만에 돌아왔어요. 그런데 펌프실 문은  이미 열려 있었고 , 하늘이는 없었어요. 그래서 먼저 집에 간 줄 알았어요.” — 방송부 2학년 (진술 일시: 10.13)",
+    "generation": {
+      "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "809650de4c56c8233bae1ddc3319d952a0f789cf8f5873489e2b7660be0784cf",
+      "audio_sha256": "a5febb4e63e70703fea8e80784cefb1cad9af6d288349d2b35039915a1a034de",
+      "request_id": "2jY498wgjwjiXSf6rFyt",
+      "review_status": "listening_required"
+    }
+  },
+  "note_n24": {
+    "spk": "narrator",
+    "text": "경비 일지. 10.12 23:30 순찰. 지하 펌프실 문이  밖에서 잠겨 있음 . 안에서 노랫소리 같은 것이 들림. 열쇠를 찾으러 교무실에 갔더니 교무부장이 “내가 처리한다”며 가져감. ※ 이 일지는 다음 날 회수됨",
+    "dur": 17.633,
+    "baked": true,
+    "eleven": "경비 일지. 10.12 23:30 순찰. 지하 펌프실 문이  밖에서 잠겨 있음 . 안에서 노랫소리 같은 것이 들림. 열쇠를 찾으러 교무실에 갔더니 교무부장이 “내가 처리한다”며 가져감. ※ 이 일지는 다음 날 회수됨",
+    "generation": {
+      "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "b24e04151ef07c2d106bd8491706ea212329529e35d5aff53bff91c1743d811b",
+      "audio_sha256": "46c373d8383361491f325931d99c17f4e8e38eaa38284f85a08385f9312f5fbf",
+      "request_id": "wBNgTGgsBJDIHjb3oBdK",
+      "review_status": "listening_required"
+    }
+  },
+  "note_n25": {
+    "spk": "narrator",
+    "text": "사서의 메모. 하늘이가 그날 밤 『집으로 가는 길』을 빌려 갔다는 대출 기록은  내가 나중에 적었다 . 시키는 대로. 집에 가는 길에 사라진 걸로 보이게. …미안해.",
+    "dur": 12.434,
+    "baked": true,
+    "eleven": "사서의 메모. 하늘이가 그날 밤 『집으로 가는 길』을 빌려 갔다는 대출 기록은  내가 나중에 적었다 . 시키는 대로. 집에 가는 길에 사라진 걸로 보이게. …미안해.",
+    "generation": {
+      "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "2b8b5a281e4f62a43263eaf37a12a2c0677ba3151dc9fee94b6ba8982bec6c00",
+      "audio_sha256": "655de90635913dffd7594ab24836818fb017161d71c6c87a350e4bb182d91b19",
+      "request_id": "l59HARyRhhrouRirRGXr",
+      "review_status": "listening_required"
+    }
+  },
+  "note_n26": {
+    "spk": "narrator",
+    "text": "대출 카드 (오늘). 『집으로 가는 길』 — 반납일:  10월 12일 (오늘) . 반납 도장이 아직 젖어 있다. 대출자 이름 칸: 윤하늘.",
+    "dur": 12.278,
+    "baked": true,
+    "eleven": "대출 카드 (오늘). 『집으로 가는 길』 — 반납일:  10월 12일 (오늘) . 반납 도장이 아직 젖어 있다. 대출자 이름 칸: 윤하늘.",
+    "generation": {
+      "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "071b10bda21b6e315c7b80dc0f654d4c11b8deec8d1c946a11c8afa8ec6c0dd3",
+      "audio_sha256": "88e38445bdc54ccef5b2a6445677bb3e1b9311fd41104f7780632f0e69b2def1",
+      "request_id": "hUOkWYsaESx7if7xSZuC",
+      "review_status": "listening_required"
+    }
+  },
+  "guard1": {
+    "spk": "guard",
+    "text": "거기 학생. 이 시간에 들어가믄 안 되여. …올해도, 결국 오는구먼.",
+    "dur": 6.609,
+    "baked": true,
+    "eleven": "거기 학생. 이 시간에 들어가믄 안 되여. …올해도, 결국 오는구먼.",
+    "generation": {
+      "voice_id": "lZLh6IYERWP1xQ7NnDOg",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "sad",
+      "input_sha256": "ca809e2db8fc595c6b303f812ad4061cdbf80186d6d44b25c46f66b13bf68a9b",
+      "audio_sha256": "5b70307af83989cf144a6be53be786bfc087e32f2c51a712fc9f120e9c07643a",
+      "request_id": "KpOBCxrc5rLIjstySo2X",
+      "review_status": "listening_required"
+    }
+  },
+  "tape5": {
+    "spk": "teacher",
+    "text": "교무부장, 마지막 녹음. 펌프실 열쇠는 그날 밤 내 주머니에 있었다. 문을 열었더라면, 그 아이는 방송을 했을 것이다. 나는 학교를 지킨다고 믿었다. 그날 밤의 사진을 전부 이 방에 묻는다. 누군가 이걸 듣는다면, 그 아이의 이름을 불러 주길.",
+    "dur": 21.159,
+    "baked": true,
+    "eleven": "교무부장, 마지막 녹음. 펌프실 열쇠는 그날 밤 내 주머니에 있었다. 문을 열었더라면, 그 아이는 방송을 했을 것이다. 나는 학교를 지킨다고 믿었다. 그날 밤의 사진을 전부 이 방에 묻는다. 누군가 이걸 듣는다면, 그 아이의 이름을 불러 주길.",
+    "generation": {
+      "voice_id": "dYYoaNsbIzON6ZOkqrct",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "sad",
+      "input_sha256": "03a27ce65b11e4a1a8c3f351eeafafb44c3c6ea32c7019b5419c6fca8836bdab",
+      "audio_sha256": "482ae19f9448bba5a844ecaf71ffedd45d0cd76e01831b42de1f75d2fd503776",
+      "request_id": "3RcFpHusuetZC6KIARQi",
+      "review_status": "listening_required"
+    }
+  },
+  "echo1": {
+    "spk": "friend",
+    "text": "하늘아, 리허설 끝나면 떡볶이 먹으러 가자. 우리가 맨 앞에서 들을게.",
+    "dur": 5.329,
+    "baked": true,
+    "eleven": "하늘아, 리허설 끝나면 떡볶이 먹으러 가자. 우리가 맨 앞에서 들을게.",
+    "generation": {
+      "voice_id": "CZ86sooijZ9CfwhGGEY5",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "79fd66cbcbb9e78385e0d9981f09adeda14a740089810ce449b9b317fee19b36",
+      "audio_sha256": "0cf57301df698e01121c84a9bed71519a1323f7fddd29b640c5995ace8f45a21",
+      "request_id": "wPAvfzlxZ3eVknaFW7dp",
+      "review_status": "listening_required"
+    }
+  },
+  "echo2": {
+    "spk": "friend2",
+    "text": "내일 방송, 꼭 네 목소리로 해. 약속.",
+    "dur": 3.631,
+    "baked": true,
+    "eleven": "내일 방송, 꼭 네 목소리로 해. 약속.",
+    "generation": {
+      "voice_id": "j3SYRikKBpDmPJsvd1rf",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "262f4726df1b3a367e1ece92c58d572e4410f3788ff36015d826d80885f92f5e",
+      "audio_sha256": "eb0d0beeb987daeb39581ad72850abce047844dee3419fbf4f0fc63057d2e500",
+      "request_id": "r29VDzs6xs3m4edC4Nby",
+      "review_status": "listening_required"
+    }
+  },
+  "teacher2": {
+    "spk": "teacher",
+    "text": "출석부에 윤하늘, 결석이라고 적으라더군. 나는 끝까지 쓰지 않았다. 그 아이는 결석한 적이 없으니까.",
+    "dur": 9.874,
+    "baked": true,
+    "eleven": "출석부에 윤하늘, 결석이라고 적으라더군. 나는 끝까지 쓰지 않았다. 그 아이는 결석한 적이 없으니까.",
+    "generation": {
+      "voice_id": "dYYoaNsbIzON6ZOkqrct",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "sad",
+      "input_sha256": "d8dd4a3a861c990bf7a440aac2ab8a2f52464ea8128d494b6ae06e8f0dc02b2a",
+      "audio_sha256": "5070fde89f0a7069580a5f8d5699e7c4d0f983e02a745e6e5b00c40d791a7400",
+      "request_id": "bQC83ZUlwFzyouNl5QNV",
+      "review_status": "listening_required"
+    }
+  },
+  "note_n27": {
+    "spk": "narrator",
+    "text": "담임 수첩 (3학년 2반). 10월 13일. 조회 시간, 하늘이 자리가 비어 있다. 교감은 출석부에  “결석” 이라 적으라 했다. 나는 끝까지 쓰지 않았다. 그 아이는 3년 동안 한 번도 결석한 적이 없다. 펌프실 이야기를 꺼냈더니, 다음 주에 전근 발령이 났다. — 담임 정은수",
+    "dur": 23.066,
+    "baked": true,
+    "eleven": "담임 수첩 (3학년 2반). 10월 13일. 조회 시간, 하늘이 자리가 비어 있다. 교감은 출석부에  “결석” 이라 적으라 했다. 나는 끝까지 쓰지 않았다. 그 아이는 3년 동안 한 번도 결석한 적이 없다. 펌프실 이야기를 꺼냈더니, 다음 주에 전근 발령이 났다. — 담임 정은수",
+    "generation": {
+      "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "01e5fec9c73911fdc6be58cce5572dbcdeb154aad39c3fa434863a175f7bee8a",
+      "audio_sha256": "00c48ce4d9f1d7766dc527802116484b07fdf432072384b577a3afd8a0d690d4",
+      "request_id": "5OnLdefQLeYHneHjomB6",
+      "review_status": "listening_required"
+    }
+  },
+  "note_n28": {
+    "spk": "narrator",
+    "text": "교환일기. [수아] 하늘아, 리허설 끝나면 떡볶이! 우리가 맨 앞에서 들을게 ♡ [다은] 내일 방송 꼭 네 목소리로 해. 약속. …마지막 장, 다른 글씨:  “하늘이 없이 졸업했다. 기념 방송은 셋이 하기로 했는데.” ",
+    "dur": 15.804,
+    "baked": true,
+    "eleven": "교환일기. [수아] 하늘아, 리허설 끝나면 떡볶이! 우리가 맨 앞에서 들을게 ♡ [다은] 내일 방송 꼭 네 목소리로 해. 약속. …마지막 장, 다른 글씨:  “하늘이 없이 졸업했다. 기념 방송은 셋이 하기로 했는데.” ",
+    "generation": {
+      "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "038e3b7595830163dfc92826a30a41a3cee5694f7bb05f7ad10ffb3d95d18f56",
+      "audio_sha256": "3b2047e645c1bacf1476d57c184b36c3e3cbc3a5256939bcb18db4243f6654b6",
+      "request_id": "iUxyqZvwV2Y9cxwLWUCJ",
+      "review_status": "listening_required"
+    }
+  },
+  "note_n29": {
+    "spk": "narrator",
+    "text": "첫 번째 메모. 「3층 방송실, 밤 10시. 리허설 시작 — 늦으면 하교 방송 못 해!」 하늘의 동글동글한 글씨. 뒷면에 다른 사람의 글씨가 덧붙어 있다:  「10시 반, 지하 펌프실. 담력 체험 ㅋㅋ」 ",
+    "dur": 16.771,
+    "baked": true,
+    "eleven": "첫 번째 메모. 「3층 방송실, 밤 10시. 리허설 시작 — 늦으면 하교 방송 못 해!」 하늘의 동글동글한 글씨. 뒷면에 다른 사람의 글씨가 덧붙어 있다:  「10시 반, 지하 펌프실. 담력 체험 ㅋㅋ」 ",
+    "generation": {
+      "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "5c3e03b4b051355fcab678cff82cfed9e84a37ec6e501e755abf317e64b0bd9b",
+      "audio_sha256": "0e8502c36d79e07b18f5da28fb175b2f4fa1777a9bebf6e8bc1b6abb3e7c2a29",
+      "request_id": "9maGAWhYHthCc30boM3D",
+      "review_status": "listening_required"
+    }
+  },
+  "note_nC": {
+    "spk": "narrator",
+    "text": "개인 기록. ",
+    "dur": 0.993,
+    "baked": true,
+    "eleven": "개인 기록. ",
+    "generation": {
+      "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "72ee518cfe0e4d134d07d06e3096761bd3983952ce18e37c1b94a086d22e58ba",
+      "audio_sha256": "022fc8f5a9751ebb26a713f117d28127ee8696b459f03d2145074e3faadae8fd",
+      "request_id": "hLy7p5v30SufiNcVoXWl",
+      "review_status": "listening_required"
+    }
+  },
+  "guardHi": {
+    "spk": "guard",
+    "text": "해 지기 전에 돌아가유. 오늘이 무슨 날인지 알고 온겨?",
+    "dur": 3.971,
+    "baked": true,
+    "eleven": "해 지기 전에 돌아가유. 오늘이 무슨 날인지 알고 온겨?",
+    "generation": {
+      "voice_id": "lZLh6IYERWP1xQ7NnDOg",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "resolve",
+      "input_sha256": "777c569951231412d3a166acdf0b2b3b3e295b9b64789e4e86f3d7400e911dd4",
+      "audio_sha256": "5de0293dafa11f3333dc5b90fe0e5e927575e4df60c19c344e3f2e576f0f580d",
+      "request_id": "c53a5I5H3h2BSVH78arT",
+      "review_status": "listening_required"
+    }
+  },
+  "guardMina": {
+    "spk": "guard",
+    "text": "방송부 조끼 입은 여학생? 아까 들어갔지. 불렀는디 뒤도 안 돌아보더라고.",
+    "dur": 6.113,
+    "baked": true,
+    "eleven": "방송부 조끼 입은 여학생? 아까 들어갔지. 불렀는디 뒤도 안 돌아보더라고.",
+    "generation": {
+      "voice_id": "lZLh6IYERWP1xQ7NnDOg",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "9f2fbc279d610a03261897a456fd4d4d742dfaedf2c5f1f95ecb9b482b37d729",
+      "audio_sha256": "1ed5ad088cdba616f204e6ee29649fbc58f4c045afdc58a861e03ba736778056",
+      "request_id": "lFnicsTUcosmwxW8TKaB",
+      "review_status": "listening_required"
+    }
+  },
+  "guardPast": {
+    "spk": "guard",
+    "text": "십 년 전 오늘, 한 아이가 지하에서 못 나왔어. 그 뒤로 해마다 이날 밤이믄, 꺼진 스피커가 울려유.",
+    "dur": 8.829,
+    "baked": true,
+    "eleven": "십 년 전 오늘, 한 아이가 지하에서 못 나왔어. 그 뒤로 해마다 이날 밤이믄, 꺼진 스피커가 울려유.",
+    "generation": {
+      "voice_id": "lZLh6IYERWP1xQ7NnDOg",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "sad",
+      "input_sha256": "1355b24e43e53e2b4dd0119b4b7e6dcc6ca494537c3787b219fba8a731fafe37",
+      "audio_sha256": "4649ea7e0fac16adaabd344a66bddf3608377c027e55e2c7c4b589aa86252de0",
+      "request_id": "JRr1SdCpUruufbwHxRZy",
+      "review_status": "listening_required"
+    }
+  },
+  "guardGift": {
+    "spk": "guard",
+    "text": "가져가유. 건전지 두 개. 그리구 열한 시 사십 분 되기 전엔 꼭 나와야 혀.",
+    "dur": 5.878,
+    "baked": true,
+    "eleven": "가져가유. 건전지 두 개. 그리구 열한 시 사십 분 되기 전엔 꼭 나와야 혀.",
+    "generation": {
+      "voice_id": "lZLh6IYERWP1xQ7NnDOg",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "resolve",
+      "input_sha256": "dbb6603e0ec96ef068d28964d674be640b60fd8fdfe026fcbc43818659232d9e",
+      "audio_sha256": "1759f247f24f2febc4658d85b481e2e9d050801cae71c279fb58d6238a79ed16",
+      "request_id": "yx0H8sF7LwmJ7jRD5wiP",
+      "review_status": "listening_required"
+    }
+  },
+  "guardBye": {
+    "spk": "guard",
+    "text": "…조심혀. 이상한 소리가 나도, 대답허지 말어.",
+    "dur": 4.049,
+    "baked": true,
+    "eleven": "…조심혀. 이상한 소리가 나도, 대답허지 말어.",
+    "generation": {
+      "voice_id": "lZLh6IYERWP1xQ7NnDOg",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "fear",
+      "input_sha256": "f0445364125a9a78eaa2b8b30d86e499bc73c1a34d01f51e21f8da92a2a8b4ab",
+      "audio_sha256": "58df0a1c77ad2f442873f4fc586bed8b7eb0ac4a0211a41f3394de69bb0552c1",
+      "request_id": "0qVkp9yHNX9cCNdtXbL9",
+      "review_status": "listening_required"
+    }
+  },
+  "phone0": {
+    "spk": "mina",
+    "text": "……정문 앞이야? 경비실 창문 봐. 불, 켜져 있지. 거기 아무도 없어. 들어오면… 뒤돌아보지 마.",
+    "dur": 8.359,
+    "baked": true,
+    "eleven": "……정문 앞이야? 경비실 창문 봐. 불, 켜져 있지. 거기 아무도 없어. 들어오면… 뒤돌아보지 마.",
+    "generation": {
+      "voice_id": "vJ170fCwESgE1tjW39So",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "whisper",
+      "input_sha256": "33f8abd488fd2087ae6f42116a16c8fc81dcb02b0b14d3a8c18dd3fa74fac765",
+      "audio_sha256": "aef5bec9966b65d3bcfb1308ea7fa043c4946ebe974f51fa32c06dce359cf564",
+      "request_id": "ddNFLWWgjYrWXRdhFcan",
+      "review_status": "listening_required"
+    }
+  },
+  "note_q1b": {
+    "spk": "narrator",
+    "text": "고쳐 쓴 출석부. 10월 13일 3학년 2반 —  윤하늘: 출석 . 10년 동안 비어 있던 칸에 처음으로 글씨가 들어갔다. 교무실 어딘가에서 아주 작은 목소리가 대답했다. “네!”",
+    "dur": 15.647,
+    "baked": true,
+    "eleven": "고쳐 쓴 출석부. 10월 13일 3학년 2반 —  윤하늘: 출석 . 10년 동안 비어 있던 칸에 처음으로 글씨가 들어갔다. 교무실 어딘가에서 아주 작은 목소리가 대답했다. “네!”",
+    "generation": {
+      "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "65fd2514970dc59b695355829266bb60936b20440ac7ecb341e8675b3509cb3c",
+      "audio_sha256": "1f55bdc401377c070e48376cd31158c76d1a800153329fa644bf60e74b269efd",
+      "request_id": "bmP538BNnbKJxfaJqOhb",
+      "review_status": "listening_required"
+    }
+  },
+  "note_q1a": {
+    "spk": "narrator",
+    "text": "개근 스티커판 (1-1). 「윤하늘 — 3년 개근에 도전!」 칸마다 별 스티커가 빼곡하다. 마지막 칸  10월 13일 만 비어 있다. 귀퉁이에 연필로: 「내일도 1등으로 와야지」",
+    "dur": 16.118,
+    "baked": true,
+    "eleven": "개근 스티커판 (1-1). 「윤하늘 — 3년 개근에 도전!」 칸마다 별 스티커가 빼곡하다. 마지막 칸  10월 13일 만 비어 있다. 귀퉁이에 연필로: 「내일도 1등으로 와야지」",
+    "generation": {
+      "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "e5ae3b2df2968151fabbddd47f831c9dd46c45cfdd0a2f102e170ce8924dd3ff",
+      "audio_sha256": "d7b4e1dafef54ad6d779a6094dea695c2ce331de9381123ded63a0b40325021b",
+      "request_id": "JrHK7QgU1q2LEJHi51Gi",
+      "review_status": "listening_required"
+    }
+  },
+  "note_q3b": {
+    "spk": "narrator",
+    "text": "물길 앞에서. 조각을 쥐고 배수구 앞에 잠시 서 있었다. 물소리가 멎었다. 젖은 타일 위로, 아주 작은 발자국 하나가 펌프실 쪽으로 이어졌다가 사라졌다.",
+    "dur": 13.322,
+    "baked": true,
+    "eleven": "물길 앞에서. 조각을 쥐고 배수구 앞에 잠시 서 있었다. 물소리가 멎었다. 젖은 타일 위로, 아주 작은 발자국 하나가 펌프실 쪽으로 이어졌다가 사라졌다.",
+    "generation": {
+      "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "20486e554d01fd82b2064ee669e6f71948a2a4b11c12fe2290d5ea7709afbf5c",
+      "audio_sha256": "648f20e59d259be8d85a618a934b2858dc96d981843e3241edee6132dce5af59",
+      "request_id": "8TqV0DaKiMEeuFykyzms",
+      "review_status": "listening_required"
+    }
+  },
+  "note_q2b": {
+    "spk": "narrator",
+    "text": "세 사람의 방송. 반주가 끝나고, 아무도 없는 방송실 스피커에서 세 사람의 목소리가 겹쳐 들렸다. “…모두, 수고 많았습니다. 집으로 돌아가세요.”  10년 만에, 처음으로 끝까지 나간 방송. ",
+    "dur": 16.196,
+    "baked": true,
+    "eleven": "세 사람의 방송. 반주가 끝나고, 아무도 없는 방송실 스피커에서 세 사람의 목소리가 겹쳐 들렸다. “…모두, 수고 많았습니다. 집으로 돌아가세요.”  10년 만에, 처음으로 끝까지 나간 방송. ",
+    "generation": {
+      "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "9e5519c976b0bffac7dd9ca9757242b3bedfdef7b02480a67dcb5b176c22bee7",
+      "audio_sha256": "01ea088b3bc29a825f4fd7df290657712e3054a422164027465ad2adc54c126e",
+      "request_id": "onGl6K8c59ik85I44bj6",
+      "review_status": "listening_required"
+    }
+  },
+  "note_q2a": {
+    "spk": "narrator",
+    "text": "교환일기 마지막 장. [하늘] 기념 방송 끝 곡은  학교종 ! 수아가 1절, 다은이가 2절, 나는 마지막에 하교 인사. [수아] 반주 테이프는 음악실 카세트 서랍에 넣어 놨어 ♪ [다은] 리허설 끝나면 진짜로 떡볶이다?",
+    "dur": 15.229,
+    "baked": true,
+    "eleven": "교환일기 마지막 장. [하늘] 기념 방송 끝 곡은  학교종 ! 수아가 1절, 다은이가 2절, 나는 마지막에 하교 인사. [수아] 반주 테이프는 음악실 카세트 서랍에 넣어 놨어 ♪ [다은] 리허설 끝나면 진짜로 떡볶이다?",
+    "generation": {
+      "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "7aae64bbdea5b57ca8617b1e4bcab43bba1a494f24a4f5a8c758237bb9c54cc6",
+      "audio_sha256": "3a2e36688a94affcba13056e3b2a99eeceb1796f51dbbce93737ae8cc60f13f5",
+      "request_id": "31vxR5PIIFnCni88eQrt",
+      "review_status": "listening_required"
+    }
+  },
+  "note_q3a": {
+    "spk": "narrator",
+    "text": "보건교사 임소연의 편지. 봉인 서약서에 서명한 날, 나는 내 몫의 열쇠 조각을 지키지 못했다. 그날 밤 펌프실로 달려갔을 땐 이미 물이 차 있었다. 나는 아무것도 하지 못했다. 그래서 조각을  수영장 배수구 에 던졌다. 펌프실로 이어진 그 물길이 그 아이에게 데려다주기를. — 정문 열쇠의 다섯 번째 조각이 왜 물속에 있는지, 이제 안다.",
+    "dur": 29.806,
+    "baked": true,
+    "eleven": "보건교사 임소연의 편지. 봉인 서약서에 서명한 날, 나는 내 몫의 열쇠 조각을 지키지 못했다. 그날 밤 펌프실로 달려갔을 땐 이미 물이 차 있었다. 나는 아무것도 하지 못했다. 그래서 조각을  수영장 배수구 에 던졌다. 펌프실로 이어진 그 물길이 그 아이에게 데려다주기를. — 정문 열쇠의 다섯 번째 조각이 왜 물속에 있는지, 이제 안다.",
+    "generation": {
+      "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "b9a3831123e065b1dc7416036ea3c197753f28135fddc1dbd33479f36d4267da",
+      "audio_sha256": "87cfb61484499a80fb3200a532603dba084e9eeb972938bc52d50e633d0348e3",
+      "request_id": "Pok1nmre4oCzpehfkIuz",
+      "review_status": "listening_required"
+    }
+  },
+  "note_q4b": {
+    "spk": "narrator",
+    "text": "봉인된 진술서 4장. [세진 · 유리 · 동민] “문은 준호 선배가 잠갔어요. 10분 뒤에 가 보니 문이 열려 있었어요.” [준호] “잠근 건 저예요. 그런데 열쇠는 바로  교무부장님께 드렸어요 . ‘버릇 좀 고쳐 주마, 이따 내가 꺼내마’ 하셔서.” — 진술서 위에 붉은 도장:  외부 유출 금지 ",
+    "dur": 22.988,
+    "baked": true,
+    "eleven": "봉인된 진술서 4장. [세진 · 유리 · 동민] “문은 준호 선배가 잠갔어요. 10분 뒤에 가 보니 문이 열려 있었어요.” [준호] “잠근 건 저예요. 그런데 열쇠는 바로  교무부장님께 드렸어요 . ‘버릇 좀 고쳐 주마, 이따 내가 꺼내마’ 하셔서.” — 진술서 위에 붉은 도장:  외부 유출 금지 ",
+    "generation": {
+      "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "2d13a078074d9c221dd3476a019117518871e0c2d0165cc333a3a57373893b38",
+      "audio_sha256": "d7d39280dc1885b97ab80b8f66984e1acdbd75d09667c735a6f5212bfec51378",
+      "request_id": "D4XwA4fvXYqqHLvhCjnI",
+      "review_status": "listening_required"
+    }
+  },
+  "note_q4a": {
+    "spk": "narrator",
+    "text": "방송부 담력 체험 명단. 10.12 담력 체험 — 3학년  이준호 (부장) · 2학년  박세진  ·  최유리  · 1학년  한동민 . 장소: 지하 펌프실. 대상: 윤하늘 (기념 방송 진행자 — “긴장 풀어 주기”) 문 잠그는 사람: ___ (빈칸)",
+    "dur": 19.879,
+    "baked": true,
+    "eleven": "방송부 담력 체험 명단. 10.12 담력 체험 — 3학년  이준호 (부장) · 2학년  박세진  ·  최유리  · 1학년  한동민 . 장소: 지하 펌프실. 대상: 윤하늘 (기념 방송 진행자 — “긴장 풀어 주기”) 문 잠그는 사람: ___ (빈칸)",
+    "generation": {
+      "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "137195074f0fb944e748e14a21fab49ac60f4b2bdced1946af82cdebd9a21be1",
+      "audio_sha256": "e0d107deabb08e7a47684e5e0b89e0d1c929e05178188af6a2d56d76ef528c2a",
+      "request_id": "nNvl43Sp5bUfYueIUcyW",
+      "review_status": "listening_required"
+    }
+  },
+  "note_q4c": {
+    "spk": "narrator",
+    "text": "두 개의 문. 큐시트 뒷면의 펌프실 도면 — 펌프실 문은  두 개 다. 아이들이 10분 뒤 확인한 건  수영장 쪽 점검문 (늘 열려 있다). 하늘이 갇힌 건  B1 복도 쪽 철문 , 그 열쇠는 교무부장의 주머니에 있었다. “문은 열려 있었다”와 “밖에서 잠겨 있었다” — 둘 다 사실이었다.",
+    "dur": 23.484,
+    "baked": true,
+    "eleven": "두 개의 문. 큐시트 뒷면의 펌프실 도면 — 펌프실 문은  두 개 다. 아이들이 10분 뒤 확인한 건  수영장 쪽 점검문 (늘 열려 있다). 하늘이 갇힌 건  B1 복도 쪽 철문 , 그 열쇠는 교무부장의 주머니에 있었다. “문은 열려 있었다”와 “밖에서 잠겨 있었다” — 둘 다 사실이었다.",
+    "generation": {
+      "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "1f804d4d6f7836174b404f80700ab56d603da71ef08d2d84c7f4ec063d72cd10",
+      "audio_sha256": "596f11cf5587c3a0251bc8864c91aca9e5436aecc83a94bf80693d49aab7dfe8",
+      "request_id": "lKXdRUqDoQVbWOLIObz7",
+      "review_status": "listening_required"
+    }
+  },
+  "note_q5a": {
+    "spk": "narrator",
+    "text": "부치지 못한 편지 (3-2). 하늘이 어머님께. 학교는 하늘이가 그날 밤 집에 가다 사라졌다고 말할 것입니다. 사실이 아닙니다. 하늘이는 3년 동안 단 하루도 결석하지 않았고, 그날 밤에도 학교에 있었습니다. 저는 이 편지를 부칠 용기가 아직 없습니다. — 3학년 2반 담임  정은수 ",
+    "dur": 24.764,
+    "baked": true,
+    "eleven": "부치지 못한 편지 (3-2). 하늘이 어머님께. 학교는 하늘이가 그날 밤 집에 가다 사라졌다고 말할 것입니다. 사실이 아닙니다. 하늘이는 3년 동안 단 하루도 결석하지 않았고, 그날 밤에도 학교에 있었습니다. 저는 이 편지를 부칠 용기가 아직 없습니다. — 3학년 2반 담임  정은수 ",
+    "generation": {
+      "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "2ced95fe5b46116297603bcfcb01fb5d381f23f05d20881556f902b5f0b415ff",
+      "audio_sha256": "f7e9b804287b6bca925d8b8663e519628bbff73cbcd9769906d467d700e80fc7",
+      "request_id": "IQIjK7pMflHKhsCELwFY",
+      "review_status": "listening_required"
+    }
+  },
+  "note_q5b": {
+    "spk": "narrator",
+    "text": "우표 한 장. 교사 휴게실 우편함에 정은수 선생님 앞으로 온 반송 우편. 주소가 적힌 봉투와 쓰지 않은 우표 한 장. 받는 사람:  윤하늘 어머님  — 주소는 10년 전 그대로다.",
+    "dur": 14.211,
+    "baked": true,
+    "eleven": "우표 한 장. 교사 휴게실 우편함에 정은수 선생님 앞으로 온 반송 우편. 주소가 적힌 봉투와 쓰지 않은 우표 한 장. 받는 사람:  윤하늘 어머님  — 주소는 10년 전 그대로다.",
+    "generation": {
+      "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "b82c365ad22737830216ef2b1f1e770fa3facce085021bccb4ae04458315a204",
+      "audio_sha256": "c0480ad6acbd86ffe530242896d7258de65203bc9b858726b751cfab7e265be9",
+      "request_id": "Qf3gGPMENVaNKu08o6Iy",
+      "review_status": "listening_required"
+    }
+  },
+  "note_q6b": {
+    "spk": "narrator",
+    "text": "셋, 그리고 한 명. 방송실 앞에서 찍은 사진. 하늘 · 수아 · 다은이 마이크를 들고 웃는다. 그 옆에 다은의 손을 잡은 꼬마 — 뒷면: 「동생  민아 , 처음으로 방송실 구경 온 날」",
+    "dur": 15.308,
+    "baked": true,
+    "eleven": "셋, 그리고 한 명. 방송실 앞에서 찍은 사진. 하늘 · 수아 · 다은이 마이크를 들고 웃는다. 그 옆에 다은의 손을 잡은 꼬마 — 뒷면: 「동생  민아 , 처음으로 방송실 구경 온 날」",
+    "generation": {
+      "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "69e68a2e2cb2e99fbc14a249e217f536cff888ef14781c27cf8872b31a2ba587",
+      "audio_sha256": "97af4c904190e3ce0ddc47b5fd9c7185c9aeebd6ba938ff008474b40b1bc0fef",
+      "request_id": "80DQQioIDTvV1v3Zfy8w",
+      "review_status": "listening_required"
+    }
+  },
+  "note_q5c": {
+    "spk": "narrator",
+    "text": "10년 늦은 편지. 정문 경비실 우편함에 편지를 넣었다. 소인 날짜 칸에 누군가 미리 적어 둔 날짜:  10월 13일 . …그날 아침 부쳐졌어야 할 편지였다.",
+    "dur": 13.949,
+    "baked": true,
+    "eleven": "10년 늦은 편지. 정문 경비실 우편함에 편지를 넣었다. 소인 날짜 칸에 누군가 미리 적어 둔 날짜:  10월 13일 . …그날 아침 부쳐졌어야 할 편지였다.",
+    "generation": {
+      "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "78401f7a52a759108342ddec3777080a48393f1e845dfd23e6832cc105ecaa46",
+      "audio_sha256": "4f2731cdad1e217290aef8e24cce68cdae281aa32b5704935b5190f2473ad5d8",
+      "request_id": "zleXoPD3wM9TihHCC2hB",
+      "review_status": "listening_required"
+    }
+  },
+  "note_q6c": {
+    "spk": "narrator",
+    "text": "민아의 녹음 — 언니에게. “언니. 하늘 언니 방송, 내가 끝까지 들었어. 이번엔 아무도 혼자 두지 않았어. …이제 라디오 꺼도 돼.”",
+    "dur": 12.042,
+    "baked": true,
+    "eleven": "민아의 녹음 — 언니에게. “언니. 하늘 언니 방송, 내가 끝까지 들었어. 이번엔 아무도 혼자 두지 않았어. …이제 라디오 꺼도 돼.”",
+    "generation": {
+      "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "631fa319eb6a203d12c41a28e4c997ce527734a828e1c59a9265a90ba2f18255",
+      "audio_sha256": "e1d62f0abfc79bd2cbcf4ae3f240c0c93d1f81b85fa74ad593cbb1dbed264661",
+      "request_id": "enEP8jui2BXDzYq52qFc",
+      "review_status": "listening_required"
+    }
+  },
+  "note_q7b": {
+    "spk": "narrator",
+    "text": "10년 늦은 불빛. 배터리팩을 끼우자 펌프실 비상등이 깜빡이다 켜졌다. 그날 밤 이 불이 켜져 있었다면, 하늘은 어둠 속에서 혼자가 아니었을 것이다.",
+    "dur": 12.669,
+    "baked": true,
+    "eleven": "10년 늦은 불빛. 배터리팩을 끼우자 펌프실 비상등이 깜빡이다 켜졌다. 그날 밤 이 불이 켜져 있었다면, 하늘은 어둠 속에서 혼자가 아니었을 것이다.",
+    "generation": {
+      "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "54c6df499de62b3c4650cc6f229252f0c77127df9eb175c1318c47b0811864bd",
+      "audio_sha256": "6eb2640cd5f3d006dde0ef8b4f8354da7456168c4788cc1e5ea692b2a598b49a",
+      "request_id": "hjkvFoH8kcw999p6re04",
+      "review_status": "listening_required"
+    }
+  },
+  "note_q7a": {
+    "spk": "narrator",
+    "text": "과학부장의 점검 메모. 펌프실 비상등 배터리 교체 요청 — 3회째. 교무부장 회신:  “예산 없음, 다음 학기” . 예비 배터리팩은 과학실 공구함에 둔다. 누구든 먼저 가는 사람이 갈아 끼울 것. …그날 밤, 아무도 가지 않았다.",
+    "dur": 18.521,
+    "baked": true,
+    "eleven": "과학부장의 점검 메모. 펌프실 비상등 배터리 교체 요청 — 3회째. 교무부장 회신:  “예산 없음, 다음 학기” . 예비 배터리팩은 과학실 공구함에 둔다. 누구든 먼저 가는 사람이 갈아 끼울 것. …그날 밤, 아무도 가지 않았다.",
+    "generation": {
+      "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "88097ae461329c9bcceaf250bb3ad181edbd194c389efebdb44afc4c366f4698",
+      "audio_sha256": "4fecfd7c0f3eeea588013016f71276c9a043c7665bc91725394e8dbb7de127c3",
+      "request_id": "QP4dT22PoYOoF5gi4b3p",
+      "review_status": "listening_required"
+    }
+  },
+  "note_h2": {
+    "spk": "narrator",
+    "text": "별관 머릿돌.  서문고등학교  1974년  3월 2일  개교 「배움은 집으로 가는 길을 밝힌다」  동판 아래 누군가 못으로 긁어 놓았다:  “집에 못 간 애도 있어요” ",
+    "dur": 14.289,
+    "baked": true,
+    "eleven": "별관 머릿돌.  서문고등학교  1974년  3월 2일  개교 「배움은 집으로 가는 길을 밝힌다」  동판 아래 누군가 못으로 긁어 놓았다:  “집에 못 간 애도 있어요” ",
+    "generation": {
+      "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "e9e0503a958cc925266a23fa5178b69dd67cc0f4e18e0f32ac70d9475b22c9d5",
+      "audio_sha256": "a970fbeb8fd53387d0223b17d3c7426e607fb9f24fc416ec25cbb5d23505a66d",
+      "request_id": "zTVfOKG8FnxO5L93G9V8",
+      "review_status": "listening_required"
+    }
+  },
+  "note_q6a": {
+    "spk": "narrator",
+    "text": "민아의 임시저장 글. [비공개] 언니는 10년째 10월 12일 밤이면 라디오를 켜 둔 채 잠든다. 하늘 언니의 방송을 기다린다고. 언니( 서다은 )는 그날 밤 리허설이 끝나고 떡볶이집에서 하늘 언니를 한 시간이나 기다렸다고 했다. 그래서 내가 간다. 그 학교에. 언니 대신.",
+    "dur": 23.327,
+    "baked": true,
+    "eleven": "민아의 임시저장 글. [비공개] 언니는 10년째 10월 12일 밤이면 라디오를 켜 둔 채 잠든다. 하늘 언니의 방송을 기다린다고. 언니( 서다은 )는 그날 밤 리허설이 끝나고 떡볶이집에서 하늘 언니를 한 시간이나 기다렸다고 했다. 그래서 내가 간다. 그 학교에. 언니 대신.",
+    "generation": {
+      "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "825bfc8579e4ec87e8352de7ae9bb9c9f27492b7debef7f90ad06736e1386325",
+      "audio_sha256": "97f7f900fcba6dc1d9f2f419b96e457a4f4f42e5e0794ca8d9319c7185829294",
+      "request_id": "1Du4SLAwbZHQ1K5388Rb",
+      "review_status": "listening_required"
+    }
+  },
+  "note_q8a": {
+    "spk": "narrator",
+    "text": "『집으로 가는 길』. 도서실 바코드가 붙은 낡은 소설책. 마지막 장 여백에 동글동글한 글씨: 「엄마, 오늘 방송 꼭 들어. 끝나면  바로 집에 갈게 . — 하늘」 반납 기한: 10월 12일.",
+    "dur": 16.588,
+    "baked": true,
+    "eleven": "『집으로 가는 길』. 도서실 바코드가 붙은 낡은 소설책. 마지막 장 여백에 동글동글한 글씨: 「엄마, 오늘 방송 꼭 들어. 끝나면  바로 집에 갈게 . — 하늘」 반납 기한: 10월 12일.",
+    "generation": {
+      "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "ec45becdecfdd1fa28e8e0305b82bb2d1ae920e11ccd53ebf9791ae99afea812",
+      "audio_sha256": "8e8ab2cc73f3d830d5f02ff233359396397b5a45b7d230590558c08bf79f31dc",
+      "request_id": "UAicJHoSJ69VTUY4yp0r",
+      "review_status": "listening_required"
+    }
+  },
+  "note_h1": {
+    "spk": "narrator",
+    "text": "교장 수첩 — 10월 13일 새벽. 다섯이 조각을 나누기로 했다. 나는  그 자리에 없었던 사람 으로 남는다. 다만 열쇠의  머리 는 내가 갖는다 — 다섯이 다 모여도, 머리 없이는 문이 돌아가지 않도록. 머리는  별관 3층 전시 공간 의 개교 기념 진열장에 둔다. 이름표는 “개교 기념 열쇠”. 아무도 진열품을 의심하지 않는다. 진열장 잠금 번호는  이 학교가 태어난 날 . 별관 전원은 폐쇄와 함께 공구실 분전반에서 내린다.",
+    "dur": 34.769,
+    "baked": true,
+    "eleven": "교장 수첩 — 10월 13일 새벽. 다섯이 조각을 나누기로 했다. 나는  그 자리에 없었던 사람 으로 남는다. 다만 열쇠의  머리 는 내가 갖는다 — 다섯이 다 모여도, 머리 없이는 문이 돌아가지 않도록. 머리는  별관 3층 전시 공간 의 개교 기념 진열장에 둔다. 이름표는 “개교 기념 열쇠”. 아무도 진열품을 의심하지 않는다. 진열장 잠금 번호는  이 학교가 태어난 날 . 별관 전원은 폐쇄와 함께 공구실 분전반에서 내린다.",
+    "generation": {
+      "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "ee2ac258f8fab16d457902864a63cb04c13d14ace91488ab0fa9a6f38bf99f0e",
+      "audio_sha256": "e8b9b86169769cc2eaae889508e4bac4fbb567cb95c37e407b56ba22292d5602",
+      "request_id": "6HDemZHFPAF23X1laHjo",
+      "review_status": "listening_required"
+    }
+  },
+  "note_h3": {
+    "spk": "narrator",
+    "text": "별관 분전반 점검표. 별관은 본관과  다른 계통 . 10.12 23:20 본관 정전 때도 별관 조명은 정상. 10.13 06:10 별관 전원 차단 — 지시: 교장 · 사유: 별관 폐쇄. 비고: 3층 전시 공간 진열장(전자식)은 전원이 있어야 열림.",
+    "dur": 23.876,
+    "baked": true,
+    "eleven": "별관 분전반 점검표. 별관은 본관과  다른 계통 . 10.12 23:20 본관 정전 때도 별관 조명은 정상. 10.13 06:10 별관 전원 차단 — 지시: 교장 · 사유: 별관 폐쇄. 비고: 3층 전시 공간 진열장(전자식)은 전원이 있어야 열림.",
+    "generation": {
+      "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "e8f0d926e7f7a079992157e0f4c19b545594fb8063bfda5851b95dca23498d03",
+      "audio_sha256": "f806d3d81fd8d79d6a0d7a126c4c7c506f9a1f5f2429eb31b107a8b4f6ad2cd9",
+      "request_id": "uxSTECsjJkidSIc3Ujw8",
+      "review_status": "listening_required"
+    }
+  },
+  "note_h4": {
+    "spk": "narrator",
+    "text": "보안 PC — 전시 공간 CCTV 기록. 10.12 23:31 전시 공간 — 교장, 개교 기념 전시 준비. 23:33 창가로 가서  불이 꺼진 본관  쪽을 오래 바라봄. 23:34 통화 (음성 기록 일부):  “…펌프실 열쇠는 자네가 갖고 있게. 내일 아침에 얘기하지.”  23:40 다시 진열장 정리. 23:52 퇴근.",
+    "dur": 31.242,
+    "baked": true,
+    "eleven": "보안 PC — 전시 공간 CCTV 기록. 10.12 23:31 전시 공간 — 교장, 개교 기념 전시 준비. 23:33 창가로 가서  불이 꺼진 본관  쪽을 오래 바라봄. 23:34 통화 (음성 기록 일부):  “…펌프실 열쇠는 자네가 갖고 있게. 내일 아침에 얘기하지.”  23:40 다시 진열장 정리. 23:52 퇴근.",
+    "generation": {
+      "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "744089042931cd64e5cdb43b22b5c90219dc652b78001532f49e8fcdee664cb4",
+      "audio_sha256": "703b10979d933ddd2b5ca98ffb8933b38f8e7e46e1bb1899dc0afde344784b8a",
+      "request_id": "23OPcRBUF8tEz0Q9VO21",
+      "review_status": "listening_required"
+    }
+  },
+  "call_mina1": {
+    "spk": "mina",
+    "text": "……여보세요? 들려? ……나야, 민아. 학교 안이야. 계속 누가 복도에서 걸어 다녀. 3층은…… 3층은 가지 마.",
+    "dur": 9.482,
+    "baked": true,
+    "eleven": "……여보세요? 들려? ……나야, 민아. 학교 안이야. 계속 누가 복도에서 걸어 다녀. 3층은…… 3층은 가지 마.",
+    "generation": {
+      "voice_id": "vJ170fCwESgE1tjW39So",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "fear",
+      "input_sha256": "548dc911d4781c102a145fa55a2edef42aaf92efd9876606847a33e6765a4348",
+      "audio_sha256": "9375d0c278eedacb9b1eef9da0e8c643752d8eec94a9d657f6e9407a4b61292e",
+      "request_id": "K9wDrJ2EkCTVmNx74Y2f",
+      "review_status": "listening_required"
+    }
+  },
+  "note_q8b": {
+    "spk": "narrator",
+    "text": "반납 완료. 반납함에 책을 넣자 도서실 형광등이 하나씩 켜졌다가 꺼졌다. 대출 카드의 반납 도장 칸이 마침내 채워졌다. 그리고 아주 작게: “다녀왔습니다.”",
+    "dur": 13.871,
+    "baked": true,
+    "eleven": "반납 완료. 반납함에 책을 넣자 도서실 형광등이 하나씩 켜졌다가 꺼졌다. 대출 카드의 반납 도장 칸이 마침내 채워졌다. 그리고 아주 작게: “다녀왔습니다.”",
+    "generation": {
+      "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "d6652fd0de3e86a9e05b37dbc5b69053da6cd6d92c83e205df85ca6eba6b3283",
+      "audio_sha256": "ef019c420a21445e2ec6da9e993f8324e1dbc25df04bc3f0255be40438aff027",
+      "request_id": "0OeIs8JakRpyizB97XMK",
+      "review_status": "listening_required"
+    }
+  },
+  "call_unk1": {
+    "spk": "ghost",
+    "text": "……하아…… 하아…… 왜…… 나만 두고 갔어……",
+    "dur": 4.598,
+    "baked": true,
+    "eleven": "……하아…… 하아…… 왜…… 나만 두고 갔어……",
+    "generation": {
+      "voice_id": "UvgKIGQwdeBJcpRJvb3P",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "sad",
+      "input_sha256": "ca8aa2524d9c95c9a2827168147ead49e516984d55c7c9248a1cf32f3df82dd9",
+      "audio_sha256": "8f6213b358e3f3c46611dff9995f99c6dc3e250c1c8363a790f44fbf05395731",
+      "request_id": "3DInV6mVDAz42LJKUxpq",
+      "review_status": "listening_required"
+    }
+  },
+  "call_mina2": {
+    "spk": "mina",
+    "text": "……지지직…… 거기 있어? 별관 쪽 불이 켜졌어. 누가 켰어? ……끊지 마, 제발…… 끊지……",
+    "dur": 6.922,
+    "baked": true,
+    "eleven": "……지지직…… 거기 있어? 별관 쪽 불이 켜졌어. 누가 켰어? ……끊지 마, 제발…… 끊지……",
+    "generation": {
+      "voice_id": "vJ170fCwESgE1tjW39So",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "urgent",
+      "input_sha256": "6b9c534b60c8f9ffeab9880b9c2268724a61957ec079116fde92a4469582cbb3",
+      "audio_sha256": "98f22cddc459100817dfcce8b7b0ec01b35fdbad819e675b59d256e6bf641eac",
+      "request_id": "UGK3R6kE0T82RZKWl7XR",
+      "review_status": "listening_required"
+    }
+  },
+  "call_unk2": {
+    "spk": "ghost",
+    "text": "……지금 네 뒤에 있는 의자…… 거기가 내 자리야……",
+    "dur": 3.709,
+    "baked": true,
+    "eleven": "……지금 네 뒤에 있는 의자…… 거기가 내 자리야……",
+    "generation": {
+      "voice_id": "UvgKIGQwdeBJcpRJvb3P",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "whisper",
+      "input_sha256": "594345d5990fc1777836fdf85f667e2181a66a83a979720a45a076435a4bf2c3",
+      "audio_sha256": "f49e2544b1e7a63891c62a42c439f4843087bdbdba4a8e1b4b0cddc787f3dbc6",
+      "request_id": "gpDFnjcdYDBJRbw3f68K",
+      "review_status": "listening_required"
+    }
+  },
+  "call_home": {
+    "spk": "friend2",
+    "text": "여보세요? 얘, 너 어디야! 왜 이렇게 안 들려…… 학교? 거기 꼼짝 말고 있어, 지금 바로 갈게!",
+    "dur": 7.236,
+    "baked": true,
+    "eleven": "여보세요? 얘, 너 어디야! 왜 이렇게 안 들려…… 학교? 거기 꼼짝 말고 있어, 지금 바로 갈게!",
+    "generation": {
+      "voice_id": "j3SYRikKBpDmPJsvd1rf",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "urgent",
+      "input_sha256": "a57b231157fee58bdf9596e53768b7908527ccfdb15a05585fbd247a2b22042e",
+      "audio_sha256": "22332b1afb433b68778eaa2a4cad4da5da912f55b555a8682f8be101a1267c53",
+      "request_id": "O0EYqhkn03ZBsmqWBKFg",
+      "review_status": "listening_required"
+    }
+  },
+  "call_guard": {
+    "spk": "guard",
+    "text": "여기 경비실이여. 학생, 아직 안에 있는겨? ……지지직…… 그 건물서 혼자 댕기지 말어. 밤엔 그 애가…… 지지직……",
+    "dur": 10.371,
+    "baked": true,
+    "eleven": "여기 경비실이여. 학생, 아직 안에 있는겨? ……지지직…… 그 건물서 혼자 댕기지 말어. 밤엔 그 애가…… 지지직……",
+    "generation": {
+      "voice_id": "lZLh6IYERWP1xQ7NnDOg",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "fear",
+      "input_sha256": "52ce2ae6af281d549ad0c31487e0752e1bf2b8e5c9ef54b8d8605e9e2dd5513c",
+      "audio_sha256": "9331da44aabe7e69b560119711938a9477eb1f28580ac90eb809207bb6087acb",
+      "request_id": "ryzV6dOXFHoD1RH9Sl1E",
+      "review_status": "listening_required"
+    }
+  },
+  "sg_sg_class": {
+    "spk": "ghost",
+    "text": "다들... 여기 있어... 내 자리 지우지 마...",
+    "dur": 3.788,
+    "baked": true,
+    "eleven": "다들... 여기 있어... 내 자리 지우지 마...",
+    "generation": {
+      "voice_id": "UvgKIGQwdeBJcpRJvb3P",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "whisper",
+      "input_sha256": "834e2aeaed3264952c653066315581614cc8d6f9fda82f33ed0c66f1c900a212",
+      "audio_sha256": "7feb9748457872b39ec04f35835c4eef32dc304c50bf5c050678243ebe98a7f9",
+      "request_id": "GqKKOc5Hvc4hcP1pOfU3",
+      "review_status": "listening_required"
+    }
+  },
+  "note_h5": {
+    "spk": "narrator",
+    "text": "진열장 속 쪽지. 「개교 기념 열쇠 — 기증: 제9대 교장」 이름표 뒤에 접힌 쪽지.  “이 문을 다시 여는 사람에게. 그날 밤 나는  불 켜진 곳 에 있었다. 내려가지 않았다. 다섯 조각은 그들의 몫이고, 이 머리는 내 몫이다. 무거워서 아무 데도 두지 못했다.”",
+    "dur": 22.126,
+    "baked": true,
+    "eleven": "진열장 속 쪽지. 「개교 기념 열쇠 — 기증: 제9대 교장」 이름표 뒤에 접힌 쪽지.  “이 문을 다시 여는 사람에게. 그날 밤 나는  불 켜진 곳 에 있었다. 내려가지 않았다. 다섯 조각은 그들의 몫이고, 이 머리는 내 몫이다. 무거워서 아무 데도 두지 못했다.”",
+    "generation": {
+      "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "42b239e850d6c03a15fb6be7171feca0ce9900a22aee39d40edd25592a164828",
+      "audio_sha256": "ea0de66caa5a6c6fb1da1722e7ac850e568d0860ee487bdedf546c71cb605421",
+      "request_id": "qliJEA88FMtJkqPHTgxq",
+      "review_status": "listening_required"
+    }
+  },
+  "sg_sg_corr": {
+    "spk": "ghost",
+    "text": "집에 갈 시간이 지났는데...",
+    "dur": 2.273,
+    "baked": true,
+    "eleven": "집에 갈 시간이 지났는데...",
+    "generation": {
+      "voice_id": "UvgKIGQwdeBJcpRJvb3P",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "whisper",
+      "input_sha256": "03d5cb7cfb44ac50ac011ac2c2c8f5bb7aadedb6f49a34008d0ebfdf8a73cffd",
+      "audio_sha256": "a95dd234c198bb3413f2f9d6a7dcc9d0ab0aef3c286b73ff985bc8768be3ba6c",
+      "request_id": "Ae1quQ3WXGuYjyGAZnoc",
+      "review_status": "listening_required"
+    }
+  },
+  "sg_sg_toilet": {
+    "spk": "ghost",
+    "text": "거울 속에... 내가 안 보여...",
+    "dur": 2.926,
+    "baked": true,
+    "eleven": "거울 속에... 내가 안 보여...",
+    "generation": {
+      "voice_id": "UvgKIGQwdeBJcpRJvb3P",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "whisper",
+      "input_sha256": "0315189e619df07b2d04fc86bd4d7c950d5611aa477f27f3b2da18f06f5485a7",
+      "audio_sha256": "ed0fd4d404339efaf45a9d9fa4194a3f1fe8e34c6560d8328d6bdf175151da6b",
+      "request_id": "89db3WvYBJx5lWfOT44y",
+      "review_status": "listening_required"
+    }
+  },
+  "sg_sg_stairs": {
+    "spk": "ghost",
+    "text": "위층엔... 아무도 없어...",
+    "dur": 2.691,
+    "baked": true,
+    "eleven": "위층엔... 아무도 없어...",
+    "generation": {
+      "voice_id": "UvgKIGQwdeBJcpRJvb3P",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "whisper",
+      "input_sha256": "856242ddea615b553fd72e0dd7f40522d0ce56dc5df0c629fe1263f9563d78ee",
+      "audio_sha256": "54ce827db9fd9619372146a995df3c84d94d31f92f929617fcdf33d1a2c55043",
+      "request_id": "2nYmRk7N79Xv10gN8rhC",
+      "review_status": "listening_required"
+    }
+  },
+  "call_fail": {
+    "spk": "narrator",
+    "text": "지금 거신 전화는 연결할 수 없습니다. 잠시 후 다시 걸어 주십시오.",
+    "dur": 4.754,
+    "baked": true,
+    "eleven": "지금 거신 전화는 연결할 수 없습니다. 잠시 후 다시 걸어 주십시오.",
+    "generation": {
+      "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "f3e2962ff108f0fdaddb020eeaa5b275db5e31f4bfd5540da5cb24bad573b882",
+      "audio_sha256": "edda1f5f610bc53fcec0bd6c61d929dd1a160931f42c0003577a05f0de61f32c",
+      "request_id": "9uNtXztfK8YqoqOUWFes",
+      "review_status": "listening_required"
+    }
+  },
+  "sg_sg_art": {
+    "spk": "ghost",
+    "text": "빨간색이... 아직 부족해...",
+    "dur": 3.082,
+    "baked": true,
+    "eleven": "빨간색이... 아직 부족해...",
+    "generation": {
+      "voice_id": "UvgKIGQwdeBJcpRJvb3P",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "whisper",
+      "input_sha256": "824f1c10b5163231160d89837ad2bfda499e7d6a19558e67e10bad28abdc6789",
+      "audio_sha256": "ba435a976e13fed55d96b0be8062d34f84ddd1f8e65f1f627838d317625d112f",
+      "request_id": "ksYKIPeBFGm6wmtDx2iF",
+      "review_status": "listening_required"
+    }
+  },
+  "sg_sg_gym": {
+    "spk": "ghost",
+    "text": "체육 시간... 끝났어...?",
+    "dur": 2.273,
+    "baked": true,
+    "eleven": "체육 시간... 끝났어...?",
+    "generation": {
+      "voice_id": "UvgKIGQwdeBJcpRJvb3P",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "whisper",
+      "input_sha256": "0517b4d6a44914c361fcff996a9d3e79afa8ec665ac7563161de3db86dbb7f0e",
+      "audio_sha256": "cd1fdba8c662c7c2347bc85dd5b69fde052a43fa93cbcf8583e00b9f38886ce4",
+      "request_id": "aJna3w9OJ6azoD7m22pn",
+      "review_status": "listening_required"
+    }
+  },
+  "sg_sg_music": {
+    "spk": "ghost",
+    "text": "피아노... 같이 칠래...?",
+    "dur": 2.429,
+    "baked": true,
+    "eleven": "피아노... 같이 칠래...?",
+    "generation": {
+      "voice_id": "UvgKIGQwdeBJcpRJvb3P",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "whisper",
+      "input_sha256": "353b41dd8930f7916fce62a7e778828355769902720513013362b042bdce3b27",
+      "audio_sha256": "90e4c8092230154aa2f698fc1188a1fc5ba6e3d75d6400b2527f683137630aec",
+      "request_id": "2KL4ajYkDMuyV0e8lKoh",
+      "review_status": "listening_required"
+    }
+  },
+  "call_119": {
+    "spk": "narrator",
+    "text": "119 상황실입니다. 신호가 약합니다. ……학교 안이라고요? 위치 확인했습니다. 구조대가 정문으로 가겠습니다. 정문 쪽으로 이동하세요.",
+    "dur": 9.482,
+    "baked": true,
+    "eleven": "119 상황실입니다. 신호가 약합니다. ……학교 안이라고요? 위치 확인했습니다. 구조대가 정문으로 가겠습니다. 정문 쪽으로 이동하세요.",
+    "generation": {
+      "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "resolve",
+      "input_sha256": "c86d75fd762c65aeda3fd8d8b407461a07846fa81e2ed2f1fad0f5d7e152baa1",
+      "audio_sha256": "0123c184b3185eb546bf5e22640f0b9bc9c94f08ae1b977725f16c42a3e285ee",
+      "request_id": "SwTWAPbwq4XFhtHoDNyB",
+      "review_status": "listening_required"
+    }
+  },
+  "sg_sg_roof": {
+    "spk": "ghost",
+    "text": "아래에서... 누가 내 이름을 불렀어...",
+    "dur": 3.239,
+    "baked": true,
+    "eleven": "아래에서... 누가 내 이름을 불렀어...",
+    "generation": {
+      "voice_id": "UvgKIGQwdeBJcpRJvb3P",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "whisper",
+      "input_sha256": "6fc0ae6671079b65f1bf81dae19028c2f79665a4afa2dbaa5b789f77b3b3972e",
+      "audio_sha256": "c9f7e478b13c74db2a5047d4b8d03128a14d1f41b1cdf473aa28138f54920134",
+      "request_id": "tR0wABNhZ7EtyyhLrBSH",
+      "review_status": "listening_required"
+    }
+  },
+  "sg_sg_pool": {
+    "spk": "ghost",
+    "text": "물이... 아직도 차가워...",
+    "dur": 2.769,
+    "baked": true,
+    "eleven": "물이... 아직도 차가워...",
+    "generation": {
+      "voice_id": "UvgKIGQwdeBJcpRJvb3P",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "whisper",
+      "input_sha256": "212ca6e3e3c104e8d48a83821f04bb352da82ab455748c432de5df961fdc8586",
+      "audio_sha256": "48f1b527c06aa579107f82d1723992b684f013d1f837d01e7a0d3c1fc5fa3559",
+      "request_id": "3son6Z5xUWVyNWY5U7HI",
+      "review_status": "listening_required"
+    }
+  },
+  "mtape_4": {
+    "spk": "friend2",
+    "text": "누구라도 이 테이프를 듣는다면 옥상 안테나로 올라가세요. 학교 안에서는 전파가 전부 차단되어 있어요... 제발...",
+    "dur": 7.549,
+    "baked": true,
+    "eleven": "누구라도 이 테이프를 듣는다면 옥상 안테나로 올라가세요. 학교 안에서는 전파가 전부 차단되어 있어요... 제발...",
+    "generation": {
+      "voice_id": "j3SYRikKBpDmPJsvd1rf",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "urgent",
+      "input_sha256": "8c985a25385a7b998f094c18bfa075cc45b7371bbace098ccfe7923e3a6e23b4",
+      "audio_sha256": "d02d258f35bc016c27e452d3a91f6fe2fc30f4a05a86915cce6a45f576b4d144",
+      "request_id": "MWoScoALDckCkB7qGmKH",
+      "review_status": "listening_required"
+    }
+  },
+  "mtape_2": {
+    "spk": "guard",
+    "text": "23시 40분... 시계 바늘이 멈췄다. 본관과 별관 연결통로 방화문을 잠가라. 그것은 빛과 큰 공명음을 싫어한다.",
+    "dur": 9.718,
+    "baked": true,
+    "eleven": "23시 40분... 시계 바늘이 멈췄다. 본관과 별관 연결통로 방화문을 잠가라. 그것은 빛과 큰 공명음을 싫어한다.",
+    "generation": {
+      "voice_id": "lZLh6IYERWP1xQ7NnDOg",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "resolve",
+      "input_sha256": "3d535c35e4b92ab08f6f618f16fda9bfce36bd9c2e038157480a9e567042b441",
+      "audio_sha256": "d8621699f358adeb8ad7907a3f8a4ace0341bf523e4c1ed50e923578dc85cc3b",
+      "request_id": "oEWHkMkLttfFybp4JiYa",
+      "review_status": "listening_required"
+    }
+  },
+  "mtape_6": {
+    "spk": "seoyeon",
+    "text": "어...? 이건 내 목소리잖아? 내가 이미 이 학교에 왔었다고...? 명찰 12개를 모두 모아야만 이 밤이 끝나...",
+    "dur": 8.516,
+    "baked": true,
+    "eleven": "어...? 이건 내 목소리잖아? 내가 이미 이 학교에 왔었다고...? 명찰 12개를 모두 모아야만 이 밤이 끝나...",
+    "generation": {
+      "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "surprise",
+      "input_sha256": "4125605d9c4a0b8031b24423bc39be04cc6187e000223ccf11ad9019b7faa982",
+      "audio_sha256": "8456f689e74d95f61b8b8a133ae15101168e487d5f6c4637c3968560950d37d6",
+      "request_id": "lAjz5wiEd3ODjmpfxfcW",
+      "review_status": "listening_required"
+    }
+  },
+  "mtape_3": {
+    "spk": "teacher",
+    "text": "지하 수영장 아래 수맥에서 검출된 파장이 사람들의 공포를 먹고 자란다. 주파수 98.4MHz에서 그것의 위치가 드러난다.",
+    "dur": 10.188,
+    "baked": true,
+    "eleven": "지하 수영장 아래 수맥에서 검출된 파장이 사람들의 공포를 먹고 자란다. 주파수 98.4MHz에서 그것의 위치가 드러난다.",
+    "generation": {
+      "voice_id": "dYYoaNsbIzON6ZOkqrct",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "0e13054827dd166f136f5dfe1f26f05730ec72c640e73113e330ed17298aa304",
+      "audio_sha256": "aea5c263410f50aa5bf4a4346b5ddf26ed2e039380ff817ae07e1a3b7e9b4355",
+      "request_id": "BwegBD0qDdx30qR7trG8",
+      "review_status": "listening_required"
+    }
+  },
+  "mtape_1": {
+    "spk": "teacher",
+    "text": "아이들이 하나둘씩 밤만 되면 눈이 풀린 채 지하 보일러실 쪽으로 걸어 내려갑니다... 교장 선생님은 단순한 집단 스트레스라고만 하시는데...",
+    "dur": 10.684,
+    "baked": true,
+    "eleven": "아이들이 하나둘씩 밤만 되면 눈이 풀린 채 지하 보일러실 쪽으로 걸어 내려갑니다... 교장 선생님은 단순한 집단 스트레스라고만 하시는데...",
+    "generation": {
+      "voice_id": "dYYoaNsbIzON6ZOkqrct",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "fear",
+      "input_sha256": "6281c16d38fb7e7212b13969c6701235f32dc5e9a035228a6d0eb1664ab34a16",
+      "audio_sha256": "5b6eeb0cddf1f40129c46d3af0cc26c63cb83b13aa90c6bea1baf04aaee43d9e",
+      "request_id": "T5cVCp8QHq91ayxNJWLX",
+      "review_status": "listening_required"
+    }
+  },
+  "mtape_5": {
+    "spk": "teacher",
+    "text": "교장실 괘종시계를 자정에 맞추면 서고로 통하는 금고가 열린다. 열쇠 조각 5개 없이는 정문 자물쇠를 절대 열 수 없을 것이다.",
+    "dur": 9.796,
+    "baked": true,
+    "eleven": "교장실 괘종시계를 자정에 맞추면 서고로 통하는 금고가 열린다. 열쇠 조각 5개 없이는 정문 자물쇠를 절대 열 수 없을 것이다.",
+    "generation": {
+      "voice_id": "dYYoaNsbIzON6ZOkqrct",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "e1a02688878cccbb9616e4669cbe93d6f0591f07f01dc7e89f41cc150453a018",
+      "audio_sha256": "ae38926b007348211e4b964ab9a4c31c33d6fb1a17a1943df22227af8f6303b0",
+      "request_id": "DEJjg26JCXEfj1H2ZZSv",
+      "review_status": "listening_required"
+    }
+  }
 }

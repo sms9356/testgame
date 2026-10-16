@@ -1,0 +1,1168 @@
+{
+  "source_commit": "6a65156592ee595db79b7e6b7dc5613563ea6133",
+  "model_id": "eleven_v4",
+  "speakers": {
+    "narrator": {
+      "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+      "name": "Madangsoe",
+      "direction": "성인 남성, 표준어. 관찰과 사건 전달, 과장 없이 차분하게."
+    },
+    "seoyeon": {
+      "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+      "name": "yeonjin",
+      "direction": "17세 여학생, 서울말. 선배에게 존댓말, 혼잣말은 자연스럽게."
+    },
+    "jihun": {
+      "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+      "name": "Leo",
+      "direction": "18세 남학생, 서울말. 두려움을 누르며 관찰과 결단."
+    },
+    "mina": {
+      "voice_id": "vJ170fCwESgE1tjW39So",
+      "name": "sena",
+      "direction": "18세 여학생, 표준어. 녹화의 밝음에서 통화의 불안으로."
+    },
+    "haneul": {
+      "voice_id": "oGV8pbtfEm7fbDPdSfrx",
+      "name": "Sujin",
+      "direction": "18세 여학생. 과거 방송은 기대, 마지막 작별은 조용한 안도."
+    },
+    "teacher": {
+      "voice_id": "dYYoaNsbIzON6ZOkqrct",
+      "name": "Travel Docent",
+      "direction": "40대 남성 교사, 표준어. 기록과 고백의 죄책감을 구분."
+    },
+    "guard": {
+      "voice_id": "lZLh6IYERWP1xQ7NnDOg",
+      "name": "경비 아저씨 (충청도 중년)",
+      "direction": "현재 게임 캐스팅의 충청도 중년 남성 유지. 경고는 걱정으로, 사투리 과장 금지. konan의 60대 표기와 차이가 있음."
+    },
+    "pa": {
+      "voice_id": "6wIijutElRjsgwLbECzl",
+      "name": "Joey Kim",
+      "direction": "남성 교내 방송. 일정한 공식 발성, 반복 구절의 압박."
+    },
+    "ghost": {
+      "voice_id": "UvgKIGQwdeBJcpRJvb3P",
+      "name": "Sophia",
+      "direction": "여성 초자연 화자. 낮고 가까운 속삭임, 단어 명료도 보존."
+    },
+    "friend": {
+      "voice_id": "CZ86sooijZ9CfwhGGEY5",
+      "name": "랑이",
+      "direction": "18세 여학생 역할, 기존 음색 유지. 친구에게 편한 대화."
+    },
+    "friend2": {
+      "voice_id": "j3SYRikKBpDmPJsvd1rf",
+      "name": "Busan SS",
+      "direction": "18세 여학생 역할, 기존 부산 억양 유지. 도움 요청과 일상 대화 구분."
+    }
+  },
+  "lines": {
+    "intro1": {
+      "source_sha256": "325e0dc393354aa2539fe80f3039cf07318a7f788f5efc184b66bdfc5512e46c",
+      "delivery": "normal",
+      "input": "10월 12일, 목요일. 오후 다섯 시 오십 분. 해가 지기 시작했다."
+    },
+    "intro2": {
+      "source_sha256": "0c3455584d94ffbfce5143d26232bb6a93d6cd5d8e8ecacce553946501b711a0",
+      "delivery": "normal",
+      "input": "서현고 방송부장 민아가, 폐교된 서문고에 들어간 뒤 연락이 끊겼다."
+    },
+    "intro3": {
+      "source_sha256": "8cb05c2bcc5ec5eb6ae85a0b8710c1b0f718ce8dc6fed60ac0cf65121407cf1c",
+      "delivery": "fear",
+      "input": "[nervous] [cautiously] 여기, 아직 누군가의 흔적이 남아있어."
+    },
+    "intro4": {
+      "source_sha256": "a4311359177602277d3a12a690713d2164e1d088daae207ac0f93ab773ab4ecf",
+      "delivery": "normal",
+      "input": "십 년 전 오늘, 이 학교에서 한 아이가 사라졌다. 그리고 매년 이 날 밤, 꺼진 스피커가 울린다."
+    },
+    "cam1": {
+      "source_sha256": "72e9dea766b91a37db087d8a1cc6f9cd50d9cfa468117785ba07dacb49c31409",
+      "delivery": "normal",
+      "input": "[casual] 녹화 중. 여긴 1학년 1반. 칠판에, 다시 여기서, 라고 쓰여 있어. [short pause] [cautiously] 방금 교무실 쪽에서 소리가 났어. 가 볼게."
+    },
+    "phone1": {
+      "source_sha256": "30b67bf12518d8ad9061527c8349d76189a958539e14418fd371ad9b811d69e7",
+      "delivery": "fear",
+      "input": "[nervous] [cautiously] 3층 방송실. 그 방송, 나도 들었어. 누가 내 이름을 불러."
+    },
+    "phone2": {
+      "source_sha256": "a9c3d96e6d12f5f7838c21a7e567176a1bb20a57c8f24e20fa86f9070979dfb6",
+      "delivery": "fear",
+      "input": "[nervous] [cautiously] 지하에 아이가 있어. 펌프실. 그 애는 아직 집에 못 갔어."
+    },
+    "phone3": {
+      "source_sha256": "97b05a01e290c5c4601ea403177504f489233f080f1e35f16f9abf4588e13fed",
+      "delivery": "whisper",
+      "input": "[whispers] 늦었어. 이번엔 꼭, 다시, 여기서."
+    },
+    "pa1": {
+      "source_sha256": "783a767b97ad0190ba8acf2bd3b4ec4c4a686ff36fedec0df5768ac22d4b7eae",
+      "delivery": "normal",
+      "input": "교내 방송입니다. 모두 교실로 돌아가세요. 다시 한 번 알립니다. 모두, 교실로, 돌아가세요."
+    },
+    "gh1": {
+      "source_sha256": "57d946d08cb55c9012ee2e748cdb47b62fa3995717dd255dc21f31c2d19dd774",
+      "delivery": "whisper",
+      "input": "[whispers] 다시, 여기서."
+    },
+    "gh2": {
+      "source_sha256": "fed222b60ec1f46ee2d2664b1d89bdfb8ff63c05bad4e990f4b6a3a4a9549dd9",
+      "delivery": "whisper",
+      "input": "[whispers] 같이 놀자."
+    },
+    "gh3": {
+      "source_sha256": "0da1ecfb947b5e04085ce29a91238117e09b2f0c5fb3d44266f4e70ce943aed8",
+      "delivery": "whisper",
+      "input": "[whispers] 어디 가?"
+    },
+    "gh4": {
+      "source_sha256": "2badfb4f6e0f81cd1ed433ce8913e677563bd59db065cfeb626e50cfae155285",
+      "delivery": "whisper",
+      "input": "[whispers] 찾았다."
+    },
+    "ghThanks": {
+      "source_sha256": "52e92fd82e26e37dfb05c96335922b09ccb5b7c74b132f1a387eb6f8fdfe2e6c",
+      "delivery": "relief",
+      "input": "[softly] 고마워. [short pause] [relieved] 이제, 집에 갈게."
+    },
+    "tape1": {
+      "source_sha256": "0f84ba93d88cdaef650938a19f6dbcd458f072191e49f240652d3b0484148797",
+      "delivery": "normal",
+      "input": "보건 교사 기록. 정전이 났다. 지하 펌프가 멈췄다는 연락. 아이 하나가 아직 학교에 있다고 했는데, 아무도 이름을 대지 못했다."
+    },
+    "tape2": {
+      "source_sha256": "4968c91bf2da2068f2e6a16923c98bbe306b45b09c94d0897c76ae993d2f3fff",
+      "delivery": "fear",
+      "input": "[nervous] [cautiously] 녹음 시작. 지금 방송실이야. 스피커에서 누가 우리 이름을 불러. 한 명씩. 장비실에 숨을게. 누구든 이걸 들으면, 와 줘."
+    },
+    "tape3": {
+      "source_sha256": "3536c384314f7bd2bf72a9123f0eef5ceae0852113e2e25d7d24454837fc9811",
+      "delivery": "normal",
+      "input": "교무부장 기록. 사고는 실종으로 정리한다. 그날 밤 남아 있던 다섯 명이 정문 열쇠를 한 조각씩 나눠 갖는다. 교무실 금고, 도서실, 과학실, 체육관, 수영장. 다섯이 모두 모이기 전엔, 아무도 그날을 열 수 없다."
+    },
+    "tape4": {
+      "source_sha256": "4e6e451d385fba3574d0bd4f97834427b590a9125b0bb441170769c22b52337b",
+      "delivery": "normal",
+      "input": "기념 방송 날엔, 내 목소리로 하교 방송을 할 거야. 오늘 하루도 수고 많았습니다. 모두, 집으로 돌아가세요."
+    },
+    "endTrue": {
+      "source_sha256": "43d8a3b70236c242a266aa52c6829737fbf3d3c54cac24bb0e44e2db18c0e11b",
+      "delivery": "relief",
+      "input": "[exhales] [softly] 그날 밤, 서문고의 마지막 하교 방송이 끝났다. 민아는 아무것도 기억하지 못했다. 정문을 나서는 순간, 누군가 뒤에서 작게 손을 흔들었다."
+    },
+    "endNormal": {
+      "source_sha256": "7f8a5d685fbfc27b8d3fd8ca97ee727725168d5a54a7c47996dffd818c4e723b",
+      "delivery": "normal",
+      "input": "정문은 다시 닫혔다. 그리고 다음 해 10월 12일 밤 11시 40분, 민아의 휴대폰이 다시 울렸다."
+    },
+    "endBad": {
+      "source_sha256": "5d6cdf825f303f8908493bc649a7d8734612f8304b548d23fed8c3b48a7f5c99",
+      "delivery": "sad",
+      "input": "[sad] [softly] 칠판에 한 줄이 더 늘었다. 다시, 여기서."
+    },
+    "l_arrive_j": {
+      "source_sha256": "bc0770f0d041226803a2970d4ddcc68fa0482fb44bd93a92f65b749ea2da7ff1",
+      "delivery": "fear",
+      "input": "[nervous] [cautiously] 민아야… 정말 여기 들어간 거야?"
+    },
+    "l_arrive_s": {
+      "source_sha256": "e3555089dc871a5e15c3e3ae2586ce731c10e94d5ed34a9c4af70e13876475a9",
+      "delivery": "fear",
+      "input": "[nervous] [cautiously] 선배… 여기 있는 거죠? 무서워도, 가야지."
+    },
+    "l_gate_j": {
+      "source_sha256": "53ac5c8d00697558ad908deb79ca146be6f3e94e658d5cc3cf78fe3d857a45eb",
+      "delivery": "resolve",
+      "input": "[confident] 문이 잠겼다. 열쇠 없이는 못 나가."
+    },
+    "l_gate_s": {
+      "source_sha256": "b5667e57c50286ae0fa09dc05ba2a1c385621014b3ff8b2c1a647e544de87d00",
+      "delivery": "resolve",
+      "input": "[confident] 문이 잠겼어… 열쇠를 찾아야 해."
+    },
+    "l_inside_j": {
+      "source_sha256": "e4a70607881f5223505347b12d734502a8f60ea65c30bc9f927fe70ebf5c4eea",
+      "delivery": "fear",
+      "input": "[nervous] [cautiously] 공기가 차갑다. 숨소리까지 들릴 것 같아."
+    },
+    "l_inside_s": {
+      "source_sha256": "12ab63616e18d45cc9013c694eb099c7356174561bbfebfafd09cf531111326a",
+      "delivery": "fear",
+      "input": "[nervous] [cautiously] 안은 숨소리까지 들릴 만큼 조용해…"
+    },
+    "l_camFound_j": {
+      "source_sha256": "cf2d0cead7be161e28a166195288c53f1430415eddaa1efff7e004ae385e21cc",
+      "delivery": "normal",
+      "input": "민아 캠코더다. 녹화된 게 남아 있어."
+    },
+    "l_camFound_s": {
+      "source_sha256": "af94de08203ee4e37f1a82d19e9ea6a764efc9dc33386f539e5b16e2a0ffd9d3",
+      "delivery": "normal",
+      "input": "선배 캠코더…! 아직 녹화 파일이 있어."
+    },
+    "l_afterCam_j": {
+      "source_sha256": "07bc6bac7913da0a4e09930676d1813de00cc4de9e17cde9154d5b5db2357c37",
+      "delivery": "resolve",
+      "input": "[confident] 교무실 쪽에서 소리가 났다고 했지. 가 보자."
+    },
+    "l_afterCam_s": {
+      "source_sha256": "1fa0e1a26369e9fffa0dd69f725404ff9c76623f7c5282054f7ef1f33c3e7698",
+      "delivery": "resolve",
+      "input": "[confident] 교무실… 선배가 마지막으로 간 곳이야."
+    },
+    "l_office_j": {
+      "source_sha256": "f050fa8c190f732a8997bb834b1be02eaa646f29757a3d63def8d8aa3ee2b0f1",
+      "delivery": "normal",
+      "input": "교무회의록… 열쇠를 다섯 조각으로 나눴다고?"
+    },
+    "l_office_s": {
+      "source_sha256": "fae1b7b6c35671f2704e385bd0f76b7f053453101fc8e9aa937353f2209a9d6b",
+      "delivery": "normal",
+      "input": "열쇠가 다섯 조각이라니… 하나는 금고 안에 있대."
+    },
+    "l_safeHint_j": {
+      "source_sha256": "cf1c94be19daa421ca2bb17afea1c2fdf30c2b100047fa2392a73e7a97f77607",
+      "delivery": "normal",
+      "input": "그날의 날짜를 네 자리로… 달력을 보자."
+    },
+    "l_safeHint_s": {
+      "source_sha256": "01730555fc734da6a4991118669357a562849cb1f7269bc0c3901bf05ae8dc56",
+      "delivery": "normal",
+      "input": "비밀번호… 그날의 날짜라고 했어. 어딘가에 적혀 있을 거야."
+    },
+    "l_safeOpen_j": {
+      "source_sha256": "da62375d35da76edae20c6787f3427b5a7a69348152a823b8e77118260b6c771",
+      "delivery": "relief",
+      "input": "[exhales] [softly] 10월 12일. 기념 방송이 있던 그날 밤."
+    },
+    "l_safeOpen_s": {
+      "source_sha256": "95daaa817573f1fcee1d7317466c1931d744b4d3fb128c357dfd24e37b2ab044",
+      "delivery": "relief",
+      "input": "[exhales] [softly] 10월 12일… 오늘이잖아."
+    },
+    "l_key_j": {
+      "source_sha256": "691916f5c498d8dac10a65be3c7659eabe0024822f8572e618a5f2940e7cce7f",
+      "delivery": "resolve",
+      "input": "[confident] 하나 찾았다. 아직 더 있어."
+    },
+    "l_key_s": {
+      "source_sha256": "f2a0f13a4d981e447df112d34aba64be5c5c875390f228a46188517d2d7765ca",
+      "delivery": "resolve",
+      "input": "[confident] 열쇠 조각이다. 하나 더…"
+    },
+    "l_keyLast_j": {
+      "source_sha256": "696e76abe5bfe38022e2a44fd18863691a7a6d0359a3380cf11a9c22a73ea173",
+      "delivery": "resolve",
+      "input": "[confident] 마지막 조각이다. 가방에서 맞춰 보자."
+    },
+    "l_keyLast_s": {
+      "source_sha256": "2a25d670c12c6edb810c16163f5d3fa0febf6d3afe6176c0f998c7c6e128b198",
+      "delivery": "resolve",
+      "input": "[confident] 마지막 조각이야. 가방에서 열쇠를 맞춰 보자."
+    },
+    "l_keyMade_j": {
+      "source_sha256": "de795709b7c7ff46de6758c20bea231a5e2f00c9ba6f01edb75fa3bc64c64116",
+      "delivery": "resolve",
+      "input": "[confident] 맞춰졌다. 이제 정문으로 간다."
+    },
+    "l_keyMade_s": {
+      "source_sha256": "a29fd56517d305a39383f949ab61be3a83c991992876db0da355f8b774acec22",
+      "delivery": "resolve",
+      "input": "[confident] 열쇠가 완성됐어. 정문으로 가자."
+    },
+    "l_wake_j": {
+      "source_sha256": "74ff56061657bb17a668fc8578de108a90ecdcdb7a0b73d0aa6333b4c46e3038",
+      "delivery": "surprise",
+      "input": "[surprised] 위층에서… 뭔가 끌리는 소리가 났어."
+    },
+    "l_wake_s": {
+      "source_sha256": "34257bedee2cc629c085945338db3df663f80c9226e9682f2994cb782cab56f2",
+      "delivery": "surprise",
+      "input": "[surprised] 방금… 위층에서 소리가 났어."
+    },
+    "l_spotted_j": {
+      "source_sha256": "1ed00a65e38a7535460a622a26f4d981ad81be264487f177854111bfa6a64cbe",
+      "delivery": "urgent",
+      "input": "[urgent] [breathless] 봤어. 나를 봤어. 뛰어!"
+    },
+    "l_spotted_s": {
+      "source_sha256": "6b0a33d443fc3abebb123045cda661fbf1bfc2b609e7e29ddc134008bb153569",
+      "delivery": "urgent",
+      "input": "[urgent] [breathless] 들켰다! 숨거나, 달려야 해!"
+    },
+    "l_hit_j": {
+      "source_sha256": "ad1d5ad3c9564c00a2bc4b72a50e681d9b620dd66541afe8c2ec4e20ceb73b4f",
+      "delivery": "urgent",
+      "input": "[urgent] [breathless] 크윽…! 여기서 멈추면 안 돼."
+    },
+    "l_hit_s": {
+      "source_sha256": "4e545595cf23c749504e2809c74608ddb24631ebea4f2a498a609f0f1be15f6b",
+      "delivery": "urgent",
+      "input": "[urgent] [breathless] 윽…! 도망쳐야 해!"
+    },
+    "l_heal_j": {
+      "source_sha256": "0646979521c143f3d1870d9a40b14c426fbabde65643740729b1f09490738815",
+      "delivery": "relief",
+      "input": "[exhales] [softly] 괜찮아. 아직 움직일 수 있어."
+    },
+    "l_heal_s": {
+      "source_sha256": "3fa9412c63e2b1591f303663fed022ced1e0b88faa4a36a45b014656b2d743be",
+      "delivery": "relief",
+      "input": "[exhales] [softly] 조금 낫네… 계속 가자."
+    },
+    "l_enrage_j": {
+      "source_sha256": "b2778c65510a0848fc9e031534cdd83d257c1ac14e98ec374e5ba5d76907a442",
+      "delivery": "urgent",
+      "input": "[urgent] [breathless] 그게 깨어났다. 정문까지 멈추지 마!"
+    },
+    "l_enrage_s": {
+      "source_sha256": "eb7fca54cdb01be8ccbd25c3b230703228ab208750bd8d9780f963c6745ef8e5",
+      "delivery": "urgent",
+      "input": "[urgent] [breathless] 그게… 깨어났어. 정문으로 뛰어!"
+    },
+    "l_roof_j": {
+      "source_sha256": "fcb8146a0826e63b829e24009537f3ba338613e9ce385cc00257514d919f9e9e",
+      "delivery": "fear",
+      "input": "[nervous] [cautiously] 바람 소리뿐이야. 여기도 누군가 있었어."
+    },
+    "l_roof_s": {
+      "source_sha256": "c861c7e03c9261650c82a77941a0fc4c9ab546c9777b3a4b8a55b0be59430b22",
+      "delivery": "fear",
+      "input": "[nervous] [cautiously] 바람 소리뿐이야… 여기도 누군가 있었어."
+    },
+    "l_b1_j": {
+      "source_sha256": "84667672eb3815ff596f47fd0d5aaeb49c1b6dd79381781b6e47b8eaf05c0dd2",
+      "delivery": "fear",
+      "input": "[nervous] [cautiously] 지하… 이런 곳이 있었다니."
+    },
+    "l_b1_s": {
+      "source_sha256": "a1b0398f3fc2b8659d43a92e962bd5b4217fce60069dae78b294b3895fca82d6",
+      "delivery": "fear",
+      "input": "[nervous] [cautiously] 지하…? 이런 곳이 있었다니."
+    },
+    "l_gym_j": {
+      "source_sha256": "fd1e0880ef3f26f2b925a6bfb8db40856f377211ea6c07789b949732394e27bb",
+      "delivery": "fear",
+      "input": "[nervous] [cautiously] 불 꺼진 체육관에서… 박수 소리?"
+    },
+    "l_gym_s": {
+      "source_sha256": "bcf48ed507cd9a977e42142b6f5130f17be47c1653d1bb886ee55db82f0b32d2",
+      "delivery": "fear",
+      "input": "[nervous] [cautiously] 불 꺼진 체육관… 누가 박수를 치고 있어."
+    },
+    "l_pool_j": {
+      "source_sha256": "7a5e889f87934d93c81a7c5d3ea1a0554c73b523c5573623349107d078af41f1",
+      "delivery": "fear",
+      "input": "[nervous] [cautiously] 물이 없는데 물소리가 난다."
+    },
+    "l_pool_s": {
+      "source_sha256": "bf7ab0d61da9a18484c47567423141f56922345af1d9d65332dca59162793a4b",
+      "delivery": "fear",
+      "input": "[nervous] [cautiously] 물이 없는데… 물소리가 들려."
+    },
+    "l_cafe_j": {
+      "source_sha256": "f7fb27010247dada31928ccabb6d36469c6e005179ac009b93f627f0b69c9acc",
+      "delivery": "fear",
+      "input": "[nervous] [cautiously] 식판이 그대로다. 방금까지 누가 있었던 것처럼."
+    },
+    "l_cafe_s": {
+      "source_sha256": "7845a12b7d9904b9baf7bb57b2d74913a5e310ab60dc52acce00e8ca2cbb3d4f",
+      "delivery": "fear",
+      "input": "[nervous] [cautiously] 식판이 그대로야… 방금까지 누가 있었던 것처럼."
+    },
+    "l_piano_j": {
+      "source_sha256": "11dbbf46312b00c2fcbf35b8fb2407e0ccbec709587cdd6ccb28ee8aacfac77a",
+      "delivery": "surprise",
+      "input": "[surprised] 피아노가 혼자 울린다."
+    },
+    "l_piano_s": {
+      "source_sha256": "a3521748da0b9c91b8803c3603d3731f5b25c8cc7a3c58c34ec862321eeebf44",
+      "delivery": "surprise",
+      "input": "[surprised] 피아노가… 혼자 울리고 있어."
+    },
+    "l_doorSlam_j": {
+      "source_sha256": "7842db180b86ae148e05af5b29f176c74b4b912a92a9ee5902fb1af1814c4f1a",
+      "delivery": "surprise",
+      "input": "[surprised] 문이 저절로 닫혔어."
+    },
+    "l_doorSlam_s": {
+      "source_sha256": "78858606fe7165d4aa472b0aa237223278897e5ba6c12a85ce696532e467b319",
+      "delivery": "surprise",
+      "input": "[surprised] 문이… 저절로 닫혔어."
+    },
+    "l_stall_j": {
+      "source_sha256": "d2773dbe5b04726e6425a93da4224c328ce89b2ef035233f2424ab628c9c94c8",
+      "delivery": "fear",
+      "input": "[nervous] [cautiously] …누구 있어?"
+    },
+    "l_stall_s": {
+      "source_sha256": "669a046b2bbc236e793415d0f041ece890dc2b31d486ab71ba35b79ead46c661",
+      "delivery": "fear",
+      "input": "[nervous] [cautiously] …누구 있어요?"
+    },
+    "l_steps_j": {
+      "source_sha256": "2c47d6bd553cdc4dd8b3d1a141f13f17a028d7fdfb9c3d64471fefbe651fe4ea",
+      "delivery": "surprise",
+      "input": "[surprised] 방금 그거, 발소리였어."
+    },
+    "l_steps_s": {
+      "source_sha256": "c1b110131c5faefb65595b021870ad109c8144d1219bd9c7ac9a9e9374b3ab01",
+      "delivery": "surprise",
+      "input": "[surprised] …방금 그거, 발소리였어?"
+    },
+    "l_ball_j": {
+      "source_sha256": "1f05bdd1c1810ae016ed63f523cbffde8c8ac5ff4ebaeb30013237e4f57bda35",
+      "delivery": "surprise",
+      "input": "[surprised] 공이 굴러왔다. 아무도 없는데."
+    },
+    "l_ball_s": {
+      "source_sha256": "25525b5b00cb917cf5e0424816922352cce5e1f371258d83138a449672c0fae8",
+      "delivery": "surprise",
+      "input": "[surprised] 공이… 굴러왔어. 아무도 없는데."
+    },
+    "l_speakers_j": {
+      "source_sha256": "b29c089b822c27b199cc296f76a183b9b31cad13639948c81e9514ed2983cc40",
+      "delivery": "surprise",
+      "input": "[surprised] 스피커가 켜졌다고? 전기도 안 들어오는데."
+    },
+    "l_speakers_s": {
+      "source_sha256": "c1c1186c9c5a5328c673ee40ca85457aa9bf8b7146b9141595e8938b338157ef",
+      "delivery": "surprise",
+      "input": "[surprised] 스피커가… 켜졌어? 전원도 안 들어오는데."
+    },
+    "l_breaker_j": {
+      "source_sha256": "48d4d08576f7585f389ed203353be7554a862036ab7cd06f7ad787639324d685",
+      "delivery": "surprise",
+      "input": "[surprised] 불이 들어왔다. 근데 소리가 너무 컸어."
+    },
+    "l_breaker_s": {
+      "source_sha256": "e46955633a263aff6c1d9c2bd599c02870be9342c24cf8b3eaf4b95c1d98c3c4",
+      "delivery": "surprise",
+      "input": "[surprised] 불이… 들어왔어. 근데 소리가 너무 컸어."
+    },
+    "l_lure_j": {
+      "source_sha256": "8a8c3654f4b0ccca0571c24e50d85a4e8d11331c426fc7597059b6bfe1fa3ed2",
+      "delivery": "urgent",
+      "input": "[urgent] [breathless] 지금이야. 여기서 빨리 벗어나자."
+    },
+    "l_lure_s": {
+      "source_sha256": "1c8810905fcf829ae5016ff98dcad84d5fde9db01cc03c57f24e694b41e3838b",
+      "delivery": "urgent",
+      "input": "[urgent] [breathless] 지금이야… 여기서 빨리 벗어나야 해."
+    },
+    "l_phone_j": {
+      "source_sha256": "22597c27834a63bb35282400667c9e656c859f310e381af1b8228551c9282acb",
+      "delivery": "surprise",
+      "input": "[surprised] 메시지? 신호도 안 잡히는데."
+    },
+    "l_phone_s": {
+      "source_sha256": "b4bc5947e6e9e3482e22d4b1641de55694d2e6fecb755aa5f1ccefc843e35829",
+      "delivery": "surprise",
+      "input": "[surprised] 메시지…? 신호도 안 잡히는데."
+    },
+    "l_tagFound_j": {
+      "source_sha256": "896ce7be3dcf3f366d5f2ba4121452f2675dc295e9cfe999e35a34bb4b48c045",
+      "delivery": "sad",
+      "input": "[sad] [softly] 윤하늘… 이 명찰, 계속 여기 있었구나."
+    },
+    "l_tagFound_s": {
+      "source_sha256": "d1493053bb535daa9bb9a3c1caa814fa19ee491e92b48f8bde6679c8a80c1e97",
+      "delivery": "sad",
+      "input": "[sad] [softly] 윤하늘… 선배. 여기서 기다리고 있었구나."
+    },
+    "l_needPower_j": {
+      "source_sha256": "50f28f8af3c0e29849f0db3b2c733529fbc99b1f06eb65764fa22d1c9959e3ea",
+      "delivery": "resolve",
+      "input": "[confident] 방송을 하려면 먼저 전기를 살려야 해."
+    },
+    "l_needPower_s": {
+      "source_sha256": "76cef138de700d5458e9f3d9c4fbfbe5f5da42cfcaf275d8677e4a6c7474f770",
+      "delivery": "resolve",
+      "input": "[confident] 전원이 없어… 지하 전기실 차단기부터 올려야 해."
+    },
+    "l_needTag_j": {
+      "source_sha256": "c461c059ae9e511ce53f5280c96309160a75c3bb5a7df75cdc4bbc2326d8d7a3",
+      "delivery": "normal",
+      "input": "방송을 해도… 누구 이름을 불러야 하지?"
+    },
+    "l_needTag_s": {
+      "source_sha256": "99a3b3b43e642f82e53eff7ad2d29b1f32aa131ef8dcb95ebc256fb5fb351cdb",
+      "delivery": "normal",
+      "input": "누구에게 하는 방송인지… 아직 모르겠어."
+    },
+    "l_calm_j": {
+      "source_sha256": "566512833d852972f0f2236ff2a1609215eecfdb04f0aeda5d786172e666eeac",
+      "delivery": "relief",
+      "input": "[exhales] [softly] …끝났어. 이제 조용해."
+    },
+    "l_calm_s": {
+      "source_sha256": "01563bde09441cf68e0d9de2c9e4ab10b13b6ecbabfc9750c2e3b8288d023ce8",
+      "delivery": "relief",
+      "input": "[exhales] [softly] …가 버렸어. 이번엔 집으로."
+    },
+    "l_findMina_j": {
+      "source_sha256": "e4922d1003128a2c1618b00b904cfed94062dde975e650784b8f5fd3e12d8e9f",
+      "delivery": "resolve",
+      "input": "[confident] 민아는 방송실 장비실에 있을 거야."
+    },
+    "l_findMina_s": {
+      "source_sha256": "fa0974c8d14b8212aad904ddb24aa1d0f1c900e34ada60b73c016bcfdad1f9ea",
+      "delivery": "resolve",
+      "input": "[confident] 선배는 장비실에… 거기서 이름을 불렀다고 했어."
+    },
+    "l_minaFound_j": {
+      "source_sha256": "27cb00ab15ed554af5c9cd7bfc998ea206e4ab651036a08246dbac030b9b189a",
+      "delivery": "urgent",
+      "input": "[urgent] [breathless] 민아! 정신 차려, 나야."
+    },
+    "l_minaFound_s": {
+      "source_sha256": "ee9cf4e75915ae4e65eb2701c352ed5fe564aff0f4822f1554f206e70f53a21f",
+      "delivery": "urgent",
+      "input": "[urgent] [breathless] 선배! 저예요, 서연이!"
+    },
+    "l_sprint_j": {
+      "source_sha256": "227ccde25a4a13aebbabfbfbcdde825a0927f7d41b585bb121600cda5f13a798",
+      "delivery": "fear",
+      "input": "[nervous] [cautiously] 숨이 차… 조금만 쉬자."
+    },
+    "l_sprint_s": {
+      "source_sha256": "98ef77af23a3cb065ca3ea6aa6ba018c69d646a2c5ee9e755718c742d649af42",
+      "delivery": "fear",
+      "input": "[nervous] [cautiously] 하아… 숨이…"
+    },
+    "l_hide_j": {
+      "source_sha256": "a3bca2d8133427911099f8fa677524dcf1c266f283d9b502f090c5a254d9c598",
+      "delivery": "whisper",
+      "input": "[whispers] 숨죽여. 지나가길 기다리자."
+    },
+    "l_hide_s": {
+      "source_sha256": "3b5f02b566b6050c56bc311aafdff6ce7e265e51bc7f14545257a41159281a6b",
+      "delivery": "whisper",
+      "input": "[whispers] 숨을 죽여… 제발 지나가."
+    },
+    "l_combineFail_j": {
+      "source_sha256": "a83dd4e2d5030791cb12f1c19cc41743c573522986e29c4ad781209470386e0e",
+      "delivery": "normal",
+      "input": "이건 서로 안 맞아."
+    },
+    "l_combineFail_s": {
+      "source_sha256": "c712183e598a28a2091bf5f4fece371c518a9e932e91e9266614f185f67a630d",
+      "delivery": "normal",
+      "input": "이건 같이 쓸 수 없어."
+    },
+    "l_locked_j": {
+      "source_sha256": "1588a218805c4aeeccc964ab26a58f0ec30ed44a50aeacb011bbd103f4cda377",
+      "delivery": "fear",
+      "input": "[nervous] [cautiously] 잠겨 있다."
+    },
+    "l_locked_s": {
+      "source_sha256": "e9ca85459a61cde55b66a68f489753e9da221b264c045bd137853803dc6833a1",
+      "delivery": "fear",
+      "input": "[nervous] [cautiously] 잠겨 있어…"
+    },
+    "bc_j": {
+      "source_sha256": "a8cb4447e193d83585e9e248733b713ff838ddedc5ad5a9bab7285f76043a5e5",
+      "delivery": "relief",
+      "input": "[exhales] [softly] 3학년 2반 윤하늘. 오늘 수업은 끝났어. 이제, 집에 가도 돼."
+    },
+    "bc_s": {
+      "source_sha256": "cbab57ffb4359cdcd0bf5f53065dcce5de197326fa30d1476ef0539441f8e52b",
+      "delivery": "relief",
+      "input": "[exhales] [softly] 3학년 2반 윤하늘 선배. 오늘 방송은 제가 대신할게요. 이제, 집에 가도 돼요."
+    },
+    "mw_j": {
+      "source_sha256": "3fff15ecaa4a0ed82deb4ac71da976954ca8911841238cbaed044b1fee53989c",
+      "delivery": "fear",
+      "input": "[nervous] [cautiously] …지훈아? 나, 방송실에서 이름을 불렀어. 누가 대답했어."
+    },
+    "mw_s": {
+      "source_sha256": "1e95b15fbecaec2cf8e090cf33452ec4b252328becdd5a5af0210459a6b7a496",
+      "delivery": "fear",
+      "input": "[nervous] [cautiously] …서연아? 나, 방송실에서 이름을 불렀어. 누가 대답했어."
+    },
+    "note_n1": {
+      "source_sha256": "228c99ec3ac906ec53202ca67ac674b259c89e2c9881c6739cd65a18deb69e77",
+      "delivery": "normal",
+      "input": "누군가의 일기. 10월 11일. 내일 밤은 방송부 창립 30주년 기념 방송 리허설. 하늘이는 방송 원고를 몇 번이나 고쳐 썼다. “기념 방송 날엔 꼭 내 목소리로 하교 방송을 할 거야.”"
+    },
+    "note_n2": {
+      "source_sha256": "84a2a6d78e152c26ca236f7da77f20f05d98d536067a3b0b767811142d0de5e5",
+      "delivery": "normal",
+      "input": "보건 일지. 10월 12일 밤 11시 20분, 정전. 비상등도 켜지지 않았다. 지하에서 물 빼는 펌프가 멈췄다는 연락. 아이 하나가 아직 학교에 있다고 했는데, 아무도 이름을 대지 못했다."
+    },
+    "note_n3": {
+      "source_sha256": "173c04e4b2b9d2975d200f60c9bc089f2b8e8d1535414b8cf4ae53716c1179de",
+      "delivery": "normal",
+      "input": "교무회의록. 사고 경위는 “실종” 으로 정리한다. 펌프실은 폐쇄. 그날 밤 학교에 남아 있던 다섯 명 이 정문 열쇠를 한 조각씩 나눠 맡는다 — 다섯이 모두 동의하기 전엔 누구도 그날을 다시 열 수 없도록. 조각은 각자의 자리에: 교무실 금고, 도서실, 과학실, 체육관, 수영장. 금고 비밀번호는 그날의 날짜 (월일 4자리)."
+    },
+    "note_n4": {
+      "source_sha256": "337b9825ad9d3a4bfae5cacb4569be3dacee36bdae83dbf0dbd514910dbef828",
+      "delivery": "normal",
+      "input": "도서 대출 카드. 같은 이름이 수백 번 적혀 있다. 윤하늘 . 마지막 대출일 10월 12일. 『집으로 가는 길』. 반납란은 비어 있다."
+    },
+    "note_n5": {
+      "source_sha256": "8b2c666f92652e49d5508cd2050a0ef1225b591ea3bda43daa7820860ca5de06",
+      "delivery": "normal",
+      "input": "실험 노트. 불을 끄면 그 애가 온다. 빛이 있는 곳에는 쉽게 다가오지 못한다. 달리면 소리가 난다. 그 애는 듣는다 ."
+    },
+    "note_n6": {
+      "source_sha256": "a29366ca0654ebb82594c8db293a83c646e8ad997ec9fd3571efdff1710421ea",
+      "delivery": "normal",
+      "input": "찢어진 쪽지. 사물함 안에 숨어. 문틈으로 지나가는 게 보여. 문을 닫으면 잠깐은 못 봐. …하지만 숨는 걸 들키면, 그땐 늦어."
+    },
+    "note_n7": {
+      "source_sha256": "6dfb713c0d9d2db19f648ec88191f5df44663acc1b8ba8b9487177eb53221815",
+      "delivery": "normal",
+      "input": "옥상 일지. 방송부 아이들이 담력 체험이라며 하늘이를 지하 펌프실 에 넣고 문을 잠갔다고 했다. 십 분이면 꺼내 줄 장난이었다고. 그때, 정전이 났다."
+    },
+    "note_n8": {
+      "source_sha256": "2f55289d57541b4312513a1b3ad98fc123cd9d1db56e858f3ecb1da8508f1949",
+      "delivery": "normal",
+      "input": "하교 방송 원고. [원고 — 3학년 2반 윤하늘] “오늘 하루도 수고 많았습니다. 모두, 집으로 돌아가세요.” ※ 기념 방송 날 내가 읽을 거야! — 이 방송은 끝내 나가지 못했다."
+    },
+    "note_n9": {
+      "source_sha256": "99f3d2d84a91cffe797faa3f494e4a9d111d09bdce4685d792744bd009e5fc87",
+      "delivery": "normal",
+      "input": "체육 일지. 10월 12일, 기념 방송 리허설 날 밤. 무대 커튼 뒤에서 박수 소리. 관람석은 비어 있었다. 그날 이후 체육관 불은 켜지지 않는다. ※ 기록석 기구함 다이얼은 전광판의 마지막 경기 점수 로 맞춰 둠."
+    },
+    "note_n10": {
+      "source_sha256": "0062c02e37d67f62ed953aa6d3336cdd8817ddc635c024cf3905b6c4e5543b0c",
+      "delivery": "normal",
+      "input": "수영장 안전 일지. 물을 뺀 뒤에도 레인 쪽에서 물소리가 난다. 펌프실 문은 지하 B1로 이어진다. 그날 밤 펌프실 바닥은 물에 잠겨 있었다."
+    },
+    "note_n11": {
+      "source_sha256": "b60dc2afb5f31bae3f11b6b6251c363b731cc9ecd2103516f71be687ce3d7067",
+      "delivery": "normal",
+      "input": "보일러실 점검표. 지하 B1 점검 완료. 비상 통로는 폐쇄. 단, 정문 열쇠가 완성되면 비상 통로 자물쇠가 풀린다. 그 길은 정문 쪽 담장으로 이어진다."
+    },
+    "note_n12": {
+      "source_sha256": "7563b05b8139f7d2e0e0c6aaabc1663999523104e1120c6b2b04879c337fad20",
+      "delivery": "normal",
+      "input": "낡은 명부. 졸업생 명부. 3학년 2반 윤하늘 — 이름이 붉게 지워져 있다. 이름 옆에 적힌 말: “아직 집에 못 갔어요.”"
+    },
+    "note_n13": {
+      "source_sha256": "80cc3ee6b657d1e424f8b140f7d111e11d6a8fd0134cdff8cb64b611a0e2c4aa",
+      "delivery": "normal",
+      "input": "급식 일지. 오늘의 급식: 아무도 먹지 않았다. 식판은 매일 같은 자리에 놓여 있다. 한 명분이 모자란 채로."
+    },
+    "note_n14": {
+      "source_sha256": "710041b75fb45d05dc027dcd0d78d6637fc70c98b75e49ef65227047eda85d39",
+      "delivery": "normal",
+      "input": "방송부 회의록. 10월 12일 담력 체험 계획. 참가 4명. 장소: 지하 펌프실. 문 잠그는 사람: ___ …아무도 그 다음 줄을 쓰지 않았다."
+    },
+    "note_n15": {
+      "source_sha256": "4bd1cf1725b8a60190a674db86c04ce63f7acacc97afa6ae5bbe18bb6e98b007",
+      "delivery": "normal",
+      "input": "스마트교실 로그. 전자칠판이 혼자 켜진다. 화면에는 매번 같은 교실 사진. 칠판에는 “다시, 여기서.”"
+    },
+    "note_n16": {
+      "source_sha256": "8aa98405a1c890a56c44dfc9278624f903e2a41c285296e029052af64336a0cc",
+      "delivery": "normal",
+      "input": "가정 실습 노트. 실밥이 풀린 교복 한 벌이 의자에 걸려 있다. 이름표에는 “윤” 이라는 글자만 남아 있다."
+    },
+    "l_needCombine_j": {
+      "source_sha256": "7fb5fbffb51d4643d24e276ac8ae5224732517441b1d72068c53b7363d5478e9",
+      "delivery": "normal",
+      "input": "조각만으론 안 돼. 먼저 열쇠를 맞춰야 해."
+    },
+    "l_needCombine_s": {
+      "source_sha256": "cd9a1e2a9c86701f61a605c08e84c987b7135dc9cc20e10cbbee0193bc78057d",
+      "delivery": "normal",
+      "input": "조각만으로는 안 열려… 가방에서 맞춰 봐야 해."
+    },
+    "l_minaAsleep_j": {
+      "source_sha256": "35d255192f61242714441690f52fe64aab9a1d0b4543a826141ef0e37fc2e3b4",
+      "delivery": "fear",
+      "input": "[nervous] [cautiously] 숨은 쉬고 있어. 그런데 아무리 불러도…"
+    },
+    "l_minaAsleep_s": {
+      "source_sha256": "fa20e6d9d622b8da2648c45df675e2e18e80948f8968900dfae7c46bb74a6dd8",
+      "delivery": "fear",
+      "input": "[nervous] [cautiously] 숨은 쉬어… 그런데 깨어나질 않아."
+    },
+    "l_withMina_j": {
+      "source_sha256": "cb89d05d5441ca8660473c460fef45a2df156b3c1a6e000868da1b096a4e89f6",
+      "delivery": "resolve",
+      "input": "[confident] 같이 나가자, 민아야. 이번엔 다 같이."
+    },
+    "l_withMina_s": {
+      "source_sha256": "6d802042629a5da4223ec15091b3604cdf508c97c1230485f7164ddaed59c002",
+      "delivery": "resolve",
+      "input": "[confident] 같이 가요, 선배. 이번엔 다 같이 나가요."
+    },
+    "l_needPin_j": {
+      "source_sha256": "9022f0aa5391058c77ce3474c358160a5342ba76f41da3bfa90aa1bb9df39389",
+      "delivery": "fear",
+      "input": "[nervous] [cautiously] 잠겨 있다. 가는 철사나 핀이라도 있으면…"
+    },
+    "l_needPin_s": {
+      "source_sha256": "54b2a582a7f3472de4eb19903a314fd6081cf8ba879e750c05139da04b55c5ef",
+      "delivery": "fear",
+      "input": "[nervous] [cautiously] 잠겼어… 머리핀 같은 게 있으면 딸 수 있을 텐데."
+    },
+    "l_pinBroken_j": {
+      "source_sha256": "c5ba481f277236391233a0335d2f70a4042b207371d16d25c3aa5dc162abd61e",
+      "delivery": "surprise",
+      "input": "[surprised] 핀이 부러졌다. 침착하게."
+    },
+    "l_pinBroken_s": {
+      "source_sha256": "a88432da9943ac726b40e0bac38e4c153949cb267b45e50c78af64daed7cbfbe",
+      "delivery": "surprise",
+      "input": "[surprised] 아, 부러졌어…"
+    },
+    "l_unlocked_j": {
+      "source_sha256": "34394a3ba4657c2f5776d152dfe68837a2f0545ecb8357a9d21e62261b52fffe",
+      "delivery": "relief",
+      "input": "[exhales] [softly] 열렸다."
+    },
+    "l_unlocked_s": {
+      "source_sha256": "b76f6651d3462610ab687c7f2ad437d98b6da4c14dfe7cf06b6962eeba00b50b",
+      "delivery": "relief",
+      "input": "[exhales] [softly] 열렸다!"
+    },
+    "l_dialWrong_j": {
+      "source_sha256": "32690dc3ccc3cac1c4964e2bdf5c5158550279f32d7b6811423dd81f1c861968",
+      "delivery": "normal",
+      "input": "아니야. 다른 숫자다."
+    },
+    "l_dialWrong_s": {
+      "source_sha256": "7827dc20ab43bd802565445c1eabb05e255890ff282c971df5c1d0e8e55e89ed",
+      "delivery": "normal",
+      "input": "아니야… 다른 번호인가 봐."
+    },
+    "l_needHook_j": {
+      "source_sha256": "134a1f26afb95dbc9b45609cf057ec69f7670c822a7b355596e6cc55cd1c8dc7",
+      "delivery": "normal",
+      "input": "저 아래 뭔가 반짝인다. 손이 닿지 않아… 갈고리가 필요해."
+    },
+    "l_needHook_s": {
+      "source_sha256": "bcf8db3b810ccc4f075261a74f9612286cd9a65eff0f5ddb7c02d9203d6944b5",
+      "delivery": "normal",
+      "input": "배수구 안에 뭔가 있어… 손이 안 닿아. 갈고리를 만들어야 해."
+    },
+    "l_hookMade_j": {
+      "source_sha256": "080efc9a11ef29df7c9fe53bb7c5ec0ecb4b747ec3709dac75a476ac5101205c",
+      "delivery": "relief",
+      "input": "[exhales] [softly] 자루에 철사를 감았다. 이거면 걸 수 있겠다."
+    },
+    "l_hookMade_s": {
+      "source_sha256": "01698dfb4f3212dbb5395a268e34c74c3c292a6438c6d274c65c08e2797456ec",
+      "delivery": "relief",
+      "input": "[exhales] [softly] 자루에 철사를 묶었어. 이걸로 낚을 수 있을 거야."
+    },
+    "l_needFuse_j": {
+      "source_sha256": "40e3423db7571261347527f6140436fdfd90ef8fc979dfe53f3e7fb2e693ed4a",
+      "delivery": "normal",
+      "input": "퓨즈가 빠져 있다. 예비 퓨즈를 찾아야 해."
+    },
+    "l_needFuse_s": {
+      "source_sha256": "56c4a777d0762521eb8bbf3837f699a0f96b702a37a737805ae3fc9caac261d4",
+      "delivery": "normal",
+      "input": "퓨즈가 없어… 어딘가에 예비 퓨즈가 있을 거야."
+    },
+    "l_pianoOk_j": {
+      "source_sha256": "0d10bdc07f07adecc1436da2e9dc5a49b861498334bbd83f043f5667611e5f1f",
+      "delivery": "surprise",
+      "input": "[surprised] 피아노 아래에서 뭔가 떨어졌다."
+    },
+    "l_pianoOk_s": {
+      "source_sha256": "d1bd46d1155d8e7d308c3a75bd4270390ac822fc4f81a5225caac5f62e19d200",
+      "delivery": "surprise",
+      "input": "[surprised] 피아노 밑에서… 뭔가 떨어졌어."
+    },
+    "l_slideOk_j": {
+      "source_sha256": "01cffd099fed361430b2f309f1004828225fc9c49c1b0f0c899af7136a1ace8b",
+      "delivery": "surprise",
+      "input": "[surprised] 그림 뒤에 뭔가 붙어 있다."
+    },
+    "l_slideOk_s": {
+      "source_sha256": "d5fec20ccf8899b7675b3384244f36de243cc4fffffe52fe6fdd88ea916e170e",
+      "delivery": "surprise",
+      "input": "[surprised] 그림 뒤에… 사진이 붙어 있었어."
+    },
+    "l_breath_j": {
+      "source_sha256": "4ce28226bfe4976dea79f6accca49281dc6bf941d059097b93aed6fc590f35de",
+      "delivery": "whisper",
+      "input": "[whispers] …숨 참아."
+    },
+    "l_breath_s": {
+      "source_sha256": "103872f7c8d960a0076f728d563d143f8559f8ea6d8869649fdbdb46b4db667b",
+      "delivery": "whisper",
+      "input": "[whispers] …숨 참아, 제발."
+    },
+    "l_repel_j": {
+      "source_sha256": "739a9c958311d1fe391394e5e57ac718e7a68d5774ddd1cc85f602f05e6c34fc",
+      "delivery": "urgent",
+      "input": "[urgent] [breathless] 빛을 싫어해. 물러났다!"
+    },
+    "l_repel_s": {
+      "source_sha256": "7e6b9caf34625ae1de0945ecf884bbe5e93fc9b129c9a647bf7c5240c59ed421",
+      "delivery": "urgent",
+      "input": "[urgent] [breathless] 빛을 피했어…! 지금이야!"
+    },
+    "note_n17": {
+      "source_sha256": "ce50561f16c6f1cb4de2c0a0ad00950e754d6efd98499db880714813e86f88a4",
+      "delivery": "normal",
+      "input": "과학실 칠판 메모. 약품장 자물쇠 번호 바꿈 — 원주율 앞 세 자리 . 잊어버리는 사람은 수학 선생님께 혼남. — 과학부"
+    },
+    "note_n18": {
+      "source_sha256": "0f5faaf326368545c4a652b7548c8b6878c6336e3899bfe27cb3faa0da2a5258",
+      "delivery": "normal",
+      "input": "빛바랜 악보. [하교 음악 — 학교종] 솔 솔 라 라 솔 솔 미 “기념 방송 날, 피아노 반주는 내가!” — 3-2 하늘"
+    },
+    "note_n19": {
+      "source_sha256": "7d6c69ec201ac9981b5c21cf2874ca88c1c97817d2c250810420aac67e992a9c",
+      "delivery": "normal",
+      "input": "도서실 대출 데스크 메모. 반납 안 된 열쇠는 데스크 서랍 에 넣고 잠갔음. 서랍 열쇠는 분실. 급하면 머리핀으로라도… 보건실 침대 쪽에 누가 핀을 떨어뜨리고 다님."
+    },
+    "note_n20": {
+      "source_sha256": "dba44db980481d8caef3e4182497570921026f2809087df4ace63c956ac664b8",
+      "delivery": "normal",
+      "input": "수영장 관리 메모. 배수구 철망 아래로 열쇠 가 빠졌다. 손이 닿지 않는다. 긴 자루에 철사를 감아 갈고리를 만들면 꺼낼 수 있을 듯. 자루는 지하 청소도구실, 철사는 별관 기술·가정실에."
+    },
+    "note_n21": {
+      "source_sha256": "7fc05d931afdbcc28ea8bd825f12df6170347c1c2da8194e89765c95fb564c7d",
+      "delivery": "normal",
+      "input": "학교 행사 안내문. [가정통신문] 10월 12일(목) 방송부 창립 30주년 기념 특별 하교 방송 . 방송부원은 밤 10시까지 방송실에서 리허설을 진행합니다. — 서문고등학교장"
+    },
+    "note_n22": {
+      "source_sha256": "1f84eb35c59cb2314a57af478cf1689d051264d7aec4947de08625a9e7fb9f5f",
+      "delivery": "normal",
+      "input": "봉인 서약서. 우리 다섯은 10월 12일 밤의 일을 각자의 자리에 묻는다. 교무부장 · 보건교사 · 사서 · 과학부장 · 체육부장. 열쇠 한 조각씩. 다섯 조각이 다시 모이는 날, 그날 밤도 다시 열린다. (아래에 다섯 개의 서명 — 하나는 번져 있다)"
+    },
+    "note_n23": {
+      "source_sha256": "ae03068323e8481d18db509be7867e877e1f67c5b593e475e8982bcc631624f4",
+      "delivery": "normal",
+      "input": "방송부원 진술서. “우리는 10분 만에 돌아왔어요. 그런데 펌프실 문은 이미 열려 있었고 , 하늘이는 없었어요. 그래서 먼저 집에 간 줄 알았어요.” — 방송부 2학년 (진술 일시: 10.13)"
+    },
+    "note_n24": {
+      "source_sha256": "b6abe0734941f2fc5c676b3f2b1783361faa52c37e411aab637cf3c7eda208ac",
+      "delivery": "normal",
+      "input": "경비 일지. 10.12 23:30 순찰. 지하 펌프실 문이 밖에서 잠겨 있음 . 안에서 노랫소리 같은 것이 들림. 열쇠를 찾으러 교무실에 갔더니 교무부장이 “내가 처리한다”며 가져감. ※ 이 일지는 다음 날 회수됨"
+    },
+    "note_n25": {
+      "source_sha256": "ffc706d3219c7337ba3e8aed208292b70f86cc2a78bf22f8b65465c1ab8da674",
+      "delivery": "normal",
+      "input": "사서의 메모. 하늘이가 그날 밤 『집으로 가는 길』을 빌려 갔다는 대출 기록은 내가 나중에 적었다 . 시키는 대로. 집에 가는 길에 사라진 걸로 보이게. …미안해."
+    },
+    "note_n26": {
+      "source_sha256": "9c2038cdf7d5d0e070d028d4c9a68607601f00ce84358ff07b6a8ac04bcb5022",
+      "delivery": "normal",
+      "input": "대출 카드 (오늘). 『집으로 가는 길』 — 반납일: 10월 12일 (오늘) . 반납 도장이 아직 젖어 있다. 대출자 이름 칸: 윤하늘."
+    },
+    "guard1": {
+      "source_sha256": "5f57be1b820b9f4bf93aee5c4298cd5a2b7137c01dc002b7d763ef9087c540a2",
+      "delivery": "sad",
+      "input": "[concerned] 거기 학생. 이 시간에 들어가믄 안 되여. [pause] [sad] …올해도, 결국 오는구먼."
+    },
+    "tape5": {
+      "source_sha256": "75df8d1f75c348a8f46e7e9f20da8e3c45a9c9559f9437c1104636aca85df291",
+      "delivery": "sad",
+      "input": "[sad] [softly] 교무부장, 마지막 녹음. 펌프실 열쇠는 그날 밤 내 주머니에 있었다. 문을 열었더라면, 그 아이는 방송을 했을 것이다. 나는 학교를 지킨다고 믿었다. 그날 밤의 사진을 전부 이 방에 묻는다. 누군가 이걸 듣는다면, 그 아이의 이름을 불러 주길."
+    },
+    "echo1": {
+      "source_sha256": "79fd66cbcbb9e78385e0d9981f09adeda14a740089810ce449b9b317fee19b36",
+      "delivery": "normal",
+      "input": "하늘아, 리허설 끝나면 떡볶이 먹으러 가자. 우리가 맨 앞에서 들을게."
+    },
+    "echo2": {
+      "source_sha256": "262f4726df1b3a367e1ece92c58d572e4410f3788ff36015d826d80885f92f5e",
+      "delivery": "normal",
+      "input": "내일 방송, 꼭 네 목소리로 해. 약속."
+    },
+    "teacher2": {
+      "source_sha256": "6f35e23d3a111bd788b1b602570ad7a6743d11725ca50fa0ecf9ef8a186bd520",
+      "delivery": "sad",
+      "input": "[sad] [softly] 출석부에 윤하늘, 결석이라고 적으라더군. 나는 끝까지 쓰지 않았다. 그 아이는 결석한 적이 없으니까."
+    },
+    "note_n27": {
+      "source_sha256": "7fd7abcfc6a4e29a9721a35857ff44db931ea58a6df3bde2cc7e990e863e5ea3",
+      "delivery": "normal",
+      "input": "담임 수첩 (3학년 2반). 10월 13일. 조회 시간, 하늘이 자리가 비어 있다. 교감은 출석부에 “결석” 이라 적으라 했다. 나는 끝까지 쓰지 않았다. 그 아이는 3년 동안 한 번도 결석한 적이 없다. 펌프실 이야기를 꺼냈더니, 다음 주에 전근 발령이 났다. — 담임 정은수"
+    },
+    "note_n28": {
+      "source_sha256": "a87c2a8f9d4d01a09387ec925e69513d58a4d8acc4d3edfc6b32691c80cb138d",
+      "delivery": "normal",
+      "input": "교환일기. [수아] 하늘아, 리허설 끝나면 떡볶이! 우리가 맨 앞에서 들을게 ♡ [다은] 내일 방송 꼭 네 목소리로 해. 약속. …마지막 장, 다른 글씨: “하늘이 없이 졸업했다. 기념 방송은 셋이 하기로 했는데.”"
+    },
+    "note_n29": {
+      "source_sha256": "dba8a703dcbad39ff0860a93082b44b050bb409939a793ae1abfdf20ac828133",
+      "delivery": "normal",
+      "input": "첫 번째 메모. 「3층 방송실, 밤 10시. 리허설 시작 — 늦으면 하교 방송 못 해!」 하늘의 동글동글한 글씨. 뒷면에 다른 사람의 글씨가 덧붙어 있다: 「10시 반, 지하 펌프실. 담력 체험 ㅋㅋ」"
+    },
+    "note_nC": {
+      "source_sha256": "ff0b2e8c7580677f36d53c75e618bc7bfa4f94f3057bc0434f1c1108d52d25da",
+      "delivery": "normal",
+      "input": "개인 기록."
+    },
+    "guardHi": {
+      "source_sha256": "47110de40bb3c3231a0561d577f916dbb61d9d3fd965c30ee9acdd291cc702ea",
+      "delivery": "resolve",
+      "input": "[confident] 해 지기 전에 돌아가유. 오늘이 무슨 날인지 알고 온겨?"
+    },
+    "guardMina": {
+      "source_sha256": "9f2fbc279d610a03261897a456fd4d4d742dfaedf2c5f1f95ecb9b482b37d729",
+      "delivery": "normal",
+      "input": "방송부 조끼 입은 여학생? 아까 들어갔지. 불렀는디 뒤도 안 돌아보더라고."
+    },
+    "guardPast": {
+      "source_sha256": "e98be5f6ae7b6e172f90352ece691e0cda4e4da8dc439e83ba664b86c45ab3d5",
+      "delivery": "sad",
+      "input": "[sad] [softly] 십 년 전 오늘, 한 아이가 지하에서 못 나왔어. 그 뒤로 해마다 이날 밤이믄, 꺼진 스피커가 울려유."
+    },
+    "guardGift": {
+      "source_sha256": "fb217845a49a815859c87274dc9d2247c1c50ebc3e0cbff50c97d57cb1b92538",
+      "delivery": "resolve",
+      "input": "[confident] 가져가유. 건전지 두 개. 그리구 열한 시 사십 분 되기 전엔 꼭 나와야 혀."
+    },
+    "guardBye": {
+      "source_sha256": "708f6f751c4f58291fed624ff462c064eda28719d03e7844b9ea280ae94e2324",
+      "delivery": "fear",
+      "input": "[nervous] [cautiously] …조심혀. 이상한 소리가 나도, 대답허지 말어."
+    },
+    "phone0": {
+      "source_sha256": "e2595e3397361815ca04af965727d81028058fea528d52589123f8efc9c77966",
+      "delivery": "whisper",
+      "input": "[whispers] ……정문 앞이야? 경비실 창문 봐. 불, 켜져 있지. 거기 아무도 없어. 들어오면… 뒤돌아보지 마."
+    },
+    "note_q1b": {
+      "source_sha256": "830f5a7280b40be5eb5b2b215d31e2033fdef132d296d4f6224f916afd1d108d",
+      "delivery": "normal",
+      "input": "고쳐 쓴 출석부. 10월 13일 3학년 2반 — 윤하늘: 출석 . 10년 동안 비어 있던 칸에 처음으로 글씨가 들어갔다. 교무실 어딘가에서 아주 작은 목소리가 대답했다. “네!”"
+    },
+    "note_q1a": {
+      "source_sha256": "5eaaad84aff37075a5ab53d9fdc52ff2d2cd674276de6ca1427d7e3f51bf3ad7",
+      "delivery": "normal",
+      "input": "개근 스티커판 (1-1). 「윤하늘 — 3년 개근에 도전!」 칸마다 별 스티커가 빼곡하다. 마지막 칸 10월 13일 만 비어 있다. 귀퉁이에 연필로: 「내일도 1등으로 와야지」"
+    },
+    "note_q3b": {
+      "source_sha256": "20486e554d01fd82b2064ee669e6f71948a2a4b11c12fe2290d5ea7709afbf5c",
+      "delivery": "normal",
+      "input": "물길 앞에서. 조각을 쥐고 배수구 앞에 잠시 서 있었다. 물소리가 멎었다. 젖은 타일 위로, 아주 작은 발자국 하나가 펌프실 쪽으로 이어졌다가 사라졌다."
+    },
+    "note_q2b": {
+      "source_sha256": "8dd708e0d5f7f0cfd006c067651e9f5bac45e9006c0eb3093854a0187f543ac6",
+      "delivery": "normal",
+      "input": "세 사람의 방송. 반주가 끝나고, 아무도 없는 방송실 스피커에서 세 사람의 목소리가 겹쳐 들렸다. “…모두, 수고 많았습니다. 집으로 돌아가세요.” 10년 만에, 처음으로 끝까지 나간 방송."
+    },
+    "note_q2a": {
+      "source_sha256": "ef4f48e2de57ea44d09c5adf38899d93c87f9e79701c765716aba89e0e66fe91",
+      "delivery": "normal",
+      "input": "교환일기 마지막 장. [하늘] 기념 방송 끝 곡은 학교종 ! 수아가 1절, 다은이가 2절, 나는 마지막에 하교 인사. [수아] 반주 테이프는 음악실 카세트 서랍에 넣어 놨어 ♪ [다은] 리허설 끝나면 진짜로 떡볶이다?"
+    },
+    "note_q3a": {
+      "source_sha256": "4e467150bd5e9606cdb687c5c32fa80265e270224c404cf18b855e03667c45c6",
+      "delivery": "normal",
+      "input": "보건교사 임소연의 편지. 봉인 서약서에 서명한 날, 나는 내 몫의 열쇠 조각을 지키지 못했다. 그날 밤 펌프실로 달려갔을 땐 이미 물이 차 있었다. 나는 아무것도 하지 못했다. 그래서 조각을 수영장 배수구 에 던졌다. 펌프실로 이어진 그 물길이 그 아이에게 데려다주기를. — 정문 열쇠의 다섯 번째 조각이 왜 물속에 있는지, 이제 안다."
+    },
+    "note_q4b": {
+      "source_sha256": "008e421239624dbf377c05d73c1615971c49a0741ee1161e5f69a428ece21d83",
+      "delivery": "normal",
+      "input": "봉인된 진술서 4장. [세진 · 유리 · 동민] “문은 준호 선배가 잠갔어요. 10분 뒤에 가 보니 문이 열려 있었어요.” [준호] “잠근 건 저예요. 그런데 열쇠는 바로 교무부장님께 드렸어요 . ‘버릇 좀 고쳐 주마, 이따 내가 꺼내마’ 하셔서.” — 진술서 위에 붉은 도장: 외부 유출 금지"
+    },
+    "note_q4a": {
+      "source_sha256": "6c76e7f9a2b911f2a37eadd7c4f9fc36c9d88736164aa24aca6c10a6a1181517",
+      "delivery": "normal",
+      "input": "방송부 담력 체험 명단. 10.12 담력 체험 — 3학년 이준호 (부장) · 2학년 박세진 · 최유리 · 1학년 한동민 . 장소: 지하 펌프실. 대상: 윤하늘 (기념 방송 진행자 — “긴장 풀어 주기”) 문 잠그는 사람: ___ (빈칸)"
+    },
+    "note_q4c": {
+      "source_sha256": "a4f94c985a3ca8bb8b49403a46e6b9dab9e4fcea4b2177a9ac77781d5898a871",
+      "delivery": "normal",
+      "input": "두 개의 문. 큐시트 뒷면의 펌프실 도면 — 펌프실 문은 두 개 다. 아이들이 10분 뒤 확인한 건 수영장 쪽 점검문 (늘 열려 있다). 하늘이 갇힌 건 B1 복도 쪽 철문 , 그 열쇠는 교무부장의 주머니에 있었다. “문은 열려 있었다”와 “밖에서 잠겨 있었다” — 둘 다 사실이었다."
+    },
+    "note_q5a": {
+      "source_sha256": "019db8bf80ce81e38e81e1cbcf551774224914e323f9bc92519e609d18005618",
+      "delivery": "normal",
+      "input": "부치지 못한 편지 (3-2). 하늘이 어머님께. 학교는 하늘이가 그날 밤 집에 가다 사라졌다고 말할 것입니다. 사실이 아닙니다. 하늘이는 3년 동안 단 하루도 결석하지 않았고, 그날 밤에도 학교에 있었습니다. 저는 이 편지를 부칠 용기가 아직 없습니다. — 3학년 2반 담임 정은수"
+    },
+    "note_q5b": {
+      "source_sha256": "b79cde0cc85d0f1f2ef860615bdbe968ce86023189e2f7edbf8f148b64908f30",
+      "delivery": "normal",
+      "input": "우표 한 장. 교사 휴게실 우편함에 정은수 선생님 앞으로 온 반송 우편. 주소가 적힌 봉투와 쓰지 않은 우표 한 장. 받는 사람: 윤하늘 어머님 — 주소는 10년 전 그대로다."
+    },
+    "note_q6b": {
+      "source_sha256": "cb214c649366f693c5f5471d4e92b093fdd534f62e2b33f98051e63d89e8a621",
+      "delivery": "normal",
+      "input": "셋, 그리고 한 명. 방송실 앞에서 찍은 사진. 하늘 · 수아 · 다은이 마이크를 들고 웃는다. 그 옆에 다은의 손을 잡은 꼬마 — 뒷면: 「동생 민아 , 처음으로 방송실 구경 온 날」"
+    },
+    "note_q5c": {
+      "source_sha256": "53a5617e0bd5cc01031e4e953626f53e6596d2cd730d47c980f68bb95e7274fc",
+      "delivery": "normal",
+      "input": "10년 늦은 편지. 정문 경비실 우편함에 편지를 넣었다. 소인 날짜 칸에 누군가 미리 적어 둔 날짜: 10월 13일 . …그날 아침 부쳐졌어야 할 편지였다."
+    },
+    "note_q6c": {
+      "source_sha256": "631fa319eb6a203d12c41a28e4c997ce527734a828e1c59a9265a90ba2f18255",
+      "delivery": "normal",
+      "input": "민아의 녹음 — 언니에게. “언니. 하늘 언니 방송, 내가 끝까지 들었어. 이번엔 아무도 혼자 두지 않았어. …이제 라디오 꺼도 돼.”"
+    },
+    "note_q7b": {
+      "source_sha256": "54c6df499de62b3c4650cc6f229252f0c77127df9eb175c1318c47b0811864bd",
+      "delivery": "normal",
+      "input": "10년 늦은 불빛. 배터리팩을 끼우자 펌프실 비상등이 깜빡이다 켜졌다. 그날 밤 이 불이 켜져 있었다면, 하늘은 어둠 속에서 혼자가 아니었을 것이다."
+    },
+    "note_q7a": {
+      "source_sha256": "2509f21aa4a388a02e8e6f981ea147facd1e9dca89948d7973113e37e849d9c6",
+      "delivery": "normal",
+      "input": "과학부장의 점검 메모. 펌프실 비상등 배터리 교체 요청 — 3회째. 교무부장 회신: “예산 없음, 다음 학기” . 예비 배터리팩은 과학실 공구함에 둔다. 누구든 먼저 가는 사람이 갈아 끼울 것. …그날 밤, 아무도 가지 않았다."
+    },
+    "note_h2": {
+      "source_sha256": "f4d1996c8fb5d7a66b72a3735b4bee2289d3ad918d0c491cde659759e6ae3138",
+      "delivery": "normal",
+      "input": "별관 머릿돌. 서문고등학교 1974년 3월 2일 개교 「배움은 집으로 가는 길을 밝힌다」 동판 아래 누군가 못으로 긁어 놓았다: “집에 못 간 애도 있어요”"
+    },
+    "note_q6a": {
+      "source_sha256": "825bfc8579e4ec87e8352de7ae9bb9c9f27492b7debef7f90ad06736e1386325",
+      "delivery": "normal",
+      "input": "민아의 임시저장 글. [비공개] 언니는 10년째 10월 12일 밤이면 라디오를 켜 둔 채 잠든다. 하늘 언니의 방송을 기다린다고. 언니( 서다은 )는 그날 밤 리허설이 끝나고 떡볶이집에서 하늘 언니를 한 시간이나 기다렸다고 했다. 그래서 내가 간다. 그 학교에. 언니 대신."
+    },
+    "note_q8a": {
+      "source_sha256": "f5547217e50bd5150d52bfa9f054334a8d6c6a787af16aaa85f47d715e5d641e",
+      "delivery": "normal",
+      "input": "『집으로 가는 길』. 도서실 바코드가 붙은 낡은 소설책. 마지막 장 여백에 동글동글한 글씨: 「엄마, 오늘 방송 꼭 들어. 끝나면 바로 집에 갈게 . — 하늘」 반납 기한: 10월 12일."
+    },
+    "note_h1": {
+      "source_sha256": "fe47b03117e83b4ac4a66a1070a438b2b18bbdc798a27d105ee89a002c9dd336",
+      "delivery": "normal",
+      "input": "교장 수첩 — 10월 13일 새벽. 다섯이 조각을 나누기로 했다. 나는 그 자리에 없었던 사람 으로 남는다. 다만 열쇠의 머리 는 내가 갖는다 — 다섯이 다 모여도, 머리 없이는 문이 돌아가지 않도록. 머리는 별관 3층 전시 공간 의 개교 기념 진열장에 둔다. 이름표는 “개교 기념 열쇠”. 아무도 진열품을 의심하지 않는다. 진열장 잠금 번호는 이 학교가 태어난 날 . 별관 전원은 폐쇄와 함께 공구실 분전반에서 내린다."
+    },
+    "note_h3": {
+      "source_sha256": "4b115d067de63c2b96e62d446e018fd80acf88dd3ed3a4427dd051e37ffc907a",
+      "delivery": "normal",
+      "input": "별관 분전반 점검표. 별관은 본관과 다른 계통 . 10.12 23:20 본관 정전 때도 별관 조명은 정상. 10.13 06:10 별관 전원 차단 — 지시: 교장 · 사유: 별관 폐쇄. 비고: 3층 전시 공간 진열장(전자식)은 전원이 있어야 열림."
+    },
+    "note_h4": {
+      "source_sha256": "dcb12c551e4d3600efc48400caae969c17f75aa3e12cd77a1f8dab70213f1a22",
+      "delivery": "normal",
+      "input": "보안 PC — 전시 공간 CCTV 기록. 10.12 23:31 전시 공간 — 교장, 개교 기념 전시 준비. 23:33 창가로 가서 불이 꺼진 본관 쪽을 오래 바라봄. 23:34 통화 (음성 기록 일부): “…펌프실 열쇠는 자네가 갖고 있게. 내일 아침에 얘기하지.” 23:40 다시 진열장 정리. 23:52 퇴근."
+    },
+    "call_mina1": {
+      "source_sha256": "823494c3487a212e58d18191d35cf403c8edf2b307b51947f40651ae93272271",
+      "delivery": "fear",
+      "input": "[nervous] [cautiously] ……여보세요? 들려? ……나야, 민아. 학교 안이야. 계속 누가 복도에서 걸어 다녀. 3층은…… 3층은 가지 마."
+    },
+    "note_q8b": {
+      "source_sha256": "d6652fd0de3e86a9e05b37dbc5b69053da6cd6d92c83e205df85ca6eba6b3283",
+      "delivery": "normal",
+      "input": "반납 완료. 반납함에 책을 넣자 도서실 형광등이 하나씩 켜졌다가 꺼졌다. 대출 카드의 반납 도장 칸이 마침내 채워졌다. 그리고 아주 작게: “다녀왔습니다.”"
+    },
+    "call_unk1": {
+      "source_sha256": "cb295aef696c852cc4da16aa6e27b2141275751a6b0cad96b47ff351f0ee31d9",
+      "delivery": "sad",
+      "input": "[sad] [softly] ……하아…… 하아…… 왜…… 나만 두고 갔어……"
+    },
+    "call_mina2": {
+      "source_sha256": "e806e9404446398f77ef7f43ddc529f840de79a24d4ddf24d5c05184bec9100f",
+      "delivery": "urgent",
+      "input": "[urgent] [breathless] ……지지직…… 거기 있어? 별관 쪽 불이 켜졌어. 누가 켰어? ……끊지 마, 제발…… 끊지……"
+    },
+    "call_unk2": {
+      "source_sha256": "56845988341db4badf1b39ea94d1b47d4d9f8e2bc87058b4f63d7044f10394a6",
+      "delivery": "whisper",
+      "input": "[whispers] ……지금 네 뒤에 있는 의자…… 거기가 내 자리야……"
+    },
+    "call_home": {
+      "source_sha256": "b752e30d589be876266721751325908e203c3bcc5c645fb125471991d49f69c8",
+      "delivery": "urgent",
+      "input": "[urgent] [breathless] 여보세요? 얘, 너 어디야! 왜 이렇게 안 들려…… 학교? 거기 꼼짝 말고 있어, 지금 바로 갈게!"
+    },
+    "call_guard": {
+      "source_sha256": "e71693a68207757b45b1d46a1901c9945a359777d527066800a5cbe126be88dd",
+      "delivery": "fear",
+      "input": "[nervous] [cautiously] 여기 경비실이여. 학생, 아직 안에 있는겨? ……지지직…… 그 건물서 혼자 댕기지 말어. 밤엔 그 애가…… 지지직……"
+    },
+    "sg_sg_class": {
+      "source_sha256": "744c05a352b9654c68f20340be0ff09ac301b3037f57f054c2797f1dac562410",
+      "delivery": "whisper",
+      "input": "[whispers] 다들... 여기 있어... 내 자리 지우지 마..."
+    },
+    "note_h5": {
+      "source_sha256": "100c4e8664eef5ff65087fa7016c07b6b59c7e126ca49cafb969b55eb4311b0b",
+      "delivery": "normal",
+      "input": "진열장 속 쪽지. 「개교 기념 열쇠 — 기증: 제9대 교장」 이름표 뒤에 접힌 쪽지. “이 문을 다시 여는 사람에게. 그날 밤 나는 불 켜진 곳 에 있었다. 내려가지 않았다. 다섯 조각은 그들의 몫이고, 이 머리는 내 몫이다. 무거워서 아무 데도 두지 못했다.”"
+    },
+    "sg_sg_corr": {
+      "source_sha256": "f824feb42b38455eb39e0a9522f64ff725220ea0f1616a56eacf7de02062a80e",
+      "delivery": "whisper",
+      "input": "[whispers] 집에 갈 시간이 지났는데..."
+    },
+    "sg_sg_toilet": {
+      "source_sha256": "fed3c69591de3c608839418d2756417ac4fb7c4ee412d2d63dda771f539ef980",
+      "delivery": "whisper",
+      "input": "[whispers] 거울 속에... 내가 안 보여..."
+    },
+    "sg_sg_stairs": {
+      "source_sha256": "fc6fd9a1beff7fa6bbfb8c9451f105706efb355fc338ae65d122bb4e78f92f13",
+      "delivery": "whisper",
+      "input": "[whispers] 위층엔... 아무도 없어..."
+    },
+    "call_fail": {
+      "source_sha256": "f3e2962ff108f0fdaddb020eeaa5b275db5e31f4bfd5540da5cb24bad573b882",
+      "delivery": "normal",
+      "input": "지금 거신 전화는 연결할 수 없습니다. 잠시 후 다시 걸어 주십시오."
+    },
+    "sg_sg_art": {
+      "source_sha256": "8c616f75b4840d5ea965338da83a0a0c2cf9025324fb0bd0a9eec8d563fa046a",
+      "delivery": "whisper",
+      "input": "[whispers] 빨간색이... 아직 부족해..."
+    },
+    "sg_sg_gym": {
+      "source_sha256": "e124de4bf7350dff401f2349ffa6a7b1df5e29dbb33f94259c9a06ae940a0d58",
+      "delivery": "whisper",
+      "input": "[whispers] 체육 시간... 끝났어...?"
+    },
+    "sg_sg_music": {
+      "source_sha256": "2816859b178628d768bccd3cc9be904ec6ad2eedb1047a42055a9165c7f35b7d",
+      "delivery": "whisper",
+      "input": "[whispers] 피아노... 같이 칠래...?"
+    },
+    "call_119": {
+      "source_sha256": "ae13f92f46ef07bf575f93b85c9d208e10a76da7258b6ac83599525067852ea2",
+      "delivery": "resolve",
+      "input": "[confident] 119 상황실입니다. 신호가 약합니다. ……학교 안이라고요? 위치 확인했습니다. 구조대가 정문으로 가겠습니다. 정문 쪽으로 이동하세요."
+    },
+    "sg_sg_roof": {
+      "source_sha256": "81c9b91ef250fcb33509e4836e3aab6afe0b20af64cf4833c9ff30ec6cb54097",
+      "delivery": "whisper",
+      "input": "[whispers] 아래에서... 누가 내 이름을 불렀어..."
+    },
+    "sg_sg_pool": {
+      "source_sha256": "8886d507617801d5216aa072c31fca96c7df66d215d35f8c1b1e9eef0f80ed1b",
+      "delivery": "whisper",
+      "input": "[whispers] 물이... 아직도 차가워..."
+    },
+    "mtape_4": {
+      "source_sha256": "195bd2ca6827f477e76fc20a3b096709fd43f63767bf3f34b4af34c9499f2cd4",
+      "delivery": "urgent",
+      "input": "[urgent] [breathless] 누구라도 이 테이프를 듣는다면 옥상 안테나로 올라가세요. 학교 안에서는 전파가 전부 차단되어 있어요... 제발..."
+    },
+    "mtape_2": {
+      "source_sha256": "9e9bc9a8266e390a966b904d55baf23279c4c45870bf4f01ca44c628cfb1830e",
+      "delivery": "resolve",
+      "input": "[confident] 23시 40분... 시계 바늘이 멈췄다. 본관과 별관 연결통로 방화문을 잠가라. 그것은 빛과 큰 공명음을 싫어한다."
+    },
+    "mtape_6": {
+      "source_sha256": "6675ce3d4ef72a0ec3a948e08caa6bc8db5727257bd03c37a11b5dd7eb41cd0b",
+      "delivery": "surprise",
+      "input": "[surprised] 어...? 이건 내 목소리잖아? 내가 이미 이 학교에 왔었다고...? 명찰 12개를 모두 모아야만 이 밤이 끝나..."
+    },
+    "mtape_3": {
+      "source_sha256": "0e13054827dd166f136f5dfe1f26f05730ec72c640e73113e330ed17298aa304",
+      "delivery": "normal",
+      "input": "지하 수영장 아래 수맥에서 검출된 파장이 사람들의 공포를 먹고 자란다. 주파수 98.4MHz에서 그것의 위치가 드러난다."
+    },
+    "mtape_1": {
+      "source_sha256": "bf2fd8701127cdcec7b6d546073bed1bda05d8b6dc62954b40e0754ee743ae6b",
+      "delivery": "fear",
+      "input": "[nervous] [cautiously] 아이들이 하나둘씩 밤만 되면 눈이 풀린 채 지하 보일러실 쪽으로 걸어 내려갑니다... 교장 선생님은 단순한 집단 스트레스라고만 하시는데..."
+    },
+    "mtape_5": {
+      "source_sha256": "e1a02688878cccbb9616e4669cbe93d6f0591f07f01dc7e89f41cc150453a018",
+      "delivery": "normal",
+      "input": "교장실 괘종시계를 자정에 맞추면 서고로 통하는 금고가 열린다. 열쇠 조각 5개 없이는 정문 자물쇠를 절대 열 수 없을 것이다."
+    }
+  }
+}

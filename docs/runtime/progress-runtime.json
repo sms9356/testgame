@@ -1,0 +1,16 @@
+{
+  "tested_commit": "635f8ad2966705b45476ecee62ca28011d3aaf62",
+  "passed": 93,
+  "failed": 0,
+  "in_session_save_restore_checkpoints": 23,
+  "routes": [
+    "jihun NORMAL / final C",
+    "seoyeon NORMAL / final C",
+    "seoyeon TRUE / final B"
+  ],
+  "uses_debug_teleport_and_minigame_success": true,
+  "real_reload_continue": "separate ui-runtime.json",
+  "page_exception_assertions_passed": true,
+  "frame_error_assertions_passed": true,
+  "console_texture_warnings_during_navigation": 163
+}

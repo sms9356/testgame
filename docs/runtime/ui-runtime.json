@@ -1,0 +1,129 @@
+{
+  "checks": [
+    {
+      "name": "더빙 끄기 설정 저장",
+      "pass": true
+    },
+    {
+      "name": "더빙 켜기 설정 저장",
+      "pass": true
+    },
+    {
+      "name": "파일 더빙 선택 저장",
+      "pass": true
+    },
+    {
+      "name": "메뉴 클릭→캐릭터 결정→인트로 건너뛰기→플레이",
+      "pass": true
+    },
+    {
+      "name": "W 키 실제 이동",
+      "pass": true
+    },
+    {
+      "name": "F 키 손전등 전환",
+      "pass": true
+    },
+    {
+      "name": "Tab 소지품 열기",
+      "pass": true
+    },
+    {
+      "name": "Tab 소지품 닫기",
+      "pass": true
+    },
+    {
+      "name": "M 지도 열기",
+      "pass": true
+    },
+    {
+      "name": "F5 실제 저장",
+      "pass": true
+    },
+    {
+      "name": "새로고침 후 이어하기 좌표 복원",
+      "pass": true
+    },
+    {
+      "name": "pageerror/frame 오류 없음",
+      "pass": true
+    }
+  ],
+  "errors": [],
+  "consoleErrors": [
+    {
+      "text": "Failed to load resource: net::ERR_TUNNEL_CONNECTION_FAILED",
+      "location": {
+        "url": "https://fonts.googleapis.com/css2?family=East+Sea+Dokdo&family=Noto+Sans+KR:wght@300;400;500;700&family=Noto+Serif+KR:wght@400;700&display=swap",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "text": "Failed to load resource: net::ERR_TUNNEL_CONNECTION_FAILED",
+      "location": {
+        "url": "https://fonts.googleapis.com/css2?family=East+Sea+Dokdo&family=Noto+Sans+KR:wght@300;400;500;700&family=Noto+Serif+KR:wght@400;700&display=swap",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    }
+  ],
+  "failedRequests": [
+    {
+      "url": "https://fonts.googleapis.com/css2?family=East+Sea+Dokdo&family=Noto+Sans+KR:wght@300;400;500;700&family=Noto+Serif+KR:wght@400;700&display=swap",
+      "error": "net::ERR_TUNNEL_CONNECTION_FAILED"
+    },
+    {
+      "url": "http://127.0.0.1:8767/assets/img/sub_ghost_sheet.webp",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "url": "https://fonts.googleapis.com/css2?family=East+Sea+Dokdo&family=Noto+Sans+KR:wght@300;400;500;700&family=Noto+Serif+KR:wght@400;700&display=swap",
+      "error": "net::ERR_TUNNEL_CONNECTION_FAILED"
+    },
+    {
+      "url": "http://127.0.0.1:8767/assets/img/sub_ghost_sheet.webp",
+      "error": "net::ERR_ABORTED"
+    }
+  ],
+  "load": {
+    "textures": 629,
+    "build": 4461,
+    "warmup": 68449
+  },
+  "browserEngineDisabled": true,
+  "movement": {
+    "before": {
+      "x": 0,
+      "z": 77.5
+    },
+    "after": {
+      "x": 0,
+      "z": 77.3152
+    }
+  },
+  "saved": {
+    "x": 0,
+    "z": 77.3152,
+    "yaw": 0,
+    "floor": 0,
+    "hp": 100,
+    "battery": 99.97812099999999,
+    "stamina": 100,
+    "keys": 0,
+    "light": false,
+    "pbat": 100,
+    "roofSeen": false,
+    "b1Seen": false,
+    "gymSeen": false,
+    "cafeSeen": false,
+    "poolSeen": false,
+    "bcast": false
+  },
+  "restored": {
+    "x": 0,
+    "z": 77.3152,
+    "floor": 0
+  },
+  "frameErrors": 0
+}

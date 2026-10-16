@@ -1,0 +1,17 @@
+{
+  "decoded": 221,
+  "failures": [],
+  "minRms": 0.035568254020484524,
+  "stopTransitions": [
+    0.4,
+    1
+  ],
+  "endedTransitions": [
+    0.4,
+    1
+  ],
+  "mutedTransitions": [],
+  "offDuration": 5.878,
+  "subtitle": "하늘고마워. 이제, 집에 갈게.",
+  "browserVoices": 0
+}

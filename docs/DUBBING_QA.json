@@ -1,0 +1,54 @@
+{
+  "generated_lines": 221,
+  "failed": 0,
+  "mp3_decode_pass": 221,
+  "manifest_duration_match": 221,
+  "original_text_and_speaker_unchanged": true,
+  "total_seconds": 1608.987,
+  "mp3_bytes": 25845544,
+  "sample_rate": 44100,
+  "channels": 1,
+  "listening_review": "required",
+  "sample_loudness": {
+    "intro1": {
+      "input_i": "-21.27",
+      "input_tp": "-2.42",
+      "input_lra": "4.80"
+    },
+    "cam1": {
+      "input_i": "-19.45",
+      "input_tp": "-2.38",
+      "input_lra": "1.80"
+    },
+    "guard1": {
+      "input_i": "-21.92",
+      "input_tp": "-5.20",
+      "input_lra": "9.90"
+    },
+    "l_hide_s": {
+      "input_i": "-23.70",
+      "input_tp": "-2.44",
+      "input_lra": "0.00"
+    },
+    "l_spotted_s": {
+      "input_i": "-19.45",
+      "input_tp": "-3.69",
+      "input_lra": "0.00"
+    },
+    "l_spotted_j": {
+      "input_i": "-19.45",
+      "input_tp": "-4.03",
+      "input_lra": "0.00"
+    },
+    "ghThanks": {
+      "input_i": "-18.27",
+      "input_tp": "-2.45",
+      "input_lra": "1.20"
+    },
+    "endTrue": {
+      "input_i": "-21.38",
+      "input_tp": "-2.17",
+      "input_lra": "2.60"
+    }
+  }
+}

@@ -34,7 +34,7 @@ export function validate(d) {
   if (d.schemaVersion !== SCHEMA) err.push('schemaVersion 불일치');
   if (!d.meta || typeof d.meta.char !== 'string') err.push('meta.char 없음');
   const pl = d.player;
-  if (!isRecord(pl) || !['x', 'z', 'floor', 'hp'].every(k => Number.isFinite(pl[k])) || !Number.isInteger(pl.floor)) err.push('player 좌표/체력 이상');
+  if (!isRecord(pl) || !['x', 'z', 'floor', 'hp'].every(k => Number.isFinite(pl[k])) || !Number.isInteger(pl.floor) || pl.floor < 0 || pl.floor > 10) err.push('player 좌표/체력 이상');
   if (!d.progress || !Array.isArray(d.progress.got)) err.push('progress.got 없음');
   if (!isRecord(d.world) || !isRecord(d.world.items) || !isRecord(d.world.props) || (d.world.doors != null && !isRecord(d.world.doors))) err.push('world 상태 없음');
   if (!isRecord(d.inv)) err.push('inv 없음');
@@ -106,4 +106,4 @@ export function repairProgress(d, total) {
   if (d.progress.FL && d.progress.FL.gatekey && n < total) { fixes.push('정문 열쇠 플래그 해제'); d.progress.FL.gatekey = false; }
   if (!Number.isFinite(d.player.hp) || d.player.hp <= 0) { fixes.push('체력 복구'); d.player.hp = 50; }
   return fixes;
-                          }
+    }

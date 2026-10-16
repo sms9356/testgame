@@ -48,7 +48,7 @@ class ClassroomRemodelPatch {
       if (typeof THREE !== "undefined") {
         const t = new THREE.CanvasTexture(c);
         t.wrapS = t.wrapT = THREE.RepeatWrapping;
-        t.repeat.set(rx, ry);
+        t.repeat.set(rx, ry); t.colorSpace = THREE.SRGBColorSpace;
         return t;
       }
       return null;

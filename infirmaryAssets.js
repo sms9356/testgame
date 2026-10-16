@@ -1,6 +1,6 @@
 import * as THREE from './vendor/three.module.js';
 import { GLTFLoader } from './vendor/addons/loaders/GLTFLoader.js';
-import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
+import { mergeGeometries, toCreasedNormals } from './vendor/addons/utils/BufferGeometryUtils.js';
 
 export function updateInfirmaryCabinets(views, records) { for (const view of views) { const closed = records.find(r => r.id === view.closedId), opened = records.find(r => r.id === view.openId); const showOpen = !!view.getOpen?.() && opened?.status === "ready"; view.closedHolder.visible = !showOpen; view.openHolder.visible = showOpen; if (view.fallback) view.fallback.visible = !showOpen && closed?.status !== "ready"; } } const URLS = {
   bed: 'assets/infirmary/infirmary_bed.glb',
@@ -17,6 +17,37 @@ const setShadows = mesh => {
   const enabled = !Array.isArray(mesh.material) && opaque(mesh.material) && mesh.material.isMeshStandardMaterial === true;
   mesh.castShadow = mesh.receiveShadow = enabled;
 };
+
+// Missing geometric normals are valid glTF even with a normal-map texture.
+// Repair only missing attributes on cached geometry clones. Indexed geometry is
+// expanded by toCreasedNormals without changing per-triangle UV assignments.
+function repairSourceNormals(source) {
+  const root = source.clone(true), geometries = new Map(), materials = new Map();
+  const smoothMaterial = original => {
+    if (!original || !original.flatShading) return original;
+    if (!materials.has(original)) {
+      const clone = original.clone(); clone.flatShading = false;
+      clone.needsUpdate = true; materials.set(original, clone);
+    }
+    return materials.get(original);
+  };
+  root.traverse(mesh => {
+    if (!mesh.isMesh || !mesh.geometry?.attributes.position || mesh.geometry.attributes.normal) return;
+    const original = mesh.geometry;
+    if (!geometries.has(original)) {
+      const clone = original.clone();
+      let repaired;
+      try { repaired = toCreasedNormals(clone, Math.PI / 3); }
+      catch (error) { clone.dispose(); throw error; }
+      if (repaired !== clone) clone.dispose();
+      geometries.set(original, repaired);
+    }
+    mesh.geometry = geometries.get(original);
+    mesh.material = Array.isArray(mesh.material)
+      ? mesh.material.map(smoothMaterial) : smoothMaterial(mesh.material);
+  });
+  return root;
+}
 
 // Opt-in for static furniture only. Clone the hierarchy first, so source nodes,
 // matrices, attributes, geometries and materials are never edited.
@@ -89,7 +120,7 @@ function optimizeOpaque(source) {
  */
 export function installInfirmaryAssets({ renderer, scene, camera, slots,
   loader = new GLTFLoader(), textureLoader = new THREE.TextureLoader(), frame = nextFrame,
-  batchOpaque = false }) {
+  batchOpaque = false, repairMissingNormals = true }) {
   const records = slots.map(slot => ({ ...slot, status: 'pending', error: null,
     aoErrors: [], model: null }));
   const sources = new Map(), aoCache = new Map(), uploaded = new Set();
@@ -97,9 +128,10 @@ export function installInfirmaryAssets({ renderer, scene, camera, slots,
     if (!URLS[kind]) throw new Error('Unknown infirmary kind: ' + kind);
     if (!sources.has(kind)) sources.set(kind, load(loader, URLS[kind]).then(gltf => {
       if (!gltf?.scene) throw new Error('GLTF has no scene: ' + kind);
-      if (!batchOpaque || gltf.animations?.length) return gltf.scene;
-      try { return optimizeOpaque(gltf.scene); }
-      catch (_) { return gltf.scene; } // Full hierarchy on optimization failure.
+      const prepared = repairMissingNormals ? repairSourceNormals(gltf.scene) : gltf.scene;
+      if (!batchOpaque || gltf.animations?.length) return prepared;
+      try { return optimizeOpaque(prepared); }
+      catch (_) { return prepared; } // Repaired full hierarchy on optimization failure.
     }));
     return sources.get(kind);
   };
@@ -158,7 +190,8 @@ export function installInfirmaryAssets({ renderer, scene, camera, slots,
           }
         }
         // Preserve authored attributes and PBR; optional static batching above
-        // transforms cloned geometry only. No UV generation or normal recompute.
+        // transforms cloned geometry only. No UV generation; authored normals
+        // are untouched. Only absent normals are generated before batching.
         model = new THREE.Group(); model.name = 'infirmary:' + record.id;
         const zUp = new THREE.Group(); zUp.rotation.x = -Math.PI / 2;
         zUp.add(root); model.add(zUp);

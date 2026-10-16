@@ -171,10 +171,16 @@ export function createFX(renderer, scene, camera) {
   const qG = new THREE.BufferGeometry();
   qG.setAttribute('position', new THREE.BufferAttribute(qpos, 3)); qG.setAttribute('color', new THREE.BufferAttribute(qcol, 3));
   qG.setAttribute('alpha', new THREE.BufferAttribute(qa, 1)); qG.setAttribute('size', new THREE.BufferAttribute(qs, 1));
+  { const sd = new Float32Array(QN); for (let i = 0; i < QN; i++) sd[i] = Math.random(); qG.setAttribute('seed', new THREE.BufferAttribute(sd, 1)); }   // 입자마다 다른 무늬 · 회전 (연기 · 증기가 둥근 원판처럼 보이지 않게)
   const qM = new THREE.ShaderMaterial({
-    vertexShader: `attribute vec3 color; attribute float alpha, size; varying vec3 vC; varying float vA;
-      void main(){ vC = color; vA = alpha; vec4 mv = modelViewMatrix * vec4(position, 1.0); gl_Position = projectionMatrix * mv; gl_PointSize = alpha > 0.0 ? clamp(size * 320.0 / -mv.z, 1.0, 260.0) : 0.0; }`,
-    fragmentShader: `varying vec3 vC; varying float vA; void main(){ float d = length(gl_PointCoord - .5); float a = smoothstep(.5, .05, d) * vA; if (a < .004) discard; gl_FragColor = vec4(vC, a); }`,
+    vertexShader: `attribute vec3 color; attribute float alpha, size, seed; varying vec3 vC; varying float vA, vS;
+      void main(){ vC = color; vA = alpha; vS = seed; vec4 mv = modelViewMatrix * vec4(position, 1.0); gl_Position = projectionMatrix * mv; gl_PointSize = alpha > 0.0 ? clamp(size * 320.0 / -mv.z, 1.0, 260.0) : 0.0; }`,
+    fragmentShader: `varying vec3 vC; varying float vA, vS;
+      float h(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+      float n(vec2 p){ vec2 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f); return mix(mix(h(i), h(i + vec2(1, 0)), f.x), mix(h(i + vec2(0, 1)), h(i + 1.0), f.x), f.y); }
+      void main(){ vec2 c = gl_PointCoord - .5; float an = vS * 6.283, cs = cos(an), sn = sin(an); c = mat2(cs, -sn, sn, cs) * c;
+        float d = length(c); vec2 q = c * 4.0 + vS * 17.0; float w = n(q) * .6 + n(q * 2.3) * .3 + n(q * 5.1) * .1;   // 뭉게뭉게한 가장자리
+        float a = smoothstep(.5, .08, d + (w - .5) * .28) * (.55 + w * .65) * vA; if (a < .004) discard; gl_FragColor = vec4(vC * (.85 + w * .3), a); }`,
     transparent: true, depthWrite: false, fog: false,
   });
   const qP = new THREE.Points(qG, qM); qP.frustumCulled = false; qP.renderOrder = 6; scene.add(qP);

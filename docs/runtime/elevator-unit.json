@@ -1,0 +1,6 @@
+{
+  "runner": "npm test and direct execution of each test file",
+  "files": 11,
+  "tests": 102,
+  "failures": 0
+}

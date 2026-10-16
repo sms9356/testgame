@@ -4418,5 +4418,245 @@
       "request_id": "T9dZ0pYUelGVDAfNLVV8",
       "review_status": "listening_required"
     }
+  },
+  "elv_open": {
+    "spk": "pa",
+    "text": "문이 열립니다.",
+    "dur": 1.411,
+    "baked": true,
+    "eleven": "문이 열립니다.",
+    "generation": {
+      "voice_id": "6wIijutElRjsgwLbECzl",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "67a30dbbda936996368ab40367f6bc97bf41cc16d8b36f8ecfed386c742174bb",
+      "audio_sha256": "c3f7b85e6ee5d3bb06ed6baf8b4c41bbef11dd9c91493185ecb761889afef1bb",
+      "request_id": "CJTq989Bf8iYxVjO9i7n",
+      "review_status": "listening_required"
+    }
+  },
+  "elv_close": {
+    "spk": "pa",
+    "text": "문이 닫힙니다.",
+    "dur": 1.489,
+    "baked": true,
+    "eleven": "문이 닫힙니다.",
+    "generation": {
+      "voice_id": "6wIijutElRjsgwLbECzl",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "c7e2571490a4eb3fba6c732b4f34034cb8e92883c5d635450fdb377055199270",
+      "audio_sha256": "e8b034243e65877e942768d028e748d8e7a6dec47ead068ba22ceee82389cae5",
+      "request_id": "p67SfUXr0uIwO7Tj5tl6",
+      "review_status": "listening_required"
+    }
+  },
+  "elv_up": {
+    "spk": "pa",
+    "text": "올라갑니다.",
+    "dur": 1.149,
+    "baked": true,
+    "eleven": "올라갑니다.",
+    "generation": {
+      "voice_id": "6wIijutElRjsgwLbECzl",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "6fee618c31e70d6f521ee6a571c96b6c8f19c8071b29960a92dd86419e7dcfbb",
+      "audio_sha256": "73cfa4af2d3ffb228946baeb2abf72651edadb3327bc7d4d010e0c7953068015",
+      "request_id": "Nk0415mSHnEpc844B8yJ",
+      "review_status": "listening_required"
+    }
+  },
+  "elv_down": {
+    "spk": "pa",
+    "text": "내려갑니다.",
+    "dur": 1.149,
+    "baked": true,
+    "eleven": "내려갑니다.",
+    "generation": {
+      "voice_id": "6wIijutElRjsgwLbECzl",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "092c4dcdc2fd5f15abcb6288072adb77b6945086370d9377b7fb7914c7247fd0",
+      "audio_sha256": "4089a66bf034b36621ec431a5c9dbd7637b0f3ab2665ecb1686481a17dcf5bc5",
+      "request_id": "YdoF1N8mhl1TBsr4b31j",
+      "review_status": "listening_required"
+    }
+  },
+  "elv_floor_B1": {
+    "spk": "pa",
+    "text": "지하 일 층입니다.",
+    "dur": 1.567,
+    "baked": true,
+    "eleven": "지하 일 층입니다.",
+    "generation": {
+      "voice_id": "6wIijutElRjsgwLbECzl",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "8c04bd358e4fcb8168f76c16e0d987cc2fa615bb242c49cd96eb788505f199e7",
+      "audio_sha256": "f9e7d4f4748cb0f0bd0197c5a07ca391da77f33ea3cf3bc8af3e733c47d0ed68",
+      "request_id": "NO5Tphe6ZoP0JyoTv9mP",
+      "review_status": "listening_required"
+    }
+  },
+  "elv_floor_1": {
+    "spk": "pa",
+    "text": "일 층입니다.",
+    "dur": 1.149,
+    "baked": true,
+    "eleven": "일 층입니다.",
+    "generation": {
+      "voice_id": "6wIijutElRjsgwLbECzl",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "e24645a0f04ca4274b79531eb9d7d31b0d03df724a65f19336f50e5bd38c45ad",
+      "audio_sha256": "739b5beed8536c69f731163e4847e3f409108d0fb0c68908ee2cd6c917389393",
+      "request_id": "dZTPFd34G5uiBQ1OBTuu",
+      "review_status": "listening_required"
+    }
+  },
+  "elv_floor_2": {
+    "spk": "pa",
+    "text": "이 층입니다.",
+    "dur": 1.149,
+    "baked": true,
+    "eleven": "이 층입니다.",
+    "generation": {
+      "voice_id": "6wIijutElRjsgwLbECzl",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "6201e6aac70cbf1314667ea29f157679cb9bbe4c7b0de8bfa900c66e967afd1a",
+      "audio_sha256": "9bbf528357f574fe3d3ac415a14c01d71fb7fd6c98e71cce37f50c279bac09e2",
+      "request_id": "PD9bHT888lGDYbzHfzpC",
+      "review_status": "listening_required"
+    }
+  },
+  "elv_floor_3": {
+    "spk": "pa",
+    "text": "삼 층입니다.",
+    "dur": 1.228,
+    "baked": true,
+    "eleven": "삼 층입니다.",
+    "generation": {
+      "voice_id": "6wIijutElRjsgwLbECzl",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "711a1c7c9813bd163d7c73e2b3a84fa3db46de3fca6f6c8d1356bc057cda063c",
+      "audio_sha256": "49115418506e2ac17e356bb9e64d4b31afe1ed4f2254b391c06abf9214863b43",
+      "request_id": "TPDKwPy0oh5q521ywWXH",
+      "review_status": "listening_required"
+    }
+  },
+  "elv_select_B1": {
+    "spk": "pa",
+    "text": "지하 일 층이 선택되었습니다.",
+    "dur": 2.194,
+    "baked": true,
+    "eleven": "지하 일 층이 선택되었습니다.",
+    "generation": {
+      "voice_id": "6wIijutElRjsgwLbECzl",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "a46088eed6b71a564fdf00a183534b2be915c5928e41850ef4c775314ed128b4",
+      "audio_sha256": "e0245eab36333713281abbfec9f523ab78a74ab725576e79c933824ad19467da",
+      "request_id": "mzXzZBNG82sIkq1ZBhwj",
+      "review_status": "listening_required"
+    }
+  },
+  "elv_select_1": {
+    "spk": "pa",
+    "text": "일 층이 선택되었습니다.",
+    "dur": 1.959,
+    "baked": true,
+    "eleven": "일 층이 선택되었습니다.",
+    "generation": {
+      "voice_id": "6wIijutElRjsgwLbECzl",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "d5553512817b84b2594ed815ec34a0fcdfce2ee8401f0776f223df139900d55e",
+      "audio_sha256": "1995d85971d649b641a9e985c4a00f895da908f8b91153cba7cfe4d127f99907",
+      "request_id": "vKOOOafs4bF3ieEvxRNC",
+      "review_status": "listening_required"
+    }
+  },
+  "elv_select_2": {
+    "spk": "pa",
+    "text": "이 층이 선택되었습니다.",
+    "dur": 1.881,
+    "baked": true,
+    "eleven": "이 층이 선택되었습니다.",
+    "generation": {
+      "voice_id": "6wIijutElRjsgwLbECzl",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "9ab422e9a6853457a503468a58db31973bd3bf24c3ce7b97d4677bce8a71fc52",
+      "audio_sha256": "4b1179b0e9da421dd3297f9feb12f7e8f42a3283d371351d2a721de735253373",
+      "request_id": "8L1HrhMYourLwsEYsJGS",
+      "review_status": "listening_required"
+    }
+  },
+  "elv_select_3": {
+    "spk": "pa",
+    "text": "삼 층이 선택되었습니다.",
+    "dur": 2.038,
+    "baked": true,
+    "eleven": "삼 층이 선택되었습니다.",
+    "generation": {
+      "voice_id": "6wIijutElRjsgwLbECzl",
+      "model_id": "eleven_v4",
+      "language_code": "ko",
+      "voice_settings": {
+        "stability": 0.5
+      },
+      "delivery": "normal",
+      "input_sha256": "d9ec051c3deb006cd9bd96d713fb9abf222b9af4a355311bbe870592631c6013",
+      "audio_sha256": "59c2c57055387d1204e822008e9a27947188f7a98705969c56c2a3a9da8b5b7c",
+      "request_id": "0CqHjvAIBFk9ZOkkd87y",
+      "review_status": "listening_required"
+    }
   }
 }

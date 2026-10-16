@@ -350,6 +350,8 @@ export const sfx = {
   genChug(v = 1) { tone(38, .9, 'sawtooth', .22 * v, 0, 1, 26); noiseBurst(.7, 140, 'lowpass', .55 * v); setTimeout(() => { tone(44, .6, 'sawtooth', .16 * v, 0, 1, 52); noiseBurst(.35, 2600, 'highpass', .05 * v); }, 650); },
   crow(pan = 0) { [0, 380, 760].forEach((d, i) => setTimeout(() => { tone(620 - i * 30, .28, 'sawtooth', .05, pan, 1, 420); noiseBurst(.22, 1300, 'bandpass', .07, pan); }, d)); },
   ding() { tone(1318, 1.4, 'sine', .14); tone(2636, .6, 'sine', .03); setTimeout(() => { tone(1046, 1.8, 'sine', .12); tone(2092, .7, 'sine', .025); }, 260); },
+  elevatorButton() { tone(1046.5,.09,'sine',.055);tone(1568,.055,'sine',.014); },
+  elevatorChime() { tone(1046.5,.55,'sine',.08);later(150,()=>tone(1318.5,.8,'sine',.065)); },
   elevator(d = 2) { tone(62, d, 'sawtooth', .05, 0, 1, 58); tone(124, d, 'sine', .05); noiseBurst(d, 260, 'lowpass', .22); for (let i = 1; i < d * 2; i++) setTimeout(() => noiseBurst(.06, 900, 'bandpass', .12), i * 500 + Math.random() * 200); },
   buzz() { tone(110, .35, 'square', .15); tone(116, .35, 'square', .12); },
   unlock() { [880, 1175, 1568].forEach((f, i) => setTimeout(() => tone(f, .25, 'square', .06), i * 90)); setTimeout(() => { noiseBurst(.25, 600, 'lowpass', .5); tone(90, .4, 'sine', .4); }, 320); },

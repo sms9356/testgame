@@ -1179,6 +1179,66 @@
       "input": "[sad] 보고서에는 실종이라고 썼네. 학교 이름이 신문에 나는 게 두려웠어. 그 아이 부모에게조차 정전 얘기는 하지 말라고 했지. 교장실 괘종시계를 자정에 맞추면 서고 금고가 열리네. 정문 열쇠 다섯 조각과 함께, 우리가 감춘 기록도 찾아 주게.",
       "source_sha256": "0c212a59102af6b02932fdc62ed43dda3237cbd9be0556bcb7d3e66d59ca59ed",
       "delivery": "sad"
+    },
+    "elv_open": {
+      "input": "문이 열립니다.",
+      "source_sha256": "67a30dbbda936996368ab40367f6bc97bf41cc16d8b36f8ecfed386c742174bb",
+      "delivery": "normal"
+    },
+    "elv_close": {
+      "input": "문이 닫힙니다.",
+      "source_sha256": "c7e2571490a4eb3fba6c732b4f34034cb8e92883c5d635450fdb377055199270",
+      "delivery": "normal"
+    },
+    "elv_up": {
+      "input": "올라갑니다.",
+      "source_sha256": "6fee618c31e70d6f521ee6a571c96b6c8f19c8071b29960a92dd86419e7dcfbb",
+      "delivery": "normal"
+    },
+    "elv_down": {
+      "input": "내려갑니다.",
+      "source_sha256": "092c4dcdc2fd5f15abcb6288072adb77b6945086370d9377b7fb7914c7247fd0",
+      "delivery": "normal"
+    },
+    "elv_floor_B1": {
+      "input": "지하 일 층입니다.",
+      "source_sha256": "8c04bd358e4fcb8168f76c16e0d987cc2fa615bb242c49cd96eb788505f199e7",
+      "delivery": "normal"
+    },
+    "elv_floor_1": {
+      "input": "일 층입니다.",
+      "source_sha256": "e24645a0f04ca4274b79531eb9d7d31b0d03df724a65f19336f50e5bd38c45ad",
+      "delivery": "normal"
+    },
+    "elv_floor_2": {
+      "input": "이 층입니다.",
+      "source_sha256": "6201e6aac70cbf1314667ea29f157679cb9bbe4c7b0de8bfa900c66e967afd1a",
+      "delivery": "normal"
+    },
+    "elv_floor_3": {
+      "input": "삼 층입니다.",
+      "source_sha256": "711a1c7c9813bd163d7c73e2b3a84fa3db46de3fca6f6c8d1356bc057cda063c",
+      "delivery": "normal"
+    },
+    "elv_select_B1": {
+      "input": "지하 일 층이 선택되었습니다.",
+      "source_sha256": "a46088eed6b71a564fdf00a183534b2be915c5928e41850ef4c775314ed128b4",
+      "delivery": "normal"
+    },
+    "elv_select_1": {
+      "input": "일 층이 선택되었습니다.",
+      "source_sha256": "d5553512817b84b2594ed815ec34a0fcdfce2ee8401f0776f223df139900d55e",
+      "delivery": "normal"
+    },
+    "elv_select_2": {
+      "input": "이 층이 선택되었습니다.",
+      "source_sha256": "9ab422e9a6853457a503468a58db31973bd3bf24c3ce7b97d4677bce8a71fc52",
+      "delivery": "normal"
+    },
+    "elv_select_3": {
+      "input": "삼 층이 선택되었습니다.",
+      "source_sha256": "d9ec051c3deb006cd9bd96d713fb9abf222b9af4a355311bbe870592631c6013",
+      "delivery": "normal"
     }
   }
 }

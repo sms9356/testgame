@@ -1231,19 +1231,32 @@ export function buildWorld(scene) {
     props.push({ kind: 'robj', k, t, floor: cur.f, x, z, y: 1.35, cx, label: ROBJ_LABEL[k] });
   }
   // 엘리베이터 (계단실 동쪽 벽): 철문 · 층 표시 · 호출 버튼 — 타면 층 선택 화면
+  let _cabTex = null;
+  const cabTex = () => _cabTex || (_cabTex = (() => { const c = document.createElement('canvas'); c.width = 256; c.height = 384; const x = c.getContext('2d'), W = 256, H = 384, L = 64, R = 192, T = 70, B = 300;
+    const poly = (pts, f) => { x.beginPath(); pts.forEach(([a, b], i) => i ? x.lineTo(a, b) : x.moveTo(a, b)); x.closePath(); x.fillStyle = f; x.fill(); };
+    poly([[0, 0], [W, 0], [R, T], [L, T]], '#e8dcc0'); x.strokeStyle = '#8a8070'; x.lineWidth = 3; x.beginPath(); x.moveTo(W / 2, 0); x.lineTo(W / 2, T); x.moveTo(32, T / 2); x.lineTo(W - 32, T / 2); x.stroke();   // 조명 천장
+    poly([[0, 0], [L, T], [L, B], [0, H]], '#6a4426'); poly([[W, 0], [R, T], [R, B], [W, H]], '#8a9094');   // 왼쪽 목재 · 오른쪽 스테인리스
+    poly([[L, T], [R, T], [R, B], [L, B]], '#7a5030'); poly([[L + 34, T + 40], [R - 34, T + 40], [R - 34, B - 80], [L + 34, B - 80]], '#9aa4aa');   // 뒷벽 + 거울
+    poly([[0, H], [L, B], [R, B], [W, H]], '#2c3032'); x.fillStyle = '#9aa0a4'; x.fillRect(L, B - 8, R - L, 8);   // 바닥 · 걸레받이
+    for (let i = 1; i < 3; i++) { x.fillStyle = 'rgba(20,12,6,.6)'; x.fillRect(L + i * (R - L) / 3, T, 2, B - T); }
+    x.strokeStyle = '#c8ccd0'; x.lineWidth = 4; x.beginPath(); x.moveTo(8, 250); x.lineTo(L - 4, 200); x.stroke();   // 손잡이
+    x.fillStyle = '#5aa8ff'; x.fillRect(R + 30, 150, 10, 6); for (let i = 0; i < 6; i++) { x.fillStyle = '#c8ccd0'; x.beginPath(); x.arc(R + 35, 170 + i * 12, 3, 0, 7); x.fill(); }   // 조작반
+    const g = x.createRadialGradient(W / 2, 60, 10, W / 2, 180, 260); g.addColorStop(0, 'rgba(255,240,210,.18)'); g.addColorStop(1, 'rgba(0,0,0,.35)'); x.fillStyle = g; x.fillRect(0, 0, W, H);
+    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t; })());
   const EL_LABEL = { 4: 'B1', 0: '1F', 1: '2F', 2: '3F', 8: '1F', 9: '2F', 10: '3F' };
   function elevator(cx) {
     const x = cx + 3.84, z = -7.0, g = new THREE.Group(); g.position.set(x, 0, z); g.rotation.y = -Math.PI / 2; cur.interior.add(g);
     const fr = new THREE.Mesh(merge([bx(.14, 2.4, .1, -.87, 1.2, 0), bx(.14, 2.4, .1, .87, 1.2, 0), bx(1.88, .16, .1, 0, 2.44, 0)]), mChrome); g.add(fr);
     const hall = []; [-.4, .4].forEach(dx => { const d = dyn(new THREE.Mesh(new THREE.BoxGeometry(.8, 2.36, .04), mMetal)); d.position.set(dx, 1.18, .0); g.add(d); hall.push(d); });
-    const shaft = new THREE.Mesh(new THREE.BoxGeometry(1.6, 2.36, .02), S(null, { color: 0x0a0a0a, roughness: 1 })); shaft.position.set(0, 1.18, -.06); g.add(shaft);   // 문이 열리면 보이는 안쪽 (어두운 승강로 · 카 불빛은 탈 때 켜진다)
+    // 문이 열리면 보이는 카 안 (원근으로 그린 그림: 조명 천장 · 목재 벽 · 뒷벽 거울 · 석재 바닥) — 문 뒤 벽 앞에 붙인다. 닫혀 있을 땐 숨김
+    const cab = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 2.36), new THREE.MeshBasicMaterial({ map: cabTex(), color: 0xb0aaa0 })); cab.position.set(0, 1.18, .004); cab.visible = false; g.add(cab); dyn(cab);
     const seam = new THREE.Mesh(new THREE.BoxGeometry(.012, 2.36, .05), mBlack); seam.position.set(0, 1.18, .005); g.add(seam);
     const ind = new THREE.Mesh(new THREE.PlaneGeometry(.5, .2), new THREE.MeshBasicMaterial({ map: T.makeSign(EL_LABEL[cur.f] || '', '#120806', '#ff5a2a', 34), color: 0xffb090 })); ind.position.set(0, 2.72, .06); g.add(ind);
     const pnl = new THREE.Mesh(new THREE.BoxGeometry(.14, .3, .03), mChrome); pnl.position.set(1.15, 1.25, .03); g.add(pnl);
     [.06, -.06].forEach((dy, k) => { const b = dyn(new THREE.Mesh(new THREE.CircleGeometry(.025, 12), new THREE.MeshBasicMaterial({ color: 0xffa040 }))); b.position.set(1.15, 1.25 + dy, .046); g.add(b);
       const ph = k * 1.3; b.onBeforeRender = () => b.material.color.setHex(Math.sin(performance.now() / 900 + ph) > .6 ? 0xffb050 : 0x3a1a08); });
     plane(cur.interior, new THREE.MeshStandardMaterial({ map: T.makeSign('승강기 · 정원 9명', '#d8d4c8', '#2a2a2a', 20), roughness: .8 }), .6, .14, x - .02, 1.75, z - 1.15, -Math.PI / 2);
-    props.push({ kind: 'elevator', floor: cur.f, x: x - .5, z, y: 1.25, px: x, pz: z, cx, hall, label: '엘리베이터 호출' });
+    props.push({ kind: 'elevator', floor: cur.f, x: x - .5, z, y: 1.25, px: x, pz: z, cx, hall, cab, label: '엘리베이터 호출' });
   }
   const mStairPlate = (() => { const c = document.createElement('canvas'); c.width = c.height = 128; const g = c.getContext('2d'); g.fillStyle = '#5a5c58'; g.fillRect(0, 0, 128, 128); g.fillStyle = '#7a7c76'; for (let y = 0; y < 128; y += 16) for (let x = (y / 16 % 2) * 8; x < 128; x += 16) { g.save(); g.translate(x + 4, y + 8); g.rotate(.7); g.fillRect(-5, -1.5, 10, 3); g.restore(); } const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.colorSpace = THREE.SRGBColorSpace; return grunge(new THREE.MeshStandardMaterial({ map: t, roughness: .5, metalness: .6 })); })();   // 줄무늬(체커) 철판
   const mStairNose = S(null, { color: 0x24221f, roughness: .8 }), mRailSteel = grunge(S(T.makeMetal([70, 78, 74]), { roughness: .5, metalness: .5 }));
@@ -2663,7 +2676,7 @@ export function buildWorld(scene) {
     if (k === 0) plane(F.interior, mCork, 2.0, 1.0, -5.5, 1.8, -1.42);
     if (k === 0) doors.push({ floor: 8, x: 0, z: 8.9, r: 1.9, label: '별관 나가기', to: { floor: 0, x: 0, z: WALKWAY.z1 + 1.2, yaw: Math.PI } });
     if (k === 0) {   // 복도 서쪽 끝 비상구: 바깥(별관 서쪽 마당)으로 나가는 철문
-      annexExitDoor(F.interior, -20.12, Math.PI / 2);
+      annexExitDoor(F.interior, -19.95, Math.PI / 2);   // 벽 안쪽 면(x −20) 바로 앞 (예전 −20.12 는 벽 속에 묻혀 안 보였다)
       doors.push({ floor: 8, x: -19.4, z: 0, r: 1.3, label: '비상구 — 밖으로 나가기', to: { floor: 0, x: -21.4, z: ANNEX_EXIT_Z, yaw: Math.PI / 2 } });
     }
   }

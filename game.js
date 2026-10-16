@@ -1305,22 +1305,38 @@ const ELV = { CX: 400, CZ: 400, g: null, doors: [], open: 0, want: 0, cur: 0, p:
 function elvBuild() {
   if (ELV.g) return;
   const g = new THREE.Group(), CX = ELV.CX, CZ = ELV.CZ; g.position.set(CX, 0, CZ); scene.add(g); ELV.g = g;
+  // 사용자 제공 엘리베이터 시트(A-102 평면 · A-204 모델 뷰 · A-205 재질표) 기준: 카 안쪽 1.7 × 1.6m (5'6" × 5'0")
+  //   A 조명 천장 패널(격자) · B 목재 무늬 벽판(세로 줄눈) · F 스테인리스 벽(조작반 쪽) · D 뒷벽 거울 · H 석재 타일 바닥 + 스테인리스 걸레받이 · C 원형 스테인리스 손잡이 · J 조작반(파란 표시창 · 버튼) · E 문 위 표시등
+  const cvT = (w, h, draw, rep = [1, 1]) => { const c = document.createElement('canvas'); c.width = w; c.height = h; draw(c.getContext('2d'), w, h); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(...rep); return t; };
+  const woodT = cvT(256, 512, (x, w, h) => { x.fillStyle = '#8a5a32'; x.fillRect(0, 0, w, h); for (let i = 0; i < 260; i++) { x.strokeStyle = `rgba(${60 + Math.random() * 40},${35 + Math.random() * 20},15,${.15 + Math.random() * .2})`; x.lineWidth = 1 + Math.random() * 2; const xx = Math.random() * w; x.beginPath(); x.moveTo(xx, 0); x.bezierCurveTo(xx + 8, h * .3, xx - 8, h * .7, xx + 3, h); x.stroke(); }
+    x.fillStyle = 'rgba(30,18,8,.85)'; x.fillRect(w - 3, 0, 3, h); }, [3, 1]);   // 세로 줄눈 (판 3장)
+  const slateT = cvT(256, 256, (x, w, h) => { x.fillStyle = '#2c3032'; x.fillRect(0, 0, w, h); for (let i = 0; i < 900; i++) { const v = 30 + Math.random() * 30; x.fillStyle = `rgba(${v},${v + 4},${v + 6},.5)`; x.fillRect(Math.random() * w, Math.random() * h, 2 + Math.random() * 10, 1 + Math.random() * 3); } x.strokeStyle = '#15181a'; x.lineWidth = 3; x.strokeRect(0, 0, w, h); }, [2, 2]);
+  const ceilT = cvT(256, 256, (x, w, h) => { x.fillStyle = '#efe6d2'; x.fillRect(0, 0, w, h); x.strokeStyle = '#8a8478'; x.lineWidth = 6; [0, 128, 256].forEach(v => { x.beginPath(); x.moveTo(v, 0); x.lineTo(v, h); x.moveTo(0, v); x.lineTo(w, v); x.stroke(); });
+    x.fillStyle = 'rgba(120,110,95,.35)'; for (let i = 0; i < 400; i++) x.fillRect(Math.random() * w, Math.random() * h, 3, 1); }, [1, 1]);
+  const steel = new THREE.MeshStandardMaterial({ color: 0xa8aeb2, roughness: .32, metalness: .85 }), steelD = new THREE.MeshStandardMaterial({ color: 0x80868a, roughness: .45, metalness: .8 });
+  const wood = new THREE.MeshStandardMaterial({ map: woodT, roughness: .55, metalness: 0 }), dark = new THREE.MeshStandardMaterial({ color: 0x2a2c2e, roughness: .8, metalness: .2 });
+  const floorM = new THREE.MeshStandardMaterial({ map: slateT, roughness: .7, metalness: .05 }), mirror = new THREE.MeshStandardMaterial({ color: 0x8a9298, roughness: .18, metalness: .55, emissive: 0x1a1e22 });
   const S = (c, o = {}) => new THREE.MeshStandardMaterial({ color: c, roughness: .62, metalness: .45, ...o });
-  const steel = S(0x7a8084), dark = S(0x2a2c2e, { metalness: .3, roughness: .8 }), floorM = S(0x3a3632, { metalness: .1, roughness: .9 });
   const box = (w, h, d, x, y, z, m) => { const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m); b.position.set(x, y, z); g.add(b); return b; };
-  // 카 (안쪽 1.7 × 1.6, 문은 +z 쪽 z=0)
-  box(1.8, .05, 1.7, 0, -.025, -.8, floorM); box(1.8, .05, 1.7, 0, 2.42, -.8, dark);
-  box(.05, 2.4, 1.7, -.875, 1.2, -.8, steel); box(.05, 2.4, 1.7, .875, 1.2, -.8, steel); box(1.8, 2.4, .05, 0, 1.2, -1.625, S(0xb8bcc0, { roughness: .2, metalness: .9 }));
-  box(.35, 2.4, .06, -.7, 1.2, 0, steel); box(.35, 2.4, .06, .7, 1.2, 0, steel); box(1.05, .3, .06, 0, 2.25, 0, steel);
-  box(1.5, .04, .04, 0, .95, -1.57, S(0xd0c8a0)); box(.04, .04, 1.4, -.83, .95, -.8, S(0xd0c8a0)); box(.04, .04, 1.4, .83, .95, -.8, S(0xd0c8a0));   // 손잡이
-  const lamp = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 1.1), new THREE.MeshBasicMaterial({ color: power ? 0xfff0d8 : 0x806040 })); lamp.rotation.x = Math.PI / 2; lamp.position.set(0, 2.39, -.8); g.add(lamp); ELV.lamp = lamp;
-  [-.25, .25].forEach(dx => { const d = box(.52, 2.1, .03, dx, 1.05, .02, S(0xa8aeb2)); d.userData.x0 = dx; ELV.doors.push(d); });
+  const H = 2.45;
+  box(1.8, .05, 1.7, 0, -.025, -.8, floorM); box(1.8, .06, 1.7, 0, H + .03, -.8, dark);
+  box(.05, H, 1.7, -.875, H / 2, -.8, wood);                       // B 왼쪽 벽: 목재
+  box(.05, H, 1.7, .875, H / 2, -.8, steel);                       // F 오른쪽 벽(조작반): 스테인리스
+  box(1.8, H, .05, 0, H / 2, -1.625, wood);                        // B 뒷벽: 목재
+  box(.62, 1.15, .012, 0, 1.45, -1.597, mirror); box(.66, .03, .02, 0, 2.04, -1.595, steelD); box(.66, .03, .02, 0, .86, -1.595, steelD);   // D 뒷벽 거울 + 테
+  [[1.75, .02, -1.598, 0], [.02, 1.66, -.8, -.85], [.02, 1.66, -.8, .85]].forEach(([w, d, z, x]) => box(w, .12, d, x, .06, z, steelD));   // H 걸레받이
+  box(.35, H, .06, -.7, H / 2, 0, steel); box(.35, H, .06, .7, H / 2, 0, steel); box(1.05, H - 2.1, .06, 0, 2.1 + (H - 2.1) / 2, 0, steel);   // 앞벽 (스테인리스)
+  { const hr = new THREE.MeshStandardMaterial({ color: 0xc8ccd0, roughness: .2, metalness: 1 }), tb = (x1, z1, x2, z2) => { const L = Math.hypot(x2 - x1, z2 - z1), m = new THREE.Mesh(new THREE.CylinderGeometry(.02, .02, L, 10), hr); m.rotation.z = Math.PI / 2; m.rotation.y = -Math.atan2(z2 - z1, x2 - x1); m.position.set((x1 + x2) / 2, .92, (z1 + z2) / 2); g.add(m); };
+    tb(-.8, -1.4, -.8, -.25); [-1.4, -.25].forEach(z => box(.06, .03, .03, -.83, .92, z, hr)); tb(-.6, -1.55, .6, -1.55); [-.6, .6].forEach(x => box(.03, .03, .06, x, .92, -1.58, hr)); }   // C 원형 손잡이 (왼쪽 · 뒤)
+  const lamp = new THREE.Mesh(new THREE.PlaneGeometry(1.7, 1.6), new THREE.MeshBasicMaterial({ map: ceilT, color: power ? 0xfff4e0 : 0x6a5a48 })); lamp.rotation.x = Math.PI / 2; lamp.position.set(0, H - .005, -.8); g.add(lamp); ELV.lamp = lamp;   // A 조명 천장
+  [-.25, .25].forEach(dx => { const d = box(.52, 2.1, .03, dx, 1.05, .02, steel); d.userData.x0 = dx; ELV.doors.push(d); });
   // 층 표시기 (문 위 안쪽)
   const cv = document.createElement('canvas'); cv.width = 128; cv.height = 48; const tx = new THREE.CanvasTexture(cv); tx.colorSpace = THREE.SRGBColorSpace;
   const dsp = new THREE.Mesh(new THREE.PlaneGeometry(.3, .11), new THREE.MeshBasicMaterial({ map: tx })); dsp.position.set(0, 2.25, -.04); dsp.rotation.y = Math.PI; g.add(dsp);
-  ELV.disp = (t, dir = '') => { const c = cv.getContext('2d'); c.fillStyle = '#120806'; c.fillRect(0, 0, 128, 48); c.fillStyle = '#ff5a2a'; c.font = 'bold 34px monospace'; c.textAlign = 'center'; c.fillText(`${dir}${t}`, 64, 37); tx.needsUpdate = true; };
+  ELV.disp = (t, dir = '') => { const c = cv.getContext('2d'); c.fillStyle = '#04070e'; c.fillRect(0, 0, 128, 48); c.fillStyle = '#5aa8ff'; c.shadowColor = '#2a70ff'; c.shadowBlur = 8; c.font = 'bold 34px monospace'; c.textAlign = 'center'; c.fillText(`${dir}${t}`, 64, 37); c.shadowBlur = 0; tx.needsUpdate = true; };
   // 버튼 패널 (문 오른쪽 안 벽 — 들어서서 오른쪽)
-  const pnl = box(.03, .7, .26, .855, 1.25, -.3, S(0x8a9094)); pnl.rotation.y = 0;
+  box(.025, 1.1, .3, .855, 1.2, -.3, steelD);   // J 조작반 (스테인리스 판)
+  { const cd = new THREE.Mesh(new THREE.PlaneGeometry(.16, .09), new THREE.MeshBasicMaterial({ map: tx })); cd.position.set(.84, 1.66, -.3); cd.rotation.y = -Math.PI / 2; g.add(cd); }   // 조작반 위 표시창 (같은 층 표시)
   ELV.panel = { x: .84 };
   // 바깥 (문 앞 작은 홀 — 문턱 너머가 비어 보이지 않게)
   box(3, .05, 1.6, 0, -.025, .8, floorM); box(3, 2.6, .05, 0, 1.3, 1.6, dark); box(.05, 2.6, 1.6, -1.5, 1.3, .8, dark); box(.05, 2.6, 1.6, 1.5, 1.3, .8, dark); box(3, .05, 1.6, 0, 2.6, .8, dark);
@@ -1332,7 +1348,7 @@ function elvButtons(set) {
   const list = [...order.map(f => ({ a: 'f', f, t: EL_BTN[f] })), { a: 'open', t: '◀▶' }, { a: 'close', t: '▶◀' }, { a: 'bell', t: '🔔' }];
   list.forEach((b, i) => {
     const cv = document.createElement('canvas'); cv.width = cv.height = 64; const c = cv.getContext('2d');
-    c.fillStyle = b.a === 'bell' ? '#c8a040' : '#d8dcdc'; c.beginPath(); c.arc(32, 32, 30, 0, 7); c.fill(); c.fillStyle = '#222'; c.font = 'bold 26px sans-serif'; c.textAlign = 'center'; c.fillText(b.t, 32, 41);
+    c.fillStyle = '#9aa0a4'; c.beginPath(); c.arc(32, 32, 30, 0, 7); c.fill(); c.strokeStyle = b.a === 'bell' ? '#e04030' : '#4a90ff'; c.lineWidth = 3; c.beginPath(); c.arc(32, 32, 26, 0, 7); c.stroke(); c.fillStyle = b.a === 'bell' ? '#c8a040' : '#d8dcdc'; c.beginPath(); c.arc(32, 32, 23, 0, 7); c.fill(); c.fillStyle = '#222'; c.font = 'bold 26px sans-serif'; c.textAlign = 'center'; c.fillText(b.t, 32, 41);
     const tx = new THREE.CanvasTexture(cv); tx.colorSpace = THREE.SRGBColorSpace;
     const m = new THREE.Mesh(new THREE.CircleGeometry(.04, 16), new THREE.MeshBasicMaterial({ map: tx, transparent: true, color: 0xcccccc }));
     const row = i < order.length ? i : order.length + (i - order.length);

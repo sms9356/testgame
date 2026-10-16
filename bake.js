@@ -21,9 +21,9 @@ export function bakeStatic(root) {
     if (!g.attributes.position || !g.attributes.normal) return;
     const m = new THREE.Matrix4().multiplyMatrices(inv, o.matrixWorld);
     _v.setFromMatrixPosition(m);
-    const key = o.material.uuid + '|' + Math.floor(_v.x / CHUNK) + ',' + Math.floor(_v.z / CHUNK) + ',' + Math.floor(_v.y / 8);
+    const key = o.material.uuid + '|' + Math.floor(_v.x / CHUNK) + ',' + Math.floor(_v.z / CHUNK) + ',' + Math.floor(_v.y / 8) + '|' + Number(o.castShadow) + '|' + Number(o.receiveShadow);
     let e = groups.get(key);
-    if (!e) groups.set(key, e = { mat: o.material, list: [], cast: o.castShadow !== false, verts: 0 });
+    if (!e) groups.set(key, e = { mat: o.material, list: [], cast: !!o.castShadow, receive: !!o.receiveShadow, verts: 0 });
     e.list.push({ g, m }); e.verts += g.attributes.position.count;
     victims.push(o);
   });
@@ -56,7 +56,7 @@ export function bakeStatic(root) {
     geo.computeBoundingSphere(); geo.computeBoundingBox();
     const mesh = new THREE.Mesh(geo, e.mat);
     const basic = e.mat.isMeshBasicMaterial || e.mat.transparent;
-    mesh.castShadow = !basic && e.cast; mesh.receiveShadow = !basic;
+    mesh.castShadow = !basic && e.cast; mesh.receiveShadow = !basic && e.receive;
     mesh.userData.baked = true;
     root.add(mesh); made++;
   }

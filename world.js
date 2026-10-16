@@ -130,7 +130,7 @@ export function buildWorld(scene) {
   const mRoofMetal = PB('roofmetal', () => T.pbrPaintMetal(512, [120, 128, 132]), { metalness: .45 });   // 체육관 · 수영장 아치 골강판 지붕 (Poly Haven CC0)
   const mBlueMetal = PB('bluemetal', () => T.pbrPaintMetal(512, [52, 84, 120]), { metalness: .3 });     // 수영장 외벽 (Poly Haven CC0)
   // 범프 맵: 같은 텍스처의 명암으로 표면 요철을 만들어 평평한 박스가 실제 재질처럼 보이게 한다
-  [[mFence, 2.4], [mDoor, 1.2], [mLocker, 1.2]]
+  [[mFence, .015], [mDoor, .008]]
     .forEach(([m, k]) => { m.bumpMap = m.map; m.bumpScale = k; });
 
   // 레퍼런스 이미지 텍스처 (assets/img)
@@ -201,8 +201,8 @@ export function buildWorld(scene) {
   /* ---------- 층 데이터 ---------- */
   const floors = [];
   let cur = null;
-  const items = [], lockers = [], flickerMats = [], doors = [];
-  const mFacade = PB('facade', () => T.pbrFacade(512));
+  const items = [], lockers = [], flickerMats = [], doors = []; const INFIRMARY_SLOTS = [];
+  const mFacade = PB('facade', () => T.pbrFacade(512)); const mFacadeTrim = S(null, { color: 0xb6b3a5, roughness: .85 }); const mCanopy = S(null, { color: 0x37484b, roughness: .6, metalness: .15 });
   const mBase = P(T.pbr('base', () => T.pbrConcrete(1024, [104, 110, 102])));
   let curWall = mWall;
   const matLampOn = new THREE.MeshBasicMaterial({ color: 0xdfeaff });
@@ -736,11 +736,11 @@ export function buildWorld(scene) {
     addNote('n3', cx - 2.5, .76, -5.4);
     papers(cx, -8, -2.4, 14);
   }
-  function nurse(cx) {
+  function infirmarySlot(id, kind, x, z, parts, yaw = 0) { const holder = new THREE.Group(), fallback = new THREE.Group(); holder.name = id; holder.userData.dynamic = fallback.userData.dynamic = true; holder.position.set(x, 0, z); holder.rotation.y = yaw; holder.add(fallback); cur.interior.add(holder); holder.updateWorldMatrix(true, true); parts.forEach(p => fallback.attach(p)); INFIRMARY_SLOTS.push({ id, kind, holder, fallback }); return holder; } function nurse(cx) {
     const zN = -9.6;
     frontWall(cx, zN, false);
-    [-2.4, 2.4].forEach(dx => { add(mMetal, 1.0, .5, 2.0, cx + dx, 0, zN + 1.2, { col: true }); add(mWhite, .95, .14, 1.9, cx + dx, .5, zN + 1.2); add(mWhite, .5, .1, .35, cx + dx, .64, zN + .4); });
-    add(mLockerT, .9, 1.7, .4, cx + 3.6, 0, -6.5, { ry: Math.PI / 2, col: true }); add(mGlass, .9, 1.7, .44, cx + 3.6, 0, -6.5, { ry: Math.PI / 2 });
+    [-2.4, 2.4].forEach(dx => { const parts = [add(mMetal, 1.0, .5, 2.0, cx + dx, 0, zN + 1.2, { col: true }), add(mWhite, .95, .14, 1.9, cx + dx, .5, zN + 1.2), add(mWhite, .5, .1, .35, cx + dx, .64, zN + .4)]; infirmarySlot(`nurse-${cur.f}-bed-${dx < 0 ? "west" : "east"}`, "bed", cx + dx, zN + 1.2, parts); });
+    { const parts = [add(mLockerT, .9, 1.7, .4, cx + 3.6, 0, -6.5, { ry: Math.PI / 2, col: true }), add(mGlass, .9, 1.7, .44, cx + 3.6, 0, -6.5, { ry: Math.PI / 2 })]; infirmarySlot(`nurse-${cur.f}-cabinet`, "cabinetClosed", cx + 3.6, -6.5, parts, -Math.PI / 2); }
     tbl(mWood, 1.2, .75, .6, cx - 3.2, 0, -5.4, { col: true, ry: Math.PI / 2, legMat: mLegMetal });
     addNote('n2', cx - 3.2, .75, -5.4);
     tapeRecorder('tape1', cx - 3.2, .75, -4.95, .4);
@@ -1900,7 +1900,7 @@ export function buildWorld(scene) {
     { const s = D(.5, 7.7, 1.2, 2.1);    // 4 정비 사다리 (수영장 기계실로)
       const L = [tube(.025, -.25, 0, 0, -.25, CH, 0), tube(.025, .25, 0, 0, .25, CH, 0)]; for (let k = 1; k < 9; k++) L.push(tube(.018, -.25, k * .38, 0, .25, k * .38, 0));
       meshAt(merge(L), mChrome, cx - 3.85, 0, s.z, Math.PI / 2); meshAt(new THREE.BoxGeometry(.9, .02, .9), mBlack, cx - 3.6, CH - .01, s.z);
-      doors.push({ floor: cur.f, x: cx - 3.3, z: s.z, r: 1.4, label: '사다리 오르기 (수영장 기계실)', to: { floor: 6, x: -40.2, z: 55.4, yaw: 0 } }); }
+      doors.push({ floor: cur.f, x: cx - 3.3, z: s.z, r: 1.4, label: '사다리 오르기 (수영장 기계실)', to: { floor: 6, x: -39.4, z: 55.4, yaw: 0 } }); }
     { const c = D(3.6, 8.5, 1.9, 1.4);    // 5 철제 덮개 → 비밀 자료실로 이어지는 좁은 통로
       add(mDarkMetal, 1.0, .05, .8, c.x, 0, c.z); for (let k = 0; k < 4; k++) add(mRust, .9, .012, .03, c.x, .052, c.z - .3 + k * .2);
       meshAt(new THREE.TorusGeometry(.06, .012, 6, 12).rotateX(Math.PI / 2), mChrome, c.x + .35, .06, c.z);
@@ -2302,9 +2302,9 @@ export function buildWorld(scene) {
     if (f === 0) {   // 현관: 계단 + 캐노피 + 기둥 + 교명 간판
       for (let k = 0; k < 3; k++) { F.shell.add(boxMesh(-3.2 + k * .25, 3.2 - k * .25, 0, .12 * (k + 1), zs1, zs1 + 1.65 - k * .45, mStep, 2)); col(-3.2 + k * .25, 3.2 - k * .25, zs1, zs1 + 1.65 - k * .45, false, .12 * (k + 1)); }   // 걸어 오르는 현관 계단 (한 단 0.12m)
       F.shell.add(boxMesh(-1.5, 1.5, 0, .2, zs0, zs1, mStep, 2));   // 현관 문턱 (충돌은 아래 '충돌 보정' 뒤에)
-      F.shell.add(boxMesh(-3.0, 3.0, 2.95, 3.2, zs1, zs1 + 2.85, mFacade, 3));
-      [-2.6, 2.6].forEach(x => F.shell.add(boxMesh(x - .18, x + .18, 0, 2.95, zs1 + 2.3, zs1 + 2.66, mFacade, 3)));
-      // 교명 간판은 campusDesign에서 배경판과 함께 한 번만 설치한다.
+      F.shell.add(boxMesh(-3.0, 3.0, 2.95, 3.2, zs1, zs1 + 2.85, mCanopy, 3)); F.shell.add(boxMesh(-3.05, 3.05, 3.02, 3.18, zs1 + 2.85, zs1 + 2.94, mFacadeTrim, 3)); for (let k = 0; k < 6; k++) F.shell.add(boxMesh(-2.8, 2.8, 2.91, 2.95, zs1 + .22 + k * .45, zs1 + .29 + k * .45, mCanopy, 3));
+      [-2.6, 2.6].forEach(x => F.shell.add(boxMesh(x - .18, x + .18, 0, 2.95, zs1 + 2.3, zs1 + 2.66, mFacadeTrim, 3)));
+      // campusDesign owns the school sign.
     }
     // 충돌 보정: 창문 구간도 벽이므로 단일 충돌체로 대체 (현관 제외)
     F.col = F.col.filter(r => !(r.z1 === zs0 && r.z2 === zs1));
@@ -3299,7 +3299,7 @@ export function buildWorld(scene) {
       for (let y = 1; y < TOP; y += 2) pipes.push(new THREE.CylinderGeometry(.085, .085, .08, 8).translate(x, y, z));
       pipes.push(tube(.06, x, .05, z, x, .05, z + (z > 0 ? .4 : -.4)));
     });
-    const fm = new THREE.Mesh(merge(fac), mFacade); OUT.add(fm);
+    const fm = new THREE.Mesh(merge(fac), mFacadeTrim); OUT.add(fm);
     OUT.add(new THREE.Mesh(merge(dark), mFrame), new THREE.Mesh(merge(pipes), mRust));
     // 별관 외관 보강: 창틀 · 층간 띠 · 코니스
     const af = [];
@@ -3307,7 +3307,7 @@ export function buildWorld(scene) {
     [4, 8].forEach(y => af.push(bx(40.4, .26, .16, 0, y, -13.42 - ANNEX_DZ, 3)));
     for (let x = -20; x <= 20; x += 8) if (x !== 0) af.push(bx(.4, 12.4, .2, x, 6.2, -13.4 - ANNEX_DZ, 3));
     // (예전 별관 현관 캐노피 + 기둥 2개는 연결 통로 안에 겹쳐 서 있어 제거 — 연결 통로 지붕이 현관을 덮는다)
-    OUT.add(new THREE.Mesh(merge(af), mFacade));
+    OUT.add(new THREE.Mesh(merge(af), mFacadeTrim));
     // 체육관 · 수영장 · 급식실 외관: 기단 · 수직 리브 · 처마 홈통
     const gf = [];
     for (let z = 13.5; z <= 33.5; z += 4) { gf.push(bx(.24, 8, .3, 27.88, 4, z, 3), bx(.24, 8, .3, 48.12, 4, z, 3)); }
@@ -3315,7 +3315,7 @@ export function buildWorld(scene) {
     gf.push(bx(.2, .5, 22, 27.9, .25, 23.5, 3), bx(.2, .5, 22, 48.1, .25, 23.5, 3));
     [15.5, 19.5, 23.5, 27.5, 31.5].forEach(z => { gf.push(bx(.16, .1, 2.7, 27.9, 4.2, z, 3), bx(.16, .1, 2.7, 48.1, 4.2, z, 3)); });
     gf.push(bx(18.4, .4, .2, -39, .2, 25.1, 3), bx(.2, .4, 12.5, -29.9, .2, 18.75, 3));
-    OUT.add(new THREE.Mesh(merge(gf), mFacade));
+    OUT.add(new THREE.Mesh(merge(gf), mFacadeTrim));
     [15.5, 19.5, 23.5, 27.5, 31.5].forEach(z => { plane(OUT, pickWin(), 2.4, 1.8, 27.98, 5.2, z, -Math.PI / 2); plane(OUT, pickWin(), 2.4, 1.8, 48.02, 5.2, z, Math.PI / 2); });
     [15.5, 19.5, 23.5].forEach(z => plane(OUT, pickWin(), 2.4, 1.6, -48.02, 2.4, z, -Math.PI / 2));
   }
@@ -3539,7 +3539,7 @@ export function buildWorld(scene) {
     return .38 + .62 * d;
   }
   const flickCfg = { calm: false };
-  return { campusDesign, modelAudit, POOL, CHAIRS, B_BOIL, LOCKER_BOXES, h133Mat, crMat, thMat, prMat, v2Mat, winMats, MODELS, floors, items, lockers, doors, gate, update, mats: { flickerMats, matLampOn, matLampDead }, flickCfg, sky: { stars, moon, moonGlow }, NOTES, TAPES, PHOTOS, doorList, props, boardRefs, OUT, bakeStats, makeBoardTex: T.makeBoard };
+  return { INFIRMARY_SLOTS, campusDesign, modelAudit, POOL, CHAIRS, B_BOIL, LOCKER_BOXES, h133Mat, crMat, thMat, prMat, v2Mat, winMats, MODELS, floors, items, lockers, doors, gate, update, mats: { flickerMats, matLampOn, matLampDead }, flickCfg, sky: { stars, moon, moonGlow }, NOTES, TAPES, PHOTOS, doorList, props, boardRefs, OUT, bakeStats, makeBoardTex: T.makeBoard };
 }
 
 /* ---------- 충돌/시야 ---------- */

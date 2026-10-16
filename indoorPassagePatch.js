@@ -62,7 +62,7 @@ class IndoorCorridorPassagePatch {
       if (typeof THREE !== "undefined") {
         const t = new THREE.CanvasTexture(c);
         t.wrapS = t.wrapT = THREE.RepeatWrapping;
-        t.repeat.set(rx, ry);
+        t.repeat.set(rx, ry); t.colorSpace = THREE.SRGBColorSpace;
         return t;
       }
       return null;
@@ -138,7 +138,7 @@ class IndoorCorridorPassagePatch {
     group.rotation.y = rotationY;
     this.passageGroup = group;
 
-    const wallMat = new THREE.MeshStandardMaterial({ map: this.textures.indoorWall, roughness: 0.78 });
+    this.textures.indoorWall.repeat.set(length / 4, 1); this.textures.indoorFloor.repeat.set(width / 2, length / 2); const wallMat = new THREE.MeshStandardMaterial({ map: this.textures.indoorWall, roughness: 0.78 });
     const floorMat = new THREE.MeshStandardMaterial({ map: this.textures.indoorFloor, roughness: 0.62 });
     const ceilingMat = new THREE.MeshStandardMaterial({ color: 0x6e6c64, roughness: 0.85 });
 

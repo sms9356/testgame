@@ -60,3 +60,57 @@ test('진행 상태 보정: 열쇠 수 · 정문 열쇠 · 체력', () => {
   const fixes = repairProgress(d, 5);
   assert.equal(d.player.keys, 2); assert.equal(d.progress.FL.gatekey, false); assert.equal(d.player.hp, 50); assert.equal(fixes.length, 3);
 });
+
+test('null과 배열 형태의 월드 상태는 거부한다', () => {
+  for (const value of [null, []]) {
+    assert.ok(validate(v5({ world: { items: value, props: {} } })).length > 0);
+    assert.ok(validate(v5({ world: { items: {}, props: value } })).length > 0);
+    assert.ok(validate(v5({ inv: value })).length > 0);
+  }
+});
+
+test('손상된 구버전 배열은 정상 백업 복구를 막지 않는다', () => {
+  for (const broken of [{ taken: {} }, { props: {} }]) {
+    const s = mem(), k = storageKeys(false);
+    s.setItem(k.main, JSON.stringify({ P: v5().player, got: [], ...broken }));
+    s.setItem(k.backup, JSON.stringify(v5()));
+    assert.equal(readSlot(s, k, { itemUids: [], propUids: [] }).source, 'backup');
+  }
+});
+
+test('null 월드 상태의 본 저장은 건너뛰고 백업을 읽는다', () => {
+  const s = mem(), k = storageKeys(false);
+  s.setItem(k.main, JSON.stringify(v5({ world: { items: null, props: {} } })));
+  s.setItem(k.backup, JSON.stringify(v5()));
+  assert.equal(readSlot(s, k, { itemUids: [], propUids: [] }).source, 'backup');
+});
+
+test('백업 복구 후 저장 실패에도 정상 백업을 보존한다', () => {
+  const s = mem(), k = storageKeys(false), good = JSON.stringify(v5());
+  s.setItem(k.main, '{broken'); s.setItem(k.backup, good);
+  const set = s.setItem;
+  s.setItem = (key, value) => { if (key === k.main) throw new Error('quota'); set(key, value); };
+  assert.throws(() => writeSlot(s, k, v5()), /quota/);
+  assert.equal(s.getItem(k.backup), good);
+  assert.equal(readSlot(s, k, { itemUids: [], propUids: [] }).source, 'backup');
+});
+
+test('잘못된 새 저장은 기존 슬롯을 변경하지 않는다', () => {
+  const s = mem(), k = storageKeys(false), good = JSON.stringify(v5());
+  s.setItem(k.main, good); s.setItem(k.backup, good);
+  assert.throws(() => writeSlot(s, k, v5({ world: { items: null, props: {} } })));
+  assert.equal(s.getItem(k.main), good); assert.equal(s.getItem(k.backup), good);
+});
+
+test('직렬화 실패는 기존 본 저장과 백업을 변경하지 않는다', () => {
+  const s = mem(), k = storageKeys(false), good = JSON.stringify(v5()), d = v5();
+  s.setItem(k.main, good); s.setItem(k.backup, good); d.circular = d;
+  assert.throws(() => writeSlot(s, k, d));
+  assert.equal(s.getItem(k.main), good); assert.equal(s.getItem(k.backup), good);
+});
+
+
+test('층 번호는 실제 맵 범위의 정수만 허용한다', () => {
+  for (const floor of [-1, 11, 0.5]) assert.ok(validate(v5({ player: { ...v5().player, floor } })).length > 0);
+  for (let floor = 0; floor <= 10; floor++) assert.deepEqual(validate(v5({ player: { ...v5().player, floor } })), []);
+});

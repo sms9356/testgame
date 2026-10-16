@@ -48,7 +48,7 @@ class School37RoomsMasterPatch {
       if (typeof THREE !== "undefined") {
         const t = new THREE.CanvasTexture(c);
         t.wrapS = t.wrapT = THREE.RepeatWrapping;
-        t.repeat.set(rx, ry);
+        t.repeat.set(rx, ry); t.colorSpace = THREE.SRGBColorSpace;
         return t;
       }
       return null;
@@ -131,13 +131,13 @@ class School37RoomsMasterPatch {
     return {
       mahogany: new THREE.MeshStandardMaterial({ map: this.textures.mahoganyWood, roughness: 0.38, metalness: 0.1 }),
       oakWood: new THREE.MeshStandardMaterial({ color: 0x7c5836, map: this.textures.mahoganyWood, roughness: 0.55 }),
-      darkLeather: new THREE.MeshStandardMaterial({ color: 0x241d1a, roughness: 0.42, metalness: 0.08 }),
+      darkLeather: new THREE.MeshStandardMaterial({ color: 0x241d1a, roughness: 0.58, metalness: 0 }),
       softFabric: new THREE.MeshStandardMaterial({ color: 0x45525c, map: this.textures.carpetTile, roughness: 0.85 }),
       stainless: new THREE.MeshStandardMaterial({ map: this.textures.brushedSteel, roughness: 0.25, metalness: 0.82 }),
-      industrialBlue: new THREE.MeshStandardMaterial({ color: 0x224860, roughness: 0.45, metalness: 0.65 }),
-      industrialRed: new THREE.MeshStandardMaterial({ color: 0x8a2420, roughness: 0.45, metalness: 0.65 }),
-      hospitalCurtain: new THREE.MeshStandardMaterial({ color: 0x6b9486, roughness: 0.9, side: THREE.DoubleSide }),
-      whitePorcelain: new THREE.MeshStandardMaterial({ color: 0xdde3e0, roughness: 0.2, metalness: 0.05 }),
+      industrialBlue: new THREE.MeshStandardMaterial({ color: 0x224860, roughness: 0.58, metalness: 0.05 }),
+      industrialRed: new THREE.MeshStandardMaterial({ color: 0x8a2420, roughness: 0.58, metalness: 0.05 }),
+      hospitalCurtain: new THREE.MeshStandardMaterial({ color: 0x6b9486, roughness: 0.9, side: THREE.DoubleSide }), hospitalLinen: new THREE.MeshStandardMaterial({ color: 0xd9d5c8, roughness: 0.88, metalness: 0 }),
+      whitePorcelain: new THREE.MeshStandardMaterial({ color: 0xdde3e0, roughness: 0.2, metalness: 0 }),
       pianoBlack: new THREE.MeshStandardMaterial({ color: 0x0d0e10, roughness: 0.12, metalness: 0.35 }),
       plasterWhite: new THREE.MeshStandardMaterial({ color: 0xd8d4cb, roughness: 0.75 }),
       glassCase: new THREE.MeshStandardMaterial({ color: 0xaad4e6, transparent: true, opacity: 0.32, roughness: 0.1, metalness: 0.8 })
@@ -188,7 +188,7 @@ class School37RoomsMasterPatch {
     propMesh.updateMatrixWorld(true);
     const bounds = new THREE.Box3().setFromObject(propMesh), size = bounds.getSize(new THREE.Vector3()), center = bounds.getCenter(new THREE.Vector3());
     // Prefab dimensions were estimates and ignored rotation/benches/handles.
-    w = Math.max(w, size.x); d = Math.max(d, size.z);
+    if (!propMesh.userData.infirmaryFootprint) { w = Math.max(w, size.x); d = Math.max(d, size.z); }
 
     // 중앙 보행 통로(폭 1.4m) 보호: allowCenter가 아닌 일반 가구가 중앙선을 침범하면 벽 쪽으로 밀어냄
     let candidateOffsets = [[0, 0]];
@@ -196,15 +196,21 @@ class School37RoomsMasterPatch {
       candidateOffsets.push([step, 0], [-step, 0], [0, step], [0, -step], [step, step], [-step, -step]);
     }
 
+    const footprint = propMesh.userData.infirmaryFootprint;
+    const cosY = Math.cos(rotY), sinY = Math.sin(rotY);
+    const offsetX = footprint ? footprint.x * cosY + footprint.z * sinY : center.x;
+    const offsetZ = footprint ? -footprint.x * sinY + footprint.z * cosY : center.z;
+
     let placedX = null, placedZ = null;
     for (const [ox, oz] of candidateOffsets) {
       const tx = x + ox;
       const tz = z + oz;
+      const centerX = tx + offsetX, centerZ = tz + offsetZ;
 
       // 중앙 보행 동선(폭 1.3m) 확보 체크
-      if (!allowCenter && Math.abs(tx + center.x) - w / 2 < .75 && Math.abs(tz + center.z) - d / 2 < roomD * 0.35) continue;
+      if (!allowCenter && Math.abs(centerX) - w / 2 < .75 && Math.abs(centerZ) - d / 2 < roomD * 0.25) continue;
 
-      if (this._canPlaceFurniture(roomKey, tx + center.x, tz + center.z, w, d, roomW, roomD, doors)) {
+      if (this._canPlaceFurniture(roomKey, centerX, centerZ, w, d, roomW, roomD, doors)) {
         placedX = tx;
         placedZ = tz;
         break;
@@ -219,13 +225,13 @@ class School37RoomsMasterPatch {
     roomGroup.add(propMesh);
 
     // 점유 영역 등록
-    this.roomOccupancyMap.get(roomKey).push({ x: placedX + center.x, z: placedZ + center.z, w, d });
+    this.roomOccupancyMap.get(roomKey).push({ x: placedX + offsetX, z: placedZ + offsetZ, w, d });
 
     // 플레이어/괴물 이동 충돌용 단순 박스 콜라이더 등록 (끼임 없는 슬라이딩용)
     const worldBox = {
       roomKey,
-      localX: placedX + center.x,
-      localZ: placedZ + center.z,
+      localX: placedX + offsetX,
+      localZ: placedZ + offsetZ,
       width: w,
       depth: d,
       height: h,
@@ -247,16 +253,16 @@ class School37RoomsMasterPatch {
   _prefabBedWithCurtain() {
     // [보건실] 매트리스 + 베개 + 철제 프레임 + 반투명 녹색 병원 커튼 파티션
     const g = new THREE.Group();
-    const frame = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.45, 2.0), this.materials.stainless);
+    const frame = new THREE.Group(); const rail = new THREE.Mesh(new THREE.BoxGeometry(1.0, .07, 2.0), this.materials.stainless); rail.position.y = .175; frame.add(rail); for (const x of [-.44, .44]) for (const z of [-.9, .9]) { const leg = new THREE.Mesh(new THREE.BoxGeometry(.055, .42, .055), this.materials.stainless); leg.position.set(x, -.015, z); frame.add(leg); } const head = new THREE.Mesh(new THREE.BoxGeometry(.94, .4, .05), this.materials.stainless); head.position.set(0, .425, -.97); frame.add(head);
     frame.position.y = 0.225;
-    const mattress = new THREE.Mesh(new THREE.BoxGeometry(0.94, 0.16, 1.92), this.materials.whitePorcelain);
+    const mattress = new THREE.Mesh(new THREE.BoxGeometry(0.94, 0.16, 1.92), this.materials.hospitalLinen);
     mattress.position.y = 0.52;
-    const pillow = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.1, 0.32), this.materials.whitePorcelain);
+    const pillow = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.1, 0.32), this.materials.hospitalLinen);
     pillow.position.set(0, 0.62, -0.72);
-    const curtain = new THREE.Mesh(new THREE.PlaneGeometry(2.0, 1.8), this.materials.hospitalCurtain);
+    const curtain = new THREE.Mesh(new THREE.PlaneGeometry(2.0, 1.8, 32, 1), this.materials.hospitalCurtain); const folds = curtain.geometry.attributes.position; for (let i = 0; i < folds.count; i++) folds.setZ(i, -.025 * (.5 + .5 * Math.cos(folds.getX(i) * Math.PI * 10))); curtain.geometry.computeVertexNormals();
     curtain.position.set(0.55, 1.1, 0);
     curtain.rotation.y = Math.PI / 2;
-    g.add(frame, mattress, pillow, curtain);
+    g.userData.infirmaryKind = "bed"; g.add(frame, mattress, pillow, curtain);
     return g;
   }
 
@@ -481,7 +487,7 @@ class School37RoomsMasterPatch {
         if (roomName === "보건실") {
           place(this._prefabBedWithCurtain(), hw - 0.5, -hd + 0.6, 0, 1.1, 2.0, 1.8);
         }
-        place(this._prefabHeavyStorageRack(), 0, -hd + 0.2, 0, 1.6, 0.6, 2.0, false, {
+        place(((p) => { p.userData.infirmaryKind = "cabinetOpen"; p.userData.infirmaryFootprint = { x: .2425, z: .2225 }; return p; })(this._prefabHeavyStorageRack()), 0, -hd + 0.2, 0, 1.4, .85, 1.8, false, {
           promptText: "[E] 보건실 유리 약품장 열기 (진정제/붕대 파밍)"
         });
         break;

@@ -366,7 +366,7 @@ function followPath(speed, dt) {
 function ghostTick(dt, t) {
   const G = ghost; if (!G.active) return;
   const F = floors[G.floor];
-  const same = G.floor === P.floor;
+  const same = G.floor === P.floor && !P.inElev;
   const outP = P.floor === 0 && P.z > MAIN_ZS + .15;
   const dist = Math.hypot(P.x - G.x, P.z - G.z);
   G.spawnGrace = Math.max(0, G.spawnGrace - dt); G.calmT = Math.max(0, (G.calmT || 0) - dt);
@@ -1080,6 +1080,7 @@ function closeNote() { $('noteBox').classList.remove('show'); if (state === 'not
 let target = null;
 const needText = p => p.kind === 'sq' ? sqNeedText(p) : p.kind === 'lock' && p.lockType === 'pick' && !inv.hairpin ? '  — 머리핀 필요' : p.kind === 'drain' && !FL.hook ? '  — 갈고리 필요' : p.kind === 'breaker' && !FL.fuse ? '  — 퓨즈 필요' : p.kind === 'console' && !power ? '  — 전원 없음' : p.kind === 'lock' && p.lockType === 'dial' && !docs.some(d => d.id === p.clue) ? '  — 번호 모름' : '';
 function findInteract() {
+  if (P.inElev) return elvTarget();
   const fx = -Math.sin(P.yaw), fz = -Math.cos(P.yaw);
   let best = null, bs = 0;
   for (const it of world.items) {
@@ -1296,58 +1297,119 @@ function stairArrive(f) {
 }
 const FLOOR_LABEL = { 0: '본관 1층', 1: '본관 2층', 2: '본관 3층', 3: '옥상', 4: '지하 1층 (B1)', 5: '체육관', 6: '수영장', 7: '급식실', 8: '별관 1층', 9: '별관 2층', 10: '별관 3층' };
 function toastFloor(f) { const t = $('floorTag'); if (!t) return; t.textContent = FLOOR_LABEL[f] || ''; t.classList.add('show'); clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('show'), 1800); }
-// 엘리베이터: 층 선택 화면 → 문 닫힘 · 운행음 · 도착 '띵'
+// 엘리베이터: 직접 타고 움직인다 — 바깥 호출 버튼(E) → 문이 열리면 걸어 들어간다 → 안쪽 벽의 버튼 패널을 바라보고 E → 문이 닫히고 카가 움직인다 → 도착하면 걸어 나간다
+// 카는 승강로 자리가 벽 속이라 맵 밖(ELV.CX, ELV.CZ)에 한 대만 지어 두고, 문턱을 넘는 순간 같은 상대 위치 · 방향으로 옮겨 이어지게 한다 (층이 바뀌면 카 높이 · P.floor 를 같은 프레임에 바꾼다)
 const EL_SET = { main: [4, 0, 1, 2], annex: [8, 9, 10] };
-// 엘리베이터 안: 실제처럼 버튼 패널(층 버튼 · 열림 · 닫힘 · 비상벨) + 층 표시기. 버튼을 누르면 문이 닫히고 층 표시가 한 층씩 바뀌며 움직인다
 const EL_BTN = { 4: 'B1', 0: '1', 1: '2', 2: '3', 8: '1', 9: '2', 10: '3' };
-function elUI() {
-  let el = $('elev'); if (el) return el;
-  el = document.createElement('div'); el.id = 'elev'; el.className = 'overlay';
-  el.innerHTML = `<div class="elCab"><div class="elWall"></div><div class="elDoors"><i></i><i></i></div>
-    <div class="elPanel"><div class="elDisp"><b id="elArrow"></b><span id="elNum">1</span></div><div id="elBtns"></div>
-    <div class="elRow"><button data-a="open">◀ ▶</button><button data-a="close">▶ ◀</button></div><button class="elBell" data-a="bell">🔔 비상</button>
-    <div class="elHint">숫자 키 · 클릭으로 층 선택 · <kbd>Esc</kbd> 내리기</div></div><div id="elMsg"></div></div>`;
-  document.body.appendChild(el); return el;
+const ELV = { CX: 400, CZ: 400, g: null, doors: [], open: 0, want: 0, cur: 0, p: null, moving: false, btns: [], disp: null, ray: new THREE.Raycaster(), hallT: [] };
+function elvBuild() {
+  if (ELV.g) return;
+  const g = new THREE.Group(), CX = ELV.CX, CZ = ELV.CZ; g.position.set(CX, 0, CZ); scene.add(g); ELV.g = g;
+  const S = (c, o = {}) => new THREE.MeshStandardMaterial({ color: c, roughness: .62, metalness: .45, ...o });
+  const steel = S(0x7a8084), dark = S(0x2a2c2e, { metalness: .3, roughness: .8 }), floorM = S(0x3a3632, { metalness: .1, roughness: .9 });
+  const box = (w, h, d, x, y, z, m) => { const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m); b.position.set(x, y, z); g.add(b); return b; };
+  // 카 (안쪽 1.7 × 1.6, 문은 +z 쪽 z=0)
+  box(1.8, .05, 1.7, 0, -.025, -.8, floorM); box(1.8, .05, 1.7, 0, 2.42, -.8, dark);
+  box(.05, 2.4, 1.7, -.875, 1.2, -.8, steel); box(.05, 2.4, 1.7, .875, 1.2, -.8, steel); box(1.8, 2.4, .05, 0, 1.2, -1.625, S(0xb8bcc0, { roughness: .2, metalness: .9 }));
+  box(.35, 2.4, .06, -.7, 1.2, 0, steel); box(.35, 2.4, .06, .7, 1.2, 0, steel); box(1.05, .3, .06, 0, 2.25, 0, steel);
+  box(1.5, .04, .04, 0, .95, -1.57, S(0xd0c8a0)); box(.04, .04, 1.4, -.83, .95, -.8, S(0xd0c8a0)); box(.04, .04, 1.4, .83, .95, -.8, S(0xd0c8a0));   // 손잡이
+  const lamp = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 1.1), new THREE.MeshBasicMaterial({ color: power ? 0xfff0d8 : 0x806040 })); lamp.rotation.x = Math.PI / 2; lamp.position.set(0, 2.39, -.8); g.add(lamp); ELV.lamp = lamp;
+  [-.25, .25].forEach(dx => { const d = box(.52, 2.1, .03, dx, 1.05, .02, S(0xa8aeb2)); d.userData.x0 = dx; ELV.doors.push(d); });
+  // 층 표시기 (문 위 안쪽)
+  const cv = document.createElement('canvas'); cv.width = 128; cv.height = 48; const tx = new THREE.CanvasTexture(cv); tx.colorSpace = THREE.SRGBColorSpace;
+  const dsp = new THREE.Mesh(new THREE.PlaneGeometry(.3, .11), new THREE.MeshBasicMaterial({ map: tx })); dsp.position.set(0, 2.25, -.04); dsp.rotation.y = Math.PI; g.add(dsp);
+  ELV.disp = (t, dir = '') => { const c = cv.getContext('2d'); c.fillStyle = '#120806'; c.fillRect(0, 0, 128, 48); c.fillStyle = '#ff5a2a'; c.font = 'bold 34px monospace'; c.textAlign = 'center'; c.fillText(`${dir}${t}`, 64, 37); tx.needsUpdate = true; };
+  // 버튼 패널 (문 오른쪽 안 벽 — 들어서서 오른쪽)
+  const pnl = box(.03, .7, .26, .855, 1.25, -.3, S(0x8a9094)); pnl.rotation.y = 0;
+  ELV.panel = { x: .84 };
+  // 바깥 (문 앞 작은 홀 — 문턱 너머가 비어 보이지 않게)
+  box(3, .05, 1.6, 0, -.025, .8, floorM); box(3, 2.6, .05, 0, 1.3, 1.6, dark); box(.05, 2.6, 1.6, -1.5, 1.3, .8, dark); box(.05, 2.6, 1.6, 1.5, 1.3, .8, dark); box(3, .05, 1.6, 0, 2.6, .8, dark);
+  g.traverse(o => { o.userData.dynamic = true; });
 }
-function rideElevator(p) {
-  if (state !== 'playing') return;
-  const set = p.floor >= 8 ? EL_SET.annex : EL_SET.main, el = elUI(), btns = $('elBtns');
-  let cur = p.floor, moving = false, open = true, done = false;
-  const order = set.slice().sort((a, b) => (a === 4 ? -1 : b === 4 ? 1 : a - b)).reverse();   // 위층부터 (3 · 2 · 1 · B1)
-  btns.innerHTML = order.map(f => `<button data-f="${f}" class="${f === cur ? 'here' : ''}">${EL_BTN[f]}</button>`).join('');
-  const disp = (f, dir = '') => { $('elNum').textContent = EL_BTN[f]; $('elArrow').textContent = dir; };
-  const doors = o => { open = o; el.classList.toggle('closed', !o); sfx.doorSlide(.7); };
-  const msg = t => { $('elMsg').textContent = t; clearTimeout(msg.t); msg.t = setTimeout(() => { $('elMsg').textContent = ''; }, 2600); };
-  disp(cur); el.classList.remove('closed'); state = 'ui'; document.exitPointerLock?.(); el.classList.add('show'); sfx.ding();
-  if (!power) msg('비상 전원 — 느리게 움직인다');
-  const exit = () => { if (moving || done) return; done = true; el.classList.remove('show'); removeEventListener('keydown', kd, true);
-    if (cur !== p.floor) { const tp = world.props.find(q => q.kind === 'elevator' && q.floor === cur); if (tp) { P.floor = cur; P.x = tp.px - .9; P.z = tp.pz; P.yaw = Math.PI / 2; P.pitch = 0; P.sh = 0; P.shV = 0; toastFloor(cur);
-      if (cur === 4 && !P.b1Seen) { P.b1Seen = true; setTimeout(() => talk('b1', 3000), 600); } } }
-    state = 'playing'; lock(); };
-  const go = async f => {
-    if (moving || f === cur) { if (f === cur) { sfx.click(); msg('이미 이 층이다'); } return; }
-    moving = true; btns.querySelectorAll('button').forEach(b => b.classList.toggle('lit', +b.dataset.f === f)); sfx.click();
-    if (open) { doors(false); await wait(900); }
-    const path = order.slice().reverse(), dir = path.indexOf(f) > path.indexOf(cur) ? 1 : -1;
-    sfx.elevator((power ? 1.2 : 2.2) * Math.abs(path.indexOf(f) - path.indexOf(cur)));
-    for (let i = path.indexOf(cur); i !== path.indexOf(f);) { i += dir; await wait(power ? 1100 : 2000); cur = path[i]; disp(cur, dir > 0 ? '▲' : '▼'); sfx.beep && sfx.beep(); shakeCab();
-      if (!power && Math.random() < .3) { shake = .35; sfx.thump(); msg('덜컹— 케이블이 흔들린다'); }
-      if (!power && Math.random() < .15) { sfx.ghostBreath(); caption('(바로 뒤에서 숨소리)'); } }
-    disp(cur); sfx.ding(); await wait(400); doors(true); moving = false;
-    btns.querySelectorAll('button').forEach(b => { b.classList.remove('lit'); b.classList.toggle('here', +b.dataset.f === cur); });
-    msg(`${FLOOR_LABEL[cur]} — Esc 또는 열림 버튼 다시 눌러 내리기`);
-  };
-  const shakeCab = () => { const c = el.querySelector('.elCab'); c.classList.remove('jolt'); void c.offsetWidth; c.classList.add('jolt'); };
-  el.onclick = e => { const b = e.target.closest('button'); if (!b) return; e.stopPropagation();
-    if (b.dataset.f != null) go(+b.dataset.f);
-    else if (b.dataset.a === 'open') { if (moving) { sfx.buzz(); return; } if (open) exit(); else doors(true); }
-    else if (b.dataset.a === 'close') { if (!moving && open) doors(false); }
-    else if (b.dataset.a === 'bell') { sfx.bell ? sfx.bell() : sfx.beep(); msg('…아무도 대답하지 않는다'); P.noiseT = 1; } };
-  const kd = e => { e.stopImmediatePropagation(); e.preventDefault();
-    if (e.code === 'Escape' || e.code === 'KeyE') { if (open && !moving) exit(); else if (!moving) doors(true); return; }
-    const n = { Digit1: 0, Digit2: 1, Digit3: 2, KeyB: 4, Digit0: 4 }[e.code]; if (n == null) return;
-    const f = set.includes(n) ? n : set.find(x => EL_BTN[x] === String(n + 1)); if (f != null && set.includes(f)) go(f); };
-  addEventListener('keydown', kd, true);
+function elvButtons(set) {
+  ELV.btns.forEach(b => b.mesh.parent && b.mesh.parent.remove(b.mesh)); ELV.btns = [];
+  const order = set.slice().sort((a, b) => (a === 4 ? -1 : b === 4 ? 1 : a - b)).reverse();
+  const list = [...order.map(f => ({ a: 'f', f, t: EL_BTN[f] })), { a: 'open', t: '◀▶' }, { a: 'close', t: '▶◀' }, { a: 'bell', t: '🔔' }];
+  list.forEach((b, i) => {
+    const cv = document.createElement('canvas'); cv.width = cv.height = 64; const c = cv.getContext('2d');
+    c.fillStyle = b.a === 'bell' ? '#c8a040' : '#d8dcdc'; c.beginPath(); c.arc(32, 32, 30, 0, 7); c.fill(); c.fillStyle = '#222'; c.font = 'bold 26px sans-serif'; c.textAlign = 'center'; c.fillText(b.t, 32, 41);
+    const tx = new THREE.CanvasTexture(cv); tx.colorSpace = THREE.SRGBColorSpace;
+    const m = new THREE.Mesh(new THREE.CircleGeometry(.04, 16), new THREE.MeshBasicMaterial({ map: tx, transparent: true, color: 0xcccccc }));
+    const row = i < order.length ? i : order.length + (i - order.length);
+    m.position.set(ELV.panel.x - .012, 1.52 - row * .085, -.3); m.rotation.y = -Math.PI / 2; m.userData.dynamic = true; ELV.g.add(m);
+    ELV.btns.push({ kind: 'elBtn', a: b.a, f: b.f, mesh: m, floor: -1, x: 0, z: 0,
+      label: b.a === 'f' ? `${FLOOR_LABEL[b.f]} 버튼 누르기` : b.a === 'open' ? '문 열림 버튼' : b.a === 'close' ? '문 닫힘 버튼' : '비상벨 누르기' });
+  });
+}
+const elvHere = f => world.props.find(q => q.kind === 'elevator' && q.floor === f);
+function elvHallOpen(p, open, snap) { p.hallOpen = open; if (snap) p.hallK = open ? 1 : 0; }
+function elvCall(p) {   // 바깥 호출 버튼
+  if (p.hallOpen) { sfx.click(); return; }
+  sfx.click(); say(power ? '띵— 문이 열린다' : '비상 전원 — 한참 뒤에야 문이 열린다', 1600);
+  setTimeout(() => { sfx.ding(); sfx.doorSlide(.7); elvHallOpen(p, true); p.closeT = performance.now() + 7000; }, power ? 600 : 1800);
+}
+// 홀 → 카 (같은 상대 위치: 홀 안쪽 방향 +x ↔ 카 안쪽 방향 −z)
+function elvEnter(p) {
+  elvBuild(); const set = p.floor >= 8 ? EL_SET.annex : EL_SET.main; if (ELV.set !== set) { ELV.set = set; elvButtons(set); }
+  const ox = P.x - p.px, oz = P.z - p.pz;
+  ELV.p = p; ELV.cur = p.floor; ELV.g.position.y = floors[p.floor].y0; ELV.open = ELV.want = 1; ELV.disp(EL_BTN[p.floor]);
+  ELV.doors.forEach(d => { d.position.x = d.userData.x0 + Math.sign(d.userData.x0) * .5; }); P.inElev = true; P.x = ELV.CX + oz; P.z = ELV.CZ + Math.min(.2, -ox); P.yaw += Math.PI / 2;
+  elvHallOpen(p, false, true); ELV.idle = performance.now();
+}
+function elvLeave() {
+  const p = elvHere(ELV.cur) || ELV.p, cx = P.x - ELV.CX, cz = P.z - ELV.CZ;
+  P.inElev = false; P.x = p.px - .95; P.z = p.pz + Math.max(-.4, Math.min(.4, cx)); P.yaw -= Math.PI / 2;
+  elvHallOpen(p, true, true); p.closeT = performance.now() + 2500; ELV.p = null;
+  if (P.floor === 4 && !P.b1Seen) { P.b1Seen = true; setTimeout(() => talk('b1', 3000), 600); }
+  toastFloor(P.floor);
+}
+async function elvPress(b) {
+  b.mesh.material.color.setHex(0xffc060); setTimeout(() => b.mesh.material.color.setHex(0xcccccc), b.a === 'f' ? 400 : 250); sfx.click(); ELV.idle = performance.now();
+  if (b.a === 'bell') { sfx.bell ? sfx.bell() : sfx.beep(); P.noiseT = 1; say('…아무도 대답하지 않는다', 2000); return; }
+  if (b.a === 'open') { if (ELV.moving) { sfx.buzz(); return; } if (!ELV.want) sfx.doorSlide(.7); ELV.want = 1; return; }
+  if (b.a === 'close') { if (!ELV.moving && ELV.want) { ELV.want = 0; sfx.doorSlide(.7); } return; }
+  if (ELV.moving) return;
+  if (b.f === ELV.cur) { if (!ELV.want) { ELV.want = 1; sfx.doorSlide(.7); } return; }
+  ELV.moving = true; b.mesh.material.color.setHex(0xffc060);
+  if (ELV.want) { ELV.want = 0; sfx.doorSlide(.7); await wait(1000); }
+  const path = ELV.set.slice().sort((a, c) => (a === 4 ? -1 : c === 4 ? 1 : a - c)), dir = path.indexOf(b.f) > path.indexOf(ELV.cur) ? 1 : -1;
+  sfx.elevator((power ? 1.2 : 2.2) * Math.abs(path.indexOf(b.f) - path.indexOf(ELV.cur))); shake = Math.max(shake, .12);
+  for (let i = path.indexOf(ELV.cur); i !== path.indexOf(b.f);) {
+    i += dir; await wait(power ? 1100 : 2000); if (!P.inElev) break;
+    ELV.cur = path[i]; P.floor = ELV.cur; ELV.g.position.y = floors[ELV.cur].y0; ELV.disp(EL_BTN[ELV.cur], dir > 0 ? '▲' : '▼'); sfx.beep && sfx.beep(); shake = Math.max(shake, .08);
+    if (!power && Math.random() < .3) { shake = .35; sfx.thump(); say('덜컹— 케이블이 흔들린다', 1800); }
+    if (!power && Math.random() < .15) { sfx.ghostBreath(); caption('(바로 뒤에서 숨소리)'); }
+  }
+  ELV.disp(EL_BTN[ELV.cur]); b.mesh.material.color.setHex(0xcccccc); sfx.ding(); await wait(400); ELV.want = 1; sfx.doorSlide(.7); ELV.moving = false; ELV.idle = performance.now();
+}
+// 카 안 조준: 카메라 정면 광선이 맞는 버튼
+function elvTarget() {
+  if (!ELV.btns.length) return null;
+  ELV.ray.setFromCamera({ x: 0, y: 0 }, camera); ELV.ray.far = 1.6;
+  const hit = ELV.ray.intersectObjects(ELV.btns.map(b => b.mesh), false)[0]; if (!hit) return null;
+  const b = ELV.btns.find(q => q.mesh === hit.object); return { type: 'prop', p: b, label: b.label };
+}
+function elvTick(dt) {
+  const now = performance.now();
+  // 바깥 문 (층마다)
+  for (const p of world.props) { if (p.kind !== 'elevator' || !p.hall) continue;
+    if (p.hallOpen && p.closeT && now > p.closeT && !(p.floor === P.floor && Math.hypot(P.x - p.px, P.z - p.pz) < 1.0)) { p.hallOpen = false; p.closeT = 0; if (p.floor === P.floor) sfx.doorSlide(.5); }
+    const k0 = p.hallK || 0, k = p.hallK = Math.max(0, Math.min(1, k0 + (p.hallOpen ? dt : -dt) / .8));
+    if (k !== k0) p.hall.forEach((d, i) => { d.position.x = (i ? .4 : -.4) + (i ? .75 : -.75) * k; });
+    // 홀 → 카: 열린 문의 문턱에 닿으면
+    if (!P.inElev && state === 'playing' && p.floor === P.floor && k > .85 && P.x > p.px - .75 && Math.abs(P.z - p.pz) < .45) elvEnter(p);
+  }
+  if (!P.inElev || !ELV.g) return;
+  const k0 = ELV.open; ELV.open = Math.max(0, Math.min(1, ELV.open + (ELV.want ? dt : -dt) / .8));
+  if (ELV.open !== k0) ELV.doors.forEach(d => { d.position.x = d.userData.x0 + Math.sign(d.userData.x0) * .5 * ELV.open; });
+  if (ELV.want && !ELV.moving && now - ELV.idle > 9000) { ELV.want = 0; sfx.doorSlide(.6); }   // 가만히 있으면 문이 닫힌다
+  // 카 안 충돌 (문이 열려 있을 때만 문턱 · 바깥 홀로)
+  const lx = P.x - ELV.CX, lz = P.z - ELV.CZ, R = .3;
+  let x = lx, z = lz;
+  if (z < -R || ELV.open < .8) { x = Math.max(-.85 + R, Math.min(.85 - R, x)); z = Math.max(-1.6 + R, Math.min(ELV.open < .8 ? -R : 1, z)); }
+  else if (z < R) { x = Math.max(-.5 + R, Math.min(.5 - R, x)); }
+  P.x = ELV.CX + x; P.z = ELV.CZ + z;
+  if (z > .42 && ELV.open > .8) elvLeave();
 }
 // 방마다 고유 오브젝트 — 선택 화면(1·2·3 키)으로 조작하고, 보급 · 안정 · 기록 · 공포 효과가 있다
 const calmDown = (sec, msg) => { storyCalm(sec); P.fear = Math.max(0, P.fear - .4); setFace('relief', 3); if (msg) caption(msg); };
@@ -1608,7 +1670,7 @@ function save(silent) {
   const d = {
     schemaVersion: SCHEMA, build: BUILD,
     meta: { char: CHAR, ch: objective().ch, time: playTime, savedAt: Date.now(), where: whereText() },
-    player: { x: P.x, z: P.z, floor: P.floor, yaw: P.yaw, hp: P.hp, battery: P.battery, stamina: P.stamina, keys: P.keys, light: P.light, pbat: Math.round(P.pbat ?? 100), roofSeen: !!P.roofSeen, b1Seen: !!P.b1Seen, gymSeen: !!P.gymSeen, cafeSeen: !!P.cafeSeen, poolSeen: !!P.poolSeen, bcast: !!P.bcast },
+    player: { ...(P.inElev ? (q => ({ x: q.px - .9, z: q.pz, yaw: Math.PI / 2 }))(elvHere(P.floor) || ELV.p) : { x: P.x, z: P.z, yaw: P.yaw }), floor: P.floor, hp: P.hp, battery: P.battery, stamina: P.stamina, keys: P.keys, light: P.light, pbat: Math.round(P.pbat ?? 100), roofSeen: !!P.roofSeen, b1Seen: !!P.b1Seen, gymSeen: !!P.gymSeen, cafeSeen: !!P.cafeSeen, poolSeen: !!P.poolSeen, bcast: !!P.bcast },
     progress: { got: [...got], FL: { ...FL }, power, gateClosed, introDone, playTime },
     inv: { ...inv }, docs: docs.map(x => ({ id: x.id, kind: x.kind })), msgs: msgs.map(m => ({ ...m })), clues: [...clues],
     events: [...EV.done], tips: [...tipsDone], cards: [...seenCards], b33: EV.b33,
@@ -1968,7 +2030,7 @@ const easeOut = t => 1 - Math.pow(1 - t, 3);
 
 function updateLighting(dt) {
   const F = floors[P.floor];
-  const indoors = P.floor >= 4 || (P.floor > 0 && P.floor < 3) || (P.floor === 0 && inBldg(P.x, P.z));
+  const indoors = P.inElev || P.floor >= 4 || (P.floor > 0 && P.floor < 3) || (P.floor === 0 && inBldg(P.x, P.z));
   const k = Math.min(1, dt * 3);
   updateDay(dt);
   const dk = DAY.k;
@@ -2414,7 +2476,8 @@ const setTarget = t => { target = t; };
 async function useProp(p) {
   if (p.kind === 'fz') { fzUse(p); return; }   // 사용자 패치(5대 구역 · 실내 연결복도) 상호작용
   if (p.kind === 'switch') { flipSwitch(p, !p.on, true); return; }
-  if (p.kind === 'elevator') { rideElevator(p); return; }
+  if (p.kind === 'elevator') { elvCall(p); return; }
+  if (p.kind === 'elBtn') { elvPress(p); return; }
   if (p.kind === 'robj') { useRoomObj(p); return; }
   if (p.kind === 'guardnpc') { talkGuard(p); return; }
   if (p.kind === 'sq') { p.main ? useHead(p) : useSideQuest(p); return; }
@@ -4493,6 +4556,7 @@ function inPassage() { return P.floor === 0 && P.x > PASS.x1 && P.x < PASS.x2 &&
   const O = world.OUT, F0 = floors[0], cz = (WALKWAY.z1 + WALKWAY.z2) / 2;
   ipP.buildIndoorPassage(V3(.8, 0, cz), { length: WALKWAY.z2 - WALKWAY.z1, width: 3.4, height: 2.9, rotationY: Math.PI });
   const pg = ipP.passageGroup; O.add(pg); pg.traverse(o => { o.userData.dynamic = true; if (o.isMesh) { o.castShadow = o.receiveShadow = true; } });
+  { const wp = new THREE.Vector3(); pg.updateMatrixWorld(true); pg.traverse(o => { if (o.isMesh && o.getWorldPosition(wp).y > 2.3) o.castShadow = false; }); }   // 천장 등기구 · 배관이 손전등 그림자를 천장에 크게 드리워 천장이 뚫린 것처럼 보였다
   const [floor, , eWall, wWall, , , valve, steam, lPiv, rPiv, mop] = pg.children;
   ['indoorWall', 'indoorFloor', 'fireDoorTex'].forEach(k => srgb(ipP.textures[k]));
   floor.position.y = -.07;   // 기존 통로 바닥(0.015) 위로
@@ -4501,7 +4565,7 @@ function inPassage() { return P.floor === 0 && P.x > PASS.x1 && P.x < PASS.x2 &&
   valve.position.z = L2(PASS.valveZ); steam.position.set(0, 1.5, L2(PASS.valveZ + .1));
   // 증기: 구 하나 대신 둥근 그라데이션 판 3장을 엇갈려 — 가장자리가 부드럽다 (클래스는 material.opacity 만 바꾼다)
   { const c = document.createElement('canvas'); c.width = c.height = 128; const x = c.getContext('2d'), gr = x.createRadialGradient(64, 64, 4, 64, 64, 62); gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(.5, 'rgba(255,255,255,.45)'); gr.addColorStop(1, 'rgba(255,255,255,0)'); x.fillStyle = gr; x.fillRect(0, 0, 128, 128);
-    const gs = [0, 1, 2].map(k => new THREE.PlaneGeometry(2.8, 2.4).rotateY(k * Math.PI / 3)); steam.geometry = mergeGeometries(gs); steam.material.alphaMap = new THREE.CanvasTexture(c); steam.material.side = THREE.DoubleSide; steam.material.needsUpdate = true; }
+    const gs = [0, 1, 2].map(k => new THREE.PlaneGeometry(2.8, 2.4).rotateY(k * Math.PI / 3)); steam.geometry = mergeGeometries(gs); steam.material.alphaMap = new THREE.CanvasTexture(c); steam.material.side = THREE.DoubleSide; steam.material.needsUpdate = true; steam.material.visible = false; }   // 판 대신 입자 증기 (steamTick)
   mop.position.set(.8 + .42, .925, L2(-10.4));
   // 청소도구함 정면(복도 쪽 +x) 디테일: 루버 · 손잡이 · 명판
   const grn = PM(0x2c3d33, .55, .5);
@@ -4564,6 +4628,7 @@ function inPassage() { return P.floor === 0 && P.x > PASS.x1 && P.x < PASS.x2 &&
     pmesh(new THREE.PlaneGeometry(.2, .06), new THREE.MeshBasicMaterial({ map: makeSign('복도 전등', '#d8d4c4', '#2a2a2a', 26) }), -.785, 1.5, -11.05, O, { ry: Math.PI / 2, cast: false });
     PASS.lightOn = true;
     world.props.push({ kind: 'passSwitch', floor: 0, x: -.4, z: -11.05, y: 1.35, label: '전등 스위치 (연결복도)', plate }); }
+  { const wp = new THREE.Vector3(); O.traverse(o => { if (o.isMesh && o.castShadow) { o.getWorldPosition(wp); if (wp.y > 2.3 && wp.y < 3.2 && wp.x > -1.7 && wp.x < 3.7 && wp.z > WALKWAY.z1 && wp.z < WALKWAY.z2) o.castShadow = false; } }); }   // 통로 천장 등기구: 그림자 끔
   // 폐책걸상 더미 (동쪽 벽 · 일직선으로 못 달리고 돌아가야 한다)
   const PZ = PASS.pileZ + 11.85;   // 책걸상 더미 위치 (예전 z −11.85 기준 상대값)
   F0.col.push({ x1: 1.0, x2: 2.4, z1: -12.1 + PZ, z2: -11.55 + PZ });
@@ -4577,8 +4642,9 @@ function inPassage() { return P.floor === 0 && P.x > PASS.x1 && P.x < PASS.x2 &&
   fzProp(mp, 0, .2, -10.4, 1.0, { r: 1.0, hide: mopHide });
   // 책걸상 모델 (실사 소품) 따로 불러와 쌓는다
   const ld = new GLTFLoader(), put = (name, list) => ld.load(`assets/models/${name}/${name}.gltf`, gl => list.forEach(([x, y, z, ry, rx = 0, rz = 0]) => { const m = gl.scene.clone(); m.position.set(x, y, z); m.rotation.set(rx, ry, rz); m.traverse(o => { o.userData.dynamic = true; if (o.isMesh) { o.castShadow = o.receiveShadow = true; } }); O.add(m); }), undefined, () => {});
-  put('SchoolDesk_01', [[1.75, 0, -11.85 + PZ, .2], [1.6, .76, -11.8 + PZ, 2.9, Math.PI]]);
-  put('SchoolChair_01', [[1.25, 0, -11.7 + PZ, 1.3, 0, Math.PI / 2], [2.05, .78, -11.95 + PZ, .6], [1.4, 1.5, -11.75 + PZ, 2.2, .4, .3]]);
+  // 뒤집힌 위 책상은 원점이 다리 끝이라 상판 높이만큼 올려야 아래 책상 위에 얹힌다 (예전엔 아래 책상 속에 묻혀 그 위 의자가 허공에 떠 있었다)
+  put('SchoolDesk_01', [[1.75, 0, -11.85 + PZ, .2], [1.6, 1.5, -11.8 + PZ, 2.9, Math.PI]]);
+  put('SchoolChair_01', [[1.25, 0, -11.7 + PZ, 1.3, 0, Math.PI / 2], [2.05, .78, -12.05 + PZ, .6], [2.15, 0, -11.25 + PZ, 2.2, 0, .22]]);
 }
 function passBlock(on) {
   const F0 = floors[0];
@@ -4760,10 +4826,28 @@ function patchTick(dt) {
     const iv = setInterval(() => { t = Math.min(1, t + .08); f.position.y = 1.78 - t * t * 1.72; f.position.x = 2.38 - t * .25; f.rotation.z = -.07 - t * 1.2; f.rotation.x = t * .5; if (t >= 1) { clearInterval(iv); sfx.glassCrack(); at(2.1, .1, -11.85).thump(); fx.dust(2.1, .1, -11.85, 14); shake = .25; caption('…졸업 앨범 액자가 떨어져 유리가 산산이 깨졌다'); } }, 30);
   }, 2250); }
   if (!ipP.state.fireDoorClosed && floors[0].col.includes(PASS.col)) passBlock(false);
-  if (ipP.state.steamActive && Math.random() < dt * 22) fx.emit(-.6 + Math.random() * .3, 2.55, PASS.valveZ + (Math.random() - .5) * .3, .3 + Math.random() * .7, -.1 - Math.random() * .3, (Math.random() - .5) * .8, 2.2, [.9, .93, .95], .32, .5, -.05, .7, 1.4);
+  if (ipP.state.steamActive) steamTick(dt); else steamOff();
   if (ghost.active && passBlocks(G.floor, P.floor) && G.away > 4) passBang(dt);
   world.props.forEach(p => { if (p.pass === 'door') p.label = ipP.state.fireDoorClosed ? `방화문 빗장 풀고 열기 (${Math.ceil(ipP.state.barricadeTimer)}초 뒤 저절로 부서진다)` : p.fz.promptText.replace(/^\[E\]\s*/, ''); });
 }
+// 증기: 밸브 노즐에서 고압 분사(가늘고 빠른 심) → 공기와 섞이며 퍼지는 뭉게구름 → 바닥에 깔리는 옅은 안개. 가까이 있으면 화면에 김이 서린다
+const STM = { acc: 0, haze: 0, el: null };
+function steamTick(dt) {
+  const R = Math.random, vz = PASS.valveZ, nx = -.6;
+  STM.acc += dt * 70;
+  while (STM.acc > 1) { STM.acc--;
+    const k = R();
+    if (k < .35) fx.emit(nx, 2.5, vz + (R() - .5) * .06, 2.6 + R() * 1.2, -.25 + (R() - .5) * .3, (R() - .5) * .35, .45 + R() * .25, [.96, .97, .98], .35, .09, 0, 2.2, 1.1);   // 분사 심
+    else if (k < .85) fx.emit(nx + .5 + R() * .8, 2.3 + (R() - .5) * .4, vz + (R() - .5) * .5, .5 + R() * .7, .05 + R() * .25, (R() - .5) * .6, 2.2 + R() * 1.4, [.86, .88, .9], .2 + R() * .1, .4 + R() * .3, -.04, .9, .9);   // 퍼지는 뭉게구름
+    else fx.emit(nx + .6 + R() * 2, .25 + R() * .3, vz + (R() - .5) * 2.2, (R() - .5) * .3, .02, (R() - .5) * .3, 3.5 + R() * 2, [.7, .74, .76], .05, .6 + R() * .4, 0, .4, .35);   // 바닥 안개
+  }
+  // 화면 김 서림 (가까울수록) + 쉭 하는 미세 흔들림
+  const near = P.floor === 0 && !P.inElev ? Math.max(0, 1 - Math.hypot(P.x - (nx + 1), P.z - vz) / 3.2) : 0;
+  STM.haze += (near - STM.haze) * Math.min(1, dt * 2.5);
+  if (!STM.el) { STM.el = document.createElement('div'); STM.el.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:4;background:radial-gradient(ellipse at 50% 60%,rgba(230,236,240,.0) 20%,rgba(220,228,232,.55) 75%,rgba(210,218,224,.8));opacity:0;transition:none'; document.body.appendChild(STM.el); }
+  STM.el.style.opacity = (STM.haze * .85).toFixed(3); if (near > .4) shake = Math.max(shake, .02 * near);
+}
+function steamOff() { if (STM.el && STM.haze > 0) { STM.haze *= .9; STM.el.style.opacity = (STM.haze * .85).toFixed(3); } }
 function patchRestore() {
   if (FL.fz && FL.fz !== fzP.missions) Object.assign(fzP.missions, FL.fz);
   FL.fz = fzP.missions; fzApply(); poolRestore(); s37Restore(); n37Restore(); megaRestore();
@@ -5302,6 +5386,36 @@ function sg3dTick(dt) {
    · 새 가구의 바닥 상자는 게임 충돌(벽 타고 미끄러지는 기존 충돌)에 넣고, 클래스의 resolvePlayerMovementCollision 도 매 프레임 이동 뒤에 부른다
    · 클래스의 상호작용(promptText 만 있음)은 방 성격대로 실제 동작에 연결: 커튼 침대 숨기 · 소파 숨 고르기(공포 −15%) · 피아노 · 밸브(소리로 그것 유인) · 선반 수색(소모품) · 서류 읽기 · 단말기 · 수도 · 가마 */
 const s37 = window.school37RoomsPatch; s37.init({ scene, audioCtx: sfxCtx });
+// 방 성격과 안 맞는 클래스 기본 가구를 그 방에 맞는 것으로 바꾼다 (클래스 코드는 그대로 두고, 그 방을 지을 동안만 프리팹 함수를 갈아 끼운다)
+//   청소도구실의 가스 조리대 → 대걸레 싱크 · 음악실의 어학 부스 → 보면대 · 드럼 · 동아리실(사진부)의 그랜드 피아노 → 앨범 · 장비 선반
+const RB = (() => {
+  const G = () => new THREE.Group(), B = (g, w, h, d, x, y, z, m) => { const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m); b.position.set(x, y, z); g.add(b); return b; };
+  const C = (g, r1, r2, h, x, y, z, m, n = 16) => { const c = new THREE.Mesh(new THREE.CylinderGeometry(r1, r2, h, n), m); c.position.set(x, y, z); g.add(c); return c; };
+  const conc = PM(0x8c8a84, .9), steel = PM(0xb8bec2, .3, .8), dark = PM(0x24262a, .6, .4), wood = PM(0x6a4a30, .7), blue = PM(0x2a5a9a, .6), white = PM(0xe4e2dc, .5), red = PM(0xa82a2a, .5), glass = PM(0x9ab8c8, .1, .2, { transparent: true, opacity: .45 });
+  return {
+    mopSink() { const g = G(); B(g, 1.0, .5, .6, 0, .25, 0, conc); B(g, .86, .06, .46, 0, .48, 0, dark); C(g, .02, .02, .35, 0, .7, -.22, steel); B(g, .2, .03, .03, 0, .86, -.13, steel);
+      C(g, .19, .16, .34, .75, .17, .05, PM(0xd8b020, .6)); C(g, .012, .012, 1.3, .62, .65, -.18, wood).rotation.z = .2; B(g, .3, .06, .1, .5, .03, -.18, PM(0xd0d0c8, .9)); return g; },
+    musicStands() { const g = G(); [-.7, 0, .7].forEach(x => { C(g, .012, .012, 1.1, x, .55, 0, dark); B(g, .45, .32, .02, x, 1.15, .02, dark).rotation.x = -.35; });
+      C(g, .25, .25, .32, 1.15, .4, .1, white); C(g, .26, .26, .03, 1.15, .57, .1, red); C(g, .16, .16, .18, .85, .62, .05, white); C(g, .2, .2, .02, .95, 1.05, -.1, PM(0xc8a040, .3, .8)); C(g, .01, .01, .5, .95, .8, -.1, steel); return g; },
+    clubShelf() { const g = G(); B(g, 1.6, 1.8, .4, 0, .9, 0, wood); for (let k = 0; k < 4; k++) B(g, 1.5, .02, .36, 0, .3 + k * .45, .02, PM(0x4a3020, .7));
+      [[-.5, .5, blue], [-.2, .5, red], [.3, .95, white], [.5, 1.4, dark]].forEach(([x, y, m]) => B(g, .25, .3, .3, x, y, .03, m)); B(g, .35, .22, .25, -.4, 1.42, .05, dark); C(g, .05, .05, .12, -.25, 1.42, .1, glass); return g; },
+    // 요리실 · 세척실: 초음파 세척기 + 식기 건조대 (예전엔 보건실 시력검사표 · UV 소독기가 그대로 붙었다)
+    sonicWasher() { const g = G(); B(g, 1.2, .9, .6, -.3, .45, 0, steel); B(g, 1.0, .05, .45, -.3, .91, .02, PM(0x6a8a9a, .05, .3, { transparent: true, opacity: .7 })); B(g, .3, .15, .05, -.3, .7, .31, dark);
+      B(g, .7, .6, .35, .7, 1.25, -.1, steel); for (let k = 0; k < 6; k++) C(g, .09, .09, .01, .45 + k * .1, 1.25, -.05, white, 20).rotation.x = Math.PI / 2; return g; },
+    // 실습 · 과학 준비실: 시약 카트 + 액체질소 듀어 병
+    labCart() { const g = G(); B(g, 1.0, .05, .5, -.3, .85, 0, steel); B(g, 1.0, .05, .5, -.3, .35, 0, steel); [-.75, .15].forEach(x => [-.22, .22].forEach(z => C(g, .015, .015, .85, x, .43, z, steel)));
+      [-.6, -.4, -.2].forEach((x, i) => C(g, .04, .05, .18, x, .97, 0, [glass, PM(0x7ab05a, .2, 0, { transparent: true, opacity: .6 }), glass][i]));
+      C(g, .2, .2, .9, .6, .45, 0, steel, 20); C(g, .07, .07, .12, .6, .96, 0, dark); B(g, .02, .25, .2, .81, .5, 0, PM(0x2a7ac8, .5)); return g; },
+    // 회의실 · 학생회실: 빔 프로젝터 스크린 + 방송 콘솔 (예전엔 서버 랙)
+    projector() { const g = G(); B(g, 1.7, 1.1, .02, 0, 1.75, 0, white); B(g, 1.8, .08, .08, 0, 2.33, .02, dark); B(g, .9, .8, .5, 0, .4, .3, wood);
+      B(g, .35, .12, .28, 0, .86, .3, dark); C(g, .04, .04, .03, 0, .86, .45, glass).rotation.x = Math.PI / 2; B(g, .2, .02, .14, .3, .81, .3, dark); return g; },
+  };
+})();
+const RB_S37 = { 청소도구실: { _prefabCookingStation: RB.mopSink }, 음악실: { _prefabLanguageBoothRow: RB.musicStands }, 동아리실: { _prefabGrandPiano: RB.clubShelf } };
+const RB_N37 = { 요리실: { _buildUVSterilizerAndEyeChart: RB.sonicWasher }, '요리실(101)': { _buildUVSterilizerAndEyeChart: RB.sonicWasher }, 세척실: { _buildUVSterilizerAndEyeChart: RB.sonicWasher },
+  실습준비실: { _buildUVSterilizerAndEyeChart: RB.labCart }, 과학준비실: { _buildUVSterilizerAndEyeChart: RB.labCart }, 회의실: { _buildServerRackAndUPS: RB.projector }, 학생회실: { _buildServerRackAndUPS: RB.projector } };
+function roomSwap(obj, fnName, table) { const orig = obj[fnName].bind(obj); obj[fnName] = a => { const sw = table[a.roomName] || {}, keep = {}; for (const k in sw) { keep[k] = obj[k]; obj[k] = sw[k]; } try { return orig(a); } finally { Object.assign(obj, keep); } }; }
+roomSwap(s37, 'populateRoomByType', RB_S37);
 Object.values(s37.textures).forEach(srgb);
 const S37 = { rooms: [], props: [], placed: 0, skipped: 0 };
 const S37_LIST = { 4: ['청소도구실', '기계실', '펌프실', '시설 창고'], 0: ['상담실', '교장실', '회의실', '창고', '보건실 보조', '보건실'], 1: ['2층 홀', '창고', '요리실', '교사 휴게실'], 2: ['3층 홀', '학생회실', '상담실', '보관실'],
@@ -5388,6 +5502,7 @@ function s37Restore() { if (FL.s37) S37.props.forEach(p => { if (FL.s37[p.uid]) 
    · 점광원(UV 소독기 · 암실 안전등)은 셰이더 재컴파일 · 끊김을 피하려고 같은 색 빛무리로 바꾼다
    · 상호작용: 클래스의 알림 · 소음 유인에 더해 실제 효과 — 자판기 스태미나 · UPS 배터리 충전 · 소독기 공포 감소 · 징 · 할로겐 그것 경직 (쿨다운) */
 const n37 = window.new37UniquePatch; n37.init({ scene, audioCtx: sfxCtx });
+roomSwap(n37, 'buildNewUniqueRoom', RB_N37);
 Object.values(n37.textures).forEach(srgb);
 const N37 = { rooms: [], props: [], placed: 0, removed: 0, cd: {} };
 {
@@ -5562,8 +5677,9 @@ function megaMini(kind) {
   return new Promise(res => {
     let ok = false; state = 'ui'; for (const k in keys) keys[k] = false; document.exitPointerLock?.(); storyCalm(20);
     const done = () => { ok = true; };
-    if (kind === 'voltage') megaP.openVoltageTimingMinigame(done); else megaP.openRadioTunerMinigame(done);
-    const iv = setInterval(() => { if (megaP.minigame.active) return; clearInterval(iv); if (state === 'ui') { state = 'playing'; lock(); } res(ok); }, 100);
+    if (kind === 'voltage') { megaP.openVoltageTimingMinigame(done); megaP.minigame.cursorDir = 1; } else megaP.openRadioTunerMinigame(done);
+    let t0 = performance.now();
+    const iv = setInterval(() => { if (megaP.minigame.active) { const t = performance.now(); if (kind === 'voltage') megaP.update(Math.min(.05, (t - t0) / 1000)); t0 = t; return; } clearInterval(iv); if (state === 'ui') { state = 'playing'; lock(); } res(ok); }, 16);
   });
 }
 { const hit = megaP._handleVoltageHit.bind(megaP);   // 빗나가면 스파크 소리가 복도로 퍼진다
@@ -5575,7 +5691,7 @@ addEventListener('keydown', e => {
   if (e.code === 'Escape' && jr.style.display === 'flex') { jr.style.display = 'none'; e.stopImmediatePropagation(); }
 }, true);
 let megaJ = false;
-function megaTick(dt) { megaP.update(dt, V3(P.x, floors[P.floor].y0, P.z)); }
+function megaTick(dt) { if (megaP.minigame.active) return; megaP.update(dt, V3(P.x, floors[P.floor].y0, P.z)); }
 setInterval(() => {   // 도감 열림 감시 (게임이 멈춰 있어도 돈다)
   const jr = document.getElementById('patch-lore-journal'), open = !!jr && jr.style.display === 'flex';
   if (open && !megaJ) { megaJ = true; megaP._updateJournalUI(); if (state === 'playing') { state = 'ui'; document.exitPointerLock?.(); } }
@@ -5587,7 +5703,7 @@ function featTick(dt) {
   if (STH) { if (!keys[STH.code] || !target || target.type !== 'stairs' || state !== 'playing') STH = null; else if ((STH.t += dt) > .35) { const d = STH.dir; STH = null; changeFloor(d); } }
   { const pr = $('prompt'), k = STH ? Math.min(1, STH.t / .35) : 0; pr.style.backgroundImage = k > 0 ? `linear-gradient(90deg, rgba(232,200,112,.45) ${k * 100}%, transparent ${k * 100}%)` : ''; }   // 계단 길게 누르기 진행 표시
   for (const p of world.props) if (p.kind === 'pick' && p.done && p.mesh.visible) p.mesh.visible = false;
-  micTick(dt); camTick(dt); sanityTick(dt); trapTick(dt); breakerTick(dt); patchTick(dt); basementTick(dt); poolTick(dt); sitTick(); zoomTick(dt); callTick(dt); sgTick(dt); s37Tick(); n37.update(dt); megaTick(dt); if ((P.stamInfT || 0) > 0) { P.stamInfT -= dt; if (P.stamInfT < 0) P.stamInfT = 0; P.stamina = 100; P.tired = false; } }
+  micTick(dt); camTick(dt); sanityTick(dt); trapTick(dt); breakerTick(dt); patchTick(dt); basementTick(dt); poolTick(dt); sitTick(); zoomTick(dt); callTick(dt); sgTick(dt); s37Tick(); elvTick(dt); n37.update(dt); megaTick(dt); if ((P.stamInfT || 0) > 0) { P.stamInfT -= dt; if (P.stamInfT < 0) P.stamInfT = 0; P.stamina = 100; P.tired = false; } }
 
 function extrasTick(dt) {
   searchTick(dt); tmpTick(dt); ambientTick(dt); featTick(dt);
@@ -5755,7 +5871,7 @@ if (DEBUG) {
     interact, findInteract, hit, die, activateGhost, enrage, FL, MG, throwCan, throws, set playTime(v) { playTime = v; }, toggleView, get view() { return view; }, useProp, docs, msgs, clues, objective, makeGateKey, openInv, openPhone, openMap, openCharsel, openSettings, refreshHud, save, load, inv, mina,
     get power() { return power; }, set power(v) { power = v; }, get CHAR() { return CHAR; }, newGame, continueGame,
     setTarget(t) { target = t; }, DAY, GEN, SIDEQUESTS, sqStep, sqDoneCount, useSideQuest, HEADQUEST, useHead, COLLECT, paraEvent, toiletFx, tmpFx, TE, roomAt, camMode, camShoot, CAM, MIC, SAN, BRK, setBreaker, schoolPower, craftingSystem, ghostCam, restroom, useSink, useFlush, placeAlarm, throwShock, useFirstAid, tryCombine, stunGhost, lockerSearchStart, enterLocker, leaveLocker, startSearch, useMiniSpot, openChalk, chalkAsk, XT,
-    SG, sgTestSpawn, sgSpawn, SG_ZONES, PL, CALL, SIT, ZOOM, SHOT, closeUI, TP, whereText, FLOOR_LABEL, S37,
+    ELV, elvPress, elvTick, SG, sgTestSpawn, sgSpawn, SG_ZONES, PL, CALL, SIT, ZOOM, SHOT, closeUI, TP, whereText, FLOOR_LABEL, S37,
     get target() { return target; },
   };
 }

@@ -25,17 +25,19 @@ export function assignUids(list, fn) {
   return list.map(o => o.uid);
 }
 
+const isRecord = value => value !== null && typeof value === 'object' && !Array.isArray(value);
+
 // 구조 검증 — 손상되었거나 필수 필드가 없으면 오류 목록을 돌려준다
 export function validate(d) {
   const err = [];
-  if (!d || typeof d !== 'object') return ['저장 데이터가 객체가 아님'];
+  if (!isRecord(d)) return ['저장 데이터가 객체가 아님'];
   if (d.schemaVersion !== SCHEMA) err.push('schemaVersion 불일치');
   if (!d.meta || typeof d.meta.char !== 'string') err.push('meta.char 없음');
   const pl = d.player;
-  if (!pl || !['x', 'z', 'floor', 'hp'].every(k => Number.isFinite(pl[k]))) err.push('player 좌표/체력 이상');
+  if (!isRecord(pl) || !['x', 'z', 'floor', 'hp'].every(k => Number.isFinite(pl[k])) || !Number.isInteger(pl.floor) || pl.floor < 0 || pl.floor > 10) err.push('player 좌표/체력 이상');
   if (!d.progress || !Array.isArray(d.progress.got)) err.push('progress.got 없음');
-  if (!d.world || typeof d.world.items !== 'object' || typeof d.world.props !== 'object') err.push('world 상태 없음');
-  if (!d.inv || typeof d.inv !== 'object') err.push('inv 없음');
+  if (!isRecord(d.world) || !isRecord(d.world.items) || !isRecord(d.world.props) || (d.world.doors != null && !isRecord(d.world.doors))) err.push('world 상태 없음');
+  if (!isRecord(d.inv)) err.push('inv 없음');
   return err;
 }
 
@@ -44,7 +46,9 @@ export function migrate(d, ctx) {
   if (!d || typeof d !== 'object') return null;
   if (d.schemaVersion === SCHEMA) return d;
   if (d.schemaVersion != null && d.schemaVersion > SCHEMA) return null;   // 미래 버전은 읽지 않는다
-  if (!d.P || !Array.isArray(d.got)) return null;
+  if (!isRecord(d.P) || !Array.isArray(d.got)) return null;
+  if ((d.taken != null && !Array.isArray(d.taken)) || (d.props != null && !Array.isArray(d.props))) return null;
+  if (!ctx || !Array.isArray(ctx.itemUids) || !Array.isArray(ctx.propUids)) return null;
   const items = {}, props = {};
   (d.taken || []).forEach((t, i) => { if (t && ctx.itemUids[i]) items[ctx.itemUids[i]] = 1; });
   (d.props || []).forEach((s, i) => { if (s && s.done && ctx.propUids[i]) props[ctx.propUids[i]] = { done: true }; });
@@ -68,16 +72,28 @@ export function readSlot(storage, keys, ctx, preferBackup = false) {
   for (const [k, src] of order) {
     const raw = tryParse(k); if (!raw) continue;
     if (raw.__corrupt) continue;
-    const d = migrate(raw, ctx); if (!d) continue;
-    if (validate(d).length === 0) return { data: d, source: src };
+    try {
+      const d = migrate(raw, ctx); if (!d) continue;
+      if (validate(d).length === 0) return { data: d, source: src };
+    } catch (e) {
+      // 한 슬롯의 변환 실패가 정상 백업 복구까지 막지 않도록 한다.
+      continue;
+    }
   }
   return { data: null, source: null };
 }
 // 쓰기: 기존 본 세이브를 백업으로 밀어 두고 새로 쓴다
 export function writeSlot(storage, keys, data) {
+  const errors = validate(data);
+  if (errors.length) throw new Error('저장 데이터 검증 실패: ' + errors.join(', '));
+  const next = JSON.stringify(data); // 직렬화 실패 시 기존 슬롯은 그대로 둔다.
   const prev = storage.getItem(keys.main);
-  if (prev) storage.setItem(keys.backup, prev);
-  storage.setItem(keys.main, JSON.stringify(data));
+  let validPrevious = false;
+  if (prev) {
+    try { validPrevious = validate(JSON.parse(prev)).length === 0; } catch (e) { /* 손상 본 저장은 백업하지 않는다. */ }
+  }
+  if (validPrevious) storage.setItem(keys.backup, prev);
+  storage.setItem(keys.main, next);
 }
 export function hasSlot(storage, keys) { return !!(storage.getItem(keys.main) || storage.getItem(keys.backup) || (keys.legacy && storage.getItem(keys.legacy))); }
 export function clearSlot(storage, keys) { [keys.main, keys.backup, keys.legacy].forEach(k => k && storage.removeItem(k)); }
@@ -90,4 +106,4 @@ export function repairProgress(d, total) {
   if (d.progress.FL && d.progress.FL.gatekey && n < total) { fixes.push('정문 열쇠 플래그 해제'); d.progress.FL.gatekey = false; }
   if (!Number.isFinite(d.player.hp) || d.player.hp <= 0) { fixes.push('체력 복구'); d.player.hp = 50; }
   return fixes;
-}
+    }

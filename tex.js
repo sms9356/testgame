@@ -231,9 +231,9 @@ export const makeDoor = () => ctex(128, 256, (g, w, h) => {
 export const makeSign = (text, bg = '#1e2a2e', fg = '#d9e4d0', fs = 34) => ctex(256, 64, (g, w, h) => {
   g.fillStyle = bg; g.fillRect(0, 0, w, h);
   g.strokeStyle = fg; g.globalAlpha = .6; g.lineWidth = 2; g.strokeRect(3, 3, w - 6, h - 6); g.globalAlpha = 1;
-  g.fillStyle = fg; g.font = `bold ${fs}px ${FONT}`; g.textAlign = 'center'; g.textBaseline = 'middle';
-  g.fillText(text, w / 2, h / 2 + 2);
-  speckle(g, w, h, 160, ['#000', '#999'], 2, 6, 0.3);
+  g.fillStyle = fg; g.font = `bold ${fs}px ${FONT}`; const textWidth = g.measureText(String(text)).width; if (textWidth > w - 20) g.font = `bold ${Math.max(10, fs * (w - 20) / textWidth)}px ${FONT}`; g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.fillText(text, w / 2, h / 2 + 2, w - 20);
+  speckle(g, w, h, 100, ['#000', '#999'], .5, 1.5, .1);
 }, { repeat: false });
 
 // 태극기 (국기 제작 기준): 가로 3 : 세로 2, 태극 지름 = 세로의 1/2, 태극은 왼쪽 위 → 오른쪽 아래 대각선을 따라 기울어

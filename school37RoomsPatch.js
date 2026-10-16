@@ -190,15 +190,21 @@ class School37RoomsMasterPatch {
       candidateOffsets.push([step, 0], [-step, 0], [0, step], [0, -step], [step, step], [-step, -step]);
     }
 
+    const footprint = propMesh.userData.infirmaryFootprint || { x: 0, z: 0 };
+    const cosY = Math.cos(rotY), sinY = Math.sin(rotY);
+    const offsetX = footprint.x * cosY + footprint.z * sinY;
+    const offsetZ = -footprint.x * sinY + footprint.z * cosY;
+
     let placedX = null, placedZ = null;
     for (const [ox, oz] of candidateOffsets) {
       const tx = x + ox;
       const tz = z + oz;
+      const centerX = tx + offsetX, centerZ = tz + offsetZ;
 
       // 중앙 보행 동선(폭 1.3m) 확보 체크
-      if (!allowCenter && Math.abs(tx) < 0.75 && Math.abs(tz) < roomD * 0.35) continue;
+      if (!allowCenter && Math.abs(centerX) < 0.75 && Math.abs(centerZ) < roomD * 0.35) continue;
 
-      if (this._canPlaceFurniture(roomKey, tx, tz, w, d, roomW, roomD, doors)) {
+      if (this._canPlaceFurniture(roomKey, centerX, centerZ, w, d, roomW, roomD, doors)) {
         placedX = tx;
         placedZ = tz;
         break;
@@ -213,13 +219,13 @@ class School37RoomsMasterPatch {
     roomGroup.add(propMesh);
 
     // 점유 영역 등록
-    this.roomOccupancyMap.get(roomKey).push({ x: placedX, z: placedZ, w, d });
+    this.roomOccupancyMap.get(roomKey).push({ x: placedX + offsetX, z: placedZ + offsetZ, w, d });
 
     // 플레이어/괴물 이동 충돌용 단순 박스 콜라이더 등록 (끼임 없는 슬라이딩용)
     const worldBox = {
       roomKey,
-      localX: placedX,
-      localZ: placedZ,
+      localX: placedX + offsetX,
+      localZ: placedZ + offsetZ,
       width: w,
       depth: d,
       height: h,
@@ -475,7 +481,7 @@ class School37RoomsMasterPatch {
         if (roomName === "보건실") {
           place(this._prefabBedWithCurtain(), hw - 0.5, -hd + 0.6, 0, 1.1, 2.0, 1.8);
         }
-        place(((p) => { p.userData.infirmaryKind = "cabinetOpen"; return p; })(this._prefabHeavyStorageRack()), 0, -hd + 0.2, 0, 1.95, 1.35, 1.8, false, {
+        place(((p) => { p.userData.infirmaryKind = "cabinetOpen"; p.userData.infirmaryFootprint = { x: .2425, z: .2225 }; return p; })(this._prefabHeavyStorageRack()), 0, -hd + 0.2, 0, 1.4, .85, 1.8, false, {
           promptText: "[E] 보건실 유리 약품장 열기 (진정제/붕대 파밍)"
         });
         break;
@@ -564,7 +570,13 @@ class School37RoomsMasterPatch {
       if (!col.mesh || !col.mesh.parent) continue;
 
       const worldPos = new THREE.Vector3();
-      col.mesh.getWorldPosition(worldPos);
+      const footprint = col.mesh.userData.infirmaryFootprint;
+      if (footprint) {
+        worldPos.set(footprint.x, 0, footprint.z);
+        col.mesh.localToWorld(worldPos);
+      } else {
+        col.mesh.getWorldPosition(worldPos);
+      }
 
       const halfW = col.width / 2 + playerRadius;
       const halfD = col.depth / 2 + playerRadius;

@@ -535,7 +535,9 @@ function ghostVisual(dt, t) {
 
 /* ---------- UI ---------- */
 let msgTimer = 0;
-function say(text, ms = 3000) { const m = $('msg'); m.textContent = text; m.classList.add('show'); clearTimeout(msgTimer); msgTimer = setTimeout(() => m.classList.remove('show'), ms); }
+const SEEN_T = new Map();   // 같은 문장이 짧은 시간 안에 되풀이되지 않게 (say 4초 · caption 25초)
+const recent = (k, sec) => { const now = performance.now(), t = SEEN_T.get(k); if (t && now - t < sec * 1000) return true; SEEN_T.set(k, now); if (SEEN_T.size > 300) SEEN_T.clear(); return false; };
+function say(text, ms = 3000) { if (recent('s:' + text, 4)) return; const m = $('msg'); m.textContent = text; m.classList.add('show'); clearTimeout(msgTimer); msgTimer = setTimeout(() => m.classList.remove('show'), ms); }
 /* ----- 목표 · 챕터 ----- */
 const LOC = {
   entrance: { f: 0, x: 0, z: 2.5, where: '본관 현관' }, cam: { f: 0, x: 10.95, z: -8.55, where: '본관 1층 · 1-1 교실' },
@@ -606,7 +608,7 @@ function objMini(o) {
 $('objTog').onclick = e => { e.stopPropagation(); objModeCycle(); };
 $('objTab').onclick = e => { e.stopPropagation(); SET.objMode = 'hidden'; objModeCycle(); };
 // 목표 바: 끝낸 항목은 '완료된 목표' 목록으로 빼고, 지금 할 일만 남긴다 (주 미션 · 선택 미션 · 의뢰 · 구역 미션별). 완료 목록은 저장되고 클릭(또는 K 키)으로 펼친다
-const DONE_SEC = { subs: '주 미션', optSubs: '선택 미션', sqSubs: '의뢰', zoneSubs: '구역 미션' };
+const DONE_SEC = { subs: '주 미션', optSubs: '선택 미션', sqSubs: '의뢰', zoneSubs: '구역 미션', phSubs: '사진 미션' };
 let objDoneOpen = false;
 function objDoneSplit() {
   FL.doneLog ||= [];
@@ -634,7 +636,7 @@ function refreshHud() {
   $('optTitle').textContent = OPTIONAL.title;
   const st = optSteps(); $('optSubs').innerHTML = OPTIONAL.steps.map((t, i) => `<div class="chk${st[i] ? ' done' : ''}">${t}</div>`).join('');
   sqSync(); const aq = SIDEQUESTS.filter(q => sqStep(q.id) > 0 && sqStep(q.id) < q.steps.length);
-  zoneHud();
+  zoneHud(); pqHud();
   $('sqBox').style.display = aq.length || sqDoneCount() ? 'block' : 'none'; $('sqTitle').textContent = `의뢰 · 남겨진 부탁 (${sqDoneCount()}/${SIDEQUESTS.length})`;
   $('sqSubs').innerHTML = aq.slice(0, 3).map(q => `<div class="chk">${q.title} — ${q.steps[sqStep(q.id)].goal}</div>`).join('') + (aq.length > 3 ? `<div class="chk" style="opacity:.6">외 ${aq.length - 3}건 (휴대폰 › 사건)</div>` : '');
   $('c2').textContent = inv.battery; $('c3').textContent = inv.medkit; $('c5').textContent = inv.can; $('s5').classList.toggle('off', !inv.can); $('c4').textContent = FL.gatekey ? '열쇠' : `${P.keys}/${TOTAL}`;
@@ -1109,6 +1111,10 @@ function findInteract() {
       const s2 = f2 - dd * .2 - .1; if (s2 > bs) { bs = s2; best = { type: 'prop', p, label: `${p.name ? p.name + ' ' : ''}형광등 ${p.on ? '끄기' : '켜기'}` }; } continue;
     }
     if (dd > (p.r || 1.8)) continue;
+    if (p.minSh != null && (P.sh || 0) < p.minSh) continue;   // 계단 위 문: 그 높이에 올라왔을 때만
+    // 벽 너머(복도에서 교실 안 · 바깥에서 실내) 조사 지점은 고르지 않는다: 플레이어 → 지점 쪽으로 0.35m 당긴 점까지 벽 · 닫힌 문에 막히는지
+    if (dd > .45 && p.kind !== 'switch') { const k = Math.max(0, dd - .35) / dd, tx = P.x + dx * k, tz = P.z + dz * k, F = floors[P.floor];
+      if (!los(F.walls, P.x, P.z, tx, tz) || !los(F.doorWalls || [], P.x, P.z, tx, tz)) continue; }
     const f = (dx * fx + dz * fz) / Math.max(dd, .01), s = f - dd * .1 + (p.kind === 'search' ? -.05 : .1);   // 수색은 숨기(사물함)보다 뒤로 — 쫓길 때 숨는 게 먼저
     if (f > (p.kind === 'search' ? .6 : .1) && s > bs) { bs = s; best = { type: 'prop', p, label: p.label + needText(p) }; }
   }
@@ -1116,7 +1122,7 @@ function findInteract() {
     const si = STAIRS[P.floor];
     const inStair = !si ? false : P.floor === 3 ? (Math.abs(P.x) < 4.5 && P.z < -4.35 && P.z > -9.5) : (() => { const z = floors[P.floor].stairZone || { x1: -1, x2: 4, z1: -9.3, z2: -2 }; return P.x > z.x1 && P.x < z.x2 && P.z > z.z1 && P.z < z.z2; })();
     const dr = world.doors.find(d => d.floor === P.floor && Math.hypot(d.x - P.x, d.z - P.z) < d.r);
-    if (inStair && !(dr && Math.hypot(dr.x - P.x, dr.z - P.z) < 1.5)) {
+    if (inStair && floors[P.floor].stairCx == null && P.floor !== 3 && !(dr && Math.hypot(dr.x - P.x, dr.z - P.z) < 1.5)) {   // 걸어 다니는 계단이 있는 층은 순간이동 없음
       const up = si.up != null, down = si.down != null;
       const ul = si.up === 3 ? '옥상으로' : si.up === 0 ? '1층으로' : '위층', dl = si.down === 4 ? '지하층 (B1)' : '아래층';
       best = { type: 'stairs', label: [up ? `E 길게 · ${ul}` : '', down ? `Q · ${dl}` : ''].filter(Boolean).join('  /  '), raw: true };
@@ -1262,11 +1268,24 @@ function stairStep(px, pz) {
   // 2번 계단 꼭대기 → 위층 (옥상은 계단탑 문 앞으로)
   if (lane2 && P.z > pz && P.z > SZB - .15 && h > FH - .3) {
     const nf = info.up; if (nf == null) { P.x = px; P.z = pz; return true; }
-    if (nf === 3) { P.sh = 0; P.shV = 0; teleport({ floor: 3, x: 0, z: -7.5, yaw: 0 }); return true; }
+    if (nf === 3) { P.x = px; P.z = pz; if (!P.roofDoorHint) { P.roofDoorHint = true; say('옥상 문이다 — E 로 열 수 있다', 2200); } return true; }
     const NF = floors[nf]; if (NF.stairCx == null) { P.x = px; P.z = pz; return true; }
     P.floor = nf; P.x += NF.stairCx - F.stairCx; P.z = SZB + .05; P.sh = 0; P.shV = (P.shV || 0) - FH; stairArrive(nf); return true;
   }
   return false;
+}
+// 옥상 문: 3층 계단 꼭대기의 철문을 열면 옥상 계단탑 앞, 옥상 계단탑 문을 열면 3층 계단 꼭대기(내려가면 3 → 2 → 1층 → B1)
+const ROOF = { open: false };
+function roofDoor(fromRoof) {
+  if (state !== 'playing') return;
+  sfx.creak ? sfx.creak() : sfx.doorHinge(); ROOF.open = true; ROOF.anim = 1;
+  state = 'trans'; $('fade').style.opacity = 1;
+  setTimeout(() => {
+    if (fromRoof) { const F = floors[2], c = F.stairCx; P.floor = 2; P.x = c - 1.85; P.z = SZB - .45; P.sh = stairH(F, P.x, P.z) ?? FH - .2; P.shV = 0; P.yaw = 0; P.pitch = -.25; toastFloor(2); }
+    else { P.floor = 3; P.x = 0; P.z = -6.0; P.sh = 0; P.shV = 0; P.yaw = 0; P.pitch = 0; toastFloor(3); }
+    sfx.doorBang ? sfx.doorBang(0, .6) : 0; $('fade').style.opacity = 0; state = 'playing';
+    setTimeout(() => { ROOF.open = false; sfx.doorHinge && sfx.doorHinge(); }, 1500);   // 뒤에서 문이 천천히 닫힌다
+  }, 650);
 }
 function stairArrive(f) {
   sfx.step(false, .8, 'tile');
@@ -1277,21 +1296,56 @@ const FLOOR_LABEL = { 0: '본관 1층', 1: '본관 2층', 2: '본관 3층', 3: '
 function toastFloor(f) { const t = $('floorTag'); if (!t) return; t.textContent = FLOOR_LABEL[f] || ''; t.classList.add('show'); clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('show'), 1800); }
 // 엘리베이터: 층 선택 화면 → 문 닫힘 · 운행음 · 도착 '띵'
 const EL_SET = { main: [4, 0, 1, 2], annex: [8, 9, 10] };
-async function rideElevator(p) {
-  const set = p.floor >= 8 ? EL_SET.annex : EL_SET.main, dests = set.filter(f => f !== p.floor);
-  sfx.ding();
-  const opts = dests.map(f => ({ label: FLOOR_LABEL[f], sub: f === 4 ? '설비 · 창고 · 기록' : '' })).concat([{ label: '타지 않는다' }]);
-  const i = await choose('엘리베이터', `현재 층 <b>${FLOOR_LABEL[p.floor]}</b> · 갈 층을 고르세요${power ? '' : '<br><small>전력이 끊겨 비상 전원으로 느리게 움직인다</small>'}`, opts);
-  if (i >= dests.length || state !== 'playing') return;
-  const nf = dests[i], tp = world.props.find(q => q.kind === 'elevator' && q.floor === nf); if (!tp) return;
-  state = 'trans'; $('fade').style.opacity = 1; sfx.doorSlide(.8); const ride = (power ? 1.6 : 3.0) + Math.abs(set.indexOf(nf) - set.indexOf(p.floor)) * .5;
-  setTimeout(() => sfx.elevator(ride), 500);
-  if (!power && Math.random() < .5) setTimeout(() => { sfx.ghostBreath(); caption('(엘리베이터 안, 바로 뒤에서 숨소리)'); }, 900 + ride * 400);
-  setTimeout(() => {
-    P.floor = nf; P.x = tp.px - .9; P.z = tp.pz; P.yaw = Math.PI / 2; P.pitch = 0; P.sh = 0; P.shV = 0;
-    sfx.ding(); sfx.doorSlide(.8); $('fade').style.opacity = 0; state = 'playing'; toastFloor(nf);
-    if (nf === 4 && !P.b1Seen) { P.b1Seen = true; setTimeout(() => talk('b1', 3000), 600); }
-  }, 600 + ride * 1000);
+// 엘리베이터 안: 실제처럼 버튼 패널(층 버튼 · 열림 · 닫힘 · 비상벨) + 층 표시기. 버튼을 누르면 문이 닫히고 층 표시가 한 층씩 바뀌며 움직인다
+const EL_BTN = { 4: 'B1', 0: '1', 1: '2', 2: '3', 8: '1', 9: '2', 10: '3' };
+function elUI() {
+  let el = $('elev'); if (el) return el;
+  el = document.createElement('div'); el.id = 'elev'; el.className = 'overlay';
+  el.innerHTML = `<div class="elCab"><div class="elWall"></div><div class="elDoors"><i></i><i></i></div>
+    <div class="elPanel"><div class="elDisp"><b id="elArrow"></b><span id="elNum">1</span></div><div id="elBtns"></div>
+    <div class="elRow"><button data-a="open">◀ ▶</button><button data-a="close">▶ ◀</button></div><button class="elBell" data-a="bell">🔔 비상</button>
+    <div class="elHint">숫자 키 · 클릭으로 층 선택 · <kbd>Esc</kbd> 내리기</div></div><div id="elMsg"></div></div>`;
+  document.body.appendChild(el); return el;
+}
+function rideElevator(p) {
+  if (state !== 'playing') return;
+  const set = p.floor >= 8 ? EL_SET.annex : EL_SET.main, el = elUI(), btns = $('elBtns');
+  let cur = p.floor, moving = false, open = true, done = false;
+  const order = set.slice().sort((a, b) => (a === 4 ? -1 : b === 4 ? 1 : a - b)).reverse();   // 위층부터 (3 · 2 · 1 · B1)
+  btns.innerHTML = order.map(f => `<button data-f="${f}" class="${f === cur ? 'here' : ''}">${EL_BTN[f]}</button>`).join('');
+  const disp = (f, dir = '') => { $('elNum').textContent = EL_BTN[f]; $('elArrow').textContent = dir; };
+  const doors = o => { open = o; el.classList.toggle('closed', !o); sfx.doorSlide(.7); };
+  const msg = t => { $('elMsg').textContent = t; clearTimeout(msg.t); msg.t = setTimeout(() => { $('elMsg').textContent = ''; }, 2600); };
+  disp(cur); el.classList.remove('closed'); state = 'ui'; document.exitPointerLock?.(); el.classList.add('show'); sfx.ding();
+  if (!power) msg('비상 전원 — 느리게 움직인다');
+  const exit = () => { if (moving || done) return; done = true; el.classList.remove('show'); removeEventListener('keydown', kd, true);
+    if (cur !== p.floor) { const tp = world.props.find(q => q.kind === 'elevator' && q.floor === cur); if (tp) { P.floor = cur; P.x = tp.px - .9; P.z = tp.pz; P.yaw = Math.PI / 2; P.pitch = 0; P.sh = 0; P.shV = 0; toastFloor(cur);
+      if (cur === 4 && !P.b1Seen) { P.b1Seen = true; setTimeout(() => talk('b1', 3000), 600); } } }
+    state = 'playing'; lock(); };
+  const go = async f => {
+    if (moving || f === cur) { if (f === cur) { sfx.click(); msg('이미 이 층이다'); } return; }
+    moving = true; btns.querySelectorAll('button').forEach(b => b.classList.toggle('lit', +b.dataset.f === f)); sfx.click();
+    if (open) { doors(false); await wait(900); }
+    const path = order.slice().reverse(), dir = path.indexOf(f) > path.indexOf(cur) ? 1 : -1;
+    sfx.elevator((power ? 1.2 : 2.2) * Math.abs(path.indexOf(f) - path.indexOf(cur)));
+    for (let i = path.indexOf(cur); i !== path.indexOf(f);) { i += dir; await wait(power ? 1100 : 2000); cur = path[i]; disp(cur, dir > 0 ? '▲' : '▼'); sfx.beep && sfx.beep(); shakeCab();
+      if (!power && Math.random() < .3) { shake = .35; sfx.thump(); msg('덜컹— 케이블이 흔들린다'); }
+      if (!power && Math.random() < .15) { sfx.ghostBreath(); caption('(바로 뒤에서 숨소리)'); } }
+    disp(cur); sfx.ding(); await wait(400); doors(true); moving = false;
+    btns.querySelectorAll('button').forEach(b => { b.classList.remove('lit'); b.classList.toggle('here', +b.dataset.f === cur); });
+    msg(`${FLOOR_LABEL[cur]} — Esc 또는 열림 버튼 다시 눌러 내리기`);
+  };
+  const shakeCab = () => { const c = el.querySelector('.elCab'); c.classList.remove('jolt'); void c.offsetWidth; c.classList.add('jolt'); };
+  el.onclick = e => { const b = e.target.closest('button'); if (!b) return; e.stopPropagation();
+    if (b.dataset.f != null) go(+b.dataset.f);
+    else if (b.dataset.a === 'open') { if (moving) { sfx.buzz(); return; } if (open) exit(); else doors(true); }
+    else if (b.dataset.a === 'close') { if (!moving && open) doors(false); }
+    else if (b.dataset.a === 'bell') { sfx.bell ? sfx.bell() : sfx.beep(); msg('…아무도 대답하지 않는다'); P.noiseT = 1; } };
+  const kd = e => { e.stopImmediatePropagation(); e.preventDefault();
+    if (e.code === 'Escape' || e.code === 'KeyE') { if (open && !moving) exit(); else if (!moving) doors(true); return; }
+    const n = { Digit1: 0, Digit2: 1, Digit3: 2, KeyB: 4, Digit0: 4 }[e.code]; if (n == null) return;
+    const f = set.includes(n) ? n : set.find(x => EL_BTN[x] === String(n + 1)); if (f != null && set.includes(f)) go(f); };
+  addEventListener('keydown', kd, true);
 }
 // 방마다 고유 오브젝트 — 선택 화면(1·2·3 키)으로 조작하고, 보급 · 안정 · 기록 · 공포 효과가 있다
 const calmDown = (sec, msg) => { storyCalm(sec); P.fear = Math.max(0, P.fear - .4); setFace('relief', 3); if (msg) caption(msg); };
@@ -1965,13 +2019,13 @@ function updateLighting(dt) {
 // 손전등 앞 장애물까지 거리 (2D 충돌 상자 · 0.1초마다): 시선 방향으로 0.1m 씩 3m 까지
 const FN = { t: 0, d: 9 };
 function flashNear() {
-  const now = performance.now(); if (now - FN.t < 100) return FN.d; FN.t = now;
+  const now = performance.now(); if (now - FN.t < 200) return FN.d; FN.t = now;
   const F = floors[P.floor], fx0 = -Math.sin(P.yaw), fz0 = -Math.cos(P.yaw), down = Math.max(0, -P.pitch);
   let d = 9; const floorD = down > .25 ? 1.55 / Math.tan(down) : 9;   /* 바닥을 비추면 바닥까지 거리 */
   for (let s = .1; s < 3; s += .1) { const x = P.x + fx0 * s, z = P.z + fz0 * s; if (F.col.some(c => !c.off && x >= c.x1 && x <= c.x2 && z >= c.z1 && z <= c.z2)) { d = s; break; } }
   // 충돌 상자가 없는 벽 · 칸막이 · 가구(메시)도: 시선 광선으로 3m 안 실제 면까지 거리
   FN.ray.set(camera.getWorldPosition(FN.v), camera.getWorldDirection(FN.w)); FN.ray.far = 3;
-  const hitM = FN.ray.intersectObjects([F.interior, F.shell, world.OUT].filter(Boolean), true).find(h => h.object.visible && h.object.isMesh && !(h.object.material && h.object.material.transparent && h.object.material.opacity < .5));
+  const hitM = d < 3 ? null : FN.ray.intersectObjects((P.floor === 0 && isOutdoors() ? [world.OUT] : [F.interior, F.shell]).filter(Boolean), true).find(h => h.object.visible && h.object.isMesh && !(h.object.material && h.object.material.transparent && h.object.material.opacity < .5));
   if (hitM) d = Math.min(d, hitM.distance);
   return (FN.d = Math.min(d, floorD));
 }
@@ -2411,6 +2465,7 @@ async function useProp(p) {
     p.done = true; sfx.splash(); const it = world.items.find(i => i.kind === 'key' && i.idx === 4);
     it.locked = false; setTarget({ type: 'item', it, label: '' }); interact();
   } else if (p.kind === 'passSwitch') { usePassSwitch();
+  } else if (p.kind === 'roofDoor') { roofDoor(!!p.roof);
   } else if (p.kind === 'piano') {
     const r = await mini('piano', { melody: [4, 4, 5, 5, 4, 4, 2], sheet: (docs.some(d => d.id === 'n18') || (p.fails || 0) >= 2) ? '솔 솔 라 라 솔 솔 미' : null, onFail: () => { p.fails = (p.fails || 0) + 1; } });
     if (!r.ok) return;
@@ -3192,7 +3247,7 @@ function updateTips(dt) {
 /* ---------- 효과음 자막 ([발소리] 등) ---------- */
 let capTimer = 0;
 function caption(text) {
-  if (!SET.captions) return;
+  if (!SET.captions || recent('c:' + text, 25)) return;
   logLine('·', text);
   const el = $('cap'); el.textContent = `[${text}]`; el.classList.add('show'); clearTimeout(capTimer); capTimer = setTimeout(() => el.classList.remove('show'), 2600);
 }
@@ -3509,7 +3564,7 @@ function giveItem(k, n = 1, quiet) { inv[k] = (inv[k] || 0) + n; newItems.add(k)
 function giveCol(id) {
   FL.col = FL.col || {}; if (FL.col[id]) return false; FL.col[id] = 1; newItems.add(id);
   const n = COLLECT.filter(c => FL.col[c.id]).length;
-  if (n === COLLECT.length) { giveItem('charm', 1, true); giveItem('thermos', 1, true); setTimeout(() => { toast('수집품을 모두 모았다', '하늘의 물건 14개 — 보답: 노란 부적 · 보온병 유자차', 'opt'); sfx.win ? sfx.win() : sfx.unlock(); refreshHud(); }, 2800); }
+  if (n === COLLECT.length) { giveItem('charm', 1, true); giveItem('thermos', 1, true); setTimeout(() => { toast('수집품을 모두 모았다', `하늘의 물건 ${COLLECT.length}개 — 보답: 노란 부적 · 보온병 유자차`, 'opt'); sfx.win ? sfx.win() : sfx.unlock(); refreshHud(); }, 2800); }
   return true;
 }
 function searchResult(p) {
@@ -3818,8 +3873,39 @@ function camMode(on) {
 function camShoot() {
   if (!CAM.on) return;
   ghostCam.phoneBattery = P.pbat ?? 100;
+  photoCheck();
   const ok = ghostCam.triggerFlash({ monsterObj: ghostAim(), stunMonsterCallback: sec => stunGhost(sec, null), notifyUI: m => say(m, 2600), onClueCaptured: captureClue });
   P.pbat = ghostCam.phoneBattery; if (ok) { fx.lightning(); fx.glitch(.15); SHOT.req = true; }
+}
+// ── 사진 미션: 「사라진 앨범」 (사진부 의뢰 · 6단계 연계) ──
+// 제2장부터. 단계마다 힌트가 오고, 그 장소를 심령 카메라(X)로 겨누고 찍으면(클릭 · R) 다음 단계가 열린다. 단계마다 다른 대사 · 마지막에 수집품
+const PHOTOQ = [
+  { f: 0, x: -10.2, z: 17.2, r: 7, hint: '운동장 조회대 — 10년 전 아침 조회 사진과 같은 자리', where: '운동장 조회대', ok: '찰칵 — 화면 속 조회대 위에 마이크를 든 여자아이가 겹쳐 찍혔다' },
+  { f: 0, x: -10.4, z: -8.6, r: 5, hint: '교무실 금고 앞 — “선생님들이 숨긴 것”', where: '본관 1층 교무실', ok: '찰칵 — 금고 문틈에서 새어 나온 빛이 사진에만 남았다. 누군가 안쪽에서 문을 미는 손자국' },
+  { f: 2, x: 34.2, z: -6.6, r: 5, hint: '음악실 피아노 — 반주 연습하던 자리', where: '본관 3층 음악실', ok: '찰칵 — 피아노 의자에 앉은 뒷모습. 셔터 소리에 맞춰 건반 하나가 저절로 눌렸다', col: 'c21' },
+  { f: 0, x: -.4, z: -15.2, r: 5, hint: '본관 ↔ 별관 연결복도 — 증기 배관이 지나는 곳', where: '실내 연결복도', ok: '찰칵 — 김 서린 유리창에 손가락으로 쓴 글씨가 떠올랐다: “나 여기 있었어”' },
+  { f: 6, x: -41.5, z: 46.4, r: 6, hint: '수영장 배수구 — 물이 빠지지 않는 곳', where: '수영장', ok: '찰칵 — 수면 아래에서 누군가 렌즈를 올려다보고 있다. 물결이 없는데도 사진이 흔들렸다' },
+  { f: 3, x: 14.5, z: 4.6, r: 7, hint: '옥상 발전기 옆 — 마지막 롤', where: '옥상', ok: '찰칵 — 노을 진 옥상, 세 아이가 웃고 있다. 그리고 사진 가장자리에서, 네 번째 아이가 손을 흔든다', col: 'c22' },
+];
+const PQ_MSG = ['사진부 선배가 남긴 메모: “앨범의 빈 칸을 채워 줘. 처음은 조회대.”', '두 번째 칸: 교무실 금고. 거기서 그날 밤 회의가 있었어.', '세 번째 칸은 음악실. 하늘이는 반주를 맡았었지.', '네 번째: 두 건물 사이 통로. 그날 밤 거기로 뛰어갔대.', '다섯 번째… 수영장. 미안, 이건 나도 못 찍었어.', '마지막 칸. 옥상. 우리가 처음 찍었던 곳.'];
+const pqStep = () => FL.pq || 0;
+function photoCheck(force) {
+  const k = pqStep(), T = PHOTOQ[k]; if (!T || (!force && objective().ch < 2) || T.f !== P.floor) return;
+  const dx = T.x - P.x, dz = T.z - P.z, d = Math.hypot(dx, dz); if (d > T.r || d < .4) return;
+  const fx0 = -Math.sin(P.yaw), fz0 = -Math.cos(P.yaw); if ((dx * fx0 + dz * fz0) / d < Math.cos(.5)) { say('조금 더 정면으로 — 그 자리가 화면 가운데 오게', 1800); return; }
+  FL.pq = k + 1; FL.pqShots ||= []; FL.pqShots.push({ k, t: clockText() });
+  sfx.photo ? sfx.photo() : sfx.pickup(); fx.glitch(.3); caption(T.ok);
+  if (T.col) { if (giveCol(T.col)) { const c = COLLECT.find(q => q.id === T.col); lootCard(c.icon, '사진 미션', c.name, '앨범 사이에서 떨어졌다'); } }
+  if (k + 1 < PHOTOQ.length) setTimeout(() => { toast('사진 미션 — 사라진 앨범', PQ_MSG[k + 1], 'opt'); }, 2600);
+  else { giveItem('battery', 2, true); setTimeout(() => toast('사진 미션 완료', '앨범이 채워졌다 — 보답: 건전지 ×2 · 빛바랜 필름 통', 'opt'), 2600); }
+  refreshHud(); save(true);
+}
+function pqHud() {
+  const box = $('phBox'); if (!box) return; const k = pqStep(), on = objective().ch >= 2;
+  if (on && !FL.pqStart) { FL.pqStart = true; setTimeout(() => toast('사진 미션 — 사라진 앨범', PQ_MSG[0] + ' (심령 카메라 X · 클릭으로 촬영)', 'opt'), 1500); }
+  box.style.display = on ? 'block' : 'none';
+  $('phTitle').textContent = `사진 미션 · 사라진 앨범 (${k}/${PHOTOQ.length})`;
+  $('phSubs').innerHTML = PHOTOQ.map((T, i) => i < k ? `<div class="chk done">📷 ${T.where}</div>` : i === k ? `<div class="chk">📷 ${T.hint}</div>` : '').join('');
 }
 // 심령 사진: FL.spirit 에 저장(세이브 유지) → 휴대폰 사진 · 메모 탭
 function captureClue(c) {
@@ -4378,6 +4464,23 @@ const ZONE_MAP = { 0: [[21.75, 61.6, '경비실 · 정문 개폐기'], [-11, 15.
 
 /* ── 8. 실내 연결복도: 유리 통로(x -1.6 ~ 3.6) 안쪽에 막힌 실내 복도(폭 3.4m · 천장 2.9m)를 짓는다 ──
    본관 계단실 북문(x 1.8) · 별관 현관(x 0)이 모두 안에 들어오게 가운데 x 0.8. 방화문은 별관 현관 바로 앞(z −12.95) — 닫으면 별관 출입이 막힌다 */
+// 사물함 수색 지점 앞에 가구가 붙어 설 자리가 없으면(예전엔 벽 너머에서만 고를 수 있었다) 옆으로 설 자리가 있는 곳까지 지점을 민다
+world.props.filter(q => q.kind === 'search').forEach(q => {
+  const F = floors[q.floor]; if (!F || Math.abs(q.z) < 1.8) return; const into = q.z < 0 ? -1 : 1, R = .32;   // 교실 사물함만 (복도 사물함은 복도 쪽을 본다)
+  const free = (x, z) => !F.col.some(c => !(c.h != null && c.h <= .225) && x > c.x1 - R && x < c.x2 + R && z > c.z1 - R && z < c.z2 + R);
+  const ok = x => free(x, q.z + into * .6) || free(x, q.z + into * .8);
+  if (ok(q.x)) return;
+  for (let d = .15; d <= 1.35; d += .15) for (const s of [1, -1]) { const x = q.x + s * d; if (ok(x)) { q.x = x; return; } }
+});
+// 수영장 출입문 자리 동쪽 벽 틈(z 37 ~ 39): 걸어서 건물 밖 빈 공간으로 빠져나가던 문제 — 문은 E 로만 (순간이동 문)
+floors[6].col.push({ x1: -34.65, x2: -34.05, z1: 36.9, z2: 39.15 }); floors[6].walls.push(floors[6].col[floors[6].col.length - 1]);
+// 옥상 문 지점 · 3층 계단 꼭대기 철문
+{ const c = floors[2].stairCx; if (c != null) world.props.push({ kind: 'roofDoor', floor: 2, x: c - 1.85, z: SZB - .2, y: FH + 1.2, r: 1.3, minSh: FH - .7, label: '옥상 문 열기' });
+  world.props.push({ kind: 'roofDoor', floor: 3, x: 0, z: -5.2, y: 1.2, r: 1.6, roof: true, label: '옥상 문 열고 계단으로 내려가기' });
+  // 3층 계단 꼭대기 철문 (보이는 문)
+  if (c != null) { const g = new THREE.Group(); g.position.set(c - 1.85, FH, SZB + .05); FLR(2).add(g); g.userData.dynamic = true;
+    pbox(1.3, 2.2, .06, PM(0x4a4e50, .55, .6), 0, 1.1, 0, g); pbox(1.5, .12, .14, PM(0x2a2c2e, .6), 0, 2.26, 0, g);
+    pmesh(new THREE.PlaneGeometry(.7, .16), new THREE.MeshBasicMaterial({ map: makeSign('옥상 출입문', '#3a1a10', '#e8d0b0', 24) }), 0, 1.75, -.04, g, { ry: Math.PI, cast: false }); } }
 const PASS_DOOR = WALKWAY.z1 + .55, PASS_MID = (WALKWAY.z1 + WALKWAY.z2) / 2;   // 통로 10.6m: 방화문은 별관 끝 · 밸브는 가운데 · 청소도구함은 본관 끝
 const PASS = { x1: -.9, x2: 2.5, z1: WALKWAY.z1, z2: WALKWAY.z2, doorZ: PASS_DOOR, valveZ: PASS_MID, frameZ: PASS_MID + 2.4, pileZ: PASS_MID + 1.2, col: { x1: -.9, x2: 2.5, z1: PASS_DOOR - .07, z2: PASS_DOOR + .07 }, bangT: 0, warned: false, frame: null, frameFell: false, prevBlack: false, tubes: [] };
 function inPassage() { return P.floor === 0 && P.x > PASS.x1 && P.x < PASS.x2 && P.z > PASS.z1 && P.z < PASS.z2; }
@@ -5146,7 +5249,9 @@ function sg3dLoad(name) {
       gl.scene.traverse(o => { if (!o.isMesh) return; o.castShadow = true; o.receiveShadow = false;
         const m = o.material; if (m.map) { srgb(m.map); m.map.anisotropy = 4; m.emissiveMap = m.map; }
         m.emissive = new THREE.Color(0x8fa4c0); m.emissiveIntensity = m.map ? .22 : .08; m.side = THREE.DoubleSide; });
-      return gl.scene;
+      // 처음 나타날 때 셰이더 컴파일로 화면이 멈칫하지 않게: 받자마자 보이지 않는 곳에서 미리 컴파일 · 텍스처 업로드
+      gl.scene.traverse(o => { if (o.isMesh && o.material.map) renderer.initTexture(o.material.map); });
+      const tmp = gl.scene.clone(true); tmp.position.set(0, -500, 0); scene.add(tmp); return (renderer.compileAsync ? renderer.compileAsync(tmp, camera, scene) : Promise.resolve()).catch(() => {}).then(() => { scene.remove(tmp); return gl.scene; });
     }).catch(e => { console.warn('[SubGhost3D]', name, e && e.message); return null; });
     SG3D.cache.set(name, p);
   }
@@ -5435,6 +5540,8 @@ if (DEBUG) {
   window.__g = {
     P, ghost, floors, world, scene, camera, renderer, THREE, start: () => start(true),
     setIntroT(t) { introText = false; introT = t; }, introInfo: () => ({ state, introT: +introT.toFixed(1), cue: introCue, guard: !!(introGuard && introGuard.visible), cam: camera.position.toArray().map(v => +v.toFixed(1)) }),
+    photoCheck, PHOTOQ,
+    flashNearProbe: () => { FN.t = 0; return flashNear(); }, agProbe: () => { const t = performance.now(); AG.t = 0; antiGlareTick(); return performance.now() - t; },
     tp(x, z, f = 0, yaw = 0, pitch = 0) { P.x = x; P.z = z; P.floor = f; P.yaw = yaw; P.pitch = pitch; },
     give() { world.items.filter(i => i.kind === 'key').forEach(i => { i.taken = true; i.mesh.visible = false; got[i.idx] = true; }); P.keys = TOTAL; refreshHud(); },
     get state() { return state; }, set state(v) { state = v; }, get tNow() { return tNow; }, openTest, EV, appar, applyQuality,

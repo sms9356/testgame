@@ -347,7 +347,7 @@ function tune({ title = '라디오 주파수 맞추기', label = '…이 방송�
 
 /* ---------- 10. 순서 따라 하기 (사이먼) ---------- */
 // 불이 켜지는 순서를 기억했다가 그대로 누른다 (1 · 2 · 3 · 4 키 또는 클릭). 라운드마다 하나씩 길어진다
-function simon({ title = '순서 따라 하기', pads = ['도', '레', '미', '솔'], rounds = [3, 4, 5], notes = [262, 294, 330, 392] }) {
+function simon({ title = '순서 따라 하기', pads = ['도', '레', '미', '솔'], rounds = [3 + ((Math.random() * 2) | 0), 4 + ((Math.random() * 2) | 0), 5 + ((Math.random() * 2) | 0)], notes = [262, 294, 330, 392] }) {
   const p = open(title, '불이 켜지는 <b>순서</b>를 기억했다가 그대로 눌러라 — <b>1 · 2 · 3 · 4</b> 키 또는 클릭 · 3번 틀리면 실패');
   const box = document.createElement('div'); box.className = 'simGrid'; $('mgBody').appendChild(box);
   const info = document.createElement('div'); info.className = 'mgInfo'; $('mgBody').appendChild(info);
@@ -449,7 +449,7 @@ function pipes({ title = '증기 배관 — 압력을 빼라', time = 70 } = {})
   const c = canvas(C * S + ox * 2, R * S + oy + 30), g = c.getContext('2d');
   const rot = m => ((m << 1) | (m >> 3)) & 15, conn = (a, b) => (b[0] < a[0] ? 1 : b[1] > a[1] ? 2 : b[0] > a[0] ? 4 : 8);
   const grid = Array.from({ length: R }, () => Array(C).fill(0));
-  const src = 2, outs = [0, R - 1];
+  const src = 1 + ((Math.random() * (R - 2)) | 0), outs = Math.random() < .5 ? [0, R - 1] : [[0, 2], [2, 4], [0, 3], [1, 4]][(Math.random() * 4) | 0];   // 판마다 다른 위치
   // 두 출구로 가는 경로를 무작위로 깔고 겹치는 칸은 합친다(T자 · 십자 관이 생긴다)
   outs.forEach(tr => { let r = src; const path = [];
     for (let col = 0; col < C; col++) { const tgt = col === C - 1 ? tr : col < 2 ? src : (Math.random() * R) | 0; path.push([r, col]); while (r !== tgt) { r += Math.sign(tgt - r); path.push([r, col]); } }
@@ -503,7 +503,7 @@ function pipes({ title = '증기 배관 — 압력을 빼라', time = 70 } = {})
 
 /* ---------- 14. 어둠 속 더듬기 (손전등 미로) ---------- */
 // 위에서 본 어두운 미로: 손전등 반경만 보인다. 열쇠(또는 찾는 물건)를 주워 출구로. 그것이 돌아다니다가 빛 안에 들어온 플레이어를 쫓는다
-function maze({ title = '어둠 속 — 선반 사이를 더듬어라', item = '물건', W = 13, H = 9 } = {}) {
+function maze({ title = '어둠 속 — 선반 사이를 더듬어라', item = '물건', W = [11, 13, 15][(Math.random() * 3) | 0], H = [9, 11][(Math.random() * 2) | 0] } = {}) {
   const S = 34;
   const p = open(title, `<b>WASD / 방향키</b>로 이동 · <b>Shift</b> 손전등 끄기(숨기) — 불을 끄면 그것이 놓친다<br><b style="color:#ffd070">${item}</b>을 주워 <b style="color:#80ffb0">출구</b>로. 그것에 닿으면 실패`);
   const c = canvas(W * S, H * S), g = c.getContext('2d');
@@ -556,7 +556,7 @@ function maze({ title = '어둠 속 — 선반 사이를 더듬어라', item = '
 /* ---------- 15. 맞물린 고리 암호 ---------- */
 // 고리 3개에 기호가 8개씩. 오른쪽 위 '읽는 선'에 세 기호가 단서와 같게 오도록 돌린다. 바깥 고리를 돌리면 가운데 고리도 함께 돈다(맞물림)
 function rings({ title = '단말기 잠금 — 고리 암호', clue = null, maxMoves = 24 } = {}) {
-  const SYM = ['☾', '✦', '◆', '☂', '♪', '✚', '⌂', '☀'], N = 8;
+  const SYM = ['☾', '✦', '◆', '☂', '♪', '✚', '⌂', '☀', '✿', '☠', '⚲', '♜'].sort(() => Math.random() - .5).slice(0, 8), N = 8;
   const target = clue || [0, 1, 2].map(() => (Math.random() * N) | 0);
   const off = [0, 0, 0];
   // 정답 상태에서 무작위로 섞어 풀 수 있게 만든다 (돌리기는 맞물림 규칙 그대로)
@@ -592,9 +592,11 @@ function spotdiff({ title = '두 장의 기록 — 달라진 곳 찾기', time =
   const rnd = (a, b) => a + Math.random() * (b - a);
   // 장면 요소: [종류, x, y, 크기, 색]
   const items = [];
-  items.push(['window', 30, 30, 60, '#2a3a4a'], ['window', 160, 30, 60, '#2a3a4a'], ['board', 70, 40, 90, '#1e3a2a'], ['clock', 205, 22, 14, '#d8d0c0']);
-  for (let k = 0; k < 6; k++) items.push(['desk', 20 + (k % 3) * 78, 120 + ((k / 3) | 0) * 40, 30, '#7a5a3a']);
-  items.push(['figure', rnd(40, 200), 100, 22, '#d8d8d8'], ['flower', 222, 150, 12, '#c04040'], ['bag', 110, 175, 12, '#3a4a6a'], ['paper', 60, 95, 10, '#e8e0c8'], ['lamp', 125, 8, 40, '#e8e0a0']);
+  const wx = rnd(-14, 14);
+  items.push(['window', 30 + wx, 30, 60, '#2a3a4a'], ['window', 160 + wx, 30, 60, '#2a3a4a'], ['board', rnd(60, 90), 40, rnd(70, 100), '#1e3a2a'], ['clock', rnd(190, 225), 22, 14, '#d8d0c0']);
+  const rows = Math.random() < .5 ? 2 : 3; for (let k = 0; k < rows * 3; k++) items.push(['desk', 20 + (k % 3) * 78 + rnd(-6, 6), 112 + ((k / 3) | 0) * (rows === 3 ? 28 : 40) + rnd(-3, 3), 30, '#7a5a3a']);
+  items.push(['figure', rnd(40, 200), rnd(95, 110), 22, '#d8d8d8'], ['flower', rnd(205, 235), rnd(140, 165), 12, '#c04040'], ['bag', rnd(60, 190), rnd(170, 185), 12, '#3a4a6a'], ['paper', rnd(30, 220), rnd(90, 100), 10, '#e8e0c8'], ['lamp', rnd(90, 160), 8, 40, '#e8e0a0']);
+  [['paper', rnd(20, 230), rnd(150, 190), 9, '#d8d0b8'], ['bag', rnd(20, 230), rnd(150, 190), 11, '#6a3a3a'], ['flower', rnd(10, 40), rnd(140, 170), 10, '#e0e0e0']].filter(() => Math.random() < .6).forEach(x => items.push(x));
   const kinds = ['move', 'color', 'gone', 'size'];
   const diffs = items.map((_, i) => i).sort(() => Math.random() - .5).slice(0, 5).map(i => ({ i, k: kinds[(Math.random() * kinds.length) | 0], found: false }));
   const draw1 = (ox, alt) => {
@@ -633,13 +635,13 @@ function spotdiff({ title = '두 장의 기록 — 달라진 곳 찾기', time =
 
 /* ---------- 17. 퓨즈판 (모두 켜기) ---------- */
 // 퓨즈를 누르면 자기와 상하좌우 퓨즈가 함께 뒤집힌다. 정해진 횟수 안에 전부 켜면 전력 복구. 오래 끌면 과열(스파크)
-function fuse({ title = '퓨즈판 — 모든 회로를 켜라', N = 4, extra = 6 } = {}) {
+function fuse({ title = '퓨즈판 — 모든 회로를 켜라', N = Math.random() < .4 ? 5 : 4, extra = 6 } = {}) {
   const on = Array.from({ length: N }, () => Array(N).fill(true));
   const flip = (y, x) => [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]].forEach(([dy, dx]) => { const a = y + dy, b = x + dx; if (a >= 0 && a < N && b >= 0 && b < N) on[a][b] = !on[a][b]; });
   const par = 5 + ((Math.random() * 3) | 0); for (let k = 0; k < par; k++) flip((Math.random() * N) | 0, (Math.random() * N) | 0);
   if (on.flat().every(Boolean)) flip(1, 1);
   const max = par + extra; let used = 0, won = false;
-  const p = open(title, `퓨즈를 클릭하면 <b>자기와 상하좌우</b>가 함께 뒤집힌다 — <b>${max}</b>번 안에 16개를 모두 켜라`);
+  const p = open(title, `퓨즈를 클릭하면 <b>자기와 상하좌우</b>가 함께 뒤집힌다 — <b>${max}</b>번 안에 ${N * N}개를 모두 켜라`);
   const S = 70, c = canvas(N * S + 40, N * S + 50), g = c.getContext('2d');
   const draw = () => {
     g.fillStyle = '#121416'; g.fillRect(0, 0, c.width, c.height);

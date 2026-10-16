@@ -35,7 +35,9 @@ export const MAIN_ZS = 9.9;
 // 본관 1층 계단실 북쪽 문 ↔ 별관 현관을 잇는 연결 통로 (본관 북벽 z -9.9 ~ 별관 남벽 z -20.5)
 // 별관 외관(바깥 건물 상자)은 ANNEX_DZ 만큼 북쪽으로 물려 통로를 10.6m 로 늘렸다 (예전 3.6m — 너무 짧았다). 별관 실내(8~10층)는 따로 된 좌표라 그대로
 export const ANNEX_DZ = 7;
-export const NORTH_Z = -26 - ANNEX_DZ;   // 학교 북쪽 담장
+// 메가 익스팬션: 별관 뒤로 캠퍼스를 넓혀 대강당(실내체육관) · 중앙 중정이 들어간다 (예전 담장 z −33 → −64)
+export const NORTH_Z = -64;   // 학교 북쪽 담장
+export const MEGA = { gym: { x: -25, z: -48, w: 18, d: 26 }, court: { x: 3, z: -52, w: 16, d: 16 } };
 export const WALKWAY = { x1: -1.6, x2: 3.6, z1: -13.5 - ANNEX_DZ, z2: -9.9 };   // 본관 남쪽 외벽 바깥면 (남쪽 방: z 1.75 ~ 9.6)
 export const ANNEX = { slots: [-16, -8, 0, 8, 16], floors: [
   { types: ['stair', 'cooking', 'tech', 'fusion', 'counsel'], names: ['계단', '요리실 (101)', '기술·가정실 (102)', '창의융합실 (103)', '진로상담실 (104)'] },
@@ -3384,7 +3386,7 @@ export function buildWorld(scene) {
 
 
   // 나무: 건물/길을 피해서 배치, 울퉁불퉁한 수관 + 개체별 색 변화
-  const BLOCK = [[18.6, 24.9, 62.2, 67.8], [-22.5, -17.5, 62.2, 65.8], [-1.8, 3.8, WALKWAY.z1 - .1, -9.8], [-37.5, 37.5, -11, 11.5], [-21.5, 21.5, NORTH_Z, WALKWAY.z1 + 1], [26.5, 49.5, 11, 36], [-49.5, -28.5, 11, 26.5], [-49.5, -32.5, 29.5, 52.5], [-5, 5, 60, 72], [-17, 17, 1.5, 12]];
+  const BLOCK = [[18.6, 24.9, 62.2, 67.8], [-22.5, -17.5, 62.2, 65.8], [-1.8, 3.8, WALKWAY.z1 - .1, -9.8], [-37.5, 37.5, -11, 11.5], [-21.5, 21.5, -33, WALKWAY.z1 + 1], [MEGA.gym.x - MEGA.gym.w / 2 - 1.5, MEGA.gym.x + MEGA.gym.w / 2 + 1.5, MEGA.gym.z - MEGA.gym.d / 2 - 1.5, MEGA.gym.z + MEGA.gym.d / 2 + 3.5], [MEGA.court.x - MEGA.court.w / 2 - .5, MEGA.court.x + MEGA.court.w / 2 + .5, MEGA.court.z - MEGA.court.d / 2 - .5, MEGA.court.z + MEGA.court.d / 2 + .5], [26.5, 49.5, 11, 36], [-49.5, -28.5, 11, 26.5], [-49.5, -32.5, 29.5, 52.5], [-5, 5, 60, 72], [-17, 17, 1.5, 12]];
   const blocked = (x, z, m = 0) => BLOCK.some(([a, b2, c, d]) => x > a - m && x < b2 + m && z > c - m && z < d + m);
   const trunkG = merge([new THREE.CylinderGeometry(.16, .3, 3.4, 7).translate(0, 1.7, 0), tube(.07, 0, 2.2, 0, .9, 3.4, .3), tube(.06, 0, 2.6, 0, -.7, 3.7, -.4)]);
   const lump = (r, x, y, z) => {
@@ -3402,7 +3404,7 @@ export function buildWorld(scene) {
       if (blocked(x, z, 2.5) || (z > 10.5 && z < 14.5)) continue;
     } else {
       const a = rnd() * 6.28, r = rr(62, 135); x = Math.cos(a) * r * 1.3; z = 20 + Math.sin(a) * r * .95;
-      if ((Math.abs(x) < 56 && z > -32 && z < 90) || (z > 70 && z < 85) || (x < -50 && x > -95 && z > -35 && z < 110)) continue;
+      if ((Math.abs(x) < 56 && z > NORTH_Z - 3 && z < 90) || (z > 70 && z < 85) || (x < -50 && x > -95 && z > -35 && z < 110)) continue;
     }
     tpos.push([x, z, inside]);
   }

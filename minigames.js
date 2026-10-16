@@ -1,4 +1,5 @@
 // 미니게임: 자물쇠 따기 · 다이얼 자물쇠 · 배선 퍼즐 · 피아노 · 슬라이딩 퍼즐 · 갈고리 낚기 · 녹음 순서 · 짝 맞추기 · 주파수 · 순서 따라 하기 · 타이밍 · 분신사바
+//          + 증기 배관(압력) · 어둠 속 미로(그것 추격) · 맞물린 고리 암호 · 틀린 그림 찾기 · 퓨즈판
 // run(kind, opts) → Promise<{ ok }>. 열려 있는 동안 MG.active 가 true 이고, 키 입력은 여기서 처리한다.
 import { sfx } from './audio.js';
 
@@ -440,7 +441,222 @@ function ouija({ title = '분신사바', qs = [] }) {
   return p;
 }
 
+/* ---------- 13. 증기 배관 (압력 제한) ---------- */
+// 배관 타일을 돌려 밸브(왼쪽)에서 배출구(오른쪽 위 · 아래 두 곳)까지 증기를 보낸다. 압력계가 계속 오르고, 틀린 방향으로 새는 증기가 많을수록 더 빨리 오른다
+function pipes({ title = '증기 배관 — 압력을 빼라', time = 70 } = {}) {
+  const R = 5, C = 6, S = 62, ox = 46, oy = 34;
+  const p = open(title, `타일을 클릭해 돌려 <b style="color:#ffb070">밸브</b>의 증기를 <b style="color:#70d8ff">배출구 두 곳</b>으로 모두 보내라 (우클릭: 반대로)<br>열린 관 끝으로 증기가 새면 <b>압력이 더 빨리</b> 오른다 — 계기판이 빨간 칸에 닿으면 터진다`);
+  const c = canvas(C * S + ox * 2, R * S + oy + 30), g = c.getContext('2d');
+  const rot = m => ((m << 1) | (m >> 3)) & 15, conn = (a, b) => (b[0] < a[0] ? 1 : b[1] > a[1] ? 2 : b[0] > a[0] ? 4 : 8);
+  const grid = Array.from({ length: R }, () => Array(C).fill(0));
+  const src = 2, outs = [0, R - 1];
+  // 두 출구로 가는 경로를 무작위로 깔고 겹치는 칸은 합친다(T자 · 십자 관이 생긴다)
+  outs.forEach(tr => { let r = src; const path = [];
+    for (let col = 0; col < C; col++) { const tgt = col === C - 1 ? tr : col < 2 ? src : (Math.random() * R) | 0; path.push([r, col]); while (r !== tgt) { r += Math.sign(tgt - r); path.push([r, col]); } }
+    path.forEach((cell, i) => { let m = grid[cell[0]][cell[1]]; m |= i === 0 ? 8 : conn(cell, path[i - 1]); m |= i === path.length - 1 ? 2 : conn(cell, path[i + 1]); grid[cell[0]][cell[1]] = m; }); });
+  const filler = [5, 3, 6, 7, 11];
+  for (let y = 0; y < R; y++) for (let x = 0; x < C; x++) { if (!grid[y][x]) grid[y][x] = filler[(Math.random() * filler.length) | 0]; const k = 1 + ((Math.random() * 3) | 0); for (let i = 0; i < k; i++) grid[y][x] = rot(grid[y][x]); }
+  let press = 0, leak = 0, won = false, lastT = performance.now(), puffs = [];
+  const flow = () => {
+    const on = Array.from({ length: R }, () => Array(C).fill(false)), q = []; let lk = 0;
+    if (grid[src][0] & 8) { on[src][0] = true; q.push([src, 0]); }
+    while (q.length) { const [y, x] = q.shift(), m = grid[y][x];
+      [[1, -1, 0, 4], [2, 0, 1, 8], [4, 1, 0, 1], [8, 0, -1, 2]].forEach(([b, dy, dx, opp]) => { if (!(m & b)) return; const ny = y + dy, nx = x + dx;
+        if (nx === C && outs.includes(y) && b === 2) return;                                   // 배출구
+        if (nx < 0 && y === src && b === 8) return;                                             // 밸브
+        if (ny < 0 || ny >= R || nx < 0 || nx >= C || !(grid[ny][nx] & opp)) { lk++; return; }  // 새는 관 끝
+        if (!on[ny][nx]) { on[ny][nx] = true; q.push([ny, nx]); } }); }
+    return { on, lk, ok: outs.every(y => on[y][C - 1] && (grid[y][C - 1] & 2)) };
+  };
+  const click = (e, dir) => { if (won || !finish) return; const rc = c.getBoundingClientRect(), x = ((e.clientX - rc.left) * c.width / rc.width - ox) / S | 0, y = ((e.clientY - rc.top) * c.height / rc.height - oy) / S | 0;
+    if (x < 0 || x >= C || y < 0 || y >= R) return; grid[y][x] = dir > 0 ? rot(grid[y][x]) : rot(rot(rot(grid[y][x]))); sfx.dial(); };
+  c.addEventListener('click', e => click(e, 1)); c.addEventListener('contextmenu', e => { e.preventDefault(); click(e, -1); });
+  keys(() => {});
+  const loop = now => {
+    const dt = Math.min(.1, (now - lastT) / 1000); lastT = now; const F = flow(); leak = F.lk;
+    if (!won) press += dt * (1 / time) * (1 + leak * .22);
+    if (F.ok && !won) { won = true; sfx.fuse ? sfx.fuse() : sfx.click(); status('쉬이이— 증기가 빠져나간다', 'ok'); setTimeout(() => close(true), 700); }
+    if (press >= 1 && !won && finish) { sfx.buzz(); status('펑— 배관이 터졌다!', 'err'); setTimeout(() => finish && close(false), 700); press = 1; }
+    g.fillStyle = '#0b0e10'; g.fillRect(0, 0, c.width, c.height);
+    // 압력계
+    g.fillStyle = '#1b2228'; g.fillRect(ox, 8, C * S, 14); g.fillStyle = '#5a2020'; g.fillRect(ox + C * S * .85, 8, C * S * .15, 14);
+    g.fillStyle = press > .7 ? '#ff6a4a' : '#e8c070'; g.fillRect(ox, 8, C * S * Math.min(1, press), 14);
+    g.fillStyle = '#c8c0a8'; g.font = '11px sans-serif'; g.fillText(`압력 ${Math.round(press * 100)}%  · 새는 곳 ${leak}`, ox, 32 - 2);
+    g.fillStyle = '#ffb070'; g.fillRect(6, oy + src * S + S / 2 - 14, 34, 28); g.fillStyle = '#000'; g.font = 'bold 11px sans-serif'; g.fillText('밸브', 10, oy + src * S + S / 2 + 4);
+    outs.forEach(y => { g.fillStyle = F.on[y][C - 1] && (grid[y][C - 1] & 2) ? '#80ffb0' : '#70d8ff'; g.fillRect(ox + C * S + 6, oy + y * S + S / 2 - 14, 34, 28); });
+    for (let y = 0; y < R; y++) for (let x = 0; x < C; x++) {
+      const px = ox + x * S, py = oy + y * S, m = grid[y][x], cx = px + S / 2, cy = py + S / 2;
+      g.fillStyle = '#161c20'; g.fillRect(px + 2, py + 2, S - 4, S - 4);
+      g.lineCap = 'butt'; g.lineWidth = 14; g.strokeStyle = '#3a3026';
+      [[1, 0, -1], [2, 1, 0], [4, 0, 1], [8, -1, 0]].forEach(([b, dx, dy]) => { if (m & b) { g.beginPath(); g.moveTo(cx, cy); g.lineTo(cx + dx * S / 2, cy + dy * S / 2); g.stroke(); } });
+      g.lineWidth = 6; g.strokeStyle = F.on[y][x] ? (won ? '#9affc8' : '#f0d8b0') : '#6a5a48';
+      [[1, 0, -1], [2, 1, 0], [4, 0, 1], [8, -1, 0]].forEach(([b, dx, dy]) => { if (m & b) { g.beginPath(); g.moveTo(cx, cy); g.lineTo(cx + dx * S / 2, cy + dy * S / 2); g.stroke(); } });
+      g.fillStyle = '#7a6a58'; g.beginPath(); g.arc(cx, cy, 8, 0, 7); g.fill();
+      if (F.on[y][x] && Math.random() < .04) puffs.push({ x: cx + (Math.random() - .5) * 20, y: cy, a: 1 });
+    }
+    puffs = puffs.filter(q => (q.a -= dt * 1.2) > 0); puffs.forEach(q => { q.y -= dt * 30; g.fillStyle = `rgba(230,230,230,${q.a * .25})`; g.beginPath(); g.arc(q.x, q.y, 10 * (2 - q.a), 0, 7); g.fill(); });
+    raf = requestAnimationFrame(loop);
+  };
+  raf = requestAnimationFrame(loop);
+  return p;
+}
+
+/* ---------- 14. 어둠 속 더듬기 (손전등 미로) ---------- */
+// 위에서 본 어두운 미로: 손전등 반경만 보인다. 열쇠(또는 찾는 물건)를 주워 출구로. 그것이 돌아다니다가 빛 안에 들어온 플레이어를 쫓는다
+function maze({ title = '어둠 속 — 선반 사이를 더듬어라', item = '물건', W = 13, H = 9 } = {}) {
+  const S = 34;
+  const p = open(title, `<b>WASD / 방향키</b>로 이동 · <b>Shift</b> 손전등 끄기(숨기) — 불을 끄면 그것이 놓친다<br><b style="color:#ffd070">${item}</b>을 주워 <b style="color:#80ffb0">출구</b>로. 그것에 닿으면 실패`);
+  const c = canvas(W * S, H * S), g = c.getContext('2d');
+  // 미로 생성 (DFS) + 고리 몇 개
+  const wall = Array.from({ length: H }, () => Array(W).fill(1)), carve = (x, y) => { wall[y][x] = 0; [[2, 0], [-2, 0], [0, 2], [0, -2]].sort(() => Math.random() - .5).forEach(([dx, dy]) => { const nx = x + dx, ny = y + dy; if (nx > 0 && ny > 0 && nx < W - 1 && ny < H - 1 && wall[ny][nx]) { wall[y + dy / 2][x + dx / 2] = 0; carve(nx, ny); } }); };
+  carve(1, 1); for (let k = 0; k < 7; k++) { const x = 1 + ((Math.random() * (W - 2)) | 0), y = 1 + ((Math.random() * (H - 2)) | 0); if ((x + y) % 2) wall[y][x] = 0; }
+  const free = []; for (let y = 1; y < H - 1; y++) for (let x = 1; x < W - 1; x++) if (!wall[y][x]) free.push([x, y]);
+  const far = (a) => free.slice().sort((p, q) => Math.hypot(q[0] - a[0], q[1] - a[1]) - Math.hypot(p[0] - a[0], p[1] - a[1]))[0];
+  const pl = { x: 1.5, y: 1.5 }, key = far([1, 1]), exit = [1, H - 2];
+  const gs0 = free.filter(q => Math.hypot(q[0] - 1, q[1] - 1) > 6 && Math.hypot(q[0] - exit[0], q[1] - exit[1]) > 4); const g0 = gs0[(Math.random() * gs0.length) | 0] || far([1, 1]);
+  const gh = { x: g0[0] + .5, y: g0[1] + .5, tx: 0, ty: 0, chase: 0, wake: 3 };   // 그것은 플레이어에게서 멀리 · 3초 뒤부터 움직인다
+  let has = false, dark = false, lastT = performance.now(), held = {}, dead = false;
+  keys(e => { held[e.code] = e.type === 'keydown'; });
+  const solid = (x, y) => { const cx = x | 0, cy = y | 0; return cy < 0 || cy >= H || cx < 0 || cx >= W || wall[cy][cx]; };
+  const move = (o, dx, dy, r = .28) => { if (!solid(o.x + dx + Math.sign(dx) * r, o.y) && !solid(o.x + dx + Math.sign(dx) * r, o.y + r * .9) && !solid(o.x + dx + Math.sign(dx) * r, o.y - r * .9)) o.x += dx; if (!solid(o.x, o.y + dy + Math.sign(dy) * r) && !solid(o.x + r * .9, o.y + dy + Math.sign(dy) * r) && !solid(o.x - r * .9, o.y + dy + Math.sign(dy) * r)) o.y += dy; };
+  const los = (a, b) => { const d = Math.hypot(b.x - a.x, b.y - a.y), n = Math.ceil(d * 4); for (let i = 1; i < n; i++) if (solid(a.x + (b.x - a.x) * i / n, a.y + (b.y - a.y) * i / n)) return false; return true; };
+  const loop = now => {
+    const dt = Math.min(.05, (now - lastT) / 1000); lastT = now;
+    if (!dead && finish) {
+      dark = !!(held.ShiftLeft || held.ShiftRight);
+      const sp = (dark ? 1.6 : 2.6) * dt, ix = (held.KeyD || held.ArrowRight ? 1 : 0) - (held.KeyA || held.ArrowLeft ? 1 : 0), iy = (held.KeyS || held.ArrowDown ? 1 : 0) - (held.KeyW || held.ArrowUp ? 1 : 0);
+      move(pl, ix * sp, iy * sp);
+      if (!has && Math.hypot(pl.x - key[0] - .5, pl.y - key[1] - .5) < .5) { has = true; sfx.pickup ? sfx.pickup() : sfx.click(); status(`${item} 확보 — 출구로!`, 'ok'); }
+      if (has && Math.hypot(pl.x - exit[0] - .5, pl.y - exit[1] - .5) < .5) { dead = true; close(true); }
+      // 그것: 빛이 켜져 있고 보이면 쫓고, 아니면 아무 데나 배회
+      gh.wake -= dt;
+      const sees = gh.wake <= 0 && !dark && Math.hypot(pl.x - gh.x, pl.y - gh.y) < 5.5 && los(pl, gh);
+      if (sees) { gh.chase = 2.5; gh.tx = pl.x; gh.ty = pl.y; } else gh.chase -= dt;
+      if (gh.chase <= 0 && (Math.hypot(gh.tx - gh.x, gh.ty - gh.y) < .3 || !gh.tx)) { const f2 = free[(Math.random() * free.length) | 0]; gh.tx = f2[0] + .5; gh.ty = f2[1] + .5; }
+      const d = Math.hypot(gh.tx - gh.x, gh.ty - gh.y) || 1, gs = gh.wake > 0 ? 0 : (gh.chase > 0 ? 2.15 : 1.2) * dt; move(gh, (gh.tx - gh.x) / d * gs, (gh.ty - gh.y) / d * gs, .25);
+      if (Math.hypot(pl.x - gh.x, pl.y - gh.y) < .55) { dead = true; sfx.stinger ? sfx.stinger(.6) : sfx.buzz(); status('그것에게 붙잡혔다…', 'err'); setTimeout(() => finish && close(false), 800); }
+      if (Math.random() < dt * .6) sfx.step ? sfx.step() : 0;
+    }
+    g.fillStyle = '#000'; g.fillRect(0, 0, c.width, c.height);
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) { g.fillStyle = wall[y][x] ? '#2a2620' : '#11100e'; g.fillRect(x * S, y * S, S, S); if (wall[y][x]) { g.fillStyle = '#3a342a'; g.fillRect(x * S + 3, y * S + 3, S - 6, 4); } }
+    if (!has) { g.font = '20px sans-serif'; g.textAlign = 'center'; g.fillText('🗝', key[0] * S + S / 2, key[1] * S + S / 2 + 7); }
+    g.fillStyle = has ? '#60ffa0' : '#2a5a3a'; g.fillRect(exit[0] * S + 6, exit[1] * S + 6, S - 12, S - 12);
+    g.fillStyle = '#e8e4e0'; g.beginPath(); g.ellipse(gh.x * S, gh.y * S, 9, 12, 0, 0, 7); g.fill(); g.fillStyle = '#000'; g.fillRect(gh.x * S - 5, gh.y * S - 4, 3, 4); g.fillRect(gh.x * S + 2, gh.y * S - 4, 3, 4);
+    g.fillStyle = '#ffd070'; g.beginPath(); g.arc(pl.x * S, pl.y * S, 8, 0, 7); g.fill();
+    // 어둠: 손전등 반경 밖은 가린다
+    const r = dark ? S * .9 : S * 2.6, gr = g.createRadialGradient(pl.x * S, pl.y * S, r * .35, pl.x * S, pl.y * S, r);
+    gr.addColorStop(0, 'rgba(0,0,0,0)'); gr.addColorStop(1, 'rgba(0,0,0,.985)'); g.fillStyle = gr; g.fillRect(0, 0, c.width, c.height);
+    const near = Math.hypot(pl.x - gh.x, pl.y - gh.y); if (near < 3.5) { g.fillStyle = `rgba(140,0,0,${(3.5 - near) / 3.5 * .25})`; g.fillRect(0, 0, c.width, c.height); }
+    raf = requestAnimationFrame(loop);
+  };
+  raf = requestAnimationFrame(loop);
+  return p;
+}
+
+/* ---------- 15. 맞물린 고리 암호 ---------- */
+// 고리 3개에 기호가 8개씩. 오른쪽 위 '읽는 선'에 세 기호가 단서와 같게 오도록 돌린다. 바깥 고리를 돌리면 가운데 고리도 함께 돈다(맞물림)
+function rings({ title = '단말기 잠금 — 고리 암호', clue = null, maxMoves = 24 } = {}) {
+  const SYM = ['☾', '✦', '◆', '☂', '♪', '✚', '⌂', '☀'], N = 8;
+  const target = clue || [0, 1, 2].map(() => (Math.random() * N) | 0);
+  const off = [0, 0, 0];
+  // 정답 상태에서 무작위로 섞어 풀 수 있게 만든다 (돌리기는 맞물림 규칙 그대로)
+  const turn = (i, d) => { off[i] = (off[i] + d + N) % N; if (i === 2) off[1] = (off[1] + d + N) % N; if (i === 0) off[2] = (off[2] - d + N) % N; };
+  target.forEach((t, i) => { off[i] = t; }); for (let k = 0; k < 14; k++) turn((Math.random() * 3) | 0, Math.random() < .5 ? 1 : -1);
+  if ([0, 1, 2].every(i => off[i] === target[i])) turn(1, 1);
+  const p = open(title, `고리를 <b>클릭</b>(왼쪽 / 오른쪽 클릭 = 반대 방향)해서 <b style="color:#ffd070">읽는 선</b>에 단서의 기호 세 개를 맞춰라<br>안쪽 고리 → 바깥 고리가 반대로 · 바깥 고리 → 가운데 고리가 같은 방향으로 함께 돈다 — 남은 회전 <b id="rgLeft">${maxMoves}</b>`);
+  const c = canvas(420, 340), g = c.getContext('2d'); let moves = 0, won = false;
+  const draw = () => {
+    g.fillStyle = '#0b0d10'; g.fillRect(0, 0, 420, 340);
+    const cx = 170, cy = 170, R = [62, 104, 146];
+    g.fillStyle = '#c8c0a8'; g.font = '12px sans-serif'; g.fillText('단서', 330, 40); target.forEach((t, i) => { g.font = '26px serif'; g.fillStyle = ['#e8c070', '#a8d8ff', '#e8a0c8'][i]; g.fillText(SYM[t], 330, 78 + i * 38); });
+    for (let i = 2; i >= 0; i--) { g.strokeStyle = ['#e8c070', '#a8d8ff', '#e8a0c8'][i]; g.lineWidth = 2; g.beginPath(); g.arc(cx, cy, R[i], 0, 7); g.stroke();
+      for (let k = 0; k < N; k++) { const a = (k - off[i]) / N * Math.PI * 2 - Math.PI / 2, r2 = R[i] - 20; g.font = '22px serif'; g.textAlign = 'center'; g.fillStyle = k === off[i] ? '#fff' : '#9a9488'; g.fillText(SYM[k], cx + Math.cos(a) * r2, cy + Math.sin(a) * r2 + 8); } }
+    g.textAlign = 'left'; g.strokeStyle = 'rgba(255,208,112,.7)'; g.lineWidth = 3; g.beginPath(); g.moveTo(cx, cy - 20); g.lineTo(cx, cy - R[2] - 8); g.stroke();
+    g.fillStyle = '#ffd070'; g.beginPath(); g.moveTo(cx - 7, cy - R[2] - 14); g.lineTo(cx + 7, cy - R[2] - 14); g.lineTo(cx, cy - R[2] - 4); g.fill();
+  };
+  const click = (e, d) => { if (won || !finish) return; const rc = c.getBoundingClientRect(), x = (e.clientX - rc.left) * c.width / rc.width - 170, y = (e.clientY - rc.top) * c.height / rc.height - 170, r = Math.hypot(x, y);
+    const i = r < 84 ? 0 : r < 126 ? 1 : r < 168 ? 2 : -1; if (i < 0) return; turn(i, d); moves++; sfx.dial(); const L = document.getElementById('rgLeft'); if (L) L.textContent = maxMoves - moves; draw();
+    if ([0, 1, 2].every(k => off[k] === target[k])) { won = true; sfx.fuse ? sfx.fuse() : sfx.click(); setTimeout(() => close(true), 400); }
+    else if (moves >= maxMoves) { sfx.buzz(); status('잠금이 초기화된다…', 'err'); setTimeout(() => finish && close(false), 700); } };
+  c.addEventListener('click', e => click(e, 1)); c.addEventListener('contextmenu', e => { e.preventDefault(); click(e, -1); });
+  keys(() => {}); draw();
+  return p;
+}
+
+/* ---------- 16. 틀린 그림 찾기 (두 장의 기록) ---------- */
+// 같은 장면을 그린 두 그림 — 오른쪽 그림에서 달라진 곳 5개를 찾는다. 헛클릭 3번이면 그림이 일그러지며 실패. 제한 시간 있음
+function spotdiff({ title = '두 장의 기록 — 달라진 곳 찾기', time = 80, scene = 'classroom' } = {}) {
+  const Wd = 250, Hd = 200;
+  const p = open(title, `오른쪽 그림에서 <b>달라진 곳 5개</b>를 클릭 · 헛클릭 3번 · 제한 시간 <b>${time}초</b>`);
+  const c = canvas(Wd * 2 + 20, Hd + 30), g = c.getContext('2d');
+  const rnd = (a, b) => a + Math.random() * (b - a);
+  // 장면 요소: [종류, x, y, 크기, 색]
+  const items = [];
+  items.push(['window', 30, 30, 60, '#2a3a4a'], ['window', 160, 30, 60, '#2a3a4a'], ['board', 70, 40, 90, '#1e3a2a'], ['clock', 205, 22, 14, '#d8d0c0']);
+  for (let k = 0; k < 6; k++) items.push(['desk', 20 + (k % 3) * 78, 120 + ((k / 3) | 0) * 40, 30, '#7a5a3a']);
+  items.push(['figure', rnd(40, 200), 100, 22, '#d8d8d8'], ['flower', 222, 150, 12, '#c04040'], ['bag', 110, 175, 12, '#3a4a6a'], ['paper', 60, 95, 10, '#e8e0c8'], ['lamp', 125, 8, 40, '#e8e0a0']);
+  const kinds = ['move', 'color', 'gone', 'size'];
+  const diffs = items.map((_, i) => i).sort(() => Math.random() - .5).slice(0, 5).map(i => ({ i, k: kinds[(Math.random() * kinds.length) | 0], found: false }));
+  const draw1 = (ox, alt) => {
+    g.save(); g.translate(ox, 0); g.fillStyle = '#2e2a26'; g.fillRect(0, 0, Wd, Hd); g.fillStyle = '#3a342c'; g.fillRect(0, 90, Wd, Hd - 90);
+    items.forEach((it, i) => { let [t, x, y, s, col] = it; const d = alt && diffs.find(q => q.i === i);
+      if (d) { if (d.k === 'gone') return; if (d.k === 'move') x += 18; if (d.k === 'color') col = t === 'figure' ? '#a02020' : '#3a8a3a'; if (d.k === 'size') s *= 1.45; }
+      g.fillStyle = col; g.strokeStyle = '#000';
+      if (t === 'window') { g.fillRect(x, y, s * .6, s * .8); g.strokeStyle = '#8a8a80'; g.strokeRect(x, y, s * .6, s * .8); g.beginPath(); g.moveTo(x + s * .3, y); g.lineTo(x + s * .3, y + s * .8); g.stroke(); }
+      else if (t === 'board') g.fillRect(x, y, s, s * .4);
+      else if (t === 'clock') { g.beginPath(); g.arc(x, y, s, 0, 7); g.fill(); g.strokeStyle = '#222'; g.beginPath(); g.moveTo(x, y); g.lineTo(x, y - s * .7); g.moveTo(x, y); g.lineTo(x + s * .5, y); g.stroke(); }
+      else if (t === 'desk') { g.fillRect(x, y, s * 1.6, s * .35); g.fillRect(x + 3, y + s * .35, 4, s * .5); g.fillRect(x + s * 1.6 - 7, y + s * .35, 4, s * .5); }
+      else if (t === 'figure') { g.globalAlpha = .75; g.beginPath(); g.arc(x, y - s * 1.2, s * .45, 0, 7); g.fill(); g.fillRect(x - s * .45, y - s * .8, s * .9, s * 1.6); g.globalAlpha = 1; g.fillStyle = '#000'; g.fillRect(x - 4, y - s * 1.25, 3, 3); g.fillRect(x + 1, y - s * 1.25, 3, 3); }
+      else if (t === 'flower') { g.fillStyle = '#3a6a3a'; g.fillRect(x - 1, y, 2, s * 1.4); g.fillStyle = col; g.beginPath(); g.arc(x, y, s * .5, 0, 7); g.fill(); }
+      else if (t === 'lamp') { g.fillRect(x - s / 2, y, s, 5); }
+      else g.fillRect(x - s / 2, y - s / 2, s, s * .8); });
+    g.restore();
+  };
+  let miss = 0, t0 = performance.now(), lastFx = 0;
+  const posOf = d => { const [, x, y] = items[d.i]; return [x + (d.k === 'move' ? 18 : 0), y]; };
+  const loop = now => {
+    const left = time - (now - t0) / 1000;
+    g.fillStyle = '#0b0d10'; g.fillRect(0, 0, c.width, c.height); draw1(0, false); draw1(Wd + 20, true);
+    diffs.filter(d => d.found).forEach(d => { const [x, y] = posOf(d); g.strokeStyle = '#60ffa0'; g.lineWidth = 2; [0, Wd + 20].forEach(o => { g.beginPath(); g.arc(o + x + 6, y + 4, 18, 0, 7); g.stroke(); }); });
+    if (now - lastFx < 400) { g.fillStyle = 'rgba(160,0,0,.25)'; g.fillRect(Wd + 20, 0, Wd, Hd); }
+    g.fillStyle = '#c8c0a8'; g.font = '12px sans-serif'; g.fillText(`찾은 곳 ${diffs.filter(d => d.found).length}/5 · 헛클릭 ${miss}/3 · 남은 시간 ${Math.max(0, Math.ceil(left))}초`, 6, Hd + 20);
+    if (left <= 0 && finish) { status('시간이 다 됐다 — 그림이 번진다', 'err'); setTimeout(() => finish && close(false), 500); return; }
+    raf = requestAnimationFrame(loop);
+  };
+  c.addEventListener('click', e => { if (!finish) return; const rc = c.getBoundingClientRect(), x = (e.clientX - rc.left) * c.width / rc.width - Wd - 20, y = (e.clientY - rc.top) * c.height / rc.height; if (x < 0) return;
+    const d = diffs.find(q => !q.found && Math.hypot(posOf(q)[0] + 6 - x, posOf(q)[1] + 4 - y) < 24);
+    if (d) { d.found = true; sfx.click(); if (diffs.every(q => q.found)) { status('모두 찾았다', 'ok'); setTimeout(() => close(true), 500); } }
+    else { miss++; lastFx = performance.now(); sfx.buzz(); if (miss >= 3) { status('그림 속 인물이 이쪽을 본다…', 'err'); setTimeout(() => finish && close(false), 700); } } });
+  keys(() => {}); raf = requestAnimationFrame(loop);
+  return p;
+}
+
+/* ---------- 17. 퓨즈판 (모두 켜기) ---------- */
+// 퓨즈를 누르면 자기와 상하좌우 퓨즈가 함께 뒤집힌다. 정해진 횟수 안에 전부 켜면 전력 복구. 오래 끌면 과열(스파크)
+function fuse({ title = '퓨즈판 — 모든 회로를 켜라', N = 4, extra = 6 } = {}) {
+  const on = Array.from({ length: N }, () => Array(N).fill(true));
+  const flip = (y, x) => [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]].forEach(([dy, dx]) => { const a = y + dy, b = x + dx; if (a >= 0 && a < N && b >= 0 && b < N) on[a][b] = !on[a][b]; });
+  const par = 5 + ((Math.random() * 3) | 0); for (let k = 0; k < par; k++) flip((Math.random() * N) | 0, (Math.random() * N) | 0);
+  if (on.flat().every(Boolean)) flip(1, 1);
+  const max = par + extra; let used = 0, won = false;
+  const p = open(title, `퓨즈를 클릭하면 <b>자기와 상하좌우</b>가 함께 뒤집힌다 — <b>${max}</b>번 안에 16개를 모두 켜라`);
+  const S = 70, c = canvas(N * S + 40, N * S + 50), g = c.getContext('2d');
+  const draw = () => {
+    g.fillStyle = '#121416'; g.fillRect(0, 0, c.width, c.height);
+    for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) { const px = 20 + x * S, py = 20 + y * S;
+      g.fillStyle = '#23272b'; g.fillRect(px + 4, py + 4, S - 8, S - 8); g.fillStyle = on[y][x] ? '#7aff9a' : '#3a1414'; g.shadowColor = on[y][x] ? '#7aff9a' : 'transparent'; g.shadowBlur = on[y][x] ? 14 : 0;
+      g.fillRect(px + 18, py + 14, S - 36, S - 28); g.shadowBlur = 0; g.fillStyle = '#b8b0a0'; g.fillRect(px + 26, py + 8, S - 52, 6); g.fillRect(px + 26, py + S - 14, S - 52, 6); }
+    g.fillStyle = '#c8c0a8'; g.font = '12px sans-serif'; g.fillText(`남은 조작 ${max - used}`, 20, N * S + 40);
+  };
+  c.addEventListener('click', e => { if (won || !finish) return; const rc = c.getBoundingClientRect(), x = ((e.clientX - rc.left) * c.width / rc.width - 20) / S | 0, y = ((e.clientY - rc.top) * c.height / rc.height - 20) / S | 0;
+    if (x < 0 || x >= N || y < 0 || y >= N) return; flip(y, x); used++; sfx.click(); draw();
+    if (on.flat().every(Boolean)) { won = true; sfx.fuse ? sfx.fuse() : 0; setTimeout(() => close(true), 450); }
+    else if (used >= max) { sfx.spark ? sfx.spark() : sfx.buzz(); status('퓨즈가 과열됐다 — 스파크!', 'err'); setTimeout(() => finish && close(false), 700); } });
+  keys(() => {}); draw();
+  return p;
+}
+
 export function run(kind, opts = {}) {
   if (MG.active) return Promise.resolve({ ok: false });
-  return ({ lockpick, dial, circuit, piano, slide, fishing, order, memory, tune, simon, timing, ouija })[kind](opts);
+  return ({ lockpick, dial, circuit, piano, slide, fishing, order, memory, tune, simon, timing, ouija, pipes, maze, rings, spotdiff, fuse })[kind](opts);
 }

@@ -97,7 +97,7 @@ export function buildWorld(scene) {
   const mCork = S(T.makeCork());
   const mFlag = S(T.makeFlag());
   const mDoor = S(T.makeDoor(), { side: THREE.DoubleSide });
-  const mDoorP = PB('door', () => T.pbrDoor(512));
+  const mDoorP = PB('door', () => T.pbrDoor(512)); mDoorP.color.setScalar(.72);   // 밝은 베이지 문짝이 손전등에 하얗게 뜨지 않게
   const mWin = new THREE.MeshBasicMaterial({ map: T.makeWindow(), color: 0x9fb2c8, side: THREE.DoubleSide });
   const mWinIn = new THREE.MeshBasicMaterial({ map: mWin.map, color: 0x9fb2c8 });   // 실내 쪽에서 보는 창 (한 면)
   // 외벽 창 텍스처 시트 (assets/tex/win_atlas.webp, 4×3): 깨끗 · 먼지 · 금 간 · 깨진 · 테이프 X · 빗물 · 김서림 · 커튼 · 블라인드 · 야간 점등 · 완전 어둠 · 먼지+금

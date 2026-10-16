@@ -103,7 +103,7 @@ export async function speak(id, fx = 'none') {
     return Math.max(1.2, text.length * .105 / u.rate + (text.match(/[,.?!]/g) || []).length * .12);
   }
   if (info.nofile) return est;
-  const e = emoFor(id), r = await playVoice(`voice/${id}.mp3`, fx, info.baked ? { ...e, rate: 1, pitch: 1, trem: 0 } : e);   // baked: 감정이 이미 녹음에 들어 있다
+  const e = emoFor(id), r = await playVoice(`voice/${id}.mp3`, fx, info.baked ? { ...e, rate: 1, pitch: 1, trem: 0, airy: 0, dry: true } : e);   // baked: 감정이 이미 녹음에 들어 있다
   return r ? r.duration : est;
 }
 export function stopSpeak() { stopVoice(); if ('speechSynthesis' in window) speechSynthesis.cancel(); }

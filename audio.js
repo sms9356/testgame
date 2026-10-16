@@ -284,7 +284,7 @@ export async function playVoice(url, fx = 'none', emo = null) {
     if (fx !== 'phone') { const n = loopNoise(3000, 'bandpass', .7); const ng = ac.createGain(); ng.gain.value = fx === 'radio' ? .05 : .015; n.connect(ng); ng.connect(bus.voice); s.onended = () => ng.disconnect(); }
   }
   const g = ac.createGain(); g.gain.value = (fx === 'whisper' ? .7 : 1) * (emo && emo.gain || 1); node.connect(g); g.connect(bus.voice);
-  const sendG = ac.createGain(); sendG.gain.value = fx === 'pa' ? .9 : .25; g.connect(sendG); sendG.connect(revSend);
+  const sendG = ac.createGain(); sendG.gain.value = fx === 'pa' ? .9 : emo && emo.dry && fx !== 'whisper' ? .05 : .25;   // 녹음 더빙은 잔향을 거의 걸지 않는다 (말끝에 울림이 남아 잔상처럼 들렸다) g.connect(sendG); sendG.connect(revSend);
   s.start(); curVoice = s; duckMusic(true); s.addEventListener('ended', () => { if (curVoice === s) duckMusic(false); });
   return { duration: buf.duration / rate, stop: () => { try { s.stop(); } catch (e) { /* ignore */ } } };
 }

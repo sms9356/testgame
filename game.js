@@ -1409,7 +1409,7 @@ function elvTarget() {
 function elvTick(dt) {
   const now = performance.now();
   // 바깥 문 (층마다)
-  for (const p of world.props) { if (p.kind !== 'elevator' || !p.hall) continue;
+  for (const p of (ELV.list ||= world.props.filter(q => q.kind === 'elevator' && q.hall))) {
     if (p.hallOpen && p.closeT && now > p.closeT && !(p.floor === P.floor && Math.hypot(P.x - p.px, P.z - p.pz) < 1.0)) { p.hallOpen = false; p.closeT = 0; if (p.floor === P.floor) sfx.doorSlide(.5); }
     const k0 = p.hallK || 0, k = p.hallK = Math.max(0, Math.min(1, k0 + (p.hallOpen ? dt : -dt) / .8));
     if (k !== k0) { p.hall.forEach((d, i) => { const sc = Math.max(.04, 1 - k * .96); d.scale.x = sc; d.position.x = (i ? 1 : -1) * (.8 - .4 * sc); }); if (p.cab) p.cab.visible = k > .01; }   // 문짝은 문틀 안쪽으로 접혀 들어간다 (예전엔 문틀 밖 벽 위로 밀려 나왔다) · 열리면 카 안이 보인다
@@ -2061,11 +2061,11 @@ function updateLighting(dt) {
   scene.fog.color.lerp(indoors ? _c1.copy(FOG_IN).lerp(FOG_IN_DAY, dk) : _c1.copy(FOG_OUT).lerp(FOG_DAY, dk), k);
   // 밖에서 건물과 멀리 떨어져 있으면 본관 1층 내부는 그리지 않는다 (창 너머로 거의 보이지 않음 · 야외 프레임 저하의 주원인)
   const farOut = P.floor === 0 && !indoors && (P.z > MAIN_ZS + 16 || P.z < NORTH_Z || Math.abs(P.x) > 52);
-  const nearOut = P.floor === 0 && !indoors && !farOut && Math.abs(P.x) < 46 && P.z > -24 && P.z < MAIN_ZS + 14;   // 건물 가까운 바깥: 창 너머 2 · 3층 교실도 보이게
+  const nearOut = qCur === 'high' && P.floor === 0 && !indoors && !farOut && Math.abs(P.x) < 46 && P.z > -24 && P.z < MAIN_ZS + 14;   // 건물 가까운 바깥: 창 너머 2 · 3층 교실도 보이게
   floors.forEach(f => { f.interior.visible = (f.f === P.floor && !farOut) || (nearOut && (f.f === 1 || f.f === 2)); if (f.f <= 2) f.shell.visible = P.floor <= 3 && !(P.floor === 2 && (P.sh || 0) > 2.4); });   // 3층 계단 위쪽: 눈높이가 건물 지붕보다 높아 외벽 상자 지붕면이 계단을 덮어 보였다
   // 야외: 손전등 그림자 범위를 줄여 그림자 패스가 캠퍼스 전체를 다시 그리지 않게 (셰이더 재컴파일 없이)
   const sf = indoors ? 26 : 6; if (flash.shadow.camera.far !== sf) { flash.shadow.camera.far = sf; flash.shadow.camera.updateProjectionMatrix(); }
-  world.OUT.visible = P.floor <= 3 || state === 'menu' || state === 'intro';   // 본관 2 · 3층에서도 창밖(운동장 · 별관 · 하늘)이 보이게
+  world.OUT.visible = P.floor === 0 || P.floor === 3 || (qCur === 'high' && (P.floor === 1 || P.floor === 2)) || state === 'menu' || state === 'intro';   // 2 · 3층 창밖 풍경은 높음 품질에서만 (캠퍼스 전체를 더 그리는 비용)
   // 형광등 풀: 가장 가까운 켜진 램프 4개에 PointLight 배치
   lampTimer -= dt;
   if (lampTimer <= 0) {
@@ -2103,7 +2103,7 @@ function updateLighting(dt) {
 // 손전등 앞 장애물까지 거리 (2D 충돌 상자 · 0.1초마다): 시선 방향으로 0.1m 씩 3m 까지
 const FN = { t: 0, d: 9 };
 function flashNear() {
-  const now = performance.now(); if (now - FN.t < 200) return FN.d; FN.t = now;
+  const now = performance.now(); if (now - FN.t < 90) return FN.d; FN.t = now;
   const F = floors[P.floor], fx0 = -Math.sin(P.yaw), fz0 = -Math.cos(P.yaw), down = Math.max(0, -P.pitch);
   let d = 9; const floorD = down > .25 ? 1.55 / Math.tan(down) : 9;   /* 바닥을 비추면 바닥까지 거리 */
   for (let s = .1; s < 3; s += .1) { const x = P.x + fx0 * s, z = P.z + fz0 * s; if (F.col.some(c => !c.off && x >= c.x1 && x <= c.x2 && z >= c.z1 && z <= c.z2)) { d = s; break; } }
@@ -2123,7 +2123,7 @@ function antiGlare(root) {
     if (!m.isMeshStandardMaterial || m.transparent || m.roughness < .12 || /water|glass|mirror|pool/i.test(m.name || '')) return;
     m.roughness = Math.max(m.roughness, .62); m.metalness = Math.min(m.metalness, .5); m.envMapIntensity = Math.min(m.envMapIntensity ?? 1, .6); }); });
 }
-function antiGlareTick() { const now = performance.now(); if (now - AG.t < 5000) return; AG.t = now; antiGlare(scene); }
+function antiGlareTick() { const now = performance.now(); if (now - AG.t < 700) return; AG.t = now; const ch = scene.children; if (!ch.length) return; AG.i = ((AG.i || 0) + 1) % ch.length; antiGlare(ch[AG.i]); }   // 한 번에 장면 전체를 훑던 것(5초마다 끊김) → 0.7초마다 그룹 하나씩
 
 // 비상 발전기: 전력 복구 전에는 건물 조명이 지하 발전기로 돌아간다 — 누런 빛, 아주 약한 전압 출렁임,
 // 수십 초마다 발전기가 헛돌며 층 전체 조명이 함께 처지고(비상등이 켜짐) 다시 올라온다. 복구 후에는 드물고 약하게.
@@ -5945,3 +5945,16 @@ if (DEBUG) {
 }
 // 형광등 스위치 초기 상태 반영 (방마다 일부만 켜져 있다)
 syncSwitches();
+// 소비 아이템 · 쪽지가 가구 속에 박혀 있으면(사물함 · 장 · 37실 설비가 나중에 놓여 겹친 경우) 바로 아래 가구 윗면으로 올린다 — 위에서 아래로 광선
+function itemUnbury() { const rc = new THREE.Raycaster(), dn = new THREE.Vector3(0, -1, 0); let moved = 0; rc.camera = camera;   // 빛무리 스프라이트도 광선 검사에 걸린다 (카메라 필요)
+  scene.updateMatrixWorld(true);
+  for (const it of world.items) {
+    if (it.taken || !it.mesh) continue; const F = floors[it.floor]; if (!F) continue;
+    const roots = [F.interior].filter(Boolean); rc.set(new THREE.Vector3(it.pos.x, it.pos.y + .9, it.pos.z), dn); rc.far = .9 - .02;   // 아이템 바로 위 0.9m 안에서 — 위쪽 벽 선반 등은 건드리지 않게
+    let hits = []; try { hits = rc.intersectObjects(roots, true); } catch (e) { continue; }
+    const hit = hits.find(h => h.object !== it.mesh && h.object.visible && !it.mesh.getObjectById?.(h.object.id) && h.object.isMesh && !h.object.material?.transparent);
+    if (!hit) continue; const top = hit.point.y;
+    if (top > it.pos.y + .04 && top - F.y0 < 1.95) { const dy = top + .03 - it.pos.y; it.pos.y += dy; it.mesh.position.y += dy; moved++; }   // 박혀 있던 아이템 → 그 위 면에 올림
+  }
+  if (moved) console.info(`[아이템] 가구 속에 박힌 ${moved}개를 윗면으로 옮김`); }
+itemUnbury(); setTimeout(itemUnbury, 12000);   // 3D 모델(가구)은 나중에 불러와지므로 한 번 더

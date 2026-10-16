@@ -241,13 +241,13 @@ class School37RoomsMasterPatch {
   _prefabBedWithCurtain() {
     // [보건실] 매트리스 + 베개 + 철제 프레임 + 반투명 녹색 병원 커튼 파티션
     const g = new THREE.Group();
-    const frame = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.45, 2.0), this.materials.stainless);
+    const frame = new THREE.Group(); const rail = new THREE.Mesh(new THREE.BoxGeometry(1.0, .07, 2.0), this.materials.stainless); rail.position.y = .175; frame.add(rail); for (const x of [-.44, .44]) for (const z of [-.9, .9]) { const leg = new THREE.Mesh(new THREE.BoxGeometry(.055, .42, .055), this.materials.stainless); leg.position.set(x, -.015, z); frame.add(leg); } const head = new THREE.Mesh(new THREE.BoxGeometry(.94, .4, .05), this.materials.stainless); head.position.set(0, .425, -.97); frame.add(head);
     frame.position.y = 0.225;
     const mattress = new THREE.Mesh(new THREE.BoxGeometry(0.94, 0.16, 1.92), this.materials.hospitalLinen);
     mattress.position.y = 0.52;
     const pillow = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.1, 0.32), this.materials.hospitalLinen);
     pillow.position.set(0, 0.62, -0.72);
-    const curtain = new THREE.Mesh(new THREE.PlaneGeometry(2.0, 1.8), this.materials.hospitalCurtain);
+    const curtain = new THREE.Mesh(new THREE.PlaneGeometry(2.0, 1.8, 32, 1), this.materials.hospitalCurtain); const folds = curtain.geometry.attributes.position; for (let i = 0; i < folds.count; i++) folds.setZ(i, -.025 * (.5 + .5 * Math.cos(folds.getX(i) * Math.PI * 10))); curtain.geometry.computeVertexNormals();
     curtain.position.set(0.55, 1.1, 0);
     curtain.rotation.y = Math.PI / 2;
     g.add(frame, mattress, pillow, curtain);

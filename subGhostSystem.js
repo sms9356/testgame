@@ -492,27 +492,9 @@ class SubGhostNPCSheetSystem {
     if (!ghostInstance || ghostInstance.isTriggered) return;
     ghostInstance.isTriggered = true;
 
-    // 표정을 '비명(scream)' 또는 '소름(creepy)'으로 즉시 전환하고 포즈를 '공격(손 뻗기)'로 변경!
-    ghostInstance.setExpression("scream");
-    ghostInstance.setAnimationPose("attack");
-
-    // 화면 중앙에 시트지 좌측 상단/하단 클로즈업 컷을 0.55초간 강렬하게 노출
-    const modal = document.getElementById("patch-subghost-closeup");
-    if (modal) {
-      modal.classList.add("active");
-      setTimeout(() => modal.classList.remove("active"), 620);
-    }
-
-    // 음산한 여고생 속삭임 + 비명 화음 재생
-    this._playGhostWhisperAndScream();
-
-    // 공포 게이지 +22% 상승 및 대사 자막 출력 ("다들... 여기 있어...")
-    if (window.schoolPatchAddon) {
-      window.schoolPatchAddon.addFear(22);
-    } else if (window.player && typeof window.player.fear === "number") {
-      window.player.fear = Math.min(100, window.player.fear + 22);
-    }
-
+    // Story encounter only: no attack pose, full-screen scream or fear penalty.
+    ghostInstance.setExpression("sad");
+    ghostInstance.setAnimationPose("idle");
     const line = ghostInstance.dialogue || "다들... 여기 있어...";
     if (subtitleFn) subtitleFn("유령", line);
     else if (notifyFn) notifyFn(`👻 "${line}"`);
@@ -549,13 +531,6 @@ class SubGhostNPCSheetSystem {
       } else {
         // 미세한 호흡/떨림
         g.mainPlane.position.x = Math.sin(g.phase * 7) * 0.006;
-      }
-
-      // 2) 계단 출현(stairs_ambush): 플레이어가 6.5m 안으로 오면 갑자기 '기어가기(crawl)'로 돌변해 접근!
-      if (g.behavior === "stairs_ambush" && dist < 6.5 && !g.isTriggered) {
-        g.setAnimationPose("crawl");
-        g.setExpression("creepy");
-        g.root.position.lerp(playerPos, dt * 1.8);
       }
 
       // 3) 플레이어가 2.3m 이내로 근접 시 '근접 연출(손 뻗기 + 비명 표정 + 대사)' 발동!

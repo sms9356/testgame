@@ -153,7 +153,7 @@ async function extrasRun() {
     const s0 = sinks.find(q => q.floor === 0); __g.P.fear = .5; __g.useSink(s0); __g.useSink(s0); __g.useSink(s0); const f3 = __g.P.fear; __g.useFlush(fl[0]);
     const l = st.find(o => o.floor === 0); __g.enterLocker(l); const closed = l.stallDoor.target === 0; __g.leaveLocker(true); const reopened = l.stallDoor.target === 1;
     return sinks.length >= 24 && fl.length > 10 && st.length === fl.length && lk.length >= 3 && closed && reopened && s0.sinkObj.uses === 3 && Math.abs(f3 - .5) > .01; }), '남/녀 화장실 (RestroomSystem 세면대 · 변기 물 내리기 · 칸막이 은신 · 잠긴 3번 칸)');
-  ok(await E(p, () => { __g.state = 'playing'; __g.inv.charm = 1; __g.P.invuln = 0; __g.ghost.active = true; __g.ghost.floor = __g.P.floor; __g.ghost.x = __g.P.x + 1; __g.ghost.z = __g.P.z; const hp = __g.P.hp; __g.hit(); const r = __g.P.hp === hp && __g.inv.charm === 0; __g.ghost.active = false; return r; }), '노란 부적이 공격을 대신 받음');
+  ok(await E(p, () => { __g.state = 'playing'; __g.inv.charm = 1; __g.P.invuln = 0; __g.ghost.active = true; __g.ghost.floor = __g.P.floor; __g.ghost.x = __g.P.x + 1; __g.ghost.z = __g.P.z; const hp = __g.P.hp; __g.hit(); const r = __g.P.hp === hp && __g.inv.charm === 1; __g.ghost.active = false; return r; }), '유령 접촉은 체력과 부적을 소모하지 않음');
   await saveReload(p, '수색 후'); ok(await E(p, () => Object.keys(__g.FL.col).length === 4 && __g.world.props.filter(q => q.kind === 'search' && q.done).length === 3 && __g.FL.ms.lab === 1), '복원: 수집품 · 뒤진 사물함 · 미니게임 보답');
   ok(p.errors === 0, '콘솔 오류 없음'); await p.close();
 }

@@ -1,0 +1,245 @@
+{
+  "geometries": 7115,
+  "invalid": [],
+  "textureCount": 858,
+  "unready": [],
+  "rooms": [
+    {
+      "floor": 0,
+      "name": "상담실",
+      "placed": 1
+    },
+    {
+      "floor": 0,
+      "name": "교장실",
+      "placed": 1
+    },
+    {
+      "floor": 0,
+      "name": "회의실",
+      "placed": 2
+    },
+    {
+      "floor": 0,
+      "name": "창고",
+      "placed": 1
+    },
+    {
+      "floor": 0,
+      "name": "보건실 보조",
+      "placed": 1
+    },
+    {
+      "floor": 0,
+      "name": "보건실",
+      "placed": 0
+    },
+    {
+      "floor": 1,
+      "name": "2층 홀",
+      "placed": 2
+    },
+    {
+      "floor": 1,
+      "name": "창고",
+      "placed": 1
+    },
+    {
+      "floor": 1,
+      "name": "요리실",
+      "placed": 0
+    },
+    {
+      "floor": 1,
+      "name": "교사 휴게실",
+      "placed": 1
+    },
+    {
+      "floor": 2,
+      "name": "3층 홀",
+      "placed": 2
+    },
+    {
+      "floor": 2,
+      "name": "학생회실",
+      "placed": 2
+    },
+    {
+      "floor": 2,
+      "name": "상담실",
+      "placed": 0
+    },
+    {
+      "floor": 2,
+      "name": "보관실",
+      "placed": 1
+    },
+    {
+      "floor": 4,
+      "name": "청소도구실",
+      "placed": 1
+    },
+    {
+      "floor": 4,
+      "name": "기계실",
+      "placed": 0
+    },
+    {
+      "floor": 4,
+      "name": "펌프실",
+      "placed": 0
+    },
+    {
+      "floor": 4,
+      "name": "시설 창고",
+      "placed": 1
+    },
+    {
+      "floor": 8,
+      "name": "공구실",
+      "placed": 1
+    },
+    {
+      "floor": 8,
+      "name": "세척실",
+      "placed": 0
+    },
+    {
+      "floor": 8,
+      "name": "자재 창고",
+      "placed": 1
+    },
+    {
+      "floor": 8,
+      "name": "진로상담실 (104)",
+      "placed": 1
+    },
+    {
+      "floor": 8,
+      "name": "창의융합실 (103)",
+      "placed": 0
+    },
+    {
+      "floor": 8,
+      "name": "요리실 (101)",
+      "placed": 0
+    },
+    {
+      "floor": 8,
+      "name": "실습 준비실",
+      "placed": 0
+    },
+    {
+      "floor": 9,
+      "name": "과학 준비실",
+      "placed": 1
+    },
+    {
+      "floor": 9,
+      "name": "언어실 (202)",
+      "placed": 0
+    },
+    {
+      "floor": 9,
+      "name": "교재 창고",
+      "placed": 1
+    },
+    {
+      "floor": 9,
+      "name": "상담실",
+      "placed": 0
+    },
+    {
+      "floor": 9,
+      "name": "스마트교실 (203)",
+      "placed": 1
+    },
+    {
+      "floor": 9,
+      "name": "동아리실 (204)",
+      "placed": 1
+    },
+    {
+      "floor": 10,
+      "name": "작업실",
+      "placed": 0
+    },
+    {
+      "floor": 10,
+      "name": "음악실 (301)",
+      "placed": 1
+    },
+    {
+      "floor": 10,
+      "name": "보관실",
+      "placed": 1
+    },
+    {
+      "floor": 10,
+      "name": "기자재실",
+      "placed": 1
+    },
+    {
+      "floor": 10,
+      "name": "전시 공간",
+      "placed": 2
+    },
+    {
+      "floor": 10,
+      "name": "공예실 (303)",
+      "placed": 1
+    }
+  ],
+  "modelState": {
+    "total": 69,
+    "completed": 69,
+    "failed": [],
+    "active": 0
+  },
+  "frameErrors": 0,
+  "assetErrors": [],
+  "textureWarnings": [],
+  "lamps": 14,
+  "items": [
+    {
+      "kind": "key",
+      "floor": 0,
+      "y": 0.830000011920929
+    },
+    {
+      "kind": "key",
+      "floor": 0,
+      "y": 0.95
+    },
+    {
+      "kind": "key",
+      "floor": 1,
+      "y": 1.12
+    },
+    {
+      "kind": "key",
+      "floor": 5,
+      "y": 1
+    },
+    {
+      "kind": "key",
+      "floor": 6,
+      "y": -1.1904212323738506
+    },
+    {
+      "kind": "camcorder",
+      "floor": 0,
+      "y": 0.77
+    },
+    {
+      "kind": "nametag",
+      "floor": 4,
+      "y": 0.019999999999999574
+    },
+    {
+      "kind": "fuse",
+      "floor": 4,
+      "y": 0.9100000000000001
+    }
+  ]
+}

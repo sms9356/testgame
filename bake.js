@@ -68,20 +68,18 @@ export function bakeStatic(root) {
 }
 
 // 처음 방문할 때 생기는 끊김(텍스처 업로드·셰이더 컴파일)을 로딩 중에 미리 처리한다.
-export function warmUp(renderer, scene, camera, groups) {
-  const vis = groups.map(g => g.visible);
-  groups.forEach(g => { g.visible = true; });
+export async function warmUp(renderer, scene, camera, groups) {
   const seen = new Set();
   scene.traverse(o => {
     const ms = o.material ? (Array.isArray(o.material) ? o.material : [o.material]) : [];
-    for (const m of ms) for (const k of ['map', 'bumpMap', 'alphaMap', 'emissiveMap']) {
+    for (const m of ms) for (const k of ['map', 'normalMap', 'roughnessMap', 'bumpMap', 'alphaMap', 'emissiveMap']) {
       const t = m[k]; if (t && !seen.has(t)) { seen.add(t); if (t.image) renderer.initTexture(t); }
     }
   });
-  try { renderer.compile(scene, camera); } catch (e) { /* ignore */ }
-  // 그림자 패스용 셰이더는 compile() 로 만들어지지 않으므로, 컬링을 끄고 실제로 한 프레임을 그려 둔다
-  const culled = [];
-  scene.traverse(o => { if (o.frustumCulled) { culled.push(o); o.frustumCulled = false; } });
+  // Keep frustum culling on. Rendering every floor into a 2px viewport still
+  // submits the entire campus and its shadow geometry, blocking startup.
+  if (renderer.compileAsync && renderer.extensions.has('KHR_parallel_shader_compile')) await renderer.compileAsync(scene,camera);
+  else renderer.compile(scene,camera);
   // 아주 작은 영역에만 그려서 셰이더·그림자 프로그램만 만들고 비용은 최소화
   const vp = new THREE.Vector4(); renderer.getViewport(vp);
   const sh = [];
@@ -90,6 +88,4 @@ export function warmUp(renderer, scene, camera, groups) {
   try { renderer.render(scene, camera); } catch (e) { /* ignore */ }
   renderer.setScissorTest(false); renderer.setViewport(vp);
   sh.forEach(([o, s]) => { o.shadow.mapSize.set(s, s); if (o.shadow.map) { o.shadow.map.dispose(); o.shadow.map = null; } });
-  culled.forEach(o => { o.frustumCulled = true; });
-  groups.forEach((g, i) => { g.visible = vis[i]; });
 }

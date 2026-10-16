@@ -1,0 +1,42 @@
+{
+  "models": {
+    "total": 69,
+    "completed": 69,
+    "failed": [],
+    "active": 0
+  },
+  "infirmary": [
+    {
+      "id": "nurse-0-bed-west",
+      "status": "ready"
+    },
+    {
+      "id": "nurse-0-bed-east",
+      "status": "ready"
+    },
+    {
+      "id": "nurse-0-cabinet",
+      "status": "ready"
+    },
+    {
+      "id": "nurse-s37-cabinetOpen-0-closed",
+      "status": "ready"
+    },
+    {
+      "id": "nurse-s37-cabinetOpen-0-open",
+      "status": "ready"
+    }
+  ],
+  "nurseCabinet": true,
+  "frames": 0,
+  "assetErrors": [],
+  "voice": {
+    "sec": 17.52,
+    "ambient": 0,
+    "text": "과학교사과학 준비실에서 예비 퓨즈를 찾고 있었습니다. 불이 나간 뒤 지하 펌프 소리도 끊겼어요. 아이가 아직 아래에 있다는 말을 듣고도 전기부터 복구하려 했죠. 그날 방송을 잡으려면 수신기를 구십팔 점 사 메가헤르츠에 맞추세요. 그 주파수만은 아직 살아 있습니다."
+  },
+  "errors": [],
+  "warnings": [
+    "THREE.WebGLRenderer: KHR_parallel_shader_compile extension not supported."
+  ]
+}

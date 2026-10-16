@@ -1,0 +1,21 @@
+{
+  "load": {
+    "textures": 367,
+    "build": 3624,
+    "warmup": 44704
+  },
+  "frameErrors": 0,
+  "modelState": {
+    "total": 69,
+    "completed": 69,
+    "failed": [],
+    "active": 0
+  },
+  "modelAudit": {
+    "duplicatesRemoved": 0
+  },
+  "lamps": 14,
+  "errors": [],
+  "warnings": [],
+  "requests": []
+}

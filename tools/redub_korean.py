@@ -63,6 +63,7 @@ def render(line_id, info, config, out):
     if not 0.3 < duration < 180:
         raise ValueError(f'{line_id}: implausible duration {duration}')
     entry = {**info, 'dur': round(duration, 3), 'baked': True, 'eleven': info['text']}
+    entry.pop('nofile', None)
     entry['generation'] = {'voice_id': voice['voice_id'], 'model_id': config['model_id'],
         'language_code': 'ko', 'voice_settings': body['voice_settings'],
         'delivery': performance['delivery'], 'input_sha256': digest(body['text']),

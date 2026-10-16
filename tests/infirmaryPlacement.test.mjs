@@ -31,7 +31,7 @@ const c=e.walkableColliders[0],o=e.roomOccupancyMap.get('yaw')[0];near(c.localX,
 });
 test('central check and safety check use offset candidate centre',()=>{
 const e=engine(),p=prop({x:1,z:0}),seen=[];e._canPlaceFurniture=(...args)=>{seen.push(args);return true;};
-assert.equal(e._placeSafeProp(new THREE.Group(),'cross',p,options({x:0,z:0})),p);near(p.position.x,0);near(seen[0][1],1);near(seen[0][2],0);
+assert.equal(e._placeSafeProp(new THREE.Group(),'cross',p,options({x:0,z:0})),p);near(p.position.x,.6);near(seen[0][1],1.6);near(seen[0][2],0);
 });
 test('default zero offset retains known placement and collider fields',()=>{const e=engine(),p=prop();assert.equal(e._placeSafeProp(new THREE.Group(),'normal',p,options({w:1.6,d:.6})),p);near(p.position.x,0);near(p.position.z,-2.9);const c=e.walkableColliders[0];near(c.localX,0);near(c.localZ,-2.9);assert.equal(c.width,1.6);assert.equal(c.depth,.6);assert.equal(c.height,1.8);assert.deepEqual(e.roomOccupancyMap.get('normal'),[{x:0,z:-2.9,w:1.6,d:.6}]);});
 

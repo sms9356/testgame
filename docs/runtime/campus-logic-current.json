@@ -1,0 +1,69 @@
+{
+  "checks": [
+    {
+      "name": "W key movement",
+      "pass": false
+    },
+    {
+      "name": "F flashlight",
+      "pass": true
+    },
+    {
+      "name": "inventory opens",
+      "pass": true
+    },
+    {
+      "name": "camcorder pickup",
+      "pass": true
+    },
+    {
+      "name": "nametag pickup",
+      "pass": true
+    },
+    {
+      "name": "fuse pickup",
+      "pass": true
+    },
+    {
+      "name": "fuse and breaker restore power",
+      "pass": true
+    },
+    {
+      "name": "broadcast puzzle completes",
+      "pass": true
+    },
+    {
+      "name": "broadcast calms ghost",
+      "pass": true
+    },
+    {
+      "name": "Mina rescue",
+      "pass": true
+    },
+    {
+      "name": "save/load position and story flags",
+      "pass": true
+    },
+    {
+      "name": "frame loop errors absent",
+      "pass": true
+    }
+  ],
+  "saved": {
+    "x": -21.65,
+    "z": -7,
+    "f": 2,
+    "power": true,
+    "mina": true,
+    "calm": true
+  },
+  "restored": {
+    "x": -21.65,
+    "z": -7,
+    "f": 2,
+    "power": true,
+    "mina": true,
+    "calm": true
+  },
+  "rendering": "suspended after visual audit; real movement and puzzle outcomes; MG.win used"
+}

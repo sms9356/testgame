@@ -184,16 +184,22 @@ class School37RoomsMasterPatch {
       this.roomOccupancyMap.set(roomKey, []);
     }
 
+    propMesh.rotation.y = rotY;
+    propMesh.updateMatrixWorld(true);
+    const bounds = new THREE.Box3().setFromObject(propMesh), size = bounds.getSize(new THREE.Vector3()), center = bounds.getCenter(new THREE.Vector3());
+    // Prefab dimensions were estimates and ignored rotation/benches/handles.
+    if (!propMesh.userData.infirmaryFootprint) { w = Math.max(w, size.x); d = Math.max(d, size.z); }
+
     // 중앙 보행 통로(폭 1.4m) 보호: allowCenter가 아닌 일반 가구가 중앙선을 침범하면 벽 쪽으로 밀어냄
     let candidateOffsets = [[0, 0]];
     for (let step = 0.6; step <= 2.4; step += 0.6) {
       candidateOffsets.push([step, 0], [-step, 0], [0, step], [0, -step], [step, step], [-step, -step]);
     }
 
-    const footprint = propMesh.userData.infirmaryFootprint || { x: 0, z: 0 };
+    const footprint = propMesh.userData.infirmaryFootprint;
     const cosY = Math.cos(rotY), sinY = Math.sin(rotY);
-    const offsetX = footprint.x * cosY + footprint.z * sinY;
-    const offsetZ = -footprint.x * sinY + footprint.z * cosY;
+    const offsetX = footprint ? footprint.x * cosY + footprint.z * sinY : center.x;
+    const offsetZ = footprint ? -footprint.x * sinY + footprint.z * cosY : center.z;
 
     let placedX = null, placedZ = null;
     for (const [ox, oz] of candidateOffsets) {
@@ -202,7 +208,7 @@ class School37RoomsMasterPatch {
       const centerX = tx + offsetX, centerZ = tz + offsetZ;
 
       // 중앙 보행 동선(폭 1.3m) 확보 체크
-      if (!allowCenter && Math.abs(centerX) < 0.75 && Math.abs(centerZ) < roomD * 0.35) continue;
+      if (!allowCenter && Math.abs(centerX) - w / 2 < .75 && Math.abs(centerZ) - d / 2 < roomD * 0.25) continue;
 
       if (this._canPlaceFurniture(roomKey, centerX, centerZ, w, d, roomW, roomD, doors)) {
         placedX = tx;
@@ -570,13 +576,8 @@ class School37RoomsMasterPatch {
       if (!col.mesh || !col.mesh.parent) continue;
 
       const worldPos = new THREE.Vector3();
-      const footprint = col.mesh.userData.infirmaryFootprint;
-      if (footprint) {
-        worldPos.set(footprint.x, 0, footprint.z);
-        col.mesh.localToWorld(worldPos);
-      } else {
-        col.mesh.getWorldPosition(worldPos);
-      }
+      col.mesh.parent.updateWorldMatrix(true,false);
+      worldPos.set(col.localX,col.height/2,col.localZ).applyMatrix4(col.mesh.parent.matrixWorld);
 
       const halfW = col.width / 2 + playerRadius;
       const halfD = col.depth / 2 + playerRadius;

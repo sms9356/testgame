@@ -83,14 +83,8 @@ test('bake: dynamic descendants, invisible meshes and instancing remain untouche
 const hMatch = game.match(/const\s+h133Parts\s*=\s*([\s\S]*?);\s*const\s+packed\s*=/);
 assert.ok(hMatch, 'Locate h133Parts immediately before packed in game.js');
 const hSource = hMatch[1];
-test('h133Parts: clones smooth normals before flat computation and restores after UV assignment', () => {
-  const cloneAt = hSource.search(/g\.attributes\.normal(?:\?\.)?\.?(?:clone)\(\)/);
-  const computeAt = hSource.indexOf('g.computeVertexNormals()');
-  const uvAt = hSource.search(/g\.setAttribute\(\s*['"]uv['"]/);
-  const restoreAt = hSource.search(/g\.setAttribute\(\s*['"]normal['"]/);
-  assert.ok(cloneAt >= 0 && cloneAt < computeAt, 'clone transformed source normals before computing flat normals');
-  assert.ok(computeAt < uvAt && uvAt < restoreAt, 'use flat normals for UVs, then restore smooth normals');
-});
+import { prepareModelGeometry } from '../modelGeometry.js';
+
 function mergeGeometries(gs) {
   // h133Parts has already converted each geometry to non-indexed form.
   const merged = new THREE.BufferGeometry();
@@ -107,26 +101,15 @@ function mergeGeometries(gs) {
 }
 const sharedMat = new THREE.MeshStandardMaterial();
 const world = Object.fromEntries(['h133Mat', 'crMat', 'prMat', 'v2Mat'].map(k => [k, () => sharedMat]));
-const h133Parts = new Function('THREE', 'world', 'mergeGeometries', `return (${hSource});`)(THREE, world, mergeGeometries);
+const h133Parts = new Function('THREE', 'world', 'mergeGeometries', 'prepareModelGeometry', `return (${hSource});`)(THREE, world, mergeGeometries, prepareModelGeometry);
 function referenceGeometry(o, pr) {
   const g = o.geometry.index ? o.geometry.toNonIndexed() : o.geometry.clone();
   g.deleteAttribute('color'); g.applyMatrix4(o.matrixWorld);
   if (pr === true) g.rotateX(-Math.PI / 2);
   return g;
 }
-function flatUV(g) {
-  const flat = g.clone(); flat.computeVertexNormals();
-  const p = flat.attributes.position, n = flat.attributes.normal, uv = [];
-  for (let i = 0; i < p.count; i++) {
-    const ax = Math.abs(n.getX(i)), ay = Math.abs(n.getY(i)), az = Math.abs(n.getZ(i));
-    const [u, v] = ax >= ay && ax >= az ? [p.getZ(i), p.getY(i)]
-      : ay >= az ? [p.getX(i), p.getZ(i)] : [p.getX(i), p.getY(i)];
-    uv.push(u * .8, v * .8);
-  }
-  return uv;
-}
 for (const indexed of [true, false]) for (const pr of [false, true, 'v2']) {
-  test(`h133Parts: transformed smooth normals survive; legacy flat-axis UVs survive (indexed=${indexed}, pr=${pr})`, () => {
+  test(`h133Parts: transformed smooth normals and authored UVs survive (indexed=${indexed}, pr=${pr})`, () => {
     const group = new THREE.Group();
     group.position.set(2, 3, 4); group.rotation.set(.2, .4, -.1);
     const sphere = new THREE.SphereGeometry(1, 12, 8);
@@ -145,7 +128,7 @@ for (const indexed of [true, false]) for (const pr of [false, true, 'v2']) {
     const g = out[0].geometry;
     nearArray(g.attributes.normal.array, refs.flatMap(r => Array.from(r.attributes.normal.array)), 'smooth normals');
     nearArray(g.attributes.position.array, refs.flatMap(r => Array.from(r.attributes.position.array)), 'positions');
-    nearArray(g.attributes.uv.array, refs.flatMap(flatUV), 'legacy UV');
+    nearArray(g.attributes.uv.array, refs.flatMap(r => Array.from(r.attributes.uv.array)), 'authored UV');
     assert.deepEqual(Array.from(geo.attributes.normal.array), beforeNormal, 'source normals not mutated');
     assert.deepEqual(Array.from(geo.attributes.position.array), beforePosition, 'source positions not mutated');
   });
@@ -157,7 +140,7 @@ test('h133Parts: normal-less input still gains valid face normals and UVs', () =
   const group = new THREE.Group(); group.add(new THREE.Mesh(g, sharedMat)); group.updateMatrixWorld(true);
   const [out] = h133Parts(group, 'fixture', false, false);
   nearArray(out.geometry.attributes.normal.array, [0, 0, 1, 0, 0, 1, 0, 0, 1], 'fallback normals');
-  nearArray(out.geometry.attributes.uv.array, flatUV(g), 'fallback UV');
+  nearArray(out.geometry.attributes.uv.array, [1,2,4,2,1,5], 'fallback UV');
   assert.equal(g.attributes.normal, undefined);
 });
 

@@ -183,7 +183,7 @@ async function reachAudit() {
       return FF[f] = (x, z) => { const i = Math.round((x - x0) / S), k = Math.round((z - z0) / S); return i >= 0 && k >= 0 && i < nx && k < nz && seen[k * nx + i] === 1; }; };
     const T = [];
     g.world.items.forEach(it => { if (!it.taken && it.kind !== 'key' && it.id !== 'n27') T.push({ o: it, f: it.floor, x: it.pos.x, z: it.pos.z, id: it.kind + ':' + (it.id ?? '') }); });
-    g.world.props.forEach(q => { if (q.kind !== 'switch' && !q.after && !(q.kind === 'tape' && q.id === 'tape5')) T.push({ o: q, f: q.floor, x: q.x, z: q.z, id: q.kind + ':' + (q.uid || q.k || '') }); });
+    g.world.props.forEach(q => { if (q.kind !== 'switch' && q.minSh == null && !q.after && !(q.kind === 'tape' && q.id === 'tape5')) T.push({ o: q, f: q.floor, x: q.x, z: q.z, id: q.kind + ':' + (q.uid || q.k || '') }); });
     g.world.lockers.forEach((l, i) => { if (!l.noPick) T.push({ o: l, f: l.floor, x: l.x, z: l.z, id: 'locker:' + i, l: true }); });   // noPick: 국솥 · 청소도구함은 자기 조사 지점으로 숨는다
     for (const t of T) {
       if (!AREA[t.f]) continue; const ok2 = flood(t.f), wd = t.o.done, wl = t.o.locked; if (!t.l) { t.o.done = false; t.o.locked = false; }

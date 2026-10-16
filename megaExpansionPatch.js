@@ -179,7 +179,7 @@ class MegaSchoolExpansionAndOptimizer {
     ctx.beginPath(); ctx.arc(256, 256, 75, 0, Math.PI * 2); ctx.stroke();
 
     const floorMat = new THREE.MeshStandardMaterial({
-      map: new THREE.CanvasTexture(courtCanvas),
+      map: Object.assign(new THREE.CanvasTexture(courtCanvas), { colorSpace: THREE.SRGBColorSpace }),
       roughness: 0.35
     });
     const floor = new THREE.Mesh(new THREE.BoxGeometry(W, 0.25, D), floorMat);

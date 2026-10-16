@@ -2,7 +2,7 @@
 import * as THREE from './vendor/three.module.js';
 import { GLTFLoader } from './vendor/addons/loaders/GLTFLoader.js';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { createNPCVisuals } from './npcVisuals.js'; import { installInfirmaryAssets } from './infirmaryAssets.js';
+import { createNPCVisuals } from './npcVisuals.js'; import { installInfirmaryAssets, updateInfirmaryCabinets } from './infirmaryAssets.js';
 import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js';
 import { drawMap } from './map.js';
 import { makeDress, makeHair, makeGhostFace, makeGraffiti, makeKeypad, loadPBR, makeGlow as makeGlowTex, makePaintingStare, makeSign, makeBlood } from './tex.js';
@@ -5534,7 +5534,7 @@ const S37_TYPE = { '시설 창고': '시설창고실', '보건실 보조': '보�
   });
   console.info(`[37실] 방 ${S37.rooms.length}개 · 새 가구 ${S37.placed}개 배치 (겹치거나 동선을 막는 자리는 건너뜀)`);
 }
-const infirmaryExtraSlots = []; for (const room of S37.rooms.filter(r => r.f === 0 && r.name === "보건실")) room.g.traverse(holder => { const kind = holder.userData.infirmaryKind; if (!kind) return; const fallback = new THREE.Group(); fallback.userData.dynamic = true; const old = [...holder.children]; holder.add(fallback); old.forEach(o => fallback.add(o)); infirmaryExtraSlots.push({ id: "nurse-s37-" + kind + "-" + infirmaryExtraSlots.length, kind, holder, fallback }); }); const infirmaryAssets = installInfirmaryAssets({ renderer, scene, camera, slots: [...world.INFIRMARY_SLOTS, ...infirmaryExtraSlots], batchOpaque: true }); window.__infirmaryAssets = infirmaryAssets; infirmaryAssets.ready.then(records => { const bad = records.filter(r => r.status === "error"); if (bad.length) console.warn("[infirmary]", bad.map(r => [r.id, r.error?.message])); }); async function s37Act(p, ctx) {
+const infirmaryExtraSlots = [], infirmaryCabinetViews = []; for (const room of S37.rooms.filter(r => r.f === 0 && r.name === "보건실")) room.g.traverse(holder => { const kind = holder.userData.infirmaryKind; if (!kind) return; const fallback = new THREE.Group(); fallback.userData.dynamic = true; const old = [...holder.children].filter(o => !(kind === "bed" && o.geometry?.type === "PlaneGeometry")); holder.add(fallback); old.forEach(o => fallback.add(o)); const id = "nurse-s37-" + kind + "-" + infirmaryExtraSlots.length; if (kind === "cabinetOpen") { const closedHolder = new THREE.Group(), openHolder = new THREE.Group(); closedHolder.userData.dynamic = openHolder.userData.dynamic = true; openHolder.visible = false; holder.add(closedHolder, openHolder); const closedId = id + "-closed", openId = id + "-open", prop = S37.props.find(p => p.floor === 0 && p.room === "보건실" && /약품장/.test(p.fz.promptText)); infirmaryExtraSlots.push({ id: closedId, kind: "cabinetClosed", holder: closedHolder, fallback }, { id: openId, kind: "cabinetOpen", holder: openHolder, fallback: null }); infirmaryCabinetViews.push({ closedId, openId, closedHolder, openHolder, fallback, getOpen: () => !!prop?.done }); } else infirmaryExtraSlots.push({ id, kind, holder, fallback }); }); const infirmaryAssets = installInfirmaryAssets({ renderer, scene, camera, slots: [...world.INFIRMARY_SLOTS, ...infirmaryExtraSlots], batchOpaque: true }); window.__infirmaryAssets = infirmaryAssets; function syncInfirmaryCabinets() { updateInfirmaryCabinets(infirmaryCabinetViews, infirmaryAssets.records); } infirmaryAssets.ready.then(records => { syncInfirmaryCabinets(); const bad = records.filter(r => r.status === "error"); if (bad.length) console.warn("[infirmary]", bad.map(r => [r.id, r.error?.message])); }); async function s37Act(p, ctx) {
   const t = p.fz.promptText, F = floors[p.floor], pos = V3(p.x, F.y0 + 1, p.z);
   if (/숨기/.test(t) && ctx.togglePlayerHide) { ctx.togglePlayerHide(); return; }
   if (/숨 고르기/.test(t)) { if ((p.restT || 0) > performance.now()) { say('아직 숨이 진정되지 않았다 — 조금 뒤에 다시', 2200); return; } p.restT = performance.now() + 60000; P.fear = Math.max(0, P.fear - .15); sfx.breath ? sfx.breath() : sfx.click(); say('소파에 기대 숨을 골랐다 — 공포가 조금 가라앉는다', 3000); return; }
@@ -5544,7 +5544,7 @@ const infirmaryExtraSlots = []; for (const room of S37.rooms.filter(r => r.f ===
   if (/수색|뒤지기|탐색|파밍|약품장/.test(t)) {
     if (p.done) return;
     if (p.floor === 4) { const r = await mini('maze', { title: `${p.room} — 어둠 속 선반 사이`, item: '물건' }); if (!r.ok) { P.hp = Math.max(5, P.hp - 12); P.fear = Math.min(1, P.fear + .2); sfx.stinger(.5); shake = Math.max(shake, .4); say('어둠 속에서 무언가에 붙잡혔다 — 겨우 뿌리쳤다', 2600); refreshHud(); return; } }   // B1: 손전등 미로
-    p.done = true; FL.s37 ||= {}; FL.s37[p.uid] = 1;
+    p.done = true; syncInfirmaryCabinets(); FL.s37 ||= {}; FL.s37[p.uid] = 1;
     const loot = ['battery', 'candy', 'medkit', 'matches', 'salt', 'thermos'][Math.floor(Math.random() * 6)];
     giveItem(loot, 1, true); sfx.pickup(); lootCard(loot, '수색', ITEMS[loot].name, `${p.room}에서 찾았다`); refreshHud(); return;
   }
@@ -5556,7 +5556,7 @@ const infirmaryExtraSlots = []; for (const room of S37.rooms.filter(r => r.f ===
   if (!p.solved) { const r = await mini('spotdiff', { title: `${p.room} — 두 장의 같은 기록` }); if (r.ok) { p.solved = true; P.fear = Math.max(0, P.fear - .1); say(`${p.room} — 두 기록이 다르다. 누군가 나중에 고쳐 썼다… 10월 12일 밤의 이름 하나가 지워져 있다`, 4200); return; } }
   say(`${p.room} — 서류는 모두 10월 12일에서 멈춰 있다`, 3400);
 }
-function s37Tick() {   // 클래스의 미끄러짐 충돌 보정 (게임 충돌 다음 · 같은 층 가구만)
+function s37Tick() { syncInfirmaryCabinets();   // 클래스의 미끄러짐 충돌 보정 (게임 충돌 다음 · 같은 층 가구만)
   if (state !== 'playing' || P.hiding || !S37.placed) return;
   const y0 = floors[P.floor].y0, pp = V3(P.x, y0, P.z); s37.resolvePlayerMovementCollision(pp, .3);
   if (pp.x !== P.x || pp.z !== P.z) { P.x = pp.x; P.z = pp.z; }

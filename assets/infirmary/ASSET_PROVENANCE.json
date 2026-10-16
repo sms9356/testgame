@@ -1,0 +1,29 @@
+{
+  "source": "User supplied School_Infirmary_3D_FINAL_GLB_GLTF_PBR V3",
+  "models": [
+    {
+      "file": "infirmary_bed.glb",
+      "bytes": 4071036,
+      "correctedParts": 40,
+      "sourcePreserved": true
+    },
+    {
+      "file": "medicine_cabinet_closed.glb",
+      "bytes": 4151892,
+      "correctedParts": 0,
+      "sourcePreserved": true
+    },
+    {
+      "file": "medicine_cabinet_open.glb",
+      "bytes": 5437724,
+      "correctedParts": 30,
+      "sourcePreserved": true
+    }
+  ],
+  "upAxis": "Z",
+  "notes": [
+    "Original UVs, normals, indices, embedded PBR images retained.",
+    "Bed and open cabinet capped-cylinder parts translated back to intended centers.",
+    "Original user folder untouched."
+  ]
+}

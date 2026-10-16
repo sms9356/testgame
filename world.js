@@ -126,7 +126,7 @@ export function buildWorld(scene) {
   const mRoofMetal = PB('roofmetal', () => T.pbrPaintMetal(512, [120, 128, 132]), { metalness: .45 });   // 체육관 · 수영장 아치 골강판 지붕 (Poly Haven CC0)
   const mBlueMetal = PB('bluemetal', () => T.pbrPaintMetal(512, [52, 84, 120]), { metalness: .3 });     // 수영장 외벽 (Poly Haven CC0)
   // 범프 맵: 같은 텍스처의 명암으로 표면 요철을 만들어 평평한 박스가 실제 재질처럼 보이게 한다
-  [[mFence, 2.4], [mDoor, 1.2], [mLocker, 1.2]]
+  [[mFence, .015], [mDoor, .008]]
     .forEach(([m, k]) => { m.bumpMap = m.map; m.bumpScale = k; });
 
   // 레퍼런스 이미지 텍스처 (assets/img)
@@ -198,7 +198,7 @@ export function buildWorld(scene) {
   const floors = [];
   let cur = null;
   const items = [], lockers = [], flickerMats = [], doors = [];
-  const mFacade = PB('facade', () => T.pbrFacade(512));
+  const mFacade = PB('facade', () => T.pbrFacade(512)); const mFacadeTrim = S(null, { color: 0xb6b3a5, roughness: .85 }); const mCanopy = S(null, { color: 0x37484b, roughness: .6, metalness: .15 });
   const mBase = P(T.pbr('base', () => T.pbrConcrete(1024, [104, 110, 102])));
   let curWall = mWall;
   const matLampOn = new THREE.MeshBasicMaterial({ color: 0xdfeaff });
@@ -2289,8 +2289,8 @@ export function buildWorld(scene) {
     if (f === 0) {   // 현관: 계단 + 캐노피 + 기둥 + 교명 간판
       for (let k = 0; k < 3; k++) { F.shell.add(boxMesh(-3.2 + k * .25, 3.2 - k * .25, 0, .12 * (k + 1), zs1, zs1 + 1.65 - k * .45, mStep, 2)); col(-3.2 + k * .25, 3.2 - k * .25, zs1, zs1 + 1.65 - k * .45, false, .12 * (k + 1)); }   // 걸어 오르는 현관 계단 (한 단 0.12m)
       F.shell.add(boxMesh(-1.5, 1.5, 0, .2, zs0, zs1, mStep, 2));   // 현관 문턱 (충돌은 아래 '충돌 보정' 뒤에)
-      F.shell.add(boxMesh(-3.0, 3.0, 2.95, 3.2, zs1, zs1 + 2.85, mFacade, 3));
-      [-2.6, 2.6].forEach(x => F.shell.add(boxMesh(x - .18, x + .18, 0, 2.95, zs1 + 2.3, zs1 + 2.66, mFacade, 3)));
+      F.shell.add(boxMesh(-3.0, 3.0, 2.95, 3.2, zs1, zs1 + 2.85, mCanopy, 3)); F.shell.add(boxMesh(-3.05, 3.05, 3.02, 3.18, zs1 + 2.85, zs1 + 2.94, mFacadeTrim, 3)); for (let k = 0; k < 6; k++) F.shell.add(boxMesh(-2.8, 2.8, 2.91, 2.95, zs1 + .22 + k * .45, zs1 + .29 + k * .45, mCanopy, 3));
+      [-2.6, 2.6].forEach(x => F.shell.add(boxMesh(x - .18, x + .18, 0, 2.95, zs1 + 2.3, zs1 + 2.66, mFacadeTrim, 3)));
       const sg = new THREE.MeshStandardMaterial({ map: T.makeSign('서 문 고 등 학 교', 'rgba(0,0,0,0)', '#c8c0a8', 40), transparent: true, metalness: .6, roughness: .45 });
       plane(F.shell, sg, 4.6, 1.15, 0, 3.55, zs1 + .03);
     }
@@ -3286,7 +3286,7 @@ export function buildWorld(scene) {
       for (let y = 1; y < TOP; y += 2) pipes.push(new THREE.CylinderGeometry(.085, .085, .08, 8).translate(x, y, z));
       pipes.push(tube(.06, x, .05, z, x, .05, z + (z > 0 ? .4 : -.4)));
     });
-    const fm = new THREE.Mesh(merge(fac), mFacade); OUT.add(fm);
+    const fm = new THREE.Mesh(merge(fac), mFacadeTrim); OUT.add(fm);
     OUT.add(new THREE.Mesh(merge(dark), mFrame), new THREE.Mesh(merge(pipes), mRust));
     // 별관 외관 보강: 창틀 · 층간 띠 · 코니스
     const af = [];
@@ -3294,7 +3294,7 @@ export function buildWorld(scene) {
     [4, 8].forEach(y => af.push(bx(40.4, .26, .16, 0, y, -13.42 - ANNEX_DZ, 3)));
     for (let x = -20; x <= 20; x += 8) if (x !== 0) af.push(bx(.4, 12.4, .2, x, 6.2, -13.4 - ANNEX_DZ, 3));
     // (예전 별관 현관 캐노피 + 기둥 2개는 연결 통로 안에 겹쳐 서 있어 제거 — 연결 통로 지붕이 현관을 덮는다)
-    OUT.add(new THREE.Mesh(merge(af), mFacade));
+    OUT.add(new THREE.Mesh(merge(af), mFacadeTrim));
     // 체육관 · 수영장 · 급식실 외관: 기단 · 수직 리브 · 처마 홈통
     const gf = [];
     for (let z = 13.5; z <= 33.5; z += 4) { gf.push(bx(.24, 8, .3, 27.88, 4, z, 3), bx(.24, 8, .3, 48.12, 4, z, 3)); }
@@ -3302,7 +3302,7 @@ export function buildWorld(scene) {
     gf.push(bx(.2, .5, 22, 27.9, .25, 23.5, 3), bx(.2, .5, 22, 48.1, .25, 23.5, 3));
     [15.5, 19.5, 23.5, 27.5, 31.5].forEach(z => { gf.push(bx(.16, .1, 2.7, 27.9, 4.2, z, 3), bx(.16, .1, 2.7, 48.1, 4.2, z, 3)); });
     gf.push(bx(18.4, .4, .2, -39, .2, 25.1, 3), bx(.2, .4, 12.5, -29.9, .2, 18.75, 3));
-    OUT.add(new THREE.Mesh(merge(gf), mFacade));
+    OUT.add(new THREE.Mesh(merge(gf), mFacadeTrim));
     [15.5, 19.5, 23.5, 27.5, 31.5].forEach(z => { plane(OUT, pickWin(), 2.4, 1.8, 27.98, 5.2, z, -Math.PI / 2); plane(OUT, pickWin(), 2.4, 1.8, 48.02, 5.2, z, Math.PI / 2); });
     [15.5, 19.5, 23.5].forEach(z => plane(OUT, pickWin(), 2.4, 1.6, -48.02, 2.4, z, -Math.PI / 2));
   }

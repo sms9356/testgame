@@ -276,11 +276,11 @@ export const makeDirt = () => ctex(512, 512, (g, w, h) => {
 });
 export const makePaving = () => ctex(512, 512, (g, w, h) => {
   const n = 4, s = w / n;
-  for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) { const v = rr(70, 100); g.fillStyle = `rgb(${v},${v - 2},${v - 8})`; g.fillRect(x * s, y * s, s, s); }
-  g.strokeStyle = '#14120e'; g.lineWidth = 5;
+  for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) { const v = rr(82, 90); g.fillStyle = `rgb(${v},${v - 2},${v - 8})`; g.fillRect(x * s, y * s, s, s); }
+  g.strokeStyle = 'rgba(40,38,34,.35)'; g.lineWidth = 2;
   for (let i = 0; i <= n; i++) { g.beginPath(); g.moveTo(i * s, 0); g.lineTo(i * s, h); g.stroke(); g.beginPath(); g.moveTo(0, i * s); g.lineTo(w, i * s); g.stroke(); }
-  speckle(g, w, h, 2500, ['#222', '#888', '#3a4a2a'], 2, 9, 0.5);
-  stains(g, w, h, 14, 'rgba(20,35,15,.5)', 60);
+  speckle(g, w, h, 2500, ['#444', '#999', '#59604b'], 1, 3, .14);
+  stains(g, w, h, 14, 'rgba(20,35,15,.22)', 60);
   cracks(g, w, h, 18, 'rgba(0,0,0,.8)', 50);
   g.strokeStyle = 'rgba(40,70,30,.8)'; g.lineWidth = 2; cracks(g, w, h, 10, 'rgba(50,90,30,.7)', 30);
 });

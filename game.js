@@ -153,11 +153,11 @@ function loadModels() {
   const h133Parts = (root, id, cr, pr) => {
     const groups = new Map();
     root.traverse(o => { if (!o.isMesh) return; const nm = (o.name || o.parent?.name || '').replace(/^\d+_/, ''), mat = pr === 'v2' ? world.v2Mat(nm) : pr ? world.prMat(nm) : cr ? world.crMat(o.material && o.material.name) : world.h133Mat(id, nm);
-      let g = o.geometry.index ? o.geometry.toNonIndexed() : o.geometry.clone(); g.deleteAttribute('color'); g.applyMatrix4(o.matrixWorld); if (pr === true) g.rotateX(-Math.PI / 2); g.computeVertexNormals();
+      let g = o.geometry.index ? o.geometry.toNonIndexed() : o.geometry.clone(); g.deleteAttribute('color'); g.applyMatrix4(o.matrixWorld); if (pr === true) g.rotateX(-Math.PI / 2); const smoothNormals = g.attributes.normal?.clone(); g.computeVertexNormals();
       const P = g.attributes.position, N = g.attributes.normal, uv = new Float32Array(P.count * 2);
       for (let i = 0; i < P.count; i++) { const ax = Math.abs(N.getX(i)), ay = Math.abs(N.getY(i)), az = Math.abs(N.getZ(i));
         const [u, v] = ax >= ay && ax >= az ? [P.getZ(i), P.getY(i)] : ay >= az ? [P.getX(i), P.getZ(i)] : [P.getX(i), P.getY(i)]; uv[i * 2] = u * .8; uv[i * 2 + 1] = v * .8; }
-      g.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+      g.setAttribute('uv', new THREE.BufferAttribute(uv, 2)); if (smoothNormals) g.setAttribute('normal', smoothNormals);
       (groups.get(mat) || groups.set(mat, []).get(mat)).push(g); });
     const out = []; groups.forEach((gs, mat) => { const m = new THREE.Mesh(gs.length > 1 ? mergeGeometries(gs) : gs[0], mat); out.push(m); });
     return out;
@@ -3366,7 +3366,7 @@ function libraryReturn() {
 }
 
 /* ---------- 성능 / 그래픽 품질 ---------- */
-const QUAL = { high: { pr: 1.5, sh: 1024, label: '높음' }, mid: { pr: 1, sh: 512, label: '보통' }, low: { pr: .75, sh: 0, label: '낮음' } };
+const QUAL = { high: { pr: 1.5, sh: 1024, label: '높음' }, mid: { pr: 1, sh: 512, label: '보통' }, low: { pr: 1, sh: 0, label: '낮음' } };
 let qCur = 'high', perfAcc = 0, perfN = 0, perfWin = 0, fpsShown = 60;
 function applyQuality(q) {
   qCur = q; const c = QUAL[q];

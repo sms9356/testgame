@@ -48,7 +48,7 @@ class School37RoomsMasterPatch {
       if (typeof THREE !== "undefined") {
         const t = new THREE.CanvasTexture(c);
         t.wrapS = t.wrapT = THREE.RepeatWrapping;
-        t.repeat.set(rx, ry);
+        t.repeat.set(rx, ry); t.colorSpace = THREE.SRGBColorSpace;
         return t;
       }
       return null;
@@ -131,13 +131,13 @@ class School37RoomsMasterPatch {
     return {
       mahogany: new THREE.MeshStandardMaterial({ map: this.textures.mahoganyWood, roughness: 0.38, metalness: 0.1 }),
       oakWood: new THREE.MeshStandardMaterial({ color: 0x7c5836, map: this.textures.mahoganyWood, roughness: 0.55 }),
-      darkLeather: new THREE.MeshStandardMaterial({ color: 0x241d1a, roughness: 0.42, metalness: 0.08 }),
+      darkLeather: new THREE.MeshStandardMaterial({ color: 0x241d1a, roughness: 0.58, metalness: 0 }),
       softFabric: new THREE.MeshStandardMaterial({ color: 0x45525c, map: this.textures.carpetTile, roughness: 0.85 }),
       stainless: new THREE.MeshStandardMaterial({ map: this.textures.brushedSteel, roughness: 0.25, metalness: 0.82 }),
-      industrialBlue: new THREE.MeshStandardMaterial({ color: 0x224860, roughness: 0.45, metalness: 0.65 }),
-      industrialRed: new THREE.MeshStandardMaterial({ color: 0x8a2420, roughness: 0.45, metalness: 0.65 }),
-      hospitalCurtain: new THREE.MeshStandardMaterial({ color: 0x6b9486, roughness: 0.9, side: THREE.DoubleSide }),
-      whitePorcelain: new THREE.MeshStandardMaterial({ color: 0xdde3e0, roughness: 0.2, metalness: 0.05 }),
+      industrialBlue: new THREE.MeshStandardMaterial({ color: 0x224860, roughness: 0.58, metalness: 0.05 }),
+      industrialRed: new THREE.MeshStandardMaterial({ color: 0x8a2420, roughness: 0.58, metalness: 0.05 }),
+      hospitalCurtain: new THREE.MeshStandardMaterial({ color: 0x6b9486, roughness: 0.9, side: THREE.DoubleSide }), hospitalLinen: new THREE.MeshStandardMaterial({ color: 0xd9d5c8, roughness: 0.88, metalness: 0 }),
+      whitePorcelain: new THREE.MeshStandardMaterial({ color: 0xdde3e0, roughness: 0.2, metalness: 0 }),
       pianoBlack: new THREE.MeshStandardMaterial({ color: 0x0d0e10, roughness: 0.12, metalness: 0.35 }),
       plasterWhite: new THREE.MeshStandardMaterial({ color: 0xd8d4cb, roughness: 0.75 }),
       glassCase: new THREE.MeshStandardMaterial({ color: 0xaad4e6, transparent: true, opacity: 0.32, roughness: 0.1, metalness: 0.8 })
@@ -243,9 +243,9 @@ class School37RoomsMasterPatch {
     const g = new THREE.Group();
     const frame = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.45, 2.0), this.materials.stainless);
     frame.position.y = 0.225;
-    const mattress = new THREE.Mesh(new THREE.BoxGeometry(0.94, 0.16, 1.92), this.materials.whitePorcelain);
+    const mattress = new THREE.Mesh(new THREE.BoxGeometry(0.94, 0.16, 1.92), this.materials.hospitalLinen);
     mattress.position.y = 0.52;
-    const pillow = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.1, 0.32), this.materials.whitePorcelain);
+    const pillow = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.1, 0.32), this.materials.hospitalLinen);
     pillow.position.set(0, 0.62, -0.72);
     const curtain = new THREE.Mesh(new THREE.PlaneGeometry(2.0, 1.8), this.materials.hospitalCurtain);
     curtain.position.set(0.55, 1.1, 0);

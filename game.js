@@ -1271,7 +1271,7 @@ function stairStep(px, pz) {
   // 2번 계단 꼭대기 → 위층 (옥상은 계단탑 문 앞으로)
   if (lane2 && P.z > pz && P.z > SZB - .15 && h > FH - .3) {
     const nf = info.up; if (nf == null) { P.x = px; P.z = pz; return true; }
-    if (nf === 3) { P.x = px; P.z = pz; if (!P.roofDoorHint) { P.roofDoorHint = true; say('옥상 문이다 — E 로 열 수 있다', 2200); } return true; }
+    if (nf === 3) { P.x = px; P.z = pz; if (performance.now() > (P.roofCD || 0)) { P.roofCD = performance.now() + 4000; roofDoor(false); } return true; }   // 계단 끝 철문을 밀고 그대로 옥상으로 (E 없이도)
     const NF = floors[nf]; if (NF.stairCx == null) { P.x = px; P.z = pz; return true; }
     P.floor = nf; P.x += NF.stairCx - F.stairCx; P.z = SZB + .05; P.sh = 0; P.shV = (P.shV || 0) - FH; stairArrive(nf); return true;
   }
@@ -1285,7 +1285,7 @@ function roofDoor(fromRoof) {
   state = 'trans'; $('fade').style.opacity = 1;
   setTimeout(() => {
     if (fromRoof) { const F = floors[2], c = F.stairCx; P.floor = 2; P.x = c - 1.85; P.z = SZB - .45; P.sh = stairH(F, P.x, P.z) ?? FH - .2; P.shV = 0; P.yaw = 0; P.pitch = -.25; toastFloor(2); }
-    else { P.floor = 3; P.x = 0; P.z = -6.0; P.sh = 0; P.shV = 0; P.yaw = 0; P.pitch = 0; toastFloor(3); }
+    else { P.floor = 3; P.x = 0; P.z = -3.6; P.sh = 0; P.shV = 0; P.yaw = Math.PI; P.pitch = 0; toastFloor(3); }   // 계단탑 문 밖, 옥상 쪽을 보고 선다 (예전엔 계단탑 안 계단 구멍을 보고 섰다)
     sfx.doorBang ? sfx.doorBang(0, .6) : 0; $('fade').style.opacity = 0; state = 'playing';
     setTimeout(() => { ROOF.open = false; sfx.doorHinge && sfx.doorHinge(); }, 1500);   // 뒤에서 문이 천천히 닫힌다
   }, 650);
@@ -4560,7 +4560,14 @@ world.props.filter(q => q.kind === 'search').forEach(q => {
 floors[6].col.push({ x1: -34.65, x2: -34.05, z1: 36.9, z2: 39.15 }); floors[6].walls.push(floors[6].col[floors[6].col.length - 1]);
 // 옥상 문 지점 · 3층 계단 꼭대기 철문
 { const c = floors[2].stairCx; if (c != null) world.props.push({ kind: 'roofDoor', floor: 2, x: c - 1.85, z: SZB - .2, y: FH + 1.2, r: 1.3, minSh: FH - .7, label: '옥상 문 열기' });
-  world.props.push({ kind: 'roofDoor', floor: 3, x: 0, z: -5.2, y: 1.2, r: 1.6, roof: true, label: '옥상 문 열고 계단으로 내려가기' });
+  // 옥상 계단탑: 문만 서 있고 계단 구멍이 그대로 보이던 것 → 사방 벽 · 지붕 슬래브 (남쪽 벽 가운데 문) · 충돌
+  { const R = FLR(3), cm = PM(0x8a8780, .9), X1 = -4.6, X2 = 4.6, Z1 = -9.8, Z2 = -4.35, H = 3.0, T = .2, g = new THREE.Group(); R.add(g); g.userData.dynamic = true;
+    pbox(X2 - X1, H, T, cm, 0, H / 2, Z1, g); pbox(T, H, Z2 - Z1, cm, X1, H / 2, (Z1 + Z2) / 2, g); pbox(T, H, Z2 - Z1, cm, X2, H / 2, (Z1 + Z2) / 2, g);
+    pbox(-.6 - X1, H, T, cm, (X1 - .6) / 2, H / 2, Z2, g); pbox(X2 - .6, H, T, cm, (X2 + .6) / 2, H / 2, Z2, g); pbox(1.2, H - 2.3, T, cm, 0, 2.3 + (H - 2.3) / 2, Z2, g);
+    pbox(X2 - X1 + .4, .25, Z2 - Z1 + .4, PM(0x5a5852, .9), 0, H + .12, (Z1 + Z2) / 2, g);
+    const F3 = floors[3]; [{ x1: X1 - .1, x2: X2 + .1, z1: Z1 - .1, z2: Z1 + .1 }, { x1: X1 - .1, x2: X1 + .1, z1: Z1, z2: Z2 }, { x1: X2 - .1, x2: X2 + .1, z1: Z1, z2: Z2 }, { x1: X1, x2: -.6, z1: Z2 - .1, z2: Z2 + .1 }, { x1: .6, x2: X2, z1: Z2 - .1, z2: Z2 + .1 }, { x1: -.6, x2: .6, z1: Z2 - .1, z2: Z2 + .1 }]
+      .forEach(r => { F3.col.push(r); F3.walls.push(r); }); }   // 문은 E 로만 (안은 계단 구멍)
+  world.props.push({ kind: 'roofDoor', floor: 3, x: 0, z: -4.2, y: 1.2, r: 1.6, roof: true, label: '옥상 문 열고 계단으로 내려가기' });
   // 3층 계단 꼭대기 철문 (보이는 문)
   if (c != null) { const g = new THREE.Group(); g.position.set(c - 1.85, FH, SZB + .05); FLR(2).add(g); g.userData.dynamic = true;
     pbox(1.3, 2.2, .06, PM(0x4a4e50, .55, .6), 0, 1.1, 0, g); pbox(1.5, .12, .14, PM(0x2a2c2e, .6), 0, 2.26, 0, g);

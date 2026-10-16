@@ -138,7 +138,7 @@ VHOOK.speak = (id, info, fx) => {
   const pk = vpack && vpack[id];
   if (pk && pk.src === info.text) {   // 원문이 바뀐 대사는 팩을 쓰지 않는다 (다시 만들 때까지 브라우저 음성)
     const e = emoFor(id);
-    return playVoice(`voice/${code}/${id}.mp3`, fx, { ...e, rate: 1, pitch: 1, trem: 0 }).then(r => r ? r.duration : pk.dur);
+    return playVoice(`voice/${code}/${id}.mp3`, fx, { ...e, rate: 1, pitch: 1, trem: 0, airy: 0, dry: true }).then(r => r ? r.duration : pk.dur);
   }
   const v = voiceFor(code); if (!v) return null;
   const text = voiceText(info).replace(/…+/g, ', ');

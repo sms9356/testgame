@@ -243,11 +243,70 @@ for (const [file, limits, repaired] of [
     assert.equal((gltf.animations || []).length, 0);
     assert.ok(gltf.images.length && gltf.images.every(image => image.bufferView !== undefined));
     const min = [Infinity, Infinity, Infinity], max = [-Infinity, -Infinity, -Infinity];
+    let missingNormals = 0;
     for (const mesh of gltf.meshes) for (const primitive of mesh.primitives) {
-      assert.ok(primitive.attributes.NORMAL !== undefined && primitive.attributes.TEXCOORD_0 !== undefined);
+      assert.ok(primitive.attributes.TEXCOORD_0 !== undefined);
       const a = gltf.accessors[primitive.attributes.POSITION];
+      const uv = gltf.accessors[primitive.attributes.TEXCOORD_0];
+      assert.equal(uv.type, 'VEC2'); assert.equal(uv.count, a.count);
+      if (primitive.attributes.NORMAL !== undefined) {
+        const normal = gltf.accessors[primitive.attributes.NORMAL];
+        assert.ok(normal); assert.equal(normal.type, 'VEC3'); assert.equal(normal.count, a.count);
+        assert.ok([5120, 5122, 5126].includes(normal.componentType));
+        if (normal.componentType !== 5126) assert.equal(normal.normalized, true);
+      } else missingNormals++;
       for (let k = 0; k < 3; k++) { assert.ok(Number.isFinite(a.min[k]) && Number.isFinite(a.max[k])); min[k] = Math.min(min[k], a.min[k]); max[k] = Math.max(max[k], a.max[k]); }
     }
+    assert.ok(missingNormals > 0, file + ': expected valid missing NORMAL attributes');
     for (let k = 0; k < 3; k++) assert.ok(max[k] - min[k] <= limits[k], file + ': oversized axis ' + k);
   });
 }
+
+test('missing normals repaired once on clones: box hard edges, per-triangle UVs, source unchanged', async () => {
+  const f = fixture('bed', 2); f.geometry.deleteAttribute('normal'); f.material.flatShading = true;
+  f.mesh.name = 'normal-less-box';
+  const authoredGeometry = new THREE.BoxGeometry(.2, .2, .2);
+  const authoredNormals = authoredGeometry.attributes.normal.array.slice();
+  const authored = new THREE.Mesh(authoredGeometry, f.material); authored.name = 'authored-normal-box'; f.source.add(authored);
+  const originalUV = f.geometry.attributes.uv.array.slice(), originalIndex = f.geometry.index.array.slice();
+  const expected = f.geometry.toNonIndexed();
+  const expectedUV = expected.attributes.uv.array.slice(), expectedPositions = expected.attributes.position.array.slice();
+  const install = installInfirmaryAssets(f.options); await install.ready;
+  assert.equal(install.records[0].status, 'ready');
+  const repaired = install.records[0].model.getObjectByName('normal-less-box');
+  const second = install.records[1].model.getObjectByName('normal-less-box');
+  assert.notEqual(repaired.geometry, f.geometry); assert.equal(repaired.geometry, second.geometry);
+  assert.equal(repaired.geometry.index, null);
+  assert.deepEqual(repaired.geometry.attributes.uv.array, expectedUV);
+  assert.deepEqual(repaired.geometry.attributes.position.array, expectedPositions);
+  const normal = repaired.geometry.attributes.normal;
+  assert.equal(normal.count, repaired.geometry.attributes.position.count);
+  for (let i = 0; i < normal.count; i++) {
+    const components = [normal.getX(i), normal.getY(i), normal.getZ(i)];
+    near(Math.hypot(...components), 1);
+    assert.equal(components.filter(value => Math.abs(value) > 1e-6).length, 1, '90 degree box edge remains hard');
+  }
+  assert.equal(repaired.material.flatShading, false); assert.equal(f.material.flatShading, true);
+  assert.equal(repaired.material.normalMap, f.material.normalMap);
+  const kept = install.records[0].model.getObjectByName('authored-normal-box');
+  assert.equal(kept.geometry, authoredGeometry); assert.equal(kept.material.flatShading, true);
+  assert.deepEqual(authoredGeometry.attributes.normal.array, authoredNormals);
+  assert.equal(f.geometry.attributes.normal, undefined);
+  assert.deepEqual(f.geometry.attributes.uv.array, originalUV); assert.deepEqual(f.geometry.index.array, originalIndex);
+  assert.equal(f.mesh.geometry, f.geometry); assert.equal(f.mesh.material, f.material);
+});
+
+test('normal repair precedes batching; opt-out preserves missing normals and flatShading', async () => {
+  const f = fixture(); f.geometry.deleteAttribute('normal'); f.material.flatShading = true;
+  f.source.add(new THREE.Mesh(f.geometry, f.material));
+  const result = installInfirmaryAssets({ ...f.options, batchOpaque: true }); await result.ready;
+  assert.equal(result.records[0].status, 'ready'); assert.equal(meshCount(result.records[0].model), 1);
+  const merged = result.records[0].model.getObjectByName('infirmary-batch:linen');
+  assert.ok(merged.geometry.attributes.normal); assert.equal(merged.material.flatShading, false);
+  assert.equal(f.geometry.attributes.normal, undefined); assert.equal(f.material.flatShading, true);
+  const disabled = fixture(); disabled.geometry.deleteAttribute('normal'); disabled.material.flatShading = true;
+  const skipped = installInfirmaryAssets({ ...disabled.options, repairMissingNormals: false }); await skipped.ready;
+  const clone = skipped.records[0].model.children[0].children[0].children[0];
+  assert.equal(clone.geometry, disabled.geometry); assert.equal(clone.geometry.attributes.normal, undefined);
+  assert.equal(clone.material.flatShading, true);
+});

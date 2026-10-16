@@ -1,5 +1,6 @@
 // 폐교 — 잊혀진 시간 : 1인칭 학교 공포 게임 (Three.js)
 import * as THREE from './vendor/three.module.js';
+import { elevatorLocal, elevatorWorld, elevatorRoute } from './elevatorLayout.js';
 import { buildMissionGroups, recordCompleted, normalizeCompletedLog } from './mysteryMissions.js';
 import { createPsychologicalDirector, PHENOMENON_LABELS } from './psychologicalHorror.js';
 import { settleStoryGhost, tickStoryGhost, showStoryGhost } from './storyGhost.js';
@@ -63,7 +64,7 @@ const FL = { cam: false, tag: false, calm: false, mina: false, gatekey: false, o
 const msgs = [], clues = [], newItems = new Set();
 let storySession = 0;
 const pendingMessages = new Map();
-function beginStorySession(){++storySession;voBusy=false;stopSpeak();document.getElementById('memTint')?.classList.remove('on');++talkRequest;clearTimeout(talkTimer);document.getElementById('dlg')?.classList.remove('show');for(const timer of pendingMessages.values())clearTimeout(timer);pendingMessages.clear();}
+function beginStorySession(){++storySession;elvReset();voBusy=false;stopSpeak();document.getElementById('memTint')?.classList.remove('on');++talkRequest;clearTimeout(talkTimer);document.getElementById('dlg')?.classList.remove('show');for(const timer of pendingMessages.values())clearTimeout(timer);pendingMessages.clear();}
 const psychologicalDirector = createPsychologicalDirector();
 let voBusy = false;   // 중요한 연출(하교 방송) 중에는 휴대폰 메시지를 미룬다
 let chapterShown = 0;
@@ -1139,13 +1140,13 @@ function stairArrive(f) {
 const FLOOR_LABEL = { 0: '본관 1층', 1: '본관 2층', 2: '본관 3층', 3: '옥상', 4: '지하 1층 (B1)', 5: '체육관', 6: '수영장', 7: '급식실', 8: '별관 1층', 9: '별관 2층', 10: '별관 3층' };
 function toastFloor(f) { const t = $('floorTag'); if (!t) return; t.textContent = FLOOR_LABEL[f] || ''; t.classList.add('show'); clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('show'), 1800); }
 // 엘리베이터: 직접 타고 움직인다 — 바깥 호출 버튼(E) → 문이 열리면 걸어 들어간다 → 안쪽 벽의 버튼 패널을 바라보고 E → 문이 닫히고 카가 움직인다 → 도착하면 걸어 나간다
-// 카는 승강로 자리가 벽 속이라 맵 밖(ELV.CX, ELV.CZ)에 한 대만 지어 두고, 문턱을 넘는 순간 같은 상대 위치 · 방향으로 옮겨 이어지게 한다 (층이 바뀌면 카 높이 · P.floor 를 같은 프레임에 바꾼다)
+// One real cabin docks inside the stairwell footprint at each landing. No off-map room or portal teleport.
 const EL_SET = { main: [4, 0, 1, 2], annex: [8, 9, 10] };
 const EL_BTN = { 4: 'B1', 0: '1', 1: '2', 2: '3', 8: '1', 9: '2', 10: '3' };
-const ELV = { CX: 400, CZ: 400, g: null, doors: [], open: 0, want: 0, cur: 0, p: null, moving: false, btns: [], disp: null, ray: new THREE.Raycaster(), hallT: [] };
+const ELV = { token:0, g: null, doors: [], open: 0, want: 0, cur: 0, p: null, moving: false, btns: [], disp: null, ray: new THREE.Raycaster(), hallT: [] };
 function elvBuild() {
   if (ELV.g) return;
-  const g = new THREE.Group(), CX = ELV.CX, CZ = ELV.CZ; g.position.set(CX, 0, CZ); scene.add(g); ELV.g = g;
+  const g = new THREE.Group(); g.rotation.y=-Math.PI/2; g.visible=false; scene.add(g); ELV.g = g;
   // 사용자 제공 엘리베이터 시트(A-102 평면 · A-204 모델 뷰 · A-205 재질표) 기준: 카 안쪽 1.7 × 1.6m (5'6" × 5'0")
   //   A 조명 천장 패널(격자) · B 목재 무늬 벽판(세로 줄눈) · F 스테인리스 벽(조작반 쪽) · D 뒷벽 거울 · H 석재 타일 바닥 + 스테인리스 걸레받이 · C 원형 스테인리스 손잡이 · J 조작반(파란 표시창 · 버튼) · E 문 위 표시등
   const cvT = (w, h, draw, rep = [1, 1]) => { const c = document.createElement('canvas'); c.width = w; c.height = h; draw(c.getContext('2d'), w, h); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(...rep); return t; };
@@ -1169,7 +1170,11 @@ function elvBuild() {
   box(.35, H, .06, -.7, H / 2, 0, steel); box(.35, H, .06, .7, H / 2, 0, steel); box(1.05, H - 2.1, .06, 0, 2.1 + (H - 2.1) / 2, 0, steel);   // 앞벽 (스테인리스)
   { const hr = new THREE.MeshStandardMaterial({ color: 0xc8ccd0, roughness: .2, metalness: 1 }), tb = (x1, z1, x2, z2) => { const L = Math.hypot(x2 - x1, z2 - z1), m = new THREE.Mesh(new THREE.CylinderGeometry(.02, .02, L, 10), hr); m.rotation.z = Math.PI / 2; m.rotation.y = -Math.atan2(z2 - z1, x2 - x1); m.position.set((x1 + x2) / 2, .92, (z1 + z2) / 2); g.add(m); };
     tb(-.8, -1.4, -.8, -.25); [-1.4, -.25].forEach(z => box(.06, .03, .03, -.83, .92, z, hr)); tb(-.6, -1.55, .6, -1.55); [-.6, .6].forEach(x => box(.03, .03, .06, x, .92, -1.58, hr)); }   // C 원형 손잡이 (왼쪽 · 뒤)
-  const lamp = new THREE.Mesh(new THREE.PlaneGeometry(1.7, 1.6), new THREE.MeshBasicMaterial({ map: ceilT, color: power ? 0xfff4e0 : 0x6a5a48 })); lamp.rotation.x = Math.PI / 2; lamp.position.set(0, H - .005, -.8); g.add(lamp); ELV.lamp = lamp;   // A 조명 천장
+  const lamp = new THREE.Mesh(new THREE.PlaneGeometry(1.7,1.6),new THREE.MeshStandardMaterial({map:ceilT,color:0xece7dc,roughness:.7}));
+  lamp.rotation.x=Math.PI/2;lamp.position.set(0,H-.005,-.8);g.add(lamp);
+  const diffuser=new THREE.MeshBasicMaterial({color:0xfff2d5});
+  [-.48,.48].forEach(x=>{box(.31,.045,1.18,x,H-.045,-.8,steelD);box(.26,.012,1.1,x,H-.075,-.8,diffuser);});
+  ELV.light=null;ELV.lamp=lamp; // Cabin uses the existing four-light pool; no new shader light variant.
   [-.25, .25].forEach(dx => { const d = box(.52, 2.1, .03, dx, 1.05, .02, steel); d.userData.x0 = dx; ELV.doors.push(d); });
   // 층 표시기 (문 위 안쪽)
   const cv = document.createElement('canvas'); cv.width = 128; cv.height = 48; const tx = new THREE.CanvasTexture(cv); tx.colorSpace = THREE.SRGBColorSpace;
@@ -1179,12 +1184,10 @@ function elvBuild() {
   box(.025, 1.1, .3, .855, 1.2, -.3, steelD);   // J 조작반 (스테인리스 판)
   { const cd = new THREE.Mesh(new THREE.PlaneGeometry(.16, .09), new THREE.MeshBasicMaterial({ map: tx })); cd.position.set(.84, 1.66, -.3); cd.rotation.y = -Math.PI / 2; g.add(cd); }   // 조작반 위 표시창 (같은 층 표시)
   ELV.panel = { x: .84 };
-  // 바깥 (문 앞 작은 홀 — 문턱 너머가 비어 보이지 않게)
-  box(3, .05, 1.6, 0, -.025, .8, floorM); box(3, 2.6, .05, 0, 1.3, 1.6, dark); box(.05, 2.6, 1.6, -1.5, 1.3, .8, dark); box(.05, 2.6, 1.6, 1.5, 1.3, .8, dark); box(3, .05, 1.6, 0, 2.6, .8, dark);
   g.traverse(o => { o.userData.dynamic = true; });
 }
 function elvButtons(set) {
-  ELV.btns.forEach(b => b.mesh.parent && b.mesh.parent.remove(b.mesh)); ELV.btns = [];
+  ELV.btns.forEach(b=>{b.mesh.removeFromParent();b.mesh.geometry.dispose();b.mesh.material.map?.dispose();b.mesh.material.dispose();}); ELV.btns = [];
   const order = set.slice().sort((a, b) => (a === 4 ? -1 : b === 4 ? 1 : a - b)).reverse();
   const list = [...order.map(f => ({ a: 'f', f, t: EL_BTN[f] })), { a: 'open', t: '◀▶' }, { a: 'close', t: '▶◀' }, { a: 'bell', t: '🔔' }];
   list.forEach((b, i) => {
@@ -1199,45 +1202,69 @@ function elvButtons(set) {
   });
 }
 const elvHere = f => world.props.find(q => q.kind === 'elevator' && q.floor === f);
-function elvHallOpen(p, open, snap) { p.hallOpen = open; if (snap) p.hallK = open ? 1 : 0; }
-function elvCall(p) {   // 바깥 호출 버튼
-  if (p.hallOpen) { sfx.click(); return; }
-  sfx.click(); say(power ? '띵— 문이 열린다' : '비상 전원 — 한참 뒤에야 문이 열린다', 1600);
-  setTimeout(() => { sfx.ding(); sfx.doorSlide(.7); elvHallOpen(p, true); p.closeT = performance.now() + 7000; }, power ? 600 : 1800);
+function elvHallOpen(p,open,snap=false){p.hallOpen=open;if(snap)p.hallK=open?1:0;if(p.doorBlock)p.doorBlock.off=open;}
+function elvReset(){
+ ++ELV.token;P.inElev=false;ELV.moving=false;ELV.open=ELV.want=0;ELV.p=null;
+ if(ELV.g)ELV.g.visible=false;
+ for(const p of world.props.filter(q=>q.kind==='elevator')){elvHallOpen(p,false,true);p.closeT=0;p.callPending=false;}
 }
-// 홀 → 카 (같은 상대 위치: 홀 안쪽 방향 +x ↔ 카 안쪽 방향 −z)
-function elvEnter(p) {
-  elvBuild(); const set = p.floor >= 8 ? EL_SET.annex : EL_SET.main; if (ELV.set !== set) { ELV.set = set; elvButtons(set); }
-  const ox = P.x - p.px, oz = P.z - p.pz;
-  ELV.p = p; ELV.cur = p.floor; ELV.g.position.y = floors[p.floor].y0; ELV.open = ELV.want = 1; ELV.disp(EL_BTN[p.floor]);
-  ELV.doors.forEach(d => { d.position.x = d.userData.x0 + Math.sign(d.userData.x0) * .5; }); P.inElev = true; P.x = ELV.CX + oz; P.z = ELV.CZ + Math.min(.2, -ox); P.yaw += Math.PI / 2;
-  elvHallOpen(p, false, true); ELV.idle = performance.now();
+function elvDock(p){
+ elvBuild();preload(['elv_open','elv_close','elv_up','elv_down',...['B1','1','2','3'].flatMap(f=>['elv_floor_'+f,'elv_select_'+f])]);const set=p.floor>=8?EL_SET.annex:EL_SET.main;if(ELV.set!==set){ELV.set=set;elvButtons(set);}
+ ELV.p=p;ELV.cur=p.floor;ELV.g.position.set(p.px,floors[p.floor].y0,p.pz);ELV.g.visible=true;ELV.disp(EL_BTN[p.floor]);ELV.cabinLamp={x:p.px+.8,y:floors[p.floor].y0+2.2,z:p.pz,kind:'steady',cabin:true};lampTimer=0;
 }
-function elvLeave() {
-  const p = elvHere(ELV.cur) || ELV.p, cx = P.x - ELV.CX, cz = P.z - ELV.CZ;
-  P.inElev = false; P.x = p.px - .95; P.z = p.pz + Math.max(-.4, Math.min(.4, cx)); P.yaw -= Math.PI / 2;
-  elvHallOpen(p, true, true); p.closeT = performance.now() + 2500; ELV.p = null;
-  if (P.floor === 4 && !P.b1Seen) { P.b1Seen = true; setTimeout(() => talk('b1', 3000), 600); }
-  toastFloor(P.floor);
+async function elvAnnounce(id,valid=()=>true){
+ if(!valid())return false;const sec=await line('elv_'+id,'pa','승강기 안내');
+ if(!valid())return false;await wait((sec+.12)*1000);return valid();
 }
-async function elvPress(b) {
-  b.mesh.material.color.setHex(0xffc060); setTimeout(() => b.mesh.material.color.setHex(0xcccccc), b.a === 'f' ? 400 : 250); sfx.click(); ELV.idle = performance.now();
-  if (b.a === 'bell') { sfx.bell ? sfx.bell() : sfx.beep(); P.noiseT = 1; say('…아무도 대답하지 않는다', 2000); return; }
-  if (b.a === 'open') { if (ELV.moving) { sfx.buzz(); return; } if (!ELV.want) sfx.doorSlide(.7); ELV.want = 1; return; }
-  if (b.a === 'close') { if (!ELV.moving && ELV.want) { ELV.want = 0; sfx.doorSlide(.7); } return; }
-  if (ELV.moving) return;
-  if (b.f === ELV.cur) { if (!ELV.want) { ELV.want = 1; sfx.doorSlide(.7); } return; }
-  ELV.moving = true; b.mesh.material.color.setHex(0xffc060);
-  if (ELV.want) { ELV.want = 0; sfx.doorSlide(.7); await wait(1000); }
-  const path = ELV.set.slice().sort((a, c) => (a === 4 ? -1 : c === 4 ? 1 : a - c)), dir = path.indexOf(b.f) > path.indexOf(ELV.cur) ? 1 : -1;
-  sfx.elevator((power ? 1.2 : 2.2) * Math.abs(path.indexOf(b.f) - path.indexOf(ELV.cur))); shake = Math.max(shake, .12);
-  for (let i = path.indexOf(ELV.cur); i !== path.indexOf(b.f);) {
-    i += dir; await wait(power ? 1100 : 2000); if (!P.inElev) break;
-    ELV.cur = path[i]; P.floor = ELV.cur; ELV.g.position.y = floors[ELV.cur].y0; ELV.disp(EL_BTN[ELV.cur], dir > 0 ? '▲' : '▼'); sfx.beep && sfx.beep(); shake = Math.max(shake, .08);
-    if (!power && Math.random() < .3) { shake = .35; sfx.thump(); say('덜컹— 케이블이 흔들린다', 1800); }
-    if (!power && Math.random() < .15) { sfx.ghostBreath(); caption('(바로 뒤에서 숨소리)'); }
+function elvDoor(open,announce=true){
+ const p=ELV.p;if(!p)return;const changed=ELV.want!==+open;ELV.want=+open;elvHallOpen(p,open);
+ if(changed&&p.floor===P.floor&&Math.hypot(P.x-p.px,P.z-p.pz)<8){sfx.doorSlide(.7);if(announce&&!isSpeechBusy())elvAnnounce(open?'open':'close',()=>ELV.p===p&&p.floor===P.floor&&state==='playing');}
+ ELV.idle=performance.now();
+}
+async function elvCall(p){
+ sfx.elevatorButton();if(p.callPending||p.hallOpen||P.inElev||ELV.moving)return;
+ const epoch=storySession;p.callPending=true;
+ await wait(power?500:1300);if(epoch!==storySession)return;p.callPending=false;if(P.floor!==p.floor||state!=='playing')return;
+ if(ELV.p&&ELV.p!==p)elvHallOpen(ELV.p,false,true);
+ elvDock(p);ELV.open=0;ELV.want=0;sfx.elevatorChime();elvDoor(true);p.closeT=performance.now()+9000;
+}
+function elvEnter(p){
+ elvDock(p);P.inElev=true;ELV.idle=performance.now();P.jy=P.sh=P.vy=0;
+}
+function elvLeave(){
+ P.inElev=false;const p=ELV.p;if(p)p.closeT=performance.now()+5000;
+ if(P.floor===4&&!P.b1Seen){P.b1Seen=true;const epoch=storySession;setTimeout(()=>{if(epoch===storySession)talk('b1',3000);},600);}
+ toastFloor(P.floor);
+}
+async function elvPress(b){
+ sfx.elevatorButton();ELV.idle=performance.now();
+ if(ELV.moving){return;}
+ b.mesh.material.color.setHex(0xffc060);setTimeout(()=>{if(b.a!=='f'||!ELV.moving)b.mesh.material.color.setHex(0xcccccc);},300);
+ if(b.a==='bell'){sfx.bell();say('…아무도 대답하지 않는다',2000);return;}
+ if(b.a==='open'||b.a==='close'){elvDoor(b.a==='open');return;}
+ if(b.f===ELV.cur){elvDoor(true);return;}
+ if(elevatorLocal(ELV.p,P.x,P.z).z>-.35){say('문에서 한 걸음 안쪽으로 들어간 뒤 층 버튼을 눌러 주세요',2500);return;}
+ const route=elevatorRoute(ELV.set,ELV.cur,b.f);if(!route.length||!elvHere(b.f))return;
+ const token=++ELV.token,epoch=storySession,valid=()=>token===ELV.token&&epoch===storySession&&P.inElev;
+ ELV.moving=true;b.mesh.material.color.setHex(0xffc060);
+ try{
+  if(!await elvAnnounce('select_'+EL_BTN[b.f],valid))return;
+  if(ELV.want){elvDoor(false,false);if(!await elvAnnounce('close',valid))return;}
+  await wait(850);if(!valid())return;
+  const up=floors[b.f].y0>floors[ELV.cur].y0;
+  if(!await elvAnnounce(up?'up':'down',valid))return;
+  sfx.elevator((power?1.2:2)*route.length);
+  for(const f of route){
+   await wait(power?1100:1900);if(!valid())return;
+   const old=ELV.p,local=elevatorLocal(old,P.x,P.z),next=elvHere(f);
+   elvHallOpen(old,false,true);elvDock(next);Object.assign(P,elevatorWorld(next,local.x,local.z));P.floor=f;P.jy=P.sh=P.vy=0;
+   ELV.disp(EL_BTN[f],up?'▲':'▼');
   }
-  ELV.disp(EL_BTN[ELV.cur]); b.mesh.material.color.setHex(0xcccccc); sfx.ding(); await wait(400); ELV.want = 1; sfx.doorSlide(.7); ELV.moving = false; ELV.idle = performance.now();
+  ELV.disp(EL_BTN[ELV.cur]);sfx.elevatorChime();
+  if(!await elvAnnounce('floor_'+EL_BTN[ELV.cur],valid))return;
+  if(!await elvAnnounce('open',valid))return;
+  elvDoor(true,false);ELV.idle=performance.now();
+ }finally{if(token===ELV.token){ELV.moving=false;b.mesh.material.color.setHex(0xcccccc);}}
 }
 // 카 안 조준: 카메라 정면 광선이 맞는 버튼
 function elvTarget() {
@@ -1246,27 +1273,30 @@ function elvTarget() {
   const hit = ELV.ray.intersectObjects(ELV.btns.map(b => b.mesh), false)[0]; if (!hit) return null;
   const b = ELV.btns.find(q => q.mesh === hit.object); return { type: 'prop', p: b, label: b.label };
 }
-function elvTick(dt) {
-  const now = performance.now();
-  // 바깥 문 (층마다)
-  for (const p of (ELV.list ||= world.props.filter(q => q.kind === 'elevator' && q.hall))) {
-    if (p.hallOpen && p.closeT && now > p.closeT && !(p.floor === P.floor && Math.hypot(P.x - p.px, P.z - p.pz) < 1.0)) { p.hallOpen = false; p.closeT = 0; if (p.floor === P.floor) sfx.doorSlide(.5); }
-    const k0 = p.hallK || 0, k = p.hallK = Math.max(0, Math.min(1, k0 + (p.hallOpen ? dt : -dt) / .8));
-    if (k !== k0) { p.hall.forEach((d, i) => { const sc = Math.max(.04, 1 - k * .96); d.scale.x = sc; d.position.x = (i ? 1 : -1) * (.8 - .4 * sc); }); if (p.cab) p.cab.visible = k > .01; }   // 문짝은 문틀 안쪽으로 접혀 들어간다 (예전엔 문틀 밖 벽 위로 밀려 나왔다) · 열리면 카 안이 보인다
-    // 홀 → 카: 열린 문의 문턱에 닿으면
-    if (!P.inElev && state === 'playing' && p.floor === P.floor && k > .85 && P.x > p.px - .75 && Math.abs(P.z - p.pz) < .45) elvEnter(p);
-  }
-  if (!P.inElev || !ELV.g) return;
-  const k0 = ELV.open; ELV.open = Math.max(0, Math.min(1, ELV.open + (ELV.want ? dt : -dt) / .8));
-  if (ELV.open !== k0) ELV.doors.forEach(d => { d.position.x = d.userData.x0 + Math.sign(d.userData.x0) * .5 * ELV.open; });
-  if (ELV.want && !ELV.moving && now - ELV.idle > 9000) { ELV.want = 0; sfx.doorSlide(.6); }   // 가만히 있으면 문이 닫힌다
-  // 카 안 충돌 (문이 열려 있을 때만 문턱 · 바깥 홀로)
-  const lx = P.x - ELV.CX, lz = P.z - ELV.CZ, R = .3;
-  let x = lx, z = lz;
-  if (z < -R || ELV.open < .8) { x = Math.max(-.85 + R, Math.min(.85 - R, x)); z = Math.max(-1.6 + R, Math.min(ELV.open < .8 ? -R : 1, z)); }
-  else if (z < R) { x = Math.max(-.5 + R, Math.min(.5 - R, x)); }
-  P.x = ELV.CX + x; P.z = ELV.CZ + z;
-  if (z > .42 && ELV.open > .8) elvLeave();
+function elvTick(dt){
+ const now=performance.now();
+ for(const p of (ELV.list ||=world.props.filter(q=>q.kind==='elevator'&&q.hall))){
+  const atDoor=p.floor===P.floor&&Math.abs(P.x-p.px)<.65&&Math.abs(P.z-p.pz)<.7;
+  if(p.hallOpen&&p.closeT&&now>p.closeT&&!atDoor&&!P.inElev){elvHallOpen(p,false);if(ELV.p===p)elvDoor(false);p.closeT=0;}
+  p.hallK=Math.max(0,Math.min(1,(p.hallK||0)+(p.hallOpen?dt:-dt)/.8));
+  p.hall.forEach((d,i)=>{const sc=Math.max(.04,1-p.hallK*.96);d.scale.x=sc;d.position.x=(i?1:-1)*(.8-.4*sc);});
+  if(p.doorBlock)p.doorBlock.off=p.hallK>.85;
+  if(!P.inElev&&state==='playing'&&p.floor===P.floor&&p.hallK>.85&&P.x>p.px-.4&&P.x<p.px+1.65&&Math.abs(P.z-p.pz)<.45)elvEnter(p);
+ }
+ if(!ELV.g||!ELV.p)return;
+ ELV.g.visible=ELV.cur===P.floor;
+ ELV.open=Math.max(0,Math.min(1,ELV.open+(ELV.want?dt:-dt)/.8));
+ ELV.doors.forEach(d=>{d.position.x=d.userData.x0+Math.sign(d.userData.x0)*.5*ELV.open;});
+ if(!P.inElev)return;
+ const local=elevatorLocal(ELV.p,P.x,P.z),R=.3;
+ // Reopen instead of closing on a passenger crossing the threshold.
+ if(!ELV.moving&&local.z>-.35&&Math.abs(local.x)<.55&&!ELV.want)elvDoor(true);
+ if(ELV.want&&!ELV.moving&&now-ELV.idle>9000&&local.z<-.35)elvDoor(false);
+ let x=Math.max(-.85+R,Math.min(.85-R,local.x));
+ let z=Math.max(-1.6+R,Math.min(ELV.open<.85||ELV.moving?-R:1,local.z));
+ if(z>-R)x=Math.max(-.5+R,Math.min(.5-R,x));
+ Object.assign(P,elevatorWorld(ELV.p,x,z));
+ if(z>.42&&ELV.open>.85&&!ELV.moving)elvLeave();
 }
 // 방마다 고유 오브젝트 — 선택 화면(1·2·3 키)으로 조작하고, 보급 · 안정 · 기록 · 공포 효과가 있다
 const calmDown = (sec, msg) => { storyCalm(sec); P.fear = Math.max(0, P.fear - .4); setFace('relief', 3); if (msg) caption(msg); };
@@ -1848,9 +1878,9 @@ function updatePlayer(dt) {
       for (let i = 0; i < n; i++) {
         P.x += dx * tot / n; P.z += dz * tot / n;
         const px = P.x - dx * tot / n, pz = P.z - dz * tot / n;
-        collide(colsAt(F), P, .32);
+        if(!P.inElev)collide(colsAt(F), P, .32);
         if (P.floor === 0 && gateClosed) collide([gate.blockRect], P, .32);
-        if (stairStep(px, pz)) break;
+        if (!P.inElev && stairStep(px, pz)) break;
       }
       const mv = Math.hypot(P.x - ox, P.z - oz);
       P.moving = mv > .0005; P.bob += mv * (P.sprinting ? 2.4 : 2.9); P.stepD += mv;
@@ -1918,12 +1948,15 @@ function updateLighting(dt) {
   lampTimer -= dt;
   if (lampTimer <= 0) {
     lampTimer = .2;
-    const lamps = !indoors && P.floor === 0 ? world.campusDesign.lights : F.lamps;
-    const c = lamps.filter(l => l.kind !== 'dead' && !l.off).map(l => ({ l, d: Math.hypot(l.x - P.x, l.z - P.z) })).filter(o => o.d < 16).sort((a, b) => a.d - b.d).slice(0, 4);
-    pool.forEach((p, i) => { const o = c[i]; if (o) { p.position.set(o.l.x, o.l.y, o.l.z); p.color.setHex(o.l.street ? 0xffd4a1 : 0xcfe6d6); p.distance = o.l.street ? 15 : 12; p.userData.kind = o.l.kind; p.userData.lamp = o.l; p.userData.on = true; } else p.userData.on = false; });
+    const baseLamps = !indoors && P.floor === 0 ? world.campusDesign.lights : F.lamps;
+    const lamps=ELV.p&&ELV.cur===P.floor&&ELV.cabinLamp?[...baseLamps,ELV.cabinLamp]:baseLamps;
+    const c = lamps.filter(l => l.kind !== 'dead' && !l.off).map(l => ({ l, d: l.cabin&&P.inElev?-1:Math.hypot(l.x - P.x, l.z - P.z) })).filter(o => o.d < 16).sort((a, b) => a.d - b.d).slice(0, 4);
+    pool.forEach((p, i) => { const o = c[i]; if (o) { p.position.set(o.l.x, o.l.y, o.l.z); p.color.setHex(o.l.cabin?0xfff0d4:o.l.street ? 0xffd4a1 : 0xcfe6d6); p.distance = o.l.cabin?5:o.l.street ? 15 : 12; p.userData.kind = o.l.kind; p.userData.lamp = o.l; p.userData.on = true; } else p.userData.on = false; });
   }
+  ELV.light=pool.find(p=>p.userData.on&&p.userData.lamp?.cabin)||null;
   updateGenerator(dt, indoors);
   pool.forEach((p, i) => {
+    if(p.userData.on&&p.userData.lamp?.cabin){p.intensity=power?3.5:2.5;return;}
     if (!p.userData.on || blackout > 0 || (!indoors && !p.userData.lamp?.street)) { p.intensity = 0; return; }
     if (p.userData.lamp?.street) { p.intensity = 22 * (1 - DAY.k * .65); return; }
     const lp = p.userData.lamp, st = lp && lp.start ? tNow - lp.start : 9;
@@ -2932,7 +2965,8 @@ const _hand = new THREE.Vector3();
 // 카메라 배치 후 호출: 3인칭이면 모델을 움직이고 카메라를 어깨 뒤로 뺀다
 function applyThirdPerson(dt, yaw, pitch) {
   ensureModel();
-  const third = view === 3 && !P.hiding && state !== 'dead' && state !== 'intro' && state !== 'menu';
+  if(P.inElev)camDistNow=0;
+  const third = view === 3 && !P.inElev && !P.hiding && state !== 'dead' && state !== 'intro' && state !== 'menu';
   camDistNow = lerp(camDistNow, third ? SET.camDist : 0, Math.min(1, dt * 7));
   const F = floors[P.floor];
   if (camDistNow < .05) { pm.g.visible = false; flash.position.set(.12, -.08, 0); fx.cone.position.set(.12, -.08, -.15); return; }
@@ -5765,8 +5799,8 @@ if (DEBUG) {
     get state() { return state; }, set state(v) { state = v; }, get tNow() { return tNow; }, openTest, EV, appar, applyQuality,
     interact, findInteract, hit, die, activateGhost, enrage, FL, MG, throwCan, throws, set playTime(v) { playTime = v; }, toggleView, get view() { return view; }, useProp, docs, msgs, clues, objective, makeGateKey, openInv, openPhone, openMap, openCharsel, openSettings, refreshHud, save, load, inv, mina,
     get power() { return power; }, set power(v) { power = v; }, get CHAR() { return CHAR; }, newGame, continueGame,
-    setTarget(t) { target = t; }, DAY, GEN, SIDEQUESTS, sqStep, sqDoneCount, useSideQuest, HEADQUEST, useHead, COLLECT, paraEvent, toiletFx, tmpFx, TE, roomAt, camMode, camShoot, CAM, MIC, SAN, BRK, setBreaker, schoolPower, craftingSystem, ghostCam, restroom, useSink, useFlush, placeAlarm, throwShock, useFirstAid, tryCombine, stunGhost, enterLocker, leaveLocker, startSearch, useMiniSpot, openChalk, chalkAsk, XT,
-    choose, missionGroups, psychologicalPhenomenon, ghostTick, enrage, activateGhost, ELV, elvPress, elvTick, SG, sgTestSpawn, sgSpawn, SG_ZONES, PL, CALL, SIT, ZOOM, SHOT, closeUI, TP, whereText, FLOOR_LABEL, S37,
+    ELV,elvCall,elvEnter,elvLeave,elvPress,elvTick,elvReset,setTarget(t) { target = t; }, DAY, GEN, SIDEQUESTS, sqStep, sqDoneCount, useSideQuest, HEADQUEST, useHead, COLLECT, paraEvent, toiletFx, tmpFx, TE, roomAt, camMode, camShoot, CAM, MIC, SAN, BRK, setBreaker, schoolPower, craftingSystem, ghostCam, restroom, useSink, useFlush, placeAlarm, throwShock, useFirstAid, tryCombine, stunGhost, enterLocker, leaveLocker, startSearch, useMiniSpot, openChalk, chalkAsk, XT,
+    choose, missionGroups, psychologicalPhenomenon, ghostTick, enrage, activateGhost, SG, sgTestSpawn, sgSpawn, SG_ZONES, PL, CALL, SIT, ZOOM, SHOT, closeUI, TP, whereText, FLOOR_LABEL, S37,
     get target() { return target; },
   };
 }

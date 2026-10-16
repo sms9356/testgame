@@ -1,0 +1,381 @@
+{
+  "checks": [
+    {
+      "name": "walk across threshold into real cabin",
+      "pass": true
+    },
+    {
+      "name": "ceiling contains two luminous diffusers and a working cabin light",
+      "pass": true
+    },
+    {
+      "name": "third-person camera stays within the narrow cabin",
+      "pass": true
+    },
+    {
+      "name": "arrival 4: real landing, open hall and cabin, no remote coordinates",
+      "pass": true
+    },
+    {
+      "name": "open doorway sees actual basement geometry beyond the threshold",
+      "pass": true
+    },
+    {
+      "name": "walk out onto same floor without a position jump",
+      "pass": true
+    },
+    {
+      "name": "walk across threshold into real cabin",
+      "pass": true
+    },
+    {
+      "name": "arrival 2: real landing, open hall and cabin, no remote coordinates",
+      "pass": true
+    },
+    {
+      "name": "arrival 1: real landing, open hall and cabin, no remote coordinates",
+      "pass": true
+    },
+    {
+      "name": "arrival 0: real landing, open hall and cabin, no remote coordinates",
+      "pass": true
+    },
+    {
+      "name": "walk out onto same floor without a position jump",
+      "pass": true
+    },
+    {
+      "name": "walk across threshold into real cabin",
+      "pass": true
+    },
+    {
+      "name": "arrival 9: real landing, open hall and cabin, no remote coordinates",
+      "pass": true
+    },
+    {
+      "name": "arrival 10: real landing, open hall and cabin, no remote coordinates",
+      "pass": true
+    },
+    {
+      "name": "arrival 8: real landing, open hall and cabin, no remote coordinates",
+      "pass": true
+    },
+    {
+      "name": "walk out onto same floor without a position jump",
+      "pass": true
+    },
+    {
+      "name": "walk across threshold into real cabin",
+      "pass": true
+    },
+    {
+      "name": "load during ride restores landing and cancels cabin callbacks",
+      "pass": true
+    },
+    {
+      "name": "page and frame loop remain error-free",
+      "pass": true
+    }
+  ],
+  "errors": [],
+  "routes": [
+    {
+      "floor": 4,
+      "car": [
+        2,
+        -30,
+        -7
+      ],
+      "landing": [
+        2,
+        -30,
+        -7
+      ],
+      "player": [
+        2.8499599999999887,
+        -7
+      ],
+      "open": 0.9759999999999855,
+      "hall": 0.9759999999999855,
+      "block": true
+    },
+    {
+      "floor": 2,
+      "car": [
+        2,
+        8,
+        -7
+      ],
+      "landing": [
+        2,
+        8,
+        -7
+      ],
+      "player": [
+        2.721159999999993,
+        -7
+      ],
+      "open": 1,
+      "hall": 1,
+      "block": true
+    },
+    {
+      "floor": 1,
+      "car": [
+        2,
+        4,
+        -7
+      ],
+      "landing": [
+        2,
+        4,
+        -7
+      ],
+      "player": [
+        2.721159999999993,
+        -7
+      ],
+      "open": 1,
+      "hall": 1,
+      "block": true
+    },
+    {
+      "floor": 0,
+      "car": [
+        2,
+        0,
+        -7
+      ],
+      "landing": [
+        2,
+        0,
+        -7
+      ],
+      "player": [
+        2.721159999999993,
+        -7
+      ],
+      "open": 0.9757500000000072,
+      "hall": 0.9757500000000072,
+      "block": true
+    },
+    {
+      "floor": 9,
+      "car": [
+        -14,
+        220,
+        -7
+      ],
+      "landing": [
+        -14,
+        220,
+        -7
+      ],
+      "player": [
+        -13.274640000000042,
+        -7
+      ],
+      "open": 0.9958750000000147,
+      "hall": 0.9958750000000147,
+      "block": true
+    },
+    {
+      "floor": 10,
+      "car": [
+        -14,
+        260,
+        -7
+      ],
+      "landing": [
+        -14,
+        260,
+        -7
+      ],
+      "player": [
+        -13.274640000000042,
+        -7
+      ],
+      "open": 0.954874999999993,
+      "hall": 0.954874999999993,
+      "block": true
+    },
+    {
+      "floor": 8,
+      "car": [
+        -14,
+        180,
+        -7
+      ],
+      "landing": [
+        -14,
+        180,
+        -7
+      ],
+      "player": [
+        -13.274640000000042,
+        -7
+      ],
+      "open": 0.9967500000000291,
+      "hall": 0.9967500000000291,
+      "block": true
+    }
+  ],
+  "voices": [
+    {
+      "who": "승강기 안내",
+      "text": "삼 층이 선택되었습니다.",
+      "at": 1792193299517
+    },
+    {
+      "who": "승강기 안내",
+      "text": "문이 닫힙니다.",
+      "at": 1792193301709
+    },
+    {
+      "who": "승강기 안내",
+      "text": "올라갑니다.",
+      "at": 1792193304121
+    },
+    {
+      "who": "승강기 안내",
+      "text": "삼 층입니다.",
+      "at": 1792193311064
+    },
+    {
+      "who": "승강기 안내",
+      "text": "문이 열립니다.",
+      "at": 1792193312389
+    },
+    {
+      "who": "승강기 안내",
+      "text": "이 층이 선택되었습니다.",
+      "at": 1792193314750
+    },
+    {
+      "who": "승강기 안내",
+      "text": "문이 닫힙니다.",
+      "at": 1792193316760
+    },
+    {
+      "who": "승강기 안내",
+      "text": "내려갑니다.",
+      "at": 1792193319225
+    },
+    {
+      "who": "승강기 안내",
+      "text": "이 층입니다.",
+      "at": 1792193322379
+    },
+    {
+      "who": "승강기 안내",
+      "text": "문이 열립니다.",
+      "at": 1792193323621
+    },
+    {
+      "who": "승강기 안내",
+      "text": "일 층이 선택되었습니다.",
+      "at": 1792193325983
+    },
+    {
+      "who": "승강기 안내",
+      "text": "문이 닫힙니다.",
+      "at": 1792193328024
+    },
+    {
+      "who": "승강기 안내",
+      "text": "내려갑니다.",
+      "at": 1792193330439
+    },
+    {
+      "who": "승강기 안내",
+      "text": "일 층입니다.",
+      "at": 1792193333582
+    },
+    {
+      "who": "승강기 안내",
+      "text": "문이 열립니다.",
+      "at": 1792193334828
+    },
+    {
+      "who": "승강기 안내",
+      "text": "이 층이 선택되었습니다.",
+      "at": 1792193343401
+    },
+    {
+      "who": "승강기 안내",
+      "text": "문이 닫힙니다.",
+      "at": 1792193345750
+    },
+    {
+      "who": "승강기 안내",
+      "text": "올라갑니다.",
+      "at": 1792193348167
+    },
+    {
+      "who": "승강기 안내",
+      "text": "이 층입니다.",
+      "at": 1792193351310
+    },
+    {
+      "who": "승강기 안내",
+      "text": "문이 열립니다.",
+      "at": 1792193352552
+    },
+    {
+      "who": "승강기 안내",
+      "text": "삼 층이 선택되었습니다.",
+      "at": 1792193354971
+    },
+    {
+      "who": "승강기 안내",
+      "text": "문이 닫힙니다.",
+      "at": 1792193357149
+    },
+    {
+      "who": "승강기 안내",
+      "text": "올라갑니다.",
+      "at": 1792193359567
+    },
+    {
+      "who": "승강기 안내",
+      "text": "삼 층입니다.",
+      "at": 1792193362709
+    },
+    {
+      "who": "승강기 안내",
+      "text": "문이 열립니다.",
+      "at": 1792193364029
+    },
+    {
+      "who": "승강기 안내",
+      "text": "일 층이 선택되었습니다.",
+      "at": 1792193366342
+    },
+    {
+      "who": "승강기 안내",
+      "text": "문이 닫힙니다.",
+      "at": 1792193368384
+    },
+    {
+      "who": "승강기 안내",
+      "text": "내려갑니다.",
+      "at": 1792193370818
+    },
+    {
+      "who": "승강기 안내",
+      "text": "일 층입니다.",
+      "at": 1792193375865
+    },
+    {
+      "who": "승강기 안내",
+      "text": "문이 열립니다.",
+      "at": 1792193377419
+    }
+  ],
+  "method": {
+    "entryExit": "real W key movement across threshold",
+    "floorSelection": "debug button selection, debug positioning between banks",
+    "rendering": "real scene screenshots, rendering suspended during logical travel checks",
+    "limitations": "Not a public-site manual play-through or hardware GPU performance certification."
+  }
+}

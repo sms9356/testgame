@@ -1,0 +1,37 @@
+{
+  "checks": [
+    {
+      "name": "real cabin button ray targets the selected floor",
+      "pass": true
+    },
+    {
+      "name": "E key starts the actual floor button",
+      "pass": true
+    },
+    {
+      "name": "all investigation targets remain reachable around the real cabin",
+      "pass": true
+    },
+    {
+      "name": "page and frame loop remain error-free",
+      "pass": true
+    }
+  ],
+  "errors": [],
+  "loading": {
+    "textures": 536,
+    "build": 4296,
+    "warmup": 43355
+  },
+  "models": {
+    "total": 69,
+    "completed": 69,
+    "failed": [],
+    "active": 0
+  },
+  "reachability": {
+    "unreachable": [],
+    "total": 531
+  },
+  "method": "All models loaded; doors opened for 0.2m grid / 0.3m player-radius reachability. Actual cabin button ray and E-key checked; rendering suspended after scene startup."
+}

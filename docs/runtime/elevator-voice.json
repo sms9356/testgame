@@ -1,0 +1,19 @@
+{
+  "passed": true,
+  "measurements": {
+    "cancelled": null,
+    "afterStop": 0,
+    "superseded": null,
+    "afterLatest": 1,
+    "newerDuration": 3.84,
+    "lateDuration": 0,
+    "subtitleVisible": false,
+    "afterLate": 1,
+    "blockedAmbient": 0,
+    "queueWait": 1603.4000000022352,
+    "secondSubtitle": "경비 아저씨다음 증언",
+    "cancelledQueuedDuration": 0,
+    "sampleStarts": 4,
+    "sampleStops": 0
+  }
+}

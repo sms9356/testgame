@@ -475,7 +475,7 @@ class School37RoomsMasterPatch {
         if (roomName === "보건실") {
           place(this._prefabBedWithCurtain(), hw - 0.5, -hd + 0.6, 0, 1.1, 2.0, 1.8);
         }
-        place(((p) => { p.userData.infirmaryKind = "cabinetOpen"; return p; })(this._prefabHeavyStorageRack()), 0, -hd + 0.2, 0, 1.45, .9, 1.8, false, {
+        place(((p) => { p.userData.infirmaryKind = "cabinetOpen"; return p; })(this._prefabHeavyStorageRack()), 0, -hd + 0.2, 0, 1.95, 1.35, 1.8, false, {
           promptText: "[E] 보건실 유리 약품장 열기 (진정제/붕대 파밍)"
         });
         break;

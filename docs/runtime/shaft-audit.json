@@ -1,0 +1,209 @@
+{
+  "checks": [
+    {
+      "name": "all seven served floors reserve a full wall and a recessed cabin",
+      "pass": true
+    },
+    {
+      "name": "old floor positions in the new shaft restore outside its wall",
+      "pass": true
+    },
+    {
+      "name": "walk across threshold into real cabin",
+      "pass": true
+    },
+    {
+      "name": "arrival 4: real landing, open hall and cabin, no remote coordinates",
+      "pass": true
+    },
+    {
+      "name": "walk out onto same floor without a position jump",
+      "pass": true
+    },
+    {
+      "name": "walk across threshold into real cabin",
+      "pass": true
+    },
+    {
+      "name": "arrival 10: real landing, open hall and cabin, no remote coordinates",
+      "pass": true
+    },
+    {
+      "name": "walk out onto same floor without a position jump",
+      "pass": true
+    },
+    {
+      "name": "real cabin button ray targets the selected floor",
+      "pass": true
+    },
+    {
+      "name": "E key starts the actual floor button",
+      "pass": true
+    },
+    {
+      "name": "all investigation targets remain reachable around the real cabin",
+      "pass": true
+    },
+    {
+      "name": "page and frame loop remain error-free",
+      "pass": true
+    }
+  ],
+  "errors": [],
+  "routes": [
+    {
+      "floor": 4,
+      "car": [
+        2.1,
+        -30,
+        -7
+      ],
+      "landing": [
+        2.1,
+        -30,
+        -7
+      ],
+      "player": [
+        2.9031999999999965,
+        -7
+      ],
+      "open": 0.995,
+      "hall": 0.995,
+      "block": true
+    },
+    {
+      "floor": 10,
+      "car": [
+        -13.9,
+        260,
+        -7
+      ],
+      "landing": [
+        -13.9,
+        260,
+        -7
+      ],
+      "player": [
+        -13.17323999999997,
+        -7
+      ],
+      "open": 1,
+      "hall": 1,
+      "block": true
+    }
+  ],
+  "loading": {
+    "textures": 541,
+    "build": 5072,
+    "warmup": 41041
+  },
+  "models": {
+    "total": 69,
+    "completed": 69,
+    "failed": [],
+    "active": 0
+  },
+  "bays": [
+    {
+      "floor": 0,
+      "front": 2.04,
+      "doorX": 2.1,
+      "rear": 3.85,
+      "z1": -9.6,
+      "z2": -1.75,
+      "doorZ": -7,
+      "halfOpening": 0.8,
+      "clearSpawnX": 0.8,
+      "walls": true,
+      "cabinEnclosed": true
+    },
+    {
+      "floor": 1,
+      "front": 2.04,
+      "doorX": 2.1,
+      "rear": 3.85,
+      "z1": -9.6,
+      "z2": -1.75,
+      "doorZ": -7,
+      "halfOpening": 0.8,
+      "clearSpawnX": 0.8,
+      "walls": true,
+      "cabinEnclosed": true
+    },
+    {
+      "floor": 2,
+      "front": 2.04,
+      "doorX": 2.1,
+      "rear": 3.85,
+      "z1": -9.6,
+      "z2": -1.75,
+      "doorZ": -7,
+      "halfOpening": 0.8,
+      "clearSpawnX": 0.8,
+      "walls": true,
+      "cabinEnclosed": true
+    },
+    {
+      "floor": 4,
+      "front": 2.04,
+      "doorX": 2.1,
+      "rear": 3.85,
+      "z1": -9.6,
+      "z2": -1.75,
+      "doorZ": -7,
+      "halfOpening": 0.8,
+      "clearSpawnX": 0.8,
+      "walls": true,
+      "cabinEnclosed": true
+    },
+    {
+      "floor": 8,
+      "front": -13.96,
+      "doorX": -13.9,
+      "rear": -12.15,
+      "z1": -9.6,
+      "z2": -1.75,
+      "doorZ": -7,
+      "halfOpening": 0.8,
+      "clearSpawnX": -15.2,
+      "walls": true,
+      "cabinEnclosed": true
+    },
+    {
+      "floor": 9,
+      "front": -13.96,
+      "doorX": -13.9,
+      "rear": -12.15,
+      "z1": -9.6,
+      "z2": -1.75,
+      "doorZ": -7,
+      "halfOpening": 0.8,
+      "clearSpawnX": -15.2,
+      "walls": true,
+      "cabinEnclosed": true
+    },
+    {
+      "floor": 10,
+      "front": -13.96,
+      "doorX": -13.9,
+      "rear": -12.15,
+      "z1": -9.6,
+      "z2": -1.75,
+      "doorZ": -7,
+      "halfOpening": 0.8,
+      "clearSpawnX": -15.2,
+      "walls": true,
+      "cabinEnclosed": true
+    }
+  ],
+  "reachability": {
+    "unreachable": [],
+    "total": 531
+  },
+  "method": {
+    "rendering": "real front/side scene screenshots; renderer suspended for logical checks",
+    "boarding": "W-key entry and exit in both banks; debug floor selection and repositioning between banks",
+    "reachability": "all models loaded, doors open, 0.2m grid, player radius 0.3m, current annex stair arrival seed",
+    "limitations": "Not a public-site manual play-through or hardware GPU performance certification."
+  }
+}

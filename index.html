@@ -651,7 +651,7 @@
 </div>
 <div id="hurt"></div>
 <div id="clickHint">화면을 클릭하면 시점 조작이 다시 켜집니다</div>
-<div id="breath">숨 참기 <kbd>Space</kbd><div class="bar"><i id="breathBar"></i></div><div style="margin-top:6px;color:#e88">들킬 위험</div><div class="bar"><i id="dangerBar" style="background:#d04040;width:0"></i></div></div><div id="cap"></div>
+<div id="breath">숨 참기 <kbd>Space</kbd><div class="bar"><i id="breathBar"></i></div><div style="margin-top:6px;color:#e88">주변 소리</div><div class="bar"><i id="dangerBar" style="background:#d04040;width:0"></i></div></div><div id="cap"></div>
 <div id="intro"><p></p><p></p><p class="q"></p><p></p><small>클릭 / Space — 건너뛰기</small></div>
 <div id="evPulse"></div><div id="evStreak"></div><div id="pings"></div><div id="cine"></div><div id="blink"></div><div id="introTitle"><div class="logo" style="font-size:clamp(90px,14vw,150px)">폐교</div><div class="tagline">잊혀진 시간</div></div>
 <div id="sub"></div>
@@ -685,7 +685,7 @@
   <h3>순간이동</h3><div class="tgrid" id="testTp"></div>
   <h3>치트 / 상태</h3><div class="tgrid" id="testAct"></div>
   <div id="testInfo"></div></div></div>
-<div id="searchBar">사물함을 뒤지는 중…<i><b></b></i></div><div id="lootCard"></div><div id="paraVig"></div><div id="micMeter">마이크 · 들킬 위험<canvas id="micCv" width="232" height="52"></canvas><div class="bar"><i id="micLv"></i></div><div class="bar"><i id="micRisk"></i></div></div><div id="ghostMark"></div><div id="chimeBar">📢 방송 소음 발생 중 — 발소리가 묻힌다</div><div id="peekEye"></div><div id="mobileNote">이 게임은 PC(마우스 · 키보드)와 헤드폰 환경에 맞춰져 있습니다. 모바일에서는 조작이 제한됩니다.</div><div id="bloodVig"></div><div id="frostVig"></div>
+<div id="searchBar">사물함을 뒤지는 중…<i><b></b></i></div><div id="lootCard"></div><div id="paraVig"></div><div id="micMeter">마이크 · 주변 소리<canvas id="micCv" width="232" height="52"></canvas><div class="bar"><i id="micLv"></i></div><div class="bar"><i id="micRisk"></i></div></div><div id="ghostMark"></div><div id="chimeBar">📢 교내 방송이 울린다</div><div id="peekEye"></div><div id="mobileNote">이 게임은 PC(마우스 · 키보드)와 헤드폰 환경에 맞춰져 있습니다. 모바일에서는 조작이 제한됩니다.</div><div id="bloodVig"></div><div id="frostVig"></div>
 <div id="chalk" class="overlay"><div class="win" style="width:min(700px,96vw)"><div class="tabs"><b style="font-size:15px" id="chalkTitle">칠판</b><button id="chalkClose" style="margin-left:auto">닫기</button></div><div class="board" id="chalkBoard"></div><div class="opts" id="chalkOpts"></div></div></div>
 <div id="keypad" class="overlay"><div class="win"><div class="tabs"><b style="font-size:15px" id="kpTitle">교무실 금고</b><button id="kpClose" style="margin-left:auto">닫기</button></div>
   <div id="kpDisp">_ _ _ _</div>
@@ -787,8 +787,8 @@
   </div></div>
   <div class="setPage" data-s="acc"><div class="setgrid">
     <h4>게임</h4>
-    <span>난이도</span><select id="setDiff"><option value="easy">쉬움 — 그것이 드물게 나타나고 느림, 네 번 잡혀야 쓰러짐</option><option value="normal">보통 — 세 번 잡히면 쓰러짐</option><option value="hard">어려움 — 한 번 붙잡히면 즉시 사망, 더 빠름</option></select>
-    <span>마이크 소리 감지</span><label><input type="checkbox" id="setMic"> 비명 · 소음 주의 — 숨었을 때나 그것이 10m 안에 있을 때 큰 소리를 내면 들킨다 (마이크 권한 필요)</label>
+    <span>탐색 난이도 · 유령 공격 없음</span><select id="setDiff"><option value="easy">쉬움 — 손전등 배터리 절약</option><option value="normal">보통 — 표준 배터리 소모</option><option value="hard">어려움 — 빠른 배터리 소모</option></select>
+    <span>마이크 소리 감지</span><label><input type="checkbox" id="setMic"> 주변 소리 시각화 · 녹음 분위기 연출 (마이크 권한 필요)</label>
     <h4>접근성</h4>
     <span>언어 · Language</span><select id="setLang"><option value="ko">한국어</option><option value="en">English</option><option value="ja">日本語</option><option value="zh">中文</option></select>
     <span>점프 스케어</span><select id="setJump"><option value="full">기본</option><option value="soft">약하게 (이미지 없이)</option></select>

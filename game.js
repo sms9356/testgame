@@ -1,5 +1,6 @@
 // 폐교 — 잊혀진 시간 : 1인칭 학교 공포 게임 (Three.js)
 import * as THREE from './vendor/three.module.js';
+import { settleStoryGhost, tickStoryGhost, showStoryGhost } from './storyGhost.js';
 import { GLTFLoader } from './vendor/addons/loaders/GLTFLoader.js';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
 import { createNPCVisuals } from './npcVisuals.js';
@@ -341,187 +342,11 @@ function ghostLeave() {
   if (state === 'playing') { sfx.stairs(); caption('발소리가 계단 쪽으로 멀어진다'); }
 }
 function ghostRelocate() {
-  const G = ghost, F = floors[P.floor];
-  G.floor = P.floor;
-  const ends = F.spawns ? F.spawns.slice() : [{ x: -34, z: 0 }, { x: 34, z: 0 }, { x: 0, z: -5.2 }];
-  ends.sort((a, b) => Math.hypot(b.x - P.x, b.z - P.z) - Math.hypot(a.x - P.x, a.z - P.z));
-  let s = ends[0];
-  if (!F.spawns && Math.hypot(ends[2].x - P.x, ends[2].z - P.z) > 14 && !G.enraged && Math.random() < .6) s = ends[2];
-  G.x = s.x; G.z = s.z; G.away = 0; G.lose = 0; G.hunt = null; G.spawnGrace = 3; G.warned = false;
-  // 평소엔 플레이어에게 곧장 오지 않고, 먼 쪽에서 순찰을 시작한다 (최종 추격만 곧장)
-  G.visitT = 0; G.chaseT = 0;
-  if (G.enraged) { G.state = 'chase'; G.target = { x: P.x, z: P.z }; G.path = findPath(F, G.x, G.z, G.target.x, G.target.z); } else { G.state = 'patrol'; G.target = null; G.path = []; G.wait = 3; }
-  if (P.floor > 0 || P.z < 1.5) sfx.stairs();
-}
-
-function ghostStep(tx, tz, speed, dt) {
-  const G = ghost, dx = tx - G.x, dz = tz - G.z, d = Math.hypot(dx, dz);
-  if (d < 0.05) return true;
-  const m = Math.min(d, speed * dt);
-  G.x += dx / d * m; G.z += dz / d * m;
-  const ty = Math.atan2(dx, dz); let dy = ty - G.yaw; while (dy > Math.PI) dy -= 6.283; while (dy < -Math.PI) dy += 6.283;
-  G.yaw += dy * Math.min(1, dt * 8);
-  return d - m < 0.05;
-}
-function followPath(speed, dt) {
-  const G = ghost; speed *= DF().speed * (G.lightT > 0 || G.slowT > 0 ? .45 : 1);
-  while (G.path.length && Math.hypot(G.path[0].x - G.x, G.path[0].z - G.z) < 0.25 && G.path.length > 1) G.path.shift();
-  if (!G.path.length) return true;
-  const last = G.path.length === 1;
-  const arrived = ghostStep(G.path[0].x, G.path[0].z, speed, dt);
-  if (arrived && last) { G.path.shift(); return true; }
-  if (arrived) G.path.shift();
-  return false;
+  showStoryGhost(ghost, P, floors, 8);
 }
 
 function ghostTick(dt, t) {
-  const G = ghost; if (!G.active) return;
-  const F = floors[G.floor];
-  const same = G.floor === P.floor && !P.inElev;
-  const outP = P.floor === 0 && P.z > MAIN_ZS + .15;
-  const dist = Math.hypot(P.x - G.x, P.z - G.z);
-  G.spawnGrace = Math.max(0, G.spawnGrace - dt); G.calmT = Math.max(0, (G.calmT || 0) - dt);
-
-  if (G.lureT > 0) G.lureT -= dt;
-  // 다른 층이면 일정 시간 뒤 플레이어 층으로 이동
-  if (!same) {
-    if (G.lureT > 0) return;
-    if (passBlocks(G.floor, P.floor)) { G.away += dt; return; }   // 실내 연결복도 방화문이 닫혀 있다 — 반대편에서 문을 부순다(patchTick)
-    G.away += dt;
-    const wait = G.enraged ? 6 : DF().away + (G.floor * 7 % 13);
-    if (G.calmT > 0 && !G.enraged) return;   // 이야기 장면 직후에는 찾아오지 않는다
-    // 출현 예고: 오기 몇 초 전에 계단 쪽 발소리와 자막
-    if (!G.warned && G.away > wait - 3.5 && !(outP && !G.enraged) && state === 'playing') {
-      G.warned = true; const sz = floors[P.floor].stairZone, sx = sz ? sz.spawn.x : 2.2, sz2 = sz ? sz.spawn.z : -5.2;
-      [0, 450, 900, 1350].forEach((t, i) => setTimeout(() => at(sx, floors[P.floor].y0 + .2, sz2).ghostStep(Math.max(2, 12 - i * 2), 0), t));
-      caption(P.floor === 4 ? '위층 계단에서 무언가 내려온다' : '계단 쪽에서 발소리가 다가온다');
-    }
-    if (G.away > wait && !(outP && !G.enraged)) ghostRelocate();
-    return;
-  }
-  G.away = 0;
-  if (G.stunT > 0) { G.stunT -= dt; G.lightT = 0; return; }   // 플래시 · 쇼트 폭탄에 경직
-  // 머무는 시간 제한: 쫓고 있지 않으면 일정 시간 뒤 다른 층으로 떠난다 (한 층에 눌러앉지 않게)
-  if (!G.enraged) {
-    G.visitT = (G.visitT || 0) + dt;
-    if (G.state === 'chase') G.chaseT = (G.chaseT || 0) + dt; else G.chaseT = Math.max(0, (G.chaseT || 0) - dt * .5);
-    if (G.chaseT > DF().chaseMax) { G.chaseT = 0; G.state = 'search'; G.calmT = Math.max(G.calmT, 15); G.visitT = Math.max(G.visitT, DF().visit - 8); let far = F.nodes[0]; F.nodes.forEach(n => { if (Math.hypot(n.x - P.x, n.z - P.z) > Math.hypot(far.x - P.x, far.z - P.z)) far = n; }); G.target = { x: far.x, z: far.z }; G.path = []; G.replan = 0; G.wait = 0; caption('그것이 흥미를 잃은 듯 멀어진다'); }
-    if (G.visitT > DF().visit && G.state !== 'chase' && !G.hunt) { ghostLeave(); return; }
-  }
-
-  // 시야 판정 (공간마다 다르게: 체육관은 소리, 도서실은 시야, 지하는 좁은 동선)
-  const room = roomAt(P.floor, P.x, P.z), inLib = room && room.type === 'library';
-  const hearMul = P.floor === 5 ? 1.6 : inLib ? .8 : 1, sightMul = inLib ? 1.3 : P.floor === 4 ? .85 : 1;
-  const safe = !!safeRoomAt();
-  let sees = false;
-  const steamHid = ipP.state.steamActive && inPassage();   // 연결복도 스팀 연막 속
-  if (!P.hiding && !safe && !steamHid && !(outP && !G.enraged && !(G.outT > 0))) {
-    const range = (P.light ? 20 : 12) * (G.enraged ? 1.5 : P.keys < 2 ? .8 : 1) * sightMul * (P.crouch ? .65 : 1) * (P.sitting ? .18 : 1);   // 의자에 가만히 앉아 있으면 학생인 척 — 3.6m 안에서만 들킨다
-    if (dist < range && los(F.walls, G.x, G.z, P.x, P.z) && los(F.doorWalls || [], G.x, G.z, P.x, P.z)) sees = true;
-  }
-  // 청각 판정
-  if (!P.hiding && !safe && !steamHid && !(G.calmT > 0) && !G.hunt && !(outP && !G.enraged && !(G.outT > 0)) && G.state !== 'chase' && !schoolPower.isChimeActive && dist < P.noise * DF().hear * hearMul) {
-    G.state = 'search'; G.target = { x: P.x, z: P.z }; G.wait = 0; G.replan = 0;
-  }
-  // 손전등을 똑바로 비추면 느려지고, 버티면 물러난다 (배터리 소모 큼)
-  G.repelCD = Math.max(0, (G.repelCD || 0) - dt);
-  let lit = false;
-  if (P.light && P.battery > 0 && !P.hiding && dist < 8 && G.repelCD <= 0) {
-    const lx = -Math.sin(P.yaw), lz = -Math.cos(P.yaw);
-    if (((G.x - P.x) * lx + (G.z - P.z) * lz) / Math.max(dist, .01) > .93 && los(F.walls, P.x, P.z, G.x, G.z)) lit = true;
-  }
-  if (lit) {
-    G.lightT = (G.lightT || 0) + dt; P.battery = Math.max(0, P.battery - 7 * dt); repelK = Math.min(1, G.lightT / (G.enraged ? 2.2 : 1.3));
-    if (G.lightT > (G.enraged ? 2.2 : 1.3)) {
-      G.lightT = 0; G.repelCD = 22; G.hunt = null; G.state = 'search'; G.spawnGrace = 2.5; G.path = []; G.replan = 0; G.wait = 0;
-      let far = F.nodes[0]; F.nodes.forEach(n => { if (Math.hypot(n.x - P.x, n.z - P.z) > Math.hypot(far.x - P.x, far.z - P.z)) far = n; });
-      G.target = { x: far.x, z: far.z }; sfx.screech(); fx.glitch(.6); shake = .3; talk('repel', 2600);
-      fx.dust(G.x, floors[G.floor].y0 + 1, G.z, 25);
-    }
-  } else { G.lightT = Math.max(0, (G.lightT || 0) - dt * 2); repelK = Math.max(0, repelK - dt * 3); }
-  if (G.hunt) { /* 사물함으로 직행 */ }
-  else if (sees && G.spawnGrace <= 0) {
-    if (G.state !== 'chase') { G.state = 'chase'; sfx.alert(); fx.glitch(.5); evFx('evPulse'); caption('날카로운 비명 — 들켰다'); if (Math.random() < .35) line('gh4', 'whisper'); else talk('spotted', 2600); }
-    G.target = { x: P.x, z: P.z }; G.lose = 0;
-  } else if (G.state === 'chase') {
-    G.lose += dt * (safe ? 4 : 1);
-    if (G.lose > 4.5) { G.state = 'search'; G.wait = 0; lockerSearchStart(G); }
-  }
-
-  const sp = 1 + Math.min(.25, P.keys * .06);
-  let speed = 1.5;
-  G.replan -= dt;
-  const plan = (tx, tz) => { if (G.replan <= 0 || !G.path.length) { G.path = findPath(F, G.x, G.z, tx, tz); G.replan = .35; } };
-  let tgt = G.target;
-  const busy = !G.hunt && (fakeTick(G, dt, F) || lockerSearchTick(G, dt, F));
-  if (busy) { /* 사물함 수색 · 페이크 퇴장 */ }
-  else if (G.hunt) {
-    speed = 3.2 * sp; plan(G.hunt.x, G.hunt.z);
-    followPath(speed, dt);
-    if (Math.hypot(G.hunt.x - G.x, G.hunt.z - G.z) < 1.3) { if (P.hiding) leaveLocker(true); hit(); return; }
-  } else if (G.state === 'chase') {
-    speed = (G.enraged ? 3.2 : 2.6) * sp * (!G.enraged && litAt(G.floor, G.x, G.z) ? .78 : 1); plan(tgt.x, tgt.z); followPath(speed, dt);
-  } else if (G.state === 'search') {
-    speed = 2.1; plan(tgt.x, tgt.z);
-    const arr = followPath(speed, dt);
-    if (arr) { G.wait += dt; if (G.wait > 3) { G.state = 'patrol'; G.path = []; G.wait = 1; if (G.floor === P.floor && Math.random() < .5) at(G.x, floors[G.floor].y0 + 1.5, G.z).ghostLaugh(); } }
-  } else { // patrol
-    speed = 1.5;
-    if (!G.path.length) {
-      G.wait -= dt;
-      if (G.wait <= 0) {
-        const idx = F.nodes.map((n, i) => i).filter(i => !(i === F.entrance));
-        idx.sort((a, b) => Math.hypot(F.nodes[a].x - P.x, F.nodes[a].z - P.z) - Math.hypot(F.nodes[b].x - P.x, F.nodes[b].z - P.z));
-        let k = Math.random() < .3 ? idx[(Math.random() * 8) | 0] : idx[(Math.random() * idx.length) | 0];
-        for (let tries = 0; tries < 4 && litAt(G.floor, F.nodes[k].x, F.nodes[k].z) && Math.random() < .8; tries++) k = idx[(Math.random() * idx.length) | 0];   // 켜진 방은 피한다
-        G.path = findPath(F, G.x, G.z, F.nodes[k].x, F.nodes[k].z); G.wait = 1.5 + Math.random() * 2.5;
-      }
-    } else followPath(speed, dt);
-  }
-  // 실외 이동 제약
-  if (G.floor === 0) {
-    if (!G.enraged && !(G.outT > 0) && G.z > MAIN_ZS - .4) G.z = MAIN_ZS - .4;   // outT: 조회대 마이크로 운동장에 끌려 나온 동안
-    if (G.z > MAIN_ZS + .1) { const p = { x: G.x, z: G.z }; collide(floors[0].col, p, .4); G.x = p.x; G.z = p.z; }
-  }
-
-  // 닫힌 문은 열고 지나간다
-  for (const d of world.doorList) {
-    if (d.floor !== G.floor || d.target > .5) continue;
-    const dz = d.kind === 'slide' ? (d.z > 0 ? 1.55 : -1.55) : d.z;
-    if (Math.hypot(G.x - d.x, G.z - dz) < 1.3) { d.target = 1; d.slam = true; const dd = Math.hypot(P.x - d.x, P.z - dz); if (G.floor === P.floor && dd < 20) { at(d.x, floors[d.floor].y0 + 1.2, dz).doorBang(0, 1); if (dd < 6) shake = .35; } }
-  }
-  // 사물함 수색
-  if (P.hiding && !G.hunt) {
-    const l = P.hiding;
-    if (Math.hypot(l.x - G.x, l.z - G.z) < 2.6) { G.findT += dt * (P.holdBreath ? .2 : 1); if (G.findT > 5.2) { const dr = l.dir || { x: 0, z: 1 }; G.hunt = { x: l.x + dr.x * .6, z: l.z + dr.z * .6 }; } } else G.findT = Math.max(0, G.findT - dt);
-  }
-
-  // 붙잡힘
-  if (sees && !safe && dist < 1.05 && G.spawnGrace <= 0 && P.invuln <= 0) { hit(); return; }
-
-  // 이벤트: 플레이어가 켜 둔 방의 불을 그것이 꺼 버린다 (가끔, 추격 중이 아닐 때)
-  if (!G.enraged && G.state !== 'chase' && state === 'playing' && !(G.calmT > 0)) {
-    G.swT = (G.swT ?? 40) - dt;
-    if (G.swT <= 0) {
-      G.swT = 50 + Math.random() * 60;
-      const sw = world.props.find(p => p.kind === 'switch' && p.floor === P.floor && p.on && Math.hypot(p.px - P.x, p.pz - P.z) < 7);
-      if (sw && dist < 18 && litAt(P.floor, P.x, P.z)) { flipSwitch(sw, false); at(sw.px, floors[sw.floor].y0 + 1.3, sw.pz).click(); fx.glitch(.25); caption('딸깍 — 누군가 불을 껐다'); setFace('fear', 2); }
-    }
-  }
-  // 목소리: 같은 층에 있으면 거리 · 상태에 따라 킥킥 · 흐느낌 · 속삭임 · 끄는 소리 · 숨소리를 낸다
-  if (G.floor === P.floor && state === 'playing') {
-    G.vocT = (G.vocT ?? 6) - dt;
-    if (G.vocT <= 0) {
-      const chase = G.state === 'chase', y = floors[G.floor].y0 + 1.5, A = at(G.x, y, G.z);
-      if (chase) { G.vocT = 3.5 + Math.random() * 3; (Math.random() < .5 ? A.ghostGiggle() : A.ghostCrack()); }
-      else if (dist < 5) { G.vocT = 5 + Math.random() * 4; A.ghostBreath(); if (P.hiding) caption('바로 앞에서… 숨소리'); }
-      else if (dist < 26) { G.vocT = 8 + Math.random() * 9; const r = Math.random(); r < .3 ? (A.ghostSob(), caption('어디선가 흐느끼는 소리')) : r < .55 ? (A.ghostWhisper(), caption('알아들을 수 없는 속삭임')) : r < .8 ? (A.ghostDrag(), caption('젖은 무언가를 끄는 소리')) : (A.ghostGiggle(), caption('아이의 웃음소리')); }
-      else G.vocT = 6;
-    }
-  }
-  // 발소리
-  G.stepT -= dt * (speed / 1.5);
-  if (G.stepT <= 0) { G.stepT = .55; const pan = ((G.x - P.x) * Math.cos(P.yaw) - (G.z - P.z) * Math.sin(P.yaw)) / Math.max(1, dist); at(G.x, floors[G.floor].y0 + .2, G.z).ghostStep(Math.min(dist, P.sitting ? 1.2 : 6), 0); }
+  tickStoryGhost(ghost, dt);
 }
 
 scene.traverse(o => {
@@ -532,7 +357,7 @@ scene.traverse(o => {
 });
 
 function ghostVisual(dt, t) {
-  const G = ghost; if (!G.active) { G.group.visible = false; G.glow.intensity = 0; return; }
+  const G = ghost; if (!G.active || !(G.storyTime > 0)) { G.group.visible = false; G.glow.intensity = 0; return; }
   G.group.visible = G.floor === P.floor && !(P.floor === 0 && P.z > 1.9 && G.z > 1.8 && false);
   G.group.position.set(G.x, floors[G.floor].y0 + .08 + Math.sin(t * 2) * .05, G.z);
   G.group.rotation.y = G.yaw;
@@ -561,7 +386,7 @@ const LOC = {
 const KEY_WHERE = ['본관 1층 · 교무실 금고', '본관 1층 · 도서실 대출 데스크', '본관 2층 · 과학실 약품장', '체육관 · 기록석 기구함', '수영장 · 배수구'];
 const KEY_HINT = ['비밀번호: 그날의 날짜', '잠긴 서랍 — 머리핀으로 따기', '다이얼 — 칠판 메모', '다이얼 — 전광판 점수', '갈고리 필요 — 대걸레 자루(지하 청소도구실) + 철사(별관 1층 기술·가정실)'];
 function objective() {
-  if (FL.gatePower) return { ch: 6, main: FL.mina ? '민아와 함께 열린 정문으로 달려라' : '열린 정문으로 달려가 탈출하라', loc: LOC.gate, subs: [['정문 전동 개폐기 작동', true], ['그것에게 잡히지 않기', false]] };
+  if (FL.gatePower) return { ch: 6, main: FL.mina ? '민아와 함께 열린 정문으로 나가자' : '열린 정문으로 나가자', loc: LOC.gate, subs: [['정문 전동 개폐기 작동', true], ['정문 밖으로 나가기', false]] };
   const n3 = docs.some(d => d.id === 'n3');
   if (!FL.cam && P.keys === 0) return { ch: 1, main: gateClosed ? '1학년 1반에서 민아의 흔적을 찾아라' : '민아를 찾아 학교 안으로 들어가라', loc: gateClosed ? LOC.cam : LOC.entrance,
     subs: [['학교 안으로 들어가기', introDone], ['1-1 교실 조사하기', FL.cam]] };
@@ -589,7 +414,7 @@ function objective() {
       subs: HEADQUEST.steps.map((x, i) => [x.goal, s > i]) };
   }
   if (!FL.gatekey) return { ch: 5, main: '소지품(Tab)에서 열쇠 머리와 조각 다섯 개를 조합하라', loc: null, subs: [[`열쇠 조각 ${TOTAL}/${TOTAL}`, true], ['열쇠 머리', true], ['정문 열쇠 만들기', false]] };
-  return { ch: 6, main: FL.mina ? '민아와 함께 정문으로 나가라' : '정문으로 달려가 탈출하라', loc: LOC.gate, subs: FL.calm ? [['하늘의 하교 방송', true]] : [['그것에게 잡히지 않기', false]] };
+  return { ch: 6, main: FL.mina ? '민아와 함께 정문으로 나가라' : '정문으로 달려가 탈출하라', loc: LOC.gate, subs: FL.calm ? [['하늘의 하교 방송', true]] : [['정문 밖으로 나가기', false]] };
 }
 function optSteps() { return [FL.tag, power, FL.calm, FL.mina]; }
 function optLoc() { const s = optSteps(), i = s.indexOf(false); return i < 0 ? null : [LOC.tag, LOC.breaker, LOC.console, LOC.mina][i]; }
@@ -901,7 +726,7 @@ function renderPhone() {
     B.innerHTML = `<div class="pTool"><div class="pCard"><small>📍 현재 위치</small><b>${whereText()}</b><span>${o.main}${o.loc ? `<br>목표 위치: ${o.loc.where}` : ''}${d ? `<br><em>${d.text}</em>` : ''}</span></div>
       <button data-t="flash"${cd || pb < 15 ? ' disabled' : ''}>📸 카메라 플래시<small>${cd ? `충전 중 ${cd}초` : '앞에 있는 그것을 잠깐 물러나게 한다 · 배터리 15%'}</small></button>
       <button data-t="radar"${pb < 5 ? ' disabled' : ''}>📡 잡음 탐지<small>그것이 같은 층에 있는지 · 얼마나 가까운지 · 배터리 5%</small></button>
-      <button data-t="save"${ghost.state === 'chase' && ghost.active && ghost.floor === P.floor ? ' disabled' : ''}>💾 빠른 저장<small>F5 — 쫓기는 중에는 저장할 수 없다</small></button>
+      <button data-t="save"${ghost.state === 'chase' && ghost.active && ghost.floor === P.floor ? ' disabled' : ''}>💾 빠른 저장<small>F5 — 현재 진행을 저장합니다</small></button>
       <div class="pNote">휴대폰 배터리는 천천히 충전된다 (보조 배터리 내장)</div></div>`;
     B.querySelectorAll('button[data-t]').forEach(b => { b.onclick = () => phoneTool(b.dataset.t); });
   } else if (phoneTab === 'call') { renderCallTab(B);
@@ -1046,39 +871,22 @@ function updateSound(dt) {
   let a = 'in';
   if (isOutdoors()) a = P.floor === 3 ? 'roof' : 'out'; else if (P.floor === 4) a = 'b1'; else if (P.floor === 5 || P.floor === 6) a = 'hall'; else if (roomAt(P.floor, P.x, P.z)) a = 'room';
   setAmbience(a, dt);
-  const chase = ghost.active && ghost.floor === P.floor && (ghost.state === 'chase' || !!ghost.hunt) && state === 'playing';
-  const gprox = ghost.active && ghost.floor === P.floor ? clamp(1 - Math.hypot(ghost.x - P.x, ghost.z - P.z) / 16, 0, 1) : 0;
+  const chase = false;
+  const gprox = ghost.active && ghost.storyTime > 0 && ghost.floor === P.floor ? clamp(1 - Math.hypot(ghost.x - P.x, ghost.z - P.z) / 16, 0, 1) : 0;
   setMusic(state === 'menu' || state === 'intro' ? 'menu' : chase ? 'chase' : 'none', dt, SET.bgm && (state === 'playing' || state === 'ui' || state === 'trans') ? SET.bgmVol * (1 - gprox * .85) : state === 'dead' || state === 'won' ? .35 : 0);
   const lvl = P.hiding ? .8 : P.tired ? 1 : Math.max(P.fear > .45 ? P.fear * .8 : 0, P.stamina < 45 ? (45 - P.stamina) / 45 * .8 : 0);
   setBreath(state === 'playing' ? lvl : 0, P.tired || P.sprinting ? 1.1 : P.hiding ? .4 : .55, dt);
-  if (ghost.active && ghost.floor === P.floor && state === 'playing') setGhostVoice({ x: ghost.x, y: floors[ghost.floor].y0 + 1.7, z: ghost.z }, 1, chase, dt);
+  if (ghost.active && ghost.storyTime > 0 && ghost.floor === P.floor && state === 'playing') setGhostVoice({ x: ghost.x, y: floors[ghost.floor].y0 + 1.7, z: ghost.z }, 1, chase, dt);
   else setGhostVoice(null, 0, false, dt);
 }
 // 본관 안 또는 본관-별관 연결 통로(지붕 · 유리벽이 있는 실내 통로) 안
 const inBldg = (x, z) => (z < MAIN_ZS - .3 && z > -9.9 && Math.abs(x) < 36.3) || (x > WALKWAY.x1 && x < WALKWAY.x2 && z > WALKWAY.z1 && z < WALKWAY.z2);
 function isOutdoors() { return state === 'menu' || state === 'intro' || P.floor === 3 || (P.floor === 0 && !inBldg(P.x, P.z)); }
 function hit() {
-  if (TEST && TST.god) return;
-  if (P.invuln > 0 || state !== 'playing') return;
-  const G = ghost;
-  if (inv.charm > 0) {   // 노란 부적이 대신 타오른다
-    inv.charm--; P.invuln = 4; shake = .8; fx.glitch(.9); sfx.spark ? sfx.spark() : sfx.buzz(); sfx.ghostCrack && sfx.ghostCrack(); setFace('surprise', 2);
-    toast('부적이 타올랐다', `그것이 비명을 지르며 물러났다 · 남은 부적 ${inv.charm}장`, 'opt'); caption('손끝의 부적이 한순간에 재가 되었다');
-    if (!G.enraged) ghostLeave(); else { G.state = 'search'; G.hunt = null; G.spawnGrace = 3; G.target = { x: G.x, z: G.z }; G.path = []; G.slowT = 4; }
-    refreshHud(); return;
-  }
-  P.hp -= DF().dmg; P.invuln = 5; shake = 1; hurtFx = 1; fx.glitch(.8); setFace('surprise', 2.6);
-  sfx.screech();
-  const h = $('hurt'); h.style.transition = 'none'; h.style.opacity = 1; requestAnimationFrame(() => { h.style.transition = 'opacity 1.4s'; h.style.opacity = 0; });
-  if (P.hp <= 0) { P.hp = 0; die(); return; }
-  if (P.hiding) leaveLocker(true);
-  G.hunt = null; G.state = 'search'; G.spawnGrace = 3.5; G.path = []; G.replan = 0;
-  const F = floors[G.floor]; let far = F.nodes[0];
-  F.nodes.forEach(n => { if (Math.hypot(n.x - P.x, n.z - P.z) > Math.hypot(far.x - P.x, far.z - P.z)) far = n; });
-  G.target = { x: far.x, z: far.z }; G.wait = 0; if (!G.enraged) { G.visitT = Math.max(G.visitT || 0, DF().visit - 6); G.calmT = Math.max(G.calmT || 0, 12); }
-  toast('공격당했습니다', '체력이 낮습니다. 응급 밴드가 필요합니다.', 'warn'); talk('hit', 2600);
-  refreshHud();
+  // Compatibility for legacy event/debug callers: ghosts never deal damage.
+  settleStoryGhost(ghost);
 }
+
 function showNote(it) {
   storyCalm(25);
   state = 'note';
@@ -1224,16 +1032,16 @@ function readNote(it) {
 }
 function activateGhost() {
   if (ghost.active || (TEST && TST.noGhost)) return;
-  // 처음 깨어난 뒤에도 바로 오지 않는다: 난이도별 유예(보통 2분) 동안 먼 층에서 소리로만 존재를 알린다
-  ghost.active = true; ghost.floor = P.floor === 2 ? 1 : 2; ghost.x = 20; ghost.z = 0; ghost.state = 'patrol'; ghost.path = []; ghost.wait = 2; ghost.away = -DF().first; ghost.visitT = 0;
-  sfx.bang(0, .9); setTimeout(() => talk('wake', 3500), 900);
+  showStoryGhost(ghost, P, floors, 8);
+  caption('복도 끝에 남겨진 기억이 잠시 모습을 드러낸다');
 }
 function enrage() {
-  if (TEST && TST.noGhost) { blackout = 2; toast('테스트', '유령이 꺼져 있어 최종 추격은 생략됩니다.', 'info'); return; }
-  ghost.active = true; ghost.enraged = true; blackout = 3.2;
-  setTimeout(() => { ghostRelocate(); ghost.floor = P.floor; sfx.screech(); toast('목표가 갱신되었습니다', '정문으로 달려가라!', 'warn'); talk('enrage', 4000); }, 2600);
+  if (TEST && TST.noGhost) return;
+  showStoryGhost(ghost, P, floors, 8);
+  caption('그날의 그림자가 길을 비킨다. 이제 정문으로 돌아가자');
   setTimeout(() => phoneMessage(3), 16000);
 }
+
 const STAIRS = { 0: { up: 1, down: 4 }, 1: { up: 2, down: 0 }, 2: { up: 3, down: 1 }, 3: { down: 2 }, 4: { up: 0 }, 8: { up: 9 }, 9: { up: 10, down: 8 }, 10: { down: 9 } };
 function teleport(to) {
   if (state !== 'playing') return;
@@ -1576,7 +1384,6 @@ function enterLocker(l) {
   const dr = l.dir || { x: 0, z: 1 }; l.yaw = Math.atan2(-dr.x, -dr.z);
   P.x = l.x + dr.x * .12; P.z = l.z + dr.z * .12; P.yaw = l.yaw; P.pitch = 0;
   $('hide').classList.add('show');
-  if (G.active && G.floor === P.floor && (G.state === 'chase') && Math.hypot(G.x - P.x, G.z - P.z) < 9 && los(floors[P.floor].walls, G.x, G.z, P.x, P.z)) G.hunt = { x: l.x + dr.x * .6, z: l.z + dr.z * .6 };
   say('숨을 죽여라…  (E 나가기)', 2500);
 }
 function leaveLocker(silent) {
@@ -1590,16 +1397,11 @@ function leaveLocker(silent) {
 function die() {
   if (state === 'dead' || state === 'won') return;
   state = 'dead';
-  const G = ghost;
-  G.floor = P.floor; G.state = 'chase';
-  const fx = -Math.sin(P.yaw), fz = -Math.cos(P.yaw);
-  G.x = P.x + fx * .95; G.z = P.z + fz * .95; G.yaw = Math.atan2(-fx, -fz);
-  G.group.visible = true; G.arms.forEach(a => a.rotation.x = -1.5);
+  settleStoryGhost(ghost); ghost.storyTime = 0; ghost.group.visible = false;
   if (P.hiding) { P.hiding = null; $('hide').classList.remove('show'); }
   sfx.screech(); shake = 1.2;
   const fl = $('flash'); fl.style.transition = 'none'; fl.style.opacity = SET.flashReduce ? .25 : .9; requestAnimationFrame(() => { fl.style.transition = 'opacity 1.2s'; fl.style.opacity = 0; });
   $('prompt').style.display = 'none';
-  if (SET.jump === 'full') { const j = $('jump'); j.classList.remove('show'); void j.offsetWidth; j.classList.add('show'); }
   deaths++; try { localStorage.setItem('haegyo_deaths', deaths); } catch (e) { /* ignore */ }
   $('deadText').innerHTML = `칠판에 한 줄이 더 늘었다.<br>“다시, 여기서.”<br><br><span class="epi">${DEATH_LOG[Math.min(DEATH_LOG.length, deaths) - 1]}</span>`;
   setTimeout(() => { $('hud').classList.remove('show'); $('dead').classList.add('show'); $('retryBtn').disabled = !hasSave(); document.exitPointerLock?.(); setTimeout(() => line('endBad'), 700); }, 1900);
@@ -1756,6 +1558,7 @@ function load(preferBackup) {
   });
   if (d.progress.gateClosed) { gateClosed = true; gateState = 'closed'; gateAnim = 1; gate.setOpen(0); }
   if (d.ghost && d.ghost.active && !FL.calm) Object.assign(ghost, { active: true, enraged: !!d.ghost.enraged, floor: d.ghost.floor, x: d.ghost.x, z: d.ghost.z, state: 'patrol', path: [], wait: 2, spawnGrace: 4 });
+  settleStoryGhost(ghost); ghost.storyTime = 0;
   lastSave = d.meta;
   sqSync(true); patchRestore(); chapterShown = objective().ch; refreshHud();
   toast(r.source === 'backup' ? '백업 세이브에서 불러왔습니다' : r.source === 'legacy' ? '이전 버전 세이브를 변환했습니다' : '불러오기 완료', `${CHAPTERS[chapterShown - 1].title} · ${d.meta.where || ''}`, r.source === 'main' ? 'info' : 'warn');
@@ -2197,8 +2000,7 @@ function updateCamera(dt, t) {
   let yaw = P.yaw, pitch = P.pitch;
   if (shake > 0) { shake = Math.max(0, shake - dt * 1.4); const k = SET.shake ? .05 : .008; yaw += (Math.random() - .5) * k * shake; pitch += (Math.random() - .5) * k * shake; }
   const G = ghost; let prox = 0, chase = false;
-  if (G.active && G.floor === P.floor) { prox = clamp(1 - Math.hypot(G.x - P.x, G.z - P.z) / 14, 0, 1); chase = G.state === 'chase' || !!G.hunt; }
-  if (state === 'dead') { const dx = G.x - P.x, dz = G.z - P.z; yaw = Math.atan2(-dx, -dz); pitch = .1; }
+  if (G.active && G.storyTime > 0 && G.floor === P.floor) prox = clamp(1 - Math.hypot(G.x - P.x, G.z - P.z) / 14, 0, 1);
   camera.rotation.set(pitch, yaw, 0, 'YXZ');
   applyThirdPerson(dt, yaw, pitch);
   const fov = SET.fov + (P.sprinting ? 6 : 0) + (chase ? 4 : 0) + (state === 'dead' ? -10 : 0) - repelK * 8;
@@ -3202,7 +3004,7 @@ function updateEvents2(dt) {
 const PSY = { followCD: 75, follow: 0, shadowCD: 55, nameCD: 100, boards: 0, visits: {} };
 function psych(f, room, step) {
   if (state !== 'playing' || !introDone) return;
-  const chase = ghost.active && ghost.floor === f && (ghost.state === 'chase' || ghost.hunt);
+  const chase = false;
   // 불안도: 그것과의 거리 + 그것이 깨어났는지 + 어둠 (밝은 방에서는 덜하다)
   const fear = (P.fear || 0) + (ghost.active ? .15 : 0) + (P.light ? 0 : .15) - (litAt(f, P.x, P.z) ? .15 : 0);
   // 다시 들어온 교실: 칠판 글씨가 바뀌어 있다 (두 번까지)
@@ -3330,7 +3132,7 @@ const TIPS = [
   { id: 'interact', when: () => !!target && target.type !== 'stairs', text: '<kbd>E</kbd> 조사 — 쪽지 · 문 · 사물함 · 장치' },
   { id: 'map', when: () => gateClosed && playTime > 20, text: '<kbd>M</kbd> 지도(★ 현재 목표) · <kbd>Tab</kbd> 소지품 · <kbd>P</kbd> 휴대폰' },
   { id: 'hide', when: () => world.lockers.some(l => l.floor === P.floor && Math.hypot(l.x - P.x, l.z - P.z) < 2.6), text: '사물함에 <kbd>E</kbd> 로 숨으면 그것의 시선을 피할 수 있다 · 안에서 <kbd>Space</kbd> 숨 참기' },
-  { id: 'ghost', when: () => ghost.active, text: '그것은 <b>소리</b>를 듣고 <b>빛</b>을 본다 — 달리면 들킨다. 손전등을 똑바로 비추면 잠시 물러난다' },
+  { id: 'ghost', when: () => ghost.active, text: '유령은 남겨진 기억을 전한다 — 다가가거나 손전등으로 비추어 이야기를 들어 보자' },
   { id: 'safe', when: () => !!safeRoomAt(), text: '<b>안전 구역</b> — 그것이 들어오지 않는다. 들어오면 자동 저장된다' },
   { id: 'can', when: () => inv.can > 0, text: '<kbd>G</kbd> 빈 캔 던지기 — 떨어진 곳의 소리로 그것을 유인' },
   { id: 'combine', when: () => P.keys >= TOTAL || (FL.mop && FL.wire), text: '<kbd>Tab</kbd> 소지품 › 아이템 선택 › <kbd>C</kbd> 조합 › 상대 아이템 선택' },
@@ -3896,12 +3698,12 @@ function toiletTissue(f, r) {
       const i = await choose('3번 칸', '닫힌 칸 안에서 아이 목소리가 묻는다.<br><i>“빨간 휴지 줄까, 파란 휴지 줄까?”</i>', [{ label: '빨간 휴지', sub: '…' }, { label: '파란 휴지', sub: '…' }, { label: '아무 대답도 하지 않는다', sub: '숨을 죽이고 기다린다' }]);
       FL.redblue = i + 1;
       if (i === 0) {
-        sfx.stinger(1); sfx.screech(); shake = .9; fx.glitch(1); vig('bloodVig', 2600); setFace('surprise', 3); P.hp = Math.max(5, P.hp - 15);
+        sfx.stinger(1); sfx.screech(); shake = .9; fx.glitch(1); vig('bloodVig', 2600); setFace('surprise', 3);
         caption('“빨간 휴지를 줄게.” — 칸막이 아래로 붉은 물이 번져 나온다');
         _poolTex ||= makeBlood('pool'); const q = tPos(r, r.cx - 3.85 + 2.75, -7.5); const m = new THREE.Mesh(new THREE.PlaneGeometry(1.3, 1.3), new THREE.MeshStandardMaterial({ map: _poolTex, transparent: true, depthWrite: false, roughness: .08, polygonOffset: true, polygonOffsetFactor: -4 })); m.rotation.x = -Math.PI / 2; m.position.set(q.x, .016, q.z); addTmp(f, m, 60, 3, 6);
       } else if (i === 1) {
-        sfx.ghostBreath(); sfx.stinger(.6); fx.glitch(.5); vig('frostVig', 4200); P.stamina = 0; P.tired = true; setFace('fear', 3);
-        caption('“파란 휴지를 줄게.” — 목이 조여 오듯 숨이 막힌다. 온몸이 얼어붙는다');
+        sfx.ghostBreath(); sfx.stinger(.6); fx.glitch(.5); vig('frostVig', 4200); setFace('fear', 3);
+        caption('“파란 휴지를 줄게.” — 차가운 기억이 스쳐 지나간다');
       } else {
         sfx.heartbeat(1); setTimeout(() => { if (d) d.target = 1; at(p.x, F.y0 + 1.2, p.z).stallCreak(); caption('…한참 뒤, 3번 칸 문이 스르르 열린다. 아무도 없다. 변기 뚜껑 위에 노란 종이 한 장'); }, 2600);
         setTimeout(() => { giveItem('charm', 1, true); sfx.pickup(); lootCard(ITEMS.charm.icon, '대답하지 않은 대가', ITEMS.charm.name, '“대답하지 않는 아이는 데려가지 않아.” — 칸 안쪽 벽에 연필로 적혀 있다.'); calmDown(30); refreshHud(); }, 5200);
@@ -3931,7 +3733,7 @@ async function micStart() {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } });
     const ctx = new (window.AudioContext || window.webkitAudioContext)(); ctx.resume?.(); const src = ctx.createMediaStreamSource(stream); const an = ctx.createAnalyser(); an.fftSize = 1024; src.connect(an);
     Object.assign(MIC, { on: true, stream, ctx, an, buf: new Float32Array(an.fftSize), wave: new Float32Array(48) });
-    $('micMeter').classList.add('on'); toast('마이크 감지 켜짐', '숨거나 그것이 가까울 때 큰 소리를 내면 들킨다', 'warn'); return true;
+    $('micMeter').classList.add('on'); toast('마이크 감지 켜짐', '주변 소리를 파형으로 표시합니다', 'info'); return true;
   } catch (e) { SET.mic = false; saveSET(); $('setMic') && ($('setMic').checked = false); toast('마이크를 쓸 수 없습니다', '권한이 거부되었거나 마이크가 없습니다 — 기능을 껐습니다', 'warn'); return false; }
 }
 function micStop() { if (MIC.stream) MIC.stream.getTracks().forEach(t => t.stop()); if (MIC.ctx) MIC.ctx.close().catch(() => {}); Object.assign(MIC, { on: false, level: 0, risk: 0, an: null, stream: null, ctx: null }); $('micMeter').classList.remove('on'); }
@@ -3941,17 +3743,7 @@ function micTick(dt) {
   const rms = Math.sqrt(s / MIC.buf.length), lv = clamp((Math.log10(Math.max(rms, 1e-5)) + 2.6) / 1.9, 0, 1);   // -52dB → 0 · -13dB → 1
   MIC.level = Math.max(lv, MIC.level - dt * 1.6);
   MIC.wave.copyWithin(0, 1); MIC.wave[MIC.wave.length - 1] = lv;
-  const G = ghost, near = G.active && G.floor === P.floor && Math.hypot(G.x - P.x, G.z - P.z) < 10, TH = .42;
-  if (state === 'playing' && (P.hiding || near) && MIC.level > TH && !schoolPower.isChimeActive) MIC.risk = Math.min(1, MIC.risk + dt * (1.2 + 4 * (MIC.level - TH)));
-  else MIC.risk = Math.max(0, MIC.risk - dt * .25);
-  if (MIC.risk >= 1) {
-    MIC.risk = .3;
-    if (G.active && G.floor === P.floor && !G.enraged) {
-      if (P.hiding) { const l = P.hiding, dr = l.dir || { x: 0, z: 1 }; G.hunt = { x: l.x + dr.x * .6, z: l.z + dr.z * .6 }; caption('소리를 들었다 — 사물함 쪽으로 곧장 온다'); }
-      else { G.state = 'chase'; G.target = { x: P.x, z: P.z }; G.lose = 0; G.path = []; G.replan = 0; caption('네 목소리를 들었다'); }
-      sfx.alert(); fx.glitch(.5); shake = .4;
-    }
-  }
+  const TH = .42; MIC.risk = 0;
   // 미터: 파형 + 볼륨 · 위험
   const c = $('micCv'), g = c.getContext('2d'); g.clearRect(0, 0, c.width, c.height);
   g.strokeStyle = MIC.level > TH ? '#ff5a4a' : '#8fd0a0'; g.lineWidth = 2; g.beginPath();
@@ -4206,43 +3998,6 @@ function useSink(p) { p.sinkObj.onInteract(PS, notify, (pos, radius) => lureTo(p
 function useFlush(p) {
   at(p.x, floors[p.floor].y0 + .5, p.z).flush(); P.noiseT = 2.5; shake = .15;
   const lured = lureTo(p.floor, p, 22); caption(lured ? '쏴아 — 요란한 물소리에 발소리가 이쪽으로 방향을 튼다' : '쏴아 — 물 내려가는 소리가 화장실을 울린다');
-}
-
-// ── 6. 그것: 사물함 수색 · 페이크 퇴장 ──
-function lockerSearchStart(G) {
-  if (!P.hiding || G.lockSearch || G.hunt) return;
-  const t = G.target || { x: G.x, z: G.z }, ls = world.lockers.filter(l => l.floor === G.floor && Math.hypot(l.x - t.x, l.z - t.z) < 7);
-  if (ls.length < 2 && (P.hideCount || 0) < 3) return;
-  ls.sort((a, b) => Math.hypot(a.x - G.x, a.z - G.z) - Math.hypot(b.x - G.x, b.z - G.z));
-  G.lockSearch = { list: ls.slice(0, 5), i: 0, t: 0 }; if (!ls.includes(P.hiding) && Math.hypot(P.hiding.x - t.x, P.hiding.z - t.z) < 10) G.lockSearch.list.push(P.hiding);
-  if (G.floor === P.floor) caption('사물함 문이 하나씩 거칠게 열린다…');
-}
-function lockerSearchTick(G, dt, F) {
-  const S = G.lockSearch; if (!S || G.hunt) return false;
-  const l = S.list[S.i]; if (!l) { G.lockSearch = null; G.state = 'patrol'; G.path = []; G.wait = 1; return false; }
-  const dr = l.dir || { x: 0, z: 1 }, fx2 = l.x + dr.x * .8, fz2 = l.z + dr.z * .8;
-  if (Math.hypot(G.x - fx2, G.z - fz2) > .5) { if (G.replan <= 0 || !G.path.length) { G.path = findPath(F, G.x, G.z, fx2, fz2); G.replan = .4; } followPath(2.2, dt); return true; }
-  S.t += dt;
-  if (S.t < dt * 1.5) { const st = steelNear(G.floor, l.x, l.z, .6); if (st) { if (l === P.hiding) { st.data.targetRotationY = -.16; setTimeout(() => { if (st.data.isPlayerInside) st.data.targetRotationY = -.04; }, 260); } else { st.data.toggleDoor(true); setTimeout(() => st.data.toggleDoor(false), 1150); } }
-    const A = at(l.x, F.y0 + 1, l.z); if (l === P.hiding) { A.locker(); sfx.heartbeat(1.3); caption('바로 앞 사물함 손잡이가 덜컹거린다'); } else { A.locker(); A.doorBang(0, .8); } }
-  if (l === P.hiding) return S.t < 4 ? true : (S.i++, S.t = 0, true);   // 숨은 사물함 앞에서는 오래 머문다 (기존 발각 판정이 진행)
-  if (S.t > 1.3) { S.i++; S.t = 0; }
-  return true;
-}
-// 페이크 퇴장: 숨은 사물함 앞에서 멀어지는 척하다가 25% 확률로 3초 뒤 되돌아와 틈새를 들여다본다 — 즉시 숨을 참지 않으면 들킨다
-function fakeTick(G, dt, F) {
-  const l = P.hiding; if (!l || G.hunt || G.enraged) { G.fake = null; G.nearLock = false; return false; }
-  const d = Math.hypot(l.x - G.x, l.z - G.z);
-  if (d < 2.6) G.nearLock = true;
-  else if (G.nearLock && d > 3.5 && !G.fake) { G.nearLock = false; if (Math.random() < .25) G.fake = { t: 3, phase: 'away' }; }
-  const K = G.fake; if (!K) return false;
-  if (K.phase === 'away') { K.t -= dt; if (K.t <= 0) { K.phase = 'rush'; G.path = []; G.replan = 0; } return false; }
-  const dr = l.dir || { x: 0, z: 1 }, fx2 = l.x + dr.x * .7, fz2 = l.z + dr.z * .7;
-  if (K.phase === 'rush') { if (Math.hypot(G.x - fx2, G.z - fz2) > .4) { if (G.replan <= 0 || !G.path.length) { G.path = findPath(F, G.x, G.z, fx2, fz2); G.replan = .3; } followPath(5.5, dt); return true; }
-    K.phase = 'peek'; K.t = 0; $('peekEye').classList.add('on'); sfx.stinger(.7); at(fx2, F.y0 + 1.5, fz2).ghostBreath(); shake = .3; caption('틈새로 — 눈이 마주쳤다'); return true; }
-  K.t += dt; if (K.t > .9 && !P.holdBreath) { $('peekEye').classList.remove('on'); G.fake = null; G.hunt = { x: fx2, z: fz2 }; return false; }
-  if (K.t > 2.6) { $('peekEye').classList.remove('on'); G.fake = null; G.state = 'patrol'; G.path = []; G.wait = 2; at(G.x, F.y0 + 1.5, G.z).ghostLaugh(); caption('…킥킥거리며 멀어진다'); }
-  return true;
 }
 
 /* ───────── 7 ~ 9. 사용자 제공 패치 3종 연결 ─────────
@@ -5349,18 +5104,18 @@ function sgSpawn(z, pos) {
   glow.scale.set(1.6, 2.4, 1); glow.position.set(0, 1.1, 0); g.root.add(glow);
   let v = .45; g.ghostLight = { get intensity() { return v; }, set intensity(x) { v = x; glow.material.opacity = x / .45 * .35; } };
   g.root.traverse(o => { o.userData.dynamic = true; });
-  if (z.anim && z.anim !== 'idle') g.setAnimationPose(z.anim);
+  g.setAnimationPose('idle');
   g.f = z.f; g.zone = z; SG.list.push(g); sg3dAttach(g); return g;
 }
 // 이야기 장(章)마다 정해진 유령만 나온다 — 한꺼번에 1~3명 · 장이 지나면 조용히 사라지고, 마지막 장(제6장)이 끝나면 아무도 남지 않는다
-// 공격하는 유령은 계단 유령 하나뿐 (기어 와서 근접 연출 · 공포 +22). 나머지 7명은 공격하지 않는다: 다가가거나 비추면 울며 한마디 남기고 사라진다
+// 모든 구역 유령은 이야기 증언자다: 다가가거나 비추면 한마디를 남기고 사라진다.
 function sgSpawnZones() {
   if (!SG.ready || !SG.sheet || state !== 'playing') return;
   const now = performance.now(); if (now - (SG.chkT || 0) < 1000) return; SG.chkT = now;   // 1초마다
   FL.sgSeen ||= {}; const ch = objective().ch, end = state === 'win';
   SG_ZONES.forEach(z => {
     const on = !end && ch >= z.ch[0] && ch <= z.ch[1], g = SG.list.find(q => q.zone && q.zone.id === z.id && !q.test);
-    if (on && !g && !FL.sgSeen[z.id]) { const n = sgSpawn(z); if (n && !z.aggro) { n.passive = true; n.isTriggered = true; } }
+    if (on && !g && !FL.sgSeen[z.id]) { const n = sgSpawn(z); if (n) { n.passive = true; n.isTriggered = true; n.behavior = 'haunt'; n.setAnimationPose('idle'); } }
     else if (!on && g && g.behavior !== 'fading_out') g.behavior = 'fading_out';   // 장이 지나면 사라진다
   });
 }
@@ -5387,14 +5142,12 @@ function sgTick(dt) {
   if (!SG.list.length) return;
   const cl = document.getElementById('patch-subghost-closeup'); if (cl) cl.style.display = SET.jump === 'full' ? '' : 'none';   // 점프 스케어 '약하게': 클로즈업 이미지 없이
   const y0 = floors[P.floor].y0, fx0 = -Math.sin(P.yaw) * Math.cos(P.pitch), fz0 = -Math.cos(P.yaw) * Math.cos(P.pitch);
-  // 손전등을 똑바로 비춘 유령: 같은 층 · 9m 안 · 시선 12° 안 · 벽에 가리지 않음 → 비명 + 손 뻗기 → 근접 연출
+  // Looking at a witness reveals their testimony; no lunge or attack pose.
   if (P.light && P.battery > 0 && state === 'playing') SG.list.forEach(g => {
-    if ((g.isTriggered && !g.passive) || g.met || g.test || g.f !== P.floor) return; const dx = g.root.position.x - P.x, dz = g.root.position.z - P.z, d = Math.hypot(dx, dz);
-    if (d > 9 || d < .5 || (dx * fx0 + dz * fz0) / d < .978 || !los(floors[P.floor].walls, P.x, P.z, g.root.position.x, g.root.position.z)) return;
-    if (g.passive) { sgPassiveMeet(g); return; }
-    if (!g.litT) { g.litT = .01; g.setExpression(Math.random() < .5 ? 'scream' : 'creepy'); g.setAnimationPose('attack'); }
+    if (g.met || g.test || g.f !== P.floor) return;
+    const dx=g.root.position.x-P.x, dz=g.root.position.z-P.z, d=Math.hypot(dx,dz);
+    if(d>.5 && d<9 && (dx*fx0+dz*fz0)/d>.978 && los(floors[P.floor].walls,P.x,P.z,g.root.position.x,g.root.position.z)) sgPassiveMeet(g);
   });
-  SG.list.forEach(g => { if (g.litT && !g.isTriggered && (g.litT += dt) > .6) { FL.sgSeen[g.zone.id] = true; sgP.triggerCloseUpEncounter(g, m => say(m, 3000), sgSub(g)); } });
   SG.list.forEach(g => { if (g.passive && !g.met && g.f === P.floor && Math.hypot(g.root.position.x - P.x, g.root.position.z - P.z) < 3) sgPassiveMeet(g); });
   // 다른 층 유령은 멀리 둔 것처럼 (클래스는 3D 거리로 판정한다 — 층마다 y0 가 달라 위아래 층은 저절로 멀다)
   const before = new Set(SG.list.filter(g => g.isTriggered));
@@ -5569,7 +5322,7 @@ const infirmaryExtraSlots = [], infirmaryCabinetViews = []; for (const room of S
   if (/밸브/.test(t)) { const A = at(p.x, F.y0 + 1.2, p.z); A.pipeKnock ? A.pipeKnock() : A.thump(); shake = Math.max(shake, .25); caption('배관이 쿵쿵 울린다'); fzLure(pos, 18); return; }
   if (/수색|뒤지기|탐색|파밍|약품장/.test(t)) {
     if (p.done) return;
-    if (p.floor === 4) { const r = await mini('maze', { title: `${p.room} — 어둠 속 선반 사이`, item: '물건' }); if (!r.ok) { P.hp = Math.max(5, P.hp - 12); P.fear = Math.min(1, P.fear + .2); sfx.stinger(.5); shake = Math.max(shake, .4); say('어둠 속에서 무언가에 붙잡혔다 — 겨우 뿌리쳤다', 2600); refreshHud(); return; } }   // B1: 손전등 미로
+    if (p.floor === 4) { const r = await mini('maze', { title: `${p.room} — 어둠 속 선반 사이`, item: '물건' }); if (!r.ok) {  P.fear = Math.min(1, P.fear + .2); sfx.stinger(.5); shake = Math.max(shake, .4); say('어둠 속에서 길을 놓쳤다 — 다시 방향을 살펴보자', 2600); refreshHud(); return; } }   // B1: 손전등 미로
     p.done = true; syncInfirmaryCabinets(); FL.s37 ||= {}; FL.s37[p.uid] = 1;
     const loot = ['battery', 'candy', 'medkit', 'matches', 'salt', 'thermos'][Math.floor(Math.random() * 6)];
     giveItem(loot, 1, true); sfx.pickup(); lootCard(loot, '수색', ITEMS[loot].name, `${p.room}에서 찾았다`); refreshHud(); return;
@@ -5937,7 +5690,7 @@ function renderTest() {
   ac.appendChild(b('전화 걸려 오기 (테스트)', false, () => testAct(() => { CALL.ring = null; callRing({ id: 'test' + Date.now(), who: '발신번호 표시제한', lines: ['call_unk1'] }); })));
   ac.appendChild(b('도구 모두 지급', false, () => testAct(() => { inv.hairpin = 5; inv.can = 5; FL.fuse = true; FL.hook = true; refreshHud(); toast('테스트', '머리핀 5 · 빈 캔 5 · 퓨즈 · 갈고리', 'info'); })));
   ac.appendChild(b(`시점: ${view === 3 ? '3인칭' : '1인칭'}`, view === 3, () => { toggleView(); renderTest(); }));
-  ac.appendChild(b('최종 추격 시작', false, () => testAct(() => enrage())));
+  ac.appendChild(b('마지막 기억 연출', false, () => testAct(() => enrage())));
   ac.appendChild(b('보급품 채우기', false, () => testAct(() => { P.hp = 100; P.battery = 100; P.stamina = 100; inv.battery = 5; inv.medkit = 5; refreshHud(); toast('테스트', 'HP·배터리·건전지·응급 밴드 보충', 'info'); })));
   ac.appendChild(b('모든 문 열기', false, () => testAct(() => world.doorList.forEach(d => { d.target = 1; }))));
   ac.appendChild(b('전력 복구', false, () => testAct(() => { power = true; world.props.forEach(p => { if (p.kind === 'breaker') { p.on = true; p.done = true; } }); toast('테스트', '전력 복구', 'info'); })));
@@ -5967,8 +5720,8 @@ if (DEBUG) {
     get state() { return state; }, set state(v) { state = v; }, get tNow() { return tNow; }, openTest, EV, appar, applyQuality,
     interact, findInteract, hit, die, activateGhost, enrage, FL, MG, throwCan, throws, set playTime(v) { playTime = v; }, toggleView, get view() { return view; }, useProp, docs, msgs, clues, objective, makeGateKey, openInv, openPhone, openMap, openCharsel, openSettings, refreshHud, save, load, inv, mina,
     get power() { return power; }, set power(v) { power = v; }, get CHAR() { return CHAR; }, newGame, continueGame,
-    setTarget(t) { target = t; }, DAY, GEN, SIDEQUESTS, sqStep, sqDoneCount, useSideQuest, HEADQUEST, useHead, COLLECT, paraEvent, toiletFx, tmpFx, TE, roomAt, camMode, camShoot, CAM, MIC, SAN, BRK, setBreaker, schoolPower, craftingSystem, ghostCam, restroom, useSink, useFlush, placeAlarm, throwShock, useFirstAid, tryCombine, stunGhost, lockerSearchStart, enterLocker, leaveLocker, startSearch, useMiniSpot, openChalk, chalkAsk, XT,
-    ELV, elvPress, elvTick, SG, sgTestSpawn, sgSpawn, SG_ZONES, PL, CALL, SIT, ZOOM, SHOT, closeUI, TP, whereText, FLOOR_LABEL, S37,
+    setTarget(t) { target = t; }, DAY, GEN, SIDEQUESTS, sqStep, sqDoneCount, useSideQuest, HEADQUEST, useHead, COLLECT, paraEvent, toiletFx, tmpFx, TE, roomAt, camMode, camShoot, CAM, MIC, SAN, BRK, setBreaker, schoolPower, craftingSystem, ghostCam, restroom, useSink, useFlush, placeAlarm, throwShock, useFirstAid, tryCombine, stunGhost, enterLocker, leaveLocker, startSearch, useMiniSpot, openChalk, chalkAsk, XT,
+    ghostTick, enrage, activateGhost, ELV, elvPress, elvTick, SG, sgTestSpawn, sgSpawn, SG_ZONES, PL, CALL, SIT, ZOOM, SHOT, closeUI, TP, whereText, FLOOR_LABEL, S37,
     get target() { return target; },
   };
 }

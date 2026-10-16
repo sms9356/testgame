@@ -1,5 +1,5 @@
 // 미니맵 / 전체 지도 렌더러
-import { SLOTS, LAYOUT, GATE_Z, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z } from './world.js';
+import { SLOTS, LAYOUT, GATE_Z, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, ANNEX_DZ, MEGA } from './world.js';
 
 const COL = { tech: '#3a4a3a', fusion: '#2c3f55', lang: '#2c3f4a', smart: '#2c3a55', club: '#3a4a2c', cooking: '#3a4a4a', craft: '#4a3f2f', broadcast: '#4a2a2a', boiler: '#4a3a2a', electric: '#4a4a2a', storage: '#3a3a30', records: '#3a4030', cleaning: '#2f3f4a', generator: '#4a2f2f', pump: '#2a3f4a', exit: '#5a2a2a', class: '#27384a', office: '#4a3a28', nurse: '#2f4a46', counsel: '#3f3a4f', library: '#3a4a2c', lab: '#2c4a3a', computer: '#2c3f55', music: '#4a2f3a', art: '#4a432c', toilet: '#38334d', stair: '#5a5a58' };
 
@@ -18,11 +18,17 @@ export function drawMap(ctx, W, H, o) {
     fillRect(-14, 17.1, -8, 20.1, '#6a6a60'); fillRect(5, 13.4, 22, 16.6, '#5a5a54'); fillRect(29, 38.5, 43, 53.5, 'rgba(120,60,50,.5)');   // 조회대 · 스탠드 · 농구장
     fillRect(-3, 2, 3, 69, 'rgba(120,120,110,.4)');
     fillRect(28, 12.5, 48, 34.5, '#3a2a2a'); fillRect(-48, 12.5, -30, 25, '#3a3030'); fillRect(-48, 31, -34, 51, '#2a3a46'); fillRect(19.15, 62.8, 24.35, 67.2, '#4a4a40');   // 체육관 · 급식실 · 수영장 · 경비실 (외관 실제 위치)
+    fillRect(-20, -25 - ANNEX_DZ, 20, -13.5 - ANNEX_DZ, '#3a4248');
+    strokeRect(-20, -25 - ANNEX_DZ, 20, -13.5 - ANNEX_DZ, '#8a8a80', 1.5);
+    [MEGA.gym, MEGA.court].forEach((r, i) => {
+      fillRect(r.x - r.w / 2, r.z - r.d / 2, r.x + r.w / 2, r.z + r.d / 2, i ? '#354a36' : '#4a3a28');
+      strokeRect(r.x - r.w / 2, r.z - r.d / 2, r.x + r.w / 2, r.z + r.d / 2, '#8a8a80', 1.5);
+    });
     strokeRect(-50, NORTH_Z, 50, 70, '#6a6a60', 1.5);
     fillRect(-4, GATE_Z - .6, 4, GATE_Z + .6, '#8a4a30');
     if (labels) {
       ctx.fillStyle = '#b8b4a4'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
-      ctx.fillText('운동장', X(0), Y(36)); ctx.fillText('조회대', X(-11), Y(16.4)); ctx.fillText('스탠드', X(13.5), Y(12.6)); ctx.fillText('농구장', X(36), Y(46)); ctx.fillText('체육관', X(38), Y(23.5)); ctx.fillText('급식실', X(-39), Y(19)); ctx.fillText('수영장', X(-41), Y(41)); ctx.fillText('경비실', X(21.75), Y(65)); ctx.fillText('별관', X(0), Y(-19)); ctx.fillText('서문', X(-47), Y(32)); ctx.fillText('정문', X(0), Y(GATE_Z) - 8);
+      ctx.fillText('운동장', X(0), Y(36)); ctx.fillText('조회대', X(-11), Y(16.4)); ctx.fillText('스탠드', X(13.5), Y(12.6)); ctx.fillText('농구장', X(36), Y(46)); ctx.fillText('체육관', X(38), Y(23.5)); ctx.fillText('급식실', X(-39), Y(19)); ctx.fillText('수영장', X(-41), Y(41)); ctx.fillText('경비실', X(21.75), Y(65)); ctx.fillText('별관', X(0), Y(-19.25 - ANNEX_DZ)); ctx.fillText('대강당', X(MEGA.gym.x), Y(MEGA.gym.z)); ctx.fillText('중정', X(MEGA.court.x), Y(MEGA.court.z)); ctx.fillText('서문', X(-47), Y(32)); ctx.fillText('정문', X(0), Y(GATE_Z) - 8);
     }
   }
   if (floor === 5) {
@@ -40,8 +46,8 @@ export function drawMap(ctx, W, H, o) {
     [[-50, 30, -34, 30.3], [-41.65, 20, -41.35, 30.3], [-50, 50, -34, 50.3], [-43.5, 50.3, -43.2, 58]].forEach(([a, b, c, d]) => fillRect(a, b, c, d, '#8a8a80'));
     if (labels) { ctx.fillStyle = '#e8f0f0'; ctx.font = '13px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('메인 수조 (6레인)', X(-41.5), Y(38.5)); ctx.fillText('탈의실', X(-46), Y(25)); ctx.fillText('샤워실', X(-37.7), Y(25)); ctx.fillText('장비창고', X(-46.6), Y(54)); ctx.fillText('기계실', X(-38.6), Y(54)); ctx.fillText('관람석', X(-48.6), Y(40)); ctx.fillText('관리', X(-35.4), Y(34.6)); ctx.fillText('출입구', X(-35), Y(38.9)); }
   } else if (floor === 3) {
-    fillRect(-36.3, -9.9, 36.3, 1.75, '#33373a'); fillRect(-5, -4.5, 5, 1.9, '#555'); fillRect(26, -9.4, 33, -5.4, '#4a4033'); fillRect(-21.6, -7.6, -18.4, -4.4, '#5a3a2a');
-    strokeRect(-36.3, -9.9, 36.3, 1.75, '#8a8a80', 1.5);
+    fillRect(-36.3, -9.9, 36.3, MAIN_ZS, '#33373a'); fillRect(-5, -4.5, 5, 1.9, '#555'); fillRect(26, -9.4, 33, -5.4, '#4a4033'); fillRect(-21.6, -7.6, -18.4, -4.4, '#5a3a2a');
+    strokeRect(-36.3, -9.9, 36.3, MAIN_ZS, '#8a8a80', 1.5);
     if (labels) { ctx.fillStyle = '#c8c4b4'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('옥상 광장', X(-8), Y(-1)); ctx.fillText('관리실', X(29.5), Y(-7.4)); ctx.fillText('물탱크', X(-20), Y(-8)); ctx.fillText('계단실', X(0), Y(-2)); }
   } else {
     const an = floor >= 8, lay = an ? ANNEX.floors[floor - 8] : LAYOUT[floor], sl = an ? ANNEX.slots : SLOTS, hx = an ? 20.3 : 36.3;
@@ -59,7 +65,8 @@ export function drawMap(ctx, W, H, o) {
     });
     strokeRect(-hx, -9.9, hx, LS ? MAIN_ZS : 1.75, '#8a8a80', 2);
     if (floor === 4) { fillRect(28, 1.75, 36, 9.9, '#3a2a48'); strokeRect(28, 1.75, 36, 9.9, '#0c0c0c', 1.5); if (labels) { ctx.fillStyle = '#d6d2c2'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('비밀 자료실', X(32), Y(6)); } }
-    if (floor === 0) { const W = WALKWAY; fillRect(W.x1, W.z1 - 4, W.x2, W.z2, '#3a4248'); strokeRect(W.x1, W.z1 - 4, W.x2, W.z2, '#8a8a80', 1); if (labels) { ctx.fillStyle = '#c8c4b4'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('별관 연결 통로 ↑', X((W.x1 + W.x2) / 2), Y(W.z1 - 1.5)); } }
+    if (floor === 4) { fillRect(12, -34, 24, -14, '#3a3e3c'); strokeRect(12, -34, 24, -14, '#8a8a80', 1.5); if (labels) { ctx.fillStyle = '#d8c890'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('지하 보존서고', X(18), Y(-24)); } }
+    if (floor === 0) { const W = WALKWAY; fillRect(W.x1, W.z1, W.x2, W.z2, '#3a4248'); strokeRect(W.x1, W.z1, W.x2, W.z2, '#8a8a80', 1); if (labels) { ctx.fillStyle = '#c8c4b4'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('별관 연결 통로 ↑', X((W.x1 + W.x2) / 2), Y((W.z1 + W.z2) / 2)); } }
     if (floor === 0 || floor === 8) { ctx.fillStyle = '#e6c14a'; ctx.fillRect(X(-1.5), Y(MAIN_ZS) - 2, 3 * S, 4); }
   }
   if (floor < 3 || floor === 4 || floor >= 8) { // 계단 표시
@@ -69,7 +76,7 @@ export function drawMap(ctx, W, H, o) {
   }
   lockers.forEach(l => { ctx.fillStyle = '#9a6ad8'; ctx.fillRect(X(l.x) - 2, Y(l.z) - 2, 4, 4); });
   // 문 상태 (열림: 초록 / 닫힘: 빨강)
-  doors.forEach(d => { ctx.fillStyle = d.open ? '#5fc47a' : '#b04040'; const w = Math.max(4, (d.slide ? 1.4 : .9) * S); ctx.fillRect(X(d.x) - w / 2, Y(d.z) - 1.5, w, 3); });
+  doors.forEach(d => { ctx.fillStyle = d.transition ? '#74b9e8' : d.open ? '#5fc47a' : '#b04040'; const w = Math.max(4, (d.slide ? 1.4 : .9) * S); ctx.fillRect(X(d.x) - w / 2, Y(d.z) - 1.5, w, 3); });
   // 장치 · 녹음기
   props.forEach(p => {
     const x = X(p.x), y = Y(p.z); ctx.fillStyle = p.done ? '#6a5a7a' : '#c89af0';

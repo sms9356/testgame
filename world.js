@@ -4,6 +4,9 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { NOTES } from './story.js';
+import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
+import { removeDuplicateModels } from './placement.js';
+import { loadSurfaceTexture } from './materialTextures.js';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -82,6 +85,7 @@ export function buildWorld(scene) {
   const mWood = PB('varnish', () => T.pbrVarnish(512));
   const mWoodDark = PB('varnishDark', () => T.pbrVarnish(512, [92, 58, 34]));
   const mMetal = PB('paint', () => T.pbrPaintMetal(512), { metalness: .35 });
+  [mWood,mWoodDark,mMetal].forEach(m => m.normalScale.set(.25,.25));
   // 캔버스 금속 재질에 PBR 도장 금속의 노멀 · 거칠기를 덧씌워 평평한 단색 판이 실제 철판처럼 보이게 한다
   const _paint = T.pbr('paint', () => T.pbrPaintMetal(512));
   detailNormal = _paint.normalMap;
@@ -105,7 +109,7 @@ export function buildWorld(scene) {
   const mWin = new THREE.MeshBasicMaterial({ map: T.makeWindow(), color: 0x9fb2c8, side: THREE.DoubleSide, transparent: true, opacity: .26, depthWrite: false });
   const mWinIn = new THREE.MeshBasicMaterial({ map: mWin.map, color: 0x9fb2c8, transparent: true, opacity: .26, depthWrite: false });   // 실내 쪽에서 보는 창 (한 면)
   // 외벽 창 텍스처 시트 (assets/tex/win_atlas.webp, 4×3): 깨끗 · 먼지 · 금 간 · 깨진 · 테이프 X · 빗물 · 김서림 · 커튼 · 블라인드 · 야간 점등 · 완전 어둠 · 먼지+금
-  const winAtlas = new THREE.TextureLoader().load('assets/tex/win_atlas.webp'); winAtlas.colorSpace = THREE.SRGBColorSpace; winAtlas.anisotropy = 4;
+  const winAtlas = T.windowAtlasTexture || T.makeWindow();
   const winMats = Array.from({ length: 12 }, (_, i) => {
     const t = winAtlas.clone(); t.repeat.set(1 / 4, 1 / 3); t.offset.set((i % 4) / 4, 1 - ((i / 4 | 0) + 1) / 3);
     const see = [0, 1, 2, 3, 5, 6, 11].includes(i);   // 깨끗 · 먼지 · 금 간 · 깨진 · 빗물 · 김서림 · 먼지+금 → 비치는 유리 (커튼 · 블라인드 · 테이프 · 점등 · 어둠은 그대로)
@@ -1682,7 +1686,16 @@ export function buildWorld(scene) {
     'BSM-003': n => /valve/i.test(n) ? mRedV : mRust,
     'BSM-004': () => mRust,
   };
-  const h133Mat = (id, part) => (H133_MAT[id] || (() => mMetal))(part || '');
+  const h133Mat = (id, part = '') => {
+    if (H133_MAT[id]) return H133_MAT[id](part);
+    if (/glass|lens/i.test(part)) return mGlassP;
+    if (/wood|plywood|desk_top|shelf_board/i.test(part)) return mWood;
+    if (/paper|card|page|label/i.test(part)) return mPaperW;
+    if (/rubber|wheel|cable|black|screen/i.test(part)) return mRubber;
+    if (/fabric|cloth|cushion|seat_pad/i.test(part)) return mMatBlue;
+    if (/brass|copper/i.test(part)) return mChrome;
+    return /rust/i.test(part) ? mRust : mMetal;
+  };
   // 요리실 101 팩: GLB 재질 이름 → 게임 PBR 재질 (팩 GLB 에는 텍스처 · UV · 법선이 없다 — 로더가 법선 · 상자 투영 UV 를 만든다)
   // 헤어라인(브러시드) 스테인리스: 가로 결 + 얼룩 · 물때 · 드문 녹 점 (시트의 '조리대 · 곰솥' 재질)
   const brushed = (base, grime) => { const c = document.createElement('canvas'); c.width = c.height = 512; const g = c.getContext('2d');
@@ -1702,7 +1715,7 @@ export function buildWorld(scene) {
   const v2Mat = nm => { const s = (nm || '').toLowerCase(); return s.includes('darksteel') ? mDarkMetal : s.includes('blue') ? mBlueP : s.includes('brass') ? mBrassV2 : s.includes('rust') ? mRust : s.includes('steel') ? mStainlessD : mDarkMetal; };
   // 인쇄실 팩: 부품 이름 끝의 재질 표기 → 팩 1K PBR (BaseColor · NormalGL · Roughness · AO) 4종 + 단색 재질
   const PR_MAT = {}, prTex = new THREE.TextureLoader();
-  const prPBR = (fam, met, rough) => PR_MAT[fam] || (PR_MAT[fam] = (() => { const L = k => { const t = prTex.load(`assets/models/pr/tex/${fam}/${k}.webp`); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 8; if (k === 'BaseColor') t.colorSpace = THREE.SRGBColorSpace; return t; };
+  const prPBR = (fam, met, rough) => PR_MAT[fam] || (PR_MAT[fam] = (() => { const L = k => loadSurfaceTexture(prTex,`assets/models/pr/tex/${fam}/${k}.webp`,k);
     return new THREE.MeshStandardMaterial({ map: L('BaseColor'), normalMap: L('NormalGL'), roughnessMap: L('Roughness'), aoMap: L('AO'), roughness: rough, metalness: met }); })());
   const mPrRubber = S(null, { color: 0x1a1a1c, roughness: .85 }), mPrBlue = new THREE.MeshStandardMaterial({ color: 0x3a6aa8, emissive: 0x0a1830, roughness: .3 });
   const mPrLed = { red: new THREE.MeshBasicMaterial({ color: 0xd02018 }), green: new THREE.MeshBasicMaterial({ color: 0x30a048 }), yellow: S(null, { color: 0xd8b030, roughness: .5 }) };
@@ -1720,7 +1733,7 @@ export function buildWorld(scene) {
   const TH_MAT = {}, thTex = new THREE.TextureLoader();
   const TH_PROPS = { stainless: [.85, .3], painted_steel: [.45, .5], dark_metal: [.7, .45], copper: [.9, .35], rust: [.3, .9], blue_glass: [.1, .08] };
   const thMat = raw => { const n = (raw || '').replace(/^PBR_/, ''); if (TH_MAT[n]) return TH_MAT[n];
-    const L = k => { const t = thTex.load(`assets/models/th102/tex/${n}_${k}.webp`); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 8; if (k === 'BaseColor') t.colorSpace = THREE.SRGBColorSpace; return t; };
+    const L = k => loadSurfaceTexture(thTex,`assets/models/th102/tex/${n}_${k}.webp`,k);
     const [met, rough] = TH_PROPS[n] || [0, 1];
     const m = new THREE.MeshStandardMaterial({ map: L('BaseColor'), normalMap: L('Normal'), roughnessMap: L('Roughness'), roughness: Math.max(.14, rough), metalness: met, normalScale: new THREE.Vector2(.7, .7) });
     if (n === 'blue_glass') { m.transparent = true; m.opacity = .4; m.depthWrite = false; }
@@ -2291,8 +2304,7 @@ export function buildWorld(scene) {
       F.shell.add(boxMesh(-1.5, 1.5, 0, .2, zs0, zs1, mStep, 2));   // 현관 문턱 (충돌은 아래 '충돌 보정' 뒤에)
       F.shell.add(boxMesh(-3.0, 3.0, 2.95, 3.2, zs1, zs1 + 2.85, mFacade, 3));
       [-2.6, 2.6].forEach(x => F.shell.add(boxMesh(x - .18, x + .18, 0, 2.95, zs1 + 2.3, zs1 + 2.66, mFacade, 3)));
-      const sg = new THREE.MeshStandardMaterial({ map: T.makeSign('서 문 고 등 학 교', 'rgba(0,0,0,0)', '#c8c0a8', 40), transparent: true, metalness: .6, roughness: .45 });
-      plane(F.shell, sg, 4.6, 1.15, 0, 3.55, zs1 + .03);
+      // 교명 간판은 campusDesign에서 배경판과 함께 한 번만 설치한다.
     }
     // 충돌 보정: 창문 구간도 벽이므로 단일 충돌체로 대체 (현관 제외)
     F.col = F.col.filter(r => !(r.z1 === zs0 && r.z2 === zs1));
@@ -2619,7 +2631,8 @@ export function buildWorld(scene) {
     [[-1.65, 1.8], [1.65, 1.8], [-1.65, 4.35], [1.65, 4.35]].forEach(([x, y], k) => {
       th('TH-007', x, y, 0, 0, [mWood, 1.55, .84, .96]); col(X(x) - .78, X(x) + .78, Z(y) - .5, Z(y) + .5, false, .84);
       th('TH-015', x, y - .79, 0, rnd() * 6, [mMetal, .42, .52, .42]);
-      th('TH-017', x + .36, y - .12, .84);
+      // 재봉틀/원단과 공구 매트가 같은 실습대 위에서 관통하지 않도록 분리.
+      if (k === 0 || k === 3) th('TH-017', x + .36, y - .12, .84);
     });
     th('TH-014', -1.98, 1.9, .84); th('TH-014', 1.32, 4.45, .84); th('TH-008', 1.35, 1.9, .84); th('TH-008', -1.95, 4.45, .84);
     th('TH-019', -1.55, 4.35, .84); th('TH-021', 1.7, 4.35, .84); th('TH-020', 1.95, 1.75, .84, .4);
@@ -3052,7 +3065,7 @@ export function buildWorld(scene) {
 
   // 지면
   const groundMat = S(T.makeGround()); flat(OUT, groundMat, -300, 300, -250, 300, -.02, 8);
-  const dirtMat = PB('dirt', () => T.pbrDirt(512)); flat(OUT, dirtMat, -27, 27, 15, 59, 0, 6);   // 운동장 흙 (체육관 · 급식실 · 수영장 외벽 안쪽으로)
+  const dirtMat = turfMaterial(); flat(OUT, dirtMat, -27, 27, 15, 59, 0, 2);   // 잔디 운동장: 트랙과 흰 경기선은 위에 유지
   // 운동장 (재배치): 동서로 긴 200m 급 우레탄 트랙 — 체육관(x 28) · 수영장(x -34) · 급식실과 3m 이상 띄움. 안쪽은 흙 축구장 (선 · 골대 · 그물)
   const PG = { CZ: 40, SX: 11, R0: 9.6, R1: 13.2 };
   const mNet = (() => { const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d'); g.strokeStyle = '#e8e8e0'; g.lineWidth = 3; for (let i = 0; i <= 64; i += 16) { g.beginPath(); g.moveTo(i, 0); g.lineTo(i, 64); g.stroke(); g.beginPath(); g.moveTo(0, i); g.lineTo(64, i); g.stroke(); } const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.colorSpace = THREE.SRGBColorSpace; return new THREE.MeshStandardMaterial({ map: t, alphaTest: .45, side: THREE.DoubleSide, roughness: .9 }); })();
@@ -3133,7 +3146,7 @@ export function buildWorld(scene) {
   }
   const pave = S(T.makePaving()); flat(OUT, pave, -3.2, 3.2, MAIN_ZS, PG.CZ - PG.R1 - .2, .01, 4); flat(OUT, pave, -3.2, 3.2, PG.CZ + PG.R1 + .2, 69.5, .01, 4); flat(OUT, pave, -16, 16, MAIN_ZS, 11, .01, 4);   // 정문 길은 운동장(트랙 · 흙)을 가로지른다
   // 진입로 가로등 (불 꺼진 채) · 현관 앞 벤치 — 3D 소품 133종 팩 EXT-003 · EXT-004
-  [[-4.3, 15.5], [4.3, 15.5], [-4.3, 58.5], [4.3, 58.5], [-4.3, 65.5], [4.3, 65.5], [-15.5, 12.2], [23.5, 12.2]].forEach(([x, z]) => model('h133/EXT-003', x, 0, z, x < 0 ? Math.PI / 2 : -Math.PI / 2, { out: true, col: [.3, .3] }));
+  // 새 가로등은 아래 campusDesign에서 충돌/조명과 함께 한 번만 배치한다.
   [[-6.5, 13.0], [-24, 24], [24, 56.5]].forEach(([x, z], k) => model('h133/EXT-004', x, 0, z, k === 1 ? Math.PI / 2 : 0, { out: true, col: [1.45, .44] }));   // 현관 앞 · 운동장 가장자리 벤치
   flat(OUT, pave, -46, 46, 11, 14, .005, 4);
   const asph = S(T.makeAsphalt()); flat(OUT, asph, -120, 120, 73, 82, 0.005, 8);
@@ -3477,6 +3490,8 @@ export function buildWorld(scene) {
 
   /* ---------- 갱신 ---------- */
   // 마무리: 층별 책 인스턴싱 + 정적 배칭
+  const campusDesign = buildCampusDesign({out:OUT,facade:floors[0].shell,brick:mBrick,concrete:mStep,metal:mMetal,colliders:floors[0].col});
+  const modelAudit = { duplicatesRemoved:removeDuplicateModels(MODELS) };
   const bookMat = new THREE.MeshStandardMaterial({ map: T.makeBookSpine(), roughness: .8 });
   const unitBox = new THREE.BoxGeometry(1, 1, 1);
   const bakeStats = { merged: 0, meshes: 0 };
@@ -3524,7 +3539,7 @@ export function buildWorld(scene) {
     return .38 + .62 * d;
   }
   const flickCfg = { calm: false };
-  return { POOL, CHAIRS, B_BOIL, LOCKER_BOXES, h133Mat, crMat, thMat, prMat, v2Mat, winMats, MODELS, floors, items, lockers, doors, gate, update, mats: { flickerMats, matLampOn, matLampDead }, flickCfg, sky: { stars, moon, moonGlow }, NOTES, TAPES, PHOTOS, doorList, props, boardRefs, OUT, bakeStats, makeBoardTex: T.makeBoard };
+  return { campusDesign, modelAudit, POOL, CHAIRS, B_BOIL, LOCKER_BOXES, h133Mat, crMat, thMat, prMat, v2Mat, winMats, MODELS, floors, items, lockers, doors, gate, update, mats: { flickerMats, matLampOn, matLampDead }, flickCfg, sky: { stars, moon, moonGlow }, NOTES, TAPES, PHOTOS, doorList, props, boardRefs, OUT, bakeStats, makeBoardTex: T.makeBoard };
 }
 
 /* ---------- 충돌/시야 ---------- */

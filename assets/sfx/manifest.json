@@ -1,0 +1,17 @@
+{
+  "source_sha256": "4af46c2751611d024a38855a8215f5d8d42962fcc5ec5c93ba1dba10b41fa7f7",
+  "cues": [
+    {
+      "file": "school-bell.mp3",
+      "sha256": "e8b4956631481530a0891537a9dd8d563c2bc85c48767959d33f1e0ca0738533"
+    },
+    {
+      "file": "class-chime.mp3",
+      "sha256": "c589d963b941ec8d115892c6de47ea004dd2ca6f2d35523c3e5596f4bef22280"
+    },
+    {
+      "file": "pa-chime.mp3",
+      "sha256": "85966259461bdcdb2db4fd43ca922619822a2287a6e244afe5ac4e8b9d9afe94"
+    }
+  ]
+}

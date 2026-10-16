@@ -1,0 +1,13 @@
+{
+  "before": {
+    "x": 0,
+    "z": 50,
+    "state": "playing"
+  },
+  "after": {
+    "x": 0,
+    "z": 48.152000000000044,
+    "state": "playing"
+  },
+  "pass": true
+}

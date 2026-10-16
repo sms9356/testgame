@@ -36,6 +36,7 @@ export function initAudio() {
     const lg = ac.createGain(); lg.gain.value = 0.02; lfo.connect(lg); lg.connect(g.gain); lfo.start();
     o.connect(g); g.connect(bus.amb); o.start();
   });
+  ['school-bell', 'class-chime', 'pa-chime'].forEach(name => loadVoice(`assets/sfx/${name}.mp3`).then(b => { if (b) schoolSamples.set(name, b); }));
   buildAmbience();
   // 유령 근접음(숨소리/속삭임)
   proxFilter = loopNoise(900, 'bandpass', 3);
@@ -263,6 +264,19 @@ export async function loadVoice(url) {
   const p = fetch(url).then(r => r.ok ? r.arrayBuffer() : Promise.reject(r.status)).then(b => ac.decodeAudioData(b)).catch(() => null);
   vcache.set(url, p); return p;
 }
+// Samples use the effects bus, never the single dialogue source.
+const schoolSamples = new Map(), schoolCueTimes = new Map();
+function schoolCue(name, volume = .5, rate = 1) {
+  if (!ok()) return false;
+  const buffer = schoolSamples.get(name); if (!buffer) return false;
+  const last = schoolCueTimes.get(name) ?? -Infinity;
+  if (ac.currentTime - last < .5) return true;
+  schoolCueTimes.set(name, ac.currentTime);
+  const source = ac.createBufferSource(); source.buffer = buffer; source.playbackRate.value = rate;
+  const gain = out(0, volume); source.connect(gain); source.start();
+  source.addEventListener('ended', () => { source.disconnect(); gain.disconnect(); });
+  return true;
+}
 let curVoice = null, voiceRequest = 0;
 export async function playVoice(url, fx = 'none', emo = null) {
   const request = ++voiceRequest;
@@ -282,13 +296,16 @@ export async function playVoice(url, fx = 'none', emo = null) {
     const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = fx === 'pa' ? 4200 : 3000;
     const sh = ac.createWaveShaper(); const c = new Float32Array(256); for (let i = 0; i < 256; i++) { const x = i / 128 - 1; c[i] = Math.tanh(x * (fx === 'radio' ? 3 : 1.8)); } sh.curve = c;
     node.connect(hp); hp.connect(lp); lp.connect(sh); node = sh;
-    if (fx !== 'phone') { const n = loopNoise(3000, 'bandpass', .7); const ng = ac.createGain(); ng.gain.value = fx === 'radio' ? .05 : .015; n.connect(ng); ng.connect(bus.voice); s.onended = () => ng.disconnect(); }
+    if (fx !== 'phone') { const source = ac.createBufferSource(); source.buffer = noiseBuf; source.loop = true;
+      const n = ac.createBiquadFilter(); n.type = 'bandpass'; n.frequency.value = 3000; n.Q.value = .7; source.connect(n); source.start();
+      const ng = ac.createGain(); ng.gain.value = fx === 'radio' ? .05 : .015; n.connect(ng); ng.connect(bus.voice); s.addEventListener('ended', () => { source.stop(); source.disconnect(); n.disconnect(); ng.disconnect(); }); }
   }
   const g = ac.createGain(); g.gain.value = (fx === 'whisper' ? .7 : 1) * (emo && emo.gain || 1); node.connect(g); g.connect(bus.voice);
   const sendG = ac.createGain(); sendG.gain.value = fx === 'pa' ? .9 : emo && emo.dry ? .05 : .25;
   g.connect(sendG); sendG.connect(revSend);
+  const finished = new Promise(resolve => s.addEventListener('ended', resolve, { once: true }));
   s.start(); curVoice = s; duckMusic(true); s.addEventListener('ended', () => { if (curVoice === s) { curVoice = null; duckMusic(false); } });
-  return { duration: buf.duration / rate, stop: () => { try { s.stop(); } catch (e) { /* ignore */ } } };
+  return { duration: buf.duration / rate, finished, stop: () => { try { s.stop(); } catch (e) { /* ignore */ } } };
 }
 export function stopVoice() { ++voiceRequest; if (curVoice) { try { curVoice.stop(); } catch (e) { /* ignore */ } curVoice = null; } duckMusic(false); }
 
@@ -325,7 +342,7 @@ export const sfx = {
   },
   stairs() { for (let i = 0; i < 6; i++) setTimeout(() => noiseBurst(0.1, 500, 'lowpass', 0.35), i * 180); },
   win() { [523, 659, 784, 1047].forEach((f, i) => setTimeout(() => tone(f, 1.6, 'sine', 0.25), i * 220)); },
-  broadcast() { noiseBurst(1.8, 1800, 'bandpass', .5); tone(880, .6, 'sine', .2, 0, 1, 660); setTimeout(() => tone(660, .9, 'sine', .2, 0, 1, 440), 700); setTimeout(() => noiseBurst(1.2, 2500, 'bandpass', .4), 1500); },
+  broadcast() { if (schoolCue('pa-chime', .6)) { noiseBurst(.3, 1800, 'bandpass', .025); return; } noiseBurst(.4, 1800, 'bandpass', .08); tone(880, .6, 'sine', .2, 0, 1, 660); setTimeout(() => tone(660, .9, 'sine', .2, 0, 1, 440), 700); setTimeout(() => noiseBurst(1.2, 2500, 'bandpass', .4), 1500); },
   doorSlide(v = 1) { noiseBurst(.55, 420, 'lowpass', .35 * v); tone(140, .5, 'sawtooth', .04 * v, 0, 1, 110); },
   doorHinge(v = 1) { tone(220, .6, 'sawtooth', .05 * v, 0, 1, 330); noiseBurst(.3, 900, 'bandpass', .15 * v); },
   doorBang(pan = 0, v = 1) { noiseBurst(.4, 380, 'lowpass', 1.1 * v, pan); tone(70, .35, 'sine', .9 * v, pan, 1, 40); noiseBurst(.15, 2500, 'bandpass', .3 * v, pan); },
@@ -345,7 +362,8 @@ export const sfx = {
   lightsOff() { for (let i = 0; i < 6; i++) setTimeout(() => { noiseBurst(.05, 3000, 'highpass', .4); tone(60, .1, 'square', .05); }, i * 260); },
   thunder(far = 2) { const v = Math.max(.25, 1.2 - far * .3); noiseBurst(2.8 + far, 140, 'lowpass', v, 0, 1); noiseBurst(.4, 900, 'lowpass', v * .7, 0, 1); setTimeout(() => noiseBurst(2.2, 90, 'lowpass', v * .8), 300); },
   spark() { for (let i = 0; i < 5; i++) setTimeout(() => { noiseBurst(.04, 4000, 'highpass', .35); tone(120, .05, 'square', .04); }, i * 45 + Math.random() * 40); },
-  bell() { for (let i = 0; i < 16; i++) setTimeout(() => { tone(1250, .09, 'square', .12); tone(1880, .09, 'square', .06); }, i * 110); },
+  classBell() { if (!schoolCue('class-chime', .65)) sfx.bell(); },
+  bell() { if (schoolCue('school-bell', .65)) return; for (let i = 0; i < 16; i++) setTimeout(() => { tone(1250, .09, 'square', .12); tone(1880, .09, 'square', .06); }, i * 110); },
   tape() { noiseBurst(.25, 800, 'bandpass', .4); tone(60, .15, 'square', .06); },
   photo() { noiseBurst(.06, 3000, 'highpass', .4); tone(2200, .05, 'square', .04); },
   ui() { tone(880, .05, 'sine', .05); },
@@ -432,11 +450,12 @@ export const sfx = {
   pipeKnock() { for (let i = 0; i < 3; i++) later(i * 300 + Math.random() * 90, () => { tone(310 + Math.random() * 40, .22, 'square', .035, 0, 1, 280); noiseBurst(.12, 1100, 'bandpass', .4); tone(95, .15, 'sine', .25); }); },
   wind() { flow(4, 420, .16, .6, 1.2); tone(300, 3.5, 'sine', .015, 0, 1, 420); },
   stepBehind(v = 1) { noiseBurst(.07, 2400, 'bandpass', .24 * v); noiseBurst(.08, 600, 'lowpass', .24 * v); },
-  bellFar() { for (let i = 0; i < 18; i++) later(i * 110, () => { tone(1250, .1, 'square', .03); tone(1880, .08, 'square', .012); }); },
+  bellFar() { if (schoolCue('school-bell', .14)) return; for (let i = 0; i < 18; i++) later(i * 110, () => { tone(1250, .1, 'square', .03); tone(1880, .08, 'square', .012); }); },
   tissue() { noiseBurst(.5, 4200, 'highpass', .18); later(380, () => noiseBurst(.35, 3600, 'highpass', .14)); },
   stallCreak() { tone(180, 2.4, 'sawtooth', .045, 0, 1, 120); noiseBurst(2.2, 900, 'bandpass', .08); },
   heartWall() { for (let i = 0; i < 6; i++) later(i * 820, () => { tone(52, .16, 'sine', .55); later(140, () => tone(44, .2, 'sine', .4)); }); },
   chimeWarp(d = 15) {   // 기괴하게 늘어진 학교 종 (딩동댕동을 반음 낮추고 느리게, 음이 흔들린다) + 지지직 잡음
+    if (schoolCue('class-chime', .42, .58)) { noiseBurst(.4, 2800, 'bandpass', .025); return; }
     const M = [659, 523, 587, 392, 0, 392, 587, 659, 523];
     M.forEach((f, i) => { if (f) later(i * 1300, () => { const g = f * .5 * (1 - i * .012); tone(g, 2.6, 'sine', .14, 0, 1, g * .94); tone(g * 2.01, 1.8, 'sine', .05, 0, 1, g * 1.9); tone(g * 2.98, .9, 'triangle', .02); }); });
     for (let k = 0; k < d / 1.5; k++) later(k * 1500 + Math.random() * 400, () => { noiseBurst(1.6, 3200 + Math.random() * 1500, 'bandpass', .07); noiseBurst(.3, 900, 'bandpass', .06); });

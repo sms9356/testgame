@@ -184,6 +184,12 @@ class School37RoomsMasterPatch {
       this.roomOccupancyMap.set(roomKey, []);
     }
 
+    propMesh.rotation.y = rotY;
+    propMesh.updateMatrixWorld(true);
+    const bounds = new THREE.Box3().setFromObject(propMesh), size = bounds.getSize(new THREE.Vector3()), center = bounds.getCenter(new THREE.Vector3());
+    // Prefab dimensions were estimates and ignored rotation/benches/handles.
+    w = Math.max(w, size.x); d = Math.max(d, size.z);
+
     // 중앙 보행 통로(폭 1.4m) 보호: allowCenter가 아닌 일반 가구가 중앙선을 침범하면 벽 쪽으로 밀어냄
     let candidateOffsets = [[0, 0]];
     for (let step = 0.6; step <= 2.4; step += 0.6) {
@@ -196,9 +202,9 @@ class School37RoomsMasterPatch {
       const tz = z + oz;
 
       // 중앙 보행 동선(폭 1.3m) 확보 체크
-      if (!allowCenter && Math.abs(tx) < 0.75 && Math.abs(tz) < roomD * 0.35) continue;
+      if (!allowCenter && Math.abs(tx + center.x) - w / 2 < .75 && Math.abs(tz + center.z) - d / 2 < roomD * 0.35) continue;
 
-      if (this._canPlaceFurniture(roomKey, tx, tz, w, d, roomW, roomD, doors)) {
+      if (this._canPlaceFurniture(roomKey, tx + center.x, tz + center.z, w, d, roomW, roomD, doors)) {
         placedX = tx;
         placedZ = tz;
         break;
@@ -213,13 +219,13 @@ class School37RoomsMasterPatch {
     roomGroup.add(propMesh);
 
     // 점유 영역 등록
-    this.roomOccupancyMap.get(roomKey).push({ x: placedX, z: placedZ, w, d });
+    this.roomOccupancyMap.get(roomKey).push({ x: placedX + center.x, z: placedZ + center.z, w, d });
 
     // 플레이어/괴물 이동 충돌용 단순 박스 콜라이더 등록 (끼임 없는 슬라이딩용)
     const worldBox = {
       roomKey,
-      localX: placedX,
-      localZ: placedZ,
+      localX: placedX + center.x,
+      localZ: placedZ + center.z,
       width: w,
       depth: d,
       height: h,
@@ -564,7 +570,8 @@ class School37RoomsMasterPatch {
       if (!col.mesh || !col.mesh.parent) continue;
 
       const worldPos = new THREE.Vector3();
-      col.mesh.getWorldPosition(worldPos);
+      col.mesh.parent.updateWorldMatrix(true,false);
+      worldPos.set(col.localX,col.height/2,col.localZ).applyMatrix4(col.mesh.parent.matrixWorld);
 
       const halfW = col.width / 2 + playerRadius;
       const halfD = col.depth / 2 + playerRadius;

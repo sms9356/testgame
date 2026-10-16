@@ -1411,7 +1411,7 @@ function elvTick(dt) {
   for (const p of world.props) { if (p.kind !== 'elevator' || !p.hall) continue;
     if (p.hallOpen && p.closeT && now > p.closeT && !(p.floor === P.floor && Math.hypot(P.x - p.px, P.z - p.pz) < 1.0)) { p.hallOpen = false; p.closeT = 0; if (p.floor === P.floor) sfx.doorSlide(.5); }
     const k0 = p.hallK || 0, k = p.hallK = Math.max(0, Math.min(1, k0 + (p.hallOpen ? dt : -dt) / .8));
-    if (k !== k0) p.hall.forEach((d, i) => { d.position.x = (i ? .4 : -.4) + (i ? .75 : -.75) * k; });
+    if (k !== k0) { p.hall.forEach((d, i) => { const sc = Math.max(.04, 1 - k * .96); d.scale.x = sc; d.position.x = (i ? 1 : -1) * (.8 - .4 * sc); }); if (p.cab) p.cab.visible = k > .01; }   // 문짝은 문틀 안쪽으로 접혀 들어간다 (예전엔 문틀 밖 벽 위로 밀려 나왔다) · 열리면 카 안이 보인다
     // 홀 → 카: 열린 문의 문턱에 닿으면
     if (!P.inElev && state === 'playing' && p.floor === P.floor && k > .85 && P.x > p.px - .75 && Math.abs(P.z - p.pz) < .45) elvEnter(p);
   }

@@ -7,6 +7,8 @@ import { settleStoryGhost, tickStoryGhost, showStoryGhost } from './storyGhost.j
 import { GLTFLoader } from './vendor/addons/loaders/GLTFLoader.js';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
 import { createNPCVisuals } from './npcVisuals.js';
+import { GUARD_LAYOUT } from './guardRoomLayout.js';
+import { installGuardRoom } from './guardRoom.js';
 import { prepareModelGeometry } from './modelGeometry.js';
 import { modelFootprint, overlaps, removeDuplicateModels } from './placement.js';
 import { turfMaterial } from './campusVisuals.js';
@@ -39,6 +41,17 @@ import { SET, saveSET, resetSET, DIFF, keyLabel } from './settings.js';
 import { initI18n, setLang, lang as curLang } from './i18n.js';   // 언어 패치 (한국어 · English · 日本語 · 中文)
 initI18n();
 const K = () => SET.keys;
+let guardRoomController = null, guardControlProps = [], guardCctvData = null;
+function guardDeviceState() { return { cctvOn: FL.guardCctvOn ?? true, lightOn: FL.guardLightOn ?? false, doorOpen: true }; }
+function syncGuardDevices() {
+  const q = guardDeviceState(); guardRoomController?.applyState(q);
+  for (const p of guardControlProps) { if (p.k === 'guardlight') p.label = q.lightOn ? '경비실 전등 끄기' : '경비실 전등 켜기'; else if (p.k === 'guardcctv' || p.fz?.id === 'guard_cctv') p.label = q.cctvOn ? 'CCTV 전원 끄기' : 'CCTV 전원 켜기'; }
+  if (guardCctvData) guardCctvData.promptText = q.cctvOn ? '[E] CCTV 전원 끄기' : '[E] CCTV 전원 켜기 (감시 채널 확인)';
+  return q;
+}
+function toggleGuardCCTV(persist = true) { FL.guardCctvOn = !(FL.guardCctvOn ?? true); sfx.click(); syncGuardDevices(); if (persist) save(true); return FL.guardCctvOn; }
+function toggleGuardLight() { FL.guardLightOn = !(FL.guardLightOn ?? false); sfx.click(); syncGuardDevices(); say(FL.guardLightOn ? '경비실 전등을 켰다' : '경비실 전등을 껐다', 1800); save(true); return FL.guardLightOn; }
+
 import { run as runMini, MG } from './minigames.js';
 import { SCHEMA, BUILD, storageKeys, itemUid, propUid, doorUid, assignUids, readSlot, writeSlot, hasSlot, clearSlot, repairProgress } from './saveSystem.js';
 loadManifest().then(() => registerLines({ ...VO, ...Object.fromEntries(Object.entries(STORY_NOTES).filter(([, n]) => n.text).map(([k, n]) => ['note_' + k, { spk: 'narrator', text: n.title + '. ' + n.text, parts: [n.title, n.text] }])) }));
@@ -1362,7 +1375,9 @@ async function useRoomObj(p) {
     sfx.paper(); showNote({ title: '경비 일지 — 10월 12일', text: '17:30 정문 순찰. 이상 없음.<br>17:42 서현고 교복 학생 1명, 정문으로 들어감. <b>방송부 조끼.</b> 불렀으나 대답 없음.<br>17:50 또 한 명. 친구를 찾는다고 했다.<br><br>…매년 이 날이면 꼭 누가 들어간다. 나는 들어가지 않는다.<br><i>11시 40분이 되기 전에 나와야 한다.</i>' });
     return;
   }
+  if (k === 'guardlight') { toggleGuardLight(); return; }
   if (k === 'guardcctv') {
+    const on = toggleGuardCCTV(); if (!on) { say('CCTV 전원을 껐다', 1800); return; }
     sfx.staticNoise(1.4); fx.glitch(.35);
     setTimeout(() => showNote({ img: 'v_corridor', title: 'CCTV — 본관 1층 복도', text: '지직거리는 화면. 복도 끝에서 교복 차림의 누군가가 <b>카메라를 올려다보고 있다.</b><br>다음 순간 화면이 꺼졌다.' }), 900);
     return;
@@ -1716,10 +1731,10 @@ function buildGuardNPC() {
   g.traverse(o => { if (o.isMesh) o.castShadow = true; });
   return g;
 }
-const guardNPC = buildGuardNPC(); guardNPC.position.set(20.3, 0, 65.6); guardNPC.rotation.y = .9; world.OUT.add(guardNPC);
+const guardNPC = buildGuardNPC(); guardNPC.position.set(GUARD_LAYOUT.npc.x, .02, GUARD_LAYOUT.npc.z); guardNPC.rotation.y = .9; world.OUT.add(guardNPC);
 npcLoad('guard', guardNPC, { url: 'assets/characters/guard.glb', height: 1.75, native: true, clipNames: ['idle', 'stand'] });
-const guardCap = new THREE.Mesh(new THREE.CylinderGeometry(.115, .118, .08, 18), new THREE.MeshStandardMaterial({ color: 0x283450, roughness: .8 })); guardCap.position.set(20.0, .8, 66.55); guardCap.visible = false; world.OUT.add(guardCap);
-world.props.push({ kind: 'guardnpc', floor: 0, x: 20.3, z: 65.6, y: 1.5, label: '경비 아저씨와 이야기하기' });
+const guardCap = new THREE.Mesh(new THREE.CylinderGeometry(.115, .118, .08, 18), new THREE.MeshStandardMaterial({ color: 0x283450, roughness: .8 })); guardCap.position.set(GUARD_LAYOUT.cap.x, GUARD_LAYOUT.cap.y, GUARD_LAYOUT.cap.z); guardCap.visible = false; world.OUT.add(guardCap);
+world.props.push({ kind: 'guardnpc', floor: 0, x: GUARD_LAYOUT.npc.x, z: GUARD_LAYOUT.npc.z, y: 1.5, label: '경비 아저씨와 이야기하기' });
 let guardGift = false;
 async function talkGuard(p) {
   const say2 = async id => { const sec = await speak(id); subtitle('경비 아저씨', VO[id].text, Math.max(2.5, sec) + .4); npcVisuals.portrait('guard', '경비 아저씨', (Math.max(2.5, sec) + .4) * 1000); return sec; };
@@ -2275,7 +2290,7 @@ function frameBody(now) {
     camera.position.set(Math.sin(tNow * .1) * 3, 2.2, 74); camera.rotation.set(-.05, Math.sin(tNow * .1) * .1, 0, 'YXZ');
     updateLighting(dt);
   }
-  world.update(tNow, blackout > 0, GEN.gain, power ? 0 : 1, GEN.emerg);
+  world.update(tNow, blackout > 0, GEN.gain, power ? 0 : 1, GEN.emerg); syncGuardDevices(); guardRoomController?.tick(dt);
   // 날씨: 번개 (밖이거나 창가에서), 전기 불꽃
   const outdoorsNow = isOutdoors();
   if (state === 'playing' || state === 'menu' || state === 'intro') {
@@ -4183,25 +4198,21 @@ function fzFloor(parent, tex, x1, x2, z1, z2, y, rep, rough = .9) {
   const m = new THREE.Mesh(g, mat); m.name = 'grass-football-field'; m.position.y = .009; m.receiveShadow = true; m.userData.dynamic = true; world.OUT.add(m);
 }
 
-/* ── 7-2. 경비실: 북쪽 벽 4분할 CCTV 모니터 · 동쪽 벽 정문 개폐기 (책상은 기존 경비실 책상을 쓴다) ── */
+/* 경비실: 제공 350×280cm 내부, 기존 감시·정문 미션 보존 */
 {
   const g = adopt(fzP.buildGuardhouseProps(V3(21.75, 0, 65)), world.OUT), [desk, mon, sw] = g.children;
   desk.visible = false; mon.visible = false;
-  const cctvTex = srgb(mon.material.map), dark = PM(0x16181a, .45, .3);
-  pbox(.1, .3, .1, dark, 20.3, 2.2, 63.06, g); pbox(.68, .5, .1, dark, 20.3, 1.8, 63.09, g);
-  const scr = pmesh(new THREE.PlaneGeometry(.6, .43), new THREE.MeshBasicMaterial({ map: cctvTex, color: 0xc8e8d0 }), 20.3, 1.8, 63.145, g, { cast: false });
-  scr.userData.cctv = true;
-  pmesh(new THREE.SphereGeometry(.012, 8, 6), new THREE.MeshBasicMaterial({ color: 0x40ff60 }), 20.58, 1.59, 63.14, g, { cast: false });
-  // 개폐기: 회색 함 + 버튼 + 키 스위치 + 전원 램프(발전기 꺼짐 = 빨강, 켜짐 = 초록) + 위로 올라가는 전선관
-  sw.position.set(24.08, 1.35, 63.7); sw.rotation.y = -Math.PI / 2;
-  const red = new THREE.MeshBasicMaterial({ color: 0xc81a10 }), grn = new THREE.MeshBasicMaterial({ color: 0x1a8a30 });
-  [[63.62, grn], [63.78, red]].forEach(([z, m]) => pcyl(.022, .022, .03, m, 24.0, 1.3, z, g, { rz: Math.PI / 2 }));
-  pcyl(.03, .03, .03, PM(0xc0c4c4, .3, .9), 24.0, 1.47, 63.7, g, { rz: Math.PI / 2 });
-  FZ.lamp = pmesh(new THREE.SphereGeometry(.035, 10, 8), new THREE.MeshBasicMaterial({ color: 0x601008 }), 24.0, 1.62, 63.7, g, { cast: false });
-  pcyl(.018, .018, 1.25, PM(0x8a8e90, .5, .6), 24.1, 2.2, 63.7, g);
-  pmesh(new THREE.PlaneGeometry(.3, .08), new THREE.MeshBasicMaterial({ map: makeSign('정문 개폐기', '#d8d4c4', '#1a1a1a', 30) }), 24.015, 1.08, 63.7, g, { ry: -Math.PI / 2, cast: false });
-  fzProp(IA(fzP, 'guard_cctv'), 0, 20.3, 63.55, 1.7);
-  fzProp(IA(fzP, 'guard_gate_switch'), 0, 23.55, 63.7, 1.35, { r: 1.5 });
+  const cctvTex = srgb(mon.material.map); guardCctvData = IA(fzP, 'guard_cctv');
+  pbox(.11, .17, .025, PM(0xc6c0b3, .7, .05), GUARD_LAYOUT.lightSwitch.x, GUARD_LAYOUT.lightSwitch.y, GUARD_LAYOUT.lightSwitch.z, g); pbox(.035, .065, .025, PM(0xeee9df, .5, 0), GUARD_LAYOUT.lightSwitch.x, GUARD_LAYOUT.lightSwitch.y, GUARD_LAYOUT.lightSwitch.z - .023, g);
+  const scan = guardCctvData.onInteract; guardCctvData.onInteract = ctx => { if (toggleGuardCCTV(false)) scan(ctx); else ctx.notify('CCTV 전원을 껐습니다.'); };
+  sw.position.set(GUARD_LAYOUT.gateSwitch.x, GUARD_LAYOUT.gateSwitch.y, GUARD_LAYOUT.gateSwitch.z); sw.rotation.y = -Math.PI / 2;
+  FZ.lamp = pmesh(new THREE.SphereGeometry(.035, 10, 8), new THREE.MeshBasicMaterial({ color: 0x601008 }), GUARD_LAYOUT.gateSwitch.x - .06, 1.62, GUARD_LAYOUT.gateSwitch.z, g, { cast: false });
+  fzProp(guardCctvData, 0, GUARD_LAYOUT.cctv.x, GUARD_LAYOUT.cctv.z, GUARD_LAYOUT.cctv.y);
+  fzProp(IA(fzP, 'guard_gate_switch'), 0, GUARD_LAYOUT.gateSwitch.x - .35, GUARD_LAYOUT.gateSwitch.z, 1.35, { r: 1.5 });
+  guardControlProps = world.props.filter(p => p.k === 'guardcctv' || p.k === 'guardlight' || p.fz?.id === 'guard_cctv');
+  guardRoomController = installGuardRoom({ renderer, scene, camera, guardRoom: world.guardRoom, cctvTexture: cctvTex });
+  syncGuardDevices(); guardRoomController.tick(1); window.__guardRoom = guardRoomController;
+  guardRoomController.ready.then(() => { syncGuardDevices(); if (guardRoomController.status === 'error') console.warn('[guardroom]', guardRoomController.error); });
 }
 
 /* ── 7-3. 운동장: 조회대 위 마이크 스탠드 · 앰프 · 나팔 스피커 / 모래밭 타임캡슐 (단상은 기존 조회대를 쓴다) ── */
@@ -4680,7 +4691,7 @@ function patchTick(dt) {
   // 경비실 CCTV 화면: 근처에 있을 때 잡음 · 그것이 찍힌 채널에 흐릿한 형체
   if (P.floor === 0 && Math.hypot(P.x - 21.75, P.z - 65) < 7) {
     FZ.cctvScareT -= dt; FZ.cctvT -= dt;
-    if (FZ.cctvT <= 0) { FZ.cctvT = .12; fzP._drawCCTVFrame(FZ.cctvScareT > 0); const c = fzP.events.cctvNoiseCtx;
+    if (FZ.cctvT <= 0 && (FL.guardCctvOn ?? true)) { FZ.cctvT = .12; fzP._drawCCTVFrame(FZ.cctvScareT > 0); const c = fzP.events.cctvNoiseCtx;
       if (G.active && FZ.cctvScareT <= 0) { const q = G.floor === 0 && G.z < MAIN_ZS ? [0, 0] : G.floor === 7 ? [128, 0] : G.floor === 0 ? [0, 96] : G.floor === 3 ? [128, 96] : null; if (q) { c.fillStyle = 'rgba(10,20,14,.85)'; c.beginPath(); c.ellipse(q[0] + 64 + Math.sin(tNow * 3) * 20, q[1] + 60, 7, 18, 0, 0, 7); c.fill(); } }
       for (let k = 0; k < 90; k++) { c.fillStyle = `rgba(160,255,190,${Math.random() * .25})`; c.fillRect(Math.random() * 256, Math.random() * 192, 2, 1); }
       c.fillStyle = 'rgba(0,0,0,.25)'; c.fillRect(0, (tNow * 80) % 192, 256, 6);

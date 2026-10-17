@@ -17,7 +17,7 @@ export function drawMap(ctx, W, H, o) {
     { const r = 11.4 * S; ctx.strokeStyle = 'rgba(150,60,50,.75)'; ctx.lineWidth = 3.6 * S; ctx.beginPath(); ctx.moveTo(X(-11), Y(40) - r); ctx.lineTo(X(11), Y(40) - r); ctx.arc(X(11), Y(40), r, -Math.PI / 2, Math.PI / 2); ctx.lineTo(X(-11), Y(40) + r); ctx.arc(X(-11), Y(40), r, Math.PI / 2, Math.PI * 1.5); ctx.stroke(); }   // 트랙
     fillRect(-14, 17.1, -8, 20.1, '#6a6a60'); fillRect(5, 13.4, 22, 16.6, '#5a5a54'); fillRect(29, 38.5, 43, 53.5, 'rgba(120,60,50,.5)');   // 조회대 · 스탠드 · 농구장
     fillRect(-3, 2, 3, 69, 'rgba(120,120,110,.4)');
-    fillRect(28, 12.5, 48, 34.5, '#3a2a2a'); fillRect(-48, 12.5, -30, 25, '#3a3030'); fillRect(-48, 31, -34, 51, '#2a3a46'); fillRect(19.15, 62.8, 24.35, 67.2, '#4a4a40');   // 체육관 · 급식실 · 수영장 · 경비실 (외관 실제 위치)
+    fillRect(28, 12.5, 48, 34.5, '#3a2a2a'); fillRect(-48, 12.5, -30, 25, '#3a3030'); fillRect(-48, 31, -34, 51, '#2a3a46'); fillRect(20, 63.6, 23.5, 66.4, '#4a4a40');   // 체육관 · 급식실 · 수영장 · 경비실 (외관 실제 위치)
     fillRect(-20, -25 - ANNEX_DZ, 20, -13.5 - ANNEX_DZ, '#3a4248');
     strokeRect(-20, -25 - ANNEX_DZ, 20, -13.5 - ANNEX_DZ, '#8a8a80', 1.5);
     [MEGA.gym, MEGA.court].forEach((r, i) => {

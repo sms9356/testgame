@@ -6,6 +6,13 @@ const patterns = new Map();
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const TINT_WOOD = [46, 32, 22], TINT_RUST = [104, 58, 33], CELLS = 12;
 let clearTimer = 0;
+// Pre-baked v2 detail textures (identical output, no load-time computation). Originals stay as fallback.
+const BAKED = new Set(["tex_varnish_map","tex_varnish_normal","tex_varnish_rough","tex_varnishDark_map","tex_varnishDark_normal","tex_varnishDark_rough","tex_paint_map","tex_paint_normal","tex_paint_rough","tex_locker_map","tex_locker_normal","tex_locker_rough","tex_rust_map","tex_rust_normal","tex_rust_rough","tex_door_map","tex_door_normal","tex_door_rough","th102_old_wood_BaseColor","th102_old_wood_Normal","th102_old_wood_Roughness","th102_wood_edge_BaseColor","th102_wood_edge_Normal","th102_wood_edge_Roughness","th102_painted_steel_BaseColor","th102_painted_steel_Normal","th102_painted_steel_Roughness","th102_dark_metal_BaseColor","th102_dark_metal_Normal","th102_dark_metal_Roughness","th102_rust_BaseColor","th102_rust_Normal","th102_rust_Roughness","pr_aged_wood_counter_BaseColor","pr_aged_wood_counter_NormalGL","pr_aged_wood_counter_Roughness","pr_painted_rust_steel_BaseColor","pr_painted_rust_steel_NormalGL","pr_painted_rust_steel_Roughness"]);
+export function bakedUrl(url) {
+  const key = String(url || '').replace(/^assets\/(models\/)?/, '').replace('/tex/', '/').replace(/\.webp$/, '').replace(/\//g, '_');
+  return BAKED.has(key) ? 'assets/tex/d2_' + key + '.webp' : null;
+}
+
 function hash(i, j, k, seed) { const s = Math.sin(i * 127.1 + j * 311.7 + k * 74.7 + seed) * 43758.5453; return s - Math.floor(s); }
 // Integer frequencies keep every layer seamless when the texture repeats.
 function warp(u, v, wood) {

@@ -8,7 +8,7 @@ import { NOTES } from './story.js';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -2298,21 +2298,21 @@ export function buildWorld(scene) {
       if (a > cursor) wallSeg(cursor, a, zs0, zs1, 0, FH, true);
       if (o.type === 'win') {
         wallSeg(a, b, zs0, zs1, 0, .9, true); wallSeg(a, b, zs0, zs1, 2.5, FH, true);
-        win3D(F.shell, o.w, 1.6, o.x, 1.7, zs0 + .15, Math.PI, pickWin());
+        win3D(F.shell, o.w, 1.6, o.x, 1.7, zs0 + .15, Math.PI, pickWin()); (F.winSlots ||= []).push([o.x, o.w, zs0]);
         if (!o.base && !LS) { const r = new THREE.Mesh(radG, mRad); r.position.set(o.x, 0, zs0 - .12); r.rotation.y = Math.PI; r.scale.x = 1.6; F.interior.add(r); }
         add(mWoodDark, o.w + .2, .06, .3, o.x, .88, zs0 + .2, { parent: F.shell });
       } else {
         wallSeg(a, b, zs0, zs1, 2.7, FH, true);
         add(mWoodDark, .12, 2.7, .4, a, 0, zs0 + .15, { parent: F.shell }); add(mWoodDark, .12, 2.7, .4, b, 0, zs0 + .15, { parent: F.shell });
-        // 열려 있는 유리문 두 짝
-        [[a, -1], [b, 1]].forEach(([hx, s]) => { const dg = new THREE.Mesh(new THREE.BoxGeometry(1.4, 2.4, .05), mDoor); dg.geometry.translate(-s * .7, 1.2, 0); dg.position.set(hx, 0, zs0 + .25); dg.rotation.y = s * (1.2 + rr(-.2, .2)); F.shell.add(dg); });
+        // 현관 유리문 두 짝: 닫힌 채 시작, E 로 여닫는다 (문틀 양 끝 경첩 · 바깥쪽으로 열림)
+        { const zD = zs0 + .25, leaves = [[a, -1], [b, 1]].map(([hx, s]) => { const piv = dyn(new THREE.Group()); piv.position.set(hx, 0, zD); const dg = new THREE.Mesh(new THREE.BoxGeometry(1.48, 2.4, .05), mDoor); dg.position.set(-s * .74, 1.2, 0); piv.add(dg); F.shell.add(piv); return { piv, a: s * 1.3 }; });           const rect = { x1: a, x2: b, z1: zD - .04, z2: zD + .04, off: false };           doorList.push({ kind: 'hinge', floor: F.f ?? f, x: 0, z: zD, open: 0, target: 0, leaves, rect, name: '현관문' }); F.col.push(rect); (F.doorWalls ||= []).push(rect); }
       }
       cursor = b;
     }
     if (cursor < 36.3) wallSeg(cursor, 36.3, zs0, zs1, 0, FH, true);
     // 층간 콘크리트 띠 + 바깥 창턱
     if (!o.basement && f < 2) F.shell.add(boxMesh(-36.6, 36.6, FH - .14, FH + .14, zs1, zs1 + .2, mFacade, 3));
-    if (!o.basement) wins.forEach(x => F.shell.add(boxMesh(x - (LS ? .8 : 1.35), x + (LS ? .8 : 1.35), .82, .9, zs1, zs1 + .17, mFacade, 3)));
+    if (!o.basement) wins.forEach(x => F.shell.add(boxMesh(x - (LS ? .8 : 1.35), x + (LS ? .8 : 1.35), .82, .9, zs1, zs1 + .17, mFacade, 3))); if (!o.basement && F.winSlots && F.winSlots.length) F.shell.add(F.winFake = buildWindowFakes(F.winSlots, f));   // 멀리서 보이는 창 너머 교실 (실내가 꺼져 있을 때만)
     if (f === 0) {   // 현관: 계단 + 캐노피 + 기둥 + 교명 간판
       for (let k = 0; k < 3; k++) { F.shell.add(boxMesh(-3.2 + k * .25, 3.2 - k * .25, 0, .12 * (k + 1), zs1, zs1 + 1.65 - k * .45, mStep, 2)); col(-3.2 + k * .25, 3.2 - k * .25, zs1, zs1 + 1.65 - k * .45, false, .12 * (k + 1)); }   // 걸어 오르는 현관 계단 (한 단 0.12m)
       F.shell.add(boxMesh(-1.5, 1.5, 0, .2, zs0, zs1, mStep, 2));   // 현관 문턱 (충돌은 아래 '충돌 보정' 뒤에)

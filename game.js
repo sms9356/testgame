@@ -15,7 +15,7 @@ import { prepareModelGeometry } from './modelGeometry.js';
 import { modelFootprint, overlaps, removeDuplicateModels } from './placement.js';
 import { turfMaterial } from './campusVisuals.js';
 import { installInfirmaryAssets, updateInfirmaryCabinets } from './infirmaryAssets.js';
-import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js';
+import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js'; import { updateWindowFakes } from './windowInteriors.js';
 import { drawMap } from './map.js';
 import { makeDress, makeHair, makeGhostFace, makeGraffiti, makeKeypad, loadPBR, pbr, makeGlow as makeGlowTex, makePaintingStare, makeSign, makeBlood } from './tex.js';
 import { warmUp } from './bake.js';
@@ -1957,7 +1957,7 @@ function updateLighting(dt) {
   moonLight.color.copy(MOON_COL).lerp(SUN_COL, dk); moonLight.position.copy(MOON_POS).lerp(SUN_POS, dk);
   moonLight.intensity = lerp(moonLight.intensity, indoors ? 0 : lerp(1.6, 2.3, dk), k);
   lightFlash = Math.max(0, lightFlash - dt * 3);
-  hemi.color.copy(HEMI_SKY_N).lerp(HEMI_SKY_D, dk); hemi.groundColor.copy(HEMI_GND_N).lerp(HEMI_GND_D, dk);
+  updateWindowFakes(dk); hemi.color.copy(HEMI_SKY_N).lerp(HEMI_SKY_D, dk); hemi.groundColor.copy(HEMI_GND_N).lerp(HEMI_GND_D, dk);
   hemi.intensity = BRIGHT ? 1.5 : lerp(hemi.intensity, indoors ? lerp(.34, .66, dk) : lerp(.68, 1.15, dk), k) + (indoors && P.floor <= 2 ? lightFlash * (Math.sin(tNow * 60) > 0 ? .9 : .3) : 0);
   fillLight.intensity = lerp(fillLight.intensity, indoors ? 0 : lerp(.85, .5, dk), k);
   scene.fog.density = lerp(scene.fog.density, indoors ? lerp(.05, .03, dk) : lerp(.014, .0075, dk), k);
@@ -1966,7 +1966,7 @@ function updateLighting(dt) {
   const outsideInteriorRange = qCur === 'high' ? 16 : 6;
   const farOut = P.floor === 0 && !indoors && (P.z > MAIN_ZS + outsideInteriorRange || P.z < NORTH_Z || Math.abs(P.x) > 52);
   const nearOut = qCur === 'high' && P.floor === 0 && !indoors && !farOut && Math.abs(P.x) < 46 && P.z > -24 && P.z < MAIN_ZS + 14;   // 건물 가까운 바깥: 창 너머 2 · 3층 교실도 보이게
-  floors.forEach(f => { f.interior.visible = (f.f === P.floor && !farOut) || (nearOut && (f.f === 1 || f.f === 2)); if (f.f <= 2) f.shell.visible = P.floor <= 3 && !(P.floor === 2 && (P.sh || 0) > 2.4); });   // 3층 계단 위쪽: 눈높이가 건물 지붕보다 높아 외벽 상자 지붕면이 계단을 덮어 보였다
+  floors.forEach(f => { f.interior.visible = (f.f === P.floor && !farOut) || (nearOut && (f.f === 1 || f.f === 2)); if (f.winFake) f.winFake.visible = !f.interior.visible; if (f.f <= 2) f.shell.visible = P.floor <= 3 && !(P.floor === 2 && (P.sh || 0) > 2.4); });   // 3층 계단 위쪽: 눈높이가 건물 지붕보다 높아 외벽 상자 지붕면이 계단을 덮어 보였다
   // 야외: 손전등 그림자 범위를 줄여 그림자 패스가 캠퍼스 전체를 다시 그리지 않게 (셰이더 재컴파일 없이)
   const sf = indoors ? 26 : 6; if (flash.shadow.camera.far !== sf) { flash.shadow.camera.far = sf; flash.shadow.camera.updateProjectionMatrix(); }
   world.OUT.visible = P.floor === 0 || P.floor === 3 || (qCur === 'high' && (P.floor === 1 || P.floor === 2)) || state === 'menu' || state === 'intro';   // 2 · 3층 창밖 풍경은 높음 품질에서만 (캠퍼스 전체를 더 그리는 비용)

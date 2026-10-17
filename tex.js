@@ -1,5 +1,5 @@
 // 절차적(프로시저럴) 텍스처 — 외부 이미지 없이 캔버스로 폐교의 낡은 질감을 만든다.
-import * as THREE from './vendor/three.module.js';
+import * as THREE from './vendor/three.module.js'; import { refineFurnitureTexture } from './furnitureTextureDetail.js';
 
 let seed = 90210;
 export const rnd = () => {
@@ -693,7 +693,7 @@ export async function loadPBR() {
   const L = new THREE.TextureLoader(), names = ['wall', 'tile', 'wood', 'ceil', 'step', 'base', 'varnish', 'varnishDark', 'paint', 'locker', 'rust', 'door', 'brick', 'facade', 'dirt', 'track', 'pooltile', 'roofmetal', 'bluemetal', 'twall', 'tfloor'];
   await Promise.all([...names.flatMap(n => ['map', 'normal', 'rough'].map(async m => {
     const t = await L.loadAsync(`assets/tex/${n}_${m}.webp`).catch(() => null); if (!t) return;
-    t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 16; if (m === 'map') t.colorSpace = THREE.SRGBColorSpace;   // 비스듬한 바닥도 선명하게 (GPU 최대값으로 자동 제한)
+    refineFurnitureTexture(t, n, m); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 16; if (m === 'map') t.colorSpace = THREE.SRGBColorSpace;   // 비스듬한 바닥도 선명하게 (GPU 최대값으로 자동 제한)
     (_pbr[n] ||= {})[m === 'map' ? 'map' : m === 'normal' ? 'normalMap' : 'roughnessMap'] = t;
   })), L.loadAsync('assets/tex/win_atlas.webp').then(t=>{t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=4;windowAtlasTexture=t;}).catch(()=>{windowAtlasTexture=makeWindow();})]);
 }

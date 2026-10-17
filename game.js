@@ -1517,7 +1517,7 @@ addEventListener('keydown', e => {
     return;
   }
   if (state !== 'playing') return;
-  if (P.sitting && ['KeyW', 'KeyA', 'KeyS', 'KeyD', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space', K().interact, K().jump].includes(e.code)) { standUp(); return; }   // 의자에서 일어나기
+  if (e.code === 'Escape') { e.preventDefault(); pauseGame(); document.exitPointerLock?.(); return; } if (P.sitting && ['KeyW', 'KeyA', 'KeyS', 'KeyD', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space', K().interact, K().jump].includes(e.code)) { standUp(); return; }   // 의자에서 일어나기
   if (e.code === K().inv || e.code === 'KeyI') { openInv(); return; }
   if (e.code === K().map) { openMap(); return; }
   if (e.code === 'F5') { e.preventDefault(); phoneTool('save'); return; }

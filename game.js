@@ -44,10 +44,10 @@ import { initI18n, setLang, lang as curLang } from './i18n.js';   // 언어 패�
 initI18n();
 const K = () => SET.keys;
 let guardRoomController = null, guardControlProps = [], guardCctvData = null;
-function guardDeviceState() { return { cctvOn: FL.guardCctvOn ?? true, lightOn: FL.guardLightOn ?? false, doorOpen: true }; }
+function guardDeviceState() { return { cctvOn: FL.guardCctvOn ?? true, lightOn: FL.guardLightOn ?? false, doorOpen: FL.guardDoorOpen ?? true }; }
 function syncGuardDevices() {
   const q = guardDeviceState(); guardRoomController?.applyState(q);
-  for (const p of guardControlProps) { if (p.k === 'guardlight') p.label = q.lightOn ? '경비실 전등 끄기' : '경비실 전등 켜기'; else if (p.k === 'guardcctv' || p.fz?.id === 'guard_cctv') p.label = q.cctvOn ? 'CCTV 전원 끄기' : 'CCTV 전원 켜기'; }
+  for (const p of guardControlProps) { if (p.k === 'guarddoor') p.label = q.doorOpen ? '경비실 문 닫기' : '경비실 문 열기'; else if (p.k === 'guardlight') p.label = q.lightOn ? '경비실 전등 끄기' : '경비실 전등 켜기'; else if (p.k === 'guardcctv' || p.fz?.id === 'guard_cctv') p.label = q.cctvOn ? 'CCTV 전원 끄기' : 'CCTV 전원 켜기'; }
   if (guardCctvData) guardCctvData.promptText = q.cctvOn ? '[E] CCTV 전원 끄기' : '[E] CCTV 전원 켜기 (감시 채널 확인)';
   return q;
 }
@@ -1381,6 +1381,10 @@ async function useRoomObj(p) {
     sfx.paper(); showNote({ title: '경비 일지 — 10월 12일', text: '17:30 정문 순찰. 이상 없음.<br>17:42 서현고 교복 학생 1명, 정문으로 들어감. <b>방송부 조끼.</b> 불렀으나 대답 없음.<br>17:50 또 한 명. 친구를 찾는다고 했다.<br><br>…매년 이 날이면 꼭 누가 들어간다. 나는 들어가지 않는다.<br><i>11시 40분이 되기 전에 나와야 한다.</i>' });
     return;
   }
+  if (k === 'guarddoor') {
+    if ((FL.guardDoorOpen ?? true) && guardRoomController && !guardRoomController.canClose(P)) { say('문 앞에서 조금 물러나야 한다',1800); return; }
+    FL.guardDoorOpen = !(FL.guardDoorOpen ?? true); sfx.click(); syncGuardDevices(); save(true); return;
+  }
   if (k === 'guardlight') { toggleGuardLight(); return; }
   if (k === 'guardcctv') {
     const on = toggleGuardCCTV(); if (!on) { say('CCTV 전원을 껐다', 1800); return; }
@@ -2297,7 +2301,7 @@ function frameBody(now) {
     camera.position.set(Math.sin(tNow * .1) * 3, 2.2, 74); camera.rotation.set(-.05, Math.sin(tNow * .1) * .1, 0, 'YXZ');
     updateLighting(dt);
   }
-  world.update(tNow, blackout > 0, GEN.gain, power ? 0 : 1, GEN.emerg); syncGuardDevices(); guardRoomController?.tick(dt);
+  world.update(tNow, blackout > 0, GEN.gain, power ? 0 : 1, GEN.emerg); syncGuardDevices(); if (guardRoomController?.closing && !guardRoomController.canClose(P)) { FL.guardDoorOpen=true; syncGuardDevices(); save(true); } guardRoomController?.tick(dt);
   // 날씨: 번개 (밖이거나 창가에서), 전기 불꽃
   const outdoorsNow = isOutdoors();
   if (state === 'playing' || state === 'menu' || state === 'intro') {
@@ -4217,7 +4221,7 @@ function fzFloor(parent, tex, x1, x2, z1, z2, y, rep, rough = .9) {
   FZ.lamp = pmesh(new THREE.SphereGeometry(.035, 10, 8), new THREE.MeshBasicMaterial({ color: 0x601008 }), GUARD_LAYOUT.gateSwitch.x - .06, 1.62, GUARD_LAYOUT.gateSwitch.z, g, { cast: false });
   fzProp(guardCctvData, 0, GUARD_LAYOUT.cctv.x, GUARD_LAYOUT.cctv.z, GUARD_LAYOUT.cctv.y);
   fzProp(IA(fzP, 'guard_gate_switch'), 0, GUARD_LAYOUT.gateSwitch.x - .35, GUARD_LAYOUT.gateSwitch.z, 1.35, { r: 1.5 });
-  guardControlProps = world.props.filter(p => p.k === 'guardcctv' || p.k === 'guardlight' || p.fz?.id === 'guard_cctv');
+  guardControlProps = world.props.filter(p => p.k === 'guarddoor' || p.k === 'guardcctv' || p.k === 'guardlight' || p.fz?.id === 'guard_cctv');
   guardRoomController = installGuardRoom({ renderer, scene, camera, guardRoom: world.guardRoom, cctvTexture: cctvTex });
   syncGuardDevices(); guardRoomController.tick(1); window.__guardRoom = guardRoomController;
   guardRoomController.ready.then(async () => { await textureBudget.prepare(scene); syncGuardDevices(); if (guardRoomController.status === 'error') console.warn('[guardroom]', guardRoomController.error); });

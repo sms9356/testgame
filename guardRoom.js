@@ -77,16 +77,21 @@ export function installGuardRoom({ renderer, scene, camera, guardRoom, cctvTextu
   const refs = { nodes: {}, doorPivot: null, screen: null, lamp: null, light: null, ceiling: null };
   let status = 'loading', error = null, model = null, sourceRoot = null;
   let v6 = false, diagnostics = null, doorColliderDirty = true;
-  let doorAngle = 0, screenOn = null, screenOff = null;
+  let doorAngle = 0, screenOn = null, screenOff = null, liveScreenMaterials = [];
   const doorBox = new THREE.Box3();
   const controller = {
     ready: null,
     get status() { return status; }, get error() { return error; },
     get model() { return model; }, get diagnostics() { return diagnostics; }, get closing() { return !state.doorOpen && doorAngle > 0; }, refs,
     canClose(player) { return !guardDoorSweepContains(guardRoom.layout || {doorX:6.55,doorZ:68.01}, player); },
+    setLiveTextures(textures = []) {
+      liveScreenMaterials.forEach(m => m.dispose());
+      liveScreenMaterials = textures.slice(0,3).map(map => new THREE.MeshBasicMaterial({map,color:0xe2ffe8,toneMapped:false}));
+      controller.applyState(state);
+    },
     applyState(values = {}) {
       for (const key of Object.keys(state)) if (values[key] !== undefined) state[key] = !!values[key];
-      for (const screen of refs.screens || (refs.screen ? [refs.screen] : [])) screen.material = state.cctvOn && cctvTexture ? screenOn : screenOff;
+      (refs.screens || (refs.screen ? [refs.screen] : [])).forEach((screen,i) => { screen.material = state.cctvOn ? (liveScreenMaterials[i] || (cctvTexture ? screenOn : screenOff)) : screenOff; });
       if (refs.light) refs.light.intensity = state.lightOn ? 0.8 : 0;
       if (refs.lamp) refs.lamp.material.emissiveIntensity = state.lightOn ? 1 : 0;
       return controller;

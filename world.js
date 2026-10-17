@@ -451,6 +451,7 @@ export function buildWorld(scene) {
   const pipeMat = S(T.makeMetal([96, 104, 98]), { roughness: .6, metalness: .4 });
   // 실사 스캔 소품 (Poly Haven CC0, assets/models) — 배치만 기록하고 game.js 가 인스턴싱으로 불러온다
   const MODELS = [];
+  const CCTV_CAMERAS = [];
   function model(name, x, y, z, ry = 0, o = {}) {
     MODELS.push({ model: name, f: o.out ? 'out' : cur.f, x, y, z, ry, rx: o.rx || 0, rz: o.rz || 0, s: o.s || 1 });
     if (o.col) { const [w, d] = o.col, sw = Math.abs(Math.sin(ry)) > .7; const hw = (sw ? d : w) / 2, hd = (sw ? w : d) / 2; o.out ? col(x - hw, x + hw, z - hd, z + hd) : col(x - hw, x + hw, z - hd, z + hd); }
@@ -534,10 +535,27 @@ export function buildWorld(scene) {
   }
   // CCTV 카메라 (빨간 LED)
   const camG = merge([bx(.06, .2, .06, 0, -.1, 0), bx(.14, .12, .3, 0, -.24, .1), new THREE.CylinderGeometry(.045, .05, .06, 14).rotateX(Math.PI / 2).translate(0, -.24, .27)]);
-  function cctv(x, y, z, ry) {
-    const g = new THREE.Group(); g.position.set(x, y, z); g.rotation.y = ry; cur.interior.add(g);
-    const m = new THREE.Mesh(camG, mWhite); m.rotation.x = .35; g.add(m);
-    const led = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowRed, blending: THREE.AdditiveBlending, depthWrite: false })); led.scale.setScalar(.18); led.position.set(.05, -.18, .2); g.add(led);
+  function cctv(x, y, z, ry, cfg = {}) {
+    const f = cfg.floor ?? cur.f, parent = cfg.parent || cur.interior;
+    const mountY = cfg.mountY ?? (CH - .012), g = new THREE.Group();
+    g.name = 'CCTV_' + f + '_' + CCTV_CAMERAS.length;
+    g.userData.dynamic = true; g.userData.cctv = true;
+    g.position.set(x, mountY, z);
+    if (cfg.target) ry = Math.atan2(cfg.target[0] - x, cfg.target[2] - z);
+    g.rotation.y = ry; parent.add(g);
+    const m = new THREE.Mesh(camG, mWhite); m.name = g.name + '_BODY';
+    m.rotation.x = cfg.target ? Math.atan2(mountY - .30 - cfg.target[1], Math.hypot(cfg.target[0] - x, cfg.target[2] - z)) : (cfg.pitch ?? .35); g.add(m);
+    const lensGlass=new THREE.Mesh(new THREE.CircleGeometry(.041,12),new THREE.MeshBasicMaterial({color:0x080e12})); lensGlass.name=g.name+'_LENS'; lensGlass.position.set(0,-.24,.306); m.add(lensGlass);
+    const led = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowRed, blending: THREE.AdditiveBlending, depthWrite: false })); led.scale.setScalar(.10); led.position.set(.05, -.18, .2); m.add(led);
+    if (cfg.wallMount) {
+      const arm = new THREE.Mesh(new THREE.BoxGeometry(.20,.05,.06),mWhite);
+      arm.rotation.y = -ry; arm.position.copy(new THREE.Vector3(.09,0,0).applyAxisAngle(new THREE.Vector3(0,1,0),-ry)); g.add(arm);
+      const plate = new THREE.Mesh(new THREE.BoxGeometry(.035,.16,.13),mWhite);
+      plate.rotation.y = -ry; plate.position.copy(new THREE.Vector3(.18,0,0).applyAxisAngle(new THREE.Vector3(0,1,0),-ry)); g.add(plate);
+    }
+    g.traverse(n => { n.userData.dynamic = true; });
+    CCTV_CAMERAS.push({id:g.name,label:cfg.label || AREA_NAMES[f] + ' · CCTV ' + (CCTV_CAMERAS.length+1),floor:f,outdoor:!!cfg.outdoor,mesh:g,lens:m,eye:[0,-.24,.312],target:cfg.target || null,parent});
+    return g;
   }
   // 가방 · 농구공 · 식판 · 대걸레 · 양동이
   const mBag = [S(null, { color: 0x2a3a5a, roughness: .9 }), S(null, { color: 0x5a2a2a, roughness: .9 }), S(null, { color: 0x2a4a3a, roughness: .9 }), S(null, { color: 0x3a3a3a, roughness: .9 })];
@@ -672,7 +690,7 @@ export function buildWorld(scene) {
       if (rnd() < .4) { const sc = new THREE.Mesh(new THREE.PlaneGeometry(1.8, 1.0), mScreenR); sc.position.set(cx + .8, CH - .8, zN + .2); sc.rotation.z = .08; cur.interior.add(sc); } }
     // 시계 · CCTV · 소화기 · 분리수거함 · 냉난방기 · 창가 화분
     { const ck = new THREE.Mesh(new THREE.CircleGeometry(.22, 24), mClockM); ck.position.set(cx, 2.7, -1.76); ck.rotation.y = Math.PI; cur.interior.add(ck); }
-    cctv(cx - 3.75, CH - .1, -2.0, Math.PI * .25 + Math.PI);
+    cctv(cx - 3.75, CH, -2.0, Math.PI * .75, {label:AREA_NAMES[cur.f] + ' · ' + name});
     extinguisher(cx + 1.65, -2.05);
     [0, 1, 2].forEach(k => add(mRecy[k], .36, .62, .36, cx + 2.6 + k * .4, 0, -2.0, { col: k === 1 }));
     add(S(null, { color: 0xe8e6de, roughness: .5 }), .45, 1.75, .38, cx + 3.55, 0, zN + .25, { col: true }); add(mBlack, .3, .25, .02, cx + 3.55, 1.25, zN + .45);
@@ -1359,7 +1377,7 @@ export function buildWorld(scene) {
     if (cur.basement) {   // A01 진입 계단실: 층 안내판 · 계단참 표시 · 보안 카메라
       plane(cur.interior, new THREE.MeshStandardMaterial({ map: T.makeSign('B1  설비 · 창고 · 기록', '#1e2a2e', '#d9e4d0', 22), roughness: .8 }), 1.4, .35, cx + 2.025, 1.7, -4.5, -Math.PI / 2);
       plane(cur.interior, new THREE.MeshStandardMaterial({ map: T.makeSign('B1', '#c8a020', '#1a1a1a', 40), roughness: .8 }), .5, .3, cx - 2.5, 2.6, -9.56);
-      cctv(cx + 1.85, CH - .05, -9.3, -Math.PI * .75);
+      cctv(cx + 1.85, CH, -9.3, -Math.PI * .25, {label:'B1 · 진입 계단실'});
     }
     // 중앙계단 쓰레기
     papers(cx, -8, -3, 6);
@@ -2386,7 +2404,7 @@ export function buildWorld(scene) {
     else [-28.8, -4.8, 19.2].forEach(x => model('korean_fire_extinguisher_01', x, 0, -1.3, 0));
     [-24, 0, 24].forEach(cx => model('fire_alarm', cx + 3.2, 1.45, -1.44, 0));
     if (!o.basement) for (let x = -33; x <= 33; x += 6) model('h133/SAF-005', x + 1.5, CH - .29, .35, 0);   // 복도 천장 스프링클러 헤드 (SAF-005)
-    model('security_camera_01', 35.6, 3.0, -1.2, -Math.PI / 2 - .4); model('security_camera_01', -35.6, 3.0, 1.2, Math.PI / 2 - .4);
+    // Imported corridor camera duplicates removed: mounted cameras below provide actual feeds.
     model('metal_trash_can', 35.68, 0, 0, -Math.PI / 2, { col: [1.85, .56] });
     if (f <= 2) model('WetFloorSign_01', -30.0, 0, -.55, .5);
     model('SchoolDesk_01', -35.35, 0, .85, Math.PI / 2, { col: [.75, .58] }); model('SchoolChair_01', -35.35, 1.88, .85, Math.PI / 2 + .3, { rx: Math.PI });
@@ -2396,7 +2414,7 @@ export function buildWorld(scene) {
     extinguisher(-1.6, -1.25); extinguisher(33.5, 1.2);
     graffiti(pick(['다시, 여기서', '나가지 마', '뒤를 봐', '같이 놀자']), SLOTS[2] + 2.5, 1.6, -1.44, 0, 2.6);
     [-26, 6, 22].forEach(x => bin(x, 1.15));
-    if (!o.basement || f === 4) { alarmBell(-12.5, -1.43, 0); cctv(-35.6, CH - .05, -1.2, Math.PI * .75); cctv(35.6, CH - .05, -1.2, -Math.PI * .75); }
+    if (!o.basement || f === 4) { alarmBell(-12.5, -1.43, 0); cctv(-35.6, CH, -1.2, 0, {target:[0,1.5,0],label:AREA_NAMES[f]+' · 복도 서쪽'}); cctv(35.6, CH, -1.2, 0, {target:[0,1.5,0],label:AREA_NAMES[f]+' · 복도 동쪽'}); }
     if (f === 0) { addPhoto('p1', SLOTS[6] + 2.6, .76, -8.7, .2); blood('drag', -3, .015, -.4, 1.8, 1.5, true); }
     if (f === 2) { addPhoto('p3', 20, 0, .8, .8); blood('hand', SLOTS[3] + 1.6, 1.4, -1.44, .8, 0); }
     if (f === 4) { blood('drag', 10, .015, .2, 2, 1.57, true); blood('splat', -20, .015, -.5, 1.4, 0, true); }
@@ -3251,7 +3269,7 @@ export function buildWorld(scene) {
         RF.col.push({ x1: x - 1, x2: x + 1, z1: z - 1, z2: z + 1 }); });
       OUT.add(new THREE.Mesh(merge(slats), mRust)); }
     // 바깥 실사 소품: 정문 쪽 감시 카메라 · 분리수거함 · 별관 벽 실외기
-    model('security_camera_01', -4.6, 3.3, MAIN_ZS + .35, .5, { out: true }); model('security_camera_01', 4.6, 3.3, MAIN_ZS + .35, -.5, { out: true });
+    // Gate cameras are installed under the actual gate pillar caps below.
     model('metal_trash_can', 7.5, 0, MAIN_ZS + 2.2, Math.PI, { out: true, col: [1.85, .56] });
     [-14, 10].forEach(x => model('exterior_aircon_unit', x, 0, -25.3 - ANNEX_DZ, Math.PI, { out: true, col: [1.8, .4] }));
     doors.push({ floor: 0, x: 1.25, z: -10.5, r: 1.3, label: '본관 들어가기 (계단실)', to: { floor: 0, x: 1.25, z: -8.7, yaw: Math.PI } });
@@ -3487,6 +3505,17 @@ export function buildWorld(scene) {
   /* ---------- 갱신 ---------- */
   // 마무리: 층별 책 인스턴싱 + 정적 배칭
   const campusDesign = buildCampusDesign({out:OUT,facade:floors[0].shell,brick:mBrick,concrete:mStep,metal:mMetal,colliders:floors[0].col});
+  // CCTV audit: ceiling-supported coverage for annex corridors and independent areas.
+  for (const f of [8,9,10]) { const F=floors.find(n=>n.f===f); for(const x of [-19.5,19.5]) cctv(x,CH,-1.1,0,{parent:F.interior,floor:f,target:[0,1.4,0],label:AREA_NAMES[f]+' · 복도 '+(x<0?'서쪽':'동쪽')}); }
+  for (const p of [
+    {f:5,x:28.55,z:29.40,y:7.888,target:[38,1.6,18],label:'체육관 · 무대/코트'},
+    {f:6,x:-49.45,z:30.55,y:6.288,target:[-42,1.4,39],label:'수영장 · 풀 홀'},
+    {f:7,x:-47.45,z:21.40,y:4.388,target:[-39,1.4,14],label:'급식실 · 식당'}
+  ]) { const F=floors.find(n=>n.f===p.f); cctv(p.x,p.y,p.z,0,{parent:F.interior,floor:p.f,mountY:p.y,target:p.target,label:p.label}); }
+  cctv(-26.20,14.138,4.15,0,{parent:OUT,floor:3,mountY:14.138,outdoor:true,target:[0,13.7,5],label:'옥상 · 발전기/출입구'});
+  for(const x of [-4.5,4.5]) cctv(x,3.388,GATE_Z-.79,0,{parent:OUT,floor:0,mountY:3.388,outdoor:true,target:[0,1.4,GATE_Z-5],label:'정문 · '+(x<0?'서쪽':'동쪽')});
+  cctv(GUARD_LAYOUT.originX+3.21,2.30,GUARD_LAYOUT.cz,0,{parent:OUT,floor:0,mountY:2.30,wallMount:true,target:[GUARD_LAYOUT.npc.x,1.15,GUARD_LAYOUT.npc.z],label:'경비실 · 관제 데스크'});
+
   const modelAudit = { duplicatesRemoved:removeDuplicateModels(MODELS) };
   const bookMat = new THREE.MeshStandardMaterial({ map: T.makeBookSpine(), roughness: .8 });
   const unitBox = new THREE.BoxGeometry(1, 1, 1);
@@ -3535,7 +3564,7 @@ export function buildWorld(scene) {
     return .38 + .62 * d;
   }
   const flickCfg = { calm: false };
-  return { guardRoom, INFIRMARY_SLOTS, campusDesign, modelAudit, POOL, CHAIRS, B_BOIL, LOCKER_BOXES, h133Mat, crMat, thMat, prMat, v2Mat, winMats, MODELS, floors, items, lockers, doors, gate, update, mats: { flickerMats, matLampOn, matLampDead }, flickCfg, sky: { stars, moon, moonGlow }, NOTES, TAPES, PHOTOS, doorList, props, boardRefs, OUT, bakeStats, makeBoardTex: T.makeBoard };
+  return { CCTV_CAMERAS, guardRoom, INFIRMARY_SLOTS, campusDesign, modelAudit, POOL, CHAIRS, B_BOIL, LOCKER_BOXES, h133Mat, crMat, thMat, prMat, v2Mat, winMats, MODELS, floors, items, lockers, doors, gate, update, mats: { flickerMats, matLampOn, matLampDead }, flickCfg, sky: { stars, moon, moonGlow }, NOTES, TAPES, PHOTOS, doorList, props, boardRefs, OUT, bakeStats, makeBoardTex: T.makeBoard };
 }
 
 /* ---------- 충돌/시야 ---------- */

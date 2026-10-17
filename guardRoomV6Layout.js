@@ -12,7 +12,7 @@ export function arrangeGuardRoomV6(root) {
   }
   // Outdoor equipment is already represented by the campus gate. The shell
   // supplies glazing. Reduce optional tabletop clutter around the log/cap.
-  for(const id of ['F19','F22','F26','F27','F31','F32']) {
+  for(const id of ['F19','F22','F26','F27','F28','F31','F32']) {
     const group=root.getObjectByName(id+'_GROUP'); if(group){group.removeFromParent();report.excluded.push(id);}
   }
   const shift=(id,x=0,y=0,z=0)=>{const g=root.getObjectByName(id+'_GROUP');if(g){g.position.add(new THREE.Vector3(x,y,z));report.moved.push(id);}};

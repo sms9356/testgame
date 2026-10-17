@@ -2,13 +2,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { GUARD_LAYOUT, GUARD_SPUR } from '../guardRoomLayout.js';
 const world = readFileSync(new URL('../world.js', import.meta.url), 'utf8');
 const map = readFileSync(new URL('../map.js', import.meta.url), 'utf8');
 const game = readFileSync(new URL('../game.js', import.meta.url), 'utf8');
 const names = ['SLOTS','LAYOUT','GATE_Z','ANNEX','LAYOUT_S','ANNEX_S','MAIN_ZS','WALKWAY','NORTH_Z','ANNEX_DZ','MEGA'];
 names.sort((a,b) => world.indexOf('export const '+a+' =') - world.indexOf('export const '+b+' ='));
 const constants = names.map(n => { const m = world.match(new RegExp('export const '+n+' = [\\s\\S]*?;')); assert.ok(m, n); return m[0].replace('export ', ''); }).join('\n');
-const draw = new Function(constants + '\n' + map.replace(/^import .*;\s*$/gm, '').replace(/export /g, '') + '\nreturn drawMap;')();
+const draw = new Function('GUARD_LAYOUT', 'GUARD_SPUR', constants + '\n' + map.replace(/^import .*;\s*$/gm, '').replace(/export /g, '') + '\nreturn drawMap;')(GUARD_LAYOUT, GUARD_SPUR);
 const roomSource = game.match(/function roomAt\([^]*?\n}/)[0];
 const roomAt = new Function(constants + '\n' + roomSource + '\nreturn roomAt;')();
 function record(floor, labels = false, doors = []) {

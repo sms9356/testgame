@@ -3,7 +3,7 @@ import * as THREE from './vendor/three.module.js';
 import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
-import { GUARD_LAYOUT, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
+import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
 import { NOTES } from './story.js';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
@@ -3319,9 +3319,10 @@ export function buildWorld(scene) {
   outWall(-50, 50, NORTH_Z - .25, NORTH_Z + .25, fenceH, mFence);
   // 정문 안쪽 (설계집 '서문 상세 안내도'): 경비실 · 교훈 표지석 · 조경 벤치
   {
-    // 경비실: 제공 모델 350×280×250cm, 기존 중심 위치 유지
+    // 경비실: 제공 모델 350×280×250cm, 지도에 표시된 정문 안쪽 중앙 보행로 동편 위치
     const G = new THREE.Group(); G.name = 'GUARDROOM_FALLBACK'; G.userData.dynamic = true; OUT.add(G);
     const holder = new THREE.Group(); holder.name = 'GUARDROOM_HOLDER'; holder.userData.dynamic = true; holder.position.set(GUARD_LAYOUT.originX, GUARD_LAYOUT.floorY, GUARD_LAYOUT.originZ); OUT.add(holder);
+    flat(OUT, pave, GUARD_SPUR.x1, GUARD_SPUR.x2, GUARD_SPUR.z1, GUARD_SPUR.z2, .025, 2);
     const guardFabric = S(null, { color: 0xc9c5b9, roughness: .95 });
     for (const n of GUARD_NODES) {
       if (/ENTRANCE_DOOR|ENTRANCE_HANDLE/.test(n.name)) continue;
@@ -3333,7 +3334,7 @@ export function buildWorld(scene) {
     const leaf = new THREE.Mesh(new THREE.BoxGeometry(.85, 2.05, .05), mDoor); leaf.geometry.translate(.425, 1.025, 0); doorPivot.add(leaf);
     const doorCollider = { x1: GUARD_LAYOUT.doorX - .025, x2: GUARD_LAYOUT.doorX + .025, z1: GUARD_LAYOUT.doorZ, z2: GUARD_LAYOUT.doorZ + .85, off: false, guardDoor: true }; cur.col.push(doorCollider);
     OUT.add(boxMesh(GUARD_LAYOUT.originX - .18, GUARD_LAYOUT.originX + 3.68, 2.52, 2.64, GUARD_LAYOUT.originZ - 2.98, GUARD_LAYOUT.originZ + .18, mFacade, 2));
-    plane(OUT, new THREE.MeshBasicMaterial({ map: T.makeSign('경비실', '#1e2a2e', '#d9e4d0', 34), color: 0x9aa59a }), 1.1, .3, 21.1, 2.30, GUARD_LAYOUT.originZ + .125, 0);
+    plane(OUT, new THREE.MeshBasicMaterial({ map: T.makeSign('경비실', '#1e2a2e', '#d9e4d0', 34), color: 0x9aa59a }), 1.1, .3, GUARD_LAYOUT.originX + 1.1, 2.30, GUARD_LAYOUT.originZ + .125, 0);
     Object.assign(guardRoom, { holder, fallback: G, fallbackDoorPivot: doorPivot, doorCollider, ceilingCover: false, templates: { wall: mFacade, floor: mFloorTile, wood: mWood, metal: mMetal, fabric: guardFabric }, layout: GUARD_LAYOUT });
     props.push({ kind: 'robj', k: 'guardlog', t: 'guard', floor: 0, ...GUARD_LAYOUT.log, label: '경비 일지 읽기' });
     props.push({ kind: 'robj', k: 'guardcctv', t: 'guard', floor: 0, ...GUARD_LAYOUT.cctv, label: 'CCTV 전원 끄기' });
@@ -3435,7 +3436,7 @@ export function buildWorld(scene) {
 
 
   // 나무: 건물/길을 피해서 배치, 울퉁불퉁한 수관 + 개체별 색 변화
-  const BLOCK = [[18.6, 24.9, 62.2, 67.8], [-22.5, -17.5, 62.2, 65.8], [-1.8, 3.8, WALKWAY.z1 - .1, -9.8], [-37.5, 37.5, -11, 11.5], [-21.5, 21.5, -33, WALKWAY.z1 + 1], [MEGA.gym.x - MEGA.gym.w / 2 - 1.5, MEGA.gym.x + MEGA.gym.w / 2 + 1.5, MEGA.gym.z - MEGA.gym.d / 2 - 1.5, MEGA.gym.z + MEGA.gym.d / 2 + 3.5], [MEGA.court.x - MEGA.court.w / 2 - .5, MEGA.court.x + MEGA.court.w / 2 + .5, MEGA.court.z - MEGA.court.d / 2 - .5, MEGA.court.z + MEGA.court.d / 2 + .5], [26.5, 49.5, 11, 36], [-49.5, -28.5, 11, 26.5], [-49.5, -32.5, 29.5, 52.5], [-5, 5, 60, 72], [-17, 17, 1.5, 12]];
+  const BLOCK = [[GUARD_LAYOUT.originX - 1.4, GUARD_LAYOUT.originX + GUARD_LAYOUT.width + 1.4, GUARD_LAYOUT.originZ - GUARD_LAYOUT.depth - 1.4, GUARD_LAYOUT.originZ + 1.4], [-22.5, -17.5, 62.2, 65.8], [-1.8, 3.8, WALKWAY.z1 - .1, -9.8], [-37.5, 37.5, -11, 11.5], [-21.5, 21.5, -33, WALKWAY.z1 + 1], [MEGA.gym.x - MEGA.gym.w / 2 - 1.5, MEGA.gym.x + MEGA.gym.w / 2 + 1.5, MEGA.gym.z - MEGA.gym.d / 2 - 1.5, MEGA.gym.z + MEGA.gym.d / 2 + 3.5], [MEGA.court.x - MEGA.court.w / 2 - .5, MEGA.court.x + MEGA.court.w / 2 + .5, MEGA.court.z - MEGA.court.d / 2 - .5, MEGA.court.z + MEGA.court.d / 2 + .5], [26.5, 49.5, 11, 36], [-49.5, -28.5, 11, 26.5], [-49.5, -32.5, 29.5, 52.5], [-5, 5, 60, 72], [-17, 17, 1.5, 12]];
   const blocked = (x, z, m = 0) => BLOCK.some(([a, b2, c, d]) => x > a - m && x < b2 + m && z > c - m && z < d + m);
   const trunkG = merge([new THREE.CylinderGeometry(.16, .3, 3.4, 7).translate(0, 1.7, 0), tube(.07, 0, 2.2, 0, .9, 3.4, .3), tube(.06, 0, 2.6, 0, -.7, 3.7, -.4)]);
   const lump = (r, x, y, z) => {

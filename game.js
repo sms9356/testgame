@@ -4208,7 +4208,7 @@ function fzFloor(parent, tex, x1, x2, z1, z2, y, rep, rough = .9) {
 
 /* 경비실: 제공 350×280cm 내부, 기존 감시·정문 미션 보존 */
 {
-  const g = adopt(fzP.buildGuardhouseProps(V3(21.75, 0, 65)), world.OUT), [desk, mon, sw] = g.children;
+  const g = adopt(fzP.buildGuardhouseProps(V3(GUARD_LAYOUT.cx, 0, GUARD_LAYOUT.cz)), world.OUT), [desk, mon, sw] = g.children;
   desk.visible = false; mon.visible = false;
   const cctvTex = srgb(mon.material.map); guardCctvData = IA(fzP, 'guard_cctv');
   pbox(.11, .17, .025, PM(0xc6c0b3, .7, .05), GUARD_LAYOUT.lightSwitch.x, GUARD_LAYOUT.lightSwitch.y, GUARD_LAYOUT.lightSwitch.z, g); pbox(.035, .065, .025, PM(0xeee9df, .5, 0), GUARD_LAYOUT.lightSwitch.x, GUARD_LAYOUT.lightSwitch.y, GUARD_LAYOUT.lightSwitch.z - .023, g);
@@ -4408,7 +4408,7 @@ function zoneHud() {
 function zoneLabel() {
   const f = P.floor, x = P.x, z = P.z;
   if (f === 0 && inPassage()) return '실내 연결복도';
-  if (f === 0 && x > 19.1 && x < 24.4 && z > 62.8 && z < 67.2) return '경비실';
+  if (f === 0 && x > GUARD_LAYOUT.originX - .9 && x < GUARD_LAYOUT.originX + GUARD_LAYOUT.width + .9 && z > GUARD_LAYOUT.originZ - GUARD_LAYOUT.depth - .8 && z < GUARD_LAYOUT.originZ + .8) return '경비실';
   if (f === 0 && z > MAIN_ZS + 1 && z < 62 && Math.abs(x) < 30 && !inBldg(x, z)) return '운동장';
   if (f === 1 && x > 28.1 && x < 35.9 && z < -1.75) return '과학실';
   if (f === 10) { const r = roomAt(f, x, z); if (r && r.type === 'lab') return '과학실'; }
@@ -4416,7 +4416,7 @@ function zoneLabel() {
   if (f === 3) return '옥상';
   return null;
 }
-const ZONE_MAP = { 0: [[21.75, 61.6, '경비실 · 정문 개폐기'], [-11, 15.6, '조회대 마이크'], [-21.6, 61.4, '모래밭 · 타임캡슐'], [.8, (WALKWAY.z1 + WALKWAY.z2) / 2, '실내 연결복도']],
+const ZONE_MAP = { 0: [[GUARD_LAYOUT.cx, GUARD_LAYOUT.cz, '경비실 · 정문 개폐기'], [-11, 15.6, '조회대 마이크'], [-21.6, 61.4, '모래밭 · 타임캡슐'], [.8, (WALKWAY.z1 + WALKWAY.z2) / 2, '실내 연결복도']],
   1: [[32, -6.2, '과학실 · 시약'], [28.8, -8.6, '골격 모형']], 3: [[19, 2.3, '비상발전기'], [21.1, -4.2, '안테나']], 7: [[-37.4, 9.4, '냉동창고'], [-45.4, 11.6, '국솥'], [-40.6, 10.2, '가스 화구']] };
 
 /* ── 8. 실내 연결복도: 유리 통로(x -1.6 ~ 3.6) 안쪽에 막힌 실내 복도(폭 3.4m · 천장 2.9m)를 짓는다 ──
@@ -4697,7 +4697,7 @@ function patchTick(dt) {
   // 가스 화구 불꽃
   if (FZ.flameT > 0) { FZ.flameT -= dt; const S = FZ.stoveAt; for (let k = 0; k < 3; k++) fx.emit(S.x + (Math.random() - .5) * .2, S.y, S.z + (Math.random() - .5) * .5, (Math.random() - .5) * .1, .6 + Math.random() * .4, (Math.random() - .5) * .1, .45, [.3, .5, 1], .7, .1, 0, .4, -.4); }
   // 경비실 CCTV 화면: 근처에 있을 때 잡음 · 그것이 찍힌 채널에 흐릿한 형체
-  if (P.floor === 0 && Math.hypot(P.x - 21.75, P.z - 65) < 7) {
+  if (P.floor === 0 && Math.hypot(P.x - GUARD_LAYOUT.cx, P.z - GUARD_LAYOUT.cz) < 7) {
     FZ.cctvScareT -= dt; FZ.cctvT -= dt;
     if (FZ.cctvT <= 0 && (FL.guardCctvOn ?? true)) { FZ.cctvT = .12; fzP._drawCCTVFrame(FZ.cctvScareT > 0); const c = fzP.events.cctvNoiseCtx;
       if (G.active && FZ.cctvScareT <= 0) { const q = G.floor === 0 && G.z < MAIN_ZS ? [0, 0] : G.floor === 7 ? [128, 0] : G.floor === 0 ? [0, 96] : G.floor === 3 ? [128, 96] : null; if (q) { c.fillStyle = 'rgba(10,20,14,.85)'; c.beginPath(); c.ellipse(q[0] + 64 + Math.sin(tNow * 3) * 20, q[1] + 60, 7, 18, 0, 0, 7); c.fill(); } }
@@ -5771,7 +5771,7 @@ const TP = [
   ['별관 1F', { floor: 8, x: 0, z: .2, yaw: -Math.PI / 2 }], ['별관 2F', { floor: 9, x: 0, z: 0, yaw: -Math.PI / 2 }],
   ['별관 3F', { floor: 10, x: 0, z: 0, yaw: -Math.PI / 2 }], ['서문 앞', { floor: 0, x: -49, z: 32, yaw: Math.PI / 2 }],
   ['1-1 교실 (캠코더)', { floor: 0, x: 8, z: -3, yaw: 0 }], ['B1 펌프실 (명찰)', { floor: 4, x: 32, z: -3, yaw: 0 }], ['방송실 장비실 (민아)', { floor: 2, x: -21.4, z: -5.0, yaw: 0 }],
-  ['구역: 경비실', { floor: 0, x: 21.75, z: 65.6, yaw: 0 }], ['구역: 운동장 조회대', { floor: 0, x: -10.2, z: 16.2, yaw: 0 }], ['구역: 과학실 (본관 2층)', { floor: 1, x: 32, z: -2.6, yaw: 0 }],
+  ['구역: 경비실', { floor: 0, x: GUARD_LAYOUT.cx, z: GUARD_LAYOUT.cz + .6, yaw: 0 }], ['구역: 운동장 조회대', { floor: 0, x: -10.2, z: 16.2, yaw: 0 }], ['구역: 과학실 (본관 2층)', { floor: 1, x: 32, z: -2.6, yaw: 0 }],
   ['구역: 급식실 조리실', { floor: 7, x: -33.5, z: 11.6, yaw: Math.PI / 2 }], ['구역: 옥상 발전기', { floor: 3, x: 14.5, z: 5.2, yaw: -Math.PI / 2 }], ['실내 연결복도', { floor: 0, x: 1.6, z: -11.0, yaw: 0 }], ['B1 전기실 (고압 분전반)', { floor: 4, x: -15.4, z: -3.0, yaw: 0 }], ['B1 보일러실', { floor: 4, x: -21.5, z: -2.6, yaw: 0 }], ['수영장 수조 (청록 수중등)', { floor: 6, x: -36.6, z: 32.6, yaw: Math.PI * .75 }], ['남/녀 탈의실·샤워실 입구', { floor: 6, x: -41.0, z: 34.0, yaw: 0 }], ['기계실 철문', { floor: 6, x: -40.0, z: 47.6, yaw: Math.PI }], ...S37_TP(),
   ['교무실 금고', { floor: 0, x: -10.4, z: -8.0, yaw: Math.PI / 2 }], ['도서실 서랍 (자물쇠 따기)', { floor: 0, x: 32.6, z: -7.4, yaw: 0 }], ['과학실 약품장 (다이얼)', { floor: 1, x: 31, z: -4.8, yaw: Math.PI / 2 }],
   ['체육관 기구함 (다이얼)', { floor: 5, x: 30.6, z: 20.6, yaw: Math.PI / 2 }], ['수영장 배수구 (갈고리)', { floor: 6, x: -41.5, z: 46.9, yaw: 0 }], ['음악실 피아노', { floor: 2, x: 34.2, z: -6.2, yaw: 0 }], ['미술실 그림 퍼즐', { floor: 2, x: 25, z: -4.6, yaw: 0 }], ['보건실 녹음기', { floor: 0, x: -26.4, z: -4.6, yaw: Math.PI / 2 }], ['B1 전기실', { floor: 4, x: -16, z: -4, yaw: Math.PI / 2 }], ['3-3 교실', { floor: 2, x: -8, z: -3, yaw: 0 }], ['음악실', { floor: 2, x: 32, z: -3, yaw: 0 }],

@@ -1,4 +1,5 @@
 import { cloneV6, batchV6, guardDoorSweepContains, localBounds } from './guardRoomV6.js';
+import { arrangeGuardRoomV6 } from './guardRoomV6Layout.js';
 import * as THREE from './vendor/three.module.js';
 import { GLTFLoader } from './vendor/addons/loaders/GLTFLoader.js';
 import { toCreasedNormals } from './vendor/addons/utils/BufferGeometryUtils.js';
@@ -121,6 +122,7 @@ export function installGuardRoom({ renderer, scene, camera, guardRoom, cctvTextu
       if (!gltf?.scene) throw new Error('Guard room GLB contains no scene');
       v6 = !!gltf.scene.getObjectByName('F10_GROUP');
       sourceRoot = v6 ? cloneV6(gltf.scene) : cloneModel(gltf.scene, guardRoom.templates);
+      const layoutReport = v6 ? arrangeGuardRoomV6(sourceRoot) : null;
       stage = new THREE.Group(); stage.name = 'GUARDROOM_LOADED';
       model = new THREE.Group(); model.name = 'GUARDROOM_Z_UP'; model.rotation.x = -Math.PI/2;
       model.add(sourceRoot); stage.add(model);
@@ -173,7 +175,7 @@ export function installGuardRoom({ renderer, scene, camera, guardRoom, cctvTextu
         refs.furnitureBounds = {};
         sourceRoot.updateMatrixWorld(true);
         for (const entry of guardRoom.furnitureColliders || []) { const group=sourceRoot.getObjectByName(entry.id+'_GROUP'); if (group) refs.furnitureBounds[entry.id]=localBounds(sourceRoot,group); }
-        diagnostics = batchV6(sourceRoot); diagnostics.sourceV6 = true;
+        diagnostics = {...batchV6(sourceRoot), layout:layoutReport}; diagnostics.sourceV6 = true;
         diagnostics.groups = Object.keys(refs.nodes).filter(n => /^F\d{2}_GROUP$/.test(n));
       }
       stage.traverse(node => { node.userData = {...node.userData,dynamic:true}; });

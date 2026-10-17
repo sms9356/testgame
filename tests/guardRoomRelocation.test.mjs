@@ -7,11 +7,12 @@ const root = path.resolve(process.env.TESTGAME_ROOT || process.cwd());
 const { GUARD_LAYOUT: G, GUARD_SPUR: S, GUARD_RAW_COLLIDERS, guardCollisionRects, guardWorld } = await import(pathToFileURL(path.join(root,'guardRoomLayout.js')).href);
 const near=(a,b)=>assert.ok(Math.abs(a-b)<1e-5, a+' != '+b);
 const overlap=(a,b)=>a.x1<b.x2&&a.x2>b.x1&&a.z1<b.z2&&a.z2>b.z1;
-test('marker placement translates all anchors without resizing source',()=>{
+test('marker placement translates fixed anchors and seats NPC without resizing source',()=>{
   assert.deepEqual([G.cx,G.cz,G.width,G.depth,G.height],[6.5,66.5,3.5,2.8,2.5]);
   near(G.originX,4.75); near(G.originZ,67.9); near(G.doorX,6.55); near(G.doorZ,68.01);
-  const old={cctv:[20.99,65.348],log:[21.21,65.51],lightSwitch:[21.64,66.2],gateSwitch:[23.35,63.85],npc:[21.15,66.05],cap:[21.48,65.51]};
+  const old={cctv:[20.99,65.348],log:[21.21,65.51],lightSwitch:[21.64,66.2],gateSwitch:[23.35,63.85],cap:[21.48,65.51]};
   for(const [key,[x,z]] of Object.entries(old)){near(G[key].x,x-15.25);near(G[key].z,z+1.5);}
+  near(G.npc.x,G.originX+.99);near(G.npc.z,G.originZ-1.8);near(G.seat.x,G.npc.x);near(G.seat.z,G.npc.z);near(G.seat.y,.5005);
   near(guardWorld(0,0).x,G.originX); near(guardWorld(0,G.depth).z,G.originZ-G.depth);
   for(const [i,c] of guardCollisionRects().entries()){const raw=GUARD_RAW_COLLIDERS[i];near(c.x1,G.originX+raw.min[0]);near(c.x2,G.originX+raw.max[0]);near(c.z1,G.originZ-raw.max[1]);near(c.z2,G.originZ-raw.min[1]);}
 });

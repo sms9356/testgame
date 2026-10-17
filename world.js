@@ -1364,10 +1364,10 @@ export function buildWorld(scene) {
     elevator(cx);
     if (cur.f === 0 || cur.f === 4) plane(cur.interior, new THREE.MeshBasicMaterial({ map: T.makeSign(cur.f === 0 ? '↓ B1 지하층' : 'B1 지하층  ↑ 1층', '#1a1a1a', '#e8d070', 26), color: 0xb0a890 }), 1.2, .3, cx - 3.83, 2.3, -4.2, Math.PI / 2);   // 계단 층 표시
     if (cur.f === 0) {   // 본관 1층: 창 대신 별관 연결 통로로 나가는 문
-      add(mWoodDark, .1, 2.4, .2, cx + .55, 0, -9.5); add(mWoodDark, .1, 2.4, .2, cx + 1.95, 0, -9.5); add(mWoodDark, 1.5, .12, .2, cx + 1.25, 2.4, -9.5);
-      plane(cur.interior, mDoor, 1.3, 2.3, cx + 1.25, 1.15, -9.57);
-      plane(cur.interior, new THREE.MeshBasicMaterial({ map: T.makeSign('별관 연결 통로 →', '#1e2a2e', '#d9e4d0', 24), color: 0x9aa59a }), 1.4, .32, cx + 1.25, 2.75, -9.56);
-      doors.push({ floor: 0, x: cx + 1.25, z: -9.0, r: 1.3, label: '별관 연결 통로로', to: { floor: 0, x: cx + 1.25, z: -11.2, yaw: 0 } });
+      add(mWoodDark, .1, 2.4, .2, cx + .1, 0, -9.5); add(mWoodDark, .1, 2.4, .2, cx + 1.5, 0, -9.5); add(mWoodDark, 1.5, .12, .2, cx + .8, 2.4, -9.5);   // 연결 통로 가운데(x 0.8)에 맞춘 문 (예전 x 1.25 는 통로 동쪽 옛 벽에 문틀이 박혔다)
+      plane(cur.interior, mDoor, 1.3, 2.3, cx + .8, 1.15, -9.57);
+      plane(cur.interior, new THREE.MeshBasicMaterial({ map: T.makeSign('별관 연결 통로 →', '#1e2a2e', '#d9e4d0', 24), color: 0x9aa59a }), 1.4, .32, cx + .8, 2.75, -9.56);
+      doors.push({ floor: 0, x: cx + .8, z: -9.0, r: 1.3, label: '별관 연결 통로로', to: { floor: 0, x: cx + .8, z: -11.2, yaw: 0 } });
     } else if (!cur.basement) win3D(cur.interior, 1.7, 1.8, cx + 1.0, 1.9, -9.58);
     // 계단 표시
     const sg2 = new THREE.MeshBasicMaterial({ map: T.makeSign('▲ 위층   ▼ 아래층', '#1e2a2e', '#d9e4d0', 26), transparent: false });
@@ -3254,11 +3254,11 @@ export function buildWorld(scene) {
     for (let z = W.z1 + .9; z < W.z2; z += 1.8) { const l = new THREE.Mesh(new THREE.BoxGeometry(.18, .06, 1.25), matLampOn); l.position.set(cxW, 3.05, z); OUT.add(l); }
     col(W.x1 - .15, W.x1 + .15, W.z1, W.z2, true); col(W.x2 - .15, W.x2 + .15, W.z1, dz1, true); col(W.x2 - .15, W.x2 + .15, dz2, W.z2, true);
     plane(OUT, new THREE.MeshBasicMaterial({ map: T.makeSign('본관 ⇄ 별관 연결 통로', '#1e2a2e', '#d9e4d0', 22), color: 0x9aa59a }), 2.2, .4, W.x2 + .1, 2.82, czW, Math.PI / 2);
-    // 양끝 출입문: 문틀(문설주 · 인방) + 문짝 — 본관 쪽(계단실 북문, x 1.25) · 별관 쪽(현관, x 0)
+    // 양끝 출입문: 문틀(문설주 · 인방) + 문짝 — 본관 쪽(계단실 북문, x 0.8 · 통로 가운데) · 별관 쪽(현관, x 0)
     const doorAt = (x, z, w, ry) => { OUT.add(new THREE.Mesh(merge([bx(.14, 2.45, .2, x - w / 2 - .07, 1.225, z), bx(.14, 2.45, .2, x + w / 2 + .07, 1.225, z), bx(w + .28, .16, .2, x, 2.5, z)]), mWoodDark));
       plane(OUT, mDoor, w, 2.35, x, 1.175 + .12, z + (ry ? -.02 : .02), ry); };
-    doorAt(1.25, -9.9 - .1, 1.3, Math.PI); doorAt(0, W.z1 + .1, 1.8, 0);
-    plane(OUT, new THREE.MeshBasicMaterial({ map: T.makeSign('본관 (계단실)', '#1e2a2e', '#d9e4d0', 24), color: 0x9aa59a }), 1.3, .3, 1.25, 2.8, -10.02, Math.PI);
+    doorAt(.8, -9.9 - .1, 1.3, Math.PI); doorAt(0, W.z1 + .1, 1.8, 0);
+    plane(OUT, new THREE.MeshBasicMaterial({ map: T.makeSign('본관 (계단실)', '#1e2a2e', '#d9e4d0', 24), color: 0x9aa59a }), 1.3, .3, .8, 2.8, -10.02, Math.PI);
     // 벤치 · 우산꽂이 · 소화기 · 버려진 의자 (통로 소품)
     model('h133/EXT-004', W.x1 + .45, 0, czW + 1.0, Math.PI / 2, { out: true, col: [1.45, .44] });
     model('korean_fire_extinguisher_01', W.x2 - .3, 0, W.z2 - .45, -Math.PI / 2, { out: true });
@@ -3272,7 +3272,7 @@ export function buildWorld(scene) {
     // Gate cameras are installed under the actual gate pillar caps below.
     model('metal_trash_can', 7.5, 0, MAIN_ZS + 2.2, Math.PI, { out: true, col: [1.85, .56] });
     [-14, 10].forEach(x => model('exterior_aircon_unit', x, 0, -25.3 - ANNEX_DZ, Math.PI, { out: true, col: [1.8, .4] }));
-    doors.push({ floor: 0, x: 1.25, z: -10.5, r: 1.3, label: '본관 들어가기 (계단실)', to: { floor: 0, x: 1.25, z: -8.7, yaw: Math.PI } });
+    doors.push({ floor: 0, x: .8, z: -10.5, r: 1.3, label: '본관 들어가기 (계단실)', to: { floor: 0, x: .8, z: -8.7, yaw: Math.PI } });
   }
   annexExitDoor(OUT, -20.42, -Math.PI / 2);   // 별관 서쪽 비상구 (바깥 면)
   doors.push({ floor: 0, x: -21.2, z: ANNEX_EXIT_Z, r: 1.4, label: '별관 비상구로 들어가기', to: { floor: 8, x: -18.9, z: 0, yaw: -Math.PI / 2 } });
@@ -3300,7 +3300,7 @@ export function buildWorld(scene) {
     }));
     // 층간 띠 (북면) · 기단 · 코니스 · 파라펫 갓돌
     for (let f = 1; f < 3; f++) fac.push(bx(X1 - X0 + .4, .28, .18, 0, f * FH, ZN - .09, 3));
-    fac.push(bx(X1 - X0 + .6, .55, .16, 0, .27, ZN - .08, 3), bx(.16, .55, ZL + .25, X0 - .08, .27, ZC, 3), bx(.16, .55, ZL + .25, X1 + .08, .27, ZC, 3));
+    fac.push(bx(-.95 - (X0 - .3), .55, .16, (X0 - .3 - .95) / 2, .27, ZN - .08, 3), bx(X1 + .3 - 2.55, .55, .16, (X1 + .3 + 2.55) / 2, .27, ZN - .08, 3),   /* 북면 기단: 연결 통로 입구(x −0.95 ~ 2.55)는 비운다 — 문 앞을 가로질러 턱처럼 보였다 */ bx(.16, .55, ZL + .25, X0 - .08, .27, ZC, 3), bx(.16, .55, ZL + .25, X1 + .08, .27, ZC, 3));
     fac.push(bx(X1 - X0 + 1.0, .22, .5, 0, TOP + .05, ZS + .25, 3), bx(X1 - X0 + 1.0, .22, .5, 0, TOP + .05, ZN - .25, 3));
     fac.push(bx(.5, .22, ZL + .95, X0 - .25, TOP + .05, ZC, 3), bx(.5, .22, ZL + .95, X1 + .25, TOP + .05, ZC, 3));
     // 파라펫 바깥 면 (옥상 층이 안 보일 때도 외부에서 보이도록)

@@ -1390,7 +1390,7 @@ async function useRoomObj(p) {
     FL.guardDoorOpen = !(FL.guardDoorOpen ?? true); sfx.click(); syncGuardDevices(); save(true); return;
   }
   if (k === 'guardlight') { toggleGuardLight(); return; }
-  if (k === 'guardcctv') { sfx.radio(); openGuardCctv(); return; }
+  if (k === 'guardcctv') { openGuardCctv(); sfx.click(); return; }
   if (k === 'radio') {
     sfx.staticNoise(1.6); const ga = ghost.active && ghost.floor === P.floor, d = ga ? Math.hypot(ghost.x - P.x, ghost.z - P.z) : 99;
     setTimeout(() => caption(ga ? (d < 12 ? '(지지직!) 잡음이 거세다 — 가까이 있다' : '(지직…) 잡음이 일정하다 — 같은 층 어딘가에 있다') : '(조용한 잡음) — 이 층에는 아무것도 없는 것 같다'), 700);

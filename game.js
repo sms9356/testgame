@@ -2323,7 +2323,7 @@ function frameBody(now) {
   if (state === 'playing') fx.breath(P.floor === 4 || P.floor === 6 || isOutdoors() || P.fear > .5, dt);
   updateSound(dt);
   updatePings(dt); updateObjDir(dt);
-  campusCctv?.tick(dt,{powered:FL.guardCctvOn??true,near:state==='playing'&&P.floor===0&&Math.hypot(P.x-GUARD_LAYOUT.cx,P.z-GUARD_LAYOUT.cz)<7,quality:qCur});
+  campusCctv?.tick(dt,{powered:FL.guardCctvOn??true,near:state==='playing'&&P.floor===0&&Math.hypot(P.x - GUARD_LAYOUT.cx, P.z - GUARD_LAYOUT.cz)<7,quality:qCur});
   staticLOD.render(camera, now, qCur, () => fx.render(dt, { fear: P.fear || 0, flash: flash.intensity / 95, outdoors: outdoorsNow, floorY: floors[P.floor].y0, hurt: hurtFx, rain: 0 }));
   if (SHOT.req) shotGrab();   // 카메라 앨범: 방금 그린 화면
   

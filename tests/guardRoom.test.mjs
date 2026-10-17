@@ -10,6 +10,7 @@ const root = path.resolve(process.env.TESTGAME_ROOT || process.cwd());
 const THREE = await import(pathToFileURL(path.join(root,'vendor/three.module.js')).href);
 const { installGuardRoom } = await import(pathToFileURL(path.join(root,'guardRoom.js')).href);
 const { GLTFLoader } = await import(pathToFileURL(path.join(root,'vendor/addons/loaders/GLTFLoader.js')).href);
+const { GUARD_LAYOUT: G } = await import(pathToFileURL(path.join(root,'guardRoomLayout.js')).href);
 const near = (a,b,e=1e-5) => assert.ok(Math.abs(a-b)<e, `${a} != ${b}`);
 function fixture() {
   const scene = new THREE.Group();
@@ -36,8 +37,8 @@ function fixture() {
 }
 function environment(source=fixture(),extra={}) {
   const scene=new THREE.Scene(), holder=new THREE.Group(), fallback=new THREE.Group();
-  scene.add(holder); holder.position.set(20,.02,66.4); holder.add(fallback);
-  const guardRoom={holder,fallback,doorCollider:{x1:21.8,x2:22.65,z1:66.485,z2:66.535,off:false,tag:'preserved'},ceilingCover:false,fallbackDoorPivot:new THREE.Group(),...extra};
+  scene.add(holder); holder.position.set(G.originX,G.floorY,G.originZ); holder.add(fallback);
+  const guardRoom={holder,fallback,doorCollider:{x1:G.doorX,x2:G.doorX+.85,z1:G.doorZ-.025,z2:G.doorZ+.025,off:false,tag:'preserved'},ceilingCover:false,fallbackDoorPivot:new THREE.Group(),...extra};
   const events=[];
   const renderer={initTexture:()=>events.push('texture'),compileAsync:async()=>{assert.equal(fallback.visible,true);events.push('compile');}};
   const cctvTexture=new THREE.Texture();
@@ -50,7 +51,7 @@ test('source axes, intentional negative slab, anchor and all named nodes survive
   near(e.api.model.rotation.x,-Math.PI/2);
   e.guardRoom.holder.updateMatrixWorld(true);
   const floor=new THREE.Box3().setFromObject(e.api.refs.nodes.SHELL_FLOOR);
-  near(floor.min.x,20); near(floor.max.x,23.5); near(floor.min.z,63.6); near(floor.max.z,66.4);
+  near(floor.min.x,G.originX); near(floor.max.x,G.originX+G.width); near(floor.min.z,G.originZ-G.depth); near(floor.max.z,G.originZ);
   near(floor.max.y,.02); near(floor.min.y,-.13);
   const full=new THREE.Box3().setFromObject(e.api.model); near(full.max.y,2.52);
   e.source.traverse(n=>{if(n.name) assert.ok(e.api.refs.nodes[n.name]);});
@@ -60,14 +61,14 @@ test('door is attached without translation jumps; outward raw-Z hinge updates wo
   const e=environment(); const closed={...e.guardRoom.doorCollider}; await e.api.ready;
   const p=e.api.refs.doorPivot; near(p.position.x,1.8);near(p.position.y,-.11);near(p.position.z,0);
   e.api.model.updateMatrixWorld(true);
-  const c=e.guardRoom.doorCollider; near(c.x1,21.8);near(c.x2,22.65);near(c.z1,66.485);near(c.z2,66.535);
+  const c=e.guardRoom.doorCollider; near(c.x1,G.doorX);near(c.x2,G.doorX+.85);near(c.z1,G.doorZ-.025);near(c.z2,G.doorZ+.025);
   assert.equal(c.tag,'preserved'); assert.equal(c,e.guardRoom.doorCollider);
   assert.equal(e.api.refs.handle.parent,p); assert.equal(c.off,false);
   e.api.applyState({doorOpen:true});e.api.tick(1);
-  near(p.rotation.z,-Math.PI/2);near(c.x1,21.775);near(c.x2,21.825);near(c.z1,66.51);near(c.z2,67.36);
+  near(p.rotation.z,-Math.PI/2);near(c.x1,G.doorX-.025);near(c.x2,G.doorX+.025);near(c.z1,G.doorZ);near(c.z2,G.doorZ+.85);
   assert.equal(c.tag,'preserved');
   assert.notDeepEqual(c,closed);
-  e.api.applyState({doorOpen:false});e.api.tick(1);near(c.x1,21.8);near(c.x2,22.65);near(c.z2-c.z1,.05);
+  e.api.applyState({doorOpen:false});e.api.tick(1);near(c.x1,G.doorX);near(c.x2,G.doorX+.85);near(c.z2-c.z1,.05);
 });
 test('state applied before load persists; screen texture is read-only and light stays visible',async()=>{
   const e=environment(); const textureVersion=e.cctvTexture.version;
@@ -116,7 +117,7 @@ test('normals repaired and UV added only on clones; RGBA colors and existing att
 test('load and shader failures preserve fallback and closed collision',async()=>{
   for(const fail of ['load','compile']) {
     const scene=new THREE.Scene(),holder=new THREE.Group(),fallback=new THREE.Group();scene.add(holder);holder.add(fallback);
-    const collider={x1:21.8,x2:22.65,z1:66.485,z2:66.535,off:false,tag:'preserved'},before={...collider};
+    const collider={x1:G.doorX,x2:G.doorX+.85,z1:G.doorZ-.025,z2:G.doorZ+.025,off:false,tag:'preserved'},before={...collider};
     const api=installGuardRoom({scene,camera:new THREE.Camera(),guardRoom:{holder,fallback,doorCollider:collider},frame:async()=>{},loader:{loadAsync:async()=>{if(fail==='load')throw new Error('load failed');return {scene:fixture()};}},renderer:{compileAsync:async()=>{throw new Error('compile failed');}}});
     await api.ready;assert.equal(api.status,'error');assert.ok(api.error);assert.equal(fallback.visible,true);assert.equal(api.model,null);assert.deepEqual(collider,before);assert.equal(holder.children.length,1);
   }

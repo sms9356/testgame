@@ -18,19 +18,37 @@ export function surfaceDetail(u, v, wood = false) {
   };
 }
 function pattern(name, w, h) {
-  const key = name + ':' + w + 'x' + h;
-  let p = patterns.get(key);
-  if (p) return p;
-  const wood = /varnish|door/.test(name), count = w * h;
-  p = { key, w, h, height: new Float32Array(count), tone: new Float32Array(count), rough: new Float32Array(count), channels: new Set() };
+  const wood = /varnish|door/.test(name), key = (wood ? 'wood' : 'metal') + ':' + w + 'x' + h;
+  let p = patterns.get(key); if (p) return p;
+  const X = Array.from({ length: 7 }, () => new Float32Array(w));
+  const Y = Array.from({ length: 7 }, () => new Float32Array(h));
+  for (let x = 0; x < w; x++) {
+    const u = TAU * x / w, bend = .14 * Math.sin(u * 3) * TAU;
+    X[0][x] = Math.sin(u * 3); X[1][x] = Math.cos(bend); X[2][x] = Math.sin(bend);
+    X[3][x] = Math.sin(u * 37); X[4][x] = Math.sin(u * 113);
+    X[5][x] = Math.cos(u * 23); X[6][x] = Math.sin(u * 7);
+  }
+  for (let y = 0; y < h; y++) {
+    const v = TAU * y / h;
+    Y[0][y] = Math.cos(v * 4); Y[1][y] = Math.sin(v * 72); Y[2][y] = Math.cos(v * 72);
+    Y[3][y] = Math.cos(v * 41); Y[4][y] = Math.cos(v * 127);
+    Y[5][y] = Math.cos(v * 19); Y[6][y] = Math.sin(v * 5);
+  }
+  const count = w * h;
+  p = { key, w, h, height: new Float32Array(count), tone: new Float32Array(count), rough: new Float32Array(count) };
   for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
-    const i = y * w + x, d = surfaceDetail(x / w, y / h, wood);
-    p.height[i] = d.height; p.tone[i] = d.tone; p.rough[i] = d.rough;
+    const i = y * w + x, broad = X[0][x] * Y[0][y];
+    const grain = wood ? Y[1][y] * X[1][x] + Y[2][y] * X[2][x] : X[3][x] * Y[3][y];
+    const micro = X[4][x] * Y[4][y], dust = Math.max(0, broad - .35) / .65;
+    const scratch = Math.max(0, ((wood ? Y[5][y] : X[5][x]) - .992) / .008) * Math.max(0, wood ? X[6][x] : Y[6][y]);
+    p.height[i] = grain * (wood ? .012 : .006) + micro * .004 - scratch * .018;
+    p.tone[i] = 1 + grain * .026 + micro * .012 - dust * .045 + scratch * .045;
+    p.rough[i] = grain * .022 + micro * .018 + dust * .085 + scratch * .10;
   }
   if (patterns.size >= 3) patterns.delete(patterns.keys().next().value);
-  patterns.set(key, p);
-  return p;
+  patterns.set(key, p); return p;
 }
+export function clearFurnitureDetailCache() { patterns.clear(); }
 export function refineFurnitureTexture(texture, name, channel) {
   if (!texture || !MATERIALS.has(name) || !['map', 'normal', 'rough'].includes(channel)) return texture;
   if (texture.userData?.furnitureDetail?.name === name && texture.userData.furnitureDetail.channel === channel) return texture;
@@ -72,8 +90,6 @@ export function refineFurnitureTexture(texture, name, channel) {
   } catch (error) {
     // Keep the original image when canvas access is unavailable.
     console.warn('[Furniture detail] original texture retained', name, channel, error.message);
-  } finally {
-    if (p) { p.channels.add(channel); if (p.channels.size === 3) patterns.delete(p.key); }
   }
   return texture;
 }

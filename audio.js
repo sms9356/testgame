@@ -21,21 +21,20 @@ export function initAudio() {
   ac = new AC();
   comp = ac.createDynamicsCompressor(); comp.threshold.value = -14; comp.ratio.value = 4; comp.connect(ac.destination);
   master = ac.createGain(); master.gain.value = VOL.master; master.connect(comp);
-  ['sfx', 'voice', 'amb', 'music'].forEach(k => { bus[k] = ac.createGain(); bus[k].gain.value = VOL[k]; bus[k].connect(master); });
+  ['sfx', 'voice', 'amb', 'music'].forEach(k => {
+    bus[k] = ac.createGain(); bus[k].gain.value = VOL[k];
+    if (k === 'voice') { bus[k].connect(master); return; }
+    let node = bus[k];
+    for (let i = 0; i < 2; i++) { const hp = ac.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 180; hp.Q.value = Math.SQRT1_2; node.connect(hp); node = hp; }
+    node.connect(master);
+  });
   noiseBuf = ac.createBuffer(1, ac.sampleRate * 2, ac.sampleRate);
   const d = noiseBuf.getChannelData(0);
   for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
   // 잔향 (효과음·음성에서 보냄)
   rev = ac.createConvolver(); rev.buffer = makeIR(2.6, 3.2);
   revSend = ac.createGain(); revSend.gain.value = .25; revSend.connect(rev); rev.connect(bus.sfx);
-  // 낮은 드론 (항상)
-  [43.6, 44.4, 65.4, 87.3].forEach((f, i) => {
-    const o = ac.createOscillator(); o.type = i === 3 ? 'triangle' : 'sine'; o.frequency.value = f;
-    const g = ac.createGain(); g.gain.value = i === 3 ? 0.01 : 0.04;
-    const lfo = ac.createOscillator(); lfo.frequency.value = 0.05 + i * 0.03;
-    const lg = ac.createGain(); lg.gain.value = 0.02; lfo.connect(lg); lg.connect(g.gain); lfo.start();
-    o.connect(g); g.connect(bus.amb); o.start();
-  });
+  // 지속 저주파 드론 제거: 대사와 필요한 효과음은 별도 버스로 유지.
   ['school-bell', 'class-chime', 'pa-chime'].forEach(name => loadVoice(`assets/sfx/${name}.mp3`).then(b => { if (b) schoolSamples.set(name, b); }));
   buildAmbience();
   // 유령 근접음(숨소리/속삭임)
@@ -121,13 +120,11 @@ function buildAmbience() {
   amb('out', [windG, rH, rL, crA]);
   // 실내 복도: 룸톤 + 형광등 웅 (120Hz)
   const room = loopNoise(260, 'lowpass'); const roomG = ac.createGain(); roomG.gain.value = .05; room.connect(roomG);
-  const hum = ac.createOscillator(); hum.type = 'sawtooth'; hum.frequency.value = 120; const humF = ac.createBiquadFilter(); humF.type = 'lowpass'; humF.frequency.value = 600; const humG = ac.createGain(); humG.gain.value = .006; hum.connect(humF); humF.connect(humG); hum.start();
   const rainIn = loopNoise(1400, 'lowpass'); const rainInG = ac.createGain(); rainInG.gain.value = .025; rainIn.connect(rainInG); rainNodes.push([rainInG, .025]);
-  amb('in', [roomG, humG, rainInG]);
+  amb('in', [roomG, rainInG]);
   // 지하: 기계 웅웅 + 배관
-  const mh = ac.createOscillator(); mh.type = 'sawtooth'; mh.frequency.value = 50; const mhF = ac.createBiquadFilter(); mhF.type = 'lowpass'; mhF.frequency.value = 180; const mhG = ac.createGain(); mhG.gain.value = .05; mh.connect(mhF); mhF.connect(mhG); mh.start();
   const pipe = loopNoise(700, 'bandpass', 6); const pipeG = ac.createGain(); pipeG.gain.value = .03; pipe.connect(pipeG);
-  amb('b1', [mhG, pipeG]);
+  amb('b1', [pipeG]);
   // 넓은 공간(체육관·수영장): 공기 + 먼 울림
   const hall = loopNoise(180, 'lowpass'); const hallG = ac.createGain(); hallG.gain.value = .08; hall.connect(hallG);
   amb('hall', [hallG]);
@@ -180,15 +177,6 @@ export function setGhostVoice(pos, level, chase, dt) {
 }
 
 /* ----- 비상 발전기 웅웅거림 (디젤 엔진의 낮은 고동 + 50Hz 험) ----- */
-let genG = null, genLv = 0;
-function buildGen() {
-  genG = ac.createGain(); genG.gain.value = 0; genG.connect(bus.amb);
-  const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 220; lp.connect(genG);
-  const am = ac.createGain(); am.gain.value = .6; am.connect(lp);
-  [[50, 'sawtooth', .5], [25, 'square', .25], [100, 'sine', .25]].forEach(([f, t, v]) => { const o = ac.createOscillator(); o.type = t; o.frequency.value = f; const g = ac.createGain(); g.gain.value = v; o.connect(g); g.connect(am); o.start(); });
-  const lfo = ac.createOscillator(); lfo.frequency.value = 7.3; const lg = ac.createGain(); lg.gain.value = .35; lfo.connect(lg); lg.connect(am.gain); lfo.start();   // 엔진 고동
-  const n = loopNoise(160, 'lowpass', .8); const ng = ac.createGain(); ng.gain.value = .5; n.connect(ng); ng.connect(genG);
-}
 // 손전등 집중 조사: 코일 과부하처럼 높아지는 고주파 윙 소리 (level 0~1)
 let coilG = null, coilO = null, coilLv = 0;
 export function setCoil(level) {
@@ -197,7 +185,7 @@ export function setCoil(level) {
   if (Math.abs(level - coilLv) < .01) return; coilLv = level;
   coilO.frequency.setTargetAtTime(900 + level * 3200 + Math.random() * 120, ac.currentTime, .05); coilG.gain.setTargetAtTime(level * .09, ac.currentTime, .06);
 }
-export function setGenHum(v, dt) { if (!ok()) return; if (!genG) buildGen(); const t = v * .09; if (Math.abs(t - genLv) > .002) { genLv = t; genG.gain.setTargetAtTime(t, ac.currentTime, .4); } }
+export function setGenHum(v, dt) { /* 저주파 엔진 험 제거. 발전기 미션 API는 유지. */ }
 
 /* ----- 음악 (메뉴 테마 · 추격) ----- */
 let musG = {}, musMode = '', mbT = 0, mbI = 0, chaseT = 0;
@@ -217,7 +205,6 @@ function buildMusic() {
   musG.menu = ac.createGain(); musG.menu.gain.value = 0; musG.menu.connect(bus.music);
   musG.chase = ac.createGain(); musG.chase.gain.value = 0; musG.chase.connect(bus.music);
   // 추격: 불협 현악 드론
-  [55, 58.3, 82.4, 87.3].forEach(f => { const o = ac.createOscillator(); o.type = 'sawtooth'; o.frequency.value = f; const fl = ac.createBiquadFilter(); fl.type = 'lowpass'; fl.frequency.value = 500; const g = ac.createGain(); g.gain.value = .025; o.connect(fl); fl.connect(g); g.connect(musG.chase); o.start(); });
 }
 const BOX = [659, 587, 523, 587, 659, 659, 659, 0, 587, 587, 587, 0, 659, 784, 784, 0];
 function musicTone(f, dur, vol, type, g) { const o = ac.createOscillator(); o.type = type; o.frequency.value = f; const e = ac.createGain(); e.gain.setValueAtTime(vol, ac.currentTime); e.gain.exponentialRampToValueAtTime(.0005, ac.currentTime + dur); o.connect(e); e.connect(g); e.connect(revSend); o.start(); o.stop(ac.currentTime + dur + .05); }
@@ -233,14 +220,11 @@ function piano(f, vol, dur = 3.2) {
     const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 2400; o.connect(lp); lp.connect(e); e.connect(musG.menu); e.connect(revSend); o.start(t); o.stop(t + dur + .1);
   });
 }
-function setPad(ch) {
-  if (!padNodes) { padNodes = ch.map(() => { const o = ac.createOscillator(), o2 = ac.createOscillator(); o.type = o2.type = 'sawtooth'; o2.detune.value = 9; const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 650; const g = ac.createGain(); g.gain.value = .011; o.connect(lp); o2.connect(lp); lp.connect(g); g.connect(musG.menu); o.start(); o2.start(); return [o, o2]; }); }
-  ch.forEach((f, i) => padNodes[i].forEach(o => o.frequency.setTargetAtTime(f / 2, ac.currentTime, .9)));
-}
+function setPad(ch) { /* 지속 저음 패드 제거 */ }
 function menuBGM(dt) {
   bgmT -= dt; if (bgmT > 0) return; bgmT = .6;
   const bar = (bgmStep / 8 | 0) % 4, ch = CHORDS[bar], i = bgmStep % 8;
-  if (i === 0) { setPad(ch); musicTone(ch[0] / 2, 5.2, .05, 'sine', musG.menu); }
+  if (i === 0) { setPad(ch); }
   const arp = [0, 1, 2, 1, 0, 2, 1, 2][i]; piano(ch[arp] * (i > 3 ? 2 : 1), .045 + (i === 0 ? .02 : 0));
   const b = BELL[bgmStep % BELL.length]; if (b && bgmStep % 2 === 0 && (bgmStep / 16 | 0) % 2 === 1) { const d = 1 + (Math.random() - .5) * .01; musicTone(b * d, 2.2, .03, 'sine', musG.menu); musicTone(b * 2.004 * d, 1.1, .01, 'sine', musG.menu); }
   if (bgmStep % 32 === 31) { const t = ac.currentTime; const n = ac.createBufferSource(); n.buffer = noiseBuf; n.loop = true; const f = ac.createBiquadFilter(); f.type = 'bandpass'; f.frequency.setValueAtTime(300, t); f.frequency.exponentialRampToValueAtTime(3000, t + 2.2); const e = ac.createGain(); e.gain.setValueAtTime(.0001, t); e.gain.exponentialRampToValueAtTime(.05, t + 2.2); e.gain.linearRampToValueAtTime(0, t + 2.3); n.connect(f); f.connect(e); e.connect(musG.menu); n.start(t); n.stop(t + 2.4); }

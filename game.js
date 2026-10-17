@@ -17,6 +17,7 @@ import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES,
 import { drawMap } from './map.js';
 import { makeDress, makeHair, makeGhostFace, makeGraffiti, makeKeypad, loadPBR, pbr, makeGlow as makeGlowTex, makePaintingStare, makeSign, makeBlood } from './tex.js';
 import { warmUp } from './bake.js';
+import { createStaticDistanceLOD } from './staticDistanceLOD.js';
 import { createFX } from './fx.js';
 import './sanitySystem.js';   // 공포 환각 엔진 (사용자 제공) → window.sanitySystem
 import { GhostCameraSystem } from './ghostCamera.js';   // 심령 카메라 엔진 (사용자 제공)
@@ -100,6 +101,7 @@ renderer.domElement.addEventListener('webglcontextlost', e => {
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 const scene = new THREE.Scene();
+const staticLOD = createStaticDistanceLOD(scene);
 scene.background = new THREE.Color(0x05070d);
 scene.fog = new THREE.FogExp2(0x070a12, 0.03);
 const FOG_IN = new THREE.Color(0x060708), FOG_OUT = new THREE.Color(0x0c1424);
@@ -1992,7 +1994,7 @@ function updateLighting(dt) {
   setCoil(fi ? repelK : 0); if (repelK > .05) shake = Math.max(shake, .22 * repelK);
   if (CAM.on) fi *= .3;   // 심령 카메라: 야간 투시라 손전등 빛을 줄인다 (흔적이 묻히지 않게)
   // 가까운 벽 · 가구를 비출 때 하얗게 날아가던 반사: 앞쪽 장애물까지 거리에 따라 세기를 줄인다 (2.5m 안)
-  const nd = flashNear(), nk = nd < 3.5 ? clamp(Math.pow(nd / 3.5, 2), .03, 1) : 1;   /* 거리 감쇠(decay 1.3)를 상쇄 → 가까워도 비친 면 밝기가 거의 같다 */
+  const nd = fi ? flashNear() : 9, nk = nd < 3.5 ? clamp(Math.pow(nd / 3.5, 2), .03, 1) : 1;   /* 거리 감쇠(decay 1.3)를 상쇄 → 가까워도 비친 면 밝기가 거의 같다 */
   flash.intensity = fi * nk;
   spill.intensity = fi ? (fi / 95) * .8 * Math.max(.12, nk) : 0;
   antiGlareTick();
@@ -2084,7 +2086,8 @@ function updateCamera(dt, t) {
   camera.rotation.set(pitch, yaw, 0, 'YXZ');
   applyThirdPerson(dt, yaw, pitch);
   const fov = SET.fov + (P.sprinting ? 6 : 0) + (chase ? 4 : 0) + (state === 'dead' ? -10 : 0) - repelK * 8;
-  camera.fov = lerp(camera.fov, fov * (1 - .55 * ZOOM.k), Math.min(1, dt * 6)); camera.updateProjectionMatrix();
+  const nextFov = lerp(camera.fov, fov * (1 - .55 * ZOOM.k), Math.min(1, dt * 6));
+  if (Math.abs(nextFov - camera.fov) > .001) { camera.fov = nextFov; camera.updateProjectionMatrix(); }
   $('fear').style.opacity = SET.fearFx ? clamp(prox * (chase ? 1.2 : .7), 0, 1) : 0;
   document.body.classList.toggle('chase', chase && state === 'playing');
   setProximity(prox * (chase ? 1 : .6), t);
@@ -2311,7 +2314,7 @@ function frameBody(now) {
   if (state === 'playing') fx.breath(P.floor === 4 || P.floor === 6 || isOutdoors() || P.fear > .5, dt);
   updateSound(dt);
   updatePings(dt); updateObjDir(dt);
-  fx.render(dt, { fear: P.fear || 0, flash: flash.intensity / 95, outdoors: outdoorsNow, floorY: floors[P.floor].y0, hurt: hurtFx, rain: 0 });
+  staticLOD.render(camera, now, qCur, () => fx.render(dt, { fear: P.fear || 0, flash: flash.intensity / 95, outdoors: outdoorsNow, floorY: floors[P.floor].y0, hurt: hurtFx, rain: 0 }));
   if (SHOT.req) shotGrab();   // 카메라 앨범: 방금 그린 화면
   
 }

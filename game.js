@@ -18,6 +18,7 @@ import { drawMap } from './map.js';
 import { makeDress, makeHair, makeGhostFace, makeGraffiti, makeKeypad, loadPBR, pbr, makeGlow as makeGlowTex, makePaintingStare, makeSign, makeBlood } from './tex.js';
 import { warmUp } from './bake.js';
 import { createStaticDistanceLOD } from './staticDistanceLOD.js';
+import { createTextureBudget } from './textureBudget.js';
 import { createFX } from './fx.js';
 import './sanitySystem.js';   // 공포 환각 엔진 (사용자 제공) → window.sanitySystem
 import { GhostCameraSystem } from './ghostCamera.js';   // 심령 카메라 엔진 (사용자 제공)
@@ -102,6 +103,7 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 const scene = new THREE.Scene();
 const staticLOD = createStaticDistanceLOD(scene);
+const textureBudget = createTextureBudget({ quality: SET.quality === 'auto' ? 'mid' : SET.quality });
 scene.background = new THREE.Color(0x05070d);
 scene.fog = new THREE.FogExp2(0x070a12, 0.03);
 const FOG_IN = new THREE.Color(0x060708), FOG_OUT = new THREE.Color(0x0c1424);
@@ -152,6 +154,7 @@ const _t1 = performance.now();
 const world = buildWorld(scene);
 const npcVisuals = createNPCVisuals({ THREE, GLTFLoader, prepare: async obj => {
   const tex = new Set(); obj.traverse(o => { if (o.material) [].concat(o.material).forEach(m => ['map', 'normalMap', 'roughnessMap', 'metalnessMap', 'aoMap', 'alphaMap', 'emissiveMap'].forEach(k => m[k] && tex.add(m[k]))); });
+  await textureBudget.prepareTextures(tex);
   for (const t of tex) { renderer.initTexture(t); await new Promise(r => requestAnimationFrame(r)); }   // 한 프레임에 하나씩
   if(renderer.extensions.has('KHR_parallel_shader_compile')) await renderer.compileAsync(obj,camera,scene); else renderer.compile(obj,camera,scene);
 } });   // assets/characters/{guard,mina}.glb 가 있으면 절차적 모델 대신 쓴다
@@ -175,6 +178,7 @@ function loadModels() {
   const stage = async (pairs) => {   // pairs: [parent, mesh]
     const texs = []; pairs.forEach(([, m]) => ['map', 'normalMap', 'roughnessMap', 'metalnessMap', 'aoMap'].forEach(k => { const t = m.material[k]; if (t && !upTex.has(t)) { upTex.add(t); texs.push(t); } }));
     await Promise.all(texs.map(t=>t.userData.ready).filter(Boolean));
+    await textureBudget.prepareTextures(texs);
     for (let i=0;i<texs.length;i++) { if(texs[i].image) renderer.initTexture(texs[i]); if(i%4===3) await new Promise(r => requestAnimationFrame(r)); }
     const g = new THREE.Group(); pairs.forEach(([, m]) => g.add(m));
     try { if(renderer.extensions.has('KHR_parallel_shader_compile')) await renderer.compileAsync(g,camera,scene); else renderer.compile(g,camera,scene); } catch (e) { /* ignore */ }
@@ -3282,9 +3286,10 @@ function libraryReturn() {
 
 /* ---------- 성능 / 그래픽 품질 ---------- */
 const QUAL = { high: { pr: 1.5, sh: 1024, label: '높음' }, mid: { pr: 1, sh: 512, label: '보통' }, low: { pr: 1, sh: 0, label: '낮음' } };
-let qCur = 'high', perfAcc = 0, perfN = 0, perfWin = 0, fpsShown = 60;
+let qCur = SET.quality === 'auto' ? 'mid' : SET.quality, perfAcc = 0, perfN = 0, perfWin = 0, fpsShown = 60;
 function applyQuality(q) {
   qCur = q; const c = QUAL[q];
+  textureBudget.setQuality(q).catch(e => console.warn('[texture budget]', e));
   renderer.setPixelRatio(Math.min(devicePixelRatio, c.pr) * SET.scale); renderer.setSize(innerWidth, innerHeight); fx.resize(innerWidth, innerHeight, renderer.getPixelRatio()); fx.setQuality(q);
   const sh = c.sh > 0;
   if (sh && flash.shadow.mapSize.x !== c.sh) { flash.shadow.mapSize.set(c.sh, c.sh); if (flash.shadow.map) { flash.shadow.map.dispose(); flash.shadow.map = null; } }
@@ -4215,7 +4220,7 @@ function fzFloor(parent, tex, x1, x2, z1, z2, y, rep, rough = .9) {
   guardControlProps = world.props.filter(p => p.k === 'guardcctv' || p.k === 'guardlight' || p.fz?.id === 'guard_cctv');
   guardRoomController = installGuardRoom({ renderer, scene, camera, guardRoom: world.guardRoom, cctvTexture: cctvTex });
   syncGuardDevices(); guardRoomController.tick(1); window.__guardRoom = guardRoomController;
-  guardRoomController.ready.then(() => { syncGuardDevices(); if (guardRoomController.status === 'error') console.warn('[guardroom]', guardRoomController.error); });
+  guardRoomController.ready.then(async () => { await textureBudget.prepare(scene); syncGuardDevices(); if (guardRoomController.status === 'error') console.warn('[guardroom]', guardRoomController.error); });
 }
 
 /* ── 7-3. 운동장: 조회대 위 마이크 스탠드 · 앰프 · 나팔 스피커 / 모래밭 타임캡슐 (단상은 기존 조회대를 쓴다) ── */
@@ -5179,6 +5184,7 @@ registerLines(Object.fromEntries(SG_ZONES.map(z => ['sg_' + z.id, { spk: 'ghost'
       ['scream', 'creepy', 'crying', 'sad', 'blank', 'empty'].forEach(k => sgP.cropSheetRegionToTexture(sgP.EXPRESSIONS[k].uv));
       ['attack', 'fade', 'crawl', 'float', 'behind_you'].forEach(k => sgP.cropSheetRegionToTexture(sgP.ANIMATIONS[k].uv));
       for (const g of Object.values(pool)) {
+        await textureBudget.prepare(g.root);
         g.root.traverse(o => { if (o.material) ['map', 'normalMap'].forEach(k => o.material[k]?.image && renderer.initTexture(o.material[k])); });
         try { if(renderer.extensions.has('KHR_parallel_shader_compile')) await renderer.compileAsync(g.root,camera,scene); else renderer.compile(g.root,camera,scene); } catch (e) { /* ignore */ }
         g.root.visible = false; await new Promise(r => requestAnimationFrame(r));
@@ -5266,11 +5272,12 @@ const sg3dKey = g => g.zone && SG3D_FILE[g.zone.id.replace(/^test_(sg_[a-z]+)_\d
 function sg3dLoad(name) {
   let p = SG3D.cache.get(name);
   if (!p) {
-    p = SG3D.loader.loadAsync(`assets/characters/ghosts/${name}.glb`).then(gl => {
+    p = SG3D.loader.loadAsync(`assets/characters/ghosts/${name}.glb`).then(async gl => {
       gl.scene.traverse(o => { if (!o.isMesh) return; o.castShadow = true; o.receiveShadow = false;
         const m = o.material; if (m.map) { srgb(m.map); m.map.anisotropy = 4; m.emissiveMap = m.map; }
         m.emissive = new THREE.Color(0x8fa4c0); m.emissiveIntensity = m.map ? .22 : .08; m.side = THREE.DoubleSide; });
       // 처음 나타날 때 셰이더 컴파일로 화면이 멈칫하지 않게: 받자마자 보이지 않는 곳에서 미리 컴파일 · 텍스처 업로드
+      await textureBudget.prepare(gl.scene);
       gl.scene.traverse(o => { if (o.isMesh && o.material.map) renderer.initTexture(o.material.map); });
       const tmp = gl.scene.clone(true); tmp.position.set(0, -500, 0); scene.add(tmp);
       const compile = renderer.extensions.has('KHR_parallel_shader_compile') ? renderer.compileAsync(tmp,camera,scene) : Promise.resolve(renderer.compile(tmp,camera,scene));
@@ -5409,7 +5416,7 @@ const S37_TYPE = { '시설 창고': '시설창고실', '보건실 보조': '보�
   });
   console.info(`[37실] 방 ${S37.rooms.length}개 · 새 가구 ${S37.placed}개 배치 (겹치거나 동선을 막는 자리는 건너뜀)`);
 }
-const infirmaryExtraSlots = [], infirmaryCabinetViews = []; for (const room of S37.rooms.filter(r => r.f === 0 && r.name === "보건실")) room.g.traverse(holder => { const kind = holder.userData.infirmaryKind; if (!kind) return; const fallback = new THREE.Group(); fallback.userData.dynamic = true; const old = [...holder.children].filter(o => !(kind === "bed" && o.geometry?.type === "PlaneGeometry")); holder.add(fallback); old.forEach(o => fallback.add(o)); const id = "nurse-s37-" + kind + "-" + infirmaryExtraSlots.length; if (kind === "cabinetOpen") { const closedHolder = new THREE.Group(), openHolder = new THREE.Group(); closedHolder.userData.dynamic = openHolder.userData.dynamic = true; openHolder.visible = false; holder.add(closedHolder, openHolder); const closedId = id + "-closed", openId = id + "-open", prop = S37.props.find(p => p.floor === 0 && p.room === "보건실" && /약품장/.test(p.fz.promptText)); infirmaryExtraSlots.push({ id: closedId, kind: "cabinetClosed", holder: closedHolder, fallback }, { id: openId, kind: "cabinetOpen", holder: openHolder, fallback: null }); infirmaryCabinetViews.push({ closedId, openId, closedHolder, openHolder, fallback, getOpen: () => !!prop?.done }); } else infirmaryExtraSlots.push({ id, kind, holder, fallback }); }); const infirmaryAssets = installInfirmaryAssets({ renderer, scene, camera, slots: [...(world.INFIRMARY_SLOTS || []), ...infirmaryExtraSlots], batchOpaque: true }); window.__infirmaryAssets = infirmaryAssets; function syncInfirmaryCabinets() { updateInfirmaryCabinets(infirmaryCabinetViews, infirmaryAssets.records); } infirmaryAssets.ready.then(records => { syncInfirmaryCabinets(); const bad = records.filter(r => r.status === "error"); if (bad.length) console.warn("[infirmary]", bad.map(r => [r.id, r.error?.message])); }); async function s37Act(p, ctx) {
+const infirmaryExtraSlots = [], infirmaryCabinetViews = []; for (const room of S37.rooms.filter(r => r.f === 0 && r.name === "보건실")) room.g.traverse(holder => { const kind = holder.userData.infirmaryKind; if (!kind) return; const fallback = new THREE.Group(); fallback.userData.dynamic = true; const old = [...holder.children].filter(o => !(kind === "bed" && o.geometry?.type === "PlaneGeometry")); holder.add(fallback); old.forEach(o => fallback.add(o)); const id = "nurse-s37-" + kind + "-" + infirmaryExtraSlots.length; if (kind === "cabinetOpen") { const closedHolder = new THREE.Group(), openHolder = new THREE.Group(); closedHolder.userData.dynamic = openHolder.userData.dynamic = true; openHolder.visible = false; holder.add(closedHolder, openHolder); const closedId = id + "-closed", openId = id + "-open", prop = S37.props.find(p => p.floor === 0 && p.room === "보건실" && /약품장/.test(p.fz.promptText)); infirmaryExtraSlots.push({ id: closedId, kind: "cabinetClosed", holder: closedHolder, fallback }, { id: openId, kind: "cabinetOpen", holder: openHolder, fallback: null }); infirmaryCabinetViews.push({ closedId, openId, closedHolder, openHolder, fallback, getOpen: () => !!prop?.done }); } else infirmaryExtraSlots.push({ id, kind, holder, fallback }); }); const infirmaryAssets = installInfirmaryAssets({ renderer, scene, camera, slots: [...(world.INFIRMARY_SLOTS || []), ...infirmaryExtraSlots], batchOpaque: true }); window.__infirmaryAssets = infirmaryAssets; function syncInfirmaryCabinets() { updateInfirmaryCabinets(infirmaryCabinetViews, infirmaryAssets.records); } infirmaryAssets.ready.then(async records => { await textureBudget.prepare(scene); syncInfirmaryCabinets(); const bad = records.filter(r => r.status === "error"); if (bad.length) console.warn("[infirmary]", bad.map(r => [r.id, r.error?.message])); }); async function s37Act(p, ctx) {
   const t = p.fz.promptText, F = floors[p.floor], pos = V3(p.x, F.y0 + 1, p.z);
   if (/숨기/.test(t) && ctx.togglePlayerHide) { ctx.togglePlayerHide(); return; }
   if (/숨 고르기/.test(t)) { if ((p.restT || 0) > performance.now()) { say('아직 숨이 진정되지 않았다 — 조금 뒤에 다시', 2200); return; } p.restT = performance.now() + 60000; P.fear = Math.max(0, P.fear - .15); sfx.breath ? sfx.breath() : sfx.click(); say('소파에 기대 숨을 골랐다 — 공포가 조금 가라앉는다', 3000); return; }
@@ -5659,9 +5666,10 @@ function extrasTick(dt) {
 buildCamClues(); buildBreakers(); buildRestrooms(); spawnPicks();
 sqSync();
 initSaveIds();
-applyQuality(SET.quality === 'auto' ? 'high' : SET.quality);
+applyQuality(SET.quality === 'auto' ? 'mid' : SET.quality);
 applySettings();
 // 로딩 중에 모든 공간의 텍스처·셰이더를 미리 준비 (처음 들어가는 곳에서 멈칫하는 문제)
+await textureBudget.prepare(scene);
 await warmUp(renderer, scene, camera, [...floors.map(f => f.interior), ...floors.map(f => f.shell), world.OUT, ghost.group, appar]);
 const _t3 = performance.now();
 window.__loadTimes = { textures: Math.round(_t1 - _t0), build: Math.round(_t2 - _t1), warmup: Math.round(_t3 - _t2) };
@@ -5699,7 +5707,7 @@ document.querySelectorAll('#setTabs button').forEach(b => { b.onclick = () => sh
 $('setBtn2').onclick = () => openSettings('pause');
 const setS = (k, v) => { SET[k] = v; saveSET(); applySettings(); vals(); };
 $('setScreen').onchange = e => { try { if (e.target.value === 'full') document.documentElement.requestFullscreen(); else if (document.fullscreenElement) document.exitFullscreen(); } catch (err) { /* ignore */ } };
-$('quality2').onchange = e => { setS('quality', e.target.value); applyQuality(SET.quality === 'auto' ? 'high' : SET.quality); };
+$('quality2').onchange = e => { setS('quality', e.target.value); applyQuality(SET.quality === 'auto' ? 'mid' : SET.quality); };
 $('setScale').oninput = e => { setS('scale', e.target.value / 100); };
 $('setScale').onchange = () => applyQuality(qCur);
 $('setBright').oninput = e => setS('bright', e.target.value / 100);
@@ -5748,7 +5756,7 @@ addEventListener('keydown', e => {
 }, true);
 function refreshHints() { const k = SET.keys; $('hints').innerHTML = `<div>이동 <kbd>WASD</kbd></div><div>달리기 <kbd>${keyLabel(k.run)}</kbd></div><div>손전등 <kbd>${keyLabel(k.flash)}</kbd></div><div>상호작용 <kbd>${keyLabel(k.interact)}</kbd></div><div>던지기 <kbd>${keyLabel(k.throwCan)}</kbd></div><div>앉기 <kbd>${keyLabel(k.crouch)}</kbd> · 점프 <kbd>${keyLabel(k.jump)}</kbd></div><div>시점 <kbd>${keyLabel(k.view)}</kbd></div><div>주변 살피기 <kbd>${keyLabel(k.scan)}</kbd> · 빠른 저장 <kbd>F5</kbd></div><div>일시정지 <kbd>Esc</kbd></div>`; }
 refreshHints();
-$('setReset').onclick = () => { resetSET(); setVolumes({ master: 1, sfx: 1, voice: 1, amb: 1, music: 1 }); VS.dub = true; VS.engine = 'auto'; VS.subs = true; VS.readNotes = true; VS.subSize = 1; saveVS(); applySettings(); applyQuality(SET.quality === 'auto' ? 'high' : SET.quality); fillSettings(); refreshHints(); toast('설정', '기본값으로 되돌렸습니다', 'info'); };
+$('setReset').onclick = () => { resetSET(); setVolumes({ master: 1, sfx: 1, voice: 1, amb: 1, music: 1 }); VS.dub = true; VS.engine = 'auto'; VS.subs = true; VS.readNotes = true; VS.subSize = 1; saveVS(); applySettings(); applyQuality(SET.quality === 'auto' ? 'mid' : SET.quality); fillSettings(); refreshHints(); toast('설정', '기본값으로 되돌렸습니다', 'info'); };
 document.querySelectorAll('.btn').forEach(b => b.addEventListener('mouseenter', () => sfx.ui()));
 
 /* ---------- 테스트 모드 (?test) ---------- */
@@ -5814,7 +5822,7 @@ if (DEBUG) {
     interact, findInteract, hit, die, activateGhost, enrage, FL, MG, throwCan, throws, set playTime(v) { playTime = v; }, toggleView, get view() { return view; }, useProp, docs, msgs, clues, objective, makeGateKey, openInv, openPhone, openMap, openCharsel, openSettings, refreshHud, save, load, inv, mina,
     get power() { return power; }, set power(v) { power = v; }, get CHAR() { return CHAR; }, newGame, continueGame,
     ELV,elvCall,elvEnter,elvLeave,elvPress,elvTick,elvReset,setTarget(t) { target = t; }, DAY, GEN, SIDEQUESTS, sqStep, sqDoneCount, useSideQuest, HEADQUEST, useHead, COLLECT, paraEvent, toiletFx, tmpFx, TE, roomAt, camMode, camShoot, CAM, MIC, SAN, BRK, setBreaker, schoolPower, craftingSystem, ghostCam, restroom, useSink, useFlush, placeAlarm, throwShock, useFirstAid, tryCombine, stunGhost, enterLocker, leaveLocker, startSearch, useMiniSpot, openChalk, chalkAsk, XT,
-    choose, missionGroups, psychologicalPhenomenon, ghostTick, enrage, activateGhost, SG, sgTestSpawn, sgSpawn, SG_ZONES, PL, CALL, SIT, ZOOM, SHOT, closeUI, TP, whereText, FLOOR_LABEL, S37,
+    choose, missionGroups, psychologicalPhenomenon, ghostTick, enrage, activateGhost, textureBudget, SG, sgTestSpawn, sgSpawn, SG_ZONES, PL, CALL, SIT, ZOOM, SHOT, closeUI, TP, whereText, FLOOR_LABEL, S37,
     get target() { return target; },
   };
 }

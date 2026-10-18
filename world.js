@@ -2018,7 +2018,7 @@ export function buildWorld(scene) {
   }
   // 공통 소품
   const sofa = (x, z, ry, w = 1.8, mat = mFabric) => { model('sf_sofa', x, 0, z, ry, { s: w / 1.95 }); const sw = Math.abs(Math.sin(ry)) > .7; col(x - (sw ? .45 : w / 2), x + (sw ? .45 : w / 2), z - (sw ? w / 2 : .45), z + (sw ? w / 2 : .45)); };
-  const trophyCase = (x, z, ry, w = 1.6) => { [-.34, .34].forEach(ox => model('sf_trophy_cab', x + Math.cos(ry) * ox, 0, z - Math.sin(ry) * ox, ry, { s: 1.02 })); const sw = Math.abs(Math.sin(ry)) > .7; col(x - (sw ? .25 : w / 2), x + (sw ? .25 : w / 2), z - (sw ? w / 2 : .25), z + (sw ? w / 2 : .25)); };
+  const trophyCase = (x, z, ry, w = 1.6) => { const frame = [bx(w, .12, .46, 0, .06, 0), bx(w, .1, .46, 0, 1.88, 0), bx(w, 1.82, .04, 0, .95, -.21), bx(.05, 1.82, .46, -w / 2 + .025, .95, 0), bx(.05, 1.82, .46, w / 2 - .025, .95, 0), bx(w - .08, .52, .44, 0, .32, 0), bx(w - .1, .025, .38, 0, 1.05, 0), bx(w - .1, .025, .38, 0, 1.45, 0)]; const g = meshAt(merge(frame), mWoodDark, x, 0, z, ry); const gl = new THREE.Mesh(new THREE.PlaneGeometry(w - .1, 1.24), mWinIn); gl.position.set(0, 1.22, .225); g.add(gl); const trim = new THREE.Mesh(merge([bx(.025, 1.24, .02, 0, 1.22, .228), bx(.04, .14, .03, -.04, 1.15, .238), bx(.04, .14, .03, .04, 1.15, .238)]), mChrome); g.add(trim); for (let k = 0; k < 6; k++) { const shY = k < 3 ? 1.065 : 1.465, tx = -w * .32 + (k % 3) * (w * .32); const t = new THREE.Mesh(merge([new THREE.CylinderGeometry(.055, .07, .05, 12).translate(0, .025, 0), new THREE.CylinderGeometry(.016, .016, .13, 8).translate(0, .11, 0), new THREE.CylinderGeometry(.075, .038, .14, 14, 1, true).translate(0, .24, 0)]), S(null, { color: k % 2 ? 0xd4a838 : 0xc0c6cc, metalness: .85, roughness: .22 })); t.position.set(tx, shY, 0); g.add(t); } glowAt(x + Math.sin(ry) * .12, 1.72, z + Math.cos(ry) * .12, .55, T.makeGlow('255,230,170')); const sw = Math.abs(Math.sin(ry)) > .7; col(x - (sw ? .25 : w / 2), x + (sw ? .25 : w / 2), z - (sw ? w / 2 : .25), z + (sw ? w / 2 : .25)); };
   const noticeBoard = (x, y, z, ry, w = 1.6) => { model('sf_bulletin_board', x, y - .55, z, ry, { s: w / 1.8 }); };
   // 교장실
   function principal(cx) {
@@ -2710,8 +2710,10 @@ export function buildWorld(scene) {
       F.interior.add(boxMesh(-1.8, 3.8, mainY0, mainY0 + 3 * FH - .4, 9.9, 20.5, mOutFac, 2));
       const mSlots = []; for (let mf = 0; mf < 3; mf++) SLOTS.forEach(mcx => [-3.05, 3.05].forEach(dx => mSlots.push([mcx + dx, 1.3, -.08, mainY0 + mf * FH + 1.72, 1.48])));
       const mfakes = buildWindowFakes(mSlots, 10 + k); mfakes.position.z = 20.46; F.interior.add(mfakes);
-      F.interior.add(boxMesh(-33, -15, mainY0, mainY0 + 9.5, -38, -24, mOutFac, 3));
-      [[-14, 15], [12, 15], [-22, -16], [8, -16], [22, -15]].forEach(([tx, tz]) => { F.interior.add(boxMesh(tx - .2, tx + .2, gy, gy + 3.4, tz - .2, tz + .2, mWoodDark)); const cr = new THREE.Mesh(new THREE.IcosahedronGeometry(2.1, 1), mOutTree); cr.position.set(tx, gy + 4.5, tz); F.interior.add(cr); glowAt(tx, gy + 3.8, tz, 1.4, glowGreen); }); }
+      F.interior.add(boxMesh(-32, 32, mainY0, mainY0 + 2.8, -26, -25.6, mOutFac, 3), boxMesh(-30, -6, mainY0, mainY0 + 10.5, -24, -18.5, mOutFac, 3), boxMesh(4, 28, mainY0, mainY0 + 9.8, -23.5, -18.5, mOutFac, 3));
+      const nSlots2 = []; for (let nf = 0; nf < 2; nf++) [-24, -18, -12, 10, 16, 22].forEach(nx => nSlots2.push([nx, 1.8, .08, mainY0 + nf * FH + 2.2, 1.5]));
+      const nfakes = buildWindowFakes(nSlots2, 20 + k); nfakes.position.z = -18.42; F.interior.add(nfakes);
+      [[-16, 14.5], [-6, 15], [8, 14.5], [18, 15], [-18, -14], [-8, -14.5], [0, -14.2], [9, -14.5], [17, -14]].forEach(([tx, tz]) => { F.interior.add(boxMesh(tx - .18, tx + .18, gy, gy + 3.6, tz - .18, tz + .18, mWoodDark)); const cr = new THREE.Mesh(new THREE.IcosahedronGeometry(2.2, 1), mOutTree); cr.position.set(tx, gy + 4.6, tz); F.interior.add(cr); glowAt(tx, gy + 3.6, tz, 1.2, T.makeGlow('255,215,140')); }); }
     // 복도 남벽: 남쪽 방 문 (현관은 넓은 개구부)
     sl.forEach((cx, i) => {
       if (AS.types[i] === 'lobbyA') { awall(cx - 4, cx - 3, 1.45, 1.75, CH); awall(cx + 3, cx + 4, 1.45, 1.75, CH); awall(cx - 3, cx + 3, 1.45, 1.75, CH, 2.7); [-3, 3].forEach(dx => add(mWoodDark, .12, 2.7, .36, cx + dx, 0, 1.6)); }

@@ -37,7 +37,7 @@ import './school37RoomsPatch.js';    // 본관 · 별관 37개 특별실 가구 
 import './new37UniquePatch.js';     // 37개 구역 신규 특수 설비 · 벽면 레일 (사용자 제공) → window.new37UniquePatch
 import './megaExpansionPatch.js';   // 메가 익스팬션 · 최적화 · 4막 사건 기록 · 수집품 · 미니게임 (사용자 제공) → window.megaSchoolPatch
 import './poolMachineryPatch.js';     // 수영장 · 남/녀 탈의실·샤워실 · 기계실 철문 (사용자 제공) → window.poolAndMachineryPatch
-import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx } from './audio.js'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js';
+import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx } from './audio.js'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js'; import { installPerf, perfTick, prewarmFloors } from './perfStabilizer.js';
 import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js';
 import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, SIDEQUESTS, HEADQUEST, COLLECT, LOCKER_SCARES, CHALK_QA, OUIJA_QS, PARA, TOILET_FX, MIRROR_WORDS } from './story.js';
 import { isSpeechBusy } from './voice.js';
@@ -1950,7 +1950,7 @@ const easeOut = t => 1 - Math.pow(1 - t, 3);
 
 function updateLighting(dt) {
   const F = floors[P.floor];
-  const indoors = P.inElev || P.floor >= 4 || (P.floor > 0 && P.floor < 3) || (P.floor === 0 && inBldg(P.x, P.z));
+  const indoors = P.inElev || P.floor >= 4 || (P.floor > 0 && P.floor < 3) || (P.floor === 0 && inBldg(P.x, P.z)); perfTick(dt, indoors);
   const k = Math.min(1, dt * 3);
   updateDay(dt);
   const dk = DAY.k;
@@ -5677,7 +5677,7 @@ applyQuality(SET.quality === 'auto' ? 'mid' : SET.quality);
 applySettings();
 // 로딩 중에 모든 공간의 텍스처·셰이더를 미리 준비 (처음 들어가는 곳에서 멈칫하는 문제)
 await textureBudget.prepare(scene);
-await warmUp(renderer, scene, camera, [...floors.map(f => f.interior), ...floors.map(f => f.shell), world.OUT, ghost.group, appar]);
+await warmUp(renderer, scene, camera, [...floors.map(f => f.interior), ...floors.map(f => f.shell), world.OUT, ghost.group, appar]); installPerf({ THREE, renderer, scene, camera, floors, world }); [3000, 25000, 70000].forEach(t => setTimeout(() => prewarmFloors().catch(() => {}), t));   // 성능 안정화: 점조명 고정 풀 · 거리 컬링 · 늦게 불러온 모델 셰이더 준비
 const _t3 = performance.now();
 window.__loadTimes = { textures: Math.round(_t1 - _t0), build: Math.round(_t2 - _t1), warmup: Math.round(_t3 - _t2) };
 setTimeout(loadModels,300);

@@ -2057,19 +2057,85 @@ function openCharsel(mode) {
   csMode = mode; csPick = CHAR; $('title').classList.remove('show'); $('charsel').classList.add('show');
   $('csOk').textContent = mode === 'new' ? '결정 · 시작' : '결정'; renderCharsel(); sfx.ui && sfx.ui();
 }
+let csShowSheet = false, cs3dState = null;
+function ensureCharsel3D() {
+  if (cs3dState) return cs3dState;
+  const st = { scenes: {}, mixers: {}, models: {}, yaw: { jihun: 0.25, seoyeon: -0.25 }, drag: null, renderer: null, cam: null, raf: 0, last: performance.now() };
+  const loader = new GLTFLoader();
+  ['jihun', 'seoyeon'].forEach(k => {
+    const sc = new THREE.Scene();
+    const hemi = new THREE.HemisphereLight(0xf6f2ec, 0x3a4052, 1.4);
+    const key = new THREE.DirectionalLight(0xfff4e8, 1.9); key.position.set(1.8, 2.6, 2.8);
+    const fill = new THREE.DirectionalLight(0xc8daf8, 0.95); fill.position.set(-2.0, 1.8, 1.6);
+    const rim = new THREE.DirectionalLight(0xffd6e0, 0.85); rim.position.set(0, 2.4, -2.5);
+    sc.add(hemi, key, fill, rim);
+    st.scenes[k] = sc;
+    loader.load(`assets/characters/${k}.glb`, gltf => {
+      const m = gltf.scene;
+      m.traverse(o => { if (o.isMesh || o.isSkinnedMesh) o.frustumCulled = false; });
+      const b = new THREE.Box3().setFromObject(m);
+      m.position.set(-(b.min.x + b.max.x) / 2, -b.min.y, -(b.min.z + b.max.z) / 2);
+      const piv = new THREE.Group(); piv.add(m); sc.add(piv);
+      st.models[k] = { piv, h: b.max.y - b.min.y };
+      const clip = (gltf.animations || []).find(c => c.name.toLowerCase() === 'idle') || gltf.animations?.[0];
+      if (clip) { const mx = new THREE.AnimationMixer(m); mx.clipAction(clip).play(); st.mixers[k] = mx; }
+    });
+  });
+  st.cam = new THREE.PerspectiveCamera(36, 240 / 380, 0.05, 15);
+  const tick = now => {
+    st.raf = requestAnimationFrame(tick);
+    if (!$('charsel')?.classList.contains('show') || csShowSheet) return;
+    const dt = Math.min(0.05, (now - st.last) / 1000); st.last = now;
+    if (!st.renderer) {
+      try {
+        st.renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        st.renderer.setSize(240, 380);
+        st.renderer.outputColorSpace = THREE.SRGBColorSpace;
+        st.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        st.renderer.toneMappingExposure = 1.08;
+      } catch (e) { return; }
+    }
+    document.querySelectorAll('canvas.cs3d').forEach(cv => {
+      const k = cv.dataset.char, md = st.models[k], sc = st.scenes[k];
+      if (!md || !sc) return;
+      if (st.drag?.k !== k) st.yaw[k] += dt * 0.45;
+      md.piv.rotation.y = st.yaw[k];
+      st.mixers[k]?.update(dt);
+      const topY = k === 'jihun' ? 0.90 : 0.84, dist = k === 'jihun' ? 2.68 : 2.48;
+      st.cam.position.set(0, topY, dist); st.cam.lookAt(0, topY - 0.03, 0);
+      st.renderer.render(sc, st.cam);
+      const ctx = cv.getContext('2d');
+      ctx.clearRect(0, 0, cv.width, cv.height);
+      ctx.drawImage(st.renderer.domElement, 0, 0, cv.width, cv.height);
+    });
+  };
+  st.raf = requestAnimationFrame(tick);
+  return (cs3dState = st);
+}
 function renderCharsel() {
+  ensureCharsel3D();
   $('csCards').innerHTML = Object.entries(CHARACTERS).map(([k, c]) => `
     <div class="cs${k === csPick ? ' on' : ''}" data-k="${k}" style="--c:${c.color}">
       <img class="pt" src="assets/ui/${c.portrait}.webp" alt="">
       <div><h3>${c.name}<small>${c.age} · ${c.sex}</small></h3>
         <table><tr><td>학교</td><td>${c.school}</td></tr><tr><td>성격</td><td>${c.pers}</td></tr><tr><td>특징</td><td>${c.trait}</td></tr><tr><td>소개</td><td>${c.intro}</td></tr></table>
         <div class="q">“${c.quote}”</div></div>
-      <img class="bd" src="assets/ui/${c.body}.webp" alt="">
+      <div class="bd" style="position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden">
+        <canvas class="cs3d" data-char="${k}" width="240" height="380" style="width:100%;height:100%;object-fit:contain;cursor:grab;${csShowSheet ? 'display:none' : 'display:block'}" title="드래그하여 360° 회전"></canvas>
+        <img src="assets/ui/${c.body}.webp" alt="" style="width:100%;height:100%;object-fit:contain;${csShowSheet ? 'display:block' : 'display:none'}">
+        <button type="button" class="csViewToggle" style="position:absolute;bottom:6px;right:6px;z-index:3;font-size:11px;padding:3px 7px;background:rgba(12,15,22,.82);color:#e8e4dc;border:1px solid rgba(255,255,255,.22);border-radius:4px;cursor:pointer">${csShowSheet ? '3D 렌더링 보기' : '2D 시트지 보기'}</button>
+      </div>
       <div class="faces">${c.faces.map((f, i) => `<figure><img src="assets/ui/${f}.webp" alt="">${c.faceNames[i]}</figure>`).join('')}</div>
       <div class="perk">${c.perk.map(p => `<span>★ ${p}</span>`).join('')}</div>
       <div class="kit"><b>시작 아이템</b><div class="its">${c.items.map(id => `<div class="it">${iconHTML(ITEMS[id].icon)}<span>${ITEMS[id].name.replace(/ \(.*\)/, '')}</span></div>`).join('')}</div></div>
     </div>`).join('');
   $('csCards').querySelectorAll('.cs').forEach(el => { el.onclick = () => { csPick = el.dataset.k; renderCharsel(); sfx.ui && sfx.ui(); }; el.ondblclick = () => $('csOk').click(); });
+  $('csCards').querySelectorAll('.csViewToggle').forEach(btn => { btn.onclick = e => { e.stopPropagation(); csShowSheet = !csShowSheet; renderCharsel(); }; });
+  $('csCards').querySelectorAll('canvas.cs3d').forEach(cv => {
+    cv.onpointerdown = e => { e.stopPropagation(); const k = cv.dataset.char; cs3dState.drag = { k, x: e.clientX, y0: cs3dState.yaw[k] }; cv.setPointerCapture(e.pointerId); };
+    cv.onpointermove = e => { if (cs3dState?.drag?.k === cv.dataset.char) cs3dState.yaw[cv.dataset.char] = cs3dState.drag.y0 + (e.clientX - cs3dState.drag.x) * 0.015; };
+    cv.onpointerup = cv.onpointercancel = () => { if (cs3dState) cs3dState.drag = null; };
+  });
 }
 $('csOk').onclick = () => {
   CHAR = csPick; try { localStorage.setItem('haegyo_char', CHAR); } catch (e) { /* ignore */ }
@@ -3214,6 +3280,7 @@ function buildPlayerModel(c) {
   const hand = new THREE.Object3D(); hand.position.set(0, -.28, -.2); elbows[1].add(hand);
   g.traverse(o => { if (o.isMesh) { o.castShadow = false; o.receiveShadow = true; } });
   g.visible = false; scene.add(g);
+  npcLoad(c, g, { url: `assets/characters/${c}.glb`, height: j ? 1.75 : 1.62, native: true, yawDegrees: 180, clipNames: ['idle'] });
   return { g, root, hips, chest, legs, knees, arms, elbows, head, hand, torch };
 }
 let pm = null, view = SET.view === 3 ? 3 : 1, camDistNow = 0;
@@ -3252,7 +3319,17 @@ function applyThirdPerson(dt, yaw, pitch) {
   pm.arms[0].rotation.x = -sw * .9 - cr * .3; pm.arms[0].rotation.z = .1; pm.elbows[0].rotation.x = -.25 - run * .9;
   pm.arms[1].rotation.x = P.light ? -1.2 - pitch * .8 : sw * .9; pm.arms[1].rotation.z = -.1; pm.elbows[1].rotation.x = P.light ? -.15 : -.25 - run * .9;
   pm.head.rotation.x = -pitch * .45 - pm.chest.rotation.x * .6;
-  pm.torch.visible = true;
+  pm.torch.visible = !g.userData.characterModel;
+  if (g.userData.characterModel) {
+    const wantClip = P.moving ? (run ? 'Run' : 'Walk') : 'Idle';
+    const wantSpd = P.moving ? (run ? 1.15 : (cr > .3 ? .75 : 1.0)) : 1.0;
+    if (g.userData.curPlayerClip !== wantClip) {
+      g.userData.curPlayerClip = wantClip;
+      npcVisuals.play(g, wantClip, { fade: .2, speed: wantSpd });
+    }
+    g.userData.characterModel.position.y = -cr * .34;
+    g.userData.characterModel.rotation.x = -cr * .22;
+  }
   camera.updateMatrixWorld(); g.updateMatrixWorld(true);
   pm.hand.getWorldPosition(_hand); camera.worldToLocal(_hand);
   _hand.z -= .45; flash.position.copy(_hand); _hand.z -= .25; fx.cone.position.copy(_hand);

@@ -16,7 +16,7 @@ import { prepareModelGeometry } from './modelGeometry.js';
 import { modelFootprint, overlaps, removeDuplicateModels } from './placement.js';
 import { turfMaterial } from './campusVisuals.js';
 import { installInfirmaryAssets, updateInfirmaryCabinets } from './infirmaryAssets.js';
-import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js'; import { updateWindowFakes } from './windowInteriors.js';
+import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js?v=96'; import { updateWindowFakes } from './windowInteriors.js';
 import { drawMap } from './map.js';
 import { makeDress, makeHair, makeGhostFace, makeGraffiti, makeKeypad, loadPBR, pbr, makeGlow as makeGlowTex, makePaintingStare, makeSign, makeBlood } from './tex.js';
 import { warmUp } from './bake.js';
@@ -43,7 +43,7 @@ import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, ha
 import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, SIDEQUESTS, HEADQUEST, COLLECT, LOCKER_SCARES, CHALK_QA, OUIJA_QS, PARA, TOILET_FX, MIRROR_WORDS } from './story.js';
 import { isSpeechBusy } from './voice.js';
 import { SET, saveSET, resetSET, DIFF, keyLabel } from './settings.js';
-import { initI18n, setLang, lang as curLang } from './i18n.js';   // 언어 패치 (한국어 · English · 日本語 · 中文)
+import { initI18n, setLang, lang as curLang } from './i18n.js?v=96';   // 언어 패치 (한국어 · English · 日本語 · 中文)
 initI18n();
 const K = () => SET.keys;
 let guardRoomController = null, guardControlProps = [], guardCctvData = null, campusCctv = null;
@@ -60,7 +60,7 @@ function toggleGuardCCTV(persist = true) { FL.guardCctvOn = !(FL.guardCctvOn ?? 
 function toggleGuardLight() { FL.guardLightOn = !(FL.guardLightOn ?? false); sfx.click(); syncGuardDevices(); say(FL.guardLightOn ? '경비실 전등을 켰다' : '경비실 전등을 껐다', 1800); save(true); return FL.guardLightOn; }
 
 import { run as runMini, MG } from './minigames.js';
-import { SCHEMA, BUILD, storageKeys, itemUid, propUid, doorUid, assignUids, readSlot, writeSlot, hasSlot, clearSlot, repairProgress } from './saveSystem.js';
+import { SCHEMA, BUILD, storageKeys, itemUid, propUid, doorUid, assignUids, readSlot, writeSlot, hasSlot, clearSlot, repairProgress } from './saveSystem.js?v=96';
 loadManifest().then(() => registerLines({ ...VO, ...Object.fromEntries(Object.entries(STORY_NOTES).filter(([, n]) => n.text).map(([k, n]) => ['note_' + k, { spk: 'narrator', text: n.title + '. ' + n.text, parts: [n.title, n.text] }])) }));
 
 const $ = id => document.getElementById(id);

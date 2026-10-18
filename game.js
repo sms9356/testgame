@@ -17,7 +17,6 @@ import { modelFootprint, overlaps, removeDuplicateModels } from './placement.js'
 import { turfMaterial } from './campusVisuals.js';
 import { installInfirmaryAssets, updateInfirmaryCabinets } from './infirmaryAssets.js';
 import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js?v=104'; import { updateWindowFakes } from './windowInteriors.js?v=104';
-import { loadSurfaceTexture } from './materialTextures.js';
 import { drawMap } from './map.js';
 import { makeDress, makeHair, makeGhostFace, makeGraffiti, makeKeypad, loadPBR, pbr, makeGlow as makeGlowTex, makePaintingStare, makeSign, makeBlood } from './tex.js';
 import { warmUp } from './bake.js';
@@ -6049,8 +6048,8 @@ const megaFz = (i0, f, extra = {}) => megaP.interactables.slice(i0).map((it, k) 
 function megaNotify(m) { const t = String(m).split('\n'); say(t[0].replace(/^\S+\s/, ''), 4200); }
 {
   const F0 = floors[0], O = world.OUT, G = MEGA.gym, C = MEGA.court;
-  const wallTex = loadSurfaceTexture('concrete', [6, 2], null), brickTex = loadSurfaceTexture('wall_brick', [8, 2], null);
-  const wallM = new THREE.MeshStandardMaterial({ color: 0x867e74, roughness: .86, map: wallTex }), roofM = PM(0x363a3e, .82, .18);
+  const facTpl = world.guardRoom?.templates?.wall;
+  const wallM = facTpl ? facTpl.clone() : PM(0x867e74, .86), roofM = PM(0x363a3e, .82, .18);
   const i0 = megaP.interactables.length;
   const { gymC, courtC, bunkerC } = megaP.buildCampusExpansions({
     gymPos: V3(G.x, 0, G.z),
@@ -6061,8 +6060,8 @@ function megaNotify(m) { const t = String(m).split('\n'); say(t[0].replace(/^\S+
   { scene.remove(gymC.group); F0.interior.add(gymC.group); gymC.group.position.set(G.x, 0, G.z);
     gymC.group.traverse(o => { o.userData.dynamic = true; });
     const H = 7.2, x0 = G.x - G.w / 2, x1 = G.x + G.w / 2, z0 = G.z - G.d / 2, z1 = G.z + G.d / 2, t = .35, dw = 3.2, dh = 3.0;
-    const baseM = new THREE.MeshStandardMaterial({ color: 0x524c48, roughness: .88, map: brickTex }),
-      pilM = new THREE.MeshStandardMaterial({ color: 0x989086, roughness: .78, map: wallTex }),
+    const baseM = facTpl ? Object.assign(facTpl.clone(), { color: new THREE.Color(0x5a5450), roughness: .9 }) : PM(0x524c48, .88),
+      pilM = PM(0xa69e92, .76),
       trimM = PM(0xb2aa9e, .72), frameM = PM(0x242a30, .42, .62), chromeM = PM(0xd4dade, .22, .88),
       glassM = new THREE.MeshStandardMaterial({ color: 0x263848, roughness: .14, metalness: .25, transparent: true, opacity: .52 });
     const wall = (ax, bx, az, bz, h = H, y0 = 0, mat = wallM) => { pbox(bx - ax, h, bz - az, mat, (ax + bx) / 2, y0 + h / 2, (az + bz) / 2, O); if (y0 === 0) { const r = { x1: ax, x2: bx, z1: az, z2: bz }; F0.col.push(r); F0.walls.push(r); } };

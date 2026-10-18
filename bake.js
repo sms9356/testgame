@@ -78,8 +78,9 @@ export async function warmUp(renderer, scene, camera, groups) {
   });
   // Keep frustum culling on. Rendering every floor into a 2px viewport still
   // submits the entire campus and its shadow geometry, blocking startup.
-  if (renderer.compileAsync && renderer.extensions.has('KHR_parallel_shader_compile')) await renderer.compileAsync(scene,camera);
-  else renderer.compile(scene,camera);
+  if (renderer.compileAsync && renderer.extensions.has('KHR_parallel_shader_compile')) {
+    await Promise.race([renderer.compileAsync(scene, camera).catch(() => {}), new Promise(r => setTimeout(r, 1200))]);
+  } else renderer.compile(scene, camera);
   // 아주 작은 영역에만 그려서 셰이더·그림자 프로그램만 만들고 비용은 최소화
   const vp = new THREE.Vector4(); renderer.getViewport(vp);
   const sh = [];

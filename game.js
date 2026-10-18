@@ -19,7 +19,7 @@ import { installInfirmaryAssets, updateInfirmaryCabinets } from './infirmaryAsse
 import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js?v=100'; import { updateWindowFakes } from './windowInteriors.js?v=100';
 import { drawMap } from './map.js';
 import { makeDress, makeHair, makeGhostFace, makeGraffiti, makeKeypad, loadPBR, pbr, makeGlow as makeGlowTex, makePaintingStare, makeSign, makeBlood } from './tex.js';
-import { warmUp } from './bake.js?v=98';
+import { warmUp } from './bake.js?v=101';
 import { createStaticDistanceLOD } from './staticDistanceLOD.js';
 import { createTextureBudget } from './textureBudget.js';
 import { createFX } from './fx.js';

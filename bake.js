@@ -68,28 +68,6 @@ export function bakeStatic(root) {
 }
 
 // 처음 방문할 때 생기는 끊김(텍스처 업로드·셰이더 컴파일)을 로딩 중에 미리 처리한다.
-export async function warmUp(renderer, scene, camera, groups) {
-  // Only warm up immediately visible outdoor / exterior meshes during initial load so startup never freezes;
-  // indoor floors are prewarmed incrementally in the background by prewarmFloors().
-  const hidden = [];
-  if (Array.isArray(groups)) {
-    for (let i = 0; i < groups.length; i++) {
-      const g = groups[i];
-      if (g && g.visible && i < groups.length - 3) {
-        hidden.push(g);
-        g.visible = false;
-      }
-    }
-  }
-  try {
-    const vp = new THREE.Vector4(); renderer.getViewport(vp);
-    const sh = [];
-    scene.traverse(o => { if (o.isLight && o.shadow && o.castShadow) { sh.push([o, o.shadow.mapSize.x]); o.shadow.mapSize.set(16, 16); if (o.shadow.map) { o.shadow.map.dispose(); o.shadow.map = null; } } });
-    renderer.setScissorTest(true); renderer.setScissor(0, 0, 2, 2); renderer.setViewport(0, 0, 2, 2);
-    try { renderer.render(scene, camera); } catch (e) { /* ignore */ }
-    renderer.setScissorTest(false); renderer.setViewport(vp);
-    sh.forEach(([o, s]) => { o.shadow.mapSize.set(s, s); if (o.shadow.map) { o.shadow.map.dispose(); o.shadow.map = null; } });
-  } finally {
-    for (const g of hidden) g.visible = true;
-  }
+export async function warmUp() {
+  // Deferred to perfStabilizer prewarmFloors() in background so startup is instant (0ms block).
 }

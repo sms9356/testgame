@@ -1775,6 +1775,7 @@ function setGuardPoseMode(mode, phase = 0) {
     guardNPC.rotation.y = 0;
     if (guardNPC.userData.characterModel) {
       guardNPC.userData.curClipName = 'Seated';
+      guardNPC.userData.npcAction?.getMixer?.()?.stopAllAction();
       guardNPC.userData.seatedReport = applyGuardSeatedPose(guardNPC,GUARD_LAYOUT.seat);
     }
     syncGuardPropPosition();

@@ -6,7 +6,7 @@ export const BUILD = '2026.10.14';
 // 저장소 키: 테스트 모드는 실제 세이브를 오염시키지 않도록 분리한다
 export function storageKeys(test) {
   const p = test ? 'haegyo_test_' : 'haegyo_';
-  return { main: p + 'save_v5', backup: p + 'save_v5_bak', legacy: test ? null : 'haegyo_save_v4' };
+  return { main: p + 'save_v5', backup: p + 'save_v5_bak', legacy: test ? null : 'haegyo_save_v4', char: p + 'char', endings: p + 'endings', deaths: p + 'deaths', shots: p + 'shots', stats: p + 'stats', auto: p + 'auto' };
 }
 
 // 고유 ID: 위치가 바뀌어도 의미가 같은 물건은 같은 ID 를 갖도록 (열쇠 조각 · 문서는 위치와 무관)

@@ -693,7 +693,7 @@ export function buildWorld(scene) {
     cctv(cx - 3.75, CH, -2.0, Math.PI * .75, {label:AREA_NAMES[cur.f] + ' · ' + name});
     extinguisher(cx + 1.65, -2.05);
     [0, 1, 2].forEach(k => add(mRecy[k], .36, .62, .36, cx + 2.6 + k * .4, 0, -2.0, { col: k === 1 }));
-    add(S(null, { color: 0xe8e6de, roughness: .5 }), .45, 1.75, .38, cx + 3.55, 0, zN + .25, { col: true }); add(mBlack, .3, .25, .02, cx + 3.55, 1.25, zN + .45); glowAt(cx + 3.63, 1.18, zN + .46, .09, glowGreen); add(mMetal, .58, .04, .36, cx - 3.45, 2.02, zN + .26); crt(cx - 3.45, 2.04, zN + .26, .32);
+    add(S(null, { color: 0xe8e6de, roughness: .5 }), .45, 1.75, .38, cx + 3.55, 0, zN + .25, { col: true }); add(mBlack, .3, .25, .02, cx + 3.55, 1.25, zN + .45); glowAt(cx + 3.63, 1.18, zN + .46, .09, glowGreen); add(mMetal, .58, .04, .36, cx - 2.22, 2.02, zN + .22); crt(cx - 2.22, 2.04, zN + .22, .18);
     [-3.05, 3.05].forEach(dx => { const px = Math.min(cx + dx + rr(-.4, .4), cx + 2.9); add(mWoodDark, .36, .92, .3, px, 0, zN + .22, { col: true }); potPlant(px, .92, zN + .22); });   /* 화분 받침대 (예전엔 화분이 0.92m 허공에 떠 있었다) */
     if (rnd() < .5) graffiti(pick(['다시, 여기서', '돌아와', '보고 있어']), cx - 2.4, 1.7, -1.765, Math.PI, 1.8);
     // 게시판 (동쪽 벽) + 붙은 안내문
@@ -741,7 +741,7 @@ export function buildWorld(scene) {
       deskClutter(cx + dx + .55, .76, z + .1);
       officeChair(cx + dx + rr(-.1, .1), z + .75, Math.PI + rr(-.5, .5), rnd() < .1);
     }));
-    fileCabinet(cx + 3.6, -8.8, -Math.PI / 2); fileCabinet(cx + 3.6, -8.25, -Math.PI / 2, true); model('sf_water_cooler', cx - 3.55, 0, -2.5, Math.PI / 2, { col: [.45, .45] }); glowAt(cx - 3.38, .92, -2.45, .11, glowRed); glowAt(cx - 3.38, .92, -2.55, .11, glowGreen); model('sf_fuse_box', cx + 3.82, 1.35, -2.4, -Math.PI / 2); model('wooden_bookshelf_worn', cx + 2.6, 0, zN + .28, 0, { col: [.9, .4] });
+    fileCabinet(cx + 3.6, -8.8, -Math.PI / 2); fileCabinet(cx + 3.6, -8.25, -Math.PI / 2, true); model('sf_water_cooler', cx - 3.55, 0, -2.5, Math.PI / 2, { col: [.45, .45] }); glowAt(cx - 3.38, .92, -2.45, .11, glowRed); glowAt(cx - 3.38, .92, -2.55, .11, glowGreen); model('sf_fuse_box', cx + 3.82, 1.35, -2.4, -Math.PI / 2); model('wooden_bookshelf_worn', cx - 3.55, 0, -3.8, Math.PI / 2, { col: [.45, .9] });
     plane(cur.interior, mPlanMap, 2.0, 1.14, cx + 3.84, 1.6, -5.5, -Math.PI / 2);
     // 금고 (비밀번호: 그날의 날짜 MMDD)
     { const sx = cx - 3.5, sz = -8.6;
@@ -2121,7 +2121,7 @@ export function buildWorld(scene) {
   function hall(cx) {
     [-2.4, 2.4].forEach(dx => { meshAt(merge([bx(1.8, .05, .4, 0, .44, 0), bx(.06, .42, .35, -.8, .21, 0), bx(.06, .42, .35, .8, .21, 0)]), mWood, cx + dx, 0, -8.7); col(cx + dx - .9, cx + dx + .9, -8.9, -8.5); });
     trophyCase(cx - 3.55, -5.0, Math.PI / 2, 1.6); noticeBoard(cx + 3.84, 1.6, -5.0, -Math.PI / 2, 2.0);
-    model('sf_vending', cx + 3.4, 0, -2.6, 0, { col: [.95, .6] }); glowAt(cx + 3.4, 1.15, -2.22, .9, glowGreen);
+    model('sf_vending', cx - 3.35, 0, -2.6, Math.PI / 2, { col: [.6, .95] }); glowAt(cx - 3.0, 1.15, -2.6, .9, glowGreen);
     potPlant(cx - 3.3, 0, -9.0, true); potPlant(cx + 3.3, 0, -9.0, false);
     [[-1.0, -6.0, .4], [0, -6.4, -.2], [1.0, -5.8, 2.6]].forEach(([dx, z, r]) => model('plastic_monobloc_chair_01', cx + dx, 0, z, r, { col: [.6, .6] }));
     model('standing_chalkboard_01', cx + 1.9, 0, -7.6, -.5, { col: [.9, .7] }); model('potted_plant_04', cx - 2.9, 0, -3.0, 0);
@@ -3278,7 +3278,7 @@ export function buildWorld(scene) {
     [-3.1, 3.1, -19.5, 19.5].forEach(lx => extLamp(lx, 3.05, MAIN_ZS + .08, 0));
     [-2.4, 2.4].forEach(lx => extLamp(lx, 3.05, -13.45 - ANNEX_DZ, 0));
     extLamp(W.x2 + .06, 2.75, czW - 1.15, Math.PI / 2);
-    model('sf_fuse_box', 4.6, 1.35, MAIN_ZS + .08, 0, { out: true });
+    model('sf_fuse_box', 4.0, 1.35, MAIN_ZS + .27, 0, { out: true });
     model('sf_fuse_box', -3.2, 1.35, -13.42 - ANNEX_DZ, 0, { out: true });
     [-14, 10].forEach(x => model('exterior_aircon_unit', x, 0, -25.3 - ANNEX_DZ, Math.PI, { out: true, col: [1.8, .4] }));
     doors.push({ floor: 0, x: .8, z: -10.5, r: 1.3, label: '본관 들어가기 (계단실)', to: { floor: 0, x: .8, z: -8.7, yaw: Math.PI } });

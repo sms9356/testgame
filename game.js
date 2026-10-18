@@ -6051,14 +6051,12 @@ function megaNotify(m) { const t = String(m).split('\n'); say(t[0].replace(/^\S+
   const facTpl = world.guardRoom?.templates?.wall;
   const wallM = facTpl ? facTpl.clone() : PM(0x867e74, .86), roofM = PM(0x363a3e, .82, .18);
   const i0 = megaP.interactables.length;
-  const { gymC, courtC, bunkerC } = megaP.buildCampusExpansions({
-    gymPos: V3(G.x, 0, G.z),
-    courtyardPos: V3(C.x, 0, C.z),
-    bunkerPos: V3(0, 0, 0),
-  });
+  megaP.buildExpandedCampusMegaZones(V3(G.x + 28, 0, G.z + 18));   // 클래스 기준점: 대강당 = 기준 + (−28, 0, −18)
+  const [gymC, courtC, bunkerC] = megaP.registeredChunks.slice(-3);
+  courtC.group.position.set(C.x, 0, C.z); courtC.centerPos.set(C.x, 0, C.z);
+  [gymC, courtC].forEach(c => { scene.remove(c.group); O.add(c.group); c.group.traverse(o => { o.userData.dynamic = true; if (o.isMesh) { o.castShadow = o.receiveShadow = true; } }); });
   // ① 대강당(실내체육관): PBR 콘크리트·벽돌 기단 + 필라스터 기둥 + 채광 고창 + 돌출 포치 캐노피 & 전면 현판 + 양개 유리문 + 실내 코트 골대/무대
-  { scene.remove(gymC.group); F0.interior.add(gymC.group); gymC.group.position.set(G.x, 0, G.z);
-    gymC.group.traverse(o => { o.userData.dynamic = true; });
+  {
     const H = 7.2, x0 = G.x - G.w / 2, x1 = G.x + G.w / 2, z0 = G.z - G.d / 2, z1 = G.z + G.d / 2, t = .35, dw = 3.2, dh = 3.0;
     const baseM = facTpl ? Object.assign(facTpl.clone(), { color: new THREE.Color(0x5a5450), roughness: .9 }) : PM(0x524c48, .88),
       pilM = PM(0xa69e92, .76),

@@ -1739,7 +1739,7 @@ introGuard = guardNPC;
 const guardPropRef = { kind: 'guardnpc', floor: 0, x: GUARD_LAYOUT.npc.x, z: GUARD_LAYOUT.npc.z, y: 1.15, label: '경비 아저씨와 이야기하기' };
 world.props.push(guardPropRef);
 npcLoad('guard', guardNPC, { url: 'assets/characters/guard.glb', height: 1.75, native: true, clipNames: ['idle'], onLoad: () => {
-  guardNPC.userData.seatedReport = applyGuardSeatedPose(guardNPC, GUARD_LAYOUT.seat);
+  guardNPC.userData.seatedReport = applyGuardSeatedPose(guardNPC,GUARD_LAYOUT.seat);
   if (GUARD_WALK.state !== 'seated') setGuardPoseMode(GUARD_WALK.state === 'walking' ? 'walk' : 'stand', GUARD_WALK.phase);
 } });
 {
@@ -1775,7 +1775,7 @@ function setGuardPoseMode(mode, phase = 0) {
     guardNPC.rotation.y = 0;
     if (guardNPC.userData.characterModel) {
       guardNPC.userData.curClipName = 'Seated';
-      guardNPC.userData.seatedReport = applyGuardSeatedPose(guardNPC, GUARD_LAYOUT.seat);
+      guardNPC.userData.seatedReport = applyGuardSeatedPose(guardNPC,GUARD_LAYOUT.seat);
     }
     syncGuardPropPosition();
     return;

@@ -6066,7 +6066,7 @@ function megaNotify(m) { const t = String(m).split('\n'); say(t[0].replace(/^\S+
     pbox(G.x - dw - (x0 - t) + .12, 1.15, .14, baseM, (x0 - t + G.x - dw) / 2, .575, z1 + t + .07, O);
     pbox((x1 + t) - (G.x + dw) + .12, 1.15, .14, baseM, (G.x + dw + x1 + t) / 2, .575, z1 + t + .07, O);
     pbox(G.w + 2 * t + .24, 1.15, .14, baseM, G.x, .575, z0 - t - .07, O);
-    [-1, 1].forEach(sd => pbox(.14, 1.15, G.d + 2 * t + .24, G.x + sd * (G.w / 2 + t + .07), .575, G.z, O));
+    [-1, 1].forEach(sd => pbox(.14, 1.15, G.d + 2 * t + .24, baseM, G.x + sd * (G.w / 2 + t + .07), .575, G.z, O));
     pbox(G.w + 1.1, .32, G.d + 1.1, trimM, G.x, H + .16, G.z, O);
     pbox(G.w + .9, .55, .36, trimM, G.x, H + .58, z1 + t, O);
     pbox(9.6, .95, .42, trimM, G.x, H + 1.05, z1 + t, O);

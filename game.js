@@ -39,8 +39,8 @@ import './new37UniquePatch.js';     // 37개 구역 신규 특수 설비 · 벽�
 import './megaExpansionPatch.js';   // 메가 익스팬션 · 최적화 · 4막 사건 기록 · 수집품 · 미니게임 (사용자 제공) → window.megaSchoolPatch
 import './poolMachineryPatch.js';     // 수영장 · 남/녀 탈의실·샤워실 · 기계실 철문 (사용자 제공) → window.poolAndMachineryPatch
 import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx } from './audio.js'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera } from './perfStabilizer.js';
-import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js';
-import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, SIDEQUESTS, HEADQUEST, COLLECT, LOCKER_SCARES, CHALK_QA, OUIJA_QS, PARA, TOILET_FX, MIRROR_WORDS } from './story.js';
+import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js?v=99';
+import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, SIDEQUESTS, HEADQUEST, COLLECT, LOCKER_SCARES, CHALK_QA, OUIJA_QS, PARA, TOILET_FX, MIRROR_WORDS } from './story.js?v=99';
 import { isSpeechBusy } from './voice.js';
 import { SET, saveSET, resetSET, DIFF, keyLabel } from './settings.js';
 import { initI18n, setLang, lang as curLang } from './i18n.js?v=96';   // 언어 패치 (한국어 · English · 日本語 · 中文)
@@ -1340,12 +1340,17 @@ async function useRoomObj(p) {
     sfx.pickup(); p.done = true; refreshHud(); return;
   }
   if (k === 'phone') {
-    sfx.click(); const i = await choose('내선 전화', '수화기에서 낮은 신호음이 들린다. 벽에 붙은 내선 번호표가 반쯤 찢어져 있다.', [{ label: '201 — 방송실' }, { label: '100 — 경비실' }, { label: '302 — 3학년 2반' }, { label: '내려놓는다' }]);
+    sfx.click(); const i = await choose('교내 내선 전화기', `${rn || '복도'} 벽에 걸린 구형 내선 전화기. 수화기를 들자 낮은 교환기 신호음이 울린다.`, [{ label: '100 — 정문 경비실', sub: DAY.k > .3 && !FL.night ? '경비 아저씨에게 내선 연결' : '야간 무인 상태' }, { label: '201 — 3층 방송실', sub: '주조정실 내선' }, { label: '302 — 3학년 2반', sub: '폐쇄된 교실 내선' }, { label: '수화기를 내려놓는다' }]);
     if (i === 3) { sfx.click(); return; }
-    sfx.staticNoise(1.2);
-    if (i === 0) setTimeout(() => { caption('(지직거림 사이로) …오늘 수업은 끝났어…'); fx.glitch(.3); setFace('fear', 2); }, 900);
-    else if (i === 1) setTimeout(() => { caption('(신호만 계속 간다 — 아무도 받지 않는다)'); }, 900);
-    else setTimeout(() => { at(P.x, floors[P.floor].y0 + 1.6, P.z).whisper(); sfx.ghostGiggle(); caption('(수화기 너머에서, 아이가 웃는다)'); fx.glitch(.5); shake = .3; setFace('fear', 3); }, 1100);
+    sfx.staticNoise(.8);
+    if (i === 0) {
+      if (DAY.k > .3 && !FL.night) { callTalk('경비실 (내선 100)', ['call_guard'], false, 'guard'); }
+      else setTimeout(() => { caption('(수화기 너머로 빈 경비실의 전화벨만 공허하게 울린다…)'); }, 800);
+    } else if (i === 1) {
+      setTimeout(() => { line('pa1', 'phone', '📞 내선 201 (방송실)'); fx.glitch(.3); setFace('fear', 2); }, 600);
+    } else {
+      setTimeout(() => { at(P.x, floors[P.floor].y0 + 1.6, P.z).whisper(); sfx.ghostGiggle(); line('gh1', 'phone', '📞 내선 302 (3-2 교실)'); fx.glitch(.5); shake = .3; setFace('fear', 3); }, 700);
+    }
     return;
   }
   if (k === 'mirror') {
@@ -5376,82 +5381,217 @@ function shotGrab() {   // fx.render 바로 뒤 (같은 프레임이라 WebGL �
     toast('📷 사진 저장', '휴대폰 › 사진 › 내가 찍은 사진', 'opt');
   } catch (e) { console.warn('[shot]', e && e.message); }
 }
-// ── 전화 ──
+// ── 전화 통화 시스템 2.0 (실시간 파형 · 통화 타이머 · 쌍방향 응답 · 내선/주파수 다이얼 · 자동 통화 녹음 아카이브) ──
 registerLines({
-  call_mina1: { spk: 'mina', text: '……여보세요? 들려? ……나야, 민아. 학교 안이야. 계속 누가 복도에서 걸어 다녀. 3층은…… 3층은 가지 마.' },
-  call_mina2: { spk: 'mina', text: '……지지직…… 거기 있어? 별관 쪽 불이 켜졌어. 누가 켰어? ……끊지 마, 제발…… 끊지……' },
-  call_unk1: { spk: 'ghost', text: '……하아…… 하아…… 왜…… 나만 두고 갔어……' },
-  call_unk2: { spk: 'ghost', text: '……지금 네 뒤에 있는 의자…… 거기가 내 자리야……' },
-  call_guard: { spk: 'guard', text: '여기 경비실이여. 학생, 아직 안에 있는겨? ……지지직…… 그 건물서 혼자 댕기지 말어. 밤엔 그 애가…… 지지직……' },
-  call_home: { spk: 'friend2', text: '여보세요? 얘, 너 어디야! 왜 이렇게 안 들려…… 학교? 거기 꼼짝 말고 있어, 지금 바로 갈게!' },
-  call_119: { spk: 'narrator', text: '119 상황실입니다. 신호가 약합니다. ……학교 안이라고요? 위치 확인했습니다. 구조대가 정문으로 가겠습니다. 정문 쪽으로 이동하세요.' },
-  call_fail: { spk: 'narrator', text: '지금 거신 전화는 연결할 수 없습니다. 잠시 후 다시 걸어 주십시오.' },
+  call_mina1: { spk: 'mina', text: '……여보세요? 들려? 나야, 민아! 아직 학교 안이지? 복도에서 계속 누가 발소리를 내며 걸어 다녀. 내가 나올 때까지 3층 복도 끝은 조심해야 해.' },
+  call_mina2: { spk: 'mina', text: '……여보세요? 아직 거기 있어? 방금 본관 뒤쪽 별관 건물에 불이 켜졌어. 아무도 없는 곳인데 누가 켠 거야…… 제발 끊지 마, 나 지금 방송실 장비실 안에 숨어 있어……' },
+  call_unk1: { spk: 'ghost', text: '……추워…… 여긴 물이 너무 차가워…… 왜 다들 나만 두고 먼저 집에 갔어……' },
+  call_unk2: { spk: 'ghost', text: '……지금 네가 앉아 있는 그 의자…… 거기, 원래 내 자리야……' },
+  call_guard: { spk: 'guard', text: '어이, 학생! 나 경비실이여. 아직도 본관 안에 있는 겨? 해가 다 떨어졌는디 거기 혼자 돌아댕기믄 큰일 나유! 복도에서 무슨 소리가 나도 절대 대답허지 말고, 어서 정문 쪽으로 나와유!' },
+  call_home: { spk: 'friend2', text: '여보세요? 얘, 너 지금 어디야! 왜 이렇게 전화가 끊겨…… 서문고 앞이라고? 거기 위험하니까 꼼짝 말고 정문 쪽에 나와 있어, 엄마가 지금 바로 갈게!' },
+  call_119: { spk: 'narrator', text: '119 종합상황실입니다. 전파 상태가 매우 불안정합니다. 폐교된 서문고등학교 내부라고요? 위치 추적 완료했습니다. 구조대가 정문으로 출동 중이니 즉시 정문 쪽으로 대피하십시오.' },
+  call_fail: { spk: 'narrator', text: '지금 거신 전화는 전파 음영 지역이거나 연결할 수 없습니다. 옥상 중계기를 점검하거나 내선 번호를 이용해 주십시오.' },
 });
 const CONTACTS = [
-  { id: 'mina', name: '민아', num: '010-2△△△-1012', icon: '🙂' },
-  { id: 'home', name: '집 (엄마)', num: '02-△△△-3381', icon: '🏠' },
-  { id: '119', name: '119', num: '119', icon: '🚑' },
-  { id: 'guard', name: '경비실', num: '내선 100', icon: '🛡' },
-  { id: 'unk', name: '발신번호 표시제한', num: '— — —', icon: '❓', hidden: true },
+  { id: 'mina', name: '민아 선배', num: '010-2481-1012', icon: '🎙', role: '서현고 방송부 · 실종' },
+  { id: 'guard', name: '정문 경비실', num: '내선 100', icon: '🛡', role: '교내 유선 내선망 (상시 연결)' },
+  { id: 'home', name: '집 (엄마)', num: '02-542-3381', icon: '🏠', role: '외부 기지국 신호 필요' },
+  { id: '119', name: '119 종합상황실', num: '119', icon: '🚑', role: '긴급 구조 요청 (신호 필요)' },
+  { id: 'ext201', name: '3층 방송실 부스', num: '내선 201', icon: '📻', role: '교내 방송국 내선' },
+  { id: 'unk', name: '발신번호 표시제한', num: '000-0000-1012', icon: '❓', role: '추적 불가 주파수', hidden: true },
 ];
-// 걸려 오는 전화: [id, 발신자, 대사, 조건]
 const INCALLS = [
-  { id: 'mina1', who: '민아', lines: ['call_mina1'], when: () => P.keys >= 1 && FL.cam },
-  { id: 'unk1', who: '발신번호 표시제한', lines: ['call_unk1'], when: () => P.keys >= 2 && (P.floor === 2 || P.floor === 1) && !isOutdoors() },
-  { id: 'guard', who: '경비실 (내선 100)', lines: ['call_guard'], when: () => P.keys >= 3 },
-  { id: 'mina2', who: '민아', lines: ['call_mina2'], when: () => !!FL.anPow },
-  { id: 'unk2', who: '발신번호 표시제한', lines: ['call_unk2'], when: () => !!SIT.chair },   // 교실 의자에 앉아 있을 때
-  { id: 'home', who: '집 (엄마)', lines: ['call_home'], when: () => !!FL.sos },
+  { id: 'mina1', who: '민아 선배', num: '010-2481-1012', lines: ['call_mina1'], topic: 'mina1', summary: '복도의 발소리 경고 · 3층 방송실 근처', when: () => P.keys >= 1 && FL.cam },
+  { id: 'unk1', who: '발신번호 표시제한', num: '— — —', lines: ['call_unk1'], topic: 'unk1', summary: '차가운 물속에서 들려온 흐느낌', when: () => P.keys >= 2 && (P.floor === 2 || P.floor === 1) && !isOutdoors() },
+  { id: 'guard', who: '정문 경비실 (내선 100)', num: '내선 100', lines: ['call_guard'], topic: 'guard', summary: '야간 순찰 경고 · 소리에 대답하지 말 것', when: () => P.keys >= 3 },
+  { id: 'mina2', who: '민아 선배', num: '010-2481-1012', lines: ['call_mina2'], topic: 'mina2', summary: '별관 점등 목격 · 방송실 장비실 은신 중', when: () => !!FL.anPow },
+  { id: 'unk2', who: '발신번호 표시제한', num: '3-2 교실', lines: ['call_unk2'], topic: 'unk2', summary: '교실 의자 주인의 속삭임', when: () => !!SIT.chair },
+  { id: 'home', who: '집 (엄마)', num: '02-542-3381', lines: ['call_home'], topic: 'home', summary: '정문 앞 대기 당부 · 즉시 출발', when: () => !!FL.sos },
 ];
-const CALL = { ring: null, ringT: 0, bellT: 0, talking: null, coolT: 90, log: [] };
+const CALL = { ring: null, ringT: 0, bellT: 0, talking: null, talkSec: 0, coolT: 75, log: [], dialBuf: '' };
+{
+  const st = document.createElement('style');
+  st.textContent = `
+    #callUI { min-width: 286px; padding: 12px 14px; border-radius: 10px; background: rgba(10,14,22,.95); border: 1px solid rgba(110,160,220,.38); box-shadow: 0 12px 32px rgba(0,0,0,.75); backdrop-filter: blur(8px); }
+    #callUI.ring { border-color: #48c878; box-shadow: 0 0 24px rgba(72,200,120,.32), 0 12px 32px rgba(0,0,0,.8); }
+    #callUI .cTop { display: flex; align-items: center; gap: 11px; width: 100%; }
+    #callUI .cMeta { flex: 1; min-width: 0; }
+    #callUI .cMeta b { display: block; font-size: 14px; color: #f2eee6; letter-spacing: .02em; }
+    #callUI .cMeta small { display: block; font-size: 11px; color: #8fa4be; margin-top: 1px; }
+    #callUI .cWave { display: flex; align-items: flex-end; gap: 3px; height: 18px; padding: 0 4px; }
+    #callUI .cWave s { display: block; width: 3px; background: #58d68d; border-radius: 2px; animation: cWaveAnim .65s ease-in-out infinite alternate; }
+    #callUI .cWave s:nth-child(2){ animation-delay: .12s } #callUI .cWave s:nth-child(3){ animation-delay: .24s } #callUI .cWave s:nth-child(4){ animation-delay: .08s } #callUI .cWave s:nth-child(5){ animation-delay: .20s }
+    @keyframes cWaveAnim { 0% { height: 4px; opacity: .45; } 100% { height: 17px; opacity: 1; } }
+    #callUI .cBtns { display: flex; gap: 8px; margin-top: 9px; width: 100%; }
+    #callUI .cBtns button { flex: 1; padding: 6px 10px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; border: 1px solid rgba(255,255,255,.18); color: #fff; pointer-events: auto; }
+    #callUI .cBtns .ans { background: #1e7e48; border-color: #38b86c; }
+    #callUI .cBtns .dec { background: #7a2228; border-color: #b83c44; }
+    .pDialBox { background: rgba(16,22,30,.9); border: 1px solid rgba(90,120,150,.3); border-radius: 8px; padding: 9px; margin-bottom: 10px; }
+    .pDialRow { display: flex; gap: 6px; margin-bottom: 7px; }
+    .pDialRow input { flex: 1; background: #090d12; color: #e8f0f8; border: 1px solid #2c3a48; border-radius: 5px; padding: 6px 9px; font: bold 14px monospace; letter-spacing: .08em; }
+    .pDialRow button { background: #1f6f43; color: #fff; border: 1px solid #359c63; border-radius: 5px; padding: 0 12px; font-size: 12px; font-weight: 700; cursor: pointer; }
+    .pDialChips { display: flex; gap: 5px; flex-wrap: wrap; }
+    .pDialChips span { font-size: 10px; padding: 3px 7px; border-radius: 4px; background: rgba(45,62,80,.55); color: #b8cce0; border: 1px solid rgba(100,130,160,.25); cursor: pointer; }
+    .pDialChips span:hover { background: rgba(70,100,135,.75); color: #fff; }
+  `;
+  document.head.appendChild(st);
+}
 const callEl = (() => { const d = document.createElement('div'); d.id = 'callUI'; document.body.appendChild(d); return d; })();
+function fmtCallSec(s) { const m = Math.floor(s / 60), r = Math.floor(s % 60); return `${String(m).padStart(2, '0')}:${String(r).padStart(2, '0')}`; }
 function callRender() {
-  if (CALL.ring) callEl.innerHTML = `<div class="cIco">📞</div><div><b>${CALL.ring.who}</b><span>전화가 왔다 · <kbd>P</kbd> 받기 · <kbd>⌫</kbd> 끊기</span></div><i style="width:${Math.max(0, 1 - CALL.ringT / 9) * 100}%"></i>`;
-  else if (CALL.talking) callEl.innerHTML = `<div class="cIco on">📞</div><div><b>${CALL.talking.who}</b><span>통화 중…</span></div>`;
-  callEl.classList.toggle('show', !!(CALL.ring || CALL.talking)); callEl.classList.toggle('ring', !!CALL.ring);
+  if (CALL.ring) {
+    callEl.innerHTML = `<div class="cTop"><div class="cIco">📞</div><div class="cMeta"><b>${CALL.ring.who}</b><small>${CALL.ring.num || '수신 전화'} · 벨 울리는 중…</small></div></div>
+      <div class="cBtns"><button type="button" class="ans" id="cBtnAns">📞 받기 (P)</button><button type="button" class="dec" id="cBtnDec">📵 거절 (⌫)</button></div>
+      <i style="width:${Math.max(0, 1 - CALL.ringT / 11) * 100}%"></i>`;
+    const bA = document.getElementById('cBtnAns'), bD = document.getElementById('cBtnDec');
+    if (bA) bA.onclick = e => { e.stopPropagation(); callAnswer(); };
+    if (bD) bD.onclick = e => { e.stopPropagation(); callDecline(false); };
+  } else if (CALL.talking) {
+    callEl.innerHTML = `<div class="cTop"><div class="cIco on">📞</div><div class="cMeta"><b>${CALL.talking.who}</b><small>통화 중 · ${fmtCallSec(CALL.talkSec || 0)}</small></div>
+      <div class="cWave"><s></s><s></s><s></s><s></s><s></s></div></div>
+      <div class="cBtns"><button type="button" class="dec" id="cBtnEnd">통화 종료</button></div>`;
+    const bE = document.getElementById('cBtnEnd');
+    if (bE) bE.onclick = e => { e.stopPropagation(); callHangup(); };
+  }
+  callEl.classList.toggle('show', !!(CALL.ring || CALL.talking));
+  callEl.classList.toggle('ring', !!CALL.ring);
+}
+function callHangup() {
+  if (!CALL.talking) return;
+  stopSpeak();
+  CALL.talking = null;
+  CALL.coolT = 65;
+  sfx.beep();
+  callRender();
 }
 function callRing(c) {
   CALL.ring = c; CALL.ringT = 0; CALL.bellT = 0; FL.calls ||= {}; FL.calls[c.id] = 'ring'; callRender();
 }
 function callAnswer() {
-  const c = CALL.ring; if (!c) return; CALL.ring = null; FL.calls[c.id] = 'answered'; CALL.log.push({ who: c.who, t: clockText(), kind: '수신' });
-  callTalk(c.who, c.lines, c.id.startsWith('unk'));
+  const c = CALL.ring; if (!c) return; CALL.ring = null; FL.calls[c.id] = 'answered';
+  CALL.log.push({ who: c.who, t: clockText(), kind: '수신', lines: c.lines, summary: c.summary || '' });
+  callTalk(c.who, c.lines, c.id.startsWith('unk'), c.topic);
 }
 function callDecline(missed) {
-  const c = CALL.ring; if (!c) return; CALL.ring = null; FL.calls[c.id] = 'missed'; CALL.log.push({ who: c.who, t: clockText(), kind: missed ? '부재중' : '거절' }); callRender();
-  if (missed) toast('📵 부재중 전화', `${c.who} — 휴대폰 › 전화에서 음성 사서함을 들을 수 있다`, 'info'); else sfx.beep();
+  const c = CALL.ring; if (!c) return; CALL.ring = null; FL.calls[c.id] = 'missed';
+  CALL.log.push({ who: c.who, t: clockText(), kind: missed ? '부재중' : '거절', lines: c.lines, summary: c.summary || '음성 사서함 보관됨' });
+  callRender();
+  if (missed) toast('📵 부재중 전화', `${c.who} — 휴대폰(P) › 전화 탭에서 음성 사서함을 들을 수 있습니다`, 'info'); else sfx.beep();
   CALL.coolT = 60; save(true);
 }
-async function callTalk(who, ids, creepy) {
-  CALL.talking = { who }; callRender(); sfx.beep();
+async function callTalk(who, ids, creepy, topic = null) {
+  CALL.talking = { who }; CALL.talkSec = 0; callRender(); sfx.beep();
   if (creepy) { P.fear = Math.min(1, P.fear + .12); fx.glitch(.35); }
-  for (const id of ids) { const sec = await line(id, 'phone', '📞 ' + who); await new Promise(r => setTimeout(r, (sec + .4) * 1000)); if (!CALL.talking) break; }
-  if (creepy) { sfx.stinger(.6); shake = Math.max(shake, .3); caption('뚜— 뚜— 뚜—'); }
+  for (const id of ids) {
+    const sec = await line(id, 'phone', '📞 ' + who);
+    await new Promise(r => setTimeout(r, (sec + .35) * 1000));
+    if (!CALL.talking) break;
+  }
+  // 쌍방향 통화 응답: 주요 통화에서 주인공이 응답하거나 선택지를 고른다
+  if (CALL.talking && state === 'playing') {
+    if (topic === 'mina1') {
+      const i = await choose('📞 민아 선배와 통화 중', '수화기 너머로 민아의 거친 숨소리와 복도 울림이 들린다.', [
+        { label: '“선배! 지금 어디예요? 제가 바로 갈게요!”', sub: '민아를 안심시키고 위치 단서를 확인한다' },
+        { label: '“소리 내지 말고 숨어 있어요! 절대 대답하지 마요!”', sub: '주변 경계를 당부하고 침착함을 되찾는다 (마음 안정)' }
+      ]);
+      if (i === 0) { talk('findMina', 3200); addClue('phone1'); }
+      else { calmDown(30, '민아에게 숨어 있으라고 당부했다. 호흡을 가다듬자.'); addClue('phone1'); }
+    } else if (topic === 'guard') {
+      const i = await choose('📞 정문 경비실과 내선 통화', '경비 아저씨가 걱정스러운 목소리로 본관 내부 상황을 묻는다.', [
+        { label: '“민아 선배를 찾기 전엔 혼자 못 나가요.”', sub: '결의를 다진다 (마음 안정)' },
+        { label: '“열쇠 조각이 잠겨 있어요. 힌트가 없을까요?”', sub: '현재 남은 열쇠 위치에 대한 조언을 듣는다' }
+      ]);
+      if (i === 0) calmDown(25, '경비 아저씨: “정 그라믄 11시 40분 전엔 꼭 데리고 나와야 혀!”');
+      else toast('경비 아저씨의 조언', '“교무실 금고는 오늘 날짜(1012), 도서실 서랍은 머리핀, 수영장 배수구는 긴 갈고리를 써 봐유.”', 'info');
+    } else if (topic === 'mina2') {
+      talk('findMina', 3000);
+    } else if (topic === 'home' || topic === '119') {
+      calmDown(35, '외부와 통화가 연결되었다는 사실만으로도 숨통이 트인다.');
+    }
+  }
+  if (creepy && CALL.talking) { sfx.stinger(.6); shake = Math.max(shake, .3); caption('뚜— 뚜— 뚜—'); }
   CALL.talking = null; CALL.coolT = 75; callRender(); save(true);
+}
+function dialNumber(rawNum) {
+  const num = String(rawNum || '').replace(/[^0-9]/g, '');
+  if (!num) return;
+  if (num === '100') { callOut('guard'); return; }
+  if (num === '119') { callOut('119'); return; }
+  if (num === '201' || num === '01024811012' || num === '2481') {
+    if (num === '201') { callOut('ext201'); return; }
+    callOut('mina'); return;
+  }
+  if (num === '302') {
+    CALL.log.push({ who: '내선 302 (3-2 교실)', t: clockText(), kind: '발신', lines: ['gh1'], summary: '폐쇄된 3-2 교실 수화기 너머의 속삭임' });
+    closeUI(); callTalk('내선 302 (3-2 교실)', ['gh1'], true); return;
+  }
+  if (num === '1012') {
+    CALL.log.push({ who: '주파수 1012 (기억의 전파)', t: clockText(), kind: '수신', lines: ['tape4'], summary: '윤하늘의 생전 하교 방송 리허설 전파' });
+    closeUI(); calmDown(30, '수화기 너머로 10년 전 하늘이의 따뜻한 방송 연습 목소리가 흘러나온다…');
+    callTalk('10월 12일의 전파', ['tape4'], false); return;
+  }
+  if (num.includes('3381')) { callOut('home'); return; }
+  closeUI();
+  CALL.talking = { who: `발신 (${rawNum})` }; CALL.talkSec = 0; callRender(); sfx.phone();
+  setTimeout(() => { line('call_fail', 'phone', '📞 ' + rawNum); setTimeout(() => { CALL.talking = null; callRender(); }, 3500); }, 1200);
 }
 function callOut(id) {
   if (CALL.talking || CALL.ring) return;
-  const c = CONTACTS.find(x => x.id === id); CALL.log.push({ who: c.name, t: clockText(), kind: '발신' }); closeUI();
+  const c = CONTACTS.find(x => x.id === id) || { id, name: id, num: id };
+  closeUI();
   const sig = !!FL.sos;
-  if (id === 'unk') { callTalk(c.name, ['call_unk1'], true); return; }   // 신호가 없는데도 연결된다
-  if (id === '119' && sig) { callTalk('119 상황실', ['call_119'], false); FL.call119 = true; return; }
-  if (id === 'home' && sig) { callTalk('집 (엄마)', ['call_home'], false); return; }
-  if (id === 'mina' && FL.calls && FL.calls.mina1 && Math.random() < .5) { callTalk('민아', ['call_mina2'], false); return; }
-  CALL.talking = { who: c.name }; callRender(); sfx.phone();
-  setTimeout(() => { line('call_fail', 'phone', '📞 ' + c.name); setTimeout(() => { CALL.talking = null; callRender(); if (!sig) toast('신호 없음', '옥상 안테나로 신호를 잡으면 밖으로 전화를 걸 수 있을 것 같다', 'info'); }, 3800); }, 1900);
+  if (id === 'unk') {
+    CALL.log.push({ who: c.name, t: clockText(), kind: '발신', lines: ['call_unk1'], summary: '알 수 없는 주파수 응답' });
+    callTalk(c.name, ['call_unk1'], true, 'unk1'); return;
+  }
+  if (id === 'guard') {
+    const guardHere = DAY.k > .3 && !FL.night;
+    const lines = guardHere ? ['call_guard'] : ['call_unk1'];
+    CALL.log.push({ who: c.name, t: clockText(), kind: '발신', lines, summary: guardHere ? '경비실 유선 내선 통화' : '야간 무인 경비실 수화기 너머의 숨소리' });
+    callTalk(c.name, lines, !guardHere, guardHere ? 'guard' : 'unk1'); return;
+  }
+  if (id === 'ext201') {
+    CALL.log.push({ who: c.name, t: clockText(), kind: '발신', lines: ['pa1'], summary: '3층 방송실 부스 내선 모니터' });
+    callTalk(c.name, ['pa1'], true); return;
+  }
+  if (id === '119' && sig) {
+    CALL.log.push({ who: '119 종합상황실', t: clockText(), kind: '발신', lines: ['call_119'], summary: '서문고 위치 추적 및 정문 구조대 출동 확인' });
+    callTalk('119 종합상황실', ['call_119'], false, '119'); FL.call119 = true; return;
+  }
+  if (id === 'home' && sig) {
+    CALL.log.push({ who: '집 (엄마)', t: clockText(), kind: '발신', lines: ['call_home'], summary: '정문 앞 대기 당부' });
+    callTalk('집 (엄마)', ['call_home'], false, 'home'); return;
+  }
+  if (id === 'mina') {
+    if (FL.mina) { toast('민아 선배', '선배는 이미 구출되어 내 곁에 있다. 함께 정문으로 나가자.', 'info'); return; }
+    if (FL.anPow || (FL.calls && FL.calls.mina1)) {
+      const lns = FL.anPow ? ['call_mina2'] : ['call_mina1'];
+      CALL.log.push({ who: '민아 선배', t: clockText(), kind: '발신', lines: lns, summary: '교내 미약 전파를 통한 민아와의 통화' });
+      callTalk('민아 선배', lns, false, FL.anPow ? 'mina2' : 'mina1'); return;
+    }
+  }
+  CALL.log.push({ who: c.name, t: clockText(), kind: '발신 실패', lines: ['call_fail'], summary: '전파 음영 지역 (연결 실패)' });
+  CALL.talking = { who: c.name }; CALL.talkSec = 0; callRender(); sfx.phone();
+  setTimeout(() => { line('call_fail', 'phone', '📞 ' + c.name); setTimeout(() => { CALL.talking = null; callRender(); if (!sig) toast('📵 외부 신호 없음', '교내 내선(경비실 100 · 방송실 201)은 연결 가능하며, 외부 통화는 옥상 안테나 복구가 필요합니다.', 'info'); }, 3800); }, 1400);
 }
 function callTick(dt) {
   if (state !== 'playing') return;
+  if (CALL.talking) {
+    const prevSec = Math.floor(CALL.talkSec || 0);
+    CALL.talkSec = (CALL.talkSec || 0) + dt;
+    if (Math.floor(CALL.talkSec) !== prevSec) callRender();
+    return;
+  }
   if (CALL.ring) {
     CALL.ringT += dt; CALL.bellT -= dt;
-    if (CALL.bellT <= 0) { CALL.bellT = 1.8; sfx.vibrate(); sfx.phone();
-      // 벨소리: 같은 층의 그것이 18m 안에 있으면 소리 난 곳으로 온다
-      const G = ghost; if (G.active && G.floor === P.floor && G.state !== 'chase' && Math.hypot(G.x - P.x, G.z - P.z) < 18 && !P.hiding) { G.state = 'search'; G.target = { x: P.x, z: P.z }; G.wait = 0; G.replan = 0; if (!CALL.warned) { CALL.warned = true; caption('벨소리가 복도에 울려 퍼진다…'); } } }
-    if (P.hiding && CALL.ringT > 1) callDecline(false);   // 숨으면 자동으로 끊는다 (진동도 들킨다)
-    else if (CALL.ringT > 9) callDecline(true);
+    if (CALL.bellT <= 0) {
+      CALL.bellT = 1.8; sfx.vibrate(); sfx.phone();
+      const G = ghost; if (G.active && G.floor === P.floor && G.state !== 'chase' && Math.hypot(G.x - P.x, G.z - P.z) < 18 && !P.hiding) { G.state = 'search'; G.target = { x: P.x, z: P.z }; G.wait = 0; G.replan = 0; if (!CALL.warned) { CALL.warned = true; caption('벨소리가 복도에 울려 퍼진다…'); } }
+    }
+    if (P.hiding && CALL.ringT > 1) callDecline(false);
+    else if (CALL.ringT > 11) callDecline(true);
     callRender(); return;
   }
-  if (CALL.talking) return;
   if ((CALL.coolT -= dt) > 0) return;
   const G = ghost; if (G.active && G.floor === P.floor && G.state === 'chase') return;
   const c = INCALLS.find(c => !(FL.calls && FL.calls[c.id]) && c.when());
@@ -5460,12 +5600,43 @@ function callTick(dt) {
 function renderCallTab(B) {
   const rec = (FL.calls && Object.keys(FL.calls).some(k => k.startsWith('unk')));
   const vm = INCALLS.filter(c => FL.calls && FL.calls[c.id] === 'missed');
-  B.innerHTML = `<div class="pCall">${vm.length ? `<div class="pCHead">📼 음성 사서함</div>` + vm.map(c => `<button data-vm="${c.id}">▶ ${c.who}<small>부재중 전화 · 남긴 메시지 듣기</small></button>`).join('') : ''}
-    <div class="pCHead">연락처 <em>${FL.sos ? '📶 미약한 신호' : '신호 없음 ✕'}</em></div>
-    ${CONTACTS.filter(c => !c.hidden || rec).map(c => `<button data-c="${c.id}">${c.icon} ${c.name}<small>${c.num}</small></button>`).join('')}
-    <div class="pCHead">최근 기록</div>${CALL.log.length ? CALL.log.slice(-6).reverse().map(l => `<div class="pLog"><b>${l.kind}</b><span>${l.who} · ${l.t}</span></div>`).join('') : '<div class="pEmpty">통화 기록이 없습니다.</div>'}</div>`;
+  B.innerHTML = `<div class="pCall">
+    <div class="pDialBox">
+      <div class="pCHead" style="margin-top:0">다이얼 키패드 <em>${FL.sos ? '📶 옥상 중계기 연결됨' : '📵 외부 음영 · 내선망 연결'}</em></div>
+      <div class="pDialRow">
+        <input id="pDialIn" type="text" placeholder="번호 입력 (예: 100, 201, 119, 1012)" value="${CALL.dialBuf || ''}" maxlength="16">
+        <button type="button" id="pDialGo">📞 통화</button>
+      </div>
+      <div class="pDialChips">
+        <span data-num="100">#100 경비실</span>
+        <span data-num="201">#201 방송실</span>
+        <span data-num="302">#302 3-2교실</span>
+        <span data-num="119">#119 구조대</span>
+        <span data-num="1012">#1012 기억주파수</span>
+      </div>
+    </div>
+    ${vm.length ? `<div class="pCHead">📼 미확인 음성 사서함 (${vm.length})</div>` + vm.map(c => `<button data-vm="${c.id}">▶ ${c.who} (${c.num || ''})<small>부재중 녹음 메시지 재생 · ${c.summary || ''}</small></button>`).join('') : ''}
+    <div class="pCHead">연락처 목록</div>
+    ${CONTACTS.filter(c => !c.hidden || rec).map(c => `<button data-c="${c.id}">${c.icon} ${c.name} <em style="font-style:normal;opacity:.65;font-size:11px">(${c.num})</em><small>${c.role || ''}</small></button>`).join('')}
+    <div class="pCHead">통화 기록 & 자동 녹음 아카이브</div>
+    ${CALL.log.length ? CALL.log.slice(-8).reverse().map((l, idx) => `<div class="pLog" style="display:flex;align-items:center;justify-content:space-between;gap:6px"><div><b>[${l.kind}] ${l.who}</b><span>${l.t}${l.summary ? ' · ' + l.summary : ''}</span></div>${l.lines && l.lines.length ? `<button type="button" data-replay="${CALL.log.length - 1 - idx}" style="padding:3px 8px;font-size:11px;background:#1c2836;color:#9cd0ff;border:1px solid #385270;border-radius:4px;cursor:pointer;white-space:nowrap">▶ 녹음 듣기</button>` : ''}</div>`).join('') : '<div class="pEmpty">통화 기록이 없습니다.</div>'}
+  </div>`;
+  const dIn = document.getElementById('pDialIn'), dGo = document.getElementById('pDialGo');
+  if (dIn) {
+    dIn.oninput = () => { CALL.dialBuf = dIn.value; };
+    dIn.onkeydown = e => { e.stopPropagation(); if (e.key === 'Enter') dialNumber(dIn.value); };
+  }
+  if (dGo) dGo.onclick = () => dialNumber(dIn ? dIn.value : CALL.dialBuf);
+  B.querySelectorAll('.pDialChips span[data-num]').forEach(sp => {
+    sp.onclick = () => { CALL.dialBuf = sp.dataset.num; if (dIn) dIn.value = sp.dataset.num; dialNumber(sp.dataset.num); };
+  });
   B.querySelectorAll('button[data-c]').forEach(b => { b.onclick = () => callOut(b.dataset.c); });
-  B.querySelectorAll('button[data-vm]').forEach(b => { b.onclick = () => { const c = INCALLS.find(x => x.id === b.dataset.vm); FL.calls[c.id] = 'heard'; closeUI(); callTalk(c.who + ' (음성 사서함)', c.lines, c.id.startsWith('unk')); }; });
+  B.querySelectorAll('button[data-vm]').forEach(b => {
+    b.onclick = () => { const c = INCALLS.find(x => x.id === b.dataset.vm); if (!c) return; FL.calls[c.id] = 'heard'; closeUI(); callTalk(c.who + ' (음성 사서함)', c.lines, c.id.startsWith('unk'), c.topic); };
+  });
+  B.querySelectorAll('button[data-replay]').forEach(b => {
+    b.onclick = () => { const entry = CALL.log[+b.dataset.replay]; if (!entry || !entry.lines) return; closeUI(); callTalk(entry.who + ' (통화 녹음)', entry.lines, false); };
+  });
 }
 function shotsHtml() {
   return SHOT.list.length ? `<div class="pCHead">📷 내가 찍은 사진 <em>${SHOT.list.length} / 12</em></div><div class="pPhotos">${SHOT.list.slice().reverse().map(s => `<img src="${s.src}" alt="" data-t="${s.t} · ${s.where}">`).join('')}</div>` : '';

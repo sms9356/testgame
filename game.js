@@ -209,7 +209,7 @@ function loadModels() {
   const pending = Object.entries(byName);
   const requestNext = () => { if (!pending.length) return; const [name,list] = pending.shift(); state.active++;
   const finish = () => { state.active--; done(); requestNext(); };
-  loader.load(packed(name) ? `assets/models/${name}.glb` : `assets/models/${name}/${name}.gltf`, gltf => { queue.push(async () => { try {
+  loader.load(name.startsWith('sf_') ? `assets/models/sf/${name}.glb` : packed(name) ? `assets/models/${name}.glb` : `assets/models/${name}/${name}.gltf`, gltf => { queue.push(async () => { try {
     const root = gltf.scene; root.updateMatrixWorld(true); const pairs = [];
     const cr = name.startsWith('cr101/') || name.startsWith('th102/');
     const parts = []; if (name.startsWith('th102/')) parts.push(...thParts(root)); else if (packed(name)) parts.push(...h133Parts(root, name.split('/')[1], cr, name.startsWith('pr/') || (name.startsWith('v2/') && 'v2'))); else root.traverse(o => { if (o.isMesh) parts.push(o); });

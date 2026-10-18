@@ -817,8 +817,8 @@
 
 <script>
 window.__loadWatchdog = setTimeout(async () => {
-  const ld = document.getElementById('load'), tt = document.getElementById('title');
-  if (ld && !ld.classList.contains('done') && (!tt || !tt.classList.contains('show'))) {
+  const ld = document.getElementById('loading'), tt = document.getElementById('title');
+  if (ld && ld.classList.contains('show') && (!tt || !tt.classList.contains('show'))) {
     try {
       await Promise.all(['./game.js', './i18n.js', './world.js', './saveSystem.js'].map(u => fetch(u, { cache: 'reload' })));
     } catch (e) {}
@@ -829,6 +829,6 @@ window.__loadWatchdog = setTimeout(async () => {
   }
 }, 8000);
 </script>
-<script type="module" src="game.js?v=96"></script>
+<script type="module" src="game.js?v=97"></script>
 </body>
 </html>

@@ -66,7 +66,7 @@ function fitLeaf(kit, piv) {
   // 예전 판 문짝 · 손잡이는 숨긴다 (첫 자식은 열린 문 충돌 상자 계산에 계속 쓰인다)
   piv.children.forEach(c => { if (!c.userData.door2) c.visible = false; });
   piv.add(g);
-  return { base: piv.position.x, dir: toPlusX ? -1 : 1, W };   // 문짝은 경첩 쪽(바깥)으로 밀려 벽 앞에 겹친다
+  return { base: piv.position.x, baseZ: piv.position.z, dir: toPlusX ? -1 : 1, W };   // 문짝은 경첩 쪽(바깥)으로 밀려 벽 앞에 겹친다
 }
 
 export function isSchoolDoorTarget(d) {
@@ -90,6 +90,6 @@ export function updateSchoolDoors(world) {
     if (!d.door2) continue;
     const t = d.open, e = t * t * (3 - 2 * t);
     if (d._slideE === e) continue; d._slideE = e;
-    for (const l of d.leaves) { if (!l.slide) continue; l.piv.rotation.y = 0; l.piv.position.x = l.slide.base + l.slide.dir * e * l.slide.W * .96; }
+    for (const l of d.leaves) { if (!l.slide) continue; l.piv.rotation.y = 0; l.piv.position.x = l.slide.base + l.slide.dir * e * l.slide.W * .96; const bz = l.slide.baseZ; if (Math.abs(bz) > 1.2 && Math.abs(bz) < 2.2) l.piv.position.z = bz - Math.sign(bz) * .1 * Math.min(1, e * 4); }   // 복도 문: 열리며 복도 쪽으로 10cm 띄워 벽 손잡이 레일 · 소화전 앞을 지나간다
   }
 }

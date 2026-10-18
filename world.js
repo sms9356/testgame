@@ -2343,7 +2343,7 @@ export function buildWorld(scene) {
       wallSeg(cx - 1, cx + 1, -1.75, -1.45, 2.4, CH);
       // 문틀 & 문짝
       add(mWoodDark, .1, 2.4, .36, cx - 1.0, 0, -1.6); add(mWoodDark, .1, 2.4, .36, cx + 1.0, 0, -1.6);
-      if (lay.types[i] !== 'stair') slidingDoors(cx);
+      if (lay.types[i] !== 'stair') slidingDoors(cx).rt = lay.types[i];
       // 교실 명패
       const sg = new THREE.MeshBasicMaterial({ map: T.makeSign(lay.names[i], '#1e2a2e', '#d9e4d0', lay.names[i].length > 3 ? 28 : 36), color: 0x9aa59a });
       plane(F.interior, sg, 1.0, .25, cx, 2.62, -1.43);
@@ -2356,7 +2356,7 @@ export function buildWorld(scene) {
         if (open) { wallSeg(cx - 4, cx - 3, 1.45, 1.75, 0, CH); wallSeg(cx + 3, cx + 4, 1.45, 1.75, 0, CH); wallSeg(cx - 3, cx + 3, 1.45, 1.75, 2.7, CH); [-3, 3].forEach(dx => add(mWoodDark, .12, 2.7, .36, cx + dx, 0, 1.6)); }
         else {
           wallSeg(cx - 4, cx - 1, 1.45, 1.75, 0, CH); wallSeg(cx + 1, cx + 4, 1.45, 1.75, 0, CH); wallSeg(cx - 1, cx + 1, 1.45, 1.75, 2.4, CH);
-          add(mWoodDark, .1, 2.4, .36, cx - 1.0, 0, 1.6); add(mWoodDark, .1, 2.4, .36, cx + 1.0, 0, 1.6); slidingDoorsS(cx);
+          add(mWoodDark, .1, 2.4, .36, cx - 1.0, 0, 1.6); add(mWoodDark, .1, 2.4, .36, cx + 1.0, 0, 1.6); slidingDoorsS(cx).rt = t;
         }
         const sg = new THREE.MeshBasicMaterial({ map: T.makeSign(LS.names[i], '#1e2a2e', '#d9e4d0', LS.names[i].length > 3 ? 28 : 36), color: 0x9aa59a });
         plane(F.interior, sg, 1.0, .25, cx, 2.62, 1.43, Math.PI);
@@ -2674,7 +2674,7 @@ export function buildWorld(scene) {
     // 복도 남벽: 남쪽 방 문 (현관은 넓은 개구부)
     sl.forEach((cx, i) => {
       if (AS.types[i] === 'lobbyA') { awall(cx - 4, cx - 3, 1.45, 1.75, CH); awall(cx + 3, cx + 4, 1.45, 1.75, CH); awall(cx - 3, cx + 3, 1.45, 1.75, CH, 2.7); [-3, 3].forEach(dx => add(mWoodDark, .12, 2.7, .36, cx + dx, 0, 1.6)); }
-      else { awall(cx - 4, cx - 1, 1.45, 1.75, CH); awall(cx + 1, cx + 4, 1.45, 1.75, CH); awall(cx - 1, cx + 1, 1.45, 1.75, CH, 2.4); add(mWoodDark, .1, 2.4, .36, cx - 1.0, 0, 1.6); add(mWoodDark, .1, 2.4, .36, cx + 1.0, 0, 1.6); slidingDoorsS(cx); }
+      else { awall(cx - 4, cx - 1, 1.45, 1.75, CH); awall(cx + 1, cx + 4, 1.45, 1.75, CH); awall(cx - 1, cx + 1, 1.45, 1.75, CH, 2.4); add(mWoodDark, .1, 2.4, .36, cx - 1.0, 0, 1.6); add(mWoodDark, .1, 2.4, .36, cx + 1.0, 0, 1.6); slidingDoorsS(cx).rt = AS.types[i]; }
       plane(F.interior, new THREE.MeshBasicMaterial({ map: T.makeSign(AS.names[i], '#1e2a2e', '#d9e4d0', AS.names[i].length > 6 ? 22 : 28), color: 0x9aa59a }), 1.4, .35, cx, 2.62, 1.43, Math.PI);
     });
     [-12, -4, 4, 12].forEach(b => awall(b - .15, b + .15, 1.75, 9.6, CH));
@@ -2683,7 +2683,7 @@ export function buildWorld(scene) {
     sl.forEach((cx, i) => {
       awall(cx - 4, cx - 1, -1.75, -1.45, CH); awall(cx + 1, cx + 4, -1.75, -1.45, CH); awall(cx - 1, cx + 1, -1.75, -1.45, CH, 2.4);
       add(mWoodDark, .1, 2.4, .36, cx - 1.0, 0, -1.6); add(mWoodDark, .1, 2.4, .36, cx + 1.0, 0, -1.6);
-      if (spec.types[i] !== 'stair') slidingDoors(cx);
+      if (spec.types[i] !== 'stair') slidingDoors(cx).rt = spec.types[i];
       plane(F.interior, new THREE.MeshBasicMaterial({ map: T.makeSign(spec.names[i], '#1e2a2e', '#d9e4d0', spec.names[i].length > 6 ? 22 : 28), color: 0x9aa59a }), 1.4, .35, cx, 2.62, -1.43);
     });
     [-12, -4, 4, 12].forEach(b => awall(b - .15, b + .15, -9.6, -1.75, CH));

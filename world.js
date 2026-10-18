@@ -728,7 +728,7 @@ export function buildWorld(scene) {
     frontWall(cx, zN, false);
     // 서류 책장
     for (let k = 0; k < 3; k++) shelf3D(cx + (k - 1) * 1.3, zN + .25, 0, 1.1, 2.0, .4, 5, .7);
-    plane(cur.interior, new THREE.MeshStandardMaterial({ map: T.makeCalendar(), roughness: .9 }), .5, .62, cx + 2.02, 1.75, zN + .03);
+    plane(cur.interior, new THREE.MeshStandardMaterial({ map: T.makeCalendar(), roughness: .9 }), .5, .62, cx + 3.84, 1.75, -7.3, -Math.PI / 2);
     const rowsZ = [-7.4, -5.5, -3.8];
     [-2.6, 2.6].forEach(dx => rowsZ.forEach((z, r) => {
       meshAt(merge([bx(1.4, .04, .7, 0, .74, 0), bx(.42, .72, .66, -.47, .36, 0), bx(.03, .72, .66, .68, .36, 0), bx(1.3, .4, .02, 0, .5, -.33)]), mWoodDark, cx + dx, 0, z); col(cx + dx - .7, cx + dx + .7, z - .35, z + .35);

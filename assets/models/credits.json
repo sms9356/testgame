@@ -287,5 +287,82 @@
    228.56293622158105
   ],
   "name": "Multi Cleaner Bottle"
+ },
+ "sf_vending": {
+  "authors": [
+   "erlangga da (Sketchfab CC-BY)"
+  ],
+  "dim_mm": [
+   967,
+   522,
+   1830
+  ],
+  "name": "Japanese Vending Machine (Game Ready)"
+ },
+ "sf_water_cooler": {
+  "authors": [
+   "Glitching Light (Sketchfab CC-BY)"
+  ],
+  "dim_mm": [
+   425,
+   513,
+   1320
+  ],
+  "name": "Water Cooler"
+ },
+ "sf_sofa": {
+  "authors": [
+   "akiko_yoshino (Sketchfab CC-BY)"
+  ],
+  "dim_mm": [
+   1950,
+   934,
+   798
+  ],
+  "name": "Sofa"
+ },
+ "sf_fuse_box": {
+  "authors": [
+   "Jimmy Johansson (Sketchfab CC-BY)"
+  ],
+  "dim_mm": [
+   513,
+   578,
+   620
+  ],
+  "name": "VR-Ready Fuse Box"
+ },
+ "sf_exit_sign": {
+  "authors": [
+   "JeffK (Sketchfab CC-BY)"
+  ],
+  "dim_mm": [
+   500,
+   33,
+   208
+  ],
+  "name": "Low Poly Green Running Man Exit Sign"
+ },
+ "sf_bulkhead_lamp": {
+  "authors": [
+   "iwanPlays (Sketchfab CC-BY)"
+  ],
+  "dim_mm": [
+   207,
+   115,
+   340
+  ],
+  "name": "Industrial Bulkhead Wall Lamp Lowpoly"
+ },
+ "sf_crt_tv": {
+  "authors": [
+   "Claudjr96 (Sketchfab CC-BY)"
+  ],
+  "dim_mm": [
+   540,
+   230,
+   464
+  ],
+  "name": "Retro CRT Television"
  }
 }

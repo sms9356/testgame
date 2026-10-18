@@ -4,6 +4,14 @@
  * (사용자 제공 코드 — 게임 연결은 game.js 의 "배전반 · 차임벨 연결" 부분)
  */
 import * as THREE from './vendor/three.module.js';
+import { GLTFLoader } from './vendor/addons/loaders/GLTFLoader.js';
+let _fuseBoxProto = null, _fuseBoxLoading = null;
+function loadFuseBoxProto() {
+  if (_fuseBoxProto) return Promise.resolve(_fuseBoxProto);
+  if (_fuseBoxLoading) return _fuseBoxLoading;
+  _fuseBoxLoading = new GLTFLoader().loadAsync('assets/models/sf/sf_fuse_box.glb').then(g => { _fuseBoxProto = g.scene; return _fuseBoxProto; }).catch(() => null);
+  return _fuseBoxLoading;
+}
 
 class SchoolPowerEventSystem {
   constructor(scene, playerRef, audioCtx) {
@@ -54,6 +62,22 @@ class SchoolPowerEventSystem {
     );
     ledMesh.position.set(0.12, 1.42, 0.08);
 
+    // 상하 금속 전선관(Conduit) + 3D 분전반(sf_fuse_box) 외형 장착 (boxMesh는 레이캐스트 히트박스로 유지)
+    const pipeMat = new THREE.MeshStandardMaterial({ color: 0x565c60, roughness: 0.45, metalness: 0.75 });
+    [-0.09, 0.09].forEach(dx => {
+      const pipe = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.014, 1.95, 8), pipeMat);
+      pipe.position.set(dx, 2.35, -0.04);
+      boxGroup.add(pipe);
+    });
+    loadFuseBoxProto().then(proto => {
+      if (!proto) return;
+      const visual = proto.clone(true);
+      visual.position.set(0, 0.94, 0.02);
+      boxGroup.add(visual);
+      boxMesh.material.transparent = true;
+      boxMesh.material.opacity = 0.02;
+      boxMesh.material.depthWrite = false;
+    });
     boxGroup.add(boxMesh, ledMesh);
     this.scene.add(boxGroup);
 

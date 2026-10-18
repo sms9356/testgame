@@ -37,7 +37,7 @@ import './school37RoomsPatch.js';    // 본관 · 별관 37개 특별실 가구 
 import './new37UniquePatch.js';     // 37개 구역 신규 특수 설비 · 벽면 레일 (사용자 제공) → window.new37UniquePatch
 import './megaExpansionPatch.js';   // 메가 익스팬션 · 최적화 · 4막 사건 기록 · 수집품 · 미니게임 (사용자 제공) → window.megaSchoolPatch
 import './poolMachineryPatch.js';     // 수영장 · 남/녀 탈의실·샤워실 · 기계실 철문 (사용자 제공) → window.poolAndMachineryPatch
-import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx } from './audio.js';
+import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx } from './audio.js'; import { installSchoolDoors } from './schoolDoors.js';
 import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js';
 import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, SIDEQUESTS, HEADQUEST, COLLECT, LOCKER_SCARES, CHALK_QA, OUIJA_QS, PARA, TOILET_FX, MIRROR_WORDS } from './story.js';
 import { isSpeechBusy } from './voice.js';
@@ -1059,7 +1059,7 @@ function toggleDoor(d, silent) {
     if (P.floor === d.floor && P.x > r.x1 - m && P.x < r.x2 + m && P.z > r.z1 - m && P.z < r.z2 + m) { say('문틀에서 비켜야 닫을 수 있다', 1600); return; }
     d.target = 0;
   } else d.target = 1;
-  if (!silent) { d.kind === 'slide' && !d.leaves ? sfx.doorSlide() : sfx.doorHinge(); P.noiseT = .6; }
+  if (!silent) { if (d.door2) { const sp = at(d.x, floors[d.floor].y0 + 1.2, d.z); d.target > .5 ? sp.doorOpen() : sp.doorClose(d.kind === 'slide' ? .45 : .38); } else d.kind === 'slide' && !d.leaves ? sfx.doorSlide() : sfx.doorHinge(); P.noiseT = .6; }
 }
 
 function readNote(it) {
@@ -4766,7 +4766,7 @@ function doorDir(d, ox, oz) {
 }
 // 시작: 모두 닫힘 + 방향 미리 정함 + 문짝 충돌 판
 world.doorList.forEach(d => { d.target = d.open = 0; d.rect.off = false; doorDir(d, P.x, P.z);
-  const L = doorLeaves(d); if (L) { d.leafCols = L.map(() => ({ x1: 0, x2: 0, z1: 0, z2: 0, off: true, leaf: true })); d.leafCols.forEach(c => floors[d.floor].col.push(c)); } });
+  const L = doorLeaves(d); if (L) { d.leafCols = L.map(() => ({ x1: 0, x2: 0, z1: 0, z2: 0, off: true, leaf: true })); d.leafCols.forEach(c => floors[d.floor].col.push(c)); } }); installSchoolDoors(world).catch(e => console.warn('school doors', e));   // 사용자 제공 양개문 모델로 교실 · 특별실 문짝 교체 (제외 구역은 schoolDoors.js)
 const _lb = new THREE.Box3();
 function doorTick(dt) {
   for (const d of world.doorList) {

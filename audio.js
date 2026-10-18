@@ -300,7 +300,7 @@ export function setProximity(v, t) {
   proxFilter.frequency.setTargetAtTime(500 + 900 * (0.5 + 0.5 * Math.sin(t * 1.3)), ac.currentTime, 0.2);
 }
 
-export const sfx = {
+function laterAt(s, fn) { const p = sfxPos; setTimeout(() => { sfxPos = p; try { fn(); } finally { sfxPos = null; } }, s * 1000); } export const sfx = {
   step(run = false, v = 1, surf = 'tile') {
     const k = run ? 1.5 : 1;
     if (surf === 'wood') { noiseBurst(.11, 420, 'lowpass', .32 * k, 0, v); tone(95 + Math.random() * 20, .09, 'sine', .14 * k, 0, v); }
@@ -327,7 +327,7 @@ export const sfx = {
   broadcast() { if (schoolCue('pa-chime', .6)) { noiseBurst(.3, 1800, 'bandpass', .025); return; } noiseBurst(.4, 1800, 'bandpass', .08); tone(880, .6, 'sine', .2, 0, 1, 660); setTimeout(() => tone(660, .9, 'sine', .2, 0, 1, 440), 700); setTimeout(() => noiseBurst(1.2, 2500, 'bandpass', .4), 1500); },
   doorSlide(v = 1) { noiseBurst(.55, 420, 'lowpass', .35 * v); tone(140, .5, 'sawtooth', .04 * v, 0, 1, 110); },
   doorHinge(v = 1) { tone(220, .6, 'sawtooth', .05 * v, 0, 1, 330); noiseBurst(.3, 900, 'bandpass', .15 * v); },
-  doorBang(pan = 0, v = 1) { noiseBurst(.4, 380, 'lowpass', 1.1 * v, pan); tone(70, .35, 'sine', .9 * v, pan, 1, 40); noiseBurst(.15, 2500, 'bandpass', .3 * v, pan); },
+  doorBang(pan = 0, v = 1) { noiseBurst(.4, 380, 'lowpass', 1.1 * v, pan); tone(70, .35, 'sine', .9 * v, pan, 1, 40); noiseBurst(.15, 2500, 'bandpass', .3 * v, pan); }, doorOpen(v = 1) { noiseBurst(.05, 3200, 'bandpass', .55 * v); tone(1900, .04, 'square', .05 * v); laterAt(.07, () => { tone(300, .6, 'sawtooth', .03 * v, 0, 1, 430); tone(540, .45, 'triangle', .022 * v, 0, 1, 360); noiseBurst(.65, 700, 'bandpass', .13 * v); }); }, doorClose(t = .42, v = 1) { noiseBurst(.32, 520, 'lowpass', .16 * v); tone(250, .28, 'sawtooth', .022 * v, 0, 1, 190); laterAt(t, () => { noiseBurst(.22, 260, 'lowpass', .85 * v); tone(85, .26, 'sine', .55 * v, 0, 1, 52); noiseBurst(.05, 3600, 'bandpass', .45 * v); tone(2100, .03, 'square', .05 * v); }); },   // 양개문: 걸쇠 딸깍 + 경첩 삐걱 / 휙 닫히며 쿵 + 걸쇠
   piano() { [196, 233, 220, 185, 196, 156, 175].forEach((f, i) => setTimeout(() => { tone(f, 2.2, 'triangle', .18); tone(f * 2.01, 1.6, 'sine', .05); }, i * 520 + Math.random() * 60)); },
   phone() { for (let i = 0; i < 3; i++) setTimeout(() => { noiseBurst(.35, 160, 'lowpass', .5); tone(120, .35, 'square', .05); }, i * 600); },
   beep() { tone(1400, .08, 'square', .07); },

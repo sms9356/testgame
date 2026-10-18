@@ -364,5 +364,38 @@
    464
   ],
   "name": "Retro CRT Television"
+ },
+ "sf_entrance_door": {
+  "authors": [
+   "1-3D.com (Sketchfab CC-BY-SA)"
+  ],
+  "dim_mm": [
+   2510,
+   325,
+   2400
+  ],
+  "name": "Emergency Glass Double Door"
+ },
+ "sf_trophy_cab": {
+  "authors": [
+   "Laryok_k (Sketchfab CC-BY)"
+  ],
+  "dim_mm": [
+   613,
+   261,
+   1920
+  ],
+  "name": "Classic Wooden Trophy Cabinet"
+ },
+ "sf_bulletin_board": {
+  "authors": [
+   "Kroko.blend (Sketchfab CC-BY)"
+  ],
+  "dim_mm": [
+   1800,
+   75,
+   1100
+  ],
+  "name": "Bulletin Board"
  }
 }

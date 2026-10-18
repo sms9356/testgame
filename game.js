@@ -19,7 +19,7 @@ import { installInfirmaryAssets, updateInfirmaryCabinets } from './infirmaryAsse
 import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js?v=96'; import { updateWindowFakes } from './windowInteriors.js';
 import { drawMap } from './map.js';
 import { makeDress, makeHair, makeGhostFace, makeGraffiti, makeKeypad, loadPBR, pbr, makeGlow as makeGlowTex, makePaintingStare, makeSign, makeBlood } from './tex.js';
-import { warmUp } from './bake.js?v=97';
+import { warmUp } from './bake.js?v=98';
 import { createStaticDistanceLOD } from './staticDistanceLOD.js';
 import { createTextureBudget } from './textureBudget.js';
 import { createFX } from './fx.js';
@@ -4548,7 +4548,7 @@ function fzFloor(parent, tex, x1, x2, z1, z2, y, rep, rough = .9) {
   window.__campusCctv=campusCctv;
   guardRoomController = installGuardRoom({ renderer, scene, camera, guardRoom: world.guardRoom, cctvTexture: cctvTex });
   syncGuardDevices(); guardRoomController.tick(1); window.__guardRoom = guardRoomController;
-  guardRoomController.ready.then(async () => { campusCctv.setMonitors(guardRoomController.refs.screens || [guardRoomController.refs.screen].filter(Boolean)); guardRoomController.setLiveTextures(campusCctv.textures); await Promise.race([textureBudget.prepare(scene), new Promise(r => setTimeout(r, 1200))]); syncGuardDevices(); if (guardRoomController.status === 'error') console.warn('[guardroom]', guardRoomController.error); });
+  guardRoomController.ready.then(async () => { campusCctv.setMonitors(guardRoomController.refs.screens || [guardRoomController.refs.screen].filter(Boolean)); guardRoomController.setLiveTextures(campusCctv.textures); setTimeout(() => textureBudget.prepare(scene), 500); syncGuardDevices(); if (guardRoomController.status === 'error') console.warn('[guardroom]', guardRoomController.error); });
 }
 
 /* ── 7-3. 운동장: 조회대 위 마이크 스탠드 · 앰프 · 나팔 스피커 / 모래밭 타임캡슐 (단상은 기존 조회대를 쓴다) ── */

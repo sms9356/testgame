@@ -3138,21 +3138,25 @@ export function buildWorld(scene) {
     for (let k = 0; k < 4; k++) { const t = new THREE.Mesh(new THREE.PlaneGeometry(.5, .5), new THREE.MeshBasicMaterial({ map: T.makeSign(String(k + 1), 'rgba(0,0,0,0)', '#e8e4d8', 60), transparent: true, depthWrite: false })); t.rotation.x = -Math.PI / 2; t.position.set(-7, Y + .006, CZ + R0 + LW * (k + .5)); OUT.add(t); }
     // 축구장 선: 중앙선 · 센터서클 · 양쪽 골 에어리어 · 페널티 에어리어
     line(.08, R0 * 2 - .4, 0, CZ); arc(3, 0, CZ, 0, Math.PI * 2, .08);
+    const cFlagM = S(null, { color: 0xd43828, roughness: .75, side: THREE.DoubleSide });
     [-1, 1].forEach(sd => { const gx = sd * 19.2;
       line(.08, 14, gx - sd * 5, CZ); line(5, .08, gx - sd * 2.5, CZ - 7); line(5, .08, gx - sd * 2.5, CZ + 7);   // 페널티 에어리어
       line(.08, 8, gx - sd * 2, CZ); line(2, .08, gx - sd * 1, CZ - 4); line(2, .08, gx - sd * 1, CZ + 4);         // 골 에어리어
-      // 골대: 흰 기둥 · 크로스바 · 뒤로 기운 그물 프레임 + 그물
+      arc(1.8, gx - sd * 3.6, CZ, sd > 0 ? Math.PI * .65 : -Math.PI * .35, Math.PI * .7, .07);                    // 페널티 아크
+      // 골대: Sketchfab 실사 축구 골대(sf_soccer_goal) + 물리 충돌 및 코너 플래그
+      model('sf_soccer_goal', gx + sd * .85, 0, CZ, sd > 0 ? -Math.PI / 2 : Math.PI / 2, { out: true });
       const gp = [tube(.06, gx, 0, CZ - 3.66, gx, 2.44, CZ - 3.66), tube(.06, gx, 0, CZ + 3.66, gx, 2.44, CZ + 3.66), tube(.06, gx, 2.44, CZ - 3.66, gx, 2.44, CZ + 3.66),
         tube(.025, gx, 2.44, CZ - 3.66, gx + sd * 1.6, 0, CZ - 3.66), tube(.025, gx, 2.44, CZ + 3.66, gx + sd * 1.6, 0, CZ + 3.66), tube(.025, gx + sd * 1.6, 0, CZ - 3.66, gx + sd * 1.6, 0, CZ + 3.66)];
       OUT.add(new THREE.Mesh(merge(gp), mPoleW));
-      const nt = mNet.clone(); nt.map = mNet.map.clone(); nt.map.repeat.set(1, 1); nt.map.needsUpdate = true;
-      // 그물: 크로스바(위) → 바닥 뒤쪽으로 기운 뒷면 + 양 옆 삼각형 — 정점을 직접 놓고 UV 는 0.12m 칸
-      const q = (pts, uvs) => { const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pts.flat(), 3)); g.setAttribute('uv', new THREE.Float32BufferAttribute(uvs.flat(), 2)); g.computeVertexNormals(); OUT.add(new THREE.Mesh(g, nt)); };
-      const bx2 = gx + sd * 1.6, zA = CZ - 3.66, zB = CZ + 3.66, nu = 7.32 / .5, nv = Math.hypot(1.6, 2.44) / .5;   // UV 1 = 0.5m (그물 한 칸 12.5cm)
-      q([[gx, 2.44, zA], [gx, 2.44, zB], [bx2, 0, zB], [gx, 2.44, zA], [bx2, 0, zB], [bx2, 0, zA]], [[0, nv], [nu, nv], [nu, 0], [0, nv], [nu, 0], [0, 0]]);
-      [zA, zB].forEach(z => q([[gx, 0, z], [gx, 2.44, z], [bx2, 0, z]], [[0, 0], [0, 2.44 / .5], [1.6 / .5, 0]]));
+      [-9.2, 9.2].forEach(dz => {
+        OUT.add(new THREE.Mesh(tube(.018, gx, 0, CZ + dz, gx, 1.35, CZ + dz), mPoleW));
+        const fg = new THREE.Mesh(new THREE.PlaneGeometry(.34, .22), cFlagM); fg.position.set(gx - sd * .17, 1.22, CZ + dz); OUT.add(fg);
+      });
       col(gx - .08, gx + .08, CZ - 3.74, CZ - 3.58, true); col(gx - .08, gx + .08, CZ + 3.58, CZ + 3.74, true); col(Math.min(gx, gx + sd * 1.6), Math.max(gx, gx + sd * 1.6), CZ - 3.7, CZ + 3.7);
     });
+    // 운동장 잔디 위 축구공 & 체육 수업용 드리블 라바콘
+    [[-1.4, 39.2, .4], [14.8, 41.5, 1.7], [-17.6, 38.4, 2.5], [-24.2, 56.4, .9]].forEach(([bx0, bz0, bry]) => model('sf_soccer_ball', bx0, 0, bz0, bry, { out: true }));
+    [[-12.5, 29.8], [-11.3, 29.8], [-10.1, 29.8], [-8.9, 29.8], [27.8, 40.5], [27.8, 42.0]].forEach(([cx0, cz0], ci) => model('sf_traffic_cone', cx0, 0, cz0, ci * .5, { out: true }));
   }
   // 조회대 (본관 쪽 · 운동장을 바라봄): 콘크리트 단 + 계단 + 난간 · 국기게양대 3개
   { const x0 = -11, z0 = 18.6, W = 6, D = 3, H = 1.1, g = [];
@@ -3179,29 +3183,57 @@ export function buildWorld(scene) {
     });
     for (let k = 0; k < 3; k++) { const fx = x0 - W / 2 - 1.6 - k * 1.2, fh = [8, 9, 7.4][k]; meshAt(tube(.006, fx + .07, 1.1, z0 - .6, fx + .07, fh - .05, z0 - .6), mRope, 0, 0, 0, 0, OUT); meshAt(new THREE.CylinderGeometry(.025, .025, .12, 8), mPoleW, fx + .07, 1.1, z0 - .6, 0, OUT); }   // 깃줄 · 줄걸이
   }
-  // 스탠드 (본관 쪽 동편): 운동장을 바라보는 콘크리트 계단식 관람석 4단 (한 단 0.22m — 걸어서 오른다)
-  { const x1 = 5, x2 = 22, z0 = 13.4; for (let k = 0; k < 4; k++) { const zf = z0 + (3 - k) * .8; OUT.add(boxMesh(x1, x2, 0, (k + 1) * .22, z0, zf + .8, mStep, 2)); col(x1, x2, z0, zf + .8, false, (k + 1) * .22); } }
-  // 철봉 3단 · 평행봉 (서남쪽)
-  { const bars = [], posts = [];
+  // 스탠드 (본관 쪽 동편): 운동장을 바라보는 콘크리트 계단식 관람석 4단 + 차양 캐노피 지붕 · 측면 안전 난간
+  { const x1 = 5, x2 = 22, z0 = 13.4; for (let k = 0; k < 4; k++) { const zf = z0 + (3 - k) * .8; OUT.add(boxMesh(x1, x2, 0, (k + 1) * .22, z0, zf + .8, mStep, 2)); col(x1, x2, z0, zf + .8, false, (k + 1) * .22); }
+    const stSteel = [], stRoof = [];
+    for (let sx = x1 + .6; sx <= x2 - .5; sx += 4.0) {
+      stSteel.push(tube(.055, sx, .88, z0 + .18, sx, 3.15, z0 + .18), tube(.04, sx, 3.12, z0 + .15, sx, 3.38, z0 + 2.45), tube(.03, sx, 2.45, z0 + .18, sx, 3.22, z0 + 1.15));
+    }
+    stSteel.push(tube(.045, x1 + .4, 3.12, z0 + .18, x2 - .4, 3.12, z0 + .18), tube(.045, x1 + .4, 3.36, z0 + 2.35, x2 - .4, 3.36, z0 + 2.35));
+    [x1 + .08, x2 - .08].forEach(rx => stSteel.push(tube(.03, rx, .88, z0 + .15, rx, 1.55, z0 + .15), tube(.03, rx, .22, z0 + 3.05, rx, .92, z0 + 3.05), tube(.03, rx, 1.55, z0 + .15, rx, .92, z0 + 3.05)));
+    OUT.add(new THREE.Mesh(merge(stSteel), mRailSteel));
+    const canopyG = bx(x2 - x1 + .4, .06, 2.45, 0, 0, 0, 2); canopyG.rotateX(-.11); canopyG.translate((x1 + x2) / 2, 3.28, z0 + 1.3);
+    stRoof.push(canopyG); OUT.add(new THREE.Mesh(merge(stRoof), mBlueMetal));
+    model('sf_bleacher', -21.5, 0, 18.6, 0, { out: true, col: [3.8, 2.1] });
+  }
+  // 철봉 3단 · 평행봉 · 구름사다리 · 야외 체육기구 (서남쪽 모래밭 단련장)
+  { const bars = [], posts = [], curbs = [];
     [[1.2, -29], [1.6, -27.6], [2.0, -26.2]].forEach(([h, x]) => { posts.push(tube(.045, x - .6, 0, 58, x - .6, h + .05, 58), tube(.045, x + .6, 0, 58, x + .6, h + .05, 58)); bars.push(tube(.02, x - .6, h, 58, x + .6, h, 58)); col(x - .7, x + .7, 57.9, 58.1); });
     [-.25, .25].forEach(d => { posts.push(tube(.045, -22.6, 0, 57 + d, -22.6, 1.3, 57 + d), tube(.045, -20.4, 0, 57 + d, -20.4, 1.3, 57 + d)); bars.push(tube(.025, -22.8, 1.3, 57 + d, -20.2, 1.3, 57 + d)); });
-    col(-22.8, -20.2, 56.7, 57.3);
+    // 구름사다리 (Monkey bars)
+    [-25.0, -23.2].forEach(mx => [-.32, .32].forEach(dz => posts.push(tube(.04, mx, 0, 59.2 + dz, mx, 2.15, 59.2 + dz))));
+    [-.32, .32].forEach(dz => bars.push(tube(.03, -25.0, 2.15, 59.2 + dz, -23.2, 2.15, 59.2 + dz)));
+    for (let rx = -24.85; rx <= -23.35; rx += .3) bars.push(tube(.018, rx, 2.15, 58.88, rx, 2.15, 59.52));
+    col(-22.8, -20.2, 56.7, 57.3); col(-25.1, -23.1, 58.8, 59.6);
     OUT.add(new THREE.Mesh(merge(posts), mRust), new THREE.Mesh(merge(bars), mChrome));
-    flat(OUT, S(null, { color: 0x8a7a5a, roughness: 1 }), -30.2, -19.6, 55.6, 60.2, .008, 2);   // 모래밭 }
+    // 모래밭 콘크리트 경계 연석
+    curbs.push(bx(10.8, .12, .16, -24.9, .06, 55.55, 2), bx(10.8, .12, .16, -24.9, .06, 60.25, 2), bx(.16, .12, 4.86, -30.25, .06, 57.9, 2), bx(.16, .12, 4.86, -19.55, .06, 57.9, 2));
+    OUT.add(new THREE.Mesh(merge(curbs), mStep));
+    flat(OUT, S(null, { color: 0x8a7a5a, roughness: 1 }), -30.2, -19.6, 55.6, 60.2, .008, 2);   // 모래밭
+    model('sf_outdoor_gym', -18.0, 0, 57.6, 0, { out: true, col: [1.35, 1.5] });
+    model('sf_outdoor_gym', -16.1, 0, 57.6, Math.PI, { out: true, col: [1.35, 1.5] });
   }
-  // 야외 농구장 (체육관 남쪽): 코트 바닥 · 선 · 골대 2개
+  // 야외 농구장 (체육관 남쪽): 코트 바닥 · 페인트존/3점슛 라인 · 실사 농구골대(sf_basketball_hoop) 2기 · 관람석 블리처(sf_bleacher)
   { const cx = 36, cz = 46, cw = 14, cd = 15; flat(OUT, PB('track', () => T.pbrTrack(512)), cx - cw / 2, cx + cw / 2, cz - cd / 2, cz + cd / 2, .006, 3);
     const lm = new THREE.MeshStandardMaterial({ color: 0xd8d4c8, roughness: .8, transparent: true, opacity: .8, depthWrite: false });
     const ln = (w, d, x, z) => { const l = new THREE.Mesh(new THREE.PlaneGeometry(w, d), lm); l.rotation.x = -Math.PI / 2; l.position.set(x, .012, z); OUT.add(l); };
+    const cArc = (r, x, z, a0, len) => { const c = new THREE.Mesh(new THREE.RingGeometry(r - .035, r + .035, 40, 1, a0, len), lm); c.rotation.x = -Math.PI / 2; c.position.set(x, .013, z); OUT.add(c); };
     ln(cw - .4, .07, cx, cz - cd / 2 + .2); ln(cw - .4, .07, cx, cz + cd / 2 - .2); ln(.07, cd - .4, cx - cw / 2 + .2, cz); ln(.07, cd - .4, cx + cw / 2 - .2, cz); ln(cw - .4, .07, cx, cz);
-    [-1, 1].forEach(sd => { const z = cz + sd * (cd / 2 - .6); OUT.add(new THREE.Mesh(merge([tube(.07, cx, 0, z, cx, 3.2, z), tube(.04, cx, 3.0, z, cx, 3.05, z - sd * .9)]), mPoleW));
-      const bb = new THREE.Mesh(new THREE.BoxGeometry(1.8, 1.05, .05), S(null, { color: 0xd8d8d0, roughness: .5 })); bb.position.set(cx, 3.35, z - sd * .95); OUT.add(bb);
-      const rim = new THREE.Mesh(new THREE.TorusGeometry(.23, .018, 6, 16), mRust); rim.rotation.x = Math.PI / 2; rim.position.set(cx, 3.05, z - sd * 1.22); OUT.add(rim); col(cx - .15, cx + .15, z - .15, z + .15); });
+    cArc(1.6, cx, cz, 0, Math.PI * 2);
+    [-1, 1].forEach(sd => {
+      const z = cz + sd * (cd / 2 - .6), kz = cz + sd * (cd / 2 - 2.3);
+      ln(3.2, .07, cx, kz - sd * 1.9); ln(.07, 3.8, cx - 1.6, kz); ln(.07, 3.8, cx + 1.6, kz);
+      cArc(1.6, cx, kz - sd * 1.9, sd > 0 ? 0 : Math.PI, Math.PI);
+      cArc(4.8, cx, z - sd * .9, sd > 0 ? .18 : Math.PI + .18, Math.PI - .36);
+      model('sf_basketball_hoop', cx, 0, z - sd * .25, sd > 0 ? Math.PI : 0, { out: true });
+      col(cx - .25, cx + .25, z - .25, z + .25);
+    });
+    model('sf_bleacher', cx + cw / 2 + 1.65, 0, cz - 3.1, -Math.PI / 2, { out: true, col: [3.8, 2.1] });
+    model('sf_bleacher', cx + cw / 2 + 1.65, 0, cz + 3.1, -Math.PI / 2, { out: true, col: [3.8, 2.1] });
   }
   const pave = S(T.makePaving()); flat(OUT, pave, -3.2, 3.2, MAIN_ZS, PG.CZ - PG.R1 - .2, .01, 4); flat(OUT, pave, -3.2, 3.2, PG.CZ + PG.R1 + .2, 69.5, .01, 4); flat(OUT, pave, -16, 16, MAIN_ZS, 11, .01, 4);   // 정문 길은 운동장(트랙 · 흙)을 가로지른다
-  // 진입로 가로등 (불 꺼진 채) · 현관 앞 벤치 — 3D 소품 133종 팩 EXT-003 · EXT-004
-  // 새 가로등은 아래 campusDesign에서 충돌/조명과 함께 한 번만 배치한다.
-  [[-6.5, 13.0], [-24, 24], [24, 56.5]].forEach(([x, z], k) => model('h133/EXT-004', x, 0, z, k === 1 ? Math.PI / 2 : 0, { out: true, col: [1.45, .44] }));   // 현관 앞 · 운동장 가장자리 벤치
+  // 진입로 가로등 · 현관 앞 & 운동장 가장자리 캠퍼스 벤치 (sf_park_bench)
+  [[-6.5, 13.0, 0], [6.5, 13.0, 0], [-25.8, 24.0, Math.PI / 2], [-25.8, 48.0, Math.PI / 2], [24.0, 56.5, Math.PI]].forEach(([x, z, ry]) => model('sf_park_bench', x, 0, z, ry, { out: true, col: [1.85, .64] }));
   flat(OUT, pave, -46, 46, 11, 14, .005, 4);
   const asph = S(T.makeAsphalt()); flat(OUT, asph, -120, 120, 73, 82, 0.005, 8);
   // 웅덩이
@@ -3423,8 +3455,8 @@ export function buildWorld(scene) {
     OUT.add(boxMesh(-22.3, -17.7, 0, .3, 62.6, 65.4, S(null, { color: 0x6a645a, roughness: .9 })));
     const tx = new THREE.Mesh(new THREE.PlaneGeometry(2.4, .9), new THREE.MeshStandardMaterial({ map: T.makeSign('성실 · 창의 · 배려', '#7a7468', '#2a2620', 30), roughness: .9, transparent: true, opacity: .92 }));
     tx.position.set(-20, 1.25, 64.56); tx.rotation.y = .15; OUT.add(tx);
-    // 조경 벤치 (등받이 나무 벤치 2개)
-    [[-26, 61.2, 0], [27, 60.6, 0]].forEach(([x, z, r]) => { meshAt(merge([bx(1.8, .06, .45, 0, .45, 0), bx(1.8, .4, .05, 0, .72, -.2), bx(.06, .45, .4, -.8, .22, 0), bx(.06, .45, .4, .8, .22, 0)]), mWood, x, 0, z, r, OUT); col(x - .9, x + .9, z - .25, z + .25); });
+    // 조경 벤치 (캠퍼스 목재·주철 벤치 2개)
+    [[-26, 61.2, Math.PI], [27, 60.6, Math.PI]].forEach(([x, z, r]) => model('sf_park_bench', x, 0, z, r, { out: true, col: [1.85, .64] }));
   }
   // 정문 기둥
   const pillarM = S(T.makeFence()); const plaque = new THREE.MeshStandardMaterial({ map: T.makeGatePlaque('서문고등학교'), roughness: .9 });

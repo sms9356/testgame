@@ -16,7 +16,7 @@ export function createCampusCctvLive({ renderer, scene, feeds = [], floorRoots =
   function restoreChannels(ids) { channelIds = validIds(ids); syncChannels(); }
   function floorVisibility(feed) {
     const saved = [];
-    for (const r of floorRoots || []) { for(const [obj,on] of [[r.interior,r.floor===feed.floor],[r.shell,feed.outdoor?r.floor<=3:r.floor===feed.floor]]) if(obj){saved.push([obj,obj.visible]);obj.visible=on;} }
+    for (const r of floorRoots || []) { for(const [obj,on] of [[r.interior,!feed.outdoor&&r.floor===feed.floor],[r.shell,feed.outdoor?r.floor<=3:r.floor===feed.floor],[r.windowFake,feed.outdoor||r.floor!==feed.floor]]) if(obj){saved.push([obj,obj.visible]);obj.visible=on;} }
     return () => { for (const [obj, visible] of saved) obj.visible = visible; };
   }
   function renderFeed(index) {
@@ -32,7 +32,7 @@ export function createCampusCctvLive({ renderer, scene, feeds = [], floorRoots =
       restoreFloor = floorVisibility(feed);
       restoreEntities = visibilityForFeed?.(feed) || (() => {});
       renderer.xr && (renderer.xr.enabled = false); if (renderer.shadowMap) renderer.shadowMap.autoUpdate = false;
-      renderer.setRenderTarget(targets[index]); renderer.setViewport(0, 0, WIDTH, HEIGHT); renderer.setScissorTest(false); renderer.autoClear = true; renderer.clear?.(); if(renderCapture)renderCapture(camera);else renderer.render(scene, camera); renderCount++;
+      renderer.setRenderTarget(targets[index]); renderer.setViewport(0, 0, WIDTH, HEIGHT); renderer.setScissorTest(false); renderer.autoClear = true; renderer.clear?.(); if(renderCapture)renderCapture(camera,feed);else renderer.render(scene, camera); renderCount++;
     } finally {
       restoreEntities(); restoreFloor(); for (const [m, v] of vis) if (m) m.visible = v;
       renderer.setRenderTarget(oldTarget); if (vp) renderer.setViewport(vp); if (sc) renderer.setScissor(sc); renderer.setScissorTest(st); renderer.autoClear = ac;

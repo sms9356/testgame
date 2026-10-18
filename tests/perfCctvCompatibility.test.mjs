@@ -1,0 +1,7 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import * as THREE from '../vendor/three.module.js';
+import {installPerf,perfTick,withPerfCamera} from '../perfStabilizer.js';
+function fixture(){const scene=new THREE.Scene(),interior=new THREE.Group(),out=new THREE.Group(),camera=new THREE.PerspectiveCamera();scene.add(interior,out);const a=new THREE.Mesh(new THREE.BoxGeometry(),new THREE.MeshBasicMaterial()),b=a.clone();b.position.x=100;interior.add(a,b);scene.updateMatrixWorld(true);const renderer={extensions:{has(){return false;}}};const state=installPerf({THREE,scene,camera,renderer,floors:[{interior}],world:{OUT:out}});perfTick(.3,true);return{scene,camera,a,b,state};}
+test('CCTV uses its own visibility budget then restores player view and constant light pool',()=>{const {a,b,state}=fixture(),cam=new THREE.PerspectiveCamera();cam.position.x=100;cam.updateMatrixWorld();assert.equal(a.layers.isEnabled(0),true);assert.equal(b.layers.isEnabled(0),false);withPerfCamera(cam,true,()=>{assert.equal(a.layers.isEnabled(0),false);assert.equal(b.layers.isEnabled(0),true);assert.equal(state.pool.length,6);});assert.equal(a.layers.isEnabled(0),true);assert.equal(b.layers.isEnabled(0),false);});
+test('player culling is restored even if CCTV render throws',()=>{const {a,b}=fixture(),cam=new THREE.PerspectiveCamera();cam.position.x=100;cam.updateMatrixWorld();assert.throws(()=>withPerfCamera(cam,true,()=>{throw Error('capture');}),/capture/);assert.equal(a.layers.isEnabled(0),true);assert.equal(b.layers.isEnabled(0),false);});

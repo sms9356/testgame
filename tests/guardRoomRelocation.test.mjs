@@ -33,7 +33,8 @@ test('world map and game use canonical placement instead of old guard anchors',a
   assert.ok(map.includes('X(GUARD_LAYOUT.cx), Y(GUARD_LAYOUT.cz)'));
   assert.ok(map.includes('GUARD_LAYOUT.originZ - GUARD_LAYOUT.depth'));
   assert.ok(game.includes('buildGuardhouseProps(V3(GUARD_LAYOUT.cx, 0, GUARD_LAYOUT.cz))'));
-  assert.ok(game.includes('Math.hypot(P.x - GUARD_LAYOUT.cx, P.z - GUARD_LAYOUT.cz)'));
+  assert.ok(game.includes('shouldStreamGuardCctv(P,state,GUARD_LAYOUT)'));
+  const budget=await readFile(path.join(root,'exteriorRenderBudget.js'),'utf8');assert.ok(budget.includes('Math.hypot(player.x-room.cx,player.z-room.cz)')); 
   assert.ok(game.includes("[GUARD_LAYOUT.cx, GUARD_LAYOUT.cz, '경비실"));
   for(const old of ['x > 19.1 && x < 24.4','P.x - 21.75','x: 21.75, z: 65.6'])assert.ok(!game.includes(old));
   assert.ok(!map.includes('fillRect(20, 63.6, 23.5, 66.4'));assert.ok(!map.includes('X(21.75), Y(65)'));

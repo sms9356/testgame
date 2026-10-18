@@ -9,6 +9,7 @@ import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
 import { createNPCVisuals } from './npcVisuals.js';
 import { applyGuardSeatedPose } from './guardSeatedPose.js';
 import { createCampusCctvLive, collectCampusCctvFeeds } from './campusCctvLive.js';
+import { applyExteriorFloorVisibility, shouldStreamGuardCctv } from './exteriorRenderBudget.js';
 import { GUARD_LAYOUT } from './guardRoomLayout.js';
 import { installGuardRoom } from './guardRoom.js';
 import { prepareModelGeometry } from './modelGeometry.js';
@@ -37,7 +38,7 @@ import './school37RoomsPatch.js';    // 본관 · 별관 37개 특별실 가구 
 import './new37UniquePatch.js';     // 37개 구역 신규 특수 설비 · 벽면 레일 (사용자 제공) → window.new37UniquePatch
 import './megaExpansionPatch.js';   // 메가 익스팬션 · 최적화 · 4막 사건 기록 · 수집품 · 미니게임 (사용자 제공) → window.megaSchoolPatch
 import './poolMachineryPatch.js';     // 수영장 · 남/녀 탈의실·샤워실 · 기계실 철문 (사용자 제공) → window.poolAndMachineryPatch
-import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx } from './audio.js'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js'; import { installPerf, perfTick as perfStabTick, prewarmFloors } from './perfStabilizer.js';
+import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx } from './audio.js'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera } from './perfStabilizer.js';
 import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js';
 import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, SIDEQUESTS, HEADQUEST, COLLECT, LOCKER_SCARES, CHALK_QA, OUIJA_QS, PARA, TOILET_FX, MIRROR_WORDS } from './story.js';
 import { isSpeechBusy } from './voice.js';
@@ -1962,11 +1963,8 @@ function updateLighting(dt) {
   fillLight.intensity = lerp(fillLight.intensity, indoors ? 0 : lerp(.85, .5, dk), k);
   scene.fog.density = lerp(scene.fog.density, indoors ? lerp(.05, .03, dk) : lerp(.014, .0075, dk), k);
   scene.fog.color.lerp(indoors ? _c1.copy(FOG_IN).lerp(FOG_IN_DAY, dk) : _c1.copy(FOG_OUT).lerp(FOG_DAY, dk), k);
-  // 밖에서 건물과 멀리 떨어져 있으면 본관 1층 내부는 그리지 않는다 (창 너머로 거의 보이지 않음 · 야외 프레임 저하의 주원인)
-  const outsideInteriorRange = qCur === 'high' ? 16 : 6;
-  const farOut = P.floor === 0 && !indoors && (P.z > MAIN_ZS + outsideInteriorRange || P.z < NORTH_Z || Math.abs(P.x) > 52);
-  const nearOut = qCur === 'high' && P.floor === 0 && !indoors && !farOut && Math.abs(P.x) < 46 && P.z > -24 && P.z < MAIN_ZS + 14;   // 건물 가까운 바깥: 창 너머 2 · 3층 교실도 보이게
-  floors.forEach(f => { f.interior.visible = (f.f === P.floor && !farOut) || (nearOut && (f.f === 1 || f.f === 2)); if (f.winFake) f.winFake.visible = !f.interior.visible; if (f.f <= 2) f.shell.visible = P.floor <= 3 && !(P.floor === 2 && (P.sh || 0) > 2.4); });   // 3층 계단 위쪽: 눈높이가 건물 지붕보다 높아 외벽 상자 지붕면이 계단을 덮어 보였다
+  // Outside window impostors avoid a sudden full-floor render on approach.
+  applyExteriorFloorVisibility(floors,P,MAIN_ZS);
   // 야외: 손전등 그림자 범위를 줄여 그림자 패스가 캠퍼스 전체를 다시 그리지 않게 (셰이더 재컴파일 없이)
   const sf = indoors ? 26 : 6; if (flash.shadow.camera.far !== sf) { flash.shadow.camera.far = sf; flash.shadow.camera.updateProjectionMatrix(); }
   world.OUT.visible = P.floor === 0 || P.floor === 3 || (qCur === 'high' && (P.floor === 1 || P.floor === 2)) || state === 'menu' || state === 'intro';   // 2 · 3층 창밖 풍경은 높음 품질에서만 (캠퍼스 전체를 더 그리는 비용)
@@ -2323,7 +2321,7 @@ function frameBody(now) {
   if (state === 'playing') fx.breath(P.floor === 4 || P.floor === 6 || isOutdoors() || P.fear > .5, dt);
   updateSound(dt);
   updatePings(dt); updateObjDir(dt);
-  campusCctv?.tick(dt,{powered:FL.guardCctvOn??true,near:state==='playing'&&P.floor===0&&Math.hypot(P.x - GUARD_LAYOUT.cx, P.z - GUARD_LAYOUT.cz)<7,quality:qCur});
+  campusCctv?.tick(dt,{powered:FL.guardCctvOn??true,near:shouldStreamGuardCctv(P,state,GUARD_LAYOUT),quality:qCur});
   staticLOD.render(camera, now, qCur, () => fx.render(dt, { fear: P.fear || 0, flash: flash.intensity / 95, outdoors: outdoorsNow, floorY: floors[P.floor].y0, hurt: hurtFx, rain: 0 }));
   if (SHOT.req) shotGrab();   // 카메라 앨범: 방금 그린 화면
   
@@ -4225,10 +4223,10 @@ function fzFloor(parent, tex, x1, x2, z1, z2, y, rep, rough = .9) {
   fzProp(IA(fzP, 'guard_gate_switch'), 0, GUARD_LAYOUT.gateSwitch.x - .35, GUARD_LAYOUT.gateSwitch.z, 1.35, { r: 1.5 });
   guardControlProps = world.props.filter(p => p.k === 'guarddoor' || p.k === 'guardcctv' || p.k === 'guardlight' || p.fz?.id === 'guard_cctv');
   const feeds=collectCampusCctvFeeds(world.CCTV_CAMERAS);
-  campusCctv=createCampusCctvLive({renderer,scene,feeds,floorRoots:floors.map(F=>({floor:F.f,interior:F.interior,shell:F.shell})),
+  campusCctv=createCampusCctvLive({renderer,scene,feeds,floorRoots:floors.map(F=>({floor:F.f,interior:F.interior,shell:F.shell,windowFake:F.winFake})),
     getPowered:()=>FL.guardCctvOn??true,initialChannels:FL.guardCctvChannels||[],
     onChannelsChanged:ids=>{FL.guardCctvChannels=ids;save(true);},onPowerToggle:()=>toggleGuardCCTV(),onClose:closeGuardCctv,
-    renderCapture:cam=>staticLOD.render(cam,performance.now(),qCur,()=>renderer.render(scene,cam)),
+    renderCapture:(cam,feed)=>withPerfCamera(cam,!feed.outdoor,()=>staticLOD.render(cam,performance.now(),qCur,()=>renderer.render(scene,cam))),
     visibilityForFeed:feed=>{const old=ghost.group.visible;ghost.group.visible=ghost.active&&ghost.floor===feed.floor;return()=>{ghost.group.visible=old;};}
   });
   window.__campusCctv=campusCctv;

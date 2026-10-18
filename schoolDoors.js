@@ -141,8 +141,9 @@ export async function installSchoolDoors(world) {
     }
     if (!isSchoolDoorTarget(d) || d.door2) continue;
     let ok = true; d.leaves.forEach(l => { const r = fitLeaf(kit, l.piv); if (r) { l.slide = r; l.a = 0; l.piv.rotation.y = 0; } else ok = false; });
-    if (ok) { d.door2 = true; n++; }
+    if (ok) { d.door2 = true; d._slideE = -1; if (d.leafCols) d.leafCols.forEach(c => { c.off = true; c.o = -1; }); n++; }
   }
+  updateSchoolDoors(world);
   window.__door2Count = n;
   return n;
 }

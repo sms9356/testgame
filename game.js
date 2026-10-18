@@ -1636,7 +1636,7 @@ function load(preferBackup) {
   // 3) 월드: 아이템 → 장치 → 문 (장치 복원이 아이템 상태를 참고하므로 순서 중요)
   world.items.forEach(it => { if (d.world.items[it.uid]) { it.taken = true; it.mesh.visible = false; } });
   world.props.forEach(p => { const s = d.world.props[p.uid]; if (s) restoreProp(p, s); });
-  world.doorList.forEach(dd => { const v = d.world.doors && d.world.doors[dd.uid]; if (v != null) { dd.target = v; dd.open = v; } });
+  world.doorList.forEach(dd => { const v = d.world.doors && d.world.doors[dd.uid]; if (v != null) { dd.target = v; dd.open = v; dd.rect.off = v > .4; dd._slideE = -1; if (dd.leafCols) dd.leafCols.forEach(c => { c.off = true; c.o = -1; }); } }); updateSchoolDoors(world);
   // 4) 필수 아이템 영구 소실 방지: 열쇠 조각 상태를 진행 기록과 맞춘다
   world.items.filter(i => i.kind === 'key').forEach(it => {
     if (got[it.idx] && !it.taken) { it.taken = true; it.mesh.visible = false; }
@@ -4772,8 +4772,9 @@ function doorTick(dt) {
     // 문틀에 사람이 있으면 닫히지 않는다 (닫히는 문이 플레이어를 밀어 벽 너머로 튕기던 문제)
     if (d.target < .5 && d.open > .02 && d.floor === P.floor && !P.inElev && P.x > r.x1 - m && P.x < r.x2 + m && P.z > r.z1 - m && P.z < r.z2 + m) d.target = 1;
     if (!d.leafCols) continue;
+    if (d.door2 || d.kind === 'slide' || (d.leaves && d.leaves[0]?.slide)) { d.leafCols.forEach(c => { c.off = true; }); continue; }
     const L = doorLeaves(d), on = d.open > .9;
-    L.forEach(({ p }, i) => { const c = d.leafCols[i]; if (!on) { c.off = true; return; } if (!c.off && c.o === d.open) return; c.o = d.open;
+    L.forEach(({ p, a }, i) => { const c = d.leafCols[i]; if (!on) { c.off = true; return; } p.rotation.y = a * d.open * (d.dir || 1); p.updateWorldMatrix(true, true); if (!c.off && c.o === d.open) return; c.o = d.open;
       _lb.setFromObject(p.children[0]); c.x1 = _lb.min.x; c.x2 = _lb.max.x; c.z1 = _lb.min.z; c.z2 = _lb.max.z; c.off = false; });
   }
   // 초자연 현상: 닫힌 문이 저절로 천천히 열린다 (아무도 없는데) — 쫓기지 않을 때 1 ~ 2분마다
@@ -5387,8 +5388,9 @@ const S37_TYPE = { '시설 창고': '시설창고실', '보건실 보조': '보�
       // 1) 기존 점유 등록: 가구 충돌 상자(방 둘레 벽은 빼고) · 아이템 · 조사 지점 · 사물함 · 그것의 경로 점
       const occ = [];
       F.col.forEach(c => { const x = (c.x1 + c.x2) / 2, z = (c.z1 + c.z2) / 2; if (!inR(x, z)) return; const w = c.x2 - c.x1, d = c.z2 - c.z1; if (F.walls.includes(c) && Math.max(w, d) > 2) return; const [lx, lz] = toL(x, z); occ.push({ x: lx, z: lz, w, d }); });
-      // Decorative models without colliders still occupy visual space.
+      // Decorative models & uncollided furniture without colliders still occupy visual space.
       world.MODELS.filter(m => m.f === f).forEach(m => { const b = modelFootprint(m); if (!b || b.y1 > 1.7 || b.y2 < .1) return; const x=(b.x1+b.x2)/2,z=(b.z1+b.z2)/2;if(!inR(x,z))return;const [lx,lz]=toL(x,z);occ.push({x:lx,z:lz,w:b.x2-b.x1,d:b.z2-b.z1}); });
+      (F.furnOcc || []).forEach(fo => { if (!inR(fo.x, fo.z)) return; const [lx, lz] = toL(fo.x, fo.z); occ.push({ x: lx, z: lz, w: fo.w, d: fo.d }); });
       const pt = (x, z, r = .8) => { if (inR(x, z)) { const [lx, lz] = toL(x, z); occ.push({ x: lx, z: lz, w: r, d: r }); } };
       world.items.forEach(it => it.floor === f && pt(it.pos.x, it.pos.z));
       world.props.forEach(p => p.floor === f && pt(p.x, p.z));
@@ -5482,7 +5484,7 @@ const N37 = { rooms: [], props: [], placed: 0, removed: 0, cd: {} };
       g.traverse(o => { o.userData.dynamic = true; if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
       // 겹침 검사 (월드 바닥 상자)
       const B = new THREE.Box3(), rectOf = m => { B.setFromObject(m); return { x1: B.min.x, x2: B.max.x, z1: B.min.z, z2: B.max.z }; };
-      const modelRects = world.MODELS.filter(m=>m.f===f).map(modelFootprint).filter(b=>b&&b.y1<1.8&&b.y2>.1);
+      const modelRects = [...world.MODELS.filter(m=>m.f===f).map(modelFootprint).filter(b=>b&&b.y1<1.8&&b.y2>.1), ...(F.furnOcc||[]).map(fo=>({x1:fo.x-fo.w/2,x2:fo.x+fo.w/2,z1:fo.z-fo.d/2,z2:fo.z+fo.d/2}))];
       const hits = (r, pad = .05) => F.col.some(c => !(F.walls.includes(c) && Math.max(c.x2 - c.x1, c.z2 - c.z1) > 2) && c.x1 < r.x2 - pad && c.x2 > r.x1 + pad && c.z1 < r.z2 - pad && c.z2 > r.z1 + pad)
         || modelRects.some(b => overlaps(r,b,.08))
         || [...world.items.filter(it => it.floor === f).map(it => [it.pos.x, it.pos.z]), ...world.props.filter(p => p.floor === f).map(p => [p.x, p.z]), ...world.lockers.filter(l => l.floor === f).map(l => [l.x, l.z]), ...world.doorList.filter(d => d.floor === f).map(d => [d.x, d.z])]
@@ -5660,7 +5662,7 @@ function featTick(dt) {
   if (STH) { if (!keys[STH.code] || !target || target.type !== 'stairs' || state !== 'playing') STH = null; else if ((STH.t += dt) > .35) { const d = STH.dir; STH = null; changeFloor(d); } }
   { const pr = $('prompt'), k = STH ? Math.min(1, STH.t / .35) : 0; pr.style.backgroundImage = k > 0 ? `linear-gradient(90deg, rgba(232,200,112,.45) ${k * 100}%, transparent ${k * 100}%)` : ''; }   // 계단 길게 누르기 진행 표시
   for (const p of world.props) if (p.kind === 'pick' && p.done && p.mesh.visible) p.mesh.visible = false;
-  micTick(dt); camTick(dt); sanityTick(dt); trapTick(dt); breakerTick(dt); patchTick(dt); basementTick(dt); poolTick(dt); sitTick(); zoomTick(dt); callTick(dt); sgTick(dt); s37Tick(); elvTick(dt); doorTick(dt); updateSchoolDoors(world); n37.update(dt); megaTick(dt); if ((P.stamInfT || 0) > 0) { P.stamInfT -= dt; if (P.stamInfT < 0) P.stamInfT = 0; P.stamina = 100; P.tired = false; } }
+  micTick(dt); camTick(dt); sanityTick(dt); trapTick(dt); breakerTick(dt); patchTick(dt); basementTick(dt); poolTick(dt); sitTick(); zoomTick(dt); callTick(dt); sgTick(dt); s37Tick(); elvTick(dt); updateSchoolDoors(world); doorTick(dt); n37.update(dt); megaTick(dt); if ((P.stamInfT || 0) > 0) { P.stamInfT -= dt; if (P.stamInfT < 0) P.stamInfT = 0; P.stamina = 100; P.tired = false; } }
 
 function extrasTick(dt) {
   searchTick(dt); tmpTick(dt); ambientTick(dt); featTick(dt);

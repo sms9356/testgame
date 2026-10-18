@@ -4475,7 +4475,7 @@ function inPassage() { return P.floor === 0 && P.x > PASS.x1 && P.x < PASS.x2 &&
   // 증기: 구 하나 대신 둥근 그라데이션 판 3장을 엇갈려 — 가장자리가 부드럽다 (클래스는 material.opacity 만 바꾼다)
   { const c = document.createElement('canvas'); c.width = c.height = 128; const x = c.getContext('2d'), gr = x.createRadialGradient(64, 64, 4, 64, 64, 62); gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(.5, 'rgba(255,255,255,.45)'); gr.addColorStop(1, 'rgba(255,255,255,0)'); x.fillStyle = gr; x.fillRect(0, 0, 128, 128);
     const gs = [0, 1, 2].map(k => new THREE.PlaneGeometry(2.8, 2.4).rotateY(k * Math.PI / 3)); steam.geometry = mergeGeometries(gs); steam.material.alphaMap = new THREE.CanvasTexture(c); steam.material.side = THREE.DoubleSide; steam.material.needsUpdate = true; steam.material.visible = false; }   // 판 대신 입자 증기 (steamTick)
-  mop.position.set(.8 + .42, .925, L2(-10.4));
+  mop.position.set(.8 + .42, .925, L2(-11.95));   // 본관 문(x 0.8)이 통로 가운데로 옮겨져 문 앞 E 가 도구함 숨기와 겹치지 않게 1.5m 안쪽으로
   // 청소도구함 정면(복도 쪽 +x) 디테일: 루버 · 손잡이 · 명판
   const grn = PM(0x2c3d33, .55, .5);
   for (let k = 0; k < 5; k++) pbox(.01, .025, .42, grn, -.38, .55 - k * .06, 0, mop);
@@ -4544,11 +4544,11 @@ function inPassage() { return P.floor === 0 && P.x > PASS.x1 && P.x < PASS.x2 &&
   // 벽 · 문 충돌: 새 벽 안쪽 + 옛 유리 통로 동쪽 바깥문(이제 막힌 실내 복도) · 벽 뒤 빈틈
   [{ x1: -1.62, x2: -.8, z1: WALKWAY.z1, z2: WALKWAY.z2 }, { x1: 2.4, x2: 3.75, z1: WALKWAY.z1, z2: WALKWAY.z2 }].forEach(r => { F0.col.push(r); F0.walls.push(r); });
   F0.col.push({ x1: -.42 - .38, x2: -.42 + .38, z1: -10.73, z2: -10.07 });
-  const mopHide = { floor: 0, x: -.42, z: -10.4, y: 0, dir: { x: 1, z: 0 }, noPick: true, mop: true, label: '청소도구함에 숨기' }; world.lockers.push(mopHide);
+  const mopHide = { floor: 0, x: -.42, z: -11.95, y: 0, dir: { x: 1, z: 0 }, noPick: true, mop: true, label: '청소도구함에 숨기' }; world.lockers.push(mopHide);
   const fd = IA(ipP, 'passage_fire_door'), sv = IA(ipP, 'passage_steam_valve'), mp = IA(ipP, 'passage_mop_locker');
   fzProp(fd, 0, -.55, PASS_DOOR + .25, 1.3, { r: .95, pass: 'door' });
   fzProp(sv, 0, -.6, PASS.valveZ, 1.35, { r: 1.15 });
-  fzProp(mp, 0, .2, -10.4, 1.0, { r: 1.0, hide: mopHide });
+  fzProp(mp, 0, .2, -11.95, 1.0, { r: 1.0, hide: mopHide });
   // 책걸상 모델 (실사 소품) 따로 불러와 쌓는다
   const ld = new GLTFLoader(), put = (name, list) => ld.load(`assets/models/${name}/${name}.gltf`, gl => list.forEach(([x, y, z, ry, rx = 0, rz = 0]) => { const m = gl.scene.clone(); m.position.set(x, y, z); m.rotation.set(rx, ry, rz); m.traverse(o => { o.userData.dynamic = true; if (o.isMesh) { o.castShadow = o.receiveShadow = true; } }); O.add(m); }), undefined, () => {});
   // 뒤집힌 위 책상은 원점이 다리 끝이라 상판 높이만큼 올려야 아래 책상 위에 얹힌다 (예전엔 아래 책상 속에 묻혀 그 위 의자가 허공에 떠 있었다)

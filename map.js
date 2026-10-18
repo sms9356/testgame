@@ -5,7 +5,7 @@ import { SLOTS, LAYOUT, GATE_Z, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORT
 const COL = { tech: '#3a4a3a', fusion: '#2c3f55', lang: '#2c3f4a', smart: '#2c3a55', club: '#3a4a2c', cooking: '#3a4a4a', craft: '#4a3f2f', broadcast: '#4a2a2a', boiler: '#4a3a2a', electric: '#4a4a2a', storage: '#3a3a30', records: '#3a4030', cleaning: '#2f3f4a', generator: '#4a2f2f', pump: '#2a3f4a', exit: '#5a2a2a', class: '#27384a', office: '#4a3a28', nurse: '#2f4a46', counsel: '#3f3a4f', library: '#3a4a2c', lab: '#2c4a3a', computer: '#2c3f55', music: '#4a2f3a', art: '#4a432c', toilet: '#38334d', stair: '#5a5a58' };
 
 export function drawMap(ctx, W, H, o) {
-  const { floor, cx, cz, scale: S, player, pins = [], lockers = [], labels = false, zones = [], doors = [], props = [], target = null, t = 0, mini = false } = o;
+  const { floor, cx, cz, scale: S, player, labels = false, doors = [] } = o;
   const X = x => W / 2 + (x - cx) * S, Y = z => H / 2 + (z - cz) * S;
   ctx.clearRect(0, 0, W, H);
   ctx.save();
@@ -77,29 +77,9 @@ export function drawMap(ctx, W, H, o) {
   }
   if(o.elevatorBay){const b=o.elevatorBay;fillRect(b.front,b.z1,b.rear,b.z2,'#23282c');strokeRect(b.front,b.z1,b.rear,b.z2,'#83919a');
     if(labels){ctx.fillStyle='#b5c8d0';ctx.font='10px sans-serif';ctx.textAlign='center';ctx.fillText('승강로',X((b.front+b.rear)/2),Y(b.doorZ));}}
-  lockers.forEach(l => { ctx.fillStyle = '#9a6ad8'; ctx.fillRect(X(l.x) - 2, Y(l.z) - 2, 4, 4); });
+  // Discovery-first: items, devices, lockers and exact objective coordinates are not plotted.
   // 문 상태 (열림: 초록 / 닫힘: 빨강)
   doors.forEach(d => { ctx.fillStyle = d.transition ? '#74b9e8' : d.open ? '#5fc47a' : '#b04040'; const w = Math.max(4, (d.slide ? 1.4 : .9) * S); ctx.fillRect(X(d.x) - w / 2, Y(d.z) - 1.5, w, 3); });
-  // 장치 · 녹음기
-  props.forEach(p => {
-    const x = X(p.x), y = Y(p.z); ctx.fillStyle = p.done ? '#6a5a7a' : '#c89af0';
-    ctx.beginPath(); ctx.moveTo(x, y - 5); ctx.lineTo(x + 4, y); ctx.lineTo(x, y + 5); ctx.lineTo(x - 4, y); ctx.closePath(); ctx.fill();
-    if (labels && p.label) { ctx.fillStyle = '#d8c8e8'; ctx.font = '11px sans-serif'; ctx.textAlign = 'left'; ctx.fillText(p.label, x + 6, y + 4); }
-  });
-  // 구역 미션 표시 (5대 구역 · 실내 연결복도): 금색 테두리 이름표
-  if (labels) zones.forEach(([zx, zz, t]) => { const x = X(zx), y = Y(zz); ctx.font = 'bold 12px sans-serif'; const w = ctx.measureText(t).width + 12; ctx.fillStyle = 'rgba(20,16,8,.82)'; ctx.fillRect(x - w / 2, y - 9, w, 18); ctx.strokeStyle = '#e8c870'; ctx.lineWidth = 1.2; ctx.strokeRect(x - w / 2, y - 9, w, 18); ctx.fillStyle = '#f0d890'; ctx.textAlign = 'center'; ctx.fillText(t, x, y + 4); });
-  pins.forEach(p => {
-    ctx.fillStyle = p.done ? '#4cc07a' : '#e04048';
-    ctx.beginPath(); ctx.arc(X(p.x), Y(p.z) - 4, 5, 0, 6.3); ctx.fill();
-    ctx.beginPath(); ctx.moveTo(X(p.x) - 3, Y(p.z) - 2); ctx.lineTo(X(p.x) + 3, Y(p.z) - 2); ctx.lineTo(X(p.x), Y(p.z) + 5); ctx.fill();
-    if (p.done) { ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(X(p.x) - 2.5, Y(p.z) - 4); ctx.lineTo(X(p.x) - .5, Y(p.z) - 1.5); ctx.lineTo(X(p.x) + 3, Y(p.z) - 6); ctx.stroke(); }
-  });
-  if (target) { // 현재 목표 (깜빡이는 별)
-    const x = X(target.x), y = Y(target.z), r = (mini ? 6 : 9) * (1 + .15 * Math.sin(t * 5));
-    ctx.save(); ctx.translate(x, y); ctx.fillStyle = '#f2c14e'; ctx.strokeStyle = '#000'; ctx.lineWidth = 1.2; ctx.beginPath();
-    for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? r * .45 : r; ctx.lineTo(Math.cos(a) * rr, Math.sin(a) * rr); }
-    ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore();
-  }
   if (player) {
     ctx.translate(X(player.x), Y(player.z)); ctx.rotate(-player.yaw);
     ctx.fillStyle = '#f2c14e'; ctx.strokeStyle = '#000'; ctx.lineWidth = 1;

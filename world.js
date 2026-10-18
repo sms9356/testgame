@@ -4,11 +4,11 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { NOTES } from './story.js';
+import { NOTES } from './story.js?v=104';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=104';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -2324,7 +2324,7 @@ export function buildWorld(scene) {
         wallSeg(a, b, zs0, zs1, 2.7, FH, true);
         add(mWoodDark, .12, 2.7, .4, a, 0, zs0 + .15, { parent: F.shell }); add(mWoodDark, .12, 2.7, .4, b, 0, zs0 + .15, { parent: F.shell });
         // 현관 유리문 두 짝: 알루미늄 프레임 + 투명 강화유리 + 스테인리스 패닉바 (schoolDoors.js 가 sf_entrance_door 3D 모델로 한 번 더 업그레이드)
-        { (F.winSlots ||= []).push([0, 2.9, zs0, 1.35, 2.4, 4]); const zD = zs0 + .25, frG = merge([bx(1.48, .09, .06, 0, 2.355, 0), bx(1.48, .14, .06, 0, .07, 0), bx(1.48, .07, .06, 0, 1.05, 0), bx(.08, 2.4, .06, -.70, 1.2, 0), bx(.08, 2.4, .06, .70, 1.2, 0)]), barG = merge([bx(1.18, .045, .09, 0, 1.05, 0), bx(.04, .28, .11, .56, 1.18, 0)]); const leaves = [[a, -1], [b, 1]].map(([hx, s]) => { const piv = dyn(new THREE.Group()); piv.position.set(hx, 0, zD); const dg = new THREE.Mesh(new THREE.BoxGeometry(1.48, 2.4, .02), mWinIn); dg.position.set(-s * .74, 1.2, 0); piv.add(dg); const fm = new THREE.Mesh(frG, mDarkMetal); fm.position.set(-s * .74, 0, 0); piv.add(fm); const bm = new THREE.Mesh(barG, mChrome); bm.position.set(-s * .74, 0, 0); bm.scale.x = -s; piv.add(bm); F.shell.add(piv); return { piv, a: s * 1.3 }; });           const rect = { x1: a, x2: b, z1: zD - .04, z2: zD + .04, off: false };           doorList.push({ kind: 'hinge', floor: F.f ?? f, x: 0, z: zD, open: 0, target: 0, leaves, rect, name: '현관문' }); F.col.push(rect); (F.doorWalls ||= []).push(rect); }
+        { const zD = zs0 + .25, frG = merge([bx(1.48, .09, .06, 0, 2.355, 0), bx(1.48, .14, .06, 0, .07, 0), bx(1.48, .07, .06, 0, 1.05, 0), bx(.08, 2.4, .06, -.70, 1.2, 0), bx(.08, 2.4, .06, .70, 1.2, 0)]), barG = merge([bx(1.18, .045, .09, 0, 1.05, 0), bx(.04, .28, .11, .56, 1.18, 0)]); const leaves = [[a, -1], [b, 1]].map(([hx, s]) => { const piv = dyn(new THREE.Group()); piv.position.set(hx, 0, zD); const dg = new THREE.Mesh(new THREE.BoxGeometry(1.48, 2.4, .02), mWinIn); dg.position.set(-s * .74, 1.2, 0); piv.add(dg); const fm = new THREE.Mesh(frG, mDarkMetal); fm.position.set(-s * .74, 0, 0); piv.add(fm); const bm = new THREE.Mesh(barG, mChrome); bm.position.set(-s * .74, 0, 0); bm.scale.x = -s; piv.add(bm); F.shell.add(piv); return { piv, a: s * 1.3 }; });           const rect = { x1: a, x2: b, z1: zD - .04, z2: zD + .04, off: false };           doorList.push({ kind: 'hinge', floor: F.f ?? f, x: 0, z: zD, open: 0, target: 0, leaves, rect, name: '현관문' }); F.col.push(rect); (F.doorWalls ||= []).push(rect); }
       }
       cursor = b;
     }

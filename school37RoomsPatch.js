@@ -3,6 +3,8 @@
  * (사용자 제공 코드 — 게임 연결은 game.js 의 "37개 특별실 · 보조실 연결" 부분)
  */
 import * as THREE from './vendor/three.module.js';
+let _s37SofaProto = null, _s37SofaLoad = null;
+function getS37Sofa() { if (typeof document === 'undefined') return Promise.resolve(null); if (_s37SofaProto) return Promise.resolve(_s37SofaProto); if (_s37SofaLoad) return _s37SofaLoad; const imp = new Function('u', 'return im' + 'port(u)'); _s37SofaLoad = imp('./vendor/addons/loaders/GLTFLoader.js').then(({ GLTFLoader }) => new GLTFLoader().loadAsync('assets/models/sf/sf_sofa.glb')).then(g => (_s37SofaProto = g.scene)).catch(() => null); return _s37SofaLoad; }
 /**
  * ============================================================================
  * 〈폐교: 잊혀진 시간〉 본관(18실) & 별관(19실) 37개 구역 3D 가구·텍스처·동선 마스터 패치
@@ -308,6 +310,7 @@ class School37RoomsMasterPatch {
     const table = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.42, 0.6), this.materials.oakWood);
     table.position.set(0, 0.21, 0.35);
     g.add(seat, back, table);
+    getS37Sofa().then(p => { if (!p) return; const v = p.clone(true); v.position.set(0, 0, -0.45); g.add(v); [seat, back].forEach(m => { m.material = m.material.clone(); m.material.transparent = true; m.material.opacity = 0.01; m.material.depthWrite = false; }); });
     return g;
   }
 

@@ -1,5 +1,7 @@
 // 사용자 제공 「37개 구역 신규 특수 설비 & 벽면 레일 동선」 패치 — 클래스 원문 그대로 (모듈로 감싸기만 함). 게임 연결: game.js §16
 import * as THREE from './vendor/three.module.js';
+let _n37VendProto = null, _n37VendLoad = null;
+function getN37Vend() { if (typeof document === 'undefined') return Promise.resolve(null); if (_n37VendProto) return Promise.resolve(_n37VendProto); if (_n37VendLoad) return _n37VendLoad; const imp = new Function('u', 'return im' + 'port(u)'); _n37VendLoad = imp('./vendor/addons/loaders/GLTFLoader.js').then(({ GLTFLoader }) => new GLTFLoader().loadAsync('assets/models/sf/sf_vending.glb')).then(g => (_n37VendProto = g.scene)).catch(() => null); return _n37VendLoad; }
 /**
  * ============================================================================
  * 〈폐교: 잊혀진 시간〉 37개 구역 [완전 신규 오브젝트 & 벽면 레일 동선 보장] 패치
@@ -437,8 +439,11 @@ class New37UniqueRoomsPatch {
         break;
 
       case "교사휴게실": {
-        const vending = new THREE.Mesh(new THREE.BoxGeometry(1.05, 1.95, 0.72), this.mats.vendingMat);
-        vending.position.y = 0.975;
+        const vending = new THREE.Group();
+        const vendHit = new THREE.Mesh(new THREE.BoxGeometry(1.05, 1.95, 0.72), this.mats.vendingMat.clone());
+        vendHit.position.y = 0.975;
+        vending.add(vendHit);
+        getN37Vend().then(p => { if (!p) return; const v = p.clone(true); vending.add(v); vendHit.material.transparent = true; vendHit.material.opacity = 0.01; vendHit.material.depthWrite = false; });
         mount(vending, "E", -1.0, 1.1, 0.75, 1.95,
           "[E] 교사휴게실 자판기 동전 반환구 뒤지기 / 캔 음료 뽑기 (스태미나 회복)",
           ({ notify }) => {

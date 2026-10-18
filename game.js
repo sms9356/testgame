@@ -212,7 +212,7 @@ function loadModels() {
   loader.load(name.startsWith('sf_') ? `assets/models/sf/${name}.glb` : packed(name) ? `assets/models/${name}.glb` : `assets/models/${name}/${name}.gltf`, gltf => { queue.push(async () => { try {
     const root = gltf.scene; root.updateMatrixWorld(true); const pairs = [];
     const cr = name.startsWith('cr101/') || name.startsWith('th102/');
-    const parts = []; if (name.startsWith('th102/')) parts.push(...thParts(root)); else if (packed(name)) parts.push(...h133Parts(root, name.split('/')[1], cr, name.startsWith('pr/') || (name.startsWith('v2/') && 'v2'))); else root.traverse(o => { if (o.isMesh) parts.push(o); });
+    const parts = []; if (name.startsWith('th102/')) parts.push(...thParts(root)); else if (name.startsWith('sf_')) root.traverse(o => { if (!o.isMesh) return; const g2 = o.geometry.clone().applyMatrix4(o.matrixWorld); g2.computeBoundingBox(); g2.computeBoundingSphere(); parts.push(new THREE.Mesh(g2, o.material)); }); else if (packed(name)) parts.push(...h133Parts(root, name.split('/')[1], cr, name.startsWith('pr/') || (name.startsWith('v2/') && 'v2'))); else root.traverse(o => { if (o.isMesh) parts.push(o); });
     const byFloor = {}; list.forEach(m => (byFloor[m.f] = byFloor[m.f] || []).push(m));
     Object.entries(byFloor).forEach(([f, ms]) => {
       const parent = f === 'out' ? world.OUT : floors.find(F => String(F.f) === f).interior;

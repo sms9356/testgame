@@ -728,7 +728,7 @@ export function buildWorld(scene) {
     frontWall(cx, zN, false);
     // 서류 책장
     for (let k = 0; k < 3; k++) shelf3D(cx + (k - 1) * 1.3, zN + .25, 0, 1.1, 2.0, .4, 5, .7);
-    plane(cur.interior, new THREE.MeshStandardMaterial({ map: T.makeCalendar(), roughness: .9 }), .5, .62, cx + 2.75, 1.75, zN + .03);
+    plane(cur.interior, new THREE.MeshStandardMaterial({ map: T.makeCalendar(), roughness: .9 }), .5, .62, cx + 2.02, 1.75, zN + .03);
     const rowsZ = [-7.4, -5.5, -3.8];
     [-2.6, 2.6].forEach(dx => rowsZ.forEach((z, r) => {
       meshAt(merge([bx(1.4, .04, .7, 0, .74, 0), bx(.42, .72, .66, -.47, .36, 0), bx(.03, .72, .66, .68, .36, 0), bx(1.3, .4, .02, 0, .5, -.33)]), mWoodDark, cx + dx, 0, z); col(cx + dx - .7, cx + dx + .7, z - .35, z + .35);
@@ -1455,10 +1455,9 @@ export function buildWorld(scene) {
   }
   // 철제 4단 서류함
   function fileCabinet(x, z, ry, open = false) {
-    if (!open) { model('drawer_cabinet', x, 0, z, ry, { s: .52, col: [.48, .46] }); return null; }
     const g = meshAt(new THREE.BoxGeometry(.46, 1.32, .6).translate(0, .66, 0), mCabinet, x, 0, z, ry);
-    const d = meshAt(merge([bx(.4, .26, .5, 0, 0, 0)]), mMetal, 0, .95, .32, 0, g); d.position.z = .3;
-    col(x - .3, x + .3, z - .32, z + .32); return g;
+    if (open) { const d = meshAt(merge([bx(.4, .26, .5, 0, 0, 0)]), mMetal, 0, .95, .32, 0, g); d.position.z = .3; }
+    col(x - .28, x + .28, z - .3, z + .3); return g;
   }
   // 이젤 (A 프레임 + 받침대 + 캔버스)
   function easel(x, z, ry, paint) {
@@ -2034,7 +2033,7 @@ export function buildWorld(scene) {
   function meeting(cx) {
     const zN = -9.6;
     meshAt(merge([bx(4.6, .05, 1.3, 0, .74, 0), bx(.08, .72, .08, -2.1, .36, -.5), bx(.08, .72, .08, 2.1, .36, -.5), bx(.08, .72, .08, -2.1, .36, .5), bx(.08, .72, .08, 2.1, .36, .5)]), mWood, cx, 0, -5.8); col(cx - 2.3, cx + 2.3, -6.45, -5.15);
-    for (let k = 0; k < 5; k++) [-1, 1].forEach(s => { officeChair(cx - 2.0 + k * 1.0, -5.8 + s * 1.08, s > 0 ? Math.PI : 0, false); });
+    for (let k = 0; k < 5; k++) [-1, 1].forEach(s => { officeChair(cx - 2.0 + k * 1.0, -5.8 + s * 1.08, s > 0 ? Math.PI : 0, false); }); (cur.furnOcc ||= []).push({ x: cx, z: -5.8, w: 6.2, d: 3.4 });
     add(mWhite, 2.4, 1.2, .04, cx, 1.0, zN + .05); add(mBlack, .3, .05, .3, cx, CH - .5, -6.0);
     for (let k = 0; k < 6; k++) { const pp = new THREE.Mesh(new THREE.PlaneGeometry(.21, .29), mDirtPaper); pp.rotation.set(-Math.PI / 2, 0, rr(-.6, .6)); pp.position.set(cx - 2 + k * .8, .77, -5.8 + rr(-.4, .4)); cur.interior.add(pp); }
     model('sf_water_cooler', cx + 3.5, 0, -8.9, 0, { col: [.45, .45] }); glowAt(cx + 3.45, .92, -8.74, .11, glowRed); glowAt(cx + 3.55, .92, -8.74, .11, glowGreen);

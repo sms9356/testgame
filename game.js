@@ -1967,7 +1967,7 @@ function updateLighting(dt) {
   applyExteriorFloorVisibility(floors,P,MAIN_ZS);
   // 야외: 손전등 그림자 범위를 줄여 그림자 패스가 캠퍼스 전체를 다시 그리지 않게 (셰이더 재컴파일 없이)
   const sf = indoors ? 26 : 6; if (flash.shadow.camera.far !== sf) { flash.shadow.camera.far = sf; flash.shadow.camera.updateProjectionMatrix(); }
-  world.OUT.visible = P.floor === 0 || P.floor === 3 || (qCur === 'high' && (P.floor === 1 || P.floor === 2)) || state === 'menu' || state === 'intro';   // 2 · 3층 창밖 풍경은 높음 품질에서만 (캠퍼스 전체를 더 그리는 비용)
+  world.OUT.visible = P.floor <= 3 || state === 'menu' || state === 'intro';   // 2 · 3층 창밖 풍경은 높음 품질에서만 (캠퍼스 전체를 더 그리는 비용)
   // 형광등 풀: 가장 가까운 켜진 램프 4개에 PointLight 배치
   lampTimer -= dt;
   if (lampTimer <= 0) {

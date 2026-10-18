@@ -338,7 +338,7 @@ export function buildWorld(scene) {
     if (!tops.length && !v4) return;
     if (tops.length) { inst(cur.interior, deskTopG, mWood, tops); inst(cur.interior, deskLegG, mMetal, legs); }
     if (seats.length) { inst(cur.interior, seatG, mWood, seats); inst(cur.interior, chairLegG, mMetal, cl); }
-    for (const dx of offs) for (const z of rows) if (rnd() < .14) backpack(cx + dx + rr(.3, .45) * (dx < 0 ? -1 : 1), z + rr(.2, .5), rnd() * 6, rnd() < .4);
+    for (const dx of [-1.5, 0, 1.5]) for (const z of rows) if (rnd() < .14) backpack(cx + dx + .54 * (dx < 0 ? -1 : 1), z - .02, rnd() * 6, false);
   }
 
   /* ---------- 디테일 소품 (3D) ---------- */
@@ -700,11 +700,11 @@ export function buildWorld(scene) {
     add(mPanelG, .55, 1.8, .45, cx - 3.5, 0, -2.05, { col: true });
     for (let k = 0; k < 4; k++) add(mLockerT, .48, 1.4, .45, cx - 2.9 + k * .5, 0, -2.0, { ry: Math.PI });
     col(cx - 3.2, cx - 1.1, -2.25, -1.75);
-    shelf3D(cx - 3.62, -3.8, Math.PI / 2, 1.2, 1.2, .35, 3, .7); col(cx - 3.85, cx - 3.4, -4.4, -3.2);
+    shelf3D(cx - 3.66, -2.72, Math.PI / 2, .92, 1.2, .3, 3, .7);
     // 학생 책상 25세트 (5 × 5)
     const dCls = CLS[name], keep = dCls && dCls.c.length ? dCls.c.map(([X, Y]) => csvXZ(cx, X, Y)) : [];
     deskGrid(cx, [-3.0, -1.5, 0, 1.5, 3.0], [-7.3, -6.05, -4.8, -3.55], seed === 3 ? .3 : seed === 2 ? .04 : .12, V4_PILOT, { keep, knock: seed === 3 ? .42 : seed === 2 ? .02 : .1, tidy: seed === 2, room: name });
-    if (seed === 3) [[-3.0, -3.55], [1.5, -7.3]].forEach(([dx, z]) => { const x = cx + dx; if (keep.some(([kx, kz]) => Math.abs(kx - x) < .9 && Math.abs(kz - z) < .9)) return;   // 폐허 교실: 뒤집힌 책상 2개
+    if (seed === 3) [[-3.0, -3.55], [1.5, -7.3]].forEach(([dx, z]) => { const x = cx + dx; if (keep.some(([kx, kz]) => Math.abs(kx - x) < .9 && Math.abs(kz - z) < .9) || DESKS.some(k => k.f === cur.f && Math.hypot(k.x - x, k.z - z) < 1.15)) return;   // 폐허 교실: 빈자리에만 뒤집힌 책상
       const g = meshAt(merge([bx(.7, .03, .5, 0, .74, 0), bx(.04, .72, .04, -.32, .36, -.22), bx(.04, .72, .04, .32, .36, -.22), bx(.04, .72, .04, -.32, .36, .22), bx(.04, .72, .04, .32, .36, .22)]), mWood, x + .55, 0, z + .3, rr(-.6, .6)); g.rotation.z = Math.PI / 2; g.position.y = .37; col(x + .15, x + .95, z - .1, z + .7, false, .74); });   // 5×4 · 책상 사이 통로 0.8m (예전 5×5 는 줄 사이 0.48m 로 지나갈 수 없었다)
     // CSV 소모품: 노트 · 필통 · 물병/종이컵 · 쓰레기/파손물 + 분필 · 지우개는 칠판 아래
     const d = CLS[name];
@@ -718,7 +718,7 @@ export function buildWorld(scene) {
       add(S(null, { color: pick([0x3a3a6a, 0xa86a8a, 0x2a2a2a]), roughness: .7 }), .2, .05, .07, pc[0], pc[2], pc[1], { ry: rr(-1, 1) }); for (let k = 0; k < 3; k++) add(S(null, { color: 0xd8b030 }), .14, .008, .008, pc[0] + rr(-.1, .1), pc[2] + .005, pc[1] + .08, { ry: rr(-1, 1) });
       cyl(S(null, { color: 0x9ac0d8, roughness: .2, transparent: true, opacity: .7 }), .035, .2, wb[0], wb[2], wb[1], 10); cyl(S(null, { color: 0xeeeeea, roughness: .6 }), .035, .09, wb[0] + .12, wb[2], wb[1] + .05, 10);
       for (let k = 0; k < 4; k++) { const pp = new THREE.Mesh(new THREE.PlaneGeometry(.2, .15), mDirtPaper); pp.rotation.set(-Math.PI / 2, 0, rnd() * 6); pp.position.set(tr[0] + rr(-.4, .4), .016, tr[1] + rr(-.4, .4)); cur.interior.add(pp); }
-      add(mWood, .4, .02, .38, tr[0], .02, tr[1], { ry: rr(0, 3), rz: .08 });
+      add(mWood, .4, .02, .38, cx + 1.8, .012, -2.45, { ry: rr(0, 3), rz: .04 });
       classClue(cx, name);
     }
     papers(cx, -8, -2.4, 9);
@@ -736,9 +736,9 @@ export function buildWorld(scene) {
       keyboard(cx + dx + .15, .76, z + .16, rr(-.1, .1));
       if (rnd() < .6) add(mWhite, .3, .06, .22, cx + dx - .45, .76, z + .05, { ry: rr(-.5, .5) });
       deskClutter(cx + dx + .55, .76, z + .1);
-      officeChair(cx + dx + rr(-.1, .1), z + .75, Math.PI + rr(-.5, .5), rnd() < .1);
+      officeChair(cx + dx, z + .58, Math.PI + rr(-.15, .15), false);
     }));
-    fileCabinet(cx + 3.6, -8.8, -Math.PI / 2); fileCabinet(cx + 3.6, -8.25, -Math.PI / 2, true); model('sf_water_cooler', cx - 3.55, 0, -2.5, Math.PI / 2, { col: [.45, .45] }); glowAt(cx - 3.38, .92, -2.45, .11, glowRed); glowAt(cx - 3.38, .92, -2.55, .11, glowGreen); model('sf_fuse_box', cx + 3.82, 1.35, -2.4, -Math.PI / 2); model('wooden_bookshelf_worn', cx - 3.55, 0, -3.8, Math.PI / 2, { col: [.45, .9] });
+    fileCabinet(cx + 3.6, -8.95, -Math.PI / 2); fileCabinet(cx + 3.6, -8.05, -Math.PI / 2, true); model('sf_water_cooler', cx - 3.55, 0, -2.5, Math.PI / 2, { col: [.45, .45] }); glowAt(cx - 3.38, .92, -2.45, .11, glowRed); glowAt(cx - 3.38, .92, -2.55, .11, glowGreen); model('sf_fuse_box', cx + 3.82, 1.35, -2.4, -Math.PI / 2); model('wooden_bookshelf_worn', cx - 2.15, 0, -2.02, Math.PI, { col: [.9, .42] });
     plane(cur.interior, mPlanMap, 2.0, 1.14, cx + 3.84, 1.6, -5.5, -Math.PI / 2);
     // 금고 (비밀번호: 그날의 날짜 MMDD)
     { const sx = cx - 3.5, sz = -8.6;
@@ -789,7 +789,7 @@ export function buildWorld(scene) {
     addNote('n4', cx - .6, .75, -8.6);
     papers(cx, -8, -2.4, 10);
     // 쓰러진 책장
-    { const g = shelf3D(cx + 1.6, -3.55, 0, 1.6, .5, .45, 1, 0); g.rotation.set(-Math.PI / 2 + .12, .35, 0); g.position.y = .25; } col(cx + .8, cx + 2.4, -4.0, -3.2);
+    { const g = shelf3D(cx + 1.6, -3.55, 0, 1.6, .5, .45, 1, 0); g.rotation.set(-Math.PI / 2 + .12, .35, 0); g.position.y = .25; }
     scatterBooks(cx + 1.4, -3.0, 18);
   }
   function lab(cx) {
@@ -797,7 +797,7 @@ export function buildWorld(scene) {
     frontWall(cx, zN, true, ['불을 끄지 마']);
     [-2.4, 2.4].forEach(dx => [-7.4, -4.8].forEach(z => {
       add(mBlack, 1.0, .06, 2.0, cx + dx, .86, z); add(mMetal, .9, .86, 1.9, cx + dx, 0, z, { col: true });
-      [-.5, .5].forEach(dz => stool(cx + dx + (dx < 0 ? .85 : -.85), z + dz, rnd() < .1));
+      [-.5, .5].forEach(dz => stool(cx + dx + (dx < 0 ? .88 : -.88), z + dz, false));
       add(mChrome, .03, .3, .03, cx + dx, .92, z - .8); add(mChrome, .14, .03, .03, cx + dx + .06, 1.2, z - .8);
     }));
     // 플라스크
@@ -827,8 +827,7 @@ export function buildWorld(scene) {
         if (rnd() < .85) keyboard(x + rr(-.03, .03), .76, z + .14, rr(-.08, .08));
         if (rnd() < .7) mouse(x + .27, .77, z + .16, rr(-.4, .4));
         cable([[x, .76, z - .3], [x + .05, .5, z - .36], [x + rr(-.1, .1), .01, z - .3]]);
-        const tip = rnd() < .12;
-        officeChair(x + rr(-.1, .1), z + .72 + rr(0, .25), Math.PI + rr(-.6, .6), tip);
+        officeChair(x, z + .68, Math.PI + rr(-.15, .15), false);
       });
     }));
     // 교사용 책상 + PC, 서버 랙, 프린터, 서류함
@@ -850,17 +849,17 @@ export function buildWorld(scene) {
     const zN = -9.6;
     frontWall(cx, zN, true, ['도 레 미 파']);
     // 그랜드 피아노
-    grandPiano(cx + 2.2, -8.2);
-    boardRefs['piano' + cur.f] = { floor: cur.f, x: cx + 2.2, z: -8.2 };
-    addBattery(cx + 2.2, .98, -7.4);
+    grandPiano(cx + 2.0, -7.75); (cur.furnOcc ||= []).push({ x: cx + 2.0, z: -7.0, w: 1.8, d: 3.2 });
+    boardRefs['piano' + cur.f] = { floor: cur.f, x: cx + 2.0, z: -7.75 };
+    addBattery(cx + 2.0, .98, -7.0);
     deskChair(cx - 2.4, -7.75, .4); addNote('n6', cx - 2.4, .46, -7.75);
     // 보면대/의자
-    [-2.8, -1.4, 0].forEach((dx, k) => {
-      const x = cx - 1.2 + dx, z = -5.4 + k * .2;
+    [-2.6, -1.3, 0].forEach((dx, k) => {
+      const x = cx - 1.1 + dx, z = -5.2 + k * .2;
       meshAt(merge([tube(.01, 0, 0, 0, 0, 1.0, 0), tube(.008, 0, .02, 0, .2, 0, .12), tube(.008, 0, .02, 0, -.2, 0, .12), tube(.008, 0, .02, 0, 0, 0, -.22)]), mFrame, x, 0, z);
       const st = meshAt(new THREE.BoxGeometry(.42, .3, .01), mFrame, x, 1.1, z + .02); st.rotation.x = -.3;
       const sh = new THREE.Mesh(new THREE.PlaneGeometry(.38, .26), mDirtPaper); sh.position.z = .007; st.add(sh);
-      deskChair(x, z + .8);
+      deskChair(x, z + .8); (cur.furnOcc ||= []).push({ x, z: z + .4, w: .7, d: 1.4 });
     });
     // 드럼 세트 + 기타
     { const dx = cx - 3.1, dz = -8.85, mDrum = S(null, { color: 0x6a1a1a, roughness: .35, metalness: .2 });
@@ -964,7 +963,7 @@ export function buildWorld(scene) {
     const TZ = -8.45;
     [[-1.95, -6.75], [-.7, -6.2], [.7, -6.2], [1.95, -6.75]].forEach(([dx, z], k) => {
       easel(cx + dx, z, Math.atan2(-dx, -(TZ - z)) + Math.PI, k);
-      const L = Math.hypot(dx, z - TZ); stool(cx + dx + dx / L * .62, z + (z - TZ) / L * .62, k === 3 && rnd() < .5);
+      const L = Math.hypot(dx, z - TZ); stool(cx + dx + dx / L * .78, z + (z - TZ) / L * .78, false);
     });
     // 서쪽 벽 ① 수채화용 싱크대 (W1800 × D700 × H850) — 수전 2개 · 걸레 · 양동이
     const sx = W0 + .35, sz = -8.4;
@@ -993,8 +992,7 @@ export function buildWorld(scene) {
     // 동쪽 벽 ① 석고상 진열대 (W1200 × D400 × H1800)
     const ex = E0 - .2, ez = -8.7;
     meshAt(merge([...[-.58, .58].map(b => bx(.4, 1.8, .03, 0, .9, b)), ...[.04, .6, 1.16, 1.72].map(y => bx(.4, .03, 1.16, 0, y, 0))]), mWoodDark, ex, 0, ez);
-    [[.62, -.3], [.62, .28], [1.18, 0], [1.74, -.25]].forEach(([y, dz], k) => bust(ex - .02, y, ez + dz, -Math.PI / 2 + rr(-.3, .3), k === 2 ? 1 : .8));
-    meshAt(new THREE.SphereGeometry(.09, 12, 10), A.plaster, ex, .14, ez + .3);   // 쓰러진 석고 두상
+    [[.62, -.34], [.62, .34], [1.18, 0], [1.74, -.28]].forEach(([y, dz], k) => bust(ex - .02, y, ez + dz, -Math.PI / 2, .75));
     col(E0 - .4, E0, ez - .6, ez + .6);
     // ② 재료 보관 캐비닛 (W900 × D450 × H1800, 유리문)
     const kx = E0 - .225, kz = -7.4;
@@ -1457,7 +1455,7 @@ export function buildWorld(scene) {
   }
   // 철제 4단 서류함
   function fileCabinet(x, z, ry, open = false) {
-    if (!open) { model('drawer_cabinet', x, 0, z, ry, { s: .72, col: [.55, .48] }); return null; }
+    if (!open) { model('drawer_cabinet', x, 0, z, ry, { s: .52, col: [.48, .46] }); return null; }
     const g = meshAt(new THREE.BoxGeometry(.46, 1.32, .6).translate(0, .66, 0), mCabinet, x, 0, z, ry);
     const d = meshAt(merge([bx(.4, .26, .5, 0, 0, 0)]), mMetal, 0, .95, .32, 0, g); d.position.z = .3;
     col(x - .3, x + .3, z - .32, z + .32); return g;
@@ -1473,7 +1471,7 @@ export function buildWorld(scene) {
     col(x - .35, x + .35, z - .35, z + .35); return g;
   }
   // 학생 의자 한 개 (인스턴싱 없이)
-  function deskChair(x, z, ry = Math.PI) { const g = new THREE.Group(); g.position.set(x, 0, z); g.rotation.y = ry + Math.PI; g.add(new THREE.Mesh(seatG, mWood), new THREE.Mesh(chairLegG, mMetal)); cur.interior.add(g); return g; }
+  function deskChair(x, z, ry = Math.PI) { (cur.furnOcc ||= []).push({ x, z, w: .55, d: .55 }); const g = new THREE.Group(); g.position.set(x, 0, z); g.rotation.y = ry + Math.PI; g.add(new THREE.Mesh(seatG, mWood), new THREE.Mesh(chairLegG, mMetal)); cur.interior.add(g); return g; }
   // 둥근 의자 (과학실 · 미술실)
   const stoolG = merge([new THREE.CylinderGeometry(.16, .16, .04, 14).translate(0, .62, 0), ...[0, 1, 2, 3].map(k => tube(.012, Math.cos(k * 1.57 + .78) * .1, .6, Math.sin(k * 1.57 + .78) * .1, Math.cos(k * 1.57 + .78) * .18, 0, Math.sin(k * 1.57 + .78) * .18)), new THREE.TorusGeometry(.14, .008, 4, 14).rotateX(Math.PI / 2).translate(0, .22, 0)]);
   function stool(x, z, tipped = false) { const m = meshAt(stoolG, mMetal, x, 0, z, rnd() * 6); const s = new THREE.Mesh(new THREE.CylinderGeometry(.165, .165, .03, 14), mWoodDark); s.position.y = .655; m.add(s); if (tipped) { m.rotation.z = 1.5; m.position.y = .17; } }
@@ -1599,13 +1597,13 @@ export function buildWorld(scene) {
     col(bx2 - .06, bx2 + .06, zN, bz + .05); col(W0, bdA, bz - .05, bz + .05); col(bdB, bx2, bz - .05, bz + .05);
     { const l = add(mDoorP, .8, 2.1, .045, bdA - .02, 0, bz + .42, { ry: Math.PI / 2 - .15 }); const w = new THREE.Mesh(new THREE.PlaneGeometry(.3, .4), B.glass); w.position.set(0, .35, .025); l.add(w); const h = new THREE.Mesh(new THREE.BoxGeometry(.12, .03, .05), mChrome); h.position.set(.3, -.05, .04); l.add(h); }
     { B.foam.map.repeat.set(3, 3); plane(cur.interior, B.foam, bx2 - W0 - .1, 2.3, (W0 + bx2) / 2, 1.35, zN + .02); plane(cur.interior, B.foam, (bz - zN) - .1, 2.3, W0 + .02, 1.35, (zN + bz) / 2, Math.PI / 2); }
-    { const mx = cx - 2.75, mz = -8.35, legs = [0, 1, 2].map(k => tube(.012, mx, .55, mz, mx + Math.cos(k * 2.1) * .32, 0, mz + Math.sin(k * 2.1) * .32));
-      meshAt(merge([...legs, tube(.014, mx, .5, mz, mx, 1.35, mz), tube(.011, mx, 1.35, mz, mx - .45, 1.52, mz - .4), new THREE.CylinderGeometry(.03, .032, .16, 12).translate(mx - .45, 1.42, mz - .4), new THREE.TorusGeometry(.05, .006, 6, 14).rotateX(Math.PI / 2).translate(mx - .45, 1.45, mz - .4)]), mBlack, 0, 0, 0);
-      meshAt(new THREE.TorusGeometry(.08, .006, 6, 18), mBlack, mx - .38, 1.42, mz - .3, .75); meshAt(new THREE.CircleGeometry(.078, 18), new THREE.MeshStandardMaterial({ color: 0x111, transparent: true, opacity: .45, side: THREE.DoubleSide, depthWrite: false }), mx - .38, 1.42, mz - .3, .75); }
-    meshAt(merge([tube(.01, cx - 3.4, 0, -7.25, cx - 3.4, 1.1, -7.25), bx(.42, .3, .02, cx - 3.4, 1.22, -7.32)]), mBlack, 0, 0, 0);   // 보면대
-    plane(cur.interior, mPaperN, .3, .22, cx - 3.4, 1.23, -7.305, 0, -.35);
-    tbl(mWood, .8, .74, .5, cx - 3.35, 0, -9.25, { col: true, legMat: mLegMetal }); headphones(cx - 3.55, .74, -9.2, .3); meshAt(new THREE.BoxGeometry(.22, .01, .3), mPaperN, cx - 3.15, .745, -9.2, -.2);
-    bcChair(cx - 3.3, -8.55, Math.PI + .3);
+    { const mx = cx - 2.42, mz = -8.25, legs = [0, 1, 2].map(k => tube(.012, mx, .55, mz, mx + Math.cos(k * 2.1) * .24, 0, mz + Math.sin(k * 2.1) * .24));
+      meshAt(merge([...legs, tube(.014, mx, .5, mz, mx, 1.35, mz), tube(.011, mx, 1.35, mz, mx - .35, 1.52, mz - .3), new THREE.CylinderGeometry(.03, .032, .16, 12).translate(mx - .35, 1.42, mz - .3), new THREE.TorusGeometry(.05, .006, 6, 14).rotateX(Math.PI / 2).translate(mx - .35, 1.45, mz - .3)]), mBlack, 0, 0, 0);
+      meshAt(new THREE.TorusGeometry(.08, .006, 6, 18), mBlack, mx - .28, 1.42, mz - .22, .75); meshAt(new THREE.CircleGeometry(.078, 18), new THREE.MeshStandardMaterial({ color: 0x111, transparent: true, opacity: .45, side: THREE.DoubleSide, depthWrite: false }), mx - .28, 1.42, mz - .22, .75); }
+    meshAt(merge([tube(.01, cx - 3.45, 0, -7.2, cx - 3.45, 1.1, -7.2), bx(.42, .3, .02, cx - 3.45, 1.22, -7.27)]), mBlack, 0, 0, 0);   // 보면대
+    plane(cur.interior, mPaperN, .3, .22, cx - 3.45, 1.23, -7.255, 0, -.35);
+    tbl(mWood, .76, .74, .46, cx - 3.38, 0, -9.28, { col: true, legMat: mLegMetal }); headphones(cx - 3.55, .74, -9.22, .3); meshAt(new THREE.BoxGeometry(.22, .01, .3), mPaperN, cx - 3.18, .745, -9.22, -.2);
+    bcChair(cx - 3.38, -8.35, Math.PI);
     // ── 메인 콘솔 (북쪽): 책상 + 경사진 믹서 + VU 미터 브리지 · 모니터 벽 · 스피커 · 방송중 표시등
     const dx = cx - .35, dz = -9.05;
     meshAt(merge([bx(3.0, .05, 1.0, 0, .755, 0), bx(.05, .73, .95, -1.47, .365, 0), bx(.05, .73, .95, 1.47, .365, 0), bx(2.9, .55, .03, 0, .46, .45), bx(.55, .6, .9, 1.15, .3, 0)]), mWoodDark, dx, 0, dz);
@@ -1633,8 +1631,8 @@ export function buildWorld(scene) {
       meshAt(merge([bx(.04, 2.65, .04, gx, 1.325, z1), bx(.04, 2.65, .04, gx, 1.325, z2), bx(.04, .04, z2 - z1, gx, 2.6, (z1 + z2) / 2), bx(.5, .03, .04, gx + .15, .015, z1), bx(.5, .03, .04, gx + .15, .015, z2)]), mChrome, 0, 0, 0);
       col(W0, gx + .25, z1 - .05, z2 + .05); }
     const tripod = (x, z, h) => meshAt(merge([0, 1, 2].map(k => tube(.012, x, h, z, x + Math.cos(k * 2.1 + .3) * .38, 0, z + Math.sin(k * 2.1 + .3) * .38)).concat([tube(.016, x, h - .3, z, x, h, z)])), mBlack, 0, 0, 0);
-    tripod(cx - 1.75, -4.85, 1.35); meshAt(merge([bx(.26, .15, .12, 0, 0, 0), new THREE.CylinderGeometry(.045, .05, .14, 12).rotateZ(Math.PI / 2).translate(-.19, 0, 0), bx(.06, .05, .08, .1, .1, 0)]), mBlack, cx - 1.75, 1.43, -4.85, .15);
-    col(cx - 2.05, cx - 1.45, -5.15, -4.55);
+    tripod(cx - 1.25, -4.85, 1.35); meshAt(merge([bx(.26, .15, .12, 0, 0, 0), new THREE.CylinderGeometry(.045, .05, .14, 12).rotateZ(Math.PI / 2).translate(-.19, 0, 0), bx(.06, .05, .08, .1, .1, 0)]), mBlack, cx - 1.25, 1.43, -4.85, .15);
+    col(cx - 1.55, cx - .95, -5.15, -4.55);
     tripod(cx - 1.9, -2.6, 1.7); { const h = meshAt(merge([bx(.08, .32, .38, 0, 0, 0), bx(.02, .36, .12, -.05, 0, .25), bx(.02, .36, .12, -.05, 0, -.25)]), mBlack, cx - 1.9, 1.86, -2.6, .3); const f = new THREE.Mesh(new THREE.PlaneGeometry(.34, .28), B.led); f.position.set(-.042, 0, 0); f.rotation.y = -Math.PI / 2; h.add(f); }
     col(cx - 2.2, cx - 1.6, -2.9, -2.3);
     // ── 마이크 데스크 (남쪽 가운데): 탁상 마이크 · 헤드폰 · 원고 · 녹음기(테이프) · 쪽지
@@ -1829,7 +1827,7 @@ export function buildWorld(scene) {
     const s1 = A(.6, .7, 2.1, 7.3); rackShelf(cx - 2.95, s1.z, s1.d * .95, Math.PI / 2, .8); col(cx - 3.4, cx - 2.5, s1.z - s1.d / 2, s1.z + s1.d / 2);
     const s2 = A(3.6, .7, 2.1, 6.4); rackShelf(cx - .55, s2.z, s2.d * .95, Math.PI / 2, .8); col(cx - 1.0, cx - .1, s2.z - s2.d / 2, s2.z + s2.d / 2);
     const c3 = A(6.4, .7, 2.7, 2.7);   // 3 상자 적재
-    for (let k = 0; k < 9; k++) { const s = rr(.45, .65); add(mCardboard, s, s * .8, s, c3.x + rr(-.6, .6), ((k / 3) | 0) * .5, c3.z + rr(-.6, .6), { ry: rr(-.3, .3) }); } col(c3.x - c3.w / 2, c3.x + c3.w / 2, c3.z - c3.d / 2, c3.z + c3.d / 2);
+    [[-.55, -.55, 0], [.1, -.55, 0], [-.55, .1, 0], [.1, .1, 0], [-.55, -.55, .42], [.1, -.55, .42]].forEach(([ox, oz, oy]) => add(mCardboard, .48, .4, .48, c3.x + ox, oy, c3.z + oz, { ry: rr(-.08, .08) })); col(c3.x - c3.w / 2, c3.x + c3.w / 2, c3.z - c3.d / 2, c3.z + c3.d / 2);
     const t4 = A(6.6, 4.0, 2.6, 1.5);  // 4 공구함 (빨간 롤 캐비닛 + 공구)
     add(mRedV, 1.2, .9, .55, t4.x, 0, t4.z, { col: true }); for (let k = 0; k < 4; k++) add(mChrome, 1.0, .015, .02, t4.x, .15 + k * .2, t4.z + .28);
     add(mRedV, .6, .25, .3, t4.x - .2, .9, t4.z); add(mChrome, .3, .03, .05, t4.x + .35, .92, t4.z, { ry: .4 });
@@ -1841,14 +1839,14 @@ export function buildWorld(scene) {
   // A08 문서 보관실 (옛 학적부 · 행정 기록 — 핵심 단서)
   function records(cx) {
     const R = sheetRoom(cx, 11, 11);
-    [.5, 3.2, 5.9].forEach(u => { const s = R(u, 1.0, 1.6, 7.5); shelf3D(s.x, s.z, Math.PI / 2, s.d * .95, 2.1, .8, 6, .85); col(s.x - .42, s.x + .42, s.z - s.d / 2, s.z + s.d / 2); });
+    [.5, 3.2, 5.9].forEach(u => { const s = R(u, 1.0, 1.6, 7.5); shelf3D(s.x, s.z, Math.PI / 2, s.d * .95, 2.1, .8, 6, .85); });
     const d4 = R(8.3, 1.2, 2.1, 3.3);  // 4 기록 조사 책상 (서약서 · 명부 · 테이프)
     meshAt(merge([bx(1.0, .04, 2.0, 0, .75, 0), bx(.95, .72, .05, 0, .36, -.95), bx(.95, .72, .05, 0, .36, .95), bx(.05, .3, 1.9, .45, .55, 0)]), mWoodDark, d4.x, 0, d4.z); col(d4.x - .5, d4.x + .5, d4.z - 1.0, d4.z + 1.0);
     { const lamp = meshAt(merge([new THREE.CylinderGeometry(.08, .1, .03, 12).translate(0, .015, 0), tube(.01, 0, 0, 0, .08, .35, 0), new THREE.ConeGeometry(.1, .12, 12, 1, true).translate(.1, .32, 0)]), mDarkMetal, d4.x - .3, .77, d4.z - .7); }
     addNote('n12', d4.x, .77, d4.z - .45); tapeRecorder('tape3', d4.x + .1, .77, d4.z + .45, .2);
     deskChair(d4.x - .8, d4.z, -Math.PI / 2);
     const d5 = R(8.3, 6.5, 2.1, 2);    // 5 잠긴 서랍장
-    fileCabinet(d5.x + .3, d5.z, -Math.PI / 2); fileCabinet(d5.x + .3, d5.z + .55, -Math.PI / 2);
+    fileCabinet(d5.x + .3, d5.z - .18, -Math.PI / 2); fileCabinet(d5.x + .3, d5.z + .68, -Math.PI / 2);
     meshAt(new THREE.TorusGeometry(.04, .012, 6, 12), mChrome, d5.x + .02, 1.0, d5.z);
     scatterBooks(cx - 1, -2.8, 10); papers(cx, -8, -2.4, 12);
   }
@@ -1869,7 +1867,7 @@ export function buildWorld(scene) {
     [[-.4, 0], [.2, .1]].forEach(([dx]) => meshAt(merge([tube(.015, 0, 0, 0, .05, 1.4, .04), bx(.3, .06, .1, 0, .03, 0)]), S(null, { color: 0x8a6a40 }), d4.x + d4.w / 2 + .25 + dx, 0, d4.z + .4));
     mopBucket(cx + 3.2, -5.4);
     const d5 = W(1.3, 4.9, 2.1, 1.6);  // 5 비닐 포대 (쓰레기 봉투 더미)
-    for (let k = 0; k < 6; k++) { const m = meshAt(new THREE.SphereGeometry(rr(.22, .32), 10, 8), mBagB, d5.x + rr(-.7, .7), .2, d5.z + rr(-.4, .4)); m.scale.y = rr(.6, .9); }
+    [[-.55, -.28], [0, -.28], [.55, -.28], [-.35, .28], [.35, .28]].forEach(([ox, oz]) => { const m = meshAt(new THREE.SphereGeometry(.23, 10, 8), mBagB, d5.x + ox, .18, d5.z + oz); m.scale.y = .75; });
     col(d5.x - .9, d5.x + .9, d5.z - .5, d5.z + .5);
     papers(cx, -8, -2.4, 8);
   }
@@ -1901,7 +1899,7 @@ export function buildWorld(scene) {
     const D = sheetRoom(cx, 6, 11);
     { const t = D(2.5, .5, 1.1, 9.4);    // 1 바닥 배수로 (그레이팅 + 고인 물)
       flat(cur.interior, S(null, { color: 0x0e1416, roughness: .08, metalness: .3 }), t.x - .45, t.x + .45, t.z - t.d / 2, t.z + t.d / 2, .012, 1);
-      const bars = []; for (let z = t.z - t.d / 2 + .1; z < t.z + t.d / 2; z += .12) bars.push(bx(.9, .02, .02, 0, .03, z - t.z)); meshAt(merge(bars), mDarkMetal, t.x, 0, t.z); }
+      const bars = []; for (let z = t.z - t.d / 2 + .1; z < t.z + t.d / 2; z += .12) bars.push(bx(.9, .02, .02, 0, .03, z - t.z)); meshAt(merge(bars), mDarkMetal, t.x, 0, t.z); (cur.furnOcc ||= []).push({ x: cx, z: -5.6, w: 6.8, d: 6.8 }); }
     { const p = D(.4, 2.5, 1.7, 2.5);    // 2 배수 펌프
       // 사용자 제공 학교 전체 V2 팩의 상세 재모델링 '송수 펌프'(A050 — 모터 · 냉각 핀 · 볼류트 · 플랜지 볼트). 못 불러오면 예전 절차적 펌프
       model('v2/A050', p.x, 0, p.z, Math.PI / 2, { s: 1.25 }); crFallback('A050', mBlueP, 1.4, 1.3, 1.3, p.x, 0, p.z);
@@ -1987,7 +1985,7 @@ export function buildWorld(scene) {
   let curSouth = false;
   function southRoom(cx, fn) {
     const F = cur, real = F.interior, g = new THREE.Group(); g.position.x = 2 * cx; g.rotation.y = Math.PI; real.add(g);
-    const n = { models: MODELS.length, col: F.col.length, walls: F.walls.length, dw: (F.doorWalls || []).length, props: props.length, items: items.length, doors: doors.length, dl: doorList.length, lockers: lockers.length, books: (F.books || []).length, sparks: (F.sparks || []).length, chairs: CHAIRS.length };
+    const n = { models: MODELS.length, col: F.col.length, walls: F.walls.length, dw: (F.doorWalls || []).length, props: props.length, items: items.length, doors: doors.length, dl: doorList.length, lockers: lockers.length, books: (F.books || []).length, sparks: (F.sparks || []).length, chairs: CHAIRS.length, fo: (F.furnOcc || []).length };
     const refKeys = new Set(Object.keys(boardRefs));
     F.interior = g; curSouth = true;
     try { fn(); } finally { F.interior = real; curSouth = false; }
@@ -2002,7 +2000,7 @@ export function buildWorld(scene) {
       if (o.dir) o.dir = { x: -o.dir.x, z: -o.dir.z };
       if (o.rect) tr(o.rect);
     };
-    [MODELS.slice(n.models), F.col.slice(n.col), F.walls.slice(n.walls), (F.doorWalls || []).slice(n.dw), props.slice(n.props), items.slice(n.items), doors.slice(n.doors), doorList.slice(n.dl), lockers.slice(n.lockers), (F.sparks || []).slice(n.sparks), CHAIRS.slice(n.chairs)].forEach(l => l.forEach(tr));   /* 의자(앉기)도 남쪽 방 좌표로 */
+    [MODELS.slice(n.models), F.col.slice(n.col), F.walls.slice(n.walls), (F.doorWalls || []).slice(n.dw), props.slice(n.props), items.slice(n.items), doors.slice(n.doors), doorList.slice(n.dl), lockers.slice(n.lockers), (F.sparks || []).slice(n.sparks), CHAIRS.slice(n.chairs), (F.furnOcc || []).slice(n.fo)].forEach(l => l.forEach(tr));   /* 의자(앉기)도 남쪽 방 좌표로 */
     Object.keys(boardRefs).filter(k => !refKeys.has(k)).forEach(k => tr(boardRefs[k]));
     if (F.books) { g.updateMatrix(); F.books.slice(n.books).forEach(b => b.m.premultiply(g.matrix)); }
   }
@@ -2029,14 +2027,14 @@ export function buildWorld(scene) {
     [-1.3, 1.3].forEach(dx => { const fr = new THREE.Mesh(new THREE.BoxGeometry(.5, .65, .03), mWoodDark); fr.position.set(cx + dx, 2.3, zN + .03); cur.interior.add(fr); const pic = new THREE.Mesh(new THREE.PlaneGeometry(.4, .55), mPaints[1]); pic.position.set(cx + dx, 2.3, zN + .05); cur.interior.add(pic); });
     plane(cur.interior, new THREE.MeshStandardMaterial({ map: T.makeSign('성실 · 정직 · 배려', '#e8e2d2', '#3a2a1a', 26), roughness: .8 }), 2.0, .45, cx, 3.0, zN + .04);
     sofa(cx - 2.6, -4.5, Math.PI / 2); sofa(cx + 2.6, -4.5, -Math.PI / 2); add(mWood, 1.2, .4, .6, cx, 0, -4.5, { col: true }); cyl(mPorc, .05, .09, cx + .2, .4, -4.5, 10);
-    trophyCase(cx + 3.55, -7.9, -Math.PI / 2, 1.6); shelf3D(cx - 3.62, -7.6, Math.PI / 2, 1.6, 2.0, .4, 5, .8); col(cx - 3.85, cx - 3.4, -8.4, -6.8);
+    trophyCase(cx + 3.55, -7.9, -Math.PI / 2, 1.6); shelf3D(cx - 3.62, -7.6, Math.PI / 2, 1.6, 2.0, .4, 5, .8);
     potPlant(cx + 3.3, 0, -2.4, false); papers(cx, -8, -2.4, 6);
   }
   // 회의실
   function meeting(cx) {
     const zN = -9.6;
     meshAt(merge([bx(4.6, .05, 1.3, 0, .74, 0), bx(.08, .72, .08, -2.1, .36, -.5), bx(.08, .72, .08, 2.1, .36, -.5), bx(.08, .72, .08, -2.1, .36, .5), bx(.08, .72, .08, 2.1, .36, .5)]), mWood, cx, 0, -5.8); col(cx - 2.3, cx + 2.3, -6.45, -5.15);
-    for (let k = 0; k < 5; k++) [-1, 1].forEach(s => { const c = officeChair(cx - 1.9 + k * .95 + rr(-.08, .08), -5.8 + s * .95, s > 0 ? Math.PI + rr(-.3, .3) : rr(-.3, .3), rnd() < .08); });
+    for (let k = 0; k < 5; k++) [-1, 1].forEach(s => { officeChair(cx - 2.0 + k * 1.0, -5.8 + s * 1.08, s > 0 ? Math.PI : 0, false); });
     add(mWhite, 2.4, 1.2, .04, cx, 1.0, zN + .05); add(mBlack, .3, .05, .3, cx, CH - .5, -6.0);
     for (let k = 0; k < 6; k++) { const pp = new THREE.Mesh(new THREE.PlaneGeometry(.21, .29), mDirtPaper); pp.rotation.set(-Math.PI / 2, 0, rr(-.6, .6)); pp.position.set(cx - 2 + k * .8, .77, -5.8 + rr(-.4, .4)); cur.interior.add(pp); }
     model('sf_water_cooler', cx + 3.5, 0, -8.9, 0, { col: [.45, .45] }); glowAt(cx + 3.45, .92, -8.74, .11, glowRed); glowAt(cx + 3.55, .92, -8.74, .11, glowGreen);
@@ -2072,7 +2070,7 @@ export function buildWorld(scene) {
     // 동쪽 벽: 용지 카운터 + 재단기 + A4 용지 더미 3, 벽부 전기 제어함
     const kx = cx + 3.85 - .34, kz = Z(-.4);
     pr('PR-012', kx, kz, 0, -Math.PI / 2, [mWood, 1.84, .77, .66]); col(kx - .34, cx + 3.85, kz - .93, kz + .93, false, .77);
-    model('pr/PR-006', kx - .02, .77, kz - .55, -Math.PI / 2); [.05, .45, .82].forEach((d, k) => model('pr/PR-011', kx, .77, kz + d, -Math.PI / 2 + k * .2));
+    model('pr/PR-006', kx - .02, .77, kz - .58, -Math.PI / 2); [.22, .56, .88].forEach((d, k) => model('pr/PR-011', kx, .77, kz + d, -Math.PI / 2 + k * .12));
     model('pr/PR-013', cx + 3.84, 1.25, -8.3, -Math.PI / 2);
     // 바닥 종이
     [[-1.1, -.4, 0], [.7, -.3, .4], [.2, 1.2, -.26]].forEach(([x, y, r]) => model('pr/PR-015', cx + x, .006, Z(y), r));
@@ -2083,7 +2081,7 @@ export function buildWorld(scene) {
     rackShelf(cx - 2.9, -6.0, 6.0, Math.PI / 2, .8, 2.1, .8); col(cx - 3.3, cx - 2.5, -9.0, -3.0);
     rackShelf(cx + 2.9, -6.0, 6.0, Math.PI / 2, .8, 2.1, .8); col(cx + 2.5, cx + 3.3, -9.0, -3.0);
     for (let k = 0; k < 4; k++) { const g = new THREE.Group(); g.position.set(cx + rr(-.6, .6), k * .78, -8.6); g.rotation.y = rr(-.2, .2); g.rotation.z = k % 2 ? Math.PI : 0; if (k % 2) g.position.y += .76; g.add(new THREE.Mesh(deskTopG, mWood), new THREE.Mesh(deskLegG, mMetal)); cur.interior.add(g); }
-    col(cx - .8, cx + .8, -9.0, -8.2); for (let k = 0; k < 5; k++) add(mCardboard, rr(.4, .6), rr(.3, .5), rr(.4, .6), cx + rr(-1.2, 1.2), 0, -6.5 + rr(-1, 1), { ry: rr(-.5, .5) });
+    col(cx - .8, cx + .8, -9.0, -8.2); [[-1.1, -6.8], [-.3, -6.9], [.6, -6.7], [1.2, -5.8]].forEach(([ox, z]) => add(mCardboard, .46, .38, .46, cx + ox, 0, z, { ry: rr(-.12, .12) }));
     model('cardboard_box_01', cx - .9, 0, -4.6, .2, { col: [.45, .55] }); model('cardboard_box_01', cx - .9, .34, -4.6, -.15); model('cardboard_box_01', cx - .3, 0, -4.2, .9, { col: [.5, .5] });
     papers(cx, -8, -2.4, 6);
   }
@@ -2100,7 +2098,7 @@ export function buildWorld(scene) {
     const zN = -9.6;
     sofa(cx - 2.2, -8.8, 0, 2.2); add(mWood, 1.2, .4, .6, cx - 2.2, 0, -7.6, { col: true }); cyl(mPorc, .05, .09, cx - 2.0, .4, -7.6, 10); cyl(mPorc, .05, .09, cx - 2.5, .4, -7.5, 10);
     add(mWood, 2.6, .9, .6, cx + 2.4, 0, zN + .35, { col: true }); add(S(null, { color: 0xd8d4c8, roughness: .5 }), .5, .3, .35, cx + 3.2, .9, zN + .35); cyl(mChrome, .08, .22, cx + 1.6, .9, zN + .35, 12);
-    model('sf_water_cooler', cx + 3.5, 0, -7.6, -Math.PI / 2, { col: [.45, .45] }); glowAt(cx + 3.33, .92, -7.55, .11, glowRed); glowAt(cx + 3.33, .92, -7.65, .11, glowGreen); crt(cx + 2.1, .9, zN + .35, 0);
+    model('sf_water_cooler', cx + 3.5, 0, -7.6, -Math.PI / 2, { col: [.45, .45] }); glowAt(cx + 3.33, .92, -7.55, .11, glowRed); glowAt(cx + 3.33, .92, -7.65, .11, glowGreen); crt(cx + 2.1, .92, zN + .35, 0);
     for (let k = 0; k < 4; k++) add(mLockerT, .5, 1.8, .45, cx - 3.55, 0, -5.8 + k * .52, { ry: Math.PI / 2, col: true });
     tbl(mWood, 1.4, .74, .8, cx + .8, 0, -4.6, { col: true }); [-1, 1].forEach(s => deskChair(cx + .8 + s * .5, -3.8, Math.PI));
     noticeBoard(cx + 3.84, 1.6, -4.2, -Math.PI / 2, 1.4); papers(cx, -8, -2.4, 6);
@@ -2108,7 +2106,7 @@ export function buildWorld(scene) {
   }
   // 기록 보관실
   function archive(cx) {
-    [-2.6, 0, 2.6].forEach(dx => { shelf3D(cx + dx, -6.6, Math.PI / 2, 4.6, 2.1, .6, 6, .9); col(cx + dx - .33, cx + dx + .33, -8.9, -4.3); });
+    [-2.6, 0, 2.6].forEach(dx => { shelf3D(cx + dx, -6.6, Math.PI / 2, 4.6, 2.1, .6, 6, .9); });
     fileCabinet(cx - 3.5, -3.0, Math.PI / 2, true); fileCabinet(cx + 3.5, -3.0, -Math.PI / 2);
     scatterBooks(cx - 1.3, -3.2, 12); papers(cx, -8, -2.4, 12);
   }
@@ -2126,7 +2124,6 @@ export function buildWorld(scene) {
   function reading(cx) {
     [-1.6, 1.6].forEach(dx => [-7.6, -5.0].forEach(z => { tbl(mWood, 2.0, .74, 1.0, cx + dx, 0, z, { col: true }); [-.55, .55].forEach(o => [-1, 1].forEach(s => deskChair(cx + dx + o, z + s * .8, s > 0 ? Math.PI : 0))); }));
     shelf3D(cx - 3.62, -4.0, Math.PI / 2, 2.4, 2.0, .4, 5, .85); shelf3D(cx + 3.62, -4.0, -Math.PI / 2, 2.4, 2.0, .4, 5, .85);
-    col(cx - 3.85, cx - 3.4, -5.2, -2.8); col(cx + 3.4, cx + 3.85, -5.2, -2.8);
     scatterBooks(cx, -3.2, 8); papers(cx, -8, -2.4, 6);
   }
   // 시청각실 (계단식 좌석 · 큰 스크린 · 스피커)
@@ -2140,7 +2137,7 @@ export function buildWorld(scene) {
   // 상담실
   function counselS(cx) {
     sofa(cx - 1.2, -8.6, 0, 2.0); add(mWood, 1.0, .4, .6, cx - 1.2, 0, -7.4, { col: true }); sofa(cx - 1.2, -6.2, Math.PI, 2.0);
-    shelf3D(cx + 3.6, -6.0, -Math.PI / 2, 1.4, 2.0, .4, 5, .75); col(cx + 3.38, cx + 3.85, -6.7, -5.3);
+    shelf3D(cx + 3.6, -6.0, -Math.PI / 2, 1.4, 2.0, .4, 5, .75);
     potPlant(cx + 3.3, 0, -9.0, false); cyl(S(null, { color: 0xc8a060, roughness: .6 }), .04, .2, cx - 1.0, .4, -7.4, 8);
     papers(cx, -8, -2.4, 5);
   }
@@ -2176,7 +2173,7 @@ export function buildWorld(scene) {
     winsFar(cx);
     add(mWhite, 3.0, .9, .65, cx - 1.6, 0, -9.2, { col: true }); add(mBlack, 3.0, .04, .65, cx - 1.6, .9, -9.2); [-2.6, -1.2].forEach(dx => meshAt(merge([bx(.5, .02, .4, 0, .0, 0), tube(.012, 0, 0, -.15, 0, .3, -.15), tube(.012, 0, .3, -.15, 0, .3, 0)]), mChrome, cx + dx, .92, -9.2));
     add(mLockerT, 1.0, 1.9, .45, cx + 3.5, 0, -7.5, { ry: -Math.PI / 2, col: true }); add(mGlass, 1.0, 1.9, .48, cx + 3.5, 0, -7.5, { ry: -Math.PI / 2 });
-    shelf3D(cx + 3.6, -4.6, -Math.PI / 2, 1.8, 1.8, .4, 4, 0); col(cx + 3.38, cx + 3.85, -5.5, -3.7);
+    shelf3D(cx + 3.6, -4.6, -Math.PI / 2, 1.8, 1.8, .4, 4, 0);
     for (let k = 0; k < 9; k++) { const f = new THREE.Mesh(new THREE.CylinderGeometry(.04, .07, .18, 10), k % 3 ? mGlass : mLiquid); f.position.set(cx + 3.55, .25 + (k % 3) * .45, -5.2 + ((k / 3) | 0) * .5); cur.interior.add(f); }
     tbl(mWood, 1.6, .8, .8, cx - .4, 0, -5.4, { col: true, legMat: mLegMetal, shelf: true }); stool(cx - 1.4, -5.4); papers(cx, -8, -2.4, 6);
   }
@@ -2202,7 +2199,7 @@ export function buildWorld(scene) {
   function digital(cx) {
     winsFar(cx);
     // 책상 줄은 폭 5.4m 로 서쪽에 붙이고 동쪽에 1.6m 통로 (예전 6.4m 는 벽까지 0.65m 라 방 뒤쪽으로 걸어 들어갈 수 없었다)
-    [-6.8, -4.6].forEach(z => { tbl(mWood, 5.4, .74, .7, cx - .5, 0, z, { col: true, legMat: mLegMetal }); for (let k = 0; k < 4; k++) { const x = cx - 2.6 + k * 1.4; monitor(x, .76, z - .14, 0, { cracked: rnd() < .2 }); keyboard(x, .76, z + .14, 0); officeChair(x, z + .75, Math.PI + rr(-.4, .4), rnd() < .1); } });
+    [-6.8, -4.6].forEach(z => { tbl(mWood, 5.4, .74, .7, cx - .5, 0, z, { col: true, legMat: mLegMetal }); for (let k = 0; k < 4; k++) { const x = cx - 2.6 + k * 1.4; monitor(x, .76, z - .14, 0, { cracked: rnd() < .2 }); keyboard(x, .76, z + .14, 0); officeChair(x, z + .68, Math.PI + rr(-.15, .15), false); } });
     termLed(cx + 1.95, .8, -6.95);
     papers(cx, -8, -2.4, 6);
   }
@@ -2422,17 +2419,17 @@ export function buildWorld(scene) {
     corridorPipes(-36, 36);
     [-30, -10, 10, 30].forEach(x => emergLight(x + 2.2, 2.85, -1.44));
     // 복도 실사 소품: 소화기 · 화재 경보기 · 감시 카메라 · 분리수거함 · 끝 쪽에 쌓인 책걸상
-    if (o.basement) { [[-14, 'BSM-003'], [10.6, 'BSM-003'], [-26.6, 'BSM-004'], [26.2, 'BSM-004']].forEach(([x, id]) => model('h133/' + id, x, 0, -1.48, 0, { col: [.56, .42] }));   // 복도 벽 배관 · 밸브 (BSM-003 · BSM-004)
+    if (o.basement) { [[-20.2, 'BSM-003'], [3.8, 'BSM-003'], [-28.2, 'BSM-004'], [27.8, 'BSM-004']].forEach(([x, id]) => model('h133/' + id, x, 0, -1.32, 0, { col: [.56, .42] }));   // 복도 벽 배관 · 밸브 (문틀과 겹치지 않는 기둥 사이 벽)
       model('portable_generator', 20.5, 0, 1.0, 0, { col: [.85, .6] }); model('power_box_01', -12.8, 1.0, -1.44, 0); model('power_box_01', 6.8, 1.0, -1.44, 0); }
     if (LS) [-32, -8, 16].forEach(cx => model('korean_fire_extinguisher_01', cx + 3.3, 0, 1.36, Math.PI));
-    else [-28.8, -4.8, 19.2].forEach(x => model('korean_fire_extinguisher_01', x, 0, -1.3, 0));
+    else [-28.8, -11.2, 12.8].forEach(x => model('korean_fire_extinguisher_01', x, 0, -1.3, 0));
     [-24, 0, 24].forEach(cx => model('fire_alarm', cx + 3.2, 1.45, -1.44, 0)); [-16, 16].forEach(cx => { model('sf_fuse_box', cx - 3.1, 1.32, -1.42, 0); glowAt(cx - 3.0, 1.68, -1.32, .09, glowGreen); });
     if (!o.basement) for (let x = -33; x <= 33; x += 6) model('h133/SAF-005', x + 1.5, CH - .29, .35, 0);   // 복도 천장 스프링클러 헤드 (SAF-005)
     // Imported corridor camera duplicates removed: mounted cameras below provide actual feeds.
     model('metal_trash_can', 35.68, 0, 0, -Math.PI / 2, { col: [1.85, .56] });
     if (f <= 2) model('WetFloorSign_01', -30.0, 0, -.55, .5);
     model('SchoolDesk_01', -35.35, 0, .85, Math.PI / 2, { col: [.75, .58] }); model('SchoolChair_01', -35.35, 1.88, .85, Math.PI / 2 + .3, { rx: Math.PI });
-    model('SchoolChair_01', -34.6, .3, -.6, 1.2, { rz: Math.PI / 2, col: [.7, .6] }); model('SchoolDesk_01', -35.35, 0, -.9, Math.PI / 2 + .15, { col: [.75, .58] });
+    model('SchoolChair_01', -34.2, .3, -.25, 1.2, { rz: Math.PI / 2, col: [.6, .55] }); model('SchoolDesk_01', -35.35, 0, -.9, Math.PI / 2 + .15, { col: [.75, .58] });
     ceilingDamage(-34, 34, -1.2, 1.2, 9); SLOTS.forEach(cx => { if (rnd() < .5) ceilingDamage(cx - 3, cx + 3, -8.5, -2.5, 1); });
     exitSign(0, 2.95, -1.43); exitSign(-35, 2.9, 0, Math.PI / 2); exitSign(35, 2.9, 0, -Math.PI / 2);
     extinguisher(-1.6, -1.25); extinguisher(33.5, 1.2);
@@ -2568,7 +2565,7 @@ export function buildWorld(scene) {
     // 가운데: 아일랜드 조리대 + 곰솥 2개 + 천장에 매단 배기 후드
     const iz = -6.0;
     model('cr101/CR-004', cx, 0, iz, 0); crFallback('CR-004', mStainlessD, 2.7, .87, 1.28, cx, 0, iz); col(cx - 1.35, cx + 1.35, iz - .64, iz + .64, false, .87);
-    [[-.62, .1, .2], [.68, -.12, -.5]].forEach(([dx, dz, r]) => { model('cr101/CR-005', cx + dx, .87, iz + dz, r); crFallback('CR-005', mStainless, .5, .39, .5, cx + dx, .87, iz + dz); });
+    [[-.62, .1, .2], [.68, -.12, -.5]].forEach(([dx, dz, r]) => { model('cr101/CR-005', cx + dx, .885, iz + dz, r); crFallback('CR-005', mStainless, .5, .39, .5, cx + dx, .885, iz + dz); });
     model('cr101/CR-011', cx, 2.15, iz, 0); crFallback('CR-011', mStainless, 1.9, .5, 1.12, cx, 2.5, iz);
     meshAt(merge([tube(.008, cx - .8, 3.0, iz - .4, cx - .8, CH, iz - .4), tube(.008, cx + .8, 3.0, iz - .4, cx + .8, CH, iz - .4), tube(.008, cx - .8, 3.0, iz + .4, cx - .8, CH, iz + .4), tube(.008, cx + .8, 3.0, iz + .4, cx + .8, CH, iz + .4)]), mChrome, 0, 0, 0);   // 후드 매다는 줄
     // 바닥 배수 트렌치 (아일랜드 앞) · 동쪽 보조 조리대 + 세제 · 그릇 · 쟁반 · 게시판
@@ -2652,7 +2649,7 @@ export function buildWorld(scene) {
     const zN = -9.6;
     frontWall(cx, zN, false);
     tbl(mWood, 4.2, .75, 1.2, cx, 0, -6.4, { col: true });
-    [-1.6, -.5, .6, 1.7].forEach(dx => [-1, 1].forEach(s => add(mBlack, .4, .45, .4, cx + dx, 0, -6.4 + s * 1.0)));
+    [-1.6, -.5, .6, 1.7].forEach(dx => [-1, 1].forEach(s => { add(mBlack, .4, .45, .4, cx + dx, 0, -6.4 + s * 1.0); (cur.furnOcc ||= []).push({ x: cx + dx, z: -6.4 + s * 1.0, w: .5, d: .5 }); }));
     shelf3D(cx - 3.6, -6.4, Math.PI / 2, 3.2, 2.0, .42, 5, .7);
     add(mFabric, 2.0, .45, .8, cx + 2.4, 0, -3.0, { col: true }); add(mFabric, 2.0, .5, .2, cx + 2.4, .45, -2.7);
     [[cx + 3.3, -9.2], [cx - 3.3, -2.6]].forEach(([x, z]) => cyl(S(null, { color: 0x2a4a22, roughness: 1 }), .22, .7, x, 0, z));
@@ -2670,10 +2667,10 @@ export function buildWorld(scene) {
       th('TH-007', x, y, 0, 0, [mWood, 1.55, .84, .96]); col(X(x) - .78, X(x) + .78, Z(y) - .5, Z(y) + .5, false, .84);
       th('TH-015', x, y - .79, 0, rnd() * 6, [mMetal, .42, .52, .42]);
       // 재봉틀/원단과 공구 매트가 같은 실습대 위에서 관통하지 않도록 분리.
-      if (k === 0 || k === 3) th('TH-017', x + .36, y - .12, .84);
+      if (k === 0) th('TH-017', x + .38, y - .12, .85);
     });
-    th('TH-014', -1.98, 1.9, .84); th('TH-014', 1.32, 4.45, .84); th('TH-008', 1.35, 1.9, .84); th('TH-008', -1.95, 4.45, .84);
-    th('TH-019', -1.55, 4.35, .84); th('TH-021', 1.7, 4.35, .84); th('TH-020', 1.95, 1.75, .84, .4);
+    th('TH-014', -2.05, 1.95, .85); th('TH-014', 1.18, 4.48, .85); th('TH-008', 1.25, 1.95, .85); th('TH-008', -2.02, 4.48, .85);
+    th('TH-019', -1.35, 4.25, .85); th('TH-021', 1.88, 4.22, .85); th('TH-020', 1.98, 1.72, .85, .4);
     // 벽: 서쪽 이중 싱크대 · 동쪽 유리문 재료장 · 동쪽 공구 타공판 · 뒷벽 화이트보드 (창 사이)
     th('TH-010', -4.15, 4.92, 0, -Math.PI / 2, [mStainlessD, 1.58, 1.2, .67]); col(cx - 3.85, cx - 3.15, Z(4.92) - .8, Z(4.92) + .8, false, .86);
     th('TH-016', 4.24, 5.3, 0, Math.PI / 2, [mMetal, 1.22, 1.95, .47]); col(cx + 3.38, cx + 3.85, Z(5.3) - .62, Z(5.3) + .62);
@@ -2972,7 +2969,7 @@ export function buildWorld(scene) {
     plane(F.interior, new THREE.MeshStandardMaterial({ map: T.makeSign('비상전화', '#b01818', '#f0e0d0', 28), roughness: .7 }), .26, .1, x1 - t - .205, 1.7, 46.2, -Math.PI / 2);
     // 관리 / 매표 데스크 + 회전식 출입 게이트 + 신발장
     meshAt(merge([bx(1.9, .9, .6, 0, .45, 0), bx(2.0, .04, .7, 0, .92, -.05)]), mWoodDark, -35.4, 0, 34.6, Math.PI / 2); col(-35.75, -35.05, 33.6, 35.6);
-    crt(-35.3, .94, 34.2); plane(F.interior, mDirtPaper, .3, .22, -35.4, .955, 35.0, 0, -Math.PI / 2); deskChair(-34.75, 34.9, Math.PI / 2);
+    crt(-35.3, .97, 34.2); plane(F.interior, mDirtPaper, .3, .22, -35.4, .955, 35.0, 0, -Math.PI / 2); deskChair(-34.75, 34.9, Math.PI / 2);
     { const tg = merge([bx(.25, .95, .5, 0, .475, 0), new THREE.CylinderGeometry(.06, .06, .12, 10).translate(0, .95, 0), ...[0, 2.09, 4.19].map(a => tube(.018, 0, .95, 0, Math.cos(a) * .45, .95, Math.sin(a) * .45))]);
       meshAt(tg, mSteel, -36.6, 0, 36.6); meshAt(tg, mSteel, -36.6, 0, 39.4, Math.PI); col(-36.75, -36.45, 36.3, 36.9); col(-36.75, -36.45, 39.1, 39.7); }
     meshAt(merge([...Array.from({ length: 4 }, (_, r) => bx(1.2, .02, .35, 0, .05 + r * .32, 0)), bx(.02, 1.2, .35, -.6, .6, 0), bx(.02, 1.2, .35, .6, .6, 0), bx(1.2, 1.2, .02, 0, .6, -.17)]), mWood, x1 - t - .2, 0, 32.2, -Math.PI / 2); col(x1 - t - .4, x1 - t, 31.6, 32.8);
@@ -2983,7 +2980,7 @@ export function buildWorld(scene) {
     add(mWood, .5, .45, 2.2, -35.2, 0, 40.4, { col: true }); addNote('n10', -35.2, .47, 40.0); addMedkit(-35.2, .47, 41.0);
     blood('drag', -41.5, .02, 46.8, 1.6, .3, true);
     // 수영장 장비 보관함 (북서쪽: 킥보드 · 레인 줄 릴 · 구명 튜브 'GUARD')
-    { const sx = -48.3, sz = 48.6; shelf3D(sx, sz, Math.PI / 2, 2.2, 1.9, .5, 4, 0); col(sx - .3, sx + .3, sz - 1.1, sz + 1.1);
+    { const sx = -48.3, sz = 48.6; shelf3D(sx, sz, Math.PI / 2, 2.2, 1.9, .5, 4, 0);
       for (let r = 0; r < 3; r++) for (let k = 0; k < 4; k++) add(S(null, { color: [0x2a60c0, 0xd8b020, 0xc02828][(k + r) % 3], roughness: .55 }), .05, .38, .28, sx + .05, .08 + r * .47, sz - .8 + k * .52, { ry: Math.PI / 2 + rr(-.2, .2) });
       const tubeM = S(T.makeSign('GUARD', '#c01818', '#f0e8e0', 40), { roughness: .5 }); [[-47.6, 47.3], [-47.4, 49.9]].forEach(([x, z]) => add(tubeM, .9, .16, .22, x, .0, z, { ry: rr(-.4, .4) })); }
 
@@ -2994,7 +2991,7 @@ export function buildWorld(scene) {
     awall(-43.5, -43.2, zh + t, 53, H); awall(-43.5, -43.2, 54.6, z1 - t, H); awall(-43.5, -43.2, 53, 54.6, H, 2.4);   // 창고 | 기계실 칸막이 (가운데 출입구)
     flat(F.interior, mDrain, -41.2, -38.8, 53.8, 54.2, .015, .4);   // 바닥 트렌치
     // 장비창고 (서쪽): 철제 선반 · 레인 줄 릴 · 킥보드 · 작업대 · 공구함 · 청소 카트
-    shelf3D(x0 + t + .3, 54, Math.PI / 2, 3.6, 2.2, .55, 4, 0); col(x0 + t, x0 + t + .6, 52.2, 55.8);
+    shelf3D(x0 + t + .3, 54, Math.PI / 2, 3.6, 2.2, .55, 4, 0);
     { const fg = new THREE.SphereGeometry(.09, 8, 6), ms = [], cs = [];
       for (let r = 0; r < 3; r++) for (let k = 0; k < 2; k++) { const cx2 = x0 + t + .32, cz = 52.9 + k * 1.9, cy = .38 + r * .54;
         for (let a = 0; a < 18; a++) { const an = a / 18 * 6.28; ms.push(MX(cx2, cy + Math.sin(an) * .2, cz + Math.cos(an) * .5)); cs.push([0xc02020, 0xe8e8e0, 0x2448a0][(a + r) % 3]); } }
@@ -3008,7 +3005,7 @@ export function buildWorld(scene) {
     for (let k = 0; k < 3; k++) cyl(S(null, { color: 0xe8e8e0, roughness: .4 }), .12, .32, -45.6 + k * .3, 0, 51.0, 12);
     meshAt(merge([tube(.02, -.3, 0, 0, -.2, 1.8, .2), tube(.02, .3, 0, 0, .2, 1.8, .2), ...[.4, .8, 1.2, 1.6].map(y => tube(.015, -.28 + y * .045, y, y * .11, .28 - y * .045, y, y * .11))]), mSteel, -43.9, 0, 55.4, -Math.PI / 2);
     // 기계실 (동쪽): 여과 필터 탱크 2기 · 순환 펌프 · 배관/밸브 · 제어 패널 · 약품 보관함
-    [[-40.9, 56.3], [-36.2, 52.6]].forEach(([x, z]) => {
+    [[-41.85, 55.3], [-36.2, 52.6]].forEach(([x, z]) => {
       meshAt(merge([new THREE.CylinderGeometry(.75, .75, 1.6, 20).translate(0, 1.0, 0), new THREE.SphereGeometry(.75, 20, 10, 0, 6.3, 0, Math.PI / 2).scale(1, .55, 1).translate(0, 1.8, 0), new THREE.SphereGeometry(.75, 20, 10, 0, 6.3, Math.PI / 2, Math.PI / 2).scale(1, .45, 1).translate(0, .2, 0)]), mTank, x, 0, z);
       meshAt(merge([0, 1.57, 3.14, 4.71].map(a => tube(.035, Math.cos(a) * .55, 0, Math.sin(a) * .55, Math.cos(a) * .6, .3, Math.sin(a) * .6))), mPipeG, x, 0, z);
       const gg = meshAt(new THREE.CylinderGeometry(.09, .09, .04, 16).rotateX(Math.PI / 2), mWhiteP, x, 1.5, z - .78); gg.rotation.y = 0;

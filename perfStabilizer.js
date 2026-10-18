@@ -114,3 +114,12 @@ export async function prewarmFloors() {
   }
   C.prewarm = { ms: Math.round(performance.now() - t0), progs: renderer.info.programs.length - p0 };
 }
+
+// CCTV captures need their own culling/light selection, then restore the player budget.
+export function withPerfCamera(camera, indoors, render) {
+  if (!C) return render();
+  const previousCamera=C.camera, previousIndoors=C.indoors;
+  C.camera=camera;C.indoors=!!indoors;
+  try {lightStep();cullStep();return render();}
+  finally {C.camera=previousCamera;C.indoors=previousIndoors;lightStep();cullStep();}
+}

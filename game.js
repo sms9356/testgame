@@ -74,8 +74,13 @@ const TEST = params.has('test');
 const TST = { god: false, noGhost: false };
 const TEST_NOLOCK = params.has('nolock'), BRIGHT = params.has('bright');   // bright: 화면 점검용 균일 조명
 // 주인공 (캐릭터 선택)
+const CHAR_KEY = TEST ? 'haegyo_test_char' : 'haegyo_char';
+const ENDINGS_KEY = TEST ? 'haegyo_test_endings' : 'haegyo_endings';
+const DEATHS_KEY = TEST ? 'haegyo_test_deaths' : 'haegyo_deaths';
+const SHOTS_KEY = TEST ? 'haegyo_test_shots' : 'haegyo_shots';
+const AUTO_KEY = TEST ? 'haegyo_test_auto' : 'haegyo_auto';
 let CHAR = 'seoyeon';
-try { CHAR = localStorage.getItem('haegyo_char') || 'seoyeon'; } catch (e) { /* ignore */ }
+try { CHAR = localStorage.getItem(CHAR_KEY) || 'seoyeon'; } catch (e) { /* ignore */ }
 if (!CHARACTERS[CHAR]) CHAR = 'seoyeon';
 const CH = () => CHARACTERS[CHAR], CK = () => (CHAR === 'jihun' ? 'j' : 's');
 const DF = () => DIFF[SET.diff] || DIFF.normal;
@@ -1439,7 +1444,7 @@ async function winGame() {
   FL.final = fin;
   setTimeout(() => {
     state = 'won'; sfx.win(); stopSpeak(); $('hud').classList.remove('show');
-    try { const e = new Set(JSON.parse(localStorage.getItem('haegyo_endings') || '[]')); e.add(end); e.add('final' + fin[0]); localStorage.setItem('haegyo_endings', JSON.stringify([...e])); clearSlot(localStorage, SKEYS); } catch (err) { /* ignore */ }
+    try { const e = new Set(JSON.parse(localStorage.getItem(ENDINGS_KEY) || '[]')); e.add(end); e.add('final' + fin[0]); localStorage.setItem(ENDINGS_KEY, JSON.stringify([...e])); clearSlot(localStorage, SKEYS); } catch (err) { /* ignore */ }
     const vo = end === 'true' && !sosOnly ? 'endTrue' : 'endNormal';
     $('endTag').textContent = end === 'true' ? 'TRUE END' : 'NORMAL END'; $('endTag').className = end;
     $('endTitle').textContent = sosOnly ? '옥상의 구조 신호' : allTags ? '모든 영혼의 구원' : end === 'true' ? '마지막 하교 방송' : '다시 닫힌 문';
@@ -1478,7 +1483,7 @@ function die() {
   sfx.screech(); shake = 1.2;
   const fl = $('flash'); fl.style.transition = 'none'; fl.style.opacity = SET.flashReduce ? .25 : .9; requestAnimationFrame(() => { fl.style.transition = 'opacity 1.2s'; fl.style.opacity = 0; });
   $('prompt').style.display = 'none';
-  deaths++; try { localStorage.setItem('haegyo_deaths', deaths); } catch (e) { /* ignore */ }
+  deaths++; try { localStorage.setItem(DEATHS_KEY, deaths); } catch (e) { /* ignore */ }
   $('deadText').innerHTML = `칠판에 한 줄이 더 늘었다.<br>“다시, 여기서.”<br><br><span class="epi">${DEATH_LOG[Math.min(DEATH_LOG.length, deaths) - 1]}</span>`;
   setTimeout(() => { $('hud').classList.remove('show'); $('dead').classList.add('show'); $('retryBtn').disabled = !hasSave(); document.exitPointerLock?.(); setTimeout(() => line('endBad'), 700); }, 1900);
 }
@@ -1572,7 +1577,7 @@ function lock() {
 
 /* ---------- 저장 / 불러오기 ---------- */
 // 저장 · 불러오기는 saveSystem.js (스키마 버전 · 고유 ID · 백업 슬롯 · 구버전 변환)
-let deaths = 0; try { deaths = +localStorage.getItem('haegyo_deaths') || 0; } catch (e) { /* ignore */ }
+let deaths = 0; try { deaths = +localStorage.getItem(DEATHS_KEY) || 0; } catch (e) { /* ignore */ }
 let SKEYS = storageKeys(TEST), SCTX = { itemUids: [], propUids: [] };   // 월드 생성 뒤 initSaveIds() 에서 채운다
 const hasSave = () => { try { return hasSlot(localStorage, SKEYS); } catch (e) { return false; } };
 function initSaveIds() {
@@ -1620,7 +1625,7 @@ function load(preferBackup) {
   beginStorySession(); psychologicalDirector.quiet(25);
   const fixes = repairProgress(d, TOTAL);
   // 1) 주인공 — 세이브의 캐릭터로 맞춘다 (외형 · 능력 · 대사)
-  if (CHARACTERS[d.meta.char]) { CHAR = d.meta.char; try { localStorage.setItem('haegyo_char', CHAR); } catch (e) { /* ignore */ } }
+  if (CHARACTERS[d.meta.char]) { CHAR = d.meta.char; try { localStorage.setItem(CHAR_KEY, CHAR); } catch (e) { /* ignore */ } }
   applyChar();
   // 2) 플레이어 · 진행
   Object.assign(P, d.player);if(restoreOutsideElevatorBay(P,floors[P.floor]?.elevatorBay)){P.sh=P.shV=P.jy=P.jyV=P.vy=0;} P.hiding = null; $('hide').classList.remove('show');$('peekEye').classList.remove('on');
@@ -2047,7 +2052,7 @@ function refreshTitle() {
   $('mContinue').style.display = d ? 'block' : 'none';
   if (d && d.meta) { const c = CHARACTERS[d.meta.char]; $('mContInfo').textContent = `${c ? c.name : ''} · 제${d.meta.ch}장 · ${d.meta.where || ''} · ⏱ ${fmtPT(d.meta.time || 0, true)} · ${fmtAgo(d.meta.savedAt)}`; }
   $('mCharName').textContent = CH().name;
-  let ends = []; try { ends = JSON.parse(localStorage.getItem('haegyo_endings') || '[]'); } catch (e) { /* ignore */ }
+  let ends = []; try { ends = JSON.parse(localStorage.getItem(ENDINGS_KEY) || '[]'); } catch (e) { /* ignore */ }
   const ST = statRead(), tot = ST.total ? `총 플레이 ${fmtPT(ST.total, true)}  ·  ` : '';
   $('tEnd').textContent = (ends.length ? `달성한 엔딩: ${ends.filter(e => e === 'true' || e === 'normal').map(e => e === 'true' ? 'TRUE' : 'NORMAL').join(' · ')}  ·  ` : '') + tot;
   const btns = [...$('tMenu').querySelectorAll('button')].filter(b => b.style.display !== 'none'); btns.forEach((b, i) => b.classList.toggle('sel', i === 0));
@@ -2138,7 +2143,7 @@ function renderCharsel() {
   });
 }
 $('csOk').onclick = () => {
-  CHAR = csPick; try { localStorage.setItem('haegyo_char', CHAR); } catch (e) { /* ignore */ }
+  CHAR = csPick; try { localStorage.setItem(CHAR_KEY, CHAR); } catch (e) { /* ignore */ }
   applyChar();
   if (csMode === 'new') { $('charsel').classList.remove('show'); newGame(); }
   else { $('charsel').classList.remove('show'); $('title').classList.add('show'); refreshTitle(); toast('주인공 선택', `${CH().name}(으)로 플레이합니다`, 'info'); }
@@ -2170,11 +2175,11 @@ addEventListener('keydown', e => {
 });
 $('saveBtn').addEventListener('click', () => save());
 $('titleBtn').addEventListener('click', () => location.reload());
-$('bakBtn').addEventListener('click', () => { try { sessionStorage.setItem('haegyo_auto', 'backup'); } catch (e) { /* ignore */ } location.reload(); });
-$('loadBtn2').addEventListener('click', () => { try { sessionStorage.setItem('haegyo_auto', 'continue'); } catch (e) { /* ignore */ } location.reload(); });
+$('bakBtn').addEventListener('click', () => { try { sessionStorage.setItem(AUTO_KEY, 'backup'); } catch (e) { /* ignore */ } location.reload(); });
+$('loadBtn2').addEventListener('click', () => { try { sessionStorage.setItem(AUTO_KEY, 'continue'); } catch (e) { /* ignore */ } location.reload(); });
 $('resumeBtn').addEventListener('click', () => { lock(); $('pause').classList.remove('show'); state = 'playing'; });
-$('retryBtn').addEventListener('click', () => { try { sessionStorage.setItem('haegyo_auto', 'continue'); } catch (e) { /* ignore */ } location.reload(); });
-$('restartBtn').addEventListener('click', () => { try { clearSlot(localStorage, SKEYS); sessionStorage.setItem('haegyo_auto', 'new'); } catch (e) { /* ignore */ } location.reload(); });
+$('retryBtn').addEventListener('click', () => { try { sessionStorage.setItem(AUTO_KEY, 'continue'); } catch (e) { /* ignore */ } location.reload(); });
+$('restartBtn').addEventListener('click', () => { try { clearSlot(localStorage, SKEYS); sessionStorage.setItem(AUTO_KEY, 'new'); } catch (e) { /* ignore */ } location.reload(); });
 $('deadTitleBtn').addEventListener('click', () => location.reload());
 $('againBtn').addEventListener('click', () => location.reload());
 
@@ -2481,7 +2486,7 @@ function openGallery(tab = galTab) {
     c.faces.forEach((f, i) => fig(`assets/ui/${f}.webp`, `assets/ui/${f}.webp`, `${c.name} — ${c.faceNames[i]}`));
   });
   else {
-    let ends = []; try { ends = JSON.parse(localStorage.getItem('haegyo_endings') || '[]'); } catch (e) { /* ignore */ }
+    let ends = []; try { ends = JSON.parse(localStorage.getItem(ENDINGS_KEY) || '[]'); } catch (e) { /* ignore */ }
     statFlush(); const ST = statRead(), gs = document.createElement('div'); gs.className = 'galStats';
     gs.innerHTML = `<span>총 플레이 시간</span><b>${fmtPT(ST.total, true)}</b><span>엔딩 본 횟수</span><b>${ST.clears || 0}회</b><span>TRUE END 최단</span><b>${ST.best && ST.best.true ? fmtPT(ST.best.true, true, true) : '—'}</b><span>NORMAL END 최단</span><b>${ST.best && ST.best.normal ? fmtPT(ST.best.normal, true, true) : '—'}</b><span>마지막 엔딩</span><b>${ST.last ? `${ST.last.end === 'true' ? 'TRUE' : 'NORMAL'} · END ${ST.last.fin} · ${fmtPT(ST.last.t, true, true)}` : '—'}</b>`;
     gw.appendChild(gs);
@@ -5358,7 +5363,7 @@ function zoomTick(dt) {
 }
 // ── 카메라 앨범 ──
 const SHOT = { req: false, list: [] };
-try { SHOT.list = JSON.parse(localStorage.getItem('haegyo_shots') || '[]').slice(-12); } catch (e) { SHOT.list = []; }
+try { SHOT.list = JSON.parse(localStorage.getItem(SHOTS_KEY) || '[]').slice(-12); } catch (e) { SHOT.list = []; }
 function shotGrab() {   // fx.render 바로 뒤 (같은 프레임이라 WebGL 화면을 그대로 읽을 수 있다)
   SHOT.req = false;
   try {
@@ -5367,7 +5372,7 @@ function shotGrab() {   // fx.render 바로 뒤 (같은 프레임이라 WebGL �
     g.fillStyle = 'rgba(255,60,60,.9)'; g.font = 'bold 11px monospace'; g.fillText('● REC  ' + clockText(), 8, 15);
     g.fillStyle = 'rgba(255,255,255,.7)'; g.fillText((FLOOR_LABEL[P.floor] || '') + (roomAt(P.floor, P.x, P.z)?.name ? ' · ' + roomAt(P.floor, P.x, P.z).name : ''), 8, h - 8);
     SHOT.list.push({ src: c.toDataURL('image/jpeg', .72), t: clockText(), where: whereText() }); SHOT.list = SHOT.list.slice(-12);
-    try { localStorage.setItem('haegyo_shots', JSON.stringify(SHOT.list)); } catch (e) { SHOT.list.splice(0, 4); }
+    try { localStorage.setItem(SHOTS_KEY, JSON.stringify(SHOT.list)); } catch (e) { SHOT.list.splice(0, 4); }
     toast('📷 사진 저장', '휴대폰 › 사진 › 내가 찍은 사진', 'opt');
   } catch (e) { console.warn('[shot]', e && e.message); }
 }
@@ -6125,7 +6130,7 @@ if (TEST) {
 }
 // 시작: 타이틀 표시 (재시도 · 처음부터는 바로 이어서)
 applyChar(); refreshTitle();
-{ let auto = null; try { auto = sessionStorage.getItem('haegyo_auto'); sessionStorage.removeItem('haegyo_auto'); } catch (e) { /* ignore */ }
+{ let auto = null; try { auto = sessionStorage.getItem(AUTO_KEY); sessionStorage.removeItem(AUTO_KEY); } catch (e) { /* ignore */ }
   if ((auto === 'continue' || auto === 'backup') && hasSave()) { closeMenus(); continueGame(auto === 'backup'); } else if (auto === 'new') { closeMenus(); newGame(); } }
 
 if (DEBUG) {

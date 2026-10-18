@@ -37,7 +37,7 @@ import './school37RoomsPatch.js';    // 본관 · 별관 37개 특별실 가구 
 import './new37UniquePatch.js';     // 37개 구역 신규 특수 설비 · 벽면 레일 (사용자 제공) → window.new37UniquePatch
 import './megaExpansionPatch.js';   // 메가 익스팬션 · 최적화 · 4막 사건 기록 · 수집품 · 미니게임 (사용자 제공) → window.megaSchoolPatch
 import './poolMachineryPatch.js';     // 수영장 · 남/녀 탈의실·샤워실 · 기계실 철문 (사용자 제공) → window.poolAndMachineryPatch
-import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx } from './audio.js'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js'; import { installPerf, perfTick, prewarmFloors } from './perfStabilizer.js';
+import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx } from './audio.js'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js'; import { installPerf, perfTick as perfStabTick, prewarmFloors } from './perfStabilizer.js';
 import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js';
 import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, SIDEQUESTS, HEADQUEST, COLLECT, LOCKER_SCARES, CHALK_QA, OUIJA_QS, PARA, TOILET_FX, MIRROR_WORDS } from './story.js';
 import { isSpeechBusy } from './voice.js';
@@ -1950,7 +1950,7 @@ const easeOut = t => 1 - Math.pow(1 - t, 3);
 
 function updateLighting(dt) {
   const F = floors[P.floor];
-  const indoors = P.inElev || P.floor >= 4 || (P.floor > 0 && P.floor < 3) || (P.floor === 0 && inBldg(P.x, P.z)); perfTick(dt, indoors);
+  const indoors = P.inElev || P.floor >= 4 || (P.floor > 0 && P.floor < 3) || (P.floor === 0 && inBldg(P.x, P.z)); perfStabTick(dt, indoors);
   const k = Math.min(1, dt * 3);
   updateDay(dt);
   const dk = DAY.k;

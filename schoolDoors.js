@@ -134,11 +134,7 @@ export async function installSchoolDoors(world) {
   const kit = await loadKit();
   let n = 0;
   for (const d of world.doorList) {
-    if (d.name === '현관문' && kit.entKit && !d.entInstalled) {
-      d.leaves.forEach(l => fitLeaf(kit.entKit, l.piv, true));
-      d.entInstalled = true;
-      continue;
-    }
+    if (d.name === '현관문') { d.entInstalled = true; continue; }
     if (!isSchoolDoorTarget(d) || d.door2) continue;
     let ok = true; d.leaves.forEach(l => { const r = fitLeaf(kit, l.piv); if (r) { l.slide = r; l.a = 0; l.piv.rotation.y = 0; } else ok = false; });
     if (ok) { d.door2 = true; d._slideE = -1; if (d.leafCols) d.leafCols.forEach(c => { c.off = true; c.o = -1; }); n++; }

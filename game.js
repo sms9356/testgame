@@ -16,7 +16,7 @@ import { prepareModelGeometry } from './modelGeometry.js';
 import { modelFootprint, overlaps, removeDuplicateModels } from './placement.js';
 import { turfMaterial } from './campusVisuals.js';
 import { installInfirmaryAssets, updateInfirmaryCabinets } from './infirmaryAssets.js';
-import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js?v=96'; import { updateWindowFakes } from './windowInteriors.js';
+import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js?v=100'; import { updateWindowFakes } from './windowInteriors.js?v=100';
 import { drawMap } from './map.js';
 import { makeDress, makeHair, makeGhostFace, makeGraffiti, makeKeypad, loadPBR, pbr, makeGlow as makeGlowTex, makePaintingStare, makeSign, makeBlood } from './tex.js';
 import { warmUp } from './bake.js?v=98';
@@ -38,7 +38,7 @@ import './school37RoomsPatch.js';    // 본관 · 별관 37개 특별실 가구 
 import './new37UniquePatch.js';     // 37개 구역 신규 특수 설비 · 벽면 레일 (사용자 제공) → window.new37UniquePatch
 import './megaExpansionPatch.js';   // 메가 익스팬션 · 최적화 · 4막 사건 기록 · 수집품 · 미니게임 (사용자 제공) → window.megaSchoolPatch
 import './poolMachineryPatch.js';     // 수영장 · 남/녀 탈의실·샤워실 · 기계실 철문 (사용자 제공) → window.poolAndMachineryPatch
-import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx } from './audio.js'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera } from './perfStabilizer.js';
+import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx } from './audio.js'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=100'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera } from './perfStabilizer.js';
 import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js?v=99';
 import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, SIDEQUESTS, HEADQUEST, COLLECT, LOCKER_SCARES, CHALK_QA, OUIJA_QS, PARA, TOILET_FX, MIRROR_WORDS } from './story.js?v=99';
 import { isSpeechBusy } from './voice.js';
@@ -6054,13 +6054,72 @@ function megaNotify(m) { const t = String(m).split('\n'); say(t[0].replace(/^\S+
   // 중정은 클래스 기준점 + (0, 0, −22) → 지정 자리로 옮긴다 · 보존서고는 B1 로
   courtC.group.position.set(C.x, 0, C.z); courtC.centerPos.set(C.x, 0, C.z);
   [gymC, courtC].forEach(c => { scene.remove(c.group); O.add(c.group); c.group.traverse(o => { o.userData.dynamic = true; if (o.isMesh) { o.castShadow = o.receiveShadow = true; } }); });
-  // ① 대강당 껍데기: 벽 4면(남쪽 가운데 출입구 3.2m) · 지붕 · 천장 조명 · 충돌
+  // ① 대강당 · 실내체육관 외관 리모델링: 화강암 기단 · 수직 필라스터 기둥 · 아치형 볼트 지붕 · 고창(Clerestory) 14개 · 출입문 캐노피/기둥/양개 강화도어/벽부등
   { const x0 = G.x - G.w / 2, x1 = G.x + G.w / 2, z0 = G.z - G.d / 2, z1 = G.z + G.d / 2, H = 7.5, t = .3, dw = 1.6;
+    const baseM = PM(0x46484a, .85, .05), trimM = PM(0x88847c, .8, .05), darkM = PM(0x24282c, .45, .65), chromeM = PM(0xd2d6dc, .22, .85);
+    const glassM = new THREE.MeshStandardMaterial({ color: 0x7ea4bc, roughness: .15, metalness: .2, transparent: true, opacity: .34, depthWrite: false, side: THREE.DoubleSide });
+    const winDarkM = new THREE.MeshStandardMaterial({ color: 0x18222a, roughness: .25, metalness: .35 });
     const wall = (ax, bx, az, bz) => { pbox(bx - ax, H, bz - az, wallM, (ax + bx) / 2, H / 2, (az + bz) / 2, O); const r = { x1: ax, x2: bx, z1: az, z2: bz }; F0.col.push(r); F0.walls.push(r); };
     wall(x0 - t, x0, z0 - t, z1 + t); wall(x1, x1 + t, z0 - t, z1 + t); wall(x0, x1, z0 - t, z0);
     wall(x0, G.x - dw, z1, z1 + t); wall(G.x + dw, x1, z1, z1 + t); pbox(2 * dw, H - 3.2, t, wallM, G.x, 3.2 + (H - 3.2) / 2, z1 + t / 2, O);
-    pbox(G.w + .8, .35, G.d + .8, roofM, G.x, H + .17, G.z, O);
-    pmesh(new THREE.PlaneGeometry(4.2, .9), new THREE.MeshBasicMaterial({ map: makeSign('대강당 · 실내체육관', '#2a2018', '#e0d4b8', 30) }), G.x, 4.0, z1 + t + .02, O, { cast: false });
+    // 외벽 하부 화강암 기단석 (높이 1.15m) & 상단 코니스 몰딩 · 파라펫
+    pbox(G.x - dw - (x0 - t) + .12, 1.15, .14, baseM, (x0 - t + G.x - dw) / 2, .575, z1 + t + .07, O);
+    pbox((x1 + t) - (G.x + dw) + .12, 1.15, .14, baseM, (G.x + dw + x1 + t) / 2, .575, z1 + t + .07, O);
+    pbox(G.w + 2 * t + .24, 1.15, .14, baseM, G.x, .575, z0 - t - .07, O);
+    [-1, 1].forEach(sd => pbox(.14, 1.15, G.d + 2 * t + .24, G.x + sd * (G.w / 2 + t + .07), .575, G.z, O));
+    pbox(G.w + 1.1, .32, G.d + 1.1, trimM, G.x, H + .16, G.z, O);
+    pbox(G.w + .9, .55, .36, trimM, G.x, H + .58, z1 + t, O);
+    pbox(9.6, .95, .42, trimM, G.x, H + 1.05, z1 + t, O);
+    // 아치형 볼트 지붕 (Barrel Vault Roof) + 실내 천장 철골 트러스 빔
+    { const r = (G.w + .6) / 2, rg = new THREE.CylinderGeometry(r, r, G.d + .6, 28, 1, false, Math.PI / 2, Math.PI); rg.rotateX(Math.PI / 2); rg.scale(1, 2.4 / r, 1);
+      const rm = new THREE.Mesh(rg, PM(0x36444e, .65, .35)); rm.position.set(G.x, H + .3, G.z); O.add(rm);
+      for (let tz = z0 + 4; tz <= z1 - 4; tz += 4.5) { pbox(G.w - .4, .18, .18, darkM, G.x, H - .12, tz, O); [-1, 1].forEach(sd => pbox(.16, 1.6, .16, darkM, G.x + sd * (G.w / 2 - .25), H - .8, tz, O)); } }
+    // 정면 · 측면 수직 콘크리트 필라스터 기둥 & 고창(Clerestory Windows)
+    [-8.8, -5.8, -2.6, 2.6, 5.8, 8.8].forEach(dx => pbox(.36, H + .3, .22, trimM, G.x + dx, (H + .3) / 2, z1 + t + .11, O));
+    for (let dz = -12; dz <= 12; dz += 4) [-1, 1].forEach(sd => pbox(.22, H + .3, .36, trimM, G.x + sd * (G.w / 2 + t + .11), (H + .3) / 2, G.z + dz, O));
+    const gymWin = (wx, wy, wz, ww, wh, wry) => {
+      const wg = new THREE.Group(); wg.position.set(wx, wy, wz); wg.rotation.y = wry; O.add(wg);
+      pbox(ww + .18, wh + .18, .12, trimM, 0, 0, 0, wg);
+      pbox(ww, wh, .06, winDarkM, 0, 0, .03, wg);
+      pmesh(new THREE.PlaneGeometry(ww - .08, wh - .08), glassM, 0, 0, .068, wg);
+      [-ww / 6, ww / 6].forEach(mx => pbox(.045, wh, .08, darkM, mx, 0, .04, wg));
+      pbox(ww, .045, .08, darkM, 0, 0, .04, wg);
+      pbox(ww + .28, .10, .18, trimM, 0, -wh / 2 - .06, .04, wg);
+    };
+    [-7.3, -4.2, 4.2, 7.3].forEach(dx => { gymWin(G.x + dx, 5.15, z1 + t + .04, 2.2, 1.65, 0); gymWin(G.x + dx, 2.35, z1 + t + .04, 2.0, 1.25, 0); });
+    [-10, -6, -2, 2, 6, 10].forEach(dz => [-1, 1].forEach(sd => gymWin(G.x + sd * (G.w / 2 + t + .04), 5.15, G.z + dz, 2.6, 1.65, sd * Math.PI / 2)));
+    // 정면 출입구 포치: 진입 계단 · 원형 기둥 2개 · 돌출 캐노피 차양 · 양개 강화유리 도어(열린 상태) · 입체 현판 · 야외 벽부등
+    pbox(4.8, .14, 1.8, baseM, G.x, .07, z1 + t + .9, O);
+    pbox(5.2, .24, 1.75, trimM, G.x, 3.48, z1 + t + .88, O);
+    pbox(5.4, .12, 1.85, darkM, G.x, 3.64, z1 + t + .88, O);
+    [-2.2, 2.2].forEach(dx => {
+      pcyl(.18, .18, 3.45, trimM, G.x + dx, 1.725, z1 + t + 1.55, O);
+      pbox(.46, .22, .46, baseM, G.x + dx, .11, z1 + t + 1.55, O);
+    });
+    // 출입구 문틀 및 양쪽으로 열려 있는 강화유리 양개문 (안으로 자연스럽게 출입 가능)
+    pbox(.14, 3.2, .36, darkM, G.x - dw + .07, 1.6, z1 + t / 2, O);
+    pbox(.14, 3.2, .36, darkM, G.x + dw - .07, 1.6, z1 + t / 2, O);
+    pbox(2 * dw, .14, .36, darkM, G.x, 3.13, z1 + t / 2, O);
+    pbox(2 * dw - .1, .08, .28, darkM, G.x, 2.48, z1 + t / 2, O);
+    pmesh(new THREE.PlaneGeometry(2 * dw - .28, .58), glassM, G.x, 2.80, z1 + t / 2, O);
+    [-1, 1].forEach(sd => {
+      const piv = new THREE.Group(); piv.position.set(G.x + sd * (dw - .12), 0, z1 + t - .04); piv.rotation.y = sd * 1.28; O.add(piv);
+      const lw = dw - .14, lh = 2.42, lx = -sd * lw / 2;
+      pbox(lw, .12, .05, darkM, lx, .06, 0, piv); pbox(lw, .10, .05, darkM, lx, lh - .05, 0, piv);
+      pbox(.08, lh, .05, darkM, lx - sd * (lw / 2 - .04), lh / 2, 0, piv); pbox(.08, lh, .05, darkM, lx + sd * (lw / 2 - .04), lh / 2, 0, piv);
+      pbox(lw, .06, .055, darkM, lx, 1.05, 0, piv);
+      pbox(lw * .72, .04, .09, chromeM, lx, 1.05, .04, piv);
+      pmesh(new THREE.PlaneGeometry(lw - .16, lh - .22), glassM, lx, lh / 2, 0, piv);
+    });
+    // 입체 현판 & 입구 양옆 벽부등 Glow
+    pbox(4.4, 1.06, .08, darkM, G.x, 4.35, z1 + t + .04, O);
+    pmesh(new THREE.PlaneGeometry(4.2, .9), new THREE.MeshBasicMaterial({ map: makeSign('대강당 · 실내체육관', '#1e242b', '#ece2c8', 30) }), G.x, 4.35, z1 + t + .09, O, { cast: false });
+    [-2.35, 2.35].forEach(dx => {
+      pbox(.18, .28, .14, darkM, G.x + dx, 2.65, z1 + t + .07, O);
+      pbox(.12, .20, .08, new THREE.MeshStandardMaterial({ color: 0xfff2d0, emissive: 0xffc878, emissiveIntensity: 1.4 }), G.x + dx, 2.65, z1 + t + .12, O);
+      const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: makeGlowTex('255,205,130'), blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, opacity: .65 }));
+      sp.scale.setScalar(1.3); sp.position.set(G.x + dx, 2.65, z1 + t + .22); O.add(sp);
+    });
     for (let k = 0; k < 6; k++) { const lx = G.x + (k % 2 ? 4.5 : -4.5), lz = G.z - 9 + ((k / 2) | 0) * 9;
       pbox(1.4, .08, .5, new THREE.MeshStandardMaterial({ color: 0xe8f0ff, emissive: 0xc8d8f0, emissiveIntensity: .9 }), lx, H - .2, lz, O, { cast: false });
       const gl = new THREE.Sprite(new THREE.SpriteMaterial({ map: makeGlowTex('200,215,240'), blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, opacity: .25 })); gl.scale.setScalar(5); gl.position.set(lx, H - .8, lz); gl.userData.dynamic = true; O.add(gl); }
@@ -6157,6 +6216,16 @@ function extrasTick(dt) {
   if (ghost.slowT > 0) ghost.slowT -= dt;
   // Incidental phenomena are scheduled by one psychological director above.
 }
+
+  // 본관 중앙현관 외부 투시용 로비 구조물 (바깥 계단에서 현관 유리문 너머로 빈 상자 대신 실제 로비 바닥·천장·안쪽 중문·게시판·신발장이 보이도록 F0.shell 에 추가)
+  { const S0 = floors[0].shell, fMat = PM(0x6e7472, .75), wMat = PM(0xc8c2b4, .88), woodM = PM(0x5c4028, .75), darkM = PM(0x282e34, .45, .6);
+    pbox(7.8, .04, 7.8, fMat, 0, .02, 5.7, S0, { cast: false });
+    pbox(7.8, .08, 7.8, wMat, 0, 3.56, 5.7, S0, { cast: false });
+    pbox(1.6, .06, .35, new THREE.MeshStandardMaterial({ color: 0xecf6ff, emissive: 0xcfe8ff, emissiveIntensity: .85 }), 0, 3.50, 6.2, S0, { cast: false });
+    pbox(2.4, 2.45, .12, darkM, 0, 1.225, 1.88, S0, { cast: false });
+    pmesh(new THREE.PlaneGeometry(2.6, .55), new THREE.MeshBasicMaterial({ map: makeSign('성 실 · 창 의 · 배 려', '#1e342b', '#e6dec8', 26) }), 0, 2.88, 1.96, S0, { cast: false });
+    [-3.55, 3.55].forEach(lx => pbox(.45, 1.85, 4.2, woodM, lx, .925, 5.8, S0, { cast: false }));
+  }
 buildCamClues(); buildBreakers(); buildRestrooms(); spawnPicks();
 sqSync();
 initSaveIds();

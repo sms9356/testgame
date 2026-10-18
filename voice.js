@@ -44,7 +44,7 @@ function applySubSize() { document.documentElement.style.setProperty('--subScale
 applySubSize();
 
 export async function loadManifest() {
-  try { manifest = await (await fetch('voice/manifest.json')).json(); } catch (e) { manifest = {}; }
+  try { manifest = await (await fetch('voice/manifest.json?v=99')).json(); } catch (e) { manifest = {}; }
 }
 export const lineInfo = id => manifest[id];
 export const allLines = () => manifest;   // 음성 생성기(tools/gen_voice_edge.py --dump)용

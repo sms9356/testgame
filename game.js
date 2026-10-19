@@ -11,7 +11,7 @@ import { applyGuardSeatedPose } from './guardSeatedPose.js';
 import { createCampusCctvLive, collectCampusCctvFeeds } from './campusCctvLive.js';
 import { applyExteriorFloorVisibility, shouldStreamGuardCctv } from './exteriorRenderBudget.js';
 import { GUARD_LAYOUT } from './guardRoomLayout.js?v=107';
-import { installGuardRoom } from './guardRoom.js?v=107';
+import { installGuardRoom } from './guardRoom.js?v=108';
 import { prepareModelGeometry } from './modelGeometry.js';
 import { modelFootprint, overlaps, removeDuplicateModels } from './placement.js';
 import { turfMaterial } from './campusVisuals.js';

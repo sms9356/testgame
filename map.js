@@ -12,41 +12,78 @@ export function drawMap(ctx, W, H, o) {
   const fillRect = (x1, z1, x2, z2, c) => { ctx.fillStyle = c; ctx.fillRect(X(x1), Y(z1), (x2 - x1) * S, (z2 - z1) * S); };
   const strokeRect = (x1, z1, x2, z2, c, w = 1) => { ctx.strokeStyle = c; ctx.lineWidth = w; ctx.strokeRect(X(x1), Y(z1), (x2 - x1) * S, (z2 - z1) * S); };
 
-  if (floor === 0) { // 외부
+  // 3D 입체 건물 볼륨 렌더러 (평면 fillRect 는 기존 테스트 호환을 위해 먼저 그리고, 그 위에 3D 아이소메트릭 입체 측벽·지붕·고도 음영을 렌더링한다)
+  const box3D = (x1, z1, x2, z2, h, baseCol, roofCol, sideCol) => {
+    fillRect(x1, z1, x2, z2, baseCol);
+    const ox = -h * .28, oy = -h * .38;
+    // 3D 동쪽/남쪽 입체 측벽 폴리곤
+    ctx.fillStyle = sideCol;
+    ctx.beginPath();
+    ctx.moveTo(X(x1), Y(z2)); ctx.lineTo(X(x2), Y(z2)); ctx.lineTo(X(x2), Y(z1));
+    ctx.lineTo(X(x2 + ox), Y(z1 + oy)); ctx.lineTo(X(x2 + ox), Y(z2 + oy)); ctx.lineTo(X(x1 + ox), Y(z2 + oy));
+    ctx.closePath(); ctx.fill();
+    // 3D 상단 지붕 면
+    fillRect(x1 + ox, z1 + oy, x2 + ox, z2 + oy, roofCol);
+    strokeRect(x1 + ox, z1 + oy, x2 + ox, z2 + oy, 'rgba(235,240,245,.55)', 1.1);
+  };
+
+  if (floor === 0) { // 외부 (15,000평 3D 캠퍼스 마스터플랜 — ①학술·건물 섹션 / ②운동·스포츠 섹션 / ③주차·교통 섹션)
+    fillRect(-114, -108, 114, 72, 'rgba(22,34,22,.65)');
     fillRect(-50, NORTH_Z, 50, 70, 'rgba(30,45,28,.55)');
+    // 3대 섹션 구획 하이라이트 존
+    strokeRect(-104, -100, 104, -12, 'rgba(110,185,235,.28)', 1.5); // ① 학술·생활 건물 섹션
+    strokeRect(-104, -22, 48, 60, 'rgba(110,220,150,.25)', 1.5);     // ② 종합 운동·스포츠 섹션
+    strokeRect(-104, 56, 48, 70, 'rgba(235,195,95,.32)', 1.5);       // ③ 제1·제2 대형 주차장 섹션
+
     fillRect(-27, 15, 27, 59, 'rgba(110,88,60,.45)');
     { const r = 11.4 * S; ctx.strokeStyle = 'rgba(150,60,50,.75)'; ctx.lineWidth = 3.6 * S; ctx.beginPath(); ctx.moveTo(X(-11), Y(40) - r); ctx.lineTo(X(11), Y(40) - r); ctx.arc(X(11), Y(40), r, -Math.PI / 2, Math.PI / 2); ctx.lineTo(X(-11), Y(40) + r); ctx.arc(X(-11), Y(40), r, Math.PI / 2, Math.PI * 1.5); ctx.stroke(); }   // 트랙
     fillRect(-14, 17.1, -8, 20.1, '#6a6a60'); fillRect(5, 13.4, 22, 16.6, '#5a5a54'); fillRect(29, 38.5, 43, 53.5, 'rgba(120,60,50,.5)');   // 조회대 · 스탠드 · 농구장
     fillRect(-3, 2, 3, 69, 'rgba(120,120,110,.4)');
-    fillRect(28, 12.5, 48, 34.5, '#3a2a2a'); fillRect(-48, 12.5, -30, 25, '#3a3030'); fillRect(-48, 31, -34, 51, '#2a3a46'); fillRect(GUARD_SPUR.x1, GUARD_SPUR.z1, GUARD_SPUR.x2, GUARD_SPUR.z2, '#55554b'); fillRect(GUARD_LAYOUT.originX, GUARD_LAYOUT.originZ - GUARD_LAYOUT.depth, GUARD_LAYOUT.originX + GUARD_LAYOUT.width, GUARD_LAYOUT.originZ, '#4a4a40');   // 체육관 · 급식실 · 수영장 · 경비실 (외관 실제 위치)
+    // 기존 건물 평면 + 3D 입체 볼륨
+    fillRect(28, 12.5, 48, 34.5, '#3a2a2a'); box3D(28, 12.5, 48, 34.5, 8.0, '#3a2a2a', '#5c4238', '#281c18');
+    fillRect(-48, 12.5, -30, 25, '#3a3030'); box3D(-48, 12.5, -30, 25, 4.8, '#3a3030', '#584842', '#261e1c');
+    fillRect(-48, 31, -34, 51, '#2a3a46');   box3D(-48, 31, -34, 51, 6.4, '#2a3a46', '#3c586c', '#1a2630');
+    fillRect(GUARD_SPUR.x1, GUARD_SPUR.z1, GUARD_SPUR.x2, GUARD_SPUR.z2, '#55554b');
+    fillRect(GUARD_LAYOUT.originX, GUARD_LAYOUT.originZ - GUARD_LAYOUT.depth, GUARD_LAYOUT.originX + GUARD_LAYOUT.width, GUARD_LAYOUT.originZ, '#4a4a40');
     fillRect(-20, -25 - ANNEX_DZ, 20, -13.5 - ANNEX_DZ, '#3a4248');
     strokeRect(-20, -25 - ANNEX_DZ, 20, -13.5 - ANNEX_DZ, '#8a8a80', 1.5);
+    box3D(-20, -25 - ANNEX_DZ, 28, -13.5 - ANNEX_DZ, 12.0, '#3a4248', '#52626e', '#242c32'); // 별관 3층 3D 볼륨
     [MEGA.gym, MEGA.court].forEach((r, i) => {
       fillRect(r.x - r.w / 2, r.z - r.d / 2, r.x + r.w / 2, r.z + r.d / 2, i ? '#354a36' : '#4a3a28');
       strokeRect(r.x - r.w / 2, r.z - r.d / 2, r.x + r.w / 2, r.z + r.d / 2, '#8a8a80', 1.5);
+      if (!i) box3D(r.x - r.w / 2, r.z - r.d / 2, r.x + r.w / 2, r.z + r.d / 2, 7.5, '#4a3a28', '#68523a', '#2c2218');
     });
     strokeRect(-50, NORTH_Z, 50, 70, '#6a6a60', 1.5);
     fillRect(-4, GATE_Z - .6, 4, GATE_Z + .6, '#8a4a30');
-    // 캠퍼스 타일 인도 네트워크 & 신규 확장 구역 (생태온실 · 기상관측소 · 학우매점 · 야외음악당 · 교직원주차장 · 청운정)
-    fillRect(-28.8, -33, -26.0, 55.4, 'rgba(135,130,115,.36)'); fillRect(24.2, -35, 27.0, 65.5, 'rgba(135,130,115,.36)');
-    fillRect(-26.0, -16.8, 24.2, -13.6, 'rgba(135,130,115,.36)'); fillRect(-3.2, -35.2, 24.2, -32.4, 'rgba(135,130,115,.36)');
-    fillRect(-47.4, -17.7, -41.0, -12.7, '#2a4a38'); strokeRect(-47.4, -17.7, -41.0, -12.7, '#7aa888', 1); // 생태온실
-    fillRect(26.7, -20.8, 32.3, -17.6, '#4a362c'); strokeRect(26.7, -20.8, 32.3, -17.6, '#a89078', 1);     // 학우매점
-    fillRect(31.2, -36.2, 38.8, -28.8, '#38424c'); strokeRect(31.2, -36.2, 38.8, -28.8, '#8aa0b0', 1); // 야외음악당
-    fillRect(15.5, 60.5, 36.5, 67.2, 'rgba(70,74,80,.55)');                                            // 교직원주차장
+    // 캠퍼스 타일 인도 네트워크 & 3대 섹션 건물 3D 입체 볼륨
+    fillRect(-39.6, -33, -37.0, 13.8, 'rgba(135,130,115,.36)'); fillRect(37.0, -35, 39.6, 13.8, 'rgba(135,130,115,.36)');
+    fillRect(-37.0, -16.8, 37.0, -13.6, 'rgba(135,130,115,.36)'); fillRect(-76.0, -42, -72.8, 64, 'rgba(135,130,115,.36)');
+    fillRect(66.0, -45, 69.2, 46, 'rgba(135,130,115,.36)');
+    box3D(58, -53, 66, -47, 3.6, '#2a4a38', '#467a5c', '#1a3024');   // 생태온실 (동북 학술정원)
+    box3D(59, 15, 68, 21, 3.8, '#4a362c', '#7a5838', '#2c1e16');     // 학교매점 (동남 학술·복지광장)
+    box3D(31.2, -52, 38.8, -45, 4.2, '#38424c', '#586878', '#222830'); // 야외음악당
+    box3D(-97, -49, -75, -35, 9.6, '#4a322c', '#6e4a40', '#2c1c18'); // 청운학사(기숙사) 3D 볼륨
+    fillRect(-25, -95, 7, -77, '#1c4e58'); strokeRect(-25, -95, 7, -77, '#68b8c8', 1.2); // 청운호 수변공원
+    box3D(74, -42, 94, -26, 9.5, '#2c3e54', '#4c6a8c', '#1a2636');   // 과학천문관 3D 볼륨
+    box3D(73, 30, 95, 48, 9.4, '#4a3628', '#6c503c', '#2c2018');     // 중앙학술정보관(대도서관) 3D 볼륨
+    fillRect(-99, -22, -77, -6, '#224868'); strokeRect(-99, -22, -77, -6, '#78b0d8', 1.2); // 테니스·양궁 코트
+    fillRect(-100, 4, -76, 30, '#244a38'); strokeRect(-100, 4, -76, 30, '#68b088', 1.2);   // 야구 스타디움
+    box3D(-99, 48, -77, 64, 9.0, '#48342e', '#6a4c42', '#2a1e1a');   // 학생회관·동아리관 3D 볼륨
+    fillRect(14.5, 57.5, 46.5, 68.2, 'rgba(65,70,78,.65)'); strokeRect(14.5, 57.5, 46.5, 68.2, '#b8a050', 1); // 제1주차장(교직원)
+    fillRect(-98.0, 61.5, -54.0, 69.2, 'rgba(65,70,78,.65)'); strokeRect(-98.0, 61.5, -54.0, 69.2, '#b8a050', 1); // 제2주차장(스쿨버스)
     fillRect(-13.8, 61.2, -9.2, 65.8, '#4a3828');                                                      // 청운정(육각정)
-    // 15,000평 메가 캠퍼스 6대 확장 구역 (청운학사 기숙사 · 청운호 수변공원 · 과학천문관 · 중앙학술정보관 · 스포츠단지 · 학생회관)
-    fillRect(-99, -39, -77, -25, '#4a322c'); strokeRect(-99, -39, -77, -25, '#a88878', 1.2);           // 청운학사(기숙사)
-    fillRect(-25, -95, 7, -77, '#1c4e58'); strokeRect(-25, -95, 7, -77, '#68b8c8', 1.2);               // 청운호 수변공원
-    fillRect(74, -40, 94, -24, '#2c3e54'); strokeRect(74, -40, 94, -24, '#88b4d8', 1.2);               // 과학천문관
-    fillRect(73, 30, 95, 48, '#4a3628'); strokeRect(73, 30, 95, 48, '#b89878', 1.2);                   // 중앙학술정보관(대도서관)
-    fillRect(-99, -5, -77, 21, '#244a38'); strokeRect(-99, -5, -77, 21, '#68b088', 1.2);               // 스포츠단지(테니스·양궁장)
-    fillRect(-99, 48, -77, 64, '#48342e'); strokeRect(-99, 48, -77, 64, '#b08878', 1.2);               // 학생회관·동아리관
     if (labels) {
-      ctx.fillStyle = '#b8b4a4'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
-      ctx.fillText('운동장', X(0), Y(36)); ctx.fillText('조회대', X(-11), Y(16.4)); ctx.fillText('스탠드', X(13.5), Y(12.6)); ctx.fillText('농구장', X(36), Y(46)); ctx.fillText('체육관', X(38), Y(23.5)); ctx.fillText('급식실', X(-39), Y(19)); ctx.fillText('수영장', X(-41), Y(41)); ctx.fillText('경비실', X(GUARD_LAYOUT.cx), Y(GUARD_LAYOUT.cz)); ctx.fillText('별관', X(0), Y(-19.25 - ANNEX_DZ)); ctx.fillText('대강당', X(MEGA.gym.x), Y(MEGA.gym.z)); ctx.fillText('중정', X(MEGA.court.x), Y(MEGA.court.z)); ctx.fillText('서문', X(-47), Y(32)); ctx.fillText('정문', X(0), Y(GATE_Z) - 8);
-      ctx.fillText('생태온실', X(-44.2), Y(-15.2)); ctx.fillText('학우매점', X(29.5), Y(-19.2)); ctx.fillText('야외음악당', X(35.0), Y(-32.5)); ctx.fillText('주차장', X(26.0), Y(64.0)); ctx.fillText('청운정', X(-11.5), Y(63.5));
-      ctx.fillText('청운학사(기숙사)', X(-88), Y(-32)); ctx.fillText('청운호·호심정', X(-9), Y(-86)); ctx.fillText('과학천문관', X(84), Y(-32)); ctx.fillText('중앙도서관', X(84), Y(39)); ctx.fillText('스포츠단지', X(-88), Y(8)); ctx.fillText('학생회관', X(-88), Y(56));
+      ctx.fillStyle = '#d8e4ec'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText('운동장(트랙·축구장)', X(0), Y(36)); ctx.fillText('조회대', X(-11), Y(16.4)); ctx.fillText('스탠드', X(13.5), Y(12.6));
+      ctx.fillText('야외농구장', X(36), Y(46)); ctx.fillText('체육관', X(38), Y(23.5)); ctx.fillText('급식실', X(-39), Y(19)); ctx.fillText('수영장', X(-41), Y(41));
+      ctx.fillText('경비실', X(GUARD_LAYOUT.cx), Y(GUARD_LAYOUT.cz)); ctx.fillText('별관(1~3F)', X(4), Y(-19.25 - ANNEX_DZ));
+      ctx.fillText('대강당', X(MEGA.gym.x), Y(MEGA.gym.z)); ctx.fillText('중정', X(MEGA.court.x), Y(MEGA.court.z));
+      ctx.fillText('서문', X(-47), Y(32)); ctx.fillText('정문', X(0), Y(GATE_Z) - 8);
+      ctx.fillText('생태온실', X(62), Y(-50)); ctx.fillText('학교매점', X(63.5), Y(18)); ctx.fillText('야외음악당', X(35.0), Y(-48.5));
+      ctx.fillText('제1주차장(교직원)', X(30.5), Y(63.5)); ctx.fillText('제2주차장(버스)', X(-76.0), Y(65.5)); ctx.fillText('청운정', X(-11.5), Y(63.5));
+      ctx.fillText('청운학사(기숙사)', X(-86), Y(-42)); ctx.fillText('청운호·호심정', X(-9), Y(-86));
+      ctx.fillText('과학천문관', X(84), Y(-34)); ctx.fillText('중앙도서관', X(84), Y(39));
+      ctx.fillText('테니스·양궁장', X(-88), Y(-14)); ctx.fillText('야구스타디움', X(-88), Y(17)); ctx.fillText('학생회관', X(-88), Y(56));
     }
   }
   if (floor === 5) {
@@ -81,7 +118,9 @@ export function drawMap(ctx, W, H, o) {
       strokeRect(c - 4, 1.75, c + 4, 9.6, '#0c0c0c', 1.5);
       if (labels) { ctx.fillStyle = '#d6d2c2'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(LS.names[i], X(c), Y(5.8)); }
     });
-    strokeRect(-hx, -9.9, hx, LS ? MAIN_ZS : 1.75, '#8a8a80', 2);
+    // 실내 층 3D 아이소메트릭 입체 외벽 테두리
+    box3D(-hx, -9.9, hx, -9.5, 2.2, '#5a6064', '#889298', '#2a3034');
+    strokeRect(-hx, -9.9, hx, LS ? MAIN_ZS : 1.75, '#9ab0be', 2);
     if (floor === 4) { fillRect(28, 1.75, 36, 9.9, '#3a2a48'); strokeRect(28, 1.75, 36, 9.9, '#0c0c0c', 1.5); if (labels) { ctx.fillStyle = '#d6d2c2'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('비밀 자료실', X(32), Y(6)); } }
     if (floor === 4) { fillRect(12, -34, 24, -14, '#3a3e3c'); strokeRect(12, -34, 24, -14, '#8a8a80', 1.5); if (labels) { ctx.fillStyle = '#d8c890'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('지하 보존서고', X(18), Y(-24)); } }
     if (floor === 0 || floor === 1) { const W = WALKWAY; fillRect(W.x1, W.z1, W.x2, W.z2, floor === 1 ? '#364a54' : '#3a4248'); strokeRect(W.x1, W.z1, W.x2, W.z2, '#8a8a80', 1); if (labels) { ctx.fillStyle = '#c8c4b4'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(floor === 1 ? '2층 구름다리 ↑' : '필로티 통로 (2F 구름다리)', X((W.x1 + W.x2) / 2), Y((W.z1 + W.z2) / 2)); } }

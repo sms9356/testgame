@@ -6763,6 +6763,7 @@ function featTick(dt) {
   micTick(dt); camTick(dt); sanityTick(dt); trapTick(dt); breakerTick(dt); patchTick(dt); if (P.floor === 4) basementTick(dt); if (P.floor === 6 || P.floor === 0) poolTick(dt); sitTick(); zoomTick(dt); callTick(dt); sgTick(dt); s37Tick(); elvTick(dt); updateSchoolDoors(world); doorTick(dt); n37.update(dt); megaTick(dt); if ((P.stamInfT || 0) > 0) { P.stamInfT -= dt; if (P.stamInfT < 0) P.stamInfT = 0; P.stamina = 100; P.tired = false; } }
 
 function extrasTick(dt) {
+  if (XT.lobbyFake) XT.lobbyFake.visible = isOutdoors();
   searchTick(dt); tmpTick(dt); ambientTick(dt); featTick(dt);
   if (XT.mbox) { XT.mbox.t -= dt; if (XT.mbox.t <= 0) XT.mbox = null; }
   if (ghost.slowT > 0) ghost.slowT -= dt;
@@ -6770,7 +6771,8 @@ function extrasTick(dt) {
 }
 
   // 본관 중앙현관 외부 투시용 로비 구조물 (바깥 계단에서 현관 유리문 너머로 실제 로비 바닥·천장·안내데스크·교훈 현판·신발장이 입체적으로 보이도록 F0.shell 에 추가)
-  { const S0 = floors[0].shell, fMat = PM(0x585e5c, .68), wMat = PM(0xbdb6a6, .85), woodM = PM(0x4e3520, .72), darkM = PM(0x22282e, .38, .65), glassL = new THREE.MeshStandardMaterial({ color: 0x263844, roughness: .15, metalness: .25, transparent: true, opacity: .45 });
+  // 실내에서는 숨긴다: 진짜 로비와 겹쳐 복도에서 현관을 보면 중문 칸막이 · 신발장 · 이중 바닥/천장이 개구부에 끼어 보였다 (extrasTick 에서 실외일 때만 표시)
+  { const S0 = new THREE.Group(); S0.userData.dynamic = true; floors[0].shell.add(S0); XT.lobbyFake = S0; const fMat = PM(0x585e5c, .68), wMat = PM(0xbdb6a6, .85), woodM = PM(0x4e3520, .72), darkM = PM(0x22282e, .38, .65), glassL = new THREE.MeshStandardMaterial({ color: 0x263844, roughness: .15, metalness: .25, transparent: true, opacity: .45 });
     pbox(7.8, .04, 7.8, fMat, 0, .02, 5.7, S0, { cast: false });
     pbox(7.8, .08, 7.8, wMat, 0, 3.56, 5.7, S0, { cast: false });
     pbox(2.2, .06, .42, new THREE.MeshStandardMaterial({ color: 0xfff6e5, emissive: 0xffdca8, emissiveIntensity: .9 }), 0, 3.50, 6.2, S0, { cast: false });

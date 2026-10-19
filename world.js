@@ -4,11 +4,11 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { NOTES } from './story.js?v=115';
+import { NOTES } from './story.js?v=116';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=115';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=116';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -2866,27 +2866,43 @@ export function buildWorld(scene) {
       add(S(null, { color: 0xe8e4d8, roughness: .8 }), 10.0, .06, .02, 36.5, 2.4, 20); net.material.map.colorSpace = THREE.SRGBColorSpace; }
     [0, 1, 2].forEach(k => model('h133/GYM-008', 30.2 + k * .04, k * .085, 28.4, Math.PI / 2 + k * .05)); col(29.8, 30.6, 27.6, 29.2, false, .26);
 
-    /* ── 동쪽 관람석 (실제 걸어서 올라갈 수 있는 단차 계단 + 상단 2층 회랑 + 방송·조명 제어 부스) ── */
+    /* ── 동쪽 관람석 (z: 14.4 ~ 25.2 — 북쪽 무대 z 8.3~12.3 과 완전히 분리!) & 남동쪽 상단 「방송 · 조명 제어실」 (z: 25.2 ~ 29.6) ── */
     for (let k = 0; k < 5; k++) {
-      const sx0 = 43.2 + k * .72, sx1 = sx0 + .72, sy = (k + 1) * .32;
-      add(mStep, 46.8 - sx0, sy, 14.5, (sx0 + 46.8) / 2, 0, 21.25);
-      add(mBlue, .44, .06, 11.2, sx0 + .34, sy, 20.2);
-      // 남쪽/북쪽 계단 통로를 포함해 각 단을 실제로 걸어서 오르내릴 수 있도록 높이(sy) 충돌체 등록
-      col(sx0, sx1, 14.0, 28.5, false, sy);
+      const sx0 = 43.2 + k * .65, sx1 = sx0 + .65, sy = (k + 1) * .32;
+      add(mStep, 46.45 - sx0, sy, 10.8, (sx0 + 46.45) / 2, 0, 19.8);
+      add(mBlue, .42, .06, 9.2, sx0 + .32, sy, 19.8);
+      col(sx0, sx1, 14.4, 25.2, false, sy);
     }
-    // 관람석 최상단 회랑 데크 (x: 46.08 ~ 47.65, z: 10.2 ~ 28.5, 높이 1.6m)
-    add(mStep, 1.6, 1.6, 18.3, 46.85, 0, 19.35);
-    col(46.05, 47.65, 10.2, 28.5, false, 1.6);
-    // 관람석 북동쪽 상단: 「체육관 방송 · 조명 제어 부스」 (x: 43.6 ~ 47.6, z: 10.2 ~ 13.8, 바닥 높이 1.6m)
-    add(mStep, 4.0, 1.6, 3.6, 45.6, 0, 12.0); col(43.6, 47.6, 10.2, 13.8, false, 1.6);
-    add(mWall, 4.0, 2.4, .18, 45.6, 1.6, 13.8); // 부스 남벽(출입구 제외)
-    add(mWall, .18, 2.4, 2.2, 43.6, 1.6, 11.3); // 부스 서벽(통유리창 프레임)
-    plane(F.interior, mWinIn, 2.8, 1.2, 43.58, 2.85, 12.0, -Math.PI / 2); // 코트를 내려다보는 방송부스 유리창
-    plane(F.interior, new THREE.MeshBasicMaterial({ map: T.makeSign('방송 · 조명 제어실', '#182834', '#dce8f0', 24) }), 1.5, .32, 45.6, 3.7, 13.92, 0);
-    // 부스 내부 오디오 믹서 콘솔 · 릴테이프 데크 · 스포트라이트 제어반
-    add(mWoodDark, 2.2, .78, .65, 44.6, 1.6, 11.8);
-    add(mBlack, .65, .18, .42, 44.5, 2.38, 11.4); add(mBlack, .55, .32, .35, 44.5, 2.38, 12.2);
-    glowAt(44.5, 2.55, 11.4, .22, glowGreen);
+    // 관람석 최상단 회랑 데크 (x: 46.45 ~ 47.68, z: 14.4 ~ 25.2, 높이 1.6m)
+    add(mStep, 1.25, 1.6, 10.8, 47.06, 0, 19.8);
+    col(46.45, 47.68, 14.4, 25.2, false, 1.6);
+    // 관람석 북쪽 끝 안전 난간 (z = 14.45)
+    add(mDarkMetal, 4.4, .85, .08, 45.4, 1.6, 14.45);
+
+    // 관람석 남동쪽 코너 상단: 「체육관 방송 · 조명 제어실」 (x: 43.6 ~ 47.68, z: 25.2 ~ 29.65, 바닥 높이 1.6m ~ 천장 4.1m)
+    const mBoothWall = S(null, { color: 0x2c343c, roughness: .65, metalness: .25 });
+    const mBoothTrim = S(null, { color: 0x1c2228, roughness: .4, metalness: .6 });
+    add(mStep, 4.08, 1.6, 4.45, 45.64, 0, 27.42);
+    col(43.6, 47.68, 25.2, 29.65, false, 1.6);
+    // 부스 천장 지붕 슬래브 (y = 4.05 ~ 4.22m — 동벽 창문 y=5.2 아래에 깔끔하게 마감!)
+    add(mBoothTrim, 4.16, .18, 4.5, 45.62, 4.05, 27.42);
+    // 부스 북벽 (z = 25.2: 서쪽 2.6m는 무대를 정면으로 바라보는 조망창, 동쪽 x 46.3~47.6 은 관람석 최상단에서 들어오는 출입구!)
+    add(mBoothWall, 2.6, 1.0, .16, 44.9, 1.6, 25.28);
+    add(mBoothWall, 2.6, .45, .16, 44.9, 3.6, 25.28);
+    add(mBoothTrim, 1.4, .35, .16, 46.9, 3.7, 25.28); // 출입구 상인방
+    plane(F.interior, mWinIn, 2.4, 1.0, 44.9, 3.1, 25.28, Math.PI); // 무대를 정면으로 바라보는 북쪽 통유리창
+    // 부스 서벽 (x = 43.68, z: 25.2 ~ 29.65: 코트를 내려다보는 파노라마 조망창 + 다크메탈 창틀)
+    add(mBoothWall, .16, 1.0, 4.45, 43.68, 1.6, 27.42);
+    add(mBoothWall, .16, .45, 4.45, 43.68, 3.6, 27.42);
+    [25.28, 27.42, 29.55].forEach(pz => add(mBoothTrim, .18, 2.45, .14, 43.68, 1.6, pz));
+    plane(F.interior, mWinIn, 4.2, 1.0, 43.68, 3.1, 27.42, -Math.PI / 2); // 코트를 내려다보는 서쪽 통유리창
+    // 부스 현판 (서벽 상단 코트 방향 & 북벽 출입구 위)
+    plane(F.interior, new THREE.MeshBasicMaterial({ map: T.makeSign('방송 · 조명 제어실', '#14222e', '#e4f0f8', 24) }), 1.8, .34, 43.58, 3.82, 27.42, -Math.PI / 2);
+    plane(F.interior, new THREE.MeshBasicMaterial({ map: T.makeSign('방송 · 조명 제어실', '#14222e', '#e4f0f8', 22) }), 1.5, .30, 46.2, 3.82, 25.18, Math.PI);
+    // 부스 내부 오디오 믹서 콘솔 · 릴테이프 데크 · 스포트라이트 제어반 (x = 44.8, z = 26.8, y = 1.6m)
+    add(mWoodDark, 1.8, .78, .75, 44.9, 1.6, 26.4);
+    add(mBlack, .65, .18, .42, 44.6, 2.38, 26.35); add(mBlack, .55, .32, .35, 45.3, 2.38, 26.35);
+    glowAt(44.6, 2.55, 26.35, .22, glowGreen);
 
     /* ── 서쪽 신설 확장 구역: 「체육교사실 · 체육용구 보관실」 (x: 20 ~ 28, z: 12 ~ 26) ── */
     const gx0 = 20.0, gx1 = 28.0, gz0 = 12.0, gz1 = 26.0, gH = 4.2;
@@ -2921,7 +2937,7 @@ export function buildWorld(scene) {
     for (let k = 0; k < 5; k++) { const b = new THREE.Mesh(new THREE.SphereGeometry(.12, 16, 12), mBall); b.position.set(rr(31, 42), .12, rr(14, 27)); b.rotation.set(rnd() * 3, rnd() * 3, 0); cur.interior.add(b); }
     // 코트 주변 기구
     add(mMetal, 1, .9, .8, 30.4, 0, 14.5, { col: true }); [0, 1, 2].forEach(k => ball(30.1 + k * .3, 14.5, mBall));
-    add(mBlue, 1.6, .5, .8, 41.8, 0, 13.4, { col: true }); add(mGreen, 1.5, .4, .8, 41.8, .5, 13.4);
+    add(mBlue, 1.6, .5, .8, 25.8, 0, 21.4, { col: true }); add(mGreen, 1.5, .4, .8, 25.8, .5, 21.4);
     add(mWood, .8, .5, .5, 31.5, 0, 25.5, { col: true }); add(mWood, .8, .3, .5, 31.5, .5, 25.5);
     add(mWood, .4, .45, 2.2, 33.5, 0, 28.3, { col: true });
     add(mBlack, .5, .8, .4, x0 + t + .3, 4.8, 12); add(mBlack, .5, .8, .4, x1 - t - .3, 4.8, 12);
@@ -2932,7 +2948,7 @@ export function buildWorld(scene) {
     // 기구함 사물함 (파밍용)
     for (let k = 0; k < 3; k++) add(mLockerT, .55, 1.85, .62, x0 + t + .28, 0, 24.2 + k * .66, { col: true });
     lockers.push({ floor: 5, x: x0 + t + .28, z: 24.86, y: 60, dir: { x: 1, z: 0 } });
-    addMedkit(41.8, .92, 13.4); addBattery(42.5, 0, 28.4);
+    addMedkit(25.8, .92, 21.4); addBattery(42.5, 0, 28.4);
     [33, 38, 43].forEach(x => [12, 17, 22, 27].forEach(z => areaLamp(x, z, H - .9, 'gym'))); lightSwitch(39.6, z1 - t - .02, Math.PI, 'gym', '체육관');
     const xs = [33, 38, 41], zs = [14, 20, 26];
     xs.forEach(x => zs.forEach(z => F.nodes.push({ x, z })));

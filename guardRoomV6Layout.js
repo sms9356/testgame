@@ -32,6 +32,8 @@ export function arrangeGuardRoomV6(root) {
   shift('F21',0,0,.0075);
   shift('F20',0,0,-.01); // kettle meets refrigerator top
   shift('F10',0,0,-.085); // weighted monitor feet now sit on the 0.76m worktop
+  { const g=root.getObjectByName('F10_GROUP'); if(g){root.updateMatrixWorld(true);const c=localBounds(root,g).getCenter(new THREE.Vector3());g.rotation.z=Math.PI;g.position.x+=2*c.x;g.position.y+=2*c.y;} }
+  { const g1=root.getObjectByName('F01_GROUP'); if(g1) g1.traverse(n=>{if(n.isMesh&&/keyboard_individual_key/i.test(n.name)) n.position.y+=0.30;}); }
   shift('F30',-1.19,-1.62,.00825); // coffee machine: clear desk corner, not inside kettle/fridge
   shift('F13',0,-.95,0); // key rack: solid west wall, not west glazing
   shift('F14',1.1,0,.25); // clock: solid north wall above the shelf

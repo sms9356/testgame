@@ -658,7 +658,419 @@ function fuse({ title = '퓨즈판 — 모든 회로를 켜라', N = Math.random
   return p;
 }
 
+
+/* ---------- 18. 오실로스코프 파형 동조 (주파수 · 진폭 · 위상 3축 동조) ---------- */
+function oscilloscope({ title = '오실로스코프 — 주파수·진폭·위상 파형 동조' } = {}) {
+  const p = open(title, '<b>A · D</b> 주파수 · <b>W · S</b> 진폭 · <b>마우스 이동(또는 Q · E)</b> 위상 조절<br>초록 목표 파형에 내 파형을 겹쳐 <b>동조율 88% 이상</b>을 1.1초 유지하라');
+  const c = canvas(480, 290), g = c.getContext('2d');
+  const tf = 1.6 + Math.random() * 2.2, ta = 42 + Math.random() * 44, tp = Math.random() * 5.2;
+  let uf = 2.5, ua = 60, up = 0, hold = 0, lastT = performance.now(), dn = {};
+  c.addEventListener('mousemove', e => {
+    const r = c.getBoundingClientRect();
+    up = ((e.clientX - r.left) / r.width) * Math.PI * 2;
+  });
+  keys(e => {
+    dn[e.code] = e.type === 'keydown';
+    if (e.type === 'keydown') sfx.dial ? sfx.dial() : sfx.click();
+  });
+  const loop = now => {
+    const dt = Math.min(.08, (now - lastT) / 1000); lastT = now;
+    if (dn.KeyA || dn.ArrowLeft) uf = clamp(uf - 1.3 * dt, .8, 4.8);
+    if (dn.KeyD || dn.ArrowRight) uf = clamp(uf + 1.3 * dt, .8, 4.8);
+    if (dn.KeyW || dn.ArrowUp) ua = clamp(ua + 55 * dt, 18, 98);
+    if (dn.KeyS || dn.ArrowDown) ua = clamp(ua - 55 * dt, 18, 98);
+    if (dn.KeyQ) up = (up - 2.4 * dt + Math.PI * 2) % (Math.PI * 2);
+    if (dn.KeyE) up = (up + 2.4 * dt) % (Math.PI * 2);
+
+    const df = Math.abs(uf - tf) / 3.0, da = Math.abs(ua - ta) / 70;
+    let dp = Math.abs(up - tp) % (Math.PI * 2); if (dp > Math.PI) dp = Math.PI * 2 - dp; dp /= Math.PI;
+    const sync = clamp(1 - (df * .48 + da * .32 + dp * .20), 0, 1);
+
+    if (sync >= .86) {
+      hold += dt;
+      if (Math.random() < dt * 7) sfx.beep ? sfx.beep() : sfx.click();
+      if (hold >= 1.1 && finish) { sfx.unlock(); close(true); return; }
+    } else hold = Math.max(0, hold - dt * .5);
+
+    g.fillStyle = '#07110d'; g.fillRect(0, 0, c.width, c.height);
+    g.strokeStyle = 'rgba(60,140,95,.22)'; g.lineWidth = 1;
+    for (let x = 0; x <= 480; x += 30) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x, 220); g.stroke(); }
+    for (let y = 0; y <= 220; y += 27.5) { g.beginPath(); g.moveTo(0, y); g.lineTo(480, y); g.stroke(); }
+
+    const cy = 110, phShift = now * .004;
+    // 목표 파형 (초록 점선)
+    g.save(); g.setLineDash([6, 5]); g.strokeStyle = 'rgba(90,255,150,.65)'; g.lineWidth = 2.4;
+    g.beginPath();
+    for (let x = 0; x <= 480; x += 3) {
+      const y = cy + Math.sin((x / 480) * Math.PI * 2 * tf + tp + phShift) * ta;
+      x === 0 ? g.moveTo(x, y) : g.lineTo(x, y);
+    }
+    g.stroke(); g.restore();
+
+    // 사용자 파형 (민트/노랑 실선)
+    g.strokeStyle = sync >= .86 ? '#70ffaa' : '#ffd060'; g.lineWidth = 2.8;
+    g.shadowColor = g.strokeStyle; g.shadowBlur = sync >= .86 ? 12 : 4;
+    g.beginPath();
+    for (let x = 0; x <= 480; x += 3) {
+      const y = cy + Math.sin((x / 480) * Math.PI * 2 * uf + up + phShift) * ua;
+      x === 0 ? g.moveTo(x, y) : g.lineTo(x, y);
+    }
+    g.stroke(); g.shadowBlur = 0;
+
+    // 하단 계기판 패널
+    g.fillStyle = '#12181a'; g.fillRect(0, 222, 480, 68);
+    g.fillStyle = '#d8e4dc'; g.font = 'bold 13px monospace';
+    g.fillText(`FREQ: ${(uf * 24.5).toFixed(1)} Hz [A/D]   AMP: ${ua.toFixed(0)} mV [W/S]   PHASE: ${((up * 180 / Math.PI) | 0)}° [Q/E]`, 14, 244);
+    g.fillStyle = '#22302a'; g.fillRect(14, 256, 320, 18);
+    g.fillStyle = sync >= .86 ? '#48ff90' : '#e0a838';
+    g.fillRect(14, 256, 320 * clamp(sync, 0, 1), 18);
+    g.fillStyle = '#ffffff'; g.font = '12px sans-serif';
+    g.fillText(`파형 동조율 ${(sync * 100).toFixed(0)}% · 잠금 유지 ${Math.min(100, (hold / 1.1 * 100)) | 0}%`, 346, 269);
+    status(sync >= .86 ? '공명 주파수 포착! 그대로 유지하세요…' : '두 파형의 간격·높이·위상을 맞추세요');
+    raf = requestAnimationFrame(loop);
+  };
+  raf = requestAnimationFrame(loop);
+  return p;
+}
+
+/* ---------- 19. 화학 시약 적정 & 중화 반응 (과학실 / 수질관리실) ---------- */
+function chemMix({ title = '실험대 — 시약 중화 적정 (목표 pH 7.2)' } = {}) {
+  const p = open(title, '<b>1번(산성 적정액)</b> · <b>2번(염기성 시약)</b> · <b>3번(완충 냉각액)</b> 버튼 클릭 또는 키 입력<br>pH를 <b>7.0 ~ 7.4</b>, 온도를 <b>40°C 이하</b>로 맞춘 뒤 <b>Space(교반 결정화)</b>를 눌러라');
+  const c = canvas(460, 300), g = c.getContext('2d');
+  let ph = 4.2 + (Math.random() < .5 ? -.8 : 4.4), temp = 28, stir = 0, drops = [], lastT = performance.now();
+  const addReagent = kind => {
+    if (!finish) return;
+    sfx.drip ? sfx.drip() : sfx.click();
+    if (kind === 1) { ph = clamp(ph - .65, 1.5, 13.5); temp = clamp(temp + 6.5, 18, 95); drops.push({ x: 150, y: 55, c: '#ff5a5a' }); }
+    else if (kind === 2) { ph = clamp(ph + .55, 1.5, 13.5); temp = clamp(temp + 5.5, 18, 95); drops.push({ x: 230, y: 55, c: '#5a9eff' }); }
+    else if (kind === 3) { ph = clamp(ph + (7.2 - ph) * .22, 1.5, 13.5); temp = clamp(temp - 14, 18, 95); drops.push({ x: 310, y: 55, c: '#60ffb0' }); }
+  };
+  const tryStir = () => {
+    if (!finish) return;
+    sfx.splash ? sfx.splash() : sfx.click();
+    stir = 1.0;
+    if (ph >= 6.95 && ph <= 7.45 && temp <= 42) {
+      status('중화 적정 완료 — 순백색 결정이 석출되었다!', 'ok');
+      sfx.unlock(); setTimeout(() => close(true), 450);
+    } else if (temp > 75) {
+      sfx.buzz(); status('과열 반응! 완충 냉각액(3번)으로 온도를 먼저 낮춰야 한다', 'err');
+    } else {
+      status(`현재 pH ${ph.toFixed(2)} — 목표 중성 범위(7.0~7.4)에 맞춘 뒤 교반하세요`, 'err');
+    }
+  };
+  c.addEventListener('click', e => {
+    const r = c.getBoundingClientRect(), x = (e.clientX - r.left) * c.width / r.width, y = (e.clientY - r.top) * c.height / r.height;
+    if (y > 235) {
+      if (x < 145) addReagent(1);
+      else if (x < 285) addReagent(2);
+      else if (x < 395) addReagent(3);
+      else tryStir();
+    } else {
+      if (x < 185) addReagent(1);
+      else if (x < 275) addReagent(2);
+      else addReagent(3);
+    }
+  });
+  keys(e => {
+    if (e.type !== 'keydown') return;
+    if (e.code === 'Digit1' || e.code === 'KeyA') addReagent(1);
+    else if (e.code === 'Digit2' || e.code === 'KeyS') addReagent(2);
+    else if (e.code === 'Digit3' || e.code === 'KeyD') addReagent(3);
+    else if (e.code === 'Space' || e.code === 'Enter') tryStir();
+  });
+  const loop = now => {
+    const dt = Math.min(.08, (now - lastT) / 1000); lastT = now;
+    temp = Math.max(20, temp - dt * 2.2); stir = Math.max(0, stir - dt * 2.5);
+    g.fillStyle = '#0c1014'; g.fillRect(0, 0, c.width, c.height);
+    // 뷰렛 3개
+    [[150, '#ff5a5a', '1: 산성(-0.65)'], [230, '#5a9eff', '2: 염기(+0.55)'], [310, '#60ffb0', '3: 완충·냉각']].forEach(([bx, col, lb]) => {
+      g.fillStyle = '#283038'; g.fillRect(bx - 10, 12, 20, 42);
+      g.fillStyle = col; g.fillRect(bx - 6, 18, 12, 32);
+      g.fillStyle = '#b8c4cc'; g.font = '11px sans-serif'; g.fillText(lb, bx - 36, 10);
+    });
+    // 비커 & 용액 색상 (산성=붉은빛, 중성=에메랄드 초록, 염기=푸른보라)
+    const liqCol = ph < 6.95 ? `rgba(240,${Math.floor(80 + ph * 18)},90,0.78)` : ph <= 7.45 ? 'rgba(75,235,155,0.82)' : `rgba(95,130,250,0.78)`;
+    g.strokeStyle = '#90a4b0'; g.lineWidth = 3; g.strokeRect(125, 75, 210, 140);
+    const wave = Math.sin(now * .008) * (2 + stir * 8);
+    g.fillStyle = liqCol; g.fillRect(128, 115 + wave * .3, 204, 97 - wave * .3);
+    // 떨어지는 시약 방울
+    for (let i = drops.length - 1; i >= 0; i--) {
+      const d = drops[i]; d.y += 220 * dt;
+      g.fillStyle = d.c; g.beginPath(); g.arc(d.x, d.y, 5, 0, 7); g.fill();
+      if (d.y >= 115) drops.splice(i, 1);
+    }
+    // 우측 계기판 (pH / 온도)
+    const okPh = ph >= 6.95 && ph <= 7.45, okT = temp <= 42;
+    g.fillStyle = '#161c22'; g.fillRect(352, 75, 96, 140);
+    g.fillStyle = okPh ? '#60ffa8' : '#ffd060'; g.font = 'bold 18px monospace';
+    g.fillText(`pH ${ph.toFixed(2)}`, 362, 108);
+    g.fillStyle = '#9ab0bc'; g.font = '11px sans-serif'; g.fillText('목표: 7.0 ~ 7.4', 362, 126);
+    g.fillStyle = okT ? '#80d8ff' : '#ff6060'; g.font = 'bold 16px monospace';
+    g.fillText(`${temp.toFixed(0)} °C`, 362, 166);
+    g.fillStyle = '#9ab0bc'; g.font = '11px sans-serif'; g.fillText('안전: 42°C 이하', 362, 184);
+
+    // 하단 조작 버튼
+    const btns = [[12, 128, '#4a2024', '[1] 산성 시약'], [148, 128, '#203252', '[2] 염기 시약'], [284, 106, '#1e4638', '[3] 완충·냉각'], [396, 54, okPh && okT ? '#2a8a50' : '#384048', '교반']];
+    btns.forEach(([x, w, bg, t]) => {
+      g.fillStyle = bg; g.fillRect(x, 238, w, 46);
+      g.strokeStyle = '#607080'; g.lineWidth = 1.5; g.strokeRect(x, 238, w, 46);
+      g.fillStyle = '#f0f4f8'; g.font = 'bold 12px sans-serif'; g.fillText(t, x + 10, 266);
+    });
+    raf = requestAnimationFrame(loop);
+  };
+  raf = requestAnimationFrame(loop);
+  return p;
+}
+
+/* ---------- 20. 물리 포물선 농구 자유투 (각도 조준 + 파워 차징 + 림/백보드 탄성 물리) ---------- */
+function hoopShot({ title = '체육관 코트 — 물리 궤적 자유투 (3골 성공)' } = {}) {
+  const p = open(title, '마우스 위·아래(또는 <b>W · S</b>)로 발사 각도 조준 · <b>마우스 버튼 / Space</b>를 누르고 있다가 떼면 슛!<br>백보드 반동을 이용하거나 클린샷으로 <b>3골</b>을 성공시켜라');
+  const c = canvas(480, 300), g = c.getContext('2d');
+  let ang = 54 * Math.PI / 180, pwr = 0, charging = false, dir = 1, goals = 0, shots = 0;
+  let ball = null, rimX = 392, rimY = 118, rimR = 22, boardX = 420, lastT = performance.now();
+
+  const shoot = () => {
+    if (ball || !finish) return;
+    charging = false;
+    const v = 340 + pwr * 280;
+    ball = { x: 74, y: 220, vx: Math.cos(ang) * v, vy: -Math.sin(ang) * v, r: 13, scored: false, RimHit: false };
+    sfx.throwIt ? sfx.throwIt() : sfx.click();
+  };
+  c.addEventListener('mousemove', e => {
+    if (ball) return;
+    const r = c.getBoundingClientRect(), ny = (e.clientY - r.top) / r.height;
+    ang = clamp((.85 - ny * .65) * Math.PI * .5, 32 * Math.PI / 180, 76 * Math.PI / 180);
+  });
+  c.addEventListener('mousedown', () => { if (!ball) { charging = true; pwr = .15; } });
+  const mu = () => { if (charging) shoot(); };
+  addEventListener('mouseup', mu); cleanups.push(() => removeEventListener('mouseup', mu));
+  keys(e => {
+    const dn = e.type === 'keydown';
+    if (dn && (e.code === 'KeyW' || e.code === 'ArrowUp')) ang = clamp(ang + .04, .55, 1.32);
+    if (dn && (e.code === 'KeyS' || e.code === 'ArrowDown')) ang = clamp(ang - .04, .55, 1.32);
+    if (e.code === 'Space') {
+      if (dn && !ball && !charging) { charging = true; pwr = .15; }
+      else if (!dn && charging) shoot();
+    }
+  });
+  const loop = now => {
+    const dt = Math.min(.05, (now - lastT) / 1000); lastT = now;
+    if (charging && !ball) {
+      pwr += dir * dt * 1.25;
+      if (pwr >= 1) { pwr = 1; dir = -1; } else if (pwr <= .1) { pwr = .1; dir = 1; }
+    }
+    if (ball) {
+      const prevY = ball.y;
+      ball.vy += 560 * dt;
+      ball.x += ball.vx * dt;
+      ball.y += ball.vy * dt;
+      // 백보드 반사
+      if (ball.x + ball.r > boardX && ball.x - ball.r < boardX + 10 && ball.y > 54 && ball.y < 132 && ball.vx > 0) {
+        ball.x = boardX - ball.r; ball.vx = -ball.vx * .62; sfx.ball ? sfx.ball() : sfx.click();
+      }
+      // 앞뒤 림 엣지 탄성 충돌
+      for (const rx of [rimX - rimR, rimX + rimR]) {
+        const dx = ball.x - rx, dy = ball.y - rimY, d = Math.hypot(dx, dy);
+        if (d < ball.r + 4) {
+          const nx = dx / (d || 1), ny = dy / (d || 1);
+          ball.x = rx + nx * (ball.r + 4.5); ball.y = rimY + ny * (ball.r + 4.5);
+          const dot = ball.vx * nx + ball.vy * ny;
+          if (dot < 0) { ball.vx = (ball.vx - 1.65 * dot * nx) * .72; ball.vy = (ball.vy - 1.65 * dot * ny) * .72; sfx.ball ? sfx.ball() : sfx.click(); }
+        }
+      }
+      // 골인 판정 (림 위에서 아래로 통과)
+      if (!ball.scored && prevY <= rimY && ball.y > rimY && ball.vy > 0 && Math.abs(ball.x - rimX) < rimR - 4) {
+        ball.scored = true; goals++; shots++;
+        sfx.win ? sfx.win() : sfx.unlock();
+        status(`나이스 슛! (${goals} / 3골 성공)`, 'ok');
+        if (goals >= 3 && finish) { setTimeout(() => close(true), 450); return; }
+      }
+      if (ball.y > 290 || ball.x > 490 || ball.x < 0) {
+        if (!ball.scored) { shots++; sfx.ball ? sfx.ball() : sfx.buzz(); status(`아깝다! 각도와 파워를 조절해 보세요 (성공 ${goals}/3)`, ''); }
+        ball = null; pwr = 0;
+      }
+    }
+
+    g.fillStyle = '#12151c'; g.fillRect(0, 0, c.width, c.height);
+    // 체육관 마룻바닥
+    g.fillStyle = '#4a321e'; g.fillRect(0, 255, 480, 45);
+    // 예상 포물선 가이드 (절반까지만 표시)
+    if (!ball) {
+      const v0 = 340 + (charging ? pwr : .55) * 280;
+      g.fillStyle = 'rgba(255,215,110,.55)';
+      for (let i = 1; i <= 11; i++) {
+        const tt = i * .055, gx = 74 + Math.cos(ang) * v0 * tt, gy = 220 - Math.sin(ang) * v0 * tt + .5 * 560 * tt * tt;
+        g.beginPath(); g.arc(gx, gy, 2.5, 0, 7); g.fill();
+      }
+    }
+    // 백보드 · 림 · 그물
+    g.fillStyle = '#d8dee4'; g.fillRect(boardX, 54, 8, 78);
+    g.fillStyle = '#d83828'; g.fillRect(rimX - rimR, rimY - 3, rimR * 2 + 8, 6);
+    g.strokeStyle = 'rgba(230,230,220,.55)'; g.lineWidth = 1.5;
+    for (let k = -3; k <= 3; k++) { g.beginPath(); g.moveTo(rimX + k * 6, rimY + 3); g.lineTo(rimX + k * 4, rimY + 34); g.stroke(); }
+
+    // 농구공
+    const bx = ball ? ball.x : 74, by = ball ? ball.y : 220;
+    g.fillStyle = '#d86224'; g.beginPath(); g.arc(bx, by, 13, 0, 7); g.fill();
+    g.strokeStyle = '#2a1408'; g.lineWidth = 1.5; g.stroke();
+
+    // 좌측 파워 게이지 & 점수
+    g.fillStyle = '#222830'; g.fillRect(18, 80, 16, 150);
+    g.fillStyle = '#58ff98'; g.fillRect(18, 230 - 150 * pwr, 16, 150 * pwr);
+    g.fillStyle = '#e8e0d0'; g.font = 'bold 14px sans-serif';
+    g.fillText(`성공: ${goals} / 3골   |   발사각: ${(ang * 180 / Math.PI).toFixed(0)}°`, 16, 30);
+    raf = requestAnimationFrame(loop);
+  };
+  raf = requestAnimationFrame(loop);
+  return p;
+}
+
+/* ---------- 21. 아날로그 영사기 렌즈 초점 & 필름 트래킹 동기화 (시청각실) ---------- */
+function filmFocus({ title = '영사기 — 듀얼 렌즈 초점 & 필름 트래킹 복원' } = {}) {
+  const p = open(title, '<b>A · D(또는 마우스 좌우)</b>로 대물렌즈 초점 링 조절 · <b>W · S(또는 마우스 상하)</b>로 필름 수직 트래킹 동기화<br>화면 떨림과 초점 흐림이 사라졌을 때 <b>Space / 클릭</b>으로 프레임 고정!');
+  const c = canvas(460, 290), g = c.getContext('2d');
+  const tf = .22 + Math.random() * .56, tt = .22 + Math.random() * .56;
+  let uf = .88, ut = .12, dn = {}, lastT = performance.now();
+  c.addEventListener('mousemove', e => {
+    const r = c.getBoundingClientRect();
+    uf = clamp((e.clientX - r.left) / r.width, .05, .95);
+    ut = clamp((e.clientY - r.top) / r.height, .05, .95);
+  });
+  const snap = () => {
+    if (!finish) return;
+    const err = Math.hypot(uf - tf, ut - tt);
+    if (err < .13) { sfx.photo ? sfx.photo() : sfx.unlock(); close(true); }
+    else { sfx.buzz(); status('아직 초점이나 수직 트래킹이 어긋나 글씨가 흐릿하다!', 'err'); }
+  };
+  c.addEventListener('click', snap);
+  keys(e => {
+    dn[e.code] = e.type === 'keydown';
+    if (e.type === 'keydown' && (e.code === 'Space' || e.code === 'Enter')) snap();
+  });
+  const loop = now => {
+    const dt = Math.min(.08, (now - lastT) / 1000); lastT = now;
+    if (dn.KeyA || dn.ArrowLeft) uf = clamp(uf - .45 * dt, .05, .95);
+    if (dn.KeyD || dn.ArrowRight) uf = clamp(uf + .45 * dt, .05, .95);
+    if (dn.KeyW || dn.ArrowUp) ut = clamp(ut - .45 * dt, .05, .95);
+    if (dn.KeyS || dn.ArrowDown) ut = clamp(ut + .45 * dt, .05, .95);
+
+    const df = Math.abs(uf - tf), dt2 = Math.abs(ut - tt), err = Math.hypot(df, dt2);
+    const roll = (ut - tt) * 140 + Math.sin(now * .025) * dt2 * 28;
+    const split = df * 36;
+
+    g.fillStyle = '#0e0c0a'; g.fillRect(0, 0, c.width, c.height);
+    // 영사 스크린 프레임
+    g.save();
+    g.beginPath(); g.rect(40, 20, 380, 200); g.clip();
+    g.fillStyle = '#221e18'; g.fillRect(40, 20, 380, 200);
+
+    [-split, 0, split].forEach((ox, idx) => {
+      const oy = ((roll % 200) + 200) % 200 - 100;
+      g.save();
+      g.translate(ox, oy);
+      g.globalAlpha = idx === 1 ? clamp(1 - df * 1.3, .25, 1) : .38;
+      g.fillStyle = idx === 0 ? '#ff6050' : idx === 2 ? '#50a8ff' : '#ece2c8';
+      g.strokeStyle = g.fillStyle; g.lineWidth = 2;
+      g.strokeRect(75, 42, 310, 156);
+      g.font = 'bold 18px serif';
+      g.fillText('1998. 10. 12 — 제30주년 리허설 기록', 92, 82);
+      g.font = '14px sans-serif';
+      g.fillText('3학년 2반 방송반: 윤하늘 · 강민아 · 이수아', 96, 118);
+      g.fillText('“마지막 하교 방송 테이프는 방송부스에…”', 96, 148);
+      g.restore();
+    });
+    // 필름 퍼포레이션 구멍
+    g.fillStyle = '#090807';
+    for (let y = 26; y < 215; y += 24) { g.fillRect(46, y, 10, 14); g.fillRect(404, y, 10, 14); }
+    g.restore();
+
+    g.fillStyle = err < .13 ? '#60ffa0' : '#d8c8a8'; g.font = 'bold 13px monospace';
+    g.fillText(`초점 선명도: ${Math.max(0, (1 - df * 1.8) * 100).toFixed(0)}% [A/D]   |   트래킹 고정: ${Math.max(0, (1 - dt2 * 1.8) * 100).toFixed(0)}% [W/S]`, 42, 246);
+    g.fillStyle = '#9aa4a8'; g.font = '12px sans-serif';
+    g.fillText(err < .13 ? '✦ 화면이 또렷하게 맞았습니다! Space 또는 클릭으로 고정하세요' : '두 수치를 85% 이상으로 맞춰 화면 흔들림과 번짐을 잡으세요', 42, 270);
+    raf = requestAnimationFrame(loop);
+  };
+  raf = requestAnimationFrame(loop);
+  return p;
+}
+
+/* ---------- 22. 3연동 수압 밸브 평형 퍼즐 (수영장 수질관리실 / 기계실) ---------- */
+function valveBalance({ title = '수질관리실 — 3연동 배수 수압 밸브 동조' } = {}) {
+  const p = open(title, '밸브 1 · 2 · 3을 클릭(또는 <b>1 · 2 · 3 키</b>)해 회전시켜 세 배관의 수압을 모두 <b style="color:#60ffa0">안전 구역(42 ~ 58 PSI)</b>에 맞춘 뒤 <b>배수 레버(Space)</b>를 당겨라');
+  const c = canvas(460, 290), g = c.getContext('2d');
+  let psi = [24, 72, 30], angs = [0, 0, 0];
+  const turnValve = i => {
+    if (!finish) return;
+    sfx.clank ? sfx.clank(.6) : sfx.click();
+    angs[i] += Math.PI / 3;
+    if (i === 0) { psi[0] = clamp(psi[0] + 12, 10, 90); psi[1] = clamp(psi[1] - 7, 10, 90); }
+    else if (i === 1) { psi[1] = clamp(psi[1] + 11, 10, 90); psi[2] = clamp(psi[2] - 8, 10, 90); psi[0] = clamp(psi[0] - 4, 10, 90); }
+    else if (i === 2) { psi[2] = clamp(psi[2] + 13, 10, 90); psi[0] = clamp(psi[0] - 6, 10, 90); }
+    draw();
+  };
+  const pullLever = () => {
+    if (!finish) return;
+    if (psi.every(v => v >= 42 && v <= 58)) {
+      sfx.unlock(); status('3연동 수압 평형 달성! 다이빙 풀 배수 밸브가 개방됩니다!', 'ok');
+      setTimeout(() => close(true), 450);
+    } else {
+      sfx.buzz(); status('수압 불균형! 세 게이지 모두 42~58 PSI 초록 구간에 들어와야 합니다.', 'err');
+    }
+  };
+  c.addEventListener('click', e => {
+    const r = c.getBoundingClientRect(), x = (e.clientX - r.left) * c.width / r.width, y = (e.clientY - r.top) * c.height / r.height;
+    if (y > 232) { pullLever(); return; }
+    if (x < 160) turnValve(0);
+    else if (x < 305) turnValve(1);
+    else turnValve(2);
+  });
+  keys(e => {
+    if (e.type !== 'keydown') return;
+    if (e.code === 'Digit1' || e.code === 'KeyA') turnValve(0);
+    else if (e.code === 'Digit2' || e.code === 'KeyS') turnValve(1);
+    else if (e.code === 'Digit3' || e.code === 'KeyD') turnValve(2);
+    else if (e.code === 'Space' || e.code === 'Enter') pullLever();
+  });
+  function draw() {
+    g.fillStyle = '#0d1316'; g.fillRect(0, 0, c.width, c.height);
+    const xs = [88, 230, 372];
+    xs.forEach((cx, i) => {
+      const v = psi[i], ok = v >= 42 && v <= 58;
+      // 압력 게이지 원판
+      g.fillStyle = '#1d262b'; g.beginPath(); g.arc(cx, 82, 52, 0, 7); g.fill();
+      g.strokeStyle = ok ? '#58ff9a' : '#687880'; g.lineWidth = 3.5; g.stroke();
+      // 초록 안전 구간 호
+      g.strokeStyle = 'rgba(88,255,154,.45)'; g.lineWidth = 7;
+      g.beginPath(); g.arc(cx, 82, 42, -Math.PI * .65, -Math.PI * .35); g.stroke();
+      // 게이지 바늘
+      const na = -Math.PI + (v / 100) * Math.PI;
+      g.strokeStyle = ok ? '#60ffa0' : '#ff6850'; g.lineWidth = 3;
+      g.beginPath(); g.moveTo(cx, 82); g.lineTo(cx + Math.cos(na) * 40, 82 + Math.sin(na) * 40); g.stroke();
+      g.fillStyle = '#e8f0f2'; g.font = 'bold 14px monospace';
+      g.fillText(`${v.toFixed(0)} PSI`, cx - 26, 118);
+
+      // 붉은 주철 밸브 핸들
+      g.save(); g.translate(cx, 184); g.rotate(angs[i]);
+      g.strokeStyle = '#c83228'; g.lineWidth = 6;
+      g.beginPath(); g.arc(0, 0, 28, 0, 7); g.stroke();
+      for (let k = 0; k < 3; k++) {
+        const a = k * Math.PI / 1.5;
+        g.beginPath(); g.moveTo(Math.cos(a) * -28, Math.sin(a) * -28); g.lineTo(Math.cos(a) * 28, Math.sin(a) * 28); g.stroke();
+      }
+      g.restore();
+      g.fillStyle = '#b8c4c8'; g.font = '12px sans-serif'; g.fillText(`[${i + 1}] 밸브 ${i + 1} 돌리기`, cx - 42, 226);
+    });
+    const allOk = psi.every(v => v >= 42 && v <= 58);
+    g.fillStyle = allOk ? '#288854' : '#28343c'; g.fillRect(60, 238, 340, 42);
+    g.strokeStyle = allOk ? '#70ffb0' : '#586870'; g.lineWidth = 2; g.strokeRect(60, 238, 340, 42);
+    g.fillStyle = '#ffffff'; g.font = 'bold 14px sans-serif';
+    g.fillText(allOk ? '✦ 수압 동조 완료 — [Space / 클릭] 배수 개방!' : '[Space / 클릭] 메인 배수 레버 (모두 42~58 PSI 필요)', 88, 264);
+  }
+  draw();
+  return p;
+}
+
 export function run(kind, opts = {}) {
   if (MG.active) return Promise.resolve({ ok: false });
-  return ({ lockpick, dial, circuit, piano, slide, fishing, order, memory, tune, simon, timing, ouija, pipes, maze, rings, spotdiff, fuse })[kind](opts);
+  return ({ lockpick, dial, circuit, piano, slide, fishing, order, memory, tune, simon, timing, ouija, pipes, maze, rings, spotdiff, fuse, oscilloscope, chemMix, hoopShot, filmFocus, valveBalance })[kind](opts);
 }

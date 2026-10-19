@@ -302,20 +302,68 @@ export function setProximity(v, t) {
 
 function laterAt(s, fn) { const p = sfxPos; setTimeout(() => { sfxPos = p; try { fn(); } finally { sfxPos = null; } }, s * 1000); } export const sfx = {
   step(run = false, v = 1, surf = 'tile') {
-    const k = run ? 1.5 : 1;
-    if (surf === 'wood') { noiseBurst(.11, 420, 'lowpass', .32 * k, 0, v); tone(95 + Math.random() * 20, .09, 'sine', .14 * k, 0, v); }
-    else if (surf === 'dirt') { noiseBurst(.16, 1800, 'bandpass', .22 * k, 0, v); noiseBurst(.1, 500, 'lowpass', .15 * k, 0, v); }
-    else if (surf === 'metal') { noiseBurst(.08, 1400, 'bandpass', .3 * k, 0, v); tone(240 + Math.random() * 60, .18, 'triangle', .05 * k, 0, v); }
-    else { noiseBurst(.07, 2400, 'bandpass', .26 * k, 0, v); noiseBurst(.08, 600, 'lowpass', .22 * k, 0, v); }
-    if (Math.random() < .06) noiseBurst(.12, 3200, 'highpass', .08, 0, v);   // 종이·유리 조각 밟는 소리
+    const k = run ? 1.45 : 1, j = 1 + (Math.random() - .5) * .14;
+    if (surf === 'wood') {
+      noiseBurst(.045, 1900 * j, 'bandpass', .22 * k, 0, v);
+      noiseBurst(.095, 380 * j, 'lowpass', .34 * k, 0, v);
+      tone(185 * j, .085, 'triangle', .12 * k, 0, v, 128);
+      if (run && Math.random() < .28) laterAt(.04, () => tone(540 * j, .07, 'sine', .035 * v, 0, v, 480));
+    } else if (surf === 'dirt') {
+      noiseBurst(.14, 1650 * j, 'bandpass', .26 * k, 0, v);
+      noiseBurst(.08, 3400 * j, 'highpass', .14 * k, 0, v);
+      laterAt(.035, () => noiseBurst(.09, 920 * j, 'bandpass', .16 * k, 0, v));
+    } else if (surf === 'metal') {
+      noiseBurst(.05, 2200 * j, 'bandpass', .28 * k, 0, v);
+      tone(310 * j, .14, 'triangle', .07 * k, 0, v, 260);
+      tone(690 * j, .09, 'sine', .04 * k, 0, v, 640);
+    } else if (surf === 'wet') {
+      noiseBurst(.09, 1350 * j, 'bandpass', .30 * k, 0, v);
+      laterAt(.025, () => noiseBurst(.11, 2800 * j, 'bandpass', .20 * k, 0, v));
+    } else {
+      noiseBurst(.035, 2750 * j, 'bandpass', .26 * k, 0, v);
+      noiseBurst(.075, 580 * j, 'lowpass', .24 * k, 0, v);
+      laterAt(.03, () => noiseBurst(.04, 1850 * j, 'bandpass', .12 * k, 0, v));
+    }
+    if (Math.random() < .06) noiseBurst(.10, 3400, 'highpass', .07, 0, v);
   },
   ghostStep(dist, pan) { const v = Math.max(0, 1 - dist / 22); if (v > 0.02) { noiseBurst(0.14, 300, 'lowpass', 0.9 * v, pan); tone(70, 0.12, 'sine', 0.5 * v, pan); } },
   heartbeat(v = 1) { tone(58, 0.14, 'sine', 0.8 * v); setTimeout(() => tone(46, 0.18, 'sine', 0.6 * v), 130); },
-  pickup() { tone(880, 0.5, 'sine', 0.25); setTimeout(() => tone(1320, 0.7, 'sine', 0.2), 90); },
-  key() { [660, 880, 1320, 1760].forEach((f, i) => setTimeout(() => tone(f, 0.9, 'triangle', 0.22), i * 110)); },
-  paper() { noiseBurst(0.25, 3000, 'highpass', 0.25); },
-  click() { noiseBurst(0.03, 2500, 'highpass', 0.35); },
-  locker() { noiseBurst(0.18, 700, 'bandpass', 0.5); tone(110, 0.25, 'square', 0.12, 0, 1, 70); },
+  pickup() {
+    noiseBurst(.06, 2200, 'bandpass', .28);
+    tone(520, .09, 'triangle', .12, 0, 1, 680);
+    setTimeout(() => { noiseBurst(.04, 3200, 'highpass', .18); tone(980, .18, 'sine', .14); }, 65);
+  },
+  key() {
+    [1480, 2120, 2860, 3540].forEach((f, i) => setTimeout(() => {
+      noiseBurst(.025, 4200, 'highpass', .18);
+      tone(f * (1 + (Math.random() - .5) * .03), .26, 'sine', .13);
+      tone(f * 1.414, .14, 'triangle', .05);
+    }, i * 65));
+  },
+  paper() {
+    noiseBurst(0.14, 2600, 'bandpass', 0.26);
+    setTimeout(() => noiseBurst(0.18, 3400, 'highpass', 0.22), 55);
+  },
+  click() {
+    noiseBurst(0.022, 3200, 'bandpass', 0.36);
+    tone(1450, 0.025, 'triangle', 0.08, 0, 1, 920);
+  },
+  locker() {
+    // 철제 사물함 개폐: 금속 걸쇠 딸깍 + 경첩 마찰 + 중공 철판 울림
+    noiseBurst(0.035, 3100, 'bandpass', 0.42);
+    tone(1680, 0.03, 'triangle', 0.07, 0, 1, 1100);
+    laterAt(0.04, () => {
+      noiseBurst(0.22, 680, 'bandpass', 0.46);
+      tone(225, 0.24, 'triangle', 0.14, 0, 1, 165);
+      tone(490, 0.16, 'sine', 0.07, 0, 1, 430);
+    });
+  },
+  waterDrain() {
+    for (let i = 0; i < 8; i++) setTimeout(() => {
+      noiseBurst(.38, 650 + i * 70, 'bandpass', .38 - i * .03);
+      tone(280 + (i % 3) * 90, .24, 'sine', .08, 0, 1, 190);
+    }, i * 240);
+  },
   gateClang() { noiseBurst(0.9, 2200, 'bandpass', 0.7); [180, 243, 351].forEach(f => tone(f, 1.6, 'square', 0.09, 0, 1, f * 0.97)); tone(55, 0.8, 'sine', 0.9); },
   gateOpen() { tone(90, 3, 'sawtooth', 0.12, 0, 1, 60); noiseBurst(2.5, 600, 'bandpass', 0.2); },
   bang(pan = 0, v = 1) { noiseBurst(0.35, 500, 'lowpass', 1.0, pan, v); tone(60, 0.4, 'sine', 1.0, pan, v, 35); },

@@ -154,8 +154,8 @@ export function installGuardRoom({ renderer, scene, camera, guardRoom, cctvTextu
           if (!node.isMesh || !/smudged_monitor_screen/i.test(node.name)) return;
           const b = localBounds(sourceRoot,node), size = b.getSize(new THREE.Vector3()), center = b.getCenter(new THREE.Vector3());
           const screen = new THREE.Mesh(new THREE.PlaneGeometry(size.x,size.z), screenOff);
-          screen.name='GUARDROOM_CCTV_SCREEN'; screen.position.set(center.x,b.min.y-.002,center.z);
-          screen.rotation.x=Math.PI/2; model.add(screen); refs.screens.push(screen);
+          screen.name='GUARDROOM_CCTV_SCREEN'; screen.position.set(center.x,b.max.y+.002,center.z);
+          screen.rotation.set(-Math.PI/2,0,Math.PI); model.add(screen); refs.screens.push(screen);
         });
         refs.screen = refs.screens[0] || null;
       }

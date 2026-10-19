@@ -4,11 +4,11 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { NOTES } from './story.js?v=113';
+import { NOTES } from './story.js?v=114';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=113';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=114';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -3384,10 +3384,10 @@ export function buildWorld(scene) {
   // 서쪽 내곽 담장: 서북 캠퍼스 통문(z -36 ~ -28: 청운학사 기숙사 · 스포츠단지 연결) 및 서남 통문(z 46 ~ 54: 학생회관 · 동아리관 연결) 개방!
   outWall(-50.25, -49.75, NORTH_Z, -36.0, fenceH, mFence);
   outWall(-50.25, -49.75, -28.0, 28.5, fenceH, mFence);
-  outWall(-50.25, -49.75, 35.5, 46.0, fenceH, mFence);
-  outWall(-50.25, -49.75, 54.0, GATE_Z, fenceH, mFence);
+  outWall(-50.25, -49.75, 35.5, 52.5, fenceH, mFence);
+  outWall(-50.25, -49.75, 59.5, GATE_Z, fenceH, mFence);
   const brick = mBrick;
-  [-36.0, -28.0, 28.5, 35.5, 46.0, 54.0].forEach(z => { OUT.add(boxMesh(-50.6, -49.4, 0, 3.2, z - .5, z + .5, brick)); col(-50.6, -49.4, z - .5, z + .5, true); });
+  [-36.0, -28.0, 28.5, 35.5, 52.5, 59.5].forEach(z => { OUT.add(boxMesh(-50.6, -49.4, 0, 3.2, z - .5, z + .5, brick)); col(-50.6, -49.4, z - .5, z + .5, true); });
   OUT.add(boxMesh(-50.2, -49.8, 0, 2.2, 29.1, 34.9, mRust)); col(-50.3, -49.7, 29.1, 34.9, true);
   for (let k = 0; k < 14; k++) { const b = new THREE.Mesh(new THREE.BoxGeometry(.06, 2.3, .06), mRust); b.position.set(-50, 1.2, 29.4 + k * .4); OUT.add(b); }
   plane(OUT, new THREE.MeshBasicMaterial({ map: T.makeSign('서  문', '#1c1812', '#d8d0b0', 40), color: 0xa09a88 }), 1.0, .5, -49.38, 2.6, 28.5, Math.PI / 2);
@@ -3467,11 +3467,11 @@ export function buildWorld(scene) {
     // 5) 15,000평 확장 캠퍼스 광역 보도블록 인도망 (서북 기숙사 · 서중부 스포츠단지 · 서남 학생회관 · 북측 생태연못 · 동북 과학천문관 · 동남 중앙도서관 직결!)
     tileRoad(-92.0, -28.8, -33.6, -30.4, false, true);  // 서북 통문 가로질러 청운학사 기숙사 진입 인도
     tileRoad(-76.0, -72.8, -42.0, 56.0, true, false);   // 서편 확장 캠퍼스 남북 종단 대로 (기숙사 ↔ 스포츠단지 ↔ 학생회관)
-    tileRoad(-72.8, -28.8, 48.4, 51.6, false, true);    // 서남 통문 가로질러 학생회관·동아리관 연결 인도
+    tileRoad(-76.0, -28.8, 54.4, 57.6, false, true);    // 서남 통문(z 56) 가로질러 학생회관·동아리관 연결 인도
     tileRoad(-10.6, -7.4, -88.0, -32.0, true, false);   // 북문 통로 가로질러 청운호 생태수변공원 & 호심정 진입 인도
-    tileRoad(27.0, 82.0, -33.6, -30.4, false, true);    // 동북 통문 가로질러 과학천문관 진입 인도
-    tileRoad(66.0, 69.2, -45.0, 38.0, true, false);     // 동편 확장 캠퍼스 남북 종단 대로 (과학천문관 ↔ 중앙학술정보관)
-    tileRoad(27.0, 76.0, 18.4, 21.6, false, true);      // 동남 통문 가로질러 중앙학술정보관(대도서관) 진입 인도
+    tileRoad(27.0, 76.0, -33.6, -30.4, false, true);    // 동북 통문 가로질러 과학천문관 진입 인도
+    tileRoad(66.0, 69.2, -45.0, 46.0, true, false);     // 동편 확장 캠퍼스 남북 종단 대로 (과학천문관 ↔ 중앙학술정보관)
+    tileRoad(27.0, 76.0, 37.4, 40.6, false, true);      // 동남 통문(z 39) 가로질러 중앙학술정보관(대도서관) 진입 인도
     OUT.add(new THREE.Mesh(merge(curbG), mStep));
   }
 
@@ -3592,9 +3592,9 @@ export function buildWorld(scene) {
   }
   // 동쪽 내곽 담장: 동북 통문(z -36 ~ -28: 과학천문관 연결) 및 동남 통문(z 16 ~ 24: 중앙학술정보관/대도서관 연결) 개방!
   outWall(49.75, 50.25, NORTH_Z, -36.0, fenceH, mFence);
-  outWall(49.75, 50.25, -28.0, 16.0, fenceH, mFence);
-  outWall(49.75, 50.25, 24.0, GATE_Z, fenceH, mFence);
-  [-36.0, -28.0, 16.0, 24.0].forEach(z => { OUT.add(boxMesh(49.4, 50.6, 0, 3.2, z - .5, z + .5, brick)); col(49.4, 50.6, z - .5, z + .5, true); });
+  outWall(49.75, 50.25, -28.0, 35.5, fenceH, mFence);
+  outWall(49.75, 50.25, 42.5, GATE_Z, fenceH, mFence);
+  [-36.0, -28.0, 35.5, 42.5].forEach(z => { OUT.add(boxMesh(49.4, 50.6, 0, 3.2, z - .5, z + .5, brick)); col(49.4, 50.6, z - .5, z + .5, true); });
   // 북쪽 내곽 담장: 북문 통로(x -13.0 ~ -5.0: 청운호 생태수변공원 · 팔각정 연결) 개방!
   outWall(-50, -13.0, NORTH_Z - .25, NORTH_Z + .25, fenceH, mFence);
   outWall(-5.0, 50, NORTH_Z - .25, NORTH_Z + .25, fenceH, mFence);
@@ -3748,7 +3748,8 @@ export function buildWorld(scene) {
     }
     tpos.push([x, z, inside]);
   }
-  tpos.forEach(([x, z, inside]) => { const s2 = rr(.8, 1.4); _o.position.set(x, 0, z); _o.rotation.set(0, rnd() * 6, 0); _o.scale.set(s2, s2 * rr(.9, 1.25), s2); _o.updateMatrix(); treeM.push(_o.matrix.clone()); if (inside) col(x - .35, x + .35, z - .35, z + .35); });
+  const inMegaZone = (x, z) => (x < -42 && z > -46 && z < 66) || (x > 42 && z > -46 && z < 54) || (x > -30 && x < 14 && z < -58) || (x > 14 && x < 38 && z > 58) || (x > -49 && x < -28 && z > -22 && z < -10) || (x > 24 && x < 42 && z > -38 && z < -10);
+  tpos.forEach(([x, z, inside]) => { const s2 = rr(.8, 1.4), ry = rnd() * 6, sy = rr(.9, 1.25), hide = inMegaZone(x, z); _o.position.set(x, hide ? -500 : 0, z); _o.rotation.set(0, ry, 0); _o.scale.set(hide ? 0 : s2, hide ? 0 : s2 * sy, hide ? 0 : s2); _o.updateMatrix(); treeM.push(_o.matrix.clone()); if (inside && !hide) col(x - .35, x + .35, z - .35, z + .35); });
   _o.scale.set(1, 1, 1);
   inst(OUT, trunkG, S(T.makeWood([52, 38, 26])), treeM);
   const crowns = inst(OUT, crownG, new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 1, flatShading: true }), treeM);

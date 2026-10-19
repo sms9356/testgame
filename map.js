@@ -35,10 +35,18 @@ export function drawMap(ctx, W, H, o) {
     fillRect(31.2, -36.2, 38.8, -28.8, '#38424c'); strokeRect(31.2, -36.2, 38.8, -28.8, '#8aa0b0', 1); // 야외음악당
     fillRect(15.5, 60.5, 36.5, 67.2, 'rgba(70,74,80,.55)');                                            // 교직원주차장
     fillRect(-13.8, 61.2, -9.2, 65.8, '#4a3828');                                                      // 청운정(육각정)
+    // 15,000평 메가 캠퍼스 6대 확장 구역 (청운학사 기숙사 · 청운호 수변공원 · 과학천문관 · 중앙학술정보관 · 스포츠단지 · 학생회관)
+    fillRect(-99, -39, -77, -25, '#4a322c'); strokeRect(-99, -39, -77, -25, '#a88878', 1.2);           // 청운학사(기숙사)
+    fillRect(-25, -95, 7, -77, '#1c4e58'); strokeRect(-25, -95, 7, -77, '#68b8c8', 1.2);               // 청운호 수변공원
+    fillRect(74, -40, 94, -24, '#2c3e54'); strokeRect(74, -40, 94, -24, '#88b4d8', 1.2);               // 과학천문관
+    fillRect(73, 11, 95, 29, '#4a3628'); strokeRect(73, 11, 95, 29, '#b89878', 1.2);                   // 중앙학술정보관(대도서관)
+    fillRect(-99, -5, -77, 21, '#244a38'); strokeRect(-99, -5, -77, 21, '#68b088', 1.2);               // 스포츠단지(테니스·양궁장)
+    fillRect(-99, 42, -77, 58, '#48342e'); strokeRect(-99, 42, -77, 58, '#b08878', 1.2);               // 학생회관·동아리관
     if (labels) {
       ctx.fillStyle = '#b8b4a4'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
       ctx.fillText('운동장', X(0), Y(36)); ctx.fillText('조회대', X(-11), Y(16.4)); ctx.fillText('스탠드', X(13.5), Y(12.6)); ctx.fillText('농구장', X(36), Y(46)); ctx.fillText('체육관', X(38), Y(23.5)); ctx.fillText('급식실', X(-39), Y(19)); ctx.fillText('수영장', X(-41), Y(41)); ctx.fillText('경비실', X(GUARD_LAYOUT.cx), Y(GUARD_LAYOUT.cz)); ctx.fillText('별관', X(0), Y(-19.25 - ANNEX_DZ)); ctx.fillText('대강당', X(MEGA.gym.x), Y(MEGA.gym.z)); ctx.fillText('중정', X(MEGA.court.x), Y(MEGA.court.z)); ctx.fillText('서문', X(-47), Y(32)); ctx.fillText('정문', X(0), Y(GATE_Z) - 8);
       ctx.fillText('생태온실', X(-44.2), Y(-15.2)); ctx.fillText('학우매점', X(29.5), Y(-19.2)); ctx.fillText('야외음악당', X(35.0), Y(-32.5)); ctx.fillText('주차장', X(26.0), Y(64.0)); ctx.fillText('청운정', X(-11.5), Y(63.5));
+      ctx.fillText('청운학사(기숙사)', X(-88), Y(-32)); ctx.fillText('청운호·호심정', X(-9), Y(-86)); ctx.fillText('과학천문관', X(84), Y(-32)); ctx.fillText('중앙도서관', X(84), Y(20)); ctx.fillText('스포츠단지', X(-88), Y(8)); ctx.fillText('학생회관', X(-88), Y(50));
     }
   }
   if (floor === 5) {

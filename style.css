@@ -252,3 +252,40 @@ body.ghost-cam-active #ghost-cam-overlay {
 
 /* 게임 연결용 보정: 소형 화면에서 뷰파인더 여백 축소 · 손전등 집중 시 깜빡임 방지 설정 존중 */
 @media (max-width: 760px) { .cam-top-bar, .cam-bottom-bar { left: 24px; right: 24px; font-size: 11px; } .cam-frame-box { inset: 18px 20px; } }
+
+/* =========================================================
+   REALISTIC TIME, COMPASS, ENV SENSOR & BIOMETRIC HUD UPGRADE
+   ========================================================= */
+#hudCompass {
+  display: flex; align-items: center; justify-content: space-between;
+  background: linear-gradient(180deg, rgba(14,20,24,0.92), rgba(8,12,16,0.88));
+  border: 1px solid rgba(130,170,185,0.32); border-radius: 6px;
+  padding: 3px 8px; margin-bottom: 5px; font-family: 'Courier New', monospace;
+  font-size: 11px; color: #b8dce8; letter-spacing: 0.5px;
+  box-shadow: inset 0 0 8px rgba(0,0,0,0.7), 0 2px 8px rgba(0,0,0,0.45);
+}
+#hudCompass b { color: #68ffb8; font-size: 12px; }
+#hudEnvSensor {
+  margin-top: 3px; padding: 3px 7px; border-radius: 5px;
+  background: rgba(10,15,18,0.82); border: 1px solid rgba(120,150,160,0.22);
+  font-family: 'Courier New', monospace; font-size: 11px; color: #b4c8d0;
+  display: flex; justify-content: space-between; gap: 6px;
+}
+#clock {
+  font-family: 'Courier New', monospace !important;
+  font-weight: 700 !important; letter-spacing: 0.6px !important;
+  color: #88ffd0 !important; text-shadow: 0 0 8px rgba(80,255,180,0.35) !important;
+}
+#hudBioRow {
+  display: flex; align-items: center; justify-content: space-between; gap: 6px;
+  margin-top: 5px; padding-top: 4px; border-top: 1px solid rgba(255,255,255,0.09);
+  font-family: 'Courier New', monospace; font-size: 11px; color: #c8dcd4;
+}
+#ecgCanvas {
+  width: 68px; height: 18px; background: rgba(6,14,12,0.85);
+  border: 1px solid rgba(80,220,140,0.3); border-radius: 3px;
+}
+#batPct {
+  position: absolute; top: 3px; right: 5px; font-family: 'Courier New', monospace;
+  font-size: 10px; font-weight: 700; color: #78ffaa; text-shadow: 0 1px 3px #000;
+}

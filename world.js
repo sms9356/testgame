@@ -1304,7 +1304,7 @@ export function buildWorld(scene) {
       const ci = cx - 2.5, co = cx - 1.22;
       hr.push(tube(.03, ci, dy + H, z0, ci, dy + LND + H, zl));   // 두 계단 사이 (층참에서 꺾임)
       for (let k = 0; k <= 20; k++) { const t = k / 20; P(ci, dy + t * LND, z0 - t * n * run); if (k && !top) P(ci, dy + LND + t * LND, zl + t * n * run); }
-      bal.push(tube(.035, ci, dy, zl, ci, dy + LND + H + .05, zl));   // 꺾이는 곳의 기둥(뉴얼 포스트)
+      bal.push(tube(.035, ci, dy + LND - .3, zl, ci, dy + LND + H + .05, zl));   // 꺾이는 곳의 기둥(뉴얼 포스트): 층참 아래로는 내리지 않는다 (예전엔 바닥부터 솟아 두 계단 사이 빈 공간에 막대 하나가 떠 보였다)
       hr.push(tube(.03, co, dy + LND + H, -9.5, co, dy + LND + H, zl));   // 바깥쪽: 층참 가장자리 (예전엔 보이지 않는 벽뿐이었다)
       for (let k = 0; k <= 7; k++) P(co, dy + LND, -9.5 + k * (zl + 9.5) / 7);
       bal.push(tube(.016, ci, dy + .1, z0, ci, dy + LND + .1, zl));   // 아래 띠
@@ -2433,7 +2433,7 @@ export function buildWorld(scene) {
     if (f <= 2) model('WetFloorSign_01', -30.0, 0, -.55, .5);
     model('SchoolDesk_01', -35.55, 0, .95, Math.PI / 2, { col: [.55, .45] }); model('SchoolChair_01', -35.35, 1.88, .85, Math.PI / 2 + .3, { rx: Math.PI });
     model('SchoolChair_01', -34.2, .3, -.25, 1.2, { rz: Math.PI / 2 }); model('SchoolDesk_01', -35.55, 0, -.98, Math.PI / 2 + .15, { col: [.55, .45] });
-    ceilingDamage(-34, 34, -1.2, 1.2, 9); SLOTS.forEach(cx => { if (rnd() < .5) ceilingDamage(cx - 3, cx + 3, -8.5, -2.5, 1); });
+    ceilingDamage(-34, 34, -1.2, 1.2, 9); SLOTS.forEach((cx, i) => { if (rnd() < .5 && !['stair', 'exit'].includes(lay.types[i])) ceilingDamage(cx - 3, cx + 3, -8.5, -2.5, 1); });   /* 계단실은 위가 트여 있어 천장 구멍 · 매달린 타일이 허공에 떴다 */
     exitSign(0, 2.95, -1.43); exitSign(-35, 2.9, 0, Math.PI / 2); exitSign(35, 2.9, 0, -Math.PI / 2);
     extinguisher(-1.6, -1.25); extinguisher(33.5, 1.2);
     graffiti(pick(['다시, 여기서', '나가지 마', '뒤를 봐', '같이 놀자']), SLOTS[2] + 2.5, 1.6, -1.44, 0, 2.6);

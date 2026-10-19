@@ -2836,7 +2836,8 @@ export function buildWorld(scene) {
     for (let x = 29.2; x <= 35.4; x += 1.55) add(mPadBlue, 1.42, 1.65, .08, x, .15, z1 - t - .05);
     for (let x = 40.6; x <= 42.4; x += 1.55) add(mPadBlue, 1.42, 1.65, .08, x, .15, z1 - t - .05);
     for (let z = 12.8; z <= 16.0; z += 1.55) add(mPadBlue, .08, 1.65, 1.42, x0 + t + .05, .15, z);
-    [11, 15, 19, 23, 27].forEach(z => { win3D(F.interior, 2.4, 1.8, x0 + t + .02, 5.2, z, Math.PI / 2); win3D(F.interior, 2.4, 1.8, x1 - t - .02, 5.2, z, -Math.PI / 2); });
+    [11, 15, 19, 23, 27].forEach(z => win3D(F.interior, 2.4, 1.8, x0 + t + .02, 5.2, z, Math.PI / 2));
+    [11, 15, 19, 23].forEach(z => win3D(F.interior, 2.4, 1.8, x1 - t - .02, 5.2, z, -Math.PI / 2));
     // 천장 입체 철골 트러스 & 음향 어레이 스피커
     for (let z = 10; z <= 28; z += 4) {
       add(mMetal, 19.4, .28, .22, 38, H - .6, z);
@@ -2902,7 +2903,6 @@ export function buildWorld(scene) {
     // 부스 내부 오디오 믹서 콘솔 · 릴테이프 데크 · 스포트라이트 제어반 (x = 44.8, z = 26.8, y = 1.6m)
     add(mWoodDark, 1.8, .78, .75, 44.9, 1.6, 26.4);
     add(mBlack, .65, .18, .42, 44.6, 2.38, 26.35); add(mBlack, .55, .32, .35, 45.3, 2.38, 26.35);
-    glowAt(44.6, 2.55, 26.35, .22, glowGreen);
 
     /* ── 서쪽 신설 확장 구역: 「체육교사실 · 체육용구 보관실」 (x: 20 ~ 28, z: 12 ~ 26) ── */
     const gx0 = 20.0, gx1 = 28.0, gz0 = 12.0, gz1 = 26.0, gH = 4.2;

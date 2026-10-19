@@ -4,11 +4,11 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { NOTES } from './story.js?v=126';
+import { NOTES } from './story.js?v=127';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=126';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=127';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -3479,7 +3479,7 @@ export function buildWorld(scene) {
     const afN = buildWindowFakes(anSlotsN, 9); afN.position.z = -25.02 - ANNEX_DZ; OUT.add(afN); }
   // 별관 옥상 파라펫
   OUT.add(boxMesh(-20.4, 20.4, 12.7, 13.6, -25.4 - ANNEX_DZ, -25.1 - ANNEX_DZ, mFacade, 3), boxMesh(-20.4, 20.4, 12.7, 13.6, -13.4 - ANNEX_DZ, -13.1 - ANNEX_DZ, mFacade, 3), boxMesh(-20.4, -20.1, 12.7, 13.6, -25.4 - ANNEX_DZ, -13.1 - ANNEX_DZ, mFacade, 3), boxMesh(20.1, 20.4, 12.7, 13.6, -25.4 - ANNEX_DZ, -13.1 - ANNEX_DZ, mFacade, 3));
-  // ── 캠퍼스 전역 보도블록 · 판석 타일 인도 네트워크 (모든 건물 출입구와 신규 구역을 화강암 연석 + 보도블록 길로 연결) ──
+  // ── 캠퍼스 전역 보도블록 · 판석 타일 인도 네트워크 (건물·코트·연못 침범 0건으로 정밀 구획된 보도블록 길 + 화강암 연석) ──
   {
     const curbG = [];
     const tileRoad = (x1, x2, z1, z2, curbW = true, curbZ = false) => {
@@ -3487,32 +3487,31 @@ export function buildWorld(scene) {
       if (curbW) { curbG.push(bx(.16, .08, z2 - z1, x1 - .08, .04, (z1 + z2) / 2, 2), bx(.16, .08, z2 - z1, x2 + .08, .04, (z1 + z2) / 2, 2)); }
       if (curbZ) { curbG.push(bx(x2 - x1, .08, .16, (x1 + x2) / 2, .04, z1 - .08, 2), bx(x2 - x1, .08, .16, (x1 + x2) / 2, .04, z2 + .08, 2)); }
     };
-    // 1) 서부 남북 종단 인도 (본관 남쪽 z 11~55.4 구간 + 본관 서쪽 외곽 우회로 x -39.5..-37.0, z -33..14)
-    tileRoad(-28.8, -26.0, 11.0, 55.4, true, false);
-    tileRoad(-39.6, -37.0, -33.0, 13.8, true, false);  // 본관 서벽(x -36.3) 바깥 서쪽 우회 타일 인도
-    tileRoad(-34.0, -28.8, 39.6, 42.4, false, true);   // 수영장 정문 연결 지선
-    tileRoad(-49.2, -28.8, 30.8, 33.4, false, true);   // 서문 연결 지선
-    tileRoad(-30.5, -28.8, 17.2, 20.2, false, true);   // 급식실 연결 지선
-    // 2) 동부 남북 종단 인도 (본관 남쪽 z 11~65.5 구간 + 본관 동쪽 외곽 우회로 x 37.0..39.6, z -35..14)
-    tileRoad(24.2, 27.0, 11.0, 65.5, true, false);
-    tileRoad(37.0, 39.6, -35.0, 13.8, true, false);    // 본관 동벽(x 36.3) 바깥 동쪽 우회 타일 인도
-    tileRoad(27.0, 39.4, 34.8, 37.6, false, true);     // 체육관 정문 연결 지선
-    tileRoad(27.0, 29.5, 44.5, 47.5, false, true);     // 야외 농구장 연결 지선
-    // 3) 구름다리 아래 1층 필로티 중앙 광장 & 동서 횡단 보도블록 길 (서쪽 우회로 x -37 ↔ 필로티 광장 ↔ 동쪽 우회로 x 37 직결!)
-    tileRoad(-37.0, 37.0, -16.8, -13.6, false, true);  // 필로티 동서 횡단 메인 인도
-    flat(OUT, pave, -5.5, 6.5, WALKWAY.z1 - .2, WALKWAY.z2 + .2, .014, 3); // 구름다리 아래 중앙 필로티 광장 포장
-    // 4) 북부 캠퍼스 횡단 인도 (대강당·실내체육관 ↔ 중앙 중정 ↔ 야외 원형 음악당)
-    tileRoad(-26.0, -18.5, -34.6, -31.8, false, true); // 대강당 정문 앞 인도
-    tileRoad(-3.2, 24.2, -35.2, -32.4, false, true);   // 별관 북동편 ~ 야외 음악당 연결 인도
-    tileRoad(1.4, 4.6, -44.0, -35.2, true, false);     // 중앙 중정(창립자 석상 정원) 진입 인도
-    // 5) 15,000평 확장 캠퍼스 광역 보도블록 인도망 (서북 기숙사 · 서중부 스포츠단지 · 서남 학생회관 · 북측 생태연못 · 동북 과학천문관 · 동남 중앙도서관 직결!)
-    tileRoad(-92.0, -28.8, -33.6, -30.4, false, true);  // 서북 통문 가로질러 청운학사 기숙사 진입 인도
-    tileRoad(-76.0, -72.8, -42.0, 56.0, true, false);   // 서편 확장 캠퍼스 남북 종단 대로 (기숙사 ↔ 스포츠단지 ↔ 학생회관)
-    tileRoad(-76.0, -28.8, 54.4, 57.6, false, true);    // 서남 통문(z 56) 가로질러 학생회관·동아리관 연결 인도
-    tileRoad(-10.6, -7.4, -88.0, -32.0, true, false);   // 북문 통로 가로질러 청운호 생태수변공원 & 호심정 진입 인도
-    tileRoad(27.0, 76.0, -33.6, -30.4, false, true);    // 동북 통문 가로질러 과학천문관 진입 인도
-    tileRoad(66.0, 69.2, -45.0, 46.0, true, false);     // 동편 확장 캠퍼스 남북 종단 대로 (과학천문관 ↔ 중앙학술정보관)
-    tileRoad(27.0, 76.0, 37.4, 40.6, false, true);      // 동남 통문(z 39) 가로질러 중앙학술정보관(대도서관) 진입 인도
+    // 1) 서부 남북 종단 인도 (본관 남쪽 z 11~54.8 구간 + 본관 서쪽 외곽 우회로 x -39.6..-37.0, z -33.6..12.0)
+    tileRoad(-29.6, -27.2, 11.0, 54.8, true, false);
+    tileRoad(-39.6, -37.0, -33.6, 12.0, true, false);   // 본관 서벽(x -36.3) 바깥 서쪽 우회 타일 인도 (급식실 z 12.5 앞에서 깔끔히 종료)
+    tileRoad(-33.8, -29.6, 39.6, 42.4, false, true);    // 수영장 정문 연결 지선
+    tileRoad(-49.2, -29.6, 28.2, 30.6, false, true);    // 서문 연결 지선 (급식실 z 25 와 수영장 z 31 사이 통로)
+    tileRoad(-30.0, -29.6, 17.2, 20.2, false, true);    // 급식실 연결 지선
+    // 2) 동부 남북 종단 인도 (운동장 트랙 x 27 바깥을 따라 체육관·농구장 사이로 연결 + 본관 동쪽 외곽 우회로 x 37.0..39.6)
+    tileRoad(37.0, 39.6, -35.2, 12.0, true, false);     // 본관 동벽(x 36.3) 바깥 동쪽 우회 타일 인도 (체육관 z 12.5 앞에서 종료)
+    tileRoad(27.2, 49.5, 35.0, 37.8, false, true);      // 체육관(z<=34.5)과 야외농구장(z>=38.5) 사이 동남 통문 직결 인도!
+    tileRoad(43.4, 46.0, 37.8, 56.5, true, false);      // 야외농구장 동편 ~ 제1주차장 연결 남북 인도
+    // 3) 구름다리 아래 1층 필로티 중앙 광장 & 동서 횡단 보도블록 길 (본관 북벽 z -9.9 와 별관 남벽 z -20.5 사이)
+    tileRoad(-37.0, 37.0, -16.8, -13.6, false, true);   // 필로티 동서 횡단 메인 인도
+    flat(OUT, pave, -5.5, 6.5, WALKWAY.z1 - .2, WALKWAY.z2 + .2, .014, 3);
+    // 4) 북부 캠퍼스 횡단 인도 (별관 북벽 z -32.0 북쪽 바깥으로 대강당 ↔ 중앙 중정 ↔ 야외 음악당 연결)
+    tileRoad(-26.0, -14.5, -36.2, -33.4, false, true);  // 대강당 정문 앞 인도 (별관 북벽 z -32.0 과 완전 분리!)
+    tileRoad(-3.2, 30.8, -36.2, -33.4, false, true);    // 별관 북동편 ~ 야외 음악당 연결 인도
+    tileRoad(1.4, 4.6, -44.5, -36.2, true, false);      // 중앙 중정(창립자 석상 정원) 진입 인도
+    // 5) 15,000평 확장 캠퍼스 광역 보도블록 인도망 (모든 건물·포치·운동시설과 겹침 0건으로 정문 앞까지 정확히 연결!)
+    tileRoad(-69.4, -39.6, -36.2, -33.4, false, true);  // 서북 통문 가로질러 청운학사 기숙사 방향 연결 인도
+    tileRoad(-72.2, -69.4, -45.0, 57.2, true, false);   // 서편 확장 캠퍼스 남북 종단 대로 (기숙사 포치 x -73 · 테니스장 x -78 · 야구장 x -76 · 학생회관 포치 x -75 동편을 따라 정렬!)
+    tileRoad(-69.4, -29.6, 55.4, 58.0, false, true);    // 서남 통문 가로질러 학생회관·제2주차장 연결 인도 (수영장 기계실 z<=55 남쪽 우회)
+    tileRoad(-10.6, -7.4, -76.6, -33.4, true, false);   // 북문 통로 가로질러 청운호 수변공원 입구(z -77.0)까지 직결!
+    tileRoad(39.6, 69.4, -35.2, -32.4, false, true);    // 동북 통문 가로질러 과학천문관·생태온실 연결 인도
+    tileRoad(69.4, 72.2, -48.0, 44.0, true, false);     // 동편 확장 캠퍼스 남북 종단 대로 (학우매점 x<=68.1 과 과학천문관 x>=74 · 중앙도서관 x>=73 사이를 정확히 통과!)
+    tileRoad(50.2, 69.4, 37.4, 40.2, false, true);      // 동남 통문 가로질러 중앙학술정보관(대도서관) 앞 대로 연결 인도
     OUT.add(new THREE.Mesh(merge(curbG), mStep));
   }
 

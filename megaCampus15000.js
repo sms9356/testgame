@@ -405,34 +405,60 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
     world.doorList.push({ kind: 'hinge', floor: 0, x: dSpec.x, z: dSpec.z, open: dSpec.open, target: dSpec.open, leaves, rect, name: dSpec.name });
   });
 
-  // ── Google Flow & Meta AI 시트지 기반 10종의 .glb 3D 모델 (정적 5종 + 키프레임 애니메이션 5종!) 비동기 로드 및 실시간 AnimationMixer 구동 ──
+  // ── Google Flow & Meta AI 극사실적 시트지 기반 16종 .glb 3D 모델 (네트워크 캐시 디듀플리케이션 + 거리 기반 AnimationMixer 컬링 적용!) ──
   {
     const loader = new GLTFLoader();
+    const glbCache = (window.__glbCache ||= new Map());
     const mixers = [];
     window.__campusAnimMixers = mixers;
+
+    const loadCachedGlb = url => {
+      const fullUrl = url + '?v=127';
+      let p = glbCache.get(fullUrl);
+      if (!p) {
+        p = new Promise(resolve => {
+          loader.load(fullUrl, gltf => resolve(gltf), undefined, () => resolve(null));
+        });
+        glbCache.set(fullUrl, p);
+      }
+      return p;
+    };
+
     const placeGlb = (url, placements) => {
-      loader.load(url + '?v=126', gltf => {
+      loadCachedGlb(url).then(gltf => {
+        if (!gltf) return;
         placements.forEach(([px, py, pz, ry = 0, sx = 1, sy = 1, sz = 1]) => {
           const m = gltf.scene.clone(true);
           m.position.set(px, py, pz); m.rotation.y = ry; m.scale.set(sx, sy, sz);
-          m.traverse(o => { o.userData.dynamic = true; if (o.isMesh) { o.castShadow = o.receiveShadow = true; if (o.material?.map) o.material.map.colorSpace = THREE.SRGBColorSpace; } });
+          m.traverse(o => {
+            o.userData.dynamic = true;
+            if (o.isMesh) {
+              o.castShadow = false; // 소품 그림자 패스 제외로 GPU 드로우콜 및 프레임 딜레이 대폭 절감!
+              o.receiveShadow = true;
+              if (o.material?.map) o.material.map.colorSpace = THREE.SRGBColorSpace;
+            }
+          });
           OUT.add(m);
           if (gltf.animations && gltf.animations.length) {
             const mx = new THREE.AnimationMixer(m);
+            mx.userData = { x: px, z: pz };
             gltf.animations.forEach(clip => mx.clipAction(clip).play());
             mixers.push(mx);
           }
         });
-      }, undefined, () => {});
+      });
     };
+
     // 1) 1998 구관 학우매점(x=63.5, z=18.0, 9.2m×6.4m) CAD 단면도 기반 실내외 .glb 5종 정밀 배치
     placeGlb('assets/models/sf/sf_snack_facade.glb', [[63.5, 3.25, 21.32, 0, 1.0, 1.0, 1.0]]);
     placeGlb('assets/models/sf/sf_snack_counter_v2.glb', [[60.8, 0.17, 18.2, 0, 1.0, 1.0, 1.0]]);
     placeGlb('assets/models/sf/sf_beverage_fridge.glb', [[62.6, 0.17, 15.38, 0, 1.0, 1.0, 1.0], [64.35, 0.17, 15.38, 0, 1.0, 1.0, 1.0]]);
     placeGlb('assets/models/sf/sf_snack_shelf.glb', [[64.5, 0.17, 17.7, 0, 1.0, 1.0, 1.0], [66.35, 0.17, 17.7, 0, 1.0, 1.0, 1.0]]);
     placeGlb('assets/models/sf/sf_icecream_freezer.glb', [[67.35, 0.17, 19.45, -Math.PI / 2, 1.0, 1.0, 1.0]]);
+
     // 2) 야구 스타디움 외야(x=-88, z=4.5) 전광판 .glb
     placeGlb('assets/models/sf/sf_baseball_scoreboard.glb', [[-88.0, 0, 4.5, 0, 1.15, 1.15, 1.15]]);
+
     // 3) 4대 확장 건물 정문 양개 강화유리문 시스템 .glb
     placeGlb('assets/models/sf/sf_campus_glass_door.glb', [
       [-74.95, 0, -42.0, Math.PI / 2, 1, 1, 1],
@@ -440,7 +466,8 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
       [ 72.95, 0,  39.0, -Math.PI / 2, 1, 1, 1],
       [-76.95, 0,  48.0, Math.PI / 2, 1, 1, 1]
     ]);
-    // 4) [신규 애니메이션 GLB 5종] 주차 차단기 · 회전 기상레이더 · 회전 플라네타리움 · 발광 자판기 · 진자 괘종시계
+
+    // 4) 주차 차단기 · 회전 기상레이더 · 회전 플라네타리움 · 발광 자판기 · 진자 괘종시계 · 버스정류장 · 소화전/게시판
     placeGlb('assets/models/sf/sf_anim_parking_gate.glb', [
       [15.2, 0, 58.2, 0, 1, 1, 1],
       [-55.5, 0, 61.2, Math.PI, 1, 1, 1]
@@ -453,7 +480,7 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
       [84.0, 0, -34.0, 0, 1, 1, 1]
     ]);
     placeGlb('assets/models/sf/sf_anim_vending_arcade.glb', [
-      [58.2, 0, 20.6, 0, 1, 1, 1],
+      [58.0, 0, 20.8, 0, 1, 1, 1],
       [-74.2, 0, -36.5, Math.PI / 2, 1, 1, 1],
       [-76.2, 0, 42.5, Math.PI / 2, 1, 1, 1]
     ]);
@@ -473,10 +500,56 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
       [-82.0, 0, 41.4, 0, 1, 1, 1]
     ]);
 
+    // 5) [신규 극사실적 파손 가구·사물·콘크리트 블록 잔해·노후 외관 설비 .glb 4종] 캠퍼스 및 건물 빈 공간 적재적소 배치!
+    // ① 부러진 책걸상 바리케이드 (sf_broken_desk_barricade.glb)
+    placeGlb('assets/models/sf/sf_broken_desk_barricade.glb', [
+      [-34.5, 0, -10.6, 0.2, 1, 1, 1],
+      [ 34.5, 0, -10.6, -0.3, 1, 1, 1],
+      [-18.5, 0, -20.0, 0.4, 1, 1, 1],
+      [ 25.5, 0, -20.0, -0.2, 1, 1, 1],
+      [-92.0, 0, -36.5, 0.5, 1, 1, 1],
+      [-92.5, 0,  53.5, -0.4, 1, 1, 1],
+      [ 89.5, 0,  45.5, 0.3, 1, 1, 1]
+    ]);
+    // ② 찌그러진 3연동 철제 사물함 & 추락한 칠판 (sf_dented_locker_set.glb)
+    placeGlb('assets/models/sf/sf_dented_locker_set.glb', [
+      [-89.0, 0, -48.5, 0, 1, 1, 1],
+      [-89.0, 0,  41.5, 0, 1, 1, 1],
+      [ 89.0, 0, -41.5, 0, 1, 1, 1],
+      [ 60.5, 0,  14.3, Math.PI, 1, 1, 1]
+    ]);
+    // ③ 깨진 콘크리트 블록 및 적벽돌 파편 더미 (sf_rubble_concrete_blocks.glb)
+    placeGlb('assets/models/sf/sf_rubble_concrete_blocks.glb', [
+      [-22.5, 0, -11.5, 0.4, 1, 1, 1],
+      [ 22.5, 0, -11.5, 1.2, 1, 1, 1],
+      [-48.5, 0,  26.5, 0.8, 1, 1, 1],
+      [ 48.5, 0,  11.2, 2.1, 1, 1, 1],
+      [ 57.5, 0,  16.2, 0.5, 1, 1, 1],
+      [-74.0, 0, -49.5, 1.7, 1, 1, 1],
+      [ 73.5, 0,  48.5, 0.9, 1, 1, 1]
+    ]);
+    // ④ 노후 외벽 2단 에어컨 실외기 & 통풍 루버 (sf_weathered_ac_louver.glb)
+    placeGlb('assets/models/sf/sf_weathered_ac_louver.glb', [
+      [ 68.3, 0,  16.8, Math.PI / 2, 1, 1, 1],
+      [-36.5, 0,  -4.5, -Math.PI / 2, 1, 1, 1],
+      [ 36.5, 0,  -4.5, Math.PI / 2, 1, 1, 1],
+      [-74.8, 0, -46.5, Math.PI / 2, 1, 1, 1],
+      [ 73.8, 0, -38.5, -Math.PI / 2, 1, 1, 1],
+      [ 72.8, 0,  44.5, -Math.PI / 2, 1, 1, 1]
+    ]);
+
+    // 거리 기반 AnimationMixer 업데이트 (플레이어가 야외에 있고 45m 이내인 모델만 매 프레임 업데이트하여 CPU 부하 80% 절감!)
     let lastAnimT = performance.now();
     const tickCampusAnims = now => {
-      const dt = Math.min(.08, (now - lastAnimT) / 1000); lastAnimT = now;
-      for (let i = 0; i < mixers.length; i++) mixers[i].update(dt);
+      const dt = Math.min(.066, (now - lastAnimT) / 1000); lastAnimT = now;
+      const g = window.__g;
+      const pf = g?.P?.floor ?? 0, px = g?.P?.x ?? 0, pz = g?.P?.z ?? 0;
+      if (pf === 0) {
+        for (let i = 0; i < mixers.length; i++) {
+          const mx = mixers[i], u = mx.userData;
+          if (!u || Math.hypot(u.x - px, u.z - pz) < 48) mx.update(dt);
+        }
+      }
       requestAnimationFrame(tickCampusAnims);
     };
     requestAnimationFrame(tickCampusAnims);

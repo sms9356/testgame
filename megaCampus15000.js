@@ -457,7 +457,18 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
     ]);
     placeGlb('assets/models/sf/sf_anim_trophy_clock.glb', [
       [75.2, 0, 31.2, 0, 1, 1, 1],
-      [-76.5, 0, -47.8, 0, 1, 1, 1]
+      [-76.5, 0, -47.8, 0, 1, 1, 1],
+      [-79.2, 0, 42.2, 0, 1, 1, 1]
+    ]);
+    placeGlb('assets/models/sf/sf_bus_stop_shelter.glb', [
+      [-58.0, 0, 62.2, 0, 1, 1, 1],
+      [-53.5, 0, 18.0, Math.PI / 2, 1, 1, 1]
+    ]);
+    placeGlb('assets/models/sf/sf_horror_fire_bulletin.glb', [
+      [-80.0, 0, -48.6, 0, 1, 1, 1],
+      [80.0, 0, -41.6, 0, 1, 1, 1],
+      [80.0, 0, 30.4, 0, 1, 1, 1],
+      [-82.0, 0, 41.4, 0, 1, 1, 1]
     ]);
 
     let lastAnimT = performance.now();

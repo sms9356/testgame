@@ -20,7 +20,7 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
   const glassM = new THREE.MeshStandardMaterial({ color: 0x8ab8cc, roughness: .12, metalness: .22, transparent: true, opacity: .28, side: THREE.DoubleSide, depthWrite: false });
   const lampEm = new THREE.MeshStandardMaterial({ color: 0xfff6e0, emissive: 0xffd898, emissiveIntensity: .95 });
   const greenLamp = new THREE.MeshStandardMaterial({ color: 0x50ffb0, emissive: 0x28d880, emissiveIntensity: .85 });
-  const redFabric = PM(0x7a1e24, .85), blueFabric = PM(0x224468, .82), mattressM = PM(0xe6e2d8, .88);
+  const redFabric = PM(0x7a1e24, .85), blueFabric = PM(0x224468, .82), mattressM = PM(0xe6e2d8, .88), goldM = PM(0xc89a28, .3, .7);
 
   const addCol = (x1, x2, z1, z2, isWall = true, h = null) => {
     const r = { x1: Math.min(x1, x2), x2: Math.max(x1, x2), z1: Math.min(z1, z2), z2: Math.max(z1, z2) };

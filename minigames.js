@@ -1,7 +1,7 @@
 // 미니게임: 자물쇠 따기 · 다이얼 자물쇠 · 배선 퍼즐 · 피아노 · 슬라이딩 퍼즐 · 갈고리 낚기 · 녹음 순서 · 짝 맞추기 · 주파수 · 순서 따라 하기 · 타이밍 · 분신사바
 //          + 증기 배관(압력) · 어둠 속 미로(그것 추격) · 맞물린 고리 암호 · 틀린 그림 찾기 · 퓨즈판
 // run(kind, opts) → Promise<{ ok }>. 열려 있는 동안 MG.active 가 true 이고, 키 입력은 여기서 처리한다.
-import { sfx } from './audio.js';
+import { sfx } from './audio.js?v=118';
 
 export const MG = { active: false, win: () => { if (finish) close(true); } };   // win: 디버그용 즉시 성공
 const $ = id => document.getElementById(id);

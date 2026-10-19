@@ -244,8 +244,11 @@ export function setMusic(mode, dt, game = 0) {
 /* ----- 음성 (더빙 파일 재생) ----- */
 const vcache = new Map();
 export async function loadVoice(url) {
-  if (!ok()) return null; if (vcache.has(url)) return vcache.get(url);
-  const p = fetch(url).then(r => r.ok ? r.arrayBuffer() : Promise.reject(r.status)).then(b => ac.decodeAudioData(b)).catch(() => null);
+  if (!ac) initAudio();
+  if (!ok()) return null;
+  if (ac.state === 'suspended') ac.resume().catch(() => {});
+  if (vcache.has(url)) return vcache.get(url);
+  const p = fetch(url).then(r => r.ok ? r.arrayBuffer() : Promise.reject(r.status)).then(b => ac.decodeAudioData(b)).catch(err => { vcache.delete(url); return null; });
   vcache.set(url, p); return p;
 }
 // Samples use the effects bus, never the single dialogue source.
@@ -264,6 +267,8 @@ function schoolCue(name, volume = .5, rate = 1) {
 let curVoice = null, voiceRequest = 0;
 export const isVoicePlaying = () => !!curVoice;
 export async function playVoice(url, fx = 'none', emo = null) {
+  if (!ac) initAudio();
+  if (ac && ac.state === 'suspended') ac.resume().catch(() => {});
   const request = ++voiceRequest;
   const buf = await loadVoice(url); if (request !== voiceRequest || !buf || !ok()) return null;
   if (curVoice) { try { curVoice.stop(); } catch (e) { /* ignore */ } }

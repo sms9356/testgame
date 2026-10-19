@@ -1,5 +1,6 @@
 // 15,000평(약 50,000㎡: 240m × 210m) 대규모 캠퍼스 확장 모듈 (v114: 통문 직결 정렬 & 고밀도 실내 가구·소품·재질 디테일)
 import * as THREE from './vendor/three.module.js';
+import { GLTFLoader } from './vendor/addons/loaders/GLTFLoader.js';
 
 export const MEGA_CAMPUS_ZONES = [
   { id: 'dorm', name: '청운학사 (기숙사)', x: -88, z: -32, w: 22, d: 14, color: '#4a322c' },
@@ -285,36 +286,47 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
   }
 
   /* =========================================================================
-     ⑤ 제5확장동: 종합 스포츠 콤플렉스 (야외 테니스장 & 양궁 훈련장) — 서중부 (x: -88, z: 8)
+     ⑤ 제5확장동: 종합 스포츠 콤플렉스 (야구 스타디움 · 양측 덕아웃 · 전광판 & 테니스장) — 서중부 (x: -88, z: 8)
      ========================================================================= */
   {
     const cx = -88, cz = 8;
     const g = new THREE.Group(); g.name = 'chunk_sports'; g.userData.dynamic = true; OUT.add(g);
-    pbox(22, .04, 26, PM(0x285a3e, .8), cx, .02, cz, g, { cast: false });
-    pbox(16, .05, 20, PM(0x225488, .75), cx, .025, cz, g, { cast: false });
-    pbox(16, .055, .10, whiteWall, cx, .03, cz - 10, g, { cast: false });
-    pbox(16, .055, .10, whiteWall, cx, .03, cz + 10, g, { cast: false });
-    pbox(.10, .055, 20, whiteWall, cx - 8, .03, cz, g, { cast: false });
-    pbox(.10, .055, 20, whiteWall, cx + 8, .03, cz, g, { cast: false });
-    [-8.2, 8.2].forEach(dx => pcyl(.06, .06, 1.1, darkMetal, cx + dx, .55, cz, g));
-    pbox(16.4, .85, .04, PM(0x222628, .9), cx, .52, cz, g, { cast: false });
-    pbox(16.4, .06, .06, whiteWall, cx, .96, cz, g, { cast: false });
-    addCol(cx - 8.3, cx + 8.3, cz - .15, cz + .15);
-    [-5.0, 0, 5.0].forEach(dx => {
-      pbox(1.2, 1.5, .18, woodLight, cx + dx, .85, cz - 11.8, g);
-      pmesh(new THREE.CircleGeometry(.52, 18), PM(0xf0d020, .6), cx + dx, 1.0, cz - 11.68, g, { cast: false });
-      pmesh(new THREE.CircleGeometry(.32, 16), PM(0xd82820, .6), cx + dx, 1.0, cz - 11.67, g, { cast: false });
-      addCol(cx + dx - .65, cx + dx + .65, cz - 12.1, cz - 11.5);
+    // 외야 잔디 & 내야 다이아몬드 흙 마운드 (Meta AI 3D 캠퍼스 도면 + Google Flow A-204 덕아웃·전광판 설계도 반영!)
+    pbox(24, .04, 28, PM(0x265838, .85), cx, .02, cz, g, { cast: false });
+    const dirtM = PM(0x8a6848, .92);
+    pmesh(new THREE.PlaneGeometry(11.5, 11.5), dirtM, cx, .035, cz + 2.5, g, { rx: -Math.PI / 2, rz: Math.PI / 4, cast: false });
+    // 투수 마운드 & 홈플레이트·1/2/3루 베이스
+    pcyl(1.3, 1.6, .18, dirtM, cx, .09, cz + 2.5, g, { seg: 16 });
+    pbox(.45, .04, .22, whiteWall, cx, .19, cz + 2.5, g, { cast: false });
+    [[0, 7.8], [5.3, 2.5], [0, -2.8], [-5.3, 2.5]].forEach(([bx0, bz0]) => pbox(.42, .05, .42, whiteWall, cx + bx0, .045, cz + bz0, g, { cast: false }));
+    // 홈플레이트 뒤편 백스톱 안전 그물망 케이지 (남쪽 cz + 10.2)
+    pbox(7.6, 3.2, .12, darkMetal, cx, 1.6, cz + 10.2, g);
+    addCol(cx - 3.8, cx + 3.8, cz + 10.0, cz + 10.4);
+    // 좌·우 콘크리트 야구장 덕아웃 (Google Flow Section 02 설계도: 콘크리트 지붕·측벽·2열 선수용 원목 벤치·안전 난간)
+    [[-9.2, Math.PI / 2], [9.2, -Math.PI / 2]].forEach(([dx, ry], di) => {
+      const dg = new THREE.Group(); dg.position.set(cx + dx, 0, cz + 3.5); dg.rotation.y = ry; g.add(dg);
+      pbox(8.4, .12, 2.8, PM(0x285a3a, .85), 0, .06, 0, dg, { cast: false }); // 덕아웃 인조잔디 바닥
+      pbox(8.4, 2.6, .24, stoneM, 0, 1.3, -1.28, dg);                         // 덕아웃 뒷벽
+      [-4.08, 4.08].forEach(sx => pbox(.24, 2.6, 2.8, stoneM, sx, 1.3, 0, dg)); // 덕아웃 좌우 측벽
+      pbox(8.8, .26, 3.2, stoneM, 0, 2.72, .1, dg);                           // 덕아웃 돌출 슬래브 지붕
+      pbox(8.2, .85, .08, darkMetal, 0, .425, 1.25, dg);                      // 전면 안전 펜스 난간
+      // 덕아웃 내부 2열 선수 대기 원목 벤치
+      pbox(7.2, .45, .45, woodLight, 0, .225, -.75, dg);
+      pbox(7.2, .45, .08, woodDark, 0, .62, -.95, dg);
+      pmesh(new THREE.PlaneGeometry(3.2, .38), new THREE.MeshBasicMaterial({ map: makeSign(di === 0 ? 'HOME DUGOUT · 서문고 야구부' : 'GUEST DUGOUT · 방문팀 덕아웃', '#162836', '#f0ead6', 22) }), 0, 2.72, 1.72, dg, { cast: false });
+      addCol(cx + dx - 1.5, cx + dx + 1.5, cz - .8, cz + 7.8);
     });
-    pbox(1.2, .16, 4.6, darkMetal, cx + 9.4, 2.5, cz + 4.5, g);
-    pbox(.65, .45, 3.8, woodLight, cx + 9.4, .225, cz + 4.5, g);
-    pbox(.75, .58, .55, PM(0x2468b8, .4), cx + 9.4, .29, cz + 1.6, g);
-    pmesh(new THREE.PlaneGeometry(3.2, .42), new THREE.MeshBasicMaterial({ map: makeSign('서문 체육특기생 훈련장 (테니스 · 양궁)', '#183426', '#eaf4ec', 22) }), cx + 10.1, 2.5, cz + 4.5, g, { ry: Math.PI / 2, cast: false });
-    addCol(cx + 8.9, cx + 9.9, cz + 1.2, cz + 6.5);
-    world.props.push({ kind: 'robj', k: 'sports_cooler', t: 'mega15k', floor: 0, x: cx + 8.2, z: cz + 1.6, y: .6, r: 2.2, label: '체육부 아이스박스 열기' });
+    // 선수용 아이스박스 & 양궁 과녁판 (북쪽 외야 펜스 앞)
+    pbox(.85, .58, .55, PM(0x2468b8, .4), cx + 6.8, .29, cz + 8.8, g);
+    [-5.5, 5.5].forEach(dx => {
+      pbox(1.2, 1.5, .18, woodLight, cx + dx, .85, cz - 11.2, g);
+      pmesh(new THREE.CircleGeometry(.52, 18), PM(0xf0d020, .6), cx + dx, 1.0, cz - 11.08, g, { cast: false });
+      pmesh(new THREE.CircleGeometry(.32, 16), PM(0xd82820, .6), cx + dx, 1.0, cz - 11.07, g, { cast: false });
+      addCol(cx + dx - .65, cx + dx + .65, cz - 11.5, cz - 10.9);
+    });
+    world.props.push({ kind: 'robj', k: 'sports_cooler', t: 'mega15k', floor: 0, x: cx + 6.8, z: cz + 7.8, y: .6, r: 2.2, label: '야구부 덕아웃 아이스박스 열기' });
     chunks.push({ id: 'chunk_sports', g, x: cx, z: cz });
   }
-
   /* =========================================================================
      ⑥ 제6확장동: 학생회관 · 동아리연합회관 (소극장 · 합주실 · 라운지) — 서남 (x: -88, z: 56)
      ========================================================================= */
@@ -347,6 +359,60 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
     addCol(cx + 2.6, cx + 5.8, cz + D / 2 - .75, cz + D / 2);
     world.props.push({ kind: 'robj', k: 'union_locker', t: 'mega15k', floor: 0, x: cx + 4.2, z: cz + D / 2 - 1.2, y: 1.1, r: 2.2, label: '동아리연합회 보관함 파밍하기' });
     chunks.push({ id: 'chunk_union', g, x: cx, z: cz });
+  }
+
+  // ── 6대 확장 건물 정문에 실제로 여닫을 수 있는 양개 강화유리 출입문(world.doorList 연동) 설치 ──
+  [
+    { name: '청운학사 정문', x: -77.0, z: -32.0, ry: Math.PI / 2, open: 1 },
+    { name: '과학천문관 정문', x: 74.0, z: -32.0, ry: -Math.PI / 2, open: 1 },
+    { name: '중앙학술정보관 정문', x: 73.0, z: 39.0, ry: -Math.PI / 2, open: 1 },
+    { name: '학생회관 정문', x: -77.0, z: 56.0, ry: Math.PI / 2, open: 1 },
+  ].forEach(dSpec => {
+    const dGrp = new THREE.Group(); dGrp.position.set(dSpec.x, 0, dSpec.z); dGrp.rotation.y = dSpec.ry; dGrp.userData.dynamic = true; OUT.add(dGrp);
+    const leaves = [[-1.35, -1], [1.35, 1]].map(([hx, s]) => {
+      const piv = new THREE.Group(); piv.position.set(hx, 0, 0); piv.userData.dynamic = true; dGrp.add(piv);
+      const lx = -s * .66;
+      pbox(1.32, 2.38, .04, glassM, lx, 1.19, 0, piv, { cast: false });
+      pbox(1.32, .10, .06, darkMetal, lx, 2.33, 0, piv);
+      pbox(1.32, .14, .06, darkMetal, lx, .07, 0, piv);
+      pbox(.08, 2.38, .06, darkMetal, lx - s * .62, 1.19, 0, piv);
+      pbox(.08, 2.38, .06, darkMetal, lx + s * .62, 1.19, 0, piv);
+      pbox(.98, .045, .09, chromeM, lx, 1.05, .04, piv);
+      pbox(.04, .32, .10, chromeM, lx + s * .42, 1.18, -.04, piv);
+      piv.rotation.y = dSpec.open ? s * 1.35 : 0;
+      return { piv, a: s * 1.35 };
+    });
+    const rect = { x1: dSpec.x - .2, x2: dSpec.x + .2, z1: dSpec.z - 1.35, z2: dSpec.z + 1.35, off: !!dSpec.open };
+    F0.col.push(rect); (F0.doorWalls ||= []).push(rect);
+    world.doorList.push({ kind: 'hinge', floor: 0, x: dSpec.x, z: dSpec.z, open: dSpec.open, target: dSpec.open, leaves, rect, name: dSpec.name });
+  });
+
+  // ── Google Flow & Meta AI 시트지 텍스처로 블렌딩된 5종의 .glb 3D 모델 비동기 로드 및 배치 ──
+  {
+    const loader = new GLTFLoader();
+    const placeGlb = (url, placements) => {
+      loader.load(url, gltf => {
+        placements.forEach(([px, py, pz, ry = 0, sx = 1, sy = 1, sz = 1]) => {
+          const m = gltf.scene.clone(true);
+          m.position.set(px, py, pz); m.rotation.y = ry; m.scale.set(sx, sy, sz);
+          m.traverse(o => { o.userData.dynamic = true; if (o.isMesh) { o.castShadow = o.receiveShadow = true; if (o.material?.map) o.material.map.colorSpace = THREE.SRGBColorSpace; } });
+          OUT.add(m);
+        });
+      }, undefined, () => {});
+    };
+    // 1) 학교 매점(x=29.5, z=-19.2) 실내외에 Google Flow 매점 시트지 .glb 3종 배치
+    placeGlb('assets/models/sf/sf_snack_facade.glb', [[29.5, 2.78, -16.1, 0, 1.25, 1.1, 1.0]]);
+    placeGlb('assets/models/sf/sf_beverage_fridge.glb', [[29.5, 0, -21.5, 0, 1.1, 1.0, 1.0]]);
+    placeGlb('assets/models/sf/sf_snack_shelf.glb', [[28.2, 0, -18.8, 0, .95, 1.0, .95], [30.8, 0, -18.8, 0, .95, 1.0, .95]]);
+    // 2) 야구장 외야(x=-88, z=-3.8)에 Google Flow 전광판 .glb 배치
+    placeGlb('assets/models/sf/sf_baseball_scoreboard.glb', [[-88.0, 0, -3.8, 0, 1.15, 1.15, 1.15]]);
+    // 3) 4대 확장 건물 정문에 Google Flow 양개 강화유리문 프레임·캐노피·카드리더기 .glb 배치
+    placeGlb('assets/models/sf/sf_campus_glass_door.glb', [
+      [-76.95, 0, -32.0, Math.PI / 2, 1, 1, 1],
+      [ 73.95, 0, -32.0, -Math.PI / 2, 1, 1, 1],
+      [ 72.95, 0,  39.0, -Math.PI / 2, 1, 1, 1],
+      [-76.95, 0,  56.0, Math.PI / 2, 1, 1, 1]
+    ]);
   }
 
   if (megaP && megaP.registerRoomChunk) {

@@ -1,5 +1,5 @@
 // 더빙 · 자막: voice/manifest.json 의 사전 생성 음성(내장) 또는 브라우저 음성 합성(Web Speech)으로 대사를 읽는다.
-import { playVoice, stopVoice, loadVoice, isVoicePlaying } from './audio.js';
+import { playVoice, stopVoice, loadVoice, isVoicePlaying } from './audio.js?v=118';
 
 const SPEAKER = { witness_nurse: '보건교사', witness_counselor: '상담교사', witness_science: '과학교사', witness_principal: '당시 교장', seoyeon: '서연', jihun: '지훈', narrator: '', mina: '민아', haneul: '하늘', teacher: '선생님', pa: '교내 방송', ghost: '???', guard: '경비 아저씨', friend: '수아', friend2: '다은' };
 // 브라우저 음성: 화자별 성별 · 음높이 (자연스러운 음성은 음높이를 거의 건드리지 않는다)
@@ -43,16 +43,24 @@ export function saveVS() { try { localStorage.setItem('haegyo_voice', JSON.strin
 function applySubSize() { document.documentElement.style.setProperty('--subScale', VS.subSize); }
 applySubSize();
 
+let manifestPromise = null;
 export async function loadManifest() {
-  try { manifest = await (await fetch('voice/manifest.json?v=99')).json(); } catch (e) { manifest = {}; }
+  if (!manifestPromise) {
+    manifestPromise = fetch('voice/manifest.json?v=118').then(r => r.json()).then(m => {
+      manifest = { ...manifest, ...m };
+      return manifest;
+    }).catch(() => manifest);
+  }
+  return manifestPromise;
 }
 export const lineInfo = id => manifest[id];
-export const allLines = () => manifest;   // 음성 생성기(tools/gen_voice_edge.py --dump)용
-// 내장 음성 파일이 없는 새 대사: 자막과 브라우저 음성으로만 재생한다 (길이는 글자 수로 추정)
+export const allLines = () => manifest;
 export function registerLines(map) {
   Object.entries(map).forEach(([id, v]) => {
-    if (!manifest[id]) manifest[id] = { spk: v.spk, text: v.text.replace(/<[^>]+>/g, ' '), dur: Math.max(1.6, v.text.length * .11), nofile: true };
-    if (v.parts) manifest[id].parts = v.parts;   // 번역 음성: 제목 · 본문을 따로 번역해 잇는다 (사전은 원문 조각 단위)
+    if (!manifest[id] || manifest[id].nofile) {
+      manifest[id] = { spk: v.spk, text: v.text.replace(/<[^>]+>/g, ' '), dur: Math.max(1.6, v.text.length * .11), nofile: true, ...(manifest[id] && !manifest[id].nofile ? manifest[id] : {}) };
+    }
+    if (v.parts) manifest[id].parts = v.parts;
   });
 }
 export function preload(ids) {
@@ -133,6 +141,7 @@ export function subtitle(who, text, sec) {
   el.classList.add('show'); clearTimeout(subTimer); subTimer = setTimeout(() => el.classList.remove('show'), sec * 1000);
 }
 export function line(id, fx, whoOverride) {
+  if (!manifest[id] && manifestPromise) return manifestPromise.then(() => line(id, fx, whoOverride));
   const info = manifest[id]; if (!info) return Promise.resolve(0);
   if (pendingLines.has(id)) return pendingLines.get(id);
   if (info.spk === 'ghost' && storyPending) return Promise.resolve(0);

@@ -10,15 +10,15 @@ import { createNPCVisuals } from './npcVisuals.js';
 import { applyGuardSeatedPose } from './guardSeatedPose.js';
 import { createCampusCctvLive, collectCampusCctvFeeds } from './campusCctvLive.js';
 import { applyExteriorFloorVisibility, shouldStreamGuardCctv } from './exteriorRenderBudget.js';
-import { GUARD_LAYOUT } from './guardRoomLayout.js?v=124';
-import { installGuardRoom } from './guardRoom.js?v=124';
+import { GUARD_LAYOUT } from './guardRoomLayout.js?v=125';
+import { installGuardRoom } from './guardRoom.js?v=125';
 import { prepareModelGeometry } from './modelGeometry.js';
 import { modelFootprint, overlaps, removeDuplicateModels } from './placement.js';
-import { turfMaterial } from './campusVisuals.js?v=124';
+import { turfMaterial } from './campusVisuals.js?v=125';
 import { installInfirmaryAssets, updateInfirmaryCabinets } from './infirmaryAssets.js';
-import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js?v=124'; import { updateWindowFakes } from './windowInteriors.js?v=124';
-import { drawMap } from './map.js?v=124';
-import { buildMegaCampus15000, MEGA_CAMPUS_ZONES } from './megaCampus15000.js?v=124';
+import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js?v=125'; import { updateWindowFakes } from './windowInteriors.js?v=125';
+import { drawMap } from './map.js?v=125';
+import { buildMegaCampus15000, MEGA_CAMPUS_ZONES } from './megaCampus15000.js?v=125';
 import { makeDress, makeHair, makeGhostFace, makeGraffiti, makeKeypad, loadPBR, pbr, makeGlow as makeGlowTex, makePaintingStare, makeSign, makeBlood } from './tex.js';
 import { warmUp } from './bake.js';
 import { createStaticDistanceLOD } from './staticDistanceLOD.js';
@@ -39,12 +39,12 @@ import './school37RoomsPatch.js';    // 본관 · 별관 37개 특별실 가구 
 import './new37UniquePatch.js';     // 37개 구역 신규 특수 설비 · 벽면 레일 (사용자 제공) → window.new37UniquePatch
 import './megaExpansionPatch.js';   // 메가 익스팬션 · 최적화 · 4막 사건 기록 · 수집품 · 미니게임 (사용자 제공) → window.megaSchoolPatch
 import './poolMachineryPatch.js';     // 수영장 · 남/녀 탈의실·샤워실 · 기계실 철문 (사용자 제공) → window.poolAndMachineryPatch
-import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx } from './audio.js?v=124'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=124'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera } from './perfStabilizer.js';
-import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js?v=124';
-import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, SIDEQUESTS, HEADQUEST, COLLECT, LOCKER_SCARES, CHALK_QA, OUIJA_QS, PARA, TOILET_FX, MIRROR_WORDS } from './story.js?v=124';
+import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx } from './audio.js?v=125'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=125'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera } from './perfStabilizer.js';
+import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js?v=125';
+import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, SIDEQUESTS, HEADQUEST, COLLECT, LOCKER_SCARES, CHALK_QA, OUIJA_QS, PARA, TOILET_FX, MIRROR_WORDS } from './story.js?v=125';
 import { isSpeechBusy } from './voice.js';
 import { SET, saveSET, resetSET, DIFF, keyLabel } from './settings.js';
-import { initI18n, setLang, lang as curLang } from './i18n.js?v=124';   // 언어 패치 (한국어 · English · 日本語 · 中文)
+import { initI18n, setLang, lang as curLang } from './i18n.js?v=125';   // 언어 패치 (한국어 · English · 日本語 · 中文)
 initI18n();
 const K = () => SET.keys;
 let guardRoomController = null, guardControlProps = [], guardCctvData = null, campusCctv = null;
@@ -60,7 +60,7 @@ function syncGuardDevices() {
 function toggleGuardCCTV(persist = true) { FL.guardCctvOn = !(FL.guardCctvOn ?? true); sfx.click(); syncGuardDevices(); if (persist) save(true); return FL.guardCctvOn; }
 function toggleGuardLight() { FL.guardLightOn = !(FL.guardLightOn ?? false); sfx.click(); syncGuardDevices(); say(FL.guardLightOn ? '경비실 전등을 켰다' : '경비실 전등을 껐다', 1800); save(true); return FL.guardLightOn; }
 
-import { run as runMini, MG } from './minigames.js?v=124';
+import { run as runMini, MG } from './minigames.js?v=125';
 import { SCHEMA, BUILD, storageKeys, itemUid, propUid, doorUid, assignUids, readSlot, writeSlot, hasSlot, clearSlot, repairProgress } from './saveSystem.js';
 loadManifest().then(() => registerLines({ ...VO, ...Object.fromEntries(Object.entries(STORY_NOTES).filter(([, n]) => n.text).map(([k, n]) => ['note_' + k, { spk: 'narrator', text: n.title + '. ' + n.text, parts: [n.title, n.text] }])) }));
 
@@ -6523,48 +6523,79 @@ function megaNotify(m) { const t = String(m).split('\n'); say(t[0].replace(/^\S+
         world.props.push({ kind: 'robj', k: 'weather_box', t: 'campus', floor: 0, x: wx0, z: wz0 + .95, y: 1.3, r: 1.9, label: '백엽상 기상 관측 기록 열어보기' });
       }
 
-      // ③ 동쪽 야외 광장: Google Flow 3D 설계도(01~05 구역)를 100% 반영한 실내 진입형 「서문 학교 매점 (SCHOOL SNACK SHOP)」 (x = 29.5, z = -19.2, 8.6m × 5.6m)
+      // ③ 동남 캠퍼스 복지 구역: Google Flow 1998 폐교 호러 CAD 시트지(flow_snack_horror_cad_0~3.jpg)를 100% 반영한 「1998 구관 학우매점 (HAG-U MAEJEOM)」 (x = 63.5, z = 18.0, 9.2m × 6.4m × 3.5m)
       {
-        const cxC = 63.5, czC = 18.0, cw = 8.6, cd = 5.6, ch = 3.2;
-        // 매점 바닥·천장·북벽·좌우벽·전면 슬라이딩 유리창 (남쪽 정면 중앙 2.8m 출입구 개방!)
-        pbox(cw, .06, cd, PM(0xd8d2c4, .6), cxC, .03, czC, O, { cast: false });
-        pbox(cw + .4, .22, cd + .6, darkF, cxC, ch + .11, czC, O);
-        pbox(cw, ch, .24, whiteM, cxC, ch / 2, czC - cd / 2, O);
-        pbox(.24, ch, cd, brickM, cxC - cw / 2, ch / 2, czC, O);
-        pbox(.24, ch, cd, brickM, cxC + cw / 2, ch / 2, czC, O);
-        // 전면 좌·우 통유리 쇼윈도 & 상부 노란 시트지 간판 바
-        [-2.85, 2.85].forEach(dx => {
-          pbox(2.8, .85, .18, woodM, cxC + dx, .425, czC + cd / 2, O);
-          pmesh(new THREE.PlaneGeometry(2.7, 1.65), glassG, cxC + dx, 1.68, czC + cd / 2, O, { cast: false });
+        const cxC = 63.5, czC = 18.0, cw = 9.2, cd = 6.4, ch = 3.5;
+        const x0 = cxC - cw / 2, x1 = cxC + cw / 2, z0 = czC - cd / 2, z1 = czC + cd / 2;
+        const oldBrickM = PM(0x5c362c, .88), weatheredCementM = PM(0x565852, .90), darkCorniceM = PM(0x363836, .85);
+        const wornTileFlM = PM(0x3a403a, .78), darkWainscotM = PM(0x2c3a36, .84), agedPlasterM = PM(0x7c786e, .88), darkCeilM = PM(0x383a36, .90);
+        const rustySteelM = PM(0x3c322c, .72, .45);
+
+        // 1) 실내 디럭스 타일 바닥 · 콘크리트 기단 · 2단 코니스 지붕 슬래브 · 옥상 파라펫
+        pbox(cw + .6, .16, cd + .6, weatheredCementM, cxC, .08, czC, O, { cast: false });
+        pbox(cw - .2, .04, cd - .2, wornTileFlM, cxC, .17, czC, O, { cast: false });
+        pbox(cw - .2, .08, cd - .2, darkCeilM, cxC, ch - .04, czC, O, { cast: false });
+        pbox(cw + .5, .24, cd + .5, weatheredCementM, cxC, ch + .12, czC, O);
+        pbox(cw + .8, .18, cd + .8, darkCorniceM, cxC, ch + .33, czC, O);
+
+        // 2) 북벽(배면) · 서벽 · 동벽 (하단 0.95m 풍화 시멘트 기단 + 상단 낡은 적벽돌 외벽 + 실내 투톤 웨인스코팅)
+        pbox(cw, .95, .26, weatheredCementM, cxC, .475, z0, O);
+        pbox(cw, ch - .95, .24, oldBrickM, cxC, .95 + (ch - .95) / 2, z0, O);
+        pbox(cw - .3, 1.1, .04, darkWainscotM, cxC, .65, z0 + .15, O, { cast: false });
+        pbox(cw - .3, ch - 1.25, .04, agedPlasterM, cxC, 1.2 + (ch - 1.25) / 2, z0 + .15, O, { cast: false });
+
+        [x0, x1].forEach((wx, si) => {
+          const ins = si === 0 ? .15 : -.15;
+          pbox(.26, .95, cd, weatheredCementM, wx, .475, czC, O);
+          pbox(.24, ch - .95, cd, oldBrickM, wx, .95 + (ch - .95) / 2, czC, O);
+          pbox(.04, 1.1, cd - .3, darkWainscotM, wx + ins, .65, czC, O, { cast: false });
+          pbox(.04, ch - 1.25, cd - .3, agedPlasterM, wx + ins, 1.2 + (ch - 1.25) / 2, czC, O, { cast: false });
         });
-        pbox(cw + .2, .68, .28, PM(0xf2b824, .5), cxC, ch - .34, czC + cd / 2 + .06, O);
-        pmesh(new THREE.PlaneGeometry(5.2, .52), new THREE.MeshBasicMaterial({ map: makeSign('학교 매점  SCHOOL SNACK SHOP  |  스낵 · 라면 · 음료 · 온장고', '#f2b824', '#181818', 22) }), cxC, ch - .34, czC + cd / 2 + .21, O, { cast: false });
-        // 01. POS 카운터 & 온장고 & 상단 발광 메뉴 보드 (서쪽 벽 앞 cxC - 2.9, czC - .6)
-        pbox(1.1, .92, 2.8, woodM, cxC - 3.1, .46, czC - .5, O);
-        pbox(.42, .38, .38, darkF, cxC - 2.9, 1.12, czC - 1.1, O); // POS기
-        pbox(.48, .62, .45, glassG, cxC - 2.9, 1.24, czC + .3, O);  // 호빵/만두 온장고
-        pmesh(new THREE.PlaneGeometry(2.6, .55), new THREE.MeshBasicMaterial({ map: makeSign('MENU | 단팥빵 500 · 컵라면 600 · 바나나우유 600 · 유자차 400', '#18242c', '#88ffd0', 18) }), cxC - cw / 2 + .15, 2.35, czC - .5, O, { ry: Math.PI / 2, cast: false });
-        // 04. 우측 벽면 온수기·전자레인지 3대 & 하단 분리수거함 3칸 (동쪽 벽 앞 cxC + 3.4, czC - .4)
-        pbox(.85, .90, 3.2, whiteM, cxC + 3.5, .45, czC - .4, O);
-        [-0.9, 0, 0.9].forEach(dz => pbox(.48, .34, .56, darkF, cxC + 3.45, 1.12, czC - .4 + dz, O));
-        // 05. 남쪽 전면 창가 바 테이블 & 스툴 의자 4개
-        [-2.85, 2.85].forEach(dx => {
-          pbox(2.4, .06, .45, woodM, cxC + dx, .88, czC + cd / 2 - .35, O);
-          [-.6, .6].forEach(sx => pcyl(.16, .16, .62, darkF, cxC + dx + sx, .31, czC + cd / 2 - .72, O));
+
+        // 우측면(동벽) 외부 두꺼비집(배전함) & 노출 전선 파이프 + 배면 우수관 (CAD SIDE/REAR ELEVATION 반영)
+        pbox(.16, .62, .46, rustySteelM, x1 + .18, 1.65, czC - .8, O);
+        pcyl(.025, .025, ch - .4, rustySteelM, x1 + .16, ch / 2, czC - .65, O);
+        pcyl(.035, .035, ch + .2, rustySteelM, x0 - .16, ch / 2, z0 + .25, O);
+
+        // 3) 남쪽 정면 파사드 (FRONT ELEVATION):
+        // 좌측(x: cxC - 3.2 ~ cxC - 0.2, 폭 3.0m)은 반쯤 올라간 롤셔터 오픈 출입구(높이 2.35m 개방),
+        // 우측(x: cxC - 0.2 ~ x1)은 시멘트 기단 + 적벽돌 벽 + 방범 창살 유리창!
+        pbox(1.4, ch, .26, oldBrickM, x0 + .7, ch / 2, z1, O);
+        pbox(1.4, .95, .28, weatheredCementM, x0 + .7, .475, z1, O);
+        pbox(4.8, .95, .28, weatheredCementM, cxC + 2.2, .475, z1, O);
+        pbox(4.8, .85, .24, oldBrickM, cxC + 2.2, ch - .425, z1, O);
+        pbox(.9, 1.7, .24, oldBrickM, cxC + .25, 1.8, z1, O);
+        pbox(1.0, 1.7, .24, oldBrickM, x1 - .5, 1.8, z1, O);
+        pmesh(new THREE.PlaneGeometry(2.9, 1.55), glassG, cxC + 2.15, 1.72, z1, O, { cast: false });
+        for (let bx = cxC + .85; bx <= cxC + 3.45; bx += .43) {
+          pcyl(.014, .014, 1.55, rustySteelM, bx, 1.72, z1 + .06, O);
+        }
+        pbox(3.0, ch - 2.45, .26, oldBrickM, cxC - 1.7, 2.45 + (ch - 2.45) / 2, z1, O);
+
+        // 4) 실내 천장 노후 형광등 2기 & 호빵 온장고/음료 쇼케이스 호러 무드 라이트
+        const lampTubeM = new THREE.MeshStandardMaterial({ color: 0xd8ece8, emissive: 0x98c8c0, emissiveIntensity: 1.15 });
+        [-1.8, 1.8].forEach(dx => {
+          pbox(1.25, .04, .24, rustySteelM, cxC + dx, ch - .10, czC, O, { cast: false });
+          pbox(1.15, .03, .14, lampTubeM, cxC + dx, ch - .13, czC, O, { cast: false });
         });
-        const spC = new THREE.Sprite(new THREE.SpriteMaterial({ map: makeGlowTex('255,220,150'), blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, opacity: .48 }));
-        spC.scale.setScalar(4.0); spC.position.set(cxC, 2.5, czC); O.add(spC);
-        // 매점 벽 충돌체 (남쪽 정면 중앙 출입구 x: cxC - 1.4 ~ cxC + 1.4 는 열려 있어 안으로 직접 걸어 들어갈 수 있다!)
+        const spWarm = new THREE.Sprite(new THREE.SpriteMaterial({ map: makeGlowTex('255,175,95'), blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, opacity: .42 }));
+        spWarm.scale.setScalar(2.6); spWarm.position.set(cxC - 2.1, 1.55, czC + .2); O.add(spWarm);
+        const spCold = new THREE.Sprite(new THREE.SpriteMaterial({ map: makeGlowTex('135,210,220'), blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, opacity: .38 }));
+        spCold.scale.setScalar(3.2); spCold.position.set(cxC + .4, 1.65, z0 + .9); O.add(spCold);
+
+        // 5) 정밀 CAD 충돌체 (AABB 겹침 0건 — 좌측 정면 출입구 x: 60.3 ~ 63.3 구간이 완전히 열려 있어 실내로 걸어 들어간다!)
         F0.col.push(
-          { x1: cxC - cw / 2 - .15, x2: cxC + cw / 2 + .15, z1: czC - cd / 2 - .15, z2: czC - cd / 2 + .15 },
-          { x1: cxC - cw / 2 - .15, x2: cxC - cw / 2 + .15, z1: czC - cd / 2, z2: czC + cd / 2 },
-          { x1: cxC + cw / 2 - .15, x2: cxC + cw / 2 + .15, z1: czC - cd / 2, z2: czC + cd / 2 },
-          { x1: cxC - cw / 2, x2: cxC - 1.4, z1: czC + cd / 2 - .2, z2: czC + cd / 2 + .2 },
-          { x1: cxC + 1.4, x2: cxC + cw / 2, z1: czC + cd / 2 - .2, z2: czC + cd / 2 + .2 },
-          { x1: cxC - 3.7, x2: cxC - 2.5, z1: czC - 1.9, z2: czC + .9 },
-          { x1: cxC + 3.0, x2: cxC + 4.0, z1: czC - 2.0, z2: czC + 1.2 }
+          { x1: x0 - .18, x2: x1 + .18, z1: z0 - .18, z2: z0 + .18 },
+          { x1: x0 - .18, x2: x0 + .18, z1: z0, z2: z1 },
+          { x1: x1 - .18, x2: x1 + .18, z1: z0, z2: z1 },
+          { x1: x0, x2: cxC - 3.2, z1: z1 - .18, z2: z1 + .18 },
+          { x1: cxC - .2, x2: x1,  z1: z1 - .18, z2: z1 + .18 },
+          { x1: 59.6, x2: 62.0, z1: 16.5, z2: 18.7 },
+          { x1: 61.6, x2: 65.4, z1: 15.0, z2: 15.9 },
+          { x1: 63.8, x2: 67.2, z1: 17.3, z2: 18.1 },
+          { x1: 66.8, x2: 67.8, z1: 18.6, z2: 20.3 }
         );
-        world.props.push({ kind: 'robj', k: 'canteen_counter', t: 'campus', floor: 0, x: cxC - 2.1, z: czC - .4, y: 1.1, r: 2.2, label: '학교 매점 POS 카운터 · 스낵 진열대 파밍하기' });
+        world.props.push({ kind: 'robj', k: 'canteen_counter', t: 'campus', floor: 0, x: 61.5, z: 19.1, y: 1.15, r: 2.3, label: '학우매점 계산대 금전등록기 · 호빵 온장고 조사하기' });
 
         // 매점 앞 야외 파라솔 원형 테이블 세트 3조 (x = 25.5, 29.5, 33.5, z = -12.0)
         [59.5, 63.5, 67.5].forEach((tx, ti) => {

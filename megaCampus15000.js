@@ -425,10 +425,12 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
         });
       }, undefined, () => {});
     };
-    // 1) 학교 매점(x=63.5, z=18.0) 실내외 .glb 3종
-    placeGlb('assets/models/sf/sf_snack_facade.glb', [[63.5, 2.78, 21.0, 0, 1.25, 1.1, 1.0]]);
-    placeGlb('assets/models/sf/sf_beverage_fridge.glb', [[63.5, 0, 15.8, 0, 1.1, 1.0, 1.0]]);
-    placeGlb('assets/models/sf/sf_snack_shelf.glb', [[62.2, 0, 18.4, 0, .95, 1.0, .95], [64.8, 0, 18.4, 0, .95, 1.0, .95]]);
+    // 1) 1998 구관 학우매점(x=63.5, z=18.0, 9.2m×6.4m) CAD 단면도 기반 실내외 .glb 5종 정밀 배치
+    placeGlb('assets/models/sf/sf_snack_facade.glb', [[63.5, 3.25, 21.32, 0, 1.0, 1.0, 1.0]]);
+    placeGlb('assets/models/sf/sf_snack_counter_v2.glb', [[60.8, 0.17, 18.2, 0, 1.0, 1.0, 1.0]]);
+    placeGlb('assets/models/sf/sf_beverage_fridge.glb', [[62.6, 0.17, 15.38, 0, 1.0, 1.0, 1.0], [64.35, 0.17, 15.38, 0, 1.0, 1.0, 1.0]]);
+    placeGlb('assets/models/sf/sf_snack_shelf.glb', [[64.5, 0.17, 17.7, 0, 1.0, 1.0, 1.0], [66.35, 0.17, 17.7, 0, 1.0, 1.0, 1.0]]);
+    placeGlb('assets/models/sf/sf_icecream_freezer.glb', [[67.35, 0.17, 19.45, -Math.PI / 2, 1.0, 1.0, 1.0]]);
     // 2) 야구 스타디움 외야(x=-88, z=4.5) 전광판 .glb
     placeGlb('assets/models/sf/sf_baseball_scoreboard.glb', [[-88.0, 0, 4.5, 0, 1.15, 1.15, 1.15]]);
     // 3) 4대 확장 건물 정문 양개 강화유리문 시스템 .glb

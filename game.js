@@ -10,15 +10,15 @@ import { createNPCVisuals } from './npcVisuals.js';
 import { applyGuardSeatedPose } from './guardSeatedPose.js';
 import { createCampusCctvLive, collectCampusCctvFeeds } from './campusCctvLive.js';
 import { applyExteriorFloorVisibility, shouldStreamGuardCctv } from './exteriorRenderBudget.js';
-import { GUARD_LAYOUT } from './guardRoomLayout.js?v=121';
-import { installGuardRoom } from './guardRoom.js?v=121';
+import { GUARD_LAYOUT } from './guardRoomLayout.js?v=122';
+import { installGuardRoom } from './guardRoom.js?v=122';
 import { prepareModelGeometry } from './modelGeometry.js';
 import { modelFootprint, overlaps, removeDuplicateModels } from './placement.js';
-import { turfMaterial } from './campusVisuals.js?v=121';
+import { turfMaterial } from './campusVisuals.js?v=122';
 import { installInfirmaryAssets, updateInfirmaryCabinets } from './infirmaryAssets.js';
-import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js?v=121'; import { updateWindowFakes } from './windowInteriors.js?v=121';
-import { drawMap } from './map.js?v=121';
-import { buildMegaCampus15000, MEGA_CAMPUS_ZONES } from './megaCampus15000.js?v=121';
+import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js?v=122'; import { updateWindowFakes } from './windowInteriors.js?v=122';
+import { drawMap } from './map.js?v=122';
+import { buildMegaCampus15000, MEGA_CAMPUS_ZONES } from './megaCampus15000.js?v=122';
 import { makeDress, makeHair, makeGhostFace, makeGraffiti, makeKeypad, loadPBR, pbr, makeGlow as makeGlowTex, makePaintingStare, makeSign, makeBlood } from './tex.js';
 import { warmUp } from './bake.js';
 import { createStaticDistanceLOD } from './staticDistanceLOD.js';
@@ -39,12 +39,12 @@ import './school37RoomsPatch.js';    // 본관 · 별관 37개 특별실 가구 
 import './new37UniquePatch.js';     // 37개 구역 신규 특수 설비 · 벽면 레일 (사용자 제공) → window.new37UniquePatch
 import './megaExpansionPatch.js';   // 메가 익스팬션 · 최적화 · 4막 사건 기록 · 수집품 · 미니게임 (사용자 제공) → window.megaSchoolPatch
 import './poolMachineryPatch.js';     // 수영장 · 남/녀 탈의실·샤워실 · 기계실 철문 (사용자 제공) → window.poolAndMachineryPatch
-import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx } from './audio.js?v=121'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=121'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera } from './perfStabilizer.js';
-import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js?v=121';
-import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, SIDEQUESTS, HEADQUEST, COLLECT, LOCKER_SCARES, CHALK_QA, OUIJA_QS, PARA, TOILET_FX, MIRROR_WORDS } from './story.js?v=121';
+import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx } from './audio.js?v=122'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=122'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera } from './perfStabilizer.js';
+import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js?v=122';
+import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, SIDEQUESTS, HEADQUEST, COLLECT, LOCKER_SCARES, CHALK_QA, OUIJA_QS, PARA, TOILET_FX, MIRROR_WORDS } from './story.js?v=122';
 import { isSpeechBusy } from './voice.js';
 import { SET, saveSET, resetSET, DIFF, keyLabel } from './settings.js';
-import { initI18n, setLang, lang as curLang } from './i18n.js?v=121';   // 언어 패치 (한국어 · English · 日本語 · 中文)
+import { initI18n, setLang, lang as curLang } from './i18n.js?v=122';   // 언어 패치 (한국어 · English · 日本語 · 中文)
 initI18n();
 const K = () => SET.keys;
 let guardRoomController = null, guardControlProps = [], guardCctvData = null, campusCctv = null;
@@ -60,7 +60,7 @@ function syncGuardDevices() {
 function toggleGuardCCTV(persist = true) { FL.guardCctvOn = !(FL.guardCctvOn ?? true); sfx.click(); syncGuardDevices(); if (persist) save(true); return FL.guardCctvOn; }
 function toggleGuardLight() { FL.guardLightOn = !(FL.guardLightOn ?? false); sfx.click(); syncGuardDevices(); say(FL.guardLightOn ? '경비실 전등을 켰다' : '경비실 전등을 껐다', 1800); save(true); return FL.guardLightOn; }
 
-import { run as runMini, MG } from './minigames.js?v=121';
+import { run as runMini, MG } from './minigames.js?v=122';
 import { SCHEMA, BUILD, storageKeys, itemUid, propUid, doorUid, assignUids, readSlot, writeSlot, hasSlot, clearSlot, repairProgress } from './saveSystem.js';
 loadManifest().then(() => registerLines({ ...VO, ...Object.fromEntries(Object.entries(STORY_NOTES).filter(([, n]) => n.text).map(([k, n]) => ['note_' + k, { spk: 'narrator', text: n.title + '. ' + n.text, parts: [n.title, n.text] }])) }));
 
@@ -5047,11 +5047,15 @@ function inPassage() { return (P.floor === 1 || P.floor === 2) && P.x > PASS.x1 
         [SILL + .03, (SILL + HEAD) / 2 + .2, HEAD - .03].forEach(y => pbox(.08, .05, b - a, mFr, x, y, (a + b) / 2, O));
       });
     });
-    // 별관 쪽 연결 홀 연장부 (방화문 너머를 막고 있던 허리벽 mLow 과 우측 벽을 제거하고, 별관 연결 홀 복도가 z0 - 6.5m 까지 그대로 뻥 뚫려 이어져 보이게 구축!)
+    // 별관 쪽 연결 홀 연장부 (방화문 너머를 막고 있던 허리벽 mLow·창문 가짜박스를 제거하고, 별관 연결 홀 복도가 z0 - 6.5m 까지 그대로 뻥 뚫려 이어져 보이게 구축!)
     pbox(3.4, .18, 6.6, floor.material, .8, -.08, z0 - 3.2, O, { cast: false });
     pbox(3.4, .18, 6.6, PM(0x6e6c64, .85), .8, H + .08, z0 - 3.2, O, { cast: false });
     pbox(.12, H, 6.6, annexTone, -.85, H / 2, z0 - 3.2, O);
     pbox(.12, H, 6.6, annexTone,  2.45, H / 2, z0 - 3.2, O);
+    pbox(.12, SILL, 6.6, mLow, -.78, SILL / 2, z0 - 3.2, O);
+    pbox(.12, SILL, 6.6, mLow, 2.38, SILL / 2, z0 - 3.2, O);
+    pbox(3.4, H, .14, annexTone, .8, H / 2, z0 - 6.45, O);
+    pbox(.85, .05, .32, new THREE.MeshStandardMaterial({ color: 0xe8f4ff, emissive: 0xd8f0ff, emissiveIntensity: 1.4 }), .8, H - .06, z0 - 2.8, O, { cast: false });
     pbox(3.4, .38, .12, mUp, .8, H - .19, z0 + .06, O);
   }
   // ── 전등 스위치 (본관 쪽 서쪽 벽): 통로 형광등 켜기 · 끄기. 순차 소등 뒤 비상 전력일 때는 깜빡이기만 한다 ──

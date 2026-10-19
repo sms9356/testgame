@@ -4,11 +4,11 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { NOTES } from './story.js?v=121';
+import { NOTES } from './story.js?v=122';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=121';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=122';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -3452,17 +3452,17 @@ export function buildWorld(scene) {
   for (let k = 0; k < 6; k++) { const r = new THREE.Mesh(new THREE.BoxGeometry(.05, .9, .5), mMetal); r.position.set(-51.4, .45, 22 + k * .6); OUT.add(r); }
   // 별관(특별교실동) 외관 — 정중앙 구름다리/필로티 연결 홀(x: -1.0 ~ 2.6)은 벽돌 외벽과 충돌체를 비워 본관↔별관이 막힘 없이 직결되게 한다!
   OUT.add(
-    boxMesh(-20, -1.0, 0, 12.4, -25 - ANNEX_DZ, -13.5 - ANNEX_DZ, mBrick, 2.5),
-    boxMesh(2.6, 28, 0, 12.4, -25 - ANNEX_DZ, -13.5 - ANNEX_DZ, mBrick, 2.5),
-    boxMesh(-1.0, 2.6, 0, 12.4, -25 - ANNEX_DZ, -21.5 - ANNEX_DZ, mBrick, 2.5)
+    boxMesh(-20, -.92, 0, 12.4, -25 - ANNEX_DZ, -13.5 - ANNEX_DZ, mBrick, 2.5),
+    boxMesh(2.52, 28, 0, 12.4, -25 - ANNEX_DZ, -13.5 - ANNEX_DZ, mBrick, 2.5),
+    boxMesh(-.92, 2.52, 0, 12.4, -25 - ANNEX_DZ, -21.5 - ANNEX_DZ, mBrick, 2.5)
   );
-  col(-20, -1.0, -25 - ANNEX_DZ, -13.5 - ANNEX_DZ, true);
-  col(2.6, 28, -25 - ANNEX_DZ, -13.5 - ANNEX_DZ, true);
+  col(-20, -.92, -25 - ANNEX_DZ, -13.5 - ANNEX_DZ, true);
+  col(2.52, 28, -25 - ANNEX_DZ, -13.5 - ANNEX_DZ, true);
   OUT.add(boxMesh(-20.4, 28.4, 12.4, 12.7, -25.4 - ANNEX_DZ, -13.1 - ANNEX_DZ, mFacade, 3));
   { const anSlots = [];
     [1.8, 5.8, 9.8].forEach((y, r) => {
-      for (let x = -18; x <= 18; x += 4) {
-        if (r === 0 && Math.abs(x) < 3) continue;
+      for (let x = -18; x <= 26; x += 4) {
+        if (x > -3.5 && x < 4.5) continue;
         win3D(OUT, 2.2, 1.5, x, y, -13.44 - ANNEX_DZ, Math.PI, pickWin());
         anSlots.push([x, 2.2, 0, y, 1.5]);
       }

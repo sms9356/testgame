@@ -1214,6 +1214,30 @@ function stairArrive(f) {
   toastFloor(f);
 }
 const FLOOR_LABEL = { 0: '본관 1층', 1: '본관 2층', 2: '본관 3층', 3: '옥상', 4: '지하 1층 (B1)', 5: '체육관', 6: '수영장', 7: '급식실', 8: '별관 1층', 9: '별관 2층', 10: '별관 3층' };
+// 본관 2·3층 ↔ 별관 2·3층 구름다리: 순간이동 없이 걸어서 건넌다.
+//   별관 층은 따로 떨어진 좌표(y 180m~)에 지어져 있어, 구름다리 근처에서는 반대편 건물 내부를 이어지는 자리(별관 로컬 + (0.8, -30.1))에 옮겨 함께 그리고,
+//   본관 북벽 바로 앞 경계선을 지날 때 위치 · 시선은 그대로 두고 층 번호와 좌표만 환산한다 (화면이 바뀌지 않는다)
+const BRIDGE = { dx: .8, dz: -30.1, pair: { 1: 9, 2: 10, 9: 1, 10: 2 }, moved: null, mainZ: -11.2, annexZ: 19.6 };
+function bridgeRestore() { const F = BRIDGE.moved; if (F) { F.interior.position.set(0, F.y0, 0); if (F.f <= 2) F.shell.position.set(0, F.y0, 0); BRIDGE.moved = null; } }
+function bridgeTick() {
+  const f = P.floor, o = BRIDGE.pair[f];
+  if (o == null || P.inElev || state !== 'playing' && state !== 'trans') { bridgeRestore(); return; }
+  const main = f <= 2, O = floors[o];
+  const near = main ? P.z < -6.5 && P.x > -2.2 && P.x < 3.8 : P.z > 6.5 && Math.abs(P.x) < 3;
+  if (!near) { bridgeRestore(); return; }
+  if (BRIDGE.moved !== O) { bridgeRestore(); BRIDGE.moved = O;
+    const ox = main ? BRIDGE.dx : -BRIDGE.dx, oz = main ? BRIDGE.dz : -BRIDGE.dz, oy = floors[f].y0 - O.y0;
+    BRIDGE.lamps = O.lamps.map(l => { const q = Object.create(l); q.x = l.x + ox; q.y = l.y + oy; q.z = l.z + oz; return q; }); }
+  O.interior.position.set(main ? BRIDGE.dx : -BRIDGE.dx, floors[f].y0, main ? BRIDGE.dz : -BRIDGE.dz); O.interior.visible = true;
+  if (!main) { O.shell.position.copy(O.interior.position); O.shell.visible = true; }   // 본관 벽 · 바닥 · 천장은 shell 에 있다
+  const cross = main ? P.z < BRIDGE.mainZ && P.x > -1 && P.x < 2.6 : P.z > BRIDGE.annexZ && Math.abs(P.x) < 1.8;
+  if (!cross) return;
+  if ((f === 1 || f === 9) && window.indoorPassagePatch?.state?.fireDoorClosed) { P.z = main ? BRIDGE.mainZ + .05 : BRIDGE.annexZ - .05; return; }
+  bridgeRestore();
+  if (main) { P.x = clamp(P.x - BRIDGE.dx, -1.25, 1.25); P.z -= BRIDGE.dz; } else { P.x = clamp(P.x + BRIDGE.dx, -.45, 2.05); P.z += BRIDGE.dz; }
+  P.floor = o; P.sh = null; P.shV = 0; toastFloor(o);
+  O.interior.visible = true; floors[f].interior.visible = false;
+}
 function toastFloor(f) { const t = $('floorTag'); if (!t) return; t.textContent = FLOOR_LABEL[f] || ''; t.classList.add('show'); clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('show'), 1800); }
 // 엘리베이터: 직접 타고 움직인다 — 바깥 호출 버튼(E) → 문이 열리면 걸어 들어간다 → 안쪽 벽의 버튼 패널을 바라보고 E → 문이 닫히고 카가 움직인다 → 도착하면 걸어 나간다
 // One real cabin docks inside the stairwell footprint at each landing. No off-map room or portal teleport.
@@ -2357,6 +2381,7 @@ function updateLighting(dt) {
   scene.fog.color.lerp(indoors ? _c1.copy(FOG_IN).lerp(FOG_IN_DAY, dk) : _c1.copy(FOG_OUT).lerp(FOG_DAY, dk), k);
   // Outside window impostors avoid a sudden full-floor render on approach.
   applyExteriorFloorVisibility(floors,P,MAIN_ZS);
+  bridgeTick();
   if (P.floor === 0 && P.z > -16 && P.z < 36 && Math.abs(P.x) < 42) {
     floors[0].interior.visible = true;
     if (floors[0].winFake) floors[0].winFake.visible = false;
@@ -2369,7 +2394,8 @@ function updateLighting(dt) {
   if (lampTimer <= 0) {
     lampTimer = .2;
     const baseLamps = !indoors && P.floor === 0 ? world.campusDesign.lights : F.lamps;
-    const lamps=ELV.p&&ELV.cur===P.floor&&ELV.cabinLamp?[...baseLamps,ELV.cabinLamp]:baseLamps;
+    let lamps=ELV.p&&ELV.cur===P.floor&&ELV.cabinLamp?[...baseLamps,ELV.cabinLamp]:baseLamps;
+    if (BRIDGE.moved && BRIDGE.lamps) lamps = [...lamps, ...BRIDGE.lamps];   // 구름다리: 이어 그린 반대편 건물의 형광등도
     const c = lamps.filter(l => l.kind !== 'dead' && !l.off).map(l => ({ l, d: l.cabin&&P.inElev?-1:Math.hypot(l.x - P.x, l.z - P.z) })).filter(o => o.d < 16).sort((a, b) => a.d - b.d).slice(0, 4);
     pool.forEach((p, i) => { const o = c[i]; if (o) { p.position.set(o.l.x, o.l.y, o.l.z); p.color.setHex(o.l.cabin?0xfff0d4:o.l.street ? 0xffd4a1 : 0xcfe6d6); p.distance = o.l.cabin?5:o.l.street ? 15 : 12; p.userData.kind = o.l.kind; p.userData.lamp = o.l; p.userData.on = true; } else p.userData.on = false; });
   }

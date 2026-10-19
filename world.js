@@ -2709,7 +2709,7 @@ export function buildWorld(scene) {
       F.interior.add(boxMesh(-1.78, -1.55, 1.05, 2.35, zp - .18, zp + .18, mWall), boxMesh(1.55, 1.78, 1.05, 2.35, zp - .18, zp + .18, mWall));
       areaLamp(0, zp, 2.95);
     });
-    col(-1.85, -1.45, 9.6, 20.5, true); col(1.45, 1.85, 9.6, 20.5, true);
+    col(-1.85, -1.55, 9.6, 20.5, true); col(1.55, 1.85, 9.6, 20.5, true);   // 본관 구름다리 통행 폭과 맞춤 (걸어서 이어 건널 때 위치가 튀지 않게)
 
     slSouth.forEach((cx, i) => flat(F.interior, ['counselS', 'gallery', 'work', 'staff'].includes(sTypes[i]) ? mFloorWood : mFloorTile, cx - 4, cx + 4, 1.75, 9.6, 0));
     // 별관 남쪽 바깥벽: 정중앙(cx = 0)은 1·2·3층 모두 통로와 직결되는 오픈 출입구(w: 2.5m)로 뚫고, 남쪽 벽 충돌체도 중앙 통로를 비운다!
@@ -2735,7 +2735,10 @@ export function buildWorld(scene) {
     // 별관 창밖 달빛 캠퍼스 풍경
     { const gy = -k * FH - .05, mOutGnd = new THREE.MeshBasicMaterial({ map: T.makeGround(), color: 0x526450 }), mOutFac = new THREE.MeshBasicMaterial({ map: mFacade.map, color: 0x626a72 }), mOutTree = new THREE.MeshBasicMaterial({ color: 0x263828 });
       flat(F.interior, mOutGnd, -75, 75, -65, 65, gy, 8);
-      const mainY0 = gy, mainH = 12.4; F.interior.add(boxMesh(-36.3, 36.3, mainY0, mainY0 + mainH, 20.5, 22.5, mOutFac, 3));
+      const mainY0 = gy, mainH = 12.4;
+      // 2·3층: 구름다리 끝 본관 통로 입구(별관 기준 x ±0.85, 이 층 바닥 ~ 2.5m)는 비운다 — 걸어서 건널 때 그 너머로 실제 본관 층을 이어 그린다 (game.js BRIDGE)
+      if (k > 0) F.interior.add(boxMesh(-36.3, -.85, mainY0, mainY0 + mainH, 20.5, 22.5, mOutFac, 3), boxMesh(.85, 36.3, mainY0, mainY0 + mainH, 20.5, 22.5, mOutFac, 3), boxMesh(-.85, .85, mainY0, 0, 20.5, 22.5, mOutFac, 3), boxMesh(-.85, .85, 2.5, mainY0 + mainH, 20.5, 22.5, mOutFac, 3));
+      else F.interior.add(boxMesh(-36.3, 36.3, mainY0, mainY0 + mainH, 20.5, 22.5, mOutFac, 3));
       // 중앙 구름다리 구간(z: 9.9 ~ 20.5)은 위에서 속이 빈 실제 통로로 구축했으므로 통짜 회색 박스로 막지 않는다!
       const mSlots = []; for (let mf = 0; mf < 3; mf++) SLOTS.forEach(mcx => [-3.05, 3.05].forEach(dx => mSlots.push([mcx + dx, 1.3, -.08, mainY0 + mf * FH + 1.72, 1.48])));
       const mfakes = buildWindowFakes(mSlots, 10 + k); mfakes.position.z = 20.46; F.interior.add(mfakes);

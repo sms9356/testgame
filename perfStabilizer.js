@@ -21,8 +21,8 @@ function rebuild() {
   // 점조명 (풀 제외) — 카메라 레이어에서 빼 조명 개수 계산에 들어가지 않게
   C.src = [];
   scene.traverse(o => { if (o.isPointLight && !o.userData.perfPool) { if (o.layers.test(C.camera.layers)) { o.layers.disable(0); o.layers.enable(HIDE); } C.src.push(o); } });
-  const roots = [...floors.filter(f => f && f.interior).map(f => [f.interior, 'in']), [world.OUT, 'out']];
-  for (const [root, kind] of roots) visit(root, kind, 0);
+  const roots = [...floors.filter(f => f && f.interior).map(f => [f.interior, 'in', f.y0 || 0]), [world.OUT, 'out', 0]];
+  for (const [root, kind, y0] of roots) { C.root = root; C.base = new C.THREE.Vector3(0, y0, 0); visit(root, kind, 0); }   // 원래 자리 기준 (옮겨 그리는 중에 다시 훑어도)
 }
 function visit(o, kind, depth) {
   for (const c of o.children) {
@@ -31,7 +31,7 @@ function visit(o, kind, depth) {
     if (C.seen.has(c)) { if (c.userData.perfSplit) visit(c, kind, depth + 1); continue; }
     C.b.setFromObject(c); if (C.b.isEmpty()) continue; C.b.getBoundingSphere(C.s);
     let hasIm = false; if (C.s.radius < 5) c.traverse(m => { if (m.isInstancedMesh && m.count >= 1) hasIm = true; });
-    if (C.s.radius < 5 && !hasIm) { const ms = []; c.traverse(m => { if (m.isMesh && !m.isInstancedMesh) ms.push(m); }); C.units.push({ c: C.s.center.clone(), r: C.s.radius, ms, kind, far: false }); C.seen.add(c); }
+    if (C.s.radius < 5 && !hasIm) { const ms = []; c.traverse(m => { if (m.isMesh && !m.isInstancedMesh) ms.push(m); }); C.units.push({ c: C.s.center.clone(), r: C.s.radius, ms, kind, far: false, root: C.root, base: C.base }); C.seen.add(c); }
     else if (depth < 6) { c.userData.perfSplit = true; C.seen.add(c); visit(c, kind, depth + 1); }
   }
 }
@@ -46,7 +46,9 @@ function cullStep() {
   const p = C.camera.getWorldPosition(C.v), R = C.R, ind = C.indoors;
   const lim = kind => kind === 'out' ? (ind ? R * .8 : 75) : (ind ? R : R * .8);
   for (const u of C.units) {
-    const far = u.c.distanceTo(p) - u.r > lim(u.kind) * (u.r > 2 ? 1.4 : 1);
+    // 구름다리에서 반대편 건물 층을 옮겨 그릴 때(root 위치가 바뀜) 옮긴 만큼 더해서 거리를 잰다
+    const rp = u.root && u.root.position, ox = rp ? rp.x - u.base.x : 0, oy = rp ? rp.y - u.base.y : 0, oz = rp ? rp.z - u.base.z : 0;
+    const far = Math.hypot(u.c.x + ox - p.x, u.c.y + oy - p.y, u.c.z + oz - p.z) - u.r > lim(u.kind) * (u.r > 2 ? 1.4 : 1);
     if (far === u.far) continue; u.far = far;
     for (const m of u.ms) { if (far) { m.layers.disable(0); m.layers.enable(HIDE); } else m.layers.enable(0); }
   }

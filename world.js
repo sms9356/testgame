@@ -4,11 +4,11 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { NOTES } from './story.js?v=119';
+import { NOTES } from './story.js?v=120';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=119';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=120';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -2245,10 +2245,11 @@ export function buildWorld(scene) {
     const zN = -9.6;
     for (let k = 0; k < 3; k++) [-1, 1].forEach(s => meshAt(merge([...Array.from({ length: 5 }, (_, r) => bx(1.0, .02, .35, 0, .05 + r * .38, 0)), bx(.02, 1.6, .35, -.5, .8, 0), bx(.02, 1.6, .35, .5, .8, 0)]), mWood, cx + s * 3.6, 0, -8.4 + k * 1.05, s > 0 ? -Math.PI / 2 : Math.PI / 2));
     col(cx - 3.85, cx - 3.4, -9.0, -5.8); col(cx + 3.4, cx + 3.85, -9.0, -5.8);
-    // 겹치던 불투명 문짝(mDoor) 제거 — 오픈 아치 문틀과 구름다리/필로티 연장 바닥으로 자연스럽게 직결!
-    [-1.35, 1.35].forEach(x => add(mWoodDark, .14, 2.55, .42, cx + x, 0, zN + .05)); add(mWoodDark, 2.84, .14, .42, cx, 2.55, zN + .05);
-    plane(cur.interior, new THREE.MeshBasicMaterial({ map: T.makeSign(cur.f === 8 ? '별관 1층 중앙 통로 (본관 1F 직결)' : `별관 ${cur.f - 7}층 구름다리 연결 홀 (본관 ${cur.f - 7}F 직결)`, '#182c38', '#d8f0e8', 22), color: 0x9aa59a }), 2.2, .35, cx, 2.95, zN + .05);
-    exitSign(cx, 2.95, zN + .3); noticeBoard(cx - 3.83, 1.6, -3.9, Math.PI / 2, 1.6); potPlant(cx + 3.45, 0, -5.4, true);
+    // 오픈 게이트 문틀 & 상단 현판 (겹치던 EXIT 유도등은 복도 쪽으로 분리하여 현판 가림 0건!)
+    [-1.42, 1.42].forEach(x => add(mWoodDark, .14, 2.55, .38, cx + x, 0, zN + .05));
+    add(mWoodDark, 2.98, .14, .38, cx, 2.55, zN + .05);
+    plane(cur.interior, new THREE.MeshBasicMaterial({ map: T.makeSign(cur.f === 8 ? '별관 1층 중앙 통로 (본관 1F 직결)' : `별관 ${cur.f - 7}층 구름다리 연결 홀 (본관 ${cur.f - 7}F 직결)`, '#182c38', '#d8f0e8', 22), color: 0x9aa59a }), 2.3, .34, cx, 2.78, zN + .22);
+    noticeBoard(cx - 3.83, 1.6, -3.9, Math.PI / 2, 1.6); potPlant(cx + 3.45, 0, -5.4, true);
     papers(cx, -8, -2.4, 6);
   }
   const mWhiteP2 = S(null, { color: 0xd8d6cc, roughness: .5 });
@@ -2695,11 +2696,20 @@ export function buildWorld(scene) {
     const sNames = sl.map((_, i) => i === 2 ? (k === 0 ? '별관 현관 홀' : `${k + 1}층 연결 홀`) : AS.names[i]).concat([relocatedName]);
     const woodT = ['music', 'art', 'craft', 'counsel', 'club'];
     flat(F.interior, mFloorTile, X0, X1, -1.75, 1.75, 0);
-    // 통로 연결 연장부 바닥·벽·천장 (z: 9.6 ~ 14.5 구간에 구름다리/필로티 통로가 그대로 이어져 보이도록 연장!)
-    flat(F.interior, mFloorTile, -1.6, 1.6, 9.5, 14.8, .012);
-    flat(F.interior, mCeil, -1.6, 1.6, 9.5, 14.8, 3.05, 2, false);
-    F.interior.add(boxMesh(-1.75, -1.5, 0, 3.1, 9.6, 14.8, mWall), boxMesh(1.5, 1.75, 0, 3.1, 9.6, 14.8, mWall));
-    col(-1.8, -1.45, 9.6, 14.8, true); col(1.45, 1.8, 9.6, 14.8, true);
+    // 통로 연결 연장부 바닥·벽·천장·창문 (z: 9.5 ~ 20.5 전 구간에 구름다리/필로티 내부 복도가 본관까지 막힘 없이 뻥 뚫려 이어져 보이도록 구축!)
+    flat(F.interior, mFloorTile, -1.65, 1.65, 9.5, 20.5, .015);
+    flat(F.interior, mCeil, -1.65, 1.65, 9.5, 20.5, 3.02, 2, false);
+    F.interior.add(
+      boxMesh(-1.78, -1.55, 0, 1.05, 9.6, 20.5, mWainscot),
+      boxMesh( 1.55,  1.78, 0, 1.05, 9.6, 20.5, mWainscot),
+      boxMesh(-1.78, -1.55, 2.35, 3.05, 9.6, 20.5, mWall),
+      boxMesh( 1.55,  1.78, 2.35, 3.05, 9.6, 20.5, mWall)
+    );
+    [11.5, 14.5, 17.5].forEach(zp => {
+      F.interior.add(boxMesh(-1.78, -1.55, 1.05, 2.35, zp - .18, zp + .18, mWall), boxMesh(1.55, 1.78, 1.05, 2.35, zp - .18, zp + .18, mWall));
+      areaLamp(0, zp, 2.95);
+    });
+    col(-1.85, -1.45, 9.6, 20.5, true); col(1.45, 1.85, 9.6, 20.5, true);
 
     slSouth.forEach((cx, i) => flat(F.interior, ['counselS', 'gallery', 'work', 'staff'].includes(sTypes[i]) ? mFloorWood : mFloorTile, cx - 4, cx + 4, 1.75, 9.6, 0));
     // 별관 남쪽 바깥벽: 정중앙(cx = 0)은 1·2·3층 모두 통로와 직결되는 오픈 출입구(w: 2.5m)로 뚫고, 남쪽 벽 충돌체도 중앙 통로를 비운다!
@@ -2726,7 +2736,7 @@ export function buildWorld(scene) {
     { const gy = -k * FH - .05, mOutGnd = new THREE.MeshBasicMaterial({ map: T.makeGround(), color: 0x526450 }), mOutFac = new THREE.MeshBasicMaterial({ map: mFacade.map, color: 0x626a72 }), mOutTree = new THREE.MeshBasicMaterial({ color: 0x263828 });
       flat(F.interior, mOutGnd, -75, 75, -65, 65, gy, 8);
       const mainY0 = gy, mainH = 12.4; F.interior.add(boxMesh(-36.3, 36.3, mainY0, mainY0 + mainH, 20.5, 22.5, mOutFac, 3));
-      F.interior.add(boxMesh(-1.8, 3.8, mainY0, mainY0 + 3 * FH - .4, 9.9, 20.5, mOutFac, 2));
+      // 중앙 구름다리 구간(z: 9.9 ~ 20.5)은 위에서 속이 빈 실제 통로로 구축했으므로 통짜 회색 박스로 막지 않는다!
       const mSlots = []; for (let mf = 0; mf < 3; mf++) SLOTS.forEach(mcx => [-3.05, 3.05].forEach(dx => mSlots.push([mcx + dx, 1.3, -.08, mainY0 + mf * FH + 1.72, 1.48])));
       const mfakes = buildWindowFakes(mSlots, 10 + k); mfakes.position.z = 20.46; F.interior.add(mfakes);
       F.interior.add(boxMesh(-32, 32, mainY0, mainY0 + 2.8, -26, -25.6, mOutFac, 3), boxMesh(-30, -6, mainY0, mainY0 + 10.5, -24, -18.5, mOutFac, 3), boxMesh(4, 28, mainY0, mainY0 + 9.8, -23.5, -18.5, mOutFac, 3));
@@ -3440,9 +3450,15 @@ export function buildWorld(scene) {
   const shBench = new THREE.Mesh(new THREE.BoxGeometry(2.4, .12, .5), mWood); shBench.position.set(-65.5, .5, 46.6); OUT.add(shBench);
   for (let z = 14; z <= 66; z += 13) { const p = new THREE.Mesh(new THREE.CylinderGeometry(.07, .07, 5, 6), mMetal); p.position.set(-52.6, 2.5, z); OUT.add(p); const h = new THREE.Mesh(new THREE.BoxGeometry(1.2, .1, .3), mMetal); h.position.set(-53.1, 5, z); OUT.add(h); }
   for (let k = 0; k < 6; k++) { const r = new THREE.Mesh(new THREE.BoxGeometry(.05, .9, .5), mMetal); r.position.set(-51.4, .45, 22 + k * .6); OUT.add(r); }
-  // 별관(특별교실동) 외관
-  OUT.add(boxMesh(-20, 20, 0, 12.4, -25 - ANNEX_DZ, -13.5 - ANNEX_DZ, mBrick, 2.5)); col(-20, 20, -25 - ANNEX_DZ, -13.5 - ANNEX_DZ, true);
-  OUT.add(boxMesh(-20.4, 20.4, 12.4, 12.7, -25.4 - ANNEX_DZ, -13.1 - ANNEX_DZ, mFacade, 3));
+  // 별관(특별교실동) 외관 — 정중앙 구름다리/필로티 연결 홀(x: -1.0 ~ 2.6)은 벽돌 외벽과 충돌체를 비워 본관↔별관이 막힘 없이 직결되게 한다!
+  OUT.add(
+    boxMesh(-20, -1.0, 0, 12.4, -25 - ANNEX_DZ, -13.5 - ANNEX_DZ, mBrick, 2.5),
+    boxMesh(2.6, 28, 0, 12.4, -25 - ANNEX_DZ, -13.5 - ANNEX_DZ, mBrick, 2.5),
+    boxMesh(-1.0, 2.6, 0, 12.4, -25 - ANNEX_DZ, -21.5 - ANNEX_DZ, mBrick, 2.5)
+  );
+  col(-20, -1.0, -25 - ANNEX_DZ, -13.5 - ANNEX_DZ, true);
+  col(2.6, 28, -25 - ANNEX_DZ, -13.5 - ANNEX_DZ, true);
+  OUT.add(boxMesh(-20.4, 28.4, 12.4, 12.7, -25.4 - ANNEX_DZ, -13.1 - ANNEX_DZ, mFacade, 3));
   { const anSlots = [];
     [1.8, 5.8, 9.8].forEach((y, r) => {
       for (let x = -18; x <= 18; x += 4) {
@@ -3534,9 +3550,7 @@ export function buildWorld(scene) {
     const doorAt = (x, z, y0, w) => {
       OUT.add(new THREE.Mesh(merge([bx(.14, 2.48, .22, x - w / 2 - .07, y0 + 1.24, z), bx(.14, 2.48, .22, x + w / 2 + .07, y0 + 1.24, z), bx(w + .28, .16, .22, x, y0 + 2.52, z)]), mDarkMetal));
     };
-    doorAt(.8, -9.9 - .1, 0, 1.3, Math.PI); doorAt(0, W.z1 + .1, 0, 1.8, 0);
-    // 2층 구름다리 양끝 출입문 (y0 = FH = 4.0m)
-    doorAt(.8, -9.9 - .1, FH, 1.3, Math.PI); doorAt(.8, W.z1 + .1, FH, 1.5, 0);
+    doorAt(.8, -9.9 - .1, 0, 1.3, Math.PI);
     plane(OUT, new THREE.MeshBasicMaterial({ map: T.makeSign('본관 1F 후문 (중앙계단)', '#1e2a2e', '#d9e4d0', 22), color: 0x9aa59a }), 1.5, .3, .8, 2.8, -10.02, Math.PI);
     // 옥상 환기 펜트하우스 (외관 디자인 시트 '상부 / 옥상 라인'): 바깥에서도 파라펫 위로 보인다 · 옥상 충돌
     { const RF = floors.find(F => F.f === 3), slats = [];

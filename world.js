@@ -3576,7 +3576,23 @@ export function buildWorld(scene) {
   annexExitDoor(OUT, -20.42, -Math.PI / 2);   // 별관 서쪽 비상구 (바깥 면)
   doors.push({ floor: 0, x: -21.2, z: ANNEX_EXIT_Z, r: 1.4, label: '별관 비상구로 들어가기', to: { floor: 8, x: -18.9, z: 0, yaw: -Math.PI / 2 } });
   plane(OUT, new THREE.MeshBasicMaterial({ map: T.makeSign('별관 (특별교실동)', '#1e2a2e', '#d9e4d0', 26), color: 0x9aa59a }), 3.4, .85, 0, 3.6, -13.46 - ANNEX_DZ, 0);
-  doors.push({ floor: 0, x: 0, z: WALKWAY.z1 + 1.1, r: 2.0, label: '별관 1층 정문 들어가기', to: { floor: 8, x: 0, z: 8.3, yaw: 0 } });
+  // 별관 1층 현관: 정면 가운데 홈(x −0.92 ~ 2.52, 깊이 8m)이 안쪽 끝 벽돌벽 · 하늘 뚫린 막다른 골목처럼 보였고, 끝 벽은 충돌이 없어 뚫고 지나갔다
+  //   → 끝 벽에 실제 현관 양여닫이 유리문 · 홈 천장 · 천장등 · 충돌, 들어가기 판정도 문 앞으로
+  { const zB = -21.5 - ANNEX_DZ, cx = .8;
+    col(-.92, 2.52, -25 - ANNEX_DZ, zB, true);
+    OUT.add(boxMesh(-.92, 2.52, 3.55, 3.8, zB, -13.5 - ANNEX_DZ, mFacade, 2));
+    const g = new THREE.Group(); g.position.set(cx, 0, zB + .02); OUT.add(g);
+    g.add(new THREE.Mesh(merge([bx(.14, 2.6, .2, -1.17, 1.3, .1), bx(.14, 2.6, .2, 1.17, 1.3, .1), bx(2.48, .16, .2, 0, 2.68, .1), bx(2.48, .1, .3, 0, .05, .15)]), mDarkMetal));
+    { const bk = new THREE.Mesh(new THREE.PlaneGeometry(2.2, 2.5), new THREE.MeshBasicMaterial({ color: 0x06080a })); bk.position.set(0, 1.3, .035); g.add(bk); }   // 유리 너머 어두운 실내 (벽돌이 비쳐 보였다)
+    const mGlD = new THREE.MeshStandardMaterial({ color: 0x1c2a2c, roughness: .08, metalness: .3, transparent: true, opacity: .78 });
+    [-.55, .55].forEach(dx => { const fr = new THREE.Mesh(merge([bx(1.08, .1, .06, dx, .1, .06), bx(1.08, .1, .06, dx, 2.5, .06), bx(.08, 2.5, .06, dx - .5, 1.3, .06), bx(.08, 2.5, .06, dx + .5, 1.3, .06)]), mDarkMetal); g.add(fr);
+      const gl = new THREE.Mesh(new THREE.PlaneGeometry(.94, 2.32), mGlD); gl.position.set(dx, 1.3, .07); g.add(gl);
+      const h = new THREE.Mesh(new THREE.BoxGeometry(.04, .5, .05), mChrome); h.position.set(dx - Math.sign(dx) * .38, 1.1, .12); g.add(h); });
+    const sg = new THREE.Mesh(new THREE.PlaneGeometry(1.6, .3), new THREE.MeshBasicMaterial({ map: T.makeSign('별관 1층 현관', '#1e2a2e', '#d9e4d0', 22), color: 0x9aa59a })); sg.position.set(0, 3.05, .03); g.add(sg);
+    g.traverse(o => { o.userData.dynamic = true; });
+    model('sf_bulkhead_lamp', cx, 3.45, zB + 3.5, 0, { out: true });
+    doors.push({ floor: 0, x: cx, z: zB + 1.0, r: 1.6, label: '별관 1층 정문 들어가기', to: { floor: 8, x: 0, z: 8.3, yaw: 0 } });
+  }
 
   // 본관 외관 디테일: 기둥(필라스터) · 창 상인방 · 기단 · 처마 코니스 · 파라펫 · 우수관 · 북/측면 창
   {

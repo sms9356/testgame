@@ -10,14 +10,15 @@ import { createNPCVisuals } from './npcVisuals.js';
 import { applyGuardSeatedPose } from './guardSeatedPose.js';
 import { createCampusCctvLive, collectCampusCctvFeeds } from './campusCctvLive.js';
 import { applyExteriorFloorVisibility, shouldStreamGuardCctv } from './exteriorRenderBudget.js';
-import { GUARD_LAYOUT } from './guardRoomLayout.js?v=112';
-import { installGuardRoom } from './guardRoom.js?v=112';
+import { GUARD_LAYOUT } from './guardRoomLayout.js?v=113';
+import { installGuardRoom } from './guardRoom.js?v=113';
 import { prepareModelGeometry } from './modelGeometry.js';
 import { modelFootprint, overlaps, removeDuplicateModels } from './placement.js';
-import { turfMaterial } from './campusVisuals.js?v=112';
+import { turfMaterial } from './campusVisuals.js?v=113';
 import { installInfirmaryAssets, updateInfirmaryCabinets } from './infirmaryAssets.js';
-import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js?v=112'; import { updateWindowFakes } from './windowInteriors.js?v=112';
-import { drawMap } from './map.js?v=112';
+import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js?v=113'; import { updateWindowFakes } from './windowInteriors.js?v=113';
+import { drawMap } from './map.js?v=113';
+import { buildMegaCampus15000, MEGA_CAMPUS_ZONES } from './megaCampus15000.js?v=113';
 import { makeDress, makeHair, makeGhostFace, makeGraffiti, makeKeypad, loadPBR, pbr, makeGlow as makeGlowTex, makePaintingStare, makeSign, makeBlood } from './tex.js';
 import { warmUp } from './bake.js';
 import { createStaticDistanceLOD } from './staticDistanceLOD.js';
@@ -38,12 +39,12 @@ import './school37RoomsPatch.js';    // 본관 · 별관 37개 특별실 가구 
 import './new37UniquePatch.js';     // 37개 구역 신규 특수 설비 · 벽면 레일 (사용자 제공) → window.new37UniquePatch
 import './megaExpansionPatch.js';   // 메가 익스팬션 · 최적화 · 4막 사건 기록 · 수집품 · 미니게임 (사용자 제공) → window.megaSchoolPatch
 import './poolMachineryPatch.js';     // 수영장 · 남/녀 탈의실·샤워실 · 기계실 철문 (사용자 제공) → window.poolAndMachineryPatch
-import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx } from './audio.js?v=112'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=112'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera } from './perfStabilizer.js';
-import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js?v=112';
-import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, SIDEQUESTS, HEADQUEST, COLLECT, LOCKER_SCARES, CHALK_QA, OUIJA_QS, PARA, TOILET_FX, MIRROR_WORDS } from './story.js?v=112';
+import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx } from './audio.js?v=113'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=113'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera } from './perfStabilizer.js';
+import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js?v=113';
+import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, SIDEQUESTS, HEADQUEST, COLLECT, LOCKER_SCARES, CHALK_QA, OUIJA_QS, PARA, TOILET_FX, MIRROR_WORDS } from './story.js?v=113';
 import { isSpeechBusy } from './voice.js';
 import { SET, saveSET, resetSET, DIFF, keyLabel } from './settings.js';
-import { initI18n, setLang, lang as curLang } from './i18n.js?v=112';   // 언어 패치 (한국어 · English · 日本語 · 中文)
+import { initI18n, setLang, lang as curLang } from './i18n.js?v=113';   // 언어 패치 (한국어 · English · 日本語 · 中文)
 initI18n();
 const K = () => SET.keys;
 let guardRoomController = null, guardControlProps = [], guardCctvData = null, campusCctv = null;
@@ -59,7 +60,7 @@ function syncGuardDevices() {
 function toggleGuardCCTV(persist = true) { FL.guardCctvOn = !(FL.guardCctvOn ?? true); sfx.click(); syncGuardDevices(); if (persist) save(true); return FL.guardCctvOn; }
 function toggleGuardLight() { FL.guardLightOn = !(FL.guardLightOn ?? false); sfx.click(); syncGuardDevices(); say(FL.guardLightOn ? '경비실 전등을 켰다' : '경비실 전등을 껐다', 1800); save(true); return FL.guardLightOn; }
 
-import { run as runMini, MG } from './minigames.js?v=112';
+import { run as runMini, MG } from './minigames.js?v=113';
 import { SCHEMA, BUILD, storageKeys, itemUid, propUid, doorUid, assignUids, readSlot, writeSlot, hasSlot, clearSlot, repairProgress } from './saveSystem.js';
 loadManifest().then(() => registerLines({ ...VO, ...Object.fromEntries(Object.entries(STORY_NOTES).filter(([, n]) => n.text).map(([k, n]) => ['note_' + k, { spk: 'narrator', text: n.title + '. ' + n.text, parts: [n.title, n.text] }])) }));
 
@@ -1437,7 +1438,18 @@ async function useRoomObj(p) {
   if (k === 'weather_box') { if (!p.gotBat) { p.gotBat = true; giveItem('battery', 1); sfx.pickup(); say('백엽상 안에서 예비 건전지와 10월 12일 밤 기상 관측 기록표를 발견했다', 3200); } else say('1998.10.12 23:00 기상 관측 기록 — “원인 불명의 국지성 안개 및 자기장 이상 감지”', 2800); return; }
   if (k === 'canteen_counter') { if (!p.gotSnack) { p.gotSnack = true; giveItem('candy', 1); giveItem('thermos', 1); sfx.pickup(); say('학우 매점 진열대에서 막대사탕과 보온병 유자차를 챙겼다', 3000); } else say('매점 창구 유리창에 “축제 당일 야간 연장 영업!” 안내문이 붙어 있다', 2400); return; }
   if (k === 'amphitheater_stand') { if (!p.gotBox) { p.gotBox = true; giveItem('musicbox', 1); sfx.pickup(); say('야외 음악당 지휘 보면대 아래에서 태엽 오르골과 합창단 리허설 메모를 발견했다', 3200); } else say('보면대 위에 「1998 추계 학예제 피날레 — 교가 & 학교종」 악보가 펼쳐져 있다', 2600); return; }
-  if (k === 'campus_map_board') { sfx.paper(); say('캠퍼스 전역이 타일 보행로로 연결되어 있으며, 본관과 별관은 2층 구름다리로 이어져 있다', 3200); return; }
+  if (k === 'campus_map_board') { sfx.paper(); say('15,000평 캠퍼스 전역(청운학사 기숙사·청운호 수변공원·과학천문관·중앙학술정보관·스포츠단지·학생회관)이 타일 보행로로 연결되어 있다', 3400); return; }
+  if (k === 'dorm_log') { if (!p.got) { p.got = true; giveItem('thermos', 1); sfx.pickup(); say('기숙사 사감실 점호 일지 — “10월 12일 22:30, 3-2 윤하늘·강민아 미복귀” 기록과 함께 보온병 유자차를 얻었다', 3600); } else say('사감실 열쇠함에 101호부터 308호까지 호실 열쇠가 걸려 있다', 2400); return; }
+  if (k === 'dorm_locker') { if (!p.got) { p.got = true; giveItem('battery', 1); giveItem('medkit', 1); sfx.locker(); say('기숙사 사생 사물함을 파밍해 건전지와 응급 밴드를 획득했다!', 3000); } else say('이미 파밍을 마친 기숙사 사물함이다', 1800); return; }
+  if (k === 'dorm_study') { if (!p.got) { const r = await mini('rings', { title: '심야 정독실 — 비밀 수첩 맞물린 고리 해독' }); if (r.ok) { p.got = true; giveItem('charm', 1); sfx.unlock(); say('정독실 비밀 수첩을 해독해 노란 부적을 얻었다!', 3000); } } else say('정독실 책상 위에 수능 특강과 방송반 큐시트 초안이 놓여 있다', 2400); return; }
+  if (k === 'lake_capsule') { if (!p.got) { p.got = true; giveItem('musicbox', 1); giveItem('candy', 1); sfx.unlock(); say('청운호 호심정 정자 위 봉인함에서 태엽 오르골과 1998년 세 친구의 타임캡슐 편지를 발견했다!', 3600); } else say('호심정 기둥에 “우리의 노래가 호수 위로 영원히 퍼지길”이라 새겨져 있다', 2600); return; }
+  if (k === 'astro_console') { if (!p.got) { const r = await mini('oscilloscope', { title: '과학천문관 — 천체관측 돔 성도 주파수 동조' }); if (r.ok) { p.got = true; giveItem('battery', 2); sfx.unlock(); say('천문대 성도 좌표가 맞춰지며 예비 건전지 2개를 획득했다!', 3200); } } else say('천체망원경이 1998년 10월 12일 밤의 페가수스자리를 가리키고 있다', 2600); return; }
+  if (k === 'astro_case') { if (!p.got) { p.got = true; giveItem('salt', 2); sfx.pickup(); say('광물 표본 진열장에서 순도 높은 암염(굵은 소금 ×2)을 획득했다!', 3000); } else say('각종 운석과 형광 광물 표본이 유리 진열장 안에 전시되어 있다', 2200); return; }
+  if (k === 'lib_microfilm') { if (!p.got) { const r = await mini('filmFocus', { title: '중앙학술정보관 — 1998년 마이크로필름 신문 복원' }); if (r.ok) { p.got = true; giveItem('hairpin', 2); giveItem('medkit', 1); sfx.photo(); say('마이크로필름 속 1998년 폐교 사건 기사를 판독하고 머리핀 2개·응급 밴드를 얻었다!', 3400); } } else say('마이크로필름 화면에 1974년 개교 당시 지하 보존서고 도면이 비친다', 2600); return; }
+  if (k === 'lib_desk') { if (!p.got) { p.got = true; giveItem('matches', 2); sfx.pickup(); say('대도서관 사서 데스크 서랍에서 성냥갑 2개를 챙겼다', 2800); } else say('미반납 도서 목록 맨 위에 『집으로 가는 길 — 3-2 윤하늘』이 적혀 있다', 2600); return; }
+  if (k === 'sports_cooler') { P.stamina = 100; P.tired = false; if (!p.got) { p.got = true; giveItem('candy', 2); giveItem('can', 1); sfx.pickup(); say('선수용 아이스박스에서 막대사탕 2개와 음료 캔을 꺼내고 숨을 돌렸다 (스태미나 100% 회복)', 3200); } else say('시원한 얼음물에 손을 적시자 피로가 가신다 (스태미나 회복)', 2200); return; }
+  if (k === 'union_console') { if (!p.got) { const r = await mini('fuse', { title: '학생회관 소극장 — 무대 음향·조명 회로 복구', N: 4 }); if (r.ok) { p.got = true; giveItem('charm', 1); giveItem('battery', 1); sfx.unlock(); say('소극장 무대 전원이 들어오며 보관함에서 노란 부적과 건전지를 획득했다!', 3200); } } else say('소극장 콘솔 위에 제32회 해교제 연극부 대본이 놓여 있다', 2400); return; }
+  if (k === 'union_locker') { if (!p.got) { p.got = true; giveItem('candy', 1); giveItem('hairpin', 1); sfx.locker(); say('동아리연합회 사물함을 파밍해 막대사탕과 머리핀을 얻었다!', 2800); } else say('이미 파밍을 마친 동아리 사물함이다', 1800); return; }
   if (k === 'radio') {
     sfx.staticNoise(1.6); const ga = ghost.active && ghost.floor === P.floor, d = ga ? Math.hypot(ghost.x - P.x, ghost.z - P.z) : 99;
     setTimeout(() => caption(ga ? (d < 12 ? '(지지직!) 잡음이 거세다 — 가까이 있다' : '(지직…) 잡음이 일정하다 — 같은 층 어딘가에 있다') : '(조용한 잡음) — 이 층에는 아무것도 없는 것 같다'), 700);
@@ -2275,7 +2287,9 @@ function updatePlayer(dt) {
     if (P.vy > 0 || (P.jy || 0) > sup + .001) { P.vy -= 13 * dt; P.jy = Math.max(sup, (P.jy || 0) + P.vy * dt);
       if (P.jy <= sup + 1e-4 && P.vy <= 0) { if (P.vy < -1.5) { sfx.step(true, 1.1, sup > .1 ? 'wood' : surfaceAt()); P.noiseT = Math.max(P.noiseT, .25); } P.vy = 0; P.jy = sup; if (jumpBuf > 0) { jumpBuf = 0; tryJump(); } } }
     if (jumpBuf > 0) jumpBuf -= dt;
-    else if ((P.jy || 0) < sup) P.jy = sup; }
+    else if ((P.jy || 0) < sup) P.jy = sup;
+    if (!Number.isFinite(P.jy) || P.jy < 0) P.jy = 0;
+    if (!Number.isFinite(P.sh) || P.sh < 0) P.sh = 0; }
   P.crouchK = lerp(P.crouchK || 0, P.crouch && !P.hiding ? 1 : 0, Math.min(1, dt * 9));
 
   // 정문 닫힘 연출 (플레이어가 정문 안으로 들어서면 경비원도 즉시 이동하며, 경비원이 정문을 통과한 뒤 정문이 닫힌다)
@@ -2555,6 +2569,63 @@ $('galBtn2').addEventListener('click', () => openGallery());
 $('galClose').addEventListener('click', () => $('gallery').classList.remove('show'));
 $('lightbox').addEventListener('click', () => $('lightbox').classList.remove('show'));
 
+
+let _ecgX = 0, _hudInitDone = false;
+function updateRealisticHudWidgets(dt, prox, chase, outdoors) {
+  if (!_hudInitDone) {
+    _hudInitDone = true;
+    const mini = $('mini');
+    if (mini && !$('hudCompass')) {
+      const comp = document.createElement('div'); comp.id = 'hudCompass';
+      comp.innerHTML = '<span id="compDir">N</span><span id="compTape">NW · · N · · NE</span><b id="compDeg">000°</b>';
+      mini.insertBefore(comp, mini.firstChild);
+      const env = document.createElement('div'); env.id = 'hudEnvSensor';
+      env.innerHTML = '<span id="envTemp">🌡 12.4°C</span><span id="envHum">💧 76%</span>';
+      mini.appendChild(env);
+    }
+    const whoBars = document.querySelector('#who .bars');
+    if (whoBars && !$('hudBioRow')) {
+      const bio = document.createElement('div'); bio.id = 'hudBioRow';
+      bio.innerHTML = '<span id="bioBpm">♥ 72 BPM</span><canvas id="ecgCanvas" width="68" height="18"></canvas><span id="bioDb">🔊 22dB</span>';
+      whoBars.appendChild(bio);
+    }
+    const s1 = $('s1');
+    if (s1 && !$('batPct')) {
+      const bp = document.createElement('span'); bp.id = 'batPct'; bp.textContent = '100%';
+      s1.appendChild(bp);
+    }
+  }
+  // 1) 방위각 나침반
+  const deg = ((Math.round((-P.yaw * 180 / Math.PI) % 360) + 360) % 360);
+  const dirs = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'], di = Math.round(deg / 45) % 8;
+  setTxt($('compDir'), dirs[di]);
+  setTxt($('compTape'), `${dirs[(di + 7) % 8]} · · ${dirs[di]} · · ${dirs[(di + 1) % 8]}`);
+  setTxt($('compDeg'), String(deg).padStart(3, '0') + '°');
+  // 2) 구역별 실시간 기온 · 습도
+  const baseT = P.floor === 4 ? 9.4 : P.floor === 6 ? (P.x < -50 && P.z < 30 ? 36.8 : 18.2) : outdoors ? (11.2 - (1 - DAY.k) * 2.4) : 15.6;
+  const temp = (baseT - prox * 4.5).toFixed(1);
+  const hum = Math.round(P.floor === 6 ? 88 : P.floor === 4 ? 84 : outdoors ? 74 : 62);
+  setTxt($('envTemp'), `🌡 ${temp}°C`);
+  setTxt($('envHum'), `💧 ${hum}%`);
+  // 3) 심박수(BPM) · 소음(dB) · 배터리 퍼센트
+  const bpm = Math.round(68 + P.fear * 52 + (P.sprinting ? 26 : P.moving ? 10 : 0) + (chase ? 24 : 0));
+  const db = Math.round(18 + (P.noise || 0) * 4.2 + (P.sprinting ? 14 : 0));
+  const bpmEl = $('bioBpm'); if (bpmEl) { setTxt(bpmEl, `♥ ${bpm}`); bpmEl.style.color = bpm > 120 ? '#ff6868' : '#70ffaa'; }
+  setTxt($('bioDb'), `🔊 ${db}dB`);
+  setTxt($('batPct'), Math.round(P.battery) + '%');
+  // 4) 실시간 ECG 심전도 파형
+  const ecg = $('ecgCanvas');
+  if (ecg) {
+    const ctx = ecg.getContext('2d');
+    _ecgX = (_ecgX + dt * (28 + bpm * 0.25)) % 68;
+    ctx.fillStyle = 'rgba(6,14,12,0.18)'; ctx.fillRect(0, 0, 68, 18);
+    const phase = (_ecgX % 22) / 22;
+    const y = phase > .42 && phase < .48 ? 2 : phase >= .48 && phase < .54 ? 16 : phase >= .54 && phase < .62 ? 6 : 9 + Math.sin(tNow * 8) * 1.2;
+    ctx.fillStyle = bpm > 120 ? '#ff5858' : '#58ff9a';
+    ctx.fillRect(_ecgX | 0, y | 0, 2, 2);
+  }
+}
+
 function updateHud(dt, prox, chase) {
   updateFace(dt); if (state === 'playing') areaCheck(dt);
   { const ft = clamp(prox * (chase ? 1.2 : .7), 0, 1); P.fear = P.fear > ft ? Math.max(ft, P.fear - dt * .05) : lerp(P.fear, ft, Math.min(1, dt * 3)); }   // 사건으로 오른 공포는 천천히 가라앉는다
@@ -2566,8 +2637,9 @@ function updateHud(dt, prox, chase) {
   $('batBar').style.width = P.battery + '%'; $('s1').classList.toggle('off', !P.light);
   const outdoors = P.floor === 0 && !inBldg(P.x, P.z);
   setTxt($('floor'), zoneLabel() || (P.floor === 0 && outdoors ? '외부' : AREA_NAMES[P.floor]));
-  const m = gameMin(), h24 = Math.floor(m / 60) % 24;
-  setTxt($('clock'), `${h24 >= 12 ? 'PM' : 'AM'} ${String(h24 % 12 || 12).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`);
+  const m = gameMin(), h24 = Math.floor(m / 60) % 24, sec60 = Math.floor((playTime * 4) % 60);
+  setTxt($('clock'), `10.12 ${h24 >= 12 ? 'PM' : 'AM'} ${String(h24 % 12 || 12).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}:${String(sec60).padStart(2, '0')}`);
+  updateRealisticHudWidgets(dt, prox, chase, outdoors);
   const ps = Math.floor(playTime); if (ps !== ptShown) { ptShown = ps; $('ptime').textContent = '⏱ ' + fmtPT(ps); }
   miniT -= dt;
   if (miniT <= 0) {
@@ -4841,6 +4913,17 @@ function zoneLabel() {
   if (f === 10) { const r = roomAt(f, x, z); if (r && r.type === 'lab') return '과학실'; }
   if (f === 7) return z < 12.5 ? '급식실 · 조리실' : '급식실';
   if (f === 3) return '옥상';
+  if (f === 0) {
+    for (const zc of MEGA_CAMPUS_ZONES) {
+      if (Math.abs(x - zc.x) <= zc.w / 2 + 2.5 && Math.abs(z - zc.z) <= zc.d / 2 + 2.5) return zc.name;
+    }
+    if (x < -39 && x > -49 && z > -19 && z < -11) return '생물부 생태온실';
+    if (x > 25 && x < 35 && z > -22 && z < -10) return '서문 학우 매점';
+    if (x > 29 && x < 41 && z > -38 && z < -24) return '해교 야외 음악당';
+    if (Math.abs(x - MEGA.gym.x) < 10 && Math.abs(z - MEGA.gym.z) < 14) return '대강당 · 실내체육관';
+    if (Math.abs(x - MEGA.court.x) < 9 && Math.abs(z - MEGA.court.z) < 9) return '중앙 중정';
+    if (Math.abs(x) < 6 && z > WALKWAY.z1 && z < WALKWAY.z2) return '필로티 중앙광장';
+  }
   return null;
 }
 const ZONE_MAP = { 0: [[GUARD_LAYOUT.cx, GUARD_LAYOUT.cz, '경비실 · 정문 개폐기'], [-11, 15.6, '조회대 마이크'], [-21.6, 61.4, '모래밭 · 타임캡슐'], [.8, (WALKWAY.z1 + WALKWAY.z2) / 2, '실내 연결복도']],
@@ -6497,6 +6580,7 @@ function megaNotify(m) { const t = String(m).split('\n'); say(t[0].replace(/^\S+
         world.props.push({ kind: 'robj', k: 'campus_map_board', t: 'campus', floor: 0, x: -5.6, z: 61.3, y: 1.5, r: 2.0, label: '캠퍼스 종합 안내도 살펴보기' });
       }
     }
+    buildMegaCampus15000({ THREE, OUT: O, F0, PM, pbox, pmesh, pcyl, makeSign, makeGlowTex, world, megaP });
     // 안쪽 무대 뒤편 대형 자주빛 벨벳 막과 현수막
     [-6.2, 6.2].forEach(dx => pbox(2.8, 5.4, .18, PM(0x581822, .85), G.x + dx, 2.7, z0 + .55, F0.interior));
     pbox(14.8, .85, .16, PM(0x4a121b, .85), G.x, 5.2, z0 + .62, F0.interior);

@@ -4,11 +4,11 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { NOTES } from './story.js?v=112';
+import { NOTES } from './story.js?v=113';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=112';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=113';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -3245,7 +3245,8 @@ export function buildWorld(scene) {
   const outWall = (x1, x2, z1, z2, h, mat, wall = true) => { const m = boxMesh(x1, x2, 0, h, z1, z2, mat); OUT.add(m); col(x1, x2, z1, z2, wall); };
 
   // 지면
-  const groundMat = S(T.makeGround()); flat(OUT, groundMat, -300, 300, -250, 300, -.02, 8);
+  const groundMat = S(T.makeGround()); flat(OUT, groundMat, -320, 320, -260, 320, -.02, 8);
+  OUT.add(boxMesh(-130, 130, -.45, -.018, -120, 100, groundMat, 8)); // 15,000평 메가 캠퍼스 하부 솔리드 지반 슬래브 (땅꺼짐 원천 차단)
   const dirtMat = turfMaterial(); flat(OUT, dirtMat, -27, 27, 15, 59, 0, 2);   // 잔디 운동장: 트랙과 흰 경기선은 위에 유지
   // 운동장 (재배치): 동서로 긴 200m 급 우레탄 트랙 — 체육관(x 28) · 수영장(x -34) · 급식실과 3m 이상 띄움. 안쪽은 흙 축구장 (선 · 골대 · 그물)
   const PG = { CZ: 40, SX: 11, R0: 9.6, R1: 13.2 };
@@ -3380,21 +3381,23 @@ export function buildWorld(scene) {
   const fenceH = 2.8;
   outWall(-50, -4.5, GATE_Z - .25, GATE_Z + .25, fenceH, mFence);
   outWall(4.5, 50, GATE_Z - .25, GATE_Z + .25, fenceH, mFence);
-  outWall(-50.25, -49.75, NORTH_Z, 28.5, fenceH, mFence); outWall(-50.25, -49.75, 35.5, GATE_Z, fenceH, mFence);
+  // 서쪽 내곽 담장: 서북 캠퍼스 통문(z -36 ~ -28: 청운학사 기숙사 · 스포츠단지 연결) 및 서남 통문(z 46 ~ 54: 학생회관 · 동아리관 연결) 개방!
+  outWall(-50.25, -49.75, NORTH_Z, -36.0, fenceH, mFence);
+  outWall(-50.25, -49.75, -28.0, 28.5, fenceH, mFence);
+  outWall(-50.25, -49.75, 35.5, 46.0, fenceH, mFence);
+  outWall(-50.25, -49.75, 54.0, GATE_Z, fenceH, mFence);
   const brick = mBrick;
-  [28.5, 35.5].forEach(z => { OUT.add(boxMesh(-50.6, -49.4, 0, 3.2, z - .6, z + .6, brick)); col(-50.6, -49.4, z - .6, z + .6, true); });
+  [-36.0, -28.0, 28.5, 35.5, 46.0, 54.0].forEach(z => { OUT.add(boxMesh(-50.6, -49.4, 0, 3.2, z - .5, z + .5, brick)); col(-50.6, -49.4, z - .5, z + .5, true); });
   OUT.add(boxMesh(-50.2, -49.8, 0, 2.2, 29.1, 34.9, mRust)); col(-50.3, -49.7, 29.1, 34.9, true);
   for (let k = 0; k < 14; k++) { const b = new THREE.Mesh(new THREE.BoxGeometry(.06, 2.3, .06), mRust); b.position.set(-50, 1.2, 29.4 + k * .4); OUT.add(b); }
   plane(OUT, new THREE.MeshBasicMaterial({ map: T.makeSign('서  문', '#1c1812', '#d8d0b0', 40), color: 0xa09a88 }), 1.0, .5, -49.38, 2.6, 28.5, Math.PI / 2);
   doors.push({ floor: 0, x: -48.4, z: 32.2, r: 2.2, label: '서문 (쇠사슬)', win: true, locked: '녹슨 쇠사슬로 단단히 묶여 있다. 열쇠 조각을 모두 모으면 풀릴지도 모른다.' });
-  // 서문 밖: 도로 / 인도 / 주차장 / 통학버스
+  // 서쪽 캠퍼스 대로 / 횡단보도 / 통학버스
   const mYellow = new THREE.MeshBasicMaterial({ color: 0x9a8a30 }), mWhiteL = new THREE.MeshBasicMaterial({ color: 0xaaa89c });
-  flat(OUT, S(T.makeAsphalt()), -64, -52, -40, 110, .004, 8);
-  flat(OUT, S(T.makePaving()), -52, -50.3, -30, 80, .006, 3); flat(OUT, S(T.makePaving()), -67, -64, -30, 80, .006, 3);
-  for (let z = -30; z < 100; z += 5) flat(OUT, mYellow, -58.15, -57.85, z, z + 2.5, .02, 1);
-  for (let k = 0; k < 8; k++) flat(OUT, mWhiteL, -63.4 + k * 1.2, -62.8 + k * 1.2, 26, 38, .02, 1);
-  flat(OUT, S(T.makeAsphalt()), -92, -67, 4, 34, .004, 8);
-  for (let k = 0; k <= 8; k++) flat(OUT, mWhiteL, -90.5 + k * 2.7, -90.4 + k * 2.7, 6, 14, .02, 1);
+  flat(OUT, S(T.makeAsphalt()), -62, -52, -60, 88, .004, 8);
+  flat(OUT, S(T.makePaving()), -52, -50.3, -60, 80, .006, 3); flat(OUT, S(T.makePaving()), -65, -62, -60, 80, .006, 3);
+  for (let z = -55; z < 85; z += 5) flat(OUT, mYellow, -57.15, -56.85, z, z + 2.5, .012, 1);
+  [-32, 32, 50].forEach(czW => { for (let k = 0; k < 7; k++) flat(OUT, mWhiteL, -61.4 + k * 1.3, -60.8 + k * 1.3, czW - 2.5, czW + 2.5, .015, 1); });
   const mCar = c => S(T.makeMetal(c), { roughness: .7, metalness: .3 });
   const car = (x, z, ry, c) => {
     const g = new THREE.Group(); const b = new THREE.Mesh(new THREE.BoxGeometry(1.9, .7, 4.3), mCar(c)); b.position.y = .75; g.add(b);
@@ -3402,7 +3405,7 @@ export function buildWorld(scene) {
     [[-.9, 1.4], [.9, 1.4], [-.9, -1.4], [.9, -1.4]].forEach(([wx, wz]) => { const w = new THREE.Mesh(new THREE.CylinderGeometry(.38, .38, .25, 10), mBlack); w.rotation.z = Math.PI / 2; w.position.set(wx, .38, wz); g.add(w); });
     g.position.set(x, 0, z); g.rotation.y = ry; OUT.add(g);
   };
-  car(-72, 12, 0, [90, 40, 40]); car(-77, 11, .05, [60, 70, 90]); car(-82, 13, -.04, [100, 100, 96]);
+  car(-59.5, 76, 0, [90, 40, 40]); car(-54.5, 81, 0, [60, 70, 90]);
   const bus = new THREE.Group(); const bb = new THREE.Mesh(new THREE.BoxGeometry(2.6, 2.4, 10.5), mCar([170, 134, 30])); bb.position.y = 1.7; bus.add(bb);
   for (let k = 0; k < 6; k++) [-1, 1].forEach(sd => { const w = new THREE.Mesh(new THREE.BoxGeometry(.05, .8, 1.2), mBlack); w.position.set(sd * 1.31, 2.1, -4.2 + k * 1.65); bus.add(w); });
   [[-1.3, 3.2], [1.3, 3.2], [-1.3, -3.2], [1.3, -3.2]].forEach(([wx, wz]) => { const w = new THREE.Mesh(new THREE.CylinderGeometry(.5, .5, .3, 12), mBlack); w.rotation.z = Math.PI / 2; w.position.set(wx, .5, wz); bus.add(w); });
@@ -3461,6 +3464,14 @@ export function buildWorld(scene) {
     tileRoad(-26.0, -18.5, -34.6, -31.8, false, true); // 대강당 정문 앞 인도
     tileRoad(-3.2, 24.2, -35.2, -32.4, false, true);   // 별관 북동편 ~ 야외 음악당 연결 인도
     tileRoad(1.4, 4.6, -44.0, -35.2, true, false);     // 중앙 중정(창립자 석상 정원) 진입 인도
+    // 5) 15,000평 확장 캠퍼스 광역 보도블록 인도망 (서북 기숙사 · 서중부 스포츠단지 · 서남 학생회관 · 북측 생태연못 · 동북 과학천문관 · 동남 중앙도서관 직결!)
+    tileRoad(-92.0, -28.8, -33.6, -30.4, false, true);  // 서북 통문 가로질러 청운학사 기숙사 진입 인도
+    tileRoad(-76.0, -72.8, -42.0, 56.0, true, false);   // 서편 확장 캠퍼스 남북 종단 대로 (기숙사 ↔ 스포츠단지 ↔ 학생회관)
+    tileRoad(-72.8, -28.8, 48.4, 51.6, false, true);    // 서남 통문 가로질러 학생회관·동아리관 연결 인도
+    tileRoad(-10.6, -7.4, -88.0, -32.0, true, false);   // 북문 통로 가로질러 청운호 생태수변공원 & 호심정 진입 인도
+    tileRoad(27.0, 82.0, -33.6, -30.4, false, true);    // 동북 통문 가로질러 과학천문관 진입 인도
+    tileRoad(66.0, 69.2, -45.0, 38.0, true, false);     // 동편 확장 캠퍼스 남북 종단 대로 (과학천문관 ↔ 중앙학술정보관)
+    tileRoad(27.0, 76.0, 18.4, 21.6, false, true);      // 동남 통문 가로질러 중앙학술정보관(대도서관) 진입 인도
     OUT.add(new THREE.Mesh(merge(curbG), mStep));
   }
 
@@ -3579,8 +3590,21 @@ export function buildWorld(scene) {
     [15.5, 19.5, 23.5, 27.5, 31.5].forEach(z => { plane(OUT, pickWin(), 2.4, 1.8, 27.98, 5.2, z, -Math.PI / 2); plane(OUT, pickWin(), 2.4, 1.8, 48.02, 5.2, z, Math.PI / 2); });
     [15.5, 19.5, 23.5].forEach(z => plane(OUT, pickWin(), 2.4, 1.6, -48.02, 2.4, z, -Math.PI / 2));
   }
-  outWall(49.75, 50.25, NORTH_Z, GATE_Z, fenceH, mFence);
-  outWall(-50, 50, NORTH_Z - .25, NORTH_Z + .25, fenceH, mFence);
+  // 동쪽 내곽 담장: 동북 통문(z -36 ~ -28: 과학천문관 연결) 및 동남 통문(z 16 ~ 24: 중앙학술정보관/대도서관 연결) 개방!
+  outWall(49.75, 50.25, NORTH_Z, -36.0, fenceH, mFence);
+  outWall(49.75, 50.25, -28.0, 16.0, fenceH, mFence);
+  outWall(49.75, 50.25, 24.0, GATE_Z, fenceH, mFence);
+  [-36.0, -28.0, 16.0, 24.0].forEach(z => { OUT.add(boxMesh(49.4, 50.6, 0, 3.2, z - .5, z + .5, brick)); col(49.4, 50.6, z - .5, z + .5, true); });
+  // 북쪽 내곽 담장: 북문 통로(x -13.0 ~ -5.0: 청운호 생태수변공원 · 팔각정 연결) 개방!
+  outWall(-50, -13.0, NORTH_Z - .25, NORTH_Z + .25, fenceH, mFence);
+  outWall(-5.0, 50, NORTH_Z - .25, NORTH_Z + .25, fenceH, mFence);
+  [-13.0, -5.0].forEach(x => { OUT.add(boxMesh(x - .5, x + .5, 0, 3.2, NORTH_Z - .6, NORTH_Z + .6, brick)); col(x - .5, x + .5, NORTH_Z - .6, NORTH_Z + .6, true); });
+  // 15,000평(230m × 180m) 메가 캠퍼스 외곽 대경계 담장 (맵 끝 이탈 및 땅꺼짐 완전 방지)
+  outWall(-114.5, -113.8, -108, GATE_Z, fenceH, mFence);
+  outWall(113.8, 114.5, -108, GATE_Z, fenceH, mFence);
+  outWall(-114.5, 114.5, -108.5, -107.8, fenceH, mFence);
+  outWall(-114.5, -50, GATE_Z - .25, GATE_Z + .25, fenceH, mFence);
+  outWall(50, 114.5, GATE_Z - .25, GATE_Z + .25, fenceH, mFence);
   // 정문 안쪽 (설계집 '서문 상세 안내도'): 경비실 · 교훈 표지석 · 조경 벤치
   {
     // 경비실: 제공 모델 350×280×250cm, 지도에 표시된 정문 안쪽 중앙 보행로 동편 위치

@@ -324,6 +324,13 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
       pmesh(new THREE.CircleGeometry(.32, 16), PM(0xd82820, .6), cx + dx, 1.0, cz - 11.07, g, { cast: false });
       addCol(cx + dx - .65, cx + dx + .65, cz - 11.5, cz - 10.9);
     });
+    // 야구장 야간 투광등 폴대 4기 & 스타디움 조명 글로우
+    [[-10.5, -10.5], [10.5, -10.5], [-10.5, 10.5], [10.5, 10.5]].forEach(([lx, lz]) => {
+      pcyl(.12, .16, 7.5, chromeM, cx + lx, 3.75, cz + lz, g);
+      pbox(1.4, .45, .35, lampEm, cx + lx, 7.6, cz + lz, g, { cast: false });
+      const spS = new THREE.Sprite(new THREE.SpriteMaterial({ map: makeGlowTex('255,245,215'), blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, opacity: .65 }));
+      spS.scale.setScalar(8.5); spS.position.set(cx + lx, 7.2, cz + lz); g.add(spS);
+    });
     world.props.push({ kind: 'robj', k: 'sports_cooler', t: 'mega15k', floor: 0, x: cx + 6.8, z: cz + 7.8, y: .6, r: 2.2, label: '야구부 덕아웃 아이스박스 열기' });
     chunks.push({ id: 'chunk_sports', g, x: cx, z: cz });
   }
@@ -415,8 +422,6 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
     ]);
   }
 
-  if (megaP && megaP.registerRoomChunk) {
-    chunks.forEach(c => megaP.registerRoomChunk(c.id, c.g, new THREE.Vector3(c.x, 0, c.z), 28, 0));
-  }
+  // 6대 야외 확장 단지는 캠퍼스 어디서든 조망 가능하도록 상시 표시
   return chunks;
 }

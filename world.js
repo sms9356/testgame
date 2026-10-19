@@ -4,11 +4,11 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { NOTES } from './story.js?v=110';
+import { NOTES } from './story.js?v=112';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=110';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=112';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -3443,19 +3443,19 @@ export function buildWorld(scene) {
       if (curbW) { curbG.push(bx(.16, .08, z2 - z1, x1 - .08, .04, (z1 + z2) / 2, 2), bx(.16, .08, z2 - z1, x2 + .08, .04, (z1 + z2) / 2, 2)); }
       if (curbZ) { curbG.push(bx(x2 - x1, .08, .16, (x1 + x2) / 2, .04, z1 - .08, 2), bx(x2 - x1, .08, .16, (x1 + x2) / 2, .04, z2 + .08, 2)); }
     };
-    // 1) 서부 남북 종단 인도 (모래밭 단련장 z 60 ↔ 수영장 ↔ 서문 ↔ 급식실 ↔ 생물부 온실·기상관측소 ↔ 대강당 광장 z -33)
-    tileRoad(-28.8, -26.0, -33.0, 55.4, true, false);
+    // 1) 서부 남북 종단 인도 (본관 남쪽 z 11~55.4 구간 + 본관 서쪽 외곽 우회로 x -39.5..-37.0, z -33..14)
+    tileRoad(-28.8, -26.0, 11.0, 55.4, true, false);
+    tileRoad(-39.6, -37.0, -33.0, 13.8, true, false);  // 본관 서벽(x -36.3) 바깥 서쪽 우회 타일 인도
     tileRoad(-34.0, -28.8, 39.6, 42.4, false, true);   // 수영장 정문 연결 지선
     tileRoad(-49.2, -28.8, 30.8, 33.4, false, true);   // 서문 연결 지선
     tileRoad(-30.5, -28.8, 17.2, 20.2, false, true);   // 급식실 연결 지선
-    tileRoad(-38.0, -28.8, -3.4, -0.8, false, true);   // 생물부 유리온실 & 기상관측소 연결 지선
-    // 2) 동부 남북 종단 인도 (정문 경비실·교직원 주차장 z 66 ↔ 야외 농구장 ↔ 체육관 ↔ 야외 매점·휴게소 ↔ 야외 원형 음악당 z -35)
-    tileRoad(24.2, 27.0, -35.0, 65.5, true, false);
+    // 2) 동부 남북 종단 인도 (본관 남쪽 z 11~65.5 구간 + 본관 동쪽 외곽 우회로 x 37.0..39.6, z -35..14)
+    tileRoad(24.2, 27.0, 11.0, 65.5, true, false);
+    tileRoad(37.0, 39.6, -35.0, 13.8, true, false);    // 본관 동벽(x 36.3) 바깥 동쪽 우회 타일 인도
     tileRoad(27.0, 39.4, 34.8, 37.6, false, true);     // 체육관 정문 연결 지선
     tileRoad(27.0, 29.5, 44.5, 47.5, false, true);     // 야외 농구장 연결 지선
-    tileRoad(27.0, 34.5, 0.2, 3.0, false, true);       // 야외 매점 & 파라솔 테라스 연결 지선
-    // 3) 구름다리 아래 1층 필로티 중앙 광장 & 동서 횡단 보도블록 길 (본관 북문 ↔ 별관 정문 ↔ 서부/동부 인도 직결!)
-    tileRoad(-26.0, 24.2, -16.8, -13.6, false, true);  // 필로티 동서 횡단 메인 인도
+    // 3) 구름다리 아래 1층 필로티 중앙 광장 & 동서 횡단 보도블록 길 (서쪽 우회로 x -37 ↔ 필로티 광장 ↔ 동쪽 우회로 x 37 직결!)
+    tileRoad(-37.0, 37.0, -16.8, -13.6, false, true);  // 필로티 동서 횡단 메인 인도
     flat(OUT, pave, -5.5, 6.5, WALKWAY.z1 - .2, WALKWAY.z2 + .2, .014, 3); // 구름다리 아래 중앙 필로티 광장 포장
     // 4) 북부 캠퍼스 횡단 인도 (대강당·실내체육관 ↔ 중앙 중정 ↔ 야외 원형 음악당)
     tileRoad(-26.0, -18.5, -34.6, -31.8, false, true); // 대강당 정문 앞 인도

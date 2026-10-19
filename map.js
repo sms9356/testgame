@@ -30,15 +30,15 @@ export function drawMap(ctx, W, H, o) {
     // 캠퍼스 타일 인도 네트워크 & 신규 확장 구역 (생태온실 · 기상관측소 · 학우매점 · 야외음악당 · 교직원주차장 · 청운정)
     fillRect(-28.8, -33, -26.0, 55.4, 'rgba(135,130,115,.36)'); fillRect(24.2, -35, 27.0, 65.5, 'rgba(135,130,115,.36)');
     fillRect(-26.0, -16.8, 24.2, -13.6, 'rgba(135,130,115,.36)'); fillRect(-3.2, -35.2, 24.2, -32.4, 'rgba(135,130,115,.36)');
-    fillRect(-44.6, -4.8, -37.8, 0.4, '#2a4a38'); strokeRect(-44.6, -4.8, -37.8, 0.4, '#7aa888', 1); // 생태온실
-    fillRect(38.5, -1.1, 41.9, 4.3, '#4a362c'); strokeRect(38.5, -1.1, 41.9, 4.3, '#a89078', 1);     // 학우매점
+    fillRect(-47.4, -17.7, -41.0, -12.7, '#2a4a38'); strokeRect(-47.4, -17.7, -41.0, -12.7, '#7aa888', 1); // 생태온실
+    fillRect(26.7, -20.8, 32.3, -17.6, '#4a362c'); strokeRect(26.7, -20.8, 32.3, -17.6, '#a89078', 1);     // 학우매점
     fillRect(31.2, -36.2, 38.8, -28.8, '#38424c'); strokeRect(31.2, -36.2, 38.8, -28.8, '#8aa0b0', 1); // 야외음악당
     fillRect(15.5, 60.5, 36.5, 67.2, 'rgba(70,74,80,.55)');                                            // 교직원주차장
     fillRect(-13.8, 61.2, -9.2, 65.8, '#4a3828');                                                      // 청운정(육각정)
     if (labels) {
       ctx.fillStyle = '#b8b4a4'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
       ctx.fillText('운동장', X(0), Y(36)); ctx.fillText('조회대', X(-11), Y(16.4)); ctx.fillText('스탠드', X(13.5), Y(12.6)); ctx.fillText('농구장', X(36), Y(46)); ctx.fillText('체육관', X(38), Y(23.5)); ctx.fillText('급식실', X(-39), Y(19)); ctx.fillText('수영장', X(-41), Y(41)); ctx.fillText('경비실', X(GUARD_LAYOUT.cx), Y(GUARD_LAYOUT.cz)); ctx.fillText('별관', X(0), Y(-19.25 - ANNEX_DZ)); ctx.fillText('대강당', X(MEGA.gym.x), Y(MEGA.gym.z)); ctx.fillText('중정', X(MEGA.court.x), Y(MEGA.court.z)); ctx.fillText('서문', X(-47), Y(32)); ctx.fillText('정문', X(0), Y(GATE_Z) - 8);
-      ctx.fillText('생태온실', X(-41.2), Y(-2.2)); ctx.fillText('학우매점', X(40.2), Y(1.6)); ctx.fillText('야외음악당', X(35.0), Y(-32.5)); ctx.fillText('주차장', X(26.0), Y(64.0)); ctx.fillText('청운정', X(-11.5), Y(63.5));
+      ctx.fillText('생태온실', X(-44.2), Y(-15.2)); ctx.fillText('학우매점', X(29.5), Y(-19.2)); ctx.fillText('야외음악당', X(35.0), Y(-32.5)); ctx.fillText('주차장', X(26.0), Y(64.0)); ctx.fillText('청운정', X(-11.5), Y(63.5));
     }
   }
   if (floor === 5) {

@@ -4,11 +4,11 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { NOTES } from './story.js?v=120';
+import { NOTES } from './story.js?v=121';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=120';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=121';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -2700,8 +2700,8 @@ export function buildWorld(scene) {
     flat(F.interior, mFloorTile, -1.65, 1.65, 9.5, 20.5, .015);
     flat(F.interior, mCeil, -1.65, 1.65, 9.5, 20.5, 3.02, 2, false);
     F.interior.add(
-      boxMesh(-1.78, -1.55, 0, 1.05, 9.6, 20.5, mWainscot),
-      boxMesh( 1.55,  1.78, 0, 1.05, 9.6, 20.5, mWainscot),
+      boxMesh(-1.78, -1.55, 0, 1.05, 9.6, 20.5, mWall),
+      boxMesh( 1.55,  1.78, 0, 1.05, 9.6, 20.5, mWall),
       boxMesh(-1.78, -1.55, 2.35, 3.05, 9.6, 20.5, mWall),
       boxMesh( 1.55,  1.78, 2.35, 3.05, 9.6, 20.5, mWall)
     );

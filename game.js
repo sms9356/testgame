@@ -10,15 +10,15 @@ import { createNPCVisuals } from './npcVisuals.js';
 import { applyGuardSeatedPose } from './guardSeatedPose.js';
 import { createCampusCctvLive, collectCampusCctvFeeds } from './campusCctvLive.js';
 import { applyExteriorFloorVisibility, shouldStreamGuardCctv } from './exteriorRenderBudget.js';
-import { GUARD_LAYOUT } from './guardRoomLayout.js?v=125';
-import { installGuardRoom } from './guardRoom.js?v=125';
+import { GUARD_LAYOUT } from './guardRoomLayout.js?v=126';
+import { installGuardRoom } from './guardRoom.js?v=126';
 import { prepareModelGeometry } from './modelGeometry.js';
 import { modelFootprint, overlaps, removeDuplicateModels } from './placement.js';
-import { turfMaterial } from './campusVisuals.js?v=125';
+import { turfMaterial } from './campusVisuals.js?v=126';
 import { installInfirmaryAssets, updateInfirmaryCabinets } from './infirmaryAssets.js';
-import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js?v=125'; import { updateWindowFakes } from './windowInteriors.js?v=125';
-import { drawMap } from './map.js?v=125';
-import { buildMegaCampus15000, MEGA_CAMPUS_ZONES } from './megaCampus15000.js?v=125';
+import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js?v=126'; import { updateWindowFakes } from './windowInteriors.js?v=126';
+import { drawMap } from './map.js?v=126';
+import { buildMegaCampus15000, MEGA_CAMPUS_ZONES } from './megaCampus15000.js?v=126';
 import { makeDress, makeHair, makeGhostFace, makeGraffiti, makeKeypad, loadPBR, pbr, makeGlow as makeGlowTex, makePaintingStare, makeSign, makeBlood } from './tex.js';
 import { warmUp } from './bake.js';
 import { createStaticDistanceLOD } from './staticDistanceLOD.js';
@@ -39,12 +39,12 @@ import './school37RoomsPatch.js';    // 본관 · 별관 37개 특별실 가구 
 import './new37UniquePatch.js';     // 37개 구역 신규 특수 설비 · 벽면 레일 (사용자 제공) → window.new37UniquePatch
 import './megaExpansionPatch.js';   // 메가 익스팬션 · 최적화 · 4막 사건 기록 · 수집품 · 미니게임 (사용자 제공) → window.megaSchoolPatch
 import './poolMachineryPatch.js';     // 수영장 · 남/녀 탈의실·샤워실 · 기계실 철문 (사용자 제공) → window.poolAndMachineryPatch
-import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx } from './audio.js?v=125'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=125'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera } from './perfStabilizer.js';
-import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js?v=125';
-import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, SIDEQUESTS, HEADQUEST, COLLECT, LOCKER_SCARES, CHALK_QA, OUIJA_QS, PARA, TOILET_FX, MIRROR_WORDS } from './story.js?v=125';
+import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx } from './audio.js?v=126'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=126'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera } from './perfStabilizer.js';
+import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js?v=126';
+import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, SIDEQUESTS, HEADQUEST, COLLECT, LOCKER_SCARES, CHALK_QA, OUIJA_QS, PARA, TOILET_FX, MIRROR_WORDS } from './story.js?v=126';
 import { isSpeechBusy } from './voice.js';
 import { SET, saveSET, resetSET, DIFF, keyLabel } from './settings.js';
-import { initI18n, setLang, lang as curLang } from './i18n.js?v=125';   // 언어 패치 (한국어 · English · 日本語 · 中文)
+import { initI18n, setLang, lang as curLang } from './i18n.js?v=126';   // 언어 패치 (한국어 · English · 日本語 · 中文)
 initI18n();
 const K = () => SET.keys;
 let guardRoomController = null, guardControlProps = [], guardCctvData = null, campusCctv = null;
@@ -60,7 +60,7 @@ function syncGuardDevices() {
 function toggleGuardCCTV(persist = true) { FL.guardCctvOn = !(FL.guardCctvOn ?? true); sfx.click(); syncGuardDevices(); if (persist) save(true); return FL.guardCctvOn; }
 function toggleGuardLight() { FL.guardLightOn = !(FL.guardLightOn ?? false); sfx.click(); syncGuardDevices(); say(FL.guardLightOn ? '경비실 전등을 켰다' : '경비실 전등을 껐다', 1800); save(true); return FL.guardLightOn; }
 
-import { run as runMini, MG } from './minigames.js?v=125';
+import { run as runMini, MG } from './minigames.js?v=126';
 import { SCHEMA, BUILD, storageKeys, itemUid, propUid, doorUid, assignUids, readSlot, writeSlot, hasSlot, clearSlot, repairProgress } from './saveSystem.js';
 loadManifest().then(() => registerLines({ ...VO, ...Object.fromEntries(Object.entries(STORY_NOTES).filter(([, n]) => n.text).map(([k, n]) => ['note_' + k, { spk: 'narrator', text: n.title + '. ' + n.text, parts: [n.title, n.text] }])) }));
 
@@ -6597,13 +6597,13 @@ function megaNotify(m) { const t = String(m).split('\n'); say(t[0].replace(/^\S+
         );
         world.props.push({ kind: 'robj', k: 'canteen_counter', t: 'campus', floor: 0, x: 61.5, z: 19.1, y: 1.15, r: 2.3, label: '학우매점 계산대 금전등록기 · 호빵 온장고 조사하기' });
 
-        // 매점 앞 야외 파라솔 원형 테이블 세트 3조 (x = 25.5, 29.5, 33.5, z = -12.0)
-        [59.5, 63.5, 67.5].forEach((tx, ti) => {
+        // 매점 양옆 야외 테라스 노후 파라솔 테이블 세트 2조 (정면 출입구와 '학우매점' 간판 시야를 가리지 않도록 좌·우로 배치)
+        [56.8, 70.2].forEach((tx, ti) => {
           const tz = 24.5;
-          pcyl(.68, .68, .06, whiteM, tx, .74, tz, O);
-          pcyl(.06, .08, .74, chromeM, tx, .37, tz, O);
-          pcyl(.04, .04, 2.15, chromeM, tx, 1.08, tz, O);
-          pmesh(new THREE.ConeGeometry(1.45, .48, 12), ti % 2 ? PM(0x245898, .7) : PM(0xb83228, .7), tx, 2.28, tz, O);
+          pcyl(.68, .68, .06, PM(0x4e4c46, .85), tx, .74, tz, O);
+          pcyl(.06, .08, .74, darkF, tx, .37, tz, O);
+          pcyl(.04, .04, 2.15, darkF, tx, 1.08, tz, O);
+          pmesh(new THREE.ConeGeometry(1.45, .48, 12), ti % 2 ? PM(0x2e3c36, .85) : PM(0x4c2824, .85), tx, 2.28, tz, O);
           [0, 1.57, 3.14, 4.71].forEach(a => pbox(.38, .44, .38, woodM, tx + Math.cos(a) * 1.05, .22, tz + Math.sin(a) * 1.05, O));
           F0.col.push({ x1: tx - .85, x2: tx + .85, z1: tz - .85, z2: tz + .85 });
         });

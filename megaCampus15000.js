@@ -411,7 +411,7 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
     const mixers = [];
     window.__campusAnimMixers = mixers;
     const placeGlb = (url, placements) => {
-      loader.load(url, gltf => {
+      loader.load(url + '?v=126', gltf => {
         placements.forEach(([px, py, pz, ry = 0, sx = 1, sy = 1, sz = 1]) => {
           const m = gltf.scene.clone(true);
           m.position.set(px, py, pz); m.rotation.y = ry; m.scale.set(sx, sy, sz);

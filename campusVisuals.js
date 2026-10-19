@@ -7,12 +7,14 @@ export function turfMaterial() {
   const n=1024, canvas=document.createElement('canvas'); canvas.width=canvas.height=n;
   const ctx=canvas.getContext('2d');ctx.fillStyle='#334d2a';ctx.fillRect(0,0,n,n);
   let seed=48117; const random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296;};
-  for(let i=0;i<76000;i++){
-    const x=random()*n,y=random()*n,length=2+random()*9,a=random()*Math.PI*2;
-    const v=random();ctx.strokeStyle=v<.12?'#897f43':v<.36?'#203c24':v<.72?'#476539':'#597843';ctx.lineWidth=.5+random()*.8;
+  const palettes=['#897f43','#203c24','#476539','#597843'],paths=palettes.map(()=>new Path2D());
+  for(let i=0;i<24000;i++){
+    const x=random()*n,y=random()*n,length=2+random()*8,a=random()*Math.PI*2;
+    const v=random(),p=paths[v<.12?0:v<.36?1:v<.72?2:3];
     const dx=Math.cos(a)*length,dy=Math.sin(a)*length;
-    for(const ox of [-n,0,n])for(const oy of [-n,0,n]){if(x+ox+Math.abs(dx)<0||x+ox-Math.abs(dx)>n||y+oy+Math.abs(dy)<0||y+oy-Math.abs(dy)>n)continue;ctx.beginPath();ctx.moveTo(x+ox,y+oy);ctx.lineTo(x+ox+dx,y+oy+dy);ctx.stroke();}
+    for(const ox of [-n,0,n])for(const oy of [-n,0,n]){if(x+ox+Math.abs(dx)<0||x+ox-Math.abs(dx)>n||y+oy+Math.abs(dy)<0||y+oy-Math.abs(dy)>n)continue;p.moveTo(x+ox,y+oy);p.lineTo(x+ox+dx,y+oy+dy);}
   }
+  ctx.lineWidth=.9;palettes.forEach((col,i)=>{ctx.strokeStyle=col;ctx.stroke(paths[i]);});
   const map=new THREE.CanvasTexture(canvas);map.colorSpace=THREE.SRGBColorSpace;map.wrapS=map.wrapT=THREE.RepeatWrapping;map.anisotropy=8;
   // Separate data map: a subtle fibre normal, never interpreted as sRGB.
   const normalCanvas=document.createElement('canvas');normalCanvas.width=normalCanvas.height=256;

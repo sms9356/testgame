@@ -4,11 +4,11 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { NOTES } from './story.js?v=107';
+import { NOTES } from './story.js?v=109';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=107';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=109';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -2428,10 +2428,10 @@ export function buildWorld(scene) {
     [-24, 0, 24].forEach(cx => model('fire_alarm', cx + 3.2, 1.45, -1.44, 0)); [-16, 16].forEach(cx => { model('sf_fuse_box', cx - 3.1, 1.32, -1.42, 0); glowAt(cx - 3.0, 1.68, -1.32, .09, glowGreen); });
     if (!o.basement) for (let x = -33; x <= 33; x += 6) model('h133/SAF-005', x + 1.5, CH - .29, .35, 0);   // 복도 천장 스프링클러 헤드 (SAF-005)
     // Imported corridor camera duplicates removed: mounted cameras below provide actual feeds.
-    model('metal_trash_can', 35.68, 0, 0, -Math.PI / 2, { col: [1.85, .56] });
+    model('metal_trash_can', 35.82, 0, 0, -Math.PI / 2, { col: [.52, .38] });
     if (f <= 2) model('WetFloorSign_01', -30.0, 0, -.55, .5);
-    model('SchoolDesk_01', -35.35, 0, .85, Math.PI / 2, { col: [.75, .58] }); model('SchoolChair_01', -35.35, 1.88, .85, Math.PI / 2 + .3, { rx: Math.PI });
-    model('SchoolChair_01', -34.2, .3, -.25, 1.2, { rz: Math.PI / 2, col: [.6, .55] }); model('SchoolDesk_01', -35.35, 0, -.9, Math.PI / 2 + .15, { col: [.75, .58] });
+    model('SchoolDesk_01', -35.55, 0, .95, Math.PI / 2, { col: [.55, .45] }); model('SchoolChair_01', -35.35, 1.88, .85, Math.PI / 2 + .3, { rx: Math.PI });
+    model('SchoolChair_01', -34.2, .3, -.25, 1.2, { rz: Math.PI / 2 }); model('SchoolDesk_01', -35.55, 0, -.98, Math.PI / 2 + .15, { col: [.55, .45] });
     ceilingDamage(-34, 34, -1.2, 1.2, 9); SLOTS.forEach(cx => { if (rnd() < .5) ceilingDamage(cx - 3, cx + 3, -8.5, -2.5, 1); });
     exitSign(0, 2.95, -1.43); exitSign(-35, 2.9, 0, Math.PI / 2); exitSign(35, 2.9, 0, -Math.PI / 2);
     extinguisher(-1.6, -1.25); extinguisher(33.5, 1.2);

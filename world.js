@@ -766,7 +766,7 @@ export function buildWorld(scene) {
     tapeRecorder('tape1', cx - 3.2, .75, -4.95, .4);
     blood('splat', cx + 2.4, .02, -6.0, 1.2, 0, true);
     addBattery(cx + 2.4, .5, -8.4); addMedkit(cx + 2.4, .66, -7.6);
-    model('wheelchair_01', cx + 1.2, 0, -4.4, -.7, { col: [.85, 1.1] }); model('medical_box', cx + 3.86, 1.5, -4.0, -Math.PI / 2);
+    model('wheelchair_01', cx + 1.2, 0, -4.4, -.7, { col: [.85, 1.1] }); model('medical_box', cx + 3.66, 1.5, -4.0, -Math.PI / 2);
     papers(cx, -8, -2.4, 7);
   }
   function counsel(cx) {
@@ -2422,7 +2422,7 @@ export function buildWorld(scene) {
     corridorPipes(-36, 36);
     [-30, -10, 10, 30].forEach(x => emergLight(x + 2.2, 2.85, -1.44));
     // 복도 실사 소품: 소화기 · 화재 경보기 · 감시 카메라 · 분리수거함 · 끝 쪽에 쌓인 책걸상
-    if (o.basement) { [[-20.2, 'BSM-003'], [3.8, 'BSM-003'], [-28.2, 'BSM-004'], [27.8, 'BSM-004']].forEach(([x, id]) => model('h133/' + id, x, 0, -1.32, 0, { col: [.56, .42] }));   // 복도 벽 배관 · 밸브 (문틀과 겹치지 않는 기둥 사이 벽)
+    if (o.basement) { [[-20.2, 'BSM-003'], [3.8, 'BSM-003'], [-28.2, 'BSM-004'], [27.8, 'BSM-004']].forEach(([x, id]) => model('h133/' + id, x, 0, -1.07, 0, { col: [.56, .42] }));   // 복도 벽 배관 · 밸브 (문틀과 겹치지 않는 기둥 사이 벽)
       model('portable_generator', 20.5, 0, 1.0, 0, { col: [.85, .6] }); model('power_box_01', -12.8, 1.0, -1.44, 0); model('power_box_01', 6.8, 1.0, -1.44, 0); }
     if (LS) [-32, -8, 16].forEach(cx => model('korean_fire_extinguisher_01', cx + 3.3, 0, 1.36, Math.PI));
     else [-28.8, -11.2, 12.8].forEach(x => model('korean_fire_extinguisher_01', x, 0, -1.3, 0));
@@ -2507,7 +2507,7 @@ export function buildWorld(scene) {
     add(mWall, 7.4, .3, 4.4, 29.5, 2.7, -7.4);
     // 상자/에어컨 실외기
     [[-14, -3], [8, -8], [-30, -6]].forEach(([x, z]) => add(mWood, 1, .8, 1, x, 0, z, { col: true, ry: rnd() }));
-    [[14, -8.6], [-8, -8.6]].forEach(([x, z]) => model('exterior_aircon_unit', x, 0, z, 0, { col: [1.8, .4] }));
+    [[14, -8.6], [-8, -8.6]].forEach(([x, z]) => model('exterior_aircon_unit', x, .32, z, 0, { col: [1.8, .4] }));
     // 남쪽 옥상 (맵 통합 설계집 RF): 태양광 패널 · 환기 설비 · 통신 장비함(경고등) · 휴게 벤치 · 옥상 배관
     const mSolar = S(null, { color: 0x1c2c48, roughness: .18, metalness: .55 }), mCell = new THREE.MeshBasicMaterial({ color: 0x7a90b0, transparent: true, opacity: .25 });
     [[-6, 3.4], [6, 3.4], [-6, 5.0], [6, 5.0]].forEach(([x, z]) => {
@@ -2675,8 +2675,8 @@ export function buildWorld(scene) {
     th('TH-014', -2.05, 1.95, .85); th('TH-014', 1.18, 4.48, .85); th('TH-008', 1.25, 1.95, .85); th('TH-008', -2.02, 4.48, .85);
     th('TH-019', -1.35, 4.25, .85); th('TH-021', 1.88, 4.22, .85); th('TH-020', 1.98, 1.72, .85, .4);
     // 벽: 서쪽 이중 싱크대 · 동쪽 유리문 재료장 · 동쪽 공구 타공판 · 뒷벽 화이트보드 (창 사이)
-    th('TH-010', -4.15, 4.92, 0, -Math.PI / 2, [mStainlessD, 1.58, 1.2, .67]); col(cx - 3.85, cx - 3.15, Z(4.92) - .8, Z(4.92) + .8, false, .86);
-    th('TH-016', 4.24, 5.3, 0, Math.PI / 2, [mMetal, 1.22, 1.95, .47]); col(cx + 3.38, cx + 3.85, Z(5.3) - .62, Z(5.3) + .62);
+    th('TH-010', -3.85, 4.92, 0, -Math.PI / 2, [mStainlessD, 1.58, 1.2, .67]); col(cx - 3.55, cx - 2.85, Z(4.92) - .8, Z(4.92) + .8, false, .86);
+    th('TH-016', 3.94, 5.3, 0, Math.PI / 2, [mMetal, 1.22, 1.95, .47]); col(cx + 3.08, cx + 3.55, Z(5.3) - .62, Z(5.3) + .62);
     model('th102/TH-018', cx + 3.83, 1.1, Z(2.2), -Math.PI / 2);
     model('th102/TH-022', cx, 1.15, zN + .12, 0);
     model('th102/TH-012', X(-.15), .005, Z(2.95), .3);
@@ -3564,7 +3564,7 @@ export function buildWorld(scene) {
     [-2.4, 2.4].forEach(lx => extLamp(lx, 3.05, -13.45 - ANNEX_DZ, 0));
     model('sf_fuse_box', 4.0, 1.35, MAIN_ZS + .27, 0, { out: true });
     model('sf_fuse_box', -3.2, 1.35, -13.42 - ANNEX_DZ, 0, { out: true });
-    [-14, 10].forEach(x => model('exterior_aircon_unit', x, 0, -25.3 - ANNEX_DZ, Math.PI, { out: true, col: [1.8, .4] }));
+    [-14, 10].forEach(x => model('exterior_aircon_unit', x, .32, -25.3 - ANNEX_DZ, Math.PI, { out: true, col: [1.8, .4] }));
     // 1층 야외 필로티 광장 출입문: 본관 1층 후문 & 별관 1층 정문
     doors.push({ floor: 0, x: .8, z: -10.5, r: 1.4, label: '본관 1층 후문 들어가기 (계단실)', to: { floor: 0, x: .8, z: -8.7, yaw: Math.PI } });
     // 2층 · 3층 공중 구름다리: 본관 계단실과 물리적으로 뚫려 있어 걸어서 바로 통과하며, 북쪽 끝도 걸어서 바로 별관 2층·3층 중앙 연결 홀로 이어진다!

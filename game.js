@@ -2280,6 +2280,19 @@ $('titleBtn').addEventListener('click', () => location.reload());
 $('bakBtn').addEventListener('click', () => { try { sessionStorage.setItem(AUTO_KEY, 'backup'); } catch (e) { /* ignore */ } location.reload(); });
 $('loadBtn2').addEventListener('click', () => { try { sessionStorage.setItem(AUTO_KEY, 'continue'); } catch (e) { /* ignore */ } location.reload(); });
 $('resumeBtn').addEventListener('click', () => { lock(); $('pause').classList.remove('show'); state = 'playing'; });
+// 끼임 구조: 벽 · 통로 · 계단에 끼었을 때 같은 층의 가장 가까운 '막히지 않은' 이동 지점(길찾기 노드 · 스폰)으로 옮긴다
+function unstuck() {
+  if (P.inElev || P.hiding || P.sitting) { toast('끼임 구조', '엘리베이터 · 사물함 · 의자에서는 먼저 나와 주세요', 'info'); return false; }
+  const F = floors[P.floor], cols = colsAt(F);
+  const free = (x, z) => !cols.some(c => !c.off && !(c.h != null && c.h <= .4) && x > c.x1 - .38 && x < c.x2 + .38 && z > c.z1 - .38 && z < c.z2 + .38) && stairH(F, x, z) == null;
+  let pts = [...(F.nodes || []), ...(F.spawns || [])];
+  if (P.floor === 0 && isOutdoors()) pts = pts.concat([{ x: 0, z: 40 }, { x: 0, z: 20 }, { x: .8, z: -15 }]);
+  pts = pts.filter(q => free(q.x, q.z)).sort((a, b) => Math.hypot(a.x - P.x, a.z - P.z) - Math.hypot(b.x - P.x, b.z - P.z));
+  const t = pts[0]; if (!t) { toast('끼임 구조', '이 층에서 안전한 자리를 찾지 못했습니다 — 마지막 저장을 불러와 주세요', 'info'); return false; }
+  bridgeRestore(); P.x = t.x; P.z = t.z; P.sh = null; P.shV = 0; P.jy = 0; P.jyV = 0; P.vy = 0;
+  toast('끼임 구조', '가까운 안전한 자리로 옮겼습니다', 'info'); return true;
+}
+$('unstuckBtn').addEventListener('click', () => { unstuck(); lock(); $('pause').classList.remove('show'); state = 'playing'; });
 $('retryBtn').addEventListener('click', () => { try { sessionStorage.setItem(AUTO_KEY, 'continue'); } catch (e) { /* ignore */ } location.reload(); });
 $('restartBtn').addEventListener('click', () => { try { clearSlot(localStorage, SKEYS); sessionStorage.setItem(AUTO_KEY, 'new'); } catch (e) { /* ignore */ } location.reload(); });
 $('deadTitleBtn').addEventListener('click', () => location.reload());
@@ -2314,14 +2327,16 @@ function updatePlayer(dt) {
         if (P.floor === 0 && gateClosed) collide([gate.blockRect], P, .32);
         if (!P.inElev && stairStep(px, pz)) break;
         // 본관 ↔ 구름다리/필로티 통로 ↔ 별관(1·2·3층) 무순간이동 연속 보행(Seamless Walk-Through)
-        if (!P.inElev && P.floor <= 2 && P.z < WALKWAY.z1 + 1.25 && P.x > -.85 && P.x < 2.45 && !(P.floor === 1 && ipP.state.fireDoorClosed)) {
+        if (!P.inElev && P.floor === 0 && P.z < WALKWAY.z1 + 1.25 && P.x > -.85 && P.x < 2.45 && !(P.floor === 1 && ipP.state.fireDoorClosed)) {
           P.floor = P.floor + 8; P.x = clamp(P.x - .8, -1.15, 1.15); P.z = 8.65; P.sh = P.jy = 0;
           toastFloor(P.floor); refreshHud(); break;
-        } else if (!P.inElev && P.floor >= 8 && P.floor <= 10 && P.z > 9.15 && Math.abs(P.x) < 1.45 && !(P.floor === 9 && ipP.state.fireDoorClosed)) {
+        } else if (!P.inElev && P.floor === 8 && P.z > 9.15 && Math.abs(P.x) < 1.45 && !(P.floor === 9 && ipP.state.fireDoorClosed)) {
           P.floor = P.floor - 8; P.x = clamp(P.x + .8, -.6, 2.2); P.z = WALKWAY.z1 + 1.65; P.sh = P.jy = 0;
           toastFloor(P.floor); refreshHud(); break;
         }
       }
+      // 안전장치: 계단 칸 안인데 높이가 실제 계단면과 크게 어긋난 채 남으면(층참 · 계단판 아래로 시점이 파고들어 맵이 깨져 보였다) 계단면으로 맞춘다
+      if (!P.inElev) { const hs = stairH(floors[P.floor], P.x, P.z); if (hs != null && Math.abs(hs - (P.sh || 0)) > .6) P.sh = hs; }
       const mv = Math.hypot(P.x - ox, P.z - oz);
       P.moving = mv > .0005; P.bob += mv * (P.sprinting ? 2.4 : 2.9); P.stepD += mv;
       if (P.stepD > (P.sprinting ? 1.9 : 1.45)) { P.stepD = 0; sfx.step(P.sprinting, 1, surfaceAt());

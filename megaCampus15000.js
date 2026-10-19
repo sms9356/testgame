@@ -429,7 +429,7 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
         if (!gltf) return;
         placements.forEach(([px, py, pz, ry = 0, sx = 1, sy = 1, sz = 1]) => {
           const m = gltf.scene.clone(true);
-          m.position.set(px, py, pz); m.rotation.y = ry; m.scale.set(sx, sy, sz);
+          m.position.set(px, py, pz); m.rotation.y = ry; m.scale.set(sx, sy, sz); m.userData.glb = url;
           m.traverse(o => {
             o.userData.dynamic = true;
             if (o.isMesh) {
@@ -505,11 +505,11 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
     placeGlb('assets/models/sf/sf_broken_desk_barricade.glb', [
       [-34.5, 0, -10.6, 0.2, 1, 1, 1],
       [ 34.5, 0, -10.6, -0.3, 1, 1, 1],
-      [-18.5, 0, -20.0, 0.4, 1, 1, 1],
+      [-18.5, 0, -19.0, 0.4, 1, 1, 1],
       [ 25.5, 0, -20.0, -0.2, 1, 1, 1],
       [-92.0, 0, -36.5, 0.5, 1, 1, 1],
       [-92.5, 0,  53.5, -0.4, 1, 1, 1],
-      [ 89.5, 0,  45.5, 0.3, 1, 1, 1]
+      [ 91.6, 0,  45.5, 0.3, 1, 1, 1]
     ]);
     // ② 찌그러진 3연동 철제 사물함 & 추락한 칠판 (sf_dented_locker_set.glb)
     placeGlb('assets/models/sf/sf_dented_locker_set.glb', [
@@ -526,7 +526,7 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
       [ 48.5, 0,  11.2, 2.1, 1, 1, 1],
       [ 57.5, 0,  16.2, 0.5, 1, 1, 1],
       [-74.0, 0, -49.5, 1.7, 1, 1, 1],
-      [ 73.5, 0,  48.5, 0.9, 1, 1, 1]
+      [ 73.5, 0,  49.6, 0.9, 1, 1, 1]
     ]);
     // ④ 노후 외벽 2단 에어컨 실외기 & 통풍 루버 (sf_weathered_ac_louver.glb)
     placeGlb('assets/models/sf/sf_weathered_ac_louver.glb', [

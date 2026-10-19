@@ -6485,7 +6485,7 @@ function megaNotify(m) { const t = String(m).split('\n'); say(t[0].replace(/^\S+
           const an = a * Math.PI / 3;
           pcyl(.10, .10, 2.4, woodM, pxP + Math.cos(an) * 1.85, 1.48, pzP + Math.sin(an) * 1.85, O);
         }
-        pmesh(new THREE.ConeGeometry(2.85, 1.15, 6), roofDark, pxP, 3.22, pzP, O);
+        pmesh(new THREE.ConeGeometry(2.85, 1.15, 6), darkF, pxP, 3.22, pzP, O);
         pmesh(new THREE.PlaneGeometry(1.4, .30), new THREE.MeshBasicMaterial({ map: makeSign('청 운 정 (학부모 쉼터)', '#2a1c12', '#e8d8b0', 22) }), pxP, 2.55, pzP - 1.88, O, { ry: Math.PI, cast: false });
         F0.col.push({ x1: pxP - 1.9, x2: pxP + 1.9, z1: pzP - 1.9, z2: pzP + 1.9, h: .28 });
 

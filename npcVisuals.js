@@ -322,11 +322,11 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
   }
 
   // ── 3. 휴머노이드 생체역학 모션 시스템 (HumanoidMotionSystem: Analytic Limb Aiming IK/FK) ──
-  const _vO = new THREE.Vector3(), _vE = new THREE.Vector3(), _vFrom = new THREE.Vector3(), _vTo = new THREE.Vector3();
-  const _qDelta = new THREE.Quaternion(), _qWorld = new THREE.Quaternion(), _qParentInv = new THREE.Quaternion();
+  const _vO = THREE.Vector3 ? new THREE.Vector3() : null, _vE = THREE.Vector3 ? new THREE.Vector3() : null, _vFrom = THREE.Vector3 ? new THREE.Vector3() : null, _vTo = THREE.Vector3 ? new THREE.Vector3() : null;
+  const _qDelta = THREE.Quaternion ? new THREE.Quaternion() : null, _qWorld = THREE.Quaternion ? new THREE.Quaternion() : null, _qParentInv = THREE.Quaternion ? new THREE.Quaternion() : null;
 
   function aimBoneCharSpace(holderYaw, joint, end, lx, ly, lz, blend = 1.0) {
-    if (!joint || !end) return;
+    if (!joint || !end || !_vO || !_qDelta) return;
     joint.updateWorldMatrix(true, false);
     end.updateWorldMatrix(true, false);
     joint.getWorldPosition(_vO);
@@ -348,7 +348,7 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
     if (!holder || !holder.isObject3D) throw new TypeError(id + ': 유효한 Three.js 그룹이 필요합니다');
     if (pending.has(holder)) return pending.get(holder);
 
-    const url = (options.url || ('assets/characters/' + id + '.glb')) + '?v=151';
+    const url = (options.url || ('assets/characters/' + id + '.glb')) + '?v=155';
     const targetHeight = Number(options.height) || (id === 'mina' ? .95 : 1.75);
     const yaw = ((Number(options.yawDegrees) || 0) * Math.PI) / 180;
     const originalChildren = [...holder.children];
@@ -471,7 +471,8 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
     rig.turnLean += (targetLean - rig.turnLean) * Math.min(1, dt * 8);
 
     // 실제 이동 거리 기반 보행 위상(gaitPhase) 및 보행 블렌딩(walkBlend) 계산
-    if (!rig.lastPos) rig.lastPos = holder.position.clone();
+    if (!rig.lastPos && holder.position?.clone) rig.lastPos = holder.position.clone();
+    if (!rig.lastPos) return;
     const movedDist = Math.hypot(holder.position.x - rig.lastPos.x, holder.position.z - rig.lastPos.z);
     rig.lastPos.copy(holder.position);
     const clipName = String(holder.userData.curClipName || '').toLowerCase();

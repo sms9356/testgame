@@ -10,6 +10,5 @@ export function applyExteriorFloorVisibility(floors, player, mainSouthZ) {
   return insideMain;
 }
 export function shouldStreamGuardCctv(player, state, room) {
-  // 경비실 근처(사진 2 지점) 이동 시 4채널 3D 이중 렌더링 및 withPerfCamera 레이어 재계산으로 인한 렉·대기시간을 100% 차단!
-  return false;
+  return state === 'playing' && player.floor === 0 && Math.hypot(player.x-room.cx,player.z-room.cz) < 3;
 }

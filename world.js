@@ -4,11 +4,11 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { NOTES } from './story.js?v=149';
+import { NOTES } from './story.js?v=154';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=149';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=154';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -79,7 +79,62 @@ export function buildWorld(scene) {
   };
   // PBR 재질 (색 + 노멀 + 거칠기)
   const P = (t, o = {}) => new THREE.MeshStandardMaterial({ map: t.map, normalMap: t.normalMap, roughnessMap: t.roughnessMap, roughness: 1, metalness: 0, ...o });
-  const mWall = P(T.pbr('wall', () => T.pbrWall()));
+  // 1998년 감성 한국 고등학교 복도·계단실 벽면 PBR (화장실 타일 느낌을 완전히 제거하고 상단 크림 아이보리 수성페인트 + 중간 진갈색 원목 허리몰딩 + 하단 1998 레트로 베이지/세이지 반광 유성페인트 웨인스코팅 루바 + 하단 걸레받이 구현!)
+  const build1998SchoolWallPBR = () => {
+    const N = 512;
+    const cCol = document.createElement('canvas'); cCol.width = cCol.height = N;
+    const g = cCol.getContext('2d');
+    // 상단 (0 ~ 64%): 1998년 학교 특유의 따뜻한 크림 아이보리 수성페인트 회벽
+    const topGr = g.createLinearGradient(0, 0, 0, N * 0.64);
+    topGr.addColorStop(0, '#dcd5c4'); topGr.addColorStop(0.85, '#e2dccb'); topGr.addColorStop(1, '#d2cab6');
+    g.fillStyle = topGr; g.fillRect(0, 0, N, N * 0.64);
+    // 중간 허리띠 몰딩 (64% ~ 68%): 클래식 다크 월넛 원목 몰딩 (Wood Chair Rail)
+    const railY = Math.round(N * 0.64), railH = Math.round(N * 0.042);
+    const railGr = g.createLinearGradient(0, railY, 0, railY + railH);
+    railGr.addColorStop(0, '#5c3d24'); railGr.addColorStop(0.45, '#422a17'); railGr.addColorStop(1, '#26170b');
+    g.fillStyle = railGr; g.fillRect(0, railY, N, railH);
+    // 하단 허리벽 (68% ~ 95%): 1998년 감성의 따뜻한 올리브 베이지 반광 유성페인트 & 세로 웨인스코팅 루바 홈
+    const wainY = railY + railH, baseH = Math.round(N * 0.055), wainH = N - wainY - baseH;
+    const wainGr = g.createLinearGradient(0, wainY, 0, wainY + wainH);
+    wainGr.addColorStop(0, '#9ba088'); wainGr.addColorStop(0.5, '#929880'); wainGr.addColorStop(1, '#828870');
+    g.fillStyle = wainGr; g.fillRect(0, wainY, N, wainH);
+    // 세로 웨인스코팅 루바 패널 홈 (16등분)
+    for (let x = 0; x < N; x += 32) {
+      g.fillStyle = 'rgba(42,46,35,0.32)'; g.fillRect(x, wainY + 4, 2, wainH - 8);
+      g.fillStyle = 'rgba(235,238,220,0.18)'; g.fillRect(x + 2, wainY + 4, 2, wainH - 8);
+    }
+    // 최하단 걸레받이 (95% ~ 100%): 다크 브라운 원목/고무 걸레받이
+    g.fillStyle = '#2d241c'; g.fillRect(0, N - baseH, N, baseH);
+    // 세월의 흔적 (미세 롤러 입자 & 은은한 얼룩)
+    for (let i = 0; i < 180; i++) {
+      const rx = (Math.sin(i * 17.3) * 0.5 + 0.5) * N, ry = (Math.cos(i * 31.7) * 0.5 + 0.5) * N;
+      const rad = 6 + (i % 28);
+      const st = g.createRadialGradient(rx, ry, 0, rx, ry, rad);
+      st.addColorStop(0, i % 2 ? 'rgba(65,58,45,0.035)' : 'rgba(255,252,242,0.03)');
+      st.addColorStop(1, 'rgba(0,0,0,0)');
+      g.fillStyle = st; g.fillRect(rx - rad, ry - rad, rad * 2, rad * 2);
+    }
+    // 탄젠트 노멀맵 & 거칠기 맵
+    const cNor = document.createElement('canvas'); cNor.width = cNor.height = N;
+    const gn = cNor.getContext('2d'); gn.fillStyle = '#8080ff'; gn.fillRect(0, 0, N, N);
+    gn.fillStyle = '#80c8ff'; gn.fillRect(0, railY, N, 4);
+    gn.fillStyle = '#8038ff'; gn.fillRect(0, railY + railH - 4, N, 4);
+    for (let x = 0; x < N; x += 32) {
+      gn.fillStyle = '#5880ff'; gn.fillRect(x, wainY + 4, 2, wainH - 8);
+      gn.fillStyle = '#a880ff'; gn.fillRect(x + 2, wainY + 4, 2, wainH - 8);
+    }
+    const cRough = document.createElement('canvas'); cRough.width = cRough.height = N;
+    const gr = cRough.getContext('2d');
+    gr.fillStyle = '#e0e0e0'; gr.fillRect(0, 0, N, railY); // 상단 수성페인트 무광(0.88)
+    gr.fillStyle = '#787878'; gr.fillRect(0, railY, N, railH); // 원목 몰딩 반광(0.47)
+    gr.fillStyle = '#969696'; gr.fillRect(0, wainY, N, wainH); // 하단 유성페인트 반광(0.58)
+    gr.fillStyle = '#686868'; gr.fillRect(0, N - baseH, N, baseH);
+    const wrap = cv => { const t = new THREE.CanvasTexture(cv); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 16; return t; };
+    const map = wrap(cCol); map.colorSpace = THREE.SRGBColorSpace;
+    return new THREE.MeshStandardMaterial({ map, normalMap: wrap(cNor), roughnessMap: wrap(cRough), normalScale: new THREE.Vector2(0.35, 0.35), roughness: 1, metalness: 0 });
+  };
+  const mWall = build1998SchoolWallPBR();
+  const mToiletWall = P(T.pbr('wall', () => T.pbrWall()));
   const mFloorTile = P(T.pbr('tile', () => T.pbrTile()));
   const mFloorWood = P(T.pbr('wood', () => T.pbrWood()));
   const mCeil = P(T.pbr('ceil', () => T.pbrCeiling()));
@@ -1477,23 +1532,37 @@ export function buildWorld(scene) {
         return;
       }
 
+      // 계단 밑면에 검은 블록이 계단식으로 튀어나오지 않도록: 매끄러운 일체형 경사 슬래브(Smooth Inclined Soffit Slab) + 디딤판(Tread) + 챌판(Riser) 구조로 전면 재설계!
       if (solid) {
         for (let i = 0; i < n; i++) add(mStep, W, (i + 1) * rise, run, xa, dy, z0 - run * (i + .5));
         add(mStep, 2.6, LND, 9.55 + zl, cx - 2.5, dy, (zl - 9.55) / 2);
       } else {
+        // 1구간(xa: dy -> dy+LND) 매끄러운 일체형 경사 하부 슬래브
+        const sof1 = new THREE.Mesh(new THREE.BoxGeometry(W + .02, .15, L + .14), mUnderSlab);
+        sof1.rotation.x = th;
+        sof1.position.set(xa, dy + LND * .5 - .09, (z0 + zl) * .5);
+        cur.interior.add(sof1);
+        // 1구간 계단 디딤판(Tread) & 수직 챌판(Riser) 웨지
         for (let i = 0; i < n; i++) {
           const syTop = dy + (i + 1) * rise, sz = z0 - run * (i + .5);
-          add(mUnderSlab, W + .04, .36, run + .02, xa, syTop - .38, sz);
-          add(mStep, W, .04, run + .03, xa, syTop - .02, sz);
+          add(mStep, W, rise + .02, run + .02, xa, syTop - rise - .02, sz);
         }
-        add(mUnderSlab, 2.64, .32, 9.55 + zl, cx - 2.5, dy + LND - .34, (zl - 9.55) / 2);
+        // 중간 층참(Landing) 매끄러운 일체형 슬래브
+        add(mUnderSlab, 2.62, .22, 9.55 + zl, cx - 2.5, dy + LND - .24, (zl - 9.55) / 2);
         add(mStep, 2.60, .04, 9.55 + zl, cx - 2.5, dy + LND - .02, (zl - 9.55) / 2);
       }
-      for (let i = 0; i < n; i++) {
-        const stTop = dy + LND + (i + 1) * rise, sz = zl + run * (i + .5);
-        const m1 = add(mUnderSlab, W + .04, .36, run + .02, xb, stTop - .38, sz);
-        const m2 = add(mStep, W, .04, run + .03, xb, stTop - .02, sz);
-        if (dy < 0) { m1.userData.dynamic = true; m2.userData.dynamic = true; }
+      // 2구간(xb: dy+LND -> dy+FH) 매끄러운 일체형 경사 하부 슬래브
+      {
+        const sof2 = new THREE.Mesh(new THREE.BoxGeometry(W + .02, .15, L + .14), mUnderSlab);
+        sof2.rotation.x = -th;
+        sof2.position.set(xb, dy + LND * 1.5 - .09, (z0 + zl) * .5);
+        if (dy < 0) sof2.userData.dynamic = true;
+        cur.interior.add(sof2);
+        for (let i = 0; i < n; i++) {
+          const stTop = dy + LND + (i + 1) * rise, sz = zl + run * (i + .5);
+          const m2 = add(mStep, W, rise + .02, run + .02, xb, stTop - rise - .02, sz);
+          if (dy < 0) m2.userData.dynamic = true;
+        }
       }
       const nos = [];
       for (let i = 0; i < n; i++) {
@@ -3015,6 +3084,7 @@ export function buildWorld(scene) {
       sOps.sort((a, b) => a.x - b.x); let curS = X0;
       for (const sw of sOps) { const sa = sw.x - sw.w / 2, sb = sw.x + sw.w / 2; if (sa > curS) F.interior.add(boxMesh(curS, sa, 0, CH, 9.6, Z1, mWall)); if (sw.y0 > 0) F.interior.add(boxMesh(sa, sb, 0, sw.y0, 9.6, Z1, mWall)); if (sw.y1 < CH) F.interior.add(boxMesh(sa, sb, sw.y1, CH, 9.6, Z1, mWall)); curS = sb; }
       if (curS < X1) F.interior.add(boxMesh(curS, X1, 0, CH, 9.6, Z1, mWall));
+      sOps.forEach(sw => { if (!sw.door) win3D(F.interior, sw.w, sw.y1 - sw.y0, sw.x, (sw.y0 + sw.y1) / 2, 9.62, Math.PI); });
       col(X0, -1.3, 9.6, Z1, true); col(1.3, X1, 9.6, Z1, true);
     }
     sl.forEach((cx, i) => { if (spec.types[i] !== 'stair') flat(F.interior, woodT.includes(spec.types[i]) ? mFloorWood : mFloorTile, cx - 4, cx + 4, -9.6, -1.75, 0); });
@@ -3023,18 +3093,21 @@ export function buildWorld(scene) {
     { const nOps = []; sl.forEach((cx, i) => { const t = spec.types[i]; if (t === 'stair') nOps.push({ x: cx + 1.0, w: 1.7, y0: 1.0, y1: 2.8 }); else if (t === 'cooking') nOps.push({ x: cx - 3.05, w: 1.3, y0: 1.02, y1: 2.48 }); else nOps.push({ x: cx - 3.05, w: 1.3, y0: 1.02, y1: 2.48 }, { x: cx + 3.05, w: 1.3, y0: 1.02, y1: 2.48 }); });
       nOps.sort((a, b) => a.x - b.x); let curN = X0;
       for (const nw of nOps) { const na = nw.x - nw.w / 2, nb = nw.x + nw.w / 2; if (na > curN) F.interior.add(boxMesh(curN, na, 0, CH, Z0, -9.6, mWall)); if (nw.y0 > 0) F.interior.add(boxMesh(na, nb, 0, nw.y0, Z0, -9.6, mWall)); if (nw.y1 < CH) F.interior.add(boxMesh(na, nb, nw.y1, CH, Z0, -9.6, mWall)); curN = nb; }
-      if (curN < X1) F.interior.add(boxMesh(curN, X1, 0, CH, Z0, -9.6, mWall)); col(X0, X1, Z0, -9.6, true); }
+      if (curN < X1) F.interior.add(boxMesh(curN, X1, 0, CH, Z0, -9.6, mWall));
+      nOps.forEach(nw => { if (!nw.door) win3D(F.interior, nw.w, nw.y1 - nw.y0, nw.x, (nw.y0 + nw.y1) / 2, -9.62, 0); });
+      col(X0, X1, Z0, -9.6, true); }
     awall(X0, -20, -9.6, Z1, CH); awall(28, X1, -9.6, Z1, CH); awall(20, 28, -1.75, -1.45, CH);
-    // 별관 창밖 달빛 캠퍼스 풍경
+    // 별관 창밖 달빛 캠퍼스 풍경 (noCull = true 로 설정해 별관 실내 어디서든 창문 밖으로 본관·중정·대강당·나무가 선명하게 투시되도록 보장!)
     { const gy = -k * FH - .05, mOutGnd = new THREE.MeshBasicMaterial({ map: T.makeGround(), color: 0x526450 }), mOutFac = new THREE.MeshBasicMaterial({ map: mFacade.map, color: 0x626a72 }), mOutTree = new THREE.MeshBasicMaterial({ color: 0x263828 });
+      const outGrp = new THREE.Group(); outGrp.userData.noCull = true; outGrp.userData.dynamic = true; F.interior.add(outGrp);
       flat(F.interior, mOutGnd, -75, 75, -65, 65, gy, 8);
       const mainY0 = gy, mainH = 12.4; F.interior.add(boxMesh(-36.3, 36.3, mainY0, mainY0 + mainH, 20.5, 22.5, mOutFac, 3));
       // 중앙 구름다리 구간(z: 9.9 ~ 20.5)은 위에서 속이 빈 실제 통로로 구축했으므로 통짜 회색 박스로 막지 않는다!
       const mSlots = []; for (let mf = 0; mf < 3; mf++) SLOTS.forEach(mcx => [-3.05, 3.05].forEach(dx => mSlots.push([mcx + dx, 1.3, -.08, mainY0 + mf * FH + 1.72, 1.48])));
-      const mfakes = buildWindowFakes(mSlots, 10 + k); mfakes.position.z = 20.46; F.interior.add(mfakes);
+      const mfakes = buildWindowFakes(mSlots, 10 + k); mfakes.userData.noCull = true; mfakes.position.z = 20.46; F.interior.add(mfakes);
       F.interior.add(boxMesh(-32, 32, mainY0, mainY0 + 2.8, -26, -25.6, mOutFac, 3), boxMesh(-30, -6, mainY0, mainY0 + 10.5, -24, -18.5, mOutFac, 3), boxMesh(4, 28, mainY0, mainY0 + 9.8, -23.5, -18.5, mOutFac, 3));
       const nSlots2 = []; for (let nf = 0; nf < 2; nf++) [-24, -18, -12, 10, 16, 22].forEach(nx => nSlots2.push([nx, 1.8, .08, mainY0 + nf * FH + 2.2, 1.5]));
-      const nfakes = buildWindowFakes(nSlots2, 20 + k); nfakes.position.z = -18.42; F.interior.add(nfakes);
+      const nfakes = buildWindowFakes(nSlots2, 20 + k); nfakes.userData.noCull = true; nfakes.position.z = -18.42; F.interior.add(nfakes);
       [[-16, 14.5], [-6, 15], [8, 14.5], [18, 15], [-18, -14], [-8, -14.5], [0, -14.2], [9, -14.5], [17, -14]].forEach(([tx, tz]) => { F.interior.add(boxMesh(tx - .18, tx + .18, gy, gy + 3.6, tz - .18, tz + .18, mWoodDark)); const cr = new THREE.Mesh(new THREE.IcosahedronGeometry(2.2, 1), mOutTree); cr.position.set(tx, gy + 4.6, tz); F.interior.add(cr); glowAt(tx, gy + 3.6, tz, 1.2, T.makeGlow('255,215,140')); }); }
     // 복도 남벽: 중앙(cx = 0)은 1·2·3층 모두 문 없는 6m 광폭 개구부, 동쪽 확장 슬롯(cx = 24)을 포함한 나머지 방은 미닫이문!
     slSouth.forEach((cx, i) => {
@@ -3753,11 +3826,35 @@ export function buildWorld(scene) {
     const h = new THREE.Mesh(new THREE.BoxGeometry(1.2, .1, .3), mMetal); h.position.set(-115.7, 5, z); OUT.add(h);
   }
   // 별관(특별교실동) 외관 — 정중앙 구름다리/필로티 연결 홀(x: -1.0 ~ 2.6)은 벽돌 외벽과 충돌체를 비워 본관↔별관이 막힘 없이 직결되게 한다!
-  OUT.add(
-    boxMesh(-20, -.92, 0, 12.4, -25 - ANNEX_DZ, -13.5 - ANNEX_DZ, mBrick, 2.5),
-    boxMesh(2.52, 28, 0, 12.4, -25 - ANNEX_DZ, -13.5 - ANNEX_DZ, mBrick, 2.5),
-    boxMesh(-.92, 2.52, 0, 12.4, -25 - ANNEX_DZ, -21.5 - ANNEX_DZ, mBrick, 2.5)
-  );
+  // 별관 외벽: 창문 자리(y: 1.05~2.55, 5.05~6.55, 9.05~10.55)를 뚫어 밖에서도 투명한 창문 유리 너머로 별관 3D 교실 내부(afS, afN)가 훤히 들여다보이게 구축!
+  {
+    const zN_A = -25 - ANNEX_DZ, zS_A = -13.5 - ANNEX_DZ;
+    // 동·서 측면 벽돌 외벽 및 내부 코어
+    OUT.add(
+      boxMesh(-20, -19.6, 0, 12.4, zN_A, zS_A, mBrick, 2.5),
+      boxMesh(27.6, 28, 0, 12.4, zN_A, zS_A, mBrick, 2.5),
+      boxMesh(-.92, 2.52, 0, 12.4, zN_A, -21.5 - ANNEX_DZ, mBrick, 2.5),
+      // 어두운 내부 코어 슬래브 (창문 안쪽 깊이 3.2m 지점)
+      boxMesh(-19.6, -.92, 0, 12.4, zN_A + 3.1, zS_A - 3.1, mBrick, 2.5),
+      boxMesh(2.52, 27.6, 0, 12.4, zN_A + 3.1, zS_A - 3.1, mBrick, 2.5)
+    );
+    // 층간 가로 벽돌 스팬드럴(Spandrels: y 0~1.05, 2.55~5.05, 6.55~9.05, 10.55~12.4)
+    [[0, 1.05], [2.55, 5.05], [6.55, 9.05], [10.55, 12.4]].forEach(([y0, y1]) => {
+      OUT.add(
+        boxMesh(-20, -.92, y0, y1, zS_A - .32, zS_A, mBrick, 2.5),
+        boxMesh(2.52, 28, y0, y1, zS_A - .32, zS_A, mBrick, 2.5),
+        boxMesh(-20, 28, y0, y1, zN_A, zN_A + .32, mBrick, 2.5)
+      );
+    });
+    // 창문 사이 세로 벽돌 기둥(Piers)
+    for (let x = -20; x <= 28; x += 4) {
+      if (x > -3.5 && x < 4.5) continue;
+      OUT.add(
+        boxMesh(x - .92, x + .92, 1.05, 10.55, zS_A - .32, zS_A, mBrick, 2.5),
+        boxMesh(x - .92, x + .92, 1.05, 10.55, zN_A, zN_A + .32, mBrick, 2.5)
+      );
+    }
+  }
   col(-20, -.92, -25 - ANNEX_DZ, -13.5 - ANNEX_DZ, true);
   col(2.52, 28, -25 - ANNEX_DZ, -13.5 - ANNEX_DZ, true);
   OUT.add(boxMesh(-20.4, 28.4, 12.4, 12.7, -25.4 - ANNEX_DZ, -13.1 - ANNEX_DZ, mFacade, 3));

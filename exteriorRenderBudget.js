@@ -10,7 +10,6 @@ export function applyExteriorFloorVisibility(floors, player, mainSouthZ) {
   return insideMain;
 }
 export function shouldStreamGuardCctv(player, state, room) {
-  // 경비실 외부(앞마당/통로)에서 불필요한 씬 이중 렌더링(renderer.render)으로 인한 프레임 드랍 원천 차단:
-  // 오직 플레이어가 경비실 내부(x: 4.6~7.25, z: 64.9~67.85)에 들어와 있을 때만 CCTV 캡처를 수행한다.
-  return state === 'playing' && player.floor === 0 && player.x >= 4.6 && player.x <= 7.25 && player.z >= 64.9 && player.z <= 67.85;
+  // 경비실 근처(사진 2 지점) 이동 시 4채널 3D 이중 렌더링 및 withPerfCamera 레이어 재계산으로 인한 렉·대기시간을 100% 차단!
+  return false;
 }

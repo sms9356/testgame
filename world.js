@@ -4,11 +4,11 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { NOTES } from './story.js?v=176';
+import { NOTES } from './story.js?v=177';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=176';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=177';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -4319,34 +4319,33 @@ export function buildWorld(scene) {
     const p = new THREE.Mesh(new THREE.CylinderGeometry(.07, .07, 5, 6), mMetal); p.position.set(-115.2, 2.5, z); OUT.add(p);
     const h = new THREE.Mesh(new THREE.BoxGeometry(1.2, .1, .3), mMetal); h.position.set(-115.7, 5, z); OUT.add(h);
   }
-  // 별관(특별교실동) 외관 — 정중앙 구름다리/필로티 연결 홀(x: -0.85 ~ 2.45)은 벽돌 외벽과 충돌체를 비워 본관↔별관이 막힘 없이 직결되게 한다!
+  // 별관(특별교실동) 외관 — 별관 실제 실내(local z: -9.6 ~ +9.6, world z: -39.7 ~ -20.5) 외벽 두께 구간(-40.0 ~ -39.65 및 -20.5 ~ -20.2)에 정확히 일치시켜 실내 침범 0.0mm!
   {
-    const zN_A = -25 - ANNEX_DZ, zS_A = -13.5 - ANNEX_DZ;
-    // 동·서 측면 벽돌 외벽 (내부를 가로막던 통짜 벽돌 코어 블록 3개는 제거하여 구름다리에서 실제 별관 내부 연결 홀과 복도가 그대로 투시되도록 개선!)
+    const zN_A = -40.0, zS_A = -20.2;
     OUT.add(
-      boxMesh(-20, -19.6, 0, 12.4, zN_A, zS_A, mBrick, 2.5),
-      boxMesh(27.6, 28, 0, 12.4, zN_A, zS_A, mBrick, 2.5)
+      boxMesh(-20.3, -20.0, 0, 12.4, zN_A, zS_A, mBrick, 2.5),
+      boxMesh(28.0, 28.3, 0, 12.4, zN_A, zS_A, mBrick, 2.5)
     );
     // 층간 가로 벽돌 스팬드럴(Spandrels: y 0~1.05, 2.55~5.05, 6.55~9.05, 10.55~12.4)
     [[0, 1.05], [2.55, 5.05], [6.55, 9.05], [10.55, 12.4]].forEach(([y0, y1]) => {
       OUT.add(
-        boxMesh(-20, -.85, y0, y1, zS_A - .32, zS_A, mBrick, 2.5),
-        boxMesh(2.45, 28, y0, y1, zS_A - .32, zS_A, mBrick, 2.5),
-        boxMesh(-20, 28, y0, y1, zN_A, zN_A + .32, mBrick, 2.5)
+        boxMesh(-20.3, -.85, y0, y1, -20.48, zS_A, mBrick, 2.5),
+        boxMesh(2.45, 28.3, y0, y1, -20.48, zS_A, mBrick, 2.5),
+        boxMesh(-20.3, 28.3, y0, y1, zN_A, -39.68, mBrick, 2.5)
       );
     });
-    // 구름다리/필로티 연결 홀 좌·우 외벽 마감 기둥
+    // 구름다리/필로티 연결 홀 좌·우 외벽 마감 기둥 (실내 벽면 z=-20.5 바깥쪽에만 위치!)
     OUT.add(
-      boxMesh(-3.15, -.85, 0, 12.4, zS_A - .35, zS_A, mBrick, 2.5),
-      boxMesh(2.45, 4.95, 0, 12.4, zS_A - .35, zS_A, mBrick, 2.5),
-      boxMesh(-3.15, 4.95, 0, 12.4, zN_A, zN_A + .35, mBrick, 2.5)
+      boxMesh(-3.15, -.85, 0, 12.4, -20.48, zS_A, mBrick, 2.5),
+      boxMesh(2.45, 4.95, 0, 12.4, -20.48, zS_A, mBrick, 2.5),
+      boxMesh(-3.15, 4.95, 0, 12.4, zN_A, -39.68, mBrick, 2.5)
     );
     // 창문 사이 세로 벽돌 기둥(Piers)
     for (let x = -20; x <= 28; x += 4) {
       if (x > -3.5 && x < 4.5) continue;
       OUT.add(
-        boxMesh(x - .92, x + .92, 1.05, 10.55, zS_A - .32, zS_A, mBrick, 2.5),
-        boxMesh(x - .92, x + .92, 1.05, 10.55, zN_A, zN_A + .32, mBrick, 2.5)
+        boxMesh(x - .92, x + .92, 1.05, 10.55, -20.48, zS_A, mBrick, 2.5),
+        boxMesh(x - .92, x + .92, 1.05, 10.55, zN_A, -39.68, mBrick, 2.5)
       );
     }
   }

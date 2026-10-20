@@ -4,11 +4,11 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { NOTES } from './story.js?v=157';
+import { NOTES } from './story.js?v=158';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=157';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=158';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -2379,7 +2379,7 @@ export function buildWorld(scene) {
     const zN = -9.6;
     meshAt(merge([bx(1.9, .05, .9, 0, .76, 0), bx(1.8, .74, .05, 0, .37, .4), bx(.5, .74, .8, -.65, .37, 0), bx(.5, .74, .8, .65, .37, 0)]), mWoodDark, cx, 0, -7.9); col(cx - .95, cx + .95, -8.35, -7.45);
     officeChair(cx, -8.7, 0); add(mBlack, .45, .3, .02, cx - .5, .79, -8.05); plane(cur.interior, new THREE.MeshStandardMaterial({ map: T.makeSign('교 장', '#2a2016', '#d8c8a0', 30), roughness: .6 }), .5, .12, cx, .86, -7.44);
-    plane(cur.interior, mFlag, .9, .6, cx - 2.6, 2.3, zN + .04); add(mChrome, .03, 2.0, .03, cx - 3.2, 0, zN + .4);
+    plane(cur.interior, mFlag, .9, .6, cx, 2.3, zN + .04);
     [-1.3, 1.3].forEach(dx => { const fr = new THREE.Mesh(new THREE.BoxGeometry(.5, .65, .03), mWoodDark); fr.position.set(cx + dx, 2.3, zN + .03); cur.interior.add(fr); const pic = new THREE.Mesh(new THREE.PlaneGeometry(.4, .55), mPaints[1]); pic.position.set(cx + dx, 2.3, zN + .05); cur.interior.add(pic); });
     plane(cur.interior, new THREE.MeshStandardMaterial({ map: T.makeSign('성실 · 정직 · 배려', '#e8e2d2', '#3a2a1a', 26), roughness: .8 }), 2.0, .45, cx, 3.0, zN + .04);
     sofa(cx - 2.6, -4.5, Math.PI / 2); sofa(cx + 2.6, -4.5, -Math.PI / 2); add(mWood, 1.2, .4, .6, cx, 0, -4.5, { col: true }); cyl(mPorc, .05, .09, cx + .2, .4, -4.5, 10);
@@ -4227,7 +4227,7 @@ export function buildWorld(scene) {
   const grM = [];
   for (let i = 0; i < 4000 && grM.length < 1800; i++) {
     const x = rr(-49, 49), z = rr(NORTH_Z + 1, 69.5);
-    if (blocked(x, z, .3) || (Math.abs(x) < 3.6 && z > 1.5) || (x > -27 && x < 27 && z > 15 && z < 59 && rnd() < .9) || (x > 28.5 && x < 43.5 && z > 38 && z < 54)) continue;
+    if (blocked(x, z, .3) || (z > 9.5 && z < 15.4) || (x > 0 && x < 8.5 && z > 64.5 && z < 70.5) || (Math.abs(x) < 3.6 && z > 1.5) || (x > -27 && x < 27 && z > 15 && z < 59 && rnd() < .9) || (x > 28.5 && x < 43.5 && z > 38 && z < 54)) continue;
     _o.position.set(x, 0, z); _o.rotation.set(0, rnd() * 6, 0); _o.scale.setScalar(rr(.6, 1.5)); _o.updateMatrix(); grM.push(_o.matrix.clone());
   }
   _o.scale.set(1, 1, 1);

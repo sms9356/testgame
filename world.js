@@ -4,11 +4,11 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { NOTES } from './story.js?v=130';
+import { NOTES } from './story.js?v=131';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=130';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=131';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -1922,21 +1922,20 @@ export function buildWorld(scene) {
       const mPolTape = new THREE.MeshBasicMaterial({ map: T.makeSign('POLICE LINE DO NOT CROSS  ·  사건현장 출입금지 (서문경찰서)  ·  통제구역', '#e6b818', '#141414', 24), side: THREE.DoubleSide });
       const mEvMark  = n => new THREE.MeshBasicMaterial({ map: T.makeSign(n, '#f0c418', '#111111', 30), side: THREE.DoubleSide });
       const mPaper   = new THREE.MeshBasicMaterial({ map: T.makeSign('서 문 일 보 (호외) | 1998.10.13 — 서문고 심야 실종 사건, 지하 펌프실 통제', '#e8dfc8', '#181614', 20), side: THREE.DoubleSide });
-      // 폴리스라인 스탠드 기둥 3기 & 2단 통제 테이프 (x: cx - 2.1 ~ cx + 1.5, z: -4.8)
-      [-2.1, -0.3, 1.5].forEach(dx => {
-        add(mDarkMetal, .32, .05, .32, cx + dx, 0, -4.85);
-        add(mChrome, .05, 1.05, .05, cx + dx, .05, -4.85);
+      // 폴리스라인 스탠드 기둥 3기 & 2단 통제 테이프 (x: cx - 1.8 ~ cx + 1.8, z: -3.45 — 기존 작업대와 겹치지 않는 펌프실 정중앙 통제선!)
+      [-1.8, 0.0, 1.8].forEach(dx => {
+        add(mDarkMetal, .32, .05, .32, cx + dx, 0, -3.45);
+        add(mChrome, .05, 1.05, .05, cx + dx, .05, -3.45);
       });
-      plane(cur.interior, mPolTape, 3.6, .11, cx - .3, .88, -4.82, 0);
-      plane(cur.interior, mPolTape, 3.6, .11, cx - .3, .52, -4.82, 0);
+      plane(cur.interior, mPolTape, 3.6, .12, cx, .88, -3.42, 0);
+      plane(cur.interior, mPolTape, 3.6, .12, cx, .52, -3.42, 0);
       // 노란 삼각 증거물 표식 01 · 02 · 03
-      [[-1.1, -5.35, '01'], [0.4, -5.45, '02'], [-0.3, -6.15, '03']].forEach(([dx, zp, num]) => {
-        plane(cur.interior, mEvMark(num), .24, .22, cx + dx, .12, zp, .2);
+      [[-0.95, -3.95, '01'], [0.65, -3.95, '02'], [-0.15, -4.45, '03']].forEach(([dx, zp, num]) => {
+        plane(cur.interior, mEvMark(num), .26, .24, cx + dx, .13, zp, .15);
       });
-      // 바닥 및 조사대 위 1998년 『서문일보』 지역신문 특별 호외 + 실제 획득 가능한 문서(n_seomun_ilbo)
-      add(mWoodDark, .85, .72, .55, cx + .75, 0, -4.25, { col: true });
-      plane(cur.interior, mPaper, .76, .48, cx + .75, .74, -4.25, -Math.PI / 2);
-      addNote('n_seomun_ilbo', cx + .75, .76, -4.25);
+      // 바닥 증거물01 옆에 펼쳐진 1998년 『서문일보』 지역신문 특별 호외 + 실제 획득 가능한 문서(n_seomun_ilbo)
+      plane(cur.interior, mPaper, .82, .54, cx - .15, .022, -3.85, -Math.PI / 2);
+      addNote('n_seomun_ilbo', cx + .35, .03, -3.75);
     }
     wetSpot(cx - .4, -5.6, .9); papers(cx, -8, -2.4, 4);
     secretRoom(cx);

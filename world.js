@@ -4,11 +4,11 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { NOTES } from './story.js?v=156';
+import { NOTES } from './story.js?v=157';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=156';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=157';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -780,8 +780,8 @@ export function buildWorld(scene) {
     cctv(cx - 3.75, CH, -2.0, Math.PI * .75, {label:AREA_NAMES[cur.f] + ' · ' + name});
     extinguisher(cx + 1.65, -2.05);
     [0, 1, 2].forEach(k => add(mRecy[k], .36, .62, .36, cx + 2.6 + k * .4, 0, -2.0, { col: k === 1 }));
-    add(S(null, { color: 0xe8e6de, roughness: .5 }), .45, 1.75, .38, cx + 3.55, 0, zN + .25, { col: true }); add(mBlack, .3, .25, .02, cx + 3.55, 1.25, zN + .45); glowAt(cx + 3.63, 1.18, zN + .46, .09, glowGreen); add(mMetal, .58, .04, .36, cx - 2.22, 2.02, zN + .22); crt(cx - 2.22, 2.04, zN + .22, .18);
-    [-3.05, 3.05].forEach(dx => { const px = Math.min(cx + dx + rr(-.4, .4), cx + 2.9); add(mWoodDark, .36, .92, .3, px, 0, zN + .22, { col: true }); potPlant(px, .92, zN + .22); });
+    add(S(null, { color: 0xe8e6de, roughness: .5 }), .45, 1.75, .38, cx + 3.55, 0, zN + .25, { col: true }); add(mBlack, .3, .25, .02, cx + 3.55, 1.25, zN + .45); glowAt(cx + 3.63, 1.18, zN + .46, .09, glowGreen);
+    potPlant(cx - 3.45, 0, zN + .35);
     if (rnd() < .5) graffiti(pick(['다시, 여기서', '돌아와', '보고 있어']), cx - 2.4, 1.7, -1.765, Math.PI, 1.8);
 
     // ③ 동쪽 벽 대형 학급 게시판 + 뒷벽(복도 쪽) 전면 확장형 20칸 학급 사물함 & 학급문고 책장 & 환경미화 게시판!
@@ -888,7 +888,7 @@ export function buildWorld(scene) {
 
     fileCabinet(cx + 3.6, -8.95, -Math.PI / 2); fileCabinet(cx + 3.6, -8.05, -Math.PI / 2, true);
     model('sf_water_cooler', cx - 3.55, 0, -2.5, Math.PI / 2, { col: [.45, .45] }); glowAt(cx - 3.38, .92, -2.45, .11, glowRed); glowAt(cx - 3.38, .92, -2.55, .11, glowGreen);
-    model('sf_fuse_box', cx + 3.82, 1.35, -2.4, -Math.PI / 2); model('wooden_bookshelf_worn', cx - 2.15, 0, -2.02, Math.PI, { col: [.9, .42] });
+    model('wooden_bookshelf_worn', cx - 2.15, 0, -2.02, Math.PI, { col: [.9, .42] });
 
     // ⑤ 금고 (비밀번호: 그날의 날짜 MMDD = 1012)
     { const sx = cx - 3.5, sz = -8.6;
@@ -2415,7 +2415,7 @@ export function buildWorld(scene) {
     cyl(mBlue, .18, .5, cx + 2.2, 0, -8.9, 12); for (let k = 0; k < 3; k++) { const u = meshAt(new THREE.CylinderGeometry(.012, .012, .9, 6).translate(0, .45, 0), mBlack, cx + 2.2 + rr(-.08, .08), 0, -8.9 + rr(-.08, .08)); u.rotation.z = rr(-.2, .2); }
     potPlant(cx - 2.4, 0, -9.1, true); potPlant(cx + 2.9, 0, -9.1, true);
     add(mStep, 3.4, .02, 1.2, cx, 0, -9.0);   // 현관 매트 자리
-    model('standing_chalkboard_01', cx + 2.0, 0, -5.6, -.45, { col: [.9, .7] }); model('potted_plant_04', cx - 3.45, 0, -4.55, 0); model('potted_plant_04', cx + 3.45, 0, -4.55, 1); model('sf_vending', cx - 2.35, 0, -8.85, 0, { col: [.95, .6] }); glowAt(cx - 2.35, 1.15, -8.48, .85, glowGreen); model('sf_fuse_box', cx + 3.82, 1.35, -3.9, -Math.PI / 2);
+    model('potted_plant_04', cx - 3.35, 0, -8.85, 0); model('potted_plant_04', cx + 3.35, 0, -8.85, 1);
     papers(cx, -8, -2.4, 10);
   }
   // 인쇄실
@@ -3762,7 +3762,7 @@ export function buildWorld(scene) {
   }
   const pave = S(T.makePaving()); flat(OUT, pave, -3.2, 3.2, MAIN_ZS, PG.CZ - PG.R1 - .2, .01, 4); flat(OUT, pave, -3.2, 3.2, PG.CZ + PG.R1 + .2, 69.5, .01, 4); flat(OUT, pave, -16, 16, MAIN_ZS, 11, .01, 4);   // 정문 길은 운동장(트랙 · 흙)을 가로지른다
   // 진입로 가로등 · 현관 앞 & 운동장 가장자리 캠퍼스 벤치 (sf_park_bench)
-  [[-8.0, 10.45, 0], [8.0, 10.45, 0], [-25.8, 24.0, Math.PI / 2], [-25.8, 48.0, Math.PI / 2], [24.0, 56.5, Math.PI]].forEach(([x, z, ry]) => model('sf_park_bench', x, 0, z, ry, { out: true, col: [1.85, .64] }));
+  [[-25.8, 24.0, Math.PI / 2], [-25.8, 48.0, Math.PI / 2], [24.0, 56.5, Math.PI]].forEach(([x, z, ry]) => model('sf_park_bench', x, 0, z, ry, { out: true, col: [1.85, .64] }));
   flat(OUT, pave, -46, 46, 11, 14, .005, 4);
   const asph = S(T.makeAsphalt()); flat(OUT, asph, -120, 120, 73, 82, 0.005, 8);
   // 웅덩이
@@ -3773,7 +3773,7 @@ export function buildWorld(scene) {
   // 담쟁이덩굴 (본관 정면 · 담장 · 별관)
   { const ivyM = new THREE.MeshStandardMaterial({ map: T.makeIvy(), alphaTest: .45, side: THREE.DoubleSide, roughness: .75 });
     const ivy = (x, z, w, h, ry, y0 = 0) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), ivyM); m.position.set(x, y0 + h / 2, z); m.rotation.y = ry; OUT.add(m); };
-    [[-33, 6.5], [-27.5, 4], [-18, 7.5], [-9, 3.5], [11, 5], [21, 8], [30.5, 6], [35, 4]].forEach(([x, h]) => ivy(x, MAIN_ZS + .05, rr(2.2, 3.4), h, 0));
+    /* 본관 남쪽 정면 외벽 창문을 가리던 2D 평면 담쟁이덩굴 제거 */
     [[-40, 3], [-28, 2.6], [-16, 2.8], [12, 2.7], [24, 2.6], [38, 2.9]].forEach(([x, h]) => ivy(x, GATE_Z - .3, rr(2.5, 3.5), h, Math.PI));
     [[-49.7, 10, 3], [-49.7, 50, 2.8], [-49.7, -10, 2.7]].forEach(([x, z, h]) => ivy(x, z, 3, h, Math.PI / 2));
   }
@@ -3995,7 +3995,7 @@ export function buildWorld(scene) {
         for (let k = 0; k < 5; k++) [-1, 1].forEach(s2 => slats.push(bx(1.3, .05, .06, x, ROOF_Y + .45 + k * .2, z + s2 * .93, 1)));
         RF.col.push({ x1: x - 1, x2: x + 1, z1: z - 1, z2: z + 1 }); });
       OUT.add(new THREE.Mesh(merge(slats), mRust)); }
-    model('metal_trash_can', 11.8, 0, MAIN_ZS + .48, 0, { out: true, col: [.65, .56] });
+    model('metal_trash_can', 26.8, 0, 14.6, Math.PI, { out: true, col: [.65, .56] });
     const glowWarmOut = T.makeGlow('255,205,120');
     const extLamp = (lx, ly, lz, lry) => { model('sf_bulkhead_lamp', lx, ly, lz, lry, { out: true }); const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowWarmOut, blending: THREE.AdditiveBlending, depthWrite: false, opacity: .75 })); sp.scale.set(1.1, 1.1, 1); sp.position.set(lx + Math.sin(lry) * .12, ly + .17, lz + Math.cos(lry) * .12); OUT.add(sp); };
     [-3.1, 3.1, -19.5, 19.5].forEach(lx => extLamp(lx, 3.05, MAIN_ZS + .08, 0));

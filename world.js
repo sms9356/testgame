@@ -4,11 +4,11 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { NOTES } from './story.js?v=136';
+import { NOTES } from './story.js?v=137';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=136';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=137';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -2097,6 +2097,13 @@ export function buildWorld(scene) {
     [-1.3, 1.3].forEach(dx => { const fr = new THREE.Mesh(new THREE.BoxGeometry(.5, .65, .03), mWoodDark); fr.position.set(cx + dx, 2.3, zN + .03); cur.interior.add(fr); const pic = new THREE.Mesh(new THREE.PlaneGeometry(.4, .55), mPaints[1]); pic.position.set(cx + dx, 2.3, zN + .05); cur.interior.add(pic); });
     plane(cur.interior, new THREE.MeshStandardMaterial({ map: T.makeSign('성실 · 정직 · 배려', '#e8e2d2', '#3a2a1a', 26), roughness: .8 }), 2.0, .45, cx, 3.0, zN + .04);
     sofa(cx - 2.6, -4.5, Math.PI / 2); sofa(cx + 2.6, -4.5, -Math.PI / 2); add(mWood, 1.2, .4, .6, cx, 0, -4.5, { col: true }); cyl(mPorc, .05, .09, cx + .2, .4, -4.5, 10);
+    // 교장 집무 책상 위: 1998.10.12 심야 대책회의 비밀 마이크로카세트 녹취기 (3D 릴 2개 · 버튼 · 붉은 LED) & 기밀 서류철!
+    add(mDarkMetal, .32, .06, .22, cx + .45, .78, -7.85);
+    add(mChrome, .26, .015, .04, cx + .45, .84, -7.77);
+    cyl(mWhite, .045, .012, cx + .38, .845, -7.86, 12);
+    cyl(mWhite, .045, .012, cx + .52, .845, -7.86, 12);
+    add(new THREE.MeshBasicMaterial({ color: 0xff3020 }), .02, .02, .02, cx + .57, .845, -7.80);
+    props.push({ kind: 'robj', k: 'principal_recorder', t: 'principal', floor: cur.f, x: cx - .45, z: 7.45, y: .88, r: 2.3, label: '교장실 비밀 녹취기 재생 — 교장선생님 육성 녹음 듣기' });
     trophyCase(cx + 3.55, -7.9, -Math.PI / 2, 1.6); shelf3D(cx - 3.62, -7.6, Math.PI / 2, 1.6, 2.0, .4, 5, .8);
     potPlant(cx + 3.3, 0, -2.4, false); papers(cx, -8, -2.4, 6);
   }
@@ -3771,7 +3778,8 @@ export function buildWorld(scene) {
     plane(OUT, new THREE.MeshBasicMaterial({ map: T.makeSign('경비실', '#1e2a2e', '#d9e4d0', 34), color: 0x9aa59a }), 1.1, .3, GUARD_LAYOUT.originX + 1.1, 2.30, GUARD_LAYOUT.originZ + .125, 0);
     Object.assign(guardRoom, { holder, furnitureColliders, fallback: G, fallbackDoorPivot: doorPivot, doorCollider, ceilingCover: false, templates: { wall: mFacade, floor: mFloorTile, wood: mWood, metal: mMetal, fabric: guardFabric }, layout: GUARD_LAYOUT });
     props.push({ kind: 'robj', k: 'guarddoor', t: 'guard', floor: 0, x: GUARD_LAYOUT.doorX + .425, z: GUARD_LAYOUT.doorZ, y: 1.05, r: 1.5, label: '경비실 문 닫기' });
-    props.push({ kind: 'robj', k: 'guardlog', t: 'guard', floor: 0, ...GUARD_LAYOUT.log, label: '경비 일지 읽기' });
+    props.push({ kind: 'robj', k: 'guardlog', t: 'guard', floor: 0, ...GUARD_LAYOUT.log, r: 2.1, label: '경비실 심야 순찰 일지 & 경비원 육성 녹음 확인하기' });
+    props.push({ kind: 'robj', k: 'guard_recorder', t: 'guard', floor: 0, x: 5.22, z: 66.82, y: 0.84, r: 2.1, label: '경비실 보이스레코더 — 1998년 그날 밤 경비원 녹취록 재생' });
     props.push({ kind: 'robj', k: 'guardcctv', t: 'guard', floor: 0, ...GUARD_LAYOUT.cctv, label: 'CCTV 전원 끄기' });
     props.push({ kind: 'robj', k: 'guardlight', t: 'guard', floor: 0, ...GUARD_LAYOUT.lightSwitch, label: '경비실 전등 켜기' });
     // 교훈 표지석: 납작한 화강암 + 새긴 글씨 + 받침 화단

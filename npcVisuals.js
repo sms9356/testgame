@@ -90,54 +90,23 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
         const ctx = cv.getContext('2d');
         // 원본 이미지를 변환 없이 그대로 그려 GLTF flipY=false UV 좌표계를 100% 보존!
         if (role === 'skin') {
-          ctx.filter = 'contrast(1.06) saturate(0.96) brightness(1.02)';
+          // 주황빛/과채도를 억제한 자연스러운 한국인 실사 피부 톤 & 명암 대비
+          ctx.filter = charId === 'guard' ? 'contrast(1.12) saturate(0.84) brightness(0.95)' : 'contrast(1.08) saturate(0.92) brightness(0.98)';
         } else {
-          ctx.filter = 'contrast(1.12) saturate(1.06)';
+          ctx.filter = 'contrast(1.14) saturate(1.06)';
         }
         ctx.drawImage(img, 0, 0, w, h);
         ctx.filter = 'none';
         if (role === 'skin') {
           const idata = ctx.getImageData(0, 0, w, h);
           const d = idata.data;
-          for (let y = 0; y < h; y++) {
-            const v = y / h;
-            for (let x = 0; x < w; x++) {
-              const u = x / w;
-              const idx = (y * w + x) * 4;
-              const n = ((Math.sin(x * 12.9898 + y * 78.233) * 43758.5453) % 1 + 1) % 1;
-              const pore = (n - 0.5) * (charId === 'guard' ? 9 : 5);
-              let r = d[idx] + pore, g = d[idx + 1] + pore, b = d[idx + 2] + pore;
-              // 경비 아저씨 얼굴 UV 영역(코밑 인중 u≈0.854~0.866, 입술 u≈0.866~0.873, 턱 u≈0.874~0.890, 중심 v≈0.517): 자연스러운 회백색 수염 모낭(Stubble)과 입술·팔자주름 음영 합성!
-              if (charId === 'guard' && u > 0.82 && u < 0.895 && v > 0.47 && v < 0.565) {
-                const dv = Math.abs(v - 0.517);
-                // 인중·윗입술 위 회백색 콧수염(Mustache: u ∈ [0.850, 0.864], dv < 0.024)
-                if (u >= 0.849 && u <= 0.864 && dv < 0.024) {
-                  const mMask = (1 - dv / 0.024) * (1 - Math.abs(u - 0.8565) / 0.008);
-                  if (mMask > 0) {
-                    const hairSalt = n > 0.55 ? 168 : 72;
-                    const k = Math.min(0.68, mMask * 0.75);
-                    r = r * (1 - k) + hairSalt * k;
-                    g = g * (1 - k) + hairSalt * k;
-                    b = b * (1 - k) + (hairSalt + 4) * k;
-                  }
-                }
-                // 턱수염 그루밍 스터블(Chin Stubble: u ∈ [0.873, 0.890], dv < 0.022)
-                if (u >= 0.873 && u <= 0.890 && dv < 0.022) {
-                  const cMask = (1 - dv / 0.022) * 0.45;
-                  const st = n > 0.6 ? 150 : 82;
-                  r = r * (1 - cMask) + st * cMask;
-                  g = g * (1 - cMask) + st * cMask;
-                  b = b * (1 - cMask) + st * cMask;
-                }
-                // 팔자주름(Nasolabial crease: u ∈ [0.840, 0.868], dv ≈ 0.025..0.032)
-                if (u >= 0.840 && u <= 0.868 && Math.abs(dv - 0.027) < 0.004) {
-                  r *= 0.86; g *= 0.84; b *= 0.84;
-                }
-              }
-              d[idx]     = Math.max(0, Math.min(255, Math.round(r)));
-              d[idx + 1] = Math.max(0, Math.min(255, Math.round(g)));
-              d[idx + 2] = Math.max(0, Math.min(255, Math.round(b)));
-            }
+          for (let i = 0; i < d.length; i += 4) {
+            const px = (i >> 2) % w, py = ((i >> 2) / w) | 0;
+            const n = ((Math.sin(px * 12.9898 + py * 78.233) * 43758.5453) % 1 + 1) % 1;
+            const pore = (n - 0.5) * (charId === 'guard' ? 8 : 5);
+            d[i]     = Math.max(0, Math.min(255, Math.round(d[i] + pore)));
+            d[i + 1] = Math.max(0, Math.min(255, Math.round(d[i + 1] + pore)));
+            d[i + 2] = Math.max(0, Math.min(255, Math.round(d[i + 2] + pore)));
           }
           ctx.putImageData(idata, 0, 0);
         }
@@ -255,7 +224,7 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
     if (eyeTexCache) return eyeTexCache;
     const N = 512, cv = document.createElement('canvas'); cv.width = cv.height = N;
     const ctx = cv.getContext('2d');
-    const cx = N * 0.5, cy = N * 0.5, irisR = N * 0.25, pupilR = N * 0.105;
+    const cx = N * 0.5, cy = N * 0.5, irisR = N * 0.34, pupilR = N * 0.145;
     const img = ctx.createImageData(N, N);
     const d = img.data;
     for (let y = 0; y < N; y++) {
@@ -335,7 +304,7 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
     if (!holder || !holder.isObject3D) throw new TypeError(id + ': 유효한 Three.js 그룹이 필요합니다');
     if (pending.has(holder)) return pending.get(holder);
 
-    const url = (options.url || ('assets/characters/' + id + '.glb')) + '?v=146';
+    const url = (options.url || ('assets/characters/' + id + '.glb')) + '?v=147';
     const targetHeight = Number(options.height) || (id === 'mina' ? .95 : 1.75);
     const yaw = ((Number(options.yawDegrees) || 0) * Math.PI) / 180;
     const originalChildren = [...holder.children];

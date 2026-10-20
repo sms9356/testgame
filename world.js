@@ -4,11 +4,11 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { NOTES } from './story.js?v=168';
+import { NOTES } from './story.js?v=169';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=168';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=169';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -1760,18 +1760,18 @@ export function buildWorld(scene) {
   const mStairPlate = (() => { const c = document.createElement('canvas'); c.width = c.height = 128; const g = c.getContext('2d'); g.fillStyle = '#5a5c58'; g.fillRect(0, 0, 128, 128); g.fillStyle = '#7a7c76'; for (let y = 0; y < 128; y += 16) for (let x = (y / 16 % 2) * 8; x < 128; x += 16) { g.save(); g.translate(x + 4, y + 8); g.rotate(.7); g.fillRect(-5, -1.5, 10, 3); g.restore(); } const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.colorSpace = THREE.SRGBColorSpace; return grunge(new THREE.MeshStandardMaterial({ map: t, roughness: .5, metalness: .6 })); })();   // 줄무늬(체커) 철판
   const mStairNose = S(null, { color: 0xc8a030, roughness: .7 }), mRailSteel = grunge(S(T.makeMetal([70, 78, 74]), { roughness: .5, metalness: .5 }));
   function stairRoom(cx) {
-    // ㄷ자 계단 — 층고 FH(4m) = 1번 계단 10단(0.2m) 2.0m + 층참 + 2번 계단 10단 2.0m. 2번 계단 꼭대기가 위층 바닥과 정확히 같은 높이
+    // ㄷ자 계단 — 층고 FH(4m) = 1번 계단 10단(0.2m) 2.0m + 층참 + 2번 계단 10단 2.0m.
+    // 계단 하부(지하면/천장면)에 단차 블록이 절대 튀어나오지 않도록 L자형 디딤판(Tread 4cm) + 챌판(Riser 4cm) + 매끄러운 경사 슬래브(Soffit) 구조로 정밀 시공!
     const W = 1.3, xa = cx - 3.15, xb = cx - 1.85, n = 10, run = .48, LND = FH / 2, rise = LND / n, z0 = -3.0, zl = z0 - n * run;
-    const hx1 = cx - 2.55, hx2 = cx - 1.2, hz1 = zl - .1, hz2 = -2.9;
+    const hx1 = cx - 2.55, hx2 = cx - 1.2, hz1 = zl - .1, hz2 = -3.0;
     const hasDown = cur.annex ? cur.f > 8 : !cur.basement, hasUp = cur.annex ? cur.f < 10 : true;
     const L = Math.hypot(n * run, LND), th = Math.atan2(LND, n * run);
-    const mUnderSlab = S(null, { color: 0x78766e, roughness: .88 });
+    const mUnderSlab = S(null, { color: 0xd8d2c4, roughness: .85 });
 
-    const core = (dy, guard, top = false, solid = false) => {
+    const core = (dy, guard, top = false) => {
       const ci = cx - 2.5, co = cx - 1.22, H = .95;
       const hr = [], bal = [], P = (x, y1, z, y2 = y1 + H) => bal.push(tube(.012, x, y1, z, x, y2, z));
 
-      // 맨 위층(top === true, 예: 별관 3층)은 위층(4층)이 없으므로 허공에서 끊기는 반쪽 계단을 그리지 않고, 아래층 계단 개구부를 감싸는 3층 바닥 안전 난간만 설치한다!
       if (top) {
         if (guard) {
           hr.push(
@@ -1786,38 +1786,40 @@ export function buildWorld(scene) {
         return;
       }
 
-      // 계단 밑면에 검은 블록이 계단식으로 튀어나오지 않도록: 매끄러운 일체형 경사 슬래브(Smooth Inclined Soffit Slab) + 디딤판(Tread) + 챌판(Riser) 구조로 전면 재설계!
-      if (solid) {
-        for (let i = 0; i < n; i++) add(mStep, W, (i + 1) * rise, run, xa, dy, z0 - run * (i + .5));
-        add(mStep, 2.6, LND, 9.55 + zl, cx - 2.5, dy, (zl - 9.55) / 2);
-      } else {
-        // 1구간(xa: dy -> dy+LND) 매끄러운 일체형 경사 하부 슬래브
-        const sof1 = new THREE.Mesh(new THREE.BoxGeometry(W + .02, .15, L + .14), mUnderSlab);
-        sof1.rotation.x = th;
-        sof1.position.set(xa, dy + LND * .5 - .09, (z0 + zl) * .5);
-        cur.interior.add(sof1);
-        // 1구간 계단 디딤판(Tread) & 수직 챌판(Riser) 웨지
-        for (let i = 0; i < n; i++) {
-          const syTop = dy + (i + 1) * rise, sz = z0 - run * (i + .5);
-          add(mStep, W, rise + .02, run + .02, xa, syTop - rise - .02, sz);
-        }
-        // 중간 층참(Landing) 매끄러운 일체형 슬래브
-        add(mUnderSlab, 2.62, .22, 9.55 + zl, cx - 2.5, dy + LND - .24, (zl - 9.55) / 2);
-        add(mStep, 2.60, .04, 9.55 + zl, cx - 2.5, dy + LND - .02, (zl - 9.55) / 2);
-      }
-      // 2구간(xb: dy+LND -> dy+FH) 매끄러운 일체형 경사 하부 슬래브
+      // 1구간(xa: dy -> dy+LND) 매끄러운 일체형 경사 하부 슬래브 & L자형 디딤판/챌판 (하부 돌출 0.0mm!)
       {
-        const sof2 = new THREE.Mesh(new THREE.BoxGeometry(W + .02, .15, L + .14), mUnderSlab);
+        const sof1 = new THREE.Mesh(new THREE.BoxGeometry(W + .02, .14, L), mUnderSlab);
+        sof1.rotation.x = th;
+        sof1.position.set(xa, dy + LND * .5 - .12, (z0 + zl) * .5);
+        cur.interior.add(sof1);
+        for (let i = 0; i < n; i++) {
+          const syTop = dy + (i + 1) * rise, sz = z0 - run * (i + .5), zFront = z0 - run * i;
+          add(mStep, W, .04, run + .02, xa, syTop - .04, sz);
+          add(mStep, W, rise, .04, xa, syTop - rise, zFront - .02);
+        }
+      }
+      // 중간 층참(Landing, y = dy + LND) 매끄러운 하부 슬래브 & 상부 디딤 마감
+      add(mUnderSlab, 2.62, .20, 9.55 + zl + .06, cx - 2.5, dy + LND - .22, (zl - 9.55) / 2);
+      add(mStep, 2.6, .04, 9.55 + zl + .04, cx - 2.5, dy + LND - .02, (zl - 9.55) / 2);
+
+      // 2구간(xb: dy+LND -> dy+FH) 매끄러운 일체형 경사 하부 슬래브 & L자형 디딤판/챌판 (하부 돌출 0.0mm!)
+      {
+        const sof2 = new THREE.Mesh(new THREE.BoxGeometry(W + .02, .14, L), mUnderSlab);
         sof2.rotation.x = -th;
-        sof2.position.set(xb, dy + LND * 1.5 - .09, (z0 + zl) * .5);
+        sof2.position.set(xb, dy + LND * 1.5 - .12, (z0 + zl) * .5);
         if (dy < 0) sof2.userData.dynamic = true;
         cur.interior.add(sof2);
         for (let i = 0; i < n; i++) {
-          const stTop = dy + LND + (i + 1) * rise, sz = zl + run * (i + .5);
-          const m2 = add(mStep, W, rise + .02, run + .02, xb, stTop - rise - .02, sz);
-          if (dy < 0) m2.userData.dynamic = true;
+          const stTop = dy + LND + (i + 1) * rise, sz = zl + run * (i + .5), zFront = zl + run * i;
+          const t1 = add(mStep, W, .04, run + .02, xb, stTop - .04, sz);
+          const t2 = add(mStep, W, rise, .04, xb, stTop - rise, zFront + .02);
+          if (dy < 0) { t1.userData.dynamic = true; t2.userData.dynamic = true; }
         }
       }
+
+      // 1구간과 2구간 사이의 중앙 코어 마감 가벽 (계단 옆면 빈틈으로 어두운 뒷면이 보이지 않도록 깔끔히 마감)
+      add(mUnderSlab, .06, LND, n * run, ci, dy, (z0 + zl) * .5);
+
       const nos = [];
       for (let i = 0; i < n; i++) {
         nos.push(
@@ -1829,7 +1831,7 @@ export function buildWorld(scene) {
       }
       meshAt(merge(nos), mStairNose, 0, 0, 0);
 
-      // 난간: 허공(dy)으로 삐죽 내려오던 고드름 파이프를 제거하고 실제 층참 슬래브(dy + LND) 위에서만 기둥이 서도록 정밀 교정!
+      // 난간
       hr.push(tube(.03, ci, dy + H, z0, ci, dy + LND + H, zl));
       for (let k = 0; k <= 20; k++) {
         const t = k / 20;
@@ -1857,20 +1859,29 @@ export function buildWorld(scene) {
       cur.interior.add(new THREE.Mesh(merge(hr), mWoodDark), new THREE.Mesh(merge(bal), mRailSteel));
     };
 
-    const floorPiece = (x1, x2, z1, z2, y) => { const m = flat(cur.interior, y < 0 && cur.f === 0 ? mStep : mFloorTile, x1, x2, z1, z2, y); const uv = m.geometry.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) + x1 / 4, uv.getY(i) - z2 / 4); return m; };
-    const cw = cx - 3.85, curWallF = curWall;
+    const floorPiece = (x1, x2, z1, z2, y) => { const m = flat(cur.interior, mFloorTile, x1, x2, z1, z2, y); const uv = m.geometry.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) + x1 / 4, uv.getY(i) - z2 / 4); return m; };
+    const cw = cx - 3.85;
     if (hasDown) { floorPiece(cx - 4, cw, -9.6, -1.75, 0); floorPiece(hx2, cx + 4, -9.6, -1.75, 0); floorPiece(cw, hx2, hz2, -1.75, 0); }
     else floorPiece(cx - 4, cx + 4, -9.6, -1.75, 0);
-    core(0, hasDown, !hasUp, !hasDown);
+    core(0, hasDown, !hasUp);
 
-    const liner = (y1, y2) => { const h = y2 - y1, y = (y1 + y2) / 2;
-      meshAt(merge([bx(.02, h, hz2 + 9.6, hx2 + .01, y, (hz2 - 9.6) / 2), bx(hx2 - cw, h, .12, (cw + hx2) / 2, y, hz2 - .04)]), mShaft, 0, 0, 0); };
+    const liner = (y1, y2) => {
+      const h = y2 - y1, y = (y1 + y2) / 2;
+      meshAt(merge([
+        bx(.04, h, hz2 + 9.6, hx2 + .02, y, (hz2 - 9.6) / 2),
+        bx(hx2 - cw, h, .04, (cw + hx2) / 2, y, hz2 + .02)
+      ]), mUnderSlab, 0, 0, 0);
+    };
 
     const room = (dy) => {
-      const curWall = dy < 0 && cur.f === 0 ? mBase : curWallF;
-      cur.interior.add(boxMesh(cx - 4.15, cx - 3.85, dy, dy + FH, -9.9, -1.75, curWall), boxMesh(cx - 4.15, cx + 4.15, dy, dy + FH, -9.9, -9.6, curWall), boxMesh(cx + 3.85, cx + 4.15, dy, dy + FH, -9.9, -1.75, curWall),
-        boxMesh(cx - 4.15, cx - 1, dy, dy + CH, -1.75, -1.45, curWall), boxMesh(cx + 1, cx + 4.15, dy, dy + CH, -1.75, -1.45, curWall), boxMesh(cx - 1, cx + 1, dy + 2.4, dy + CH, -1.75, -1.45, curWall),
-        boxMesh(cx - 4.15, cx + 4.15, dy, dy + CH, 1.45, 1.75, curWall));
+      const wMat = mWall;
+      buildLayered1998Wall(cur.interior, cx - 4.15, cx - 3.85, -9.9, -1.75, dy, dy + FH, wMat);
+      buildLayered1998Wall(cur.interior, cx - 4.15, cx + 4.15, -9.9, -9.6, dy, dy + FH, wMat);
+      buildLayered1998Wall(cur.interior, cx + 3.85, cx + 4.15, -9.9, -1.75, dy, dy + FH, wMat);
+      buildLayered1998Wall(cur.interior, cx - 4.15, cx - 1, -1.75, -1.45, dy, dy + CH, wMat);
+      buildLayered1998Wall(cur.interior, cx + 1, cx + 4.15, -1.75, -1.45, dy, dy + CH, wMat);
+      buildLayered1998Wall(cur.interior, cx - 1, cx + 1, -1.75, -1.45, dy + 2.4, dy + CH, wMat);
+      buildLayered1998Wall(cur.interior, cx - 4.15, cx + 4.15, 1.45, 1.75, dy, dy + CH, wMat);
       add(mWoodDark, .1, 2.4, .36, cx - 1.0, dy, -1.6); add(mWoodDark, .1, 2.4, .36, cx + 1.0, dy, -1.6);
       flat(cur.interior, mCeil, cx - 4.15, cx + 4.15, -1.75, 1.45, dy + CH, 4, false);
       floorPiece(cx - 4.15, cx + 4.15, -1.45, 1.45, dy);
@@ -1880,17 +1891,17 @@ export function buildWorld(scene) {
       }
     };
 
-    { const cx1 = cx - 3.85; meshAt(merge([bx(.02, FH - CH, -2.9 + 9.6, hx2 + .01, (CH + FH) / 2, (-9.6 - 2.9) / 2), bx(hx2 - cx1, FH - CH, .12, (cx1 + hx2) / 2, (CH + FH) / 2, -2.94)]), mShaft, 0, 0, 0); }
-    cur.interior.add(boxMesh(cx - 4.15, cx - 3.85, CH, FH, -9.9, -1.75, curWall), boxMesh(cx - 4.15, cx + 4.15, CH, FH, -9.9, -9.6, curWall), boxMesh(cx - 4.15, cx - 1, CH, FH, -1.75, -1.45, curWall));
+    { const cx1 = cx - 3.85; meshAt(merge([bx(.04, FH - CH, -3.0 + 9.6, hx2 + .02, (CH + FH) / 2, (-9.6 - 3.0) / 2), bx(hx2 - cx1, FH - CH, .04, (cx1 + hx2) / 2, (CH + FH) / 2, -2.98)]), mUnderSlab, 0, 0, 0); }
+    cur.interior.add(boxMesh(cx - 4.15, cx - 3.85, CH, FH, -9.9, -1.75, mPlaster98), boxMesh(cx - 4.15, cx + 4.15, CH, FH, -9.9, -9.6, mPlaster98), boxMesh(cx - 4.15, cx - 1, CH, FH, -1.75, -1.45, mPlaster98));
     if (hasUp && !cur.annex && cur.f === 2) {
-      const TH = 2.8, zs = -2.85, wm = curWall;
+      const TH = 2.8, zs = -2.85, wm = mPlaster98;
       cur.interior.add(boxMesh(cx - 4.15, cx - 3.85, FH, FH + TH, -9.9, zs + .2, wm), boxMesh(cx - 4.15, hx2 + .2, FH, FH + TH, -9.9, -9.6, wm), boxMesh(hx2, hx2 + .2, FH - (FH - CH), FH + TH, -9.9, zs + .2, wm),
-        boxMesh(cx - 3.85, cx - 2.5, FH, FH + TH, zs, zs + .2, wm), boxMesh(cx - 2.5, hx2, FH + 2.25, FH + TH, zs, zs + .2, wm), boxMesh(cx - 4.15, hx2 + .2, FH + TH, FH + TH + .2, -9.9, zs + .2, mShaft));
+        boxMesh(cx - 3.85, cx - 2.5, FH, FH + TH, zs, zs + .2, wm), boxMesh(cx - 2.5, hx2, FH + 2.25, FH + TH, zs, zs + .2, wm), boxMesh(cx - 4.15, hx2 + .2, FH + TH, FH + TH + .2, -9.9, zs + .2, mUnderSlab));
       const rl = [tube(.03, cx - 2.5, FH + .95, zs, cx - 2.5, FH + .95, zl)]; for (let k = 0; k <= 8; k++) rl.push(tube(.012, cx - 2.5, FH, zs - k * (zs - zl) / 8, cx - 2.5, FH + .95, zs - k * (zs - zl) / 8));
       cur.interior.add(new THREE.Mesh(merge(rl), mRailSteel));
-    } else if (hasUp) { core(FH, true, !!cur.annex && cur.f === 9, false); room(FH); flat(cur.interior, mCeil, cx - 4, cx + 4, -9.6, -1.75, FH + CH, 4, false); }
+    } else if (hasUp) { core(FH, true, !!cur.annex && cur.f === 9); room(FH); flat(cur.interior, mCeil, cx - 4, cx + 4, -9.6, -1.75, FH + CH, 4, false); }
     else flat(cur.interior, mCeil, cx - 4, cx + 4, -9.6, -1.75, CH, 4, false);
-    if (hasDown) { liner(-(FH - CH), 0); core(-FH, false, false, cur.annex ? cur.f === 9 : cur.f === 0); room(-FH); floorPiece(cx - 4, cx + 4, -9.6, -1.75, -FH); }
+    if (hasDown) { liner(-(FH - CH), 0); core(-FH, false, false); room(-FH); floorPiece(cx - 4, cx + 4, -9.6, -1.75, -FH); }
     if (!hasUp) {
       col(cx - 3.85, cx - 2.45, z0 - .15, z0 + .15);
     }
@@ -1906,14 +1917,12 @@ export function buildWorld(scene) {
     } else if (!cur.basement) win3D(cur.interior, 1.7, 1.8, cx + 1.0, 1.9, -9.58);
     const sg2 = new THREE.MeshBasicMaterial({ map: T.makeSign(cur.f === 4 ? '▲ 1층 올라가는 계단' : (cur.f === 10 ? '▼ 아래층 내려가는 계단' : '▲ 위층   ▼ 아래층'), '#1e2a2e', '#d9e4d0', 24), color: 0x9aa59a });
     plane(cur.interior, sg2, 1.25, .32, cx - 3.83, 2.35, -2.35, Math.PI / 2);
-    // 낡은 소방 장비
     model('korean_fire_extinguisher_01', cx + 1.65, 0, -3.0, -Math.PI / 2); model('korean_fire_extinguisher_01', cx + 1.65, 0, -3.4, -Math.PI / 2 + .3);
-    if (cur.basement) {   // A01 진입 계단실: 층 안내판 · 계단참 표시 · 보안 카메라
+    if (cur.basement) {
       plane(cur.interior, new THREE.MeshStandardMaterial({ map: T.makeSign('B1  설비 · 창고 · 기록', '#1e2a2e', '#d9e4d0', 22), roughness: .8 }), 1.4, .35, cx + 2.025, 1.7, -4.5, -Math.PI / 2);
       plane(cur.interior, new THREE.MeshStandardMaterial({ map: T.makeSign('B1', '#c8a020', '#1a1a1a', 40), roughness: .8 }), .5, .3, cx - 2.5, 2.6, -9.56);
       cctv(cx + 1.85, CH, -9.3, -Math.PI * .25, {label:'B1 · 진입 계단실'});
     }
-    /* 계단 개구부 허공에 떠 있던 종이 쓰레기 제거 */
   }
 
   /* ---------- 방송실 · 지하층 방 가구 ---------- */

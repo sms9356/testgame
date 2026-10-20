@@ -6,19 +6,19 @@ import { createPsychologicalDirector, PHENOMENON_LABELS } from './psychologicalH
 import { settleStoryGhost, tickStoryGhost, showStoryGhost } from './storyGhost.js';
 import { GLTFLoader } from './vendor/addons/loaders/GLTFLoader.js';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { createNPCVisuals } from './npcVisuals.js?v=166';
-import { applyGuardSeatedPose } from './guardSeatedPose.js?v=166';
+import { createNPCVisuals } from './npcVisuals.js?v=167';
+import { applyGuardSeatedPose } from './guardSeatedPose.js?v=167';
 import { createCampusCctvLive, collectCampusCctvFeeds } from './campusCctvLive.js';
-import { applyExteriorFloorVisibility, shouldStreamGuardCctv } from './exteriorRenderBudget.js?v=166';
-import { GUARD_LAYOUT } from './guardRoomLayout.js?v=166';
-import { installGuardRoom } from './guardRoom.js?v=166';
+import { applyExteriorFloorVisibility, shouldStreamGuardCctv } from './exteriorRenderBudget.js?v=167';
+import { GUARD_LAYOUT } from './guardRoomLayout.js?v=167';
+import { installGuardRoom } from './guardRoom.js?v=167';
 import { prepareModelGeometry } from './modelGeometry.js';
 import { modelFootprint, overlaps, removeDuplicateModels } from './placement.js';
-import { turfMaterial } from './campusVisuals.js?v=166';
+import { turfMaterial } from './campusVisuals.js?v=167';
 import { installInfirmaryAssets, updateInfirmaryCabinets } from './infirmaryAssets.js';
-import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js?v=166'; import { updateWindowFakes } from './windowInteriors.js?v=166';
-import { drawMap } from './map.js?v=166';
-import { buildMegaCampus15000, MEGA_CAMPUS_ZONES } from './megaCampus15000.js?v=166';
+import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js?v=167'; import { updateWindowFakes } from './windowInteriors.js?v=167';
+import { drawMap } from './map.js?v=167';
+import { buildMegaCampus15000, MEGA_CAMPUS_ZONES } from './megaCampus15000.js?v=167';
 import { makeDress, makeHair, makeGhostFace, makeGraffiti, makeKeypad, loadPBR, pbr, makeGlow as makeGlowTex, makePaintingStare, makeSign, makeBlood } from './tex.js';
 import { warmUp } from './bake.js';
 import { createStaticDistanceLOD } from './staticDistanceLOD.js';
@@ -39,12 +39,12 @@ import './school37RoomsPatch.js';    // 본관 · 별관 37개 특별실 가구 
 import './new37UniquePatch.js';     // 37개 구역 신규 특수 설비 · 벽면 레일 (사용자 제공) → window.new37UniquePatch
 import './megaExpansionPatch.js';   // 메가 익스팬션 · 최적화 · 4막 사건 기록 · 수집품 · 미니게임 (사용자 제공) → window.megaSchoolPatch
 import './poolMachineryPatch.js';     // 수영장 · 남/녀 탈의실·샤워실 · 기계실 철문 (사용자 제공) → window.poolAndMachineryPatch
-import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx } from './audio.js?v=166'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=166'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera } from './perfStabilizer.js?v=166';
-import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js?v=166';
-import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, SIDEQUESTS, HEADQUEST, COLLECT, LOCKER_SCARES, CHALK_QA, OUIJA_QS, PARA, TOILET_FX, MIRROR_WORDS } from './story.js?v=166';
+import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx } from './audio.js?v=167'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=167'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera } from './perfStabilizer.js?v=167';
+import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js?v=167';
+import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, SIDEQUESTS, HEADQUEST, COLLECT, LOCKER_SCARES, CHALK_QA, OUIJA_QS, PARA, TOILET_FX, MIRROR_WORDS } from './story.js?v=167';
 import { isSpeechBusy } from './voice.js';
 import { SET, saveSET, resetSET, DIFF, keyLabel } from './settings.js';
-import { initI18n, setLang, lang as curLang } from './i18n.js?v=166';   // 언어 패치 (한국어 · English · 日本語 · 中文)
+import { initI18n, setLang, lang as curLang } from './i18n.js?v=167';   // 언어 패치 (한국어 · English · 日本語 · 中文)
 initI18n();
 const K = () => SET.keys;
 let guardRoomController = null, guardControlProps = [], guardCctvData = null, campusCctv = null;
@@ -60,7 +60,7 @@ function syncGuardDevices() {
 function toggleGuardCCTV(persist = true) { FL.guardCctvOn = !(FL.guardCctvOn ?? true); sfx.click(); syncGuardDevices(); if (persist) save(true); return FL.guardCctvOn; }
 function toggleGuardLight() { FL.guardLightOn = !(FL.guardLightOn ?? false); sfx.click(); syncGuardDevices(); say(FL.guardLightOn ? '경비실 전등을 켰다' : '경비실 전등을 껐다', 1800); save(true); return FL.guardLightOn; }
 
-import { run as runMini, MG } from './minigames.js?v=166';
+import { run as runMini, MG } from './minigames.js?v=167';
 import { SCHEMA, BUILD, storageKeys, itemUid, propUid, doorUid, assignUids, readSlot, writeSlot, hasSlot, clearSlot, repairProgress } from './saveSystem.js';
 const NOTE_CAST = {
   n_seomun_ilbo: { spk: 'reporter', audioId: 'call_119', stage: '(📰 서문일보 사회부 한진우 기자의 긴급 특보 리포팅)' },
@@ -2658,7 +2658,7 @@ function ensureCharsel3D() {
     const rim = new THREE.DirectionalLight(0xffd6e0, 0.85); rim.position.set(0, 2.4, -2.5);
     sc.add(hemi, key, fill, rim);
     st.scenes[k] = sc;
-    loader.load(`assets/characters/${k}.glb?v=166`, gltf => {
+    loader.load(`assets/characters/${k}.glb?v=167`, gltf => {
       const m = gltf.scene;
       npcVisuals.enhanceCharacterMaterials?.(m, k);
       m.traverse(o => { if (o.isMesh || o.isSkinnedMesh) o.frustumCulled = false; });
@@ -2844,7 +2844,42 @@ function updatePlayer(dt) {
   if (P.battery > 0) P.phoneLight = false;
 }
 
+function updateSupernaturalChalkboards(dt) {
+  if (state !== 'playing') return;
+  const f = P.floor;
+  if (f < 0 || f > 2) return;
+  const room = roomAt(f, P.x, P.z);
+  if (!room || room.type !== 'class') return;
+  const key = 'cls' + f + ':' + room.cx + (room.south ? 's' : '');
+  const br = world.boardRefs[key];
+  if (!br || !br.mat || !br.targetLines || br.done) return;
+  const bz = room.south ? 9.5 : -9.5;
+  const dist = Math.hypot(P.x - room.cx, P.z - bz);
+  if (!br.writing && dist < 7.2) {
+    br.writing = true;
+    br.timer = 0.15;
+    caption('사각… 사각… 칠판 위에 보이지 않는 손이 분필로 글씨를 써 내려간다…');
+  }
+  if (br.writing) {
+    br.timer -= dt;
+    if (br.timer <= 0) {
+      br.timer = 0.13;
+      br.writtenChars = (br.writtenChars || 0) + 1;
+      const fullStr = br.targetLines.join('\n');
+      const curStr = fullStr.slice(0, br.writtenChars);
+      const partialLines = curStr.split('\n');
+      br.mat.map = world.makeBoardTex(partialLines, { seed: br.seed });
+      br.mat.needsUpdate = true;
+      if (br.writtenChars % 2 === 1 && sfx.pick) sfx.pick();
+      if (br.writtenChars >= fullStr.length) {
+        br.done = true;
+        br.writing = false;
+      }
+    }
+  }
+}
 function updateGate(dt) {
+  updateSupernaturalChalkboards(dt);
   if (gateState === 'closing') { gateAnim = Math.min(1, gateAnim + dt / .9); gate.setOpen(1 - easeOut(gateAnim)); if (gateAnim >= 1) { gateState = 'closed'; gate.setOpen(0); } }
   else if (gateState === 'opening') { gateAnim = Math.max(0, gateAnim - dt / 3); gate.setOpen(1 - easeOut(gateAnim)); }
   gate.lockParts.forEach(m => { m.visible = gateState === 'closed'; });
@@ -4498,32 +4533,252 @@ const sqProps = [];
     }
     const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; return t;
   })();
+  const mkLabelTex = (bg, border, title, sub, lines = []) => {
+    const cv = document.createElement('canvas'); cv.width = 256; cv.height = 320;
+    const ctx = cv.getContext('2d');
+    ctx.fillStyle = bg; ctx.fillRect(0, 0, 256, 320);
+    ctx.strokeStyle = border; ctx.lineWidth = 8; ctx.strokeRect(8, 8, 240, 304);
+    ctx.fillStyle = border; ctx.fillRect(20, 24, 216, 44);
+    ctx.fillStyle = '#f8f2e4'; ctx.font = 'bold 20px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(title, 128, 53);
+    ctx.fillStyle = '#2b241c'; ctx.font = 'bold 15px sans-serif';
+    ctx.fillText(sub, 128, 96);
+    ctx.strokeStyle = 'rgba(60,50,40,0.35)'; ctx.lineWidth = 2;
+    for (let i = 0; i < 7; i++) {
+      const y = 126 + i * 24;
+      ctx.beginPath(); ctx.moveTo(28, y); ctx.lineTo(228, y); ctx.stroke();
+      if (lines[i]) {
+        ctx.fillStyle = '#3a2e22'; ctx.font = '13px sans-serif'; ctx.textAlign = 'left';
+        ctx.fillText(lines[i], 32, y - 5);
+      }
+    }
+    const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; return t;
+  };
+  const bookCoverTex = mkLabelTex('#4e2022', '#d4af37', '1998 학급 출석부', '서문고등학교 제3학년', ['담임 : 정 은 수', '학급 인원 : 36명', '10월 13일 : 윤하늘']);
+  const docSheetTex = mkLabelTex('#f3ebd8', '#3c4e5c', '1998 방송부 기록서', '창립 30주년 기념방송', ['일시 : 1998. 10. 12', '장소 : 3층 방송실 / B1', '담당 : 3-2 윤하늘']);
+  const letterEnvTex = mkLabelTex('#f6efe0', '#8c3b32', '하늘이 어머님께', '3학년 2반 담임 정은수 올림', ['학교의 발표는 사실이', '아닙니다. 하늘이는', '그날 밤 학교에 있었습니다.']);
+
+  // 받침대 상판 높이 = 0.472m 에 모든 오브젝트 바닥이 오차 0.0mm 로 완벽히 밀착되도록 설계 (공중부양 · 깨진 블록 현상 100% 제거!)
+  const TOP_Y = 0.472;
   const LOOK = {
     board: () => {
       const g = new THREE.Group();
-      const frame = new THREE.Mesh(new THREE.BoxGeometry(.56, .42, .03), M(0x3b2414, { roughness: .55 }));
-      frame.position.y = .68; frame.rotation.x = -.22; g.add(frame);
-      const face = new THREE.Mesh(new THREE.PlaneGeometry(.50, .36), new THREE.MeshStandardMaterial({ map: boardTex98, roughness: .65 }));
-      face.position.set(0, .682, .017); face.rotation.x = -.22; g.add(face);
-      const leg = new THREE.Mesh(new THREE.BoxGeometry(.04, .38, .03), M(0x3b2414));
-      leg.position.set(0, .62, -.09); leg.rotation.x = .28; g.add(leg);
+      // 하단 원목 받침대 베이스 (상판 위에 단단히 고정!)
+      const base = new THREE.Mesh(new THREE.BoxGeometry(.44, .03, .16), M(0x3b2414, { roughness: .5 }));
+      base.position.set(0, TOP_Y + .015, 0); g.add(base);
+      [-0.16, 0.16].forEach(px => {
+        const post = new THREE.Mesh(new THREE.BoxGeometry(.035, .10, .035), M(0x3b2414));
+        post.position.set(px, TOP_Y + .06, 0); g.add(post);
+      });
+      // 정면 수직 원목 프레임 + 개근 스티커판 캔버스 텍스처 (기울어져 깨져 보이지 않도록 깔끔한 수직 스탠드형!)
+      const frame = new THREE.Mesh(new THREE.BoxGeometry(.54, .38, .032), M(0x3b2414, { roughness: .5 }));
+      frame.position.set(0, TOP_Y + .25, 0); g.add(frame);
+      const face = new THREE.Mesh(new THREE.PlaneGeometry(.49, .33), new THREE.MeshStandardMaterial({ map: boardTex98, roughness: .6 }));
+      face.position.set(0, TOP_Y + .25, .018); g.add(face);
+      const faceBack = new THREE.Mesh(new THREE.PlaneGeometry(.49, .33), new THREE.MeshStandardMaterial({ map: boardTex98, roughness: .6 }));
+      faceBack.position.set(0, TOP_Y + .25, -.018); faceBack.rotation.y = Math.PI; g.add(faceBack);
       return g;
     },
-    book: () => { const m = new THREE.Mesh(new THREE.BoxGeometry(.24, .05, .32), M(0x6a2a2a)); m.position.y = .5; return m; },
-    tape: () => { const m = new THREE.Mesh(new THREE.BoxGeometry(.12, .02, .08), M(0x1a1a1c)); m.position.y = .49; return m; },
-    deck: () => { const m = new THREE.Mesh(new THREE.BoxGeometry(.4, .14, .26), M(0x2a2b2e, { metalness: .4 })); m.position.y = .55; return m; },
-    letter: () => { const m = new THREE.Mesh(new THREE.BoxGeometry(.24, .01, .16), M(0xe8e0cc)); m.position.y = .49; return m; },
-    paper: () => { const m = new THREE.Mesh(new THREE.BoxGeometry(.24, .02, .32), M(0xd8d0bc)); m.position.y = .49; return m; },
-    drawer: () => { const m = new THREE.Mesh(new THREE.BoxGeometry(.5, .4, .45), M(0x4a4e50, { metalness: .5 })); m.position.y = .68; return m; },
-    box: () => { const m = new THREE.Mesh(new THREE.BoxGeometry(.4, .3, .3), M(0x5a6a5a, { metalness: .3 })); m.position.y = .63; return m; },
-    monitor: () => { const g = new THREE.Group(), m = new THREE.Mesh(new THREE.BoxGeometry(.4, .3, .25), M(0xc8bfa8)); m.position.y = .63; const sc = new THREE.Mesh(new THREE.PlaneGeometry(.32, .22), new THREE.MeshBasicMaterial({ color: 0x5a8ad0 })); sc.position.set(0, .64, .126); g.add(m, sc); return g; },
-    photo: () => { const m = new THREE.Mesh(new THREE.BoxGeometry(.2, .01, .15), M(0xc8b890)); m.position.y = .49; return m; },
-    flower: () => { const g = new THREE.Group(); for (let i = 0; i < 3; i++) { const st = new THREE.Mesh(new THREE.CylinderGeometry(.006, .006, .3, 5), M(0x3a6a2a)); st.position.set(i * .03 - .03, .15, 0); const fl = new THREE.Mesh(new THREE.SphereGeometry(.03, 8, 6), M(0xe8e0f0)); fl.position.set(i * .03 - .03, .31, 0); g.add(st, fl); } return g; },
-    post: () => { const g = new THREE.Group(), b = new THREE.Mesh(new THREE.BoxGeometry(.4, .5, .3), M(0xb02018)); b.position.y = 1.0; const pole = new THREE.Mesh(new THREE.CylinderGeometry(.03, .03, .75, 8), M(0x2a2a2a)); pole.position.y = .375; g.add(b, pole); return g; },
-    plaque: () => { const g = new THREE.Group(), st = new THREE.Mesh(new THREE.BoxGeometry(.9, .7, .3), M(0x8a8478, { roughness: .95 })); st.position.y = .35; const pl = new THREE.Mesh(new THREE.BoxGeometry(.6, .4, .02), M(0x8a6a38, { metalness: .7, roughness: .45 })); pl.position.set(0, .42, .16); g.add(st, pl); return g; },
-    panel: () => { const g = new THREE.Group(), b = new THREE.Mesh(new THREE.BoxGeometry(.5, .7, .16), M(0x7a8078, { metalness: .5, roughness: .55 })); b.position.y = 1.35; const d = new THREE.Mesh(new THREE.BoxGeometry(.44, .62, .02), M(0x9aa098, { metalness: .5, roughness: .5 })); d.position.set(0, 1.35, .09); const w = new THREE.Mesh(new THREE.BoxGeometry(.18, .02, .02), M(0xe0c020)); w.position.set(0, 1.62, .1); g.add(b, d, w); return g; },
-    case: () => { const g = new THREE.Group(), base = new THREE.Mesh(new THREE.BoxGeometry(1.0, .8, .6), M(0x3a2c22, { roughness: .6 })); base.position.y = .4; const gl = new THREE.Mesh(new THREE.BoxGeometry(.96, .5, .56), new THREE.MeshStandardMaterial({ color: 0xbfd8e0, roughness: .05, metalness: .1, transparent: true, opacity: .22, depthWrite: false })); gl.position.y = 1.06; const km = M(0xc8a050, { metalness: .9, roughness: .3 }), key = new THREE.Mesh(new THREE.TorusGeometry(.06, .015, 8, 20), km); key.position.set(0, .9, 0); key.rotation.x = Math.PI / 2; const shaft = new THREE.Mesh(new THREE.BoxGeometry(.14, .012, .02), km); shaft.position.set(.12, .9, 0); const pad = new THREE.Mesh(new THREE.BoxGeometry(.12, .16, .03), M(0x202428, { emissive: 0x30ff60, emissiveIntensity: .25 })); pad.position.set(.38, .6, .31); g.add(base, gl, key, shaft, pad); g.userData.key = [key, shaft]; return g; },
-    lamp: () => { const g = new THREE.Group(), b = new THREE.Mesh(new THREE.BoxGeometry(.36, .16, .1), M(0xd8d4c4)); b.position.y = 2.2; const h = new THREE.Mesh(new THREE.BoxGeometry(.3, .08, .04), sqLampMat); h.position.set(0, 2.18, .06); g.add(b, h); return g; },
+    book: () => {
+      const g = new THREE.Group();
+      const pages = new THREE.Mesh(new THREE.BoxGeometry(.25, .042, .33), M(0xf2ead8, { roughness: .85 }));
+      pages.position.set(.006, TOP_Y + .024, 0); g.add(pages);
+      const covBot = new THREE.Mesh(new THREE.BoxGeometry(.265, .008, .345), M(0x4e2022, { roughness: .6 }));
+      covBot.position.set(0, TOP_Y + .004, 0); g.add(covBot);
+      const covTop = new THREE.Mesh(new THREE.BoxGeometry(.265, .008, .345), new THREE.MeshStandardMaterial({ map: bookCoverTex, roughness: .55 }));
+      covTop.position.set(0, TOP_Y + .046, 0); g.add(covTop);
+      const spine = new THREE.Mesh(new THREE.BoxGeometry(.016, .050, .345), M(0x361416, { roughness: .5 }));
+      spine.position.set(-.126, TOP_Y + .025, 0); g.add(spine);
+      const ribbon = new THREE.Mesh(new THREE.BoxGeometry(.018, .004, .09), M(0xb82420));
+      ribbon.position.set(.04, TOP_Y + .01, .19); g.add(ribbon);
+      return g;
+    },
+    tape: () => {
+      const g = new THREE.Group();
+      const shell = new THREE.Mesh(new THREE.BoxGeometry(.18, .026, .115), M(0x222428, { roughness: .4, metalness: .3 }));
+      shell.position.set(0, TOP_Y + .013, 0); g.add(shell);
+      const label = new THREE.Mesh(new THREE.BoxGeometry(.15, .004, .075), M(0xebe2cc));
+      label.position.set(0, TOP_Y + .027, -.006); g.add(label);
+      const stripe = new THREE.Mesh(new THREE.BoxGeometry(.15, .005, .018), M(0xc83828));
+      stripe.position.set(0, TOP_Y + .0275, -.026); g.add(stripe);
+      [-.042, .042].forEach(rx => {
+        const reel = new THREE.Mesh(new THREE.CylinderGeometry(.018, .018, .030, 12), M(0xf0f0f0));
+        reel.position.set(rx, TOP_Y + .014, 0); g.add(reel);
+      });
+      return g;
+    },
+    deck: () => {
+      const g = new THREE.Group();
+      const body = new THREE.Mesh(new THREE.BoxGeometry(.42, .11, .28), M(0x282c32, { roughness: .42, metalness: .45 }));
+      body.position.set(0, TOP_Y + .055, 0); g.add(body);
+      const faceplate = new THREE.Mesh(new THREE.BoxGeometry(.38, .08, .012), M(0x181a1e, { metalness: .3 }));
+      faceplate.position.set(0, TOP_Y + .058, .142); g.add(faceplate);
+      const well = new THREE.Mesh(new THREE.BoxGeometry(.16, .06, .016), M(0x3a4652, { roughness: .2 }));
+      well.position.set(-.08, TOP_Y + .06, .144); g.add(well);
+      [-0.02, 0.015, 0.05, 0.085].forEach((bx, i) => {
+        const btn = new THREE.Mesh(new THREE.BoxGeometry(.026, .018, .024), M(i === 0 ? 0xc83228 : 0x9aa2a8, { metalness: .5 }));
+        btn.position.set(bx, TOP_Y + .018, .148); g.add(btn);
+      });
+      [0.12, 0.16].forEach(kx => {
+        const knob = new THREE.Mesh(new THREE.CylinderGeometry(.016, .016, .022, 12), M(0xd0d4d8, { metalness: .7 }));
+        knob.rotation.x = Math.PI / 2; knob.position.set(kx, TOP_Y + .065, .148); g.add(knob);
+      });
+      return g;
+    },
+    letter: () => {
+      const g = new THREE.Group();
+      const pad = new THREE.Mesh(new THREE.BoxGeometry(.30, .012, .22), M(0x523622, { roughness: .65 }));
+      pad.position.set(0, TOP_Y + .006, 0); g.add(pad);
+      const sheet = new THREE.Mesh(new THREE.BoxGeometry(.25, .008, .18), new THREE.MeshStandardMaterial({ map: letterEnvTex, roughness: .75 }));
+      sheet.position.set(-.01, TOP_Y + .016, 0); g.add(sheet);
+      const seal = new THREE.Mesh(new THREE.CylinderGeometry(.018, .018, .006, 12), M(0xa8201a, { roughness: .4 }));
+      seal.position.set(.06, TOP_Y + .022, .03); g.add(seal);
+      return g;
+    },
+    paper: () => {
+      const g = new THREE.Group();
+      // 원목 클립보드 + 금속 집게 + 인쇄 문서 시트
+      const board = new THREE.Mesh(new THREE.BoxGeometry(.28, .014, .36), M(0x6e4726, { roughness: .55 }));
+      board.position.set(0, TOP_Y + .007, 0); g.add(board);
+      const doc = new THREE.Mesh(new THREE.BoxGeometry(.24, .008, .31), new THREE.MeshStandardMaterial({ map: docSheetTex, roughness: .75 }));
+      doc.position.set(0, TOP_Y + .017, .01); g.add(doc);
+      const clip = new THREE.Mesh(new THREE.BoxGeometry(.09, .022, .035), M(0xb8c0c8, { metalness: .8, roughness: .25 }));
+      clip.position.set(0, TOP_Y + .024, -.145); g.add(clip);
+      return g;
+    },
+    drawer: () => {
+      const g = new THREE.Group();
+      // 바닥에서부터 서 있는 2단 철제 서류 캐비닛 (보조 스툴 없이 자체 바닥 스탠딩!)
+      const cab = new THREE.Mesh(new THREE.BoxGeometry(.48, .68, .44), M(0x485258, { roughness: .45, metalness: .55 }));
+      cab.position.set(0, .34, 0); g.add(cab);
+      [0.19, 0.51].forEach(dy => {
+        const front = new THREE.Mesh(new THREE.BoxGeometry(.43, .26, .018), M(0x56626a, { roughness: .4, metalness: .5 }));
+        front.position.set(0, dy, .222); g.add(front);
+        const handle = new THREE.Mesh(new THREE.BoxGeometry(.11, .022, .028), M(0xc8d0d8, { metalness: .85, roughness: .2 }));
+        handle.position.set(0, dy + .02, .236); g.add(handle);
+        const tag = new THREE.Mesh(new THREE.BoxGeometry(.09, .032, .006), M(0xf0ead8));
+        tag.position.set(0, dy + .075, .232); g.add(tag);
+      });
+      return g;
+    },
+    box: () => {
+      const g = new THREE.Group();
+      const body = new THREE.Mesh(new THREE.BoxGeometry(.38, .22, .28), M(0x5c3d24, { roughness: .55 }));
+      body.position.set(0, TOP_Y + .11, 0); g.add(body);
+      const lid = new THREE.Mesh(new THREE.BoxGeometry(.40, .035, .30), M(0x422a17, { roughness: .5 }));
+      lid.position.set(0, TOP_Y + .235, 0); g.add(lid);
+      const clasp = new THREE.Mesh(new THREE.BoxGeometry(.06, .05, .018), M(0xd4af37, { metalness: .8, roughness: .3 }));
+      clasp.position.set(0, TOP_Y + .21, .148); g.add(clasp);
+      const plate = new THREE.Mesh(new THREE.BoxGeometry(.18, .045, .008), M(0xf2ead4));
+      plate.position.set(0, TOP_Y + .12, .143); g.add(plate);
+      return g;
+    },
+    monitor: () => {
+      const g = new THREE.Group();
+      const base = new THREE.Mesh(new THREE.BoxGeometry(.32, .035, .26), M(0xc2b9a3, { roughness: .6 }));
+      base.position.set(0, TOP_Y + .0175, 0); g.add(base);
+      const neck = new THREE.Mesh(new THREE.CylinderGeometry(.06, .08, .05, 12), M(0xb4ab96));
+      neck.position.set(0, TOP_Y + .055, -.02); g.add(neck);
+      const crt = new THREE.Mesh(new THREE.BoxGeometry(.38, .31, .28), M(0xc8bfa8, { roughness: .55 }));
+      crt.position.set(0, TOP_Y + .22, 0); g.add(crt);
+      const bezel = new THREE.Mesh(new THREE.BoxGeometry(.34, .26, .016), M(0x22262a));
+      bezel.position.set(0, TOP_Y + .225, .138); g.add(bezel);
+      const sc = new THREE.Mesh(new THREE.PlaneGeometry(.30, .22), new THREE.MeshBasicMaterial({ color: 0x3b78c4 }));
+      sc.position.set(0, TOP_Y + .225, .148); g.add(sc);
+      const kb = new THREE.Mesh(new THREE.BoxGeometry(.34, .022, .12), M(0xcbc2ac));
+      kb.position.set(0, TOP_Y + .011, .16); g.add(kb);
+      return g;
+    },
+    photo: () => {
+      const g = new THREE.Group();
+      // 원목 사진 액자 스탠드 + 폴라로이드 사진 프레임
+      const frame = new THREE.Mesh(new THREE.BoxGeometry(.24, .28, .022), M(0x422a18, { roughness: .5 }));
+      frame.position.set(0, TOP_Y + .14, 0); frame.rotation.x = -.12; g.add(frame);
+      const border = new THREE.Mesh(new THREE.BoxGeometry(.20, .24, .006), M(0xf6f2e8));
+      border.position.set(0, TOP_Y + .14, .012); border.rotation.x = -.12; g.add(border);
+      const pic = new THREE.Mesh(new THREE.BoxGeometry(.16, .17, .006), M(0x3a4856, { roughness: .4 }));
+      pic.position.set(0, TOP_Y + .155, .015); pic.rotation.x = -.12; g.add(pic);
+      const stand = new THREE.Mesh(new THREE.BoxGeometry(.04, .20, .018), M(0x362010));
+      stand.position.set(0, TOP_Y + .10, -.06); stand.rotation.x = .28; g.add(stand);
+      return g;
+    },
+    flower: () => {
+      const g = new THREE.Group();
+      const vase = new THREE.Mesh(new THREE.CylinderGeometry(.045, .055, .14, 12), M(0xd8e2e8, { roughness: .2, metalness: .1 }));
+      vase.position.y = .07; g.add(vase);
+      for (let i = 0; i < 3; i++) {
+        const st = new THREE.Mesh(new THREE.CylinderGeometry(.006, .006, .28, 6), M(0x2e5e24));
+        st.position.set(i * .03 - .03, .18, (i % 2) * .02 - .01);
+        const fl = new THREE.Mesh(new THREE.SphereGeometry(.034, 10, 8), M(0xf8f6f0));
+        fl.position.set(i * .03 - .03, .32, (i % 2) * .02 - .01);
+        g.add(st, fl);
+      }
+      return g;
+    },
+    post: () => {
+      const g = new THREE.Group();
+      const base = new THREE.Mesh(new THREE.CylinderGeometry(.16, .18, .08, 14), M(0x383a3e));
+      base.position.y = .04; g.add(base);
+      const pole = new THREE.Mesh(new THREE.CylinderGeometry(.045, .045, .78, 12), M(0x26282c, { metalness: .6, roughness: .4 }));
+      pole.position.y = .42; g.add(pole);
+      const box = new THREE.Mesh(new THREE.BoxGeometry(.42, .52, .32), M(0xb8221a, { roughness: .38, metalness: .2 }));
+      box.position.y = 1.04; g.add(box);
+      const roof = new THREE.Mesh(new THREE.BoxGeometry(.46, .05, .36), M(0x8e1610, { roughness: .4 }));
+      roof.position.y = 1.31; g.add(roof);
+      const slot = new THREE.Mesh(new THREE.BoxGeometry(.26, .035, .02), M(0x111111));
+      slot.position.set(0, 1.16, .162); g.add(slot);
+      const plaque = new THREE.Mesh(new THREE.BoxGeometry(.28, .12, .01), M(0xf2ead8));
+      plaque.position.set(0, .96, .162); g.add(plaque);
+      return g;
+    },
+    plaque: () => {
+      const g = new THREE.Group();
+      const plinth = new THREE.Mesh(new THREE.BoxGeometry(.96, .14, .38), M(0x5c5852, { roughness: .85 }));
+      plinth.position.y = .07; g.add(plinth);
+      const st = new THREE.Mesh(new THREE.BoxGeometry(.88, .68, .28), M(0x7a756c, { roughness: .88 }));
+      st.position.y = .46; g.add(st);
+      const pl = new THREE.Mesh(new THREE.BoxGeometry(.64, .42, .025), M(0x9a7840, { metalness: .75, roughness: .35 }));
+      pl.position.set(0, .48, .145); g.add(pl);
+      return g;
+    },
+    panel: () => {
+      const g = new THREE.Group();
+      const b = new THREE.Mesh(new THREE.BoxGeometry(.52, .72, .16), M(0x6e767a, { metalness: .55, roughness: .45 }));
+      b.position.y = 1.35; g.add(b);
+      const d = new THREE.Mesh(new THREE.BoxGeometry(.46, .64, .022), M(0x889094, { metalness: .5, roughness: .42 }));
+      d.position.set(0, 1.35, .085); g.add(d);
+      const handle = new THREE.Mesh(new THREE.BoxGeometry(.03, .12, .035), M(0x222628, { metalness: .7 }));
+      handle.position.set(.18, 1.35, .10); g.add(handle);
+      const w = new THREE.Mesh(new THREE.BoxGeometry(.20, .06, .01), M(0xe8c020));
+      w.position.set(0, 1.54, .098); g.add(w);
+      return g;
+    },
+    case: () => {
+      const g = new THREE.Group();
+      const base = new THREE.Mesh(new THREE.BoxGeometry(1.0, .8, .6), M(0x3a2c22, { roughness: .55 }));
+      base.position.y = .4;
+      const gl = new THREE.Mesh(new THREE.BoxGeometry(.96, .5, .56), new THREE.MeshStandardMaterial({ color: 0xbfd8e0, roughness: .05, metalness: .1, transparent: true, opacity: .22, depthWrite: false }));
+      gl.position.y = 1.06;
+      const km = M(0xc8a050, { metalness: .9, roughness: .3 });
+      const key = new THREE.Mesh(new THREE.TorusGeometry(.06, .015, 8, 20), km);
+      key.position.set(0, .9, 0); key.rotation.x = Math.PI / 2;
+      const shaft = new THREE.Mesh(new THREE.BoxGeometry(.14, .012, .02), km);
+      shaft.position.set(.12, .9, 0);
+      const pad = new THREE.Mesh(new THREE.BoxGeometry(.12, .16, .03), M(0x202428, { emissive: 0x30ff60, emissiveIntensity: .25 }));
+      pad.position.set(.38, .6, .31);
+      g.add(base, gl, key, shaft, pad);
+      g.userData.key = [key, shaft];
+      return g;
+    },
+    lamp: () => {
+      const g = new THREE.Group();
+      const b = new THREE.Mesh(new THREE.BoxGeometry(.36, .16, .1), M(0xd8d4c4));
+      b.position.y = 2.2;
+      const h = new THREE.Mesh(new THREE.BoxGeometry(.3, .08, .04), sqLampMat);
+      h.position.set(0, 2.18, .06);
+      g.add(b, h);
+      return g;
+    },
   };
   const sqLampMat = new THREE.MeshStandardMaterial({ color: 0x2a2a26, emissive: 0xfff0c8, emissiveIntensity: 0 });
   const standWoodTop = M(0x7c5332, { roughness: .52 }), standWoodDark = M(0x3e2716, { roughness: .58 }), standLegMetal = M(0x3a4044, { roughness: .45, metalness: .55 });
@@ -4543,7 +4798,7 @@ const sqProps = [];
     if (st.room) { const r = roomOf(st.f, st.room); if (!r) { console.warn('[sq] 방 없음', st.room); return; } rmInfo = r; st.f = r.f; F = floors[st.f]; x = r.cx + st.dx; z = r.south ? 1.75 + st.d : -1.75 - st.d; }
     if (st.look !== 'post' && st.look !== 'lamp' && st.look !== 'panel') [x, z] = freeSpot(F, x, z, .32, rmInfo);
     const g = new THREE.Group(); g.position.set(x, 0, z); g.userData.dynamic = true;
-    if (!['post', 'lamp', 'flower', 'plaque', 'panel', 'case'].includes(st.look)) g.add(buildQuestStand());
+    if (!['post', 'lamp', 'flower', 'plaque', 'panel', 'case', 'drawer'].includes(st.look)) g.add(buildQuestStand());
     const v = LOOK[st.look](); g.add(v);
     if (rmInfo && rmInfo.south) g.rotation.y = Math.PI;
     const gl = new THREE.Sprite(new THREE.SpriteMaterial({ map: glintTex, color: 0xffd8a0, blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, opacity: .24 })); gl.scale.setScalar(.28); gl.position.y = st.look === 'lamp' ? 2.2 : st.look === 'post' ? 1.1 : st.look === 'panel' ? 1.4 : st.look === 'case' ? 1.0 : .78; g.add(gl);
@@ -4719,18 +4974,106 @@ const XT = { search: null, para: 75 + Math.random() * 40, paraLast: [], mbox: nu
   // 2) 방 미니게임 지점
   const M = (c, o = {}) => new THREE.MeshStandardMaterial({ color: c, roughness: .7, ...o });
   const box = (g, w, h, d, x, y, z, m) => { const o = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m); o.position.set(x, y, z); g.add(o); return o; };
+  const table4 = (g, w, h, d, topC = 0x6e4828, legC = 0x34383c) => {
+    const tm = M(topC, { roughness: .52 }), lm = M(legC, { roughness: .45, metalness: .55 });
+    box(g, w, .04, d, 0, h - .02, 0, tm);
+    box(g, w - .06, .05, d - .06, 0, h - .06, 0, M(0x3a2414, { roughness: .6 }));
+    const lx = w / 2 - .04, lz = d / 2 - .04;
+    [[-lx, -lz], [lx, -lz], [-lx, lz], [lx, lz]].forEach(([x, z]) => {
+      const leg = new THREE.Mesh(new THREE.CylinderGeometry(.018, .016, h - .04, 8), lm);
+      leg.position.set(x, (h - .04) / 2, z); g.add(leg);
+    });
+  };
   const LOOKS = {
-    xylo: g => { box(g, .9, .7, .4, 0, .35, 0, M(0x5a3a22)); ['#c84a3a', '#d8b040', '#4aa86a', '#4a7ad0', '#a050c0', '#e08040'].forEach((c, i) => box(g, .1, .03, .3 - i * .03, -.3 + i * .12, .72, 0, M(c))); },
-    pc: g => { box(g, .9, .74, .6, 0, .37, 0, M(0x6a6a64)); box(g, .42, .34, .3, 0, .95, -.05, M(0xc8bfa8)); const sc = new THREE.Mesh(new THREE.PlaneGeometry(.34, .24), new THREE.MeshBasicMaterial({ color: 0x3a6ab0 })); sc.position.set(0, .96, .101); g.add(sc); },
-    radioTop: g => { box(g, .44, .26, .2, 0, .13, 0, M(0x6a4a2a)); box(g, .26, .09, .01, -.04, .15, .101, M(0xd8c890, { emissive: 0x403010, emissiveIntensity: .6 })); const k = new THREE.Mesh(new THREE.CylinderGeometry(.03, .03, .02, 12), M(0x222222)); k.rotation.x = Math.PI / 2; k.position.set(.14, .14, .105); g.add(k); },
-    radio: g => { box(g, .7, .74, .5, 0, .37, 0, M(0x4a3a2a)); box(g, .5, .28, .2, 0, .88, 0, M(0x6a4a2a)); box(g, .3, .1, .01, -.05, .9, .101, M(0xd8c890, { emissive: 0x403010, emissiveIntensity: .6 })); },
-    beaker: g => { box(g, 1.0, .9, .6, 0, .45, 0, M(0x2a2e30)); [0, .2, -.2].forEach((x, i) => { const b = new THREE.Mesh(new THREE.CylinderGeometry(.05, .06, .16, 12), M([0x60a0e0, 0xe0d060, 0xd06060][i], { transparent: true, opacity: .75, roughness: .1 })); b.position.set(x, .98, 0); g.add(b); }); },
-    hoop: g => { box(g, .7, .6, .45, 0, .3, 0, M(0x3a3a40, { metalness: .4 })); [-.18, .18].forEach(x => { const b = new THREE.Mesh(new THREE.SphereGeometry(.12, 14, 10), M(0xc85a20)); b.position.set(x, .72, 0); g.add(b); }); },
-    gacha: g => { box(g, .55, .9, .5, 0, .45, 0, M(0xc83a3a)); const dome = new THREE.Mesh(new THREE.SphereGeometry(.26, 16, 12), M(0xdde8ee, { transparent: true, opacity: .35, roughness: .05 })); dome.position.y = 1.15; g.add(dome); for (let i = 0; i < 9; i++) { const c = new THREE.Mesh(new THREE.SphereGeometry(.05, 8, 6), M([0xe0c040, 0x40a0e0, 0xe06090][i % 3])); c.position.set(Math.sin(i) * .14, 1.02 + (i % 3) * .06, Math.cos(i * 1.7) * .12); g.add(c); } box(g, .16, .16, .04, 0, .6, .26, M(0xe8e0c8)); },
-    ouija: g => { box(g, .9, .74, .6, 0, .37, 0, M(0x4a3a2a)); box(g, .6, .01, .4, 0, .745, 0, M(0xc8a878)); const pl = new THREE.Mesh(new THREE.ConeGeometry(.06, .02, 3), M(0xe8dcc0)); pl.position.set(.05, .76, .02); g.add(pl); const cnd = new THREE.Mesh(new THREE.CylinderGeometry(.02, .02, .14, 8), M(0xf0e8d8, { emissive: 0xff9040, emissiveIntensity: .3 })); cnd.position.set(-.35, .82, -.2); g.add(cnd); },
-    easel: g => { box(g, .05, 1.5, .05, -.25, .75, 0, M(0x8a6a44)); box(g, .05, 1.5, .05, .25, .75, 0, M(0x8a6a44)); box(g, .7, .55, .03, 0, 1.15, .04, M(0xe8e0d0)); },
-    projector: g => { box(g, .8, .74, .5, 0, .37, 0, M(0x3a3a3a)); box(g, .36, .22, .32, 0, .86, 0, M(0x2a2a2c, { metalness: .4 })); const l = new THREE.Mesh(new THREE.CylinderGeometry(.06, .06, .1, 12), M(0x111111)); l.rotation.x = Math.PI / 2; l.position.set(0, .86, .2); g.add(l); },
-    drum: g => { const d = new THREE.Mesh(new THREE.CylinderGeometry(.28, .28, .3, 18), M(0xb03a2a)); d.position.y = .5; g.add(d); const sn = new THREE.Mesh(new THREE.CylinderGeometry(.2, .2, .16, 16), M(0xd8d8d8, { metalness: .5 })); sn.position.set(.42, .62, 0); g.add(sn); },
+    xylo: g => {
+      table4(g, .92, .70, .44, 0x5c3a20, 0x2e3236);
+      box(g, .78, .03, .32, 0, .715, 0, M(0x3a2210));
+      ['#c84a3a', '#d8b040', '#4aa86a', '#4a7ad0', '#a050c0', '#e08040'].forEach((c, i) => box(g, .10, .025, .28 - i * .025, -.3 + i * .12, .74, 0, M(c, { metalness: .35, roughness: .35 })));
+    },
+    pc: g => {
+      table4(g, .92, .74, .60, 0x7a5434, 0x383c40);
+      box(g, .40, .32, .28, 0, .92, -.04, M(0xc8bfa8, { roughness: .55 }));
+      const sc = new THREE.Mesh(new THREE.PlaneGeometry(.33, .23), new THREE.MeshBasicMaterial({ color: 0x3a6ab0 }));
+      sc.position.set(0, .93, .102); g.add(sc);
+      box(g, .34, .022, .12, 0, .752, .16, M(0xcbc2ac));
+    },
+    radioTop: g => {
+      box(g, .44, .24, .22, 0, .12, 0, M(0x383c42, { metalness: .45, roughness: .42 }));
+      box(g, .26, .11, .012, -.05, .14, .112, M(0x163828, { emissive: 0x185838, emissiveIntensity: .65 }));
+      [0.12, 0.12].forEach((kx, i) => {
+        const k = new THREE.Mesh(new THREE.CylinderGeometry(.024, .024, .022, 12), M(0xd0d4d8, { metalness: .7 }));
+        k.rotation.x = Math.PI / 2; k.position.set(kx, .16 - i * .07, .115); g.add(k);
+      });
+    },
+    radio: g => {
+      table4(g, .72, .74, .50, 0x5c3d22, 0x34383c);
+      box(g, .48, .26, .22, 0, .87, 0, M(0x423020, { roughness: .5 }));
+      box(g, .28, .10, .012, -.05, .89, .112, M(0xd8c890, { emissive: 0x403010, emissiveIntensity: .6 }));
+    },
+    beaker: g => {
+      table4(g, 1.0, .86, .60, 0x2c3236, 0x42484e);
+      box(g, .86, .02, .46, 0, .87, 0, M(0x1e2226));
+      [0, .22, -.22].forEach((x, i) => {
+        const b = new THREE.Mesh(new THREE.CylinderGeometry(.05, .06, .18, 14), M([0x60a0e0, 0xe0d060, 0xd06060][i], { transparent: true, opacity: .78, roughness: .12 }));
+        b.position.set(x, .97, 0); g.add(b);
+      });
+    },
+    hoop: g => {
+      // 체육관 바퀴 달린 철제 농구공 케이지 카트
+      table4(g, .76, .58, .48, 0x3a4046, 0x586068);
+      [-0.34, 0.34].forEach(x => box(g, .03, .28, .44, x, .72, 0, M(0x586068, { metalness: .6 })));
+      [-0.20, 0.20].forEach(z => box(g, .72, .28, .03, 0, .72, z, M(0x586068, { metalness: .6 })));
+      [-.18, .18].forEach(x => {
+        const b = new THREE.Mesh(new THREE.SphereGeometry(.12, 14, 10), M(0xc85a20, { roughness: .6 }));
+        b.position.set(x, .70, 0); g.add(b);
+      });
+    },
+    gacha: g => {
+      table4(g, .56, .52, .50, 0x383c42, 0x282c30);
+      box(g, .48, .38, .44, 0, .71, 0, M(0xc83a3a, { roughness: .35 }));
+      const dome = new THREE.Mesh(new THREE.SphereGeometry(.24, 16, 12), M(0xdde8ee, { transparent: true, opacity: .35, roughness: .05 }));
+      dome.position.y = 1.12; g.add(dome);
+      for (let i = 0; i < 9; i++) {
+        const c = new THREE.Mesh(new THREE.SphereGeometry(.045, 8, 6), M([0xe0c040, 0x40a0e0, 0xe06090][i % 3]));
+        c.position.set(Math.sin(i) * .13, 1.00 + (i % 3) * .05, Math.cos(i * 1.7) * .11); g.add(c);
+      }
+      box(g, .14, .14, .04, 0, .66, .23, M(0xe8e0c8, { metalness: .4 }));
+    },
+    ouija: g => {
+      table4(g, .88, .72, .58, 0x4e3420, 0x2c2016);
+      box(g, .58, .022, .38, 0, .732, 0, M(0xc8a878, { roughness: .55 }));
+      box(g, .52, .006, .32, 0, .745, 0, M(0x3a2618));
+      const pl = new THREE.Mesh(new THREE.ConeGeometry(.055, .022, 3), M(0xe8dcc0));
+      pl.position.set(.05, .758, .02); g.add(pl);
+      const cnd = new THREE.Mesh(new THREE.CylinderGeometry(.02, .02, .14, 10), M(0xf0e8d8, { emissive: 0xff9040, emissiveIntensity: .35 }));
+      cnd.position.set(-.32, .80, -.18); g.add(cnd);
+    },
+    easel: g => {
+      box(g, .045, 1.52, .045, -.25, .76, 0, M(0x7a5834));
+      box(g, .045, 1.52, .045, .25, .76, 0, M(0x7a5834));
+      box(g, .045, 1.48, .045, 0, .72, -.22, M(0x684828));
+      box(g, .66, .04, .08, 0, .86, .04, M(0x5c3e20));
+      box(g, .68, .54, .03, 0, 1.15, .04, M(0xe8e0d0));
+      box(g, .62, .48, .008, 0, 1.15, .058, M(0x384654));
+    },
+    projector: g => {
+      table4(g, .80, .74, .50, 0x42464a, 0x2a2e32);
+      box(g, .36, .22, .32, 0, .85, 0, M(0x2a2c30, { metalness: .5, roughness: .4 }));
+      const l = new THREE.Mesh(new THREE.CylinderGeometry(.055, .055, .11, 14), M(0x15171a, { metalness: .6 }));
+      l.rotation.x = Math.PI / 2; l.position.set(0, .86, .20); g.add(l);
+      [-0.08, 0.08].forEach(z => {
+        const reel = new THREE.Mesh(new THREE.CylinderGeometry(.09, .09, .02, 16), M(0x9aa2a8, { metalness: .7 }));
+        reel.rotation.z = Math.PI / 2; reel.position.set(0, 1.02, z); g.add(reel);
+      });
+    },
+    drum: g => {
+      const d = new THREE.Mesh(new THREE.CylinderGeometry(.28, .28, .32, 18), M(0xb03a2a, { roughness: .35, metalness: .25 }));
+      d.rotation.x = Math.PI / 2; d.position.y = .30; g.add(d);
+      const sn = new THREE.Mesh(new THREE.CylinderGeometry(.19, .19, .14, 16), M(0xd8d8d8, { metalness: .6, roughness: .3 }));
+      sn.position.set(.38, .58, 0); g.add(sn);
+      const st = new THREE.Mesh(new THREE.CylinderGeometry(.015, .02, .52, 8), M(0xb8c0c8, { metalness: .8 }));
+      st.position.set(.38, .26, 0); g.add(st);
+    },
   };
   const MS = [
     { id: 'music', f: 2, room: '음악실', dx: -1.6, d: 3.4, look: 'xylo', label: '실로폰 — 남겨진 음 따라 치기', game: 'simon', opts: { title: '실로폰 — 하늘의 연습곡' }, reward: { col: 'c07', item: { candy: 1 } }, cap: '마지막 음이 끝나자, 누군가 박수를 쳤다. 두 번.' },
@@ -7487,13 +7830,13 @@ function megaNotify(m) { const t = String(m).split('\n'); say(t[0].replace(/^\S+
     world.props.push({ kind: 'robj', k: 'bunker_light', t: 'bunker', floor: 4, x: bx + 1.15, z: z1 - .85, y: 1.35, r: 2.0, label: '방공호 주 전등 스위치 조작하기', bkLightGroup });
     {
       const bLoader = new GLTFLoader();
-      bLoader.load('assets/models/sf/sf_bunker_props_pack.glb?v=166', gltf => {
+      bLoader.load('assets/models/sf/sf_bunker_props_pack.glb?v=167', gltf => {
         const bm = gltf.scene; bm.position.set(bx, 0, z0 + .45);
         if (window.__upgradePure3DScene) window.__upgradePure3DScene(bm); else bm.traverse(o => { o.userData.dynamic = true; });
         R.add(bm);
         if (gltf.animations && gltf.animations.length) { const mx = new THREE.AnimationMixer(bm); mx.userData = { floor: 4, x: bx, z: z0 + .45 }; gltf.animations.forEach(c => mx.clipAction(c).play()); (window.__campusAnimMixers ||= []).push(mx); }
       }, undefined, () => {});
-      bLoader.load('assets/models/sf/sf_pump_policeline_scene.glb?v=166', gltf => {
+      bLoader.load('assets/models/sf/sf_pump_policeline_scene.glb?v=167', gltf => {
         const pm = gltf.scene; pm.position.set(24.0, 0, -3.65);
         pm.traverse(o => { o.userData.dynamic = true; if (o.isMesh) { o.castShadow = false; o.receiveShadow = true; if (o.material?.map) o.material.map.colorSpace = THREE.SRGBColorSpace; } });
         R.add(pm);

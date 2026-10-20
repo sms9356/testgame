@@ -313,19 +313,26 @@ export async function playVoice(url, fx = 'none', emo = null) {
     if (emo.airy) { const hp = ac.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 260; tg.connect(hp); node = hp; }
   }
   if (fx === 'phone') {
-    const hp = ac.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 190;
-    const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 7200;
-    node.connect(hp); hp.connect(lp); node = lp;
-  } else if (fx === 'radio' || fx === 'pa') {
-    const hp = ac.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = fx === 'pa' ? 320 : 420;
-    const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = fx === 'pa' ? 4800 : 3800;
-    node.connect(hp); hp.connect(lp); node = lp;
-    if (fx !== 'phone') { const source = ac.createBufferSource(); source.buffer = noiseBuf; source.loop = true;
-      const n = ac.createBiquadFilter(); n.type = 'bandpass'; n.frequency.value = 3000; n.Q.value = .7; source.connect(n); source.start();
-      const ng = ac.createGain(); ng.gain.value = fx === 'radio' ? .05 : .015; n.connect(ng); ng.connect(bus.voice); s.addEventListener('ended', () => { source.stop(); source.disconnect(); n.disconnect(); ng.disconnect(); }); }
+    const hp = ac.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 150;
+    const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 9200;
+    const presence = ac.createBiquadFilter(); presence.type = 'peaking'; presence.frequency.value = 2800; presence.Q.value = 0.9; presence.gain.value = 1.6;
+    node.connect(hp); hp.connect(lp); lp.connect(presence); node = presence;
+  } else if (fx === 'radio' || fx === 'tape' || fx === 'pa') {
+    // 성우의 숨결·떨림·감정 연기가 먹먹해지지 않도록 광대역(95Hz~11500Hz)과 따뜻한 중저음(220Hz)·명료도(3100Hz)를 살리고 백색소음을 최소화!
+    const hp = ac.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = fx === 'pa' ? 220 : 95;
+    const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = fx === 'pa' ? 6800 : 11500;
+    const warmth = ac.createBiquadFilter(); warmth.type = 'peaking'; warmth.frequency.value = 220; warmth.Q.value = 0.85; warmth.gain.value = 1.8;
+    const clarity = ac.createBiquadFilter(); clarity.type = 'peaking'; clarity.frequency.value = 3100; clarity.Q.value = 0.9; clarity.gain.value = 1.5;
+    node.connect(hp); hp.connect(lp); lp.connect(warmth); warmth.connect(clarity); node = clarity;
+    if (fx === 'pa') {
+      const source = ac.createBufferSource(); source.buffer = noiseBuf; source.loop = true;
+      const n = ac.createBiquadFilter(); n.type = 'bandpass'; n.frequency.value = 2400; n.Q.value = .8; source.connect(n); source.start();
+      const ng = ac.createGain(); ng.gain.value = .006; n.connect(ng); ng.connect(bus.voice);
+      s.addEventListener('ended', () => { source.stop(); source.disconnect(); n.disconnect(); ng.disconnect(); });
+    }
   }
-  const g = ac.createGain(); g.gain.value = (fx === 'whisper' ? .7 : 1) * (emo && emo.gain || 1); node.connect(g); g.connect(bus.voice);
-  const sendG = ac.createGain(); sendG.gain.value = fx === 'pa' ? .9 : emo && emo.dry ? .05 : .25;
+  const g = ac.createGain(); g.gain.value = (fx === 'whisper' ? .82 : 1.08) * (emo && emo.gain || 1); node.connect(g); g.connect(bus.voice);
+  const sendG = ac.createGain(); sendG.gain.value = fx === 'pa' ? .35 : .03;
   g.connect(sendG); sendG.connect(revSend);
   const finished = new Promise(resolve => s.addEventListener('ended', resolve, { once: true }));
   s.start(); curVoice = s; duckMusic(true); s.addEventListener('ended', () => { if (curVoice === s) { curVoice = null; duckMusic(false); } });

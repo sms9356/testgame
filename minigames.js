@@ -612,8 +612,10 @@ function stampApprove({ title = '학생회실 — 1998 해교제 야간 잔류 �
     grd.addColorStop(0, '#efe8d5'); grd.addColorStop(.5, '#e5dcc4'); grd.addColorStop(1, '#d8ceb2');
     g.fillStyle = grd; g.fillRect(18, 12, 356, 308);
     g.strokeStyle = '#4a3e2e'; g.lineWidth = 2; g.strokeRect(26, 20, 340, 292);
-    g.fillStyle = '#1e1a14'; g.font = 'bold 16px serif';
-    g.fillText('1998학년도 야간 잔류 승인 기안서', 38, 46);
+    g.fillStyle = '#1e1a14'; g.font = 'bold 14px serif';
+    g.fillText('1998 야간 잔류 승인 기안서', 34, 44);
+    g.font = '10px serif'; g.fillStyle = '#4a3e2e';
+    g.fillText('(제30회 해교제 전야제)', 34, 62);
     g.strokeStyle = '#5a4e3c'; g.lineWidth = 1.2;
     const bx = 228, by = 26, bw = 42, bh = 48;
     ['담 당', '지도교사', '최종결재'].forEach((lb, i) => {
@@ -638,9 +640,9 @@ function stampApprove({ title = '학생회실 — 1998 해교제 야간 잔류 �
       g.fillRect(34, y - 16, 324, 28);
       g.strokeStyle = isFixed ? '#2e7d4c' : '#b8ae96'; g.lineWidth = 1; g.strokeRect(34, y - 16, 324, 28);
       g.fillStyle = isFixed ? '#184d2c' : '#241e18';
-      g.font = isFixed ? 'bold 11.5px sans-serif' : '11.5px serif';
-      g.fillText(isFixed ? ln.fix : ln.txt, 40, y + 2);
-      if (isFixed) { g.fillStyle = '#c62828'; g.font = 'bold 10px sans-serif'; g.fillText('✓ 정정필', 312, y + 2); }
+      g.font = isFixed ? 'bold 10.5px sans-serif' : '10.8px serif';
+      g.fillText(isFixed ? ln.fix : ln.txt, 38, y + 2);
+      if (isFixed) { g.fillStyle = '#c62828'; g.font = 'bold 9.5px sans-serif'; g.fillText('✓ 정정', 322, y + 2); }
     });
     g.fillStyle = '#2c241b'; g.font = 'bold 13px serif'; g.fillText('서 문 고 등 학 교 장  ·  학 생 회 장', 85, 300);
     g.fillStyle = '#1b2228'; g.fillRect(388, 12, 118, 308);
@@ -706,7 +708,7 @@ function omrGrade({ title = '교무실 — 1998학년도 기말고사 OMR 답안
     g.fillStyle = '#181818'; for (let k = 0; k < 14; k++) g.fillRect(34, 34 + k * 19, 10, 8);
     g.fillStyle = '#c84b62'; g.fillRect(54, 28, 404, 28);
     g.fillStyle = '#ffffff'; g.font = 'bold 14px sans-serif'; g.fillText('1998학년도 제2학기 기말고사 OMR 답안지 (서문고등학교)', 70, 47);
-    g.fillStyle = '#2a2424'; g.font = 'bold 12px monospace'; g.fillText('성명: 윤 하 늘   |   학년/반/번: 3학년 02반 14번   |   과목: 공 통 과 학', 58, 76);
+    g.fillStyle = '#2a2424'; g.font = 'bold 11.5px sans-serif'; g.fillText('성명: 윤하늘   |   학번: 3학년 02반 14번   |   과목: 공통과학', 62, 76);
     g.strokeStyle = '#d46a7e'; g.lineWidth = 1; g.strokeRect(54, 60, 404, 24);
     const matched = ans.filter((a, i) => cur[i] === a).length;
     for (let q = 0; q < 5; q++) {
@@ -785,11 +787,11 @@ function timetableRestore({ title = '교실 게시판 — 1998년 10월 12일 �
       }
     });
     g.fillStyle = '#12261c'; g.fillRect(42, 254, 416, 40);
-    g.fillStyle = '#9ec4b0'; g.font = '11px sans-serif'; g.fillText('보유 자석 명패 (클릭하여 위 빈칸에 부착):', 50, 278);
+    g.fillStyle = '#9ec4b0'; g.font = '11px sans-serif'; g.fillText('하단 자석 명패 (빈칸 클릭 시 자동 부착):', 48, 278);
     magnets.forEach((m, idx) => {
-      const used = slots.some(s => s.placed === m), mx = 278 + idx * 60;
-      g.fillStyle = used ? '#2a3830' : (sel === idx ? '#ffd870' : '#e6dcc2'); g.fillRect(mx - 26, 260, 56, 26);
-      g.fillStyle = used ? '#607068' : '#18201c'; g.font = 'bold 10.5px sans-serif'; g.fillText(m, mx - 22, 277);
+      const used = slots.some(s => s.placed === m), mx = 264 + idx * 66;
+      g.fillStyle = used ? '#2a3830' : (sel === idx ? '#ffd870' : '#e6dcc2'); g.fillRect(mx - 28, 260, 62, 26);
+      g.fillStyle = used ? '#607068' : '#18201c'; g.font = 'bold 10px sans-serif'; g.fillText(m, mx - 24, 277);
     });
   }
   c.addEventListener('click', e => {

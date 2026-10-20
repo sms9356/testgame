@@ -6,19 +6,19 @@ import { createPsychologicalDirector, PHENOMENON_LABELS } from './psychologicalH
 import { settleStoryGhost, tickStoryGhost, showStoryGhost } from './storyGhost.js';
 import { GLTFLoader } from './vendor/addons/loaders/GLTFLoader.js';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { createNPCVisuals } from './npcVisuals.js?v=158';
-import { applyGuardSeatedPose } from './guardSeatedPose.js?v=158';
+import { createNPCVisuals } from './npcVisuals.js?v=159';
+import { applyGuardSeatedPose } from './guardSeatedPose.js?v=159';
 import { createCampusCctvLive, collectCampusCctvFeeds } from './campusCctvLive.js';
-import { applyExteriorFloorVisibility, shouldStreamGuardCctv } from './exteriorRenderBudget.js?v=158';
-import { GUARD_LAYOUT } from './guardRoomLayout.js?v=158';
-import { installGuardRoom } from './guardRoom.js?v=158';
+import { applyExteriorFloorVisibility, shouldStreamGuardCctv } from './exteriorRenderBudget.js?v=159';
+import { GUARD_LAYOUT } from './guardRoomLayout.js?v=159';
+import { installGuardRoom } from './guardRoom.js?v=159';
 import { prepareModelGeometry } from './modelGeometry.js';
 import { modelFootprint, overlaps, removeDuplicateModels } from './placement.js';
-import { turfMaterial } from './campusVisuals.js?v=158';
+import { turfMaterial } from './campusVisuals.js?v=159';
 import { installInfirmaryAssets, updateInfirmaryCabinets } from './infirmaryAssets.js';
-import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js?v=158'; import { updateWindowFakes } from './windowInteriors.js?v=158';
-import { drawMap } from './map.js?v=158';
-import { buildMegaCampus15000, MEGA_CAMPUS_ZONES } from './megaCampus15000.js?v=158';
+import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js?v=159'; import { updateWindowFakes } from './windowInteriors.js?v=159';
+import { drawMap } from './map.js?v=159';
+import { buildMegaCampus15000, MEGA_CAMPUS_ZONES } from './megaCampus15000.js?v=159';
 import { makeDress, makeHair, makeGhostFace, makeGraffiti, makeKeypad, loadPBR, pbr, makeGlow as makeGlowTex, makePaintingStare, makeSign, makeBlood } from './tex.js';
 import { warmUp } from './bake.js';
 import { createStaticDistanceLOD } from './staticDistanceLOD.js';
@@ -39,12 +39,12 @@ import './school37RoomsPatch.js';    // 본관 · 별관 37개 특별실 가구 
 import './new37UniquePatch.js';     // 37개 구역 신규 특수 설비 · 벽면 레일 (사용자 제공) → window.new37UniquePatch
 import './megaExpansionPatch.js';   // 메가 익스팬션 · 최적화 · 4막 사건 기록 · 수집품 · 미니게임 (사용자 제공) → window.megaSchoolPatch
 import './poolMachineryPatch.js';     // 수영장 · 남/녀 탈의실·샤워실 · 기계실 철문 (사용자 제공) → window.poolAndMachineryPatch
-import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx } from './audio.js?v=158'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=158'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera } from './perfStabilizer.js?v=158';
-import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js?v=158';
-import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, SIDEQUESTS, HEADQUEST, COLLECT, LOCKER_SCARES, CHALK_QA, OUIJA_QS, PARA, TOILET_FX, MIRROR_WORDS } from './story.js?v=158';
+import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx } from './audio.js?v=159'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=159'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera } from './perfStabilizer.js?v=159';
+import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js?v=159';
+import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, SIDEQUESTS, HEADQUEST, COLLECT, LOCKER_SCARES, CHALK_QA, OUIJA_QS, PARA, TOILET_FX, MIRROR_WORDS } from './story.js?v=159';
 import { isSpeechBusy } from './voice.js';
 import { SET, saveSET, resetSET, DIFF, keyLabel } from './settings.js';
-import { initI18n, setLang, lang as curLang } from './i18n.js?v=158';   // 언어 패치 (한국어 · English · 日本語 · 中文)
+import { initI18n, setLang, lang as curLang } from './i18n.js?v=159';   // 언어 패치 (한국어 · English · 日本語 · 中文)
 initI18n();
 const K = () => SET.keys;
 let guardRoomController = null, guardControlProps = [], guardCctvData = null, campusCctv = null;
@@ -60,7 +60,7 @@ function syncGuardDevices() {
 function toggleGuardCCTV(persist = true) { FL.guardCctvOn = !(FL.guardCctvOn ?? true); sfx.click(); syncGuardDevices(); if (persist) save(true); return FL.guardCctvOn; }
 function toggleGuardLight() { FL.guardLightOn = !(FL.guardLightOn ?? false); sfx.click(); syncGuardDevices(); say(FL.guardLightOn ? '경비실 전등을 켰다' : '경비실 전등을 껐다', 1800); save(true); return FL.guardLightOn; }
 
-import { run as runMini, MG } from './minigames.js?v=158';
+import { run as runMini, MG } from './minigames.js?v=159';
 import { SCHEMA, BUILD, storageKeys, itemUid, propUid, doorUid, assignUids, readSlot, writeSlot, hasSlot, clearSlot, repairProgress } from './saveSystem.js';
 loadManifest().then(() => registerLines({ ...VO, ...Object.fromEntries(Object.entries(STORY_NOTES).filter(([, n]) => n.text).map(([k, n]) => ['note_' + k, { spk: 'narrator', text: n.title + '. ' + n.text, parts: [n.title, n.text] }])) }));
 
@@ -439,8 +439,8 @@ const LOC = {
 };
 const KEY_WHERE = [
   '본관 1층 · 교무실 금고 (제1비밀: 펌프실 열쇠 은닉 기록)',
-  '본관 1층 · 도서실 대출 데스크 (제2비밀: 하교 위조 대출 카드)',
-  '본관 2층 · 과학실 약품장 (제3비밀: 묵살된 배선·비상등 결함 보고서)',
+  '별관 1층 · 도서실 대출 데스크 (제2비밀: 하교 위조 대출 카드)',
+  '별관 2층 · 과학실 약품장 (제3비밀: 묵살된 배선·비상등 결함 보고서)',
   '체육관 · 기록석 기구함 (제4비밀: 담력체험 묵인 및 당직 은폐 일지)',
   '수영장 · 배수구 (제5비밀: 물길에 버려진 펌프실 침수·방치 증거)'
 ];
@@ -2548,7 +2548,7 @@ function ensureCharsel3D() {
     const rim = new THREE.DirectionalLight(0xffd6e0, 0.85); rim.position.set(0, 2.4, -2.5);
     sc.add(hemi, key, fill, rim);
     st.scenes[k] = sc;
-    loader.load(`assets/characters/${k}.glb?v=158`, gltf => {
+    loader.load(`assets/characters/${k}.glb?v=159`, gltf => {
       const m = gltf.scene;
       npcVisuals.enhanceCharacterMaterials?.(m, k);
       m.traverse(o => { if (o.isMesh || o.isSkinnedMesh) o.frustumCulled = false; });
@@ -3753,32 +3753,32 @@ const mkFuse = () => { const g = new THREE.Group(); const gl = new THREE.Mesh(ne
 const mkMop = () => { const g = new THREE.Group(), m = new THREE.Mesh(new THREE.CylinderGeometry(.016, .016, 1.3, 8).rotateZ(Math.PI / 2), new THREE.MeshStandardMaterial({ color: 0x8a6a40, roughness: .8 })); m.position.y = .016; g.add(m); g.rotation.y = .4; return g; };
 const mkWire = () => { const g = new THREE.Group(), m = new THREE.Mesh(new THREE.TorusGeometry(.06, .006, 6, 24), new THREE.MeshStandardMaterial({ color: 0x9a9aa0, metalness: .85, roughness: .35 })); m.rotation.x = Math.PI / 2; m.position.y = .01; g.add(m); const m2 = m.clone(); m2.scale.setScalar(.8); m2.position.y = .02; g.add(m2); return g; };
 // 쪽지 (단서)
-addNoteAt('n19', 0, SLOTS[8], .02, -7.25, .3);   // 도서실
-addNoteAt('n17', 1, SLOTS[8] + 2.6, .92, -5.3, -.2);   // 과학실
-addNoteAt('n18', 2, SLOTS[8] - 2.6, .02, -6.3, .5);    // 음악실 악보
+addNoteAt('n19', 8, ANNEX.slots[4], .02, -7.25, .3);   // 별관 1F 도서실
+addNoteAt('n17', 9, ANNEX.slots[4] + 2.6, .92, -5.3, -.2);   // 별관 2F 과학실
+addNoteAt('n18', 10, ANNEX.slots[1] - 2.6, .02, -6.3, .5);    // 별관 3F 음악실 악보
 addNoteAt('n20', 6, -35.8, 1.68, 44, .2);   // 수영장 감시대
 addNoteAt('n21', 0, 5.5, .02, 1.2, .4);                       // 1층 복도 — 행사 안내문
 addNoteAt('n22', 4, SLOTS[5] + 2.65, .77, -7.5, .2);           // 지하 기록실 — 봉인 서약서
-addNoteAt('n23', 9, ANNEX.slots[4], .02, -3.0, -.3);          // 별관 2F 동아리실 — 방송부원 진술서
-addNoteAt('n24', 8, ANNEX.slots[4], .02, -3.0, .5);           // 별관 1F 진로상담실 — 경비 일지
+addNoteAt('n23', 9, ANNEX.slots[4], .02, 3.0, -.3);          // 별관 2F 동아리실(남쪽) — 방송부원 진술서
+addNoteAt('n24', 8, ANNEX.slots[4], .02, 3.0, .5);           // 별관 1F 진로상담실(남쪽) — 경비 일지
 addNoteAt('n25', 9, ANNEX.slots[2], .02, -3.0, .1);           // 별관 2F 언어실 — 사서의 메모
 addNoteAt('nC', 2, SLOTS[1] + .8, .02, -3.0, -.4);            // 방송실 — 캐릭터 전용 기록
 addNoteAt('n29', 0, SLOTS[7] + 2.6, .76, -8.6, .2);           // EV-04 1-3 교실 교사용 책상 — 첫 번째 메모
 addNoteAt('n27', 2, SLOTS[5] + 2.6, .76, -8.6, .3);           // 3-4 교실 교사용 책상 — 담임 수첩
 addNoteAt('n28', 2, SLOTS[6] - 2.9, .02, -2.3, .6);           // 3-5 교실 사물함 앞 — 교환일기
-addNoteAt('n26', 0, SLOTS[8] - .9, .77, -8.45, .1);           // 도서실 — 이벤트로 나타나는 대출 카드
+addNoteAt('n26', 8, ANNEX.slots[4] - .9, .77, -8.45, .1);           // 별관 1F 도서실 — 이벤트로 나타나는 대출 카드
 { const it = world.items.find(i => i.kind === 'note' && i.id === 'n26'); it.locked = true; it.mesh.visible = false; }
 // 도구 · 소모품
-tool('hairpin', 0, SLOTS[1] - 2.4, .66, -8.0, mkPin(), '머리핀 줍기', 0xffd0e0);          // 보건실 침대
+tool('hairpin', 8, ANNEX.slots[1] - 2.4, .66, -8.0, mkPin(), '머리핀 줍기', 0xffd0e0);          // 별관 1F 보건실 침대
 tool('hairpin', 1, SLOTS[1] + 2.3, .77, -8.45, mkPin(), '머리핀 줍기', 0xffd0e0);         // 2-1 교탁
 tool('hairpin', 6, -37.6, .45, 28.3, mkPin(), '머리핀 줍기', 0xffd0e0);                   // 여자 탈의실 벤치
 tool('fuse', 4, SLOTS[7] - 1.5, .91, -4.15, mkFuse(), '예비 퓨즈 줍기', 0xa0e0ff);          // 지하 기계실 정비 작업대
 tool('mop', 4, SLOTS[6] - 1.0, .02, -6.8, mkMop(), '대걸레 자루 줍기', 0xffe0a0);          // 지하 청소도구실
-tool('wire', 8, ANNEX.slots[2] + 2.9, .77, -4.8, mkWire(), '철사 뭉치 줍기', 0xffe0a0);    // 별관 기술·가정실
+tool('wire', 8, ANNEX.slots[3] + 2.9, .77, -4.8, mkWire(), '철사 뭉치 줍기', 0xffe0a0);    // 별관 1F 기술·가정실 (cx = 8)
 [[0, -20, -1.25], [0, 12, -1.25], [1, -4, -1.25], [1, 28, -1.25], [2, 4, -1.25], [2, -30, -1.25], [5, 35, 25], [7, -36, 18.5]].forEach(([f, x, z]) => tool('can', f, x, .0, z, mkCan(), '빈 캔 줍기', 0xffffff));
 // 열쇠 조각을 지키는 자물쇠들
-lockBox(0, SLOTS[8] + .6, .75, -8.6, 0, 'pick', { keyIdx: 1, label: '대출 데스크 서랍 따기', tol: 10 });
-lockBox(1, SLOTS[8] - 2.4, .92, -4.8, Math.PI / 2, 'dial', { keyIdx: 2, code: '314', label: '약품장 다이얼 자물쇠', clue: 'n17', clueText: '칠판 메모 — 원주율 앞 세 자리' });
+lockBox(8, ANNEX.slots[4] + .6, .75, -8.6, 0, 'pick', { keyIdx: 1, label: '대출 데스크 서랍 따기', tol: 10 });
+lockBox(9, ANNEX.slots[4] - 2.4, .92, -4.8, Math.PI / 2, 'dial', { keyIdx: 2, code: '314', label: '약품장 다이얼 자물쇠', clue: 'n17', clueText: '칠판 메모 — 원주율 앞 세 자리' });
 lockBox(5, 29.2, .8, 20.6, Math.PI / 2, 'dial', { keyIdx: 3, code: '0723', label: '기구함 다이얼 자물쇠', clue: 'n9', clueText: '체육 일지 — 전광판의 마지막 경기 점수' });
 // 덤 보관함 (머리핀으로 따면 보급품)
 lockBox(1, SLOTS[6] + 2.2, .76, -8.6, 0, 'pick', { loot: { battery: 2, can: 1 }, tol: 8 });
@@ -3795,8 +3795,8 @@ world.props.push({ kind: 'cctvRec', floor: 2, x: SLOTS[1] - 1.3, z: -7.0, y: 1.0
 world.props.push({ kind: 'footprints', floor: 6, x: -46.6, z: 46.9, y: .1, label: '젖은 발자국 조사' });            // EV-17
 { const fm = new THREE.MeshBasicMaterial({ color: 0x0a1012, transparent: true, opacity: .55, depthWrite: false });
   for (let k = 0; k < 9; k++) { const m = new THREE.Mesh(new THREE.CircleGeometry(.07, 10), fm); m.scale.set(1, 1.9, 1); m.rotation.x = -Math.PI / 2; m.rotation.z = .2; m.position.set(-46.6 - k * .12 + (k % 2) * .15, .021, 46.9 - k * .65); m.userData.dynamic = true; floors[6].interior.add(m); } }
-world.props.push({ kind: 'piano', floor: 2, x: SLOTS[8] + 2.2, z: -7.1, y: 1, label: '피아노 치기' });
-world.props.push({ kind: 'easel', floor: 2, x: SLOTS[7] + 1.0, z: -5.5, y: 1.1, label: '찢어진 그림 맞추기' });
+world.props.push({ kind: 'piano', floor: 10, x: ANNEX.slots[1] + 2.2, z: -7.1, y: 1, label: '피아노 치기' });
+world.props.push({ kind: 'easel', floor: 10, x: ANNEX.slots[2] + 1.0, z: -5.5, y: 1.1, label: '찢어진 그림 맞추기' });
 world.PHOTOS.p4 = { img: 'old_music', title: '사진 — 방송부 앨범', text: '음악실 피아노 앞에서 웃고 있는 3학년 2반 윤하늘.<br>뒷면: <b>“기념 방송 반주는 내 몫! — 방송부 하늘”</b>' };
 world.PHOTOS.p5 = { img: 'old_lab', title: '사진 — 과학실 (10년 전)', text: '방과 후 과학실. 창가에 교복 차림의 아이가 흐릿하게 서 있다.<br>뒷면: <b>“10.12 담력 체험 — 4명. 하늘이는 빼자고 했는데…”</b>' };
 
@@ -4248,8 +4248,8 @@ function caption(text) {
   const el = $('cap'); el.textContent = `[${text}]`; el.classList.add('show'); clearTimeout(capTimer); capTimer = setTimeout(() => el.classList.remove('show'), 2600);
 }
 /* ---------- 안전 구역: 그것이 들어오지 않는 방 (보건실 · 별관 진로상담실) ---------- */
-const SAFE_ROOMS = [{ f: 0, cx: SLOTS[1], name: '보건실' }, { f: 8, cx: ANNEX.slots[4], name: '진로상담실' }];
-const safeRoomAt = (f = P.floor, x = P.x, z = P.z) => SAFE_ROOMS.find(r => r.f === f && Math.abs(x - r.cx) < 3.9 && z < -1.9 && z > -9.5);
+const SAFE_ROOMS = [{ f: 0, cx: SLOTS[1], name: '상담실', south: false }, { f: 8, cx: ANNEX.slots[1], name: '보건실', south: false }, { f: 8, cx: ANNEX.slots[4], name: '진로상담실', south: true }];
+const safeRoomAt = (f = P.floor, x = P.x, z = P.z) => SAFE_ROOMS.find(r => r.f === f && Math.abs(x - r.cx) < 3.9 && (r.south ? (z > 1.9 && z < 9.5) : (z < -1.9 && z > -9.5)));
 let safeSaveT = 0, wasSafe = false;
 function updateSafe(dt) {
   const s = state === 'playing' && safeRoomAt(); safeSaveT -= dt;
@@ -4317,8 +4317,17 @@ const sqDoneCount = () => SIDEQUESTS.filter(q => sqStep(q.id) >= q.steps.length)
 const sqProps = [];
 { // 방 이름 → 방 중심 · 남쪽 줄 여부
   const roomOf = (f, name) => {
-    const an = f >= 8, rows = an ? [[ANNEX.floors[f - 8], ANNEX.slots, false], [ANNEX_S[f - 8], ANNEX.slots, true]] : [[LAYOUT[f], SLOTS, false], [LAYOUT_S[f], SLOTS, true]];
-    for (const [L, sl, south] of rows) { if (!L) continue; const i = L.names.indexOf(name); if (i >= 0) return { cx: sl[i], south }; }
+    const clean = s => String(s || '').replace(/\s*\(.*\)$/, '').trim();
+    const order = [f, 0, 1, 2, 4, 8, 9, 10];
+    for (const qf of order) {
+      const an = qf >= 8, rows = an ? [[ANNEX.floors[qf - 8], ANNEX.slots, false], [ANNEX_S[qf - 8], ANNEX.slots, true]] : [[LAYOUT[qf], SLOTS, false], [LAYOUT_S[qf], SLOTS, true]];
+      for (const [L, sl, south] of rows) {
+        if (!L) continue;
+        let i = L.names.indexOf(name);
+        if (i < 0) i = L.names.findIndex(n => clean(n) === clean(name));
+        if (i >= 0) return { f: qf, cx: sl[i], south };
+      }
+    }
     return null;
   };
   // 가구 · 벽 충돌을 피해 비어 있는 자리로 조금씩 옮긴다
@@ -4347,7 +4356,7 @@ const sqProps = [];
   const crate = new THREE.BoxGeometry(.42, .44, .36), crateM = M(0x6a5a44);
   [...SIDEQUESTS, HEADQUEST].forEach(q => q.steps.forEach((st, k) => {
     let x = st.x, z = st.z, F = floors[st.f];
-    if (st.room) { const r = roomOf(st.f, st.room); if (!r) { console.warn('[sq] 방 없음', st.room); return; } x = r.cx + st.dx; z = r.south ? 1.75 + st.d : -1.75 - st.d; }
+    if (st.room) { const r = roomOf(st.f, st.room); if (!r) { console.warn('[sq] 방 없음', st.room); return; } st.f = r.f; F = floors[st.f]; x = r.cx + st.dx; z = r.south ? 1.75 + st.d : -1.75 - st.d; }
     if (st.look !== 'post' && st.look !== 'lamp' && st.look !== 'panel') [x, z] = freeSpot(F, x, z);
     const g = new THREE.Group(); g.position.set(x, 0, z); g.userData.dynamic = true;
     if (!['post', 'lamp', 'flower', 'plaque', 'panel', 'case'].includes(st.look)) g.add(new THREE.Mesh(crate, crateM)).position.y = .22;
@@ -4471,8 +4480,17 @@ function headEvent(ev, p) {
 const XT = { search: null, para: 75 + Math.random() * 40, paraLast: [], mbox: null };
 {
   const roomC = (f, name) => {
-    const an = f >= 8, rows = an ? [[ANNEX.floors[f - 8], ANNEX.slots, false], [ANNEX_S[f - 8], ANNEX.slots, true]] : [[LAYOUT[f], SLOTS, false], [LAYOUT_S[f], SLOTS, true]];
-    for (const [L, sl, south] of rows) { if (!L) continue; const i = L.names.indexOf(name); if (i >= 0) return { cx: sl[i], south }; }
+    const clean = s => String(s || '').replace(/\s*\(.*\)$/, '').trim();
+    const order = [f, 0, 1, 2, 4, 8, 9, 10];
+    for (const qf of order) {
+      const an = qf >= 8, rows = an ? [[ANNEX.floors[qf - 8], ANNEX.slots, false], [ANNEX_S[qf - 8], ANNEX.slots, true]] : [[LAYOUT[qf], SLOTS, false], [LAYOUT_S[qf], SLOTS, true]];
+      for (const [L, sl, south] of rows) {
+        if (!L) continue;
+        let i = L.names.indexOf(name);
+        if (i < 0) i = L.names.findIndex(n => clean(n) === clean(name));
+        if (i >= 0) return { f: qf, cx: sl[i], south };
+      }
+    }
     return null;
   };
   const free = (F, x, z, r = .32) => { const hit = (a, b) => F.col.some(c => a > c.x1 - r && a < c.x2 + r && b > c.z1 - r && b < c.z2 + r);
@@ -4546,7 +4564,7 @@ const XT = { search: null, para: 75 + Math.random() * 40, paraLast: [], mbox: nu
   ];
   MS.forEach(m => {
     let x = m.x, z = m.z, ry = 0;
-    if (m.room) { const r = roomC(m.f, m.room); if (!r) { console.warn('[mspot] 방 없음', m.room); return; } x = r.cx + m.dx; z = r.south ? 1.75 + m.d : -1.75 - m.d; ry = r.south ? Math.PI : 0; }
+    if (m.room) { const r = roomC(m.f, m.room); if (!r) { console.warn('[mspot] 방 없음', m.room); return; } m.f = r.f; x = r.cx + m.dx; z = r.south ? 1.75 + m.d : -1.75 - m.d; ry = r.south ? Math.PI : 0; }
     const F = floors[m.f]; if (!F) return; if (!m.onTop) [x, z] = free(F, x, z, .5);
     const g = new THREE.Group(); g.position.set(x, m.onTop || 0, z); g.rotation.y = ry; g.userData.dynamic = true; LOOKS[m.look](g); F.interior.add(g);
     if (!m.onTop) F.col.push({ x1: x - .4, x2: x + .4, z1: z - .3, z2: z + .3, h: .9 });   // 가구 위에 올린 것은 새 충돌 없음
@@ -5301,18 +5319,18 @@ function skeletonModel(parent) {
   pcyl(.012, .012, 1.0, dark, 0, .5, -.12, parent, { seg: 6 }); pcyl(.2, .22, .03, dark, 0, .015, -.05, parent, { seg: 18 });   // 받침대(바퀴 달린 거치대)
 }
 {
-  const g = adopt(fzP.buildScienceLabProps(V3(32, FH, -5)), FLR(1)), [table, flask, skel] = g.children;
+  const g = adopt(fzP.buildScienceLabProps(V3(16, floors[9].y0, -5)), FLR(9)), [table, flask, skel] = g.children;
   table.visible = false;
-  flask.position.set(34.0, .92 + .16, -4.25);
+  flask.position.set(18.0, .92 + .16, -4.25);
   const glass = PM(0xd8e8e8, .08, 0, { transparent: true, opacity: .35, depthWrite: false });
-  pbox(.36, .12, .12, PM(0x6a4a30, .7), 34.45, .98, -4.2, g);
-  [[34.33, 0xd8c040], [34.45, 0x9a2a20], [34.57, 0xe8e8d0]].forEach(([x, c]) => { pcyl(.016, .016, .2, glass, x, 1.06, -4.2, g, { seg: 8 }); pcyl(.014, .014, .1, PM(c, .2, 0, { transparent: true, opacity: .8 }), x, 1.0, -4.2, g, { seg: 8 }); });
-  [['H₂SO₄', 33.7, -4.55], ['HNO₃', 33.86, -4.62]].forEach(([n, x, z]) => { pcyl(.045, .05, .18, PM(0x4a2a14, .25, 0, { transparent: true, opacity: .85 }), x, 1.01, z, g); pmesh(new THREE.PlaneGeometry(.07, .05), new THREE.MeshBasicMaterial({ map: makeSign(n, '#e8e4d0', '#2a1a10', 34) }), x, 1.02, z + .05, g, { cast: false }); });
-  pmesh(new THREE.PlaneGeometry(.3, .2), new THREE.MeshBasicMaterial({ map: makeSign('☠ 강산 취급 주의', '#e8c020', '#1a1a1a', 22) }), 34.0, .925, -3.98, g, { rx: -Math.PI / 2, cast: false });
+  pbox(.36, .12, .12, PM(0x6a4a30, .7), 18.45, .98, -4.2, g);
+  [[18.33, 0xd8c040], [18.45, 0x9a2a20], [18.57, 0xe8e8d0]].forEach(([x, c]) => { pcyl(.016, .016, .2, glass, x, 1.06, -4.2, g, { seg: 8 }); pcyl(.014, .014, .1, PM(c, .2, 0, { transparent: true, opacity: .8 }), x, 1.0, -4.2, g, { seg: 8 }); });
+  [['H₂SO₄', 17.7, -4.55], ['HNO₃', 17.86, -4.62]].forEach(([n, x, z]) => { pcyl(.045, .05, .18, PM(0x4a2a14, .25, 0, { transparent: true, opacity: .85 }), x, 1.01, z, g); pmesh(new THREE.PlaneGeometry(.07, .05), new THREE.MeshBasicMaterial({ map: makeSign(n, '#e8e4d0', '#2a1a10', 34) }), x, 1.02, z + .05, g, { cast: false }); });
+  pmesh(new THREE.PlaneGeometry(.3, .2), new THREE.MeshBasicMaterial({ map: makeSign('☠ 강산 취급 주의', '#e8c020', '#1a1a1a', 22) }), 18.0, .925, -3.98, g, { rx: -Math.PI / 2, cast: false });
   skel.children.forEach(c => { c.visible = false; }); skeletonModel(skel);
-  FLR(1).add(skel); skel.position.set(28.75, 0, -8.85); skel.rotation.y = .6;
+  FLR(9).add(skel); skel.position.set(12.75, 0, -8.85); skel.rotation.y = .6;
   FZ.skel = skel; FZ.skelHome = skel.position.clone();
-  fzProp(IA(fzP, 'science_acid_craft'), 1, 34.0, -4.25, 1.1, { r: 1.7 });
+  fzProp(IA(fzP, 'science_acid_craft'), 9, 18.0, -4.25, 1.1, { r: 1.7 });
 }
 
 /* ── 7-5. 급식실: 조리실 안쪽 워크인 냉동창고(새로 지음) · 대형 국솥(숨기) · 가스 화구 ── */
@@ -5698,8 +5716,8 @@ function lockerDoorToggle(p) {
       });
       // 채광창: 남쪽 교실 벽(문 사이 3m 벽) 위쪽
       const spots = []; idx.forEach(i => { if (LS && !['lobby', 'hall'].includes(LS.types[i])) spots.push(SLOTS[i] - 2.55, SLOTS[i] + 2.55); });   /* 문틀(±1.1) 과 방 칸막이(±4) 사이 벽 가운데 */
-      wins.forEach((w, k) => { if (k < spots.length) { put(w, spots[k], 2.05, w.position.x); w.scale.z = .6; /* 3.2m → 1.9m: 문틀과 겹치지 않게 */ srgb(w.material.map); } else w.visible = false; });
-      signs.forEach((s, k) => { const L = labels[k]; put(s, L.x - 1.32, 2.5, L.north ? CW / 2 - .26 : -(CW / 2 - .26)); srgb(s.material.map); });
+      wins.forEach(w => { w.visible = false; });
+      signs.forEach(s => { s.visible = false; });
       const myLamps = lamps.filter(x => x >= cx - 9 && x < cx + 9);
       fixtures.forEach((fx_, k) => { if (k < myLamps.length) { put(fx_, myLamps[k], CH_ - .04, 0); fx_.scale.z = 1.22; } else fx_.visible = false; });
       g.traverse(o => { o.userData.dynamic = true; if (o.isMesh) o.receiveShadow = true; });
@@ -5728,10 +5746,10 @@ function patchTick(dt) {
     const z = zoneLabel(); if (z && z !== '실내 연결복도' && !FL.fzSeen && state === 'playing') { FL.fzSeen = true; refreshHud(); toast('서브 미션 · 구역 조사', `${z} — 남겨진 설비와 기록을 조사할 수 있다`, 'info'); }
   }
   // 7. 5대 구역: 냉동창고 저체온 · 해골 모형 (해골은 과학실 안에 있을 때만, 층 기준 좌표로)
-  const inLab = P.floor === 1 && P.x > 28.1 && P.x < 35.9 && P.z < -1.75 && P.z > -9.6;
+  const inLab = P.floor === 9 && P.x > 12.1 && P.x < 19.9 && P.z < -1.75 && P.z > -9.6;
   fzP.update(dt, inLab ? _pp.set(P.x, 0, P.z) : null, notify);
   if (FZ.skel) {
-    const s = FZ.skel.position; s.x = clamp(s.x, 28.6, 35.4); s.z = clamp(s.z, -9.2, -2.2); const q = { x: s.x, z: s.z }; collide(floors[1].col, q, .22); s.x = q.x; s.z = q.z; s.y = 0;
+    const s = FZ.skel.position; s.x = clamp(s.x, 12.6, 19.4); s.z = clamp(s.z, -9.2, -2.2); const q = { x: s.x, z: s.z }; collide(floors[9].col, q, .22); s.x = q.x; s.z = q.z; s.y = 0;
     if (inLab) {
       const d = Math.hypot(s.x - P.x, s.z - P.z), lx = -Math.sin(P.yaw), lz = -Math.cos(P.yaw), sees = ((s.x - P.x) * lx + (s.z - P.z) * lz) / Math.max(d, .01) > .2;
       if (sees) { if (FZ.skelSeenAt && Math.hypot(FZ.skelSeenAt.x - s.x, FZ.skelSeenAt.z - s.z) > .7) { at(s.x, FH + .5, s.z).chairScrape(); P.fear = Math.min(1, P.fear + .05); caption('…해골 모형이 아까보다 가까이 와 있다'); } FZ.skelSeenAt = { x: s.x, z: s.z }; }
@@ -6581,16 +6599,16 @@ function roomSwap(obj, fnName, table) { const orig = obj[fnName].bind(obj); obj[
 roomSwap(s37, 'populateRoomByType', RB_S37);
 Object.values(s37.textures).forEach(srgb);
 const S37 = { rooms: [], props: [], placed: 0, skipped: 0 };
-const S37_LIST = { 4: ['청소도구실', '기계실', '펌프실', '시설 창고'], 0: ['상담실', '회의실', '창고', '보건실 보조', '보건실'], 1: ['2층 홀', '창고', '요리실', '교사 휴게실'], 2: ['3층 홀', '학생회실', '상담실', '보관실'],
-  8: ['공구실', '세척실', '자재 창고', '진로상담실 (104)', '창의융합실 (103)', '요리실 (101)', '실습 준비실'], 9: ['과학 준비실', '언어실 (202)', '교재 창고', '상담실', '스마트교실 (203)', '동아리실 (204)'], 10: ['작업실', '보관실', '기자재실', '공예실 (303)'] };
-const S37_TYPE = { '시설 창고': '시설창고실', '보건실 보조': '보건실보조', '교사 휴게실': '교사휴게실', '2층 홀': '2층홀', '3층 홀': '3층홀', '실습 준비실': '실습준비실', '자재 창고': '자재창고', '진로상담실 (104)': '진로상담실', '창의융합실 (103)': '창의융합실(103)', '요리실 (101)': '요리실(101)', '과학 준비실': '과학준비실', '언어실 (202)': '언어실', '교재 창고': '교재창고실', '스마트교실 (203)': '스마트교실', '동아리실 (204)': '동아리실', '음악실 (301)': '음악실', '전시 공간': '전시공간', '공예실 (303)': '공예실' };
+const S37_LIST = { 4: ['청소도구실', '기계실', '펌프실', '자재실 · 창고'], 0: ['상담실', '교사 휴게실'], 1: ['회의실', '2층 홀', '교사 휴게실', '상담실'], 2: ['3층 홀', '교사 휴게실', '상담실'],
+  8: ['보건실', '요리실', '기술·가정실 (102)', '보건실 보조', '공구실', '인쇄실', '진로상담실 (104)', '세척실'], 9: ['언어실 (202)', '스마트교실 (203)', '과학 준비실', '디지털실습실', '기록 보관실', '동아리실 (204)'], 10: ['공예실', '창의융합실 (103)', '시청각실', '학생회실', '열람실', '작업실'] };
+const S37_TYPE = { '자재실 · 창고': '시설창고실', '시설 창고': '시설창고실', '보건실 보조': '보건실보조', '교사 휴게실': '교사휴게실', '2층 홀': '2층홀', '3층 홀': '3층홀', '실습 준비실': '실습준비실', '자재 창고': '자재창고', '진로상담실 (104)': '진로상담실', '창의융합실 (103)': '창의융합실(103)', '요리실': '요리실(101)', '요리실 (101)': '요리실(101)', '과학 준비실': '과학준비실', '언어실 (202)': '언어실', '교재 창고': '교재창고실', '스마트교실 (203)': '스마트교실', '동아리실 (204)': '동아리실', '음악실': '음악실', '음악실 (301)': '음악실', '전시 공간': '전시공간', '공예실': '공예실', '공예실 (303)': '공예실' };
 {
   const RW = 7.6, RD = 7.5, _mFootByFloor = {};
   const getFloorModelRects = f => _mFootByFloor[f] || (_mFootByFloor[f] = world.MODELS.filter(m => m.f === f).map(modelFootprint).filter(b => b && b.y1 < 1.8 && b.y2 > .1));
   Object.entries(S37_LIST).forEach(([fs, names]) => {
     const f = +fs, F = floors[f]; if (!F) return;
     const an = f >= 8, north = an ? ANNEX.floors[f - 8] : LAYOUT[f], south = an ? ANNEX_S[f - 8] : LAYOUT_S[f], sl = an ? ANNEX.slots : SLOTS;
-    const rooms = []; north && north.names.forEach((n, i) => rooms.push({ n, cx: sl[i], s: 1 })); south && south.names.forEach((n, i) => rooms.push({ n, cx: (an && i === 2 && f >= 9) ? 24 : sl[i], s: -1 }));
+    const rooms = []; north && north.names.forEach((n, i) => rooms.push({ n, cx: sl[i], s: 1 })); south && south.names.forEach((n, i) => rooms.push({ n, cx: sl[i], s: -1 })); if (an) rooms.push({ n: ['세척실', '화장실', '작업실'][f - 8], cx: 24, s: -1 });
     names.forEach(nm => {
       const R = rooms.find(r => r.n === nm); if (!R) { console.warn('[37실] 방 없음', f, nm); return; }
       const cx = R.cx, s = R.s, cz = -s * 5.675, key = `${f}:${cx}:${s}`;
@@ -6637,7 +6655,7 @@ const S37_TYPE = { '시설 창고': '시설창고실', '보건실 보조': '보�
   });
   console.info(`[37실] 방 ${S37.rooms.length}개 · 새 가구 ${S37.placed}개 배치 (겹치거나 동선을 막는 자리는 건너뜀)`);
 }
-const infirmaryExtraSlots = [], infirmaryCabinetViews = []; for (const room of S37.rooms.filter(r => r.f === 0 && r.name === "보건실")) room.g.traverse(holder => { const kind = holder.userData.infirmaryKind; if (!kind) return; const fallback = new THREE.Group(); fallback.userData.dynamic = true; const old = [...holder.children].filter(o => !(kind === "bed" && o.geometry?.type === "PlaneGeometry")); holder.add(fallback); old.forEach(o => fallback.add(o)); const id = "nurse-s37-" + kind + "-" + infirmaryExtraSlots.length; if (kind === "cabinetOpen") { const closedHolder = new THREE.Group(), openHolder = new THREE.Group(); closedHolder.userData.dynamic = openHolder.userData.dynamic = true; openHolder.visible = false; holder.add(closedHolder, openHolder); const closedId = id + "-closed", openId = id + "-open", prop = S37.props.find(p => p.floor === 0 && p.room === "보건실" && /약품장/.test(p.fz.promptText)); infirmaryExtraSlots.push({ id: closedId, kind: "cabinetClosed", holder: closedHolder, fallback }, { id: openId, kind: "cabinetOpen", holder: openHolder, fallback: null }); infirmaryCabinetViews.push({ closedId, openId, closedHolder, openHolder, fallback, getOpen: () => !!prop?.done }); } else infirmaryExtraSlots.push({ id, kind, holder, fallback }); }); const infirmaryAssets = installInfirmaryAssets({ renderer, scene, camera, slots: [...(world.INFIRMARY_SLOTS || []), ...infirmaryExtraSlots], batchOpaque: true }); window.__infirmaryAssets = infirmaryAssets; function syncInfirmaryCabinets() { updateInfirmaryCabinets(infirmaryCabinetViews, infirmaryAssets.records); } infirmaryAssets.ready.then(async records => { await textureBudget.prepare(scene); syncInfirmaryCabinets(); const bad = records.filter(r => r.status === "error"); if (bad.length) console.warn("[infirmary]", bad.map(r => [r.id, r.error?.message])); }); async function s37Act(p, ctx) {
+const infirmaryExtraSlots = [], infirmaryCabinetViews = []; for (const room of S37.rooms.filter(r => r.name === "보건실")) room.g.traverse(holder => { const kind = holder.userData.infirmaryKind; if (!kind) return; const fallback = new THREE.Group(); fallback.userData.dynamic = true; const old = [...holder.children].filter(o => !(kind === "bed" && o.geometry?.type === "PlaneGeometry")); holder.add(fallback); old.forEach(o => fallback.add(o)); const id = "nurse-s37-" + kind + "-" + infirmaryExtraSlots.length; if (kind === "cabinetOpen") { const closedHolder = new THREE.Group(), openHolder = new THREE.Group(); closedHolder.userData.dynamic = openHolder.userData.dynamic = true; openHolder.visible = false; holder.add(closedHolder, openHolder); const closedId = id + "-closed", openId = id + "-open", prop = S37.props.find(p => p.room === "보건실" && /약품장/.test(p.fz.promptText)); infirmaryExtraSlots.push({ id: closedId, kind: "cabinetClosed", holder: closedHolder, fallback }, { id: openId, kind: "cabinetOpen", holder: openHolder, fallback: null }); infirmaryCabinetViews.push({ closedId, openId, closedHolder, openHolder, fallback, getOpen: () => !!prop?.done }); } else infirmaryExtraSlots.push({ id, kind, holder, fallback }); }); const infirmaryAssets = installInfirmaryAssets({ renderer, scene, camera, slots: [...(world.INFIRMARY_SLOTS || []), ...infirmaryExtraSlots], batchOpaque: true }); window.__infirmaryAssets = infirmaryAssets; function syncInfirmaryCabinets() { updateInfirmaryCabinets(infirmaryCabinetViews, infirmaryAssets.records); } infirmaryAssets.ready.then(async records => { await textureBudget.prepare(scene); syncInfirmaryCabinets(); const bad = records.filter(r => r.status === "error"); if (bad.length) console.warn("[infirmary]", bad.map(r => [r.id, r.error?.message])); }); async function s37Act(p, ctx) {
   const t = p.fz.promptText, F = floors[p.floor], pos = V3(p.x, F.y0 + 1, p.z);
   if (/숨기/.test(t) && ctx.togglePlayerHide) { ctx.togglePlayerHide(); return; }
   if (/숨 고르기/.test(t)) { if ((p.restT || 0) > performance.now()) { say('아직 숨이 진정되지 않았다 — 조금 뒤에 다시', 2200); return; } p.restT = performance.now() + 60000; P.fear = Math.max(0, P.fear - .15); sfx.breath ? sfx.breath() : sfx.click(); say('소파에 기대 숨을 골랐다 — 공포가 조금 가라앉는다', 3000); return; }
@@ -6695,7 +6713,7 @@ const N37 = { rooms: [], props: [], placed: 0, removed: 0, cd: {} };
   Object.entries(S37_LIST).forEach(([fs, names]) => {
     const f = +fs, F = floors[f]; if (!F) return;
     const an = f >= 8, north = an ? ANNEX.floors[f - 8] : LAYOUT[f], south = an ? ANNEX_S[f - 8] : LAYOUT_S[f], sl = an ? ANNEX.slots : SLOTS;
-    const rooms = []; north && north.names.forEach((n, i) => rooms.push({ n, cx: sl[i], s: 1 })); south && south.names.forEach((n, i) => rooms.push({ n, cx: (an && i === 2 && f >= 9) ? 24 : sl[i], s: -1 }));
+    const rooms = []; north && north.names.forEach((n, i) => rooms.push({ n, cx: sl[i], s: 1 })); south && south.names.forEach((n, i) => rooms.push({ n, cx: sl[i], s: -1 })); if (an) rooms.push({ n: ['세척실', '화장실', '작업실'][f - 8], cx: 24, s: -1 });
     names.forEach(nm => {
       const R = rooms.find(r => r.n === nm); if (!R) return;
       const cx = R.cx, s = R.s, cz = -s * 5.675, type = S37_TYPE[nm] || nm;
@@ -7284,13 +7302,13 @@ function megaNotify(m) { const t = String(m).split('\n'); say(t[0].replace(/^\S+
     world.props.push({ kind: 'robj', k: 'bunker_light', t: 'bunker', floor: 4, x: bx + 1.15, z: z1 - .85, y: 1.35, r: 2.0, label: '방공호 주 전등 스위치 조작하기', bkLightGroup });
     {
       const bLoader = new GLTFLoader();
-      bLoader.load('assets/models/sf/sf_bunker_props_pack.glb?v=158', gltf => {
+      bLoader.load('assets/models/sf/sf_bunker_props_pack.glb?v=159', gltf => {
         const bm = gltf.scene; bm.position.set(bx, 0, z0 + .45);
         if (window.__upgradePure3DScene) window.__upgradePure3DScene(bm); else bm.traverse(o => { o.userData.dynamic = true; });
         R.add(bm);
         if (gltf.animations && gltf.animations.length) { const mx = new THREE.AnimationMixer(bm); mx.userData = { floor: 4, x: bx, z: z0 + .45 }; gltf.animations.forEach(c => mx.clipAction(c).play()); (window.__campusAnimMixers ||= []).push(mx); }
       }, undefined, () => {});
-      bLoader.load('assets/models/sf/sf_pump_policeline_scene.glb?v=158', gltf => {
+      bLoader.load('assets/models/sf/sf_pump_policeline_scene.glb?v=159', gltf => {
         const pm = gltf.scene; pm.position.set(24.0, 0, -3.65);
         pm.traverse(o => { o.userData.dynamic = true; if (o.isMesh) { o.castShadow = false; o.receiveShadow = true; if (o.material?.map) o.material.map.colorSpace = THREE.SRGBColorSpace; } });
         R.add(pm);
@@ -7308,17 +7326,27 @@ function megaNotify(m) { const t = String(m).split('\n'); say(t[0].replace(/^\S+
 }
 // 1998 사건 기록: 명찰 · 테이프를 37실 · 확장 구역에 배치 (방 가운데가 아닌 벽 쪽 빈자리)
 {
-  const roomPos = (f, nm) => { const an = f >= 8, north = an ? ANNEX.floors[f - 8] : LAYOUT[f], south = an ? ANNEX_S[f - 8] : LAYOUT_S[f], sl = an ? ANNEX.slots : SLOTS;
-    let i = north ? north.names.indexOf(nm) : -1; if (i >= 0) return { cx: sl[i], cz: -5.675, s: 1 }; i = south ? south.names.indexOf(nm) : -1; return i >= 0 ? { cx: sl[i], cz: 5.675, s: -1 } : null; };
+  const cleanNm = s => String(s || '').replace(/\s*\(.*\)$/, '').trim();
+  const roomPos = (f, nm) => {
+    for (const qf of [f, 0, 1, 2, 4, 8, 9, 10]) {
+      const an = qf >= 8, north = an ? ANNEX.floors[qf - 8] : LAYOUT[qf], south = an ? ANNEX_S[qf - 8] : LAYOUT_S[qf], sl = an ? ANNEX.slots : SLOTS;
+      let i = north ? north.names.findIndex(n => n === nm || cleanNm(n) === cleanNm(nm)) : -1;
+      if (i >= 0) return { f: qf, cx: sl[i], cz: -5.675, s: 1 };
+      i = south ? south.names.findIndex(n => n === nm || cleanNm(n) === cleanNm(nm)) : -1;
+      if (i >= 0) return { f: qf, cx: sl[i], cz: 5.675, s: -1 };
+    }
+    return null;
+  };
   const freeAt = (f, x, z) => !floors[f].col.some(c => !(c.h != null && c.h <= .225) && x > c.x1 - .3 && x < c.x2 + .3 && z > c.z1 - .3 && z < c.z2 + .3) && !world.props.some(p => p.floor === f && Math.hypot(p.x - x, p.z - z) < .7);
   const spot = (f, nm, k = 0) => { const R = roomPos(f, nm); if (!R) return null;
     const cand = [[2.9, -2.9], [-2.9, -2.9], [2.9, 0], [-2.9, 0], [1.5, -3.1], [-1.5, -3.1], [2.9, 1.8], [-2.9, 1.8]].map(([lx, lz]) => [R.cx + lx * R.s, R.cz + lz * R.s]);
-    return cand.filter(([x, z]) => freeAt(f, x, z))[k] || [R.cx, R.cz]; };
-  const PLACE = [['nametag', 'tag_01', 0, '상담실'], ['nametag', 'tag_03', 10, '음악실 (301)'], ['nametag', 'tag_04', 9, '과학 준비실'], ['nametag', 'tag_05', 9, '동아리실 (204)'], ['nametag', 'tag_06', 0, '보건실'],
-    ['nametag', 'tag_07', 8, '요리실 (101)'], ['nametag', 'tag_08', 2, '학생회실'], ['nametag', 'tag_09', 10, '전시 공간'], ['nametag', 'tag_10', 6, null, -46.1, 26.6], ['nametag', 'tag_12', 3, null, 21.5, -7.6],
+    const pt = cand.filter(([x, z]) => freeAt(R.f, x, z))[k] || [R.cx, R.cz];
+    return [pt[0], pt[1], R.f]; };
+  const PLACE = [['nametag', 'tag_01', 0, '상담실'], ['nametag', 'tag_03', 10, '음악실'], ['nametag', 'tag_04', 9, '과학 준비실'], ['nametag', 'tag_05', 9, '동아리실 (204)'], ['nametag', 'tag_06', 8, '보건실'],
+    ['nametag', 'tag_07', 8, '요리실'], ['nametag', 'tag_08', 10, '학생회실'], ['nametag', 'tag_09', 10, '전시 공간'], ['nametag', 'tag_10', 6, null, -46.1, 26.6], ['nametag', 'tag_12', 3, null, 21.5, -7.6],
     ['tape', 'tape_01', 2, '상담실'], ['tape', 'tape_02', 0, null, 21.0, 64.7], ['tape', 'tape_03', 9, '과학 준비실', 0, 0, 1]];
-  PLACE.forEach(([cat, id, f, nm, x, z, k]) => { const pt = nm ? spot(f, nm, k || 0) : [x, z]; if (!pt) return; const i0 = megaP.interactables.length;
-    megaP.spawnCollectibleItem(FLR(f), V3(pt[0], .05, pt[1]), cat, id); megaFz(i0, f); });
+  PLACE.forEach(([cat, id, f, nm, x, z, k]) => { const pt = nm ? spot(f, nm, k || 0) : [x, z, f]; if (!pt) return; const tf = pt[2] ?? f; const i0 = megaP.interactables.length;
+    megaP.spawnCollectibleItem(FLR(tf), V3(pt[0], .05, pt[1]), cat, id); megaFz(i0, tf); });
   // 별관 어학실: 방송 수신기 → 주파수 동조
   { const R = roomPos(9, '언어실 (202)'); if (R) world.props.push({ kind: 'megaRadio', floor: 9, x: R.cx - 2.6 * R.s, z: R.cz - 2.4 * R.s, y: 1.1, label: '어학실 방송 수신기 — 주파수 맞추기' }); }
 }

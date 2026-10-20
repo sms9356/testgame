@@ -442,7 +442,7 @@ export const SIDEQUESTS = [
 // 제4장 · 열쇠의 머리 — 다섯 조각을 모은 뒤 열리는 본편 장 (별관 1~3층). 의뢰와 같은 조사 지점 방식 · 진행은 FL.sq.head
 //   mini: 미니게임 (circuit 배선 · slide 사진 맞추기), code: 비밀번호 (키패드), need: 'anPow' (별관 전원)
 export const HEADQUEST = { id: 'head', title: '교장의 최종 은폐 내막 · 마스터 코어 추적', steps: [
-  { f: 0, room: '교장실', dx: 2.4, d: .6, look: 'paper', label: '교장 책상 서랍 열기', doc: 'h1', goal: '본관 1층 교장실 — 책상 서랍', where: '본관 1층 · 교장실' },
+  { f: 1, room: '교장실', dx: 2.4, d: .6, look: 'paper', label: '교장 책상 서랍 열기', doc: 'h1', goal: '본관 2층 교장실 — 책상 서랍', where: '본관 2층 · 교장실' },
   { f: 8, room: '별관 현관', dx: 2.6, d: 1.4, look: 'plaque', label: '개교 머릿돌 동판 읽기', doc: 'h2', goal: '별관 1층 현관 — 개교 머릿돌', where: '별관 1층 · 현관 (본관 1층 계단실 북쪽 유리 통로)' },
   { f: 8, room: '공구실', dx: -2.6, d: .16, look: 'panel', label: '별관 분전반 배선 잇기', mini: 'circuit', doc: 'h3', goal: '별관 1층 공구실 — 분전반 (별관 전원)', where: '별관 1층 · 공구실', event: 'annexPower' },
   { f: 9, room: '디지털실습실', dx: 2.6, d: .6, look: 'monitor', label: '보안 PC — 끊긴 CCTV 화면 복구', mini: 'slide', need: 'anPow', doc: 'h4', goal: '별관 2층 디지털실습실 — 보안 PC', where: '별관 2층 · 디지털실습실', event: 'cctv' },

@@ -107,17 +107,41 @@ let rainLv = -1;
 // 비의 세기 (해가 지기 전에는 비가 오지 않는다)
 export function setRainLevel(k) { if (!ok() || Math.abs(k - rainLv) < .01) return; rainLv = k; rainNodes.forEach(([g, v]) => g.gain.setTargetAtTime(v * k, ac.currentTime, .8)); }
 function amb(name, nodes) { const g = ac.createGain(); g.gain.value = 0; nodes.forEach(n => n.connect(g)); g.connect(bus.amb); AMB[name] = g; }
+// 자연스러운 1/f 핑크·브라운 노이즈 버퍼 (거친 백색소음이나 전자음 없이 실제 자연의 부드러운 밤바람과 나뭇잎 결을 재현)
+function loopNaturalWind(freq, type = 'lowpass', q = 0.7) {
+  const len = ac.sampleRate * 4, b = ac.createBuffer(1, len, ac.sampleRate), d = b.getChannelData(0);
+  let b0 = 0, b1 = 0, b2 = 0, last = 0;
+  for (let i = 0; i < len; i++) {
+    const w = Math.random() * 2 - 1;
+    b0 = 0.997 * b0 + w * 0.029;
+    b1 = 0.985 * b1 + w * 0.032;
+    b2 = 0.950 * b2 + w * 0.048;
+    last = (last + 0.02 * w) * 0.992;
+    d[i] = (b0 + b1 + b2 + last * 0.6) * 0.35;
+  }
+  const fade = 2048;
+  for (let i = 0; i < fade; i++) {
+    const k = i / fade;
+    d[i] = d[i] * k + d[len - fade + i] * (1 - k);
+  }
+  const s = ac.createBufferSource(); s.buffer = b; s.loop = true; s.loopStart = 0; s.loopEnd = 3.9;
+  const f = ac.createBiquadFilter(); f.type = type; f.frequency.value = freq; f.Q.value = q;
+  s.connect(f); s.start();
+  return f;
+}
 function buildAmbience() {
-  // 바람
-  const wind = loopNoise(380, 'lowpass'); const wl = ac.createOscillator(); wl.frequency.value = .09; const wlg = ac.createGain(); wlg.gain.value = 150; wl.connect(wlg); wlg.connect(wind.frequency); wl.start();
-  const windG = ac.createGain(); windG.gain.value = .14; wind.connect(windG);
-  // 빗소리 (고역 노이즈 + 저역 웅웅)
-  const rainHi = loopNoise(5200, 'highpass'), rainLo = loopNoise(900, 'lowpass');
-  const rH = ac.createGain(); rH.gain.value = .07; rainHi.connect(rH); const rL = ac.createGain(); rL.gain.value = .05; rainLo.connect(rL); rainNodes.push([rH, .07], [rL, .05]);
-  // 귀뚜라미
-  const cr = ac.createOscillator(); cr.frequency.value = 4400; const crA = ac.createGain(); crA.gain.value = 0; cr.connect(crA);
-  const crL = ac.createOscillator(); crL.type = 'square'; crL.frequency.value = 18; const crLG = ac.createGain(); crLG.gain.value = .006; crL.connect(crLG); crLG.connect(crA.gain); cr.start(); crL.start();
-  amb('out', [windG, rH, rL, crA]);
+  // 1) 자연스러운 깊은 가을 밤바람 (1/f 브라운·핑크 노이즈 + 느린 호흡의 이중 LFO)
+  const windDeep = loopNaturalWind(240, 'lowpass', 0.65);
+  const wl1 = ac.createOscillator(); wl1.frequency.value = 0.065; const wlg1 = ac.createGain(); wlg1.gain.value = 75; wl1.connect(wlg1); wlg1.connect(windDeep.frequency); wl1.start();
+  const windG = ac.createGain(); windG.gain.value = 0.11; windDeep.connect(windG);
+  // 2) 교정 가로수 나뭇잎이 바람에 부드럽게 사각거리는 자연 공기음 (고주파 삐 소리 100% 제거!)
+  const leaves = loopNaturalWind(580, 'bandpass', 0.55);
+  const wl2 = ac.createOscillator(); wl2.frequency.value = 0.11; const wlg2 = ac.createGain(); wlg2.gain.value = 120; wl2.connect(wlg2); wl2.connect(leaves.frequency); wl2.start();
+  const leavesG = ac.createGain(); leavesG.gain.value = 0.035; leaves.connect(leavesG);
+  // 3) 빗소리
+  const rainHi = loopNaturalWind(2800, 'lowpass', 0.5), rainLo = loopNaturalWind(650, 'lowpass', 0.6);
+  const rH = ac.createGain(); rH.gain.value = .05; rainHi.connect(rH); const rL = ac.createGain(); rL.gain.value = .04; rainLo.connect(rL); rainNodes.push([rH, .05], [rL, .04]);
+  amb('out', [windG, leavesG, rH, rL]);
   // 실내 복도: 룸톤 + 형광등 웅 (120Hz)
   const room = loopNoise(260, 'lowpass'); const roomG = ac.createGain(); roomG.gain.value = .05; room.connect(roomG);
   const rainIn = loopNoise(1400, 'lowpass'); const rainInG = ac.createGain(); rainInG.gain.value = .025; rainIn.connect(rainInG); rainNodes.push([rainInG, .025]);
@@ -179,12 +203,7 @@ export function setGhostVoice(pos, level, chase, dt) {
 /* ----- 비상 발전기 웅웅거림 (디젤 엔진의 낮은 고동 + 50Hz 험) ----- */
 // 손전등 집중 조사: 코일 과부하처럼 높아지는 고주파 윙 소리 (level 0~1)
 let coilG = null, coilO = null, coilLv = 0;
-export function setCoil(level) {
-  if (!ok()) return;
-  if (!coilG) { coilO = ac.createOscillator(); coilO.type = 'sawtooth'; const f = ac.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 3000; f.Q.value = 3; coilG = ac.createGain(); coilG.gain.value = 0; coilO.connect(f); f.connect(coilG); coilG.connect(bus.sfx); coilO.start(); }
-  if (Math.abs(level - coilLv) < .01) return; coilLv = level;
-  coilO.frequency.setTargetAtTime(900 + level * 3200 + Math.random() * 120, ac.currentTime, .05); coilG.gain.setTargetAtTime(level * .09, ac.currentTime, .06);
-}
+export function setCoil(level) { /* 고주파 삐 소리(코일 발진음) 완전 제거 */ }
 export function setGenHum(v, dt) { /* 저주파 엔진 험 제거. 발전기 미션 API는 유지. */ }
 
 /* ----- 음악 (메뉴 테마 · 추격) ----- */

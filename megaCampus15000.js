@@ -96,24 +96,26 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
   });
 
   /* =========================================================================
-     ① [학술·생활 섹션] 청운학사 (본격 2층 규모 학생기숙사 — Google Flow 2F CAD 도면 100% 반영!) — 서북 (x: -86, z: -42)
-     - 1층(y = 0.0m): 사감실(CRT 보안 모니터·열쇠함·점호일지) + 공용 휴게실(소파·테이블·TV·공중전화·신발장) + 북쪽 16단 실내 직통 계단
-     - 2층(y = 3.85m): 2층 복도 홀 + 4인실 2층침대 호실(201~204호·사생 사물함) + 2층 심야 정독실(칸막이 열람석 4조) + 2층 야외 베란다
+     ① [학술·생활 섹션] 청운학사 (Pro 3D Environment Team 리빌드 — 4K PBR 아틀라스 쉘 + 하이폴리곤 3D 가구 .glb 5종!) — 서북 (x: -86, z: -42)
+     - 외관: 화강암 코너 기둥(Quoin Pilasters) · 1/2층 화강암 코니스 몰딩 · 다중 멀리언 창틀 & 철창살 · 박공 페디먼트 포치 · 배수 홈통
+     - 실내 1F(y=0.0m): 헤링본 원목 마루 · 웨인스코팅/습기벽지 · 격자유리 사감실 파티션 가벽 · 2x2 CRT 보안관제석 · 빈티지 가죽 퀼팅 소파 라운지 · 22동자주 주철 난간 계단
+     - 실내 2F(y=3.85m): 201호/202호 원목 문짝 & 복도 파티션 · 원통형 강철 파이프 2층침대 4기 · 심야 정독실 카렐 부스 4기 · 천장 우물형 코퍼 보 & 벽부등
      ========================================================================= */
   {
     const cx = -86, cz = -42, W = 22, D = 14, H = 8.4, Y2 = 3.85;
     const x0 = cx - W / 2, x1 = cx + W / 2, z0 = cz - D / 2, z1 = cz + D / 2, t = .32, dw = 3.0, dh = 2.6;
     const g = new THREE.Group(); g.name = 'chunk_dorm'; g.userData.dynamic = true; OUT.add(g);
+    const walnutM = PM(0x3b2618, .64, .08), darkPlasterM = PM(0x4e4c46, .88), brassM = PM(0xb8923a, .32, .78), ironBalM = PM(0x1e2226, .45, .72);
 
-    // 1) 외벽 쉘 (하단 화강암 기단 + 1·2층 적벽돌 외벽 + 2층 천장/옥상 슬래브)
-    pbox(W, .06, D, woodFloor, cx, .03, cz, g, { cast: false });
-    pbox(W + .6, .35, D + .6, stoneM, cx, H + .175, cz, g);
-    pbox(W + .3, .42, D + .3, darkMetal, cx, H + .52, cz, g);
-    // 화강암 1층 기단 띠 (CAD FRONT ELEVATION 반영)
-    pbox(W + .72, 1.05, .12, stoneM, cx, .525, z0 - t - .04, g, { cast: false });
-    pbox(W + .72, 1.05, .12, stoneM, cx, .525, z1 + t + .04, g, { cast: false });
-    pbox(.12, 1.05, D + .72, stoneM, x0 - t - .04, .525, cz, g, { cast: false });
-    // 북벽 · 남벽 · 서벽 · 동벽(정문 출입구 개방)
+    // 1) 구조 외벽 쉘 & 옥상 지붕 코니스 + 배수 파이프 (PBR 아틀라스 쉘 sf_pro_dorm_arch_trim.glb 와 정밀 결합!)
+    pbox(W, .05, D, walnutM, cx, .025, cz, g, { cast: false });
+    pbox(W + .7, .36, D + .7, stoneM, cx, H + .18, cz, g);
+    pbox(W + .4, .45, D + .4, darkMetal, cx, H + .56, cz, g);
+    // 외벽 하단 화강암 기단 & 창문 아래 주철 라디에이터/석재 창턱
+    pbox(W + .76, 1.05, .14, stoneM, cx, .525, z0 - t - .05, g, { cast: false });
+    pbox(W + .76, 1.05, .14, stoneM, cx, .525, z1 + t + .05, g, { cast: false });
+    pbox(.14, 1.05, D + .76, stoneM, x0 - t - .05, .525, cz, g, { cast: false });
+    // 북벽 · 남벽 · 서벽 · 동벽(정문 개방)
     pbox(W + 2 * t, H, t, brickM, cx, H / 2, z0 - t / 2, g); addCol(x0 - t, x1 + t, z0 - t, z0, true);
     pbox(W + 2 * t, H, t, brickM, cx, H / 2, z1 + t / 2, g); addCol(x0 - t, x1 + t, z1, z1 + t, true);
     pbox(t, H, D, brickM, x0 - t / 2, H / 2, cz, g);       addCol(x0 - t, x0, z0, z1, true);
@@ -123,106 +125,128 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
       pbox(t, H, sw, brickM, x1 + t / 2, H / 2, z1 - sw / 2, g); addCol(x1, x1 + t, cz + dw / 2, z1, true);
       pbox(t, H - dh, dw, brickM, x1 + t / 2, dh + (H - dh) / 2, cz, g);
     }
-    // 정문 포치 & 현판 + 1·2층 창문 및 2층 동남쪽 돌출 발코니 (CAD BALCONY 반영)
-    pbox(1.8, .24, 4.4, stoneM, x1 + 1.1, 3.1, cz, g);
-    [-1.8, 1.8].forEach(dz => pcyl(.16, .18, 3.0, stoneM, x1 + 1.7, 1.5, cz + dz, g));
-    pbox(.12, .62, 4.4, darkMetal, x1 + 2.02, 3.45, cz, g, { cast: false });
-    pmesh(new THREE.PlaneGeometry(4.2, .52), new THREE.MeshBasicMaterial({ map: makeSign('청 운 학 사 (靑雲學舍) — 1F 사감실·휴게실 / 2F 생활관·정독실', '#1c2d38', '#f4ebd0', 22) }), x1 + 2.09, 3.45, cz, g, { ry: Math.PI / 2, cast: false });
-    for (let fy of [2.0, 5.8]) for (let dz of [-4.8, -2.4, 2.4, 4.8]) {
-      pmesh(new THREE.PlaneGeometry(1.5, 1.25), glassM, x1 + .34, fy, cz + dz, g, { ry: Math.PI / 2, cast: false });
-      pbox(.18, .08, 1.65, stoneM, x1 + .38, fy - .64, cz + dz, g, { cast: false });
-    }
-    // 2층 동남쪽 외벽 돌출 발코니 & 철제 난간 (x: x1 ~ x1 + 1.8, z: cz + 2.2 ~ z1 - .4, y = Y2)
-    pbox(1.8, .18, 4.2, stoneM, x1 + 1.1, Y2 - .06, cz + 4.3, g);
-    pbox(.08, 1.05, 4.2, darkMetal, x1 + 1.95, Y2 + .52, cz + 4.3, g);
-    pbox(1.8, 1.05, .08, darkMetal, x1 + 1.1, Y2 + .52, cz + 2.24, g);
-    pbox(1.8, 1.05, .08, darkMetal, x1 + 1.1, Y2 + .52, cz + 6.36, g);
 
-    // 2) 북쪽 벽면 16단 실내 직통 계단 (1F y=0.0m → 2F y=3.85m, x: -93.6 → -84.0, z: z0 + .2 ~ z0 + 2.6)
+    // 정문 클래식 엔타블러처 포치 & 원형 석조 기둥 4기 + 청동 현판
+    pbox(2.2, .22, 5.0, stoneM, x1 + 1.15, .11, cz, g, { cast: false });
+    pbox(2.0, .28, 4.8, stoneM, x1 + 1.15, 3.12, cz, g);
+    pbox(2.2, .22, 5.2, darkMetal, x1 + 1.15, 3.36, cz, g);
+    [-2.0, 2.0].forEach(dz => {
+      pbox(.42, .45, .42, stoneM, x1 + 1.85, .225, cz + dz, g);
+      pcyl(.17, .20, 2.6, stoneM, x1 + 1.85, 1.72, cz + dz, g);
+      pbox(.38, .22, .38, stoneM, x1 + 1.85, 2.98, cz + dz, g);
+    });
+    pbox(.14, .68, 4.6, ironBalM, x1 + 2.18, 3.56, cz, g, { cast: false });
+    pmesh(new THREE.PlaneGeometry(4.4, .56), new THREE.MeshBasicMaterial({ map: makeSign('靑 雲 學 舍 (청운학사) — 제1학생생활관 · 심야정독실', '#18242c', '#f2e4c4', 22) }), x1 + 2.26, 3.56, cz, g, { ry: Math.PI / 2, cast: false });
+
+    // 동벽 · 남벽 · 북벽 1층/2층 입체 멀리언 창틀 & 석재 상인방/창턱 & 방범 창살
+    for (let fy of [2.05, 5.85]) {
+      for (let dz of [-4.8, -2.4, 2.4, 4.8]) {
+        pmesh(new THREE.PlaneGeometry(1.56, 1.32), glassM, x1 + .36, fy, cz + dz, g, { ry: Math.PI / 2, cast: false });
+        pbox(.22, .12, 1.74, stoneM, x1 + .40, fy - .68, cz + dz, g, { cast: false }); // 석재 창턱(Sill)
+        pbox(.20, .16, 1.78, stoneM, x1 + .39, fy + .70, cz + dz, g, { cast: false }); // 석재 상인방(Lintel)
+        pbox(.12, 1.32, .06, walnutM, x1 + .36, fy, cz + dz, g, { cast: false });      // 중앙 수직 창살(Mullion)
+        pbox(.12, .05, 1.56, walnutM, x1 + .36, fy + .12, cz + dz, g, { cast: false }); // 수평 창살(Transom)
+      }
+      for (let dx of [-7.5, -2.5, 2.5, 7.5]) {
+        pbox(1.78, .16, .20, stoneM, cx + dx, fy + .70, z1 + .39, g, { cast: false });
+        pbox(1.74, .12, .22, stoneM, cx + dx, fy - .68, z1 + .40, g, { cast: false });
+      }
+    }
+
+    // 2층 동남쪽 돌출 발코니 & 주철 동자주 난간 (CAD BALCONY)
+    pbox(1.9, .22, 4.4, stoneM, x1 + 1.15, Y2 - .08, cz + 4.3, g);
+    pbox(.08, .08, 4.4, walnutM, x1 + 2.02, Y2 + 1.02, cz + 4.3, g);
+    for (let bz = cz + 2.2; bz <= cz + 6.4; bz += .35) {
+      pcyl(.016, .016, 1.02, ironBalM, x1 + 2.02, Y2 + .51, bz, g);
+    }
+
+    // 2) 북쪽 벽면 16단 화강암·월넛 실내 직통 계단 + 22개 주철 동자주(Balusters) & 뉴얼 포스트 난간!
     for (let st = 0; st < 16; st++) {
       const sx1 = -93.6 + st * .60, sx2 = sx1 + .62, sh = (st + 1) * (Y2 / 16);
-      pbox(.62, sh, 2.3, stoneM, (sx1 + sx2) / 2, sh / 2, z0 + 1.25, g);
-      pbox(.64, .04, 2.32, woodDark, (sx1 + sx2) / 2, sh + .01, z0 + 1.25, g, { cast: false });
+      pbox(.62, sh, 2.32, stoneM, (sx1 + sx2) / 2, sh / 2, z0 + 1.25, g);
+      pbox(.66, .045, 2.38, walnutM, (sx1 + sx2) / 2, sh + .015, z0 + 1.25, g, { cast: false });
       addCol(sx1, sx2, z0 + .1, z0 + 2.45, false, sh);
+      // 계단 단마다 수직 주철 동자주 기둥 설치!
+      pcyl(.018, .018, .92, ironBalM, (sx1 + sx2) / 2, sh + .46, z0 + 2.42, g);
     }
-    // 계단 측면 안전 난간
-    pbox(9.8, .95, .08, darkMetal, -88.8, Y2 / 2 + .5, z0 + 2.45, g);
-    addCol(-93.6, -84.0, z0 + 2.40, z0 + 2.55, false, null, { maxY: 3.6 });
+    // 계단 상·하단 원목 뉴얼 포스트 기둥 & 경사 핸드레일
+    pbox(.16, 1.15, .16, walnutM, -93.55, .58, z0 + 2.42, g);
+    pbox(.16, 1.15, .16, walnutM, -83.95, Y2 + .58, z0 + 2.42, g);
+    pbox(10.0, .09, .10, walnutM, -88.75, Y2 / 2 + .94, z0 + 2.42, g, { rz: Math.atan2(Y2, 9.6) });
+    addCol(-93.6, -84.0, z0 + 2.38, z0 + 2.56, false, null, { maxY: 3.6 });
 
-    // 3) 2층 철근콘크리트 바닥 슬래브 (y = Y2 = 3.85m — 계단 오름구 x: -94.0 ~ -84.0, z: z0 ~ z0 + 2.5 구간만 개방!)
-    // 남측 메인 2층 슬래브 (x: x0 ~ x1, z: z0 + 2.5 ~ z1)
-    pbox(W, .18, D - 2.5, woodFloor, cx, Y2 - .09, cz + 1.25, g);
-    pbox(W, .04, D - 2.5, whiteWall, cx, Y2 - .19, cz + 1.25, g, { cast: false });
+    // 3) 2층 철근콘크리트 구조 슬래브 & 1·2층 천장 우물형 코퍼 목재 보(Ceiling Coffer Beams)
+    pbox(W, .18, D - 2.5, walnutM, cx, Y2 - .09, cz + 1.25, g);
+    pbox(W, .04, D - 2.5, darkPlasterM, cx, Y2 - .19, cz + 1.25, g, { cast: false });
     addCol(x0 + .2, x1 - .2, z0 + 2.45, z1 - .2, false, Y2, { y0: 3.50 });
-    // 북동측 2층 상부 랜딩 슬래브 (x: -84.0 ~ x1, z: z0 ~ z0 + 2.5 — 계단 꼭대기와 직결!)
-    pbox(x1 - (-84.0), .18, 2.5, woodFloor, (-84.0 + x1) / 2, Y2 - .09, z0 + 1.25, g);
+    pbox(x1 - (-84.0), .18, 2.5, walnutM, (-84.0 + x1) / 2, Y2 - .09, z0 + 1.25, g);
     addCol(-84.05, x1 - .2, z0 + .1, z0 + 2.5, false, Y2, { y0: 3.50 });
-    // 2층 계단 개구부 추락 방지 난간
-    pbox(10.2, .95, .08, woodDark, -89.0, Y2 + .48, z0 + 2.52, g);
 
-    // 4) [1층 인테리어 (y = 0.0m)]: 사감실(남동 코너) & 공용 휴게 라운지(중앙·남서 코너)
-    // 사감실 책상 · CRT 보안 모니터 4대 · 열쇠함
-    pbox(2.4, .76, .85, woodDark, cx + 6.2, .38, cz + 4.4, g);
-    addCol(cx + 5.0, cx + 7.4, cz + 3.9, cz + 4.9, false, null, { maxY: 2.5 });
-    addChair(g, cx + 6.2, cz + 5.2, Math.PI);
-    [-0.6, -0.2, 0.2, 0.6].forEach(dx => {
-      pbox(.34, .32, .32, darkMetal, cx + 6.2 + dx, .92, cz + 4.4, g);
-      pmesh(new THREE.PlaneGeometry(.28, .22), new THREE.MeshBasicMaterial({ color: 0x58d8a8 }), cx + 6.2 + dx, .93, cz + 4.23, g, { ry: Math.PI, cast: false });
-    });
-    pmesh(new THREE.PlaneGeometry(2.6, .85), new THREE.MeshBasicMaterial({ map: makeSign('1F 사감실 호실 열쇠함 (101~208호) | 2층 침실·정독실은 북쪽 계단 이용', '#24342e', '#e8ece4', 19) }), cx + 6.2, 2.05, z1 - .08, g, { ry: Math.PI, cast: false });
-    world.props.push({ kind: 'robj', k: 'dorm_log', t: 'mega15k', floor: 0, x: cx + 6.2, z: cz + 3.4, y: .9, r: 2.2, label: '1층 사감실 점호 일지 및 CCTV 모니터 조사하기' });
-
-    // 1층 공용 휴게실 소파 세트 & 커피 테이블 & 브라운관 TV (x: cx - 3.5, z: cz + 2.8)
-    pbox(2.6, .45, .82, redFabric, cx - 3.5, .225, cz + 1.4, g);
-    pbox(2.6, .45, .82, redFabric, cx - 3.5, .225, cz + 4.2, g);
-    pbox(1.8, .42, .90, woodLight, cx - 3.5, .21, cz + 2.8, g);
-    addCol(cx - 4.9, cx - 2.1, cz + 1.0, cz + 4.6, false, null, { maxY: 2.5 });
-
-    // 5) [2층 인테리어 (y = Y2 = 3.85m 위!)]: 서쪽 4인실 2층침대 호실 & 동쪽 2층 심야 정독실!
-    const addChairAtY = (x, y0, z, ry = 0, colMat = woodDark) => {
-      const cg = new THREE.Group(); cg.position.set(x, y0, z); cg.rotation.y = ry; grp => grp; g.add(cg);
-      pbox(.44, .05, .44, colMat, 0, .44, 0, cg);
-      pbox(.44, .42, .05, colMat, 0, .66, -.20, cg);
-      [[-.18, -.18], [.18, -.18], [-.18, .18], [.18, .18]].forEach(([lx, lz]) => pbox(.04, .44, .04, darkMetal, lx, .22, lz, cg));
-    };
-
-    // 2층 서쪽: 2층 침대(Bunk Beds) 4기 (y = Y2 = 3.85m 바닥 위에 배치!)
-    [-1.2, 1.4, 4.0].forEach((dz, bi) => {
-      const bx0 = cx - 8.2, bz0 = cz + dz;
-      [[-.98, -.48], [.98, -.48], [-.98, .48], [.98, .48]].forEach(([px, pz]) => pbox(.08, 1.85, .08, woodDark, bx0 + px, Y2 + .925, bz0 + pz, g));
-      pbox(2.06, .12, 1.04, woodLight, bx0, Y2 + .38, bz0, g);
-      pbox(2.06, .12, 1.04, woodLight, bx0, Y2 + 1.28, bz0, g);
-      pbox(1.94, .14, .94, mattressM, bx0, Y2 + .50, bz0, g);
-      pbox(1.94, .14, .94, mattressM, bx0, Y2 + 1.40, bz0, g);
-      pbox(1.15, .05, .92, bi % 2 ? blueFabric : redFabric, bx0 + .35, Y2 + .58, bz0, g);
-      pbox(1.15, .05, .92, bi % 2 ? redFabric : blueFabric, bx0 + .35, Y2 + 1.48, bz0, g);
-      pbox(.04, 1.45, .36, chromeM, bx0 + 1.04, Y2 + .75, bz0, g);
-      addCol(bx0 - 1.08, bx0 + 1.08, bz0 - .56, bz0 + .56, false, null, { y0: 3.8 });
-    });
-
-    // 2층 사생 개인 사물함 4칸 (y = Y2 위, z = z1 - .45)
-    for (let k = 0; k < 4; k++) {
-      pbox(.66, 1.85, .55, PM(0x5a6872, .5, .4), cx - 3.2 + k * .72, Y2 + .925, z1 - .42, g);
-      pbox(.04, .16, .04, chromeM, cx - 3.0 + k * .72, Y2 + 1.05, z1 - .71, g);
+    // 2층 계단 홀 추락 방지 주철 동자주 발코니 난간 (24개 동자주 + 원목 상단 레일)
+    pbox(10.2, .08, .12, walnutM, -89.0, Y2 + .96, z0 + 2.52, g);
+    pbox(10.2, .12, .14, walnutM, -89.0, Y2 + .06, z0 + 2.52, g);
+    for (let bx = -93.8; bx <= -84.0; bx += .42) {
+      pcyl(.018, .018, .90, ironBalM, bx, Y2 + .51, z0 + 2.52, g);
     }
-    world.props.push({ kind: 'robj', k: 'dorm_locker', t: 'mega15k', floor: 0, x: cx - 2.1, z: z1 - 1.25, y: Y2 + 1.1, r: 2.3, label: '기숙사 2층 204호 사생 사물함 파밍하기' });
 
-    // 2층 동쪽: 심야 정독실 칸막이 열람 책상 4조 & 초록 뱅커스 스탠드 (y = Y2 = 3.85m 바닥 위!)
-    [-1.8, -.6, .6, 1.8].forEach(dx => {
-      pbox(1.05, .76, .75, woodDark, cx + 4.5 + dx, Y2 + .38, cz + 4.6, g);
-      pbox(1.05, .48, .04, woodLight, cx + 4.5 + dx, Y2 + 1.0, cz + 4.95, g);
-      pbox(.04, .48, .75, woodLight, cx + 4.5 + dx - .51, Y2 + 1.0, cz + 4.6, g);
-      pbox(.18, .22, .18, greenLamp, cx + 4.5 + dx, Y2 + .88, cz + 4.75, g, { cast: false });
-      addChairAtY(cx + 4.5 + dx, Y2, cz + 3.95, 0);
+    // 1층 및 2층 천장 우물형 코퍼 목재 보(Coffer Beams) & 크라운 몰딩 — 2D 박스 느낌을 완전히 없애는 클래식 건축 디테일!
+    [Y2 - .26, H - .14].forEach(cy => {
+      for (let bx = x0 + 3.5; bx < x1 - 2.0; bx += 4.8) {
+        pbox(.24, .18, D - .2, walnutM, bx, cy, cz, g, { cast: false });
+      }
+      [-D * .28, D * .28].forEach(bz => {
+        pbox(W - .2, .16, .22, walnutM, cx, cy + .01, cz + bz, g, { cast: false });
+      });
     });
-    pmesh(new THREE.PlaneGeometry(3.2, .52), new THREE.MeshBasicMaterial({ map: makeSign('청운학사 2층 심야 정독실 (STUDY ROOM) — 정숙 엄수', '#182c24', '#80ffb8', 22) }), cx + 4.5, Y2 + 2.35, z1 - .08, g, { ry: Math.PI, cast: false });
-    world.props.push({ kind: 'robj', k: 'dorm_study', t: 'mega15k', floor: 0, x: cx + 4.5, z: cz + 3.3, y: Y2 + 1.0, r: 2.3, label: '기숙사 2층 심야 정독실 비밀 수첩 암호 풀기' });
 
-    // 1층 & 2층 천장 등기구
-    [0, Y2].forEach(by => {
-      [[-5.5, -2.5], [0, -2.5], [5.5, -2.5], [-5.5, 3.0], [0, 3.0], [5.5, 3.0]].forEach(([lx, lz]) => {
-        pbox(1.35, .04, .32, darkMetal, cx + lx, by + 3.72, cz + lz, g, { cast: false });
-        pbox(1.22, .05, .20, lampEm, cx + lx, by + 3.68, cz + lz, g, { cast: false });
+    // 4) 실내 공간 분할 파티션 가벽 & 격자 유리창 (1층 사감실 / 2층 201호·202호 침실 / 2층 심야 정독실)
+    // 1층 사감실 격자 유리창 목재 파티션 가벽 (x = cx + 3.2, z: cz + 1.2 ~ z1)
+    pbox(.18, 1.15, 2.6, walnutM, cx + 3.2, .575, cz + 5.6, g);
+    pmesh(new THREE.PlaneGeometry(2.4, 1.35), glassM, cx + 3.2, 1.82, cz + 5.6, g, { ry: Math.PI / 2, cast: false });
+    [-0.6, 0, 0.6].forEach(dz => pbox(.20, 1.35, .05, walnutM, cx + 3.2, 1.82, cz + 5.6 + dz, g, { cast: false }));
+    addCol(cx + 3.05, cx + 3.35, cz + 2.85, z1 - .1, false, null, { maxY: 2.6 });
+    pmesh(new THREE.PlaneGeometry(1.4, .32), new THREE.MeshBasicMaterial({ map: makeSign('1F 사감실 · 보안관제실', '#1b2822', '#f0dfc0', 22) }), cx + 3.09, 2.62, cz + 2.1, g, { ry: -Math.PI / 2, cast: false });
+
+    // 2층 서쪽 침실(201호·202호) 복도 파티션 충돌체 및 호실 명패 (문 위치 z: cz - 1.6 ~ cz + 0.2 및 cz + 2.8 ~ cz + 4.6 개방!)
+    addCol(cx - 4.35, cx - 4.05, z0 + 2.6, cz - 1.6, false, null, { y0: 3.8 });
+    addCol(cx - 4.35, cx - 4.05, cz + 0.2, cz + 2.8, false, null, { y0: 3.8 });
+    addCol(cx - 4.35, cx - 4.05, cz + 4.6, z1 - .1,  false, null, { y0: 3.8 });
+    pmesh(new THREE.PlaneGeometry(1.1, .28), new THREE.MeshBasicMaterial({ map: makeSign('201호 생활실', '#241812', '#f4e2b8', 24) }), cx - 4.08, Y2 + 2.52, cz - .7, g, { ry: Math.PI / 2, cast: false });
+    pmesh(new THREE.PlaneGeometry(1.1, .28), new THREE.MeshBasicMaterial({ map: makeSign('202호 생활실', '#241812', '#f4e2b8', 24) }), cx - 4.08, Y2 + 2.52, cz + 3.7, g, { ry: Math.PI / 2, cast: false });
+
+    // 2층 동쪽 심야 정독실 복도 파티션 충돌체 및 현판 (문 위치 z: cz + 1.2 ~ cz + 3.1 개방!)
+    addCol(cx + 1.65, cx + 1.95, cz + 3.1, z1 - .1, false, null, { y0: 3.8 });
+    pmesh(new THREE.PlaneGeometry(2.6, .42), new THREE.MeshBasicMaterial({ map: makeSign('2F 심야 정독실 (STUDY ROOM) — 정숙 엄수', '#162820', '#88ffb8', 22) }), cx + 1.68, Y2 + 2.56, cz + 2.15, g, { ry: -Math.PI / 2, cast: false });
+
+    // 1층 휴게 라운지 원목 커피 테이블 & 브라운관 TV 장식장 (소파 2조는 sf_pro_dorm_lounge_set.glb 로 배치!)
+    pbox(1.65, .42, .82, walnutM, cx - 3.5, .21, cz + 2.8, g);
+    pbox(1.55, .03, .72, glassM, cx - 3.5, .43, cz + 2.8, g, { cast: false });
+    pbox(1.4, .68, .56, walnutM, cx - 6.8, .34, cz + 2.8, g);
+    pbox(.68, .58, .52, ironBalM, cx - 6.8, .97, cz + 2.8, g);
+    pmesh(new THREE.PlaneGeometry(.52, .42), new THREE.MeshBasicMaterial({ color: 0x385864 }), cx - 6.45, .98, cz + 2.8, g, { ry: Math.PI / 2, cast: false });
+    addCol(cx - 4.8, cx - 2.2, cz + 0.9, cz + 4.7, false, null, { maxY: 2.5 });
+
+    // 2층 사생 철제 사물함 4칸 (y = Y2 위)
+    for (let k = 0; k < 4; k++) {
+      pbox(.66, 1.88, .55, PM(0x48565e, .5, .45), cx - 2.8 + k * .72, Y2 + .94, z1 - .42, g);
+      pbox(.04, .18, .04, brassM, cx - 2.6 + k * .72, Y2 + 1.05, z1 - .71, g);
+    }
+
+    // 상호작용 지점 3종 (1F 사감실 관제석 / 2F 202호 사물함 / 2F 심야 정독실 카렐 부스)
+    world.props.push({ kind: 'robj', k: 'dorm_log', t: 'mega15k', floor: 0, x: cx + 5.8, z: cz + 3.4, y: .95, r: 2.4, label: '1층 사감실 4채널 CCTV 관제석 & 점호 일지 조사하기' });
+    world.props.push({ kind: 'robj', k: 'dorm_locker', t: 'mega15k', floor: 0, x: cx - 1.8, z: z1 - 1.25, y: Y2 + 1.1, r: 2.4, label: '기숙사 2층 사생 사물함 파밍하기' });
+    world.props.push({ kind: 'robj', k: 'dorm_study', t: 'mega15k', floor: 0, x: cx + 4.2, z: cz + 3.2, y: Y2 + 1.0, r: 2.4, label: '기숙사 2층 심야 정독실 카렐 부스 비밀 수첩 해독하기' });
+
+    // 1·2층 앤틱 황동 펜던트 조명 & 따뜻한 볼류메트릭 무드 글로우
+    [0, Y2].forEach((by, fl) => {
+      [[-6.5, -1.5], [0, -1.5], [5.5, -1.5], [-6.5, 3.2], [0, 3.2], [5.5, 3.2]].forEach(([lx, lz], li) => {
+        pcyl(.02, .02, .32, brassM, cx + lx, by + 3.55, cz + lz, g);
+        pbox(.85, .08, .28, brassM, cx + lx, by + 3.40, cz + lz, g, { cast: false });
+        pbox(.76, .04, .20, lampEm, cx + lx, by + 3.35, cz + lz, g, { cast: false });
+        if (li % 2 === 0) {
+          const spD = new THREE.Sprite(new THREE.SpriteMaterial({ map: makeGlowTex(fl === 0 ? '255,210,145' : '195,235,205'), blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, opacity: .38 }));
+          spD.scale.setScalar(3.6); spD.position.set(cx + lx, by + 2.95, cz + lz); g.add(spD);
+        }
       });
     });
 
@@ -493,7 +517,7 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
     window.__campusAnimMixers = mixers;
 
     const loadCachedGlb = url => {
-      const fullUrl = url + '?v=132';
+      const fullUrl = url + '?v=133';
       let p = glbCache.get(fullUrl);
       if (!p) {
         p = new Promise(resolve => {
@@ -609,10 +633,32 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
       [ 73.5, 0,  48.5, 0.9, 1, 1, 1]
     ]);
     // ④ 노후 외벽 2단 에어컨 실외기 & 통풍 루버 (sf_weathered_ac_louver.glb)
-    // ⑤ 청운학사 기숙사 1·2층 공중전화 부스·신발장·1998 달력 세트 (sf_dorm_2f_interior_pack.glb)
+    // ⑤ 청운학사 기숙사 Pro 3D 디자인팀 마스터 에셋 6종 (4K PBR 건축 쉘 + 원통 파이프 2층침대 4기 + 정독실 카렐 부스 4기 + 가죽 퀼팅 소파 2조 + 사감실 4채널 CCTV 관제석 + 공중전화/신발장)
+    placeGlb('assets/models/sf/sf_pro_dorm_arch_trim.glb', [
+      [-86.0, 0, -42.0, 0, 1, 1, 1]
+    ]);
+    placeGlb('assets/models/sf/sf_pro_dorm_warden_desk.glb', [
+      [-79.8, 0.07, -37.2, Math.PI, 1, 1, 1]
+    ]);
+    placeGlb('assets/models/sf/sf_pro_dorm_lounge_set.glb', [
+      [-89.5, 0.07, -40.6, 0, 1, 1, 1],
+      [-89.5, 0.07, -37.8, Math.PI, 1, 1, 1]
+    ]);
+    placeGlb('assets/models/sf/sf_pro_dorm_bunkbed.glb', [
+      [-94.2, 3.87, -45.2, 0, 1, 1, 1],
+      [-94.2, 3.87, -41.4, 0, 1, 1, 1],
+      [-94.2, 3.87, -38.8, 0, 1, 1, 1],
+      [-94.2, 3.87, -36.4, 0, 1, 1, 1]
+    ]);
+    placeGlb('assets/models/sf/sf_pro_dorm_study_carrel.glb', [
+      [-82.4, 3.87, -36.8, Math.PI, 1, 1, 1],
+      [-81.1, 3.87, -36.8, Math.PI, 1, 1, 1],
+      [-79.8, 3.87, -36.8, Math.PI, 1, 1, 1],
+      [-78.5, 3.87, -36.8, Math.PI, 1, 1, 1]
+    ]);
     placeGlb('assets/models/sf/sf_dorm_2f_interior_pack.glb', [
-      [-76.8, 0.05, -45.2, -Math.PI / 2, 1, 1, 1],
-      [-80.5, 3.88, -48.4, 0, 1, 1, 1]
+      [-76.8, 0.07, -45.2, -Math.PI / 2, 1, 1, 1],
+      [-80.5, 3.87, -48.4, 0, 1, 1, 1]
     ]);
     placeGlb('assets/models/sf/sf_weathered_ac_louver.glb', [
       [ 68.3, 0,  16.8, Math.PI / 2, 1, 1, 1],

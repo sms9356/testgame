@@ -7,9 +7,9 @@ export const MEGA_CAMPUS_ZONES = [
   { id: 'lake', name: '청운호 수변공원 · 호심정', x: -9, z: -86, w: 34, d: 20, color: '#244e58' },
   { id: 'astro', name: '과학천문관 · 관측돔', x: 84, z: -34, w: 20, d: 16, color: '#2c3e54' },
   { id: 'library', name: '중앙학술정보관 (대도서관)', x: 84, z: 39, w: 22, d: 18, color: '#4a3628' },
-  { id: 'tennis', name: '테니스 · 양궁 훈련장', x: -88, z: -14, w: 20, d: 16, color: '#224868' },
-  { id: 'sports', name: '서문고 야구 스타디움', x: -88, z: 17, w: 24, d: 26, color: '#284a3a' },
-  { id: 'union', name: '학생회관 · 동아리관', x: -88, z: 54, w: 22, d: 14, color: '#48382e' },
+  { id: 'tennis', name: '테니스 · 양궁 훈련장', x: -88, z: -16, w: 20, d: 16, color: '#224868' },
+  { id: 'sports', name: '서문고 야구 스타디움', x: -88, z: 14, w: 24, d: 26, color: '#284a3a' },
+  { id: 'union', name: '학생회관 · 동아리관', x: -88, z: 42, w: 22, d: 14, color: '#48382e' },
 ];
 
 export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, makeSign, makeGlowTex, world, megaP }) {
@@ -82,10 +82,10 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
 
   // ── 5대 섹션 게이트 아치 현판 ──
   [
-    [-50, -32, Math.PI / 2, '◀ [학술·생활 섹션] 청운학사(기숙사)  |  [스포츠 섹션] 테니스·야구장'],
-    [-50, 56, Math.PI / 2, '◀ [학생문화 섹션] 학생회관·소극장  |  [제2주차장] 스쿨버스 정류장'],
-    [50, -32, -Math.PI / 2, '[학술·연구 섹션] 과학천문관 · 생물부 생태온실 ▶'],
-    [50, 39, -Math.PI / 2, '[학술·복지 섹션] 중앙학술정보관(대도서관) · 학교매점 ▶'],
+    [-52, -33.8, Math.PI / 2, '◀ [학술·생활 섹션] 청운학사(기숙사)  |  [스포츠 섹션] 테니스·야구장'],
+    [-52, 55.6, Math.PI / 2, '◀ [학생문화 섹션] 학생회관·소극장  |  [제2주차장] 스쿨버스 정류장'],
+    [52, -33.8, -Math.PI / 2, '[학술·연구 섹션] 과학천문관 · 생물부 생태온실 ▶'],
+    [52, 36.6, -Math.PI / 2, '[학술·복지 섹션] 중앙학술정보관(대도서관) · 학교매점 ▶'],
     [-9, -64, 0, '▲ [생태공원 섹션] 청운호 수변공원 · 호심정 팔각정'],
   ].forEach(([gx, gz, ry, title]) => {
     const ag = new THREE.Group(); ag.position.set(gx, 0, gz); ag.rotation.y = ry; ag.userData.dynamic = true; OUT.add(ag);
@@ -352,7 +352,7 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
      ⑤-A [종합 스포츠 섹션 1] 야외 하드코트 테니스장 & 양궁 전용 훈련장 — 서중북 (x: -88, z: -14)
      ========================================================================= */
   {
-    const cx = -88, cz = -14;
+    const cx = -88, cz = -16;
     const g = new THREE.Group(); g.name = 'chunk_tennis'; g.userData.dynamic = true; OUT.add(g);
     pbox(20, .04, 16, PM(0x285a3e, .8), cx, .02, cz, g, { cast: false });
     pbox(15, .05, 12, PM(0x225488, .75), cx, .025, cz, g, { cast: false });
@@ -378,7 +378,7 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
      ⑤-B [종합 스포츠 섹션 2] 서문고 야구 스타디움 (내야 다이아몬드 · 양측 덕아웃 · 전광판) — 서중남 (x: -88, z: 17)
      ========================================================================= */
   {
-    const cx = -88, cz = 17;
+    const cx = -88, cz = 14;
     const g = new THREE.Group(); g.name = 'chunk_sports'; g.userData.dynamic = true; OUT.add(g);
     pbox(24, .04, 26, PM(0x265838, .85), cx, .02, cz, g, { cast: false });
     const dirtM = PM(0x8a6848, .92);
@@ -415,7 +415,7 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
      ⑥ [학생문화 섹션] 학생회관 · 동아리연합회관 (소극장 · 합주실 · 라운지) — 서남 (x: -88, z: 50)
      ========================================================================= */
   {
-    const cx = -88, cz = 48, W = 22, D = 14, H = 9.0;
+    const cx = -88, cz = 42, W = 22, D = 14, H = 9.0;
     const g = new THREE.Group(); g.name = 'chunk_union'; g.userData.dynamic = true; OUT.add(g);
     buildShell(g, cx, cz, W, D, H, stoneM, darkMetal, 'E', woodFloor);
     pbox(1.8, .24, 4.6, darkMetal, cx + W / 2 + 1.1, 3.1, cz, g);
@@ -464,7 +464,7 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
     { name: '청운학사 정문', x: -75.0, z: -42.0, ry: Math.PI / 2, open: 1 },
     { name: '과학천문관 정문', x: 74.0, z: -34.0, ry: -Math.PI / 2, open: 1 },
     { name: '중앙학술정보관 정문', x: 73.0, z: 39.0, ry: -Math.PI / 2, open: 1 },
-    { name: '학생회관 정문', x: -77.0, z: 48.0, ry: Math.PI / 2, open: 1 },
+    { name: '학생회관 정문', x: -77.0, z: 42.0, ry: Math.PI / 2, open: 1 },
   ].forEach(dSpec => {
     const dGrp = new THREE.Group(); dGrp.position.set(dSpec.x, 0, dSpec.z); dGrp.rotation.y = dSpec.ry; dGrp.userData.dynamic = true; OUT.add(dGrp);
     const leaves = [[-1.35, -1], [1.35, 1]].map(([hx, s]) => {
@@ -493,7 +493,7 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
     window.__campusAnimMixers = mixers;
 
     const loadCachedGlb = url => {
-      const fullUrl = url + '?v=130';
+      const fullUrl = url + '?v=132';
       let p = glbCache.get(fullUrl);
       if (!p) {
         p = new Promise(resolve => {
@@ -537,14 +537,14 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
     placeGlb('assets/models/sf/sf_icecream_freezer.glb', [[67.35, 0.17, 19.45, -Math.PI / 2, 1.0, 1.0, 1.0]]);
 
     // 2) 야구 스타디움 외야(x=-88, z=4.5) 전광판 .glb
-    placeGlb('assets/models/sf/sf_baseball_scoreboard.glb', [[-88.0, 0, 4.5, 0, 1.15, 1.15, 1.15]]);
+    placeGlb('assets/models/sf/sf_baseball_scoreboard.glb', [[-88.0, 0, 1.5, 0, 1.15, 1.15, 1.15]]);
 
     // 3) 4대 확장 건물 정문 양개 강화유리문 시스템 .glb
     placeGlb('assets/models/sf/sf_campus_glass_door.glb', [
       [-74.95, 0, -42.0, Math.PI / 2, 1, 1, 1],
       [ 73.95, 0, -34.0, -Math.PI / 2, 1, 1, 1],
       [ 72.95, 0,  39.0, -Math.PI / 2, 1, 1, 1],
-      [-76.95, 0,  48.0, Math.PI / 2, 1, 1, 1]
+      [-76.95, 0,  42.0, Math.PI / 2, 1, 1, 1]
     ]);
 
     // 4) 주차 차단기 · 회전 기상레이더 · 회전 플라네타리움 · 발광 자판기 · 진자 괘종시계 · 버스정류장 · 소화전/게시판
@@ -562,12 +562,12 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
     placeGlb('assets/models/sf/sf_anim_vending_arcade.glb', [
       [58.0, 0, 20.8, 0, 1, 1, 1],
       [-74.2, 0, -36.5, Math.PI / 2, 1, 1, 1],
-      [-76.2, 0, 42.5, Math.PI / 2, 1, 1, 1]
+      [-76.2, 0, 36.5, Math.PI / 2, 1, 1, 1]
     ]);
     placeGlb('assets/models/sf/sf_anim_trophy_clock.glb', [
       [75.2, 0, 31.2, 0, 1, 1, 1],
       [-76.5, 0, -47.8, 0, 1, 1, 1],
-      [-79.2, 0, 42.2, 0, 1, 1, 1]
+      [-79.2, 0, 36.2, 0, 1, 1, 1]
     ]);
     placeGlb('assets/models/sf/sf_bus_stop_shelter.glb', [
       [-58.0, 0, 62.2, 0, 1, 1, 1],
@@ -577,7 +577,7 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
       [-80.0, 0, -48.6, 0, 1, 1, 1],
       [80.0, 0, -41.6, 0, 1, 1, 1],
       [80.0, 0, 30.4, 0, 1, 1, 1],
-      [-82.0, 0, 41.4, 0, 1, 1, 1]
+      [-82.0, 0, 35.4, 0, 1, 1, 1]
     ]);
 
     // 5) [신규 극사실적 파손 가구·사물·콘크리트 블록 잔해·노후 외관 설비 .glb 4종] 캠퍼스 및 건물 빈 공간 적재적소 배치!
@@ -588,13 +588,13 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
       [-18.5, 0, -20.0, 0.4, 1, 1, 1],
       [ 25.5, 0, -20.0, -0.2, 1, 1, 1],
       [-92.0, 0, -36.5, 0.5, 1, 1, 1],
-      [-92.5, 0,  53.5, -0.4, 1, 1, 1],
+      [-92.5, 0,  49.5, -0.4, 1, 1, 1],
       [ 89.5, 0,  45.5, 0.3, 1, 1, 1]
     ]);
     // ② 찌그러진 3연동 철제 사물함 & 추락한 칠판 (sf_dented_locker_set.glb)
     placeGlb('assets/models/sf/sf_dented_locker_set.glb', [
       [-89.0, 0, -48.5, 0, 1, 1, 1],
-      [-89.0, 0,  41.5, 0, 1, 1, 1],
+      [-89.0, 0,  35.5, 0, 1, 1, 1],
       [ 89.0, 0, -41.5, 0, 1, 1, 1],
       [ 60.5, 0,  14.3, Math.PI, 1, 1, 1]
     ]);

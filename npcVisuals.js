@@ -198,27 +198,30 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
       uv = new THREE.BufferAttribute(new Float32Array(pos.count * 2), 2);
       geo.setAttribute('uv', uv);
     }
-    // 좌안(x > 0)과 우안(x < 0) 각각의 정면 중심점(max Z 근처 평균 X, Y)과 반지름을 구한다
-    const eyes = [{ minX: 1e9, maxX: -1e9, minY: 1e9, maxY: -1e9 }, { minX: 1e9, maxX: -1e9, minY: 1e9, maxY: -1e9 }];
+    // 좌안(x > 0)과 우안(x < 0) 각각의 실제 눈앞 정점(max Z)을 중심(cx, cy)으로 삼아 삼백안 현상을 원천 방지한다!
+    const eyes = [
+      { minX: 1e9, maxX: -1e9, minY: 1e9, maxY: -1e9, maxZ: -1e9, fx: 0.031, fy: 1.639 },
+      { minX: 1e9, maxX: -1e9, minY: 1e9, maxY: -1e9, maxZ: -1e9, fx: -0.031, fy: 1.639 }
+    ];
     for (let i = 0; i < pos.count; i++) {
-      const x = pos.getX(i), y = pos.getY(i);
+      const x = pos.getX(i), y = pos.getY(i), z = pos.getZ(i);
       const e = x >= 0 ? eyes[0] : eyes[1];
       if (x < e.minX) e.minX = x; if (x > e.maxX) e.maxX = x;
       if (y < e.minY) e.minY = y; if (y > e.maxY) e.maxY = y;
+      if (z > e.maxZ) { e.maxZ = z; e.fx = x; e.fy = y; }
     }
     for (let i = 0; i < pos.count; i++) {
       const x = pos.getX(i), y = pos.getY(i);
       const e = x >= 0 ? eyes[0] : eyes[1];
-      const cx = (e.minX + e.maxX) * 0.5, cy = (e.minY + e.maxY) * 0.5;
-      const rx = Math.max(0.004, (e.maxX - e.minX) * 0.52);
-      const ry = Math.max(0.004, (e.maxY - e.minY) * 0.52);
-      const u = Math.max(0.02, Math.min(0.98, 0.5 + (x - cx) / (rx * 2.15)));
-      const v = Math.max(0.02, Math.min(0.98, 0.5 - (y - cy) / (ry * 2.15)));
+      const cx = e.fx, cy = e.fy - 0.0016; // 홍채 중심을 살짝 아래로 내려 자연스럽고 인자한 눈매 완성!
+      const rx = Math.max(0.005, (e.maxX - e.minX) * 0.44);
+      const ry = Math.max(0.005, (e.maxY - e.minY) * 0.44);
+      const u = Math.max(0.02, Math.min(0.98, 0.5 + (x - cx) / (rx * 2.0)));
+      const v = Math.max(0.02, Math.min(0.98, 0.5 - (y - cy) / (ry * 2.0)));
       uv.setXY(i, u, v);
     }
     uv.needsUpdate = true;
   }
-
   let eyeTexCache = null;
   function getPhotorealEyeTexture() {
     if (eyeTexCache) return eyeTexCache;
@@ -274,6 +277,103 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
     eyeTexCache = tex;
     return tex;
   }
+  function sculptGuardRealisticHead(model) {
+    try {
+      // ① 높게 들려 있던 경비 모자(Cap)를 눈썹 바로 위(-2.3cm)로 자연스럽게 눌러 씌워 초상화(npc_guard.webp)와 동일한 실루엣 완성!
+      ['Guard_Cap_1', 'Guard_Cap_2', 'Guard_CapBrim', 'Guard_CapBadge', 'Guard_CapButton'].forEach(nm => {
+        const m = model.getObjectByName(nm);
+        if (m && m.geometry && !m.geometry.userData?.capLowered) {
+          m.geometry.userData.capLowered = true;
+          m.geometry.translate(0, -0.023, 0.008);
+        }
+      });
+      // ② 모자 아래 옆머리·구레나룻(Guard_Hair) 볼륨 보강
+      const hair = model.getObjectByName('Guard_Hair');
+      if (hair && hair.geometry && !hair.geometry.userData?.hairFitted) {
+        hair.geometry.userData.hairFitted = true;
+        hair.geometry.translate(0, -0.014, 0.006);
+      }
+      // ③ Guard_Body 정면 얼굴 삼각형(z > 0.125)에만 정밀하게 회백색 콧수염·턱수염·팔자주름·눈밑 주름 베이크!
+      const body = model.getObjectByName('Guard_Body');
+      if (!body || !body.material?.map?.image || body.userData?.beardBaked) return;
+      body.userData.beardBaked = true;
+      const tex = body.material.map;
+      const tw = tex.image.width, th = tex.image.height;
+      const cv = document.createElement('canvas'); cv.width = tw; cv.height = th;
+      const ctx = cv.getContext('2d'); ctx.drawImage(tex.image, 0, 0, tw, th);
+      const img = ctx.getImageData(0, 0, tw, th);
+      const td = img.data;
+      const geo = body.geometry, pos = geo.attributes.position, uv = geo.attributes.uv, index = geo.index;
+      const triCount = index ? index.count / 3 : pos.count / 3;
+      for (let t = 0; t < triCount; t++) {
+        const i0 = index ? index.getX(t * 3) : t * 3;
+        const i1 = index ? index.getX(t * 3 + 1) : t * 3 + 1;
+        const i2 = index ? index.getX(t * 3 + 2) : t * 3 + 2;
+        const z0 = pos.getZ(i0), z1 = pos.getZ(i1), z2 = pos.getZ(i2);
+        const y0 = pos.getY(i0), y1 = pos.getY(i1), y2 = pos.getY(i2);
+        if (Math.min(z0, z1, z2) < 0.118 || Math.max(y0, y1, y2) < 1.535 || Math.min(y0, y1, y2) > 1.665) continue;
+        const x0 = pos.getX(i0), x1 = pos.getX(i1), x2 = pos.getX(i2);
+        const u0 = uv.getX(i0) * tw, v0 = uv.getY(i0) * th;
+        const u1 = uv.getX(i1) * tw, v1 = uv.getY(i1) * th;
+        const u2 = uv.getX(i2) * tw, v2 = uv.getY(i2) * th;
+        if (Math.max(u0, u1, u2) - Math.min(u0, u1, u2) > tw * 0.25) continue;
+        if (Math.max(v0, v1, v2) - Math.min(v0, v1, v2) > th * 0.25) continue;
+        const minU = Math.max(0, Math.floor(Math.min(u0, u1, u2)));
+        const maxU = Math.min(tw - 1, Math.ceil(Math.max(u0, u1, u2)));
+        const minV = Math.max(0, Math.floor(Math.min(v0, v1, v2)));
+        const maxV = Math.min(th - 1, Math.ceil(Math.max(v0, v1, v2)));
+        const denom = (v1 - v2) * (u0 - u2) + (u2 - u1) * (v0 - v2);
+        if (Math.abs(denom) < 1e-5) continue;
+        for (let py = minV; py <= maxV; py++) {
+          for (let px = minU; px <= maxU; px++) {
+            const w0 = ((v1 - v2) * (px - u2) + (u2 - u1) * (py - v2)) / denom;
+            const w1 = ((v2 - v0) * (px - u2) + (u0 - u2) * (py - v2)) / denom;
+            const w2 = 1 - w0 - w1;
+            if (w0 < 0 || w1 < 0 || w2 < 0) continue;
+            const vx = w0 * x0 + w1 * x1 + w2 * x2;
+            const vy = w0 * y0 + w1 * y1 + w2 * y2;
+            const ax = Math.abs(vx);
+            const dIdx = (py * tw + px) * 4;
+            const noise = ((Math.sin(px * 19.1 + py * 83.7) * 43758.5453) % 1 + 1) % 1;
+            // 1) 인중 · 콧수염 (vy ∈ [1.596, 1.613], ax < 0.025)
+            if (vy >= 1.596 && vy <= 1.613 && ax < 0.025) {
+              const m = (1 - ax / 0.025) * (1 - Math.abs(vy - 1.6045) / 0.009);
+              if (m > 0) {
+                const c = noise > 0.48 ? 148 : 64;
+                const a = Math.min(0.62, m * 0.72);
+                td[dIdx]     = Math.round(td[dIdx] * (1 - a) + c * a);
+                td[dIdx + 1] = Math.round(td[dIdx + 1] * (1 - a) + c * a);
+                td[dIdx + 2] = Math.round(td[dIdx + 2] * (1 - a) + (c + 4) * a);
+              }
+            }
+            // 2) 턱수염 스터블 (vy ∈ [1.545, 1.576], ax < 0.026)
+            if (vy >= 1.545 && vy <= 1.576 && ax < 0.026) {
+              const m = (1 - ax / 0.026) * (1 - Math.abs(vy - 1.560) / 0.016);
+              if (m > 0) {
+                const c = noise > 0.52 ? 142 : 68;
+                const a = Math.min(0.50, m * 0.58);
+                td[dIdx]     = Math.round(td[dIdx] * (1 - a) + c * a);
+                td[dIdx + 1] = Math.round(td[dIdx + 1] * (1 - a) + c * a);
+                td[dIdx + 2] = Math.round(td[dIdx + 2] * (1 - a) + (c + 4) * a);
+              }
+            }
+            // 3) 깊은 팔자주름 음영 (vy ∈ [1.588, 1.622], ax ≈ 0.016 + (1.622 - vy) * 0.38)
+            const foldX = 0.015 + (1.622 - vy) * 0.36;
+            if (vy >= 1.586 && vy <= 1.622 && Math.abs(ax - foldX) < 0.0038) {
+              td[dIdx]     = Math.round(td[dIdx] * 0.78);
+              td[dIdx + 1] = Math.round(td[dIdx + 1] * 0.75);
+              td[dIdx + 2] = Math.round(td[dIdx + 2] * 0.74);
+            }
+          }
+        }
+      }
+      ctx.putImageData(img, 0, 0);
+      const prevFlip = tex.flipY;
+      tex.image = cv;
+      tex.flipY = prevFlip;
+      tex.needsUpdate = true;
+    } catch (e) { console.warn('[GuardSculpt]', e); }
+  }
   function extractHumanRig(model) {
     const b = name => model.getObjectByName(name);
     return {
@@ -309,7 +409,7 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
     if (!holder || !holder.isObject3D) throw new TypeError(id + ': 유효한 Three.js 그룹이 필요합니다');
     if (pending.has(holder)) return pending.get(holder);
 
-    const url = (options.url || ('assets/characters/' + id + '.glb')) + '?v=149';
+    const url = (options.url || ('assets/characters/' + id + '.glb')) + '?v=150';
     const targetHeight = Number(options.height) || (id === 'mina' ? .95 : 1.75);
     const yaw = ((Number(options.yawDegrees) || 0) * Math.PI) / 180;
     const originalChildren = [...holder.children];
@@ -342,6 +442,7 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
       pivot.add(model);
 
       enhanceCharacterMaterials(model, id);
+      if (id === 'guard') sculptGuardRealisticHead(model);
 
       const clips = gltf.animations || [];
       if (clips.length) {

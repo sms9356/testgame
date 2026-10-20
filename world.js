@@ -4,11 +4,11 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { NOTES } from './story.js?v=128';
+import { NOTES } from './story.js?v=130';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=128';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=130';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -1917,6 +1917,27 @@ export function buildWorld(scene) {
       add(mDarkMetal, 1.0, .05, .8, c.x, 0, c.z); for (let k = 0; k < 4; k++) add(mRust, .9, .012, .03, c.x, .052, c.z - .3 + k * .2);
       meshAt(new THREE.TorusGeometry(.06, .012, 6, 12).rotateX(Math.PI / 2), mChrome, c.x + .35, .06, c.z);
       doors.push({ floor: cur.f, x: c.x, z: c.z, r: 1.1, needPower: true, label: '철제 덮개 들어 올리기 (좁은 통로)', to: { floor: cur.f, x: cx - 2.2, z: 3.1, yaw: Math.PI } }); }
+    // 6 지하 펌프실 경찰 폴리스라인(POLICE LINE — 사건현장 출입금지) & 증거물 마커(01·02·03) & 1998.10.13 『서문일보』 지역신문 호외 설치!
+    {
+      const mPolTape = new THREE.MeshBasicMaterial({ map: T.makeSign('POLICE LINE DO NOT CROSS  ·  사건현장 출입금지 (서문경찰서)  ·  통제구역', '#e6b818', '#141414', 24), side: THREE.DoubleSide });
+      const mEvMark  = n => new THREE.MeshBasicMaterial({ map: T.makeSign(n, '#f0c418', '#111111', 30), side: THREE.DoubleSide });
+      const mPaper   = new THREE.MeshBasicMaterial({ map: T.makeSign('서 문 일 보 (호외) | 1998.10.13 — 서문고 심야 실종 사건, 지하 펌프실 통제', '#e8dfc8', '#181614', 20), side: THREE.DoubleSide });
+      // 폴리스라인 스탠드 기둥 3기 & 2단 통제 테이프 (x: cx - 2.1 ~ cx + 1.5, z: -4.8)
+      [-2.1, -0.3, 1.5].forEach(dx => {
+        add(mDarkMetal, .32, .05, .32, cx + dx, 0, -4.85);
+        add(mChrome, .05, 1.05, .05, cx + dx, .05, -4.85);
+      });
+      plane(cur.interior, mPolTape, 3.6, .11, cx - .3, .88, -4.82, 0);
+      plane(cur.interior, mPolTape, 3.6, .11, cx - .3, .52, -4.82, 0);
+      // 노란 삼각 증거물 표식 01 · 02 · 03
+      [[-1.1, -5.35, '01'], [0.4, -5.45, '02'], [-0.3, -6.15, '03']].forEach(([dx, zp, num]) => {
+        plane(cur.interior, mEvMark(num), .24, .22, cx + dx, .12, zp, .2);
+      });
+      // 바닥 및 조사대 위 1998년 『서문일보』 지역신문 특별 호외 + 실제 획득 가능한 문서(n_seomun_ilbo)
+      add(mWoodDark, .85, .72, .55, cx + .75, 0, -4.25, { col: true });
+      plane(cur.interior, mPaper, .76, .48, cx + .75, .74, -4.25, -Math.PI / 2);
+      addNote('n_seomun_ilbo', cx + .75, .76, -4.25);
+    }
     wetSpot(cx - .4, -5.6, .9); papers(cx, -8, -2.4, 4);
     secretRoom(cx);
   }
@@ -3423,10 +3444,18 @@ export function buildWorld(scene) {
   outWall(-50.25, -49.75, 59.5, GATE_Z, fenceH, mFence);
   const brick = mBrick;
   [-36.0, -28.0, 28.5, 35.5, 52.5, 59.5].forEach(z => { OUT.add(boxMesh(-50.6, -49.4, 0, 3.2, z - .5, z + .5, brick)); col(-50.6, -49.4, z - .5, z + .5, true); });
-  OUT.add(boxMesh(-50.2, -49.8, 0, 2.2, 29.1, 34.9, mRust)); col(-50.3, -49.7, 29.1, 34.9, true);
-  for (let k = 0; k < 14; k++) { const b = new THREE.Mesh(new THREE.BoxGeometry(.06, 2.3, .06), mRust); b.position.set(-50, 1.2, 29.4 + k * .4); OUT.add(b); }
-  plane(OUT, new THREE.MeshBasicMaterial({ map: T.makeSign('서  문', '#1c1812', '#d8d0b0', 40), color: 0xa09a88 }), 1.0, .5, -49.38, 2.6, 28.5, Math.PI / 2);
-  doors.push({ floor: 0, x: -48.4, z: 32.2, r: 2.2, label: '서문 (쇠사슬)', win: true, locked: '녹슨 쇠사슬로 단단히 묶여 있다. 열쇠 조각을 모두 모으면 풀릴지도 모른다.' });
+  // 내곽 통로(x = -50, z: 29.1 ~ 34.9)는 서편 스포츠·주차 섹션과 연결되는 개방형 통문으로 비우고,
+  // 실제 '서문 (쇠사슬 탈출구)'은 서쪽 외곽 대로변 정문 아치 게이트(x = -62.5, z = 32.2)에 웅장하게 설치!
+  OUT.add(
+    boxMesh(-63.2, -62.0, 0, 3.8, 28.2, 29.2, brick),
+    boxMesh(-63.2, -62.0, 0, 3.8, 34.8, 35.8, brick),
+    boxMesh(-63.3, -61.9, 3.5, 4.1, 28.0, 36.0, mFacade),
+    boxMesh(-62.7, -62.3, 0, 2.5, 29.2, 34.8, mRust)
+  );
+  col(-63.2, -62.0, 28.2, 35.8, true);
+  for (let k = 0; k < 14; k++) { const b = new THREE.Mesh(new THREE.BoxGeometry(.07, 2.6, .07), mRust); b.position.set(-62.5, 1.3, 29.4 + k * .4); OUT.add(b); }
+  plane(OUT, new THREE.MeshBasicMaterial({ map: T.makeSign('서 문 고 등 학 교  서 문 (西 門)', '#1c1812', '#e8dfc0', 26), color: 0xb0aa98 }), 3.8, .55, -61.85, 3.8, 32.0, Math.PI / 2);
+  doors.push({ floor: 0, x: -61.2, z: 32.2, r: 2.6, label: '서문 (쇠사슬)', win: true, locked: '녹슨 쇠사슬로 단단히 묶여 있다. 열쇠 조각을 모두 모으면 풀릴지도 모른다.' });
   // 서쪽 캠퍼스 대로 / 횡단보도 / 통학버스
   const mYellow = new THREE.MeshBasicMaterial({ color: 0x9a8a30 }), mWhiteL = new THREE.MeshBasicMaterial({ color: 0xaaa89c });
   flat(OUT, S(T.makeAsphalt()), -62, -52, -60, 88, .004, 8);
@@ -3477,8 +3506,38 @@ export function buildWorld(scene) {
     const afS = buildWindowFakes(anSlots, 8); afS.position.z = -13.40 - ANNEX_DZ; OUT.add(afS);
     const anSlotsN = []; [1.8, 5.8, 9.8].forEach(y => { for (let x = -18; x <= 18; x += 4) anSlotsN.push([x, 2.2, -.08, y, 1.5]); });
     const afN = buildWindowFakes(anSlotsN, 9); afN.position.z = -25.02 - ANNEX_DZ; OUT.add(afN); }
-  // 별관 옥상 파라펫
-  OUT.add(boxMesh(-20.4, 20.4, 12.7, 13.6, -25.4 - ANNEX_DZ, -25.1 - ANNEX_DZ, mFacade, 3), boxMesh(-20.4, 20.4, 12.7, 13.6, -13.4 - ANNEX_DZ, -13.1 - ANNEX_DZ, mFacade, 3), boxMesh(-20.4, -20.1, 12.7, 13.6, -25.4 - ANNEX_DZ, -13.1 - ANNEX_DZ, mFacade, 3), boxMesh(20.1, 20.4, 12.7, 13.6, -25.4 - ANNEX_DZ, -13.1 - ANNEX_DZ, mFacade, 3));
+  // 별관 옥상 파라펫 & 별관 서편 확장 날개(x: -28.0 ~ -20.0) + 본관 동·서 3층 아케이드 특별연구 윙(x: -45.5 ~ -36.3, +36.3 ~ +45.5) 증축!
+  OUT.add(
+    boxMesh(-28.4, 28.4, 12.7, 13.6, -25.4 - ANNEX_DZ, -25.1 - ANNEX_DZ, mFacade, 3),
+    boxMesh(-28.4, 28.4, 12.7, 13.6, -13.4 - ANNEX_DZ, -13.1 - ANNEX_DZ, mFacade, 3),
+    boxMesh(-28.4, -28.1, 12.7, 13.6, -25.4 - ANNEX_DZ, -13.1 - ANNEX_DZ, mFacade, 3),
+    boxMesh(28.1, 28.4, 12.7, 13.6, -25.4 - ANNEX_DZ, -13.1 - ANNEX_DZ, mFacade, 3),
+    // 별관 서편 확장 날개 (x: -28.0 ~ -20.0, 1층 필로티 보행로 확보를 위해 2·3층 y: 3.8 ~ 12.4 스팬 + 외곽 기둥!)
+    boxMesh(-28.0, -20.0, 3.8, 12.4, -25 - ANNEX_DZ, -13.5 - ANNEX_DZ, mBrick, 2.5),
+    boxMesh(-28.4, -20.0, 12.4, 12.7, -25.4 - ANNEX_DZ, -13.1 - ANNEX_DZ, mFacade, 3),
+    boxMesh(-28.0, -27.2, 0, 3.8, -24.8 - ANNEX_DZ, -24.0 - ANNEX_DZ, mFacade, 1),
+    boxMesh(-28.0, -27.2, 0, 3.8, -14.5 - ANNEX_DZ, -13.7 - ANNEX_DZ, mFacade, 1),
+    // 본관 서관 아케이드 특별연구 윙 (x: -45.5 ~ -36.3, z: -8.8 ~ +8.8 — 1층 y: 0~3.8m 은 보도블록 인도 x=-38.3 이 통과하는 개방형 아케이드 필로티!)
+    boxMesh(-45.5, -36.3, 3.8, 12.2, -8.8, 8.8, mFacade, 2.5),
+    boxMesh(-45.8, -36.3, 12.2, 13.1, -9.1, 9.1, mFacadeTrim, 2),
+    boxMesh(-45.5, -40.5, 0, 3.8, -8.6, 8.6, mBrick, 2),
+    // 본관 동관 아케이드 특별연구 윙 (x: 36.3 ~ 45.5, z: -8.8 ~ +8.8 — 1층 y: 0~3.8m 은 보도블록 인도 x=38.3 이 통과하는 개방형 아케이드 필로티!)
+    boxMesh(36.3, 45.5, 3.8, 12.2, -8.8, 8.8, mFacade, 2.5),
+    boxMesh(36.3, 45.8, 12.2, 13.1, -9.1, 9.1, mFacadeTrim, 2),
+    boxMesh(40.5, 45.5, 0, 3.8, -8.6, 8.6, mBrick, 2)
+  );
+  col(-45.5, -40.5, -8.6, 8.6, true); col(40.5, 45.5, -8.6, 8.6, true);
+  col(-28.0, -27.2, -24.8 - ANNEX_DZ, -24.0 - ANNEX_DZ, true); col(-28.0, -27.2, -14.5 - ANNEX_DZ, -13.7 - ANNEX_DZ, true);
+  [5.8, 9.8].forEach(yw => {
+    [-43.0, -39.0, 39.0, 43.0].forEach(xw => {
+      win3D(OUT, 2.2, 1.5, xw, yw, 8.86, 0, pickWin());
+      win3D(OUT, 2.2, 1.5, xw, yw, -8.86, Math.PI, pickWin());
+    });
+    [-26.0, -22.0].forEach(xw => {
+      win3D(OUT, 2.2, 1.5, xw, yw, -13.44 - ANNEX_DZ, Math.PI, pickWin());
+      win3D(OUT, 2.2, 1.5, xw, yw, -25.06 - ANNEX_DZ, 0, pickWin());
+    });
+  });
   // ── 캠퍼스 전역 보도블록 · 판석 타일 인도 네트워크 (건물·코트·연못 침범 0건으로 정밀 구획된 보도블록 길 + 화강암 연석) ──
   {
     const curbG = [];

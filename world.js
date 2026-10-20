@@ -4,11 +4,11 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { NOTES } from './story.js?v=174';
+import { NOTES } from './story.js?v=175';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=174';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=175';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -4367,6 +4367,12 @@ export function buildWorld(scene) {
         boxMesh(-20, 28, y0, y1, zN_A, zN_A + .32, mBrick, 2.5)
       );
     });
+    // 구름다리/필로티 연결 홀 좌·우 외벽 마감 기둥 (구름다리 양옆 빈틈으로 내부 창문 프레임이나 공중 디오라마가 노출되지 않도록 완전 밀폐!)
+    OUT.add(
+      boxMesh(-3.15, -.82, 0, 12.4, zS_A - .35, zS_A, mBrick, 2.5),
+      boxMesh(2.42, 4.95, 0, 12.4, zS_A - .35, zS_A, mBrick, 2.5),
+      boxMesh(-3.15, 4.95, 0, 12.4, zN_A, zN_A + .35, mBrick, 2.5)
+    );
     // 창문 사이 세로 벽돌 기둥(Piers)
     for (let x = -20; x <= 28; x += 4) {
       if (x > -3.5 && x < 4.5) continue;
@@ -4387,6 +4393,7 @@ export function buildWorld(scene) {
         anSlots.push([x, 2.2, 0, y, 1.5]);
       }
       for (let x = -18; x <= 18; x += 4) {
+        if (x > -4.5 && x < 5.5) continue;
         win3D(OUT, 2.2, 1.5, x, y, -25.06 - ANNEX_DZ, 0, pickWin());
       }
       [-22 - ANNEX_DZ, -17 - ANNEX_DZ].forEach(z => {
@@ -4395,7 +4402,7 @@ export function buildWorld(scene) {
       });
     });
     const afS = buildWindowFakes(anSlots, 8); afS.position.z = -13.40 - ANNEX_DZ; OUT.add(afS);
-    const anSlotsN = []; [1.8, 5.8, 9.8].forEach(y => { for (let x = -18; x <= 18; x += 4) anSlotsN.push([x, 2.2, -.08, y, 1.5]); });
+    const anSlotsN = []; [1.8, 5.8, 9.8].forEach(y => { for (let x = -18; x <= 18; x += 4) { if (x > -4.5 && x < 5.5) continue; anSlotsN.push([x, 2.2, -.08, y, 1.5]); } });
     const afN = buildWindowFakes(anSlotsN, 9); afN.position.z = -25.02 - ANNEX_DZ; OUT.add(afN); }
   // 별관 옥상 파라펫 & 별관 서편 확장 날개(x: -28.0 ~ -20.0) + 본관 동·서 3층 아케이드 특별연구 윙(x: -45.5 ~ -36.3, +36.3 ~ +45.5) 증축!
   OUT.add(

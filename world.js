@@ -4,11 +4,11 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { NOTES } from './story.js?v=170';
+import { NOTES } from './story.js?v=171';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=170';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=171';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -1889,6 +1889,12 @@ export function buildWorld(scene) {
         flat(cur.interior, mFloorTile, cx + .05, cx + 1.55, -10.2, -9.5, dy + .012);
         const lbl = tf === 0 ? '후문 · 필로티 광장 (별관 1F 직결) ↑' : (tf + 1) + '층 구름다리 통로 (별관 ' + (tf + 1) + 'F 직결) ↑';
         plane(cur.interior, new THREE.MeshBasicMaterial({ map: T.makeSign(lbl, '#182c38', '#d8f0e8', 22), color: 0x9aa59a }), 1.85, .32, cx + .8, dy + 2.75, -9.56);
+      } else if (cur.annex && tf >= 8) {
+        buildLayered1998Wall(cur.interior, cx - 4.15, cx + .15, -9.9, -9.6, dy, dy + FH, wMat);
+        buildLayered1998Wall(cur.interior, cx + 1.85, cx + 4.15, -9.9, -9.6, dy, dy + FH, wMat);
+        buildLayered1998Wall(cur.interior, cx + .15, cx + 1.85, -9.9, -9.6, dy, dy + 1.0, wMat);
+        buildLayered1998Wall(cur.interior, cx + .15, cx + 1.85, -9.9, -9.6, dy + 2.8, dy + FH, wMat);
+        win3D(cur.interior, 1.7, 1.8, cx + 1.0, dy + 1.9, -9.58);
       } else {
         buildLayered1998Wall(cur.interior, cx - 4.15, cx + 4.15, -9.9, -9.6, dy, dy + FH, wMat);
       }
@@ -1906,13 +1912,27 @@ export function buildWorld(scene) {
         const epnl = new THREE.Mesh(new THREE.BoxGeometry(.14, .3, .03), mChrome); epnl.position.set(1.15, 1.25, .085); eg.add(epnl);
         plane(cur.interior, new THREE.MeshStandardMaterial({ map: T.makeSign('승강기 · 정원 9명', '#d8d4c8', '#2a2a2a', 20), roughness: .8 }), .6, .14, bay.front - .015, dy + 1.75, ez - 1.15, -Math.PI / 2);
       }
-      buildLayered1998Wall(cur.interior, cx - 4.15, cx - 1, -1.75, -1.45, dy, dy + CH, wMat);
-      buildLayered1998Wall(cur.interior, cx + 1, cx + 4.15, -1.75, -1.45, dy, dy + CH, wMat);
+      // 위/아래층 계단실 서쪽 벽 표지판 · 소화기 · 형광등 등기구도 동일하게 배치하여 층 전환 순간 팝인(Pop-in) 완전 제거!
+      if (tf === 0 || tf === 4) {
+        plane(cur.interior, new THREE.MeshBasicMaterial({ map: T.makeSign(tf === 0 ? '↓ B1 지하층' : 'B1 지하층  ↑ 1층', '#1a1a1a', '#e8d070', 26), color: 0xb0a890 }), 1.2, .3, cx - 3.83, dy + 2.3, -4.2, Math.PI / 2);
+      }
+      {
+        const sgTxt = tf === 4 ? '▲ 1층 올라가는 계단' : (tf === 10 ? '▼ 아래층 내려가는 계단' : '▲ 위층   ▼ 아래층');
+        plane(cur.interior, new THREE.MeshBasicMaterial({ map: T.makeSign(sgTxt, '#1e2a2e', '#d9e4d0', 24), color: 0x9aa59a }), 1.25, .32, cx - 3.83, dy + 2.35, -2.35, Math.PI / 2);
+      }
+      model('korean_fire_extinguisher_01', cx + 1.65, dy, -3.0, -Math.PI / 2);
+      model('korean_fire_extinguisher_01', cx + 1.65, dy, -3.4, -Math.PI / 2 + .3);
+      {
+        const lt = new THREE.Mesh(new THREE.BoxGeometry(1.3, .035, .12), matLampOn); lt.position.set(cx + .9, dy + CH - .07, -5.6); lt.rotation.y = Math.PI / 2; cur.interior.add(lt);
+        const lhs = new THREE.Mesh(new THREE.BoxGeometry(1.4, .04, .22), lampHousing); lhs.position.set(cx + .9, dy + CH - .02, -5.6); lhs.rotation.y = Math.PI / 2; cur.interior.add(lhs);
+      }
+      buildLayered1998Wall(cur.interior, cx - 10, cx - 1, -1.75, -1.45, dy, dy + CH, wMat);
+      buildLayered1998Wall(cur.interior, cx + 1, cx + 10, -1.75, -1.45, dy, dy + CH, wMat);
       buildLayered1998Wall(cur.interior, cx - 1, cx + 1, -1.75, -1.45, dy + 2.4, dy + CH, wMat);
-      buildLayered1998Wall(cur.interior, cx - 4.15, cx + 4.15, 1.45, 1.75, dy, dy + CH, wMat);
+      buildLayered1998Wall(cur.interior, cx - 10, cx + 10, 1.45, 1.75, dy, dy + CH, wMat);
       add(mWoodDark, .1, 2.4, .36, cx - 1.0, dy, -1.6); add(mWoodDark, .1, 2.4, .36, cx + 1.0, dy, -1.6);
-      flat(cur.interior, mCeil, cx - 4.15, cx + 4.15, -1.75, 1.45, dy + CH, 4, false);
-      floorPiece(cx - 4.15, cx + 4.15, -1.45, 1.45, dy);
+      flat(cur.interior, mCeil, cx - 10, cx + 10, -1.75, 1.45, dy + CH, 4, false);
+      floorPiece(cx - 10, cx + 10, -1.45, 1.45, dy);
       if (dy > 0) {
         floorPiece(cx - 4, cw, -9.6, -1.75, dy);
         floorPiece(hx2, cx + 4, -9.6, -1.75, dy);
@@ -3392,7 +3412,10 @@ export function buildWorld(scene) {
     // 별관 창밖 달빛 캠퍼스 풍경 (noCull = true 로 설정해 별관 실내 어디서든 창문 밖으로 본관·중정·대강당·나무가 선명하게 투시되도록 보장!)
     { const gy = -k * FH - .05, mOutGnd = new THREE.MeshBasicMaterial({ map: T.makeGround(), color: 0x526450 }), mOutFac = new THREE.MeshBasicMaterial({ map: mFacade.map, color: 0x626a72 }), mOutTree = new THREE.MeshBasicMaterial({ color: 0x263828 });
       const outGrp = new THREE.Group(); outGrp.userData.noCull = true; outGrp.userData.dynamic = true; F.interior.add(outGrp);
-      flat(F.interior, mOutGnd, -75, 75, -65, 65, gy, 8);
+      flat(F.interior, mOutGnd, -75, 75, -65, -9.9, gy, 6);
+      flat(F.interior, mOutGnd, -75, 75, 9.9, 65, gy, 6);
+      flat(F.interior, mOutGnd, -75, -20.3, -9.9, 9.9, gy, 4);
+      flat(F.interior, mOutGnd, 28.3, 75, -9.9, 9.9, gy, 4);
       const mainY0 = gy, mainH = 12.4; F.interior.add(boxMesh(-36.3, 36.3, mainY0, mainY0 + mainH, 20.5, 22.5, mOutFac, 3));
       // 중앙 구름다리 구간(z: 9.9 ~ 20.5)은 위에서 속이 빈 실제 통로로 구축했으므로 통짜 회색 박스로 막지 않는다!
       const mSlots = []; for (let mf = 0; mf < 3; mf++) SLOTS.forEach(mcx => [-3.05, 3.05].forEach(dx => mSlots.push([mcx + dx, 1.3, -.08, mainY0 + mf * FH + 1.72, 1.48])));

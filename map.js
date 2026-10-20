@@ -47,7 +47,9 @@ export function drawMap(ctx, W, H, o) {
     fillRect(GUARD_LAYOUT.originX, GUARD_LAYOUT.originZ - GUARD_LAYOUT.depth, GUARD_LAYOUT.originX + GUARD_LAYOUT.width, GUARD_LAYOUT.originZ, '#4a4a40');
     fillRect(-20, -25 - ANNEX_DZ, 20, -13.5 - ANNEX_DZ, '#3a4248');
     strokeRect(-20, -25 - ANNEX_DZ, 20, -13.5 - ANNEX_DZ, '#8a8a80', 1.5);
-    box3D(-20, -25 - ANNEX_DZ, 28, -13.5 - ANNEX_DZ, 12.0, '#3a4248', '#52626e', '#242c32'); // 별관 3층 3D 볼륨
+    box3D(-28, -25 - ANNEX_DZ, 28, -13.5 - ANNEX_DZ, 12.0, '#3a4248', '#52626e', '#242c32');
+    box3D(-45.5, -8.8, -36.3, 8.8, 12.0, '#3a3832', '#5c5850', '#24221e');
+    box3D(36.3, -8.8, 45.5, 8.8, 12.0, '#3a3832', '#5c5850', '#24221e'); // 별관 3층 3D 볼륨
     [MEGA.gym, MEGA.court].forEach((r, i) => {
       fillRect(r.x - r.w / 2, r.z - r.d / 2, r.x + r.w / 2, r.z + r.d / 2, i ? '#354a36' : '#4a3a28');
       strokeRect(r.x - r.w / 2, r.z - r.d / 2, r.x + r.w / 2, r.z + r.d / 2, '#8a8a80', 1.5);
@@ -78,7 +80,7 @@ export function drawMap(ctx, W, H, o) {
       ctx.fillText('야외농구장', X(36), Y(46)); ctx.fillText('체육관', X(38), Y(23.5)); ctx.fillText('급식실', X(-39), Y(19)); ctx.fillText('수영장', X(-41), Y(41));
       ctx.fillText('경비실', X(GUARD_LAYOUT.cx), Y(GUARD_LAYOUT.cz)); ctx.fillText('별관(1~3F)', X(4), Y(-19.25 - ANNEX_DZ));
       ctx.fillText('대강당', X(MEGA.gym.x), Y(MEGA.gym.z)); ctx.fillText('중정', X(MEGA.court.x), Y(MEGA.court.z));
-      ctx.fillText('서문', X(-47), Y(32)); ctx.fillText('정문', X(0), Y(GATE_Z) - 8);
+      ctx.fillText('서문(탈출구)', X(-62.5), Y(32)); ctx.fillText('정문', X(0), Y(GATE_Z) - 8);
       ctx.fillText('생태온실', X(62), Y(-50)); ctx.fillText('학교매점', X(63.5), Y(18)); ctx.fillText('야외음악당', X(35.0), Y(-48.5));
       ctx.fillText('제1주차장(교직원)', X(30.5), Y(63.5)); ctx.fillText('제2주차장(버스)', X(-76.0), Y(65.5)); ctx.fillText('청운정', X(-11.5), Y(63.5));
       ctx.fillText('청운학사(기숙사)', X(-86), Y(-42)); ctx.fillText('청운호·호심정', X(-9), Y(-86));

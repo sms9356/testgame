@@ -4,11 +4,11 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { NOTES } from './story.js?v=139';
+import { NOTES } from './story.js?v=140';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=139';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=140';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -295,7 +295,7 @@ export function buildWorld(scene) {
     const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTexY, blending: THREE.AdditiveBlending, depthWrite: false }));
     sp.scale.set(1.2, 1.2, 1.2); g.add(sp);
     g.position.set(x, y + .12, z); g.userData.dynamic = true; cur.interior.add(g);
-    items.push({ kind: 'key', idx, floor: cur.f, pos: new THREE.Vector3(x, cur.y0 + y + .12, z), mesh: g, taken: false, label: `열쇠 조각 줍기 (${KEY_NAMES[idx]})`, baseY: y + .12 });
+    items.push({ kind: 'key', idx, floor: cur.f, pos: new THREE.Vector3(x, cur.y0 + y + .12, z), mesh: g, taken: false, label: `학교 비밀 증거 조각 확보하기 (${KEY_NAMES[idx]})`, baseY: y + .12 });
   }
   function papers(cx, z1, z2, n, spread = 3.4) {
     for (let i = 0; i < n; i++) {
@@ -2194,7 +2194,7 @@ export function buildWorld(scene) {
       const mkR = rx => { const r = dyn(new THREE.Group()); r.position.set(rx, .066, -.01); r.add(new THREE.Mesh(new THREE.CylinderGeometry(.045, .045, .012, 14), mWhite)); r.add(new THREE.Mesh(new THREE.BoxGeometry(.076, .015, .012), mDarkMetal)); r.add(new THREE.Mesh(new THREE.BoxGeometry(.012, .015, .076), mDarkMetal)); rg.add(r); return r; };
       const reelL = mkR(-.07), reelR = mkR(.07);
       const led = dyn(new THREE.Mesh(new THREE.SphereGeometry(.014, 8, 8), new THREE.MeshBasicMaterial({ color: 0xff3020 }))); led.position.set(.12, .068, .06); rg.add(led);
-      props.push({ kind: 'robj', k: 'principal_recorder', t: 'principal', floor: cur.f, x: cx - .45, z: 7.45, y: .88, r: 2.3, label: '교장실 비밀 녹취기 재생 — 교장선생님 육성 녹음 듣기', anim: { type: 'tape', g: rg, reelL, reelR, playBtn, led, playT: 0 } }); }
+      props.push({ kind: 'robj', k: 'principal_recorder', t: 'principal', floor: cur.f, x: cx + .45, z: -7.45, y: .88, r: 2.3, label: '교장실 비밀 녹취기 재생 — 교장선생님 육성 녹음 듣기', anim: { type: 'tape', g: rg, reelL, reelR, playBtn, led, playT: 0 } }); }
     trophyCase(cx + 3.55, -7.9, -Math.PI / 2, 1.6); shelf3D(cx - 3.62, -7.6, Math.PI / 2, 1.6, 2.0, .4, 5, .8);
     potPlant(cx + 3.3, 0, -2.4, false); papers(cx, -8, -2.4, 6);
   }

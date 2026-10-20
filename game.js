@@ -10,15 +10,15 @@ import { createNPCVisuals } from './npcVisuals.js';
 import { applyGuardSeatedPose } from './guardSeatedPose.js';
 import { createCampusCctvLive, collectCampusCctvFeeds } from './campusCctvLive.js';
 import { applyExteriorFloorVisibility, shouldStreamGuardCctv } from './exteriorRenderBudget.js';
-import { GUARD_LAYOUT } from './guardRoomLayout.js?v=139';
-import { installGuardRoom } from './guardRoom.js?v=139';
+import { GUARD_LAYOUT } from './guardRoomLayout.js?v=140';
+import { installGuardRoom } from './guardRoom.js?v=140';
 import { prepareModelGeometry } from './modelGeometry.js';
 import { modelFootprint, overlaps, removeDuplicateModels } from './placement.js';
-import { turfMaterial } from './campusVisuals.js?v=139';
+import { turfMaterial } from './campusVisuals.js?v=140';
 import { installInfirmaryAssets, updateInfirmaryCabinets } from './infirmaryAssets.js';
-import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js?v=139'; import { updateWindowFakes } from './windowInteriors.js?v=139';
-import { drawMap } from './map.js?v=139';
-import { buildMegaCampus15000, MEGA_CAMPUS_ZONES } from './megaCampus15000.js?v=139';
+import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js?v=140'; import { updateWindowFakes } from './windowInteriors.js?v=140';
+import { drawMap } from './map.js?v=140';
+import { buildMegaCampus15000, MEGA_CAMPUS_ZONES } from './megaCampus15000.js?v=140';
 import { makeDress, makeHair, makeGhostFace, makeGraffiti, makeKeypad, loadPBR, pbr, makeGlow as makeGlowTex, makePaintingStare, makeSign, makeBlood } from './tex.js';
 import { warmUp } from './bake.js';
 import { createStaticDistanceLOD } from './staticDistanceLOD.js';
@@ -39,12 +39,12 @@ import './school37RoomsPatch.js';    // 본관 · 별관 37개 특별실 가구 
 import './new37UniquePatch.js';     // 37개 구역 신규 특수 설비 · 벽면 레일 (사용자 제공) → window.new37UniquePatch
 import './megaExpansionPatch.js';   // 메가 익스팬션 · 최적화 · 4막 사건 기록 · 수집품 · 미니게임 (사용자 제공) → window.megaSchoolPatch
 import './poolMachineryPatch.js';     // 수영장 · 남/녀 탈의실·샤워실 · 기계실 철문 (사용자 제공) → window.poolAndMachineryPatch
-import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx } from './audio.js?v=139'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=139'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera } from './perfStabilizer.js';
-import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js?v=139';
-import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, SIDEQUESTS, HEADQUEST, COLLECT, LOCKER_SCARES, CHALK_QA, OUIJA_QS, PARA, TOILET_FX, MIRROR_WORDS } from './story.js?v=139';
+import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx } from './audio.js?v=140'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=140'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera } from './perfStabilizer.js';
+import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js?v=140';
+import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, SIDEQUESTS, HEADQUEST, COLLECT, LOCKER_SCARES, CHALK_QA, OUIJA_QS, PARA, TOILET_FX, MIRROR_WORDS } from './story.js?v=140';
 import { isSpeechBusy } from './voice.js';
 import { SET, saveSET, resetSET, DIFF, keyLabel } from './settings.js';
-import { initI18n, setLang, lang as curLang } from './i18n.js?v=139';   // 언어 패치 (한국어 · English · 日本語 · 中文)
+import { initI18n, setLang, lang as curLang } from './i18n.js?v=140';   // 언어 패치 (한국어 · English · 日本語 · 中文)
 initI18n();
 const K = () => SET.keys;
 let guardRoomController = null, guardControlProps = [], guardCctvData = null, campusCctv = null;
@@ -60,7 +60,7 @@ function syncGuardDevices() {
 function toggleGuardCCTV(persist = true) { FL.guardCctvOn = !(FL.guardCctvOn ?? true); sfx.click(); syncGuardDevices(); if (persist) save(true); return FL.guardCctvOn; }
 function toggleGuardLight() { FL.guardLightOn = !(FL.guardLightOn ?? false); sfx.click(); syncGuardDevices(); say(FL.guardLightOn ? '경비실 전등을 켰다' : '경비실 전등을 껐다', 1800); save(true); return FL.guardLightOn; }
 
-import { run as runMini, MG } from './minigames.js?v=139';
+import { run as runMini, MG } from './minigames.js?v=140';
 import { SCHEMA, BUILD, storageKeys, itemUid, propUid, doorUid, assignUids, readSlot, writeSlot, hasSlot, clearSlot, repairProgress } from './saveSystem.js';
 loadManifest().then(() => registerLines({ ...VO, ...Object.fromEntries(Object.entries(STORY_NOTES).filter(([, n]) => n.text).map(([k, n]) => ['note_' + k, { spk: 'narrator', text: n.title + '. ' + n.text, parts: [n.title, n.text] }])) }));
 
@@ -1052,7 +1052,69 @@ function showNote(it) {
     window.__readSeomunNewspaper();
     return;
   }
-  $('note').innerHTML = (it.img ? `<img class="photo" src="assets/img/${it.img}.webp" alt="">` : '') + `<b style="font-size:19px">${it.title}</b><br><br>${it.text}<small>${it.img ? '— 빛바랜 사진' : it.tape ? '— 녹음 내용' : '— 낡은 종이'}</small>`;
+  const tStr = String(it.title || '기록 문서');
+  const isOfficial = /회의록|감사|서약서|진술서|안내문|기록부|보고서|호외/.test(tStr);
+  const isLogbook = /일지|점검표|명부|출석부|카드|명단|메모/.test(tStr) && !/일기|편지/.test(tStr);
+  const isDiary = /일기|편지|원고|수첩|악보|쪽지|글/.test(tStr);
+  const isTape = !!it.tape || /녹취|녹음|테이프/.test(tStr);
+  let docHTML = '';
+  if (isTape) {
+    docHTML = [
+      '<div style="background:linear-gradient(180deg,#23201d 0%,#181614 100%);color:#f0e6d2;padding:18px 22px;border:2px solid #6e5a3e;border-radius:6px;box-shadow:0 12px 32px rgba(0,0,0,0.65),inset 0 0 18px rgba(0,0,0,0.6);text-align:left;font-family:sans-serif;line-height:1.65;">',
+        '<div style="display:flex;justify-content:space-between;align-items:center;background:#12100e;border:1px solid #4a3c2a;padding:8px 12px;border-radius:4px;margin-bottom:14px;">',
+          '<span style="color:#ff5240;font-weight:900;font-size:12px;letter-spacing:1.5px;">● REC // MICRO-CASSETTE TRANSCRIPT</span>',
+          '<span style="color:#a89878;font-family:monospace;font-size:11.5px;">TAPE-1998-1012 · SIDE A</span>',
+        '</div>',
+        '<div style="font-size:18px;font-weight:900;color:#ffdca0;border-bottom:1px solid #4a3c2a;padding-bottom:8px;margin-bottom:12px;">📼 ' + tStr + '</div>',
+        (it.img ? '<img class="photo" src="assets/img/' + it.img + '.webp" alt="" style="border:3px solid #3a3228;margin-bottom:12px;">' : ''),
+        '<div style="font-size:14px;color:#efe6d5;background:rgba(255,245,220,0.04);padding:12px 14px;border-left:3px solid #d48838;border-radius:2px;">' + it.text + '</div>',
+        '<div style="margin-top:12px;display:flex;justify-content:space-between;font-size:11px;color:#9a8c74;font-family:monospace;"><span>AUDIO MAGNETIC ARCHIVE · SEOMUN HIGH</span><span>[클릭 또는 Esc로 닫기]</span></div>',
+      '</div>'
+    ].join('');
+  } else if (isOfficial) {
+    docHTML = [
+      '<div style="background:#f3ebd8;color:#1a1612;padding:20px 24px;border:2px solid #3a3024;box-shadow:0 14px 36px rgba(0,0,0,0.6),inset 0 0 32px rgba(90,68,38,0.18);text-align:left;font-family:serif;line-height:1.65;position:relative;">',
+        '<div style="display:flex;justify-content:space-between;align-items:stretch;border-bottom:2px solid #1a1612;padding-bottom:10px;margin-bottom:14px;">',
+          '<div>',
+            '<div style="font-size:11px;font-family:sans-serif;color:#6a241c;font-weight:bold;letter-spacing:1.5px;">서문고등학교 대외비 문서 · 제1998-1012호</div>',
+            '<div style="font-size:20px;font-weight:900;color:#111;margin-top:4px;">' + tStr + '</div>',
+          '</div>',
+          '<table style="border-collapse:collapse;font-family:sans-serif;font-size:10.5px;text-align:center;color:#222;background:#ebe1ca;">',
+            '<tr><td style="border:1px solid #333;padding:2px 7px;background:#dfd3b8;font-weight:bold;">담 당</td><td style="border:1px solid #333;padding:2px 7px;background:#dfd3b8;font-weight:bold;">교무부장</td><td style="border:1px solid #333;padding:2px 7px;background:#dfd3b8;font-weight:bold;">교 장</td></tr>',
+            '<tr><td style="border:1px solid #333;padding:5px 7px;color:#b8281e;font-weight:900;">印</td><td style="border:1px solid #333;padding:5px 7px;color:#b8281e;font-weight:900;">결재印</td><td style="border:1px solid #333;padding:5px 7px;color:#c41e18;font-weight:900;border-radius:2px;">校長印</td></tr>',
+          '</table>',
+        '</div>',
+        (it.img ? '<img class="photo" src="assets/img/' + it.img + '.webp" alt="" style="border:2px solid #4a3e30;margin-bottom:12px;">' : ''),
+        '<div style="font-size:14.5px;color:#1c1814;min-height:90px;">' + it.text + '</div>',
+        '<div style="margin-top:16px;padding-top:8px;border-top:1px solid #8a7b62;display:flex;justify-content:space-between;align-items:center;font-family:sans-serif;font-size:11px;color:#5a4d3c;">',
+          '<span>발행처: 서문고등학교 교무처 · 보존연한: 영구(봉인)</span>',
+          '<span style="border:2px solid #b82218;color:#b82218;padding:1px 6px;font-weight:900;transform:rotate(-4deg);display:inline-block;">대 외 비 (極秘)</span>',
+        '</div>',
+      '</div>'
+    ].join('');
+  } else if (isLogbook) {
+    docHTML = [
+      '<div style="background:#ece5d3;color:#1c1915;padding:18px 22px;border-top:10px solid #3a4852;border-left:1px solid #7a6e58;border-right:1px solid #7a6e58;border-bottom:2px solid #5a4e3c;box-shadow:0 12px 30px rgba(0,0,0,0.55),inset 0 0 20px rgba(70,55,35,0.14);text-align:left;font-family:sans-serif;line-height:1.62;">',
+        '<div style="display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #3a4852;padding-bottom:7px;margin-bottom:12px;">',
+          '<span style="font-size:18px;font-weight:900;color:#18222a;">📋 ' + tStr + '</span>',
+          '<span style="background:#3a4852;color:#f0ead8;font-size:11px;padding:2px 8px;border-radius:3px;">시설 · 근무 점검 기록부</span>',
+        '</div>',
+        (it.img ? '<img class="photo" src="assets/img/' + it.img + '.webp" alt="" style="margin-bottom:10px;">' : ''),
+        '<div style="font-size:14px;color:#201c18;background:#f7f2e6;border:1px solid #b8ac94;padding:12px 14px;">' + it.text + '</div>',
+        '<div style="margin-top:10px;text-align:right;font-size:11px;color:#5a5042;">서문고등학교 행정관리실 · 확인필</div>',
+      '</div>'
+    ].join('');
+  } else {
+    docHTML = [
+      '<div style="background:repeating-linear-gradient(transparent,transparent 27px,rgba(90,115,145,0.22) 28px),linear-gradient(180deg,#f7f0dc 0%,#eadfc4 100%);color:#221c16;padding:20px 24px 18px 34px;border:1px solid #8a785c;box-shadow:0 12px 32px rgba(0,0,0,0.58),inset 24px 0 0 rgba(190,60,50,0.12);text-align:left;font-family:serif;line-height:28px;position:relative;">',
+        '<div style="font-size:19px;font-weight:900;color:#2c1e14;margin-bottom:10px;border-bottom:1.5px dashed #7a684c;padding-bottom:4px;">✒ ' + tStr + '</div>',
+        (it.img ? '<div style="background:#fff;padding:8px 8px 18px 8px;box-shadow:0 4px 12px rgba(0,0,0,0.28);margin-bottom:12px;transform:rotate(-1.2deg);"><img class="photo" src="assets/img/' + it.img + '.webp" alt="" style="margin:0;width:100%;display:block;"></div>' : ''),
+        '<div style="font-size:14.5px;color:#241d16;">' + it.text + '</div>',
+        '<div style="margin-top:10px;text-align:right;font-size:11.5px;color:#6e5c44;font-family:sans-serif;">' + (it.img ? '— 빛바랜 폴라로이드 사진 기록' : isDiary ? '— 손글씨 육필 기록' : '— 1998년 현장 보관 기록') + '</div>',
+      '</div>'
+    ].join('');
+  }
+  $('note').innerHTML = docHTML;
   $('noteBox').classList.add('show'); it.img ? sfx.photo() : sfx.paper();
   if (it.voiceKey) line(it.voiceKey, 'tape', it.voiceWho || '📼 녹취록 재생');
   else if (it.kind === 'note' && it.id && VS.readNotes) speak('note_' + it.id);
@@ -1165,7 +1227,18 @@ function interact() {
     if (d.needPower && !power) { sfx.click(); say('철제 덮개가 전자 잠금으로 묶여 있다 — B1 전기실에서 전력을 먼저 복구해야 한다', 3200); addClue('fuse'); return; }
     if (d.needPower && !FL.ev14) { FL.ev14 = true; sfx.alert(); fx.glitch(.4); blackout = .3; caption('삐— 붉은 경광등이 돌며 덮개 잠금이 풀렸다'); }
     if (passDoorBlocked(d)) { sfx.click(); at(.8, 1.2, PASS.doorZ).doorBang(0, .6); say(d.floor === 8 ? '방화문에 반대편에서 빗장이 걸려 꿈쩍도 하지 않는다' : '방화문이 닫혀 빗장이 걸려 있다 — 열려면 방화문에서 E', 2800); return; }
-    if (d.need && !FL.gatekey) { sfx.click(); say(`굳게 잠겨 있다. 완성된 정문 열쇠가 있어야 열린다 (조각 ${P.keys}/${TOTAL})`, 2600); return; }
+    if (d.need && !FL.gatekey) { sfx.click(); say(`굳게 봉인되어 있다. 『서문고 진상 규명 마스터 기록부』가 있어야 열린다 (비밀 증거 ${P.keys}/${TOTAL})`, 2600); return; }
+    if (d.blastDoor) {
+      sfx.clank ? sfx.clank(.85) : sfx.doorHinge?.();
+      triggerInteractAnim('heavy');
+      let bt = 0;
+      const biv = setInterval(() => {
+        bt += 0.08;
+        if (d.blastDoor.wheelPiv) d.blastDoor.wheelPiv.rotation.z = bt * 3.2;
+        if (d.blastDoor.doorPiv && bt > 0.25) d.blastDoor.doorPiv.rotation.y = -Math.min(1.15, (bt - 0.25) * 1.8);
+        if (bt >= 1) { clearInterval(biv); setTimeout(() => { if (d.blastDoor.doorPiv) d.blastDoor.doorPiv.rotation.y = 0; }, 900); }
+      }, 24);
+    }
     teleport(d.to);
   }
   else if (target.type === 'gate') openGate();
@@ -1568,6 +1641,14 @@ async function useRoomObj(p) {
     showNote({ id: 'n_seomun_ilbo', newspaper: true, title: '『서문일보』 1998.10.13 지역신문 특별 호외', text: '' });
     return;
   }
+  if (k === 'bunker_light') {
+    sfx.click();
+    if (p.bkLightGroup) {
+      p.bkLightGroup.visible = !p.bkLightGroup.visible;
+      say(p.bkLightGroup.visible ? '방공호 천장 트윈 형광등과 격벽 벌크헤드 전등을 켰다' : '방공호 주 전등을 껐다', 2400);
+    }
+    return;
+  }
   if (k === 'bunker_audit') {
     sfx.clank ? sfx.clank(.7) : sfx.click();
     if (!docs.some(d => d.id === 'n_bunker_audit')) { addDoc({ id: 'n_bunker_audit', kind: 'note' }); giveItem('battery', 1); }
@@ -1796,6 +1877,71 @@ function lock() {
 let deaths = 0; try { deaths = +localStorage.getItem(DEATHS_KEY) || 0; } catch (e) { /* ignore */ }
 let SKEYS = storageKeys(TEST), SCTX = { itemUids: [], propUids: [] };   // 월드 생성 뒤 initSaveIds() 에서 채운다
 const hasSave = () => { try { return hasSlot(localStorage, SKEYS); } catch (e) { return false; } };
+// ── 전 층 가구·소품·사물 위치 자동 감사 교정(벽 이탈 · 문 앞 가로막음 · 공중/바닥 오프셋 교정) 및 텍스처 고화질(Max Anisotropy + PBR Micro-Detail) 업그레이드 ──
+function auditAndFixFurnitureAndQuality() {
+  const maxAniso = Math.min(16, renderer.capabilities.getMaxAnisotropy?.() || 8);
+  const B = new THREE.Box3();
+  let clampedFurn = 0, clearedDoorFurn = 0, upgradedTex = 0;
+  // 1) S37 & N37 37개 특별실 가구: 문 입구(1.45m)를 가로막는 가구 제거 및 방 벽(cx±3.68, 북쪽 z -9.35..-1.96 / 남쪽 z 1.96..9.35) 이탈 가구 실내 정위치 클램프!
+  for (const rm of (S37.rooms || [])) {
+    const { f, cx, s, g } = rm;
+    if (!g) continue;
+    const minX = cx - 3.66, maxX = cx + 3.66;
+    const minZ = s > 0 ? -9.32 : 1.98, maxZ = s > 0 ? -1.98 : 9.32;
+    const fDoors = (world.doorList || []).filter(d => d.floor === f && Math.abs(d.x - cx) < 3.8 && Math.sign(d.z) === -s);
+    g.updateMatrixWorld(true);
+    for (const piece of [...g.children]) {
+      B.setFromObject(piece);
+      if (B.isEmpty()) continue;
+      const px = (B.min.x + B.max.x) / 2, pz = (B.min.z + B.max.z) / 2;
+      // 문 바로 앞(반경 1.25m)을 막고 있는 키 큰 가구는 숨김 처리
+      if (fDoors.some(d => Math.hypot(px - d.x, pz - d.z) < 1.22) && (B.max.y - B.min.y) > 0.35) {
+        piece.visible = false; clearedDoorFurn++; continue;
+      }
+      // 방 벽 바깥으로 삐져나간 가구를 실내 벽 안쪽으로 정밀 이동!
+      let dx = 0, dz = 0;
+      if (B.min.x < minX) dx = minX - B.min.x;
+      else if (B.max.x > maxX) dx = maxX - B.max.x;
+      if (B.min.z < minZ) dz = minZ - B.min.z;
+      else if (B.max.z > maxZ) dz = maxZ - B.max.z;
+      if (Math.abs(dx) > 0.01 || Math.abs(dz) > 0.01) {
+        piece.position.x += dx * s;
+        piece.position.z += dz * s;
+        clampedFurn++;
+      }
+      if (B.min.y < -0.05 && piece.position.y < 0) piece.position.y = 0;
+    }
+    g.updateMatrixWorld(true);
+  }
+  // 2) 모든 층의 S37/N37 충돌 상자(F.col)도 방 벽 경계 안쪽으로 클램프하여 복도나 외벽 밖에서 보이지 않는 충돌체에 걸리지 않도록 교정!
+  for (let f = 0; f < floors.length; f++) {
+    const F = floors[f]; if (!F || !F.col) continue;
+    F.col = F.col.filter(c => {
+      if (!c.s37 && !c.n37) return true;
+      if (c.z1 < 1.82 && c.z2 > -1.82) return false; // 복도 침범 충돌체 제거
+      if (c.z1 < -9.38) c.z1 = -9.38;
+      if (c.z2 > 9.38) c.z2 = 9.38;
+      return (c.x2 - c.x1) > 0.08 && (c.z2 - c.z1) > 0.08;
+    });
+  }
+  // 3) 전 씬(가구·소품·사물·장식·벽·바닥) 텍스처 Anisotropy 최대치(8~16x) 및 Mipmap 필터링 일괄 고화질화!
+  const seenTex = new Set();
+  scene.traverse(o => {
+    if (!o.isMesh) return;
+    const mats = Array.isArray(o.material) ? o.material : [o.material];
+    for (const m of mats) {
+      if (!m) continue;
+      for (const k of ['map', 'normalMap', 'roughnessMap', 'bumpMap', 'emissiveMap']) {
+        const t = m[k];
+        if (t && t.isTexture && !seenTex.has(t)) {
+          seenTex.add(t);
+          if ((t.anisotropy || 1) < maxAniso) { t.anisotropy = maxAniso; t.needsUpdate = true; upgradedTex++; }
+        }
+      }
+    }
+  });
+  window.__furnitureAuditStats = { clampedFurn, clearedDoorFurn, upgradedTex, maxAniso };
+}
 function initSaveIds() {
   assignUids(world.items, itemUid); assignUids(world.props, propUid); assignUids(world.doorList, doorUid);
   SCTX = { itemUids: world.items.map(i => i.uid), propUids: world.props.map(p => p.uid) };
@@ -3066,7 +3212,7 @@ async function useProp(p) {
     toast('피아노 속 숨은 칸', '사진 — 방송부 앨범 · 건전지 · 머리핀'); refreshHud(); save(true);
     setTimeout(() => { if (state === 'playing') showNote({ ...world.PHOTOS.p4, kind: 'photo' }); }, 900);
   } else if (p.kind === 'easel') {
-    const r = await mini('slide', { img: 'assets/img/old_lab.webp', title: '찢어진 사진 맞추기' });
+    const r = await mini('sketchLine', { img: 'assets/img/old_lab.webp', title: '🎨 미술실 이젤 — 1998 과학실 목탄 크로키 선긋기 복원' });
     if (!r.ok) return;
     p.done = true; talk('slideOk', 3000); inv.medkit++; newItems.add('medkit'); addDoc({ id: 'p5', kind: 'photo' }); unlockOptional();
     toast('그림 뒤에서', '사진 — 과학실 (10년 전) · 응급 밴드'); refreshHud(); save(true);
@@ -6970,26 +7116,75 @@ function megaNotify(m) { const t = String(m).split('\n'); say(t[0].replace(/^\S+
     pcyl(.07, .07, 19.6, ribM, x1 - .55, H - .35, bz, R, { rx: Math.PI / 2 });
     pmesh(new THREE.PlaneGeometry(3.6, 1.1), new THREE.MeshBasicMaterial({ map: makeSign('지하 방공호 · 제1특수보존서고 (CIVIL DEFENSE SHELTER & ARCHIVE) | 1998 비공개 감사 기록 봉인 구역', '#141e1a', '#98ffb8', 20) }), bx, 2.25, z0 + .08, R, { cast: false });
     for (let k = 0; k < 4; k++) { const sx = k % 2 ? x0 + .65 : x1 - .65, sz = bz - 6.5 + ((k / 2) | 0) * 8.5; pbox(.72, 2.3, 3.0, PM(0x3e4648, .5, .6), sx, 1.15, sz, R); F4.col.push({ x1: sx - .38, x2: sx + .38, z1: sz - 1.5, z2: sz + 1.5 }); }
-    for (let k = 0; k < 3; k++) { const gl = new THREE.Sprite(new THREE.SpriteMaterial({ map: makeGlowTex('255,190,110'), blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, opacity: .45 })); gl.scale.setScalar(3.8); gl.position.set(bx, H - .35, bz - 6 + k * 6); gl.userData.dynamic = true; R.add(gl); }
+    // 방공호 천장 산업용 트윈 형광등 3기 + 좌우 격벽 철망 벌크헤드 전등 6기 + 벽면 전등 스위치!
+    const bkLampMat = new THREE.MeshStandardMaterial({ color: 0xfff5dc, emissive: 0xffe4a8, emissiveIntensity: 1.6, roughness: .2 });
+    const bkCageMat = PM(0x8a7240, .35, .75);
+    const bkLightGroup = new THREE.Group(); bkLightGroup.userData.dynamic = true; R.add(bkLightGroup);
+    for (let k = 0; k < 3; k++) {
+      const lz = bz - 6 + k * 6;
+      // 천장 트윈 형광등 하우징 & 발광 튜브 2열
+      pbox(1.5, .08, .36, ribM, bx, H - .06, lz, R, { cast: false });
+      pbox(1.38, .04, .08, bkLampMat, bx, H - .11, lz - .08, bkLightGroup, { cast: false });
+      pbox(1.38, .04, .08, bkLampMat, bx, H - .11, lz + .08, bkLightGroup, { cast: false });
+      const gl = new THREE.Sprite(new THREE.SpriteMaterial({ map: makeGlowTex('255,225,165'), blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, opacity: .68 }));
+      gl.scale.setScalar(5.2); gl.position.set(bx, H - .32, lz); gl.userData.dynamic = true; bkLightGroup.add(gl);
+      // 좌우 벽면 황동 철망 벌크헤드 방폭 전등 (Bulkhead Caged Lamps)
+      [x0 + .22, x1 - .22].forEach((wx, wi) => {
+        pbox(.10, .28, .20, ribM, wx, 2.38, lz, R, { cast: false });
+        pbox(.08, .20, .14, bkLampMat, wx + (wi ? -.04 : .04), 2.38, lz, bkLightGroup, { cast: false });
+        pbox(.11, .24, .02, bkCageMat, wx + (wi ? -.06 : .06), 2.38, lz - .04, R, { cast: false });
+        pbox(.11, .24, .02, bkCageMat, wx + (wi ? -.06 : .06), 2.38, lz + .04, R, { cast: false });
+        const wgl = new THREE.Sprite(new THREE.SpriteMaterial({ map: makeGlowTex('255,205,130'), blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, opacity: .48 }));
+        wgl.scale.setScalar(2.8); wgl.position.set(wx + (wi ? -.25 : .25), 2.38, lz); wgl.userData.dynamic = true; bkLightGroup.add(wgl);
+      });
+    }
+    // 방공호 입구(B1 복도 x=13.5, z=-1.52) 및 방공호 내부 출구(x=bx, z=z1-0.08) 3D 중량 방폭 철문(Heavy Steel Blast Door + 붉은 주철 핸들 휠 + 비상 유도등) 설치!
+    const buildBlastDoor3D = (dx, dz, ry) => {
+      const dg = new THREE.Group(); dg.userData.dynamic = true; dg.position.set(dx, 0, dz); dg.rotation.y = ry; R.add(dg);
+      const frameM = PM(0x222628, .45, .75), leafM = PM(0x3a4246, .5, .68), wheelM = PM(0xb82820, .35, .6), brassM2 = PM(0xb89644, .3, .8);
+      // 강철 문틀 (좌·우·상단 헤더)
+      pbox(.16, 2.36, .18, frameM, -.68, 1.18, 0, dg);
+      pbox(.16, 2.36, .18, frameM,  .68, 1.18, 0, dg);
+      pbox(1.52, .18, .20, frameM, 0, 2.38, 0, dg);
+      // 상단 초록색 발광 비상 방공호 유도등
+      pbox(.62, .18, .08, new THREE.MeshStandardMaterial({ color: 0x20d860, emissive: 0x18c050, emissiveIntensity: 1.2 }), 0, 2.56, .06, dg, { cast: false });
+      // 방폭 철문 짝 (doorPiv) + 경첩 3개 + 리벳 + 중앙 붉은 주철 압력 휠 핸들
+      const doorPiv = new THREE.Group(); doorPiv.userData.dynamic = true; doorPiv.position.set(-.58, 1.16, .02); dg.add(doorPiv);
+      pbox(1.18, 2.24, .10, leafM, .58, 0, 0, doorPiv);
+      pbox(1.02, 1.96, .12, frameM, .58, 0, 0, doorPiv);
+      [-0.75, 0, 0.75].forEach(hy => pcyl(.045, .045, .18, brassM2, .02, hy, .05, doorPiv));
+      // 중앙 주철 핸들 휠
+      const wheelPiv = new THREE.Group(); wheelPiv.userData.dynamic = true; wheelPiv.position.set(.74, -.02, .08); doorPiv.add(wheelPiv);
+      pcyl(.04, .04, .08, brassM2, 0, 0, 0, wheelPiv, { rx: Math.PI / 2 });
+      const ring = new THREE.Mesh(new THREE.TorusGeometry(.18, .022, 8, 20), wheelM); wheelPiv.add(ring);
+      for (let s = 0; s < 3; s++) { const spk = new THREE.Mesh(new THREE.CylinderGeometry(.014, .014, .34, 8), wheelM); spk.rotation.z = s * Math.PI / 3; wheelPiv.add(spk); }
+      return { dg, doorPiv, wheelPiv };
+    };
+    const bdCorr = buildBlastDoor3D(13.5, -1.52, 0);
+    const bdIn   = buildBlastDoor3D(bx, z1 - .08, Math.PI);
+    // 방공호 내부 벽면 전등 개폐 스위치 (x = bx + 1.15, z = z1 - .14)
+    pbox(.12, .18, .06, ribM, bx + 1.15, 1.35, z1 - .14, R);
+    pbox(.04, .06, .04, new THREE.MeshBasicMaterial({ color: 0x40ff80 }), bx + 1.15, 1.38, z1 - .18, R);
+    world.props.push({ kind: 'robj', k: 'bunker_light', t: 'bunker', floor: 4, x: bx + 1.15, z: z1 - .85, y: 1.35, r: 2.0, label: '방공호 주 전등 스위치 조작하기', bkLightGroup });
     {
       const bLoader = new GLTFLoader();
-      bLoader.load('assets/models/sf/sf_bunker_props_pack.glb?v=139', gltf => {
+      bLoader.load('assets/models/sf/sf_bunker_props_pack.glb?v=140', gltf => {
         const bm = gltf.scene; bm.position.set(bx, 0, z0 + .45);
         if (window.__upgradePure3DScene) window.__upgradePure3DScene(bm); else bm.traverse(o => { o.userData.dynamic = true; });
         R.add(bm);
-        if (gltf.animations && gltf.animations.length) { const mx = new THREE.AnimationMixer(bm); gltf.animations.forEach(c => mx.clipAction(c).play()); (window.__campusAnimMixers ||= []).push(mx); }
+        if (gltf.animations && gltf.animations.length) { const mx = new THREE.AnimationMixer(bm); mx.userData = { floor: 4, x: bx, z: z0 + .45 }; gltf.animations.forEach(c => mx.clipAction(c).play()); (window.__campusAnimMixers ||= []).push(mx); }
       }, undefined, () => {});
-      bLoader.load('assets/models/sf/sf_pump_policeline_scene.glb?v=139', gltf => {
+      bLoader.load('assets/models/sf/sf_pump_policeline_scene.glb?v=140', gltf => {
         const pm = gltf.scene; pm.position.set(24.0, 0, -3.65);
         pm.traverse(o => { o.userData.dynamic = true; if (o.isMesh) { o.castShadow = false; o.receiveShadow = true; if (o.material?.map) o.material.map.colorSpace = THREE.SRGBColorSpace; } });
         R.add(pm);
-        if (gltf.animations && gltf.animations.length) { const mx = new THREE.AnimationMixer(pm); gltf.animations.forEach(c => mx.clipAction(c).play()); (window.__campusAnimMixers ||= []).push(mx); }
+        if (gltf.animations && gltf.animations.length) { const mx = new THREE.AnimationMixer(pm); mx.userData = { floor: 4, x: 24.0, z: -3.65 }; gltf.animations.forEach(c => mx.clipAction(c).play()); (window.__campusAnimMixers ||= []).push(mx); }
       }, undefined, () => {});
     }
     world.props.push({ kind: 'robj', k: 'bunker_audit', t: 'bunker', floor: 4, x: bx - 1.6, z: z0 + 1.4, y: 1.1, r: 2.4, label: '방공호 기밀 철제 서류함 & 수동 환기 송풍기 조사하기' });
     world.props.push({ kind: 'robj', k: 'pump_newspaper', t: 'pump', floor: 4, x: 24.0, z: -3.45, y: .8, r: 2.5, label: '폴리스라인 안쪽 1998년 『서문일보』 지역신문 호외 읽기' });
-    world.doors.push({ floor: 4, x: 13.5, z: -1.1, r: 1.5, label: '방공호 통로 (지하 보존서고)', to: { floor: 4, x: bx, z: z1 - 1.2, yaw: 0 } });
-    world.doors.push({ floor: 4, x: bx, z: z1 - .5, r: 1.5, label: 'B1 복도로 돌아가기', to: { floor: 4, x: 13.5, z: -.6, yaw: Math.PI } });
+    world.doors.push({ floor: 4, x: 13.5, z: -1.1, r: 1.6, label: '방공호 방폭문 열기 (제1특수보존서고 진입)', to: { floor: 4, x: bx, z: z1 - 1.35, yaw: 0 }, blastDoor: bdCorr });
+    world.doors.push({ floor: 4, x: bx, z: z1 - .55, r: 1.6, label: '방공호 방폭문 열기 (B1 복도로 나가기)', to: { floor: 4, x: 13.5, z: -.6, yaw: Math.PI }, blastDoor: bdIn });
     pmesh(new THREE.PlaneGeometry(1.6, .34), new THREE.MeshBasicMaterial({ map: makeSign('◀ 지하 방공호 · 특수보존서고', '#1a2420', '#98ffb8', 22) }), 13.5, 2.3, -1.43, R, { cast: false }); }
   megaFz(i0, 0).forEach(p => { if (p.mesh && bunkerC.group.getObjectById(p.mesh.id)) { const wp = new THREE.Vector3(); p.mesh.getWorldPosition(wp); p.floor = 4; p.x = wp.x; p.z = wp.z; p.y = wp.y - floors[4].y0; } });
   // 37실 · 신규 37실 · 확장 구역 그룹을 청크 컬링에 등록
@@ -7083,6 +7278,7 @@ function extrasTick(dt) {
   }
 buildCamClues(); buildBreakers(); buildRestrooms(); spawnPicks();
 sqSync();
+auditAndFixFurnitureAndQuality();
 initSaveIds();
 applyQuality(SET.quality === 'auto' ? 'mid' : SET.quality);
 applySettings();

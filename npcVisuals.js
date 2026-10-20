@@ -63,23 +63,10 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
     return detailMaps;
   }
 
-  function sharpenCharacterTexture(tex, kind = 'generic') {
-    if (!tex || tex.userData?.sharpened) return;
+  function sharpenCharacterTexture(tex) {
+    if (!tex) return;
     tex.anisotropy = 16;
     if (THREE.SRGBColorSpace) tex.colorSpace = THREE.SRGBColorSpace;
-    const img = tex.image;
-    if (img && img.width && img.height && typeof document !== 'undefined') {
-      try {
-        const w = img.width, h = img.height;
-        const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
-        const ctx = cv.getContext('2d');
-        ctx.filter = kind === 'skin' ? 'contrast(1.06) saturate(1.08)' : kind === 'eye' ? 'contrast(1.18) saturate(1.16) brightness(1.04)' : 'contrast(1.12) saturate(1.08)';
-        ctx.drawImage(img, 0, 0, w, h);
-        ctx.filter = 'none';
-        tex.image = cv;
-      } catch (e) {}
-    }
-    tex.userData = { ...(tex.userData || {}), sharpened: true };
     tex.needsUpdate = true;
   }
 

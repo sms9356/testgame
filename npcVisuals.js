@@ -114,25 +114,53 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
           }
           ctx.putImageData(idata, 0, 0);
         } else if (role === 'eye') {
-          // 눈동자 텍스처: 어두운 곳에서도 눈이 까만 구멍처럼 보이지 않게 홍채 림과 듀얼 각막 반사광(Catchlight) 합성!
+          // 안구 전체가 까맣게 보이지 않도록: 원본의 너무 넓은 검정 영역을 축소하고 흰자위(Sclera)·앰버 브라운 홍채(Iris)·동공(Pupil)·각막 반사광(Catchlight)을 선명하게 재구축!
           const idata = ctx.getImageData(0, 0, w, h);
           const d = idata.data;
-          for (let i = 0; i < d.length; i += 4) {
-            const r = d[i], g = d[i + 1], b = d[i + 2];
-            const lum = r * 0.299 + g * 0.587 + b * 0.114;
-            if (lum > 145) {
-              // 흰자위(Sclera)를 더욱 맑고 선명하게
-              d[i] = Math.min(255, r * 1.12 + 12);
-              d[i + 1] = Math.min(255, g * 1.10 + 10);
-              d[i + 2] = Math.min(255, b * 1.08 + 8);
-            } else if (lum > 28 && lum <= 145) {
-              // 홍채(Iris)에 따뜻한 앰버 브라운 색채와 입체감 부여
-              d[i] = Math.min(255, r * 1.35 + 24);
-              d[i + 1] = Math.min(255, g * 1.22 + 14);
-              d[i + 2] = Math.min(255, b * 1.05 + 6);
+          // 텍스처 중심(또는 어두운 동공 중심)을 기준으로 흰자위 영역을 대폭 넓힌다
+          let sumX = 0, sumY = 0, darkCnt = 0;
+          for (let y = 0; y < h; y += 2) {
+            for (let x = 0; x < w; x += 2) {
+              const k = (y * w + x) * 4;
+              const lum = d[k] * 0.3 + d[k + 1] * 0.59 + d[k + 2] * 0.11;
+              if (lum < 85) { sumX += x; sumY += y; darkCnt++; }
+            }
+          }
+          const cx = darkCnt > 10 ? sumX / darkCnt : w * 0.5;
+          const cy = darkCnt > 10 ? sumY / darkCnt : h * 0.5;
+          const maxR = Math.min(w, h) * 0.5;
+          const irisR = maxR * 0.34, pupilR = maxR * 0.14;
+          for (let y = 0; y < h; y++) {
+            for (let x = 0; x < w; x++) {
+              const k = (y * w + x) * 4;
+              const dx = x - cx, dy = y - cy, dist = Math.hypot(dx, dy);
+              if (dist > irisR) {
+                // 맑고 자연스러운 인간 흰자위(Sclera) + 가장자리 은은한 음영
+                const edge = Math.min(1, (dist - irisR) / (maxR * 0.5));
+                d[k]     = Math.round(244 - edge * 18);
+                d[k + 1] = Math.round(236 - edge * 22);
+                d[k + 2] = Math.round(230 - edge * 24);
+              } else if (dist > pupilR) {
+                // 한국인 다크 브라운 홍채(Iris) + 방사형 섬유 스트랜드 + 외곽 림(Limbal Ring)
+                const t = (dist - pupilR) / (irisR - pupilR);
+                const ang = Math.atan2(dy, dx);
+                const fib = 0.85 + 0.25 * Math.sin(ang * 28) * Math.cos(ang * 13);
+                const limbal = t > 0.82 ? 0.55 : 1.0;
+                d[k]     = Math.min(255, Math.round(118 * fib * limbal));
+                d[k + 1] = Math.min(255, Math.round(74 * fib * limbal));
+                d[k + 2] = Math.min(255, Math.round(42 * fib * limbal));
+              } else {
+                // 깊은 동공(Pupil)
+                d[k] = 12; d[k + 1] = 10; d[k + 2] = 10;
+              }
             }
           }
           ctx.putImageData(idata, 0, 0);
+          // 초롱초롱한 듀얼 각막 반사 하이라이트 (Corneal Catchlights)
+          ctx.fillStyle = 'rgba(255,255,255,0.96)';
+          ctx.beginPath(); ctx.arc(cx - irisR * 0.28, cy - irisR * 0.28, pupilR * 0.52, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = 'rgba(255,255,255,0.72)';
+          ctx.beginPath(); ctx.arc(cx + irisR * 0.26, cy + irisR * 0.24, pupilR * 0.28, 0, Math.PI * 2); ctx.fill();
         }
         const prevFlipY = tex.flipY;
         tex.image = cv;
@@ -213,7 +241,36 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
     });
   }
 
-  function extractHumanRig(model) {
+  function attachGuardFacialFeatures(model) {
+    const headBone = model.getObjectByName('head');
+    if (!headBone || headBone.userData?.hasGuardFacial) return;
+    headBone.userData.hasGuardFacial = true;
+    // 초상화(npc_guard.webp)와 동일한 인자하고 사실적인 중년 경비원 수염(회백색 콧수염·턱수염) 및 짙은 눈썹 입체 디테일 추가
+    const gMat = new THREE.MeshStandardMaterial({ color: 0x76787c, roughness: 0.78, metalness: 0.05 });
+    const dMat = new THREE.MeshStandardMaterial({ color: 0x484a4e, roughness: 0.82, metalness: 0.04 });
+    const fg = new THREE.Group(); fg.name = 'GUARD_FACIAL_DETAIL';
+    // 콧수염 좌/우 (자연스럽게 처진 팔자형 회백색 콧수염)
+    [-1, 1].forEach(s => {
+      const m1 = new THREE.Mesh(new THREE.CapsuleGeometry(0.0085, 0.026, 5, 8), gMat);
+      m1.position.set(s * 0.016, 0.042, 0.098);
+      m1.rotation.z = Math.PI / 2 - s * 0.28;
+      m1.rotation.y = s * 0.18;
+      fg.add(m1);
+      // 짙은 회백색 눈썹 보강
+      const br = new THREE.Mesh(new THREE.CapsuleGeometry(0.0065, 0.028, 4, 8), dMat);
+      br.position.set(s * 0.032, 0.116, 0.094);
+      br.rotation.z = Math.PI / 2 + s * 0.08;
+      fg.add(br);
+    });
+    // 턱수염 (짧은 회백색 그루밍 스터블)
+    const chin = new THREE.Mesh(new THREE.CapsuleGeometry(0.014, 0.024, 5, 8), dMat);
+    chin.position.set(0, 0.008, 0.092);
+    chin.rotation.z = Math.PI / 2;
+    fg.add(chin);
+    headBone.add(fg);
+  }
+  function extractHumanRig(model, id) {
+    if (id === 'guard') attachGuardFacialFeatures(model);
     const b = name => model.getObjectByName(name);
     return {
       pelvis: b('pelvis'),
@@ -250,7 +307,7 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
     if (!holder || !holder.isObject3D) throw new TypeError(id + ': 유효한 Three.js 그룹이 필요합니다');
     if (pending.has(holder)) return pending.get(holder);
 
-    const url = (options.url || ('assets/characters/' + id + '.glb')) + '?v=144';
+    const url = (options.url || ('assets/characters/' + id + '.glb')) + '?v=145';
     const targetHeight = Number(options.height) || (id === 'mina' ? .95 : 1.75);
     const yaw = ((Number(options.yawDegrees) || 0) * Math.PI) / 180;
     const originalChildren = [...holder.children];
@@ -304,7 +361,7 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
         holder.userData.npcAction = action;
       }
 
-      const rig = extractHumanRig(model);
+      const rig = extractHumanRig(model, id);
       rigs.set(holder, { id, rig, model });
 
       if (prepare) { try { await prepare(pivot); } catch (e) {} }

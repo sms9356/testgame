@@ -30,7 +30,7 @@ export function buildCampusDesign({out,facade,brick,concrete,metal,colliders}) {
   const steel=metal.clone();steel.color.set(0x39464a);steel.roughness=.65;
   const trim=new THREE.MeshStandardMaterial({color:0x929b97,roughness:.72,metalness:.3});
   const diffuser=new THREE.MeshStandardMaterial({color:0xf3e7ce,emissive:0xffd49a,emissiveIntensity:.7,roughness:.7});
-  const positions=[[-4.3,15.5],[4.3,15.5],[-24.8,29],[24.8,29],[-24.8,50],[24.8,50],[-4.3,58.5],[4.3,58.5],[-4.3,65.5],[4.3,65.5],[-15.5,12.2],[23.5,12.2],[-11,-23],[11,-23]];
+  const positions=[[-4.3,15.5],[4.3,15.5],[-24.8,29],[24.8,29],[-24.8,50],[24.8,50],[-4.3,58.5],[4.3,58.5],[-4.3,65.5],[4.3,65.5],[-15.5,14.5],[23.5,14.5],[-11,-23],[11,-23]];
   const lights=[];
   const add=(parent,geometry,material,x,y,z)=>{const m=new THREE.Mesh(geometry,material);m.position.set(x,y,z);m.receiveShadow=true;m.castShadow=false;parent.add(m);return m;};
   for(const [x,z]of positions){

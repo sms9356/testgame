@@ -4,11 +4,11 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { NOTES } from './story.js?v=163';
+import { NOTES } from './story.js?v=166';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=163';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=166';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -514,10 +514,9 @@ export function buildWorld(scene) {
   }
   // 칠판 프레임 + 분필/지우개
   function boardDetail(cx, zN) {
-    meshAt(merge([bx(3.9, .06, .07, 0, 1.71, 0), bx(3.9, .06, .07, 0, .5, 0), bx(.06, 1.27, .07, -1.92, 1.1, 0), bx(.06, 1.27, .07, 1.92, 1.1, 0)]), mFrame, cx, 0, zN + .08);
-    ['#eee', '#e8d060', '#d05050'].forEach((c, i) => { const ch = meshAt(new THREE.CylinderGeometry(.006, .006, .07, 6), S(null, { color: c }), cx - 1 + i * .12, .585, zN + .14); ch.rotation.z = Math.PI / 2; });
-    meshAt(new THREE.BoxGeometry(.13, .035, .05), mFabric, cx + .9, .59, zN + .14);
-    meshAt(new THREE.BoxGeometry(.34, .44, .16), mBlack, cx - 2.5, 2.75, zN + .09);   // 스피커
+    meshAt(merge([bx(4.02, .055, .065, 0, 2.19, 0), bx(4.02, .055, .065, 0, .94, 0), bx(.055, 1.30, .065, -1.98, 1.565, 0), bx(.055, 1.30, .065, 1.98, 1.565, 0)]), mFrame, cx, 0, zN + .072);
+    ['#eee', '#e8d060', '#d05050'].forEach((c, i) => { const ch = meshAt(new THREE.CylinderGeometry(.006, .006, .07, 6), S(null, { color: c }), cx - 1 + i * .12, .965, zN + .135); ch.rotation.z = Math.PI / 2; });
+    meshAt(new THREE.BoxGeometry(.13, .035, .05), mFabric, cx + .9, .97, zN + .135);
   }
   // 쓰레기통
   function bin(x, z) { meshAt(merge([new THREE.CylinderGeometry(.19, .15, .48, 14, 1, true).translate(0, .24, 0), new THREE.CircleGeometry(.15, 14).rotateX(-Math.PI / 2).translate(0, .01, 0)]), mBlue, x, 0, z); }
@@ -794,19 +793,22 @@ export function buildWorld(scene) {
   const boardTexts = [['다시, 여기서.'], ['다 시  시 작'], ['모두 어디 갔니'], ['돌아와'], ['출석 확인', '1번  2번  3번 ...'], ['아직 수업 중']];
   function frontWall(cx, zN, withBoard = true, lines) {
     if (withBoard) {
-      add(mWoodDark, 3.95, 1.4, .06, cx, .5, zN + .03);
-      const bm = new THREE.MeshStandardMaterial({ map: T.makeBoard(lines || pick(boardTexts)), roughness: .85 });
-      plane(cur.interior, bm, 3.7, 1.16, cx, 1.1, zN + .07);
-      plane(cur.interior, mFlag, .95, .63, cx, 2.55, zN + .04);
-      // 분필받침
-      add(mWoodDark, 3.7, .04, .1, cx, .55, zN + .12);
+      // 1998년 대한민국 학교 표준 칠판 높이 (하단 분필받이 y = 0.92m, 상단 y = 2.22m, 중심 y = 1.57m)
+      add(mWoodDark, 4.08, 1.32, .05, cx, .91, zN + .03);
+      const bm = new THREE.MeshStandardMaterial({ map: T.makeBoard(lines || pick(boardTexts)), roughness: .82 });
+      plane(cur.interior, bm, 3.88, 1.18, cx, 1.57, zN + .068);
+      // 상단 정중앙 원목 액자형 태극기 (y = 2.66m)
+      add(mWoodDark, .76, .52, .03, cx, 2.40, zN + .035);
+      plane(cur.interior, mFlag, .68, .45, cx, 2.66, zN + .055);
+      // 알루미늄/원목 분필받이 (y = 0.92m)
+      add(mWoodDark, 3.96, .045, .11, cx, .91, zN + .11);
       boardDetail(cx, zN);
       frontWall.last = bm;
     }
     [-3.05, 3.05].forEach(dx => {
       win3D(cur.interior, 1.3, 1.45, cx + dx, 1.75, zN + .02);
       radiator(cx + dx, zN + .14, 0, 1.15);
-      curtain(cx + dx - .78, 1.75, zN + .12, .4, 1.9); if (rnd() < .6) curtain(cx + dx + .78, 1.65, zN + .12, .38, 1.7);
+      curtain(cx + dx - .72, 1.75, zN + .10, .34, 1.75);
     });
   }
   // 교실 상세 배치 (22개 교실 시트 · 소품 좌표 CSV: 방 8.0 × 7.5m, X = 서→동, Y = 칠판→뒤쪽)
@@ -863,36 +865,31 @@ export function buildWorld(scene) {
     if (name === '3-3') boardRefs.b33 = { mat: frontWall.last, floor: cur.f, cx };
 
     // ① 1998년 『학교시설·설비기준령』 표준 보통교실 (면적 67.5㎡ = 약 20.4평, 9.0m × 7.5m 장방형 구조):
-    // 전면 5.4m 원목 교단 단상(높이 12cm) + 황동 논슬립 몰딩 + 녹색 칠판 상단 태극기 & 급훈/주번표
-    add(mWoodDark, 5.4, .12, 1.15, cx, 0, zN + .68);
-    add(mChrome, 5.42, .025, .03, cx, .11, zN + 1.25);
-    add(mWoodDark, 1.85, .30, .03, cx - 1.55, 2.94, zN + .05);
-    plane(cur.interior, new THREE.MeshBasicMaterial({ map: T.makeSign('급훈 : 성실 · 창의 · 협동', '#1b3224', '#f2e4b8', 24) }), 1.76, .24, cx - 1.55, 2.94, zN + .07);
-    add(mWoodDark, 1.55, .30, .03, cx + 1.55, 2.94, zN + .05);
-    plane(cur.interior, new THREE.MeshBasicMaterial({ map: T.makeSign('제 ' + name + ' 학급 (정원 36명)', '#24201c', '#e8dfc8', 22) }), 1.46, .24, cx + 1.55, 2.94, zN + .07);
-    [-3.15, 3.15].forEach(sx => add(mDarkMetal, .24, .34, .16, cx + sx, 2.75, zN + .10));
+    // 전면 4.4m 원목 교단 단상(높이 12cm) + 황동 논슬립 몰딩 + 칠판 상단(y=2.66m) 태극기·급훈·주번표·스피커 일렬 정렬 (창문 가림 0건!)
+    add(mWoodDark, 4.4, .12, 1.08, cx, 0, zN + .64);
+    add(mChrome, 4.42, .025, .03, cx, .11, zN + 1.18);
+    add(mWoodDark, 1.42, .30, .03, cx - 1.24, 2.51, zN + .04);
+    plane(cur.interior, new THREE.MeshBasicMaterial({ map: T.makeSign('급훈 : 성실 · 창의 · 협동', '#1b3224', '#f2e4b8', 24) }), 1.34, .23, cx - 1.24, 2.66, zN + .06);
+    add(mWoodDark, 1.42, .30, .03, cx + 1.24, 2.51, zN + .04);
+    plane(cur.interior, new THREE.MeshBasicMaterial({ map: T.makeSign('제 ' + name + ' 학급 (정원 36명)', '#24201c', '#e8dfc8', 22) }), 1.34, .23, cx + 1.24, 2.66, zN + .06);
+    [-2.14, 2.14].forEach(sx => add(mDarkMetal, .20, .28, .12, cx + sx, 2.52, zN + .08));
 
-    // ② 교실 내부 노출 전선관 회로: 칠판 상단 스피커·형광등 배선관 및 창가·측벽 원목 허리몰딩
+    // ② 교실 내부 노출 전선관 회로: 칠판 상단 스피커·형광등 배선관
     cur.interior.add(new THREE.Mesh(merge([
-      tube(.008, cx - 3.15, 2.92, zN + .04, cx + 3.15, 2.92, zN + .04),
+      tube(.008, cx - 2.14, 2.82, zN + .03, cx + 2.14, 2.82, zN + .03),
       tube(.008, cx - 2.0, CH - .03, -8.8, cx - 2.0, CH - .03, -2.2),
       tube(.008, cx + 2.0, CH - .03, -8.8, cx + 2.0, CH - .03, -2.2),
       bx(.08, .08, .03, cx - 2.0, CH - .03, -5.6),
       bx(.08, .08, .03, cx + 2.0, CH - .03, -5.6)
     ]), mConduit98));
 
-    // 교탁 · 모니터는 이야기 소품 기준점(cx + 2.6)을 그대로 보존
+    // 교탁(교사용 책상)은 이야기 소품 기준점(cx + 2.6, zN + 1.0)에 깔끔히 1개만 배치 (중복 강연대 lectern · 창문 가리던 흰 기둥 · 거대 모니터 제거!)
     teacherDesk(cx + 2.6, zN + 1.0); CHAIRS.push({ f: cur.f, x: cx + 2.6, z: zN + 1.65, ry: 0, room: name, teacher: true });
-    monitor(cx + 2.35, .78, zN + .82, -.2, { crt: true, cracked: rnd() < .3 });
-    lectern(cx - 1.2 * mir, zN + 1.02);
     fan(cx, -7.3); fan(cx, -3.9);
-    { const pj = meshAt(merge([bx(.36, .12, .3, 0, 0, 0), new THREE.CylinderGeometry(.045, .045, .04, 12).rotateX(Math.PI / 2).translate(0, 0, -.17), bx(.04, .3, .04, 0, .2, 0), bx(.25, .02, .25, 0, .35, 0)]), mProj, cx, CH - .45, -6.3); pj.rotation.y = Math.PI;
-      meshAt(new THREE.CylinderGeometry(.06, .06, 3.3, 12).rotateZ(Math.PI / 2), mScreenR, cx, CH - .25, zN + .18); }
     // 후면 벽시계는 문 위 인방 중앙에 깔끔히 1개만 배치
     { const ck = new THREE.Mesh(new THREE.CircleGeometry(.22, 24), mClockM); ck.position.set(cx, 2.72, -1.76); ck.rotation.y = Math.PI; cur.interior.add(ck); }
     cctv(cx - 3.75, CH, -2.0, Math.PI * .75, {label:AREA_NAMES[cur.f] + ' · ' + name});
-    add(S(null, { color: 0xe8e6de, roughness: .5 }), .45, 1.75, .38, cx + 3.55, 0, zN + .25, { col: true }); add(mBlack, .3, .25, .02, cx + 3.55, 1.25, zN + .45); glowAt(cx + 3.63, 1.18, zN + .46, .09, glowGreen);
-    potPlant(cx - 3.45, 0, zN + .35);
+    potPlant(cx - 3.55, 0, zN + .35);
 
     // ③ 측면 코르크 게시판 & 후면(복도 쪽, z = -1.75) 좌·우 분리 배치 — 중앙 출입문(cx - 1.0 ~ cx + 1.0) 가림 0건!
     plane(cur.interior, mCork, 2.4, 1.15, cx + 3.81 * mir, 1.68, -5.4, -Math.PI / 2 * mir);

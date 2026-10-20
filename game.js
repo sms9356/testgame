@@ -6,19 +6,19 @@ import { createPsychologicalDirector, PHENOMENON_LABELS } from './psychologicalH
 import { settleStoryGhost, tickStoryGhost, showStoryGhost } from './storyGhost.js';
 import { GLTFLoader } from './vendor/addons/loaders/GLTFLoader.js';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { createNPCVisuals } from './npcVisuals.js?v=163';
-import { applyGuardSeatedPose } from './guardSeatedPose.js?v=163';
+import { createNPCVisuals } from './npcVisuals.js?v=164';
+import { applyGuardSeatedPose } from './guardSeatedPose.js?v=164';
 import { createCampusCctvLive, collectCampusCctvFeeds } from './campusCctvLive.js';
-import { applyExteriorFloorVisibility, shouldStreamGuardCctv } from './exteriorRenderBudget.js?v=163';
-import { GUARD_LAYOUT } from './guardRoomLayout.js?v=163';
-import { installGuardRoom } from './guardRoom.js?v=163';
+import { applyExteriorFloorVisibility, shouldStreamGuardCctv } from './exteriorRenderBudget.js?v=164';
+import { GUARD_LAYOUT } from './guardRoomLayout.js?v=164';
+import { installGuardRoom } from './guardRoom.js?v=164';
 import { prepareModelGeometry } from './modelGeometry.js';
 import { modelFootprint, overlaps, removeDuplicateModels } from './placement.js';
-import { turfMaterial } from './campusVisuals.js?v=163';
+import { turfMaterial } from './campusVisuals.js?v=164';
 import { installInfirmaryAssets, updateInfirmaryCabinets } from './infirmaryAssets.js';
-import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js?v=163'; import { updateWindowFakes } from './windowInteriors.js?v=163';
-import { drawMap } from './map.js?v=163';
-import { buildMegaCampus15000, MEGA_CAMPUS_ZONES } from './megaCampus15000.js?v=163';
+import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js?v=164'; import { updateWindowFakes } from './windowInteriors.js?v=164';
+import { drawMap } from './map.js?v=164';
+import { buildMegaCampus15000, MEGA_CAMPUS_ZONES } from './megaCampus15000.js?v=164';
 import { makeDress, makeHair, makeGhostFace, makeGraffiti, makeKeypad, loadPBR, pbr, makeGlow as makeGlowTex, makePaintingStare, makeSign, makeBlood } from './tex.js';
 import { warmUp } from './bake.js';
 import { createStaticDistanceLOD } from './staticDistanceLOD.js';
@@ -39,12 +39,12 @@ import './school37RoomsPatch.js';    // 본관 · 별관 37개 특별실 가구 
 import './new37UniquePatch.js';     // 37개 구역 신규 특수 설비 · 벽면 레일 (사용자 제공) → window.new37UniquePatch
 import './megaExpansionPatch.js';   // 메가 익스팬션 · 최적화 · 4막 사건 기록 · 수집품 · 미니게임 (사용자 제공) → window.megaSchoolPatch
 import './poolMachineryPatch.js';     // 수영장 · 남/녀 탈의실·샤워실 · 기계실 철문 (사용자 제공) → window.poolAndMachineryPatch
-import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx } from './audio.js?v=163'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=163'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera } from './perfStabilizer.js?v=163';
-import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js?v=163';
-import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, SIDEQUESTS, HEADQUEST, COLLECT, LOCKER_SCARES, CHALK_QA, OUIJA_QS, PARA, TOILET_FX, MIRROR_WORDS } from './story.js?v=163';
+import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx } from './audio.js?v=164'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=164'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera } from './perfStabilizer.js?v=164';
+import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js?v=164';
+import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, SIDEQUESTS, HEADQUEST, COLLECT, LOCKER_SCARES, CHALK_QA, OUIJA_QS, PARA, TOILET_FX, MIRROR_WORDS } from './story.js?v=164';
 import { isSpeechBusy } from './voice.js';
 import { SET, saveSET, resetSET, DIFF, keyLabel } from './settings.js';
-import { initI18n, setLang, lang as curLang } from './i18n.js?v=163';   // 언어 패치 (한국어 · English · 日本語 · 中文)
+import { initI18n, setLang, lang as curLang } from './i18n.js?v=164';   // 언어 패치 (한국어 · English · 日本語 · 中文)
 initI18n();
 const K = () => SET.keys;
 let guardRoomController = null, guardControlProps = [], guardCctvData = null, campusCctv = null;
@@ -60,7 +60,7 @@ function syncGuardDevices() {
 function toggleGuardCCTV(persist = true) { FL.guardCctvOn = !(FL.guardCctvOn ?? true); sfx.click(); syncGuardDevices(); if (persist) save(true); return FL.guardCctvOn; }
 function toggleGuardLight() { FL.guardLightOn = !(FL.guardLightOn ?? false); sfx.click(); syncGuardDevices(); say(FL.guardLightOn ? '경비실 전등을 켰다' : '경비실 전등을 껐다', 1800); save(true); return FL.guardLightOn; }
 
-import { run as runMini, MG } from './minigames.js?v=163';
+import { run as runMini, MG } from './minigames.js?v=164';
 import { SCHEMA, BUILD, storageKeys, itemUid, propUid, doorUid, assignUids, readSlot, writeSlot, hasSlot, clearSlot, repairProgress } from './saveSystem.js';
 const NOTE_CAST = {
   n_seomun_ilbo: { spk: 'reporter', audioId: 'call_119', stage: '(📰 서문일보 사회부 한진우 기자의 긴급 특보 리포팅)' },
@@ -526,7 +526,8 @@ const KEY_HINT = [
 function objective() {
   if (FL.gatePower) return { ch: 6, main: FL.mina ? '학교의 모든 비밀을 밝혔다 — 민아와 함께 정문 밖 세상으로 나가 폭로하자' : '봉인이 풀린 정문을 통해 세상에 학교의 비밀을 알리자', loc: LOC.gate, subs: [['서문고 은폐 사건 진상 규명 완료', true], ['정문 밖으로 나가 세상에 진실 폭로하기', false]] };
   const n3 = docs.some(d => d.id === 'n3');
-  if (!FL.mina && !FL.cam && P.keys === 0) return { ch: 1, main: gateClosed ? '1998년 폐교의 비밀을 조사하러 들어간 민아 선배의 캠코더를 찾아라' : '폐교 안으로 들어가 10년 전 은폐된 사건의 첫 단서를 찾아라', loc: gateClosed ? LOC.cam : LOC.entrance,
+  const inCampusNow = gateClosed || introDone || P.floor !== 0 || P.z < GATE_Z - 2.5;
+  if (!FL.mina && !FL.cam && P.keys === 0) return { ch: 1, main: inCampusNow ? '1998년 폐교의 비밀을 조사하러 들어간 민아 선배의 캠코더를 찾아라' : '폐교 안으로 들어가 10년 전 은폐된 사건의 첫 단서를 찾아라', loc: inCampusNow ? LOC.cam : LOC.entrance,
     subs: [['폐교 본관 진입 및 단서 수색', introDone], ['1-1 교실에서 민아의 캠코더 영상 확인하기', FL.cam]] };
   if (!got[0]) return { ch: 2, main: '교무회의록과 경비실·교장실 기록으로 참사 당일(1012) 금고를 열어 제1비밀 증거를 확보하라', loc: LOC.office,
     subs: [['민아의 캠코더 녹화 확인', FL.cam], ['교무회의록 · 심야 은폐 기록 읽기', n3], ['교무실 금고(1012) 열기 — 제1비밀 증거 확보', got[0]]] };
@@ -1251,7 +1252,7 @@ function findInteract() {
       const ul = si.up === 3 ? '옥상으로' : si.up === 0 ? '1층으로' : '위층', dl = si.down === 4 ? '지하층 (B1)' : '아래층';
       best = { type: 'stairs', label: [up ? `E 길게 · ${ul}` : '', down ? `Q · ${dl}` : ''].filter(Boolean).join('  /  '), raw: true };
     } else if (dr) best = { type: 'door', d: dr, label: dr.label + (dr.need && !FL.gatekey ? ' 🔒' : '') };
-    else if (P.floor === 0 && P.z > GATE_Z - 4.2 && P.z < GATE_Z + 2.8 && Math.abs(P.x) < 2.8 && gateClosed && !escaped) best = { type: 'gate', label: '봉인된 정문 열고 학교의 비밀 폭로하기' };
+    else if (P.floor === 0 && P.z > GATE_Z - 4.2 && P.z < GATE_Z + 2.8 && Math.abs(P.x) < 2.8 && (gateClosed || FL.gatekey) && !escaped) best = { type: 'gate', label: gateClosed ? '봉인된 정문 열고 학교의 비밀 폭로하기' : '정문을 통해 학교의 비밀을 세상에 폭로하기' };
   }
   return best;
 }
@@ -2328,24 +2329,41 @@ function resetGuardToSeatedImmediate() {
   GUARD_WALK.talking = false;
   setGuardPoseMode('seated', 0);
 }
+function lockMainGateByGuard() {
+  if (gateClosed) return;
+  gateClosed = true;
+  gateState = 'closing';
+  sfx.gateClang();
+  shake = Math.max(shake, .75);
+  if (P.floor === 0 && P.z > GATE_Z - 12) lookBack = 1.6;
+  setTimeout(() => {
+    if (state === 'playing') {
+      toast('🔒 정문 폐쇄 (경비원 퇴근)', '경비 아저씨가 퇴근하며 정문 철문을 밖에서 쇠사슬로 굳게 걸어 잠갔다!', 'warn');
+      talk('gate', 4200);
+      refreshHud();
+    }
+  }, 650);
+}
 function triggerGuard7PMClockOut() {
   if (GUARD_WALK.state === 'off_duty' || GUARD_WALK.state === 'leaving_duty') return;
   GUARD_WALK.state = 'leaving_duty';
   GUARD_WALK.talking = false;
+  guardNPC.visible = true;
   if (state === 'playing') {
-    toast('19:00 · 경비원 퇴근 시간', '저녁 7시가 되어 경비 아저씨가 순찰을 마치고 정문 밖으로 퇴근합니다', 'info');
-    if (P.floor === 0 && P.z > 25) line('guardBye', 'none', '경비 아저씨');
+    toast('19:00 · 경비원 퇴근 및 정문 폐쇄', '퇴근 시간이 되어 경비 아저씨가 정문을 걸어 잠그러 이동합니다', 'info');
+    if (P.floor === 0 && P.z > 20) line('guardBye', 'none', '🔦 당직 경비원 · 박종철 아저씨');
   }
   setGuardPoseMode('walk', GUARD_WALK.phase);
 }
 function updateGuardWalk(dt) {
   if (GUARD_WALK.state === 'off_duty') {
+    if (!gateClosed && state === 'playing') lockMainGateByGuard();
     guardNPC.visible = false;
     guardPropRef.floor = -1;
     return;
   }
-  // 저녁 7시(19:00, 해가 저물어 밤이 되는 시점 FL.night 또는 DAY.k <= 0.12)가 되면 경비원이 정문 밖으로 퇴근한다!
-  if (state === 'playing' && (FL.night || DAY.k <= 0.12) && GUARD_WALK.state !== 'leaving_duty') {
+  // 저녁 7시(19:00, 해가 기울어 DAY.k <= 0.32 또는 FL.night)가 되면 경비원이 정문으로 걸어 나가 정문을 잠그고 퇴근한다!
+  if (state === 'playing' && (FL.night || DAY.k <= 0.32) && GUARD_WALK.state !== 'leaving_duty') {
     triggerGuard7PMClockOut();
   }
   if (!guardNPC.visible) return;
@@ -2354,21 +2372,26 @@ function updateGuardWalk(dt) {
     let diff = ((targetYaw - guardNPC.rotation.y + Math.PI * 3) % (Math.PI * 2)) - Math.PI;
     guardNPC.rotation.y += diff * Math.min(1, dt * rate);
   };
-  // 19:00 퇴근 이동 중: 경비실에서 나와 정문 아치 밖(x = 1.25, z = 75.5)으로 걸어 나가 퇴근 완료!
+  // 19:00 퇴근 이동 중: 경비실에서 나와 정문(z = 70.0)을 통과한 직후(z >= 70.8) 정문 철문을 쾅 닫고 잠근 뒤 밖(z = 75.8)으로 퇴근 완료!
   if (GUARD_WALK.state === 'leaving_duty') {
     const exitTarget = (gz < 68.8 && gx > 4.2) ? { x: 6.95, z: 69.2 } : (gz < 69.5 && gx > 2.2) ? { x: 1.25, z: 69.2 } : { x: 1.25, z: 75.8 };
     if (gz <= 68.6 && gz >= 67.5 && gx >= 6.0 && !(FL.guardDoorOpen ?? true)) {
       FL.guardDoorOpen = true; sfx.doorOpen(); syncGuardDevices();
     }
+    // 경비 아저씨가 정문(GATE_Z = 70) 바깥쪽(z >= 70.75)에 도달하는 순간 정문을 닫고 쇠사슬 자물쇠를 잠근다!
+    if (!gateClosed && gz >= GATE_Z + 0.75) {
+      lockMainGateByGuard();
+    }
     const dx = exitTarget.x - gx, dz = exitTarget.z - gz, dist = Math.hypot(dx, dz);
     if (dist < 0.22 && exitTarget.z > 74.5) {
+      if (!gateClosed) lockMainGateByGuard();
       GUARD_WALK.state = 'off_duty';
       guardNPC.visible = false;
       guardPropRef.floor = -1;
-      if (state === 'playing') caption('철컥 — 경비 아저씨가 정문 밖으로 퇴근하며 야간 무인 경비 상태로 전환되었다.');
+      if (state === 'playing') caption('철컥 — 경비 아저씨가 정문을 밖에서 걸어 잠그고 퇴근하며 야간 무인 경비 상태로 전환되었다.');
       return;
     }
-    const step = Math.min(dist, 1.72 * dt);
+    const step = Math.min(dist, 2.15 * dt);
     guardNPC.position.set(gx + (dx / Math.max(0.01, dist)) * step, .02, gz + (dz / Math.max(0.01, dist)) * step);
     turnToward(Math.atan2(dx, dz), 8.0);
     GUARD_WALK.phase += step * 3.8;
@@ -2548,7 +2571,7 @@ async function talkGuard(p) {
         ? '경비실 창가 의자에 앉아 있던 경비원이 손전등을 만지작거린다.'
         : '정문에서 경비실로 걸어가던 경비원이 발걸음을 멈추고 손전등을 고쳐 쥔다.';
       const i = await choose('경비 아저씨', desc, opts);
-      if (i === 3) { say2('guardBye'); break; }
+      if (i === 3) { say2('guardBye'); setTimeout(() => triggerGuard7PMClockOut(), 1200); break; }
       if (i === 0) await wait(1000 * await say2('guardMina'));
       else if (i === 1) await wait(1000 * await say2('guardPast'));
       else if (!guardGift) { guardGift = true; inv.battery += 2; refreshHud(); sfx.pickup(); toast('건전지 2개를 받았다', '경비 아저씨: 열한 시 사십 분 전에는 나와야 한다', 'info'); await wait(1000 * await say2('guardGift')); }
@@ -2636,7 +2659,7 @@ function ensureCharsel3D() {
     const rim = new THREE.DirectionalLight(0xffd6e0, 0.85); rim.position.set(0, 2.4, -2.5);
     sc.add(hemi, key, fill, rim);
     st.scenes[k] = sc;
-    loader.load(`assets/characters/${k}.glb?v=163`, gltf => {
+    loader.load(`assets/characters/${k}.glb?v=164`, gltf => {
       const m = gltf.scene;
       npcVisuals.enhanceCharacterMaterials?.(m, k);
       m.traverse(o => { if (o.isMesh || o.isSkinnedMesh) o.frustumCulled = false; });
@@ -2802,11 +2825,15 @@ function updatePlayer(dt) {
     if (!Number.isFinite(P.sh) || P.sh < 0) P.sh = 0; }
   P.crouchK = lerp(P.crouchK || 0, P.crouch && !P.hiding ? 1 : 0, Math.min(1, dt * 9));
 
-  // 정문 닫힘 연출 (플레이어가 정문 안으로 들어서면 경비원도 즉시 이동하며, 경비원이 정문을 통과한 뒤 정문이 닫힌다)
+  // 정문 개방 유지: 초반에는 정문이 바로 잠기지 않고 열려 있으며, 경비원이 퇴근하는 시점(19:00)에 맞춰 잠긴다!
   if (GUARD_WALK.state === 'gate_talk' && state === 'playing' && P.z < GATE_Z + 1.5) startGuardWalkToBooth();
-  if (!gateClosed && state === 'playing' && P.z < GATE_Z - 3 && guardNPC.position.z < GATE_Z - .6) {
-    gateClosed = true; gateState = 'closing'; sfx.gateClang(); shake = .8; if (P.z > GATE_Z - 8) lookBack = 1.9;
-    setTimeout(() => { toast('정문이 잠겼습니다', '민아의 흔적을 따라 학교 안으로', 'warn'); talk('gate', 4200); refreshHud(); }, 800);
+  if (!gateClosed && state === 'playing' && P.floor === 0 && P.z < GATE_Z - 3 && DAY.start < 0) {
+    DAY.start = playTime;
+  }
+  // 아직 정문이 열려 있을 때(경비원 퇴근 전) 플레이어가 민아와 비밀 증거를 두고 정문 밖(z > GATE_Z + 0.6)으로 나가려 하면 발걸음을 멈춘다
+  if (!gateClosed && !FL.gatekey && state === 'playing' && P.floor === 0 && P.z > GATE_Z + 0.6 && DAY.start >= 0) {
+    P.z = GATE_Z + 0.55;
+    say(CHAR === 'jihun' ? '아직 경비 아저씨가 퇴근하기 전이라 정문이 열려 있지만… 민아를 두고 나 혼자 돌아갈 순 없어.' : '경비 아저씨가 퇴근하시기 전이라 정문은 열려 있지만… 민아 선배를 두고 혼자 갈 순 없어!', 3200);
   }
   if (!introDone && P.floor === 0 && P.z < MAIN_ZS - .5) { introDone = true; talk('inside', 3500); refreshHud(); setTimeout(() => toast('팁', '쪽지를 읽고, 사물함을 파밍해 아이템과 단서를 모으세요. (Tab 소지품 · P 휴대폰 · M 지도)', 'info'), 1500); }
 
@@ -2953,7 +2980,7 @@ function updateDay(dt) {
   sky.stars.material.opacity = night; sky.stars.material.transparent = true; sky.moonGlow.material.opacity = night;
   DAY.rain = 0; setRainLevel(0);   // 비 효과 제거 (요청)
   world.winMats[9].emissiveIntensity = night * 2.4;
-  { const here = dk > .3 && !FL.night; guardNPC.visible = here; guardCap.visible = !here; const gp = world.props.find(q => q.kind === 'guardnpc'); if (gp) gp.done = !here; }   // 해가 지면 경비원은 사라지고 모자만 남는다   // 밤이 되면 불 켜진 교실 창 몇 개 (아무도 없는데)
+  { const here = GUARD_WALK.state !== 'off_duty' && !FL.night; guardNPC.visible = here; guardCap.visible = !here; const gp = world.props.find(q => q.kind === 'guardnpc'); if (gp) gp.done = !here || GUARD_WALK.state === 'leaving_duty'; }   // 해가 지면 경비원은 사라지고 모자만 남는다   // 밤이 되면 불 켜진 교실 창 몇 개 (아무도 없는데)
   // 낮의 소리: 가끔 까마귀
   if (dk > .3 && state === 'playing' && isOutdoors() && Math.random() < dt / 14) sfx.crow(Math.random() * 2 - 1);
 }
@@ -7400,13 +7427,13 @@ function megaNotify(m) { const t = String(m).split('\n'); say(t[0].replace(/^\S+
     world.props.push({ kind: 'robj', k: 'bunker_light', t: 'bunker', floor: 4, x: bx + 1.15, z: z1 - .85, y: 1.35, r: 2.0, label: '방공호 주 전등 스위치 조작하기', bkLightGroup });
     {
       const bLoader = new GLTFLoader();
-      bLoader.load('assets/models/sf/sf_bunker_props_pack.glb?v=163', gltf => {
+      bLoader.load('assets/models/sf/sf_bunker_props_pack.glb?v=164', gltf => {
         const bm = gltf.scene; bm.position.set(bx, 0, z0 + .45);
         if (window.__upgradePure3DScene) window.__upgradePure3DScene(bm); else bm.traverse(o => { o.userData.dynamic = true; });
         R.add(bm);
         if (gltf.animations && gltf.animations.length) { const mx = new THREE.AnimationMixer(bm); mx.userData = { floor: 4, x: bx, z: z0 + .45 }; gltf.animations.forEach(c => mx.clipAction(c).play()); (window.__campusAnimMixers ||= []).push(mx); }
       }, undefined, () => {});
-      bLoader.load('assets/models/sf/sf_pump_policeline_scene.glb?v=163', gltf => {
+      bLoader.load('assets/models/sf/sf_pump_policeline_scene.glb?v=164', gltf => {
         const pm = gltf.scene; pm.position.set(24.0, 0, -3.65);
         pm.traverse(o => { o.userData.dynamic = true; if (o.isMesh) { o.castShadow = false; o.receiveShadow = true; if (o.material?.map) o.material.map.colorSpace = THREE.SRGBColorSpace; } });
         R.add(pm);

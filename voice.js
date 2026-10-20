@@ -1,5 +1,5 @@
 // 더빙 · 자막: voice/manifest.json 의 사전 생성 음성(내장) + 캐릭터별 성도 포먼트/피치 변조 및 브라우저 신경망 음성 합성(Web Speech) 하이브리드 엔진
-import { playVoice, stopVoice, loadVoice, isVoicePlaying } from './audio.js?v=163';
+import { playVoice, stopVoice, loadVoice, isVoicePlaying } from './audio.js?v=178';
 
 const SPEAKER = {
   seoyeon: '🎙 김서연 (방송부 2학년)',
@@ -130,7 +130,7 @@ applySubSize();
 let manifestPromise = null;
 export async function loadManifest() {
   if (!manifestPromise) {
-    manifestPromise = fetch('voice/manifest.json?v=137').then(r => r.json()).then(m => {
+    manifestPromise = fetch('voice/manifest.json?v=178').then(r => r.json()).then(m => {
       manifest = { ...manifest, ...m };
       return manifest;
     }).catch(() => manifest);
@@ -151,7 +151,7 @@ export function registerLines(map) {
         stage: v.stage || '',
         audioFile: v.audioId,
         nofile: false,
-        baked: !v.customTimbre,
+        baked: true,
       };
     } else if (v.recast && manifest[id]) {
       // 메인 퀘스트 개편으로 대본이 새로 작성된 대사는 새 대본과 새 화자를 우선 적용!
@@ -208,7 +208,14 @@ function voiceFor(g, spk) {
   return (g === 'm' ? (male[0] || female[0]) : (female[0] || male[0])) || null;
 }
 const bakedSet = () => Object.values(manifest).some(m => m.baked);
-const useBrowser = id => VS.engine === 'browser' ? hasBrowserVoice() : VS.engine === 'auto' ? hasNaturalVoice() && (id ? !(manifest[id] && manifest[id].baked) : !bakedSet()) : false;
+const useBrowser = id => {
+  if (VS.engine === 'browser') return hasBrowserVoice();
+  if (VS.engine === 'auto') {
+    if (id && manifest[id] && (!manifest[id].nofile || manifest[id].audioFile)) return false;
+    return hasNaturalVoice() && !bakedSet();
+  }
+  return false;
+};
 export const engineLabel = () => (!VS.dub ? '끔' : useBrowser() ? `브라우저 음성 (${browserVoiceName()})` : '내장 성우 더빙');
 
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -246,8 +253,10 @@ export async function speak(id, fx = 'none', story = false) {
   if (typeof window !== 'undefined' && 'speechSynthesis' in window) speechSynthesis.cancel();
   const fileId = info.audioFile || id;
   const e = emoFor(id);
-  const hasCustomTimbre = !!(info && VOICE_TIMBRE[info.spk]);
-  const r = await playVoice(`voice/${fileId}.mp3`, fx, (info.baked && !hasCustomTimbre) ? { ...e, gain: info.generation ? 1 : e.gain, rate: 1, pitch: 1, trem: 0, airy: 0, dry: true } : e);
+  const playOpts = info.baked
+    ? { gain: info.generation ? 1 : (e.gain || 1), rate: 1, pitch: 1, detune: 0, formantHz: 0, trem: 0, airy: false, dry: true }
+    : e;
+  const r = await playVoice(`voice/${fileId}.mp3`, fx, playOpts);
   playbackDone = r?.finished || null;
   return r ? r.duration : est;
 }

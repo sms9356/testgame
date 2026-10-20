@@ -312,11 +312,14 @@ export async function playVoice(url, fx = 'none', emo = null) {
     if (emo.trem) { const lfo = ac.createOscillator(); lfo.frequency.value = emo.trem; const lg = ac.createGain(); lg.gain.value = .14; lfo.connect(lg); lg.connect(tg.gain); lfo.start(); lfo.stop(ac.currentTime + buf.duration / rate + .2); }
     if (emo.airy) { const hp = ac.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 260; tg.connect(hp); node = hp; }
   }
-  if (fx === 'phone' || fx === 'radio' || fx === 'pa') {
-    const hp = ac.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = fx === 'pa' ? 350 : 500;
-    const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = fx === 'pa' ? 4200 : 3000;
-    const sh = ac.createWaveShaper(); const c = new Float32Array(256); for (let i = 0; i < 256; i++) { const x = i / 128 - 1; c[i] = Math.tanh(x * (fx === 'radio' ? 3 : 1.8)); } sh.curve = c;
-    node.connect(hp); hp.connect(lp); lp.connect(sh); node = sh;
+  if (fx === 'phone') {
+    const hp = ac.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 190;
+    const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 7200;
+    node.connect(hp); hp.connect(lp); node = lp;
+  } else if (fx === 'radio' || fx === 'pa') {
+    const hp = ac.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = fx === 'pa' ? 320 : 420;
+    const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = fx === 'pa' ? 4800 : 3800;
+    node.connect(hp); hp.connect(lp); node = lp;
     if (fx !== 'phone') { const source = ac.createBufferSource(); source.buffer = noiseBuf; source.loop = true;
       const n = ac.createBiquadFilter(); n.type = 'bandpass'; n.frequency.value = 3000; n.Q.value = .7; source.connect(n); source.start();
       const ng = ac.createGain(); ng.gain.value = fx === 'radio' ? .05 : .015; n.connect(ng); ng.connect(bus.voice); s.addEventListener('ended', () => { source.stop(); source.disconnect(); n.disconnect(); ng.disconnect(); }); }

@@ -90,79 +90,58 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
         const ctx = cv.getContext('2d');
         // 원본 이미지를 변환 없이 그대로 그려 GLTF flipY=false UV 좌표계를 100% 보존!
         if (role === 'skin') {
-          ctx.filter = charId === 'guard' ? 'contrast(1.14) saturate(1.12) brightness(1.03)' : 'contrast(1.09) saturate(1.10) brightness(1.03)';
-        } else if (role === 'eye') {
-          ctx.filter = 'contrast(1.32) saturate(1.25) brightness(1.22)';
+          ctx.filter = 'contrast(1.06) saturate(0.96) brightness(1.02)';
         } else {
-          ctx.filter = 'contrast(1.15) saturate(1.10)';
+          ctx.filter = 'contrast(1.12) saturate(1.06)';
         }
         ctx.drawImage(img, 0, 0, w, h);
         ctx.filter = 'none';
-
         if (role === 'skin') {
-          // 피부 마이크로 모공·모세혈관·수염 모낭 질감 입자 합성
           const idata = ctx.getImageData(0, 0, w, h);
           const d = idata.data;
-          for (let i = 0; i < d.length; i += 4) {
-            const px = (i >> 2) % w, py = ((i >> 2) / w) | 0;
-            const n = ((Math.sin(px * 12.9898 + py * 78.233) * 43758.5453) % 1 + 1) % 1;
-            const poreDelta = (n - 0.5) * (charId === 'guard' ? 11 : 7);
-            // 따뜻한 피하 혈색(Subdermal Warmth: R 살짝 보강)과 미세 모공 명암
-            d[i]     = Math.max(0, Math.min(255, d[i] + poreDelta + 3));
-            d[i + 1] = Math.max(0, Math.min(255, d[i + 1] + poreDelta * 0.85));
-            d[i + 2] = Math.max(0, Math.min(255, d[i + 2] + poreDelta * 0.75 - 2));
-          }
-          ctx.putImageData(idata, 0, 0);
-        } else if (role === 'eye') {
-          // 안구 전체가 까맣게 보이지 않도록: 원본의 너무 넓은 검정 영역을 축소하고 흰자위(Sclera)·앰버 브라운 홍채(Iris)·동공(Pupil)·각막 반사광(Catchlight)을 선명하게 재구축!
-          const idata = ctx.getImageData(0, 0, w, h);
-          const d = idata.data;
-          // 텍스처 중심(또는 어두운 동공 중심)을 기준으로 흰자위 영역을 대폭 넓힌다
-          let sumX = 0, sumY = 0, darkCnt = 0;
-          for (let y = 0; y < h; y += 2) {
-            for (let x = 0; x < w; x += 2) {
-              const k = (y * w + x) * 4;
-              const lum = d[k] * 0.3 + d[k + 1] * 0.59 + d[k + 2] * 0.11;
-              if (lum < 85) { sumX += x; sumY += y; darkCnt++; }
-            }
-          }
-          const cx = darkCnt > 10 ? sumX / darkCnt : w * 0.5;
-          const cy = darkCnt > 10 ? sumY / darkCnt : h * 0.5;
-          const maxR = Math.min(w, h) * 0.5;
-          const irisR = maxR * 0.34, pupilR = maxR * 0.14;
           for (let y = 0; y < h; y++) {
+            const v = y / h;
             for (let x = 0; x < w; x++) {
-              const k = (y * w + x) * 4;
-              const dx = x - cx, dy = y - cy, dist = Math.hypot(dx, dy);
-              if (dist > irisR) {
-                // 맑고 자연스러운 인간 흰자위(Sclera) + 가장자리 은은한 음영
-                const edge = Math.min(1, (dist - irisR) / (maxR * 0.5));
-                d[k]     = Math.round(244 - edge * 18);
-                d[k + 1] = Math.round(236 - edge * 22);
-                d[k + 2] = Math.round(230 - edge * 24);
-              } else if (dist > pupilR) {
-                // 한국인 다크 브라운 홍채(Iris) + 방사형 섬유 스트랜드 + 외곽 림(Limbal Ring)
-                const t = (dist - pupilR) / (irisR - pupilR);
-                const ang = Math.atan2(dy, dx);
-                const fib = 0.85 + 0.25 * Math.sin(ang * 28) * Math.cos(ang * 13);
-                const limbal = t > 0.82 ? 0.55 : 1.0;
-                d[k]     = Math.min(255, Math.round(118 * fib * limbal));
-                d[k + 1] = Math.min(255, Math.round(74 * fib * limbal));
-                d[k + 2] = Math.min(255, Math.round(42 * fib * limbal));
-              } else {
-                // 깊은 동공(Pupil)
-                d[k] = 12; d[k + 1] = 10; d[k + 2] = 10;
+              const u = x / w;
+              const idx = (y * w + x) * 4;
+              const n = ((Math.sin(x * 12.9898 + y * 78.233) * 43758.5453) % 1 + 1) % 1;
+              const pore = (n - 0.5) * (charId === 'guard' ? 9 : 5);
+              let r = d[idx] + pore, g = d[idx + 1] + pore, b = d[idx + 2] + pore;
+              // 경비 아저씨 얼굴 UV 영역(코밑 인중 u≈0.854~0.866, 입술 u≈0.866~0.873, 턱 u≈0.874~0.890, 중심 v≈0.517): 자연스러운 회백색 수염 모낭(Stubble)과 입술·팔자주름 음영 합성!
+              if (charId === 'guard' && u > 0.82 && u < 0.895 && v > 0.47 && v < 0.565) {
+                const dv = Math.abs(v - 0.517);
+                // 인중·윗입술 위 회백색 콧수염(Mustache: u ∈ [0.850, 0.864], dv < 0.024)
+                if (u >= 0.849 && u <= 0.864 && dv < 0.024) {
+                  const mMask = (1 - dv / 0.024) * (1 - Math.abs(u - 0.8565) / 0.008);
+                  if (mMask > 0) {
+                    const hairSalt = n > 0.55 ? 168 : 72;
+                    const k = Math.min(0.68, mMask * 0.75);
+                    r = r * (1 - k) + hairSalt * k;
+                    g = g * (1 - k) + hairSalt * k;
+                    b = b * (1 - k) + (hairSalt + 4) * k;
+                  }
+                }
+                // 턱수염 그루밍 스터블(Chin Stubble: u ∈ [0.873, 0.890], dv < 0.022)
+                if (u >= 0.873 && u <= 0.890 && dv < 0.022) {
+                  const cMask = (1 - dv / 0.022) * 0.45;
+                  const st = n > 0.6 ? 150 : 82;
+                  r = r * (1 - cMask) + st * cMask;
+                  g = g * (1 - cMask) + st * cMask;
+                  b = b * (1 - cMask) + st * cMask;
+                }
+                // 팔자주름(Nasolabial crease: u ∈ [0.840, 0.868], dv ≈ 0.025..0.032)
+                if (u >= 0.840 && u <= 0.868 && Math.abs(dv - 0.027) < 0.004) {
+                  r *= 0.86; g *= 0.84; b *= 0.84;
+                }
               }
+              d[idx]     = Math.max(0, Math.min(255, Math.round(r)));
+              d[idx + 1] = Math.max(0, Math.min(255, Math.round(g)));
+              d[idx + 2] = Math.max(0, Math.min(255, Math.round(b)));
             }
           }
           ctx.putImageData(idata, 0, 0);
-          // 초롱초롱한 듀얼 각막 반사 하이라이트 (Corneal Catchlights)
-          ctx.fillStyle = 'rgba(255,255,255,0.96)';
-          ctx.beginPath(); ctx.arc(cx - irisR * 0.28, cy - irisR * 0.28, pupilR * 0.52, 0, Math.PI * 2); ctx.fill();
-          ctx.fillStyle = 'rgba(255,255,255,0.72)';
-          ctx.beginPath(); ctx.arc(cx + irisR * 0.26, cy + irisR * 0.24, pupilR * 0.28, 0, Math.PI * 2); ctx.fill();
         }
-        const prevFlipY = tex.flipY;
+                const prevFlipY = tex.flipY;
         tex.image = cv;
         tex.flipY = prevFlipY;
       } catch (e) {}
@@ -182,27 +161,26 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
       mats.filter(Boolean).forEach(mat => {
         if (!mat.isMeshStandardMaterial) return;
         const mName = ((obj.name || '') + '_' + (mat.name || '')).toLowerCase();
-        if (mat.map) {
-          const role = /skin|body|head|face/.test(mName) ? 'skin' : (/eye/.test(mName) && !/brow|lash|bunny/.test(mName)) ? 'eye' : 'generic';
-          remasterCharacterTexture(mat.map, role, id);
-        }
-        if (/skin|body|face|head/.test(mName)) {
-          mat.roughness = id === 'guard' ? 0.44 : 0.39;
-          mat.metalness = 0.02;
-          mat.emissive = new THREE.Color(id === 'guard' ? 0x361c14 : 0x381e18);
+        if (/eye/.test(mName) && !/brow|lash|bunny/.test(mName)) {
+          reprojectEyeMeshUVs(obj);
+          const eyeTex = getPhotorealEyeTexture();
+          mat.map = eyeTex;
+          mat.roughness = 0.04;
+          mat.metalness = 0.08;
+          mat.emissive = new THREE.Color(0xffffff);
+          mat.emissiveMap = eyeTex;
+          mat.emissiveIntensity = 0.16;
+        } else if (/skin|body|face|head/.test(mName)) {
+          if (mat.map) remasterCharacterTexture(mat.map, 'skin', id);
+          mat.roughness = id === 'guard' ? 0.48 : 0.42;
+          mat.metalness = 0.01;
+          mat.emissive = new THREE.Color(0x1a0e0a);
           if (mat.map) mat.emissiveMap = mat.map;
-          mat.emissiveIntensity = 0.18;
+          mat.emissiveIntensity = 0.025;
           if (!mat.normalMap) {
             mat.normalMap = nm.skinNormal;
-            mat.normalScale = new THREE.Vector2(0.32, 0.32);
-          }
-        } else if (/eye/.test(mName) && !/brow|lash|bunny/.test(mName)) {
-          mat.roughness = 0.03;
-          mat.metalness = 0.12;
-          mat.emissive = new THREE.Color(0xffffff);
-          if (mat.map) mat.emissiveMap = mat.map;
-          mat.emissiveIntensity = 0.38;
-        } else if (/teeth/.test(mName)) {
+            mat.normalScale = new THREE.Vector2(0.28, 0.28);
+          }        } else if (/teeth/.test(mName)) {
           mat.roughness = 0.18;
           mat.emissive = new THREE.Color(0x2a2824);
           mat.emissiveIntensity = 0.12;
@@ -241,36 +219,88 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
     });
   }
 
-  function attachGuardFacialFeatures(model) {
-    const headBone = model.getObjectByName('head');
-    if (!headBone || headBone.userData?.hasGuardFacial) return;
-    headBone.userData.hasGuardFacial = true;
-    // 초상화(npc_guard.webp)와 동일한 인자하고 사실적인 중년 경비원 수염(회백색 콧수염·턱수염) 및 짙은 눈썹 입체 디테일 추가
-    const gMat = new THREE.MeshStandardMaterial({ color: 0x76787c, roughness: 0.78, metalness: 0.05 });
-    const dMat = new THREE.MeshStandardMaterial({ color: 0x484a4e, roughness: 0.82, metalness: 0.04 });
-    const fg = new THREE.Group(); fg.name = 'GUARD_FACIAL_DETAIL';
-    // 콧수염 좌/우 (자연스럽게 처진 팔자형 회백색 콧수염)
-    [-1, 1].forEach(s => {
-      const m1 = new THREE.Mesh(new THREE.CapsuleGeometry(0.0085, 0.026, 5, 8), gMat);
-      m1.position.set(s * 0.016, 0.042, 0.098);
-      m1.rotation.z = Math.PI / 2 - s * 0.28;
-      m1.rotation.y = s * 0.18;
-      fg.add(m1);
-      // 짙은 회백색 눈썹 보강
-      const br = new THREE.Mesh(new THREE.CapsuleGeometry(0.0065, 0.028, 4, 8), dMat);
-      br.position.set(s * 0.032, 0.116, 0.094);
-      br.rotation.z = Math.PI / 2 + s * 0.08;
-      fg.add(br);
-    });
-    // 턱수염 (짧은 회백색 그루밍 스터블)
-    const chin = new THREE.Mesh(new THREE.CapsuleGeometry(0.014, 0.024, 5, 8), dMat);
-    chin.position.set(0, 0.008, 0.092);
-    chin.rotation.z = Math.PI / 2;
-    fg.add(chin);
-    headBone.add(fg);
+  function reprojectEyeMeshUVs(eyeMesh) {
+    const geo = eyeMesh?.geometry;
+    if (!geo || !geo.attributes?.position || geo.userData?.reprojectedEyeUV) return;
+    geo.userData.reprojectedEyeUV = true;
+    const pos = geo.attributes.position;
+    let uv = geo.attributes.uv;
+    if (!uv) {
+      uv = new THREE.BufferAttribute(new Float32Array(pos.count * 2), 2);
+      geo.setAttribute('uv', uv);
+    }
+    // 좌안(x > 0)과 우안(x < 0) 각각의 정면 중심점(max Z 근처 평균 X, Y)과 반지름을 구한다
+    const eyes = [{ minX: 1e9, maxX: -1e9, minY: 1e9, maxY: -1e9 }, { minX: 1e9, maxX: -1e9, minY: 1e9, maxY: -1e9 }];
+    for (let i = 0; i < pos.count; i++) {
+      const x = pos.getX(i), y = pos.getY(i);
+      const e = x >= 0 ? eyes[0] : eyes[1];
+      if (x < e.minX) e.minX = x; if (x > e.maxX) e.maxX = x;
+      if (y < e.minY) e.minY = y; if (y > e.maxY) e.maxY = y;
+    }
+    for (let i = 0; i < pos.count; i++) {
+      const x = pos.getX(i), y = pos.getY(i);
+      const e = x >= 0 ? eyes[0] : eyes[1];
+      const cx = (e.minX + e.maxX) * 0.5, cy = (e.minY + e.maxY) * 0.5;
+      const rx = Math.max(0.004, (e.maxX - e.minX) * 0.52);
+      const ry = Math.max(0.004, (e.maxY - e.minY) * 0.52);
+      const u = Math.max(0.02, Math.min(0.98, 0.5 + (x - cx) / (rx * 2.15)));
+      const v = Math.max(0.02, Math.min(0.98, 0.5 - (y - cy) / (ry * 2.15)));
+      uv.setXY(i, u, v);
+    }
+    uv.needsUpdate = true;
   }
-  function extractHumanRig(model, id) {
-    if (id === 'guard') attachGuardFacialFeatures(model);
+
+  let eyeTexCache = null;
+  function getPhotorealEyeTexture() {
+    if (eyeTexCache) return eyeTexCache;
+    const N = 512, cv = document.createElement('canvas'); cv.width = cv.height = N;
+    const ctx = cv.getContext('2d');
+    const cx = N * 0.5, cy = N * 0.5, irisR = N * 0.25, pupilR = N * 0.105;
+    const img = ctx.createImageData(N, N);
+    const d = img.data;
+    for (let y = 0; y < N; y++) {
+      for (let x = 0; x < N; x++) {
+        const k = (y * N + x) * 4;
+        const dx = x - cx, dy = y - cy, dist = Math.hypot(dx, dy);
+        // 윗눈꺼풀 자연스러운 그림자 AO
+        const lidAO = y < cy - irisR * 0.4 ? Math.max(0.68, 1 - (cy - irisR * 0.4 - y) / (N * 0.45)) : 1.0;
+        if (dist > irisR) {
+          const edge = Math.min(1, Math.max(0, (dist - irisR) / (N * 0.25)));
+          d[k]     = Math.round((245 - edge * 22) * lidAO);
+          d[k + 1] = Math.round((238 - edge * 28) * lidAO);
+          d[k + 2] = Math.round((234 - edge * 30) * lidAO);
+          d[k + 3] = 255;
+        } else if (dist > pupilR) {
+          const t = (dist - pupilR) / (irisR - pupilR);
+          const ang = Math.atan2(dy, dx);
+          const fib = 0.82 + 0.28 * Math.sin(ang * 32) * Math.cos(ang * 15 + t * 4);
+          const limbal = t > 0.78 ? Math.max(0.32, 1 - (t - 0.78) * 3.1) : 1.0;
+          const collarette = Math.abs(t - 0.35) < 0.12 ? 1.18 : 1.0;
+          const f = fib * limbal * collarette * lidAO;
+          d[k]     = Math.min(255, Math.round(108 * f));
+          d[k + 1] = Math.min(255, Math.round(66 * f));
+          d[k + 2] = Math.min(255, Math.round(38 * f));
+          d[k + 3] = 255;
+        } else {
+          d[k] = 10; d[k + 1] = 8; d[k + 2] = 8; d[k + 3] = 255;
+        }
+      }
+    }
+    ctx.putImageData(img, 0, 0);
+    // 듀얼 각막 반사광 (Corneal Catchlights)
+    ctx.fillStyle = 'rgba(255,255,255,0.96)';
+    ctx.beginPath(); ctx.arc(cx - irisR * 0.30, cy - irisR * 0.32, pupilR * 0.46, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,0.75)';
+    ctx.beginPath(); ctx.arc(cx + irisR * 0.28, cy + irisR * 0.26, pupilR * 0.24, 0, Math.PI * 2); ctx.fill();
+    const tex = new THREE.CanvasTexture(cv);
+    tex.flipY = false;
+    tex.anisotropy = 16;
+    if (THREE.SRGBColorSpace) tex.colorSpace = THREE.SRGBColorSpace;
+    eyeTexCache = tex;
+    return tex;
+  }
+
+  function extractHumanRig(model) {
     const b = name => model.getObjectByName(name);
     return {
       pelvis: b('pelvis'),
@@ -289,8 +319,6 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
       applied: { s1x: 0, s1z: 0, s2x: 0, s2y: 0, s2z: 0, clz: 0, crz: 0, nx: 0, ny: 0, hx: 0, hy: 0, hz: 0 }
     };
   }
-
-  // 이전 프레임에 더했던 절차적 오프셋을 정확히 제거하여 본이 절대 누적 회전으로 비틀리지 않게 보장!
   function clearAppliedOffsets(rig) {
     if (!rig || !rig.applied) return;
     const a = rig.applied;
@@ -307,7 +335,7 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
     if (!holder || !holder.isObject3D) throw new TypeError(id + ': 유효한 Three.js 그룹이 필요합니다');
     if (pending.has(holder)) return pending.get(holder);
 
-    const url = (options.url || ('assets/characters/' + id + '.glb')) + '?v=145';
+    const url = (options.url || ('assets/characters/' + id + '.glb')) + '?v=146';
     const targetHeight = Number(options.height) || (id === 'mina' ? .95 : 1.75);
     const yaw = ((Number(options.yawDegrees) || 0) * Math.PI) / 180;
     const originalChildren = [...holder.children];

@@ -4,11 +4,11 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { NOTES } from './story.js?v=135';
+import { NOTES } from './story.js?v=136';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=135';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=136';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -1316,17 +1316,19 @@ export function buildWorld(scene) {
         for (let i = 0; i < n; i++) add(mStep, W, (i + 1) * rise, run, xa, dy, z0 - run * (i + .5));
         add(mStep, 2.6, LND, 9.55 + zl, cx - 2.5, dy, (zl - 9.55) / 2);
       } else {
-        for (let i = 0; i < n; i++) add(mStep, W, .24, run + .02, xa, dy + (i + 1) * rise - .24, z0 - run * (i + .5));
-        // 1번 계단(북쪽 -z 로 갈수록 +y 상승): 오른손 좌표계에서 rotation.x = +th 가 아니라 반드시 -th 여야 계단 밑면과 평행하게 밀착된다!
-        const s1 = meshAt(merge([bx(W + .04, .16, L + .08, 0, 0, 0), bx(.06, .28, L + .08, -W / 2, .08, 0), bx(.06, .28, L + .08, W / 2, .08, 0)]), mUnderSlab, xa, dy + LND / 2 - .16, (z0 + zl) / 2);
-        s1.rotation.x = -th;
-        add(mUnderSlab, 2.64, .22, 9.55 + zl, cx - 2.5, dy + LND - .22, (zl - 9.55) / 2);
-        add(mStep, 2.6, .04, 9.55 + zl, cx - 2.5, dy + LND - .02, (zl - 9.55) / 2);
+        for (let i = 0; i < n; i++) {
+          const syTop = dy + (i + 1) * rise, sz = z0 - run * (i + .5);
+          add(mUnderSlab, W + .04, .36, run + .02, xa, syTop - .38, sz);
+          add(mStep, W, .04, run + .03, xa, syTop - .02, sz);
+        }
+        add(mUnderSlab, 2.64, .32, 9.55 + zl, cx - 2.5, dy + LND - .34, (zl - 9.55) / 2);
+        add(mStep, 2.60, .04, 9.55 + zl, cx - 2.5, dy + LND - .02, (zl - 9.55) / 2);
       }
       for (let i = 0; i < n; i++) {
-        const stTop = LND + (i + 1) * rise;
-        const m = add(mStep, W, .24, run + .02, xb, dy + stTop - .24, zl + run * (i + .5));
-        if (dy < 0) m.userData.dynamic = true;
+        const stTop = dy + LND + (i + 1) * rise, sz = zl + run * (i + .5);
+        const m1 = add(mUnderSlab, W + .04, .36, run + .02, xb, stTop - .38, sz);
+        const m2 = add(mStep, W, .04, run + .03, xb, stTop - .02, sz);
+        if (dy < 0) { m1.userData.dynamic = true; m2.userData.dynamic = true; }
       }
       const nos = [];
       for (let i = 0; i < n; i++) {
@@ -1338,9 +1340,6 @@ export function buildWorld(scene) {
         );
       }
       meshAt(merge(nos), mStairNose, 0, 0, 0);
-      // 2번 계단(남쪽 +z 로 갈수록 +y 상승): 오른손 좌표계에서 rotation.x = +th 여야 계단 밑면과 평행하게 밀착된다!
-      const st = meshAt(merge([bx(W + .04, .16, L + .08, 0, 0, 0), bx(.06, .28, L + .08, -W / 2, .08, 0), bx(.06, .28, L + .08, W / 2, .08, 0)]), mUnderSlab, xb, dy + LND + LND / 2 - .16, zl + n * run / 2);
-      st.rotation.x = th;
 
       // 난간: 허공(dy)으로 삐죽 내려오던 고드름 파이프를 제거하고 실제 층참 슬래브(dy + LND) 위에서만 기둥이 서도록 정밀 교정!
       hr.push(tube(.03, ci, dy + H, z0, ci, dy + LND + H, zl));

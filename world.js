@@ -4,11 +4,11 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { NOTES } from './story.js?v=160';
+import { NOTES } from './story.js?v=161';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=160';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=161';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -919,7 +919,7 @@ export function buildWorld(scene) {
     deskGrid(
       cx,
       [-2.94, -2.26, -0.34, 0.34, 2.26, 2.94],
-      [-7.32, -6.48, -5.64, -4.80, -3.96, -3.12],
+      [-7.02, -6.22, -5.42, -4.62, -3.82, -3.02],
       0.03,
       false,
       { keep, tidy: seed !== 3, knock: seed === 3 ? .14 : 0, room: name }
@@ -2737,7 +2737,7 @@ export function buildWorld(scene) {
     papers(cx, -8, -2.4, 6);
   }
   const mWhiteP2 = S(null, { color: 0xd8d6cc, roughness: .5 });
-  const SOUTH_FN = { class: (cx, n) => n === '3-2' ? classroom32(cx) : classroom(cx, n), principal, meeting, lobby, print, storeS, sick, toilet, staff, archive, hall, reading, av, counsel, counselS, student, prepS, tool, wash, digital, work, equip, gallery, lobbyA };
+  const SOUTH_FN = { class: (cx, n) => n === '3-2' ? classroom32(cx) : classroom(cx, n), principal, meeting, lobby, print, storeS, sick, toilet, staff, archive, hall, reading, av, counsel, counselS, student, prepS, tool, wash, digital, work, equip, gallery, lobbyA, club, nurse, library, cooking, tech, fusion, computer, lang, smart, lab, music, art, craft };
 
   /* ---------- 층 빌드 ---------- */
   const mDeskSign = {};

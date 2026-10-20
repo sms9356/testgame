@@ -4,11 +4,11 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { NOTES } from './story.js?v=145';
+import { NOTES } from './story.js?v=149';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=145';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=149';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -1845,11 +1845,20 @@ export function buildWorld(scene) {
       const mTruss = S(null, { color: 0x16181c, roughness: .35, metalness: .78 });
       const mSpotLight = new THREE.MeshStandardMaterial({ color: 0xfff4d8, emissive: 0xffd890, emissiveIntensity: 1.5 });
       const mTallyRed  = new THREE.MeshStandardMaterial({ color: 0xff2820, emissive: 0xff1810, emissiveIntensity: 2.2 });
-      // ① 북쪽 및 서쪽/남쪽 벽면 방송국 전용 차콜 흡음 웨지 패널 & 원목 어쿠스틱 디퓨저 루바
-      add(mAcousticCharcoal, 5.1, 2.85, .04, cx - .55, .35, zN + .03);
-      for (let sl = 0; sl < 18; sl++) {
-        add(mSlatWalnut, .06, 2.45, .055, cx - 1.9 + sl * .22, .52, zN + .04);
+      // ① 방송실 전체 4면 벽(북·동·서·칸막이) 전면 차콜 어쿠스틱 방음 패널 & 월넛 우드 슬랫 디퓨저 시공 (기존 녹색 타일·곰팡이 벽면을 완벽히 덮어 진짜 방송국 스튜디오 인테리어 구현!)
+      add(mAcousticCharcoal, 5.2, 3.45, .04, cx - .55, .05, zN + .03);
+      add(mAcousticCharcoal, .04, 3.45, 3.85, cx + 1.28, .05, -7.65); // 장비실 서쪽 외벽 전체 방음 패널 마감!
+      add(mAcousticCharcoal, .04, 3.45, 7.60, W0 + .03, .05, -5.70); // 서쪽 벽 전체 방음 패널 마감!
+      add(mAcousticCharcoal, 2.55, 3.45, .04, cx + 2.55, .05, -5.68); // 장비실 남쪽 외벽 방음 패널 마감!
+      for (let sl = 0; sl < 20; sl++) {
+        add(mSlatWalnut, .06, 2.65, .055, cx - 2.0 + sl * .21, .45, zN + .04);
       }
+      for (let sl = 0; sl < 14; sl++) {
+        add(mSlatWalnut, .055, 2.65, .06, cx + 1.25, .45, -9.35 + sl * .25);
+      }
+      // 주조정실 바닥 다크 네이비 방음 카펫 플로어 & 천장 시안/앰버 방송국 LED 라인 바
+      add(S(null, { color: 0x18202c, roughness: .9 }), 5.1, .012, 7.4, cx - .55, .002, -5.75);
+      add(new THREE.MeshStandardMaterial({ color: 0x38b8ff, emissive: 0x2090e0, emissiveIntensity: 1.4 }), 4.8, .03, .03, cx - .55, 3.18, zN + .08);
       // ② 주조정실 상단 2층 멀티뷰 방송 모니터 브리지 (PROGRAM / PREVIEW / CAM 1 STUDIO / CAM 2 HALL / 98.4MHz SPECTRUM)
       add(mTruss, 3.2, .46, .12, dx, 1.98, zN + .18);
       [

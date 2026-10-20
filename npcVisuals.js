@@ -138,7 +138,7 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
           mat.metalness = 0.08;
           mat.emissive = new THREE.Color(0xffffff);
           mat.emissiveMap = eyeTex;
-          mat.emissiveIntensity = 0.16;
+          mat.emissiveIntensity = 0.04;
         } else if (/skin|body|face|head/.test(mName)) {
           if (mat.map) remasterCharacterTexture(mat.map, 'skin', id);
           mat.roughness = id === 'guard' ? 0.48 : 0.42;
@@ -224,145 +224,55 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
     if (eyeTexCache) return eyeTexCache;
     const N = 512, cv = document.createElement('canvas'); cv.width = cv.height = N;
     const ctx = cv.getContext('2d');
-    const cx = N * 0.5, cy = N * 0.5, irisR = N * 0.34, pupilR = N * 0.145;
+    const cx = N * 0.5, cy = N * 0.50, irisR = N * 0.37, pupilR = N * 0.15;
     const img = ctx.createImageData(N, N);
     const d = img.data;
     for (let y = 0; y < N; y++) {
       for (let x = 0; x < N; x++) {
         const k = (y * N + x) * 4;
         const dx = x - cx, dy = y - cy, dist = Math.hypot(dx, dy);
-        // 윗눈꺼풀 자연스러운 그림자 AO
-        const lidAO = y < cy - irisR * 0.4 ? Math.max(0.68, 1 - (cy - irisR * 0.4 - y) / (N * 0.45)) : 1.0;
+        // 윗눈꺼풀 그림자 & 아랫눈꺼풀 음영으로 놀란 눈 느낌을 완전히 없애고 깊이감 있는 실제 사람의 눈매 구현
+        let lidShade = 1.0;
+        if (y < cy - irisR * 0.15) {
+          lidShade = Math.max(0.22, 1.0 - (cy - irisR * 0.15 - y) / (N * 0.28));
+        } else if (y > cy + irisR * 0.55) {
+          lidShade = Math.max(0.55, 1.0 - (y - (cy + irisR * 0.55)) / (N * 0.28));
+        }
+        const cornerShade = Math.max(0.58, 1.0 - Math.pow(Math.abs(dx) / (N * 0.5), 2.2) * 0.45);
+        const ao = lidShade * cornerShade;
         if (dist > irisR) {
-          const edge = Math.min(1, Math.max(0, (dist - irisR) / (N * 0.25)));
-          d[k]     = Math.round((245 - edge * 22) * lidAO);
-          d[k + 1] = Math.round((238 - edge * 28) * lidAO);
-          d[k + 2] = Math.round((234 - edge * 30) * lidAO);
+          const edge = Math.min(1, Math.max(0, (dist - irisR) / (N * 0.22)));
+          d[k]     = Math.round((214 - edge * 26) * ao);
+          d[k + 1] = Math.round((204 - edge * 30) * ao);
+          d[k + 2] = Math.round((198 - edge * 32) * ao);
           d[k + 3] = 255;
         } else if (dist > pupilR) {
           const t = (dist - pupilR) / (irisR - pupilR);
           const ang = Math.atan2(dy, dx);
-          const fib = 0.82 + 0.28 * Math.sin(ang * 32) * Math.cos(ang * 15 + t * 4);
-          const limbal = t > 0.78 ? Math.max(0.32, 1 - (t - 0.78) * 3.1) : 1.0;
-          const collarette = Math.abs(t - 0.35) < 0.12 ? 1.18 : 1.0;
-          const f = fib * limbal * collarette * lidAO;
-          d[k]     = Math.min(255, Math.round(108 * f));
-          d[k + 1] = Math.min(255, Math.round(66 * f));
-          d[k + 2] = Math.min(255, Math.round(38 * f));
+          const fib = 0.85 + 0.22 * Math.sin(ang * 30) * Math.cos(ang * 14 + t * 3);
+          const limbal = t > 0.76 ? Math.max(0.28, 1 - (t - 0.76) * 3.0) : 1.0;
+          const f = fib * limbal * ao;
+          d[k]     = Math.min(255, Math.round(74 * f));
+          d[k + 1] = Math.min(255, Math.round(44 * f));
+          d[k + 2] = Math.min(255, Math.round(26 * f));
           d[k + 3] = 255;
         } else {
-          d[k] = 10; d[k + 1] = 8; d[k + 2] = 8; d[k + 3] = 255;
+          d[k] = 8; d[k + 1] = 6; d[k + 2] = 6; d[k + 3] = 255;
         }
       }
     }
     ctx.putImageData(img, 0, 0);
-    // 듀얼 각막 반사광 (Corneal Catchlights)
-    ctx.fillStyle = 'rgba(255,255,255,0.96)';
-    ctx.beginPath(); ctx.arc(cx - irisR * 0.30, cy - irisR * 0.32, pupilR * 0.46, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = 'rgba(255,255,255,0.75)';
-    ctx.beginPath(); ctx.arc(cx + irisR * 0.28, cy + irisR * 0.26, pupilR * 0.24, 0, Math.PI * 2); ctx.fill();
+    // 은은하고 자연스러운 각막 하이라이트 (Catchlight)
+    ctx.fillStyle = 'rgba(255,252,245,0.82)';
+    ctx.beginPath(); ctx.arc(cx - irisR * 0.24, cy - irisR * 0.18, pupilR * 0.34, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = 'rgba(255,252,245,0.45)';
+    ctx.beginPath(); ctx.arc(cx + irisR * 0.22, cy + irisR * 0.20, pupilR * 0.18, 0, Math.PI * 2); ctx.fill();
     const tex = new THREE.CanvasTexture(cv);
     tex.flipY = false;
     tex.anisotropy = 16;
     if (THREE.SRGBColorSpace) tex.colorSpace = THREE.SRGBColorSpace;
     eyeTexCache = tex;
     return tex;
-  }
-
-  async function bakeGuardPortraitFace(model) {
-    try {
-      const body = model.getObjectByName('Guard_Body');
-      if (!body || !body.material?.map?.image) return;
-      const img = new Image();
-      img.crossOrigin = 'anonymous';
-      await new Promise((res, rej) => { img.onload = res; img.onerror = rej; img.src = 'assets/ui/npc_guard.webp'; });
-      const pw = img.width, ph = img.height;
-      const pCv = document.createElement('canvas'); pCv.width = pw; pCv.height = ph;
-      const pCtx = pCv.getContext('2d'); pCtx.drawImage(img, 0, 0);
-      const pData = pCtx.getImageData(0, 0, pw, ph).data;
-
-      const tex = body.material.map;
-      const tw = tex.image.width, th = tex.image.height;
-      const tCv = document.createElement('canvas'); tCv.width = tw; tCv.height = th;
-      const tCtx = tCv.getContext('2d'); tCtx.drawImage(tex.image, 0, 0, tw, th);
-      const tImg = tCtx.getImageData(0, 0, tw, th);
-      const td = tImg.data;
-
-      // 목/귀/손 기본 피부 톤을 초상화의 차분한 실사 중년 피부 톤과 일치시킨다
-      for (let i = 0; i < td.length; i += 4) {
-        td[i]     = Math.round(td[i] * 0.78 + 14);
-        td[i + 1] = Math.round(td[i + 1] * 0.79 + 14);
-        td[i + 2] = Math.round(td[i + 2] * 0.82 + 16);
-      }
-
-      const geo = body.geometry;
-      const pos = geo.attributes.position, uv = geo.attributes.uv, index = geo.index;
-      const mapYToPy = y => {
-        if (y >= 1.638) return 0.435 - (y - 1.638) / (1.675 - 1.638) * (0.435 - 0.325);
-        if (y >= 1.622) return 0.565 - (y - 1.622) / (1.638 - 1.622) * (0.565 - 0.435);
-        if (y >= 1.593) return 0.685 - (y - 1.593) / (1.622 - 1.593) * (0.685 - 0.565);
-        return 0.815 - (y - 1.550) / (1.593 - 1.550) * (0.815 - 0.685);
-      };
-      const mapXToPx = x => 0.495 + (x / 0.082) * 0.275;
-
-      const triCount = index ? index.count / 3 : pos.count / 3;
-      for (let t = 0; t < triCount; t++) {
-        const i0 = index ? index.getX(t * 3) : t * 3;
-        const i1 = index ? index.getX(t * 3 + 1) : t * 3 + 1;
-        const i2 = index ? index.getX(t * 3 + 2) : t * 3 + 2;
-        const y0 = pos.getY(i0), y1 = pos.getY(i1), y2 = pos.getY(i2);
-        const z0 = pos.getZ(i0), z1 = pos.getZ(i1), z2 = pos.getZ(i2);
-        if (Math.max(y0, y1, y2) < 1.525 || Math.max(z0, z1, z2) < 0.045) continue;
-
-        const x0 = pos.getX(i0), x1 = pos.getX(i1), x2 = pos.getX(i2);
-        const u0 = uv.getX(i0) * tw, v0 = uv.getY(i0) * th;
-        const u1 = uv.getX(i1) * tw, v1 = uv.getY(i1) * th;
-        const u2 = uv.getX(i2) * tw, v2 = uv.getY(i2) * th;
-        if (Math.max(u0, u1, u2) - Math.min(u0, u1, u2) > tw * 0.35) continue;
-        if (Math.max(v0, v1, v2) - Math.min(v0, v1, v2) > th * 0.35) continue;
-
-        const minU = Math.max(0, Math.floor(Math.min(u0, u1, u2)) - 1);
-        const maxU = Math.min(tw - 1, Math.ceil(Math.max(u0, u1, u2)) + 1);
-        const minV = Math.max(0, Math.floor(Math.min(v0, v1, v2)) - 1);
-        const maxV = Math.min(th - 1, Math.ceil(Math.max(v0, v1, v2)) + 1);
-        const denom = (v1 - v2) * (u0 - u2) + (u2 - u1) * (v0 - v2);
-        if (Math.abs(denom) < 1e-5) continue;
-
-        for (let py = minV; py <= maxV; py++) {
-          for (let px = minU; px <= maxU; px++) {
-            const w0 = ((v1 - v2) * (px - u2) + (u2 - u1) * (py - v2)) / denom;
-            const w1 = ((v2 - v0) * (px - u2) + (u0 - u2) * (py - v2)) / denom;
-            const w2 = 1 - w0 - w1;
-            if (w0 < -0.04 || w1 < -0.04 || w2 < -0.04) continue;
-
-            const vx = w0 * x0 + w1 * x1 + w2 * x2;
-            const vy = w0 * y0 + w1 * y1 + w2 * y2;
-            const vz = w0 * z0 + w1 * z1 + w2 * z2;
-            const fz = Math.min(1, Math.max(0, (vz - 0.052) / 0.045));
-            const fy = Math.min(1, Math.max(0, (vy - 1.532) / 0.022)) * Math.min(1, Math.max(0, (1.695 - vy) / 0.022));
-            const fx = Math.min(1, Math.max(0, (0.088 - Math.abs(vx)) / 0.018));
-            const alpha = fz * fy * fx;
-            if (alpha <= 0.01) continue;
-
-            const srcX = Math.max(0, Math.min(pw - 1, Math.round(mapXToPx(vx) * pw)));
-            const srcY = Math.max(0, Math.min(ph - 1, Math.round(mapYToPy(vy) * ph)));
-            const sIdx = (srcY * pw + srcX) * 4;
-            const dIdx = (py * tw + px) * 4;
-            const sr = Math.min(255, pData[sIdx] * 1.22 + 16);
-            const sg = Math.min(255, pData[sIdx + 1] * 1.22 + 14);
-            const sb = Math.min(255, pData[sIdx + 2] * 1.20 + 12);
-            td[dIdx]     = Math.round(td[dIdx] * (1 - alpha) + sr * alpha);
-            td[dIdx + 1] = Math.round(td[dIdx + 1] * (1 - alpha) + sg * alpha);
-            td[dIdx + 2] = Math.round(td[dIdx + 2] * (1 - alpha) + sb * alpha);
-          }
-        }
-      }
-      tCtx.putImageData(tImg, 0, 0);
-      const prevFlip = tex.flipY;
-      tex.image = tCv;
-      tex.flipY = prevFlip;
-      tex.needsUpdate = true;
-    } catch (e) { console.warn('[GuardPortraitBake]', e); }
   }
   function extractHumanRig(model) {
     const b = name => model.getObjectByName(name);
@@ -399,7 +309,7 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
     if (!holder || !holder.isObject3D) throw new TypeError(id + ': 유효한 Three.js 그룹이 필요합니다');
     if (pending.has(holder)) return pending.get(holder);
 
-    const url = (options.url || ('assets/characters/' + id + '.glb')) + '?v=148';
+    const url = (options.url || ('assets/characters/' + id + '.glb')) + '?v=149';
     const targetHeight = Number(options.height) || (id === 'mina' ? .95 : 1.75);
     const yaw = ((Number(options.yawDegrees) || 0) * Math.PI) / 180;
     const originalChildren = [...holder.children];
@@ -432,7 +342,6 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
       pivot.add(model);
 
       enhanceCharacterMaterials(model, id);
-      if (id === 'guard') await bakeGuardPortraitFace(model);
 
       const clips = gltf.animations || [];
       if (clips.length) {

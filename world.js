@@ -4,11 +4,11 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { NOTES } from './story.js?v=133';
+import { NOTES } from './story.js?v=134';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=133';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=134';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -1280,96 +1280,136 @@ export function buildWorld(scene) {
   const mStairNose = S(null, { color: 0xc8a030, roughness: .7 }), mRailSteel = grunge(S(T.makeMetal([70, 78, 74]), { roughness: .5, metalness: .5 }));
   function stairRoom(cx) {
     // ㄷ자 계단 — 층고 FH(4m) = 1번 계단 10단(0.2m) 2.0m + 층참 + 2번 계단 10단 2.0m. 2번 계단 꼭대기가 위층 바닥과 정확히 같은 높이
-    // 1번(북쪽으로 오름) → 층참 → 2번(남쪽으로 오름, 천장 개구부를 지나 위층 바닥에 닿음)
-    // 층마다 따로 그려지므로, 개구부 너머로 보이는 위층(+FH) · 아래층(-FH) 계단실을 같은 치수로 한 벌씩 더 놓는다
     const W = 1.3, xa = cx - 3.15, xb = cx - 1.85, n = 10, run = .48, LND = FH / 2, rise = LND / n, z0 = -3.0, zl = z0 - n * run;
     const hx1 = cx - 2.55, hx2 = cx - 1.2, hz1 = zl - .1, hz2 = -2.9;
     const hasDown = cur.annex ? cur.f > 8 : !cur.basement, hasUp = cur.annex ? cur.f < 10 : true;
     const L = Math.hypot(n * run, LND), th = Math.atan2(LND, n * run);
-    // 계단 한 벌 (dy: 이 층 기준 높이) — guard: 이 층 바닥에 아래층 2번 계단이 올라오는 개구부가 있어 안전 난간이 필요
-    // solid: 맨 아래층 — 1번 계단 · 층참이 바닥까지 꽉 찬 덩어리. 그 위층들은 계단실이 위아래로 트인 공간이라 계단 · 층참이 경사 슬래브 위에 떠 있다
-    const core = (dy, guard, top = false, solid = false) => {   // top: 위층이 없는 맨 위층 — 2번 계단 없이 층참 가장자리에 난간
-      if (solid) { for (let i = 0; i < n; i++) add(mStep, W, (i + 1) * rise, run, xa, dy, z0 - run * (i + .5)); add(mStep, 2.6, LND, 9.55 + zl, cx - 2.5, dy, (zl - 9.55) / 2); }
-      else {
-        for (let i = 0; i < n; i++) add(mStep, W, .44, run, xa, dy + (i + 1) * rise - .44, z0 - run * (i + .5));
-        const s1 = meshAt(merge([bx(W, .22, L, 0, 0, 0)]), mStep, xa, dy + LND / 2 - .32, (z0 + zl) / 2); s1.rotation.x = th;   // 1번 계단 아래 경사 슬래브
-        add(mStep, 2.6, .25, 9.55 + zl, cx - 2.5, dy + LND - .25, (zl - 9.55) / 2);   // 층참 슬래브
+    const mUnderSlab = S(null, { color: 0x78766e, roughness: .88 });
+
+    const core = (dy, guard, top = false, solid = false) => {
+      const ci = cx - 2.5, co = cx - 1.22, H = .95;
+      const hr = [], bal = [], P = (x, y1, z, y2 = y1 + H) => bal.push(tube(.012, x, y1, z, x, y2, z));
+
+      // 맨 위층(top === true, 예: 별관 3층)은 위층(4층)이 없으므로 허공에서 끊기는 반쪽 계단을 그리지 않고, 아래층 계단 개구부를 감싸는 3층 바닥 안전 난간만 설치한다!
+      if (top) {
+        if (guard) {
+          hr.push(
+            tube(.03, co, dy + 1.0, -9.55, co, dy + 1.0, z0),
+            tube(.03, cx - 3.82, dy + 1.0, z0, ci, dy + 1.0, z0)
+          );
+          for (let k = 0; k <= 16; k++) P(co, dy, -9.55 + k * (z0 + 9.55) / 16, dy + 1.0);
+          for (let k = 0; k <= 4; k++) P(cx - 3.82 + k * (ci - (cx - 3.82)) / 4, dy, z0, dy + 1.0);
+          bal.push(tube(.032, co, dy, z0, co, dy + 1.04, z0), tube(.032, ci, dy, z0, ci, dy + 1.04, z0));
+          cur.interior.add(new THREE.Mesh(merge(hr), mWoodDark), new THREE.Mesh(merge(bal), mRailSteel));
+        }
+        return;
       }
-      if (!top) for (let i = 0; i < n; i++) { const top = LND + (i + 1) * rise; const m = add(mStep, W, .44, run, xb, dy + top - .44, zl + run * (i + .5)); if (dy < 0) m.userData.dynamic = true; }   // 아래 경사 슬래브까지 닿는 디딤판
-      const nos = []; for (let i = 0; i < n; i++) { nos.push(bx(W - .08, .014, .07, xa, dy + (i + 1) * rise + .007, z0 - run * i - .045), bx(W - .08, .05, .012, xa, dy + (i + 1) * rise - .02, z0 - run * i - .004)); if (!top) nos.push(bx(W - .08, .014, .07, xb, dy + LND + (i + 1) * rise + .007, zl + run * i + .045), bx(W - .08, .05, .012, xb, dy + LND + (i + 1) * rise - .02, zl + run * i + .004)); }
-      meshAt(merge(nos), mStairNose, 0, 0, 0);   // 디딤판 앞 미끄럼 방지 띠
-      if (!top) { const st = meshAt(merge([bx(W, .22, L, 0, 0, 0)]), mStep, xb, dy + LND + LND / 2 - .32, zl + n * run / 2); st.rotation.x = -th; }   // 2번 계단 아래 경사 슬래브 (실제 크기 → UV 안 늘어남)
-      // 난간: 나무 손잡이 + 철제 난간동자
-      const hr = [], bal = [], H = .95, P = (x, y1, z, y2 = y1 + H) => bal.push(tube(.011, x, y1, z, x, y2, z));
-      const ci = cx - 2.5, co = cx - 1.22;
-      hr.push(tube(.03, ci, dy + H, z0, ci, dy + LND + H, zl));   // 두 계단 사이 (층참에서 꺾임)
-      for (let k = 0; k <= 20; k++) { const t = k / 20; P(ci, dy + t * LND, z0 - t * n * run); if (k && !top) P(ci, dy + LND + t * LND, zl + t * n * run); }
-      bal.push(tube(.035, ci, dy, zl, ci, dy + LND + H + .05, zl));   // 꺾이는 곳의 기둥(뉴얼 포스트)
-      hr.push(tube(.03, co, dy + LND + H, -9.5, co, dy + LND + H, zl));   // 바깥쪽: 층참 가장자리 (예전엔 보이지 않는 벽뿐이었다)
+
+      if (solid) {
+        for (let i = 0; i < n; i++) add(mStep, W, (i + 1) * rise, run, xa, dy, z0 - run * (i + .5));
+        add(mStep, 2.6, LND, 9.55 + zl, cx - 2.5, dy, (zl - 9.55) / 2);
+      } else {
+        for (let i = 0; i < n; i++) add(mStep, W, .24, run, xa, dy + (i + 1) * rise - .24, z0 - run * (i + .5));
+        const s1 = meshAt(merge([bx(W, .18, L + .12, 0, 0, 0)]), mUnderSlab, xa, dy + LND / 2 - .18, (z0 + zl) / 2);
+        s1.rotation.x = th;
+        add(mUnderSlab, 2.6, .22, 9.55 + zl, cx - 2.5, dy + LND - .22, (zl - 9.55) / 2);
+        add(mStep, 2.6, .04, 9.55 + zl, cx - 2.5, dy + LND - .02, (zl - 9.55) / 2);
+      }
+      for (let i = 0; i < n; i++) {
+        const stTop = LND + (i + 1) * rise;
+        const m = add(mStep, W, .24, run, xb, dy + stTop - .24, zl + run * (i + .5));
+        if (dy < 0) m.userData.dynamic = true;
+      }
+      const nos = [];
+      for (let i = 0; i < n; i++) {
+        nos.push(
+          bx(W - .08, .014, .07, xa, dy + (i + 1) * rise + .007, z0 - run * i - .045),
+          bx(W - .08, .05, .012, xa, dy + (i + 1) * rise - .02, z0 - run * i - .004),
+          bx(W - .08, .014, .07, xb, dy + LND + (i + 1) * rise + .007, zl + run * i + .045),
+          bx(W - .08, .05, .012, xb, dy + LND + (i + 1) * rise - .02, zl + run * i + .004)
+        );
+      }
+      meshAt(merge(nos), mStairNose, 0, 0, 0);
+      const st = meshAt(merge([bx(W, .18, L + .12, 0, 0, 0)]), mUnderSlab, xb, dy + LND + LND / 2 - .18, zl + n * run / 2);
+      st.rotation.x = -th;
+
+      // 난간: 허공(dy)으로 삐죽 내려오던 고드름 파이프를 제거하고 실제 층참 슬래브(dy + LND) 위에서만 기둥이 서도록 정밀 교정!
+      hr.push(tube(.03, ci, dy + H, z0, ci, dy + LND + H, zl));
+      for (let k = 0; k <= 20; k++) {
+        const t = k / 20;
+        P(ci, dy + t * LND, z0 - t * n * run);
+        if (k) P(ci, dy + LND + t * LND, zl + t * n * run);
+      }
+      bal.push(
+        tube(.035, ci, dy + LND - .05, zl, ci, dy + LND + H + .05, zl),
+        tube(.032, ci, dy, z0, ci, dy + H + .04, z0)
+      );
+      hr.push(tube(.03, co, dy + LND + H, -9.5, co, dy + LND + H, zl));
       for (let k = 0; k <= 7; k++) P(co, dy + LND, -9.5 + k * (zl + 9.5) / 7);
-      bal.push(tube(.016, ci, dy + .1, z0, ci, dy + LND + .1, zl));   // 아래 띠
-      if (!top) {   // 2번 계단: 안쪽 · 바깥쪽 난간
-        hr.push(tube(.03, ci, dy + LND + H, zl, ci, dy + FH + H, z0), tube(.03, co, dy + LND + H, zl, co, dy + FH + H, z0));
-        for (let k = 1; k <= 20; k++) { const t = k / 20; P(co, dy + LND + t * LND, zl + t * n * run); }
-        bal.push(tube(.016, ci, dy + LND + .1, zl, ci, dy + FH + .1, z0), tube(.016, co, dy + LND + .1, zl, co, dy + FH + .1, z0));
-      } else {   // 맨 위층: 층참 남쪽 가장자리(2번 계단 자리) 난간 — 그 아래는 아래층으로 내려가는 개구부
-        hr.push(tube(.03, ci, dy + LND + H, zl, co, dy + LND + H, zl)); for (let k = 0; k <= 6; k++) P(ci + k * (co - ci) / 6, dy + LND, zl);
-      }
-      if (guard) {   // 이 층 바닥 개구부(계단실 코어) 동쪽 가장자리 안전 난간
+      bal.push(tube(.016, ci, dy + .1, z0, ci, dy + LND + .1, zl));
+      hr.push(tube(.03, ci, dy + LND + H, zl, ci, dy + FH + H, z0), tube(.03, co, dy + LND + H, zl, co, dy + FH + H, z0));
+      for (let k = 1; k <= 20; k++) { const t = k / 20; P(co, dy + LND + t * LND, zl + t * n * run); }
+      bal.push(tube(.016, ci, dy + LND + .1, zl, ci, dy + FH + .1, z0), tube(.016, co, dy + LND + .1, zl, co, dy + FH + .1, z0));
+
+      if (guard) {
         hr.push(tube(.03, co, dy + 1.0, -9.55, co, dy + 1.0, z0));
         for (let k = 0; k <= 16; k++) P(co, dy, -9.55 + k * (z0 + 9.55) / 16, dy + 1.0);
+        bal.push(tube(.032, co, dy, z0, co, dy + 1.04, z0));
       }
-      hr.push(tube(.022, cx - 3.8, dy + .9, z0, cx - 3.8, dy + LND + .9, zl));   // 서쪽 벽 손잡이 (1번 계단)
+      hr.push(tube(.022, cx - 3.8, dy + .9, z0, cx - 3.8, dy + LND + .9, zl));
       for (let k = 0; k <= 3; k++) { const t = k / 3; bal.push(tube(.012, cx - 3.86, dy + .82 + t * LND, z0 - t * n * run, cx - 3.8, dy + .88 + t * LND, z0 - t * n * run)); }
       cur.interior.add(new THREE.Mesh(merge(hr), mWoodDark), new THREE.Mesh(merge(bal), mRailSteel));
     };
-    // 이 층 바닥 (아래층 계단이 올라오는 개구부만 비움 — 타일 무늬는 월드 좌표로 이어지게)
-    const floorPiece = (x1, x2, z1, z2, y) => { const m = flat(cur.interior, y < 0 && cur.f === 0 ? mStep : mFloorTile, x1, x2, z1, z2, y);   /* 1층에서 내려다보는 지하(B1) 바닥은 콘크리트 */ const uv = m.geometry.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) + x1 / 4, uv.getY(i) - z2 / 4); return m; };
-    const cw = cx - 3.85, curWallF = curWall;   // 계단실 코어 서쪽 끝 (벽)
-    if (hasDown) { floorPiece(cx - 4, cw, -9.6, -1.75, 0); floorPiece(hx2, cx + 4, -9.6, -1.75, 0); floorPiece(cw, hx2, hz2, -1.75, 0); }   // 코어 위아래가 트여 있다
+
+    const floorPiece = (x1, x2, z1, z2, y) => { const m = flat(cur.interior, y < 0 && cur.f === 0 ? mStep : mFloorTile, x1, x2, z1, z2, y); const uv = m.geometry.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) + x1 / 4, uv.getY(i) - z2 / 4); return m; };
+    const cw = cx - 3.85, curWallF = curWall;
+    if (hasDown) { floorPiece(cx - 4, cw, -9.6, -1.75, 0); floorPiece(hx2, cx + 4, -9.6, -1.75, 0); floorPiece(cw, hx2, hz2, -1.75, 0); }
     else floorPiece(cx - 4, cx + 4, -9.6, -1.75, 0);
     core(0, hasDown, !hasUp, !hasDown);
-    // 슬래브 두께(천장 CH ~ 위층 바닥 FH) 개구부 가장자리 — 안쪽 면만 (예전엔 뚜껑 달린 상자라 천장이 막힌 통로처럼 보였다)
-    const liner = (y1, y2) => { const h = y2 - y1, y = (y1 + y2) / 2;   // 바닥 개구부(코어) 동쪽 · 남쪽 슬래브 단면
+
+    const liner = (y1, y2) => { const h = y2 - y1, y = (y1 + y2) / 2;
       meshAt(merge([bx(.02, h, hz2 + 9.6, hx2 + .01, y, (hz2 - 9.6) / 2), bx(hx2 - cw, h, .12, (cw + hx2) / 2, y, hz2 - .04)]), mShaft, 0, 0, 0); };
-    // 개구부 너머의 다른 층 계단실: 계단 한 벌 + 서쪽 · 북쪽 · 동쪽 벽 + (위층) 천장 / (아래층) 바닥
-    // (복도 쪽 벽 · 2m 출입구 · 문틀 · 복도 천장 · 복도 건너편 벽까지 — 2번 계단 꼭대기에서 남쪽을 보면 위층 복도가 보인다)
+
     const room = (dy) => {
-      const curWall = dy < 0 && cur.f === 0 ? mBase : curWallF;   // 1층에서 내려다보는 아래층은 지하(B1) — 콘크리트 벽으로
+      const curWall = dy < 0 && cur.f === 0 ? mBase : curWallF;
       cur.interior.add(boxMesh(cx - 4.15, cx - 3.85, dy, dy + FH, -9.9, -1.75, curWall), boxMesh(cx - 4.15, cx + 4.15, dy, dy + FH, -9.9, -9.6, curWall), boxMesh(cx + 3.85, cx + 4.15, dy, dy + FH, -9.9, -1.75, curWall),
         boxMesh(cx - 4.15, cx - 1, dy, dy + CH, -1.75, -1.45, curWall), boxMesh(cx + 1, cx + 4.15, dy, dy + CH, -1.75, -1.45, curWall), boxMesh(cx - 1, cx + 1, dy + 2.4, dy + CH, -1.75, -1.45, curWall),
         boxMesh(cx - 4.15, cx + 4.15, dy, dy + CH, 1.45, 1.75, curWall));
       add(mWoodDark, .1, 2.4, .36, cx - 1.0, dy, -1.6); add(mWoodDark, .1, 2.4, .36, cx + 1.0, dy, -1.6);
-      flat(cur.interior, mCeil, cx - 4.15, cx + 4.15, -1.75, 1.45, dy + CH, 4, false); floorPiece(cx - 4.15, cx + 4.15, -1.45, 1.45, dy);
+      flat(cur.interior, mCeil, cx - 4.15, cx + 4.15, -1.75, 1.45, dy + CH, 4, false);
+      floorPiece(cx - 4.15, cx + 4.15, -1.45, 1.45, dy);
+      if (dy > 0) {
+        floorPiece(hx2, cx + 4, -9.6, -1.75, dy);
+        floorPiece(cw, hx2, hz2, -1.75, dy);
+      }
     };
-    // 천장 개구부(계단 코어 전체) 가장자리: 동쪽 · 남쪽 슬래브 단면 (서 · 북은 벽)
+
     { const cx1 = cx - 3.85; meshAt(merge([bx(.02, FH - CH, -2.9 + 9.6, hx2 + .01, (CH + FH) / 2, (-9.6 - 2.9) / 2), bx(hx2 - cx1, FH - CH, .12, (cx1 + hx2) / 2, (CH + FH) / 2, -2.94)]), mShaft, 0, 0, 0); }
-    // 이 층 계단실 벽을 천장(CH) 위 슬래브 높이(FH)까지 — 트인 계단 코어에서 벽 위 틈으로 하늘이 보이지 않게
     cur.interior.add(boxMesh(cx - 4.15, cx - 3.85, CH, FH, -9.9, -1.75, curWall), boxMesh(cx - 4.15, cx + 4.15, CH, FH, -9.9, -9.6, curWall), boxMesh(cx - 4.15, cx - 1, CH, FH, -1.75, -1.45, curWall));
-    if (hasUp && !cur.annex && cur.f === 2) {   // 본관 3층: 위는 옥상 — 없는 '4층' 계단 · 복도를 그리던 것 대신 계단탑(옥상 문 벽 · 사방 벽 · 천장)으로 막는다
+    if (hasUp && !cur.annex && cur.f === 2) {
       const TH = 2.8, zs = -2.85, wm = curWall;
       cur.interior.add(boxMesh(cx - 4.15, cx - 3.85, FH, FH + TH, -9.9, zs + .2, wm), boxMesh(cx - 4.15, hx2 + .2, FH, FH + TH, -9.9, -9.6, wm), boxMesh(hx2, hx2 + .2, FH - (FH - CH), FH + TH, -9.9, zs + .2, wm),
         boxMesh(cx - 3.85, cx - 2.5, FH, FH + TH, zs, zs + .2, wm), boxMesh(cx - 2.5, hx2, FH + 2.25, FH + TH, zs, zs + .2, wm), boxMesh(cx - 4.15, hx2 + .2, FH + TH, FH + TH + .2, -9.9, zs + .2, mShaft));
       const rl = [tube(.03, cx - 2.5, FH + .95, zs, cx - 2.5, FH + .95, zl)]; for (let k = 0; k <= 8; k++) rl.push(tube(.012, cx - 2.5, FH, zs - k * (zs - zl) / 8, cx - 2.5, FH + .95, zs - k * (zs - zl) / 8));
-      cur.interior.add(new THREE.Mesh(merge(rl), mRailSteel));   // 옥상 문 앞 발판 서쪽(아래 층참으로 트인 곳) 난간
+      cur.interior.add(new THREE.Mesh(merge(rl), mRailSteel));
     } else if (hasUp) { core(FH, true, !!cur.annex && cur.f === 9, false); room(FH); flat(cur.interior, mCeil, cx - 4, cx + 4, -9.6, -1.75, FH + CH, 4, false); }
-    else flat(cur.interior, mShaft, cx - 3.85, hx2, -9.6, -2.9, FH, 2, false);   // 맨 위층: 계단 위는 콘크리트 슬래브 밑면
-    if (hasDown) { liner(-(FH - CH), 0); core(-FH, false, false, cur.annex ? cur.f === 9 : cur.f === 0); room(-FH); floorPiece(cx - 4, cx + 4, -9.6, -1.75, -FH); }   // 아래층이 맨 아래층(B1 · 별관 1층)이면 덩어리 계단
-    if (!hasUp) col(hx1, hx2, zl, zl + .2);   // 맨 위층: 층참 난간 (2번 계단 자리)
-    // 걸어서 오르내리는 계단: 높이는 game.js 의 stairH 가 계산한다. 두 계단 사이 난간 · 바깥쪽 옆판만 막는다
+    else flat(cur.interior, mCeil, cx - 4, cx + 4, -9.6, -1.75, CH, 4, false);
+    if (hasDown) { liner(-(FH - CH), 0); core(-FH, false, false, cur.annex ? cur.f === 9 : cur.f === 0); room(-FH); floorPiece(cx - 4, cx + 4, -9.6, -1.75, -FH); }
+    if (!hasUp) {
+      col(cx - 3.85, cx - 2.45, z0 - .15, z0 + .15);
+    }
     if (cur.stairCx == null) cur.stairCx = cx;
     col(cx - 2.56, cx - 2.44, -7.7, z0 + .1); col(cx - 1.25, cx - 1.15, -9.6, z0 + .1);
     elevator(cx);
-    if (cur.f === 0 || cur.f === 4) plane(cur.interior, new THREE.MeshBasicMaterial({ map: T.makeSign(cur.f === 0 ? '↓ B1 지하층' : 'B1 지하층  ↑ 1층', '#1a1a1a', '#e8d070', 26), color: 0xb0a890 }), 1.2, .3, cx - 3.83, 2.3, -4.2, Math.PI / 2);   // 계단 층 표시
-    if (cur.f <= 2 && !cur.annex && !cur.basement) {   // 본관 1·2·3층 북쪽 통로: 겹치는 문짝 없이 바로 걸어서 통과하는 오픈 게이트!
+    if (cur.f === 0 || cur.f === 4) plane(cur.interior, new THREE.MeshBasicMaterial({ map: T.makeSign(cur.f === 0 ? '↓ B1 지하층' : 'B1 지하층  ↑ 1층', '#1a1a1a', '#e8d070', 26), color: 0xb0a890 }), 1.2, .3, cx - 3.83, 2.3, -4.2, Math.PI / 2);
+    if (cur.f <= 2 && !cur.annex && !cur.basement) {
       add(mWoodDark, .12, 2.45, .28, cx + .05, 0, -9.75); add(mWoodDark, .12, 2.45, .28, cx + 1.55, 0, -9.75); add(mWoodDark, 1.62, .12, .28, cx + .8, 2.45, -9.75);
-      flat(cur.interior, mFloorTile, cx + .05, cx + 1.55, -10.2, -9.5, .012); // 문턱 바닥 타일 연결
-      const lbl = cur.f === 0 ? '후문 · 필로티 광장 (별관 1F 직결) ↑' : `${cur.f + 1}층 구름다리 통로 (별관 ${cur.f + 1}F 직결) ↑`;
+      flat(cur.interior, mFloorTile, cx + .05, cx + 1.55, -10.2, -9.5, .012);
+      const lbl = cur.f === 0 ? '후문 · 필로티 광장 (별관 1F 직결) ↑' : (cur.f + 1) + '층 구름다리 통로 (별관 ' + (cur.f + 1) + 'F 직결) ↑';
       plane(cur.interior, new THREE.MeshBasicMaterial({ map: T.makeSign(lbl, '#182c38', '#d8f0e8', 22), color: 0x9aa59a }), 1.85, .32, cx + .8, 2.75, -9.56);
     } else if (!cur.basement) win3D(cur.interior, 1.7, 1.8, cx + 1.0, 1.9, -9.58);
-    // 계단 표시
-    const sg2 = new THREE.MeshBasicMaterial({ map: T.makeSign('▲ 위층   ▼ 아래층', '#1e2a2e', '#d9e4d0', 26), transparent: false });
-    plane(cur.interior, sg2, 1.8, .4, cx + 1.0, 3.25, -9.57);   // 창(위끝 2.8m) · 1층 '별관 연결 통로' 표지(2.6~2.9m) 위에 — 예전엔 둘과 겹쳤다
+    const sg2 = new THREE.MeshBasicMaterial({ map: T.makeSign(cur.f === 4 ? '▲ 1층 올라가는 계단' : (cur.f === 10 ? '▼ 아래층 내려가는 계단' : '▲ 위층   ▼ 아래층'), '#1e2a2e', '#d9e4d0', 24), color: 0x9aa59a });
+    plane(cur.interior, sg2, 1.25, .32, cx - 3.83, 2.35, -2.35, Math.PI / 2);
     // 낡은 소방 장비
     model('korean_fire_extinguisher_01', cx + 1.65, 0, -3.0, -Math.PI / 2); model('korean_fire_extinguisher_01', cx + 1.65, 0, -3.4, -Math.PI / 2 + .3);
     if (cur.basement) {   // A01 진입 계단실: 층 안내판 · 계단참 표시 · 보안 카메라

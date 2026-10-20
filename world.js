@@ -4,11 +4,11 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { NOTES } from './story.js?v=173';
+import { NOTES } from './story.js?v=174';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=173';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=174';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -26,7 +26,7 @@ export const LAYOUT = [
 ];
 // 본관 남쪽 방 줄 (2008년식 학급 편제: 각 학년 1반~5반만 유지하고 6반 이후는 폐지, 여유 공간은 정독실·미디어실·자치/지원 공간으로 구성)
 export const LAYOUT_S = [
-  { types: ['reading', 'archive', 'staff', 'counselS', 'lobby', 'student', 'print', 'av', 'toilet'], names: ['1학년 정독실', '학적기록실', '교사 휴게실', '상담실', '중앙현관', '학생자치실', '교무인쇄실', '시청각자료실', '화장실'] },
+  { types: ['reading', 'archive', 'staff', 'counselS', 'lobby', 'print', 'student', 'av', 'toilet'], names: ['1학년 정독실', '학적기록실', '교사 휴게실', '상담실', '중앙현관', '인쇄실', '학생자치실', '시청각자료실', '화장실'] },
   { types: ['archive', 'toilet', 'principal', 'meeting', 'hall', 'staff', 'counselS', 'club', 'av'], names: ['교과자료실', '화장실', '교장실', '회의실', '2층 홀', '교사 휴게실', '상담실', '진로진학실', '어학청취실'] },
   { types: ['archive', 'class', 'reading', 'club', 'hall', 'av', 'staff', 'counselS', 'toilet'], names: ['졸업앨범실', '3-2', '논술지도실', '문예창작실', '3층 홀', '방송편집실', '교사 휴게실', '상담실', '화장실'] },
 ];

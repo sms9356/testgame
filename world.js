@@ -4,11 +4,11 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { NOTES } from './story.js?v=159';
+import { NOTES } from './story.js?v=160';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=159';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=160';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -921,14 +921,23 @@ export function buildWorld(scene) {
       [-2.94, -2.26, -0.34, 0.34, 2.26, 2.94],
       [-7.32, -6.48, -5.64, -4.80, -3.96, -3.12],
       0.03,
-      V4_PILOT,
+      false,
       { keep, tidy: seed !== 3, knock: seed === 3 ? .14 : 0, room: name }
     );
-    if (dCls) {
-      dCls.p.forEach(([id, X, Y, yaw]) => { const [x, z] = csvXZ(cx, X, Y); model('cr/' + id, x, deskTopAt(cur.f, x, z), z, (yaw || 0) * Math.PI / 180, { cr: true }); });
-      if (dCls.cl) { const [title, state, X, Y] = dCls.cl, [x, z] = csvXZ(cx, X, Y); classClue(cx, name, title, state, x, z); }
+    const d = CLS[name];
+    if (d && d.c.length) {
+      const [nb0, pc0, wb0, tr] = d.c.map(([X, Y]) => csvXZ(cx, X, Y));
+      const used = new Set(), onDesk = ([x, z], ox, oz) => { let best = null, bd = 1.6; for (const k of DESKS) { if (k.f !== cur.f || used.has(k) || Math.abs(k.x - cx) > 4) continue; const dd = Math.hypot(k.x - x, k.z - z); if (dd < bd) { bd = dd; best = k; } }
+        if (!best) return [x, z, .005]; used.add(best); return [best.x + ox, best.z + oz, best.top + .01]; };
+      const nb = onDesk(nb0, -.12, .02), pc = onDesk(pc0, .14, -.06), wb = onDesk(wb0, .16, .06);
+      add(S(null, { color: pick([0x2a4a7a, 0x7a2a2a, 0x2a5a3a]), roughness: .8 }), .21, .025, .29, nb[0], nb[2], nb[1], { ry: rr(-.5, .5) }); add(mPaperN, .2, .01, .28, nb[0] + .05, nb[2] + .025, nb[1], { ry: rr(-.5, .5) });
+      add(S(null, { color: pick([0x3a3a6a, 0xa86a8a, 0x2a2a2a]), roughness: .7 }), .2, .05, .07, pc[0], pc[2], pc[1], { ry: rr(-1, 1) }); for (let k = 0; k < 3; k++) add(S(null, { color: 0xd8b030 }), .14, .008, .008, pc[0] + rr(-.1, .1), pc[2] + .005, pc[1] + .08, { ry: rr(-1, 1) });
+      cyl(S(null, { color: 0x9ac0d8, roughness: .2, transparent: true, opacity: .7 }), .035, .2, wb[0], wb[2], wb[1], 10); cyl(S(null, { color: 0xeeeeea, roughness: .6 }), .035, .09, wb[0] + .12, wb[2], wb[1] + .05, 10);
+      for (let k = 0; k < 4; k++) { const pp = new THREE.Mesh(new THREE.PlaneGeometry(.2, .15), mDirtPaper); pp.rotation.set(-Math.PI / 2, 0, rnd() * 6); pp.position.set(tr[0] + rr(-.4, .4), .016, tr[1] + rr(-.4, .4)); cur.interior.add(pp); }
+      add(mWood, .4, .02, .38, cx + 1.8, .012, -2.45, { ry: rr(0, 3), rz: .04 });
+      classClue(cx, name);
     }
-    papers(cx, -8, -2.4, 5);
+    papers(cx, -8, -2.4, 9);
   }
   function office(cx) {
     const zN = -9.6;
@@ -1105,7 +1114,7 @@ export function buildWorld(scene) {
     printer(cx - 3.62, .9, -2.6, Math.PI / 2);
     plane(cur.interior, mDirtPaper, .21, .29, cx - 3.2, .012, -3.1, 0, -Math.PI / 2);
     addBattery(cx - 2.35, .78, -3.85);
-    if (!cur.annex) classClue(cx, 'C-01');
+    if (!props.some(p => p.id === 'clsC-01')) classClue(cx, 'C-01');
     papers(cx, -8, -2.4, 6);
   }
   function music(cx) {
@@ -1136,7 +1145,7 @@ export function buildWorld(scene) {
     // 벽면 음악가 초상 대신 오선지 게시판
     plane(cur.interior, mCork, 1.6, .9, cx + 3.85, 1.7, -5.2, -Math.PI / 2);
     papers(cx, -8, -2.4, 12);
-    if (!cur.annex) classClue(cx, 'M-01');
+    if (!props.some(p => p.id === 'clsM-01')) classClue(cx, 'M-01');
   }
   // 미술실 (미술실 3D 렌더링 뷰 · 가구/소품 상세 시트): 서쪽 벽 = 싱크대 · 오픈 선반 · 사물함, 동쪽 벽 = 석고상 진열대 · 재료 캐비닛 · 작품 건조대 · 이동 카트,
   // 북쪽(창가) = 정물대 + 게시판, 가운데 = 학생 작업 테이블, 남쪽(문 옆) = 교사 책상 · 기대 놓은 캔버스
@@ -1306,7 +1315,7 @@ export function buildWorld(scene) {
     curtain(cx + 1.0, .02, -5.4, .4, .3); cur.interior.children[cur.interior.children.length - 1].rotation.x = -Math.PI / 2;
     addBattery(sx, .85, sz + .2);
     papers(cx, -7.6, -2.4, 10);
-    if (!cur.annex) classClue(cx, 'A-01');
+    if (!props.some(p => p.id === 'clsA-01')) classClue(cx, 'A-01');
   }
   /* ---------- 화장실 (1990~2000년대 학교 화장실) ----------
      북벽 칸 4개(화변기 2 · 양변기 2) · 서벽 소변기 4 + 가림판 · 동벽 벽걸이 세면대 4 + 긴 거울 · 북동 청소 구역 · 복도벽 청소도구함 · 핸드 드라이어
@@ -1864,7 +1873,7 @@ export function buildWorld(scene) {
     g.add(new THREE.Mesh(legs, mWood));
     const cv = new THREE.Mesh(new THREE.BoxGeometry(.6, .75, .025), mWhite); cv.position.set(0, 1.18, .11); cv.rotation.x = -.08; g.add(cv);
     const pic = new THREE.Mesh(new THREE.PlaneGeometry(.58, .73), mPaints[paint % 4]); pic.position.z = .0135; cv.add(pic);
-    if (paint === 2 && !cur.annex) boardRefs.portrait = { mesh: pic, floor: cur.f, x, z };
+    if (paint === 2 && !boardRefs.portrait) boardRefs.portrait = { mesh: pic, floor: cur.f, x, z };
     col(x - .35, x + .35, z - .35, z + .35); return g;
   }
   // 학생 의자 한 개 (인스턴싱 없이)

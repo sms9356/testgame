@@ -6,19 +6,19 @@ import { createPsychologicalDirector, PHENOMENON_LABELS } from './psychologicalH
 import { settleStoryGhost, tickStoryGhost, showStoryGhost } from './storyGhost.js';
 import { GLTFLoader } from './vendor/addons/loaders/GLTFLoader.js';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { createNPCVisuals } from './npcVisuals.js';
+import { createNPCVisuals } from './npcVisuals.js?v=142';
 import { applyGuardSeatedPose } from './guardSeatedPose.js';
 import { createCampusCctvLive, collectCampusCctvFeeds } from './campusCctvLive.js';
 import { applyExteriorFloorVisibility, shouldStreamGuardCctv } from './exteriorRenderBudget.js';
-import { GUARD_LAYOUT } from './guardRoomLayout.js?v=141';
-import { installGuardRoom } from './guardRoom.js?v=141';
+import { GUARD_LAYOUT } from './guardRoomLayout.js?v=142';
+import { installGuardRoom } from './guardRoom.js?v=142';
 import { prepareModelGeometry } from './modelGeometry.js';
 import { modelFootprint, overlaps, removeDuplicateModels } from './placement.js';
-import { turfMaterial } from './campusVisuals.js?v=141';
+import { turfMaterial } from './campusVisuals.js?v=142';
 import { installInfirmaryAssets, updateInfirmaryCabinets } from './infirmaryAssets.js';
-import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js?v=141'; import { updateWindowFakes } from './windowInteriors.js?v=141';
-import { drawMap } from './map.js?v=141';
-import { buildMegaCampus15000, MEGA_CAMPUS_ZONES } from './megaCampus15000.js?v=141';
+import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js?v=142'; import { updateWindowFakes } from './windowInteriors.js?v=142';
+import { drawMap } from './map.js?v=142';
+import { buildMegaCampus15000, MEGA_CAMPUS_ZONES } from './megaCampus15000.js?v=142';
 import { makeDress, makeHair, makeGhostFace, makeGraffiti, makeKeypad, loadPBR, pbr, makeGlow as makeGlowTex, makePaintingStare, makeSign, makeBlood } from './tex.js';
 import { warmUp } from './bake.js';
 import { createStaticDistanceLOD } from './staticDistanceLOD.js';
@@ -39,12 +39,12 @@ import './school37RoomsPatch.js';    // 본관 · 별관 37개 특별실 가구 
 import './new37UniquePatch.js';     // 37개 구역 신규 특수 설비 · 벽면 레일 (사용자 제공) → window.new37UniquePatch
 import './megaExpansionPatch.js';   // 메가 익스팬션 · 최적화 · 4막 사건 기록 · 수집품 · 미니게임 (사용자 제공) → window.megaSchoolPatch
 import './poolMachineryPatch.js';     // 수영장 · 남/녀 탈의실·샤워실 · 기계실 철문 (사용자 제공) → window.poolAndMachineryPatch
-import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx } from './audio.js?v=141'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=141'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera } from './perfStabilizer.js';
-import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js?v=141';
-import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, SIDEQUESTS, HEADQUEST, COLLECT, LOCKER_SCARES, CHALK_QA, OUIJA_QS, PARA, TOILET_FX, MIRROR_WORDS } from './story.js?v=141';
+import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx } from './audio.js?v=142'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=142'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera } from './perfStabilizer.js';
+import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js?v=142';
+import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, SIDEQUESTS, HEADQUEST, COLLECT, LOCKER_SCARES, CHALK_QA, OUIJA_QS, PARA, TOILET_FX, MIRROR_WORDS } from './story.js?v=142';
 import { isSpeechBusy } from './voice.js';
 import { SET, saveSET, resetSET, DIFF, keyLabel } from './settings.js';
-import { initI18n, setLang, lang as curLang } from './i18n.js?v=141';   // 언어 패치 (한국어 · English · 日本語 · 中文)
+import { initI18n, setLang, lang as curLang } from './i18n.js?v=142';   // 언어 패치 (한국어 · English · 日本語 · 中文)
 initI18n();
 const K = () => SET.keys;
 let guardRoomController = null, guardControlProps = [], guardCctvData = null, campusCctv = null;
@@ -60,7 +60,7 @@ function syncGuardDevices() {
 function toggleGuardCCTV(persist = true) { FL.guardCctvOn = !(FL.guardCctvOn ?? true); sfx.click(); syncGuardDevices(); if (persist) save(true); return FL.guardCctvOn; }
 function toggleGuardLight() { FL.guardLightOn = !(FL.guardLightOn ?? false); sfx.click(); syncGuardDevices(); say(FL.guardLightOn ? '경비실 전등을 켰다' : '경비실 전등을 껐다', 1800); save(true); return FL.guardLightOn; }
 
-import { run as runMini, MG } from './minigames.js?v=141';
+import { run as runMini, MG } from './minigames.js?v=142';
 import { SCHEMA, BUILD, storageKeys, itemUid, propUid, doorUid, assignUids, readSlot, writeSlot, hasSlot, clearSlot, repairProgress } from './saveSystem.js';
 loadManifest().then(() => registerLines({ ...VO, ...Object.fromEntries(Object.entries(STORY_NOTES).filter(([, n]) => n.text).map(([k, n]) => ['note_' + k, { spk: 'narrator', text: n.title + '. ' + n.text, parts: [n.title, n.text] }])) }));
 
@@ -2047,21 +2047,28 @@ function start(skipIntro = false) {
 let introGuard = null, introCue = 0, introGuardEnd = 0, introEndT = 0;
 const GUARD_WAYPOINTS = [
   { x: 1.30, z: 73.60, label: 'gate_front' },
-  { x: 1.25, z: 68.45, label: 'spur_entry' },
+  { x: 1.25, z: 68.45, label: 'spur_entry', pose: 'inspect', pause: 3.6, lookYaw: 0 },
+  { x: -4.20, z: 57.00, label: 'plaza_west', pose: 'radio', pause: 3.8, lookYaw: 2.85 },
+  { x: 0.00, z: 45.80, label: 'main_steps', pose: 'stand', pause: 4.5, lookYaw: Math.PI },
+  { x: 4.80, z: 57.00, label: 'plaza_east', pose: 'stance', pause: 3.6, lookYaw: -2.75 },
   { x: 6.20, z: 69.10, label: 'spur_south' },
   { x: 6.95, z: 69.10, label: 'booth_door_out', doorCheck: true },
   { x: 6.95, z: 66.22, label: 'booth_aisle', insideSeatPass: true },
-  { x: GUARD_LAYOUT.npc.x, z: GUARD_LAYOUT.npc.z, label: 'booth_seat', insideSeatPass: true }
+  { x: GUARD_LAYOUT.npc.x, z: GUARD_LAYOUT.npc.z, label: 'booth_seat', insideSeatPass: true, seatPause: 9.0 },
+  { x: 6.95, z: 66.22, label: 'patrol_exit_aisle', insideSeatPass: true },
+  { x: 6.95, z: 69.10, label: 'patrol_exit_door', doorCheck: true }
 ];
 const GUARD_WALK = {
-  state: 'seated', // 'gate_talk' | 'walking' | 'seated'
-  wpIndex: GUARD_WAYPOINTS.length - 1,
+  state: 'walking', // 'gate_talk' | 'walking' | 'patrol_pause' | 'seated'
+  wpIndex: 1,
   phase: 0,
   stepAcc: 0,
   doorWait: 0,
+  pauseTimer: 0,
+  seatTimer: 8.5,
   talkWait: 0,
   talking: false,
-  startedWalk: false,
+  startedWalk: true,
   greetedGate: false
 };
 function buildGuardNPC() {
@@ -2143,23 +2150,25 @@ function setGuardPoseMode(mode, phase = 0) {
     if (guardNPC.userData.characterModel) {
       guardNPC.userData.curClipName = 'Seated';
       guardNPC.userData.npcAction?.getMixer?.()?.stopAllAction();
-      guardNPC.userData.seatedReport = applyGuardSeatedPose(guardNPC,GUARD_LAYOUT.seat);
+      guardNPC.userData.seatedReport = applyGuardSeatedPose(guardNPC, GUARD_LAYOUT.seat);
     }
     syncGuardPropPosition();
     return;
   }
   if (pp) {
-    pp.seatedBody.position.y = 0;
-    const sw = mode === 'walk' ? Math.sin(phase) * .42 : 0;
+    const breath = Math.sin(performance.now() * 0.002) * 0.015;
+    pp.seatedBody.position.y = breath;
+    const sw = mode === 'walk' ? Math.sin(phase) * .46 : Math.sin(performance.now() * 0.0015) * 0.03;
     pp.legs.forEach(({ s, thigh, shin, foot }) => {
       const lsw = sw * s;
-      thigh.position.set(s * .11, .62, Math.sin(lsw) * .08); thigh.rotation.x = lsw;
-      shin.position.set(s * .11, .28, Math.sin(lsw) * .16 - Math.max(0, -lsw) * .06); shin.rotation.x = Math.max(0, -lsw * .6);
-      foot.position.set(s * .11, .05, .05 + Math.sin(lsw) * .18); foot.rotation.x = lsw * .25;
+      thigh.position.set(s * .11, .62, Math.sin(lsw) * .09); thigh.rotation.x = lsw;
+      shin.position.set(s * .11, .28, Math.sin(lsw) * .17 - Math.max(0, -lsw) * .07); shin.rotation.x = Math.max(0, -lsw * .68);
+      foot.position.set(s * .11, .05, .05 + Math.sin(lsw) * .19); foot.rotation.x = lsw * .28;
     });
     pp.arms.forEach(({ s, a }) => {
-      a.rotation.x = s > 0 ? -.85 : -sw * s * .55;
-      a.rotation.z = s * .08;
+      if (mode === 'radio' && s < 0) { a.rotation.x = -1.35; a.rotation.z = 0.25; }
+      else if (mode === 'inspect') { a.rotation.x = s > 0 ? -1.05 : -0.35; a.rotation.z = s * 0.1; }
+      else { a.rotation.x = s > 0 ? -.85 : -sw * s * .58; a.rotation.z = s * .08; }
     });
   }
   const cm = guardNPC.userData.characterModel;
@@ -2168,10 +2177,17 @@ function setGuardPoseMode(mode, phase = 0) {
       cm.traverse(n => { if (n.isSkinnedMesh && n.skeleton) n.skeleton.pose(); });
       guardNPC.userData.seated = false;
     }
-    const want = mode === 'walk' ? 'Walk' : 'FlashlightHold';
+    const clipMap = {
+      walk: 'Walk',
+      stand: 'FlashlightHold',
+      inspect: 'Inspect',
+      radio: 'RadioUse',
+      stance: 'GuardStance'
+    };
+    const want = clipMap[mode] || 'FlashlightHold';
     if (guardNPC.userData.curClipName !== want) {
       guardNPC.userData.curClipName = want;
-      npcVisuals.play(guardNPC, want, { fade: .22, speed: mode === 'walk' ? 1.05 : 1 });
+      npcVisuals.play(guardNPC, want, { fade: .28, speed: mode === 'walk' ? 1.08 : 1.0 });
     }
   }
   syncGuardPropPosition();
@@ -2183,6 +2199,7 @@ function placeGuardAtGateForIntro() {
   GUARD_WALK.phase = 0;
   GUARD_WALK.stepAcc = 0;
   GUARD_WALK.doorWait = 0;
+  GUARD_WALK.pauseTimer = 0;
   GUARD_WALK.talkWait = 4.2;
   GUARD_WALK.talking = false;
   GUARD_WALK.startedWalk = false;
@@ -2192,34 +2209,55 @@ function placeGuardAtGateForIntro() {
   setGuardPoseMode('stand', 0);
 }
 function startGuardWalkToBooth() {
-  if (GUARD_WALK.state === 'seated') return;
   GUARD_WALK.state = 'walking';
   GUARD_WALK.startedWalk = true;
-  if (GUARD_WALK.wpIndex < 1) GUARD_WALK.wpIndex = 1;
+  if (GUARD_WALK.wpIndex < 1 || GUARD_WALK.wpIndex >= GUARD_WAYPOINTS.length) GUARD_WALK.wpIndex = 1;
+  setGuardPoseMode('walk', GUARD_WALK.phase);
+}
+function startGuardPatrolRound(startWp = 1) {
+  GUARD_WALK.state = 'walking';
+  GUARD_WALK.startedWalk = true;
+  GUARD_WALK.talking = false;
+  GUARD_WALK.wpIndex = startWp;
+  const wp = GUARD_WAYPOINTS[startWp] || GUARD_WAYPOINTS[1];
+  guardNPC.position.set(wp.x, .02, wp.z);
   setGuardPoseMode('walk', GUARD_WALK.phase);
 }
 function resetGuardToSeatedImmediate() {
   GUARD_WALK.state = 'seated';
-  GUARD_WALK.wpIndex = GUARD_WAYPOINTS.length - 1;
+  GUARD_WALK.wpIndex = 8;
+  GUARD_WALK.seatTimer = 9.0;
   GUARD_WALK.startedWalk = true;
   GUARD_WALK.talking = false;
   setGuardPoseMode('seated', 0);
 }
 function updateGuardWalk(dt) {
   if (!guardNPC.visible) return;
-  if (GUARD_WALK.state === 'seated') {
-    if (guardNPC.userData.characterModel && !guardNPC.userData.seated) setGuardPoseMode('seated', 0);
-    syncGuardPropPosition();
-    return;
-  }
   const gx = guardNPC.position.x, gz = guardNPC.position.z;
   const turnToward = (targetYaw, rate = 7) => {
     let diff = ((targetYaw - guardNPC.rotation.y + Math.PI * 3) % (Math.PI * 2)) - Math.PI;
     guardNPC.rotation.y += diff * Math.min(1, dt * rate);
   };
   if (GUARD_WALK.talking) {
-    setGuardPoseMode('stand', GUARD_WALK.phase);
-    turnToward(Math.atan2(P.x - gx, P.z - gz), 8);
+    if (GUARD_WALK.state !== 'seated') {
+      setGuardPoseMode('stand', GUARD_WALK.phase);
+      turnToward(Math.atan2(P.x - gx, P.z - gz), 8);
+    }
+    return;
+  }
+  // 경비실 의자 착석 상태: 9초간 CCTV와 순찰일지를 점검한 뒤 다시 일어나 캠퍼스 순찰을 출발한다!
+  if (GUARD_WALK.state === 'seated') {
+    if (guardNPC.userData.characterModel && !guardNPC.userData.seated) setGuardPoseMode('seated', 0);
+    syncGuardPropPosition();
+    if (state === 'playing' && P.floor === 0) {
+      GUARD_WALK.seatTimer = (GUARD_WALK.seatTimer ?? 9.0) - dt;
+      if (GUARD_WALK.seatTimer <= 0) {
+        GUARD_WALK.state = 'walking';
+        GUARD_WALK.wpIndex = 9; // patrol_exit_aisle -> patrol_exit_door -> loop to wp 1!
+        guardNPC.position.set(6.55, .02, 66.22);
+        setGuardPoseMode('walk', GUARD_WALK.phase);
+      }
+    }
     return;
   }
   if (GUARD_WALK.state === 'gate_talk') {
@@ -2233,11 +2271,25 @@ function updateGuardWalk(dt) {
     }
     return;
   }
+  // 순찰 지점 도착 후 주변 점검 / 무전 보고 / 손전등 스캔 동작 수행
+  if (GUARD_WALK.state === 'patrol_pause') {
+    const curWp = GUARD_WAYPOINTS[GUARD_WALK.wpIndex] || {};
+    setGuardPoseMode(curWp.pose || 'stand', GUARD_WALK.phase);
+    if (curWp.lookYaw != null) turnToward(curWp.lookYaw + Math.sin(performance.now() * 0.0012) * 0.35, 5);
+    GUARD_WALK.pauseTimer -= dt;
+    if (GUARD_WALK.pauseTimer <= 0) {
+      GUARD_WALK.state = 'walking';
+      GUARD_WALK.wpIndex = (GUARD_WALK.wpIndex + 1) % GUARD_WAYPOINTS.length;
+      if (GUARD_WALK.wpIndex === 0) GUARD_WALK.wpIndex = 1;
+      setGuardPoseMode('walk', GUARD_WALK.phase);
+    }
+    return;
+  }
   if (GUARD_WALK.state !== 'walking') return;
   const wp = GUARD_WAYPOINTS[GUARD_WALK.wpIndex];
-  if (!wp) { resetGuardToSeatedImmediate(); return; }
+  if (!wp) { startGuardPatrolRound(1); return; }
 
-  // 경비실 출입문 앞에서 문이 닫혀 있으면 플레이어처럼 스스로 문을 열고 들어간다
+  // 경비실 출입문 앞에서 문이 닫혀 있으면 스스로 문을 열고 출입한다
   if (wp.doorCheck || (gz <= 68.6 && gz >= 67.7 && gx >= 6.2)) {
     if (!(FL.guardDoorOpen ?? true)) {
       FL.guardDoorOpen = true;
@@ -2254,34 +2306,40 @@ function updateGuardWalk(dt) {
   }
 
   const dx = wp.x - gx, dz = wp.z - gz, dist = Math.hypot(dx, dz);
-  if (dist < .12) {
+  if (dist < .16) {
     guardNPC.position.x = wp.x;
     guardNPC.position.z = wp.z;
-    GUARD_WALK.wpIndex++;
-    if (GUARD_WALK.wpIndex >= GUARD_WAYPOINTS.length) {
+    syncGuardPropPosition();
+    if (wp.seatPause) {
       resetGuardToSeatedImmediate();
+      GUARD_WALK.seatTimer = wp.seatPause;
       return;
     }
-    syncGuardPropPosition();
+    if (wp.pause > 0) {
+      GUARD_WALK.state = 'patrol_pause';
+      GUARD_WALK.pauseTimer = wp.pause;
+      setGuardPoseMode(wp.pose || 'stand', GUARD_WALK.phase);
+      return;
+    }
+    GUARD_WALK.wpIndex++;
+    if (GUARD_WALK.wpIndex >= GUARD_WAYPOINTS.length) GUARD_WALK.wpIndex = 1;
     return;
   }
 
-  // 플레이어가 진행 방향 바로 앞을 막고 있으면 뚫고 지나가지 않고 멈춰 기다린다
+  // 플레이어가 진행 방향 바로 앞을 막고 있으면 멈춰 서서 플레이어를 바라본다
   if (state === 'playing' && P.floor === 0) {
     const pdx = P.x - gx, pdz = P.z - gz, pDist = Math.hypot(pdx, pdz);
     const dot = (pdx * dx + pdz * dz) / ((pDist * dist) || 1);
-    if (pDist < .78 && dot > .45) {
+    if (pDist < 1.15 && dot > .35) {
       setGuardPoseMode('stand', GUARD_WALK.phase);
       turnToward(Math.atan2(pdx, pdz), 7);
       return;
     }
   }
 
-  const speed = 1.68;
+  const speed = 1.66;
   const step = Math.min(dist, speed * dt);
   const pos = { x: gx + (dx / dist) * step, z: gz + (dz / dist) * step };
-
-  // 플레이어와 동일한 월드 충돌 상자(담장·정문 기둥·경비실 벽·문·책상·침대 등) 슬라이딩 검사
   const cols = floors[0]?.col;
   if (cols) {
     const filtered = wp.insideSeatPass
@@ -2290,9 +2348,9 @@ function updateGuardWalk(dt) {
     collide(filtered, pos, .21);
   }
   guardNPC.position.set(pos.x, .02, pos.z);
-  turnToward(Math.atan2(dx, dz), 8.5);
+  turnToward(Math.atan2(dx, dz), 7.5);
   const moved = Math.hypot(pos.x - gx, pos.z - gz);
-  GUARD_WALK.phase += moved * 3.6;
+  GUARD_WALK.phase += moved * 3.8;
   GUARD_WALK.stepAcc += moved;
   if (GUARD_WALK.stepAcc >= .56) {
     GUARD_WALK.stepAcc = 0;
@@ -2300,7 +2358,7 @@ function updateGuardWalk(dt) {
   }
   setGuardPoseMode('walk', GUARD_WALK.phase);
 }
-window.__guardWalk = { state: GUARD_WALK, waypoints: GUARD_WAYPOINTS, startAtGate: placeGuardAtGateForIntro, walkToBooth: startGuardWalkToBooth, seatImmediate: resetGuardToSeatedImmediate, step: updateGuardWalk };
+window.__guardWalk = { state: GUARD_WALK, waypoints: GUARD_WAYPOINTS, startAtGate: placeGuardAtGateForIntro, walkToBooth: startGuardWalkToBooth, startPatrol: startGuardPatrolRound, seatImmediate: resetGuardToSeatedImmediate, step: updateGuardWalk };
 
 function finishIntro() {
   const epoch=storySession;
@@ -2437,8 +2495,9 @@ function ensureCharsel3D() {
     const rim = new THREE.DirectionalLight(0xffd6e0, 0.85); rim.position.set(0, 2.4, -2.5);
     sc.add(hemi, key, fill, rim);
     st.scenes[k] = sc;
-    loader.load(`assets/characters/${k}.glb`, gltf => {
+    loader.load(`assets/characters/${k}.glb?v=142`, gltf => {
       const m = gltf.scene;
+      npcVisuals.enhanceCharacterMaterials?.(m, k);
       m.traverse(o => { if (o.isMesh || o.isSkinnedMesh) o.frustumCulled = false; });
       const b = new THREE.Box3().setFromObject(m);
       m.position.set(-(b.min.x + b.max.x) / 2, -b.min.y, -(b.min.z + b.max.z) / 2);
@@ -3861,9 +3920,11 @@ function applyThirdPerson(dt, yaw, pitch) {
   const g = pm.g; g.visible = d > .55; g.position.set(P.x, F.y0 + (P.jy || 0) + (P.shV || 0), P.z); g.rotation.y = yaw;
   const cr = P.crouchK || 0, air = (P.jy || 0) > .02, run = P.sprinting ? 1 : 0;
   const ph = P.bob * 1.0, amp = P.moving ? (run ? .8 : .5) * (1 - cr * .4) : 0;
-  const sw = Math.sin(ph) * amp;
-  pm.hips.position.y = .92 - cr * .32 + (P.moving ? Math.abs(Math.cos(ph)) * .025 : 0);
-  pm.chest.rotation.x = cr * .35 + run * .18;
+  const sw = Math.sin(ph) * amp, breath = Math.sin(tNow * 1.8) * .018;
+  pm.hips.position.y = .92 - cr * .32 + (P.moving ? Math.abs(Math.cos(ph)) * .028 : breath * .4);
+  pm.hips.rotation.y = P.moving ? sw * .14 : Math.sin(tNow * .9) * .02;
+  pm.chest.rotation.x = cr * .35 + run * .20 + breath;
+  pm.chest.rotation.y = P.moving ? -sw * .18 : 0;
   pm.legs.forEach((l, i) => { const s2 = i ? -sw : sw; l.rotation.x = (air ? -.7 : 0) + s2 - cr * 1.05; });
   pm.knees.forEach((k, i) => { const s2 = i ? -Math.sin(ph) : Math.sin(ph); k.rotation.x = (air ? 1.1 : 0) + Math.max(0, s2) * amp * 1.2 + cr * 1.7; });
   const rk = INT_ANIM.reachK || 0;
@@ -6373,7 +6434,7 @@ function sg3dLoad(name) {
   if (!p) {
     p = SG3D.loader.loadAsync(`assets/characters/ghosts/${name}.glb`).then(async gl => {
       gl.scene.traverse(o => { if (!o.isMesh) return; o.castShadow = true; o.receiveShadow = false;
-        const m = o.material; if (m.map) { srgb(m.map); m.map.anisotropy = 4; m.emissiveMap = m.map; }
+        const m = o.material; if (m.map) { srgb(m.map); m.map.anisotropy = 16; m.emissiveMap = m.map; }
         m.emissive = new THREE.Color(0x8fa4c0); m.emissiveIntensity = m.map ? .22 : .08; m.side = THREE.DoubleSide; });
       // 처음 나타날 때 셰이더 컴파일로 화면이 멈칫하지 않게: 받자마자 보이지 않는 곳에서 미리 컴파일 · 텍스처 업로드
       await textureBudget.prepare(gl.scene);
@@ -7168,13 +7229,13 @@ function megaNotify(m) { const t = String(m).split('\n'); say(t[0].replace(/^\S+
     world.props.push({ kind: 'robj', k: 'bunker_light', t: 'bunker', floor: 4, x: bx + 1.15, z: z1 - .85, y: 1.35, r: 2.0, label: '방공호 주 전등 스위치 조작하기', bkLightGroup });
     {
       const bLoader = new GLTFLoader();
-      bLoader.load('assets/models/sf/sf_bunker_props_pack.glb?v=141', gltf => {
+      bLoader.load('assets/models/sf/sf_bunker_props_pack.glb?v=142', gltf => {
         const bm = gltf.scene; bm.position.set(bx, 0, z0 + .45);
         if (window.__upgradePure3DScene) window.__upgradePure3DScene(bm); else bm.traverse(o => { o.userData.dynamic = true; });
         R.add(bm);
         if (gltf.animations && gltf.animations.length) { const mx = new THREE.AnimationMixer(bm); mx.userData = { floor: 4, x: bx, z: z0 + .45 }; gltf.animations.forEach(c => mx.clipAction(c).play()); (window.__campusAnimMixers ||= []).push(mx); }
       }, undefined, () => {});
-      bLoader.load('assets/models/sf/sf_pump_policeline_scene.glb?v=141', gltf => {
+      bLoader.load('assets/models/sf/sf_pump_policeline_scene.glb?v=142', gltf => {
         const pm = gltf.scene; pm.position.set(24.0, 0, -3.65);
         pm.traverse(o => { o.userData.dynamic = true; if (o.isMesh) { o.castShadow = false; o.receiveShadow = true; if (o.material?.map) o.material.map.colorSpace = THREE.SRGBColorSpace; } });
         R.add(pm);

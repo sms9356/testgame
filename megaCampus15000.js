@@ -226,15 +226,24 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
     pmesh(new THREE.PlaneGeometry(.52, .42), new THREE.MeshBasicMaterial({ color: 0x385864 }), cx - 6.45, .98, cz + 2.8, g, { ry: Math.PI / 2, cast: false });
     addCol(cx - 4.8, cx - 2.2, cz + 0.9, cz + 4.7, false, null, { maxY: 2.5 });
 
-    // 2층 사생 철제 사물함 4칸 (y = Y2 위)
+    // 2층 사생 철제 사물함 4칸 (y = Y2 위) + 2번째 칸 실시간 개폐 문짝(doorPiv) 장착!
+    let dormLockerDoorPiv = null;
     for (let k = 0; k < 4; k++) {
-      pbox(.66, 1.88, .55, PM(0x48565e, .5, .45), cx - 2.8 + k * .72, Y2 + .94, z1 - .42, g);
-      pbox(.04, .18, .04, brassM, cx - 2.6 + k * .72, Y2 + 1.05, z1 - .71, g);
+      const lx = cx - 2.8 + k * .72;
+      pbox(.66, 1.88, .50, PM(0x48565e, .5, .45), lx, Y2 + .94, z1 - .40, g);
+      if (k === 1) {
+        const piv = new THREE.Group(); piv.userData.dynamic = true; piv.position.set(lx - .32, Y2 + .94, z1 - .66); g.add(piv);
+        pbox(.64, 1.82, .035, PM(0x52626b, .45, .5), .32, 0, -.015, piv);
+        pbox(.04, .18, .04, brassM, .54, .11, -.04, piv);
+        dormLockerDoorPiv = piv;
+      } else {
+        pbox(.04, .18, .04, brassM, lx + .20, Y2 + 1.05, z1 - .67, g);
+      }
     }
 
     // 상호작용 지점 3종 (1F 사감실 관제석 / 2F 202호 사물함 / 2F 심야 정독실 카렐 부스)
     world.props.push({ kind: 'robj', k: 'dorm_log', t: 'mega15k', floor: 0, x: cx + 5.8, z: cz + 3.4, y: .95, r: 2.4, label: '1층 사감실 4채널 CCTV 관제석 & 점호 일지 조사하기' });
-    world.props.push({ kind: 'robj', k: 'dorm_locker', t: 'mega15k', floor: 0, x: cx - 1.8, z: z1 - 1.25, y: Y2 + 1.1, r: 2.4, label: '기숙사 2층 사생 사물함 파밍하기' });
+    world.props.push({ kind: 'robj', k: 'dorm_locker', t: 'mega15k', floor: 0, x: cx - 1.8, z: z1 - 1.25, y: Y2 + 1.1, r: 2.4, label: '기숙사 2층 사생 사물함 파밍하기', anim: { type: 'hinge', doorPiv: dormLockerDoorPiv, openAngle: 1.45, t: 0, active: false } });
     world.props.push({ kind: 'robj', k: 'dorm_study', t: 'mega15k', floor: 0, x: cx + 4.2, z: cz + 3.2, y: Y2 + 1.0, r: 2.4, label: '기숙사 2층 심야 정독실 카렐 부스 비밀 수첩 해독하기' });
 
     // 1·2층 앤틱 황동 펜던트 조명 & 따뜻한 볼류메트릭 무드 글로우
@@ -279,9 +288,12 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
     const spL = new THREE.Sprite(new THREE.SpriteMaterial({ map: makeGlowTex('255,210,125'), blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, opacity: .55 }));
     spL.scale.setScalar(4.5); spL.position.set(cx, 2.5, cz); g.add(spL);
     pcyl(.65, .55, .78, stoneM, cx, .62, cz, g, { seg: 12 });
-    pbox(.48, .28, .36, PM(0x8a6830, .4, .7), cx, 1.15, cz, g);
+    pbox(.48, .22, .36, PM(0x7a5824, .45, .65), cx, 1.12, cz, g);
+    const capLidPiv = new THREE.Group(); capLidPiv.userData.dynamic = true; capLidPiv.position.set(cx, 1.23, cz - .17); g.add(capLidPiv);
+    pbox(.50, .07, .38, PM(0xa88238, .3, .8), 0, .035, .17, capLidPiv);
+    pbox(.08, .05, .04, goldM, 0, .02, .36, capLidPiv);
     addCol(cx - .65, cx + .65, cz - .65, cz + .65);
-    world.props.push({ kind: 'robj', k: 'lake_capsule', t: 'mega15k', floor: 0, x: cx, z: cz + 1.25, y: 1.1, r: 2.2, label: '호심정 정자 위 1998 졸업생 봉인함 열기' });
+    world.props.push({ kind: 'robj', k: 'lake_capsule', t: 'mega15k', floor: 0, x: cx, z: cz + 1.25, y: 1.1, r: 2.2, label: '호심정 정자 위 1998 졸업생 봉인함 열기', anim: { type: 'lid', lidPiv: capLidPiv, openAngle: -1.45, t: 0, active: false } });
 
     const padM = PM(0x2d6a36, .8);
     [[-8, -4], [-11, 3], [-6, 5], [7, -5], [10, 2], [6, 6], [-12, -6], [12, -3]].forEach(([ox, oz]) => {
@@ -306,10 +318,12 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
     // 홀 중앙: 태양계 행성 모형 (Orrery) + 애니메이션 .glb 결합
     pcyl(1.4, 1.6, .85, darkMetal, cx, .425, cz, g, { seg: 16 });
     pmesh(new THREE.SphereGeometry(.48, 16, 14), new THREE.MeshStandardMaterial({ color: 0xffd040, emissive: 0xff9810, emissiveIntensity: .9 }), cx, 1.85, cz, g);
+    const orreryPiv = new THREE.Group(); orreryPiv.userData.dynamic = true; orreryPiv.position.set(cx, 1.85, cz); g.add(orreryPiv);
     [1.1, 1.7, 2.3].forEach((r, ri) => {
+      const ringG = new THREE.Group(); ringG.userData.dynamic = true; orreryPiv.add(ringG);
       const ring = new THREE.Mesh(new THREE.TorusGeometry(r, .018, 8, 32), chromeM);
-      ring.rotation.x = Math.PI / 2; ring.position.set(cx, 1.85, cz); g.add(ring);
-      pmesh(new THREE.SphereGeometry(.14 + ri * .04, 12, 10), PM([0x3888ff, 0xe05838, 0xd8b068][ri], .4), cx + Math.cos(ri * 2.1) * r, 1.85, cz + Math.sin(ri * 2.1) * r, g);
+      ring.rotation.x = Math.PI / 2; ringG.add(ring);
+      pmesh(new THREE.SphereGeometry(.14 + ri * .04, 12, 10), PM([0x3888ff, 0xe05838, 0xd8b068][ri], .4), Math.cos(ri * 2.1) * r, 0, Math.sin(ri * 2.1) * r, ringG);
     });
     addCol(cx - 1.6, cx + 1.6, cz - 1.6, cz + 1.6);
     pbox(1.4, .85, 3.4, darkMetal, cx + 6.8, .425, cz, g);
@@ -319,7 +333,7 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
     });
     addCol(cx + 6.0, cx + 7.6, cz - 1.7, cz + 1.7);
     pmesh(new THREE.PlaneGeometry(3.8, 1.8), new THREE.MeshBasicMaterial({ map: makeSign('1998.10.12 천체 성도 좌표 — 황도 12궁 & 페가수스자리 관측 중', '#0c1828', '#70e8ff', 20) }), cx + W / 2 - .06, 2.25, cz, g, { ry: -Math.PI / 2, cast: false });
-    world.props.push({ kind: 'robj', k: 'astro_console', t: 'mega15k', floor: 0, x: cx + 5.4, z: cz, y: 1.1, r: 2.2, label: '천체관측소 성도 주파수 콘솔 조작하기' });
+    world.props.push({ kind: 'robj', k: 'astro_console', t: 'mega15k', floor: 0, x: cx + 5.4, z: cz, y: 1.1, r: 2.2, label: '천체관측소 성도 주파수 콘솔 조작하기', anim: { type: 'orrery', orreryPiv, t: 0, active: false } });
 
     [-6.4, 6.4].forEach(dz => {
       pbox(4.8, .95, .85, woodDark, cx, .475, cz + dz, g);
@@ -431,7 +445,9 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
       const spS = new THREE.Sprite(new THREE.SpriteMaterial({ map: makeGlowTex('255,245,215'), blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, opacity: .65 }));
       spS.scale.setScalar(8.5); spS.position.set(cx + lx, 7.2, cz + lz); g.add(spS);
     });
-    world.props.push({ kind: 'robj', k: 'sports_cooler', t: 'mega15k', floor: 0, x: cx + 6.8, z: cz + 6.8, y: .6, r: 2.2, label: '야구부 덕아웃 아이스박스 열기' });
+    const coolerLidPiv = new THREE.Group(); coolerLidPiv.userData.dynamic = true; coolerLidPiv.position.set(cx + 6.8, .58, cz + 8.06); g.add(coolerLidPiv);
+    pbox(.87, .07, .57, whiteWall, 0, .035, -.28, coolerLidPiv);
+    world.props.push({ kind: 'robj', k: 'sports_cooler', t: 'mega15k', floor: 0, x: cx + 6.8, z: cz + 6.8, y: .6, r: 2.2, label: '야구부 덕아웃 아이스박스 열기', anim: { type: 'lid', lidPiv: coolerLidPiv, openAngle: 1.45, t: 0, active: false } });
     chunks.push({ id: 'chunk_sports', g, x: cx, z: cz });
   }
 
@@ -461,9 +477,19 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
     [[-1.2, -.65], [1.2, -.65], [-1.2, .65], [1.2, .65]].forEach(([lx, lz]) => pbox(.06, .74, .06, darkMetal, cx + 4.2 + lx, .37, cz - 3.6 + lz, g));
     pbox(.04, .18, 1.56, whiteWall, cx + 4.2, .85, cz - 3.6, g);
     addCol(cx + 2.7, cx + 5.7, cz - 4.5, cz - 2.7);
-    for (let k = 0; k < 4; k++) pbox(.68, 1.85, .55, PM(0x4a5860, .5, .4), cx + 3.0 + k * .74, .925, cz + D / 2 - .38, g);
+    let unionLockerDoorPiv = null;
+    for (let k = 0; k < 4; k++) {
+      const lx = cx + 3.0 + k * .74;
+      pbox(.68, 1.85, .50, PM(0x4a5860, .5, .4), lx, .925, cz + D / 2 - .36, g);
+      if (k === 1) {
+        const piv = new THREE.Group(); piv.userData.dynamic = true; piv.position.set(lx - .33, .925, cz + D / 2 - .62); g.add(piv);
+        pbox(.66, 1.80, .035, PM(0x55646d, .45, .5), .33, 0, -.015, piv);
+        pbox(.04, .18, .04, goldM, .55, .10, -.04, piv);
+        unionLockerDoorPiv = piv;
+      }
+    }
     addCol(cx + 2.6, cx + 5.8, cz + D / 2 - .75, cz + D / 2);
-    world.props.push({ kind: 'robj', k: 'union_locker', t: 'mega15k', floor: 0, x: cx + 4.2, z: cz + D / 2 - 1.2, y: 1.1, r: 2.2, label: '동아리연합회 보관함 파밍하기' });
+    world.props.push({ kind: 'robj', k: 'union_locker', t: 'mega15k', floor: 0, x: cx + 4.2, z: cz + D / 2 - 1.2, y: 1.1, r: 2.2, label: '동아리연합회 보관함 파밍하기', anim: { type: 'hinge', doorPiv: unionLockerDoorPiv, openAngle: 1.45, t: 0, active: false } });
     chunks.push({ id: 'chunk_union', g, x: cx, z: cz });
   }
 
@@ -517,7 +543,7 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
     window.__campusAnimMixers = mixers;
 
     const loadCachedGlb = url => {
-      const fullUrl = url + '?v=136';
+      const fullUrl = url + '?v=139';
       let p = glbCache.get(fullUrl);
       if (!p) {
         p = new Promise(resolve => {
@@ -762,11 +788,10 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
       const dt = Math.min(.066, (now - lastAnimT) / 1000); lastAnimT = now;
       const g = window.__g;
       const pf = g?.P?.floor ?? 0, px = g?.P?.x ?? 0, pz = g?.P?.z ?? 0;
-      if (pf === 0) {
-        for (let i = 0; i < mixers.length; i++) {
-          const mx = mixers[i], u = mx.userData;
-          if (!u || Math.hypot(u.x - px, u.z - pz) < 48) mx.update(dt);
-        }
+      for (let i = 0; i < mixers.length; i++) {
+        const mx = mixers[i], u = mx.userData;
+        const mf = u?.floor ?? 0;
+        if (pf === mf && (!u || Math.hypot(u.x - px, u.z - pz) < 48)) mx.update(dt);
       }
       requestAnimationFrame(tickCampusAnims);
     };

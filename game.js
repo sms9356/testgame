@@ -10,15 +10,15 @@ import { createNPCVisuals } from './npcVisuals.js';
 import { applyGuardSeatedPose } from './guardSeatedPose.js';
 import { createCampusCctvLive, collectCampusCctvFeeds } from './campusCctvLive.js';
 import { applyExteriorFloorVisibility, shouldStreamGuardCctv } from './exteriorRenderBudget.js';
-import { GUARD_LAYOUT } from './guardRoomLayout.js?v=138';
-import { installGuardRoom } from './guardRoom.js?v=138';
+import { GUARD_LAYOUT } from './guardRoomLayout.js?v=139';
+import { installGuardRoom } from './guardRoom.js?v=139';
 import { prepareModelGeometry } from './modelGeometry.js';
 import { modelFootprint, overlaps, removeDuplicateModels } from './placement.js';
-import { turfMaterial } from './campusVisuals.js?v=138';
+import { turfMaterial } from './campusVisuals.js?v=139';
 import { installInfirmaryAssets, updateInfirmaryCabinets } from './infirmaryAssets.js';
-import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js?v=138'; import { updateWindowFakes } from './windowInteriors.js?v=138';
-import { drawMap } from './map.js?v=138';
-import { buildMegaCampus15000, MEGA_CAMPUS_ZONES } from './megaCampus15000.js?v=138';
+import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js?v=139'; import { updateWindowFakes } from './windowInteriors.js?v=139';
+import { drawMap } from './map.js?v=139';
+import { buildMegaCampus15000, MEGA_CAMPUS_ZONES } from './megaCampus15000.js?v=139';
 import { makeDress, makeHair, makeGhostFace, makeGraffiti, makeKeypad, loadPBR, pbr, makeGlow as makeGlowTex, makePaintingStare, makeSign, makeBlood } from './tex.js';
 import { warmUp } from './bake.js';
 import { createStaticDistanceLOD } from './staticDistanceLOD.js';
@@ -39,12 +39,12 @@ import './school37RoomsPatch.js';    // 본관 · 별관 37개 특별실 가구 
 import './new37UniquePatch.js';     // 37개 구역 신규 특수 설비 · 벽면 레일 (사용자 제공) → window.new37UniquePatch
 import './megaExpansionPatch.js';   // 메가 익스팬션 · 최적화 · 4막 사건 기록 · 수집품 · 미니게임 (사용자 제공) → window.megaSchoolPatch
 import './poolMachineryPatch.js';     // 수영장 · 남/녀 탈의실·샤워실 · 기계실 철문 (사용자 제공) → window.poolAndMachineryPatch
-import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx } from './audio.js?v=138'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=138'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera } from './perfStabilizer.js';
-import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js?v=138';
-import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, SIDEQUESTS, HEADQUEST, COLLECT, LOCKER_SCARES, CHALK_QA, OUIJA_QS, PARA, TOILET_FX, MIRROR_WORDS } from './story.js?v=138';
+import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx } from './audio.js?v=139'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=139'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera } from './perfStabilizer.js';
+import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js?v=139';
+import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, SIDEQUESTS, HEADQUEST, COLLECT, LOCKER_SCARES, CHALK_QA, OUIJA_QS, PARA, TOILET_FX, MIRROR_WORDS } from './story.js?v=139';
 import { isSpeechBusy } from './voice.js';
 import { SET, saveSET, resetSET, DIFF, keyLabel } from './settings.js';
-import { initI18n, setLang, lang as curLang } from './i18n.js?v=138';   // 언어 패치 (한국어 · English · 日本語 · 中文)
+import { initI18n, setLang, lang as curLang } from './i18n.js?v=139';   // 언어 패치 (한국어 · English · 日本語 · 中文)
 initI18n();
 const K = () => SET.keys;
 let guardRoomController = null, guardControlProps = [], guardCctvData = null, campusCctv = null;
@@ -60,7 +60,7 @@ function syncGuardDevices() {
 function toggleGuardCCTV(persist = true) { FL.guardCctvOn = !(FL.guardCctvOn ?? true); sfx.click(); syncGuardDevices(); if (persist) save(true); return FL.guardCctvOn; }
 function toggleGuardLight() { FL.guardLightOn = !(FL.guardLightOn ?? false); sfx.click(); syncGuardDevices(); say(FL.guardLightOn ? '경비실 전등을 켰다' : '경비실 전등을 껐다', 1800); save(true); return FL.guardLightOn; }
 
-import { run as runMini, MG } from './minigames.js?v=138';
+import { run as runMini, MG } from './minigames.js?v=139';
 import { SCHEMA, BUILD, storageKeys, itemUid, propUid, doorUid, assignUids, readSlot, writeSlot, hasSlot, clearSlot, repairProgress } from './saveSystem.js';
 loadManifest().then(() => registerLines({ ...VO, ...Object.fromEntries(Object.entries(STORY_NOTES).filter(([, n]) => n.text).map(([k, n]) => ['note_' + k, { spk: 'narrator', text: n.title + '. ' + n.text, parts: [n.title, n.text] }])) }));
 
@@ -1121,6 +1121,7 @@ function findInteract() {
 function interact() {
   if (!target) return;
   if (target.type === 'item') {
+    triggerInteractAnim('low');
     const it = target.it;
     if (it.kind === 'key' && got[it.idx]) { it.taken = true; it.mesh.visible = false; return; }   // 다른 경로(구역 미션)로 이미 얻은 조각
     if (it.kind === 'note') { readNote(it); return; }
@@ -1168,7 +1169,7 @@ function interact() {
     teleport(d.to);
   }
   else if (target.type === 'gate') openGate();
-  else if (target.type === 'idoor') toggleDoor(target.d);
+  else if (target.type === 'idoor') { triggerInteractAnim('reach'); toggleDoor(target.d); }
   else if (target.type === 'prop') useProp(target.p);
 }
 function toggleDoor(d, silent) {
@@ -1824,12 +1825,12 @@ function readSave(preferBackup) { try { return readSlot(localStorage, SKEYS, SCT
 // 장치 상태 복원 (시각 연출까지 맞춘다)
 function restoreProp(p, s) {
   p.tried = !!s.tried; p.fails = s.fails || 0;
-  if (p.kind === 'breaker') { p.fused = !!s.fused; if (s.on) { p.on = true; p.done = true; } return; }
+  if (p.kind === 'breaker') { p.fused = !!s.fused; if (s.on) { p.on = true; p.done = true; if (p.lev) p.lev.rotation.z = -0.45; } return; }
   if (p.kind === 'switch') { flipSwitch(p, !!s.on); return; }
   if (p.kind === 'clue' && s.done) { p.done = true; p.mesh.visible = false; return; }
   if (!s.done) return;
   p.done = true;
-  if (p.kind === 'safe') { p.open = 1; p.opening = true; p.key.locked = false; p.key.mesh.visible = !p.key.taken; }
+  if (p.kind === 'safe') { p.open = 1; p.opening = true; if (p.piv) p.piv.rotation.y = 1.95; p.key.locked = false; p.key.mesh.visible = !p.key.taken; }
   else if (p.kind === 'lock') openLockVisual(p);
   else if (p.kind === 'mina') { mina.visible = false; minaProps.visible = false; }
 }
@@ -2617,13 +2618,13 @@ function updateCamera(dt, t) {
   const bob = SET.bob ? Math.sin(P.bob) * (P.sprinting ? .05 : .028) : 0;
   P.shV = lerp(P.shV || 0, P.sh || 0, Math.min(1, dt * 14));
   P.jyV = (P.vy || 0) !== 0 ? (P.jy || 0) : lerp(P.jyV || 0, P.jy || 0, Math.min(1, dt * 16));   // 낮은 단을 걸어 오를 때 시점이 툭 튀지 않게 (점프 중엔 그대로)
-  let ey = P.hiding ? 1.45 : P.sitting ? 1.12 + P.shV : 1.62 - (P.crouchK || 0) * .55 + P.jyV + P.shV + bob * (1 - (P.crouchK || 0) * .5);
+  let ey = P.hiding ? 1.45 : P.sitting ? 1.12 + P.shV : 1.62 - (P.crouchK || 0) * .55 + P.jyV + P.shV + (INT_ANIM.dipY || 0) + bob * (1 - (P.crouchK || 0) * .5);
   camera.position.set(P.x, F.y0 + ey, P.z);
-  let yaw = P.yaw, pitch = P.pitch;
+  let yaw = P.yaw, pitch = P.pitch + (INT_ANIM.pitchAdd || 0);
   if (shake > 0) { shake = Math.max(0, shake - dt * 1.4); const k = SET.shake ? .05 : .008; yaw += (Math.random() - .5) * k * shake; pitch += (Math.random() - .5) * k * shake; }
   const G = ghost; let prox = 0, chase = false;
   if (G.active && G.storyTime > 0 && G.floor === P.floor) prox = clamp(1 - Math.hypot(G.x - P.x, G.z - P.z) / 14, 0, 1);
-  camera.rotation.set(pitch, yaw, 0, 'YXZ');
+  camera.rotation.set(pitch, yaw, INT_ANIM.rollAdd || 0, 'YXZ');
   applyThirdPerson(dt, yaw, pitch);
   const fov = SET.fov + (P.sprinting ? 6 : 0) + (chase ? 4 : 0) + (state === 'dead' ? -10 : 0) - repelK * 8;
   const nextFov = lerp(camera.fov, fov * (1 - .55 * ZOOM.k), Math.min(1, dt * 6));
@@ -2931,6 +2932,8 @@ requestAnimationFrame(frame);
 const roomLamps = p => floors[p.floor].lamps.filter(l => l.room === p.room);
 function flipSwitch(p, on, byPlayer = false) {
   p.on = on; p.tried = true;
+  if (p.key) p.key.rotation.x = on ? -0.32 : 0.32;
+  if (p.led && p.led.material) p.led.material.color.setHex(on ? 0x163822 : 0x40ff80);
   const ls = roomLamps(p), t0 = tNow;
   ls.forEach(l => { l.off = !on; l.start = on ? t0 + Math.random() * .25 : 0; l.mesh && (l.mesh.material = (!on || l.kind === 'dead') ? world.mats.matLampDead : l.mat); });
   lampTimer = 0;
@@ -2994,6 +2997,7 @@ function readMemory(p) {
 let power = false, consoleCD = 0, kpBuf = '', kpProp = null, keypadSequence = 0, kpOpening = false;
 const setTarget = t => { target = t; };
 async function useProp(p) {
+  triggerPropAnim(p);
   if (p.kind === 'fz') { fzUse(p); return; }   // 사용자 패치(5대 구역 · 실내 연결복도) 상호작용
   if (p.kind === 'switch') { flipSwitch(p, !p.on, true); return; }
   if (p.kind === 'elevator') { elvCall(p); return; }
@@ -3194,9 +3198,120 @@ function phoneMessage(n,epoch=storySession) {
   refreshHud();
   setTimeout(() => { if (epoch!==storySession||state !== 'playing') return; talk('phone', 2600); setTimeout(() => {if(epoch===storySession&&state==='playing')line(id,'phone','📱 민아');}, 2600); }, 1200);
 }
+const INT_ANIM = { t: 0, dur: 0.42, kind: 'reach', dipY: 0, pitchAdd: 0, rollAdd: 0, reachK: 0 };
+function triggerInteractAnim(kind = 'reach') {
+  INT_ANIM.kind = kind;
+  INT_ANIM.dur = kind === 'low' ? 0.52 : kind === 'heavy' ? 0.58 : 0.38;
+  INT_ANIM.t = INT_ANIM.dur;
+}
+function triggerPropAnim(p) {
+  if (!p) return;
+  const py = p.y ?? 1.0;
+  triggerInteractAnim(py < 0.75 ? 'low' : (p.kind === 'safe' || p.kind === 'breaker' || p.k === 'bunker_audit') ? 'heavy' : 'reach');
+  const a = p.anim; if (!a) return;
+  a.active = !a.active; a.t = 0;
+  if (a.type === 'tape') { a.playT = 18.5; if (a.playBtn) a.playBtn.position.y = 0.066; }
+  else if (a.type === 'copier') { a.playT = 2.6; if (a.scanBar) { a.scanBar.visible = true; a.scanBar.position.x = -0.09; } if (a.paperOut) { a.paperOut.visible = true; a.paperOut.position.z = 0.08; } }
+  else if (a.type === 'water') { a.playT = 3.2; if (a.stream) { a.stream.visible = true; a.stream.material.color.setHex(0xb83228); } }
+  else if (a.type === 'chem') { a.playT = 4.0; }
+  else if (a.type === 'phone') { a.playT = 5.5; }
+  else if (a.type === 'orrery') { a.playT = 8.0; }
+}
+function updatePropAnims(dt) {
+  if (INT_ANIM.t > 0) {
+    INT_ANIM.t = Math.max(0, INT_ANIM.t - dt);
+    const ph = 1 - INT_ANIM.t / INT_ANIM.dur;
+    const s = Math.sin(ph * Math.PI);
+    INT_ANIM.reachK = s;
+    if (INT_ANIM.kind === 'low') { INT_ANIM.dipY = -0.18 * s; INT_ANIM.pitchAdd = -0.14 * s; INT_ANIM.rollAdd = 0.015 * s; }
+    else if (INT_ANIM.kind === 'heavy') { INT_ANIM.dipY = -0.05 * s; INT_ANIM.pitchAdd = 0.05 * Math.sin(ph * Math.PI * 2); INT_ANIM.rollAdd = -0.025 * s; }
+    else { INT_ANIM.dipY = -0.025 * s; INT_ANIM.pitchAdd = -0.035 * s; INT_ANIM.rollAdd = 0.018 * s; }
+  } else {
+    INT_ANIM.dipY = INT_ANIM.pitchAdd = INT_ANIM.rollAdd = INT_ANIM.reachK = 0;
+  }
+  for (let i = 0; i < world.props.length; i++) {
+    const p = world.props[i];
+    if (p.kind === 'safe' && p.opening) {
+      if (p.open < 1) p.open = Math.min(1, p.open + dt * 1.25);
+      if (p.piv) p.piv.rotation.y = easeOut(p.open) * 1.95;
+    }
+    if (p.kind === 'breaker' && p.lev) {
+      const tz = p.on ? -0.45 : -2.4;
+      p.lev.rotation.z += (tz - p.lev.rotation.z) * Math.min(1, dt * 10);
+    }
+    if (p.kind === 'bell' && p.cd > 0) p.cd -= dt;
+    const a = p.anim; if (!a || p.floor !== P.floor) continue;
+    a.t += dt;
+    if (a.type === 'tape') {
+      if (a.playT > 0) {
+        a.playT = Math.max(0, a.playT - dt);
+        if (a.reelL) a.reelL.rotation.y -= dt * 4.8;
+        if (a.reelR) a.reelR.rotation.y -= dt * 4.2;
+        if (a.led) { const pulse = 0.65 + 0.35 * Math.sin(tNow * 14); if (a.led.scale) a.led.scale.setScalar(0.11 + pulse * 0.04); }
+        if (a.playT <= 0 && a.playBtn) a.playBtn.position.y = 0.076;
+      }
+    } else if (a.type === 'med' && a.doorPiv) {
+      const targetY = (a.active || p.done) ? -1.35 : 0;
+      a.doorPiv.rotation.y += (targetY - a.doorPiv.rotation.y) * Math.min(1, dt * 8);
+    } else if (a.type === 'hinge' && a.doorPiv) {
+      const targetY = (a.active || p.got) ? (a.openAngle || 1.45) : 0;
+      a.doorPiv.rotation.y += (targetY - a.doorPiv.rotation.y) * Math.min(1, dt * 8);
+    } else if (a.type === 'lid' && a.lidPiv) {
+      const targetX = (a.active || p.got) ? (a.openAngle || -1.45) : 0;
+      a.lidPiv.rotation.x += (targetX - a.lidPiv.rotation.x) * Math.min(1, dt * 8);
+    } else if (a.type === 'cards' && a.drawer) {
+      const targetZ = a.active ? 0.45 : 0.305;
+      a.drawer.position.z += (targetZ - a.drawer.position.z) * Math.min(1, dt * 9);
+    } else if (a.type === 'phone' && a.handset) {
+      if (a.playT > 0) a.playT = Math.max(0, a.playT - dt);
+      const on = a.playT > 0;
+      a.handset.position.z += ((on ? 0.17 : 0.09) - a.handset.position.z) * Math.min(1, dt * 8);
+      a.handset.position.y += ((on ? 0.04 : 0) - a.handset.position.y) * Math.min(1, dt * 8);
+      a.handset.rotation.z += ((on ? -0.32 : 0) - a.handset.rotation.z) * Math.min(1, dt * 8);
+    } else if (a.type === 'copier') {
+      if (a.playT > 0) {
+        a.playT = Math.max(0, a.playT - dt);
+        const k = 1 - a.playT / 2.6;
+        if (a.scanBar) a.scanBar.position.x = -0.09 + Math.sin(k * Math.PI) * 0.18;
+        if (a.paperOut && k > 0.4) a.paperOut.position.z = 0.08 + Math.min(1, (k - 0.4) / 0.6) * 0.11;
+        if (a.playT <= 0 && a.scanBar) a.scanBar.visible = false;
+      }
+    } else if (a.type === 'water') {
+      if (a.playT > 0) {
+        a.playT = Math.max(0, a.playT - dt);
+        if (a.stream) {
+          a.stream.visible = true;
+          if (a.playT < 1.6) a.stream.material.color.setHex(0x88ccff);
+          a.stream.scale.x = a.stream.scale.z = 0.85 + 0.25 * Math.sin(tNow * 24);
+        }
+        if (a.playT <= 0 && a.stream) a.stream.visible = false;
+      }
+    } else if (a.type === 'chem' && a.flasks) {
+      if (a.playT > 0) {
+        a.playT = Math.max(0, a.playT - dt);
+        a.flasks.forEach((f, idx) => {
+          f.rotation.z = Math.sin(tNow * 16 + idx) * 0.12;
+          if (p.done && idx === 0) { f.material.color.setHex(0x30ff88); f.material.emissive.setHex(0x30ff88); f.material.emissiveIntensity = 1.2; }
+        });
+      } else {
+        a.flasks.forEach(f => { f.rotation.z = 0; });
+      }
+    } else if (a.type === 'orrery' && a.orreryPiv) {
+      if (a.playT > 0) a.playT = Math.max(0, a.playT - dt);
+      const spd = (a.playT > 0 ? 2.6 : 0.28) * dt;
+      a.orreryPiv.children.forEach((rg, ri) => { rg.rotation.y += spd * (ri === 0 ? 1.4 : ri === 1 ? -0.9 : 0.6); });
+    } else if ((a.type === 'snack' || a.type === 'ballot') && a.box) {
+      const bounce = a.t < 0.45 ? Math.sin((a.t / 0.45) * Math.PI) * 0.12 : 0;
+      a.box.rotation.x = bounce;
+    } else if (a.type === 'radio' && a.ant) {
+      const targetY = a.active ? 0.28 : 0.22;
+      a.ant.position.y += (targetY - a.ant.position.y) * Math.min(1, dt * 8);
+    }
+  }
+}
 function updateEvents(dt) {
   if (consoleCD > 0) consoleCD -= dt;
-  for (const p of world.props) { if (p.kind === 'safe' && p.opening && p.open < 1) p.open = Math.min(1, p.open + dt * 1.2); if (p.kind === 'bell' && p.cd > 0) p.cd -= dt; }
+  updatePropAnims(dt);
   // 환영 처리: 손전등으로 바라보면 사라진다
   if (appar.visible) {
     apparT -= dt;
@@ -3585,7 +3700,7 @@ function applyThirdPerson(dt, yaw, pitch) {
   const third = view === 3 && !P.inElev && !P.hiding && state !== 'dead' && state !== 'intro' && state !== 'menu';
   camDistNow = lerp(camDistNow, third ? SET.camDist : 0, Math.min(1, dt * 7));
   const F = floors[P.floor];
-  if (camDistNow < .05) { pm.g.visible = false; flash.position.set(.12, -.08, 0); fx.cone.position.set(.12, -.08, -.15); return; }
+  if (camDistNow < .05) { pm.g.visible = false; const rk = INT_ANIM.reachK || 0; flash.position.set(.12 - rk * .03, -.08 + rk * .025, -rk * .08); fx.cone.position.set(.12 - rk * .03, -.08 + rk * .025, -.15 - rk * .08); return; }
   const fx3 = -Math.sin(yaw) * Math.cos(pitch), fy3 = Math.sin(pitch), fz3 = -Math.cos(yaw) * Math.cos(pitch), rx = Math.cos(yaw), rz = -Math.sin(yaw);
   const pivY = F.y0 + 1.62 - (P.crouchK || 0) * .5 + (P.jy || 0) + (P.shV || 0);
   let d = camDistNow; const side = .42 * Math.min(1, camDistNow / 1.2);
@@ -3605,7 +3720,8 @@ function applyThirdPerson(dt, yaw, pitch) {
   pm.chest.rotation.x = cr * .35 + run * .18;
   pm.legs.forEach((l, i) => { const s2 = i ? -sw : sw; l.rotation.x = (air ? -.7 : 0) + s2 - cr * 1.05; });
   pm.knees.forEach((k, i) => { const s2 = i ? -Math.sin(ph) : Math.sin(ph); k.rotation.x = (air ? 1.1 : 0) + Math.max(0, s2) * amp * 1.2 + cr * 1.7; });
-  pm.arms[0].rotation.x = -sw * .9 - cr * .3; pm.arms[0].rotation.z = .1; pm.elbows[0].rotation.x = -.25 - run * .9;
+  const rk = INT_ANIM.reachK || 0;
+  pm.arms[0].rotation.x = -sw * .9 - cr * .3 - rk * 1.15; pm.arms[0].rotation.z = .1 - rk * .08; pm.elbows[0].rotation.x = -.25 - run * .9 - rk * .45;
   pm.arms[1].rotation.x = P.light ? -1.2 - pitch * .8 : sw * .9; pm.arms[1].rotation.z = -.1; pm.elbows[1].rotation.x = P.light ? -.15 : -.25 - run * .9;
   pm.head.rotation.x = -pitch * .45 - pm.chest.rotation.x * .6;
   pm.torch.visible = !g.userData.characterModel;
@@ -6857,13 +6973,13 @@ function megaNotify(m) { const t = String(m).split('\n'); say(t[0].replace(/^\S+
     for (let k = 0; k < 3; k++) { const gl = new THREE.Sprite(new THREE.SpriteMaterial({ map: makeGlowTex('255,190,110'), blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, opacity: .45 })); gl.scale.setScalar(3.8); gl.position.set(bx, H - .35, bz - 6 + k * 6); gl.userData.dynamic = true; R.add(gl); }
     {
       const bLoader = new GLTFLoader();
-      bLoader.load('assets/models/sf/sf_bunker_props_pack.glb?v=138', gltf => {
+      bLoader.load('assets/models/sf/sf_bunker_props_pack.glb?v=139', gltf => {
         const bm = gltf.scene; bm.position.set(bx, 0, z0 + .45);
         if (window.__upgradePure3DScene) window.__upgradePure3DScene(bm); else bm.traverse(o => { o.userData.dynamic = true; });
         R.add(bm);
         if (gltf.animations && gltf.animations.length) { const mx = new THREE.AnimationMixer(bm); gltf.animations.forEach(c => mx.clipAction(c).play()); (window.__campusAnimMixers ||= []).push(mx); }
       }, undefined, () => {});
-      bLoader.load('assets/models/sf/sf_pump_policeline_scene.glb?v=138', gltf => {
+      bLoader.load('assets/models/sf/sf_pump_policeline_scene.glb?v=139', gltf => {
         const pm = gltf.scene; pm.position.set(24.0, 0, -3.65);
         pm.traverse(o => { o.userData.dynamic = true; if (o.isMesh) { o.castShadow = false; o.receiveShadow = true; if (o.material?.map) o.material.map.colorSpace = THREE.SRGBColorSpace; } });
         R.add(pm);

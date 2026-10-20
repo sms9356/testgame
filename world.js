@@ -4,11 +4,11 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { NOTES } from './story.js?v=169';
+import { NOTES } from './story.js?v=170';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=169';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=170';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -333,7 +333,8 @@ export function buildWorld(scene) {
       targetGrp.add(boxMesh(x1, x2, y1, y2, z1, z2, mat));
       return;
     }
-    const splitY = 1.12, pad = 0.012;
+    const baseY = Math.floor((y1 + 0.05) / FH) * FH;
+    const splitY = baseY + 1.12, ceilY = baseY + CH, pad = 0.012;
     if (y1 < splitY) {
       const yb = Math.min(y2, splitY);
       targetGrp.add(boxMesh(x1, x2, y1, yb, z1, z2, mWainscot98, 2));
@@ -342,17 +343,17 @@ export function buildWorld(scene) {
       const ya = Math.max(y1, splitY);
       targetGrp.add(boxMesh(x1, x2, ya, y2, z1, z2, mPlaster98, 3));
     }
-    // 하단 3D 걸레받이 (y: 0 ~ 0.095m)
-    if (y1 <= 0.05 && y2 >= 0.12) {
-      targetGrp.add(boxMesh(x1 - pad, x2 + pad, y1, Math.min(y2, 0.095), z1 - pad, z2 + pad, mBaseboard98, 2));
+    // 하단 3D 걸레받이 (baseY ~ baseY + 0.095m)
+    if (y1 <= baseY + 0.05 && y2 >= baseY + 0.12) {
+      targetGrp.add(boxMesh(x1 - pad, x2 + pad, y1, Math.min(y2, baseY + 0.095), z1 - pad, z2 + pad, mBaseboard98, 2));
     }
-    // 중단 3D 원목 허리몰딩 (Chair Rail, y: 1.095 ~ 1.155m)
+    // 중단 3D 원목 허리몰딩 (Chair Rail, splitY - 0.025 ~ splitY + 0.035m)
     if (y1 <= splitY && y2 >= splitY + 0.04) {
       targetGrp.add(boxMesh(x1 - pad * 1.3, x2 + pad * 1.3, splitY - 0.025, splitY + 0.035, z1 - pad * 1.3, z2 + pad * 1.3, mChairRail98, 2));
     }
-    // 상단 3D 천장 몰딩 (Crown Trim, y: CH - 0.045 ~ CH)
-    if (y2 >= CH - 0.05 && y2 <= CH + 0.05 && y1 < CH - 0.1) {
-      targetGrp.add(boxMesh(x1 - pad, x2 + pad, y2 - 0.045, y2, z1 - pad, z2 + pad, mChairRail98, 2));
+    // 상단 3D 천장 몰딩 (Crown Trim, ceilY - 0.045 ~ ceilY)
+    if (y2 >= ceilY - 0.05 && y2 <= ceilY + 0.45 && y1 < ceilY - 0.1) {
+      targetGrp.add(boxMesh(x1 - pad, x2 + pad, ceilY - 0.045, ceilY, z1 - pad, z2 + pad, mChairRail98, 2));
     }
   }
   function wallSeg(x1, x2, z1, z2, y1, y2, shell = false) {
@@ -1875,9 +1876,36 @@ export function buildWorld(scene) {
 
     const room = (dy) => {
       const wMat = mWall;
+      const tf = dy > 0 ? (cur.f === 4 ? 0 : cur.f + 1) : (cur.f === 0 ? 4 : cur.f - 1);
+      const hasNorthPass = !cur.annex && tf >= 0 && tf <= 2;
       buildLayered1998Wall(cur.interior, cx - 4.15, cx - 3.85, -9.9, -1.75, dy, dy + FH, wMat);
-      buildLayered1998Wall(cur.interior, cx - 4.15, cx + 4.15, -9.9, -9.6, dy, dy + FH, wMat);
+      if (hasNorthPass) {
+        buildLayered1998Wall(cur.interior, cx - 4.15, cx + .05, -9.9, -9.6, dy, dy + FH, wMat);
+        buildLayered1998Wall(cur.interior, cx + 1.55, cx + 4.15, -9.9, -9.6, dy, dy + FH, wMat);
+        buildLayered1998Wall(cur.interior, cx + .05, cx + 1.55, -9.9, -9.6, dy + 2.45, dy + FH, wMat);
+        add(mWoodDark, .12, 2.45, .28, cx + .05, dy, -9.75);
+        add(mWoodDark, .12, 2.45, .28, cx + 1.55, dy, -9.75);
+        add(mWoodDark, 1.62, .12, .28, cx + .8, dy + 2.45, -9.75);
+        flat(cur.interior, mFloorTile, cx + .05, cx + 1.55, -10.2, -9.5, dy + .012);
+        const lbl = tf === 0 ? '후문 · 필로티 광장 (별관 1F 직결) ↑' : (tf + 1) + '층 구름다리 통로 (별관 ' + (tf + 1) + 'F 직결) ↑';
+        plane(cur.interior, new THREE.MeshBasicMaterial({ map: T.makeSign(lbl, '#182c38', '#d8f0e8', 22), color: 0x9aa59a }), 1.85, .32, cx + .8, dy + 2.75, -9.56);
+      } else {
+        buildLayered1998Wall(cur.interior, cx - 4.15, cx + 4.15, -9.9, -9.6, dy, dy + FH, wMat);
+      }
       buildLayered1998Wall(cur.interior, cx + 3.85, cx + 4.15, -9.9, -1.75, dy, dy + FH, wMat);
+      // 위/아래층 계단실에서도 엘리베이터 샤프트 전면벽 및 출입문이 끊기지 않고 일체형으로 보이도록 시공!
+      {
+        const bay = elevatorBay(cx), ex = bay.doorX, ez = bay.doorZ;
+        buildLayered1998Wall(cur.interior, bay.front, bay.front + .2, bay.z1, ez - bay.halfOpening, dy, dy + FH, wMat);
+        buildLayered1998Wall(cur.interior, bay.front, bay.front + .2, ez + bay.halfOpening, bay.z2, dy, dy + FH, wMat);
+        buildLayered1998Wall(cur.interior, bay.front, bay.front + .2, ez - bay.halfOpening, ez + bay.halfOpening, dy + 2.4, dy + FH, wMat);
+        const eg = new THREE.Group(); eg.position.set(ex, dy, ez); eg.rotation.y = -Math.PI / 2; cur.interior.add(eg);
+        const efr = new THREE.Mesh(merge([bx(.14, 2.4, .1, -.87, 1.2, 0), bx(.14, 2.4, .1, .87, 1.2, 0), bx(1.88, .16, .1, 0, 2.44, 0)]), mChrome); efr.position.z = .08; eg.add(efr);
+        [-.4, .4].forEach(dx => { const ed = new THREE.Mesh(new THREE.BoxGeometry(.8, 2.36, .04), mMetal); ed.position.set(dx, 1.18, 0); eg.add(ed); });
+        const eind = new THREE.Mesh(new THREE.PlaneGeometry(.5, .2), new THREE.MeshBasicMaterial({ map: T.makeSign(EL_LABEL[tf] || '', '#120806', '#ff5a2a', 34), color: 0xffb090 })); eind.position.set(0, 2.72, .09); eg.add(eind);
+        const epnl = new THREE.Mesh(new THREE.BoxGeometry(.14, .3, .03), mChrome); epnl.position.set(1.15, 1.25, .085); eg.add(epnl);
+        plane(cur.interior, new THREE.MeshStandardMaterial({ map: T.makeSign('승강기 · 정원 9명', '#d8d4c8', '#2a2a2a', 20), roughness: .8 }), .6, .14, bay.front - .015, dy + 1.75, ez - 1.15, -Math.PI / 2);
+      }
       buildLayered1998Wall(cur.interior, cx - 4.15, cx - 1, -1.75, -1.45, dy, dy + CH, wMat);
       buildLayered1998Wall(cur.interior, cx + 1, cx + 4.15, -1.75, -1.45, dy, dy + CH, wMat);
       buildLayered1998Wall(cur.interior, cx - 1, cx + 1, -1.75, -1.45, dy + 2.4, dy + CH, wMat);
@@ -1886,9 +1914,12 @@ export function buildWorld(scene) {
       flat(cur.interior, mCeil, cx - 4.15, cx + 4.15, -1.75, 1.45, dy + CH, 4, false);
       floorPiece(cx - 4.15, cx + 4.15, -1.45, 1.45, dy);
       if (dy > 0) {
+        floorPiece(cx - 4, cw, -9.6, -1.75, dy);
         floorPiece(hx2, cx + 4, -9.6, -1.75, dy);
         floorPiece(cw, hx2, hz2, -1.75, dy);
       }
+      // 위/아래층 계단실 천장 조명 추가 (계단 이동 중에도 위/아래층 계단참 바닥이 어둡게 묻히지 않고 환하게 비춰지도록 보장!)
+      cur.lamps.push({ x: cx + .9, y: cur.y0 + dy + CH - .5, z: -5.6, kind: 'on', mat: matLampOn });
     };
 
     { const cx1 = cx - 3.85; meshAt(merge([bx(.04, FH - CH, -3.0 + 9.6, hx2 + .02, (CH + FH) / 2, (-9.6 - 3.0) / 2), bx(hx2 - cx1, FH - CH, .04, (cx1 + hx2) / 2, (CH + FH) / 2, -2.98)]), mUnderSlab, 0, 0, 0); }

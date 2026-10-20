@@ -517,7 +517,7 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
     window.__campusAnimMixers = mixers;
 
     const loadCachedGlb = url => {
-      const fullUrl = url + '?v=135';
+      const fullUrl = url + '?v=136';
       let p = glbCache.get(fullUrl);
       if (!p) {
         p = new Promise(resolve => {
@@ -528,20 +528,107 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
       return p;
     };
 
+    // 순수 3D Blender 멀티-PBR 다각형 모델용 고해상도 절차적 PBR 재질 텍스처(나뭇결·가죽결·금속헤어라인·석재·벽돌·패브릭 직조 + 범프맵) 및 Box-Projection UV 생성기!
+    const pbrMatCache = new Map();
+    const getBlenderPbrMaterial = origMat => {
+      if (!origMat || origMat.map) return origMat;
+      const key = origMat.name || origMat.uuid;
+      if (pbrMatCache.has(key)) return pbrMatCache.get(key);
+      const nm = origMat.name || '';
+      const c = document.createElement('canvas'); c.width = c.height = 256;
+      const ctx = c.getContext('2d');
+      const baseHex = origMat.color ? '#' + origMat.color.getHexString() : '#555555';
+      ctx.fillStyle = baseHex; ctx.fillRect(0, 0, 256, 256);
+      let seed = 1337; const rnd = () => { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return seed / 4294967296; };
+      if (/Walnut|Oak|Wood/i.test(nm)) {
+        // 리얼 원목 나뭇결 섬유 & 옹이 패턴
+        for (let y = 0; y < 256; y += 2) {
+          ctx.fillStyle = y % 4 === 0 ? 'rgba(18,10,4,0.22)' : 'rgba(255,220,180,0.07)';
+          ctx.fillRect(0, y, 256, 1 + (rnd() * 2 | 0));
+        }
+        for (let i = 0; i < 180; i++) {
+          ctx.fillStyle = rnd() < .5 ? 'rgba(12,6,2,0.25)' : 'rgba(210,165,110,0.10)';
+          ctx.fillRect(rnd() * 256, rnd() * 256, 24 + rnd() * 64, 1.5);
+        }
+      } else if (/Leather/i.test(nm)) {
+        // 빈티지 가죽 엠보싱 주름 & 그레인
+        for (let i = 0; i < 900; i++) {
+          const x = rnd() * 256, y = rnd() * 256;
+          ctx.fillStyle = i % 2 ? 'rgba(10,5,2,0.24)' : 'rgba(255,215,180,0.08)';
+          ctx.fillRect(x, y, 3, 3);
+        }
+      } else if (/Plaid|Fabric|Mattress/i.test(nm)) {
+        // 패브릭 직조 위빙 & 체크무늬 패턴
+        if (/Plaid/i.test(nm)) {
+          ctx.fillStyle = 'rgba(185,45,38,0.28)';
+          for (let k = 0; k < 256; k += 32) { ctx.fillRect(k, 0, 10, 256); ctx.fillRect(0, k, 256, 10); }
+          ctx.fillStyle = 'rgba(240,215,140,0.22)';
+          for (let k = 14; k < 256; k += 32) { ctx.fillRect(k, 0, 3, 256); ctx.fillRect(0, k, 256, 3); }
+        }
+        for (let y = 0; y < 256; y += 3) for (let x = 0; x < 256; x += 3) {
+          ctx.fillStyle = ((x + y) % 6 === 0) ? 'rgba(0,0,0,0.15)' : 'rgba(255,255,255,0.06)';
+          ctx.fillRect(x, y, 2, 2);
+        }
+      } else if (/Brick/i.test(nm)) {
+        // 붉은 벽돌 & 시멘트 줄눈
+        ctx.fillStyle = 'rgba(165,158,142,0.55)';
+        for (let r = 0; r < 8; r++) {
+          const y = r * 32; ctx.fillRect(0, y, 256, 3);
+          for (let c2 = 0; c2 < 4; c2++) ctx.fillRect(((c2 * 64 + (r % 2) * 32) % 256), y, 3, 32);
+        }
+      } else {
+        // 브러시드 메탈 / 녹슨 스틸 / 화강암 스페클 마이크로 그레인
+        for (let i = 0; i < 700; i++) {
+          ctx.fillStyle = i % 3 === 0 ? 'rgba(18,14,10,0.26)' : (i % 3 === 1 ? 'rgba(95,48,24,0.16)' : 'rgba(255,250,240,0.09)');
+          ctx.fillRect(rnd() * 256, rnd() * 256, 2 + rnd() * 10, 1 + rnd() * 4);
+        }
+      }
+      const tex = new THREE.CanvasTexture(c);
+      tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+      tex.colorSpace = THREE.SRGBColorSpace;
+      const mat = origMat.clone();
+      mat.color.setHex(0xffffff);
+      mat.map = tex;
+      mat.bumpMap = tex;
+      mat.bumpScale = 0.025;
+      mat.needsUpdate = true;
+      pbrMatCache.set(key, mat);
+      return mat;
+    };
+    const ensureBoxUV = geo => {
+      if (!geo || geo.attributes.uv) return;
+      const p = geo.attributes.position, n = geo.attributes.normal;
+      if (!p || !n) return;
+      const uv = new Float32Array(p.count * 2);
+      for (let i = 0; i < p.count; i++) {
+        const x = p.getX(i), y = p.getY(i), z = p.getZ(i);
+        const nx = Math.abs(n.getX(i)), ny = Math.abs(n.getY(i)), nz = Math.abs(n.getZ(i));
+        if (ny >= nx && ny >= nz) { uv[i * 2] = x * 1.4; uv[i * 2 + 1] = z * 1.4; }
+        else if (nx >= nz) { uv[i * 2] = z * 1.4; uv[i * 2 + 1] = y * 1.4; }
+        else { uv[i * 2] = x * 1.4; uv[i * 2 + 1] = y * 1.4; }
+      }
+      geo.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+    };
+    window.__upgradePure3DScene = root => {
+      root.traverse(o => {
+        o.userData.dynamic = true;
+        if (o.isMesh) {
+          o.castShadow = false;
+          o.receiveShadow = true;
+          ensureBoxUV(o.geometry);
+          if (o.material?.map) o.material.map.colorSpace = THREE.SRGBColorSpace;
+          else if (o.material) o.material = getBlenderPbrMaterial(o.material);
+        }
+      });
+    };
     const placeGlb = (url, placements) => {
       loadCachedGlb(url).then(gltf => {
         if (!gltf) return;
+        window.__upgradePure3DScene(gltf.scene);
         placements.forEach(([px, py, pz, ry = 0, sx = 1, sy = 1, sz = 1]) => {
           const m = gltf.scene.clone(true);
           m.position.set(px, py, pz); m.rotation.y = ry; m.scale.set(sx, sy, sz);
-          m.traverse(o => {
-            o.userData.dynamic = true;
-            if (o.isMesh) {
-              o.castShadow = false; // 소품 그림자 패스 제외로 GPU 드로우콜 및 프레임 딜레이 대폭 절감!
-              o.receiveShadow = true;
-              if (o.material?.map) o.material.map.colorSpace = THREE.SRGBColorSpace;
-            }
-          });
+          m.traverse(o => { o.userData.dynamic = true; });
           OUT.add(m);
           if (gltf.animations && gltf.animations.length) {
             const mx = new THREE.AnimationMixer(m);

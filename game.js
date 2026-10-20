@@ -6,19 +6,19 @@ import { createPsychologicalDirector, PHENOMENON_LABELS } from './psychologicalH
 import { settleStoryGhost, tickStoryGhost, showStoryGhost } from './storyGhost.js';
 import { GLTFLoader } from './vendor/addons/loaders/GLTFLoader.js';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { createNPCVisuals } from './npcVisuals.js?v=165';
-import { applyGuardSeatedPose } from './guardSeatedPose.js?v=165';
+import { createNPCVisuals } from './npcVisuals.js?v=166';
+import { applyGuardSeatedPose } from './guardSeatedPose.js?v=166';
 import { createCampusCctvLive, collectCampusCctvFeeds } from './campusCctvLive.js';
-import { applyExteriorFloorVisibility, shouldStreamGuardCctv } from './exteriorRenderBudget.js?v=165';
-import { GUARD_LAYOUT } from './guardRoomLayout.js?v=165';
-import { installGuardRoom } from './guardRoom.js?v=165';
+import { applyExteriorFloorVisibility, shouldStreamGuardCctv } from './exteriorRenderBudget.js?v=166';
+import { GUARD_LAYOUT } from './guardRoomLayout.js?v=166';
+import { installGuardRoom } from './guardRoom.js?v=166';
 import { prepareModelGeometry } from './modelGeometry.js';
 import { modelFootprint, overlaps, removeDuplicateModels } from './placement.js';
-import { turfMaterial } from './campusVisuals.js?v=165';
+import { turfMaterial } from './campusVisuals.js?v=166';
 import { installInfirmaryAssets, updateInfirmaryCabinets } from './infirmaryAssets.js';
-import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js?v=165'; import { updateWindowFakes } from './windowInteriors.js?v=165';
-import { drawMap } from './map.js?v=165';
-import { buildMegaCampus15000, MEGA_CAMPUS_ZONES } from './megaCampus15000.js?v=165';
+import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js?v=166'; import { updateWindowFakes } from './windowInteriors.js?v=166';
+import { drawMap } from './map.js?v=166';
+import { buildMegaCampus15000, MEGA_CAMPUS_ZONES } from './megaCampus15000.js?v=166';
 import { makeDress, makeHair, makeGhostFace, makeGraffiti, makeKeypad, loadPBR, pbr, makeGlow as makeGlowTex, makePaintingStare, makeSign, makeBlood } from './tex.js';
 import { warmUp } from './bake.js';
 import { createStaticDistanceLOD } from './staticDistanceLOD.js';
@@ -39,12 +39,12 @@ import './school37RoomsPatch.js';    // 본관 · 별관 37개 특별실 가구 
 import './new37UniquePatch.js';     // 37개 구역 신규 특수 설비 · 벽면 레일 (사용자 제공) → window.new37UniquePatch
 import './megaExpansionPatch.js';   // 메가 익스팬션 · 최적화 · 4막 사건 기록 · 수집품 · 미니게임 (사용자 제공) → window.megaSchoolPatch
 import './poolMachineryPatch.js';     // 수영장 · 남/녀 탈의실·샤워실 · 기계실 철문 (사용자 제공) → window.poolAndMachineryPatch
-import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx } from './audio.js?v=165'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=165'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera } from './perfStabilizer.js?v=165';
-import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js?v=165';
-import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, SIDEQUESTS, HEADQUEST, COLLECT, LOCKER_SCARES, CHALK_QA, OUIJA_QS, PARA, TOILET_FX, MIRROR_WORDS } from './story.js?v=165';
+import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx } from './audio.js?v=166'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=166'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera } from './perfStabilizer.js?v=166';
+import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js?v=166';
+import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, SIDEQUESTS, HEADQUEST, COLLECT, LOCKER_SCARES, CHALK_QA, OUIJA_QS, PARA, TOILET_FX, MIRROR_WORDS } from './story.js?v=166';
 import { isSpeechBusy } from './voice.js';
 import { SET, saveSET, resetSET, DIFF, keyLabel } from './settings.js';
-import { initI18n, setLang, lang as curLang } from './i18n.js?v=165';   // 언어 패치 (한국어 · English · 日本語 · 中文)
+import { initI18n, setLang, lang as curLang } from './i18n.js?v=166';   // 언어 패치 (한국어 · English · 日本語 · 中文)
 initI18n();
 const K = () => SET.keys;
 let guardRoomController = null, guardControlProps = [], guardCctvData = null, campusCctv = null;
@@ -60,7 +60,7 @@ function syncGuardDevices() {
 function toggleGuardCCTV(persist = true) { FL.guardCctvOn = !(FL.guardCctvOn ?? true); sfx.click(); syncGuardDevices(); if (persist) save(true); return FL.guardCctvOn; }
 function toggleGuardLight() { FL.guardLightOn = !(FL.guardLightOn ?? false); sfx.click(); syncGuardDevices(); say(FL.guardLightOn ? '경비실 전등을 켰다' : '경비실 전등을 껐다', 1800); save(true); return FL.guardLightOn; }
 
-import { run as runMini, MG } from './minigames.js?v=165';
+import { run as runMini, MG } from './minigames.js?v=166';
 import { SCHEMA, BUILD, storageKeys, itemUid, propUid, doorUid, assignUids, readSlot, writeSlot, hasSlot, clearSlot, repairProgress } from './saveSystem.js';
 const NOTE_CAST = {
   n_seomun_ilbo: { spk: 'reporter', audioId: 'call_119', stage: '(📰 서문일보 사회부 한진우 기자의 긴급 특보 리포팅)' },
@@ -2658,7 +2658,7 @@ function ensureCharsel3D() {
     const rim = new THREE.DirectionalLight(0xffd6e0, 0.85); rim.position.set(0, 2.4, -2.5);
     sc.add(hemi, key, fill, rim);
     st.scenes[k] = sc;
-    loader.load(`assets/characters/${k}.glb?v=165`, gltf => {
+    loader.load(`assets/characters/${k}.glb?v=166`, gltf => {
       const m = gltf.scene;
       npcVisuals.enhanceCharacterMaterials?.(m, k);
       m.traverse(o => { if (o.isMesh || o.isSkinnedMesh) o.frustumCulled = false; });
@@ -4454,12 +4454,61 @@ const sqProps = [];
     }
     return null;
   };
-  // 가구 · 벽 충돌을 피해 비어 있는 자리로 조금씩 옮긴다
-  const freeSpot = (F, x, z, r = .32) => { const hit = (a, b) => F.col.some(c => a > c.x1 - r && a < c.x2 + r && b > c.z1 - r && b < c.z2 + r);
-    if (!hit(x, z)) return [x, z]; for (let k = 1; k < 14; k++) for (let a = 0; a < 8; a++) { const ax = x + Math.cos(a * .785) * k * .18, az = z + Math.sin(a * .785) * k * .18; if (!hit(ax, az)) return [ax, az]; } return [x, z]; };
-  const M = (c, o = {}) => new THREE.MeshStandardMaterial({ color: c, roughness: .8, ...o });
+  // 가구 · 벽 충돌을 피해 비어 있는 자리로 옮기되, 방(rm)이 지정된 경우 절대 복도나 옆방으로 벽을 뚫고 나가지 않도록 방 내부 경계로 제한한다!
+  const freeSpot = (F, x, z, r = .32, rm = null) => {
+    const inBounds = (a, b) => {
+      if (!rm) return true;
+      if (Math.abs(a - rm.cx) > 3.35) return false;
+      return rm.south ? (b >= 2.25 && b <= 8.95) : (b <= -2.25 && b >= -8.95);
+    };
+    const hit = (a, b) => !inBounds(a, b) || F.col.some(c => a > c.x1 - r && a < c.x2 + r && b > c.z1 - r && b < c.z2 + r);
+    if (!hit(x, z)) return [x, z];
+    for (let k = 1; k < 18; k++) for (let a = 0; a < 12; a++) {
+      const ang = a * (Math.PI * 2 / 12);
+      const ax = x + Math.cos(ang) * k * .18, az = z + Math.sin(ang) * k * .18;
+      if (!hit(ax, az)) return [ax, az];
+    }
+    return rm ? [Math.max(rm.cx - 3.2, Math.min(rm.cx + 3.2, x)), rm.south ? Math.max(2.4, Math.min(8.8, z)) : Math.max(-8.8, Math.min(-2.4, z))] : [x, z];
+  };
+  const M = (c, o = {}) => new THREE.MeshStandardMaterial({ color: c, roughness: .75, ...o });
+  const boardTex98 = (() => {
+    const cv = document.createElement('canvas'); cv.width = 512; cv.height = 384;
+    const ctx = cv.getContext('2d');
+    ctx.fillStyle = '#f2ead4'; ctx.fillRect(0, 0, 512, 384);
+    ctx.strokeStyle = '#3b2818'; ctx.lineWidth = 10; ctx.strokeRect(5, 5, 502, 374);
+    ctx.fillStyle = '#1d4430'; ctx.fillRect(18, 18, 476, 54);
+    ctx.fillStyle = '#f8efd8'; ctx.font = 'bold 24px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('★ 1998학년도 3년 개근 도전 현황판 ★', 256, 53);
+    ctx.fillStyle = '#2c2218'; ctx.font = 'bold 17px sans-serif'; ctx.textAlign = 'left';
+    ctx.fillText('성명 : 윤 하 늘 (무결석 개근 도전 중)', 28, 100);
+    ctx.strokeStyle = '#7a6c55'; ctx.lineWidth = 2;
+    for (let r = 0; r < 3; r++) for (let c = 0; c < 6; c++) {
+      const bx = 28 + c * 76, by = 116 + r * 76;
+      ctx.strokeRect(bx, by, 70, 68);
+      ctx.fillStyle = '#5a4e3c'; ctx.font = '12px sans-serif';
+      ctx.fillText((r * 6 + c + 1) + '주차', bx + 6, by + 16);
+      const isLast = r === 2 && c === 5;
+      if (!isLast) {
+        ctx.fillStyle = '#d98a18'; ctx.font = 'bold 30px sans-serif';
+        ctx.fillText('★', bx + 20, by + 54);
+      } else {
+        ctx.fillStyle = '#a82820'; ctx.font = 'bold 13px sans-serif';
+        ctx.fillText('10.13 공란', bx + 5, by + 46);
+      }
+    }
+    const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; return t;
+  })();
   const LOOK = {
-    board: () => { const g = new THREE.Group(), b = new THREE.Mesh(new THREE.BoxGeometry(.5, .36, .02), M(0xd8cfb8)); b.position.y = .62; b.rotation.x = -.35; g.add(b); for (let i = 0; i < 12; i++) { const s = new THREE.Mesh(new THREE.CircleGeometry(.018, 5), new THREE.MeshBasicMaterial({ color: i === 11 ? 0x333333 : 0xe8c040 })); s.position.set(-.18 + (i % 6) * .07, .66 - ((i / 6) | 0) * .1, .02); s.rotation.x = -.35; g.add(s); } return g; },
+    board: () => {
+      const g = new THREE.Group();
+      const frame = new THREE.Mesh(new THREE.BoxGeometry(.56, .42, .03), M(0x3b2414, { roughness: .55 }));
+      frame.position.y = .68; frame.rotation.x = -.22; g.add(frame);
+      const face = new THREE.Mesh(new THREE.PlaneGeometry(.50, .36), new THREE.MeshStandardMaterial({ map: boardTex98, roughness: .65 }));
+      face.position.set(0, .682, .017); face.rotation.x = -.22; g.add(face);
+      const leg = new THREE.Mesh(new THREE.BoxGeometry(.04, .38, .03), M(0x3b2414));
+      leg.position.set(0, .62, -.09); leg.rotation.x = .28; g.add(leg);
+      return g;
+    },
     book: () => { const m = new THREE.Mesh(new THREE.BoxGeometry(.24, .05, .32), M(0x6a2a2a)); m.position.y = .5; return m; },
     tape: () => { const m = new THREE.Mesh(new THREE.BoxGeometry(.12, .02, .08), M(0x1a1a1c)); m.position.y = .49; return m; },
     deck: () => { const m = new THREE.Mesh(new THREE.BoxGeometry(.4, .14, .26), M(0x2a2b2e, { metalness: .4 })); m.position.y = .55; return m; },
@@ -4477,15 +4526,27 @@ const sqProps = [];
     lamp: () => { const g = new THREE.Group(), b = new THREE.Mesh(new THREE.BoxGeometry(.36, .16, .1), M(0xd8d4c4)); b.position.y = 2.2; const h = new THREE.Mesh(new THREE.BoxGeometry(.3, .08, .04), sqLampMat); h.position.set(0, 2.18, .06); g.add(b, h); return g; },
   };
   const sqLampMat = new THREE.MeshStandardMaterial({ color: 0x2a2a26, emissive: 0xfff0c8, emissiveIntensity: 0 });
-  const crate = new THREE.BoxGeometry(.42, .44, .36), crateM = M(0x6a5a44);
+  const standWoodTop = M(0x7c5332, { roughness: .52 }), standWoodDark = M(0x3e2716, { roughness: .58 }), standLegMetal = M(0x3a4044, { roughness: .45, metalness: .55 });
+  const buildQuestStand = () => {
+    const sg = new THREE.Group();
+    const top = new THREE.Mesh(new THREE.BoxGeometry(.52, .035, .42), standWoodTop); top.position.y = .455; sg.add(top);
+    const apron = new THREE.Mesh(new THREE.BoxGeometry(.46, .05, .36), standWoodDark); apron.position.y = .415; sg.add(apron);
+    const shelf = new THREE.Mesh(new THREE.BoxGeometry(.44, .02, .34), standWoodTop); shelf.position.y = .14; sg.add(shelf);
+    [[-.21, -.16], [.21, -.16], [-.21, .16], [.21, .16]].forEach(([lx, lz]) => {
+      const leg = new THREE.Mesh(new THREE.CylinderGeometry(.016, .014, .44, 8), standLegMetal);
+      leg.position.set(lx, .22, lz); sg.add(leg);
+    });
+    return sg;
+  };
   [...SIDEQUESTS, HEADQUEST].forEach(q => q.steps.forEach((st, k) => {
-    let x = st.x, z = st.z, F = floors[st.f];
-    if (st.room) { const r = roomOf(st.f, st.room); if (!r) { console.warn('[sq] 방 없음', st.room); return; } st.f = r.f; F = floors[st.f]; x = r.cx + st.dx; z = r.south ? 1.75 + st.d : -1.75 - st.d; }
-    if (st.look !== 'post' && st.look !== 'lamp' && st.look !== 'panel') [x, z] = freeSpot(F, x, z);
+    let x = st.x, z = st.z, F = floors[st.f], rmInfo = null;
+    if (st.room) { const r = roomOf(st.f, st.room); if (!r) { console.warn('[sq] 방 없음', st.room); return; } rmInfo = r; st.f = r.f; F = floors[st.f]; x = r.cx + st.dx; z = r.south ? 1.75 + st.d : -1.75 - st.d; }
+    if (st.look !== 'post' && st.look !== 'lamp' && st.look !== 'panel') [x, z] = freeSpot(F, x, z, .32, rmInfo);
     const g = new THREE.Group(); g.position.set(x, 0, z); g.userData.dynamic = true;
-    if (!['post', 'lamp', 'flower', 'plaque', 'panel', 'case'].includes(st.look)) g.add(new THREE.Mesh(crate, crateM)).position.y = .22;
+    if (!['post', 'lamp', 'flower', 'plaque', 'panel', 'case'].includes(st.look)) g.add(buildQuestStand());
     const v = LOOK[st.look](); g.add(v);
-    const gl = new THREE.Sprite(new THREE.SpriteMaterial({ map: glintTex, color: 0xffd8a0, blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, opacity: .5 })); gl.scale.setScalar(.6); gl.position.y = st.look === 'lamp' ? 2.2 : st.look === 'post' ? 1.1 : st.look === 'panel' ? 1.4 : st.look === 'case' ? 1.0 : .6; g.add(gl);
+    if (rmInfo && rmInfo.south) g.rotation.y = Math.PI;
+    const gl = new THREE.Sprite(new THREE.SpriteMaterial({ map: glintTex, color: 0xffd8a0, blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, opacity: .24 })); gl.scale.setScalar(.28); gl.position.y = st.look === 'lamp' ? 2.2 : st.look === 'post' ? 1.1 : st.look === 'panel' ? 1.4 : st.look === 'case' ? 1.0 : .78; g.add(gl);
     (st.f === 0 && !st.room ? world.OUT : F.interior).add(g);
     if (st.look === 'case' || st.look === 'plaque') { const r = st.room && roomOf(st.f, st.room); if (r && r.south) g.rotation.y = Math.PI; }   // 문 쪽(복도)을 보게
     const p = { kind: 'sq', q: q.id, k, st, floor: st.f, x, z, y: st.look === 'lamp' ? 2.0 : st.look === 'panel' ? 1.3 : .7, mesh: g, glint: gl, label: st.label, uid: `sq:${q.id}:${k}`, main: q === HEADQUEST, keyMeshes: v.userData.key };
@@ -7426,13 +7487,13 @@ function megaNotify(m) { const t = String(m).split('\n'); say(t[0].replace(/^\S+
     world.props.push({ kind: 'robj', k: 'bunker_light', t: 'bunker', floor: 4, x: bx + 1.15, z: z1 - .85, y: 1.35, r: 2.0, label: '방공호 주 전등 스위치 조작하기', bkLightGroup });
     {
       const bLoader = new GLTFLoader();
-      bLoader.load('assets/models/sf/sf_bunker_props_pack.glb?v=165', gltf => {
+      bLoader.load('assets/models/sf/sf_bunker_props_pack.glb?v=166', gltf => {
         const bm = gltf.scene; bm.position.set(bx, 0, z0 + .45);
         if (window.__upgradePure3DScene) window.__upgradePure3DScene(bm); else bm.traverse(o => { o.userData.dynamic = true; });
         R.add(bm);
         if (gltf.animations && gltf.animations.length) { const mx = new THREE.AnimationMixer(bm); mx.userData = { floor: 4, x: bx, z: z0 + .45 }; gltf.animations.forEach(c => mx.clipAction(c).play()); (window.__campusAnimMixers ||= []).push(mx); }
       }, undefined, () => {});
-      bLoader.load('assets/models/sf/sf_pump_policeline_scene.glb?v=165', gltf => {
+      bLoader.load('assets/models/sf/sf_pump_policeline_scene.glb?v=166', gltf => {
         const pm = gltf.scene; pm.position.set(24.0, 0, -3.65);
         pm.traverse(o => { o.userData.dynamic = true; if (o.isMesh) { o.castShadow = false; o.receiveShadow = true; if (o.material?.map) o.material.map.colorSpace = THREE.SRGBColorSpace; } });
         R.add(pm);

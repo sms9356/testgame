@@ -1,17 +1,42 @@
 // 미니게임: 자물쇠 따기 · 다이얼 자물쇠 · 배선 퍼즐 · 피아노 · 슬라이딩 퍼즐 · 갈고리 낚기 · 녹음 순서 · 짝 맞추기 · 주파수 · 순서 따라 하기 · 타이밍 · 분신사바
 //          + 증기 배관(압력) · 어둠 속 미로(그것 추격) · 맞물린 고리 암호 · 틀린 그림 찾기 · 퓨즈판
 // run(kind, opts) → Promise<{ ok }>. 열려 있는 동안 MG.active 가 true 이고, 키 입력은 여기서 처리한다.
-import { sfx } from './audio.js?v=118';
+import { sfx } from './audio.js?v=140';
 
 export const MG = { active: false, win: () => { if (finish) close(true); } };   // win: 디버그용 즉시 성공
 const $ = id => document.getElementById(id);
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 let finish = null, keyH = null, raf = 0, cleanups = [];
 
+function injectAltBar(title) {
+  let bar = document.getElementById('mgAltBar');
+  if (!bar) {
+    bar = document.createElement('div');
+    bar.id = 'mgAltBar';
+    bar.style.cssText = 'margin-top:10px;padding-top:9px;border-top:1px dashed rgba(210,195,155,0.28);display:flex;justify-content:center;gap:10px;flex-wrap:wrap;';
+    $('mgBody').parentElement.insertBefore(bar, $('mgCancel'));
+  }
+  bar.innerHTML = '';
+  if (!/선긋기|크로키/.test(title)) {
+    const btnLine = document.createElement('button');
+    btnLine.type = 'button';
+    btnLine.textContent = '✏ 대안 1: 선긋기(스케치 연결)로 풀기';
+    btnLine.style.cssText = 'background:#243848;color:#d8f0ff;border:1px solid #5898c8;padding:6px 13px;border-radius:4px;font-size:12.5px;font-weight:bold;cursor:pointer;';
+    btnLine.onclick = () => { if (!MG.active) return; switchToSketchLine(title); };
+    bar.appendChild(btnLine);
+  }
+  const btnDeduce = document.createElement('button');
+  btnDeduce.type = 'button';
+  btnDeduce.textContent = '💡 대안 2: 현장 단서 추리로 즉시 해독';
+  btnDeduce.style.cssText = 'background:#3a2d1d;color:#ffe6a8;border:1px solid #b89248;padding:6px 13px;border-radius:4px;font-size:12.5px;font-weight:bold;cursor:pointer;';
+  btnDeduce.onclick = () => { if (!MG.active) return; sfx.unlock(); status('현장 단서 추리로 해독 성공!', 'ok'); close(true); };
+  bar.appendChild(btnDeduce);
+}
 function open(title, hint) {
   MG.active = true;
   $('mgTitle').textContent = title; $('mgHint').innerHTML = hint || ''; $('mgStatus').textContent = ''; $('mgStatus').className = '';
   $('mgBody').innerHTML = ''; $('mg').classList.add('show');
+  injectAltBar(title);
   return new Promise(res => { finish = res; });
 }
 function close(ok) {
@@ -1421,7 +1446,143 @@ function valveBalance({ title = '수질관리실 — 3연동 배수 수압 밸�
   return p;
 }
 
+
+/* ---------- 미술실 목탄 데생 선긋기 (sketchLine) & 범용 선긋기 대안 미니게임 ---------- */
+function mountSketchLineCanvas(title) {
+  $('mgTitle').textContent = title || '🎨 미술실 이젤 — 1998 목탄 크로키 선긋기 복원';
+  $('mgHint').innerHTML = '마우스를 <b>드래그하여 ① → ⑥ 점선 가이드를 따라 선을 긋거나</b>, 각 번호 점을 클릭(또는 <b>Space / 1~6 키</b>)하여 스케치 선을 완성하세요!';
+  $('mgBody').innerHTML = '';
+  injectAltBar($('mgTitle').textContent);
+  const c = canvas(460, 290), g = c.getContext('2d');
+  c.style.cursor = 'crosshair';
+  // 6개의 데생 윤곽 포인트 (1998 과학실/방송실 창가와 실험대·마이크 실루엣)
+  const pts = [
+    { x: 68,  y: 224, label: '① 실험대 좌측' },
+    { x: 142, y: 112, label: '② 창문 프레임' },
+    { x: 232, y: 72,  label: '③ 천장 조명등' },
+    { x: 324, y: 116, label: '④ 시약장 상단' },
+    { x: 392, y: 220, label: '⑤ 배수구 라인' },
+    { x: 230, y: 236, label: '⑥ 1998.10.12 서명' }
+  ];
+  let curIdx = 0; // 연결 완료된 선 개수 (0..5)
+  let dragging = false, mx = pts[0].x, my = pts[0].y;
+  const userStrokes = [];
+
+  function advancePoint() {
+    if (curIdx >= pts.length - 1) return;
+    curIdx++;
+    sfx.paper ? sfx.paper() : sfx.click();
+    status(`목탄 데생 선긋기 진행: ${curIdx} / ${pts.length - 1} 획 완성`);
+    draw();
+    if (curIdx >= pts.length - 1) {
+      sfx.unlock();
+      status('✦ 목탄 크로키 선긋기 완성! 숨겨진 1998년 스케치가 복원되었습니다!', 'ok');
+      setTimeout(() => close(true), 450);
+    }
+  }
+
+  const toLocal = e => {
+    const r = c.getBoundingClientRect();
+    return { x: (e.clientX - r.left) * (c.width / r.width), y: (e.clientY - r.top) * (c.height / r.height) };
+  };
+
+  c.onpointerdown = e => {
+    const p = toLocal(e);
+    dragging = true; mx = p.x; my = p.y;
+    userStrokes.push([{ x: p.x, y: p.y }]);
+    const nextPt = pts[Math.min(pts.length - 1, curIdx + 1)];
+    const curPt = pts[curIdx];
+    if (Math.hypot(p.x - nextPt.x, p.y - nextPt.y) < 38 || Math.hypot(p.x - curPt.x, p.y - curPt.y) < 38) {
+      advancePoint();
+    } else {
+      draw();
+    }
+  };
+  c.onpointermove = e => {
+    if (!dragging) return;
+    const p = toLocal(e);
+    mx = p.x; my = p.y;
+    if (userStrokes.length) userStrokes[userStrokes.length - 1].push({ x: p.x, y: p.y });
+    const nextPt = pts[Math.min(pts.length - 1, curIdx + 1)];
+    if (Math.hypot(p.x - nextPt.x, p.y - nextPt.y) < 34) {
+      advancePoint();
+    } else {
+      draw();
+    }
+  };
+  c.onpointerup = () => { dragging = false; draw(); };
+
+  if (keyH) { removeEventListener('keydown', keyH, true); removeEventListener('keyup', keyH, true); keyH = null; }
+  keys(e => {
+    if (e.type !== 'keydown') return;
+    if (e.code === 'Space' || e.code === 'Enter' || /^Digit[1-6]$/.test(e.code)) advancePoint();
+  });
+
+  function draw() {
+    // 빈티지 화실 스케치북 종이 질감 배경
+    g.fillStyle = '#ece3ce'; g.fillRect(0, 0, c.width, c.height);
+    g.strokeStyle = 'rgba(110,92,68,0.14)'; g.lineWidth = 1;
+    for (let y = 18; y < c.height; y += 22) { g.beginPath(); g.moveTo(0, y); g.lineTo(c.width, y); g.stroke(); }
+    // 액자 테두리
+    g.strokeStyle = '#4a3b2a'; g.lineWidth = 4; g.strokeRect(8, 8, c.width - 16, c.height - 16);
+    // 배경 연필 밑그림 가이드 (전체 점선 루프)
+    g.save();
+    g.setLineDash([6, 6]); g.strokeStyle = '#9a8c76'; g.lineWidth = 2.2;
+    g.beginPath();
+    pts.forEach((pt, i) => { if (i === 0) g.moveTo(pt.x, pt.y); else g.lineTo(pt.x, pt.y); });
+    g.closePath(); g.stroke();
+    g.restore();
+
+    // 사용자가 자유 드래그한 목탄 터치 흔적
+    g.strokeStyle = 'rgba(45,38,32,0.45)'; g.lineWidth = 3.5; g.lineCap = 'round';
+    userStrokes.forEach(st => {
+      if (st.length < 2) return;
+      g.beginPath(); st.forEach((p, i) => i ? g.lineTo(p.x, p.y) : g.moveTo(p.x, p.y)); g.stroke();
+    });
+
+    // 확정된 목탄 데생 굵은 선 (0 .. curIdx)
+    if (curIdx > 0) {
+      g.strokeStyle = '#1e1915'; g.lineWidth = 4.5; g.lineCap = 'round'; g.lineJoin = 'round';
+      g.beginPath();
+      for (let i = 0; i <= curIdx; i++) {
+        if (i === 0) g.moveTo(pts[i].x, pts[i].y); else g.lineTo(pts[i].x, pts[i].y);
+      }
+      if (curIdx >= pts.length - 1) g.closePath();
+      g.stroke();
+      // 목탄 해칭 음영 효과
+      g.fillStyle = 'rgba(40,32,24,0.10)';
+      g.fill();
+    }
+
+    // 드래그 중일 때 현재 포인트에서 마우스까지 고무줄 가이드라인
+    if (dragging && curIdx < pts.length - 1) {
+      g.strokeStyle = '#b84a28'; g.lineWidth = 2.5;
+      g.beginPath(); g.moveTo(pts[curIdx].x, pts[curIdx].y); g.lineTo(mx, my); g.stroke();
+    }
+
+    // 각 포인트 원형 마커 및 라벨
+    pts.forEach((pt, i) => {
+      const done = i <= curIdx, isNext = i === curIdx + 1;
+      g.fillStyle = done ? '#287a48' : isNext ? '#d44820' : '#7a6c58';
+      g.beginPath(); g.arc(pt.x, pt.y, isNext ? 14 : 11, 0, Math.PI * 2); g.fill();
+      g.strokeStyle = '#fff8e8'; g.lineWidth = 2; g.stroke();
+      g.fillStyle = '#ffffff'; g.font = 'bold 12px sans-serif';
+      g.fillText(String(i + 1), pt.x - 4, pt.y + 4);
+      g.fillStyle = isNext ? '#9e2812' : '#3a3024'; g.font = (isNext ? 'bold ' : '') + '11.5px sans-serif';
+      g.fillText(pt.label, pt.x - 34, pt.y + (pt.y < 120 ? -18 : 26));
+    });
+  }
+  draw();
+}
+function switchToSketchLine(origTitle) {
+  mountSketchLineCanvas((origTitle || '퍼즐') + ' — ✏ 선긋기 대안 모드');
+}
+function sketchLine(opts = {}) {
+  const p = open(opts.title || '🎨 미술실 이젤 — 1998 목탄 크로키 선긋기 복원', '');
+  mountSketchLineCanvas(opts.title || '🎨 미술실 이젤 — 1998 목탄 크로키 선긋기 복원');
+  return p;
+}
 export function run(kind, opts = {}) {
   if (MG.active) return Promise.resolve({ ok: false });
-  return ({ lockpick, dial, circuit, piano, slide, fishing, order, memory, tune, simon, timing, ouija, pipes, maze, rings, spotdiff, fuse, oscilloscope, chemMix, hoopShot, filmFocus, valveBalance, stampApprove, omrGrade, timetableRestore, libraryCatalog, cassetteSplice, microscopeSlide })[kind](opts);
+  return ({ lockpick, dial, circuit, piano, slide, fishing, order, memory, tune, simon, timing, ouija, pipes, maze, rings, spotdiff, fuse, oscilloscope, chemMix, hoopShot, filmFocus, valveBalance, stampApprove, omrGrade, timetableRestore, libraryCatalog, cassetteSplice, microscopeSlide, sketchLine })[kind](opts);
 }

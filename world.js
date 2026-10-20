@@ -4,11 +4,11 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { NOTES } from './story.js?v=155';
+import { NOTES } from './story.js?v=156';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=155';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=156';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -2671,7 +2671,7 @@ export function buildWorld(scene) {
     wallSeg(36, X1, Z0, Z1, 0, FH, true);         // 동
     // 남쪽 벽: 창문 + 현관
     const wins = [];
-    if (LS) SLOTS.forEach(cx => wins.push(cx - 3.05, cx + 3.05));
+    if (LS) SLOTS.forEach(cx => { if (f === 0 && cx === 0) return; wins.push(cx - 3.05, cx + 3.05); });
     else for (let x = -34; x <= 34; x += 4) { if (o.basement || (f === 0 && Math.abs(x) < 3)) continue; wins.push(x); }
     const ops = wins.map(x => ({ x, w: LS ? 1.3 : 2.4, type: 'win' }));
     if (f === 0) ops.push({ x: 0, w: 3.0, type: 'door' });
@@ -2685,7 +2685,7 @@ export function buildWorld(scene) {
         wallSeg(a, b, zs0, zs1, 0, .9, true); wallSeg(a, b, zs0, zs1, 2.5, FH, true);
         win3D(F.shell, o.w, 1.6, o.x, 1.7, zs0 + .15, Math.PI, pickWin()); (F.winSlots ||= []).push([o.x, o.w, zs0]);
         if (!o.base && !LS) { const r = new THREE.Mesh(radG, mRad); r.position.set(o.x, 0, zs0 - .12); r.rotation.y = Math.PI; r.scale.x = 1.6; F.interior.add(r); }
-        add(mWoodDark, o.w + .2, .06, .3, o.x, .88, zs0 + .2, { parent: F.shell });
+        /* 남쪽 외벽 중복 나무 창턱 제거 (콘크리트 창턱 및 win3D 기본 창턱과 겹침 방지) */
       } else {
         wallSeg(a, b, zs0, zs1, 2.7, FH, true);
         add(mWoodDark, .12, 2.7, .4, a, 0, zs0 + .15, { parent: F.shell }); add(mWoodDark, .12, 2.7, .4, b, 0, zs0 + .15, { parent: F.shell });
@@ -3762,7 +3762,7 @@ export function buildWorld(scene) {
   }
   const pave = S(T.makePaving()); flat(OUT, pave, -3.2, 3.2, MAIN_ZS, PG.CZ - PG.R1 - .2, .01, 4); flat(OUT, pave, -3.2, 3.2, PG.CZ + PG.R1 + .2, 69.5, .01, 4); flat(OUT, pave, -16, 16, MAIN_ZS, 11, .01, 4);   // 정문 길은 운동장(트랙 · 흙)을 가로지른다
   // 진입로 가로등 · 현관 앞 & 운동장 가장자리 캠퍼스 벤치 (sf_park_bench)
-  [[-6.5, 13.0, 0], [6.5, 13.0, 0], [-25.8, 24.0, Math.PI / 2], [-25.8, 48.0, Math.PI / 2], [24.0, 56.5, Math.PI]].forEach(([x, z, ry]) => model('sf_park_bench', x, 0, z, ry, { out: true, col: [1.85, .64] }));
+  [[-8.0, 10.45, 0], [8.0, 10.45, 0], [-25.8, 24.0, Math.PI / 2], [-25.8, 48.0, Math.PI / 2], [24.0, 56.5, Math.PI]].forEach(([x, z, ry]) => model('sf_park_bench', x, 0, z, ry, { out: true, col: [1.85, .64] }));
   flat(OUT, pave, -46, 46, 11, 14, .005, 4);
   const asph = S(T.makeAsphalt()); flat(OUT, asph, -120, 120, 73, 82, 0.005, 8);
   // 웅덩이
@@ -3995,12 +3995,12 @@ export function buildWorld(scene) {
         for (let k = 0; k < 5; k++) [-1, 1].forEach(s2 => slats.push(bx(1.3, .05, .06, x, ROOF_Y + .45 + k * .2, z + s2 * .93, 1)));
         RF.col.push({ x1: x - 1, x2: x + 1, z1: z - 1, z2: z + 1 }); });
       OUT.add(new THREE.Mesh(merge(slats), mRust)); }
-    model('metal_trash_can', 7.5, 0, MAIN_ZS + 2.2, Math.PI, { out: true, col: [1.85, .56] });
+    model('metal_trash_can', 11.8, 0, MAIN_ZS + .48, 0, { out: true, col: [.65, .56] });
     const glowWarmOut = T.makeGlow('255,205,120');
     const extLamp = (lx, ly, lz, lry) => { model('sf_bulkhead_lamp', lx, ly, lz, lry, { out: true }); const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowWarmOut, blending: THREE.AdditiveBlending, depthWrite: false, opacity: .75 })); sp.scale.set(1.1, 1.1, 1); sp.position.set(lx + Math.sin(lry) * .12, ly + .17, lz + Math.cos(lry) * .12); OUT.add(sp); };
     [-3.1, 3.1, -19.5, 19.5].forEach(lx => extLamp(lx, 3.05, MAIN_ZS + .08, 0));
     [-2.4, 2.4].forEach(lx => extLamp(lx, 3.05, -13.45 - ANNEX_DZ, 0));
-    model('sf_fuse_box', 4.0, 1.35, MAIN_ZS + .27, 0, { out: true });
+    model('sf_fuse_box', 36.32, 1.35, 4.0, Math.PI / 2, { out: true });
     model('sf_fuse_box', -3.2, 1.35, -13.42 - ANNEX_DZ, 0, { out: true });
     [-14, 10].forEach(x => model('exterior_aircon_unit', x, 0, -25.3 - ANNEX_DZ, Math.PI, { out: true, col: [1.8, .4] }));
     // 1층 야외 필로티 광장 출입문: 본관 1층 후문 & 별관 1층 정문
@@ -4019,7 +4019,7 @@ export function buildWorld(scene) {
   // 본관 외관 디테일: 기둥(필라스터) · 창 상인방 · 기단 · 처마 코니스 · 파라펫 · 우수관 · 북/측면 창
   {
     const fac = [], dark = [], pipes = [], X0 = -36.3, X1 = 36.3, ZS = MAIN_ZS, ZN = -9.9, ZL = MAIN_ZS + 9.9, ZC = (MAIN_ZS - 9.9) / 2, TOP = 3 * FH + .4;
-    for (let x = -32; x <= 32; x += 4) { const y0 = Math.abs(x) < 3.5 ? 3.25 : 0; fac.push(bx(.46, TOP - y0, .26, x, (TOP + y0) / 2, ZS + .13, 3)); }
+    for (let x = -28; x <= 28; x += 8) { const y0 = Math.abs(x) < 4.5 ? 3.25 : 0; fac.push(bx(.42, TOP - y0, .22, x, (TOP + y0) / 2, ZS + .11, 3)); }
     [X0 + .3, X1 - .3].forEach(x => fac.push(bx(.8, TOP, .32, x, TOP / 2, ZS + .16, 3), bx(.32, TOP, .8, x < 0 ? X0 - .16 : X1 + .16, TOP / 2, ZS - .3, 3)));
     // 남면 창 상인방 (남쪽 방 창: 방 중심 ±3.05)
     for (let f = 0; f < 3; f++) SLOTS.forEach(cx => [cx - 3.05, cx + 3.05].forEach(x => fac.push(bx(1.7, .16, .2, x, f * FH + 2.62, ZS + .1, 3))));
@@ -4039,7 +4039,7 @@ export function buildWorld(scene) {
     fac.push(bx(.5, .22, ZL + .95, X0 - .25, TOP + .05, ZC, 3), bx(.5, .22, ZL + .95, X1 + .25, TOP + .05, ZC, 3));
     // 파라펫 바깥 면 (옥상 층이 안 보일 때도 외부에서 보이도록)
     fac.push(bx(X1 - X0 + .8, 1.15, .1, 0, TOP + .58, ZN - .35, 3), bx(X1 - X0 + .8, 1.15, .1, 0, TOP + .58, ZS + .35, 3), bx(.1, 1.15, ZL + .55, X0 - .35, TOP + .58, ZC, 3), bx(.1, 1.15, ZL + .55, X1 + .35, TOP + .58, ZC, 3));
-    for (let x = -32; x <= 32; x += 4) if (Math.abs(x) >= 3.5) col(x - .23, x + .23, ZS, ZS + .26);
+    for (let x = -28; x <= 28; x += 8) if (Math.abs(x) >= 4.5) col(x - .21, x + .21, ZS, ZS + .22);
     fac.push(bx(X1 - X0 + .8, .12, .45, 0, TOP + 1.2, ZN - .2, 3), bx(.45, .12, ZL + .75, X0 - .2, TOP + 1.2, ZC, 3), bx(.45, .12, ZL + .75, X1 + .2, TOP + 1.2, ZC, 3), bx(X1 - X0 + .8, .12, .45, 0, TOP + 1.2, ZS + .2, 3));
     // 우수관 (홈통 + 이음쇠)
     [[-24.1, ZS + .3], [24.1, ZS + .3], [-16, ZN - .2], [16, ZN - .2]].forEach(([x, z]) => {

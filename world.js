@@ -4,11 +4,11 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { NOTES } from './story.js?v=144';
+import { NOTES } from './story.js?v=145';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=144';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=145';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -699,9 +699,7 @@ export function buildWorld(scene) {
     // ① 정통 한국 고등학교 교실: 칠판 앞 5.4m 원목 교단 단상(Platform, 높이 12cm) & 황동 논슬립 몰딩!
     add(mWoodDark, 5.4, .12, 1.18, cx, 0, zN + .72);
     add(mChrome, 5.42, .025, .03, cx, .11, zN + 1.31);
-    // 칠판 상단 중앙: 태극기 액자 & 급훈 현판 ('성 실 · 창 의 · 협 동') + 칠판 좌우 교내 방송 스피커
-    add(mWoodDark, .52, .38, .03, cx, 2.96, zN + .05);
-    plane(cur.interior, new THREE.MeshBasicMaterial({ map: T.makeSign('🇰🇷 대한민국 (태극기)', '#f4f2ec', '#182232', 22) }), .46, .32, cx, 2.96, zN + .07);
+    // 칠판 상단 좌·우: 금테 급훈 현판 ('성 실 · 창 의 · 협 동') & 학급 일일 주번표 (중앙의 실제 태극기 액자와 완벽 조화!)
     add(mWoodDark, 1.85, .30, .03, cx - 1.55, 2.94, zN + .05);
     plane(cur.interior, new THREE.MeshBasicMaterial({ map: T.makeSign('급훈 : 성실 · 창의 · 협동', '#1b3224', '#f2e4b8', 24) }), 1.76, .24, cx - 1.55, 2.94, zN + .07);
     add(mWoodDark, 1.55, .30, .03, cx + 1.55, 2.94, zN + .05);
@@ -746,7 +744,7 @@ export function buildWorld(scene) {
 
     // ④ 학생 책상: 학원식 1인 5열 대신 『정통 한국 고등학교 3분단 (1분단·2분단·3분단 × 2인 1조 짝꿍 밀착 배열)』로 개편 및 중앙 통로 확장!
     const dCls = CLS[name], keep = dCls && dCls.c.length ? dCls.c.map(([X, Y]) => csvXZ(cx, X, Y)) : [];
-    deskGrid(cx, [-2.95, -2.23, -0.36, 0.36, 2.23, 2.95], [-7.25, -5.95, -4.65, -3.40], seed === 3 ? .28 : seed === 2 ? .04 : .10, V4_PILOT, { keep, knock: seed === 3 ? .38 : seed === 2 ? .02 : .08, tidy: seed === 2, room: name });
+    deskGrid(cx, [-2.95, -2.23, -0.36, 0.36, 2.23, 2.95], [-7.25, -5.95, -4.65, -3.40], seed === 3 ? .18 : .02, false, { keep, knock: seed === 3 ? .38 : seed === 2 ? .02 : .08, tidy: seed === 2, room: name });
     const d = CLS[name];
     if (d && d.c.length) {
       const [nb0, pc0, wb0, tr] = d.c.map(([X, Y]) => csvXZ(cx, X, Y));
@@ -1879,9 +1877,9 @@ export function buildWorld(scene) {
       });
       // ⑤ 스튜디오 중앙 서문고 방송부 MBS 창립 30주년 기념 백드롭 현판 & 프로페셔널 ENG 방송 카메라
       plane(cur.interior, new THREE.MeshBasicMaterial({ map: T.makeSign('서문고등학교 방송부 (MBS) · 제30주년 기념 특별 하교 방송 스튜디오', '#101c2e', '#f8e4a8', 22) }), 2.8, .62, cx - .4, 2.25, -1.82, Math.PI);
-      add(mTruss, .32, .36, .58, cx - 1.15, 1.18, -4.45);
-      cyl(mTruss, .08, .28, cx - 1.15, 1.32, -4.82, 14);
-      add(mTallyRed, .06, .04, .04, cx - 1.15, 1.56, -4.68);
+      add(mTruss, .24, .22, .38, cx - 1.55, 1.18, -5.35);
+      cyl(mTruss, .06, .22, cx - 1.55, 1.29, -5.60, 14);
+      add(mTallyRed, .05, .035, .035, cx - 1.55, 1.43, -5.48);
     }
     // ── 크로마키 (서쪽 벽) + 삼각대 카메라 · 스튜디오 조명
     { const gx = W0 + .3, z1 = -6.3, z2 = -3.4, g = new THREE.PlaneGeometry(z2 - z1, 2.3, 18, 8), p = g.attributes.position;

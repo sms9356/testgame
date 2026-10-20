@@ -4,11 +4,11 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { NOTES } from './story.js?v=171';
+import { NOTES } from './story.js?v=172';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=171';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=172';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -1920,8 +1920,9 @@ export function buildWorld(scene) {
         const sgTxt = tf === 4 ? '▲ 1층 올라가는 계단' : (tf === 10 ? '▼ 아래층 내려가는 계단' : '▲ 위층   ▼ 아래층');
         plane(cur.interior, new THREE.MeshBasicMaterial({ map: T.makeSign(sgTxt, '#1e2a2e', '#d9e4d0', 24), color: 0x9aa59a }), 1.25, .32, cx - 3.83, dy + 2.35, -2.35, Math.PI / 2);
       }
-      model('korean_fire_extinguisher_01', cx + 1.65, dy, -3.0, -Math.PI / 2);
-      model('korean_fire_extinguisher_01', cx + 1.65, dy, -3.4, -Math.PI / 2 + .3);
+      const dxOff = dy > 0 ? .015 : -.015;
+      model('korean_fire_extinguisher_01', cx + 1.65 + dxOff, dy, -3.0, -Math.PI / 2);
+      model('korean_fire_extinguisher_01', cx + 1.65 + dxOff, dy, -3.4, -Math.PI / 2 + .3);
       {
         const lt = new THREE.Mesh(new THREE.BoxGeometry(1.3, .035, .12), matLampOn); lt.position.set(cx + .9, dy + CH - .07, -5.6); lt.rotation.y = Math.PI / 2; cur.interior.add(lt);
         const lhs = new THREE.Mesh(new THREE.BoxGeometry(1.4, .04, .22), lampHousing); lhs.position.set(cx + .9, dy + CH - .02, -5.6); lhs.rotation.y = Math.PI / 2; cur.interior.add(lhs);
@@ -1929,7 +1930,17 @@ export function buildWorld(scene) {
       buildLayered1998Wall(cur.interior, cx - 10, cx - 1, -1.75, -1.45, dy, dy + CH, wMat);
       buildLayered1998Wall(cur.interior, cx + 1, cx + 10, -1.75, -1.45, dy, dy + CH, wMat);
       buildLayered1998Wall(cur.interior, cx - 1, cx + 1, -1.75, -1.45, dy + 2.4, dy + CH, wMat);
-      buildLayered1998Wall(cur.interior, cx - 10, cx + 10, 1.45, 1.75, dy, dy + CH, wMat);
+      if (hasNorthPass) {
+        buildLayered1998Wall(cur.interior, cx - 10, cx - 3.2, 1.45, 1.75, dy, dy + CH, wMat);
+        buildLayered1998Wall(cur.interior, cx + 3.2, cx + 10, 1.45, 1.75, dy, dy + CH, wMat);
+        buildLayered1998Wall(cur.interior, cx - 3.2, cx + 3.2, 1.45, 1.75, dy + 2.4, dy + CH, wMat);
+        buildLayered1998Wall(cur.interior, cx - 4.15, cx - 3.85, 1.75, 9.6, dy, dy + CH, wMat);
+        buildLayered1998Wall(cur.interior, cx + 3.85, cx + 4.15, 1.75, 9.6, dy, dy + CH, wMat);
+        floorPiece(cx - 4, cx + 4, 1.45, 9.6, dy);
+        flat(cur.interior, mCeil, cx - 4, cx + 4, 1.45, 9.6, dy + CH, 4, false);
+      } else {
+        buildLayered1998Wall(cur.interior, cx - 10, cx + 10, 1.45, 1.75, dy, dy + CH, wMat);
+      }
       add(mWoodDark, .1, 2.4, .36, cx - 1.0, dy, -1.6); add(mWoodDark, .1, 2.4, .36, cx + 1.0, dy, -1.6);
       flat(cur.interior, mCeil, cx - 10, cx + 10, -1.75, 1.45, dy + CH, 4, false);
       floorPiece(cx - 10, cx + 10, -1.45, 1.45, dy);

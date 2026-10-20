@@ -8,6 +8,7 @@ export function applyGuardSeatedPose(holder, seat) {
   const bone=name=>model.getObjectByName(name);
   const pelvis=bone('pelvis');
   if(!pelvis || !bone('thigh_l') || !bone('calf_l')) return {ok:false,reason:'rig_not_supported'};
+  if (!holder.userData.origPelvisPos) holder.userData.origPelvisPos = pelvis.position.clone();
   holder.userData.npcAction?.stop();
   model.traverse(n=>{if(n.isSkinnedMesh)n.skeleton.pose();});
   holder.updateWorldMatrix(true,true);

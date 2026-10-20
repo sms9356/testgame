@@ -4,11 +4,11 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { NOTES } from './story.js?v=138';
+import { NOTES } from './story.js?v=139';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=138';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=139';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -513,10 +513,20 @@ export function buildWorld(scene) {
   const mTape = S(null, { color: 0x2a2a2c, roughness: .5, metalness: .3 });
   function tapeRecorder(id, x, y, z, ry = 0) {
     const g = dyn(new THREE.Group()); g.position.set(x, y, z); g.rotation.y = ry; cur.interior.add(g);
-    g.add(new THREE.Mesh(merge([bx(.26, .07, .15, 0, .035, 0), bx(.04, .015, .02, .09, .075, .05), bx(.04, .015, .02, .045, .075, .05)]), mTape));
-    const win = new THREE.Mesh(new THREE.BoxGeometry(.11, .005, .07), new THREE.MeshStandardMaterial({ color: 0x6a5a40, roughness: .3 })); win.position.set(-.05, .072, -.01); g.add(win);
+    g.add(new THREE.Mesh(merge([bx(.26, .07, .15, 0, .035, 0), bx(.035, .015, .025, .09, .075, .05)]), mTape));
+    const playBtn = dyn(new THREE.Mesh(new THREE.BoxGeometry(.038, .018, .026), S(null, { color: 0xb83228, roughness: .4 })));
+    playBtn.position.set(.045, .076, .05); g.add(playBtn);
+    const win = new THREE.Mesh(new THREE.BoxGeometry(.12, .005, .075), new THREE.MeshStandardMaterial({ color: 0x4a3e2d, roughness: .25 })); win.position.set(-.045, .072, -.01); g.add(win);
+    const mkReel = rx => {
+      const r = dyn(new THREE.Group()); r.position.set(rx, .076, -.01);
+      r.add(new THREE.Mesh(new THREE.CylinderGeometry(.022, .022, .006, 12), mWhite));
+      r.add(new THREE.Mesh(new THREE.BoxGeometry(.038, .008, .006), mDarkMetal));
+      r.add(new THREE.Mesh(new THREE.BoxGeometry(.006, .008, .038), mDarkMetal));
+      g.add(r); return r;
+    };
+    const reelL = mkReel(-.075), reelR = mkReel(-.015);
     const led = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowRed, blending: THREE.AdditiveBlending, depthWrite: false })); led.scale.setScalar(.12); led.position.set(.11, .08, .07); g.add(led);
-    props.push({ kind: 'tape', id, floor: cur.f, x, z, y, label: '녹음기 재생', ...TAPES[id] });
+    props.push({ kind: 'tape', id, floor: cur.f, x, z, y, label: '녹음기 재생', ...TAPES[id], anim: { type: 'tape', g, reelL, reelR, playBtn, led, playT: 0 } });
   }
   const PHOTOS = {
     p1: { img: 'old_class', title: '사진 — 3학년 2반', text: '칠판에 “다시, 여기서.” 라고 적힌 교실 사진.<br>뒷면: <b>“10.12 마지막 수업”</b>' },
@@ -1244,22 +1254,102 @@ export function buildWorld(scene) {
   const mRedCross = new THREE.MeshBasicMaterial({ color: 0xb02020 }), mTermScr = new THREE.MeshBasicMaterial({ color: 0x38c070 }), mBeige = S(null, { color: 0xc8bc9c, roughness: .6 });
   function roomObj(t, cx) {
     const k = ROBJ_OF[t]; if (!k) return;
-    if (t === 'toilet') return;   // 화장실: 세면대 상호작용(RestroomSystem)이 거울 · 세수를 대신한다
-    const x = cx - 2.7, z = -1.8, g = new THREE.Group(); g.position.set(x, 1.35, z); g.rotation.y = Math.PI; cur.interior.add(g);
-    const B = (m, w, h, d, px = 0, py = 0, pz = 0) => { const o = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m); o.position.set(px, py, pz); g.add(o); return o; };
-    if (k === 'med') { B(mWhite, .5, .62, .16, 0, 0, .08); B(mRedCross, .2, .06, .01, 0, .05, .165); B(mRedCross, .06, .2, .01, 0, .05, .165); B(mChrome, .03, .1, .02, .2, -.1, .17); }
-    else if (k === 'phone') { B(mBeige, .2, .3, .08, 0, 0, .04); B(mBeige, .07, .26, .07, -.13, .0, .09); for (let i = 0; i < 9; i++) B(mBlack, .03, .03, .01, -.03 + (i % 3) * .05, .06 - ((i / 3) | 0) * .05, .085); }
-    else if (k === 'mirror') { B(mChrome, .56, .76, .03, 0, .15, .015); const m = new THREE.Mesh(new THREE.PlaneGeometry(.5, .7), new THREE.MeshStandardMaterial({ color: 0x8a969a, roughness: .05, metalness: .95 })); m.position.set(0, .15, .032); g.add(m); }
-    else if (k === 'cards') { B(mWood, .6, .4, .3, 0, -.15, .15); for (let i = 0; i < 6; i++) { B(mWoodDark, .17, .1, .01, -.19 + (i % 3) * .19, -.06 - ((i / 3) | 0) * .16, .305); B(mChrome, .05, .015, .02, -.19 + (i % 3) * .19, -.08 - ((i / 3) | 0) * .16, .31); } }
-    else if (k === 'term') { B(mDarkMetal, .42, .32, .1, 0, 0, .05); const sc = new THREE.Mesh(new THREE.PlaneGeometry(.34, .22), mTermScr); sc.position.set(0, .02, .102); g.add(sc); }
-    else if (k === 'chem') { B(mWood, .7, .03, .2, 0, -.1, .1); [[0x3060d0, -.2], [0xd0c030, 0], [0xb02020, .2]].forEach(([c, dx]) => { const f = new THREE.Mesh(new THREE.CylinderGeometry(.035, .06, .18, 10), new THREE.MeshStandardMaterial({ color: c, roughness: .1, transparent: true, opacity: .8, emissive: c, emissiveIntensity: .15 })); f.position.set(dx, .0, .1); g.add(f); }); }
-    else if (k === 'snack') { B(mWood, .6, .03, .25, 0, -.12, .12); B(mCardboard, .4, .14, .2, 0, -.03, .12); [0xd04030, 0x3080c0, 0xe0b030].forEach((c, i) => B(S(null, { color: c, roughness: .5 }), .08, .1, .04, -.12 + i * .12, .07, .12)); }
-    else if (k === 'emo') { B(mCork, .6, .45, .02, 0, 0, .01); [0xe0d070, 0x80b0e0, 0xe09090, 0xa0d0a0].forEach((c, i) => B(S(null, { color: c, roughness: .8 }), .12, .16, .005, -.2 + i * .13, (i % 2) * .06 - .02, .025)); }
-    else if (k === 'copier') { B(mBeige, .3, .3, .12, 0, 0, .06); B(mBlack, .2, .06, .01, 0, .07, .125); B(mRedCross, .04, .04, .01, .08, -.07, .125); }
-    else if (k === 'water') { B(mPorc, .5, .14, .3, 0, -.45, .15); B(mChrome, .03, .03, .14, 0, -.25, .07); B(mChrome, .1, .03, .03, 0, -.2, .02); }
-    else if (k === 'ballot') { B(mWood, .5, .03, .25, 0, -.18, .12); B(S(null, { color: 0xd8d2c4, roughness: .3, transparent: true, opacity: .55 }), .36, .3, .22, 0, -.01, .12); B(mBlack, .14, .01, .02, 0, .145, .12); }
-    else if (k === 'radio') { B(mDarkMetal, .14, .26, .07, 0, 0, .04); B(mBlack, .015, .2, .015, .04, .22, .04); B(mTermScr, .08, .04, .005, 0, .06, .078); }
-    props.push({ kind: 'robj', k, t, floor: cur.f, x, z, y: 1.35, cx, label: ROBJ_LABEL[k] });
+    if (t === 'toilet') return;
+    const x = cx - 2.7, z = -1.8, g = dyn(new THREE.Group()); g.position.set(x, 1.35, z); g.rotation.y = Math.PI; cur.interior.add(g);
+    const B = (m, w, h, d, px = 0, py = 0, pz = 0, parent = g) => { const o = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m); o.position.set(px, py, pz); parent.add(o); return o; };
+    const anim = { type: k, g, t: 0, active: false };
+    if (k === 'med') {
+      B(mWhite, .5, .62, .13, 0, 0, .065);
+      B(S(null, { color: 0x3a8866, roughness: .3 }), .12, .16, .06, -.1, -.08, .09);
+      B(S(null, { color: 0xd86030, roughness: .3 }), .10, .14, .06, .08, -.09, .09);
+      const doorPiv = dyn(new THREE.Group()); doorPiv.position.set(-.25, 0, .14); g.add(doorPiv);
+      B(mWhite, .5, .62, .025, .25, 0, .01, doorPiv);
+      B(mRedCross, .2, .06, .01, .25, .05, .026, doorPiv);
+      B(mRedCross, .06, .2, .01, .25, .05, .026, doorPiv);
+      B(mChrome, .03, .1, .02, .45, -.1, .03, doorPiv);
+      anim.doorPiv = doorPiv;
+    }
+    else if (k === 'phone') {
+      B(mBeige, .2, .3, .08, 0, 0, .04);
+      for (let i = 0; i < 9; i++) B(mBlack, .03, .03, .01, -.03 + (i % 3) * .05, .06 - ((i / 3) | 0) * .05, .085);
+      const handset = dyn(new THREE.Group()); handset.position.set(-.13, 0, .09); g.add(handset);
+      B(mBeige, .07, .26, .07, 0, 0, 0, handset);
+      anim.handset = handset;
+    }
+    else if (k === 'mirror') {
+      B(mChrome, .56, .76, .03, 0, .15, .015);
+      const m = new THREE.Mesh(new THREE.PlaneGeometry(.5, .7), new THREE.MeshStandardMaterial({ color: 0x8a969a, roughness: .05, metalness: .95 })); m.position.set(0, .15, .032); g.add(m);
+      anim.mirror = m;
+    }
+    else if (k === 'cards') {
+      B(mWood, .6, .4, .3, 0, -.15, .15);
+      for (let i = 0; i < 6; i++) {
+        const dx = -.19 + (i % 3) * .19, dy = -.06 - ((i / 3) | 0) * .16;
+        if (i === 1) {
+          const drw = dyn(new THREE.Group()); drw.position.set(dx, dy, .305); g.add(drw);
+          B(mWoodDark, .17, .1, .18, 0, 0, -.08, drw);
+          B(mWhite, .13, .08, .12, 0, .02, -.07, drw);
+          B(mChrome, .05, .015, .02, 0, -.02, .01, drw);
+          anim.drawer = drw;
+        } else {
+          B(mWoodDark, .17, .1, .01, dx, dy, .305);
+          B(mChrome, .05, .015, .02, dx, dy - .02, .31);
+        }
+      }
+    }
+    else if (k === 'term') {
+      B(mDarkMetal, .42, .32, .1, 0, 0, .05);
+      const sc = new THREE.Mesh(new THREE.PlaneGeometry(.34, .22), mTermScr.clone()); sc.position.set(0, .02, .102); g.add(sc);
+      anim.screen = sc;
+    }
+    else if (k === 'chem') {
+      B(mWood, .7, .03, .2, 0, -.1, .1);
+      anim.flasks = [[0x3060d0, -.2], [0xd0c030, 0], [0xb02020, .2]].map(([c, dx]) => {
+        const f = dyn(new THREE.Mesh(new THREE.CylinderGeometry(.035, .06, .18, 10), new THREE.MeshStandardMaterial({ color: c, roughness: .1, transparent: true, opacity: .82, emissive: c, emissiveIntensity: .18 })));
+        f.position.set(dx, .0, .1); g.add(f); return f;
+      });
+    }
+    else if (k === 'snack') {
+      B(mWood, .6, .03, .25, 0, -.12, .12);
+      const box = dyn(new THREE.Group()); box.position.set(0, -.03, .12); g.add(box);
+      B(mCardboard, .4, .14, .2, 0, 0, 0, box);
+      [0xd04030, 0x3080c0, 0xe0b030].forEach((c, i) => B(S(null, { color: c, roughness: .5 }), .08, .1, .04, -.12 + i * .12, .10, 0, box));
+      anim.box = box;
+    }
+    else if (k === 'emo') {
+      B(mCork, .6, .45, .02, 0, 0, .01);
+      anim.cards = [0xe0d070, 0x80b0e0, 0xe09090, 0xa0d0a0].map((c, i) => B(S(null, { color: c, roughness: .8 }), .12, .16, .005, -.2 + i * .13, (i % 2) * .06 - .02, .025));
+    }
+    else if (k === 'copier') {
+      B(mBeige, .34, .3, .14, 0, 0, .07);
+      B(mBlack, .22, .06, .01, 0, .07, .142);
+      B(mRedCross, .04, .04, .01, .09, -.07, .142);
+      const scanBar = dyn(new THREE.Mesh(new THREE.BoxGeometry(.02, .055, .015), new THREE.MeshBasicMaterial({ color: 0x50ff90 }))); scanBar.position.set(-.09, .07, .146); scanBar.visible = false; g.add(scanBar);
+      const paperOut = dyn(new THREE.Mesh(new THREE.BoxGeometry(.16, .006, .12), mWhite)); paperOut.position.set(0, -.11, .12); paperOut.visible = false; g.add(paperOut);
+      anim.scanBar = scanBar; anim.paperOut = paperOut;
+    }
+    else if (k === 'water') {
+      B(mPorc, .5, .14, .3, 0, -.45, .15);
+      B(mChrome, .03, .03, .14, 0, -.25, .07);
+      const tap = B(mChrome, .1, .03, .03, 0, -.2, .02);
+      const stream = dyn(new THREE.Mesh(new THREE.CylinderGeometry(.012, .018, .22, 8), new THREE.MeshBasicMaterial({ color: 0x88ccff, transparent: true, opacity: .75 })));
+      stream.position.set(0, -.33, .13); stream.visible = false; g.add(stream);
+      anim.tap = tap; anim.stream = stream;
+    }
+    else if (k === 'ballot') {
+      B(mWood, .5, .03, .25, 0, -.18, .12);
+      const box = dyn(new THREE.Group()); box.position.set(0, -.01, .12); g.add(box);
+      B(S(null, { color: 0xd8d2c4, roughness: .3, transparent: true, opacity: .55 }), .36, .3, .22, 0, 0, 0, box);
+      B(mBlack, .14, .01, .02, 0, .155, 0, box);
+      anim.box = box;
+    }
+    else if (k === 'radio') {
+      B(mDarkMetal, .14, .26, .07, 0, 0, .04);
+      const ant = B(mBlack, .015, .22, .015, .04, .22, .04);
+      const scr = B(mTermScr.clone(), .08, .04, .005, 0, .06, .078);
+      anim.ant = ant; anim.screen = scr;
+    }
+    props.push({ kind: 'robj', k, t, floor: cur.f, x, z, y: 1.35, cx, label: ROBJ_LABEL[k], anim });
   }
   // 엘리베이터 (계단실 동쪽 벽): 철문 · 층 표시 · 호출 버튼 — 실제 객실에 걸어 들어간다
   const EL_LABEL = { 4: 'B1', 0: '1F', 1: '2F', 2: '3F', 8: '1F', 9: '2F', 10: '3F' };
@@ -2097,13 +2187,14 @@ export function buildWorld(scene) {
     [-1.3, 1.3].forEach(dx => { const fr = new THREE.Mesh(new THREE.BoxGeometry(.5, .65, .03), mWoodDark); fr.position.set(cx + dx, 2.3, zN + .03); cur.interior.add(fr); const pic = new THREE.Mesh(new THREE.PlaneGeometry(.4, .55), mPaints[1]); pic.position.set(cx + dx, 2.3, zN + .05); cur.interior.add(pic); });
     plane(cur.interior, new THREE.MeshStandardMaterial({ map: T.makeSign('성실 · 정직 · 배려', '#e8e2d2', '#3a2a1a', 26), roughness: .8 }), 2.0, .45, cx, 3.0, zN + .04);
     sofa(cx - 2.6, -4.5, Math.PI / 2); sofa(cx + 2.6, -4.5, -Math.PI / 2); add(mWood, 1.2, .4, .6, cx, 0, -4.5, { col: true }); cyl(mPorc, .05, .09, cx + .2, .4, -4.5, 10);
-    // 교장 집무 책상 위: 1998.10.12 심야 대책회의 비밀 마이크로카세트 녹취기 (3D 릴 2개 · 버튼 · 붉은 LED) & 기밀 서류철!
-    add(mDarkMetal, .32, .06, .22, cx + .45, .78, -7.85);
-    add(mChrome, .26, .015, .04, cx + .45, .84, -7.77);
-    cyl(mWhite, .045, .012, cx + .38, .845, -7.86, 12);
-    cyl(mWhite, .045, .012, cx + .52, .845, -7.86, 12);
-    add(new THREE.MeshBasicMaterial({ color: 0xff3020 }), .02, .02, .02, cx + .57, .845, -7.80);
-    props.push({ kind: 'robj', k: 'principal_recorder', t: 'principal', floor: cur.f, x: cx - .45, z: 7.45, y: .88, r: 2.3, label: '교장실 비밀 녹취기 재생 — 교장선생님 육성 녹음 듣기' });
+    // 교장 집무 책상 위: 동적 3D 마이크로카세트 녹취기 (실시간 회전 릴 2개 · 가동 버튼 · 점멸 LED)
+    { const rg = dyn(new THREE.Group()); rg.position.set(cx + .45, .78, -7.85); cur.interior.add(rg);
+      const body = new THREE.Mesh(new THREE.BoxGeometry(.32, .06, .22), mDarkMetal); body.position.y = .03; rg.add(body);
+      const playBtn = dyn(new THREE.Mesh(new THREE.BoxGeometry(.07, .022, .045), S(null, { color: 0xc82820, roughness: .35 }))); playBtn.position.set(-.06, .068, .08); rg.add(playBtn);
+      const mkR = rx => { const r = dyn(new THREE.Group()); r.position.set(rx, .066, -.01); r.add(new THREE.Mesh(new THREE.CylinderGeometry(.045, .045, .012, 14), mWhite)); r.add(new THREE.Mesh(new THREE.BoxGeometry(.076, .015, .012), mDarkMetal)); r.add(new THREE.Mesh(new THREE.BoxGeometry(.012, .015, .076), mDarkMetal)); rg.add(r); return r; };
+      const reelL = mkR(-.07), reelR = mkR(.07);
+      const led = dyn(new THREE.Mesh(new THREE.SphereGeometry(.014, 8, 8), new THREE.MeshBasicMaterial({ color: 0xff3020 }))); led.position.set(.12, .068, .06); rg.add(led);
+      props.push({ kind: 'robj', k: 'principal_recorder', t: 'principal', floor: cur.f, x: cx - .45, z: 7.45, y: .88, r: 2.3, label: '교장실 비밀 녹취기 재생 — 교장선생님 육성 녹음 듣기', anim: { type: 'tape', g: rg, reelL, reelR, playBtn, led, playT: 0 } }); }
     trophyCase(cx + 3.55, -7.9, -Math.PI / 2, 1.6); shelf3D(cx - 3.62, -7.6, Math.PI / 2, 1.6, 2.0, .4, 5, .8);
     potPlant(cx + 3.3, 0, -2.4, false); papers(cx, -8, -2.4, 6);
   }

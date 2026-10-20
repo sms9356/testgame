@@ -14,7 +14,7 @@ function injectAltBar(title) {
     bar = document.createElement('div');
     bar.id = 'mgAltBar';
     bar.style.cssText = 'margin-top:10px;padding-top:9px;border-top:1px dashed rgba(210,195,155,0.28);display:flex;justify-content:center;gap:10px;flex-wrap:wrap;';
-    $('mgBody').parentElement.insertBefore(bar, $('mgCancel'));
+    $('mgBody').parentElement.appendChild(bar);
   }
   bar.innerHTML = '';
   if (!/선긋기|크로키/.test(title)) {

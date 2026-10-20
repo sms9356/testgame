@@ -4,11 +4,11 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { NOTES } from './story.js?v=134';
+import { NOTES } from './story.js?v=135';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=134';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=135';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -258,24 +258,31 @@ export function buildWorld(scene) {
   }
   function addBattery(x, y, z) {
     const g = new THREE.Group();
-    const b = new THREE.Mesh(new THREE.CylinderGeometry(.035, .035, .15, 12), S(null, { color: 0x3fae5a, emissive: 0x0a3010 }));
-    b.rotation.z = Math.PI / 2; g.add(b);
-    const tip = new THREE.Mesh(new THREE.CylinderGeometry(.015, .015, .03, 8), mMetal); tip.rotation.z = Math.PI / 2; tip.position.x = .09; g.add(tip);
+    const mBlk = S(null, { color: 0x181c20, roughness: .35, metalness: .45 });
+    const mGld = S(null, { color: 0xd89e28, emissive: 0x241804, roughness: .28, metalness: .78 });
+    const body = new THREE.Mesh(new THREE.CylinderGeometry(.036, .036, .11, 14), mBlk); body.rotation.z = Math.PI / 2; body.position.x = -.02; g.add(body);
+    const capG = new THREE.Mesh(new THREE.CylinderGeometry(.0365, .0365, .05, 14), mGld); capG.rotation.z = Math.PI / 2; capG.position.x = .055; g.add(capG);
+    const ring = new THREE.Mesh(new THREE.CylinderGeometry(.034, .034, .012, 12), mChrome); ring.rotation.z = Math.PI / 2; ring.position.x = -.078; g.add(ring);
+    const tip = new THREE.Mesh(new THREE.CylinderGeometry(.014, .014, .024, 10), mChrome); tip.rotation.z = Math.PI / 2; tip.position.x = .09; g.add(tip);
     const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTexG, blending: THREE.AdditiveBlending, depthWrite: false, fog: true }));
-    sp.scale.set(.7, .7, .7); g.add(sp);
+    sp.scale.set(.68, .68, .68); g.add(sp);
     g.position.set(x, y + .1, z); g.userData.dynamic = true; cur.interior.add(g);
     items.push({ kind: 'battery', floor: cur.f, pos: new THREE.Vector3(x, cur.y0 + y + .1, z), mesh: g, taken: false, label: '건전지 줍기', baseY: y + .1 });
   }
   function addMedkit(x, y, z) {
     const g = new THREE.Group();
-    g.add(new THREE.Mesh(new THREE.BoxGeometry(.3, .18, .1), mWhite));
-    const red = new THREE.MeshBasicMaterial({ color: 0xc02020 });
-    g.add(Object.assign(new THREE.Mesh(new THREE.BoxGeometry(.16, .05, .11), red)));
-    g.add(Object.assign(new THREE.Mesh(new THREE.BoxGeometry(.05, .14, .11), red)));
+    const mCase = S(null, { color: 0xedeae2, roughness: .42, metalness: .08 });
+    const red = S(null, { color: 0xc82222, emissive: 0x280404, roughness: .38 });
+    g.add(new THREE.Mesh(new THREE.BoxGeometry(.30, .18, .11), mCase));
+    const rim = new THREE.Mesh(new THREE.BoxGeometry(.31, .02, .12), mChrome); g.add(rim);
+    [-0.09, 0.09].forEach(lx => { const lt = new THREE.Mesh(new THREE.BoxGeometry(.028, .045, .125), mChrome); lt.position.set(lx, .06, 0); g.add(lt); });
+    const hdl = new THREE.Mesh(new THREE.BoxGeometry(.11, .025, .03), mDarkMetal); hdl.position.set(0, .105, 0); g.add(hdl);
+    g.add(new THREE.Mesh(new THREE.BoxGeometry(.14, .042, .118), red));
+    g.add(new THREE.Mesh(new THREE.BoxGeometry(.042, .13, .118), red));
     const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTexR, blending: THREE.AdditiveBlending, depthWrite: false }));
-    sp.scale.set(.8, .8, .8); g.add(sp);
+    sp.scale.set(.78, .78, .78); g.add(sp);
     g.position.set(x, y + .12, z); g.userData.dynamic = true; cur.interior.add(g);
-    items.push({ kind: 'medkit', floor: cur.f, pos: new THREE.Vector3(x, cur.y0 + y + .12, z), mesh: g, taken: false, label: '응급 밴드 줍기', baseY: y + .12 });
+    items.push({ kind: 'medkit', floor: cur.f, pos: new THREE.Vector3(x, cur.y0 + y + .12, z), mesh: g, taken: false, label: '응급 구급상자 줍기', baseY: y + .12 });
   }
   const glowTexR = T.makeGlow('255,90,90');
   const glowTexY = T.makeGlow('255,200,90'), glowTexG = T.makeGlow('90,255,140');
@@ -1309,29 +1316,31 @@ export function buildWorld(scene) {
         for (let i = 0; i < n; i++) add(mStep, W, (i + 1) * rise, run, xa, dy, z0 - run * (i + .5));
         add(mStep, 2.6, LND, 9.55 + zl, cx - 2.5, dy, (zl - 9.55) / 2);
       } else {
-        for (let i = 0; i < n; i++) add(mStep, W, .24, run, xa, dy + (i + 1) * rise - .24, z0 - run * (i + .5));
-        const s1 = meshAt(merge([bx(W, .18, L + .12, 0, 0, 0)]), mUnderSlab, xa, dy + LND / 2 - .18, (z0 + zl) / 2);
-        s1.rotation.x = th;
-        add(mUnderSlab, 2.6, .22, 9.55 + zl, cx - 2.5, dy + LND - .22, (zl - 9.55) / 2);
+        for (let i = 0; i < n; i++) add(mStep, W, .24, run + .02, xa, dy + (i + 1) * rise - .24, z0 - run * (i + .5));
+        // 1번 계단(북쪽 -z 로 갈수록 +y 상승): 오른손 좌표계에서 rotation.x = +th 가 아니라 반드시 -th 여야 계단 밑면과 평행하게 밀착된다!
+        const s1 = meshAt(merge([bx(W + .04, .16, L + .08, 0, 0, 0), bx(.06, .28, L + .08, -W / 2, .08, 0), bx(.06, .28, L + .08, W / 2, .08, 0)]), mUnderSlab, xa, dy + LND / 2 - .16, (z0 + zl) / 2);
+        s1.rotation.x = -th;
+        add(mUnderSlab, 2.64, .22, 9.55 + zl, cx - 2.5, dy + LND - .22, (zl - 9.55) / 2);
         add(mStep, 2.6, .04, 9.55 + zl, cx - 2.5, dy + LND - .02, (zl - 9.55) / 2);
       }
       for (let i = 0; i < n; i++) {
         const stTop = LND + (i + 1) * rise;
-        const m = add(mStep, W, .24, run, xb, dy + stTop - .24, zl + run * (i + .5));
+        const m = add(mStep, W, .24, run + .02, xb, dy + stTop - .24, zl + run * (i + .5));
         if (dy < 0) m.userData.dynamic = true;
       }
       const nos = [];
       for (let i = 0; i < n; i++) {
         nos.push(
-          bx(W - .08, .014, .07, xa, dy + (i + 1) * rise + .007, z0 - run * i - .045),
-          bx(W - .08, .05, .012, xa, dy + (i + 1) * rise - .02, z0 - run * i - .004),
-          bx(W - .08, .014, .07, xb, dy + LND + (i + 1) * rise + .007, zl + run * i + .045),
-          bx(W - .08, .05, .012, xb, dy + LND + (i + 1) * rise - .02, zl + run * i + .004)
+          bx(W - .06, .016, .065, xa, dy + (i + 1) * rise + .008, z0 - run * i - .04),
+          bx(W - .06, .045, .014, xa, dy + (i + 1) * rise - .02, z0 - run * i - .004),
+          bx(W - .06, .016, .065, xb, dy + LND + (i + 1) * rise + .008, zl + run * i + .04),
+          bx(W - .06, .045, .014, xb, dy + LND + (i + 1) * rise - .02, zl + run * i + .004)
         );
       }
       meshAt(merge(nos), mStairNose, 0, 0, 0);
-      const st = meshAt(merge([bx(W, .18, L + .12, 0, 0, 0)]), mUnderSlab, xb, dy + LND + LND / 2 - .18, zl + n * run / 2);
-      st.rotation.x = -th;
+      // 2번 계단(남쪽 +z 로 갈수록 +y 상승): 오른손 좌표계에서 rotation.x = +th 여야 계단 밑면과 평행하게 밀착된다!
+      const st = meshAt(merge([bx(W + .04, .16, L + .08, 0, 0, 0), bx(.06, .28, L + .08, -W / 2, .08, 0), bx(.06, .28, L + .08, W / 2, .08, 0)]), mUnderSlab, xb, dy + LND + LND / 2 - .16, zl + n * run / 2);
+      st.rotation.x = th;
 
       // 난간: 허공(dy)으로 삐죽 내려오던 고드름 파이프를 제거하고 실제 층참 슬래브(dy + LND) 위에서만 기둥이 서도록 정밀 교정!
       hr.push(tube(.03, ci, dy + H, z0, ci, dy + LND + H, zl));

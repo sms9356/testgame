@@ -517,7 +517,7 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
     window.__campusAnimMixers = mixers;
 
     const loadCachedGlb = url => {
-      const fullUrl = url + '?v=133';
+      const fullUrl = url + '?v=135';
       let p = glbCache.get(fullUrl);
       if (!p) {
         p = new Promise(resolve => {

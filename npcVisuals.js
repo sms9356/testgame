@@ -269,6 +269,101 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
     return tex;
   }
 
+  async function bakeGuardPortraitFace(model) {
+    try {
+      const body = model.getObjectByName('Guard_Body');
+      if (!body || !body.material?.map?.image) return;
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      await new Promise((res, rej) => { img.onload = res; img.onerror = rej; img.src = 'assets/ui/npc_guard.webp'; });
+      const pw = img.width, ph = img.height;
+      const pCv = document.createElement('canvas'); pCv.width = pw; pCv.height = ph;
+      const pCtx = pCv.getContext('2d'); pCtx.drawImage(img, 0, 0);
+      const pData = pCtx.getImageData(0, 0, pw, ph).data;
+
+      const tex = body.material.map;
+      const tw = tex.image.width, th = tex.image.height;
+      const tCv = document.createElement('canvas'); tCv.width = tw; tCv.height = th;
+      const tCtx = tCv.getContext('2d'); tCtx.drawImage(tex.image, 0, 0, tw, th);
+      const tImg = tCtx.getImageData(0, 0, tw, th);
+      const td = tImg.data;
+
+      // 목/귀/손 기본 피부 톤을 초상화의 차분한 실사 중년 피부 톤과 일치시킨다
+      for (let i = 0; i < td.length; i += 4) {
+        td[i]     = Math.round(td[i] * 0.78 + 14);
+        td[i + 1] = Math.round(td[i + 1] * 0.79 + 14);
+        td[i + 2] = Math.round(td[i + 2] * 0.82 + 16);
+      }
+
+      const geo = body.geometry;
+      const pos = geo.attributes.position, uv = geo.attributes.uv, index = geo.index;
+      const mapYToPy = y => {
+        if (y >= 1.638) return 0.435 - (y - 1.638) / (1.675 - 1.638) * (0.435 - 0.325);
+        if (y >= 1.622) return 0.565 - (y - 1.622) / (1.638 - 1.622) * (0.565 - 0.435);
+        if (y >= 1.593) return 0.685 - (y - 1.593) / (1.622 - 1.593) * (0.685 - 0.565);
+        return 0.815 - (y - 1.550) / (1.593 - 1.550) * (0.815 - 0.685);
+      };
+      const mapXToPx = x => 0.495 + (x / 0.082) * 0.275;
+
+      const triCount = index ? index.count / 3 : pos.count / 3;
+      for (let t = 0; t < triCount; t++) {
+        const i0 = index ? index.getX(t * 3) : t * 3;
+        const i1 = index ? index.getX(t * 3 + 1) : t * 3 + 1;
+        const i2 = index ? index.getX(t * 3 + 2) : t * 3 + 2;
+        const y0 = pos.getY(i0), y1 = pos.getY(i1), y2 = pos.getY(i2);
+        const z0 = pos.getZ(i0), z1 = pos.getZ(i1), z2 = pos.getZ(i2);
+        if (Math.max(y0, y1, y2) < 1.525 || Math.max(z0, z1, z2) < 0.045) continue;
+
+        const x0 = pos.getX(i0), x1 = pos.getX(i1), x2 = pos.getX(i2);
+        const u0 = uv.getX(i0) * tw, v0 = uv.getY(i0) * th;
+        const u1 = uv.getX(i1) * tw, v1 = uv.getY(i1) * th;
+        const u2 = uv.getX(i2) * tw, v2 = uv.getY(i2) * th;
+        if (Math.max(u0, u1, u2) - Math.min(u0, u1, u2) > tw * 0.35) continue;
+        if (Math.max(v0, v1, v2) - Math.min(v0, v1, v2) > th * 0.35) continue;
+
+        const minU = Math.max(0, Math.floor(Math.min(u0, u1, u2)) - 1);
+        const maxU = Math.min(tw - 1, Math.ceil(Math.max(u0, u1, u2)) + 1);
+        const minV = Math.max(0, Math.floor(Math.min(v0, v1, v2)) - 1);
+        const maxV = Math.min(th - 1, Math.ceil(Math.max(v0, v1, v2)) + 1);
+        const denom = (v1 - v2) * (u0 - u2) + (u2 - u1) * (v0 - v2);
+        if (Math.abs(denom) < 1e-5) continue;
+
+        for (let py = minV; py <= maxV; py++) {
+          for (let px = minU; px <= maxU; px++) {
+            const w0 = ((v1 - v2) * (px - u2) + (u2 - u1) * (py - v2)) / denom;
+            const w1 = ((v2 - v0) * (px - u2) + (u0 - u2) * (py - v2)) / denom;
+            const w2 = 1 - w0 - w1;
+            if (w0 < -0.04 || w1 < -0.04 || w2 < -0.04) continue;
+
+            const vx = w0 * x0 + w1 * x1 + w2 * x2;
+            const vy = w0 * y0 + w1 * y1 + w2 * y2;
+            const vz = w0 * z0 + w1 * z1 + w2 * z2;
+            const fz = Math.min(1, Math.max(0, (vz - 0.052) / 0.045));
+            const fy = Math.min(1, Math.max(0, (vy - 1.532) / 0.022)) * Math.min(1, Math.max(0, (1.695 - vy) / 0.022));
+            const fx = Math.min(1, Math.max(0, (0.088 - Math.abs(vx)) / 0.018));
+            const alpha = fz * fy * fx;
+            if (alpha <= 0.01) continue;
+
+            const srcX = Math.max(0, Math.min(pw - 1, Math.round(mapXToPx(vx) * pw)));
+            const srcY = Math.max(0, Math.min(ph - 1, Math.round(mapYToPy(vy) * ph)));
+            const sIdx = (srcY * pw + srcX) * 4;
+            const dIdx = (py * tw + px) * 4;
+            const sr = Math.min(255, pData[sIdx] * 1.22 + 16);
+            const sg = Math.min(255, pData[sIdx + 1] * 1.22 + 14);
+            const sb = Math.min(255, pData[sIdx + 2] * 1.20 + 12);
+            td[dIdx]     = Math.round(td[dIdx] * (1 - alpha) + sr * alpha);
+            td[dIdx + 1] = Math.round(td[dIdx + 1] * (1 - alpha) + sg * alpha);
+            td[dIdx + 2] = Math.round(td[dIdx + 2] * (1 - alpha) + sb * alpha);
+          }
+        }
+      }
+      tCtx.putImageData(tImg, 0, 0);
+      const prevFlip = tex.flipY;
+      tex.image = tCv;
+      tex.flipY = prevFlip;
+      tex.needsUpdate = true;
+    } catch (e) { console.warn('[GuardPortraitBake]', e); }
+  }
   function extractHumanRig(model) {
     const b = name => model.getObjectByName(name);
     return {
@@ -304,7 +399,7 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
     if (!holder || !holder.isObject3D) throw new TypeError(id + ': 유효한 Three.js 그룹이 필요합니다');
     if (pending.has(holder)) return pending.get(holder);
 
-    const url = (options.url || ('assets/characters/' + id + '.glb')) + '?v=147';
+    const url = (options.url || ('assets/characters/' + id + '.glb')) + '?v=148';
     const targetHeight = Number(options.height) || (id === 'mina' ? .95 : 1.75);
     const yaw = ((Number(options.yawDegrees) || 0) * Math.PI) / 180;
     const originalChildren = [...holder.children];
@@ -337,6 +432,7 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
       pivot.add(model);
 
       enhanceCharacterMaterials(model, id);
+      if (id === 'guard') await bakeGuardPortraitFace(model);
 
       const clips = gltf.animations || [];
       if (clips.length) {

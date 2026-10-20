@@ -4,11 +4,11 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { NOTES } from './story.js?v=180';
+import { NOTES } from './story.js?v=181';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=180';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=181';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -3562,8 +3562,54 @@ export function buildWorld(scene) {
       nOps.forEach(nw => { if (!nw.door) win3D(F.interior, nw.w, nw.y1 - nw.y0, nw.x, (nw.y0 + nw.y1) / 2, -9.62, 0); });
       col(X0, X1, Z0, -9.6, true); }
     awall(X0, -20, -9.6, Z1, CH); awall(28, X1, -9.6, Z1, CH); awall(20, 28, -1.75, -1.45, CH);
-    // 별관 연결 홀(cx = 0, z = 4.5, 8.2) 천장 조명 추가 (구름다리에서 별관 안을 바라볼 때도 연결 홀이 환하게 비춰지도록 보장!)
-    F.lamps.push({ x: .8, y: F.y0 + CH - .5, z: 7.5, kind: 'on', mat: matLampOn }, { x: 0, y: F.y0 + CH - .5, z: 3.5, kind: 'on', mat: matLampOn });
+    // 별관 연결 홀(cx = 0, z = 4.5, 8.2) 천장 조명 추가
+    F.lamps.push({ x: .8, y: F.y0 + CH - .5, z: 7.5, kind: 'on', mat: matLampOn }, { x: 0, y: F.y0 + CH - .5, z: 3.5, kind: 'on', mat: matLampOn }, { x: .8, y: F.y0 + 2.75, z: 13.5, kind: 'on', mat: matLampOn });
+    // 별관 남쪽 문(z = 9.6) 너머로 이어지는 구름다리/필로티 통로(z: 9.62 ~ 20.2) 및 본관 북측 외관·중앙계단실(z: 20.2 ~ 28.0) 구축!
+    // (모든 외부 지형과 통로는 반드시 별관 외벽 바깥 z > 9.62 및 z < -9.95 에만 배치하여 별관 실내 바닥 z: -9.6~9.6 과 겹침 0.0mm 보장!)
+    {
+      const gy = -k * FH - .04, mOutGnd = new THREE.MeshBasicMaterial({ map: T.makeGround(), color: 0x485846 });
+      // 별관 건물 바닥(x: -20.4 ~ 28.4, z: -10.0 ~ 20.5)을 완전히 비운 외부 지면
+      flat(F.interior, mOutGnd, -80, 80, -70, -10.0, gy, 6);
+      flat(F.interior, mOutGnd, -80, -20.4, -10.0, 65, gy, 6);
+      flat(F.interior, mOutGnd, 28.4, 80, -10.0, 65, gy, 6);
+      flat(F.interior, mOutGnd, -20.4, -.95, 9.95, 20.2, gy, 3);
+      flat(F.interior, mOutGnd, 2.55, 28.4, 9.95, 20.2, gy, 3);
+      // 구름다리 통로 바닥 · 천장 · 투톤 허리벽 · 유리창 (x: -0.85 ~ +2.45, z: 9.62 ~ 20.2)
+      flat(F.interior, mFloorTile, -.85, 2.45, 9.62, 23.5, .005);
+      flat(F.interior, mCeil, -.85, 2.45, 9.62, 23.5, 2.92, 2, false);
+      [-.85, 2.45].forEach(px => {
+        F.interior.add(
+          boxMesh(px - .05, px + .05, 0, 1.0, 9.62, 20.2, mWainscot98),
+          boxMesh(px - .06, px + .06, 1.0, 1.06, 9.62, 20.2, mChairRail98),
+          boxMesh(px - .05, px + .05, 2.3, 2.92, 9.62, 20.2, mPlaster98)
+        );
+        [10.2, 13.5, 16.8, 19.8].forEach(pz => F.interior.add(boxMesh(px - .05, px + .05, 1.0, 2.3, pz - .25, pz + .25, mPlaster98)));
+        win3D(F.interior, 2.8, 1.25, px, 1.65, 11.85, Math.PI / 2);
+        win3D(F.interior, 2.8, 1.25, px, 1.65, 15.15, Math.PI / 2);
+        win3D(F.interior, 2.8, 1.25, px, 1.65, 18.30, Math.PI / 2);
+      });
+      // 구름다리 남단 본관 외벽(z: 20.2 ~ 20.5) 및 본관 중앙계단실 내부(z: 20.5 ~ 26.0)
+      const mainY0 = -k * FH;
+      F.interior.add(
+        boxMesh(-36.3, -.85, mainY0, mainY0 + 12.4, 20.2, 20.5, mFacade, 3),
+        boxMesh(2.45, 36.3, mainY0, mainY0 + 12.4, 20.2, 20.5, mFacade, 3),
+        boxMesh(-.85, 2.45, 2.55, 3.6, 20.2, 20.5, mFacade, 2),
+        boxMesh(-3.85, 3.85, 0, 3.6, 25.8, 26.1, mPlaster98),
+        boxMesh(-4.15, -3.85, 0, 3.6, 20.2, 26.1, mPlaster98),
+        boxMesh(3.85, 4.15, 0, 3.6, 20.2, 26.1, mPlaster98)
+      );
+      add(mWoodDark, .12, 2.55, .32, -.85, 0, 20.35);
+      add(mWoodDark, .12, 2.55, .32, 2.45, 0, 20.35);
+      add(mWoodDark, 3.42, .12, .32, .80, 2.55, 20.35);
+      plane(F.interior, new THREE.MeshBasicMaterial({ map: T.makeSign(`본관 ${k + 1}층 중앙계단 직결 ↓`, '#182c38', '#d8f0e8', 22), color: 0x9aa59a }), 1.85, .32, .8, 2.75, 20.16, Math.PI);
+      for (let mf = 0; mf < 3; mf++) {
+        SLOTS.forEach(mcx => {
+          if (mcx === 0) return;
+          [-3.05, 3.05].forEach(dx => win3D(F.interior, 1.3, 1.45, mcx + dx, mainY0 + mf * FH + 1.75, 20.18, Math.PI));
+        });
+      }
+      col(-1.85, -.82, 9.6, 20.2, true); col(2.42, 3.45, 9.6, 20.2, true);
+    }
     // 복도 남벽: 중앙(cx = 0)은 1·2·3층 모두 문 없는 6m 광폭 개구부, 동쪽 확장 슬롯(cx = 24)을 포함한 나머지 방은 미닫이문!
     slSouth.forEach((cx, i) => {
       if (sTypes[i] === 'lobbyA') { awall(cx - 4, cx - 3, 1.45, 1.75, CH); awall(cx + 3, cx + 4, 1.45, 1.75, CH); awall(cx - 3, cx + 3, 1.45, 1.75, CH, 2.7); [-3, 3].forEach(dx => add(mWoodDark, .12, 2.7, .36, cx + dx, 0, 1.6)); }
@@ -4130,14 +4176,20 @@ export function buildWorld(scene) {
   const addO = (mat, w, h, d, x, y, z, o = {}) => add(mat, w, h, d, x, y, z, { ...o, parent: OUT });
   const outWall = (x1, x2, z1, z2, h, mat, wall = true) => { const m = boxMesh(x1, x2, 0, h, z1, z2, mat); OUT.add(m); col(x1, x2, z1, z2, wall); };
 
-  // 지면: 본관 지하 계단 개구부(1F -> B1)를 가로막지 않도록 본관 실내 바닥 영역(-36.0 ~ 36.0, -9.6 ~ 9.6)을 비우고 동·서·남·북 4분할로 시공!
+  // 지면: 본관(-36.0~36.0, -9.6~9.6)과 별관(-28.0~28.0, -32.0~-20.5) 실내 바닥 영역을 모두 비우고 분할 시공하여 실내외 바닥 겹침(Z-fighting) 원천 차단!
   const groundMat = S(T.makeGround());
-  flat(OUT, groundMat, -320, 320, -260, -9.6, -.02, 8);
+  flat(OUT, groundMat, -320, 320, -260, -32.0, -.02, 8);
+  flat(OUT, groundMat, -320, -28.0, -32.0, -20.5, -.02, 6);
+  flat(OUT, groundMat, 28.0, 320, -32.0, -20.5, -.02, 6);
+  flat(OUT, groundMat, -320, 320, -20.5, -9.6, -.02, 6);
   flat(OUT, groundMat, -320, 320, 9.6, 320, -.02, 8);
   flat(OUT, groundMat, -320, -36.0, -9.6, 9.6, -.02, 8);
   flat(OUT, groundMat, 36.0, 320, -9.6, 9.6, -.02, 8);
   OUT.add(
-    boxMesh(-130, 130, -.45, -.018, -120, -9.6, groundMat, 8),
+    boxMesh(-130, 130, -.45, -.018, -120, -32.0, groundMat, 8),
+    boxMesh(-130, -28.0, -.45, -.018, -32.0, -20.5, groundMat, 6),
+    boxMesh(28.0, 130, -.45, -.018, -32.0, -20.5, groundMat, 6),
+    boxMesh(-130, 130, -.45, -.018, -20.5, -9.6, groundMat, 6),
     boxMesh(-130, 130, -.45, -.018, 9.6, 100, groundMat, 8),
     boxMesh(-130, -36.0, -.45, -.018, -9.6, 9.6, groundMat, 8),
     boxMesh(36.0, 130, -.45, -.018, -9.6, 9.6, groundMat, 8)
@@ -4319,34 +4371,55 @@ export function buildWorld(scene) {
     const p = new THREE.Mesh(new THREE.CylinderGeometry(.07, .07, 5, 6), mMetal); p.position.set(-115.2, 2.5, z); OUT.add(p);
     const h = new THREE.Mesh(new THREE.BoxGeometry(1.2, .1, .3), mMetal); h.position.set(-115.7, 5, z); OUT.add(h);
   }
-  // 별관(특별교실동) 외관 — 별관 실제 실내(local z: -9.6 ~ +9.6, world z: -39.7 ~ -20.5) 외벽 두께 구간(-40.0 ~ -39.65 및 -20.5 ~ -20.2)에 정확히 일치시켜 실내 침범 0.0mm!
+  // 별관(특별교실동) 외관 및 1·2·3층 직통 연결 홀 — 야외 캠퍼스 부지(z: -32.0 ~ -20.5)에 정확히 맞춰 북부 보행로(z=-32.4~-35.2) 및 대강당(z=-35~-61)과 맵 충돌 0건!
   {
-    const zN_A = -40.0, zS_A = -20.2;
+    const zN_A = -25 - ANNEX_DZ, zS_A = -13.5 - ANNEX_DZ;
     OUT.add(
-      boxMesh(-20.3, -20.0, 0, 12.4, zN_A, zS_A, mBrick, 2.5),
-      boxMesh(28.0, 28.3, 0, 12.4, zN_A, zS_A, mBrick, 2.5)
+      boxMesh(-20, -19.6, 0, 12.4, zN_A, zS_A, mBrick, 2.5),
+      boxMesh(27.6, 28, 0, 12.4, zN_A, zS_A, mBrick, 2.5)
     );
     // 층간 가로 벽돌 스팬드럴(Spandrels: y 0~1.05, 2.55~5.05, 6.55~9.05, 10.55~12.4)
     [[0, 1.05], [2.55, 5.05], [6.55, 9.05], [10.55, 12.4]].forEach(([y0, y1]) => {
       OUT.add(
-        boxMesh(-20.3, -.85, y0, y1, -20.48, zS_A, mBrick, 2.5),
-        boxMesh(2.45, 28.3, y0, y1, -20.48, zS_A, mBrick, 2.5),
-        boxMesh(-20.3, 28.3, y0, y1, zN_A, -39.68, mBrick, 2.5)
+        boxMesh(-20, -.85, y0, y1, zS_A - .32, zS_A, mBrick, 2.5),
+        boxMesh(2.45, 28, y0, y1, zS_A - .32, zS_A, mBrick, 2.5),
+        boxMesh(-20, 28, y0, y1, zN_A, zN_A + .32, mBrick, 2.5)
       );
     });
-    // 구름다리/필로티 연결 홀 좌·우 외벽 마감 기둥 (실내 벽면 z=-20.5 바깥쪽에만 위치!)
+    // 구름다리/필로티 연결 홀 좌·우 외벽 마감 기둥
     OUT.add(
-      boxMesh(-3.15, -.85, 0, 12.4, -20.48, zS_A, mBrick, 2.5),
-      boxMesh(2.45, 4.95, 0, 12.4, -20.48, zS_A, mBrick, 2.5),
-      boxMesh(-3.15, 4.95, 0, 12.4, zN_A, -39.68, mBrick, 2.5)
+      boxMesh(-3.15, -.85, 0, 12.4, zS_A - .35, zS_A, mBrick, 2.5),
+      boxMesh(2.45, 4.95, 0, 12.4, zS_A - .35, zS_A, mBrick, 2.5),
+      boxMesh(-3.15, 4.95, 0, 12.4, zN_A, zN_A + .35, mBrick, 2.5)
     );
     // 창문 사이 세로 벽돌 기둥(Piers)
     for (let x = -20; x <= 28; x += 4) {
       if (x > -3.5 && x < 4.5) continue;
       OUT.add(
-        boxMesh(x - .92, x + .92, 1.05, 10.55, -20.48, zS_A, mBrick, 2.5),
-        boxMesh(x - .92, x + .92, 1.05, 10.55, zN_A, -39.68, mBrick, 2.5)
+        boxMesh(x - .92, x + .92, 1.05, 10.55, zS_A - .32, zS_A, mBrick, 2.5),
+        boxMesh(x - .92, x + .92, 1.05, 10.55, zN_A, zN_A + .32, mBrick, 2.5)
       );
+    }
+    // 구름다리/필로티에서 북쪽을 바라볼 때 보이는 별관 1·2·3층 내부 연결 홀 및 복도 (z: -20.5 ~ -31.7, 야외 도로 침범 0건!)
+    for (let k = 0; k < 3; k++) {
+      const fy = k * FH;
+      flat(OUT, mFloorTile, -19.6, 27.6, zN_A + .32, zS_A, fy + .018);
+      flat(OUT, mCeil, -19.6, 27.6, zN_A + .32, zS_A, fy + CH, 4, false);
+      // 연결 홀 좌·우 벽(x = -4.0, +4.0) 및 동서 복도 벽(z = -26.5, -29.8)
+      buildLayered1998Wall(OUT, -4.15, -3.85, -26.5, zS_A, fy, fy + CH, mWall);
+      buildLayered1998Wall(OUT,  3.85,  4.15, -26.5, zS_A, fy, fy + CH, mWall);
+      buildLayered1998Wall(OUT, -19.6, -3.0, -26.8, -26.5, fy, fy + CH, mWall);
+      buildLayered1998Wall(OUT,  3.0,  27.6, -26.8, -26.5, fy, fy + CH, mWall);
+      buildLayered1998Wall(OUT, -3.0,   3.0, -26.8, -26.5, fy + 2.7, fy + CH, mWall);
+      buildLayered1998Wall(OUT, -19.6, 27.6, -31.68, -31.38, fy, fy + CH, mWall);
+      add(mWoodDark, .14, 2.65, .38, -.85, fy, zS_A - .15, { parent: OUT });
+      add(mWoodDark, .14, 2.65, .38, 2.45, fy, zS_A - .15, { parent: OUT });
+      add(mWoodDark, 3.44, .14, .38, .80, fy + 2.65, zS_A - .15, { parent: OUT });
+      const hallLbl = k === 0 ? '별관 1층 중앙 연결 홀 (본관 1F 직결)' : `별관 ${k + 1}층 구름다리 연결 홀 (본관 ${k + 1}F 직결)`;
+      plane(OUT, new THREE.MeshBasicMaterial({ map: T.makeSign(hallLbl, '#182c38', '#d8f0e8', 22), color: 0x9aa59a }), 2.3, .34, .80, fy + 2.82, zS_A - .32);
+      const roomLbl = ['기술·가정실 (102)', '언어실 (202)', '공예실'][k];
+      plane(OUT, new THREE.MeshBasicMaterial({ map: T.makeSign(roomLbl, '#1e2a2e', '#d9e4d0', 24), color: 0x9aa59a }), 1.2, .26, .80, fy + 2.62, -31.34);
+      add(mWoodDark, 1.8, 2.4, .08, .80, fy, -31.36, { parent: OUT });
     }
   }
   col(-20, -.85, -25 - ANNEX_DZ, -13.5 - ANNEX_DZ, true);
@@ -4364,7 +4437,7 @@ export function buildWorld(scene) {
       }
       [-22 - ANNEX_DZ, -17 - ANNEX_DZ].forEach(z => {
         win3D(OUT, 1.8, 1.5, -20.05, y, z, -Math.PI / 2, pickWin());
-        win3D(OUT, 1.8, 1.5, 20.05, y, z, Math.PI / 2, pickWin());
+        win3D(OUT, 1.8, 1.5, 28.05, y, z, Math.PI / 2, pickWin());
       });
     });
   }
@@ -4419,7 +4492,7 @@ export function buildWorld(scene) {
     tileRoad(25.0, 39.6, 9.8, 12.2, false, true);        // 동쪽 아케이드 인도 ↔ 동부 남북 인도 연결
     // 3) 구름다리 아래 1층 필로티 동서 횡단 메인 인도
     tileRoad(-37.0, 37.0, -16.8, -13.6, false, true);
-    flat(OUT, pave, -5.5, 6.5, WALKWAY.z1 - .2, WALKWAY.z2 - .02, .014, 3);
+    flat(OUT, pave, -5.5, 6.5, WALKWAY.z1 + .02, WALKWAY.z2 - .02, .014, 3);
     // 4) ★ 서문(西門, x=-114.0, z=55.6 — 2번 사진 자리!) 직결 서남 동서 대보행로 & 중서부 연결로
     tileRoad(-113.8, -27.2, 54.0, 57.2, false, true);    // 정문/운동장 서남단(x=-27.2)에서 제2주차장·학생회관 사이를 지나 서쪽 끝 서문(x=-113.8, z=55.6)까지 일직선 직결!
     tileRoad(-69.4, -29.6, 26.6, 29.4, false, true);     // 급식실(z<=25)과 수영장(z>=31) 사이를 통과하는 중서부 동서 연결 인도
@@ -4544,7 +4617,7 @@ export function buildWorld(scene) {
     // 별관 외관 보강: 창틀 · 층간 띠 · 코니스
     const af = [];
     [1.8, 5.8, 9.8].forEach((y, r) => { for (let x = -18; x <= 26; x += 4) { if (x > -3.5 && x < 4.5) continue; af.push(bx(2.7, .1, .2, x, y - .85, -13.4 - ANNEX_DZ, 3), bx(2.7, .14, .14, x, y + .86, -13.43 - ANNEX_DZ, 3)); } });
-    [4, 8].forEach(y => af.push(bx(40.4, .26, .16, 0, y, -13.42 - ANNEX_DZ, 3)));
+    [4, 8].forEach(y => { af.push(bx(19.2, .26, .16, -10.55, y, -13.42 - ANNEX_DZ, 3), bx(25.4, .26, .16, 15.25, y, -13.42 - ANNEX_DZ, 3)); });
     for (let x = -20; x <= 20; x += 8) if (x !== 0) af.push(bx(.4, 12.4, .2, x, 6.2, -13.4 - ANNEX_DZ, 3));
     // (예전 별관 현관 캐노피 + 기둥 2개는 연결 통로 안에 겹쳐 서 있어 제거 — 연결 통로 지붕이 현관을 덮는다)
     OUT.add(new THREE.Mesh(merge(af), mFacadeTrim));
@@ -4686,7 +4759,7 @@ export function buildWorld(scene) {
 
 
   // 나무: 건물/길을 피해서 배치, 울퉁불퉁한 수관 + 개체별 색 변화
-  const BLOCK = [[GUARD_LAYOUT.originX - 1.4, GUARD_LAYOUT.originX + GUARD_LAYOUT.width + 1.4, GUARD_LAYOUT.originZ - GUARD_LAYOUT.depth - 1.4, GUARD_LAYOUT.originZ + 1.4], [-22.5, -17.5, 62.2, 65.8], [-1.8, 3.8, WALKWAY.z1 - .1, -9.8], [-37.5, 37.5, -11, 11.5], [-21.5, 21.5, -33, WALKWAY.z1 + 1], [MEGA.gym.x - MEGA.gym.w / 2 - 1.5, MEGA.gym.x + MEGA.gym.w / 2 + 1.5, MEGA.gym.z - MEGA.gym.d / 2 - 1.5, MEGA.gym.z + MEGA.gym.d / 2 + 3.5], [MEGA.court.x - MEGA.court.w / 2 - .5, MEGA.court.x + MEGA.court.w / 2 + .5, MEGA.court.z - MEGA.court.d / 2 - .5, MEGA.court.z + MEGA.court.d / 2 + .5], [26.5, 49.5, 11, 36], [-49.5, -28.5, 11, 26.5], [-49.5, -32.5, 29.5, 52.5], [-5, 5, 60, 72], [-17, 17, 1.5, 12]];
+  const BLOCK = [[GUARD_LAYOUT.originX - 1.4, GUARD_LAYOUT.originX + GUARD_LAYOUT.width + 1.4, GUARD_LAYOUT.originZ - GUARD_LAYOUT.depth - 1.4, GUARD_LAYOUT.originZ + 1.4], [-22.5, -17.5, 62.2, 65.8], [-1.8, 3.8, WALKWAY.z1 - .1, -9.8], [-37.5, 37.5, -11, 11.5], [-28.5, 28.5, -32.4, WALKWAY.z1 + 1], [MEGA.gym.x - MEGA.gym.w / 2 - 1.5, MEGA.gym.x + MEGA.gym.w / 2 + 1.5, MEGA.gym.z - MEGA.gym.d / 2 - 1.5, MEGA.gym.z + MEGA.gym.d / 2 + 3.5], [MEGA.court.x - MEGA.court.w / 2 - .5, MEGA.court.x + MEGA.court.w / 2 + .5, MEGA.court.z - MEGA.court.d / 2 - .5, MEGA.court.z + MEGA.court.d / 2 + .5], [26.5, 49.5, 11, 36], [-49.5, -28.5, 11, 26.5], [-49.5, -32.5, 29.5, 52.5], [-5, 5, 60, 72], [-17, 17, 1.5, 12]];
   const blocked = (x, z, m = 0) => BLOCK.some(([a, b2, c, d]) => x > a - m && x < b2 + m && z > c - m && z < d + m);
   const trunkG = merge([new THREE.CylinderGeometry(.16, .3, 3.4, 7).translate(0, 1.7, 0), tube(.07, 0, 2.2, 0, .9, 3.4, .3), tube(.06, 0, 2.6, 0, -.7, 3.7, -.4)]);
   const lump = (r, x, y, z) => {

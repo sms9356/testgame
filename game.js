@@ -10,15 +10,15 @@ import { createNPCVisuals } from './npcVisuals.js';
 import { applyGuardSeatedPose } from './guardSeatedPose.js';
 import { createCampusCctvLive, collectCampusCctvFeeds } from './campusCctvLive.js';
 import { applyExteriorFloorVisibility, shouldStreamGuardCctv } from './exteriorRenderBudget.js';
-import { GUARD_LAYOUT } from './guardRoomLayout.js?v=136';
-import { installGuardRoom } from './guardRoom.js?v=136';
+import { GUARD_LAYOUT } from './guardRoomLayout.js?v=137';
+import { installGuardRoom } from './guardRoom.js?v=137';
 import { prepareModelGeometry } from './modelGeometry.js';
 import { modelFootprint, overlaps, removeDuplicateModels } from './placement.js';
-import { turfMaterial } from './campusVisuals.js?v=136';
+import { turfMaterial } from './campusVisuals.js?v=137';
 import { installInfirmaryAssets, updateInfirmaryCabinets } from './infirmaryAssets.js';
-import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js?v=136'; import { updateWindowFakes } from './windowInteriors.js?v=136';
-import { drawMap } from './map.js?v=136';
-import { buildMegaCampus15000, MEGA_CAMPUS_ZONES } from './megaCampus15000.js?v=136';
+import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js?v=137'; import { updateWindowFakes } from './windowInteriors.js?v=137';
+import { drawMap } from './map.js?v=137';
+import { buildMegaCampus15000, MEGA_CAMPUS_ZONES } from './megaCampus15000.js?v=137';
 import { makeDress, makeHair, makeGhostFace, makeGraffiti, makeKeypad, loadPBR, pbr, makeGlow as makeGlowTex, makePaintingStare, makeSign, makeBlood } from './tex.js';
 import { warmUp } from './bake.js';
 import { createStaticDistanceLOD } from './staticDistanceLOD.js';
@@ -39,12 +39,12 @@ import './school37RoomsPatch.js';    // 본관 · 별관 37개 특별실 가구 
 import './new37UniquePatch.js';     // 37개 구역 신규 특수 설비 · 벽면 레일 (사용자 제공) → window.new37UniquePatch
 import './megaExpansionPatch.js';   // 메가 익스팬션 · 최적화 · 4막 사건 기록 · 수집품 · 미니게임 (사용자 제공) → window.megaSchoolPatch
 import './poolMachineryPatch.js';     // 수영장 · 남/녀 탈의실·샤워실 · 기계실 철문 (사용자 제공) → window.poolAndMachineryPatch
-import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx } from './audio.js?v=136'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=136'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera } from './perfStabilizer.js';
-import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js?v=136';
-import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, SIDEQUESTS, HEADQUEST, COLLECT, LOCKER_SCARES, CHALK_QA, OUIJA_QS, PARA, TOILET_FX, MIRROR_WORDS } from './story.js?v=136';
+import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx } from './audio.js?v=137'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=137'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera } from './perfStabilizer.js';
+import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js?v=137';
+import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, SIDEQUESTS, HEADQUEST, COLLECT, LOCKER_SCARES, CHALK_QA, OUIJA_QS, PARA, TOILET_FX, MIRROR_WORDS } from './story.js?v=137';
 import { isSpeechBusy } from './voice.js';
 import { SET, saveSET, resetSET, DIFF, keyLabel } from './settings.js';
-import { initI18n, setLang, lang as curLang } from './i18n.js?v=136';   // 언어 패치 (한국어 · English · 日本語 · 中文)
+import { initI18n, setLang, lang as curLang } from './i18n.js?v=137';   // 언어 패치 (한국어 · English · 日本語 · 中文)
 initI18n();
 const K = () => SET.keys;
 let guardRoomController = null, guardControlProps = [], guardCctvData = null, campusCctv = null;
@@ -60,7 +60,7 @@ function syncGuardDevices() {
 function toggleGuardCCTV(persist = true) { FL.guardCctvOn = !(FL.guardCctvOn ?? true); sfx.click(); syncGuardDevices(); if (persist) save(true); return FL.guardCctvOn; }
 function toggleGuardLight() { FL.guardLightOn = !(FL.guardLightOn ?? false); sfx.click(); syncGuardDevices(); say(FL.guardLightOn ? '경비실 전등을 켰다' : '경비실 전등을 껐다', 1800); save(true); return FL.guardLightOn; }
 
-import { run as runMini, MG } from './minigames.js?v=136';
+import { run as runMini, MG } from './minigames.js?v=137';
 import { SCHEMA, BUILD, storageKeys, itemUid, propUid, doorUid, assignUids, readSlot, writeSlot, hasSlot, clearSlot, repairProgress } from './saveSystem.js';
 loadManifest().then(() => registerLines({ ...VO, ...Object.fromEntries(Object.entries(STORY_NOTES).filter(([, n]) => n.text).map(([k, n]) => ['note_' + k, { spk: 'narrator', text: n.title + '. ' + n.text, parts: [n.title, n.text] }])) }));
 
@@ -974,12 +974,57 @@ function hit() {
   settleStoryGhost(ghost);
 }
 
+window.__readSeomunNewspaper = () => {
+  const isJ = CHAR === 'jihun';
+  const who = isJ ? '지훈 (주인공)' : '서연 (주인공)';
+  const readId = isJ ? 'newspaper_read_j' : 'newspaper_read_s';
+  const voiceId = isJ ? 'l_office_j' : 'l_office_s';
+  stopSpeak();
+  // 먼저 주인공 실제 성우 음성을 재생하고 이어서 신문 기사 낭독 보이스를 재생!
+  line(voiceId, 'none', who).then(() => { if (state === 'note') line(readId, 'none', who); });
+};
 function showNote(it) {
-  storyCalm(25);
+  storyCalm(35);
   state = 'note';
+  if (it.id === 'n_seomun_ilbo' || it.newspaper) {
+    const whoName = CHAR === 'jihun' ? '지훈' : '서연';
+    $('note').innerHTML = [
+      '<div style="background:#e8dfc8;color:#181512;padding:18px 22px;border:3px double #2b241d;box-shadow:inset 0 0 28px rgba(60,42,20,0.28);font-family:serif;line-height:1.55;max-width:640px;margin:0 auto;text-align:left;">',
+        '<div style="display:flex;justify-content:space-between;align-items:flex-end;border-bottom:3px solid #181512;padding-bottom:6px;margin-bottom:10px;">',
+          '<span style="font-size:11px;font-family:sans-serif;color:#4a3e30;">제4102호 [특별 호외] · 발행처: 서문일보사</span>',
+          '<span style="font-size:28px;font-weight:900;letter-spacing:6px;color:#111;">西 門 日 報 <small style="font-size:14px;letter-spacing:1px;">(서문일보)</small></span>',
+          '<span style="font-size:11px;font-family:sans-serif;color:#4a3e30;">1998년 10월 13일 (화요일)</span>',
+        '</div>',
+        '<div style="background:#1c1815;color:#f4ebd4;padding:8px 12px;margin-bottom:12px;text-align:center;">',
+          '<div style="color:#ff6850;font-size:11px;font-family:sans-serif;font-weight:bold;letter-spacing:2px;">[긴급 사회면 특보 · 서문경찰서 수사속보]</div>',
+          '<div style="font-size:19px;font-weight:900;margin-top:3px;line-height:1.3;">“서문고 3학년 윤하늘 양 심야 실종… 지하 펌프실 폴리스라인 설치”</div>',
+        '</div>',
+        '<div style="display:grid;grid-template-columns:1.05fr 1.25fr;gap:14px;font-size:12.5px;border-bottom:1.5px solid #5a4e3e;padding-bottom:12px;">',
+          '<div style="background:#d8ceb4;border:1px solid #5a4e3e;padding:10px;">',
+            '<div style="background:#e6b818;color:#111;font-weight:900;font-family:sans-serif;font-size:11px;text-align:center;padding:3px 0;margin-bottom:6px;border:1px solid #111;">POLICE LINE DO NOT CROSS · 사건현장 통제</div>',
+            '<div style="font-weight:bold;color:#7a1c18;margin-bottom:4px;">■ 감식반 현장 증거물 목록 (지하 B1 펌프실)</div>',
+            '<div style="font-size:11.5px;line-height:1.45;color:#221d18;">• <b>증거 01호</b>: 복도 쪽 철문 바깥에서 걸린 빗장 (교무부장 보관 열쇠 계통)<br>• <b>증거 02호</b>: 3회 이상 교체 건의가 묵살된 노후 비상등 배선 합선 흔적<br>• <b>증거 03호</b>: 23시 40분에 멈춘 방수 손목시계와 방송 원고</div>',
+          '</div>',
+          '<div style="text-align:justify;line-height:1.55;color:#1e1914;">',
+            '<b>【서문=특별취재반】</b> 지난 12일 밤 11시 20분경 서문고 본관 대정전 직후 방송부 3학년 2반 <b>윤하늘(18)</b> 양이 실종돼 경찰이 지하 배수 펌프실에 폴리스라인을 설치했다.<br>',
+            '학교 측은 단순 귀가 지연이라 해명했으나, 당직 경비원의 순찰 일지와 <b>교장실 심야 비상대책회의</b> 정황이 포착되며 조직적 은폐 의혹이 일고 있다.<br>',
+            '특히 그날 밤 남아 있던 <b>5명의 책임자(교무실·도서실·과학실·체육관·수영장)</b>가 정문 열쇠를 5조각으로 나누어 숨겼으며, <b>교장실 괘종시계를 자정(12:00)</b>에 맞춰야 열리는 비밀 서고에 원본 기록이 봉인됐다는 증언이 확보됐다.',
+          '</div>',
+        '</div>',
+        '<div style="margin-top:10px;display:flex;justify-content:space-between;align-items:center;font-family:sans-serif;">',
+          '<span style="font-size:12px;color:#5a281e;font-weight:bold;">🎙 주인공(' + whoName + ')이 신문 기사를 직접 읽으며 단서를 추리합니다</span>',
+          '<button onclick="window.__readSeomunNewspaper()" style="background:#7a241c;color:#fff;border:1px solid #221;padding:5px 12px;font-size:12px;font-weight:bold;cursor:pointer;border-radius:3px;">🔊 ' + whoName + ' 목소리로 다시 읽기</button>',
+        '</div>',
+      '</div>'
+    ].join('');
+    $('noteBox').classList.add('show'); sfx.paper();
+    window.__readSeomunNewspaper();
+    return;
+  }
   $('note').innerHTML = (it.img ? `<img class="photo" src="assets/img/${it.img}.webp" alt="">` : '') + `<b style="font-size:19px">${it.title}</b><br><br>${it.text}<small>${it.img ? '— 빛바랜 사진' : it.tape ? '— 녹음 내용' : '— 낡은 종이'}</small>`;
   $('noteBox').classList.add('show'); it.img ? sfx.photo() : sfx.paper();
-  if (it.kind === 'note' && it.id && VS.readNotes) speak('note_' + it.id);
+  if (it.voiceKey) line(it.voiceKey, 'tape', it.voiceWho || '📼 녹취록 재생');
+  else if (it.kind === 'note' && it.id && VS.readNotes) speak('note_' + it.id);
 }
 function closeNote() { $('noteBox').classList.remove('show'); if (state === 'note') { state = 'playing'; stopSpeak(); } }
 
@@ -1441,7 +1486,35 @@ async function useRoomObj(p) {
   if (k === 'water') { sfx.drip(); setTimeout(() => { caption('녹물… 아니, 붉은 물이 한참 흐르다 맑아진다'); fx.glitch(.3); setFace('fear', 2); }, 500); return; }
   if (k === 'ballot') { sfx.paper(); showNote({ title: '학생회 투표함', text: '2006년 2학기 방송부장 선거.<br>개표되지 않은 용지 41장 — 전부 같은 이름이다.<br><br><b>윤하늘 ○</b>' }); p.done = true; return; }
   if (k === 'guardlog') {
-    sfx.paper(); showNote({ title: '경비 일지 — 10월 12일', text: '17:30 정문 순찰. 이상 없음.<br>17:42 서현고 교복 학생 1명, 정문으로 들어감. <b>방송부 조끼.</b> 불렀으나 대답 없음.<br>17:50 또 한 명. 친구를 찾는다고 했다.<br><br>…매년 이 날이면 꼭 누가 들어간다. 나는 들어가지 않는다.<br><i>11시 40분이 되기 전에 나와야 한다.</i>' });
+    if (!docs.some(d => d.id === 'n_guard_diary')) { addDoc({ id: 'n_guard_diary', kind: 'note' }); addClue('c1'); }
+    showNote({
+      title: '경비실 심야 순찰 일지 (1998.10.12 & 오늘)',
+      text: '<b>[1998년 10월 12일 밤 순찰 기록 — 당직 경비원 박종철]</b><br>• <b>22:15</b> — 지하 펌프실 쪽에서 문 두드리는 소리가 들림. 열쇠는 교무부장이 가져갔다고 함.<br>• <b>23:30</b> — 지하 펌프실 문이 <b>밖에서 잠겨 있음</b>. 교무실에 열쇠를 찾으러 갔으나 교무부장이 오늘 밤 일은 입도 뻥긋하지 말고 정문만 지키라고 호통침.<br><br><b>[10년 뒤 오늘 기록]</b><br>• 17:42 방송부 조끼를 입은 여학생(민아) 정문 진입.<br>• 17:50 친구를 찾겠다며 또 한 명 진입. <i>밤 11시 40분 전엔 반드시 나와야 한다.</i>',
+      tape: true,
+      voiceKey: 'tape_guard_patrol',
+      voiceWho: '📼 경비원 박종철 아저씨 순찰 녹음'
+    });
+    return;
+  }
+  if (k === 'guard_recorder') {
+    sfx.click();
+    if (!docs.some(d => d.id === 'n_guard_diary')) addDoc({ id: 'n_guard_diary', kind: 'note' });
+    line('tape_guard_patrol', 'tape', '📼 경비실 보이스레코더 (박씨 아저씨 육성)').then(() => {
+      setTimeout(() => line('vo_guard_logbook', 'tape', '📓 1998.10.12 경비 일지 낭독'), 400);
+    });
+    say('경비실 보이스레코더에서 1998년 10월 12일 밤 박씨 아저씨가 남긴 순찰 육성 녹음이 흘러나온다!', 4200);
+    return;
+  }
+  if (k === 'principal_recorder') {
+    sfx.click();
+    if (!docs.some(d => d.id === 'n_principal_tape')) { addDoc({ id: 'n_principal_tape', kind: 'note' }); giveItem('battery', 1); }
+    showNote({
+      title: '교장실 비상대책회의 비밀 녹취록 (제9대 교장)',
+      text: '<b>[1998. 10. 12 23:10 교장실 극비 녹취 테이프]</b><br>“보고서에는 단순 실종이라고 썼네. 학교 이름이 『서문일보』 신문에 나는 게 두려웠어… 그 아이 부모에게조차 지하 펌프실 정전 얘기는 절대 하지 말라고 입단속을 시켰지.<br><br>오늘 밤 남아 있던 <b>우리 다섯(교무실·도서실·과학실·체육관·수영장)</b>이 정문 열쇠를 한 조각씩 나누어 맡기로 했네. <b>교장실 괘종시계를 자정(12:00)</b>에 맞추면 서고 금고가 열리네. 정문 열쇠 다섯 조각과 함께 우리가 감춘 기록도 부디 찾아 주게.”',
+      tape: true,
+      voiceKey: 'tape_principal_secret',
+      voiceWho: '📼 당시 교장선생님 비밀 육성 녹음'
+    });
     return;
   }
   if (k === 'guarddoor') {
@@ -1459,19 +1532,20 @@ async function useRoomObj(p) {
   if (k === 'amphitheater_stand') { if (!p.gotBox) { p.gotBox = true; giveItem('musicbox', 1); sfx.pickup(); say('야외 음악당 지휘 보면대 아래에서 태엽 오르골과 합창단 리허설 메모를 발견했다', 3200); } else say('보면대 위에 「1998 추계 학예제 피날레 — 교가 & 학교종」 악보가 펼쳐져 있다', 2600); return; }
   if (k === 'campus_map_board') { sfx.paper(); say('15,000평 캠퍼스 전역(청운학사 기숙사·청운호 수변공원·과학천문관·중앙학술정보관·스포츠단지·학생회관)이 타일 보행로로 연결되어 있다', 3400); return; }
   if (k === 'pump_newspaper') {
-    sfx.paper();
     if (!docs.some(d => d.id === 'n_seomun_ilbo')) { addDoc({ id: 'n_seomun_ilbo', kind: 'note' }); }
-    line('vo_newspaper', 'tape', '📰 1998.10.13 서문일보 호외');
-    setTimeout(() => talk('seomunPaper', 4200), 5200);
-    say('폴리스라인 안쪽에서 『1998. 10. 13 서문일보 지역신문 특별 호외』를 확보했다! (문서함에 저장됨)', 4200);
+    showNote({ id: 'n_seomun_ilbo', newspaper: true, title: '『서문일보』 1998.10.13 지역신문 특별 호외', text: '' });
     return;
   }
   if (k === 'bunker_audit') {
     sfx.clank ? sfx.clank(.7) : sfx.click();
     if (!docs.some(d => d.id === 'n_bunker_audit')) { addDoc({ id: 'n_bunker_audit', kind: 'note' }); giveItem('battery', 1); }
-    line('vo_bunker_tape', 'tape', '📼 방공호 1998 재단 비공개 감사 녹취');
-    setTimeout(() => talk('bunkerEnter', 3800), 5400);
-    say('지하 방공호 기밀 서류함에서 『1998 재단 비공개 감사 보고서』와 예비 건전지를 확보했다!', 4200);
+    showNote({
+      title: '지하 방공호 · 1998 재단 비공개 특별감사 녹취록',
+      text: '<b>[1998. 10. 12 심야 5인 책임자 봉인 회의 녹취록 — 제1특수보존서고]</b><br>“오늘 밤 지하 펌프실 건은 단순 실종 사고로 정리한다. 경찰이나 교육청, 『서문일보』에 절대 새어 나가선 안 돼.<br><br>오늘 밤 학교에 남아 있던 <b>우리 다섯 사람(교무실 금고 · 도서실 · 과학실 · 체육관 · 수영장)</b>이 정문 열쇠를 한 조각씩 나눠 맡기로 했다. 다섯 명이 모두 모이기 전엔, 그 누구도 오늘 밤을 다시 열 수 없다.”',
+      tape: true,
+      voiceKey: 'vo_bunker_tape',
+      voiceWho: '📼 방공호 5인 책임자 비밀 회의 녹취'
+    });
     return;
   }
   if (k === 'dorm_log') {
@@ -1496,7 +1570,7 @@ async function useRoomObj(p) {
   if (k === 'astro_console') { if (!p.got) { const r = await mini('oscilloscope', { title: '과학천문관 — 천체관측 돔 성도 주파수 동조' }); if (r.ok) { p.got = true; giveItem('battery', 2); sfx.unlock(); say('천문대 성도 좌표가 맞춰지며 예비 건전지 2개를 획득했다!', 3200); } } else say('천체망원경이 1998년 10월 12일 밤의 페가수스자리를 가리키고 있다', 2600); return; }
   if (k === 'astro_case') { if (!p.got) { p.got = true; giveItem('salt', 2); sfx.pickup(); say('광물 표본 진열장에서 순도 높은 암염(굵은 소금 ×2)을 획득했다!', 3000); } else say('각종 운석과 형광 광물 표본이 유리 진열장 안에 전시되어 있다', 2200); return; }
   if (k === 'lib_microfilm') { if (!p.got) { const r = await mini('filmFocus', { title: '중앙학술정보관 — 1998년 마이크로필름 신문 복원' }); if (r.ok) { p.got = true; giveItem('hairpin', 2); giveItem('medkit', 1); sfx.photo(); say('마이크로필름 속 1998년 폐교 사건 기사를 판독하고 머리핀 2개·응급 밴드를 얻었다!', 3400); } } else say('마이크로필름 화면에 1974년 개교 당시 지하 보존서고 도면이 비친다', 2600); return; }
-  if (k === 'lib_desk') { if (!p.got) { p.got = true; giveItem('matches', 2); sfx.pickup(); say('대도서관 사서 데스크 서랍에서 성냥갑 2개를 챙겼다', 2800); } else say('미반납 도서 목록 맨 위에 『집으로 가는 길 — 3-2 윤하늘』이 적혀 있다', 2600); return; }
+  if (k === 'lib_desk') { line('vo_lib_confess', 'tape', '📼 상담교사 · 사서 증언 녹음'); if (!p.got) { p.got = true; giveItem('matches', 2); sfx.pickup(); say('대도서관 사서 데스크 서랍에서 성냥갑 2개를 챙겼다', 2800); } else say('미반납 도서 목록 맨 위에 『집으로 가는 길 — 3-2 윤하늘』이 적혀 있다', 2600); return; }
   if (k === 'sports_cooler') { P.stamina = 100; P.tired = false; if (!p.got) { p.got = true; giveItem('candy', 2); giveItem('can', 1); sfx.pickup(); say('선수용 아이스박스에서 막대사탕 2개와 음료 캔을 꺼내고 숨을 돌렸다 (스태미나 100% 회복)', 3200); } else say('시원한 얼음물에 손을 적시자 피로가 가신다 (스태미나 회복)', 2200); return; }
   if (k === 'union_console') { if (!p.got) { const r = await mini('fuse', { title: '학생회관 소극장 — 무대 음향·조명 회로 복구', N: 4 }); if (r.ok) { p.got = true; giveItem('charm', 1); giveItem('battery', 1); sfx.unlock(); say('소극장 무대 전원이 들어오며 보관함에서 노란 부적과 건전지를 획득했다!', 3200); } } else say('소극장 콘솔 위에 제32회 해교제 연극부 대본이 놓여 있다', 2400); return; }
   if (k === 'union_locker') { if (!p.got) { p.got = true; giveItem('candy', 1); giveItem('hairpin', 1); sfx.locker(); say('동아리연합회 사물함을 파밍해 막대사탕과 머리핀을 얻었다!', 2800); } else say('이미 파밍을 마친 동아리 사물함이다', 1800); return; }
@@ -6752,13 +6826,13 @@ function megaNotify(m) { const t = String(m).split('\n'); say(t[0].replace(/^\S+
     for (let k = 0; k < 3; k++) { const gl = new THREE.Sprite(new THREE.SpriteMaterial({ map: makeGlowTex('255,190,110'), blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, opacity: .45 })); gl.scale.setScalar(3.8); gl.position.set(bx, H - .35, bz - 6 + k * 6); gl.userData.dynamic = true; R.add(gl); }
     {
       const bLoader = new GLTFLoader();
-      bLoader.load('assets/models/sf/sf_bunker_props_pack.glb?v=136', gltf => {
+      bLoader.load('assets/models/sf/sf_bunker_props_pack.glb?v=137', gltf => {
         const bm = gltf.scene; bm.position.set(bx, 0, z0 + .45);
         if (window.__upgradePure3DScene) window.__upgradePure3DScene(bm); else bm.traverse(o => { o.userData.dynamic = true; });
         R.add(bm);
         if (gltf.animations && gltf.animations.length) { const mx = new THREE.AnimationMixer(bm); gltf.animations.forEach(c => mx.clipAction(c).play()); (window.__campusAnimMixers ||= []).push(mx); }
       }, undefined, () => {});
-      bLoader.load('assets/models/sf/sf_pump_policeline_scene.glb?v=136', gltf => {
+      bLoader.load('assets/models/sf/sf_pump_policeline_scene.glb?v=137', gltf => {
         const pm = gltf.scene; pm.position.set(24.0, 0, -3.65);
         pm.traverse(o => { o.userData.dynamic = true; if (o.isMesh) { o.castShadow = false; o.receiveShadow = true; if (o.material?.map) o.material.map.colorSpace = THREE.SRGBColorSpace; } });
         R.add(pm);

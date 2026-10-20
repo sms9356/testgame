@@ -61,8 +61,10 @@ export function buildWindowFakes(slots, seed = 0) {
     const depth = 4.4;
     const zBack = zFront + dir * depth;
     const zMin = Math.min(zFront, zBack), zMax = Math.max(zFront, zBack);
-    const hw = w * 1.35; // 창문 양옆으로 넓게 확장하고 시야를 가리던 좁은 옆벽을 제거해 비스듬히 봐도 교실 안이 훤히 보이게!
-    const x0 = x - hw, x1 = x + hw;
+    if (Math.abs(x) < 4.2 && z < 0) return; // 중앙 계단실 구간 제외
+    const hw = w * 1.15;
+    const slotCx = Math.round(x / 8) * 8;
+    const x0 = Math.max(x - hw, slotCx - 3.82), x1 = Math.min(x + hw, slotCx + 3.82);
     const yFloor = yc - hw2 * 0.5 - 0.65;
     const yCeil = yc + hw2 * 0.5 + 0.55;
     const yWain = yFloor + 1.05;

@@ -10,15 +10,15 @@ import { createNPCVisuals } from './npcVisuals.js';
 import { applyGuardSeatedPose } from './guardSeatedPose.js';
 import { createCampusCctvLive, collectCampusCctvFeeds } from './campusCctvLive.js';
 import { applyExteriorFloorVisibility, shouldStreamGuardCctv } from './exteriorRenderBudget.js';
-import { GUARD_LAYOUT } from './guardRoomLayout.js?v=137';
-import { installGuardRoom } from './guardRoom.js?v=137';
+import { GUARD_LAYOUT } from './guardRoomLayout.js?v=138';
+import { installGuardRoom } from './guardRoom.js?v=138';
 import { prepareModelGeometry } from './modelGeometry.js';
 import { modelFootprint, overlaps, removeDuplicateModels } from './placement.js';
-import { turfMaterial } from './campusVisuals.js?v=137';
+import { turfMaterial } from './campusVisuals.js?v=138';
 import { installInfirmaryAssets, updateInfirmaryCabinets } from './infirmaryAssets.js';
-import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js?v=137'; import { updateWindowFakes } from './windowInteriors.js?v=137';
-import { drawMap } from './map.js?v=137';
-import { buildMegaCampus15000, MEGA_CAMPUS_ZONES } from './megaCampus15000.js?v=137';
+import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js?v=138'; import { updateWindowFakes } from './windowInteriors.js?v=138';
+import { drawMap } from './map.js?v=138';
+import { buildMegaCampus15000, MEGA_CAMPUS_ZONES } from './megaCampus15000.js?v=138';
 import { makeDress, makeHair, makeGhostFace, makeGraffiti, makeKeypad, loadPBR, pbr, makeGlow as makeGlowTex, makePaintingStare, makeSign, makeBlood } from './tex.js';
 import { warmUp } from './bake.js';
 import { createStaticDistanceLOD } from './staticDistanceLOD.js';
@@ -39,12 +39,12 @@ import './school37RoomsPatch.js';    // 본관 · 별관 37개 특별실 가구 
 import './new37UniquePatch.js';     // 37개 구역 신규 특수 설비 · 벽면 레일 (사용자 제공) → window.new37UniquePatch
 import './megaExpansionPatch.js';   // 메가 익스팬션 · 최적화 · 4막 사건 기록 · 수집품 · 미니게임 (사용자 제공) → window.megaSchoolPatch
 import './poolMachineryPatch.js';     // 수영장 · 남/녀 탈의실·샤워실 · 기계실 철문 (사용자 제공) → window.poolAndMachineryPatch
-import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx } from './audio.js?v=137'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=137'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera } from './perfStabilizer.js';
-import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js?v=137';
-import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, SIDEQUESTS, HEADQUEST, COLLECT, LOCKER_SCARES, CHALK_QA, OUIJA_QS, PARA, TOILET_FX, MIRROR_WORDS } from './story.js?v=137';
+import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx } from './audio.js?v=138'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=138'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera } from './perfStabilizer.js';
+import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js?v=138';
+import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, SIDEQUESTS, HEADQUEST, COLLECT, LOCKER_SCARES, CHALK_QA, OUIJA_QS, PARA, TOILET_FX, MIRROR_WORDS } from './story.js?v=138';
 import { isSpeechBusy } from './voice.js';
 import { SET, saveSET, resetSET, DIFF, keyLabel } from './settings.js';
-import { initI18n, setLang, lang as curLang } from './i18n.js?v=137';   // 언어 패치 (한국어 · English · 日本語 · 中文)
+import { initI18n, setLang, lang as curLang } from './i18n.js?v=138';   // 언어 패치 (한국어 · English · 日本語 · 中文)
 initI18n();
 const K = () => SET.keys;
 let guardRoomController = null, guardControlProps = [], guardCctvData = null, campusCctv = null;
@@ -60,7 +60,7 @@ function syncGuardDevices() {
 function toggleGuardCCTV(persist = true) { FL.guardCctvOn = !(FL.guardCctvOn ?? true); sfx.click(); syncGuardDevices(); if (persist) save(true); return FL.guardCctvOn; }
 function toggleGuardLight() { FL.guardLightOn = !(FL.guardLightOn ?? false); sfx.click(); syncGuardDevices(); say(FL.guardLightOn ? '경비실 전등을 켰다' : '경비실 전등을 껐다', 1800); save(true); return FL.guardLightOn; }
 
-import { run as runMini, MG } from './minigames.js?v=137';
+import { run as runMini, MG } from './minigames.js?v=138';
 import { SCHEMA, BUILD, storageKeys, itemUid, propUid, doorUid, assignUids, readSlot, writeSlot, hasSlot, clearSlot, repairProgress } from './saveSystem.js';
 loadManifest().then(() => registerLines({ ...VO, ...Object.fromEntries(Object.entries(STORY_NOTES).filter(([, n]) => n.text).map(([k, n]) => ['note_' + k, { spk: 'narrator', text: n.title + '. ' + n.text, parts: [n.title, n.text] }])) }));
 
@@ -439,44 +439,55 @@ const LOC = {
   tag: { f: 4, x: 29, z: -4.5, where: '지하 B1 · 펌프실' }, breaker: { f: 4, x: -19, z: -5.4, where: '지하 B1 · 전기실' },
   console: { f: 2, x: -25.1, z: -7, where: '본관 3층 · 방송실' }, mina: { f: 2, x: -21.7, z: -8.1, where: '본관 3층 · 방송실 장비실' },
 };
-const KEY_WHERE = ['본관 1층 · 교무실 금고', '본관 1층 · 도서실 대출 데스크', '본관 2층 · 과학실 약품장', '체육관 · 기록석 기구함', '수영장 · 배수구'];
-const KEY_HINT = ['비밀번호: 그날의 날짜', '잠긴 서랍 — 머리핀으로 따기', '다이얼 — 칠판 메모', '다이얼 — 전광판 점수', '갈고리 필요 — 대걸레 자루(지하 청소도구실) + 철사(별관 1층 기술·가정실)'];
+const KEY_WHERE = [
+  '본관 1층 · 교무실 금고 (제1비밀: 펌프실 열쇠 은닉 기록)',
+  '본관 1층 · 도서실 대출 데스크 (제2비밀: 하교 위조 대출 카드)',
+  '본관 2층 · 과학실 약품장 (제3비밀: 묵살된 배선·비상등 결함 보고서)',
+  '체육관 · 기록석 기구함 (제4비밀: 담력체험 묵인 및 당직 은폐 일지)',
+  '수영장 · 배수구 (제5비밀: 물길에 버려진 펌프실 침수·방치 증거)'
+];
+const KEY_HINT = [
+  '금고 번호: 참사 당일 날짜(1012)',
+  '잠긴 서랍 — 머리핀으로 개봉',
+  '다이얼 — 칠판 원주율 메모(314)',
+  '다이얼 — 전광판 마지막 점수',
+  '갈고리 장대 필요 — 대걸레 자루(지하 청소도구실) + 철사(별관 1층 기술실)'
+];
 function objective() {
-  if (FL.gatePower) return { ch: 6, main: FL.mina ? '민아와 함께 열린 정문으로 나가자' : '열린 정문으로 나가자', loc: LOC.gate, subs: [['정문 전동 개폐기 작동', true], ['정문 밖으로 나가기', false]] };
+  if (FL.gatePower) return { ch: 6, main: FL.mina ? '학교의 모든 비밀을 밝혔다 — 민아와 함께 정문 밖 세상으로 나가 폭로하자' : '봉인이 풀린 정문을 통해 세상에 학교의 비밀을 알리자', loc: LOC.gate, subs: [['서문고 은폐 사건 진상 규명 완료', true], ['정문 밖으로 나가 세상에 진실 폭로하기', false]] };
   const n3 = docs.some(d => d.id === 'n3');
-  if (!FL.mina && !FL.cam && P.keys === 0) return { ch: 1, main: gateClosed ? '담력체험 뒤 실종된 민아 선배의 녹화를 찾아라' : '민아 선배를 찾아 담력체험 장소에 들어가라', loc: gateClosed ? LOC.cam : LOC.entrance,
-    subs: [['학교 안으로 들어가기', introDone], ['1-1 교실 조사하기', FL.cam]] };
-  if (!got[0]) return { ch: 2, main: '교무회의록의 날짜를 추리해 첫 금고를 열어라', loc: LOC.office,
-    subs: [['민아의 캠코더 확인', FL.cam], ['교무회의록 읽기', n3], ['금고 열기 — 비밀번호: 그날의 날짜', got[0]]] };
+  if (!FL.mina && !FL.cam && P.keys === 0) return { ch: 1, main: gateClosed ? '1998년 폐교의 비밀을 조사하러 들어간 민아 선배의 캠코더를 찾아라' : '폐교 안으로 들어가 10년 전 은폐된 사건의 첫 단서를 찾아라', loc: gateClosed ? LOC.cam : LOC.entrance,
+    subs: [['폐교 본관 진입 및 단서 수색', introDone], ['1-1 교실에서 민아의 캠코더 영상 확인하기', FL.cam]] };
+  if (!got[0]) return { ch: 2, main: '교무회의록과 경비실·교장실 기록으로 참사 당일(1012) 금고를 열어 제1비밀 증거를 확보하라', loc: LOC.office,
+    subs: [['민아의 캠코더 녹화 확인', FL.cam], ['교무회의록 · 심야 은폐 기록 읽기', n3], ['교무실 금고(1012) 열기 — 제1비밀 증거 확보', got[0]]] };
   if (P.keys < TOTAL) {
     const left = KEY_ROOMS.map((r, i) => ({ ...r, i })).filter(r => !got[r.i]);
     const k = left.find(r => r.f === P.floor) || left[0];
-    const subs = KEY_NAMES.map((n, i) => [`${n} — ${KEY_HINT[i]}`, got[i]]);
-    // 수영장 조각: 갈고리 재료가 없으면 재료 위치를 목표로 안내한다 (재료가 어디 있는지 몰라 막히는 문제)
+    const subs = KEY_NAMES.map((n, i) => [`[${i + 1}번째 비밀 · ${n}] ${KEY_HINT[i]}`, got[i]]);
     if (!got[4] && !FL.hook) {
       subs.push(['  ↳ 대걸레 자루 — 지하 B1 청소도구실', FL.mop], ['  ↳ 철사 뭉치 — 별관 1층 기술·가정실 (102)', FL.wire], ['  ↳ 소지품(Tab)에서 둘을 조합 → 갈고리 장대', false]);
       if (k.i === 4 || left.length === 1) {
         const tl = n => { const it = world.items.find(i => i.kind === n); return it && { f: it.floor, x: it.pos.x, z: it.pos.z }; };
-        if (!FL.mop) return { ch: 3, main: `수영장 조각을 꺼낼 갈고리 재료를 찾아라 (${P.keys}/${TOTAL})`, loc: { ...tl('mop'), where: '지하 B1 · 청소도구실 — 대걸레 자루' }, subs };
-        if (!FL.wire) return { ch: 3, main: `수영장 조각을 꺼낼 갈고리 재료를 찾아라 (${P.keys}/${TOTAL})`, loc: { ...tl('wire'), where: '별관 1층 · 기술·가정실 (102) — 철사 뭉치' }, subs };
-        return { ch: 3, main: '소지품(Tab) › 열쇠 아이템에서 대걸레 자루와 철사를 조합하라', loc: null, subs };
+        if (!FL.mop) return { ch: 3, main: `수영장 배수구의 5번째 비밀 증거를 건져낼 갈고리 재료를 찾아라 (${P.keys}/${TOTAL})`, loc: { ...tl('mop'), where: '지하 B1 · 청소도구실 — 대걸레 자루' }, subs };
+        if (!FL.wire) return { ch: 3, main: `수영장 배수구의 5번째 비밀 증거를 건져낼 갈고리 재료를 찾아라 (${P.keys}/${TOTAL})`, loc: { ...tl('wire'), where: '별관 1층 · 기술·가정실 (102) — 철사 뭉치' }, subs };
+        return { ch: 3, main: '소지품(Tab) › 핵심 증거 탭에서 대걸레 자루와 철사를 조합하라', loc: null, subs };
       }
     }
-    return { ch: 3, main: `기록이 가리키는 다섯 장소에서 열쇠 조각을 찾아라 (${P.keys}/${TOTAL})`, loc: { ...k, where: `${KEY_WHERE[k.i]} — ${KEY_HINT[k.i]}` }, subs };
+    return { ch: 3, main: `다섯 교직원이 숨긴 학교의 5대 은폐 비밀 증거를 찾아내라 (${P.keys}/${TOTAL})`, loc: { ...k, where: `${KEY_WHERE[k.i]} — ${KEY_HINT[k.i]}` }, subs };
   }
-  if (!FL.gatekey && !FL.keyhead) {   // 제4장 · 열쇠의 머리 (별관)
+  if (!FL.gatekey && !FL.keyhead) {
     const s = (FL.sq && FL.sq.head) || 0, st = HEADQUEST.steps[Math.min(s, HEADQUEST.steps.length - 1)], hp = world.props.find(q => q.uid === `sq:head:${s}`);
-    return { ch: 4, main: s === 0 ? '열쇠의 머리가 없다 — 교장실에서 단서를 찾아라' : '별관의 봉인된 기록으로 마지막 열쇠 위치를 추리하라', loc: hp ? { f: hp.floor, x: hp.x, z: hp.z, where: st.where } : null,
+    return { ch: 4, main: s === 0 ? '5대 비밀 증거를 결속할 교장 직인 코어가 없다 — 교장실 비밀 수첩을 조사하라' : '별관의 봉인된 보안 기록과 CCTV를 복구해 교장 직인 마스터 코어를 찾아라', loc: hp ? { f: hp.floor, x: hp.x, z: hp.z, where: st.where } : null,
       subs: HEADQUEST.steps.map((x, i) => [x.goal, s > i]) };
   }
-  if (!FL.gatekey) return { ch: 5, main: '소지품(Tab)에서 열쇠 머리와 조각 다섯 개를 조합하라', loc: null, subs: [[`열쇠 조각 ${TOTAL}/${TOTAL}`, true], ['열쇠 머리', true], ['정문 열쇠 만들기', false]] };
+  if (!FL.gatekey) return { ch: 5, main: '소지품(Tab)에서 5대 비밀 증거 조각과 교장 직인 코어를 조합해 『서문고 진상 규명 기록부』를 완성하라', loc: null, subs: [[`학교 5대 비밀 증거 (${TOTAL}/${TOTAL})`, true], ['교장 직인 마스터 코어', true], ['서문고 진상 규명 마스터 기록부 완성하기', false]] };
   if (!FL.mina) {
-    const i=optSteps().indexOf(false), steps=['명찰로 방송 속 이름 확인','예비 퓨즈와 차단기로 전력 복구','녹음의 시간 순서를 추리해 하교 방송 복원','장비실에서 민아 선배 깨우기'];
+    const i=optSteps().indexOf(false), steps=['지하 펌프실에서 윤하늘의 명찰로 진실 확인','지하 전기실 예비 퓨즈와 차단기로 본관 전력 복구','3층 방송실에서 1998년 하교 방송 및 은폐 진실 송출','방송실 장비실에서 민아 선배 구출'];
     const fuse=world.items.find(it=>it.kind==='fuse');
     const loc=i===1&&!FL.fuse&&fuse?{f:fuse.floor,x:fuse.pos.x,z:fuse.pos.z,where:'예비 퓨즈 — 지하 창고'}:optLoc();
-    return {ch:6,main:'민아 선배를 깨우고 함께 돌아갈 방법을 찾아라',loc,subs:steps.map((t,k)=>[t,optSteps()[k]])};
+    return {ch:6,main:'3층 방송실에서 은폐된 1998년의 진실과 하교 방송을 송출하고 민아 선배를 구출하라',loc,subs:steps.map((t,k)=>[t,optSteps()[k]])};
   }
-  return {ch:6,main:'민아 선배와 함께 정문으로 돌아가라',loc:LOC.gate,subs:[['민아 선배 구출',true],['정문 밖으로 나가기',false]]};
+  return {ch:6,main:'학교의 모든 비밀을 규명했다 — 민아 선배와 함께 정문 밖으로 나가 세상에 진실을 폭로하라',loc:LOC.gate,subs:[['진상 규명 기록부 완성 및 민아 구출',true],['정문을 열고 세상에 학교의 비밀 폭로하기',false]]};
 }
 function missionGroups() { return buildMissionGroups({flags:FL,documents:docs,quests:SIDEQUESTS,objective:objective()}); }
 function optSteps() { return [FL.tag, power, FL.calm, FL.mina]; }
@@ -541,7 +552,7 @@ function refreshHud() {
   zoneHud(); pqHud();
   $('sqBox').style.display = aq.length || sqDoneCount() ? 'block' : 'none'; $('sqTitle').textContent = `서브 미션 · 남겨진 부탁 (${sqDoneCount()}/${SIDEQUESTS.length})`;
   $('sqSubs').innerHTML = aq.slice(0, 3).map(q => `<div class="chk">${q.title} — ${q.steps[sqStep(q.id)].goal}</div>`).join('') + (aq.length > 3 ? `<div class="chk" style="opacity:.6">외 ${aq.length - 3}건 (휴대폰 › 사건)</div>` : '');
-  $('c2').textContent = inv.battery; $('c3').textContent = inv.medkit; $('c5').textContent = inv.can; $('s5').classList.toggle('off', !inv.can); $('c4').textContent = FL.gatekey ? '열쇠' : `${P.keys}/${TOTAL}`;
+  $('c2').textContent = inv.battery; $('c3').textContent = inv.medkit; $('c5').textContent = inv.can; $('s5').classList.toggle('off', !inv.can); $('c4').textContent = FL.gatekey ? '진상완성' : `비밀 ${P.keys}/${TOTAL}`;
   $('s2').classList.toggle('off', !inv.battery); $('s3').classList.toggle('off', !inv.medkit); $('s4').classList.toggle('off', !P.keys);
   objDoneSplit();
   const un = msgs.filter(m => !m.read).length; $('phoneBadge').textContent = un; $('phoneBadge').classList.toggle('on', un > 0);
@@ -612,7 +623,7 @@ function bagList() {
 }
 function itemDesc(it) {
   if (it.id === 'flashlight') return `${it.desc}<br>배터리 <b>${Math.round(P.battery)}%</b> · ${P.light ? '켜짐' : '꺼짐'}`;
-  if (it.id === 'keypiece') return `${it.desc}<br>모은 조각: <b>${P.keys} / ${TOTAL}</b>`;
+  if (it.id === 'keypiece') return `${it.desc}<br>확보한 학교 비밀 증거: <b>${P.keys} / ${TOTAL}</b>`;
   return it.desc;
 }
 const USE = {
@@ -622,8 +633,8 @@ const USE = {
   camcorder: () => { closeUI(); playCam(); },
   phone_jihun: () => { closeUI(); openPhone('msg'); }, phone_seoyeon: () => { closeUI(); openPhone('msg'); },
   memo_jihun: () => { closeUI(); openPhone('memo'); }, memo_seoyeon: () => { closeUI(); openPhone('memo'); },
-  keypiece: () => { startCombine('keypiece'); return '조각끼리 맞춰 보자 — 같은 칸을 한 번 더 선택'; },
-  gatekey: () => '정문 자물쇠에 쓸 수 있다. 정문 앞에서 E.',
+  keypiece: () => { startCombine('keypiece'); return '비밀 증거 조각과 교장 직인 코어를 맞춰 보자 — 결합할 대상을 선택'; },
+  gatekey: () => { closeUI(); window.__showSchoolTruthDossier(); return '1998 서문고 진상 규명 마스터 기록부를 열람합니다.'; },
   candy: () => { inv.candy--; P.stamina = 100; P.tired = false; P.fear = Math.max(0, P.fear - .3); sfx.pickup(); refreshHud(); return '사탕을 깨물었다. 단맛에 숨이 돌아온다.'; },
   thermos: () => { inv.thermos--; P.hp = Math.min(100, P.hp + 20); calmDown(30, '따뜻한 차가 목을 타고 내려간다'); refreshHud(); return '유자차를 마셨다. 체력 +20'; },
   salt: () => useSalt(), charm: () => '지니고만 있으면 된다. 그것에게 붙잡히는 순간 대신 타오른다.',
@@ -651,9 +662,9 @@ function tryCombine(a, b) {
   else if (r.fn === 'hook') { FL.hook = true; FL.mop = false; FL.wire = false; newItems.add('hook'); sfx.hook(); invMsg = '대걸레 자루에 철사를 감아 갈고리 장대를 만들었다!'; talk('hookMade', 3000); toast('조합 성공', '갈고리 장대 — 수영장 배수구에서 사용'); save(true); }
   else if (CRAFT_ID[r.fn]) { const ok = craftingSystem.craft(CRAFT_ID[r.fn], m => { invMsg = m; }); if (ok) { newItems.add(r.fn); toast('조합 성공', ITEMS[r.fn].name, 'info'); refreshHud(); } else sfx.buzz(); }
   else if (r.fn === 'gatekey') {
-    if (P.keys < TOTAL) { invMsg = `조각이 부족하다 — ${P.keys} / ${TOTAL}`; sfx.buzz(); }
-    else if (!FL.keyhead) { invMsg = '다섯 조각은 맞물리지만 손으로 쥘 머리가 없다 — 돌릴 수가 없다.'; sfx.buzz(); talk('headMissing', 3000); }
-    else { makeGateKey(); invMsg = '머리와 다섯 조각이 맞물려 정문 열쇠가 되었다!'; }
+    if (P.keys < TOTAL) { invMsg = `학교 비밀 증거 조각이 부족하다 — ${P.keys} / ${TOTAL}`; sfx.buzz(); }
+    else if (!FL.keyhead) { invMsg = '5대 비밀 증거는 모였으나 이를 결속할 교장 직인 마스터 코어가 없다.'; sfx.buzz(); talk('headMissing', 3000); }
+    else { makeGateKey(); invMsg = '5대 비밀 증거와 교장 직인 코어가 결합되어 『서문고 진상 규명 마스터 기록부』가 완성되었다!'; }
   }
   renderInv();
 }
@@ -668,13 +679,33 @@ function tryJump() {
   P.vy = weak ? 3.2 : 4.7; P.jy = (P.jy || 0) + .001; P.stamina = Math.max(0, P.stamina - (weak ? 2 : 8)); sfx.throwIt();
   if (weak) say('숨이 차서 높이 뛸 수 없다', 1400);
 }
+window.__showSchoolTruthDossier = () => {
+  showNote({
+    title: '📁 『1998 서문고등학교 심야 참사 완전 진상 규명 기록부』',
+    text: [
+      '<div style="background:#1d1916;color:#f2ead8;padding:12px 14px;border:1px solid #b58c44;margin-bottom:10px;font-size:13px;line-height:1.55;">',
+        '<b style="color:#ff8066;font-size:15px;">■ 사건 실체: 1998년 10월 12일 밤 윤하늘(3-2) 지하 펌프실 감금·침수 사망 및 학교 측 5인 조직적 은폐</b><br>',
+        '단순 가출·실종으로 발표되었던 1998년 서문고 방송부 윤하늘 실종 사건은 학내 폭력(담력체험 감금), 시설 안전 방치(비상등·펌프 배선 합선), 그리고 교장 이하 5인의 책임자가 학교 명예를 위해 구조 골든타임을 포기하고 기록을 조작한 <b>조직적 은폐 범죄</b>임이 최종 규명되었다.',
+      '</div>',
+      '<b>1. [교무실 비밀 증거]</b> 교무부장은 방송부장 이준호에게서 지하 펌프실 철문 열쇠를 건네받고도 “버릇을 고쳐준다”며 방치했고, 정전 직후 경비원이 열쇠를 요청했으나 문을 열지 않고 은폐를 주도함.<br>',
+      '<b>2. [도서실 비밀 증거]</b> 사서는 교장의 지시로 『집으로 가는 길』 대출 카드를 사후 위조하여 윤하늘이 하교 도중 실종된 것처럼 알리바이를 조작함.<br>',
+      '<b>3. [과학실 비밀 증거]</b> 지하 펌프실 노후 배선 및 비상등 배터리 교체 건의가 3차례나 “예산 부족”으로 묵살되어 정전 시 배수 펌프와 비상등이 동시에 정지함.<br>',
+      '<b>4. [체육관 비밀 증거]</b> 당직 체육부장은 심야 리허설 중 벌어진 위험한 담력체험 관행을 묵인하고 사고 직후 출입 기록을 말소함.<br>',
+      '<b>5. [수영장 비밀 증거]</b> 보건교사는 펌프실이 침수된 뒤 죄책감에 자신의 봉인 증거 조각을 수영장 배수구 물길에 유기함.<br>',
+      '<b>6. [별관 교장 직인 코어]</b> 제9대 교장은 별관 전원이 살아 있었음에도 구조를 지시하지 않고 5대 증거를 봉인한 뒤 별관을 폐쇄함.'
+    ].join(''),
+    tape: true,
+    voiceKey: 'vo_bunker_tape',
+    voiceWho: '📁 1998 서문고 진상 규명 마스터 기록부'
+  });
+};
 function makeGateKey() {
   if (FL.gatekey) return;
-  if (!FL.keyhead) { toast('열쇠가 완성되지 않는다', '열쇠의 머리가 없다 — 제4장 목표를 확인하세요', 'warn'); return; }
+  if (!FL.keyhead) { toast('진상 기록부가 완성되지 않는다', '교장 직인 마스터 코어가 없다 — 제4장 목표를 확인하세요', 'warn'); return; }
   FL.gatekey = true; newItems.add('gatekey'); sfx.unlock(); setFace('resolve', 3);
-  toast('정문 열쇠를 만들었습니다', '정문 · 서문 · 지하 비상 통로를 열 수 있다');
+  toast('『서문고 진상 규명 마스터 기록부』 완성!', '이 학교가 은폐한 5대 비밀이 하나로 증명되었다 · 이제 방송실 송출 및 교문 봉인 해제가 가능하다');
   setTimeout(() => talk('keyMade', 3000), 300);
-  if (FL.calm) setTimeout(() => toast('고요하다', '꺼지지 않던 방송이 멎고, 기억 속 교실이 조용해졌다. ' + (FL.mina ? '민아와 함께 정문으로.' : '…민아는 아직 방송실에 있다.'), 'opt'), 2600);
+  if (FL.calm) setTimeout(() => toast('진실이 밝혀졌다', '꺼지지 않던 방송이 멎고, 기억 속 교실이 조용해졌다. ' + (FL.mina ? '민아와 함께 정문 밖으로 나가 세상에 알리자.' : '…3층 방송실의 민아 선배를 구출하자.'), 'opt'), 2600);
   else setTimeout(() => { if (state === 'ui') closeUI(); enrage(); }, 1600);
   refreshHud(); save(true);
 }
@@ -740,7 +771,7 @@ function renderInv() {
     bindActs([() => line(d.tape, d.fx || 'radio', d.spk), () => zoom(d.title, d.img ? `<img src="assets/img/${d.img}.webp" alt="">` : d.icon, d.text)]);
   }
 }
-const RESULT = { recharge: '손전등 배터리 충전', gatekey: '정문 열쇠 (조각 5개 필요)', hook: '갈고리 장대', alarm: '경보 함정', shock: '쇼트 폭탄', firstaid: '응급 처치 키트' };
+const RESULT = { recharge: '손전등 배터리 충전', gatekey: '서문고 진상 규명 마스터 기록부 (비밀 증거 5개 + 교장 직인 코어)', hook: '갈고리 장대', alarm: '경보 함정', shock: '쇼트 폭탄', firstaid: '응급 처치 키트' };
 function recipeHTML(id) {
   const rs = RECIPES.filter(r => r.a === id || r.b === id); if (!rs.length) return '';
   return `<div style="margin-top:8px;font-size:12px;color:#8cc0e8">${rs.map(r => `조합: ${ITEMS[r.a].name} + ${ITEMS[r.b].name} → <b>${RESULT[r.fn]}</b>`).join('<br>')}</div>`;
@@ -1083,7 +1114,7 @@ function findInteract() {
       const ul = si.up === 3 ? '옥상으로' : si.up === 0 ? '1층으로' : '위층', dl = si.down === 4 ? '지하층 (B1)' : '아래층';
       best = { type: 'stairs', label: [up ? `E 길게 · ${ul}` : '', down ? `Q · ${dl}` : ''].filter(Boolean).join('  /  '), raw: true };
     } else if (dr) best = { type: 'door', d: dr, label: dr.label + (dr.need && !FL.gatekey ? ' 🔒' : '') };
-    else if (P.floor === 0 && P.z > GATE_Z - 4.5 && P.z < GATE_Z + 3 && Math.abs(P.x) < 6 && gateClosed && !escaped) best = { type: 'gate', label: '정문 열기' };
+    else if (P.floor === 0 && P.z > GATE_Z - 4.5 && P.z < GATE_Z + 3 && Math.abs(P.x) < 6 && gateClosed && !escaped) best = { type: 'gate', label: '봉인된 정문 열고 학교의 비밀 폭로하기' };
   }
   return best;
 }
@@ -1097,12 +1128,12 @@ function interact() {
     it.taken = true; it.mesh.visible = false;
     if (it.kind === 'key') {
       got[it.idx] = true; P.keys++; sfx.key(); newItems.add('keypiece'); setFace(P.keys < TOTAL ? 'resolve' : 'relief', 3);
-      toast('아이템을 획득했습니다', `${KEY_NAMES[it.idx]} 열쇠 조각 (${P.keys}/${TOTAL})`);
+      toast('학교 비밀 증거를 확보했습니다', `${KEY_NAMES[it.idx]} 은폐 비밀 증거 (${P.keys}/${TOTAL})`);
       talk(P.keys < TOTAL ? 'key' : 'keyLast', 3000);
       if (P.keys === 1) setTimeout(() => phoneMessage(1), 9000);
       if (P.keys === 1) activateGhost();
       if (P.keys === 3) setTimeout(() => phoneMessage(2), 14000);
-      if (P.keys === TOTAL && !FL.keyhead) setTimeout(() => { toast('열쇠 조각을 모두 모았습니다', '…그런데 맞춰 보니 열쇠의 머리가 없다. 교장실을 찾아보자', 'opt'); talk('headMissing', 3400); }, 3200);
+      if (P.keys === TOTAL && !FL.keyhead) setTimeout(() => { toast('학교의 5대 비밀 증거를 모두 모았습니다', '…이를 하나로 결속할 교장 직인 마스터 코어를 교장실과 별관에서 찾아내자', 'opt'); talk('headMissing', 3400); }, 3200);
       refreshHud(); save(true);
     } else if (it.kind === 'camcorder') {
       FL.cam = true; newItems.add('camcorder'); sfx.pickup(); toast('아이템을 획득했습니다', '민아의 캠코더 — 녹화 파일이 남아 있다');
@@ -1584,8 +1615,8 @@ function openGate() {
   if (FL.gatePower) return;   // 이미 모터로 열리는 중
   if (!FL.gatekey) {
     sfx.click();
-    if (P.keys >= TOTAL) { talk('needCombine', 3200); say('열쇠 조각을 먼저 맞춰야 한다 — 소지품(Tab)에서 조합', 3000); }
-    else say(`자물쇠가 굳게 잠겨 있다. 정문 열쇠가 필요하다 (조각 ${P.keys}/${TOTAL})`, 2800);
+    if (P.keys >= TOTAL) { talk('needCombine', 3200); say('먼저 소지품(Tab)에서 5대 비밀 증거와 교장 직인 코어를 조합해 진상 기록부를 완성해야 한다', 3200); }
+    else say(`아직 이 학교의 비밀을 다 밝히지 못했다 — 5대 은폐 비밀 증거를 먼저 수집해야 한다 (비밀 증거 ${P.keys}/${TOTAL})`, 3200);
     return;
   }
   escaped = true; gateState = 'opening'; sfx.gateOpen(); say('열쇠가 맞물렸다…', 3000);
@@ -4047,7 +4078,7 @@ function headEvent(ev, p) {
     setTimeout(() => { fx.glitch(.8); sfx.whisper(); caption('…지금 찍히고 있는 화면이다'); }, 2200);
   } else if (ev === 'head') {
     FL.keyhead = true; newItems.add('keyhead'); sfx.key(); setFace('resolve', 3); if (p.keyMeshes) p.keyMeshes.forEach(m => { m.visible = false; });
-    toast('열쇠 머리를 얻었습니다', '소지품(Tab)에서 다섯 조각과 조합하면 정문 열쇠가 된다', 'opt'); setTimeout(() => talk('headFound', 3200), 400);
+    toast('교장 직인 마스터 코어를 확보했습니다!', '소지품(Tab)에서 5대 비밀 증거와 조합하면 『서문고 진상 규명 기록부』가 완성된다', 'opt'); setTimeout(() => talk('headFound', 3200), 400);
     if (!FL.calm) setTimeout(() => {
       blackout = Math.max(blackout, 1.6); sfx.lightsOff ? sfx.lightsOff() : sfx.click(); shake = .3;
       const ax = P.x - Math.sin(P.yaw) * 2.6, az = P.z - Math.cos(P.yaw) * 2.6; showApparition(P.floor, ax, az, Math.atan2(P.x - ax, P.z - az), 2.2, null); sfx.ghostBreath && sfx.ghostBreath();
@@ -6826,13 +6857,13 @@ function megaNotify(m) { const t = String(m).split('\n'); say(t[0].replace(/^\S+
     for (let k = 0; k < 3; k++) { const gl = new THREE.Sprite(new THREE.SpriteMaterial({ map: makeGlowTex('255,190,110'), blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, opacity: .45 })); gl.scale.setScalar(3.8); gl.position.set(bx, H - .35, bz - 6 + k * 6); gl.userData.dynamic = true; R.add(gl); }
     {
       const bLoader = new GLTFLoader();
-      bLoader.load('assets/models/sf/sf_bunker_props_pack.glb?v=137', gltf => {
+      bLoader.load('assets/models/sf/sf_bunker_props_pack.glb?v=138', gltf => {
         const bm = gltf.scene; bm.position.set(bx, 0, z0 + .45);
         if (window.__upgradePure3DScene) window.__upgradePure3DScene(bm); else bm.traverse(o => { o.userData.dynamic = true; });
         R.add(bm);
         if (gltf.animations && gltf.animations.length) { const mx = new THREE.AnimationMixer(bm); gltf.animations.forEach(c => mx.clipAction(c).play()); (window.__campusAnimMixers ||= []).push(mx); }
       }, undefined, () => {});
-      bLoader.load('assets/models/sf/sf_pump_policeline_scene.glb?v=137', gltf => {
+      bLoader.load('assets/models/sf/sf_pump_policeline_scene.glb?v=138', gltf => {
         const pm = gltf.scene; pm.position.set(24.0, 0, -3.65);
         pm.traverse(o => { o.userData.dynamic = true; if (o.isMesh) { o.castShadow = false; o.receiveShadow = true; if (o.material?.map) o.material.map.colorSpace = THREE.SRGBColorSpace; } });
         R.add(pm);

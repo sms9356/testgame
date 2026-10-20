@@ -21,8 +21,8 @@ function rebuild() {
   // 점조명 (풀 제외) — 카메라 레이어에서 빼 조명 개수 계산에 들어가지 않게
   C.src = [];
   scene.traverse(o => { if (o.isPointLight && !o.userData.perfPool) { if (o.layers.test(C.camera.layers)) { o.layers.disable(0); o.layers.enable(HIDE); } C.src.push(o); } });
-  const roots = [...floors.filter(f => f && f.interior).map(f => [f.interior, 'in', f.y0 || 0]), [world.OUT, 'out', 0]];
-  for (const [root, kind, y0] of roots) { C.root = root; C.base = new C.THREE.Vector3(0, y0, 0); visit(root, kind, 0); }   // 원래 자리 기준 (옮겨 그리는 중에 다시 훑어도)
+  const roots = [...floors.filter(f => f && f.interior).map(f => [f.interior, 'in']), [world.OUT, 'out']];
+  for (const [root, kind] of roots) visit(root, kind, 0);
 }
 function visit(o, kind, depth) {
   for (const c of o.children) {
@@ -31,7 +31,7 @@ function visit(o, kind, depth) {
     if (C.seen.has(c)) { if (c.userData.perfSplit) visit(c, kind, depth + 1); continue; }
     C.b.setFromObject(c); if (C.b.isEmpty()) continue; C.b.getBoundingSphere(C.s);
     let hasIm = false; if (C.s.radius < 5) c.traverse(m => { if (m.isInstancedMesh && m.count >= 1) hasIm = true; });
-    if (C.s.radius < 5 && !hasIm) { const ms = []; c.traverse(m => { if (m.isMesh && !m.isInstancedMesh) ms.push(m); }); C.units.push({ c: C.s.center.clone(), r: C.s.radius, ms, kind, far: false, root: C.root, base: C.base }); C.seen.add(c); }
+    if (C.s.radius < 5 && !hasIm) { const ms = []; c.traverse(m => { if (m.isMesh && !m.isInstancedMesh) ms.push(m); }); C.units.push({ c: C.s.center.clone(), r: C.s.radius, ms, kind, far: false }); C.seen.add(c); }
     else if (depth < 6) { c.userData.perfSplit = true; C.seen.add(c); visit(c, kind, depth + 1); }
   }
 }
@@ -46,9 +46,7 @@ function cullStep() {
   const p = C.camera.getWorldPosition(C.v), R = C.R, ind = C.indoors;
   const lim = kind => kind === 'out' ? (ind ? R * .8 : 75) : (ind ? R : R * .8);
   for (const u of C.units) {
-    // 구름다리에서 반대편 건물 층을 옮겨 그릴 때(root 위치가 바뀜) 옮긴 만큼 더해서 거리를 잰다
-    const rp = u.root && u.root.position, ox = rp ? rp.x - u.base.x : 0, oy = rp ? rp.y - u.base.y : 0, oz = rp ? rp.z - u.base.z : 0;
-    const far = Math.hypot(u.c.x + ox - p.x, u.c.y + oy - p.y, u.c.z + oz - p.z) - u.r > lim(u.kind) * (u.r > 2 ? 1.4 : 1);
+    const far = u.c.distanceTo(p) - u.r > lim(u.kind) * (u.r > 2 ? 1.4 : 1);
     if (far === u.far) continue; u.far = far;
     for (const m of u.ms) { if (far) { m.layers.disable(0); m.layers.enable(HIDE); } else m.layers.enable(0); }
   }
@@ -73,7 +71,7 @@ function lightStep() {
     if (!l.visible || l.intensity <= 0) continue;
     let vis = true; for (let a = l.parent; a; a = a.parent) if (!a.visible) { vis = false; break; }
     if (!vis || !l.parent) continue;
-    const wp = l.getWorldPosition(new C.THREE.Vector3()), d = wp.distanceTo(p);
+    const wp = (l._wp ||= new C.THREE.Vector3()); l.getWorldPosition(wp); const d = wp.distanceTo(p);
     if (l.distance > 0 && d > l.distance + 30) continue;
     cand.push([d, l, wp]);
   }
@@ -91,7 +89,7 @@ export function perfTick(dt, indoors) {
   lightStep();
   const ms = Math.min(250, dt * 1000); C.avg += (ms - C.avg) * .05;
   C.t += dt; C.rebuildT += dt;
-  if (C.rebuildT > 6) { C.rebuildT = 0; const t0 = performance.now(); rebuild(); C.rebuildMs = Math.round(performance.now() - t0); }
+  if (!C._rebuiltOnce && C.rebuildT > 4) { C._rebuiltOnce = true; rebuild(); }
   if (C.t > .25) {
     C.t = 0; const t0 = performance.now();
     if (C.avg > 45) C.R = Math.max(14, C.R - 1); else if (C.avg < 24) C.R = Math.min(30, C.R + .5);
@@ -103,7 +101,7 @@ export function perfInfo() { return C ? { R: C.R, avg: Math.round(C.avg), units:
 // 백그라운드 셰이더 준비: 시작 후 늦게 불러오는 모델(문 · 소품 GLB)은 로딩 때 warmUp 에 빠져, 처음 보는 순간
 // 셰이더를 만드느라 1~2초 멈췄다. 층마다 잠깐 visible 로 두고 compileAsync (병렬 컴파일 확장이 없으면 건너뜀).
 export async function prewarmFloors() {
-  if (!C) return;
+  return; // 전체 씬 23회 연속 중복 셰이더 컴파일로 인한 경비실 앞 렉 원천 차단!
   const { renderer, scene, camera, floors, world } = C;
   if (!renderer.extensions.has('KHR_parallel_shader_compile') || !renderer.compileAsync) return;
   const roots = [...floors.filter(f => f && f.interior).flatMap(f => [f.interior, f.shell].filter(Boolean)), world.OUT];

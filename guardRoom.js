@@ -195,9 +195,6 @@ export function installGuardRoom({ renderer, scene, camera, guardRoom, cctvTextu
       stage.traverse(node => { if (!node.isMesh) return; for (const m of (Array.isArray(node.material)?node.material:[node.material])) for (const v of Object.values(m)) if (v?.isTexture) textures.add(v); });
       if (renderer?.initTexture) for (const texture of textures) renderer.initTexture(texture);
       await frame();
-      const stagingScene = new THREE.Scene(); stagingScene.add(stage);
-      if (renderer?.compileAsync) await renderer.compileAsync(stagingScene,camera,scene);
-      else if (renderer?.compile) renderer.compile(stagingScene,camera,scene);
       await frame();
       screenWarm.removeFromParent();
       holder.add(stage);

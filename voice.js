@@ -1,5 +1,5 @@
 // 더빙 · 자막: voice/manifest.json 의 사전 생성 음성(내장) + 캐릭터별 성도 포먼트/피치 변조 및 브라우저 신경망 음성 합성(Web Speech) 하이브리드 엔진
-import { playVoice, stopVoice, loadVoice, isVoicePlaying } from './audio.js?v=178';
+import { playVoice, stopVoice, loadVoice, isVoicePlaying } from './audio.js?v=179';
 
 const SPEAKER = {
   seoyeon: '🎙 김서연 (방송부 2학년)',
@@ -130,7 +130,7 @@ applySubSize();
 let manifestPromise = null;
 export async function loadManifest() {
   if (!manifestPromise) {
-    manifestPromise = fetch('voice/manifest.json?v=178').then(r => r.json()).then(m => {
+    manifestPromise = fetch('voice/manifest.json?v=179').then(r => r.json()).then(m => {
       manifest = { ...manifest, ...m };
       return manifest;
     }).catch(() => manifest);

@@ -6,19 +6,19 @@ import { createPsychologicalDirector, PHENOMENON_LABELS } from './psychologicalH
 import { settleStoryGhost, tickStoryGhost, showStoryGhost } from './storyGhost.js';
 import { GLTFLoader } from './vendor/addons/loaders/GLTFLoader.js';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { createNPCVisuals } from './npcVisuals.js?v=178';
-import { applyGuardSeatedPose } from './guardSeatedPose.js?v=178';
+import { createNPCVisuals } from './npcVisuals.js?v=179';
+import { applyGuardSeatedPose } from './guardSeatedPose.js?v=179';
 import { createCampusCctvLive, collectCampusCctvFeeds } from './campusCctvLive.js';
-import { applyExteriorFloorVisibility, shouldStreamGuardCctv } from './exteriorRenderBudget.js?v=178';
-import { GUARD_LAYOUT } from './guardRoomLayout.js?v=178';
-import { installGuardRoom } from './guardRoom.js?v=178';
+import { applyExteriorFloorVisibility, shouldStreamGuardCctv } from './exteriorRenderBudget.js?v=179';
+import { GUARD_LAYOUT } from './guardRoomLayout.js?v=179';
+import { installGuardRoom } from './guardRoom.js?v=179';
 import { prepareModelGeometry } from './modelGeometry.js';
 import { modelFootprint, overlaps, removeDuplicateModels } from './placement.js';
-import { turfMaterial } from './campusVisuals.js?v=178';
+import { turfMaterial } from './campusVisuals.js?v=179';
 import { installInfirmaryAssets, updateInfirmaryCabinets } from './infirmaryAssets.js';
-import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js?v=178'; import { updateWindowFakes } from './windowInteriors.js?v=178';
-import { drawMap } from './map.js?v=178';
-import { buildMegaCampus15000, MEGA_CAMPUS_ZONES } from './megaCampus15000.js?v=178';
+import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js?v=179'; import { updateWindowFakes } from './windowInteriors.js?v=179';
+import { drawMap } from './map.js?v=179';
+import { buildMegaCampus15000, MEGA_CAMPUS_ZONES } from './megaCampus15000.js?v=179';
 import { makeDress, makeHair, makeGhostFace, makeGraffiti, makeKeypad, loadPBR, pbr, makeGlow as makeGlowTex, makePaintingStare, makeSign, makeBlood } from './tex.js';
 import { warmUp } from './bake.js';
 import { createStaticDistanceLOD } from './staticDistanceLOD.js';
@@ -39,12 +39,12 @@ import './school37RoomsPatch.js';    // 본관 · 별관 37개 특별실 가구 
 import './new37UniquePatch.js';     // 37개 구역 신규 특수 설비 · 벽면 레일 (사용자 제공) → window.new37UniquePatch
 import './megaExpansionPatch.js';   // 메가 익스팬션 · 최적화 · 4막 사건 기록 · 수집품 · 미니게임 (사용자 제공) → window.megaSchoolPatch
 import './poolMachineryPatch.js';     // 수영장 · 남/녀 탈의실·샤워실 · 기계실 철문 (사용자 제공) → window.poolAndMachineryPatch
-import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx } from './audio.js?v=178'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=178'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera } from './perfStabilizer.js?v=178';
-import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js?v=178';
-import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, SIDEQUESTS, HEADQUEST, COLLECT, LOCKER_SCARES, CHALK_QA, OUIJA_QS, PARA, TOILET_FX, MIRROR_WORDS } from './story.js?v=178';
+import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx } from './audio.js?v=179'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=179'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera } from './perfStabilizer.js?v=179';
+import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js?v=179';
+import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, SIDEQUESTS, HEADQUEST, COLLECT, LOCKER_SCARES, CHALK_QA, OUIJA_QS, PARA, TOILET_FX, MIRROR_WORDS } from './story.js?v=179';
 import { isSpeechBusy } from './voice.js';
 import { SET, saveSET, resetSET, DIFF, keyLabel } from './settings.js';
-import { initI18n, setLang, lang as curLang } from './i18n.js?v=178';   // 언어 패치 (한국어 · English · 日本語 · 中文)
+import { initI18n, setLang, lang as curLang } from './i18n.js?v=179';   // 언어 패치 (한국어 · English · 日本語 · 中文)
 initI18n();
 const K = () => SET.keys;
 let guardRoomController = null, guardControlProps = [], guardCctvData = null, campusCctv = null;
@@ -60,7 +60,7 @@ function syncGuardDevices() {
 function toggleGuardCCTV(persist = true) { FL.guardCctvOn = !(FL.guardCctvOn ?? true); sfx.click(); syncGuardDevices(); if (persist) save(true); return FL.guardCctvOn; }
 function toggleGuardLight() { FL.guardLightOn = !(FL.guardLightOn ?? false); sfx.click(); syncGuardDevices(); say(FL.guardLightOn ? '경비실 전등을 켰다' : '경비실 전등을 껐다', 1800); save(true); return FL.guardLightOn; }
 
-import { run as runMini, MG } from './minigames.js?v=178';
+import { run as runMini, MG } from './minigames.js?v=179';
 import { SCHEMA, BUILD, storageKeys, itemUid, propUid, doorUid, assignUids, readSlot, writeSlot, hasSlot, clearSlot, repairProgress } from './saveSystem.js';
 const NOTE_CAST = {
   n_seomun_ilbo: { spk: 'reporter', audioId: 'call_119', stage: '(📰 서문일보 사회부 한진우 기자의 긴급 특보 리포팅)' },
@@ -654,7 +654,7 @@ function clockText(extra = 0) { const m = gameMin(extra), h = Math.floor(m / 60)
 
 /* ----- 문서 (쪽지 · 사진 · 녹음 · 캠코더) ----- */
 function docInfo(d) {
-  if (d.kind === 'note') { const n = d.id === 'nC' ? CHAR_NOTE[CK()] : world.NOTES[d.id]; return n && { icon: '📄', title: n.title, text: n.text }; }
+  if (d.kind === 'note') { const n = d.id === 'nC' ? CHAR_NOTE[CK()] : world.NOTES[d.id]; const nv = noteVoiceFor(d.id); return n && { icon: '📄', title: n.title, text: n.text, tape: nv.id, fx: nv.fx, spk: nv.who }; }
   if (d.kind === 'photo') { const p = world.PHOTOS[d.id]; return p && { icon: '🖼', title: p.title, text: p.text, img: p.img }; }
   if (d.kind === 'tape') { const t = world.TAPES[d.id]; const i = lineInfo(d.id) || VO[d.id]; return t && { icon: '📼', title: t.title, text: i ? i.text : '', tape: d.id, spk: '📼 ' + t.spk }; }
   if (d.kind === 'cam') return { icon: '📹', title: '캠코더 녹화 — 민아', text: VO.cam1.text, tape: 'cam1', spk: '📹 민아', fx: 'phone' };
@@ -1078,14 +1078,93 @@ function hit() {
   settleStoryGhost(ghost);
 }
 
+// 문서/일지/수첩별 실제 작성자 성우 감정 연기 매핑 (딱딱한 내레이션 낭독 대신 경비일지는 경비원 목소리, 보건일지는 보건교사 목소리, 교장수첩은 교장 목소리 등 실제 인물 성우의 생생한 감정 연기로 재생!)
+function noteVoiceFor(id) {
+  const isJ = CHAR === 'jihun';
+  const pWho = isJ ? '🎙 박지훈 (서현고 2학년)' : '🎙 김서연 (방송부 2학년)';
+  const pLine = k => ({ id: 'l_' + k + '_' + (isJ ? 'j' : 's'), fx: 'none', who: pWho });
+  const MAP = {
+    // 경비원 박종철 아저씨 육성 (충청도 사투리 · 다급함과 걱정)
+    n24:              { id: 'mtape_2',   fx: 'none',  who: '🔦 당직 경비원 · 박종철 아저씨' },
+    n_guard_diary:    { id: 'mtape_2',   fx: 'radio', who: '🔦 당직 경비원 · 박종철 아저씨' },
+    // 보건교사 임소연 선생님 육성 (정전 직후 공포와 떨림)
+    n2:               { id: 'tape1',     fx: 'none',  who: '📼 보건교사 · 임소연 선생님' },
+    q3a:              { id: 'tape1',     fx: 'none',  who: '📼 보건교사 · 임소연 선생님' },
+    // 3-2 담임 정은수 선생님 육성 (결석 기재를 거부한 단호함과 슬픔)
+    n27:              { id: 'teacher2',  fx: 'none',  who: '📼 3-2 담임 · 정은수 선생님' },
+    q5a:              { id: 'teacher2',  fx: 'none',  who: '📼 3-2 담임 · 정은수 선생님' },
+    q5b:              { id: 'teacher2',  fx: 'none',  who: '📼 3-2 담임 · 정은수 선생님' },
+    // 제9대 교장 한석규 육성 (위엄 뒤에 숨겨진 무거운 죄책감과 떨림)
+    n_principal_tape: { id: 'mtape_5',   fx: 'radio', who: '📼 제9대 교장 · 한석규' },
+    h1:               { id: 'mtape_5',   fx: 'none',  who: '📼 제9대 교장 · 한석규' },
+    h3:               { id: 'mtape_5',   fx: 'none',  who: '📼 제9대 교장 · 한석규' },
+    h4:               { id: 'mtape_5',   fx: 'none',  who: '📼 제9대 교장 · 한석규' },
+    h5:               { id: 'mtape_5',   fx: 'none',  who: '📼 제9대 교장 · 한석규' },
+    n21:              { id: 'mtape_5',   fx: 'none',  who: '📼 제9대 교장 · 한석규' },
+    // 교무부장 권오현 육성 (5인 은폐 지시 및 오열하는 마지막 참회)
+    n3:               { id: 'tape3',     fx: 'none',  who: '📼 교무부장 · 권오현' },
+    n22:              { id: 'tape5',     fx: 'none',  who: '📼 교무부장 · 권오현 (참회)' },
+    n_bunker_audit:   { id: 'tape3',     fx: 'radio', who: '📼 교무부장 · 권오현' },
+    // 과학부장 최동혁 선생님 육성 (긴박한 실험실 기록과 후회)
+    n5:               { id: 'mtape_3',   fx: 'none',  who: '📼 과학부장 · 최동혁 선생님' },
+    n17:              { id: 'mtape_3',   fx: 'none',  who: '📼 과학부장 · 최동혁 선생님' },
+    q7a:              { id: 'mtape_3',   fx: 'none',  who: '📼 과학부장 · 최동혁 선생님' },
+    // 상담교사 · 사서 선생님 육성 (눈물 섞인 고백과 미안함)
+    n25:              { id: 'mtape_1',   fx: 'none',  who: '📼 도서실 사서 · 상담교사' },
+    n4:               { id: 'mtape_1',   fx: 'none',  who: '📼 도서실 사서 · 상담교사' },
+    n26:              { id: 'mtape_1',   fx: 'none',  who: '📼 도서실 사서 · 상담교사' },
+    q4b:              { id: 'mtape_1',   fx: 'none',  who: '📼 상담교사 · 오유진 선생님' },
+    q8a:              { id: 'mtape_1',   fx: 'none',  who: '📼 도서실 사서 · 송지혜 선생님' },
+    q8b:              { id: 'ghThanks',  fx: 'none',  who: '🕯 윤하늘 (1998년 3-2 방송부)' },
+    // 3-2 윤하늘 육성 (설레는 생전 방송 연습 & 안도의 작별 인사)
+    n8:               { id: 'tape4',     fx: 'none',  who: '🕯 윤하늘 (1998년 3-2 방송부)' },
+    n1:               { id: 'tape4',     fx: 'none',  who: '🕯 윤하늘 (1998년 3-2 방송부)' },
+    n18:              { id: 'tape4',     fx: 'none',  who: '🕯 윤하늘 (1998년 3-2 방송부)' },
+    q2b:              { id: 'tape4',     fx: 'radio', who: '🕯 윤하늘 · 수아 · 다은 (하교 방송)' },
+    q1b:              { id: 'ghThanks',  fx: 'none',  who: '🕯 윤하늘 (1998년 3-2 방송부)' },
+    q5c:              { id: 'ghThanks',  fx: 'none',  who: '🕯 윤하늘 (1998년 3-2 방송부)' },
+    // 단짝 친구 이수아 & 방송부 후배 서다은 육성 (다정한 우정과 울먹이는 참회)
+    n28:              { id: 'echo1',     fx: 'none',  who: '📼 단짝 친구 · 이수아' },
+    q2a:              { id: 'echo2',     fx: 'none',  who: '📼 단짝 친구 · 서다은' },
+    n23:              { id: 'mtape_4',   fx: 'none',  who: '📼 방송부 2학년 · 서다은' },
+    n7:               { id: 'mtape_4',   fx: 'none',  who: '📼 방송부 2학년 · 서다은' },
+    n14:              { id: 'mtape_4',   fx: 'none',  who: '📼 방송부 2학년 · 서다은' },
+    n29:              { id: 'echo2',     fx: 'none',  who: '📼 방송부 2학년 · 서다은' },
+    n_dorm2f_diary:   { id: 'mtape_4',   fx: 'none',  who: '📼 청운학사 사생 · 서다은' },
+    q4a:              { id: 'mtape_4',   fx: 'none',  who: '📼 방송부 2학년 · 서다은' },
+    q4c:              { id: 'mtape_4',   fx: 'none',  who: '📼 방송부 2학년 · 서다은' },
+    // 선배 박민아 육성 (다급한 추격과 떨리는 숨소리)
+    n6:               { id: 'phone1',    fx: 'phone', who: '📱 선배 박민아 (방송부 3학년)' },
+    n15:              { id: 'phone2',    fx: 'phone', who: '📱 선배 박민아 (방송부 3학년)' },
+    q6a:              { id: 'cam1',      fx: 'phone', who: '📱 선배 박민아 (방송부 3학년)' },
+    q6b:              { id: 'phone2',    fx: 'phone', who: '📱 선배 박민아 (방송부 3학년)' },
+    q6c:              { id: 'mw_' + (isJ ? 'j' : 's'), fx: 'none', who: '📱 선배 박민아 (방송부 3학년)' },
+    // 어둠 속 남겨진 아이의 속삭임
+    n16:              { id: 'call_unk1', fx: 'whisper', who: '🕯 윤하늘 (차가운 어둠 속의 목소리)' },
+    h2:               { id: 'call_unk1', fx: 'whisper', who: '🕯 윤하늘 (차가운 어둠 속의 목소리)' },
+    // 현장 일지를 발견한 주인공(서연/지훈)의 생생한 감정 연기 톤
+    n9:               pLine('gym'),
+    n10:              pLine('pool'),
+    q3b:              pLine('pool'),
+    n11:              pLine('b1'),
+    q7b:              pLine('breaker'),
+    n12:              pLine('tagFound'),
+    q1a:              pLine('tagFound'),
+    n13:              pLine('cafe'),
+    n19:              pLine('needPin'),
+    n20:              pLine('needHook'),
+    n_seomun_ilbo:    pLine('office'),
+    nC:               pLine('arrive'),
+  };
+  return MAP[id] || pLine('safeOpen');
+}
 window.__readSeomunNewspaper = () => {
   const isJ = CHAR === 'jihun';
-  const protagWho = isJ ? '🎙 박지훈 (주인공 추리)' : '🎙 김서연 (주인공 추리)';
-  const protagId = isJ ? 'newspaper_read_j' : 'newspaper_read_s';
+  const protagWho = isJ ? '🎙 박지훈 (현장 추리)' : '🎙 김서연 (현장 추리)';
+  const protagId = isJ ? 'l_office_j' : 'l_office_s';
+  const subId = isJ ? 'l_safeOpen_j' : 'l_safeOpen_s';
   stopSpeak();
-  sfx.broadcast && sfx.broadcast();
-  // 신문 전용 신규 성우 『📰 서문일보 사회부 한진우 기자』 목소리로 특보 기사를 생생하게 보도한 뒤 주인공 추리 코멘트 연결!
-  line('newspaper_reporter', 'radio', '📰 서문일보 사회부 한진우 기자').then(() => {
+  line(subId, 'none', protagWho).then(() => {
     if (state === 'note') line(protagId, 'none', protagWho);
   });
 };
@@ -1192,7 +1271,10 @@ function showNote(it) {
   $('note').innerHTML = docHTML;
   $('noteBox').classList.add('show'); it.img ? sfx.photo() : sfx.paper();
   if (it.voiceKey) line(it.voiceKey, 'tape', it.voiceWho || '📼 녹취록 재생');
-  else if (it.kind === 'note' && it.id && VS.readNotes) line('note_' + it.id, 'none');
+  else if (it.kind === 'note' && it.id && VS.readNotes) {
+    const nv = noteVoiceFor(it.id);
+    line(nv.id, nv.fx, nv.who);
+  }
 }
 function closeNote() { $('noteBox').classList.remove('show'); if (state === 'note') { state = 'playing'; stopSpeak(); } }
 
@@ -1690,8 +1772,8 @@ async function useRoomObj(p) {
   if (k === 'guard_recorder') {
     sfx.click();
     if (!docs.some(d => d.id === 'n_guard_diary')) addDoc({ id: 'n_guard_diary', kind: 'note' });
-    line('tape_guard_patrol', 'tape', '📼 경비실 보이스레코더 (박씨 아저씨 육성)').then(() => {
-      setTimeout(() => line('vo_guard_logbook', 'tape', '📓 1998.10.12 경비 일지 낭독'), 400);
+    line('tape_guard_patrol', 'tape', '🔦 당직 경비원 · 박종철 아저씨 (순찰 녹음)').then(() => {
+      if (state === 'playing') setTimeout(() => line('vo_guard_logbook', 'none', '🔦 당직 경비원 · 박종철 아저씨 (10년 전 회상)'), 350);
     });
     say('경비실 보이스레코더에서 1998년 10월 12일 밤 박씨 아저씨가 남긴 순찰 육성 녹음이 흘러나온다!', 4200);
     return;
@@ -2670,7 +2752,7 @@ function ensureCharsel3D() {
     const rim = new THREE.DirectionalLight(0xffd6e0, 0.85); rim.position.set(0, 2.4, -2.5);
     sc.add(hemi, key, fill, rim);
     st.scenes[k] = sc;
-    loader.load(`assets/characters/${k}.glb?v=178`, gltf => {
+    loader.load(`assets/characters/${k}.glb?v=179`, gltf => {
       const m = gltf.scene;
       npcVisuals.enhanceCharacterMaterials?.(m, k);
       m.traverse(o => { if (o.isMesh || o.isSkinnedMesh) o.frustumCulled = false; });
@@ -7936,13 +8018,13 @@ function megaNotify(m) { const t = String(m).split('\n'); say(t[0].replace(/^\S+
     world.props.push({ kind: 'robj', k: 'bunker_light', t: 'bunker', floor: 4, x: bx + 1.15, z: z1 - .85, y: 1.35, r: 2.0, label: '방공호 주 전등 스위치 조작하기', bkLightGroup });
     {
       const bLoader = new GLTFLoader();
-      bLoader.load('assets/models/sf/sf_bunker_props_pack.glb?v=178', gltf => {
+      bLoader.load('assets/models/sf/sf_bunker_props_pack.glb?v=179', gltf => {
         const bm = gltf.scene; bm.position.set(bx, 0, z0 + .45);
         if (window.__upgradePure3DScene) window.__upgradePure3DScene(bm); else bm.traverse(o => { o.userData.dynamic = true; });
         R.add(bm);
         if (gltf.animations && gltf.animations.length) { const mx = new THREE.AnimationMixer(bm); mx.userData = { floor: 4, x: bx, z: z0 + .45 }; gltf.animations.forEach(c => mx.clipAction(c).play()); (window.__campusAnimMixers ||= []).push(mx); }
       }, undefined, () => {});
-      bLoader.load('assets/models/sf/sf_pump_policeline_scene.glb?v=178', gltf => {
+      bLoader.load('assets/models/sf/sf_pump_policeline_scene.glb?v=179', gltf => {
         const pm = gltf.scene; pm.position.set(24.0, 0, -3.65);
         pm.traverse(o => { o.userData.dynamic = true; if (o.isMesh) { o.castShadow = false; o.receiveShadow = true; if (o.material?.map) o.material.map.colorSpace = THREE.SRGBColorSpace; } });
         R.add(pm);

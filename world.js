@@ -4,11 +4,11 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { NOTES } from './story.js?v=178';
+import { NOTES } from './story.js?v=179';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=178';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=179';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -666,8 +666,8 @@ export function buildWorld(scene) {
     tape5: { title: '녹음 테이프 — 교무부장의 마지막 참회록', spk: '교무부장 권오현', fx: 'radio' },
     tape_homeroom: { title: '녹음 테이프 — 3-2 담임 정은수 선생님', spk: '3-2 담임 정은수', fx: 'radio', minSh: 0 },
     tape_science: { title: '녹음 테이프 — 과학부장 최동혁 선생님', spk: '과학부장 최동혁', fx: 'radio', minSh: 0 },
-    tape_pe: { title: '녹음 테이프 — 체육부장 강태식 선생님', spk: '체육부장 강태식', fx: 'radio', minSh: 0 },
-    tape_librarian: { title: '녹음 테이프 — 도서실 사서 송지혜 선생님', spk: '도서실 사서 송지혜', fx: 'radio', minSh: 0 },
+    tape_pe: { title: '녹음 테이프 — 당직 경비원 박종철 아저씨의 심야 증언', spk: '당직 경비원 박종철', fx: 'radio', minSh: 0 },
+    tape_librarian: { title: '녹음 테이프 — 방송부 후배 서다은의 눈물의 참회록', spk: '방송부 2학년 서다은', fx: 'radio', minSh: 0 },
     tape_counselor: { title: '녹음 테이프 — 상담교사 오유진 선생님', spk: '상담교사 오유진', fx: 'radio', minSh: 0 },
   };
   const mTape = S(null, { color: 0x2a2a2c, roughness: .5, metalness: .3 });

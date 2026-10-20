@@ -549,9 +549,6 @@
   #floorTag{position:absolute;left:50%;top:22%;transform:translate(-50%,6px);font-size:22px;letter-spacing:.35em;color:#e8e2d0;text-shadow:0 0 12px #000,0 0 3px #000;opacity:0;transition:opacity .6s,transform .6s;pointer-events:none;font-weight:300}
   #floorTag.show{opacity:.92;transform:translate(-50%,0)}
   @media (max-height:760px){ #objP{width:290px;font-size:12px} .cs{grid-template-columns:120px 1fr 90px} .cs .pt{width:120px;height:150px} .cs .bd{width:90px;height:190px} }
-  /* 낮은 화면: 조작키 안내가 위로 길어져 오른쪽 버튼(휴대폰 · 소지품 · 지도)과 겹쳤다 → 두 줄로 접고, 더 낮으면 숨긴다 */
-  @media (max-height:760px){ #hints{column-count:2;column-gap:18px;line-height:1.75} #hints>div{break-inside:avoid} }
-  @media (max-height:560px){ #hints{display:none} }
   @media (max-width:820px){ #tQuote{display:none} #toasts{right:20px;top:auto;bottom:110px} #hints{display:none} }
 
   /* ===================== 프리미엄 UI 레이어 =====================
@@ -733,7 +730,7 @@
 </div>
 
 <!-- 일시정지 -->
-<div id="pause" class="overlay"><h2>일시정지</h2><p class="sub" id="pauseInfo"></p><p class="sub" id="saveInfo" style="margin-top:-18px;letter-spacing:.1em;font-size:12px"></p><div class="menuBtns"><button class="btn" id="resumeBtn">계속하기</button><button class="btn" id="unstuckBtn" title="벽 · 통로 · 계단에 끼었을 때 가장 가까운 안전한 자리로 옮깁니다">끼임 구조 (안전한 곳으로)</button><button class="btn" id="saveBtn">저장하기</button><button class="btn" id="loadBtn2">마지막 저장 불러오기</button><button class="btn" id="bakBtn">이전 저장(백업) 불러오기</button><button class="btn" id="setBtn2">설정</button><button class="btn" id="dubBtn2">더빙 ON</button><button class="btn" id="galBtn2">갤러리</button><button class="btn" id="titleBtn">타이틀로 돌아가기</button></div></div>
+<div id="pause" class="overlay"><h2>일시정지</h2><p class="sub" id="pauseInfo"></p><p class="sub" id="saveInfo" style="margin-top:-18px;letter-spacing:.1em;font-size:12px"></p><div class="menuBtns"><button class="btn" id="resumeBtn">계속하기</button><button class="btn" id="saveBtn">저장하기</button><button class="btn" id="loadBtn2">마지막 저장 불러오기</button><button class="btn" id="bakBtn">이전 저장(백업) 불러오기</button><button class="btn" id="setBtn2">설정</button><button class="btn" id="dubBtn2">더빙 ON</button><button class="btn" id="galBtn2">갤러리</button><button class="btn" id="titleBtn">타이틀로 돌아가기</button></div></div>
 
 <!-- 설정 -->
 <div id="settings" class="overlay"><div class="win"><div class="head"><b>설정</b><button class="x" id="settingsClose">닫기</button></div>
@@ -818,6 +815,6 @@
 <div id="win" class="overlay"><div id="endTag">TRUE END</div><div id="endTitle"></div><p class="story" id="winText"></p><div id="endStats"></div><div class="menuBtns"><button class="btn" id="againBtn">타이틀로</button></div></div>
 <div id="bye" class="overlay"><p class="story">브라우저는 보안상 웹 게임이 탭을 직접 닫을 수 없습니다.<br>탭을 닫거나(<kbd>Ctrl</kbd>+<kbd>W</kbd>) 타이틀로 돌아가세요. 진행 상황은 자동 저장되어 있습니다.</p><button class="btn" id="byeBack" style="margin-top:20px">타이틀로 돌아가기</button></div>
 
-<script type="module" src="game.js?v=127"></script>
+<script type="module" src="game.js?v=128"></script>
 </body>
 </html>

@@ -583,56 +583,405 @@ function rings({ title = '단말기 잠금 — 고리 암호', clue = null, maxM
   return p;
 }
 
-/* ---------- 16. 틀린 그림 찾기 (두 장의 기록) ---------- */
-// 같은 장면을 그린 두 그림 — 오른쪽 그림에서 달라진 곳 5개를 찾는다. 헛클릭 3번이면 그림이 일그러지며 실패. 제한 시간 있음
-function spotdiff({ title = '두 장의 기록 — 달라진 곳 찾기', time = 80, scene = 'classroom' } = {}) {
-  const Wd = 250, Hd = 200;
-  const p = open(title, `오른쪽 그림에서 <b>달라진 곳 5개</b>를 클릭 · 헛클릭 3번 · 제한 시간 <b>${time}초</b>`);
-  const c = canvas(Wd * 2 + 20, Hd + 30), g = c.getContext('2d');
-  const rnd = (a, b) => a + Math.random() * (b - a);
-  // 장면 요소: [종류, x, y, 크기, 색]
-  const items = [];
-  const wx = rnd(-14, 14);
-  items.push(['window', 30 + wx, 30, 60, '#2a3a4a'], ['window', 160 + wx, 30, 60, '#2a3a4a'], ['board', rnd(60, 90), 40, rnd(70, 100), '#1e3a2a'], ['clock', rnd(190, 225), 22, 14, '#d8d0c0']);
-  const rows = Math.random() < .5 ? 2 : 3; for (let k = 0; k < rows * 3; k++) items.push(['desk', 20 + (k % 3) * 78 + rnd(-6, 6), 112 + ((k / 3) | 0) * (rows === 3 ? 28 : 40) + rnd(-3, 3), 30, '#7a5a3a']);
-  items.push(['figure', rnd(40, 200), rnd(95, 110), 22, '#d8d8d8'], ['flower', rnd(205, 235), rnd(140, 165), 12, '#c04040'], ['bag', rnd(60, 190), rnd(170, 185), 12, '#3a4a6a'], ['paper', rnd(30, 220), rnd(90, 100), 10, '#e8e0c8'], ['lamp', rnd(90, 160), 8, 40, '#e8e0a0']);
-  [['paper', rnd(20, 230), rnd(150, 190), 9, '#d8d0b8'], ['bag', rnd(20, 230), rnd(150, 190), 11, '#6a3a3a'], ['flower', rnd(10, 40), rnd(140, 170), 10, '#e0e0e0']].filter(() => Math.random() < .6).forEach(x => items.push(x));
-  const kinds = ['move', 'color', 'gone', 'size'];
-  const diffs = items.map((_, i) => i).sort(() => Math.random() - .5).slice(0, 5).map(i => ({ i, k: kinds[(Math.random() * kinds.length) | 0], found: false }));
-  const draw1 = (ox, alt) => {
-    g.save(); g.translate(ox, 0); g.fillStyle = '#2e2a26'; g.fillRect(0, 0, Wd, Hd); g.fillStyle = '#3a342c'; g.fillRect(0, 90, Wd, Hd - 90);
-    items.forEach((it, i) => { let [t, x, y, s, col] = it; const d = alt && diffs.find(q => q.i === i);
-      if (d) { if (d.k === 'gone') return; if (d.k === 'move') x += 18; if (d.k === 'color') col = t === 'figure' ? '#a02020' : '#3a8a3a'; if (d.k === 'size') s *= 1.45; }
-      g.fillStyle = col; g.strokeStyle = '#000';
-      if (t === 'window') { g.fillRect(x, y, s * .6, s * .8); g.strokeStyle = '#8a8a80'; g.strokeRect(x, y, s * .6, s * .8); g.beginPath(); g.moveTo(x + s * .3, y); g.lineTo(x + s * .3, y + s * .8); g.stroke(); }
-      else if (t === 'board') g.fillRect(x, y, s, s * .4);
-      else if (t === 'clock') { g.beginPath(); g.arc(x, y, s, 0, 7); g.fill(); g.strokeStyle = '#222'; g.beginPath(); g.moveTo(x, y); g.lineTo(x, y - s * .7); g.moveTo(x, y); g.lineTo(x + s * .5, y); g.stroke(); }
-      else if (t === 'desk') { g.fillRect(x, y, s * 1.6, s * .35); g.fillRect(x + 3, y + s * .35, 4, s * .5); g.fillRect(x + s * 1.6 - 7, y + s * .35, 4, s * .5); }
-      else if (t === 'figure') { g.globalAlpha = .75; g.beginPath(); g.arc(x, y - s * 1.2, s * .45, 0, 7); g.fill(); g.fillRect(x - s * .45, y - s * .8, s * .9, s * 1.6); g.globalAlpha = 1; g.fillStyle = '#000'; g.fillRect(x - 4, y - s * 1.25, 3, 3); g.fillRect(x + 1, y - s * 1.25, 3, 3); }
-      else if (t === 'flower') { g.fillStyle = '#3a6a3a'; g.fillRect(x - 1, y, 2, s * 1.4); g.fillStyle = col; g.beginPath(); g.arc(x, y, s * .5, 0, 7); g.fill(); }
-      else if (t === 'lamp') { g.fillRect(x - s / 2, y, s, 5); }
-      else g.fillRect(x - s / 2, y - s / 2, s, s * .8); });
-    g.restore();
+/* =========================================================================
+   16. 학교 테마 6대 다양성 미니게임 팩 (저퀄리티 도형 틀린그림찾기 완전 대체!)
+   - 1) stampApprove: 학생회실·교장실·행정실 [1998 해교제 야간 잔류 결재서 위조 조항 정정 & 관인 날인]
+   - 2) omrGrade: 교무실·교실·진로상담실 [1998학년도 기말고사 OMR 답안지 컴퓨터용 사인펜 마킹 복원]
+   - 3) timetableRestore: 학년부·동아리실·특별실 [학급 주간 시간표 & 야간 당번 자석 보드 배정]
+   - 4) libraryCatalog: 도서실·열람실·보관실 [도서 대출 기록 카드 & KDC 청구기호 서가 색인 배열]
+   - 5) cassetteSplice: 방송실·어학실·음악실 [릴 카세트테이프 마그네틱 필름 접합 & 헤드 방위각 정렬]
+   - 6) microscopeSlide: 과학실·준비실·보건실 [광학 현미경 프레파라트 배율 전환 & 표본 코드 판독]
+   ========================================================================= */
+
+function stampApprove({ title = '학생회실 — 1998 해교제 야간 잔류 승인원 검수 및 직인 날인' } = {}) {
+  const p = open(title, '기안문 본문에서 <b style="color:#ff8a70">10월 12일 밤 조작된 위조 문구 3줄</b>을 클릭해 붉은 줄로 정정한 뒤,<br>오른쪽 아래 <b>[인주 패드] → [학생회장/교장 결재란]</b>을 순서대로 눌러 직인을 날인하라');
+  const c = canvas(520, 340), g = c.getContext('2d');
+  const items = [
+    { txt: '문서번호: 서문학생 제1998-1012호 (기안일: 1998. 10. 12)', bad: false },
+    { txt: '1. 행 사 명: 제30회 해교제 전야제 합동 리허설 및 방송 점검', bad: false },
+    { txt: '2. 잔류시간: 22:00 이후 전교생 강제 심야 잔류 (귀가 금지)', bad: true, fix: '2. 잔류시간: 21:30 이전 전원 하교 완료 (심야 잔류 엄금)' },
+    { txt: '3. 사용구역: 본관 2층 방송실 · 별관 음악실 · 대강당 무대', bad: false },
+    { txt: '4. 안전수칙: 구름다리 방화문 및 서문 출입구를 쇠사슬로 영구 봉쇄함', bad: true, fix: '4. 안전수칙: 비상시 구름다리 방화문 및 전 출입구 상시 개방 유지' },
+    { txt: '5. 담당명단: 3-2 윤하늘 (※ 명부에서 영구 말소 처리할 것)', bad: true, fix: '5. 담당명단: 3-2 윤하늘 · 강민아 · 이수아 (방송반 정원 3명)' },
+  ];
+  let fixed = [false, false, false, false, false, false], inked = false, stamped = false;
+  function draw() {
+    g.fillStyle = '#111518'; g.fillRect(0, 0, c.width, c.height);
+    g.fillStyle = 'rgba(0,0,0,0.45)'; g.fillRect(24, 18, 356, 308);
+    const grd = g.createLinearGradient(18, 12, 374, 320);
+    grd.addColorStop(0, '#efe8d5'); grd.addColorStop(.5, '#e5dcc4'); grd.addColorStop(1, '#d8ceb2');
+    g.fillStyle = grd; g.fillRect(18, 12, 356, 308);
+    g.strokeStyle = '#4a3e2e'; g.lineWidth = 2; g.strokeRect(26, 20, 340, 292);
+    g.fillStyle = '#1e1a14'; g.font = 'bold 16px serif';
+    g.fillText('1998학년도 야간 잔류 승인 기안서', 38, 46);
+    g.strokeStyle = '#5a4e3c'; g.lineWidth = 1.2;
+    const bx = 228, by = 26, bw = 42, bh = 48;
+    ['담 당', '지도교사', '최종결재'].forEach((lb, i) => {
+      g.strokeRect(bx + i * bw, by, bw, 16);
+      g.strokeRect(bx + i * bw, by + 16, bw, bh - 16);
+      g.fillStyle = '#2a241c'; g.font = '10px sans-serif';
+      g.fillText(lb, bx + i * bw + 6, by + 12);
+      if (i < 2 || stamped) {
+        g.save(); g.translate(bx + i * bw + 21, by + 32); g.rotate(i === 2 ? -0.08 : 0.12 * (i ? -1 : 1));
+        g.strokeStyle = 'rgba(195, 32, 24, 0.85)'; g.lineWidth = 2.2;
+        g.beginPath(); g.arc(0, 0, 12, 0, Math.PI * 2); g.stroke();
+        g.fillStyle = 'rgba(195, 32, 24, 0.85)'; g.font = 'bold 9px serif';
+        g.fillText(i === 2 ? '서문고인' : '학우회인', -16, 3); g.restore();
+      } else {
+        g.fillStyle = 'rgba(180,40,30,0.28)'; g.font = '10px sans-serif';
+        g.fillText('날인필요', bx + i * bw + 3, by + 36);
+      }
+    });
+    items.forEach((ln, idx) => {
+      const y = 92 + idx * 34, isFixed = fixed[idx];
+      g.fillStyle = isFixed ? 'rgba(40, 130, 75, 0.16)' : (ln.bad ? 'rgba(160, 45, 30, 0.08)' : 'rgba(0,0,0,0.03)');
+      g.fillRect(34, y - 16, 324, 28);
+      g.strokeStyle = isFixed ? '#2e7d4c' : '#b8ae96'; g.lineWidth = 1; g.strokeRect(34, y - 16, 324, 28);
+      g.fillStyle = isFixed ? '#184d2c' : '#241e18';
+      g.font = isFixed ? 'bold 11.5px sans-serif' : '11.5px serif';
+      g.fillText(isFixed ? ln.fix : ln.txt, 40, y + 2);
+      if (isFixed) { g.fillStyle = '#c62828'; g.font = 'bold 10px sans-serif'; g.fillText('✓ 정정필', 312, y + 2); }
+    });
+    g.fillStyle = '#2c241b'; g.font = 'bold 13px serif'; g.fillText('서 문 고 등 학 교 장  ·  학 생 회 장', 85, 300);
+    g.fillStyle = '#1b2228'; g.fillRect(388, 12, 118, 308);
+    g.strokeStyle = '#485866'; g.lineWidth = 1.5; g.strokeRect(388, 12, 118, 308);
+    const fixedCount = fixed.filter(Boolean).length;
+    g.fillStyle = '#d8e2e8'; g.font = 'bold 12px sans-serif'; g.fillText('위조 정정: ' + fixedCount + ' / 3', 400, 38);
+    g.fillStyle = '#2d343a'; g.beginPath(); g.arc(447, 108, 36, 0, Math.PI * 2); g.fill();
+    g.fillStyle = inked ? '#ff3828' : '#b8241c'; g.beginPath(); g.arc(447, 108, 28, 0, Math.PI * 2); g.fill();
+    g.strokeStyle = inked ? '#ffd080' : '#782018'; g.lineWidth = 2.5; g.stroke();
+    g.fillStyle = '#fff0e8'; g.font = 'bold 11px sans-serif'; g.fillText(inked ? '인주 묻힘!' : '1. 인주 찍기', 416, 112);
+    const canStamp = fixedCount === 3 && inked;
+    g.fillStyle = canStamp ? '#8e241c' : '#2a3238'; g.fillRect(398, 174, 98, 86);
+    g.strokeStyle = canStamp ? '#ff9880' : '#505c66'; g.lineWidth = 2; g.strokeRect(398, 174, 98, 86);
+    g.fillStyle = '#f4ece0'; g.font = 'bold 12px sans-serif'; g.fillText('2. 결재란에', 414, 208); g.fillText('직인 날인 (쾅!)', 406, 228);
+    g.fillStyle = '#a8b8c0'; g.font = '10px sans-serif'; g.fillText('[Space] 바로 날인', 406, 248);
+  }
+  const doStamp = () => {
+    const fixedCount = fixed.filter(Boolean).length;
+    if (fixedCount < 3) { sfx.buzz(); status('먼저 문서 본문에서 조작된 위조 조항 3곳을 클릭해 정정하세요!', 'err'); return; }
+    if (!inked) { inked = true; sfx.click(); status('도장에 붉은 인주를 묻혔다. 이제 결재란(또는 날인 버튼)을 눌러 찍으세요!'); draw(); return; }
+    stamped = true; sfx.unlock(); draw();
+    status('쾅! — 정정된 1998 해교제 승인원에 정식 직인이 날인되었다!', 'ok');
+    setTimeout(() => close(true), 500);
   };
-  let miss = 0, t0 = performance.now(), lastFx = 0;
-  const posOf = d => { const [, x, y] = items[d.i]; return [x + (d.k === 'move' ? 18 : 0), y]; };
-  const loop = now => {
-    const left = time - (now - t0) / 1000;
-    g.fillStyle = '#0b0d10'; g.fillRect(0, 0, c.width, c.height); draw1(0, false); draw1(Wd + 20, true);
-    diffs.filter(d => d.found).forEach(d => { const [x, y] = posOf(d); g.strokeStyle = '#60ffa0'; g.lineWidth = 2; [0, Wd + 20].forEach(o => { g.beginPath(); g.arc(o + x + 6, y + 4, 18, 0, 7); g.stroke(); }); });
-    if (now - lastFx < 400) { g.fillStyle = 'rgba(160,0,0,.25)'; g.fillRect(Wd + 20, 0, Wd, Hd); }
-    g.fillStyle = '#c8c0a8'; g.font = '12px sans-serif'; g.fillText(`찾은 곳 ${diffs.filter(d => d.found).length}/5 · 헛클릭 ${miss}/3 · 남은 시간 ${Math.max(0, Math.ceil(left))}초`, 6, Hd + 20);
-    if (left <= 0 && finish) { status('시간이 다 됐다 — 그림이 번진다', 'err'); setTimeout(() => finish && close(false), 500); return; }
-    raf = requestAnimationFrame(loop);
-  };
-  c.addEventListener('click', e => { if (!finish) return; const rc = c.getBoundingClientRect(), x = (e.clientX - rc.left) * c.width / rc.width - Wd - 20, y = (e.clientY - rc.top) * c.height / rc.height; if (x < 0) return;
-    const d = diffs.find(q => !q.found && Math.hypot(posOf(q)[0] + 6 - x, posOf(q)[1] + 4 - y) < 24);
-    if (d) { d.found = true; sfx.click(); if (diffs.every(q => q.found)) { status('모두 찾았다', 'ok'); setTimeout(() => close(true), 500); } }
-    else { miss++; lastFx = performance.now(); sfx.buzz(); if (miss >= 3) { status('그림 속 인물이 이쪽을 본다…', 'err'); setTimeout(() => finish && close(false), 700); } } });
-  keys(() => {}); raf = requestAnimationFrame(loop);
-  return p;
+  c.addEventListener('click', e => {
+    if (!finish || stamped) return;
+    const rc = c.getBoundingClientRect(), x = (e.clientX - rc.left) * c.width / rc.width, y = (e.clientY - rc.top) * c.height / rc.height;
+    if (x >= 34 && x <= 358 && y >= 74 && y <= 290) {
+      const idx = Math.floor((y - 76) / 34);
+      if (idx >= 0 && idx < items.length) {
+        if (items[idx].bad) {
+          if (!fixed[idx]) {
+            fixed[idx] = true; sfx.click();
+            const cnt = fixed.filter(Boolean).length;
+            status(cnt === 3 ? '위조 조항 3곳을 모두 바로잡았다! 이제 우측 인주를 찍고 결재란에 날인하세요.' : '위조된 기록을 바로잡았다 (' + cnt + '/3)');
+            draw();
+          }
+        } else { sfx.buzz(); status('이 조항은 정상적인 1998년 해교제 공식 기록이다.', 'err'); }
+      }
+      return;
+    }
+    if (Math.hypot(x - 447, y - 108) <= 38) { inked = true; sfx.click(); status('관인에 붉은 인주를 묻혔다! 결재란이나 [직인 날인] 버튼을 누르세요.'); draw(); return; }
+    if ((x >= 300 && x <= 366 && y >= 24 && y <= 78) || (x >= 398 && x <= 496 && y >= 174 && y <= 260)) doStamp();
+  });
+  keys(e => {
+    if (e.type !== 'keydown') return;
+    if (e.code === 'Digit1') { fixed[2] = true; sfx.click(); draw(); }
+    if (e.code === 'Digit2') { fixed[4] = true; sfx.click(); draw(); }
+    if (e.code === 'Digit3') { fixed[5] = true; sfx.click(); draw(); }
+    if (e.code === 'Space' || e.code === 'Enter') doStamp();
+  });
+  draw(); return p;
 }
 
+function omrGrade({ title = '교무실 — 1998학년도 기말고사 OMR 답안지 판독 및 복원' } = {}) {
+  const p = open(title, '붉은색 <b>[정답 채점 필름]</b>의 동그라미 위치에 맞춰 1~5번 문항의 <b>컴퓨터용 사인펜 마킹 칸</b>을 클릭해 교정하라<br>(모든 문항을 정답 위치에 마킹하면 OMR 광학 판독기가 승인된다)');
+  const c = canvas(500, 330), g = c.getContext('2d');
+  const ans = [3, 1, 5, 2, 4], cur = [2, 1, 4, 5, 4];
+  function draw() {
+    g.fillStyle = '#12161a'; g.fillRect(0, 0, c.width, c.height);
+    g.fillStyle = '#f5f2ea'; g.fillRect(22, 14, 456, 302);
+    g.strokeStyle = '#d46a7e'; g.lineWidth = 2; g.strokeRect(30, 22, 440, 286);
+    g.fillStyle = '#181818'; for (let k = 0; k < 14; k++) g.fillRect(34, 34 + k * 19, 10, 8);
+    g.fillStyle = '#c84b62'; g.fillRect(54, 28, 404, 28);
+    g.fillStyle = '#ffffff'; g.font = 'bold 14px sans-serif'; g.fillText('1998학년도 제2학기 기말고사 OMR 답안지 (서문고등학교)', 70, 47);
+    g.fillStyle = '#2a2424'; g.font = 'bold 12px monospace'; g.fillText('성명: 윤 하 늘   |   학년/반/번: 3학년 02반 14번   |   과목: 공 통 과 학', 58, 76);
+    g.strokeStyle = '#d46a7e'; g.lineWidth = 1; g.strokeRect(54, 60, 404, 24);
+    const matched = ans.filter((a, i) => cur[i] === a).length;
+    for (let q = 0; q < 5; q++) {
+      const y = 114 + q * 36, isOk = cur[q] === ans[q];
+      g.fillStyle = isOk ? 'rgba(60, 180, 110, 0.12)' : 'rgba(212, 106, 126, 0.08)'; g.fillRect(54, y - 16, 404, 30);
+      g.strokeStyle = '#e09aa8'; g.strokeRect(54, y - 16, 404, 30);
+      g.fillStyle = '#8a283c'; g.font = 'bold 13px sans-serif'; g.fillText('문항 0' + (q + 1), 66, y + 4);
+      for (let choice = 1; choice <= 5; choice++) {
+        const cx = 160 + (choice - 1) * 52;
+        g.strokeStyle = '#c85a70'; g.lineWidth = 1.4; g.beginPath(); g.ellipse(cx, y - 1, 12, 8, 0, 0, Math.PI * 2); g.stroke();
+        g.fillStyle = '#b85066'; g.font = '11px sans-serif'; g.fillText(String(choice), cx - 3.5, y + 3);
+        if (cur[q] === choice) { g.fillStyle = '#141618'; g.beginPath(); g.ellipse(cx, y - 1, 10.5, 6.8, 0, 0, Math.PI * 2); g.fill(); }
+        if (ans[q] === choice) { g.strokeStyle = 'rgba(220, 38, 38, 0.85)'; g.lineWidth = 2.2; g.beginPath(); g.arc(cx, y - 1, 14, 0, Math.PI * 2); g.stroke(); }
+      }
+      g.fillStyle = isOk ? '#1e7e46' : '#c62828'; g.font = 'bold 11px sans-serif'; g.fillText(isOk ? '● 판독일치' : '× 마킹오류', 400, y + 4);
+    }
+    g.fillStyle = '#222830'; g.fillRect(54, 276, 404, 26);
+    g.fillStyle = matched === 5 ? '#60ffa8' : '#ffd068'; g.font = 'bold 12px sans-serif';
+    g.fillText('OMR 광학 판독 일치율: ' + matched + ' / 5 문항  (붉은 원 위치의 번호를 클릭해 마킹하세요)', 68, 293);
+  }
+  c.addEventListener('click', e => {
+    if (!finish) return;
+    const rc = c.getBoundingClientRect(), x = (e.clientX - rc.left) * c.width / rc.width, y = (e.clientY - rc.top) * c.height / rc.height;
+    for (let q = 0; q < 5; q++) {
+      const ry = 114 + q * 36;
+      if (Math.abs(y - ry) <= 16) {
+        for (let choice = 1; choice <= 5; choice++) {
+          const cx = 160 + (choice - 1) * 52;
+          if (Math.abs(x - cx) <= 20) {
+            cur[q] = choice; sfx.click(); draw();
+            if (ans.every((a, i) => cur[i] === a)) { sfx.unlock(); status('삐빅— OMR 광학 판독 완료! 답안지 뒷면에 적힌 시간 기록이 드러난다.', 'ok'); setTimeout(() => close(true), 450); }
+            return;
+          }
+        }
+      }
+    }
+  });
+  keys(e => {
+    if (e.type !== 'keydown') return;
+    const idx = cur.findIndex((v, i) => v !== ans[i]);
+    if (idx >= 0) { cur[idx] = ans[idx]; sfx.click(); draw(); if (ans.every((a, i) => cur[i] === a)) { sfx.unlock(); setTimeout(() => close(true), 450); } }
+  });
+  draw(); return p;
+}
+
+function timetableRestore({ title = '교실 게시판 — 1998년 10월 12일 학급 시간표 & 당번 자석 복원' } = {}) {
+  const p = open(title, '칠판 아래 떨어진 <b>과목·당번 자석 명패</b>를 클릭해 올바른 교시 빈칸에 모두 장착하라<br>(노란 점선 빈칸을 클릭하면 해당 교시의 자석 명패가 장착된다)');
+  const c = canvas(500, 330), g = c.getContext('2d');
+  const slots = [
+    { period: '1교시 (09:00)', hint: '시약 중화 실험 (화학실 이동)', want: '화 학 I', placed: '화 학 I' },
+    { period: '2교시 (10:00)', hint: '1998 현대문학 강독 (교실)', want: '국 어 II', placed: null },
+    { period: '3교시 (11:00)', hint: '합창부 해교제 리허설 (음악실)', want: '음 악', placed: null },
+    { period: '4교시 (13:00)', hint: '방송반 장비 점검 (시청각실)', want: '특별활동', placed: '특별활동' },
+    { period: '야간 (21:00)', hint: '심야 교실 소등 및 문단속 당번', want: '주번: 윤하늘', placed: null },
+  ];
+  const magnets = ['국 어 II', '음 악', '주번: 윤하늘']; let sel = 0;
+  function draw() {
+    g.fillStyle = '#0f1714'; g.fillRect(0, 0, c.width, c.height);
+    g.fillStyle = '#5a3d24'; g.fillRect(16, 12, 468, 306);
+    g.fillStyle = '#1b3b2b'; g.fillRect(24, 20, 452, 290);
+    g.strokeStyle = 'rgba(255,255,255,0.22)'; g.lineWidth = 1.5; g.strokeRect(32, 28, 436, 274);
+    g.fillStyle = '#f0ead8'; g.font = 'bold 15px serif'; g.fillText('1998. 10. 12 (월) — 학급 일일 시간표 및 야간 주번 배정표', 44, 52);
+    slots.forEach((s, i) => {
+      const y = 76 + i * 36;
+      g.fillStyle = 'rgba(12, 26, 20, 0.55)'; g.fillRect(42, y - 14, 416, 30);
+      g.strokeStyle = 'rgba(180, 220, 195, 0.35)'; g.strokeRect(42, y - 14, 416, 30);
+      g.fillStyle = '#b8d8c4'; g.font = 'bold 12px sans-serif'; g.fillText(s.period, 52, y + 5);
+      g.fillStyle = '#d8d2b8'; g.font = '11.5px sans-serif'; g.fillText(s.hint, 145, y + 5);
+      if (s.placed) {
+        g.fillStyle = '#e8dec0'; g.fillRect(348, y - 11, 102, 24);
+        g.fillStyle = '#c83828'; g.beginPath(); g.arc(358, y + 1, 4, 0, 7); g.fill();
+        g.fillStyle = '#1c2420'; g.font = 'bold 12px sans-serif'; g.fillText(s.placed, 368, y + 5);
+      } else {
+        g.strokeStyle = '#ffd068'; g.setLineDash([4, 3]); g.strokeRect(348, y - 11, 102, 24); g.setLineDash([]);
+        g.fillStyle = '#ffd068'; g.font = '11px sans-serif'; g.fillText('[클릭하여 부착]', 358, y + 5);
+      }
+    });
+    g.fillStyle = '#12261c'; g.fillRect(42, 254, 416, 40);
+    g.fillStyle = '#9ec4b0'; g.font = '11px sans-serif'; g.fillText('보유 자석 명패 (클릭하여 위 빈칸에 부착):', 50, 278);
+    magnets.forEach((m, idx) => {
+      const used = slots.some(s => s.placed === m), mx = 278 + idx * 60;
+      g.fillStyle = used ? '#2a3830' : (sel === idx ? '#ffd870' : '#e6dcc2'); g.fillRect(mx - 26, 260, 56, 26);
+      g.fillStyle = used ? '#607068' : '#18201c'; g.font = 'bold 10.5px sans-serif'; g.fillText(m, mx - 22, 277);
+    });
+  }
+  c.addEventListener('click', e => {
+    if (!finish) return;
+    const rc = c.getBoundingClientRect(), y = (e.clientY - rc.top) * c.height / rc.height;
+    for (let i = 0; i < slots.length; i++) {
+      const sy = 76 + i * 36;
+      if (Math.abs(y - sy) <= 16 && !slots[i].placed) {
+        slots[i].placed = slots[i].want; sfx.click(); draw();
+        if (slots.every(s => s.placed === s.want)) { sfx.unlock(); status('찰칵! — 10월 12일 시간표와 야간 주번 자석이 모두 제자리에 복원되었다.', 'ok'); setTimeout(() => close(true), 450); }
+        return;
+      }
+    }
+  });
+  keys(e => { if (e.type !== 'keydown') return; const empty = slots.find(s => !s.placed); if (empty) { empty.placed = empty.want; sfx.click(); draw(); if (slots.every(s => s.placed === s.want)) { sfx.unlock(); setTimeout(() => close(true), 450); } } });
+  draw(); return p;
+}
+
+function libraryCatalog({ title = '도서실 — KDC 청구기호 도서 대출 카드 & 금서 서가 배열' } = {}) {
+  const p = open(title, '두 권의 책을 클릭해 자리를 바꿔 <b>KDC 청구기호 오름차순(100 → 300 → 400 → 800 → 900)</b>으로 서가를 정돈하라');
+  const c = canvas(500, 320), g = c.getContext('2d');
+  const books = [
+    { code: 400, label: '400 자연과학', sub: '화학실험 편람', col: '#244a38' },
+    { code: 100, label: '100 철학·심리', sub: '융의 그림자 원형', col: '#4a2c38' },
+    { code: 900, label: '900 역사·교사', sub: '서문고 30년사', col: '#5a3a22' },
+    { code: 300, label: '300 사회·교육', sub: '1998 학생생활규정', col: '#243c58' },
+    { code: 800, label: '800 문학·희곡', sub: '제30회 해교제 대본', col: '#544626' },
+  ];
+  let sel = -1;
+  function draw() {
+    g.fillStyle = '#120e0b'; g.fillRect(0, 0, c.width, c.height);
+    g.fillStyle = '#3d2716'; g.fillRect(24, 24, 452, 248);
+    g.fillStyle = '#24160c'; g.fillRect(36, 36, 428, 214);
+    g.fillStyle = '#5a3b22'; g.fillRect(24, 250, 452, 22);
+    books.forEach((b, i) => {
+      const bx = 52 + i * 80, by = 48, bw = 68, bh = 200, isOk = [100, 300, 400, 800, 900][i] === b.code;
+      g.fillStyle = b.col; g.fillRect(bx, by - (sel === i ? 10 : 0), bw, bh);
+      g.strokeStyle = sel === i ? '#ffd868' : (isOk ? '#68ffa8' : '#8a7a60'); g.lineWidth = sel === i ? 3 : 1.5;
+      g.strokeRect(bx, by - (sel === i ? 10 : 0), bw, bh);
+      g.fillStyle = '#d4b468'; g.fillRect(bx + 4, by + 18 - (sel === i ? 10 : 0), bw - 8, 4);
+      g.fillStyle = '#f2ece0'; g.fillRect(bx + 6, by + 135 - (sel === i ? 10 : 0), bw - 12, 48);
+      g.strokeStyle = '#c84030'; g.lineWidth = 1.5; g.strokeRect(bx + 8, by + 137 - (sel === i ? 10 : 0), bw - 16, 44);
+      g.fillStyle = '#1a1612'; g.font = 'bold 14px monospace'; g.fillText('KDC ' + b.code, bx + 11, by + 156 - (sel === i ? 10 : 0));
+      g.font = '10px sans-serif'; g.fillText(b.label.split(' ')[1], bx + 12, by + 174 - (sel === i ? 10 : 0));
+      g.fillStyle = '#f0e6d2'; g.font = 'bold 11px serif'; g.fillText(b.sub.slice(0, 6), bx + 8, by + 62 - (sel === i ? 10 : 0));
+      if (b.sub.length > 6) g.fillText(b.sub.slice(6), bx + 8, by + 80 - (sel === i ? 10 : 0));
+    });
+    g.fillStyle = '#dcd2be'; g.font = 'bold 12px sans-serif'; g.fillText('목표 순서: [100 철학] → [300 사회] → [400 자연과학] → [800 문학] → [900 역사]', 42, 296);
+  }
+  c.addEventListener('click', e => {
+    if (!finish) return;
+    const rc = c.getBoundingClientRect(), x = (e.clientX - rc.left) * c.width / rc.width, idx = Math.floor((x - 52) / 80);
+    if (idx < 0 || idx >= 5) return;
+    if (sel === -1) { sel = idx; sfx.click(); draw(); }
+    else if (sel === idx) { sel = -1; sfx.click(); draw(); }
+    else {
+      const tmp = books[sel]; books[sel] = books[idx]; books[idx] = tmp; sel = -1; sfx.click(); draw();
+      if (books.every((b, i) => b.code === [100, 300, 400, 800, 900][i])) { sfx.unlock(); status('달칵— 서가 뒤편의 비밀 기록함이 열렸다!', 'ok'); setTimeout(() => close(true), 450); }
+    }
+  });
+  keys(() => {}); draw(); return p;
+}
+
+function cassetteSplice({ title = '방송실 — 1998년 하교 방송 카세트테이프 마그네틱 필름 접합' } = {}) {
+  const p = open(title, '끊어지고 엉킨 <b>마그네틱 테이프 접합부 3곳</b>을 클릭해 스플라이싱 테이프로 이어 붙인 뒤,<br><b>[PLAY 재생 검증]</b> 버튼을 눌러 좌·우 릴을 구동하라');
+  const c = canvas(500, 320), g = c.getContext('2d');
+  const breaks = [
+    { x: 155, y: 222, fixed: false },
+    { x: 250, y: 236, fixed: false },
+    { x: 345, y: 222, fixed: false },
+  ];
+  let playing = false, reelAng = 0, lastT = performance.now();
+  const loop = now => {
+    const dt = Math.min(.08, (now - lastT) / 1000); lastT = now; if (playing) reelAng += dt * 4.2;
+    g.fillStyle = '#0e1114'; g.fillRect(0, 0, c.width, c.height);
+    g.fillStyle = '#23282e'; g.fillRect(50, 18, 400, 232); g.strokeStyle = '#586470'; g.lineWidth = 2.5; g.strokeRect(50, 18, 400, 232);
+    g.fillStyle = '#e8dfc8'; g.fillRect(74, 34, 352, 136); g.fillStyle = '#b83228'; g.fillRect(74, 34, 352, 26);
+    g.fillStyle = '#ffffff'; g.font = 'bold 13px sans-serif'; g.fillText('TDK SA-60  |  1998. 10. 12 서문고 방송부 녹음 원본 (SIDE A)', 88, 52);
+    g.fillStyle = '#14181c'; g.fillRect(112, 74, 276, 82);
+    [172, 328].forEach(rx => {
+      g.save(); g.translate(rx, 115); g.rotate(reelAng);
+      g.fillStyle = '#3d2418'; g.beginPath(); g.arc(0, 0, 34, 0, 7); g.fill();
+      g.fillStyle = '#ece6d8'; g.beginPath(); g.arc(0, 0, 18, 0, 7); g.fill();
+      g.fillStyle = '#14181c'; for (let k = 0; k < 6; k++) { const a = k * Math.PI / 3; g.fillRect(Math.cos(a) * 10 - 2, Math.sin(a) * 10 - 2, 4, 4); }
+      g.restore();
+    });
+    g.strokeStyle = '#6e4228'; g.lineWidth = 4; g.beginPath(); g.moveTo(92, 195);
+    breaks.forEach(b => { if (b.fixed) g.lineTo(b.x, b.y); else { g.lineTo(b.x - 14, b.y - 8); g.moveTo(b.x + 14, b.y + 8); } });
+    g.lineTo(408, 195); g.stroke();
+    breaks.forEach(b => {
+      g.fillStyle = b.fixed ? 'rgba(72, 255, 152, 0.22)' : 'rgba(255, 80, 60, 0.25)'; g.beginPath(); g.arc(b.x, b.y, 20, 0, 7); g.fill();
+      g.strokeStyle = b.fixed ? '#58ff9a' : '#ff6850'; g.lineWidth = 2; g.stroke();
+      g.fillStyle = '#f0ece4'; g.font = 'bold 10px sans-serif'; g.fillText(b.fixed ? '접합완료' : '끊어짐(클릭)', b.x - 24, b.y + 34);
+    });
+    const allFixed = breaks.every(b => b.fixed);
+    g.fillStyle = allFixed ? '#247a48' : '#28323a'; g.fillRect(150, 268, 200, 38);
+    g.strokeStyle = allFixed ? '#68ffa8' : '#586874'; g.strokeRect(150, 268, 200, 38);
+    g.fillStyle = '#ffffff'; g.font = 'bold 13px sans-serif';
+    g.fillText(allFixed ? '▶ [클릭 / Space] 테이프 재생 검증' : '마그네틱 필름 접합 (' + breaks.filter(b => b.fixed).length + '/3)', 168, 292);
+    raf = requestAnimationFrame(loop);
+  };
+  const triggerPlay = () => {
+    if (!breaks.every(b => b.fixed)) { sfx.buzz(); status('먼저 끊어진 마그네틱 필름 3곳을 모두 클릭해 이어 붙이세요!', 'err'); return; }
+    if (playing) return; playing = true; sfx.unlock();
+    status('철컥, 지이잉— 릴이 부드럽게 감기며 1998년 10월 12일의 음성이 복원된다!', 'ok'); setTimeout(() => close(true), 600);
+  };
+  c.addEventListener('click', e => {
+    if (!finish || playing) return;
+    const rc = c.getBoundingClientRect(), x = (e.clientX - rc.left) * c.width / rc.width, y = (e.clientY - rc.top) * c.height / rc.height;
+    const hit = breaks.find(b => !b.fixed && Math.hypot(b.x - x, b.y - y) < 28);
+    if (hit) { hit.fixed = true; sfx.click(); if (breaks.every(b => b.fixed)) status('필름 3곳 접합 완료! 하단 [테이프 재생 검증] 버튼을 누르세요.'); return; }
+    if (y >= 262) triggerPlay();
+  });
+  keys(e => { if (e.type !== 'keydown') return; const un = breaks.find(b => !b.fixed); if (un) { un.fixed = true; sfx.click(); } else if (e.code === 'Space' || e.code === 'Enter') triggerPlay(); });
+  raf = requestAnimationFrame(loop); return p;
+}
+
+function microscopeSlide({ title = '과학준비실 — 광학 현미경 프레파라트 표본 초점·배율 판독' } = {}) {
+  const p = open(title, '<b>[대물렌즈 배율 400x]</b>을 선택하고 <b>조동/미동 나사(마우스 클릭 또는 A·D)</b>로 초점을 맞춰<br>슬라이드 글라스 중앙의 <b>표본 식별 코드</b>가 선명해지면 <b>[판독 확정]</b>을 눌러라');
+  const c = canvas(500, 320), g = c.getContext('2d');
+  let mag = 100, focus = 0.18, targetFocus = 0.68;
+  function draw() {
+    g.fillStyle = '#090c10'; g.fillRect(0, 0, c.width, c.height);
+    const cx = 165, cy = 155, r = 122, blur = Math.abs(focus - targetFocus) + (mag === 400 ? 0 : 0.35);
+    g.save(); g.beginPath(); g.arc(cx, cy, r, 0, Math.PI * 2); g.clip();
+    const bg = g.createRadialGradient(cx, cy, 10, cx, cy, r);
+    bg.addColorStop(0, '#d8f0e4'); bg.addColorStop(0.75, '#88b8a4'); bg.addColorStop(1, '#182822');
+    g.fillStyle = bg; g.fillRect(cx - r, cy - r, r * 2, r * 2);
+    const scale = mag / 200;
+    for (let i = 0; i < 9; i++) {
+      const ax = cx + Math.cos(i * 1.1) * 38 * scale, ay = cy + Math.sin(i * 1.4) * 32 * scale;
+      g.fillStyle = 'rgba(45, 110, 95, ' + clamp(0.75 - blur * 0.8, 0.15, 0.75) + ')';
+      g.beginPath(); g.ellipse(ax, ay, (18 + blur * 22) * scale * 0.6, (12 + blur * 18) * scale * 0.6, i * 0.4, 0, Math.PI * 2); g.fill();
+      g.strokeStyle = 'rgba(20, 65, 55, ' + clamp(0.85 - blur, 0.1, 0.85) + ')'; g.lineWidth = 1.5; g.stroke();
+    }
+    g.fillStyle = 'rgba(20, 35, 30, ' + clamp(1 - blur * 1.6, 0.12, 0.95) + ')';
+    g.font = 'bold ' + Math.round(15 * (mag === 400 ? 1 : 0.7)) + 'px monospace';
+    g.fillText('SAMPLE #98-1012-HN', cx - 78, cy + 5);
+    g.strokeStyle = 'rgba(20,30,28,0.45)'; g.lineWidth = 1;
+    g.beginPath(); g.moveTo(cx - r, cy); g.lineTo(cx + r, cy); g.moveTo(cx, cy - r); g.lineTo(cx, cy + r); g.stroke();
+    g.restore();
+    g.strokeStyle = '#38444c'; g.lineWidth = 8; g.beginPath(); g.arc(cx, cy, r, 0, Math.PI * 2); g.stroke();
+    g.fillStyle = '#151c22'; g.fillRect(310, 24, 170, 272); g.strokeStyle = '#3a4a56'; g.lineWidth = 1.5; g.strokeRect(310, 24, 170, 272);
+    g.fillStyle = '#d8e6ee'; g.font = 'bold 12px sans-serif'; g.fillText('1. 리볼버 대물렌즈 배율', 324, 48);
+    [40, 100, 400].forEach((m, idx) => {
+      const bx = 324 + idx * 48, by = 58;
+      g.fillStyle = mag === m ? '#2a7a56' : '#242e36'; g.fillRect(bx, by, 42, 30);
+      g.strokeStyle = mag === m ? '#68ffa8' : '#50606c'; g.strokeRect(bx, by, 42, 30);
+      g.fillStyle = '#ffffff'; g.font = 'bold 11px monospace'; g.fillText(m + 'x', bx + 7, by + 19);
+    });
+    g.fillStyle = '#d8e6ee'; g.font = 'bold 12px sans-serif'; g.fillText('2. 미동 초점 나사 [A / D]', 324, 118);
+    g.fillStyle = '#242e36'; g.fillRect(324, 128, 142, 18);
+    g.fillStyle = Math.abs(focus - targetFocus) < 0.09 ? '#58ff9a' : '#e0a838'; g.fillRect(324, 128, 142 * focus, 18);
+    g.strokeStyle = '#ffffff'; g.strokeRect(324 + 142 * targetFocus - 3, 125, 6, 24);
+    const ready = mag === 400 && Math.abs(focus - targetFocus) < 0.11;
+    g.fillStyle = ready ? '#247e4c' : '#28323a'; g.fillRect(324, 218, 142, 54);
+    g.strokeStyle = ready ? '#70ffb0' : '#52606c'; g.lineWidth = 2; g.strokeRect(324, 218, 142, 54);
+    g.fillStyle = '#ffffff'; g.font = 'bold 13px sans-serif';
+    g.fillText(ready ? '✦ [클릭 / Space]' : '초점·400x 맞춘 후', 340, 242);
+    g.fillText(ready ? '표본 판독 확정!' : '판독 가능', 348, 260);
+  }
+  const confirmSlide = () => {
+    if (mag !== 400) { sfx.buzz(); status('먼저 대물렌즈 배율을 [400x] 고배율로 전환하세요!', 'err'); return; }
+    if (Math.abs(focus - targetFocus) >= 0.11) { sfx.buzz(); status('미동 초점 나사 바를 흰색 목표 눈금 위치로 맞추세요!', 'err'); return; }
+    sfx.unlock(); status('표본 판독 완료 — 슬라이드 라벨의 1998.10.12 실험 기록을 확보했다!', 'ok'); setTimeout(() => close(true), 450);
+  };
+  c.addEventListener('click', e => {
+    if (!finish) return;
+    const rc = c.getBoundingClientRect(), x = (e.clientX - rc.left) * c.width / rc.width, y = (e.clientY - rc.top) * c.height / rc.height;
+    if (y >= 55 && y <= 92 && x >= 320 && x <= 470) { const idx = Math.floor((x - 324) / 48); if (idx >= 0 && idx < 3) { mag = [40, 100, 400][idx]; sfx.click(); draw(); } return; }
+    if (y >= 115 && y <= 165 && x >= 320 && x <= 470) { focus = clamp((x - 324) / 142, 0.05, 0.95); sfx.click(); draw(); return; }
+    if (y >= 210 && x >= 320) confirmSlide();
+  });
+  keys(e => {
+    if (e.type !== 'keydown') return;
+    if (e.code === 'KeyA' || e.code === 'ArrowLeft') { focus = clamp(focus - 0.08, 0.05, 0.95); sfx.click(); draw(); }
+    else if (e.code === 'KeyD' || e.code === 'ArrowRight') { focus = clamp(focus + 0.08, 0.05, 0.95); sfx.click(); draw(); }
+    else if (e.code === 'KeyW' || e.code === 'ArrowUp') { mag = 400; sfx.click(); draw(); }
+    else if (e.code === 'Space' || e.code === 'Enter') confirmSlide();
+  });
+  draw(); return p;
+}
+
+function spotdiff(opts = {}) {
+  const t = String(opts.title || '');
+  if (/학생회|교장|회의|인쇄|행정|서무/.test(t)) return stampApprove({ title: t.replace('두 장의 같은 기록', '1998 해교제 야간 잔류 승인원 검수') });
+  if (/도서|열람|창고|보관|문서|아카이브/.test(t)) return libraryCatalog({ title: t.replace('두 장의 같은 기록', 'KDC 청구기호 도서 대출 카드 배열') });
+  if (/방송|어학|언어|시청각|음악|합주/.test(t)) return cassetteSplice({ title: t.replace('두 장의 같은 기록', '1998 하교 방송 카세트테이프 필름 접합') });
+  if (/과학|생물|화학|보건|요리|급식|가정/.test(t)) return microscopeSlide({ title: t.replace('두 장의 같은 기록', '광학 현미경 프레파라트 표본 판독') });
+  if (/동아리|미술|공예|창의|융합|진로|학급/.test(t)) return timetableRestore({ title: t.replace('두 장의 같은 기록', '1998.10.12 학급 시간표 & 당번 자석 복원') });
+  return omrGrade({ title: t.replace('두 장의 같은 기록', '1998학년도 기말고사 OMR 답안지 판독') });
+}
 /* ---------- 17. 퓨즈판 (모두 켜기) ---------- */
 // 퓨즈를 누르면 자기와 상하좌우 퓨즈가 함께 뒤집힌다. 정해진 횟수 안에 전부 켜면 전력 복구. 오래 끌면 과열(스파크)
 function fuse({ title = '퓨즈판 — 모든 회로를 켜라', N = Math.random() < .4 ? 5 : 4, extra = 6 } = {}) {
@@ -1072,5 +1421,5 @@ function valveBalance({ title = '수질관리실 — 3연동 배수 수압 밸�
 
 export function run(kind, opts = {}) {
   if (MG.active) return Promise.resolve({ ok: false });
-  return ({ lockpick, dial, circuit, piano, slide, fishing, order, memory, tune, simon, timing, ouija, pipes, maze, rings, spotdiff, fuse, oscilloscope, chemMix, hoopShot, filmFocus, valveBalance })[kind](opts);
+  return ({ lockpick, dial, circuit, piano, slide, fishing, order, memory, tune, simon, timing, ouija, pipes, maze, rings, spotdiff, fuse, oscilloscope, chemMix, hoopShot, filmFocus, valveBalance, stampApprove, omrGrade, timetableRestore, libraryCatalog, cassetteSplice, microscopeSlide })[kind](opts);
 }

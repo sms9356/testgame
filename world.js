@@ -4,11 +4,11 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { NOTES } from './story.js?v=127';
+import { NOTES } from './story.js?v=128';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=127';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=128';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -766,7 +766,7 @@ export function buildWorld(scene) {
     tapeRecorder('tape1', cx - 3.2, .75, -4.95, .4);
     blood('splat', cx + 2.4, .02, -6.0, 1.2, 0, true);
     addBattery(cx + 2.4, .5, -8.4); addMedkit(cx + 2.4, .66, -7.6);
-    model('wheelchair_01', cx + 1.2, 0, -4.4, -.7, { col: [.85, 1.1] }); model('medical_box', cx + 3.66, 1.5, -4.0, -Math.PI / 2);
+    model('wheelchair_01', cx + 1.2, 0, -4.4, -.7, { col: [.85, 1.1] }); model('medical_box', cx + 3.86, 1.5, -4.0, -Math.PI / 2);
     papers(cx, -8, -2.4, 7);
   }
   function counsel(cx) {
@@ -1304,7 +1304,7 @@ export function buildWorld(scene) {
       const ci = cx - 2.5, co = cx - 1.22;
       hr.push(tube(.03, ci, dy + H, z0, ci, dy + LND + H, zl));   // 두 계단 사이 (층참에서 꺾임)
       for (let k = 0; k <= 20; k++) { const t = k / 20; P(ci, dy + t * LND, z0 - t * n * run); if (k && !top) P(ci, dy + LND + t * LND, zl + t * n * run); }
-      bal.push(tube(.035, ci, dy + LND - .3, zl, ci, dy + LND + H + .05, zl));   // 꺾이는 곳의 기둥(뉴얼 포스트): 층참 아래로는 내리지 않는다 (예전엔 바닥부터 솟아 두 계단 사이 빈 공간에 막대 하나가 떠 보였다)
+      bal.push(tube(.035, ci, dy, zl, ci, dy + LND + H + .05, zl));   // 꺾이는 곳의 기둥(뉴얼 포스트)
       hr.push(tube(.03, co, dy + LND + H, -9.5, co, dy + LND + H, zl));   // 바깥쪽: 층참 가장자리 (예전엔 보이지 않는 벽뿐이었다)
       for (let k = 0; k <= 7; k++) P(co, dy + LND, -9.5 + k * (zl + 9.5) / 7);
       bal.push(tube(.016, ci, dy + .1, z0, ci, dy + LND + .1, zl));   // 아래 띠
@@ -2422,7 +2422,7 @@ export function buildWorld(scene) {
     corridorPipes(-36, 36);
     [-30, -10, 10, 30].forEach(x => emergLight(x + 2.2, 2.85, -1.44));
     // 복도 실사 소품: 소화기 · 화재 경보기 · 감시 카메라 · 분리수거함 · 끝 쪽에 쌓인 책걸상
-    if (o.basement) { [[-20.2, 'BSM-003'], [3.8, 'BSM-003'], [-28.2, 'BSM-004'], [27.8, 'BSM-004']].forEach(([x, id]) => model('h133/' + id, x, 0, -1.07, 0, { col: [.56, .42] }));   // 복도 벽 배관 · 밸브 (문틀과 겹치지 않는 기둥 사이 벽)
+    if (o.basement) { [[-20.2, 'BSM-003'], [3.8, 'BSM-003'], [-28.2, 'BSM-004'], [27.8, 'BSM-004']].forEach(([x, id]) => model('h133/' + id, x, 0, -1.32, 0, { col: [.56, .42] }));   // 복도 벽 배관 · 밸브 (문틀과 겹치지 않는 기둥 사이 벽)
       model('portable_generator', 20.5, 0, 1.0, 0, { col: [.85, .6] }); model('power_box_01', -12.8, 1.0, -1.44, 0); model('power_box_01', 6.8, 1.0, -1.44, 0); }
     if (LS) [-32, -8, 16].forEach(cx => model('korean_fire_extinguisher_01', cx + 3.3, 0, 1.36, Math.PI));
     else [-28.8, -11.2, 12.8].forEach(x => model('korean_fire_extinguisher_01', x, 0, -1.3, 0));
@@ -2433,7 +2433,7 @@ export function buildWorld(scene) {
     if (f <= 2) model('WetFloorSign_01', -30.0, 0, -.55, .5);
     model('SchoolDesk_01', -35.55, 0, .95, Math.PI / 2, { col: [.55, .45] }); model('SchoolChair_01', -35.35, 1.88, .85, Math.PI / 2 + .3, { rx: Math.PI });
     model('SchoolChair_01', -34.2, .3, -.25, 1.2, { rz: Math.PI / 2 }); model('SchoolDesk_01', -35.55, 0, -.98, Math.PI / 2 + .15, { col: [.55, .45] });
-    ceilingDamage(-34, 34, -1.2, 1.2, 9); SLOTS.forEach((cx, i) => { if (rnd() < .5 && !['stair', 'exit'].includes(lay.types[i])) ceilingDamage(cx - 3, cx + 3, -8.5, -2.5, 1); });   /* 계단실은 위가 트여 있어 천장 구멍 · 매달린 타일이 허공에 떴다 */
+    ceilingDamage(-34, 34, -1.2, 1.2, 9); SLOTS.forEach(cx => { if (rnd() < .5) ceilingDamage(cx - 3, cx + 3, -8.5, -2.5, 1); });
     exitSign(0, 2.95, -1.43); exitSign(-35, 2.9, 0, Math.PI / 2); exitSign(35, 2.9, 0, -Math.PI / 2);
     extinguisher(-1.6, -1.25); extinguisher(33.5, 1.2);
     graffiti(pick(['다시, 여기서', '나가지 마', '뒤를 봐', '같이 놀자']), SLOTS[2] + 2.5, 1.6, -1.44, 0, 2.6);
@@ -2507,7 +2507,7 @@ export function buildWorld(scene) {
     add(mWall, 7.4, .3, 4.4, 29.5, 2.7, -7.4);
     // 상자/에어컨 실외기
     [[-14, -3], [8, -8], [-30, -6]].forEach(([x, z]) => add(mWood, 1, .8, 1, x, 0, z, { col: true, ry: rnd() }));
-    [[14, -8.6], [-8, -8.6]].forEach(([x, z]) => model('exterior_aircon_unit', x, .32, z, 0, { col: [1.8, .4] }));
+    [[14, -8.6], [-8, -8.6]].forEach(([x, z]) => model('exterior_aircon_unit', x, 0, z, 0, { col: [1.8, .4] }));
     // 남쪽 옥상 (맵 통합 설계집 RF): 태양광 패널 · 환기 설비 · 통신 장비함(경고등) · 휴게 벤치 · 옥상 배관
     const mSolar = S(null, { color: 0x1c2c48, roughness: .18, metalness: .55 }), mCell = new THREE.MeshBasicMaterial({ color: 0x7a90b0, transparent: true, opacity: .25 });
     [[-6, 3.4], [6, 3.4], [-6, 5.0], [6, 5.0]].forEach(([x, z]) => {
@@ -2675,8 +2675,8 @@ export function buildWorld(scene) {
     th('TH-014', -2.05, 1.95, .85); th('TH-014', 1.18, 4.48, .85); th('TH-008', 1.25, 1.95, .85); th('TH-008', -2.02, 4.48, .85);
     th('TH-019', -1.35, 4.25, .85); th('TH-021', 1.88, 4.22, .85); th('TH-020', 1.98, 1.72, .85, .4);
     // 벽: 서쪽 이중 싱크대 · 동쪽 유리문 재료장 · 동쪽 공구 타공판 · 뒷벽 화이트보드 (창 사이)
-    th('TH-010', -3.85, 4.92, 0, -Math.PI / 2, [mStainlessD, 1.58, 1.2, .67]); col(cx - 3.55, cx - 2.85, Z(4.92) - .8, Z(4.92) + .8, false, .86);
-    th('TH-016', 3.94, 5.3, 0, Math.PI / 2, [mMetal, 1.22, 1.95, .47]); col(cx + 3.08, cx + 3.55, Z(5.3) - .62, Z(5.3) + .62);
+    th('TH-010', -4.15, 4.92, 0, -Math.PI / 2, [mStainlessD, 1.58, 1.2, .67]); col(cx - 3.85, cx - 3.15, Z(4.92) - .8, Z(4.92) + .8, false, .86);
+    th('TH-016', 4.24, 5.3, 0, Math.PI / 2, [mMetal, 1.22, 1.95, .47]); col(cx + 3.38, cx + 3.85, Z(5.3) - .62, Z(5.3) + .62);
     model('th102/TH-018', cx + 3.83, 1.1, Z(2.2), -Math.PI / 2);
     model('th102/TH-022', cx, 1.15, zN + .12, 0);
     model('th102/TH-012', X(-.15), .005, Z(2.95), .3);
@@ -2709,7 +2709,7 @@ export function buildWorld(scene) {
       F.interior.add(boxMesh(-1.78, -1.55, 1.05, 2.35, zp - .18, zp + .18, mWall), boxMesh(1.55, 1.78, 1.05, 2.35, zp - .18, zp + .18, mWall));
       areaLamp(0, zp, 2.95);
     });
-    col(-1.85, -1.55, 9.6, 20.5, true); col(1.55, 1.85, 9.6, 20.5, true);   // 본관 구름다리 통행 폭과 맞춤 (걸어서 이어 건널 때 위치가 튀지 않게)
+    col(-1.85, -1.45, 9.6, 20.5, true); col(1.45, 1.85, 9.6, 20.5, true);
 
     slSouth.forEach((cx, i) => flat(F.interior, ['counselS', 'gallery', 'work', 'staff'].includes(sTypes[i]) ? mFloorWood : mFloorTile, cx - 4, cx + 4, 1.75, 9.6, 0));
     // 별관 남쪽 바깥벽: 정중앙(cx = 0)은 1·2·3층 모두 통로와 직결되는 오픈 출입구(w: 2.5m)로 뚫고, 남쪽 벽 충돌체도 중앙 통로를 비운다!
@@ -2735,10 +2735,7 @@ export function buildWorld(scene) {
     // 별관 창밖 달빛 캠퍼스 풍경
     { const gy = -k * FH - .05, mOutGnd = new THREE.MeshBasicMaterial({ map: T.makeGround(), color: 0x526450 }), mOutFac = new THREE.MeshBasicMaterial({ map: mFacade.map, color: 0x626a72 }), mOutTree = new THREE.MeshBasicMaterial({ color: 0x263828 });
       flat(F.interior, mOutGnd, -75, 75, -65, 65, gy, 8);
-      const mainY0 = gy, mainH = 12.4;
-      // 2·3층: 구름다리 끝 본관 통로 입구(별관 기준 x ±0.85, 이 층 바닥 ~ 2.5m)는 비운다 — 걸어서 건널 때 그 너머로 실제 본관 층을 이어 그린다 (game.js BRIDGE)
-      if (k > 0) F.interior.add(boxMesh(-36.3, -.85, mainY0, mainY0 + mainH, 20.5, 22.5, mOutFac, 3), boxMesh(.85, 36.3, mainY0, mainY0 + mainH, 20.5, 22.5, mOutFac, 3), boxMesh(-.85, .85, mainY0, 0, 20.5, 22.5, mOutFac, 3), boxMesh(-.85, .85, 2.5, mainY0 + mainH, 20.5, 22.5, mOutFac, 3));
-      else F.interior.add(boxMesh(-36.3, 36.3, mainY0, mainY0 + mainH, 20.5, 22.5, mOutFac, 3));
+      const mainY0 = gy, mainH = 12.4; F.interior.add(boxMesh(-36.3, 36.3, mainY0, mainY0 + mainH, 20.5, 22.5, mOutFac, 3));
       // 중앙 구름다리 구간(z: 9.9 ~ 20.5)은 위에서 속이 빈 실제 통로로 구축했으므로 통짜 회색 박스로 막지 않는다!
       const mSlots = []; for (let mf = 0; mf < 3; mf++) SLOTS.forEach(mcx => [-3.05, 3.05].forEach(dx => mSlots.push([mcx + dx, 1.3, -.08, mainY0 + mf * FH + 1.72, 1.48])));
       const mfakes = buildWindowFakes(mSlots, 10 + k); mfakes.position.z = 20.46; F.interior.add(mfakes);
@@ -3567,7 +3564,7 @@ export function buildWorld(scene) {
     [-2.4, 2.4].forEach(lx => extLamp(lx, 3.05, -13.45 - ANNEX_DZ, 0));
     model('sf_fuse_box', 4.0, 1.35, MAIN_ZS + .27, 0, { out: true });
     model('sf_fuse_box', -3.2, 1.35, -13.42 - ANNEX_DZ, 0, { out: true });
-    [-14, 10].forEach(x => model('exterior_aircon_unit', x, .32, -25.3 - ANNEX_DZ, Math.PI, { out: true, col: [1.8, .4] }));
+    [-14, 10].forEach(x => model('exterior_aircon_unit', x, 0, -25.3 - ANNEX_DZ, Math.PI, { out: true, col: [1.8, .4] }));
     // 1층 야외 필로티 광장 출입문: 본관 1층 후문 & 별관 1층 정문
     doors.push({ floor: 0, x: .8, z: -10.5, r: 1.4, label: '본관 1층 후문 들어가기 (계단실)', to: { floor: 0, x: .8, z: -8.7, yaw: Math.PI } });
     // 2층 · 3층 공중 구름다리: 본관 계단실과 물리적으로 뚫려 있어 걸어서 바로 통과하며, 북쪽 끝도 걸어서 바로 별관 2층·3층 중앙 연결 홀로 이어진다!
@@ -3579,23 +3576,7 @@ export function buildWorld(scene) {
   annexExitDoor(OUT, -20.42, -Math.PI / 2);   // 별관 서쪽 비상구 (바깥 면)
   doors.push({ floor: 0, x: -21.2, z: ANNEX_EXIT_Z, r: 1.4, label: '별관 비상구로 들어가기', to: { floor: 8, x: -18.9, z: 0, yaw: -Math.PI / 2 } });
   plane(OUT, new THREE.MeshBasicMaterial({ map: T.makeSign('별관 (특별교실동)', '#1e2a2e', '#d9e4d0', 26), color: 0x9aa59a }), 3.4, .85, 0, 3.6, -13.46 - ANNEX_DZ, 0);
-  // 별관 1층 현관: 정면 가운데 홈(x −0.92 ~ 2.52, 깊이 8m)이 안쪽 끝 벽돌벽 · 하늘 뚫린 막다른 골목처럼 보였고, 끝 벽은 충돌이 없어 뚫고 지나갔다
-  //   → 끝 벽에 실제 현관 양여닫이 유리문 · 홈 천장 · 천장등 · 충돌, 들어가기 판정도 문 앞으로
-  { const zB = -21.5 - ANNEX_DZ, cx = .8;
-    col(-.92, 2.52, -25 - ANNEX_DZ, zB, true);
-    OUT.add(boxMesh(-.92, 2.52, 3.55, 3.8, zB, -13.5 - ANNEX_DZ, mFacade, 2));
-    const g = new THREE.Group(); g.position.set(cx, 0, zB + .02); OUT.add(g);
-    g.add(new THREE.Mesh(merge([bx(.14, 2.6, .2, -1.17, 1.3, .1), bx(.14, 2.6, .2, 1.17, 1.3, .1), bx(2.48, .16, .2, 0, 2.68, .1), bx(2.48, .1, .3, 0, .05, .15)]), mDarkMetal));
-    { const bk = new THREE.Mesh(new THREE.PlaneGeometry(2.2, 2.5), new THREE.MeshBasicMaterial({ color: 0x06080a })); bk.position.set(0, 1.3, .035); g.add(bk); }   // 유리 너머 어두운 실내 (벽돌이 비쳐 보였다)
-    const mGlD = new THREE.MeshStandardMaterial({ color: 0x1c2a2c, roughness: .08, metalness: .3, transparent: true, opacity: .78 });
-    [-.55, .55].forEach(dx => { const fr = new THREE.Mesh(merge([bx(1.08, .1, .06, dx, .1, .06), bx(1.08, .1, .06, dx, 2.5, .06), bx(.08, 2.5, .06, dx - .5, 1.3, .06), bx(.08, 2.5, .06, dx + .5, 1.3, .06)]), mDarkMetal); g.add(fr);
-      const gl = new THREE.Mesh(new THREE.PlaneGeometry(.94, 2.32), mGlD); gl.position.set(dx, 1.3, .07); g.add(gl);
-      const h = new THREE.Mesh(new THREE.BoxGeometry(.04, .5, .05), mChrome); h.position.set(dx - Math.sign(dx) * .38, 1.1, .12); g.add(h); });
-    const sg = new THREE.Mesh(new THREE.PlaneGeometry(1.6, .3), new THREE.MeshBasicMaterial({ map: T.makeSign('별관 1층 현관', '#1e2a2e', '#d9e4d0', 22), color: 0x9aa59a })); sg.position.set(0, 3.05, .03); g.add(sg);
-    g.traverse(o => { o.userData.dynamic = true; });
-    model('sf_bulkhead_lamp', cx, 3.45, zB + 3.5, 0, { out: true });
-    doors.push({ floor: 0, x: cx, z: zB + 1.0, r: 1.6, label: '별관 1층 정문 들어가기', to: { floor: 8, x: 0, z: 8.3, yaw: 0 } });
-  }
+  doors.push({ floor: 0, x: 0, z: WALKWAY.z1 + 1.1, r: 2.0, label: '별관 1층 정문 들어가기', to: { floor: 8, x: 0, z: 8.3, yaw: 0 } });
 
   // 본관 외관 디테일: 기둥(필라스터) · 창 상인방 · 기단 · 처마 코니스 · 파라펫 · 우수관 · 북/측면 창
   {

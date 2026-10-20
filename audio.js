@@ -292,9 +292,21 @@ export async function playVoice(url, fx = 'none', emo = null) {
   const buf = await loadVoice(url); if (request !== voiceRequest || !buf || !ok()) return null;
   if (curVoice) { try { curVoice.stop(); } catch (e) { /* ignore */ } }
   const s = ac.createBufferSource(); s.buffer = buf;
-  // 감정: 재생 속도(=약간의 음높이) · 크기 · 떨림(공포) · 숨소리(속삭임)
-  const rate = emo ? Math.max(.85, Math.min(1.15, (emo.rate + emo.pitch) / 2)) : 1; s.playbackRate.value = rate;
+  // 감정 및 캐릭터 성우 고유 음색(voiceRate · detune 센트 피치 · 성도 포먼트 공명 EQ) 적용
+  const baseRate = emo && emo.voiceRate ? emo.voiceRate : (emo ? Math.max(.85, Math.min(1.15, (emo.rate + emo.pitch) / 2)) : 1);
+  const rate = Math.max(.78, Math.min(1.22, baseRate));
+  s.playbackRate.value = rate;
+  if (emo && emo.detune && s.detune) s.detune.value = emo.detune;
   let node = s;
+  if (emo && emo.formantHz) {
+    const eq = ac.createBiquadFilter();
+    eq.type = emo.formantType || 'peaking';
+    eq.frequency.value = emo.formantHz;
+    eq.Q.value = emo.formantQ || 1.1;
+    eq.gain.value = emo.formantGain ?? 4.5;
+    node.connect(eq);
+    node = eq;
+  }
   if (emo && (emo.trem || emo.airy)) {
     const tg = ac.createGain(); tg.gain.value = 1; s.connect(tg); node = tg;
     if (emo.trem) { const lfo = ac.createOscillator(); lfo.frequency.value = emo.trem; const lg = ac.createGain(); lg.gain.value = .14; lfo.connect(lg); lg.connect(tg.gain); lfo.start(); lfo.stop(ac.currentTime + buf.duration / rate + .2); }

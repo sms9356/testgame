@@ -4,11 +4,11 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { NOTES } from './story.js?v=161';
+import { NOTES } from './story.js?v=162';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=161';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=162';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -665,11 +665,16 @@ export function buildWorld(scene) {
 
   /* ---------- 시트 2차: 상호작용 오브젝트 · 소품 ---------- */
   const TAPES = {
-    tape1: { title: '녹음 테이프 — 보건 교사', spk: '보건 교사', fx: 'radio' },
-    tape2: { title: '녹음 테이프 — 민아', spk: '민아', fx: 'radio' },
-    tape3: { title: '녹음 테이프 — 교무부장', spk: '교무부장', fx: 'radio' },
-    tape4: { title: '녹음 테이프 — 하교 방송 연습', spk: '윤하늘', fx: 'radio' },
-    tape5: { title: '녹음 테이프 — 교무부장의 마지막 녹음', spk: '교무부장', fx: 'radio' },
+    tape1: { title: '녹음 테이프 — 보건교사 임소연 선생님', spk: '보건교사 임소연', fx: 'radio' },
+    tape2: { title: '녹음 테이프 — 방송부 민아 선배', spk: '선배 박민아', fx: 'radio' },
+    tape3: { title: '녹음 테이프 — 교무부장 권오현 (5인 은폐 회의)', spk: '교무부장 권오현', fx: 'radio' },
+    tape4: { title: '녹음 테이프 — 3-2 윤하늘 하교 방송 리허설', spk: '3-2 윤하늘', fx: 'radio' },
+    tape5: { title: '녹음 테이프 — 교무부장의 마지막 참회록', spk: '교무부장 권오현', fx: 'radio' },
+    tape_homeroom: { title: '녹음 테이프 — 3-2 담임 정은수 선생님', spk: '3-2 담임 정은수', fx: 'radio', minSh: 0 },
+    tape_science: { title: '녹음 테이프 — 과학부장 최동혁 선생님', spk: '과학부장 최동혁', fx: 'radio', minSh: 0 },
+    tape_pe: { title: '녹음 테이프 — 체육부장 강태식 선생님', spk: '체육부장 강태식', fx: 'radio', minSh: 0 },
+    tape_librarian: { title: '녹음 테이프 — 도서실 사서 송지혜 선생님', spk: '도서실 사서 송지혜', fx: 'radio', minSh: 0 },
+    tape_counselor: { title: '녹음 테이프 — 상담교사 오유진 선생님', spk: '상담교사 오유진', fx: 'radio', minSh: 0 },
   };
   const mTape = S(null, { color: 0x2a2a2c, roughness: .5, metalness: .3 });
   function tapeRecorder(id, x, y, z, ry = 0) {
@@ -1022,7 +1027,7 @@ export function buildWorld(scene) {
       col(sx - .32, sx + .35, sz - .34, sz + .34);
       addKey('office', 0, sx, .38, sz); const key = items[items.length - 1]; key.locked = true; key.mesh.visible = false;
       props.push({ kind: 'safe', floor: cur.f, x: sx + .9, z: sz, piv, key, open: 0, label: '금고 조사하기' }); }
-    addNote('n3', cx - 2.35, .77, -5.4);
+    addNote('n3', cx - 2.35, .77, -5.4); tapeRecorder('tape_homeroom', cx - 1.95, .77, -5.15, .25);
     papers(cx, -8, -2.4, 14);
   }
     function infirmarySlot(id, kind, x, z, parts, yaw = 0) { const holder = new THREE.Group(), fallback = new THREE.Group(); holder.name = id; holder.userData.dynamic = fallback.userData.dynamic = true; holder.position.set(x, 0, z); holder.rotation.y = yaw; holder.add(fallback); cur.interior.add(holder); holder.updateWorldMatrix(true, true); parts.forEach(p => fallback.attach(p)); INFIRMARY_SLOTS.push({ id, kind, holder, fallback }); return holder; } function nurse(cx) {
@@ -1045,7 +1050,7 @@ export function buildWorld(scene) {
     add(mWood, 1.0, .4, .6, cx, 0, -7.4, { col: true });
     add(mFabric, .8, .45, .8, cx - 2.4, 0, -6.4, { ry: Math.PI / 2, col: true });
     shelf3D(cx + 3.55, -6.0, -Math.PI / 2, 1.4, 2.0, .45, 5, .75);
-    addBattery(cx + 0.2, .4, -7.4);
+    addBattery(cx + 0.2, .4, -7.4); if (!cur.annex && cur.f === 0 && !curSouth) tapeRecorder('tape_counselor', cx - 0.25, .40, -7.35, .2);
     papers(cx, -8, -2.4, 5);
   }
   function library(cx) {
@@ -1058,7 +1063,7 @@ export function buildWorld(scene) {
     tbl(mWood, 2.4, .75, .9, cx, 0, -8.6, { col: true });
     [-.8, .8].forEach(dx => add(mWoodDark, .4, .45, .4, cx + dx, 0, -7.7));
     addKey('library', 1, cx + .6, .75, -8.6);
-    addNote('n4', cx - .6, .75, -8.6);
+    addNote('n4', cx - .6, .75, -8.6); tapeRecorder('tape_librarian', cx - 0.98, .75, -8.45, .3);
     papers(cx, -8, -2.4, 10);
     // 쓰러진 책장
     { const g = shelf3D(cx + 1.6, -3.55, 0, 1.6, .5, .45, 1, 0); g.rotation.set(-Math.PI / 2 + .12, .35, 0); g.position.y = .25; }
@@ -1079,7 +1084,7 @@ export function buildWorld(scene) {
     model('h133/SCI-005', cx + 2.45, .92, -7.95, -.4); model('h133/SCI-005', cx - 2.35, .92, -4.15, .5); model('h133/SCI-006', cx + 2.35, .92, -5.35, Math.PI / 2);
     add(mMetal, .5, .5, .5, cx + 3.45, 0, -2.45, { col: true });   // 문 쪽 구석 (예전 -4.2 자리는 실험대와 0.3m 틈만 남아 북동쪽 구석이 갇혔다)
     if (!items.some(i => i.kind === 'key' && i.idx === 2)) addKey('lab', 2, cx - 2.4, .92, -4.8);
-    addNote('n5', cx + 2.4, .92, -7.4);
+    addNote('n5', cx + 2.4, .92, -7.4); tapeRecorder('tape_science', cx + 2.15, .92, -6.85, -.25);
     papers(cx, -8, -2.4, 8);
     if (cur.annex) classClue(cx, 'S-01');
   }
@@ -3469,7 +3474,7 @@ export function buildWorld(scene) {
     // 기록석, 전광판 (코트 서쪽)
     add(mWoodDark, 1.2, .8, 2.6, 29.3, 0, 21.4, { col: true }); add(mBlack, .45, .45, .45, 30.4, 0, 22.8);
     plane(F.interior, mScore, 3, 1.1, x0 + t + .03, 3.2, 21.4, Math.PI / 2);
-    addKey('gym', 3, 29.3, .8, 21.8); addNote('n9', 29.3, .82, 20.4);
+    addKey('gym', 3, 29.3, .8, 21.8); addNote('n9', 29.3, .82, 20.4); tapeRecorder('tape_pe', 29.3, .82, 19.35, Math.PI / 2);
     cur.photoHere = true; addPhoto('p2', 36.2, 1.1, 11.9, .3);
     for (let k = 0; k < 5; k++) { const b = new THREE.Mesh(new THREE.SphereGeometry(.12, 16, 12), mBall); b.position.set(rr(31, 42), .12, rr(14, 27)); b.rotation.set(rnd() * 3, rnd() * 3, 0); cur.interior.add(b); }
     // 코트 주변 기구

@@ -6,19 +6,19 @@ import { createPsychologicalDirector, PHENOMENON_LABELS } from './psychologicalH
 import { settleStoryGhost, tickStoryGhost, showStoryGhost } from './storyGhost.js';
 import { GLTFLoader } from './vendor/addons/loaders/GLTFLoader.js';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { createNPCVisuals } from './npcVisuals.js?v=161';
-import { applyGuardSeatedPose } from './guardSeatedPose.js?v=161';
+import { createNPCVisuals } from './npcVisuals.js?v=162';
+import { applyGuardSeatedPose } from './guardSeatedPose.js?v=162';
 import { createCampusCctvLive, collectCampusCctvFeeds } from './campusCctvLive.js';
-import { applyExteriorFloorVisibility, shouldStreamGuardCctv } from './exteriorRenderBudget.js?v=161';
-import { GUARD_LAYOUT } from './guardRoomLayout.js?v=161';
-import { installGuardRoom } from './guardRoom.js?v=161';
+import { applyExteriorFloorVisibility, shouldStreamGuardCctv } from './exteriorRenderBudget.js?v=162';
+import { GUARD_LAYOUT } from './guardRoomLayout.js?v=162';
+import { installGuardRoom } from './guardRoom.js?v=162';
 import { prepareModelGeometry } from './modelGeometry.js';
 import { modelFootprint, overlaps, removeDuplicateModels } from './placement.js';
-import { turfMaterial } from './campusVisuals.js?v=161';
+import { turfMaterial } from './campusVisuals.js?v=162';
 import { installInfirmaryAssets, updateInfirmaryCabinets } from './infirmaryAssets.js';
-import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js?v=161'; import { updateWindowFakes } from './windowInteriors.js?v=161';
-import { drawMap } from './map.js?v=161';
-import { buildMegaCampus15000, MEGA_CAMPUS_ZONES } from './megaCampus15000.js?v=161';
+import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js?v=162'; import { updateWindowFakes } from './windowInteriors.js?v=162';
+import { drawMap } from './map.js?v=162';
+import { buildMegaCampus15000, MEGA_CAMPUS_ZONES } from './megaCampus15000.js?v=162';
 import { makeDress, makeHair, makeGhostFace, makeGraffiti, makeKeypad, loadPBR, pbr, makeGlow as makeGlowTex, makePaintingStare, makeSign, makeBlood } from './tex.js';
 import { warmUp } from './bake.js';
 import { createStaticDistanceLOD } from './staticDistanceLOD.js';
@@ -39,12 +39,12 @@ import './school37RoomsPatch.js';    // 본관 · 별관 37개 특별실 가구 
 import './new37UniquePatch.js';     // 37개 구역 신규 특수 설비 · 벽면 레일 (사용자 제공) → window.new37UniquePatch
 import './megaExpansionPatch.js';   // 메가 익스팬션 · 최적화 · 4막 사건 기록 · 수집품 · 미니게임 (사용자 제공) → window.megaSchoolPatch
 import './poolMachineryPatch.js';     // 수영장 · 남/녀 탈의실·샤워실 · 기계실 철문 (사용자 제공) → window.poolAndMachineryPatch
-import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx } from './audio.js?v=161'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=161'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera } from './perfStabilizer.js?v=161';
-import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js?v=161';
-import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, SIDEQUESTS, HEADQUEST, COLLECT, LOCKER_SCARES, CHALK_QA, OUIJA_QS, PARA, TOILET_FX, MIRROR_WORDS } from './story.js?v=161';
+import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx } from './audio.js?v=162'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=162'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera } from './perfStabilizer.js?v=162';
+import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js?v=162';
+import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, SIDEQUESTS, HEADQUEST, COLLECT, LOCKER_SCARES, CHALK_QA, OUIJA_QS, PARA, TOILET_FX, MIRROR_WORDS } from './story.js?v=162';
 import { isSpeechBusy } from './voice.js';
 import { SET, saveSET, resetSET, DIFF, keyLabel } from './settings.js';
-import { initI18n, setLang, lang as curLang } from './i18n.js?v=161';   // 언어 패치 (한국어 · English · 日本語 · 中文)
+import { initI18n, setLang, lang as curLang } from './i18n.js?v=162';   // 언어 패치 (한국어 · English · 日本語 · 中文)
 initI18n();
 const K = () => SET.keys;
 let guardRoomController = null, guardControlProps = [], guardCctvData = null, campusCctv = null;
@@ -60,9 +60,81 @@ function syncGuardDevices() {
 function toggleGuardCCTV(persist = true) { FL.guardCctvOn = !(FL.guardCctvOn ?? true); sfx.click(); syncGuardDevices(); if (persist) save(true); return FL.guardCctvOn; }
 function toggleGuardLight() { FL.guardLightOn = !(FL.guardLightOn ?? false); sfx.click(); syncGuardDevices(); say(FL.guardLightOn ? '경비실 전등을 켰다' : '경비실 전등을 껐다', 1800); save(true); return FL.guardLightOn; }
 
-import { run as runMini, MG } from './minigames.js?v=161';
+import { run as runMini, MG } from './minigames.js?v=162';
 import { SCHEMA, BUILD, storageKeys, itemUid, propUid, doorUid, assignUids, readSlot, writeSlot, hasSlot, clearSlot, repairProgress } from './saveSystem.js';
-loadManifest().then(() => registerLines({ ...VO, ...Object.fromEntries(Object.entries(STORY_NOTES).filter(([, n]) => n.text).map(([k, n]) => ['note_' + k, { spk: 'narrator', text: n.title + '. ' + n.text, parts: [n.title, n.text] }])) }));
+const NOTE_CAST = {
+  n_seomun_ilbo: { spk: 'reporter', audioId: 'call_119', stage: '(📰 서문일보 사회부 한진우 기자의 긴급 특보 리포팅)' },
+  n_guard_diary: { spk: 'guard', audioId: 'mtape_2', stage: '(🔦 당직 경비원 박종철 아저씨의 순찰 기록 증언)' },
+  n24:           { spk: 'guard', audioId: 'mtape_2', stage: '(🔦 당직 경비원 박종철 아저씨의 1998.10.12 야간 순찰 일지)' },
+  n_principal_tape: { spk: 'principal', audioId: 'mtape_5', stage: '(📼 제9대 교장 한석규의 비상대책회의 극비 녹취)' },
+  n21:           { spk: 'principal', audioId: 'mtape_5', stage: '(📋 제9대 교장 명의의 30주년 기념 방송 가정통신문)' },
+  h1:            { spk: 'principal', audioId: 'mtape_5', stage: '(✒ 제9대 교장이 새벽에 남긴 비밀 수첩 독백)' },
+  h2:            { spk: 'principal', audioId: 'note_h2', stage: '(별관 개교 머릿돌에 새겨진 기록)' },
+  h3:            { spk: 'scienceTeacher', audioId: 'mtape_3', stage: '(별관 분전반 차단 점검 기록)' },
+  h4:            { spk: 'principal', audioId: 'mtape_5', stage: '(보안 PC에 남은 교장의 심야 통화 녹취 기록)' },
+  h5:            { spk: 'principal', audioId: 'mtape_5', stage: '(진열장 속 마스터 코어와 함께 봉인된 교장의 고백서)' },
+  n2:            { spk: 'nurse', audioId: 'tape1', stage: '(💊 보건교사 임소연 선생님의 정전 당일 보건 일지)' },
+  q3a:           { spk: 'nurse', audioId: 'tape1', stage: '(💧 보건교사 임소연 선생님이 눈물로 쓴 고백 편지)' },
+  q3b:           { spk: 'nurse', audioId: 'tape1', stage: '(수영장 배수구 물길 앞에 남겨진 보건교사의 흔적)' },
+  n27:           { spk: 'homeroom', audioId: 'teacher2', stage: '(✒ 3학년 2반 담임 정은수 선생님의 결석 거부 수첩)' },
+  q1a:           { spk: 'homeroom', audioId: 'teacher2', stage: '(윤하늘의 3년 개근 스티커판 기록)' },
+  q1b:           { spk: 'homeroom', audioId: 'teacher2', stage: '(10년 만에 출석으로 바로잡힌 3학년 2반 출석부)' },
+  q5a:           { spk: 'homeroom', audioId: 'teacher2', stage: '(✉ 3-2 담임 정은수 선생님이 하늘이 어머니께 쓴 편지)' },
+  q5b:           { spk: 'homeroom', audioId: 'teacher2', stage: '(교사 휴게실 우편함에 보관된 반송 봉투)' },
+  q5c:           { spk: 'homeroom', audioId: 'teacher2', stage: '(10년 늦게 정문 우편함에 부쳐진 담임선생님의 편지)' },
+  n5:            { spk: 'scienceTeacher', audioId: 'note_n5', stage: '(🧪 과학부장 최동혁 선생님의 실험 노트)' },
+  n17:           { spk: 'scienceTeacher', audioId: 'mtape_3', stage: '(🧪 과학부장 최동혁 선생님이 남긴 약품장 다이얼 메모)' },
+  q7a:           { spk: 'scienceTeacher', audioId: 'mtape_3', stage: '(🔦 3회 연속 묵살된 과학부장의 비상등 배터리 점검 메모)' },
+  q7b:           { spk: 'scienceTeacher', audioId: 'mtape_3', stage: '(10년 만에 불이 켜진 지하 펌프실 비상등)' },
+  n9:            { spk: 'peTeacher', audioId: 'tape3', stage: '(🏀 체육부장 강태식 선생님의 10월 12일 야간 당직 일지)' },
+  n10:           { spk: 'peTeacher', audioId: 'tape3', stage: '(🏊 체육부장이 기록한 실내수영장 및 펌프실 연결 안전 일지)' },
+  n20:           { spk: 'peTeacher', audioId: 'tape3', stage: '(🏊 수영장 배수구 아래 비밀 증거 조각에 관한 관리 메모)' },
+  n4:            { spk: 'librarian', audioId: 'mtape_1', stage: '(📚 도서실 사서 송지혜 선생님이 보관한 윤하늘 대출 카드)' },
+  n19:           { spk: 'librarian', audioId: 'mtape_1', stage: '(📚 도서실 대출 데스크 잠긴 서랍에 대한 사서의 메모)' },
+  n25:           { spk: 'librarian', audioId: 'mtape_1', stage: '(📚 대출 기록 조작을 자백하는 도서실 사서 선생님의 메모)' },
+  n26:           { spk: 'librarian', audioId: 'mtape_1', stage: '(오늘 날짜 반납 도장이 찍힌 도서 대출 카드)' },
+  q8a:           { spk: 'haneul', audioId: 'tape4', stage: '(하늘이가 도서실에서 빌린 『집으로 가는 길』 여백 메모)' },
+  q8b:           { spk: 'librarian', audioId: 'mtape_1', stage: '(도서실 반납함에 돌아온 『집으로 가는 길』)' },
+  n3:            { spk: 'headTeacher', audioId: 'tape3', stage: '(📁 교무부장 권오현이 작성한 1998.10.13 대외비 교무회의록)' },
+  n11:           { spk: 'headTeacher', audioId: 'tape3', stage: '(지하 B1 비상 통로 및 마스터 기록부 봉인 점검표)' },
+  n22:           { spk: 'headTeacher', audioId: 'tape5', stage: '(📁 5인 책임자(교무·보건·사서·과학·체육)의 1998 은폐 봉인 서약서)' },
+  n_bunker_audit:{ spk: 'headTeacher', audioId: 'tape3', stage: '(방공호 보존서고에 은닉된 1998 재단 비공개 감사 보고서)' },
+  q4b:           { spk: 'headTeacher', audioId: 'tape5', stage: '(교무부장이 외부 유출 금지로 봉인한 방송부원 진술서 4장)' },
+  q4c:           { spk: 'headTeacher', audioId: 'tape5', stage: '(지하 펌프실의 두 문에 관한 진실 도면)' },
+  n1:            { spk: 'haneul', audioId: 'tape4', stage: '(🕯 기념 방송 리허설을 앞둔 윤하늘과 친구의 일기)' },
+  n8:            { spk: 'haneul', audioId: 'tape4', stage: '(🕯 3학년 2반 윤하늘이 직접 쓴 마지막 하교 방송 원고)' },
+  n12:           { spk: 'haneul', audioId: 'ghThanks', stage: '(붉게 지워진 졸업생 명부 옆 윤하늘의 목소리)' },
+  n18:           { spk: 'haneul', audioId: 'tape4', stage: '(하늘이가 피아노 반주를 맡기로 한 학교종 악보)' },
+  n28:           { spk: 'friend', audioId: 'echo1', stage: '(하늘·수아·다은 세 단짝 친구의 교환일기)' },
+  n29:           { spk: 'haneul', audioId: 'tape4', stage: '(리허설 시간과 담력 체험 장소가 적힌 하늘이의 첫 번째 메모)' },
+  q2a:           { spk: 'friend', audioId: 'echo1', stage: '(기념 방송 끝곡 학교종을 약속한 교환일기 마지막 장)' },
+  q2b:           { spk: 'haneul', audioId: 'ghThanks', stage: '(10년 만에 방송실 스피커로 울려 퍼진 세 친구의 하교 방송)' },
+  q6a:           { spk: 'mina', audioId: 'tape2', stage: '(📱 언니 서다은을 위해 서문고에 들어온 민아 선배의 임시저장 글)' },
+  q6b:           { spk: 'mina', audioId: 'cam1', stage: '(방송실 앞 하늘·수아·다은과 어린 민아의 사진)' },
+  q6c:           { spk: 'mina', audioId: 'mw_s', stage: '(📱 민아 선배가 언니 서다은에게 남긴 마지막 음성 녹음)' },
+};
+const RECAST_LINE_KEYS = new Set(['gate', 'office', 'key', 'keyLast', 'headMissing', 'headFound', 'keyMade', 'needCombine', 'pumpPolice', 'seomunPaper', 'dorm2fClimb', 'bunkerEnter', 'westGateReloc']);
+loadManifest().then(() => {
+  const protagLines = {};
+  Object.entries(LINES).forEach(([k, v]) => {
+    const recast = RECAST_LINE_KEYS.has(k);
+    protagLines['l_' + k + '_j'] = { spk: 'jihun', text: v.j, recast };
+    protagLines['l_' + k + '_s'] = { spk: 'seoyeon', text: v.s, recast };
+  });
+  const noteLines = Object.fromEntries(Object.entries(STORY_NOTES).filter(([, n]) => n.text).map(([k, n]) => {
+    const cast = NOTE_CAST[k] || { spk: 'narrator' };
+    const keepExact = k === 'n5' || k === 'n6';
+    return ['note_' + k, {
+      spk: cast.spk,
+      audioId: keepExact ? ('note_' + k) : (cast.audioId || ('note_' + k)),
+      customTimbre: !keepExact && !!cast.audioId,
+      stage: cast.stage || '',
+      text: n.title + '. ' + n.text,
+      parts: [n.title, n.text],
+    }];
+  }));
+  registerLines({ ...VO, ...protagLines, ...noteLines });
+});
 
 const $ = id => document.getElementById(id);
 // 매 프레임 갱신하는 HUD 글자: 바뀔 때만 쓴다 (같은 글자를 다시 쓰면 레이아웃 · 번역 감시가 매 프레임 돈다)
@@ -805,9 +877,12 @@ function renderPhone() {
   const B = $('pBody');
   if (phoneTab === 'msg') {
     const fk = fakeMsgs.slice().reverse().map(m => `<div class="bubble unread" style="border-color:#a02020"><small style="color:#ff6060">${m.who} · ${m.t}</small>${m.text}</div>`).join('');
-    B.innerHTML = fk + (msgs.length ? msgs.slice().reverse().map(m => `<div class="bubble${m.read ? '' : ' unread'}" data-id="${m.id}"><img class="av" src="assets/ui/mina_portrait.webp" alt=""><small>민아 · ${m.t} · ▶ 음성 메시지</small>${VO[m.id].text}</div>`).join('') : '<div class="pEmpty">메시지가 없습니다.<br>신호 없음</div>');
-    B.querySelectorAll('.bubble[data-id]').forEach(b => { b.onclick = () => line(b.dataset.id, 'phone', '📱 민아'); });
-    msgs.forEach(m => { m.read = true; }); refreshHud();
+    const banner = '<div style="background:rgba(35,52,72,0.55);border:1px solid rgba(110,165,230,0.35);border-radius:6px;padding:7px 10px;margin-bottom:8px;font-size:11.5px;color:#cfe4ff;display:flex;justify-content:space-between;align-items:center;"><span>📱 <b>음성 사서함</b> (자동 재생 꺼짐 — 메시지를 클릭하면 음성이 재생됩니다)</span></div>';
+    B.innerHTML = banner + fk + (msgs.length ? msgs.slice().reverse().map(m => `<div class="bubble${m.read ? '' : ' unread'}" data-id="${m.id}" style="cursor:pointer;transition:transform .12s,border-color .15s;"><img class="av" src="assets/ui/mina_portrait.webp" alt=""><small style="display:flex;justify-content:space-between;align-items:center;"><span>📱 민아 선배 · ${m.t}</span><span style="background:#1e6b45;color:#fff;padding:2px 8px;border-radius:10px;font-weight:bold;font-size:10.5px;">🔊 클릭하여 음성 재생</span></small>${VO[m.id].text}</div>`).join('') : '<div class="pEmpty">수신된 음성 메시지가 없습니다.<br>신호 없음</div>');
+    B.querySelectorAll('.bubble[data-id]').forEach(b => {
+      b.onclick = () => window.__playPhoneMsg(b.dataset.id);
+    });
+    refreshHud();
   } else if (phoneTab === 'photo') {
     const ph = docs.filter(d => d.img).map(d => ({ src: `assets/img/${d.img}.webp`, title: d.title })).concat((FL.spirit || []).map((x, i) => ({ src: spiritPhoto(x), title: `심령 사진 #${i + 1} — ${x.text}` })));
     B.innerHTML = shotsHtml() + (ph.length ? `<div class="pPhotos">${ph.map(d => `<img src="${d.src}" alt="" title="${d.title}" data-t="${d.title}">`).join('')}</div>` : SHOT.list.length ? '' : '<div class="pEmpty">저장된 사진이 없습니다.</div>');
@@ -1005,12 +1080,14 @@ function hit() {
 
 window.__readSeomunNewspaper = () => {
   const isJ = CHAR === 'jihun';
-  const who = isJ ? '지훈 (주인공)' : '서연 (주인공)';
-  const readId = isJ ? 'newspaper_read_j' : 'newspaper_read_s';
-  const voiceId = isJ ? 'l_office_j' : 'l_office_s';
+  const protagWho = isJ ? '🎙 박지훈 (주인공 추리)' : '🎙 김서연 (주인공 추리)';
+  const protagId = isJ ? 'newspaper_read_j' : 'newspaper_read_s';
   stopSpeak();
-  // 먼저 주인공 실제 성우 음성을 재생하고 이어서 신문 기사 낭독 보이스를 재생!
-  line(voiceId, 'none', who).then(() => { if (state === 'note') line(readId, 'none', who); });
+  sfx.broadcast && sfx.broadcast();
+  // 신문 전용 신규 성우 『📰 서문일보 사회부 한진우 기자』 목소리로 특보 기사를 생생하게 보도한 뒤 주인공 추리 코멘트 연결!
+  line('newspaper_reporter', 'radio', '📰 서문일보 사회부 한진우 기자').then(() => {
+    if (state === 'note') line(protagId, 'none', protagWho);
+  });
 };
 function showNote(it) {
   storyCalm(35);
@@ -1041,8 +1118,8 @@ function showNote(it) {
           '</div>',
         '</div>',
         '<div style="margin-top:10px;display:flex;justify-content:space-between;align-items:center;font-family:sans-serif;">',
-          '<span style="font-size:12px;color:#5a281e;font-weight:bold;">🎙 주인공(' + whoName + ')이 신문 기사를 직접 읽으며 단서를 추리합니다</span>',
-          '<button onclick="window.__readSeomunNewspaper()" style="background:#7a241c;color:#fff;border:1px solid #221;padding:5px 12px;font-size:12px;font-weight:bold;cursor:pointer;border-radius:3px;">🔊 ' + whoName + ' 목소리로 다시 읽기</button>',
+          '<span style="font-size:12px;color:#5a281e;font-weight:bold;">📰 서문일보 사회부 한진우 기자 특보 리포팅 & ' + whoName + '의 현장 추리</span>',
+          '<button onclick="window.__readSeomunNewspaper()" style="background:#7a241c;color:#fff;border:1px solid #221;padding:5px 12px;font-size:12px;font-weight:bold;cursor:pointer;border-radius:3px;">🔊 뉴스 기자 목소리로 특보 다시 듣기</button>',
         '</div>',
       '</div>'
     ].join('');
@@ -1115,7 +1192,7 @@ function showNote(it) {
   $('note').innerHTML = docHTML;
   $('noteBox').classList.add('show'); it.img ? sfx.photo() : sfx.paper();
   if (it.voiceKey) line(it.voiceKey, 'tape', it.voiceWho || '📼 녹취록 재생');
-  else if (it.kind === 'note' && it.id && VS.readNotes) speak('note_' + it.id);
+  else if (it.kind === 'note' && it.id && VS.readNotes) line('note_' + it.id, 'none');
 }
 function closeNote() { $('noteBox').classList.remove('show'); if (state === 'note') { state = 'playing'; stopSpeak(); } }
 
@@ -2026,19 +2103,30 @@ function start(skipIntro = false) {
   refreshHud(); chapterShown = objective().ch;
   if (skipIntro || TEST) { finishIntro(); return; }
   state = 'intro'; introT = 0; introText = true; introCue = 0; introGuardEnd = 0; introEndT = 99; $('intro').classList.add('show'); $('cine').classList.add('on');
-  // 순서: 날짜 → 실종 소식 → (진동) 민아의 메시지 → 십 년 전 이야기
-  const ids = ['intro1', 'intro2', 'intro3', 'intro4'], ps = [...$('intro').querySelectorAll('p')];
-  ps.forEach((p, i) => { p.classList.remove('on'); p.classList.toggle('msg', i === 2); p.dataset.from = i === 2 ? '민아 · 17:41' : ''; p.textContent = i === 2 ? VO[ids[i]].text : VO[ids[i]].text; });
+  // 캐릭터 성별 분기 인트로: 서연(여성 캐릭터)은 여성 성우 독백(intro1_s~intro4_s), 지훈(남성 캐릭터)은 남성 성우 독백(intro1_j~intro4_j)으로 재생!
+  const isSeoyeon = CHAR === 'seoyeon';
+  const ids = isSeoyeon ? ['intro1_s', 'intro2_s', 'intro3_s', 'intro4_s'] : ['intro1_j', 'intro2_j', 'intro3_j', 'intro4_j'];
+  const introSpeakerLabel = isSeoyeon ? '🎙 김서연 (방송부 2학년 · 여)' : '🎙 박지훈 (서현고 2학년 · 남)';
+  const ps = [...$('intro').querySelectorAll('p')];
+  ps.forEach((p, i) => {
+    p.classList.remove('on');
+    p.classList.toggle('msg', i === 2);
+    p.dataset.from = i === 2 ? '📱 선배 박민아 · 음성 사서함 (17:41)' : introSpeakerLabel;
+    p.textContent = (VO[ids[i]] || VO['intro' + (i + 1)]).text;
+  });
   preload([...ids, 'guard1']);
   const W = s => new Promise(r => setTimeout(r, s * 1000 / (DEBUG && window.__introJump ? 6 : 1)));
   (async () => {
     await W(.9);
     for (let i = 0; i < 4; i++) {
       if (epoch!==storySession || state !== 'intro') return;
-      if (i === 2) { sfx.vibrate(); await W(1.4); if (epoch!==storySession || state !== 'intro') return; }
+      if (i === 2) { sfx.vibrate(); await W(1.2); if (epoch!==storySession || state !== 'intro') return; }
       ps[i].classList.add('on');
-      const sec = await speak(ids[i], i === 2 ? 'phone' : 'none');
-      await W(Math.max(sec, 1.6) + .5);
+      const vEntry = VO[ids[i]] || VO['intro' + (i + 1)];
+      const whoBadge = i === 2 ? '📱 선배 박민아 (음성 메시지)' : introSpeakerLabel;
+      const sec = await speak(ids[i], i === 2 ? 'phone' : 'none', true);
+      subtitle(whoBadge, vEntry.text, Math.max(sec, 2.2), vEntry.spk, vEntry.stage || '');
+      await W(Math.max(sec, 1.8) + .45);
     }
     if (epoch===storySession && state === 'intro') { sfx.swell(1.6, .35); await W(1.5); if(epoch!==storySession||state!=='intro')return;introText = false; introT = 6; }
   })();
@@ -2548,7 +2636,7 @@ function ensureCharsel3D() {
     const rim = new THREE.DirectionalLight(0xffd6e0, 0.85); rim.position.set(0, 2.4, -2.5);
     sc.add(hemi, key, fill, rim);
     st.scenes[k] = sc;
-    loader.load(`assets/characters/${k}.glb?v=161`, gltf => {
+    loader.load(`assets/characters/${k}.glb?v=162`, gltf => {
       const m = gltf.scene;
       npcVisuals.enhanceCharacterMaterials?.(m, k);
       m.traverse(o => { if (o.isMesh || o.isSkinnedMesh) o.frustumCulled = false; });
@@ -3292,8 +3380,9 @@ async function useProp(p) {
     if (ghost.active && ghost.floor === P.floor) { ghost.state = 'search'; ghost.target = { x: P.x, z: P.z }; ghost.wait = 0; ghost.replan = 0; }
   } else if (p.kind === 'tape') {
     sfx.tape(); p.label = '녹음기 다시 재생'; storyCalm(40);
-    setTimeout(() => line(p.id, 'radio', '📼 ' + p.spk), 450);
-    if (!docs.find(d => d.id === p.id)) { addDoc({ id: p.id, kind: 'tape' }); toast('녹음 테이프를 들었습니다', p.title + ' — 소지품 › 문서에서 다시 듣기', 'info'); if (CLUES[p.id]) addClue(p.id); if (p.id === 'tape4' || p.id === 'tape2') unlockOptional(); refreshHud(); }
+    stopSpeak();
+    setTimeout(() => line(p.id, 'radio', '📼 ' + p.spk), 250);
+    if (!docs.find(d => d.id === p.id)) { addDoc({ id: p.id, kind: 'tape' }); toast('📼 녹음 테이프 재생 — ' + p.spk, p.title + ' (하단 자막 및 성우 육성 재생 중)', 'info'); if (CLUES[p.id]) addClue(p.id); if (p.id === 'tape4' || p.id === 'tape2') unlockOptional(); refreshHud(); }
   } else if (p.kind === 'bell') {
     if (p.cd > 0) { sfx.click(); say('벨이 아직 울리지 않는다…', 1500); return; }
     p.cd = 60; at(p.bx, floors[p.floor].y0 + 1.5, p.bz).bell(); P.noiseT = 1; shake = .25;
@@ -3448,17 +3537,26 @@ function roomAt(f, x, z) {
   return { type: lay.types[i], name: lay.names[i], cx: sl[i], id: f + ':' + i };
 }
 // 민아의 음성 메시지 — 휴대폰(P) 메시지함에 쌓인다
+window.__playPhoneMsg = id => {
+  if (!id || !VO[id]) return;
+  const m = msgs.find(x => x.id === id);
+  if (m) m.read = true;
+  stopSpeak();
+  sfx.beep && sfx.beep();
+  line(id, 'phone', '📱 선배 박민아 (음성 메시지)');
+  refreshHud();
+  if (state === 'ui' && phoneTab === 'msg') renderPhone();
+};
 function phoneMessage(n,epoch=storySession) {
   if(epoch!==storySession||['won','dead'].includes(state))return;
   const id = 'phone' + n;
   if (msgs.some(m => m.id === id) || (n === 3 && FL.calm)) return;
-  if (state !== 'playing' || voBusy || isSpeechBusy()) { if(!pendingMessages.has(n))pendingMessages.set(n,setTimeout(()=>{pendingMessages.delete(n);phoneMessage(n,epoch);},4000));return; }
   msgs.push({ id, t: clockText(), read: false }); storyCalm(35); sfx.phone(); if (n === 0) sfx.vibrate();
-  toast('📱 새 메시지 — 민아', n === 0 ? '연락이 끊겼던 민아에게서… 지금? (P: 휴대폰)' : '신호가 없는데 메시지가 도착했다 (P: 휴대폰)', 'info');
+  // 자동 음성 재생을 하지 않고(메인 대사 겹침 방지!), 휴대폰(P) 메시지 UI에서 클릭할 때만 재생되도록 안내
+  toast('📱 새 음성 메시지 도착 — 민아 선배', '자동 재생 안 됨 · 휴대폰(P 또는 1) › [메시지] 탭에서 클릭하여 음성 듣기', 'info');
   if (CLUES[id]) addClue(id);
   if (n === 2) unlockOptional();
   refreshHud();
-  setTimeout(() => { if (epoch!==storySession||state !== 'playing') return; talk('phone', 2600); setTimeout(() => {if(epoch===storySession&&state==='playing')line(id,'phone','📱 민아');}, 2600); }, 1200);
 }
 const INT_ANIM = { t: 0, dur: 0.42, kind: 'reach', dipY: 0, pitchAdd: 0, rollAdd: 0, reachK: 0 };
 function triggerInteractAnim() {
@@ -7302,13 +7400,13 @@ function megaNotify(m) { const t = String(m).split('\n'); say(t[0].replace(/^\S+
     world.props.push({ kind: 'robj', k: 'bunker_light', t: 'bunker', floor: 4, x: bx + 1.15, z: z1 - .85, y: 1.35, r: 2.0, label: '방공호 주 전등 스위치 조작하기', bkLightGroup });
     {
       const bLoader = new GLTFLoader();
-      bLoader.load('assets/models/sf/sf_bunker_props_pack.glb?v=161', gltf => {
+      bLoader.load('assets/models/sf/sf_bunker_props_pack.glb?v=162', gltf => {
         const bm = gltf.scene; bm.position.set(bx, 0, z0 + .45);
         if (window.__upgradePure3DScene) window.__upgradePure3DScene(bm); else bm.traverse(o => { o.userData.dynamic = true; });
         R.add(bm);
         if (gltf.animations && gltf.animations.length) { const mx = new THREE.AnimationMixer(bm); mx.userData = { floor: 4, x: bx, z: z0 + .45 }; gltf.animations.forEach(c => mx.clipAction(c).play()); (window.__campusAnimMixers ||= []).push(mx); }
       }, undefined, () => {});
-      bLoader.load('assets/models/sf/sf_pump_policeline_scene.glb?v=161', gltf => {
+      bLoader.load('assets/models/sf/sf_pump_policeline_scene.glb?v=162', gltf => {
         const pm = gltf.scene; pm.position.set(24.0, 0, -3.65);
         pm.traverse(o => { o.userData.dynamic = true; if (o.isMesh) { o.castShadow = false; o.receiveShadow = true; if (o.material?.map) o.material.map.colorSpace = THREE.SRGBColorSpace; } });
         R.add(pm);

@@ -4,11 +4,11 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { NOTES } from './story.js?v=167';
+import { NOTES } from './story.js?v=168';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=167';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=168';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -1913,8 +1913,7 @@ export function buildWorld(scene) {
       plane(cur.interior, new THREE.MeshStandardMaterial({ map: T.makeSign('B1', '#c8a020', '#1a1a1a', 40), roughness: .8 }), .5, .3, cx - 2.5, 2.6, -9.56);
       cctv(cx + 1.85, CH, -9.3, -Math.PI * .25, {label:'B1 · 진입 계단실'});
     }
-    // 중앙계단 쓰레기
-    papers(cx, -8, -3, 6);
+    /* 계단 개구부 허공에 떠 있던 종이 쓰레기 제거 */
   }
 
   /* ---------- 방송실 · 지하층 방 가구 ---------- */
@@ -3928,9 +3927,18 @@ export function buildWorld(scene) {
   const addO = (mat, w, h, d, x, y, z, o = {}) => add(mat, w, h, d, x, y, z, { ...o, parent: OUT });
   const outWall = (x1, x2, z1, z2, h, mat, wall = true) => { const m = boxMesh(x1, x2, 0, h, z1, z2, mat); OUT.add(m); col(x1, x2, z1, z2, wall); };
 
-  // 지면
-  const groundMat = S(T.makeGround()); flat(OUT, groundMat, -320, 320, -260, 320, -.02, 8);
-  OUT.add(boxMesh(-130, 130, -.45, -.018, -120, 100, groundMat, 8)); // 15,000평 메가 캠퍼스 하부 솔리드 지반 슬래브 (땅꺼짐 원천 차단)
+  // 지면: 본관 지하 계단 개구부(1F -> B1)를 가로막지 않도록 본관 실내 바닥 영역(-36.0 ~ 36.0, -9.6 ~ 9.6)을 비우고 동·서·남·북 4분할로 시공!
+  const groundMat = S(T.makeGround());
+  flat(OUT, groundMat, -320, 320, -260, -9.6, -.02, 8);
+  flat(OUT, groundMat, -320, 320, 9.6, 320, -.02, 8);
+  flat(OUT, groundMat, -320, -36.0, -9.6, 9.6, -.02, 8);
+  flat(OUT, groundMat, 36.0, 320, -9.6, 9.6, -.02, 8);
+  OUT.add(
+    boxMesh(-130, 130, -.45, -.018, -120, -9.6, groundMat, 8),
+    boxMesh(-130, 130, -.45, -.018, 9.6, 100, groundMat, 8),
+    boxMesh(-130, -36.0, -.45, -.018, -9.6, 9.6, groundMat, 8),
+    boxMesh(36.0, 130, -.45, -.018, -9.6, 9.6, groundMat, 8)
+  );
   const dirtMat = turfMaterial(); flat(OUT, dirtMat, -27, 27, 15, 59, 0, 2);   // 잔디 운동장: 트랙과 흰 경기선은 위에 유지
   // 운동장 (재배치): 동서로 긴 200m 급 우레탄 트랙 — 체육관(x 28) · 수영장(x -34) · 급식실과 3m 이상 띄움. 안쪽은 흙 축구장 (선 · 골대 · 그물)
   const PG = { CZ: 40, SX: 11, R0: 9.6, R1: 13.2 };
@@ -4210,7 +4218,7 @@ export function buildWorld(scene) {
     tileRoad(25.0, 39.6, 9.8, 12.2, false, true);        // 동쪽 아케이드 인도 ↔ 동부 남북 인도 연결
     // 3) 구름다리 아래 1층 필로티 동서 횡단 메인 인도
     tileRoad(-37.0, 37.0, -16.8, -13.6, false, true);
-    flat(OUT, pave, -5.5, 6.5, WALKWAY.z1 - .2, WALKWAY.z2 + .2, .014, 3);
+    flat(OUT, pave, -5.5, 6.5, WALKWAY.z1 - .2, WALKWAY.z2 - .02, .014, 3);
     // 4) ★ 서문(西門, x=-114.0, z=55.6 — 2번 사진 자리!) 직결 서남 동서 대보행로 & 중서부 연결로
     tileRoad(-113.8, -27.2, 54.0, 57.2, false, true);    // 정문/운동장 서남단(x=-27.2)에서 제2주차장·학생회관 사이를 지나 서쪽 끝 서문(x=-113.8, z=55.6)까지 일직선 직결!
     tileRoad(-69.4, -29.6, 26.6, 29.4, false, true);     // 급식실(z<=25)과 수영장(z>=31) 사이를 통과하는 중서부 동서 연결 인도

@@ -4,11 +4,11 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { NOTES } from './story.js?v=140';
+import { NOTES } from './story.js?v=144';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=140';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=144';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -695,43 +695,62 @@ export function buildWorld(scene) {
     frontWall(cx, zN, true, name === '3-3' ? ['자습'] : undefined);
     boardRefs['cls' + cur.f + ':' + cx + (curSouth ? 's' : '')] = { mat: frontWall.last, floor: cur.f, cx, name };
     if (name === '3-3') boardRefs.b33 = { mat: frontWall.last, floor: cur.f, cx };
-    // 교탁 · 모니터는 반전하지 않는다 — 캠코더 · 쪽지 · 보관함 등 교탁 위에 놓이는 이야기 소품이 교탁 자리(cx + 2.6)를 기준으로 놓인다 (반전하면 허공에 떴다)
+
+    // ① 정통 한국 고등학교 교실: 칠판 앞 5.4m 원목 교단 단상(Platform, 높이 12cm) & 황동 논슬립 몰딩!
+    add(mWoodDark, 5.4, .12, 1.18, cx, 0, zN + .72);
+    add(mChrome, 5.42, .025, .03, cx, .11, zN + 1.31);
+    // 칠판 상단 중앙: 태극기 액자 & 급훈 현판 ('성 실 · 창 의 · 협 동') + 칠판 좌우 교내 방송 스피커
+    add(mWoodDark, .52, .38, .03, cx, 2.96, zN + .05);
+    plane(cur.interior, new THREE.MeshBasicMaterial({ map: T.makeSign('🇰🇷 대한민국 (태극기)', '#f4f2ec', '#182232', 22) }), .46, .32, cx, 2.96, zN + .07);
+    add(mWoodDark, 1.85, .30, .03, cx - 1.55, 2.94, zN + .05);
+    plane(cur.interior, new THREE.MeshBasicMaterial({ map: T.makeSign('급훈 : 성실 · 창의 · 협동', '#1b3224', '#f2e4b8', 24) }), 1.76, .24, cx - 1.55, 2.94, zN + .07);
+    add(mWoodDark, 1.55, .30, .03, cx + 1.55, 2.94, zN + .05);
+    plane(cur.interior, new THREE.MeshBasicMaterial({ map: T.makeSign('제 ' + name + ' 학급 · 일일 주번표', '#24201c', '#e8dfc8', 22) }), 1.46, .24, cx + 1.55, 2.94, zN + .07);
+    [-3.15, 3.15].forEach(sx => add(mDarkMetal, .24, .34, .16, cx + sx, 2.75, zN + .10));
+
+    // ② 좌·우·뒷벽 하단 고전 원목 웨인스코팅(허리벽 루바 몰딩, 높이 0.95m) — 학원 느낌을 완전히 지우는 정통 학교 인테리어!
+    add(mWood, .03, .95, 7.6, cx - 3.83, 0, -5.7);
+    add(mWoodDark, .045, .05, 7.6, cx - 3.82, .95, -5.7);
+    add(mWood, .03, .95, 7.6, cx + 3.83, 0, -5.7);
+    add(mWoodDark, .045, .05, 7.6, cx + 3.82, .95, -5.7);
+
+    // 교탁 · 모니터는 이야기 소품 기준점(cx + 2.6)을 그대로 보존
     teacherDesk(cx + 2.6, zN + 1.0); CHAIRS.push({ f: cur.f, x: cx + 2.6, z: zN + 1.75, ry: 0, room: name, teacher: true });
-    model('wall_clock', cx + 2.2, 2.85, -1.79, Math.PI);   // 뒷벽(복도 쪽) 시계
+    model('wall_clock', cx + 2.2, 2.85, -1.79, Math.PI);
     monitor(cx + 2.35, .78, zN + .82, -.2, { crt: true, cracked: rnd() < .3 });
     lectern(cx - 1.2 * mir, zN + 1.05);
     fan(cx, -7.3); fan(cx, -3.9);
-    // 빔프로젝터(천장) + 말아 올린 스크린 + 스피커
     { const pj = meshAt(merge([bx(.36, .12, .3, 0, 0, 0), new THREE.CylinderGeometry(.045, .045, .04, 12).rotateX(Math.PI / 2).translate(0, 0, -.17), bx(.04, .3, .04, 0, .2, 0), bx(.25, .02, .25, 0, .35, 0)]), mProj, cx, CH - .45, -6.3); pj.rotation.y = Math.PI;
       meshAt(new THREE.CylinderGeometry(.06, .06, 3.3, 12).rotateZ(Math.PI / 2), mScreenR, cx, CH - .25, zN + .18);
       if (rnd() < .4) { const sc = new THREE.Mesh(new THREE.PlaneGeometry(1.8, 1.0), mScreenR); sc.position.set(cx + .8, CH - .8, zN + .2); sc.rotation.z = .08; cur.interior.add(sc); } }
-    // 시계 · CCTV · 소화기 · 분리수거함 · 냉난방기 · 창가 화분
     { const ck = new THREE.Mesh(new THREE.CircleGeometry(.22, 24), mClockM); ck.position.set(cx, 2.7, -1.76); ck.rotation.y = Math.PI; cur.interior.add(ck); }
     cctv(cx - 3.75, CH, -2.0, Math.PI * .75, {label:AREA_NAMES[cur.f] + ' · ' + name});
     extinguisher(cx + 1.65, -2.05);
     [0, 1, 2].forEach(k => add(mRecy[k], .36, .62, .36, cx + 2.6 + k * .4, 0, -2.0, { col: k === 1 }));
     add(S(null, { color: 0xe8e6de, roughness: .5 }), .45, 1.75, .38, cx + 3.55, 0, zN + .25, { col: true }); add(mBlack, .3, .25, .02, cx + 3.55, 1.25, zN + .45); glowAt(cx + 3.63, 1.18, zN + .46, .09, glowGreen); add(mMetal, .58, .04, .36, cx - 2.22, 2.02, zN + .22); crt(cx - 2.22, 2.04, zN + .22, .18);
-    [-3.05, 3.05].forEach(dx => { const px = Math.min(cx + dx + rr(-.4, .4), cx + 2.9); add(mWoodDark, .36, .92, .3, px, 0, zN + .22, { col: true }); potPlant(px, .92, zN + .22); });   /* 화분 받침대 (예전엔 화분이 0.92m 허공에 떠 있었다) */
+    [-3.05, 3.05].forEach(dx => { const px = Math.min(cx + dx + rr(-.4, .4), cx + 2.9); add(mWoodDark, .36, .92, .3, px, 0, zN + .22, { col: true }); potPlant(px, .92, zN + .22); });
     if (rnd() < .5) graffiti(pick(['다시, 여기서', '돌아와', '보고 있어']), cx - 2.4, 1.7, -1.765, Math.PI, 1.8);
-    // 게시판 (동쪽 벽) + 붙은 안내문
-    plane(cur.interior, mCork, 2.0, 1.1, cx + 3.84 * mir, 1.6, -5.2, -Math.PI / 2 * mir);
-    for (let k = 0; k < 5; k++) { const pp = new THREE.Mesh(new THREE.PlaneGeometry(.26, .34), mPaperN); pp.position.set(cx + 3.82 * mir, 1.4 + (k % 2) * .4 + rr(-.05, .05), -5.9 + k * .32); pp.rotation.set(0, -Math.PI / 2 * mir, rr(-.15, .15)); cur.interior.add(pp); }
-    // 뒤쪽: 청소도구함(왼쪽 구석) + 개인 사물함 + 책장
-    add(mPanelG, .55, 1.8, .45, cx - 3.5, 0, -2.05, { col: true });
-    for (let k = 0; k < 4; k++) add(mLockerT, .48, 1.4, .45, cx - 2.9 + k * .5, 0, -2.0, { ry: Math.PI });
-    col(cx - 3.2, cx - 1.1, -2.25, -1.75);
-    shelf3D(cx - 3.66, -2.72, Math.PI / 2, .92, 1.2, .3, 3, .7);
-    // 학생 책상 25세트 (5 × 5)
+
+    // ③ 동쪽 벽 대형 학급 게시판 + 뒷벽(복도 쪽) 전면 확장형 20칸 학급 사물함 & 학급문고 책장 & 환경미화 게시판!
+    plane(cur.interior, mCork, 2.4, 1.15, cx + 3.81 * mir, 1.65, -5.4, -Math.PI / 2 * mir);
+    for (let k = 0; k < 6; k++) { const pp = new THREE.Mesh(new THREE.PlaneGeometry(.26, .34), mPaperN); pp.position.set(cx + 3.79 * mir, 1.42 + (k % 2) * .38 + rr(-.04, .04), -6.2 + k * .34); pp.rotation.set(0, -Math.PI / 2 * mir, rr(-.12, .12)); cur.interior.add(pp); }
+    // 뒷벽 청소도구함 + 8열 복층 학급 사물함 + 상단 초록 융판 환경미화 보드
+    add(mPanelG, .55, 1.85, .45, cx - 3.52, 0, -2.05, { col: true });
+    for (let k = 0; k < 7; k++) {
+      add(mLockerT, .46, 1.32, .44, cx - 3.0 + k * .48, 0, -2.02, { ry: Math.PI });
+    }
+    add(mWoodDark, 3.3, .78, .04, cx - 1.55, 1.48, -1.82);
+    plane(cur.interior, new THREE.MeshBasicMaterial({ map: T.makeSign('학급 환경미화 게시판  |  우리 반 시간표 · 이달의 추천 도서 · 청소 구역 배정표', '#1a3826', '#f0e8d0', 20) }), 3.16, .68, cx - 1.55, 1.87, -1.85, Math.PI);
+    col(cx - 3.25, cx + 0.2, -2.26, -1.75);
+    shelf3D(cx - 3.66, -2.85, Math.PI / 2, .95, 1.35, .32, 4, .7);
+
+    // ④ 학생 책상: 학원식 1인 5열 대신 『정통 한국 고등학교 3분단 (1분단·2분단·3분단 × 2인 1조 짝꿍 밀착 배열)』로 개편 및 중앙 통로 확장!
     const dCls = CLS[name], keep = dCls && dCls.c.length ? dCls.c.map(([X, Y]) => csvXZ(cx, X, Y)) : [];
-    deskGrid(cx, [-3.0, -1.5, 0, 1.5, 3.0], [-7.3, -6.05, -4.8, -3.55], seed === 3 ? .3 : seed === 2 ? .04 : .12, V4_PILOT, { keep, knock: seed === 3 ? .42 : seed === 2 ? .02 : .1, tidy: seed === 2, room: name });
-    if (seed === 3) [[-3.0, -3.55], [1.5, -7.3]].forEach(([dx, z]) => { const x = cx + dx; if (keep.some(([kx, kz]) => Math.abs(kx - x) < .9 && Math.abs(kz - z) < .9) || DESKS.some(k => k.f === cur.f && Math.hypot(k.x - x, k.z - z) < 1.15)) return;   // 폐허 교실: 빈자리에만 뒤집힌 책상
-      const g = meshAt(merge([bx(.7, .03, .5, 0, .74, 0), bx(.04, .72, .04, -.32, .36, -.22), bx(.04, .72, .04, .32, .36, -.22), bx(.04, .72, .04, -.32, .36, .22), bx(.04, .72, .04, .32, .36, .22)]), mWood, x + .55, 0, z + .3, rr(-.6, .6)); g.rotation.z = Math.PI / 2; g.position.y = .37; col(x + .15, x + .95, z - .1, z + .7, false, .74); });   // 5×4 · 책상 사이 통로 0.8m (예전 5×5 는 줄 사이 0.48m 로 지나갈 수 없었다)
-    // CSV 소모품: 노트 · 필통 · 물병/종이컵 · 쓰레기/파손물 + 분필 · 지우개는 칠판 아래
+    deskGrid(cx, [-2.95, -2.23, -0.36, 0.36, 2.23, 2.95], [-7.25, -5.95, -4.65, -3.40], seed === 3 ? .28 : seed === 2 ? .04 : .10, V4_PILOT, { keep, knock: seed === 3 ? .38 : seed === 2 ? .02 : .08, tidy: seed === 2, room: name });
     const d = CLS[name];
     if (d && d.c.length) {
       const [nb0, pc0, wb0, tr] = d.c.map(([X, Y]) => csvXZ(cx, X, Y));
-      // 책상 위 소품(노트 · 필통 · 물병): 가장 가까운 실제 책상 위로 옮긴다 — 근처에 책상이 없으면 바닥에 떨어진 것으로 (예전엔 빠진 책상 자리 허공에 떠 있었다)
-      const used = new Set(), onDesk = ([x, z], ox, oz) => { let best = null, bd = 1.3; for (const k of DESKS) { if (k.f !== cur.f || used.has(k) || Math.abs(k.x - cx) > 4) continue; const dd = Math.hypot(k.x - x, k.z - z); if (dd < bd) { bd = dd; best = k; } }
+      const used = new Set(), onDesk = ([x, z], ox, oz) => { let best = null, bd = 1.6; for (const k of DESKS) { if (k.f !== cur.f || used.has(k) || Math.abs(k.x - cx) > 4) continue; const dd = Math.hypot(k.x - x, k.z - z); if (dd < bd) { bd = dd; best = k; } }
         if (!best) return [x, z, .005]; used.add(best); return [best.x + ox, best.z + oz, best.top + .01]; };
       const nb = onDesk(nb0, -.12, .02), pc = onDesk(pc0, .14, -.06), wb = onDesk(wb0, .16, .06);
       add(S(null, { color: pick([0x2a4a7a, 0x7a2a2a, 0x2a5a3a]), roughness: .8 }), .21, .025, .29, nb[0], nb[2], nb[1], { ry: rr(-.5, .5) }); add(mPaperN, .2, .01, .28, nb[0] + .05, nb[2] + .025, nb[1], { ry: rr(-.5, .5) });
@@ -743,24 +762,82 @@ export function buildWorld(scene) {
     }
     papers(cx, -8, -2.4, 9);
   }
+
+  // ── 본관 1층 대교무실 (컴퓨터실 느낌을 완전히 제거하고 정통 한국 고등학교 마주보기 아일랜드 교사 데스크·출석부함·결재서류·학사일정판·상담소파로 전면 리모델링!) ──
   function office(cx) {
     const zN = -9.6;
     frontWall(cx, zN, false);
-    // 서류 책장
-    for (let k = 0; k < 3; k++) shelf3D(cx + (k - 1) * 1.3, zN + .25, 0, 1.1, 2.0, .4, 5, .7);
-    plane(cur.interior, new THREE.MeshStandardMaterial({ map: T.makeCalendar(), roughness: .9 }), .5, .62, cx + 3.84, 1.75, -7.3, -Math.PI / 2);
-    const rowsZ = [-7.4, -5.5, -3.8];
-    [-2.6, 2.6].forEach(dx => rowsZ.forEach((z, r) => {
-      meshAt(merge([bx(1.4, .04, .7, 0, .74, 0), bx(.42, .72, .66, -.47, .36, 0), bx(.03, .72, .66, .68, .36, 0), bx(1.3, .4, .02, 0, .5, -.33)]), mWoodDark, cx + dx, 0, z); col(cx + dx - .7, cx + dx + .7, z - .35, z + .35);
-      monitor(cx + dx + .15, .76, z - .14, 0, { crt: true, cracked: rnd() < .2 });
-      keyboard(cx + dx + .15, .76, z + .16, rr(-.1, .1));
-      if (rnd() < .6) add(mWhite, .3, .06, .22, cx + dx - .45, .76, z + .05, { ry: rr(-.5, .5) });
-      deskClutter(cx + dx + .55, .76, z + .1);
-      officeChair(cx + dx, z + .58, Math.PI + rr(-.15, .15), false);
-    }));
-    fileCabinet(cx + 3.6, -8.95, -Math.PI / 2); fileCabinet(cx + 3.6, -8.05, -Math.PI / 2, true); model('sf_water_cooler', cx - 3.55, 0, -2.5, Math.PI / 2, { col: [.45, .45] }); glowAt(cx - 3.38, .92, -2.45, .11, glowRed); glowAt(cx - 3.38, .92, -2.55, .11, glowGreen); model('sf_fuse_box', cx + 3.82, 1.35, -2.4, -Math.PI / 2); model('wooden_bookshelf_worn', cx - 2.15, 0, -2.02, Math.PI, { col: [.9, .42] });
-    plane(cur.interior, mPlanMap, 2.0, 1.14, cx + 3.84, 1.6, -5.5, -Math.PI / 2);
-    // 금고 (비밀번호: 그날의 날짜 MMDD)
+    const matDeskPad = S(null, { color: 0x1e4d38, roughness: .55 });
+    const matBinderBlue = S(null, { color: 0x1e385c, roughness: .65 });
+    const matBinderRed  = S(null, { color: 0x6e2220, roughness: .65 });
+    const matTrayMetal  = S(null, { color: 0x424a50, roughness: .4, metalness: .6 });
+
+    // ① 북쪽 벽면: 교무실 학급별 출석부 보관함(18칸 Pigeonhole Rack) & 생활기록부 보존 서가 3동
+    for (let k = 0; k < 3; k++) shelf3D(cx + (k - 1) * 1.45, zN + .26, 0, 1.25, 2.15, .42, 6, .85);
+    // 동쪽 벽면: 대형 『1998학년도 2학기 주간 학사일정 및 교직원 담당 현황판』 칠판 & 달력
+    add(mWoodDark, .05, 1.28, 3.2, cx + 3.82, 1.15, -5.6);
+    plane(cur.interior, new THREE.MeshBasicMaterial({ map: T.makeSign('1998학년도 2학기 주간 학사일정표  |  10.12 방송부 30주년 기념방송  |  교무부 · 학생부 · 연구부', '#162c22', '#f2ead4', 20) }), 3.08, 1.16, cx + 3.79, 1.79, -5.6, -Math.PI / 2);
+    plane(cur.interior, new THREE.MeshStandardMaterial({ map: T.makeCalendar(), roughness: .9 }), .52, .65, cx + 3.82, 1.78, -8.1, -Math.PI / 2);
+
+    // ② 북쪽 중앙 상석: 교감 · 교무부장 헤드 데스크 (z = -7.85, 남쪽을 바라봄)
+    {
+      const hx = cx + 0.15, hz = -7.85;
+      meshAt(merge([bx(1.75, .05, .82, 0, .75, 0), bx(.45, .73, .78, -.62, .365, 0), bx(.45, .73, .78, .62, .365, 0), bx(1.65, .52, .03, 0, .44, .39)]), mWoodDark, hx, 0, hz);
+      add(matDeskPad, .72, .008, .46, hx, .775, hz);
+      add(mWoodDark, .24, .07, .06, hx - .48, .775, hz + .26); // '교무부장' 삼각 명패
+      add(matTrayMetal, .28, .18, .34, hx + .56, .775, hz - .12); // 3단 결재 서류함
+      add(mPaperN, .24, .06, .30, hx + .56, .82, hz - .12);
+      officeChair(hx, hz - .56, 0, true);
+      col(hx - .88, hx + .88, hz - .45, hz + .45);
+    }
+
+    // ③ 좌·우 4인 1조 마주보기 아일랜드 교사 책상 클러스터 2조 (컴퓨터 일렬 배치를 없애고 진짜 한국 교무실처럼 좌우 마주보기 배치!)
+    //    ※ 첫 번째 단서 노트 n3 위치(cx - 2.5, .76, -5.4)를 정확히 받쳐주도록 서쪽 클러스터를 cx - 2.05, z = -5.4 중심으로 배치!
+    [
+      { gx: cx - 1.95, gz: -5.45, names: ['3-2 담임 정은수', '3-1 담임', '2학년부', '1학년부'] },
+      { gx: cx + 1.85, gz: -5.45, names: ['학생부장', '연구부장', '생활지도부', '체육부장'] }
+    ].forEach((cl, ci) => {
+      // 중앙 낮은 파티션 보드 (동-서 방향 마주보기 구분)
+      add(S(null, { color: 0x3d5248, roughness: .85 }), .04, 1.18, 2.52, cl.gx, 0, cl.gz);
+      add(mChrome, .05, .03, 2.54, cl.gx, 1.18, cl.gz);
+      [-0.42, 0.42].forEach((ox, sideIdx) => {
+        [-0.64, 0.64].forEach((oz, rowIdx) => {
+          const dx = cl.gx + ox, dz = cl.gz + oz;
+          const idx = sideIdx * 2 + rowIdx;
+          // 교사 양수 철제/원목 책상
+          meshAt(merge([bx(.80, .04, 1.24, 0, .74, 0), bx(.76, .72, .38, 0, .36, -.41), bx(.76, .72, .03, 0, .36, .60)]), mWood, dx, 0, dz);
+          // 초록색 교무실 고무 데스크 매트
+          add(matDeskPad, .46, .006, .68, dx + (ox < 0 ? -.06 : .06), .762, dz);
+          // 출석부 · 생활기록부 바인더 4권 세우기
+          for (let b = 0; b < 4; b++) {
+            add(b % 2 ? matBinderBlue : matBinderRed, .22, .28, .045, dx + (ox < 0 ? .22 : -.22), .76, dz - .36 + b * .065);
+          }
+          // 3단 결재 트레이 & 서류 더미 & 삼각 명패
+          add(matTrayMetal, .24, .14, .28, dx + (ox < 0 ? .18 : -.18), .76, dz + .34);
+          add(mPaperN, .20, .05, .24, dx + (ox < 0 ? -.08 : .08), .765, dz - .18, { ry: rr(-.2, .2) });
+          add(mWoodDark, .06, .06, .20, dx + (ox < 0 ? -.26 : .26), .76, dz + .22);
+          // 전산 담당 1석에만 모니터 배치, 나머지는 유선 행정 전화기 & 스탠드 배치!
+          if (ci === 1 && idx === 0) {
+            monitor(dx - .14, .76, dz - .22, Math.PI / 2, { crt: true });
+          } else {
+            add(mBeige, .16, .09, .20, dx + (ox < 0 ? .16 : -.16), .76, dz + .02); // 행정 내선 전화기
+          }
+          officeChair(dx + (ox < 0 ? -.54 : .54), dz, ox < 0 ? -Math.PI / 2 : Math.PI / 2, false);
+        });
+      });
+      col(cl.gx - .86, cl.gx + .86, cl.gz - 1.28, cl.gz + 1.28);
+    });
+
+    // ④ 남동쪽 코너: 학부모 · 학생 상담용 응접 가죽 소파 & 다탁 세트
+    add(S(null, { color: 0x261e1a, roughness: .55 }), 1.55, .72, .62, cx + 2.2, 0, -2.45, { col: true });
+    add(mWoodDark, 1.10, .42, .55, cx + 2.2, 0, -3.25, { col: true });
+    cyl(mPorc, .04, .09, cx + 2.05, .42, -3.25, 10); cyl(mPorc, .04, .09, cx + 2.35, .42, -3.25, 10);
+
+    fileCabinet(cx + 3.6, -8.95, -Math.PI / 2); fileCabinet(cx + 3.6, -8.05, -Math.PI / 2, true);
+    model('sf_water_cooler', cx - 3.55, 0, -2.5, Math.PI / 2, { col: [.45, .45] }); glowAt(cx - 3.38, .92, -2.45, .11, glowRed); glowAt(cx - 3.38, .92, -2.55, .11, glowGreen);
+    model('sf_fuse_box', cx + 3.82, 1.35, -2.4, -Math.PI / 2); model('wooden_bookshelf_worn', cx - 2.15, 0, -2.02, Math.PI, { col: [.9, .42] });
+
+    // ⑤ 금고 (비밀번호: 그날의 날짜 MMDD = 1012)
     { const sx = cx - 3.5, sz = -8.6;
       meshAt(merge([bx(.08, .8, .66, -.27, .4, 0), bx(.62, .8, .04, 0, .4, -.31), bx(.62, .8, .04, 0, .4, .31), bx(.62, .04, .66, 0, .02, 0), bx(.62, .04, .66, 0, .78, 0), bx(.5, .02, .55, 0, .36, 0)]), S(T.makeMetal([60, 74, 64]), { roughness: .5, metalness: .5 }), sx, 0, sz);
       const piv = dyn(new THREE.Group()); piv.position.set(sx + .31, 0, sz - .31); cur.interior.add(piv);
@@ -770,10 +847,10 @@ export function buildWorld(scene) {
       col(sx - .32, sx + .35, sz - .34, sz + .34);
       addKey('office', 0, sx, .38, sz); const key = items[items.length - 1]; key.locked = true; key.mesh.visible = false;
       props.push({ kind: 'safe', floor: cur.f, x: sx + .9, z: sz, piv, key, open: 0, label: '금고 조사하기' }); }
-    addNote('n3', cx - 2.5, .76, -5.4);
+    addNote('n3', cx - 2.35, .77, -5.4);
     papers(cx, -8, -2.4, 14);
   }
-  function infirmarySlot(id, kind, x, z, parts, yaw = 0) { const holder = new THREE.Group(), fallback = new THREE.Group(); holder.name = id; holder.userData.dynamic = fallback.userData.dynamic = true; holder.position.set(x, 0, z); holder.rotation.y = yaw; holder.add(fallback); cur.interior.add(holder); holder.updateWorldMatrix(true, true); parts.forEach(p => fallback.attach(p)); INFIRMARY_SLOTS.push({ id, kind, holder, fallback }); return holder; } function nurse(cx) {
+    function infirmarySlot(id, kind, x, z, parts, yaw = 0) { const holder = new THREE.Group(), fallback = new THREE.Group(); holder.name = id; holder.userData.dynamic = fallback.userData.dynamic = true; holder.position.set(x, 0, z); holder.rotation.y = yaw; holder.add(fallback); cur.interior.add(holder); holder.updateWorldMatrix(true, true); parts.forEach(p => fallback.attach(p)); INFIRMARY_SLOTS.push({ id, kind, holder, fallback }); return holder; } function nurse(cx) {
     const zN = -9.6;
     frontWall(cx, zN, false);
     [-2.4, 2.4].forEach(dx => { const parts = [add(mMetal, 1.0, .5, 2.0, cx + dx, 0, zN + 1.2, { col: true }), add(mWhite, .95, .14, 1.9, cx + dx, .5, zN + 1.2), add(mWhite, .5, .1, .35, cx + dx, .64, zN + .4)]; infirmarySlot(`nurse-${cur.f}-bed-${dx < 0 ? "west" : "east"}`, "bed", cx + dx, zN + 1.2, parts); });
@@ -1763,6 +1840,49 @@ export function buildWorld(scene) {
     meshAt(new THREE.BoxGeometry(.28, .012, .2), mPaperN, dx + 1.0, .79, dz + .3, .3);
     bcChair(dx - .3, -8.0, .2); bcChair(dx + 1.0, -7.75, -.5);
     props.push({ kind: 'console', floor: cur.f, x: dx - .25, z: -8.3, label: '방송 장비 사용' });
+    // ── [방송실 전면 리모델링 추가 설비] 천장 방송 조명 트러스 그리드(Truss Grid) & 프레넬 스포트라이트 6기 + 상단 멀티뷰 모니터 브리지 + 어쿠스틱 우드 슬랫 방음벽 + 오픈릴 마스터 테이프 데크 + ENG 스튜디오 카메라 ──
+    {
+      const mAcousticCharcoal = S(null, { color: 0x1c1e22, roughness: .92 });
+      const mSlatWalnut = S(null, { color: 0x6e472b, roughness: .58 });
+      const mTruss = S(null, { color: 0x16181c, roughness: .35, metalness: .78 });
+      const mSpotLight = new THREE.MeshStandardMaterial({ color: 0xfff4d8, emissive: 0xffd890, emissiveIntensity: 1.5 });
+      const mTallyRed  = new THREE.MeshStandardMaterial({ color: 0xff2820, emissive: 0xff1810, emissiveIntensity: 2.2 });
+      // ① 북쪽 및 서쪽/남쪽 벽면 방송국 전용 차콜 흡음 웨지 패널 & 원목 어쿠스틱 디퓨저 루바
+      add(mAcousticCharcoal, 5.1, 2.85, .04, cx - .55, .35, zN + .03);
+      for (let sl = 0; sl < 18; sl++) {
+        add(mSlatWalnut, .06, 2.45, .055, cx - 1.9 + sl * .22, .52, zN + .04);
+      }
+      // ② 주조정실 상단 2층 멀티뷰 방송 모니터 브리지 (PROGRAM / PREVIEW / CAM 1 STUDIO / CAM 2 HALL / 98.4MHz SPECTRUM)
+      add(mTruss, 3.2, .46, .12, dx, 1.98, zN + .18);
+      [
+        [-1.18, 'PGM · ON AIR', '#2a1014', '#ff6860'],
+        [-0.40, 'PVW · STUDIO 1', '#10221c', '#70ffb0'],
+        [ 0.40, 'CAM 2 · 대강당', '#121c2c', '#80d4ff'],
+        [ 1.18, '98.4MHz AUDIO', '#241e10', '#ffd868']
+      ].forEach(([ox, title, bg, fg]) => {
+        add(mDarkMetal, .72, .42, .08, dx + ox, 1.77, zN + .22);
+        plane(cur.interior, new THREE.MeshBasicMaterial({ map: T.makeSign(title, bg, fg, 22) }), .66, .34, dx + ox, 1.98, zN + .27);
+      });
+      // ③ 콘솔 우측 아날로그 오픈릴 마스터 테이프 데크 (릴 2개) & 대형 3D [🎙 ON AIR] 네온 박스
+      add(mDarkMetal, .46, .52, .26, dx + 1.18, .78, dz - .18);
+      cyl(mChrome, .085, .02, dx + 1.07, 1.12, dz - .04, 16);
+      cyl(mChrome, .085, .02, dx + 1.29, 1.12, dz - .04, 16);
+      add(mTallyRed, .95, .28, .10, bx2 + .06, 2.28, -7.85);
+      plane(cur.interior, new THREE.MeshBasicMaterial({ map: T.makeSign('🎙 ON AIR · 스튜디오 방송중', '#7a0c0c', '#ffffff', 26) }), .90, .24, bx2 + .12, 2.42, -7.85, Math.PI / 2);
+      // ④ 천장 블랙 스틸 방송 조명 트러스 그리드 (Truss Grid) & 6기 프레넬 스튜디오 스포트라이트
+      [-7.8, -5.6, -3.6].forEach(tz => {
+        add(mTruss, 5.2, .08, .08, cx - .6, CH - .28, tz);
+        [-1.8, 0.4].forEach(tx => {
+          add(mTruss, .16, .22, .24, cx + tx, CH - .48, tz);
+          add(mSpotLight, .14, .14, .04, cx + tx, CH - .48, tz - .13);
+        });
+      });
+      // ⑤ 스튜디오 중앙 서문고 방송부 MBS 창립 30주년 기념 백드롭 현판 & 프로페셔널 ENG 방송 카메라
+      plane(cur.interior, new THREE.MeshBasicMaterial({ map: T.makeSign('서문고등학교 방송부 (MBS) · 제30주년 기념 특별 하교 방송 스튜디오', '#101c2e', '#f8e4a8', 22) }), 2.8, .62, cx - .4, 2.25, -1.82, Math.PI);
+      add(mTruss, .32, .36, .58, cx - 1.15, 1.18, -4.45);
+      cyl(mTruss, .08, .28, cx - 1.15, 1.32, -4.82, 14);
+      add(mTallyRed, .06, .04, .04, cx - 1.15, 1.56, -4.68);
+    }
     // ── 크로마키 (서쪽 벽) + 삼각대 카메라 · 스튜디오 조명
     { const gx = W0 + .3, z1 = -6.3, z2 = -3.4, g = new THREE.PlaneGeometry(z2 - z1, 2.3, 18, 8), p = g.attributes.position;
       for (let i = 0; i < p.count; i++) p.setZ(i, Math.sin(p.getX(i) * 9) * .03 + Math.sin(p.getY(i) * 4 + p.getX(i)) * .015); g.computeVertexNormals();

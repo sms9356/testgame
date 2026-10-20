@@ -1,4 +1,4 @@
-// 폐교: 잊혀진 시간 — 고화질 PBR 캐릭터 셰이딩 + 생체역학(Biomechanical) 본 애니메이션 & 시선 추적 IK 엔진 (v142)
+// 폐교: 잊혀진 시간 — 초실사 캐릭터 피부 모공·홍채·직물 탄젠트 노멀맵(NormalMap) + 생체역학 본 IK 엔진 (v144)
 export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
   const loader = new GLTFLoader();
   const mixers = new Map();
@@ -11,67 +11,140 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
   let panel = null;
   let timeout = 0;
 
-  let detailMaps = null;
-  function getDetailMaps() {
-    if (detailMaps) return detailMaps;
-    const mkTex = (size, rep, drawFn) => {
+  // ── 1. 높이장(Heightfield) → RGB 탄젠트 스페이스 노멀맵(Tangent-Space NormalMap) 변환기 ──
+  let normalMaps = null;
+  function getNormalMaps() {
+    if (normalMaps) return normalMaps;
+    const buildNormal = (size, rep, amp, heightFn) => {
+      const hBuf = new Float32Array(size * size);
+      for (let y = 0; y < size; y++) {
+        for (let x = 0; x < size; x++) hBuf[y * size + x] = heightFn(x, y, size);
+      }
       const cv = document.createElement('canvas'); cv.width = cv.height = size;
-      const g = cv.getContext('2d');
-      drawFn(g, size);
+      const ctx = cv.getContext('2d');
+      const img = ctx.createImageData(size, size);
+      const d = img.data;
+      for (let y = 0; y < size; y++) {
+        const ym = (y - 1 + size) % size, yp = (y + 1) % size;
+        for (let x = 0; x < size; x++) {
+          const xm = (x - 1 + size) % size, xp = (x + 1) % size;
+          const dx = (hBuf[y * size + xm] - hBuf[y * size + xp]) * amp;
+          const dy = (hBuf[ym * size + x] - hBuf[yp * size + x]) * amp;
+          const dz = 1.0;
+          const inv = 1 / Math.hypot(dx, dy, dz);
+          const idx = (y * size + x) * 4;
+          d[idx]     = Math.max(0, Math.min(255, Math.round((dx * inv * 0.5 + 0.5) * 255)));
+          d[idx + 1] = Math.max(0, Math.min(255, Math.round((dy * inv * 0.5 + 0.5) * 255)));
+          d[idx + 2] = Math.max(0, Math.min(255, Math.round((dz * inv * 0.5 + 0.5) * 255)));
+          d[idx + 3] = 255;
+        }
+      }
+      ctx.putImageData(img, 0, 0);
       const t = new THREE.CanvasTexture(cv);
       t.wrapS = t.wrapT = THREE.RepeatWrapping;
       t.repeat.set(rep, rep);
       t.anisotropy = 16;
       return t;
     };
-    const skinBump = mkTex(256, 6, (g, N) => {
-      g.fillStyle = '#808080'; g.fillRect(0, 0, N, N);
-      for (let i = 0; i < 4200; i++) {
-        const x = (Math.sin(i * 12.9898) * 43758.5453 % 1 + 1) % 1 * N;
-        const y = (Math.sin(i * 78.233) * 43758.5453 % 1 + 1) % 1 * N;
-        g.fillStyle = i % 3 === 0 ? 'rgba(60,55,55,0.22)' : 'rgba(205,200,200,0.16)';
-        g.fillRect(x, y, 1.5, 1.5);
-      }
+    const hash = (x, y) => {
+      const s = Math.sin(x * 127.1 + y * 311.7) * 43758.5453;
+      return s - Math.floor(s);
+    };
+    // ① 실제 인간 피부 모공(Micro-Pores) & 미세 표피 결 탄젠트 노멀맵
+    const skinNormal = buildNormal(256, 14, 2.2, (x, y) => {
+      const n1 = hash(x, y);
+      const pore = n1 > 0.78 ? -(n1 - 0.78) * 3.5 : (n1 - 0.4) * 0.35;
+      const crease = Math.sin(x * 0.35 + Math.cos(y * 0.28) * 2.0) * 0.18;
+      return pore + crease;
     });
-    const fabricBump = mkTex(256, 10, (g, N) => {
-      g.fillStyle = '#808080'; g.fillRect(0, 0, N, N);
-      g.strokeStyle = 'rgba(220,220,220,0.28)'; g.lineWidth = 1.2;
-      for (let i = -N; i < N * 2; i += 4) {
-        g.beginPath(); g.moveTo(i, 0); g.lineTo(i + N, N); g.stroke();
-      }
-      g.strokeStyle = 'rgba(40,40,40,0.24)';
-      for (let y = 0; y < N; y += 3) {
-        g.beginPath(); g.moveTo(0, y); g.lineTo(N, y); g.stroke();
-      }
+    // ② 고밀도 의상 직물(교복·경비복·모자·가방) 능직 트윌 위브 탄젠트 노멀맵
+    const fabricNormal = buildNormal(256, 18, 2.8, (x, y) => {
+      const warp = Math.sin((x + y) * 1.5708) * 0.45;
+      const weft = Math.cos((x - y) * 1.5708) * 0.35;
+      const fold = Math.sin(x * 0.08 + Math.sin(y * 0.05) * 2.5) * 0.4;
+      return warp + weft + fold + (hash(x, y) - 0.5) * 0.15;
     });
-    const leatherBump = mkTex(256, 7, (g, N) => {
-      g.fillStyle = '#7c7c7c'; g.fillRect(0, 0, N, N);
-      for (let i = 0; i < 2600; i++) {
-        const x = (i * 73) % N, y = ((i * 137) + ((i / 17) | 0) * 29) % N;
-        g.fillStyle = i % 2 ? 'rgba(215,215,215,0.22)' : 'rgba(35,35,35,0.25)';
-        g.beginPath(); g.arc(x, y, 1.8, 0, Math.PI * 2); g.fill();
-      }
+    // ③ 천연 가죽(벨트·홀스터·구두·로퍼) 페블 그레인 탄젠트 노멀맵
+    const leatherNormal = buildNormal(256, 10, 2.4, (x, y) => {
+      const cell = Math.sin(x * 0.45) * Math.cos(y * 0.45) * 0.5;
+      return cell + (hash(x >> 1, y >> 1) - 0.5) * 0.4;
     });
-    const hairBump = mkTex(256, 5, (g, N) => {
-      g.fillStyle = '#808080'; g.fillRect(0, 0, N, N);
-      for (let x = 0; x < N; x += 2) {
-        g.fillStyle = (x % 4 === 0) ? 'rgba(225,220,215,0.32)' : 'rgba(35,30,28,0.30)';
-        g.fillRect(x, 0, 1, N);
-      }
+    // ④ 머리카락 세로 스트랜드 결 탄젠트 노멀맵
+    const hairNormal = buildNormal(256, 8, 2.6, (x, y) => {
+      return Math.sin(x * 1.8 + Math.sin(y * 0.12) * 1.5) * 0.65 + (hash(x, y >> 2) - 0.5) * 0.3;
     });
-    detailMaps = { skinBump, fabricBump, leatherBump, hairBump };
-    return detailMaps;
+    normalMaps = { skinNormal, fabricNormal, leatherNormal, hairNormal };
+    return normalMaps;
   }
 
-  function sharpenCharacterTexture(tex) {
-    if (!tex) return;
+  // ── 2. 원본 UV(flipY=false)를 100% 보존하면서 피부 모공·혈색·눈동자 각막 하이라이트·의상 질감을 고해상도 리마스터링 ──
+  function remasterCharacterTexture(tex, role = 'generic', charId = '') {
+    if (!tex || tex.userData?.remasteredV144) return;
     tex.anisotropy = 16;
     if (THREE.SRGBColorSpace) tex.colorSpace = THREE.SRGBColorSpace;
+    const img = tex.image;
+    if (img && img.width && img.height && typeof document !== 'undefined') {
+      try {
+        const w = img.width, h = img.height;
+        const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+        const ctx = cv.getContext('2d');
+        // 원본 이미지를 변환 없이 그대로 그려 GLTF flipY=false UV 좌표계를 100% 보존!
+        if (role === 'skin') {
+          ctx.filter = charId === 'guard' ? 'contrast(1.14) saturate(1.12) brightness(1.03)' : 'contrast(1.09) saturate(1.10) brightness(1.03)';
+        } else if (role === 'eye') {
+          ctx.filter = 'contrast(1.32) saturate(1.25) brightness(1.22)';
+        } else {
+          ctx.filter = 'contrast(1.15) saturate(1.10)';
+        }
+        ctx.drawImage(img, 0, 0, w, h);
+        ctx.filter = 'none';
+
+        if (role === 'skin') {
+          // 피부 마이크로 모공·모세혈관·수염 모낭 질감 입자 합성
+          const idata = ctx.getImageData(0, 0, w, h);
+          const d = idata.data;
+          for (let i = 0; i < d.length; i += 4) {
+            const px = (i >> 2) % w, py = ((i >> 2) / w) | 0;
+            const n = ((Math.sin(px * 12.9898 + py * 78.233) * 43758.5453) % 1 + 1) % 1;
+            const poreDelta = (n - 0.5) * (charId === 'guard' ? 11 : 7);
+            // 따뜻한 피하 혈색(Subdermal Warmth: R 살짝 보강)과 미세 모공 명암
+            d[i]     = Math.max(0, Math.min(255, d[i] + poreDelta + 3));
+            d[i + 1] = Math.max(0, Math.min(255, d[i + 1] + poreDelta * 0.85));
+            d[i + 2] = Math.max(0, Math.min(255, d[i + 2] + poreDelta * 0.75 - 2));
+          }
+          ctx.putImageData(idata, 0, 0);
+        } else if (role === 'eye') {
+          // 눈동자 텍스처: 어두운 곳에서도 눈이 까만 구멍처럼 보이지 않게 홍채 림과 듀얼 각막 반사광(Catchlight) 합성!
+          const idata = ctx.getImageData(0, 0, w, h);
+          const d = idata.data;
+          for (let i = 0; i < d.length; i += 4) {
+            const r = d[i], g = d[i + 1], b = d[i + 2];
+            const lum = r * 0.299 + g * 0.587 + b * 0.114;
+            if (lum > 145) {
+              // 흰자위(Sclera)를 더욱 맑고 선명하게
+              d[i] = Math.min(255, r * 1.12 + 12);
+              d[i + 1] = Math.min(255, g * 1.10 + 10);
+              d[i + 2] = Math.min(255, b * 1.08 + 8);
+            } else if (lum > 28 && lum <= 145) {
+              // 홍채(Iris)에 따뜻한 앰버 브라운 색채와 입체감 부여
+              d[i] = Math.min(255, r * 1.35 + 24);
+              d[i + 1] = Math.min(255, g * 1.22 + 14);
+              d[i + 2] = Math.min(255, b * 1.05 + 6);
+            }
+          }
+          ctx.putImageData(idata, 0, 0);
+        }
+        const prevFlipY = tex.flipY;
+        tex.image = cv;
+        tex.flipY = prevFlipY;
+      } catch (e) {}
+    }
+    tex.userData = { ...(tex.userData || {}), remasteredV144: true };
     tex.needsUpdate = true;
   }
 
   function enhanceCharacterMaterials(model, id) {
-    const dm = getDetailMaps();
+    const nm = getNormalMaps();
     model.traverse(obj => {
       if (!obj.isMesh && !obj.isSkinnedMesh) return;
       obj.castShadow = true;
@@ -82,35 +155,56 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
         if (!mat.isMeshStandardMaterial) return;
         const mName = ((obj.name || '') + '_' + (mat.name || '')).toLowerCase();
         if (mat.map) {
-          const tKind = /skin|body|head|face/.test(mName) ? 'skin' : /eye|iris/.test(mName) ? 'eye' : 'generic';
-          sharpenCharacterTexture(mat.map, tKind);
+          const role = /skin|body|head|face/.test(mName) ? 'skin' : (/eye/.test(mName) && !/brow|lash|bunny/.test(mName)) ? 'eye' : 'generic';
+          remasterCharacterTexture(mat.map, role, id);
         }
         if (/skin|body|face|head/.test(mName)) {
-          mat.roughness = 0.42;
+          mat.roughness = id === 'guard' ? 0.44 : 0.39;
           mat.metalness = 0.02;
-          mat.emissive = new THREE.Color(id === 'guard' ? 0x220e0a : 0x26100d);
-          mat.emissiveIntensity = 0.065;
-          if (!mat.bumpMap && !mat.normalMap) { mat.bumpMap = dm.skinBump; mat.bumpScale = 0.006; }
+          mat.emissive = new THREE.Color(id === 'guard' ? 0x361c14 : 0x381e18);
+          if (mat.map) mat.emissiveMap = mat.map;
+          mat.emissiveIntensity = 0.18;
+          if (!mat.normalMap) {
+            mat.normalMap = nm.skinNormal;
+            mat.normalScale = new THREE.Vector2(0.32, 0.32);
+          }
         } else if (/eye/.test(mName) && !/brow|lash|bunny/.test(mName)) {
-          mat.roughness = 0.05;
-          mat.metalness = 0.08;
+          mat.roughness = 0.03;
+          mat.metalness = 0.12;
           mat.emissive = new THREE.Color(0xffffff);
-          if (mat.map) { mat.emissiveMap = mat.map; mat.emissiveIntensity = 0.14; }
-        } else if (/hair|bang/.test(mName)) {
-          mat.roughness = 0.46;
-          mat.metalness = 0.06;
-          if (!mat.bumpMap && !mat.normalMap) { mat.bumpMap = dm.hairBump; mat.bumpScale = 0.014; }
-        } else if (/uniform|suit|capfabric|backpack|tie|ribbon|skirt|pants|shirt|blazer/.test(mName)) {
-          mat.roughness = 0.74;
-          mat.metalness = 0.03;
-          if (!mat.bumpMap && !mat.normalMap) { mat.bumpMap = dm.fabricBump; mat.bumpScale = 0.016; }
-        } else if (/leather|belt|holster|pouch|boot|loafer|shoe|strap/.test(mName)) {
-          mat.roughness = 0.28;
+          if (mat.map) mat.emissiveMap = mat.map;
+          mat.emissiveIntensity = 0.38;
+        } else if (/teeth/.test(mName)) {
+          mat.roughness = 0.18;
+          mat.emissive = new THREE.Color(0x2a2824);
+          mat.emissiveIntensity = 0.12;
+        } else if (/hair|bang|brow|lash/.test(mName)) {
+          mat.roughness = 0.42;
           mat.metalness = 0.08;
-          if (!mat.bumpMap && !mat.normalMap) { mat.bumpMap = dm.leatherBump; mat.bumpScale = 0.012; }
+          if (!mat.normalMap && /hair|bang/.test(mName)) {
+            mat.normalMap = nm.hairNormal;
+            mat.normalScale = new THREE.Vector2(0.42, 0.42);
+          }
+        } else if (/uniform|suit|capfabric|backpack|tie|ribbon|skirt|pants|shirt|blazer/.test(mName)) {
+          mat.roughness = 0.68;
+          mat.metalness = 0.05;
+          if (mat.map) { mat.emissive = new THREE.Color(0xffffff); mat.emissiveMap = mat.map; mat.emissiveIntensity = 0.08; }
+          if (!mat.normalMap) {
+            mat.normalMap = nm.fabricNormal;
+            mat.normalScale = new THREE.Vector2(0.52, 0.52);
+          }
+        } else if (/leather|belt|holster|pouch|boot|loafer|shoe|strap/.test(mName)) {
+          mat.roughness = 0.25;
+          mat.metalness = 0.12;
+          if (!mat.normalMap) {
+            mat.normalMap = nm.leatherNormal;
+            mat.normalScale = new THREE.Vector2(0.38, 0.38);
+          }
         } else if (/badge|buckle|steel|button|emblem|zip/.test(mName)) {
-          mat.roughness = 0.22;
-          mat.metalness = 0.88;
+          mat.roughness = 0.18;
+          mat.metalness = 0.92;
+          mat.emissive = new THREE.Color(0x3a2e14);
+          mat.emissiveIntensity = 0.15;
         } else if (mat.roughness < 0.14) {
           mat.roughness = 0.14;
         }
@@ -130,25 +224,33 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
       head: b('head'),
       clavL: b('clavicle_l'),
       clavR: b('clavicle_r'),
-      armL: b('upperarm_l'),
-      armR: b('upperarm_r'),
-      foreL: b('lowerarm_l'),
-      foreR: b('lowerarm_r'),
-      handL: b('hand_l'),
-      handR: b('hand_r'),
       lookYaw: 0,
       lookPitch: 0,
       turnLean: 0,
       lastHolderYaw: null,
-      phaseSeed: Math.random() * Math.PI * 2
+      phaseSeed: Math.random() * Math.PI * 2,
+      applied: { s1x: 0, s1z: 0, s2x: 0, s2y: 0, s2z: 0, clz: 0, crz: 0, nx: 0, ny: 0, hx: 0, hy: 0, hz: 0 }
     };
+  }
+
+  // 이전 프레임에 더했던 절차적 오프셋을 정확히 제거하여 본이 절대 누적 회전으로 비틀리지 않게 보장!
+  function clearAppliedOffsets(rig) {
+    if (!rig || !rig.applied) return;
+    const a = rig.applied;
+    if (rig.spine1) { rig.spine1.rotation.x -= a.s1x; rig.spine1.rotation.z -= a.s1z; }
+    if (rig.spine2) { rig.spine2.rotation.x -= a.s2x; rig.spine2.rotation.y -= a.s2y; rig.spine2.rotation.z -= a.s2z; }
+    if (rig.clavL)  { rig.clavL.rotation.z -= a.clz; }
+    if (rig.clavR)  { rig.clavR.rotation.z -= a.crz; }
+    if (rig.neck)   { rig.neck.rotation.x -= a.nx; rig.neck.rotation.y -= a.ny; }
+    if (rig.head)   { rig.head.rotation.x -= a.hx; rig.head.rotation.y -= a.hy; rig.head.rotation.z -= a.hz; }
+    a.s1x = a.s1z = a.s2x = a.s2y = a.s2z = a.clz = a.crz = a.nx = a.ny = a.hx = a.hy = a.hz = 0;
   }
 
   async function load(id, holder, options = {}) {
     if (!holder || !holder.isObject3D) throw new TypeError(id + ': 유효한 Three.js 그룹이 필요합니다');
     if (pending.has(holder)) return pending.get(holder);
 
-    const url = (options.url || ('assets/characters/' + id + '.glb')) + '?v=142';
+    const url = (options.url || ('assets/characters/' + id + '.glb')) + '?v=144';
     const targetHeight = Number(options.height) || (id === 'mina' ? .95 : 1.75);
     const yaw = ((Number(options.yawDegrees) || 0) * Math.PI) / 180;
     const originalChildren = [...holder.children];
@@ -269,56 +371,52 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
     let dYaw = curYaw - rig.lastHolderYaw;
     dYaw = Math.atan2(Math.sin(dYaw), Math.cos(dYaw));
     rig.lastHolderYaw = curYaw;
-    const targetLean = Math.max(-0.14, Math.min(0.14, -dYaw / Math.max(0.016, dt) * 0.032));
+    const targetLean = Math.max(-0.12, Math.min(0.12, -dYaw / Math.max(0.016, dt) * 0.028));
     rig.turnLean += (targetLean - rig.turnLean) * Math.min(1, dt * 8);
-
-    if (rig.spine1) {
-      rig.spine1.rotation.x += breath * 0.016;
-      rig.spine1.rotation.z += sway * 0.012 + rig.turnLean * 0.45;
-    }
-    if (rig.spine2) {
-      rig.spine2.rotation.x += breath * 0.022;
-      rig.spine2.rotation.z += rig.turnLean * 0.55;
-      if (isWalking) rig.spine2.rotation.y += Math.sin(tNow * 6.2) * 0.038;
-    }
-    if (rig.clavL) rig.clavL.rotation.z += breath * 0.018;
-    if (rig.clavR) rig.clavR.rotation.z -= breath * 0.018;
 
     let wantLookYaw = 0, wantLookPitch = 0;
     const g = typeof window !== 'undefined' ? window.__g : null;
     if (g && g.P && id !== 'jihun' && id !== 'seoyeon') {
       const dx = g.P.x - holder.position.x, dz = g.P.z - holder.position.z;
       const dist = Math.hypot(dx, dz);
-      if (dist < 7.2 && dist > 0.25) {
+      if (dist < 6.8 && dist > 0.25) {
         const toPlayerYaw = Math.atan2(dx, dz);
         let relYaw = toPlayerYaw - curYaw;
         relYaw = Math.atan2(Math.sin(relYaw), Math.cos(relYaw));
-        if (Math.abs(relYaw) < 1.35) {
-          wantLookYaw = Math.max(-0.72, Math.min(0.72, relYaw * 0.78));
-          wantLookPitch = Math.max(-0.25, Math.min(0.25, -0.05 / Math.max(1.2, dist) + Math.sin(tNow * 2.4) * 0.025));
+        if (Math.abs(relYaw) < 1.25) {
+          wantLookYaw = Math.max(-0.52, Math.min(0.52, relYaw * 0.65));
+          wantLookPitch = Math.max(-0.18, Math.min(0.18, Math.sin(tNow * 2.0) * 0.02));
         }
-      } else if (id === 'guard') {
-        wantLookYaw = Math.sin(tNow * 1.15) * 0.32;
-        wantLookPitch = Math.sin(tNow * 0.75) * 0.08;
       }
     }
     rig.lookYaw += (wantLookYaw - rig.lookYaw) * Math.min(1, dt * 6.5);
     rig.lookPitch += (wantLookPitch - rig.lookPitch) * Math.min(1, dt * 6.5);
 
-    if (rig.neck) {
-      rig.neck.rotation.y += rig.lookYaw * 0.38;
-      rig.neck.rotation.x += rig.lookPitch * 0.35 + breath * 0.01;
-    }
-    if (rig.head) {
-      rig.head.rotation.y += rig.lookYaw * 0.62;
-      rig.head.rotation.x += rig.lookPitch * 0.65 - breath * 0.012;
-      rig.head.rotation.z += sway * 0.018;
-    }
+    const a = rig.applied;
+    a.s1x = breath * 0.014;
+    a.s1z = sway * 0.010 + rig.turnLean * 0.4;
+    a.s2x = breath * 0.018;
+    a.s2y = isWalking ? Math.sin(tNow * 5.8) * 0.032 : 0;
+    a.s2z = rig.turnLean * 0.5;
+    a.clz = breath * 0.015;
+    a.crz = -breath * 0.015;
+    a.nx  = rig.lookPitch * 0.35 + breath * 0.008;
+    a.ny  = rig.lookYaw * 0.35;
+    a.hx  = rig.lookPitch * 0.65 - breath * 0.010;
+    a.hy  = rig.lookYaw * 0.65;
+    a.hz  = sway * 0.012;
+
+    if (rig.spine1) { rig.spine1.rotation.x += a.s1x; rig.spine1.rotation.z += a.s1z; }
+    if (rig.spine2) { rig.spine2.rotation.x += a.s2x; rig.spine2.rotation.y += a.s2y; rig.spine2.rotation.z += a.s2z; }
+    if (rig.clavL)  { rig.clavL.rotation.z += a.clz; }
+    if (rig.clavR)  { rig.clavR.rotation.z += a.crz; }
+    if (rig.neck)   { rig.neck.rotation.x += a.nx; rig.neck.rotation.y += a.ny; }
+    if (rig.head)   { rig.head.rotation.x += a.hx; rig.head.rotation.y += a.hy; rig.head.rotation.z += a.hz; }
 
     if (id === 'guard' && holder.userData.torchFx && holder.userData.torchFx.visible) {
-      const sweep = Math.sin(tNow * 1.8) * 0.24;
+      const sweep = Math.sin(tNow * 1.8) * 0.22;
       holder.userData.torchFx.rotation.y = sweep;
-      holder.userData.torchFx.rotation.x = Math.sin(tNow * 1.1) * 0.08;
+      holder.userData.torchFx.rotation.x = Math.sin(tNow * 1.1) * 0.07;
     }
   }
 
@@ -328,8 +426,9 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
     const tNow = performance.now() / 1000;
     mixers.forEach((m, holder) => {
       if (holder.visible) {
-        m.update(stepDt);
         const entry = rigs.get(holder);
+        if (entry) clearAppliedOffsets(entry.rig);
+        m.update(stepDt);
         if (entry) applyHumanBiomechanics(holder, entry, stepDt, tNow);
       }
     });
@@ -351,6 +450,8 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
   function play(holder, name, { once = false, fade = .32, speed = 1 } = {}) {
     const mixer = mixers.get(holder), clips = holder && holder.userData.npcClips;
     if (!mixer || !clips) return Promise.resolve(false);
+    const entry = rigs.get(holder);
+    if (entry) clearAppliedOffsets(entry.rig);
     const clip = clips.find(c => c.name.toLowerCase() === String(name).toLowerCase())
       || clips.find(c => c.name.toLowerCase().includes(String(name).toLowerCase()));
     if (!clip) return Promise.resolve(false);

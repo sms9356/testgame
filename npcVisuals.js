@@ -79,7 +79,7 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
 
   // ── 2. 원본 UV(flipY=false)를 100% 보존하면서 피부 모공·혈색·눈동자 각막 하이라이트·의상 질감을 고해상도 리마스터링 ──
   function remasterCharacterTexture(tex, role = 'generic', charId = '') {
-    if (!tex || tex.userData?.remasteredV144) return;
+    if (!tex || tex.userData?.remasteredV151) return;
     tex.anisotropy = 16;
     if (THREE.SRGBColorSpace) tex.colorSpace = THREE.SRGBColorSpace;
     const img = tex.image;
@@ -88,37 +88,19 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
         const w = img.width, h = img.height;
         const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
         const ctx = cv.getContext('2d');
-        // 원본 이미지를 변환 없이 그대로 그려 GLTF flipY=false UV 좌표계를 100% 보존!
-        if (role === 'skin') {
-          // 주황빛/과채도를 억제한 자연스러운 한국인 실사 피부 톤 & 명암 대비
-          ctx.filter = charId === 'guard' ? 'contrast(1.12) saturate(0.84) brightness(0.95)' : 'contrast(1.08) saturate(0.92) brightness(0.98)';
-        } else {
-          ctx.filter = 'contrast(1.14) saturate(1.06)';
-        }
+        ctx.filter = role === 'skin'
+          ? (charId === 'guard' ? 'contrast(1.10) saturate(0.85) brightness(0.95)' : 'contrast(1.06) saturate(0.92) brightness(0.98)')
+          : 'contrast(1.12) saturate(1.06)';
         ctx.drawImage(img, 0, 0, w, h);
         ctx.filter = 'none';
-        if (role === 'skin') {
-          const idata = ctx.getImageData(0, 0, w, h);
-          const d = idata.data;
-          for (let i = 0; i < d.length; i += 4) {
-            const px = (i >> 2) % w, py = ((i >> 2) / w) | 0;
-            const n = ((Math.sin(px * 12.9898 + py * 78.233) * 43758.5453) % 1 + 1) % 1;
-            const pore = (n - 0.5) * (charId === 'guard' ? 8 : 5);
-            d[i]     = Math.max(0, Math.min(255, Math.round(d[i] + pore)));
-            d[i + 1] = Math.max(0, Math.min(255, Math.round(d[i + 1] + pore)));
-            d[i + 2] = Math.max(0, Math.min(255, Math.round(d[i + 2] + pore)));
-          }
-          ctx.putImageData(idata, 0, 0);
-        }
-                const prevFlipY = tex.flipY;
+        const prevFlipY = tex.flipY;
         tex.image = cv;
         tex.flipY = prevFlipY;
       } catch (e) {}
     }
-    tex.userData = { ...(tex.userData || {}), remasteredV144: true };
+    tex.userData = { ...(tex.userData || {}), remasteredV151: true };
     tex.needsUpdate = true;
   }
-
   function enhanceCharacterMaterials(model, id) {
     const nm = getNormalMaps();
     model.traverse(obj => {
@@ -279,7 +261,6 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
   }
   function sculptGuardRealisticHead(model) {
     try {
-      // ① 높게 들려 있던 경비 모자(Cap)를 눈썹 바로 위(-2.3cm)로 자연스럽게 눌러 씌워 초상화(npc_guard.webp)와 동일한 실루엣 완성!
       ['Guard_Cap_1', 'Guard_Cap_2', 'Guard_CapBrim', 'Guard_CapBadge', 'Guard_CapButton'].forEach(nm => {
         const m = model.getObjectByName(nm);
         if (m && m.geometry && !m.geometry.userData?.capLowered) {
@@ -287,93 +268,14 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
           m.geometry.translate(0, -0.023, 0.008);
         }
       });
-      // ② 모자 아래 옆머리·구레나룻(Guard_Hair) 볼륨 보강
       const hair = model.getObjectByName('Guard_Hair');
       if (hair && hair.geometry && !hair.geometry.userData?.hairFitted) {
         hair.geometry.userData.hairFitted = true;
         hair.geometry.translate(0, -0.014, 0.006);
       }
-      // ③ Guard_Body 정면 얼굴 삼각형(z > 0.125)에만 정밀하게 회백색 콧수염·턱수염·팔자주름·눈밑 주름 베이크!
-      const body = model.getObjectByName('Guard_Body');
-      if (!body || !body.material?.map?.image || body.userData?.beardBaked) return;
-      body.userData.beardBaked = true;
-      const tex = body.material.map;
-      const tw = tex.image.width, th = tex.image.height;
-      const cv = document.createElement('canvas'); cv.width = tw; cv.height = th;
-      const ctx = cv.getContext('2d'); ctx.drawImage(tex.image, 0, 0, tw, th);
-      const img = ctx.getImageData(0, 0, tw, th);
-      const td = img.data;
-      const geo = body.geometry, pos = geo.attributes.position, uv = geo.attributes.uv, index = geo.index;
-      const triCount = index ? index.count / 3 : pos.count / 3;
-      for (let t = 0; t < triCount; t++) {
-        const i0 = index ? index.getX(t * 3) : t * 3;
-        const i1 = index ? index.getX(t * 3 + 1) : t * 3 + 1;
-        const i2 = index ? index.getX(t * 3 + 2) : t * 3 + 2;
-        const z0 = pos.getZ(i0), z1 = pos.getZ(i1), z2 = pos.getZ(i2);
-        const y0 = pos.getY(i0), y1 = pos.getY(i1), y2 = pos.getY(i2);
-        if (Math.min(z0, z1, z2) < 0.118 || Math.max(y0, y1, y2) < 1.535 || Math.min(y0, y1, y2) > 1.665) continue;
-        const x0 = pos.getX(i0), x1 = pos.getX(i1), x2 = pos.getX(i2);
-        const u0 = uv.getX(i0) * tw, v0 = uv.getY(i0) * th;
-        const u1 = uv.getX(i1) * tw, v1 = uv.getY(i1) * th;
-        const u2 = uv.getX(i2) * tw, v2 = uv.getY(i2) * th;
-        if (Math.max(u0, u1, u2) - Math.min(u0, u1, u2) > tw * 0.25) continue;
-        if (Math.max(v0, v1, v2) - Math.min(v0, v1, v2) > th * 0.25) continue;
-        const minU = Math.max(0, Math.floor(Math.min(u0, u1, u2)));
-        const maxU = Math.min(tw - 1, Math.ceil(Math.max(u0, u1, u2)));
-        const minV = Math.max(0, Math.floor(Math.min(v0, v1, v2)));
-        const maxV = Math.min(th - 1, Math.ceil(Math.max(v0, v1, v2)));
-        const denom = (v1 - v2) * (u0 - u2) + (u2 - u1) * (v0 - v2);
-        if (Math.abs(denom) < 1e-5) continue;
-        for (let py = minV; py <= maxV; py++) {
-          for (let px = minU; px <= maxU; px++) {
-            const w0 = ((v1 - v2) * (px - u2) + (u2 - u1) * (py - v2)) / denom;
-            const w1 = ((v2 - v0) * (px - u2) + (u0 - u2) * (py - v2)) / denom;
-            const w2 = 1 - w0 - w1;
-            if (w0 < 0 || w1 < 0 || w2 < 0) continue;
-            const vx = w0 * x0 + w1 * x1 + w2 * x2;
-            const vy = w0 * y0 + w1 * y1 + w2 * y2;
-            const ax = Math.abs(vx);
-            const dIdx = (py * tw + px) * 4;
-            const noise = ((Math.sin(px * 19.1 + py * 83.7) * 43758.5453) % 1 + 1) % 1;
-            // 1) 인중 · 콧수염 (vy ∈ [1.596, 1.613], ax < 0.025)
-            if (vy >= 1.596 && vy <= 1.613 && ax < 0.025) {
-              const m = (1 - ax / 0.025) * (1 - Math.abs(vy - 1.6045) / 0.009);
-              if (m > 0) {
-                const c = noise > 0.48 ? 148 : 64;
-                const a = Math.min(0.62, m * 0.72);
-                td[dIdx]     = Math.round(td[dIdx] * (1 - a) + c * a);
-                td[dIdx + 1] = Math.round(td[dIdx + 1] * (1 - a) + c * a);
-                td[dIdx + 2] = Math.round(td[dIdx + 2] * (1 - a) + (c + 4) * a);
-              }
-            }
-            // 2) 턱수염 스터블 (vy ∈ [1.545, 1.576], ax < 0.026)
-            if (vy >= 1.545 && vy <= 1.576 && ax < 0.026) {
-              const m = (1 - ax / 0.026) * (1 - Math.abs(vy - 1.560) / 0.016);
-              if (m > 0) {
-                const c = noise > 0.52 ? 142 : 68;
-                const a = Math.min(0.50, m * 0.58);
-                td[dIdx]     = Math.round(td[dIdx] * (1 - a) + c * a);
-                td[dIdx + 1] = Math.round(td[dIdx + 1] * (1 - a) + c * a);
-                td[dIdx + 2] = Math.round(td[dIdx + 2] * (1 - a) + (c + 4) * a);
-              }
-            }
-            // 3) 깊은 팔자주름 음영 (vy ∈ [1.588, 1.622], ax ≈ 0.016 + (1.622 - vy) * 0.38)
-            const foldX = 0.015 + (1.622 - vy) * 0.36;
-            if (vy >= 1.586 && vy <= 1.622 && Math.abs(ax - foldX) < 0.0038) {
-              td[dIdx]     = Math.round(td[dIdx] * 0.78);
-              td[dIdx + 1] = Math.round(td[dIdx + 1] * 0.75);
-              td[dIdx + 2] = Math.round(td[dIdx + 2] * 0.74);
-            }
-          }
-        }
-      }
-      ctx.putImageData(img, 0, 0);
-      const prevFlip = tex.flipY;
-      tex.image = cv;
-      tex.flipY = prevFlip;
-      tex.needsUpdate = true;
-    } catch (e) { console.warn('[GuardSculpt]', e); }
+    } catch (e) {}
   }
+
   function extractHumanRig(model) {
     const b = name => model.getObjectByName(name);
     return {
@@ -385,31 +287,68 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
       head: b('head'),
       clavL: b('clavicle_l'),
       clavR: b('clavicle_r'),
+      armL: b('upperarm_l'),
+      foreL: b('lowerarm_l'),
+      handL: b('hand_l'),
+      armR: b('upperarm_r'),
+      foreR: b('lowerarm_r'),
+      handR: b('hand_r'),
+      thighL: b('thigh_l'),
+      calfL: b('calf_l'),
+      footL: b('foot_l'),
+      ballL: b('ball_l'),
+      thighR: b('thigh_r'),
+      calfR: b('calf_r'),
+      footR: b('foot_r'),
+      ballR: b('ball_r'),
       lookYaw: 0,
       lookPitch: 0,
       turnLean: 0,
+      walkBlend: 0,
+      gaitPhase: 0,
+      lastPos: null,
       lastHolderYaw: null,
       phaseSeed: Math.random() * Math.PI * 2,
-      applied: { s1x: 0, s1z: 0, s2x: 0, s2y: 0, s2z: 0, clz: 0, crz: 0, nx: 0, ny: 0, hx: 0, hy: 0, hz: 0 }
+      applied: { nx: 0, ny: 0, hx: 0, hy: 0, hz: 0 }
     };
   }
+
   function clearAppliedOffsets(rig) {
     if (!rig || !rig.applied) return;
     const a = rig.applied;
-    if (rig.spine1) { rig.spine1.rotation.x -= a.s1x; rig.spine1.rotation.z -= a.s1z; }
-    if (rig.spine2) { rig.spine2.rotation.x -= a.s2x; rig.spine2.rotation.y -= a.s2y; rig.spine2.rotation.z -= a.s2z; }
-    if (rig.clavL)  { rig.clavL.rotation.z -= a.clz; }
-    if (rig.clavR)  { rig.clavR.rotation.z -= a.crz; }
-    if (rig.neck)   { rig.neck.rotation.x -= a.nx; rig.neck.rotation.y -= a.ny; }
-    if (rig.head)   { rig.head.rotation.x -= a.hx; rig.head.rotation.y -= a.hy; rig.head.rotation.z -= a.hz; }
-    a.s1x = a.s1z = a.s2x = a.s2y = a.s2z = a.clz = a.crz = a.nx = a.ny = a.hx = a.hy = a.hz = 0;
+    if (rig.neck) { rig.neck.rotation.x -= a.nx; rig.neck.rotation.y -= a.ny; }
+    if (rig.head) { rig.head.rotation.x -= a.hx; rig.head.rotation.y -= a.hy; rig.head.rotation.z -= a.hz; }
+    a.nx = a.ny = a.hx = a.hy = a.hz = 0;
+  }
+
+  // ── 3. 휴머노이드 생체역학 모션 시스템 (HumanoidMotionSystem: Analytic Limb Aiming IK/FK) ──
+  const _vO = new THREE.Vector3(), _vE = new THREE.Vector3(), _vFrom = new THREE.Vector3(), _vTo = new THREE.Vector3();
+  const _qDelta = new THREE.Quaternion(), _qWorld = new THREE.Quaternion(), _qParentInv = new THREE.Quaternion();
+
+  function aimBoneCharSpace(holderYaw, joint, end, lx, ly, lz, blend = 1.0) {
+    if (!joint || !end) return;
+    joint.updateWorldMatrix(true, false);
+    end.updateWorldMatrix(true, false);
+    joint.getWorldPosition(_vO);
+    end.getWorldPosition(_vE);
+    _vFrom.subVectors(_vE, _vO).normalize();
+    const sinY = Math.sin(holderYaw), cosY = Math.cos(holderYaw);
+    _vTo.set(lx * cosY + lz * sinY, ly, -lx * sinY + lz * cosY).normalize();
+    _qDelta.setFromUnitVectors(_vFrom, _vTo);
+    joint.getWorldQuaternion(_qWorld);
+    _qDelta.multiply(_qWorld);
+    joint.parent.getWorldQuaternion(_qParentInv).invert();
+    _qParentInv.multiply(_qDelta);
+    if (blend >= 0.999) joint.quaternion.copy(_qParentInv);
+    else joint.quaternion.slerp(_qParentInv, blend);
+    joint.updateWorldMatrix(false, true);
   }
 
   async function load(id, holder, options = {}) {
     if (!holder || !holder.isObject3D) throw new TypeError(id + ': 유효한 Three.js 그룹이 필요합니다');
     if (pending.has(holder)) return pending.get(holder);
 
-    const url = (options.url || ('assets/characters/' + id + '.glb')) + '?v=150';
+    const url = (options.url || ('assets/characters/' + id + '.glb')) + '?v=151';
     const targetHeight = Number(options.height) || (id === 'mina' ? .95 : 1.75);
     const yaw = ((Number(options.yawDegrees) || 0) * Math.PI) / 180;
     const originalChildren = [...holder.children];
@@ -523,17 +462,71 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
     const ph = tNow * 1.65 + rig.phaseSeed;
     const breath = Math.sin(ph);
     const sway = Math.sin(ph * 0.52);
-    const clipName = String(holder.userData.curClipName || '').toLowerCase();
-    const isWalking = clipName.includes('walk') || clipName.includes('run');
-
     const curYaw = holder.rotation?.y || 0;
     if (rig.lastHolderYaw === null) rig.lastHolderYaw = curYaw;
     let dYaw = curYaw - rig.lastHolderYaw;
     dYaw = Math.atan2(Math.sin(dYaw), Math.cos(dYaw));
     rig.lastHolderYaw = curYaw;
-    const targetLean = Math.max(-0.12, Math.min(0.12, -dYaw / Math.max(0.016, dt) * 0.028));
+    const targetLean = Math.max(-0.12, Math.min(0.12, -dYaw / Math.max(0.016, dt) * 0.025));
     rig.turnLean += (targetLean - rig.turnLean) * Math.min(1, dt * 8);
 
+    // 실제 이동 거리 기반 보행 위상(gaitPhase) 및 보행 블렌딩(walkBlend) 계산
+    if (!rig.lastPos) rig.lastPos = holder.position.clone();
+    const movedDist = Math.hypot(holder.position.x - rig.lastPos.x, holder.position.z - rig.lastPos.z);
+    rig.lastPos.copy(holder.position);
+    const clipName = String(holder.userData.curClipName || '').toLowerCase();
+    const isWalking = clipName.includes('walk') || clipName.includes('run') || movedDist > 0.002;
+    rig.walkBlend += ((isWalking ? 1 : 0) - rig.walkBlend) * Math.min(1, dt * 9);
+    if (isWalking) {
+      const stepAdvance = movedDist > 0.0005 ? movedDist * 3.8 : dt * 5.6;
+      rig.gaitPhase = (rig.gaitPhase + stepAdvance) % (Math.PI * 2);
+    }
+
+    // ── 경비원(guard) 전용 휴머노이드 전신 모션 시스템 (좀비 걸음 완전 제거 & 자연스러운 인간 보행·순찰 포즈 합성) ──
+    if (id === 'guard' && rig.thighL && rig.calfL && rig.armL && rig.armR) {
+      const wb = rig.walkBlend;
+      const gPhi = rig.gaitPhase;
+      const sL = Math.sin(gPhi), cL = Math.cos(gPhi);
+      const sR = -sL, cR = -cL;
+
+      // ① 상체(Spine): 구부정한 좀비 허리를 곧게 펴고 호흡과 보행 카운터 트위스트 적용
+      const twistX = wb * (-sL * 0.045) + (1 - wb) * (sway * 0.015) + rig.turnLean * 0.45;
+      const leanFwd = clipName.includes('inspect') ? 0.16 : (0.03 + breath * 0.012);
+      aimBoneCharSpace(curYaw, rig.spine1, rig.spine2, twistX * 0.5, 1.0, leanFwd, 0.92);
+      aimBoneCharSpace(curYaw, rig.spine2, rig.spine3, twistX, 1.0, leanFwd * 0.8, 0.92);
+
+      // ② 다리(Legs): 4단계 인간 보행 주기 (허벅지 교차 스윙 + 스윙 구간 무릎 굽힘 + 발목 롤링)
+      const lThighZ = wb * (sL * 0.38 + 0.04) + (1 - wb) * 0.02;
+      const lKneeBend = wb * (Math.max(0, cL) * 0.48 + 0.07) + (1 - wb) * 0.04;
+      aimBoneCharSpace(curYaw, rig.thighL, rig.calfL, 0.03, -0.94, lThighZ, 0.94);
+      aimBoneCharSpace(curYaw, rig.calfL, rig.footL, 0.02, -0.94, lThighZ * 0.32 - lKneeBend, 0.94);
+      if (rig.footL && rig.ballL) aimBoneCharSpace(curYaw, rig.footL, rig.ballL, 0.02, wb * (sL * 0.08) - 0.04, 0.24, 0.90);
+
+      const rThighZ = wb * (sR * 0.38 + 0.04) + (1 - wb) * (-0.02);
+      const rKneeBend = wb * (Math.max(0, cR) * 0.48 + 0.07) + (1 - wb) * 0.04;
+      aimBoneCharSpace(curYaw, rig.thighR, rig.calfR, -0.03, -0.94, rThighZ, 0.94);
+      aimBoneCharSpace(curYaw, rig.calfR, rig.footR, -0.02, -0.94, rThighZ * 0.32 - rKneeBend, 0.94);
+      if (rig.footR && rig.ballR) aimBoneCharSpace(curYaw, rig.footR, rig.ballR, -0.02, wb * (sR * 0.08) - 0.04, 0.24, 0.90);
+
+      // ③ 양팔(Arms): 좀비처럼 앞으로 나란히 들지 않고 몸통 옆으로 자연스럽게 내려 다리와 반대 위상으로 경쾌하게 스윙!
+      if (clipName.includes('radio')) {
+        // 무전기 교신 자세: 왼손을 어깨 무전기 쪽으로 자연스럽게 올림
+        aimBoneCharSpace(curYaw, rig.armL, rig.foreL, 0.22, -0.45, 0.38, 0.92);
+        aimBoneCharSpace(curYaw, rig.foreL, rig.handL, -0.18, 0.65, 0.32, 0.92);
+      } else {
+        // 자연스러운 왼팔 진자 스윙
+        const lArmZ = wb * (-sL * 0.32) + (1 - wb) * (breath * 0.02);
+        aimBoneCharSpace(curYaw, rig.armL, rig.foreL, 0.16, -0.92, lArmZ, 0.94);
+        aimBoneCharSpace(curYaw, rig.foreL, rig.handL, 0.12, -0.84, Math.max(0.06, lArmZ + 0.22), 0.94);
+      }
+      // 오른팔: 상완은 몸통 옆에 자연스럽게 내리고, 전완은 손전등을 들고 걸음에 맞춰 부드럽게 리듬 스윙
+      const rArmZ = wb * (sL * 0.18 + 0.08) + (1 - wb) * 0.08;
+      const torchAimY = clipName.includes('inspect') ? -0.52 : -0.36;
+      aimBoneCharSpace(curYaw, rig.armR, rig.foreR, -0.17, -0.90, rArmZ, 0.94);
+      aimBoneCharSpace(curYaw, rig.foreR, rig.handR, -0.08 + Math.sin(tNow * 1.6) * 0.06, torchAimY, 0.76, 0.94);
+    }
+
+    // ④ 시선 추적 IK (Smooth Head & Neck Look-At)
     let wantLookYaw = 0, wantLookPitch = 0;
     const g = typeof window !== 'undefined' ? window.__g : null;
     if (g && g.P && id !== 'jihun' && id !== 'seoyeon') {
@@ -545,41 +538,32 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
         relYaw = Math.atan2(Math.sin(relYaw), Math.cos(relYaw));
         if (Math.abs(relYaw) < 1.25) {
           wantLookYaw = Math.max(-0.52, Math.min(0.52, relYaw * 0.65));
-          wantLookPitch = Math.max(-0.18, Math.min(0.18, Math.sin(tNow * 2.0) * 0.02));
+          wantLookPitch = Math.max(-0.16, Math.min(0.16, Math.sin(tNow * 2.0) * 0.02));
         }
+      } else if (id === 'guard') {
+        wantLookYaw = Math.sin(tNow * 1.1) * 0.24;
+        wantLookPitch = Math.sin(tNow * 0.7) * 0.05;
       }
     }
     rig.lookYaw += (wantLookYaw - rig.lookYaw) * Math.min(1, dt * 6.5);
     rig.lookPitch += (wantLookPitch - rig.lookPitch) * Math.min(1, dt * 6.5);
 
     const a = rig.applied;
-    a.s1x = breath * 0.014;
-    a.s1z = sway * 0.010 + rig.turnLean * 0.4;
-    a.s2x = breath * 0.018;
-    a.s2y = isWalking ? Math.sin(tNow * 5.8) * 0.032 : 0;
-    a.s2z = rig.turnLean * 0.5;
-    a.clz = breath * 0.015;
-    a.crz = -breath * 0.015;
-    a.nx  = rig.lookPitch * 0.35 + breath * 0.008;
-    a.ny  = rig.lookYaw * 0.35;
-    a.hx  = rig.lookPitch * 0.65 - breath * 0.010;
-    a.hy  = rig.lookYaw * 0.65;
-    a.hz  = sway * 0.012;
+    a.nx = rig.lookPitch * 0.35 + breath * 0.008;
+    a.ny = rig.lookYaw * 0.35;
+    a.hx = rig.lookPitch * 0.65 - breath * 0.010;
+    a.hy = rig.lookYaw * 0.65;
+    a.hz = sway * 0.012;
 
-    if (rig.spine1) { rig.spine1.rotation.x += a.s1x; rig.spine1.rotation.z += a.s1z; }
-    if (rig.spine2) { rig.spine2.rotation.x += a.s2x; rig.spine2.rotation.y += a.s2y; rig.spine2.rotation.z += a.s2z; }
-    if (rig.clavL)  { rig.clavL.rotation.z += a.clz; }
-    if (rig.clavR)  { rig.clavR.rotation.z += a.crz; }
-    if (rig.neck)   { rig.neck.rotation.x += a.nx; rig.neck.rotation.y += a.ny; }
-    if (rig.head)   { rig.head.rotation.x += a.hx; rig.head.rotation.y += a.hy; rig.head.rotation.z += a.hz; }
+    if (rig.neck) { rig.neck.rotation.x += a.nx; rig.neck.rotation.y += a.ny; }
+    if (rig.head) { rig.head.rotation.x += a.hx; rig.head.rotation.y += a.hy; rig.head.rotation.z += a.hz; }
 
     if (id === 'guard' && holder.userData.torchFx && holder.userData.torchFx.visible) {
-      const sweep = Math.sin(tNow * 1.8) * 0.22;
+      const sweep = Math.sin(tNow * 1.8) * 0.20;
       holder.userData.torchFx.rotation.y = sweep;
-      holder.userData.torchFx.rotation.x = Math.sin(tNow * 1.1) * 0.07;
+      holder.userData.torchFx.rotation.x = Math.sin(tNow * 1.1) * 0.06;
     }
   }
-
   function update(dt) {
     if (!Number.isFinite(dt) || dt <= 0) return;
     const stepDt = Math.min(.067, dt);

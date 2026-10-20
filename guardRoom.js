@@ -59,7 +59,7 @@ function cloneModel(source, templates) {
     };
     node.material = Array.isArray(node.material) ? node.material.map(cloneMaterial) : cloneMaterial(node.material);
     const mats = Array.isArray(node.material) ? node.material : [node.material];
-    node.castShadow = node.receiveShadow = mats.every(m => !m.transparent && m.opacity >= 1);
+    node.castShadow = false; node.receiveShadow = mats.every(m => !m.transparent && m.opacity >= 1);
     node.matrixAutoUpdate = true;
   });
   return result;
@@ -166,7 +166,8 @@ export function installGuardRoom({ renderer, scene, camera, guardRoom, cctvTextu
         refs.lamp.userData.dynamic = true; refs.lamp.material = refs.lamp.material.clone(); refs.lamp.material.emissive.setHex(0xffe7ba);
       }
       refs.lamp.name = 'GUARDROOM_CEILING_LAMP'; if (!v6 || !refs.lamp.parent) { refs.lamp.position.set(1.75,2.475,-1.4); stage.add(refs.lamp); }
-      refs.light = new THREE.PointLight(0xffe7ba,0,5,2); refs.light.name='GUARDROOM_LOCAL_LIGHT';
+      // PointLight 추가 시 전체 씬 셰이더 재컴파일 렉이 발생하므로 셰이더 불변 더미 라이트 객체 사용
+      refs.light = new THREE.Object3D(); refs.light.name='GUARDROOM_LOCAL_LIGHT'; refs.light.intensity = 0;
       refs.light.position.set(1.75,2.2,-1.4); stage.add(refs.light);
       // Disable when parent already provides the room's roof. Nominal top remains 2.5m.
       if (guardRoom.ceilingCover !== false) {

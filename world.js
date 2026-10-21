@@ -4,11 +4,11 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { NOTES } from './story.js?v=183';
+import { NOTES } from './story.js?v=184';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=183';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=184';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -4777,6 +4777,7 @@ export function buildWorld(scene) {
     tileRoad(43.4, 46.0, 38.0, 57.5, true, false);       // 야외농구장 동편 ~ 제1주차장 연결 남북 인도
     tileRoad(69.4, 72.2, -51.5, 44.0, true, false);      // 동편 남북 종단 대로 (생태온실 ↔ 과학천문관 ↔ 1998 학우매점 ↔ 중앙학술정보관 대도서관 직결!)
     tileRoad(65.2, 69.4, -51.5, -48.5, false, true);     // 생물부 생태온실 진입 지선
+    tileRoad(39.6, 69.4, 3.6, 6.4, false, true);         // 본관 동관 아케이드(x=39.6) ↔ 동편 남북 대로(x=69.4) & 동편 학술광장 직결 중앙 동서 보행로!
     tileRoad(72.2, 74.0, -35.5, -32.5, false, true);     // 과학천문관 정문 진입 지선
     tileRoad(60.0, 69.4, 21.4, 24.2, false, true);       // 1998 구관 학우매점 전면 진입 지선
     tileRoad(72.2, 73.2, 37.5, 40.5, false, true);       // 중앙학술정보관(대도서관) 정문 진입 지선

@@ -131,6 +131,10 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
     [-9, -64, 0, '▲ [생태공원 섹션] 청운호 수변공원 · 호심정 팔각정'],
   ].forEach(([gx, gz, ry, title]) => {
     const ag = new THREE.Group(); ag.position.set(gx, 0, gz); ag.rotation.y = ry; ag.userData.dynamic = true; OUT.add(ag);
+    [-3.2, 3.2].forEach(ox => {
+      pbox(.42, 3.45, .42, stoneM, ox, 1.725, 0, ag);
+      pbox(.56, .32, .56, darkMetal, ox, .16, 0, ag);
+    });
     pbox(7.8, .42, .65, stoneM, 0, 3.45, 0, ag);
     pbox(6.4, .56, .14, darkMetal, 0, 3.85, 0, ag, { cast: false });
     pmesh(new THREE.PlaneGeometry(6.2, .48), new THREE.MeshBasicMaterial({ map: makeSign(title, '#162834', '#f2ead2', 20), side: THREE.DoubleSide }), 0, 3.85, .08, ag, { cast: false });
@@ -1009,12 +1013,8 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
     ]);
 
     // 5) [신규 극사실적 파손 가구·사물·콘크리트 블록 잔해·노후 외관 설비 .glb 4종] 캠퍼스 및 건물 빈 공간 적재적소 배치!
-    // ① 부러진 책걸상 바리케이드 (sf_broken_desk_barricade.glb)
+    // ① 부러진 책걸상 바리케이드 (보행로 및 별관 뒤쪽 통로를 절대 침범하지 않는 외곽 구석에만 배치!)
     placeGlb('assets/models/sf/sf_broken_desk_barricade.glb', [
-      [-34.5, 0, -10.6, 0.2, 1, 1, 1],
-      [ 34.5, 0, -10.6, -0.3, 1, 1, 1],
-      [-18.5, 0, -20.0, 0.4, 1, 1, 1],
-      [ 25.5, 0, -20.0, -0.2, 1, 1, 1],
       [-92.0, 0, -36.5, 0.5, 1, 1, 1],
       [-92.5, 0,  49.5, -0.4, 1, 1, 1],
       [ 89.5, 0,  45.5, 0.3, 1, 1, 1]
@@ -1023,16 +1023,11 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
     placeGlb('assets/models/sf/sf_dented_locker_set.glb', [
       [-89.0, 0, -48.5, 0, 1, 1, 1],
       [-89.0, 0,  35.5, 0, 1, 1, 1],
-      [ 89.0, 0, -41.5, 0, 1, 1, 1],
-      [ 60.5, 0,  14.3, Math.PI, 1, 1, 1]
+      [ 89.0, 0, -41.5, 0, 1, 1, 1]
     ]);
-    // ③ 깨진 콘크리트 블록 및 적벽돌 파편 더미 (sf_rubble_concrete_blocks.glb)
+    // ③ 깨진 콘크리트 블록 및 적벽돌 파편 더미 (보행로 및 별관 주변 침범 0건!)
     placeGlb('assets/models/sf/sf_rubble_concrete_blocks.glb', [
-      [-22.5, 0, -11.5, 0.4, 1, 1, 1],
-      [ 22.5, 0, -11.5, 1.2, 1, 1, 1],
       [-48.5, 0,  26.5, 0.8, 1, 1, 1],
-      [ 48.5, 0,  11.2, 2.1, 1, 1, 1],
-      [ 57.5, 0,  16.2, 0.5, 1, 1, 1],
       [-74.0, 0, -49.5, 1.7, 1, 1, 1],
       [ 73.5, 0,  48.5, 0.9, 1, 1, 1]
     ]);

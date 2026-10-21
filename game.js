@@ -6,19 +6,19 @@ import { createPsychologicalDirector, PHENOMENON_LABELS } from './psychologicalH
 import { settleStoryGhost, tickStoryGhost, showStoryGhost } from './storyGhost.js';
 import { GLTFLoader } from './vendor/addons/loaders/GLTFLoader.js';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { createNPCVisuals } from './npcVisuals.js?v=182';
-import { applyGuardSeatedPose } from './guardSeatedPose.js?v=182';
+import { createNPCVisuals } from './npcVisuals.js?v=183';
+import { applyGuardSeatedPose } from './guardSeatedPose.js?v=183';
 import { createCampusCctvLive, collectCampusCctvFeeds } from './campusCctvLive.js';
-import { applyExteriorFloorVisibility, shouldStreamGuardCctv } from './exteriorRenderBudget.js?v=182';
-import { GUARD_LAYOUT } from './guardRoomLayout.js?v=182';
-import { installGuardRoom } from './guardRoom.js?v=182';
+import { applyExteriorFloorVisibility, shouldStreamGuardCctv } from './exteriorRenderBudget.js?v=183';
+import { GUARD_LAYOUT } from './guardRoomLayout.js?v=183';
+import { installGuardRoom } from './guardRoom.js?v=183';
 import { prepareModelGeometry } from './modelGeometry.js';
 import { modelFootprint, overlaps, removeDuplicateModels } from './placement.js';
-import { turfMaterial } from './campusVisuals.js?v=182';
+import { turfMaterial } from './campusVisuals.js?v=183';
 import { installInfirmaryAssets, updateInfirmaryCabinets } from './infirmaryAssets.js';
-import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js?v=182'; import { updateWindowFakes } from './windowInteriors.js?v=182';
-import { drawMap } from './map.js?v=182';
-import { buildMegaCampus15000, MEGA_CAMPUS_ZONES } from './megaCampus15000.js?v=182';
+import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js?v=183'; import { updateWindowFakes } from './windowInteriors.js?v=183';
+import { drawMap } from './map.js?v=183';
+import { buildMegaCampus15000, MEGA_CAMPUS_ZONES } from './megaCampus15000.js?v=183';
 import { makeDress, makeHair, makeGhostFace, makeGraffiti, makeKeypad, loadPBR, pbr, makeGlow as makeGlowTex, makePaintingStare, makeSign, makeBlood } from './tex.js';
 import { warmUp } from './bake.js';
 import { createStaticDistanceLOD } from './staticDistanceLOD.js';
@@ -39,12 +39,12 @@ import './school37RoomsPatch.js';    // 본관 · 별관 37개 특별실 가구 
 import './new37UniquePatch.js';     // 37개 구역 신규 특수 설비 · 벽면 레일 (사용자 제공) → window.new37UniquePatch
 import './megaExpansionPatch.js';   // 메가 익스팬션 · 최적화 · 4막 사건 기록 · 수집품 · 미니게임 (사용자 제공) → window.megaSchoolPatch
 import './poolMachineryPatch.js';     // 수영장 · 남/녀 탈의실·샤워실 · 기계실 철문 (사용자 제공) → window.poolAndMachineryPatch
-import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx } from './audio.js?v=182'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=182'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera } from './perfStabilizer.js?v=182';
-import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js?v=182';
-import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, SIDEQUESTS, HEADQUEST, COLLECT, LOCKER_SCARES, CHALK_QA, OUIJA_QS, PARA, TOILET_FX, MIRROR_WORDS } from './story.js?v=182';
+import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx } from './audio.js?v=183'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=183'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera } from './perfStabilizer.js?v=183';
+import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js?v=183';
+import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, SIDEQUESTS, HEADQUEST, COLLECT, LOCKER_SCARES, CHALK_QA, OUIJA_QS, PARA, TOILET_FX, MIRROR_WORDS } from './story.js?v=183';
 import { isSpeechBusy } from './voice.js';
 import { SET, saveSET, resetSET, DIFF, keyLabel } from './settings.js';
-import { initI18n, setLang, lang as curLang } from './i18n.js?v=182';   // 언어 패치 (한국어 · English · 日本語 · 中文)
+import { initI18n, setLang, lang as curLang } from './i18n.js?v=183';   // 언어 패치 (한국어 · English · 日本語 · 中文)
 initI18n();
 const K = () => SET.keys;
 let guardRoomController = null, guardControlProps = [], guardCctvData = null, campusCctv = null;
@@ -60,7 +60,7 @@ function syncGuardDevices() {
 function toggleGuardCCTV(persist = true) { FL.guardCctvOn = !(FL.guardCctvOn ?? true); sfx.click(); syncGuardDevices(); if (persist) save(true); return FL.guardCctvOn; }
 function toggleGuardLight() { FL.guardLightOn = !(FL.guardLightOn ?? false); sfx.click(); syncGuardDevices(); say(FL.guardLightOn ? '경비실 전등을 켰다' : '경비실 전등을 껐다', 1800); save(true); return FL.guardLightOn; }
 
-import { run as runMini, MG } from './minigames.js?v=182';
+import { run as runMini, MG } from './minigames.js?v=183';
 import { SCHEMA, BUILD, storageKeys, itemUid, propUid, doorUid, assignUids, readSlot, writeSlot, hasSlot, clearSlot, repairProgress } from './saveSystem.js';
 const NOTE_CAST = {
   n_seomun_ilbo: { spk: 'reporter', audioId: 'call_119', stage: '(📰 서문일보 사회부 한진우 기자의 긴급 특보 리포팅)' },
@@ -2753,7 +2753,7 @@ function ensureCharsel3D() {
     const rim = new THREE.DirectionalLight(0xffd6e0, 0.85); rim.position.set(0, 2.4, -2.5);
     sc.add(hemi, key, fill, rim);
     st.scenes[k] = sc;
-    loader.load(`assets/characters/${k}.glb?v=182`, gltf => {
+    loader.load(`assets/characters/${k}.glb?v=183`, gltf => {
       const m = gltf.scene;
       npcVisuals.enhanceCharacterMaterials?.(m, k);
       m.traverse(o => { if (o.isMesh || o.isSkinnedMesh) o.frustumCulled = false; });
@@ -5499,7 +5499,7 @@ function toiletTick(f, room, step) {
   if (state !== 'playing' || (ghost.active && ghost.floor === f && (ghost.state === 'chase' || ghost.hunt))) return;
   TE.t -= step; if (TE.t > 0) return;
   TE.t = 20 + Math.random() * 20;
-  const fem = (room.south || f === 2) && !(f === 8 || f === 10);   // 여자화장실에서만 3번 칸 실내화 · 빨간 휴지 파란 휴지
+  const fem = room.name?.includes('남자') ? false : room.name?.includes('여자') ? true : (room.south || f === 2) && !(f === 8 || f === 10);   // 여자화장실에서만 3번 칸 실내화 · 빨간 휴지 파란 휴지
   const ks = Object.keys(TOILET_FX).filter(k => fem || k !== 'shoes').concat(FL.redblue || !fem ? [] : ['tissue', 'tissue']).filter(k => !TE.last.includes(k));
   const k = ks[(Math.random() * ks.length) | 0]; TE.last.push(k); if (TE.last.length > 3) TE.last.shift();
   toiletFx(k, f, room);
@@ -5621,7 +5621,7 @@ function camShoot() {
 const PHOTOQ = [
   { f: 0, x: -10.2, z: 17.2, r: 7, hint: '운동장 조회대 — 10년 전 아침 조회 사진과 같은 자리', where: '운동장 조회대', ok: '찰칵 — 화면 속 조회대 위에 마이크를 든 여자아이가 겹쳐 찍혔다' },
   { f: 0, x: -10.4, z: -8.6, r: 5, hint: '교무실 금고 앞 — “선생님들이 숨긴 것”', where: '본관 1층 교무실', ok: '찰칵 — 금고 문틈에서 새어 나온 빛이 사진에만 남았다. 누군가 안쪽에서 문을 미는 손자국' },
-  { f: 2, x: 34.2, z: -6.6, r: 5, hint: '음악실 피아노 — 반주 연습하던 자리', where: '본관 3층 음악실', ok: '찰칵 — 피아노 의자에 앉은 뒷모습. 셔터 소리에 맞춰 건반 하나가 저절로 눌렸다', col: 'c21' },
+  { f: 10, x: -5.8, z: -6.6, r: 5, hint: '별관 3층 음악실 피아노 — 반주 연습하던 자리', where: '별관 3층 음악실', ok: '찰칵 — 피아노 의자에 앉은 뒷모습. 셔터 소리에 맞춰 건반 하나가 저절로 눌렸다', col: 'c21' },
   { f: 1, x: -.4, z: -15.2, r: 5, hint: '본관 ↔ 별관 2층 구름다리 — 증기 배관이 지나는 곳', where: '2층 연결 구름다리', ok: '찰칵 — 김 서린 유리창에 손가락으로 쓴 글씨가 떠올랐다: “나 여기 있었어”' },
   { f: 6, x: -41.5, z: 46.4, r: 6, hint: '수영장 배수구 — 물이 빠지지 않는 곳', where: '수영장', ok: '찰칵 — 수면 아래에서 누군가 렌즈를 올려다보고 있다. 물결이 없는데도 사진이 흔들렸다' },
   { f: 3, x: 14.5, z: 4.6, r: 7, hint: '옥상 발전기 옆 — 마지막 롤', where: '옥상', ok: '찰칵 — 노을 진 옥상, 세 아이가 웃고 있다. 그리고 사진 가장자리에서, 네 번째 아이가 손을 흔든다', col: 'c22' },
@@ -7118,10 +7118,10 @@ const SG = { ready: false, sheet: false, list: [], spawned: false };
 const SG_ZONES = [
   { id: 'sg_class', ch: [2, 2], aggro: false, f: 2, x: -9.5, z: -5.6, outfit: 'default_uniform', exp: 'blank', anim: 'idle', prop: 'sketchbook', beh: 'haunt', line: '다들... 여기 있어... 내 자리 지우지 마...' },
   { id: 'sg_corr', ch: [3, 3], aggro: false, f: 1, x: 14, z: 0, outfit: 'white_dress', exp: 'empty', anim: 'float', prop: null, beh: 'patrol', line: '집에 갈 시간이 지났는데...' },
-  { id: 'sg_toilet', ch: [1, 1], aggro: false, f: 0, x: -30.6, z: -3.4, outfit: 'bloody_uniform', exp: 'crying', anim: 'behind_you', prop: null, beh: 'mirror', line: '거울 속에... 내가 안 보여...' },
+  { id: 'sg_toilet', ch: [1, 3], aggro: false, f: 0, x: -30.6, z: -3.4, outfit: 'bloody_uniform', exp: 'crying', anim: 'behind_you', prop: null, beh: 'mirror', line: '거울 속에... 내가 안 보여...' },
   { id: 'sg_stairs', ch: [4, 5], aggro: true, f: 1, x: 1.6, z: -6.2, outfit: 'old_uniform', exp: 'sad', anim: 'idle', prop: null, beh: 'stairs_ambush', line: '위층엔... 아무도 없어...' },
-  { id: 'sg_art', ch: [3, 3], aggro: false, f: 2, x: 25.5, z: -7.4, outfit: 'art_apron', exp: 'blank', anim: 'idle', prop: 'palette', beh: 'art_event', line: '빨간색이... 아직 부족해...' },
-  { id: 'sg_music', ch: [3, 4], aggro: false, f: 2, x: 30.6, z: -7.8, outfit: 'umbrella_girl', exp: 'sad', anim: 'idle', prop: 'doll', beh: 'haunt', line: '피아노... 같이 칠래...?' },
+  { id: 'sg_art', ch: [3, 4], aggro: false, f: 10, x: 1.5, z: -7.4, outfit: 'art_apron', exp: 'blank', anim: 'idle', prop: 'palette', beh: 'art_event', line: '빨간색이... 아직 부족해...' },
+  { id: 'sg_music', ch: [3, 4], aggro: false, f: 10, x: -7.4, z: -7.8, outfit: 'umbrella_girl', exp: 'sad', anim: 'idle', prop: 'doll', beh: 'haunt', line: '피아노... 같이 칠래...?' },
   { id: 'sg_gym', ch: [3, 4], aggro: false, f: 5, x: 34, z: 26, outfit: 'gym_suit', exp: 'empty', anim: 'idle', prop: 'schoolbag', beh: 'haunt', line: '체육 시간... 끝났어...?' },
   { id: 'sg_roof', ch: [5, 6], aggro: false, f: 3, x: -10, z: -7.5, outfit: 'rooftop_suicide', exp: 'sad', anim: 'idle', prop: 'umbrella', beh: 'haunt', line: '아래에서... 누가 내 이름을 불렀어...' },
   { id: 'sg_pool', ch: [5, 5], aggro: false, f: 6, x: -43, z: 30.9, outfit: 'white_dress', exp: 'sad', anim: 'idle', prop: null, beh: 'haunt', line: '물이... 아직도 차가워...' },   // 3D 모델 전용 (사용자 제공 수영장 유령)
@@ -8027,13 +8027,13 @@ function megaNotify(m) { const t = String(m).split('\n'); say(t[0].replace(/^\S+
     world.props.push({ kind: 'robj', k: 'bunker_light', t: 'bunker', floor: 4, x: bx + 1.15, z: z1 - .85, y: 1.35, r: 2.0, label: '방공호 주 전등 스위치 조작하기', bkLightGroup });
     {
       const bLoader = new GLTFLoader();
-      bLoader.load('assets/models/sf/sf_bunker_props_pack.glb?v=182', gltf => {
+      bLoader.load('assets/models/sf/sf_bunker_props_pack.glb?v=183', gltf => {
         const bm = gltf.scene; bm.position.set(bx, 0, z0 + .45);
         if (window.__upgradePure3DScene) window.__upgradePure3DScene(bm); else bm.traverse(o => { o.userData.dynamic = true; });
         R.add(bm);
         if (gltf.animations && gltf.animations.length) { const mx = new THREE.AnimationMixer(bm); mx.userData = { floor: 4, x: bx, z: z0 + .45 }; gltf.animations.forEach(c => mx.clipAction(c).play()); (window.__campusAnimMixers ||= []).push(mx); }
       }, undefined, () => {});
-      bLoader.load('assets/models/sf/sf_pump_policeline_scene.glb?v=182', gltf => {
+      bLoader.load('assets/models/sf/sf_pump_policeline_scene.glb?v=183', gltf => {
         const pm = gltf.scene; pm.position.set(24.0, 0, -3.65);
         pm.traverse(o => { o.userData.dynamic = true; if (o.isMesh) { o.castShadow = false; o.receiveShadow = true; if (o.material?.map) o.material.map.colorSpace = THREE.SRGBColorSpace; } });
         R.add(pm);
@@ -8247,7 +8247,7 @@ const TP = [
   ['구역: 경비실', { floor: 0, x: GUARD_LAYOUT.cx, z: GUARD_LAYOUT.cz + .6, yaw: 0 }], ['구역: 운동장 조회대', { floor: 0, x: -10.2, z: 16.2, yaw: 0 }], ['구역: 과학실 (본관 2층)', { floor: 1, x: 32, z: -2.6, yaw: 0 }],
   ['구역: 급식실 조리실', { floor: 7, x: -33.5, z: 11.6, yaw: Math.PI / 2 }], ['구역: 옥상 발전기', { floor: 3, x: 14.5, z: 5.2, yaw: -Math.PI / 2 }], ['실내 연결복도', { floor: 0, x: 1.6, z: -11.0, yaw: 0 }], ['B1 전기실 (고압 분전반)', { floor: 4, x: -15.4, z: -3.0, yaw: 0 }], ['B1 보일러실', { floor: 4, x: -21.5, z: -2.6, yaw: 0 }], ['수영장 수조 (청록 수중등)', { floor: 6, x: -36.6, z: 32.6, yaw: Math.PI * .75 }], ['남/녀 탈의실·샤워실 입구', { floor: 6, x: -41.0, z: 34.0, yaw: 0 }], ['기계실 철문', { floor: 6, x: -40.0, z: 47.6, yaw: Math.PI }], ...S37_TP(),
   ['교무실 금고', { floor: 0, x: -10.4, z: -8.0, yaw: Math.PI / 2 }], ['도서실 서랍 (자물쇠 따기)', { floor: 0, x: 32.6, z: -7.4, yaw: 0 }], ['과학실 약품장 (다이얼)', { floor: 1, x: 31, z: -4.8, yaw: Math.PI / 2 }],
-  ['체육관 기구함 (다이얼)', { floor: 5, x: 30.6, z: 20.6, yaw: Math.PI / 2 }], ['수영장 배수구 (갈고리)', { floor: 6, x: -41.5, z: 46.9, yaw: 0 }], ['음악실 피아노', { floor: 2, x: 34.2, z: -6.2, yaw: 0 }], ['미술실 그림 퍼즐', { floor: 2, x: 25, z: -4.6, yaw: 0 }], ['보건실 녹음기', { floor: 0, x: -26.4, z: -4.6, yaw: Math.PI / 2 }], ['B1 전기실', { floor: 4, x: -16, z: -4, yaw: Math.PI / 2 }], ['3-3 교실', { floor: 2, x: -8, z: -3, yaw: 0 }], ['음악실', { floor: 2, x: 32, z: -3, yaw: 0 }],
+  ['체육관 기구함 (다이얼)', { floor: 5, x: 30.6, z: 20.6, yaw: Math.PI / 2 }], ['수영장 배수구 (갈고리)', { floor: 6, x: -41.5, z: 46.9, yaw: 0 }], ['음악실 피아노', { floor: 10, x: -6.2, z: -6.2, yaw: 0 }], ['미술실 그림 퍼즐', { floor: 10, x: -1.2, z: -4.6, yaw: 0 }], ['보건실 녹음기', { floor: 0, x: -5.6, z: 4.6, yaw: -Math.PI / 2 }], ['B1 전기실', { floor: 4, x: -16, z: -4, yaw: Math.PI / 2 }], ['3-3 교실', { floor: 2, x: -8, z: -3, yaw: 0 }], ['음악실', { floor: 10, x: -8, z: -3, yaw: 0 }],
 ];
 function testAct(fn) { closeUI(); setTimeout(fn, 60); }
 function renderTest() {

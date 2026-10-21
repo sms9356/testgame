@@ -4,11 +4,11 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { NOTES } from './story.js?v=186';
+import { NOTES } from './story.js?v=187';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=186';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=187';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -4739,9 +4739,11 @@ export function buildWorld(scene) {
     });
   });
   // ── 캠퍼스 전역 보도블록 · 판석 타일 인도 네트워크 (서쪽 끝 외곽 서문 x=-114, z=55.6 직결 및 전 캠퍼스 100% 연결 · 건물 침범 0건!) ──
+  const ROAD_RECTS = [];
   {
     const curbG = [];
     const tileRoad = (x1, x2, z1, z2, curbW = true, curbZ = false) => {
+      ROAD_RECTS.push([x1 - .55, x2 + .55, z1 - .55, z2 + .55]);
       flat(OUT, pave, x1, x2, z1, z2, .012, 3);
       if (curbW) { curbG.push(bx(.16, .08, z2 - z1, x1 - .08, .04, (z1 + z2) / 2, 2), bx(.16, .08, z2 - z1, x2 + .08, .04, (z1 + z2) / 2, 2)); }
       if (curbZ) { curbG.push(bx(x2 - x1, .08, .16, (x1 + x2) / 2, .04, z1 - .08, 2), bx(x2 - x1, .08, .16, (x1 + x2) / 2, .04, z2 + .08, 2)); }
@@ -5025,7 +5027,7 @@ export function buildWorld(scene) {
 
 
   // 나무: 건물/길을 피해서 배치, 울퉁불퉁한 수관 + 개체별 색 변화
-  const BLOCK = [[GUARD_LAYOUT.originX - 1.4, GUARD_LAYOUT.originX + GUARD_LAYOUT.width + 1.4, GUARD_LAYOUT.originZ - GUARD_LAYOUT.depth - 1.4, GUARD_LAYOUT.originZ + 1.4], [-22.5, -17.5, 62.2, 65.8], [-1.8, 3.8, WALKWAY.z1 - .1, -9.8], [-37.5, 37.5, -11, 11.5], [-28.5, 28.5, -32.4, WALKWAY.z1 + 1], [MEGA.gym.x - MEGA.gym.w / 2 - 1.5, MEGA.gym.x + MEGA.gym.w / 2 + 1.5, MEGA.gym.z - MEGA.gym.d / 2 - 1.5, MEGA.gym.z + MEGA.gym.d / 2 + 3.5], [MEGA.court.x - MEGA.court.w / 2 - .5, MEGA.court.x + MEGA.court.w / 2 + .5, MEGA.court.z - MEGA.court.d / 2 - .5, MEGA.court.z + MEGA.court.d / 2 + .5], [26.5, 49.5, 11, 36], [-49.5, -28.5, 11, 26.5], [-49.5, -32.5, 29.5, 52.5], [-5, 5, 60, 72], [-17, 17, 1.5, 12]];
+  const BLOCK = [...ROAD_RECTS, [-46.2, -36.0, -9.5, 9.5], [36.0, 46.2, -9.5, 9.5], [30.2, 39.8, -53.5, -39.5], [-36.5, -28.0, -32.5, -17.0], [GUARD_LAYOUT.originX - 1.4, GUARD_LAYOUT.originX + GUARD_LAYOUT.width + 1.4, GUARD_LAYOUT.originZ - GUARD_LAYOUT.depth - 1.4, GUARD_LAYOUT.originZ + 1.4], [-22.5, -17.5, 62.2, 65.8], [-5.8, 6.8, WALKWAY.z1 - .2, -9.6], [-37.5, 37.5, -11, 11.5], [-28.5, 28.5, -32.4, WALKWAY.z1 + 1], [MEGA.gym.x - MEGA.gym.w / 2 - 1.5, MEGA.gym.x + MEGA.gym.w / 2 + 1.5, MEGA.gym.z - MEGA.gym.d / 2 - 1.5, MEGA.gym.z + MEGA.gym.d / 2 + 3.5], [MEGA.court.x - MEGA.court.w / 2 - .5, MEGA.court.x + MEGA.court.w / 2 + .5, MEGA.court.z - MEGA.court.d / 2 - .5, MEGA.court.z + MEGA.court.d / 2 + .5], [26.5, 49.5, 11, 36], [-49.5, -28.5, 11, 26.5], [-49.5, -32.5, 29.5, 52.5], [-5, 5, 60, 72], [-17, 17, 1.5, 12]];
   const blocked = (x, z, m = 0) => BLOCK.some(([a, b2, c, d]) => x > a - m && x < b2 + m && z > c - m && z < d + m);
   const trunkG = merge([new THREE.CylinderGeometry(.16, .3, 3.4, 7).translate(0, 1.7, 0), tube(.07, 0, 2.2, 0, .9, 3.4, .3), tube(.06, 0, 2.6, 0, -.7, 3.7, -.4)]);
   const lump = (r, x, y, z) => {

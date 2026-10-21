@@ -4,11 +4,11 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { NOTES } from './story.js?v=189';
+import { NOTES } from './story.js?v=190';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=189';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=190';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -2091,7 +2091,7 @@ export function buildWorld(scene) {
     else flat(cur.interior, mCeil, cx - 4, cx + 4, -9.6, -1.75, CH, 4, false);
     if (hasDown) { liner(-(FH - CH), 0); core(-FH, false, false); room(-FH); floorPiece(cx - 4, cx + 4, -9.6, -1.75, -FH); }
     if (!hasUp) {
-      col(cx - 3.85, cx - 2.45, z0 - .15, z0 + .15);
+      col(cx - 3.85, cx - 2.45, -9.6, z0 + .15);
     }
     if (cur.stairCx == null) cur.stairCx = cx;
     col(cx - 2.56, cx - 2.44, -7.7, z0 + .1); col(cx - 1.25, cx - 1.15, -9.6, z0 + .1);

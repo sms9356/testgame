@@ -4,11 +4,11 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { NOTES } from './story.js?v=182';
+import { NOTES } from './story.js?v=183';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=182';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=183';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -1398,7 +1398,7 @@ export function buildWorld(scene) {
       g.strokeStyle = 'rgba(40,34,28,.75)'; g.lineWidth = 2.5; g.beginPath(); g.ellipse(250, 400, 90, 120, 0, 0, 7); g.stroke(); g.beginPath(); g.moveTo(130, 600); g.quadraticCurveTo(250, 500, 370, 600); g.stroke();
       for (let i = 0; i < 80; i++) { g.lineWidth = .7; g.beginPath(); const x = 160 + rnd() * 180, y = 290 + rnd() * 230; g.moveTo(x, y); g.lineTo(x + 8, y + 12); g.stroke(); }
       g.fillStyle = '#3a2a22'; g.font = '24px serif'; g.fillText('예술은,', 40, 230); g.fillText('언젠가 다시 피어나니까.', 40, 262);
-      g.fillStyle = 'rgba(90,60,30,.25)'; g.fillRect(0, h - 40, w, 40); g.fillStyle = '#2a2420'; g.font = '18px sans-serif'; g.fillText('1 9 9 9 . 1 0 . 1 2  ·  본관 3층 미술실', 40, h - 14);
+      g.fillStyle = 'rgba(90,60,30,.25)'; g.fillRect(0, h - 40, w, 40); g.fillStyle = '#2a2420'; g.font = '18px sans-serif'; g.fillText('1 9 9 8 . 1 0 . 1 2  ·  별관 3층 미술실', 40, h - 14);
       g.fillStyle = 'rgba(60,40,20,.35)'; g.beginPath(); g.moveTo(w, 0); g.lineTo(w - 70, 0); g.lineTo(w, 90); g.fill();
     });
     // 바닥 물감 얼룩 데칼 · 팔레트 · 앞치마
@@ -1652,47 +1652,84 @@ export function buildWorld(scene) {
       const gm = new THREE.MeshBasicMaterial({ map: T.makeGraffiti(txt, colr), transparent: true, depthWrite: false, opacity: .8 }); plane(cur.interior, gm, .7, .175, xs(i + 1) - .02, 1.35, -8.6 + rr(-.3, .3), -Math.PI / 2);
     }
     { const r = meshAt(rollG, mPaperRoll, xs(1) + .4, .055, -8.0); r.rotation.y = .6; const st = plane(cur.interior, mPaperRoll, .1, .9, xs(1) + .65, .008, -7.45, 0, -Math.PI / 2); st.rotation.z = .5; }
-    // ── 소변기 4 (서벽) + 가림판 + 바닥 단 ──
+    // ── 화장실 보강 ①: 입구 에티켓 시선차단 타일 가벽 & 전신 거울(WC-004) & 화장실 문화 캠페인 액자 ──
+    {
+      const px = cx - 1.15, pz = Z1 - .82;
+      add(mTWall, .12, 1.95, .78, px, 0, pz);
+      add(mTBand, .13, .14, .80, px, 1.82, pz);
+      add(mAlu,   .14, 2.02, .05, px, 0, pz - .40);
+      model('h133/WC-004', px + .07, .85, pz, Math.PI / 2);
+      plane(cur.interior, new THREE.MeshStandardMaterial({ map: T.makeSign(G === 'm' ? '남자화장실 · 금연구역' : '여자화장실 · 에티켓존', G === 'm' ? '#1a3858' : '#582032', '#f2eee4', 22), roughness: .5 }), .62, .18, px + .065, 1.68, pz, Math.PI / 2);
+    }
+    // 칸막이 부스 상단 간접 조명 바 & 칸막이 옆 다용도 수납 선반 보강
+    add(new THREE.MeshStandardMaterial({ color: 0xf6f2e4, emissive: 0xffe8b8, emissiveIntensity: .85 }), xs(N) - X0 - .1, .03, .06, (X0 + xs(N)) / 2, 2.38, -8.65);
+    // ── 소변기 3 (서벽) + 강화유리 가림판 + 상부 대리석 선반 + 적외선 센서 / 여자화장실 파우더룸 화장대 보강 ──
     const UZ = G === 'm' ? [-5.9, -5.0, -4.1] : [];   // 남자화장실만 소변기 3 (1번 칸 문 앞 1m 를 비운다)
-    if (G === 'm') { add(mTFloor, .5, .05, 2.8, X0 + .25, 0, -5.0); col(X0, X0 + .5, -6.35, -3.65);
+    if (G === 'm') {
+      add(mTFloor, .52, .06, 2.86, X0 + .26, 0, -5.0); col(X0, X0 + .5, -6.35, -3.65);
+      // 소변기 상부 화강암 선반 (우산·소지품 거치 선반)
+      add(S(null, { color: 0x8a8e92, roughness: .35, metalness: .15 }), .26, .04, 2.82, X0 + .13, 1.36, -5.0);
       meshAt(new THREE.CircleGeometry(.11, 14).scale(1, 1.5, 1), S(null, { color: 0x14100a, roughness: .05 }), X0 + .12, .55, UZ[1], Math.PI / 2);   // 막힌 가운데 소변기: 검은 오물
-      props.push({ kind: 'search', floor: cur.f, x: X0 + .2, z: UZ[1], y: .8, label: '막힌 소변기 뒤지기', loot: { item: 'tape' }, where: '화장실', id: 'urinal' }); }
-    else {   // 여자화장실 서벽: 파우더 거울 · 선반 · 위생용품 자판기
+      props.push({ kind: 'search', floor: cur.f, x: X0 + .2, z: UZ[1], y: .8, label: '막힌 소변기 뒤지기', loot: { item: 'tape' }, where: '화장실', id: 'urinal' });
+    } else {   // 여자화장실 서벽: 파우더룸 화장대 + 3D 거울(WC-004) 2기 + 간접조명 + 위생용품 자판기 + 전신거울
       add(mAlu, .03, .86, 1.7, X0 + .015, 1.1, -5.2); plane(cur.interior, mMirrorT, 1.62, .8, X0 + .035, 1.53, -5.2, Math.PI / 2);
+      model('h133/WC-004', X0 + .04, .95, -5.65, Math.PI / 2);
+      model('h133/WC-004', X0 + .04, .95, -4.75, Math.PI / 2);
+      add(new THREE.MeshStandardMaterial({ color: 0xfff0e0, emissive: 0xffd0a8, emissiveIntensity: .95 }), .04, .04, 1.68, X0 + .05, 2.02, -5.2);
       tbl(mWood, 1.6, .74, .4, X0 + .2, 0, -5.2, { col: true, ry: Math.PI / 2, legMat: mAlu });
-      add(S(null, { color: 0xe8e2d6, roughness: .4 }), .2, .45, .32, X0 + .1, 1.0, -3.3); plane(cur.interior, new THREE.MeshStandardMaterial({ map: T.makeSign('위생용품', '#f0e8e8', '#a03050', 22), roughness: .6 }), .26, .07, X0 + .205, 1.36, -3.3, Math.PI / 2); col(X0, X0 + .3, -3.5, -3.1); }
+      // 파우더룸 화장대 위 각티슈 케이스 & 핸드워시
+      add(S(null, { color: 0xf4e8ec, roughness: .5 }), .14, .08, .24, X0 + .22, .74, -5.45);
+      add(S(null, { color: 0xffffff, roughness: .8 }), .08, .05, .14, X0 + .22, .82, -5.45);
+      add(S(null, { color: 0xe8e2d6, roughness: .4 }), .2, .45, .32, X0 + .1, 1.0, -3.3);
+      plane(cur.interior, new THREE.MeshStandardMaterial({ map: T.makeSign('위생용품', '#f0e8e8', '#a03050', 22), roughness: .6 }), .26, .07, X0 + .205, 1.36, -3.3, Math.PI / 2);
+      col(X0, X0 + .3, -3.5, -3.1);
+    }
     UZ.forEach((z, i) => {
       meshAt(urinal2G, mPorc, X0, 0, z, Math.PI / 2); meshAt(new THREE.CircleGeometry(.03, 10), mTap, X0 + .13, .5, z, Math.PI / 2); meshAt(flushG, mTap, X0, 0, z, Math.PI / 2);
+      // 자동 감지 센서 박스
+      add(mDarkMetal, .03, .08, .08, X0 + .02, 1.28, z);
       meshAt(tube(.018, .0, .45, 0, -.06, .45, 0), mAlu, X0 + .06, 0, z);
       plane(cur.interior, mStainU, .6, .6, X0 + .7, .009, z + rr(-.1, .1), 0, -Math.PI / 2);
-      if (i < UZ.length - 1) add(mStall, .48, .8, .03, X0 + .24, .45, z + .45);
+      if (i < UZ.length - 1) add(mStall, .52, .92, .035, X0 + .26, .45, z + .45);
     });
-    if (G === 'm') plane(cur.interior, new THREE.MeshStandardMaterial({ map: T.makeSign('한 걸음 앞으로', '#e8e4d0', '#1a4a8a', 26), roughness: .7 }), .4, .1, X0 + .015, 1.62, -5.0, Math.PI / 2);
-    // ── 세면대 4 + 긴 거울 (동벽) ──
+    if (G === 'm') plane(cur.interior, new THREE.MeshStandardMaterial({ map: T.makeSign('한 걸음 앞으로 · 아름다운 화장실 문화', '#e8e4d0', '#1a4a8a', 22), roughness: .7 }), .58, .12, X0 + .015, 1.66, -5.0, Math.PI / 2);
+    // ── 세면대 4 + 화강암 일체형 카운터 상판 + 3D 세면기(WC-001) + 대형 거울 & 상부 간접조명 (동벽) ──
     const SZ = [-6.9, -6.0, -5.1, -4.2];
+    // 화강암 세면대 일체형 카운터 상판 & 하부 에이프런 가림막
+    add(S(null, { color: 0x7a8084, roughness: .32, metalness: .18 }), .52, .06, 3.46, X1 - .26, .80, -5.55);
+    add(S(null, { color: 0x5c6266, roughness: .45, metalness: .12 }), .04, .24, 3.46, X1 - .50, .62, -5.55);
     SZ.forEach((z, i) => {
       const bwl = meshAt(basinG, mPorc, X1 - .26, .86, z); bwl.material = mPorc;
+      model('h133/WC-001', X1 - .26, 0, z, -Math.PI / 2, { s: .84 });
       meshAt(new THREE.CircleGeometry(.03, 10).rotateX(-Math.PI / 2), mChrome, X1 - .26, .775, z);
       meshAt(tapG, mTap, X1 - .08, .9, z, -Math.PI / 2); props.push({ kind: 'sink', floor: cur.f, x: X1 - .3, z, y: .95, sinkNo: i, label: '세면대 수도꼭지 틀기 (세수 · 물소리로 유인)' });
       meshAt(trapG, mTap, X1 - .26, .76, z, -Math.PI / 2);
       add(mAlu, .3, .04, .04, X1 - .15, .74, z);   // 받침 브래킷
-      if (i === 1) meshAt(new THREE.CylinderGeometry(.03, .03, .12, 10).translate(0, .06, 0), S(null, { color: 0x2a7a4a, roughness: .3 }), X1 - .07, 1.112, z + .45);   // 물비누
+      // 세면대 사이 물비누 디스펜서 & 고체 비누 받침
+      if (i < 3) {
+        meshAt(new THREE.CylinderGeometry(.032, .032, .13, 10).translate(0, .065, 0), S(null, { color: i % 2 ? 0x2a7a4a : 0x3a6a9a, roughness: .28 }), X1 - .08, 1.112, z + .45);
+      }
     });
     col(X1 - .55, X1, -7.3, -3.85);
     add(mAlu, .03, 1.06, 3.5, X1 - .015, 1.12, -5.55);   // 거울 틀
     plane(cur.interior, mMirrorT, 3.42, 1.0, X1 - .035, 1.65, -5.55, -Math.PI / 2);
+    // 세면대 거울 상부 간접조명 바 (거울과 세면대가 환하고 입체감 있게 보이도록 보강!)
+    add(new THREE.MeshStandardMaterial({ color: 0xf8f4e8, emissive: 0xffe4b0, emissiveIntensity: 1.05 }), .05, .04, 3.48, X1 - .05, 2.20, -5.55);
     add(new THREE.MeshStandardMaterial({ color: 0xbfd0cc, roughness: .05, transparent: true, opacity: .35 }), .12, .012, 3.3, X1 - .09, 1.1, -5.55);   // 유리 선반
-    plane(cur.interior, new THREE.MeshStandardMaterial({ map: T.makeSign('물을 아껴 씁시다', '#e8e4d0', '#2a2a2a', 26), roughness: .7 }), .55, .12, X1 - .02, 2.28, -5.55, -Math.PI / 2);
-    // 핸드 드라이어 · 페이퍼타월 · 휴지통 (동벽 복도 쪽)
-    add(S(null, { color: 0xd8d4c8, roughness: .4 }), .12, .28, .26, X1 - .07, 1.15, -3.2);
+    plane(cur.interior, new THREE.MeshStandardMaterial({ map: T.makeSign('물을 아껴 씁시다 · 깨끗한 손씻기', '#e8e4d0', '#2a2a2a', 24), roughness: .7 }), .68, .13, X1 - .02, 2.34, -5.55, -Math.PI / 2);
+    // 핸드 드라이어(전원 표시등) · 페이퍼타월 디스펜서 · 분리수거 휴지통 (동벽 복도 쪽)
+    add(S(null, { color: 0xd8d4c8, roughness: .35 }), .14, .30, .28, X1 - .07, 1.15, -3.2);
+    plane(cur.interior, new THREE.MeshBasicMaterial({ color: 0x30ff88 }), .02, .04, X1 - .142, 1.36, -3.2, -Math.PI / 2);
     meshAt(new THREE.CylinderGeometry(.03, .04, .06, 10), mChrome, X1 - .15, 1.13, -3.2);
     add(S(null, { color: 0xc8c4b8, roughness: .5 }), .14, .38, .3, X1 - .08, 1.2, -2.5);
     bin(X1 - .3, -2.5); col(X1 - .5, X1, -2.75, -2.25);
-    // ── 북동 청소 구역: 청소용 개수대 · 선반 · 대걸레 양동이 · 미끄럼 주의 표지 ──
+    // ── 북동 청소 구역: 청소용 개수대 · 대걸레(WC-007) 2자루 · 선반 · 양동이 · 미끄럼 주의 표지 ──
     add(mTWall, .7, .42, .55, X1 - .4, 0, Z0 + .3); add(mPorcIn, .6, .004, .45, X1 - .4, .421, Z0 + .3);
     meshAt(tapG, mTap, X1 - .4, .78, Z0 + .03);
     meshAt(tube(.016, X1 - .4, .78, Z0 + .03, X1 - .4, 2.62, Z0 + .03), mPipe, 0, 0, 0);
     col(X1 - .78, X1, Z0, Z0 + .6);
+    model('h133/WC-007', X1 - .25, .05, Z0 + .22, .25);
+    model('h133/WC-007', X1 - .55, .05, Z0 + .24, -.18);
     add(mWoodDark, 1.0, .03, .26, X1 - .55, 1.45, Z0 + .13); add(mWoodDark, .03, .12, .26, X1 - 1.02, 1.36, Z0 + .13);
     model('bleach_bottle', X1 - .82, 1.48, Z0 + .13, .3); model('multi_cleaner_bottle', X1 - .55, 1.48, Z0 + .12, -.4); model('bleach_bottle', X1 - .3, 1.48, Z0 + .14, 1.2);
     model('plunger', X1 - .95, 0, Z0 + .25, .4);
@@ -2714,7 +2751,13 @@ export function buildWorld(scene) {
     'SAF-005': n => /bulb/i.test(n) ? new THREE.MeshStandardMaterial({ color: 0xc02818, emissive: 0x300400, transparent: true, opacity: .8, roughness: .1 }) : mChrome,
     'EXT-003': () => mDarkMetal,
     'EXT-004': n => /top/i.test(n) ? mWood : mRust,
+    'WC-001': n => /faucet/i.test(n) ? mChrome : mPorc,
+    'WC-002': n => /lid/i.test(n) ? mWhite : mPorc,
+    'WC-003': n => /lid/i.test(n) ? mWhite : mPorc,
+    'WC-004': n => /glass/i.test(n) ? mGlassP : mDarkMetal,
+    'WC-005': n => /handle/i.test(n) ? mChrome : /glass/i.test(n) ? mGlassP : mWoodDark,
     'WC-006': n => /roll/i.test(n) ? mPaperW : mChrome,
+    'WC-007': n => /head/i.test(n) ? mPaperW : mWoodDark,
     'WC-008': () => mChrome,
     'BSM-003': n => /valve/i.test(n) ? mRedV : mRust,
     'BSM-004': () => mRust,

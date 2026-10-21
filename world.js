@@ -4,11 +4,11 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { NOTES } from './story.js?v=187';
+import { NOTES } from './story.js?v=188';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=187';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=188';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -4773,7 +4773,8 @@ export function buildWorld(scene) {
     // 6) 북부 캠퍼스 동서 관통 대보행로 (서편 대로 x=-69.4 ↔ 대강당 ↔ 북문/청운호 ↔ 중앙중정 ↔ 야외음악당 ↔ 동편 대로 x=69.4 일직선 관통!)
     tileRoad(-69.4, 69.4, -35.2, -32.4, false, true);    // 별관 북벽(z=-32.0) 북쪽을 따라 캠퍼스 동서를 하나로 잇는 북부 메인 인도
     tileRoad(1.4, 4.6, -44.0, -35.2, true, false);       // 중앙 중정(창립자 석상 정원) 진입 인도
-    tileRoad(-10.6, -7.4, -77.0, -35.2, true, false);    // 청운호 생태수변공원 & 호심정 남북 진입 인도
+    tileRoad(-10.6, -7.4, -75.8, -35.2, true, false);    // 청운호 생태수변공원 & 호심정 남북 진입 인도
+    tileRoad(33.4, 36.6, -40.5, -35.2, true, false);      // 해교 야외 음악당 진입 지선
     // 7) 동편 확장 캠퍼스 남북 종단 대로 & 동편 시설 연결 인도
     tileRoad(27.6, 69.4, 35.2, 38.0, false, true);       // 체육관(z<=34.5)과 야외농구장(z>=38.5) 사이를 통과해 동편 대로까지 잇는 동남 메인 인도
     tileRoad(43.4, 46.0, 38.0, 57.5, true, false);       // 야외농구장 동편 ~ 제1주차장 연결 남북 인도
@@ -4835,7 +4836,7 @@ export function buildWorld(scene) {
     [-2.4, 2.4].forEach(lx => extLamp(lx, 3.05, -13.45 - ANNEX_DZ, 0));
     model('sf_fuse_box', 36.32, 1.35, 4.0, Math.PI / 2, { out: true });
     model('sf_fuse_box', -3.2, 1.35, -13.42 - ANNEX_DZ, 0, { out: true });
-    [-14, 10].forEach(x => model('exterior_aircon_unit', x, 0, -25.3 - ANNEX_DZ, Math.PI, { out: true, col: [1.8, .4] }));
+    [[-28.28, -Math.PI / 2], [28.28, Math.PI / 2]].forEach(([x, ry]) => model('exterior_aircon_unit', x, 1.35, -19.0 - ANNEX_DZ, ry, { out: true }));
     // 1층 야외 필로티 광장 출입문: 본관 1층 후문 & 별관 1층 정문
     doors.push({ floor: 0, x: .8, z: -10.5, r: 1.4, seamless: true, label: '본관 1층 후문 (계단실)', to: { floor: 0, x: .8, z: -8.7, yaw: Math.PI } });
     // 2층 · 3층 공중 구름다리: 본관 계단실과 물리적으로 뚫려 있어 걸어서 바로 통과하며, 북쪽 끝도 걸어서 바로 별관 2층·3층 중앙 연결 홀로 이어진다!

@@ -4,11 +4,11 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { NOTES } from './story.js?v=188';
+import { NOTES } from './story.js?v=189';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=188';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=189';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -4443,17 +4443,17 @@ export function buildWorld(scene) {
 
   // 지면: 본관(-36.0~36.0, -9.6~9.6)과 별관(-28.0~28.0, -32.0~-20.5) 실내 바닥 영역을 모두 비우고 분할 시공하여 실내외 바닥 겹침(Z-fighting) 원천 차단!
   const groundMat = S(T.makeGround());
-  flat(OUT, groundMat, -320, 320, -260, -32.0, -.02, 8);
-  flat(OUT, groundMat, -320, -28.0, -32.0, -20.5, -.02, 6);
-  flat(OUT, groundMat, 28.0, 320, -32.0, -20.5, -.02, 6);
-  flat(OUT, groundMat, -320, 320, -20.5, -9.6, -.02, 6);
-  flat(OUT, groundMat, -320, 320, 9.6, 320, -.02, 8);
-  flat(OUT, groundMat, -320, -36.0, -9.6, 9.6, -.02, 8);
-  flat(OUT, groundMat, 36.0, 320, -9.6, 9.6, -.02, 8);
+  flat(OUT, groundMat, -320, 320, -260, -31.68, -.06, 8);
+  flat(OUT, groundMat, -320, -19.6, -31.68, -20.5, -.06, 6);
+  flat(OUT, groundMat, 27.6, 320, -31.68, -20.5, -.06, 6);
+  flat(OUT, groundMat, -320, 320, -20.5, -9.6, -.06, 6);
+  flat(OUT, groundMat, -320, 320, 9.6, 320, -.06, 8);
+  flat(OUT, groundMat, -320, -36.0, -9.6, 9.6, -.06, 8);
+  flat(OUT, groundMat, 36.0, 320, -9.6, 9.6, -.06, 8);
   OUT.add(
-    boxMesh(-130, 130, -.45, -.018, -120, -32.0, groundMat, 8),
-    boxMesh(-130, -28.0, -.45, -.018, -32.0, -20.5, groundMat, 6),
-    boxMesh(28.0, 130, -.45, -.018, -32.0, -20.5, groundMat, 6),
+    boxMesh(-130, 130, -.45, -.018, -120, -31.68, groundMat, 8),
+    boxMesh(-130, -19.6, -.45, -.018, -31.68, -20.5, groundMat, 6),
+    boxMesh(27.6, 130, -.45, -.018, -31.68, -20.5, groundMat, 6),
     boxMesh(-130, 130, -.45, -.018, -20.5, -9.6, groundMat, 6),
     boxMesh(-130, 130, -.45, -.018, 9.6, 100, groundMat, 8),
     boxMesh(-130, -36.0, -.45, -.018, -9.6, 9.6, groundMat, 8),
@@ -4689,6 +4689,7 @@ export function buildWorld(scene) {
   }
   col(-20, -.85, -25 - ANNEX_DZ, -13.5 - ANNEX_DZ, true);
   col(2.45, 28, -25 - ANNEX_DZ, -13.5 - ANNEX_DZ, true);
+  col(-.85, 2.45, -25 - ANNEX_DZ, -19.5 - ANNEX_DZ, true);
   OUT.add(boxMesh(-20.4, 28.4, 12.4, 12.7, -25.4 - ANNEX_DZ, -13.1 - ANNEX_DZ, mFacade, 3));
   {
     [1.8, 5.8, 9.8].forEach((y) => {
@@ -4757,8 +4758,9 @@ export function buildWorld(scene) {
     tileRoad(37.0, 39.6, -35.2, 12.0, true, false);      // 본관 동관 아케이드 통과 인도 (북부 인도 ↔ 필로티 인도 ↔ 체육관 북쪽)
     tileRoad(-39.6, -27.2, 9.8, 12.2, false, true);      // 서쪽 아케이드 인도 ↔ 서부 남북 인도 연결
     tileRoad(25.0, 39.6, 9.8, 12.2, false, true);        // 동쪽 아케이드 인도 ↔ 동부 남북 인도 연결
-    // 3) 구름다리 아래 1층 필로티 동서 횡단 메인 인도
+    // 3) 구름다리 아래 1층 필로티 동서 횡단 메인 인도 & 별관 서편 필로티(비상구) 연결 인도
     tileRoad(-37.0, 37.0, -16.8, -13.6, false, true);
+    tileRoad(-26.8, -20.2, -32.4, -16.8, true, false);
     flat(OUT, pave, -5.5, 6.5, WALKWAY.z1 + .02, WALKWAY.z2 - .02, .014, 3);
     // 4) ★ 서문(西門, x=-114.0, z=55.6 — 2번 사진 자리!) 직결 서남 동서 대보행로 & 중서부 연결로
     tileRoad(-113.8, -27.2, 54.0, 57.2, false, true);    // 정문/운동장 서남단(x=-27.2)에서 제2주차장·학생회관 사이를 지나 서쪽 끝 서문(x=-113.8, z=55.6)까지 일직선 직결!
@@ -5028,7 +5030,7 @@ export function buildWorld(scene) {
 
 
   // 나무: 건물/길을 피해서 배치, 울퉁불퉁한 수관 + 개체별 색 변화
-  const BLOCK = [...ROAD_RECTS, [-46.2, -36.0, -9.5, 9.5], [36.0, 46.2, -9.5, 9.5], [30.2, 39.8, -53.5, -39.5], [-36.5, -28.0, -32.5, -17.0], [GUARD_LAYOUT.originX - 1.4, GUARD_LAYOUT.originX + GUARD_LAYOUT.width + 1.4, GUARD_LAYOUT.originZ - GUARD_LAYOUT.depth - 1.4, GUARD_LAYOUT.originZ + 1.4], [-22.5, -17.5, 62.2, 65.8], [-5.8, 6.8, WALKWAY.z1 - .2, -9.6], [-37.5, 37.5, -11, 11.5], [-28.5, 28.5, -32.4, WALKWAY.z1 + 1], [MEGA.gym.x - MEGA.gym.w / 2 - 1.5, MEGA.gym.x + MEGA.gym.w / 2 + 1.5, MEGA.gym.z - MEGA.gym.d / 2 - 1.5, MEGA.gym.z + MEGA.gym.d / 2 + 3.5], [MEGA.court.x - MEGA.court.w / 2 - .5, MEGA.court.x + MEGA.court.w / 2 + .5, MEGA.court.z - MEGA.court.d / 2 - .5, MEGA.court.z + MEGA.court.d / 2 + .5], [26.5, 49.5, 11, 36], [-49.5, -28.5, 11, 26.5], [-49.5, -32.5, 29.5, 52.5], [-5, 5, 60, 72], [-17, 17, 1.5, 12]];
+  const BLOCK = [...ROAD_RECTS, [-46.2, -36.0, -9.5, 9.5], [36.0, 46.2, -9.5, 9.5], [30.2, 39.8, -53.5, -39.5], [-36.5, -28.0, -32.5, -17.0], [-54.5, -40.5, -37.5, -16.5], [GUARD_LAYOUT.originX - 1.4, GUARD_LAYOUT.originX + GUARD_LAYOUT.width + 1.4, GUARD_LAYOUT.originZ - GUARD_LAYOUT.depth - 1.4, GUARD_LAYOUT.originZ + 1.4], [-22.5, -17.5, 62.2, 65.8], [-5.8, 6.8, WALKWAY.z1 - .2, -9.6], [-37.5, 37.5, -11, 11.5], [-28.5, 28.5, -32.4, WALKWAY.z1 + 1], [MEGA.gym.x - MEGA.gym.w / 2 - 1.5, MEGA.gym.x + MEGA.gym.w / 2 + 1.5, MEGA.gym.z - MEGA.gym.d / 2 - 1.5, MEGA.gym.z + MEGA.gym.d / 2 + 3.5], [MEGA.court.x - MEGA.court.w / 2 - .5, MEGA.court.x + MEGA.court.w / 2 + .5, MEGA.court.z - MEGA.court.d / 2 - .5, MEGA.court.z + MEGA.court.d / 2 + .5], [26.5, 49.5, 11, 36], [-49.5, -28.5, 11, 26.5], [-49.5, -32.5, 29.5, 52.5], [-5, 5, 60, 72], [-17, 17, 1.5, 12]];
   const blocked = (x, z, m = 0) => BLOCK.some(([a, b2, c, d]) => x > a - m && x < b2 + m && z > c - m && z < d + m);
   const trunkG = merge([new THREE.CylinderGeometry(.16, .3, 3.4, 7).translate(0, 1.7, 0), tube(.07, 0, 2.2, 0, .9, 3.4, .3), tube(.06, 0, 2.6, 0, -.7, 3.7, -.4)]);
   const lump = (r, x, y, z) => {
@@ -5050,7 +5052,7 @@ export function buildWorld(scene) {
     }
     tpos.push([x, z, inside]);
   }
-  const inMegaZone = (x, z) => (x < -42 && z > -46 && z < 66) || (x > 42 && z > -46 && z < 54) || (x > -30 && x < 14 && z < -58) || (x > 14 && x < 38 && z > 58) || (x > -49 && x < -28 && z > -22 && z < -10) || (x > 24 && x < 42 && z > -38 && z < -10);
+  const inMegaZone = (x, z) => (x < -42 && z > -46 && z < 66) || (x > 42 && z > -46 && z < 54) || (x > -30 && x < 14 && z < -58) || (x > 14 && x < 38 && z > 58) || (x > -55 && x < -28 && z > -38 && z < -10) || (x > 24 && x < 42 && z > -38 && z < -10);
   tpos.forEach(([x, z, inside]) => { const s2 = rr(.8, 1.4), ry = rnd() * 6, sy = rr(.9, 1.25), hide = inMegaZone(x, z); _o.position.set(x, hide ? -500 : 0, z); _o.rotation.set(0, ry, 0); _o.scale.set(hide ? 0 : s2, hide ? 0 : s2 * sy, hide ? 0 : s2); _o.updateMatrix(); treeM.push(_o.matrix.clone()); if (inside && !hide) col(x - .35, x + .35, z - .35, z + .35); });
   _o.scale.set(1, 1, 1);
   inst(OUT, trunkG, S(T.makeWood([52, 38, 26])), treeM);

@@ -183,7 +183,7 @@ class MegaSchoolExpansionAndOptimizer {
       roughness: 0.35
     });
     const floor = new THREE.Mesh(new THREE.BoxGeometry(W, 0.25, D), floorMat);
-    floor.position.y = -0.125;
+    floor.position.y = -0.105;
     g.add(floor);
 
     // 정면 단상 무대 (Stage) & 붉은 벨벳 커튼 (뒤에 숨기 가능)
@@ -233,20 +233,50 @@ class MegaSchoolExpansionAndOptimizer {
     const g = new THREE.Group();
     g.position.copy(centerPos);
 
-    // 이끼 낀 보도블록 바닥 + 중앙 고목나무 & 학교 창립자 흉상 좌대
+    // 화강암 판석 광장 바닥 (지면 y=-0.018 과 겹치지 않도록 상단 y=+0.025m 설정) + 석재 경계석 + 창립자 청동 흉상 기념탑
+    const pvCanvas = document.createElement("canvas");
+    pvCanvas.width = 256; pvCanvas.height = 256;
+    const pctx = pvCanvas.getContext("2d");
+    pctx.fillStyle = "#5c625e"; pctx.fillRect(0, 0, 256, 256);
+    pctx.strokeStyle = "#3e4440"; pctx.lineWidth = 4;
+    for (let i = 0; i <= 256; i += 32) {
+      pctx.beginPath(); pctx.moveTo(i, 0); pctx.lineTo(i, 256); pctx.stroke();
+      pctx.beginPath(); pctx.moveTo(0, i); pctx.lineTo(256, i); pctx.stroke();
+    }
+    const pvTex = new THREE.CanvasTexture(pvCanvas);
+    pvTex.wrapS = pvTex.wrapT = THREE.RepeatWrapping;
+    pvTex.repeat.set(4, 4);
     const ground = new THREE.Mesh(
       new THREE.BoxGeometry(16, 0.2, 16),
-      new THREE.MeshStandardMaterial({ color: 0x2d362e, roughness: 0.9 })
+      new THREE.MeshStandardMaterial({ map: pvTex, roughness: 0.85 })
     );
-    ground.position.y = -0.1;
+    ground.position.y = -0.075;
+
+    const curbMat = new THREE.MeshStandardMaterial({ color: 0x8a867e, roughness: 0.8 });
+    const curbN = new THREE.Mesh(new THREE.BoxGeometry(16.3, 0.14, 0.24), curbMat); curbN.position.set(0, 0.05, -8.0);
+    const curbS = new THREE.Mesh(new THREE.BoxGeometry(16.3, 0.14, 0.24), curbMat); curbS.position.set(0, 0.05, 8.0);
+    const curbW = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.14, 16.0), curbMat); curbW.position.set(-8.0, 0.05, 0);
+    const curbE = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.14, 16.0), curbMat); curbE.position.set(8.0, 0.05, 0);
+
+    const step1 = new THREE.Mesh(new THREE.BoxGeometry(2.6, 0.22, 2.6), curbMat); step1.position.set(0, 0.11, 0);
+    const step2 = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.22, 2.0), curbMat); step2.position.set(0, 0.30, 0);
 
     const statueBase = new THREE.Mesh(
-      new THREE.BoxGeometry(1.4, 1.6, 1.4),
-      new THREE.MeshStandardMaterial({ color: 0x55585a, roughness: 0.8 })
+      new THREE.BoxGeometry(1.35, 1.45, 1.35),
+      new THREE.MeshStandardMaterial({ color: 0x6c7074, roughness: 0.72 })
     );
-    statueBase.position.set(0, 0.8, 0);
+    statueBase.position.set(0, 1.05, 0);
 
-    g.add(ground, statueBase);
+    const bronzeMat = new THREE.MeshStandardMaterial({ color: 0x4a5d4e, roughness: 0.35, metalness: 0.78 });
+    const bustShoulders = new THREE.Mesh(new THREE.BoxGeometry(0.82, 0.44, 0.46), bronzeMat); bustShoulders.position.set(0, 1.98, 0);
+    const bustHead = new THREE.Mesh(new THREE.SphereGeometry(0.24, 14, 12), bronzeMat); bustHead.position.set(0, 2.42, 0);
+    const plaque = new THREE.Mesh(
+      new THREE.BoxGeometry(0.86, 0.52, 0.06),
+      new THREE.MeshStandardMaterial({ color: 0x262a2e, metalness: 0.6, roughness: 0.4 })
+    );
+    plaque.position.set(0, 1.12, 0.69);
+
+    g.add(ground, curbN, curbS, curbW, curbE, step1, step2, statueBase, bustShoulders, bustHead, plaque);
 
     statueBase.userData.interactable = {
       id: "courtyard_founder_statue",
@@ -480,8 +510,10 @@ class MegaSchoolExpansionAndOptimizer {
       if (!chunk.group) continue;
       const distXZ = Math.hypot(playerPos.x - chunk.centerPos.x, playerPos.z - chunk.centerPos.z);
       const diffY = Math.abs(playerPos.y - chunk.floorY);
-      const shouldShow = (distXZ <= this.optimConfig.cullDistance + chunk.radius) &&
-                         (diffY <= this.optimConfig.floorHeightTolerance * 2.2);
+      const isOutdoorChunk = Math.abs(chunk.floorY) < 1.0 && (chunk.id.startsWith("chunk_") || chunk.id === "mega_gymnasium" || chunk.id === "mega_courtyard");
+      const maxDist = isOutdoorChunk ? 240.0 : (this.optimConfig.cullDistance + chunk.radius);
+      const maxDiffY = isOutdoorChunk ? 20.0 : (this.optimConfig.floorHeightTolerance * 2.2);
+      const shouldShow = (distXZ <= maxDist) && (diffY <= maxDiffY);
       if (chunk.group.visible !== shouldShow) {
         chunk.group.visible = shouldShow;
       }

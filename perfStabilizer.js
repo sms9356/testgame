@@ -29,7 +29,7 @@ function visit(o, kind, depth) {
     if (c.isInstancedMesh) { if (c.count >= 1 && c.count <= 600 && kind === 'in' && !C.seenIm.has(c)) addIm(c, kind); continue; }   // 실내 가구만 (풀 · 나무 같은 수천 개 야외 인스턴스는 제외 — 매번 다시 올리는 비용이 더 컸다)
     if (c.isLight || c.isSprite || c.isPoints || c.userData.noCull) continue;
     if (C.seen.has(c)) { if (c.userData.perfSplit) visit(c, kind, depth + 1); continue; }
-    C.b.setFromObject(c); if (C.b.isEmpty()) continue; C.b.getBoundingSphere(C.s);
+    C.b.setFromObject(c); if (C.b.isEmpty()) continue; if (kind === 'out' && C.b.max.y <= 0.38 && (C.b.max.y - C.b.min.y) < 0.55) continue; C.b.getBoundingSphere(C.s);
     let hasIm = false; if (C.s.radius < 5) c.traverse(m => { if (m.isInstancedMesh && m.count >= 1) hasIm = true; });
     if (C.s.radius < 5 && !hasIm) { const ms = []; c.traverse(m => { if (m.isMesh && !m.isInstancedMesh) ms.push(m); }); C.units.push({ c: C.s.center.clone(), r: C.s.radius, ms, kind, far: false }); C.seen.add(c); }
     else if (depth < 6) { c.userData.perfSplit = true; C.seen.add(c); visit(c, kind, depth + 1); }

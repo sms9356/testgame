@@ -114,6 +114,18 @@ export function drawMap(ctx, W, H, o) {
     const an = floor >= 8, lay = an ? ANNEX.floors[floor - 8] : LAYOUT[floor], sl = an ? ANNEX.slots : SLOTS, hx = an ? 20.3 : 36.3;
     fillRect(-hx, -1.75, hx, 1.75, '#3d403e');
     sl.forEach((c, i) => {
+      if (floor === 2 && i === 0) return;
+      if (floor === 2 && i === 1) {
+        fillRect(-36, -9.6, -20, -1.75, COL.broadcast);
+        strokeRect(-36, -9.6, -20, -1.75, '#0c0c0c', 1.5);
+        strokeRect(-28.05, -9.6, -27.95, -4.0, 'rgba(140,210,245,.65)', 1.2);
+        if (labels) {
+          ctx.fillStyle = '#f2dec8'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
+          ctx.fillText('방송편집실 (주조정실)', X(-32), Y(-5.8));
+          ctx.fillText('방송실 (레코딩룸)', X(-24), Y(-5.8));
+        }
+        return;
+      }
       fillRect(c - 4, -9.6, c + 4, -1.75, COL[lay.types[i]] || '#333');
       strokeRect(c - 4, -9.6, c + 4, -1.75, '#0c0c0c', 1.5);
       if (labels) { ctx.fillStyle = '#d6d2c2'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(lay.names[i], X(c), Y(-5.8)); }

@@ -47,7 +47,7 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
     pbox(W + .82, 1.05, .14, stoneM, cx, .525, z1 + t + .05, grp, { cast: false });
     pbox(.14, 1.05, D + .82, stoneM, x0 - t - .05, .525, cz, grp, { cast: false });
     pbox(.14, 1.05, D + .82, stoneM, x1 + t + .05, .525, cz, grp, { cast: false });
-    pbox(W + .86, .24, D + .86, stoneM, cx, 4.25, cz, grp, { cast: false });
+    if (H > 6.5) pbox(W + .86, .24, D + .86, stoneM, cx, 4.25, cz, grp, { cast: false });
     [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([sx, sz]) => {
       pbox(.54, H + .2, .54, stoneM, cx + sx * (W / 2 + t * .6), H / 2, cz + sz * (D / 2 + t * .6), grp, { cast: false });
     });
@@ -68,6 +68,7 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
       }
     };
     for (const fy of [2.15, 6.15]) {
+      if (fy > H - 1.2) continue;
       for (const dx of [-6.8, -2.4, 2.4, 6.8]) {
         if (Math.abs(dx) > W / 2 - 1.6) continue;
         addExtWin(cx + dx, fy, z0 - t - .04, false);
@@ -608,24 +609,25 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
         addCol(px - 1.2, px + 1.2, pz - .9, pz + .9, false, .42);
       });
 
-      // ② 학교 쓰레기 분리수거장(폐지·캔·공병·플라스틱 4분할 슬레이트 지붕 창고) & 구식 벽돌 소각장(굴뚝) (x: 86.0, z: 15.0)
-      const rxC = 86.2, rzC = 13.8;
-      pbox(9.6, .12, 4.6, stoneM, rxC, .06, rzC, g, { cast: false });
-      // 후면·측면 시멘트 블록 담장 & 칸막이 4칸 + 경사 슬레이트 지붕
-      pbox(9.6, 2.4, .22, stoneM, rxC, 1.2, rzC + 2.15, g);
+      // ② 학교 쓰레기 분리수거장(폐지·캔·공병·플라스틱 4분할 슬레이트 지붕 창고 — 도로 방향 서쪽 개방!) & 구식 벽돌 소각장(굴뚝)
+      const rxC = 86.2, rzC = 13.5;
+      pbox(4.6, .12, 9.6, stoneM, rxC, .06, rzC, g, { cast: false });
+      // 동쪽 후면 시멘트 담장 & 남북 칸막이 5벽(4칸) + 서쪽으로 열린 경사 슬레이트 지붕
+      pbox(.22, 2.4, 9.6, stoneM, rxC + 2.15, 1.2, rzC, g);
       for (let k = 0; k <= 4; k++) {
-        const kx = rxC - 4.6 + k * 2.3;
-        pbox(.18, 2.3, 4.2, stoneM, kx, 1.15, rzC, g);
+        const kz = rzC - 4.6 + k * 2.3;
+        pbox(4.2, 2.3, .18, stoneM, rxC, 1.15, kz, g);
       }
-      pbox(10.0, .14, 4.8, darkMetal, rxC, 2.48, rzC, g, { rx: -.08 });
+      pbox(4.8, .14, 10.0, darkMetal, rxC, 2.48, rzC, g, { rz: .08 });
       ['① 폐지 · 신문지', '② 공병 · 유리류', '③ 고철 · 캔류', '④ 플라스틱 · 비닐'].forEach((lbl, li) => {
-        const bx = rxC - 3.45 + li * 2.3;
-        pmesh(new THREE.PlaneGeometry(1.9, .28), new THREE.MeshBasicMaterial({ map: makeSign(lbl, '#1c2826', '#d8f0e4', 20) }), bx, 2.18, rzC - 2.02, g, { ry: Math.PI, cast: false });
+        const bz = rzC - 3.45 + li * 2.3;
+        pmesh(new THREE.PlaneGeometry(1.9, .28), new THREE.MeshBasicMaterial({ map: makeSign(lbl, '#1c2826', '#d8f0e4', 20) }), rxC - 2.02, 2.18, bz, g, { ry: -Math.PI / 2, cast: false });
         // 각 칸 내부 마대자루·폐지 묶음·분리수거 케이지
-        pbox(1.4, .75, 1.4, PM([0x8a7858, 0x3a5868, 0x585c62, 0x386848][li], .8), bx, .42, rzC + .4, g);
+        pbox(1.4, .78, 1.4, PM([0x8a7858, 0x3a5868, 0x585c62, 0x386848][li], .8), rxC + .4, .42, bz, g);
       });
-      pmesh(new THREE.PlaneGeometry(4.4, .38), new THREE.MeshBasicMaterial({ map: makeSign('서문고 쓰레기 분리수거장 · 환경미화구역', '#162420', '#e8f4dc', 22) }), rxC, 2.72, rzC - 2.25, g, { ry: Math.PI, cast: false });
-      addCol(rxC - 4.8, rxC + 4.8, rzC - 2.1, rzC + 2.3);
+      pbox(.12, .44, 4.6, darkMetal, rxC - 2.12, 2.72, rzC, g, { cast: false });
+      pmesh(new THREE.PlaneGeometry(4.4, .38), new THREE.MeshBasicMaterial({ map: makeSign('서문고 쓰레기 분리수거장 · 환경미화구역', '#162420', '#e8f4dc', 22) }), rxC - 2.20, 2.72, rzC, g, { ry: -Math.PI / 2, cast: false });
+      addCol(rxC - 2.1, rxC + 2.3, rzC - 4.8, rzC + 4.8);
 
       // ★ 한국 옛 학교 괴담의 핵심 성지: 구식 붉은벽돌 쓰레기 소각장(소각로 & 연통 굴뚝, x: 86.2, z: 21.0)
       const ixC = 85.8, izC = 21.2;

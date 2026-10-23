@@ -535,6 +535,24 @@ function laterAt(s, fn) { const p = sfxPos; setTimeout(() => { sfxPos = p; try {
   slap() { noiseBurst(.09, 900, 'lowpass', .55); noiseBurst(.05, 2600, 'bandpass', .12); },
   radioVoice() { noiseBurst(2.4, 2600, 'bandpass', .22); for (let i = 0; i < 9; i++) later(300 + i * 190, () => { const f = 300 + Math.random() * 260; tone(f, .16, 'sawtooth', .02, 0, 1, f * .85); noiseBurst(.12, 1400 + Math.random() * 800, 'bandpass', .12); }); },
 };
+// 이상현상 효과음은 대사·증언 녹음 위에 겹치지 않게: 대사가 나오는 동안엔 끝날 때까지(최대 9초) 미뤘다가 재생, 그래도 길면 버린다
+const ANOMALY_SFX = ['whisper', 'stinger', 'ghostBreath', 'screech', 'ghostLaugh', 'ghostGiggle', 'ghostWhisper', 'ghostStep', 'ghostCrack', 'knock', 'musicBox', 'doorBang', 'thump', 'tension', 'staticNoise'];
+let sfxBusy = () => false;
+export function setSfxBusyCheck(fn) { sfxBusy = typeof fn === 'function' ? fn : () => false; }
+for (const k of ANOMALY_SFX) {
+  const raw = sfx[k]; if (typeof raw !== 'function') continue;
+  sfx[k] = function (...args) {
+    let busy = false; try { busy = !!sfxBusy() || isVoicePlaying(); } catch (e) { busy = false; }
+    if (!busy) return raw.apply(this, args);
+    const p = sfxPos, t0 = performance.now();
+    const retry = () => {
+      let b = false; try { b = !!sfxBusy() || isVoicePlaying(); } catch (e) { b = false; }
+      if (b) { if (performance.now() - t0 < 9000) setTimeout(retry, 350); return; }
+      const o = sfxPos; sfxPos = p; try { raw.apply(sfx, args); } finally { sfxPos = o; }
+    };
+    setTimeout(retry, 350);
+  };
+}
 // 사용자 제공 패치 모듈(자체 Web Audio 합성음)이 쓰는 컨텍스트: 게임 오디오 컨텍스트를 그대로 주되, 출력(destination)은 효과음 버스로 —
 // 설정의 마스터 · 효과음 볼륨이 패치 소리에도 적용된다
 export const sfxCtx = new Proxy({}, { get(_, k) { if (!ac) initAudio(); if (!ac) return undefined; if (k === 'destination') return bus.sfx; const v = ac[k]; return typeof v === 'function' ? v.bind(ac) : v; } });

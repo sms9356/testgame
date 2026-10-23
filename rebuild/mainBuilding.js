@@ -5,6 +5,7 @@
 import * as THREE from '../vendor/three.module.js';
 import { mergeGeometries } from '../vendor/addons/utils/BufferGeometryUtils.js';
 
+export const DESK_RY = Math.PI / 2, CHAIR_RY = Math.PI / 2;   // 모델 정면 보정 (스크린샷으로 맞춘다)
 export const SPEC = {
   floors: 4, FH: 3.6, CEIL: 2.7, slab: .25,
   bay: 9, classDepth: 7.5, corridor: 2.7, wall: .2, outer: .3,
@@ -102,7 +103,8 @@ export function buildMainBuilding(opt = {}) {
   const props = [];    // 상호작용 지점 {kind,label,x,y,z,floor}
   const lights = [];   // 형광등 위치 (게임 쪽 조명 예산이 고른다)
   const geo = new Map();  // 재질키 → 지오메트리 목록 (끝에서 병합 → 드로콜 최소화)
-  const mats = {}, stairwells = [], doors = []; let y_ = 0;
+  const mats = {}, stairwells = [], doors = [], models = []; let y_ = 0;
+  const mdl = (name, x, y, z, ry = 0, o = {}) => models.push({ name, x, y, z, ry, ...o });
   const M = (key, make) => mats[key] || (mats[key] = make());
   const mat = {
     wood: M('wood', () => pbr('wood', { rough: .9 })),                                   // 노후 참나무 마루 (실사)
@@ -272,12 +274,11 @@ export function buildMainBuilding(opt = {}) {
     const cols = 6, rows = 6, dx = (x2 - x1 - 3.4) / rows, dz = (z2 - z1 - 1.4) / cols;
     for (let i = 0; i < rows; i++) for (let j = 0; j < cols; j++) {
       const cx = x1 + 2.9 + i * dx, cz = z1 + .75 + dz * (j + .5);
-      box('deskTop', cx - .25, cx + .25, y0 + .70, y0 + .73, cz - .33, cz + .33);
-      box('deskLeg', cx - .23, cx + .23, y0 + .55, y0 + .58, cz - .3, cz + .3);
-      [[-.22, -.3], [-.22, .3], [.22, -.3], [.22, .3]].forEach(([a, b]) => box('deskLeg', cx + a - .015, cx + a + .015, y0, y0 + .7, cz + b - .015, cz + b + .015));
-      col.push({ x1: cx - .25, x2: cx + .25, z1: cz - .33, z2: cz + .33, y1: y0, y2: y0 + .73 });
-      const sx = cx + .42; box('deskTop', sx - .18, sx + .18, y0 + .42, y0 + .45, cz - .19, cz + .19); box('deskTop', sx + .16, sx + .19, y0 + .45, y0 + .82, cz - .19, cz + .19);
-      [[-.15, -.16], [-.15, .16], [.15, -.16], [.15, .16]].forEach(([a, b]) => box('deskLeg', sx + a - .012, sx + a + .012, y0, y0 + .42, cz + b - .012, cz + b + .012));
+      // 실사 학교 책걸상 모델 (Poly Haven SchoolDesk_01 · SchoolChair_01) — 칠판(서쪽)을 바라본다, 조금씩 흐트러진 폐교 배치
+      const jx = ((i * 7 + j * 13 + f * 5) % 7 - 3) * .012, jr = ((i * 5 + j * 3 + f) % 5 - 2) * .025;
+      mdl('SchoolDesk_01', cx + jx, y0, cz, DESK_RY + jr);
+      col.push({ x1: cx - .28, x2: cx + .28, z1: cz - .36, z2: cz + .36, y1: y0, y2: y0 + .76 });
+      const sx = cx + .5 + jx * 2; mdl('SchoolChair_01', sx, y0, cz, CHAIR_RY - jr * 2);
     }
     // 뒤쪽 사물함 (36칸, 높이 1.2) + 게시판
     box('lockerM', x2 - .45, x2 - .02, y0, y0 + 1.2, z1 + .3, z2 - .3, { solid: true });
@@ -411,5 +412,5 @@ export function buildMainBuilding(opt = {}) {
   }
   const tickDoors = dt => { for (const d of doors) if (d.t01 !== d.target) { d.t01 += Math.sign(d.target - d.t01) * Math.min(Math.abs(d.target - d.t01), dt * 2.2); applyDoor(d); } };
   const nearDoor = (x, z, y, r = 1.6) => { let best = null, bd = r; for (const d of doors) { if (Math.abs(d.py - y) > 1) continue; const dd = Math.hypot(d.mx - x, d.mz - z); if (dd < bd) { bd = dd; best = d; } } return best; };
-  return { root, col, walk, props, lights, groundAt, layout: LY, spec: S, stairwells, doors, tickDoors, nearDoor };
+  return { root, col, walk, props, lights, groundAt, layout: LY, spec: S, stairwells, doors, tickDoors, nearDoor, models };
 }

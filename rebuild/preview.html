@@ -15,6 +15,7 @@
 <script type="module">
 import * as THREE from '../vendor/three.module.js';
 import { buildMainBuilding } from './mainBuilding.js';
+import { placeModels } from './models.js';
 import { EffectComposer } from '../vendor/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from '../vendor/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from '../vendor/addons/postprocessing/UnrealBloomPass.js';
@@ -23,7 +24,7 @@ const R = new THREE.WebGLRenderer({ antialias: true }); R.setPixelRatio(Math.min
 R.toneMapping = THREE.ACESFilmicToneMapping; R.outputColorSpace = THREE.SRGBColorSpace; R.shadowMap.enabled = true; document.body.appendChild(R.domElement);
 const scene = new THREE.Scene(); scene.background = new THREE.Color(0x1a1820); scene.fog = new THREE.Fog(0x1a1820, 20, 140);
 const cam = new THREE.PerspectiveCamera(70, innerWidth / innerHeight, .05, 400);
-const B = buildMainBuilding(); scene.add(B.root);
+const B = buildMainBuilding(); scene.add(B.root); placeModels(B.root, B.models, { shadows: false });
 // 반사 환경: 형광등 줄이 달린 어두운 방을 PMREM 으로 구워 유리 · 니스 · 물갈기 바닥에 은은한 반사를 준다
 { const env = new THREE.Scene(), pm = new THREE.PMREMGenerator(R);
   env.add(new THREE.Mesh(new THREE.BoxGeometry(20, 6, 20), new THREE.MeshBasicMaterial({ color: 0x15161a, side: THREE.BackSide })));

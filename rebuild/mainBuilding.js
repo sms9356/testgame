@@ -112,7 +112,7 @@ export function buildMainBuilding(opt = {}) {
   const props = [];    // 상호작용 지점 {kind,label,x,y,z,floor}
   const lights = [];   // 형광등 위치 (게임 쪽 조명 예산이 고른다)
   const geo = new Map();  // 재질키 → 지오메트리 목록 (끝에서 병합 → 드로콜 최소화)
-  const mats = {}, stairwells = [], doors = [], models = []; let s_sci = 0, s_lib = 0; let y_ = 0, rmx = 0, rmz = 0;   // rmx/rmz: 지금 꾸미는 방의 중심
+  const mats = {}, stairwells = [], doors = [], models = []; let s_sci = 0, s_lib = 0, s_staff = 0; let y_ = 0, rmx = 0, rmz = 0, bseed = 7; const br = () => (bseed = (bseed * 16807) % 2147483647) / 2147483647;   // rmx/rmz: 지금 꾸미는 방의 중심
   const mdl = (name, x, y, z, ry = 0, o = {}) => models.push({ name, x, y, z, ry, ...o });
   const M = (key, make) => mats[key] || (mats[key] = make());
   const mat = {
@@ -377,7 +377,6 @@ export function buildMainBuilding(opt = {}) {
       for (let k = 0; k < 3; k++) box('alu', x - w / 2 + .17, x - w / 2 + .31, y_ + (k + .5) * (h - .04) / 3 - .01, y_ + (k + .5) * (h - .04) / 3 + .01, Math.min(fz, fz + sz * .025), Math.max(fz, fz + sz * .025)); }   // 서랍 손잡이
     col.push({ x1: x - w / 2, x2: x + w / 2, z1: z - d / 2, z2: z + d / 2, y1: y_, y2: y_ + h }); }
   // 책장 한 칸마다 책 줄 (높이 · 두께 · 색이 제각각, 가끔 비스듬히 쓰러진 책 · 빈칸)
-  let bseed = 7; const br = () => (bseed = (bseed * 16807) % 2147483647) / 2147483647;
   function books(xf, zc, y, side) {
     for (const ly of [.12, .52, .92, 1.32, 1.72]) { let z = zc - .64; while (z < zc + .62) { const t = .025 + br() * .04, h = .2 + br() * .12, dpt = .17 + br() * .05;
       if (br() < .08) { z += .12; continue; }   // 빠진 책 자리
@@ -393,7 +392,7 @@ export function buildMainBuilding(opt = {}) {
       for (let i = 0; i < 3; i++) for (let j = 0; j < 2; j++) for (let k = 0; k < 3; k++) { const x = x1 + 1.6 + i * 2.5, z = z1 + 2.1 + k * 1.5 + j * .72; desk(x, z, 1.2, .7); chairAt(x, z + (j ? .55 : -.55)); box('rubber', x - .2, x + .2, y0 + .74, y0 + 1.05, z - .05, z + .05); }
       cabinet(x2 - .5, x2 - .05, z1 + .3, z1 + 3.5); cabinet(x1 + .05, x1 + .5, z1 + .3, z2 - .5, 1.2);
       copier(x2 - 1.2, x2 - .3, z2 - 1.2, z2 - .5, y0);   // 복사기
-      if (type === 'staff' && !opt.noClues) { clueNote('n3', x1 + 1.6, y0 + .74, z1 + 2.1, f, .3); clueNote('n22', x1 + 4.1, y0 + .74, z1 + 3.6, f, -.2); clueTape('ts_vice', x1 + 6.6, y0 + .74, z1 + 5.1, f); }
+      if (type === 'staff' && !opt.noClues && !s_staff++) { clueNote('n3', x1 + 1.6, y0 + .74, z1 + 2.1, f, .3); clueNote('n22', x1 + 4.1, y0 + .74, z1 + 3.6, f, -.2); clueTape('ts_vice', x1 + 6.6, y0 + .74, z1 + 5.1, f); }
       if (type === 'admin' && !opt.noClues) clueNote('n21', x1 + 4.1, y0 + .74, z1 + 2.1, f, .1);
       props.push({ kind: 'search', label: type === 'staff' ? '교무실 서류함 뒤지기' : '행정실 장부 확인', x: x2 - .6, y: y0 + 1, z: z1 + 1.9, floor: f });
       mdl('drawer_cabinet', x1 + .32, y0, z2 - 1.2, Math.PI / 2); col.push({ x1: x1 + .05, x2: x1 + .6, z1: z2 - 1.8, z2: z2 - .6, y1: y0, y2: y0 + 1.9 });
@@ -430,7 +429,7 @@ export function buildMainBuilding(opt = {}) {
     } else if (type === 'science') {   // 과학실: 실험대 6 (싱크 · 가스꼭지) · 약품장 · 흄후드
       for (let i = 0; i < 3; i++) for (let j = 0; j < 2; j++) { const x = x1 + 1.9 + i * 2.2, z = z1 + 2.6 + j * 2.8; labTable(x, z, y0); }
       cabinet(x2 - .5, x2 - .05, z1 + .5, z2 - .5, 1.9, 'lockerM', true);
-      if (!opt.noClues && !s_sci++) { clueNote('n5', x1 + 1.9, y0 + .9, z1 + 3.2, f, .2); clueNote('q7a', x1 + 4.1, y0 + .9, z1 + 2.0, f, -.3); clueTape('ts_electric', x1 + 6.3, y0 + .9, z1 + 3.1, f); }
+      if (!opt.noClues && !opt.noSciLib && !s_sci++) { clueNote('n5', x1 + 1.9, y0 + .9, z1 + 3.2, f, .2); clueNote('q7a', x1 + 4.1, y0 + .9, z1 + 2.0, f, -.3); clueTape('ts_electric', x1 + 6.3, y0 + .9, z1 + 3.1, f); }
       props.push({ kind: 'search', label: '과학실 약품장', x: x2 - .8, y: y0 + 1.2, z: zm, floor: f });
     } else if (type === 'music') {   // 음악실: 피아노 · 계단식 합창단 3단 · 악보대 · 악기장
       upright(xm + 2.6, z1 + 1.95, y0, -1);   // 업라이트 피아노 (건반이 방 안쪽)
@@ -466,7 +465,7 @@ export function buildMainBuilding(opt = {}) {
       for (let i = 0; i < 3; i++) { const x = x1 + 2.4 + i * 2.0; [z1 + 2.4, z1 + 3.78].forEach(z => { mdl('wooden_bookshelf_worn', x + .15, y0, z, Math.PI / 2); mdl('wooden_bookshelf_worn', x - .15, y0, z, -Math.PI / 2); books(x + .3, z, y0, 1); books(x - .3, z, y0, -1); }); col.push({ x1: x - .45, x2: x + .45, z1: z1 + 1.7, z2: z1 + 4.48, y1: y0, y2: y0 + 2.1 }); }   // 양면 서가 (실사 책장 2개 등맞댐)
       for (let k = 0; k < 2; k++) { const x = x1 + 2.2 + k * 3; desk(x, z2 - 1.8, 2.2, .9, .74, 'lockerM'); chairAt(x - .6, z2 - 1.1); chairAt(x + .6, z2 - 1.1); }
       desk(x2 - 1.1, zm + .6, 1.6, .7, .9, 'lockerM');
-      if (!opt.noClues && !s_lib++) { clueNote('n4', x2 - 1.4, y0 + .9, zm + .6, f, .2); clueNote('n25', x2 - .8, y0 + .9, zm + .5, f, -.2); clueNote('q8a', x1 + 2.0, y0 + .74, z2 - 1.8, f, .4); clueTape('ts_reporter2', x1 + 5.4, y0 + .74, z2 - 1.75, f); }
+      if (!opt.noClues && !opt.noSciLib && !s_lib++) { clueNote('n4', x2 - 1.4, y0 + .9, zm + .6, f, .2); clueNote('n25', x2 - .8, y0 + .9, zm + .5, f, -.2); clueNote('q8a', x1 + 2.0, y0 + .74, z2 - 1.8, f, .4); clueTape('ts_reporter2', x1 + 5.4, y0 + .74, z2 - 1.75, f); }
       props.push({ kind: 'search', label: '대출 데스크 서랍', x: x2 - 1.1, y: y0 + 1, z: zm + 1.1, floor: f });
       [z2 - 2.4, z2 - .9].forEach(z => { mdl('wooden_bookshelf_worn', x1 + .32, y0, z, Math.PI / 2); col.push({ x1: x1 + .02, x2: x1 + .62, z1: z - .72, z2: z + .72, y1: y0, y2: y0 + 2.1 }); });   // 창가 벽 서가 (실사)
     }

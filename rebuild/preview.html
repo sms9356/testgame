@@ -29,7 +29,7 @@ const scene = new THREE.Scene(); scene.background = new THREE.Color(0x1a1820); s
 const cam = new THREE.PerspectiveCamera(70, innerWidth / innerHeight, .05, 400);
 const MAIN = buildMainBuilding();
 // 별관: 본관 북쪽 20m, 180° 돌려 복도 · 현관이 본관을 마주 보게 — 1층 현관끼리 유리 연결 통로로 잇는다
-const ANX = buildMainBuilding({ spec: ANNEX_SPEC, plan: ANNEX_PLAN, x: 0, z: -20, ry: Math.PI, name: 'REBUILD_ANNEX', label: '별관', prefix: '', signText: '서문고 별관 · 예술 실습동', classLabel: (f, n) => `3학년 ${n + 8}반` });
+const ANX = buildMainBuilding({ spec: ANNEX_SPEC, plan: ANNEX_PLAN, x: 0, z: -20, ry: Math.PI, name: 'REBUILD_ANNEX', label: '별관', prefix: '', signText: '서문고 별관 · 예술 실습동', noSciLib: true, classLabel: (f, n) => `3학년 ${n + 8}반` });
 const WK = buildWalkway({ x1: -1.9, x2: 1.9, z1: -17.0, z2: -3.0 });
 const BLD = [MAIN, ANX, WK];
 BLD.forEach(b => { scene.add(b.root); if (b.models.length) placeModels(b.root, b.models, { shadows: false }); });

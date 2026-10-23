@@ -426,29 +426,6 @@ const ghost = {
   lose: 0, away: 0, replan: 0, enraged: false, stepT: 0, findT: 0, hunt: null, speedMul: 1, spawnGrace: 0,
 };
 
-/* ---------- 경로탐색 ---------- */
-function findPath(F, ax, az, bx, bz) {
-  if (los(F.walls, ax, az, bx, bz)) return [{ x: bx, z: bz }];
-  let A = -1, Ad = 1e9, B = -1, Bd = 1e9;
-  F.nodes.forEach((n, i) => {
-    if (los(F.walls, ax, az, n.x, n.z)) { const d = Math.hypot(ax - n.x, az - n.z); if (d < Ad) { Ad = d; A = i; } }
-    if (los(F.walls, bx, bz, n.x, n.z)) { const d = Math.hypot(bx - n.x, bz - n.z); if (d < Bd) { Bd = d; B = i; } }
-  });
-  if (A < 0 || B < 0) return [{ x: bx, z: bz }];
-  const dist = F.nodes.map(() => 1e9), prev = F.nodes.map(() => -1), done = F.nodes.map(() => false);
-  dist[A] = 0;
-  for (let it = 0; it < F.nodes.length; it++) {
-    let u = -1; for (let i = 0; i < dist.length; i++) if (!done[i] && (u < 0 || dist[i] < dist[u])) u = i;
-    if (u < 0 || dist[u] > 1e8) break; done[u] = true;
-    for (const v of F.adj[u]) { const w = dist[u] + Math.hypot(F.nodes[u].x - F.nodes[v].x, F.nodes[u].z - F.nodes[v].z); if (w < dist[v]) { dist[v] = w; prev[v] = u; } }
-  }
-  const out = []; for (let v = B; v >= 0; v = prev[v]) out.unshift({ x: F.nodes[v].x, z: F.nodes[v].z });
-  out.push({ x: bx, z: bz });
-  // 이미 지나온/직선으로 갈 수 있는 노드는 건너뛴다 (되돌아가며 떨리는 문제)
-  while (out.length > 1 && los(F.walls, ax, az, out[1].x, out[1].z)) out.shift();
-  return out;
-}
-
 function ghostLeave() {
   const G = ghost, opts = [0, 1, 2, 4].filter(f => f !== P.floor);
   G.floor = opts[(Math.random() * opts.length) | 0]; G.state = 'patrol'; G.path = []; G.hunt = null; G.away = 0; G.warned = false; G.visitT = 0; G.chaseT = 0;
@@ -7316,7 +7293,7 @@ const sgP = window.subGhostSystem;
 const SG = { ready: false, sheet: false, list: [], spawned: false };
 const SG_ZONES = [
   { id: 'sg_class', ch: [2, 2], aggro: false, f: 2, x: -9.5, z: -5.6, outfit: 'default_uniform', exp: 'blank', anim: 'idle', prop: 'sketchbook', beh: 'haunt', line: '다들... 여기 있어... 내 자리 지우지 마...' },
-  { id: 'sg_corr', ch: [3, 3], aggro: false, f: 1, x: 14, z: 0, outfit: 'white_dress', exp: 'empty', anim: 'float', prop: null, beh: 'patrol', line: '집에 갈 시간이 지났는데...' },
+  { id: 'sg_corr', ch: [3, 3], aggro: false, f: 1, x: 14, z: 0, outfit: 'white_dress', exp: 'empty', anim: 'float', prop: null, beh: 'haunt', line: '집에 갈 시간이 지났는데...' },
   { id: 'sg_toilet', ch: [1, 3], aggro: false, f: 0, x: -30.6, z: -3.4, outfit: 'bloody_uniform', exp: 'crying', anim: 'behind_you', prop: null, beh: 'mirror', line: '거울 속에... 내가 안 보여...' },
   { id: 'sg_stairs', ch: [4, 5], aggro: true, f: 1, x: 1.6, z: -6.2, outfit: 'old_uniform', exp: 'sad', anim: 'idle', prop: null, beh: 'stairs_ambush', line: '위층엔... 아무도 없어...' },
   { id: 'sg_art', ch: [3, 4], aggro: false, f: 10, x: 1.5, z: -7.4, outfit: 'art_apron', exp: 'blank', anim: 'idle', prop: 'palette', beh: 'art_event', line: '빨간색이... 아직 부족해...' },

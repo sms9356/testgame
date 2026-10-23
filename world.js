@@ -4,11 +4,11 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { NOTES } from './story.js?v=190';
+import { NOTES } from './story.js?v=191';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=190';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=191';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -666,12 +666,24 @@ export function buildWorld(scene) {
     tape5: { title: '녹음 테이프 — 교무부장의 마지막 참회록', spk: '교무부장 권오현', fx: 'radio' },
     tape_homeroom: { title: '녹음 테이프 — 3-2 담임 정은수 선생님', spk: '3-2 담임 정은수', fx: 'radio', minSh: 0 },
     tape_science: { title: '녹음 테이프 — 과학부장 최동혁 선생님', spk: '과학부장 최동혁', fx: 'radio', minSh: 0 },
-    tape_pe: { title: '녹음 테이프 — 당직 경비원 박종철 아저씨의 심야 증언', spk: '당직 경비원 박종철', fx: 'radio', minSh: 0 },
+    tape_pe: { title: '녹음 테이프 — 체육부장 강태식 선생님 (기록석)', spk: '체육부장 강태식', fx: 'radio', minSh: 0 },
+    // 2008년 민아가 모은 증언 카세트 — 서로 엇갈리는 진술을 맞춰 보며 가설을 검증한다
+    ts_junho: { title: '증언 카세트 — 방송부 3학년 이준호 (2008 인터뷰)', spk: '이준호 (전 방송부 3학년)', fx: 'radio', minSh: 0 },
+    ts_snack: { title: '증언 카세트 — 매점 아주머니', spk: '매점 아주머니 최순덕', fx: 'radio', minSh: 0 },
+    ts_paramedic: { title: '증언 카세트 — 서문소방서 구급대 출동 기록', spk: '구급대원 오석진', fx: 'radio', minSh: 0 },
+    ts_mother: { title: '증언 카세트 — 윤하늘 어머니', spk: '윤하늘 어머니', fx: 'radio', minSh: 0 },
+    ts_vice: { title: '증언 카세트 — 교감 노태수 (취재 녹취)', spk: '교감 노태수', fx: 'radio', minSh: 0 },
+    ts_dorm: { title: '증언 카세트 — 청운학사 사감 선생님', spk: '청운학사 사감 문정희', fx: 'radio', minSh: 0 },
+    ts_electric: { title: '증언 카세트 — 학교 전기 기사', spk: '전기 기사 배만수', fx: 'radio', minSh: 0 },
+    ts_pe2: { title: '증언 카세트 — 체육부장 강태식 (두 번째 테이프)', spk: '체육부장 강태식', fx: 'radio', minSh: 0 },
+    ts_reporter2: { title: '증언 카세트 — 서문일보 한진우 기자', spk: '서문일보 기자 한진우', fx: 'radio', minSh: 0 },
+    ts_mina: { title: '증언 카세트 — 민아의 취재 녹음 (셋째 날)', spk: '선배 박민아', fx: 'radio', minSh: 0 },
     tape_librarian: { title: '녹음 테이프 — 방송부 후배 서다은의 눈물의 참회록', spk: '방송부 2학년 서다은', fx: 'radio', minSh: 0 },
     tape_counselor: { title: '녹음 테이프 — 상담교사 오유진 선생님', spk: '상담교사 오유진', fx: 'radio', minSh: 0 },
   };
   const mTape = S(null, { color: 0x2a2a2c, roughness: .5, metalness: .3 });
   function tapeRecorder(id, x, y, z, ry = 0) {
+    if (props.some(p => p.kind === 'tape' && p.id === id)) return;   // 같은 방 빌더가 여러 층에서 돌아도 증언 테이프는 하나만
     const g = dyn(new THREE.Group()); g.position.set(x, y, z); g.rotation.y = ry; cur.interior.add(g);
     g.add(new THREE.Mesh(merge([bx(.26, .07, .15, 0, .035, 0), bx(.035, .015, .025, .09, .075, .05)]), mTape));
     const playBtn = dyn(new THREE.Mesh(new THREE.BoxGeometry(.038, .018, .026), S(null, { color: 0xb83228, roughness: .4 })));
@@ -1239,7 +1251,7 @@ export function buildWorld(scene) {
       col(sx - .32, sx + .35, sz - .34, sz + .34);
       addKey('office', 0, sx, .38, sz); const key = items[items.length - 1]; key.locked = true; key.mesh.visible = false;
       props.push({ kind: 'safe', floor: cur.f, x: sx + .9, z: sz, piv, key, open: 0, label: '금고 조사하기' }); }
-    addNote('n3', cx - 2.35, .77, -5.4); tapeRecorder('tape_homeroom', cx - 1.95, .77, -5.15, .25);
+    addNote('n3', cx - 2.35, .77, -5.4); tapeRecorder('tape_homeroom', cx - 1.95, .77, -5.15, .25); if (!cur.annex && cur.f === 0) tapeRecorder('ts_vice', cx + 2.62, .42, -3.22, -.3);
     papers(cx, -8, -2.4, 14);
   }
     function infirmarySlot(id, kind, x, z, parts, yaw = 0) { const holder = new THREE.Group(), fallback = new THREE.Group(); holder.name = id; holder.userData.dynamic = fallback.userData.dynamic = true; holder.position.set(x, 0, z); holder.rotation.y = yaw; holder.add(fallback); cur.interior.add(holder); holder.updateWorldMatrix(true, true); parts.forEach(p => fallback.attach(p)); INFIRMARY_SLOTS.push({ id, kind, holder, fallback }); return holder; } function nurse(cx) {
@@ -1249,7 +1261,7 @@ export function buildWorld(scene) {
     { const parts = [add(mLockerT, .9, 1.7, .4, cx + 3.6, 0, -6.5, { ry: Math.PI / 2, col: true }), add(mGlass, .9, 1.7, .44, cx + 3.6, 0, -6.5, { ry: Math.PI / 2 })]; infirmarySlot(`nurse-${cur.f}-cabinet`, "cabinetClosed", cx + 3.6, -6.5, parts, -Math.PI / 2); }
     tbl(mWood, 1.2, .75, .6, cx - 3.2, 0, -5.4, { col: true, ry: Math.PI / 2, legMat: mLegMetal });
     addNote('n2', cx - 3.2, .75, -5.4);
-    tapeRecorder('tape1', cx - 3.2, .75, -4.95, .4);
+    tapeRecorder('tape1', cx - 3.2, .75, -4.95, .4); tapeRecorder('ts_paramedic', cx - 3.2, .75, -5.8, -.3); tapeRecorder('ts_mother', cx - 3.32, .75, -5.42, .9);
     blood('splat', cx + 2.4, .02, -6.0, 1.2, 0, true);
     addBattery(cx + 2.4, .5, -8.4); addMedkit(cx + 2.4, .66, -7.6);
     model('wheelchair_01', cx + 1.2, 0, -4.4, -.7, { col: [.85, 1.1] }); model('medical_box', cx + 3.86, 1.5, -4.0, -Math.PI / 2);
@@ -1262,7 +1274,7 @@ export function buildWorld(scene) {
     add(mWood, 1.0, .4, .6, cx, 0, -7.4, { col: true });
     add(mFabric, .8, .45, .8, cx - 2.4, 0, -6.4, { ry: Math.PI / 2, col: true });
     shelf3D(cx + 3.55, -6.0, -Math.PI / 2, 1.4, 2.0, .45, 5, .75);
-    addBattery(cx + 0.2, .4, -7.4); if (!cur.annex && cur.f === 0 && !curSouth) tapeRecorder('tape_counselor', cx - 0.25, .40, -7.35, .2);
+    addBattery(cx + 0.2, .4, -7.4); if (!cur.annex && cur.f === 0 && !curSouth) { tapeRecorder('tape_counselor', cx - 0.25, .40, -7.35, .2); tapeRecorder('ts_dorm', cx + .4, .40, -7.3, -.2); }
     papers(cx, -8, -2.4, 5);
   }
   function library(cx) {
@@ -1296,7 +1308,7 @@ export function buildWorld(scene) {
     model('h133/SCI-005', cx + 2.45, .92, -7.95, -.4); model('h133/SCI-005', cx - 2.35, .92, -4.15, .5); model('h133/SCI-006', cx + 2.35, .92, -5.35, Math.PI / 2);
     add(mMetal, .5, .5, .5, cx + 3.45, 0, -2.45, { col: true });   // 문 쪽 구석 (예전 -4.2 자리는 실험대와 0.3m 틈만 남아 북동쪽 구석이 갇혔다)
     if (!items.some(i => i.kind === 'key' && i.idx === 2)) addKey('lab', 2, cx - 2.4, .92, -4.8);
-    addNote('n5', cx + 2.4, .92, -7.4); tapeRecorder('tape_science', cx + 2.15, .92, -6.85, -.25);
+    addNote('n5', cx + 2.4, .92, -7.4); tapeRecorder('tape_science', cx + 2.15, .92, -6.85, -.25); tapeRecorder('ts_electric', cx + 2.2, .92, -6.35, .2);
     papers(cx, -8, -2.4, 8);
     if (cur.annex) classClue(cx, 'S-01');
   }
@@ -2642,7 +2654,7 @@ export function buildWorld(scene) {
       model('h133/BRO-007', mx - .78, .71, mz - .08, .35, { s: .65 });
       meshAt(new THREE.BoxGeometry(.24, .014, .32), mPaperN, mx - .45, .768, mz - .12, .08);
       meshAt(new THREE.BoxGeometry(.24, .014, .32), mPaperN, mx + .45, .768, mz - .12, -.08);
-      tapeRecorder('tape2', mx + .02, .765, mz + .08, -.2);
+      tapeRecorder('tape2', mx + .02, .765, mz + .08, -.2); tapeRecorder('ts_mina', mx + .84, .765, mz + .1, .25);
       addNote('n8', mx - .18, .765, mz - .15);
       swivelChair08(mx - .50, mz - .68, 0, '방송실');
       swivelChair08(mx + .50, mz - .68, 0, '방송실');
@@ -2917,7 +2929,7 @@ export function buildWorld(scene) {
     const d4 = R(8.3, 1.2, 2.1, 3.3);  // 4 기록 조사 책상 (서약서 · 명부 · 테이프)
     meshAt(merge([bx(1.0, .04, 2.0, 0, .75, 0), bx(.95, .72, .05, 0, .36, -.95), bx(.95, .72, .05, 0, .36, .95), bx(.05, .3, 1.9, .45, .55, 0)]), mWoodDark, d4.x, 0, d4.z); col(d4.x - .5, d4.x + .5, d4.z - 1.0, d4.z + 1.0);
     { const lamp = meshAt(merge([new THREE.CylinderGeometry(.08, .1, .03, 12).translate(0, .015, 0), tube(.01, 0, 0, 0, .08, .35, 0), new THREE.ConeGeometry(.1, .12, 12, 1, true).translate(.1, .32, 0)]), mDarkMetal, d4.x - .3, .77, d4.z - .7); }
-    addNote('n12', d4.x, .77, d4.z - .45); tapeRecorder('tape3', d4.x + .1, .77, d4.z + .45, .2);
+    addNote('n12', d4.x, .77, d4.z - .45); tapeRecorder('tape3', d4.x + .1, .77, d4.z + .45, .2); tapeRecorder('ts_junho', d4.x + .12, .77, d4.z + .85, -.2); tapeRecorder('ts_reporter2', d4.x + .15, .77, d4.z + .02, .3);
     deskChair(d4.x - .8, d4.z, -Math.PI / 2);
     const d5 = R(8.3, 6.5, 2.1, 2);    // 5 잠긴 서랍장
     fileCabinet(d5.x + .3, d5.z - .18, -Math.PI / 2); fileCabinet(d5.x + .3, d5.z + .68, -Math.PI / 2);
@@ -3715,7 +3727,7 @@ export function buildWorld(scene) {
     // 식당 홀
     const tabs = [[-43.5, 16], [-39.2, 16], [-34.9, 16], [-43.5, 19.2], [-34.9, 19.2]];
     tabs.forEach(([x, z]) => benchTable(x, z, 3.2));
-    addMedkit(-34.5, .95, 12.9); addNote('n13', -39.2, .8, 16);
+    addMedkit(-34.5, .95, 12.9); addNote('n13', -39.2, .8, 16); tapeRecorder('ts_snack', -38.3, .8, 16.05, .4);
     tabs.forEach(([x, z]) => { for (let k = 0; k < 3; k++) if (rnd() < .7) tray(x - 1 + k + rr(-.1, .1), .79, z + (rnd() < .5 ? -.22 : .22), rr(-.3, .3)); });
     addBattery(-34.9, .79, 19.2);
     for (let k = 0; k < 8; k++) { const m = new THREE.Mesh(new THREE.PlaneGeometry(.28, .2), mDirtPaper); m.rotation.set(-Math.PI / 2, 0, rnd() * 6); m.position.set(rr(-46, -32), .02, rr(14, 21)); F.interior.add(m); }
@@ -4113,7 +4125,7 @@ export function buildWorld(scene) {
     // 기록석, 전광판 (코트 서쪽)
     add(mWoodDark, 1.2, .8, 2.6, 29.3, 0, 21.4, { col: true }); add(mBlack, .45, .45, .45, 30.4, 0, 22.8);
     plane(F.interior, mScore, 3, 1.1, x0 + t + .03, 3.2, 21.4, Math.PI / 2);
-    addKey('gym', 3, 29.3, .8, 21.8); addNote('n9', 29.3, .82, 20.4); tapeRecorder('tape_pe', 29.3, .82, 19.35, Math.PI / 2);
+    addKey('gym', 3, 29.3, .8, 21.8); addNote('n9', 29.3, .82, 20.4); tapeRecorder('tape_pe', 29.3, .82, 19.35, Math.PI / 2); tapeRecorder('ts_pe2', 29.1, .82, 22.35, Math.PI / 2);
     cur.photoHere = true; addPhoto('p2', 36.2, 1.1, 11.9, .3);
     for (let k = 0; k < 5; k++) { const b = new THREE.Mesh(new THREE.SphereGeometry(.12, 16, 12), mBall); b.position.set(rr(31, 42), .12, rr(14, 27)); b.rotation.set(rnd() * 3, rnd() * 3, 0); cur.interior.add(b); }
     // 코트 주변 기구

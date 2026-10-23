@@ -9,12 +9,12 @@
   #go { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,.6); font-size:18px; cursor:pointer; }
 </style></head>
 <body>
-<div id="hud"><b>재건축 본관 미리보기</b> (R3 · 실사 PBR 재질 · 반사 · 그림자)<br>WASD 이동 · E 문 열기/닫기 · 마우스 시점 · Shift 달리기 · F 손전등 · L 형광등 켜기/끄기 · 1~4 층 이동<br><span id="where"></span></div>
+<div id="hud"><b>재건축 본관 미리보기</b> (R4 · 본관 4층 + 별관 3층 + 연결 통로)<br>WASD 이동 · E 문 열기/닫기 · 마우스 시점 · Shift 달리기 · F 손전등 · L 형광등 켜기/끄기 · 1~4 층 이동<br><span id="where"></span></div>
 <div id="hint" style="position:fixed;left:50%;bottom:18%;transform:translateX(-50%);background:rgba(0,0,0,.6);padding:6px 12px;border-radius:5px;font-size:14px"></div>
 <div id="go">클릭해서 시작</div>
 <script type="module">
 import * as THREE from '../vendor/three.module.js';
-import { buildMainBuilding } from './mainBuilding.js';
+import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './mainBuilding.js';
 import { placeModels } from './models.js';
 import { EffectComposer } from '../vendor/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from '../vendor/addons/postprocessing/RenderPass.js';
@@ -24,7 +24,22 @@ const R = new THREE.WebGLRenderer({ antialias: true }); R.setPixelRatio(Math.min
 R.toneMapping = THREE.ACESFilmicToneMapping; R.outputColorSpace = THREE.SRGBColorSpace; R.shadowMap.enabled = true; document.body.appendChild(R.domElement);
 const scene = new THREE.Scene(); scene.background = new THREE.Color(0x1a1820); scene.fog = new THREE.Fog(0x1a1820, 20, 140);
 const cam = new THREE.PerspectiveCamera(70, innerWidth / innerHeight, .05, 400);
-const B = buildMainBuilding(); scene.add(B.root); placeModels(B.root, B.models, { shadows: false });
+const MAIN = buildMainBuilding();
+// 별관: 본관 북쪽 20m, 180° 돌려 복도 · 현관이 본관을 마주 보게 — 1층 현관끼리 유리 연결 통로로 잇는다
+const ANX = buildMainBuilding({ spec: ANNEX_SPEC, plan: ANNEX_PLAN, x: 0, z: -20, ry: Math.PI, name: 'REBUILD_ANNEX', label: '별관', prefix: '', classLabel: (f, n) => `3학년 ${n + 8}반` });
+const WK = buildWalkway({ x1: -1.9, x2: 1.9, z1: -17.0, z2: -3.0 });
+const BLD = [MAIN, ANX, WK];
+BLD.forEach(b => { scene.add(b.root); if (b.models.length) placeModels(b.root, b.models, { shadows: false }); });
+// 여러 건물을 하나처럼: 세계 좌표 → 각 건물 좌표로 바꿔 묻는다
+const B = {
+  spec: MAIN.spec, col: [],
+  groundAt(x, z, feet) { let best = null; for (const b of BLD) { const [lx, lz] = b.toLocal(x, z), g = b.groundAt(lx, lz, feet); if (g != null && (best == null || g > best)) best = g; } return best; },
+  blocked(x, z, y, r) { return BLD.some(b => { const [lx, lz] = b.toLocal(x, z); return b.col.some(c => !c.off && lx + r > c.x1 && lx - r < c.x2 && lz + r > c.z1 && lz - r < c.z2 && y + 1.7 > c.y1 + .001 && y + .35 < c.y2); }); },
+  nearDoor(x, z, y) { let best = null, bd = 9; for (const b of BLD) { const [lx, lz] = b.toLocal(x, z), d = b.nearDoor(lx, lz, y); if (d) { const dd = Math.hypot(d.mx - lx, d.mz - lz); if (dd < bd) { bd = dd; best = d; } } } return best; },
+  tickDoors(dt) { BLD.forEach(b => b.tickDoors(dt)); },
+  lights: BLD.flatMap(b => b.lights.map(l => { const [x, z] = b.toWorld(l.x, l.z); return { x, y: l.y, z }; })),
+  where(x, z, f) { for (const b of BLD) { const [lx, lz] = b.toLocal(x, z); const r = b.props.find(p => p.kind === 'room' && p.floor === f && lx > p.x1 && lx < p.x2 && lz > p.z1 && lz < p.z2); if (r) return b.name + ' ' + r.label; if (b.layout && lx > -b.layout.L / 2 && lx < b.layout.L / 2 && lz > b.layout.zN && lz < b.layout.zS) return b.name + (lz < 0 ? ' 복도' : ''); } return '바깥'; },
+};
 // 반사 환경: 형광등 줄이 달린 어두운 방을 PMREM 으로 구워 유리 · 니스 · 물갈기 바닥에 은은한 반사를 준다
 { const env = new THREE.Scene(), pm = new THREE.PMREMGenerator(R);
   env.add(new THREE.Mesh(new THREE.BoxGeometry(20, 6, 20), new THREE.MeshBasicMaterial({ color: 0x15161a, side: THREE.BackSide })));
@@ -48,7 +63,7 @@ addEventListener('mousemove', e => { if (!document.pointerLockElement) return; P
 const C = new EffectComposer(R); C.addPass(new RenderPass(scene, cam)); const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), .08, .3, .985); C.addPass(bloom); C.addPass(new OutputPass());
 addEventListener('resize', () => { cam.aspect = innerWidth / innerHeight; cam.updateProjectionMatrix(); R.setSize(innerWidth, innerHeight); C.setSize(innerWidth, innerHeight); });
 const RAD = .3, EYE = 1.6;
-const blocked = (x, z, y) => B.col.some(c => !c.off && x + RAD > c.x1 && x - RAD < c.x2 && z + RAD > c.z1 && z - RAD < c.z2 && y + 1.7 > c.y1 + .001 && y + .35 < c.y2);
+const blocked = (x, z, y) => B.blocked(x, z, y, RAD);
 let last = performance.now();
 function tick(now) {
   const dt = Math.min(.05, (now - last) / 1000); last = now;
@@ -63,11 +78,11 @@ function tick(now) {
   // 가까운 형광등 10개
   const near = B.lights.map(l => [l, (l.x - P.x) ** 2 + (l.z - P.z) ** 2 + ((l.y - P.y - 2) * 3) ** 2]).sort((a, b) => a[1] - b[1]).slice(0, pool.length);
   pool.forEach((pl, i) => { const n = near[i]; if (!n || !lampsOn) { pl.intensity = 0; return; } pl.position.set(n[0].x, n[0].y, n[0].z); pl.intensity = 3.6; });
-  const f = Math.round(P.y / B.spec.FH), room = B.props.find(p => p.kind === 'room' && p.floor === f && P.x > p.x1 && P.x < p.x2 && P.z > p.z1 && P.z < p.z2);
-  document.getElementById('where').textContent = `${f + 1}층 · ${room ? room.label : P.z < 0 ? '복도' : ''}  (x ${P.x.toFixed(1)}, z ${P.z.toFixed(1)})`;
+  const f = Math.round(P.y / B.spec.FH);
+  document.getElementById('where').textContent = `${f + 1}층 · ${B.where(P.x, P.z, f)}  (x ${P.x.toFixed(1)}, z ${P.z.toFixed(1)})`;
   C.render(); requestAnimationFrame(tick);
 }
 requestAnimationFrame(tick);
-window.__rb = { B, P, cam, R, scene };
+window.__rb = { B, P, cam, R, scene, MAIN, ANX, WK };
 </script>
 </body></html>

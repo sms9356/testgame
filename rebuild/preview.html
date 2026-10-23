@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>재건축 본관 미리보기</title>
+<style>
+  :root { --bg:#0b0c0e; --fg:#e8e4da; --mut:#9a968c; }
+  html,body { margin:0; height:100%; background:var(--bg); color:var(--fg); font-family:system-ui,'Noto Sans KR',sans-serif; overflow:hidden; }
+  #hud { position:fixed; left:12px; top:12px; background:rgba(0,0,0,.55); padding:10px 12px; border-radius:6px; font-size:13px; line-height:1.55; max-width:340px; }
+  #hud b { color:#ffd27a; } #where { color:#9fe0a8; }
+  #go { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,.6); font-size:18px; cursor:pointer; }
+</style></head>
+<body>
+<div id="hud"><b>재건축 본관 미리보기</b> (v1 · 본관 4층, 93m)<br>WASD 이동 · 마우스 시점 · Shift 달리기 · F 손전등 · L 형광등 켜기/끄기 · 1~4 층 이동<br><span id="where"></span></div>
+<div id="go">클릭해서 시작</div>
+<script type="module">
+import * as THREE from '../vendor/three.module.js';
+import { buildMainBuilding } from './mainBuilding.js';
+const R = new THREE.WebGLRenderer({ antialias: true }); R.setPixelRatio(Math.min(devicePixelRatio, 1.5)); R.setSize(innerWidth, innerHeight);
+R.toneMapping = THREE.ACESFilmicToneMapping; R.outputColorSpace = THREE.SRGBColorSpace; R.shadowMap.enabled = true; document.body.appendChild(R.domElement);
+const scene = new THREE.Scene(); scene.background = new THREE.Color(0x1a1820); scene.fog = new THREE.Fog(0x1a1820, 20, 140);
+const cam = new THREE.PerspectiveCamera(70, innerWidth / innerHeight, .05, 400);
+const B = buildMainBuilding(); scene.add(B.root);
+scene.add(new THREE.HemisphereLight(0x8890a8, 0x2a2420, .35));
+const moon = new THREE.DirectionalLight(0xb0b8d8, .5); moon.position.set(-30, 60, 40); scene.add(moon);
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(400, 400), new THREE.MeshStandardMaterial({ color: 0x3a3a34, roughness: 1 })); ground.rotation.x = -Math.PI / 2; ground.position.y = -.26; scene.add(ground);
+// 형광등: 가까운 것만 실제 광원 (예산 10개)
+const pool = Array.from({ length: 10 }, () => { const l = new THREE.PointLight(0xf2f4ff, 0, 9, 1.6); scene.add(l); return l; });
+let lampsOn = true;
+const torch = new THREE.SpotLight(0xfff2d8, 0, 28, .45, .5, 1.4); cam.add(torch); cam.add(torch.target); torch.target.position.set(0, 0, -1); scene.add(cam);
+const P = { x: -40, z: -1.3, y: 0, vy: 0, yaw: -Math.PI / 2, pitch: 0 }, keys = {};
+addEventListener('keydown', e => { keys[e.code] = 1; if (e.code === 'KeyF') torch.intensity = torch.intensity ? 0 : 40; if (e.code === 'KeyL') lampsOn = !lampsOn; if (/Digit[1-4]/.test(e.code)) { const f = +e.code.slice(5) - 1; P.y = f * B.spec.FH; P.vy = 0; P.z = -1.3; } });
+addEventListener('keyup', e => keys[e.code] = 0);
+document.getElementById('go').onclick = () => R.domElement.requestPointerLock();
+document.addEventListener('pointerlockchange', () => document.getElementById('go').style.display = document.pointerLockElement ? 'none' : 'flex');
+addEventListener('mousemove', e => { if (!document.pointerLockElement) return; P.yaw -= e.movementX * .0022; P.pitch = Math.max(-1.4, Math.min(1.4, P.pitch - e.movementY * .0022)); });
+addEventListener('resize', () => { cam.aspect = innerWidth / innerHeight; cam.updateProjectionMatrix(); R.setSize(innerWidth, innerHeight); });
+const RAD = .3, EYE = 1.6;
+const blocked = (x, z, y) => B.col.some(c => x + RAD > c.x1 && x - RAD < c.x2 && z + RAD > c.z1 && z - RAD < c.z2 && y + 1.7 > c.y1 + .001 && y + .35 < c.y2);
+let last = performance.now();
+function tick(now) {
+  const dt = Math.min(.05, (now - last) / 1000); last = now;
+  const sp = (keys.ShiftLeft ? 5.2 : 2.8) * dt, fx = -Math.sin(P.yaw), fz = -Math.cos(P.yaw);
+  let mx = 0, mz = 0; if (keys.KeyW) { mx += fx; mz += fz; } if (keys.KeyS) { mx -= fx; mz -= fz; } if (keys.KeyA) { mx += fz; mz -= fx; } if (keys.KeyD) { mx -= fz; mz += fx; }
+  const ml = Math.hypot(mx, mz); if (ml) { mx *= sp / ml; mz *= sp / ml; }
+  const tryMove = (nx, nz) => { const g = B.groundAt(nx, nz, P.y); if (g == null) return false; const ny = Math.max(P.y, g); if (blocked(nx, nz, ny)) return false; P.x = nx; P.z = nz; return true; };
+  if (!tryMove(P.x + mx, P.z + mz)) { tryMove(P.x + mx, P.z) || tryMove(P.x, P.z + mz); }
+  const g = B.groundAt(P.x, P.z, P.y); if (g != null) { if (P.y < g + .001 || P.y - g < .5) { P.y += (g - P.y) * Math.min(1, dt * 14); P.vy = 0; } else { P.vy -= 9.8 * dt; P.y = Math.max(g, P.y + P.vy * dt); } }
+  cam.position.set(P.x, P.y + EYE, P.z); cam.rotation.set(P.pitch, P.yaw, 0, 'YXZ');
+  // 가까운 형광등 10개
+  const near = B.lights.map(l => [l, (l.x - P.x) ** 2 + (l.z - P.z) ** 2 + ((l.y - P.y - 2) * 3) ** 2]).sort((a, b) => a[1] - b[1]).slice(0, pool.length);
+  pool.forEach((pl, i) => { const n = near[i]; if (!n || !lampsOn) { pl.intensity = 0; return; } pl.position.set(n[0].x, n[0].y, n[0].z); pl.intensity = 6; });
+  const f = Math.round(P.y / B.spec.FH), room = B.props.find(p => p.kind === 'classroom' && p.floor === f && P.x > p.x1 && P.x < p.x2 && P.z > p.z1 && P.z < p.z2);
+  document.getElementById('where').textContent = `${f + 1}층 · ${room ? room.label + ' 교실' : P.z < 0 ? '복도' : ''}  (x ${P.x.toFixed(1)}, z ${P.z.toFixed(1)})`;
+  R.render(scene, cam); requestAnimationFrame(tick);
+}
+requestAnimationFrame(tick);
+window.__rb = { B, P, cam, R, scene };
+</script>
+</body></html>

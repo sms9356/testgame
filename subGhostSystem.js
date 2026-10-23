@@ -222,7 +222,7 @@ class SubGhostNPCSheetSystem {
     expressionKey = "sad",
     animState = "idle",
     propKey = null,
-    behavior = "haunt", // 'haunt'(자리 지킴) | 'patrol'(복도 부유) | 'weeping'(안 볼 때 접근) | 'mirror'(거울)
+    behavior = "haunt", // 'haunt'(자리 지킴) | 'patrol'(제자리 부유 · 이동 없음) | 'weeping'(안 볼 때 접근) | 'mirror'(거울)
     dialogue = "다들... 여기 있어..."
   } = {}) {
     if (!this.scene) return null;
@@ -525,9 +525,8 @@ class SubGhostNPCSheetSystem {
       const dist = g.root.position.distanceTo(playerPos);
 
       // 1) 부유 이동(float) 및 복도 배회(patrol) 모션
-      if (g.animState === "float" || g.behavior === "patrol") {
+      if (g.animState === "float" || g.behavior === "patrol") {   // 제자리 부유만 (배회 동선 삭제)
         g.root.position.y = g.baseY + Math.sin(g.phase) * 0.14 + 0.12;
-        g.root.position.z += Math.cos(g.phase * 0.5) * dt * 0.65;
       } else {
         // 미세한 호흡/떨림
         g.mainPlane.position.x = Math.sin(g.phase * 7) * 0.006;

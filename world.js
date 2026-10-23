@@ -4,11 +4,11 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { NOTES } from './story.js?v=193';
+import { NOTES } from './story.js?v=194';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=193';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=194';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -1024,11 +1024,8 @@ export function buildWorld(scene) {
     cur.interior.add(new THREE.Mesh(merge([
       bx(.18, CH, .18, cx - 3.76, CH / 2, zN + .10),
       bx(.18, CH, .18, cx + 3.76, CH / 2, zN + .10),
-      bx(.18, CH, .18, cx - 3.76, CH / 2, -5.65),
-      bx(.18, CH, .18, cx + 3.76, CH / 2, -5.65),
       bx(.18, CH, .18, cx - 3.76, CH / 2, -1.85),
-      bx(.18, CH, .18, cx + 3.76, CH / 2, -1.85),
-      bx(7.68, .18, .22, cx, CH - .09, -5.65)
+      bx(.18, CH, .18, cx + 3.76, CH / 2, -1.85)   // 교실 한가운데를 가로지르던 기둥 2개 · 낮은 보는 뺐다 (방 안에 틀이 서 있는 것처럼 보였다)
     ]), mPillar08));
 
     // 출입문 바닥 다크그레이 신발털이 매트 & 알루미늄 도어실
@@ -1161,7 +1158,7 @@ export function buildWorld(scene) {
     deskGrid(
       cx,
       [-2.94, -2.26, -0.34, 0.34, 2.26, 2.94],
-      [-7.02, -6.22, -5.42, -4.62, -3.82, -3.02],
+      [-7.0, -6.0, -5.0, -4.0, -3.0],   // 5줄 · 줄 간격 1.0m · 맨 뒷줄 의자와 뒤쪽 사물함 사이 0.2m (예전 0.8m는 의자가 뒷줄 책상에 박혀 책상이 붙어 보였다)
       0.03,
       false,
       { keep, tidy: true, knock: 0, room: name }

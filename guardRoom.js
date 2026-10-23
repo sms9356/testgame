@@ -167,7 +167,7 @@ export function installGuardRoom({ renderer, scene, camera, guardRoom, cctvTextu
       }
       refs.lamp.name = 'GUARDROOM_CEILING_LAMP'; if (!v6 || !refs.lamp.parent) { refs.lamp.position.set(1.75,2.475,-1.4); stage.add(refs.lamp); }
       refs.light = new THREE.PointLight(0xffe7ba,0,5,2); refs.light.name='GUARDROOM_LOCAL_LIGHT';
-      refs.light.position.set(1.75,2.2,-1.4); stage.add(refs.light);
+      refs.light.position.set(1.75,2.2,-1.4); refs.light.layers.set(7); stage.add(refs.light);   // 카메라 레이어 밖(7): perfStabilizer 조명 풀이 대신 비춘다 — 경비실 보일 때마다 조명 수가 바뀌어 전체 셰이더가 다시 만들어지던 끊김
       // Disable when parent already provides the room's roof. Nominal top remains 2.5m.
       if (guardRoom.ceilingCover !== false) {
         const material = guardRoom.templates?.wall?.clone() || new THREE.MeshStandardMaterial({color:0xd9d5c8,side:THREE.DoubleSide});

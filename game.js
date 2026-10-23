@@ -2232,7 +2232,7 @@ function load(preferBackup) {
 
 function start(skipIntro = false) {
   beginStorySession(); const epoch=storySession; psychologicalDirector.quiet(35);
-  initAudio(); closeMenus(); applyChar();
+  initAudio(); closeMenus(); applyChar(); setTimeout(() => prewarmFloors(true, fx.composer.renderTarget1).catch(() => {}), 400);   // 시작 연출 동안 나중에 생긴 재질까지 한 번 더 예열
   if (!readingSave) { DAY.k = .92; DAY.start = -1; DAY.done = false; delete FL.night; GUARD_WALK.startedWalk = false; GUARD_WALK.greetedGate = false; }
   refreshHud(); chapterShown = objective().ch;
   if (skipIntro || TEST) { finishIntro(); return; }
@@ -3042,7 +3042,7 @@ function updateSupernaturalChalkboards(dt) {
       const fullStr = br.targetLines.join('\n');
       const curStr = fullStr.slice(0, br.writtenChars);
       const partialLines = curStr.split('\n');
-      br.mat.map = world.makeBoardTex(partialLines, { seed: br.seed });
+      { const old = br.mat.map; br.mat.map = world.makeBoardTex(partialLines, { seed: br.seed }); if (old && old.userData && old.userData.boardGen) old.dispose(); br.mat.map.userData.boardGen = true; }   // 한 글자마다 새 캔버스 텍스처 — 이전 것을 버리지 않으면 GPU 메모리가 쌓여 점점 끊긴다
       br.mat.needsUpdate = true;
       if (br.writtenChars % 2 === 1 && sfx.pick) sfx.pick();
       if (br.writtenChars >= fullStr.length) {
@@ -7449,7 +7449,7 @@ function sg3dTick(dt) {
     let op = fade ? Math.max(0, g.opacity) : 1;
     if (g.animState === 'fade' || fade) op *= .75 + .25 * Math.sin(t * 23) * Math.sin(t * 7.3);   // 깜빡이며 옅어짐
     else if (Math.sin(t * .37) > .985) op *= .55;                                                // 가끔 지직— 흐려짐
-    g.mats3d.forEach(mt => { const tr = op < .999; if (mt.transparent !== tr) { mt.transparent = tr; mt.needsUpdate = true; } mt.opacity = op; mt.depthWrite = op > .5; });
+    g.mats3d.forEach(mt => { if (!mt.transparent) { mt.transparent = true; mt.needsUpdate = true; } mt.opacity = op; mt.depthWrite = op > .5; });   // 투명 여부를 매번 바꾸면 깜빡일 때마다 셰이더 재컴파일 → 끊김. 처음 한 번만 투명으로 고정
   });
 }
 
@@ -8346,7 +8346,7 @@ setTimeout(() => {
   // warmUp & prewarmFloors 비활성화: 초반 정문·경비실 앞에서 전 층 셰이더 동시 컴파일로 발생하던 렉 원천 제거
   loadModels(); addLookProps();
 }, 120);
-setTimeout(() => prewarmFloors().catch(() => {}), 2200);
+setTimeout(() => prewarmFloors(false, fx.composer.renderTarget1).catch(() => {}), 2200);
 
 /* ---------- 설정 화면 ---------- */
 let settingsFrom = null, setTab = 'gfx';

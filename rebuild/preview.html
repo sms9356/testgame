@@ -9,31 +9,43 @@
   #go { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,.6); font-size:18px; cursor:pointer; }
 </style></head>
 <body>
-<div id="hud"><b>재건축 본관 미리보기</b> (R2 · 본관 4층, 93m · 1층 관리실 · 4층 특별실)<br>WASD 이동 · E 문 열기/닫기 · 마우스 시점 · Shift 달리기 · F 손전등 · L 형광등 켜기/끄기 · 1~4 층 이동<br><span id="where"></span></div>
+<div id="hud"><b>재건축 본관 미리보기</b> (R3 · 실사 PBR 재질 · 반사 · 그림자)<br>WASD 이동 · E 문 열기/닫기 · 마우스 시점 · Shift 달리기 · F 손전등 · L 형광등 켜기/끄기 · 1~4 층 이동<br><span id="where"></span></div>
 <div id="hint" style="position:fixed;left:50%;bottom:18%;transform:translateX(-50%);background:rgba(0,0,0,.6);padding:6px 12px;border-radius:5px;font-size:14px"></div>
 <div id="go">클릭해서 시작</div>
 <script type="module">
 import * as THREE from '../vendor/three.module.js';
 import { buildMainBuilding } from './mainBuilding.js';
+import { EffectComposer } from '../vendor/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from '../vendor/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from '../vendor/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from '../vendor/addons/postprocessing/OutputPass.js';
 const R = new THREE.WebGLRenderer({ antialias: true }); R.setPixelRatio(Math.min(devicePixelRatio, 1.5)); R.setSize(innerWidth, innerHeight);
 R.toneMapping = THREE.ACESFilmicToneMapping; R.outputColorSpace = THREE.SRGBColorSpace; R.shadowMap.enabled = true; document.body.appendChild(R.domElement);
 const scene = new THREE.Scene(); scene.background = new THREE.Color(0x1a1820); scene.fog = new THREE.Fog(0x1a1820, 20, 140);
 const cam = new THREE.PerspectiveCamera(70, innerWidth / innerHeight, .05, 400);
 const B = buildMainBuilding(); scene.add(B.root);
+// 반사 환경: 형광등 줄이 달린 어두운 방을 PMREM 으로 구워 유리 · 니스 · 물갈기 바닥에 은은한 반사를 준다
+{ const env = new THREE.Scene(), pm = new THREE.PMREMGenerator(R);
+  env.add(new THREE.Mesh(new THREE.BoxGeometry(20, 6, 20), new THREE.MeshBasicMaterial({ color: 0x15161a, side: THREE.BackSide })));
+  for (let i = -2; i <= 2; i++) { const l = new THREE.Mesh(new THREE.PlaneGeometry(1.2, .3), new THREE.MeshBasicMaterial({ color: 0xffffff })); l.position.set(i * 3.5, 2.9, 0); l.rotation.x = Math.PI / 2; env.add(l); }
+  const win = new THREE.Mesh(new THREE.PlaneGeometry(16, 2), new THREE.MeshBasicMaterial({ color: 0x3a4660 })); win.position.set(0, 1.5, 9.9); win.rotation.y = Math.PI; env.add(win);
+  scene.environment = pm.fromScene(env, .03).texture; scene.environmentIntensity = .3; }
+R.shadowMap.type = THREE.PCFSoftShadowMap;
 scene.add(new THREE.HemisphereLight(0x8890a8, 0x2a2420, .35));
-const moon = new THREE.DirectionalLight(0xb0b8d8, .5); moon.position.set(-30, 60, 40); scene.add(moon);
+const moon = new THREE.DirectionalLight(0xb0b8d8, .9); moon.position.set(-30, 60, 40); moon.castShadow = true; moon.shadow.mapSize.set(2048, 2048); Object.assign(moon.shadow.camera, { left: -60, right: 60, top: 30, bottom: -30, far: 160 }); moon.shadow.bias = -.0006; scene.add(moon);
 const ground = new THREE.Mesh(new THREE.PlaneGeometry(400, 400), new THREE.MeshStandardMaterial({ color: 0x3a3a34, roughness: 1 })); ground.rotation.x = -Math.PI / 2; ground.position.y = -.26; scene.add(ground);
 // 형광등: 가까운 것만 실제 광원 (예산 10개)
 const pool = Array.from({ length: 10 }, () => { const l = new THREE.PointLight(0xf2f4ff, 0, 9, 1.6); scene.add(l); return l; });
 let lampsOn = true;
-const torch = new THREE.SpotLight(0xfff2d8, 0, 28, .45, .5, 1.4); cam.add(torch); cam.add(torch.target); torch.target.position.set(0, 0, -1); scene.add(cam);
+const torch = new THREE.SpotLight(0xfff2d8, 0, 28, .45, .5, 1.4); torch.castShadow = true; torch.shadow.mapSize.set(1024, 1024); torch.shadow.bias = -.0008; cam.add(torch); cam.add(torch.target); torch.target.position.set(0, 0, -1); scene.add(cam);
 const P = { x: -40, z: -1.3, y: 0, vy: 0, yaw: -Math.PI / 2, pitch: 0 }, keys = {};
 addEventListener('keydown', e => { keys[e.code] = 1; if (e.code === 'KeyF') torch.intensity = torch.intensity ? 0 : 40; if (e.code === 'KeyL') lampsOn = !lampsOn; if (e.code === 'KeyE') { const d = B.nearDoor(P.x, P.z, P.y); if (d) d.target = d.target ? 0 : 1; } if (/Digit[1-4]/.test(e.code)) { const f = +e.code.slice(5) - 1; P.y = f * B.spec.FH; P.vy = 0; P.z = -1.3; } });
 addEventListener('keyup', e => keys[e.code] = 0);
 document.getElementById('go').onclick = () => R.domElement.requestPointerLock();
 document.addEventListener('pointerlockchange', () => document.getElementById('go').style.display = document.pointerLockElement ? 'none' : 'flex');
 addEventListener('mousemove', e => { if (!document.pointerLockElement) return; P.yaw -= e.movementX * .0022; P.pitch = Math.max(-1.4, Math.min(1.4, P.pitch - e.movementY * .0022)); });
-addEventListener('resize', () => { cam.aspect = innerWidth / innerHeight; cam.updateProjectionMatrix(); R.setSize(innerWidth, innerHeight); });
+const C = new EffectComposer(R); C.addPass(new RenderPass(scene, cam)); const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), .08, .3, .985); C.addPass(bloom); C.addPass(new OutputPass());
+addEventListener('resize', () => { cam.aspect = innerWidth / innerHeight; cam.updateProjectionMatrix(); R.setSize(innerWidth, innerHeight); C.setSize(innerWidth, innerHeight); });
 const RAD = .3, EYE = 1.6;
 const blocked = (x, z, y) => B.col.some(c => !c.off && x + RAD > c.x1 && x - RAD < c.x2 && z + RAD > c.z1 && z - RAD < c.z2 && y + 1.7 > c.y1 + .001 && y + .35 < c.y2);
 let last = performance.now();
@@ -49,10 +61,10 @@ function tick(now) {
   cam.position.set(P.x, P.y + EYE, P.z); cam.rotation.set(P.pitch, P.yaw, 0, 'YXZ');
   // 가까운 형광등 10개
   const near = B.lights.map(l => [l, (l.x - P.x) ** 2 + (l.z - P.z) ** 2 + ((l.y - P.y - 2) * 3) ** 2]).sort((a, b) => a[1] - b[1]).slice(0, pool.length);
-  pool.forEach((pl, i) => { const n = near[i]; if (!n || !lampsOn) { pl.intensity = 0; return; } pl.position.set(n[0].x, n[0].y, n[0].z); pl.intensity = 6; });
+  pool.forEach((pl, i) => { const n = near[i]; if (!n || !lampsOn) { pl.intensity = 0; return; } pl.position.set(n[0].x, n[0].y, n[0].z); pl.intensity = 3.6; });
   const f = Math.round(P.y / B.spec.FH), room = B.props.find(p => p.kind === 'room' && p.floor === f && P.x > p.x1 && P.x < p.x2 && P.z > p.z1 && P.z < p.z2);
   document.getElementById('where').textContent = `${f + 1}층 · ${room ? room.label : P.z < 0 ? '복도' : ''}  (x ${P.x.toFixed(1)}, z ${P.z.toFixed(1)})`;
-  R.render(scene, cam); requestAnimationFrame(tick);
+  C.render(); requestAnimationFrame(tick);
 }
 requestAnimationFrame(tick);
 window.__rb = { B, P, cam, R, scene };

@@ -16,11 +16,16 @@ export function installPerf(ctx) {
   return C;
 }
 
+// 나중에 생긴 점조명(보조 귀신 · 패치 소품 · 이벤트 조명)도 풀로 흡수 — 빠지면 조명 수가 바뀌어 전체 셰이더 재컴파일(수백 ms 멈춤)
+function scanLights() {
+  const seen = new Set(C.src); C.src = C.src.filter(o => o.parent);
+  C.scene.traverse(o => { if (o.isPointLight && !o.userData.perfPool) { if (o.layers.test(C.camera.layers)) { o.layers.disable(0); o.layers.enable(HIDE); } if (!seen.has(o)) C.src.push(o); } });
+}
 function rebuild() {
   const { scene, floors, world } = C;
   // 점조명 (풀 제외) — 카메라 레이어에서 빼 조명 개수 계산에 들어가지 않게
   C.src = [];
-  scene.traverse(o => { if (o.isPointLight && !o.userData.perfPool) { if (o.layers.test(C.camera.layers)) { o.layers.disable(0); o.layers.enable(HIDE); } C.src.push(o); } });
+  scanLights();
   const roots = [...floors.filter(f => f && f.interior).map(f => [f.interior, 'in']), [world.OUT, 'out']];
   for (const [root, kind] of roots) visit(root, kind, 0);
 }
@@ -90,6 +95,7 @@ export function perfTick(dt, indoors) {
   const ms = Math.min(250, dt * 1000); C.avg += (ms - C.avg) * .05;
   C.t += dt; C.rebuildT += dt;
   if (!C._rebuiltOnce && C.rebuildT > 4) { C._rebuiltOnce = true; rebuild(); }
+  C.lightT = (C.lightT || 0) + dt; if (C.lightT > 1.5) { C.lightT = 0; scanLights(); }
   if (C.t > .25) {
     C.t = 0; const t0 = performance.now();
     if (C.avg > 45) C.R = Math.max(14, C.R - 1); else if (C.avg < 24) C.R = Math.min(30, C.R + .5);
@@ -100,19 +106,23 @@ export function perfInfo() { return C ? { R: C.R, avg: Math.round(C.avg), units:
 
 // 백그라운드 셰이더 준비: 시작 후 늦게 불러오는 모델(문 · 소품 GLB)은 로딩 때 warmUp 에 빠져, 처음 보는 순간
 // 셰이더를 만드느라 1~2초 멈췄다. 층마다 잠깐 visible 로 두고 compileAsync (병렬 컴파일 확장이 없으면 건너뜀).
-export async function prewarmFloors() {
-  return; // 전체 씬 23회 연속 중복 셰이더 컴파일로 인한 경비실 앞 렉 원천 차단!
-  const { renderer, scene, camera, floors, world } = C;
-  if (!renderer.extensions.has('KHR_parallel_shader_compile') || !renderer.compileAsync) return;
-  const roots = [...floors.filter(f => f && f.interior).flatMap(f => [f.interior, f.shell].filter(Boolean)), world.OUT];
-  const t0 = performance.now(), p0 = renderer.info.programs.length;
-  for (const r of roots) {
-    const v = r.visible; r.visible = true;
-    const hid = []; r.traverse(o => { if (o.isMesh && !o.layers.test(camera.layers)) { o.layers.enable(0); hid.push(o); } });
-    try { const pr = renderer.compileAsync(r, camera, scene); r.visible = v; hid.forEach(o => o.layers.disable(0)); await pr; } catch (e) { r.visible = v; }
-    await new Promise(res => setTimeout(res, 120));
-  }
-  C.prewarm = { ms: Math.round(performance.now() - t0), progs: renderer.info.programs.length - p0 };
+// 셰이더 예열: 처음 보는 구역마다 새 셰이더를 만드느라 0.1~0.5초씩 멈추던 문제 (측정: 구역 이동마다 87 → 271개 생성).
+// 예전처럼 층마다 23번 따로 돌리지 않고, 타이틀 화면에서 씬 전체를 한 번에 컴파일한다.
+export async function prewarmFloors(force = false, rt = null) {
+  if (!C || (C.prewarm && (!force || C.prewarm.pending))) return;
+  const { renderer, scene, camera } = C;
+  C.prewarm = { pending: true };
+  const t0 = performance.now(), p0 = renderer.info.programs.length, shown = [], hid = [];
+  scene.traverse(o => { if (!o.visible && !o.isLight) { o.visible = true; shown.push(o); } if (o.isMesh && !o.layers.test(camera.layers)) { o.layers.enable(0); hid.push(o); } });
+  const restore = () => { shown.forEach(o => { o.visible = false; }); hid.forEach(o => o.layers.disable(0)); };
+  // 실제 화면은 후처리 렌더 타깃에 그린다 → 톤매핑 · 색공간이 달라 셰이더가 따로 생긴다. 화면 직접 · 렌더 타깃 두 경우 모두 예열
+  const prevRT = renderer.getRenderTarget(), targets = [null, ...(rt ? [rt] : [])], pend = [];
+  try {
+    const par = renderer.compileAsync && renderer.extensions.has('KHR_parallel_shader_compile');
+    for (const t of targets) { renderer.setRenderTarget(t); if (par) pend.push(renderer.compileAsync(scene, camera)); else renderer.compile(scene, camera); }
+    renderer.setRenderTarget(prevRT); restore(); await Promise.all(pend);
+  } catch (e) { renderer.setRenderTarget(prevRT); restore(); }
+  C.prewarm = { ms: Math.round(performance.now() - t0), progs: renderer.info.programs.length - p0 }; (window.__prewarm ||= []).push(C.prewarm);
 }
 
 // CCTV captures need their own culling/light selection, then restore the player budget.

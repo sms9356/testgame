@@ -4,11 +4,11 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { NOTES } from './story.js?v=192';
+import { NOTES } from './story.js?v=193';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=192';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=193';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -669,7 +669,12 @@ export function buildWorld(scene) {
     tape_pe: { title: '녹음 테이프 — 체육부장 강태식 선생님 (기록석)', spk: '체육부장 강태식', fx: 'radio', minSh: 0 },
     // 2008년 민아가 모은 증언 카세트 — 서로 엇갈리는 진술을 맞춰 보며 가설을 검증한다
     ts_junho: { title: '증언 카세트 — 방송부 3학년 이준호 (2008 인터뷰)', spk: '이준호 (전 방송부 3학년)', fx: 'radio', minSh: 0 },
-    ts_snack: { title: '증언 카세트 — 매점 아주머니', spk: '매점 아주머니 최순덕', fx: 'radio', minSh: 0 },
+    ts_snack: { title: '증언 카세트 — 학우매점 아주머니', spk: '매점 아주머니 최순덕', fx: 'radio', minSh: 0 },
+    ts_snack2: { title: '증언 카세트 — 매점 외상 장부', spk: '매점 아주머니 최순덕', fx: 'radio', minSh: 0 },
+    ts_cook: { title: '증언 카세트 — 급식실 조리실장', spk: '조리실장 하정숙', fx: 'radio', minSh: 0 },
+    ts_music: { title: '증언 카세트 — 음악교사 윤서경', spk: '음악교사 윤서경', fx: 'radio', minSh: 0 },
+    ts_art: { title: '증언 카세트 — 미술교사 박정우', spk: '미술교사 박정우', fx: 'radio', minSh: 0 },
+    ts_janitor: { title: '증언 카세트 — 청소 담당 김순례', spk: '환경미화원 김순례', fx: 'radio', minSh: 0 },
     ts_paramedic: { title: '증언 카세트 — 서문소방서 구급대 출동 기록', spk: '구급대원 오석진', fx: 'radio', minSh: 0 },
     ts_mother: { title: '증언 카세트 — 윤하늘 어머니', spk: '윤하늘 어머니', fx: 'radio', minSh: 0 },
     ts_vice: { title: '증언 카세트 — 교감 노태수 (취재 녹취)', spk: '교감 노태수', fx: 'radio', minSh: 0 },
@@ -677,6 +682,13 @@ export function buildWorld(scene) {
     ts_electric: { title: '증언 카세트 — 학교 전기 기사', spk: '전기 기사 배만수', fx: 'radio', minSh: 0 },
     ts_pe2: { title: '증언 카세트 — 체육부장 강태식 (두 번째 테이프)', spk: '체육부장 강태식', fx: 'radio', minSh: 0 },
     ts_reporter2: { title: '증언 카세트 — 서문일보 한진우 기자', spk: '서문일보 기자 한진우', fx: 'radio', minSh: 0 },
+    gd_radio1: { title: '경비 무전 교신 ① 22:15 — 펌프실 쪽 철문 두드리는 소리', spk: '당직 경비원 박종철', fx: 'radio' },
+    gd_radio2: { title: '경비 무전 교신 ② 23:05 — “아침에 열라고유?”', spk: '당직 경비원 박종철', fx: 'radio' },
+    gd_radio3: { title: '경비 무전 교신 ③ 23:20 — 정전, 지하의 소리가 멎다', spk: '당직 경비원 박종철', fx: 'radio' },
+    gd_log1: { title: '경비 근무 일지 — 1998.10.12 (교대 기록)', spk: '당직 경비원 박종철', fx: 'none' },
+    gd_log2: { title: '경비 근무 일지 — 1998.10.13 새벽 (찢으라던 장)', spk: '당직 경비원 박종철', fx: 'none' },
+    gd_log3: { title: '경비 근무 일지 — 1999.2 마지막 근무', spk: '당직 경비원 박종철', fx: 'none' },
+    ts_guard: { title: '증언 카세트 — 전 당직 경비원 박종철 (2008, 민아 녹음)', spk: '전 경비원 박종철', fx: 'radio', minSh: 0 },
     ts_mina: { title: '증언 카세트 — 민아의 취재 녹음 (셋째 날)', spk: '선배 박민아', fx: 'radio', minSh: 0 },
     tape_librarian: { title: '녹음 테이프 — 방송부 후배 서다은의 눈물의 참회록', spk: '방송부 2학년 서다은', fx: 'radio', minSh: 0 },
     tape_counselor: { title: '녹음 테이프 — 상담교사 오유진 선생님', spk: '상담교사 오유진', fx: 'radio', minSh: 0 },
@@ -1274,7 +1286,7 @@ export function buildWorld(scene) {
     add(mWood, 1.0, .4, .6, cx, 0, -7.4, { col: true });
     add(mFabric, .8, .45, .8, cx - 2.4, 0, -6.4, { ry: Math.PI / 2, col: true });
     shelf3D(cx + 3.55, -6.0, -Math.PI / 2, 1.4, 2.0, .45, 5, .75);
-    addBattery(cx + .05, .4, -7.6); if (!cur.annex && cur.f === 0 && !curSouth) { tapeRecorder('tape_counselor', cx - 0.25, .40, -7.35, .2); tapeRecorder('ts_dorm', cx + .38, .40, -7.25, -.2); }
+    addBattery(cx + .05, .4, -7.6); if (!cur.annex && cur.f === 0 && !curSouth) { tapeRecorder('tape_counselor', cx - 0.25, .40, -7.35, .2); }
     papers(cx, -8, -2.4, 5);
   }
   function library(cx) {
@@ -1308,7 +1320,7 @@ export function buildWorld(scene) {
     model('h133/SCI-005', cx + 2.45, .92, -7.95, -.4); model('h133/SCI-005', cx - 2.35, .92, -4.15, .5); model('h133/SCI-006', cx + 2.35, .92, -5.35, Math.PI / 2);
     add(mMetal, .5, .5, .5, cx + 3.45, 0, -2.45, { col: true });   // 문 쪽 구석 (예전 -4.2 자리는 실험대와 0.3m 틈만 남아 북동쪽 구석이 갇혔다)
     if (!items.some(i => i.kind === 'key' && i.idx === 2)) addKey('lab', 2, cx - 2.4, .92, -4.8);
-    addNote('n5', cx + 2.4, .92, -7.4); tapeRecorder('tape_science', cx + 2.15, .92, -6.85, -.25); tapeRecorder('ts_electric', cx + 2.2, .92, -6.35, .2);
+    addNote('n5', cx + 2.4, .92, -7.4); tapeRecorder('tape_science', cx + 2.15, .92, -6.85, -.25);
     papers(cx, -8, -2.4, 8);
     if (cur.annex) classClue(cx, 'S-01');
   }
@@ -2897,6 +2909,7 @@ export function buildWorld(scene) {
     const m2 = E(2.2, 6.4, 3.5, 1.2);  // 4 전기 절연 매트
     add(mRubber, m2.w, .015, m2.d, m2.x, 0, m2.z);
     const t = E(5.8, 6.4, 1.3, 1.2);   // 5 공구 가방 (+ 응급 밴드)
+    tapeRecorder('ts_electric', t.x - .45, 0, t.z - .2, .4);   // 전기 기사 증언: 분전반 앞 바닥 공구 가방 옆
     meshAt(merge([bx(.5, .26, .25, 0, .13, 0), tube(.012, -.15, .26, 0, -.1, .38, 0), tube(.012, .15, .26, 0, .1, .38, 0), tube(.012, -.1, .38, 0, .1, .38, 0)]), mBagB, t.x, 0, t.z, .3); addMedkit(t.x + .45, 0, t.z);
     // 주 차단기 (분전반 A 정면)
     meshAt(merge([bx(.12, 1.0, .8, 0, 1.4, 0), bx(.04, .9, .7, .07, 1.4, 0)]), S(T.makeMetal([110, 116, 112]), { roughness: .6, metalness: .4 }), cx - 3.3, 0, -5.4);
@@ -3456,8 +3469,8 @@ export function buildWorld(scene) {
     if (!o.basement && f < 2) F.shell.add(boxMesh(-36.6, 36.6, FH - .14, FH + .14, zs1, zs1 + .2, mFacade, 3));
     if (!o.basement) wins.forEach(x => F.shell.add(boxMesh(x - (LS ? .8 : 1.35), x + (LS ? .8 : 1.35), .82, .9, zs1, zs1 + .17, mFacade, 3))); if (!o.basement && F.winSlots && F.winSlots.length) F.shell.add(F.winFake = buildWindowFakes(F.winSlots, f));   // 멀리서 보이는 창 너머 교실 (실내가 꺼져 있을 때만)
     if (f === 0) {   // 현관: 계단 + 캐노피 + 기둥 + 교명 간판
-      for (let k = 0; k < 3; k++) { F.shell.add(boxMesh(-3.2 + k * .25, 3.2 - k * .25, 0, .12 * (k + 1), zs1, zs1 + 1.65 - k * .45, mStep, 2)); col(-3.2 + k * .25, 3.2 - k * .25, zs1, zs1 + 1.65 - k * .45, false, .12 * (k + 1)); }   // 걸어 오르는 현관 계단 (한 단 0.12m)
-      F.shell.add(boxMesh(-1.5, 1.5, 0, .2, zs0, zs1, mStep, 2));   // 현관 문턱 (충돌은 아래 '충돌 보정' 뒤에)
+      F.shell.add(boxMesh(-3.2, 3.2, 0, .06, zs1, zs1 + 1.65, mStep, 2)); F.shell.add(boxMesh(-3.25, 3.25, 0, .03, zs1 + 1.65, zs1 + 1.8, mStep, 2)); col(-3.2, 3.2, zs1, zs1 + 1.8, false, .06);   // 현관 앞 포치: 실내 바닥과 바깥 광장이 같은 높이라 계단 없이 얕은 판 하나 (예전 3단은 문 앞에서 올라갔다 내려가는 단차가 생겼다)   // 걸어 오르는 현관 계단 (한 단 0.12m)
+      F.shell.add(boxMesh(-1.5, 1.5, 0, .06, zs0, zs1, mStep, 2));   // 현관 문턱 (충돌은 아래 '충돌 보정' 뒤에)
       F.shell.add(boxMesh(-3.0, 3.0, 2.95, 3.2, zs1, zs1 + 2.85, mCanopy, 3)); F.shell.add(boxMesh(-3.05, 3.05, 3.02, 3.18, zs1 + 2.85, zs1 + 2.94, mFacadeTrim, 3)); for (let k = 0; k < 6; k++) F.shell.add(boxMesh(-2.8, 2.8, 2.91, 2.95, zs1 + .22 + k * .45, zs1 + .29 + k * .45, mCanopy, 3));
       [-2.6, 2.6].forEach(x => F.shell.add(boxMesh(x - .18, x + .18, 0, 2.95, zs1 + 2.3, zs1 + 2.66, mFacadeTrim, 3)));
       // campusDesign owns the school sign.
@@ -3466,7 +3479,7 @@ export function buildWorld(scene) {
     F.col = F.col.filter(r => !(r.z1 === zs0 && r.z2 === zs1) && !(r.z1 === Z0 && r.z2 === -9.6));
     F.walls = F.walls.filter(r => !(r.z1 === zs0 && r.z2 === zs1) && !(r.z1 === Z0 && r.z2 === -9.6));
     if (f <= 2 && !o.basement) { col(X0, .05, Z0, -9.6, true); col(1.55, X1, Z0, -9.6, true); } else col(X0, X1, Z0, -9.6, true);
-    if (f === 0) { col(-36.3, -1.5, zs0, zs1, true); col(1.5, 36.3, zs0, zs1, true); col(-1.5, 1.5, zs0, zs1, false, .2); }   // 현관 문턱: 실내 바닥 0 ↔ 계단 꼭대기 0.36 사이 한 단 (걸어서 넘는다)
+    if (f === 0) { col(-36.3, -1.5, zs0, zs1, true); col(1.5, 36.3, zs0, zs1, true); col(-1.5, 1.5, zs0, zs1, false, .06); }   // 현관 문턱: 실내 바닥 0 ↔ 계단 꼭대기 0.36 사이 한 단 (걸어서 넘는다)
     else col(-36.3, 36.3, zs0, zs1, true);
 
     // 지붕 / 시계탑
@@ -3727,7 +3740,7 @@ export function buildWorld(scene) {
     // 식당 홀
     const tabs = [[-43.5, 16], [-39.2, 16], [-34.9, 16], [-43.5, 19.2], [-34.9, 19.2]];
     tabs.forEach(([x, z]) => benchTable(x, z, 3.2));
-    addMedkit(-34.5, .95, 12.9); addNote('n13', -39.2, .8, 16); tapeRecorder('ts_snack', -38.3, .8, 16.05, .4);
+    addMedkit(-34.5, .95, 12.9); addNote('n13', -39.2, .8, 16); tapeRecorder('ts_cook', -38.3, .8, 16.05, .4);
     tabs.forEach(([x, z]) => { for (let k = 0; k < 3; k++) if (rnd() < .7) tray(x - 1 + k + rr(-.1, .1), .79, z + (rnd() < .5 ? -.22 : .22), rr(-.3, .3)); });
     addBattery(-34.9, .79, 19.2);
     for (let k = 0; k < 8; k++) { const m = new THREE.Mesh(new THREE.PlaneGeometry(.28, .2), mDirtPaper); m.rotation.set(-Math.PI / 2, 0, rnd() * 6); m.position.set(rr(-46, -32), .02, rr(14, 21)); F.interior.add(m); }

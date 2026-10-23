@@ -9,13 +9,16 @@
   #go { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,.6); font-size:18px; cursor:pointer; }
 </style></head>
 <body>
-<div id="hud"><b>재건축 본관 미리보기</b> (R4 · 본관 4층 + 별관 3층 + 연결 통로)<br>WASD 이동 · E 문 열기/닫기 · 마우스 시점 · Shift 달리기 · F 손전등 · L 형광등 켜기/끄기 · 1~4 층 이동<br><span id="where"></span></div>
+<div id="hud"><b>재건축 본관 미리보기</b> (R4 · 본관 4층 + 별관 3층 + 연결 통로)<br>WASD 이동 · E 문 · 쪽지 · 녹음기 · 마우스 시점 · Shift 달리기 · F 손전등 · L 형광등 켜기/끄기 · 1~4 층 이동<br><span id="where"></span></div>
 <div id="hint" style="position:fixed;left:50%;bottom:18%;transform:translateX(-50%);background:rgba(0,0,0,.6);padding:6px 12px;border-radius:5px;font-size:14px"></div>
+<div id="note" style="display:none;position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(560px,90vw);max-height:70vh;overflow:auto;background:#e9e2cf;color:#1c1813;padding:18px 22px;border-radius:4px;font-family:serif;line-height:1.6;box-shadow:0 10px 40px rgba(0,0,0,.6)"></div>
+<div id="sub" style="display:none;position:fixed;left:50%;bottom:8%;transform:translateX(-50%);width:min(760px,92vw);background:rgba(0,0,0,.7);padding:10px 14px;border-radius:5px;font-size:15px;line-height:1.5"></div>
 <div id="go">클릭해서 시작</div>
 <script type="module">
 import * as THREE from '../vendor/three.module.js';
 import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './mainBuilding.js';
 import { placeModels } from './models.js';
+import { NOTES } from '../story.js';
 import { EffectComposer } from '../vendor/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from '../vendor/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from '../vendor/addons/postprocessing/UnrealBloomPass.js';
@@ -35,8 +38,9 @@ const B = {
   spec: MAIN.spec, col: [],
   groundAt(x, z, feet) { let best = null; for (const b of BLD) { const [lx, lz] = b.toLocal(x, z), g = b.groundAt(lx, lz, feet); if (g != null && (best == null || g > best)) best = g; } return best; },
   blocked(x, z, y, r) { return BLD.some(b => { const [lx, lz] = b.toLocal(x, z); return b.col.some(c => !c.off && lx + r > c.x1 && lx - r < c.x2 && lz + r > c.z1 && lz - r < c.z2 && y + 1.7 > c.y1 + .001 && y + .35 < c.y2); }); },
-  nearDoor(x, z, y) { let best = null, bd = 9; for (const b of BLD) { const [lx, lz] = b.toLocal(x, z), d = b.nearDoor(lx, lz, y); if (d) { const dd = Math.hypot(d.mx - lx, d.mz - lz); if (dd < bd) { bd = dd; best = d; } } } return best; },
+  nearDoor(x, z, y) { let best = null, bd = 9; for (const b of BLD) { const [lx, lz] = b.toLocal(x, z), d = b.nearDoor(lx, lz, y); if (d) { const dd = Math.hypot(d.mx - lx, d.mz - lz); if (dd < bd) { bd = dd; best = d; best.dist2 = dd; } } } return best; },
   tickDoors(dt) { BLD.forEach(b => b.tickDoors(dt)); },
+  nearClue(x, z, y) { let best = null; for (const b of BLD) { const [lx, lz] = b.toLocal(x, z); for (const p of b.props) { if (p.kind !== 'note' && p.kind !== 'tape') continue; if (Math.abs((p.floor ?? 0) * MAIN.spec.FH - y) > 1) continue; const d = Math.hypot(p.x - lx, p.z - lz); if (d < 1.5 && (!best || d < best.dist)) best = { p, dist: d }; } } return best; },
   lights: BLD.flatMap(b => b.lights.map(l => { const [x, z] = b.toWorld(l.x, l.z); return { x, y: l.y, z }; })),
   where(x, z, f) { for (const b of BLD) { const [lx, lz] = b.toLocal(x, z); const r = b.props.find(p => p.kind === 'room' && p.floor === f && lx > p.x1 && lx < p.x2 && lz > p.z1 && lz < p.z2); if (r) return b.name + ' ' + r.label; if (b.layout && lx > -b.layout.L / 2 && lx < b.layout.L / 2 && lz > b.layout.zN && lz < b.layout.zS) return b.name + (lz < 0 ? ' 복도' : ''); } return '바깥'; },
 };
@@ -55,7 +59,7 @@ const pool = Array.from({ length: 10 }, () => { const l = new THREE.PointLight(0
 let lampsOn = true;
 const torch = new THREE.SpotLight(0xfff2d8, 0, 28, .45, .5, 1.4); torch.castShadow = true; torch.shadow.mapSize.set(1024, 1024); torch.shadow.bias = -.0008; cam.add(torch); cam.add(torch.target); torch.target.position.set(0, 0, -1); scene.add(cam);
 const P = { x: -40, z: -1.3, y: 0, vy: 0, yaw: -Math.PI / 2, pitch: 0 }, keys = {};
-addEventListener('keydown', e => { keys[e.code] = 1; if (e.code === 'KeyF') torch.intensity = torch.intensity ? 0 : 40; if (e.code === 'KeyL') lampsOn = !lampsOn; if (e.code === 'KeyE') { const d = B.nearDoor(P.x, P.z, P.y); if (d) d.target = d.target ? 0 : 1; } if (/Digit[1-4]/.test(e.code)) { const f = +e.code.slice(5) - 1; P.y = f * B.spec.FH; P.vy = 0; P.z = -1.3; } });
+addEventListener('keydown', e => { keys[e.code] = 1; if (e.code === 'KeyF') torch.intensity = torch.intensity ? 0 : 40; if (e.code === 'KeyL') lampsOn = !lampsOn; if (e.code === 'KeyE') { if (noteOpen()) { closeNote(); return; } const c = B.nearClue(P.x, P.z, P.y), d = B.nearDoor(P.x, P.z, P.y); if (c && (!d || c.dist < d.dist2)) useClue(c.p); else if (d) d.target = d.target ? 0 : 1; } if (/Digit[1-4]/.test(e.code)) { const f = +e.code.slice(5) - 1; P.y = f * B.spec.FH; P.vy = 0; P.z = -1.3; } });
 addEventListener('keyup', e => keys[e.code] = 0);
 document.getElementById('go').onclick = () => R.domElement.requestPointerLock();
 document.addEventListener('pointerlockchange', () => document.getElementById('go').style.display = document.pointerLockElement ? 'none' : 'flex');
@@ -73,7 +77,7 @@ function tick(now) {
   const tryMove = (nx, nz) => { const g = B.groundAt(nx, nz, P.y); if (g == null) return false; const ny = Math.max(P.y, g); if (blocked(nx, nz, ny)) return false; P.x = nx; P.z = nz; return true; };
   if (!tryMove(P.x + mx, P.z + mz)) { tryMove(P.x + mx, P.z) || tryMove(P.x, P.z + mz); }
   const g = B.groundAt(P.x, P.z, P.y); if (g != null) { if (P.y < g + .001 || P.y - g < .5) { P.y += (g - P.y) * Math.min(1, dt * 14); P.vy = 0; } else { P.vy -= 9.8 * dt; P.y = Math.max(g, P.y + P.vy * dt); } }
-  B.tickDoors(dt); { const d = B.nearDoor(P.x, P.z, P.y); document.getElementById('hint').textContent = d ? `[E] ${d.label} ${d.target ? '닫기' : '열기'}` : ''; }
+  B.tickDoors(dt); { const c = B.nearClue(P.x, P.z, P.y), d = B.nearDoor(P.x, P.z, P.y); document.getElementById('hint').textContent = noteOpen() ? '[E] 닫기' : c && (!d || c.dist < d.dist2) ? `[E] ${c.p.kind === 'note' ? (NOTES[c.p.id]?.title || '쪽지') + ' 읽기' : '녹음기 재생'}` : d ? `[E] ${d.label} ${d.target ? '닫기' : '열기'}` : ''; }
   cam.position.set(P.x, P.y + EYE, P.z); cam.rotation.set(P.pitch, P.yaw, 0, 'YXZ');
   // 가까운 형광등 10개
   const near = B.lights.map(l => [l, (l.x - P.x) ** 2 + (l.z - P.z) ** 2 + ((l.y - P.y - 2) * 3) ** 2]).sort((a, b) => a[1] - b[1]).slice(0, pool.length);
@@ -83,6 +87,16 @@ function tick(now) {
   C.render(); requestAnimationFrame(tick);
 }
 requestAnimationFrame(tick);
-window.__rb = { B, P, cam, R, scene, MAIN, ANX, WK };
+// 쪽지 읽기 · 녹음 재생 (게임과 같은 story.js 문서 · voice 녹음)
+let MAN = {}; fetch('../voice/manifest.json').then(r => r.json()).then(j => MAN = j).catch(() => {});
+const noteEl = document.getElementById('note'), subEl = document.getElementById('sub'); let audio = null;
+const noteOpen = () => noteEl.style.display === 'block';
+const closeNote = () => { noteEl.style.display = 'none'; };
+function useClue(p) {
+  if (p.kind === 'note') { const n = NOTES[p.id]; noteEl.innerHTML = `<h3>${n ? n.title : p.id}</h3><div>${n ? n.text : ''}</div><small>[E] 닫기</small>`; noteEl.style.display = 'block'; return; }
+  if (audio) audio.pause(); audio = new Audio('../voice/' + p.id + '.mp3'); audio.play().catch(() => {});
+  const m = MAN[p.id]; subEl.textContent = m ? m.text : '(녹음 재생 중)'; subEl.style.display = 'block'; audio.onended = () => subEl.style.display = 'none';
+}
+window.__rb = { B, P, cam, R, scene, MAIN, ANX, WK, useClue };
 </script>
 </body></html>

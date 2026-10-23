@@ -133,6 +133,9 @@ export function buildMainBuilding(opt = {}) {
     exitG: M('exitG', () => new THREE.MeshStandardMaterial({ color: 0x1fa64a, emissive: 0x1fa64a, emissiveIntensity: 1.2 })),
     deskTop: M('deskTop', () => new THREE.MeshStandardMaterial({ map: tx('d2_th102_wood_edge_BaseColor.webp', true), normalMap: tx('d2_th102_wood_edge_Normal.webp'), normalScale: new THREE.Vector2(.35, .35), roughness: .62, color: 0xffd9a8 })),   // 합판 상판
     deskLeg: M('deskLeg', () => new THREE.MeshStandardMaterial({ color: 0x3d4a44, roughness: .45, metalness: .6 })),
+    book0: M('book0', () => new THREE.MeshStandardMaterial({ color: 0x7a2a22, roughness: .8 })), book1: M('book1', () => new THREE.MeshStandardMaterial({ color: 0x23406a, roughness: .8 })),
+    book2: M('book2', () => new THREE.MeshStandardMaterial({ color: 0x2f5a36, roughness: .8 })), book3: M('book3', () => new THREE.MeshStandardMaterial({ color: 0xc8b48a, roughness: .85 })),
+    crt: M('crt', () => new THREE.MeshStandardMaterial({ color: 0xd2cab4, roughness: .55 })), screen: M('screen', () => new THREE.MeshStandardMaterial({ color: 0x0c1014, roughness: .15, metalness: .2 })),
     curtain: M('curtain', () => new THREE.MeshStandardMaterial({ color: 0x9fbfb6, roughness: .95, side: THREE.DoubleSide })),
     porc: M('porc', () => new THREE.MeshStandardMaterial({ color: 0xf2f2ee, roughness: .15 })),
     tile: M('tile', () => pbr('tfloor', { rough: .7 })),                                // 화장실 바닥 타일 (실사)
@@ -320,6 +323,13 @@ export function buildMainBuilding(opt = {}) {
   }
   // ── 특별실 집기 ──
   function desk(x, z, w = 1.4, d = .7, h = .74, key = 'deskTop') { box(key, x - w / 2, x + w / 2, y_ + h - .04, y_ + h, z - d / 2, z + d / 2); box('steelG', x - w / 2 + .02, x - w / 2 + .45, y_, y_ + h - .04, z - d / 2 + .02, z + d / 2 - .02); box('deskLeg', x + w / 2 - .05, x + w / 2 - .02, y_, y_ + h - .04, z - d / 2 + .02, z + d / 2 - .02); col.push({ x1: x - w / 2, x2: x + w / 2, z1: z - d / 2, z2: z + d / 2, y1: y_, y2: y_ + h }); }
+  // 책장 한 칸마다 책 줄 (높이 · 두께 · 색이 제각각, 가끔 비스듬히 쓰러진 책 · 빈칸)
+  let bseed = 7; const br = () => (bseed = (bseed * 16807) % 2147483647) / 2147483647;
+  function books(xf, zc, y, side) {
+    for (const ly of [.12, .52, .92, 1.32, 1.72]) { let z = zc - .64; while (z < zc + .62) { const t = .025 + br() * .04, h = .2 + br() * .12, dpt = .17 + br() * .05;
+      if (br() < .08) { z += .12; continue; }   // 빠진 책 자리
+      const key = 'book' + ((br() * 4) | 0); box(key, xf - side * dpt, xf, y + ly, y + ly + h, Math.min(z, z + t), z + t); z += t + .003; } }
+  }
   function chairAt(x, z) { box('rubber', x - .22, x + .22, y_ + .42, y_ + .5, z - .22, z + .22); box('rubber', x - .22, x + .22, y_ + .5, y_ + .95, z + .18, z + .24); box('deskLeg', x - .02, x + .02, y_ + .05, y_ + .42, z - .02, z + .02); }
   function cabinet(x1, x2, z1, z2, h = 1.8, key = 'steelG') { box(key, x1, x2, y_, y_ + h, z1, z2, { solid: true }); }
   function special(type, x1, x2, z1, z2, y0, f) {
@@ -379,7 +389,10 @@ export function buildMainBuilding(opt = {}) {
       mdl('standing_chalkboard_01', x1 + .8, y0, zm + 1.25, Math.PI / 2); col.push({ x1: x1 + .4, x2: x1 + 1.2, z1: zm + .75, z2: zm + 1.75, y1: y0, y2: y0 + 1.8 });   // 앞문 동선 밖, 앞쪽 벽 중앙
       props.push({ kind: 'search', label: '미술실 이젤 뒤 살펴보기', x: x1 + 4, y: y0 + 1, z: z2 - 1.3, floor: f });
     } else if (type === 'computer') {   // 컴퓨터실: PC 책상 3열 × 4줄(CRT 모니터 2대씩) · 서버 랙
-      for (let i = 0; i < 3; i++) for (let j = 0; j < 4; j++) { const x = x1 + 2.2 + i * 2.2, z = z1 + 1 + j * 1.6; desk(x, z, 1.6, .7, .74); box('rubber', x - .6, x - .2, y0 + .74, y0 + 1.12, z - .2, z + .2); box('rubber', x + .2, x + .6, y0 + .74, y0 + 1.12, z - .2, z + .2); }
+      for (let i = 0; i < 3; i++) for (let j = 0; j < 4; j++) { const x = x1 + 2.2 + i * 2.2, z = z1 + 1 + j * 1.6; desk(x, z, 1.6, .7, .74); [x - .4, x + .4].forEach(mx => { // 2008년식 베이지 CRT 모니터: 뒤가 좁은 몸체 + 앞 베젤 + 볼록 화면 + 받침 · 키보드
+        box('crt', mx - .19, mx + .19, y0 + .79, y0 + 1.12, z - .17, z + .03); box('crt', mx - .12, mx + .12, y0 + .83, y0 + 1.06, z + .03, z + .22);
+        box('screen', mx - .15, mx + .15, y0 + .82, y0 + 1.08, z - .175, z - .165); box('crt', mx - .1, mx + .1, y0 + .74, y0 + .79, z - .08, z + .12);
+        box('crt', mx - .21, mx + .21, y0 + .74, y0 + .76, z - .38, z - .24); }); }
       cabinet(x2 - .7, x2 - .1, z1 + .4, z1 + 1.1, 2.0, 'rubber');
       props.push({ kind: 'search', label: '교사용 PC 켜 보기', x: x1 + 1, y: y0 + 1, z: zm, floor: f });
     } else if (type === 'home' || type === 'study') {   // 가정실(조리대 4조) · 자율학습실(칸막이 열람석)
@@ -387,7 +400,7 @@ export function buildMainBuilding(opt = {}) {
       else for (let i = 0; i < 4; i++) for (let j = 0; j < 4; j++) { const x = x1 + 1.6 + i * 1.8, z = z1 + 2.2 + j * 1.3; desk(x, z, 1.0, .6, .74); box('lockerM', x - .5, x + .5, y0 + .74, y0 + 1.25, z - .32, z - .3); }
       props.push({ kind: 'search', label: type === 'home' ? '가정실 찬장 열기' : '자율학습실 사물함', x: x2 - .6, y: y0 + 1, z: zm, floor: f });
     } else if (type === 'library') {   // 도서실: 서가 열 · 열람 테이블 · 대출 데스크
-      for (let i = 0; i < 4; i++) { const x = x1 + 2.3 + i * 1.5; [z1 + 2.4, z1 + 3.78].forEach(z => { mdl('wooden_bookshelf_worn', x + .15, y0, z, Math.PI / 2); mdl('wooden_bookshelf_worn', x - .15, y0, z, -Math.PI / 2); }); col.push({ x1: x - .45, x2: x + .45, z1: z1 + 1.7, z2: z1 + 4.48, y1: y0, y2: y0 + 2.1 }); }   // 양면 서가 (실사 책장 2개 등맞댐)
+      for (let i = 0; i < 3; i++) { const x = x1 + 2.4 + i * 2.0; [z1 + 2.4, z1 + 3.78].forEach(z => { mdl('wooden_bookshelf_worn', x + .15, y0, z, Math.PI / 2); mdl('wooden_bookshelf_worn', x - .15, y0, z, -Math.PI / 2); books(x + .3, z, y0, 1); books(x - .3, z, y0, -1); }); col.push({ x1: x - .45, x2: x + .45, z1: z1 + 1.7, z2: z1 + 4.48, y1: y0, y2: y0 + 2.1 }); }   // 양면 서가 (실사 책장 2개 등맞댐)
       for (let k = 0; k < 2; k++) { const x = x1 + 2.2 + k * 3; desk(x, z2 - 1.8, 2.2, .9, .74, 'lockerM'); chairAt(x - .6, z2 - 1.1); chairAt(x + .6, z2 - 1.1); }
       desk(x2 - 1.1, zm + .6, 1.6, .7, .9, 'lockerM');
       props.push({ kind: 'search', label: '대출 데스크 서랍', x: x2 - 1.1, y: y0 + 1, z: zm + 1.1, floor: f });

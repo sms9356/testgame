@@ -393,9 +393,9 @@ export function buildMainBuilding(opt = {}) {
   function cabinet(x1, x2, z1, z2, h = 1.8, key = 'steelG', glassTop = false) { const narrowX = x2 - x1 < z2 - z1, front = narrowX ? (rmx > (x1 + x2) / 2 ? 'x+' : 'x-') : (rmz > (z1 + z2) / 2 ? 'z+' : 'z-'); cabinetD(x1, x2, z1, z2, y_, h, key, front, glassTop); }
   function special(type, x1, x2, z1, z2, y0, f) {
     y_ = y0; const zm = (z1 + z2) / 2, xm = (x1 + x2) / 2; rmx = xm; rmz = zm;
-    corkBoard(x1 + .4, x2 - .4, y0 + 1.3, y0 + 2.3, z1 + .02, 1);   // 복도 쪽 코르크 게시판
+    if (x2 - x1 > 6) corkBoard(x1 + 2.5, x2 - 2.5, y0 + .9, y0 + 1.5, z1 + .02, 1);   // 복도 쪽 코르크 게시판 (문 · 채광창 사이 벽면만)
     if (type === 'staff' || type === 'admin') {   // 교무실 · 행정실: 사무용 책상 섬 3개 × 6석, 캐비닛, 복사기
-      for (let i = 0; i < 3; i++) for (let j = 0; j < 2; j++) for (let k = 0; k < 3; k++) { const x = x1 + 1.6 + i * 2.5, z = z1 + 2.1 + k * 1.5 + j * .72; desk(x, z, 1.2, .7); chairAt(x, z + (j ? .55 : -.55)); box('rubber', x - .2, x + .2, y0 + .74, y0 + 1.05, z - .05, z + .05); }
+      for (let i = 0; i < 3; i++) for (let j = 0; j < 2; j++) for (let k = 0; k < 3; k++) { const x = x1 + 1.6 + i * 2.5, z = z1 + 2.1 + k * 1.5 + j * .72; desk(x, z, 1.2, .7); chairAt(x, z + (j ? .55 : -.55)); { const sd = j ? 1 : -1, zc = z - sd * .12; box('crt', x - .17, x + .17, y0 + .79, y0 + 1.08, zc - .1, zc + .1); box('crt', x - .1, x + .1, y0 + .82, y0 + 1.03, zc - sd * .1 - .06, zc - sd * .1 + .06); box('screen', x - .14, x + .14, y0 + .82, y0 + 1.05, zc + sd * .1 - .005, zc + sd * .1 + .005); box('crt', x - .09, x + .09, y0 + .74, y0 + .79, zc - .08, zc + .08); box('crt', x - .2, x + .2, y0 + .74, y0 + .76, zc + sd * .2 - .07, zc + sd * .2 + .07); } }
       cabinet(x2 - .5, x2 - .05, z1 + .3, z1 + 3.5); cabinet(x1 + .05, x1 + .5, z1 + .3, z2 - .5, 1.2);
       copier(x2 - 1.2, x2 - .3, z2 - 1.2, z2 - .5, y0);   // 복사기
       if (type === 'staff' && !opt.noClues && !s_staff++) { clueNote('n3', x1 + 1.6, y0 + .74, z1 + 2.1, f, .3); clueNote('n22', x1 + 4.1, y0 + .74, z1 + 3.6, f, -.2); clueTape('ts_vice', x1 + 6.6, y0 + .74, z1 + 5.1, f); }
@@ -482,12 +482,12 @@ export function buildMainBuilding(opt = {}) {
     box('terr', r.x1, r.x2, y0, y0 + .02, zN, zA);   // 층 참 (보행면은 슬래브 쪽에서)
     if (f < S.floors - 1) {
       // 1비행: 서측 반, 남쪽으로 올라감 / 중간참: 남쪽 끝 / 2비행: 동측 반, 북쪽으로 올라감
-      for (let i = 0; i < n; i++) { box('terr', xa, xa + w, y0, y0 + rise * (i + 1), zA + i * tr, zA + (i + 1) * tr); }
+      for (let i = 0; i < n; i++) { box('terr', xa, xa + w, Math.max(y0, y0 + rise * (i + 1) - .3), y0 + rise * (i + 1), zA + i * tr, zA + (i + 1) * tr); }
       walk.push({ x1: xa, x2: xa + w, z1: zA, z2: zB, h: (x, z) => y0 + Math.min(n, Math.max(0, Math.ceil((z - zA) / tr))) * rise, f, stair: true });
       box('terr', r.x1, r.x2, y0 + H / 2 - .25, y0 + H / 2, zB, zS);
       walk.push({ x1: r.x1, x2: r.x2, z1: zB, z2: zS, h: () => y0 + H / 2, f });
       {
-        for (let i = 0; i < n; i++) box('terr', xb, xb + w, y0 + H / 2, y0 + H / 2 + rise * (i + 1), zB - (i + 1) * tr, zB - i * tr);
+        for (let i = 0; i < n; i++) box('terr', xb, xb + w, y0 + H / 2 + rise * (i + 1) - .3, y0 + H / 2 + rise * (i + 1), zB - (i + 1) * tr, zB - i * tr);
         walk.push({ x1: xb, x2: xb + w, z1: zA, z2: zB, h: (x, z) => y0 + H / 2 + Math.min(n, Math.max(0, Math.ceil((zB - z) / tr))) * rise, f, stair: true });
       }
       // 계단 난간: 중앙 칸막이벽(1.1m) + 핸드레일
@@ -497,6 +497,8 @@ export function buildMainBuilding(opt = {}) {
     }
     // 계단실은 반자 없음: 위층 슬래브에 2비행 구멍 (구멍은 슬래브를 다시 쪼개는 대신 계단실 위 슬래브를 생략)
     stairwells.push({ x1: r.x1, x2: r.x2, z1: zA, z2: zS, f });
+    box('lamp', (r.x1 + r.x2) / 2 - .3, (r.x1 + r.x2) / 2 + .3, y0 + 2.6, y0 + 2.65, zN + .05, zN + .2); lights.push({ x: (r.x1 + r.x2) / 2, y: y0 + 2.5, z: zN + .8 });   // 층 참 벽등
+    if (f < S.floors - 1) { box('lamp', (r.x1 + r.x2) / 2 - .3, (r.x1 + r.x2) / 2 + .3, y0 + H / 2 + 2.3, y0 + H / 2 + 2.35, zS - .2, zS - .05); lights.push({ x: (r.x1 + r.x2) / 2, y: y0 + H / 2 + 2.2, z: zS - .8 }); }   // 중간참 벽등
     exitSign((r.x1 + r.x2) / 2, y0 + 2.35, zN + .05);
     extinguisher(r.x2 - .4, y0, zN + .4, 0);
     // 방화문 (계단실 ↔ 복도) 표시
@@ -517,7 +519,7 @@ export function buildMainBuilding(opt = {}) {
     });
     // 복도측 세면대 (수도 · 배관)
     // 세면대는 화장실 벽(복도 남쪽) 두 문 사이에 — 1층 현관 앞(북쪽 벽)을 막지 않게
-    for (let k = 0; k < 4; k++) { const x = xm - 1.5 + k * 1; box('porc', x - .3, x + .3, y0 + .75, y0 + .9, -.65, -.15, { solid: true }); box('alu', x - .02, x + .02, y0 + .9, y0 + 1.1, -.18, -.14); }
+    for (let k = 0; k < 4; k++) { const x = xm - 1.5 + k * 1; box('porc', x - .3, x + .3, y0 + .75, y0 + .9, -.65, -.6, { solid: true }); box('porc', x - .3, x + .3, y0 + .75, y0 + .9, -.2, -.15); box('porc', x - .3, x - .25, y0 + .75, y0 + .9, -.6, -.2); box('porc', x + .25, x + .3, y0 + .75, y0 + .9, -.6, -.2); box('porc', x - .25, x + .25, y0 + .75, y0 + .78, -.6, -.2); box('alu', x - .03, x + .03, y0 + .77, y0 + .781, -.43, -.37); box('porc', x - .07, x + .07, y0 + .3, y0 + .75, -.35, -.17); box('alu', x - .02, x + .02, y0 + .9, y0 + 1.02, -.19, -.15); box('alu', x - .015, x + .015, y0 + 1.0, y0 + 1.02, -.3, -.15); box('alu', x - .04, x + .04, y0 + 1.03, y0 + 1.06, -.19, -.15); box('glass', x - .28, x + .28, y0 + 1.25, y0 + 1.75, -.14, -.12); }
     box('alu', xm - 1.9, xm + 1.9, y0 + .3, y0 + .35, -.16, -.12);   // 급수관
     props.push({ kind: 'sink', label: '복도 세면대', x: xm, y: y0 + .9, z: -.4, floor: f });
     // 층 분전반 (EPS)

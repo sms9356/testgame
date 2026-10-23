@@ -133,6 +133,7 @@ export function buildMainBuilding(opt = {}) {
     exitG: M('exitG', () => new THREE.MeshStandardMaterial({ color: 0x1fa64a, emissive: 0x1fa64a, emissiveIntensity: 1.2 })),
     deskTop: M('deskTop', () => new THREE.MeshStandardMaterial({ map: tx('d2_th102_wood_edge_BaseColor.webp', true), normalMap: tx('d2_th102_wood_edge_Normal.webp'), normalScale: new THREE.Vector2(.35, .35), roughness: .62, color: 0xffd9a8 })),   // 합판 상판
     deskLeg: M('deskLeg', () => new THREE.MeshStandardMaterial({ color: 0x3d4a44, roughness: .45, metalness: .6 })),
+    curtain: M('curtain', () => new THREE.MeshStandardMaterial({ color: 0x9fbfb6, roughness: .95, side: THREE.DoubleSide })),
     porc: M('porc', () => new THREE.MeshStandardMaterial({ color: 0xf2f2ee, roughness: .15 })),
     tile: M('tile', () => pbr('tfloor', { rough: .7 })),                                // 화장실 바닥 타일 (실사)
     rubber: M('rubber', () => new THREE.MeshStandardMaterial({ color: 0x3a3a38, roughness: .8 })),
@@ -338,7 +339,7 @@ export function buildMainBuilding(opt = {}) {
       cabinet(x1 + .05, x1 + .5, z1 + .5, z2 - .5, 2.0, 'lockerM'); box('glass', x1 + .5, x1 + .52, y0 + .9, y0 + 1.9, z1 + .5, z2 - .5);
       props.push({ kind: 'search', label: '교장실 진열장 살펴보기', x: x1 + .8, y: y0 + 1.2, z: zm, floor: f });
     } else if (type === 'nurse') {   // 보건실: 침대 3 · 칸막이 커튼 · 약품장 · 세면대
-      for (let k = 0; k < 3; k++) { const z = z1 + 2.0 + k * 1.9; box('white', x2 - 2.1, x2 - .2, y0, y0 + .55, z - .45, z + .45, { solid: true }); box('porc', x2 - .5, x2 - .2, y0 + .55, y0 + .65, z - .4, z + .4); box('white', x2 - 2.1, x2 - .2, y0 + .05, y0 + 1.9, z + .6, z + .62); }
+      for (let k = 0; k < 3; k++) { const z = z1 + 2.0 + k * 1.9; box('white', x2 - 2.1, x2 - .2, y0, y0 + .55, z - .45, z + .45, { solid: true }); box('porc', x2 - .5, x2 - .2, y0 + .55, y0 + .65, z - .4, z + .4); box('curtain', x2 - 2.1, x2 - .2, y0 + .25, y0 + 1.95, z + .6, z + .62); box('alu', x2 - 2.1, x2 - .2, y0 + 1.96, y0 + 1.99, z + .58, z + .64); }   // 침대 사이 커튼 + 레일
       cabinet(x1 + .05, x1 + .5, z1 + .5, z1 + 2.5, 1.9, 'white'); box('glass', x1 + .5, x1 + .52, y0 + .9, y0 + 1.8, z1 + .5, z1 + 2.5);
       desk(x1 + 2, z2 - 1.2); chairAt(x1 + 2, z2 - .6);
       box('porc', x1 + .1, x1 + .6, y0 + .75, y0 + .9, z2 - 2.6, z2 - 2);
@@ -386,7 +387,7 @@ export function buildMainBuilding(opt = {}) {
       else for (let i = 0; i < 4; i++) for (let j = 0; j < 4; j++) { const x = x1 + 1.6 + i * 1.8, z = z1 + 2.2 + j * 1.3; desk(x, z, 1.0, .6, .74); box('lockerM', x - .5, x + .5, y0 + .74, y0 + 1.25, z - .32, z - .3); }
       props.push({ kind: 'search', label: type === 'home' ? '가정실 찬장 열기' : '자율학습실 사물함', x: x2 - .6, y: y0 + 1, z: zm, floor: f });
     } else if (type === 'library') {   // 도서실: 서가 열 · 열람 테이블 · 대출 데스크
-      for (let i = 0; i < 4; i++) { const x = x1 + 2.3 + i * 1.5; box('lockerM', x - .2, x + .2, y0, y0 + 1.9, z1 + 1.9, z1 + 4.2, { solid: true }); }
+      for (let i = 0; i < 4; i++) { const x = x1 + 2.3 + i * 1.5; [z1 + 2.4, z1 + 3.78].forEach(z => { mdl('wooden_bookshelf_worn', x + .15, y0, z, Math.PI / 2); mdl('wooden_bookshelf_worn', x - .15, y0, z, -Math.PI / 2); }); col.push({ x1: x - .45, x2: x + .45, z1: z1 + 1.7, z2: z1 + 4.48, y1: y0, y2: y0 + 2.1 }); }   // 양면 서가 (실사 책장 2개 등맞댐)
       for (let k = 0; k < 2; k++) { const x = x1 + 2.2 + k * 3; desk(x, z2 - 1.8, 2.2, .9, .74, 'lockerM'); chairAt(x - .6, z2 - 1.1); chairAt(x + .6, z2 - 1.1); }
       desk(x2 - 1.1, zm + .6, 1.6, .7, .9, 'lockerM');
       props.push({ kind: 'search', label: '대출 데스크 서랍', x: x2 - 1.1, y: y0 + 1, z: zm + 1.1, floor: f });

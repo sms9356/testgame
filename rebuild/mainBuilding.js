@@ -308,6 +308,9 @@ export function buildMainBuilding(opt = {}) {
           const w = 1.25, sx = r.x1 < 0 ? -1 : 1;
           [[zN + .1, 1], [zN + 2.6, -1]].forEach(([hz, sz]) => doors.push({ kind: 'swing', axisZ: true, mat: 'steelG', win: true, w, h: 2.18, t: .05, px: xi, py: y0, pz: hz, ox: 0, oz: sz * w / 2, dir: sx * sz, open: true,
             cx1: xi - .1, cx2: xi + .1, cz1: Math.min(hz, hz + sz * w), cz2: Math.max(hz, hz + sz * w), mx: xi + (r.x1 < 0 ? .6 : -.6), mz: zN + 1.35, label: '계단실 방화문', floor: f })); }   // 복도 쪽 벽만 (바깥쪽은 외벽), 방화문 개구부
+        { const xi = r.x1 < 0 ? r.x2 : r.x1, sd = r.x1 < 0 ? -1 : 1;
+          finishZ(xi - sd * S.wall / 2, -sd, zN + 2.6, zS, y0); finishZ(xi + sd * S.wall / 2, sd, zN + 2.6, zS, y0); }   // 계단실 칸막이벽 양면 마감 (문 개구부 남쪽)
+        if (f > 0) box('terr', r.x1, r.x2, y0 - S.slab, y0 + .02, zN + 2.77, zN + 2.8);   // 층 참 슬래브 끝 마감 (노출 콘크리트 단면 가리기)
         stair(r, f, y0);
       } else if (r.kind === 'core') {
         coreRoom(r, f, y0);
@@ -513,7 +516,13 @@ export function buildMainBuilding(opt = {}) {
     wallX('wall', r.x1, r.x2, -S.wall / 2, S.wall / 2, y0, ops); finishX(r.x1, r.x2, -S.wall / 2, -1, y0, ops);
     [[r.x1, xm, '남'], [xm, r.x2, '여']].forEach(([a, b, g]) => {
       box('tile', a + .1, b - .1, y0, y0 + .02, .1, zS);
-      for (let k = 0; k < 3; k++) { const sz = 2.4 + k * 1.6; box('white', a + .2, b - .2, y0, y0 + 2.0, sz - .02, sz + .02, { solid: true }); toilet(b - .6, sz + .8, y0, 1); }
+      for (let k = 0; k < 4; k++) { const sz = 2.4 + k * 1.6; box('white', b - 1.6, b - .1, y0 + .12, y0 + 2.0, sz - .02, sz + .02, { solid: true }); box('alu', b - 1.62, b - 1.58, y0, y0 + 2.0, sz - .03, sz + .03); }   // 칸막이 (벽에서 1.5m)
+      for (let k = 0; k < 3; k++) { const sz = 2.4 + k * 1.6; toilet(b - .6, sz + .8, y0, 1);
+        box('white', b - 1.62, b - 1.58, y0 + .12, y0 + 2.0, sz + .02, sz + .35, { solid: true }); box('white', b - 1.62, b - 1.58, y0 + .12, y0 + 2.0, sz + 1.25, sz + 1.58, { solid: true });   // 칸 앞판
+        box('white', b - 1.6 - .55, b - 1.6, y0 + .12, y0 + 2.0, sz + 1.22, sz + 1.25); box('alu', b - 1.72, b - 1.62, y0 + .95, y0 + 1.0, sz + 1.2, sz + 1.22);   // 반쯤 열린 칸 문
+        box('alu', b - .15, b - .08, y0 + .75, y0 + .87, sz + .35, sz + .45); }   // 휴지걸이
+      box('tile', a + .1, a + .112, y0, y0 + 1.5, .1, zS); box('tile', b - .112, b - .1, y0, y0 + 1.5, .1, zS); box('tile', a + .1, b - .1, y0, y0 + 1.5, zS - .012, zS); box('white', a + .1, b - .1, y0 + 1.5, y0 + S.FH - S.slab, zS - .012, zS);   // 벽 타일 (허리 높이)
+      if (g === '남') for (let k = 0; k < 3; k++) { const z = 3.0 + k * .9; box('porc', a + .1, a + .4, y0 + .45, y0 + 1.15, z - .2, z + .2, { solid: true }); box('alu', a + .1, a + .14, y0 + 1.15, y0 + 1.35, z - .02, z + .02); }   // 소변기
       for (let k = 0; k < 2; k++) { const z = .75 + k * .75; box('porc', a + .1, a + .55, y0 + .78, y0 + .9, z - .28, z + .28, { solid: true }); box('screen', a + .18, a + .45, y0 + .86, y0 + .901, z - .18, z + .18); cyl('alu', a + .14, y0 + .9, z, .012, .14); box('glass', a + .1, a + .11, y0 + 1.15, y0 + 1.75, z - .3, z + .3); }   // 화장실 세면대 + 거울
       props.push({ kind: 'toilet', label: `${g}자 화장실`, x: (a + b) / 2, y: y0, z: 1.2, floor: f });
     });

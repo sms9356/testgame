@@ -4,11 +4,11 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { NOTES } from './story.js?v=191';
+import { NOTES } from './story.js?v=192';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=191';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=192';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -1251,7 +1251,7 @@ export function buildWorld(scene) {
       col(sx - .32, sx + .35, sz - .34, sz + .34);
       addKey('office', 0, sx, .38, sz); const key = items[items.length - 1]; key.locked = true; key.mesh.visible = false;
       props.push({ kind: 'safe', floor: cur.f, x: sx + .9, z: sz, piv, key, open: 0, label: '금고 조사하기' }); }
-    addNote('n3', cx - 2.35, .77, -5.4); tapeRecorder('tape_homeroom', cx - 1.95, .77, -5.15, .25); if (!cur.annex && cur.f === 0) tapeRecorder('ts_vice', cx + 2.62, .42, -3.22, -.3);
+    addNote('n3', cx - 2.35, .77, -5.4); tapeRecorder('tape_homeroom', cx - 1.95, .77, -5.15, .25); if (!cur.annex && cur.f === 0) { tapeRecorder('ts_vice', cx + 2.62, .42, -3.22, -.3); tapeRecorder('ts_mother', cx + 1.78, .42, -3.28, .5); }
     papers(cx, -8, -2.4, 14);
   }
     function infirmarySlot(id, kind, x, z, parts, yaw = 0) { const holder = new THREE.Group(), fallback = new THREE.Group(); holder.name = id; holder.userData.dynamic = fallback.userData.dynamic = true; holder.position.set(x, 0, z); holder.rotation.y = yaw; holder.add(fallback); cur.interior.add(holder); holder.updateWorldMatrix(true, true); parts.forEach(p => fallback.attach(p)); INFIRMARY_SLOTS.push({ id, kind, holder, fallback }); return holder; } function nurse(cx) {
@@ -1261,7 +1261,7 @@ export function buildWorld(scene) {
     { const parts = [add(mLockerT, .9, 1.7, .4, cx + 3.6, 0, -6.5, { ry: Math.PI / 2, col: true }), add(mGlass, .9, 1.7, .44, cx + 3.6, 0, -6.5, { ry: Math.PI / 2 })]; infirmarySlot(`nurse-${cur.f}-cabinet`, "cabinetClosed", cx + 3.6, -6.5, parts, -Math.PI / 2); }
     tbl(mWood, 1.2, .75, .6, cx - 3.2, 0, -5.4, { col: true, ry: Math.PI / 2, legMat: mLegMetal });
     addNote('n2', cx - 3.2, .75, -5.4);
-    tapeRecorder('tape1', cx - 3.2, .75, -4.95, .4); tapeRecorder('ts_paramedic', cx - 3.2, .75, -5.8, -.3); tapeRecorder('ts_mother', cx - 3.32, .75, -5.42, .9);
+    tapeRecorder('tape1', cx - 3.2, .75, -4.95, .4); tapeRecorder('ts_paramedic', cx - 3.2, .75, -5.8, -.3);
     blood('splat', cx + 2.4, .02, -6.0, 1.2, 0, true);
     addBattery(cx + 2.4, .5, -8.4); addMedkit(cx + 2.4, .66, -7.6);
     model('wheelchair_01', cx + 1.2, 0, -4.4, -.7, { col: [.85, 1.1] }); model('medical_box', cx + 3.86, 1.5, -4.0, -Math.PI / 2);
@@ -1274,7 +1274,7 @@ export function buildWorld(scene) {
     add(mWood, 1.0, .4, .6, cx, 0, -7.4, { col: true });
     add(mFabric, .8, .45, .8, cx - 2.4, 0, -6.4, { ry: Math.PI / 2, col: true });
     shelf3D(cx + 3.55, -6.0, -Math.PI / 2, 1.4, 2.0, .45, 5, .75);
-    addBattery(cx + 0.2, .4, -7.4); if (!cur.annex && cur.f === 0 && !curSouth) { tapeRecorder('tape_counselor', cx - 0.25, .40, -7.35, .2); tapeRecorder('ts_dorm', cx + .4, .40, -7.3, -.2); }
+    addBattery(cx + .05, .4, -7.6); if (!cur.annex && cur.f === 0 && !curSouth) { tapeRecorder('tape_counselor', cx - 0.25, .40, -7.35, .2); tapeRecorder('ts_dorm', cx + .38, .40, -7.25, -.2); }
     papers(cx, -8, -2.4, 5);
   }
   function library(cx) {

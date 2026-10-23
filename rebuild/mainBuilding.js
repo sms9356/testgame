@@ -126,18 +126,18 @@ export function buildMainBuilding(opt = {}) {
     box(key, x1, x2, y0, y0 + H, cur, zb, { solid: true, ...o });
   };
   // 내부 벽 마감: 하부 1.2m 녹색 징두리 + 상부 아이보리 (얇은 판을 벽 앞에 붙인다)
-  const finishX = (xa, xb, z, side, y0, ops = []) => {
+  const finishX = (xa, xb, z, side, y0, ops = [], HI = S.CEIL) => {
     const t = .012, z1 = side > 0 ? z : z - t, z2 = side > 0 ? z + t : z;
     let cur = xa; ops = ops.slice().sort((p, q) => p.a - q.a);
     const seg = (a, b, lo, hi) => { if (hi > 1.2) { box('wall', a, b, y0 + Math.max(lo, 1.2), y0 + hi, z1, z2); } if (lo < 1.2) box('wain', a, b, y0 + lo, y0 + Math.min(1.2, hi), z1, z2); };
-    for (const op of ops) { seg(cur, op.a, 0, S.CEIL); seg(op.a, op.b, 0, op.y1); seg(op.a, op.b, op.y2, S.CEIL); cur = op.b; }
-    seg(cur, xb, 0, S.CEIL);
+    for (const op of ops) { seg(cur, op.a, 0, HI); seg(op.a, op.b, 0, op.y1); seg(op.a, op.b, op.y2, HI); cur = op.b; }
+    seg(cur, xb, 0, HI);
     box('rubber', xa, xb, y0, y0 + .1, side > 0 ? z + t : z - t - .015, side > 0 ? z + t + .015 : z - t);   // 걸레받이
   };
 
   const finishZ = (x, side, za, zb, y0) => {   // z 방향 벽 내부 마감
     const t = .012, x1 = side > 0 ? x : x - t, x2 = side > 0 ? x + t : x;
-    box('wall', x1, x2, y0 + 1.2, y0 + S.CEIL, za, zb); box('wain', x1, x2, y0, y0 + 1.2, za, zb);
+    box('wall', x1, x2, y0 + 1.2, y0 + S.FH - S.slab, za, zb); box('wain', x1, x2, y0, y0 + 1.2, za, zb);
     box('rubber', side > 0 ? x + t : x - t - .015, side > 0 ? x + t + .015 : x - t, y0, y0 + .1, za, zb);
   };
   const { zS, zN } = LY, T = S.outer;
@@ -168,7 +168,7 @@ export function buildMainBuilding(opt = {}) {
     wallX('brick', -LY.L / 2 - T, LY.L / 2 + T, zN - T, zN, y0, winsN.filter(w => !(w.a > core.x1 && w.b < core.x2 && !w.door && f === 0)), { u: 1.5 });
     finishX(-LY.L / 2, LY.L / 2, zN, 1, y0, winsN);
     finishZ(-LY.L / 2, 1, zN, zS, y0); finishZ(LY.L / 2, -1, zN, zS, y0);
-    LY.rooms.filter(r => r.kind === 'stair').forEach(r => finishX(r.x1, r.x2, zS, -1, y0, winsS.filter(w => w.a >= r.x1 && w.b <= r.x2)));   // 복도 쪽 외벽 안쪽 마감 (벽돌이 실내에 드러나지 않게)
+    LY.rooms.filter(r => r.kind === 'stair').forEach(r => finishX(r.x1, r.x2, zS, -1, y0, winsS.filter(w => w.a >= r.x1 && w.b <= r.x2), S.FH - S.slab));   // 복도 쪽 외벽 안쪽 마감 (벽돌이 실내에 드러나지 않게)
     wallZ('brick', -LY.L / 2 - T, -LY.L / 2, zN - T, zS + T, y0, [], { u: 1.5 });
     wallZ('brick', LY.L / 2, LY.L / 2 + T, zN - T, zS + T, y0, [], { u: 1.5 });
     // 창호 (알루미늄 미서기창 + 유리)

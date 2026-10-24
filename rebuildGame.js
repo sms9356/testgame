@@ -2,29 +2,32 @@
 //   기본으로 켜진다 (예전 건물로 보려면 주소창에 ?oldmap).
 //   예전 본관(1~3층 · 옥상) · 별관(8~10층) 건물은 감추고, 그 자리 땅(0층)에서 새 건물을 걷는다.
 //   높이는 P.sh(계단 높이 보정값)로 넘긴다 → 카메라 · 점프 · 가구 오르기 코드는 손대지 않아도 된다.
-import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js';
-import { placeModels } from './rebuild/models.js';
-import { carve } from './rebuild/transplant.js';
+import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=196';
+import { placeModels } from './rebuild/models.js?v=196';
+import { carve, subdivide } from './rebuild/transplant.js?v=196';
 
 // 예전 건물이 차지하던 땅 (이 안의 예전 메시 · 충돌 상자를 걷어 낸다)
-const OLD_MAIN = { x1: -47, x2: 47, z1: -10.6, z2: 10.6 };
+const OLD_MAIN = { x1: -51, x2: 51, z1: -10.6, z2: 10.9 };
 const OLD_ANNEX = { x1: -32, x2: 32, z1: -34, z2: -10.6 };
 const inBox = (b, x, z) => x > b.x1 && x < b.x2 && z > b.z1 && z < b.z2;
 const inOld = (x, z) => inBox(OLD_MAIN, x, z) || inBox(OLD_ANNEX, x, z);
 
 export function installRebuild({ THREE, scene, floors, world }) {
-  const MAIN = buildMainBuilding({ southEntry: true, roofStair: true });
-  const ANX = buildMainBuilding({ spec: ANNEX_SPEC, plan: ANNEX_PLAN, x: 0, z: -20, ry: Math.PI, name: 'REBUILD_ANNEX', label: '별관', prefix: '', signText: '서문고 별관 · 예술 실습동', noSciLib: true, classLabel: (f, n) => `3학년 ${n + 8}반` });
-  const WK = buildWalkway({ x1: -1.9, x2: 1.9, z1: -17.0, z2: -3.0 });
+  const MAIN = buildMainBuilding({ southEntry: true, roofStair: true, centerStair: 'east', bridge: true });
+  const ANX = buildMainBuilding({ spec: ANNEX_SPEC, plan: ANNEX_PLAN, x: -3, z: -20, ry: Math.PI, bridge: true, endExits: true, name: 'REBUILD_ANNEX', label: '별관', prefix: '', signText: '서문고 별관 · 예술 실습동', noSciLib: true, classLabel: (f, n) => `3학년 ${n + 8}반` });
+  // 구름다리 (2층): 본관 북쪽 외벽 ↔ 별관 복도쪽 외벽, 두 건물 코어(현관) 앞 x 에서
+  const BRX = MAIN.toWorld((MAIN.layout.rooms.find(r => r.kind === 'core').x1 + MAIN.layout.rooms.find(r => r.kind === 'core').x2) / 2, 0)[0], BRZ2 = MAIN.toWorld(0, MAIN.layout.zN - MAIN.spec.outer)[1], BRZ1 = ANX.toWorld(0, ANX.layout.zN - ANX.spec.outer)[1];
+  const WK = buildWalkway({ x1: BRX - 1.9, x2: BRX + 1.9, z1: BRZ1, z2: BRZ2, y: MAIN.spec.FH });
   const BLD = [MAIN, ANX, WK];
 
   // 1) 예전 본관 · 별관 감추기: 층 통째(1~3층 · 옥상 · 별관) + 0층 · 야외에서 그 땅 위에 선 것
-  const OLD_FLOORS = [1, 2, 8, 9, 10].map(f => floors[f]).filter(Boolean);
+  const OLD_FLOORS = [1, 2, 3, 8, 9, 10].map(f => floors[f]).filter(Boolean);
   [1, 2, 3, 8, 9, 10].forEach(f => { const F = floors[f]; if (!F) return; F.interior.visible = false; if (F.shell) F.shell.visible = false; });
   // 옥상(예전 3층 공간)은 새 본관 지붕 높이로 올린다 — 옥상에 있을 때만 보인다 (예전 지붕이 새 건물 4층 안에 떠 보이지 않게)
   const ROOF = floors[3]; let roofDy = 0;
   if (ROOF) { roofDy = MAIN.spec.floors * MAIN.spec.FH - ROOF.y0; ROOF.y0 += roofDy; ROOF.interior.position.y += roofDy; if (ROOF.shell) ROOF.shell.position.y += roofDy; }
   const v = new THREE.Vector3(), bb = new THREE.Box3();
+  const inNew = (x, z) => [MAIN, ANX].some(b => { const [lx, lz] = b.toLocal(x, z); return lx > -b.layout.L / 2 - .35 && lx < b.layout.L / 2 + .35 && lz > b.layout.zN - .35 && lz < b.layout.zS + .35; });   // 새 본관 · 별관 바닥 자리
   // 메시 하나하나: 예전 건물 땅(조금 넓힌 상자) 안에 다 들어가면 감춘다. 땅바닥(높이 0.3m 미만)은 남긴다.
   //   캠퍼스 전체를 덮는 합친 메시(바닥 · 길)는 상자 밖으로 삐져나오므로 그대로 둔다.
   const fits = (b, m = 3) => b.min.x > -47 - m && b.max.x < 47 + m && ((b.min.z > -10.6 - m && b.max.z < 10.6 + m) || (b.min.z > -34 - m && b.max.z < -10.6 + m) || (b.min.z > -34 - m && b.max.z < 10.6 + m && b.max.x - b.min.x < 70));
@@ -34,11 +37,12 @@ export function installRebuild({ THREE, scene, floors, world }) {
     if (o.isInstancedMesh) { const m4 = new THREE.Matrix4(), p = new THREE.Vector3(); let hit = 0; o.updateMatrixWorld(true);
       for (let i = 0; i < o.count; i++) { o.getMatrixAt(i, m4); p.setFromMatrixPosition(m4).applyMatrix4(o.matrixWorld); if (inOld(p.x, p.z) && p.y > -.5) { m4.makeScale(0, 0, 0); o.setMatrixAt(i, m4); hit++; } }
       if (hit) o.instanceMatrix.needsUpdate = true; return; }
-    bb.setFromObject(o); if (bb.isEmpty() || bb.max.y < .3) return;
+    bb.setFromObject(o); if (bb.isEmpty()) return;
+    if (bb.max.y < .3) { if (inNew((bb.min.x + bb.max.x) / 2, (bb.min.z + bb.max.z) / 2) && bb.max.x - bb.min.x < 60 && bb.max.z - bb.min.z < 30) o.visible = false; else if (!o.userData.rbFloorCut && !o.userData.dynamic && !(o.geometry && o.geometry.groups && o.geometry.groups.length > 1)) { o.userData.rbFloorCut = true; const ov = [MAIN, ANX].some(b => { const c = [[-b.layout.L / 2, b.layout.zN], [b.layout.L / 2, b.layout.zS]].map(([a, d]) => b.toWorld(a, d)); return bb.max.x > Math.min(c[0][0], c[1][0]) && bb.min.x < Math.max(c[0][0], c[1][0]) && bb.max.z > Math.min(c[0][1], c[1][1]) && bb.min.z < Math.max(c[0][1], c[1][1]); }); if (ov) { subdivide(o, 1.0); carve(o, (x, y, z) => y > -.3 && inNew(x, z)); } } return; }   // 예전 바닥판: 새 건물 바닥 밑에서 겹쳐 깜빡이던 것
     if (fits(bb)) { o.visible = false; return; }
     // 층 전체를 합친 메시: 예전 건물 땅 위(높이 0.3m 이상)의 삼각형만 잘라 낸다 (벽 · 창 · 덩굴 잔재가 새 교실을 뚫고 나오던 문제)
     if (o.userData.dynamic || o.userData.rbCarved || !(bb.max.x > -47 && bb.min.x < 47 && bb.max.z > -34 && bb.min.z < 10.6)) return;
-    o.userData.rbCarved = true; carve(o, (x, y, z) => y > .3 && inOld(x, z));
+    o.userData.rbCarved = true; carve(o, (x, y, z) => (y > .3 && inOld(x, z)) || (y > -.3 && inNew(x, z)));
   }); };
   const clearOld = () => {
     hideIn(floors[0].interior); hideIn(floors[0].shell); hideIn(world.OUT);
@@ -53,13 +57,15 @@ export function installRebuild({ THREE, scene, floors, world }) {
   //   가구 · 벽은 새 건물 것(mainBuilding 'bcast')을 쓰고, 예전 방 메시는 가져오지 않는다
   const BC = { x1: -35.75, x2: -20.25, z1: -9.35, z2: -2.0, y0: floors[2] ? floors[2].y0 : 8 };
   const inBC = (x, z) => x > BC.x1 && x < BC.x2 && z > BC.z1 && z < BC.z2, BCY = 3 * MAIN.spec.FH;
+  const BCS = -(MAIN.layout.L - 93) / 2;   // 본관이 넓어진 만큼 서쪽 방송실도 옮겨 간다
   const BC_SLOT = { console: [[-38.1, 3.5]], cctvRec: [[-39.7, 2.2]], tape: [[-30.4, 1.0], [-29.1, 1.0], [-27.6, 1.2], [-25.3, 1.1]], mina: [[-23.5, 6.5]], sq: [[-26.9, 2.5], [-25.6, 3.9], [-28.2, 3.9]] };
   const BC_FREE = [[-35.2, 5.2], [-33.6, 5.4], [-36.4, 1.6], [-34.0, 2.6], [-24.4, 1.4], [-23.8, 3.4], [-30.2, 6.6], [-27.9, 6.4], [-32.6, 3.5]];
+  [BC_SLOT, { f: BC_FREE }].forEach(o => Object.values(o).forEach(l => l.forEach(q => { q[0] += BCS; })));
   let bcFree = 0; const bcUsed = {};
   const bcTaken = [];
   const bcFreeSpot = () => {   // 방 안 격자에서 가구에 막히지 않고 다른 조사 지점과 1.2m 이상 떨어진 자리
     for (const [x, z] of BC_FREE) if (!bcTaken.some(([a, b]) => Math.hypot(a - x, b - z) < 1.2)) return [x, z];
-    for (let z = 1.3; z < 7.0; z += .65) for (let x = -39.4; x < -23.0; x += .65) { if (bcTaken.some(([a, b]) => Math.hypot(a - x, b - z) < 1.2)) continue; if (R.blocked && R.blocked(x, z, BCY, .45)) continue; return [x, z]; }
+    for (let z = 1.3; z < 7.0; z += .65) for (let x = -39.4 + BCS; x < -23.0 + BCS; x += .65) { if (bcTaken.some(([a, b]) => Math.hypot(a - x, b - z) < 1.2)) continue; if (R.blocked && R.blocked(x, z, BCY, .45)) continue; return [x, z]; }
     return BC_FREE[bcFree++ % BC_FREE.length];
   };
   const bcSpot = kind => { const l = BC_SLOT[kind]; let s0 = null; if (l) { const i = bcUsed[kind] = (bcUsed[kind] ?? -1) + 1; if (i < l.length) s0 = l[i]; } const s1 = s0 || bcFreeSpot(); bcTaken.push(s1); return s1; };
@@ -72,6 +78,7 @@ export function installRebuild({ THREE, scene, floors, world }) {
   // 2) 새 건물
   const group = new THREE.Group(); group.name = 'REBUILD'; group.userData.dynamic = true; scene.add(group);
   BLD.forEach(b => { group.add(b.root); if (b.models.length) placeModels(b.root, b.models, { shadows: false, floorH: b.spec ? b.spec.FH : 0 }); });
+  if (WK.support) group.add(WK.support);   // 구름다리 기둥 · 보
   // 형광등: 자리마다 점조명 (perfStabilizer 조명 풀이 가까운 것만 골라 비춘다)
   const lamps = [];
   BLD.forEach(b => b.lights.forEach(l => { const [x, z] = b.toWorld(l.x, l.z); const p = new THREE.PointLight(0xf2f4ff, 1.6, 9, 1.6); p.position.set(x, l.y, z); p.userData.on = true; group.add(p); lamps.push(p); }));
@@ -79,7 +86,7 @@ export function installRebuild({ THREE, scene, floors, world }) {
   const R = {
     MAIN, ANX, WK, BLD, group, lamps,
     groundAt(x, z, feet) { let best = null; for (const b of BLD) { const [lx, lz] = b.toLocal(x, z), g = b.groundAt(lx, lz, feet); if (g != null && (best == null || g > best)) best = g; } return best; },
-    blocked(x, z, y, r) { if (R.gate && y < .6 && R.gate.closed() && Math.abs(z - R.gate.z) < r + .08 && x > R.gate.x1 && x < R.gate.x2) return true; return BLD.some(b => { const [lx, lz] = b.toLocal(x, z); return b.col.some(c => !c.off && lx + r > c.x1 && lx - r < c.x2 && lz + r > c.z1 && lz - r < c.z2 && y + 1.7 > c.y1 + .001 && y + .35 < c.y2); }); },
+    blocked(x, z, y, r) { if (R.gate && y > MAIN.spec.FH - .4 && y < MAIN.spec.FH + .6 && R.gate.closed() && Math.abs(z - R.gate.z) < r + .08 && x > R.gate.x1 && x < R.gate.x2) return true; return BLD.some(b => { const [lx, lz] = b.toLocal(x, z); return b.col.some(c => !c.off && lx + r > c.x1 && lx - r < c.x2 && lz + r > c.z1 && lz - r < c.z2 && y + 1.7 > c.y1 + .001 && y + .35 < c.y2); }); },
     nearDoor(x, z, y) { let best = null, bd = 9; for (const b of BLD) { const [lx, lz] = b.toLocal(x, z), d = b.nearDoor(lx, lz, y); if (d) { const dd = Math.hypot(d.mx - lx, d.mz - lz); if (dd < bd) { bd = dd; best = d; } } } return best; },
     toggleDoor(d) { d.target = d.target > .5 ? 0 : 1; },
     // 전력 연동: 정전(blackout)이면 형광등 · 등기구 발광 모두 끔, 발전기 출력(gain) · 본전력(power)에 따라 밝기
@@ -87,7 +94,7 @@ export function installRebuild({ THREE, scene, floors, world }) {
       lamps.forEach(l => { l.intensity = 1.6 * k; });
       [MAIN, ANX].forEach(b => { const m = b.mats && b.mats.lamp; if (m) m.emissiveIntensity = 1.4 * k; }); },
     cull(dt, P) { cullModels(dt, P); },
-    tick(dt, P, sfx) { BLD.forEach(b => b.tickDoors(dt)); OLD_FLOORS.forEach(F => { if (F.interior.visible) F.interior.visible = false; if (F.shell && F.shell.visible) F.shell.visible = false; }); /* 게임의 층 표시 로직이 예전 층을 다시 켜도 끈다 */ if (ROOF) ROOF.interior.visible = !!P && P.floor === 3; cullModels(dt, P); if (R.elevTick) R.elevTick(dt, P, sfx); },
+    tick(dt, P, sfx) { BLD.forEach(b => b.tickDoors(dt)); OLD_FLOORS.forEach(F => { if (F.interior.visible) F.interior.visible = false; if (F.shell && F.shell.visible) F.shell.visible = false; }); /* 게임의 층 표시 로직이 예전 층을 다시 켜도 끈다 */ cullModels(dt, P); if (R.elevTick) R.elevTick(dt, P, sfx); },
     // 새 건물 땅 위에 있나 (예전 건물 자리)
     inside(x, z) { return inOld(x, z); },
     floorOf(y) { return Math.max(0, Math.round(y / MAIN.spec.FH)); },
@@ -98,6 +105,7 @@ export function installRebuild({ THREE, scene, floors, world }) {
 
   // 한 걸음 이동: 새 건물 땅이면 true (예전 계단 · 통로 순간이동 코드는 건너뛴다)
   //   P.sh = 발밑 높이. 0.5m 넘는 단 · 벽 · 가구는 막는다. 층 사이 허공으로는 걸어 나가지 않는다.
+  R.BLD = BLD;   // 감사 · 테스트용
   R.step = (P, px, pz) => {
     const feet = P.sh || 0;
     if (!inOld(P.x, P.z) && feet < .3) return false;
@@ -123,7 +131,7 @@ export function installRebuild({ THREE, scene, floors, world }) {
     const key = (inB ? inB.name : '-') + f + st; if (key === cullKey) return; cullKey = key;
     for (const { b, ims } of cullList) for (const im of ims) im.visible = b === inB && Math.abs(im.userData.rbFloor - f) <= (st ? 1 : 0);
   };
-  const roomsOf = (b, f) => (b.props || []).filter(p => p.kind === 'room' && p.floor === f && p.x2 - p.x1 > 2.5 && p.type !== 'toilet');
+  const roomsOf = (b, f) => (b.props || []).filter(p => p.kind === 'room' && p.floor === f && p.x2 - p.x1 > 2.5 && p.type !== 'toilet' && p.label !== '중앙 계단' && !p.exit);
   const OLDMAP = { 0: [MAIN, 0], 1: [MAIN, 1], 2: [MAIN, 2], 8: [ANX, 0], 9: [ANX, 1], 10: [ANX, 2] };
   const SPECIAL_KEY = { 0: [MAIN, 0, 'staff'], 1: [ANX, 1, 'library'], 2: [ANX, 1, 'science'] };
   const TOILET = new Set(['flush', 'sink']);
@@ -183,7 +191,7 @@ export function installRebuild({ THREE, scene, floors, world }) {
       if (p.floor === 2 && inBC(p.x, p.z) && !DROP.has(p.kind) && !TOILET.has(p.kind)) { const [x, z] = bcSpot(p.kind);
         for (const k of Object.keys(p)) { const o = p[k]; if (o && o.isObject3D && k !== 'parent') { const w = o.getWorldPosition(new THREE.Vector3()); moveObj(o, x, BCY + Math.max(0, w.y - BC.y0), z); } }
         p.floor = 0; p.rbY = BCY; p.x = x; p.z = z; if (p.px != null) { p.px = x; p.pz = z; } moved++; continue; }
-      if (inPassOld(p.floor, p.x, p.z) && R.gate) { const [nx, nz] = R.passToNew(p.x, p.z); p.floor = 0; p.rbY = 0; p.x = nx; p.z = nz; if (p.px != null) [p.px, p.pz] = R.passToNew(p.px, p.pz); moved++; continue; }
+      if (inPassOld(p.floor, p.x, p.z) && R.gate) { const [nx, nz] = R.passToNew(p.x, p.z); p.floor = 0; p.rbY = FHB; p.x = nx; p.z = nz; if (p.px != null) [p.px, p.pz] = R.passToNew(p.px, p.pz); moved++; continue; }
       if (DROP.has(p.kind)) { p.floor = park(p.floor); dropped++; continue; }
       if (TOILET.has(p.kind)) {   // 세면대 · 변기 → 같은 층(없으면 위층) 새 화장실
         const [b, f0] = OLDMAP[p.floor]; let t = null;
@@ -216,13 +224,14 @@ export function installRebuild({ THREE, scene, floors, world }) {
       world.doors.push(R.b1Door);
       sign(x, -P.d, z, '지하 B1 ↓', Math.PI / 2, true);
     }
-    // 옥상 출입문: 새 본관 동쪽 계단실 맨 위층(4층) 층 참 — 옥상(예전 3층 공간)으로 이어진다
-    if (!R.roofDoor) {
-      const top = MAIN.spec.floors * FH, sr = MAIN.layout.rooms.filter(q => q.kind === 'stair').pop(), [x, z] = MAIN.toWorld((sr.x1 + sr.x2) / 2, MAIN.layout.zN + .7);   // 옥탑 계단실 옥상 높이 층 참의 북쪽 철문
-      R.roofDoor = { floor: 0, x, z, r: 1.5, rbY: top, label: '옥상 출입문 — 옥상으로 나가기', to: { floor: 3, x: 0, z: -7.5, yaw: 0 }, _rb: true };
-      R.roofReturn = { floor: 0, x, z: z + 1.2, yaw: 0, sh: top };
-      world.doors.push(R.roofDoor);
-
+    // 옥상: 순간이동 대신 새 본관 옥상을 직접 걷는다 — 예전 옥상(3층 공간)의 미션 구역 · 물건을 새 옥상(같은 x, 높이 4층 위)으로 옮긴다
+    if (!R.roofMoved && FL_[3]) { R.roofMoved = true; const RF = FL_[3], top = MAIN.spec.floors * FH, zIn = z => Math.min(MAIN.layout.zS - .8, Math.max(MAIN.layout.zN + .8, z < MAIN.layout.zN + .8 ? z + 4.8 : z));
+      for (let i = world.props.length - 1; i >= 0; i--) { const q = world.props[i]; if (q.floor !== 3) continue; if (q.kind === 'roofDoor') { world.props.splice(i, 1); continue; } q.floor = 0; q.rbY = top; q.z = zIn(q.z); q._rb = true; }
+      for (const it of world.items) { if (it.floor !== 3) continue; const nz = zIn(it.pos.z), wy = it.mesh ? it.mesh.getWorldPosition(new THREE.Vector3()).y : top + .1; it.floor = 0; it.rbY = top; it.pos.z = nz; if (it.mesh) moveObj(it.mesh, it.pos.x, wy, nz); it._rb = true; }
+      // 발전기 울타리 구역 · 안테나 묶음(5구역 패치가 예전 옥상에 붙인 것)은 통째로 새 옥상에 — 안테나 쪽(북쪽 밖)만 안으로 당긴다
+      for (const c of [...RF.interior.children]) { if (!c.isGroup) continue; const bx = new THREE.Box3().setFromObject(c); if (bx.isEmpty() || bx.min.x < 14 || bx.max.x > 24) continue;
+        group.attach(c); c.traverse(o => { if (o !== c && o.parent === c && o.position.z < MAIN.layout.zN + .8) o.position.z += 4.8; }); c.userData.rbRoof = true; }
+      R.roofCol = () => RF.col.filter(r => r.x1 > 14 && r.x2 < 24).map(r => r.z1 < MAIN.layout.zN + .8 ? { ...r, z1: r.z1 + 4.8, z2: r.z2 + 4.8, ref: r } : r);
     }
     return { moved, dropped };
   };
@@ -237,18 +246,18 @@ export function installRebuild({ THREE, scene, floors, world }) {
   // ── 4단계: 구름다리 방화문 연출 · 엘리베이터 ──
   // 예전 2층 구름다리(skybridge2F: 방화문 · 증기 밸브 · 청소도구함 · 정전 · 액자 낙하)를 새 1층 연결 통로(z −17 ~ −3)에 그대로 옮긴다
   //   예전 통로 z −20.5 ~ −9.9 (10.6m) → 새 통로 14m: z 방향 1.32배 늘리고, x −1, 높이 −2층
-  const PS = 14 / 10.6, PC = -10 - PS * -15.2, PX = -1;
+  const PS = (BRZ2 - BRZ1) / 10.6, PC = (BRZ1 + BRZ2) / 2 - PS * -15.2, PX = BRX - 1, FHB = MAIN.spec.FH;
   R.passToNew = (x, z) => [x + PX, z * PS + PC];
   R.passToOld = (x, z) => [x - PX, (z - PC) / PS];
   const inPassOld = (f, x, z) => f === 1 && x > -1.7 && x < 3.7 && z > -20.6 && z < -9.8;
   R.adoptPassage = (OUT, doorZ) => {
     const O = OUT.children.find(c => c.name === 'skybridge2F'); if (!O) return;
-    O.userData.rbKeep = true; O.position.set(PX, 0, PC); O.scale.z = PS;
+    O.userData.rbKeep = true; O.position.set(PX, 0, PC); O.scale.z = PS; O.updateMatrixWorld(true); { const bx = new THREE.Box3().setFromObject(O); O.position.y = FHB - Math.max(-.3, Math.min(.3, bx.min.y + .25)); }   // 구름다리는 2층 높이
     O.traverse(o => { if (o.isMesh) o.visible = true; });
     WK.root.visible = false;   // 겹치는 새 통로 겉모습은 숨기고 (바닥 · 충돌은 그대로) 구름다리 실내를 쓴다
-    R.gate = { z: R.passToNew(0, doorZ)[1], x1: -2, x2: 2, closed: () => false };
+    R.gate = { z: R.passToNew(0, doorZ)[1], x1: BRX - 2, x2: BRX + 2, closed: () => false };
   };
-  R.inWalkway = P => P.floor === 0 && (P.sh || 0) < .5 && Math.abs(P.x) < 1.95 && P.z > -17.2 && P.z < -2.8;
+  R.inWalkway = P => P.floor === 0 && Math.abs((P.sh || 0) - FHB) < .6 && Math.abs(P.x - BRX) < 1.95 && P.z > BRZ1 - .2 && P.z < BRZ2 + .2;
   // 지하 B1 내려가는 계단: 새 본관 서쪽 계단실 1층 층참의 북쪽 절반 (x −45.6 ~ −41.4) — 계단 10단 · 1.8m 아래 철문
   //   바닥 판(땅 · 층참 슬래브)은 그 사각 기둥만 잘라 그린다 (clipping) — 땅은 캠퍼스 전체가 큰 사각형 몇 개라 메시를 자를 수 없다
   const B1PIT = (() => { const L = MAIN.layout, xw = -L.L / 2 + .02, xa = xw + 1.0, xb = -L.L / 2 + 5.1; const [, z1] = MAIN.toWorld(0, L.zN + .02), [, z2] = MAIN.toWorld(0, L.zN + 1.35); return { xw, xa, xb, z1, z2, d: 1.8 }; })();
@@ -278,10 +287,11 @@ export function installRebuild({ THREE, scene, floors, world }) {
   R.elevs = []; const ELV = [];
   const mElv = new THREE.MeshStandardMaterial({ color: 0x9aa2a8, roughness: .3, metalness: .85 }), mFrame = new THREE.MeshStandardMaterial({ color: 0x3a3e42, roughness: .5, metalness: .6 });
   const mBtn = new THREE.MeshStandardMaterial({ color: 0xffb040, emissive: 0xff8a20, emissiveIntensity: .8 }), mShaft = new THREE.MeshStandardMaterial({ color: 0x8a8a84, roughness: .9 }), mCarF = new THREE.MeshStandardMaterial({ color: 0x4a4440, roughness: .7 });
-  const EX = 3.7, EW = .6, CAR = { x1: EX - .66, x2: EX + .66 };
+  const EW = .6;
   [MAIN, ANX].forEach(b => {
     const T = b.spec.outer, zw = b.layout.zN - T, n = b.spec.floors, zc1 = zw - 1.7, zc2 = zw - .02;
-    const E = { b, n, f: 0, y: 0, target: 0, door: 0, doorT: 0, wait: 0, moving: false, landing: [], zw, zc1, zc2 };
+    const EX = b.elevX, CAR = { x1: EX - .66, x2: EX + .66 };
+    const E = { b, n, f: 0, y: 0, target: 0, door: 0, doorT: 0, wait: 0, moving: false, landing: [], zw, zc1, zc2, EX, CAR };
     const box = (par, w, h, d, m, x, y, z) => { const o = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m); o.position.set(x, y, z); par.add(o); return o; };
     // 승강로 (바깥에서 보이는 콘크리트 탑)
     const top = n * b.spec.FH + 1.2, zm = (zw - 1.85 + zw) / 2;
@@ -309,19 +319,20 @@ export function installRebuild({ THREE, scene, floors, world }) {
     }
     E.show('1F'); ELV.push(E);
   });
-  const inCar = (E, lx, lz) => lx > CAR.x1 + .05 && lx < CAR.x2 - .05 && lz > E.zc1 + .05 && lz < E.zw + .02;
-  const elvAt = (x, z) => { for (const E of ELV) { const [lx, lz] = E.b.toLocal(x, z); if (lx > EX - .85 && lx < EX + .85 && lz > E.zw - 2 && lz < E.zw + .02) return { E, lx, lz }; } return null; };
+  const inCar = (E, lx, lz) => lx > E.CAR.x1 + .05 && lx < E.CAR.x2 - .05 && lz > E.zc1 + .05 && lz < E.zw + .02;
+  const elvAt = (x, z) => { for (const E of ELV) { const [lx, lz] = E.b.toLocal(x, z); if (lx > E.EX - .85 && lx < E.EX + .85 && lz > E.zw - 2 && lz < E.zw + .02) return { E, lx, lz }; } return null; };
   // 높이 · 충돌: 칸 바닥은 칸 높이, 승강로 벽 · 칸 벽은 막힘, 문이 닫혀 있거나 칸이 없는 층의 출입구도 막힘
   const gA = R.groundAt, bA = R.blocked;
-  const elvSill = (x, z) => { for (const E of ELV) { const [lx, lz] = E.b.toLocal(x, z); if (lx > EX - .62 && lx < EX + .62 && lz >= E.zw - .02 && lz <= E.b.layout.zN + .05) return E; } return null; };
+  const elvSill = (x, z) => { for (const E of ELV) { const [lx, lz] = E.b.toLocal(x, z); if (lx > E.EX - .62 && lx < E.EX + .62 && lz >= E.zw - .02 && lz <= E.b.layout.zN + .05) return E; } return null; };
   R.groundAt = (x, z, feet) => { const h = elvAt(x, z); if (h) { const { E, lx, lz } = h; if (lz < E.zw && inCar(E, lx, lz) && Math.abs(feet - E.y) < 1.2) return E.y + .06; if (lz < E.zw) return null; }
     const sE = elvSill(x, z); if (sE) { const fy = Math.round(feet / sE.b.spec.FH) * sE.b.spec.FH; if (Math.abs(feet - fy) < .4) return Math.max(fy, Math.abs(sE.y + .06 - feet) < .2 ? sE.y + .06 : fy); }   // 승강장 문턱 (벽 두께)
     return gA(x, z, feet); };
   R.blocked = (x, z, y, r) => { const h = elvAt(x, z); if (h) { const { E, lx, lz } = h, open = E.door > .85 && Math.abs(E.y - y) < .7 && !E.moving;
-      if (lz < E.zw + r && (lx - r < CAR.x1 + .02 || lx + r > CAR.x2 - .02) && lz < E.zw) return true;   // 칸 옆벽
+      if (lz < E.zw + r && (lx - r < E.CAR.x1 + .02 || lx + r > E.CAR.x2 - .02) && lz < E.zw) return true;   // 칸 옆벽
       if (lz - r < E.zc1 + .04) return true;   // 칸 뒷벽
       if (lz > E.zw - .3 && lz < E.zw + r + .05 && !open) return true; }
     return bA(x, z, y, r); };
+  { const bR = R.blocked, top = MAIN.spec.floors * MAIN.spec.FH; R.blocked = (x, z, y, r) => { if (y > top - .3 && y < top + 1 && R.roofCol && R.roofCol().some(c => !c.off && x + r > c.x1 && x - r < c.x2 && z + r > c.z1 && z - r < c.z2 && !(c.h != null && c.h <= .4))) return true; return bR(x, z, y, r); }; }
   { const gB = R.groundAt, bB = R.blocked;
     R.groundAt = (x, z, feet) => { if (inPit(x, z) && feet < .35 && feet > pitH(x) - .7) return pitH(x); return gB(x, z, feet); };
     R.blocked = (x, z, y, r) => { if (inPit(x, z) && x < B1PIT.xb - .25 && y > pitH(x) + .45) return true; if (x < B1PIT.xw + .25 && x > B1PIT.xw - .3 && z > B1PIT.z1 && z < B1PIT.z2 && y < -.2) return true; return bB(x, z, y, r); }; }
@@ -372,7 +383,7 @@ export function installRebuild({ THREE, scene, floors, world }) {
     const f0 = Math.round(y / FH), k0 = f0 + '|' + R.where(x, z, y); if (k0 === mdKey) return mdVal; mdKey = k0;
     const f = f0, corners = (b, x1, x2, z1, z2) => [[x1, z1], [x2, z1], [x2, z2], [x1, z2]].map(([a, c]) => b.toWorld(a, c));
     const shells = [MAIN, ANX].map(b => corners(b, -b.layout.L / 2, b.layout.L / 2, b.layout.zN, b.layout.zS));
-    shells.push(corners(WK, -1.9, 1.9, -17, -3));
+    shells.push(corners(WK, BRX - 1.9, BRX + 1.9, BRZ1, BRZ2));
     const here = R.where(x, z, y);
     const rooms = [MAIN, ANX].flatMap(b => (b.props || []).filter(p => p.kind === 'room' && p.floor === f).map(p => { const [cx, cz] = b.toWorld(p.x ?? (p.x1 + p.x2) / 2, p.z ?? (p.z1 + p.z2) / 2); return { pts: corners(b, p.x1, p.x2, p.z1, p.z2), label: p.label, cx, cz, here: here && here.endsWith(p.label) }; }));
     return (mdVal = { clear: [OLD_MAIN, OLD_ANNEX], shells, rooms });
@@ -380,7 +391,7 @@ export function installRebuild({ THREE, scene, floors, world }) {
   // 지도 탭: 건물 하나의 한 층 평면 (bk 'M' 본관 · 'A' 별관)
   R.mapStory = (bk, f) => {
     const corners = (b, x1, x2, z1, z2) => [[x1, z1], [x2, z1], [x2, z2], [x1, z2]].map(([a, c]) => b.toWorld(a, c));
-    const b = bk === 'A' ? ANX : MAIN, shells = [MAIN, ANX].map(q => corners(q, -q.layout.L / 2, q.layout.L / 2, q.layout.zN, q.layout.zS)); shells.push(corners(WK, -1.9, 1.9, -17, -3));
+    const b = bk === 'A' ? ANX : MAIN, shells = [MAIN, ANX].map(q => corners(q, -q.layout.L / 2, q.layout.L / 2, q.layout.zN, q.layout.zS)); shells.push(corners(WK, BRX - 1.9, BRX + 1.9, BRZ1, BRZ2));
     const rooms = (b.props || []).filter(p => p.kind === 'room' && p.floor === f).map(p => { const [cx, cz] = b.toWorld(p.x ?? (p.x1 + p.x2) / 2, p.z ?? (p.z1 + p.z2) / 2); return { pts: corners(b, p.x1, p.x2, p.z1, p.z2), label: p.label, cx, cz }; });
     b.layout.rooms.filter(r => r.kind === 'stair').forEach(r => { const [cx, cz] = b.toWorld((r.x1 + r.x2) / 2, b.layout.zS / 2); rooms.push({ pts: corners(b, r.x1, r.x2, b.layout.zN, b.layout.zS), label: '계단', cx, cz, stair: true }); });
     { const [cx, cz] = b.toWorld(0, b.layout.zN / 2); rooms.unshift({ pts: corners(b, -b.layout.L / 2, b.layout.L / 2, b.layout.zN, 0), label: '복도', cx, cz, hall: true }); }

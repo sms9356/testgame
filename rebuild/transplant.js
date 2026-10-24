@@ -46,3 +46,23 @@ export function carve(mesh, pred) {
   if (Array.isArray(mesh.material)) groups.forEach(q => g.addGroup(q.start, q.count, q.materialIndex));
   mesh.geometry = g; g.computeBoundingSphere(); g.computeBoundingBox(); return gone;
 }
+
+// 큰 삼각형을 maxLen 이하가 될 때까지 쪼갠다 (길고 낮은 바닥판을 새 건물 자리만 정확히 걷어 내기 위해)
+export function subdivide(mesh, maxLen = 1.2, maxTris = 20000) {
+  if (mesh.isInstancedMesh || mesh.isSkinnedMesh) return false;
+  const src = mesh.geometry.index ? mesh.geometry.toNonIndexed() : mesh.geometry, keys = ATTRS.filter(k => src.getAttribute(k));
+  const pos = src.getAttribute('position'), out = Object.fromEntries(keys.map(k => [k, []])), ml2 = maxLen * maxLen; let n = 0;
+  const get = (k, i) => { const a = src.getAttribute(k), r = []; for (let j = 0; j < a.itemSize; j++) r.push(a.getComponent(i, j)); return r; };
+  const mid = (a, b) => a.map((v, j) => (v + b[j]) / 2);
+  const d2 = (a, b) => (a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2 + (a[2] - b[2]) ** 2;
+  const emit = t => { n++; for (const k of keys) for (const v of t[k]) out[k].push(...v); };
+  const rec = (t, depth) => { const p = t.position, e = [d2(p[0], p[1]), d2(p[1], p[2]), d2(p[2], p[0])], m = Math.max(...e);
+    if (m <= ml2 || depth > 12 || n > maxTris) return emit(t);
+    const i = e.indexOf(m), a = i, b = (i + 1) % 3, c = (i + 2) % 3, s1 = {}, s2 = {};
+    for (const k of keys) { const v = t[k], mv = mid(v[a], v[b]); s1[k] = [v[a], mv, v[c]]; s2[k] = [mv, v[b], v[c]]; }
+    rec(s1, depth + 1); rec(s2, depth + 1); };
+  for (let i = 0; i < pos.count; i += 3) { const t = {}; for (const k of keys) t[k] = [get(k, i), get(k, i + 1), get(k, i + 2)]; rec(t, 0); }
+  if (n > maxTris) return false;
+  const g = new THREE.BufferGeometry(); for (const k of keys) g.setAttribute(k, new THREE.Float32BufferAttribute(out[k], src.getAttribute(k).itemSize));
+  mesh.geometry = g; return true;
+}

@@ -200,12 +200,12 @@ export function installRebuild({ THREE, scene, floors, world }) {
       if (!sl) { l.floor = park(l.floor); continue; }
       sl.used = true; const [x, z] = sl.b.toWorld(sl.lx, sl.lz); l._old = { f: l.floor, x: l.x, z: l.z }; const [dx, dz] = sl.b.toWorld(sl.lx - 1, sl.lz); l.dir = { x: dx - x, z: dz - z }; l.floor = 0; l.rbY = sl.f * FH; l.x = x; l.z = z; moved++; }
     // 지하(B1) 계단 입구: 새 본관 서쪽 계단실 1층 층 참 바깥벽 쪽
-    if (!R.b1Door && stairSpawnB1) {
-      const [x, z] = MAIN.toWorld(-MAIN.layout.L / 2 + .8, MAIN.layout.zN + 1.35);
-      R.b1Door = { floor: 0, x, z, r: 1.5, rbY: 0, label: '지하 계단 — B1로 내려가기', to: { floor: 4, x: stairSpawnB1.x, z: stairSpawnB1.z, yaw: Math.PI }, _rb: true };
-      R.b1Return = { floor: 0, x: x + 2.2, z, yaw: -Math.PI / 2 };
+    if (!R.b1Door && stairSpawnB1) {   // 지하 계단: 서쪽 계단실 1층 층참 북쪽의 내려가는 계단(B1PIT) 맨 아래 철문
+      const P = B1PIT, x = P.xw + .15, z = (P.z1 + P.z2) / 2;
+      R.b1Door = { floor: 0, x: x + .45, z, r: 1.4, rbY: -P.d, label: '지하 B1 철문 — 아래층으로 내려가기', to: { floor: 4, x: stairSpawnB1.x, z: stairSpawnB1.z, yaw: Math.PI }, _rb: true };
+      R.b1Return = { floor: 0, x: P.xb + .2, z, yaw: -Math.PI / 2, sh: -P.d };
       world.doors.push(R.b1Door);
-      sign(x - .72, 0, z, '지하 B1 ↓', Math.PI / 2, true);
+      sign(x, -P.d, z, '지하 B1 ↓', Math.PI / 2, true);
     }
     // 옥상 출입문: 새 본관 동쪽 계단실 맨 위층(4층) 층 참 — 옥상(예전 3층 공간)으로 이어진다
     if (!R.roofDoor) {
@@ -240,6 +240,30 @@ export function installRebuild({ THREE, scene, floors, world }) {
     R.gate = { z: R.passToNew(0, doorZ)[1], x1: -2, x2: 2, closed: () => false };
   };
   R.inWalkway = P => P.floor === 0 && (P.sh || 0) < .5 && Math.abs(P.x) < 1.95 && P.z > -17.2 && P.z < -2.8;
+  // 지하 B1 내려가는 계단: 새 본관 서쪽 계단실 1층 층참의 북쪽 절반 (x −45.6 ~ −41.4) — 계단 10단 · 1.8m 아래 철문
+  //   바닥 판(땅 · 층참 슬래브)은 그 사각 기둥만 잘라 그린다 (clipping) — 땅은 캠퍼스 전체가 큰 사각형 몇 개라 메시를 자를 수 없다
+  const B1PIT = (() => { const L = MAIN.layout, xw = -L.L / 2 + .02, xa = xw + 1.0, xb = -L.L / 2 + 5.1; const [, z1] = MAIN.toWorld(0, L.zN + .02), [, z2] = MAIN.toWorld(0, L.zN + 1.35); return { xw, xa, xb, z1, z2, d: 1.8 }; })();
+  {
+    const P = B1PIT, mC = new THREE.MeshStandardMaterial({ color: 0x8a8780, roughness: .92 }), mStep = new THREE.MeshStandardMaterial({ color: 0x9a968c, roughness: .85 }), mRail = new THREE.MeshStandardMaterial({ color: 0x3a3e42, roughness: .4, metalness: .7 });
+    const bx = (m, x1, x2, y1, y2, z1, z2) => { const o = new THREE.Mesh(new THREE.BoxGeometry(x2 - x1, y2 - y1, z2 - z1), m); o.position.set((x1 + x2) / 2, (y1 + y2) / 2, (z1 + z2) / 2); o.receiveShadow = true; group.add(o); };
+    const n = 10, run = (P.xb - P.xa) / n;
+    for (let k = 0; k < n; k++) { const x2 = P.xb - k * run; bx(mStep, x2 - run, x2, -P.d - .05, -(k + 1) * P.d / n, P.z1, P.z2); bx(mRail, x2 - run, x2 - run + .03, -(k + 1) * P.d / n - .005, -(k + 1) * P.d / n + .001, P.z1, P.z2); }
+    bx(mStep, P.xw, P.xa, -P.d - .05, -P.d, P.z1, P.z2);
+    bx(mC, P.xw, P.xb, -P.d - .05, .0, P.z2, P.z2 + .1); bx(mC, P.xw, P.xb, -P.d - .05, 0, P.z1 - .1, P.z1); bx(mC, P.xw - .1, P.xw, -P.d - .05, 0, P.z1, P.z2);   // 구덩이 벽 3면
+    for (let x = P.xw + .2; x < P.xb - .1; x += 1.0) bx(mRail, x - .02, x + .02, 0, 1.0, P.z2 + .02, P.z2 + .06);
+    bx(mRail, P.xw, P.xb - .1, .98, 1.03, P.z2 + .01, P.z2 + .07);   // 난간
+    const lamp = new THREE.PointLight(0xffd8a0, .7, 4, 2); lamp.position.set(P.xw + .5, -P.d + 1.9, (P.z1 + P.z2) / 2); group.add(lamp); lamps.push(lamp);
+  }
+  // 바닥 판 자르기: 사각 기둥 (x xw~xb · z z1~z2 · 높이 0.15 아래) 안의 픽셀만 버린다
+  const pitClip = [new THREE.Plane(new THREE.Vector3(-1, 0, 0), B1PIT.xw), new THREE.Plane(new THREE.Vector3(1, 0, 0), -B1PIT.xb), new THREE.Plane(new THREE.Vector3(0, 0, -1), B1PIT.z1), new THREE.Plane(new THREE.Vector3(0, 0, 1), -B1PIT.z2), new THREE.Plane(new THREE.Vector3(0, 1, 0), -.15)];
+  const clipFloor = () => { const cx = (B1PIT.xw + B1PIT.xb) / 2, cz = (B1PIT.z1 + B1PIT.z2) / 2; scene.traverse(o => {
+    if (!o.isMesh || o.userData.pitClip || o.parent === group) return; const g = o.geometry; if (!g.boundingBox) g.computeBoundingBox(); const b = new THREE.Box3().copy(g.boundingBox).applyMatrix4(o.matrixWorld);
+    if (b.max.y > .2 || b.min.y < -.6 || b.max.y < -.3 || cx < b.min.x || cx > b.max.x || cz < b.min.z || cz > b.max.z) { if (!(o.name === 'RB_terr' || o.name === 'RB_conc')) return; }
+    o.userData.pitClip = true; const fix = m => { const c = m.clone(); c.clippingPlanes = pitClip; c.clipIntersection = true; c.clipShadows = true; c.needsUpdate = true; return c; };
+    o.material = Array.isArray(o.material) ? o.material.map(fix) : fix(o.material); }); };
+  R.clipFloor = clipFloor; setTimeout(clipFloor, 500); setTimeout(clipFloor, 8000);
+  const inPit = (x, z) => x > B1PIT.xw && x < B1PIT.xb && z > B1PIT.z1 && z < B1PIT.z2;
+  const pitH = x => x >= B1PIT.xb ? 0 : x <= B1PIT.xa ? -B1PIT.d : -B1PIT.d * (B1PIT.xb - x) / (B1PIT.xb - B1PIT.xa);
   // 엘리베이터: 본관 · 별관 복도 북쪽 외벽(코어 동쪽) 바깥 승강로 — 실제로 타고 오르내린다
   //   복도에서 E: 호출(다른 층이면 칸이 내려오고/올라온 뒤 문이 열린다) · 칸 안에서 E 위층 / Q 아래층 · 문은 몇 초 뒤 저절로 닫힌다
   R.elevs = []; const ELV = [];
@@ -289,6 +313,9 @@ export function installRebuild({ THREE, scene, floors, world }) {
       if (lz - r < E.zc1 + .04) return true;   // 칸 뒷벽
       if (lz > E.zw - .3 && lz < E.zw + r + .05 && !open) return true; }
     return bA(x, z, y, r); };
+  { const gB = R.groundAt, bB = R.blocked;
+    R.groundAt = (x, z, feet) => { if (inPit(x, z) && feet < .35 && feet > pitH(x) - .7) return pitH(x); return gB(x, z, feet); };
+    R.blocked = (x, z, y, r) => { if (inPit(x, z) && x < B1PIT.xb - .25 && y > pitH(x) + .45) return true; if (x < B1PIT.xw + .25 && x > B1PIT.xw - .3 && z > B1PIT.z1 && z < B1PIT.z2 && y < -.2) return true; return bB(x, z, y, r); }; }
   R.nearElev = (x, z, y) => {
     const h = elvAt(x, z); if (h && h.lz < h.E.zw) { const E = h.E, f = Math.round(E.y / E.b.spec.FH); return { inCar: true, E, f, n: E.n, rbY: E.y }; }
     return R.elevs.find(e => Math.abs(e.rbY - y) < 1.2 && Math.hypot(e.x - x, e.z - z) < 1.3);

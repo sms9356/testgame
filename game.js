@@ -8576,7 +8576,7 @@ applyQuality(SET.quality === 'auto' ? 'high' : SET.quality);
 applySettings();
 // 로딩 화면을 즉시 닫고(동기식), 텍스처 예산·성능 풀·모델 로드는 백그라운드에서 비동기로 진행한다 (초기 로딩 멈춤 원천 차단)
 setupAnnex();
-if (!params.has('oldmap')) { RBG = installRebuild({ THREE, scene, floors, world }); window.__rbg = RBG;
+if (!params.has('oldmap')) { RBG = installRebuild({ THREE, scene, floors, world }); window.__rbg = RBG; renderer.localClippingEnabled = true;
   // 2단계: 예전 건물의 열쇠 · 쪽지 · 조사 지점을 새 방으로 (나중에 생기는 조사 지점도 몇 번 더 옮긴다)
   const sz4 = floors[4] && floors[4].stairZone, b1 = sz4 ? sz4.spawn : { x: ((floors[4] && floors[4].stairCx) || 0) + .8, z: -5.2 };
   const rel = () => { const r = RBG.relocate({ world, floors, stairSpawnB1: b1 }); if (r.moved || r.dropped) console.info('[rebuild] 옮김', r); };

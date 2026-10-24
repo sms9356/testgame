@@ -148,6 +148,7 @@ const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const lerp = (a, b, t) => a + (b - a) * t;
 const params = new URLSearchParams(location.search);
 const DEBUG = params.has('debug');
+const NORENDER = params.has('norender') && DEBUG;   // 자동 점검용: 화면을 그리지 않고 게임 진행만 (느린 소프트웨어 렌더러에서도 실시간으로)
 const TEST = params.has('test');
 const TST = { god: false, noGhost: false };
 const TEST_NOLOCK = params.has('nolock'), BRIGHT = params.has('bright');   // bright: 화면 점검용 균일 조명
@@ -240,7 +241,7 @@ const _t0 = performance.now();
 await Promise.race([loadPBR(), new Promise(r => setTimeout(r, 2500))]);
 const _t1 = performance.now();
 const world = buildWorld(scene);
-let RBG = null;   // 재건축 본관 · 별관 (?rb) — rebuildGame.js
+let RBG = null;   // 재건축 본관 · 별관 (기본 · ?oldmap 이면 예전 건물) — rebuildGame.js
 const npcVisuals = createNPCVisuals({ THREE, GLTFLoader, prepare: async obj => {
   const tex = new Set(); obj.traverse(o => { if (o.material) [].concat(o.material).forEach(m => ['map', 'normalMap', 'roughnessMap', 'metalnessMap', 'aoMap', 'alphaMap', 'emissiveMap'].forEach(k => m[k] && tex.add(m[k]))); });
   await textureBudget.prepareTextures(tex);
@@ -1299,6 +1300,7 @@ function findInteract() {
   // 사물함 숨기 기능 제거: 일반 사물함은 모두 파밍(search) 지점으로 작동하며, 화장실 칸막이(stallDoor)만 문을 닫을 수 있다
   for (const l of world.lockers) {
     if (l.floor !== P.floor || l.noPick || !l.stallDoor) continue;
+    if (l.rbY != null && Math.abs(l.rbY - (P.sh || 0)) > 1.6) continue;
     const dx = l.x - P.x, dz = l.z - P.z, d = Math.hypot(dx, dz);
     if (d > 1.7 || !los(floors[P.floor].walls, P.x, P.z, l.x, l.z)) continue; const f = (dx * fx + dz * fz) / Math.max(d, .01);
     const s = f - d * .1; if (f > .35 && s > bs) { bs = s; best = { type: 'locker', l, label: l.label || '칸막이 안에 들어가기' }; }
@@ -1340,12 +1342,14 @@ function findInteract() {
     } else if (dr) best = { type: 'door', d: dr, label: dr.label + (dr.need && !FL.gatekey ? ' 🔒' : '') };
     else if (P.floor === 0 && P.z > GATE_Z - 4.2 && P.z < GATE_Z + 2.8 && Math.abs(P.x) < 2.8 && (gateClosed || FL.gatekey) && !escaped) best = { type: 'gate', label: gateClosed ? '봉인된 정문 열고 학교의 비밀 폭로하기' : '정문을 통해 학교의 비밀을 세상에 폭로하기' };
   }
+  if (!best && RBG && P.floor === 0) { const e = RBG.nearElev(P.x, P.z, P.sh || 0); if (e) best = { type: 'rbelev', e, raw: true, label: [e.f < e.n - 1 ? 'E · 위층' : '', e.f > 0 ? 'Q · 아래층' : ''].filter(Boolean).join('  /  ') + `  (엘리베이터 · ${e.b.name} ${e.f + 1}층)` }; }
   if (!best && RBG && P.floor === 0) { const d = RBG.nearDoor(P.x, P.z, P.sh || 0); if (d) best = { type: 'rbdoor', d, label: `${d.label || '문'} ${d.target > .5 ? '닫기' : '열기'}` }; }
   return best;
 }
 function interact() {
   if (!target) return;
   if (target.type === 'rbdoor') { RBG.toggleDoor(target.d); sfx.door && sfx.door(); return; }
+  if (target.type === 'rbelev') { rbElev(target.e, 1); return; }
   if (target.type === 'item') {
     triggerInteractAnim('low');
     const it = target.it;
@@ -1446,6 +1450,7 @@ function enrage() {
 }
 
 const STAIRS = { 0: { up: 1, down: 4 }, 1: { up: 2, down: 0 }, 2: { up: 3, down: 1 }, 3: { down: 2 }, 4: { up: 0 }, 8: { up: 9 }, 9: { up: 10, down: 8 }, 10: { down: 9 } };
+function rbElev(e, dir) { const to = RBG.elevTo(e, dir); if (!to) { sfx.click(); return; } sfx.elevatorButton && sfx.elevatorButton(); sfx.elevator && sfx.elevator(1.6); teleport(to); setTimeout(() => sfx.elevatorChime && sfx.elevatorChime(), 1200); }
 function teleport(to) {
   if (state !== 'playing') return;
   if (RBG) to = RBG.mapTeleport(to, P.floor, world);   // 새 건물: B1 · 옥상 · 예전 층으로 가는 이동은 새 건물의 같은 자리로
@@ -2060,6 +2065,7 @@ addEventListener('keydown', e => {
   if (e.code === K().crouch || e.code === 'ControlLeft') { P.crouch = !P.crouch; if (P.crouch) P.runOn = false; }
   if (e.code === K().jump && !e.repeat) tryJump();
   if (e.code === K().throwCan) { if (inv.shock > 0) throwShock(); else throwCan(); }   // 쇼트 폭탄이 있으면 캔 대신
+  if (target && target.type === 'rbelev' && e.code === K().down) { rbElev(target.e, -1); return; }
   if (target && target.type === 'stairs' && !P.hiding && e.code === K().down) { STH = null; changeFloor(-1); return; }   // Q 는 다른 기능이 없어 한 번 누르면 바로 내려간다
   if (target && target.type === 'stairs' && !P.hiding && e.code === K().interact) { if (!e.repeat) STH = { code: e.code, dir: 1, t: 0 }; return; }   // E 는 조사 키와 같아서 길게 눌러야 올라간다 (파밍 중 실수 방지)   // 계단: 길게 눌러야 층 이동 (파밍 중 실수 방지)
   if (e.code === K().interact) { if (P.hiding) leaveLocker(); else interact(); }
@@ -2175,7 +2181,7 @@ function save(silent) {
   const d = {
     schemaVersion: SCHEMA, build: BUILD,
     meta: { char: CHAR, ch: objective().ch, time: playTime, savedAt: Date.now(), where: whereText() },
-    player: { ...(P.inElev ? (q => ({ x: q.px - .9, z: q.pz, yaw: Math.PI / 2 }))(elvHere(P.floor) || ELV.p) : { x: P.x, z: P.z, yaw: P.yaw }), floor: P.floor, hp: P.hp, battery: P.battery, stamina: P.stamina, keys: P.keys, light: P.light, pbat: Math.round(P.pbat ?? 100), roofSeen: !!P.roofSeen, b1Seen: !!P.b1Seen, gymSeen: !!P.gymSeen, cafeSeen: !!P.cafeSeen, poolSeen: !!P.poolSeen, bcast: !!P.bcast },
+    player: { ...(P.inElev ? (q => ({ x: q.px - .9, z: q.pz, yaw: Math.PI / 2 }))(elvHere(P.floor) || ELV.p) : { x: P.x, z: P.z, yaw: P.yaw }), floor: P.floor, sh: P.sh || 0, hp: P.hp, battery: P.battery, stamina: P.stamina, keys: P.keys, light: P.light, pbat: Math.round(P.pbat ?? 100), roofSeen: !!P.roofSeen, b1Seen: !!P.b1Seen, gymSeen: !!P.gymSeen, cafeSeen: !!P.cafeSeen, poolSeen: !!P.poolSeen, bcast: !!P.bcast },
     progress: { got: [...got], FL: { ...FL }, power, gateClosed, introDone, playTime },
     inv: { ...inv }, docs: docs.map(x => ({ id: x.id, kind: x.kind })), msgs: msgs.map(m => ({ ...m })), clues: [...clues],
     events: [...EV.done], tips: [...tipsDone], cards: [...seenCards], b33: EV.b33,
@@ -2212,7 +2218,8 @@ function load(preferBackup) {
   if (CHARACTERS[d.meta.char]) { CHAR = d.meta.char; try { localStorage.setItem(CHAR_KEY, CHAR); } catch (e) { /* ignore */ } }
   applyChar();
   // 2) 플레이어 · 진행
-  Object.assign(P, d.player);if(restoreOutsideElevatorBay(P,floors[P.floor]?.elevatorBay)){P.sh=P.shV=P.jy=P.jyV=P.vy=0;} P.hiding = null; $('hide').classList.remove('show');$('peekEye').classList.remove('on');
+  Object.assign(P, d.player); if (RBG) { const m = RBG.mapTeleport({ floor: P.floor, x: P.x, z: P.z, yaw: P.yaw, sh: d.player.sh }, -1, world); P.floor = m.floor; P.x = m.x; P.z = m.z; P.sh = m.sh ?? 0; }   // 예전 건물 기준 세이브도 새 건물의 같은 자리로
+  if(restoreOutsideElevatorBay(P,floors[P.floor]?.elevatorBay)){P.sh=P.shV=P.jy=P.jyV=P.vy=0;} P.hiding = null; $('hide').classList.remove('show');$('peekEye').classList.remove('on');
   got.splice(0, TOTAL, ...d.progress.got.slice(0, TOTAL).map(Boolean));
   Object.assign(inv, d.inv); Object.assign(FL, d.progress.FL || {}); B1D && B1D.sync(); campusCctv?.restoreChannels(FL.guardCctvChannels||[]); power = !!d.progress.power;
   msgs.length = 0; msgs.push(...(d.msgs || [])); clues.length = 0; clues.push(...(d.clues || []));
@@ -3526,7 +3533,7 @@ function frameBody(now) {
   updateSound(dt);
   updatePings(dt); updateObjDir(dt);
   campusCctv?.tick(dt,{powered:FL.guardCctvOn??true,near:shouldStreamGuardCctv(P,state,GUARD_LAYOUT),quality:qCur});
-  staticLOD.render(camera, now, qCur, () => fx.render(dt, { fear: P.fear || 0, flash: flash.intensity / 95, outdoors: outdoorsNow, floorY: floors[P.floor].y0, hurt: hurtFx, rain: 0 }));
+  if (!NORENDER) staticLOD.render(camera, now, qCur, () => fx.render(dt, { fear: P.fear || 0, flash: flash.intensity / 95, outdoors: outdoorsNow, floorY: floors[P.floor].y0, hurt: hurtFx, rain: 0 }));
   if (SHOT.req) shotGrab();   // 카메라 앨범: 방금 그린 화면
   
 }
@@ -6394,7 +6401,7 @@ floors[6].col.push({ x1: -34.65, x2: -34.05, z1: 36.9, z2: 39.15 }); floors[6].w
     pmesh(new THREE.PlaneGeometry(.7, .16), new THREE.MeshBasicMaterial({ map: makeSign('옥상 출입문', '#3a1a10', '#e8d0b0', 24) }), 0, 1.75, -.04, g, { ry: Math.PI, cast: false }); } }
 const PASS_DOOR = WALKWAY.z1 + .55, PASS_MID = (WALKWAY.z1 + WALKWAY.z2) / 2;   // 통로 10.6m: 방화문은 별관 끝 · 밸브는 가운데 · 청소도구함은 본관 끝
 const PASS = { x1: -.9, x2: 2.5, z1: WALKWAY.z1, z2: WALKWAY.z2, doorZ: PASS_DOOR, valveZ: PASS_MID, frameZ: PASS_MID + 2.4, pileZ: PASS_MID + 1.2, col: { x1: -.9, x2: 2.5, z1: PASS_DOOR - .07, z2: PASS_DOOR + .07 }, bangT: 0, warned: false, frame: null, frameFell: false, prevBlack: false, tubes: [] };
-function inPassage() { return (P.floor === 1 || P.floor === 2) && P.x > PASS.x1 && P.x < PASS.x2 && P.z > PASS.z1 && P.z < PASS.z2; }
+function inPassage() { if (RBG) return RBG.inWalkway(P); return (P.floor === 1 || P.floor === 2) && P.x > PASS.x1 && P.x < PASS.x2 && P.z > PASS.z1 && P.z < PASS.z2; }
 {
   const O = new THREE.Group(); O.name = 'skybridge2F'; O.position.y = FH; O.userData.dynamic = true; world.OUT.add(O);
   const F0 = floors[1], cz = (WALKWAY.z1 + WALKWAY.z2) / 2;
@@ -6694,7 +6701,7 @@ function patchTick(dt) {
   // 그것이 운동장으로 나왔다가 돌아간다
   if (G.outT > 0) { G.outT -= dt; if (G.outT <= 0 && G.floor === 0 && G.z > MAIN_ZS - .4 && !G.enraged && G.state !== 'chase') { ghostLeave(); } }
   // 8. 실내 연결복도 (복도 안에 있을 때만 실제 위치를 넘긴다 — 바깥 · 다른 층에서 소등 이벤트가 먼저 터지지 않게)
-  ipP.update(dt, inPassage() ? _pp.set(P.x, 0, P.z) : _far, notify);
+  ipP.update(dt, inPassage() ? (RBG ? _pp.set(...(([a, b]) => [a, 0, b])(RBG.passToOld(P.x, P.z))) : _pp.set(P.x, 0, P.z)) : _far, notify);
   if (ipP.state.blackoutTriggered && !PASS.prevBlack) { PASS.prevBlack = true; setTimeout(() => {
     if (PASS.frameFell) return; PASS.frameFell = true; const f = PASS.frame; let t = 0; at(2.3, 1.7, PASS.frameZ).glassCrack();
     const iv = setInterval(() => { t = Math.min(1, t + .08); f.position.y = 1.78 - t * t * 1.72; f.position.x = 2.38 - t * .25; f.rotation.z = -.07 - t * 1.2; f.rotation.x = t * .5; if (t >= 1) { clearInterval(iv); sfx.glassCrack(); at(2.1, .1, -11.85).thump(); fx.dust(2.1, .1, -11.85, 14); shake = .25; caption('…졸업 앨범 액자가 떨어져 유리가 산산이 깨졌다'); } }, 30);
@@ -8349,11 +8356,12 @@ initSaveIds();
 applyQuality(SET.quality === 'auto' ? 'mid' : SET.quality);
 applySettings();
 // 로딩 화면을 즉시 닫고(동기식), 텍스처 예산·성능 풀·모델 로드는 백그라운드에서 비동기로 진행한다 (초기 로딩 멈춤 원천 차단)
-if (params.has('rb')) { RBG = installRebuild({ THREE, scene, floors, world }); window.__rbg = RBG;
+if (!params.has('oldmap')) { RBG = installRebuild({ THREE, scene, floors, world }); window.__rbg = RBG;
   // 2단계: 예전 건물의 열쇠 · 쪽지 · 조사 지점을 새 방으로 (나중에 생기는 조사 지점도 몇 번 더 옮긴다)
   const sz4 = floors[4] && floors[4].stairZone, b1 = sz4 ? sz4.spawn : { x: ((floors[4] && floors[4].stairCx) || 0) + .8, z: -5.2 };
   const rel = () => { const r = RBG.relocate({ world, floors, stairSpawnB1: b1 }); if (r.moved || r.dropped) console.info('[rebuild] 옮김', r); };
-  rel(); [3000, 10000, 25000, 60000, 120000].forEach(ms => setTimeout(rel, ms)); }
+  RBG.adoptPassage(world.OUT, PASS_DOOR); if (RBG.gate) RBG.gate.closed = () => ipP.state.fireDoorClosed;   // 구름다리 방화문 연출 → 새 연결 통로
+  rel(); setInterval(rel, 4000); window.__rbRel = rel; }   // 새 게임 · 이어하기 · 이벤트로 나중에 생기는 조사 지점도 계속 옮긴다 (이미 옮긴 것은 건너뜀)
 installPerf({ THREE, renderer, scene, camera, floors, world });
 const _t3 = performance.now();
 window.__loadTimes = { textures: Math.round(_t1 - _t0), build: Math.round(_t2 - _t1), warmup: Math.round(_t3 - _t2) };

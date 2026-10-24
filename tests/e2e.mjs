@@ -100,11 +100,11 @@ async function trueRun() {
   await use(p, 'breaker'); ok(!(await E(p, () => __g.power)), '퓨즈 없이 차단기 불가');
   await take(p, 'fuse'); await use(p, 'breaker'); await winMini(p); ok(await E(p, () => __g.power), '퓨즈 + 배선 → 전력 복구');
   await saveReload(p, '전력 후'); ok(await E(p, () => __g.power) && await E(p, () => __g.world.props.find(q => q.kind === 'breaker').on), '복원: 차단기 켜짐');
-  await use(p, 'console'); await winMini(p); ok(await E(p, () => __g.FL.tapesDone), '마지막 방송: 녹음 순서 복원');
+  await use(p, 'console'); await E(p, () => __g.bcAuto()); await winMini(p); ok(await E(p, () => __g.FL.tapesDone), '마지막 방송: 녹음 순서 복원');
   await W(p, 16000); ok(await E(p, () => __g.FL.calm && !__g.ghost.active), '하교 방송 → 그것이 사라짐');
   await saveReload(p, '방송 후'); ok(await E(p, () => __g.FL.calm && !__g.ghost.active), '복원: 방송 완료 · 그것 비활성');
   await use(p, 'mina'); await W(p, 4000); ok(await E(p, () => __g.FL.mina), '민아 깨우기');
-  await saveReload(p, '민아 후'); ok(await E(p, () => __g.FL.mina) && await E(p, () => !__g.mina.visible), '복원: 민아 구출');
+  await saveReload(p, '민아 후'); ok(await E(p, () => __g.FL.mina) && await E(p, () => __g.minaF.on && __g.mina.visible), '복원: 민아 구출 · 동행 유지');
   // 의뢰(서브 퀘스트): '집으로 가는 길'(조건 없음) · '민아가 여기 온 이유'(민아 구출 후) — 진행 · 아이템 주고받기 · 저장/복원
   const sq = async (id, k) => { await E(p, ([id, k]) => { const q = __g.world.props.find(o => o.uid === `sq:${id}:${k}`); __g.state = 'playing'; __g.tp(q.x, q.z + .8, q.floor, 0, 0); __g.useSideQuest(q); }, [id, k]); await W(p, 2600); await E(p, () => { if (__g.state === 'note' || __g.state === 'ui') __g.state = 'playing'; }); };
   ok(await E(p, () => __g.world.props.filter(o => o.kind === 'sq' && !o.main).length) === 20 && await E(p, () => __g.world.props.filter(o => o.kind === 'sq' && o.main).length) === 5, '의뢰 조사 지점 20곳 · 제4장 지점 5곳 배치');
@@ -141,7 +141,8 @@ async function extrasRun() {
   ok(await E(p, () => { __g.state = 'playing'; return ['door', 'lights', 'shadow', 'cold', 'phone'].every(k => __g.paraEvent(k)); }), '초자연 현상 5종 발생');
   ok(await E(p, () => { __g.state = 'playing'; __g.tp(-8, -5, 0, 0, 0); return ['steps', 'scream', 'thump', 'chair', 'torch', 'hands', 'eyes', 'bell', 'radio', 'rattle', 'bleed', 'count', 'heart', 'glass'].every(k => __g.paraEvent(k)); }), '새 초자연 현상 14종 발생');
   // 화장실 괴담: 6종 + 3번 칸의 질문(침묵 → 노란 부적), 선택은 저장된다
-  await E(p, () => { __g.state = 'playing'; __g.tp(-31.2, -5.4, 0, -Math.PI / 2, 0); const r = __g.roomAt(0, -31.2, -5.4); ['faucet', 'flush', 'shoes', 'mirror', 'stall', 'flicker'].forEach(k => __g.toiletFx(k, 0, r)); __g.toiletFx('tissue', 0, r); });
+  await E(p, () => { __g.state = 'playing'; let tx = -31.2, tz = -5.4, sh = 0; const R = window.__rbg; if (R) { const t = R.MAIN.props.find(q => q.kind === 'room' && q.type === 'toilet' && q.floor === 1); [tx, tz] = R.MAIN.toWorld((t.x1 + t.x2) / 2, (t.z1 + t.z2) / 2); sh = R.MAIN.spec.FH; }   // 새 건물: 본관 2층 화장실
+    __g.tp(tx, tz, 0, -Math.PI / 2, 0); __g.P.sh = sh; const r = __g.roomAt(0, tx, tz); ['faucet', 'flush', 'shoes', 'mirror', 'stall', 'flicker'].forEach(k => __g.toiletFx(k, 0, r)); __g.toiletFx('tissue', 0, r); });
   await p.waitForFunction(() => document.getElementById('choice').classList.contains('show'), null, { timeout: 120000 });
   const charm0 = await E(p, () => __g.inv.charm || 0); await p.keyboard.press('Digit3');
   await p.waitForFunction(c => (__g.inv.charm || 0) > c, charm0, { timeout: 120000 });

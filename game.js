@@ -16,6 +16,7 @@ import { prepareModelGeometry } from './modelGeometry.js';
 import { modelFootprint, overlaps, removeDuplicateModels } from './placement.js';
 import { turfMaterial } from './campusVisuals.js?v=195';
 import { installInfirmaryAssets, updateInfirmaryCabinets } from './infirmaryAssets.js';
+import { installRebuild } from './rebuildGame.js';
 import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js?v=195'; import { updateWindowFakes } from './windowInteriors.js?v=195';
 import { drawMap } from './map.js?v=195';
 import { buildMegaCampus15000, MEGA_CAMPUS_ZONES } from './megaCampus15000.js?v=195';
@@ -239,6 +240,7 @@ const _t0 = performance.now();
 await Promise.race([loadPBR(), new Promise(r => setTimeout(r, 2500))]);
 const _t1 = performance.now();
 const world = buildWorld(scene);
+let RBG = null;   // 재건축 본관 · 별관 (?rb) — rebuildGame.js
 const npcVisuals = createNPCVisuals({ THREE, GLTFLoader, prepare: async obj => {
   const tex = new Set(); obj.traverse(o => { if (o.material) [].concat(o.material).forEach(m => ['map', 'normalMap', 'roughnessMap', 'metalnessMap', 'aoMap', 'alphaMap', 'emissiveMap'].forEach(k => m[k] && tex.add(m[k]))); });
   await textureBudget.prepareTextures(tex);
@@ -1332,10 +1334,12 @@ function findInteract() {
     } else if (dr) best = { type: 'door', d: dr, label: dr.label + (dr.need && !FL.gatekey ? ' 🔒' : '') };
     else if (P.floor === 0 && P.z > GATE_Z - 4.2 && P.z < GATE_Z + 2.8 && Math.abs(P.x) < 2.8 && (gateClosed || FL.gatekey) && !escaped) best = { type: 'gate', label: gateClosed ? '봉인된 정문 열고 학교의 비밀 폭로하기' : '정문을 통해 학교의 비밀을 세상에 폭로하기' };
   }
+  if (!best && RBG && P.floor === 0) { const d = RBG.nearDoor(P.x, P.z, P.sh || 0); if (d) best = { type: 'rbdoor', d, label: `${d.label || '문'} ${d.target > .5 ? '닫기' : '열기'}` }; }
   return best;
 }
 function interact() {
   if (!target) return;
+  if (target.type === 'rbdoor') { RBG.toggleDoor(target.d); sfx.door && sfx.door(); return; }
   if (target.type === 'item') {
     triggerInteractAnim('low');
     const it = target.it;
@@ -2965,6 +2969,7 @@ function updatePlayer(dt) {
         const px = P.x - dx * tot / n, pz = P.z - dz * tot / n;
         if(!P.inElev)collide(colsAt(floors[P.floor]), P, .32);
         if (P.floor === 0 && gateClosed) collide([gate.blockRect], P, .32);
+        if (RBG && !P.inElev && P.floor === 0 && RBG.step(P, px, pz)) continue;   // 새 건물: 높이 · 충돌은 rebuildGame 이 맡는다
         if (!P.inElev && stairStep(px, pz)) break;
         // 본관 ↔ 구름다리/필로티 통로 ↔ 별관(1·2·3층) 완전 무순간이동 연속 보행 (남쪽 출입구 임계구간 WALKWAY.z1 - 2.2 ~ WALKWAY.z1 에서만 작동하여 별관 뒤쪽 야외 보행 시 오작동 원천 차단!)
         if (!P.inElev && P.floor <= 2 && P.z < WALKWAY.z1 && P.z > WALKWAY.z1 - 2.2 && P.x > -.85 && P.x < 2.45 && !(P.floor === 1 && ipP.state.fireDoorClosed)) {
@@ -3481,7 +3486,7 @@ function frameBody(now) {
       updatePrompt();
       updateEvents(dt);
     }
-    updateLighting(dt);
+    updateLighting(dt); if (RBG) RBG.tick(dt);
     ghostVisual(dt, tNow);
     updateCamera(dt, tNow);
   } else if (state === 'intro') {
@@ -8337,6 +8342,7 @@ initSaveIds();
 applyQuality(SET.quality === 'auto' ? 'mid' : SET.quality);
 applySettings();
 // 로딩 화면을 즉시 닫고(동기식), 텍스처 예산·성능 풀·모델 로드는 백그라운드에서 비동기로 진행한다 (초기 로딩 멈춤 원천 차단)
+if (params.has('rb')) { RBG = installRebuild({ THREE, scene, floors, world }); window.__rbg = RBG; }
 installPerf({ THREE, renderer, scene, camera, floors, world });
 const _t3 = performance.now();
 window.__loadTimes = { textures: Math.round(_t1 - _t0), build: Math.round(_t2 - _t1), warmup: Math.round(_t3 - _t2) };

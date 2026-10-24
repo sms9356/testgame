@@ -4032,7 +4032,7 @@ function showApparition(f, x, z, yaw, dur, watch) { evFx('evPulse'); appar.posit
 const EV = { done: new Set(), t: 0, inRoom: null, roomT: 0, slamCD: 60, b33T: 0, b33: 0, corrT: 0 };
 const evOnce = (id, fn) => { if (EV.done.has(id)) return false; EV.done.add(id); fn(); return true; };
 function roomAt(f, x, z) {
-  if (RBG && f === 0 && RBG.inside(x, z)) return RBG.roomAt(x, z, P.sh || 0);   // 새 건물: 예전 방 배치 대신 새 본관 · 별관 방 (층 높이로)
+  if (typeof RBG !== 'undefined' && RBG && f === 0 && RBG.inside(x, z)) return RBG.roomAt(x, z, P.sh || 0);   // 새 건물: 예전 방 배치 대신 새 본관 · 별관 방 (층 높이로)
   // 본관 남쪽 방 줄 (복도 남쪽, z 1.75 ~ 9.6)
   if (z > 1.8 && z < MAIN_ZS - .3 && f >= 0 && f <= 2) { const i = SLOTS.findIndex(c => Math.abs(x - c) < 4); if (i < 0) return null; const L = LAYOUT_S[f]; return { type: L.types[i], name: L.names[i], cx: SLOTS[i], id: f + ':s' + i, south: true }; }
   if (z > 1.8 && z < MAIN_ZS - .3 && f >= 8 && f <= 10) { const i = ANNEX.slots.findIndex(c => Math.abs(x - c) < 4); if (i < 0) return null; const L = ANNEX_S[f - 8]; return { type: L.types[i], name: L.names[i], cx: ANNEX.slots[i], id: f + ':s' + i, south: true }; }

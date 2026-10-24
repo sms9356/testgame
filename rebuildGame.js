@@ -402,7 +402,7 @@ export function installRebuild({ THREE, scene, floors, world }) {
   { const bR = R.blocked, top = MAIN.spec.floors * MAIN.spec.FH; R.blocked = (x, z, y, r) => { if (y > top - .3 && y < top + 1 && R.roofCol && R.roofCol().some(c => !c.off && x + r > c.x1 && x - r < c.x2 && z + r > c.z1 && z - r < c.z2 && !(c.h != null && c.h <= .4))) return true; return bR(x, z, y, r); }; }
   { const gB = R.groundAt, bB = R.blocked;
     R.groundAt = (x, z, feet) => { if (inPit(x, z) && feet < .35 && feet > pitH(z) - .7) return pitH(z); return gB(x, z, feet); };
-    R.blocked = (x, z, y, r) => { if (inPit(x, z) && z > B1PIT.zt + .25 && y > pitH(z) + .45) return true; if (z > B1PIT.zw - .25 && z < B1PIT.zw + .3 && x > B1PIT.x1 && x < B1PIT.x2 && y < -.2) return true; if (y < -.2 && z > B1PIT.zt && z < B1PIT.zw && (x < B1PIT.x1 + .2 || x > B1PIT.x2 - .2)) return true; return bB(x, z, y, r); }; }
+    R.blocked = (x, z, y, r) => { if (y < .6 && inPit(x, z) && z > B1PIT.zt + .25 && y > pitH(z) + .45) return true;   /* 구덩이 규칙은 1층 바닥 높이에서만 — 위 계단(중간참 · 2비행)을 투명벽처럼 막던 버그 */ if (z > B1PIT.zw - .25 && z < B1PIT.zw + .3 && x > B1PIT.x1 && x < B1PIT.x2 && y < -.2) return true; if (y < -.2 && z > B1PIT.zt && z < B1PIT.zw && (x < B1PIT.x1 + .2 || x > B1PIT.x2 - .2)) return true; return bB(x, z, y, r); }; }
   R.nearElev = (x, z, y) => {
     const h = elvAt(x, z); if (h && h.lz < h.E.zw) { const E = h.E, f = Math.round(E.y / E.b.spec.FH); return { inCar: true, E, f, n: E.n, rbY: E.y }; }
     return R.elevs.find(e => Math.abs(e.rbY - y) < 1.2 && Math.hypot(e.x - x, e.z - z) < 1.3);

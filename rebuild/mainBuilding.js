@@ -295,10 +295,10 @@ export function buildMainBuilding(opt = {}) {
       box('alu', d.a, d.b, 2.5, 2.6, zN - .2, zN - .1); [d.a, (d.a + d.b) / 2, d.b].forEach(x => box('alu', x - .04, x + .04, 0, 2.5, zN - .2, zN - .1));
       { const w = (d.b - d.a) / 2; [[d.a, 1], [d.b, -1]].forEach(([hx, sx]) => doors.push({ kind: 'swing', mat: 'alu', win: false, w, h: 2.45, t: .05, px: hx, py: 0, pz: zN - .15, ox: sx * w / 2, oz: 0, dir: sx, open: false,
           cx1: Math.min(hx, hx + sx * w), cx2: Math.max(hx, hx + sx * w), cz1: zN - .2, cz2: zN - .1, mx: (d.a + d.b) / 2, mz: zN - .2, label: '현관 유리문', floor: 0, glassLeaf: true })); }
-      box('conc', d.a - 1, d.b + 1, 3.0, 3.2, zN - 3.2, zN - T);
+      if (!opt.bridge) box('conc', d.a - 1, d.b + 1, 3.0, 3.2, zN - 3.2, zN - T);   // 구름다리가 있으면 그것이 차양
       // 현관 위 교명판 · 출입등 2개
       { const c = document.createElement('canvas'); c.width = 1024; c.height = 160; const g = c.getContext('2d'); g.fillStyle = '#2a2622'; g.fillRect(0, 0, 1024, 160); g.fillStyle = '#d8c9a0'; g.font = 'bold 92px serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(opt.signText || '서 문 고 등 학 교', 512, 84);
-        const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; const sg = new THREE.Mesh(new THREE.PlaneGeometry(4.6, .72), new THREE.MeshStandardMaterial({ map: t, roughness: .6, metalness: .3 })); sg.position.set((core.x1 + core.x2) / 2, 3.75, zN - T - .02); sg.rotation.y = Math.PI; root.add(sg); }
+        const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; const sg = new THREE.Mesh(new THREE.PlaneGeometry(4.6, .72), new THREE.MeshStandardMaterial({ map: t, roughness: .6, metalness: .3 })); sg.position.set((core.x1 + core.x2) / 2, opt.bridge ? 2.95 : 3.75, zN - T - .02); if (opt.bridge) sg.scale.set(.62, .5, 1); /* 구름다리 밑: 문 위 낮게 */ sg.rotation.y = Math.PI; root.add(sg); }
       [d.a - .6, d.b + .6].forEach(x => { box('alu', x - .1, x + .1, 2.55, 2.85, zN - T - .14, zN - T); box('lamp', x - .08, x + .08, 2.58, 2.82, zN - T - .16, zN - T - .14); lights.push({ x, y: 2.6, z: zN - T - .6 }); });
       props.push({ kind: 'mainDoor', label: '현관 유리문', x: (d.a + d.b) / 2, y: 1.1, z: zN - .15, floor: 0 });
       walk.push({ x1: d.a, x2: d.b, z1: zN - T - .05, z2: zN, h: () => 0, f: 0 });   // 현관 문턱 (벽 두께)

@@ -4,7 +4,7 @@
 //   높이는 P.sh(계단 높이 보정값)로 넘긴다 → 카메라 · 점프 · 가구 오르기 코드는 손대지 않아도 된다.
 import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js';
 import { placeModels } from './rebuild/models.js';
-import { carve } from './rebuild/transplant.js';
+import { carve, subdivide } from './rebuild/transplant.js';
 
 // 예전 건물이 차지하던 땅 (이 안의 예전 메시 · 충돌 상자를 걷어 낸다)
 const OLD_MAIN = { x1: -51, x2: 51, z1: -10.6, z2: 10.9 };
@@ -38,7 +38,7 @@ export function installRebuild({ THREE, scene, floors, world }) {
       for (let i = 0; i < o.count; i++) { o.getMatrixAt(i, m4); p.setFromMatrixPosition(m4).applyMatrix4(o.matrixWorld); if (inOld(p.x, p.z) && p.y > -.5) { m4.makeScale(0, 0, 0); o.setMatrixAt(i, m4); hit++; } }
       if (hit) o.instanceMatrix.needsUpdate = true; return; }
     bb.setFromObject(o); if (bb.isEmpty()) return;
-    if (bb.max.y < .3) { if (inNew((bb.min.x + bb.max.x) / 2, (bb.min.z + bb.max.z) / 2) && bb.max.x - bb.min.x < 60 && bb.max.z - bb.min.z < 30) o.visible = false; else if (!o.userData.rbFloorCut && !o.userData.dynamic) { o.userData.rbFloorCut = true; carve(o, (x, y, z) => y > -.3 && inNew(x, z)); } return; }   // 예전 바닥판: 새 건물 바닥 밑에서 겹쳐 깜빡이던 것
+    if (bb.max.y < .3) { if (inNew((bb.min.x + bb.max.x) / 2, (bb.min.z + bb.max.z) / 2) && bb.max.x - bb.min.x < 60 && bb.max.z - bb.min.z < 30) o.visible = false; else if (!o.userData.rbFloorCut && !o.userData.dynamic && !(o.geometry && o.geometry.groups && o.geometry.groups.length > 1)) { o.userData.rbFloorCut = true; const ov = [MAIN, ANX].some(b => { const c = [[-b.layout.L / 2, b.layout.zN], [b.layout.L / 2, b.layout.zS]].map(([a, d]) => b.toWorld(a, d)); return bb.max.x > Math.min(c[0][0], c[1][0]) && bb.min.x < Math.max(c[0][0], c[1][0]) && bb.max.z > Math.min(c[0][1], c[1][1]) && bb.min.z < Math.max(c[0][1], c[1][1]); }); if (ov) { subdivide(o, 1.0); carve(o, (x, y, z) => y > -.3 && inNew(x, z)); } } return; }   // 예전 바닥판: 새 건물 바닥 밑에서 겹쳐 깜빡이던 것
     if (fits(bb)) { o.visible = false; return; }
     // 층 전체를 합친 메시: 예전 건물 땅 위(높이 0.3m 이상)의 삼각형만 잘라 낸다 (벽 · 창 · 덩굴 잔재가 새 교실을 뚫고 나오던 문제)
     if (o.userData.dynamic || o.userData.rbCarved || !(bb.max.x > -47 && bb.min.x < 47 && bb.max.z > -34 && bb.min.z < 10.6)) return;

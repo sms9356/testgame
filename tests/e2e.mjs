@@ -8,7 +8,7 @@ const b = await pw.chromium.launch({ executablePath: process.env.CHROME, args: [
 let pass = 0, fail = 0, restores = 0;
 const ok = (cond, msg) => { if (cond) { pass++; console.log('  ✔', msg); } else { fail++; console.log('  ✘', msg); } };
 
-async function page(qs = '?debug') {
+async function page(qs = process.env.GAME_QS || '?debug') {   // 새 건물 점검: GAME_QS='?debug&rb&norender'
   const p = await (await b.newContext({ viewport: { width: 480, height: 270 } })).newPage();
   p.setDefaultNavigationTimeout(180000); p.setDefaultTimeout(60000);
   p.errors = 0; p.on('pageerror', e => { p.errors++; console.log('   [pageerror]', e.message); });
@@ -25,8 +25,8 @@ async function finalChoice(p, i) {
 const W = (p, t) => p.waitForTimeout(t);
 async function ready(p) { await E(p, () => __g.applyQuality('low')); }
 // 아이템 줍기 / 장치 사용 (위치로 이동 → 상호작용)
-const take = (p, kind, id) => E(p, ([k, id]) => { const it = __g.world.items.find(i => i.kind === k && (id == null || i.id === id || i.idx === id) && !i.taken); if (!it || it.locked) return it ? 'locked' : 'none'; __g.state = 'playing'; __g.P.floor = it.floor; __g.P.x = it.pos.x; __g.P.z = it.pos.z + .8; __g.setTarget({ type: 'item', it, label: '' }); __g.interact(); return 'ok'; }, [kind, id]);
-const use = (p, kind, i = 0) => E(p, ([k, i]) => { const s = __g.world.props.filter(q => q.kind === k)[i]; __g.state = 'playing'; __g.P.floor = s.floor; __g.P.x = s.x; __g.P.z = s.z + .9; __g.useProp(s); return s.label; }, [kind, i]);
+const take = (p, kind, id) => E(p, ([k, id]) => { const it = __g.world.items.find(i => i.kind === k && (id == null || i.id === id || i.idx === id) && !i.taken); if (!it || it.locked) return it ? 'locked' : 'none'; __g.state = 'playing'; __g.P.floor = it.floor; __g.P.x = it.pos.x; __g.P.z = it.pos.z + .8; __g.P.sh = it.rbY ?? __g.P.sh; __g.setTarget({ type: 'item', it, label: '' }); __g.interact(); return 'ok'; }, [kind, id]);
+const use = (p, kind, i = 0) => E(p, ([k, i]) => { const s = __g.world.props.filter(q => q.kind === k)[i]; __g.state = 'playing'; __g.P.floor = s.floor; __g.P.x = s.x; __g.P.z = s.z + .9; __g.P.sh = s.rbY ?? __g.P.sh; __g.useProp(s); return s.label; }, [kind, i]);
 const winMini = async p => { for (let i = 0; i < 20 && !(await E(p, () => __g.MG.active)); i++) await W(p, 150); await E(p, () => __g.MG.win()); await W(p, 1000); await E(p, () => { if (__g.state === 'note' || __g.state === 'ui') __g.state = 'playing'; }); };
 const closeNote = p => E(p, () => { if (__g.state === 'note') { document.getElementById('noteBox').click(); } __g.state = 'playing'; });
 async function saveReload(p, label) {
@@ -72,7 +72,7 @@ async function normalRun(char) {
   await saveReload(p, '조각 5개'); ok(await E(p, () => __g.P.keys) === 5 && await E(p, () => __g.objective().ch) === 4, '복원: 조각 5 · 제4장');
   // 제4장 · 열쇠의 머리: 머리 없이는 조합 불가 → 교장실 → 별관 머릿돌 → 분전반(배선) → 보안 PC(사진 맞추기) → 진열장(0302)
   await E(p, () => __g.makeGateKey()); ok(!(await E(p, () => __g.FL.gatekey)), '열쇠 머리 없이는 정문 열쇠를 만들 수 없음');
-  const hd = async k => { await E(p, k => { const q = __g.world.props.find(o => o.uid === `sq:head:${k}`); __g.state = 'playing'; __g.ghost.active = false; __g.tp(q.x, q.z + (q.z > 0 ? -1 : 1), q.floor, 0, 0); __g.useHead(q); }, k); };
+  const hd = async k => { await E(p, k => { const q = __g.world.props.find(o => o.uid === `sq:head:${k}`); __g.state = 'playing'; __g.ghost.active = false; __g.tp(q.x, q.z + (q.z > 0 ? -1 : 1), q.floor, 0, 0); __g.P.sh = q.rbY ?? __g.P.sh; __g.useHead(q); }, k); };
   await hd(0); await W(p, 600); await closeNote(p); await hd(1); await W(p, 600); await closeNote(p);
   await saveReload(p, '제4장 중간'); ok(await E(p, () => __g.sqStep('head')) === 2 && await E(p, () => __g.objective().ch) === 4, '복원: 제4장 진행 (교장 수첩 · 머릿돌)');
   await hd(2); await winMini(p); await closeNote(p); ok(await E(p, () => __g.FL.anPow), '별관 분전반 → 별관 전원');
@@ -128,7 +128,7 @@ async function extrasRun() {
   const p = await page();
   await E(p, () => { localStorage.clear(); localStorage.setItem('haegyo_char', 'jihun'); }); await p.reload(); await p.waitForFunction(() => window.__loadTimes, null, { timeout: 180000 }); await ready(p);
   await E(p, () => __g.newGame()); await W(p, 600); await p.keyboard.press('Space'); await W(p, 500); await E(p, () => { __g.ghost.active = false; });
-  ok(await E(p, () => __g.world.props.filter(q => q.kind === 'search').length) >= 40 && await E(p, () => __g.world.props.filter(q => q.kind === 'mspot').length) === 10, '수색 지점 40곳 이상 · 방 미니게임 10곳');
+  ok(await E(p, () => __g.world.props.filter(q => q.kind === 'search').length) >= 40 && await E(p, () => __g.world.props.filter(q => q.kind === 'mspot').length) >= 10, '수색 지점 40곳 이상 · 방 미니게임 10곳 이상');
   // 수집품이 든 사물함 3곳을 실제로 뒤진다 (가만히 1.1초)
   const n = await E(p, async () => { let k = 0; for (const q of __g.world.props.filter(q => q.kind === 'search' && q.loot && q.loot.col).slice(0, 3)) { __g.state = 'playing'; __g.tp(q.x, q.z + (q.where === '복도' ? .7 : q.z < 0 ? -.5 : .5), q.floor, 0, 0); __g.startSearch(q); if (__g.XT.search) __g.XT.search.t = 1.09; const t0 = performance.now(); while (__g.XT.search && performance.now() - t0 < 8000) await new Promise(r => setTimeout(r, 50)); if (q.done) k++; } return k; });
   ok(n === 3 && await E(p, () => Object.keys(__g.FL.col || {}).length) === 3, '사물함 수색 → 수집품 3개');
@@ -167,12 +167,12 @@ async function reachAudit() {
   const p = await page();
   await E(p, () => { localStorage.clear(); __g.newGame(); }); await W(p, 800); await p.keyboard.press('Space'); await W(p, 600);
   const bad = await E(p, () => {
-    const g = __g, out = []; g.ghost.active = false; g.state = 'playing';
+    const g = __g, out = []; g.ghost.active = false; g.state = 'playing'; if (window.__rbRel) window.__rbRel();   // 새 건물: 방금 생긴 조사 지점까지 옮긴 뒤 점검
     g.world.doorList.forEach(d => { if (d.rect) d.rect.off = true; });
     g.floors.forEach(F => F && F.col.forEach(c => { if (c.gate) c.off = true; }));   // 미션으로 여는 문(옥상 녹슨 철문 등)도 열린 것으로
     const SEEDS = { 0: [[0.8, -11.2]], 4: [[18, -16]] };   // 순간이동 문으로만 들어가는 공간 (본관 ↔ 별관 실내 연결복도)
     const S = .2, r = .3, FF = {};
-    const AREA = { 0: [-60, 60, -66, 90, [0, 40]], 1: [-36, 36, -10, 10, [4, 0]], 2: [-36, 36, -10, 10, [4, 0]], 3: [-36, 36, -10, 10, [0, -6]], 4: [-36, 36, -36, 10, [4, 0]], 5: [27, 49, 7, 31, [38, 27]], 6: [-50, -30, 22, 58, [-35.5, 38]], 7: [-49, -29, 7, 23, [-39, 20]], 8: [-21, 21, -10, 10, [-15.2, -5.2]], 9: [-21, 21, -10, 10, [-15.2, -5.2]], 10: [-21, 21, -10, 10, [-15.2, -5.2]] };
+    const AREA = { 0: [-100, 100, -100, 90, [0, 40]], 1: [-36, 36, -10, 10, [4, 0]], 2: [-36, 36, -10, 10, [4, 0]], 3: [-36, 36, -10, 10, [0, -6]], 4: [-36, 36, -36, 10, [4, 0]], 5: [27, 49, 7, 31, [38, 27]], 6: [-50, -30, 22, 58, [-35.5, 38]], 7: [-49, -29, 7, 23, [-39, 20]], 8: [-21, 21, -10, 10, [-15.2, -5.2]], 9: [-21, 21, -10, 10, [-15.2, -5.2]], 10: [-21, 21, -10, 10, [-15.2, -5.2]] };
     const flood = f => { if (FF[f]) return FF[f]; const F = g.floors[f]; const [x0, x1, z0, z1, [sx, sz]] = AREA[f]; const nx = Math.round((x1 - x0) / S), nz = Math.round((z1 - z0) / S);
       const blocked = (x, z) => F.col.some(c => !c.off && !(c.h != null && c.h <= .4) && x > c.x1 - r && x < c.x2 + r && z > c.z1 - r && z < c.z2 + r);
       const seen = new Uint8Array(nx * nz), q = [];
@@ -186,10 +186,13 @@ async function reachAudit() {
     g.world.props.forEach(q => { if (q.kind !== 'switch' && q.minSh == null && !q.after && !(q.kind === 'tape' && q.id === 'tape5')) T.push({ o: q, f: q.floor, x: q.x, z: q.z, id: q.kind + ':' + (q.uid || q.k || '') }); });
     g.world.lockers.forEach((l, i) => { if (!l.noPick) T.push({ o: l, f: l.floor, x: l.x, z: l.z, id: 'locker:' + i, l: true }); });   // noPick: 국솥 · 청소도구함은 자기 조사 지점으로 숨는다
     for (const t of T) {
-      if (!AREA[t.f]) continue; const ok2 = flood(t.f), wd = t.o.done, wl = t.o.locked; if (!t.l) { t.o.done = false; t.o.locked = false; }
+      if (!AREA[t.f]) continue;
+      if (window.__rbg && [1, 2, 8, 9, 10].includes(t.f)) continue;   // 새 건물: 예전 층에 남겨 둔(쓰지 않는) 장치는 점검 대상 아님
+      // 새 건물(기본): 옮긴 대상은 그 층 높이(rbY)에서 — 바닥이 그 높이이고 막히지 않은 자리 (층 사이 연결은 rebuild 보행 감사가 따로 본다)
+      const R = window.__rbg, hy = t.o.rbY, ok2 = hy != null && R ? ((px, pz) => { const gg = R.groundAt(px, pz, hy + .1); return gg != null && Math.abs(gg - hy) < .3 && !R.blocked(px, pz, hy, .3); }) : flood(t.f), wd = t.o.done, wl = t.o.locked; if (!t.l) { t.o.done = false; t.o.locked = false; }
       let ok = false;
       for (const rr of [.5, .7, .9, 1.1, 1.3, 1.6]) { for (let a = 0; a < 24 && !ok; a++) { const an = a / 24 * Math.PI * 2, px = t.x + Math.cos(an) * rr, pz = t.z + Math.sin(an) * rr; if (!ok2(px, pz)) continue;
-        g.P.floor = t.f; g.P.x = px; g.P.z = pz; g.P.yaw = Math.atan2(-(t.x - px), -(t.z - pz)); const h = g.findInteract(); if (h && (h.it === t.o || h.p === t.o || h.l === t.o)) ok = true; } if (ok) break; }
+        g.P.floor = t.f; g.P.x = px; g.P.z = pz; g.P.sh = hy ?? 0; g.P.yaw = Math.atan2(-(t.x - px), -(t.z - pz)); const h = g.findInteract(); if (h && (h.it === t.o || h.p === t.o || h.l === t.o)) ok = true; } if (ok) break; }
       if (!t.l) { t.o.done = wd; t.o.locked = wl; }
       if (!ok) out.push(`${t.id} (${t.f}: ${t.x.toFixed(1)}, ${t.z.toFixed(1)})`);
     }
@@ -220,12 +223,14 @@ async function saveEdgeCases() {
   await t.close();
 }
 
-await normalRun('jihun');
-await normalRun('seoyeon');
-await trueRun();
-await extrasRun();
-await reachAudit();
-await saveEdgeCases();
+// E2E_ONLY=reach,extras … 처럼 일부만 돌릴 수 있다
+const ONLY = (process.env.E2E_ONLY || '').split(',').filter(Boolean), run = (k, f) => !ONLY.length || ONLY.includes(k) ? f() : null;
+await run('normal', () => normalRun('jihun'));
+await run('normal', () => normalRun('seoyeon'));
+await run('true', trueRun);
+await run('extras', extrasRun);
+await run('reach', reachAudit);
+await run('save', saveEdgeCases);
 console.log(`\n결과: 통과 ${pass} · 실패 ${fail} · 저장/복원 ${restores}회`);
 await b.close();
 process.exit(fail ? 1 : 0);

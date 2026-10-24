@@ -107,7 +107,7 @@ export function installRebuild({ THREE, scene, floors, world }) {
   R.relocate = ({ world, floors: FL_, stairSpawnB1 }) => {
     let moved = 0, dropped = 0;
     for (const it of world.items) {
-      if (it._rb || !isOld(it.floor, it.pos.x, it.pos.z)) continue; it._rb = true;
+      if (it._rb || !isOld(it.floor, it.pos.x, it.pos.z)) continue; it._rb = true; it._old = { f: it.floor, x: it.pos.x, z: it.pos.z };
       const sk = it.kind === 'key' ? SPECIAL_KEY[it.idx] : null;
       const tgt = sk ? (() => { const rs = roomsOf(sk[0], sk[1]).filter(r => r.type === sk[2]); return rs.length ? { b: sk[0], f: sk[1], room: rs[0] } : pickRoom(it.floor, it.pos.x); })() : pickRoom(it.floor, it.pos.x);
       if (!tgt) continue;
@@ -116,7 +116,7 @@ export function installRebuild({ THREE, scene, floors, world }) {
       moveObj(it.mesh, s.x, s.h + (it.baseY != null ? it.baseY - s.h : oy), s.z); moved++;
     }
     for (const p of world.props) {
-      if (p._rb || !isOld(p.floor, p.x, p.z)) continue; p._rb = true;
+      if (p._rb || !isOld(p.floor, p.x, p.z)) continue; p._rb = true; p._old = { f: p.floor, x: p.x, z: p.z };
       if (DROP.has(p.kind)) { p.floor = park(p.floor); dropped++; continue; }
       const tgt = pickRoom(p.floor, p.x); if (!tgt) { p.floor = park(p.floor); dropped++; continue; }
       const s = spotIn(tgt.b, tgt.room, tgt.f), oy = (p.y ?? 1);
@@ -135,6 +135,30 @@ export function installRebuild({ THREE, scene, floors, world }) {
       box3(x, z);
     }
     return { moved, dropped };
+  };
+  // ── 3단계: 위치 안내 ──
+  // 새 건물 안인가 (각 건물 좌표계의 외곽 상자)
+  R.inBuilding = (x, z) => BLD.some(b => { const [lx, lz] = b.toLocal(x, z); if (b.layout) return lx > -b.layout.L / 2 - .3 && lx < b.layout.L / 2 + .3 && lz > b.layout.zN - .3 && lz < b.layout.zS + .3; return b.groundAt(lx, lz, 0) != null; });
+  R.floorLabel = (x, z, y) => { for (const b of [MAIN, ANX]) { const [lx, lz] = b.toLocal(x, z); if (lx > -b.layout.L / 2 - .3 && lx < b.layout.L / 2 + .3 && lz > b.layout.zN - .3 && lz < b.layout.zS + .3) return `${b.name} ${Math.round(y / FH) + 1}층`; } return R.inBuilding(x, z) ? '연결 통로' : null; };
+  // 목표 위치(예전 좌표) → 새 위치: 옮긴 물건 중 원래 자리가 가장 가까운 것, 없으면 같은 비율의 새 방 가운데
+  R.mapLoc = (l, world) => {
+    if (!l || l.rbY != null || !isOld(l.f, l.x, l.z)) return l;
+    let best = null, bd = 6;
+    for (const o of [...world.items, ...world.props]) { const q = o._old; if (!q || q.f !== l.f) continue; const d = Math.hypot(q.x - l.x, q.z - l.z); if (d < bd) { bd = d; best = o; } }
+    if (best) { const x = best.pos ? best.pos.x : best.x, z = best.pos ? best.pos.z : best.z; return { ...l, f: 0, x, z, rbY: best.rbY }; }
+    const t = pickRoom(l.f, l.x); if (!t) return l;
+    const [x, z] = t.b.toWorld(t.room.x, t.room.z); return { ...l, f: 0, x, z, rbY: t.f * FH };
+  };
+  // 지도용: 지울 예전 자리 · 건물 외곽 · 지금 층 방 (세계 좌표 다각형)
+  let mdKey = '', mdVal = null;
+  R.mapData = (x, z, y) => {
+    const f0 = Math.round(y / FH), k0 = f0 + '|' + R.where(x, z, y); if (k0 === mdKey) return mdVal; mdKey = k0;
+    const f = f0, corners = (b, x1, x2, z1, z2) => [[x1, z1], [x2, z1], [x2, z2], [x1, z2]].map(([a, c]) => b.toWorld(a, c));
+    const shells = [MAIN, ANX].map(b => corners(b, -b.layout.L / 2, b.layout.L / 2, b.layout.zN, b.layout.zS));
+    shells.push(corners(WK, -1.9, 1.9, -17, -3));
+    const here = R.where(x, z, y);
+    const rooms = [MAIN, ANX].flatMap(b => (b.props || []).filter(p => p.kind === 'room' && p.floor === f).map(p => { const [cx, cz] = b.toWorld(p.x ?? (p.x1 + p.x2) / 2, p.z ?? (p.z1 + p.z2) / 2); return { pts: corners(b, p.x1, p.x2, p.z1, p.z2), label: p.label, cx, cz, here: here && here.endsWith(p.label) }; }));
+    return (mdVal = { clear: [OLD_MAIN, OLD_ANNEX], shells, rooms });
   };
   // B1 입구 표시: 철제 셔터 문짝 + 표지판
   const box3 = (x, z) => {

@@ -1285,6 +1285,7 @@ function closeNote() { $('noteBox').classList.remove('show'); if (state === 'not
 /* ---------- 상호작용 ---------- */
 let target = null;
 const needText = p => p.kind === 'sq' ? sqNeedText(p) : p.kind === 'lock' && p.lockType === 'pick' && !inv.hairpin ? '  — 머리핀 필요' : p.kind === 'drain' && !FL.hook ? '  — 갈고리 필요' : p.kind === 'breaker' && !FL.fuse ? '  — 퓨즈 필요' : p.kind === 'console' && !power ? '  — 전원 없음' : p.kind === 'lock' && p.lockType === 'dial' && !docs.some(d => d.id === p.clue) ? '  — 번호 모름' : '';
+const inDorm = (x, z) => x > -97.4 && x < -74.6 && z > -49.4 && z < -34.6;   // 청운학사 (2층 건물)
 function findInteract() {
   if (P.inElev) return elvTarget();
   const fx = -Math.sin(P.yaw), fz = -Math.cos(P.yaw);
@@ -1315,7 +1316,8 @@ function findInteract() {
   }
   for (const p of world.props) {
     if (p.floor !== P.floor || p.done || (p.after && !p.after.done)) continue;
-    if (p.rbY != null && Math.abs(p.rbY - (P.sh || 0)) > 1.6) continue;   // 새 건물: 다른 층   /* after: 수색을 마친 뒤에야 나오는 조사 (사물함 문 여닫기) */
+    if (p.rbY != null && Math.abs(p.rbY - (P.sh || 0)) > 1.6) continue;   // 새 건물: 다른 층
+    if (p.floor === 0 && p.rbY == null && p.y != null && inDorm(p.x, p.z) && (p.y > 3.2) !== ((P.jy || 0) > 2.5)) continue;   // 청운학사: 2층 물건은 2층에서만 · 1층 물건은 1층에서만   /* after: 수색을 마친 뒤에야 나오는 조사 (사물함 문 여닫기) */
     let dx = p.x - P.x, dz = p.z - P.z, dd = Math.hypot(dx, dz);
     if (p.kind === 'switch') {   // 스위치: 벽 앞쪽(방 안)에서, 스위치를 바라볼 때만
       if ((P.x - p.px) * (p.x - p.px) + (P.z - p.pz) * (p.z - p.pz) <= 0) continue;
@@ -2366,19 +2368,20 @@ world.props.push(guardPropRef);
 {
   const M = (c, r = .6, m = 0) => new THREE.MeshStandardMaterial({ color: c, roughness: r, metalness: m });
   const put = (geo, mat, x, y, z, ry = 0) => { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); m.rotation.y = ry; world.OUT.add(m); return m; };
-  const rx = 5.18, rz = 66.8, dy = .775;
-  put(new THREE.BoxGeometry(.07, .2, .045), M(0x1a1b1e, .5, .2), rx, dy + .1, rz, .3);
-  put(new THREE.CylinderGeometry(.008, .008, .16, 6), M(0x111111, .4), rx + .02, dy + .28, rz, .3);
-  const led = put(new THREE.BoxGeometry(.012, .012, .006), new THREE.MeshBasicMaterial({ color: 0x401010 }), rx - .015, dy + .185, rz + .024, .3);
-  const lx = 5.58, lz = 66.76;
+  const rx = 7.62, rz = 66.75, dy = .775, ry0 = .46;   // 무전기: 간이침대 머리맡 (책상 가운데 CCTV · 일지와 떨어지게)   // 책상(x 4.98~6.38 · z 66.52~67.17) 귀퉁이마다 하나씩 — 몰려 있으면 서로 가려 고를 수 없었다
+  put(new THREE.BoxGeometry(.07, .2, .045), M(0x1a1b1e, .5, .2), rx, ry0 + .1, rz, .3);
+  put(new THREE.CylinderGeometry(.008, .008, .16, 6), M(0x111111, .4), rx + .02, ry0 + .28, rz, .3);
+  const led = put(new THREE.BoxGeometry(.012, .012, .006), new THREE.MeshBasicMaterial({ color: 0x401010 }), rx - .015, ry0 + .185, rz + .024, .3);
+  const lx = 6.28, lz = 66.6;
   put(new THREE.BoxGeometry(.22, .035, .3), M(0x6a5a3a, .9), lx, dy + .018, lz, -.15);
   put(new THREE.BoxGeometry(.21, .006, .29), M(0xe8e0c8, .95), lx, dy + .038, lz, -.12);
-  const tx = 6.32, tz = 66.74;
-  put(new THREE.BoxGeometry(.11, .018, .07), M(0x222226, .45), tx, dy + .01, tz, .5);
-  put(new THREE.BoxGeometry(.09, .004, .05), M(0xd8c8a0, .8), tx, dy + .021, tz, .5);
-  world.props.push({ kind: 'gradio', floor: 0, x: rx, z: rz, y: dy + .1, r: 1.5, n: 0, led, label: '경비 무전기 켜기 — 1998.10.12 교신 기록' });
+  { const vr = put(new THREE.BoxGeometry(.11, .028, .06), M(0x2c2e33, .4, .3), 6.28, dy + .014, 67.08, -.2); put(new THREE.BoxGeometry(.012, .006, .012), new THREE.MeshBasicMaterial({ color: 0xb02020 }), 6.31, dy + .03, 67.07); }   // 보이스레코더 (책상 동쪽)
+  const tx = 7.62, tz = 66.05, ty = .46;   // 증언 카세트: 책상이 꽉 차서 옆 간이침대 위에
+  put(new THREE.BoxGeometry(.11, .018, .07), M(0x222226, .45), tx, ty + .01, tz, .5);
+  put(new THREE.BoxGeometry(.09, .004, .05), M(0xd8c8a0, .8), tx, ty + .021, tz, .5);
+  world.props.push({ kind: 'gradio', floor: 0, x: rx, z: rz, y: ry0 + .1, r: 1.5, n: 0, led, label: '경비 무전기 켜기 — 1998.10.12 교신 기록' });
   world.props.push({ kind: 'glog', floor: 0, x: lx, z: lz, y: dy, r: 1.5, n: 0, label: '경비 근무 일지 묶음 넘기기' });
-  world.props.push({ kind: 'tape', id: 'ts_guard', floor: 0, x: tx, z: tz, y: dy, r: 1.5, label: '증언 카세트 재생', ...world.TAPES.ts_guard });
+  world.props.push({ kind: 'tape', id: 'ts_guard', floor: 0, x: tx, z: tz, y: ty, r: 1.5, label: '증언 카세트 재생', ...world.TAPES.ts_guard });
 }
 npcLoad('guard', guardNPC, { url: 'assets/characters/guard.glb', height: 1.75, native: true, clipNames: ['idle'], onLoad: () => {
   guardNPC.userData.seatedReport = applyGuardSeatedPose(guardNPC,GUARD_LAYOUT.seat);
@@ -3500,7 +3503,7 @@ function frameBody(now) {
       updatePrompt();
       updateEvents(dt);
     }
-    updateLighting(dt); if (RBG) RBG.tick(dt, P);
+    updateLighting(dt); if (RBG) { RBG.tick(dt, P); RBG.setPower(blackout > 0, GEN.gain, power); }
     ghostVisual(dt, tNow);
     updateCamera(dt, tNow);
   } else if (state === 'intro') {
@@ -4171,7 +4174,7 @@ addNoteAt('n17', 9, ANNEX.slots[4] + 2.6, .92, -5.3, -.2);   // 별관 2F 과학
 addNoteAt('n18', 10, ANNEX.slots[1] - 2.6, .02, -6.3, .5);    // 별관 3F 음악실 악보
 addNoteAt('n20', 6, -35.8, 1.68, 44, .2);   // 수영장 감시대
 addNoteAt('n21', 0, 5.5, .02, 1.2, .4);                       // 1층 복도 — 행사 안내문
-addNoteAt('n22', 4, SLOTS[5] + 2.65, .77, -7.5, .2);           // 지하 기록실 — 봉인 서약서
+addNoteAt('n22', 4, SLOTS[5] + 1.85, .77, -7.5, .2);   // 지하 기록실 — 봉인 서약서 (녹음기와 겹치지 않게 0.8m 옆)           // 지하 기록실 — 봉인 서약서
 addNoteAt('n23', 9, ANNEX.slots[4], .02, 3.0, -.3);          // 별관 2F 동아리실(남쪽) — 방송부원 진술서
 addNoteAt('n24', 8, ANNEX.slots[4], .02, 3.0, .5);           // 별관 1F 진로상담실(남쪽) — 경비 일지
 addNoteAt('n25', 9, ANNEX.slots[2], .02, -3.0, .1);           // 별관 2F 언어실 — 사서의 메모
@@ -6153,6 +6156,7 @@ function fzFloor(parent, tex, x1, x2, z1, z2, y, rep, rough = .9) {
   FZ.lamp = pmesh(new THREE.SphereGeometry(.035, 10, 8), new THREE.MeshBasicMaterial({ color: 0x601008 }), GUARD_LAYOUT.gateSwitch.x - .06, 1.62, GUARD_LAYOUT.gateSwitch.z, g, { cast: false });
   fzProp(guardCctvData, 0, GUARD_LAYOUT.cctv.x, GUARD_LAYOUT.cctv.z, GUARD_LAYOUT.cctv.y);
   fzProp(IA(fzP, 'guard_gate_switch'), 0, GUARD_LAYOUT.gateSwitch.x - .35, GUARD_LAYOUT.gateSwitch.z, 1.35, { r: 1.5 });
+  { const dup = world.props.findIndex(p => p.fz?.id === 'guard_cctv'), main = world.props.find(p => p.k === 'guardcctv'); if (dup >= 0 && main && Math.hypot(world.props[dup].x - main.x, world.props[dup].z - main.z) < .3) world.props.splice(dup, 1); }   // 같은 CCTV 가 두 번 등록돼 있었다 (하나만 고른다)
   guardControlProps = world.props.filter(p => p.k === 'guarddoor' || p.k === 'guardcctv' || p.k === 'guardlight' || p.fz?.id === 'guard_cctv');
   const feeds=collectCampusCctvFeeds(world.CCTV_CAMERAS);
   campusCctv=createCampusCctvLive({renderer,scene,feeds,floorRoots:floors.map(F=>({floor:F.f,interior:F.interior,shell:F.shell,windowFake:F.winFake})),

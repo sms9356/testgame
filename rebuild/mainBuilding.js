@@ -596,7 +596,7 @@ export function buildMainBuilding(opt = {}) {
   // 세계 ↔ 건물 좌표 (건물은 원점 기준으로 지은 뒤 통째로 옮기고 돌린다)
   const toLocal = (x, z) => { const dx = x - OX, dz = z - OZ; return [dx * cR - dz * sR, dx * sR + dz * cR]; };
   const toWorld = (x, z) => [OX + x * cR + z * sR, OZ - x * sR + z * cR];
-  return { root, col, walk, props, lights, groundAt, layout: LY, spec: S, stairwells, doors, tickDoors, nearDoor, models, toLocal, toWorld, name: opt.label || '본관' };
+  return { mats, root, col, walk, props, lights, groundAt, layout: LY, spec: S, stairwells, doors, tickDoors, nearDoor, models, toLocal, toWorld, name: opt.label || '본관' };
 }
 
 // 본관 ↔ 별관 1층 연결 통로 (유리 커튼월 복도, 천장 2.9m)

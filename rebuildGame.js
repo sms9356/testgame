@@ -31,13 +31,19 @@ export function installRebuild({ THREE, scene, floors, world }) {
   // 메시 하나하나: 예전 건물 땅(조금 넓힌 상자) 안에 다 들어가면 감춘다. 땅바닥(높이 0.3m 미만)은 남긴다.
   //   캠퍼스 전체를 덮는 합친 메시(바닥 · 길)는 상자 밖으로 삐져나오므로 그대로 둔다.
   const fits = (b, m = 3) => b.min.x > -47 - m && b.max.x < 47 + m && ((b.min.z > -10.6 - m && b.max.z < 10.6 + m) || (b.min.z > -34 - m && b.max.z < -10.6 + m) || (b.min.z > -34 - m && b.max.z < 10.6 + m && b.max.x - b.min.x < 70));
+  // 예전 출입구 바깥에 남은 것 (발판 · 계단 · 문 위 등): 새 건물과 위치가 달라 허공 · 풀밭에 떠 있었다
+  const OLD_SPOTS = [[.1, 12.5, 1.7], [-25, -34.2, 3.4], [-43.5, -20, 2.2]];
+  const oldSpot = (x, z) => OLD_SPOTS.some(([a, b, r]) => Math.hypot(x - a, z - b) < r);
   const hideIn = root => { if (!root) return; root.traverse(o => {
+    if ((o.isMesh || o.isSprite) && o.visible && !o.isInstancedMesh) { const w = o.isSprite ? o.getWorldPosition(v) : bb.setFromObject(o).getCenter(v); if (!o.isSprite && bb.getSize(new THREE.Vector3()).length() > 8) {} else if (w.y < 3.5 && oldSpot(w.x, w.z)) { let keep = false; for (let q = o; q; q = q.parent) if (q.name === 'REBUILD' || q.isSkinnedMesh) keep = true; if (!keep) { o.visible = false; return; } } }
+    if (o.isSprite && o.visible) { for (let a = o; a; a = a.parent) if (a.isCamera || a.name === 'REBUILD' || a.isSkinnedMesh || (a.userData && (a.userData.rbKeep || a.userData.rbRoof))) return; const w = o.getWorldPosition(v); if (inOld(w.x, w.z) || inNew(w.x, w.z)) { o.visible = false; o.scale.setScalar(0); } return; }   // 예전 벽등 · 가로등의 빛 번짐 스프라이트
     if (!o.isMesh || !o.visible) return;
     for (let a = o; a; a = a.parent) if (a.userData && a.userData.rbKeep) return;   // 새 연결 통로로 옮긴 구름다리 연출
     if (o.isInstancedMesh) { const m4 = new THREE.Matrix4(), p = new THREE.Vector3(); let hit = 0; o.updateMatrixWorld(true);
       for (let i = 0; i < o.count; i++) { o.getMatrixAt(i, m4); p.setFromMatrixPosition(m4).applyMatrix4(o.matrixWorld); if (inOld(p.x, p.z) && p.y > -.5) { m4.makeScale(0, 0, 0); o.setMatrixAt(i, m4); hit++; } }
       if (hit) o.instanceMatrix.needsUpdate = true; return; }
     bb.setFromObject(o); if (bb.isEmpty()) return;
+    if (bb.max.y < .3 && !o.userData.dynamic && Math.max(bb.max.x - bb.min.x, bb.max.z - bb.min.z) < 20 && inOld(bb.min.x + .9, bb.min.z + .9) && inOld(bb.max.x - .9, bb.max.z - .9) && (Math.min(bb.max.x - bb.min.x, bb.max.z - bb.min.z) < .7 || Math.max(bb.max.x - bb.min.x, bb.max.z - bb.min.z) < 12)) { o.visible = false; return; }   // 예전 건물 기단 · 경계석 띠 · 현관 포치   // 예전 건물 기단 · 경계석 띠
     if (bb.max.y < .3) { if (inNew((bb.min.x + bb.max.x) / 2, (bb.min.z + bb.max.z) / 2) && bb.max.x - bb.min.x < 60 && bb.max.z - bb.min.z < 30) o.visible = false; else if (!o.userData.rbFloorCut && !o.userData.dynamic && !(o.geometry && o.geometry.groups && o.geometry.groups.length > 1)) { o.userData.rbFloorCut = true; const ov = [MAIN, ANX].some(b => { const c = [[-b.layout.L / 2, b.layout.zN], [b.layout.L / 2, b.layout.zS]].map(([a, d]) => b.toWorld(a, d)); return bb.max.x > Math.min(c[0][0], c[1][0]) && bb.min.x < Math.max(c[0][0], c[1][0]) && bb.max.z > Math.min(c[0][1], c[1][1]) && bb.min.z < Math.max(c[0][1], c[1][1]); }); if (ov) { subdivide(o, 1.0); carve(o, (x, y, z) => y > -.3 && inNew(x, z)); } } return; }   // 예전 바닥판: 새 건물 바닥 밑에서 겹쳐 깜빡이던 것
     if (fits(bb)) { o.visible = false; return; }
     // 층 전체를 합친 메시: 예전 건물 땅 위(높이 0.3m 이상)의 삼각형만 잘라 낸다 (벽 · 창 · 덩굴 잔재가 새 교실을 뚫고 나오던 문제)
@@ -50,7 +56,7 @@ export function installRebuild({ THREE, scene, floors, world }) {
     // 씬 루트에 바로 붙은 소품 묶음(나중에 불러오는 GLB 등)도 — 새 건물 · 다른 층 · 지하(높이 −0.3 아래)는 건드리지 않는다
     const skip = new Set([...floors.filter(Boolean).flatMap((F, i) => i === 0 ? [] : [F.interior, F.shell])]);
     const sweep = (c, d) => { if (skip.has(c) || c.isCamera || c.isLight || c.name === 'REBUILD' || c.isSkinnedMesh || c.userData.rbKeep) return; let live = false; c.traverse(o => { if (o !== c && o.isSkinnedMesh) live = true; });   // 움직이는 인물(스킨 메시)만 남긴다 — 예전 층의 '앉을 수 있는 의자' 같은 동적 소품도 걷어 낸다
-      if (live) return;   /* 인물(유령 · NPC)이 든 묶음은 통째로 건드리지 않는다 */ bb.setFromObject(c); if (bb.isEmpty() || bb.max.y < -.3) return; hideIn(c); };
+      if (live) { if (c.children.some(k => k.isSkinnedMesh || k.children.some(q => q.isSkinnedMesh))) return; if (d < 5) c.children.forEach(k => sweep(k, d + 1)); return; }   /* 인물(유령 · NPC) 자체는 건드리지 않고, 같은 묶음의 다른 소품만 정리 */ bb.setFromObject(c); if (bb.isEmpty() || bb.max.y < -.3) return; hideIn(c); };
     scene.children.forEach(c => sweep(c, 0));
     for (const k of ['col', 'walls', 'doorWalls']) if (floors[0][k]) { const keep = floors[0][k].filter(r => !inOld(((r.x1 ?? r.ax ?? 0) + (r.x2 ?? r.bx ?? 0)) / 2, ((r.z1 ?? r.az ?? 0) + (r.z2 ?? r.bz ?? 0)) / 2)); floors[0][k].length = 0; floors[0][k].push(...keep); }
   };

@@ -296,11 +296,13 @@ export function installRebuild({ THREE, scene, floors, world }) {
     const T = b.spec.outer, zw = b.layout.zN - T, n = b.spec.floors, zc1 = zw - 1.7, zc2 = zw - .02;
     const EX = b.elevX, CAR = { x1: EX - .66, x2: EX + .66 };
     const E = { b, n, f: 0, y: 0, target: 0, door: 0, doorT: 0, wait: 0, moving: false, landing: [], zw, zc1, zc2, EX, CAR };
-    const box = (par, w, h, d, m, x, y, z) => { const o = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m); o.position.set(x, y, z); par.add(o); return o; };
+    const box = (par, w, h, d, m, x, y, z) => { const g = new THREE.BoxGeometry(w, h, d); if (m === mShaftB) { const uv = g.attributes.uv, n = g.attributes.normal; for (let i = 0; i < uv.count; i++) { const ax = Math.abs(n.getX(i)), ay = Math.abs(n.getY(i)); uv.setXY(i, uv.getX(i) * (ax > .5 ? d : w) / 1.6, uv.getY(i) * (ay > .5 ? d : h) / 1.6); } }
+      const o = new THREE.Mesh(g, m); o.position.set(x, y, z); o.castShadow = o.receiveShadow = m === mShaftB; par.add(o); return o; };
+    const mShaftB = b.mats.brick || mShaft;   // 승강로 탑: 건물과 같은 벽돌 (맨 콘크리트 기둥이 예전 건물 잔재처럼 보이던 것)
     // 승강로 (바깥에서 보이는 콘크리트 탑)
     const top = n * b.spec.FH + 1.2, zm = (zw - 1.85 + zw) / 2;
-    box(b.root, 1.6, top + .3, .15, mShaft, EX, top / 2 - .15, zw - 1.92); box(b.root, .15, top + .3, 1.92, mShaft, EX - .8, top / 2 - .15, zm - .04); box(b.root, .15, top + .3, 1.92, mShaft, EX + .8, top / 2 - .15, zm - .04);
-    box(b.root, 1.75, .2, 2.1, mShaft, EX, top, zm - .04);
+    box(b.root, 1.9, top + .3, .2, mShaftB, EX, top / 2 - .15, zw - 1.94); box(b.root, .2, top + .3, 1.94, mShaftB, EX - .85, top / 2 - .15, zm - .04); box(b.root, .2, top + .3, 1.94, mShaftB, EX + .85, top / 2 - .15, zm - .04);
+    box(b.root, 2.1, .3, 2.3, b.mats.conc || mShaft, EX, top, zm - .04);
     // 칸 (바닥 · 벽 3면 · 천장 조명 · 조작반)
     const car = new THREE.Group(); b.root.add(car); E.car = car;
     box(car, 1.36, .06, 1.7, mCarF, EX, .03, (zc1 + zc2) / 2); box(car, 1.36, 2.3, .04, mElv, EX, 1.18, zc1 + .02); box(car, .04, 2.3, 1.7, mElv, CAR.x1, 1.18, (zc1 + zc2) / 2); box(car, .04, 2.3, 1.7, mElv, CAR.x2, 1.18, (zc1 + zc2) / 2);

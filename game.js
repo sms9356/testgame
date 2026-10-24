@@ -1448,10 +1448,10 @@ function enrage() {
 const STAIRS = { 0: { up: 1, down: 4 }, 1: { up: 2, down: 0 }, 2: { up: 3, down: 1 }, 3: { down: 2 }, 4: { up: 0 }, 8: { up: 9 }, 9: { up: 10, down: 8 }, 10: { down: 9 } };
 function teleport(to) {
   if (state !== 'playing') return;
-  if (RBG && RBG.b1Return && to.floor === 0 && P.floor === 4) to = RBG.b1Return;   // 새 건물: B1 에서 올라오면 서쪽 계단실 입구로
+  if (RBG) to = RBG.mapTeleport(to, P.floor, world);   // 새 건물: B1 · 옥상 · 예전 층으로 가는 이동은 새 건물의 같은 자리로
   state = 'trans'; $('fade').style.opacity = 1; sfx.stairs();
   setTimeout(() => {
-    P.floor = to.floor; P.x = to.x; P.z = to.z; P.yaw = to.yaw; P.pitch = 0; P.sh = null; P.shV = 0; toastFloor(to.floor);
+    P.floor = to.floor; P.x = to.x; P.z = to.z; P.yaw = to.yaw; P.pitch = 0; P.sh = to.sh ?? null; P.shV = to.sh ?? 0; toastFloor(to.floor);
     if (to.floor === 3 && !P.roofSeen) { P.roofSeen = true; refreshHud(); setTimeout(() => talk('roof', 3200), 600); }
     if (to.floor === 4 && !P.b1Seen) { P.b1Seen = true; setTimeout(() => talk('b1', 3000), 600); }
     if (to.floor === 5 && !P.gymSeen) { P.gymSeen = true; setTimeout(() => talk('gym', 3400), 600); }
@@ -3493,7 +3493,7 @@ function frameBody(now) {
       updatePrompt();
       updateEvents(dt);
     }
-    updateLighting(dt); if (RBG) RBG.tick(dt);
+    updateLighting(dt); if (RBG) RBG.tick(dt, P);
     ghostVisual(dt, tNow);
     updateCamera(dt, tNow);
   } else if (state === 'intro') {

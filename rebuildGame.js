@@ -19,6 +19,9 @@ export function installRebuild({ THREE, scene, floors, world }) {
 
   // 1) 예전 본관 · 별관 감추기: 층 통째(1~3층 · 옥상 · 별관) + 0층 · 야외에서 그 땅 위에 선 것
   [1, 2, 3, 8, 9, 10].forEach(f => { const F = floors[f]; if (!F) return; F.interior.visible = false; if (F.shell) F.shell.visible = false; });
+  // 옥상(예전 3층 공간)은 새 본관 지붕 높이로 올린다 — 옥상에 있을 때만 보인다 (예전 지붕이 새 건물 4층 안에 떠 보이지 않게)
+  const ROOF = floors[3]; let roofDy = 0;
+  if (ROOF) { roofDy = MAIN.spec.floors * MAIN.spec.FH - ROOF.y0; ROOF.y0 += roofDy; ROOF.interior.position.y += roofDy; if (ROOF.shell) ROOF.shell.position.y += roofDy; }
   const v = new THREE.Vector3(), bb = new THREE.Box3();
   // 메시 하나하나: 예전 건물 땅(조금 넓힌 상자) 안에 다 들어가면 감춘다. 땅바닥(높이 0.3m 미만)은 남긴다.
   //   캠퍼스 전체를 덮는 합친 메시(바닥 · 길)는 상자 밖으로 삐져나오므로 그대로 둔다.
@@ -52,7 +55,7 @@ export function installRebuild({ THREE, scene, floors, world }) {
     blocked(x, z, y, r) { return BLD.some(b => { const [lx, lz] = b.toLocal(x, z); return b.col.some(c => !c.off && lx + r > c.x1 && lx - r < c.x2 && lz + r > c.z1 && lz - r < c.z2 && y + 1.7 > c.y1 + .001 && y + .35 < c.y2); }); },
     nearDoor(x, z, y) { let best = null, bd = 9; for (const b of BLD) { const [lx, lz] = b.toLocal(x, z), d = b.nearDoor(lx, lz, y); if (d) { const dd = Math.hypot(d.mx - lx, d.mz - lz); if (dd < bd) { bd = dd; best = d; } } } return best; },
     toggleDoor(d) { d.target = d.target > .5 ? 0 : 1; },
-    tick(dt) { BLD.forEach(b => b.tickDoors(dt)); },
+    tick(dt, P) { BLD.forEach(b => b.tickDoors(dt)); if (ROOF) ROOF.interior.visible = !!P && P.floor === 3; },
     // 새 건물 땅 위에 있나 (예전 건물 자리)
     inside(x, z) { return inOld(x, z); },
     floorOf(y) { return Math.max(0, Math.round(y / MAIN.spec.FH)); },
@@ -88,8 +91,14 @@ export function installRebuild({ THREE, scene, floors, world }) {
       const lx = room.x1 + 1 + rnd() * (room.x2 - room.x1 - 2), lz = room.z1 + 1 + rnd() * (room.z2 - room.z1 - 2);
       const [x, z] = b.toWorld(lx, lz);
       const g = R.groundAt(x, z, h + .1); if (g == null || Math.abs(g - h) > .2) continue;
-      if (R.blocked(x, z, h, .35)) continue;
+      if (R.blocked(x, z, h, .55)) continue;
       if (used.some(u => u.h === h && Math.hypot(u.x - x, u.z - z) < .8) && t < 30) continue;
+      used.push({ x, z, h }); return { x, z, h };
+    }
+    // 무작위로 못 찾으면 방 안을 0.4m 격자로 훑어 막히지 않은 첫 자리 (사방 0.5m 도 비어 있어야 — 다가설 수 있게)
+    for (let lx = room.x1 + .8; lx < room.x2 - .8; lx += .4) for (let lz = room.z1 + .8; lz < room.z2 - .8; lz += .4) {
+      const [x, z] = b.toWorld(lx, lz), g = R.groundAt(x, z, h + .1);
+      if (g == null || Math.abs(g - h) > .2 || R.blocked(x, z, h, .55)) continue;
       used.push({ x, z, h }); return { x, z, h };
     }
     const [x, z] = b.toWorld((room.x1 + room.x2) / 2, (room.z1 + room.z2) / 2); return { x, z, h };
@@ -132,9 +141,25 @@ export function installRebuild({ THREE, scene, floors, world }) {
       R.b1Door = { floor: 0, x, z, r: 1.5, rbY: 0, label: '지하 계단 — B1로 내려가기', to: { floor: 4, x: stairSpawnB1.x, z: stairSpawnB1.z, yaw: Math.PI }, _rb: true };
       R.b1Return = { floor: 0, x: x + 2.2, z, yaw: -Math.PI / 2 };
       world.doors.push(R.b1Door);
-      box3(x, z);
+      sign(x - .72, 0, z, '지하 B1 ↓', Math.PI / 2, true);
+    }
+    // 옥상 출입문: 새 본관 동쪽 계단실 맨 위층(4층) 층 참 — 옥상(예전 3층 공간)으로 이어진다
+    if (!R.roofDoor) {
+      const top = (MAIN.spec.floors - 1) * FH, [x, z] = MAIN.toWorld(MAIN.layout.L / 2 - .8, MAIN.layout.zN + 1.35);
+      R.roofDoor = { floor: 0, x, z, r: 1.5, rbY: top, label: '옥상 출입문 — 옥상으로 나가기', to: { floor: 3, x: 0, z: -7.5, yaw: 0 }, _rb: true };
+      R.roofReturn = { floor: 0, x: x - 2.2, z, yaw: Math.PI / 2, sh: top };
+      world.doors.push(R.roofDoor);
+      sign(x + .76, top, z, '옥상 ↑', -Math.PI / 2);
     }
     return { moved, dropped };
+  };
+  // 예전 층(1·2·8~10층 · 예전 본관 땅)으로 가는 순간이동 → 새 건물의 같은 자리
+  R.mapTeleport = (to, from, world) => {
+    if (from === 4 && to.floor === 0 && R.b1Return) return R.b1Return;
+    if (from === 3 && R.roofReturn && (to.floor === 2 || to.floor === 0)) return R.roofReturn;
+    if (!isOld(to.floor, to.x, to.z) || (to.floor === 0 && to.sh != null)) return to;
+    const m = R.mapLoc({ f: to.floor, x: to.x, z: to.z }, world);
+    return { ...to, floor: 0, x: m.x, z: m.z, sh: m.rbY ?? 0 };
   };
   // ── 3단계: 위치 안내 ──
   // 새 건물 안인가 (각 건물 좌표계의 외곽 상자)
@@ -160,13 +185,14 @@ export function installRebuild({ THREE, scene, floors, world }) {
     const rooms = [MAIN, ANX].flatMap(b => (b.props || []).filter(p => p.kind === 'room' && p.floor === f).map(p => { const [cx, cz] = b.toWorld(p.x ?? (p.x1 + p.x2) / 2, p.z ?? (p.z1 + p.z2) / 2); return { pts: corners(b, p.x1, p.x2, p.z1, p.z2), label: p.label, cx, cz, here: here && here.endsWith(p.label) }; }));
     return (mdVal = { clear: [OLD_MAIN, OLD_ANNEX], shells, rooms });
   };
-  // B1 입구 표시: 철제 셔터 문짝 + 표지판
-  const box3 = (x, z) => {
+  // 계단실 출입문 표시: 철문 + 표지판 (bx: 표지판 x, 문짝은 벽 쪽으로)
+  const sign = (sx, y, z, text, ry, door = false) => {
     const m = new THREE.MeshStandardMaterial({ color: 0x4a5250, roughness: .6, metalness: .55 });
-    const door = new THREE.Mesh(new THREE.BoxGeometry(.06, 2.0, 1.1), m); door.position.set(x - .76, 1.0, z); group.add(door);
-    const c = document.createElement('canvas'); c.width = 256; c.height = 64; const g = c.getContext('2d'); g.fillStyle = '#3a0e0a'; g.fillRect(0, 0, 256, 64); g.fillStyle = '#f0d8c0'; g.font = 'bold 26px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('지하 B1 ↓', 128, 33);
+    const dx = Math.sin(ry) * -.04;
+    const leaf = new THREE.Mesh(new THREE.BoxGeometry(.06, 2.0, 1.1), m); leaf.position.set(sx + dx, y + 1.0, z); group.add(leaf);
+    const c = document.createElement('canvas'); c.width = 256; c.height = 64; const g = c.getContext('2d'); g.fillStyle = '#3a0e0a'; g.fillRect(0, 0, 256, 64); g.fillStyle = '#f0d8c0'; g.font = 'bold 26px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(text, 128, 33);
     const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
-    const sg = new THREE.Mesh(new THREE.PlaneGeometry(.8, .2), new THREE.MeshBasicMaterial({ map: t })); sg.position.set(x - .72, 2.15, z); sg.rotation.y = Math.PI / 2; group.add(sg);
+    const sg = new THREE.Mesh(new THREE.PlaneGeometry(.8, .2), new THREE.MeshBasicMaterial({ map: t })); sg.position.set(sx - dx, y + 2.15, z); sg.rotation.y = ry; group.add(sg);
   };
   return R;
 }

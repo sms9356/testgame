@@ -3108,6 +3108,7 @@ function updateLighting(dt) {
   scene.fog.color.lerp(indoors ? _c1.copy(FOG_IN).lerp(FOG_IN_DAY, dk) : _c1.copy(FOG_OUT).lerp(FOG_DAY, dk), k);
   // Outside window impostors avoid a sudden full-floor render on approach.
   applyExteriorFloorVisibility(floors,P,MAIN_ZS);
+  if (RBG) RBG.hideOld();   // 새 건물: 예전 본관 · 별관 층(껍데기 · 가짜 창 포함)은 다시 켜지 않는다
   if (P.floor === 0 && P.z > -22 && P.z < 36 && Math.abs(P.x) < 42) {
     floors[0].interior.visible = true;
     if (floors[0].winFake) floors[0].winFake.visible = false;

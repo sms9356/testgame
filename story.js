@@ -375,6 +375,7 @@ export const NOTES = {
 export const ITEMS = {
   flashlight: { name: '손전등', icon: 'it_flash', cat: 'item', desc: '낡았지만 아직 사용할 수 있다. 어두운 곳을 비출 수 있다. (F)' },
   battery: { name: '건전지', icon: 'it_battery', cat: 'item', desc: '손전등용 건전지. 손전등과 조합하면 배터리가 45% 회복된다.', stack: true },
+  recorder: { name: '방송부 휴대용 녹음기', icon: 'it_phone_seoyeon', cat: 'item', desc: '1998년식 카세트 녹음기. 통화 증언을 녹음해 증거로 남길 수 있다.' },
   medkit: { name: '응급 밴드', icon: 'it_bandage', cat: 'item', desc: '상처 치료용 응급 밴드. 사용하면 체력이 50 회복된다.', stack: true },
   id_jihun: { name: '학생증 (지훈)', icon: 'it_id_jihun', cat: 'item', desc: '서현고등학교 3학년 지훈. 사진 속 표정이 지금보다 밝다.' },
   id_seoyeon: { name: '학생증 (서연)', icon: 'it_id_seoyeon', cat: 'item', desc: '서현고등학교 2학년 서연. 방송부 출입증 겸용.' },

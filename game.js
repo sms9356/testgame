@@ -6847,8 +6847,8 @@ function inPassage() { if (RBG) return RBG.inWalkway(P); return (P.floor === 1 |
   // 책걸상 모델 (실사 소품) 따로 불러와 쌓는다
   const ld = new GLTFLoader(), put = (name, list) => ld.load(`assets/models/${name}/${name}.gltf`, gl => list.forEach(([x, y, z, ry, rx = 0, rz = 0]) => { const m = gl.scene.clone(); m.position.set(x, y, z); m.rotation.set(rx, ry, rz); m.traverse(o => { o.userData.dynamic = true; if (o.isMesh) { o.castShadow = o.receiveShadow = true; } }); O.add(m); }), undefined, () => {});
   // 뒤집힌 위 책상은 원점이 다리 끝이라 상판 높이만큼 올려야 아래 책상 위에 얹힌다 (예전엔 아래 책상 속에 묻혀 그 위 의자가 허공에 떠 있었다)
-  put('SchoolDesk_01', [[1.75, 0, -11.85 + PZ, .2], [1.6, 1.5, -11.8 + PZ, 2.9, Math.PI]]);
-  put('SchoolChair_01', [[1.25, 0, -11.7 + PZ, 1.3, 0, Math.PI / 2], [2.05, .78, -12.05 + PZ, .6], [2.15, 0, -11.25 + PZ, 2.2, 0, .22]]);
+  put('SchoolDesk_01', [[1.75, 0, -12.75 + PZ, .2], [1.6, 1.5, -12.7 + PZ, 2.9, Math.PI]]);
+  put('SchoolChair_01', [[1.25, 0, -12.6 + PZ, 1.3, 0, Math.PI / 2], [2.05, .78, -12.95 + PZ, .6], [2.15, 0, -12.15 + PZ, 2.2, 0, .22]]);
 }
 function passBlock(on) {
   const F0 = floors[1];
@@ -8742,6 +8742,10 @@ function extrasTick(dt) {
 buildCamClues(); buildBreakers(); buildRestrooms(); spawnPicks();
 sqSync();
 auditAndFixFurnitureAndQuality();
+// 텍스처 선명도: 늦게 불러온 모델 · 새 건물 재질도 비등방성 필터를 최대로 (먼 바닥 · 벽 무늬 뭉개짐 방지)
+{ const maxA = Math.min(16, renderer.capabilities.getMaxAnisotropy?.() || 8), seen = new WeakSet();
+  const upAniso = () => { const q = []; scene.traverse(o => { if (!o.isMesh) return; for (const m of Array.isArray(o.material) ? o.material : [o.material]) { if (!m) continue; for (const k of ['map', 'normalMap', 'roughnessMap', 'bumpMap', 'emissiveMap']) { const t = m[k]; if (t && t.isTexture && !seen.has(t)) { seen.add(t); if ((t.anisotropy || 1) < maxA) q.push(t); } } } }); const step = () => { for (let i = 0; i < 6 && q.length; i++) { const t = q.shift(); t.anisotropy = maxA; t.needsUpdate = true; } if (q.length) requestAnimationFrame(step); }; step(); };   // 한 프레임에 6장씩 (다시 올리는 끊김 분산)
+  [8000, 25000, 60000, 120000].forEach(ms => setTimeout(upAniso, ms)); }
 initSaveIds();
 applyQuality(SET.quality === 'auto' ? 'high' : SET.quality);
 applySettings();

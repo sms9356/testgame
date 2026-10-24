@@ -1078,11 +1078,11 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
     placeGlb('assets/models/sf/sf_broken_desk_barricade.glb', [
       [-92.0, 0, -36.5, 0.5, 1, 1, 1],
       [-92.5, 0,  49.5, -0.4, 1, 1, 1],
-      [ 89.5, 0,  45.5, 0.3, 1, 1, 1]
+      [ 97.5, 0,  50.5, 0.3, 1, 1, 1]   // 도서관 벽 속 → 바깥 구석
     ]);
     // ② 찌그러진 3연동 철제 사물함 & 추락한 칠판 (sf_dented_locker_set.glb)
     placeGlb('assets/models/sf/sf_dented_locker_set.glb', [
-      [-89.0, 0, -48.5, 0, 1, 1, 1],
+      [-78.5, 0, -48.5, 0, 1, 1, 1],   // 계단 밑 → 1층 북벽 동쪽
       [-89.0, 0,  35.5, 0, 1, 1, 1],
       [ 89.0, 0, -41.5, 0, 1, 1, 1]
     ]);
@@ -1124,7 +1124,7 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
       [ 68.3, 0,  16.8, Math.PI / 2, 1, 1, 1],
       [-36.5, 0,  -4.5, -Math.PI / 2, 1, 1, 1],
       [ 36.5, 0,  -4.5, Math.PI / 2, 1, 1, 1],
-      [-74.8, 0, -46.5, Math.PI / 2, 1, 1, 1],
+      [-74.1, 0, -46.5, Math.PI / 2, 1, 1, 1],
       [ 73.8, 0, -38.5, -Math.PI / 2, 1, 1, 1],
       [ 72.8, 0,  44.5, -Math.PI / 2, 1, 1, 1]
     ]);

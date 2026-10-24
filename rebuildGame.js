@@ -146,7 +146,9 @@ export function installRebuild({ THREE, scene, floors, world }) {
       sw.lamps.forEach(l => { l.userData.swOff = !sw.on; l.intensity = sw.on ? 1.6 * k : 0; }); return sw.on; },
     hideOld() { for (const F of OLD_FLOORS) { F.interior.visible = false; if (F.shell) F.shell.visible = false; if (F.winFake) F.winFake.visible = false; for (const o of [F.interior, F.shell, F.winFake]) if (o && !o._frozen) { o._frozen = true; o.updateMatrixWorld = NOOP; } } },   // 영구히 숨긴 예전 층: 매 프레임 행렬 갱신(수천 개)도 건너뛴다
     cull(dt, P) { cullModels(dt, P); for (const F of OLD_FLOORS) { if (F.interior.visible) F.interior.visible = false; if (F.shell && F.shell.visible) F.shell.visible = false; } },   // 매 프레임(메뉴 · 인트로 포함) 예전 층을 끈다
-    tick(dt, P, sfx) { BLD.forEach(b => b.tickDoors(dt)); OLD_FLOORS.forEach(F => { if (F.interior.visible) F.interior.visible = false; if (F.shell && F.shell.visible) F.shell.visible = false; }); /* 게임의 층 표시 로직이 예전 층을 다시 켜도 끈다 */ cullModels(dt, P); if (R.elevTick) R.elevTick(dt, P, sfx); },
+    // 숨긴 예전 층에 남은 죽은 상호작용(옛 스위치 · 사물함 문 · 둘러보기 · 엘리베이터 호출 · 옥상 문) 정리 — 새 건물에 같은 것이 따로 있다
+    pruneOld() { const OLDF = new Set([1, 2, 3, 8, 9, 10]), dead = new Set(['switch', 'ldoor', 'look', 'elevator', 'roofDoor']); for (let i = world.props.length - 1; i >= 0; i--) { const q = world.props[i]; if (OLDF.has(q.floor) && dead.has(q.kind)) world.props.splice(i, 1); } },
+    tick(dt, P, sfx) { if ((this._pt = (this._pt || 0) + dt) > 5) { this._pt = 0; this.pruneOld(); } BLD.forEach(b => b.tickDoors(dt)); OLD_FLOORS.forEach(F => { if (F.interior.visible) F.interior.visible = false; if (F.shell && F.shell.visible) F.shell.visible = false; }); /* 게임의 층 표시 로직이 예전 층을 다시 켜도 끈다 */ cullModels(dt, P); if (R.elevTick) R.elevTick(dt, P, sfx); },
     // 새 건물 땅 위에 있나 (예전 건물 자리)
     inside(x, z) { return inOld(x, z); },
     floorOf(y) { return Math.max(0, Math.round(y / MAIN.spec.FH)); },
@@ -402,7 +404,7 @@ export function installRebuild({ THREE, scene, floors, world }) {
   { const bR = R.blocked, top = MAIN.spec.floors * MAIN.spec.FH; R.blocked = (x, z, y, r) => { if (y > top - .3 && y < top + 1 && R.roofCol && R.roofCol().some(c => !c.off && x + r > c.x1 && x - r < c.x2 && z + r > c.z1 && z - r < c.z2 && !(c.h != null && c.h <= .4))) return true; return bR(x, z, y, r); }; }
   { const gB = R.groundAt, bB = R.blocked;
     R.groundAt = (x, z, feet) => { if (inPit(x, z) && feet < .35 && feet > pitH(z) - .7) return pitH(z); return gB(x, z, feet); };
-    R.blocked = (x, z, y, r) => { if (inPit(x, z) && z > B1PIT.zt + .25 && y > pitH(z) + .45) return true; if (z > B1PIT.zw - .25 && z < B1PIT.zw + .3 && x > B1PIT.x1 && x < B1PIT.x2 && y < -.2) return true; if (y < -.2 && z > B1PIT.zt && z < B1PIT.zw && (x < B1PIT.x1 + .2 || x > B1PIT.x2 - .2)) return true; return bB(x, z, y, r); }; }
+    R.blocked = (x, z, y, r) => { if (y < .6 && inPit(x, z) && z > B1PIT.zt + .25 && y > pitH(z) + .45) return true;   /* 구덩이 규칙은 1층 바닥 높이에서만 — 위 계단(중간참 · 2비행)을 투명벽처럼 막던 버그 */ if (z > B1PIT.zw - .25 && z < B1PIT.zw + .3 && x > B1PIT.x1 && x < B1PIT.x2 && y < -.2) return true; if (y < -.2 && z > B1PIT.zt && z < B1PIT.zw && (x < B1PIT.x1 + .2 || x > B1PIT.x2 - .2)) return true; return bB(x, z, y, r); }; }
   R.nearElev = (x, z, y) => {
     const h = elvAt(x, z); if (h && h.lz < h.E.zw) { const E = h.E, f = Math.round(E.y / E.b.spec.FH); return { inCar: true, E, f, n: E.n, rbY: E.y }; }
     return R.elevs.find(e => Math.abs(e.rbY - y) < 1.2 && Math.hypot(e.x - x, e.z - z) < 1.3);

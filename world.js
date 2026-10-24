@@ -4,7 +4,7 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { buildGuardAnnex, ANNEX as GANX } from './guardAnnex.js?v=195';
+import { buildGuardAnnex, buildDutyRoom, ANNEX as GANX } from './guardAnnex.js?v=195';
 import { NOTES } from './story.js?v=195';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
@@ -4935,21 +4935,21 @@ export function buildWorld(scene) {
   {
     // 경비실: 제공 모델 350×280×250cm, 지도에 표시된 정문 안쪽 중앙 보행로 동편 위치
     const G = new THREE.Group(); G.name = 'GUARDROOM_FALLBACK'; G.userData.dynamic = true; OUT.add(G);
-    const holder = new THREE.Group(); holder.name = 'GUARDROOM_HOLDER'; holder.userData.dynamic = true; holder.position.set(GUARD_LAYOUT.originX, GUARD_LAYOUT.floorY, GUARD_LAYOUT.originZ); OUT.add(holder);
+    const holder = new THREE.Group(); holder.name = 'GUARDROOM_HOLDER'; holder.userData.dynamic = true; holder.position.set(GUARD_LAYOUT.originX, GUARD_LAYOUT.floorY, GUARD_LAYOUT.originZ); OUT.add(holder); if (!window.__oldGuard) holder.visible = false;
     flat(OUT, pave, GUARD_SPUR.x1, GUARD_SPUR.x2, GUARD_SPUR.z1, GUARD_SPUR.z2, .025, 2);
     const guardFabric = S(null, { color: 0xc9c5b9, roughness: .95 });
-    for (const n of GUARD_NODES) {
+    for (const n of (window.__oldGuard ? GUARD_NODES : [])) {   // (구)경비실 철거: 새 경비동 당직실이 그 자리를 대신한다
       if (/ENTRANCE_DOOR|ENTRANCE_HANDLE/.test(n.name)) continue;
       const mat = n.name.startsWith('SHELL_') ? (n.name === 'SHELL_FLOOR' ? mFloorTile : mFacade) : n.name.startsWith('WINDOW_') ? mWinIn : /^F01_/.test(n.name) ? mWood : /^F03_/.test(n.name) ? mMetal : /^F05_/.test(n.name) ? guardFabric : mWhite;
       const m = boxMesh(GUARD_LAYOUT.originX + n.min[0], GUARD_LAYOUT.originX + n.max[0], GUARD_LAYOUT.floorY + n.min[2], GUARD_LAYOUT.floorY + n.max[2], GUARD_LAYOUT.originZ - n.max[1], GUARD_LAYOUT.originZ - n.min[1], mat, 2); m.name = n.name; G.add(m);
     }
     const furnitureColliders = [];
-    for (const c of guardCollisionRects()) { col(c.x1, c.x2, c.z1, c.z2, c.wall); if (!c.wall) furnitureColliders.push({id:c.id,collider:cur.col[cur.col.length-1]}); }
+    for (const c of (window.__oldGuard ? guardCollisionRects() : [])) { col(c.x1, c.x2, c.z1, c.z2, c.wall); if (!c.wall) furnitureColliders.push({id:c.id,collider:cur.col[cur.col.length-1]}); }
     const doorPivot = new THREE.Group(); doorPivot.position.set(GUARD_LAYOUT.doorX, GUARD_LAYOUT.floorY, GUARD_LAYOUT.doorZ); doorPivot.rotation.y = -Math.PI / 2; G.add(doorPivot);
     const leaf = new THREE.Mesh(new THREE.BoxGeometry(.85, 2.05, .05), mDoor); leaf.geometry.translate(.425, 1.025, 0); doorPivot.add(leaf);
     const doorCollider = { x1: GUARD_LAYOUT.doorX - .025, x2: GUARD_LAYOUT.doorX + .025, z1: GUARD_LAYOUT.doorZ, z2: GUARD_LAYOUT.doorZ + .85, off: false, guardDoor: true }; cur.col.push(doorCollider);
-    OUT.add(boxMesh(GUARD_LAYOUT.originX - .18, GUARD_LAYOUT.originX + 3.68, 2.52, 2.64, GUARD_LAYOUT.originZ - 2.98, GUARD_LAYOUT.originZ + .18, mFacade, 2));
-    plane(OUT, new THREE.MeshBasicMaterial({ map: T.makeSign('경비실', '#1e2a2e', '#d9e4d0', 34), color: 0x9aa59a }), 1.1, .3, GUARD_LAYOUT.originX + 1.1, 2.30, GUARD_LAYOUT.originZ + .125, 0);
+    if (window.__oldGuard) OUT.add(boxMesh(GUARD_LAYOUT.originX - .18, GUARD_LAYOUT.originX + 3.68, 2.52, 2.64, GUARD_LAYOUT.originZ - 2.98, GUARD_LAYOUT.originZ + .18, mFacade, 2));
+    if (window.__oldGuard) plane(OUT, new THREE.MeshBasicMaterial({ map: T.makeSign('경비실', '#1e2a2e', '#d9e4d0', 34), color: 0x9aa59a }), 1.1, .3, GUARD_LAYOUT.originX + 1.1, 2.30, GUARD_LAYOUT.originZ + .125, 0);
     Object.assign(guardRoom, { holder, furnitureColliders, fallback: G, fallbackDoorPivot: doorPivot, doorCollider, ceilingCover: false, templates: { wall: mFacade, floor: mFloorTile, wood: mWood, metal: mMetal, fabric: guardFabric }, layout: GUARD_LAYOUT });
     props.push({ kind: 'robj', k: 'guarddoor', t: 'guard', floor: 0, x: GUARD_LAYOUT.doorX + .425, z: GUARD_LAYOUT.doorZ, y: 1.05, r: 1.5, label: '경비실 문 닫기' });
     props.push({ kind: 'robj', k: 'guardlog', t: 'guard', floor: 0, ...GUARD_LAYOUT.log, x: 5.9, z: 67.14, r: 2.1, label: '경비실 심야 순찰 일지 & 경비원 육성 녹음 확인하기' });
@@ -4957,6 +4957,7 @@ export function buildWorld(scene) {
     props.push({ kind: 'robj', k: 'guardcctv', t: 'guard', floor: 0, ...GUARD_LAYOUT.cctv, label: 'CCTV 전원 끄기' });
     guardAnnex = buildGuardAnnex({ OUT, props, boxMesh, plane, flat, col, S, makeSign: T.makeSign, mats: { facade: mFacade, wall: mWall, white: mWhite, floor: mFloorTile, wood: mWood, metal: mMetal, glass: mWinIn } });
     col(GANX.x1 - .95, GANX.x1, GANX.doorZ1 - .02, GANX.doorZ1 + .04, true);
+    guardAnnex.duty = buildDutyRoom({ G: guardAnnex.group, props, boxMesh, plane, flat, col, S, makeSign: T.makeSign, mats: { facade: mFacade, wall: mWall, white: mWhite, floor: mFloorTile, wood: mWood, metal: mMetal, glass: mWinIn } });
     guardAnnex.group.traverse(o => { o.userData.dynamic = true; });
     props.push({ kind: 'robj', k: 'guardlight', t: 'guard', floor: 0, ...GUARD_LAYOUT.lightSwitch, label: '경비실 전등 켜기' });
     // 교훈 표지석: 납작한 화강암 + 새긴 글씨 + 받침 화단

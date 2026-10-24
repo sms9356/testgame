@@ -5884,7 +5884,9 @@ function paraBleed() {
 }
 // 화장실 괴담
 const TE = { t: 6, last: [] };
-const tPos = (r, lx, lz, ry = 0) => r.south ? { x: 2 * r.cx - lx, z: -lz, ry: ry + Math.PI } : { x: lx, z: lz, ry };
+const rbLift = (o, y) => { o.position.y += y; return o; };
+// 새 건물 화장실(r.rb): 예전 화장실(폭 7.7m · z −9.6 ~ −1.75) 기준 자리를 새 화장실 크기로 줄여 옮긴다
+const tPos = (r, lx, lz, ry = 0) => r.rb ? { x: r.cx + (lx - r.cx) * r.hw / 3.85, z: r.cz + (lz + 5.675) * r.hd / 3.92, ry } : r.south ? { x: 2 * r.cx - lx, z: -lz, ry: ry + Math.PI } : { x: lx, z: lz, ry };
 const stallDoor = (f, r, n) => world.doorList.find(o => o.stall && o.floor === f && o.stallNo === n && Math.abs(o.x - r.cx) < 4);
 function toiletTick(f, room, step) {
   if (!room || room.type !== 'toilet' || P.hiding) { TE.t = Math.max(TE.t, 6); return; }
@@ -5897,20 +5899,21 @@ function toiletTick(f, room, step) {
   toiletFx(k, f, room);
 }
 function toiletFx(k, f, r) {
-  const F = floors[f], X1 = r.cx + 3.85, X0 = r.cx - 3.85, y0 = F.y0;
+  const RY = r.rb ? r.y0 : 0;   // 새 건물 화장실: 그 층 바닥 높이만큼 올린다
+  const F = floors[f], X1 = r.cx + 3.85, X0 = r.cx - 3.85, y0 = F.y0 + RY;
   if (k !== 'tissue') { caption(TOILET_FX[k]); P.fear = Math.min(1, P.fear + .2); setFace('fear', 2); }
   if (k === 'faucet') {
     const z = [-6.9, -6.0, -5.1, -4.2][(Math.random() * 4) | 0], p = tPos(r, X1 - .21, z), rusty = Math.random() < .6;
     const m = new THREE.Mesh(new THREE.CylinderGeometry(.007, .01, .19, 8), new THREE.MeshStandardMaterial({ color: rusty ? 0x8a4a2a : 0xa8c8d0, roughness: .05, transparent: true, opacity: .75 }));
     m.position.set(p.x, .875, p.z); m.userData.tick = e => { m.scale.x = m.scale.z = .8 + Math.random() * .5; if (Math.random() < .3) fx.emit(p.x, y0 + .8, p.z, (Math.random() - .5) * .4, .4, (Math.random() - .5) * .4, .3, rusty ? [.5, .28, .16] : [.7, .8, .85], .4, .015, 6); };
-    addTmp(f, m, 6.5, .2, .4); at(p.x, y0 + .9, p.z).faucet(6);
+    addTmp(f, rbLift(m, RY), 6.5, .2, .4); at(p.x, y0 + .9, p.z).faucet(6);
   } else if (k === 'flush') { const i = (Math.random() * 4) | 0, p = tPos(r, X0 + i * 1.1 + .55, -9.2); at(p.x, y0 + .5, p.z).flush(); }
   else if (k === 'stall') { const ds = [1, 2, 3, 4].map(n => stallDoor(f, r, n)).filter(d => d && d.target > .5); const d = ds[(Math.random() * ds.length) | 0]; if (d) { d.target = 0; d.slam = true; at(d.x, y0 + 1.2, d.z).doorBang(0, 1); } else at(r.cx, y0 + 1.2, -8).knock(); shake = .35; }
   else if (k === 'flicker') { sfx.lightsOff(); [0, 300, 650, 1100].forEach(t => setTimeout(() => { blackout = Math.max(blackout, .3); }, t)); setTimeout(() => sfx.drip(), 1400); }
   else if (k === 'mirror') {
     const p = tPos(r, X1 - .045, -6.4 + Math.random() * 1.8, -Math.PI / 2), word = MIRROR_WORDS[(Math.random() * MIRROR_WORDS.length) | 0];
     const m = new THREE.Mesh(new THREE.PlaneGeometry(1.2, .3), new THREE.MeshBasicMaterial({ map: makeGraffiti(word, '#a00a0a'), transparent: true, depthWrite: false, color: 0xffd0d0 }));
-    m.position.set(p.x, 1.72, p.z); m.rotation.y = p.ry; addTmp(f, m, 10, 2, 2.5); at(p.x, y0 + 1.7, p.z).glassCrack(); setTimeout(() => sfx.ghostWhisper(), 900);
+    m.position.set(p.x, 1.72, p.z); m.rotation.y = p.ry; addTmp(f, rbLift(m, RY), 10, 2, 2.5); at(p.x, y0 + 1.7, p.z).glassCrack(); setTimeout(() => sfx.ghostWhisper(), 900);
   } else if (k === 'shoes') {
     const d = stallDoor(f, r, 3); if (d && d.target > .5) { d.target = 0; d.slam = true; at(d.x, y0 + 1.2, d.z).doorBang(0, .7); }
     setTimeout(() => {
@@ -5918,13 +5921,14 @@ function toiletFx(k, f, r) {
       const p = tPos(r, X0 + 2.75, -7.86), g = new THREE.Group(), white = new THREE.MeshStandardMaterial({ color: 0xd8d4c8, roughness: .7 }), trim = new THREE.MeshStandardMaterial({ color: 0x2a4a9a, roughness: .6 });
       [-.09, .09].forEach(dx => { const s1 = new THREE.Mesh(new THREE.BoxGeometry(.09, .06, .24), white); s1.position.set(dx, .03, 0); g.add(s1); const s2 = new THREE.Mesh(new THREE.BoxGeometry(.092, .02, .1), trim); s2.position.set(dx, .07, .05); g.add(s2); });
       g.position.set(p.x, 0, p.z); g.rotation.y = p.ry; g.userData.tick = e => { if (Math.hypot(P.x - p.x, P.z - p.z) < 1.5 && e.life > e.t + .3) { e.life = e.t + .25; sfx.ghostCrack(); } };
-      addTmp(f, g, 9, .3, .3); at(p.x, y0 + .8, p.z).ghostSob();
+      addTmp(f, rbLift(g, RY), 9, .3, .3); at(p.x, y0 + .8, p.z).ghostSob();
     }, 900);
   } else if (k === 'tissue') toiletTissue(f, r);
 }
 // "빨간 휴지 줄까, 파란 휴지 줄까?" — 3번 칸의 질문 (한 번만, 선택은 저장된다)
 function toiletTissue(f, r) {
-  const F = floors[f], p = tPos(r, r.cx - 3.85 + 2.75, -8.6), d = stallDoor(f, r, 3);
+  const RY = r.rb ? r.y0 : 0;
+  const F = { y0: floors[f].y0 + RY }, p = tPos(r, r.cx - 3.85 + 2.75, -8.6), d = stallDoor(f, r, 3);
   if (d && d.target > .5) { d.target = 0; d.slam = true; at(d.x, F.y0 + 1.2, d.z).doorBang(0, .8); }
   at(p.x, F.y0 + 1.2, p.z).knock();
   setTimeout(() => {
@@ -5937,7 +5941,7 @@ function toiletTissue(f, r) {
       if (i === 0) {
         sfx.stinger(1); sfx.screech(); shake = .9; fx.glitch(1); vig('bloodVig', 2600); setFace('surprise', 3);
         caption('“빨간 휴지를 줄게.” — 칸막이 아래로 붉은 물이 번져 나온다');
-        _poolTex ||= makeBlood('pool'); const q = tPos(r, r.cx - 3.85 + 2.75, -7.5); const m = new THREE.Mesh(new THREE.PlaneGeometry(1.3, 1.3), new THREE.MeshStandardMaterial({ map: _poolTex, transparent: true, depthWrite: false, roughness: .08, polygonOffset: true, polygonOffsetFactor: -4 })); m.rotation.x = -Math.PI / 2; m.position.set(q.x, .016, q.z); addTmp(f, m, 60, 3, 6);
+        _poolTex ||= makeBlood('pool'); const q = tPos(r, r.cx - 3.85 + 2.75, -7.5); const m = new THREE.Mesh(new THREE.PlaneGeometry(1.3, 1.3), new THREE.MeshStandardMaterial({ map: _poolTex, transparent: true, depthWrite: false, roughness: .08, polygonOffset: true, polygonOffsetFactor: -4 })); m.rotation.x = -Math.PI / 2; m.position.set(q.x, .016, q.z); addTmp(f, rbLift(m, RY), 60, 3, 6);
       } else if (i === 1) {
         sfx.ghostBreath(); sfx.stinger(.6); fx.glitch(.5); vig('frostVig', 4200); setFace('fear', 3);
         caption('“파란 휴지를 줄게.” — 차가운 기억이 스쳐 지나간다');

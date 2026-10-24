@@ -85,7 +85,7 @@ export function installRebuild({ THREE, scene, floors, world }) {
     inside(x, z) { return inOld(x, z); },
     floorOf(y) { return Math.max(0, Math.round(y / MAIN.spec.FH)); },
     roomAt(x, z, y) { const f = Math.round(y / MAIN.spec.FH); for (const b of BLD) { if (!b.spec) continue; const [lx, lz] = b.toLocal(x, z); const r = (b.props || []).find(p => p.kind === 'room' && p.floor === f && lx > p.x1 && lx < p.x2 && lz > p.z1 && lz < p.z2);
-      if (r) { const [cx, cz] = b.toWorld((r.x1 + r.x2) / 2, (r.z1 + r.z2) / 2); return { id: `rb:${b.name}:${f}:${r.label}`, type: r.type === 'bcast' ? 'broadcast' : r.type || 'room', name: r.label, cx, cz, rb: true }; } } return null; },
+      if (r) { const [cx, cz] = b.toWorld((r.x1 + r.x2) / 2, (r.z1 + r.z2) / 2); return { id: `rb:${b.name}:${f}:${r.label}`, type: ({ bcast: 'broadcast', staff: 'office' })[r.type] || r.type || 'room', name: r.label, cx, cz, rb: true, y0: f * MAIN.spec.FH, hw: (r.x2 - r.x1) / 2 - .2, hd: (r.z2 - r.z1) / 2 - .2 }; } } return null; },
     where(x, z, y) { const f = Math.round(y / MAIN.spec.FH); for (const b of BLD) { const [lx, lz] = b.toLocal(x, z); const r = (b.props || []).find(p => p.kind === 'room' && p.floor === f && lx > p.x1 && lx < p.x2 && lz > p.z1 && lz < p.z2); if (r) return `${b.name} ${f + 1}층 ${r.label}`; } return null; },
   };
 
@@ -116,7 +116,7 @@ export function installRebuild({ THREE, scene, floors, world }) {
     const key = (inB ? inB.name : '-') + f + st; if (key === cullKey) return; cullKey = key;
     for (const { b, ims } of cullList) for (const im of ims) im.visible = b === inB && Math.abs(im.userData.rbFloor - f) <= (st ? 1 : 0);
   };
-  const roomsOf = (b, f) => (b.props || []).filter(p => p.kind === 'room' && p.floor === f && p.x2 - p.x1 > 2.5);
+  const roomsOf = (b, f) => (b.props || []).filter(p => p.kind === 'room' && p.floor === f && p.x2 - p.x1 > 2.5 && p.type !== 'toilet');
   const OLDMAP = { 0: [MAIN, 0], 1: [MAIN, 1], 2: [MAIN, 2], 8: [ANX, 0], 9: [ANX, 1], 10: [ANX, 2] };
   const SPECIAL_KEY = { 0: [MAIN, 0, 'staff'], 1: [ANX, 1, 'library'], 2: [ANX, 1, 'science'] };
   const TOILET = new Set(['flush', 'sink']);

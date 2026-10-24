@@ -52,10 +52,16 @@ export function installRebuild({ THREE, scene, floors, world }) {
   //   가구 · 벽은 새 건물 것(mainBuilding 'bcast')을 쓰고, 예전 방 메시는 가져오지 않는다
   const BC = { x1: -35.75, x2: -20.25, z1: -9.35, z2: -2.0, y0: floors[2] ? floors[2].y0 : 8 };
   const inBC = (x, z) => x > BC.x1 && x < BC.x2 && z > BC.z1 && z < BC.z2, BCY = 3 * MAIN.spec.FH;
-  const BC_SLOT = { console: [[-38.1, 3.5]], cctvRec: [[-39.7, 2.2]], tape: [[-30.6, 1.0], [-29.9, 1.0], [-29.2, 1.0], [-25.3, 1.1]], mina: [[-23.5, 6.5]], sq: [[-26.9, 2.5], [-25.6, 3.9], [-28.2, 3.9]] };
+  const BC_SLOT = { console: [[-38.1, 3.5]], cctvRec: [[-39.7, 2.2]], tape: [[-30.4, 1.0], [-29.1, 1.0], [-27.6, 1.2], [-25.3, 1.1]], mina: [[-23.5, 6.5]], sq: [[-26.9, 2.5], [-25.6, 3.9], [-28.2, 3.9]] };
   const BC_FREE = [[-35.2, 5.2], [-33.6, 5.4], [-36.4, 1.6], [-34.0, 2.6], [-24.4, 1.4], [-23.8, 3.4], [-30.2, 6.6], [-27.9, 6.4], [-32.6, 3.5]];
   let bcFree = 0; const bcUsed = {};
-  const bcSpot = kind => { const l = BC_SLOT[kind]; if (l) { const i = bcUsed[kind] = (bcUsed[kind] ?? -1) + 1; if (i < l.length) return l[i]; } return BC_FREE[bcFree++ % BC_FREE.length]; };
+  const bcTaken = [];
+  const bcFreeSpot = () => {   // 방 안 격자에서 가구에 막히지 않고 다른 조사 지점과 1.2m 이상 떨어진 자리
+    for (const [x, z] of BC_FREE) if (!bcTaken.some(([a, b]) => Math.hypot(a - x, b - z) < 1.2)) return [x, z];
+    for (let z = 1.3; z < 7.0; z += .65) for (let x = -39.4; x < -23.0; x += .65) { if (bcTaken.some(([a, b]) => Math.hypot(a - x, b - z) < 1.2)) continue; if (R.blocked && R.blocked(x, z, BCY, .45)) continue; return [x, z]; }
+    return BC_FREE[bcFree++ % BC_FREE.length];
+  };
+  const bcSpot = kind => { const l = BC_SLOT[kind]; let s0 = null; if (l) { const i = bcUsed[kind] = (bcUsed[kind] ?? -1) + 1; if (i < l.length) s0 = l[i]; } const s1 = s0 || bcFreeSpot(); bcTaken.push(s1); return s1; };
   if (floors[2]) for (const c of [...floors[2].interior.children]) { if (!c.userData.dynamic) continue; const w = c.getWorldPosition(new THREE.Vector3()); if (!inBC(w.x, w.z)) continue;
     const [x, z] = BC_SLOT.mina[0]; MAIN.root.attach(c); c.position.set(x, BCY + Math.max(0, w.y - BC.y0), z); c.rotation.y = -Math.PI / 2; }   // 민아 · 민아 소지품: 스튜디오 동쪽 구석 벽에 기대 앉음
   clearOld();

@@ -57,18 +57,20 @@ export function installRebuild({ THREE, scene, floors, world }) {
   //   가구 · 벽은 새 건물 것(mainBuilding 'bcast')을 쓰고, 예전 방 메시는 가져오지 않는다
   const BC = { x1: -35.75, x2: -20.25, z1: -9.35, z2: -2.0, y0: floors[2] ? floors[2].y0 : 8 };
   const inBC = (x, z) => x > BC.x1 && x < BC.x2 && z > BC.z1 && z < BC.z2, BCY = 3 * MAIN.spec.FH;
-  const BCS = -(MAIN.layout.L - 93) / 2;   // 본관이 넓어진 만큼 서쪽 방송실도 옮겨 간다
-  const BC_SLOT = { console: [[-38.1, 3.5]], cctvRec: [[-39.7, 2.2]], tape: [[-30.4, 1.0], [-29.1, 1.0], [-27.6, 1.2], [-25.3, 1.1]], mina: [[-23.5, 6.5]], sq: [[-26.9, 2.5], [-25.6, 3.9], [-28.2, 3.9]] };
-  const BC_FREE = [[-35.2, 5.2], [-33.6, 5.4], [-36.4, 1.6], [-34.0, 2.6], [-24.4, 1.4], [-23.8, 3.4], [-30.2, 6.6], [-27.9, 6.4], [-32.6, 3.5]];
-  [BC_SLOT, { f: BC_FREE }].forEach(o => Object.values(o).forEach(l => l.forEach(q => { q[0] += BCS; })));
+  // 방송실 자리: 새 방송실 가구 배치(mainBuilding 'bcast') 기준 — X1 = 서쪽 첫 교실 칸 안쪽 벽
+  const BX = MAIN.layout.rooms.find(r => r.kind === 'class').x1 + MAIN.spec.wall / 2, BXP = BX + 9;
+  const BC_SLOT = { console: [[BX + 2.55, 3.9]], cctvRec: [[BX + 1.75, 9.05]], tape: [[BXP + 1.0, 1.05], [BXP + 2.2, 1.05], [BXP + 3.4, 1.05], [BXP + 4.6, 1.05]], mina: [[BX + 17.0, 7.4]], sq: [[BXP + 4.6, 6.2], [BXP + 1.8, 8.6], [BX + 4.6, 6.6]] };
+  // 5구역 장비 조사 지점: 이름에 맞는 장비 앞으로 (랙 · 스위처 · 믹서 · 편집 PC)
+  const BC_FZ = [[/랙|VTR|셀렉터/, [BX + 3.45, 1.5]], [/스위처|CRT/, [BX + 2.6, 2.0]], [/믹서|마이크/, [BX + 2.6, 5.7]], [/NLE|편집/, [BX + 5.6, 8.6]]];
+  const BC_FREE = [[BX + 4.4, 4.2], [BX + 6.6, 3.0], [BXP + 3.2, 5.6], [BXP + 5.2, 8.6], [BX + 6.2, 6.6], [BXP + 7.4, 6.0]];
   let bcFree = 0; const bcUsed = {};
   const bcTaken = [];
   const bcFreeSpot = () => {   // 방 안 격자에서 가구에 막히지 않고 다른 조사 지점과 1.2m 이상 떨어진 자리
     for (const [x, z] of BC_FREE) if (!bcTaken.some(([a, b]) => Math.hypot(a - x, b - z) < 1.2)) return [x, z];
-    for (let z = 1.3; z < 7.0; z += .65) for (let x = -39.4 + BCS; x < -23.0 + BCS; x += .65) { if (bcTaken.some(([a, b]) => Math.hypot(a - x, b - z) < 1.2)) continue; if (R.blocked && R.blocked(x, z, BCY, .45)) continue; return [x, z]; }
+    for (let z = 1.3; z < 9.0; z += .65) for (let x = BX + 2; x < BX + 17; x += .65) { if (bcTaken.some(([a, b]) => Math.hypot(a - x, b - z) < 1.2)) continue; if (R.blocked && R.blocked(x, z, BCY, .45)) continue; return [x, z]; }
     return BC_FREE[bcFree++ % BC_FREE.length];
   };
-  const bcSpot = kind => { const l = BC_SLOT[kind]; let s0 = null; if (l) { const i = bcUsed[kind] = (bcUsed[kind] ?? -1) + 1; if (i < l.length) s0 = l[i]; } const s1 = s0 || bcFreeSpot(); bcTaken.push(s1); return s1; };
+  const bcSpot = (kind, label = '') => { if (kind === 'fz') { const m = BC_FZ.find(([re, sp]) => re.test(label) && !bcTaken.includes(sp)); if (m) { bcTaken.push(m[1]); return m[1]; } } const l = BC_SLOT[kind]; let s0 = null; if (l) { const i = bcUsed[kind] = (bcUsed[kind] ?? -1) + 1; if (i < l.length) s0 = l[i]; } const s1 = s0 || bcFreeSpot(); bcTaken.push(s1); return s1; };
   if (floors[2]) for (const c of [...floors[2].interior.children]) { if (!c.userData.dynamic) continue; const w = c.getWorldPosition(new THREE.Vector3()); if (!inBC(w.x, w.z)) continue;
     const [x, z] = BC_SLOT.mina[0]; MAIN.root.attach(c); c.position.set(x, BCY + Math.max(0, w.y - BC.y0), z); c.rotation.y = -Math.PI / 2; }   // 민아 · 민아 소지품: 스튜디오 동쪽 구석 벽에 기대 앉음
   clearOld();
@@ -188,7 +190,7 @@ export function installRebuild({ THREE, scene, floors, world }) {
     }
     for (const p of world.props) {
       if (p._rb || !isOld(p.floor, p.x, p.z)) continue; p._rb = true; p._old = { f: p.floor, x: p.x, z: p.z };
-      if (p.floor === 2 && inBC(p.x, p.z) && !DROP.has(p.kind) && !TOILET.has(p.kind)) { const [x, z] = bcSpot(p.kind);
+      if (p.floor === 2 && inBC(p.x, p.z) && !DROP.has(p.kind) && !TOILET.has(p.kind)) { const [x, z] = bcSpot(p.kind, p.label || '');
         for (const k of Object.keys(p)) { const o = p[k]; if (o && o.isObject3D && k !== 'parent') { const w = o.getWorldPosition(new THREE.Vector3()); moveObj(o, x, BCY + Math.max(0, w.y - BC.y0), z); } }
         p.floor = 0; p.rbY = BCY; p.x = x; p.z = z; if (p.px != null) { p.px = x; p.pz = z; } moved++; continue; }
       if (inPassOld(p.floor, p.x, p.z) && R.gate) { const [nx, nz] = R.passToNew(p.x, p.z); p.floor = 0; p.rbY = FHB; p.x = nx; p.z = nz; if (p.px != null) [p.px, p.pz] = R.passToNew(p.px, p.pz); moved++; continue; }
@@ -366,8 +368,8 @@ export function installRebuild({ THREE, scene, floors, world }) {
 
   // ── 3단계: 위치 안내 ──
   // 새 건물 안인가 (각 건물 좌표계의 외곽 상자)
-  R.inBuilding = (x, z) => BLD.some(b => { const [lx, lz] = b.toLocal(x, z); if (b.layout) return lx > -b.layout.L / 2 - .3 && lx < b.layout.L / 2 + .3 && lz > b.layout.zN - .3 && lz < b.layout.zS + .3; return b.groundAt(lx, lz, 0) != null; });
-  R.floorLabel = (x, z, y) => { for (const b of [MAIN, ANX]) { const [lx, lz] = b.toLocal(x, z); if (lx > -b.layout.L / 2 - .3 && lx < b.layout.L / 2 + .3 && lz > b.layout.zN - .3 && lz < b.layout.zS + .3) return `${b.name} ${Math.round(y / FH) + 1}층`; } return R.inBuilding(x, z) ? '연결 통로' : null; };
+  R.inBuilding = (x, z) => BLD.some(b => { const [lx, lz] = b.toLocal(x, z); if (b.layout) return lx > -b.layout.L / 2 - .3 && lx < b.layout.L / 2 + .3 && lz > b.layout.zN - .3 && lz < b.layout.zS + .3; return b.groundAt(lx, lz, b.walk[0].h()) != null; });   // 구름다리: 바닥 높이 기준
+  R.floorLabel = (x, z, y) => { for (const b of [MAIN, ANX]) { const [lx, lz] = b.toLocal(x, z); if (lx > -b.layout.L / 2 - .3 && lx < b.layout.L / 2 + .3 && lz > b.layout.zN - .3 && lz < b.layout.zS + .3) return `${b.name} ${Math.round(y / FH) + 1}층`; } return R.inBuilding(x, z) ? '구름다리 (2층)' : null; };
   // 목표 위치(예전 좌표) → 새 위치: 옮긴 물건 중 원래 자리가 가장 가까운 것, 없으면 같은 비율의 새 방 가운데
   R.mapLoc = (l, world) => {
     if (!l || l.rbY != null || !isOld(l.f, l.x, l.z)) return l;

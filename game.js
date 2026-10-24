@@ -540,7 +540,7 @@ function objective() {
     const i=optSteps().indexOf(false), steps=['지하 펌프실에서 윤하늘의 명찰로 진실 확인','지하 전기실 예비 퓨즈와 차단기로 본관 전력 복구','3층 방송실에서 1998년 하교 방송 및 은폐 진실 송출','방송실 장비실에서 민아 선배 구출'];
     const fuse=world.items.find(it=>it.kind==='fuse');
     const loc=i===1&&!FL.fuse&&fuse?{f:fuse.floor,x:fuse.pos.x,z:fuse.pos.z,where:'예비 퓨즈 — 지하 창고'}:optLoc();
-    return {ch:6,main:'3층 방송실에서 은폐된 1998년의 진실과 하교 방송을 송출하고 민아 선배를 구출하라',loc,subs:steps.map((t,k)=>[t,optSteps()[k]])};
+    return {ch:6,main:'3층 방송실에서 학교가 숨긴 1998년 10월 12일의 진실을 폭로 방송으로 송출하고 민아 선배를 구출하라',loc,subs:steps.map((t,k)=>[t,optSteps()[k]])};
   }
   return {ch:6,main:'학교의 모든 비밀을 규명했다 — 민아 선배와 함께 정문 밖으로 나가 세상에 진실을 폭로하라',loc:LOC.gate,subs:[['진상 규명 기록부 완성 및 민아 구출',true],['정문을 열고 세상에 학교의 비밀 폭로하기',false]]};
 }
@@ -1964,7 +1964,7 @@ async function winGame() {
     try { const e = new Set(JSON.parse(localStorage.getItem(ENDINGS_KEY) || '[]')); e.add(end); e.add('final' + fin[0]); localStorage.setItem(ENDINGS_KEY, JSON.stringify([...e])); clearSlot(localStorage, SKEYS); } catch (err) { /* ignore */ }
     const vo = end === 'true' && !sosOnly ? 'endTrue' : 'endNormal';
     $('endTag').textContent = end === 'true' ? 'TRUE END' : 'NORMAL END'; $('endTag').className = end;
-    $('endTitle').textContent = sosOnly ? '옥상의 구조 신호' : allTags ? '모든 영혼의 구원' : end === 'true' ? '마지막 하교 방송' : '다시 닫힌 문';
+    $('endTitle').textContent = sosOnly ? '옥상의 구조 신호' : allTags ? '모든 영혼의 구원' : end === 'true' ? '폭로 방송' : '다시 닫힌 문';
     if (allTags) setTimeout(() => toast('TRUE END — 모든 영혼의 구원', '열두 개의 명찰이 주인을 찾아 돌아갔다. 1998년의 밤이 비로소 끝났다', 'opt'), 2500);
     $('winText').innerHTML = (sosOnly ? '정문을 나서자 멀리서 사이렌이 들렸다. 옥상에서 보낸 단 한 통의 문자가, 십 년 동안 아무도 오지 않던 학교에 사람들을 불러왔다.' : VO[vo].text) + `<br><br><span class="epi">${sosOnly ? '— 이튿날 새벽, 구조대는 본관 3층 방송실 장비실에서 잠든 학생 한 명을 더 찾아냈다. 민아였다. 그녀는 아무것도 기억하지 못했다.' : EPILOGUE[end]}</span><br><br><span class="epi">${FINAL_EPI[fin]}</span>` + (end === 'true' ? '' : '<br><br><small style="color:#8a8678">…민아는 아직 방송실에 있다. 하늘의 이야기를 끝내면 다른 결말을 볼 수 있다.</small>');
     if (end === 'normal') setTimeout(() => line('pa1', 'pa'), 9000);
@@ -3340,7 +3340,7 @@ function openGallery(tab = galTab) {
     statFlush(); const ST = statRead(), gs = document.createElement('div'); gs.className = 'galStats';
     gs.innerHTML = `<span>총 플레이 시간</span><b>${fmtPT(ST.total, true)}</b><span>엔딩 본 횟수</span><b>${ST.clears || 0}회</b><span>TRUE END 최단</span><b>${ST.best && ST.best.true ? fmtPT(ST.best.true, true, true) : '—'}</b><span>NORMAL END 최단</span><b>${ST.best && ST.best.normal ? fmtPT(ST.best.normal, true, true) : '—'}</b><span>마지막 엔딩</span><b>${ST.last ? `${ST.last.end === 'true' ? 'TRUE' : 'NORMAL'} · END ${ST.last.fin} · ${fmtPT(ST.last.t, true, true)}` : '—'}</b>`;
     gw.appendChild(gs);
-    fig('assets/ui/title_main.webp', 'assets/ui/title_main.webp', 'TRUE END — 마지막 하교 방송', !ends.includes('true'));
+    fig('assets/ui/title_main.webp', 'assets/ui/title_main.webp', 'TRUE END — 폭로 방송', !ends.includes('true'));
     fig('assets/img/gate_night.webp', 'assets/img/gate_night.webp', 'NORMAL END — 다시 닫힌 문', !ends.includes('normal'));
     fig('assets/img/ghost_cut.webp', 'assets/img/ghost_cut.webp', 'BAD END — 다시, 여기서', deaths === 0);
   }
@@ -3755,7 +3755,7 @@ async function useProp(p) {
     minaWake(); addClue('mina'); toast('민아를 찾았습니다', '함께 정문으로 — 진 엔딩 조건 달성', 'opt'); refreshHud(); save(true);
   }
 }
-// 진 엔딩 루트: 명찰을 가진 채 방송 → 하늘의 하교 방송 → 그것이 사라진다
+// 진 엔딩 루트: 명찰을 가진 채 방송 → 학교 은폐를 폭로하는 방송 → 그것이 사라진다
 async function haneulBroadcast() {
   const epoch=storySession, current=()=>epoch===storySession&&['playing','ui','note'].includes(state);
   if(voBusy)return;
@@ -7052,7 +7052,27 @@ registerLines({
   call_unk1: { spk: 'ghost', text: '……추워…… 여긴 물이 너무 차가워…… 왜 다들 나만 두고 먼저 집에 갔어……' },
   call_unk2: { spk: 'ghost', text: '……지금 네가 앉아 있는 그 의자…… 거기, 원래 내 자리야……' },
   call_guard: { spk: 'guard', text: '어이, 학생! 나 경비실이여. 아직도 본관 안에 있는 겨? 해가 다 떨어졌는디 거기 혼자 돌아댕기믄 큰일 나유! 복도에서 무슨 소리가 나도 절대 대답허지 말고, 어서 정문 쪽으로 나와유!' },
-  call_home: { spk: 'friend2', text: '여보세요? 얘, 너 지금 어디야! 왜 이렇게 전화가 끊겨…… 서문고 앞이라고? 거기 위험하니까 꼼짝 말고 정문 쪽에 나와 있어, 엄마가 지금 바로 갈게!' },
+  call_home: { spk: 'mom', text: '여보세요? 얘, 너 지금 어디야! 왜 이렇게 전화가 끊겨…… 서문고 앞이라고? 거기 위험하니까 꼼짝 말고 정문 쪽에 나와 있어, 엄마가 지금 바로 갈게!' },
+  // 엄마와의 통화 — 진행에 따라 세 번 (처음 · 증거를 모은 뒤 · 폭로 방송 뒤)
+  call_home_a1: { spk: 'mom', text: '여보세요? 얘, 너 지금 어디야! 왜 이렇게 전화가 자꾸 끊겨……' },
+  call_home_a2: { spk: 'mom', text: '서문고? 거기 십 년 전에 문 닫은 데잖아. 거기서 애 하나 없어졌던 거, 너도 알잖아.' },
+  call_home_a3: { spk: 'mom', text: '민아가 거길 왜 들어가…… 알았어. 엄마가 지금 바로 차 끌고 갈게. 정문 쪽에서 절대 움직이지 마.' },
+  call_home_a4: { spk: 'mom', text: '그리고 얘…… 누가 이름 불러도 대답하지 마. 그 학교 얘긴…… 아니다. 그냥, 조심해. 알았지?' },
+  call_home_b1: { spk: 'mom', text: '또 너구나…… 엄마 지금 고가도로 위야. 비가 와서 차가 꼼짝도 안 해.' },
+  call_home_b2: { spk: 'mom', text: '뭐? 그 애가 실종된 게 아니라고? 그때 교장이 뉴스에 나와서 그랬어. 아이가 하교하다가 사라졌다고…… 다들 그 말을 믿었어.' },
+  call_home_b3: { spk: 'mom', text: '그게 정말 증거면…… 사진 찍어 둬, 전부. 엄마 친구가 신문사에 있어. 근데 너부터 살아서 나와야 해. 약속해.' },
+  call_home_c1: { spk: 'mom', text: '방금 라디오에서…… 네 목소리가 나왔어. 서문고등학교 방송실이라고.' },
+  call_home_c2: { spk: 'mom', text: '그 애 엄마도 지금 이 방송을 듣고 있겠지…… 십 년 동안, 얼마나 기다렸을까.' },
+  call_home_c3: { spk: 'mom', text: '정문 앞에 경찰차가 와 있어. 천천히, 침착하게 나와. 엄마 여기 있어. 장하다, 우리 애.' },
+  // 119 종합상황실 — 처음 신고 · 지하 펌프실 기록을 찾은 뒤
+  call_119_a1: { spk: 'dispatcher', text: '네, 119 종합상황실입니다. 신고자분, 천천히 말씀해 주세요.' },
+  call_119_a2: { spk: 'dispatcher', text: '폐교된 서문고등학교 안이요? 전파가 많이 끊깁니다. 지금 다치신 데는 없으십니까?' },
+  call_119_a3: { spk: 'dispatcher', text: '위치 추적 들어갑니다. 잠시만요…… 확인됐습니다. 본관 쪽이네요. 서문소방서 구조대에 출동 지시했습니다.' },
+  call_119_a4: { spk: 'dispatcher', text: '도착까지 이십 분 정도 걸립니다. 잠긴 공간에는 들어가지 마시고, 휴대폰 배터리를 아끼세요.' },
+  call_119_a5: { spk: 'dispatcher', text: '혹시 거기 다른 분도 계십니까? …… 여보세요? 신고자분? 방금 뒤에서 들린 목소리는…… 누구죠?' },
+  call_119_b1: { spk: 'dispatcher', text: '네, 상황실입니다. 아까 서문고에서 신고하신 분 맞으시죠? 구조대가 정문 쇠사슬을 끊고 있습니다.' },
+  call_119_b2: { spk: 'dispatcher', text: '지하 펌프실이요? 잠시만요…… 1998년 10월 13일 새벽, 같은 학교 같은 장소로 구급 출동 기록이 있네요. 신고는 사고 일곱 시간 뒤에 들어왔습니다.' },
+  call_119_b3: { spk: 'dispatcher', text: '그 기록, 저희 쪽에도 남아 있습니다. 경찰에 같이 넘기겠습니다. 지금은 신고자분 안전이 먼저입니다. 정문으로 오세요.' },
   call_119: { spk: 'narrator', text: '119 종합상황실입니다. 전파 상태가 매우 불안정합니다. 폐교된 서문고등학교 내부라고요? 위치 추적 완료했습니다. 구조대가 정문으로 출동 중이니 즉시 정문 쪽으로 대피하십시오.' },
   call_fail: { spk: 'narrator', text: '지금 거신 전화는 전파 음영 지역이거나 연결할 수 없습니다. 옥상 중계기를 점검하거나 내선 번호를 이용해 주십시오.' },
 });
@@ -7219,12 +7239,14 @@ function callOut(id) {
     callTalk(c.name, ['pa1'], true); return;
   }
   if (id === '119' && sig) {
-    CALL.log.push({ who: '119 종합상황실', t: clockText(), kind: '발신', lines: ['call_119'], summary: '서문고 위치 추적 및 정문 구조대 출동 확인' });
-    callTalk('119 종합상황실', ['call_119'], false, '119'); FL.call119 = true; return;
+    const late = FL.call119 && (P.keys >= 3 || FL.tag), lines = late ? ['call_119_b1', 'call_119_b2', 'call_119_b3'] : ['call_119_a1', 'call_119_a2', 'call_119_a3', 'call_119_a4', 'call_119_a5'];
+    CALL.log.push({ who: '119 종합상황실', t: clockText(), kind: '발신', lines, summary: late ? '1998년 펌프실 구급 출동 기록 확인 · 경찰 이관' : '서문고 위치 추적 및 정문 구조대 출동 확인' });
+    callTalk('119 종합상황실', lines, false, '119'); FL.call119 = true; return;
   }
   if (id === 'home' && sig) {
-    CALL.log.push({ who: '집 (엄마)', t: clockText(), kind: '발신', lines: ['call_home'], summary: '정문 앞 대기 당부' });
-    callTalk('집 (엄마)', ['call_home'], false, 'home'); return;
+    const st = FL.calm || FL.gatePower ? 'c' : P.keys >= 3 ? 'b' : 'a', lines = { a: ['call_home_a1', 'call_home_a2', 'call_home_a3', 'call_home_a4'], b: ['call_home_b1', 'call_home_b2', 'call_home_b3'], c: ['call_home_c1', 'call_home_c2', 'call_home_c3'] }[st];
+    CALL.log.push({ who: '집 (엄마)', t: clockText(), kind: '발신', lines, summary: { a: '정문 앞 대기 당부 · 누가 불러도 대답하지 말 것', b: '증거 사진을 찍어 두라는 당부', c: '라디오로 폭로 방송을 들은 엄마' }[st] });
+    callTalk('집 (엄마)', lines, false, 'home'); return;
   }
   if (id === 'mina') {
     if (FL.mina) { toast('민아 선배', '선배는 이미 구출되어 내 곁에 있다. 함께 정문으로 나가자.', 'info'); return; }

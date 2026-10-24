@@ -37,6 +37,8 @@ const SPEAKER = {
   musicTeacher: '📼 음악교사 · 윤서경',
   artTeacher: '📼 미술교사 · 박정우',
   janitor: '📼 환경미화원 · 김순례',
+  mom: '🏠 엄마',
+  dispatcher: '🚑 119 종합상황실',
 };
 
 // 브라우저 음성: 화자별 성별 ('f': 여성 / 'm': 남성)
@@ -45,7 +47,7 @@ const GENDER = {
   nurse: 'f', witness_nurse: 'f', homeroom: 'f', librarian: 'f', counselor: 'f', witness_counselor: 'f',
   jihun: 'm', narrator: 'm', reporter: 'm', principal: 'm', witness_principal: 'm',
   scienceTeacher: 'm', witness_science: 'm', peTeacher: 'm', headTeacher: 'm', teacher: 'm', pa: 'm', guard: 'm',
-  junho: 'm', paramedic: 'm', vicePrincipal: 'm', electrician: 'm', snackLady: 'f', mother: 'f', dormMother: 'f', cook: 'f', musicTeacher: 'f', janitor: 'f', artTeacher: 'm',
+  junho: 'm', paramedic: 'm', vicePrincipal: 'm', electrician: 'm', snackLady: 'f', mother: 'f', dormMother: 'f', cook: 'f', musicTeacher: 'f', janitor: 'f', artTeacher: 'm', mom: 'f', dispatcher: 'f',
 };
 
 // 나이 · 성별 · 역할에 맞춘 정밀 음높이

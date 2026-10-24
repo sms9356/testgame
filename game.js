@@ -1286,6 +1286,7 @@ function findInteract() {
   let best = null, bs = 0;
   for (const it of world.items) {
     if (it.taken || it.locked || it.floor !== P.floor) continue;
+    if (it.rbY != null && Math.abs(it.rbY - (P.sh || 0)) > 1.6) continue;   // 새 건물: 다른 층
     const dx = it.pos.x - P.x, dz = it.pos.z - P.z, d = Math.hypot(dx, dz);
     if (d > 2.3 || !los(floors[P.floor].walls, P.x, P.z, it.pos.x, it.pos.z) || !los(floors[P.floor].doorWalls || [], P.x, P.z, it.pos.x, it.pos.z)) continue;
     const f = (dx * fx + dz * fz) / Math.max(d, .01);
@@ -1307,7 +1308,8 @@ function findInteract() {
     if (f > .2 && s > bs) { bs = s; best = { type: 'idoor', d, label: (d.target > .5 ? `${d.name} 닫기` : `${d.name} 열기`) }; }
   }
   for (const p of world.props) {
-    if (p.floor !== P.floor || p.done || (p.after && !p.after.done)) continue;   /* after: 수색을 마친 뒤에야 나오는 조사 (사물함 문 여닫기) */
+    if (p.floor !== P.floor || p.done || (p.after && !p.after.done)) continue;
+    if (p.rbY != null && Math.abs(p.rbY - (P.sh || 0)) > 1.6) continue;   // 새 건물: 다른 층   /* after: 수색을 마친 뒤에야 나오는 조사 (사물함 문 여닫기) */
     let dx = p.x - P.x, dz = p.z - P.z, dd = Math.hypot(dx, dz);
     if (p.kind === 'switch') {   // 스위치: 벽 앞쪽(방 안)에서, 스위치를 바라볼 때만
       if ((P.x - p.px) * (p.x - p.px) + (P.z - p.pz) * (p.z - p.pz) <= 0) continue;
@@ -1325,8 +1327,8 @@ function findInteract() {
   }
   if (!best) {
     const si = STAIRS[P.floor];
-    const inStair = !si ? false : P.floor === 3 ? (Math.abs(P.x) < 4.5 && P.z < -4.35 && P.z > -9.5) : (() => { const z = floors[P.floor].stairZone || { x1: -1, x2: 4, z1: -9.3, z2: -2 }; return P.x > z.x1 && P.x < z.x2 && P.z > z.z1 && P.z < z.z2; })();
-    const dr = world.doors.find(d => !d.seamless && d.floor === P.floor && Math.hypot(d.x - P.x, d.z - P.z) < d.r);
+    const inStair = !si || (RBG && P.floor === 0) ? false : P.floor === 3 ? (Math.abs(P.x) < 4.5 && P.z < -4.35 && P.z > -9.5) : (() => { const z = floors[P.floor].stairZone || { x1: -1, x2: 4, z1: -9.3, z2: -2 }; return P.x > z.x1 && P.x < z.x2 && P.z > z.z1 && P.z < z.z2; })();
+    const dr = world.doors.find(d => !d.seamless && d.floor === P.floor && (d.rbY == null || Math.abs(d.rbY - (P.sh || 0)) < 1.6) && Math.hypot(d.x - P.x, d.z - P.z) < d.r);
     if (inStair && floors[P.floor].stairCx == null && P.floor !== 3 && !(dr && Math.hypot(dr.x - P.x, dr.z - P.z) < 1.5)) {   // 걸어 다니는 계단이 있는 층은 순간이동 없음
       const up = si.up != null, down = si.down != null;
       const ul = si.up === 3 ? '옥상으로' : si.up === 0 ? '1층으로' : '위층', dl = si.down === 4 ? '지하층 (B1)' : '아래층';
@@ -1442,6 +1444,7 @@ function enrage() {
 const STAIRS = { 0: { up: 1, down: 4 }, 1: { up: 2, down: 0 }, 2: { up: 3, down: 1 }, 3: { down: 2 }, 4: { up: 0 }, 8: { up: 9 }, 9: { up: 10, down: 8 }, 10: { down: 9 } };
 function teleport(to) {
   if (state !== 'playing') return;
+  if (RBG && RBG.b1Return && to.floor === 0 && P.floor === 4) to = RBG.b1Return;   // 새 건물: B1 에서 올라오면 서쪽 계단실 입구로
   state = 'trans'; $('fade').style.opacity = 1; sfx.stairs();
   setTimeout(() => {
     P.floor = to.floor; P.x = to.x; P.z = to.z; P.yaw = to.yaw; P.pitch = 0; P.sh = null; P.shV = 0; toastFloor(to.floor);
@@ -8342,7 +8345,11 @@ initSaveIds();
 applyQuality(SET.quality === 'auto' ? 'mid' : SET.quality);
 applySettings();
 // 로딩 화면을 즉시 닫고(동기식), 텍스처 예산·성능 풀·모델 로드는 백그라운드에서 비동기로 진행한다 (초기 로딩 멈춤 원천 차단)
-if (params.has('rb')) { RBG = installRebuild({ THREE, scene, floors, world }); window.__rbg = RBG; }
+if (params.has('rb')) { RBG = installRebuild({ THREE, scene, floors, world }); window.__rbg = RBG;
+  // 2단계: 예전 건물의 열쇠 · 쪽지 · 조사 지점을 새 방으로 (나중에 생기는 조사 지점도 몇 번 더 옮긴다)
+  const sz4 = floors[4] && floors[4].stairZone, b1 = sz4 ? sz4.spawn : { x: ((floors[4] && floors[4].stairCx) || 0) + .8, z: -5.2 };
+  const rel = () => { const r = RBG.relocate({ world, floors, stairSpawnB1: b1 }); if (r.moved || r.dropped) console.info('[rebuild] 옮김', r); };
+  rel(); [3000, 10000, 25000, 60000, 120000].forEach(ms => setTimeout(rel, ms)); }
 installPerf({ THREE, renderer, scene, camera, floors, world });
 const _t3 = performance.now();
 window.__loadTimes = { textures: Math.round(_t1 - _t0), build: Math.round(_t2 - _t1), warmup: Math.round(_t3 - _t2) };

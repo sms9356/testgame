@@ -1,5 +1,4 @@
 // 예전 건물 메시를 삼각형 단위로 다룬다.
-//   pick: 조건에 맞는 삼각형만 복사해 새 자리(행렬 T)로 옮긴 메시를 만든다 (예전 방송실 설비 → 새 본관 방송실)
 //   carve: 조건에 맞는 삼각형을 지운다 (층 전체를 하나로 합친 메시에서 예전 건물 부분만 걷어 낸다)
 import * as THREE from '../vendor/three.module.js';
 
@@ -35,25 +34,6 @@ const grouped = (geo, byMat) => {   // 재질별 삼각형 목록 → 그룹 달
   const flat = [], groups = []; for (const [mi, list] of byMat) { groups.push({ start: flat.length, count: list.length, materialIndex: mi }); flat.push(...list); }
   return { flat, groups };
 };
-
-export function pick(root, pred, T, skip) {
-  const out = new THREE.Group(); out.name = 'TRANSPLANT'; out.userData.dynamic = true; const im4 = new THREE.Matrix4(), w = new THREE.Matrix4(), p = new THREE.Vector3();
-  root.updateMatrixWorld(true);
-  root.traverse(m => {
-    if (!m.isMesh || m.isSkinnedMesh || (skip && skip(m))) return;
-    if (m.isInstancedMesh) {
-      const keep = []; for (let i = 0; i < m.count; i++) { m.getMatrixAt(i, im4); w.multiplyMatrices(m.matrixWorld, im4); p.setFromMatrixPosition(w); if (pred(p.x, p.y, p.z)) keep.push(new THREE.Matrix4().multiplyMatrices(T, w)); }
-      if (!keep.length) return; const c = new THREE.InstancedMesh(m.geometry, m.material, keep.length); keep.forEach((q, i) => c.setMatrixAt(i, q)); c.frustumCulled = false; out.add(c); return;
-    }
-    const byMat = new Map();
-    eachTri(m, (mi, i0, i1, i2, x, y, z) => { if (pred(x, y, z)) { const l = byMat.get(mi) || byMat.set(mi, []).get(mi); l.push(i0, i1, i2); } });
-    if (!byMat.size) return;
-    const { flat, groups } = grouped(m.geometry, byMat), M = new THREE.Matrix4().multiplyMatrices(T, m.matrixWorld);
-    const g = build(m.geometry, flat, M); if (Array.isArray(m.material)) groups.forEach(q => g.addGroup(q.start, q.count, q.materialIndex));
-    const c = new THREE.Mesh(g, m.material); c.castShadow = m.castShadow; c.receiveShadow = m.receiveShadow; c.userData.dynamic = true; out.add(c);
-  });
-  return out;
-}
 
 // 조건에 맞는 삼각형을 지운다. 지운 삼각형 수를 돌려준다 (전부 지워지면 감춘다)
 export function carve(mesh, pred) {

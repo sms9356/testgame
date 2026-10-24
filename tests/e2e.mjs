@@ -100,7 +100,7 @@ async function trueRun() {
   await use(p, 'breaker'); ok(!(await E(p, () => __g.power)), '퓨즈 없이 차단기 불가');
   await take(p, 'fuse'); await use(p, 'breaker'); await winMini(p); ok(await E(p, () => __g.power), '퓨즈 + 배선 → 전력 복구');
   await saveReload(p, '전력 후'); ok(await E(p, () => __g.power) && await E(p, () => __g.world.props.find(q => q.kind === 'breaker').on), '복원: 차단기 켜짐');
-  await use(p, 'console'); await winMini(p); ok(await E(p, () => __g.FL.tapesDone), '마지막 방송: 녹음 순서 복원');
+  await use(p, 'console'); await E(p, () => __g.bcAuto()); await winMini(p); ok(await E(p, () => __g.FL.tapesDone), '마지막 방송: 녹음 순서 복원');
   await W(p, 16000); ok(await E(p, () => __g.FL.calm && !__g.ghost.active), '하교 방송 → 그것이 사라짐');
   await saveReload(p, '방송 후'); ok(await E(p, () => __g.FL.calm && !__g.ghost.active), '복원: 방송 완료 · 그것 비활성');
   await use(p, 'mina'); await W(p, 4000); ok(await E(p, () => __g.FL.mina), '민아 깨우기');

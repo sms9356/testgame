@@ -194,7 +194,7 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 const scene = new THREE.Scene();
 const staticLOD = createStaticDistanceLOD(scene);
-const textureBudget = createTextureBudget({ quality: SET.quality === 'auto' ? 'mid' : SET.quality });
+const textureBudget = createTextureBudget({ quality: SET.quality === 'auto' ? 'high' : SET.quality === 'ultra' ? 'high' : SET.quality });
 scene.background = new THREE.Color(0x05070d);
 scene.fog = new THREE.FogExp2(0x070a12, 0.03);
 const FOG_IN = new THREE.Color(0x060708), FOG_OUT = new THREE.Color(0x0c1424);
@@ -2210,7 +2210,7 @@ function restoreProp(p, s) {
   p.done = true;
   if (p.kind === 'safe') { p.open = 1; p.opening = true; if (p.piv) p.piv.rotation.y = 1.95; p.key.locked = false; p.key.mesh.visible = !p.key.taken; }
   else if (p.kind === 'lock') openLockVisual(p);
-  else if (p.kind === 'mina') { mina.visible = false; minaProps.visible = false; }
+  else if (p.kind === 'mina') { if (FL.mina) minaFollowStart(); else { mina.visible = false; minaProps.visible = false; } }
 }
 function load(preferBackup) {
   const r = (() => { try { return readSlot(localStorage, SKEYS, SCTX, preferBackup); } catch (e) { return { data: null }; } })();
@@ -3488,7 +3488,8 @@ let last = performance.now();
 function frameBody(now) {
   const dt = Math.min(.066, Math.max(0, (now - last) / 1000)); last = now; tNow += dt;
   perfTick(dt);
-  if (RBG) RBG.cull(dt, P);   // 새 건물 실내 소품: 지금 층만 (인트로 · 메뉴 중에도)
+  if (RBG) RBG.cull(dt, P);
+  minaFollowTick(dt);   // 새 건물 실내 소품: 지금 층만 (인트로 · 메뉴 중에도)
   npcVisuals.update(dt);
   if (state === 'ui') { updateSound(dt); return; }
   $('clickHint').classList.toggle('show', state === 'playing' && !document.pointerLockElement && !DEBUG && !TEST_NOLOCK);   // 소지품 · 지도 · 미니게임 중에는 3D를 다시 그리지 않는다 (마지막 화면 유지)
@@ -3771,6 +3772,65 @@ function setupAnnex() {
   anxCabinetVisual();
 }
 
+/* ----- 민아 동행: 방송실에서 깨운 뒤 사라지지 않고 플레이어를 따라다닌다 ----- */
+const MINA_F = { on: false, anim: '', talkT: 40, lastFloor: -1 };
+const MINA_TALK = ['…발소리, 우리 둘 것만 맞지?', '하늘 언니 방송 원고, 내가 아직 외우고 있어.', '여기 말고 B1… 거기가 끝이야. 알잖아.', '조금만 천천히 가. 숨이 차.', '정문 경비실 아저씨… 그날 밤 다 들었대.', '손전등 꺼지면 말해. 내 거 아직 남았어.', '증거 다 모이면, 방송실 콘솔 내가 같이 잡아 줄게.'];
+function minaFollowStart() {
+  if (!mina) return; MINA_F.on = true; FL.minaFollow = true;
+  scene.attach(mina); mina.visible = true; mina.traverse(o => { if (o.material && o.material.transparent && o.material.opacity < 1) { o.material.opacity = 1; o.material.transparent = false; } });
+  MINA_F.anim = ''; MINA_F.lastFloor = -1;
+}
+function minaPlay(n) { if (MINA_F.anim === n) return; MINA_F.anim = n; if (npcVisuals.has(mina)) npcVisuals.play(mina, n, { fade: .25 }); }
+function minaFollowTick(dt) {
+  if (!MINA_F.on || !mina) return;
+  const fy = (floors[P.floor]?.y0 || 0) + (P.sh || 0), bx = P.x + Math.sin(P.yaw) * 1.5, bz = P.z + Math.cos(P.yaw) * 1.5;
+  const dx = bx - mina.position.x, dz = bz - mina.position.z, d = Math.hypot(dx, dz), dp = Math.hypot(P.x - mina.position.x, P.z - mina.position.z);
+  if (MINA_F.lastFloor !== P.floor || Math.abs(mina.position.y - fy) > 1.6 || dp > 14) { mina.position.set(bx, fy, bz); MINA_F.lastFloor = P.floor; minaPlay('Idle'); return; }
+  mina.position.y += (fy - mina.position.y) * Math.min(1, dt * 8);
+  if (dp > 1.9 && d > .25) { const sp = dp > 5 ? 3.8 : 1.6, st = Math.min(d, sp * dt); mina.position.x += dx / d * st; mina.position.z += dz / d * st; mina.rotation.y = Math.atan2(dx, dz); minaPlay(dp > 5 ? 'Run' : 'Walk'); }
+  else { minaPlay(ghost.active && ghost.floor === P.floor ? 'ScaredIdle' : 'Idle'); const ty = Math.atan2(P.x - mina.position.x, P.z - mina.position.z); mina.rotation.y += Math.atan2(Math.sin(ty - mina.rotation.y), Math.cos(ty - mina.rotation.y)) * Math.min(1, dt * 4); }
+  if (state === 'playing' && !isSpeechBusy() && (MINA_F.talkT -= dt) <= 0) { MINA_F.talkT = 70 + Math.random() * 60; subtitle('민아', MINA_TALK[(Math.random() * MINA_TALK.length) | 0], 3.4); }
+}
+/* ----- 방송실 주조정 콘솔: 전원 → 앰프 예열 → 송출 구역 → 마이크 페이더 → (테이프) → ON AIR ----- */
+const BC = { power: false, amp: 0, ch: '', fader: 0, tape: false, raf: 0, hum: null };
+const BC_CH = [['all', '교내 전체'], ['main', '본관'], ['annex', '별관'], ['yard', '운동장'], ['dorm', '청운학사']];
+function bcHum(on) {
+  try { const ac = sfxCtx; if (!ac || !ac.createOscillator) return;
+    if (on && !BC.hum) { const g = ac.createGain(); g.gain.value = 0; g.connect(ac.destination); const o1 = ac.createOscillator(), o2 = ac.createOscillator(); o1.frequency.value = 60; o2.frequency.value = 120; o2.type = 'triangle'; o1.connect(g); o2.connect(g); o1.start(); o2.start(); g.gain.setTargetAtTime(.035, ac.currentTime, .4); BC.hum = { g, o1, o2 }; }
+    if (!on && BC.hum) { const h = BC.hum; BC.hum = null; h.g.gain.setTargetAtTime(0, ac.currentTime, .15); setTimeout(() => { try { h.o1.stop(); h.o2.stop(); } catch (e) { /* stopped */ } }, 600); }
+  } catch (e) { /* 오디오 없음 */ }
+}
+function bcSqueal() { try { const ac = sfxCtx, o = ac.createOscillator(), g = ac.createGain(); o.frequency.setValueAtTime(2400, ac.currentTime); o.frequency.linearRampToValueAtTime(3100, ac.currentTime + .9); g.gain.setValueAtTime(.0, ac.currentTime); g.gain.linearRampToValueAtTime(.08, ac.currentTime + .15); g.gain.linearRampToValueAtTime(0, ac.currentTime + 1); o.connect(g); g.connect(ac.destination); o.start(); o.stop(ac.currentTime + 1.05); } catch (e) { /* 오디오 없음 */ } }
+function bcRender() {
+  const box = $('anxBody'), ok = BC.power && BC.amp >= 1 && BC.ch === 'all' && BC.fader >= 60;
+  const led = on => `<span style="display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;background:${on ? '#4f4' : '#422'};box-shadow:${on ? '0 0 8px #4f4' : 'none'}"></span>`;
+  box.innerHTML = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+   <div style="background:#141816;border:1px solid #445;padding:10px;border-radius:6px"><b>① 메인 전원</b><div style="margin:8px 0">${led(BC.power)}${BC.power ? 'AC 220V 입력' : '꺼짐'}</div><button id="bcPow">${BC.power ? '전원 끄기' : '전원 켜기'}</button></div>
+   <div style="background:#141816;border:1px solid #445;padding:10px;border-radius:6px"><b>② 파워 앰프</b><div style="margin:8px 0">${led(BC.amp >= 1)}${BC.amp >= 1 ? '예열 완료' : BC.amp > 0 ? `예열 중 ${Math.round(BC.amp * 100)}%` : '대기'}</div><div style="height:6px;background:#222"><div style="height:6px;width:${BC.amp * 100}%;background:#c93"></div></div><button id="bcAmp" style="margin-top:6px" ${BC.power ? '' : 'disabled'}>앰프 ON</button></div>
+   <div style="background:#141816;border:1px solid #445;padding:10px;border-radius:6px;grid-column:1/3"><b>③ 송출 구역</b><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">${BC_CH.map(([k, n]) => `<button data-ch="${k}" style="${BC.ch === k ? 'background:#2f5a44' : ''}">${n}</button>`).join('')}</div></div>
+   <div style="background:#141816;border:1px solid #445;padding:10px;border-radius:6px"><b>④ 마이크 페이더</b><input id="bcFad" type="range" min="0" max="100" value="${BC.fader}" style="width:100%"><canvas id="bcMeter" width="260" height="22" style="width:100%;background:#000"></canvas><button id="bcTest">마이크 테스트</button></div>
+   <div style="background:#141816;border:1px solid #445;padding:10px;border-radius:6px"><b>⑤ 카세트 데크</b><div style="margin:8px 0">${led(BC.tape)}${FL.tag ? '명찰 녹음 테이프 장착' : '빈 데크'}</div><button id="bcTape" ${BC.power ? '' : 'disabled'}>${BC.tape ? '■ 정지' : '▶ 재생 대기'}</button></div>
+  </div>
+  <div style="margin-top:12px;display:flex;align-items:center;gap:12px"><button id="bcAir" ${ok ? '' : 'disabled'} style="font-size:18px;padding:10px 22px;background:${ok ? '#a01818' : '#3a2222'};color:#fff;border-radius:6px">● ON AIR</button>
+  <span style="font-size:12px;opacity:.8">${ok ? (FL.tag ? '폭로 방송 준비 완료 — 그날 밤의 진실을 송출한다' : '교내 방송 송출 가능') : '전원 · 앰프 예열 · 교내 전체 · 페이더 60 이상'}</span></div>`;
+  $('bcPow').onclick = () => { BC.power = !BC.power; if (!BC.power) { BC.amp = 0; BC.tape = false; bcHum(false); } else { sfx.clank ? sfx.clank() : sfx.click(); } sfx.click(); bcRender(); };
+  $('bcAmp').onclick = () => { if (!BC.power || BC.amp > 0) return; sfx.click(); bcHum(true); BC.amp = .01; bcRender(); };
+  box.querySelectorAll('[data-ch]').forEach(b => b.onclick = () => { BC.ch = b.dataset.ch; sfx.beep(); bcRender(); });
+  $('bcFad').oninput = e => { BC.fader = +e.target.value; if (BC.fader > 92 && BC.amp >= 1) bcSqueal(); };
+  $('bcFad').onchange = () => bcRender();
+  $('bcTest').onclick = () => { if (!BC.power || BC.amp < 1) { say('앰프가 켜져 있지 않다', 1400); return; } if (BC.fader > 85) { bcSqueal(); say('하울링! 페이더를 조금 내리자', 1600); } else { sfx.beep(); setTimeout(() => sfx.beep(), 180); } };
+  $('bcTape').onclick = () => { BC.tape = !BC.tape; sfx.click(); if (BC.tape) sfx.staticNoise?.(.5); bcRender(); };
+  $('bcAir').onclick = () => { closeUI(); bcHum(false); bcOnAir(); };
+}
+function bcLoop() {
+  if (anxView !== 'bcast' || !$('annexOv').classList.contains('show')) { cancelAnimationFrame(BC.raf); BC.raf = 0; bcHum(false); return; }
+  if (BC.amp > 0 && BC.amp < 1) { BC.amp = Math.min(1, BC.amp + .008); if (BC.amp >= 1) { sfx.beep(); bcRender(); } }
+  const c = $('bcMeter'); if (c) { const g = c.getContext('2d'), lv = BC.power && BC.amp >= 1 ? BC.fader / 100 * (.55 + Math.random() * .45) : 0; g.fillStyle = '#000'; g.fillRect(0, 0, 260, 22); for (let i = 0; i < 26; i++) { if (i / 26 > lv) break; g.fillStyle = i > 21 ? '#f33' : i > 16 ? '#fc3' : '#3f6'; g.fillRect(i * 10 + 1, 3, 8, 16); } }
+  BC.raf = requestAnimationFrame(bcLoop);
+}
+function bcOnAir() { if (FL.tag) { haneulBroadcast(); return; } useProp({ kind: 'bcOnAir' }); }
+function bcOpen() { anxView = 'bcast'; $('anxTitle').textContent = '방송실 주조정 콘솔'; openUI('annexOv'); bcRender(); cancelAnimationFrame(BC.raf); BC.raf = requestAnimationFrame(bcLoop); }
+
 async function useProp(p) {
   if (p.kind === 'ganx') return useAnnex(p);
   if (p.kind === 'b1door') {
@@ -3837,8 +3897,9 @@ async function useProp(p) {
   } else if (p.kind === 'console') {
     if (!power) { sfx.click(); talk('needPower', 3200); say('전원이 들어오지 않는다. 지하 전기실의 차단기를 올려야 한다.', 2800); return; }
     if (FL.calm) { say('스피커는 이제 조용하다.', 2000); return; }
-    if (FL.tag) { haneulBroadcast(); return; }
-    if (consoleCD > 0) { sfx.buzz(); say(`장비가 과열됐다… (${Math.ceil(consoleCD)}초)`, 2000); return; }
+    if (consoleCD > 0 && !FL.tag) { sfx.buzz(); say(`장비가 과열됐다… (${Math.ceil(consoleCD)}초)`, 2000); return; }
+    bcOpen(); return;
+  } else if (p.kind === 'bcOnAir') {
     consoleCD = 90; sfx.broadcast(); setTimeout(() => line('pa1', 'pa'), 800);
     toast('교내 방송', '빈 교실의 스피커에서 같은 문장이 반복된다', 'warn');
     talk('lure', 3200); if (FL.opt) setTimeout(() => talk('needTag', 3400), 5200);
@@ -3908,14 +3969,14 @@ async function haneulBroadcast() {
 }
 // 민아 깨우기: 3D 모델이면 깨어남(이마 짚기 · 두리번) → 일어서기 → 안도 표정 뒤 사라짐. 아니면 바로 사라짐
 async function minaWake() {
-  if (!npcVisuals.has(mina)) { fadeOut(mina, 1.2); fadeOut(minaProps, 1.2); return; }
+  if (!npcVisuals.has(mina)) { minaFollowStart(); return; }
   const E = (n, v) => npcVisuals.setExpression(mina, n, v);
   E('Asleep', 0); mina.userData.noBlink = false; E('Pain', .55);
   await npcVisuals.play(mina, 'Recovery', { once: true, fade: .4 });
   E('Pain', 0); E('Sad', .35);
   await npcVisuals.play(mina, 'StandUp', { once: true, fade: .25 });
   E('Sad', 0); E('Relief', .8); npcVisuals.play(mina, 'Idle', { fade: .4 });
-  setTimeout(() => { fadeOut(mina, 1.4); fadeOut(minaProps, 1.4); }, 1600);
+  setTimeout(() => minaFollowStart(), 1600);   // 사라지지 않고 같이 다닌다
 }
 function fadeOut(obj, sec) {
   const ms = []; obj.traverse(o => { if (o.material) { o.material = o.material.clone(); o.material.transparent = true; ms.push(o.material); } });
@@ -4871,12 +4932,14 @@ function libraryReturn() {
 }
 
 /* ---------- 성능 / 그래픽 품질 ---------- */
-const QUAL = { high: { pr: 1.5, sh: 1024, label: '높음' }, mid: { pr: 1, sh: 512, label: '보통' }, low: { pr: 1, sh: 0, label: '낮음' } };
-let qCur = SET.quality === 'auto' ? 'mid' : SET.quality, perfAcc = 0, perfN = 0, perfWin = 0, fpsShown = 60;
+const QUAL = { ultra: { pr: 2, sh: 2048, label: '최고' }, high: { pr: 1.5, sh: 1024, label: '높음' }, mid: { pr: 1, sh: 512, label: '보통' }, low: { pr: 1, sh: 0, label: '낮음' } };
+let perfUp = 0; const perfDowned = {};
+let qCur = SET.quality === 'auto' ? 'high' : SET.quality, perfAcc = 0, perfN = 0, perfWin = 0, fpsShown = 60;
 function applyQuality(q) {
   qCur = q; const c = QUAL[q];
-  textureBudget.setQuality(q).catch(e => console.warn('[texture budget]', e));
-  renderer.setPixelRatio(Math.min(devicePixelRatio, c.pr) * SET.scale); renderer.setSize(innerWidth, innerHeight); fx.resize(innerWidth, innerHeight, renderer.getPixelRatio()); fx.setQuality(q);
+  const q3 = q === 'ultra' ? 'high' : q;   // 텍스처 예산 · 후처리는 high 와 같은 단계 (픽셀 비율 · 그림자만 더 높다)
+  textureBudget.setQuality(q3).catch(e => console.warn('[texture budget]', e));
+  renderer.setPixelRatio(Math.min(devicePixelRatio, c.pr) * SET.scale); renderer.setSize(innerWidth, innerHeight); fx.resize(innerWidth, innerHeight, renderer.getPixelRatio()); fx.setQuality(q3);
   const sh = c.sh > 0;
   if (sh && flash.shadow.mapSize.x !== c.sh) { flash.shadow.mapSize.set(c.sh, c.sh); if (flash.shadow.map) { flash.shadow.map.dispose(); flash.shadow.map = null; } }
   if (renderer.shadowMap.enabled !== sh || flash.castShadow !== sh) {
@@ -4890,7 +4953,10 @@ function perfTick(dt) {
   if (perfWin >= 2.5) {
     const fps = perfN / perfAcc; fpsShown = fps; perfAcc = 0; perfN = 0; perfWin = 0;
     $('fps').textContent = `${fps.toFixed(0)} FPS · ${QUAL[qCur].label}`;
-    if (SET.quality === 'auto' && fps < 38 && qCur !== 'low') { applyQuality(qCur === 'high' ? 'mid' : 'low'); toast('그래픽 품질 자동 조정', `${QUAL[qCur].label}(으)로 낮췄습니다`, 'info'); }
+    if (SET.quality === 'auto' && fps < 38 && qCur !== 'low') { perfUp = 0; applyQuality(qCur === 'high' ? 'mid' : 'low'); toast('그래픽 품질 자동 조정', `${QUAL[qCur].label}(으)로 낮췄습니다`, 'info'); }
+    else if (SET.quality === 'auto' && fps > 56 && qCur !== 'high' && !perfDowned[qCur]) { if (++perfUp >= 3) { perfUp = 0; const from = qCur; applyQuality(qCur === 'low' ? 'mid' : 'high'); perfDowned[from] = false; toast('그래픽 품질 자동 조정', `여유가 있어 ${QUAL[qCur].label}(으)로 올렸습니다`, 'info'); } }
+    else perfUp = 0;
+    if (SET.quality === 'auto' && fps < 38) perfDowned[qCur] = (perfDowned[qCur] || 0) + 1;
   }
 }
 // 설정을 실제 화면 · 조작에 반영
@@ -8506,7 +8572,7 @@ buildCamClues(); buildBreakers(); buildRestrooms(); spawnPicks();
 sqSync();
 auditAndFixFurnitureAndQuality();
 initSaveIds();
-applyQuality(SET.quality === 'auto' ? 'mid' : SET.quality);
+applyQuality(SET.quality === 'auto' ? 'high' : SET.quality);
 applySettings();
 // 로딩 화면을 즉시 닫고(동기식), 텍스처 예산·성능 풀·모델 로드는 백그라운드에서 비동기로 진행한다 (초기 로딩 멈춤 원천 차단)
 setupAnnex();
@@ -8558,7 +8624,7 @@ document.querySelectorAll('#setTabs button').forEach(b => { b.onclick = () => sh
 $('setBtn2').onclick = () => openSettings('pause');
 const setS = (k, v) => { SET[k] = v; saveSET(); applySettings(); vals(); };
 $('setScreen').onchange = e => { try { if (e.target.value === 'full') document.documentElement.requestFullscreen(); else if (document.fullscreenElement) document.exitFullscreen(); } catch (err) { /* ignore */ } };
-$('quality2').onchange = e => { setS('quality', e.target.value); applyQuality(SET.quality === 'auto' ? 'mid' : SET.quality); };
+$('quality2').onchange = e => { setS('quality', e.target.value); applyQuality(SET.quality === 'auto' ? 'high' : SET.quality); };
 $('setScale').oninput = e => { setS('scale', e.target.value / 100); };
 $('setScale').onchange = () => applyQuality(qCur);
 $('setBright').oninput = e => setS('bright', e.target.value / 100);
@@ -8607,7 +8673,7 @@ addEventListener('keydown', e => {
 }, true);
 function refreshHints() { const k = SET.keys; $('hints').innerHTML = `<div>이동 <kbd>WASD</kbd></div><div>달리기 <kbd>${keyLabel(k.run)}</kbd></div><div>손전등 <kbd>${keyLabel(k.flash)}</kbd></div><div>상호작용 <kbd>${keyLabel(k.interact)}</kbd></div><div>던지기 <kbd>${keyLabel(k.throwCan)}</kbd></div><div>앉기 <kbd>${keyLabel(k.crouch)}</kbd> · 점프 <kbd>${keyLabel(k.jump)}</kbd></div><div>시점 <kbd>${keyLabel(k.view)}</kbd></div><div>주변 살피기 <kbd>${keyLabel(k.scan)}</kbd> · 빠른 저장 <kbd>F5</kbd></div><div>일시정지 <kbd>Esc</kbd></div>`; }
 refreshHints();
-$('setReset').onclick = () => { resetSET(); setVolumes({ master: 1, sfx: 1, voice: 1, amb: 1, music: 1 }); VS.dub = true; VS.engine = 'auto'; VS.subs = true; VS.readNotes = true; VS.subSize = 1; saveVS(); applySettings(); applyQuality(SET.quality === 'auto' ? 'mid' : SET.quality); fillSettings(); refreshHints(); toast('설정', '기본값으로 되돌렸습니다', 'info'); };
+$('setReset').onclick = () => { resetSET(); setVolumes({ master: 1, sfx: 1, voice: 1, amb: 1, music: 1 }); VS.dub = true; VS.engine = 'auto'; VS.subs = true; VS.readNotes = true; VS.subSize = 1; saveVS(); applySettings(); applyQuality(SET.quality === 'auto' ? 'high' : SET.quality); fillSettings(); refreshHints(); toast('설정', '기본값으로 되돌렸습니다', 'info'); };
 document.querySelectorAll('.btn').forEach(b => b.addEventListener('mouseenter', () => sfx.ui()));
 
 /* ---------- 테스트 모드 (?test) ---------- */
@@ -8667,6 +8733,8 @@ if (DEBUG) {
     setIntroT(t) { introText = false; introT = t; }, introInfo: () => ({ state, introT: +introT.toFixed(1), cue: introCue, guard: !!(introGuard && introGuard.visible), cam: camera.position.toArray().map(v => +v.toFixed(1)) }),
     photoCheck, PHOTOQ,
     flashNearProbe: () => { FN.t = 0; return flashNear(); }, agProbe: () => { const t = performance.now(); AG.t = 0; antiGlareTick(); return performance.now() - t; },
+    bcAuto() { BC.power = true; BC.amp = 1; BC.ch = 'all'; BC.fader = 70; closeUI(); bcOnAir(); },   // 자동 점검: 콘솔 순서를 건너뛰고 ON AIR
+    minaF: MINA_F,
     tp(x, z, f = 0, yaw = 0, pitch = 0) { P.x = x; P.z = z; P.floor = f; P.yaw = yaw; P.pitch = pitch; },
     give() { world.items.filter(i => i.kind === 'key').forEach(i => { i.taken = true; i.mesh.visible = false; got[i.idx] = true; }); P.keys = TOTAL; refreshHud(); },
     get state() { return state; }, set state(v) { state = v; }, get tNow() { return tNow; }, openTest, EV, appar, applyQuality,

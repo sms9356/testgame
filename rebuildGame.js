@@ -4,7 +4,7 @@
 //   높이는 P.sh(계단 높이 보정값)로 넘긴다 → 카메라 · 점프 · 가구 오르기 코드는 손대지 않아도 된다.
 import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js';
 import { placeModels } from './rebuild/models.js';
-import { pick, carve } from './rebuild/transplant.js';
+import { carve } from './rebuild/transplant.js';
 
 // 예전 건물이 차지하던 땅 (이 안의 예전 메시 · 충돌 상자를 걷어 낸다)
 const OLD_MAIN = { x1: -47, x2: 47, z1: -10.6, z2: 10.6 };
@@ -41,28 +41,26 @@ export function installRebuild({ THREE, scene, floors, world }) {
   }); };
   const clearOld = () => {
     hideIn(floors[0].interior); hideIn(floors[0].shell); hideIn(world.OUT);
+    // 씬 루트에 바로 붙은 소품 묶음(나중에 불러오는 GLB 등)도 — 새 건물 · 다른 층 · 지하(높이 −0.3 아래)는 건드리지 않는다
+    const skip = new Set([...floors.filter(Boolean).flatMap((F, i) => i === 0 ? [] : [F.interior, F.shell])]);
+    const sweep = (c, d) => { if (skip.has(c) || c.isCamera || c.isLight || c.name === 'REBUILD' || c.isSkinnedMesh || c.userData.dynamic) return; let live = false; c.traverse(o => { if (o !== c && (o.isSkinnedMesh || o.userData.dynamic)) live = true; });
+      if (live) { if (d < 4) c.children.forEach(k => sweep(k, d + 1)); return; } bb.setFromObject(c); if (bb.isEmpty() || bb.max.y < -.3) return; hideIn(c); };
+    scene.children.forEach(c => sweep(c, 0));
     for (const k of ['col', 'walls', 'doorWalls']) if (floors[0][k]) { const keep = floors[0][k].filter(r => !inOld(((r.x1 ?? r.ax ?? 0) + (r.x2 ?? r.bx ?? 0)) / 2, ((r.z1 ?? r.az ?? 0) + (r.z2 ?? r.bz ?? 0)) / 2)); floors[0][k].length = 0; floors[0][k].push(...keep); }
   };
-  // 예전 본관 3층 방송실(방송편집실 + 방송실 스튜디오, x −36 ~ −20 · z −9.6 ~ −1.75)을 새 본관 4층 서쪽 18m 방송실로 그대로 옮긴다
-  //   180° 돌려 문 쪽이 새 복도(북)를 향하게 하고, 깊이 7.85m → 7.4m 로 살짝 줄인다. 바닥 · 반자 위(2.65m 이상)는 새 건물 것을 쓴다
+  // 예전 본관 3층 방송실(x −36 ~ −20 · z −9.6 ~ −1.75)의 장치 · 인물은 새 본관 4층 서쪽 18m 방송실(새 가구 배치)의 알맞은 자리로 옮긴다
+  //   가구 · 벽은 새 건물 것(mainBuilding 'bcast')을 쓰고, 예전 방 메시는 가져오지 않는다
   const BC = { x1: -35.75, x2: -20.25, z1: -9.35, z2: -2.0, y0: floors[2] ? floors[2].y0 : 8 };
   const inBC = (x, z) => x > BC.x1 && x < BC.x2 && z > BC.z1 && z < BC.z2, BCY = 3 * MAIN.spec.FH;
-  const BC_T = new THREE.Matrix4().makeTranslation(-31.5, BCY, 3.8).multiply(new THREE.Matrix4().makeScale(1, 1, 7.4 / 7.85)).multiply(new THREE.Matrix4().makeRotationY(Math.PI)).multiply(new THREE.Matrix4().makeTranslation(28, -BC.y0, 5.675));
-  const bcXZ = (x, y, z) => { const v = new THREE.Vector3(x, y, z).applyMatrix4(BC_T); return v; };
-  if (floors[2]) {
-    const used = new Set(); for (const o of [...world.props, ...world.items]) for (const k of Object.keys(o)) { const v = o[k]; if (v && v.isObject3D && k !== 'parent') v.traverse(q => used.add(q)); }
-    // 움직이는 것(민아 · 소품 묶음 등 dynamic 그룹)은 복사하지 않고 통째로 옮긴다
-    for (const c of [...floors[2].interior.children]) { if (!c.userData.dynamic) continue; const w = c.getWorldPosition(new THREE.Vector3()); if (!inBC(w.x, w.z)) continue;
-      const q = bcXZ(w.x, w.y, w.z); MAIN.root.attach(c); c.position.set(q.x, q.y, q.z); c.rotation.y += Math.PI; c.traverse(o => used.add(o)); }
-    const bcMesh = pick(floors[2].interior, (x, y, z) => inBC(x, z) && y > BC.y0 + .03 && y < BC.y0 + 2.65, BC_T, m => used.has(m));
-    MAIN.root.add(bcMesh); bcMesh.traverse(q => { q.userData.dynamic = true; });
-    for (const r of floors[2].col) { if (r.off || !inBC((r.x1 + r.x2) / 2, (r.z1 + r.z2) / 2) || (floors[2].walls || []).includes(r)) continue;
-      const a = bcXZ(r.x1, BC.y0, r.z1), b = bcXZ(r.x2, BC.y0, r.z2);
-      MAIN.col.push({ x1: Math.min(a.x, b.x), x2: Math.max(a.x, b.x), z1: Math.min(a.z, b.z), z2: Math.max(a.z, b.z), y1: BCY, y2: BCY + Math.min(2.6, r.h ?? 2) }); }
-  }
+  const BC_SLOT = { console: [[-38.1, 3.5]], cctvRec: [[-39.7, 2.2]], tape: [[-30.6, 1.0], [-29.9, 1.0], [-29.2, 1.0], [-25.3, 1.1]], mina: [[-23.5, 6.5]], sq: [[-26.9, 2.5], [-25.6, 3.9], [-28.2, 3.9]] };
+  const BC_FREE = [[-35.2, 5.2], [-33.6, 5.4], [-36.4, 1.6], [-34.0, 2.6], [-24.4, 1.4], [-23.8, 3.4], [-30.2, 6.6], [-27.9, 6.4], [-32.6, 3.5]];
+  let bcFree = 0; const bcUsed = {};
+  const bcSpot = kind => { const l = BC_SLOT[kind]; if (l) { const i = bcUsed[kind] = (bcUsed[kind] ?? -1) + 1; if (i < l.length) return l[i]; } return BC_FREE[bcFree++ % BC_FREE.length]; };
+  if (floors[2]) for (const c of [...floors[2].interior.children]) { if (!c.userData.dynamic) continue; const w = c.getWorldPosition(new THREE.Vector3()); if (!inBC(w.x, w.z)) continue;
+    const [x, z] = BC_SLOT.mina[0]; MAIN.root.attach(c); c.position.set(x, BCY + Math.max(0, w.y - BC.y0), z); c.rotation.y = -Math.PI / 2; }   // 민아 · 민아 소지품: 스튜디오 동쪽 구석 벽에 기대 앉음
   clearOld();
   // 소품 모델은 나중에 비동기로 들어온다 → 몇 번 더 걷어 낸다
-  [3000, 10000, 25000, 60000, 120000].forEach(ms => setTimeout(clearOld, ms));
+  [3000, 10000, 25000, 60000, 120000].forEach(ms => setTimeout(clearOld, ms)); { let n = 0; const iv = setInterval(() => { clearOld(); if (++n > 30) clearInterval(iv); }, 9000); }
 
   // 2) 새 건물
   const group = new THREE.Group(); group.name = 'REBUILD'; group.userData.dynamic = true; scene.add(group);
@@ -163,7 +161,7 @@ export function installRebuild({ THREE, scene, floors, world }) {
     let moved = 0, dropped = 0;
     for (const it of world.items) {
       if (it._rb || !isOld(it.floor, it.pos.x, it.pos.z)) continue; it._rb = true; it._old = { f: it.floor, x: it.pos.x, z: it.pos.z };
-      if (it.floor === 2 && inBC(it.pos.x, it.pos.z)) { const v = bcXZ(it.pos.x, it.pos.y, it.pos.z); it.floor = 0; it.rbY = BCY; it.pos.copy(v); if (it.baseY != null) it.baseY = BCY + it.baseY - BC.y0; if (it.mesh) { const mv = bcXZ(it.mesh.getWorldPosition(new THREE.Vector3()).x, it.mesh.getWorldPosition(new THREE.Vector3()).y, it.mesh.getWorldPosition(new THREE.Vector3()).z); moveObj(it.mesh, mv.x, mv.y, mv.z); it.mesh.rotation.y += Math.PI; } moved++; continue; }
+      if (it.floor === 2 && inBC(it.pos.x, it.pos.z)) { const [x, z] = bcSpot(it.kind), oy = it.pos.y - BC.y0; it.floor = 0; it.rbY = BCY; it.pos.set(x, BCY + oy, z); if (it.baseY != null) it.baseY = BCY + it.baseY - BC.y0; if (it.mesh) moveObj(it.mesh, x, BCY + oy, z); moved++; continue; }
       const sk = it.kind === 'key' ? SPECIAL_KEY[it.idx] : null;
       const tgt = sk ? (() => { const rs = roomsOf(sk[0], sk[1]).filter(r => r.type === sk[2]); return rs.length ? { b: sk[0], f: sk[1], room: rs[0] } : pickRoom(it.floor, it.pos.x); })() : pickRoom(it.floor, it.pos.x);
       if (!tgt) continue;
@@ -173,8 +171,9 @@ export function installRebuild({ THREE, scene, floors, world }) {
     }
     for (const p of world.props) {
       if (p._rb || !isOld(p.floor, p.x, p.z)) continue; p._rb = true; p._old = { f: p.floor, x: p.x, z: p.z };
-      if (p.floor === 2 && inBC(p.x, p.z) && !DROP.has(p.kind) && !TOILET.has(p.kind)) { const v = bcXZ(p.x, BC.y0, p.z); for (const k of Object.keys(p)) { const o = p[k]; if (o && o.isObject3D && k !== 'parent') { const w = o.getWorldPosition(new THREE.Vector3()), q = bcXZ(w.x, w.y, w.z); moveObj(o, q.x, q.y, q.z); o.rotation.y += Math.PI; } }
-        p.floor = 0; p.rbY = BCY; p.x = v.x; p.z = v.z; if (p.px != null) { const q = bcXZ(p.px, BC.y0, p.pz); p.px = q.x; p.pz = q.z; } moved++; continue; }
+      if (p.floor === 2 && inBC(p.x, p.z) && !DROP.has(p.kind) && !TOILET.has(p.kind)) { const [x, z] = bcSpot(p.kind);
+        for (const k of Object.keys(p)) { const o = p[k]; if (o && o.isObject3D && k !== 'parent') { const w = o.getWorldPosition(new THREE.Vector3()); moveObj(o, x, BCY + Math.max(0, w.y - BC.y0), z); } }
+        p.floor = 0; p.rbY = BCY; p.x = x; p.z = z; if (p.px != null) { p.px = x; p.pz = z; } moved++; continue; }
       if (inPassOld(p.floor, p.x, p.z) && R.gate) { const [nx, nz] = R.passToNew(p.x, p.z); p.floor = 0; p.rbY = 0; p.x = nx; p.z = nz; if (p.px != null) [p.px, p.pz] = R.passToNew(p.px, p.pz); moved++; continue; }
       if (DROP.has(p.kind)) { p.floor = park(p.floor); dropped++; continue; }
       if (TOILET.has(p.kind)) {   // 세면대 · 변기 → 같은 층(없으면 위층) 새 화장실

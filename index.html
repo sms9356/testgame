@@ -734,7 +734,11 @@
 
 <!-- 설정 -->
 <div id="settings" class="overlay"><div class="win"><div class="head"><b>설정</b><button class="x" id="settingsClose">닫기</button></div>
-  <div id="setBody"><div id="setTabs"><button data-s="gfx">그래픽</button><button data-s="aud">오디오</button><button data-s="ctl">조작</button><button data-s="sub">자막 · 음성</button><button data-s="acc">게임 · 접근성</button></div>
+  <div id="setBody"><div id="setTabs"><button data-s="lang">🌐 언어 · Language</button><button data-s="gfx">그래픽</button><button data-s="aud">오디오</button><button data-s="ctl">조작</button><button data-s="sub">자막 · 음성</button><button data-s="acc">게임 · 접근성</button></div>
+  <div class="setPage" data-s="lang"><div class="setgrid">
+    <h4>언어 · Language · 言語 · 语言</h4>
+    <span>언어 · Language</span><select id="setLang"><option value="ko">한국어</option><option value="en">English</option><option value="ja">日本語</option><option value="zh">中文</option></select>
+  </div></div>
   <div class="setPage" data-s="gfx"><div class="setgrid">
     <h4>화면</h4>
     <span>화면 모드</span><select id="setScreen"><option value="win">창 모드</option><option value="full">전체 화면</option></select>
@@ -793,7 +797,6 @@
     <span>탐색 난이도 · 유령 공격 없음</span><select id="setDiff"><option value="easy">쉬움 — 손전등 배터리 절약</option><option value="normal">보통 — 표준 배터리 소모</option><option value="hard">어려움 — 빠른 배터리 소모</option></select>
     <span>마이크 소리 감지</span><label><input type="checkbox" id="setMic"> 주변 소리 시각화 · 녹음 분위기 연출 (마이크 권한 필요)</label>
     <h4>접근성</h4>
-    <span>언어 · Language</span><select id="setLang"><option value="ko">한국어</option><option value="en">English</option><option value="ja">日本語</option><option value="zh">中文</option></select>
     <span>공포 연출</span><select id="setJump"><option value="soft">심리적 공포 · 전체 화면 기습 이미지 없음</option></select>
     <span>번쩍임 · 글리치</span><label><input type="checkbox" id="setFlash"> 번개 섬광 · 화면 깨짐 효과 줄이기</label>
     <span>공포 화면 효과</span><label><input type="checkbox" id="setFearFx"> 그것이 가까울 때 붉은 테두리</label>

@@ -250,19 +250,68 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
     pbox(.18, 1.15, 2.6, walnutM, cx + 3.2, .575, cz + 5.6, g);
     pmesh(new THREE.PlaneGeometry(2.4, 1.35), glassM, cx + 3.2, 1.82, cz + 5.6, g, { ry: Math.PI / 2, cast: false });
     [-0.6, 0, 0.6].forEach(dz => pbox(.20, 1.35, .05, walnutM, cx + 3.2, 1.82, cz + 5.6 + dz, g, { cast: false }));
-    addCol(cx + 3.05, cx + 3.35, cz + 2.85, z1 - .1, false, null, { maxY: 2.6 });
+    addCol(cx + 3.05, cx + 3.35, cz + 4.3, z1 - .1, false, null, { maxY: 2.6 });   // 유리 칸막이 (북쪽 z cz+3.1~4.3 은 사감실 문)
     pmesh(new THREE.PlaneGeometry(1.4, .32), new THREE.MeshBasicMaterial({ map: makeSign('1F 사감실 · 보안관제실', '#1b2822', '#f0dfc0', 22) }), cx + 3.09, 2.62, cz + 2.1, g, { ry: -Math.PI / 2, cast: false });
 
     // 2층 서쪽 침실(201호·202호) 복도 파티션 충돌체 및 호실 명패 (문 위치 z: cz - 1.6 ~ cz + 0.2 및 cz + 2.8 ~ cz + 4.6 개방!)
-    addCol(cx - 4.35, cx - 4.05, z0 + 2.6, cz - 1.6, false, null, { y0: 3.8 });
-    addCol(cx - 4.35, cx - 4.05, cz + 0.2, cz + 2.8, false, null, { y0: 3.8 });
-    addCol(cx - 4.35, cx - 4.05, cz + 4.6, z1 - .1,  false, null, { y0: 3.8 });
     pmesh(new THREE.PlaneGeometry(1.1, .28), new THREE.MeshBasicMaterial({ map: makeSign('201호 생활실', '#241812', '#f4e2b8', 24) }), cx - 4.08, Y2 + 2.52, cz - .7, g, { ry: Math.PI / 2, cast: false });
     pmesh(new THREE.PlaneGeometry(1.1, .28), new THREE.MeshBasicMaterial({ map: makeSign('202호 생활실', '#241812', '#f4e2b8', 24) }), cx - 4.08, Y2 + 2.52, cz + 3.7, g, { ry: Math.PI / 2, cast: false });
 
     // 2층 동쪽 심야 정독실 복도 파티션 충돌체 및 현판 (문 위치 z: cz + 1.2 ~ cz + 3.1 개방!)
-    addCol(cx + 1.65, cx + 1.95, cz + 3.1, z1 - .1, false, null, { y0: 3.8 });
     pmesh(new THREE.PlaneGeometry(2.6, .42), new THREE.MeshBasicMaterial({ map: makeSign('2F 심야 정독실 (STUDY ROOM) — 정숙 엄수', '#162820', '#88ffb8', 22) }), cx + 1.68, Y2 + 2.56, cz + 2.15, g, { ry: -Math.PI / 2, cast: false });
+
+    // 4-b) 방 나누기 (실제 벽 · 문틀 · 문짝 · 명패): 예전엔 2층 칸막이가 보이지 않는 충돌벽뿐이었고 1층 사감실은 낮은 유리벽 하나였다
+    //   1층: 현관 로비 · 사감실(동남) · 휴게 라운지(서남) · 공용 화장실 · 샤워실(서북)
+    //   2층: 201호 · 202호(서쪽) · 중앙 복도 · 심야 정독실(동쪽)
+    {
+      const FH1 = Y2 - .2, FH2 = H - Y2 - .3;
+      // 벽 한 토막: 하부 판넬(웨인스콧) + 상부 회벽, 층에 맞는 충돌 (1층 maxY · 2층 y0)
+      const wall = (xa, xb, za, zb, lv, y1 = 0, y2 = null) => {
+        const yb = lv ? Y2 : 0, hh = (y2 ?? (lv ? FH2 : FH1)) - y1, w = Math.abs(xb - xa), d = Math.abs(zb - za), mx = (xa + xb) / 2, mz = (za + zb) / 2;
+        if (y1 < 1.1) { const wh = Math.min(1.1, y1 + hh) - y1; pbox(w + .02, wh, d + .02, wainscotM, mx, yb + y1 + wh / 2, mz, g, { cast: false }); }
+        if (y1 + hh > 1.1) { const a = Math.max(1.1, y1), wh = y1 + hh - a; pbox(w, wh, d, whiteWall, mx, yb + a + wh / 2, mz, g, { cast: false }); }
+        if (y1 < .5) addCol(Math.min(xa, xb), Math.max(xa, xb), Math.min(za, zb), Math.max(za, zb), false, null, lv ? { y0: 3.8 } : { maxY: 2.6 });
+      };
+      // 벽(축 방향) + 문 구멍들: 문 위는 상인방 벽, 문틀 · 반쯤 열린 문짝
+      const wallX = (xa, xb, z, lv, doors = []) => { let c = xa; for (const [a, b] of doors) { if (a > c) wall(c, a, z - .07, z + .07, lv); wall(a, b, z - .07, z + .07, lv, 2.1); frame(a, b, z, lv, true); c = b; } if (xb > c) wall(c, xb, z - .07, z + .07, lv); };
+      const wallZ = (x, za, zb, lv, doors = []) => { let c = za; for (const [a, b] of doors) { if (a > c) wall(x - .07, x + .07, c, a, lv); wall(x - .07, x + .07, a, b, lv, 2.1); frame(a, b, x, lv, false); c = b; } if (zb > c) wall(x - .07, x + .07, c, zb, lv); };
+      const frame = (a, b, c, lv, alongX) => { const yb = lv ? Y2 : 0, m = (a + b) / 2, L = b - a;
+        if (alongX) { pbox(L + .16, .1, .2, walnutM, m, yb + 2.12, c, g, { cast: false }); [a, b].forEach(e => pbox(.08, 2.1, .2, walnutM, e, yb + 1.05, c, g, { cast: false })); const lf = pbox(.05, 2.02, L - .08, woodDark, a + .04, yb + 1.01, c + (L - .08) / 2 * .0 + (L - .08) / 2 * 1, g, { cast: false }); }
+        else { pbox(.2, .1, L + .16, walnutM, c, yb + 2.12, m, g, { cast: false }); [a, b].forEach(e => pbox(.2, 2.1, .08, walnutM, c, yb + 1.05, e, g, { cast: false })); pbox(L - .08, 2.02, .05, woodDark, c + (L - .08) / 2, yb + 1.01, a + .04, g, { cast: false }); } };
+      const plate = (txt, x, y, z, ry) => pmesh(new THREE.PlaneGeometry(1.1, .26), new THREE.MeshBasicMaterial({ map: makeSign(txt, '#241812', '#f4e2b8', 24) }), x, y, z, g, { ry, cast: false });
+
+      // ── 1층 ──
+      // 사감실: 북벽(유리 띠창) + 서벽 상부(유리 칸막이 위) + 문 구멍 z cz+3.1~4.2
+      wall(cx + 3.2, x1, cz + 2.95, cz + 3.09, 0, 0, 1.0);
+      pmesh(new THREE.PlaneGeometry(x1 - cx - 3.4, 1.1), glassM, (cx + 3.2 + x1) / 2, 1.6, cz + 3.02, g, { cast: false });
+      wall(cx + 3.2, x1, cz + 2.95, cz + 3.09, 0, 2.2);
+      addCol(cx + 3.2, x1, cz + 2.95, cz + 3.09, false, null, { maxY: 2.6 });
+      wall(cx + 3.13, cx + 3.27, cz + 4.3, z1, 0, 2.5);
+      frame(cz + 3.1, cz + 4.2, cx + 3.2, 0, false);
+      wall(cx + 3.13, cx + 3.27, cz + 3.09, cz + 3.1, 0); wall(cx + 3.13, cx + 3.27, cz + 4.2, cz + 4.3, 0, 2.1);
+      plate('사감실', cx + 3.05, 2.35, cz + 3.65, -Math.PI / 2);
+      // 공용 화장실 · 샤워실 (서북 x0 ~ -93.6, z -46.5 ~ cz+1)
+      wallZ(-93.6, z0 + 2.5, cz + 1, 0, [[cz - 2.5, cz - 1.4]]);
+      wallX(x0, -93.6, cz + 1, 0);
+      wallX(x0, -93.6, z0 + 2.5, 0);
+      plate('화장실 · 샤워실', -93.45, 2.35, cz - 1.95, -Math.PI / 2);
+      pbox(3.3, .02, 4.4, tileFloor, (x0 - 93.6) / 2, .065, (z0 + 2.5 + cz + 1) / 2, g, { cast: false });
+      [cz - 3.6, cz - .6].forEach(z => { pbox(.5, .14, .5, PM(0xe8e6e0, .3), x0 + .4, .84, z, g); pbox(.04, 1.1, .7, PM(0x9fb4bc, .1, .6), x0 + .02, 1.6, z, g, { cast: false }); addCol(x0, x0 + .7, z - .3, z + .3, false, .9); });   // 세면대 · 거울
+      pbox(.06, 2.0, 1.4, PM(0xd8d8d0, .5), x0 + 1.5, 1.0, cz - 2.0, g); addCol(x0 + 1.47, x0 + 1.53, cz - 2.7, cz - 1.3, false, null, { maxY: 2.6 });   // 샤워 칸막이
+      // ── 2층 ──
+      wallZ(cx - 4.2, z0 + 2.6, z1, 1, [[cz - 1.6, cz + .2], [cz + 2.8, cz + 4.6]]);
+      wallX(x0, cx - 4.27, cz + 1.4, 1);
+      wallX(x0, cx - 4.13, z0 + 2.62, 1);
+      wallZ(cx + 1.8, z0 + 2.6, z1, 1, [[cz + 1.2, cz + 3.1]]);
+      wallX(cx + 1.87, x1, z0 + 2.62, 1);
+      plate('203호 심야 정독실', cx + 1.65, Y2 + 2.32, cz + 2.15, -Math.PI / 2);
+      // 침실 가구: 이층침대 · 책상 · 옷장 (호실마다)
+      [[cz - 2.7, '201'], [cz + 4.0, '202']].forEach(([rz, n]) => {
+        pbox(2.0, .5, .95, woodDark, x0 + 1.2, Y2 + .25, rz, g); pbox(2.0, .14, .95, mattressM, x0 + 1.2, Y2 + .57, rz, g);   // 침대
+        pbox(1.1, .76, .6, woodLight, cx - 5.2, Y2 + .38, rz + 1.6, g); pbox(.62, 1.9, .55, woodDark, x0 + .4, Y2 + .95, rz + 2.0, g);   // 책상 · 옷장
+        addCol(x0 + .2, x0 + 2.2, rz - .5, rz + .5, false, Y2 + .64, { y0: 3.8 });
+      });
+    }
 
     // 1층 휴게 라운지 원목 커피 테이블 & 브라운관 TV 장식장 (소파 2조는 sf_pro_dorm_lounge_set.glb 로 배치!)
     pbox(1.65, .42, .82, walnutM, cx - 3.5, .21, cz + 2.8, g);

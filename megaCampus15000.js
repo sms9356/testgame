@@ -35,6 +35,17 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
     if (isWall && h == null && !extra) F0.walls.push(r);
   };
 
+  // 형광등 스위치 (출입문 옆 안쪽 벽) + 노출 전선관(스위치 → 천장 정션박스 → 벽 상단을 따라 등기구까지)
+  const swPlateM = PM(0xece8dc, .5), swKeyM = PM(0x2c2c2a, .5), conduitM = PM(0x9a9c98, .5, .35);
+  const addSwitch = (grp, x, z, ry, rect, top = 3.7, y0 = 0, label = '형광등 스위치') => {
+    const nx = Math.sin(ry), nz = Math.cos(ry);
+    pbox(.09, .13, .02, swPlateM, x, y0 + 1.3, z, grp, { ry, cast: false });
+    pbox(.028, .05, .012, swKeyM, x + nx * .014, y0 + 1.31, z + nz * .014, grp, { ry, cast: false });
+    pcyl(.013, .013, top - 1.37, conduitM, x + nx * .016, y0 + (1.37 + top) / 2, z + nz * .016, grp, { cast: false, seg: 8 });
+    pbox(.1, .1, .05, conduitM, x + nx * .03, y0 + top - .12, z + nz * .03, grp, { ry, cast: false });
+    pbox(Math.min(8, Math.max(rect.x2 - rect.x1, rect.z2 - rect.z1) - .6), .026, .026, conduitM, x + nx * .02, y0 + top - .12, z + nz * .02, grp, { ry, cast: false });
+    world.props.push({ kind: 'robj', k: 'light_switch', t: 'mega15k', floor: 0, x: x + nx * .45, z: z + nz * .45, y: y0 + 1.3, r: 1.5, label: label + ' 끄기', sw: { grp, rect, on: true, base: label } });
+  };
   const warmWinEm = new THREE.MeshStandardMaterial({ color: 0xd8eef8, emissive: 0xffe0a8, emissiveIntensity: .62, roughness: .18, metalness: .2 });
   const buildShell = (grp, cx, cz, W, D, H, wallMat, roofMat, doorSide, flMat = woodFloor) => {
     const x0 = cx - W / 2, x1 = cx + W / 2, z0 = cz - D / 2, z1 = cz + D / 2, t = .32, dw = 3.0, dh = 2.6;
@@ -113,6 +124,10 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
       pbox(1.35, .04, .32, darkMetal, cx + lx, 3.78, cz + lz, grp, { cast: false });
       pbox(1.22, .05, .20, lampEm, cx + lx, 3.74, cz + lz, grp, { cast: false });
     });
+    { const rect = { x1: x0, x2: x1, z1: z0, z2: z1 }, o = dw / 2 + .4;
+      if (doorSide === 'W') addSwitch(grp, x0 + .01, cz - o, Math.PI / 2, rect);
+      else if (doorSide === 'E') addSwitch(grp, x1 - .01, cz - o, -Math.PI / 2, rect);
+      else addSwitch(grp, cx - o, z1 - .01, Math.PI, rect); }
   };
 
   const addChair = (grp, x, z, ry = 0, colMat = woodDark) => {
@@ -208,18 +223,18 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
 
     // 2) 북쪽 벽면 16단 화강암·월넛 실내 직통 계단 + 22개 주철 동자주(Balusters) & 뉴얼 포스트 난간!
     for (let st = 0; st < 16; st++) {
-      const sx1 = -93.6 + st * .60, sx2 = sx1 + .62, sh = (st + 1) * (Y2 / 16);
+      const sx1 = -93.2 + st * .60, sx2 = sx1 + .62, sh = (st + 1) * (Y2 / 16);
       pbox(.62, sh, 2.32, stoneM, (sx1 + sx2) / 2, sh / 2, z0 + 1.25, g);
       pbox(.66, .045, 2.38, walnutM, (sx1 + sx2) / 2, sh + .015, z0 + 1.25, g, { cast: false });
       addCol(sx1, sx2, z0 + .1, z0 + 2.45, false, sh);
       // 계단 단마다 수직 주철 동자주 기둥 설치!
-      pcyl(.018, .018, .92, ironBalM, (sx1 + sx2) / 2, sh + .46, z0 + 2.42, g);
+      if (st >= 2) pcyl(.018, .018, .92, ironBalM, (sx1 + sx2) / 2, sh + .46, z0 + 2.42, g);   // 첫 두 단은 남쪽(라운지)에서 올라서는 입구라 비워 둔다
     }
     // 계단 상·하단 원목 뉴얼 포스트 기둥 & 경사 핸드레일
-    pbox(.16, 1.15, .16, walnutM, -93.55, .58, z0 + 2.42, g);
-    pbox(.16, 1.15, .16, walnutM, -83.95, Y2 + .58, z0 + 2.42, g);
-    pbox(10.0, .09, .10, walnutM, -88.75, Y2 / 2 + .94, z0 + 2.42, g, { rz: Math.atan2(Y2, 9.6) });
-    addCol(-93.6, -84.0, z0 + 2.38, z0 + 2.56, false, null, { maxY: 3.6 });
+    pbox(.16, 1.15, .16, walnutM, -91.95, .58 + Y2 / 8, z0 + 2.42, g);
+    pbox(.16, 1.15, .16, walnutM, -83.65, Y2 + .58, z0 + 2.42, g);
+    pbox(8.75, .09, .10, walnutM, -87.75, Y2 / 2 + Y2 / 16 + .94, z0 + 2.42, g, { rz: Math.atan2(Y2, 9.6) });
+    addCol(-92.0, -83.7, z0 + 2.38, z0 + 2.56, false, null, { maxY: 3.6 });
 
     // 3) 2층 철근콘크리트 구조 슬래브 & 1·2층 천장 우물형 코퍼 목재 보(Ceiling Coffer Beams)
     pbox(W, .18, D - 2.5, walnutM, cx, Y2 - .09, cz + 1.25, g);
@@ -341,6 +356,8 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
     world.props.push({ kind: 'robj', k: 'dorm_locker', t: 'mega15k', floor: 0, x: cx - 1.8, z: z1 - 1.25, y: Y2 + 1.1, r: 2.4, label: '기숙사 2층 사생 사물함 파밍하기', anim: { type: 'hinge', doorPiv: dormLockerDoorPiv, openAngle: 1.45, t: 0, active: false } });
     world.props.push({ kind: 'robj', k: 'dorm_study', t: 'mega15k', floor: 0, x: cx + 4.2, z: cz + 3.2, y: Y2 + 1.0, r: 2.4, label: '기숙사 2층 심야 정독실 카렐 부스 비밀 수첩 해독하기' });
 
+    addSwitch(g, x1 - .01, cz - dw / 2 - .4, -Math.PI / 2, { x1: x0, x2: x1, z1: z0, z2: z1, y2: Y2 }, Y2 - .2, 0, '1층 형광등 스위치');
+    addSwitch(g, x1 - .01, cz - dw / 2 - .4, -Math.PI / 2, { x1: x0, x2: x1, z1: z0, z2: z1, y1: Y2 }, H - .3, Y2, '2층 형광등 스위치');
     // 1·2층 앤틱 황동 펜던트 조명 & 따뜻한 볼류메트릭 무드 글로우
     [0, Y2].forEach((by, fl) => {
       [[-6.5, -1.5], [0, -1.5], [5.5, -1.5], [-6.5, 3.2], [0, 3.2], [5.5, 3.2]].forEach(([lx, lz], li) => {

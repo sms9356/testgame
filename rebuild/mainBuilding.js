@@ -257,6 +257,7 @@ export function buildMainBuilding(opt = {}) {
     // 1층 중앙 현관 (북측 = 운동장 반대편 주출입구, 남측은 교실)
     const core = LY.rooms.find(r => r.kind === 'core');
     if (f === 0) winsN.push({ a: core.x1 + 2.7, b: core.x2 - 2.7, y1: 0, y2: 2.6, door: true });
+    if (f === 0 && opt.southEntry) winsS.push({ a: core.x1 + 2.7, b: core.x2 - 2.7, y1: 0, y2: 2.6, door: true });   // 운동장 · 정문 쪽 주출입구
     wallX('brick', -LY.L / 2 - T, LY.L / 2 + T, zS, zS + T, y0, winsS);
     wallX('brick', -LY.L / 2 - T, LY.L / 2 + T, zN - T, zN, y0, winsN.filter(w => !(w.a > core.x1 && w.b < core.x2 && !w.door && f === 0)));
     finishX(-LY.L / 2, LY.L / 2, zN, 1, y0, winsN);
@@ -285,6 +286,20 @@ export function buildMainBuilding(opt = {}) {
       [d.a - .6, d.b + .6].forEach(x => { box('alu', x - .1, x + .1, 2.55, 2.85, zN - T - .14, zN - T); box('lamp', x - .08, x + .08, 2.58, 2.82, zN - T - .16, zN - T - .14); lights.push({ x, y: 2.6, z: zN - T - .6 }); });
       props.push({ kind: 'mainDoor', label: '현관 유리문', x: (d.a + d.b) / 2, y: 1.1, z: zN - .15, floor: 0 });
       walk.push({ x1: d.a, x2: d.b, z1: zN - T - .05, z2: zN, h: () => 0, f: 0 });   // 현관 문턱 (벽 두께)
+    }
+    if (f === 0 && opt.southEntry) {   // 남쪽 정문 현관 (운동장 · 정문을 마주 본다): 유리문 2짝 · 캐노피 · 교명판 · 출입등
+      const d = { a: core.x1 + 2.7, b: core.x2 - 2.7 }, zd = zS + T;
+      box('alu', d.a, d.b, 2.5, 2.6, zS + .1, zS + .2); [d.a, (d.a + d.b) / 2, d.b].forEach(x => box('alu', x - .04, x + .04, 0, 2.5, zS + .1, zS + .2));
+      { const w = (d.b - d.a) / 2; [[d.a, 1], [d.b, -1]].forEach(([hx, sx]) => doors.push({ kind: 'swing', mat: 'alu', win: false, w, h: 2.45, t: .05, px: hx, py: 0, pz: zS + .15, ox: sx * w / 2, oz: 0, dir: -sx, open: false,
+          cx1: Math.min(hx, hx + sx * w), cx2: Math.max(hx, hx + sx * w), cz1: zS + .1, cz2: zS + .2, mx: (d.a + d.b) / 2, mz: zS + .2, label: '정문 현관 유리문', floor: 0, glassLeaf: true })); }
+      box('conc', d.a - 1, d.b + 1, 3.0, 3.2, zd, zd + 3.0);   // 캐노피
+      [d.a - .9, d.b + .9].forEach(x => box('conc', x - .15, x + .15, 0, 3.0, zd + 2.6, zd + 2.9, { solid: true }));   // 캐노피 기둥
+      box('conc', d.a - 1, d.b + 1, -.02, .03, zd, zd + 3.0);   // 현관 앞 포치
+      { const c = document.createElement('canvas'); c.width = 1024; c.height = 160; const g = c.getContext('2d'); g.fillStyle = '#2a2622'; g.fillRect(0, 0, 1024, 160); g.fillStyle = '#d8c9a0'; g.font = 'bold 92px serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(opt.signText || '서 문 고 등 학 교', 512, 84);
+        const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; const sg = new THREE.Mesh(new THREE.PlaneGeometry(4.6, .72), new THREE.MeshStandardMaterial({ map: t, roughness: .6, metalness: .3 })); sg.position.set(0, 3.75, zd + .02); root.add(sg); }
+      [d.a - .6, d.b + .6].forEach(x => { box('alu', x - .1, x + .1, 2.55, 2.85, zd, zd + .14); box('lamp', x - .08, x + .08, 2.58, 2.82, zd + .14, zd + .16); lights.push({ x, y: 2.6, z: zd + .6 }); });
+      props.push({ kind: 'mainDoor', label: '정문 현관 유리문', x: (d.a + d.b) / 2, y: 1.1, z: zS + .15, floor: 0 });
+      walk.push({ x1: d.a, x2: d.b, z1: zS, z2: zd + .05, h: () => 0, f: 0 });   // 현관 문턱 (벽 두께)
     }
     // 복도벽(교실 ↔ 복도): 교실마다 앞 · 뒤 미닫이문 + 상부 고창
     LY.rooms.forEach(r => {
@@ -511,6 +526,18 @@ export function buildMainBuilding(opt = {}) {
   function coreRoom(r, f, y0) {
     const xm = (r.x1 + r.x2) / 2;
     wallZ('wall', r.x1 - S.wall / 2, r.x1 + S.wall / 2, 0, zS, y0); wallZ('wall', r.x2 - S.wall / 2, r.x2 + S.wall / 2, 0, zS, y0);
+    if (f === 0 && opt.southEntry) {   // 1층 코어 = 정문 현관 홀 (화장실은 2층부터)
+      const ops = [{ a: xm - 2.2, b: xm + 2.2, y1: 0, y2: 2.6 }];
+      wallX('wall', r.x1, r.x2, -S.wall / 2, S.wall / 2, y0, ops); finishX(r.x1, r.x2, -S.wall / 2, -1, y0, ops); finishX(r.x1, r.x2, S.wall / 2, 1, y0, ops);
+      finishZ(r.x1 + S.wall / 2, 1, 0, zS, y0); finishZ(r.x2 - S.wall / 2, -1, 0, zS, y0); finishX(r.x1, r.x2, zS, -1, y0, [{ a: r.x1 + 2.7, b: r.x2 - 2.7, y1: 0, y2: 2.6 }]);
+      box('terr', r.x1 + .1, r.x2 - .1, y0, y0 + .02, .1, zS);
+      for (const sx of [-1, 1]) { const x0 = sx < 0 ? r.x1 + .15 : r.x2 - .55;   // 신발장 (양 벽)
+        for (let k = 0; k < 3; k++) { const z = 1.2 + k * 1.3; box('lockerM', x0, x0 + .4, y0, y0 + 1.6, z, z + 1.2, { solid: true }); for (let j = 1; j < 5; j++) box('alu', x0 - .005, x0 + .405, y0 + j * .32, y0 + j * .32 + .015, z, z + 1.2); } }
+      box('steelG', r.x2 - 1.4, r.x2 - .6, y0 + .6, y0 + 2.0, zN + .02, zN + .25, { solid: true });
+      props.push({ kind: 'panel', label: `${f + 1}층 분전반`, x: r.x2 - 1, y: y0 + 1.3, z: zN + .3, floor: f });
+      props.push({ kind: 'room', label: '중앙 현관', x1: r.x1, x2: r.x2, z1: 0, z2: zS, floor: f });
+      return;
+    }
     wallZ('wall', xm - .1, xm + .1, 0, zS, y0);
     const ops = [{ a: r.x1 + 1, b: r.x1 + 2, y1: 0, y2: 2.1 }, { a: r.x2 - 2, b: r.x2 - 1, y1: 0, y2: 2.1 }];
     wallX('wall', r.x1, r.x2, -S.wall / 2, S.wall / 2, y0, ops); finishX(r.x1, r.x2, -S.wall / 2, -1, y0, ops);

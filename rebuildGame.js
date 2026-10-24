@@ -160,7 +160,7 @@ export function installRebuild({ THREE, scene, floors, world }) {
   R.BLD = BLD;   // 감사 · 테스트용
   R.step = (P, px, pz) => {
     const feet = P.sh || 0;
-    if (!inOld(P.x, P.z) && feet < .3) return false;
+    if (!inOld(P.x, P.z) && feet < .3 && feet > -.3 && !inPit(P.x, P.z)) return false;   // 지하 계단 구덩이는 예전 건물 자리 밖이어도 새 건물이 높이를 맡는다
     const ok = (x, z) => { const g = R.groundAt(x, z, feet); if (g == null) return feet < .3 && !R.blocked(x, z, 0, .3) ? 0 : null; if (g - feet > .5) return null; return R.blocked(x, z, Math.max(feet, g), .3) ? null : g; };
     let g = ok(P.x, P.z);
     if (g == null) { g = ok(P.x, pz); if (g != null) P.z = pz; else { g = ok(px, P.z); if (g != null) P.x = px; else { P.x = px; P.z = pz; g = feet; } } }
@@ -345,6 +345,7 @@ export function installRebuild({ THREE, scene, floors, world }) {
     o.material = Array.isArray(o.material) ? o.material.map(fix) : fix(o.material); }); };
   R.clipFloor = clipFloor; setTimeout(clipFloor, 500); setTimeout(clipFloor, 8000);
   const inPit = (x, z) => x > B1PIT.x1 && x < B1PIT.x2 && z > B1PIT.zt && z < B1PIT.zw;
+  R.inPit = inPit;
   const pitH = z => z <= B1PIT.zt ? 0 : z >= B1PIT.zb ? -B1PIT.d : -B1PIT.d * (z - B1PIT.zt) / (B1PIT.zb - B1PIT.zt);
   // 엘리베이터: 본관 · 별관 복도 북쪽 외벽(코어 동쪽) 바깥 승강로 — 실제로 타고 오르내린다
   //   복도에서 E: 호출(다른 층이면 칸이 내려오고/올라온 뒤 문이 열린다) · 칸 안에서 E 위층 / Q 아래층 · 문은 몇 초 뒤 저절로 닫힌다

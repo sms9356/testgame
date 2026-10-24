@@ -3035,7 +3035,7 @@ function updatePlayer(dt) {
     if (jumpBuf > 0) jumpBuf -= dt;
     else if ((P.jy || 0) < sup) P.jy = sup;
     if (!Number.isFinite(P.jy) || P.jy < 0) P.jy = 0;
-    if (!Number.isFinite(P.sh) || P.sh < 0) P.sh = 0; }
+    if (!Number.isFinite(P.sh) || (P.sh < 0 && !(RBG && P.floor === 0 && RBG.inPit(P.x, P.z)))) P.sh = 0; }   // 지하 계단 구덩이 안은 음수 높이 허용
   P.crouchK = lerp(P.crouchK || 0, P.crouch && !P.hiding ? 1 : 0, Math.min(1, dt * 9));
 
   // 정문 개방 유지: 초반에는 정문이 바로 잠기지 않고 열려 있으며, 경비원이 퇴근하는 시점(19:00)에 맞춰 잠긴다!

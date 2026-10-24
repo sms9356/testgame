@@ -273,7 +273,7 @@ function loadModels() {
     const texs = []; pairs.forEach(([, m]) => ['map', 'normalMap', 'roughnessMap', 'metalnessMap', 'aoMap'].forEach(k => { const t = m.material[k]; if (t && !upTex.has(t)) { upTex.add(t); texs.push(t); } }));
     await Promise.all(texs.map(t=>t.userData.ready).filter(Boolean));
     await textureBudget.prepareTextures(texs);
-    for (let i=0;i<texs.length;i++) { if(texs[i].image) renderer.initTexture(texs[i]); if(i%4===3) await new Promise(r => requestAnimationFrame(r)); }
+    for (let i=0;i<texs.length;i++) { if(texs[i].image) renderer.initTexture(texs[i]); await new Promise(r => requestAnimationFrame(r)); }   // 한 프레임에 텍스처 하나 (큰 텍스처 4장 동시 업로드가 끊김을 만들었다)
     pairs.forEach(([parent, m]) => parent.add(m));
   };
   // 사용자 3D 소품 133종 팩 (h133/ID): 정점 색뿐인 저폴리곤 → 면 법선 · 상자 투영 UV 를 만들고, 부품 이름으로 게임 PBR 재질을 골라 재질별로 합친다
@@ -3187,6 +3187,8 @@ function flashNear() {
   const F = floors[P.floor], fx0 = -Math.sin(P.yaw), fz0 = -Math.cos(P.yaw), down = Math.max(0, -P.pitch);
   let d = 9; const floorD = down > .25 ? 1.55 / Math.tan(down) : 9;   /* 바닥을 비추면 바닥까지 거리 */
   for (let s = .1; s < 3; s += .1) { const x = P.x + fx0 * s, z = P.z + fz0 * s; if (F.col.some(c => !c.off && x >= c.x1 && x <= c.x2 && z >= c.z1 && z <= c.z2)) { d = s; break; } }
+  // 새 본관 · 별관 안: 숨겨진 예전 층 전체를 광선으로 훑던 비용(프레임 끊김) 대신 새 건물 충돌 상자로 잰다
+  if (P.floor === 0 && RBG && RBG.inBuilding(P.x, P.z)) { const y = P.sh || 0; for (let s = .2; s < d; s += .2) if (RBG.blocked(P.x + fx0 * s, P.z + fz0 * s, y, .05)) { d = s; break; } return (FN.d = Math.min(d, floorD)); }
   // 충돌 상자가 없는 벽 · 칸막이 · 가구(메시)도: 시선 광선으로 3m 안 실제 면까지 거리
   FN.ray.set(camera.getWorldPosition(FN.v), camera.getWorldDirection(FN.w)); FN.ray.far = 3;
   const hitM = d < 3 ? null : FN.ray.intersectObjects((P.floor === 0 && isOutdoors() ? [world.OUT] : [F.interior, F.shell]).filter(Boolean), true).find(h => h.object.visible && h.object.isMesh && !(h.object.material && h.object.material.transparent && h.object.material.opacity < .5));

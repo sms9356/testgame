@@ -22,6 +22,7 @@ export function installRebuild({ THREE, scene, floors, world }) {
   const BLD = [MAIN, ANX, WK];
 
   // 1) 예전 본관 · 별관 감추기: 층 통째(1~3층 · 옥상 · 별관) + 0층 · 야외에서 그 땅 위에 선 것
+  const NOOP = () => {};
   const OLD_FLOORS = [1, 2, 3, 8, 9, 10].map(f => floors[f]).filter(Boolean);
   [1, 2, 3, 8, 9, 10].forEach(f => { const F = floors[f]; if (!F) return; F.interior.visible = false; if (F.shell) F.shell.visible = false; });
   // 옥상(예전 3층 공간)은 새 본관 지붕 높이로 올린다 — 옥상에 있을 때만 보인다 (예전 지붕이 새 건물 4층 안에 떠 보이지 않게)
@@ -143,7 +144,7 @@ export function installRebuild({ THREE, scene, floors, world }) {
         sw.lamps.forEach(l => { const c = new THREE.Mesh(g, m); c.position.set(l.position.x, l.position.y + .075, l.position.z); sw.covers.add(c); }); group.add(sw.covers); }
       sw.covers.visible = !sw.on; const k = this._pk == null ? 1 : this._pk;
       sw.lamps.forEach(l => { l.userData.swOff = !sw.on; l.intensity = sw.on ? 1.6 * k : 0; }); return sw.on; },
-    hideOld() { for (const F of OLD_FLOORS) { F.interior.visible = false; if (F.shell) F.shell.visible = false; if (F.winFake) F.winFake.visible = false; } },
+    hideOld() { for (const F of OLD_FLOORS) { F.interior.visible = false; if (F.shell) F.shell.visible = false; if (F.winFake) F.winFake.visible = false; for (const o of [F.interior, F.shell, F.winFake]) if (o && !o._frozen) { o._frozen = true; o.updateMatrixWorld = NOOP; } } },   // 영구히 숨긴 예전 층: 매 프레임 행렬 갱신(수천 개)도 건너뛴다
     cull(dt, P) { cullModels(dt, P); for (const F of OLD_FLOORS) { if (F.interior.visible) F.interior.visible = false; if (F.shell && F.shell.visible) F.shell.visible = false; } },   // 매 프레임(메뉴 · 인트로 포함) 예전 층을 끈다
     tick(dt, P, sfx) { BLD.forEach(b => b.tickDoors(dt)); OLD_FLOORS.forEach(F => { if (F.interior.visible) F.interior.visible = false; if (F.shell && F.shell.visible) F.shell.visible = false; }); /* 게임의 층 표시 로직이 예전 층을 다시 켜도 끈다 */ cullModels(dt, P); if (R.elevTick) R.elevTick(dt, P, sfx); },
     // 새 건물 땅 위에 있나 (예전 건물 자리)

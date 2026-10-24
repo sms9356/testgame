@@ -181,6 +181,10 @@ let chapterShown = 0;
 const canvas = $('c');
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
 renderer.setPixelRatio(Math.min(devicePixelRatio, 1.75));
+// GPU 확인: 브라우저 하드웨어 가속이 꺼져 소프트웨어 렌더러(SwiftShader · llvmpipe)로 그리면 안내한다
+{ const gl = renderer.getContext(), ext = gl.getExtension('WEBGL_debug_renderer_info'), gpu = ext ? String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL)) : '';
+  window.__gpu = gpu; window.__gpuSoftware = /swiftshader|llvmpipe|software|basic render/i.test(gpu);
+  if (window.__gpuSoftware && !new URLSearchParams(location.search).has('norender')) setTimeout(() => { try { say('⚠ 그래픽카드(GPU)를 쓰지 못하고 있습니다 — 브라우저 설정에서 “하드웨어 가속 사용”을 켜고 다시 시작하세요', 9000); } catch (e) {} }, 4000); }
 renderer.setSize(innerWidth, innerHeight);
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.3 * SET.bright;
@@ -3566,8 +3570,12 @@ function frameBody(now) {
 
 // 안정화: 다음 프레임을 먼저 예약하고 본문은 오류를 잡아 실행한다 — 어느 기능에서 예외가 나도 게임 전체가 멈추지 않는다
 let frameErrs = 0;
+// 60fps 고정: 120 · 144Hz 모니터에서도 60프레임으로 그려 GPU 부하 · 발열 · 프레임 흔들림을 줄인다 (SET.fpsCap = 0 이면 제한 없음)
+let lastFrameT = 0;
 function frame(now) {
   requestAnimationFrame(frame);
+  const cap = SET.fpsCap ?? 60;
+  if (cap > 0 && !NORENDER) { const iv = 1000 / cap; if (now - lastFrameT < iv - 1.5) return; lastFrameT = now - ((now - lastFrameT) % iv); }
   try { frameBody(now); }
   catch (e) { if (frameErrs++ < 5) console.error('[frame]', e); window.__frameErrs = frameErrs; }
 }

@@ -155,6 +155,13 @@ export function drawMap(ctx, W, H, o) {
   }
   if(o.elevatorBay){const b=o.elevatorBay;fillRect(b.front,b.z1,b.rear,b.z2,'#23282c');strokeRect(b.front,b.z1,b.rear,b.z2,'#83919a');
     if(labels){ctx.fillStyle='#b5c8d0';ctx.font='10px sans-serif';ctx.textAlign='center';ctx.fillText('승강로',X((b.front+b.rear)/2),Y(b.doorZ));}}
+  // 재건축 건물 (?rb): 예전 본관 · 별관 자리를 지우고 새 건물 외곽 · 복도 · 방(지금 층)을 그린다
+  if (o.rb) {
+    const poly = (pts, c, st) => { ctx.beginPath(); pts.forEach(([x, z], i) => i ? ctx.lineTo(X(x), Y(z)) : ctx.moveTo(X(x), Y(z))); ctx.closePath(); if (c) { ctx.fillStyle = c; ctx.fill(); } if (st) { ctx.strokeStyle = st; ctx.lineWidth = 1.5; ctx.stroke(); } };
+    o.rb.clear.forEach(r => fillRect(r.x1, r.z1, r.x2, r.z2, '#1f2622'));
+    o.rb.shells.forEach(pts => poly(pts, '#3a3e40', '#9ab0be'));
+    o.rb.rooms.forEach(r => { poly(r.pts, r.here ? '#4a5a4e' : '#30363a', '#0c0c0c'); if (labels && r.label) { ctx.fillStyle = '#d6d2c2'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(r.label, X(r.cx), Y(r.cz)); } });
+  }
   // Discovery-first: items, devices, lockers and exact objective coordinates are not plotted.
   // 문 상태 (열림: 초록 / 닫힘: 빨강)
   doors.forEach(d => { ctx.fillStyle = d.transition ? '#74b9e8' : d.open ? '#5fc47a' : '#b04040'; const w = Math.max(4, (d.slide ? 1.4 : .9) * S); ctx.fillRect(X(d.x) - w / 2, Y(d.z) - 1.5, w, 3); });

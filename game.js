@@ -966,7 +966,10 @@ function updateObjDir(dt) {
 }
 // 목표 방향: 같은 층이면 방위 · 거리, 다른 층이면 계단/엘리베이터 안내
 function objDir() {
-  const o = objective(), l = o && o.loc; if (!l) return null;
+  const o = objective(); let l = o && o.loc; if (!l) return null;
+  if (RBG) { l = RBG.mapLoc(l, world);   // 새 건물: 예전 좌표 목표를 옮긴 자리로, 층이 다르면 계단 안내
+    if (l.rbY != null && P.floor === 0) { const df = Math.round((l.rbY - (P.sh || 0)) / 3.6); if (df) return { other: true, text: `${RBG.floorLabel(l.x, l.z, l.rbY) || '다른 층'} — ${df > 0 ? '위층' : '아래층'} (양 끝 계단)` }; }
+    else if (l.rbY != null && P.floor !== 0) return { other: true, text: `${RBG.floorLabel(l.x, l.z, l.rbY) || '새 건물'} — 밖으로 나가 본관 · 별관으로` }; }
   if (l.f !== P.floor && (l.f >= 8 || P.floor >= 8)) return { other: true, text: l.f >= 8 && P.floor >= 8 ? `${FLOOR_LABEL[l.f] || '별관'} — ${l.f > P.floor ? '위층' : '아래층'} (별관 계단)` : l.f >= 8 ? `${FLOOR_LABEL[l.f] || '별관'} — 본관 1층 중앙계단실 북쪽 유리 통로로` : '별관 1층 현관 → 유리 통로로 본관에 돌아갈 것' };
   if (l.f !== P.floor) { const up = (l.f === 3 || (l.f >= 1 && l.f <= 2 && P.floor < l.f && P.floor !== 4) || (P.floor === 4 && l.f !== 4)); return { other: true, text: `${FLOOR_LABEL[l.f] || '다른 장소'} — ${l.f >= 5 && l.f <= 7 ? '밖으로 나가 건물을 찾을 것' : up ? '위층 (계단 · 엘리베이터)' : '아래층 (계단 · 엘리베이터)'}` }; }
   const dx = l.x - P.x, dz = l.z - P.z, d = Math.hypot(dx, dz), ang = Math.atan2(-dx, -dz);
@@ -993,6 +996,7 @@ function mapExtras(f) {
     doors: [ ...world.doorList.filter(d => d.floor === f).map(d => ({ x: d.x, z: d.kind === 'slide' ? (d.z > 0 ? 1.55 : -1.55) : d.z, open: d.target > .5, slide: d.kind === 'slide' })), ...world.doors.filter(d => d.floor === f && d.to).map(d => ({ x: d.x, z: d.z, transition: true })), ],
     props: world.props.filter(p => p.floor === f && p.kind !== 'bell' && p.kind !== 'switch' && p.kind !== 'robj' && p.kind !== 'search' && p.kind !== 'chalk').map(p => ({ x: p.x, z: p.z, done: !!p.done, label: { safe: '금고', breaker: '차단기', console: '방송 장비', tape: '녹음기', mina: '민아', lock: '잠긴 보관함', drain: '배수구', piano: '피아노', easel: '그림', phone: '전화', elevator: '엘리베이터', mspot: '🎲' }[p.kind] })),
     elevatorBay:floors[f]?.elevatorBay, target: mapTarget(f), zones: ZONE_MAP[f] || [],
+    rb: RBG && f === 0 ? RBG.mapData(P.x, P.z, P.sh || 0) : null,
   };
 }
 function renderMap() {
@@ -1067,7 +1071,7 @@ function updateSound(dt) {
 }
 // 본관 안 또는 본관-별관 연결 통로(지붕 · 유리벽이 있는 실내 통로) 안
 const inBldg = (x, z) => (z < MAIN_ZS - .3 && z > -9.9 && Math.abs(x) < 36.3);
-function isOutdoors() { return state === 'menu' || state === 'intro' || P.floor === 3 || (P.floor === 0 && !inBldg(P.x, P.z)); }
+function isOutdoors() { return state === 'menu' || state === 'intro' || P.floor === 3 || (P.floor === 0 && !(RBG ? RBG.inBuilding(P.x, P.z) : inBldg(P.x, P.z))); }
 function hit() {
   // Compatibility for legacy event/debug callers: ghosts never deal damage.
   settleStoryGhost(ghost);
@@ -2164,7 +2168,7 @@ function initSaveIds() {
   assignUids(world.items, itemUid); assignUids(world.props, propUid); assignUids(world.doorList, doorUid);
   SCTX = { itemUids: world.items.map(i => i.uid), propUids: world.props.map(p => p.uid) };
 }
-function whereText() { if (P.floor === 0 && isOutdoors()) return '학교 밖'; const r = roomAt(P.floor, P.x, P.z); return AREA_NAMES[P.floor] + (r ? ' · ' + r.name : ''); }
+function whereText() { if (RBG && P.floor === 0 && !isOutdoors()) return RBG.where(P.x, P.z, P.sh || 0) || RBG.floorLabel(P.x, P.z, P.sh || 0) || '본관'; if (P.floor === 0 && isOutdoors()) return '학교 밖'; const r = roomAt(P.floor, P.x, P.z); return AREA_NAMES[P.floor] + (r ? ' · ' + r.name : ''); }
 let lastSave = null;
 function save(silent) {
   if (state === 'dead' || state === 'won' || state === 'menu' || state === 'intro') return;
@@ -3407,7 +3411,7 @@ function updateHud(dt, prox, chase) {
   const st = $('stat'); setTxt(st, (P.hp > 50 ? (P.fear > .6 ? '공포' : '정상') : '부상') + (P.sitting ? ' · 의자에 앉음' : P.crouch ? ' · 앉음' : '')); st.style.color = P.hp > 50 ? (P.fear > .6 ? '#e86870' : '#6fd08c') : '#e0884c';
   $('batBar').style.width = P.battery + '%'; $('s1').classList.toggle('off', !P.light);
   const outdoors = P.floor === 0 && !inBldg(P.x, P.z);
-  setTxt($('floor'), zoneLabel() || (P.floor === 0 && outdoors ? '외부' : AREA_NAMES[P.floor]));
+  setTxt($('floor'), (RBG && P.floor === 0 && !outdoors && RBG.floorLabel(P.x, P.z, P.sh || 0)) || zoneLabel() || (P.floor === 0 && outdoors ? '외부' : AREA_NAMES[P.floor]));
   const m = gameMin(), h24 = Math.floor(m / 60) % 24, sec60 = Math.floor((playTime * 4) % 60);
   setTxt($('clock'), `${h24 >= 12 ? 'PM' : 'AM'} ${String(h24 % 12 || 12).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}:${String(sec60).padStart(2, '0')}`);
   updateRealisticHudWidgets(dt, prox, chase, outdoors);

@@ -6730,5 +6730,159 @@
       "audio_sha256": "b98452a6d72a0d5729fe0e1cd00929dfd19f272655bcc9d554ece56798936523",
       "review_status": "generated"
     }
+  },
+  "call_rep_a1": {
+    "spk": "reporter",
+    "text": "서문일보 사회부입니다. …서문고요? 그 사건이라면, 십 년 전에 제가 쓴 기사가 하루 만에 내려갔습니다.",
+    "dur": 8.2,
+    "baked": true,
+    "eleven": "[serious] [low voice] 서문일보 사회부입니다. …서문고요? 그 사건이라면, 십 년 전에 제가 쓴 기사가 하루 만에 내려갔습니다."
+  },
+  "call_rep_a2": {
+    "spk": "reporter",
+    "text": "증거 없이는 한 줄도 못 씁니다. 학교가 뭘 숨겼는지, 손에 잡히는 걸 가져오세요. 기록이든, 녹화든.",
+    "dur": 7.39,
+    "baked": true,
+    "eleven": "[serious] [low voice] 증거 없이는 한 줄도 못 씁니다. 학교가 뭘 숨겼는지, 손에 잡히는 걸 가져오세요. 기록이든, 녹화든."
+  },
+  "call_rep_a3": {
+    "spk": "reporter",
+    "text": "그리고 학생, 거기 오래 있지 말아요. 그 학교는… 아직 그날 밤을 안 끝냈습니다.",
+    "dur": 6.43,
+    "baked": true,
+    "eleven": "[serious] [low voice] 그리고 학생, 거기 오래 있지 말아요. 그 학교는… 아직 그날 밤을 안 끝냈습니다."
+  },
+  "call_rep_b1": {
+    "spk": "reporter",
+    "text": "CCTV 캡처라고요? 열쇠를 쥔 교무부장이 문을 안 열었다… 십 년 동안 바로 그 한 장면이 없었어요.",
+    "dur": 8.12,
+    "baked": true,
+    "eleven": "[serious] [low voice] CCTV 캡처라고요? 열쇠를 쥔 교무부장이 문을 안 열었다… 십 년 동안 바로 그 한 장면이 없었어요."
+  },
+  "call_rep_b2": {
+    "spk": "reporter",
+    "text": "숙직 일지, 장비 수령부, 펌프실 자물쇠까지 모이면 재단도 더는 못 덮습니다.",
+    "dur": 5.88,
+    "baked": true,
+    "eleven": "[serious] [low voice] 숙직 일지, 장비 수령부, 펌프실 자물쇠까지 모이면 재단도 더는 못 덮습니다."
+  },
+  "call_rep_b3": {
+    "spk": "reporter",
+    "text": "학생 목소리로, 지금 본 걸 그대로 남겨 두세요. 그게 제일 강한 증언이 됩니다.",
+    "dur": 5.96,
+    "baked": true,
+    "eleven": "[serious] [low voice] 학생 목소리로, 지금 본 걸 그대로 남겨 두세요. 그게 제일 강한 증언이 됩니다."
+  },
+  "call_rep_c1": {
+    "spk": "reporter",
+    "text": "들었습니다. 방송이요. 우리 신문사 라디오에서도 잡혔어요. 데스크가 1면을 통째로 비워 두라네요.",
+    "dur": 7.31,
+    "baked": true,
+    "eleven": "[serious] [low voice] 들었습니다. 방송이요. 우리 신문사 라디오에서도 잡혔어요. 데스크가 1면을 통째로 비워 두라네요."
+  },
+  "call_rep_c2": {
+    "spk": "reporter",
+    "text": "십 년 만에 기사 제목을 다시 씁니다. 실종이 아니라, 은폐라고.",
+    "dur": 5.15,
+    "baked": true,
+    "eleven": "[serious] [low voice] 십 년 만에 기사 제목을 다시 씁니다. 실종이 아니라, 은폐라고."
+  },
+  "call_rep_c3": {
+    "spk": "reporter",
+    "text": "고마워요. 그리고… 윤하늘 학생에게도. 이제 집에 갈 수 있겠네요.",
+    "dur": 5.88,
+    "baked": true,
+    "eleven": "[serious] [low voice] 고마워요. 그리고… 윤하늘 학생에게도. 이제 집에 갈 수 있겠네요."
+  },
+  "call_og1": {
+    "spk": "guard",
+    "text": "여보세유? …서문고? 아이고, 이 밤에 그 학교 얘기를 누가 묻는댜.",
+    "dur": 6.84,
+    "baked": true,
+    "eleven": "[tired] [old man, warm] 여보세유? …서문고? 아이고, 이 밤에 그 학교 얘기를 누가 묻는댜."
+  },
+  "call_og2": {
+    "spk": "guard",
+    "text": "경비실 열쇠함 말이여? 그거 번호는 경비장이 바꾸랬어. 마지막으로 나간 열쇠 시각으로. 장부 보면 나와유.",
+    "dur": 8.59,
+    "baked": true,
+    "eleven": "[tired] [old man, warm] 경비실 열쇠함 말이여? 그거 번호는 경비장이 바꾸랬어. 마지막으로 나간 열쇠 시각으로. 장부 보면 나와유."
+  },
+  "call_og3": {
+    "spk": "guard",
+    "text": "그날 밤 마지막으로 나간 게… 펌프실 열쇠여. 교무부장이 가져가서, 끝내 안 돌려줬지.",
+    "dur": 8.05,
+    "baked": true,
+    "eleven": "[tired] [old man, warm] 그날 밤 마지막으로 나간 게… 펌프실 열쇠여. 교무부장이 가져가서, 끝내 안 돌려줬지."
+  },
+  "call_og4": {
+    "spk": "guard",
+    "text": "학생, 그 함 안에 지하실 열쇠도 있을 거여. 내가 못 한 거… 학생이 대신 좀 해 줘유.",
+    "dur": 7.89,
+    "baked": true,
+    "eleven": "[tired] [old man, warm] 학생, 그 함 안에 지하실 열쇠도 있을 거여. 내가 못 한 거… 학생이 대신 좀 해 줘유."
+  },
+  "call_hr1": {
+    "spk": "homeroom",
+    "text": "…네, 하늘이 담임이었던 사람입니다. 이 번호는 어떻게 아셨어요?",
+    "dur": 6.53,
+    "baked": true,
+    "eleven": "[sad] [softly] …네, 하늘이 담임이었던 사람입니다. 이 번호는 어떻게 아셨어요?"
+  },
+  "call_hr2": {
+    "spk": "homeroom",
+    "text": "그 편지요. 끝내 못 부쳤어요. 학교가 결석으로 적으라고 했을 때, 저는 그 칸을 비워 뒀습니다.",
+    "dur": 9.25,
+    "baked": true,
+    "eleven": "[sad] [softly] 그 편지요. 끝내 못 부쳤어요. 학교가 결석으로 적으라고 했을 때, 저는 그 칸을 비워 뒀습니다."
+  },
+  "call_hr3": {
+    "spk": "homeroom",
+    "text": "부탁 하나만 할게요. 출석부 마지막 칸, 하늘이 이름 옆에… 출석이라고 적어 주세요. 저 대신.",
+    "dur": 9.48,
+    "baked": true,
+    "eleven": "[sad] [softly] 부탁 하나만 할게요. 출석부 마지막 칸, 하늘이 이름 옆에… 출석이라고 적어 주세요. 저 대신."
+  },
+  "call_jh1": {
+    "spk": "junho",
+    "text": "…이준호입니다. 이 번호로 전화가 올 줄은 몰랐어요.",
+    "dur": 4.44,
+    "baked": true,
+    "eleven": "[trembling] [regretful] …이준호입니다. 이 번호로 전화가 올 줄은 몰랐어요."
+  },
+  "call_jh2": {
+    "spk": "junho",
+    "text": "잠근 건 저예요. 열쇠는 교무부장님께 드렸고요. 꺼내 주신다고 했어요. 그 말을 믿었어요.",
+    "dur": 7.63,
+    "baked": true,
+    "eleven": "[trembling] [regretful] 잠근 건 저예요. 열쇠는 교무부장님께 드렸고요. 꺼내 주신다고 했어요. 그 말을 믿었어요."
+  },
+  "call_jh3": {
+    "spk": "junho",
+    "text": "증언이 필요하면 할게요. 제 이름 걸고요. 십 년 동안, 하고 싶었던 말이에요.",
+    "dur": 6.53,
+    "baked": true,
+    "eleven": "[trembling] [regretful] 증언이 필요하면 할게요. 제 이름 걸고요. 십 년 동안, 하고 싶었던 말이에요."
+  },
+  "call_jh4": {
+    "spk": "junho",
+    "text": "하늘이한테… 미안하다고 전해 줄 수 있어요? 저는 아직, 그 이름을 소리 내서 못 부르겠어요.",
+    "dur": 8.2,
+    "baked": true,
+    "eleven": "[trembling] [regretful] 하늘이한테… 미안하다고 전해 줄 수 있어요? 저는 아직, 그 이름을 소리 내서 못 부르겠어요."
+  },
+  "call_hn1": {
+    "spk": "haneul",
+    "text": "…들렸어. 내 이름, 끝까지.",
+    "dur": 3.24,
+    "baked": true,
+    "eleven": "[whispering] [relieved] …들렸어. 내 이름, 끝까지."
+  },
+  "call_hn2": {
+    "spk": "haneul",
+    "text": "고마워. 이제 집에 갈게. 엄마한테… 방송 잘 들었냐고, 물어봐 줘.",
+    "dur": 5.96,
+    "baked": true,
+    "eleven": "[whispering] [relieved] 고마워. 이제 집에 갈게. 엄마한테… 방송 잘 들었냐고, 물어봐 줘."
   }
 }

@@ -3750,7 +3750,7 @@ function useAnnex(p) {
 function anxCabinetVisual() { const a = world.guardAnnex; if (!a) return; if (FL.cabOpen) { a.cabDoor.rotation.y = -1.9; a.cabPad.material.color.setHex(0x40ff80); } else a.cabPad.material.color.setHex(0xff4030); ANNEX_KEYS.forEach((k, i) => { if (a.hookKeys[i]) a.hookKeys[i].visible = !FL['key_' + k.id]; }); for (const q of world.props) if (q.kind === 'ganx' && q.k === 'box' && FL['box_' + q.key] && q.mesh?.userData.lid) { q.mesh.userData.lid.rotation.x = -1.2; q.label = q.label.replace('잠긴 ', '열린 '); } }
 function setupAnnex() {
   Object.assign(world.NOTES, {
-    n_key_ledger: { title: '경비실 열쇠 대출 장부 (1998.10)', text: '<b>[열쇠 대출 장부 — 1998년 10월 12일]</b><br>• 18:05 방송실 열쇠 — 방송부 윤하늘 · 반납 21:55<br>• 19:30 체육관 열쇠 — 체육부장 강태식 · 반납 21:10<br>• 20:40 본관 숙직실 — 교무부장 · 반납 20:50<br>• <b>22:50 지하 펌프실 열쇠 — 교무부장 (서명)</b> · 반납 <b>—</b><br><br>장부 맨 아래, 경비장 글씨: <i>“보관함 번호는 마지막으로 나간 열쇠의 시각으로 바꿀 것.”</i>' },
+    n_key_ledger: { title: '경비실 열쇠 대출 장부 (1998.10)', text: '<b>[열쇠 대출 장부 — 1998년 10월 12일]</b><br>• 18:05 방송실 열쇠 — 방송부 윤하늘 · 반납 21:55<br>• 19:30 체육관 열쇠 — 체육부장 강태식 · 반납 21:10<br>• 20:40 본관 숙직실 — 교무부장 · 반납 20:50<br>• <b>22:50 지하 펌프실 열쇠 — 교무부장 (서명)</b> · 반납 <b>—</b><br><br>장부 맨 아래, 경비장 글씨: <i>“보관함 번호는 마지막으로 나간 열쇠의 시각으로 바꿀 것.”</i><br><br>표지 안쪽 연필 메모: <i>박종철 (야간) 자택 031-562-0915</i>' },
     n_lost_badge: { title: '분실물 상자 — 방송부 명찰', text: '먼지 쌓인 분실물 상자 맨 밑, <b>“방송부 · 윤하늘”</b> 명찰이 있다.<br>뒷면에 볼펜으로 — <i>“10/12 기념 방송 끝나면 엄마한테 바로 전화.”</i><br>상자 구석에서 손전등 건전지 하나를 찾았다.' },
     n_cctv_b1: { title: 'CCTV 캡처 ① — B1 펌프실 복도 22:50', text: '<b>[CAM-03 · 1998.10.12 22:50]</b><br>펌프실 철문 앞, 명찰을 단 양복 교사. 손에 열쇠 꾸러미가 빛난다.<br>그는 문 앞에 30초쯤 서 있다가 — <b>열지 않고 돌아선다.</b><br>10분 전, 학생 4명만 계단으로 돌아갔다. 들어간 사람은 5명이었다.' },
     n_cctv_office: { title: 'CCTV 캡처 ② — 교무실 앞 22:55', text: '<b>[CAM-04 · 1998.10.12 22:55]</b><br>같은 교사가 열쇠를 쥔 채 교장실 쪽으로 걸어간다.<br>23:10, 교장실 앞에 두 사람. 23:20 — 본관 전체 정전, 화면이 끊긴다.' },
@@ -3965,6 +3965,7 @@ async function haneulBroadcast() {
     await wait((thanks+.6)*1000);if(!current())return;
     talk('calm',3200);addClue('calm');refreshHud();save(true);
     toast('방송 복원 완료','꺼지지 않던 방송이 멎고, 기억 속 교실이 조용해졌다','opt');
+    setTimeout(()=>{if(state==='playing'&&!CALL.talking&&!(FL.calls&&FL.calls.haneul)){CALL.ring=null;callRing({id:'haneul',who:'윤하늘',num:'방송실 내선 3-1',lines:['call_hn1','call_hn2']});}},38000);
   } finally {if(epoch===storySession)voBusy=false;}
 }
 // 민아 깨우기: 3D 모델이면 깨어남(이마 짚기 · 두리번) → 일어서기 → 안도 표정 뒤 사라짐. 아니면 바로 사라짐
@@ -7251,6 +7252,29 @@ registerLines({
   call_unk2: { spk: 'ghost', text: '……지금 네가 앉아 있는 그 의자…… 거기, 원래 내 자리야……' },
   call_guard: { spk: 'guard', text: '어이, 학생! 나 경비실이여. 아직도 본관 안에 있는 겨? 해가 다 떨어졌는디 거기 혼자 돌아댕기믄 큰일 나유! 복도에서 무슨 소리가 나도 절대 대답허지 말고, 어서 정문 쪽으로 나와유!' },
   call_home: { spk: 'mom', text: '여보세요? 얘, 너 지금 어디야! 왜 이렇게 전화가 끊겨…… 서문고 앞이라고? 거기 위험하니까 꼼짝 말고 정문 쪽에 나와 있어, 엄마가 지금 바로 갈게!' },
+  // 4단계: 은폐를 밝히는 사람들 — 문서에서 번호를 찾으면 연락처가 생긴다 (외부 번호라 신호 필요)
+  call_rep_a1: { spk: 'reporter', text: '서문일보 사회부입니다. …서문고요? 그 사건이라면, 십 년 전에 제가 쓴 기사가 하루 만에 내려갔습니다.' },
+  call_rep_a2: { spk: 'reporter', text: '증거 없이는 한 줄도 못 씁니다. 학교가 뭘 숨겼는지, 손에 잡히는 걸 가져오세요. 기록이든, 녹화든.' },
+  call_rep_a3: { spk: 'reporter', text: '그리고 학생, 거기 오래 있지 말아요. 그 학교는… 아직 그날 밤을 안 끝냈습니다.' },
+  call_rep_b1: { spk: 'reporter', text: 'CCTV 캡처라고요? 열쇠를 쥔 교무부장이 문을 안 열었다… 십 년 동안 바로 그 한 장면이 없었어요.' },
+  call_rep_b2: { spk: 'reporter', text: '숙직 일지, 장비 수령부, 펌프실 자물쇠까지 모이면 재단도 더는 못 덮습니다.' },
+  call_rep_b3: { spk: 'reporter', text: '학생 목소리로, 지금 본 걸 그대로 남겨 두세요. 그게 제일 강한 증언이 됩니다.' },
+  call_rep_c1: { spk: 'reporter', text: '들었습니다. 방송이요. 우리 신문사 라디오에서도 잡혔어요. 데스크가 1면을 통째로 비워 두라네요.' },
+  call_rep_c2: { spk: 'reporter', text: '십 년 만에 기사 제목을 다시 씁니다. 실종이 아니라, 은폐라고.' },
+  call_rep_c3: { spk: 'reporter', text: '고마워요. 그리고… 윤하늘 학생에게도. 이제 집에 갈 수 있겠네요.' },
+  call_og1: { spk: 'guard', text: '여보세유? …서문고? 아이고, 이 밤에 그 학교 얘기를 누가 묻는댜.' },
+  call_og2: { spk: 'guard', text: '경비실 열쇠함 말이여? 그거 번호는 경비장이 바꾸랬어. 마지막으로 나간 열쇠 시각으로. 장부 보면 나와유.' },
+  call_og3: { spk: 'guard', text: '그날 밤 마지막으로 나간 게… 펌프실 열쇠여. 교무부장이 가져가서, 끝내 안 돌려줬지.' },
+  call_og4: { spk: 'guard', text: '학생, 그 함 안에 지하실 열쇠도 있을 거여. 내가 못 한 거… 학생이 대신 좀 해 줘유.' },
+  call_hr1: { spk: 'homeroom', text: '…네, 하늘이 담임이었던 사람입니다. 이 번호는 어떻게 아셨어요?' },
+  call_hr2: { spk: 'homeroom', text: '그 편지요. 끝내 못 부쳤어요. 학교가 결석으로 적으라고 했을 때, 저는 그 칸을 비워 뒀습니다.' },
+  call_hr3: { spk: 'homeroom', text: '부탁 하나만 할게요. 출석부 마지막 칸, 하늘이 이름 옆에… 출석이라고 적어 주세요. 저 대신.' },
+  call_jh1: { spk: 'junho', text: '…이준호입니다. 이 번호로 전화가 올 줄은 몰랐어요.' },
+  call_jh2: { spk: 'junho', text: '잠근 건 저예요. 열쇠는 교무부장님께 드렸고요. 꺼내 주신다고 했어요. 그 말을 믿었어요.' },
+  call_jh3: { spk: 'junho', text: '증언이 필요하면 할게요. 제 이름 걸고요. 십 년 동안, 하고 싶었던 말이에요.' },
+  call_jh4: { spk: 'junho', text: '하늘이한테… 미안하다고 전해 줄 수 있어요? 저는 아직, 그 이름을 소리 내서 못 부르겠어요.' },
+  call_hn1: { spk: 'haneul', text: '…들렸어. 내 이름, 끝까지.' },
+  call_hn2: { spk: 'haneul', text: '고마워. 이제 집에 갈게. 엄마한테… 방송 잘 들었냐고, 물어봐 줘.' },
   // 엄마와의 통화 — 진행에 따라 세 번 (처음 · 증거를 모은 뒤 · 폭로 방송 뒤)
   call_home_a1: { spk: 'mom', text: '여보세요? 얘, 너 지금 어디야! 왜 이렇게 전화가 자꾸 끊겨……' },
   call_home_a2: { spk: 'mom', text: '서문고? 거기 십 년 전에 문 닫은 데잖아. 거기서 애 하나 없어졌던 거, 너도 알잖아.' },
@@ -7281,6 +7305,11 @@ const CONTACTS = [
   { id: '119', name: '119 종합상황실', num: '119', icon: '🚑', role: '긴급 구조 요청 (신호 필요)' },
   { id: 'ext201', name: '3층 방송실 부스', num: '내선 201', icon: '📻', role: '교내 방송국 내선' },
   { id: 'unk', name: '발신번호 표시제한', num: '000-0000-1012', icon: '❓', role: '추적 불가 주파수', hidden: true },
+  // 문서에서 번호를 찾으면 생긴다
+  { id: 'reporter', name: '서문일보 한진우 기자', num: '02-735-1998', icon: '📰', role: '1998년 기사를 쓴 기자 (신호 필요)', show: () => docs.some(d => ['ts_reporter2', 'n_seomun_ilbo', 'news_rep'].includes(d.id)) || !!FL.newsRead },
+  { id: 'oldguard', name: '전 경비원 박종철 (자택)', num: '031-562-0915', icon: '🔦', role: '1998년 당직 경비원 (신호 필요)', show: () => docs.some(d => d.id === 'n_key_ledger') },
+  { id: 'homeroom', name: '3-2 담임 정은수 선생님', num: '010-7331-0313', icon: '📚', role: '하늘이의 담임 · 전근 (신호 필요)', show: () => docs.some(d => /^(nv_q5|vo_homeroom_tape|nv_n7)/.test(d.id)) },
+  { id: 'junho', name: '이준호 (전 방송부)', num: '010-4120-2250', icon: '🎚', role: '그날 밤 문을 잠근 학생 (신호 필요)', show: () => docs.some(d => /^(nv_q4|ts_junho)/.test(d.id)) },
 ];
 const INCALLS = [
   { id: 'mina1', who: '민아 선배', num: '010-2481-1012', lines: ['call_mina1'], topic: 'mina1', summary: '복도의 발소리 경고 · 3층 방송실 근처', when: () => P.keys >= 1 && FL.cam },
@@ -7385,6 +7414,18 @@ async function callTalk(who, ids, creepy, topic = null) {
       ]);
       if (i === 0) calmDown(25, '응답기 속 목소리: “정 그라믄 11시 40분 전엔 꼭 나와야 혀!”');
       else toast('응답기 메모 녹음', '“교무실 금고는 오늘 날짜(1012), 도서실 서랍은 머리핀, 수영장 배수구는 긴 갈고리를 써 봐유.”', 'info');
+    } else if (topic === 'rep_b') {
+      const i = await choose('📞 한진우 기자와 통화 중', '“학생 목소리로 남겨 두세요.”', [
+        { label: '“녹음해서 보낼게요. 끝까지 써 주세요.”', sub: '증언 녹음을 약속한다 (엔딩 기사에 반영)' },
+        { label: '“아직은… 무서워요. 조금만 더 모을게요.”', sub: '마음을 가라앉힌다' }]);
+      if (i === 0) { FL.repRecord = true; toast('📰 증언 약속', '기자에게 증언 녹음을 보내기로 했다.', 'info'); } else calmDown(20, '기자의 차분한 목소리에 숨이 고르게 돌아온다.');
+    } else if (topic === 'junho') {
+      const i = await choose('📞 이준호와 통화 중', '수화기 너머로 오래 참은 울음이 들린다.', [
+        { label: '“증언해 주세요. 하늘이를 위해서요.”', sub: '실명 증언을 부탁한다' },
+        { label: '“…당신 잘못만은 아니었어요.”', sub: '그를 위로한다 (마음 안정)' }]);
+      if (i === 0) { FL.junhoTestify = true; toast('🎚 증언 확보', '이준호가 실명 증언을 약속했다.', 'info'); } else calmDown(25, '“…고마워요.” 짧은 대답 뒤로 숨소리가 잦아든다.');
+    } else if (topic === 'homeroom') {
+      calmDown(20, '담임 선생님의 부탁이 마음에 남는다. 출석부를 찾아보자.');
     } else if (topic === 'mina2') {
       talk('findMina', 3000);
     } else if (topic === 'home' || topic === '119') {
@@ -7398,6 +7439,7 @@ function dialNumber(rawNum) {
   const num = String(rawNum || '').replace(/[^0-9]/g, '');
   if (!num) return;
   if (num === '100') { callOut('guard'); return; }
+  const known = CONTACTS.find(c => c.show && c.num.replace(/[^0-9]/g, '') === num && c.show()); if (known) { callOut(known.id); return; }
   if (num === '119') { callOut('119'); return; }
   if (num === '201' || num === '01024811012' || num === '2481') {
     if (num === '201') { callOut('ext201'); return; }
@@ -7445,6 +7487,17 @@ function callOut(id) {
     const st = FL.calm || FL.gatePower ? 'c' : P.keys >= 3 ? 'b' : 'a', lines = { a: ['call_home_a1', 'call_home_a2', 'call_home_a3', 'call_home_a4'], b: ['call_home_b1', 'call_home_b2', 'call_home_b3'], c: ['call_home_c1', 'call_home_c2', 'call_home_c3'] }[st];
     CALL.log.push({ who: '집 (엄마)', t: clockText(), kind: '발신', lines, summary: { a: '정문 앞 대기 당부 · 누가 불러도 대답하지 말 것', b: '증거 사진을 찍어 두라는 당부', c: '라디오로 폭로 방송을 들은 엄마' }[st] });
     callTalk('집 (엄마)', lines, false, 'home'); return;
+  }
+  if (['reporter', 'oldguard', 'homeroom', 'junho'].includes(id) && sig) {
+    let lines, summary, topic = id;
+    if (id === 'reporter') { const ev = ['cctv_b1', 'cctv_office', 'box_main', 'box_gym', 'box_base'].filter(k => FL[k]).length, st = FL.calm ? 'c' : ev >= 2 ? 'b' : 'a';
+      lines = ['call_rep_' + st + '1', 'call_rep_' + st + '2', 'call_rep_' + st + '3']; topic = 'rep_' + st;
+      summary = { a: '증거부터 가져오라는 기자', b: `증거 ${ev}건 확인 · 기사화 준비`, c: '폭로 방송 수신 · 1면 기사 확정' }[st]; }
+    else if (id === 'oldguard') { lines = ['call_og1', 'call_og2', 'call_og3', 'call_og4']; summary = '열쇠함 번호 = 마지막으로 나간 열쇠 시각 (펌프실 22:50)'; FL.ogHint = true; }
+    else if (id === 'homeroom') { lines = ['call_hr1', 'call_hr2', 'call_hr3']; summary = '출석부 마지막 칸에 출석을 적어 달라는 부탁'; FL.hrAsk = true; }
+    else { lines = ['call_jh1', 'call_jh2', 'call_jh3', 'call_jh4']; summary = '이준호의 자백 · 실명 증언 의사'; }
+    CALL.log.push({ who: c.name, t: clockText(), kind: '발신', lines, summary });
+    callTalk(c.name, lines, false, topic); return;
   }
   if (id === 'mina') {
     if (FL.mina) { toast('민아 선배', '선배는 이미 구출되어 내 곁에 있다. 함께 정문으로 나가자.', 'info'); return; }
@@ -7501,7 +7554,7 @@ function renderCallTab(B) {
     </div>
     ${vm.length ? `<div class="pCHead">📼 미확인 음성 사서함 (${vm.length})</div>` + vm.map(c => `<button data-vm="${c.id}">▶ ${c.who} (${c.num || ''})<small>부재중 녹음 메시지 재생 · ${c.summary || ''}</small></button>`).join('') : ''}
     <div class="pCHead">연락처 목록</div>
-    ${CONTACTS.filter(c => !c.hidden || rec).map(c => `<button data-c="${c.id}">${c.icon} ${c.name} <em style="font-style:normal;opacity:.65;font-size:11px">(${c.num})</em><small>${c.role || ''}</small></button>`).join('')}
+    ${CONTACTS.filter(c => c.show ? c.show() : (!c.hidden || rec)).map(c => `<button data-c="${c.id}">${c.icon} ${c.name} <em style="font-style:normal;opacity:.65;font-size:11px">(${c.num})</em><small>${c.role || ''}</small></button>`).join('')}
     <div class="pCHead">통화 기록 & 자동 녹음 아카이브</div>
     ${CALL.log.length ? CALL.log.slice(-8).reverse().map((l, idx) => `<div class="pLog" style="display:flex;align-items:center;justify-content:space-between;gap:6px"><div><b>[${l.kind}] ${l.who}</b><span>${l.t}${l.summary ? ' · ' + l.summary : ''}</span></div>${l.lines && l.lines.length ? `<button type="button" data-replay="${CALL.log.length - 1 - idx}" style="padding:3px 8px;font-size:11px;background:#1c2836;color:#9cd0ff;border:1px solid #385270;border-radius:4px;cursor:pointer;white-space:nowrap">▶ 녹음 듣기</button>` : ''}</div>`).join('') : '<div class="pEmpty">통화 기록이 없습니다.</div>'}
   </div>`;
@@ -8739,7 +8792,7 @@ if (DEBUG) {
     photoCheck, PHOTOQ,
     flashNearProbe: () => { FN.t = 0; return flashNear(); }, agProbe: () => { const t = performance.now(); AG.t = 0; antiGlareTick(); return performance.now() - t; },
     bcAuto() { BC.power = true; BC.amp = 1; BC.ch = 'all'; BC.fader = 70; closeUI(); bcOnAir(); },   // 자동 점검: 콘솔 순서를 건너뛰고 ON AIR
-    minaF: MINA_F,
+    minaF: MINA_F, CONTACTS, CALL, callOut,
     tp(x, z, f = 0, yaw = 0, pitch = 0) { P.x = x; P.z = z; P.floor = f; P.yaw = yaw; P.pitch = pitch; },
     give() { world.items.filter(i => i.kind === 'key').forEach(i => { i.taken = true; i.mesh.visible = false; got[i.idx] = true; }); P.keys = TOTAL; refreshHud(); },
     get state() { return state; }, set state(v) { state = v; }, get tNow() { return tNow; }, openTest, EV, appar, applyQuality,

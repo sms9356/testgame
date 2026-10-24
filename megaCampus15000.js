@@ -214,12 +214,7 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
       }
     }
 
-    // 2층 동남쪽 돌출 발코니 & 주철 동자주 난간 (CAD BALCONY)
-    pbox(1.9, .22, 4.4, stoneM, x1 + 1.15, Y2 - .08, cz + 4.3, g);
-    pbox(.08, .08, 4.4, walnutM, x1 + 2.02, Y2 + 1.02, cz + 4.3, g);
-    for (let bz = cz + 2.2; bz <= cz + 6.4; bz += .35) {
-      pcyl(.016, .016, 1.02, ironBalM, x1 + 2.02, Y2 + .51, bz, g);
-    }
+    // (2층 동남쪽 돌출 발코니는 받침 · 출입문 없이 벽에 떠 있는 판자처럼 보여 철거)
 
     // 2) 북쪽 벽면 16단 화강암·월넛 실내 직통 계단 + 22개 주철 동자주(Balusters) & 뉴얼 포스트 난간!
     for (let st = 0; st < 16; st++) {

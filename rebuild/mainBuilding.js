@@ -125,7 +125,7 @@ export function buildMainBuilding(opt = {}) {
     brick: M('brick', () => pbr('brick', { rough: .95 })),                              // 적벽돌 (실사)
     board: M('board', () => new THREE.MeshStandardMaterial({ map: TEX.board(), roughness: .8 })),
     alu: M('alu', () => new THREE.MeshStandardMaterial({ color: 0xb8bcc0, roughness: .35, metalness: .7 })),
-    glass: M('glass', () => new THREE.MeshPhysicalMaterial({ color: 0xbfd6dc, roughness: .05, transmission: .85, transparent: true, opacity: .28, depthWrite: false })),
+    glass: M('glass', () => new THREE.MeshStandardMaterial({ color: 0xbfd6dc, roughness: .08, metalness: .1, transparent: true, opacity: .16, depthWrite: false, side: THREE.DoubleSide })),   // 투과(transmission) 굴절은 장면을 한 번 더 그리고 흐릿한 바닥 번짐을 만든다 → 반투명 유리
     steelG: M('steelG', () => pbr('d2_tex_paint', { color: 0xa8b8ac, rough: .7, metal: .35 })),   // 도장 철판 (분전반 · 방화문 · 캐비닛)
     red: M('red', () => new THREE.MeshStandardMaterial({ color: 0xb2201c, roughness: .45, metalness: .2 })),
     white: M('white', () => new THREE.MeshStandardMaterial({ color: 0xf0eee8, roughness: .6 })),
@@ -633,7 +633,7 @@ export function buildMainBuilding(opt = {}) {
 export function buildWalkway({ x1, x2, z1, z2 }) {
   const root = new THREE.Group(); root.name = 'REBUILD_WALKWAY'; const col = [], walk = [{ x1, x2, z1, z2, h: () => 0, f: 0 }], lights = [];
   const mat = { terr: pbr('tile', { rough: .8 }), conc: pbr('step', { rough: 1 }), alu: new THREE.MeshStandardMaterial({ color: 0xb8bcc0, roughness: .35, metalness: .7 }),
-    glass: new THREE.MeshPhysicalMaterial({ color: 0xbfd6dc, roughness: .05, transmission: .85, transparent: true, opacity: .25, depthWrite: false }), lamp: new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xf4f6ff, emissiveIntensity: 1.4 }) };
+    glass: new THREE.MeshStandardMaterial({ color: 0xbfd6dc, roughness: .08, metalness: .1, transparent: true, opacity: .16, depthWrite: false, side: THREE.DoubleSide }), lamp: new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xf4f6ff, emissiveIntensity: 1.4 }) };
   const uvb = (w, h, d, u) => { const g = new THREE.BoxGeometry(w, h, d), uv = g.attributes.uv, n = g.attributes.normal; for (let i = 0; i < uv.count; i++) { const ax = Math.abs(n.getX(i)), ay = Math.abs(n.getY(i)); uv.setXY(i, uv.getX(i) * (ax > .5 ? d : w) / u, uv.getY(i) * (ay > .5 ? d : h) / u); } return g; };
   const add = (m, a, b, y1, y2, c, d, solid) => { const g = new THREE.Mesh(uvb(b - a, y2 - y1, d - c, m === mat.terr ? 2.4 : 2.5), m); g.position.set((a + b) / 2, (y1 + y2) / 2, (c + d) / 2); g.receiveShadow = true; root.add(g); if (solid) col.push({ x1: a, x2: b, z1: c, z2: d, y1, y2 }); };
   add(mat.terr, x1, x2, -.25, 0, z1, z2); add(mat.conc, x1 - .2, x2 + .2, 2.9, 3.15, z1, z2);

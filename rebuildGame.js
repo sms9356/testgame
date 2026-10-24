@@ -84,6 +84,8 @@ export function installRebuild({ THREE, scene, floors, world }) {
     // 새 건물 땅 위에 있나 (예전 건물 자리)
     inside(x, z) { return inOld(x, z); },
     floorOf(y) { return Math.max(0, Math.round(y / MAIN.spec.FH)); },
+    roomAt(x, z, y) { const f = Math.round(y / MAIN.spec.FH); for (const b of BLD) { if (!b.spec) continue; const [lx, lz] = b.toLocal(x, z); const r = (b.props || []).find(p => p.kind === 'room' && p.floor === f && lx > p.x1 && lx < p.x2 && lz > p.z1 && lz < p.z2);
+      if (r) { const [cx, cz] = b.toWorld((r.x1 + r.x2) / 2, (r.z1 + r.z2) / 2); return { id: `rb:${b.name}:${f}:${r.label}`, type: r.type === 'bcast' ? 'broadcast' : r.type || 'room', name: r.label, cx, cz, rb: true }; } } return null; },
     where(x, z, y) { const f = Math.round(y / MAIN.spec.FH); for (const b of BLD) { const [lx, lz] = b.toLocal(x, z); const r = (b.props || []).find(p => p.kind === 'room' && p.floor === f && lx > p.x1 && lx < p.x2 && lz > p.z1 && lz < p.z2); if (r) return `${b.name} ${f + 1}층 ${r.label}`; } return null; },
   };
 

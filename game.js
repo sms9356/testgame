@@ -3086,7 +3086,7 @@ const easeOut = t => 1 - Math.pow(1 - t, 3);
 
 function updateLighting(dt) {
   const F = floors[P.floor];
-  const indoors = P.inElev || P.floor >= 4 || (P.floor > 0 && P.floor < 3) || (P.floor === 0 && inBldg(P.x, P.z)); perfStabTick(dt, indoors);
+  const indoors = P.inElev || P.floor >= 4 || (P.floor > 0 && P.floor < 3) || (P.floor === 0 && (RBG ? RBG.inBuilding(P.x, P.z) : inBldg(P.x, P.z))); perfStabTick(dt, indoors);
   const k = Math.min(1, dt * 3);
   updateDay(dt);
   const dk = DAY.k;
@@ -3306,7 +3306,7 @@ function areaCheck(dt) {
   if (f === 5) k = P.z < 15.5 ? 'gymStage' : 'gym';
   else if (f === 6) k = P.z < 30.2 ? 'poolLocker' : 'pool';
   else if (f === 7) k = 'cafe'; else if (f === 3) k = 'roof';
-  else if (f === 0 && !inBldg(P.x, P.z)) {
+  else if (f === 0 && !(RBG ? RBG.inBuilding(P.x, P.z) : inBldg(P.x, P.z))) {
     if (P.z > 60) k = 'gate'; else if (P.x < -40 && Math.abs(P.z - 32) < 9) k = 'westGate'; else if (Math.abs(P.x) < 22 && P.z < -10.5) k = 'annexOut';
   } else if (f <= 2 || f === 4 || f >= 8) {
     const an = f >= 8, sl = an ? ANNEX.slots : SLOTS, lay = an ? ANNEX.floors[f - 8] : LAYOUT[f];
@@ -3422,7 +3422,7 @@ function updateHud(dt, prox, chase) {
   $('fearBar').style.width = P.fear * 100 + '%';
   const st = $('stat'); setTxt(st, (P.hp > 50 ? (P.fear > .6 ? '공포' : '정상') : '부상') + (P.sitting ? ' · 의자에 앉음' : P.crouch ? ' · 앉음' : '')); st.style.color = P.hp > 50 ? (P.fear > .6 ? '#e86870' : '#6fd08c') : '#e0884c';
   $('batBar').style.width = P.battery + '%'; $('s1').classList.toggle('off', !P.light);
-  const outdoors = P.floor === 0 && !inBldg(P.x, P.z);
+  const outdoors = P.floor === 0 && !(RBG ? RBG.inBuilding(P.x, P.z) : inBldg(P.x, P.z));   // 새 건물이면 새 건물 경계로
   setTxt($('floor'), (RBG && P.floor === 0 && !outdoors && RBG.floorLabel(P.x, P.z, P.sh || 0)) || zoneLabel() || (P.floor === 0 && outdoors ? '외부' : AREA_NAMES[P.floor]));
   const m = gameMin(), h24 = Math.floor(m / 60) % 24, sec60 = Math.floor((playTime * 4) % 60);
   setTxt($('clock'), `${h24 >= 12 ? 'PM' : 'AM'} ${String(h24 % 12 || 12).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}:${String(sec60).padStart(2, '0')}`);
@@ -4032,6 +4032,7 @@ function showApparition(f, x, z, yaw, dur, watch) { evFx('evPulse'); appar.posit
 const EV = { done: new Set(), t: 0, inRoom: null, roomT: 0, slamCD: 60, b33T: 0, b33: 0, corrT: 0 };
 const evOnce = (id, fn) => { if (EV.done.has(id)) return false; EV.done.add(id); fn(); return true; };
 function roomAt(f, x, z) {
+  if (RBG && f === 0 && RBG.inside(x, z)) return RBG.roomAt(x, z, P.sh || 0);   // 새 건물: 예전 방 배치 대신 새 본관 · 별관 방 (층 높이로)
   // 본관 남쪽 방 줄 (복도 남쪽, z 1.75 ~ 9.6)
   if (z > 1.8 && z < MAIN_ZS - .3 && f >= 0 && f <= 2) { const i = SLOTS.findIndex(c => Math.abs(x - c) < 4); if (i < 0) return null; const L = LAYOUT_S[f]; return { type: L.types[i], name: L.names[i], cx: SLOTS[i], id: f + ':s' + i, south: true }; }
   if (z > 1.8 && z < MAIN_ZS - .3 && f >= 8 && f <= 10) { const i = ANNEX.slots.findIndex(c => Math.abs(x - c) < 4); if (i < 0) return null; const L = ANNEX_S[f - 8]; return { type: L.types[i], name: L.names[i], cx: ANNEX.slots[i], id: f + ':s' + i, south: true }; }
@@ -6550,7 +6551,7 @@ function zoneLabel() {
   const f = P.floor, x = P.x, z = P.z;
   if (f === 1 && inPassage()) return '2층 연결 구름다리';
   if (f === 0 && x > GUARD_LAYOUT.originX - .9 && x < GUARD_LAYOUT.originX + GUARD_LAYOUT.width + .9 && z > GUARD_LAYOUT.originZ - GUARD_LAYOUT.depth - .8 && z < GUARD_LAYOUT.originZ + .8) return '경비실';
-  if (f === 0 && z > MAIN_ZS + 1 && z < 62 && Math.abs(x) < 30 && !inBldg(x, z)) return '운동장';
+  if (f === 0 && z > MAIN_ZS + 1 && z < 62 && Math.abs(x) < 30 && !(RBG ? RBG.inBuilding(x, z) : inBldg(x, z))) return '운동장';
   if (f === 1 && x > 28.1 && x < 35.9 && z < -1.75) return '과학실';
   if (f === 10) { const r = roomAt(f, x, z); if (r && r.type === 'lab') return '과학실'; }
   if (f === 7) return z < 12.5 ? '급식실 · 조리실' : '급식실';

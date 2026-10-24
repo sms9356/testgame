@@ -5,7 +5,7 @@
 import * as THREE from '../vendor/three.module.js';
 import { mergeGeometries } from '../vendor/addons/utils/BufferGeometryUtils.js';
 
-export const DESK_RY = Math.PI / 2, CHAIR_RY = Math.PI / 2;   // 모델 정면 보정 (스크린샷으로 맞춘다)
+export const DESK_RY = Math.PI / 2, CHAIR_RY = -Math.PI / 2;   // 의자: 등받이가 교실 뒤쪽(+x) — 칠판(서쪽)을 바라본다 (측정으로 확인)   // 모델 정면 보정 (스크린샷으로 맞춘다)
 export const SPEC = {
   floors: 4, FH: 3.6, CEIL: 2.7, slab: .25,
   bay: 9, classDepth: 10, corridor: 3.6, wall: .2, outer: .3,   // 교실 9×10m · 복도 3.6m (건물 깊이 14m)
@@ -462,7 +462,7 @@ export function buildMainBuilding(opt = {}) {
       // 실사 학교 책걸상 모델 (Poly Haven SchoolDesk_01 · SchoolChair_01) — 칠판(서쪽)을 바라본다
       mdl('SchoolDesk_01', cx, y0, cz, DESK_RY);
       col.push({ x1: cx - .28, x2: cx + .28, z1: cz - .36, z2: cz + .36, y1: y0, y2: y0 + .76 });
-      mdl('SchoolChair_01', cx + .44, y0, cz, CHAIR_RY);
+      mdl('SchoolChair_01', cx + .5, y0, cz, CHAIR_RY);   // 의자 앞 끝이 책상 뒤에 살짝 들어가되 겹치지 않게
     }
     // 뒤쪽 사물함 (36칸, 높이 1.2) + 게시판
     lockerWall(x2 - .02, z1 + .3, z2 - .3, y0, 1.2);
@@ -679,7 +679,7 @@ export function buildMainBuilding(opt = {}) {
   }
   // ── U자 계단 (층마다 2개 비행 + 중간 참) ──
   function stair(r, f, y0) {
-    const w = (r.x2 - r.x1 - .3) / 2, xa = r.x1 + .15, xb = xa + w + .3, { zA, zB, zL } = SG(r), run = zB - zA, H = S.FH, n = 12, rise = H / 2 / n, tr = run / n;
+    const w = (r.x2 - r.x1 - .6) / 2, xa = r.x1 + .15, xb = xa + w + .3, { zA, zB, zL } = SG(r), run = zB - zA, H = S.FH, n = 12, rise = H / 2 / n, tr = run / n;
     box('terr', r.x1, r.x2, y0, y0 + .02, zN, zA);   // 층 참 (보행면은 슬래브 쪽에서)
     const roofUp = opt.roofStair && f === S.floors - 1 && r.x1 > 0;   // 맨 위층 동쪽 계단실: 옥상까지 이어지는 계단 + 옥탑 계단실
     // 벽 쪽 핸드레일 (비행마다 기울어진 봉 + 받침대)

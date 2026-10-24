@@ -56,6 +56,7 @@ function guardDeviceState() { return { cctvOn: FL.guardCctvOn ?? true, lightOn: 
 function syncGuardDevices() {
   if (typeof anxCabinetVisual === 'function') anxCabinetVisual();
   if (typeof case5Visual === 'function') case5Visual();
+  { const du = world.guardAnnex?.duty, on = (FL.guardLightOn ?? false) && !blackout; if (du) { du.light.intensity = on ? 1.1 : 0; du.panelM.color.setHex(on ? 0xfff4dc : 0x9a9890); } }
   const q = guardDeviceState(); guardRoomController?.applyState(q);
   for (const p of guardControlProps) { if (p.k === 'guarddoor') p.label = q.doorOpen ? '경비실 문 닫기' : '경비실 문 열기'; else if (p.k === 'guardlight') p.label = q.lightOn ? '경비실 전등 끄기' : '경비실 전등 켜기'; else if (p.k === 'guardcctv' || p.fz?.id === 'guard_cctv') p.label = q.cctvOn ? 'CCTV 실시간 화면 보기' : 'CCTV 관제 화면 (전원 꺼짐)'; }
   if (guardCctvData) guardCctvData.promptText = '[E] CCTV 실시간 화면 보기';
@@ -992,7 +993,7 @@ document.querySelectorAll('#invTabs button').forEach(b => { b.onclick = () => { 
 
 /* ----- 지도 ----- */
 let mapZoom = 1, mapPan = { x: 0, z: 0 };
-function openMap() { if (state !== 'playing') return; mapFloor = P.floor; const inB = P.floor === 0 && !isOutdoors(); mapZoom = inB ? 2.1 : 1; mapPan = { x: 0, z: inB ? -26 : 0 }; openUI('mapOv'); renderMap(); }
+function openMap() { if (state !== 'playing') return; mapFloor = P.floor; if (RBG && P.floor === 0 && RBG.inside(P.x, P.z)) mapFloor = (P.z < -10 ? 'A' : 'M') + Math.min(P.z < -10 ? 2 : 3, Math.max(0, Math.round((P.sh || 0) / 3.6))); const inB = P.floor === 0 && !isOutdoors() && typeof mapFloor === 'number'; mapZoom = inB ? 2.1 : 1; mapPan = { x: 0, z: inB ? -26 : 0 }; openUI('mapOv'); renderMap(); }
 function mapPins(f) { return KEY_ROOMS.map((r, i) => ({ ...r, i })).filter(r => r.f === f).map(r => ({ x: r.x, z: r.z, done: got[r.i] })); }
 function mapTarget(f) { const o = objective(), t = o.loc || (FL.opt && optLoc()); return t && t.f === f ? t : null; }
 function mapExtras(f) {
@@ -1011,6 +1012,12 @@ function renderMap() {
   document.querySelectorAll('#mapTabs button').forEach(b => b.classList.toggle('tgt', !!t && b.dataset.f === String(t.f)));
   if (guide) return;
   const c = $('bigMap'), ctx = c.getContext('2d');
+  const rbTab = typeof mapFloor === 'string' && /^[MA]\d$/.test(mapFloor);
+  if (rbTab && RBG) {   // 새 본관 · 별관 층별 평면
+    const bk = mapFloor[0], st = +mapFloor[1], rb = RBG.mapStory(bk, st), here = P.floor === 0 && RBG.inside(P.x, P.z) && Math.round((P.sh || 0) / 3.6) === st && (bk === 'A') === (P.z < -10);
+    drawMap(ctx, c.width, c.height, { floor: 0, cx: mapPan.x, cz: (bk === 'A' ? -22.5 : 2.4) + mapPan.z, scale: 9.6 * mapZoom, labels: true, pins: [], doors: [], props: [], zones: [], rb, t: tNow, player: here ? { x: P.x, z: P.z, yaw: P.yaw } : null });
+    return;
+  }
   const V = { 0: [0, -14, 3.05], 1: [0, 0, 10.5], 2: [0, 0, 10.5], 4: [0, 0, 10.5], 5: [38, 19, 22], 6: [-42, 39, 12.5], 7: [-39, 15, 24], 8: [0, -4, 21], 9: [0, -4, 21], 10: [0, -4, 21] }[mapFloor] || [0, -4, 11];
   drawMap(ctx, c.width, c.height, { floor: mapFloor, cx: V[0] + mapPan.x, cz: V[1] + mapPan.z, scale: V[2] * mapZoom, labels: true, pins: mapPins(mapFloor), ...mapExtras(mapFloor), t: tNow,
     lockers: world.lockers.filter(l => l.floor === mapFloor), player: P.floor === mapFloor ? { x: P.x, z: P.z, yaw: P.yaw } : null });
@@ -1033,7 +1040,7 @@ function renderMap() {
   ctx.fillText('■ ③ 제1·제2 대형주차장 섹션', 518, 35);
   ctx.restore();
 }
-document.querySelectorAll('#mapTabs button').forEach(b => { b.onclick = () => { mapFloor = b.dataset.f === 'guide' ? 'guide' : +b.dataset.f; mapZoom = 1; mapPan = { x: 0, z: 0 }; renderMap(); }; });
+document.querySelectorAll('#mapTabs button').forEach(b => { b.onclick = () => { mapFloor = b.dataset.f === 'guide' || /^[MA]\d$/.test(b.dataset.f) ? b.dataset.f : +b.dataset.f; mapZoom = 1; mapPan = { x: 0, z: 0 }; renderMap(); }; });
 $('bigMap').addEventListener('wheel', e => { e.preventDefault(); mapZoom = clamp(mapZoom * (e.deltaY < 0 ? 1.15 : 1 / 1.15), .5, 4); renderMap(); }, { passive: false });
 { let drag = null; const c = $('bigMap');
   c.addEventListener('pointerdown', e => { drag = { x: e.clientX, y: e.clientY }; c.setPointerCapture(e.pointerId); });
@@ -3739,6 +3746,9 @@ function useAnnex(p) {
       hints: ['힌트 ① 경비장 지시: 번호는 <b>“마지막으로 나간 열쇠의 시각”</b>', '힌트 ② 관제실 책상 위 <b>열쇠 대출 장부</b>를 보라', '힌트 ③ 펌프실 열쇠 대출 22:50 → 2 2 5 0'] };
     kpBuf = ''; ++keypadSequence; kpOpening = false; $('kpTitle').textContent = '열쇠보관함 (전자식)'; $('kpHint').innerHTML = '숫자 4자리 — 경비장만 아는 번호'; renderKeypad(); openUI('keypad'); sfx.beep(); return;
   }
+  if (k === 'roster' || k === 'calendar' || k === 'contacts') { const id = { roster: 'n_duty_roster', calendar: 'n_guard_calendar', contacts: 'n_guard_contacts' }[k]; sfx.paper(); if (!docs.some(d => d.id === id)) { addDoc({ id, kind: 'note' }); addClue(id); } showNote(world.NOTES[id]); return; }
+  if (k === 'glocker') { sfx.clank?.(); if (!FL.gLocker) { FL.gLocker = true; giveItem('medkit', 1); giveItem('battery', 1, true); addDoc({ id: 'n_guard_locker', kind: 'note' }); addClue('n_guard_locker'); save(true); } showNote(world.NOTES.n_guard_locker); return; }
+  if (k === 'kettle') { const n = (FL.kettleN = (FL.kettleN || 0) + 1); if (n === 3) { sfx.stinger?.(.5); P.fear = Math.min(1, P.fear + .12); caption('…아저씨, 보리차 한 잔만요.'); } else say(n === 1 ? '보온 주전자가… 아직 미지근하다. 십 년이나 비어 있던 방인데.' : '주전자 뚜껑 안쪽에 물기가 맺혀 있다.', 2600); return; }
   if (k === 'box') {
     const key = ANNEX_KEYS.find(q => q.id === p.key), nid = ANX_BOX_NOTES[p.key];
     if (FL['box_' + p.key]) { sfx.paper(); showNote(world.NOTES[nid]); return; }
@@ -3751,6 +3761,10 @@ function useAnnex(p) {
 function anxCabinetVisual() { const a = world.guardAnnex; if (!a) return; if (FL.cabOpen) { a.cabDoor.rotation.y = -1.9; a.cabPad.material.color.setHex(0x40ff80); } else a.cabPad.material.color.setHex(0xff4030); ANNEX_KEYS.forEach((k, i) => { if (a.hookKeys[i]) a.hookKeys[i].visible = !FL['key_' + k.id]; }); for (const q of world.props) if (q.kind === 'ganx' && q.k === 'box' && FL['box_' + q.key] && q.mesh?.userData.lid) { q.mesh.userData.lid.rotation.x = -1.2; q.label = q.label.replace('잠긴 ', '열린 '); } }
 function setupAnnex() {
   Object.assign(world.NOTES, {
+    n_duty_roster: { title: '경비실 근무 교대표 (1998년 10월)', text: '<b>[정문 경비실 근무 교대표]</b><br>• 주간 06:00~18:00 — 김영수<br>• 야간 18:00~06:00 — <b>박종철</b> (10/12 당직)<br><br>10/12 칸 옆 빨간 펜: <i>“22:40 교무부장 지시 — 오늘 B1 순찰 제외. 지하는 내가 본다고 함.”</i><br>그 아래 다른 글씨: <i>“10/13부터 박종철 근무 제외 (재단 지시)”</i>' },
+    n_guard_calendar: { title: '경비실 달력 — 1998년 10월', text: '10월 12일에 동그라미 — <b>“개교기념 방송 · 늦게까지 학생 있음”</b>.<br>10월 13일 칸: <i>“재단 이사장 방문 09:00 — 아무 말도 하지 말 것”</i><br>10월 20일 칸이 볼펜으로 세게 지워져 있다. 뒤로 비치는 글씨 — <b>“사직서”</b>.' },
+    n_guard_contacts: { title: '비상연락망 (1998)', text: '<b>[서문고 비상연락망]</b><br>• 교장실 — 내선 101<br>• 교무부장 — 내선 103 · 자택 (지워짐)<br>• 방송실 — 내선 201<br>• 정문 경비실 — 내선 100<br>• 야간 경비 박종철 — 자택 <b>031-562-0915</b><br>• 서문일보 사회부 — 02-735-1998 <i>(연필로 나중에 적어 넣은 듯)</i>' },
+    n_guard_locker: { title: '경비원 사물함 — 박종철', text: '구겨진 근무복 아래, 가족사진 한 장과 <b>쓰다 만 사직서</b>.<br><i>“본인은 1998년 10월 12일 밤, 상부 지시로 지하 순찰을 하지 않았으며, 그 결정에 따른 결과를 평생…”</i><br>마지막 줄은 비어 있다. 구급 밴드와 건전지가 함께 들어 있었다.' },
     n_key_ledger: { title: '경비실 열쇠 대출 장부 (1998.10)', text: '<b>[열쇠 대출 장부 — 1998년 10월 12일]</b><br>• 18:05 방송실 열쇠 — 방송부 윤하늘 · 반납 21:55<br>• 19:30 체육관 열쇠 — 체육부장 강태식 · 반납 21:10<br>• 20:40 본관 숙직실 — 교무부장 · 반납 20:50<br>• <b>22:50 지하 펌프실 열쇠 — 교무부장 (서명)</b> · 반납 <b>—</b><br><br>장부 맨 아래, 경비장 글씨: <i>“보관함 번호는 마지막으로 나간 열쇠의 시각으로 바꿀 것.”</i><br><br>표지 안쪽 연필 메모: <i>박종철 (야간) 자택 031-562-0915</i>' },
     n_lost_badge: { title: '분실물 상자 — 방송부 명찰', text: '먼지 쌓인 분실물 상자 맨 밑, <b>“방송부 · 윤하늘”</b> 명찰이 있다.<br>뒷면에 볼펜으로 — <i>“10/12 기념 방송 끝나면 엄마한테 바로 전화.”</i><br>상자 구석에서 손전등 건전지 하나를 찾았다.' },
     n_cctv_b1: { title: 'CCTV 캡처 ① — B1 펌프실 복도 22:50', text: '<b>[CAM-03 · 1998.10.12 22:50]</b><br>펌프실 철문 앞, 명찰을 단 양복 교사. 손에 열쇠 꾸러미가 빛난다.<br>그는 문 앞에 30초쯤 서 있다가 — <b>열지 않고 돌아선다.</b><br>10분 전, 학생 4명만 계단으로 돌아갔다. 들어간 사람은 5명이었다.' },

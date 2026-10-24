@@ -44,12 +44,16 @@ export function drawMap(ctx, W, H, o) {
     fillRect(-48, 12.5, -30, 25, '#3a3030'); box3D(-48, 12.5, -30, 25, 4.8, '#3a3030', '#584842', '#261e1c');
     fillRect(-48, 31, -34, 51, '#2a3a46');   box3D(-48, 31, -34, 51, 6.4, '#2a3a46', '#3c586c', '#1a2630');
     fillRect(GUARD_SPUR.x1, GUARD_SPUR.z1, GUARD_SPUR.x2, GUARD_SPUR.z2, '#55554b');
-    fillRect(GUARD_LAYOUT.originX, GUARD_LAYOUT.originZ - GUARD_LAYOUT.depth, GUARD_LAYOUT.originX + GUARD_LAYOUT.width, GUARD_LAYOUT.originZ, '#4a4a40');
-    fillRect(-20, -25 - ANNEX_DZ, 20, -13.5 - ANNEX_DZ, '#3a4248');
-    strokeRect(-20, -25 - ANNEX_DZ, 20, -13.5 - ANNEX_DZ, '#8a8a80', 1.5);
-    box3D(-28, -25 - ANNEX_DZ, 28, -13.5 - ANNEX_DZ, 12.0, '#3a4248', '#52626e', '#242c32');
-    box3D(-45.5, -8.8, -36.3, 8.8, 12.0, '#3a3832', '#5c5850', '#24221e');
-    box3D(36.3, -8.8, 45.5, 8.8, 12.0, '#3a3832', '#5c5850', '#24221e'); // 별관 3층 3D 볼륨
+    // 경비동: 관제실 · 열쇠보관실 (북) + 당직실 (남, 예전 경비실 자리)
+    box3D(4.8, 59.6, 11.4, 64.95, 2.8, '#4a4a40', '#6a6a5c', '#2c2c26'); box3D(GUARD_LAYOUT.originX, GUARD_LAYOUT.originZ - GUARD_LAYOUT.depth, GUARD_LAYOUT.originX + GUARD_LAYOUT.width, GUARD_LAYOUT.originZ, 2.8, '#4a4a40', '#6a6a5c', '#2c2c26');
+    strokeRect(8.0, 59.6, 8.0, 64.95, '#9a9a8a', 1);
+    if (!o.rb) {   // 예전 별관 · 본관 측면 볼륨 (재건축 전 지도)
+      fillRect(-20, -25 - ANNEX_DZ, 20, -13.5 - ANNEX_DZ, '#3a4248');
+      strokeRect(-20, -25 - ANNEX_DZ, 20, -13.5 - ANNEX_DZ, '#8a8a80', 1.5);
+      box3D(-28, -25 - ANNEX_DZ, 28, -13.5 - ANNEX_DZ, 12.0, '#3a4248', '#52626e', '#242c32');
+      box3D(-45.5, -8.8, -36.3, 8.8, 12.0, '#3a3832', '#5c5850', '#24221e');
+      box3D(36.3, -8.8, 45.5, 8.8, 12.0, '#3a3832', '#5c5850', '#24221e');
+    }
     [MEGA.gym, MEGA.court].forEach((r, i) => {
       fillRect(r.x - r.w / 2, r.z - r.d / 2, r.x + r.w / 2, r.z + r.d / 2, i ? '#354a36' : '#4a3a28');
       strokeRect(r.x - r.w / 2, r.z - r.d / 2, r.x + r.w / 2, r.z + r.d / 2, '#8a8a80', 1.5);
@@ -86,7 +90,7 @@ export function drawMap(ctx, W, H, o) {
       ctx.fillStyle = '#d8e4ec'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
       ctx.fillText('운동장(트랙·축구장)', X(0), Y(36)); ctx.fillText('조회대', X(-11), Y(16.4)); ctx.fillText('스탠드', X(13.5), Y(12.6));
       ctx.fillText('야외농구장', X(36), Y(46)); ctx.fillText('체육관', X(38), Y(23.5)); ctx.fillText('급식실', X(-39), Y(19)); ctx.fillText('수영장', X(-41), Y(41));
-      ctx.fillText('경비실', X(GUARD_LAYOUT.cx), Y(GUARD_LAYOUT.cz)); ctx.fillText('별관(1~3F)', X(4), Y(-19.25 - ANNEX_DZ));
+      ctx.fillText('경비동', X(8.1), Y(62.4)); ctx.fillText('경비실·당직실', X(GUARD_LAYOUT.cx), Y(GUARD_LAYOUT.cz)); ctx.fillText(o.rb ? '본관(1~4F)' : '', X(0), Y(-5.2)); ctx.fillText(o.rb ? '별관(1~3F)' : '별관(1~3F)', X(0), Y(o.rb ? -30 : -19.25 - ANNEX_DZ));
       ctx.fillText('대강당', X(MEGA.gym.x), Y(MEGA.gym.z)); ctx.fillText('중정', X(MEGA.court.x), Y(MEGA.court.z));
       ctx.fillText('◀ 서문(탈출구)', X(-106), Y(55.6)); ctx.fillText('정문', X(0), Y(GATE_Z) - 8);
       ctx.fillText('생태온실', X(62), Y(-50)); ctx.fillText('학우매점', X(63.5), Y(18)); ctx.fillText('야외음악당', X(35.0), Y(-48.5));
@@ -160,7 +164,7 @@ export function drawMap(ctx, W, H, o) {
     const poly = (pts, c, st) => { ctx.beginPath(); pts.forEach(([x, z], i) => i ? ctx.lineTo(X(x), Y(z)) : ctx.moveTo(X(x), Y(z))); ctx.closePath(); if (c) { ctx.fillStyle = c; ctx.fill(); } if (st) { ctx.strokeStyle = st; ctx.lineWidth = 1.5; ctx.stroke(); } };
     o.rb.clear.forEach(r => fillRect(r.x1, r.z1, r.x2, r.z2, '#1f2622'));
     o.rb.shells.forEach(pts => poly(pts, '#3a3e40', '#9ab0be'));
-    o.rb.rooms.forEach(r => { poly(r.pts, r.here ? '#4a5a4e' : '#30363a', '#0c0c0c'); if (labels && r.label) { ctx.fillStyle = '#d6d2c2'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(r.label, X(r.cx), Y(r.cz)); } });
+    o.rb.rooms.forEach(r => { poly(r.pts, r.here ? '#4a5a4e' : r.stair ? '#55584e' : r.hall ? '#2a2e30' : '#30363a', '#0c0c0c'); if (labels && r.label) { ctx.fillStyle = '#d6d2c2'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(r.label, X(r.cx), Y(r.cz)); } });
   }
   // Discovery-first: items, devices, lockers and exact objective coordinates are not plotted.
   // 문 상태 (열림: 초록 / 닫힘: 빨강)

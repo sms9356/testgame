@@ -90,3 +90,53 @@ export function buildGuardAnnex({ OUT, props, boxMesh, plane, flat, col, S, make
   props.push({ kind: 'ganx', k: 'lost', floor: 0, x: 9.5, z: 62.75, y: .85, r: 1.5, label: '보관실 분실물 상자 뒤지기' });
   return { group: G, screens, cabDoor: pivot, cabPad: pad, hookKeys, light, panelM };
 }
+
+// ── 당직실: (구)경비실을 철거한 자리 (x 4.8 ~ 8.25, z 64.95 ~ 67.9). 남쪽 출입문 · 근무 책상 · 경비원 의자는 예전 자리 그대로 ──
+export const DUTY = Object.freeze({ x1: 4.8, x2: 8.25, z1: 64.95, z2: 67.9, h: 2.8, t: .15, doorX1: 6.55, doorX2: 7.4 });
+export function buildDutyRoom({ G, props, boxMesh, plane, flat, col, S, makeSign, mats }) {
+  const D = DUTY, wall = mats.facade, Y0 = .02;
+  const W = (x1, x2, z1, z2, y1 = 0, y2 = D.h, solid = true) => { const m = boxMesh(x1, x2, y1, y2, z1, z2, wall, 2); m.castShadow = m.receiveShadow = true; G.add(m); if (solid && y1 < .5) col(x1, x2, z1, z2, true); return m; };
+  flat(G, mats.floor, D.x1, D.x2, D.z1, D.z2, Y0, 2);
+  G.add(boxMesh(D.x1 - .2, D.x2 + .2, D.h, D.h + .14, D.z1 - .05, D.z2 + .25, wall, 2));
+  const ceil = new THREE.Mesh(new THREE.PlaneGeometry(D.x2 - D.x1, D.z2 - D.z1), S(null, { color: 0xd6d3c8, side: THREE.DoubleSide })); ceil.rotation.x = Math.PI / 2; ceil.position.set((D.x1 + D.x2) / 2, D.h - .01, (D.z1 + D.z2) / 2); G.add(ceil);
+  // 서벽 (보도 쪽 창) · 동벽 · 남벽 (출입문)
+  W(D.x1, D.x1 + D.t, D.z1, 65.7); W(D.x1, D.x1 + D.t, 66.9, D.z2); W(D.x1, D.x1 + D.t, 65.7, 66.9, 0, 1.0); W(D.x1, D.x1 + D.t, 65.7, 66.9, 2.1, D.h, false);
+  plane(G, mats.glass, 1.2, 1.1, D.x1 + .075, 1.55, 66.3, Math.PI / 2);
+  W(D.x2 - D.t, D.x2, D.z1, D.z2);
+  W(D.x1, D.doorX1, D.z2 - .11, D.z2); W(D.doorX2, D.x2, D.z2 - .11, D.z2); W(D.doorX1, D.doorX2, D.z2 - .11, D.z2, 2.1, D.h, false);
+  plane(G, new THREE.MeshBasicMaterial({ map: makeSign('경비실 · 당직실', '#1e2a2e', '#d9e4d0', 28), color: 0x9aa59a }), 1.4, .3, 6.0, 2.4, D.z2 + .01, 0);
+  const wood = mats.wood, dark = S(null, { color: 0x1c1f22, roughness: .5, metalness: .3 }), metal = mats.metal;
+  // 근무 책상 (예전 책상 자리 · 일지 · 모자 · 녹음기가 그 위에 놓인다) + CRT 모니터 · 전화 · 스탠드
+  G.add(boxMesh(4.95, 6.45, .74, .79, 66.55, 67.6, wood, 1)); G.add(boxMesh(4.98, 5.4, 0, .74, 66.6, 67.55, wood, 1)); G.add(boxMesh(6.38, 6.43, 0, .74, 66.6, 67.55, wood, 1)); col(4.95, 6.45, 66.55, 67.6, false, .79);
+  const crt = S(null, { color: 0xbdb8a8, roughness: .6 }); G.add(boxMesh(5.35, 5.95, .79, 1.25, 67.05, 67.55, crt, 1));
+  plane(G, new THREE.MeshBasicMaterial({ color: 0x18301e, toneMapped: false }), .46, .34, 5.65, 1.03, 67.04, Math.PI);
+  G.add(boxMesh(5.0, 5.25, .79, .86, 66.65, 66.9, S(null, { color: 0x8a2020, roughness: .5 }), 1));
+  G.add(boxMesh(6.2, 6.28, .79, 1.15, 67.35, 67.43, dark, 1));
+  const cap = new THREE.Mesh(new THREE.CylinderGeometry(.11, .12, .07, 16), S(null, { color: 0x222c44, roughness: .7 })); cap.position.set(6.23, .83, 67.01); G.add(cap);
+  // 경비원 의자 (인트로 경비원이 앉는 자리)
+  const chairM = S(null, { color: 0x3a3f46, roughness: .7 });
+  G.add(boxMesh(5.52, 5.96, .44, .5, 65.88, 66.32, chairM, 1)); G.add(boxMesh(5.52, 5.96, .5, 1.0, 65.84, 65.9, chairM, 1)); G.add(boxMesh(5.71, 5.77, 0, .44, 66.07, 66.13, dark, 1));
+  // 철제 사물함 (북서 구석) · 간이 찬장 + 주전자 · 소화기 · 옷걸이 + 제복
+  G.add(boxMesh(4.97, 5.5, 0, 1.8, 65.0, 65.5, S(null, { color: 0x6a7a80, roughness: .5, metalness: .5 }), 1)); col(4.97, 5.5, 65.0, 65.5, false, 1.8);
+  G.add(boxMesh(5.23, 5.25, .9, 1.7, 65.5, 65.51, dark, 1));
+  G.add(boxMesh(7.45, 8.08, 0, .8, 66.75, 67.3, wood, 1)); col(7.45, 8.08, 66.75, 67.3, false, .8);
+  const kettle = new THREE.Mesh(new THREE.CylinderGeometry(.08, .1, .2, 14), S(null, { color: 0xb8b8b0, metalness: .8, roughness: .3 })); kettle.position.set(7.65, .9, 67.0); G.add(kettle);
+  const thermos = new THREE.Mesh(new THREE.CylinderGeometry(.05, .05, .26, 12), S(null, { color: 0x2a5a3a, roughness: .5 })); thermos.position.set(7.9, .93, 67.1); G.add(thermos);
+  const ext = new THREE.Mesh(new THREE.CylinderGeometry(.08, .08, .5, 12), S(null, { color: 0xc0201a, roughness: .4 })); ext.position.set(7.6, .25, 67.62); G.add(ext);
+  G.add(boxMesh(8.05, 8.1, 1.6, 1.65, 67.33, 67.6, dark, 1)); G.add(boxMesh(7.92, 8.08, .9, 1.6, 67.37, 67.57, S(null, { color: 0x233048, roughness: .8 }), 1));
+  // 벽: 시계 · 1998년 달력 · 근무 교대표 · 비상연락망
+  const clock = new THREE.Mesh(new THREE.CylinderGeometry(.16, .16, .04, 24), S(null, { color: 0xf0ece0, roughness: .5 })); clock.rotation.x = Math.PI / 2; clock.position.set(6.9, 2.15, D.z1 + .03); G.add(clock);
+  plane(G, new THREE.MeshBasicMaterial({ map: makeSign('1998 · 10月', '#f4efe2', '#902020', 26), color: 0xe0dbcc }), .5, .62, 7.55, 1.55, D.z1 + .02, 0);
+  plane(G, new THREE.MeshBasicMaterial({ map: makeSign('근무 교대표', '#e8e8dc', '#1a2a3a', 22), color: 0xd8d8cc }), .7, .9, D.x2 - D.t - .01, 1.55, 66.3, -Math.PI / 2);
+  plane(G, new THREE.MeshBasicMaterial({ map: makeSign('비상연락망', '#f0e8c8', '#3a2a1a', 22), color: 0xd8d0b4 }), .45, .6, D.x1 + D.t + .01, 1.5, 65.25, Math.PI / 2);
+  // 조명
+  const panelM = new THREE.MeshBasicMaterial({ color: 0x9a9890 });
+  const panel = new THREE.Mesh(new THREE.PlaneGeometry(.9, .3), panelM); panel.rotation.x = Math.PI / 2; panel.position.set(6.5, D.h - .02, 66.4); G.add(panel);
+  const light = new THREE.PointLight(0xffe7ba, 0, 6, 1.8); light.position.set(6.5, 2.45, 66.4); G.add(light);
+  props.push({ kind: 'ganx', k: 'roster', floor: 0, x: 7.85, z: 66.3, y: 1.5, r: 1.5, label: '근무 교대표 읽기 (1998.10)' });
+  props.push({ kind: 'ganx', k: 'calendar', floor: 0, x: 7.55, z: 65.25, y: 1.5, r: 1.4, label: '1998년 10월 달력 보기' });
+  props.push({ kind: 'ganx', k: 'glocker', floor: 0, x: 5.24, z: 65.75, y: 1.0, r: 1.4, label: '경비원 사물함 열기' });
+  props.push({ kind: 'ganx', k: 'kettle', floor: 0, x: 7.65, z: 66.55, y: .9, r: 1.3, label: '보온 주전자 만져 보기' });
+  props.push({ kind: 'ganx', k: 'contacts', floor: 0, x: 5.15, z: 65.25, y: 1.5, r: 1.3, label: '비상연락망 읽기' });
+  return { light, panelM };
+}

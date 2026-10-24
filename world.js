@@ -5057,7 +5057,7 @@ export function buildWorld(scene) {
 
 
   // 나무: 건물/길을 피해서 배치, 울퉁불퉁한 수관 + 개체별 색 변화
-  const BLOCK = [...ROAD_RECTS, [-46.2, -36.0, -9.5, 9.5], [36.0, 46.2, -9.5, 9.5], [30.2, 39.8, -53.5, -39.5], [-36.5, -28.0, -32.5, -17.0], [-54.5, -40.5, -37.5, -16.5], [GUARD_LAYOUT.originX - 1.4, GUARD_LAYOUT.originX + GUARD_LAYOUT.width + 1.4, GUARD_LAYOUT.originZ - GUARD_LAYOUT.depth - 1.4, GUARD_LAYOUT.originZ + 1.4], [GANX.x1 - 1.2, GANX.x2 + 1.8, GANX.z1 - 1.8, GANX.z2], [-22.5, -17.5, 62.2, 65.8], [-5.8, 6.8, WALKWAY.z1 - .2, -9.6], [-37.5, 37.5, -11, 11.5], [-28.5, 28.5, -32.4, WALKWAY.z1 + 1], [MEGA.gym.x - MEGA.gym.w / 2 - 1.5, MEGA.gym.x + MEGA.gym.w / 2 + 1.5, MEGA.gym.z - MEGA.gym.d / 2 - 1.5, MEGA.gym.z + MEGA.gym.d / 2 + 3.5], [MEGA.court.x - MEGA.court.w / 2 - .5, MEGA.court.x + MEGA.court.w / 2 + .5, MEGA.court.z - MEGA.court.d / 2 - .5, MEGA.court.z + MEGA.court.d / 2 + .5], [26.5, 49.5, 11, 36], [-49.5, -28.5, 11, 26.5], [-49.5, -32.5, 29.5, 52.5], [-5, 5, 60, 72], [-17, 17, 1.5, 12]];
+  const BLOCK = [...ROAD_RECTS, [-46.2, -36.0, -9.5, 9.5], [36.0, 46.2, -9.5, 9.5], [30.2, 39.8, -53.5, -39.5], [-36.5, -28.0, -32.5, -17.0], [-54.5, -40.5, -37.5, -16.5], [GUARD_LAYOUT.originX - 1.4, GUARD_LAYOUT.originX + GUARD_LAYOUT.width + 1.4, GUARD_LAYOUT.originZ - GUARD_LAYOUT.depth - 1.4, GUARD_LAYOUT.originZ + 1.4], [GANX.x1 - 1.2, GANX.x2 + 1.8, GANX.z1 - 1.8, GANX.z2], [-22.5, -17.5, 62.2, 65.8], [-5.8, 6.8, WALKWAY.z1 - .2, -9.6], [-37.5, 37.5, -11, 11.5], [-28.5, 28.5, -32.4, WALKWAY.z1 + 1], [MEGA.gym.x - MEGA.gym.w / 2 - 1.5, MEGA.gym.x + MEGA.gym.w / 2 + 1.5, MEGA.gym.z - MEGA.gym.d / 2 - 1.5, MEGA.gym.z + MEGA.gym.d / 2 + 3.5], [MEGA.court.x - MEGA.court.w / 2 - .5, MEGA.court.x + MEGA.court.w / 2 + .5, MEGA.court.z - MEGA.court.d / 2 - .5, MEGA.court.z + MEGA.court.d / 2 + .5], [26.5, 49.5, 11, 36], [-49.5, -28.5, 11, 26.5], [-49.5, -32.5, 29.5, 52.5], [-5, 5, 60, 72], [-17, 17, 1.5, 12], [-51, 51, -4.8, 13.8], [-32.5, 26.5, -31, -15.3], [-5.6, -.4, -16, -3.6], [14, 47, 57, 68.7], [-98.5, -53.5, 61, 69.7], [-15.2, -7.8, 60, 67]];   // 새 본관 · 별관 · 구름다리 · 주차장 2곳 · 청운정
   const blocked = (x, z, m = 0) => BLOCK.some(([a, b2, c, d]) => x > a - m && x < b2 + m && z > c - m && z < d + m);
   const trunkG = merge([new THREE.CylinderGeometry(.16, .3, 3.4, 7).translate(0, 1.7, 0), tube(.07, 0, 2.2, 0, .9, 3.4, .3), tube(.06, 0, 2.6, 0, -.7, 3.7, -.4)]);
   const lump = (r, x, y, z) => {
@@ -5066,7 +5066,7 @@ export function buildWorld(scene) {
     g.translate(x, y, z); const idx = []; for (let i = 0; i < p.count; i++) idx.push(i); g.setIndex(idx); g.computeVertexNormals(); return g;
   };
   const crownG = merge([lump(1.7, 0, 4.3, 0), lump(1.3, .9, 5.2, .4), lump(1.2, -.8, 4.9, -.5), lump(.9, .1, 5.9, -.1)]);
-  const treeM = [], tpos = [[-8, 64.5, true, 1], [14.2, 62.0, true, 1], [-15, 66.5, true, 1], [16, 66, true, 1], [-11, 58.5, true, 1], [12.5, 59, true, 1]];   // 정문 옆 벚나무
+  const treeM = [], tpos = [[-6.2, 62.4, true, 1], [13.0, 54.6, true, 1], [-17.2, 59.2, true, 1], [12.0, 67.2, true, 1], [-11, 58.0, true, 1], [16.6, 54.6, true, 1]];   // 정문 옆 벚나무 (청운정 · 제1주차장을 비켜서)   // 정문 옆 벚나무
   for (let i = 0; i < 260 && tpos.length < 120; i++) {
     let x, z; const inside = tpos.length < 54;
     if (inside) {

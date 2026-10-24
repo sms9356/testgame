@@ -45,11 +45,12 @@ export function installRebuild({ THREE, scene, floors, world }) {
     o.userData.rbCarved = true; carve(o, (x, y, z) => (y > .3 && inOld(x, z)) || (y > -.3 && inNew(x, z)));
   }); };
   const clearOld = () => {
+    OLD_FLOORS.forEach(F => { F.interior.visible = false; if (F.shell) F.shell.visible = false; });   // 예전 층: 플레이 전(인트로 · 메뉴)에도 감춘다
     hideIn(floors[0].interior); hideIn(floors[0].shell); hideIn(world.OUT);
     // 씬 루트에 바로 붙은 소품 묶음(나중에 불러오는 GLB 등)도 — 새 건물 · 다른 층 · 지하(높이 −0.3 아래)는 건드리지 않는다
     const skip = new Set([...floors.filter(Boolean).flatMap((F, i) => i === 0 ? [] : [F.interior, F.shell])]);
-    const sweep = (c, d) => { if (skip.has(c) || c.isCamera || c.isLight || c.name === 'REBUILD' || c.isSkinnedMesh || c.userData.dynamic) return; let live = false; c.traverse(o => { if (o !== c && (o.isSkinnedMesh || o.userData.dynamic)) live = true; });
-      if (live) { if (d < 4) c.children.forEach(k => sweep(k, d + 1)); return; } bb.setFromObject(c); if (bb.isEmpty() || bb.max.y < -.3) return; hideIn(c); };
+    const sweep = (c, d) => { if (skip.has(c) || c.isCamera || c.isLight || c.name === 'REBUILD' || c.isSkinnedMesh || c.userData.rbKeep) return; let live = false; c.traverse(o => { if (o !== c && o.isSkinnedMesh) live = true; });   // 움직이는 인물(스킨 메시)만 남긴다 — 예전 층의 '앉을 수 있는 의자' 같은 동적 소품도 걷어 낸다
+      if (live) return;   /* 인물(유령 · NPC)이 든 묶음은 통째로 건드리지 않는다 */ bb.setFromObject(c); if (bb.isEmpty() || bb.max.y < -.3) return; hideIn(c); };
     scene.children.forEach(c => sweep(c, 0));
     for (const k of ['col', 'walls', 'doorWalls']) if (floors[0][k]) { const keep = floors[0][k].filter(r => !inOld(((r.x1 ?? r.ax ?? 0) + (r.x2 ?? r.bx ?? 0)) / 2, ((r.z1 ?? r.az ?? 0) + (r.z2 ?? r.bz ?? 0)) / 2)); floors[0][k].length = 0; floors[0][k].push(...keep); }
   };
@@ -95,7 +96,8 @@ export function installRebuild({ THREE, scene, floors, world }) {
     setPower(off, gain = 1, power = false) { const k = off ? 0 : gain * (power ? 1 : .86); if (k === this._pk) return; this._pk = k;
       lamps.forEach(l => { l.intensity = 1.6 * k; });
       [MAIN, ANX].forEach(b => { const m = b.mats && b.mats.lamp; if (m) m.emissiveIntensity = 1.4 * k; }); },
-    cull(dt, P) { cullModels(dt, P); },
+    hideOld() { for (const F of OLD_FLOORS) { F.interior.visible = false; if (F.shell) F.shell.visible = false; if (F.winFake) F.winFake.visible = false; } },
+    cull(dt, P) { cullModels(dt, P); for (const F of OLD_FLOORS) { if (F.interior.visible) F.interior.visible = false; if (F.shell && F.shell.visible) F.shell.visible = false; } },   // 매 프레임(메뉴 · 인트로 포함) 예전 층을 끈다
     tick(dt, P, sfx) { BLD.forEach(b => b.tickDoors(dt)); OLD_FLOORS.forEach(F => { if (F.interior.visible) F.interior.visible = false; if (F.shell && F.shell.visible) F.shell.visible = false; }); /* 게임의 층 표시 로직이 예전 층을 다시 켜도 끈다 */ cullModels(dt, P); if (R.elevTick) R.elevTick(dt, P, sfx); },
     // 새 건물 땅 위에 있나 (예전 건물 자리)
     inside(x, z) { return inOld(x, z); },

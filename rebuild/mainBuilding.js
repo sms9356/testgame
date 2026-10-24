@@ -353,12 +353,12 @@ export function buildMainBuilding(opt = {}) {
     // 복도: 형광등 · 감지기 · 유도등 · 소화전함 · 소화기
     for (let x = -LY.L / 2 + 3; x < LY.L / 2 - 2; x += 4.5) { fluor(x, y0 + S.CEIL - .05, zN / 2, true); }
     LY.rooms.filter(r => r.kind === 'class').forEach((r, i) => {
-      extinguisher(r.x1 + .35, y0, -.32, Math.PI); if (i % 2 === 0) hydrant(r.x1 + 4.5, y0, zN + .05);
+      extinguisher(r.x1 + .35, y0, -.32, Math.PI); if (i % 2 === 0) hydrant(r.x2 - .95, y0, zN + .05, f);   // 창과 창 사이 벽(기둥 옆)에 — 창 앞에 떠 있지 않게
       detector(r.x1 + 4.5, y0 + S.CEIL, zN / 2);
     });
     LY.rooms.filter(r => r.kind === 'stair').forEach(r => exitSign((r.x1 + r.x2) / 2 + (r.x1 < 0 ? 3 : -3), y0 + 2.35, zN / 2));
     // 복도 실사 소품: 발신기(화재경보) · 복도 끝 CCTV · 계단실 앞 화분 · 화장실 앞 미끄럼 주의 표지
-    LY.rooms.filter(r => r.kind === 'class').forEach((r, i) => { if (i % 2 === 0) mdl('fire_alarm', r.x1 + 5.4, y0 + 1.45, zN + .01); });
+    LY.rooms.filter(r => r.kind === 'class').forEach((r, i) => { if (i % 2 === 0) mdl('fire_alarm', r.x2 + .75, y0 + 1.45, zN + .01); });   // 소화전 맞은편 기둥 옆 벽
     [-1, 1].forEach(sx => mdl('security_camera_01', sx * (LY.L / 2 - .5), y0 + S.CEIL - .15, zN + .35, sx > 0 ? -Math.PI / 2 : Math.PI / 2));
     LY.rooms.filter(r => r.kind === 'stair').forEach(r => { const x = r.x1 < 0 ? r.x2 + .5 : r.x1 - .5; mdl('potted_plant_04', x, y0, zN + .35, 0, { s: 2.6 }); });
     { const c = LY.rooms.find(r => r.kind === 'core'); if ((f + 1) % 2) mdl('WetFloorSign_01', c.x1 + 1.5, y0, -.9, .6); }
@@ -459,7 +459,7 @@ export function buildMainBuilding(opt = {}) {
     box('white', x1 + .02, x1 + .06, y0 + 2.3, y0 + 2.6, z1 + .5, z1 + .8);   // 스피커
     mdl('wall_clock', x2 - .03, y0 + 2.4, (z1 + z2) / 2, -Math.PI / 2);   // 뒷벽 벽시계 (실사)
     mdl('ceiling_fan', x1 + 3.4, y0 + S.CEIL, (z1 + z2) / 2 - 1.8); mdl('ceiling_fan', x1 + 6.6, y0 + S.CEIL, (z1 + z2) / 2 + 1.8);   // 천장 선풍기 2대
-    mdl('metal_trash_can', x2 - .8, y0, z2 - .65, .4); col.push({ x1: x2 - 1.1, x2: x2 - .5, z1: z2 - .95, z2: z2 - .35, y1: y0, y2: y0 + .9 });   // 창가 뒤 구석 쓰레기통
+    mdl('metal_trash_can', x1 + 1.65, y0, z2 - .5, .4); col.push({ x1: x1 + 1.35, x2: x1 + 1.95, z1: z2 - .8, z2: z2 - .2, y1: y0, y2: y0 + .9 });   // 창가 앞 구석 쓰레기통 (교단 옆 — 뒷줄 의자와 겹치지 않게)
   }
   // ── 특별실 집기 ──
   function desk(x, z, w = 1.4, d = .7, h = .74, key = 'deskTop') { box(key, x - w / 2, x + w / 2, y_ + h - .04, y_ + h, z - d / 2, z + d / 2); box('steelG', x - w / 2 + .02, x - w / 2 + .45, y_, y_ + h - .04, z - d / 2 + .02, z + d / 2 - .02); box('deskLeg', x + w / 2 - .05, x + w / 2 - .02, y_, y_ + h - .04, z - d / 2 + .02, z + d / 2 - .02); box('deskLeg', x - w / 2 + .45, x + w / 2 - .05, y_ + h - .2, y_ + h - .04, z + d / 2 - .04, z + d / 2 - .02);   // 앞가림판
@@ -641,7 +641,7 @@ export function buildMainBuilding(opt = {}) {
       else for (let i = 0; i < 4; i++) for (let j = 0; j < 4; j++) { const x = x1 + 1.6 + i * 1.8, z = z1 + 2.2 + j * 1.3; desk(x, z, 1.0, .6, .74); box('lockerM', x - .5, x + .5, y0 + .74, y0 + 1.25, z - .32, z - .3); }
       props.push({ kind: 'search', label: type === 'home' ? '가정실 찬장 열기' : '자율학습실 사물함', x: x2 - .6, y: y0 + 1, z: zm, floor: f });
     } else if (type === 'library') {   // 도서실: 서가 열 · 열람 테이블 · 대출 데스크
-      for (let i = 0; i < 3; i++) { const x = x1 + 2.4 + i * 2.0; [z1 + 2.4, z1 + 3.78].forEach(z => { mdl('wooden_bookshelf_worn', x + .15, y0, z, Math.PI / 2); mdl('wooden_bookshelf_worn', x - .15, y0, z, -Math.PI / 2); books(x + .3, z, y0, 1); books(x - .3, z, y0, -1); }); col.push({ x1: x - .45, x2: x + .45, z1: z1 + 1.7, z2: z1 + 4.48, y1: y0, y2: y0 + 2.1 }); }   // 양면 서가 (실사 책장 2개 등맞댐)
+      for (let i = 0; i < 3; i++) { const x = x1 + 2.4 + i * 2.0; [z1 + 2.4, z1 + 3.78].forEach(z => { mdl('wooden_bookshelf_worn', x + .26, y0, z, Math.PI / 2); mdl('wooden_bookshelf_worn', x - .26, y0, z, -Math.PI / 2); books(x + .41, z, y0, 1); books(x - .41, z, y0, -1); }); col.push({ x1: x - .56, x2: x + .56, z1: z1 + 1.7, z2: z1 + 4.48, y1: y0, y2: y0 + 2.1 }); }   // 양면 서가 (실사 책장 2개 등맞댐)
       for (let k = 0; k < 2; k++) { const x = x1 + 2.2 + k * 3; desk(x, z2 - 1.8, 2.2, .9, .74, 'lockerM'); chairAt(x - .6, z2 - 1.1); chairAt(x + .6, z2 - 1.1); }
       desk(x2 - 1.1, zm + .6, 1.6, .7, .9, 'lockerM');
       if (!opt.noClues && !opt.noSciLib && !s_lib++) { clueNote('n4', x2 - 1.4, y0 + .9, zm + .6, f, .2); clueNote('n25', x2 - .8, y0 + .9, zm + .5, f, -.2); clueNote('q8a', x1 + 2.0, y0 + .74, z2 - 1.8, f, .4); clueTape('ts_reporter2', x1 + 5.4, y0 + .74, z2 - 1.75, f); }
@@ -771,7 +771,7 @@ export function buildMainBuilding(opt = {}) {
   function exitSign(x, y, z) { box('exitG', x - .2, x + .2, y, y + .14, z - .03, z + .03); }
   // 실사 한국식 분말 소화기
   function extinguisher(x, y0, z, ry = 0) { mdl('korean_fire_extinguisher_01', x, y0, z, ry); props.push({ kind: 'extinguisher', label: '소화기', x, y: y0 + .3, z }); }
-  function hydrant(x, y0, z) { box('red', x - .4, x + .4, y0 + .6, y0 + 1.8, z, z + .22, { solid: true }); props.push({ kind: 'hydrant', label: '옥내소화전', x, y: y0 + 1.2, z: z + .3 }); }
+  function hydrant(x, y0, z, f) { box('red', x - .35, x + .35, y0 + .25, y0 + 1.55, z, z + .2, { solid: true }); box('white', x - .3, x + .3, y0 + 1.2, y0 + 1.42, z + .2, z + .205); props.push({ kind: 'hydrant', label: '옥내소화전', x, y: y0 + 1.0, z: z + .3, floor: f }); }
 
   // 계단실 위 슬래브 · 반자 구멍: 해당 층 위 슬래브에서 계단실 영역을 뺀다 — 단순화: 계단실 영역 위 반자 제거용 표시만 남긴다
   // 병합

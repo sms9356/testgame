@@ -4,6 +4,7 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
+import { buildGuardAnnex, ANNEX as GANX } from './guardAnnex.js?v=195';
 import { NOTES } from './story.js?v=195';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
@@ -282,7 +283,7 @@ export function buildWorld(scene) {
   }
 
   /* ---------- 층 데이터 ---------- */
-  const floors = []; const guardRoom = {};
+  const floors = []; const guardRoom = {}; let guardAnnex = null;
   let cur = null;
   const items = [], lockers = [], flickerMats = [], doors = []; const INFIRMARY_SLOTS = [];
   const mFacade = PB('facade', () => T.pbrFacade(512)); const mFacadeTrim = S(null, { color: 0xb6b3a5, roughness: .85 }); const mCanopy = S(null, { color: 0x37484b, roughness: .6, metalness: .15 });
@@ -4954,6 +4955,9 @@ export function buildWorld(scene) {
     props.push({ kind: 'robj', k: 'guardlog', t: 'guard', floor: 0, ...GUARD_LAYOUT.log, x: 5.9, z: 67.14, r: 2.1, label: '경비실 심야 순찰 일지 & 경비원 육성 녹음 확인하기' });
     props.push({ kind: 'robj', k: 'guard_recorder', t: 'guard', floor: 0, x: 6.28, z: 67.08, y: 0.84, r: 2.1, label: '경비실 보이스레코더 — 1998년 그날 밤 경비원 녹취록 재생' });
     props.push({ kind: 'robj', k: 'guardcctv', t: 'guard', floor: 0, ...GUARD_LAYOUT.cctv, label: 'CCTV 전원 끄기' });
+    guardAnnex = buildGuardAnnex({ OUT, props, boxMesh, plane, flat, col, S, makeSign: T.makeSign, mats: { facade: mFacade, wall: mWall, white: mWhite, floor: mFloorTile, wood: mWood, metal: mMetal, glass: mWinIn } });
+    col(GANX.x1 - .95, GANX.x1, GANX.doorZ1 - .02, GANX.doorZ1 + .04, true);
+    guardAnnex.group.traverse(o => { o.userData.dynamic = true; });
     props.push({ kind: 'robj', k: 'guardlight', t: 'guard', floor: 0, ...GUARD_LAYOUT.lightSwitch, label: '경비실 전등 켜기' });
     // 교훈 표지석: 납작한 화강암 + 새긴 글씨 + 받침 화단
     const stone = new THREE.Mesh(new THREE.DodecahedronGeometry(1, 1).scale(1.7, 1.0, .55), S(null, { color: 0x8a8478, roughness: .85 })); stone.position.set(-20, 1.0, 64); stone.rotation.y = .15; OUT.add(stone); col(-21.8, -18.2, 63.2, 64.8, true);
@@ -5052,7 +5056,7 @@ export function buildWorld(scene) {
 
 
   // 나무: 건물/길을 피해서 배치, 울퉁불퉁한 수관 + 개체별 색 변화
-  const BLOCK = [...ROAD_RECTS, [-46.2, -36.0, -9.5, 9.5], [36.0, 46.2, -9.5, 9.5], [30.2, 39.8, -53.5, -39.5], [-36.5, -28.0, -32.5, -17.0], [-54.5, -40.5, -37.5, -16.5], [GUARD_LAYOUT.originX - 1.4, GUARD_LAYOUT.originX + GUARD_LAYOUT.width + 1.4, GUARD_LAYOUT.originZ - GUARD_LAYOUT.depth - 1.4, GUARD_LAYOUT.originZ + 1.4], [-22.5, -17.5, 62.2, 65.8], [-5.8, 6.8, WALKWAY.z1 - .2, -9.6], [-37.5, 37.5, -11, 11.5], [-28.5, 28.5, -32.4, WALKWAY.z1 + 1], [MEGA.gym.x - MEGA.gym.w / 2 - 1.5, MEGA.gym.x + MEGA.gym.w / 2 + 1.5, MEGA.gym.z - MEGA.gym.d / 2 - 1.5, MEGA.gym.z + MEGA.gym.d / 2 + 3.5], [MEGA.court.x - MEGA.court.w / 2 - .5, MEGA.court.x + MEGA.court.w / 2 + .5, MEGA.court.z - MEGA.court.d / 2 - .5, MEGA.court.z + MEGA.court.d / 2 + .5], [26.5, 49.5, 11, 36], [-49.5, -28.5, 11, 26.5], [-49.5, -32.5, 29.5, 52.5], [-5, 5, 60, 72], [-17, 17, 1.5, 12]];
+  const BLOCK = [...ROAD_RECTS, [-46.2, -36.0, -9.5, 9.5], [36.0, 46.2, -9.5, 9.5], [30.2, 39.8, -53.5, -39.5], [-36.5, -28.0, -32.5, -17.0], [-54.5, -40.5, -37.5, -16.5], [GUARD_LAYOUT.originX - 1.4, GUARD_LAYOUT.originX + GUARD_LAYOUT.width + 1.4, GUARD_LAYOUT.originZ - GUARD_LAYOUT.depth - 1.4, GUARD_LAYOUT.originZ + 1.4], [GANX.x1 - 1.2, GANX.x2 + 1.8, GANX.z1 - 1.8, GANX.z2], [-22.5, -17.5, 62.2, 65.8], [-5.8, 6.8, WALKWAY.z1 - .2, -9.6], [-37.5, 37.5, -11, 11.5], [-28.5, 28.5, -32.4, WALKWAY.z1 + 1], [MEGA.gym.x - MEGA.gym.w / 2 - 1.5, MEGA.gym.x + MEGA.gym.w / 2 + 1.5, MEGA.gym.z - MEGA.gym.d / 2 - 1.5, MEGA.gym.z + MEGA.gym.d / 2 + 3.5], [MEGA.court.x - MEGA.court.w / 2 - .5, MEGA.court.x + MEGA.court.w / 2 + .5, MEGA.court.z - MEGA.court.d / 2 - .5, MEGA.court.z + MEGA.court.d / 2 + .5], [26.5, 49.5, 11, 36], [-49.5, -28.5, 11, 26.5], [-49.5, -32.5, 29.5, 52.5], [-5, 5, 60, 72], [-17, 17, 1.5, 12]];
   const blocked = (x, z, m = 0) => BLOCK.some(([a, b2, c, d]) => x > a - m && x < b2 + m && z > c - m && z < d + m);
   const trunkG = merge([new THREE.CylinderGeometry(.16, .3, 3.4, 7).translate(0, 1.7, 0), tube(.07, 0, 2.2, 0, .9, 3.4, .3), tube(.06, 0, 2.6, 0, -.7, 3.7, -.4)]);
   const lump = (r, x, y, z) => {
@@ -5061,7 +5065,7 @@ export function buildWorld(scene) {
     g.translate(x, y, z); const idx = []; for (let i = 0; i < p.count; i++) idx.push(i); g.setIndex(idx); g.computeVertexNormals(); return g;
   };
   const crownG = merge([lump(1.7, 0, 4.3, 0), lump(1.3, .9, 5.2, .4), lump(1.2, -.8, 4.9, -.5), lump(.9, .1, 5.9, -.1)]);
-  const treeM = [], tpos = [[-8, 64.5, true, 1], [9.5, 63.8, true, 1], [-15, 66.5, true, 1], [16, 66, true, 1], [-11, 58.5, true, 1], [12.5, 59, true, 1]];   // 정문 옆 벚나무
+  const treeM = [], tpos = [[-8, 64.5, true, 1], [14.2, 62.0, true, 1], [-15, 66.5, true, 1], [16, 66, true, 1], [-11, 58.5, true, 1], [12.5, 59, true, 1]];   // 정문 옆 벚나무
   for (let i = 0; i < 260 && tpos.length < 120; i++) {
     let x, z; const inside = tpos.length < 54;
     if (inside) {
@@ -5161,7 +5165,7 @@ export function buildWorld(scene) {
     return .38 + .62 * d;
   }
   const flickCfg = { calm: false };
-  return { CCTV_CAMERAS, guardRoom, INFIRMARY_SLOTS, campusDesign, modelAudit, POOL, CHAIRS, B_BOIL, LOCKER_BOXES, h133Mat, crMat, thMat, prMat, v2Mat, winMats, MODELS, floors, items, lockers, doors, gate, update, mats: { flickerMats, matLampOn, matLampDead }, flickCfg, sky: { stars, moon, moonGlow }, NOTES, TAPES, PHOTOS, doorList, props, boardRefs, OUT, bakeStats, makeBoardTex: makeClassroomBoard98 };
+  return { CCTV_CAMERAS, guardRoom, guardAnnex, INFIRMARY_SLOTS, campusDesign, modelAudit, POOL, CHAIRS, B_BOIL, LOCKER_BOXES, h133Mat, crMat, thMat, prMat, v2Mat, winMats, MODELS, floors, items, lockers, doors, gate, update, mats: { flickerMats, matLampOn, matLampDead }, flickCfg, sky: { stars, moon, moonGlow }, NOTES, TAPES, PHOTOS, doorList, props, boardRefs, OUT, bakeStats, makeBoardTex: makeClassroomBoard98 };
 }
 
 /* ---------- 충돌/시야 ---------- */

@@ -19,9 +19,9 @@ export const ROOM_PLAN = [
   ['admin', 'principal', 'staff', 'staff', 'nurse', 'counsel', 'class', 'class'],
   ['class', 'class', 'class', 'class', 'class', 'class', 'class', 'class'],
   ['class', 'class', 'class', 'class', 'class', 'class', 'class', 'class'],
-  ['broadcast', 'science', 'science', 'class', 'class', 'class', 'library', 'library'],
+  ['bcast', 'bcast', 'science', 'class', 'class', 'class', 'library', 'library'],   // bcast 두 칸 = 칸막이 없는 18m 방송실 (예전 본관 방송실 설비를 그대로 옮겨 온다)
 ];
-const ROOM_NAME = { admin: '행정실', principal: '교장실', staff: '교무실', nurse: '보건실', counsel: '상담실', broadcast: '방송실', science: '과학실', library: '도서실', music: '음악실', art: '미술실', computer: '컴퓨터실', home: '가정실', study: '자율학습실' };
+const ROOM_NAME = { bcast: '방송실', admin: '행정실', principal: '교장실', staff: '교무실', nurse: '보건실', counsel: '상담실', broadcast: '방송실', science: '과학실', library: '도서실', music: '음악실', art: '미술실', computer: '컴퓨터실', home: '가정실', study: '자율학습실' };
 // 별관 (3층 · 층당 4실): 1층 예체능 · 2층 실습 · 3층 3학년 교실
 export const ANNEX_SPEC = { floors: 3, classesPerSide: 2 };
 export const ANNEX_PLAN = [
@@ -257,6 +257,7 @@ export function buildMainBuilding(opt = {}) {
     // 1층 중앙 현관 (북측 = 운동장 반대편 주출입구, 남측은 교실)
     const core = LY.rooms.find(r => r.kind === 'core');
     if (f === 0) winsN.push({ a: core.x1 + 2.7, b: core.x2 - 2.7, y1: 0, y2: 2.6, door: true });
+    winsN.push({ a: 3.7 - .62, b: 3.7 + .62, y1: 0, y2: 2.15, door: true, elev: true });   // 엘리베이터 승강장 출입구 (rebuildGame 승강로)
     if (f === 0 && opt.southEntry) winsS.push({ a: core.x1 + 2.7, b: core.x2 - 2.7, y1: 0, y2: 2.6, door: true });   // 운동장 · 정문 쪽 주출입구
     wallX('brick', -LY.L / 2 - T, LY.L / 2 + T, zS, zS + T, y0, winsS);
     wallX('brick', -LY.L / 2 - T, LY.L / 2 + T, zN - T, zN, y0, winsN.filter(w => !(w.a > core.x1 && w.b < core.x2 && !w.door && f === 0)));
@@ -315,7 +316,7 @@ export function buildMainBuilding(opt = {}) {
           if (!k) box('white', o.a, o.b + .3, y0 + 2.2, y0 + 2.4, -.16, -.12); });
         box('glass', r.x1 + 2.4, r.x2 - 2.4, y0 + 1.6, y0 + 2.4, -.01, .01);
         // 교실 사이 칸막이벽 (동측) — 마지막 교실은 코어 · 계단실 벽이 대신한다
-        { const nx = LY.rooms[LY.rooms.indexOf(r) + 1]; if (nx && nx.kind === 'class') wallZ('wall', r.x2 - S.wall / 2, r.x2 + S.wall / 2, 0, zS, y0); }
+        { const nx = LY.rooms[LY.rooms.indexOf(r) + 1]; if (nx && nx.kind === 'class') { if (type === 'bcast' && PLAN[f][idx + 1] === 'bcast') box('wood', r.x2 - S.wall / 2 - .01, r.x2 + S.wall / 2 + .01, y0, y0 + .02, S.wall / 2, zS); else wallZ('wall', r.x2 - S.wall / 2, r.x2 + S.wall / 2, 0, zS, y0); } }
         classroom(r, f, y0, type, name);
       } else if (r.kind === 'stair') {
         { const xi = r.x1 < 0 ? r.x2 : r.x1; wallZ('conc', xi - S.wall / 2, xi + S.wall / 2, zN, zS, y0, [{ a: zN + .1, b: zN + 2.6, y1: 0, y2: 2.2 }]);
@@ -533,8 +534,8 @@ export function buildMainBuilding(opt = {}) {
       box('terr', r.x1 + .1, r.x2 - .1, y0, y0 + .02, .1, zS);
       for (const sx of [-1, 1]) { const x0 = sx < 0 ? r.x1 + .15 : r.x2 - .55;   // 신발장 (양 벽)
         for (let k = 0; k < 3; k++) { const z = 1.2 + k * 1.3; box('lockerM', x0, x0 + .4, y0, y0 + 1.6, z, z + 1.2, { solid: true }); for (let j = 1; j < 5; j++) box('alu', x0 - .005, x0 + .405, y0 + j * .32, y0 + j * .32 + .015, z, z + 1.2); } }
-      box('steelG', r.x2 - 1.4, r.x2 - .6, y0 + .6, y0 + 2.0, zN + .02, zN + .25, { solid: true });
-      props.push({ kind: 'panel', label: `${f + 1}층 분전반`, x: r.x2 - 1, y: y0 + 1.3, z: zN + .3, floor: f });
+      box('steelG', r.x1 + .3, r.x1 + 1.1, y0 + .6, y0 + 2.0, zN + .02, zN + .25, { solid: true });
+      props.push({ kind: 'panel', label: `${f + 1}층 분전반`, x: r.x1 + .7, y: y0 + 1.3, z: zN + .3, floor: f });
       props.push({ kind: 'room', label: '중앙 현관', x1: r.x1, x2: r.x2, z1: 0, z2: zS, floor: f });
       return;
     }
@@ -559,8 +560,8 @@ export function buildMainBuilding(opt = {}) {
     box('alu', xm - 1.9, xm + 1.9, y0 + .3, y0 + .35, -.16, -.12);   // 급수관
     props.push({ kind: 'sink', label: '복도 세면대', x: xm, y: y0 + .9, z: -.4, floor: f });
     // 층 분전반 (EPS)
-    box('steelG', r.x2 - 1.4, r.x2 - .6, y0 + .6, y0 + 2.0, zN + .02, zN + .25, { solid: true });
-    props.push({ kind: 'panel', label: `${f + 1}층 분전반`, x: r.x2 - 1, y: y0 + 1.3, z: zN + .3, floor: f });
+    box('steelG', r.x1 + .3, r.x1 + 1.1, y0 + .6, y0 + 2.0, zN + .02, zN + .25, { solid: true });   // 코어 서쪽 (동쪽은 엘리베이터 승강장)
+    props.push({ kind: 'panel', label: `${f + 1}층 분전반`, x: r.x1 + .7, y: y0 + 1.3, z: zN + .3, floor: f });
   }
   function fluor(x, y, z, alongX) {   // 2등용 매입 형광등 (1200 × 300)
     const [a, b] = alongX ? [.6, .15] : [.15, .6];

@@ -11,6 +11,7 @@ import { applyGuardSeatedPose } from './guardSeatedPose.js?v=195';
 import { createCampusCctvLive, collectCampusCctvFeeds } from './campusCctvLive.js';
 import { applyExteriorFloorVisibility, shouldStreamGuardCctv } from './exteriorRenderBudget.js?v=195';
 import { GUARD_LAYOUT } from './guardRoomLayout.js?v=195';
+import { ANNEX_KEYS, CABINET_CODE } from './guardAnnex.js?v=195';
 import { installGuardRoom } from './guardRoom.js?v=195';
 import { prepareModelGeometry } from './modelGeometry.js';
 import { modelFootprint, overlaps, removeDuplicateModels } from './placement.js';
@@ -53,6 +54,7 @@ function openGuardCctv() { if(!campusCctv) return; state='cctv'; for(const k in 
 function closeGuardCctv() { campusCctv?.close(); if(state==='cctv') { state='playing'; for(const k in keys) keys[k]=false; refreshHud(); lock(); } }
 function guardDeviceState() { return { cctvOn: FL.guardCctvOn ?? true, lightOn: FL.guardLightOn ?? false, doorOpen: FL.guardDoorOpen ?? true }; }
 function syncGuardDevices() {
+  if (typeof anxCabinetVisual === 'function') anxCabinetVisual();
   const q = guardDeviceState(); guardRoomController?.applyState(q);
   for (const p of guardControlProps) { if (p.k === 'guarddoor') p.label = q.doorOpen ? '경비실 문 닫기' : '경비실 문 열기'; else if (p.k === 'guardlight') p.label = q.lightOn ? '경비실 전등 끄기' : '경비실 전등 켜기'; else if (p.k === 'guardcctv' || p.fz?.id === 'guard_cctv') p.label = q.cctvOn ? 'CCTV 실시간 화면 보기' : 'CCTV 관제 화면 (전원 꺼짐)'; }
   if (guardCctvData) guardCctvData.promptText = '[E] CCTV 실시간 화면 보기';
@@ -979,7 +981,7 @@ function objDir() {
 }
 
 /* ----- 열기 / 닫기 ----- */
-const UI_PANELS = ['inv', 'mapOv', 'testOv', 'keypad', 'phone', 'invZoom', 'chalk'];
+const UI_PANELS = ['inv', 'mapOv', 'testOv', 'keypad', 'phone', 'invZoom', 'chalk', 'annexOv'];
 function openUI(kind) { if (state !== 'playing') return; $('chapterCard').classList.remove('show');$('dlg').classList.remove('show'); if (CAM.on) camMode(false); state = 'ui'; for (const k in keys) keys[k] = false; $('prompt').style.display = 'none'; $(kind).classList.add('show'); document.exitPointerLock?.(); }
 function closeUI() { if (state !== 'ui') return; if($('keypad').classList.contains('show')){++keypadSequence;kpOpening=false;} UI_PANELS.forEach(k => $(k).classList.remove('show')); combineFrom = null; invMsg = ''; state = 'playing'; refreshHud(); lock(); }
 function openInv(tab = 'items') { if (state !== 'playing') return; invTab = tab; invSel = 0; openUI('inv'); renderInv(); sfx.paper(); }
@@ -1344,7 +1346,7 @@ function findInteract() {
     } else if (dr) best = { type: 'door', d: dr, label: dr.label + (dr.need && !FL.gatekey ? ' 🔒' : '') };
     else if (P.floor === 0 && P.z > GATE_Z - 4.2 && P.z < GATE_Z + 2.8 && Math.abs(P.x) < 2.8 && (gateClosed || FL.gatekey) && !escaped) best = { type: 'gate', label: gateClosed ? '봉인된 정문 열고 학교의 비밀 폭로하기' : '정문을 통해 학교의 비밀을 세상에 폭로하기' };
   }
-  if (!best && RBG && P.floor === 0) { const e = RBG.nearElev(P.x, P.z, P.sh || 0); if (e) best = { type: 'rbelev', e, raw: true, label: [e.f < e.n - 1 ? 'E · 위층' : '', e.f > 0 ? 'Q · 아래층' : ''].filter(Boolean).join('  /  ') + `  (엘리베이터 · ${e.b.name} ${e.f + 1}층)` }; }
+  if (!best && RBG && P.floor === 0) { const e = RBG.nearElev(P.x, P.z, P.sh || 0); if (e) { const E = e.E, here = !e.inCar && Math.abs(E.y - e.rbY) < .05 && !E.moving; best = { type: 'rbelev', e, raw: true, label: E.moving ? `엘리베이터 운행 중… (${Math.round(E.y / E.b.spec.FH) + 1}층)` : e.inCar ? [e.f < e.n - 1 ? 'E · 위층' : '', e.f > 0 ? 'Q · 아래층' : ''].filter(Boolean).join('  /  ') + `  (엘리베이터 안 · ${e.f + 1}층)` : here ? `E · 엘리베이터 문 열기 (${E.b.name} ${e.f + 1}층)` : `E · 엘리베이터 호출 (지금 ${Math.round(E.y / E.b.spec.FH) + 1}층)` }; } }
   if (!best && RBG && P.floor === 0) { const d = RBG.nearDoor(P.x, P.z, P.sh || 0); if (d) best = { type: 'rbdoor', d, label: `${d.label || '문'} ${d.target > .5 ? '닫기' : '열기'}` }; }
   return best;
 }
@@ -1452,7 +1454,7 @@ function enrage() {
 }
 
 const STAIRS = { 0: { up: 1, down: 4 }, 1: { up: 2, down: 0 }, 2: { up: 3, down: 1 }, 3: { down: 2 }, 4: { up: 0 }, 8: { up: 9 }, 9: { up: 10, down: 8 }, 10: { down: 9 } };
-function rbElev(e, dir) { const to = RBG.elevTo(e, dir); if (!to) { sfx.click(); return; } sfx.elevatorButton && sfx.elevatorButton(); sfx.elevator && sfx.elevator(1.6); teleport(to); setTimeout(() => sfx.elevatorChime && sfx.elevatorChime(), 1200); }
+function rbElev(e, dir) { if (!e.inCar && dir < 0) dir = 1; const r = RBG.elevAct ? RBG.elevAct(e, dir) : null; sfx.elevatorButton ? sfx.elevatorButton() : sfx.click(); if (r === 'end') say('더 갈 층이 없다', 1200); else if (r === 'call') say('엘리베이터를 불렀다 — 칸이 오는 소리가 들린다', 1800); }
 function teleport(to) {
   if (state !== 'playing') return;
   if (RBG) to = RBG.mapTeleport(to, P.floor, world);   // 새 건물: B1 · 옥상 · 예전 층으로 가는 이동은 새 건물의 같은 자리로
@@ -3486,6 +3488,7 @@ let last = performance.now();
 function frameBody(now) {
   const dt = Math.min(.066, Math.max(0, (now - last) / 1000)); last = now; tNow += dt;
   perfTick(dt);
+  if (RBG) RBG.cull(dt, P);   // 새 건물 실내 소품: 지금 층만 (인트로 · 메뉴 중에도)
   npcVisuals.update(dt);
   if (state === 'ui') { updateSound(dt); return; }
   $('clickHint').classList.toggle('show', state === 'playing' && !document.pointerLockElement && !DEBUG && !TEST_NOLOCK);   // 소지품 · 지도 · 미니게임 중에는 3D를 다시 그리지 않는다 (마지막 화면 유지)
@@ -3503,7 +3506,7 @@ function frameBody(now) {
       updatePrompt();
       updateEvents(dt);
     }
-    updateLighting(dt); if (RBG) { RBG.tick(dt, P); RBG.setPower(blackout > 0, GEN.gain, power); }
+    updateLighting(dt); if (RBG) { RBG.tick(dt, P, sfx); RBG.setPower(blackout > 0, GEN.gain, power); }
     ghostVisual(dt, tNow);
     updateCamera(dt, tNow);
   } else if (state === 'intro') {
@@ -3647,7 +3650,129 @@ function addLookProps() {
     world.props.push({ kind: 'look', floor: m.f, x: m.x, z: m.z, y: (m.y || 0) + .9, r: 1.6, label: L[1], fn: L[2], n: 0 });
   });
 }
+/* ----- 경비동 별관: 관제실(1998 녹화 테이프) · 열쇠보관실(보관함 · 열쇠 3종) ----- */
+const ANX_CAMS = ['CAM-01 정문', 'CAM-02 본관 1F 복도', 'CAM-03 B1 펌프실 복도', 'CAM-04 교무실 앞'];
+const ANX_T0 = 21 * 60, ANX_STEP = 10, ANX_N = 55;   // 21:00 ~ 06:00, 10분 간격
+const anxTime = i => { const m = (ANX_T0 + i * ANX_STEP) % 1440; return String(m / 60 | 0).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0'); };
+// 장면: [카메라, 시각] → 사람 실루엣 · 자막 · 증거 여부
+const ANX_SCENES = {
+  '0|21:40': { who: [{ x: .5, s: .8, c: '#d8d8d0' }], cap: '교복 차림 여학생 1명 정문 통과 — 가방에 방송 원고' },
+  '1|22:10': { who: [{ x: .3, s: 1, c: '#b8b0a0' }, { x: .45, s: 1, c: '#b8b0a0' }, { x: .6, s: 1, c: '#b8b0a0' }, { x: .72, s: 1, c: '#b8b0a0' }, { x: .55, s: .9, c: '#e0e0d8' }], cap: '학생 5명이 계단 쪽으로 이동' },
+  '1|22:20': { who: [{ x: .7, s: 1.2, c: '#30343a', badge: 1 }], cap: '양복 차림 교사 1명 — 교무실 방향' },
+  '2|22:30': { who: [{ x: .3, s: 1, c: '#b8b0a0' }, { x: .4, s: 1, c: '#b8b0a0' }, { x: .5, s: .9, c: '#e0e0d8' }, { x: .62, s: 1, c: '#b8b0a0' }, { x: .72, s: 1, c: '#b8b0a0' }], cap: '펌프실 철문 앞에 학생 5명', door: 1 },
+  '2|22:40': { who: [{ x: .25, s: 1, c: '#b8b0a0' }, { x: .35, s: 1, c: '#b8b0a0' }, { x: .45, s: 1, c: '#b8b0a0' }, { x: .55, s: 1, c: '#b8b0a0' }], cap: '학생 4명만 계단으로 돌아감 — 철문 닫힘', door: 0 },
+  '2|22:50': { who: [{ x: .62, s: 1.25, c: '#30343a', badge: 1, key: 1 }], cap: '양복 교사가 철문 앞에 섰다 — 손에 열쇠 꾸러미 · 문은 열지 않는다', door: 0, ev: 'cctv_b1' },
+  '3|22:55': { who: [{ x: .4, s: 1.25, c: '#30343a', badge: 1, key: 1 }], cap: '같은 교사, 열쇠를 쥔 채 교장실 쪽으로', ev: 'cctv_office' },
+  '3|23:10': { who: [{ x: .45, s: 1.25, c: '#30343a', badge: 1 }, { x: .6, s: 1.3, c: '#2a2a2a' }], cap: '교장실 앞 — 두 사람이 오래 서 있다' },
+  '1|22:15': { who: [{ x: .2, s: 1.1, c: '#4a5a6a', run: 1 }], cap: '경비원이 교무실 쪽으로 뛰어간다' },
+  '0|05:50': { who: [{ x: .5, s: 1.2, c: '#30343a', key: 1 }], cap: '새벽 — 교무부장이 정문으로 들어온다. 구급차는 없다' },
+};
+const anxDark = (cam, i) => cam >= 1 && cam <= 3 && ANX_T0 + i * ANX_STEP >= 23 * 60 + 20 && ANX_T0 + i * ANX_STEP < 29 * 60 + 50;
+let anxCam = 2, anxIdx = 0, anxView = '';
+function anxDraw(cv) {
+  const g = cv.getContext('2d'), W = cv.width, H = cv.height, t = anxTime(anxIdx);
+  g.fillStyle = '#0b0f0d'; g.fillRect(0, 0, W, H);
+  if (anxDark(anxCam, anxIdx)) { g.fillStyle = '#9bb5aa'; g.font = '20px monospace'; g.fillText('NO SIGNAL — 본관 정전', W / 2 - 120, H / 2); }
+  else {
+    g.strokeStyle = '#2c3a33'; g.lineWidth = 2; g.beginPath(); g.moveTo(0, H); g.lineTo(W * .35, H * .38); g.lineTo(W * .65, H * .38); g.lineTo(W, H); g.moveTo(W * .35, H * .38); g.lineTo(W * .35, 0); g.moveTo(W * .65, H * .38); g.lineTo(W * .65, 0); g.stroke();
+    if (anxCam === 2) { g.fillStyle = '#3a3226'; g.fillRect(W * .55, H * .2, W * .16, H * .45); g.fillStyle = '#c9b060'; g.fillRect(W * .69, H * .42, 4, 6); g.fillStyle = '#d0d0c0'; g.font = '10px sans-serif'; g.fillText('펌프실', W * .58, H * .18); }
+    const sc = ANX_SCENES[anxCam + '|' + t];
+    for (const w of sc?.who || []) {
+      const x = w.x * W, base = H * .85, hh = 70 * w.s;
+      g.fillStyle = w.c; g.beginPath(); g.ellipse(x, base - hh, 9 * w.s, 10 * w.s, 0, 0, 7); g.fill(); g.fillRect(x - 12 * w.s, base - hh + 10 * w.s, 24 * w.s, hh - 10 * w.s);
+      if (w.badge) { g.fillStyle = '#e8e0b0'; g.fillRect(x - 8 * w.s, base - hh + 20 * w.s, 6, 3); }
+      if (w.key) { g.fillStyle = '#ffd860'; g.beginPath(); g.arc(x + 15 * w.s, base - hh * .45, 3.5, 0, 7); g.fill(); g.fillRect(x + 14 * w.s, base - hh * .45, 2, 8); }
+    }
+    for (let i = 0; i < 900; i++) { const v = Math.random() * 60 | 0; g.fillStyle = `rgba(${v},${v + 10},${v},.35)`; g.fillRect(Math.random() * W, Math.random() * H, 2, 1); }
+  }
+  for (let y = 0; y < H; y += 3) { g.fillStyle = 'rgba(0,0,0,.22)'; g.fillRect(0, y, W, 1); }
+  g.fillStyle = 'rgba(0,0,0,.6)'; g.fillRect(0, 0, W, 20); g.fillStyle = '#c8ffd6'; g.font = '12px monospace'; g.fillText(ANX_CAMS[anxCam], 6, 14); g.fillStyle = '#ff5050'; g.fillText('▶ PLAY', W - 70, 14);
+  g.fillStyle = '#c8ffd6'; g.fillText('1998-10-' + (anxIdx * ANX_STEP + ANX_T0 >= 1440 ? '13' : '12') + '  ' + t, 6, H - 8);
+  const sc = !anxDark(anxCam, anxIdx) && ANX_SCENES[anxCam + '|' + t]; $('anxCap').textContent = sc ? '● ' + sc.cap : '— 움직임 없음 —';
+}
+function anxRender() {
+  const box = $('anxBody');
+  if (anxView === 'archive') {
+    box.innerHTML = `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">${ANX_CAMS.map((c, i) => `<button data-cam="${i}" style="${i === anxCam ? 'background:#2f5a44' : ''}">${c}</button>`).join('')}</div>
+      <canvas id="anxCv" width="560" height="315" style="width:100%;background:#000;border:1px solid #3b5546"></canvas>
+      <div id="anxCap" style="min-height:22px;margin:6px 0;color:#cfe"></div>
+      <div style="display:flex;gap:8px;align-items:center"><button data-step="-6">◀◀ 1시간</button><button data-step="-1">◀ 10분</button>
+      <input id="anxSlide" type="range" min="0" max="${ANX_N - 1}" value="${anxIdx}" style="flex:1"><button data-step="1">10분 ▶</button><button data-step="6">1시간 ▶▶</button></div>
+      <div style="margin-top:10px;display:flex;gap:8px"><button id="anxCapture" style="background:#5a2f2f">📸 이 장면 증거로 캡처</button><span style="opacity:.75;font-size:12px">녹화 테이프 3개 · 21:00 ~ 06:00 · 장면을 찾아 캡처하세요 (${['cctv_b1', 'cctv_office'].filter(k => FL[k]).length}/2)</span></div>`;
+    box.querySelectorAll('[data-cam]').forEach(b => b.onclick = () => { anxCam = +b.dataset.cam; sfx.click(); anxRender(); });
+    box.querySelectorAll('[data-step]').forEach(b => b.onclick = () => { anxIdx = Math.max(0, Math.min(ANX_N - 1, anxIdx + +b.dataset.step)); sfx.beep(); anxRender(); });
+    $('anxSlide').oninput = e => { anxIdx = +e.target.value; anxDraw($('anxCv')); };
+    $('anxCapture').onclick = () => {
+      const sc = !anxDark(anxCam, anxIdx) && ANX_SCENES[anxCam + '|' + anxTime(anxIdx)]; sfx.camera ? sfx.camera() : sfx.click();
+      if (!sc?.ev) { $('anxCap').textContent = '이 장면만으로는 아무것도 증명할 수 없다…'; return; }
+      if (FL[sc.ev]) { $('anxCap').textContent = '이미 캡처한 장면이다.'; return; }
+      FL[sc.ev] = true; const id = sc.ev === 'cctv_b1' ? 'n_cctv_b1' : 'n_cctv_office'; addDoc({ id, kind: 'note' }); addClue(id);
+      toast('📸 CCTV 증거 캡처', world.NOTES[id].title, 'info'); storyCalm(60); save(true); anxRender();
+      if (FL.cctv_b1 && FL.cctv_office) setTimeout(() => say('두 장면이 이어진다 — 열쇠를 쥔 교무부장은 철문을 열지 않고, 교장실로 갔다.', 4200), 600);
+    };
+    anxDraw($('anxCv'));
+  } else if (anxView === 'keys') {
+    box.innerHTML = `<div style="opacity:.8;margin-bottom:8px">녹색 철제 열쇠함 — 고리마다 이름표가 붙어 있다.</div><div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">${ANNEX_KEYS.map(k => `<div style="border:1px solid #556;padding:10px;border-radius:6px;background:#141a17"><b style="color:${k.color}">🔑 ${k.name}</b><div style="font-size:12px;opacity:.75">${k.tag}</div>${FL['key_' + k.id] ? '<div style="margin-top:6px;opacity:.6">— 가져감 —</div>' : `<button data-key="${k.id}" style="margin-top:6px">가져가기</button>`}</div>`).join('')}
+      <div style="border:1px dashed #844;padding:10px;border-radius:6px;background:#1a1212"><b style="color:#c66">🔑 지하 펌프실 열쇠</b><div style="font-size:12px;opacity:.85">빈 고리. 꼬리표만 남아 있다:<br>「10/12 22:50 대출 — 교무부장. <b>미반납</b>」</div></div></div>`;
+    box.querySelectorAll('[data-key]').forEach(b => b.onclick = () => {
+      const k = ANNEX_KEYS.find(q => q.id === b.dataset.key); FL['key_' + k.id] = true; sfx.pickup(); toast('🔑 ' + k.name, k.tag + ' 를 열 수 있다', 'info');
+      const i = ANNEX_KEYS.indexOf(k); if (world.guardAnnex?.hookKeys[i]) world.guardAnnex.hookKeys[i].visible = false; if (!FL.anxKeyHint) { FL.anxKeyHint = true; setTimeout(() => say('열쇠 이름표마다 잠긴 함의 위치가 적혀 있다 — 본관 숙직실, 체육관 창고, 지하 시설창고.', 4200), 400); }
+      save(true); anxRender();
+    });
+  }
+}
+function anxOpen(view, title) { anxView = view; $('anxTitle').textContent = title; openUI('annexOv'); anxRender(); }
+const ANX_BOX_NOTES = {
+  main: 'n_box_main', gym: 'n_box_gym', base: 'n_box_base',
+};
+function useAnnex(p) {
+  const k = p.k;
+  if (k === 'live') { if (campusCctv) { openGuardCctv(); sfx.click(); } else say('모니터에는 노이즈만 흐른다', 2000); return; }
+  if (k === 'archive') { sfx.click(); setTimeout(() => sfx.staticNoise?.(.3), 100); anxOpen('archive', '관제실 VCR — 1998.10.12 녹화 테이프'); return; }
+  if (k === 'ledger') { sfx.paper(); if (!docs.some(d => d.id === 'n_key_ledger')) { addDoc({ id: 'n_key_ledger', kind: 'note' }); addClue('n_key_ledger'); } showNote(world.NOTES.n_key_ledger); return; }
+  if (k === 'lost') { sfx.paper(); if (!p.done) { p.done = true; giveItem('battery', 1); FL.anxLost = true; } showNote(world.NOTES.n_lost_badge); if (!docs.some(d => d.id === 'n_lost_badge')) addDoc({ id: 'n_lost_badge', kind: 'note' }); return; }
+  if (k === 'cabinet') {
+    if (FL.cabOpen) { sfx.click(); anxOpen('keys', '열쇠보관실 — 열쇠함'); return; }
+    kpProp = { code: CABINET_CODE, prop: p, onOpen: () => { FL.cabOpen = true; anxCabinetVisual(); sfx.gateClang?.(); save(true); setTimeout(() => anxOpen('keys', '열쇠보관실 — 열쇠함'), 500); },
+      hints: ['힌트 ① 경비장 지시: 번호는 <b>“마지막으로 나간 열쇠의 시각”</b>', '힌트 ② 관제실 책상 위 <b>열쇠 대출 장부</b>를 보라', '힌트 ③ 펌프실 열쇠 대출 22:50 → 2 2 5 0'] };
+    kpBuf = ''; ++keypadSequence; kpOpening = false; $('kpTitle').textContent = '열쇠보관함 (전자식)'; $('kpHint').innerHTML = '숫자 4자리 — 경비장만 아는 번호'; renderKeypad(); openUI('keypad'); sfx.beep(); return;
+  }
+  if (k === 'box') {
+    const key = ANNEX_KEYS.find(q => q.id === p.key), nid = ANX_BOX_NOTES[p.key];
+    if (FL['box_' + p.key]) { sfx.paper(); showNote(world.NOTES[nid]); return; }
+    if (!FL['key_' + p.key]) { sfx.clank?.(); say(`자물쇠가 채워져 있다 — 꼬리표: 『경비실 보관 · ${key.name}』`, 2800); return; }
+    FL['box_' + p.key] = true; sfx.unlock(); p.label = p.label.replace('잠긴 ', '열린 '); if (p.mesh?.userData.lid) p.mesh.userData.lid.rotation.x = -1.2;
+    addDoc({ id: nid, kind: 'note' }); addClue(nid); toast('🗝 ' + key.name + '로 열었다', world.NOTES[nid].title, 'info'); storyCalm(60); save(true);
+    setTimeout(() => showNote(world.NOTES[nid]), 500); return;
+  }
+}
+function anxCabinetVisual() { const a = world.guardAnnex; if (!a) return; if (FL.cabOpen) { a.cabDoor.rotation.y = -1.9; a.cabPad.material.color.setHex(0x40ff80); } else a.cabPad.material.color.setHex(0xff4030); ANNEX_KEYS.forEach((k, i) => { if (a.hookKeys[i]) a.hookKeys[i].visible = !FL['key_' + k.id]; }); for (const q of world.props) if (q.kind === 'ganx' && q.k === 'box' && FL['box_' + q.key] && q.mesh?.userData.lid) { q.mesh.userData.lid.rotation.x = -1.2; q.label = q.label.replace('잠긴 ', '열린 '); } }
+function setupAnnex() {
+  Object.assign(world.NOTES, {
+    n_key_ledger: { title: '경비실 열쇠 대출 장부 (1998.10)', text: '<b>[열쇠 대출 장부 — 1998년 10월 12일]</b><br>• 18:05 방송실 열쇠 — 방송부 윤하늘 · 반납 21:55<br>• 19:30 체육관 열쇠 — 체육부장 강태식 · 반납 21:10<br>• 20:40 본관 숙직실 — 교무부장 · 반납 20:50<br>• <b>22:50 지하 펌프실 열쇠 — 교무부장 (서명)</b> · 반납 <b>—</b><br><br>장부 맨 아래, 경비장 글씨: <i>“보관함 번호는 마지막으로 나간 열쇠의 시각으로 바꿀 것.”</i>' },
+    n_lost_badge: { title: '분실물 상자 — 방송부 명찰', text: '먼지 쌓인 분실물 상자 맨 밑, <b>“방송부 · 윤하늘”</b> 명찰이 있다.<br>뒷면에 볼펜으로 — <i>“10/12 기념 방송 끝나면 엄마한테 바로 전화.”</i><br>상자 구석에서 손전등 건전지 하나를 찾았다.' },
+    n_cctv_b1: { title: 'CCTV 캡처 ① — B1 펌프실 복도 22:50', text: '<b>[CAM-03 · 1998.10.12 22:50]</b><br>펌프실 철문 앞, 명찰을 단 양복 교사. 손에 열쇠 꾸러미가 빛난다.<br>그는 문 앞에 30초쯤 서 있다가 — <b>열지 않고 돌아선다.</b><br>10분 전, 학생 4명만 계단으로 돌아갔다. 들어간 사람은 5명이었다.' },
+    n_cctv_office: { title: 'CCTV 캡처 ② — 교무실 앞 22:55', text: '<b>[CAM-04 · 1998.10.12 22:55]</b><br>같은 교사가 열쇠를 쥔 채 교장실 쪽으로 걸어간다.<br>23:10, 교장실 앞에 두 사람. 23:20 — 본관 전체 정전, 화면이 끊긴다.' },
+    n_box_main: { title: '본관 숙직실 서류함 — 숙직 일지', text: '<b>[숙직 일지 1998.10.12]</b><br>• 22:52 교무부장 숙직실 들름. 펌프실 열쇠를 서랍에 넣으려다 <b>다시 주머니에 넣음.</b> “아침에 내가 연다.”<br>• 23:25 정전. 교무부장 “지하는 내려가지 말 것” 지시.<br>• 06:10 119 신고 — <b>사고 7시간 뒤.</b>' },
+    n_box_gym: { title: '체육관 창고 당직함 — 비상 랜턴 수령부', text: '<b>[비상 장비 수령부]</b><br>• 23:30 비상 랜턴 2개 — 체육부장 강태식 수령.<br>• 사용처: <b>“B1 진입 대기 — 교무부장 지시로 대기.”</b><br>• 반납 06:20 · 미사용.<br>아래 메모: <i>“내려갔어야 했다.”</i>' },
+    n_box_base: { title: '지하 시설창고 기밀 상자 — 펌프실 자물쇠', text: '상자 안에 녹슨 <b>펌프실 철문 자물쇠</b>와 감식 메모가 있다.<br><i>“자물쇠 안쪽 수십 군데 긁힘 — 안에서 두드린 흔적. 열쇠 홈 각인 B-07 = 교무부장 열쇠 꾸러미.”</i><br>학교는 이 자물쇠를 경찰에 넘기지 않았다.' },
+  });
+  // 잠긴 증거함 3개: 본관(예전 1층 → 새 본관으로 옮겨짐) · 체육관(5층 공간) · 지하(4층 공간)
+  const boxMat = new THREE.MeshStandardMaterial({ color: 0x3a5a44, roughness: .5, metalness: .5 }), lockMat = new THREE.MeshStandardMaterial({ color: 0xc9a64a, metalness: .8, roughness: .3 });
+  const mkBox = () => { const g = new THREE.Group(); const b = new THREE.Mesh(new THREE.BoxGeometry(.55, .32, .38), boxMat); b.position.y = .16; g.add(b); const lid = new THREE.Group(); lid.position.set(0, .32, -.19); const lm = new THREE.Mesh(new THREE.BoxGeometry(.56, .05, .39), boxMat); lm.position.z = .195; lid.add(lm); g.add(lid); g.userData.lid = lid; const lk = new THREE.Mesh(new THREE.BoxGeometry(.07, .08, .03), lockMat); lk.position.set(0, .26, .2); g.add(lk); g.userData.dynamic = true; g.traverse(o => o.userData.dynamic = true); return { g, lid }; };
+  const freeSpot = (f, x, z) => { const cs = floors[f].col; for (let r = 0; r < 4; r += .3) for (let a = 0; a < 12; a++) { const px = x + Math.cos(a * .52) * r, pz = z + Math.sin(a * .52) * r; if (!cs.some(c => !c.off && px > c.x1 - .45 && px < c.x2 + .45 && pz > c.z1 - .45 && pz < c.z2 + .45)) return [px, pz]; } return [x, z]; };
+  const place = (key, f, x, z, label) => { const { g, lid } = mkBox(); const [px, pz] = f === 1 ? [x, z] : freeSpot(f, x, z); g.position.set(px, floors[f].y0, pz); floors[f].interior.add(g); world.props.push({ kind: 'ganx', k: 'box', key, floor: f, x: px, z: pz, y: .4, r: 1.4, label, mesh: g }); };
+  const safe = world.props.find(q => q.kind === 'safe' && q.floor === 1) || { x: -20, z: -4 };
+  place('main', 1, safe.x + .9, safe.z + .9, '잠긴 본관 숙직실 서류함 (본관 열쇠 필요)');
+  const gymRef = world.props.find(q => q.floor === 5 && q.kind === 'search') || { x: 29, z: 24 };
+  place('gym', 5, gymRef.x, gymRef.z + 1, '잠긴 체육관 창고 당직함 (체육관 열쇠 필요)');
+  const baseRef = world.props.find(q => q.floor === 4 && q.kind === 'fz' && /시설창고/.test(q.label || '')) || { x: -9, z: -6 };
+  place('base', 4, baseRef.x + .6, baseRef.z + 1, '잠긴 지하 시설창고 기밀 상자 (지하실 열쇠 필요)');
+  anxCabinetVisual();
+}
+
 async function useProp(p) {
+  if (p.kind === 'ganx') return useAnnex(p);
   if (p.kind === 'b1door') {
     if (FL.b1Open) { say('철문은 열려 있다. 아래에서 차가운 물 냄새가 올라온다.', 2400); return; }
     if (!got[0]) { sfx.clank(); at(0, floors[4].y0 + 1.1, -1.6).doorBang(0, .8); shake = .25; say('쇠사슬과 자물쇠로 묶인 철문이다. 『교무실 관리』 — 열쇠는 교무실에 있을 것이다.', 3200); addClue && CLUES.b1lock && addClue('b1lock'); return; }
@@ -3810,9 +3935,10 @@ function keypadCheck() {
   const sequence=keypadSequence,epoch=storySession,targetPad=kpProp,current=()=>sequence===keypadSequence&&epoch===storySession&&kpProp===targetPad&&state==='ui';
   if (kpProp.code) {   // 제4장 별관 진열장 (전자식 잠금)
     const p = kpProp.prop;
-    if (kpBuf === kpProp.code) { kpOpening=true;$('kpDisp').textContent = 'O P E N'; $('kpDisp').className = 'ok'; sfx.unlock(); setTimeout(() => { if(!current())return;closeUI();headAdvance(p); }, 700); return; }
+    if (kpBuf === kpProp.code) { kpOpening=true;$('kpDisp').textContent = 'O P E N'; $('kpDisp').className = 'ok'; sfx.unlock(); const done = kpProp.onOpen || headAdvance; setTimeout(() => { if(!current())return;closeUI();done(p); }, 700); return; }
     $('kpDisp').textContent = 'E R R'; $('kpDisp').className = 'err'; sfx.buzz(); kpBuf = ''; setTimeout(()=>{if(current())renderKeypad();}, 700);
     p.fails = (p.fails || 0) + 1;
+    if (kpProp.hints) { $('kpHint').innerHTML = kpProp.hints[Math.min(2, p.fails - 1)]; return; }
     $('kpHint').innerHTML = p.fails >= 3 ? '힌트 ③ 머릿돌: 1974년 <b>3월 2일</b> 개교 → 0 3 0 2' : p.fails === 2 ? '힌트 ② 별관 현관의 <b>개교 머릿돌</b> — 월일 4자리' : '힌트 ① 교장 수첩: 잠금 번호는 <b>“이 학교가 태어난 날”</b>';
     return;
   }
@@ -5602,6 +5728,7 @@ function chalkAsk(i) {
   }, 900));
 }
 $('chalkClose').onclick = () => closeUI();
+$('anxClose').onclick = () => closeUI();
 // ── 초자연 현상 감독: 쫓기지 않을 때 1~2분마다 하나씩 (장이 진행될수록 잦아진다)
 function paraEvent(force) {
   if (!force && isDialogueActive()) { XT.para = Math.max(XT.para || 0, 10); return false; }
@@ -6165,7 +6292,7 @@ function fzFloor(parent, tex, x1, x2, z1, z2, y, rep, rough = .9) {
     renderCapture:(cam,feed)=>{ if (state === 'playing') return; return withPerfCamera(cam,!feed.outdoor,()=>staticLOD.render(cam,performance.now(),qCur,()=>renderer.render(scene,cam))); },
     visibilityForFeed:feed=>{const old=ghost.group.visible;ghost.group.visible=ghost.active&&ghost.floor===feed.floor;return()=>{ghost.group.visible=old;};}
   });
-  window.__campusCctv=campusCctv;
+  window.__campusCctv=campusCctv; if (world.guardAnnex) world.guardAnnex.screens.slice(0, 3).forEach((m, i) => { if (campusCctv.textures[i]) m.material = new THREE.MeshBasicMaterial({ map: campusCctv.textures[i], toneMapped: false }); });
   guardRoomController = installGuardRoom({ renderer, scene, camera, guardRoom: world.guardRoom, cctvTexture: cctvTex });
   syncGuardDevices(); guardRoomController.tick(1); window.__guardRoom = guardRoomController;
   guardRoomController.ready.then(async () => { campusCctv.setMonitors(guardRoomController.refs.screens || [guardRoomController.refs.screen].filter(Boolean)); guardRoomController.setLiveTextures(campusCctv.textures); setTimeout(() => textureBudget.prepare(scene), 500); syncGuardDevices(); if (guardRoomController.status === 'error') console.warn('[guardroom]', guardRoomController.error); });
@@ -7436,7 +7563,7 @@ function sgTick(dt) {
   SG.list.forEach(g => { if (g.isTriggered && !before.has(g) && g.zone && FL.sgSeen) { FL.sgSeen[g.zone.id] = true; fx.glitch(.4); shake = Math.max(shake, .35); setFace('fear', 2.5); } });
   for (let i = SG.list.length - 1; i >= 0; i--) if (!sgP.ghostInstances.includes(SG.list[i])) SG.list.splice(i, 1);
   // 층에 따라 보이기 (다른 층 유령이 바닥 · 천장을 뚫고 보이지 않게)
-  SG.list.forEach(g => { g.root.visible = g.f === P.floor; });
+  SG.list.forEach(g => { g.root.visible = g.f === P.floor && !(RBG && g.f === 0 && RBG.inside(g.root.position.x, g.root.position.z)); });   // 새 건물: 예전 건물 땅에 서 있던 유령은 감춘다
   sg3dTick(dt);
 }
 
@@ -8382,6 +8509,7 @@ initSaveIds();
 applyQuality(SET.quality === 'auto' ? 'mid' : SET.quality);
 applySettings();
 // 로딩 화면을 즉시 닫고(동기식), 텍스처 예산·성능 풀·모델 로드는 백그라운드에서 비동기로 진행한다 (초기 로딩 멈춤 원천 차단)
+setupAnnex();
 if (!params.has('oldmap')) { RBG = installRebuild({ THREE, scene, floors, world }); window.__rbg = RBG;
   // 2단계: 예전 건물의 열쇠 · 쪽지 · 조사 지점을 새 방으로 (나중에 생기는 조사 지점도 몇 번 더 옮긴다)
   const sz4 = floors[4] && floors[4].stairZone, b1 = sz4 ? sz4.spawn : { x: ((floors[4] && floors[4].stairCx) || 0) + .8, z: -5.2 };

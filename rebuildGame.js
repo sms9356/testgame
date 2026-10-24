@@ -70,5 +70,79 @@ export function installRebuild({ THREE, scene, floors, world }) {
     P.sh = g;
     return true;
   };
+
+  // ── 2단계: 예전 건물의 열쇠 · 쪽지 · 조사 지점을 새 방으로 옮긴다 ──
+  //   예전 층 → 새 건물 층: 본관 0·1·2층 → 새 본관 1·2·3층, 별관(8·9·10) → 새 별관 1·2·3층
+  //   방은 예전 x 위치 비율이 가장 가까운 새 방, 방 안 자리는 막히지 않은 곳을 고른다
+  //   옮긴 것은 floor 0 + rbY(그 층 바닥 높이) — findInteract 가 높이가 다른 층의 것은 고르지 않는다
+  const FH = MAIN.spec.FH;
+  const roomsOf = (b, f) => (b.props || []).filter(p => p.kind === 'room' && p.floor === f && p.x2 - p.x1 > 2.5);
+  const OLDMAP = { 0: [MAIN, 0], 1: [MAIN, 1], 2: [MAIN, 2], 8: [ANX, 0], 9: [ANX, 1], 10: [ANX, 2] };
+  const SPECIAL_KEY = { 0: [MAIN, 0, 'staff'], 1: [ANX, 1, 'library'], 2: [ANX, 1, 'science'] };
+  const DROP = new Set(['flush', 'sink', 'switch', 'look', 'ldoor', 'elevator', 'roofDoor', 'passSwitch']);
+  let seed = 1; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const used = [];
+  const spotIn = (b, room, f) => {   // 방 안 빈자리 (세계 좌표)
+    const h = f * FH;
+    for (let t = 0; t < 40; t++) {
+      const lx = room.x1 + 1 + rnd() * (room.x2 - room.x1 - 2), lz = room.z1 + 1 + rnd() * (room.z2 - room.z1 - 2);
+      const [x, z] = b.toWorld(lx, lz);
+      const g = R.groundAt(x, z, h + .1); if (g == null || Math.abs(g - h) > .2) continue;
+      if (R.blocked(x, z, h, .35)) continue;
+      if (used.some(u => u.h === h && Math.hypot(u.x - x, u.z - z) < .8) && t < 30) continue;
+      used.push({ x, z, h }); return { x, z, h };
+    }
+    const [x, z] = b.toWorld((room.x1 + room.x2) / 2, (room.z1 + room.z2) / 2); return { x, z, h };
+  };
+  const pickRoom = (oldF, oldX, prefer) => {
+    const [b, f] = OLDMAP[oldF]; let rs = roomsOf(b, f); if (!rs.length) return null;
+    if (prefer) { const pr = rs.filter(r => r.type === prefer); if (pr.length) rs = pr; }
+    const lo = oldF >= 8 ? -24 : -40, hi = oldF >= 8 ? 28 : 40, t = Math.min(1, Math.max(0, (oldX - lo) / (hi - lo)));
+    const L = b.layout.L, best = rs.reduce((a, r) => { const tr = (r.x - (-L / 2)) / L, tt = b === ANX ? 1 - tr : tr; return !a || Math.abs(tt - t) < a.d ? { r, d: Math.abs(tt - t) } : a; }, null);
+    return { b, f, room: best.r };
+  };
+  const moveObj = (o, x, y, z) => { if (!o || !o.isObject3D) return; group.attach(o); o.position.set(x, y, z); o.visible = true; };
+  const park = f => f === 0 ? 1 : f;   // 쓰지 않는 것: 감춘 예전 층에 둔다 (floor -1 은 floors[] 조회가 깨진다)
+  const isOld = (f, x, z) => f === 1 || f === 2 || f >= 8 && f <= 10 || (f === 0 && inOld(x, z));
+  R.relocate = ({ world, floors: FL_, stairSpawnB1 }) => {
+    let moved = 0, dropped = 0;
+    for (const it of world.items) {
+      if (it._rb || !isOld(it.floor, it.pos.x, it.pos.z)) continue; it._rb = true;
+      const sk = it.kind === 'key' ? SPECIAL_KEY[it.idx] : null;
+      const tgt = sk ? (() => { const rs = roomsOf(sk[0], sk[1]).filter(r => r.type === sk[2]); return rs.length ? { b: sk[0], f: sk[1], room: rs[0] } : pickRoom(it.floor, it.pos.x); })() : pickRoom(it.floor, it.pos.x);
+      if (!tgt) continue;
+      const oy = it.pos.y - (FL_[it.floor]?.y0 || 0), s = spotIn(tgt.b, tgt.room, tgt.f);
+      it.floor = 0; it.rbY = s.h; it.pos.set(s.x, s.h + oy, s.z); if (it.baseY != null) it.baseY = s.h + it.baseY;
+      moveObj(it.mesh, s.x, s.h + (it.baseY != null ? it.baseY - s.h : oy), s.z); moved++;
+    }
+    for (const p of world.props) {
+      if (p._rb || !isOld(p.floor, p.x, p.z)) continue; p._rb = true;
+      if (DROP.has(p.kind)) { p.floor = park(p.floor); dropped++; continue; }
+      const tgt = pickRoom(p.floor, p.x); if (!tgt) { p.floor = park(p.floor); dropped++; continue; }
+      const s = spotIn(tgt.b, tgt.room, tgt.f), oy = (p.y ?? 1);
+      for (const k of Object.keys(p)) if (p[k] && p[k].isObject3D && k !== 'parent') moveObj(p[k], s.x, s.h, s.z);
+      p.floor = 0; p.rbY = s.h; p.x = s.x; p.z = s.z; p.y = oy; if (p.px != null) { p.px = s.x; p.pz = s.z; } moved++;
+    }
+    for (const d of world.doors) if (!d._rb && isOld(d.floor, d.x, d.z)) { d._rb = true; d.floor = park(d.floor); dropped++; }
+    for (const d of world.doorList) if (!d._rb && isOld(d.floor, d.x, d.z)) { d._rb = true; d.floor = park(d.floor); }
+    for (const l of world.lockers) if (!l._rb && isOld(l.floor, l.x, l.z)) { l._rb = true; l.floor = park(l.floor); }
+    // 지하(B1) 계단 입구: 새 본관 서쪽 계단실 1층 층 참 바깥벽 쪽
+    if (!R.b1Door && stairSpawnB1) {
+      const [x, z] = MAIN.toWorld(-MAIN.layout.L / 2 + .8, MAIN.layout.zN + 1.35);
+      R.b1Door = { floor: 0, x, z, r: 1.5, rbY: 0, label: '지하 계단 — B1로 내려가기', to: { floor: 4, x: stairSpawnB1.x, z: stairSpawnB1.z, yaw: Math.PI }, _rb: true };
+      R.b1Return = { floor: 0, x: x + 2.2, z, yaw: -Math.PI / 2 };
+      world.doors.push(R.b1Door);
+      box3(x, z);
+    }
+    return { moved, dropped };
+  };
+  // B1 입구 표시: 철제 셔터 문짝 + 표지판
+  const box3 = (x, z) => {
+    const m = new THREE.MeshStandardMaterial({ color: 0x4a5250, roughness: .6, metalness: .55 });
+    const door = new THREE.Mesh(new THREE.BoxGeometry(.06, 2.0, 1.1), m); door.position.set(x - .76, 1.0, z); group.add(door);
+    const c = document.createElement('canvas'); c.width = 256; c.height = 64; const g = c.getContext('2d'); g.fillStyle = '#3a0e0a'; g.fillRect(0, 0, 256, 64); g.fillStyle = '#f0d8c0'; g.font = 'bold 26px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('지하 B1 ↓', 128, 33);
+    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
+    const sg = new THREE.Mesh(new THREE.PlaneGeometry(.8, .2), new THREE.MeshBasicMaterial({ map: t })); sg.position.set(x - .72, 2.15, z); sg.rotation.y = Math.PI / 2; group.add(sg);
+  };
   return R;
 }

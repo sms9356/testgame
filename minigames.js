@@ -6,7 +6,7 @@ import { sfx } from './audio.js?v=140';
 export const MG = { active: false, win: () => { if (finish) close(true); } };   // win: 디버그용 즉시 성공
 const $ = id => document.getElementById(id);
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
-let finish = null, keyH = null, raf = 0, cleanups = [];
+let finish = null, keyH = null, raf = 0, cleanups = [], errN = 0, hintTimer = 0;
 
 function injectAltBar(title) {
   let bar = document.getElementById('mgAltBar');
@@ -25,10 +25,10 @@ function injectAltBar(title) {
     btnLine.onclick = () => { if (!MG.active) return; switchToSketchLine(title); };
     bar.appendChild(btnLine);
   }
-  const btnDeduce = document.createElement('button');
+  const btnDeduce = document.createElement('button'); btnDeduce.id = 'mgDeduce'; btnDeduce.style.display = 'none';
   btnDeduce.type = 'button';
   btnDeduce.textContent = '💡 대안 2: 현장 단서 추리로 즉시 해독';
-  btnDeduce.style.cssText = 'background:#3a2d1d;color:#ffe6a8;border:1px solid #b89248;padding:6px 13px;border-radius:4px;font-size:12.5px;font-weight:bold;cursor:pointer;';
+  btnDeduce.style.cssText = 'display:none;background:#3a2d1d;color:#ffe6a8;border:1px solid #b89248;padding:6px 13px;border-radius:4px;font-size:12.5px;font-weight:bold;cursor:pointer;';
   btnDeduce.onclick = () => { if (!MG.active) return; sfx.unlock(); status('현장 단서 추리로 해독 성공!', 'ok'); close(true); };
   bar.appendChild(btnDeduce);
 }
@@ -36,18 +36,19 @@ function open(title, hint) {
   MG.active = true;
   $('mgTitle').textContent = title; $('mgHint').innerHTML = hint || ''; $('mgStatus').textContent = ''; $('mgStatus').className = '';
   $('mgBody').innerHTML = ''; $('mg').classList.add('show');
-  injectAltBar(title);
+  injectAltBar(title); errN = 0; clearTimeout(hintTimer); hintTimer = setTimeout(showDeduce, 60000);   // 단서 추리(즉시 해독)는 두 번 실패하거나 1분이 지나야 나온다
   return new Promise(res => { finish = res; });
 }
+function showDeduce() { const b = document.getElementById('mgDeduce'); if (b && MG.active) b.style.display = ''; }
 function close(ok) {
-  cancelAnimationFrame(raf); raf = 0;
+  cancelAnimationFrame(raf); raf = 0; clearTimeout(hintTimer);
   if (keyH) { removeEventListener('keydown', keyH, true); removeEventListener('keyup', keyH, true); keyH = null; }
   cleanups.forEach(f => f()); cleanups = [];
   const f = finish; finish = null;
   const done = () => { $('mg').classList.remove('show'); MG.active = false; if (f) f({ ok }); };
   if (ok) { $('mgStatus').textContent = '성공!'; $('mgStatus').className = 'ok'; setTimeout(done, 650); } else done();
 }
-const status = (t, cls = '') => { $('mgStatus').textContent = t; $('mgStatus').className = cls; };
+const status = (t, cls = '') => { $('mgStatus').textContent = t; $('mgStatus').className = cls; if (cls === 'err' && ++errN >= 2) showDeduce(); };
 function keys(fn) {
   keyH = e => {
     if (e.type === 'keydown' && (e.code === 'Escape' || e.code === 'Tab')) { e.preventDefault(); e.stopImmediatePropagation(); close(false); return; }
@@ -59,53 +60,86 @@ function keys(fn) {
 function canvas(w, h) { const c = document.createElement('canvas'); c.width = w; c.height = h; c.className = 'mgCanvas'; $('mgBody').appendChild(c); return c; }
 $('mgCancel').onclick = () => { if (finish) close(false); };
 
-/* ---------- 1. 자물쇠 따기 (머리핀) ---------- */
-// 마우스/A·D 로 핀 각도, Space·마우스 버튼을 누르고 있으면 실린더를 돌린다. 맞는 각도일수록 더 많이 돈다.
+/* ---------- 1. 자물쇠 따기 (머리핀) — 핀 텀블러 5개 ---------- */
+// 실제 원통 자물쇠처럼: 텐션 렌치로 실린더에 약한 회전 압력(Q·E / 휠)을 걸고, 머리핀 끝(A·D / 마우스)으로 핀을 하나씩 밀어 올린다(W·Space / 클릭 유지).
+// 압력을 받으면 핀 하나만 걸린다(바인딩). 그 핀을 전단선까지 올리면 "딸깍" 고정, 다음 핀이 걸린다. 너무 올리면 끼어 버리니 텐션을 풀어 처음부터.
+// 텐션이 너무 세면 핀이 안 올라가고 머리핀이 휜다 → 부러짐. 너무 약하면 고정된 핀이 떨어진다.
 function lockpick({ pins, usePin, tol = 9 }) {
-  const p = open('자물쇠 따기', '마우스(또는 A · D)로 핀 각도 조절 · <b>Space / 마우스 버튼</b>을 누르고 있으면 돌린다<br>덜컥거리면 바로 놓을 것 — 오래 버티면 핀이 부러진다');
-  const c = canvas(380, 380), g = c.getContext('2d');
+  const p = open('자물쇠 따기 — 핀 텀블러', '<b>Q · E / 휠</b> 텐션 · <b>A · D / 마우스</b> 핀 위치 · <b>W · Space / 클릭 유지</b> 밀어 올리기<br>걸린 핀만 뻑뻑하다 — 전단선(점선)에 맞으면 딸깍. 너무 밀면 끼니 텐션을 풀었다 다시');
+  const c = canvas(460, 300), g = c.getContext('2d');
   const info = document.createElement('div'); info.className = 'mgInfo'; $('mgBody').appendChild(info);
-  const sweet = (Math.random() * 150 - 75) * Math.PI / 180, T = tol * Math.PI / 180;
-  let pa = 0, rot = 0, strain = 0, turning = false, left = pins(), lastClick = 0, t = 0, lastT = performance.now();
-  const upd = () => { info.innerHTML = `남은 머리핀 <b>${left}</b>개`; };
-  upd();
-  const setA = a => { const n = clamp(a, -Math.PI / 2, Math.PI / 2); if (Math.abs(n - lastClick) > .07) { sfx.pick(); lastClick = n; } pa = n; };
-  c.addEventListener('mousemove', e => { const r = c.getBoundingClientRect(); setA(((e.clientX - r.left) / r.width - .5) * Math.PI * 1.15); });
-  c.addEventListener('mousedown', () => { turning = true; }); const mu = () => { turning = false; }; addEventListener('mouseup', mu); cleanups.push(() => removeEventListener('mouseup', mu));
+  const N = 5, PX = [150, 205, 260, 315, 370], SL = 120, BASE = 178, TP = 2.5 + tol / 4;   // 전단선 y · 핀 바닥 y · 허용 오차(px)
+  const need = PX.map(() => 10 + Math.random() * 26), order = [...Array(N).keys()].sort(() => Math.random() - .5);
+  const lift = Array(N).fill(0), set = Array(N).fill(false), jam = Array(N).fill(false);
+  let px = 100, up = false, tip = 0, ten = 0, strain = 0, left = pins(), turn = 0, opened = false, lastT = performance.now(), feel = 0, lastI = -1;
+  MG.lp = { need, order, PX, set, lift, get ten() { return ten; }, get tip() { return tip; } };   // 테스트용 상태
+  const upd = () => { info.innerHTML = `남은 머리핀 <b>${left}</b>개 · 고정된 핀 <b>${set.filter(Boolean).length}</b> / ${N}`; }; upd();
+  const binding = () => order.find(i => !set[i]);
+  const under = () => { let best = -1, bd = 14; PX.forEach((x, i) => { const d = Math.abs(x - px); if (d < bd) { bd = d; best = i; } }); return best; };
+  const setTen = v => { const n = clamp(v, 0, 1); if (Math.abs(n - ten) > .04) sfx.tension(n); ten = n; };
+  const reset = why => { for (let i = 0; i < N; i++) { set[i] = false; jam[i] = false; } if (why) status(why, 'err'); upd(); };
+  c.addEventListener('mousemove', e => { const r = c.getBoundingClientRect(); px = clamp(((e.clientX - r.left) / r.width) * 460, 80, 400); });
+  c.addEventListener('mousedown', () => { up = true; }); const mu = () => { up = false; }; addEventListener('mouseup', mu); cleanups.push(() => removeEventListener('mouseup', mu));
+  c.addEventListener('wheel', e => { e.preventDefault(); setTen(ten + (e.deltaY < 0 ? .06 : -.06)); }, { passive: false });
   keys(e => {
     const dn = e.type === 'keydown';
-    if (e.code === 'Space' || e.code === 'KeyW') turning = dn;
-    if (dn && (e.code === 'KeyA' || e.code === 'ArrowLeft')) setA(pa - .06);
-    if (dn && (e.code === 'KeyD' || e.code === 'ArrowRight')) setA(pa + .06);
+    if (e.code === 'Space' || e.code === 'KeyW' || e.code === 'ArrowUp') up = dn;
+    if (dn && (e.code === 'KeyA' || e.code === 'ArrowLeft')) px = clamp(px - 9, 80, 400);
+    if (dn && (e.code === 'KeyD' || e.code === 'ArrowRight')) px = clamp(px + 9, 80, 400);
+    if (dn && e.code === 'KeyE') setTen(ten + .08);
+    if (dn && (e.code === 'KeyQ' || e.code === 'ArrowDown')) setTen(ten - .08);
   });
   const loop = now => {
-    const dt = Math.min(.12, (now - lastT) / 1000); lastT = now; t += dt;
-    const off = Math.abs(pa - sweet), maxR = clamp(1 - (off - T) / (Math.PI * .22), 0, 1) * Math.PI / 2;
-    if (turning) {
-      rot = Math.min(maxR, rot + dt * 1.6);
-      if (rot >= Math.PI / 2 - .02) { sfx.tumbler(); status('철컥 — 열렸다', 'ok'); draw(0); return close(true); }
-      if (rot >= maxR - .01) { strain += dt * .8; if (Math.random() < .3) sfx.tension(strain); if (strain > 1) {
-        sfx.pinBreak(); left--; usePin(); upd(); strain = 0; rot = 0; turning = false; status('핀이 부러졌다!', 'err');
-        if (left <= 0) { status('머리핀이 다 떨어졌다', 'err'); draw(0); setTimeout(() => close(false), 900); return; }
-      } }
-    } else { rot = Math.max(0, rot - dt * 3); strain = Math.max(0, strain - dt * 2); }
-    draw(strain > .05 && turning ? (Math.random() - .5) * strain * 6 : 0);
-    raf = requestAnimationFrame(loop);
+    const dt = Math.min(.1, (now - lastT) / 1000); lastT = now;
+    if (opened) { turn = Math.min(1, turn + dt * 2.4); draw(); if (turn >= 1) return close(true); raf = requestAnimationFrame(loop); return; }
+    const i = under(), bi = binding(), hard = ten > .78, weak = ten < .18; if (i !== lastI) { tip = 0; lastI = i; }   // 다른 핀으로 옮기면 머리핀 끝이 내려간다
+    if (weak && set.some(Boolean) && Math.random() < dt * 2.5) { const k = set.lastIndexOf(true); if (k >= 0) { set[k] = false; jam[k] = false; sfx.pick(); upd(); } }
+    if (weak && jam.some(Boolean)) reset();
+    // 머리핀 끝 높이: 걸린 핀은 뻑뻑하고, 텐션이 세면 거의 안 올라간다
+    const maxTip = i < 0 ? 4 : set[i] || jam[i] ? need[i] : 48, rate = i === bi ? (hard ? 9 : 34) : 70;
+    tip = up ? Math.min(maxTip, tip + rate * dt) : Math.max(0, tip - 120 * dt);
+    feel = Math.max(0, feel - dt * 3);
+    for (let k = 0; k < N; k++) if (!set[k] && !jam[k]) lift[k] = k === i ? tip : Math.max(0, lift[k] - 140 * dt); else if (set[k]) lift[k] = Math.min(lift[k], need[k]);
+    if (i >= 0 && !set[i] && !jam[i] && up) {
+      if (i === bi && ten >= .18) {
+        if (Math.random() < dt * 8) { sfx.tension(ten * .5); feel = 1; }
+        if (Math.abs(lift[i] - need[i]) < TP && !hard) { set[i] = true; lift[i] = need[i]; sfx.pick(); setTimeout(() => sfx.pick(), 40); status('딸깍 — 핀 하나가 걸렸다', 'ok'); upd();
+          if (set.every(Boolean)) { opened = true; sfx.tumbler(); status('실린더가 돌아간다 — 열렸다', 'ok'); } }
+        else if (lift[i] > need[i] + TP + 3) { jam[i] = true; sfx.buzz(); reset('너무 밀었다 — 핀이 끼었다. 텐션을 풀었다(Q) 다시'); }
+      } else if (ten < .18 && lift[i] > 30 && Math.random() < dt * 2) status('텐션이 너무 약하다 — E 로 살짝 걸어라');
+    }
+    if (hard && up && i === bi) { strain += dt * .9; if (Math.random() < .25) sfx.tension(strain); if (strain > 1) {
+      sfx.pinBreak(); left--; usePin(); strain = 0; tip = 0; up = false; reset('텐션이 너무 셌다 — 머리핀이 부러졌다!'); setTen(.3);
+      if (left <= 0) { status('머리핀이 다 떨어졌다', 'err'); draw(); setTimeout(() => close(false), 900); return; } } }
+    else strain = Math.max(0, strain - dt);
+    draw(); raf = requestAnimationFrame(loop);
   };
-  function draw(shk) {
-    g.clearRect(0, 0, 380, 380); g.save(); g.translate(190 + shk, 200);
-    const gr = g.createRadialGradient(0, 0, 20, 0, 0, 150); gr.addColorStop(0, '#8a7a50'); gr.addColorStop(1, '#3a3020');
-    g.fillStyle = '#1a1612'; g.beginPath(); g.arc(0, 0, 160, 0, 7); g.fill(); g.fillStyle = gr; g.beginPath(); g.arc(0, 0, 140, 0, 7); g.fill();
-    g.strokeStyle = 'rgba(0,0,0,.4)'; g.lineWidth = 2; for (let k = 0; k < 24; k++) { g.beginPath(); g.arc(0, 0, 140 - k * .4, k * .26, k * .26 + .1); g.stroke(); }
-    g.save(); g.rotate(rot); g.fillStyle = '#c8b070'; g.beginPath(); g.arc(0, 0, 70, 0, 7); g.fill(); g.strokeStyle = '#6a5a30'; g.lineWidth = 4; g.stroke();
-    g.fillStyle = '#0a0806'; g.beginPath(); g.arc(0, -18, 14, 0, 7); g.fill(); g.fillRect(-7, -18, 14, 50); g.restore();
-    // 텐션 렌치
-    g.save(); g.rotate(rot); g.fillStyle = '#5a5a5e'; g.fillRect(-4, 20, 8, 120); g.fillRect(-4, 132, 70, 8); g.restore();
-    // 머리핀
-    g.save(); g.rotate(pa); g.strokeStyle = '#2a2a30'; g.lineWidth = 5; g.lineCap = 'round'; g.beginPath(); g.moveTo(0, -10); g.lineTo(0, -175); g.stroke();
-    g.strokeStyle = '#7a7a84'; g.lineWidth = 2; g.beginPath(); g.moveTo(0, -10); g.lineTo(0, -175); g.stroke(); g.restore();
+  function draw() {
+    const sh = feel > 0 ? (Math.random() - .5) * 1.5 : 0;
+    g.fillStyle = '#0d0b09'; g.fillRect(0, 0, 460, 300);
+    g.fillStyle = '#7d6a3e'; g.fillRect(110, 20, 300, 100);   // 몸통(하우징)
+    g.save(); g.translate(0, turn * 6);
+    g.fillStyle = '#a8904f'; g.fillRect(110, SL, 300, 75);    // 플러그(실린더)
+    g.fillStyle = '#1a140c'; g.fillRect(110, BASE + 2, 300, 12);   // 열쇠 구멍
     g.restore();
-    g.fillStyle = 'rgba(255,255,255,.08)'; g.fillRect(20, 14, 340, 8); g.fillStyle = strain > .6 ? '#e05040' : '#c8a050'; g.fillRect(20, 14, 340 * clamp(rot / (Math.PI / 2), 0, 1), 8);
+    g.setLineDash([5, 4]); g.strokeStyle = '#e8c870'; g.lineWidth = 1; g.beginPath(); g.moveTo(105, SL); g.lineTo(415, SL); g.stroke(); g.setLineDash([]);
+    PX.forEach((x, k) => {
+      g.fillStyle = '#2a2014'; g.fillRect(x - 12, 24, 24, BASE - 24);   // 핀 구멍
+      const kpTop = BASE - (BASE - SL) + 0 - lift[k] + (BASE - SL - need[k]) * 0, kpLen = (BASE - SL) - need[k] + 0;
+      const keyTop = BASE - kpLen - lift[k], drvTop = keyTop - 34;
+      const springTop = 28, springBot = drvTop;
+      g.strokeStyle = '#8c8c90'; g.lineWidth = 1.5; g.beginPath(); for (let j = 0; j <= 10; j++) { const yy = springTop + (springBot - springTop) * j / 10; g.lineTo(x + (j % 2 ? 6 : -6), yy); } g.stroke();
+      g.fillStyle = jam[k] ? '#c05040' : '#9a9aa2'; g.fillRect(x - 9, drvTop, 18, 34);                 // 드라이버 핀
+      g.fillStyle = set[k] ? '#70d090' : k === binding() && feel > 0 ? '#f0d070' : '#c9a14a'; g.beginPath(); g.moveTo(x - 9, keyTop); g.lineTo(x + 9, keyTop); g.lineTo(x + 9, BASE - 4); g.lineTo(x, BASE + 2); g.lineTo(x - 9, BASE - 4); g.closePath(); g.fill();   // 키 핀
+    });
+    // 머리핀 (왼쪽에서 열쇠 구멍으로)
+    g.strokeStyle = '#6a6a72'; g.lineWidth = 4; g.lineCap = 'round'; g.beginPath(); g.moveTo(10, BASE + 22); g.lineTo(px - 14, BASE + 8 + sh); g.lineTo(px, BASE + 2 - tip * .0 - (tip > 0 ? Math.min(tip, 8) : 0) + sh); g.stroke();
+    // 텐션 렌치 + 게이지
+    g.fillStyle = '#4a4a50'; g.fillRect(60, BASE + 26, 54, 6); g.fillRect(108, BASE + 8, 6, 24);
+    g.fillStyle = 'rgba(255,255,255,.08)'; g.fillRect(20, 268, 420, 12);
+    g.fillStyle = 'rgba(96,224,160,.25)'; g.fillRect(20 + 420 * .18, 268, 420 * .6, 12);
+    g.fillStyle = ten > .78 ? '#e05040' : ten < .18 ? '#8a8a8a' : '#60e0a0'; g.fillRect(20, 268, 420 * ten, 12);
+    g.fillStyle = '#d8d0b8'; g.font = '11px sans-serif'; g.fillText('텐션', 22, 262); if (strain > .05) { g.fillStyle = '#e05040'; g.fillText('머리핀이 휜다!', 360, 262); }
   }
   raf = requestAnimationFrame(loop);
   return p;
@@ -261,29 +295,46 @@ function slide({ img, title = '그림 맞추기' }) {
 }
 
 /* ---------- 6. 갈고리 낚기 (타이밍) ---------- */
-function fishing({ title = '배수구 — 갈고리 걸기', need = 3 }) {
-  const p = open(title, '흔들리는 갈고리가 <b style="color:#60e0a0">초록 구간</b>에 들어왔을 때 <b>Space / 클릭</b> — 3번 걸면 끌어올린다');
-  const c = canvas(440, 150), g = c.getContext('2d');
-  let x = 0, sp = 1.3, hits = 0, miss = 0, zone = .3 + Math.random() * .4, w = .16, lastT = performance.now(), t = 0, flash = 0;
-  const act = () => {
-    const pos = (Math.sin(t * sp * 2.2) + 1) / 2;
-    if (Math.abs(pos - zone) < w / 2) { hits++; sfx.hook(); flash = 1; zone = .15 + Math.random() * .7; w *= .82; sp *= 1.15; status(`걸렸다! (${hits}/${need})`, 'ok'); if (hits >= need) { setTimeout(() => close(true), 300); } }
-    else { miss++; sfx.buzz(); status(`미끄러졌다… (실수 ${miss}/3)`, 'err'); if (miss >= 3) setTimeout(() => close(false), 600); }
-  };
-  c.addEventListener('click', act);
-  keys(e => { if (e.type === 'keydown' && (e.code === 'Space' || e.code === 'Enter')) act(); });
+function fishing({ title = '배수구 — 갈고리 걸기', need = 1 }) {
+  // 진자 물리: 줄 끝 갈고리를 흔들어(A·D) 깊이를 맞춰(W·S) 물살에 떠다니는 고리에 걸고, Space 를 눌러 감는다 — 줄 장력이 한계를 넘으면 미끄러진다
+  const p = open(title, '<b>A · D</b> 흔들기 · <b>W · S</b> 줄 길이 · 고리에 천천히 닿으면 걸린다<br>걸린 뒤 <b>Space 유지</b>로 감기 — 장력이 빨개지면 손을 늦춰라 (3번 놓치면 실패)');
+  const c = canvas(440, 300), g = c.getContext('2d');
+  const AX = 220, AY = 18;
+  let len = 120, ang = .4, av = 0, hooked = false, reel = 0, tension = 0, miss = 0, caught = 0, held = {}, t = 0, lastT = performance.now();
+  let rx = 120 + Math.random() * 200, ry = 210 + Math.random() * 40, rvx = 18;
+  MG.fh = { get hooked() { return hooked; }, get tension() { return tension; }, get reel() { return reel; }, get s() { return { len, ang, av, rx, ry, AX, AY }; } };
+  keys(e => { held[e.code] = e.type === 'keydown'; });
   const loop = now => {
-    const dt = Math.min(.12, (now - lastT) / 1000); lastT = now; t += dt; flash = Math.max(0, flash - dt * 3);
-    x = (Math.sin(t * sp * 2.2) + 1) / 2;
-    g.fillStyle = '#081014'; g.fillRect(0, 0, 440, 150);
-    for (let k = 0; k < 12; k++) { g.fillStyle = `rgba(40,90,110,${.15 + .1 * Math.sin(t * 2 + k)})`; g.fillRect(0, k * 12 + Math.sin(t + k) * 3, 440, 6); }
-    g.fillStyle = '#1e2a30'; g.fillRect(20, 60, 400, 30);
-    g.fillStyle = `rgba(80,230,150,${.55 + flash * .4})`; g.fillRect(20 + (zone - w / 2) * 400, 60, w * 400, 30);
-    g.strokeStyle = '#d8d0b8'; g.lineWidth = 3; g.beginPath(); g.moveTo(20 + x * 400, 10); g.lineTo(20 + x * 400, 80); g.stroke();
-    g.beginPath(); g.arc(20 + x * 400 + 8, 84, 8, Math.PI, Math.PI * 2.6); g.stroke();
-    for (let k = 0; k < need; k++) { g.fillStyle = k < hits ? '#60e0a0' : '#2c3640'; g.beginPath(); g.arc(200 + k * 22, 120, 7, 0, 7); g.fill(); }
-    raf = requestAnimationFrame(loop);
+    const dt = Math.min(.05, (now - lastT) / 1000); lastT = now; t += dt;
+    // 물살: 고리가 좌우로 떠다닌다
+    rx += rvx * dt + Math.sin(t * 1.3) * 12 * dt; if (rx < 70 || rx > 370) rvx = -rvx; ry += Math.sin(t * .9) * 6 * dt;
+    if (!hooked) {
+      if (held.KeyW || held.ArrowUp) len = Math.max(40, len - 70 * dt); if (held.KeyS || held.ArrowDown) len = Math.min(250, len + 70 * dt);
+      const push = (held.KeyD || held.ArrowRight ? 1 : 0) - (held.KeyA || held.ArrowLeft ? 1 : 0);
+      av += (-9.8 * 40 / len * Math.sin(ang) + push * 2.6) * dt; av *= Math.pow(.55, dt); ang = clamp(ang + av * dt, -1.3, 1.3);
+      const hx = AX + Math.sin(ang) * len, hy = AY + Math.cos(ang) * len, sp = Math.abs(av) * len;
+      if (Math.hypot(hx - rx, hy - ry) < 13) { if (sp < 140) { hooked = true; reel = len; sfx.hook(); status('걸렸다! Space 를 눌러 천천히 감아라', 'ok'); } else if (Math.random() < dt * 6) status('너무 빠르다 — 천천히 다가가라'); }
+    } else {
+      const gust = .25 + .2 * Math.sin(t * 2.1) + (Math.sin(t * 7.3) > .85 ? .45 : 0);
+      if (held.Space) { reel -= 38 * dt; tension = Math.min(1.2, tension + (gust + .35) * dt * 1.3); } else tension = Math.max(0, tension - dt * .9);
+      ang *= Math.pow(.2, dt); len = reel; rx = AX + Math.sin(ang) * len; ry = AY + Math.cos(ang) * len;
+      if (tension > 1) { miss++; hooked = false; tension = 0; len = Math.min(250, reel + 60); rx = 120 + Math.random() * 200; ry = 210 + Math.random() * 40; sfx.buzz(); status(`줄이 미끄러졌다… (${miss}/3)`, 'err'); if (miss >= 3) { draw(); return setTimeout(() => close(false), 600); } }
+      else if (reel <= 30) { caught++; sfx.splash(); status(`끌어올렸다! (${caught}/${need})`, 'ok'); if (caught >= need) { draw(); return setTimeout(() => close(true), 400); } hooked = false; len = 120; rx = 120 + Math.random() * 200; tension = 0; }
+    }
+    draw(); raf = requestAnimationFrame(loop);
   };
+  function draw() {
+    g.fillStyle = '#070d10'; g.fillRect(0, 0, 440, 300);
+    g.fillStyle = '#20282a'; g.fillRect(0, 0, 50, 300); g.fillRect(390, 0, 50, 300);   // 배수관 벽
+    for (let k = 0; k < 14; k++) { g.fillStyle = `rgba(40,90,110,${.12 + .08 * Math.sin(t * 2 + k)})`; g.fillRect(50, 150 + k * 11 + Math.sin(t * 1.5 + k) * 3, 340, 5); }
+    g.fillStyle = '#3a3a34'; for (let x = 50; x < 390; x += 22) g.fillRect(x, 10, 12, 10);   // 배수구 덮개 살
+    const hx = AX + Math.sin(ang) * len, hy = AY + Math.cos(ang) * len;
+    g.strokeStyle = 'rgba(214,214,200,.85)'; g.lineWidth = 1.5; g.beginPath(); g.moveTo(AX, AY); g.lineTo(hx, hy); g.stroke();
+    g.strokeStyle = '#c8c0a8'; g.lineWidth = 3; g.beginPath(); g.arc(hx + 5, hy + 4, 6, Math.PI, Math.PI * 2.5); g.stroke();
+    g.strokeStyle = '#e0b850'; g.lineWidth = 4; g.beginPath(); g.arc(rx, ry, 9, 0, 7); g.stroke();   // 떠다니는 열쇠고리
+    g.fillStyle = 'rgba(255,255,255,.08)'; g.fillRect(60, 280, 320, 10); g.fillStyle = tension > .75 ? '#e05040' : '#60e0a0'; g.fillRect(60, 280, 320 * Math.min(1, tension), 10);
+    g.fillStyle = '#d8d0b8'; g.font = '11px sans-serif'; g.fillText('줄 장력', 62, 275);
+  }
   raf = requestAnimationFrame(loop);
   return p;
 }

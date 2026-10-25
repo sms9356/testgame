@@ -1091,6 +1091,7 @@ export function buildMainBuilding(opt = {}) {
       const X = (o, d1, d2) => [Math.min(o.w + o.d * d1, o.w + o.d * d2), Math.max(o.w + o.d * d1, o.w + o.d * d2)];
       const SW = { w, d: dir }, SS = { w: ws, d: dS };
       const bx = (o, key, d1, d2, y1, y2, z1, z2, opt2) => { const [p, q] = X(o, d1, d2); box(key, p, q, y0 + y1, y0 + y2, z1, z2, opt2); };
+      UVM.tileW = 1.2;
       mat.tileW = mat.tileW || M('tileW', () => new THREE.MeshStandardMaterial({ map: canvasTex(256, 256, (c, W, H) => { c.fillStyle = '#d9cfbf'; c.fillRect(0, 0, W, H); c.strokeStyle = '#b8ae9e'; c.lineWidth = 3; for (let i = 0; i <= 4; i++) { c.beginPath(); c.moveTo(0, i * 64); c.lineTo(W, i * 64); c.stroke(); } for (let j = 0; j <= 2; j++) { c.beginPath(); c.moveTo(j * 128, 0); c.lineTo(j * 128, H); c.stroke(); } }), roughness: .35 }));
       mat.tileD = mat.tileD || M('tileD', () => new THREE.MeshStandardMaterial({ color: 0x9a8c7a, roughness: .4 }));
       mat.hpl = mat.hpl || M('hpl', () => new THREE.MeshStandardMaterial({ color: 0xd8d0c2, roughness: .45 }));

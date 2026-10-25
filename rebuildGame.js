@@ -2,9 +2,9 @@
 //   기본으로 켜진다 (예전 건물로 보려면 주소창에 ?oldmap).
 //   예전 본관(1~3층 · 옥상) · 별관(8~10층) 건물은 감추고, 그 자리 땅(0층)에서 새 건물을 걷는다.
 //   높이는 P.sh(계단 높이 보정값)로 넘긴다 → 카메라 · 점프 · 가구 오르기 코드는 손대지 않아도 된다.
-import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=206';
-import { placeModels } from './rebuild/models.js?v=206';
-import { carve, subdivide } from './rebuild/transplant.js?v=206';
+import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=207';
+import { placeModels } from './rebuild/models.js?v=207';
+import { carve, subdivide } from './rebuild/transplant.js?v=207';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
 
 // 예전 건물이 차지하던 땅 (이 안의 예전 메시 · 충돌 상자를 걷어 낸다)
@@ -239,11 +239,16 @@ export function installRebuild({ THREE, scene, floors, world }) {
     for (const c of b.col) { if (c.y1 == null || c.y2 == null) continue; const top = c.y2 - h; if (top < .55 || top > 1.25 || c.y1 > h + .3) continue;
       if (c.x1 < room.x1 - .05 || c.x2 > room.x2 + .05 || c.z1 < room.z1 - .05 || c.z2 > room.z2 + .05) continue; if ((c.x2 - c.x1) * (c.z2 - c.z1) < .12) continue; cands.push(c); }
     if (!cands.length) return null;
-    cands.sort((a, b2) => (surfUse.get(a) || 0) - (surfUse.get(b2) || 0) || rnd() - .5); const c = cands[0], n = surfUse.get(c) || 0; surfUse.set(c, n + 1);
-    const lx = c.x1 + (c.x2 - c.x1) * (.3 + .4 * rnd()), lz = c.z1 + (c.z2 - c.z1) * (.3 + .4 * rnd()), [x, z] = b.toWorld(lx, lz);
-    return { x, z, h, top: c.y2 };
+    cands.sort((a, b2) => (surfUse.get(a) || 0) - (surfUse.get(b2) || 0) || rnd() - .5);
+    const W = R._relocWorld, near = (x, z) => W && [...W.props.map(q => [q.x, q.z, q.rbY ?? (q.floor === 0 ? 0 : -99)]), ...W.items.filter(i => !i.taken).map(i => [i.pos.x, i.pos.z, i.rbY ?? -99])].some(([qx, qz, qh]) => Math.abs(qh - h) < 1 && Math.hypot(qx - x, qz - z) < 1.0);   // 다른 조사 대상과 1m 안이면 서로 가려 고를 수 없다
+    for (const c of cands) for (let t = 0; t < 6; t++) {
+      const lx = c.x1 + (c.x2 - c.x1) * (.2 + .6 * rnd()), lz = c.z1 + (c.z2 - c.z1) * (.2 + .6 * rnd()), [x, z] = b.toWorld(lx, lz);
+      if (near(x, z)) continue; surfUse.set(c, (surfUse.get(c) || 0) + 1); return { x, z, h, top: c.y2 };
+    }
+    return null;
   };
   R.relocate = ({ world, floors: FL_, stairSpawnB1 }) => {
+    R._relocWorld = world;
     let moved = 0, dropped = 0;
     for (const it of world.items) {
       if (it._rb || !isOld(it.floor, it.pos.x, it.pos.z)) continue; it._rb = true; it._old = { f: it.floor, x: it.pos.x, z: it.pos.z };

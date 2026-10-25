@@ -277,6 +277,7 @@ export function buildMainBuilding(opt = {}) {
       if (r.kind === 'class') { winsS.push({ a: r.x1 + .6, b: r.x2 - .6, y1: .9, y2: 2.4 }); winsN.push({ a: r.x1 + 1.5, b: r.x2 - 1.5, y1: 1.1, y2: 2.3 }); }
       else if (isSt(r)) winsS.push({ a: r.x1 + 1.5, b: r.x2 - 1.5, y1: f === 0 ? 2.6 : .3 + 1.8, y2: 3.0 });
       else if (r.kind === 'core' && f === 1 && opt.bridge) {}   // 2층 코어 북쪽: 구름다리 출입구
+      else if (r.kind === 'core' && f === 0) {}   // 1층 코어 북쪽: 현관 유리문 (창을 겹쳐 두면 유리문 자리가 벽 · 벽돌로 막혀 보였다)
       else winsN.push({ a: r.x1 + 1.5, b: r.x2 - 1.5, y1: 1.5, y2: 2.3 });
     });
     // 1층 중앙 현관 (북측 = 운동장 반대편 주출입구, 남측은 교실)

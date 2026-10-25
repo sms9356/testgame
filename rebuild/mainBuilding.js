@@ -1086,18 +1086,43 @@ export function buildMainBuilding(opt = {}) {
     props.push({ kind: 'fireDoor', label: '계단실 방화문', x: r.x1 < 0 ? r.x2 : r.x1, y: y0 + 1, z: zN + 1.35, floor: f });
   }
   // ── 중앙 코어: 남녀 화장실 · 복도 세면대 · 층별 분전반 · 교무실(1층) ──
-  function toiletRoom(a, b, g, f, y0) {   // 화장실 한 칸 (칸막이 3 · 변기 · 소변기(남) · 세면대 2) — 코어 반쪽 또는 나눈 교실 칸
+  function toiletRoom(a, b, g, f, y0) {   // 화장실 (참고 평면도 · 배치도 · 규격도, 4.3 × 9.9m): 남 = 대변기 칸 3 (900×1500×1800) · 소변기 3 (400×700, 칸막이) · 여 = 대변기 부스 4 (1000×1600×1900) · 세면대 카운터 1800 (2구) · 거울 · 핸드타월기 · 휴지통 · 위생용품 수거함(여) · 청소도구함 · 바닥 배수구
+      const man = g === '남', w = man ? b - .1 : a + .1, dir = man ? -1 : 1, ws = man ? a + .1 : b - .1, dS = -dir;   // 출입문 쪽(남 = 서, 여 = 동) 벽에 세면대, 반대 벽에 칸
+      const X = (o, d1, d2) => [Math.min(o.w + o.d * d1, o.w + o.d * d2), Math.max(o.w + o.d * d1, o.w + o.d * d2)];
+      const SW = { w, d: dir }, SS = { w: ws, d: dS };
+      const bx = (o, key, d1, d2, y1, y2, z1, z2, opt2) => { const [p, q] = X(o, d1, d2); box(key, p, q, y0 + y1, y0 + y2, z1, z2, opt2); };
+      mat.tileW = mat.tileW || M('tileW', () => new THREE.MeshStandardMaterial({ map: canvasTex(256, 256, (c, W, H) => { c.fillStyle = '#d9cfbf'; c.fillRect(0, 0, W, H); c.strokeStyle = '#b8ae9e'; c.lineWidth = 3; for (let i = 0; i <= 4; i++) { c.beginPath(); c.moveTo(0, i * 64); c.lineTo(W, i * 64); c.stroke(); } for (let j = 0; j <= 2; j++) { c.beginPath(); c.moveTo(j * 128, 0); c.lineTo(j * 128, H); c.stroke(); } }), roughness: .35 }));
+      mat.tileD = mat.tileD || M('tileD', () => new THREE.MeshStandardMaterial({ color: 0x9a8c7a, roughness: .4 }));
+      mat.hpl = mat.hpl || M('hpl', () => new THREE.MeshStandardMaterial({ color: 0xd8d0c2, roughness: .45 }));
+      mat.granite = mat.granite || M('granite', () => new THREE.MeshStandardMaterial({ map: canvasTex(128, 128, (c, W, H) => { c.fillStyle = '#8c8680'; c.fillRect(0, 0, W, H); for (let i = 0; i < 900; i++) { const v = 90 + Math.random() * 90 | 0; c.fillStyle = `rgb(${v},${v - 4},${v - 8})`; c.fillRect(Math.random() * W, Math.random() * H, 2, 2); } }), roughness: .3 }));
       box('tile', a + .1, b - .1, y0, y0 + .02, .1, zS);
-      for (let k = 0; k < 4; k++) { const sz = 2.4 + k * 1.6; box('white', b - 1.6, b - .1, y0 + .12, y0 + 2.0, sz - .02, sz + .02, { solid: true }); box('alu', b - 1.62, b - 1.58, y0, y0 + 2.0, sz - .03, sz + .03); }   // 칸막이 (벽에서 1.5m)
-      for (let k = 0; k < 3; k++) { const sz = 2.4 + k * 1.6; toilet(b - .6, sz + .8, y0, 1);
-        box('white', b - 1.62, b - 1.58, y0 + .12, y0 + 2.0, sz + .02, sz + .35, { solid: true }); box('white', b - 1.62, b - 1.58, y0 + .12, y0 + 2.0, sz + 1.25, sz + 1.58, { solid: true });   // 칸 앞판
-        box('white', b - 1.6 - .55, b - 1.6, y0 + .12, y0 + 2.0, sz + 1.22, sz + 1.25); box('alu', b - 1.72, b - 1.62, y0 + .95, y0 + 1.0, sz + 1.2, sz + 1.22);   // 반쯤 열린 칸 문
-        box('alu', b - .15, b - .08, y0 + .75, y0 + .87, sz + .35, sz + .45); }   // 휴지걸이
-      box('tile', a + .1, a + .112, y0, y0 + 1.5, .1, zS); box('tile', b - .112, b - .1, y0, y0 + 1.5, .1, zS); box('tile', a + .1, b - .1, y0, y0 + 1.5, zS - .012, zS); box('white', a + .1, b - .1, y0 + 1.5, y0 + S.FH - S.slab, zS - .012, zS);   // 벽 타일 (허리 높이)
-      if (g === '남') for (let k = 0; k < 3; k++) { const z = 3.0 + k * .9; box('porc', a + .1, a + .4, y0 + .45, y0 + 1.15, z - .2, z + .2, { solid: true }); box('alu', a + .1, a + .14, y0 + 1.15, y0 + 1.35, z - .02, z + .02); }   // 소변기
-      for (let k = 0; k < 2; k++) { const z = .75 + k * .75; box('porc', a + .1, a + .55, y0 + .78, y0 + .9, z - .28, z + .28, { solid: true }); box('screen', a + .18, a + .45, y0 + .86, y0 + .901, z - .18, z + .18); cyl('alu', a + .14, y0 + .9, z, .012, .14); box('glass', a + .1, a + .11, y0 + 1.15, y0 + 1.75, z - .3, z + .3); }   // 화장실 세면대 + 거울
+      // 벽: 하부 진회색 띠 타일 · 상부 연베이지 300×600 · 허리선 포인트
+      [[a + .1, a + .112], [b - .112, b - .1]].forEach(([p, q]) => { box('tileD', p, q, y0, y0 + 1.2, .1, zS); box('tileD', p, q, y0 + 1.45, y0 + 1.6, .1, zS); box('tileW', p, q, y0 + 1.2, y0 + 1.45, .1, zS); box('tileW', p, q, y0 + 1.6, y0 + S.CEIL, .1, zS); });
+      box('tileD', a + .1, b - .1, y0, y0 + 1.2, zS - .012, zS); box('tileW', a + .1, b - .1, y0 + 1.2, y0 + S.CEIL, zS - .012, zS);
+      // 대변기 칸 (안쪽 끝 벽 쪽부터)
+      const n = man ? 3 : 4, cw = man ? .9 : 1.0, cd = man ? 1.5 : 1.6, ch = man ? 1.8 : 1.9, z0 = zS - .1 - (man ? .6 : 0) - n * cw;
+      for (let k = 0; k <= n; k++) { const z = z0 + k * cw; bx(SW, 'hpl', 0, cd, .15, .15 + ch, z - .012, z + .012, { solid: true }); bx(SW, 'alu', cd - .03, cd + .01, 0, .15, z - .02, z + .02); }
+      bx(SW, 'alu', cd - .02, cd + .02, .15 + ch - .03, .15 + ch, z0, z0 + n * cw);   // 상부 알루미늄 레일
+      for (let k = 0; k < n; k++) { const za = z0 + k * cw, zc = za + cw / 2;
+        bx(SW, 'hpl', cd - .015, cd + .015, .15, .15 + ch, za + .01, za + .08, { solid: true }); bx(SW, 'hpl', cd - .015, cd + .015, .15, .15 + ch, za + cw - .08, za + cw - .01, { solid: true });   // 앞판 기둥
+        if (k % 2) bx(SW, 'hpl', cd - .015, cd + .015, .15, .15 + ch, za + .08, za + cw - .08); else bx(SW, 'hpl', cd, cd + .55, .15, .15 + ch, za + .08, za + .1);   // 닫힌 문 / 반쯤 열린 문
+        bx(SW, 'alu', cd + .015, cd + .03, .95, 1.0, za + cw - .16, za + cw - .1);   // 표시 잠금장치
+        toilet(w + dir * .38, zc, y0, -dir); bx(SW, 'alu', .02, .12, .7, .95, za + .05, za + .1);   // 휴지걸이
+        if (!man) { bx(SW, 'hpl', .05, .35, 0, .6, za + cw - .3, za + cw - .1, { solid: true }); } }   // 위생용품 수거함 (부스 안)
+      // 소변기 3 (400×700, 센서식) + 칸막이 — 남자만
+      if (man) for (let k = 0; k < 3; k++) { const z = 2.2 + k * .8; bx(SW, 'porc', 0, .35, .45, 1.15, z - .2, z + .2, { solid: true }); bx(SW, 'rubber', .3, .36, .55, 1.0, z - .14, z + .14); bx(SW, 'alu', .0, .06, 1.15, 1.25, z - .05, z + .05);
+        bx(SW, 'hpl', 0, .45, .4, 1.5, z + .4 - .015, z + .4 + .015); if (!k) bx(SW, 'hpl', 0, .45, .4, 1.5, z - .4 - .015, z - .4 + .015); }
+      // 세면대 카운터 (1800, 인조대리석 · 2구) + 거울 (1800×900) + 핸드타월기 + 휴지통
+      { const za = man ? 3.6 : 3.0, zb = za + 1.8; bx(SS, 'granite', 0, .55, .76, .8, za, zb, { solid: true }); bx(SS, 'granite', .5, .55, .55, .76, za, zb); bx(SS, 'alu', .3, .34, 0, .76, za + .9 - .02, za + .9 + .02);
+        [za + .45, zb - .45].forEach(z => { bx(SS, 'porc', .12, .44, .76, .805, z - .2, z + .2); bx(SS, 'screen', .16, .4, .806, .81, z - .16, z + .16); bx(SS, 'alu', .03, .06, .8, 1.0, z - .015, z + .015); bx(SS, 'alu', .03, .16, .98, 1.0, z - .015, z + .015); });
+        bx(SS, 'glass', 0, .01, 1.1, 2.0, za, zb); bx(SS, 'alu', 0, .015, 1.08, 1.1, za, zb); bx(SS, 'alu', 0, .015, 2.0, 2.02, za, zb);
+        bx(SS, 'white', 0, .2, 1.2, 1.44, za - .45, za - .17, { solid: true });   // 핸드타월기 (280×240×200)
+        cyl('alu', ws + dS * .2, y0, za - .75, .15, .6, .15, 14); col.push({ x1: ws + dS * .2 - .16, x2: ws + dS * .2 + .16, z1: za - .91, z2: za - .59, y1: y0, y2: y0 + .6 }); }   // 휴지통
+      // 청소도구함 (600×500×2100) — 안쪽 끝 세면대 쪽 모서리 · 바닥 배수구
+      bx(SS, 'hpl', 0, .5, 0, 2.1, zS - .7, zS - .1, { solid: true }); bx(SS, 'alu', .5, .52, 1.0, 1.15, zS - .62, zS - .58);
+      box('alu', (a + b) / 2 - .1, (a + b) / 2 + .1, y0 + .021, y0 + .024, zS / 2 - .1, zS / 2 + .1);
       props.push({ kind: 'toilet', label: `${g}자 화장실`, x: (a + b) / 2, y: y0, z: 1.2, floor: f });
-      props.push({ kind: 'sink', label: `${g}자 화장실 세면대`, x: a + .7, y: y0 + .9, z: 1.1, floor: f });
+      props.push({ kind: 'sink', label: `${g}자 화장실 세면대`, x: ws + dS * .7, y: y0 + .9, z: (man ? 3.6 : 3.0) + .9, floor: f });
       props.push({ kind: 'room', type: 'toilet', label: `${g}자 화장실`, x: (a + b) / 2, y: y0, z: zS / 2, floor: f, x1: a + .1, x2: b - .1, z1: .1, z2: zS });   // 화장실 괴담 · 방 판정용
   }
   function coreRoom(r, f, y0) {

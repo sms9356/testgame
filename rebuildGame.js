@@ -2,9 +2,9 @@
 //   기본으로 켜진다 (예전 건물로 보려면 주소창에 ?oldmap).
 //   예전 본관(1~3층 · 옥상) · 별관(8~10층) 건물은 감추고, 그 자리 땅(0층)에서 새 건물을 걷는다.
 //   높이는 P.sh(계단 높이 보정값)로 넘긴다 → 카메라 · 점프 · 가구 오르기 코드는 손대지 않아도 된다.
-import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=210';
-import { placeModels } from './rebuild/models.js?v=210';
-import { carve, subdivide } from './rebuild/transplant.js?v=210';
+import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=211';
+import { placeModels } from './rebuild/models.js?v=211';
+import { carve, subdivide } from './rebuild/transplant.js?v=211';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
 
 // 예전 건물이 차지하던 땅 (이 안의 예전 메시 · 충돌 상자를 걷어 낸다)

@@ -169,6 +169,19 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
     for (let k = 0; k < 3; k++) pmesh(new THREE.DodecahedronGeometry(.1, 0), PM([0xc8a060, 0x8a6a48, 0x608aa0][k], .5, .3), x + (alongZ ? 0 : (k - 1) * W2 * .3), .95 + k * .4, z + (alongZ ? (k - 1) * D2 * .3 : 0), grp); addCol(x - W2 / 2, x + W2 / 2, z - D2 / 2, z + D2 / 2); };
   const deskT = (grp, x, z, w, d, h = .74, top = woodLight, leg = darkMetal) => { pbox(w, .04, d, top, x, h - .02, z, grp); [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([a, b]) => pbox(.05, h - .04, .05, leg, x + a * (w / 2 - .05), (h - .04) / 2, z + b * (d / 2 - .05), grp, { cast: false })); addCol(x - w / 2, x + w / 2, z - d / 2, z + d / 2, false, h); };
   const monitor = (grp, x, y, z, ry) => { pbox(.5, .32, .04, PM(0x101418, .4, .5), x, y + .26, z, grp, { ry, cast: false }); pbox(.46, .28, .01, new THREE.MeshBasicMaterial({ color: 0x2a6ab8 }), x + Math.sin(ry) * .025, y + .26, z + Math.cos(ry) * .025, grp, { ry, cast: false }); pbox(.06, .1, .06, darkMetal, x, y + .05, z, grp, { cast: false }); };
+  // 야외 체육시설 철망 펜스 (아연도 기둥 + 녹색 철망 · 높이 h) — gaps: 출입구 [a, b]
+  const fenceMesh = new THREE.MeshStandardMaterial({ color: 0x2a5a3a, roughness: .6, metalness: .3, transparent: true, opacity: .42, side: THREE.DoubleSide, depthWrite: false });
+  const fenceLine = (grp, ax, az, bx, bz, h = 3.0, gaps = []) => { const alongX = Math.abs(bz - az) < 1e-6, a0 = alongX ? Math.min(ax, bx) : Math.min(az, bz), a1 = alongX ? Math.max(ax, bx) : Math.max(az, bz), postM = PM(0x8a9094, .45, .6);
+    const seg = (s, e) => { if (e - s < .05) return; const m = (s + e) / 2; alongX ? pbox(e - s, h, .02, fenceMesh, m, h / 2, az, grp, { cast: false }) : pbox(.02, h, e - s, fenceMesh, ax, h / 2, m, grp, { cast: false });
+      alongX ? pbox(e - s, .05, .05, postM, m, h, az, grp, { cast: false }) : pbox(.05, .05, e - s, postM, ax, h, m, grp, { cast: false });
+      for (let p = s; p <= e + .01; p += Math.max(1, (e - s) / Math.ceil((e - s) / 2.0))) alongX ? pcyl(.04, .04, h, postM, p, h / 2, az, grp) : pcyl(.04, .04, h, postM, ax, h / 2, p, grp);
+      alongX ? addCol(s, e, az - .06, az + .06) : addCol(ax - .06, ax + .06, s, e); };
+    let p = a0; [...gaps].sort((u, v) => u[0] - v[0]).forEach(([g1, g2]) => { seg(p, g1); p = g2; }); seg(p, a1); };
+  const benchS = (grp, x, z, w = 1.8, alongZ = false) => { pbox(alongZ ? .45 : w, .06, alongZ ? w : .45, woodLight, x, .45, z, grp); [-1, 1].forEach(s => pbox(alongZ ? .4 : .06, .42, alongZ ? .06 : .4, darkMetal, x + (alongZ ? 0 : s * (w / 2 - .15)), .21, z + (alongZ ? s * (w / 2 - .15) : 0), grp, { cast: false })); addCol(x - (alongZ ? .25 : w / 2), x + (alongZ ? .25 : w / 2), z - (alongZ ? w / 2 : .25), z + (alongZ ? w / 2 : .25), false, .5); };
+  const shed = (grp, x, z, w, d, label) => { pbox(w, 2.2, d, PM(0x8a8e90, .5, .45), x, 1.1, z, grp); pbox(w + .2, .08, d + .2, PM(0x6a6e72, .5, .5), x, 2.24, z, grp); for (let k = 0; k < Math.round(w / .3); k++) pbox(.02, 2.1, .01, PM(0x6a6e72, .5, .5), x - w / 2 + .15 + k * .3, 1.1, z + d / 2 + .005, grp, { cast: false });
+    pbox(1.2, 1.9, .03, PM(0x7a7e82, .5, .4), x, .95, z + d / 2 + .02, grp, { cast: false }); addCol(x - w / 2, x + w / 2, z - d / 2, z + d / 2);
+    if (label) pmesh(new THREE.PlaneGeometry(1.4, .24), new THREE.MeshBasicMaterial({ map: makeSign(label, '#1c2a24', '#e8f0e8', 18) }), x, 2.0, z + d / 2 + .04, grp, { cast: false }); };
+  const lightPole = (grp, x, z, h = 6.0) => { pcyl(.08, .12, h, PM(0x8a9094, .45, .6), x, h / 2, z, grp); pbox(.9, .3, .25, lampEm, x, h + .1, z, grp, { cast: false }); };
 
   const addChair = (grp, x, z, ry = 0, colMat = woodDark) => {
     const cg = new THREE.Group(); cg.position.set(x, 0, z); cg.rotation.y = ry; grp.add(cg);
@@ -814,25 +827,33 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
      ⑤-A [종합 스포츠 섹션 1] 야외 하드코트 테니스장 & 양궁 전용 훈련장 — 서중북 (x: -88, z: -14)
      ========================================================================= */
   {
-    const cx = -88, cz = -16;
+    // 테니스 · 양궁 훈련장 리모델링 (참고 평면도 · 배치도 · 20.0 × 16.0m): 서측 축소형 테니스 코트 (적색 외곽 + 녹색 코트 · 네트 6100×914) · 동측 양궁 연습 레인 3 (표적 백스탑 1220 · 안전 방호 네트 4000 · 사수선) · 사수선 캐노피 · 관람석 벤치 · 코치 구역 · 장비 보관소 (3000×2000×2400) · 화살 거치대 · 조명 폴 · 외곽 펜스 3000 · 남측 출입구
+    const cx = -88, cz = -16, x0 = cx - 10, x1 = cx + 10, z0 = cz - 8, z1 = cz + 8;
     const g = new THREE.Group(); g.name = 'chunk_tennis'; g.userData.dynamic = true; OUT.add(g);
-    pbox(20, .04, 16, PM(0x285a3e, .8), cx, .02, cz, g, { cast: false });
-    pbox(15, .05, 12, PM(0x225488, .75), cx, .025, cz, g, { cast: false });
-    pbox(15, .055, .08, whiteWall, cx, .03, cz - 6, g, { cast: false });
-    pbox(15, .055, .08, whiteWall, cx, .03, cz + 6, g, { cast: false });
-    pbox(.08, .055, 12, whiteWall, cx - 7.5, .03, cz, g, { cast: false });
-    pbox(.08, .055, 12, whiteWall, cx + 7.5, .03, cz, g, { cast: false });
-    [-7.6, 7.6].forEach(dx => pcyl(.05, .05, 1.05, darkMetal, cx + dx, .52, cz, g));
-    pbox(15.2, .82, .04, PM(0x222628, .9), cx, .50, cz, g, { cast: false });
-    pbox(15.2, .05, .05, whiteWall, cx, .92, cz, g, { cast: false });
-    addCol(cx - 7.7, cx + 7.7, cz - .15, cz + .15);
-    // 북쪽 양궁 과녁판 3기 (야구장과 완전히 분리된 전용 양궁 레인!)
-    [-4.5, 0, 4.5].forEach(dx => {
-      pbox(1.2, 1.5, .18, woodLight, cx + dx, .85, cz - 7.2, g);
-      pmesh(new THREE.CircleGeometry(.52, 18), PM(0xf0d020, .6), cx + dx, 1.0, cz - 7.08, g, { cast: false });
-      pmesh(new THREE.CircleGeometry(.32, 16), PM(0xd82820, .6), cx + dx, 1.0, cz - 7.07, g, { cast: false });
-      addCol(cx + dx - .65, cx + dx + .65, cz - 7.5, cz - 6.9);
-    });
+    pbox(20, .04, 16, PM(0x6a6e64, .85), cx, .02, cz, g, { cast: false });
+    // 테니스 코트 (서측 8.6 × 13.5)
+    const tx = x0 + 4.6, tz = cz - .5;
+    pbox(8.6, .05, 13.0, PM(0x9a3a2c, .8), tx, .03, tz, g, { cast: false }); pbox(5.6, .055, 10.4, PM(0x2a6a44, .75), tx, .035, tz, g, { cast: false });
+    [[5.6, .06, 0, -5.2], [5.6, .06, 0, 5.2], [5.6, .06, 0, -2.6], [5.6, .06, 0, 2.6]].forEach(([w, d, a, b]) => pbox(w, .06, d, whiteWall, tx + a, .04, tz + b, g, { cast: false }));
+    [-2.8, 2.8, 0].forEach(a => pbox(.06, .06, a ? 10.4 : 5.2, whiteWall, tx + a, .04, tz, g, { cast: false }));
+    [-3.05, 3.05].forEach(a => pcyl(.04, .04, 1.07, darkMetal, tx + a, .535, tz, g)); pbox(6.1, .85, .02, PM(0x1a1c1e, .9), tx, .5, tz, g, { cast: false }); pbox(6.1, .05, .04, whiteWall, tx, .92, tz, g, { cast: false }); addCol(tx - 3.1, tx + 3.1, tz - .08, tz + .08);
+    // 양궁 레인 (동측): 표적 백스탑 3 (북) · 방호 네트 (높이 4m) · 사수선 · 레인 구분선
+    const ax = x1 - 5.3; pbox(9.6, .05, 15.4, PM(0x5a7a6a, .85), ax, .028, cz, g, { cast: false });
+    [-3.0, 0, 3.0].forEach(d => { const x = ax + d, z = z0 + 1.2; pbox(1.22, 1.22, .3, PM(0xe8e2d0, .8), x, 1.0, z, g); [[.55, 0xf0f0f0], [.45, 0x1a1a1a], [.35, 0x2a6ac8], [.24, 0xd82820], [.12, 0xf0d020]].forEach(([r, c], k) => pmesh(new THREE.CircleGeometry(r, 24), PM(c, .6), x, 1.0, z + .16 + k * .002, g, { cast: false }));
+      [-.5, .5].forEach(s => pbox(.06, 1.6, .06, woodDark, x + s, .8, z - .25, g, { rx: .15, cast: false })); addCol(x - .65, x + .65, z - .4, z + .2); pbox(.04, .02, 9.0, whiteWall, x + 1.5, .06, cz - .4, g, { cast: false }); });
+    pbox(9.6, 4.0, .02, fenceMesh, ax, 2.0, z0 + .25, g, { cast: false });
+    pbox(9.0, .03, .12, PM(0xc82828, .6), ax, .06, z1 - 5.0, g, { cast: false }); pmesh(new THREE.PlaneGeometry(1.6, .3), new THREE.MeshBasicMaterial({ map: makeSign('사수선 (70m 축소연습)', '#5a1414', '#ffffff', 18) }), ax, .07, z1 - 4.7, g, { rx: -Math.PI / 2, cast: false });
+    // 사수선 캐노피 (반투명 지붕) + 벤치 · 화살 거치대
+    { const cz2 = z1 - 3.6; [[-3.8, -1.3], [3.8, -1.3], [-3.8, 1.3], [3.8, 1.3]].forEach(([a, b]) => pcyl(.05, .05, 2.6, PM(0x8a9094, .45, .6), ax + a, 1.3, cz2 + b, g)); pbox(8.0, .06, 3.0, new THREE.MeshStandardMaterial({ color: 0x8ab8d8, roughness: .2, transparent: true, opacity: .55, side: THREE.DoubleSide, depthWrite: false }), ax, 2.62, cz2, g, { cast: false });
+      benchS(g, ax - 2.4, cz2 + .6); benchS(g, ax + .4, cz2 + .6); pbox(1.0, 1.2, .5, woodDark, ax + 3.2, .6, cz2 + .8, g); for (let k = 0; k < 8; k++) pcyl(.006, .006, .9, chromeM, ax + 2.8 + k * .11, 1.0, cz2 + .8, g); addCol(ax + 2.7, ax + 3.7, cz2 + .55, cz2 + 1.05); }
+    // 관람석 벤치 (테니스 남측) · 코치 구역 · 장비 보관소 (동남)
+    benchS(g, tx - 2.0, z1 - .6); benchS(g, tx + .4, z1 - .6);
+    shed(g, x1 - 1.8, z1 - 1.3, 3.0, 2.0, '장비 보관소');
+    pmesh(new THREE.PlaneGeometry(1.4, .4), new THREE.MeshBasicMaterial({ map: makeSign('코치 구역', '#1c2a24', '#e8f0e8', 20) }), cx + 1.6, 1.6, z1 - .1, g, { ry: Math.PI, cast: false });
+    // 외곽 펜스 (3.0m) · 남측 출입구 · 학교명 현판 · 조명 폴
+    fenceLine(g, x0, z0, x1, z0, 4.0); fenceLine(g, x0, z0, x0, z1, 3.0); fenceLine(g, x1, z0, x1, z1, 3.0); fenceLine(g, x0, z1, x1, z1, 3.0, [[cx - .2, cx + 1.4]]);
+    pbox(2.4, .5, .08, PM(0x1e2e5a, .5, .3), cx - 1.8, 1.4, z1 + .08, g, { cast: false }); pmesh(new THREE.PlaneGeometry(2.3, .45), new THREE.MeshBasicMaterial({ map: makeSign('서문고등학교 테니스 · 양궁장', '#1e2e5a', '#ffffff', 20) }), cx - 1.8, 1.4, z1 + .13, g, { cast: false });
+    [[x0 + .3, z0 + .3], [x0 + .3, z1 - .3], [x1 - .3, z0 + .3], [cx, z0 + .3]].forEach(([x, z]) => lightPole(g, x, z));
     chunks.push({ id: 'chunk_tennis', g, x: cx, z: cz });
   }
 
@@ -848,8 +869,6 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
     pcyl(1.3, 1.6, .18, dirtM, cx, .09, cz + 2.0, g, { seg: 16 });
     pbox(.45, .04, .22, whiteWall, cx, .19, cz + 2.0, g, { cast: false });
     [[0, 7.3], [5.3, 2.0], [0, -3.3], [-5.3, 2.0]].forEach(([bx0, bz0]) => pbox(.42, .05, .42, whiteWall, cx + bx0, .045, cz + bz0, g, { cast: false }));
-    pbox(7.6, 3.2, .12, darkMetal, cx, 1.6, cz + 9.8, g);
-    addCol(cx - 3.8, cx + 3.8, cz + 9.6, cz + 10.0);
     [[-9.2, Math.PI / 2], [9.2, -Math.PI / 2]].forEach(([dx, ry], di) => {
       const dg = new THREE.Group(); dg.position.set(cx + dx, 0, cz + 2.5); dg.rotation.y = ry; g.add(dg);
       pbox(8.4, .12, 2.8, PM(0x285a3a, .85), 0, .06, 0, dg, { cast: false });
@@ -872,6 +891,22 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
     const coolerLidPiv = new THREE.Group(); coolerLidPiv.userData.dynamic = true; coolerLidPiv.position.set(cx + 6.8, .58, cz + 8.06); g.add(coolerLidPiv);
     pbox(.87, .07, .57, whiteWall, 0, .035, -.28, coolerLidPiv);
     world.props.push({ kind: 'robj', k: 'sports_cooler', t: 'mega15k', floor: 0, x: cx + 6.8, z: cz + 6.8, y: .6, r: 2.2, label: '야구부 덕아웃 아이스박스 열기', anim: { type: 'lid', lidPiv: coolerLidPiv, openAngle: 1.45, t: 0, active: false } });
+    // 야구 스타디움 리모델링 (참고 평면도 · 배치도 · 24.0 × 26.0m): 외곽 펜스 (높이 4m) · 남측 관람 출입구 · 백스톱 스크린 (8000×6000) · 북서 관람석 스탠드 (6000×4500 · 3단 · 지붕) · 북동 수동식 스코어보드 (4000×2000) · 북측 볼펜/장비 보관 창고 (3000×2000×2200) · 그라운드 정비 카트 · 학교명 현판
+    { const x0 = cx - 12, x1 = cx + 12, z0 = cz - 13, z1 = cz + 13;
+      fenceLine(g, x0, z0, x1, z0, 4.0); fenceLine(g, x0, z0, x0, z1, 4.0); fenceLine(g, x1, z0, x1, z1, 4.0); fenceLine(g, x0, z1, x1, z1, 4.0, [[cx - 6.2, cx - 4.2]]);
+      pbox(8.0, 6.0, .03, fenceMesh, cx, 3.0, cz + 10.1, g, { cast: false }); [-4, -1.3, 1.3, 4].forEach(d => pcyl(.07, .07, 6.0, PM(0x8a9094, .45, .6), cx + d, 3.0, cz + 10.1, g));
+      // 관람석 스탠드 (북서): 3단 알루미늄 벤치 + 계단 받침 + 지붕
+      { const sx = x0 + 3.6, sz = z0 + 3.0; for (let r = 0; r < 3; r++) { pbox(6.0, .45 * (r + 1), 1.0, PM(0x8a8e90, .5, .4), sx, .225 * (r + 1), sz + 1.0 - r * 1.0, g); pbox(6.0, .05, .35, chromeM, sx, .45 * (r + 1) + .03, sz + 1.25 - r * 1.0, g, { cast: false }); }
+        [-2.9, 2.9].forEach(d => [-1.6, 1.7].forEach(e => pcyl(.06, .06, 2.6, PM(0x8a9094, .45, .6), sx + d, 1.3 + (e < 0 ? .4 : 0), sz + e, g))); pbox(6.4, .08, 4.0, PM(0x6a7076, .5, .5), sx, 2.75, sz, g, { rx: .08 });
+        addCol(sx - 3.0, sx + 3.0, sz - 1.5, sz + 1.5, false, 1.35); }
+      // 스코어보드 (북동): TEAM 1~9 R · B · S · O
+      { const bx = x1 - 4.0, bz = z0 + .6; [-1.6, 1.6].forEach(d => pcyl(.08, .08, 2.6, darkMetal, bx + d, 1.3, bz, g)); pbox(4.0, 2.0, .15, PM(0x1e4a32, .6), bx, 3.4, bz, g);
+        pmesh(new THREE.PlaneGeometry(3.8, 1.8), new THREE.MeshBasicMaterial({ map: makeSign('TEAM  1 2 3 4 5 6 7 8 9  R  ·  B ●● S ●● O ●●', '#1e4a32', '#f0f0e0', 20) }), bx, 3.4, bz + .08, g, { cast: false }); addCol(bx - 1.7, bx + 1.7, bz - .1, bz + .1); }
+      shed(g, cx - 1.0, z0 + 1.6, 3.0, 2.0, '볼펜 · 장비 보관소');
+      // 그라운드 정비 카트 (롤러) · 남측 현판 벽
+      { const rx = cx + 2.4, rz = z0 + 2.0; pcyl(.4, .4, 1.0, PM(0x2a6a3a, .5, .4), rx, .4, rz, g, { rz: Math.PI / 2 }); pbox(.8, .5, .6, PM(0x2a6a3a, .5, .4), rx, .9, rz + .6, g); addCol(rx - .55, rx + .55, rz - .45, rz + .95); }
+      pbox(3.2, 1.6, .4, stoneM, cx - 9.0, .8, z1 + .4, g); addCol(cx - 10.6, cx - 7.4, z1 + .2, z1 + .6);
+      pmesh(new THREE.PlaneGeometry(3.0, 1.1), new THREE.MeshBasicMaterial({ map: makeSign('서문고등학교 야구 스타디움', '#6a6a60', '#1a1a1a', 26) }), cx - 9.0, .9, z1 + .61, g, { cast: false }); }
     chunks.push({ id: 'chunk_sports', g, x: cx, z: cz });
   }
 
@@ -885,35 +920,34 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
     pbox(1.8, .24, 4.6, darkMetal, cx + W / 2 + 1.1, 3.1, cz, g);
     pbox(.12, .64, 4.6, darkMetal, cx + W / 2 + 2.02, 3.45, cz, g, { cast: false });
     pmesh(new THREE.PlaneGeometry(4.4, .54), new THREE.MeshBasicMaterial({ map: makeSign('학생회관 · 동아리연합회 (소극장 · 라운지)', '#281e32', '#f4e8d8', 22) }), cx + W / 2 + 2.09, 3.45, cz, g, { ry: Math.PI / 2, cast: false });
-    pbox(4.2, .32, 9.6, woodDark, cx - 7.8, .16, cz, g);
-    addCol(cx - 9.9, cx - 5.7, cz - 4.8, cz + 4.8, false, .30);
-    pbox(.22, 3.4, 2.8, redFabric, cx - 9.8, 1.9, cz - 3.2, g);
-    pbox(.22, 3.4, 2.8, redFabric, cx - 9.8, 1.9, cz + 3.2, g);
-    pmesh(new THREE.PlaneGeometry(5.0, .58), new THREE.MeshBasicMaterial({ map: makeSign('제32회 해교제 연극부·합창부 합동 리허설 무대', '#2c1418', '#f6e4c0', 22) }), cx - 9.7, 3.1, cz, g, { ry: Math.PI / 2, cast: false });
-    for (let rz of [-2.0, 0, 2.0]) {
-      addChair(g, cx - 3.8, cz + rz, -Math.PI / 2, redFabric);
-      addChair(g, cx - 2.8, cz + rz, -Math.PI / 2, redFabric);
-    }
-    pbox(1.2, .88, 2.2, darkMetal, cx - 1.2, .44, cz, g); addCol(cx - 1.9, cx - .5, cz - 1.2, cz + 1.2);
-    world.props.push({ kind: 'robj', k: 'union_console', t: 'mega15k', floor: 0, x: cx + .1, z: cz, y: 1.0, r: 2.2, label: '학생회관 소극장 음향 콘솔 복구하기' });
-
-    pbox(2.74, .06, 1.52, PM(0x1b4d88, .5), cx + 4.2, .74, cz - 3.6, g);
-    [[-1.2, -.65], [1.2, -.65], [-1.2, .65], [1.2, .65]].forEach(([lx, lz]) => pbox(.06, .74, .06, darkMetal, cx + 4.2 + lx, .37, cz - 3.6 + lz, g));
-    pbox(.04, .18, 1.56, whiteWall, cx + 4.2, .85, cz - 3.6, g);
-    addCol(cx + 2.7, cx + 5.7, cz - 4.5, cz - 2.7);
+    // 1층 리모델링 (참고 평면도 · 22.0 × 14.0m): 동측 정문 → 로비 (안내 데스크 · 2층 계단) / 서북 학생회실 · 서남 학생식당 / 동북 동아리실 1 (합주) · 동남 매점
+    const x0 = cx - W / 2, x1 = cx + W / 2, z0 = cz - D / 2, z1 = cz + D / 2, xB = x0 + 9, zL0 = cz - 2.5, zL1 = cz + 2.5;
+    iwall(g, xB, z0, xB, z1, [[cz - 2.4, cz - 1.4], [cz + .2, cz + 1.4]]); iwall(g, x0, cz - 1.2, xB, cz - 1.2);
+    iwall(g, xB, zL0, x1, zL0, [[x1 - 5.0, x1 - 3.8]]); iwall(g, xB, zL1, x1, zL1, [[x1 - 5.0, x1 - 3.8]]);
+    // 로비: 안내 데스크 · 2층 계단 (남측 벽을 따라) · 화분
+    pbox(.7, 1.0, 1.8, woodLight, x1 - 2.2, .5, cz - 1.3, g); addCol(x1 - 2.55, x1 - 1.85, cz - 2.2, cz - .4, false, 1.0); monitor(g, x1 - 2.2, 1.0, cz - 1.6, Math.PI / 2);
+    for (let k = 0; k < 10; k++) pbox(.32, .18, 1.2, stoneM, x1 - 6.0 - k * .32, .09 + k * .18, zL1 - .7, g); addCol(x1 - 9.3, x1 - 5.8, zL1 - 1.3, zL1 - .1);
+    // 학생식당 (서남, 약 63m²): 식당 테이블 (1800×750) 2열 × 3줄 + 의자 · 배식대
+    for (let r = 0; r < 3; r++) for (let c = 0; c < 2; c++) { const x = x0 + 3.0 + r * 2.4, z = cz + 1.2 + c * 2.6; deskT(g, x, z, .75, 1.8, .74); [-.55, .55].forEach(d => { addChair(g, x - .6, z + d, Math.PI / 2); addChair(g, x + .6, z + d, -Math.PI / 2); }); }
+    pbox(.7, .9, 4.0, chromeM, x0 + .4, .45, cz + 3.8, g); addCol(x0, x0 + .75, cz + 1.8, cz + 5.8, false, .9);
+    // 학생회실 (서북): 회의 테이블 (2400×1200) + 의자 · 사무용 책상 · 책장 · 이동식 화이트보드 · 개인 사물함 (보관함 파밍)
+    deskT(g, x0 + 5.0, z0 + 2.6, 2.4, 1.2); [-.8, 0, .8].forEach(d => { addChair(g, x0 + 5.0 + d, z0 + 1.7, 0, blueFabric); addChair(g, x0 + 5.0 + d, z0 + 3.5, Math.PI, blueFabric); });
+    pbox(.9, 1.8, .3, woodLight, xB - .6, .9, z0 + .2, g); addCol(xB - 1.05, xB - .15, z0, z0 + .35);
     let unionLockerDoorPiv = null;
-    for (let k = 0; k < 4; k++) {
-      const lx = cx + 3.0 + k * .74;
-      pbox(.68, 1.85, .50, PM(0x4a5860, .5, .4), lx, .925, cz + D / 2 - .36, g);
-      if (k === 1) {
-        const piv = new THREE.Group(); piv.userData.dynamic = true; piv.position.set(lx - .33, .925, cz + D / 2 - .62); g.add(piv);
-        pbox(.66, 1.80, .035, PM(0x55646d, .45, .5), .33, 0, -.015, piv);
-        pbox(.04, .18, .04, goldM, .55, .10, -.04, piv);
-        unionLockerDoorPiv = piv;
-      }
-    }
-    addCol(cx + 2.6, cx + 5.8, cz + D / 2 - .75, cz + D / 2);
-    world.props.push({ kind: 'robj', k: 'union_locker', t: 'mega15k', floor: 0, x: cx + 4.2, z: cz + D / 2 - 1.2, y: 1.1, r: 2.2, label: '동아리연합회 보관함 파밍하기', anim: { type: 'hinge', doorPiv: unionLockerDoorPiv, openAngle: 1.45, t: 0, active: false } });
+    for (let k = 0; k < 4; k++) { const lz = z0 + 3.0 + k * .74; pbox(.45, 1.8, .7, PM(0x7a8086, .5, .4), x0 + .3, .9, lz, g);
+      if (k === 1) { const piv = new THREE.Group(); piv.userData.dynamic = true; piv.position.set(x0 + .55, .9, lz - .35); g.add(piv); pbox(.035, 1.76, .68, PM(0x88909a, .45, .5), .015, 0, .34, piv); pbox(.04, .18, .04, goldM, .04, .1, .55, piv); unionLockerDoorPiv = piv; } }
+    addCol(x0, x0 + .55, z0 + 2.6, z0 + 5.6);
+    world.props.push({ kind: 'robj', k: 'union_locker', t: 'mega15k', floor: 0, x: x0 + 1.4, z: z0 + 4.1, y: 1.1, r: 2.2, label: '동아리연합회 보관함 파밍하기', anim: { type: 'hinge', doorPiv: unionLockerDoorPiv, openAngle: 1.6, t: 0, active: false } });
+    // 동아리실 1 (동북, 합주): 드럼 세트 · 앰프 · 음향 콘솔 · 포스터
+    { const dx = x1 - 2.6, dz = z0 + 1.6; [[0, 0, .3], [.5, .3, .2], [-.5, .3, .2]].forEach(([a, b, r]) => pcyl(r, r, .3, redFabric, dx + a, .4 + b * .3, dz + b, g)); pcyl(.4, .4, .5, whiteWall, dx, .25, dz - .5, g); addCol(dx - .8, dx + .8, dz - .9, dz + .6); }
+    [x1 - 5.0, x1 - 4.3].forEach(x => pbox(.6, .7, .4, PM(0x1a1a1c, .6), x, .35, z0 + .3, g)); addCol(x1 - 5.35, x1 - 3.95, z0, z0 + .55);
+    pbox(1.2, .88, 2.0, darkMetal, xB + 1.4, .44, z0 + 2.2, g); addCol(xB + .8, xB + 2.0, z0 + 1.2, z0 + 3.2);
+    world.props.push({ kind: 'robj', k: 'union_console', t: 'mega15k', floor: 0, x: xB + 2.6, z: z0 + 2.2, y: 1.0, r: 2.2, label: '학생회관 소극장 음향 콘솔 복구하기' });
+    pmesh(new THREE.PlaneGeometry(3.0, .9), new THREE.MeshBasicMaterial({ map: makeSign('제32회 해교제 · 밴드부 · 연극부 · 합창부', '#2c1418', '#f6e4c0', 18) }), cx + 1.5, 2.2, z0 + .02, g, { cast: false });
+    // 매점 (동남): 매점 진열대 (900×450×1800) · 계산대 + 계산기 · 음료 냉장고
+    for (let k = 0; k < 4; k++) { const x = xB + 1.0 + k * 1.0; pbox(.9, 1.8, .45, woodLight, x, .9, z1 - .25, g); for (let r = 0; r < 4; r++) pbox(.8, .25, .35, [redFabric, blueFabric, goldM, PM(0x3a8a48, .6)][(k + r) % 4], x, .3 + r * .42, z1 - .27, g, { cast: false }); } addCol(xB + .55, xB + 4.45, z1 - .5, z1);
+    pbox(1.6, 1.0, .6, woodLight, x1 - 3.0, .5, zL1 + 1.4, g); addCol(x1 - 3.8, x1 - 2.2, zL1 + 1.1, zL1 + 1.7, false, 1.0); pbox(.3, .15, .25, darkMetal, x1 - 3.2, 1.07, zL1 + 1.4, g, { cast: false });
+    pbox(.7, 1.9, .7, PM(0xd8dce0, .3, .4), x1 - .4, .95, z1 - .4, g); pbox(.01, 1.5, .55, glassM, x1 - .76, 1.1, z1 - .4, g, { cast: false }); addCol(x1 - .75, x1, z1 - .75, z1);
     chunks.push({ id: 'chunk_union', g, x: cx, z: cz });
   }
 
@@ -922,15 +956,25 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
      ========================================================================= */
   {
     const g = new THREE.Group(); g.name = 'chunk_parking2'; g.userData.dynamic = true; OUT.add(g);
-    pbox(42.0, .02, 7.6, PM(0x26282c, .9), -76.0, .01, 65.2, g, { cast: false });
-    for (let k = 0; k <= 8; k++) pbox(.12, .025, 5.8, whiteWall, -95.0 + k * 4.6, .016, 65.8, g, { cast: false });
-    for (let k = 0; k < 8; k++) pbox(2.6, .10, .16, goldM, -92.7 + k * 4.6, .05, 68.0, g, { cast: false });
-    // 스쿨버스 승하차 대기 부스
-    pbox(5.4, .14, 2.2, darkMetal, -62.5, 2.65, 62.2, g);
-    [-2.4, 2.4].forEach(dx => pbox(.12, 2.6, .12, darkMetal, -62.5 + dx, 1.3, 61.4, g));
-    pbox(3.8, .44, .48, woodLight, -62.5, .22, 61.6, g);
-    pmesh(new THREE.PlaneGeometry(3.6, .42), new THREE.MeshBasicMaterial({ map: makeSign('제2주차장 · 통학 스쿨버스 승강장', '#182c38', '#f4ebd0', 22) }), -62.5, 2.65, 63.32, g, { cast: false });
-    addCol(-65.0, -60.0, 61.1, 62.1);
+    // 제2주차장 리모델링 (참고 단독 설계안 · 44.0 × 7.7m 노천 아스팔트): 북측 한 열 평행주차 6면 (5500×2500) + 여유 구획 (7000×2500) · 단방향 통행로 5.2m (서측 진입 → 동측 출차) · 진입 차단기 · 차량 스토퍼 · 조명등주 (H4000) · 주차 표지판 (600×900)
+    const px0 = -98.0, px1 = -54.0, pz0 = 61.45, pz1 = 69.15, pzR = pz0 + 2.5;
+    pbox(px1 - px0, .02, pz1 - pz0, PM(0x2e3034, .9), (px0 + px1) / 2, .01, (pz0 + pz1) / 2, g, { cast: false });
+    pbox(px1 - px0, .025, .1, whiteWall, (px0 + px1) / 2, .016, pzR, g, { cast: false });
+    for (let k = 0; k <= 6; k++) { const x = px0 + 1.5 + k * 5.5; pbox(.1, .025, 2.5, whiteWall, x, .016, pz0 + 1.25, g, { cast: false }); }
+    pmesh(new THREE.PlaneGeometry(2.4, .5), new THREE.MeshBasicMaterial({ map: makeSign('보조 주차구역', '#2e3034', '#e8e8e0', 22) }), px1 - 4.75, .02, pz0 + 1.25, g, { rx: -Math.PI / 2, cast: false });
+    [px0 + 10, px0 + 22, px0 + 34].forEach(x => { pbox(2.6, .02, .14, PM(0xe8d8a0, .6), x, .02, pzR + 2.8, g, { cast: false }); pmesh(new THREE.ConeGeometry(.3, .6, 3), PM(0xe8d8a0, .6), x + 1.5, .03, pzR + 2.8, g, { rx: -Math.PI / 2, rz: -Math.PI / 2, cast: false }); });
+    // 주차 차량 5대 (2008년식 세단 · 해치백)
+    const carC = [0xd8dce0, 0x2a4a5a, 0xf0ece0, 0x9aa4ac, 0x50565c];
+    for (let k = 0; k < 6; k++) { if (k === 3) continue; const x = px0 + 4.25 + k * 5.5, z = pz0 + 1.25, cM = PM(carC[k % 5], .35, .55);
+      pbox(4.3, .7, 1.75, cM, x, .55, z, g); pbox(2.3, .55, 1.6, cM, x - .2, 1.15, z, g); pbox(2.2, .45, 1.62, new THREE.MeshStandardMaterial({ color: 0x1a2028, roughness: .1, metalness: .4 }), x - .2, 1.15, z, g, { cast: false });
+      [[-1.4, -.8], [1.4, -.8], [-1.4, .8], [1.4, .8]].forEach(([a, b]) => pcyl(.32, .32, .22, PM(0x1a1a1a, .8), x + a, .32, z + b, g, { rx: Math.PI / 2 })); addCol(x - 2.15, x + 2.15, z - .9, z + .9); }
+    // 차량 스토퍼 (1800×150×120) · 진입 차단기 (서측) · 조명등주 · 주차 표지판
+    for (let k = 0; k < 6; k++) pbox(1.8, .12, .15, PM(0xd8b020, .6), px0 + 4.25 + k * 5.5, .06, pz0 + .25, g, { cast: false });
+    { const bx = px0 + 1.0, bz = pzR + .6; pbox(.35, 1.1, .35, PM(0xd8b020, .5, .3), bx, .55, bz, g); addCol(bx - .2, bx + .2, bz - .2, bz + .2); const arm = new THREE.Group(); arm.position.set(bx, 1.0, bz); arm.rotation.z = 1.2; g.add(arm);
+      for (let k = 0; k < 8; k++) pbox(.5, .08, .06, k % 2 ? PM(0xd82020, .6) : whiteWall, .25 + k * .5, 0, 0, arm, { cast: false }); }
+    [px0 + 8, px0 + 22, px0 + 36].forEach(x => { pcyl(.06, .08, 4.0, PM(0x8a9094, .45, .6), x, 2.0, pz0 + .1, g); pbox(.5, .15, .3, lampEm, x, 4.0, pz0 + .35, g, { cast: false }); });
+    pcyl(.04, .04, 2.2, darkMetal, px0 + .4, 1.1, pz1 - .4, g); pbox(.6, .9, .04, PM(0x1e4a9a, .5, .3), px0 + .4, 2.2, pz1 - .4, g);
+    pmesh(new THREE.PlaneGeometry(.56, .86), new THREE.MeshBasicMaterial({ map: makeSign('P 제2주차장 · 서측 진입 → 동측 출차', '#1e4a9a', '#ffffff', 20) }), px0 + .4, 2.2, pz1 - .37, g, { cast: false });
   }
 
   // ── 4대 확장 건물 정문에 실제로 여닫을 수 있는 양개 강화유리 출입문(world.doorList 연동) 설치 ──

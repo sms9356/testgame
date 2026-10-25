@@ -46,6 +46,24 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
     pbox(Math.min(8, Math.max(rect.x2 - rect.x1, rect.z2 - rect.z1) - .6), .026, .026, conduitM, x + nx * .02, y0 + top - .12, z + nz * .02, grp, { ry, cast: false });
     world.props.push({ kind: 'robj', k: 'light_switch', t: 'mega15k', floor: 0, x: x + nx * .45, z: z + nz * .45, y: y0 + 1.3, r: 1.5, label: label + ' 끄기', sw: { grp, rect, on: true, base: label } });
   };
+  // 화장실 (지하 · 옥상 제외 모든 층 필수): 모서리에 2.6 × 2.2m 칸 — 칸막이벽 2면(문 구멍) · 타일 바닥 · 양변기 · 세면대 · 거울 · 표지
+  const wcTileM = PM(0xd8dcd8, .35), wcPorcM = PM(0xf2f2ee, .25), wcMirM = PM(0x9fb4bc, .1, .6), wcWallM = PM(0xe8e6de, .8);
+  const addRestroom = (grp, cxw, czw, sx, sz, y0 = 0, h = 3.7, label = '화장실') => {   // (cxw, czw): 건물 안쪽 모서리 · sx/sz: 방이 펼쳐지는 방향(±1)
+    const W = 2.6, D = 2.2, xa = cxw + sx * W, za = czw + sz * D, xm = Math.min(cxw, xa), xM = Math.max(cxw, xa), zm = Math.min(czw, za), zM = Math.max(czw, za);
+    pbox(W, .02, D, wcTileM, (xm + xM) / 2, y0 + .06, (zm + zM) / 2, grp, { cast: false });
+    // 칸막이벽: x = xa (z 방향 벽, 문 구멍 0.9m) · z = za (x 방향 벽)
+    const dz1 = czw + sz * .5, dz2 = czw + sz * 1.4, d1 = Math.min(dz1, dz2), d2 = Math.max(dz1, dz2);
+    [[zm, d1], [d2, zM]].forEach(([a, b]) => { if (b - a > .05) { pbox(.12, h, b - a, wcWallM, xa, y0 + h / 2, (a + b) / 2, grp); addCol(xa - .06, xa + .06, a, b, false, null, y0 > 1 ? { y0: y0 - .1 } : { maxY: y0 + h }); } });
+    pbox(.12, h - 2.1, d2 - d1, wcWallM, xa, y0 + 2.1 + (h - 2.1) / 2, (d1 + d2) / 2, grp, { cast: false });
+    pbox(W + .12, h, .12, wcWallM, (xm + xM) / 2, y0 + h / 2, za, grp); addCol(xm - .06, xM + .06, za - .06, za + .06, false, null, y0 > 1 ? { y0: y0 - .1 } : { maxY: y0 + h });
+    // 변기 (안쪽 벽에 붙여) · 세면대 · 거울
+    const tx = cxw + sx * .45, tz = czw + sz * 1.55;
+    pbox(.42, .4, .55, wcPorcM, tx, y0 + .26, tz, grp); pbox(.2, .45, .5, wcPorcM, cxw + sx * .12, y0 + .62, tz, grp); addCol(Math.min(cxw, tx + sx * .3), Math.max(cxw, tx + sx * .3), tz - .3, tz + .3, false, y0 + .46, y0 > 1 ? { y0: y0 - .1 } : null);
+    const kx = cxw + sx * 1.9, kz = czw + sz * .3;
+    pbox(.5, .14, .4, wcPorcM, kx, y0 + .84, kz, grp); pbox(.08, .78, .08, wcPorcM, kx, y0 + .4, kz, grp); pmesh(new THREE.PlaneGeometry(.5, .7), wcMirM, kx, y0 + 1.55, czw + sz * .02, grp, { ry: sz > 0 ? 0 : Math.PI, cast: false });
+    pmesh(new THREE.PlaneGeometry(.9, .24), new THREE.MeshBasicMaterial({ map: makeSign('🚻 ' + label, '#1f3f6f', '#ffffff', 24) }), xa - sx * .07, y0 + 2.3, (d1 + d2) / 2, grp, { ry: sx > 0 ? -Math.PI / 2 : Math.PI / 2, cast: false });
+    world.props.push({ kind: 'robj', k: 'campus_wc', t: 'mega15k', floor: 0, x: tx + sx * .6, z: tz - sz * .4, y: y0 + .6, r: 1.3, label: label + ' 세면대 · 변기 살펴보기' });
+  };
   const warmWinEm = new THREE.MeshStandardMaterial({ color: 0xd8eef8, emissive: 0xffe0a8, emissiveIntensity: .62, roughness: .18, metalness: .2 });
   const buildShell = (grp, cx, cz, W, D, H, wallMat, roofMat, doorSide, flMat = woodFloor) => {
     const x0 = cx - W / 2, x1 = cx + W / 2, z0 = cz - D / 2, z1 = cz + D / 2, t = .32, dw = 3.0, dh = 2.6;
@@ -125,6 +143,7 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
       pbox(1.22, .05, .20, lampEm, cx + lx, 3.74, cz + lz, grp, { cast: false });
     });
     { const rect = { x1: x0, x2: x1, z1: z0, z2: z1 }, o = dw / 2 + .4;
+      if (doorSide === 'W') addRestroom(grp, x1, z0, -1, 1); else addRestroom(grp, x0, z0, 1, 1);
       if (doorSide === 'W') addSwitch(grp, x0 + .01, cz - o, Math.PI / 2, rect);
       else if (doorSide === 'E') addSwitch(grp, x1 - .01, cz - o, -Math.PI / 2, rect);
       else addSwitch(grp, cx - o, z1 - .01, Math.PI, rect); }
@@ -315,6 +334,7 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
       wallZ(cx + 1.8, z0 + 2.6, z1, 1, [[cz + 1.2, cz + 3.1]]);
       wallX(cx + 1.87, x1, z0 + 2.62, 1);
       plate('203호 심야 정독실', cx + 1.65, Y2 + 2.32, cz + 2.15, -Math.PI / 2);
+      addRestroom(g, x1, z0 + 2.7, -1, 1, Y2, FH2, '2층 화장실');   // 2층 화장실 (정독실 북동 구석)
       // 침실 가구: 이층침대 · 책상 · 옷장 (호실마다)
       [[cz - 2.7, '201'], [cz + 4.0, '202']].forEach(([rz, n]) => {
         pbox(2.0, .5, .95, woodDark, x0 + 1.2, Y2 + .25, rz, g); pbox(2.0, .14, .95, mattressM, x0 + 1.2, Y2 + .57, rz, g);   // 침대

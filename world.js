@@ -4,12 +4,12 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { buildGuardAnnex, buildDutyRoom, ANNEX as GANX } from './guardAnnex.js?v=212';
-import { NOTES } from './story.js?v=212';
+import { buildGuardAnnex, buildDutyRoom, ANNEX as GANX } from './guardAnnex.js?v=213';
+import { NOTES } from './story.js?v=213';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=212';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=213';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -23,7 +23,7 @@ export const LAYOUT = [
     names: ['방송편집실', '방송실', '3-1', '3-3', '중앙계단', '3-4', '3-5', '3학년 정독실', '진학상담실'] },
   null,
   { types: ['exit', 'boiler', 'electric', 'storage', 'stair', 'records', 'cleaning', 'generator', 'pump'],
-    names: ['비상 계단실', '기계실 (보일러)', '유지보수실 · 전기실', '창고', '진입 계단실', '문서 보관실', '소방시설 · 청소도구실', '기계실 (발전기)', '펌프실'] },   // 지하 1층: 기계실 · 펌프실 · 유지보수실 · 문서보관실 · 창고 · 소방시설 · 방공호(벙커)
+    names: ['소방시설실', '기계실 (보일러)', '유지보수실 · 전기실', '창고', '진입 계단실', '문서 보관실', '청소도구실', '기계실 (발전기)', '펌프실'] },   // 지하 1층: 기계실 · 펌프실 · 유지보수실 · 문서보관실 · 창고 · 소방시설 · 방공호(벙커)
 ];
 // 본관 남쪽 방 줄 (1층 중앙현관 옆은 보건실, 3층 방송편집실은 확장된 3층 방송실 내부로 통합하고 3층 동측은 여자화장실·남자화장실 나란히 배치)
 export const LAYOUT_S = [
@@ -2912,29 +2912,34 @@ export function buildWorld(scene) {
     wetSpot(cx - 2.4, -3.5, .7); blood('drag', cx - 2.2, .02, -3.6, 1.0, 1.4, true);
     addBattery(cx - 3.0, 0, -2.5); papers(cx, -8, -2.4, 6);
   }
-  // A04 전기실 (분전함 · 비상 전원 — 전력 복구 퍼즐)
+  // A04 유지보수실 · 전기실 (참고 시트 7.70 × 7.85m): 북벽 철제 작업대 (1800×750×850) + 공구 타공판 · 예비 부품함 · 동벽 분전반/제어반 3 (1200×400×1900, 주 차단기) · 서벽 철제 선반 · 사다리 보관 · 공구 보관장 (락커) · 이동 공구 카트 · 작업 스툴 · 소화기함
   function electric(cx) {
-    const E = sheetRoom(cx, 8, 9);
-    const a = E(.4, .6, 2.1, 5.5);     // 1 분전반 A: 서쪽 벽을 따라 (차단기 레버는 이쪽)
-    cabinetRow(cx - 3.62, a.z, a.d, Math.PI / 2, 2.0, .5); col(cx - 3.9, cx - 3.35, a.z - a.d / 2, a.z + a.d / 2);
-    const b2 = E(2.9, .6, 2.1, 5.5);   // 2 분전반 B: 양면 독립 판넬
-    cabinetRow(b2.x, b2.z, b2.d, Math.PI / 2, 2.0, .45); cabinetRow(b2.x + .02, b2.z, b2.d, -Math.PI / 2, 2.0, .45); col(b2.x - .3, b2.x + .3, b2.z - b2.d / 2, b2.z + b2.d / 2);
-    meshAt(merge([bx(.06, .06, b2.d, 0, 2.15, 0), bx(1.9, .06, .06, -.95, 2.15, -b2.d * .3), bx(1.9, .06, .06, -.95, 2.15, b2.d * .3)]), mDarkMetal, b2.x, 0, b2.z);   // 상부 케이블 트레이
-    const u = E(5.5, .6, 1.7, 4.7);    // 3 UPS 캐비닛 (LED)
-    cabinetRow(cx + 3.55, u.z, u.d, -Math.PI / 2, 1.9, .7, mDarkMetal); col(cx + 3.15, cx + 3.9, u.z - u.d / 2, u.z + u.d / 2);
-    for (let k = 0; k < 4; k++) glowAt(cx + 3.18, 1.55, u.z - u.d / 2 + .4 + k * u.d / 4, .18, k % 2 ? glowRed : glowGreen);
-    const m2 = E(2.2, 6.4, 3.5, 1.2);  // 4 전기 절연 매트
-    add(mRubber, m2.w, .015, m2.d, m2.x, 0, m2.z);
-    const t = E(5.8, 6.4, 1.3, 1.2);   // 5 공구 가방 (+ 응급 밴드)
-    tapeRecorder('ts_electric', t.x - .45, 0, t.z - .2, .4);   // 전기 기사 증언: 분전반 앞 바닥 공구 가방 옆
-    meshAt(merge([bx(.5, .26, .25, 0, .13, 0), tube(.012, -.15, .26, 0, -.1, .38, 0), tube(.012, .15, .26, 0, .1, .38, 0), tube(.012, -.1, .38, 0, .1, .38, 0)]), mBagB, t.x, 0, t.z, .3); addMedkit(t.x + .45, 0, t.z);
-    // 주 차단기 (분전반 A 정면)
-    meshAt(merge([bx(.12, 1.0, .8, 0, 1.4, 0), bx(.04, .9, .7, .07, 1.4, 0)]), S(T.makeMetal([110, 116, 112]), { roughness: .6, metalness: .4 }), cx - 3.3, 0, -5.4);
-    plane(cur.interior, mWarnS, .45, .28, cx - 3.2, 2.05, -5.4, Math.PI / 2);
-    { const lev = dyn(new THREE.Group()); lev.position.set(cx - 3.18, 1.4, -5.4); cur.interior.add(lev);
+    const W = cx - 3.85, E = cx + 3.85, N = -9.6, green = b1m('mGreen', 0x3a5a3e, .55, .35), red = b1m('cartR', 0xb02020, .45, .4);
+    // 북벽: 작업대 + 타공판 (공구) · 예비 부품 서랍장
+    { const x = W + 1.3; meshAt(merge([bx(1.8, .05, .75, 0, .85, 0), bx(.45, .8, .7, -.65, .4, 0), bx(.05, .8, .7, .87, .4, 0), bx(1.7, .03, .6, 0, .2, 0)]), green, x, 0, N + .42); add(mWood, 1.8, .02, .75, x, .875, N + .42); col(x - .9, x + .9, N, N + .8);
+      add(b1m('peg', 0xc8a878, .8, 0), 1.8, .9, .02, x, 1.1, N + .02); for (let k = 0; k < 14; k++) add(k % 3 ? mChrome : red, .03, .2 + (k % 4) * .04, .03, x - .8 + k * .12, 1.3 + (k % 2) * .3, N + .05);
+      cyl(mBlack, .17, .45, x + .2, 0, N + 1.1, 14); }
+    { const x = cx + 2.1; add(mDarkMetal, .9, .88, .3, x, 0, N + .15, { col: true }); for (let r = 0; r < 4; r++) for (let k = 0; k < 6; k++) add(k % 2 ? b1m('binB', 0x2a4a8a, .6, 0) : b1m('binY', 0xc8a020, .6, 0), .13, .17, .02, x - .37 + k * .15, .06 + r * .21, N + .31); }
+    // 동벽: 분전반/제어반 3 + 주 차단기 (가운데 판넬 정면) + 절연 매트
+    cabinetRow(E - .2, -6.0, 3.6, -Math.PI / 2, 1.9, .4); col(E - .4, E, -7.8, -4.2);
+    for (let k = 0; k < 3; k++) glowAt(E - .42, 1.55, -7.2 + k * 1.2, .15, k === 1 ? glowRed : glowGreen);
+    add(mRubber, 1.0, .015, 3.4, E - .95, 0, -6.0);
+    meshAt(merge([bx(.12, 1.0, .8, 0, 1.4, 0), bx(.04, .9, .7, -.07, 1.4, 0)]), S(T.makeMetal([110, 116, 112]), { roughness: .6, metalness: .4 }), E - .46, 0, -6.0);
+    plane(cur.interior, mWarnS, .45, .28, E - .53, 2.05, -6.0, -Math.PI / 2);
+    { const pv = new THREE.Group(); pv.position.set(E - .58, 1.4, -6.0); pv.rotation.y = Math.PI; cur.interior.add(pv); const lev = dyn(new THREE.Group()); pv.add(lev);
       const arm = new THREE.Mesh(new THREE.BoxGeometry(.04, .32, .05), mBlack); arm.position.y = .16; lev.add(arm);
       const knob = new THREE.Mesh(new THREE.BoxGeometry(.12, .05, .05), S(null, { color: 0xb02020 })); knob.position.y = .32; lev.add(knob); lev.rotation.z = -2.4;
-      props.push({ kind: 'breaker', floor: cur.f, x: cx - 2.5, z: -5.4, lev, on: false, label: '주 차단기 올리기' }); }
+      props.push({ kind: 'breaker', floor: cur.f, x: E - 1.3, z: -6.0, lev, on: false, label: '주 차단기 올리기' }); }
+    // 서벽: 철제 선반 2 (1200×450×1800) · 사다리 보관 · 공구 보관장 (락커 900×515×1790 × 2)
+    rackShelf(W + .25, -8.4, 2.4, Math.PI / 2, .45, 1.8, .8); col(W, W + .5, -9.6, -7.2);
+    [0, 1].forEach(k => { const L = [tube(.02, -.25, 0, 0, -.25, 1.8, -.25), tube(.02, .25, 0, 0, .25, 1.8, -.25)]; for (let s = 1; s < 6; s++) L.push(tube(.014, -.25, s * .3, -s * .3 * .14, .25, s * .3, -s * .3 * .14)); meshAt(merge(L), mChrome, W + .2 + k * .12, 0, -6.4 + k * .5, Math.PI / 2); });
+    col(W, W + .5, -6.8, -5.5);
+    cabinetRow(W + .27, -3.7, 1.8, Math.PI / 2, 1.79, .515, green); col(W, W + .55, -4.6, -2.8);
+    // 이동 공구 카트 (700×450×850) · 공구 가방 + 전기 기사 증언 테이프 · 구급함 · 소화기함
+    { const x = cx + .4, z = -5.4; add(red, .7, .75, .45, x, .1, z); for (let k = 0; k < 4; k++) add(mChrome, .6, .015, .02, x, .25 + k * .15, z + .23); [[-.3, -.18], [.3, -.18], [-.3, .18], [.3, .18]].forEach(([a, b]) => cyl(mBlack, .05, .1, x + a, 0, z + b, 10)); col(x - .35, x + .35, z - .23, z + .23); }
+    { const x = cx + 2.0, z = -3.2; tapeRecorder('ts_electric', x - .45, 0, z - .2, .4);
+      meshAt(merge([bx(.5, .26, .25, 0, .13, 0), tube(.012, -.15, .26, 0, -.1, .38, 0), tube(.012, .15, .26, 0, .1, .38, 0), tube(.012, -.1, .38, 0, .1, .38, 0)]), mBagB, x, 0, z, .3); addMedkit(x + .45, 0, z); }
+    add(b1m('fireBox', 0xb81e1e, .5, .2), .25, .6, .2, E - .15, .9, -2.3);
     papers(cx, -8, -2.4, 4);
   }
   // A02 지하 창고 (참고 시트 7.70 × 7.85m): 벽면 경량 선반 (900×450×1800) ㄷ자 · 철제 수납장 4 · 이동식 칠판 · 적재 책걸상 · 접이식 의자 · 접이식 테이블 · 사다리 · 라바콘 · 청소기 — 가운데는 비운다
@@ -2979,26 +2984,25 @@ export function buildWorld(scene) {
     { const x = cx - 1.2, z = -4.3; const g = []; [-.25, .25].forEach(a => { g.push(tube(.02, a, 0, .45, a, 1.7, 0)); g.push(tube(.02, a, 0, -.45, a, 1.4, -.1)); }); for (let k = 1; k < 5; k++) g.push(bx(.5, .03, .2, 0, k * .33, .45 - k * .1)); meshAt(merge(g), mChrome, x, 0, z, Math.PI / 2); col(x - .45, x + .45, z - .3, z + .3); }
     scatterBooks(cx - .5, -4.8, 6); papers(cx, -8, -2.4, 12);
   }
-  // A07 폐기물 보관실 (폐자재 · 청소도구)
+  // A07 청소도구실 (참고 시트 7.70 × 7.85m): 북벽 철제 선반 (900×450×1800 × 4, 청소함 · 상자) · 서벽 선반 + 밀대/걸레 보관대 · 청소 카트 · 업소용 청소기 · 동벽 락커 (청소용품 900×450×1800 × 3) · 사다리 · 바닥 배수로 — 가운데(대걸레 자루 자리)는 비운다
   function cleaning(cx) {
-    const W = sheetRoom(cx, 8, 11);
-    const d1 = W(.6, 1.2, 2.1, 2.1);   // 1 폐기물 드럼
-    [[-.45, -.4], [.45, -.4], [-.45, .45], [.5, .5]].forEach(([dx, dz], i) => { const d = cyl(i === 3 ? mRust : mDrumB, .3, .9, d1.x + dx, 0, d1.z + dz, 16); if (i === 3) { d.rotation.z = Math.PI / 2; d.position.y = .3; } });
-    col(d1.x - .8, d1.x + .8, d1.z - .8, d1.z + .8);
-    const d2 = W(3.1, 1.2, 2, 2.3);    // 2 산업용 쓰레기통 (뚜껑 반쯤 열림)
-    add(S(null, { color: 0x2a5a3a, roughness: .7, metalness: .2 }), 1.7, 1.2, 1.1, d2.x, 0, d2.z, { col: true });
-    { const lid = add(S(null, { color: 0x1e3e2a, roughness: .7 }), 1.75, .05, .6, d2.x, 1.25, d2.z - .3); lid.rotation.x = -.5; }
-    const d3 = W(5.5, 1.0, 1.8, 4.0);  // 3 손상된 캐비닛 (넘어짐)
-    { const g = add(mPanelG, .6, 1.8, .5, d3.x, 0, d3.z); g.rotation.z = 1.35; g.position.set(d3.x - .2, .3, d3.z); col(d3.x - 1.1, d3.x + .7, d3.z - .35, d3.z + .35); }
-    addBattery(d3.x + .4, 0, d3.z + 1.0);
-    const d4 = W(.5, 7.2, 5.6, 1.7);   // 4 청소 용구 선반 (출입구 쪽, 동쪽으로 통로)
-    rackShelf(d4.x, d4.z, d4.w * .95, 0, .55, 1.8, .5); col(d4.x - d4.w / 2, d4.x + d4.w / 2, d4.z - .3, d4.z + .3);
-    [[-.4, 0], [.2, .1]].forEach(([dx]) => meshAt(merge([tube(.015, 0, 0, 0, .05, 1.4, .04), bx(.3, .06, .1, 0, .03, 0)]), S(null, { color: 0x8a6a40 }), d4.x + d4.w / 2 + .25 + dx, 0, d4.z + .4));
-    mopBucket(cx + 3.2, -5.4);
-    const d5 = W(1.3, 4.9, 2.1, 1.6);  // 5 비닐 포대 (쓰레기 봉투 더미)
-    [[-.55, -.28], [0, -.28], [.55, -.28], [-.35, .28], [.35, .28]].forEach(([ox, oz]) => { const m = meshAt(new THREE.SphereGeometry(.23, 10, 8), mBagB, d5.x + ox, .18, d5.z + oz); m.scale.y = .75; });
-    col(d5.x - .9, d5.x + .9, d5.z - .5, d5.z + .5);
-    papers(cx, -8, -2.4, 8);
+    const W = cx - 3.85, E = cx + 3.85, N = -9.6, blue = b1m('binB', 0x2a4a8a, .6, 0), yel = b1m('binY', 0xc8a020, .6, 0);
+    const binShelf = (x, z, len, ry) => { rackShelf(x, z, len, ry, .45, 1.8, 0); const n = Math.round(len / .65), alongX = Math.abs(Math.sin(ry)) < .5;
+      for (let r = 0; r < 3; r++) for (let k = 0; k < n; k++) { const t = -len / 2 + (k + .5) * len / n, m = (r + k) % 3 === 2 ? mCardboard : (r + k) % 2 ? blue : yel; add(m, alongX ? .55 : .38, .3, alongX ? .38 : .55, x + (alongX ? t : 0), .18 + r * .62, z + (alongX ? 0 : t)); } };
+    binShelf(cx - .5, N + .25, 3.6, 0); col(cx - 2.3, cx + 1.3, N, N + .5);
+    binShelf(E - .25, -8.6, 1.8, Math.PI / 2); col(E - .5, E, -9.5, -7.7);
+    binShelf(W + .25, -8.2, 2.4, Math.PI / 2); col(W, W + .5, -9.4, -7.0);
+    // 서벽: 밀대/걸레 보관대 · 청소 카트 (노랑/빨강 통) · 업소용 청소기 · 큰 청소함 (파랑)
+    { const x = W + .35, z = -6.2; add(blue, .6, .12, .5, x, 0, z); for (let k = 0; k < 7; k++) meshAt(merge([tube(.013, 0, .1, 0, 0, 1.75, 0), bx(.28, .05, .08, 0, .1, 0)]), S(null, { color: k % 2 ? 0x8a6a40 : 0x3a6ab0 }), x - .2 + (k % 4) * .13, 0, z - .15 + (k >> 2) * .25); col(W, W + .65, z - .3, z + .3); }
+    { const x = W + .5, z = -4.9; add(yel, .4, .5, .45, x - .15, .15, z); add(b1m('cartR', 0xb02020, .45, .4), .3, .45, .45, x + .22, .15, z); add(mDarkMetal, .7, .03, .5, x, .12, z); [[-.3, -.2], [.3, -.2], [-.3, .2], [.3, .2]].forEach(([a, b]) => cyl(mBlack, .05, .1, x + a, 0, z + b, 10)); col(x - .35, x + .35, z - .25, z + .25); }
+    cyl(b1m('vac', 0xb8bcc0, .4, .7), .2, .55, W + .4, 0, -3.9, 14); add(blue, .55, .9, .5, W + .35, 0, -3.1, { col: true });
+    mopBucket(W + 1.1, -3.3);
+    // 동벽: 락커 3 · 사다리 · 폐기물 드럼 (구석)
+    cabinetRow(E - .23, -5.6, 2.7, -Math.PI / 2, 1.8, .45, b1m('locker', 0x8a8e90, .55, .4)); col(E - .45, E, -6.95, -4.25);
+    { const L = [tube(.02, -.25, 0, 0, -.25, 1.8, -.3), tube(.02, .25, 0, 0, .25, 1.8, -.3)]; for (let s = 1; s < 6; s++) L.push(tube(.014, -.25, s * .3, -s * .3 * .17, .25, s * .3, -s * .3 * .17)); meshAt(merge(L), mChrome, E - .2, 0, -3.7, -Math.PI / 2); col(E - .5, E, -4.05, -3.35); }
+    cyl(mDrumB, .3, .9, E - .45, 0, -2.6, 16); col(E - .8, E - .1, -2.95, -2.25);
+    b1Trench(cx - 3.0, cx + 3.0, -2.25, -2.05);
+    addBattery(cx + 2.6, 0, -3.0); papers(cx, -8, -2.4, 8);
   }
   // A03 기계실 (발전기) (참고 시트 7.70 × 7.85m): 비상 디젤 발전기 (3000×1500×1800) 콘크리트 받침 + 안전선 · 제어반/분전반 (서벽) · 축전지 선반 · 연료탱크 (경유 2000×1000×1600) · 배기 소음기 + 연도 · 흡배기 루버 · 소화기함 · 바닥 배수로
   function generator(cx) {
@@ -3082,35 +3086,42 @@ export function buildWorld(scene) {
     const p5 = A(7.9, 5.2, .8, 2.4); // 5 은닉 통로 (배수실로 돌아가는 좁은 틈)
     add(mBlack, .05, 1.8, .9, x1 - .03, 0, p5.z); add(mWoodDark, .1, 1.9, .08, x1 - .06, 0, p5.z - .5); add(mWoodDark, .1, 1.9, .08, x1 - .06, 0, p5.z + .5);
     doors.push({ floor: cur.f, x: x1 - .6, z: p5.z, r: 1.2, label: '좁은 통로로 나가기 (배수실)', to: { floor: cur.f, x: cx + 1.2, z: -3.9, yaw: Math.PI } });
+    // 남측 별실 리모델링 (참고 시트 8.00 × 7.85m · 다목적 작업/보관실): 가운데 회의/작업 테이블 (1800×900×720) + 접이식 의자 6 · 서벽 철제 선반 · 철제 캐비닛 2 · 동벽 철제 선반 (1200×450×1800) · 이동식 화이트보드 · 청소도구 · 작업용 사다리 · 수납 박스
+    { const tx = cx + .9, tz = 6.1; tbl(mWood, .9, .72, 1.8, tx, 0, tz, { col: true, legMat: mLegMetal });
+      [-.6, 0, .6].forEach(d => [-1, 1].forEach(s => { const x = tx + s * .7, z = tz + d; add(b1m('fchair', 0x2a2c2e, .5, .4), .44, .04, .44, x, .45, z); add(b1m('fchair', 0x2a2c2e, .5, .4), .04, .4, .4, x + s * .2, .47, z); [[-.18, -.18], [.18, -.18], [-.18, .18], [.18, .18]].forEach(([a, b]) => add(mLegMetal, .02, .45, .02, x + a, 0, z + b)); }));
+      add(mDirtPaper, .3, .005, .42, tx - .1, .725, tz - .3); cyl(mDarkMetal, .04, .12, tx + .2, .72, tz + .4, 10); }
+    rackShelf(x0 + .25, z0 + .9, 1.2, Math.PI / 2, .45, 1.8, .8); col(x0, x0 + .5, z0 + .25, z0 + 1.55);
+    cabinetRow(x0 + .25, z0 + 2.6, 1.8, Math.PI / 2, 1.8, .45, b1m('locker', 0x8a8e90, .55, .4)); col(x0, x0 + .5, z0 + 1.7, z0 + 3.5);
+    rackShelf(x1 - .25, z0 + 1.4, 2.4, Math.PI / 2, .45, 1.8, .8); col(x1 - .5, x1, z0 + .2, z0 + 2.6);
+    { const x = cx + 1.6, z = z0 + .6; add(S(null, { color: 0xf4f4f0, roughness: .4 }), 1.8, .9, .03, x, .9, z); add(mChrome, 1.84, .04, .05, x, .88, z); [-.9, .9].forEach(d => add(mChrome, .03, 1.8, .03, x + d, 0, z)); col(x - 1.0, x + 1.0, z - .2, z + .2); }
+    { const x = x1 - .5, z = z1 - .5; add(b1m('binB', 0x2a4a8a, .6, 0), .5, .45, .4, x, 0, z); for (let k = 0; k < 3; k++) meshAt(merge([tube(.013, 0, 0, 0, .05, 1.5, .05), bx(.28, .05, .08, 0, .03, 0)]), S(null, { color: 0x8a6a40 }), x - .4 + k * .15, 0, z + .1); col(x - .6, x + .3, z - .3, z + .3); }
+    { const L = [tube(.02, -.25, 0, 0, -.25, 1.2, -.2), tube(.02, .25, 0, 0, .25, 1.2, -.2)]; for (let s = 1; s < 4; s++) L.push(tube(.014, -.25, s * .3, -s * .3 * .17, .25, s * .3, -s * .3 * .17)); meshAt(merge(L), mChrome, x0 + .25, 0, z1 - 1.6, Math.PI / 2); }
+    [[x0 + .4, z1 - .4], [x0 + .4, z1 - .85]].forEach(([x, z]) => add(b1m('box2', 0x6a6e72, .6, .2), .6, .32, .4, x, 0, z, { col: true }));
     papers(cx, z0 + .5, z1 - .5, 8);
   }
-  // A05 비상 계단실 (잠긴 외부 출구 — 탈출 조건)
+  // A05 소방시설실 (옛 비상 계단실 자리 · 참고 시트 7.70 × 7.85m): 소방 펌프 (1800×1200×1500) · 소화수조/압력탱크 (Ø1200 × 2000) · 소방 제어반 (1000×400×2000 × 2) · 소화 배관 (Ø100~300) · 소화기함 — 북벽 잠긴 비상 철문 (탈출 조건) 유지
   function exitRoom(cx) {
-    const X = sheetRoom(cx, 8, 9);
-    { const s = X(1.0, 1.0, 5.7, 5.6);   // 1 비상 계단: 위로 꺾여 올라가는 철제 계단 + 난간
-      // 철제 비상 계단: 옆판(스트링거) 2장 + 줄무늬 철판 디딤판(챌판 없음) + 기둥 위 층참 + 난간 — 층참 위 철문은 잠겨 있다
-      const n = 9, rise = .26, run = .42, x1 = cx - 3.3, x2 = cx - 1.9, z0 = -2.8, zt = z0 - n * run, LH = n * rise, xs = (x1 + x2) / 2;
-      const Tr = [], Sg = [], Rl = [];
-      for (let i = 0; i < n; i++) { const y = (i + 1) * rise, z = z0 - run * (i + .5); Tr.push(bx(x2 - x1 - .08, .03, run - .02, xs, y - .015, z), bx(x2 - x1 - .08, .012, .03, xs, y - .02, z + run / 2 - .02)); }
-      const sl = Math.hypot(n * run, LH), sa = Math.atan2(LH, n * run);
-      [x1 + .02, x2 - .02].forEach(x => { const g = bx(.04, .26, sl, 0, 0, 0); g.rotateX(sa); g.translate(x, LH / 2 - .02, (z0 + zt) / 2); Sg.push(g); });
-      Sg.push(bx(3.0, .08, 1.4, cx - 1.9, LH - .04, -8.3));   // 층참 철판
-      [[cx - 3.35, -7.65], [cx - .45, -7.65], [cx - 3.35, -8.95], [cx - .45, -8.95], [x1 + .02, zt + .05], [x2 - .02, zt + .05]].forEach(([x, z]) => Sg.push(bx(.08, LH - .08, .08, x, (LH - .08) / 2, z)));
-      [x1 + .02, x2 - .02].forEach(x => { Rl.push(tube(.022, x, 1.0, z0, x, LH + 1.0, zt)); for (let i = 0; i <= n; i += 2) Rl.push(tube(.014, x, i * rise, z0 - i * run, x, i * rise + 1.0, z0 - i * run)); });
-      Rl.push(tube(.022, cx - .45, LH + 1.0, -7.62, cx - .45, LH + 1.0, -8.98), tube(.022, x2, LH + 1.0, -7.62, cx - .45, LH + 1.0, -7.62)); for (let k = 0; k <= 6; k++) Rl.push(tube(.014, x2 + k * (cx - .45 - x2) / 6, LH, -7.62, x2 + k * (cx - .45 - x2) / 6, LH + 1.0, -7.62));
-      meshAt(merge(Tr), mStairPlate, 0, 0, 0); meshAt(merge(Sg), mRust, 0, 0, 0); meshAt(merge(Rl), mRailSteel, 0, 0, 0);
-      plane(cur.interior, mDoor, 1.0, 2.0, cx - 1.9, LH + 1.0, -9.57); add(mDarkMetal, 1.2, .1, .08, cx - 1.9, LH + 2.0, -9.55);   // 층참 위 철문 (옥외 비상계단 · 잠김)
-      meshAt(new THREE.TorusGeometry(.1, .02, 6, 14), mRust, cx - 1.6, LH + 1.0, -9.5); add(S(null, { color: 0x6a5a30, metalness: .8, roughness: .4 }), .12, .14, .05, cx - 1.6, LH + .82, -9.5);
-      plane(cur.interior, new THREE.MeshBasicMaterial({ map: T.makeSign('옥외 비상계단 · 폐쇄', '#3a0a0a', '#e8c0b0', 22), color: 0xb0a8a0 }), 1.1, .26, cx - 1.9, LH + 2.3, -9.56);
-      col(x1, x2, -9.6, -2.6); col(cx - 3.4, cx - .4, -9.6, -7.6); }
-    { const d = X(6.0, 6.6, 1.0, 1.1); } // 2 잠긴 철문 → 북쪽 벽의 철문(정문 열쇠 필요)
+    const W = cx - 3.85, E = cx + 3.85, N = -9.6, fr = b1m('fireR', 0xb01818, .4, .45), fr2 = b1m('fireR2', 0x8a1010, .5, .4);
+    // 소방 펌프 2 (서북쪽 받침 위): 모터 + 볼류트 + 배관
+    [-8.4, -6.6].forEach(z => { const x = W + 1.3; b1Plinth(x - .9, x + .9, z - .6, z + .6, .15);
+      meshAt(merge([new THREE.CylinderGeometry(.3, .3, .9, 16).rotateZ(Math.PI / 2).translate(-.35, .6, 0), new THREE.SphereGeometry(.38, 14, 10).scale(1, 1, .8).translate(.4, .6, 0), new THREE.CylinderGeometry(.12, .12, .9, 12).translate(.4, 1.3, 0), bx(1.6, .12, .8, 0, .21, 0)]), fr, x, 0, z); gauge(x + .4, 1.5, z + .3); col(x - .9, x + .9, z - .6, z + .6); });
+    // 압력탱크 (북동, 비상문 옆) · 소방 제어반 2 (서벽 남측) · 소화기함 (동벽)
+    cyl(fr, .6, 1.5, E - .75, 0, N + .75, 22); meshAt(new THREE.SphereGeometry(.6, 18, 9), fr, E - .75, 1.5, N + .75); col(E - 1.4, E - .1, N + .1, N + 1.4);
+    cabinetRow(W + .22, -4.0, 2.0, Math.PI / 2, 2.0, .4, fr); col(W, W + .45, -5.0, -3.0);
+    [-6.4, -4.2].forEach(z => { add(fr, .25, 1.0, .7, E - .13, .3, z); add(b1m('glassR', 0xe8e0d8, .3, .1), .01, .5, .5, E - .26, .6, z); });
+    // 소화 배관: 서벽 · 북벽 수직 + 천장 아래 주배관 + 동벽 하강관 · 밸브
+    b1Pipes([[.15, W + .25, 0, N + .3, W + .25, CH, N + .3], [.12, W + 2.3, 1.3, -8.4, W + 2.3, CH - .3, -8.4], [.12, W + 2.3, 1.3, -6.6, W + 2.3, CH - .3, -6.6], [.15, W + .25, CH - .3, N + .3, E - .3, CH - .3, N + .3], [.12, W + .3, CH - .3, N + .3, W + .3, CH - .3, -3.0],
+      [.1, E - .25, CH - .3, N + .3, E - .25, CH - .3, -3.5], [.1, E - .25, .4, -3.5, E - .25, CH - .3, -3.5], [.08, E - .75, 1.5, N + .75, E - .75, CH - .3, N + .75], [.1, W + 2.3, CH - .3, -8.4, W + 2.3, CH - .3, -6.6]], fr2);
+    [[W + .4, 1.2, N + .3, 0], [E - .38, 1.0, -3.5, -Math.PI / 2], [W + 2.3, 2.2, -7.5, Math.PI / 2]].forEach(([x, y, z, ry]) => valveWheel(x, y, z, ry, .15));
+    b1Trench(cx - 3.0, cx + 3.0, -2.95, -2.75);
+    // 북벽 잠긴 비상 철문 (정문 열쇠 필요 → 탈출)
     plane(cur.interior, mDoor, 1.3, 2.3, cx + 1.4, 1.15, -9.57);
     add(mDarkMetal, 1.5, .12, .1, cx + 1.4, 2.3, -9.55); meshAt(new THREE.TorusGeometry(.12, .025, 6, 14), mRust, cx + 1.4, 1.1, -9.48); add(S(null, { color: 0x6a5a30, metalness: .8, roughness: .4 }), .14, .16, .06, cx + 1.4, .9, -9.45);
     plane(cur.interior, new THREE.MeshBasicMaterial({ map: T.makeSign('비 상 구', '#0a3a1a', '#7dffa0', 30) }), 1.2, .3, cx + 1.4, 2.65, -9.56);
-    exitSign(cx + 3.8, 2.6, -5.0, -Math.PI / 2);   // 3 비상 표지
+    exitSign(cx + 3.8, 2.6, -5.0, -Math.PI / 2);
     glowAt(cx + 1.4, 1.4, -8.6, 4, glowRed);
-    { const l = X(3.1, 7.2, 1.0, 1.0);  // 4 휴대 비상등 (건전지)
-      meshAt(merge([bx(.25, .16, .12, 0, .08, 0), tube(.01, -.08, .16, 0, .08, .16, 0)]), S(null, { color: 0xd8b020, roughness: .5 }), l.x, 0, l.z, .4); glowAt(l.x, .12, l.z + .1, .35, T.makeGlow('255,230,160')); addBattery(l.x + .35, 0, l.z); }
+    { const x = cx - .4, z = -2.4;   // 휴대 비상등 (건전지)
+      meshAt(merge([bx(.25, .16, .12, 0, .08, 0), tube(.01, -.08, .16, 0, .08, .16, 0)]), S(null, { color: 0xd8b020, roughness: .5 }), x, 0, z, .4); glowAt(x, .12, z + .1, .35, T.makeGlow('255,230,160')); addBattery(x + .35, 0, z); }
     doors.push({ floor: cur.f, x: cx + 1.4, z: -8.5, r: 1.9, label: '비상 통로 (정문 방향)', need: KEY_NAMES.length, to: { floor: 0, x: -12, z: 67.5, yaw: Math.PI } });
     papers(cx, -8, -2.4, 6);
   }

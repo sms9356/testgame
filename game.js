@@ -6,21 +6,21 @@ import { createPsychologicalDirector, PHENOMENON_LABELS } from './psychologicalH
 import { settleStoryGhost, tickStoryGhost, showStoryGhost } from './storyGhost.js';
 import { GLTFLoader } from './vendor/addons/loaders/GLTFLoader.js';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { createNPCVisuals } from './npcVisuals.js?v=212';
-import { applyGuardSeatedPose } from './guardSeatedPose.js?v=212';
+import { createNPCVisuals } from './npcVisuals.js?v=213';
+import { applyGuardSeatedPose } from './guardSeatedPose.js?v=213';
 import { createCampusCctvLive, collectCampusCctvFeeds } from './campusCctvLive.js';
-import { applyExteriorFloorVisibility, shouldStreamGuardCctv } from './exteriorRenderBudget.js?v=212';
-import { GUARD_LAYOUT } from './guardRoomLayout.js?v=212';
-import { ANNEX_KEYS, CABINET_CODE } from './guardAnnex.js?v=212';
-import { installGuardRoom } from './guardRoom.js?v=212';
+import { applyExteriorFloorVisibility, shouldStreamGuardCctv } from './exteriorRenderBudget.js?v=213';
+import { GUARD_LAYOUT } from './guardRoomLayout.js?v=213';
+import { ANNEX_KEYS, CABINET_CODE } from './guardAnnex.js?v=213';
+import { installGuardRoom } from './guardRoom.js?v=213';
 import { prepareModelGeometry } from './modelGeometry.js';
 import { modelFootprint, overlaps, removeDuplicateModels } from './placement.js';
-import { turfMaterial } from './campusVisuals.js?v=212';
+import { turfMaterial } from './campusVisuals.js?v=213';
 import { installInfirmaryAssets, updateInfirmaryCabinets } from './infirmaryAssets.js';
-import { installRebuild } from './rebuildGame.js?v=212';
-import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js?v=212'; import { updateWindowFakes } from './windowInteriors.js?v=212';
-import { drawMap } from './map.js?v=212';
-import { buildMegaCampus15000, MEGA_CAMPUS_ZONES } from './megaCampus15000.js?v=212';
+import { installRebuild } from './rebuildGame.js?v=213';
+import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js?v=213'; import { updateWindowFakes } from './windowInteriors.js?v=213';
+import { drawMap } from './map.js?v=213';
+import { buildMegaCampus15000, MEGA_CAMPUS_ZONES } from './megaCampus15000.js?v=213';
 import { makeDress, makeHair, makeGhostFace, makeGraffiti, makeKeypad, loadPBR, pbr, makeGlow as makeGlowTex, makePaintingStare, makeSign, makeBlood } from './tex.js';
 import { warmUp } from './bake.js';
 import { createStaticDistanceLOD } from './staticDistanceLOD.js';
@@ -39,14 +39,14 @@ import './classroomRemodelPatch.js';  // 교실 리모델링 · 의자에 앉기
 import './subGhostSystem.js';         // 서브 유령 8종 시트지 엔진 (사용자 제공) → window.subGhostSystem
 import './school37RoomsPatch.js';    // 본관 · 별관 37개 특별실 가구 · 동선 (사용자 제공) → window.school37RoomsPatch
 import './new37UniquePatch.js';     // 37개 구역 신규 특수 설비 · 벽면 레일 (사용자 제공) → window.new37UniquePatch
-import './megaExpansionPatch.js?v=212';   // 메가 익스팬션 · 최적화 · 4막 사건 기록 · 수집품 · 미니게임 (사용자 제공) → window.megaSchoolPatch
+import './megaExpansionPatch.js?v=213';   // 메가 익스팬션 · 최적화 · 4막 사건 기록 · 수집품 · 미니게임 (사용자 제공) → window.megaSchoolPatch
 import './poolMachineryPatch.js';     // 수영장 · 남/녀 탈의실·샤워실 · 기계실 철문 (사용자 제공) → window.poolAndMachineryPatch
-import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx, setSfxBusyCheck } from './audio.js?v=212'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=212'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera } from './perfStabilizer.js?v=212';
-import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js?v=212';
-import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, HYPOTHESES, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, SIDEQUESTS, HEADQUEST, COLLECT, LOCKER_SCARES, CHALK_QA, OUIJA_QS, PARA, TOILET_FX, MIRROR_WORDS } from './story.js?v=212';
+import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx, setSfxBusyCheck } from './audio.js?v=213'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=213'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera } from './perfStabilizer.js?v=213';
+import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js?v=213';
+import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, HYPOTHESES, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, SIDEQUESTS, HEADQUEST, COLLECT, LOCKER_SCARES, CHALK_QA, OUIJA_QS, PARA, TOILET_FX, MIRROR_WORDS } from './story.js?v=213';
 import { isSpeechBusy } from './voice.js';
 import { SET, saveSET, resetSET, DIFF, keyLabel } from './settings.js';
-import { initI18n, setLang, lang as curLang } from './i18n.js?v=212';   // 언어 패치 (한국어 · English · 日本語 · 中文)
+import { initI18n, setLang, lang as curLang } from './i18n.js?v=213';   // 언어 패치 (한국어 · English · 日本語 · 中文)
 initI18n();
 const K = () => SET.keys;
 let guardRoomController = null, guardControlProps = [], guardCctvData = null, campusCctv = null;
@@ -65,7 +65,7 @@ function syncGuardDevices() {
 function toggleGuardCCTV(persist = true) { FL.guardCctvOn = !(FL.guardCctvOn ?? true); sfx.click(); syncGuardDevices(); if (persist) save(true); return FL.guardCctvOn; }
 function toggleGuardLight() { FL.guardLightOn = !(FL.guardLightOn ?? false); sfx.click(); syncGuardDevices(); say(FL.guardLightOn ? '경비실 전등을 켰다' : '경비실 전등을 껐다', 1800); save(true); return FL.guardLightOn; }
 
-import { run as runMini, MG } from './minigames.js?v=212';
+import { run as runMini, MG } from './minigames.js?v=213';
 import { SCHEMA, BUILD, storageKeys, itemUid, propUid, doorUid, assignUids, readSlot, writeSlot, hasSlot, clearSlot, repairProgress } from './saveSystem.js';
 const NOTE_CAST = {
   n_seomun_ilbo: { spk: 'reporter', audioId: 'call_119', stage: '(📰 서문일보 사회부 한진우 기자의 긴급 특보 리포팅)' },
@@ -2873,7 +2873,7 @@ function ensureCharsel3D() {
     const rim = new THREE.DirectionalLight(0xffd6e0, 0.85); rim.position.set(0, 2.4, -2.5);
     sc.add(hemi, key, fill, rim);
     st.scenes[k] = sc;
-    loader.load(`assets/characters/${k}.glb?v=212`, gltf => {
+    loader.load(`assets/characters/${k}.glb?v=213`, gltf => {
       const m = gltf.scene;
       npcVisuals.enhanceCharacterMaterials?.(m, k);
       m.traverse(o => { if (o.isMesh || o.isSkinnedMesh) o.frustumCulled = false; });
@@ -8639,19 +8639,46 @@ function megaNotify(m) { const t = String(m).split('\n'); say(t[0].replace(/^\S+
     world.props.push({ kind: 'robj', k: 'bunker_light', t: 'bunker', floor: 4, x: bx + 1.15, z: z1 - .85, y: 1.35, r: 2.0, label: '방공호 주 전등 스위치 조작하기', bkLightGroup });
     {
       const bLoader = new GLTFLoader();
-      bLoader.load('assets/models/sf/sf_bunker_props_pack.glb?v=212', gltf => {
+      bLoader.load('assets/models/sf/sf_bunker_props_pack.glb?v=213', gltf => {
         const bm = gltf.scene; bm.position.set(bx, 0, z0 + .45);
         if (window.__upgradePure3DScene) window.__upgradePure3DScene(bm); else bm.traverse(o => { o.userData.dynamic = true; });
         R.add(bm);
         if (gltf.animations && gltf.animations.length) { const mx = new THREE.AnimationMixer(bm); mx.userData = { floor: 4, x: bx, z: z0 + .45 }; gltf.animations.forEach(c => mx.clipAction(c).play()); (window.__campusAnimMixers ||= []).push(mx); }
       }, undefined, () => {});
-      bLoader.load('assets/models/sf/sf_pump_policeline_scene.glb?v=212', gltf => {
+      bLoader.load('assets/models/sf/sf_pump_policeline_scene.glb?v=213', gltf => {
         const pm = gltf.scene; pm.position.set(32.0, 0, -3.65);
         pm.traverse(o => { o.userData.dynamic = true; if (o.isMesh) { o.castShadow = false; o.receiveShadow = true; if (o.material?.map) o.material.map.colorSpace = THREE.SRGBColorSpace; } });
         R.add(pm);
         if (gltf.animations && gltf.animations.length) { const mx = new THREE.AnimationMixer(pm); mx.userData = { floor: 4, x: 32.0, z: -3.65 }; gltf.animations.forEach(c => mx.clipAction(c).play()); (window.__campusAnimMixers ||= []).push(mx); }
       }, undefined, () => {});
     }
+    // 특수보존서고 리모델링 (참고 시트 12.0 × 20.0m · 천장 3.4m): 벽면 고정 서고 선반 (900×450×2100) · 중앙 양면 서가 2열 · 가운데 열람/작업 테이블 (1800×900×740) + 사무용 의자 · 이동식 서가 (모바일랙) 블록 · 문서 카트 · 제습기 · 소화기함 — 기존 철제 캐비닛 4 · 서류함(감사 기록) · 방폭문 동선 유지
+    { const shG = [], bxG = [], mobG = [], stM = PM(0x2e3a30, .55, .55), cbM = PM(0xb08a58, .9, 0), mobM = PM(0x8a8a70, .5, .4);
+      const B = (arr, w, h, d, x, y, z) => arr.push(new THREE.BoxGeometry(w, h, d).translate(x, y, z));
+      const shelf = (cx, cz, len, alongZ, dep = .45) => { const W = alongZ ? dep : len, D = alongZ ? len : dep, n = Math.max(1, Math.round(len / .9));
+        [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([a, b]) => B(shG, .04, 2.1, .04, cx + a * (W / 2 - .02), 1.05, cz + b * (D / 2 - .02)));
+        for (let k = 1; k < n; k++) { const t = -len / 2 + k * len / n; B(shG, alongZ ? dep : .04, 2.1, alongZ ? .04 : dep, cx + (alongZ ? 0 : t), 1.05, cz + (alongZ ? t : 0)); }
+        for (let r = 0; r < 5; r++) { const y = .08 + r * .48; B(shG, W, .025, D, cx, y, cz); if (r < 4) for (let k = 0; k < n * 2; k++) { const t = -len / 2 + (k + .5) * len / (n * 2); if ((k * 7 + r * 3) % 9 === 0) continue; B(bxG, alongZ ? .3 : .38, .25, alongZ ? .38 : .3, cx + (alongZ ? 0 : t), y + .14, cz + (alongZ ? t : 0)); } }
+        F4.col.push({ x1: cx - W / 2, x2: cx + W / 2, z1: cz - D / 2, z2: cz + D / 2 }); };
+      // 벽면 고정 선반 (기존 철제 캐비닛 자리 비움)
+      [[z0 + .55, -32.1], [-28.9, -23.6], [-20.4, z1 - .7]].forEach(([a, b]) => { shelf(x0 + .57, (a + b) / 2, b - a, true); shelf(x1 - .57, (a + b) / 2, b - a, true); });
+      // 중앙 양면 서가 2열 (가운데 교차 통로)
+      [x0 + 2.7, x1 - 2.7].forEach(x => [[-31.5, -26.6], [-24.4, -17.6]].forEach(([a, b]) => shelf(x, (a + b) / 2, b - a, true, .9)));
+      // 이동식 서가 블록 (900×600×2100 × 4, 핸들 휠)
+      for (let k = 0; k < 4; k++) { const x = bx - .9 + k * .6, z = -22.0; B(mobG, .58, 2.1, 1.8, x, 1.05, z); [-.5, .5].forEach(d => B(shG, .04, .04, .2, x, 1.2, z + d + (d > 0 ? .9 : -.9) * 0)); }
+      F4.col.push({ x1: bx - 1.2, x2: bx + 1.2, z1: -22.9, z2: -21.1 });
+      R.add(new THREE.Mesh(mergeGeometries(shG), stM), new THREE.Mesh(mergeGeometries(bxG), cbM), new THREE.Mesh(mergeGeometries(mobG), mobM));
+      for (let k = 0; k < 4; k++) pbox(.04, .3, .3, PM(0x1a1a1a, .5, .6), bx - .9 + k * .6, 1.2, -20.98, R, { cast: false });   // 손잡이 휠
+      // 열람/작업 테이블 + 사무용 의자 + 보존 상자
+      { const tz = -29.0, tM = PM(0x9a7a50, .6, 0), lM = PM(0x1e1e1e, .5, .6); pbox(.9, .04, 1.8, tM, bx, .72, tz, R); [[-.4, -.85], [.4, -.85], [-.4, .85], [.4, .85]].forEach(([a, b]) => pbox(.05, .7, .05, lM, bx + a, .35, tz + b, R));
+        F4.col.push({ x1: bx - .45, x2: bx + .45, z1: tz - .9, z2: tz + .9, h: .74 });
+        pbox(.5, .08, .5, lM, bx + .85, .48, tz + .3, R); pbox(.06, .5, .45, lM, bx + 1.08, .8, tz + .3, R); pcyl(.03, .03, .45, lM, bx + .85, .22, tz + .3, R);
+        [[-.1, -.4], [.15, .1]].forEach(([a, b]) => pbox(.4, .25, .3, cbM, bx + a, .865, tz + b, R)); }
+      // 문서 카트 (900×600×1000) · 제습기 (700×600×1800) · 소화기함 (700×250×1000)
+      { const x = bx + 1.6, z = -17.6, cM = PM(0x2e3a30, .5, .5); pbox(.6, .03, .9, cM, x, .35, z, R); pbox(.6, .03, .9, cM, x, .95, z, R); [[-.28, -.43], [.28, -.43], [-.28, .43], [.28, .43]].forEach(([a, b]) => pbox(.03, .95, .03, cM, x + a, .5, z + b, R));
+        pbox(.38, .3, .4, cbM, x, 1.12, z - .2, R); pbox(.38, .3, .4, cbM, x, .52, z + .2, R); F4.col.push({ x1: x - .3, x2: x + .3, z1: z - .45, z2: z + .45 }); }
+      pbox(.7, 1.8, .6, PM(0xe0ddd4, .5, .1), x0 + 1.4, .9, z1 - .4, R); F4.col.push({ x1: x0 + 1.05, x2: x0 + 1.75, z1: z1 - .7, z2: z1 - .1 });
+      pbox(.7, 1.0, .25, PM(0xb81e1e, .5, .2), x1 - 1.4, 1.0, z1 - .14, R); }
     world.props.push({ kind: 'robj', k: 'bunker_audit', t: 'bunker', floor: 4, x: bx - 1.6, z: z0 + 1.4, y: 1.1, r: 2.4, label: '방공호 기밀 철제 서류함 & 수동 환기 송풍기 조사하기' });
     world.props.push({ kind: 'robj', k: 'pump_newspaper', t: 'pump', floor: 4, x: 32.0, z: -3.45, y: .8, r: 2.5, label: '폴리스라인 안쪽 1998년 『서문일보』 지역신문 호외 읽기' });
     world.doors.push({ floor: 4, x: 13.5, z: -1.1, r: 1.6, label: '방공호 방폭문 열기 (제1특수보존서고 진입)', to: { floor: 4, x: bx, z: z1 - 1.35, yaw: 0 }, blastDoor: bdCorr });

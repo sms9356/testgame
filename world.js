@@ -4,12 +4,12 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { buildGuardAnnex, buildDutyRoom, ANNEX as GANX } from './guardAnnex.js?v=197';
-import { NOTES } from './story.js?v=197';
+import { buildGuardAnnex, buildDutyRoom, ANNEX as GANX } from './guardAnnex.js?v=199';
+import { NOTES } from './story.js?v=199';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=197';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=199';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -23,7 +23,7 @@ export const LAYOUT = [
     names: ['방송편집실', '방송실', '3-1', '3-3', '중앙계단', '3-4', '3-5', '3학년 정독실', '진학상담실'] },
   null,
   { types: ['exit', 'boiler', 'electric', 'storage', 'stair', 'records', 'cleaning', 'generator', 'pump'],
-    names: ['비상 계단실', '보일러실', '전기실', '자재실 · 창고', '진입 계단실', '문서 보관실', '청소도구실', '기계실', '펌프실'] },
+    names: ['비상 계단실', '기계실 (보일러)', '유지보수실 · 전기실', '창고', '진입 계단실', '문서 보관실', '소방시설 · 청소도구실', '기계실 (발전기)', '펌프실'] },   // 지하 1층: 기계실 · 펌프실 · 유지보수실 · 문서보관실 · 창고 · 소방시설 · 방공호(벙커)
 ];
 // 본관 남쪽 방 줄 (1층 중앙현관 옆은 보건실, 3층 방송편집실은 확장된 3층 방송실 내부로 통합하고 3층 동측은 여자화장실·남자화장실 나란히 배치)
 export const LAYOUT_S = [
@@ -3724,6 +3724,7 @@ export function buildWorld(scene) {
     [-40.5, -37.5].forEach(x => add(mWoodDark, .12, 3.1, .4, x, 0, z1 - .15)); add(mWoodDark, 3.12, .12, .4, -39, 3.04, z1 - .15);
     plane(F.interior, new THREE.MeshBasicMaterial({ map: T.makeSign('비상구', '#0a3a1a', '#7dffa0', 30) }), 1.4, .35, -39, 3.5, z1 - t - .02, Math.PI);
     [11, 15, 19].forEach(z => win3D(F.interior, 2.4, 1.6, x0 + t + .02, 2.4, z, Math.PI / 2));
+    restroomWC(x0 + t, z1 - t, 1, -1, H, '급식실 화장실');   // 서남 구석 (북동은 조리실이라 보행 구역 밖)
     [-45, -34].forEach(x => plane(F.interior, mWin, 3, 1.6, x, 2.4, z1 - t - .02, Math.PI));
     // 배식대 + 조리실
     add(mMetal, 12, .9, .9, -40.2, 0, 12.9, { col: true }); add(mGlass, 12, .35, .6, -40.2, .9, 12.9);
@@ -3967,6 +3968,20 @@ export function buildWorld(scene) {
   }
   const finishGraph = F => { F.adj = F.nodes.map(() => []); F.edges.forEach(([p, q]) => { F.adj[p].push(q); F.adj[q].push(p); }); };
   const awall = (x1, x2, z1, z2, h, y1 = 0, mat = mWall) => { buildLayered1998Wall(cur.interior, x1, x2, z1, z2, y1, h, mat); if (y1 < 1) col(x1, x2, z1, z2, true); };
+  // 화장실 칸 (지하 · 옥상 제외 모든 층 필수): 안쪽 모서리 (cxw, czw)에서 sx · sz 방향으로 2.6 × 2.2m — 문 구멍 칸막이 · 타일 · 변기 · 세면대 · 거울 · 표지
+  const restroomWC = (cxw, czw, sx, sz, h, label = '화장실') => {
+    const W = 2.6, D = 2.2, xa = cxw + sx * W, za = czw + sz * D, xm = Math.min(cxw, xa), xM = Math.max(cxw, xa), zm = Math.min(czw, za), zM = Math.max(czw, za);
+    const porc = S(null, { color: 0xf2f2ee, roughness: .25 }), tile = S(null, { color: 0xd8dcd8, roughness: .35 });
+    flat(cur.interior, tile, xm, xM, zm, zM, .03, 2);
+    const d1 = Math.min(czw + sz * .5, czw + sz * 1.4), d2 = Math.max(czw + sz * .5, czw + sz * 1.4);
+    awall(xa - .06, xa + .06, zm, d1, h); awall(xa - .06, xa + .06, d2, zM, h); awall(xa - .06, xa + .06, d1, d2, h, 2.1);
+    awall(xm - .06, xM + .06, za - .06, za + .06, h);
+    const tx = cxw + sx * .45, tz = czw + sz * 1.55; add(porc, .42, .4, .55, tx, 0, tz, { col: true }); add(porc, .2, .45, .5, cxw + sx * .12, .45, tz);
+    const kx = cxw + sx * 1.9, kz = czw + sz * .3; add(porc, .5, .14, .4, kx, .78, kz); add(porc, .08, .78, .08, kx, 0, kz);
+    plane(cur.interior, S(null, { color: 0x9fb4bc, roughness: .1, metalness: .6 }), .5, .7, kx, 1.55, czw + sz * .02, sz > 0 ? 0 : Math.PI);
+    plane(cur.interior, new THREE.MeshBasicMaterial({ map: T.makeSign('🚻 ' + label, '#1f3f6f', '#ffffff', 26) }), .9, .24, xa - sx * .08, 2.3, (d1 + d2) / 2, sx > 0 ? -Math.PI / 2 : Math.PI / 2);
+    props.push({ kind: 'robj', k: 'campus_wc', floor: cur.f, x: tx + sx * .6, z: tz - sz * .4, y: .6, r: 1.3, label: label + ' 세면대 · 변기 살펴보기' });
+  };
   function areaLamp(x, z, y, room = null) {
     const r = rnd(); const kind = room ? (r < .62 ? 'on' : r < .85 ? 'flick' : 'dead') : (r < .45 ? 'on' : r < .75 ? 'flick' : 'dead');
     const m = kind === 'on' ? matLampOn : kind === 'dead' ? matLampDead : flickerMats[(rnd() * 4) | 0];
@@ -4027,6 +4042,7 @@ export function buildWorld(scene) {
     flat(F.interior, mCeil, x0, x1, z0, z1, H - .1, 4, false);
     // 서쪽 벽: z 17.2 ~ 19.6 구간을 개방하여 신설 확장 구역(체육교사실 · 용구보관실 x: 20~28, z: 12~26)과 연결!
     awall(x0, x0 + t, z0, 17.2, H); awall(x0, x0 + t, 19.6, z1, H); awall(x0, x0 + t, 17.2, 19.6, H, 2.55);
+    restroomWC(x0 + t, z1 - t, 1, -1, 3.2, '체육관 화장실');
     add(mWoodDark, .38, 2.55, .12, x0 + .15, 0, 17.2); add(mWoodDark, .38, 2.55, .12, x0 + .15, 0, 19.6); add(mWoodDark, .38, .12, 2.52, x0 + .15, 2.55, 18.4);
     plane(F.interior, new THREE.MeshBasicMaterial({ map: T.makeSign('← 체육교사실 · 용구보관실', '#1e2e26', '#e4ecd8', 24) }), 1.8, .34, x0 + t + .03, 2.85, 18.4, Math.PI / 2);
 
@@ -4182,6 +4198,7 @@ export function buildWorld(scene) {
     flat(F.interior, mFloorTile, x0, x1, z0, bz0 - .3, .01, 3); flat(F.interior, mFloorTile, x0, x1, bz1 + .3, z1, .01, 3);
     flat(F.interior, mFloorTile, x0, bx0 - .3, bz0 - .3, bz1 + .3, .01, 3); flat(F.interior, mFloorTile, bx1 + .3, x1, bz0 - .3, bz1 + .3, .01, 3);
     flat(F.interior, mCeil, x0, x1, z0, z1, H - .1, 4, false);
+    restroomWC(x1 - t, z0 + t, -1, 1, 3.2, '수영장 화장실');
     // 외벽 (서벽 x0 는 체온유지실 통로 z 24.2~26.2 및 수질관리실·다이빙풀 통로 z 34.0~36.6 을 열어 공간 확장과 연결한다!)
     awall(x0, x0 + t, z0, 24.2, H); awall(x0, x0 + t, 26.2, 34.0, H); awall(x0, x0 + t, 36.6, z1, H);
     awall(x0, x0 + t, 24.2, 26.2, H, 2.4); awall(x0, x0 + t, 34.0, 36.6, H, 2.5);

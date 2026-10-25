@@ -4,12 +4,12 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { buildGuardAnnex, buildDutyRoom, ANNEX as GANX } from './guardAnnex.js?v=197';
-import { NOTES } from './story.js?v=197';
+import { buildGuardAnnex, buildDutyRoom, ANNEX as GANX } from './guardAnnex.js?v=198';
+import { NOTES } from './story.js?v=198';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=197';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=198';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -23,7 +23,7 @@ export const LAYOUT = [
     names: ['방송편집실', '방송실', '3-1', '3-3', '중앙계단', '3-4', '3-5', '3학년 정독실', '진학상담실'] },
   null,
   { types: ['exit', 'boiler', 'electric', 'storage', 'stair', 'records', 'cleaning', 'generator', 'pump'],
-    names: ['비상 계단실', '보일러실', '전기실', '자재실 · 창고', '진입 계단실', '문서 보관실', '청소도구실', '기계실', '펌프실'] },
+    names: ['비상 계단실', '기계실 (보일러)', '유지보수실 · 전기실', '창고', '진입 계단실', '문서 보관실', '소방시설 · 청소도구실', '기계실 (발전기)', '펌프실'] },   // 지하 1층: 기계실 · 펌프실 · 유지보수실 · 문서보관실 · 창고 · 소방시설 · 방공호(벙커)
 ];
 // 본관 남쪽 방 줄 (1층 중앙현관 옆은 보건실, 3층 방송편집실은 확장된 3층 방송실 내부로 통합하고 3층 동측은 여자화장실·남자화장실 나란히 배치)
 export const LAYOUT_S = [

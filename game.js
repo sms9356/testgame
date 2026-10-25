@@ -6,21 +6,21 @@ import { createPsychologicalDirector, PHENOMENON_LABELS } from './psychologicalH
 import { settleStoryGhost, tickStoryGhost, showStoryGhost } from './storyGhost.js';
 import { GLTFLoader } from './vendor/addons/loaders/GLTFLoader.js';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { createNPCVisuals } from './npcVisuals.js?v=197';
-import { applyGuardSeatedPose } from './guardSeatedPose.js?v=197';
+import { createNPCVisuals } from './npcVisuals.js?v=198';
+import { applyGuardSeatedPose } from './guardSeatedPose.js?v=198';
 import { createCampusCctvLive, collectCampusCctvFeeds } from './campusCctvLive.js';
-import { applyExteriorFloorVisibility, shouldStreamGuardCctv } from './exteriorRenderBudget.js?v=197';
-import { GUARD_LAYOUT } from './guardRoomLayout.js?v=197';
-import { ANNEX_KEYS, CABINET_CODE } from './guardAnnex.js?v=197';
-import { installGuardRoom } from './guardRoom.js?v=197';
+import { applyExteriorFloorVisibility, shouldStreamGuardCctv } from './exteriorRenderBudget.js?v=198';
+import { GUARD_LAYOUT } from './guardRoomLayout.js?v=198';
+import { ANNEX_KEYS, CABINET_CODE } from './guardAnnex.js?v=198';
+import { installGuardRoom } from './guardRoom.js?v=198';
 import { prepareModelGeometry } from './modelGeometry.js';
 import { modelFootprint, overlaps, removeDuplicateModels } from './placement.js';
-import { turfMaterial } from './campusVisuals.js?v=197';
+import { turfMaterial } from './campusVisuals.js?v=198';
 import { installInfirmaryAssets, updateInfirmaryCabinets } from './infirmaryAssets.js';
-import { installRebuild } from './rebuildGame.js?v=197';
-import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js?v=197'; import { updateWindowFakes } from './windowInteriors.js?v=197';
-import { drawMap } from './map.js?v=197';
-import { buildMegaCampus15000, MEGA_CAMPUS_ZONES } from './megaCampus15000.js?v=197';
+import { installRebuild } from './rebuildGame.js?v=198';
+import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js?v=198'; import { updateWindowFakes } from './windowInteriors.js?v=198';
+import { drawMap } from './map.js?v=198';
+import { buildMegaCampus15000, MEGA_CAMPUS_ZONES } from './megaCampus15000.js?v=198';
 import { makeDress, makeHair, makeGhostFace, makeGraffiti, makeKeypad, loadPBR, pbr, makeGlow as makeGlowTex, makePaintingStare, makeSign, makeBlood } from './tex.js';
 import { warmUp } from './bake.js';
 import { createStaticDistanceLOD } from './staticDistanceLOD.js';
@@ -39,14 +39,14 @@ import './classroomRemodelPatch.js';  // 교실 리모델링 · 의자에 앉기
 import './subGhostSystem.js';         // 서브 유령 8종 시트지 엔진 (사용자 제공) → window.subGhostSystem
 import './school37RoomsPatch.js';    // 본관 · 별관 37개 특별실 가구 · 동선 (사용자 제공) → window.school37RoomsPatch
 import './new37UniquePatch.js';     // 37개 구역 신규 특수 설비 · 벽면 레일 (사용자 제공) → window.new37UniquePatch
-import './megaExpansionPatch.js?v=197';   // 메가 익스팬션 · 최적화 · 4막 사건 기록 · 수집품 · 미니게임 (사용자 제공) → window.megaSchoolPatch
+import './megaExpansionPatch.js?v=198';   // 메가 익스팬션 · 최적화 · 4막 사건 기록 · 수집품 · 미니게임 (사용자 제공) → window.megaSchoolPatch
 import './poolMachineryPatch.js';     // 수영장 · 남/녀 탈의실·샤워실 · 기계실 철문 (사용자 제공) → window.poolAndMachineryPatch
-import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx, setSfxBusyCheck } from './audio.js?v=197'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=197'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera } from './perfStabilizer.js?v=197';
-import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js?v=197';
-import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, HYPOTHESES, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, SIDEQUESTS, HEADQUEST, COLLECT, LOCKER_SCARES, CHALK_QA, OUIJA_QS, PARA, TOILET_FX, MIRROR_WORDS } from './story.js?v=197';
+import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx, setSfxBusyCheck } from './audio.js?v=198'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=198'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera } from './perfStabilizer.js?v=198';
+import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js?v=198';
+import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, HYPOTHESES, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, SIDEQUESTS, HEADQUEST, COLLECT, LOCKER_SCARES, CHALK_QA, OUIJA_QS, PARA, TOILET_FX, MIRROR_WORDS } from './story.js?v=198';
 import { isSpeechBusy } from './voice.js';
 import { SET, saveSET, resetSET, DIFF, keyLabel } from './settings.js';
-import { initI18n, setLang, lang as curLang } from './i18n.js?v=197';   // 언어 패치 (한국어 · English · 日本語 · 中文)
+import { initI18n, setLang, lang as curLang } from './i18n.js?v=198';   // 언어 패치 (한국어 · English · 日本語 · 中文)
 initI18n();
 const K = () => SET.keys;
 let guardRoomController = null, guardControlProps = [], guardCctvData = null, campusCctv = null;
@@ -65,7 +65,7 @@ function syncGuardDevices() {
 function toggleGuardCCTV(persist = true) { FL.guardCctvOn = !(FL.guardCctvOn ?? true); sfx.click(); syncGuardDevices(); if (persist) save(true); return FL.guardCctvOn; }
 function toggleGuardLight() { FL.guardLightOn = !(FL.guardLightOn ?? false); sfx.click(); syncGuardDevices(); say(FL.guardLightOn ? '경비실 전등을 켰다' : '경비실 전등을 껐다', 1800); save(true); return FL.guardLightOn; }
 
-import { run as runMini, MG } from './minigames.js?v=197';
+import { run as runMini, MG } from './minigames.js?v=198';
 import { SCHEMA, BUILD, storageKeys, itemUid, propUid, doorUid, assignUids, readSlot, writeSlot, hasSlot, clearSlot, repairProgress } from './saveSystem.js';
 const NOTE_CAST = {
   n_seomun_ilbo: { spk: 'reporter', audioId: 'call_119', stage: '(📰 서문일보 사회부 한진우 기자의 긴급 특보 리포팅)' },
@@ -545,10 +545,10 @@ function objective() {
   }
   if (!FL.gatekey) return { ch: 5, main: '소지품(Tab)에서 5대 비밀 증거 조각과 교장 직인 코어를 조합해 『서문고 진상 규명 기록부』를 완성하라', loc: null, subs: [[`학교 5대 비밀 증거 (${TOTAL}/${TOTAL})`, true], ['교장 직인 마스터 코어', true], ['서문고 진상 규명 마스터 기록부 완성하기', false]] };
   if (!FL.mina) {
-    const i=optSteps().indexOf(false), steps=['지하 펌프실에서 윤하늘의 명찰로 진실 확인','지하 전기실 예비 퓨즈와 차단기로 본관 전력 복구','3층 방송실에서 1998년 하교 방송 및 은폐 진실 송출','방송실 장비실에서 민아 선배 구출'];
+    const i=optSteps().indexOf(false), steps=['지하 펌프실에서 윤하늘의 명찰로 진실 확인','지하 전기실 예비 퓨즈와 차단기로 본관 전력 복구','4층 방송실에서 1998년 하교 방송 및 은폐 진실 송출','방송실 장비실에서 민아 선배 구출'];
     const fuse=world.items.find(it=>it.kind==='fuse');
     const loc=i===1&&!FL.fuse&&fuse?{f:fuse.floor,x:fuse.pos.x,z:fuse.pos.z,where:'예비 퓨즈 — 지하 창고'}:optLoc();
-    return {ch:6,main:'3층 방송실에서 학교가 숨긴 1998년 10월 12일의 진실을 폭로 방송으로 송출하고 민아 선배를 구출하라',loc,subs:steps.map((t,k)=>[t,optSteps()[k]])};
+    return {ch:6,main:'4층 방송실에서 학교가 숨긴 1998년 10월 12일의 진실을 폭로 방송으로 송출하고 민아 선배를 구출하라',loc,subs:steps.map((t,k)=>[t,optSteps()[k]])};
   }
   return {ch:6,main:'학교의 모든 비밀을 규명했다 — 민아 선배와 함께 정문 밖으로 나가 세상에 진실을 폭로하라',loc:LOC.gate,subs:[['진상 규명 기록부 완성 및 민아 구출',true],['정문을 열고 세상에 학교의 비밀 폭로하기',false]]};
 }
@@ -703,7 +703,7 @@ const USE = {
   salt: () => useSalt(), charm: () => '지니고만 있으면 된다. 그것에게 붙잡히는 순간 대신 타오른다.',
   musicbox: () => { closeUI(); setTimeout(placeMusicBox, 80); },
   matches: () => { closeUI(); setTimeout(strikeMatch, 80); },
-  nametag: () => (power ? '3층 방송실 장비에서 이 이름을 불러 줄 수 있다.' : '방송실에서 이 이름을 불러 주려면 먼저 전기가 필요하다.'),
+  nametag: () => (power ? '4층 방송실 장비에서 이 이름을 불러 줄 수 있다.' : '방송실에서 이 이름을 불러 주려면 먼저 전기가 필요하다.'),
   necklace: () => '“첫 녹음 기념. 우리 방송, 오래 하자.” — 민아',
   keys_jihun: () => '민아가 맡겨 둔 열쇠. 꼭 돌려줘야 한다.',
   hairpin: () => '잠긴 서랍이나 보관함 앞에서 E — 자물쇠 따기',
@@ -768,7 +768,7 @@ function makeGateKey() {
   FL.gatekey = true; newItems.add('gatekey'); sfx.unlock(); setFace('resolve', 3);
   toast('『서문고 진상 규명 마스터 기록부』 완성!', '이 학교가 은폐한 5대 비밀이 하나로 증명되었다 · 이제 방송실 송출 및 교문 봉인 해제가 가능하다');
   setTimeout(() => talk('keyMade', 3000), 300);
-  if (FL.calm) setTimeout(() => toast('진실이 밝혀졌다', '꺼지지 않던 방송이 멎고, 기억 속 교실이 조용해졌다. ' + (FL.mina ? '민아와 함께 정문 밖으로 나가 세상에 알리자.' : '…3층 방송실의 민아 선배를 구출하자.'), 'opt'), 2600);
+  if (FL.calm) setTimeout(() => toast('진실이 밝혀졌다', '꺼지지 않던 방송이 멎고, 기억 속 교실이 조용해졌다. ' + (FL.mina ? '민아와 함께 정문 밖으로 나가 세상에 알리자.' : '…4층 방송실의 민아 선배를 구출하자.'), 'opt'), 2600);
   else setTimeout(() => { if (state === 'ui') closeUI(); enrage(); }, 1600);
   refreshHud(); save(true);
 }
@@ -1779,7 +1779,7 @@ async function useRoomObj(p) {
     sfx.pickup(); p.done = true; refreshHud(); return;
   }
   if (k === 'phone') {
-    sfx.click(); const i = await choose('교내 내선 전화기', `${rn || '복도'} 벽에 걸린 구형 내선 전화기. 수화기를 들자 낮은 교환기 신호음이 울린다.`, [{ label: '100 — 정문 경비실', sub: DAY.k > .3 && !FL.night ? '경비 아저씨에게 내선 연결' : '야간 무인 상태' }, { label: '201 — 3층 방송실', sub: '주조정실 내선' }, { label: '302 — 3학년 2반', sub: '폐쇄된 교실 내선' }, { label: '수화기를 내려놓는다' }]);
+    sfx.click(); const i = await choose('교내 내선 전화기', `${rn || '복도'} 벽에 걸린 구형 내선 전화기. 수화기를 들자 낮은 교환기 신호음이 울린다.`, [{ label: '100 — 정문 경비실', sub: DAY.k > .3 && !FL.night ? '경비 아저씨에게 내선 연결' : '야간 무인 상태' }, { label: '201 — 4층 방송실', sub: '주조정실 내선' }, { label: '302 — 3학년 2반', sub: '폐쇄된 교실 내선' }, { label: '수화기를 내려놓는다' }]);
     if (i === 3) { sfx.click(); return; }
     sfx.staticNoise(.8);
     if (i === 0) {
@@ -1988,7 +1988,7 @@ async function winGame() {
     $('endTag').textContent = end === 'true' ? 'TRUE END' : 'NORMAL END'; $('endTag').className = end;
     $('endTitle').textContent = sosOnly ? '옥상의 구조 신호' : allTags ? '모든 영혼의 구원' : end === 'true' ? '폭로 방송' : '다시 닫힌 문';
     if (allTags) setTimeout(() => toast('TRUE END — 모든 영혼의 구원', '열두 개의 명찰이 주인을 찾아 돌아갔다. 1998년의 밤이 비로소 끝났다', 'opt'), 2500);
-    $('winText').innerHTML = (sosOnly ? '정문을 나서자 멀리서 사이렌이 들렸다. 옥상에서 보낸 단 한 통의 문자가, 십 년 동안 아무도 오지 않던 학교에 사람들을 불러왔다.' : VO[vo].text) + `<br><br><span class="epi">${sosOnly ? '— 이튿날 새벽, 구조대는 본관 3층 방송실 장비실에서 잠든 학생 한 명을 더 찾아냈다. 민아였다. 그녀는 아무것도 기억하지 못했다.' : EPILOGUE[end]}</span><br><br><span class="epi">${FINAL_EPI[fin]}</span>` + (end === 'true' ? '' : '<br><br><small style="color:#8a8678">…민아는 아직 방송실에 있다. 하늘의 이야기를 끝내면 다른 결말을 볼 수 있다.</small>');
+    $('winText').innerHTML = (sosOnly ? '정문을 나서자 멀리서 사이렌이 들렸다. 옥상에서 보낸 단 한 통의 문자가, 십 년 동안 아무도 오지 않던 학교에 사람들을 불러왔다.' : VO[vo].text) + `<br><br><span class="epi">${sosOnly ? '— 이튿날 새벽, 구조대는 본관 4층 방송실 장비실에서 잠든 학생 한 명을 더 찾아냈다. 민아였다. 그녀는 아무것도 기억하지 못했다.' : EPILOGUE[end]}</span><br><br><span class="epi">${FINAL_EPI[fin]}</span>` + (end === 'true' ? '' : '<br><br><small style="color:#8a8678">…민아는 아직 방송실에 있다. 하늘의 이야기를 끝내면 다른 결말을 볼 수 있다.</small>');
     if (end === 'normal') setTimeout(() => line('pa1', 'pa'), 9000);
     const nd = docs.length, tot = DOC_TOTAL(), rec = statClear(end, fin);
     $('endStats').innerHTML = `<span>주인공</span><b>${CH().name}</b><span>플레이 시간</span><b>${fmtPT(playTime, true, true)}${rec.isBest ? ' <em style="color:#e8c870;font-style:normal">· 최단 기록!</em>' : rec.best ? ` <small style="color:#8a8678">(최단 ${fmtPT(rec.best, true, true)})</small>` : ''}</b><span>찾은 기록</span><b>${nd} / ${tot}</b><span>교실의 기억</span><b>${memCount()} / ${MEM_TOTAL()}</b><span>마지막 선택</span><b>END ${fin}</b><span>난이도</span><b>${DF().label}</b><span>쓰러진 횟수</span><b>${deaths}</b>`;
@@ -2872,7 +2872,7 @@ function ensureCharsel3D() {
     const rim = new THREE.DirectionalLight(0xffd6e0, 0.85); rim.position.set(0, 2.4, -2.5);
     sc.add(hemi, key, fill, rim);
     st.scenes[k] = sc;
-    loader.load(`assets/characters/${k}.glb?v=197`, gltf => {
+    loader.load(`assets/characters/${k}.glb?v=198`, gltf => {
       const m = gltf.scene;
       npcVisuals.enhanceCharacterMaterials?.(m, k);
       m.traverse(o => { if (o.isMesh || o.isSkinnedMesh) o.frustumCulled = false; });
@@ -3991,7 +3991,7 @@ async function useProp(p) {
     const r = await mini('circuit', { title: '주 차단기 — 배선 연결' }); if (!r.ok) return;
     p.on = true; p.done = true; power = true; sfx.breaker(); shake = .5; P.noiseT = 2.5;
     blackout = Math.max(blackout, .7); GEN.dip = null; GEN.t = 160; setTimeout(() => { sfx.lightOn(); caption('발전기가 멈추고 본전원으로 넘어갔다 — 형광등이 하얗게 안정된다'); }, 800);
-    toast('전력이 복구되었습니다', '3층 방송실 장비를 쓸 수 있다. 큰 소리가 났다…', 'warn');
+    toast('전력이 복구되었습니다', '4층 방송실 장비를 쓸 수 있다. 큰 소리가 났다…', 'warn');
     talk('breaker', 3200); addClue('power'); refreshHud();
     if (ghost.active && ghost.floor === P.floor) { ghost.state = 'search'; ghost.target = { x: P.x, z: P.z }; ghost.wait = 0; ghost.replan = 0; }
   } else if (p.kind === 'tape') {
@@ -7416,7 +7416,7 @@ const CONTACTS = [
   { id: 'guard', name: '정문 경비실', num: '내선 100', icon: '🛡', role: '교내 유선 내선망 (상시 연결)' },
   { id: 'home', name: '집 (엄마)', num: '02-542-3381', icon: '🏠', role: '외부 기지국 신호 필요' },
   { id: '119', name: '119 종합상황실', num: '119', icon: '🚑', role: '긴급 구조 요청 (신호 필요)' },
-  { id: 'ext201', name: '3층 방송실 부스', num: '내선 201', icon: '📻', role: '교내 방송국 내선' },
+  { id: 'ext201', name: '4층 방송실 부스', num: '내선 201', icon: '📻', role: '교내 방송국 내선' },
   { id: 'unk', name: '발신번호 표시제한', num: '000-0000-1012', icon: '❓', role: '추적 불가 주파수', hidden: true },
   // 문서에서 번호를 찾으면 생긴다
   { id: 'reporter', name: '서문일보 한진우 기자', num: '02-735-1998', icon: '📰', role: '1998년 기사를 쓴 기자 (신호 필요)', show: () => docs.some(d => ['ts_reporter2', 'n_seomun_ilbo', 'news_rep'].includes(d.id)) || !!FL.newsRead },
@@ -7425,7 +7425,7 @@ const CONTACTS = [
   { id: 'junho', name: '이준호 (전 방송부)', num: '010-4120-2250', icon: '🎚', role: '그날 밤 문을 잠근 학생 (신호 필요)', show: () => docs.some(d => /^(nv_q4|ts_junho)/.test(d.id)) },
 ];
 const INCALLS = [
-  { id: 'mina1', who: '민아 선배', num: '010-2481-1012', lines: ['call_mina1'], topic: 'mina1', summary: '복도의 발소리 경고 · 3층 방송실 근처', when: () => P.keys >= 1 && FL.cam },
+  { id: 'mina1', who: '민아 선배', num: '010-2481-1012', lines: ['call_mina1'], topic: 'mina1', summary: '복도의 발소리 경고 · 4층 방송실 근처', when: () => P.keys >= 1 && FL.cam },
   { id: 'unk1', who: '발신번호 표시제한', num: '— — —', lines: ['call_unk1'], topic: 'unk1', summary: '차가운 물속에서 들려온 흐느낌', when: () => P.keys >= 2 && (P.floor === 2 || P.floor === 1) && !isOutdoors() },
   { id: 'guard', who: '정문 경비실 (내선 100)', num: '내선 100', lines: ['gd_call'], topic: 'guard', summary: '무인 경비실 자동응답기 — 1998년 녹음 · 소리에 대답하지 말 것', when: () => P.keys >= 3 },
   { id: 'mina2', who: '민아 선배', num: '010-2481-1012', lines: ['call_mina2'], topic: 'mina2', summary: '별관 점등 목격 · 방송실 장비실 은신 중', when: () => !!FL.anPow },
@@ -7588,7 +7588,7 @@ function callOut(id) {
     callTalk(c.name, lines, !guardHere, guardHere ? 'guard' : 'unk1'); return;
   }
   if (id === 'ext201') {
-    CALL.log.push({ who: c.name, t: clockText(), kind: '발신', lines: ['pa1'], summary: '3층 방송실 부스 내선 모니터' });
+    CALL.log.push({ who: c.name, t: clockText(), kind: '발신', lines: ['pa1'], summary: '4층 방송실 부스 내선 모니터' });
     callTalk(c.name, ['pa1'], true); return;
   }
   if (id === '119' && sig) {
@@ -8636,13 +8636,13 @@ function megaNotify(m) { const t = String(m).split('\n'); say(t[0].replace(/^\S+
     world.props.push({ kind: 'robj', k: 'bunker_light', t: 'bunker', floor: 4, x: bx + 1.15, z: z1 - .85, y: 1.35, r: 2.0, label: '방공호 주 전등 스위치 조작하기', bkLightGroup });
     {
       const bLoader = new GLTFLoader();
-      bLoader.load('assets/models/sf/sf_bunker_props_pack.glb?v=197', gltf => {
+      bLoader.load('assets/models/sf/sf_bunker_props_pack.glb?v=198', gltf => {
         const bm = gltf.scene; bm.position.set(bx, 0, z0 + .45);
         if (window.__upgradePure3DScene) window.__upgradePure3DScene(bm); else bm.traverse(o => { o.userData.dynamic = true; });
         R.add(bm);
         if (gltf.animations && gltf.animations.length) { const mx = new THREE.AnimationMixer(bm); mx.userData = { floor: 4, x: bx, z: z0 + .45 }; gltf.animations.forEach(c => mx.clipAction(c).play()); (window.__campusAnimMixers ||= []).push(mx); }
       }, undefined, () => {});
-      bLoader.load('assets/models/sf/sf_pump_policeline_scene.glb?v=197', gltf => {
+      bLoader.load('assets/models/sf/sf_pump_policeline_scene.glb?v=198', gltf => {
         const pm = gltf.scene; pm.position.set(24.0, 0, -3.65);
         pm.traverse(o => { o.userData.dynamic = true; if (o.isMesh) { o.castShadow = false; o.receiveShadow = true; if (o.material?.map) o.material.map.colorSpace = THREE.SRGBColorSpace; } });
         R.add(pm);

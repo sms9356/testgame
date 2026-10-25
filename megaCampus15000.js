@@ -1,6 +1,7 @@
 // 15,000평(약 50,000㎡) 캠퍼스 3대 섹션(①학술·생활 건물 섹션 ②종합 운동·스포츠 섹션 ③제1·제2 대형 주차장 섹션) 및 10종 .glb 모델(애니메이션 5종 포함) 빌더
 import * as THREE from './vendor/three.module.js';
 import { GLTFLoader } from './vendor/addons/loaders/GLTFLoader.js';
+import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
 
 export const MEGA_CAMPUS_ZONES = [
   { id: 'dorm', name: '청운학사 (기숙사 단지)', x: -86, z: -42, w: 22, d: 14, color: '#4a322c' },
@@ -542,33 +543,37 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
     // ── (1) 학생 자전거 보관소 & 야외 타일 수돗가(단체 음수대) (x: 58.0, z: -6.5) ──
     {
       const bxC = 58.0, bzC = -4.5;
-      // 콘크리트 바닥 기초 (12.0m × 4.6m)
-      pbox(12.2, .08, 4.6, stoneM, bxC, .04, bzC, g, { cast: false });
-      // 강철 기둥 8기 & 아치형 청색 폴리카보네이트 비가림 지붕
-      for (let sx = -5.4; sx <= 5.4; sx += 3.6) {
-        [-1.9, 1.9].forEach(sz => pcyl(.06, .06, 2.45, chromeM, bxC + sx, 1.22, bzC + sz, g));
-        pbox(.08, .12, 4.2, chromeM, bxC + sx, 2.45, bzC, g);
-      }
-      pbox(12.4, .08, 4.4, polyRoofM, bxC, 2.58, bzC, g, { rx: .08, cast: false });
-      pbox(4.2, .36, .08, darkMetal, bxC, 2.72, bzC + 2.18, g, { cast: false });
-      pmesh(new THREE.PlaneGeometry(4.0, .30), new THREE.MeshBasicMaterial({ map: makeSign('학생 자전거 전용 보관소 · 등하교 안전모 착용', '#163244', '#e8f6ff', 20) }), bxC, 2.72, bzC + 2.23, g, { cast: false });
-      // 학생용 자전거 12대 (앞·뒤 바퀴 + 삼각 프레임 + 핸들바 + 안장 + 앞 바구니)
-      const bikeColors = [0x9a2222, 0x1e4878, 0x246238, 0xc89620, 0x585c64, 0x6a2858];
-      for (let i = 0; i < 12; i++) {
-        const kx = bxC - 4.95 + i * .90, bkM = PM(bikeColors[i % bikeColors.length], .4, .5);
-        // 거치대 슬롯
-        pbox(.18, .28, .45, chromeM, kx, .18, bzC - 1.35, g);
-        // 바퀴 2개 & 프레임
-        pmesh(new THREE.TorusGeometry(.30, .024, 6, 14), tireM, kx, .36, bzC - .95, g, { ry: Math.PI / 2 });
-        pmesh(new THREE.TorusGeometry(.30, .024, 6, 14), tireM, kx, .36, bzC + .05, g, { ry: Math.PI / 2 });
-        pbox(.04, .48, .92, bkM, kx, .52, bzC - .45, g, { rx: .22 });
-        pbox(.04, .55, .04, chromeM, kx, .68, bzC - .88, g);
-        pbox(.44, .03, .04, chromeM, kx, .95, bzC - .88, g);
-        pbox(.14, .05, .22, tireM, kx, .78, bzC - .12, g);
-        if (i % 3 === 0) pbox(.24, .18, .20, darkMetal, kx, .82, bzC - 1.02, g);
-      }
-      addCol(bxC - 6.0, bxC + 6.0, bzC - 2.2, bzC + 1.2);
-      world.props.push({ kind: 'robj', k: 'east_bikes', t: 'mega15k', floor: 0, x: bxC, z: bzC + 1.6, y: .9, r: 2.4, label: '자전거 보관소 자물쇠 걸린 학생 자전거 바구니 조사하기' });
+      // 서문고 자전거보관소 (참고 배치도 · 규격도 · 평면도): 12.0 × 4.6m 개방형 · 콘크리트 슬래브 · 아연도금 각관 기둥 □150 × 6 (H2500, 베이스 250×250) · H형강 보 100×200 · 아연도강판 골지붕 · LED 방수등 3 · 학교명 현판 3000×250 · 양면 거치대 2열 (중앙 통행로 약 1.5m) · 배수 트렌치 그레이팅
+      const galvM = PM(0xa8acb0, .38, .75), roofM = PM(0x9aa0a4, .45, .6), ledM = new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xf4f8ff, emissiveIntensity: 1.2 });
+      pbox(12.0, .1, 4.6, PM(0xbcb8ae, .85), bxC, .05, bzC, g, { cast: false });
+      [-5.85, 0, 5.85].forEach(dx => [-2.15, 2.15].forEach(dz => { pbox(.15, 2.5, .15, galvM, bxC + dx, 1.35, bzC + dz, g); pbox(.25, .02, .25, galvM, bxC + dx, .11, bzC + dz, g, { cast: false }); addCol(bxC + dx - .1, bxC + dx + .1, bzC + dz - .1, bzC + dz + .1); }));
+      [-2.15, 2.15].forEach(dz => pbox(12.0, .2, .1, galvM, bxC, 2.7, bzC + dz, g));
+      [-5.85, 0, 5.85].forEach(dx => pbox(.1, .2, 4.4, galvM, bxC + dx, 2.7, bzC, g));
+      pbox(12.3, .04, 4.9, roofM, bxC, 2.82, bzC, g);
+      for (let k = 0; k < 40; k++) pbox(.06, .03, 4.9, roofM, bxC - 6.1 + k * .31, 2.855, bzC, g, { cast: false });   // 골지붕 리브
+      [-4, 0, 4].forEach(dx => { pbox(1.24, .08, .1, galvM, bxC + dx, 2.56, bzC, g, { cast: false }); pbox(1.18, .03, .06, ledM, bxC + dx, 2.51, bzC, g, { cast: false }); });
+      pbox(3.0, .25, .05, PM(0x1e2e5a, .5, .3), bxC + 2.0, 2.7, bzC + 2.23, g, { cast: false });
+      pmesh(new THREE.PlaneGeometry(2.96, .23), new THREE.MeshBasicMaterial({ map: makeSign('서문고등학교 자전거보관소', '#1e2e5a', '#ffffff', 24) }), bxC + 2.0, 2.7, bzC + 2.26, g, { cast: false });
+      // 양면 거치대 (1400×580×600 모듈 · 강관 루프) + 자전거 40대 — 북열 · 남열, 각 2구간 × 10대 (형상은 재질별로 합쳐 메시 수를 줄인다)
+      const bikeColors = [0x9a2222, 0x1e4878, 0xe8e8e4, 0x585c64, 0x6a2858, 0x2a2a2c];
+      const gRack = [], gTire = [], gChrome = [], gSeat = [], gCol = bikeColors.map(() => []);
+      const T = (geo, x, y, z, ry = 0, rx = 0) => { geo.rotateX(rx); geo.rotateY(ry); geo.translate(x, y, z); return geo; };
+      [-1, 1].forEach(row => { const rz = bzC + row * 1.95, dir = -row;   // 거치대는 바깥 가장자리, 자전거는 안쪽(통행로)으로
+        [-1, 1].forEach(seg => { const x0 = bxC + seg * 3.0 - 2.25;
+          gRack.push(T(new THREE.BoxGeometry(4.7, .04, .04), x0 + 2.25, .14, rz - .29), T(new THREE.BoxGeometry(4.7, .04, .04), x0 + 2.25, .14, rz + .29));
+          for (let i = 0; i < 10; i++) { const x = x0 + i * .5, c = (i * 7 + seg * 3 + row * 5 + 12) % bikeColors.length, bz = rz + dir * .55;
+            gRack.push(T(new THREE.TorusGeometry(.28, .014, 5, 12, Math.PI), x, .14, rz, Math.PI / 2));
+            if ((i + seg + row) % 7 === 3) continue;   // 빈 칸
+            [-.5, .5].forEach(w => gTire.push(T(new THREE.TorusGeometry(.3, .025, 5, 14), x, .32, bz + w * dir, Math.PI / 2)));
+            gCol[c].push(T(new THREE.BoxGeometry(.035, .04, .85), x, .58, bz), T(new THREE.BoxGeometry(.035, .5, .035), x, .55, bz + .25 * dir, 0, .3 * dir), T(new THREE.BoxGeometry(.035, .5, .035), x, .55, bz - .4 * dir, 0, -.25 * dir));
+            gChrome.push(T(new THREE.BoxGeometry(.03, .5, .03), x, .7, bz - .48 * dir), T(new THREE.BoxGeometry(.5, .025, .025), x, .95, bz - .48 * dir), T(new THREE.BoxGeometry(.24, .16, .2), x, .82, bz - .62 * dir));
+            gSeat.push(T(new THREE.BoxGeometry(.13, .05, .24), x, .86, bz + .32 * dir)); } });
+        addCol(bxC - 5.75, bxC + 5.75, Math.min(rz, rz + dir * 1.25) - .05, Math.max(rz, rz + dir * 1.25) + .05); });
+      const mm = (arr, m) => { if (!arr.length) return; const geo = mergeGeometries(arr); const me = new THREE.Mesh(geo, m); me.castShadow = true; g.add(me); };
+      mm(gRack, galvM); mm(gTire, tireM); mm(gChrome, chromeM); mm(gSeat, darkMetal); gCol.forEach((a, i) => mm(a, PM(bikeColors[i], .4, .5)));
+      // 배수 트렌치 그레이팅 (남측 도로 가장자리, 200 폭)
+      pbox(12.0, .02, .2, darkMetal, bxC, .005, bzC + 2.45, g, { cast: false }); for (let k = 0; k < 60; k++) pbox(.02, .025, .18, chromeM, bxC - 5.9 + k * .2, .012, bzC + 2.45, g, { cast: false });
+      world.props.push({ kind: 'robj', k: 'east_bikes', t: 'mega15k', floor: 0, x: bxC, z: bzC, y: .9, r: 2.4, label: '자전거 보관소 자물쇠 걸린 학생 자전거 바구니 조사하기' });
 
       // ★ 한국 학교 상징: 야외 타일 수돗가 · 단체 음수대 (x: 58.0, z: -11.2, 길이 8.4m × 양면 수도꼭지 8구)
       const fxC = 58.0, fzC = -11.2;

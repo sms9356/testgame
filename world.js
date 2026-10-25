@@ -3724,7 +3724,7 @@ export function buildWorld(scene) {
     [-40.5, -37.5].forEach(x => add(mWoodDark, .12, 3.1, .4, x, 0, z1 - .15)); add(mWoodDark, 3.12, .12, .4, -39, 3.04, z1 - .15);
     plane(F.interior, new THREE.MeshBasicMaterial({ map: T.makeSign('비상구', '#0a3a1a', '#7dffa0', 30) }), 1.4, .35, -39, 3.5, z1 - t - .02, Math.PI);
     [11, 15, 19].forEach(z => win3D(F.interior, 2.4, 1.6, x0 + t + .02, 2.4, z, Math.PI / 2));
-    restroomWC(x1 - t, z0 + t, -1, 1, H, '급식실 화장실');
+    restroomWC(x0 + t, z1 - t, 1, -1, H, '급식실 화장실');   // 서남 구석 (북동은 조리실이라 보행 구역 밖)
     [-45, -34].forEach(x => plane(F.interior, mWin, 3, 1.6, x, 2.4, z1 - t - .02, Math.PI));
     // 배식대 + 조리실
     add(mMetal, 12, .9, .9, -40.2, 0, 12.9, { col: true }); add(mGlass, 12, .35, .6, -40.2, .9, 12.9);

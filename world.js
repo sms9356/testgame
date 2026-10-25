@@ -4,12 +4,12 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { buildGuardAnnex, buildDutyRoom, ANNEX as GANX } from './guardAnnex.js?v=199';
-import { NOTES } from './story.js?v=199';
+import { buildGuardAnnex, buildDutyRoom, ANNEX as GANX } from './guardAnnex.js?v=200';
+import { NOTES } from './story.js?v=200';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=199';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=200';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -4972,9 +4972,9 @@ export function buildWorld(scene) {
     props.push({ kind: 'robj', k: 'guardlog', t: 'guard', floor: 0, ...GUARD_LAYOUT.log, x: 5.9, z: 67.14, r: 2.1, label: '경비실 심야 순찰 일지 & 경비원 육성 녹음 확인하기' });
     props.push({ kind: 'robj', k: 'guard_recorder', t: 'guard', floor: 0, x: 6.28, z: 67.08, y: 0.84, r: 2.1, label: '경비실 보이스레코더 — 1998년 그날 밤 경비원 녹취록 재생' });
     props.push({ kind: 'robj', k: 'guardcctv', t: 'guard', floor: 0, ...GUARD_LAYOUT.cctv, label: 'CCTV 전원 끄기' });
-    guardAnnex = buildGuardAnnex({ OUT, props, boxMesh, plane, flat, col, S, makeSign: T.makeSign, mats: { facade: mFacade, wall: mWall, white: mWhite, floor: mFloorTile, wood: mWood, metal: mMetal, glass: mWinIn } });
+    guardAnnex = buildGuardAnnex({ OUT, props, boxMesh, plane, flat, col, S, model: (n, x, y, z, ry, o = {}) => model(n, x, y, z, ry, { ...o, out: true }), makeSign: T.makeSign, mats: { facade: mFacade, wall: mWall, white: mWhite, floor: mFloorTile, wood: mWood, metal: mMetal, glass: mWinIn } });
     col(GANX.x1 - .95, GANX.x1, GANX.doorZ1 - .02, GANX.doorZ1 + .04, true);
-    guardAnnex.duty = buildDutyRoom({ G: guardAnnex.group, props, boxMesh, plane, flat, col, S, makeSign: T.makeSign, mats: { facade: mFacade, wall: mWall, white: mWhite, floor: mFloorTile, wood: mWood, metal: mMetal, glass: mWinIn } });
+    guardAnnex.duty = buildDutyRoom({ G: guardAnnex.group, props, boxMesh, plane, flat, col, S, model: (n, x, y, z, ry, o = {}) => model(n, x, y, z, ry, { ...o, out: true }), makeSign: T.makeSign, mats: { facade: mFacade, wall: mWall, white: mWhite, floor: mFloorTile, wood: mWood, metal: mMetal, glass: mWinIn } });
     guardAnnex.group.traverse(o => { o.userData.dynamic = true; });
     props.push({ kind: 'robj', k: 'guardlight', t: 'guard', floor: 0, ...GUARD_LAYOUT.lightSwitch, label: '경비실 전등 켜기' });
     // 교훈 표지석: 납작한 화강암 + 새긴 글씨 + 받침 화단

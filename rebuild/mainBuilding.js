@@ -803,13 +803,42 @@ export function buildMainBuilding(opt = {}) {
       cabinet(x2 - .5, x2 - .05, z1 + .5, z2 - .5, 1.9, 'lockerM', true);
       if (!opt.noClues && !opt.noSciLib && !s_sci++) { clueNote('n5', x1 + 1.9, y0 + .9, z1 + 3.2, f, .2); clueNote('q7a', x1 + 4.1, y0 + .9, z1 + 2.0, f, -.3); clueTape('ts_electric', x1 + 6.3, y0 + .9, z1 + 3.1, f); }
       props.push({ kind: 'search', label: '과학실 약품장', x: x2 - .8, y: y0 + 1.2, z: zm, floor: f });
-    } else if (type === 'music') {   // 음악실: 피아노 · 계단식 합창단 3단 · 악보대 · 악기장
-      upright(xm + 2.6, z1 + 1.95, y0, -1);   // 업라이트 피아노 (건반이 방 안쪽)
-      for (let k = 0; k < 3; k++) { box('wood', x1 + .6 + k * .9, x1 + 1.5 + k * .9, y0, y0 + .2 * (3 - k), z1 + .8, z2 - .8); walk.push({ x1: x1 + .6 + k * .9, x2: x1 + 1.5 + k * .9, z1: z1 + .8, z2: z2 - .8, h: () => y0 + .2 * (3 - k), f }); }
-      for (let k = 0; k < 6; k++) box('deskLeg', xm - .3 + (k % 3) * .7, xm - .27 + (k % 3) * .7, y0, y0 + 1.1, zm - 1 + ((k / 3) | 0) * 1.6, zm - .98 + ((k / 3) | 0) * 1.6);
-      cabinet(x2 - .55, x2 - .05, z1 + .5, z2 - .5, 1.9, 'lockerM');
-      if (!opt.noClues) { clueNote('n18', xm + 2.6, y0 + 1.28, z1 + 1.6, f, 0); clueTape('ts_music', x2 - .3, y0 + 1.9, zm, f); }
-      props.push({ kind: 'piano', label: '음악실 피아노 건반 누르기', x: xm + 2, y: y0 + 1, z: z1 + 2, floor: f });
+    } else if (type === 'music') {   // 음악실 (참고 배치도 · 가구 규격도, 8.8 × 9.9m): 2인 1조 책상 12조 24석 (오선 칠판 쪽을 본다) · 지휘자 단상 · 업라이트 피아노 · 오선 화이트보드 · 교사 책상 · 접이식 의자 적재대 · 우측 악기장 · 타악기 · 창가 수납장 · 스피커
+      darkMats(); const { plane, ctex } = artHelpers();
+      box('dkwood', x1, x2, y0 + .02, y0 + .03, z1, z2);
+      // 학생 책상 (700×500×720) 2개 1조 + 학생 의자 (400×490×780) + 책상 위 악보대 — 서쪽(칠판)을 본다
+      const sdesk = (cx, cz) => { box('deskTop', cx - .25, cx + .25, y0 + .69, y0 + .72, cz - .35, cz + .35); box('steelG', cx - .22, cx + .22, y0 + .55, y0 + .6, cz - .32, cz + .32); [[-.22, -.32], [.22, -.32], [-.22, .32], [.22, .32]].forEach(([a, b]) => box('deskLeg', cx + a - .015, cx + a + .015, y0, y0 + .69, cz + b - .015, cz + b + .015));
+        box('rubber', cx - .12, cx - .09, y0 + .72, y0 + 1.0, cz - .22, cz + .22); box('white', cx - .095, cx - .09, y0 + .76, y0 + .98, cz - .2, cz + .2);   // 책상 위 악보대 + 악보
+        const ch = cx + .55; box('wood', ch - .2, ch + .2, y0 + .43, y0 + .46, cz - .2, cz + .2); box('wood', ch + .17, ch + .2, y0 + .5, y0 + .78, cz - .19, cz + .19); [[-.18, -.18], [.18, -.18], [-.18, .18], [.18, .18]].forEach(([a, b]) => box('deskLeg', ch + a - .012, ch + a + .012, y0, y0 + (a > 0 ? .78 : .43), cz + b - .012, cz + b + .012)); };
+      const RX = [x1 + 3.1, x1 + 4.45, x1 + 5.8, x1 + 7.15], GZ = [z1 + 2.45, z1 + 4.95, z1 + 7.45];
+      RX.forEach(x => GZ.forEach(z => { sdesk(x, z - .35); sdesk(x, z + .35); col.push({ x1: x - .25, x2: x + .25, z1: z - .7, z2: z + .7, y1: y0, y2: y0 + .72 }); }));
+      // 서쪽 벽: 오선 화이트보드 (3600×1200) · 태극기 · 벽시계 · 교훈 액자 · 게시판 (1200×900) · 스피커
+      { const wz = z1 + 5.2; box('alu', x1 + .01, x1 + .06, y0 + .95, y0 + 2.15, wz - 1.8, wz + 1.8); const wb = ctex(720, 240, (g, w, h) => { g.fillStyle = '#f8f8f4'; g.fillRect(0, 0, w, h); g.strokeStyle = '#4a4a60'; g.lineWidth = 1.5; for (let st = 0; st < 3; st++) for (let l = 0; l < 5; l++) { const y = 30 + st * 72 + l * 9; g.beginPath(); g.moveTo(20, y); g.lineTo(w - 20, y); g.stroke(); } g.fillStyle = '#20204a'; g.font = '30px serif'; for (let n = 0; n < 26; n++) g.fillText('♪', 70 + n * 24, 52 + (n % 3) * 72 - (n * 7 % 5) * 4); });
+        plane(wb, 3.56, 1.16, x1 + .065, y0 + 1.55, wz, Math.PI / 2); box('alu', x1 + .06, x1 + .14, y0 + .93, y0 + .96, wz - 1.6, wz + 1.6);
+        const tg = ctex(150, 100, (g, w, h) => { g.fillStyle = '#fbfbf6'; g.fillRect(0, 0, w, h); g.fillStyle = '#c8102e'; g.beginPath(); g.arc(75, 50, 22, Math.PI, 0); g.fill(); g.fillStyle = '#003478'; g.beginPath(); g.arc(75, 50, 22, 0, Math.PI); g.fill(); g.strokeStyle = '#3a2416'; g.lineWidth = 6; g.strokeRect(3, 3, w - 6, h - 6); }); plane(tg, .55, .37, x1 + .03, y0 + 2.6, wz, Math.PI / 2);
+        mdl('wall_clock', x1 + .03, y0 + 2.6, wz - 1.1, Math.PI / 2);
+        const mt = (t, z) => { const tx = ctex(160, 100, (g, w, h) => { g.fillStyle = '#f2ead8'; g.fillRect(0, 0, w, h); g.strokeStyle = '#3a2416'; g.lineWidth = 8; g.strokeRect(4, 4, w - 8, h - 8); g.fillStyle = '#1a1410'; g.font = 'bold 44px serif'; g.textAlign = 'center'; g.fillText(t, 80, 66); }); plane(tx, .55, .34, x1 + .03, y0 + 2.6, z, Math.PI / 2); }; mt('성실', wz + 1.2); mt('창의', wz - 2.0);
+        corkBoardZ(x1 + .02, 1, z1 + 1.9, z1 + 3.1, y0 + 1.2, y0 + 2.1); corkBoardZ(x1 + .02, 1, wz + 1.95, wz + 2.6, y0 + 1.2, y0 + 2.1);
+        [[x1 + .15, z2 - .25], [x2 - .15, z2 - .25]].forEach(([x, z]) => box('rubber', x - .12, x + .12, y0 + 2.35, y0 + 2.69, z - .1, z + .1)); }   // 벽걸이 스피커
+      // 업라이트 피아노 (1500×620×1210) — 서쪽 벽 창가 쪽 · 지휘자 단상 (600×900) + 보면대
+      upright(x1 + .4, z2 - 1.6, y0, 1);
+      { const px = x1 + 1.9, pz = z1 + 5.2; box('rubber', px - .3, px + .3, y0, y0 + .15, pz - .45, pz + .45, { solid: true }); walk.push({ x1: px - .3, x2: px + .3, z1: pz - .45, z2: pz + .45, h: () => y0 + .15, f });
+        cyl('rubber', px, y0 + .15, pz, .02, .95); box('rubber', px - .02, px + .02, y0 + 1.05, y0 + 1.4, pz - .25, pz + .25); }
+      // 교사 책상 (1800×800×720) + 교사 의자 · 접이식 의자 적재대 (1200×700×1350)
+      desk(x1 + 1.1, z1 + 2.5, .8, 1.8, .72, 'deskTop'); officeChair(x1 + .45, z1 + 2.5, y0, 0); box('screen', x1 + 1.0, x1 + 1.3, y0 + .72, y0 + .74, z1 + 2.0, z1 + 2.3);
+      { const rx = x1 + .45, rz = z1 + 1.15; box('alu', rx - .35, rx + .35, y0 + .05, y0 + .08, rz - .55, rz + .55); for (let k = 0; k < 10; k++) box('rubber', rx - .3, rx + .3, y0 + .1, y0 + 1.25, rz - .5 + k * .1, rz - .47 + k * .1); col.push({ x1: rx - .35, x2: rx + .35, z1: rz - .6, z2: rz + .6, y1: y0, y2: y0 + 1.35 }); }
+      // 동쪽 벽: 우측 악기장 (900칸 × 6 · 2100) · 타악기 보관 (드럼 · 팀파니)
+      for (let k = 0; k < 6; k++) { const a = z1 + 1.4 + k * .9; cabinetD(x2 - .5, x2 - .05, a, a + .9, y0, .9, 'wood', 'x-'); box('wood', x2 - .5, x2 - .05, y0 + .9, y0 + 2.1, a, a + .9, { solid: true }); box('glass', x2 - .51, x2 - .5, y0 + .95, y0 + 2.05, a + .05, a + .85);
+        for (let j = 0; j < 2; j++) box(['rubber', 'lockerM', 'cork'][(k + j) % 3], x2 - .42, x2 - .12, y0 + 1.0 + j * .5, y0 + 1.4 + j * .5, a + .15, a + .75); }
+      for (let k = 0; k < 3; k++) { const z = z2 - .6 - k * .62; cyl('white', x2 - .4, y0 + k * 0, z, .28, .4, .28, 16); cyl('rubber', x2 - .4, y0 + .4, z, .29, .03, .29, 16); }   // 타악기 (드럼)
+      cyl('alu', x2 - .4, y0 + .4, z2 - .6, .3, .45, .3, 16);
+      // 창가 수납장 (7800×400×900): 악기 케이스 · 악보 · 서류함
+      cabinetD(x1 + .9, x2 - 1.0, z2 - .45, z2 - .05, y0, .9, 'wood', 'z-');
+      for (let k = 0; k < 12; k++) { const x = x1 + 1.2 + k * .58; if (k % 3 === 1) box('rubber', x - .12, x + .12, y0 + .9, y0 + 1.75, z2 - .35, z2 - .15); else for (let b = 0; b < 5; b++) box(['white', 'cork', 'lockerM'][b % 3], x - .2 + b * .08, x - .14 + b * .08, y0 + .9, y0 + 1.2, z2 - .38, z2 - .12); }
+      mdl('potted_plant_04', x1 + .5, y0, z2 - .45, 0, { s: 3.0 });
+      box('white', xm - .2, xm + .2, y0 + S.CEIL - .3, y0 + S.CEIL - .16, zm - .15, zm + .15); cyl('alu', xm, y0 + S.CEIL - .16, zm, .02, .16);   // 빔 프로젝터
+      if (!opt.noClues) { clueNote('n18', x1 + 1.1, y0 + .74, z1 + 2.9, f, 0); clueTape('ts_music', x2 - .3, y0 + 2.1, z1 + 4.0, f); }
+      props.push({ kind: 'piano', label: '음악실 피아노 건반 누르기', x: x1 + 1.0, y: y0 + 1, z: z2 - 1.6, floor: f });
     } else if (type === 'art') {   // 미술실: 큰 작업대 · 이젤 · 석고상 받침 · 수채 개수대
       for (let i = 0; i < 2; i++) for (let j = 0; j < 2; j++) desk(x1 + 2.6 + i * 3, z1 + 2 + j * 3, 2.2, 1.2, .8, 'lockerM');
       // 이젤 5개: 세 다리(앞 둘 · 뒤 하나 비스듬히) + 캔버스 받침 + 그리다 만 캔버스

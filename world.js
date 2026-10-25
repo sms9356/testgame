@@ -4,12 +4,12 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { buildGuardAnnex, buildDutyRoom, ANNEX as GANX } from './guardAnnex.js?v=207';
-import { NOTES } from './story.js?v=207';
+import { buildGuardAnnex, buildDutyRoom, ANNEX as GANX } from './guardAnnex.js?v=208';
+import { NOTES } from './story.js?v=208';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=207';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=208';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];

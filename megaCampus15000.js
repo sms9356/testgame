@@ -149,6 +149,26 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
       else if (doorSide === 'E') addSwitch(grp, x1 - .01, cz - o, -Math.PI / 2, rect);
       else addSwitch(grp, cx - o, z1 - .01, Math.PI, rect); }
   };
+  // 캠퍼스 건물 실내 칸막이벽 (축 정렬 · 두께 .14 · 천장 3.85) — gaps: 벽 축을 따라 [a, b] 출입 개구부 (문틀 위 인방 포함)
+  const iwall = (grp, ax, az, bx, bz, gaps = [], mat = whiteWall) => {
+    const alongX = Math.abs(bz - az) < 1e-6, a0 = alongX ? Math.min(ax, bx) : Math.min(az, bz), a1 = alongX ? Math.max(ax, bx) : Math.max(az, bz), t = .14, H = 3.85;
+    const seg = (s, e, y1 = 0, y2 = H, col = true) => { if (e - s < .02) return; const m = (s + e) / 2;
+      if (alongX) pbox(e - s, y2 - y1, t, mat, m, (y1 + y2) / 2, az, grp); else pbox(t, y2 - y1, e - s, mat, ax, (y1 + y2) / 2, m, grp);
+      if (col) alongX ? addCol(s, e, az - t / 2, az + t / 2) : addCol(ax - t / 2, ax + t / 2, s, e); };
+    let p = a0; [...gaps].sort((u, v) => u[0] - v[0]).forEach(([g1, g2]) => { seg(p, g1); seg(g1, g2, 2.2, H, false);
+      alongX ? pbox(.06, 2.2, t + .04, darkMetal, g1, 1.1, az, grp, { cast: false }) : pbox(t + .04, 2.2, .06, darkMetal, ax, 1.1, g1, grp, { cast: false });
+      alongX ? pbox(.06, 2.2, t + .04, darkMetal, g2, 1.1, az, grp, { cast: false }) : pbox(t + .04, 2.2, .06, darkMetal, ax, 1.1, g2, grp, { cast: false }); p = g2; });
+    seg(p, a1);
+  };
+  // 공용 가구: 철제 선반 · 진열장 · 책상
+  const steelShelf = (grp, x, z, w, d, h = 1.8, boxM = null) => { const sM = PM(0x6a6e72, .5, .55); [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([a, b]) => pbox(.04, h, .04, sM, x + a * (w / 2 - .02), h / 2, z + b * (d / 2 - .02), grp, { cast: false }));
+    for (let r = 0; r < 4; r++) { pbox(w, .025, d, sM, x, .1 + r * (h - .15) / 3, z, grp, { cast: false }); if (boxM && r < 3) pbox(w * .8, .26, d * .8, boxM, x, .25 + r * (h - .15) / 3, z, grp, { cast: false }); }
+    addCol(x - w / 2, x + w / 2, z - d / 2, z + d / 2); };
+  const vitrine = (grp, x, z, w, d, h = .95, alongZ = false) => { const W2 = alongZ ? d : w, D2 = alongZ ? w : d; pbox(W2, h - .35, D2, woodDark, x, (h - .35) / 2, z, grp); pbox(W2 - .04, .35, D2 - .04, glassM, x, h - .175, z, grp, { cast: false }); pbox(W2 * .5, .08, D2 * .3, goldM, x, h - .3, z, grp, { cast: false }); addCol(x - W2 / 2, x + W2 / 2, z - D2 / 2, z + D2 / 2, false, h); };
+  const tallCase = (grp, x, z, w, d, ry = 0) => { const alongZ = Math.abs(Math.sin(ry)) > .5, W2 = alongZ ? d : w, D2 = alongZ ? w : d; pbox(W2, .5, D2, woodDark, x, .25, z, grp); pbox(W2 - .04, 1.55, D2 - .04, glassM, x, 1.3, z, grp, { cast: false }); pbox(W2, .06, D2, woodDark, x, 2.1, z, grp, { cast: false });
+    for (let k = 0; k < 3; k++) pmesh(new THREE.DodecahedronGeometry(.1, 0), PM([0xc8a060, 0x8a6a48, 0x608aa0][k], .5, .3), x + (alongZ ? 0 : (k - 1) * W2 * .3), .95 + k * .4, z + (alongZ ? (k - 1) * D2 * .3 : 0), grp); addCol(x - W2 / 2, x + W2 / 2, z - D2 / 2, z + D2 / 2); };
+  const deskT = (grp, x, z, w, d, h = .74, top = woodLight, leg = darkMetal) => { pbox(w, .04, d, top, x, h - .02, z, grp); [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([a, b]) => pbox(.05, h - .04, .05, leg, x + a * (w / 2 - .05), (h - .04) / 2, z + b * (d / 2 - .05), grp, { cast: false })); addCol(x - w / 2, x + w / 2, z - d / 2, z + d / 2, false, h); };
+  const monitor = (grp, x, y, z, ry) => { pbox(.5, .32, .04, PM(0x101418, .4, .5), x, y + .26, z, grp, { ry, cast: false }); pbox(.46, .28, .01, new THREE.MeshBasicMaterial({ color: 0x2a6ab8 }), x + Math.sin(ry) * .025, y + .26, z + Math.cos(ry) * .025, grp, { ry, cast: false }); pbox(.06, .1, .06, darkMetal, x, y + .05, z, grp, { cast: false }); };
 
   const addChair = (grp, x, z, ry = 0, colMat = woodDark) => {
     const cg = new THREE.Group(); cg.position.set(x, 0, z); cg.rotation.y = ry; grp.add(cg);
@@ -439,10 +459,10 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
     buildShell(g, cx, cz, W, D, H, whiteWall, darkMetal, 'W', tileFloor);
     const silverM = PM(0xb8c6d2, .28, .78);
     // 천문관 관측돔 하부 원통형 회전 드럼 기단 & 슬릿 아치 리브 & 옥상 안전 난간
-    pcyl(5.6, 5.7, 1.1, stoneM, cx, H + .95, cz, g, { seg: 24 });
-    pmesh(new THREE.SphereGeometry(5.4, 24, 16, 0, Math.PI * 2, 0, Math.PI / 2), silverM, cx, H + 1.4, cz, g);
-    [-.65, .65].forEach(ox => pmesh(new THREE.TorusGeometry(5.44, .10, 8, 24, Math.PI), darkMetal, cx + ox, H + 1.4, cz, g, { ry: Math.PI / 2 }));
-    pcyl(.42, .48, 4.2, darkMetal, cx - 2.6, H + 4.2, cz, g, { rz: Math.PI / 3.2 });
+    pcyl(4.4, 4.5, 1.1, stoneM, cx + 5.3, H + .95, cz + 3.9, g, { seg: 24 });
+    pmesh(new THREE.SphereGeometry(4.2, 24, 16, 0, Math.PI * 2, 0, Math.PI / 2), silverM, cx + 5.3, H + 1.4, cz + 3.9, g);
+    [-.65, .65].forEach(ox => pmesh(new THREE.TorusGeometry(4.24, .10, 8, 24, Math.PI), darkMetal, cx + 5.3 + ox, H + 1.4, cz + 3.9, g, { ry: Math.PI / 2 }));
+    pcyl(.36, .42, 3.4, darkMetal, cx + 3.3, H + 3.6, cz + 3.9, g, { rz: Math.PI / 3.2 });
     pbox(1.8, .24, 4.4, stoneM, cx - W / 2 - 1.1, 3.1, cz, g);
     [-1.8, 1.8].forEach(dz => pcyl(.20, .22, 3.0, stoneM, cx - W / 2 - 1.8, 1.5, cz + dz, g));
     pbox(.12, .62, 4.4, darkMetal, cx - W / 2 - 2.02, 3.45, cz, g, { cast: false });
@@ -450,33 +470,40 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
     // 남측(광장 조망면)에도 과학천문관 대형 현판 장착
     pbox(5.6, .62, .14, darkMetal, cx, 8.15, cz + D / 2 + .42, g, { cast: false });
     pmesh(new THREE.PlaneGeometry(5.4, .52), new THREE.MeshBasicMaterial({ map: makeSign('서문 과학천문관 · SEOMUN OBSERVATORY', '#142438', '#d8f0ff', 22) }), cx, 8.15, cz + D / 2 + .50, g, { cast: false });
-    // 홀 중앙: 태양계 행성 모형 (Orrery) + 애니메이션 .glb 결합
-    pcyl(1.4, 1.6, .85, darkMetal, cx, .425, cz, g, { seg: 16 });
-    pmesh(new THREE.SphereGeometry(.48, 16, 14), new THREE.MeshStandardMaterial({ color: 0xffd040, emissive: 0xff9810, emissiveIntensity: .9 }), cx, 1.85, cz, g);
-    const orreryPiv = new THREE.Group(); orreryPiv.userData.dynamic = true; orreryPiv.position.set(cx, 1.85, cz); g.add(orreryPiv);
-    [1.1, 1.7, 2.3].forEach((r, ri) => {
-      const ringG = new THREE.Group(); ringG.userData.dynamic = true; orreryPiv.add(ringG);
-      const ring = new THREE.Mesh(new THREE.TorusGeometry(r, .018, 8, 32), chromeM);
-      ring.rotation.x = Math.PI / 2; ringG.add(ring);
-      pmesh(new THREE.SphereGeometry(.14 + ri * .04, 12, 10), PM([0x3888ff, 0xe05838, 0xd8b068][ri], .4), Math.cos(ri * 2.1) * r, 0, Math.sin(ri * 2.1) * r, ringG);
-    });
-    addCol(cx - 1.6, cx + 1.6, cz - 1.6, cz + 1.6);
-    pbox(1.4, .85, 3.4, darkMetal, cx + 6.8, .425, cz, g);
-    [-0.8, 0.8].forEach(dz => {
-      pbox(.38, .42, .55, PM(0x182028, .3, .6), cx + 6.7, 1.05, cz + dz, g);
-      pmesh(new THREE.PlaneGeometry(.48, .34), new THREE.MeshBasicMaterial({ color: 0x38d8ff }), cx + 6.5, 1.06, cz + dz, g, { ry: -Math.PI / 2, cast: false });
-    });
-    addCol(cx + 6.0, cx + 7.6, cz - 1.7, cz + 1.7);
-    pmesh(new THREE.PlaneGeometry(3.8, 1.8), new THREE.MeshBasicMaterial({ map: makeSign('1998.10.12 천체 성도 좌표 — 황도 12궁 & 페가수스자리 관측 중', '#0c1828', '#70e8ff', 20) }), cx + W / 2 - .06, 2.25, cz, g, { ry: -Math.PI / 2, cast: false });
-    world.props.push({ kind: 'robj', k: 'astro_console', t: 'mega15k', floor: 0, x: cx + 5.4, z: cz, y: 1.1, r: 2.2, label: '천체관측소 성도 주파수 콘솔 조작하기', anim: { type: 'orrery', orreryPiv, t: 0, active: false } });
-
-    [-6.4, 6.4].forEach(dz => {
-      pbox(4.8, .95, .85, woodDark, cx, .475, cz + dz, g);
-      pbox(4.6, .85, .75, glassM, cx, 1.38, cz + dz, g, { cast: false });
-      [-1.4, 0, 1.4].forEach((ox, oi) => pmesh(new THREE.DodecahedronGeometry(.18, 0), PM([0x60d8ff, 0xff9840, 0x90ff70][oi], .2, .5), cx + ox, 1.15, cz + dz, g));
-      addCol(cx - 2.5, cx + 2.5, cz + dz - .5, cz + dz + .5);
-    });
-    world.props.push({ kind: 'robj', k: 'astro_case', t: 'mega15k', floor: 0, x: cx, z: cz - 5.2, y: 1.1, r: 2.2, label: '운석 · 광물 표본 진열장 조사하기' });
+    // 실내 리모델링 (참고 배치도 · 20.0 × 16.0m): 서측 정문 → 로비 / 북측 장비보관실 · 작업실 (약 30m²) / 남측 관측 제어실 (약 30m²) / 가운데 전시 공간 (태양계 모형 · 진열장) / 동북 천문 교육실 / 동남 관측 돔 (굴절 망원경 · 원형 드럼벽)
+    const x0 = cx - W / 2, x1 = cx + W / 2, z0 = cz - D / 2, z1 = cz + D / 2, xA = x0 + 6, xB = x0 + 10.6, zE = cz - .2;   // xA: 서측 방 열 끝 · xB: 전시 공간 끝 · zE: 교육실 | 돔 경계
+    iwall(g, x0, cz - 3, xA, cz - 3, [[x0 + 2.0, x0 + 3.2]]); iwall(g, x0, cz + 3, xA, cz + 3, [[x0 + 2.0, x0 + 3.2]]);
+    iwall(g, xA, z0, xA, z1, [[cz - .6, cz + .6]]); iwall(g, xB, z0, xB, z1, [[z0 + 2.2, z0 + 3.4], [cz + 2.6, cz + 3.8]]); iwall(g, xB, zE, x1, zE);
+    // 장비 보관실 · 작업실 (북서): 철제 선반 · 작업대 · 장비 보관함 · 이동식 사다리
+    [x0 + .8, x0 + 1.8].forEach(x => steelShelf(g, x, z0 + .3, .9, .45, 1.8, PM(0x8a6a48, .8))); steelShelf(g, x0 + .3, cz - 5.0, .45, .9, 1.8, PM(0x2a4a7a, .7));
+    deskT(g, xA - 1.0, z0 + 2.2, .7, 1.8, .85, woodLight); pbox(1.2, 1.8, .6, PM(0x8a8e90, .5, .4), x0 + 4.0, .9, z0 + .4, g); addCol(x0 + 3.4, x0 + 4.6, z0, z0 + .7);
+    // 관측 제어실 (남서): 관측 제어 콘솔 (1800×800×750) + 모니터 3 · 서버 랙 · 성도 화면
+    { const kz = z1 - .8; pbox(1.8, .75, .8, PM(0x2a2e34, .5, .4), x0 + 3.0, .375, kz, g); addCol(x0 + 2.1, x0 + 3.9, kz - .4, kz + .4, false, .75); [-.6, 0, .6].forEach(d => monitor(g, x0 + 3.0 + d, .75, kz + .1, Math.PI));
+      pbox(.6, 1.9, .8, PM(0x16181c, .5, .5), x0 + .5, .95, kz, g); addCol(x0 + .2, x0 + .8, kz - .4, kz + .4); addChair(g, x0 + 3.0, kz - .9, Math.PI);
+      pmesh(new THREE.PlaneGeometry(2.6, 1.3), new THREE.MeshBasicMaterial({ map: makeSign('1998.10.12 천체 성도 좌표 — 황도 12궁 & 페가수스자리 관측 중', '#0c1828', '#70e8ff', 20) }), xA - .08, 2.0, z1 - 1.6, g, { ry: -Math.PI / 2, cast: false }); }
+    world.props.push({ kind: 'robj', k: 'astro_console', t: 'mega15k', floor: 0, x: x0 + 3.0, z: z1 - 1.9, y: 1.1, r: 2.2, label: '천체관측소 성도 주파수 콘솔 조작하기' });
+    // 전시 공간 (가운데): 태양계 행성 모형 (애니메이션) · 벽면 전시 진열장 · 원형 진열대
+    const ox = (xA + xB) / 2, oz = cz - 1.4;
+    pcyl(1.0, 1.15, .7, darkMetal, ox, .35, oz, g, { seg: 16 });
+    pmesh(new THREE.SphereGeometry(.4, 16, 14), new THREE.MeshStandardMaterial({ color: 0xffd040, emissive: 0xff9810, emissiveIntensity: .9 }), ox, 1.6, oz, g);
+    const orreryPiv = new THREE.Group(); orreryPiv.userData.dynamic = true; orreryPiv.position.set(ox, 1.6, oz); g.add(orreryPiv);
+    [.85, 1.3, 1.75].forEach((r, ri) => { const ringG = new THREE.Group(); ringG.userData.dynamic = true; orreryPiv.add(ringG); const ring = new THREE.Mesh(new THREE.TorusGeometry(r, .016, 8, 32), chromeM); ring.rotation.x = Math.PI / 2; ringG.add(ring);
+      pmesh(new THREE.SphereGeometry(.12 + ri * .04, 12, 10), PM([0x3888ff, 0xe05838, 0xd8b068][ri], .4), Math.cos(ri * 2.1) * r, 0, Math.sin(ri * 2.1) * r, ringG); });
+    addCol(ox - 1.2, ox + 1.2, oz - 1.2, oz + 1.2);
+    [[0x3888ff, .5, -1.0], [0xd8a050, .38, .2], [0xc89060, .3, 1.2]].forEach(([c, r, d]) => pmesh(new THREE.SphereGeometry(r, 16, 12), PM(c, .5), ox + d, 3.1, oz + 3.2, g));   // 천장 매단 행성
+    world.props.push({ kind: 'robj', k: 'astro_orrery', t: 'mega15k', floor: 0, x: ox, z: oz + 1.6, y: 1.1, r: 2.2, label: '태양계 행성 모형 돌려 보기', anim: { type: 'orrery', orreryPiv, t: 0, active: false } });
+    [z0 + .35, z1 - .35].forEach(z => tallCase(g, ox, z, 1.2, .6));
+    vitrine(g, ox, cz + 4.6, 1.8, .75); vitrine(g, ox, z0 + 4.4, 1.8, .75);
+    world.props.push({ kind: 'robj', k: 'astro_case', t: 'mega15k', floor: 0, x: ox, z: z0 + 5.3, y: 1.1, r: 2.2, label: '운석 · 광물 표본 진열장 조사하기' });
+    // 천문 교육실 (동북): 교육용 책상 (1200×600) 3열 × 2 + 의자 · 전면 스크린 · 진열장
+    for (let r = 0; r < 3; r++) for (let c = 0; c < 2; c++) { const x = xB + 2.6 + r * 1.9, z = z0 + 3.0 + c * 2.0; deskT(g, x, z, .6, 1.2, .74); addChair(g, x + .55, z - .3, -Math.PI / 2, blueFabric); addChair(g, x + .55, z + .3, -Math.PI / 2, blueFabric); }
+    pbox(.06, 1.3, 2.4, PM(0x101418, .4), xB + .12, 1.8, z0 + 3.2, g, { cast: false }); pmesh(new THREE.PlaneGeometry(2.3, 1.2), new THREE.MeshBasicMaterial({ color: 0x18306a }), xB + .16, 1.8, z0 + 3.2, g, { ry: Math.PI / 2, cast: false });
+    // 관측 돔 (동남): 원형 드럼벽 (서쪽 출입구) · 굴절 망원경 (L2500) + 적도의 받침 · 원형 난간
+    { const dx = (xB + x1) / 2, dz = (zE + z1) / 2, R = Math.min(x1 - xB, z1 - zE) / 2 - .25, n = 18;
+      for (let k = 0; k < n; k++) { const a = (k + .5) / n * Math.PI * 2; if (Math.abs(Math.atan2(Math.sin(a), Math.cos(a)) - Math.PI) < .35 || Math.abs(Math.atan2(Math.sin(a), Math.cos(a)) + Math.PI) < .35) continue;
+        const px = dx + Math.cos(a) * R, pz = dz + Math.sin(a) * R, L = 2 * R * Math.sin(Math.PI / n) + .05; pbox(.16, 3.85, L, PM(0xc8c4b8, .7), px, 1.925, pz, g, { ry: -a }); addCol(px - .25, px + .25, pz - .25, pz + .25); }
+      pcyl(.35, .45, 1.1, darkMetal, dx, .55, dz, g, { seg: 14 }); pcyl(.13, .16, 2.5, PM(0xe8e8ec, .35, .4), dx + .3, 1.75, dz, g, { rz: Math.PI / 3.4 }); pcyl(.16, .16, .3, darkMetal, dx + 1.1, 2.35, dz, g, { rz: Math.PI / 3.4 }); addCol(dx - .5, dx + .5, dz - .5, dz + .5);
+      world.props.push({ kind: 'robj', k: 'astro_scope', t: 'mega15k', floor: 0, x: dx - 1.0, z: dz, y: 1.3, r: 2.0, label: '관측 돔 굴절 망원경 들여다보기' }); }
     chunks.push({ id: 'chunk_astro', g, x: cx, z: cz });
   }
 
@@ -491,36 +518,36 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
     [-2.6, 2.6].forEach(dz => pcyl(.22, .24, 3.2, stoneM, cx - W / 2 - 2.0, 1.6, cz + dz, g));
     pbox(.14, .68, 5.2, darkMetal, cx - W / 2 - 2.35, 3.68, cz, g, { cast: false });
     pmesh(new THREE.PlaneGeometry(5.0, .56), new THREE.MeshBasicMaterial({ map: makeSign('서문 중앙학술정보관 · 대도서관', '#221a14', '#f4e8c8', 24) }), cx - W / 2 - 2.43, 3.68, cz, g, { ry: -Math.PI / 2, cast: false });
+    // 대도서관 1층 리모델링 (참고 1층 평면도 · 22.0 × 18.0m): 서측 정문 → 중앙 로비 (원형 열람 테이블 · 2층 계단) / 북측 자료정리실 · 사무실 / 남측 기록보관실 · 멀티미디어실 / 동북 열람실 A · 동남 열람실 B (양면 서가 · 열람 테이블)
+    const x0 = cx - W / 2, x1 = cx + W / 2, z0 = cz - D / 2, z1 = cz + D / 2, xA = x0 + 11, zN = z0 + 5.5, zS = z1 - 5.5, zA = cz - 2.2, zB = cz + 2.2;
+    iwall(g, x0, zN, xA, zN, [[x0 + 2.0, x0 + 3.2], [x0 + 7.4, x0 + 8.6]]); iwall(g, x0 + 5.2, z0, x0 + 5.2, zN);
+    iwall(g, x0, zS, xA, zS, [[x0 + 2.0, x0 + 3.2], [x0 + 7.4, x0 + 8.6]]); iwall(g, x0 + 5.2, zS, x0 + 5.2, z1);
+    iwall(g, xA, z0, xA, zA); iwall(g, xA, zB, xA, z1); iwall(g, xA, zA, x1, zA, [[xA + 1.0, xA + 2.2]]); iwall(g, xA, zB, x1, zB, [[xA + 1.0, xA + 2.2]]);
     const bookColors = [PM(0x7a2420, .8), PM(0x1e3c58, .8), PM(0x284e34, .8), PM(0x8a6832, .8), PM(0x4a3248, .8)];
-    [-6.2, -3.6, 3.6, 6.2].forEach(dz => {
-      pbox(7.2, 2.35, .68, woodDark, cx + 2.5, 1.175, cz + dz, g);
-      [0.45, 0.95, 1.45, 1.95].forEach((sy, si) => {
-        pbox(7.0, .04, .72, woodLight, cx + 2.5, sy, cz + dz, g);
-        for (let bx = -3.0; bx <= 2.8; bx += 0.65) {
-          pbox(.52, .36, .58, bookColors[(Math.abs((bx * 10 + si) | 0)) % bookColors.length], cx + 2.5 + bx, sy + .20, cz + dz, g);
-        }
-      });
-      addCol(cx - 1.2, cx + 6.2, cz + dz - .42, cz + dz + .42);
-    });
-    [-1.5, 1.5].forEach(dz => {
-      pbox(4.2, .76, 1.3, woodLight, cx - 3.5, .38, cz + dz, g);
-      [-1.2, 1.2].forEach(dx => {
-        pcyl(.04, .12, .22, goldM, cx - 3.5 + dx, .85, cz + dz, g);
-        pbox(.26, .14, .18, greenLamp, cx - 3.5 + dx, .96, cz + dz, g, { cast: false });
-        addChair(g, cx - 3.5 + dx, cz + dz - .85, 0);
-        addChair(g, cx - 3.5 + dx, cz + dz + .85, Math.PI);
-      });
-      addCol(cx - 5.6, cx - 1.4, cz + dz - .75, cz + dz + .75);
-    });
-    pbox(1.6, .82, 2.8, woodDark, cx + 8.2, .41, cz, g);
-    pbox(.55, .62, .55, darkMetal, cx + 8.1, 1.12, cz - .5, g);
-    pmesh(new THREE.PlaneGeometry(.46, .38), new THREE.MeshBasicMaterial({ map: makeSign('1998.10.13 호외 — 서문고 심야 실종 사건 특보', '#101814', '#80ffb8', 18) }), cx + 7.81, 1.15, cz - .5, g, { ry: -Math.PI / 2, cast: false });
-    addCol(cx + 7.3, cx + 9.1, cz - 1.5, cz + 1.5);
-    world.props.push({ kind: 'robj', k: 'lib_microfilm', t: 'mega15k', floor: 0, x: cx + 6.6, z: cz, y: 1.1, r: 2.2, label: '마이크로필름 판독기로 1998년 신문 기사 복원하기' });
+    const bookcase = (x, z, len, alongZ, dbl = true) => { const w = alongZ ? (dbl ? .6 : .32) : len, d = alongZ ? len : (dbl ? .6 : .32); pbox(w, 2.1, d, woodDark, x, 1.05, z, g);
+      for (let r = 0; r < 5; r++) for (let k = 0; k < Math.floor(len / .45); k++) { const t = -len / 2 + .25 + k * .45; pbox(alongZ ? w + .02 : .4, .3, alongZ ? .4 : d + .02, bookColors[(k + r * 2) % 5], x + (alongZ ? 0 : t), .3 + r * .4, z + (alongZ ? t : 0), g, { cast: false }); }
+      addCol(x - w / 2, x + w / 2, z - d / 2, z + d / 2); };
+    // 열람실 A · B: 벽면 서가 + 양면 서가 2열 + 열람 테이블 (1800×900) + 의자
+    [[z0, zA, 1], [zB, z1, -1]].forEach(([za, zb, s]) => { const zw = s > 0 ? za : zb;
+      bookcase((xA + x1 - 2.8) / 2, zw + s * .2, x1 - 2.8 - xA - .4, false, false); if (s < 0) bookcase(x1 - .2, (za + zb) / 2, zb - za - 3.0, true, false);
+      [xA + 2.6, xA + 4.6].forEach(x => bookcase(x, zw + s * 2.6, 2.6, true));
+      [[xA + 7.6, (za + zb) / 2]].forEach(([x, z]) => { deskT(g, x, z, .9, 1.8, .74, woodLight); [-.6, 0, .6].forEach(d => { addChair(g, x - .7, z + d, Math.PI / 2); addChair(g, x + .7, z + d, -Math.PI / 2); }); }); });
+    world.props.push({ kind: 'robj', k: 'lib_desk', t: 'mega15k', floor: 0, x: xA + 6.6, z: (z0 + zA) / 2, y: .9, r: 2.2, label: '대도서관 열람실 미반납 도서함 조사하기' });
+    // 중앙 로비: 원형 열람 테이블 2 · 화분 · 2층 계단 (동쪽 끝)
+    [cx - 4.5, cx - 1.0].forEach(x => { pcyl(.8, .8, .05, woodLight, x, .72, cz, g, { seg: 20 }); pcyl(.08, .2, .7, darkMetal, x, .35, cz, g); addCol(x - .8, x + .8, cz - .8, cz + .8, false, .75); [0, 1, 2, 3].forEach(k => addChair(g, x + Math.cos(k * Math.PI / 2) * 1.15, cz + Math.sin(k * Math.PI / 2) * 1.15, -k * Math.PI / 2 - Math.PI / 2)); });
+    for (let k = 0; k < 10; k++) pbox(.32, .18, 2.6, stoneM, x1 - 4.4 + k * .32, .09 + k * .18, cz, g); addCol(x1 - 4.6, x1, cz - 1.35, cz + 1.35);
+    pbox(.6, .06, 2.7, PM(0x3a3e42, .4, .6), x1 - 4.6, .95, cz - 1.38, g, { cast: false });
+    // 자료정리실 (북서) · 사무실 (북측) · 기록보관실 (남서) · 멀티미디어실 (남측, 마이크로필름 판독기)
+    [x0 + .5, x0 + 1.5, x0 + 2.5, x0 + 3.5].forEach(x => bookcase(x, z0 + .2, .9, false, false)); deskT(g, x0 + 2.6, z0 + 2.8, 1.8, .9);
+    deskT(g, x0 + 7.8, z0 + 2.0, 1.6, .8); monitor(g, x0 + 7.8, .74, z0 + 1.8, 0); addChair(g, x0 + 7.8, z0 + 2.8, Math.PI, blueFabric); pbox(.9, 1.8, .45, PM(0x8a8e90, .5, .4), x0 + 10.2, .9, z0 + .3, g); addCol(x0 + 9.75, x0 + 10.65, z0, z0 + .55);
+    for (let k = 0; k < 4; k++) { pbox(.9, 1.8, .45, PM(0xa8aab0, .5, .45), x0 + .6 + k * 1.0, .9, z1 - .3, g); } addCol(x0, x0 + 4.2, z1 - .55, z1);
+    for (let k = 0; k < 3; k++) { const x = x0 + 6.4 + k * 1.4; deskT(g, x, z1 - 1.0, 1.2, .7); monitor(g, x, .74, z1 - .8, Math.PI); }
+    pbox(1.0, .82, .9, woodDark, x0 + 9.8, .41, zS + 1.4, g); pbox(.55, .62, .55, darkMetal, x0 + 9.8, 1.12, zS + 1.4, g); addCol(x0 + 9.3, x0 + 10.3, zS + .95, zS + 1.85);
+    pmesh(new THREE.PlaneGeometry(.46, .38), new THREE.MeshBasicMaterial({ map: makeSign('1998.10.13 호외 — 서문고 심야 실종 사건 특보', '#101814', '#80ffb8', 18) }), x0 + 9.8, 1.15, zS + 1.11, g, { ry: Math.PI, cast: false });
+    world.props.push({ kind: 'robj', k: 'lib_microfilm', t: 'mega15k', floor: 0, x: x0 + 9.8, z: zS + .6, y: 1.1, r: 2.2, label: '마이크로필름 판독기로 1998년 신문 기사 복원하기' });
     // 북측(광장 조망면) 대도서관 현판 추가
     pbox(5.8, .62, .14, darkMetal, cx, 8.55, cz - D / 2 - .42, g, { cast: false });
     pmesh(new THREE.PlaneGeometry(5.6, .52), new THREE.MeshBasicMaterial({ map: makeSign('중앙학술정보관 · CENTRAL LIBRARY', '#221a14', '#f4e8c8', 22) }), cx, 8.55, cz - D / 2 - .50, g, { ry: Math.PI, cast: false });
-    world.props.push({ kind: 'robj', k: 'lib_desk', t: 'mega15k', floor: 0, x: cx - 3.5, z: cz, y: .9, r: 2.2, label: '대도서관 열람실 미반납 도서함 조사하기' });
     chunks.push({ id: 'chunk_library', g, x: cx, z: cz });
   }
 
@@ -597,20 +624,29 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
 
     // ── (2) 체육부 전통 씨름장(원형 모래판 · 차양막) & 3단 철봉·평행봉 체력단련장 (x: 58.0, z: -21.5) ──
     {
-      const sxC = 55.5, szC = -21.5;
-      // 원형 통나무 테두리 & 황토 모래판 (직경 7.6m)
-      pcyl(4.1, 4.2, .22, woodDark, sxC, .11, szC, g, { seg: 24 });
-      pcyl(3.85, 3.85, .25, sandPitM, sxC, .125, szC, g, { seg: 24 });
-      // 모래판 중앙 샅바(청샅바 · 홍샅바) 소품
-      pbox(.65, .04, .18, blueFabric, sxC - .45, .27, szC, g, { ry: .4 });
-      pbox(.65, .04, .18, redFabric,  sxC + .45, .27, szC, g, { ry: -.5 });
-      // 4주 강철 기둥 & 청색/백색 천막 차양 지붕
-      [[-3.8, -3.8], [3.8, -3.8], [-3.8, 3.8], [3.8, 3.8]].forEach(([px, pz]) => {
-        pcyl(.08, .09, 3.6, chromeM, sxC + px, 1.8, szC + pz, g);
-      });
-      pbox(8.4, .14, 8.4, blueTarpM, sxC, 3.65, szC, g);
-      pmesh(new THREE.ConeGeometry(5.8, 1.35, 4), whiteWall, sxC, 4.38, szC, g, { ry: Math.PI / 4 });
-      pmesh(new THREE.PlaneGeometry(3.4, .36), new THREE.MeshBasicMaterial({ map: makeSign('서문고 체육부 씨름장 · 체력단련장', '#182c42', '#f4ead2', 22) }), sxC, 3.45, szC + 4.22, g, { cast: false });
+      // 씨름장 리모델링 (참고 배치도 · 8.0 × 8.0m · 개방형 · 높이 약 4.0m): 석조 각기둥 8 · 사각 금속 지붕 · 남측 계단 출입 · 청색 바닥 매트 · 모래 원형 경기장 Ø5500 (모래층 300) · 관람석 목재 벤치 (3000×700) 동 · 서 · 용품 보관 선반 · 씨름 매트 · 샅바 걸이대 · 간이 탈의실 파티션
+      const sxC = 55.5, szC = -21.5, sx0 = sxC - 4, sx1 = sxC + 4, sz0 = szC - 4, sz1 = szC + 4, colM = PM(0xb8b2a6, .8);
+      pbox(8.2, .12, 8.2, stoneM, sxC, .06, szC, g, { cast: false }); pbox(7.2, .02, 7.2, PM(0x2e5a78, .7), sxC, .13, szC, g, { cast: false });
+      [[-4, -4], [0, -4], [4, -4], [-4, 0], [4, 0], [-4, 4], [0, 4], [4, 4]].forEach(([a, b]) => { if (a === 0 && b === 4) return; pbox(.42, 3.4, .42, colM, sxC + a * .97, 1.82, szC + b * .97, g); addCol(sxC + a * .97 - .21, sxC + a * .97 + .21, szC + b * .97 - .21, szC + b * .97 + .21); });
+      [[-1.9, 4], [1.9, 4]].forEach(([a, b]) => { pbox(.42, 3.4, .42, colM, sxC + a, 1.82, szC + b * .97, g); addCol(sxC + a - .21, sxC + a + .21, szC + b * .97 - .21, szC + b * .97 + .21); });
+      pbox(8.6, .3, 8.6, colM, sxC, 3.65, szC, g); pmesh(new THREE.ConeGeometry(6.4, 1.6, 4), PM(0x3a3e42, .5, .5), sxC, 4.6, szC, g, { ry: Math.PI / 4 });
+      // 낮은 난간벽 (출입 계단 쪽 제외)
+      [[sx0 + .1, szC, .2, 7.4], [sx1 - .1, szC, .2, 7.4], [sxC, sz0 + .1, 7.4, .2]].forEach(([x, z, w, d]) => { pbox(w, .6, d, colM, x, .42, z, g); pbox(w + .04, .05, d + .04, darkMetal, x, 1.0, z, g, { cast: false }); addCol(x - w / 2, x + w / 2, z - d / 2, z + d / 2); });
+      [[sx0 + 1.0, sxC - 1.6], [sxC + 1.6, sx1 - 1.0]].forEach(([a, b]) => { pbox(b - a, .6, .2, colM, (a + b) / 2, .42, sz1 - .1, g); addCol(a, b, sz1 - .2, sz1); });
+      for (let k = 0; k < 3; k++) pbox(3.0, .12, .35, stoneM, sxC, .06 + k * .0, sz1 + .3 + k * .35, g, { cast: false });   // 남측 계단
+      // 모래 원형 경기장 (Ø5500 · 테두리)
+      pcyl(2.9, 2.95, .3, PM(0xe8e2d4, .6), sxC, .15, szC, g, { seg: 32 }); pcyl(2.75, 2.75, .32, sandPitM, sxC, .16, szC, g, { seg: 32 }); addCol(sxC - 2.9, sxC + 2.9, szC - 2.9, szC + 2.9, false, .32);
+      pbox(.65, .04, .18, blueFabric, sxC - .45, .34, szC, g, { ry: .4 }); pbox(.65, .04, .18, redFabric, sxC + .45, .34, szC, g, { ry: -.5 });
+      // 관람석 목재 벤치 (3000×700×800 · 등받이) 동 · 서
+      [sx0 + .65, sx1 - .65].forEach((x, i) => { pbox(.45, .06, 3.0, woodLight, x, .45, szC - 1.0, g); pbox(.06, .4, 3.0, woodLight, x + (i ? .22 : -.22), .7, szC - 1.0, g); [-1.3, 1.3].forEach(d => pbox(.4, .42, .06, darkMetal, x, .21, szC - 1.0 + d, g, { cast: false })); addCol(x - .3, x + .3, szC - 2.5, szC + .5, false, .5); });
+      // 용품 보관 선반 (북서) · 씨름 매트 적재 (북동) · 샅바 걸이대 · 간이 탈의실 파티션 (동남)
+      steelShelf(g, sx0 + 1.3, sz0 + .45, 1.8, .45, 1.8, PM(0x8a3a28, .7));
+      for (let k = 0; k < 4; k++) pbox(2.0, .05, 1.0, blueFabric, sx1 - 1.5, .18 + k * .05, sz0 + .75, g, { cast: false }); addCol(sx1 - 2.5, sx1 - .5, sz0 + .25, sz0 + 1.25, false, .4);
+      { const x = sxC, z = sz0 + .5; [-.7, .7].forEach(d => pbox(.05, 1.5, .05, darkMetal, x + d, .75, z, g, { cast: false })); pbox(1.5, .04, .04, chromeM, x, 1.45, z, g, { cast: false }); [0xb02020, 0x2a4ea8, 0xd8b020, 0xb02020, 0x2a4ea8].forEach((c, k) => pbox(.12, .8, .02, PM(c, .8), x - .5 + k * .25, 1.05, z, g, { cast: false })); addCol(x - .75, x + .75, z - .15, z + .15); }
+      [[sx1 - .55, sz1 - 1.6], [sx1 - .55, sz1 - 2.55]].forEach(([x, z]) => { pbox(.9, 2.0, .04, PM(0xa8a49a, .5, .3), x, 1.05, z - .45, g); pbox(.04, 2.0, .9, PM(0xa8a49a, .5, .3), x - .45, 1.05, z, g); addCol(x - .47, x + .45, z - .47, z + .45); });
+      // 현판 (남측 보)
+      pbox(1.6, .5, .08, woodDark, sxC, 3.2, sz1 + .12, g, { cast: false });
+      pmesh(new THREE.PlaneGeometry(1.5, .42), new THREE.MeshBasicMaterial({ map: makeSign('씨름장', '#4a2e1a', '#f4e4c0', 34) }), sxC, 3.2, sz1 + .17, g, { cast: false });
       // 우측(x = 63.2): 고·중·저 3단 철봉(Pull-up Bars) & 평행봉(Parallel Bars)
       const bx0 = 62.2, bz0 = -21.5;
       [-3.0, -1.0, 1.0, 3.0].forEach(dz => pcyl(.045, .045, 2.4, chromeM, bx0, 1.2, bz0 + dz, g));
@@ -622,7 +658,7 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
         [-1.4, 1.4].forEach(dz => pcyl(.035, .035, 1.35, darkMetal, bx0 + 2.2 + ox, .675, bz0 + dz, g));
         pcyl(.028, .028, 3.0, chromeM, bx0 + 2.2 + ox, 1.35, bz0, g, { rx: Math.PI / 2 });
       });
-      world.props.push({ kind: 'robj', k: 'east_ssireum', t: 'mega15k', floor: 0, x: sxC, z: szC + 2.2, y: .4, r: 2.5, label: '씨름장 모래판 파헤쳐 1998년 체육대회 유실물 수색하기' });
+      world.props.push({ kind: 'robj', k: 'east_ssireum', t: 'mega15k', floor: 0, x: sxC, z: szC + 3.3, y: .4, r: 2.5, label: '씨름장 모래판 파헤쳐 1998년 체육대회 유실물 수색하기' });
     }
 
     // ── (3) 서문고 역사관 · 개교기념관 (워커블 적벽돌 단층 박물관) & 구관 동종(학교 종) 종각 (x: 84.0, z: -11.0) ──
@@ -634,22 +670,25 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
       [-1.8, 1.8].forEach(dz => pcyl(.18, .20, 3.1, stoneM, hxC - hw / 2 - 1.7, 1.55, hzC + dz, g));
       pbox(.14, .58, 4.6, darkMetal, hxC - hw / 2 - 1.92, 3.52, hzC, g, { cast: false });
       pmesh(new THREE.PlaneGeometry(4.4, .48), new THREE.MeshBasicMaterial({ map: makeSign('서문고 역사관 · 개교기념관 (SEOMUN HISTORY MUSEUM · 1968)', '#281814', '#f6e8c8', 20) }), hxC - hw / 2 - 2.0, 3.52, hzC, g, { ry: -Math.PI / 2, cast: false });
-      // 역사관 실내: 역대 우승기·교기 유리 진열장 2기 & 개교 30주년(1998) 타임캡슐·역대 교장 기록대
-      [-3.2, 3.2].forEach(dz => {
-        pbox(5.6, .92, .85, woodDark, hxC + 1.0, .46, hzC + dz, g);
-        pbox(5.4, .95, .75, glassM, hxC + 1.0, 1.40, hzC + dz, g, { cast: false });
-        [-1.8, 0, 1.8].forEach((ox, ti) => {
-          pcyl(.10, .14, .36, goldM, hxC + 1.0 + ox, 1.12, hzC + dz, g);
-          pbox(.28, .22, .04, ti === 1 ? redFabric : blueFabric, hxC + 1.0 + ox, 1.42, hzC + dz, g);
-        });
-        addCol(hxC - 1.8, hxC + 3.8, hzC + dz - .48, hzC + dz + .48);
-      });
-      // 실내 정면(동벽 앞): 1968~1998 서문고 30년사 대형 연혁 보드 & 황동 타임캡슐 좌대
-      pmesh(new THREE.PlaneGeometry(5.2, 1.8), new THREE.MeshBasicMaterial({ map: makeSign('서문고 30년 연혁 (1968~1998)  |  1998.10.12 제30회 개교기념 방송제 특별전시', '#1c1612', '#f4e4c0', 20) }), hxC + hw / 2 - .08, 2.15, hzC, g, { ry: -Math.PI / 2, cast: false });
-      pbox(1.2, 1.05, 1.2, stoneM, hxC + 4.8, .525, hzC, g);
-      pcyl(.32, .32, .68, goldM, hxC + 4.8, 1.28, hzC, g, { rz: Math.PI / 2 });
-      addCol(hxC + 4.1, hxC + 5.5, hzC - .65, hzC + .65);
-      world.props.push({ kind: 'robj', k: 'east_museum', t: 'mega15k', floor: 0, x: hxC + 3.6, z: hzC, y: 1.1, r: 2.4, label: '서문고 역사관 개교 30주년 기념 타임캡슐 & 1998년 졸업앨범 기록 조사하기' });
+      // 역사관 실내 리모델링 (참고 배치도 · 15.6 × 10.6m): 서측 정문 → 로비/홀 (안내 데스크) · 북측 자료보관실 · 남측 사무실 · 동쪽 전시실 1 (학교 역사) · 전시실 2 (지역 역사)
+      const x0 = hxC - hw / 2, x1 = hxC + hw / 2, z0 = hzC - hd / 2, z1 = hzC + hd / 2, xA = x0 + 6.0;
+      iwall(g, x0, z0 + 3.5, xA, z0 + 3.5, [[x0 + 3.0, x0 + 4.2]]); iwall(g, x0, z1 - 3.0, xA, z1 - 3.0, [[x0 + 3.0, x0 + 4.2]]);
+      iwall(g, xA, z0, xA, z1, [[hzC - 1.9, hzC - .7], [hzC + .7, hzC + 1.9]]); iwall(g, xA, hzC, x1, hzC, [[x1 - 2.4, x1 - 1.2]]);
+      // 로비: 안내 데스크 (1800×700×1000) · 전시 패널 · 학교 상징 기념비
+      pbox(1.8, 1.0, .7, woodLight, x0 + 3.5, .5, z0 + 3.95, g); addCol(x0 + 2.6, x0 + 4.4, z0 + 3.6, z0 + 4.3, false, 1.0); monitor(g, x0 + 3.1, 1.0, z0 + 3.8, Math.PI);
+      pmesh(new THREE.PlaneGeometry(2.4, 1.3), new THREE.MeshBasicMaterial({ map: makeSign('우리의 역사 우리의 미래 · 서문고 개교 1968', '#2a1e14', '#f4e4c0', 18) }), x0 + 3.0, 1.7, z1 - 3.08, g, { ry: Math.PI, cast: false });
+      // 자료보관실 (북서): 서가 · 문서 보관함 · 사무용 책상
+      [x0 + .5, x0 + 1.45, x0 + 2.4].forEach(x => steelShelf(g, x, z0 + .3, .9, .45, 1.8, PM(0xb08a58, .9))); steelShelf(g, xA - .3, z0 + 1.6, .45, .9, 1.8, PM(0xb08a58, .9)); deskT(g, x0 + 1.4, z0 + 2.3, 1.2, .7);
+      // 사무실 (남서): 사무용 책상 (1200×700) + 의자 · 문서 보관함 · PC
+      deskT(g, x0 + 1.2, z1 - 1.3, .7, 1.2); monitor(g, x0 + 1.1, .74, z1 - 1.3, Math.PI / 2); addChair(g, x0 + 1.9, z1 - 1.3, -Math.PI / 2, blueFabric); pbox(.9, 1.8, .45, PM(0x8a8e90, .5, .4), xA - .7, .9, z1 - .3, g); addCol(xA - 1.15, xA - .25, z1 - .55, z1);
+      // 전시실 1 (북동, 학교 역사) · 전시실 2 (남동, 지역 역사): 벽면 전시 진열장 · 중앙 대형 진열장 (1800×750) · 전시 패널 · 지도
+      [-1, 1].forEach(s => { const zc = hzC + s * hd / 4, zw = s < 0 ? z0 : z1;
+        for (let k = 0; k < (s < 0 ? 3 : 4); k++) tallCase(g, xA + 1.4 + k * 1.9, zw - s * .35, 1.2, .6);
+        vitrine(g, (xA + x1) / 2, zc, 1.8, .75); vitrine(g, (xA + x1) / 2 + 2.6, zc, 1.2, .6);
+        pmesh(new THREE.PlaneGeometry(2.6, 1.5), new THREE.MeshBasicMaterial({ map: makeSign(s < 0 ? '서문고 30년 연혁 (1968~1998)  |  1998.10.12 제30회 개교기념 방송제 특별전시' : '서문 지역 역사 지도 · 향토 유물', '#1c1612', '#f4e4c0', 18) }), x1 - .08, 1.9, zc, g, { ry: -Math.PI / 2, cast: false }); });
+      // 황동 타임캡슐 좌대 (전시실 1)
+      pbox(1.0, .9, 1.0, stoneM, xA + 1.6, .45, hzC - 1.6, g); pcyl(.28, .28, .6, goldM, xA + 1.6, 1.15, hzC - 1.6, g, { rz: Math.PI / 2 }); addCol(xA + 1.1, xA + 2.1, hzC - 2.1, hzC - 1.1);
+      world.props.push({ kind: 'robj', k: 'east_museum', t: 'mega15k', floor: 0, x: xA + 2.8, z: hzC - 1.4, y: 1.1, r: 2.4, label: '서문고 역사관 개교 30주년 기념 타임캡슐 & 1998년 졸업앨범 기록 조사하기' });
 
       // ★ 역사관 앞마당(x: 74.5, z: -4.2): 구관 청동 학교 종(銅鍾) 종각 파빌리온
       const bxB = 74.8, bzB = -3.8;
@@ -699,40 +738,44 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
         addCol(px - 1.2, px + 1.2, pz - .9, pz + .9, false, .42);
       });
 
-      // ② 학교 쓰레기 분리수거장(폐지·캔·공병·플라스틱 4분할 슬레이트 지붕 창고 — 도로 방향 서쪽 개방!) & 구식 벽돌 소각장(굴뚝)
-      const rxC = 86.2, rzC = 13.5;
-      pbox(4.6, .12, 9.6, stoneM, rxC, .06, rzC, g, { cast: false });
-      // 동쪽 후면 시멘트 담장 & 남북 칸막이 5벽(4칸) + 서쪽으로 열린 경사 슬레이트 지붕
-      pbox(.22, 2.4, 9.6, stoneM, rxC + 2.15, 1.2, rzC, g);
-      for (let k = 0; k <= 4; k++) {
-        const kz = rzC - 4.6 + k * 2.3;
-        pbox(4.2, 2.3, .18, stoneM, rxC, 1.15, kz, g);
-      }
-      pbox(4.8, .14, 10.0, darkMetal, rxC, 2.48, rzC, g, { rz: .08 });
-      ['① 폐지 · 신문지', '② 공병 · 유리류', '③ 고철 · 캔류', '④ 플라스틱 · 비닐'].forEach((lbl, li) => {
-        const bz = rzC - 3.45 + li * 2.3;
-        pmesh(new THREE.PlaneGeometry(1.9, .28), new THREE.MeshBasicMaterial({ map: makeSign(lbl, '#1c2826', '#d8f0e4', 20) }), rxC - 2.02, 2.18, bz, g, { ry: -Math.PI / 2, cast: false });
-        // 각 칸 내부 마대자루·폐지 묶음·분리수거 케이지
-        pbox(1.4, .78, 1.4, PM([0x8a7858, 0x3a5868, 0x585c62, 0x386848][li], .8), rxC + .4, .42, bz, g);
-      });
-      pbox(.12, .44, 4.6, darkMetal, rxC - 2.12, 2.72, rzC, g, { cast: false });
-      pmesh(new THREE.PlaneGeometry(4.4, .38), new THREE.MeshBasicMaterial({ map: makeSign('서문고 쓰레기 분리수거장 · 환경미화구역', '#162420', '#e8f4dc', 22) }), rxC - 2.20, 2.72, rzC, g, { ry: -Math.PI / 2, cast: false });
-      addCol(rxC - 2.1, rxC + 2.3, rzC - 4.8, rzC + 4.8);
-
-      // ★ 한국 옛 학교 괴담의 핵심 성지: 구식 붉은벽돌 쓰레기 소각장(소각로 & 연통 굴뚝, x: 86.2, z: 21.0)
-      const ixC = 85.8, izC = 21.2;
-      pbox(3.4, .22, 3.4, stoneM, ixC, .11, izC, g);
-      pbox(2.4, 2.2, 2.4, brickM, ixC, 1.21, izC, g);
-      pbox(2.6, .18, 2.6, stoneM, ixC, 2.35, izC, g);
-      // 솟아오른 붉은벽돌 소각로 굴뚝 (높이 6.6m) & 그을린 철제 상단 캡
-      pbox(.96, 4.2, .96, brickM, ixC + .35, 4.45, izC, g);
-      pbox(1.12, .22, 1.12, darkMetal, ixC + .35, 6.60, izC, g);
-      // 서쪽(도로 방향) 철제 소각 투입구 문짝 & 내부 타오르는 붉은 잔불(Ember) 발광
-      pbox(.08, .92, .92, darkMetal, ixC - 1.22, 1.05, izC, g);
-      pmesh(new THREE.PlaneGeometry(.72, .72), emberEm, ixC - 1.27, 1.05, izC, g, { ry: -Math.PI / 2, cast: false });
-      pmesh(new THREE.PlaneGeometry(2.2, .30), new THREE.MeshBasicMaterial({ map: makeSign('구내 소각장 · 화기엄금', '#4a1414', '#ffe4d0', 22) }), ixC - 1.22, 1.88, izC, g, { ry: -Math.PI / 2, cast: false });
-      addCol(ixC - 1.35, ixC + 1.35, izC - 1.35, izC + 1.35);
-      world.props.push({ kind: 'robj', k: 'east_incinerator', t: 'mega15k', floor: 0, x: ixC - 1.75, z: izC, y: 1.0, r: 2.3, label: '구식 벽돌 소각로 투입구 열어 타다 남은 1998년 방송부 원고 조각 확인하기' });
+      // ② 분리수거장 · 소각시설 리모델링 (참고 배치도 · 16.0 × 11.0m · 높이 약 4.0m): 서쪽(도로) 개방 분리수거장 (철골 기둥 · 금속 지붕 · 대형 컨테이너 · 철제 케이지) / 남측 저장 · 작업공간 · 관리실 / 동남 소각장 (소각로 · 집진 장치 · 배출 굴뚝 Ø600 × 8000)
+      const rx0 = 78.5, rx1 = 94.5, rz0 = 10.0, rz1 = 21.0, rzM = 16.0, roofH = 4.0, galv = PM(0x8a9094, .45, .6);
+      pbox(rx1 - rx0, .12, rz1 - rz0, stoneM, (rx0 + rx1) / 2, .06, (rz0 + rz1) / 2, g, { cast: false });
+      // 분리수거장 (북측 6m): 동벽 · 북벽 시멘트 담장 + 서쪽 개방 기둥 + 금속 지붕 + 현판
+      pbox(rx1 - rx0, 2.4, .22, stoneM, (rx0 + rx1) / 2, 1.2, rz0 + .11, g); addCol(rx0, rx1, rz0, rz0 + .22);
+      [rx0 + .15, rx0 + 5.4, rx0 + 10.7].forEach(x => { pbox(.2, roofH, .2, galv, x, roofH / 2, rzM - .1, g); addCol(x - .1, x + .1, rzM - .2, rzM); });
+      pbox(rx1 - rx0 + .4, .14, rzM - rz0 + .4, darkMetal, (rx0 + rx1) / 2, roofH + .07, (rz0 + rzM) / 2, g, { rx: -.03 });
+      pbox(4.8, .6, .1, PM(0x3a4038, .5, .3), rx0 + 4.0, roofH - .4, rzM + .06, g, { cast: false });
+      pmesh(new THREE.PlaneGeometry(4.6, .5), new THREE.MeshBasicMaterial({ map: makeSign('분리수거장 · 소각시설', '#2a2e28', '#f0ecd8', 26) }), rx0 + 4.0, roofH - .4, rzM + .12, g, { cast: false });
+      const binC = [0x2e6a3a, 0x2a4e8a, 0xc8a020, 0x6a6e72];
+      for (let k = 0; k < 9; k++) { const x = rx0 + 1.0 + k * 1.45, c = binC[k % 4]; pbox(1.37, 1.1, .77, PM(c, .6, .1), x, .65, rz0 + .7, g); pbox(1.4, .08, .8, PM(c, .5, .1), x, 1.24, rz0 + .7, g, { rx: -.15 }); [-.55, .55].forEach(d => pcyl(.06, .06, .08, PM(0x1a1a1a, .8), x + d, .06, rz0 + .7, g, { rx: Math.PI / 2 })); }
+      addCol(rx0 + .3, rx0 + 13.6, rz0 + .25, rz0 + 1.12);
+      pmesh(new THREE.PlaneGeometry(3.2, .3), new THREE.MeshBasicMaterial({ map: makeSign('① 일반 · ② 플라스틱 · ③ 캔 · 고철 · ④ 폐지', '#1c2826', '#d8f0e4', 18) }), rx0 + 6.0, 2.0, rz0 + .24, g, { cast: false });
+      const cage = (x, z) => { const cg = []; [[-.6, -.5], [.6, -.5], [-.6, .5], [.6, .5]].forEach(([a, b]) => pbox(.04, 1.2, .04, chromeM, x + a, .6, z + b, g, { cast: false })); [.1, 1.2].forEach(y => pbox(1.2, .03, 1.0, chromeM, x, y, z, g, { cast: false }));
+        for (let k = -5; k <= 5; k++) { pbox(.01, 1.1, .01, chromeM, x + k * .12, .65, z - .5, g, { cast: false }); pbox(.01, 1.1, .01, chromeM, x + k * .12, .65, z + .5, g, { cast: false }); } pbox(1.0, .8, .8, PM(0xe8e4dc, .9), x, .55, z, g); addCol(x - .6, x + .6, z - .5, z + .5); };
+      [rx0 + 12.0, rx0 + 13.4].forEach(x => cage(x, rz0 + 2.4)); cage(rx0 + 14.9, rz0 + 3.9);
+      // 남측 실: 저장/작업공간 (서) · 관리실 (가운데, 창) · 소각장 (동, 북쪽 분리수거장 쪽 출입)
+      const xs1 = rx0 + 4.6, xs2 = rx0 + 8.2;
+      iwall(g, rx0, rzM, rx1, rzM, [[rx0 + 12.0, rx0 + 13.6]], stoneM); iwall(g, rx0, rz1, rx1, rz1, [], stoneM); iwall(g, rx1, rz0, rx1, rz1, [], stoneM);
+      iwall(g, rx0, rzM, rx0, rz1, [[rzM + 1.4, rzM + 2.6]], stoneM); iwall(g, xs1, rzM, xs1, rz1, [], stoneM); iwall(g, xs2, rzM, xs2, rz1, [], stoneM);
+      iwall(g, xs1, rzM, xs2, rzM, [[xs1 + 1.2, xs1 + 2.2]], stoneM);   // 관리실 문 (북측 분리수거장에서)
+      pbox(rx1 - rx0, .14, rz1 - rzM, darkMetal, (rx0 + rx1) / 2, roofH + .07, (rzM + rz1) / 2, g);
+      pmesh(new THREE.PlaneGeometry(1.4, 1.0), new THREE.MeshStandardMaterial({ color: 0x9ab8c8, roughness: .1, metalness: .3, transparent: true, opacity: .5 }), (xs1 + xs2) / 2, 1.6, rz1 + .09, g, { cast: false });
+      // 저장/작업공간: 선반 랙 · 작업 테이블 · 드럼통 (200L) · 바퀴 수레 · 마대
+      steelShelf(g, rx0 + .4, rz1 - 1.6, .45, 1.8, 1.8, PM(0xc8a020, .6)); deskT(g, rx0 + 2.5, rz1 - .6, 1.8, .75, .85, chromeM, chromeM);
+      [[rx0 + 4.0, rzM + .6], [rx0 + 4.0, rzM + 1.3]].forEach(([x, z]) => pcyl(.29, .29, .88, PM(0x1e4a9a, .45, .4), x, .44, z, g)); addCol(rx0 + 3.65, rx0 + 4.35, rzM + .25, rzM + 1.65);
+      // 관리실: 사무 책상 · PC · 캐비닛 · 벽시계 자리
+      deskT(g, (xs1 + xs2) / 2, rz1 - .8, 1.6, .8); monitor(g, (xs1 + xs2) / 2 - .3, .74, rz1 - .9, 0); addChair(g, (xs1 + xs2) / 2, rz1 - 1.6, 0, blueFabric); pbox(.9, 1.8, .45, PM(0x8a8e90, .5, .4), xs2 - .5, .9, rzM + .4, g); addCol(xs2 - .95, xs2 - .05, rzM + .17, rzM + .63);
+      // 소각장: 소각로 (2500×4500×3200 · 투입구 잔불) · 집진 장치 · 배출 굴뚝 (Ø600 × 8000) · 안전보관함
+      const ixC = rx1 - 2.6, izC = (rzM + rz1) / 2;
+      pbox(2.5, 2.9, 2.6, PM(0x6a6e70, .55, .55), ixC, 1.45, izC, g); pbox(2.6, .3, 2.7, PM(0x4a4e50, .5, .6), ixC, 3.05, izC, g);
+      pbox(.08, .9, .9, PM(0xb02020, .5, .4), ixC - 1.29, 1.0, izC, g); pmesh(new THREE.PlaneGeometry(.6, .6), emberEm, ixC - 1.34, 1.0, izC, g, { ry: -Math.PI / 2, cast: false });
+      addCol(ixC - 1.3, ixC + 1.3, izC - 1.35, izC + 1.35);
+      pbox(1.0, 2.6, 1.2, PM(0x8a9094, .5, .6), ixC - 3.3, 1.3, izC + 1.4, g); pcyl(.35, .1, .6, PM(0x8a9094, .5, .6), ixC - 3.3, .3, izC + 1.4, g); addCol(ixC - 3.8, ixC - 2.8, izC + .8, izC + 2.0);
+      pcyl(.3, .3, 8.0, chromeM, ixC + .6, 4.0, izC - .6, g); pcyl(.36, .36, .3, darkMetal, ixC + .6, 8.0, izC - .6, g);
+      pcyl(.2, .2, 2.6, chromeM, ixC - 1.9, 3.3, izC + .2, g, { rz: Math.PI / 2 });
+      pbox(.7, 1.0, .3, PM(0xb02020, .5, .3), rx1 - .3, .5, rzM + .5, g); addCol(rx1 - .45, rx1, rzM + .35, rzM + .65);
+      world.props.push({ kind: 'robj', k: 'east_incinerator', t: 'mega15k', floor: 0, x: ixC - 1.9, z: izC, y: 1.0, r: 2.3, label: '구식 벽돌 소각로 투입구 열어 타다 남은 1998년 방송부 원고 조각 확인하기' });
     }
 
     // ── (5) 동편 중앙 교차로(x: 74.8, z: 3.2): 서문 백주년 학술 시계탑 & 동편 대로 가로등 17기 ──

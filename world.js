@@ -3768,7 +3768,7 @@ export function buildWorld(scene) {
     // 기둥 (식사 공간 가운데) · 벽시계 · 문구 액자
     add(mWhite, .6, H, .6, -38.4 + 1.75, 0, 16.98, { col: true }); add(mDkW, .62, 1.0, .62, -38.4 + 1.75, 0, 16.98);
     plane(F.interior, new THREE.MeshBasicMaterial({ map: T.makeSign('건강한 식사 · 행복한 하루', '#f2ece0', '#3a2416', 18), color: 0xd8d4c8 }), .9, .6, -45.0, 2.6, kz + .11);
-    addMedkit(-31.9, .92, z0 + .5); addNote('n13', -41.9, .74, 15.95); tapeRecorder('ts_cook', -41.2, .74, 16.0, .4);
+    addMedkit(x1 - t - .3, .87, 18.35); addNote('n13', -41.9, .74, 15.95); tapeRecorder('ts_cook', -41.2, .74, 16.0, .4);
     addBattery(-34.9, .74, 20.05);
     for (let k = 0; k < 8; k++) { const m = new THREE.Mesh(new THREE.PlaneGeometry(.28, .2), mDirtPaper); m.rotation.set(-Math.PI / 2, 0, rnd() * 6); m.position.set(rr(-46, -33), .02, rr(12.5, 21)); F.interior.add(m); }
     add(mLockerT, .62, 1.85, .55, -47.2, 0, 21.2, { col: true }); add(mLockerT, .62, 1.85, .55, -46.54, 0, 21.2, { col: true });

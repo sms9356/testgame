@@ -5571,7 +5571,7 @@ const XT = { search: null, para: 75 + Math.random() * 40, paraLast: [], mbox: nu
     { f: 6, x: -47.6, z: 25.4, where: '수영장 탈의실', what: '탈의실 사물함', fixedLoot: { quest: 'chlorineLog', item: 'thermos' } },
     { f: 6, x: -48.1, z: 29.2, where: '수영장 탈의실', what: '탈의실 사물함' },
     { f: 6, x: -35.6, z: 29.2, where: '수영장 샤워실', what: '샤워실 사물함' },
-    { f: 7, x: -31.3, z: 10.6, where: '급식실', what: '조리실 사물함', fixedLoot: { col: 'c29', item: 'candy' } }
+    { f: 7, x: -46.9, z: 20.5, where: '급식실', what: '직원 사물함', fixedLoot: { col: 'c29', item: 'candy' } }
   );
   // 내용물: 수집품 32종 + 퀘스트 아이템 4종 + 소모품 + 기본 물품 (시드 고정 셔플)
   let seed = 20061012; const rng = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
@@ -5702,7 +5702,7 @@ const XT = { search: null, para: 75 + Math.random() * 40, paraLast: [], mbox: nu
     { id: 'gymBooth', f: 5, x: 44.9, z: 26.4, onTop: 1.6, look: 'radioTop', label: '체육관 2층 방송부스 콘솔 — 리허설 릴테이프 파형 복원', game: 'oscilloscope', opts: { title: '체육관 방송·조명 제어부스 — 1998 학예제 리허설 파형 동조' }, reward: { col: 'c31', item: { charm: 1, battery: 1 } }, cap: '스포트라이트가 무대를 비추며 그날의 리허설 음성이 울려 퍼진다 — “하늘아, 내일 본방송 꼭 성공하자!”' },
     { id: 'poolValve', f: 6, x: -51.6, z: 33.3, onTop: .85, look: 'beaker', label: '수질관리실 제어반 — 3연동 다이빙풀 수압 밸브 동조', game: 'valveBalance', opts: { title: '수질관리실 — 3연동 다이빙풀 배수 수압 동조 (42~58 PSI)' }, reward: { col: 'c24', item: { medkit: 1, battery: 1 } }, cap: '다이빙 보조풀의 배수 밸브가 열리며 바닥에 가라앉아 있던 1998년 수영부 초시계가 모습을 드러냈다!' },
     { id: 'poolSauna', f: 6, x: -54.8, z: 23.2, onTop: .42, look: 'radioTop', label: '체온유지실 온열 제어기 — 회로 복구', game: 'fuse', opts: { title: '체온유지실 맥반석 스토브 — 온열 회로 켜기', N: 4 }, reward: { col: 'c32', item: { thermos: 1 } }, cap: '스토브에 따뜻한 온기가 돌며 얼어붙었던 숨이 가라앉는다.' },
-    { id: 'cafe', f: 7, x: -30.7, z: 15.6, look: 'gacha', label: '뽑기 기계 돌리기', game: 'gacha', replay: true },
+    { id: 'cafe', f: 7, x: -34.6, z: 21.1, look: 'gacha', label: '뽑기 기계 돌리기', game: 'gacha', replay: true },
     { id: 'counsel', f: 0, room: '상담실', dx: 0, d: 3.6, look: 'ouija', label: '분신사바 판 — 질문하기', game: 'ouija', opts: { title: '분신사바', qs: OUIJA_QS }, reward: { item: { charm: 1, matches: 1 } }, cap: '촛불이 혼자 꺼졌다.', scare: true },
     { id: 'art', f: 2, room: '미술실', dx: -1.2, d: 4.0, look: 'easel', label: '이젤 — 그림 조각 짝 맞추기', game: 'memory', opts: { title: '찢긴 그림 조각 짝 맞추기', icons: ['🎨', '🖌', '🗿', '🖼', '✏', '📐', '🌙'] }, reward: { col: 'c06', item: { thermos: 1 } }, cap: '맞춰진 그림 속 소녀가, 눈을 깜빡인 것 같다.' },
     { id: 'av', f: 1, room: '시청각실', dx: 0, d: 3.8, look: 'projector', label: '영사기 — 듀얼 렌즈 초점 & 트래킹 복원', game: 'filmFocus', opts: { title: '시청각실 영사기 — 렌즈 초점 & 필름 트래킹 동기화' }, reward: { item: { matches: 2, battery: 1 } }, cap: '스크린에 졸업식 장면이 선명하게 멈춘다. 3학년 2반 줄, 한 자리가 비어 있다.' },

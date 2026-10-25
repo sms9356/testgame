@@ -4,12 +4,12 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { buildGuardAnnex, buildDutyRoom, ANNEX as GANX } from './guardAnnex.js?v=199';
-import { NOTES } from './story.js?v=199';
+import { buildGuardAnnex, buildDutyRoom, ANNEX as GANX } from './guardAnnex.js?v=205';
+import { NOTES } from './story.js?v=205';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=199';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=205';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -3724,32 +3724,60 @@ export function buildWorld(scene) {
     [-40.5, -37.5].forEach(x => add(mWoodDark, .12, 3.1, .4, x, 0, z1 - .15)); add(mWoodDark, 3.12, .12, .4, -39, 3.04, z1 - .15);
     plane(F.interior, new THREE.MeshBasicMaterial({ map: T.makeSign('비상구', '#0a3a1a', '#7dffa0', 30) }), 1.4, .35, -39, 3.5, z1 - t - .02, Math.PI);
     [11, 15, 19].forEach(z => win3D(F.interior, 2.4, 1.6, x0 + t + .02, 2.4, z, Math.PI / 2));
-    restroomWC(x0 + t, z1 - t, 1, -1, H, '급식실 화장실');   // 서남 구석 (북동은 조리실이라 보행 구역 밖)
+    restroomWC(x1 - t, z1 - t, -1, -1, H, '급식실 화장실');   // 동남 구석 (손 씻는 곳 옆)
     [-45, -34].forEach(x => plane(F.interior, mWin, 3, 1.6, x, 2.4, z1 - t - .02, Math.PI));
-    // 배식대 + 조리실
-    add(mMetal, 12, .9, .9, -40.2, 0, 12.9, { col: true }); add(mGlass, 12, .35, .6, -40.2, .9, 12.9);
-    for (let k = 0; k < 8; k++) add(mMetal, .3, .04, .25, -45.5 + k * 1.4, .95, 13.3);
-    plane(F.interior, new THREE.MeshBasicMaterial({ map: T.makeSign('골고루 먹고 건강하게!', '#2a3a2a', '#d0e0c0', 24), color: 0xaab0a0 }), 3.2, .8, -41, 2.8, z0 + t + .02);
-    add(mMetal, 3, .9, 1, -45, 0, 10, { col: true }); add(mMetal, 2.4, .9, 1, -41, 0, 10, { col: true }); add(mMetal, 2.6, .5, 1.2, -41, 3.0, 10);
+    // ── 급식실 리모델링 (참고 배치도 · 3D 평면도 · 가구 규격도, 18 × 14m) ──
+    //   북쪽 2.8m: 조리실(주방) · 관계자 출입구(서) · 식기 보관/배식 보조(동) | 배식대 7.2m | 식사 공간 6인 식탁 16개(4×4) 96석
+    //   동쪽 벽: 퇴식구(식판 반납대) · 분리수거함 · 손 씻는 곳 · 알림마당 / 서쪽 창가: 창가 하부장 · 정수기 / 남쪽: 입구 · 출구
+    const mSS = S(null, { color: 0xb8bcbe, roughness: .28, metalness: .85 }), mSSd = S(null, { color: 0x8a8e90, roughness: .35, metalness: .8 }), mDkW = S(null, { color: 0x3a2618, roughness: .4 }), mTop = S(null, { color: 0xe8e6e0, roughness: .35 });
+    const mPly = S(null, { color: 0x7a4a24, roughness: .5 }), mLeg = S(null, { color: 0x8a9094, roughness: .35, metalness: .75 });
+    flat(F.interior, S(T.makeWood ? T.makeWood() : null, { color: 0x4a2c1c, roughness: .35 }), x0 + t, x1 - t, z0 + 3.3, z1 - t, .015, 2);   // 다크 우드 마루 (식사 공간)
+    // 조리실 벽 (배식 창 · 문): z = z0 + 2.8 선
+    const kz = z0 + 3.3;   // 조리실 깊이 3.3m (냉동고 · 가스 화구 · 국솥 미션이 그 안에 있다) · 서쪽 5.7m 는 관계자 통로로 열어 둔다
+    awall(-42.0, -41.4, kz - .1, kz + .1, H); awall(-34.2, x1 - t, kz - .1, kz + .1, H); awall(-41.4, -34.2, kz - .1, kz + .1, H, 2.4);   // 배식 창 위 상부벽
+    plane(F.interior, new THREE.MeshBasicMaterial({ map: T.makeSign('서문고등학교 급식실', '#3a2416', '#f0e4c8', 30), color: 0xc8c0b0 }), 4.2, .55, -37.8, 3.3, kz + .11);
+    plane(F.interior, new THREE.MeshBasicMaterial({ map: T.makeSign('오늘의 메뉴 — 잡곡밥 · 김치찌개 · 제육볶음 · 콩나물무침 · 우유', '#f2ece0', '#2a2a2a', 18), color: 0xd8d4c8 }), 5.8, .45, -37.8, 2.65, kz + .11);
+    // 배식대 (W7200 D900 H900): 스테인리스 하부장 · 배식 웰 6 · 유리 가림막 · 위 선반
+    add(mSS, 7.2, .9, .9, -37.8, 0, kz + .55, { col: true }); for (let k = 0; k < 6; k++) { add(mSSd, 1.0, .02, .55, -40.8 + k * 1.2, .9, kz + .5); add(mSS, .06, .06, .06, -40.8 + k * 1.2, .93, kz + .82); }
+    add(mGlass, 7.0, .45, .03, -37.8, 1.25, kz + .85); for (let k = 0; k <= 6; k++) add(mSS, .03, .5, .03, -41.3 + k * 1.16, .9, kz + .85); add(mSS, 7.2, .03, .35, -37.8, 1.45, kz + .7);
+    add(mSS, 7.2, .04, .25, -37.8, .9, kz + 1.12);   // 식판 레일
+    // 주방 안 (배식대 뒤): 조리대 · 국솥 · 오븐 · 냉장고 · 식기 보관대
+    add(mMetal, 3, .9, 1, -45, 0, 10, { col: true }); add(mMetal, 2.4, .9, 1, -41, 0, 10, { col: true }); add(mMetal, 2.6, .5, 1.2, -41, 3.0, 10);   // 조리대 · 가스 화구대 · 후드 (미션 위치 그대로)
     cyl(mMetal, .35, .45, -45, .9, 10); cyl(mMetal, .3, .4, -41.5, .9, 10); add(mMetal, 1.2, 1.3, 1.0, -46.9, 0, 11.6, { col: true });
-    add(mMetal, .5, 2, 3, -30.75, 0, 10.2, { col: true }); add(mWood, .8, .6, .8, -32.5, 0, 9.2, { col: true }); add(mWood, .8, .6, .8, -32.4, .6, 9.2);
-    add(mMetal, .8, 1.1, .6, -30.8, 0, 17, { col: true });
-    plane(F.interior, new THREE.MeshBasicMaterial({ map: T.makeSign('오늘의 식단 — 잡곡밥 · 미역국 · 불고기', '#22302a', '#d8e0c8', 18), color: 0xa0a898 }), 2.4, .6, -30.32, 2.3, 19.4, -Math.PI / 2);
-    addMedkit(-41, .9, 10.4);
-    // 식당 홀
-    const tabs = [[-43.5, 16], [-39.2, 16], [-34.9, 16], [-43.5, 19.2], [-34.9, 19.2]];
-    tabs.forEach(([x, z]) => benchTable(x, z, 3.2));
-    addMedkit(-34.5, .95, 12.9); addNote('n13', -39.2, .8, 16); tapeRecorder('ts_cook', -38.3, .8, 16.05, .4);
-    tabs.forEach(([x, z]) => { for (let k = 0; k < 3; k++) if (rnd() < .7) tray(x - 1 + k + rr(-.1, .1), .79, z + (rnd() < .5 ? -.22 : .22), rr(-.3, .3)); });
-    addBattery(-34.9, .79, 19.2);
-    for (let k = 0; k < 8; k++) { const m = new THREE.Mesh(new THREE.PlaneGeometry(.28, .2), mDirtPaper); m.rotation.set(-Math.PI / 2, 0, rnd() * 6); m.position.set(rr(-46, -32), .02, rr(14, 21)); F.interior.add(m); }
-    add(mLockerT, .62, 1.85, .55, -31.3, 0, 8.6 + .28 + 1.3, { col: true }); add(mLockerT, .62, 1.85, .55, -31.3 - .66, 0, 8.6 + .28 + 1.3, { col: true });
-    lockers.push({ floor: 7, x: -31.3, z: 10.18, y: 140, dir: { x: 0, z: 1 } });
+    add(mSS, 1.0, 1.9, .7, x0 + 2.6, 0, z0 + .55, { col: true }); add(mSS, 1.0, 1.9, .7, x0 + 3.7, 0, z0 + .55, { col: true });   // 업소용 냉장고
+    add(mSS, 2.6, .9, .7, -31.9, 0, z0 + .5, { col: true }); for (let k = 0; k < 4; k++) add(mSS, 2.6, .03, .6, -31.9, 1.2 + k * .35, z0 + .45);   // 식기 보관 / 배식 보조
+    awall(-33.0, -32.9, z0 + t, kz - .1, H);   // 식기 보관실 칸막이
+    plane(F.interior, new THREE.MeshBasicMaterial({ map: T.makeSign('관계자 외 출입금지 →', '#a01818', '#fff', 22), color: 0xd0c8c0 }), .9, .22, -41.7, 2.3, kz + .11);
+    // 6인 식탁 (W1800 D750 H740) × 16 · 학생 의자 (W420 D480 H760) 96
+    const tableC = (cx, cz) => { add(mTop, 1.8, .03, .75, cx, .71, cz, { col: true }); [[-.82, -.3], [.82, -.3], [-.82, .3], [.82, .3]].forEach(([dx, dz]) => add(mLeg, .04, .71, .04, cx + dx, 0, cz + dz)); add(mLeg, 1.6, .03, .03, cx, .15, cz);
+      for (const sd of [-1, 1]) for (let k = -1; k <= 1; k++) { const x = cx + k * .58, z = cz + sd * .62; add(mPly, .42, .03, .4, x, .44, z); add(mPly, .4, .32, .02, x, .52, z + sd * .2); [[-.18, -.17], [.18, -.17], [-.18, .17], [.18, .17]].forEach(([a, b]) => add(mLeg, .025, .44, .025, x + a, 0, z + b)); } };
+    const TX = [-45.4, -41.9, -38.4, -34.9], TZ = [13.9, 15.95, 18.0, 20.05];
+    TX.forEach(x => TZ.forEach(z => tableC(x, z)));
+    TX.forEach(x => TZ.forEach(z => { for (let k = 0; k < 2; k++) if (rnd() < .45) tray(x - .5 + k + rr(-.1, .1), .74, z + (rnd() < .5 ? -.2 : .2), rr(-.3, .3)); }));
+    // 동쪽 벽: 퇴식구 (식판 반납대 W2400 D700 H900) · 분리수거 (W1800 D600 H900) · 손세정대 (W1800 D600 H850) · 알림마당 (W1500 H1200)
+    add(mSS, .7, .9, 2.4, x1 - t - .35, 0, 13.0, { col: true }); for (let k = 0; k < 4; k++) for (let q = 0; q < 8; q++) tray(x1 - t - .35, .91 + q * .025, 12.1 + k * .6, 0);
+    plane(F.interior, new THREE.MeshBasicMaterial({ map: T.makeSign('퇴식구 · 식판 반납', '#2a2a2a', '#f0f0f0', 22), color: 0xc8c8c8 }), 1.6, .3, x1 - t - .02, 1.9, 13.0, -Math.PI / 2);
+    [['일반쓰레기', '#2a4a7a'], ['음식물', '#b06a1a'], ['재활용', '#2a6a3a']].forEach(([n, c], k) => { const z = 14.9 + k * .6; add(mSS, .6, .9, .58, x1 - t - .3, 0, z, { col: true }); plane(F.interior, new THREE.MeshBasicMaterial({ map: T.makeSign(n, c, '#fff', 20), color: 0xd0d0d0 }), .48, .16, x1 - t - .61, .72, z, -Math.PI / 2); });
+    add(mSS, .6, .85, 1.8, x1 - t - .3, 0, 17.6, { col: true }); [-.55, 0, .55].forEach(dz => { add(mSSd, .4, .02, .4, x1 - t - .3, .86, 17.6 + dz); cyl(mSS, .015, .25, x1 - t - .5, .86, 17.6 + dz); });
+    plane(F.interior, new THREE.MeshBasicMaterial({ map: T.makeSign('손 씻는 곳', '#1a4a6a', '#fff', 22), color: 0xd0d0d0 }), .9, .22, x1 - t - .02, 1.45, 17.6, -Math.PI / 2);
+    plane(F.interior, new THREE.MeshStandardMaterial({ map: T.makeSign('알림마당 — 10월 식단표 · 급식 안내 · 건강한 학교생활', '#1e4a34', '#e8f0e0', 16), roughness: .7 }), 1.5, 1.2, x1 - t - .02, 1.75, 15.6, -Math.PI / 2);
+    // 서쪽 창가: 창가 하부장 (W3600 D450 H850) 2 · 정수기/음수대 (W900 D500 H1300) · 화분 · 라디에이터
+    [13.9, 19.0].forEach(z => { add(mDkW, .45, .85, 3.6, x0 + t + .23, 0, z, { col: true }); add(mSS, .47, .02, 3.6, x0 + t + .23, .85, z); });
+    add(mSS, .5, 1.3, .9, x0 + t + .25, 0, 16.45, { col: true }); for (let k = 0; k < 3; k++) cyl(mSSd, .02, .06, x0 + t + .52, .95, 16.15 + k * .3);
+    plane(F.interior, new THREE.MeshBasicMaterial({ map: T.makeSign('정수기', '#1a3a5a', '#fff', 22), color: 0xd0d0d0 }), .5, .15, x0 + t + .51, 1.2, 16.45, Math.PI / 2);
+    // 기둥 (식사 공간 가운데) · 벽시계 · 문구 액자
+    add(mWhite, .6, H, .6, -38.4 + 1.75, 0, 16.98, { col: true }); add(mDkW, .62, 1.0, .62, -38.4 + 1.75, 0, 16.98);
+    plane(F.interior, new THREE.MeshBasicMaterial({ map: T.makeSign('건강한 식사 · 행복한 하루', '#f2ece0', '#3a2416', 18), color: 0xd8d4c8 }), .9, .6, -45.0, 2.6, kz + .11);
+    addMedkit(x1 - t - .3, .87, 18.35); addNote('n13', -41.9, .74, 15.95); tapeRecorder('ts_cook', -41.2, .74, 16.0, .4);
+    addBattery(-34.9, .74, 20.05);
+    for (let k = 0; k < 8; k++) { const m = new THREE.Mesh(new THREE.PlaneGeometry(.28, .2), mDirtPaper); m.rotation.set(-Math.PI / 2, 0, rnd() * 6); m.position.set(rr(-46, -33), .02, rr(12.5, 21)); F.interior.add(m); }
+    add(mLockerT, .62, 1.85, .55, -47.2, 0, 21.2, { col: true }); add(mLockerT, .62, 1.85, .55, -46.54, 0, 21.2, { col: true });
+    lockers.push({ floor: 7, x: -47.2, z: 20.6, y: 140, dir: { x: 0, z: -1 } });
     [-44, -39, -34].forEach(x => [10, 15, 20].forEach(z => areaLamp(x, z, H - .6, 'cafe'))); lightSwitch(-40.6, z1 - t - .02, Math.PI, 'cafe', '급식실');
-    [[-43, 14.6], [-39, 14.6], [-35, 14.6], [-43, 20.4], [-35, 20.4], [-39, 20.6], [-32, 13], [-32, 10.5], [-39.5, 11.6]].forEach(([x, z]) => F.nodes.push({ x, z }));
+    [[-43.65, 14.5], [-40.15, 14.5], [-36.65, 14.5], [-43.65, 18.9], [-36.65, 18.9], [-40.15, 21.2], [-32.4, 13.5], [-32.4, 12.2], [-39.5, 12.8]].forEach(([x, z]) => F.nodes.push({ x, z }));   // 식탁 사이 통로
     F.entrance = 5;
     [[0, 1], [1, 2], [0, 3], [2, 4], [1, 5], [3, 5], [4, 5], [2, 6], [6, 7], [7, 8]].forEach(e => F.edges.push(e));
-    F.spawns = [{ x: -43, z: 14.6 }, { x: -32, z: 10.5 }, { x: -43, z: 20.4 }];
+    F.spawns = [{ x: -43.65, z: 14.5 }, { x: -32.4, z: 12.2 }, { x: -43.65, z: 18.9 }];
     finishGraph(F);
     doors.push({ floor: 7, x: -39, z: 21.2, r: 1.8, label: '급식실 나가기', to: { floor: 0, x: -39, z: 26.6, yaw: Math.PI } });
   }
@@ -4972,9 +5000,9 @@ export function buildWorld(scene) {
     props.push({ kind: 'robj', k: 'guardlog', t: 'guard', floor: 0, ...GUARD_LAYOUT.log, x: 5.9, z: 67.14, r: 2.1, label: '경비실 심야 순찰 일지 & 경비원 육성 녹음 확인하기' });
     props.push({ kind: 'robj', k: 'guard_recorder', t: 'guard', floor: 0, x: 6.28, z: 67.08, y: 0.84, r: 2.1, label: '경비실 보이스레코더 — 1998년 그날 밤 경비원 녹취록 재생' });
     props.push({ kind: 'robj', k: 'guardcctv', t: 'guard', floor: 0, ...GUARD_LAYOUT.cctv, label: 'CCTV 전원 끄기' });
-    guardAnnex = buildGuardAnnex({ OUT, props, boxMesh, plane, flat, col, S, makeSign: T.makeSign, mats: { facade: mFacade, wall: mWall, white: mWhite, floor: mFloorTile, wood: mWood, metal: mMetal, glass: mWinIn } });
+    guardAnnex = buildGuardAnnex({ OUT, props, boxMesh, plane, flat, col, S, model: (n, x, y, z, ry, o = {}) => model(n, x, y, z, ry, { ...o, out: true }), makeSign: T.makeSign, mats: { facade: mFacade, wall: mWall, white: mWhite, floor: mFloorTile, wood: mWood, metal: mMetal, glass: mWinIn } });
     col(GANX.x1 - .95, GANX.x1, GANX.doorZ1 - .02, GANX.doorZ1 + .04, true);
-    guardAnnex.duty = buildDutyRoom({ G: guardAnnex.group, props, boxMesh, plane, flat, col, S, makeSign: T.makeSign, mats: { facade: mFacade, wall: mWall, white: mWhite, floor: mFloorTile, wood: mWood, metal: mMetal, glass: mWinIn } });
+    guardAnnex.duty = buildDutyRoom({ G: guardAnnex.group, props, boxMesh, plane, flat, col, S, model: (n, x, y, z, ry, o = {}) => model(n, x, y, z, ry, { ...o, out: true }), makeSign: T.makeSign, mats: { facade: mFacade, wall: mWall, white: mWhite, floor: mFloorTile, wood: mWood, metal: mMetal, glass: mWinIn } });
     guardAnnex.group.traverse(o => { o.userData.dynamic = true; });
     props.push({ kind: 'robj', k: 'guardlight', t: 'guard', floor: 0, ...GUARD_LAYOUT.lightSwitch, label: '경비실 전등 켜기' });
     // 교훈 표지석: 납작한 화강암 + 새긴 글씨 + 받침 화단

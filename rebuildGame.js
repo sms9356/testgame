@@ -2,10 +2,11 @@
 //   기본으로 켜진다 (예전 건물로 보려면 주소창에 ?oldmap).
 //   예전 본관(1~3층 · 옥상) · 별관(8~10층) 건물은 감추고, 그 자리 땅(0층)에서 새 건물을 걷는다.
 //   높이는 P.sh(계단 높이 보정값)로 넘긴다 → 카메라 · 점프 · 가구 오르기 코드는 손대지 않아도 된다.
-import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=220';
-import { placeModels } from './rebuild/models.js?v=220';
-import { carve, subdivide } from './rebuild/transplant.js?v=220';
+import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=221';
+import { placeModels } from './rebuild/models.js?v=221';
+import { carve, subdivide } from './rebuild/transplant.js?v=221';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
+import { turfMaterial } from './campusVisuals.js?v=221';
 
 // 예전 건물이 차지하던 땅 (이 안의 예전 메시 · 충돌 상자를 걷어 낸다)
 const OLD_MAIN = { x1: -51, x2: 51, z1: -10.6, z2: 10.9 };
@@ -36,8 +37,8 @@ export function installRebuild({ THREE, scene, floors, world }) {
   // 예전 출입구 바깥에 남은 것 (발판 · 계단 · 문 위 등): 새 건물과 위치가 달라 허공 · 풀밭에 떠 있었다
   const OLD_SPOTS = [[.1, 12.5, 1.7], [-25, -34.2, 3.4], [-43.5, -20, 2.2]];
   const oldSpot = (x, z) => OLD_SPOTS.some(([a, b, r]) => Math.hypot(x - a, z - b) < r);
-  const hideIn = root => { if (!root) return; root.traverse(o => {
-    if ((o.isMesh || o.isSprite) && o.visible && !o.isInstancedMesh) { const w = o.isSprite ? o.getWorldPosition(v) : bb.setFromObject(o).getCenter(v); if (!o.isSprite && bb.getSize(new THREE.Vector3()).length() > 8) {} else if (w.y < 3.5 && oldSpot(w.x, w.z)) { let keep = false; for (let q = o; q; q = q.parent) if (q.name === 'REBUILD' || q.isSkinnedMesh) keep = true; if (!keep) { o.visible = false; return; } } }
+  const hideIn = (root, oldRoot = false) => { if (!root) return; root.traverse(o => {
+    if ((o.isMesh || o.isSprite) && o.visible && !o.isInstancedMesh) { const w = o.isSprite ? o.getWorldPosition(v) : bb.setFromObject(o).getCenter(v); if (!o.isSprite && bb.getSize(new THREE.Vector3()).length() > 8) {} else if (w.y < 3.5 && oldSpot(w.x, w.z)) { let keep = false; for (let q = o; q; q = q.parent) if (q.name === 'REBUILD' || q.isSkinnedMesh || (q.userData && q.userData.rbKeep)) keep = true; if (!keep) { o.visible = false; return; } } }
     if (o.isSprite && o.visible) { for (let a = o; a; a = a.parent) if (a.isCamera || a.name === 'REBUILD' || a.isSkinnedMesh || (a.userData && (a.userData.rbKeep || a.userData.rbRoof))) return; const w = o.getWorldPosition(v); if (inOld(w.x, w.z) || inNew(w.x, w.z)) { o.visible = false; o.scale.setScalar(0); } return; }   // 예전 벽등 · 가로등의 빛 번짐 스프라이트
     if (!o.isMesh || !o.visible) return;
     for (let a = o; a; a = a.parent) if (a.userData && a.userData.rbKeep) return;   // 새 연결 통로로 옮긴 구름다리 연출
@@ -46,6 +47,8 @@ export function installRebuild({ THREE, scene, floors, world }) {
       if (hit) o.instanceMatrix.needsUpdate = true; return; }
     bb.setFromObject(o); if (bb.isEmpty()) return;
     if (bb.max.y < .3 && !o.userData.dynamic && Math.max(bb.max.x - bb.min.x, bb.max.z - bb.min.z) < 20 && inOld(bb.min.x + .9, bb.min.z + .9) && inOld(bb.max.x - .9, bb.max.z - .9) && (Math.min(bb.max.x - bb.min.x, bb.max.z - bb.min.z) < .7 || Math.max(bb.max.x - bb.min.x, bb.max.z - bb.min.z) < 12)) { o.visible = false; return; }   // 예전 건물 기단 · 경계석 띠 · 현관 포치   // 예전 건물 기단 · 경계석 띠
+    // 예전 건물 1층 바닥판(나무 마루 · 복도 타일)이 새 건물 밖(본관 ↔ 별관 사이 등)에 남아 있던 것: 예전 땅 안 삼각형은 모두 걷어 내고 잔디로 덮는다
+    if (oldRoot && bb.max.y < .3 && !o.userData.dynamic && !o.userData.rbOldFloorGone) { o.userData.rbOldFloorGone = true; subdivide(o, 1.0); carve(o, (x, y, z) => inOld(x, z)); return; }
     if (bb.max.y < .3) { if (inNew((bb.min.x + bb.max.x) / 2, (bb.min.z + bb.max.z) / 2) && bb.max.x - bb.min.x < 60 && bb.max.z - bb.min.z < 30) o.visible = false; else if (!o.userData.rbFloorCut && !o.userData.dynamic && !(o.geometry && o.geometry.groups && o.geometry.groups.length > 1)) { o.userData.rbFloorCut = true; const ov = [MAIN, ANX].some(b => { const c = [[-b.layout.L / 2, b.layout.zN], [b.layout.L / 2, b.layout.zS]].map(([a, d]) => b.toWorld(a, d)); return bb.max.x > Math.min(c[0][0], c[1][0]) && bb.min.x < Math.max(c[0][0], c[1][0]) && bb.max.z > Math.min(c[0][1], c[1][1]) && bb.min.z < Math.max(c[0][1], c[1][1]); }); if (ov) { subdivide(o, 1.0); carve(o, (x, y, z) => y > -.3 && inNew(x, z)); } } return; }   // 예전 바닥판: 새 건물 바닥 밑에서 겹쳐 깜빡이던 것
     if (fits(bb)) { o.visible = false; return; }
     // 층 전체를 합친 메시: 예전 건물 땅 위(높이 0.3m 이상)의 삼각형만 잘라 낸다 (벽 · 창 · 덩굴 잔재가 새 교실을 뚫고 나오던 문제)
@@ -54,7 +57,7 @@ export function installRebuild({ THREE, scene, floors, world }) {
   }); };
   const clearOld = () => {
     OLD_FLOORS.forEach(F => { F.interior.visible = false; if (F.shell) F.shell.visible = false; });   // 예전 층: 플레이 전(인트로 · 메뉴)에도 감춘다
-    hideIn(floors[0].interior); hideIn(floors[0].shell); hideIn(world.OUT);
+    hideIn(floors[0].interior, true); hideIn(floors[0].shell, true); hideIn(world.OUT);
     // 씬 루트에 바로 붙은 소품 묶음(나중에 불러오는 GLB 등)도 — 새 건물 · 다른 층 · 지하(높이 −0.3 아래)는 건드리지 않는다
     const skip = new Set([...floors.filter(Boolean).flatMap((F, i) => i === 0 ? [] : [F.interior, F.shell])]);
     const sweep = (c, d) => { if (skip.has(c) || c.isCamera || c.isLight || c.name === 'REBUILD' || c.isSkinnedMesh || c.userData.rbKeep) return; let live = false; c.traverse(o => { if (o !== c && o.isSkinnedMesh) live = true; });   // 움직이는 인물(스킨 메시)만 남긴다 — 예전 층의 '앉을 수 있는 의자' 같은 동적 소품도 걷어 낸다
@@ -87,6 +90,20 @@ export function installRebuild({ THREE, scene, floors, world }) {
   if (floors[2]) for (const c of [...floors[2].interior.children]) { if (!c.userData.dynamic) continue; const w = c.getWorldPosition(new THREE.Vector3()); if (!inBC(w.x, w.z)) continue;
     const [x, z] = BC_SLOT.mina[0]; MAIN.root.attach(c); c.position.set(x, BCY + Math.max(0, w.y - BC.y0), z); c.rotation.y = -Math.PI / 2; }   // 민아 · 민아 소지품: 스튜디오 동쪽 구석 벽에 기대 앉음
   clearOld();
+  // 예전 건물 터(본관 · 별관 옛 자리)에 잔디: 새 본관 · 별관 바닥 밑은 비우고 덮는다 (길 · 보도블록은 위에 그대로)
+  { const holes = [MAIN, ANX].map(b => { const c = [[-b.layout.L / 2 - .5, b.layout.zN - .5], [b.layout.L / 2 + .5, b.layout.zS + .5]].map(([a, d]) => b.toWorld(a, d)); return [Math.min(c[0][0], c[1][0]), Math.max(c[0][0], c[1][0]), Math.min(c[0][1], c[1][1]), Math.max(c[0][1], c[1][1])]; });
+    const R = [-37, 37, -32.2, 10.1], quads = [], st = .5;
+    for (let z = R[2]; z < R[3] - 1e-6; z += st) { const z2 = Math.min(R[3], z + st), zc = (z + z2) / 2; let spans = [[R[0], R[1]]];
+      holes.forEach(([x1, x2, h1, h2]) => { if (zc < h1 || zc > h2) return; spans = spans.flatMap(([a, b]) => b <= x1 || a >= x2 ? [[a, b]] : [[a, Math.max(a, x1)], [Math.min(b, x2), b]].filter(([p, q]) => q - p > .01)); });
+      spans.forEach(([a, b]) => { const g = new THREE.PlaneGeometry(b - a, z2 - z); g.rotateX(-Math.PI / 2); g.translate((a + b) / 2, .004, zc); const uv = g.attributes.uv, pos = g.attributes.position; for (let i = 0; i < uv.count; i++) uv.setXY(i, pos.getX(i) / 2, -pos.getZ(i) / 2); quads.push(g); }); }
+    const t = turfMaterial(), m = t.clone(); m.polygonOffset = true; m.polygonOffsetFactor = -1; m.polygonOffsetUnits = -1;
+    const gm = new THREE.Mesh(mergeGeometries(quads), m); gm.name = 'RB_oldsite_grass'; gm.receiveShadow = true; gm.userData.rbKeep = true; scene.add(gm);
+    // 예전 필로티 보도(본관 ↔ 별관 사이 x −37 ~ 37 띠)는 새 배치와 맞지 않고 UV 가 늘어나 나무판자처럼 보였다 → 걷어 내고 두 현관을 잇는 보도만 새로 깐다
+    const bb2 = new THREE.Box3(); let paveM = null;
+    world.OUT.traverse(o => { if (!o.isMesh || o.isInstancedMesh) return; bb2.setFromObject(o); if (bb2.min.x < -36 && bb2.max.x > 36 && bb2.max.y < .05 && bb2.min.z > -17.5 && bb2.max.z < -9 && bb2.max.z - bb2.min.z < 8) { paveM = paveM || o.material; o.visible = false; } });
+    if (paveM) { const zA = holes[1][3] - .5, zB = holes[0][2] + .5, w = 3.2, g = new THREE.PlaneGeometry(w, zB - zA); g.rotateX(-Math.PI / 2); g.translate(BRX, .012, (zA + zB) / 2);
+      const uv = g.attributes.uv, pos = g.attributes.position; for (let i = 0; i < uv.count; i++) uv.setXY(i, pos.getX(i) / 1.6, -pos.getZ(i) / 1.6);
+      const pm = paveM.clone(); if (pm.map) { pm.map = pm.map.clone(); pm.map.repeat.set(1, 1); pm.map.needsUpdate = true; } const pv = new THREE.Mesh(g, pm); pv.name = 'RB_link_path'; pv.receiveShadow = true; pv.userData.rbKeep = true; scene.add(pv); } }
   // 소품 모델은 나중에 비동기로 들어온다 → 몇 번 더 걷어 낸다
   [3000, 10000, 25000, 60000, 120000].forEach(ms => setTimeout(clearOld, ms)); { let n = 0; const iv = setInterval(() => { clearOld(); if (++n > 30) clearInterval(iv); }, 9000); }
 

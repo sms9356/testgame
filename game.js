@@ -3509,7 +3509,7 @@ function updatePrompt() {
   const pr = $('prompt');
   if (state !== 'playing') { pr.style.display = 'none'; return; }
   if (P.hiding) { pr.style.display = 'block'; setTxt(pr, '<kbd>E</kbd>사물함에서 나가기', true); return; }
-  const now = performance.now(); if (now - (updatePrompt.t || 0) < 90 && updatePrompt.f === P.floor) { if (!target) pr.style.display = 'none'; return; } updatePrompt.t = now; updatePrompt.f = P.floor;   // 조사 대상 찾기는 0.09초마다 (매 프레임 전체 소품 검사)
+  const now = performance.now(), key = P.floor + ':' + P.x.toFixed(2) + ':' + P.z.toFixed(2) + ':' + P.yaw.toFixed(2) + ':' + P.pitch.toFixed(2); if (now - (updatePrompt.t || 0) < 90 && updatePrompt.k === key) { if (!target) pr.style.display = 'none'; return; } updatePrompt.t = now; updatePrompt.k = key;   // 제자리에서 같은 곳을 보면 다시 찾지 않는다 (움직이면 바로 갱신)   // 조사 대상 찾기는 0.09초마다 (매 프레임 전체 소품 검사)
   target = findInteract();
   if (target) { pr.style.display = 'block'; setTxt(pr, target.raw ? target.label.replace(/\b([EQ]) /g, '<kbd>$1</kbd>') : `<kbd>E</kbd>${target.label}`, true); } else pr.style.display = 'none';
 }

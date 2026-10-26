@@ -38,6 +38,7 @@ export function installRebuild({ THREE, scene, floors, world }) {
   const OLD_SPOTS = [[.1, 12.5, 1.7], [-25, -34.2, 3.4], [-43.5, -20, 2.2]];
   const oldSpot = (x, z) => OLD_SPOTS.some(([a, b, r]) => Math.hypot(x - a, z - b) < r);
   const hideIn = (root, oldRoot = false) => { if (!root) return; root.traverse(o => {
+    if (o.userData.rbChk) return; o.userData.rbChk = true;   // 한 번 본 것은 다시 보지 않는다 (반복 정리가 매번 씬 전체를 훑어 초반에 수 초씩 멈췄다)
     if ((o.isMesh || o.isSprite) && o.visible && !o.isInstancedMesh) { const w = o.isSprite ? o.getWorldPosition(v) : bb.setFromObject(o).getCenter(v); if (!o.isSprite && bb.getSize(new THREE.Vector3()).length() > 8) {} else if (w.y < 3.5 && oldSpot(w.x, w.z)) { let keep = false; for (let q = o; q; q = q.parent) if (q.name === 'REBUILD' || q.isSkinnedMesh || (q.userData && q.userData.rbKeep)) keep = true; if (!keep) { o.visible = false; return; } } }
     if (o.isSprite && o.visible) { for (let a = o; a; a = a.parent) if (a.isCamera || a.name === 'REBUILD' || a.isSkinnedMesh || (a.userData && (a.userData.rbKeep || a.userData.rbRoof))) return; const w = o.getWorldPosition(v); if (inOld(w.x, w.z) || inNew(w.x, w.z)) { o.visible = false; o.scale.setScalar(0); } return; }   // 예전 벽등 · 가로등의 빛 번짐 스프라이트
     if (!o.isMesh || !o.visible) return;

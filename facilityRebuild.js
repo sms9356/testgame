@@ -81,7 +81,7 @@ export const FACILITY_ZONES = ZONES;
 export const TWO_STORY = ['dorm', 'union', 'astro', 'hist'].map(k => ZONES[k]);
 export const inTwoStory = (x, z) => TWO_STORY.some(Z => Math.abs(x - Z.cx) < Z.W / 2 + .1 && Math.abs(z - Z.cz) < Z.D / 2 + .1);
 
-function demolish({ scene, floors, world }, zoneList, protect) {
+function demolish({ scene, floors, world }, zoneList, protect, cols = true) {
   const v = new THREE.Vector3(), bb = new THREE.Box3(), sz = new THREE.Vector3(), m4 = new THREE.Matrix4();
   const rects = zoneList.map(Z => ({ x1: Z.cx - Z.W / 2 - .7, x2: Z.cx + Z.W / 2 + .7, z1: Z.cz - Z.D / 2 - .7, z2: Z.cz + Z.D / 2 + .7, Z }));
   const inR = (x, z, m = 0) => rects.find(r => x > r.x1 - m && x < r.x2 + m && z > r.z1 - m && z < r.z2 + m);
@@ -110,7 +110,7 @@ function demolish({ scene, floors, world }, zoneList, protect) {
   kill.forEach(o => { if (o.parent) o.parent.remove(o); });
   // 충돌 상자 · 문 · 숨는 곳
   const F0 = floors[0];
-  for (const k of ['col', 'walls', 'doorWalls']) if (F0[k]) F0[k] = F0[k].filter(r => !inR(((r.x1 ?? 0) + (r.x2 ?? 0)) / 2, ((r.z1 ?? 0) + (r.z2 ?? 0)) / 2, -.2));
+  if (cols) for (const k of ['col', 'walls', 'doorWalls']) if (F0[k]) F0[k] = F0[k].filter(r => !inR(((r.x1 ?? 0) + (r.x2 ?? 0)) / 2, ((r.z1 ?? 0) + (r.z2 ?? 0)) / 2, -.2));
   return { removed: kill.length, inR };
 }
 
@@ -743,7 +743,9 @@ export function installFacilityRebuild(ctx) {
   const rt = retexture(floors[7], { F: 'F01', W: 'W05', C: 'C01' }) + retexture(floors[6], { F: 'F04', W: 'W05', C: 'C03' });
   window.__facilityRebuild = { removed: res.removed, ext, retextured: rt, ms: Math.round(performance.now() - t0) };
   // 나중에 불러오는 모델(GLB)이 옛 터에 다시 나타나면 걷어 낸다
-  const again = () => demolish(ctx, zones, keepMesh);
+  //   씬 전체를 다시 훑으면 수 초씩 멈췄다 → 설치 뒤 새로 붙은 최상위 묶음만 본다
+  const seen = new Set(scene.children);
+  const again = () => { const fresh = scene.children.filter(c => !seen.has(c)); fresh.forEach(c => seen.add(c)); if (!fresh.length) return; const tmp = { scene: { children: fresh, updateMatrixWorld: () => fresh.forEach(c => c.updateMatrixWorld(true)) }, floors, world }; demolish(tmp, zones, keepMesh, false); };
   [4000, 12000, 30000, 70000].forEach(ms => setTimeout(again, ms));
   return built;
 }

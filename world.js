@@ -4,12 +4,12 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { buildGuardAnnex, buildDutyRoom, ANNEX as GANX } from './guardAnnex.js?v=220';
-import { NOTES } from './story.js?v=220';
+import { buildGuardAnnex, buildDutyRoom, ANNEX as GANX } from './guardAnnex.js?v=221';
+import { NOTES } from './story.js?v=221';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=220';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=221';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -680,6 +680,16 @@ export function buildWorld(scene) {
     ts_mother: { title: '증언 카세트 — 윤하늘 어머니', spk: '윤하늘 어머니', fx: 'radio', minSh: 0 },
     ts_vice: { title: '증언 카세트 — 교감 노태수 (취재 녹취)', spk: '교감 노태수', fx: 'radio', minSh: 0 },
     ts_dorm: { title: '증언 카세트 — 청운학사 사감 선생님', spk: '청운학사 사감 문정희', fx: 'radio', minSh: 0 },
+    ts_lib2: { title: '증언 카세트 — 중앙학술정보관 사서 (2008)', spk: '대도서관 사서 정미란', fx: 'radio', minSh: 0 },
+    ts_astro: { title: '증언 카세트 — 과학천문관 지도교사', spk: '천문부 지도교사 서재훈', fx: 'radio', minSh: 0 },
+    ts_history: { title: '증언 카세트 — 역사관 전시 관리인', spk: '역사관 관리인 최만석', fx: 'radio', minSh: 0 },
+    ts_union: { title: '증언 카세트 — 2008 학생회장 인터뷰', spk: '2008 학생회장 한유리', fx: 'radio', minSh: 0 },
+    ts_auditor: { title: '증언 카세트 — 대강당 음향 담당 (1998)', spk: '방송부 음향 담당 이준호', fx: 'radio', minSh: 0 },
+    ts_lake: { title: '증언 카세트 — 호심정 산책하던 주민', spk: '인근 주민 송경자', fx: 'radio', minSh: 0 },
+    ts_pool2: { title: '증언 카세트 — 수영부 코치 (기계실 기록)', spk: '수영부 코치 강태식', fx: 'radio', minSh: 0 },
+    ts_bunker: { title: '증언 카세트 — 방공호 서고 봉인 기록', spk: '교무부장 권오현 (봉인 녹취)', fx: 'radio', minSh: 0 },
+    ts_incin: { title: '증언 카세트 — 소각장 용역 기사', spk: '소각장 용역 기사 김덕배', fx: 'radio', minSh: 0 },
+    ts_green: { title: '증언 카세트 — 생물부 후배의 고백', spk: '생물부 1학년 오세린', fx: 'radio', minSh: 0 },
     ts_electric: { title: '증언 카세트 — 학교 전기 기사', spk: '전기 기사 배만수', fx: 'radio', minSh: 0 },
     ts_pe2: { title: '증언 카세트 — 체육부장 강태식 (두 번째 테이프)', spk: '체육부장 강태식', fx: 'radio', minSh: 0 },
     ts_reporter2: { title: '증언 카세트 — 서문일보 한진우 기자', spk: '서문일보 기자 한진우', fx: 'radio', minSh: 0 },

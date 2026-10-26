@@ -190,7 +190,7 @@ async function reachAudit() {
       if (!AREA[t.f]) continue;
       if (window.__rbg && [1, 2, 8, 9, 10].includes(t.f)) continue;   // 새 건물: 예전 층에 남겨 둔(쓰지 않는) 장치는 점검 대상 아님
       // 새 건물(기본): 옮긴 대상은 그 층 높이(rbY)에서 — 바닥이 그 높이이고 막히지 않은 자리 (층 사이 연결은 rebuild 보행 감사가 따로 본다)
-      const up2 = t.f === 0 && t.o.rbY == null && (t.o.y ?? 0) > 3.2 && t.x > -97.4 && t.x < -74.6 && t.z > -49.4 && t.z < -34.6;   // 청운학사 2층: 바닥 격자는 1층만 보므로 2층 물건은 그 높이에서 고르기만 본다
+      const up2 = t.f === 0 && t.o.rbY == null && (t.o.y ?? 0) > 3.2 && [[-86, -42, 22, 14], [-88, 42, 22, 14], [84, -34, 20, 16], [84, -11, 15.6, 10.6]].some(([cx, cz, w, d]) => Math.abs(t.x - cx) < w / 2 + .1 && Math.abs(t.z - cz) < d / 2 + .1);   // 2층 시설(청운학사 · 학생회관 · 과학천문관 · 역사관) 2층: 바닥 격자는 1층만 보므로 2층 물건은 그 높이에서 고르기만 본다
       const R = window.__rbg, hy = t.o.rbY, ok2 = up2 ? (() => true) : hy != null && R ? ((px, pz) => { const gg = R.groundAt(px, pz, hy + .1); return gg != null && Math.abs(gg - hy) < .3 && !R.blocked(px, pz, hy, .3); }) : flood(t.f), wd = t.o.done, wl = t.o.locked; if (!t.l) { t.o.done = false; t.o.locked = false; }
       let ok = false;
       for (const rr of [.5, .7, .9, 1.1, 1.3, 1.6]) { for (let a = 0; a < 24 && !ok; a++) { const an = a / 24 * Math.PI * 2, px = t.x + Math.cos(an) * rr, pz = t.z + Math.sin(an) * rr; if (!ok2(px, pz)) continue;

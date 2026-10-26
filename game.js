@@ -6,21 +6,21 @@ import { createPsychologicalDirector, PHENOMENON_LABELS } from './psychologicalH
 import { settleStoryGhost, tickStoryGhost, showStoryGhost } from './storyGhost.js';
 import { GLTFLoader } from './vendor/addons/loaders/GLTFLoader.js';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { createNPCVisuals } from './npcVisuals.js?v=219';
-import { applyGuardSeatedPose } from './guardSeatedPose.js?v=219';
+import { createNPCVisuals } from './npcVisuals.js?v=220';
+import { applyGuardSeatedPose } from './guardSeatedPose.js?v=220';
 import { createCampusCctvLive, collectCampusCctvFeeds } from './campusCctvLive.js';
-import { applyExteriorFloorVisibility, shouldStreamGuardCctv } from './exteriorRenderBudget.js?v=219';
-import { GUARD_LAYOUT } from './guardRoomLayout.js?v=219';
-import { ANNEX_KEYS, CABINET_CODE } from './guardAnnex.js?v=219';
-import { installGuardRoom } from './guardRoom.js?v=219';
+import { applyExteriorFloorVisibility, shouldStreamGuardCctv } from './exteriorRenderBudget.js?v=220';
+import { GUARD_LAYOUT } from './guardRoomLayout.js?v=220';
+import { ANNEX_KEYS, CABINET_CODE } from './guardAnnex.js?v=220';
+import { installGuardRoom } from './guardRoom.js?v=220';
 import { prepareModelGeometry } from './modelGeometry.js';
 import { modelFootprint, overlaps, removeDuplicateModels } from './placement.js';
-import { turfMaterial } from './campusVisuals.js?v=219';
+import { turfMaterial } from './campusVisuals.js?v=220';
 import { installInfirmaryAssets, updateInfirmaryCabinets } from './infirmaryAssets.js';
-import { installRebuild } from './rebuildGame.js?v=219';
-import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js?v=219'; import { updateWindowFakes } from './windowInteriors.js?v=219';
-import { drawMap } from './map.js?v=219';
-import { buildMegaCampus15000, MEGA_CAMPUS_ZONES } from './megaCampus15000.js?v=219';
+import { installRebuild } from './rebuildGame.js?v=220';
+import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js?v=220'; import { updateWindowFakes } from './windowInteriors.js?v=220';
+import { drawMap } from './map.js?v=220';
+import { buildMegaCampus15000, MEGA_CAMPUS_ZONES } from './megaCampus15000.js?v=220';
 import { makeDress, makeHair, makeGhostFace, makeGraffiti, makeKeypad, loadPBR, pbr, makeGlow as makeGlowTex, makePaintingStare, makeSign, makeBlood } from './tex.js';
 import { warmUp } from './bake.js';
 import { createStaticDistanceLOD } from './staticDistanceLOD.js';
@@ -39,14 +39,14 @@ import './classroomRemodelPatch.js';  // 교실 리모델링 · 의자에 앉기
 import './subGhostSystem.js';         // 서브 유령 8종 시트지 엔진 (사용자 제공) → window.subGhostSystem
 import './school37RoomsPatch.js';    // 본관 · 별관 37개 특별실 가구 · 동선 (사용자 제공) → window.school37RoomsPatch
 import './new37UniquePatch.js';     // 37개 구역 신규 특수 설비 · 벽면 레일 (사용자 제공) → window.new37UniquePatch
-import './megaExpansionPatch.js?v=219';   // 메가 익스팬션 · 최적화 · 4막 사건 기록 · 수집품 · 미니게임 (사용자 제공) → window.megaSchoolPatch
+import './megaExpansionPatch.js?v=220';   // 메가 익스팬션 · 최적화 · 4막 사건 기록 · 수집품 · 미니게임 (사용자 제공) → window.megaSchoolPatch
 import './poolMachineryPatch.js';     // 수영장 · 남/녀 탈의실·샤워실 · 기계실 철문 (사용자 제공) → window.poolAndMachineryPatch
-import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx, setSfxBusyCheck } from './audio.js?v=219'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=219'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera } from './perfStabilizer.js?v=219';
-import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js?v=219';
-import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, HYPOTHESES, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, SIDEQUESTS, HEADQUEST, COLLECT, LOCKER_SCARES, CHALK_QA, OUIJA_QS, PARA, TOILET_FX, MIRROR_WORDS } from './story.js?v=219';
+import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx, setSfxBusyCheck } from './audio.js?v=220'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=220'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera } from './perfStabilizer.js?v=220';
+import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js?v=220';
+import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, HYPOTHESES, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, SIDEQUESTS, HEADQUEST, COLLECT, LOCKER_SCARES, CHALK_QA, OUIJA_QS, PARA, TOILET_FX, MIRROR_WORDS } from './story.js?v=220';
 import { isSpeechBusy } from './voice.js';
 import { SET, saveSET, resetSET, DIFF, keyLabel } from './settings.js';
-import { initI18n, setLang, lang as curLang } from './i18n.js?v=219';   // 언어 패치 (한국어 · English · 日本語 · 中文)
+import { initI18n, setLang, lang as curLang } from './i18n.js?v=220';   // 언어 패치 (한국어 · English · 日本語 · 中文)
 initI18n();
 const K = () => SET.keys;
 let guardRoomController = null, guardControlProps = [], guardCctvData = null, campusCctv = null;
@@ -65,7 +65,7 @@ function syncGuardDevices() {
 function toggleGuardCCTV(persist = true) { FL.guardCctvOn = !(FL.guardCctvOn ?? true); sfx.click(); syncGuardDevices(); if (persist) save(true); return FL.guardCctvOn; }
 function toggleGuardLight() { FL.guardLightOn = !(FL.guardLightOn ?? false); sfx.click(); syncGuardDevices(); say(FL.guardLightOn ? '경비실 전등을 켰다' : '경비실 전등을 껐다', 1800); save(true); return FL.guardLightOn; }
 
-import { run as runMini, MG } from './minigames.js?v=219';
+import { run as runMini, MG } from './minigames.js?v=220';
 import { SCHEMA, BUILD, storageKeys, itemUid, propUid, doorUid, assignUids, readSlot, writeSlot, hasSlot, clearSlot, repairProgress } from './saveSystem.js';
 const NOTE_CAST = {
   n_seomun_ilbo: { spk: 'reporter', audioId: 'call_119', stage: '(📰 서문일보 사회부 한진우 기자의 긴급 특보 리포팅)' },
@@ -2874,7 +2874,7 @@ function ensureCharsel3D() {
     const rim = new THREE.DirectionalLight(0xffd6e0, 0.85); rim.position.set(0, 2.4, -2.5);
     sc.add(hemi, key, fill, rim);
     st.scenes[k] = sc;
-    loader.load(`assets/characters/${k}.glb?v=219`, gltf => {
+    loader.load(`assets/characters/${k}.glb?v=220`, gltf => {
       const m = gltf.scene;
       npcVisuals.enhanceCharacterMaterials?.(m, k);
       m.traverse(o => { if (o.isMesh || o.isSkinnedMesh) o.frustumCulled = false; });
@@ -8169,7 +8169,7 @@ function megaNotify(m) { const t = String(m).split('\n'); say(t[0].replace(/^\S+
     pbox(G.w + 2 * t + .7, .32, G.d + 2 * t + .7, trimM, G.x, H + .16, G.z, O);
     pbox(G.w + 2 * t + .35, .42, G.d + 2 * t + .35, roofM, G.x, H + .52, G.z, O);
     pbox(G.w - 1.6, .50, G.d - 1.4, PM(0x2c3238, .75, .25), G.x, H + .96, G.z, O);
-    for (let dz = -10; dz <= 10; dz += 4) pbox(G.w - .4, .22, .28, frameM, G.x, H - .14, G.z + dz, F0.interior, { cast: false });
+    for (let dz = -10; dz <= 10; dz += 4) pbox(G.w - .4, .22, .28, frameM, G.x, H - .14, G.z + dz, O, { cast: false });
     // 4) 대강당 채광 고창(Clerestory Windows) + 1층 창문 (정면 8개 + 좌우 측면 12개)
     const addGymWin = (wx, wy, wz, ww, wh, ry = 0) => {
       const wg = new THREE.Group(); wg.position.set(wx, wy, wz); wg.rotation.y = ry; wg.userData.dynamic = true; O.add(wg);
@@ -8413,8 +8413,8 @@ function megaNotify(m) { const t = String(m).split('\n'); say(t[0].replace(/^\S+
         // 녹색 차양 · 간판 (학우매점 · 녹색/노랑 띠) · 측면 문구판
         pbox(cw + .3, .06, 1.3, awnM, cxC, 2.55, z1 + .8, O, { rx: .22, cast: false });
         pbox(4.6, .9, .12, PM(0xf4f4f0, .5), cxC, 3.05, z1 + .3, O, { cast: false });
-        pmesh(new THREE.PlaneGeometry(4.4, .8), new THREE.MeshBasicMaterial({ map: makeSign('학 우 매 점', '#f4f4f0', '#1e3a8a', 52) }), cxC, 3.05, z1 + .37, O, { cast: false });
-        [-1, 1].forEach(s => { pbox(.6, .12, .02, PM(0x2a8a3a, .6), cxC + s * 1.85, 3.15, z1 + .38, O, { cast: false }); pbox(.6, .12, .02, PM(0xd8b020, .6), cxC + s * 1.85, 2.98, z1 + .38, O, { cast: false }); });
+        pmesh(new THREE.PlaneGeometry(3.0, .8), new THREE.MeshBasicMaterial({ map: makeSign('학 우 매 점', '#f4f4f0', '#1e3a8a', 52) }), cxC, 3.05, z1 + .37, O, { cast: false });
+        [-1, 1].forEach(s => { pbox(.6, .12, .02, PM(0x2a8a3a, .6), cxC + s * 1.95, 3.15, z1 + .38, O, { cast: false }); pbox(.6, .12, .02, PM(0xd8b020, .6), cxC + s * 1.95, 2.98, z1 + .38, O, { cast: false }); });
         pmesh(new THREE.PlaneGeometry(1.3, 1.5), new THREE.MeshBasicMaterial({ map: makeSign('맛있는 간식 · 행복한 학교생활', '#f6f2e6', '#2a3a2a', 18) }), x0 - t - .03, 1.9, czC + .6, O, { ry: -Math.PI / 2, cast: false });
         // 실내 칸막이: 소형 창고 (북서 2.0×1.8) · 직원 준비공간 (3.0×1.8) — 판매장 쪽 출입구
         const zP = z0 + 1.8, xS = x0 + 2.0, xP = xS + 3.0;
@@ -8534,9 +8534,9 @@ function megaNotify(m) { const t = String(m).split('\n'); say(t[0].replace(/^\S+
     }
     buildMegaCampus15000({ THREE, OUT: O, F0, PM, pbox, pmesh, pcyl, makeSign, makeGlowTex, world, megaP });
     // 안쪽 무대 뒤편 대형 자주빛 벨벳 막과 현수막
-    [-6.2, 6.2].forEach(dx => pbox(2.8, 5.4, .18, PM(0x581822, .85), G.x + dx, 2.7, z0 + .55, F0.interior));
-    pbox(14.8, .85, .16, PM(0x4a121b, .85), G.x, 5.2, z0 + .62, F0.interior);
-    pmesh(new THREE.PlaneGeometry(7.2, .62), new THREE.MeshBasicMaterial({ map: makeSign('제 42 회  해 교 고 등 학 교  졸 업 식', '#1e2836', '#f2e8cc', 26) }), G.x, 5.18, z0 + .72, F0.interior, { cast: false });
+    [-6.2, 6.2].forEach(dx => pbox(2.8, 5.4, .18, PM(0x581822, .85), G.x + dx, 2.7, z0 + .55, O));
+    pbox(14.8, .85, .16, PM(0x4a121b, .85), G.x, 5.2, z0 + .62, O);
+    pmesh(new THREE.PlaneGeometry(7.2, .62), new THREE.MeshBasicMaterial({ map: makeSign('제 42 회  해 교 고 등 학 교  졸 업 식', '#1e2836', '#f2e8cc', 26) }), G.x, 5.18, z0 + .72, O, { cast: false });
     for (let k = 0; k < 6; k++) { const lx = G.x + (k % 2 ? 4.5 : -4.5), lz = G.z - 9 + ((k / 2) | 0) * 9;
       pbox(1.4, .08, .5, new THREE.MeshStandardMaterial({ color: 0xe8f0ff, emissive: 0xc8d8f0, emissiveIntensity: .9 }), lx, H - .2, lz, O, { cast: false });
       const gl = new THREE.Sprite(new THREE.SpriteMaterial({ map: makeGlowTex('200,215,240'), blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, opacity: .25 })); gl.scale.setScalar(5); gl.position.set(lx, H - .8, lz); gl.userData.dynamic = true; O.add(gl); }
@@ -8546,30 +8546,30 @@ function megaNotify(m) { const t = String(m).split('\n'); say(t[0].replace(/^\S+
     F0.col.push({ x1: x0 + 1.3, x2: x0 + 3.7, z1: z0 + 4.45, z2: z0 + 4.75 });
     // 대강당 리모델링 (참고 배치도 · 18.0 × 26.0m · 층고 약 8m): 북측 무대 (기존) + 무대 커튼 (프로시니엄 · 상부 막) · 태극기 · 그랜드피아노 · 무대 조명 바 · 메인 스피커 / 객석 (좌우 2블록 · 중앙 통로 2m · 측면 통로) / 남동 음향·조명 조정실 (창 · 음향 콘솔 · 랙) · 남서 준비실 (대기실) · 비상구 2 (동 · 서)
     { const red = PM(0x8a1420, .85), fab = PM(0xa8743c, .75), legM = PM(0x2a2c2e, .5, .5);
-      [-1, 1].forEach(s => pbox(1.6, 6.0, .3, red, G.x + s * 8.1, 3.0, z0 + 4.6, F0.interior)); pbox(17.6, 1.0, .3, red, G.x, 6.6, z0 + 4.6, F0.interior);
+      [-1, 1].forEach(s => pbox(1.6, 6.0, .3, red, G.x + s * 8.1, 3.0, z0 + 4.6, O)); pbox(17.6, 1.0, .3, red, G.x, 6.6, z0 + 4.6, O);
       [-1, 1].forEach(s => F0.col.push({ x1: G.x + s * 8.1 - .8, x2: G.x + s * 8.1 + .8, z1: z0 + 4.45, z2: z0 + 4.75 }));
       { const c = document.createElement('canvas'); c.width = 300; c.height = 200; const g2 = c.getContext('2d'); g2.fillStyle = '#fbfbf6'; g2.fillRect(0, 0, 300, 200); g2.fillStyle = '#c8102e'; g2.beginPath(); g2.arc(150, 100, 50, Math.PI, 0); g2.fill(); g2.fillStyle = '#003478'; g2.beginPath(); g2.arc(150, 100, 50, 0, Math.PI); g2.fill(); g2.fillStyle = '#111';
         [[52, 38], [248, 38], [52, 162], [248, 162]].forEach(([x, y]) => { for (let k = 0; k < 3; k++) g2.fillRect(x - 18, y - 10 + k * 8, 36, 5); });
-        const tx = new THREE.CanvasTexture(c); tx.colorSpace = THREE.SRGBColorSpace; pmesh(new THREE.PlaneGeometry(2.4, 1.6), new THREE.MeshStandardMaterial({ map: tx, roughness: .7 }), G.x, 3.4, z0 + .66, F0.interior, { cast: false }); }
-      { const px = G.x - 4.6, pz = z0 + 2.6; pbox(1.5, .32, 1.9, PM(0x0c0c0e, .25, .4), px, 1.1 + .62, pz, F0.interior); pbox(1.45, .04, 1.85, PM(0x0c0c0e, .2, .4), px - .2, 2.1, pz, F0.interior, { rz: .5 }); [[-.6, -.8], [.6, -.8], [0, .8]].forEach(([a, b]) => pbox(.08, .62, .08, PM(0x0c0c0e, .3, .4), px + a, 1.1 + .31, pz + b, F0.interior, { cast: false })); pbox(1.4, .06, .3, PM(0xf4f4f0, .4), px, 1.1 + .79, pz + .95, F0.interior, { cast: false }); F0.col.push({ x1: px - .75, x2: px + .75, z1: pz - .95, z2: pz + 1.05 }); }
-      pbox(17.0, .2, .3, PM(0x1a1a1c, .5, .5), G.x, 6.2, z0 + 5.6, F0.interior, { cast: false }); for (let k = 0; k < 8; k++) pcyl(.12, .15, .3, PM(0x1a1a1c, .5, .5), G.x - 7 + k * 2, 5.95, z0 + 5.6, F0.interior);
-      [-1, 1].forEach(s => { pbox(.6, 1.0, .6, PM(0x141416, .6), G.x + s * 6.6, 1.6, z0 + 4.0, F0.interior); F0.col.push({ x1: G.x + s * 6.6 - .3, x2: G.x + s * 6.6 + .3, z1: z0 + 3.7, z2: z0 + 4.3 }); });
+        const tx = new THREE.CanvasTexture(c); tx.colorSpace = THREE.SRGBColorSpace; pmesh(new THREE.PlaneGeometry(2.4, 1.6), new THREE.MeshStandardMaterial({ map: tx, roughness: .7 }), G.x, 3.4, z0 + .66, O, { cast: false }); }
+      { const px = G.x - 4.6, pz = z0 + 2.6; pbox(1.5, .32, 1.9, PM(0x0c0c0e, .25, .4), px, 1.1 + .62, pz, O); pbox(1.45, .04, 1.85, PM(0x0c0c0e, .2, .4), px - .2, 2.1, pz, O, { rz: .5 }); [[-.6, -.8], [.6, -.8], [0, .8]].forEach(([a, b]) => pbox(.08, .62, .08, PM(0x0c0c0e, .3, .4), px + a, 1.1 + .31, pz + b, O, { cast: false })); pbox(1.4, .06, .3, PM(0xf4f4f0, .4), px, 1.1 + .79, pz + .95, O, { cast: false }); F0.col.push({ x1: px - .75, x2: px + .75, z1: pz - .95, z2: pz + 1.05 }); }
+      pbox(17.0, .2, .3, PM(0x1a1a1c, .5, .5), G.x, 6.2, z0 + 5.6, O, { cast: false }); for (let k = 0; k < 8; k++) pcyl(.12, .15, .3, PM(0x1a1a1c, .5, .5), G.x - 7 + k * 2, 5.95, z0 + 5.6, O);
+      [-1, 1].forEach(s => { pbox(.6, 1.0, .6, PM(0x141416, .6), G.x + s * 5.4, 1.6, z0 + .6, O); F0.col.push({ x1: G.x + s * 5.4 - .3, x2: G.x + s * 5.4 + .3, z1: z0 + .3, z2: z0 + .9 }); });
       // 객석 (좌석 W540 · 좌우 각 12석 · 열 간격 0.9m) — 좌석은 재질별로 합쳐 메시 수를 줄인다
       const gS = [], gL = [], rows = []; for (let zr = z0 + 7.0; zr < z1 - 4.4; zr += .9) rows.push(zr);
       rows.forEach(zr => [[G.x - 7.6, G.x - 1.0], [G.x + 1.0, G.x + 7.6]].forEach(([a, b]) => { const n = Math.floor((b - a) / .55);
         for (let k = 0; k < n; k++) { const x = a + .275 + k * .55; gS.push(new THREE.BoxGeometry(.5, .08, .45).translate(x, .45, zr), new THREE.BoxGeometry(.5, .5, .07).translate(x, .75, zr + .24)); gL.push(new THREE.BoxGeometry(.04, .45, .04).translate(x - .22, .225, zr), new THREE.BoxGeometry(.04, .45, .04).translate(x + .22, .225, zr), new THREE.BoxGeometry(.05, .3, .45).translate(x + .27, .6, zr)); }
         F0.col.push({ x1: a, x2: b, z1: zr - .25, z2: zr + .3, h: .5 }); }));
-      const mS = new THREE.Mesh(mergeGeometries(gS), fab), mL = new THREE.Mesh(mergeGeometries(gL), legM); [mS, mL].forEach(m => { m.userData.dynamic = true; F0.interior.add(m); });
+      const mS = new THREE.Mesh(mergeGeometries(gS), fab), mL = new THREE.Mesh(mergeGeometries(gL), legM); [mS, mL].forEach(m => { m.userData.dynamic = true; O.add(m); });
       // 남동 음향·조명 조정실 · 남서 준비실 (대기실)
-      const room = (ax, bx, az, bz, doorX) => { const h = 3.0; [[ax, bx, az, az + .12, true], [ax, ax + .12, az, bz], [bx - .12, bx, az, bz]].forEach(([a, b, c, d, front]) => { if (front) { [[a, doorX - .5], [doorX + .5, b]].forEach(([p, q]) => { pbox(q - p, h, d - c, wallM, (p + q) / 2, h / 2, (c + d) / 2, F0.interior); F0.col.push({ x1: p, x2: q, z1: c, z2: d }); }); pbox(1.0, h - 2.1, d - c, wallM, doorX, 2.1 + (h - 2.1) / 2, (c + d) / 2, F0.interior); } else { pbox(b - a, h, d - c, wallM, (a + b) / 2, h / 2, (c + d) / 2, F0.interior); F0.col.push({ x1: a, x2: b, z1: c, z2: d }); } }); pbox(bx - ax, .1, bz - az, wallM, (ax + bx) / 2, h, (az + bz) / 2, F0.interior, { cast: false }); };
+      const room = (ax, bx, az, bz, doorX) => { const h = 3.0; [[ax, bx, az, az + .12, true], [ax, ax + .12, az, bz], [bx - .12, bx, az, bz]].forEach(([a, b, c, d, front]) => { if (front) { [[a, doorX - .5], [doorX + .5, b]].forEach(([p, q]) => { pbox(q - p, h, d - c, wallM, (p + q) / 2, h / 2, (c + d) / 2, O); F0.col.push({ x1: p, x2: q, z1: c, z2: d }); }); pbox(1.0, h - 2.1, d - c, wallM, doorX, 2.1 + (h - 2.1) / 2, (c + d) / 2, O); } else { pbox(b - a, h, d - c, wallM, (a + b) / 2, h / 2, (c + d) / 2, O); F0.col.push({ x1: a, x2: b, z1: c, z2: d }); } }); pbox(bx - ax, .1, bz - az, wallM, (ax + bx) / 2, h, (az + bz) / 2, O, { cast: false }); };
       room(x1 - 4.2, x1, z1 - 3.6, z1, x1 - 1.2); room(x0, x0 + 4.2, z1 - 3.6, z1, x0 + 1.2);
-      pmesh(new THREE.PlaneGeometry(2.2, 1.0), new THREE.MeshStandardMaterial({ color: 0x98c8d8, roughness: .1, transparent: true, opacity: .4, side: THREE.DoubleSide }), x1 - 2.8, 1.6, z1 - 3.66, F0.interior, { cast: false });
-      { const kx = x1 - 2.6, kz = z1 - 2.8; pbox(1.6, .78, .8, PM(0x1e2024, .5, .4), kx, .39, kz, F0.interior); pbox(1.5, .05, .7, PM(0x2a2e34, .4, .5), kx, .8, kz, F0.interior, { rx: -.2 }); F0.col.push({ x1: kx - .8, x2: kx + .8, z1: kz - .4, z2: kz + .4, h: .8 }); pbox(.6, 1.8, .6, PM(0x141416, .5, .5), x1 - .5, .9, z1 - .5, F0.interior); F0.col.push({ x1: x1 - .8, x2: x1 - .2, z1: z1 - .8, z2: z1 - .2 }); }
-      { pbox(.04, 1.2, 1.6, PM(0xd8e4ec, .1, .9), x0 + .15, 1.5, z1 - 1.9, F0.interior, { cast: false }); [0, 1, 2].forEach(k => { pbox(.45, .45, .45, PM(0x3a3e42, .6), x0 + 1.2 + k * .8, .22, z1 - .6, F0.interior); }); F0.col.push({ x1: x0 + .95, x2: x0 + 3.1, z1: z1 - .85, z2: z1 - .35, h: .45 });
-        pmesh(new THREE.PlaneGeometry(1.0, .26), new THREE.MeshBasicMaterial({ map: makeSign('준비실 (대기실)', '#2a2c2e', '#f0ece0', 20) }), x0 + 2.6, 2.4, z1 - 3.5, F0.interior, { ry: Math.PI, cast: false });
-        pmesh(new THREE.PlaneGeometry(1.0, .26), new THREE.MeshBasicMaterial({ map: makeSign('음향 · 조명 조정실', '#2a2c2e', '#f0ece0', 18) }), x1 - 2.2, 2.4, z1 - 3.5, F0.interior, { ry: Math.PI, cast: false }); }
+      pmesh(new THREE.PlaneGeometry(2.2, 1.0), new THREE.MeshStandardMaterial({ color: 0x98c8d8, roughness: .1, transparent: true, opacity: .4, side: THREE.DoubleSide }), x1 - 2.8, 1.6, z1 - 3.66, O, { cast: false });
+      { const kx = x1 - 2.6, kz = z1 - 2.8; pbox(1.6, .78, .8, PM(0x1e2024, .5, .4), kx, .39, kz, O); pbox(1.5, .05, .7, PM(0x2a2e34, .4, .5), kx, .8, kz, O, { rx: -.2 }); F0.col.push({ x1: kx - .8, x2: kx + .8, z1: kz - .4, z2: kz + .4, h: .8 }); pbox(.6, 1.8, .6, PM(0x141416, .5, .5), x1 - .5, .9, z1 - .5, O); F0.col.push({ x1: x1 - .8, x2: x1 - .2, z1: z1 - .8, z2: z1 - .2 }); }
+      { pbox(.04, 1.2, 1.6, PM(0xd8e4ec, .1, .9), x0 + .15, 1.5, z1 - 1.9, O, { cast: false }); [0, 1, 2].forEach(k => { pbox(.45, .45, .45, PM(0x3a3e42, .6), x0 + 1.2 + k * .8, .22, z1 - .6, O); }); F0.col.push({ x1: x0 + .95, x2: x0 + 3.1, z1: z1 - .85, z2: z1 - .35, h: .45 });
+        pmesh(new THREE.PlaneGeometry(1.0, .26), new THREE.MeshBasicMaterial({ map: makeSign('준비실 (대기실)', '#2a2c2e', '#f0ece0', 20) }), x0 + 2.6, 2.4, z1 - 3.5, O, { ry: Math.PI, cast: false });
+        pmesh(new THREE.PlaneGeometry(1.0, .26), new THREE.MeshBasicMaterial({ map: makeSign('음향 · 조명 조정실', '#2a2c2e', '#f0ece0', 18) }), x1 - 2.2, 2.4, z1 - 3.5, O, { ry: Math.PI, cast: false }); }
       // 비상구 (동 · 서 측벽 앞쪽)
-      [-1, 1].forEach(s => { const wx = s < 0 ? x0 + .02 : x1 - .02; pbox(.06, 2.2, 1.4, PM(0x5a5e60, .5, .5), wx, 1.1, z0 + 7.5, F0.interior, { cast: false }); pmesh(new THREE.PlaneGeometry(.6, .22), new THREE.MeshBasicMaterial({ map: makeSign('비 상 구', '#0a3a1a', '#7dffa0', 22) }), wx + s * -.04, 2.5, z0 + 7.5, F0.interior, { ry: s < 0 ? Math.PI / 2 : -Math.PI / 2, cast: false }); }); }
+      [-1, 1].forEach(s => { const wx = s < 0 ? x0 + .02 : x1 - .02; pbox(.06, 2.2, 1.4, PM(0x5a5e60, .5, .5), wx, 1.1, z0 + 7.5, O, { cast: false }); pmesh(new THREE.PlaneGeometry(.6, .22), new THREE.MeshBasicMaterial({ map: makeSign('비 상 구', '#0a3a1a', '#7dffa0', 22) }), wx + s * -.04, 2.5, z0 + 7.5, O, { ry: s < 0 ? Math.PI / 2 : -Math.PI / 2, cast: false }); }); }
     world.lockers.push({ floor: 0, x: x0 + 2.5, z: z0 + 5.2, y: 0, dir: { x: 0, z: 1 }, noPick: false, label: '벨벳 커튼 뒤에 숨기' }); }
   // ② 중정: 석상 받침대 충돌 · 고목 몇 그루
   F0.col.push({ x1: C.x - 2.5, x2: C.x + 2.5, z1: C.z - 2.5, z2: C.z + 2.5, h: .6 }, { x1: C.x - .55, x2: C.x + .55, z1: C.z + 3.05, z2: C.z + 4.15 });   // 중앙 원형 화단 · 창립자 흉상
@@ -8646,13 +8646,13 @@ function megaNotify(m) { const t = String(m).split('\n'); say(t[0].replace(/^\S+
     world.props.push({ kind: 'robj', k: 'bunker_light', t: 'bunker', floor: 4, x: bx + 1.15, z: z1 - .85, y: 1.35, r: 2.0, label: '방공호 주 전등 스위치 조작하기', bkLightGroup });
     {
       const bLoader = new GLTFLoader();
-      bLoader.load('assets/models/sf/sf_bunker_props_pack.glb?v=219', gltf => {
+      bLoader.load('assets/models/sf/sf_bunker_props_pack.glb?v=220', gltf => {
         const bm = gltf.scene; bm.position.set(bx, 0, z0 + .45);
         if (window.__upgradePure3DScene) window.__upgradePure3DScene(bm); else bm.traverse(o => { o.userData.dynamic = true; });
         R.add(bm);
         if (gltf.animations && gltf.animations.length) { const mx = new THREE.AnimationMixer(bm); mx.userData = { floor: 4, x: bx, z: z0 + .45 }; gltf.animations.forEach(c => mx.clipAction(c).play()); (window.__campusAnimMixers ||= []).push(mx); }
       }, undefined, () => {});
-      bLoader.load('assets/models/sf/sf_pump_policeline_scene.glb?v=219', gltf => {
+      bLoader.load('assets/models/sf/sf_pump_policeline_scene.glb?v=220', gltf => {
         const pm = gltf.scene; pm.position.set(32.0, 0, -3.65);
         pm.traverse(o => { o.userData.dynamic = true; if (o.isMesh) { o.castShadow = false; o.receiveShadow = true; if (o.material?.map) o.material.map.colorSpace = THREE.SRGBColorSpace; } });
         R.add(pm);

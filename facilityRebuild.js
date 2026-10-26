@@ -5,7 +5,7 @@
 //   재질: F-01 ~ F-05 바닥 · W-01 ~ W-05 벽 · C-01 ~ C-04 천장 (Poly Haven CC0 실사 스캔 텍스처, assets/tex/fac_* · 미터 단위 UV)
 import * as THREE from './vendor/three.module.js';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { pbr } from './tex.js?v=223';
+import { pbr } from './tex.js?v=224';
 
 const FH = 3.6, CEIL = 2.9, WALL_T = .24, LIN = .06;
 const TL = new THREE.TextureLoader(), TEX = {};
@@ -85,6 +85,10 @@ function demolish({ scene, floors, world }, zoneList, protect, cols = true) {
   const v = new THREE.Vector3(), bb = new THREE.Box3(), sz = new THREE.Vector3(), m4 = new THREE.Matrix4();
   const rects = zoneList.map(Z => ({ x1: Z.cx - Z.W / 2 - 2, x2: Z.cx + Z.W / 2 + 2, z1: Z.cz - Z.D / 2 - 2, z2: Z.cz + Z.D / 2 + 2, Z }));   // 2m 띠: 옛 현관 캐노피 · 모서리 기둥 · 울타리 잔재까지
   const inR = (x, z, m = 0) => rects.find(r => x > r.x1 - m && x < r.x2 + m && z > r.z1 - m && z < r.z2 + m);
+  // 2m 띠 안이라도 건물 밖 조사 지점(종 · 공중전화 · 게시판 등 메시 없는 상호작용)이 기대는 물체는 남긴다
+  const inFoot = (x, z) => zoneList.some(Z => Math.abs(x - Z.cx) < Z.W / 2 + .3 && Math.abs(z - Z.cz) < Z.D / 2 + .3);
+  const anchors = (world.props || []).filter(p => p.floor === 0 && !p.mesh && !inFoot(p.x, p.z) && inR(p.x, p.z, 1.6)).map(p => [p.x, p.z]);
+  const anchored = (x, z) => !inFoot(x, z) && anchors.some(([ax, az]) => Math.hypot(ax - x, az - z) < 1.8);
   const kill = [];
   scene.updateMatrixWorld(true);
   const visit = o => {
@@ -95,7 +99,7 @@ function demolish({ scene, floors, world }, zoneList, protect, cols = true) {
     if (o.isMesh || o.isSprite || o.isLine || o.isPoints) {
       if (o.isSprite) { o.getWorldPosition(v); if (inR(v.x, v.z) && v.y > -1 && v.y < 16) kill.push(o); return; }
       bb.setFromObject(o); if (bb.isEmpty()) return; bb.getSize(sz); bb.getCenter(v);
-      const r = inR(v.x, v.z); if (!r) return;
+      const r = inR(v.x, v.z); if (!r || anchored(v.x, v.z)) return;
       if (bb.max.y < -.5 || bb.min.y > 30) return;
       const big = sz.x > r.Z.W + 6 || sz.z > r.Z.D + 6;   // 캠퍼스 전체 바닥 · 길 합친 메시는 남긴다
       if (big) return;
@@ -110,7 +114,7 @@ function demolish({ scene, floors, world }, zoneList, protect, cols = true) {
   kill.forEach(o => { if (o.parent) o.parent.remove(o); });
   // 충돌 상자 · 문 · 숨는 곳
   const F0 = floors[0];
-  if (cols) for (const k of ['col', 'walls', 'doorWalls']) if (F0[k]) F0[k] = F0[k].filter(r => !inR(((r.x1 ?? 0) + (r.x2 ?? 0)) / 2, ((r.z1 ?? 0) + (r.z2 ?? 0)) / 2, 0));
+  if (cols) for (const k of ['col', 'walls', 'doorWalls']) if (F0[k]) F0[k] = F0[k].filter(r => { const cx = ((r.x1 ?? 0) + (r.x2 ?? 0)) / 2, cz = ((r.z1 ?? 0) + (r.z2 ?? 0)) / 2; return !inR(cx, cz, 0) || anchored(cx, cz); });
   return { removed: kill.length, inR };
 }
 
@@ -179,7 +183,10 @@ class Fac {
 function room(B, r) {
   const y0 = r.lvl * FH, ch = r.ceil ?? CEIL, w = r.x2 - r.x1, d = r.z2 - r.z1, cx = (r.x1 + r.x2) / 2, cz = (r.z1 + r.z2) / 2;
   if (!r.noFloor) B.plane(w, d, r.F, cx, y0 + .025, cz);
-  if (!r.noCeil) B.plane(w, d, r.C, cx, y0 + ch, cz, { up: false });
+  if (!r.noCeil && r.stair) {   // 계단실 천장: 계단이 지나가는 구멍을 남긴다 (통째로 덮어 계단을 오르면 천장을 뚫고 지나갔다)
+    const h = stairHoleOf(r), P = (x1, x2, z1, z2) => { if (x2 - x1 > .02 && z2 - z1 > .02) B.plane(x2 - x1, z2 - z1, r.C, (x1 + x2) / 2, y0 + ch, (z1 + z2) / 2, { up: false }); };
+    P(r.x1, r.x2, h.z2, r.z2); P(r.x1, h.x1, r.z1, h.z2); P(h.x2, r.x2, r.z1, h.z2);
+  } else if (!r.noCeil) B.plane(w, d, r.C, cx, y0 + ch, cz, { up: false });
   const side = (dir, a1, a2, fixed) => {   // 벽 라이너 한 면 (gaps 는 구멍 [a,b,높이])
     const gaps = (r.gaps && r.gaps[dir] || []).slice().sort((p, q) => p[0] - q[0]); let a = a1;
     const seg = (p, q, yb, yt) => { if (q - p < .02 || yt - yb < .02) return; const L = q - p, m = (p + q) / 2, hh = yt - yb;
@@ -391,7 +398,8 @@ const FURN = {
 
 // ───────── 시설별 설계 ─────────
 function lampsGrid(B, r, step = 2.4) { const w = r.x2 - r.x1, d = r.z2 - r.z1, nx = Math.max(1, Math.round(w / step)), nz = Math.max(1, Math.round(d / step));
-  for (let i = 0; i < nx; i++) for (let j = 0; j < nz; j++) B.lamp(r.x1 + w * (i + .5) / nx, r.z1 + d * (j + .5) / nz, r.lvl, r.lvl * FH + (r.ceil ?? CEIL) - .04); }
+  const h = r.stair ? stairHoleOf(r) : null;
+  for (let i = 0; i < nx; i++) for (let j = 0; j < nz; j++) { const x = r.x1 + w * (i + .5) / nx, z = r.z1 + d * (j + .5) / nz; if (h && x > h.x1 - .3 && x < h.x2 + .3 && z < h.z2 + .3) continue; B.lamp(x, z, r.lvl, r.lvl * FH + (r.ceil ?? CEIL) - .04); } }
 function roomSign(B, r) { if (r.corridor || r.lobby || !r.doorAt) return; const y = r.lvl * FH + 2.42, [p, q] = r.doorAt, z = r.north ? r.z2 + .14 : r.z1 - .14;
   B.box(.62, .16, .02, 'FRAME', (p + q) / 2, y, z); B.sign(r.name, '', .58, .13, (p + q) / 2, y, r.north ? z + .012 : z - .012, r.north ? 0 : Math.PI, ['#f2efe6', '#1c2226']); }
 function buildRooms(B, rooms) { rooms.forEach(r => { room(B, r); if (!r.noLamps) lampsGrid(B, r, r.corridor ? 3.0 : 2.4); roomSign(B, r); }); }

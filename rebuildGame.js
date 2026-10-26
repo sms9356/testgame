@@ -2,11 +2,11 @@
 //   기본으로 켜진다 (예전 건물로 보려면 주소창에 ?oldmap).
 //   예전 본관(1~3층 · 옥상) · 별관(8~10층) 건물은 감추고, 그 자리 땅(0층)에서 새 건물을 걷는다.
 //   높이는 P.sh(계단 높이 보정값)로 넘긴다 → 카메라 · 점프 · 가구 오르기 코드는 손대지 않아도 된다.
-import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=223';
-import { placeModels } from './rebuild/models.js?v=223';
-import { carve, subdivide } from './rebuild/transplant.js?v=223';
+import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=224';
+import { placeModels } from './rebuild/models.js?v=224';
+import { carve, subdivide } from './rebuild/transplant.js?v=224';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { turfMaterial } from './campusVisuals.js?v=223';
+import { turfMaterial } from './campusVisuals.js?v=224';
 
 // 예전 건물이 차지하던 땅 (이 안의 예전 메시 · 충돌 상자를 걷어 낸다)
 const OLD_MAIN = { x1: -51, x2: 51, z1: -10.6, z2: 10.9 };
@@ -460,17 +460,20 @@ export function installRebuild({ THREE, scene, floors, world }) {
     E.target = fHere; E.go = true; E.doorT = 0; return 'call';
   };
   R.elevTo = (e, dir) => { const nf = e.f + dir; if (nf < 0 || nf >= e.n) return null; const t = R.elevs.find(q => q.b === e.b && q.f === nf); return { floor: 0, x: t.out.x, z: t.out.z, yaw: t.yaw, sh: t.rbY }; };
+  const _ev = new THREE.Vector3();
   R.elevTick = (dt, P, sfx) => {
     for (const E of ELV) {
       const FHb = E.b.spec.FH, ty = E.target * FHb;
       // 문: doorT 쪽으로 (0 닫힘 · 1 열림)
+      const h0 = P && P.floor === 0 ? elvAt(P.x, P.z) : null, near = !!(h0 && h0.E === E) || (P && P.floor === 0 && E.car && Math.hypot(P.x - E.car.getWorldPosition(_ev).x, P.z - _ev.z) < 7 && Math.abs((P.sh || 0) - E.y) < 2.5);
+      if (E.doorT !== E._lastDT) { if (E._lastDT !== undefined) R.onElev && R.onElev(E.doorT ? 'open' : 'close', E, near); E._lastDT = E.doorT; }   // 문 소리 · 안내 음성
       if (E.door !== E.doorT) E.door += Math.sign(E.doorT - E.door) * Math.min(Math.abs(E.doorT - E.door), dt * 1.4);
       const fNow = Math.round(E.y / FHb);
       E.landing.forEach((l, i) => { const k = i === fNow && !E.moving ? E.door : 0; l.L.position.x = -.3 - k * .58; l.R.position.x = .3 + k * .58; });
       const h = P && P.floor === 0 ? elvAt(P.x, P.z) : null, rider = h && h.E === E && h.lz < E.zw && Math.abs((P.sh || 0) - E.y) < 1.3;
-      if (E.go && E.door <= .01) { E.go = false; E.moving = Math.abs(ty - E.y) > .01; if (E.moving) sfx && sfx.elevator && sfx.elevator(Math.abs(ty - E.y) / 1.2); }
+      if (E.go && E.door <= .01) { E.go = false; E.moving = Math.abs(ty - E.y) > .01; if (E.moving) { sfx && sfx.elevator && sfx.elevator(Math.abs(ty - E.y) / 1.2); R.onElev && R.onElev(ty > E.y ? 'up' : 'down', E, near); } }
       if (E.moving) { const d = ty - E.y, st = Math.sign(d) * Math.min(Math.abs(d), dt * 1.2 * Math.min(1, .25 + Math.abs(d))); E.y += st; if (rider) P.sh = E.y + .06;
-        if (Math.abs(ty - E.y) < .005) { E.y = ty; E.moving = false; E.doorT = 1; E.wait = 5; sfx && sfx.elevatorChime && sfx.elevatorChime(); } E.show(`${Math.round(E.y / FHb) + 1}F${E.moving ? (d > 0 ? '▲' : '▼') : ''}`); }
+        if (Math.abs(ty - E.y) < .005) { E.y = ty; E.moving = false; E.doorT = 1; E.wait = 5; sfx && sfx.elevatorChime && sfx.elevatorChime(); R.onElev && R.onElev('floor_' + (E.target + 1), E, near); } E.show(`${Math.round(E.y / FHb) + 1}F${E.moving ? (d > 0 ? '▲' : '▼') : ''}`); }
       else if (E.door >= .99 && E.doorT === 1) { E.wait -= dt; const inDoor = h && h.E === E && Math.abs(h.lz - E.zw) < .6; if (rider) E.wait = Math.max(E.wait, 1); if (E.wait <= 0 && !inDoor) E.doorT = 0; }
       E.car.position.y = E.y;
     }
@@ -518,6 +521,7 @@ export function installRebuild({ THREE, scene, floors, world }) {
     const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
     const sg = new THREE.Mesh(new THREE.PlaneGeometry(.8, .2), new THREE.MeshBasicMaterial({ map: t })); sg.position.set(sx - dx, y + 2.15, z); sg.rotation.y = ry; group.add(sg);
   };
-  R.footprints = FOOTPRINTS;   // 새 본관 · 별관 바닥 사각형 (인도 재배치용)
+  R.footprints = FOOTPRINTS;
+  R.extra = []; { const bX = R.blocked; R.blocked = (x, z, y, r) => R.extra.some(c => Math.abs(y - c.y) < .5 && x + r > c.x1 && x - r < c.x2 && z + r > c.z1 && z - r < c.z2) || bX(x, z, y, r); }   // 나중에 놓는 받침 수납장 등   // 새 본관 · 별관 바닥 사각형 (인도 재배치용)
   return R;
 }

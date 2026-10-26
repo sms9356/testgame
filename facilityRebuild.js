@@ -5,7 +5,7 @@
 //   재질: F-01 ~ F-05 바닥 · W-01 ~ W-05 벽 · C-01 ~ C-04 천장 (Poly Haven CC0 실사 스캔 텍스처, assets/tex/fac_* · 미터 단위 UV)
 import * as THREE from './vendor/three.module.js';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { pbr } from './tex.js?v=221';
+import { pbr } from './tex.js?v=222';
 
 const FH = 3.6, CEIL = 2.9, WALL_T = .24, LIN = .06;
 const TL = new THREE.TextureLoader(), TEX = {};
@@ -201,10 +201,10 @@ function doorway(B, axis, at, a, b, lvl, open = 1, leafMat = 'DARKWOOD') {
   const y0 = lvl * FH, w = b - a, m = (a + b) / 2;
   if (axis === 'z') {   // z = at 인 벽(동서로 뻗은 벽)의 구멍 [a,b] (x 범위)
     B.box(.06, 2.12, .2, 'FRAME', a, y0 + 1.06, at); B.box(.06, 2.12, .2, 'FRAME', b, y0 + 1.06, at); B.box(w + .12, .08, .2, 'FRAME', m, y0 + 2.14, at);
-    if (open) { B.box(.045, 2.04, w - .06, leafMat, a + .06, y0 + 1.03, at - open * (w / 2)); B.box(.03, .03, .14, 'CHROME', a + .1, y0 + 1.0, at - open * (w - .12)); }
+    if (open) { B.box(.045, 2.04, w - .06, leafMat, a + .06, y0 + 1.03, at - open * (w / 2)); B.box(.03, .03, .14, 'CHROME', a + .1, y0 + 1.0, at - open * (w - .12)); const e = at - open * (w - .06); B.col(a + .02, a + .1, Math.min(at, e), Math.max(at, e), { lvl }); }   // 열린 문짝도 막는다 (유령처럼 통과되던 곳)
   } else {
     B.box(.2, 2.12, .06, 'FRAME', at, y0 + 1.06, a); B.box(.2, 2.12, .06, 'FRAME', at, y0 + 1.06, b); B.box(.2, .08, w + .12, 'FRAME', at, y0 + 2.14, m);
-    if (open) { B.box(w - .06, 2.04, .045, leafMat, at - open * (w / 2), y0 + 1.03, a + .06); }
+    if (open) { B.box(w - .06, 2.04, .045, leafMat, at - open * (w / 2), y0 + 1.03, a + .06); const e = at - open * (w - .06); B.col(Math.min(at, e), Math.max(at, e), a + .02, a + .1, { lvl }); }
   }
 }
 
@@ -743,10 +743,23 @@ export function installFacilityRebuild(ctx) {
   const rt = retexture(floors[7], { F: 'F01', W: 'W05', C: 'C01' }) + retexture(floors[6], { F: 'F04', W: 'W05', C: 'C03' });
   window.__facilityRebuild = { removed: res.removed, ext, retextured: rt, ms: Math.round(performance.now() - t0) };
   // 나중에 불러오는 모델(GLB)이 옛 터에 다시 나타나면 걷어 낸다
-  //   씬 전체를 다시 훑으면 수 초씩 멈췄다 → 설치 뒤 새로 붙은 최상위 묶음만 본다
-  const seen = new Set(scene.children);
-  const again = () => { const fresh = scene.children.filter(c => !seen.has(c)); fresh.forEach(c => seen.add(c)); if (!fresh.length) return; const tmp = { scene: { children: fresh, updateMatrixWorld: () => fresh.forEach(c => c.updateMatrixWorld(true)) }, floors, world }; demolish(tmp, zones, keepMesh, false); };
+  //   씬 전체 판정을 다시 돌리면 수 초씩 멈췄다 → 설치 뒤 새로 생긴 메시(기존 묶음 안에 비동기로 붙은 GLB 포함)만 골라 본다
+  const seen = new WeakSet(); scene.traverse(o => seen.add(o));
+  const keepNew = o => { for (let a = o; a; a = a.parent) if (a.userData && (a.userData.facNew || a.userData.facKeep)) return true; return false; };
+  const again = () => { const live = new Set(); [...(world.props || []), ...(world.items || [])].forEach(p => { if (p.mesh) p.mesh.traverse(c => live.add(c)); if (p.led) live.add(p.led); });   // 게임이 나중에 놓은 조사 소품 · 아이템은 건드리지 않는다
+    const fresh = []; scene.traverse(o => { if (seen.has(o)) return; seen.add(o); if ((o.isMesh || o.isSprite || o.isLight) && !o.isSkinnedMesh && !live.has(o) && !keepNew(o)) fresh.push(o); }); if (!fresh.length) return;
+    const tmp = { scene: { children: fresh, updateMatrixWorld: () => fresh.forEach(c => c.updateMatrixWorld(true)) }, floors, world }; demolish(tmp, zones, keepMesh, false); };
   [4000, 12000, 30000, 70000].forEach(ms => setTimeout(again, ms));
+  // 새 가구(객석 줄 · 진열장)가 옛 조사 지점 위에 놓여 다가설 자리가 없어진 경우 → 가까운 빈 바닥으로 옮긴다
+  const rescue = () => { const C = floors[0].col || [], R = .3;
+    const free = (x, z) => !C.some(c => !c.off && !(c.h != null && c.h <= .34) && !(c.y0 != null && c.y0 > 1.5) && x > c.x1 - R && x < c.x2 + R && z > c.z1 - R && z < c.z2 + R);
+    const near = (x, z) => { for (const rr of [.5, .7, .9, 1.1, 1.3]) for (let a = 0; a < 24; a++) { const an = a / 24 * Math.PI * 2; if (free(x + Math.cos(an) * rr, z + Math.sin(an) * rr)) return true; } return false; };
+    const inZ = (x, z) => zones.some(Z => Math.abs(x - Z.cx) < Z.W / 2 && Math.abs(z - Z.cz) < Z.D / 2);
+    const fix = (o, get, set) => { const [x, z] = get(); if (!inZ(x, z) || near(x, z)) return;
+      for (let d = .2; d < 4; d += .2) for (let a = 0; a < 16; a++) { const an = a / 16 * Math.PI * 2, nx = x + Math.cos(an) * d, nz = z + Math.sin(an) * d; if (free(nx, nz) && near(nx, nz)) { set(nx - x, nz - z); return; } } };
+    (world.props || []).forEach(p => { if (p.floor !== 0 || (p.y ?? 0) > 3.2) return; fix(p, () => [p.x, p.z], (dx, dz) => { p.x += dx; p.z += dz; if (p.mesh) { p.mesh.position.x += dx; p.mesh.position.z += dz; } }); });
+    (world.items || []).forEach(i => { if (i.floor !== 0 || !i.pos || i.pos.y > 3.2) return; fix(i, () => [i.pos.x, i.pos.z], (dx, dz) => { i.pos.x += dx; i.pos.z += dz; if (i.mesh) { i.mesh.position.x += dx; i.mesh.position.z += dz; } }); }); };
+  [3000, 15000].forEach(ms => setTimeout(rescue, ms));
   return built;
 }
 // 급식실 · 수영장 옛 외관 (바깥 0층 메시) 만 걷어 낸다 — 실내 층(6 · 7)은 건드리지 않는다

@@ -90,7 +90,7 @@ function demolish({ scene, floors, world }, zoneList, protect, cols = true) {
   const visit = o => {
     if (o.userData && (o.userData.facNew || o.userData.facKeep)) return;
     if (protect.has(o) || o.isCamera || o.isSkinnedMesh) return;
-    if (o.isLight && !o.isAmbientLight && !o.isHemisphereLight && !o.isDirectionalLight) { o.getWorldPosition(v); if (inR(v.x, v.z) && v.y > -1 && v.y < 14) { o.visible = false; o.intensity = 0; } return; }
+    if (o.isLight && o.userData.perfPool) return; if (o.isLight && !o.isAmbientLight && !o.isHemisphereLight && !o.isDirectionalLight) { o.getWorldPosition(v); if (inR(v.x, v.z) && v.y > -1 && v.y < 14) { o.visible = false; o.intensity = 0; } return; }
     if (o.isInstancedMesh) { let hit = 0; const p = new THREE.Vector3(); for (let i = 0; i < o.count; i++) { o.getMatrixAt(i, m4); p.setFromMatrixPosition(m4).applyMatrix4(o.matrixWorld); if (inR(p.x, p.z) && p.y > -1 && p.y < 14) { m4.makeScale(0, 0, 0); o.setMatrixAt(i, m4); hit++; } } if (hit) o.instanceMatrix.needsUpdate = true; return; }
     if (o.isMesh || o.isSprite || o.isLine || o.isPoints) {
       if (o.isSprite) { o.getWorldPosition(v); if (inR(v.x, v.z) && v.y > -1 && v.y < 16) kill.push(o); return; }
@@ -110,7 +110,7 @@ function demolish({ scene, floors, world }, zoneList, protect, cols = true) {
   kill.forEach(o => { if (o.parent) o.parent.remove(o); });
   // 충돌 상자 · 문 · 숨는 곳
   const F0 = floors[0];
-  if (cols) for (const k of ['col', 'walls', 'doorWalls']) if (F0[k]) F0[k] = F0[k].filter(r => !inR(((r.x1 ?? 0) + (r.x2 ?? 0)) / 2, ((r.z1 ?? 0) + (r.z2 ?? 0)) / 2, -.2));
+  if (cols) for (const k of ['col', 'walls', 'doorWalls']) if (F0[k]) F0[k] = F0[k].filter(r => !inR(((r.x1 ?? 0) + (r.x2 ?? 0)) / 2, ((r.z1 ?? 0) + (r.z2 ?? 0)) / 2, 0));
   return { removed: kill.length, inR };
 }
 
@@ -499,11 +499,11 @@ function buildHistory(ctx, Z) {   // 역사관 15.6 × 10.6m · 2층 (학교 · 
   // 1층 로비: 안내 데스크 (1800×700×1000)
   { const r = byName(R0, '중앙 로비 · 계단'); B.box(1.8, 1.0, .7, 'WOOD', r.x2 - 1.3, .5, r.z2 - .55); B.box(1.84, .04, .74, 'DARKWOOD', r.x2 - 1.3, 1.02, r.z2 - .55); B.col(r.x2 - 2.2, r.x2 - .4, r.z2 - .9, r.z2 - .2, { lvl: 0, h: 1.0 }); }
   // 학교역사 전시: 대형 진열장 4 (1800×750×950) + 벽면 패널 3 + 타임캡슐 진열 (east_museum)
-  { const r = byName(R0, '학교역사 전시'), cx = (r.x1 + r.x2) / 2; [[-1.1, -1.0], [1.1, -1.0], [-1.1, .9], [1.1, .9]].forEach(([dx, dz], k) => F.vitrine(B, cx + dx, (r.z1 + r.z2) / 2 + dz, 0, 0, 1.8, .75, .95, 'DARKWOOD', y => exhibit(y, cx + dx, (r.z1 + r.z2) / 2 + dz, k)));
+  { const r = byName(R0, '학교역사 전시'), cx = (r.x1 + r.x2) / 2; [[-1.15, -.9], [1.15, -.9], [-1.15, .9], [1.15, .9]].forEach(([dx, dz], k) => F.vitrine(B, cx + dx, (r.z1 + r.z2) / 2 + dz, 0, 0, 1.4, .75, .95, 'DARKWOOD', y => exhibit(y, cx + dx, (r.z1 + r.z2) / 2 + dz, k)));
     [-1.5, 0, 1.5].forEach((dx, k) => F.panel(B, cx + dx, r.z1 + .1, 0, 0, 'PANEL', ['1998 · 개교 30주년', '역대 교장 · 졸업 앨범', '방송부 30년사'][k]));
     B.box(.5, .5, .5, 'GREYSTEEL', cx + 1.1, .95 + .28, (r.z1 + r.z2) / 2 - 1.0); an.museum = [cx + 1.1, (r.z1 + r.z2) / 2 - .3]; }
   // 지역역사 전시: 진열장 2 + 벽면 패널 3
-  { const r = byName(R0, '지역역사 전시'), cx = (r.x1 + r.x2) / 2; [-1.1, 1.1].forEach((dx, k) => F.vitrine(B, cx + dx, (r.z1 + r.z2) / 2, 0, 0, 1.8, .75, .95, 'DARKWOOD', y => exhibit(y, cx + dx, (r.z1 + r.z2) / 2, k + 2)));
+  { const r = byName(R0, '지역역사 전시'), cx = (r.x1 + r.x2) / 2; [-1.15, 1.15].forEach((dx, k) => F.vitrine(B, cx + dx, (r.z1 + r.z2) / 2, 0, 0, 1.4, .75, .95, 'DARKWOOD', y => exhibit(y, cx + dx, (r.z1 + r.z2) / 2, k + 2)));
     [-1.5, 0, 1.5].forEach((dx, k) => F.panel(B, cx + dx, r.z1 + .1, 0, 0, 'PANEL', ['서문동 옛 지도', '1970년대 학교 앞 거리', '지역 신문 스크랩'][k])); }
   // 사무실: 책상 2 + 서가 2
   { const r = byName(R0, '사무실'); F.desk(B, r.x1 + 1.3, r.z1 + 1.4, 0, 0, 1.2, .6, .72); F.desk(B, r.x1 + 2.7, r.z1 + 1.4, 0, 0, 1.2, .6, .72); F.chair(B, r.x1 + 1.3, r.z1 + 2.0, Math.PI, 0); F.chair(B, r.x1 + 2.7, r.z1 + 2.0, Math.PI, 0);
@@ -536,7 +536,7 @@ function buildAstro(ctx, Z) {   // 과학천문관 20 × 16m · 2층 (천문 교
       S: [{ name: '관측 준비실', w: 6.0, door: .8 }, { name: '전시 복도', w: 8.0, fin: 'exh', open: true }, { name: '장비 점검실', w: 6.0, fin: 'ind', door: .2 }] } });
   const F = FURN, an = {}, H = B.H;
   // 천문교육실: 교육용 책상 12 (1200×600) + 의자 12 + 칠판
-  { const r = byName(R0, '천문교육실'); for (let i = 0; i < 4; i++) for (let j = 0; j < 3; j++) { const x = r.x1 + 1.0 + i * 1.75, z = r.z1 + 1.9 + j * 1.35; F.desk(B, x, z, Math.PI, 0, 1.2, .6, .74); F.chair(B, x, z + .55, Math.PI, 0); }
+  { const r = byName(R0, '천문교육실'); for (let i = 0; i < 4; i++) for (let j = 0; j < 3; j++) { const x = r.x1 + .95 + i * 1.85, z = r.z1 + 1.9 + j * 1.35; F.desk(B, x, z, Math.PI, 0, 1.2, .6, .74); F.chair(B, x, z + .55, Math.PI, 0); }
     B.box(3.6, 1.2, .04, 'BOARD', (r.x1 + r.x2) / 2, 1.5, r.z1 + .08); B.box(3.7, .05, .1, 'ALU', (r.x1 + r.x2) / 2, .88, r.z1 + .1); }
   // 전시실: 전시 진열장 4 (1200×600×2100) + 패널 4 + 태양계 모형 (astro_orrery)
   { const r = byName(R0, '전시실'), cx = (r.x1 + r.x2) / 2, cz = (r.z1 + r.z2) / 2;

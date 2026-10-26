@@ -5,7 +5,7 @@
 //   재질: F-01 ~ F-05 바닥 · W-01 ~ W-05 벽 · C-01 ~ C-04 천장 (Poly Haven CC0 실사 스캔 텍스처, assets/tex/fac_* · 미터 단위 UV)
 import * as THREE from './vendor/three.module.js';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { pbr } from './tex.js?v=222';
+import { pbr } from './tex.js?v=223';
 
 const FH = 3.6, CEIL = 2.9, WALL_T = .24, LIN = .06;
 const TL = new THREE.TextureLoader(), TEX = {};
@@ -72,7 +72,7 @@ export function taegukgiTexture() {
 }
 
 // ───────── 철거 ─────────
-const ZONES = {
+export const ZONES = {
   dorm: { cx: -86, cz: -42, W: 22, D: 14 }, union: { cx: -88, cz: 42, W: 22, D: 14 }, aud: { cx: -25, cz: -48, W: 18, D: 26 },
   recy: { cx: 84, cz: 15, W: 16, D: 11 }, astro: { cx: 84, cz: -34, W: 20, D: 16 }, hist: { cx: 84, cz: -11, W: 15.6, D: 10.6 },
   cafe: { cx: -39, cz: 18.75, W: 18, D: 12.5 }, pool: { cx: -41, cz: 41, W: 14, D: 20 },
@@ -83,7 +83,7 @@ export const inTwoStory = (x, z) => TWO_STORY.some(Z => Math.abs(x - Z.cx) < Z.W
 
 function demolish({ scene, floors, world }, zoneList, protect, cols = true) {
   const v = new THREE.Vector3(), bb = new THREE.Box3(), sz = new THREE.Vector3(), m4 = new THREE.Matrix4();
-  const rects = zoneList.map(Z => ({ x1: Z.cx - Z.W / 2 - .7, x2: Z.cx + Z.W / 2 + .7, z1: Z.cz - Z.D / 2 - .7, z2: Z.cz + Z.D / 2 + .7, Z }));
+  const rects = zoneList.map(Z => ({ x1: Z.cx - Z.W / 2 - 2, x2: Z.cx + Z.W / 2 + 2, z1: Z.cz - Z.D / 2 - 2, z2: Z.cz + Z.D / 2 + 2, Z }));   // 2m 띠: 옛 현관 캐노피 · 모서리 기둥 · 울타리 잔재까지
   const inR = (x, z, m = 0) => rects.find(r => x > r.x1 - m && x < r.x2 + m && z > r.z1 - m && z < r.z2 + m);
   const kill = [];
   scene.updateMatrixWorld(true);
@@ -723,6 +723,13 @@ export function installFacilityRebuild(ctx) {
   // 조상까지 보호하면 그룹이 통째로 살아남으므로, 조상은 walk 단계에서만 통과시키고 메시는 개별 판정 → protect 에는 메시만
   const keepMesh = new Set(); (world.props || []).forEach(p => { if (p.mesh) p.mesh.traverse(c => keepMesh.add(c)); }); (world.items || []).forEach(i => { if (i.mesh) i.mesh.traverse(c => keepMesh.add(c)); });
   const res = demolish(ctx, zones, keepMesh);
+  // 옛 시설 묶음(청운학사 · 학생회관 · 천문관 옛 현관 캐노피 · 간판)과 옛 분리수거장 동쪽 담장(구역 2m 밖)까지 통째로 걷는다 — 소품(keepMesh)은 남김
+  { const extra = [[78.3, 94.8, 9.8, 21.2]], kill = [], b3 = new THREE.Box3(), c3 = new THREE.Vector3();
+    scene.traverse(o => { if (!o.isMesh || keepMesh.has(o)) return; let old = false; for (let a = o.parent; a; a = a.parent) if (/^chunk_(dorm|astro|union)$/.test(a.name)) old = true;
+      if (!old) { b3.setFromObject(o); if (b3.isEmpty() || b3.max.y - b3.min.y < .5) return; b3.getCenter(c3); old = extra.some(r => c3.x > r[0] && c3.x < r[1] && c3.z > r[2] && c3.z < r[3]) && !o.isInstancedMesh; }
+      if (old) kill.push(o); });
+    kill.forEach(o => o.parent && o.parent.remove(o));
+    const F0 = floors[0]; for (const k of ['col', 'walls']) if (F0[k]) F0[k] = F0[k].filter(r => !extra.some(e => (r.x1 + r.x2) / 2 > e[0] && (r.x1 + r.x2) / 2 < e[1] && (r.z1 + r.z2) / 2 > e[2] && (r.z1 + r.z2) / 2 < e[3])); }
   // 옛 시설 안 물건 정리: 스위치 · 화장실 표시는 새로 만든다, 나머지는 새 위치로
   const inZone = (p, Z) => p.floor === 0 && Math.abs(p.x - Z.cx) < Z.W / 2 + .8 && Math.abs(p.z - Z.cz) < Z.D / 2 + .8;
   world.props = world.props.filter(p => !(ids.some(k => inZone(p, ZONES[k])) && (p.k === 'light_switch' || (p.k === 'campus_wc' && !inZone(p, ZONES.dorm)))));

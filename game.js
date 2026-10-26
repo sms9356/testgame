@@ -8547,7 +8547,6 @@ function megaNotify(m) { const t = String(m).split('\n'); say(t[0].replace(/^\S+
     // 대강당 리모델링 (참고 배치도 · 18.0 × 26.0m · 층고 약 8m): 북측 무대 (기존) + 무대 커튼 (프로시니엄 · 상부 막) · 태극기 · 그랜드피아노 · 무대 조명 바 · 메인 스피커 / 객석 (좌우 2블록 · 중앙 통로 2m · 측면 통로) / 남동 음향·조명 조정실 (창 · 음향 콘솔 · 랙) · 남서 준비실 (대기실) · 비상구 2 (동 · 서)
     { const red = PM(0x8a1420, .85), fab = PM(0xa8743c, .75), legM = PM(0x2a2c2e, .5, .5);
       [-1, 1].forEach(s => pbox(1.6, 6.0, .3, red, G.x + s * 8.1, 3.0, z0 + 4.6, O)); pbox(17.6, 1.0, .3, red, G.x, 6.6, z0 + 4.6, O);
-      [-1, 1].forEach(s => F0.col.push({ x1: G.x + s * 8.1 - .8, x2: G.x + s * 8.1 + .8, z1: z0 + 4.45, z2: z0 + 4.75 }));
       { const c = document.createElement('canvas'); c.width = 300; c.height = 200; const g2 = c.getContext('2d'); g2.fillStyle = '#fbfbf6'; g2.fillRect(0, 0, 300, 200); g2.fillStyle = '#c8102e'; g2.beginPath(); g2.arc(150, 100, 50, Math.PI, 0); g2.fill(); g2.fillStyle = '#003478'; g2.beginPath(); g2.arc(150, 100, 50, 0, Math.PI); g2.fill(); g2.fillStyle = '#111';
         [[52, 38], [248, 38], [52, 162], [248, 162]].forEach(([x, y]) => { for (let k = 0; k < 3; k++) g2.fillRect(x - 18, y - 10 + k * 8, 36, 5); });
         const tx = new THREE.CanvasTexture(c); tx.colorSpace = THREE.SRGBColorSpace; pmesh(new THREE.PlaneGeometry(2.4, 1.6), new THREE.MeshStandardMaterial({ map: tx, roughness: .7 }), G.x, 3.4, z0 + .66, O, { cast: false }); }

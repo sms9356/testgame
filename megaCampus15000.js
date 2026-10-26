@@ -369,14 +369,24 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
       wallX(cx + 1.87, x1, z0 + 2.62, 1);
       plate('203호 심야 정독실', cx + 1.65, Y2 + 2.32, cz + 2.15, -Math.PI / 2);
       addRestroom(g, x1, z0 + 2.7, -1, 1, Y2, FH2, '2층 화장실');   // 2층 화장실 (정독실 북동 구석)
-      // 침실 가구: 이층침대 · 책상 · 옷장 (호실마다)
-      [[cz - 2.7, '201'], [cz + 4.0, '202']].forEach(([rz, n]) => {
-        pbox(2.0, .5, .95, woodDark, x0 + 1.2, Y2 + .25, rz, g); pbox(2.0, .14, .95, mattressM, x0 + 1.2, Y2 + .57, rz, g);   // 침대
-        pbox(1.1, .76, .6, woodLight, cx - 5.2, Y2 + .38, rz + 1.6, g); pbox(.62, 1.9, .55, woodDark, x0 + .4, Y2 + .95, rz + 2.0, g);   // 책상 · 옷장
-        addCol(x0 + .2, x0 + 2.2, rz - .5, rz + .5, false, Y2 + .64, { y0: 3.8 });
-      });
+      // 기숙사 A (201호) · B (202호) 4인실 (참고 평면도): 2층 침대 2 (1000×2100×1500) · 책상 2 (1200×600) + 의자 · 개인 사물함 4 (300×450×1800)
+      [[cz - 2.7, -1], [cz + 4.0, 1]].forEach(([rz, s]) => { const c = s < 0 ? -43.5 : -37.8;
+        [c - 1.55, c + .85].forEach(bz => { const bxC = x0 + 1.2; [[-.95, -.45], [.95, -.45], [-.95, .45], [.95, .45]].forEach(([a, b]) => pbox(.07, 1.5, .07, woodDark, bxC + a, Y2 + .75, bz + b, g, { cast: false }));
+          [.35, 1.2].forEach(y => { pbox(2.0, .1, .95, woodDark, bxC, Y2 + y, bz, g); pbox(1.95, .12, .9, mattressM, bxC, Y2 + y + .11, bz, g, { cast: false }); pbox(.45, .08, .3, PM(0xf0f0ea, .8), bxC - .7, Y2 + y + .21, bz, g, { cast: false }); });
+          for (let k = 0; k < 4; k++) pbox(.04, .03, .4, woodDark, bxC + .98, Y2 + .5 + k * .25, bz, g, { cast: false });
+          addCol(bxC - 1.0, bxC + 1.0, bz - .48, bz + .48, false, null, { y0: 3.8 }); });
+        const dz = s < 0 ? c - 2.1 : c + 2.1; [-.62, .62].forEach(d => { pbox(.6, .04, 1.2, woodLight, cx - 5.2, Y2 + .72, dz + d * 0, g); });
+        pbox(.6, .72, 1.2, woodLight, cx - 5.2, Y2 + .36, dz, g); pbox(.62, .74, .05, woodDark, cx - 5.2, Y2 + .37, dz, g, { cast: false }); addCol(cx - 5.5, cx - 4.9, dz - .6, dz + .6, false, Y2 + .74, { y0: 3.8 });
+        for (let k = 0; k < 4; k++) { pbox(.3, 1.8, .45, PM(0x8a9096, .5, .45), x0 + 3.0 + k * .32, Y2 + .9, s < 0 ? z0 + 2.62 + .3 : z1 - .3, g); }
+        addCol(x0 + 2.85, x0 + 4.3, s < 0 ? z0 + 2.62 : z1 - .55, s < 0 ? z0 + 3.17 : z1, false, null, { y0: 3.8 }); });
     }
 
+    // 1층 공용부엌 · 식당 (참고 평면도, 서남): 주방 싱크대 (1800×700×850) · 상업용 냉장고 (700×700×1800) · 8인용 식탁 (1800×900) + 의자 8
+    { const kx = x0 + .4; pbox(.7, .85, 1.8, PM(0x8a9498, .45, .5), kx, .425, cz + 2.0, g); pbox(.72, .04, 1.82, PM(0xc8ccd0, .3, .7), kx, .87, cz + 2.0, g); pbox(.45, .02, .5, PM(0x30363a, .3, .7), kx, .88, cz + 1.7, g, { cast: false }); addCol(x0, x0 + .75, cz + 1.1, cz + 2.9, false, .9);
+      pbox(.7, 1.8, .7, PM(0xc8ccd0, .3, .7), kx, .9, cz + 3.4, g); addCol(x0, x0 + .75, cz + 3.05, cz + 3.75);
+      const tx = x0 + 2.6, tz = cz + 5.6; pbox(1.8, .05, .9, walnutM, tx, .73, tz, g); [[-.8, -.38], [.8, -.38], [-.8, .38], [.8, .38]].forEach(([a, b]) => pbox(.06, .71, .06, walnutM, tx + a, .355, tz + b, g, { cast: false })); addCol(tx - .9, tx + .9, tz - .45, tz + .45, false, .76);
+      [-.6, 0, .6].forEach(d => { addChair(g, tx + d, tz - .75, 0); addChair(g, tx + d, tz + .75, Math.PI); }); addChair(g, tx - 1.2, tz, Math.PI / 2); addChair(g, tx + 1.2, tz, -Math.PI / 2);
+      pmesh(new THREE.PlaneGeometry(1.1, .26), new THREE.MeshBasicMaterial({ map: makeSign('공용부엌 · 식당', '#241812', '#f4e2b8', 22) }), x0 + .03, 2.3, cz + 2.0, g, { ry: Math.PI / 2, cast: false }); }
     // 1층 휴게 라운지 원목 커피 테이블 & 브라운관 TV 장식장 (소파 2조는 sf_pro_dorm_lounge_set.glb 로 배치!)
     pbox(1.65, .42, .82, walnutM, cx - 3.5, .21, cz + 2.8, g);
     pbox(1.55, .03, .72, glassM, cx - 3.5, .43, cz + 2.8, g, { cast: false });

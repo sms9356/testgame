@@ -2,11 +2,11 @@
 //   기본으로 켜진다 (예전 건물로 보려면 주소창에 ?oldmap).
 //   예전 본관(1~3층 · 옥상) · 별관(8~10층) 건물은 감추고, 그 자리 땅(0층)에서 새 건물을 걷는다.
 //   높이는 P.sh(계단 높이 보정값)로 넘긴다 → 카메라 · 점프 · 가구 오르기 코드는 손대지 않아도 된다.
-import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=222';
-import { placeModels } from './rebuild/models.js?v=222';
-import { carve, subdivide } from './rebuild/transplant.js?v=222';
+import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=223';
+import { placeModels } from './rebuild/models.js?v=223';
+import { carve, subdivide } from './rebuild/transplant.js?v=223';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { turfMaterial } from './campusVisuals.js?v=222';
+import { turfMaterial } from './campusVisuals.js?v=223';
 
 // 예전 건물이 차지하던 땅 (이 안의 예전 메시 · 충돌 상자를 걷어 낸다)
 const OLD_MAIN = { x1: -51, x2: 51, z1: -10.6, z2: 10.9 };
@@ -92,7 +92,7 @@ export function installRebuild({ THREE, scene, floors, world }) {
     const [x, z] = BC_SLOT.mina[0]; MAIN.root.attach(c); c.position.set(x, BCY + Math.max(0, w.y - BC.y0), z); c.rotation.y = -Math.PI / 2; }   // 민아 · 민아 소지품: 스튜디오 동쪽 구석 벽에 기대 앉음
   clearOld();
   // 예전 건물 터(본관 · 별관 옛 자리)에 잔디: 새 본관 · 별관 바닥 밑은 비우고 덮는다 (길 · 보도블록은 위에 그대로)
-  { const holes = [MAIN, ANX].map(b => { const c = [[-b.layout.L / 2 - .5, b.layout.zN - .5], [b.layout.L / 2 + .5, b.layout.zS + .5]].map(([a, d]) => b.toWorld(a, d)); return [Math.min(c[0][0], c[1][0]), Math.max(c[0][0], c[1][0]), Math.min(c[0][1], c[1][1]), Math.max(c[0][1], c[1][1])]; });
+  let FOOTPRINTS = []; { const holes = FOOTPRINTS = [MAIN, ANX].map(b => { const c = [[-b.layout.L / 2 - .5, b.layout.zN - .5], [b.layout.L / 2 + .5, b.layout.zS + .5]].map(([a, d]) => b.toWorld(a, d)); return [Math.min(c[0][0], c[1][0]), Math.max(c[0][0], c[1][0]), Math.min(c[0][1], c[1][1]), Math.max(c[0][1], c[1][1])]; });
     const R = [-37, 37, -32.2, 10.1], quads = [], st = .5;
     for (let z = R[2]; z < R[3] - 1e-6; z += st) { const z2 = Math.min(R[3], z + st), zc = (z + z2) / 2; let spans = [[R[0], R[1]]];
       holes.forEach(([x1, x2, h1, h2]) => { if (zc < h1 || zc > h2) return; spans = spans.flatMap(([a, b]) => b <= x1 || a >= x2 ? [[a, b]] : [[a, Math.max(a, x1)], [Math.min(b, x2), b]].filter(([p, q]) => q - p > .01)); });
@@ -518,5 +518,6 @@ export function installRebuild({ THREE, scene, floors, world }) {
     const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
     const sg = new THREE.Mesh(new THREE.PlaneGeometry(.8, .2), new THREE.MeshBasicMaterial({ map: t })); sg.position.set(sx - dx, y + 2.15, z); sg.rotation.y = ry; group.add(sg);
   };
+  R.footprints = FOOTPRINTS;   // 새 본관 · 별관 바닥 사각형 (인도 재배치용)
   return R;
 }

@@ -4,12 +4,12 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { buildGuardAnnex, buildDutyRoom, ANNEX as GANX } from './guardAnnex.js?v=222';
-import { NOTES } from './story.js?v=222';
+import { buildGuardAnnex, buildDutyRoom, ANNEX as GANX } from './guardAnnex.js?v=223';
+import { NOTES } from './story.js?v=223';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=222';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=223';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -4875,7 +4875,7 @@ export function buildWorld(scene) {
     const curbG = [];
     const tileRoad = (x1, x2, z1, z2, curbW = true, curbZ = false) => {
       ROAD_RECTS.push([x1 - .55, x2 + .55, z1 - .55, z2 + .55]);
-      flat(OUT, pave, x1, x2, z1, z2, .012, 3);
+      (OUT.userData.paths ||= []).push({ x1, x2, z1, z2, curbW, curbZ, mesh: flat(OUT, pave, x1, x2, z1, z2, .012, 3) }); OUT.userData.pave = pave;   // 재배치용 (campusPaths.js)
       if (curbW) { curbG.push(bx(.16, .08, z2 - z1, x1 - .08, .04, (z1 + z2) / 2, 2), bx(.16, .08, z2 - z1, x2 + .08, .04, (z1 + z2) / 2, 2)); }
       if (curbZ) { curbG.push(bx(x2 - x1, .08, .16, (x1 + x2) / 2, .04, z1 - .08, 2), bx(x2 - x1, .08, .16, (x1 + x2) / 2, .04, z2 + .08, 2)); }
     };
@@ -4916,7 +4916,7 @@ export function buildWorld(scene) {
     tileRoad(72.2, 74.0, -35.5, -32.5, false, true);     // 과학천문관 정문 진입 지선
     tileRoad(60.0, 69.4, 21.4, 24.2, false, true);       // 1998 구관 학우매점 전면 진입 지선
     tileRoad(72.2, 73.2, 37.5, 40.5, false, true);       // 중앙학술정보관(대도서관) 정문 진입 지선
-    OUT.add(new THREE.Mesh(merge(curbG), mStep));
+    { const cm = new THREE.Mesh(merge(curbG), mStep); OUT.add(cm); OUT.userData.pathCurb = cm; OUT.userData.curbMat = mStep; }
   }
 
   // 본관-별관 2층·3층 공중 구름다리 (Skybridge) & 1층 개방형 필로티 기둥 구조:

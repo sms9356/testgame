@@ -77,7 +77,7 @@ function lightStep() {
     if (!l.visible || l.intensity <= 0) continue;
     let vis = true; for (let a = l.parent; a; a = a.parent) if (!a.visible) { vis = false; break; }
     if (!vis || !l.parent) continue;
-    const wp = (l._wp ||= new C.THREE.Vector3()); l.getWorldPosition(wp); const d = wp.distanceTo(p);
+    const wp = (l._wp ||= new C.THREE.Vector3()); if (!l._wpT || C.now - l._wpT > 1500) { l.getWorldPosition(wp); l._wpT = C.now + Math.random() * 500; } const d = wp.distanceTo(p);   // 대부분 고정 조명 → 위치는 1.5초마다만 다시 잰다 (매 프레임 588개 행렬 갱신이 컸다)
     if (l.distance > 0 && d > l.distance + 30) continue;
     cand.push([d, l, wp]);
   }
@@ -91,12 +91,12 @@ function lightStep() {
 
 export function perfTick(dt, indoors) {
   if (!C) return;
-  C.indoors = !!indoors;
-  lightStep();
+  C.indoors = !!indoors; C.now = performance.now();
+  C.lsT = (C.lsT || 0) + dt; if (C.lsT > .08) { C.lsT = 0; lightStep(); }   // 조명 고르기는 초당 12번이면 충분
   const ms = Math.min(250, dt * 1000); C.avg += (ms - C.avg) * .05;
   C.t += dt; C.rebuildT += dt;
   C.rbN ||= 0; if (C.rebuildT > [4, 15, 40][C.rbN] && C.rbN < 3) { C.rbN++; rebuild(); }   // 늦게 불러오는 소품 GLB 도 컬링에 넣는다
-  C.lightT = (C.lightT || 0) + dt; if (C.lightT > 1.5) { C.lightT = 0; scanLights(); }
+  C.lightT = (C.lightT || 0) + dt; if (C.lightT > 6) { C.lightT = 0; scanLights(); }   // 씬 전체 순회 — 새 조명은 드물게만 생긴다
   if (C.t > .25) {
     C.t = 0; const t0 = performance.now();
     if (C.avg > 45) C.R = Math.max(14, C.R - 1); else if (C.avg < 24) C.R = Math.min(30, C.R + .5);

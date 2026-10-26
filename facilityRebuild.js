@@ -750,6 +750,16 @@ export function installFacilityRebuild(ctx) {
     const fresh = []; scene.traverse(o => { if (seen.has(o)) return; seen.add(o); if ((o.isMesh || o.isSprite || o.isLight) && !o.isSkinnedMesh && !live.has(o) && !keepNew(o)) fresh.push(o); }); if (!fresh.length) return;
     const tmp = { scene: { children: fresh, updateMatrixWorld: () => fresh.forEach(c => c.updateMatrixWorld(true)) }, floors, world }; demolish(tmp, zones, keepMesh, false); };
   [4000, 12000, 30000, 70000].forEach(ms => setTimeout(again, ms));
+  // 새 가구(객석 줄 · 진열장)가 옛 조사 지점 위에 놓여 다가설 자리가 없어진 경우 → 가까운 빈 바닥으로 옮긴다
+  const rescue = () => { const C = floors[0].col || [], R = .3;
+    const free = (x, z) => !C.some(c => !c.off && !(c.h != null && c.h <= .34) && !(c.y0 != null && c.y0 > 1.5) && x > c.x1 - R && x < c.x2 + R && z > c.z1 - R && z < c.z2 + R);
+    const near = (x, z) => { for (const rr of [.5, .7, .9, 1.1, 1.3]) for (let a = 0; a < 24; a++) { const an = a / 24 * Math.PI * 2; if (free(x + Math.cos(an) * rr, z + Math.sin(an) * rr)) return true; } return false; };
+    const inZ = (x, z) => zones.some(Z => Math.abs(x - Z.cx) < Z.W / 2 && Math.abs(z - Z.cz) < Z.D / 2);
+    const fix = (o, get, set) => { const [x, z] = get(); if (!inZ(x, z) || near(x, z)) return;
+      for (let d = .2; d < 4; d += .2) for (let a = 0; a < 16; a++) { const an = a / 16 * Math.PI * 2, nx = x + Math.cos(an) * d, nz = z + Math.sin(an) * d; if (free(nx, nz) && near(nx, nz)) { set(nx - x, nz - z); return; } } };
+    (world.props || []).forEach(p => { if (p.floor !== 0 || (p.y ?? 0) > 3.2) return; fix(p, () => [p.x, p.z], (dx, dz) => { p.x += dx; p.z += dz; if (p.mesh) { p.mesh.position.x += dx; p.mesh.position.z += dz; } }); });
+    (world.items || []).forEach(i => { if (i.floor !== 0 || !i.pos || i.pos.y > 3.2) return; fix(i, () => [i.pos.x, i.pos.z], (dx, dz) => { i.pos.x += dx; i.pos.z += dz; if (i.mesh) { i.mesh.position.x += dx; i.mesh.position.z += dz; } }); }); };
+  [3000, 15000].forEach(ms => setTimeout(rescue, ms));
   return built;
 }
 // 급식실 · 수영장 옛 외관 (바깥 0층 메시) 만 걷어 낸다 — 실내 층(6 · 7)은 건드리지 않는다

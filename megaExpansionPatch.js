@@ -175,8 +175,7 @@ class MegaSchoolExpansionAndOptimizer {
     const ctx = courtCanvas.getContext("2d");
     ctx.fillStyle = "#5c3c24"; ctx.fillRect(0, 0, 512, 512);
     ctx.strokeStyle = "rgba(235, 230, 215, 0.55)"; ctx.lineWidth = 6;
-    ctx.strokeRect(30, 30, 452, 452);
-    ctx.beginPath(); ctx.arc(256, 256, 75, 0, Math.PI * 2); ctx.stroke();
+    for (let k = 0; k < 16; k++) { ctx.fillStyle = k % 2 ? "rgba(0,0,0,0.06)" : "rgba(255,255,255,0.03)"; ctx.fillRect(0, k * 32, 512, 32); }   // 대강당 원목 마루 (코트 라인 제거)
 
     const floorMat = new THREE.MeshStandardMaterial({
       map: Object.assign(new THREE.CanvasTexture(courtCanvas), { colorSpace: THREE.SRGBColorSpace }),

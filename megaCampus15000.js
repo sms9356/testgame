@@ -427,39 +427,61 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
      ② [생태공원 섹션] 청운호(靑雲湖) 생태수변공원 & 호심정(湖心亭) 팔각정 — 북측 (x: -9, z: -86)
      ========================================================================= */
   {
-    const cx = -9, cz = -86, pw = 32, pd = 18;
+    // 청운호 수변공원 리모델링 (참고 평면도 · 34.0 × 20.0m): 외곽 수목 식재대 · 순환 산책로 (폭 2.5m) · 인공 호수 (약 24 × 12m · 둥근 모서리) · 분수 · 서측 데크 전망대 (8 × 6m) · 동측 육각 정자 (지름 5m) + 목교 (2 × 4m) · 목재 난간 (H1100) · 벤치 · 가로등 (H3500) · 안내 표지판 · 쓰레기통 · 수생식물 · 석재
+    const cx = -9, cz = -86, x0 = cx - 17, x1 = cx + 17, z0 = cz - 10, z1 = cz + 10, lx0 = -21, lx1 = 3, lz0 = -92, lz1 = -80;
     const g = new THREE.Group(); g.name = 'chunk_lake'; g.userData.dynamic = true; OUT.add(g);
-    pbox(pw + 1.2, .22, pd + 1.2, stoneM, cx, .11, cz, g, { cast: false });
-    const waterM = new THREE.MeshStandardMaterial({ color: 0x1c5458, emissive: 0x0b282c, emissiveIntensity: .35, roughness: .08, metalness: .35, transparent: true, opacity: .82 });
-    pmesh(new THREE.PlaneGeometry(pw, pd), waterM, cx, .18, cz, g, { rx: -Math.PI / 2, cast: false });
-    addCol(cx - pw / 2, cx - 2.1, cz - pd / 2, cz + pd / 2, false);
-    addCol(cx + 2.1, cx + pw / 2, cz - pd / 2, cz + pd / 2, false);
-    pbox(3.6, .16, pd + 2.0, woodDark, cx, .20, cz, g, { cast: false });
-    [-1.7, 1.7].forEach(dx => {
-      pbox(.12, .85, pd + 1.6, woodLight, cx + dx, .62, cz, g);
-      for (let dz = -pd / 2; dz <= pd / 2; dz += 2.2) pbox(.16, .98, .16, woodDark, cx + dx, .68, cz + dz, g);
-    });
-    pcyl(3.8, 4.2, .28, stoneM, cx, .14, cz, g, { seg: 8 });
-    for (let a = 0; a < 8; a++) {
-      const an = a * Math.PI / 4;
-      pcyl(.11, .11, 2.7, PM(0x6e281c, .7), cx + Math.cos(an) * 2.8, 1.62, cz + Math.sin(an) * 2.8, g);
-    }
-    pmesh(new THREE.ConeGeometry(4.2, 1.35, 8), darkMetal, cx, 3.55, cz, g);
-    pmesh(new THREE.PlaneGeometry(1.8, .38), new THREE.MeshBasicMaterial({ map: makeSign('호 심 정 (湖 心 亭)', '#281810', '#f2df98', 26) }), cx, 2.85, cz + 2.85, g, { cast: false });
+    const pathM = PM(0xb8a890, .85), grassM = PM(0x3a6a34, .9), railM = PM(0x6a4424, .75), deckM2 = PM(0x8a5e34, .75);
+    pbox(34, .06, 20, grassM, cx, .03, cz, g, { cast: false });
+    { const sh = new THREE.Shape(), rr2 = 3.0, ax0 = x0 + 1.0, ax1 = x1 - 1.0, az0 = z0 + 1.0, az1 = z1 - 1.0; sh.moveTo(ax0 + rr2, az0); sh.lineTo(ax1 - rr2, az0); sh.quadraticCurveTo(ax1, az0, ax1, az0 + rr2); sh.lineTo(ax1, az1 - rr2); sh.quadraticCurveTo(ax1, az1, ax1 - rr2, az1); sh.lineTo(ax0 + rr2, az1); sh.quadraticCurveTo(ax0, az1, ax0, az1 - rr2); sh.lineTo(ax0, az0 + rr2); sh.quadraticCurveTo(ax0, az0, ax0 + rr2, az0);
+      const geo = new THREE.ShapeGeometry(sh, 8); geo.rotateX(Math.PI / 2); geo.scale(1, -1, 1); pmesh(geo, pathM, 0, .07, 0, g, { cast: false }); }
+    // 호수: 석재 호안 + 수면
+    { const sh = new THREE.Shape(), r3 = 3.5; sh.moveTo(lx0 + r3, lz0); sh.lineTo(lx1 - r3, lz0); sh.quadraticCurveTo(lx1, lz0, lx1, lz0 + r3); sh.lineTo(lx1, lz1 - r3); sh.quadraticCurveTo(lx1, lz1, lx1 - r3, lz1); sh.lineTo(lx0 + r3, lz1); sh.quadraticCurveTo(lx0, lz1, lx0, lz1 - r3); sh.lineTo(lx0, lz0 + r3); sh.quadraticCurveTo(lx0, lz0, lx0 + r3, lz0);
+      const rim = new THREE.ShapeGeometry(sh, 10); rim.rotateX(Math.PI / 2); rim.scale(1, -1, 1); pmesh(rim, stoneM, 0, .09, 0, g, { cast: false });
+      const waterM = new THREE.MeshStandardMaterial({ color: 0x1c5a64, emissive: 0x0b282c, emissiveIntensity: .35, roughness: .06, metalness: .35, transparent: true, opacity: .85 });
+      const inner = new THREE.Shape(), q = .45; inner.moveTo(lx0 + r3, lz0 + q); inner.lineTo(lx1 - r3, lz0 + q); inner.quadraticCurveTo(lx1 - q, lz0 + q, lx1 - q, lz0 + r3); inner.lineTo(lx1 - q, lz1 - r3); inner.quadraticCurveTo(lx1 - q, lz1 - q, lx1 - r3, lz1 - q); inner.lineTo(lx0 + r3, lz1 - q); inner.quadraticCurveTo(lx0 + q, lz1 - q, lx0 + q, lz1 - r3); inner.lineTo(lx0 + q, lz0 + r3); inner.quadraticCurveTo(lx0 + q, lz0 + q, lx0 + r3, lz0 + q);
+      const wg = new THREE.ShapeGeometry(inner, 10); wg.rotateX(Math.PI / 2); wg.scale(1, -1, 1); pmesh(wg, waterM, 0, .13, 0, g, { cast: false }); }
+    // 수면 충돌 (데크 · 정자 · 목교 자리는 비운다)
+    [[lx0, lx1, lz0, -91], [lx0, -4.5, -91, -88], [.5, lx1, -91, -89.5], [-15.5, -4.5, -88, -86], [.5, lx1, -87.5, -86], [-15.5, lx1, -86, -82], [lx0, lx1, -82, lz1]].forEach(([a, b, c, d]) => addCol(a, b, c, d, false));
+    // 목재 난간 (H1100): 호안을 따라 (데크 · 목교 접속부 제외)
+    const rail = (ax, az, bx, bz) => { const L = Math.hypot(bx - ax, bz - az), n = Math.max(1, Math.round(L / 2)), ang = Math.atan2(bz - az, bx - ax);
+      const m = pbox(L, .08, .08, railM, (ax + bx) / 2, 1.05, (az + bz) / 2, g, { cast: false }); m.rotation.y = -ang; const m2 = pbox(L, .06, .06, railM, (ax + bx) / 2, .6, (az + bz) / 2, g, { cast: false }); m2.rotation.y = -ang;
+      for (let k = 0; k <= n; k++) pbox(.1, 1.1, .1, railM, ax + (bx - ax) * k / n, .55, az + (bz - az) * k / n, g, { cast: false }); };
+    rail(lx0 + 3, lz1 + .15, lx1 - 3, lz1 + .15); rail(lx0 + 3, lz0 - .15, lx1 - 3, lz0 - .15); rail(lx1 + .15, lz0 + 3, lx1 + .15, -89.6); rail(lx1 + .15, -87.4, lx1 + .15, lz1 - 3); rail(lx0 - .15, lz0 + 3, lx0 - .15, -88.1); rail(lx0 - .15, -81.9, lx0 - .15, lz1 - 3);
+    // 분수 (중앙)
+    { const fx = -8.5, fz = -86; pcyl(.9, 1.0, .25, stoneM, fx, .13, fz, g, { seg: 16 }); pcyl(.05, .08, 1.8, new THREE.MeshStandardMaterial({ color: 0xd8f0ff, emissive: 0x9ad0ff, emissiveIntensity: .5, transparent: true, opacity: .55 }), fx, 1.05, fz, g);
+      const spF = new THREE.Sprite(new THREE.SpriteMaterial({ map: makeGlowTex('200,235,255'), blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, opacity: .45 })); spF.scale.set(2.4, 2.0, 1); spF.position.set(fx, 1.6, fz); g.add(spF); }
+    // 서측 데크 전망대 (8 × 6m · 팔각 · 난간) — 산책로에서 바로 올라선다
+    { const dx = -19.5, dz = -85; const oct = new THREE.CylinderGeometry(4.0, 4.0, .3, 8); oct.scale(1, 1, .75); const dm = pmesh(oct, deckM2, dx, .15, dz, g); dm.rotation.y = Math.PI / 8;
+      addCol(dx - 4.0, dx + 4.0, dz - 3.0, dz + 3.0, false, .3);
+      for (let k = 0; k < 8; k++) { const a1 = Math.PI / 8 + k * Math.PI / 4, a2 = a1 + Math.PI / 4; if (k === 4) continue; rail(dx + Math.cos(a1) * 3.9, dz + Math.sin(a1) * 2.9, dx + Math.cos(a2) * 3.9, dz + Math.sin(a2) * 2.9); }
+      [[-1.6, 0], [1.6, 0]].forEach(([a]) => { pbox(1.8, .06, .45, woodLight, dx + a, .75, dz + 1.4, g); pbox(1.8, .4, .06, woodLight, dx + a, 1.0, dz + 1.6, g); }); }
+    // 동측 육각 정자 (지름 5m · 높이 3.5m) + 목교 (2 × 4m) — 1998 졸업생 봉인함
+    const cx2 = -2, cz2 = -88.5;
+    pcyl(2.6, 2.6, .3, deckM2, cx2, .15, cz2, g, { seg: 6 }); addCol(cx2 - 2.4, cx2 + 2.4, cz2 - 2.4, cz2 + 2.4, false, .3);
+    for (let a = 0; a < 6; a++) { const an = a * Math.PI / 3; pcyl(.12, .12, 2.7, PM(0x6e3a1c, .7), cx2 + Math.cos(an) * 2.3, 1.65, cz2 + Math.sin(an) * 2.3, g); if (a !== 0) { const bx2 = cx2 + Math.cos(an + Math.PI / 6) * 2.0, bz2 = cz2 + Math.sin(an + Math.PI / 6) * 2.0, m = pbox(2.2, .06, .4, woodLight, bx2, .75, bz2, g); m.rotation.y = -(an + Math.PI / 6) + Math.PI / 2; } }
+    pmesh(new THREE.ConeGeometry(3.3, 1.5, 6), PM(0x5a3a22, .7), cx2, 3.75, cz2, g); pcyl(.12, .2, .5, PM(0x3a2a1a, .6), cx2, 4.5, cz2, g);
+    pmesh(new THREE.PlaneGeometry(1.8, .38), new THREE.MeshBasicMaterial({ map: makeSign('호 심 정 (湖 心 亭)', '#281810', '#f2df98', 26) }), cx2, 2.85, cz2 + 2.35, g, { cast: false });
+    { const bx0 = .4, bx1 = 4.6; pbox(bx1 - bx0, .25, 2.0, deckM2, (bx0 + bx1) / 2, .125, cz2, g); addCol(bx0, bx1, cz2 - 1.0, cz2 + 1.0, false, .25); rail(bx0, cz2 - 1.0, bx1, cz2 - 1.0); rail(bx0, cz2 + 1.0, bx1, cz2 + 1.0); }
     const spL = new THREE.Sprite(new THREE.SpriteMaterial({ map: makeGlowTex('255,210,125'), blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, opacity: .55 }));
-    spL.scale.setScalar(4.5); spL.position.set(cx, 2.5, cz); g.add(spL);
-    pcyl(.65, .55, .78, stoneM, cx, .62, cz, g, { seg: 12 });
-    pbox(.48, .22, .36, PM(0x7a5824, .45, .65), cx, 1.12, cz, g);
-    const capLidPiv = new THREE.Group(); capLidPiv.userData.dynamic = true; capLidPiv.position.set(cx, 1.23, cz - .17); g.add(capLidPiv);
+    spL.scale.setScalar(4.5); spL.position.set(cx2, 2.5, cz2); g.add(spL);
+    pcyl(.65, .55, .78, stoneM, cx2, .62, cz2, g, { seg: 12 });
+    pbox(.48, .22, .36, PM(0x7a5824, .45, .65), cx2, 1.12, cz2, g);
+    const capLidPiv = new THREE.Group(); capLidPiv.userData.dynamic = true; capLidPiv.position.set(cx2, 1.23, cz2 - .17); g.add(capLidPiv);
     pbox(.50, .07, .38, PM(0xa88238, .3, .8), 0, .035, .17, capLidPiv);
     pbox(.08, .05, .04, goldM, 0, .02, .36, capLidPiv);
-    addCol(cx - .65, cx + .65, cz - .65, cz + .65);
-    world.props.push({ kind: 'robj', k: 'lake_capsule', t: 'mega15k', floor: 0, x: cx, z: cz + 1.25, y: 1.1, r: 2.2, label: '호심정 정자 위 1998 졸업생 봉인함 열기', anim: { type: 'lid', lidPiv: capLidPiv, openAngle: -1.45, t: 0, active: false } });
-
-    const padM = PM(0x2d6a36, .8);
-    [[-8, -4], [-11, 3], [-6, 5], [7, -5], [10, 2], [6, 6], [-12, -6], [12, -3]].forEach(([ox, oz]) => {
-      pmesh(new THREE.CircleGeometry(.42, 12), padM, cx + ox, .20, cz + oz, g, { rx: -Math.PI / 2, cast: false });
-    });
+    addCol(cx2 - .65, cx2 + .65, cz2 - .65, cz2 + .65);
+    world.props.push({ kind: 'robj', k: 'lake_capsule', t: 'mega15k', floor: 0, x: cx2, z: cz2 + 1.25, y: 1.1, r: 2.2, label: '호심정 정자 위 1998 졸업생 봉인함 열기', anim: { type: 'lid', lidPiv: capLidPiv, openAngle: -1.45, t: 0, active: false } });
+    // 수생식물 (연잎 · 연꽃) · 호안 석재
+    const padM = PM(0x2d6a36, .8), lotusM = PM(0xf0a8c8, .6);
+    [[-15, -90], [-12, -82], [-6, -91], [-4, -81.5], [-17, -89.5], [1, -82]].forEach(([x, z], k) => { pmesh(new THREE.CircleGeometry(.45, 12), padM, x, .15, z, g, { rx: -Math.PI / 2, cast: false }); if (k % 2 === 0) pmesh(new THREE.SphereGeometry(.12, 8, 6), lotusM, x + .1, .22, z, g); });
+    [[-20.3, -91.2], [2.4, -80.7], [-20.4, -80.8], [2.3, -91.3]].forEach(([x, z]) => pmesh(new THREE.DodecahedronGeometry(.45, 0), stoneM, x, .3, z, g));
+    // 산책로 시설: 벤치 (남측 휴게 공간) · 가로등 · 쓰레기통 · 안내 표지판
+    [-16, -11, -3, 2].forEach(x => { pbox(1.8, .06, .5, woodLight, x, .45, z1 - 1.6, g); pbox(1.8, .4, .06, woodLight, x, .72, z1 - 1.35, g); [-.75, .75].forEach(d => pbox(.06, .44, .45, darkMetal, x + d, .22, z1 - 1.6, g, { cast: false })); addCol(x - .9, x + .9, z1 - 1.85, z1 - 1.3, false, .5); });
+    [[x0 + 1.8, z0 + 1.8], [x1 - 1.8, z0 + 1.8], [x0 + 1.8, z1 - 1.8], [x1 - 1.8, z1 - 1.8], [cx, z0 + 1.6], [-14, z1 - 1.6], [-6, z1 - 1.6]].forEach(([x, z]) => { pcyl(.05, .07, 3.5, PM(0x1a1a1c, .5, .5), x, 1.75, z, g); pbox(.28, .38, .28, new THREE.MeshStandardMaterial({ color: 0xfff0d0, emissive: 0xffd898, emissiveIntensity: .9 }), x, 3.6, z, g, { cast: false }); });
+    [[-8.0, z1 - 1.6], [5.5, z1 - 1.6]].forEach(([x, z]) => { pbox(.4, .8, .4, woodDark, x, .4, z, g); addCol(x - .2, x + .2, z - .2, z + .2); });
+    { const sx = cx + 1.8, sz = z1 - .6; pbox(.9, 1.8, .1, woodDark, sx, .9, sz, g); pmesh(new THREE.PlaneGeometry(.8, 1.0), new THREE.MeshBasicMaterial({ map: makeSign('청운호 수변공원 · 데크 전망대 · 호심정 · 산책로', '#f2ead6', '#2a4a2a', 14) }), sx, 1.2, sz + .06, g, { cast: false }); addCol(sx - .45, sx + .45, sz - .05, sz + .05); }
+    // 외곽 수목 (버드나무 · 벚나무)
+    for (let k = 0; k < 18; k++) { const t2 = k / 18 * Math.PI * 2, x = cx + Math.cos(t2) * 16.3, z = cz + Math.sin(t2) * 9.3; if (Math.abs(x - cx) < 2.5 && z > cz) continue; pcyl(.15, .2, 2.4, PM(0x5a3e28, .9), x, 1.2, z, g); pmesh(new THREE.DodecahedronGeometry(1.3, 1), k % 3 === 0 ? PM(0xf0b8cc, .8) : PM(0x4a8a3a, .85), x, 3.0, z, g); }
     chunks.push({ id: 'chunk_lake', g, x: cx, z: cz });
   }
 
@@ -1135,11 +1157,6 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
     };
 
     // 1) 1998 구관 학우매점(x=63.5, z=18.0, 9.2m×6.4m) CAD 단면도 기반 실내외 .glb 5종 정밀 배치
-    placeGlb('assets/models/sf/sf_snack_facade.glb', [[63.5, 3.25, 21.32, 0, 1.0, 1.0, 1.0]]);
-    placeGlb('assets/models/sf/sf_snack_counter_v2.glb', [[60.8, 0.17, 18.2, 0, 1.0, 1.0, 1.0]]);
-    placeGlb('assets/models/sf/sf_beverage_fridge.glb', [[62.6, 0.17, 15.38, 0, 1.0, 1.0, 1.0], [64.35, 0.17, 15.38, 0, 1.0, 1.0, 1.0]]);
-    placeGlb('assets/models/sf/sf_snack_shelf.glb', [[64.5, 0.17, 17.7, 0, 1.0, 1.0, 1.0], [66.35, 0.17, 17.7, 0, 1.0, 1.0, 1.0]]);
-    placeGlb('assets/models/sf/sf_icecream_freezer.glb', [[67.35, 0.17, 19.45, -Math.PI / 2, 1.0, 1.0, 1.0]]);
 
     // 2) 야구 스타디움 외야(x=-88, z=4.5) 전광판 .glb
     placeGlb('assets/models/sf/sf_baseball_scoreboard.glb', [[-88.0, 0, 1.5, 0, 1.15, 1.15, 1.15]]);

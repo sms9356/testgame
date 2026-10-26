@@ -2,9 +2,9 @@
 //   기본으로 켜진다 (예전 건물로 보려면 주소창에 ?oldmap).
 //   예전 본관(1~3층 · 옥상) · 별관(8~10층) 건물은 감추고, 그 자리 땅(0층)에서 새 건물을 걷는다.
 //   높이는 P.sh(계단 높이 보정값)로 넘긴다 → 카메라 · 점프 · 가구 오르기 코드는 손대지 않아도 된다.
-import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=205';
-import { placeModels } from './rebuild/models.js?v=205';
-import { carve, subdivide } from './rebuild/transplant.js?v=205';
+import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=220';
+import { placeModels } from './rebuild/models.js?v=220';
+import { carve, subdivide } from './rebuild/transplant.js?v=220';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
 
 // 예전 건물이 차지하던 땅 (이 안의 예전 메시 · 충돌 상자를 걷어 낸다)
@@ -232,7 +232,23 @@ export function installRebuild({ THREE, scene, floors, world }) {
   const moveObj = (o, x, y, z) => { if (!o || !o.isObject3D) return; group.attach(o); o.position.set(x, y, z); o.visible = true; };
   const park = f => f === 0 ? 1 : f;   // 쓰지 않는 것: 감춘 예전 층에 둔다 (floor -1 은 floors[] 조회가 깨진다)
   const isOld = (f, x, z) => f === 1 || f === 2 || f >= 8 && f <= 10 || (f === 0 && inOld(x, z));
+  // 옮겨 온 물건(증언 녹음기 · 쪽지 · 열쇠 · 건전지 · 구급함 …)을 바닥 · 허공 대신 그 방의 실제 가구 윗면(책상 · 탁자 · 장 위)에 올린다
+  const surfUse = new Map();
+  const surfaceIn = (b, room, f) => {
+    const h = f * FH, cands = [];
+    for (const c of b.col) { if (c.y1 == null || c.y2 == null) continue; const top = c.y2 - h; if (top < .55 || top > 1.25 || c.y1 > h + .3) continue;
+      if (c.x1 < room.x1 - .05 || c.x2 > room.x2 + .05 || c.z1 < room.z1 - .05 || c.z2 > room.z2 + .05) continue; if ((c.x2 - c.x1) * (c.z2 - c.z1) < .12) continue; cands.push(c); }
+    if (!cands.length) return null;
+    cands.sort((a, b2) => (surfUse.get(a) || 0) - (surfUse.get(b2) || 0) || rnd() - .5);
+    const W = R._relocWorld, near = (x, z) => W && [...W.props.map(q => [q.x, q.z, q.rbY ?? (q.floor === 0 ? 0 : -99)]), ...W.items.filter(i => !i.taken).map(i => [i.pos.x, i.pos.z, i.rbY ?? -99])].some(([qx, qz, qh]) => Math.abs(qh - h) < 1 && Math.hypot(qx - x, qz - z) < 1.0);   // 다른 조사 대상과 1m 안이면 서로 가려 고를 수 없다
+    for (const c of cands) for (let t = 0; t < 6; t++) {
+      const lx = c.x1 + (c.x2 - c.x1) * (.2 + .6 * rnd()), lz = c.z1 + (c.z2 - c.z1) * (.2 + .6 * rnd()), [x, z] = b.toWorld(lx, lz);
+      if (near(x, z)) continue; surfUse.set(c, (surfUse.get(c) || 0) + 1); return { x, z, h, top: c.y2 };
+    }
+    return null;
+  };
   R.relocate = ({ world, floors: FL_, stairSpawnB1 }) => {
+    R._relocWorld = world;
     let moved = 0, dropped = 0;
     for (const it of world.items) {
       if (it._rb || !isOld(it.floor, it.pos.x, it.pos.z)) continue; it._rb = true; it._old = { f: it.floor, x: it.pos.x, z: it.pos.z };
@@ -240,7 +256,9 @@ export function installRebuild({ THREE, scene, floors, world }) {
       const sk = it.kind === 'key' ? SPECIAL_KEY[it.idx] : null;
       const tgt = sk ? (() => { const rs = roomsOf(sk[0], sk[1]).filter(r => r.type === sk[2]); return rs.length ? { b: sk[0], f: sk[1], room: rs[0] } : pickRoom(it.floor, it.pos.x); })() : pickRoom(it.floor, it.pos.x);
       if (!tgt) continue;
-      const oy = it.pos.y - (FL_[it.floor]?.y0 || 0), s = spotAny(tgt.b, tgt.room, tgt.f);
+      let oy = it.pos.y - (FL_[it.floor]?.y0 || 0), s = null;
+      if (oy > .25) { const su = tgt.room && surfaceIn(tgt.b, tgt.room, tgt.f); if (su) { s = su; const ny = su.top - su.h + .02; if (it.baseY != null) it.baseY += ny - oy; oy = ny; } }   // 원래 책상 · 선반 위에 있던 것 → 새 방 가구 위
+      if (!s) { s = spotAny(tgt.b, tgt.room, tgt.f); if (oy > .25) { if (it.baseY != null) it.baseY -= oy - .03; oy = .03; } }   // 올릴 가구가 없으면 바닥에 (허공에 뜨지 않게)
       it.floor = 0; it.rbY = s.h; it.pos.set(s.x, s.h + oy, s.z); if (it.baseY != null) it.baseY = s.h + it.baseY;
       moveObj(it.mesh, s.x, s.h + (it.baseY != null ? it.baseY - s.h : oy), s.z); moved++;
     }
@@ -261,8 +279,11 @@ export function installRebuild({ THREE, scene, floors, world }) {
         p.floor = 0; p.rbY = s.h; p.x = s.x; p.z = s.z; moved++; continue;
       }
       const tgt = pickRoom(p.floor, p.x); if (!tgt) { p.floor = park(p.floor); dropped++; continue; }
-      const s = spotAny(tgt.b, tgt.room, tgt.f), oy = (p.y ?? 1);
-      for (const k of Object.keys(p)) if (p[k] && p[k].isObject3D && k !== 'parent') moveObj(p[k], s.x, s.h, s.z);
+      const small = ['tape', 'clue', 'pick', 'case5', 'phone'].includes(p.kind);   // 탁자 위에 놓이는 작은 소품: 증언 녹음기 · 쪽지/단서 · 줍는 물건 · 녹음기 · 전화
+      const su = small && tgt.room ? surfaceIn(tgt.b, tgt.room, tgt.f) : null, s = su || spotAny(tgt.b, tgt.room, tgt.f);
+      let oy = (p.y ?? 1), base = s.h;
+      if (su) { base = su.top; oy = su.top - su.h + .08; }
+      for (const k of Object.keys(p)) if (p[k] && p[k].isObject3D && k !== 'parent') moveObj(p[k], s.x, base, s.z);
       p.floor = 0; p.rbY = s.h; p.x = s.x; p.z = s.z; p.y = oy; if (p.px != null) { p.px = s.x; p.pz = s.z; } moved++;
     }
     for (const d of world.doors) if (!d._rb && isOld(d.floor, d.x, d.z)) { d._rb = true; d.floor = park(d.floor); dropped++; }

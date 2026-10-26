@@ -6,21 +6,21 @@ import { createPsychologicalDirector, PHENOMENON_LABELS } from './psychologicalH
 import { settleStoryGhost, tickStoryGhost, showStoryGhost } from './storyGhost.js';
 import { GLTFLoader } from './vendor/addons/loaders/GLTFLoader.js';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { createNPCVisuals } from './npcVisuals.js?v=205';
-import { applyGuardSeatedPose } from './guardSeatedPose.js?v=205';
+import { createNPCVisuals } from './npcVisuals.js?v=220';
+import { applyGuardSeatedPose } from './guardSeatedPose.js?v=220';
 import { createCampusCctvLive, collectCampusCctvFeeds } from './campusCctvLive.js';
-import { applyExteriorFloorVisibility, shouldStreamGuardCctv } from './exteriorRenderBudget.js?v=205';
-import { GUARD_LAYOUT } from './guardRoomLayout.js?v=205';
-import { ANNEX_KEYS, CABINET_CODE } from './guardAnnex.js?v=205';
-import { installGuardRoom } from './guardRoom.js?v=205';
+import { applyExteriorFloorVisibility, shouldStreamGuardCctv } from './exteriorRenderBudget.js?v=220';
+import { GUARD_LAYOUT } from './guardRoomLayout.js?v=220';
+import { ANNEX_KEYS, CABINET_CODE } from './guardAnnex.js?v=220';
+import { installGuardRoom } from './guardRoom.js?v=220';
 import { prepareModelGeometry } from './modelGeometry.js';
 import { modelFootprint, overlaps, removeDuplicateModels } from './placement.js';
-import { turfMaterial } from './campusVisuals.js?v=205';
+import { turfMaterial } from './campusVisuals.js?v=220';
 import { installInfirmaryAssets, updateInfirmaryCabinets } from './infirmaryAssets.js';
-import { installRebuild } from './rebuildGame.js?v=205';
-import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js?v=205'; import { updateWindowFakes } from './windowInteriors.js?v=205';
-import { drawMap } from './map.js?v=205';
-import { buildMegaCampus15000, MEGA_CAMPUS_ZONES } from './megaCampus15000.js?v=205';
+import { installRebuild } from './rebuildGame.js?v=220';
+import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js?v=220'; import { updateWindowFakes } from './windowInteriors.js?v=220';
+import { drawMap } from './map.js?v=220';
+import { buildMegaCampus15000, MEGA_CAMPUS_ZONES } from './megaCampus15000.js?v=220';
 import { makeDress, makeHair, makeGhostFace, makeGraffiti, makeKeypad, loadPBR, pbr, makeGlow as makeGlowTex, makePaintingStare, makeSign, makeBlood } from './tex.js';
 import { warmUp } from './bake.js';
 import { createStaticDistanceLOD } from './staticDistanceLOD.js';
@@ -39,14 +39,14 @@ import './classroomRemodelPatch.js';  // 교실 리모델링 · 의자에 앉기
 import './subGhostSystem.js';         // 서브 유령 8종 시트지 엔진 (사용자 제공) → window.subGhostSystem
 import './school37RoomsPatch.js';    // 본관 · 별관 37개 특별실 가구 · 동선 (사용자 제공) → window.school37RoomsPatch
 import './new37UniquePatch.js';     // 37개 구역 신규 특수 설비 · 벽면 레일 (사용자 제공) → window.new37UniquePatch
-import './megaExpansionPatch.js?v=205';   // 메가 익스팬션 · 최적화 · 4막 사건 기록 · 수집품 · 미니게임 (사용자 제공) → window.megaSchoolPatch
+import './megaExpansionPatch.js?v=220';   // 메가 익스팬션 · 최적화 · 4막 사건 기록 · 수집품 · 미니게임 (사용자 제공) → window.megaSchoolPatch
 import './poolMachineryPatch.js';     // 수영장 · 남/녀 탈의실·샤워실 · 기계실 철문 (사용자 제공) → window.poolAndMachineryPatch
-import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx, setSfxBusyCheck } from './audio.js?v=205'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=205'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera } from './perfStabilizer.js?v=205';
-import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js?v=205';
-import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, HYPOTHESES, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, SIDEQUESTS, HEADQUEST, COLLECT, LOCKER_SCARES, CHALK_QA, OUIJA_QS, PARA, TOILET_FX, MIRROR_WORDS } from './story.js?v=205';
+import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx, setSfxBusyCheck } from './audio.js?v=220'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=220'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera } from './perfStabilizer.js?v=220';
+import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js?v=220';
+import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, HYPOTHESES, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, SIDEQUESTS, HEADQUEST, COLLECT, LOCKER_SCARES, CHALK_QA, OUIJA_QS, PARA, TOILET_FX, MIRROR_WORDS } from './story.js?v=220';
 import { isSpeechBusy } from './voice.js';
 import { SET, saveSET, resetSET, DIFF, keyLabel } from './settings.js';
-import { initI18n, setLang, lang as curLang } from './i18n.js?v=205';   // 언어 패치 (한국어 · English · 日本語 · 中文)
+import { initI18n, setLang, lang as curLang } from './i18n.js?v=220';   // 언어 패치 (한국어 · English · 日本語 · 中文)
 initI18n();
 const K = () => SET.keys;
 let guardRoomController = null, guardControlProps = [], guardCctvData = null, campusCctv = null;
@@ -65,7 +65,7 @@ function syncGuardDevices() {
 function toggleGuardCCTV(persist = true) { FL.guardCctvOn = !(FL.guardCctvOn ?? true); sfx.click(); syncGuardDevices(); if (persist) save(true); return FL.guardCctvOn; }
 function toggleGuardLight() { FL.guardLightOn = !(FL.guardLightOn ?? false); sfx.click(); syncGuardDevices(); say(FL.guardLightOn ? '경비실 전등을 켰다' : '경비실 전등을 껐다', 1800); save(true); return FL.guardLightOn; }
 
-import { run as runMini, MG } from './minigames.js?v=205';
+import { run as runMini, MG } from './minigames.js?v=220';
 import { SCHEMA, BUILD, storageKeys, itemUid, propUid, doorUid, assignUids, readSlot, writeSlot, hasSlot, clearSlot, repairProgress } from './saveSystem.js';
 const NOTE_CAST = {
   n_seomun_ilbo: { spk: 'reporter', audioId: 'call_119', stage: '(📰 서문일보 사회부 한진우 기자의 긴급 특보 리포팅)' },
@@ -1931,6 +1931,7 @@ async function useRoomObj(p) {
   }
   if (k === 'lake_capsule') { if (!p.got) { p.got = true; giveItem('musicbox', 1); giveItem('candy', 1); sfx.unlock(); say('청운호 호심정 정자 위 봉인함에서 태엽 오르골과 1998년 세 친구의 타임캡슐 편지를 발견했다!', 3600); } else say('호심정 기둥에 “우리의 노래가 호수 위로 영원히 퍼지길”이라 새겨져 있다', 2600); return; }
   if (k === 'astro_console') { if (!p.got) { const r = await mini('oscilloscope', { title: '과학천문관 — 천체관측 돔 성도 주파수 동조' }); if (r.ok) { p.got = true; giveItem('battery', 2); sfx.unlock(); say('천문대 성도 좌표가 맞춰지며 예비 건전지 2개를 획득했다!', 3200); } } else say('천체망원경이 1998년 10월 12일 밤의 페가수스자리를 가리키고 있다', 2600); return; }
+  if (k === 'astro_scope') { say('관측 돔 굴절 망원경 — 접안렌즈 너머로 1998년 10월 12일 밤의 페가수스자리가 희미하게 보인다', 3000); return; }
   if (k === 'astro_case') { if (!p.got) { p.got = true; giveItem('salt', 2); sfx.pickup(); say('광물 표본 진열장에서 순도 높은 암염(굵은 소금 ×2)을 획득했다!', 3000); } else say('각종 운석과 형광 광물 표본이 유리 진열장 안에 전시되어 있다', 2200); return; }
   if (k === 'lib_microfilm') { if (!p.got) { const r = await mini('filmFocus', { title: '중앙학술정보관 — 1998년 마이크로필름 신문 복원' }); if (r.ok) { p.got = true; giveItem('hairpin', 2); giveItem('medkit', 1); sfx.photo(); say('마이크로필름 속 1998년 폐교 사건 기사를 판독하고 머리핀 2개·응급 밴드를 얻었다!', 3400); } } else say('마이크로필름 화면에 1974년 개교 당시 지하 보존서고 도면이 비친다', 2600); return; }
   if (k === 'lib_desk') { line('vo_lib_confess', 'tape', '📼 상담교사 · 사서 증언 녹음'); if (!p.got) { p.got = true; giveItem('matches', 2); sfx.pickup(); say('대도서관 사서 데스크 서랍에서 성냥갑 2개를 챙겼다', 2800); } else say('미반납 도서 목록 맨 위에 『집으로 가는 길 — 3-2 윤하늘』이 적혀 있다', 2600); return; }
@@ -2873,7 +2874,7 @@ function ensureCharsel3D() {
     const rim = new THREE.DirectionalLight(0xffd6e0, 0.85); rim.position.set(0, 2.4, -2.5);
     sc.add(hemi, key, fill, rim);
     st.scenes[k] = sc;
-    loader.load(`assets/characters/${k}.glb?v=205`, gltf => {
+    loader.load(`assets/characters/${k}.glb?v=220`, gltf => {
       const m = gltf.scene;
       npcVisuals.enhanceCharacterMaterials?.(m, k);
       m.traverse(o => { if (o.isMesh || o.isSkinnedMesh) o.frustumCulled = false; });
@@ -4550,8 +4551,8 @@ function placeSiteTapes() {
     const h = rc.intersectObjects(meshes, false).find(i => i.point.y < y0 + 1.25); return h ? h.point.y - y0 : 0; };
   const near = (pick, dx, dz) => { const q = pick(); return q && [q.floor, (q.x ?? q.pos.x) + dx, (q.z ?? q.pos.z) + dz]; };
   const spots = [
-    ['ts_snack', () => [0, 61.3, 18.25]],   // 학우매점 계산대
-    ['ts_snack2', () => [0, 60.5, 18.1]],
+    ['ts_snack', () => [0, 66.4, 19.75]],   // 학우매점 계산대
+    ['ts_snack2', () => [0, 67.6, 15.6]],
     ['ts_dorm', () => near(() => world.props.find(q => q.k === 'dorm_log'), -.55, .1)],   // 청운학사 사감실 책상
     ['ts_music', () => near(() => world.props.find(q => q.kind === 'piano'), -.6, .35)],   // 음악실 피아노 옆
     ['ts_art', () => near(() => world.props.find(q => q.kind === 'easel'), .55, .2)],     // 미술실 이젤 옆
@@ -7125,12 +7126,14 @@ const BM = { ex: SLOTS[2], bx: SLOTS[1], boomT: 6, steamT: 9, said: false };
     const bg = bmP.buildBoilerRoom(V3(b.x, y0, b.z), -Math.PI / 2); R.add(bg); bg.position.set(b.x, 1.35 - 1.3 * k, b.z); bg.scale.set(len / 2.6, k, k);
     bg.traverse(o => { o.userData.dynamic = true; if (o.isMesh) o.castShadow = o.receiveShadow = true; });
     BM.boiler = { x: b.x, z: b.z, front: b.z + len / 2 + .2 };
+    if (B.b2) { const bg2 = bg.clone(); bg2.position.x = B.b2.x; R.add(bg2); const h2 = bg2.children[1]; if (h2) h2.rotation.set(0, 0, Math.PI / 2); }   // 2호기 (참고 시트: 보일러 2대)
     // 클래스 버그 보정: 앞 해치(원판)를 rotation.y 로 돌려 바닥과 평행한 판처럼 튀어나왔다 → 원통 축(앞쪽)을 보게 세운다
     const hatch = bg.children[1]; if (hatch) hatch.rotation.set(0, 0, Math.PI / 2);
     // 원래 보일러의 받침대는 숨긴 메시와 함께 사라져 새 보일러가 바닥에서 20cm 떠 있었다 → 콘크리트 받침 + 철제 새들 2개
     const conc = PM(0x5a5a56, .95), sad = PM(0x2a2622, .6, .6);
     pbox(1.9, .1, len * .95, conc, b.x, .05, b.z, R);
     [-.3, .3].forEach(t => { pbox(1.5, .42, .22, sad, b.x, .31, b.z + t * len, R); pbox(1.7, .05, .32, sad, b.x, .125, b.z + t * len, R); });
+    if (B.b2) [-.3, .3].forEach(t => { pbox(1.5, .42, .22, sad, B.b2.x, .31, b.z + t * len, R); pbox(1.7, .05, .32, sad, B.b2.x, .125, b.z + t * len, R); });
     // 바닥 기름때 · 찢어진 단열재 배관
     pmesh(new THREE.CircleGeometry(.95, 24).scale(1.3, .8, 1), PM(0x050403, .06, .4), b.x + 1.7, .012, b.z + 1.2, R, { rx: -Math.PI / 2, cast: false });
     const ins = PM(0xb8bcc0, .45, .7); pcyl(.13, .13, 2.4, ins, b.x + 1.6, 2.7, b.z - .6, R, { rx: Math.PI / 2 });
@@ -8166,7 +8169,7 @@ function megaNotify(m) { const t = String(m).split('\n'); say(t[0].replace(/^\S+
     pbox(G.w + 2 * t + .7, .32, G.d + 2 * t + .7, trimM, G.x, H + .16, G.z, O);
     pbox(G.w + 2 * t + .35, .42, G.d + 2 * t + .35, roofM, G.x, H + .52, G.z, O);
     pbox(G.w - 1.6, .50, G.d - 1.4, PM(0x2c3238, .75, .25), G.x, H + .96, G.z, O);
-    for (let dz = -10; dz <= 10; dz += 4) pbox(G.w - .4, .22, .28, frameM, G.x, H - .14, G.z + dz, F0.interior, { cast: false });
+    for (let dz = -10; dz <= 10; dz += 4) pbox(G.w - .4, .22, .28, frameM, G.x, H - .14, G.z + dz, O, { cast: false });
     // 4) 대강당 채광 고창(Clerestory Windows) + 1층 창문 (정면 8개 + 좌우 측면 12개)
     const addGymWin = (wx, wy, wz, ww, wh, ry = 0) => {
       const wg = new THREE.Group(); wg.position.set(wx, wy, wz); wg.rotation.y = ry; wg.userData.dynamic = true; O.add(wg);
@@ -8225,12 +8228,6 @@ function megaNotify(m) { const t = String(m).split('\n'); say(t[0].replace(/^\S+
       const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: makeGlowTex('255,205,130'), blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, opacity: .38 }));
       sp.scale.setScalar(2.0); sp.position.set(G.x + dx, 2.48, z1 + t + .32); sp.userData.dynamic = true; O.add(sp);
     });
-    // 6) 출입문 너머로 보이는 대강당 내부 코트 디테일
-    pbox(.16, 3.35, .16, frameM, G.x, 1.675, G.z + 4.2, F0.interior);
-    pbox(.14, .14, 1.1, frameM, G.x, 3.22, G.z + 3.65, F0.interior);
-    pbox(1.8, 1.05, .06, PM(0xf0eee8, .4), G.x, 3.05, G.z + 3.08, F0.interior);
-    pbox(.62, .46, .07, PM(0xc83228, .5), G.x, 2.95, G.z + 3.09, F0.interior);
-    pbox(.48, .05, .48, PM(0xd84228, .4, .6), G.x, 2.72, G.z + 3.32, F0.interior);
     // 7) 서북 광장 소품군 — 별관 뒤쪽 보행로(z=-35.2~-32.4), 서관 아케이드 인도(x=-39.6~-37.0), 필로티 인도(z=-16.8~-13.6)와
     //    겹침이 0.0mm가 되도록 서관 아케이드 인도 서쪽의 넓은 잔디 광장(x = -52.0 ~ -43.5)에 정연하게 재배치!
     {
@@ -8343,44 +8340,44 @@ function megaNotify(m) { const t = String(m).split('\n'); say(t[0].replace(/^\S+
 
       // ② 서쪽 공터: 「생물부 생태 유리온실(Greenhouse) & 과학 기상관측소(백엽상)」 (x: -44.5 ~ -31.5, z: -6.5 ~ +4.5)
       {
-        const gx = 62.0, gz = -50.0, gw = 6.4, gd = 5.0, gh = 2.6;
-        // 온실 바닥 타일 & 벽돌 기단 (동쪽 x = gx + gw/2 가운데 1.6m 출입구 개방)
-        pbox(gw, .06, gd, trimM, gx, .03, gz, O, { cast: false });
-        pbox(gw, .55, .18, brickM, gx, .275, gz - gd / 2, O);
-        pbox(gw, .55, .18, brickM, gx, .275, gz + gd / 2, O);
-        pbox(.18, .55, gd, brickM, gx - gw / 2, .275, gz, O);
-        pbox(.18, .55, (gd - 1.6) / 2, brickM, gx + gw / 2, .275, gz - 1.7, O);
-        pbox(.18, .55, (gd - 1.6) / 2, brickM, gx + gw / 2, .275, gz + 1.7, O);
-        // 온실 유리벽 & 철골 프레임 & 박공 지붕
-        for (let x = gx - gw / 2; x <= gx + gw / 2 + .01; x += gw / 3) {
-          [-gd / 2, gd / 2].forEach(dz => pbox(.08, gh, .08, greenM, x, gh / 2, gz + dz, O));
-          pbox(.08, .08, gd, greenM, x, gh, gz, O);
-        }
-        pmesh(new THREE.PlaneGeometry(gw, gh - .55), glassG, gx, .55 + (gh - .55) / 2, gz - gd / 2, O, { cast: false });
-        pmesh(new THREE.PlaneGeometry(gw, gh - .55), glassG, gx, .55 + (gh - .55) / 2, gz + gd / 2, O, { cast: false });
-        pmesh(new THREE.PlaneGeometry(gd, gh - .55), glassG, gx - gw / 2, .55 + (gh - .55) / 2, gz, O, { ry: Math.PI / 2, cast: false });
-        pbox(gw + .2, .12, gd + .2, glassG, gx, gh + .06, gz, O, { cast: false });
-        pbox(gw + .1, .35, 1.4, glassG, gx, gh + .28, gz, O, { cast: false });
-        pmesh(new THREE.PlaneGeometry(2.2, .32), new THREE.MeshBasicMaterial({ map: makeSign('생물부 생태 실습 온실', '#183a26', '#e8f6ec', 24) }), gx + gw / 2 + .06, gh - .2, gz, O, { ry: Math.PI / 2, cast: false });
-        // 온실 내부 식물 재배 테이블 2열 & 화분 10개 & 식물 생장등 글로우
-        [-1.35, 1.35].forEach(dz => {
-          pbox(4.6, .76, .85, woodM, gx - .3, .38, gz + dz, O);
-          for (let k = -1.8; k <= 1.8; k += .9) {
-            pcyl(.14, .11, .24, terracotta, gx - .3 + k, .88, gz + dz, O);
-            pmesh(new THREE.DodecahedronGeometry(.26, 1), leafM, gx - .3 + k, 1.12, gz + dz, O);
-          }
-        });
-        const spG = new THREE.Sprite(new THREE.SpriteMaterial({ map: makeGlowTex('140,245,160'), blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, opacity: .35 }));
+        // 생태온실 리모델링 (참고 평면도 · 7.50 × 6.00m · 유리 온실 · 최고 약 3.5m): 알루미늄 프레임 + 유리 박공 지붕 · 동측 유리문 (보행로 쪽) · 중앙 통로 / 남측 재배대 2 (1800×600) · 스테인리스 작업대 (1800×700) / 북측 실험·관찰 테이블 (1500×750) + 스툴 2 · 화분 보관 선반 · 식물 선반 · 물뿌리개 · 원예 도구 · 안내 표지판
+        const gx = 61.75, gz = -50.0, gw = 7.5, gd = 6.0, gh = 2.4, gr = 3.5, x0 = gx - gw / 2, x1 = gx + gw / 2, z0 = gz - gd / 2, z1 = gz + gd / 2, dz0 = gz - .6, dz1 = gz + .6;
+        const aluM = PM(0xc8ccd0, .35, .75), steelT = PM(0xb8bcc0, .3, .8), blackT = PM(0x1a1c1e, .5), soilM = PM(0x4a3424, .95);
+        pbox(gw, .06, gd, PM(0xd8d0c0, .6), gx, .03, gz, O, { cast: false }); pbox(1.2, .065, gd, PM(0xc8b8a0, .6), gx + .5, .035, gz, O, { cast: false });
+        // 기단 (낮은 콘크리트) · 유리벽 · 기둥 · 박공 지붕 (용마루 동서 방향)
+        const plinth = (ax, bx, az, bz) => pbox(bx - ax, .45, bz - az, PM(0xa8a49a, .8), (ax + bx) / 2, .225, (az + bz) / 2, O);
+        plinth(x0, x1, z0 - .1, z0); plinth(x0, x1, z1, z1 + .1); plinth(x0 - .1, x0, z0, z1); plinth(x1, x1 + .1, z0, dz0); plinth(x1, x1 + .1, dz1, z1);
+        pmesh(new THREE.PlaneGeometry(gw, gh - .45), glassG, gx, .45 + (gh - .45) / 2, z0, O, { cast: false }); pmesh(new THREE.PlaneGeometry(gw, gh - .45), glassG, gx, .45 + (gh - .45) / 2, z1, O, { cast: false });
+        pmesh(new THREE.PlaneGeometry(gd, gh - .45), glassG, x0, .45 + (gh - .45) / 2, gz, O, { ry: Math.PI / 2, cast: false });
+        [[z0, dz0], [dz1, z1]].forEach(([a, b]) => pmesh(new THREE.PlaneGeometry(b - a, gh - .45), glassG, x1, .45 + (gh - .45) / 2, (a + b) / 2, O, { ry: Math.PI / 2, cast: false }));
+        pmesh(new THREE.PlaneGeometry(1.2, gr - gh), glassG, x1, gh + (gr - gh) / 2 - .3, gz, O, { ry: Math.PI / 2, cast: false });
+        { const sl = Math.hypot(gd / 2, gr - gh), a = Math.atan2(gr - gh, gd / 2); [-1, 1].forEach(s => { const m = pmesh(new THREE.PlaneGeometry(gw + .1, sl), glassG, gx, (gh + gr) / 2, gz + s * gd / 4, O, { cast: false }); m.rotation.x = -Math.PI / 2 + s * a; });
+          [x0, x0 + gw / 4, gx, x1 - gw / 4, x1].forEach(x => { [-1, 1].forEach(s => { const r = pbox(.06, .06, sl, aluM, x, (gh + gr) / 2, gz + s * gd / 4, O, { cast: false }); r.rotation.x = s * a; }); }); }
+        for (let x = x0; x <= x1 + .01; x += gw / 4) [z0, z1].forEach(z => pbox(.07, gh, .07, aluM, x, gh / 2, z, O, { cast: false }));
+        [z0, z0 + gd / 4, gz, z1 - gd / 4, z1].forEach(z => { if (z > dz0 - .05 && z < dz1 + .05) return; [x0, x1].forEach(x => pbox(.07, gh, .07, aluM, x, gh / 2, z, O, { cast: false })); });
+        pbox(gw, .07, .07, aluM, gx, gr, gz, O, { cast: false }); [z0, z1].forEach(z => pbox(gw, .07, .07, aluM, gx, gh, z, O, { cast: false })); [x0, x1].forEach(x => pbox(.07, .07, gd, aluM, x, gh, gz, O, { cast: false }));
+        [dz0, dz1].forEach(z => pbox(.08, 2.2, .08, aluM, x1, 1.1, z, O, { cast: false })); pbox(.08, .08, 1.2, aluM, x1, 2.2, gz, O, { cast: false });
+        { const lp = new THREE.Group(); lp.position.set(x1, 0, dz0); lp.rotation.y = -1.2; lp.userData.dynamic = true; O.add(lp); pmesh(new THREE.PlaneGeometry(.6, 2.1), glassG, 0, 1.05, .3, lp, { ry: Math.PI / 2, cast: false }); pbox(.04, 2.1, .04, aluM, 0, 1.05, .58, lp, { cast: false }); }
+        pbox(.08, .4, 1.6, woodM, x1 + .05, 2.6, gz, O, { cast: false }); pmesh(new THREE.PlaneGeometry(1.5, .34), new THREE.MeshBasicMaterial({ map: makeSign('생태온실', '#5a3a1c', '#f4e4c0', 28) }), x1 + .1, 2.6, gz, O, { ry: Math.PI / 2, cast: false });
+        F0.col.push({ x1: x0 - .1, x2: x1 + .1, z1: z0 - .12, z2: z0 + .05 }, { x1: x0 - .1, x2: x1 + .1, z1: z1 - .05, z2: z1 + .12 }, { x1: x0 - .12, x2: x0 + .05, z1: z0, z2: z1 }, { x1: x1 - .05, x2: x1 + .12, z1: z0, z2: dz0 }, { x1: x1 - .05, x2: x1 + .12, z1: dz1, z2: z1 });
+        // 남측: 재배대 2 (1800×600×750, 화분 · 식물) · 스테인리스 작업대 (1800×700×850) + 공구 걸이 · 물뿌리개
+        const pot = (x, y, z, s = 1) => { pcyl(.12 * s, .09 * s, .2 * s, terracotta, x, y + .1 * s, z, O); pmesh(new THREE.DodecahedronGeometry(.2 * s, 1), leafM, x, y + .32 * s, z, O); };
+        [x0 + 1.2, x0 + 3.2].forEach(x => { pbox(1.8, .06, .6, woodM, x, .75, z1 - .45, O); [-.8, .8].forEach(d => pbox(.05, .72, .55, aluM, x + d, .36, z1 - .45, O, { cast: false })); pbox(1.7, .04, .5, woodM, x, .2, z1 - .45, O, { cast: false }); for (let k = 0; k < 5; k++) pot(x - .72 + k * .36, .78, z1 - .45); F0.col.push({ x1: x - .9, x2: x + .9, z1: z1 - .75, z2: z1 - .15, h: .78 }); });
+        { const x = x1 - 1.4; pbox(1.8, .04, .7, steelT, x, .85, z1 - .5, O); [[-.85, -.3], [.85, -.3], [-.85, .3], [.85, .3]].forEach(([a, b]) => pbox(.04, .83, .04, steelT, x + a, .415, z1 - .5 + b, O, { cast: false })); pbox(1.7, .03, .6, steelT, x, .25, z1 - .5, O, { cast: false });
+          pbox(1.0, .04, .3, PM(0x8a6a48, .8), x - .3, .87, z1 - .45, O, { cast: false }); F0.col.push({ x1: x - .9, x2: x + .9, z1: z1 - .85, z2: z1 - .15, h: .87 });
+          pmesh(new THREE.TorusGeometry(.1, .025, 6, 12, Math.PI), PM(0x2a7a3a, .5), x + .6, 1.02, z1 - .55, O); pcyl(.1, .12, .22, PM(0x2a7a3a, .5), x + .6, .98, z1 - .55, O); }
+        // 북측: 실험·관찰 테이블 (1500×750×750 · 검정 상판) + 실험용 스툴 2 · 현미경 · 화분 보관 선반 · 식물 선반 (1200×450×1800)
+        { const x = x0 + 1.2, z = z0 + .55; pbox(1.5, .04, .75, blackT, x, .75, z, O); [[-.7, -.33], [.7, -.33], [-.7, .33], [.7, .33]].forEach(([a, b]) => pbox(.05, .73, .05, aluM, x + a, .365, z + b, O, { cast: false })); F0.col.push({ x1: x - .75, x2: x + .75, z1: z - .38, z2: z + .38, h: .77 });
+          [-.4, .4].forEach(d => { pcyl(.17, .17, .04, woodM, x + d, .45, z + .7, O); pcyl(.025, .025, .43, aluM, x + d, .215, z + .7, O); }); pcyl(.06, .08, .3, PM(0x222428, .4, .6), x + .3, .9, z, O); pot(x - .4, .77, z, .7); }
+        const shelf = (x, z, potsOnly) => { [[-.58, -.2], [.58, -.2], [-.58, .2], [.58, .2]].forEach(([a, b]) => pbox(.04, 1.8, .04, aluM, x + a, .9, z + b, O, { cast: false })); for (let r = 0; r < 4; r++) { pbox(1.2, .03, .45, aluM, x, .15 + r * .52, z, O, { cast: false }); for (let k = 0; k < 4; k++) potsOnly && r < 2 ? pcyl(.1, .08, .16, terracotta, x - .45 + k * .3, .25 + r * .52, z, O) : pot(x - .45 + k * .3, .17 + r * .52, z, .8); } F0.col.push({ x1: x - .6, x2: x + .6, z1: z - .23, z2: z + .23 }); };
+        shelf(x0 + 3.4, z0 + .3, false); shelf(x1 - 1.3, z0 + .3, true);
+        pbox(.5, .35, .5, PM(0x8a7a58, .9), x1 - .5, .18, z0 + 1.0, O); F0.col.push({ x1: x1 - .75, x2: x1 - .25, z1: z0 + .75, z2: z0 + 1.25, h: .35 });   // 배양토 포대
+        // 외부: 화단 화분 · 안내 표지판
+        [[x0 - .5, z1 + .5], [x1 + .5, z1 + .3], [x0 - .5, z0 - .5]].forEach(([x, z]) => pot(x, 0, z, 1.6));
+        { const sx = x1 + 1.4, sz = gz + 1.8; pbox(.08, 1.8, .08, greenM, sx - .4, .9, sz, O); pbox(.08, 1.8, .08, greenM, sx + .4, .9, sz, O); pbox(.9, 1.1, .06, greenM, sx, 1.25, sz, O); pmesh(new THREE.PlaneGeometry(.8, 1.0), new THREE.MeshBasicMaterial({ map: makeSign('생태온실 · 식물 재배 · 생태 교육 · 실험 관찰', '#f2f6ee', '#1e4a2a', 14) }), sx, 1.25, sz + .035, O, { cast: false }); F0.col.push({ x1: sx - .45, x2: sx + .45, z1: sz - .05, z2: sz + .05 }); }
+        const spG = new THREE.Sprite(new THREE.SpriteMaterial({ map: makeGlowTex('140,245,160'), blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, opacity: .3 }));
         spG.scale.setScalar(3.5); spG.position.set(gx, 2.2, gz); O.add(spG);
-        // 온실 외벽 충돌체 (동쪽 출입구로 들어가서 내부 탐색 가능!)
-        F0.col.push(
-          { x1: gx - gw / 2 - .1, x2: gx + gw / 2 + .1, z1: gz - gd / 2 - .1, z2: gz - gd / 2 + .1 },
-          { x1: gx - gw / 2 - .1, x2: gx + gw / 2 + .1, z1: gz + gd / 2 - .1, z2: gz + gd / 2 + .1 },
-          { x1: gx - gw / 2 - .1, x2: gx - gw / 2 + .1, z1: gz - gd / 2, z2: gz + gd / 2 },
-          { x1: gx - 2.6, x2: gx + 2.0, z1: gz - 1.8, z2: gz - .9 },
-          { x1: gx - 2.6, x2: gx + 2.0, z1: gz + .9, z2: gz + 1.8 }
-        );
-        world.props.push({ kind: 'robj', k: 'greenhouse_herb', t: 'campus', floor: 0, x: gx + 1.2, z: gz, y: .9, r: 2.0, label: '생물부 온실 약초 재배대 조사하기' });
+        world.props.push({ kind: 'robj', k: 'greenhouse_herb', t: 'campus', floor: 0, x: x0 + 2.2, z: z1 - 1.2, y: .9, r: 2.0, label: '생물부 온실 약초 재배대 조사하기' });
 
         // 과학 기상관측소 (백엽상 · 풍향계 · 우량계, x = -33.2, z = 2.8)
         const wx0 = 54.5, wz0 = -50.0;
@@ -8398,92 +8395,65 @@ function megaNotify(m) { const t = String(m).split('\n'); say(t[0].replace(/^\S+
         world.props.push({ kind: 'robj', k: 'weather_box', t: 'campus', floor: 0, x: wx0, z: wz0 + .95, y: 1.3, r: 1.9, label: '백엽상 기상 관측 기록 열어보기' });
       }
 
-      // ③ 동남 캠퍼스 복지 구역: Google Flow 1998 폐교 호러 CAD 시트지(flow_snack_horror_cad_0~3.jpg)를 100% 반영한 「1998 구관 학우매점 (HAG-U MAEJEOM)」 (x = 63.5, z = 18.0, 9.2m × 6.4m × 3.5m)
+      // ③ 학우매점 신축 (참고 계획안 · 9.20 × 6.40m · 남측 중앙 출입구): 적벽돌 외벽 · 녹색 차양 · '학우매점' 간판 · 전면 유리창 / 북서 소형 창고 (2.0×1.8) · 직원 준비공간 (3.0×1.8) · 북동 컵라면 코너 (전자레인지 · 온수기 · 스툴) · 서벽 음료 냉장고 · 중앙 스낵 진열대 2열 · 남서 빵·간식 진열대 · 동남 판매대/계산대
       {
-        const cxC = 63.5, czC = 18.0, cw = 9.2, cd = 6.4, ch = 3.5;
-        const x0 = cxC - cw / 2, x1 = cxC + cw / 2, z0 = czC - cd / 2, z1 = czC + cd / 2;
-        const oldBrickM = PM(0x5c362c, .88), weatheredCementM = PM(0x565852, .90), darkCorniceM = PM(0x363836, .85);
-        const wornTileFlM = PM(0x3a403a, .78), darkWainscotM = PM(0x2c3a36, .84), agedPlasterM = PM(0x7c786e, .88), darkCeilM = PM(0x383a36, .90);
-        const rustySteelM = PM(0x3c322c, .72, .45);
-
-        // 1) 실내 디럭스 타일 바닥 · 콘크리트 기단 · 2단 코니스 지붕 슬래브 · 옥상 파라펫
-        pbox(cw + .6, .16, cd + .6, weatheredCementM, cxC, .08, czC, O, { cast: false });
-        pbox(cw - .2, .04, cd - .2, wornTileFlM, cxC, .17, czC, O, { cast: false });
-        pbox(cw - .2, .08, cd - .2, darkCeilM, cxC, ch - .04, czC, O, { cast: false });
-        pbox(cw + .5, .24, cd + .5, weatheredCementM, cxC, ch + .12, czC, O);
-        pbox(cw + .8, .18, cd + .8, darkCorniceM, cxC, ch + .33, czC, O);
-
-        // 2) 북벽(배면) · 서벽 · 동벽 (하단 0.95m 풍화 시멘트 기단 + 상단 낡은 적벽돌 외벽 + 실내 투톤 웨인스코팅)
-        pbox(cw, .95, .26, weatheredCementM, cxC, .475, z0, O);
-        pbox(cw, ch - .95, .24, oldBrickM, cxC, .95 + (ch - .95) / 2, z0, O);
-        pbox(cw - .3, 1.1, .04, darkWainscotM, cxC, .65, z0 + .15, O, { cast: false });
-        pbox(cw - .3, ch - 1.25, .04, agedPlasterM, cxC, 1.2 + (ch - 1.25) / 2, z0 + .15, O, { cast: false });
-
-        [x0, x1].forEach((wx, si) => {
-          const ins = si === 0 ? .15 : -.15;
-          pbox(.26, .95, cd, weatheredCementM, wx, .475, czC, O);
-          pbox(.24, ch - .95, cd, oldBrickM, wx, .95 + (ch - .95) / 2, czC, O);
-          pbox(.04, 1.1, cd - .3, darkWainscotM, wx + ins, .65, czC, O, { cast: false });
-          pbox(.04, ch - 1.25, cd - .3, agedPlasterM, wx + ins, 1.2 + (ch - 1.25) / 2, czC, O, { cast: false });
-        });
-
-        // 우측면(동벽) 외부 두꺼비집(배전함) & 노출 전선 파이프 + 배면 우수관 + 북·동측 채광창 및 간판 보강!
-        pbox(.16, .62, .46, rustySteelM, x1 + .18, 1.65, czC - .8, O);
-        pcyl(.025, .025, ch - .4, rustySteelM, x1 + .16, ch / 2, czC - .65, O);
-        pcyl(.035, .035, ch + .2, rustySteelM, x0 - .16, ch / 2, z0 + .25, O);
-        {
-          const warmSnackWin = new THREE.MeshStandardMaterial({ color: 0xf4e2b8, emissive: 0xffc870, emissiveIntensity: .75, roughness: .2 });
-          [-2.2, 2.2].forEach(dx => {
-            pmesh(new THREE.PlaneGeometry(1.65, 1.15), warmSnackWin, cxC + dx, 1.95, z0 - .15, O, { ry: Math.PI, cast: false });
-            pbox(1.85, .10, .18, weatheredCementM, cxC + dx, 1.32, z0 - .16, O, { cast: false });
-            pbox(1.88, .12, .18, weatheredCementM, cxC + dx, 2.56, z0 - .16, O, { cast: false });
-          });
-          pmesh(new THREE.PlaneGeometry(1.55, 1.15), warmSnackWin, x1 + .15, 1.95, czC + .9, O, { ry: Math.PI / 2, cast: false });
-          pmesh(new THREE.PlaneGeometry(3.8, .48), new THREE.MeshBasicMaterial({ map: makeSign('1998 구관 학우매점 (HAG-U MAEJEOM) · 남측 입구 ▶', '#281a14', '#f6e4b8', 20) }), cxC, 3.05, z0 - .16, O, { ry: Math.PI, cast: false });
-          pmesh(new THREE.PlaneGeometry(3.2, .46), new THREE.MeshBasicMaterial({ map: makeSign('◀ 1998 학우매점 · 구내매점', '#281a14', '#f6e4b8', 22) }), x1 + .16, 3.05, czC, O, { ry: Math.PI / 2, cast: false });
-        }
-
-        // 3) 남쪽 정면 파사드 (FRONT ELEVATION):
-        // 좌측(x: cxC - 3.2 ~ cxC - 0.2, 폭 3.0m)은 반쯤 올라간 롤셔터 오픈 출입구(높이 2.35m 개방),
-        // 우측(x: cxC - 0.2 ~ x1)은 시멘트 기단 + 적벽돌 벽 + 방범 창살 유리창!
-        pbox(1.4, ch, .26, oldBrickM, x0 + .7, ch / 2, z1, O);
-        pbox(1.4, .95, .28, weatheredCementM, x0 + .7, .475, z1, O);
-        pbox(4.8, .95, .28, weatheredCementM, cxC + 2.2, .475, z1, O);
-        pbox(4.8, .85, .24, oldBrickM, cxC + 2.2, ch - .425, z1, O);
-        pbox(.9, 1.7, .24, oldBrickM, cxC + .25, 1.8, z1, O);
-        pbox(1.0, 1.7, .24, oldBrickM, x1 - .5, 1.8, z1, O);
-        pmesh(new THREE.PlaneGeometry(2.9, 1.55), glassG, cxC + 2.15, 1.72, z1, O, { cast: false });
-        for (let bx = cxC + .85; bx <= cxC + 3.45; bx += .43) {
-          pcyl(.014, .014, 1.55, rustySteelM, bx, 1.72, z1 + .06, O);
-        }
-        pbox(3.0, ch - 2.45, .26, oldBrickM, cxC - 1.7, 2.45 + (ch - 2.45) / 2, z1, O);
-
-        // 4) 실내 천장 노후 형광등 2기 & 호빵 온장고/음료 쇼케이스 호러 무드 라이트
-        const lampTubeM = new THREE.MeshStandardMaterial({ color: 0xd8ece8, emissive: 0x98c8c0, emissiveIntensity: 1.15 });
-        [-1.8, 1.8].forEach(dx => {
-          pbox(1.25, .04, .24, rustySteelM, cxC + dx, ch - .10, czC, O, { cast: false });
-          pbox(1.15, .03, .14, lampTubeM, cxC + dx, ch - .13, czC, O, { cast: false });
-        });
-        const spWarm = new THREE.Sprite(new THREE.SpriteMaterial({ map: makeGlowTex('255,175,95'), blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, opacity: .42 }));
-        spWarm.scale.setScalar(2.6); spWarm.position.set(cxC - 2.1, 1.55, czC + .2); O.add(spWarm);
-        const spCold = new THREE.Sprite(new THREE.SpriteMaterial({ map: makeGlowTex('135,210,220'), blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, opacity: .38 }));
-        spCold.scale.setScalar(3.2); spCold.position.set(cxC + .4, 1.65, z0 + .9); O.add(spCold);
-
-        // 5) 정밀 CAD 충돌체 (AABB 겹침 0건 — 좌측 정면 출입구 x: 60.3 ~ 63.3 구간이 완전히 열려 있어 실내로 걸어 들어간다!)
-        F0.col.push(
-          { x1: x0 - .18, x2: x1 + .18, z1: z0 - .18, z2: z0 + .18 },
-          { x1: x0 - .18, x2: x0 + .18, z1: z0, z2: z1 },
-          { x1: x1 - .18, x2: x1 + .18, z1: z0, z2: z1 },
-          { x1: x0, x2: cxC - 3.2, z1: z1 - .18, z2: z1 + .18 },
-          { x1: cxC - .2, x2: x1,  z1: z1 - .18, z2: z1 + .18 },
-          { x1: 59.6, x2: 62.0, z1: 16.5, z2: 18.7 },
-          { x1: 61.6, x2: 65.4, z1: 15.0, z2: 15.9 },
-          { x1: 63.8, x2: 67.2, z1: 17.3, z2: 18.1 },
-          { x1: 66.8, x2: 67.8, z1: 18.6, z2: 20.3 }
-        );
-        world.props.push({ kind: 'robj', k: 'canteen_counter', t: 'campus', floor: 0, x: 61.5, z: 19.1, y: 1.15, r: 2.3, label: '학우매점 계산대 금전등록기 · 호빵 온장고 조사하기' });
-
-        // 매점 양옆 야외 테라스 노후 파라솔 테이블 세트 2조 (정면 출입구와 '학우매점' 간판 시야를 가리지 않도록 좌·우로 배치)
+        const cxC = 63.5, czC = 18.0, cw = 9.2, cd = 6.4, ch = 3.4;
+        const x0 = cxC - cw / 2, x1 = cxC + cw / 2, z0 = czC - cd / 2, z1 = czC + cd / 2, t = .24, dg = .8;
+        const brick = PM(0x8a4a38, .85), cement = PM(0x8a8a82, .9), floorT = PM(0xcfc8b8, .55), ceilM = PM(0xe8e6de, .85), plaster = PM(0xe4dccb, .85), awnM = PM(0x1e6a46, .6), frameM = PM(0x3a3e40, .45, .6), creamM = PM(0xe8dcc0, .6);
+        const W = (ax, bx, az, bz, h = ch, y0 = 0, m = brick, col = true) => { pbox(bx - ax, h, bz - az, m, (ax + bx) / 2, y0 + h / 2, (az + bz) / 2, O); if (col && y0 === 0) F0.col.push({ x1: ax, x2: bx, z1: az, z2: bz }); };
+        pbox(cw + .6, .14, cd + .6, cement, cxC, .07, czC, O, { cast: false }); pbox(cw - .1, .03, cd - .1, floorT, cxC, .155, czC, O, { cast: false });
+        pbox(cw - .1, .06, cd - .1, ceilM, cxC, ch - .03, czC, O, { cast: false }); pbox(cw + .5, .3, cd + .5, cement, cxC, ch + .15, czC, O); pbox(cw + .7, .14, cd + .7, PM(0x5a5c58, .8), cxC, ch + .37, czC, O);
+        // 외벽: 북 · 서 · 동 (벽돌 + 하부 시멘트 띠) · 남 정면 (중앙 양개 유리문 1.6m · 좌우 대형 유리창)
+        W(x0 - t, x1 + t, z0 - t, z0); W(x0 - t, x0, z0, z1 + t); W(x1, x1 + t, z0, z1 + t);
+        [[x0 - t - .02, x1 + t + .02, z0 - t - .02, z0 - t], [x0 - t - .02, x0 - t, z0, z1 + t], [x1 + t, x1 + t + .02, z0, z1 + t]].forEach(([a, b, c, d]) => pbox(b - a, .6, d - c, cement, (a + b) / 2, .3, (c + d) / 2, O, { cast: false }));
+        W(x0, cxC - dg, z1, z1 + t, .7, 0, cement); W(cxC + dg, x1, z1, z1 + t, .7, 0, cement);
+        W(x0, cxC - dg, z1, z1 + t, ch - 2.6, 2.6, brick); W(cxC + dg, x1, z1, z1 + t, ch - 2.6, 2.6, brick); pbox(dg * 2, ch - 2.3, t, brick, cxC, 2.3 + (ch - 2.3) / 2, z1 + t / 2, O);
+        [[x0 + .1, cxC - dg - .1], [cxC + dg + .1, x1 - .1]].forEach(([a, b]) => { pmesh(new THREE.PlaneGeometry(b - a, 1.85), glassG, (a + b) / 2, 1.65, z1 + .12, O, { cast: false }); for (let k = 0; k <= 3; k++) pbox(.05, 1.9, .06, frameM, a + k * (b - a) / 3, 1.65, z1 + .12, O, { cast: false }); });
+        [-1, 1].forEach(s => { pbox(.05, 2.3, .07, frameM, cxC + s * dg, 1.15, z1 + .12, O, { cast: false }); const lp = new THREE.Group(); lp.position.set(cxC + s * dg, 0, z1 + .12); lp.rotation.y = s * .9; lp.userData.dynamic = true; O.add(lp); pmesh(new THREE.PlaneGeometry(dg - .05, 2.2), glassG, -s * dg / 2, 1.12, 0, lp, { cast: false }); pbox(.04, 2.2, .05, frameM, -s * (dg - .03), 1.12, 0, lp, { cast: false }); });
+        // 녹색 차양 · 간판 (학우매점 · 녹색/노랑 띠) · 측면 문구판
+        pbox(cw + .3, .06, 1.3, awnM, cxC, 2.55, z1 + .8, O, { rx: .22, cast: false });
+        pbox(4.6, .9, .12, PM(0xf4f4f0, .5), cxC, 3.05, z1 + .3, O, { cast: false });
+        pmesh(new THREE.PlaneGeometry(3.0, .8), new THREE.MeshBasicMaterial({ map: makeSign('학 우 매 점', '#f4f4f0', '#1e3a8a', 52) }), cxC, 3.05, z1 + .37, O, { cast: false });
+        [-1, 1].forEach(s => { pbox(.6, .12, .02, PM(0x2a8a3a, .6), cxC + s * 1.95, 3.15, z1 + .38, O, { cast: false }); pbox(.6, .12, .02, PM(0xd8b020, .6), cxC + s * 1.95, 2.98, z1 + .38, O, { cast: false }); });
+        pmesh(new THREE.PlaneGeometry(1.3, 1.5), new THREE.MeshBasicMaterial({ map: makeSign('맛있는 간식 · 행복한 학교생활', '#f6f2e6', '#2a3a2a', 18) }), x0 - t - .03, 1.9, czC + .6, O, { ry: -Math.PI / 2, cast: false });
+        // 실내 칸막이: 소형 창고 (북서 2.0×1.8) · 직원 준비공간 (3.0×1.8) — 판매장 쪽 출입구
+        const zP = z0 + 1.8, xS = x0 + 2.0, xP = xS + 3.0;
+        [[x0, xS - 1.1], [xS - .2, xP - 1.15], [xP - .25, xP]].forEach(([a, b]) => W(a, b, zP, zP + .12, ch, 0, plaster));
+        [[xS - 1.1, xS - .2], [xP - 1.15, xP - .25]].forEach(([a, b]) => pbox(b - a, ch - 2.1, .12, plaster, (a + b) / 2, 2.1 + (ch - 2.1) / 2, zP + .06, O, { cast: false }));
+        pbox(.1, ch, 1.8, plaster, xS, ch / 2, z0 + .9, O); F0.col.push({ x1: xS - .05, x2: xS + .05, z1: z0, z2: zP }); pbox(.1, ch, 1.8, plaster, xP, ch / 2, z0 + .9, O); F0.col.push({ x1: xP - .05, x2: xP + .05, z1: z0, z2: zP });
+        // 창고: 철제 선반 · 상자 / 준비공간: 싱크대 · 작업대
+        [x0 + .5, x0 + 1.45].forEach(x => { pbox(.9, 1.8, .45, PM(0x7a7e82, .5, .5), x, .9, z0 + .25, O); for (let r = 0; r < 3; r++) pbox(.75, .3, .35, PM(0xb08a58, .9), x, .35 + r * .55, z0 + .27, O); }); F0.col.push({ x1: x0, x2: x0 + 1.95, z1: z0, z2: z0 + .5 });
+        pbox(2.4, .85, .6, PM(0xc8ccd0, .35, .6), xS + 1.4, .425, z0 + .3, O); pbox(.5, .02, .4, PM(0x30363a, .3, .7), xS + .9, .86, z0 + .3, O); F0.col.push({ x1: xS + .2, x2: xS + 2.6, z1: z0, z2: z0 + .6, h: .85 });
+        // 서벽 음료 냉장고 (1200×700×2000 · 유리문)
+        { const fx = x0 + .35, fz = zP + 1.3; pbox(.7, 2.0, 1.2, PM(0x1a3a6a, .4, .3), fx, 1.0, fz, O); pmesh(new THREE.PlaneGeometry(1.1, 1.75), new THREE.MeshStandardMaterial({ color: 0xc8e4f0, emissive: 0x8ac8e8, emissiveIntensity: .45, transparent: true, opacity: .55 }), fx + .36, 1.05, fz, O, { ry: Math.PI / 2, cast: false });
+          for (let r = 0; r < 4; r++) for (let k = 0; k < 6; k++) pcyl(.035, .035, .22, PM([0xd83a2a, 0x2a8a3a, 0xe8b020, 0x3a6ad8][(r + k) % 4], .4), fx + .2, .35 + r * .42, fz - .45 + k * .18, O);
+          pbox(1.1, .24, .04, PM(0x1e3a8a, .5), fx + .37, 1.98, fz, O, { ry: Math.PI / 2, cast: false }); F0.col.push({ x1: x0, x2: x0 + .72, z1: fz - .6, z2: fz + .6 }); }
+        // 중앙 스낵 · 간식 진열대 2열 (900×450×1500 × 3) · 남서 빵 · 간식 진열대
+        const snackC = [0xd83a2a, 0xe8b020, 0x2a8a3a, 0x3a6ad8, 0xe86a20, 0x8a3ab0];
+        const gondola = (x, z, len, alongX = true) => { const n = Math.round(len / .9); pbox(alongX ? len : .45, 1.5, alongX ? .45 : len, creamM, x, .75, z, O);
+          for (let r = 0; r < 4; r++) for (let k = 0; k < n * 3; k++) { const tt = -len / 2 + (k + .5) * len / (n * 3); [-1, 1].forEach(sd => pbox(alongX ? .26 : .06, .24, alongX ? .06 : .26, PM(snackC[(k + r + (sd > 0 ? 2 : 0)) % 6], .55), x + (alongX ? tt : sd * .2), .32 + r * .33, z + (alongX ? sd * .2 : tt), O, { cast: false })); }
+          F0.col.push({ x1: x - (alongX ? len / 2 : .23), x2: x + (alongX ? len / 2 : .23), z1: z - (alongX ? .23 : len / 2), z2: z + (alongX ? .23 : len / 2) }); };
+        gondola(cxC - .7, zP + 1.35, 2.7); gondola(cxC - .7, zP + 2.65, 2.7);
+        gondola(x0 + 1.2, z1 - .35, 1.8);
+        // 동남 판매대 / 계산대 (1800×700×850) + 금전등록기 · POS 모니터 · 가격표
+        { const kx = x1 - 1.4, kz = z1 - 1.45; pbox(1.8, .85, .7, creamM, kx, .425, kz, O); pbox(1.84, .04, .74, PM(0x2a6a46, .5), kx, .87, kz, O); pbox(.3, .14, .3, PM(0x2a2c2e, .4, .5), kx - .4, .96, kz, O); pbox(.36, .26, .04, PM(0x101418, .4, .5), kx + .3, 1.06, kz - .1, O); pbox(.32, .22, .01, new THREE.MeshBasicMaterial({ color: 0x3a8ad8 }), kx + .3, 1.06, kz - .07, O, { cast: false });
+          F0.col.push({ x1: kx - .9, x2: kx + .9, z1: kz - .35, z2: kz + .35, h: .9 });
+          pmesh(new THREE.PlaneGeometry(1.0, 1.2), new THREE.MeshBasicMaterial({ map: makeSign('학우매점 · 라면 600 · 삼각김밥 700 · 빵 800 · 음료수 1,000', '#f2f2ea', '#1e3a8a', 14) }), x1 - .03, 1.8, kz, O, { ry: -Math.PI / 2, cast: false }); }
+        world.props.push({ kind: 'robj', k: 'canteen_counter', t: 'campus', floor: 0, x: x1 - 1.4, z: z1 - .7, y: 1.15, r: 2.3, label: '학우매점 계산대 금전등록기 · 호빵 온장고 조사하기' });
+        // 북동 컵라면 코너: 컵라면 진열대 · 전자레인지 2 · 온수기 · 바 카운터 + 스툴 3
+        { const rx = x1 - .35; pbox(.6, .9, 2.4, woodM, rx, .45, z0 + 1.4, O); F0.col.push({ x1: x1 - .65, x2: x1, z1: z0 + .2, z2: z0 + 2.6, h: .9 });
+          [z0 + .6, z0 + 1.2].forEach(z => { pbox(.42, .3, .52, PM(0xe8e8e4, .4, .3), rx, 1.05, z, O); pbox(.01, .2, .32, PM(0x1a1a1a, .3), rx - .22, 1.05, z - .05, O, { cast: false }); });
+          pcyl(.15, .15, .52, PM(0xc8ccd0, .25, .8), rx, 1.16, z0 + 2.0, O);
+          pbox(.45, 1.5, .9, creamM, x1 - .3, .75, z0 + 3.3, O); for (let r = 0; r < 4; r++) for (let k = 0; k < 3; k++) pcyl(.06, .05, .1, PM([0xd83a2a, 0xe8b020, 0x2a6ad8][k], .5), x1 - .52, .35 + r * .33, z0 + 3.0 + k * .3, O); F0.col.push({ x1: x1 - .55, x2: x1, z1: z0 + 2.85, z2: z0 + 3.75 });
+          pmesh(new THREE.PlaneGeometry(1.4, .3), new THREE.MeshBasicMaterial({ map: makeSign('컵라면 코너', '#f2e8c8', '#a82020', 22) }), x1 - .03, 2.3, z0 + 1.4, O, { ry: -Math.PI / 2, cast: false });
+          [z0 + .7, z0 + 1.4, z0 + 2.1].forEach(z => { pcyl(.17, .17, .05, PM(0x3a4a4a, .5), x1 - 1.1, .65, z, O); pcyl(.03, .03, .63, darkF, x1 - 1.1, .32, z, O); }); }
+        // 천장 형광등 · 실외 쓰레기통 · 화분 · 벤치
+        const lampM = new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xf4f8ff, emissiveIntensity: 1.1 });
+        [[-2, .3], [1.6, .3], [-2, 2], [1.6, 2]].forEach(([dx, dz]) => pbox(1.2, .04, .3, lampM, cxC + dx, ch - .08, czC + dz - .6, O, { cast: false }));
+        [[x1 - 1.0, 0x2a5aa8], [x1 - .55, 0x7a7e82]].forEach(([x, c]) => { pbox(.4, .7, .4, PM(c, .5, .3), x, .35, z1 + .7, O); F0.col.push({ x1: x - .2, x2: x + .2, z1: z1 + .5, z2: z1 + .9 }); });
+        [[cxC - 2.2, z1 + .7], [cxC + 2.2, z1 + .7]].forEach(([x, z]) => { pbox(.9, .4, .4, cement, x, .2, z, O); pmesh(new THREE.DodecahedronGeometry(.32, 1), leafM, x, .62, z, O); F0.col.push({ x1: x - .45, x2: x + .45, z1: z - .2, z2: z + .2 }); });
+        pbox(1.6, .42, .45, cement, x0 - .8, .21, z1 + 1.6, O); F0.col.push({ x1: x0 - 1.6, x2: x0, z1: z1 + 1.37, z2: z1 + 1.83, h: .45 });
+        // 매점 양옆 야외 파라솔 테이블 세트 2조
         [56.8, 66.8].forEach((tx, ti) => {
           const tz = 24.5;
           pcyl(.68, .68, .06, PM(0x4e4c46, .85), tx, .74, tz, O);
@@ -8496,25 +8466,34 @@ function megaNotify(m) { const t = String(m).split('\n'); say(t[0].replace(/^\S+
       }
       // ④ 북동쪽 공터: 「해교 야외 원형 음악당(Amphitheater) & 야외 공연 무대」 (x: 30.6 ~ 39.4, z: -52.5 ~ -40.5 — 북부 메인 보행로 z=-35.2~-32.4 북쪽에 배치하여 도로·별관 침범 0건!)
       {
-        const ax = 35.0, az = -48.5;
-        // 야외 원형 무대 단상 (높이 0.32m — STEP_UP 0.34m 이하라 걸어서 바로 올라갈 수 있다!)
-        pcyl(4.2, 4.4, .32, baseM, ax, .16, az, O, { seg: 24 });
-        F0.col.push({ x1: ax - 3.6, x2: ax + 3.6, z1: az - 3.6, z2: az + 3.6, h: .32 });
-        // 백색 막구조 아치 캐노피 지붕 & 기둥 4개
-        [[-3.2, -2.2], [3.2, -2.2], [-3.6, 1.6], [3.6, 1.6]].forEach(([dx, dz]) => pcyl(.09, .11, 3.8, chromeM, ax + dx, 1.9, az + dz, O));
-        pbox(7.8, .18, 4.8, canopyW, ax, 3.85, az - .2, O);
-        pmesh(new THREE.PlaneGeometry(3.4, .44), new THREE.MeshBasicMaterial({ map: makeSign('해교 야외 음악당 — 청춘의 선율', '#1b2838', '#f2e8cc', 24) }), ax, 3.62, az + 2.22, O, { cast: false });
-        // 무대 중앙 합창 지휘 보면대
-        pcyl(.04, .18, 1.05, darkF, ax, .84, az, O);
-        pbox(.52, .34, .04, woodM, ax, 1.38, az, O, { rx: -.35 });
-        // 무대 남쪽 2단 야외 관람석 벤치 (걸어서 오르내리는 높이 h: .28)
-        for (let r = 0; r < 2; r++) {
-          const rz = az + 5.8 + r * 1.6;
-          pbox(6.8 + r * 1.4, .28, .9, trimM, ax, .14, rz, O);
-          pbox(6.6 + r * 1.4, .06, .45, woodM, ax, .31, rz, O);
-          F0.col.push({ x1: ax - 3.4 - r * .7, x2: ax + 3.4 + r * .7, z1: rz - .45, z2: rz + .45, h: .28 });
-        }
-        world.props.push({ kind: 'robj', k: 'amphitheater_stand', t: 'campus', floor: 0, x: ax, z: az + 1.1, y: 1.2, r: 2.2, label: '야외 음악당 지휘 보면대 조사하기' });
+        // 야외음악당 리모델링 (참고 평면도 · 7.60 × 7.00m · 철골 + 방수 아치 지붕 · 높이 약 4.0m): 북측 목재 데크 무대 (약 6.0 × 3.0m · 걸어 오를 수 있는 높이) · 무대 뒷벽 · 아치형 캐노피 + 기둥 4 · 조명 트러스 (PAR 조명) · 메인 스피커 2 · 드럼 · 마이크 스탠드 · 장비 보관함 · 전기 분전함 / 남측 계단식 관람석 3열 (목재 벤치 · 중앙 통로) · 화단
+        const ax = 35.0, az = -48.5, x0 = ax - 3.8, x1 = ax + 3.8, z0 = az - 3.5, z1 = az + 3.5;
+        const paveM = PM(0xb8b4aa, .8), deckM = PM(0xb07a44, .7), concM = PM(0xa8a49a, .85), steelM = PM(0x8a9094, .45, .6), roofM2 = new THREE.MeshStandardMaterial({ color: 0xc8bca4, roughness: .7, side: THREE.DoubleSide });
+        pbox(7.6, .05, 7.0, paveM, ax, .025, az, O, { cast: false });
+        // 무대 (6.0 × 3.0 · 높이 0.32) + 뒷벽 (높이 1.8) + 측면 블록
+        const sz0 = z0 + .2, sz1 = sz0 + 3.0; pbox(6.0, .32, 3.0, deckM, ax, .16, (sz0 + sz1) / 2, O); for (let k = 0; k < 15; k++) pbox(.01, .005, 3.0, PM(0x6a4424, .8), ax - 3 + k * .4, .322, (sz0 + sz1) / 2, O, { cast: false });
+        F0.col.push({ x1: ax - 3.0, x2: ax + 3.0, z1: sz0, z2: sz1, h: .32 });
+        pbox(6.4, 1.8, .3, concM, ax, .9, z0 + .05, O); F0.col.push({ x1: ax - 3.2, x2: ax + 3.2, z1: z0 - .1, z2: z0 + .2 });
+        [-1, 1].forEach(s => { pbox(.7, .9, 2.0, concM, ax + s * 3.45, .45, sz0 + 1.0, O); F0.col.push({ x1: ax + s * 3.45 - .35, x2: ax + s * 3.45 + .35, z1: sz0, z2: sz0 + 2.0 }); });
+        // 아치형 캐노피 (현 7.6m · 높이 0.8m) + 기둥 4
+        { const R = 9.4, th = 2 * Math.asin(3.9 / R), top = 4.1, geo = new THREE.CylinderGeometry(R, R, 4.4, 24, 1, true, -th / 2, th); geo.rotateX(-Math.PI / 2); pmesh(geo, roofM2, ax, top - R, sz0 + 1.5, O); }
+        [[-3.6, sz0 - .1], [3.6, sz0 - .1], [-3.6, sz1 + .2], [3.6, sz1 + .2]].forEach(([dx, z]) => { pbox(.18, 3.4, .18, steelM, ax + dx, 1.7, z, O); F0.col.push({ x1: ax + dx - .1, x2: ax + dx + .1, z1: z - .1, z2: z + .1 }); });
+        // 조명 트러스 · PAR 조명 · 스피커 · 드럼 · 마이크 스탠드 · 장비 보관함 · 분전함
+        pbox(6.8, .2, .2, steelM, ax, 3.3, sz1, O, { cast: false });
+        [0xff3030, 0x30a0ff, 0xffd030, 0x30ff80, 0xd040ff, 0xffffff].forEach((c, k) => { pcyl(.11, .13, .22, PM(0x1a1a1a, .5, .4), ax - 2.5 + k * 1.0, 3.12, sz1, O); pmesh(new THREE.CircleGeometry(.1, 12), new THREE.MeshBasicMaterial({ color: c }), ax - 2.5 + k * 1.0, 3.0, sz1 + .001, O, { rx: Math.PI / 2, cast: false }); });
+        [-1, 1].forEach(s => { pbox(.6, 1.0, .6, PM(0x141416, .6), ax + s * 2.6, .82, sz1 - .4, O); pmesh(new THREE.CircleGeometry(.2, 16), PM(0x2a2a2e, .4, .3), ax + s * 2.6, .9, sz1 - .099, O, { cast: false }); F0.col.push({ x1: ax + s * 2.6 - .3, x2: ax + s * 2.6 + .3, z1: sz1 - .7, z2: sz1 - .1 }); });
+        { const dx = ax, dz = sz0 + .9; [[0, 0, .28], [.45, .25, .18], [-.45, .25, .18]].forEach(([a, b, r]) => pcyl(r, r, .3, PM(0xe8e8e4, .5), dx + a, .5 + b, dz + b * .5, O)); pcyl(.35, .35, .4, PM(0xe8e8e4, .5), dx, .52, dz - .45, O); F0.col.push({ x1: dx - .7, x2: dx + .7, z1: dz - .8, z2: dz + .45 }); }
+        [-1.2, 0, 1.2].forEach(d => { pcyl(.12, .12, .02, PM(0x1a1a1a, .5), ax + d, .33, sz1 - .5, O); pcyl(.012, .012, 1.4, PM(0x1a1a1a, .4, .5), ax + d, 1.02, sz1 - .5, O); });
+        pcyl(.04, .18, 1.05, darkF, ax + .6, .84, sz0 + 1.9, O); pbox(.52, .34, .04, woodM, ax + .6, 1.38, sz0 + 1.9, O, { rx: -.35 });   // 지휘 보면대
+        [-1, 1].forEach(s => { pbox(1.2, .8, .8, PM(0x1a1a1c, .5, .4), ax + s * 2.4, .72, z0 + .7, O); F0.col.push({ x1: ax + s * 2.4 - .6, x2: ax + s * 2.4 + .6, z1: z0 + .3, z2: z0 + 1.1 }); });
+        pbox(.5, .7, .2, PM(0xc8ccd0, .4, .5), ax + 3.0, 1.2, z0 + .3, O);
+        // 남측 계단식 관람석 3열 (목재 벤치 · 중앙 통로 · 높이 0.15 단씩)
+        { const cxA = ax, czA = sz1 - .3; [2.3, 3.0, 3.7].forEach((R, r) => { const h = .15 * (r + 1), n = 7; [-1, 1].forEach(s => { for (let k = 0; k < n; k++) { const a = s * (.18 + (k + .5) * (1.0 / n)), px = cxA + Math.sin(a) * R, pz = czA + Math.cos(a) * R; const L = 2 * R * Math.sin(.5 / n) + .05;
+              if (pz > z1 - .1) continue; const m1 = pbox(L, h, .6, concM, px, h / 2, pz, O); m1.rotation.y = a; const m2 = pbox(L, .05, .4, deckM, px, h + .025, pz, O, { cast: false }); m2.rotation.y = a; F0.col.push({ x1: px - .3, x2: px + .3, z1: pz - .3, z2: pz + .3, h: h + .05 }); } }); }); }
+        // 화단 (남서 · 남동 모서리)
+        [[x0 + .5, z1 - .5], [x1 - .5, z1 - .5]].forEach(([x, z]) => { pbox(1.0, .4, 1.0, concM, x, .2, z, O); pmesh(new THREE.DodecahedronGeometry(.45, 1), leafM, x, .7, z, O); F0.col.push({ x1: x - .5, x2: x + .5, z1: z - .5, z2: z + .5 }); });
+        pmesh(new THREE.PlaneGeometry(3.4, .44), new THREE.MeshBasicMaterial({ map: makeSign('해교 야외 음악당 — 청춘의 선율', '#1b2838', '#f2e8cc', 24) }), ax, 2.6, z0 - .12, O, { ry: Math.PI, cast: false });
+        world.props.push({ kind: 'robj', k: 'amphitheater_stand', t: 'campus', floor: 0, x: ax + .6, z: sz0 + 2.6, y: 1.2, r: 2.2, label: '야외 음악당 지휘 보면대 조사하기' });
       }
 
       // ⑤ 정문 안쪽 동·서 공터: 「교직원 전용 주차장 & 전통 목조 육각정 쉼터 · 캠퍼스 종합 안내도」
@@ -8555,9 +8534,9 @@ function megaNotify(m) { const t = String(m).split('\n'); say(t[0].replace(/^\S+
     }
     buildMegaCampus15000({ THREE, OUT: O, F0, PM, pbox, pmesh, pcyl, makeSign, makeGlowTex, world, megaP });
     // 안쪽 무대 뒤편 대형 자주빛 벨벳 막과 현수막
-    [-6.2, 6.2].forEach(dx => pbox(2.8, 5.4, .18, PM(0x581822, .85), G.x + dx, 2.7, z0 + .55, F0.interior));
-    pbox(14.8, .85, .16, PM(0x4a121b, .85), G.x, 5.2, z0 + .62, F0.interior);
-    pmesh(new THREE.PlaneGeometry(7.2, .62), new THREE.MeshBasicMaterial({ map: makeSign('제 42 회  해 교 고 등 학 교  졸 업 식', '#1e2836', '#f2e8cc', 26) }), G.x, 5.18, z0 + .72, F0.interior, { cast: false });
+    [-6.2, 6.2].forEach(dx => pbox(2.8, 5.4, .18, PM(0x581822, .85), G.x + dx, 2.7, z0 + .55, O));
+    pbox(14.8, .85, .16, PM(0x4a121b, .85), G.x, 5.2, z0 + .62, O);
+    pmesh(new THREE.PlaneGeometry(7.2, .62), new THREE.MeshBasicMaterial({ map: makeSign('제 42 회  해 교 고 등 학 교  졸 업 식', '#1e2836', '#f2e8cc', 26) }), G.x, 5.18, z0 + .72, O, { cast: false });
     for (let k = 0; k < 6; k++) { const lx = G.x + (k % 2 ? 4.5 : -4.5), lz = G.z - 9 + ((k / 2) | 0) * 9;
       pbox(1.4, .08, .5, new THREE.MeshStandardMaterial({ color: 0xe8f0ff, emissive: 0xc8d8f0, emissiveIntensity: .9 }), lx, H - .2, lz, O, { cast: false });
       const gl = new THREE.Sprite(new THREE.SpriteMaterial({ map: makeGlowTex('200,215,240'), blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, opacity: .25 })); gl.scale.setScalar(5); gl.position.set(lx, H - .8, lz); gl.userData.dynamic = true; O.add(gl); }
@@ -8565,9 +8544,38 @@ function megaNotify(m) { const t = String(m).split('\n'); say(t[0].replace(/^\S+
     F0.col.push({ x1: G.x - 8, x2: G.x + 8, z1: z0, z2: z0 + 4.75, h: 1.1 });
     [0, 1, 2, 3].forEach(k => { pbox(2.4, .275, .35, PM(0x3a2a1e, .8), G.x + 5, .1375 + k * .275, z0 + 5.1 + (3 - k) * .35, O); F0.col.push({ x1: G.x + 3.8, x2: G.x + 6.2, z1: z0 + 4.75 + (3 - k) * .35, z2: z0 + 5.1 + (3 - k) * .35, h: .275 * (k + 1) }); });
     F0.col.push({ x1: x0 + 1.3, x2: x0 + 3.7, z1: z0 + 4.45, z2: z0 + 4.75 });
+    // 대강당 리모델링 (참고 배치도 · 18.0 × 26.0m · 층고 약 8m): 북측 무대 (기존) + 무대 커튼 (프로시니엄 · 상부 막) · 태극기 · 그랜드피아노 · 무대 조명 바 · 메인 스피커 / 객석 (좌우 2블록 · 중앙 통로 2m · 측면 통로) / 남동 음향·조명 조정실 (창 · 음향 콘솔 · 랙) · 남서 준비실 (대기실) · 비상구 2 (동 · 서)
+    { const red = PM(0x8a1420, .85), fab = PM(0xa8743c, .75), legM = PM(0x2a2c2e, .5, .5);
+      [-1, 1].forEach(s => pbox(1.6, 6.0, .3, red, G.x + s * 8.1, 3.0, z0 + 4.6, O)); pbox(17.6, 1.0, .3, red, G.x, 6.6, z0 + 4.6, O);
+      { const c = document.createElement('canvas'); c.width = 300; c.height = 200; const g2 = c.getContext('2d'); g2.fillStyle = '#fbfbf6'; g2.fillRect(0, 0, 300, 200); g2.fillStyle = '#c8102e'; g2.beginPath(); g2.arc(150, 100, 50, Math.PI, 0); g2.fill(); g2.fillStyle = '#003478'; g2.beginPath(); g2.arc(150, 100, 50, 0, Math.PI); g2.fill(); g2.fillStyle = '#111';
+        [[52, 38], [248, 38], [52, 162], [248, 162]].forEach(([x, y]) => { for (let k = 0; k < 3; k++) g2.fillRect(x - 18, y - 10 + k * 8, 36, 5); });
+        const tx = new THREE.CanvasTexture(c); tx.colorSpace = THREE.SRGBColorSpace; pmesh(new THREE.PlaneGeometry(2.4, 1.6), new THREE.MeshStandardMaterial({ map: tx, roughness: .7 }), G.x, 3.4, z0 + .66, O, { cast: false }); }
+      { const px = G.x - 2.6, pz = z0 + 2.4; pbox(1.5, .32, 1.9, PM(0x0c0c0e, .25, .4), px, 1.1 + .62, pz, O); pbox(1.45, .04, 1.85, PM(0x0c0c0e, .2, .4), px - .2, 2.1, pz, O, { rz: .5 }); [[-.6, -.8], [.6, -.8], [0, .8]].forEach(([a, b]) => pbox(.08, .62, .08, PM(0x0c0c0e, .3, .4), px + a, 1.1 + .31, pz + b, O, { cast: false })); pbox(1.4, .06, .3, PM(0xf4f4f0, .4), px, 1.1 + .79, pz + .95, O, { cast: false }); F0.col.push({ x1: px - .75, x2: px + .75, z1: pz - .95, z2: pz + 1.05 }); }
+      pbox(17.0, .2, .3, PM(0x1a1a1c, .5, .5), G.x, 6.2, z0 + 5.6, O, { cast: false }); for (let k = 0; k < 8; k++) pcyl(.12, .15, .3, PM(0x1a1a1c, .5, .5), G.x - 7 + k * 2, 5.95, z0 + 5.6, O);
+      [-1, 1].forEach(s => { pbox(.6, 1.0, .6, PM(0x141416, .6), G.x + s * 5.4, 1.6, z0 + .6, O); F0.col.push({ x1: G.x + s * 5.4 - .3, x2: G.x + s * 5.4 + .3, z1: z0 + .3, z2: z0 + .9 }); });
+      // 객석 (좌석 W540 · 좌우 각 12석 · 열 간격 0.9m) — 좌석은 재질별로 합쳐 메시 수를 줄인다
+      const gS = [], gL = [], rows = []; for (let zr = z0 + 7.8; zr < z1 - 4.4; zr += .9) rows.push(zr);
+      rows.forEach(zr => [[G.x - 7.6, G.x - 1.0], [G.x + 1.0, G.x + 7.6]].forEach(([a, b]) => { const n = Math.floor((b - a) / .55);
+        for (let k = 0; k < n; k++) { const x = a + .275 + k * .55; gS.push(new THREE.BoxGeometry(.5, .08, .45).translate(x, .45, zr), new THREE.BoxGeometry(.5, .5, .07).translate(x, .75, zr + .24)); gL.push(new THREE.BoxGeometry(.04, .45, .04).translate(x - .22, .225, zr), new THREE.BoxGeometry(.04, .45, .04).translate(x + .22, .225, zr), new THREE.BoxGeometry(.05, .3, .45).translate(x + .27, .6, zr)); }
+        F0.col.push({ x1: a, x2: b, z1: zr - .25, z2: zr + .3, h: .5 }); }));
+      const mS = new THREE.Mesh(mergeGeometries(gS), fab), mL = new THREE.Mesh(mergeGeometries(gL), legM); [mS, mL].forEach(m => { m.userData.dynamic = true; O.add(m); });
+      // 남동 음향·조명 조정실 · 남서 준비실 (대기실)
+      const room = (ax, bx, az, bz, doorX) => { const h = 3.0; [[ax, bx, az, az + .12, true], [ax, ax + .12, az, bz], [bx - .12, bx, az, bz]].forEach(([a, b, c, d, front]) => { if (front) { [[a, doorX - .5], [doorX + .5, b]].forEach(([p, q]) => { pbox(q - p, h, d - c, wallM, (p + q) / 2, h / 2, (c + d) / 2, O); F0.col.push({ x1: p, x2: q, z1: c, z2: d }); }); pbox(1.0, h - 2.1, d - c, wallM, doorX, 2.1 + (h - 2.1) / 2, (c + d) / 2, O); } else { pbox(b - a, h, d - c, wallM, (a + b) / 2, h / 2, (c + d) / 2, O); F0.col.push({ x1: a, x2: b, z1: c, z2: d }); } }); pbox(bx - ax, .1, bz - az, wallM, (ax + bx) / 2, h, (az + bz) / 2, O, { cast: false }); };
+      room(x1 - 4.2, x1, z1 - 3.6, z1, x1 - 1.2); room(x0, x0 + 4.2, z1 - 3.6, z1, x0 + 1.2);
+      pmesh(new THREE.PlaneGeometry(2.2, 1.0), new THREE.MeshStandardMaterial({ color: 0x98c8d8, roughness: .1, transparent: true, opacity: .4, side: THREE.DoubleSide }), x1 - 2.8, 1.6, z1 - 3.66, O, { cast: false });
+      { const kx = x1 - 2.6, kz = z1 - 2.8; pbox(1.6, .78, .8, PM(0x1e2024, .5, .4), kx, .39, kz, O); pbox(1.5, .05, .7, PM(0x2a2e34, .4, .5), kx, .8, kz, O, { rx: -.2 }); F0.col.push({ x1: kx - .8, x2: kx + .8, z1: kz - .4, z2: kz + .4, h: .8 }); pbox(.6, 1.8, .6, PM(0x141416, .5, .5), x1 - .5, .9, z1 - .5, O); F0.col.push({ x1: x1 - .8, x2: x1 - .2, z1: z1 - .8, z2: z1 - .2 }); }
+      { pbox(.04, 1.2, 1.6, PM(0xd8e4ec, .1, .9), x0 + .15, 1.5, z1 - 1.9, O, { cast: false }); [0, 1, 2].forEach(k => { pbox(.45, .45, .45, PM(0x3a3e42, .6), x0 + 1.2 + k * .8, .22, z1 - .6, O); }); F0.col.push({ x1: x0 + .95, x2: x0 + 3.1, z1: z1 - .85, z2: z1 - .35, h: .45 });
+        pmesh(new THREE.PlaneGeometry(1.0, .26), new THREE.MeshBasicMaterial({ map: makeSign('준비실 (대기실)', '#2a2c2e', '#f0ece0', 20) }), x0 + 2.6, 2.4, z1 - 3.5, O, { ry: Math.PI, cast: false });
+        pmesh(new THREE.PlaneGeometry(1.0, .26), new THREE.MeshBasicMaterial({ map: makeSign('음향 · 조명 조정실', '#2a2c2e', '#f0ece0', 18) }), x1 - 2.2, 2.4, z1 - 3.5, O, { ry: Math.PI, cast: false }); }
+      // 비상구 (동 · 서 측벽 앞쪽)
+      [-1, 1].forEach(s => { const wx = s < 0 ? x0 + .02 : x1 - .02; pbox(.06, 2.2, 1.4, PM(0x5a5e60, .5, .5), wx, 1.1, z0 + 7.5, O, { cast: false }); pmesh(new THREE.PlaneGeometry(.6, .22), new THREE.MeshBasicMaterial({ map: makeSign('비 상 구', '#0a3a1a', '#7dffa0', 22) }), wx + s * -.04, 2.5, z0 + 7.5, O, { ry: s < 0 ? Math.PI / 2 : -Math.PI / 2, cast: false }); }); }
     world.lockers.push({ floor: 0, x: x0 + 2.5, z: z0 + 5.2, y: 0, dir: { x: 0, z: 1 }, noPick: false, label: '벨벳 커튼 뒤에 숨기' }); }
   // ② 중정: 석상 받침대 충돌 · 고목 몇 그루
-  F0.col.push({ x1: C.x - .7, x2: C.x + .7, z1: C.z - .7, z2: C.z + .7 });
+  F0.col.push({ x1: C.x - 2.5, x2: C.x + 2.5, z1: C.z - 2.5, z2: C.z + 2.5, h: .6 }, { x1: C.x - .55, x2: C.x + .55, z1: C.z + 3.05, z2: C.z + 4.15 });   // 중앙 원형 화단 · 창립자 흉상
+  [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([sx, sz]) => { const px = C.x + sx * 5.2, pz = C.z + sz * 5.2;
+    [[C.x + sx * 7.0, pz, 1.8, 3.4], [px, C.z + sz * 7.0, 3.4, 1.8]].forEach(([x, z, w, d]) => F0.col.push({ x1: x - w / 2, x2: x + w / 2, z1: z - d / 2, z2: z + d / 2, h: .6 }));
+    [[-1.4, -1.4], [1.4, -1.4], [-1.4, 1.4], [1.4, 1.4]].forEach(([a, b]) => F0.col.push({ x1: px + a - .1, x2: px + a + .1, z1: pz + b - .1, z2: pz + b + .1 }));
+    F0.col.push({ x1: px - .9, x2: px + .9, z1: pz + sz * .9 - .3, z2: pz + sz * .9 + .3, h: .5 }); });
   // ③ 지하 방공호(보존서고) 대폭 리모델링 (강화 콘크리트 늑골 아치 · 헤비 스틸 방폭문 · 수동 환기 송풍기 · 기밀 서류함 · 군용 보급상자 · 상황판)
   //    + 지하 펌프실(cx = 24) 폴리스라인 & 1998 서문일보 지역신문 호외 GLB 배치!
   { const F4 = floors[4], bx = 18, bz = -24; scene.remove(bunkerC.group); FLR(4).add(bunkerC.group); bunkerC.group.position.set(bx, 0, bz); bunkerC.centerPos.set(bx, F4.y0, bz); bunkerC.floorY = F4.y0;
@@ -8637,21 +8645,48 @@ function megaNotify(m) { const t = String(m).split('\n'); say(t[0].replace(/^\S+
     world.props.push({ kind: 'robj', k: 'bunker_light', t: 'bunker', floor: 4, x: bx + 1.15, z: z1 - .85, y: 1.35, r: 2.0, label: '방공호 주 전등 스위치 조작하기', bkLightGroup });
     {
       const bLoader = new GLTFLoader();
-      bLoader.load('assets/models/sf/sf_bunker_props_pack.glb?v=205', gltf => {
+      bLoader.load('assets/models/sf/sf_bunker_props_pack.glb?v=220', gltf => {
         const bm = gltf.scene; bm.position.set(bx, 0, z0 + .45);
         if (window.__upgradePure3DScene) window.__upgradePure3DScene(bm); else bm.traverse(o => { o.userData.dynamic = true; });
         R.add(bm);
         if (gltf.animations && gltf.animations.length) { const mx = new THREE.AnimationMixer(bm); mx.userData = { floor: 4, x: bx, z: z0 + .45 }; gltf.animations.forEach(c => mx.clipAction(c).play()); (window.__campusAnimMixers ||= []).push(mx); }
       }, undefined, () => {});
-      bLoader.load('assets/models/sf/sf_pump_policeline_scene.glb?v=205', gltf => {
-        const pm = gltf.scene; pm.position.set(24.0, 0, -3.65);
+      bLoader.load('assets/models/sf/sf_pump_policeline_scene.glb?v=220', gltf => {
+        const pm = gltf.scene; pm.position.set(32.0, 0, -3.65);
         pm.traverse(o => { o.userData.dynamic = true; if (o.isMesh) { o.castShadow = false; o.receiveShadow = true; if (o.material?.map) o.material.map.colorSpace = THREE.SRGBColorSpace; } });
         R.add(pm);
-        if (gltf.animations && gltf.animations.length) { const mx = new THREE.AnimationMixer(pm); mx.userData = { floor: 4, x: 24.0, z: -3.65 }; gltf.animations.forEach(c => mx.clipAction(c).play()); (window.__campusAnimMixers ||= []).push(mx); }
+        if (gltf.animations && gltf.animations.length) { const mx = new THREE.AnimationMixer(pm); mx.userData = { floor: 4, x: 32.0, z: -3.65 }; gltf.animations.forEach(c => mx.clipAction(c).play()); (window.__campusAnimMixers ||= []).push(mx); }
       }, undefined, () => {});
     }
+    // 특수보존서고 리모델링 (참고 시트 12.0 × 20.0m · 천장 3.4m): 벽면 고정 서고 선반 (900×450×2100) · 중앙 양면 서가 2열 · 가운데 열람/작업 테이블 (1800×900×740) + 사무용 의자 · 이동식 서가 (모바일랙) 블록 · 문서 카트 · 제습기 · 소화기함 — 기존 철제 캐비닛 4 · 서류함(감사 기록) · 방폭문 동선 유지
+    { const shG = [], bxG = [], mobG = [], stM = PM(0x2e3a30, .55, .55), cbM = PM(0xb08a58, .9, 0), mobM = PM(0x8a8a70, .5, .4);
+      const B = (arr, w, h, d, x, y, z) => arr.push(new THREE.BoxGeometry(w, h, d).translate(x, y, z));
+      const shelf = (cx, cz, len, alongZ, dep = .45) => { const W = alongZ ? dep : len, D = alongZ ? len : dep, n = Math.max(1, Math.round(len / .9));
+        [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([a, b]) => B(shG, .04, 2.1, .04, cx + a * (W / 2 - .02), 1.05, cz + b * (D / 2 - .02)));
+        for (let k = 1; k < n; k++) { const t = -len / 2 + k * len / n; B(shG, alongZ ? dep : .04, 2.1, alongZ ? .04 : dep, cx + (alongZ ? 0 : t), 1.05, cz + (alongZ ? t : 0)); }
+        for (let r = 0; r < 5; r++) { const y = .08 + r * .48; B(shG, W, .025, D, cx, y, cz); if (r < 4) for (let k = 0; k < n * 2; k++) { const t = -len / 2 + (k + .5) * len / (n * 2); if ((k * 7 + r * 3) % 9 === 0) continue; B(bxG, alongZ ? .3 : .38, .25, alongZ ? .38 : .3, cx + (alongZ ? 0 : t), y + .14, cz + (alongZ ? t : 0)); } }
+        F4.col.push({ x1: cx - W / 2, x2: cx + W / 2, z1: cz - D / 2, z2: cz + D / 2 }); };
+      // 벽면 고정 선반 (기존 철제 캐비닛 자리 비움)
+      [[z0 + .55, -32.1], [-28.9, -23.6], [-20.4, z1 - .7]].forEach(([a, b]) => { shelf(x0 + .57, (a + b) / 2, b - a, true); shelf(x1 - .57, (a + b) / 2, b - a, true); });
+      // 중앙 양면 서가 2열 (가운데 교차 통로)
+      [x0 + 2.7, x1 - 2.7].forEach(x => [[-31.5, -26.6], [-24.4, -17.6]].forEach(([a, b]) => shelf(x, (a + b) / 2, b - a, true, .9)));
+      // 이동식 서가 블록 (900×600×2100 × 4, 핸들 휠)
+      for (let k = 0; k < 4; k++) { const x = bx - .9 + k * .6, z = -22.0; B(mobG, .58, 2.1, 1.8, x, 1.05, z); [-.5, .5].forEach(d => B(shG, .04, .04, .2, x, 1.2, z + d + (d > 0 ? .9 : -.9) * 0)); }
+      F4.col.push({ x1: bx - 1.2, x2: bx + 1.2, z1: -22.9, z2: -21.1 });
+      R.add(new THREE.Mesh(mergeGeometries(shG), stM), new THREE.Mesh(mergeGeometries(bxG), cbM), new THREE.Mesh(mergeGeometries(mobG), mobM));
+      for (let k = 0; k < 4; k++) pbox(.04, .3, .3, PM(0x1a1a1a, .5, .6), bx - .9 + k * .6, 1.2, -20.98, R, { cast: false });   // 손잡이 휠
+      // 열람/작업 테이블 + 사무용 의자 + 보존 상자
+      { const tz = -29.0, tM = PM(0x9a7a50, .6, 0), lM = PM(0x1e1e1e, .5, .6); pbox(.9, .04, 1.8, tM, bx, .72, tz, R); [[-.4, -.85], [.4, -.85], [-.4, .85], [.4, .85]].forEach(([a, b]) => pbox(.05, .7, .05, lM, bx + a, .35, tz + b, R));
+        F4.col.push({ x1: bx - .45, x2: bx + .45, z1: tz - .9, z2: tz + .9, h: .74 });
+        pbox(.5, .08, .5, lM, bx + .85, .48, tz + .3, R); pbox(.06, .5, .45, lM, bx + 1.08, .8, tz + .3, R); pcyl(.03, .03, .45, lM, bx + .85, .22, tz + .3, R);
+        [[-.1, -.4], [.15, .1]].forEach(([a, b]) => pbox(.4, .25, .3, cbM, bx + a, .865, tz + b, R)); }
+      // 문서 카트 (900×600×1000) · 제습기 (700×600×1800) · 소화기함 (700×250×1000)
+      { const x = bx + 1.6, z = -17.6, cM = PM(0x2e3a30, .5, .5); pbox(.6, .03, .9, cM, x, .35, z, R); pbox(.6, .03, .9, cM, x, .95, z, R); [[-.28, -.43], [.28, -.43], [-.28, .43], [.28, .43]].forEach(([a, b]) => pbox(.03, .95, .03, cM, x + a, .5, z + b, R));
+        pbox(.38, .3, .4, cbM, x, 1.12, z - .2, R); pbox(.38, .3, .4, cbM, x, .52, z + .2, R); F4.col.push({ x1: x - .3, x2: x + .3, z1: z - .45, z2: z + .45 }); }
+      pbox(.7, 1.8, .6, PM(0xe0ddd4, .5, .1), x0 + 1.4, .9, z1 - .4, R); F4.col.push({ x1: x0 + 1.05, x2: x0 + 1.75, z1: z1 - .7, z2: z1 - .1 });
+      pbox(.7, 1.0, .25, PM(0xb81e1e, .5, .2), x1 - 1.4, 1.0, z1 - .14, R); }
     world.props.push({ kind: 'robj', k: 'bunker_audit', t: 'bunker', floor: 4, x: bx - 1.6, z: z0 + 1.4, y: 1.1, r: 2.4, label: '방공호 기밀 철제 서류함 & 수동 환기 송풍기 조사하기' });
-    world.props.push({ kind: 'robj', k: 'pump_newspaper', t: 'pump', floor: 4, x: 24.0, z: -3.45, y: .8, r: 2.5, label: '폴리스라인 안쪽 1998년 『서문일보』 지역신문 호외 읽기' });
+    world.props.push({ kind: 'robj', k: 'pump_newspaper', t: 'pump', floor: 4, x: 32.0, z: -3.45, y: .8, r: 2.5, label: '폴리스라인 안쪽 1998년 『서문일보』 지역신문 호외 읽기' });
     world.doors.push({ floor: 4, x: 13.5, z: -1.1, r: 1.6, label: '방공호 방폭문 열기 (제1특수보존서고 진입)', to: { floor: 4, x: bx, z: z1 - 1.35, yaw: 0 }, blastDoor: bdCorr });
     world.doors.push({ floor: 4, x: bx, z: z1 - .55, r: 1.6, label: '방공호 방폭문 열기 (B1 복도로 나가기)', to: { floor: 4, x: 13.5, z: -.6, yaw: Math.PI }, blastDoor: bdIn });
     pmesh(new THREE.PlaneGeometry(1.6, .34), new THREE.MeshBasicMaterial({ map: makeSign('◀ 지하 방공호 · 특수보존서고', '#1a2420', '#98ffb8', 22) }), 13.5, 2.3, -1.43, R, { cast: false }); }

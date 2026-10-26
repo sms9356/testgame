@@ -175,8 +175,7 @@ class MegaSchoolExpansionAndOptimizer {
     const ctx = courtCanvas.getContext("2d");
     ctx.fillStyle = "#5c3c24"; ctx.fillRect(0, 0, 512, 512);
     ctx.strokeStyle = "rgba(235, 230, 215, 0.55)"; ctx.lineWidth = 6;
-    ctx.strokeRect(30, 30, 452, 452);
-    ctx.beginPath(); ctx.arc(256, 256, 75, 0, Math.PI * 2); ctx.stroke();
+    for (let k = 0; k < 16; k++) { ctx.fillStyle = k % 2 ? "rgba(0,0,0,0.06)" : "rgba(255,255,255,0.03)"; ctx.fillRect(0, k * 32, 512, 32); }   // 대강당 원목 마루 (코트 라인 제거)
 
     const floorMat = new THREE.MeshStandardMaterial({
       map: Object.assign(new THREE.CanvasTexture(courtCanvas), { colorSpace: THREE.SRGBColorSpace }),
@@ -233,50 +232,42 @@ class MegaSchoolExpansionAndOptimizer {
     const g = new THREE.Group();
     g.position.copy(centerPos);
 
-    // 화강암 판석 광장 바닥 (지면 y=-0.018 과 겹치지 않도록 상단 y=+0.025m 설정) + 석재 경계석 + 창립자 청동 흉상 기념탑
-    const pvCanvas = document.createElement("canvas");
-    pvCanvas.width = 256; pvCanvas.height = 256;
-    const pctx = pvCanvas.getContext("2d");
-    pctx.fillStyle = "#5c625e"; pctx.fillRect(0, 0, 256, 256);
-    pctx.strokeStyle = "#3e4440"; pctx.lineWidth = 4;
-    for (let i = 0; i <= 256; i += 32) {
-      pctx.beginPath(); pctx.moveTo(i, 0); pctx.lineTo(i, 256); pctx.stroke();
-      pctx.beginPath(); pctx.moveTo(0, i); pctx.lineTo(256, i); pctx.stroke();
-    }
-    const pvTex = new THREE.CanvasTexture(pvCanvas);
-    pvTex.wrapS = pvTex.wrapT = THREE.RepeatWrapping;
-    pvTex.repeat.set(4, 4);
-    const ground = new THREE.Mesh(
-      new THREE.BoxGeometry(16, 0.2, 16),
-      new THREE.MeshStandardMaterial({ map: pvTex, roughness: 0.85 })
-    );
-    ground.position.y = -0.075;
-
-    const curbMat = new THREE.MeshStandardMaterial({ color: 0x8a867e, roughness: 0.8 });
-    const curbN = new THREE.Mesh(new THREE.BoxGeometry(16.3, 0.14, 0.24), curbMat); curbN.position.set(0, 0.05, -8.0);
-    const curbS = new THREE.Mesh(new THREE.BoxGeometry(16.3, 0.14, 0.24), curbMat); curbS.position.set(0, 0.05, 8.0);
-    const curbW = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.14, 16.0), curbMat); curbW.position.set(-8.0, 0.05, 0);
-    const curbE = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.14, 16.0), curbMat); curbE.position.set(8.0, 0.05, 0);
-
-    const step1 = new THREE.Mesh(new THREE.BoxGeometry(2.6, 0.22, 2.6), curbMat); step1.position.set(0, 0.11, 0);
-    const step2 = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.22, 2.0), curbMat); step2.position.set(0, 0.30, 0);
-
-    const statueBase = new THREE.Mesh(
-      new THREE.BoxGeometry(1.35, 1.45, 1.35),
-      new THREE.MeshStandardMaterial({ color: 0x6c7074, roughness: 0.72 })
-    );
-    statueBase.position.set(0, 1.05, 0);
-
+    // 중정 리모델링 (참고 평면도 · 16.0 × 16.0m · 오픈 타입): 보도블록 + 화강석 십자 산책로 (동서남북 4방향 출입) · 중앙 원형 화단 (지름 5m · 조경수) + 원형 벤치 · 네 모서리 퍼걸러 (3 × 3m) 휴게 공간 + 석재 화단 · 가로등 4 · 창립자 흉상 (남측)
+    const paveCv = document.createElement("canvas"); paveCv.width = 256; paveCv.height = 256; const pc = paveCv.getContext("2d");
+    pc.fillStyle = "#a8826a"; pc.fillRect(0, 0, 256, 256); pc.strokeStyle = "#7a5a48"; pc.lineWidth = 3;
+    for (let r = 0; r < 16; r++) { pc.beginPath(); pc.moveTo(0, r * 16); pc.lineTo(256, r * 16); pc.stroke(); for (let c = 0; c < 8; c++) { const x = c * 32 + (r % 2) * 16; pc.beginPath(); pc.moveTo(x, r * 16); pc.lineTo(x, r * 16 + 16); pc.stroke(); } }
+    const paveTex = new THREE.CanvasTexture(paveCv); paveTex.wrapS = paveTex.wrapT = THREE.RepeatWrapping; paveTex.repeat.set(5, 5); paveTex.colorSpace = THREE.SRGBColorSpace;
+    const ground = new THREE.Mesh(new THREE.BoxGeometry(16, 0.2, 16), new THREE.MeshStandardMaterial({ map: paveTex, roughness: 0.85 })); ground.position.y = -0.075;
+    const graniteM = new THREE.MeshStandardMaterial({ color: 0xb8b2a8, roughness: 0.6 }), stoneM2 = new THREE.MeshStandardMaterial({ color: 0x9a968e, roughness: 0.8 });
+    const soilM = new THREE.MeshStandardMaterial({ color: 0x4a3424, roughness: 1 }), leafM2 = new THREE.MeshStandardMaterial({ color: 0x3a7a3a, roughness: 0.85 }), flowerM = new THREE.MeshStandardMaterial({ color: 0xe86a9a, roughness: 0.8 });
+    const woodP = new THREE.MeshStandardMaterial({ color: 0x7a5232, roughness: 0.75 }), ironM = new THREE.MeshStandardMaterial({ color: 0x1a1c1e, roughness: 0.5, metalness: 0.6 });
+    g.add(ground);
+    [[0, 0, 3.2, 16], [0, 0, 16, 3.2]].forEach(([x, z, w, d]) => { const p = new THREE.Mesh(new THREE.BoxGeometry(w, .03, d), graniteM); p.position.set(x, .04, z); g.add(p); });   // 십자 화강석 산책로
+    // 중앙 원형 화단 (지름 5m · 높이 0.6m) + 조경수 + 꽃 + 원형 벤치 4
+    { const rim = new THREE.Mesh(new THREE.CylinderGeometry(2.5, 2.5, .6, 32), stoneM2); rim.position.y = .3; const soil = new THREE.Mesh(new THREE.CylinderGeometry(2.3, 2.3, .05, 32), soilM); soil.position.y = .61; g.add(rim, soil);
+      const trunk = new THREE.Mesh(new THREE.CylinderGeometry(.18, .26, 2.8, 10), woodP); trunk.position.y = 2.0; g.add(trunk);
+      [[0, 4.0, 0, 1.9], [.9, 3.4, .5, 1.3], [-.8, 3.5, -.4, 1.3], [.2, 4.8, -.3, 1.2]].forEach(([x, y, z, r]) => { const c = new THREE.Mesh(new THREE.DodecahedronGeometry(r, 1), leafM2); c.position.set(x, y, z); g.add(c); });
+      for (let k = 0; k < 14; k++) { const a = k / 14 * Math.PI * 2, f = new THREE.Mesh(new THREE.SphereGeometry(.18, 8, 6), k % 2 ? flowerM : leafM2); f.position.set(Math.cos(a) * 1.9, .75, Math.sin(a) * 1.9); g.add(f); }
+      [Math.PI / 4, 3 * Math.PI / 4, 5 * Math.PI / 4, 7 * Math.PI / 4].forEach(a => { const b = new THREE.Group(); b.position.set(Math.cos(a) * 3.0, 0, Math.sin(a) * 3.0); b.rotation.y = -a + Math.PI / 2; g.add(b);
+        const seat = new THREE.Mesh(new THREE.BoxGeometry(1.8, .06, .5), woodP); seat.position.y = .45; const back = new THREE.Mesh(new THREE.BoxGeometry(1.8, .4, .06), woodP); back.position.set(0, .72, .24); b.add(seat, back); [-.8, .8].forEach(d => { const l = new THREE.Mesh(new THREE.BoxGeometry(.06, .44, .45), ironM); l.position.set(d, .22, 0); b.add(l); }); }); }
+    // 네 모서리 퍼걸러 (3 × 3 × 2.5m) + 벤치 + L자 석재 화단
+    [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([sx, sz]) => { const px = sx * 5.2, pz = sz * 5.2;
+      [[-1.4, -1.4], [1.4, -1.4], [-1.4, 1.4], [1.4, 1.4]].forEach(([a, b]) => { const p = new THREE.Mesh(new THREE.BoxGeometry(.16, 2.5, .16), woodP); p.position.set(px + a, 1.25, pz + b); g.add(p); });
+      for (let k = 0; k < 7; k++) { const r = new THREE.Mesh(new THREE.BoxGeometry(3.2, .1, .08), woodP); r.position.set(px, 2.55, pz - 1.5 + k * .5); g.add(r); }
+      [-1.5, 1.5].forEach(d => { const r = new THREE.Mesh(new THREE.BoxGeometry(.1, .14, 3.2), woodP); r.position.set(px + d, 2.45, pz); g.add(r); });
+      for (let k = 0; k < 10; k++) { const v = new THREE.Mesh(new THREE.DodecahedronGeometry(.32, 0), leafM2); v.position.set(px - 1.4 + (k % 5) * .7, 2.7, pz + (k < 5 ? -1 : 1) * .9); g.add(v); }
+      const seat = new THREE.Mesh(new THREE.BoxGeometry(1.8, .06, .5), woodP); seat.position.set(px, .45, pz + sz * .9); const back = new THREE.Mesh(new THREE.BoxGeometry(1.8, .4, .06), woodP); back.position.set(px, .72, pz + sz * 1.15); g.add(seat, back);
+      [[sx * 7.0, pz, 1.8, 3.4], [px, sz * 7.0, 3.4, 1.8]].forEach(([x, z, w, d]) => { const pl = new THREE.Mesh(new THREE.BoxGeometry(w, .6, d), stoneM2); pl.position.set(x, .3, z); const sl = new THREE.Mesh(new THREE.BoxGeometry(w - .2, .05, d - .2), soilM); sl.position.set(x, .61, z); g.add(pl, sl);
+        for (let k = 0; k < 4; k++) { const b2 = new THREE.Mesh(new THREE.DodecahedronGeometry(.35, 0), k % 2 ? leafM2 : flowerM); b2.position.set(x + (w > d ? (k - 1.5) * .7 : 0), .85, z + (w > d ? 0 : (k - 1.5) * .7)); g.add(b2); } }); });
+    // 가로등 4 (H3.5)
+    [[-2.2, -6.8], [2.2, 6.8], [-6.8, 2.2], [6.8, -2.2]].forEach(([x, z]) => { const p = new THREE.Mesh(new THREE.CylinderGeometry(.05, .08, 3.5, 8), ironM); p.position.set(x, 1.75, z); const l = new THREE.Mesh(new THREE.BoxGeometry(.3, .4, .3), new THREE.MeshStandardMaterial({ color: 0xfff0d0, emissive: 0xffd898, emissiveIntensity: .9 })); l.position.set(x, 3.6, z); g.add(p, l); });
+    // 창립자 흉상 (남측 · 중앙 화단 앞)
+    const statueBase = new THREE.Mesh(new THREE.BoxGeometry(1.1, 1.2, 1.1), new THREE.MeshStandardMaterial({ color: 0x6c7074, roughness: 0.72 })); statueBase.position.set(0, .6, 3.6);
     const bronzeMat = new THREE.MeshStandardMaterial({ color: 0x4a5d4e, roughness: 0.35, metalness: 0.78 });
-    const bustShoulders = new THREE.Mesh(new THREE.BoxGeometry(0.82, 0.44, 0.46), bronzeMat); bustShoulders.position.set(0, 1.98, 0);
-    const bustHead = new THREE.Mesh(new THREE.SphereGeometry(0.24, 14, 12), bronzeMat); bustHead.position.set(0, 2.42, 0);
-    const plaque = new THREE.Mesh(
-      new THREE.BoxGeometry(0.86, 0.52, 0.06),
-      new THREE.MeshStandardMaterial({ color: 0x262a2e, metalness: 0.6, roughness: 0.4 })
-    );
-    plaque.position.set(0, 1.12, 0.69);
-
-    g.add(ground, curbN, curbS, curbW, curbE, step1, step2, statueBase, bustShoulders, bustHead, plaque);
+    const bustShoulders = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.4, 0.4), bronzeMat); bustShoulders.position.set(0, 1.4, 3.6);
+    const bustHead = new THREE.Mesh(new THREE.SphereGeometry(0.21, 14, 12), bronzeMat); bustHead.position.set(0, 1.8, 3.6);
+    const plaque = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.44, 0.05), new THREE.MeshStandardMaterial({ color: 0x262a2e, metalness: 0.6, roughness: 0.4 })); plaque.position.set(0, .7, 4.17);
+    g.add(statueBase, bustShoulders, bustHead, plaque);
 
     statueBase.userData.interactable = {
       id: "courtyard_founder_statue",

@@ -26,7 +26,8 @@ function rebuild() {
   // 점조명 (풀 제외) — 카메라 레이어에서 빼 조명 개수 계산에 들어가지 않게
   C.src = [];
   scanLights();
-  const roots = [...floors.filter(f => f && f.interior).map(f => [f.interior, 'in']), [world.OUT, 'out']];
+  const roots = [...floors.filter(f => f && f.interior).map(f => [f.interior, 'in']), [world.OUT, 'out'],
+    ...scene.children.filter(c => /^(REBUILD|FAC_)/.test(c.name)).map(c => [c, 'in'])];   // 재건축 본관 · 별관 · 신축 시설은 씬에 바로 붙어 거리 컬링에서 빠져 있었다
   for (const [root, kind] of roots) visit(root, kind, 0);
 }
 function visit(o, kind, depth) {
@@ -94,7 +95,7 @@ export function perfTick(dt, indoors) {
   lightStep();
   const ms = Math.min(250, dt * 1000); C.avg += (ms - C.avg) * .05;
   C.t += dt; C.rebuildT += dt;
-  if (!C._rebuiltOnce && C.rebuildT > 4) { C._rebuiltOnce = true; rebuild(); }
+  C.rbN ||= 0; if (C.rebuildT > [4, 15, 40][C.rbN] && C.rbN < 3) { C.rbN++; rebuild(); }   // 늦게 불러오는 소품 GLB 도 컬링에 넣는다
   C.lightT = (C.lightT || 0) + dt; if (C.lightT > 1.5) { C.lightT = 0; scanLights(); }
   if (C.t > .25) {
     C.t = 0; const t0 = performance.now();

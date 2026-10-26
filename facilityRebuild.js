@@ -5,7 +5,7 @@
 //   재질: F-01 ~ F-05 바닥 · W-01 ~ W-05 벽 · C-01 ~ C-04 천장 (Poly Haven CC0 실사 스캔 텍스처, assets/tex/fac_* · 미터 단위 UV)
 import * as THREE from './vendor/three.module.js';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { pbr } from './tex.js?v=221';
+import { pbr } from './tex.js?v=222';
 
 const FH = 3.6, CEIL = 2.9, WALL_T = .24, LIN = .06;
 const TL = new THREE.TextureLoader(), TEX = {};
@@ -201,10 +201,10 @@ function doorway(B, axis, at, a, b, lvl, open = 1, leafMat = 'DARKWOOD') {
   const y0 = lvl * FH, w = b - a, m = (a + b) / 2;
   if (axis === 'z') {   // z = at 인 벽(동서로 뻗은 벽)의 구멍 [a,b] (x 범위)
     B.box(.06, 2.12, .2, 'FRAME', a, y0 + 1.06, at); B.box(.06, 2.12, .2, 'FRAME', b, y0 + 1.06, at); B.box(w + .12, .08, .2, 'FRAME', m, y0 + 2.14, at);
-    if (open) { B.box(.045, 2.04, w - .06, leafMat, a + .06, y0 + 1.03, at - open * (w / 2)); B.box(.03, .03, .14, 'CHROME', a + .1, y0 + 1.0, at - open * (w - .12)); }
+    if (open) { B.box(.045, 2.04, w - .06, leafMat, a + .06, y0 + 1.03, at - open * (w / 2)); B.box(.03, .03, .14, 'CHROME', a + .1, y0 + 1.0, at - open * (w - .12)); const e = at - open * (w - .06); B.col(a + .02, a + .1, Math.min(at, e), Math.max(at, e), { lvl }); }   // 열린 문짝도 막는다 (유령처럼 통과되던 곳)
   } else {
     B.box(.2, 2.12, .06, 'FRAME', at, y0 + 1.06, a); B.box(.2, 2.12, .06, 'FRAME', at, y0 + 1.06, b); B.box(.2, .08, w + .12, 'FRAME', at, y0 + 2.14, m);
-    if (open) { B.box(w - .06, 2.04, .045, leafMat, at - open * (w / 2), y0 + 1.03, a + .06); }
+    if (open) { B.box(w - .06, 2.04, .045, leafMat, at - open * (w / 2), y0 + 1.03, a + .06); const e = at - open * (w - .06); B.col(Math.min(at, e), Math.max(at, e), a + .02, a + .1, { lvl }); }
   }
 }
 
@@ -743,9 +743,12 @@ export function installFacilityRebuild(ctx) {
   const rt = retexture(floors[7], { F: 'F01', W: 'W05', C: 'C01' }) + retexture(floors[6], { F: 'F04', W: 'W05', C: 'C03' });
   window.__facilityRebuild = { removed: res.removed, ext, retextured: rt, ms: Math.round(performance.now() - t0) };
   // 나중에 불러오는 모델(GLB)이 옛 터에 다시 나타나면 걷어 낸다
-  //   씬 전체를 다시 훑으면 수 초씩 멈췄다 → 설치 뒤 새로 붙은 최상위 묶음만 본다
-  const seen = new Set(scene.children);
-  const again = () => { const fresh = scene.children.filter(c => !seen.has(c)); fresh.forEach(c => seen.add(c)); if (!fresh.length) return; const tmp = { scene: { children: fresh, updateMatrixWorld: () => fresh.forEach(c => c.updateMatrixWorld(true)) }, floors, world }; demolish(tmp, zones, keepMesh, false); };
+  //   씬 전체 판정을 다시 돌리면 수 초씩 멈췄다 → 설치 뒤 새로 생긴 메시(기존 묶음 안에 비동기로 붙은 GLB 포함)만 골라 본다
+  const seen = new WeakSet(); scene.traverse(o => seen.add(o));
+  const keepNew = o => { for (let a = o; a; a = a.parent) if (a.userData && (a.userData.facNew || a.userData.facKeep)) return true; return false; };
+  const again = () => { const live = new Set(); [...(world.props || []), ...(world.items || [])].forEach(p => { if (p.mesh) p.mesh.traverse(c => live.add(c)); if (p.led) live.add(p.led); });   // 게임이 나중에 놓은 조사 소품 · 아이템은 건드리지 않는다
+    const fresh = []; scene.traverse(o => { if (seen.has(o)) return; seen.add(o); if ((o.isMesh || o.isSprite || o.isLight) && !o.isSkinnedMesh && !live.has(o) && !keepNew(o)) fresh.push(o); }); if (!fresh.length) return;
+    const tmp = { scene: { children: fresh, updateMatrixWorld: () => fresh.forEach(c => c.updateMatrixWorld(true)) }, floors, world }; demolish(tmp, zones, keepMesh, false); };
   [4000, 12000, 30000, 70000].forEach(ms => setTimeout(again, ms));
   return built;
 }

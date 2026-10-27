@@ -1,0 +1,23 @@
+{
+  "name": "haegyo-desktop",
+  "productName": "폐교 - 잊혀진 시간",
+  "version": "1.1.0",
+  "description": "폐교 — 잊혀진 시간 (데스크톱 테스트판)",
+  "main": "main.cjs",
+  "author": "sms9356",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "33.2.1",
+    "electron-builder": "25.1.8"
+  },
+  "build": {
+    "appId": "com.sms9356.haegyo",
+    "productName": "Haegyo",
+    "asar": false,
+    "files": ["main.cjs", "icon.png", "game/**/*"],
+    "win": { "target": [{ "target": "portable", "arch": ["x64"] }, { "target": "zip", "arch": ["x64"] }], "icon": "icon.ico" },
+    "portable": { "artifactName": "Haegyo-${version}-portable.exe" },
+    "artifactName": "Haegyo-${version}-win-x64.${ext}",
+    "directories": { "output": "dist" }
+  }
+}

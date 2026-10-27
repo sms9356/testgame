@@ -1,0 +1,43 @@
+name: Build Windows exe
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Stage game files
+        shell: bash
+        run: |
+          mkdir -p desktop/game
+          for f in index.html *.js style.css; do cp "$f" desktop/game/; done
+          for d in assets vendor voice music lang rebuild; do [ -d "$d" ] && cp -r "$d" desktop/game/; done
+          du -sh desktop/game
+      - name: Build
+        working-directory: desktop
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: "false"
+        run: |
+          npm install --no-audit --no-fund
+          npx electron-builder --win --publish never
+      - name: Upload to test-build release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view test-build >/dev/null 2>&1 || gh release create test-build --title "테스트 빌드 (Windows exe)" --notes "폐교 — 잊혀진 시간 Windows 테스트 실행파일. portable.exe 는 설치 없이 바로 실행, zip 은 압축을 풀고 Haegyo.exe 실행." --prerelease
+          gh release upload test-build desktop/dist/*.exe desktop/dist/*.zip --clobber
+      - uses: actions/upload-artifact@v4
+        with:
+          name: haegyo-windows
+          path: |
+            desktop/dist/*.exe
+            desktop/dist/*.zip
+          retention-days: 14

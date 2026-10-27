@@ -2,11 +2,11 @@
 //   기본으로 켜진다 (예전 건물로 보려면 주소창에 ?oldmap).
 //   예전 본관(1~3층 · 옥상) · 별관(8~10층) 건물은 감추고, 그 자리 땅(0층)에서 새 건물을 걷는다.
 //   높이는 P.sh(계단 높이 보정값)로 넘긴다 → 카메라 · 점프 · 가구 오르기 코드는 손대지 않아도 된다.
-import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=224';
-import { placeModels } from './rebuild/models.js?v=224';
-import { carve, subdivide } from './rebuild/transplant.js?v=224';
+import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=225';
+import { placeModels } from './rebuild/models.js?v=225';
+import { carve, subdivide } from './rebuild/transplant.js?v=225';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { turfMaterial } from './campusVisuals.js?v=224';
+import { turfMaterial } from './campusVisuals.js?v=225';
 
 // 예전 건물이 차지하던 땅 (이 안의 예전 메시 · 충돌 상자를 걷어 낸다)
 const OLD_MAIN = { x1: -51, x2: 51, z1: -10.6, z2: 10.9 };
@@ -138,7 +138,10 @@ export function installRebuild({ THREE, scene, floors, world }) {
       for (const r of b.props) {
         if (r.kind !== 'room' || r.exit || r.x2 - r.x1 < 2 || r.z1 < -.2) continue;
         if (r.label === '중앙 계단' || r.label === '중앙 현관') continue;
-        add(r.floor, r.x1 + .45, (b.spec.wall || .2) / 2 + .012, 1, r, `${r.label} 형광등 스위치`);
+        // 출입문 바로 옆 (교실 칸의 앞문 서쪽 · 칸막이로 나눈 동쪽 방은 뒷문 동쪽) — 방 한가운데나 문 없는 쪽에 붙던 스위치
+        const bay = b.layout.rooms.find(q => q.kind === 'class' && (r.x1 + r.x2) / 2 > q.x1 && (r.x1 + r.x2) / 2 < q.x2), front = bay ? bay.x1 + .7 : null;
+        const lx = !bay || (front > r.x1 && front < r.x2) ? (bay ? bay.x1 + .42 : r.x1 + .45) : bay.x2 - .42;
+        add(r.floor, Math.min(r.x2 - .15, Math.max(r.x1 + .15, lx)), (b.spec.wall || .2) / 2 + .012, 1, r, `${r.label} 형광등 스위치`);
       }
       const L = b.layout.L, cst = b.layout.rooms.find(q => q.kind === 'cstair');
       for (let f = 0; f < b.spec.floors; f++) {   // 복도: 중앙 계단 서쪽 · 복도 북벽

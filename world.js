@@ -4,12 +4,12 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { buildGuardAnnex, buildDutyRoom, ANNEX as GANX } from './guardAnnex.js?v=230';
-import { NOTES } from './story.js?v=230';
+import { buildGuardAnnex, buildDutyRoom, ANNEX as GANX } from './guardAnnex.js?v=231';
+import { NOTES } from './story.js?v=231';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=230';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=231';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -4726,7 +4726,7 @@ export function buildWorld(scene) {
     const ivy = (x, z, w, h, ry, y0 = 0) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), ivyM); m.position.set(x, y0 + h / 2, z); m.rotation.y = ry; OUT.add(m); };
     /* 본관 남쪽 정면 외벽 창문을 가리던 2D 평면 담쟁이덩굴 제거 */
     [[-40, 3], [-28, 2.6], [-16, 2.8], [12, 2.7], [24, 2.6], [38, 2.9]].forEach(([x, h]) => ivy(x, GATE_Z - .3, rr(2.5, 3.5), h, Math.PI));
-    [[-49.7, 10, 3], [-49.7, 50, 2.8], [-49.7, -10, 2.7]].forEach(([x, z, h]) => ivy(x, z, 3, h, Math.PI / 2));
+    // 예전 수영장 · 식당 서쪽 벽에 붙어 있던 담쟁이: 새 건물 벽(x −48)과 1.7m 떨어져 허공에 떠 있어 제거
   }
 
   // 외곽 담장 & 서쪽 끝 외곽 경계(x = -114.0, z = 55.6 — 2번 사진 위치!)로 이전된 『서문고등학교 서문 (西門)』
@@ -4763,7 +4763,7 @@ export function buildWorld(scene) {
     const g = new THREE.Group(); const b = new THREE.Mesh(new THREE.BoxGeometry(1.9, .7, 4.3), mCar(c)); b.position.y = .75; g.add(b);
     const t = new THREE.Mesh(new THREE.BoxGeometry(1.7, .6, 2.3), mBlack); t.position.set(0, 1.4, -.1); g.add(t);
     [[-.9, 1.4], [.9, 1.4], [-.9, -1.4], [.9, -1.4]].forEach(([wx, wz]) => { const w = new THREE.Mesh(new THREE.CylinderGeometry(.38, .38, .25, 10), mBlack); w.rotation.z = Math.PI / 2; w.position.set(wx, .38, wz); g.add(w); });
-    g.position.set(x, 0, z); g.rotation.y = ry; OUT.add(g);
+    g.position.set(x, 0, z); g.rotation.y = ry; OUT.add(g); col(x - 1, x + 1, z - 2.2, z + 2.2, true);   // 차를 통과하지 않게
   };
   // 차량들은 캠퍼스 통로나 인도를 막지 않도록 서문 바깥 도로와 제2주차장 주차칸 안에 정렬!
   car(-123.0, 44.0, 0, [90, 40, 40]); car(-118.0, 66.0, 0, [60, 70, 90]);
@@ -4771,7 +4771,7 @@ export function buildWorld(scene) {
   const bus = new THREE.Group(); const bb = new THREE.Mesh(new THREE.BoxGeometry(2.6, 2.4, 10.5), mCar([170, 134, 30])); bb.position.y = 1.7; bus.add(bb);
   for (let k = 0; k < 6; k++) [-1, 1].forEach(sd => { const w = new THREE.Mesh(new THREE.BoxGeometry(.05, .8, 1.2), mBlack); w.position.set(sd * 1.31, 2.1, -4.2 + k * 1.65); bus.add(w); });
   [[-1.3, 3.2], [1.3, 3.2], [-1.3, -3.2], [1.3, -3.2]].forEach(([wx, wz]) => { const w = new THREE.Mesh(new THREE.CylinderGeometry(.5, .5, .3, 12), mBlack); w.rotation.z = Math.PI / 2; w.position.set(wx, .5, wz); bus.add(w); });
-  bus.position.set(-74.0, 0, 65.5); bus.rotation.y = Math.PI / 2; OUT.add(bus); // 제2주차장 대형버스 구획 안에 반듯하게 주차!
+  bus.position.set(-74.0, 0, 65.5); bus.rotation.y = Math.PI / 2; OUT.add(bus); col(-79.3, -68.7, 64.2, 66.8, true); // 제2주차장 대형버스 구획 안에 반듯하게 주차!
   for (let z = -30; z <= 66; z += 16) {
     const p = new THREE.Mesh(new THREE.CylinderGeometry(.07, .07, 5, 6), mMetal); p.position.set(-115.2, 2.5, z); OUT.add(p);
     const h = new THREE.Mesh(new THREE.BoxGeometry(1.2, .1, .3), mMetal); h.position.set(-115.7, 5, z); OUT.add(h);
@@ -5041,7 +5041,7 @@ export function buildWorld(scene) {
     gf.push(bx(18.4, .4, .2, -39, .2, 25.1, 3), bx(.2, .4, 12.5, -29.9, .2, 18.75, 3));
     OUT.add(new THREE.Mesh(merge(gf), mFacadeTrim));
     [15.5, 19.5, 23.5, 27.5, 31.5].forEach(z => { plane(OUT, pickWin(), 2.4, 1.8, 27.98, 5.2, z, -Math.PI / 2); plane(OUT, pickWin(), 2.4, 1.8, 48.02, 5.2, z, Math.PI / 2); });
-    [15.5, 19.5, 23.5].forEach(z => plane(OUT, pickWin(), 2.4, 1.6, -48.02, 2.4, z, -Math.PI / 2));
+    // 예전 식당 서쪽 창 평면: 새 식당 건물(buildShellOnly)이 자기 창을 그리므로 제거
   }
   // 15,000평(230m × 180m) 메가 캠퍼스 통합 외곽 대경계 담장 (캠퍼스 중간을 가로막던 구 내곽 담장은 철거하고 외곽 경계와 서문 x=-114, z=55.6 으로 통합!)
   outWall(-114.5, -113.8, -108, 51.5, fenceH, mFence);
@@ -5069,8 +5069,8 @@ export function buildWorld(scene) {
     if (window.__oldGuard) plane(OUT, new THREE.MeshBasicMaterial({ map: T.makeSign('경비실', '#1e2a2e', '#d9e4d0', 34), color: 0x9aa59a }), 1.1, .3, GUARD_LAYOUT.originX + 1.1, 2.30, GUARD_LAYOUT.originZ + .125, 0);
     Object.assign(guardRoom, { holder, furnitureColliders, fallback: G, fallbackDoorPivot: doorPivot, doorCollider, ceilingCover: false, templates: { wall: mFacade, floor: mFloorTile, wood: mWood, metal: mMetal, fabric: guardFabric }, layout: GUARD_LAYOUT });
     props.push({ kind: 'robj', k: 'guarddoor', t: 'guard', floor: 0, x: GUARD_LAYOUT.doorX + .425, z: GUARD_LAYOUT.doorZ, y: 1.05, r: 1.5, label: '경비실 문 닫기' });
-    props.push({ kind: 'robj', k: 'guardlog', t: 'guard', floor: 0, ...GUARD_LAYOUT.log, x: 5.9, z: 67.14, r: 2.1, label: '경비실 심야 순찰 일지 & 경비원 육성 녹음 확인하기' });
-    props.push({ kind: 'robj', k: 'guard_recorder', t: 'guard', floor: 0, x: 6.28, z: 67.08, y: 0.84, r: 2.1, label: '경비실 보이스레코더 — 1998년 그날 밤 경비원 녹취록 재생' });
+    props.push({ kind: 'robj', k: 'guardlog', t: 'guard', floor: 0, ...GUARD_LAYOUT.log, x: 5.6, z: 67.14, r: 2.1, label: '경비실 심야 순찰 일지 & 경비원 육성 녹음 확인하기' });
+    props.push({ kind: 'robj', k: 'guard_recorder', t: 'guard', floor: 0, x: 6.45, z: 67.08, y: 0.84, r: 2.1, label: '경비실 보이스레코더 — 1998년 그날 밤 경비원 녹취록 재생' });
     props.push({ kind: 'robj', k: 'guardcctv', t: 'guard', floor: 0, ...GUARD_LAYOUT.cctv, label: 'CCTV 전원 끄기' });
     guardAnnex = buildGuardAnnex({ OUT, props, boxMesh, plane, flat, col, S, model: (n, x, y, z, ry, o = {}) => model(n, x, y, z, ry, { ...o, out: true }), makeSign: T.makeSign, mats: { facade: mFacade, wall: mWall, white: mWhite, floor: mFloorTile, wood: mWood, metal: mMetal, glass: mWinIn } });
     col(GANX.x1 - .95, GANX.x1, GANX.doorZ1 - .02, GANX.doorZ1 + .04, true);

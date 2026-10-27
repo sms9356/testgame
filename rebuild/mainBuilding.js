@@ -4,7 +4,7 @@
 //   전기(분전반 · 2등용 형광등 · 콘센트 · 스위치) · 소방(소화전함 · 소화기 · 감지기 · 유도등 · 방화문) · 수도(세면대 · 배관)
 import * as THREE from '../vendor/three.module.js';
 import { mergeGeometries } from '../vendor/addons/utils/BufferGeometryUtils.js';
-import { makeFlag } from '../tex.js?v=230';
+import { makeFlag } from '../tex.js?v=231';
 // 교실 앞면 꾸밈 공용 (반 이름 · 텍스처 캐시)
 const NAMES = ['김민수', '이서연', '박지훈', '최유진', '정하늘', '강도윤', '조수아', '윤재현', '장예린', '임태호', '한소영', '오준서', '서지민', '신동혁', '권나연', '황민재', '안채원', '송우진', '전다은', '홍석진'];
 let flagTex = null; const decorTex = new Map();
@@ -714,9 +714,9 @@ export function buildMainBuilding(opt = {}) {
       mdl('potted_plant_04', x1 + .5, y0, z1 + 1.9, 0, { s: 3.0 });
       // ── 복도 쪽 벽: 교훈 패널 · 게시판 (문과 문 사이) ──
       { const mt = ctex(384, 384, (g, w, h) => { g.fillStyle = '#f2ead8'; g.fillRect(0, 0, w, h); g.strokeStyle = '#4a2c18'; g.lineWidth = 16; g.strokeRect(8, 8, w - 16, h - 16); g.fillStyle = '#1a1410'; g.font = 'bold 50px serif'; g.textAlign = 'center'; ['바른 인성', '깊은 배움', '더 큰 세상으로'].forEach((t, k) => g.fillText(t, w / 2, 120 + k * 90)); });
-        plane(mt, 1.1, 1.1, x1 + 2.8, y0 + 1.95, z1 + .02, 0); }
+        plane(mt, .85, .85, x1 + 2.8, y0 + 1.2, z1 + .02, 0); }   // 복도 채광창 유리 아래로
       { const bb = ctex(512, 320, (g, w, h) => { g.fillStyle = '#b08a5a'; g.fillRect(0, 0, w, h); for (let k = 0; k < 7; k++) { g.fillStyle = k % 2 ? '#f4f0e4' : '#e8f0f4'; const x = 20 + (k % 4) * 122, y = 20 + (k / 4 | 0) * 150; g.fillRect(x, y, 100, 130); g.fillStyle = '#c03030'; g.beginPath(); g.arc(x + 50, y + 6, 5, 0, 7); g.fill(); g.fillStyle = '#556'; for (let l = 0; l < 6; l++) g.fillRect(x + 10, y + 22 + l * 16, 80, 3); } g.strokeStyle = '#6a4a2a'; g.lineWidth = 14; g.strokeRect(7, 7, w - 14, h - 14); });
-        plane(bb, 2.2, 1.35, xm + .9, y0 + 1.75, z1 + .02, 0); }
+        plane(bb, 1.8, .85, xm + .9, y0 + 1.2, z1 + .02, 0); }
       props.push({ kind: 'search', label: '교사회의실 유리 수납장 살펴보기', x: x1 + .95, y: y0 + 1.2, z: z1 + 4.4, floor: f });
       props.push({ kind: 'search', label: '회의 안건 화이트보드 읽기', x: x2 - .8, y: y0 + 1.5, z: z1 + 6.6, floor: f });
     } else if (type === 'career') {   // 진로상담실: 상담 원탁 · 진학 자료 책장 2 · 대학 안내 게시판 · 상담 책상

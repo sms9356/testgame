@@ -4,7 +4,7 @@
 //   전기(분전반 · 2등용 형광등 · 콘센트 · 스위치) · 소방(소화전함 · 소화기 · 감지기 · 유도등 · 방화문) · 수도(세면대 · 배관)
 import * as THREE from '../vendor/three.module.js';
 import { mergeGeometries } from '../vendor/addons/utils/BufferGeometryUtils.js';
-import { makeFlag } from '../tex.js?v=228';
+import { makeFlag } from '../tex.js?v=229';
 // 교실 앞면 꾸밈 공용 (반 이름 · 텍스처 캐시)
 const NAMES = ['김민수', '이서연', '박지훈', '최유진', '정하늘', '강도윤', '조수아', '윤재현', '장예린', '임태호', '한소영', '오준서', '서지민', '신동혁', '권나연', '황민재', '안채원', '송우진', '전다은', '홍석진'];
 let flagTex = null; const decorTex = new Map();
@@ -789,7 +789,7 @@ export function buildMainBuilding(opt = {}) {
       desk(X1 + 6.9, z2 - .75, 3.0, .8, .74); [X1 + 6.2, X1 + 7.6].forEach(mx => { box('crt', mx - .25, mx + .25, y0 + .79, y0 + 1.2, z2 - .95, z2 - .55); box('mon', mx - .2, mx + .2, y0 + .84, y0 + 1.16, z2 - .96, z2 - .95); box('crt', mx - .22, mx + .22, y0 + .74, y0 + .76, z2 - 1.12, z2 - 1.0); });
       cyl('rubber', X1 + 6.9, y0 + .74, z2 - 1.05, .06, .03); chairAt(X1 + 6.9, z2 - 1.5);
       // 방송 시간표 게시판 · 벽시계
-      box('lockerM', X1 + 2.6, X1 + 4.6, y0 + 1.3, y0 + 2.2, z2 - .1, z2 - .06); sign('방송 편성표 1998.10', 1.8, .7, X1 + 3.6, y0 + 1.75, z2 - .11, Math.PI, '#f0ece0', '#203040', false);
+      box('cork', X1 + .02, X1 + .06, y0 + 1.35, y0 + 2.15, z1 + 8.65, z2 - .25); sign('방송 편성표 1998.10', .7, .5, X1 + .07, y0 + 1.75, (z1 + 8.65 + z2 - .25) / 2, Math.PI / 2, '#f0ece0', '#203040', false);   // 창을 가리지 않게 서쪽 벽 CCTV 받침 위
       // ── 방음 유리 칸막이 · 방음문 (가운데) · ON AIR 등 ──
       box('wall', XP - .1, XP + .1, y0, y0 + S.CEIL, z1, z1 + 3.0, { solid: true }); box('wall', XP - .1, XP + .1, y0, y0 + S.CEIL, z1 + 4.0, z2, { solid: true });
       box('glass', XP - .105, XP - .095, y0 + .9, y0 + 2.1, z1 + .4, z1 + 2.7); box('glass', XP + .095, XP + .105, y0 + .9, y0 + 2.1, z1 + .4, z1 + 2.7);   // 이중 유리

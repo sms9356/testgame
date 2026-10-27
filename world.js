@@ -5069,8 +5069,8 @@ export function buildWorld(scene) {
     if (window.__oldGuard) plane(OUT, new THREE.MeshBasicMaterial({ map: T.makeSign('경비실', '#1e2a2e', '#d9e4d0', 34), color: 0x9aa59a }), 1.1, .3, GUARD_LAYOUT.originX + 1.1, 2.30, GUARD_LAYOUT.originZ + .125, 0);
     Object.assign(guardRoom, { holder, furnitureColliders, fallback: G, fallbackDoorPivot: doorPivot, doorCollider, ceilingCover: false, templates: { wall: mFacade, floor: mFloorTile, wood: mWood, metal: mMetal, fabric: guardFabric }, layout: GUARD_LAYOUT });
     props.push({ kind: 'robj', k: 'guarddoor', t: 'guard', floor: 0, x: GUARD_LAYOUT.doorX + .425, z: GUARD_LAYOUT.doorZ, y: 1.05, r: 1.5, label: '경비실 문 닫기' });
-    props.push({ kind: 'robj', k: 'guardlog', t: 'guard', floor: 0, ...GUARD_LAYOUT.log, x: 5.9, z: 67.14, r: 2.1, label: '경비실 심야 순찰 일지 & 경비원 육성 녹음 확인하기' });
-    props.push({ kind: 'robj', k: 'guard_recorder', t: 'guard', floor: 0, x: 6.28, z: 67.08, y: 0.84, r: 2.1, label: '경비실 보이스레코더 — 1998년 그날 밤 경비원 녹취록 재생' });
+    props.push({ kind: 'robj', k: 'guardlog', t: 'guard', floor: 0, ...GUARD_LAYOUT.log, x: 5.6, z: 67.14, r: 2.1, label: '경비실 심야 순찰 일지 & 경비원 육성 녹음 확인하기' });
+    props.push({ kind: 'robj', k: 'guard_recorder', t: 'guard', floor: 0, x: 6.45, z: 67.08, y: 0.84, r: 2.1, label: '경비실 보이스레코더 — 1998년 그날 밤 경비원 녹취록 재생' });
     props.push({ kind: 'robj', k: 'guardcctv', t: 'guard', floor: 0, ...GUARD_LAYOUT.cctv, label: 'CCTV 전원 끄기' });
     guardAnnex = buildGuardAnnex({ OUT, props, boxMesh, plane, flat, col, S, model: (n, x, y, z, ry, o = {}) => model(n, x, y, z, ry, { ...o, out: true }), makeSign: T.makeSign, mats: { facade: mFacade, wall: mWall, white: mWhite, floor: mFloorTile, wood: mWood, metal: mMetal, glass: mWinIn } });
     col(GANX.x1 - .95, GANX.x1, GANX.doorZ1 - .02, GANX.doorZ1 + .04, true);

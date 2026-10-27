@@ -9098,7 +9098,7 @@ async function settleFloating() {
       } else if (gap > .06) dy = -gap + .005; }
     else { h = first(new T.Vector3(c.x, bb.min.y + 1.2, c.z), DN, 1.3); if (h && h.point.y > bb.min.y + .02) dy = h.point.y - bb.min.y + .005; }   // 바닥 밑으로 꺼진 것
     if (!dy) continue;
-    m.position.y += dy; if (prop) { if (o.y != null) o.y += dy; } else if (o.pos) { o.pos.y += dy; if (o.baseY != null) o.baseY += dy; }
+    m.position.y += dy; if (prop) { if (o.y != null) { o.y += dy; if (o.rbY != null && o.y < o.rbY - .1 && o.y < .02) o.y = .02; } }   // 층 기준 상대 높이가 바닥 아래로 내려가지 않게 else if (o.pos) { o.pos.y += dy; if (o.baseY != null) o.baseY += dy; }
     moved++;
   }
   tmp.forEach(r => { r.visible = false; }); }

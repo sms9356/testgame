@@ -74,7 +74,7 @@ export function installRebuild({ THREE, scene, floors, world }) {
   const BX = MAIN.layout.rooms.find(r => r.kind === 'class').x1 + MAIN.spec.wall / 2, BXP = BX + 9;
   const BC_SLOT = { console: [[BX + 2.55, 3.9]], cctvRec: [[BX + 1.75, 9.05]], tape: [[BXP + 1.0, 1.05], [BXP + 2.2, 1.05], [BXP + 3.4, 1.05], [BXP + 4.6, 1.05]], mina: [[BX + 17.0, 7.4]], sq: [[BXP + 4.6, 6.2], [BXP + 1.8, 8.6], [BX + 4.6, 6.6]] };
   // 5구역 장비 조사 지점: 이름에 맞는 장비 앞으로 (랙 · 스위처 · 믹서 · 편집 PC)
-  const BC_FZ = [[/랙|VTR|셀렉터/, [BX + 3.45, 1.5]], [/스위처|CRT/, [BX + 2.6, 2.0]], [/믹서|마이크/, [BX + 2.6, 5.7]], [/NLE|편집 ?PC/, [BX + 6.9, 8.4]]];
+  const BC_FZ = [[/랙|VTR|셀렉터/, [BX + 3.45, 1.5]], [/스위처|CRT/, [BX + 2.6, 2.0]], [/믹서|마이크/, [BX + 2.6, 5.7]], [/NLE|편집 ?PC/, [BX + 6.1, 8.4]]];
   // 의자에 앉기: 방송실 실제 의자 자리 (주조정 콘솔 의자 2 · 편집석 의자 · 라디오 원탁 의자 3 · 앵커 의자 2)
   const BC_CHAIR = [[BX + 2.5, 3.0], [BX + 2.5, 4.8], [BX + 6.9, 8.5], [BX + 12.3, 6.1], [BX + 13.5, 7.3], [BX + 11.1, 7.3], [BX + 16.5, 2.5], [BX + 16.5, 3.8]]; let bcChair = 0;
   // 공중에 뜬 물건(바닥 위 0.3m 넘게): 실제 가구 윗면으로 [x, z, 높이]
@@ -251,8 +251,15 @@ export function installRebuild({ THREE, scene, floors, world }) {
     const rx = room ? (room.x ?? (room.x1 + room.x2) / 2) : 0;
     for (const ff of [f, f + 1, f - 1, f + 2, f - 2]) for (const r of roomsOf(b, ff).sort((p, q) => Math.abs(p.x - rx) - Math.abs(q.x - rx))) { const s1 = spotIn(b, r, ff, true); if (s1) return s1; }
     return spotIn(b, room || roomsOf(b, f)[0], f); };
+  // 이름(라벨)으로 알맞은 방 종류 — 예전 x 비율만 보고 고르면 '교장 책상 서랍'이 2학년 교실, '피아노'가 3학년 교실로 가던 것
+  const LABEL_ROOM = [[/교장/, 'principal'], [/카드함|대출|서가|도서/, 'library'], [/피아노|악보|음악/, 'music'], [/이젤|그림|미술|물감/, 'art'], [/약품|시약|실험/, 'science'],
+    [/보건|구급|양호/, 'nurse'], [/복사|수화기|전화|단말기|교무|출석부/, 'staff'], [/투표함|상담/, 'counsel'], [/청소도구/, 'storage'], [/가정|조리|재봉/, 'home'], [/컴퓨터|모니터 켜기/, 'computer']];
+  const roomForLabel = label => { const m = LABEL_ROOM.find(([re]) => re.test(label || '')); return m ? m[1] : null; };
   const pickRoom = (oldF, oldX, prefer) => {
     const [b, f] = OLDMAP[oldF]; let rs = roomsOf(b, f); if (!rs.length) return null;
+    if (prefer && !rs.some(r => r.type === prefer)) {   // 이 층에 없으면 가까운 층 · 다른 건물에서 그 방을 찾는다
+      for (const [bb, ff] of [[b, f + 1], [b, f - 1], [b, f + 2], [b, f - 2], [b, f + 3], [b, f - 3], [b, f + 4], [b, f - 4], ...[0, 1, 2, 3, 4].map(k => [b === MAIN ? ANX : MAIN, k])]) {
+        if (!bb || ff < 0) continue; const pr = roomsOf(bb, ff).filter(r => r.type === prefer); if (pr.length) return { b: bb, f: ff, room: pr[(Math.abs(Math.round(oldX)) + pr.length) % pr.length] }; } }
     if (prefer) { const pr = rs.filter(r => r.type === prefer); if (pr.length) rs = pr; }
     const lo = oldF >= 8 ? -24 : -40, hi = oldF >= 8 ? 28 : 40, t = Math.min(1, Math.max(0, (oldX - lo) / (hi - lo)));
     const L = b.layout.L, best = rs.reduce((a, r) => { const tr = (r.x - (-L / 2)) / L, tt = b === ANX ? 1 - tr : tr; return !a || Math.abs(tt - t) < a.d ? { r, d: Math.abs(tt - t) } : a; }, null);
@@ -307,10 +314,10 @@ export function installRebuild({ THREE, scene, floors, world }) {
         for (const k of Object.keys(p)) if (p[k] && p[k].isObject3D && k !== 'parent') moveObj(p[k], s.x, s.h, s.z);
         p.floor = 0; p.rbY = s.h; p.x = s.x; p.z = s.z; moved++; continue;
       }
-      const tgt = pickRoom(p.floor, p.x); if (!tgt) { p.floor = park(p.floor); dropped++; continue; }
+      const tgt = pickRoom(p.floor, p.x, roomForLabel(p.label)); if (!tgt) { p.floor = park(p.floor); dropped++; continue; }
       const small = ['tape', 'clue', 'pick', 'case5', 'phone'].includes(p.kind);   // 탁자 위에 놓이는 작은 소품: 증언 녹음기 · 쪽지/단서 · 줍는 물건 · 녹음기 · 전화
       const su = small && tgt.room ? surfaceIn(tgt.b, tgt.room, tgt.f) : null, s = su || spotAny(tgt.b, tgt.room, tgt.f);
-      let oy = (p.y ?? 1), base = s.h;
+      let oy = Math.max(.05, p.y ?? 1), base = s.h;
       if (su) { base = su.top; oy = su.top - su.h + .08; }
       for (const k of Object.keys(p)) if (p[k] && p[k].isObject3D && k !== 'parent') moveObj(p[k], s.x, base, s.z);
       p.floor = 0; p.rbY = s.h; p.x = s.x; p.z = s.z; p.y = oy; if (p.px != null) { p.px = s.x; p.pz = s.z; } moved++;

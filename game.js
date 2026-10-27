@@ -6904,8 +6904,9 @@ function inPassage() { if (RBG) return RBG.inWalkway(P); return (P.floor === 1 |
   // 책걸상 모델 (실사 소품) 따로 불러와 쌓는다
   const ld = new GLTFLoader(), put = (name, list) => ld.load(`assets/models/${name}/${name}.gltf`, gl => list.forEach(([x, y, z, ry, rx = 0, rz = 0]) => { const m = gl.scene.clone(); m.position.set(x, y, z); m.rotation.set(rx, ry, rz); m.traverse(o => { o.userData.dynamic = true; if (o.isMesh) { o.castShadow = o.receiveShadow = true; } }); O.add(m); }), undefined, () => {});
   // 뒤집힌 위 책상은 원점이 다리 끝이라 상판 높이만큼 올려야 아래 책상 위에 얹힌다 (예전엔 아래 책상 속에 묻혀 그 위 의자가 허공에 떠 있었다)
-  put('SchoolDesk_01', [[1.75, 0, -12.75 + PZ, .2], [1.6, 1.5, -12.7 + PZ, 2.9, Math.PI]]);
-  put('SchoolChair_01', [[1.25, 0, -12.6 + PZ, 1.3, 0, Math.PI / 2], [2.05, .78, -12.95 + PZ, .6], [2.15, 0, -12.15 + PZ, 2.2, 0, .22]]);
+  // 쌓아 둔 책걸상은 구름다리(z 1.32배 늘림)로 옮기면 기울어져 서로 · 바닥을 뚫었다 → 쌓지 않고 바닥에 밀어 둔 모양으로
+  put('SchoolDesk_01', [[1.75, 0, -12.75 + PZ, .2], [1.7, 0, -11.55 + PZ, 2.9]]);
+  put('SchoolChair_01', [[1.0, .28, -12.4 + PZ, 1.3, 0, Math.PI / 2], [2.35, 0, -13.2 + PZ, .6], [2.25, 0, -11.0 + PZ, 2.2]]);
 }
 function passBlock(on) {
   const F0 = floors[1];

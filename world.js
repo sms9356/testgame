@@ -4,12 +4,12 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { buildGuardAnnex, buildDutyRoom, ANNEX as GANX } from './guardAnnex.js?v=223';
-import { NOTES } from './story.js?v=223';
+import { buildGuardAnnex, buildDutyRoom, ANNEX as GANX } from './guardAnnex.js?v=224';
+import { NOTES } from './story.js?v=224';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=223';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=224';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -4220,7 +4220,7 @@ export function buildWorld(scene) {
     // 기록석, 전광판 (코트 서쪽)
     add(mWoodDark, 1.2, .8, 2.6, 29.3, 0, 21.4, { col: true }); add(mBlack, .45, .45, .45, 30.4, 0, 22.8);
     plane(F.interior, mScore, 3, 1.1, x0 + t + .03, 3.2, 21.4, Math.PI / 2);
-    addKey('gym', 3, 29.3, .8, 21.8); addNote('n9', 29.3, .82, 20.4); tapeRecorder('tape_pe', 29.3, .82, 19.35, Math.PI / 2); tapeRecorder('ts_pe2', 29.1, .82, 22.35, Math.PI / 2);
+    addKey('gym', 3, 29.3, .8, 21.8); addNote('n9', 29.3, .82, 20.4); tapeRecorder('tape_pe', 29.55, .82, 21.65, Math.PI / 2); tapeRecorder('ts_pe2', 29.1, .82, 22.35, Math.PI / 2);
     cur.photoHere = true; addPhoto('p2', 36.2, 1.1, 11.9, .3);
     for (let k = 0; k < 5; k++) { const b = new THREE.Mesh(new THREE.SphereGeometry(.12, 16, 12), mBall); b.position.set(rr(31, 42), .12, rr(14, 27)); b.rotation.set(rnd() * 3, rnd() * 3, 0); cur.interior.add(b); }
     // 코트 주변 기구

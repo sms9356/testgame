@@ -50,7 +50,7 @@ export function installPartnerRadio(ctx) { C = { ...ctx, t: 0 }; return C; }
 const done = () => (C.FL.prDone ||= []);   // 들은 장면 (FL 에 넣어 세이브와 함께 저장)
 export const partnerLineIds = () => Object.entries(PARTNER_SCENES).flatMap(([sc, v]) => ['s', 'j'].flatMap(p => v[p].map((_, i) => `pr_${sc}_${p}_${i}`)));
 
-async function play(scene) {
+export async function play(scene) {   // 점검용으로도 쓴다
   const p = C.char() === 'jihun' ? 'j' : 's', lines = PARTNER_SCENES[scene][p]; if (!done().includes(scene)) done().push(scene);
   busyUntil = performance.now() + 60000;
   for (let i = 0; i < lines.length; i++) {

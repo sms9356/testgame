@@ -7690,5 +7690,165 @@
    "language_code": "ko",
    "review_status": "generated"
   }
+ },
+ "cr_1_1": {
+  "spk": "classRep",
+  "text": "1학년 1반 반장 김민수예요. 열한 시쯤이었어요. 매점 앞에서... 3학년 형들 다섯 명이 손전등 들고 본관 지하로 내려가는 걸 봤어요. 그중 한 명이 웃으면서 그랬어요. \"십 분만 겁주면 돼.\" 그 웃음소리가... 아직도 귀에 남아 있어요.",
+  "dur": 18.48,
+  "baked": true,
+  "eleven": "[nervous, hushed] 1학년 1반 반장 김민수예요. 열한 시쯤이었어요. 매점 앞에서... 3학년 형들 다섯 명이 손전등 들고 본관 지하로 내려가는 걸 봤어요. 그중 한 명이 웃으면서 그랬어요. \"십 분만 겁주면 돼.\" 그 웃음소리가... 아직도 귀에 남아 있어요.",
+  "generation": {
+   "voice_id": "m3gJBS8OofDJfycyA2Ip",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[nervous, hushed]",
+   "input_sha256": "e04be403d527335da294647a8857a2c1828a05d6bf4122c8e6cd47584bb52894",
+   "audio_sha256": "2d9f92673e00a83c602f5ae42d6ec8d2e459ed3b7568fedf8ac53861c555102a",
+   "review_status": "generated"
+  }
+ },
+ "cr_1_2": {
+  "spk": "classRep",
+  "text": "1학년 2반 반장 이서연이에요. 하늘 언니는요, 그날 밤 아홉 시에 정문으로 나갔어요. 제가 직접 봤어요. 빨간 우산 쓰고... 아, 근데... 그날 비가 왔었나요? 아, 아니에요. 확실해요. 집에 간 거예요. 선생님들도 그렇게 말씀하셨고요.",
+  "dur": 16.96,
+  "baked": true,
+  "eleven": "[hesitant, too quick] 1학년 2반 반장 이서연이에요. 하늘 언니는요, 그날 밤 아홉 시에 정문으로 나갔어요. 제가 직접 봤어요. 빨간 우산 쓰고... 아, 근데... 그날 비가 왔었나요? 아, 아니에요. 확실해요. 집에 간 거예요. 선생님들도 그렇게 말씀하셨고요.",
+  "generation": {
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[hesitant, too quick]",
+   "input_sha256": "bb00e295249afe6f13322f9cd31438a6af98bfa4d5b0185087ae42d770a7dae9",
+   "audio_sha256": "b25b8ac42dee6e355cb089d6981f636f360dcf08210d7765f65eceb98ba18ea3",
+   "review_status": "generated"
+  }
+ },
+ "cr_1_3": {
+  "spk": "classRep",
+  "text": "1학년 3반 반장 박지훈입니다. 정전 난 시각은 정확히 기억해요. 열한 시 이십 분. 기숙사 벽시계가 그 자리에서 멈췄거든요. 근데 이상한 게 하나 있어요. 비상등이요. 원래 정전되면 초록불이 들어오잖아요. 그날은... 하나도 안 켜졌어요. 학교 전체가요.",
+  "dur": 21.76,
+  "baked": true,
+  "eleven": "[low, careful] 1학년 3반 반장 박지훈입니다. 정전 난 시각은 정확히 기억해요. 열한 시 이십 분. 기숙사 벽시계가 그 자리에서 멈췄거든요. 근데 이상한 게 하나 있어요. 비상등이요. 원래 정전되면 초록불이 들어오잖아요. 그날은... 하나도 안 켜졌어요. 학교 전체가요.",
+  "generation": {
+   "voice_id": "u5V9D9qTP25lmjepYOSC",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[low, careful]",
+   "input_sha256": "3b7c3810a2c86d515434fb21f1734593041c215219a3fef5341d3f116c58b90b",
+   "audio_sha256": "1d409e83f0d1726b67933834cf3bb33504ffe37b4cf7b1e905bf44c58fbf4724",
+   "review_status": "generated"
+  }
+ },
+ "cr_1_4": {
+  "spk": "classRep",
+  "text": "1학년 4반 반장 최유진이요. 펌프실 열쇠요? 그건 경비 아저씨가 처음부터 끝까지 갖고 계셨어요. 교무부장 선생님은 아무 상관 없어요. 그분이 얼마나 좋은 분인데요. 왜 자꾸 그걸 물어보세요? 우리 아빠가 그러는데요, 쓸데없는 소문 퍼뜨리면 안 된대요.",
+  "dur": 17.52,
+  "baked": true,
+  "eleven": "[defensive, sharp] 1학년 4반 반장 최유진이요. 펌프실 열쇠요? 그건 경비 아저씨가 처음부터 끝까지 갖고 계셨어요. 교무부장 선생님은 아무 상관 없어요. 그분이 얼마나 좋은 분인데요. 왜 자꾸 그걸 물어보세요? 우리 아빠가 그러는데요, 쓸데없는 소문 퍼뜨리면 안 된대요.",
+  "generation": {
+   "voice_id": "QPFsEL6IBxlT15xfiD6C",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[defensive, sharp]",
+   "input_sha256": "9851e1dc7a83184c3f6ce6825ea69600a8ecc231bc939de53e9b50f433a6e493",
+   "audio_sha256": "3b644980b55bacabecb92a5f837ca292999b19807d23e5b14e93775a82ecaad1",
+   "review_status": "generated"
+  }
+ },
+ "cr_1_5": {
+  "spk": "classRep",
+  "text": "1학년 5반 반장 강도윤이에요. 열한 시 사십 분쯤에 스피커가 켜졌어요. 정전이었는데도요. 지지직... 하는 소리가 나다가, 여자애 목소리가 들렸어요. \"오늘 하루도 수고 많—\" 거기서 뚝 끊겼어요. 다들 장난인 줄 알았는데... 그 목소리, 3학년 2반 윤하늘 선배였어요.",
+  "dur": 22.16,
+  "baked": true,
+  "eleven": "[shaky, remembering] 1학년 5반 반장 강도윤이에요. 열한 시 사십 분쯤에 스피커가 켜졌어요. 정전이었는데도요. 지지직... 하는 소리가 나다가, 여자애 목소리가 들렸어요. \"오늘 하루도 수고 많—\" 거기서 뚝 끊겼어요. 다들 장난인 줄 알았는데... 그 목소리, 3학년 2반 윤하늘 선배였어요.",
+  "generation": {
+   "voice_id": "T6CkalnggsFZDOXwglLf",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[shaky, remembering]",
+   "input_sha256": "646c7c5c2a5daaacb713647a2d6669dd381da2926774496e8e5b8414ef1e1b0c",
+   "audio_sha256": "1ce89db4157e619faa8fe40a4c76df286c422937510615b1211e31b86a831147",
+   "review_status": "generated"
+  }
+ },
+ "cr_2_1": {
+  "spk": "classRep",
+  "text": "2학년 1반 반장 조수아예요. 다은 언니가요, 열두 시 다 돼서 기숙사로 들어왔어요. 신발도 한 짝만 신고... 계속 같은 말만 했어요. \"문 잠근 게 우리 때문이야? 우리 때문이야?\" 저는 그때 무슨 뜻인지 몰랐어요. 지금은... 알 것 같아요.",
+  "dur": 21.68,
+  "baked": true,
+  "eleven": "[tearful, soft] 2학년 1반 반장 조수아예요. 다은 언니가요, 열두 시 다 돼서 기숙사로 들어왔어요. 신발도 한 짝만 신고... 계속 같은 말만 했어요. \"문 잠근 게 우리 때문이야? 우리 때문이야?\" 저는 그때 무슨 뜻인지 몰랐어요. 지금은... 알 것 같아요.",
+  "generation": {
+   "voice_id": "5n5gqmaQi9Ewevrz7bOS",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[tearful, soft]",
+   "input_sha256": "ccde7a0e0f7f01cee3fc9251e3fcd2614800ebf537bcabadc1968c760cc2826d",
+   "audio_sha256": "f710b7056f48680e68df1fda07ce6260c5b9519cffe138f0c26b97864c650f8d",
+   "review_status": "generated"
+  }
+ },
+ "cr_2_2": {
+  "spk": "classRep",
+  "text": "2학년 2반 반장 윤재현. 아 진짜, 지하에서 소리 났다는 거 다 지어낸 얘기야. 그날 밤엔 아무 일도 없었어. 정전? 그런 것도 없었고. 선생님들이 다 그러셨거든. ...그러니까 너도 그만 파고들어. 괜히 너만 이상한 애 된다.",
+  "dur": 20.48,
+  "baked": true,
+  "eleven": "[dismissive, forced laugh] 2학년 2반 반장 윤재현. 아 진짜, 지하에서 소리 났다는 거 다 지어낸 얘기야. 그날 밤엔 아무 일도 없었어. 정전? 그런 것도 없었고. 선생님들이 다 그러셨거든. ...그러니까 너도 그만 파고들어. 괜히 너만 이상한 애 된다.",
+  "generation": {
+   "voice_id": "C0l1SX0ePHQUHLr8V8dF",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[dismissive, forced laugh]",
+   "input_sha256": "0a7949312d767c71876ce96400a72426a1eec415ad82e2eef63c8f15450942cb",
+   "audio_sha256": "438781357fa8098df94e967b3aefad1a523ca1314caa57a9c9b8843a8d23b1b4",
+   "review_status": "generated"
+  }
+ },
+ "cr_2_3": {
+  "spk": "classRep",
+  "text": "2학년 3반 반장 장예린이에요. 이거 아무한테도 말 안 했는데요... 다음 날 아침 조회 때, 교무부장 선생님 바짓단이 무릎까지 다 젖어 있었어요. 그날 비 안 왔거든요. 그리고 손바닥에... 녹 같은 게 묻어 있었어요. 쇠 냄새 나는 거요.",
+  "dur": 18.32,
+  "baked": true,
+  "eleven": "[whispering, conspiratorial] 2학년 3반 반장 장예린이에요. 이거 아무한테도 말 안 했는데요... 다음 날 아침 조회 때, 교무부장 선생님 바짓단이 무릎까지 다 젖어 있었어요. 그날 비 안 왔거든요. 그리고 손바닥에... 녹 같은 게 묻어 있었어요. 쇠 냄새 나는 거요.",
+  "generation": {
+   "voice_id": "ajfBUI2mmJMjvf2H6Yw7",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[whispering, conspiratorial]",
+   "input_sha256": "d1c42b28505fba43bea3a79782c303d3f6ba419d8d8ac78a52a826078b4769a5",
+   "audio_sha256": "22a4bbf8ff1f2c3d3d82ccdd635d63fdd1438c3a66adb6dcd206b9d589600332",
+   "review_status": "generated"
+  }
+ },
+ "cr_2_4": {
+  "spk": "classRep",
+  "text": "2학년 4반 반장 임태호. 열쇠? 그거 교장실 금고에 다 있어. 내가 봤어, 다섯 개 다. 꾸러미째로 고스란히. 그러니까 쪼개서 숨겼다느니 하는 건 다 헛소리야. 어... 금고 비밀번호? 그건 나도 몰라.",
+  "dur": 15.92,
+  "baked": true,
+  "eleven": "[overconfident, bragging] 2학년 4반 반장 임태호. 열쇠? 그거 교장실 금고에 다 있어. 내가 봤어, 다섯 개 다. 꾸러미째로 고스란히. 그러니까 쪼개서 숨겼다느니 하는 건 다 헛소리야. 어... 금고 비밀번호? 그건 나도 몰라.",
+  "generation": {
+   "voice_id": "wf0zZlKrRqrI37otTqRS",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[overconfident, bragging]",
+   "input_sha256": "c99144fab73959dd2c8b58264227691710a23fa5be3da095eb237f05af6548b2",
+   "audio_sha256": "d79e8cdb0254b81b01ed7eadac274db4626688df0c15891b090a39501df75b02",
+   "review_status": "generated"
+  }
+ },
+ "cr_2_5": {
+  "spk": "classRep",
+  "text": "2학년 5반 반장 한소영입니다. 하늘 선배 사물함 정리할 때, 맨 안쪽에서 쪽지가 하나 나왔어요. 연필로 딱 한 줄. \"문은 두 개야.\" 누가 쓴 건지 몰라요. 선배 글씨는 아니었어요. 근데 그 쪽지... 다음 날 아침에 없어졌어요.",
+  "dur": 23.2,
+  "baked": true,
+  "eleven": "[uneasy, slow] 2학년 5반 반장 한소영입니다. 하늘 선배 사물함 정리할 때, 맨 안쪽에서 쪽지가 하나 나왔어요. 연필로 딱 한 줄. \"문은 두 개야.\" 누가 쓴 건지 몰라요. 선배 글씨는 아니었어요. 근데 그 쪽지... 다음 날 아침에 없어졌어요.",
+  "generation": {
+   "voice_id": "zgDzx5jLLCqEp6Fl7Kl7",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[uneasy, slow]",
+   "input_sha256": "9f0f3a736db6c95e6a3182afb9439b6048afe4f5d67694eeafccf33addda5f2b",
+   "audio_sha256": "998dd25c58f0d625b01bfafbc394133862b5ebc01e699d7abe8371656b84d3e6",
+   "review_status": "generated"
+  }
  }
 }

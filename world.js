@@ -4,12 +4,12 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { buildGuardAnnex, buildDutyRoom, ANNEX as GANX } from './guardAnnex.js?v=224';
-import { NOTES } from './story.js?v=224';
+import { buildGuardAnnex, buildDutyRoom, ANNEX as GANX } from './guardAnnex.js?v=227';
+import { NOTES } from './story.js?v=227';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=224';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=227';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -679,6 +679,16 @@ export function buildWorld(scene) {
     ts_paramedic: { title: '증언 카세트 — 서문소방서 구급대 출동 기록', spk: '구급대원 오석진', fx: 'radio', minSh: 0 },
     ts_mother: { title: '증언 카세트 — 윤하늘 어머니', spk: '윤하늘 어머니', fx: 'radio', minSh: 0 },
     ts_vice: { title: '증언 카세트 — 교감 노태수 (취재 녹취)', spk: '교감 노태수', fx: 'radio', minSh: 0 },
+    cr_1_1: { title: '반장 녹음 — 1학년 1반 반장 김민수', spk: '1학년 1반 반장 김민수', fx: 'radio', minSh: 0 },
+    cr_1_2: { title: '반장 녹음 — 1학년 2반 반장 이서연', spk: '1학년 2반 반장 이서연', fx: 'radio', minSh: 0 },
+    cr_1_3: { title: '반장 녹음 — 1학년 3반 반장 박지훈', spk: '1학년 3반 반장 박지훈', fx: 'radio', minSh: 0 },
+    cr_1_4: { title: '반장 녹음 — 1학년 4반 반장 최유진', spk: '1학년 4반 반장 최유진', fx: 'radio', minSh: 0 },
+    cr_1_5: { title: '반장 녹음 — 1학년 5반 반장 강도윤', spk: '1학년 5반 반장 강도윤', fx: 'radio', minSh: 0 },
+    cr_2_1: { title: '반장 녹음 — 2학년 1반 반장 조수아', spk: '2학년 1반 반장 조수아', fx: 'radio', minSh: 0 },
+    cr_2_2: { title: '반장 녹음 — 2학년 2반 반장 윤재현', spk: '2학년 2반 반장 윤재현', fx: 'radio', minSh: 0 },
+    cr_2_3: { title: '반장 녹음 — 2학년 3반 반장 장예린', spk: '2학년 3반 반장 장예린', fx: 'radio', minSh: 0 },
+    cr_2_4: { title: '반장 녹음 — 2학년 4반 반장 임태호', spk: '2학년 4반 반장 임태호', fx: 'radio', minSh: 0 },
+    cr_2_5: { title: '반장 녹음 — 2학년 5반 반장 한소영', spk: '2학년 5반 반장 한소영', fx: 'radio', minSh: 0 },
     ts_dorm: { title: '증언 카세트 — 청운학사 사감 선생님', spk: '청운학사 사감 문정희', fx: 'radio', minSh: 0 },
     ts_lib2: { title: '증언 카세트 — 중앙학술정보관 사서 (2008)', spk: '대도서관 사서 정미란', fx: 'radio', minSh: 0 },
     ts_astro: { title: '증언 카세트 — 과학천문관 지도교사', spk: '천문부 지도교사 서재훈', fx: 'radio', minSh: 0 },

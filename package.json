@@ -1,8 +1,8 @@
 {
-  "name": "haegyo-school-horror",
+  "name": "seomun-school-horror",
   "version": "1.1.0",
   "type": "module",
-  "description": "폐교 — 잊혀진 시간 (1인칭/3인칭 3D 학교 공포 게임)",
+  "description": "서문고 — 잊혀진 시간 (1인칭/3인칭 3D 학교 공포 게임)",
   "scripts": {
     "start": "python3 -m http.server 8000",
     "test": "node --test tests/*.test.mjs",

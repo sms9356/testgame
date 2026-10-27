@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="stylesheet" href="style.css">
 <link rel="icon" href="data:,">
-<title>폐교 — 잊혀진 시간</title>
+<title>서문고 — 잊혀진 시간</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=East+Sea+Dokdo&family=Noto+Sans+KR:wght@300;400;500;700&family=Noto+Serif+KR:wght@400;700&display=swap" rel="stylesheet">
 <style>
@@ -392,7 +392,7 @@
   #card.old img{filter:sepia(.6) saturate(.55) brightness(.8) contrast(1.1)}
   #card b{display:block;margin-top:8px;font-size:18px;letter-spacing:.15em}
   #card span{font-size:13px;color:#a7a396}
-  #card.old:after{content:'폐교 전 사진';position:absolute;left:16px;top:16px;font-size:11px;padding:2px 8px;background:rgba(0,0,0,.6);border:1px solid #8a7a5a;color:#d8c8a0}
+  #card.old:after{content:'그 시절 사진';position:absolute;left:16px;top:16px;font-size:11px;padding:2px 8px;background:rgba(0,0,0,.6);border:1px solid #8a7a5a;color:#d8c8a0}
   #card.noimg{width:auto;min-width:260px;text-align:center;box-shadow:none;background:linear-gradient(90deg,transparent,rgba(0,0,0,.55),transparent);border:none;padding:10px 60px}
   #card.noimg img,#card.noimg:after{display:none}
   #choice{position:fixed;inset:0;z-index:30;display:none;align-items:flex-end;justify-content:center;background:linear-gradient(rgba(0,0,0,.35),rgba(0,0,0,.9) 60%);padding-bottom:9vh}
@@ -656,7 +656,7 @@
 <div id="clickHint">화면을 클릭하면 시점 조작이 다시 켜집니다</div>
 <div id="breath">숨 참기 <kbd>Space</kbd><div class="bar"><i id="breathBar"></i></div><div style="margin-top:6px;color:#e88">주변 소리</div><div class="bar"><i id="dangerBar" style="background:#d04040;width:0"></i></div></div><div id="cap"></div>
 <div id="intro"><p></p><p></p><p class="q"></p><p></p><small>클릭 / Space — 건너뛰기</small></div>
-<div id="evPulse"></div><div id="evStreak"></div><div id="pings"></div><div id="cine"></div><div id="blink"></div><div id="introTitle"><div class="logo" style="font-size:clamp(90px,14vw,150px)">폐교</div><div class="tagline">잊혀진 시간</div></div>
+<div id="evPulse"></div><div id="evStreak"></div><div id="pings"></div><div id="cine"></div><div id="blink"></div><div id="introTitle"><div class="logo" style="font-size:clamp(90px,14vw,150px)">서문고</div><div class="tagline">잊혀진 시간</div></div>
 <div id="memoryEcho" data-memory-echo aria-hidden="true">기억의 잔향</div><div id="sub"></div>
 <div id="card"><img alt=""><b></b><span></span></div>
 <div id="choice"><div class="box"><b id="choiceTitle"></b><p id="choiceText"></p><div id="choiceBtns"></div></div></div>
@@ -702,7 +702,7 @@
 
 <!-- 타이틀 -->
 <div id="title" class="overlay show"><div class="tbg"></div><div class="train"></div><div class="tflash"></div><div class="col">
-  <div><div class="logo">폐교</div></div>
+  <div><div class="logo">서문고</div></div>
   <div class="tagline">잊혀진 시간</div>
   <div class="en">THE ABANDONED SCHOOL</div>
   <div id="tTest">테스트 모드 — 게임 중 T 키로 순간이동·치트 메뉴</div>
@@ -764,7 +764,7 @@
     <span>음성</span><input type="range" id="vol_voice" min="0" max="100">
     <span>환경음</span><input type="range" id="vol_amb" min="0" max="100">
     <span>음악</span><input type="range" id="vol_music" min="0" max="100">
-    <span>게임 중 BGM</span><label><input type="checkbox" id="setBgm"> 「폐교의 그림자」 <input type="range" id="setBgmVol" min="0" max="100" style="width:90px;vertical-align:middle"></label>
+    <span>게임 중 BGM</span><label><input type="checkbox" id="setBgm"> 「서문고의 그림자」 <input type="range" id="setBgmVol" min="0" max="100" style="width:90px;vertical-align:middle"></label>
     <h4>안내</h4><span style="grid-column:1/3;font-size:12px;color:var(--dim);line-height:1.7">발소리 · 숨소리 · 그것의 위치는 입체 음향(HRTF)으로 들립니다. 헤드폰을 쓰면 방향을 구분하기 쉽습니다.</span>
   </div></div>
   <div class="setPage" data-s="ctl"><div class="setgrid">
@@ -819,6 +819,6 @@
 <div id="win" class="overlay"><div id="endTag">TRUE END</div><div id="endTitle"></div><p class="story" id="winText"></p><div id="endStats"></div><div class="menuBtns"><button class="btn" id="againBtn">타이틀로</button></div></div>
 <div id="bye" class="overlay"><p class="story">브라우저는 보안상 웹 게임이 탭을 직접 닫을 수 없습니다.<br>탭을 닫거나(<kbd>Ctrl</kbd>+<kbd>W</kbd>) 타이틀로 돌아가세요. 진행 상황은 자동 저장되어 있습니다.</p><button class="btn" id="byeBack" style="margin-top:20px">타이틀로 돌아가기</button></div>
 
-<script type="module" src="game.js?v=231"></script>
+<script type="module" src="game.js?v=232"></script>
 </body>
 </html>

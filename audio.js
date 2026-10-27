@@ -208,7 +208,7 @@ export function setGenHum(v, dt) { /* 저주파 엔진 험 제거. 발전기 미
 
 /* ----- 음악 (메뉴 테마 · 추격) ----- */
 let musG = {}, musMode = '', mbT = 0, mbI = 0, chaseT = 0;
-// 게임 BGM 「폐교의 그림자」 (music/bgm_shadow.mp3): 스트리밍 재생, 대사 · 추격 때 자동으로 줄어든다
+// 게임 BGM 「서문고의 그림자」 (music/bgm_shadow.mp3): 스트리밍 재생, 대사 · 추격 때 자동으로 줄어든다
 let bgmEl = null, bgmG = null, duckG = null, bgmOk = false, bgmWant = 0;
 function buildTrack() {
   duckG = ac.createGain(); duckG.connect(bus.music);

@@ -1,4 +1,4 @@
-// 폐교 — 잊혀진 시간 : Windows 데스크톱 실행판 (Electron)
+// 서문고 — 잊혀진 시간 : Windows 데스크톱 실행판 (Electron)
 // 게임 파일을 app://game/ 으로 내보낸다 — file:// 로 열면 ES 모듈 · fetch(텍스처 · 음성 · 모델)가 막힌다
 const { app, BrowserWindow, protocol, net, session, Menu } = require('electron');
 const path = require('path');
@@ -20,7 +20,7 @@ app.whenReady().then(() => {
   });
   session.defaultSession.setPermissionRequestHandler((wc, perm, cb) => cb(['media', 'microphone', 'fullscreen', 'pointerLock'].includes(perm)));   // 마이크 감지 · 전체화면 · 마우스 고정
   Menu.setApplicationMenu(null);
-  const win = new BrowserWindow({ width: 1600, height: 900, backgroundColor: '#05050c', title: '폐교 — 잊혀진 시간', icon: path.join(__dirname, 'icon.png'),
+  const win = new BrowserWindow({ width: 1600, height: 900, backgroundColor: '#05050c', title: '서문고 — 잊혀진 시간', icon: path.join(__dirname, 'icon.png'),
     webPreferences: { contextIsolation: true, backgroundThrottling: false } });
   win.webContents.on('before-input-event', (e, input) => {
     if (input.type === 'keyDown' && input.key === 'F11') { win.setFullScreen(!win.isFullScreen()); e.preventDefault(); }

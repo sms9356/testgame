@@ -76,12 +76,12 @@
   },
   "lines": {
     "intro1": {
-      "source_sha256": "c91aa8b0f78c9c7bf759f00705f69d35b9ac1189267cca1186a3b96d0ff55773",
+      "source_sha256": "3fd60396c3d6c9a907bdc06bb3bc269f91cb973232a858e7a6072cf8cace489b",
       "delivery": "normal",
       "input": "[calmly] [serious] 10월 12일, 목요일. 오후 다섯 시 오십 분. 서문고등학교 너머로 검붉은 해가 기울기 시작했다."
     },
     "intro2": {
-      "source_sha256": "61285e7270d40ab9c0011be78d77a8fad02d6f9e7d3e5ba3d84ca4153b476a81",
+      "source_sha256": "c1b4e1b93546d4b0ca0b419369db52c7f4e134c04ca2c703e982fdf0da28bd31",
       "delivery": "normal",
       "input": "[serious] [thoughtful] 어젯밤, 방송부 선배 민아가 담력체험을 하겠다며 이 폐교에 들어간 뒤 연락이 끊겼다. 함께 갔던 아이들은 모두 도망쳐 나왔지만, 민아만 돌아오지 못했다."
     },
@@ -181,7 +181,7 @@
       "input": "[whispers] [slowly] 아무도 나가지 못한 교실 칠판 위에, 하얀 분필 글씨로 한 줄이 더 늘어났다. 다시, 여기서."
     },
     "l_arrive_j": {
-      "source_sha256": "99ceae7b91fedaa4debaf9ecbff92e15462292f5a1d806514aa4aa29ae8e2149",
+      "source_sha256": "1171cc13456c70ca5d1dc39ffb92a9c7774234ae446530126a8660e9fa7d703e",
       "delivery": "normal",
       "input": "[sighs] [determined] 민아야…… 정말 이 폐교 안으로 들어간 거야? 조금만 기다려, 내가 꼭 찾아낼게."
     },
@@ -871,7 +871,7 @@
       "input": "대출 카드 (오늘). 『집으로 가는 길』 — 반납일: 10월 12일 (오늘) . 반납 도장이 아직 젖어 있다. 대출자 이름 칸: 윤하늘."
     },
     "guard1": {
-      "source_sha256": "f25a7bfadbf02b9c785fd8d30cb7229511eb2d6c91bb4b829f50a92ea1178292",
+      "source_sha256": "4db08d7962320acbd44442f6c92918c5b699217a0d2ced6c084e65869b449866",
       "delivery": "normal",
       "input": "[sighs] [concerned] 어이, 거기 학생! 이 시간에 폐교엔 왜 자꾸 기어들어 오는 겨…… 해 지믄 여긴 위험혀. 올핸 또 누구 찾으러 온 모양인디, 내 말 듣고 얼른 집으로 가유."
     },
@@ -926,7 +926,7 @@
       "input": "[thoughtful] 방송부 조끼 입은 여학생 말여? 아까 해 질 무렵에 정문으로 쑥 들어가더구먼. 내가 뒤에서 암만 불러도 못 들은 척 앞만 보고 뛰어들어가더라고."
     },
     "guardPast": {
-      "source_sha256": "aff86ace6d5aa1181ba349675ee7896ad362edd4300489c4d877fc91f4180ae8",
+      "source_sha256": "40dcd8e733fefd818f81c83351c97db7c836018f685c7fd0d30f4f3545b80f7b",
       "delivery": "normal",
       "input": "[sighs] [serious] 십 년 전 오늘 밤이여. 삼학년 여자애 하나가 지하 펌프실에 갇혀서 끝내 못 나왔지…… 학교에선 쉬쉬허고 문을 닫았는디, 그 뒤로 해마다 이날 밤만 되믄 꺼진 스피커에서 그 애 목소리가 울려유."
     },
@@ -1136,7 +1136,7 @@
       "input": "[whispers] 피아노... 같이 칠래...?"
     },
     "call_119": {
-      "source_sha256": "1c66cc6e2bcb4bfe2c43455888ab3db6a8054b2a4ade521ca9c3d81bf278e1a2",
+      "source_sha256": "bfa6e71cab3551dec83691f36a0c94ca9a6dd6fbaf582a4afe4d6c118bdb419e",
       "delivery": "normal",
       "input": "[serious] 일일구 종합상황실입니다. 전파 상태가 매우 불안정합니다. ……폐교된 서문고등학교 내부라고요? 위치 추적 완료했습니다. 구조대가 정문으로 출동 중이니 즉시 정문 쪽으로 대피하십시오."
     },

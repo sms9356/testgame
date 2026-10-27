@@ -32,7 +32,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release view test-build >/dev/null 2>&1 || gh release create test-build --title "테스트 빌드 (Windows exe)" --notes "폐교 — 잊혀진 시간 Windows 테스트 실행파일. portable.exe 는 설치 없이 바로 실행, zip 은 압축을 풀고 Haegyo.exe 실행." --prerelease
+          gh release view test-build >/dev/null 2>&1 || gh release create test-build --title "테스트 빌드 (Windows exe)" --notes "서문고 — 잊혀진 시간 Windows 테스트 실행파일. portable.exe 는 설치 없이 바로 실행, zip 은 압축을 풀고 Haegyo.exe 실행." --prerelease
           gh release upload test-build desktop/dist/*.exe desktop/dist/*.zip --clobber
       - uses: actions/upload-artifact@v4
         with:

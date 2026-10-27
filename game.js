@@ -3864,8 +3864,8 @@ function case5Place() {
     const names = want[p.k]; let r = null; for (const n of names) { for (const [k, v] of rooms) if (k === n || k.startsWith(n)) { r = v; break; } if (r) break; }
     if (!r) continue;
     // 방송실 녹음기 거치대: 방 한가운데(통로)가 아니라 스튜디오 복도 쪽 벽 — 마스터 테이프장과 소품장 사이
-    let spot = p.k === 'recorder' && r.hw > 6 ? [r.cx - r.hw + 15.0, r.cz - r.hd + .35] : null;
-    if (spot && (RBG.blocked(spot[0], spot[1], r.y, .5))) spot = null;
+    let spot = p.k === 'recorder' ? [r.cx - r.hw + 15.0, r.cz - r.hd + .5] : null;
+    if (spot && RBG.blocked(spot[0], spot[1] + .1, r.y + .5, .15)) spot = null;
     for (let rr = .5; rr < 4 && !spot; rr += .35) for (let a = 0; a < 16 && !spot; a++) { const x = r.cx + Math.cos(a * .39) * rr, z = r.cz + Math.sin(a * .39) * rr * .7;
       if (Math.abs(x - r.cx) > r.hw - .6 || Math.abs(z - r.cz) > r.hd - .6) continue; if (!RBG.blocked(x, z, r.y, .5) && !RBG.blocked(x, z, r.y, .9)) { spot = [x, z]; break; } }
     if (!spot) continue;

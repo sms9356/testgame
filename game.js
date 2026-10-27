@@ -9145,6 +9145,9 @@ async function fixPhantoms() { const st = { t: performance.now() };
         rc.set(new T.Vector3(q.x, y, q.z), new T.Vector3(px - q.x, 0, pz - q.z).normalize()); rc.far = rr; const wall = rc.intersectObjects(solids, false)[0]; if (wall && wall.point.y > floorY + 1.2) continue;
         pick = [px, pz, h2.point.y]; }
       if (pick && kind !== 'board') { q.x = pick[0]; q.z = pick[1]; if (q.y != null) q.y = pick[2] + .1; n++; continue; } }
+    // 새 본관 · 별관 안에서는 받침 물체를 새로 만들지 않는다 — 벽 대신 문짝 · 문틀에 붙은 칠판이 출입문 쪽으로 돌아가고,
+    //   복도 벽을 따라 임시 수납장이 줄지어 서던 원인. 조사 지점은 그대로 두고(바닥 조사) 실제 가구만 쓴다
+    if (RBG && RBG.inBuilding && RBG.inBuilding(q.x, q.z)) continue;
     if (best && best.distance < 3 && kind) {   // 벽걸이
       const [dx, , dz] = best.dir, wx = q.x + dx * best.distance, wz = q.z + dz * best.distance, ry = Math.atan2(-dx, -dz);
       const W = kind === 'board' ? 1.8 : kind === 'phone' ? .22 : .5, H = kind === 'board' ? 1.1 : kind === 'phone' ? .32 : .6, D = kind === 'phone' ? .1 : .06, cy = floorY + (kind === 'board' ? 1.45 : 1.35);

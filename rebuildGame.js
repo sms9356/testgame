@@ -88,8 +88,11 @@ export function installRebuild({ THREE, scene, floors, world }) {
     return BC_FREE[bcFree++ % BC_FREE.length];
   };
   const bcSpot = (kind, label = '') => { if (kind === 'fz' && /의자에 앉기/.test(label) && bcChair < BC_CHAIR.length) { const c = BC_CHAIR[bcChair++]; bcTaken.push(c); return c; } if (kind === 'fz') { const m = BC_FZ.find(([re, sp]) => re.test(label) && !bcTaken.includes(sp)); if (m) { bcTaken.push(m[1]); return m[1]; } } const l = BC_SLOT[kind]; let s0 = null; if (l) { const i = bcUsed[kind] = (bcUsed[kind] ?? -1) + 1; if (i < l.length) s0 = l[i]; } const s1 = s0 || bcFreeSpot(); bcTaken.push(s1); return s1; };
-  if (floors[2]) for (const c of [...floors[2].interior.children]) { if (!c.userData.dynamic) continue; const w = c.getWorldPosition(new THREE.Vector3()); if (!inBC(w.x, w.z)) continue;
-    const [x, z] = BC_SLOT.mina[0]; MAIN.root.attach(c); c.position.set(x, BCY + Math.max(0, w.y - BC.y0), z); c.rotation.y = -Math.PI / 2; }   // 민아 · 민아 소지품: 스튜디오 동쪽 구석 벽에 기대 앉음
+  if (floors[2]) { let side = 0; for (const c of [...floors[2].interior.children]) { if (!c.userData.dynamic) continue; const w = c.getWorldPosition(new THREE.Vector3()); if (!inBC(w.x, w.z)) continue;
+    const [x, z] = BC_SLOT.mina[0], person = !!c.getObjectByProperty('isSkinnedMesh', true); MAIN.root.attach(c);
+    // 민아 본인만 벽에 기대 앉히고, 소지품(라디오 · 가방 …)은 머리 위에 겹치지 않게 옆 바닥에 나란히 둔다
+    if (person) c.position.set(x, BCY + Math.max(0, w.y - BC.y0), z); else { side++; c.position.set(x + .1, BCY, z - .75 * side); }
+    c.rotation.y = -Math.PI / 2; } }   // 민아 · 민아 소지품: 스튜디오 동쪽 구석 벽에 기대 앉음
   clearOld();
   // 예전 건물 터(본관 · 별관 옛 자리)에 잔디: 새 본관 · 별관 바닥 밑은 비우고 덮는다 (길 · 보도블록은 위에 그대로)
   let FOOTPRINTS = []; { const holes = FOOTPRINTS = [MAIN, ANX].map(b => { const c = [[-b.layout.L / 2 - .5, b.layout.zN - .5], [b.layout.L / 2 + .5, b.layout.zS + .5]].map(([a, d]) => b.toWorld(a, d)); return [Math.min(c[0][0], c[1][0]), Math.max(c[0][0], c[1][0]), Math.min(c[0][1], c[1][1]), Math.max(c[0][1], c[1][1])]; });

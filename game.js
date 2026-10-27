@@ -2290,9 +2290,17 @@ function load(preferBackup) {
   return true;
 }
 
+// 그림자 드리우는 메시 8천여 개 → 손전등 그림자 패스가 장면을 한 번 더 통째로 그렸다. 벽 · 바닥 · 천장 같은 큰 판과 작은 잡동사니는 그림자를 받기만 한다
+function trimShadowCasters() { const bb = new THREE.Box3(), sz = new THREE.Vector3(); let n = 0;
+  scene.traverse(o => { if (!o.isMesh || !o.castShadow || o.isSkinnedMesh || o.userData.keepShadow) return; if (!o.geometry.boundingSphere) o.geometry.computeBoundingSphere();
+    const r = o.geometry.boundingSphere.radius * Math.max(o.scale.x, o.scale.y, o.scale.z); if (o.isInstancedMesh || r > 2.2 || r < .18) { o.castShadow = false; n++; } });
+  if (n) console.info(`[그림자] 그림자 드리우기 끔 ${n}개 (큰 판 · 작은 소품)`); }
+[20000, 60000].forEach(ms => setTimeout(() => { try { trimShadowCasters(); } catch (e) {} }, ms));
 function start(skipIntro = false) {
   beginStorySession(); const epoch=storySession; psychologicalDirector.quiet(35);
-  initAudio(); closeMenus(); applyChar(); [400, 6000, 15000, 30000, 50000].forEach(ms => setTimeout(() => { if (ms <= 6000) try { upgradePlainMaterials(scene); } catch (e) {} prewarmFloors(true, fx.composer.renderTarget1).catch(() => {}); }, ms));   // 늦게 들어오는 GLB(민아 · 소품)까지 시작 연출 동안 미리 컴파일   // 시작 연출 동안 나중에 생긴 재질까지 한 번 더 예열
+  initAudio(); closeMenus(); applyChar(); { const par = renderer.extensions.has('KHR_parallel_shader_compile');   // 병렬 컴파일이 없으면 씬 전체 컴파일이 동기라 한 번에 수십 초 멈춘다 → 한 번만
+  (par ? [400, 6000, 15000, 30000, 50000] : [400]).forEach(ms => setTimeout(() => { if (ms <= 6000) try { upgradePlainMaterials(scene); } catch (e) {} prewarmFloors(true, fx.composer.renderTarget1).catch(() => {}); }, ms));
+  if (!par) setTimeout(() => { try { upgradePlainMaterials(scene); } catch (e) {} }, 6000); }   // 늦게 들어오는 GLB(민아 · 소품)까지 시작 연출 동안 미리 컴파일   // 시작 연출 동안 나중에 생긴 재질까지 한 번 더 예열
   if (!readingSave) { DAY.k = .92; DAY.start = -1; DAY.done = false; delete FL.night; GUARD_WALK.startedWalk = false; GUARD_WALK.greetedGate = false; }
   refreshHud(); chapterShown = objective().ch;
   if (skipIntro || TEST) { finishIntro(); return; }

@@ -11,7 +11,7 @@ export function installPerf(ctx) {
   const { THREE, scene } = ctx;
   const rig = new THREE.Group(); rig.name = 'perfLightPool'; rig.userData.dynamic = true; scene.add(rig);
   const pool = Array.from({ length: POOL }, () => { const l = new THREE.PointLight(0xffffff, 0, 10, 2); l.userData.perfPool = true; rig.add(l); return l; });
-  C = { ...ctx, pool, src: [], units: [], ims: [], seen: new WeakSet(), seenIm: new WeakSet(), R: 24, avg: 33, t: 0, rebuildT: 0, v: new THREE.Vector3(), b: new THREE.Box3(), s: new THREE.Sphere(), indoors: false };
+  C = { ...ctx, pool, src: [], units: [], ims: [], seen: new WeakSet(), seenIm: new WeakSet(), R: 18, avg: 33, t: 0, rebuildT: 0, v: new THREE.Vector3(), b: new THREE.Box3(), s: new THREE.Sphere(), indoors: false };
   rebuild();
   return C;
 }

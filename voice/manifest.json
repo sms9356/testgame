@@ -1,26 +1,26 @@
 {
  "intro1": {
   "spk": "narrator",
-  "text": "2008년 10월 12일, 오후 다섯 시 오십 분. 십 년 전 참사로 폐교된 서문고등학교 너머로 검붉은 해가 기울기 시작했다.",
-  "dur": 10.68,
+  "text": "2008년 10월 12일, 오후 다섯 시 오십 분. 십 년 전 그 참사를 조용히 덮어 버린 서문고등학교 너머로 검붉은 해가 기울기 시작했다.",
+  "dur": 11.92,
   "baked": true,
-  "eleven": "[low voice] [slowly] 2008년 10월 12일, 오후 다섯 시 오십 분. 십 년 전 참사로 폐교된 서문고등학교 너머로 검붉은 해가 기울기 시작했다.",
+  "eleven": "[low voice] [slowly] 2008년 10월 12일, 오후 다섯 시 오십 분. 십 년 전 그 참사를 조용히 덮어 버린 서문고등학교 너머로 검붉은 해가 기울기 시작했다.",
   "generation": {
    "voice_id": "8G6jifm9f1BhHXadvwOt",
    "model_id": "eleven_v4",
    "language_code": "ko",
    "delivery": "[low voice] [slowly]",
-   "input_sha256": "5048072773afbd766b70b47cfd41e50ab71cca9cacd28a060cf30f29ae83f2ee",
-   "audio_sha256": "189a4e2d03e0888e4c9e2eea2ae9c06f9c1c1622632f579358a41d7e47123a42",
+   "input_sha256": "e35198a96ff6eae9048ae5505a2476ddbe792e2b6e844922106f9459601e8506",
+   "audio_sha256": "1a3524df1deef0e1c89c46448de97a93c66060cd6eb6aac6091e4965eafce8c1",
    "review_status": "generated"
   }
  },
  "intro2": {
   "spk": "narrator",
-  "text": "어젯밤, 방송부 선배 민아가 담력체험을 하겠다며 이 폐교에 들어간 뒤 연락이 끊겼다. 함께 갔던 아이들은 모두 도망쳐 나왔지만, 민아만 돌아오지 못했다.",
-  "dur": 11.76,
+  "text": "어젯밤, 방송부 선배 민아가 담력체험을 하겠다며 밤의 학교에 몰래 숨어 들어간 뒤 연락이 끊겼다. 함께 갔던 아이들은 모두 도망쳐 나왔지만, 민아만 돌아오지 못했다.",
+  "dur": 12.48,
   "baked": true,
-  "eleven": "어젯밤, 방송부 선배 민아가 담력체험을 하겠다며 이 폐교에 들어간 뒤 연락이 끊겼다. 함께 갔던 아이들은 모두 도망쳐 나왔지만, 민아만 돌아오지 못했다.",
+  "eleven": "어젯밤, 방송부 선배 민아가 담력체험을 하겠다며 밤의 학교에 몰래 숨어 들어간 뒤 연락이 끊겼다. 함께 갔던 아이들은 모두 도망쳐 나왔지만, 민아만 돌아오지 못했다.",
   "generation": {
    "voice_id": "8G6jifm9f1BhHXadvwOt",
    "model_id": "eleven_v4",
@@ -29,10 +29,10 @@
     "stability": 0.4
    },
    "delivery": "normal",
-   "input_sha256": "5e94506e58f95be093e10b7f5e0ea26ccb63f3bb1534fb535fc2f5ad18dd9015",
-   "audio_sha256": "8f75a0a8a3a0abee6ea3437a097a6ee5e1b4f5e101c11cb5bc8acad06e2bd9c8",
+   "input_sha256": "8f93dbb742ba025b84ab4fe7d7ff5b130f4499e5a13e07b6e5a881ca251c7b7a",
+   "audio_sha256": "bdd40d33fe2688cbbe92f8f339f064cf13fbb847d9e98f474e94e0f528d13b4b",
    "request_id": "v9WHrUDaYilWN2UYyOui",
-   "review_status": "verified"
+   "review_status": "generated"
   }
  },
  "intro3": {
@@ -413,10 +413,10 @@
  },
  "l_arrive_j": {
   "spk": "jihun",
-  "text": "민아야… 정말 이 폐교 안으로 들어간 거야? 조금만 기다려, 내가 꼭 찾아낼게.",
-  "dur": 7.04,
+  "text": "민아야… 정말 이 밤에 학교 안으로 숨어 들어간 거야? 조금만 기다려, 내가 꼭 찾아낼게.",
+  "dur": 6.4,
   "baked": true,
-  "eleven": "민아야… 정말 이 폐교 안으로 들어간 거야? 조금만 기다려, 내가 꼭 찾아낼게.",
+  "eleven": "민아야… 정말 이 밤에 학교 안으로 숨어 들어간 거야? 조금만 기다려, 내가 꼭 찾아낼게.",
   "generation": {
    "voice_id": "zBfkllpYmUyxwRyQt8Zw",
    "model_id": "eleven_v4",
@@ -425,10 +425,10 @@
     "stability": 0.35
    },
    "delivery": "normal",
-   "input_sha256": "85b547ab35e48e1262987f4403fa8a07ca3f46fd74f2671bf317ee1870255ec4",
-   "audio_sha256": "270897ce667ef6542dbaf9cf0e3808d7e8bb1706650e4b9b3ecf26995b3f59ad",
+   "input_sha256": "bec21d376e29f2f2095ec938ef9a843d3a4d3a451c03f2ded55c11743982bc31",
+   "audio_sha256": "e893fc10402bd2f3745fe1e5dfa68f00480d743d9a6312fcc17f021b3e457500",
    "request_id": "vNWVghLazOmYt7SXSm8M",
-   "review_status": "verified"
+   "review_status": "generated"
   }
  },
  "l_arrive_s": {
@@ -3117,10 +3117,10 @@
  },
  "guard1": {
   "spk": "guard",
-  "text": "어이, 거기 학생! 이 시간에 폐교엔 왜 자꾸 기어들어 오는 겨. 해 지믄 여긴 위험혀. 올핸 또 누구 찾으러 온 모양인디, 내 말 듣고 얼른 집으로 가유.",
-  "dur": 11.76,
+  "text": "어이, 거기 학생! 이 시간에 학교엔 왜 자꾸 기어들어 오는 겨. 해 지믄 여긴 위험혀. 올핸 또 누구 찾으러 온 모양인디, 내 말 듣고 얼른 집으로 가유.",
+  "dur": 11.52,
   "baked": true,
-  "eleven": "어이, 거기 학생! 이 시간에 폐교엔 왜 자꾸 기어들어 오는 겨. 해 지믄 여긴 위험혀. 올핸 또 누구 찾으러 온 모양인디, 내 말 듣고 얼른 집으로 가유.",
+  "eleven": "어이, 거기 학생! 이 시간에 학교엔 왜 자꾸 기어들어 오는 겨. 해 지믄 여긴 위험혀. 올핸 또 누구 찾으러 온 모양인디, 내 말 듣고 얼른 집으로 가유.",
   "generation": {
    "voice_id": "lZLh6IYERWP1xQ7NnDOg",
    "model_id": "eleven_v4",
@@ -3129,10 +3129,10 @@
     "stability": 0.36
    },
    "delivery": "normal",
-   "input_sha256": "b4a5980a7243ea0209d24bfa1627a4770862d0e6471b16946b34a78e03479210",
-   "audio_sha256": "5de297ba24d62c988a587b4de49791b6ba64517c2c6cbc28e8bd8d258d993e10",
+   "input_sha256": "37e475690a1d8e16085a0dfa725c8a512efa0d052c7db82cc6437a9a17689fb0",
+   "audio_sha256": "7e12dd4751a8c0dfbd521fb7a48bc97248d917f1f5fbeb3383c714d0ddcd3cf2",
    "request_id": "McCgt7dszK1qomNZsMHx",
-   "review_status": "verified"
+   "review_status": "generated"
   }
  },
  "tape5": {
@@ -3337,10 +3337,10 @@
  },
  "guardPast": {
   "spk": "guard",
-  "text": "십 년 전 오늘 밤이여. 3학년 여자애 하나가 지하 펌프실에 갇혀서 끝내 못 나왔지. 학교에선 쉬쉬허고 문을 닫았는디, 그 뒤로 해마다 이날 밤만 되믄 꺼진 스피커에서 그 애 목소리가 울려유.",
-  "dur": 15.44,
+  "text": "십 년 전 오늘 밤이여. 3학년 여자애 하나가 지하 펌프실에 갇혀서 끝내 못 나왔지. 학교에선 쉬쉬허고 덮어 버렸는디, 그 뒤로 해마다 이날 밤만 되믄 꺼진 스피커에서 그 애 목소리가 울려유.",
+  "dur": 15.2,
   "baked": true,
-  "eleven": "십 년 전 오늘 밤이여. 3학년 여자애 하나가 지하 펌프실에 갇혀서 끝내 못 나왔지. 학교에선 쉬쉬허고 문을 닫았는디, 그 뒤로 해마다 이날 밤만 되믄 꺼진 스피커에서 그 애 목소리가 울려유.",
+  "eleven": "십 년 전 오늘 밤이여. 3학년 여자애 하나가 지하 펌프실에 갇혀서 끝내 못 나왔지. 학교에선 쉬쉬허고 덮어 버렸는디, 그 뒤로 해마다 이날 밤만 되믄 꺼진 스피커에서 그 애 목소리가 울려유.",
   "generation": {
    "voice_id": "lZLh6IYERWP1xQ7NnDOg",
    "model_id": "eleven_v4",
@@ -3349,10 +3349,10 @@
     "stability": 0.36
    },
    "delivery": "normal",
-   "input_sha256": "af6a8dc509ca435486cc005615e2345b087f2c7297e97fe24486cf5ccf3c6a46",
-   "audio_sha256": "c04a506959f13485c81dac9a5b1e3e205510d98037361b598fea10707aa6b816",
+   "input_sha256": "3b8a0942b9ef0b490413e449513d1c9ac415e55ecc2d18a678bde512bd07b5aa",
+   "audio_sha256": "1b311f60215a2be94fdf015731ddf52362b1ca8107e8f3ed31725bd32adee681",
    "request_id": "nIHSsWJX78RsvBTFdsTU",
-   "review_status": "verified"
+   "review_status": "generated"
   }
  },
  "guardGift": {
@@ -4169,10 +4169,10 @@
  },
  "call_119": {
   "spk": "narrator",
-  "text": "119 종합상황실입니다. 전파 상태가 매우 불안정합니다. 폐교된 서문고등학교 내부라고요? 위치 추적 완료했습니다. 구조대가 정문으로 출동 중이니 즉시 정문 쪽으로 대피하십시오.",
-  "dur": 12.32,
+  "text": "119 종합상황실입니다. 전파 상태가 매우 불안정합니다. 이 시간에 서문고등학교 내부라고요? 위치 추적 완료했습니다. 구조대가 정문으로 출동 중이니 즉시 정문 쪽으로 대피하십시오.",
+  "dur": 12.24,
   "baked": true,
-  "eleven": "119 종합상황실입니다. 전파 상태가 매우 불안정합니다. 폐교된 서문고등학교 내부라고요? 위치 추적 완료했습니다. 구조대가 정문으로 출동 중이니 즉시 정문 쪽으로 대피하십시오.",
+  "eleven": "119 종합상황실입니다. 전파 상태가 매우 불안정합니다. 이 시간에 서문고등학교 내부라고요? 위치 추적 완료했습니다. 구조대가 정문으로 출동 중이니 즉시 정문 쪽으로 대피하십시오.",
   "generation": {
    "voice_id": "6wIijutElRjsgwLbECzl",
    "model_id": "eleven_v4",
@@ -4181,10 +4181,10 @@
     "stability": 0.45
    },
    "delivery": "normal",
-   "input_sha256": "11e5783dd6fcbadc9b9cabe2ac6cb173ecf4fd940d7982c4b66c8eb040cfb50e",
-   "audio_sha256": "4352bf7e1e9c47f13c5297f437a1a62b1fc2e338a56ad7e4c47eda83df19ff38",
+   "input_sha256": "ad8a30443f790999255a0d1b611c34862d01623f452d5a91b33c91f48434a66f",
+   "audio_sha256": "a00a7ae352f58cf738ea48e29f7995ed5eb1199285c930d850c99e15b9e37100",
    "request_id": "cLhTdudr4Os6Ajx9lkus",
-   "review_status": "verified"
+   "review_status": "generated"
   }
  },
  "sg_sg_roof": {
@@ -4589,33 +4589,33 @@
  },
  "intro1n": {
   "spk": "narrator",
-  "text": "2008년 10월 12일, 일요일. 저녁 다섯 시 오십 분. 십 년 전 그 사고 뒤로 문을 닫은 서문고등학교 너머로… 검붉은 해가 기울고 있다.",
-  "dur": 12.04,
+  "text": "2008년 10월 12일, 일요일. 저녁 다섯 시 오십 분. 십 년 전 그 사고를 덮어 버린 서문고등학교 너머로… 검붉은 해가 기울고 있다.",
+  "dur": 11.92,
   "baked": true,
-  "eleven": "[low voice] [slowly] 2008년 10월 12일, 일요일. 저녁 다섯 시 오십 분. 십 년 전 그 사고 뒤로 문을 닫은 서문고등학교 너머로… 검붉은 해가 기울고 있다.",
+  "eleven": "[low voice] [slowly] 2008년 10월 12일, 일요일. 저녁 다섯 시 오십 분. 십 년 전 그 사고를 덮어 버린 서문고등학교 너머로… 검붉은 해가 기울고 있다.",
   "generation": {
    "voice_id": "8G6jifm9f1BhHXadvwOt",
    "model_id": "eleven_v4",
    "language_code": "ko",
    "delivery": "[low voice] [slowly]",
-   "input_sha256": "ab41227876bf3fdb6b7af0e7cbc2b02584002409f29210b08bb87c2d97697e0f",
-   "audio_sha256": "f20557074aa673ef1c8b00fbf12e03e96b835230eb2660ad89b2493baf816758",
+   "input_sha256": "647914d0665f2deea6dce40bbff97a1237e85ac69d7ea55bf5c569e6dff05010",
+   "audio_sha256": "b32821c0c27a5831c06ef8ce5fc5e8d27d206e4f7cf6438e0a9953a2659ba59b",
    "review_status": "generated"
   }
  },
  "intro2n": {
   "spk": "narrator",
-  "text": "사흘 전, 방송부 선배 민아는 1998년 그날 밤 학교가 숨긴 진실을 파헤치겠다며 혼자 이 폐교로 들어갔다. 그 뒤로 전화는 한 번도 연결되지 않았다. 대신… 날짜가 뒤엉킨 음성 메시지만, 하나씩 도착하고 있다.",
-  "dur": 18.68,
+  "text": "사흘 전, 방송부 선배 민아는 1998년 그날 밤 학교가 숨긴 진실을 파헤치겠다며 혼자 밤의 학교로 숨어 들어갔다. 그 뒤로 전화는 한 번도 연결되지 않았다. 대신… 날짜가 뒤엉킨 음성 메시지만, 하나씩 도착하고 있다.",
+  "dur": 19.52,
   "baked": true,
-  "eleven": "[low voice] [slowly] 사흘 전, 방송부 선배 민아는 1998년 그날 밤 학교가 숨긴 진실을 파헤치겠다며 혼자 이 폐교로 들어갔다. 그 뒤로 전화는 한 번도 연결되지 않았다. 대신… 날짜가 뒤엉킨 음성 메시지만, 하나씩 도착하고 있다.",
+  "eleven": "[low voice] [slowly] 사흘 전, 방송부 선배 민아는 1998년 그날 밤 학교가 숨긴 진실을 파헤치겠다며 혼자 밤의 학교로 숨어 들어갔다. 그 뒤로 전화는 한 번도 연결되지 않았다. 대신… 날짜가 뒤엉킨 음성 메시지만, 하나씩 도착하고 있다.",
   "generation": {
    "voice_id": "8G6jifm9f1BhHXadvwOt",
    "model_id": "eleven_v4",
    "language_code": "ko",
    "delivery": "[low voice] [slowly]",
-   "input_sha256": "652063586ac920dea9ae3376bb222963e060edc5770979076c2a4ec7adc2fb1a",
-   "audio_sha256": "05fc82b96aeef3ad44520dfaa264b8b04185417cf4f32e23fcf246c061420388",
+   "input_sha256": "459e5a1fdd247cf7dd417642a5189912e6e10ec734bf556744d9cec34cc86a9a",
+   "audio_sha256": "d150ab0bbe7c997bf8127f4dc27c8190d3f24bd1a17139d4cbca085a52576679",
    "review_status": "generated"
   }
  },
@@ -6061,17 +6061,17 @@
  },
  "gd_log3": {
   "spk": "guard",
-  "text": "1999년 2월 마지막 근무. 학교가 문을 닫는댜. 열쇠 꾸러미 반납허고… 정문에 쇠사슬 감았슈. 근디 해마다 10월 12일 밤이면, 꺼진 스피커에서 하교 방송이 들린다는 소문이 돌더라고. 나는… 안 믿어유. 안 믿고 싶어유.",
-  "dur": 20.35,
+  "text": "1999년 2월, 내 마지막 근무. 나도 이 학교를 떠나는댜. 열쇠 꾸러미 반납허고… 정문에 쇠사슬 감았슈. 근디 해마다 10월 12일 밤이면, 꺼진 스피커에서 하교 방송이 들린다는 소문이 돌더라고. 나는… 안 믿어유. 안 믿고 싶어유.",
+  "dur": 21.44,
   "baked": true,
-  "eleven": "[elderly voice] [rough] 1999년 2월 마지막 근무. 학교가 문을 닫는댜. 열쇠 꾸러미 반납허고… 정문에 쇠사슬 감았슈. 근디 해마다 10월 12일 밤이면, 꺼진 스피커에서 하교 방송이 들린다는 소문이 돌더라고. 나는… 안 믿어유. 안 믿고 싶어유.",
+  "eleven": "[elderly voice] [rough] 1999년 2월, 내 마지막 근무. 나도 이 학교를 떠나는댜. 열쇠 꾸러미 반납허고… 정문에 쇠사슬 감았슈. 근디 해마다 10월 12일 밤이면, 꺼진 스피커에서 하교 방송이 들린다는 소문이 돌더라고. 나는… 안 믿어유. 안 믿고 싶어유.",
   "generation": {
    "voice_id": "lZLh6IYERWP1xQ7NnDOg",
    "model_id": "eleven_v4",
    "language_code": "ko",
    "delivery": "[elderly voice] [rough]",
-   "input_sha256": "b6d105dded2b3f3570499cafaebd88b97e775e8151af0a4a26dfa467f7594a58",
-   "audio_sha256": "df8c6b80b1f19bf3365da799dbcd68029d00201a756a5b00cf8fc9a400f6d855",
+   "input_sha256": "24d1aee3169bafea42af808cb6f8bf999a3838899c976dc6e3a05d962ec8c40d",
+   "audio_sha256": "6c19cb68c0d4604cb01508bfd15e51924e9dc0e27979d5134cc3e4b522eaf4ae",
    "review_status": "generated"
   }
  },
@@ -6205,17 +6205,17 @@
  },
  "call_119_a2": {
   "spk": "dispatcher",
-  "text": "폐교된 서문고등학교 안이요? 전파가 많이 끊깁니다. 지금 다치신 데는 없으십니까?",
-  "dur": 6.19,
+  "text": "이 시간에 서문고등학교 안이요? 전파가 많이 끊깁니다. 지금 다치신 데는 없으십니까?",
+  "dur": 6.24,
   "baked": true,
-  "eleven": "[calm] [professional] 폐교된 서문고등학교 안이요? 전파가 많이 끊깁니다. 지금 다치신 데는 없으십니까?",
+  "eleven": "[calm] [professional] 이 시간에 서문고등학교 안이요? 전파가 많이 끊깁니다. 지금 다치신 데는 없으십니까?",
   "generation": {
    "voice_id": "nNTkFJj9NHSRZIngrG19",
    "model_id": "eleven_v4",
    "language_code": "ko",
    "delivery": "[calm] [professional]",
-   "input_sha256": "23cad673b1181e738f83aaf93ae59a44889d3f8b1a3f303bea09d3297cb8aace",
-   "audio_sha256": "f3365fbdd06abcee1704c60ceb87c11a301405b3108ee133dc8bf93e90fd12cf",
+   "input_sha256": "1702545db5b28ee7839b4468cfd61b4ef3d90f37de38f8be215c977538544f12",
+   "audio_sha256": "ffc1739d6cd13399567b133a6980ea2a2f6cf4518c522d2b25513deda3092995",
    "review_status": "generated"
   }
  },

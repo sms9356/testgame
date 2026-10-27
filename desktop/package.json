@@ -1,8 +1,8 @@
 {
   "name": "haegyo-desktop",
-  "productName": "폐교 - 잊혀진 시간",
+  "productName": "서문고 - 잊혀진 시간",
   "version": "1.1.0",
-  "description": "폐교 — 잊혀진 시간 (데스크톱 테스트판)",
+  "description": "서문고 — 잊혀진 시간 (데스크톱 테스트판)",
   "main": "main.cjs",
   "author": "sms9356",
   "license": "MIT",

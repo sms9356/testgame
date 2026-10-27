@@ -316,7 +316,7 @@ export const makeGlow = (c = '255,210,110') => ctex(64, 64, (g, w, h) => {
   gr.addColorStop(0, `rgba(${c},1)`); gr.addColorStop(.35, `rgba(${c},.35)`); gr.addColorStop(1, `rgba(${c},0)`);
   g.fillStyle = gr; g.fillRect(0, 0, 64, 64);
 }, { repeat: false });
-export const makeGatePlaque = (text = '폐교') => ctex(128, 512, (g, w, h) => {
+export const makeGatePlaque = (text = '서문고') => ctex(128, 512, (g, w, h) => {
   g.fillStyle = '#2a2620'; g.fillRect(0, 0, w, h);
   speckle(g, w, h, 600, ['#14120e', '#5a5444'], 2, 8, .5); stains(g, w, h, 10, 'rgba(10,10,6,.5)', 50);
   g.fillStyle = '#c8bea0'; g.font = `900 ${Math.min(84, (h - 40) / text.length)}px ${FONT}`; g.textAlign = 'center'; g.textBaseline = 'middle';

@@ -736,7 +736,7 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
       world.props.push({ kind: 'robj', k: 'east_museum', t: 'mega15k', floor: 0, x: xA + 2.8, z: hzC - 1.4, y: 1.1, r: 2.4, label: '서문고 역사관 개교 30주년 기념 타임캡슐 & 1998년 졸업앨범 기록 조사하기' });
 
       // ★ 역사관 앞마당(x: 74.5, z: -4.2): 구관 청동 학교 종(銅鍾) 종각 파빌리온
-      const bxB = 74.8, bzB = -3.8;
+      const bxB = 72.0, bzB = -8.5;   // 역사관 진입로 · 건물 모서리와 겹치던 자리(74.8, −3.8)에서 서쪽 마당으로
       pbox(2.8, .28, 2.8, stoneM, bxB, .14, bzB, g);
       [[-1.05, -1.05], [1.05, -1.05], [-1.05, 1.05], [1.05, 1.05]].forEach(([px, pz]) => {
         pcyl(.11, .13, 2.8, woodDark, bxB + px, 1.54, bzB + pz, g);
@@ -926,7 +926,7 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
     // 야구 스타디움 리모델링 (참고 평면도 · 배치도 · 24.0 × 26.0m): 외곽 펜스 (높이 4m) · 남측 관람 출입구 · 백스톱 스크린 (8000×6000) · 북서 관람석 스탠드 (6000×4500 · 3단 · 지붕) · 북동 수동식 스코어보드 (4000×2000) · 북측 볼펜/장비 보관 창고 (3000×2000×2200) · 그라운드 정비 카트 · 학교명 현판
     { const x0 = cx - 12, x1 = cx + 12, z0 = cz - 13, z1 = cz + 13;
       fenceLine(g, x0, z0, x1, z0, 4.0); fenceLine(g, x0, z0, x0, z1, 4.0); fenceLine(g, x1, z0, x1, z1, 4.0); fenceLine(g, x0, z1, x1, z1, 4.0, [[cx - 6.2, cx - 4.2]]);
-      pbox(8.0, 6.0, .03, fenceMesh, cx, 3.0, cz + 10.1, g, { cast: false }); [-4, -1.3, 1.3, 4].forEach(d => pcyl(.07, .07, 6.0, PM(0x8a9094, .45, .6), cx + d, 3.0, cz + 10.1, g));
+      pbox(8.0, 6.0, .03, fenceMesh, cx, 3.0, cz + 10.1, g, { cast: false }); addCol(cx - 4, cx + 4, cz + 10.02, cz + 10.18); [-4, -1.3, 1.3, 4].forEach(d => pcyl(.07, .07, 6.0, PM(0x8a9094, .45, .6), cx + d, 3.0, cz + 10.1, g));
       // 관람석 스탠드 (북서): 3단 알루미늄 벤치 + 계단 받침 + 지붕
       { const sx = x0 + 3.6, sz = z0 + 3.0; for (let r = 0; r < 3; r++) { pbox(6.0, .45 * (r + 1), 1.0, PM(0x8a8e90, .5, .4), sx, .225 * (r + 1), sz + 1.0 - r * 1.0, g); pbox(6.0, .05, .35, chromeM, sx, .45 * (r + 1) + .03, sz + 1.25 - r * 1.0, g, { cast: false }); }
         [-2.9, 2.9].forEach(d => [-1.6, 1.7].forEach(e => pcyl(.06, .06, 2.6, PM(0x8a9094, .45, .6), sx + d, 1.3 + (e < 0 ? .4 : 0), sz + e, g))); pbox(6.4, .08, 4.0, PM(0x6a7076, .5, .5), sx, 2.75, sz, g, { rx: .08 });
@@ -1204,7 +1204,7 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
     placeGlb('assets/models/sf/sf_bus_stop_shelter.glb', [
       [-58.0, 0, 62.2, 0, 1, 1, 1],
       [-53.5, 0, 18.0, Math.PI / 2, 1, 1, 1]
-    ]);
+    ]); addCol(-59.42, -56.15, 61.48, 62.88); addCol(-54.22, -52.82, 16.15, 19.42);   // 정류장 쉘터 통과 방지
     placeGlb('assets/models/sf/sf_horror_fire_bulletin.glb', [
       [-80.0, 0, -48.6, 0, 1, 1, 1],
       [80.0, 0, -41.6, 0, 1, 1, 1],

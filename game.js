@@ -2205,7 +2205,7 @@ function auditAndFixFurnitureAndQuality() {
         const t = m[k];
         if (t && t.isTexture && !seenTex.has(t)) {
           seenTex.add(t);
-          if ((t.anisotropy || 1) < maxAniso) { t.anisotropy = maxAniso; t.needsUpdate = true; upgradedTex++; }
+          if ((t.anisotropy || 1) < maxAniso) { t.anisotropy = maxAniso; upgradedTex++; }   // needsUpdate 를 켜면 이미 올라간 텍스처 수백 장을 통째로 다시 올려 프레임이 무너진다 — 아직 안 올라간 것에만 적용
         }
       }
     }
@@ -8850,7 +8850,7 @@ sqSync();
 auditAndFixFurnitureAndQuality();
 // 텍스처 선명도: 늦게 불러온 모델 · 새 건물 재질도 비등방성 필터를 최대로 (먼 바닥 · 벽 무늬 뭉개짐 방지)
 { const maxA = Math.min(16, renderer.capabilities.getMaxAnisotropy?.() || 8), seen = new WeakSet();
-  const upAniso = () => { const q = []; scene.traverse(o => { if (!o.isMesh) return; for (const m of Array.isArray(o.material) ? o.material : [o.material]) { if (!m) continue; for (const k of ['map', 'normalMap', 'roughnessMap', 'bumpMap', 'emissiveMap']) { const t = m[k]; if (t && t.isTexture && !seen.has(t)) { seen.add(t); if ((t.anisotropy || 1) < maxA) q.push(t); } } } }); const step = () => { for (let i = 0; i < 6 && q.length; i++) { const t = q.shift(); t.anisotropy = maxA; t.needsUpdate = true; } if (q.length) requestAnimationFrame(step); }; step(); };   // 한 프레임에 6장씩 (다시 올리는 끊김 분산)
+  const upAniso = () => { const q = []; scene.traverse(o => { if (!o.isMesh) return; for (const m of Array.isArray(o.material) ? o.material : [o.material]) { if (!m) continue; for (const k of ['map', 'normalMap', 'roughnessMap', 'bumpMap', 'emissiveMap']) { const t = m[k]; if (t && t.isTexture && !seen.has(t)) { seen.add(t); if ((t.anisotropy || 1) < maxA) q.push(t); } } } }); q.forEach(t => { t.anisotropy = maxA; }); };   // 다시 올리기(needsUpdate) 없이 — 플레이 중 텍스처 재업로드로 프레임이 크게 떨어지던 원인   // 한 프레임에 6장씩 (다시 올리는 끊김 분산)
   [8000, 25000, 60000, 120000].forEach(ms => setTimeout(upAniso, ms)); }
 // 캠퍼스 8개 시설 재건축 (사용자 제공 콘셉트 설계 PDF · CSV): 옛 터를 걷어 내고 새로 짓는다 — 저장 ID 를 매기기 전에
 try { installFacilityRebuild({ THREE, scene, floors, world }); } catch (e) { console.error('[facility rebuild]', e); }
@@ -8859,7 +8859,7 @@ applyQuality(SET.quality === 'auto' ? 'high' : SET.quality);
 applySettings();
 // 로딩 화면을 즉시 닫고(동기식), 텍스처 예산·성능 풀·모델 로드는 백그라운드에서 비동기로 진행한다 (초기 로딩 멈춤 원천 차단)
 setupAnnex(); setupCase5();
-if (!params.has('oldmap')) { RBG = installRebuild({ THREE, scene, floors, world }); window.__rbg = RBG; renderer.localClippingEnabled = true;
+if (!params.has('oldmap')) { RBG = installRebuild({ THREE, scene, floors, world }); window.__rbg = RBG; try { RBG.allOff(); } catch (e) { console.warn('[all off]', e); } renderer.localClippingEnabled = true;
   // 2단계: 예전 건물의 열쇠 · 쪽지 · 조사 지점을 새 방으로 (나중에 생기는 조사 지점도 몇 번 더 옮긴다)
   const sz4 = floors[4] && floors[4].stairZone, b1 = sz4 ? sz4.spawn : { x: ((floors[4] && floors[4].stairCx) || 0) + .8, z: -5.2 };
   const rel = () => { const r = RBG.relocate({ world, floors, stairSpawnB1: b1 }); if (r.moved || r.dropped) console.info('[rebuild] 옮김', r); };

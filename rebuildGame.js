@@ -165,14 +165,18 @@ export function installRebuild({ THREE, scene, floors, world }) {
     // 전력 연동: 정전(blackout)이면 형광등 · 등기구 발광 모두 끔, 발전기 출력(gain) · 본전력(power)에 따라 밝기
     setPower(off, gain = 1, power = false) { const k = off ? 0 : gain * (power ? 1 : .86); if (k === this._pk) return; this._pk = k;
       lamps.forEach(l => { l.intensity = l.userData.swOff ? 0 : 1.6 * k; });
-      [MAIN, ANX].forEach(b => { const m = b.mats && b.mats.lamp; if (m) m.emissiveIntensity = 1.4 * k; }); },
+      [MAIN, ANX].forEach(b => { const m = b.mats && b.mats.lamp; if (m) m.emissiveIntensity = switches.some(s => s.on) ? 1.4 * k : 0; }); },
     // 형광등 스위치: 그 방 점조명을 끄고, 등기구 발광면은 어두운 덮개로 가린다
     switches,
     toggleSwitch(sw) { sw.on = !sw.on;
       if (!sw.covers) { sw.covers = new THREE.Group(); const m = new THREE.MeshStandardMaterial({ color: 0x5a5c60, roughness: .6 }), g = new THREE.PlaneGeometry(1.3, 1.3); g.rotateX(Math.PI / 2);
         sw.lamps.forEach(l => { const c = new THREE.Mesh(g, m); c.position.set(l.position.x, l.position.y + .075, l.position.z); sw.covers.add(c); }); group.add(sw.covers); }
       sw.covers.visible = !sw.on; const k = this._pk == null ? 1 : this._pk;
-      sw.lamps.forEach(l => { l.userData.swOff = !sw.on; l.intensity = sw.on ? 1.6 * k : 0; }); return sw.on; },
+      sw.lamps.forEach(l => { l.userData.swOff = !sw.on; l.intensity = sw.on ? 1.6 * k : 0; });
+      [MAIN, ANX].forEach(b => { const m = b.mats && b.mats.lamp; if (m) m.emissiveIntensity = switches.some(s => s.on) ? 1.4 * k : 0; }); return sw.on; },
+    // 건물 전체 소등으로 시작 (폐교 분위기 · 손전등 진행): 모든 방 스위치를 내리고 등기구 발광도 끈다 — 덮개 메시는 만들지 않는다
+    allOff() { switches.forEach(sw => { sw.on = false; sw.lamps.forEach(l => { l.userData.swOff = true; l.intensity = 0; }); }); lamps.forEach(l => { l.userData.swOff = true; l.intensity = 0; });
+      [MAIN, ANX].forEach(b => { const m = b.mats && b.mats.lamp; if (m) m.emissiveIntensity = 0; }); },
     hideOld() { for (const F of OLD_FLOORS) { F.interior.visible = false; if (F.shell) F.shell.visible = false; if (F.winFake) F.winFake.visible = false; for (const o of [F.interior, F.shell, F.winFake]) if (o && !o._frozen) { o._frozen = true; o.updateMatrixWorld = NOOP; } } },   // 영구히 숨긴 예전 층: 매 프레임 행렬 갱신(수천 개)도 건너뛴다
     cull(dt, P) { cullModels(dt, P); for (const F of OLD_FLOORS) { if (F.interior.visible) F.interior.visible = false; if (F.shell && F.shell.visible) F.shell.visible = false; } },   // 매 프레임(메뉴 · 인트로 포함) 예전 층을 끈다
     // 숨긴 예전 층에 남은 죽은 상호작용(옛 스위치 · 사물함 문 · 둘러보기 · 엘리베이터 호출 · 옥상 문) 정리 — 새 건물에 같은 것이 따로 있다

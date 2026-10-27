@@ -740,23 +740,28 @@ export function buildMainBuilding(opt = {}) {
       const X1 = x1, X2 = x1 + 17.8, XP = X1 + 9;
       UVM.carpet = .5; UVM.foam = .6; UVM.fabric = 1.2; UVM.carpetS = .5;
       const tile = (bg, ln) => canvasTex(128, 128, (g, w, h) => { g.fillStyle = bg; g.fillRect(0, 0, w, h); for (let i = 0; i < 1800; i++) { const v = Math.random() * 30 - 15; g.fillStyle = `rgba(${128 + v},${128 + v},${140 + v},.08)`; g.fillRect(Math.random() * w, Math.random() * h, 1, 1); } g.strokeStyle = ln; g.lineWidth = 2; g.strokeRect(1, 1, w - 2, h - 2); });
-      mat.carpet = M('carpet', () => new THREE.MeshStandardMaterial({ map: tile('#3a4250', 'rgba(20,24,30,.6)'), roughness: .97 }));
-      mat.carpetS = M('carpetS', () => new THREE.MeshStandardMaterial({ map: tile('#2a2c33', 'rgba(10,10,14,.6)'), roughness: .98 }));
+      // 실사 재질 (Poly Haven CC0): 카펫 타일 · 흡음 패브릭 · 벨벳 암막 · 인조가죽 의자 · 장비랙 철판
+      UVM.carpet = UVM.carpetS = 1.5; UVM.fabric = 1.0; UVM.bcCurtain = 1.4; UVM.leather = .6; UVM.rack = .8;
+      mat.carpet = M('carpet', () => pbr('bc_carpet', { color: 0x9aa4b8, rough: 1 }));
+      mat.carpetS = M('carpetS', () => pbr('bc_carpet', { color: 0x6a6c74, rough: 1 }));
+      mat.bcCurtain = M('bcCurtain', () => pbr('bc_curtain', { color: 0x4a2a30, rough: 1 }));
+      mat.leather = M('leather', () => pbr('bc_leather', { color: 0x3a3c40, rough: .7, nScale: .6 }));
+      mat.rack = M('rack', () => pbr('bc_metal', { color: 0x40444a, rough: .6, metal: .6 }));
       mat.foam = M('foam', () => new THREE.MeshStandardMaterial({ map: canvasTex(128, 128, (g, w, h) => { for (let y = 0; y < 4; y++) for (let x = 0; x < 4; x++) { const gr = g.createLinearGradient(x * 32, y * 32, x * 32 + 32, y * 32 + 32); const d = (x + y) % 2; gr.addColorStop(0, d ? '#3c3f46' : '#2a2c31'); gr.addColorStop(1, d ? '#1e2024' : '#45484f'); g.fillStyle = gr; g.fillRect(x * 32, y * 32, 32, 32); } }), roughness: 1 }));
-      mat.fabric = M('fabric', () => new THREE.MeshStandardMaterial({ color: 0x5a6878, roughness: .95 }));
+      mat.fabric = M('fabric', () => pbr('bc_fabric', { color: 0x8a96a8, rough: 1 }));
       mat.ledG = M('ledG', () => new THREE.MeshStandardMaterial({ color: 0x40ff60, emissive: 0x30e050, emissiveIntensity: 1.2 }));
       mat.ledR = M('ledR', () => new THREE.MeshStandardMaterial({ color: 0xff4030, emissive: 0xff2010, emissiveIntensity: 1.2 }));
       mat.mon = M('mon', () => new THREE.MeshStandardMaterial({ color: 0x1a2a3a, emissive: 0x284a6a, emissiveIntensity: .45, roughness: .2 }));
       const sign = (text, w, h, x, y, z, ry, bg = '#3a0806', fg = '#ff5040', glow = true) => { const c = document.createElement('canvas'); c.width = 256; c.height = Math.round(256 * h / w); const g = c.getContext('2d'); g.fillStyle = bg; g.fillRect(0, 0, c.width, c.height); g.fillStyle = fg; g.font = `bold ${Math.round(c.height * .55)}px sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(text, c.width / 2, c.height / 2 + 2);
         const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), glow ? new THREE.MeshBasicMaterial({ map: t }) : new THREE.MeshStandardMaterial({ map: t, roughness: .6 })); m.position.set(x, y, z); m.rotation.y = ry; root.add(m); return m; };
-      const chairX = (x, z, dir) => { box('rubber', x - .23, x + .23, y0 + .42, y0 + .5, z - .23, z + .23); box('rubber', x + dir * .2 - .025, x + dir * .2 + .025, y0 + .55, y0 + .98, z - .21, z + .21); cyl('alu', x, y0 + .08, z, .025, .34);
+      const chairX = (x, z, dir) => { box('leather', x - .23, x + .23, y0 + .42, y0 + .5, z - .23, z + .23); box('leather', x + dir * .2 - .025, x + dir * .2 + .025, y0 + .55, y0 + .98, z - .21, z + .21); cyl('alu', x, y0 + .08, z, .025, .34);
         for (let k = 0; k < 5; k++) { const a = k * 1.2566, g = new THREE.BoxGeometry(.3, .03, .04); g.translate(.15, 0, 0); g.rotateY(a); g.translate(x, y0 + .08, z); G('rubber', g); } };
       // ── 바닥 · 벽 마감: 카펫 타일 (주조정실 청회색 · 스튜디오 진회색), 주조정실 벽 허리 아래 패브릭 흡음 패널
       box('carpet', X1, XP - .07, y0 + .02, y0 + .03, z1, z2); box('carpetS', XP + .07, X2, y0 + .02, y0 + .03, z1, z2);
       box('fabric', X1 + .01, X1 + .04, y0 + .1, y0 + 1.0, z1 + .2, z2 - .2); box('fabric', X1 + 1.8, XP - .1, y0 + .1, y0 + 1.0, z1 + .01, z1 + .04);
       // ── 주조정실(MCR) ──
       // 서쪽 벽 모니터 월: 랙 프레임 + 9분할 CRT + 프로그램/프리뷰 대형 모니터
-      box('rubber', X1 + .02, X1 + .38, y0 + .75, y0 + 2.5, z1 + 1.2, z1 + 6.6, { solid: true });
+      box('rack', X1 + .02, X1 + .38, y0 + .75, y0 + 2.5, z1 + 1.2, z1 + 6.6, { solid: true });
       for (let i = 0; i < 4; i++) for (let j = 0; j < 2; j++) { const zc = z1 + 1.45 + i * 1.28; box('crt', X1 + .38, X1 + .42, y0 + 1.6 + j * .45, y0 + 2.0 + j * .45, zc, zc + 1.1); box('mon', X1 + .42, X1 + .43, y0 + 1.64 + j * .45, y0 + 1.96 + j * .45, zc + .05, zc + 1.05); }
       box('crt', X1 + .38, X1 + .44, y0 + .85, y0 + 1.5, z1 + 1.6, z1 + 3.6); box('mon', X1 + .44, X1 + .45, y0 + .9, y0 + 1.45, z1 + 1.7, z1 + 3.5);
       box('crt', X1 + .38, X1 + .44, y0 + .85, y0 + 1.5, z1 + 4.2, z1 + 6.2); box('mon', X1 + .44, X1 + .45, y0 + .9, y0 + 1.45, z1 + 4.3, z1 + 6.1);
@@ -771,7 +776,7 @@ export function buildMainBuilding(opt = {}) {
       chairX(X1 + 2.5, z1 + 3.0, 1); chairX(X1 + 2.5, z1 + 4.8, 1);
       sign('송출 콘솔 · MASTER', .9, .16, X1 + 1.96, y0 + .6, z1 + 3.9, Math.PI / 2, '#20262c', '#d8e0e8', false);
       // 19인치 장비랙 4대 (복도 쪽 벽): VTR 데크 · 비디오 스위처 · 패치베이 · 전관방송 앰프 — 깜빡이는 LED
-      for (let k = 0; k < 4; k++) { const rx = X1 + 2.3 + k * .78; cabinet(rx, rx + .66, z1 + .05, z1 + .75, 2.0, 'rubber');
+      for (let k = 0; k < 4; k++) { const rx = X1 + 2.3 + k * .78; cabinet(rx, rx + .66, z1 + .05, z1 + .75, 2.0, 'rack');
         for (let j = 0; j < 7; j++) { const yy = y0 + .25 + j * .24; box(j % 3 === 0 ? 'alu' : 'screen', rx + .05, rx + .61, yy, yy + .18, z1 + .75, z1 + .77); box(j % 2 ? 'ledG' : 'ledR', rx + .5, rx + .54, yy + .07, yy + .11, z1 + .77, z1 + .78); if (j % 3 === 1) box('rubber', rx + .1, rx + .4, yy + .05, yy + .1, z1 + .77, z1 + .79); } }
       sign('VTR · SWITCHER · PATCH · AMP', 3.0, .16, X1 + 3.85, y0 + 2.18, z1 + .78, 0, '#20262c', '#d8e0e8', false);
       // 전관방송 선택 패널 (서쪽 벽 남쪽): 학급별 스피커 셀렉터 단추 격자
@@ -796,7 +801,7 @@ export function buildMainBuilding(opt = {}) {
       // ── 스튜디오 ──
       // 흡음 폼: 동쪽 벽(배경막 남쪽) · 복도 쪽 벽 위쪽, 남쪽 창은 두꺼운 암막 커튼
       box('foam', X2 - .08, X2 - .02, y0 + .3, y0 + 2.6, z1 + 5.3, z2 - .3); box('foam', XP + 1.8, X1 + 15.9, y0 + 1.4, y0 + 2.6, z1 + .01, z1 + .07);
-      for (let k = 0; k < 7; k++) box('curtain', XP + .4 + k * 1.2, XP + 1.6 + k * 1.2, y0 + .5, y0 + 2.55, z2 - .1, z2 - .04);
+      for (let k = 0; k < 7; k++) box('bcCurtain', XP + .4 + k * 1.2, XP + 1.6 + k * 1.2, y0 + .5, y0 + 2.55, z2 - .1, z2 - .04);
       // 뉴스 배경막 (동쪽 벽) + 앵커 데스크 · 의자 2 · 데스크 마이크
       { const c = document.createElement('canvas'); c.width = 1024; c.height = 400; const g = c.getContext('2d'); const gr = g.createLinearGradient(0, 0, 1024, 400); gr.addColorStop(0, '#0c2a5a'); gr.addColorStop(1, '#1c5a9a'); g.fillStyle = gr; g.fillRect(0, 0, 1024, 400);
         g.strokeStyle = 'rgba(255,255,255,.12)'; for (let i = 0; i < 12; i++) { g.beginPath(); g.arc(780, 200, 40 + i * 30, 0, 7); g.stroke(); } g.fillStyle = '#f0f4fa'; g.font = 'bold 86px sans-serif'; g.textAlign = 'left'; g.fillText('SBS 서문방송', 70, 180); g.font = '40px sans-serif'; g.fillText('서문고등학교 방송부 · Since 1987', 74, 250);

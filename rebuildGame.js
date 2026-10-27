@@ -2,11 +2,11 @@
 //   기본으로 켜진다 (예전 건물로 보려면 주소창에 ?oldmap).
 //   예전 본관(1~3층 · 옥상) · 별관(8~10층) 건물은 감추고, 그 자리 땅(0층)에서 새 건물을 걷는다.
 //   높이는 P.sh(계단 높이 보정값)로 넘긴다 → 카메라 · 점프 · 가구 오르기 코드는 손대지 않아도 된다.
-import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=226';
-import { placeModels } from './rebuild/models.js?v=226';
-import { carve, subdivide } from './rebuild/transplant.js?v=226';
+import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=227';
+import { placeModels } from './rebuild/models.js?v=227';
+import { carve, subdivide } from './rebuild/transplant.js?v=227';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { turfMaterial } from './campusVisuals.js?v=226';
+import { turfMaterial } from './campusVisuals.js?v=227';
 
 // 예전 건물이 차지하던 땅 (이 안의 예전 메시 · 충돌 상자를 걷어 낸다)
 const OLD_MAIN = { x1: -51, x2: 51, z1: -10.6, z2: 10.9 };
@@ -525,6 +525,7 @@ export function installRebuild({ THREE, scene, floors, world }) {
     const sg = new THREE.Mesh(new THREE.PlaneGeometry(.8, .2), new THREE.MeshBasicMaterial({ map: t })); sg.position.set(sx - dx, y + 2.15, z); sg.rotation.y = ry; group.add(sg);
   };
   R.footprints = FOOTPRINTS;
+  R.classRooms = [MAIN, ANX].flatMap(b => b.props.filter(r => r.kind === 'room' && /^\d학년 \d+반$/.test(r.label || '')).map(r => { const [cx, cz] = b.toWorld((r.x1 + r.x2) / 2, (r.z1 + r.z2) / 2), [fx, fz] = b.toWorld(r.x1 + 2.6, (r.z1 + r.z2) / 2); return { label: r.label, y0: r.floor * b.spec.FH, cx, cz, fx, fz }; }));   // 교실 (반장 증언 배치용)
   R.extra = []; { const bX = R.blocked; R.blocked = (x, z, y, r) => R.extra.some(c => Math.abs(y - c.y) < .5 && x + r > c.x1 && x - r < c.x2 && z + r > c.z1 && z - r < c.z2) || bX(x, z, y, r); }   // 나중에 놓는 받침 수납장 등   // 새 본관 · 별관 바닥 사각형 (인도 재배치용)
   return R;
 }

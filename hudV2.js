@@ -41,6 +41,7 @@ export function tickHudV2(dt) {
   if (behind) { x = W - x; y = H - M; }
   if (off) { const cx = W / 2, cy = H / 2, dx = x - cx, dy = y - cy, s = Math.min((W / 2 - M) / Math.abs(dx || 1e-3), (H / 2 - M) / Math.abs(dy || 1e-3)); x = cx + dx * s; y = cy + dy * s;
     wp.querySelector('i').style.transform = `rotate(${Math.atan2(dy, dx) * 180 / Math.PI + 90}deg)`; } else wp.querySelector('i').style.transform = '';
+  if (off) y = Math.min(y, H - 130);   // 화면 아래 가장자리는 소지품 슬롯 위로
   wp.className = 'on' + (off ? ' edge' : '') + (d.d < 8 ? ' near' : '');
   wp.style.transform = `translate(${x.toFixed(1)}px,${y.toFixed(1)}px)`;
   const t = Math.round(d.d) + 'm'; if (wp._t !== t) { wp._t = t; wp.querySelector('b').textContent = t; }

@@ -9017,6 +9017,13 @@ setTimeout(() => itemUnbury().catch(() => {}), 1500);
 // 공중에 뜬 조사 대상 · 아이템 내려놓기: 새 건물로 옮기면서 받치던 가구가 사라졌거나 다른 높이의 자리에 놓인 것
 //   (전수조사: 61개가 0.2 ~ 0.9m 떠 있었다) → 바로 아래 면(바닥 · 가구 윗면)까지 내린다. 벽에 붙은 것(액자 · 게시물)은 그대로.
 //   바닥 밑으로 꺼진 것은 위에서 다시 찾아 올린다. 한 프레임에 몇 개씩 나눠서.
+
+// 광선 검사용: 메시 목록을 월드 경계구로 한 번 정리해 두고, 질의 지점 근처 것만 골라 쓴다 (1만 개 전체를 매번 훑으면 수 초씩 멈췄다)
+function nearSolids(solids) {
+  const items = solids.map(o => { if (!o.geometry.boundingSphere) o.geometry.computeBoundingSphere(); const s = o.geometry.boundingSphere.clone().applyMatrix4(o.matrixWorld); return { o, s }; });
+  return (x, y, z, r) => { const out = []; for (const it of items) { const s = it.s, dx = s.center.x - x, dy = s.center.y - y, dz = s.center.z - z, R = s.radius + r; if (dx * dx + dy * dy + dz * dz < R * R) out.push(it.o); } return out; };
+}
+const SETTLED = new WeakMap();
 async function settleFloating() {
   const T = THREE, rc = new T.Raycaster(), bb = new T.Box3(), c = new T.Vector3(), DN = new T.Vector3(0, -1, 0), solids = [];
   const vis = o => { for (let a = o; a; a = a.parent) if (!a.visible) return false; return true; };
@@ -9025,16 +9032,18 @@ async function settleFloating() {
   const Fi = floors[fl]; if (!Fi) continue; const tmp = fl ? [Fi.interior, Fi.shell].filter(Boolean).filter(r => !r.visible) : []; tmp.forEach(r => { r.visible = true; });
   scene.updateMatrixWorld(true); solids.length = 0;
   scene.traverse(o => { if (o.isMesh && !o.isSkinnedMesh && !o.isInstancedMesh && vis(o)) { const m = [].concat(o.material)[0]; if (m && !m.transparent && m.opacity >= 1 && !m.isMeshBasicMaterial) solids.push(o); } });
+  const near = nearSolids(solids);
   const list = [...world.props.filter(q => q.floor === fl && !q.taken && (q.mesh || (q.kind === 'tape' && q.anim && q.anim.g))).map(q => ({ o: q, m: q.mesh || q.anim.g, prop: true, tape: !q.mesh })), ...world.items.filter(i => i.floor === fl && i.mesh && !i.taken).map(i => ({ o: i, m: i.mesh }))];
   for (let n = 0; n < list.length; n++) {
-    if (n % 8 === 7 && !fl) await new Promise(r => requestAnimationFrame(r));   // 실내 층은 보이게 한 동안 끊지 않고 한 번에
+    if (n % 2 === 1 && !fl) await new Promise(r => requestAnimationFrame(r));   // 한 프레임에 2개씩 (실내 층은 보이게 한 동안 끊지 않고 한 번에)
     const { o, m, prop, tape } = list[n]; if ((o.anim && !tape) || o.hang) continue;
+    { const k = (prop ? o.x + ',' + o.z : o.pos.x + ',' + o.pos.z) + ',' + m.position.y; if (SETTLED.get(o) === k) continue; SETTLED.set(o, k); }   // 이미 검사했고 그대로면 건너뜀
     { const wp = m.getWorldPosition(c), ox = prop ? o.x : o.pos.x, oz = prop ? o.z : o.pos.z;   // 조사 지점만 옮겨지고 물건은 옛 자리에 남은 경우 → 물건을 조사 지점으로
       if (!fl && Math.hypot(wp.x - ox, wp.z - oz) > 1.2 && m.parent) { const lp = m.parent.worldToLocal(new T.Vector3(ox, wp.y, oz)); m.position.x = lp.x; m.position.z = lp.z; m.updateMatrixWorld(true); moved++; } }
     if (!vis(m)) continue;
     const own = new Set(); m.traverse(x => own.add(x));
     bb.setFromObject(m); if (bb.isEmpty()) continue; bb.getCenter(c);
-    const first = (from, dir, far) => { rc.set(from, dir); rc.far = far; return rc.intersectObjects(solids, false).find(h => !own.has(h.object)); };
+    const loc = near(c.x, c.y, c.z, 5); const first = (from, dir, far) => { rc.set(from, dir); rc.far = far; return rc.intersectObjects(loc, false).find(h => !own.has(h.object)); };
     // 벽걸이(얇은 판): 수평 0.25m 안에 벽이 있으면 건너뜀
     if (Math.min(bb.max.x - bb.min.x, bb.max.z - bb.min.z) < .06 && [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dz]) => first(new T.Vector3(c.x, c.y, c.z), new T.Vector3(dx, 0, dz), Math.max(bb.max.x - bb.min.x, bb.max.z - bb.min.z) / 2 + .25))) continue;
     let h = first(new T.Vector3(c.x, bb.min.y + .02, c.z), DN, 4), dy = 0;
@@ -9056,20 +9065,21 @@ async function settleFloating() {
   if (moved) console.info(`[정착] 떠 있던 조사 대상 · 아이템 ${moved}개를 바로 아래 면으로 내림`);
   return moved;
 }
-[7000, 20000, 45000].forEach(ms => setTimeout(() => settleFloating().catch(e => console.warn('[settle]', e)), ms));
+[9000, 40000].forEach(ms => setTimeout(() => settleFloating().catch(e => console.warn('[settle]', e)), ms));
 // 허공 조사 지점: 새 건물로 옮기면서 기대던 물체(칠판 · 배전반 · 카드함 · 전화기 …)가 없는 자리에 놓인 것 (전수조사 76곳)
 //   → 가까운 벽(3m 안)이 있으면 벽 앞 0.3m 로 옮기고 벽걸이 물체를, 없으면 그 자리에 낮은 수납장을 놓는다 (+ 충돌 상자)
 const PH_LOOK = [[/칠판/, 'board'], [/배전반|두꺼비집|제어반|단말기|게시판|대자보|약품함|약품 선반/, 'panel'], [/수화기|전화/, 'phone']];
 let phDone = new WeakSet();
 function fixPhantoms() {
   const T = THREE, rc = new T.Raycaster(), solids = [], vis = o => { for (let a = o; a; a = a.parent) if (!a.visible) return false; return true; };
-  scene.updateMatrixWorld(true); scene.traverse(o => { if (o.isMesh && !o.isSkinnedMesh && vis(o)) solids.push(o); });
+  scene.updateMatrixWorld(true); scene.traverse(o => { if (o.isMesh && !o.isSkinnedMesh && vis(o)) solids.push(o); }); const nearS = nearSolids(solids);
   const M = (c, r = .6, m = .1) => new T.MeshStandardMaterial({ color: c, roughness: r, metalness: m });
   const mats = { board: M(0x1e3a2c, .85), frame: M(0x8a6a44, .6), panel: M(0x9aa0a4, .45, .5), phone: M(0x2a2c30, .4, .2), cab: M(0x8a7458, .7) };
   let n = 0;
   for (const q of world.props) {
     if (q.floor !== 0 || q.mesh || q.taken || phDone.has(q) || !['robj', 'fz', 'chalk', 'cbreaker', 'look'].includes(q.kind)) continue;
     const y = q.rbY != null ? (q.y != null && q.y > q.rbY - .1 ? q.y : q.rbY + (q.y ?? 1)) : (q.y ?? 1), o = new T.Vector3(q.x, y, q.z);
+    { const loc = nearS(q.x, y, q.z, 4); solids.length = 0; solids.push(...loc); }
     let best = null, md = 9;
     for (const d of [[1, 0, 0], [-1, 0, 0], [0, 0, 1], [0, 0, -1], [0, -1, 0], [0, 1, 0]]) { rc.set(o, new T.Vector3(...d)); rc.far = 3; const h = rc.intersectObjects(solids, false)[0]; if (h) { md = Math.min(md, h.distance); if (d[1] === 0 && (!best || h.distance < best.distance)) best = { ...h, dir: d }; } }
     phDone.add(q); if (md <= 1.2) continue;

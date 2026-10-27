@@ -6334,19 +6334,18 @@
  "call_home_a2": {
   "spk": "mom",
   "text": "서문고? 이 밤에 거길 왜 들어가. 거기서 십 년 전에 애 하나 없어졌던 거, 너도 알잖아.",
-  "dur": 7.31,
-  "baked": false,
+  "dur": 7.2,
+  "baked": true,
   "eleven": "[shocked] 서문고? 이 밤에 거길 왜 들어가. [worried] 거기서 십 년 전에 애 하나 없어졌던 거, 너도 알잖아.",
   "generation": {
    "voice_id": "4p0HBzAAGyju0nYfNntV",
    "model_id": "eleven_v4",
    "language_code": "ko",
    "delivery": "[shocked] [worried]",
-   "input_sha256": "f6cfba174622b46e636c31e4281f4ea3b336cbead2a21b3a6bec43299d6dc463",
-   "audio_sha256": "76dcb31ba0a9e10bba9cbc675bf943672c05c3942cb4e512b4aefc16476adb57",
+   "input_sha256": "53f281e554e7fddf17f8483d538d2bc74dd58f1393c5e94796665337e92773f9",
+   "audio_sha256": "fd0f0dd89667b8fd4b0d49b5b9449f3743ffb9eff3d1a93783316135dcc705a4",
    "review_status": "generated"
-  },
-  "nofile": true
+  }
  },
  "call_home_a3": {
   "spk": "mom",

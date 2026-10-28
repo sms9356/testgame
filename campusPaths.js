@@ -3,7 +3,7 @@
 // 건물 바닥 사각형을 빼고, 새 현관마다 진입로를 이어 한 장의 겹침 없는 인도로 다시 깐다 (경계엔 연석).
 import * as THREE from './vendor/three.module.js';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { ZONES } from './facilityRebuild.js?v=255';
+import { ZONES } from './facilityRebuild.js?v=256';
 
 const CELL = .2, X0 = -130, X1 = 130, Z0 = -100, Z1 = 90;
 // 캠퍼스 재배치 후 새 인도망 (폭 2.8m 안팎): 예전 보도는 모두 걷고 동선대로 다시 깐다 — 대로 4줄 + 안쪽 종단로 + 각 건물 현관 진입로
@@ -87,8 +87,9 @@ export function cleanupCampus({ scene, floors }) {
   hid += carveFloating(scene);
   return { hid, inst };
 }
-// 건물 이동 뒤 허공에 남은 굳힌(bake) 잔재 삼각형: 운동장 서쪽 6.5m 높이 녹슨 막대 · 받침 없이 떠 있는 옛 차양 판
-const FLOAT_BOXES = [[-49.5, -47, 5.5, 8.5, 15, 62], [-34.6, -32.2, -.1, 3.6, 38.8, 43.3]];
+// 건물 이동 뒤 남은 굳힌(bake) 잔재 삼각형: 운동장 서쪽 6.5m 높이 녹슨 막대 · 받침 없이 떠 있는 옛 차양 판 · 마당의 옛 경계석 띠
+const FLOAT_BOXES = [[-49.5, -47, 5.5, 8.5, 15, 62], [-34.6, -32.2, -.1, 3.6, 38.8, 43.3],
+  [-37, 37, -.3, .6, -32.2, -4.2]];   // 본관 ↔ 별관 사이 마당: 예전 건물 경계석 · 바닥 띠(흰 줄 · 붉은 줄)가 잔디 위로 비쳤다
 const CARVED = new WeakSet();
 function carveFloating(scene) {
   let n = 0; const v = new THREE.Vector3(), bb = new THREE.Box3();

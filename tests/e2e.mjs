@@ -20,7 +20,8 @@ const E = (p, f, a) => p.evaluate(f, a);
 async function finalChoice(p, i) {
   await p.waitForFunction(() => document.getElementById('choice').classList.contains('show'), null, { timeout: 30000 });
   await p.evaluate(i => document.querySelectorAll('#choiceBtns button')[i].click(), i);
-  await p.waitForFunction(() => document.getElementById('win').classList.contains('show'), null, { timeout: 30000 });
+  // 결말 자료(뉴스 · 경찰 · 학교) 세 장을 넘긴다
+  await p.waitForFunction(() => { const o = document.getElementById('outro'); if (o.classList.contains('show') && o.querySelector('.card.on')) { o.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true })); window.__outroN = (window.__outroN || 0) + 1; } return document.getElementById('win').classList.contains('show'); }, null, { timeout: 40000, polling: 900 });
 }
 const W = (p, t) => p.waitForTimeout(t);
 // 새 게임 · 이어하기는 교실 소품 모델 로딩이 끝난 뒤 시작한다(whenAssetsReady) — 로딩 화면이 닫힐 때까지 기다린다
@@ -86,9 +87,9 @@ async function normalRun(char) {
   await saveReload(p, '정문 열쇠 후'); ok(await E(p, () => __g.FL.gatekey) && await E(p, () => __g.objective().ch) === 6, '복원: 정문 열쇠 · 제6장');
   await E(p, () => { __g.ghost.active = false; __g.state = 'playing'; __g.P.floor = 0; __g.P.x = 0; __g.P.z = 67; __g.P.yaw = Math.PI; });
   await p.evaluate(s => new Promise(r => { const t0 = __g.tNow; const f = () => { if (__g.tNow - t0 >= s) r(); else requestAnimationFrame(f); }; requestAnimationFrame(f); }), .4);
-  await p.keyboard.press('KeyE'); await finalChoice(p, 2);
+  await p.keyboard.press('KeyE'); await finalChoice(p, 1);
   ok(await E(p, () => __g.state) === 'won' && (await E(p, () => document.getElementById('endTag').textContent)) === 'NORMAL END', 'NORMAL 엔딩 도달');
-  ok(await E(p, () => __g.FL.final) === 'C' && (await E(p, () => document.getElementById('winText').textContent)).includes('END C'), '마지막 선택 C (은폐) 후일담');
+  ok(await E(p, () => __g.FL.final) === 'B0' && (await E(p, () => document.getElementById('winText').textContent)).includes('END B?'), '마지막 선택 B (혼자 떠남) 후일담');
   ok(p.errors === 0, '콘솔 오류 없음'); await p.close();
 }
 
@@ -164,7 +165,7 @@ async function reachAudit() {
   await E(p, () => { localStorage.clear(); __g.newGame(); }); await W(p, 800); await p.keyboard.press('Space'); await W(p, 600);
   const bad = await E(p, () => {
     const g = __g, out = []; g.ghost.active = false; g.state = 'playing'; if (window.__rbRel) window.__rbRel();   // 새 건물: 방금 생긴 조사 지점까지 옮긴 뒤 점검
-    g.world.doorList.forEach(d => { if (d.rect) d.rect.off = true; });
+    g.world.doorList.forEach(d => { if (d.rect) d.rect.off = true; }); (g.world.facDoors || []).forEach(D => { D.t = D.target = 1; D.open = true; D.sync(); });   // 캠퍼스 시설 실내 문도 연다
     g.floors.forEach(F => F && F.col.forEach(c => { if (c.gate) c.off = true; }));   // 미션으로 여는 문(옥상 녹슨 철문 등)도 열린 것으로
     const SEEDS = { 0: [[0.8, -11.2]], 4: [[18, -16], [0.8, -5.2]] };   // B1: 계단으로 내려온 자리(철문 안쪽)   // 순간이동 문으로만 들어가는 공간 (본관 ↔ 별관 실내 연결복도)
     const S = .2, r = .3, FF = {};
@@ -185,7 +186,7 @@ async function reachAudit() {
       if (!AREA[t.f]) continue;
       if (window.__rbg && [1, 2, 8, 9, 10].includes(t.f)) continue;   // 새 건물: 예전 층에 남겨 둔(쓰지 않는) 장치는 점검 대상 아님
       // 새 건물(기본): 옮긴 대상은 그 층 높이(rbY)에서 — 바닥이 그 높이이고 막히지 않은 자리 (층 사이 연결은 rebuild 보행 감사가 따로 본다)
-      const up2 = t.f === 0 && t.o.rbY == null && (t.o.y ?? 0) > 3.2 && [[-86, -42, 22, 14], [-88, 42, 22, 14], [84, -34, 20, 16], [84, -11, 15.6, 10.6]].some(([cx, cz, w, d]) => Math.abs(t.x - cx) < w / 2 + .1 && Math.abs(t.z - cz) < d / 2 + .1);   // 2층 시설(청운학사 · 학생회관 · 과학천문관 · 역사관) 2층: 바닥 격자는 1층만 보므로 2층 물건은 그 높이에서 고르기만 본다
+      const up2 = t.f === 0 && t.o.rbY == null && (t.o.y ?? 0) > 3.2 && [[-86, -42, 22, 14], [-88, 42, 22, 14], [-88, 14, 20, 16], [-88, -16, 15.6, 10.6]].some(([cx, cz, w, d]) => Math.abs(t.x - cx) < w / 2 + .1 && Math.abs(t.z - cz) < d / 2 + .1);   // 2층 시설(청운학사 · 학생회관 · 과학천문관 · 역사관) 2층: 바닥 격자는 1층만 보므로 2층 물건은 그 높이에서 고르기만 본다
       const R = window.__rbg, hy = t.o.rbY, ok2 = up2 ? (() => true) : hy != null && R ? ((px, pz) => { const gg = R.groundAt(px, pz, hy + .1); return gg != null && Math.abs(gg - hy) < .3 && !R.blocked(px, pz, hy, .3); }) : flood(t.f), wd = t.o.done, wl = t.o.locked; if (!t.l) { t.o.done = false; t.o.locked = false; }
       let ok = false;
       for (const rr of [.5, .7, .9, 1.1, 1.3, 1.6]) { for (let a = 0; a < 24 && !ok; a++) { const an = a / 24 * Math.PI * 2, px = t.x + Math.cos(an) * rr, pz = t.z + Math.sin(an) * rr; if (!ok2(px, pz)) continue;
@@ -222,11 +223,29 @@ async function saveEdgeCases() {
   await t.close();
 }
 
+// 은폐 엔딩: 마지막 선택 C → 교장실 전화 → 거래 · 혼자 묻기
+async function coverRun() {
+  console.log('\n■ 은폐 엔딩 (마지막 선택 C → 교장실의 전화)');
+  for (const [k, title, fin] of [[0, '침묵의 서약', 'C'], [1, '교장실의 거래', 'C2']]) {
+    const p = await page(); await ready(p);
+    await E(p, () => { localStorage.removeItem('haegyo_endings'); __g.newGame(); }); await started(p); await p.keyboard.press('Space'); await W(p, 400);
+    await E(p, () => { __g.state = 'playing'; __g.winGame(); });
+    await p.waitForFunction(() => document.getElementById('choice').classList.contains('show'), null, { timeout: 30000 });
+    await E(p, () => document.querySelectorAll('#choiceBtns button')[2].click());
+    await W(p, 600); await finalChoice(p, k);
+    ok(await E(p, () => document.getElementById('endTag').textContent) === 'COVER-UP END' && await E(p, () => document.getElementById('endTitle').textContent) === title && await E(p, () => __g.FL.final) === fin, `은폐 엔딩 도달 — ${title} (END ${fin})`);
+    ok(await E(p, () => JSON.parse(localStorage.getItem('haegyo_endings') || '[]').includes('cover')), '엔딩 기록에 COVER-UP 저장');
+    ok(await E(p, () => window.__outroN >= 3), '결말 자료 세 장 (학교 · 경찰 · 뉴스) 표시');
+    ok(p.errors === 0, '콘솔 오류 없음'); await p.close();
+  }
+}
+
 // E2E_ONLY=reach,extras … 처럼 일부만 돌릴 수 있다
 const ONLY = (process.env.E2E_ONLY || '').split(',').filter(Boolean), run = (k, f) => !ONLY.length || ONLY.includes(k) ? f() : null;
 await run('normal', () => normalRun('jihun'));
 await run('normal', () => normalRun('seoyeon'));
 await run('true', trueRun);
+await run('cover', coverRun);
 await run('extras', extrasRun);
 await run('reach', reachAudit);
 await run('save', saveEdgeCases);

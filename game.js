@@ -18,23 +18,23 @@ import { buildMissionGroups, recordCompleted, normalizeCompletedLog } from './my
 import { settleStoryGhost } from './storyGhost.js';
 import { GLTFLoader } from './vendor/addons/loaders/GLTFLoader.js';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { createNPCVisuals } from './npcVisuals.js?v=246';
-import { applyGuardSeatedPose } from './guardSeatedPose.js?v=246';
+import { createNPCVisuals } from './npcVisuals.js?v=250';
+import { applyGuardSeatedPose } from './guardSeatedPose.js?v=250';
 import { createCampusCctvLive, collectCampusCctvFeeds } from './campusCctvLive.js';
-import { applyExteriorFloorVisibility, shouldStreamGuardCctv } from './exteriorRenderBudget.js?v=246';
-import { GUARD_LAYOUT } from './guardRoomLayout.js?v=246';
-import { ANNEX_KEYS, CABINET_CODE } from './guardAnnex.js?v=246';
-import { installGuardRoom } from './guardRoom.js?v=246';
+import { applyExteriorFloorVisibility, shouldStreamGuardCctv } from './exteriorRenderBudget.js?v=250';
+import { GUARD_LAYOUT } from './guardRoomLayout.js?v=250';
+import { ANNEX_KEYS, CABINET_CODE } from './guardAnnex.js?v=250';
+import { installGuardRoom } from './guardRoom.js?v=250';
 import { prepareModelGeometry } from './modelGeometry.js';
 import { modelFootprint, overlaps, removeDuplicateModels } from './placement.js';
-import { turfMaterial } from './campusVisuals.js?v=246';
+import { turfMaterial } from './campusVisuals.js?v=250';
 import { installInfirmaryAssets, updateInfirmaryCabinets } from './infirmaryAssets.js';
-import { installRebuild } from './rebuildGame.js?v=246';
-import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js?v=246'; import { updateWindowFakes } from './windowInteriors.js?v=246';
-import { drawMap } from './map.js?v=246';
-import { buildMegaCampus15000, MEGA_CAMPUS_ZONES } from './megaCampus15000.js?v=246';
-import { installFacilityRebuild, inTwoStory, ZONES as FAC_ZONES } from './facilityRebuild.js?v=246';
-import { relayoutCampus } from './campusRelayout.js?v=246';
+import { installRebuild } from './rebuildGame.js?v=250';
+import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js?v=250'; import { updateWindowFakes } from './windowInteriors.js?v=250';
+import { drawMap } from './map.js?v=250';
+import { buildMegaCampus15000, MEGA_CAMPUS_ZONES } from './megaCampus15000.js?v=250';
+import { installFacilityRebuild, inTwoStory, ZONES as FAC_ZONES } from './facilityRebuild.js?v=250';
+import { relayoutCampus } from './campusRelayout.js?v=250';
 import { makeDress, makeHair, makeGhostFace, makeGraffiti, makeKeypad, loadPBR, pbr, makeGlow as makeGlowTex, makePaintingStare, makeSign, makeBlood } from './tex.js';
 import { warmUp } from './bake.js';
 import { createStaticDistanceLOD } from './staticDistanceLOD.js';
@@ -51,14 +51,14 @@ import './basementRoomsPatch.js';     // 지하 전기실 · 보일러실 (사�
 import './classroomRemodelPatch.js';  // 교실 리모델링 · 의자에 앉기 (사용자 제공) → window.classroomRemodelPatch
 import './school37RoomsPatch.js';    // 본관 · 별관 37개 특별실 가구 · 동선 (사용자 제공) → window.school37RoomsPatch
 import './new37UniquePatch.js';     // 37개 구역 신규 특수 설비 · 벽면 레일 (사용자 제공) → window.new37UniquePatch
-import './megaExpansionPatch.js?v=246';   // 메가 익스팬션 · 최적화 · 4막 사건 기록 · 수집품 · 미니게임 (사용자 제공) → window.megaSchoolPatch
+import './megaExpansionPatch.js?v=250';   // 메가 익스팬션 · 최적화 · 4막 사건 기록 · 수집품 · 미니게임 (사용자 제공) → window.megaSchoolPatch
 import './poolMachineryPatch.js';     // 수영장 · 남/녀 탈의실·샤워실 · 기계실 철문 (사용자 제공) → window.poolAndMachineryPatch
-import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx, setSfxBusyCheck } from './audio.js?v=246'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=246'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera, perfInstanceSource } from './perfStabilizer.js?v=246'; window.__perfInst = perfInstanceSource; import { upgradePlainMaterials } from './plainUpgrade.js?v=246'; import { relayCampusPaths, cleanupCampus } from './campusPaths.js?v=246'; import { installHudV2, tickHudV2 } from './hudV2.js?v=246'; import { installPartnerRadio, tickPartnerRadio } from './partnerRadio.js?v=246';
-import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js?v=246';
-import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, HYPOTHESES, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, SIDEQUESTS, HEADQUEST, COLLECT, } from './story.js?v=246';
-import { isSpeechBusy } from './voice.js?v=246';
+import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx, setSfxBusyCheck } from './audio.js?v=250'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=250'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera, perfInstanceSource } from './perfStabilizer.js?v=250'; window.__perfInst = perfInstanceSource; import { upgradePlainMaterials } from './plainUpgrade.js?v=250'; import { relayCampusPaths, cleanupCampus } from './campusPaths.js?v=250'; import { installHudV2, tickHudV2 } from './hudV2.js?v=250'; import { installPartnerRadio, tickPartnerRadio } from './partnerRadio.js?v=250';
+import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js?v=250';
+import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, HYPOTHESES, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, COVER_END, ENDING_OUTRO, OUTRO_TYPE, SIDEQUESTS, HEADQUEST, COLLECT, } from './story.js?v=250';
+import { isSpeechBusy } from './voice.js?v=250';
 import { SET, saveSET, resetSET, DIFF, keyLabel } from './settings.js';
-import { initI18n, setLang, lang as curLang } from './i18n.js?v=246';   // 언어 패치 (한국어 · English · 日本語 · 中文)
+import { initI18n, setLang, lang as curLang } from './i18n.js?v=250';   // 언어 패치 (한국어 · English · 日本語 · 中文)
 initI18n();
 const K = () => SET.keys;
 let guardRoomController = null, guardControlProps = [], guardCctvData = null, campusCctv = null;
@@ -77,7 +77,7 @@ function syncGuardDevices() {
 function toggleGuardCCTV(persist = true) { FL.guardCctvOn = !(FL.guardCctvOn ?? true); sfx.click(); syncGuardDevices(); if (persist) save(true); return FL.guardCctvOn; }
 function toggleGuardLight() { FL.guardLightOn = !(FL.guardLightOn ?? false); sfx.click(); syncGuardDevices(); say(FL.guardLightOn ? '경비실 전등을 켰다' : '경비실 전등을 껐다', 1800); save(true); return FL.guardLightOn; }
 
-import { run as runMini, MG } from './minigames.js?v=246';
+import { run as runMini, MG } from './minigames.js?v=250';
 import { SCHEMA, BUILD, storageKeys, itemUid, propUid, doorUid, assignUids, readSlot, writeSlot, hasSlot, clearSlot, repairProgress } from './saveSystem.js';
 const NOTE_CAST = {
   n_seomun_ilbo: { spk: 'reporter', audioId: 'call_119', stage: '(📰 서문일보 사회부 한진우 기자의 긴급 특보 리포팅)' },
@@ -1977,19 +1977,62 @@ function choose(title, text, opts) {
     $('choice').classList.add('show'); sfx.beep();
   });
 }
+// 엔딩 아웃트로: 결말마다 다른 뉴스 · 경찰 · 학교 · 문자 자료 세 장 (클릭 · Space 로 넘김)
+function playOutro(fin) {
+  const cards = ENDING_OUTRO[fin]; if (!cards) return Promise.resolve();
+  return new Promise(res => {
+    const box = $('outro'), card = box.querySelector('.card'), dots = box.querySelector('.dots');
+    state = 'ui'; $('hud').classList.remove('show'); document.exitPointerLock?.();
+    dots.innerHTML = cards.map(() => '<i></i>').join('');
+    let i = -1, tm = 0, done = false;
+    const end = () => { if (done) return; done = true; clearTimeout(tm); removeEventListener('keydown', kd, true); removeEventListener('pointerdown', pd, true); box.classList.remove('show'); res(); };
+    function next() {
+      clearTimeout(tm); if (++i >= cards.length) { end(); return; }
+      const c = cards[i]; card.classList.remove('on');
+      setTimeout(() => {
+        if (done) return;
+        card.className = 'card ' + c.t;
+        card.innerHTML = `<div class="ty">${OUTRO_TYPE[c.t]}</div><div class="meta">${c.meta}</div><div class="head">${c.head}</div><div class="body">${c.body}</div>`;
+        [...dots.children].forEach((d, k) => d.classList.toggle('on', k === i));
+        requestAnimationFrame(() => card.classList.add('on'));
+        c.t === 'sms' ? sfx.phone() : sfx.paper();
+      }, i ? 450 : 0);
+      tm = setTimeout(next, 6500);
+    }
+    const kd = e => { if (e.code === 'Space' || e.code === 'Enter' || e.code === 'Escape') { e.preventDefault(); e.stopPropagation(); e.code === 'Escape' ? end() : next(); } };
+    const pd = e => { e.preventDefault(); e.stopPropagation(); next(); };   // 다른 요소가 포인터를 잡고 있어도 넘어가도록 창 단계에서 받는다
+    addEventListener('keydown', kd, true); addEventListener('pointerdown', pd, true);
+    box.classList.add('show'); next();
+  });
+}
 async function winGame() {
   const allTags = !!(FL.mega && FL.mega.tags && FL.mega.tags.length >= megaP.storyState.totalNametags);   // 1998 실종 학생 명찰 12개 → TRUE END「모든 영혼의 구원」
-  const end = FL.mina || FL.sos || allTags ? 'true' : 'normal', sosOnly = !!FL.sos && !FL.mina && !allTags;   // 옥상 구조 신호(구역 미션 D)도 진 엔딩
+  let end = FL.mina || FL.sos || allTags ? 'true' : 'normal'; const aired = end === 'true', sosOnly = !!FL.sos && !FL.mina && !allTags;   // 옥상 구조 신호(구역 미션 D)도 진 엔딩
   P.invuln = 999; ghost.active = false;
   if (FL.mina) setTimeout(() => talk('withMina', 2800), 400);
   await wait(2400);
   // 마지막 선택 (EV-23): 기록 수 · 민아 구출 여부에 따라 후일담이 달라진다
   const nd = docs.length, ci = await choose('마지막 선택', `정문이 열렸다. 손에는 오늘 밤 모은 기록 ${nd}개가 있다.${FL.mina ? ' 민아가 곁에 서 있다.' : ''}`, FINAL_CHOICE);
-  const pk = FINAL_CHOICE[ci].id, fin = pk === 'A' ? (nd >= 14 ? (sqDoneCount() === SIDEQUESTS.length ? 'Aplus' : 'A') : 'A0') : pk === 'B' ? (FL.mina ? 'B' : 'B0') : 'C';
+  const pk = FINAL_CHOICE[ci].id;
+  let fin = pk === 'A' ? (nd >= 14 ? (sqDoneCount() === SIDEQUESTS.length ? 'Aplus' : 'A') : 'A0') : pk === 'B' ? (FL.mina ? 'B' : 'B0') : 'C', cover = null;
+  if (pk === 'C') {   // 은폐 엔딩: 교장실의 전화 → 혼자 묻을지, 거래할지
+    sfx.phone(); await wait(900);
+    const k = await choose(COVER_END.ask.title, COVER_END.ask.text, COVER_END.ask.opts);
+    cover = COVER_END.ask.opts[k].id; if (cover === 'deal') fin = 'C2';
+  }
+  if (cover) end = 'cover';
   FL.final = fin;
+  await playOutro(fin);
   setTimeout(() => {
     state = 'won'; sfx.win(); stopSpeak(); $('hud').classList.remove('show');
     try { const e = new Set(JSON.parse(localStorage.getItem(ENDINGS_KEY) || '[]')); e.add(end); e.add('final' + fin[0]); localStorage.setItem(ENDINGS_KEY, JSON.stringify([...e])); clearSlot(localStorage, SKEYS); } catch (err) { /* ignore */ }
+    if (end === 'cover') {
+      $('endTag').textContent = 'COVER-UP END'; $('endTag').className = end; $('endTitle').textContent = COVER_END.title[cover];
+      $('winText').innerHTML = COVER_END.text + (FL.mina ? ' <span>' + COVER_END.mina + '</span>' : '') + (aired ? `<br><br><span class="epi">${COVER_END.aired}</span>` : '') + `<br><br><span class="epi">${FINAL_EPI[fin]}</span><br><br><small style="color:#8a8678">…진실을 밝히는 다른 결말도 있다.</small>`;
+      const rec = statClear(end, fin);
+      $('endStats').innerHTML = `<span>주인공</span><b>${CH().name}</b><span>플레이 시간</span><b>${fmtPT(playTime, true, true)}${rec.isBest ? ' <em style="color:#e8c870;font-style:normal">· 최단 기록!</em>' : ''}</b><span>찾은 기록</span><b>${docs.length} / ${DOC_TOTAL()}</b><span>마지막 선택</span><b>END ${fin}</b><span>난이도</span><b>${DF().label}</b><span>쓰러진 횟수</span><b>${deaths}</b>`;
+      $('win').classList.add('show'); document.exitPointerLock?.(); return;
+    }
     const vo = end === 'true' && !sosOnly ? 'endTrue' : 'endNormal';
     $('endTag').textContent = end === 'true' ? 'TRUE END' : 'NORMAL END'; $('endTag').className = end;
     $('endTitle').textContent = sosOnly ? '옥상의 구조 신호' : allTags ? '모든 영혼의 구원' : end === 'true' ? '폭로 방송' : '다시 닫힌 문';
@@ -2855,7 +2898,7 @@ function refreshTitle() {
   $('mCharName').textContent = CH().name;
   let ends = []; try { ends = JSON.parse(localStorage.getItem(ENDINGS_KEY) || '[]'); } catch (e) { /* ignore */ }
   const ST = statRead(), tot = ST.total ? `총 플레이 ${fmtPT(ST.total, true)}  ·  ` : '';
-  $('tEnd').textContent = (ends.length ? `달성한 엔딩: ${ends.filter(e => e === 'true' || e === 'normal').map(e => e === 'true' ? 'TRUE' : 'NORMAL').join(' · ')}  ·  ` : '') + tot;
+  $('tEnd').textContent = (ends.length ? `달성한 엔딩: ${ends.filter(e => e === 'true' || e === 'normal' || e === 'cover').map(e => e === 'true' ? 'TRUE' : e === 'cover' ? 'COVER-UP' : 'NORMAL').join(' · ')}  ·  ` : '') + tot;
   const btns = [...$('tMenu').querySelectorAll('button')].filter(b => b.style.display !== 'none'); btns.forEach((b, i) => b.classList.toggle('sel', i === 0));
 }
 let csMode = 'view', csPick = CHAR;
@@ -2876,7 +2919,7 @@ function ensureCharsel3D() {
     const rim = new THREE.DirectionalLight(0xffd6e0, 0.85); rim.position.set(0, 2.4, -2.5);
     sc.add(hemi, key, fill, rim);
     st.scenes[k] = sc;
-    loader.load(`assets/characters/${k}.glb?v=246`, gltf => {
+    loader.load(`assets/characters/${k}.glb?v=250`, gltf => {
       const m = gltf.scene;
       npcVisuals.enhanceCharacterMaterials?.(m, k);
       m.traverse(o => { if (o.isMesh || o.isSkinnedMesh) o.frustumCulled = false; });
@@ -3367,10 +3410,11 @@ function openGallery(tab = galTab) {
   else {
     let ends = []; try { ends = JSON.parse(localStorage.getItem(ENDINGS_KEY) || '[]'); } catch (e) { /* ignore */ }
     statFlush(); const ST = statRead(), gs = document.createElement('div'); gs.className = 'galStats';
-    gs.innerHTML = `<span>총 플레이 시간</span><b>${fmtPT(ST.total, true)}</b><span>엔딩 본 횟수</span><b>${ST.clears || 0}회</b><span>TRUE END 최단</span><b>${ST.best && ST.best.true ? fmtPT(ST.best.true, true, true) : '—'}</b><span>NORMAL END 최단</span><b>${ST.best && ST.best.normal ? fmtPT(ST.best.normal, true, true) : '—'}</b><span>마지막 엔딩</span><b>${ST.last ? `${ST.last.end === 'true' ? 'TRUE' : 'NORMAL'} · END ${ST.last.fin} · ${fmtPT(ST.last.t, true, true)}` : '—'}</b>`;
+    gs.innerHTML = `<span>총 플레이 시간</span><b>${fmtPT(ST.total, true)}</b><span>엔딩 본 횟수</span><b>${ST.clears || 0}회</b><span>TRUE END 최단</span><b>${ST.best && ST.best.true ? fmtPT(ST.best.true, true, true) : '—'}</b><span>NORMAL END 최단</span><b>${ST.best && ST.best.normal ? fmtPT(ST.best.normal, true, true) : '—'}</b><span>COVER-UP END 최단</span><b>${ST.best && ST.best.cover ? fmtPT(ST.best.cover, true, true) : '—'}</b><span>마지막 엔딩</span><b>${ST.last ? `${ST.last.end === 'true' ? 'TRUE' : ST.last.end === 'cover' ? 'COVER-UP' : 'NORMAL'} · END ${ST.last.fin} · ${fmtPT(ST.last.t, true, true)}` : '—'}</b>`;
     gw.appendChild(gs);
     fig('assets/ui/title_main.webp', 'assets/ui/title_main.webp', 'TRUE END — 폭로 방송', !ends.includes('true'));
     fig('assets/img/gate_night.webp', 'assets/img/gate_night.webp', 'NORMAL END — 다시 닫힌 문', !ends.includes('normal'));
+    fig('assets/img/west_gate.webp', 'assets/img/west_gate.webp', 'COVER-UP END — 침묵의 서약', !ends.includes('cover'));
     fig('assets/img/ghost_cut.webp', 'assets/img/ghost_cut.webp', 'BAD END — 다시, 여기서', deaths === 0);
   }
   $('gallery').classList.add('show');
@@ -8351,13 +8395,13 @@ function megaNotify(m) { const t = String(m).split('\n'); say(t[0].replace(/^\S+
     world.props.push({ kind: 'robj', k: 'bunker_light', t: 'bunker', floor: 4, x: bx + 1.15, z: z1 - .85, y: 1.35, r: 2.0, label: '방공호 주 전등 스위치 조작하기', bkLightGroup });
     {
       const bLoader = new GLTFLoader();
-      bLoader.load('assets/models/sf/sf_bunker_props_pack.glb?v=246', gltf => {
+      bLoader.load('assets/models/sf/sf_bunker_props_pack.glb?v=250', gltf => {
         const bm = gltf.scene; bm.position.set(bx, 0, z0 + .45);
         if (window.__upgradePure3DScene) window.__upgradePure3DScene(bm); else bm.traverse(o => { o.userData.dynamic = true; });
         R.add(bm);
         if (gltf.animations && gltf.animations.length) { const mx = new THREE.AnimationMixer(bm); mx.userData = { floor: 4, x: bx, z: z0 + .45 }; gltf.animations.forEach(c => mx.clipAction(c).play()); (window.__campusAnimMixers ||= []).push(mx); }
       }, undefined, () => {});
-      bLoader.load('assets/models/sf/sf_pump_policeline_scene.glb?v=246', gltf => {
+      bLoader.load('assets/models/sf/sf_pump_policeline_scene.glb?v=250', gltf => {
         const pm = gltf.scene; pm.position.set(32.0, 0, -3.65);
         pm.traverse(o => { o.userData.dynamic = true; if (o.isMesh) { o.castShadow = false; o.receiveShadow = true; if (o.material?.map) o.material.map.colorSpace = THREE.SRGBColorSpace; } });
         R.add(pm);
@@ -8670,7 +8714,7 @@ if (DEBUG) {
     get state() { return state; }, set state(v) { state = v; }, get tNow() { return tNow; }, openTest, EV, appar, applyQuality,
     interact, findInteract, hit, die, activateGhost, enrage, FL, MG, throwCan, throws, set playTime(v) { playTime = v; }, toggleView, get view() { return view; }, useProp, docs, msgs, clues, objective, makeGateKey, openInv, openPhone, openMap, openCharsel, openSettings, refreshHud, save, load, inv, mina,
     get power() { return power; }, set power(v) { power = v; }, get CHAR() { return CHAR; }, newGame, continueGame,
-    ELV,elvCall,elvEnter,elvLeave,elvPress,elvTick,elvReset,setTarget(t) { target = t; }, DAY, GEN, SIDEQUESTS, sqStep, sqDoneCount, useSideQuest, HEADQUEST, useHead, COLLECT, tmpFx, roomAt, camMode, camShoot, CAM, MIC, SAN, BRK, setBreaker, schoolPower, craftingSystem, ghostCam, restroom, useSink, useFlush, placeAlarm, throwShock, useFirstAid, tryCombine, stunGhost, enterLocker, leaveLocker, startSearch, useMiniSpot, openChalk, chalkAsk, XT,
+    ELV,elvCall,elvEnter,elvLeave,elvPress,elvTick,elvReset,setTarget(t) { target = t; }, DAY, GEN, SIDEQUESTS, sqStep, sqDoneCount, useSideQuest, HEADQUEST, useHead, COLLECT, tmpFx, roomAt, camMode, camShoot, CAM, MIC, SAN, BRK, setBreaker, schoolPower, craftingSystem, ghostCam, restroom, useSink, useFlush, placeAlarm, throwShock, useFirstAid, tryCombine, stunGhost, enterLocker, leaveLocker, startSearch, useMiniSpot, openChalk, chalkAsk, XT, winGame,
     choose, missionGroups, ghostTick, enrage, activateGhost, textureBudget, SG, sgTestSpawn, sgSpawn, SG_ZONES, PL, CALL, SIT, ZOOM, SHOT, closeUI, TP, whereText, FLOOR_LABEL, S37,
     get target() { return target; },
   };

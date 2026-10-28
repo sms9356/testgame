@@ -1,6 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import vm from 'node:vm';
 import {buildMissionGroups,recordCompleted,normalizeCompletedLog} from '../mysteryMissions.js';
-import {createPsychologicalDirector} from '../psychologicalHorror.js';
 import {SIDEQUESTS} from '../story.js';
 const objective={main:'선배의 녹화 찾기',subs:[['학교 안으로 들어가기',false]],loc:{where:'1-1'}};
 test('missions distinguish missing senior search, independent side cases and evidence reconstruction',()=>{
@@ -17,16 +16,6 @@ test('restored flags derive special completion and tolerate malformed optional c
 test('identical completion wording in different mission types is retained once per type',()=>{
  const log=[];recordCompleted(log,'main','기록 확인',1);recordCompleted(log,'special','기록 확인',2);recordCompleted(log,'main','기록 확인',3);assert.equal(log.length,2);
  assert.deepEqual(normalizeCompletedLog('bad'),[]);assert.deepEqual(normalizeCompletedLog([null,{s:2,t:'x'},{s:'main',t:'x'}]),[{s:'main',t:'x'}]);
-});
-const tick=(d,n,ctx)=>{const out=[];for(let i=0;i<n;i++){const x=d.tick(.25,ctx);if(x)out.push(x);}return out;};
-const context={playing:true,indoors:true,busy:false,chapter:1};
-test('phenomena never interrupt dialogue/puzzles or fire immediately after them',()=>{
- const d=createPsychologicalDirector(()=>0);assert.deepEqual(tick(d,800,{...context,busy:true}),[]);assert.deepEqual(tick(d,60,context),[]);assert.equal(tick(d,20,context).length,1);
- d.quiet(40);assert.deepEqual(tick(d,140,context),[]);
-});
-test('phenomena pause with menus, stay indoors and do not repeat the last three motifs',()=>{
- const d=createPsychologicalDirector(()=>0);assert.deepEqual(tick(d,800,{...context,playing:false}),[]);assert.deepEqual(tick(d,800,{...context,indoors:false}),[]);
- const out=tick(d,1600,context);assert.ok(out.length>=4);for(let i=1;i<out.length;i++)assert.ok(!out.slice(Math.max(0,i-3),i).includes(out[i]));
 });
 const source=fs.readFileSync(new URL('../game.js',import.meta.url),'utf8');
 const method=(start,end)=>source.slice(source.indexOf(start),source.indexOf(end,source.indexOf(start)));

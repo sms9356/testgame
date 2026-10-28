@@ -26,20 +26,8 @@ class CraftingSystem {
       }
     };
 
-    // 정의된 3가지 핵심 조합 레시피
+    // 조합 레시피 (경보 함정 · 쇼트 폭탄은 막을 '괴물'이 없어져 뺐다)
     this.recipes = [
-      {
-        resultId: "trap_can",
-        resultName: "경보 함정",
-        ingredients: { can: 1, tape: 1 },
-        desc: "바닥에 설치 가능. 괴물이 밟으면 요란한 소리와 함께 12초간 위치를 노출함."
-      },
-      {
-        resultId: "short_bomb",
-        resultName: "쇼트 폭탄 (투척용)",
-        ingredients: { battery: 1, can: 1 },
-        desc: "G키로 투척. 스파크와 함께 소음을 내고 반경 내 괴물을 4.5초간 마비시킴."
-      },
       {
         resultId: "med_kit",
         resultName: "응급 처치 키트",

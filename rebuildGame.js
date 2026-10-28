@@ -2,11 +2,11 @@
 //   기본으로 켜진다 (예전 건물로 보려면 주소창에 ?oldmap).
 //   예전 본관(1~3층 · 옥상) · 별관(8~10층) 건물은 감추고, 그 자리 땅(0층)에서 새 건물을 걷는다.
 //   높이는 P.sh(계단 높이 보정값)로 넘긴다 → 카메라 · 점프 · 가구 오르기 코드는 손대지 않아도 된다.
-import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=241';
-import { placeModels } from './rebuild/models.js?v=241';
-import { carve, subdivide } from './rebuild/transplant.js?v=241';
+import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=242';
+import { placeModels } from './rebuild/models.js?v=242';
+import { carve, subdivide } from './rebuild/transplant.js?v=242';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { turfMaterial } from './campusVisuals.js?v=241';
+import { turfMaterial } from './campusVisuals.js?v=242';
 
 // 예전 건물이 차지하던 땅 (이 안의 예전 메시 · 충돌 상자를 걷어 낸다)
 const OLD_MAIN = { x1: -51, x2: 51, z1: -10.6, z2: 10.9 };
@@ -164,7 +164,8 @@ export function installRebuild({ THREE, scene, floors, world }) {
     groundAt(x, z, feet) { let best = null; for (const b of BLD) { const [lx, lz] = b.toLocal(x, z), g = b.groundAt(lx, lz, feet); if (g != null && (best == null || g > best)) best = g; } return best; },
     blocked(x, z, y, r) { if (R.gate && y > MAIN.spec.FH - .4 && y < MAIN.spec.FH + .6 && R.gate.closed() && Math.abs(z - R.gate.z) < r + .08 && x > R.gate.x1 && x < R.gate.x2) return true; return BLD.some(b => { const [lx, lz] = b.toLocal(x, z); return b.col.some(c => !c.off && lx + r > c.x1 && lx - r < c.x2 && lz + r > c.z1 && lz - r < c.z2 && y + 1.7 > c.y1 + .001 && y + .35 < c.y2); }); },
     nearDoor(x, z, y) { let best = null, bd = 9; for (const b of BLD) { const [lx, lz] = b.toLocal(x, z), d = b.nearDoor(lx, lz, y); if (d) { const dd = Math.hypot(d.mx - lx, d.mz - lz); if (dd < bd) { bd = dd; best = d; } } } return best; },
-    toggleDoor(d) { d.target = d.target > .5 ? 0 : 1; },
+    toggleDoor(d) { const t = d.target > .5 ? 0 : 1; d.target = t;   // 양여닫이(현관 유리문 2짝): 두 짝이 같은 손잡이 자리를 공유한다 → 함께 연다 (예전엔 한 짝만 열렸다)
+      for (const b of BLD) if (b.doors && b.doors.includes(d)) b.doors.forEach(o => { if (o !== d && o.label === d.label && Math.abs(o.mx - d.mx) < .05 && Math.abs(o.mz - d.mz) < .05 && Math.abs(o.py - d.py) < .1) o.target = t; }); },
     // 전력 연동: 정전(blackout)이면 형광등 · 등기구 발광 모두 끔, 발전기 출력(gain) · 본전력(power)에 따라 밝기
     setPower(off, gain = 1, power = false) { const k = off ? 0 : gain * (power ? 1 : .86); if (k === this._pk) return; this._pk = k;
       lamps.forEach(l => { l.intensity = l.userData.swOff ? 0 : 1.6 * k; });

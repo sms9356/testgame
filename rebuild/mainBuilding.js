@@ -4,7 +4,7 @@
 //   전기(분전반 · 2등용 형광등 · 콘센트 · 스위치) · 소방(소화전함 · 소화기 · 감지기 · 유도등 · 방화문) · 수도(세면대 · 배관)
 import * as THREE from '../vendor/three.module.js';
 import { mergeGeometries } from '../vendor/addons/utils/BufferGeometryUtils.js';
-import { makeFlag } from '../tex.js?v=241';
+import { makeFlag } from '../tex.js?v=242';
 // 교실 앞면 꾸밈 공용 (반 이름 · 텍스처 캐시)
 const NAMES = ['김민수', '이서연', '박지훈', '최유진', '정하늘', '강도윤', '조수아', '윤재현', '장예린', '임태호', '한소영', '오준서', '서지민', '신동혁', '권나연', '황민재', '안채원', '송우진', '전다은', '홍석진'];
 let flagTex = null; const decorTex = new Map();
@@ -138,7 +138,8 @@ export function buildMainBuilding(opt = {}) {
     brick: M('brick', () => pbr('brick', { rough: .95 })),                              // 적벽돌 (실사)
     board: M('board', () => new THREE.MeshStandardMaterial({ map: TEX.board(), roughness: .8 })),
     alu: M('alu', () => new THREE.MeshStandardMaterial({ color: 0xb8bcc0, roughness: .35, metalness: .7 })),
-    glass: M('glass', () => new THREE.MeshStandardMaterial({ color: 0xbfd6dc, roughness: .08, metalness: .1, transparent: true, opacity: .16, depthWrite: false, side: THREE.DoubleSide })),   // 투과(transmission) 굴절은 장면을 한 번 더 그리고 흐릿한 바닥 번짐을 만든다 → 반투명 유리
+    glass: M('glass', () => new THREE.MeshStandardMaterial({ color: 0xbfd6dc, roughness: .08, metalness: .1, transparent: true, opacity: .16, depthWrite: false, side: THREE.DoubleSide })),
+    frost: M('frost', () => new THREE.MeshStandardMaterial({ color: 0xe6eef0, roughness: .45, metalness: .05, transparent: true, opacity: .62, depthWrite: false, side: THREE.DoubleSide })),   // 화장실 문: 불투명에 가까운 반투명(간유리)   // 투과(transmission) 굴절은 장면을 한 번 더 그리고 흐릿한 바닥 번짐을 만든다 → 반투명 유리
     steelG: M('steelG', () => pbr('d2_tex_paint', { color: 0xa8b8ac, rough: .7, metal: .35 })),   // 도장 철판 (분전반 · 방화문 · 캐비닛)
     red: M('red', () => new THREE.MeshStandardMaterial({ color: 0xb2201c, roughness: .45, metalness: .2 })),
     white: M('white', () => new THREE.MeshStandardMaterial({ color: 0xf0eee8, roughness: .6 })),
@@ -1181,10 +1182,10 @@ export function buildMainBuilding(opt = {}) {
     wallZ('wall', xm - .1, xm + .1, 0, zS, y0);
     const ops = [{ a: r.x1 + 1, b: r.x1 + 2, y1: 0, y2: 2.1 }, { a: r.x2 - 2, b: r.x2 - 1, y1: 0, y2: 2.1 }];
     wallX('wall', r.x1, r.x2, -S.wall / 2, S.wall / 2, y0, ops); finishX(r.x1, r.x2, -S.wall / 2, -1, y0, ops);
-    ops.forEach((o, k) => {   // 화장실 출입구: 알루미늄 틀 반투명 유리문 (열어 둔 상태) + 문 위 표지판
+    ops.forEach((o, k) => {   // 화장실 출입구: 알루미늄 틀 반투명 간유리문 (닫힌 채 · [E] 로 여닫음) + 문 위 표지판
       box('alu', o.a - .05, o.a, y0, y0 + 2.15, -.12, .12); box('alu', o.b, o.b + .05, y0, y0 + 2.15, -.12, .12); box('alu', o.a, o.b, y0 + 2.1, y0 + 2.15, -.12, .12);
-      doors.push({ kind: 'swing', mat: 'alu', win: false, w: o.b - o.a, h: 2.06, t: .04, px: k ? o.b : o.a, py: y0, pz: 0, ox: (k ? -1 : 1) * (o.b - o.a) / 2, oz: 0, dir: k ? 1 : -1, open: true,
-        cx1: o.a, cx2: o.b, cz1: -.08, cz2: .08, mx: (o.a + o.b) / 2, mz: -.5, label: `${k ? '여' : '남'}자 화장실 문`, floor: f, glassLeaf: true });
+      doors.push({ kind: 'swing', mat: 'alu', win: false, w: o.b - o.a, h: 2.06, t: .04, px: k ? o.b : o.a, py: y0, pz: 0, ox: (k ? -1 : 1) * (o.b - o.a) / 2, oz: 0, dir: k ? 1 : -1, open: false,
+        cx1: o.a, cx2: o.b, cz1: -.08, cz2: .08, mx: (o.a + o.b) / 2, mz: -.5, label: `${k ? '여' : '남'}자 화장실 문`, floor: f, glassLeaf: true, frosted: true });
       const c = document.createElement('canvas'); c.width = 256; c.height = 64; const g = c.getContext('2d'); g.fillStyle = '#f4f4f0'; g.fillRect(0, 0, 256, 64); g.fillStyle = k ? '#c8283a' : '#1f4fa8'; g.fillRect(0, 0, 64, 64);
       g.fillStyle = '#fff'; g.beginPath(); g.arc(32, 18, 8, 0, 7); g.fill(); if (k) { g.beginPath(); g.moveTo(32, 26); g.lineTo(46, 56); g.lineTo(18, 56); g.closePath(); g.fill(); } else g.fillRect(24, 28, 16, 28);
       g.fillStyle = '#1a1a1a'; g.font = 'bold 28px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(k ? '여자화장실' : '남자화장실', 160, 34);
@@ -1225,7 +1226,7 @@ export function buildMainBuilding(opt = {}) {
   // 문짝: 병합하지 않은 개별 메시 (열고 닫는 애니메이션 · 닫혔을 때만 충돌)
   for (const d of doors) {
     const g = new THREE.Group(); g.position.set(d.px, d.py, d.pz); root.add(g); d.group = g;
-    const leaf = new THREE.Mesh(d.axisZ ? uvBox(d.t, d.h, d.w) : uvBox(d.w, d.h, d.t), d.glassLeaf ? mat.glass : mat[d.mat]); if (d.glassLeaf) { const fr = new THREE.Mesh(new THREE.BoxGeometry(d.w, .08, d.t + .01), mat.alu); fr.position.set(d.ox, .04, 0); g.add(fr); const fr2 = fr.clone(); fr2.position.y = d.h - .04; g.add(fr2); } leaf.position.set(d.ox, d.h / 2, d.oz); g.add(leaf);
+    const leaf = new THREE.Mesh(d.axisZ ? uvBox(d.t, d.h, d.w) : uvBox(d.w, d.h, d.t), d.glassLeaf ? (d.frosted ? mat.frost : mat.glass) : mat[d.mat]); if (d.glassLeaf) { const fr = new THREE.Mesh(new THREE.BoxGeometry(d.w, .08, d.t + .01), mat.alu); fr.position.set(d.ox, .04, 0); g.add(fr); const fr2 = fr.clone(); fr2.position.y = d.h - .04; g.add(fr2); } leaf.position.set(d.ox, d.h / 2, d.oz); g.add(leaf);
     if (d.win) { const gw = d.kind === 'swing' ? d.w * .5 : .5; const gl = new THREE.Mesh(d.axisZ ? new THREE.BoxGeometry(d.t + .004, .7, gw) : new THREE.BoxGeometry(gw, .7, d.t + .004), mat.glass); gl.position.set(d.ox, d.h * .7, d.oz); g.add(gl); }
     { const hd = new THREE.Mesh(d.axisZ ? new THREE.BoxGeometry(d.t + .06, .12, .03) : new THREE.BoxGeometry(.03, .12, d.t + .06), mat.alu); const k = d.kind === 'swing' ? .42 : -.4; hd.position.set(d.ox * (d.axisZ ? 1 : 1) + (d.axisZ ? 0 : Math.sign(d.ox || 1) * d.w * Math.abs(k) * (d.kind === 'swing' ? 1 : -1)), 1.0, d.oz + (d.axisZ ? Math.sign(d.oz) * d.w * .42 : 0)); g.add(hd); }
     d.col = { x1: d.cx1, x2: d.cx2, z1: d.cz1, z2: d.cz2, y1: d.py, y2: d.py + d.h, door: d }; col.push(d.col);

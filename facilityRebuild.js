@@ -5,7 +5,7 @@
 //   재질: F-01 ~ F-05 바닥 · W-01 ~ W-05 벽 · C-01 ~ C-04 천장 (Poly Haven CC0 실사 스캔 텍스처, assets/tex/fac_* · 미터 단위 UV)
 import * as THREE from './vendor/three.module.js';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { pbr } from './tex.js?v=241';
+import { pbr } from './tex.js?v=242';
 
 const FH = 3.6, CEIL = 2.9, WALL_T = .24, LIN = .06;
 const TL = new THREE.TextureLoader(), TEX = {};
@@ -72,11 +72,14 @@ export function taegukgiTexture() {
 }
 
 // ───────── 철거 ─────────
+// 캠퍼스 재배치 (campusRelayout.js): 서쪽 = 학술 · 생활(청운학사 · 학생회관 · 역사관 · 과학천문관), 동쪽 = 스포츠(수영장 …), 체육관 자리 = 대강당, 소각장 철거
 export const ZONES = {
-  dorm: { cx: -86, cz: -42, W: 22, D: 14 }, union: { cx: -88, cz: 42, W: 22, D: 14 }, aud: { cx: -25, cz: -48, W: 18, D: 26 },
-  recy: { cx: 84, cz: 15, W: 16, D: 11 }, astro: { cx: 84, cz: -34, W: 20, D: 16 }, hist: { cx: 84, cz: -11, W: 15.6, D: 10.6 },
-  cafe: { cx: -39, cz: 18.75, W: 18, D: 12.5 }, pool: { cx: -41, cz: 41, W: 14, D: 20 },
+  dorm: { cx: -86, cz: -42, W: 22, D: 14 }, union: { cx: -88, cz: 42, W: 22, D: 14 }, aud: { cx: 38, cz: 24, W: 18, D: 26 },
+  astro: { cx: -88, cz: 14, W: 20, D: 16 }, hist: { cx: -88, cz: -16, W: 15.6, D: 10.6 },
+  cafe: { cx: -39, cz: 18.75, W: 18, D: 12.5 }, pool: { cx: 58, cz: 35, W: 14, D: 20 },
 };
+// 옛 자리 (걷어 낼 터)
+const OLD_ZONES = { aud: { cx: -25, cz: -48, W: 18, D: 26 }, recy: { cx: 84, cz: 15, W: 16, D: 11 }, astro: { cx: 84, cz: -34, W: 20, D: 16 }, hist: { cx: 84, cz: -11, W: 15.6, D: 10.6 }, pool: { cx: -41, cz: 41, W: 14, D: 20 } };
 export const FACILITY_ZONES = ZONES;
 export const TWO_STORY = ['dorm', 'union', 'astro', 'hist'].map(k => ZONES[k]);
 export const inTwoStory = (x, z) => TWO_STORY.some(Z => Math.abs(x - Z.cx) < Z.W / 2 + .1 && Math.abs(z - Z.cz) < Z.D / 2 + .1);
@@ -114,7 +117,7 @@ function demolish({ scene, floors, world }, zoneList, protect, cols = true) {
   kill.forEach(o => { if (o.parent) o.parent.remove(o); });
   // 충돌 상자 · 문 · 숨는 곳
   const F0 = floors[0];
-  if (cols) for (const k of ['col', 'walls', 'doorWalls']) if (F0[k]) F0[k] = F0[k].filter(r => { const cx = ((r.x1 ?? 0) + (r.x2 ?? 0)) / 2, cz = ((r.z1 ?? 0) + (r.z2 ?? 0)) / 2; return !inR(cx, cz, 0) || anchored(cx, cz); });
+  if (cols) for (const k of ['col', 'walls', 'doorWalls']) if (F0[k]) F0[k] = F0[k].filter(r => { if (r.facKeep) return true; const cx = ((r.x1 ?? 0) + (r.x2 ?? 0)) / 2, cz = ((r.z1 ?? 0) + (r.z2 ?? 0)) / 2; return !inR(cx, cz, 0) || anchored(cx, cz); });
   return { removed: kill.length, inR };
 }
 
@@ -203,16 +206,27 @@ function baseb(B, dir, p, q, fixed, y0) { if (q - p < .05) return; const L = q -
   if (dir === 'N') B.box(L, .1, .024, 'DARKWOOD', m, y0 + .05, fixed + o); else if (dir === 'S') B.box(L, .1, .024, 'DARKWOOD', m, y0 + .05, fixed - o);
   else if (dir === 'W') B.box(.024, .1, L, 'DARKWOOD', fixed + o, y0 + .05, m); else B.box(.024, .1, L, 'DARKWOOD', fixed - o, y0 + .05, m); }
 
-// 문틀 + 열린 문짝 (실 쪽으로 90° 열림) — 장식, 통행은 구멍으로
+// 문틀 + 여닫는 문짝 (닫힌 채 시작 · [E] 로 연다 — 예전엔 열린 채 고정된 장식이라 닫을 수 없었다). open: 열리는 쪽(실 방향) 부호 · 0 이면 문틀만
 function doorway(B, axis, at, a, b, lvl, open = 1, leafMat = 'DARKWOOD') {
   const y0 = lvl * FH, w = b - a, m = (a + b) / 2;
-  if (axis === 'z') {   // z = at 인 벽(동서로 뻗은 벽)의 구멍 [a,b] (x 범위)
-    B.box(.06, 2.12, .2, 'FRAME', a, y0 + 1.06, at); B.box(.06, 2.12, .2, 'FRAME', b, y0 + 1.06, at); B.box(w + .12, .08, .2, 'FRAME', m, y0 + 2.14, at);
-    if (open) { B.box(.045, 2.04, w - .06, leafMat, a + .06, y0 + 1.03, at - open * (w / 2)); B.box(.03, .03, .14, 'CHROME', a + .1, y0 + 1.0, at - open * (w - .12)); const e = at - open * (w - .06); B.col(a + .02, a + .1, Math.min(at, e), Math.max(at, e), { lvl }); }   // 열린 문짝도 막는다 (유령처럼 통과되던 곳)
-  } else {
-    B.box(.2, 2.12, .06, 'FRAME', at, y0 + 1.06, a); B.box(.2, 2.12, .06, 'FRAME', at, y0 + 1.06, b); B.box(.2, .08, w + .12, 'FRAME', at, y0 + 2.14, m);
-    if (open) { B.box(w - .06, 2.04, .045, leafMat, at - open * (w / 2), y0 + 1.03, a + .06); const e = at - open * (w - .06); B.col(Math.min(at, e), Math.max(at, e), a + .02, a + .1, { lvl }); }
-  }
+  if (axis === 'z') { B.box(.06, 2.12, .2, 'FRAME', a, y0 + 1.06, at); B.box(.06, 2.12, .2, 'FRAME', b, y0 + 1.06, at); B.box(w + .12, .08, .2, 'FRAME', m, y0 + 2.14, at); }
+  else { B.box(.2, 2.12, .06, 'FRAME', at, y0 + 1.06, a); B.box(.2, 2.12, .06, 'FRAME', at, y0 + 1.06, b); B.box(.2, .08, w + .12, 'FRAME', at, y0 + 2.14, m); }
+  if (!open) return;
+  const sgn = Math.sign(open), L = B.L[leafMat][0], lw = w - .06;
+  const pivot = new THREE.Group(); pivot.userData.dynamic = true; B.g.add(pivot);
+  if (axis === 'z') pivot.position.set(B.wx(a + .03), y0, B.wz(at)); else pivot.position.set(B.wx(at), y0, B.wz(a + .03));
+  const leaf = new THREE.Mesh(axis === 'z' ? new THREE.BoxGeometry(lw, 2.04, .045) : new THREE.BoxGeometry(.045, 2.04, lw), L); leaf.castShadow = true; leaf.receiveShadow = true;
+  axis === 'z' ? leaf.position.set(lw / 2, 1.03, 0) : leaf.position.set(0, 1.03, lw / 2); pivot.add(leaf);
+  const knob = new THREE.Mesh(new THREE.BoxGeometry(.03, .03, .14), B.L.CHROME[0]); axis === 'z' ? knob.position.set(lw - .1, 1.0, 0) : (knob.rotation.y = Math.PI / 2, knob.position.set(0, 1.0, lw - .1)); pivot.add(knob);
+  const c = B.col(0, 0, 0, 0, { lvl });   // 문짝 충돌 (닫힘: 구멍을 막는다 · 열림: 문짝이 벽에 붙은 자리)
+  const D = { pivot, col: c, open: false, t: 0, target: 0,
+    sync() { const ang = (axis === 'z' ? 1 : -1) * sgn * Math.PI / 2 * this.t; pivot.rotation.y = ang;
+      const vx = axis === 'z' ? lw : 0, vz = axis === 'z' ? 0 : lw, cs = Math.cos(ang), sn = Math.sin(ang), hx = pivot.position.x, hz = pivot.position.z, ex = hx + vx * cs + vz * sn, ez = hz - vx * sn + vz * cs;
+      c.x1 = Math.min(hx, ex) - .04; c.x2 = Math.max(hx, ex) + .04; c.z1 = Math.min(hz, ez) - .04; c.z2 = Math.max(hz, ez) + .04; } };
+  D.sync();
+  const px = axis === 'z' ? B.wx(m) : B.wx(at), pz = axis === 'z' ? B.wz(at) : B.wz(m);
+  B.ctx.world.props.push({ kind: 'robj', k: 'fac_door', t: 'fac', floor: 0, x: px, z: pz, y: y0 + 1.1, r: 1.6, label: '문 열기', fdoor: D });
+  (B.ctx.world.facDoors ||= []).push(D);
 }
 
 // ── 평면 생성: 북측 실 열 · 복도 · 남측 실 열 (위 → 아래), 남측 가운데 현관 ──
@@ -725,7 +739,7 @@ function retexture(F, rules) {   // 실내 층(6 · 7)의 바닥/벽/천장 메�
 // ───────── 설치 ─────────
 export function installFacilityRebuild(ctx) {
   const { world, floors, scene } = ctx, t0 = performance.now();
-  const ids = ['dorm', 'union', 'aud', 'recy', 'astro', 'hist'], zones = ids.map(k => ZONES[k]);
+  const ids = ['dorm', 'union', 'aud', 'astro', 'hist'], zones = [...ids.map(k => ZONES[k]), ...['aud', 'recy', 'astro', 'hist'].map(k => OLD_ZONES[k])];
   // 보존: 퀘스트 물건(메시 있는 것) · 사물함/숨는 곳 메시
   const protect = new Set(); const keep = o => { if (!o) return; o.traverse ? o.traverse(c => protect.add(c)) : protect.add(o); for (let a = o.parent; a; a = a.parent) protect.add(a); };
   // 조상까지 보호하면 그룹이 통째로 살아남으므로, 조상은 walk 단계에서만 통과시키고 메시는 개별 판정 → protect 에는 메시만
@@ -733,17 +747,17 @@ export function installFacilityRebuild(ctx) {
   const res = demolish(ctx, zones, keepMesh);
   // 옛 시설 묶음(청운학사 · 학생회관 · 천문관 옛 현관 캐노피 · 간판)과 옛 분리수거장 동쪽 담장(구역 2m 밖)까지 통째로 걷는다 — 소품(keepMesh)은 남김
   { const extra = [[78.3, 94.8, 9.8, 21.2]], kill = [], b3 = new THREE.Box3(), c3 = new THREE.Vector3();
-    scene.traverse(o => { if (!o.isMesh || keepMesh.has(o)) return; let old = false; for (let a = o.parent; a; a = a.parent) if (/^chunk_(dorm|astro|union)$/.test(a.name)) old = true;
+    scene.traverse(o => { if (!o.isMesh || keepMesh.has(o)) return; for (let a = o; a; a = a.parent) if (a.userData.facKeep) return; let old = false; for (let a = o.parent; a; a = a.parent) if (/^chunk_(dorm|astro|union)$/.test(a.name)) old = true;
       if (!old) { b3.setFromObject(o); if (b3.isEmpty() || b3.max.y - b3.min.y < .5) return; b3.getCenter(c3); old = extra.some(r => c3.x > r[0] && c3.x < r[1] && c3.z > r[2] && c3.z < r[3]) && !o.isInstancedMesh; }
       if (old) kill.push(o); });
     kill.forEach(o => o.parent && o.parent.remove(o));
-    const F0 = floors[0]; for (const k of ['col', 'walls']) if (F0[k]) F0[k] = F0[k].filter(r => !extra.some(e => (r.x1 + r.x2) / 2 > e[0] && (r.x1 + r.x2) / 2 < e[1] && (r.z1 + r.z2) / 2 > e[2] && (r.z1 + r.z2) / 2 < e[3])); }
+    const F0 = floors[0]; for (const k of ['col', 'walls']) if (F0[k]) F0[k] = F0[k].filter(r => r.facKeep || !extra.some(e => (r.x1 + r.x2) / 2 > e[0] && (r.x1 + r.x2) / 2 < e[1] && (r.z1 + r.z2) / 2 > e[2] && (r.z1 + r.z2) / 2 < e[3])); }
   // 옛 시설 안 물건 정리: 스위치 · 화장실 표시는 새로 만든다, 나머지는 새 위치로
   const inZone = (p, Z) => p.floor === 0 && Math.abs(p.x - Z.cx) < Z.W / 2 + .8 && Math.abs(p.z - Z.cz) < Z.D / 2 + .8;
   world.props = world.props.filter(p => !(ids.some(k => inZone(p, ZONES[k])) && (p.k === 'light_switch' || (p.k === 'campus_wc' && !inZone(p, ZONES.dorm)))));
-  const built = { dorm: buildDorm(ctx, ZONES.dorm), union: buildUnion(ctx, ZONES.union), hist: buildHistory(ctx, ZONES.hist), astro: buildAstro(ctx, ZONES.astro), recy: buildRecycle(ctx, ZONES.recy), aud: buildAuditorium(ctx, ZONES.aud) };
+  const built = { dorm: buildDorm(ctx, ZONES.dorm), union: buildUnion(ctx, ZONES.union), hist: buildHistory(ctx, ZONES.hist), astro: buildAstro(ctx, ZONES.astro), aud: buildAuditorium(ctx, ZONES.aud) };
   const place = (p, B, a) => { const [x, z, y, lvl, extra] = a; B.prop(p, x, z, y, lvl || 0); if (extra) Object.assign(p, extra); if (p.mesh) { p.mesh.position.set(p.x, p.y, p.z); } };
-  for (const id of ['dorm', 'union', 'hist', 'astro', 'recy']) { const { B, anchors } = built[id];
+  for (const id of ['dorm', 'union', 'hist', 'astro']) { const { B, anchors } = built[id];
     world.props.forEach(p => { if (p.floor === 0 && p.k && anchors[p.k] && inZone(p, ZONES[id])) place(p, B, anchors[p.k]); }); }
   // 대강당: 단상 콘솔 → 강연대, 명찰 → 객석, 테이프 → 조정실 믹서, 숨는 곳 → 무대 커튼 뒤
   { const { B, anchors } = built.aud, Z = ZONES.aud; const fz = world.props.filter(p => p.kind === 'fz' && inZone(p, Z));
@@ -752,7 +766,7 @@ export function installFacilityRebuild(ctx) {
     (world.lockers || []).forEach(l => { if (l.floor === 0 && inZone(l, Z)) { l.x = B.wx(anchors.curtain[0]); l.z = B.wz(anchors.curtain[1]); l.y = 1.0; } }); }
   // 급식실 · 수영장: 외관 신축 + 실내 마감 재질 코드 (F-01/W-05/C-01 · F-04/W-05/C-03)
   const ext = [];
-  { const kill2 = demolishExterior(ctx, [ZONES.cafe, ZONES.pool]); ext.push(kill2); }
+  { const kill2 = demolishExterior(ctx, [ZONES.cafe, OLD_ZONES.pool, ZONES.pool]); ext.push(kill2); }
   buildShellOnly(ctx, ZONES.cafe, 'cafe', '급 식 실', 'CAFETERIA · 배식 · 식사', 5.0);
   buildShellOnly(ctx, ZONES.pool, 'pool', '실내 수영장', 'INDOOR POOL · 학교 수영 교육', 6.4, 'E');
   const rt = retexture(floors[7], { F: 'F01', W: 'W05', C: 'C01' }) + retexture(floors[6], { F: 'F04', W: 'W05', C: 'C03' });

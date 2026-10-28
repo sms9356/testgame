@@ -3,36 +3,39 @@
 // 건물 바닥 사각형을 빼고, 새 현관마다 진입로를 이어 한 장의 겹침 없는 인도로 다시 깐다 (경계엔 연석).
 import * as THREE from './vendor/three.module.js';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { ZONES } from './facilityRebuild.js?v=241';
+import { ZONES } from './facilityRebuild.js?v=242';
 
 const CELL = .2, X0 = -130, X1 = 130, Z0 = -100, Z1 = 90;
-// 새 현관 진입로 (설계도: 모든 시설 남측 중앙 · 수영장만 동측) — 캐노피 디딤판 끝에서 가까운 간선까지
-const SPURS = [
-  [-87.5, -72.2, -32.7, -29.9],   // 청운학사 → 서편 남북 대로
-  [-89.5, -86.5, 51.3, 54.0],     // 학생회관 → 서남 대보행로
-  [82.5, 85.5, -23.7, -21.0], [72.2, 85.5, -23.7, -21.0],   // 과학천문관 → 동편 대로
-  [82.5, 85.5, -3.4, -.6], [72.2, 85.5, -3.4, -.6],         // 역사관 → 동편 대로
-  [82.5, 85.5, 22.8, 25.6], [72.2, 85.5, 22.8, 25.6],       // 분리수거장 → 동편 대로
-  [-40.5, -37.5, 27.3, 29.4],     // 급식실 → 중서부 연결로
-  [-26.5, -23.5, -32.7, -32.4],   // 대강당 캐노피 ↔ 북부 메인 인도 (틈 메움)
+// 캠퍼스 재배치 후 새 인도망 (폭 2.8m 안팎): 예전 보도는 모두 걷고 동선대로 다시 깐다 — 대로 4줄 + 안쪽 종단로 + 각 건물 현관 진입로
+const NET = [
+  // 대로: 서편 남북 · 동편 남북 · 북부 동서 · 남부 동서(서문 ↔ 운동장 서쪽 / 운동장 동쪽 ↔ 동편 대로)
+  [-72.2, -69.4, -45.0, 57.2], [69.4, 72.2, -51.5, 57.2], [-69.4, 69.4, -35.2, -32.4], [-113.8, -27.2, 54.0, 57.2], [27.6, 69.4, 54.0, 57.2],
+  // 운동장 양옆 종단로 · 본관 양옆 길 · 호수 길
+  [-29.6, -27.2, 11.0, 54.0], [25.0, 27.6, 11.0, 57.2], [-39.6, -37.0, -32.4, 11.0], [37.0, 39.6, -32.4, 10.4], [-29.6, 25.0, 11.0, 12.6], [-10.6, -7.4, -77.0, -35.2],
+  // 서쪽 학술 · 생활: 청운학사 · 역사관 · 과학천문관 · 학생회관 · 급식실
+  [-87.5, -72.2, -35.0, -32.4], [-89.4, -72.2, -10.7, -7.9], [-89.4, -72.2, 22.0, 24.8], [-89.5, -86.5, 49.0, 54.0], [-69.4, -29.6, 26.6, 29.4], [-40.5, -37.5, 25.0, 26.6],
+  // 동쪽 스포츠: 체육관(남측 현관) · 테니스장 · 야구장 · 농구장 · 수영장(동측 현관) · 수돗가 · 씨름장
+  [72.2, 85.4, -27.9, -25.1], [72.2, 74.0, -18.5, -15.5], [69.4, 72.4, 6.5, 9.5], [65.0, 69.4, 5.6, 8.4], [65.0, 69.4, 33.6, 36.4], [60.0, 69.4, -13.0, -10.2],
+  // 대강당(남측 현관) ↔ 남부 대로 · 도서관 · 매점 · 온실 · 야외음악당
+  [36.6, 39.4, 37.0, 54.0], [72.2, 85.4, 48.0, 50.8], [68.1, 69.4, 16.5, 19.3], [61.0, 69.4, -47.0, -44.2], [33.6, 36.4, -45.0, -35.2],
 ];
-// 예전 옆문으로 가던 진입 지선 (새 건물엔 그쪽에 문이 없다)
-const DEAD = [[-75.0, -72.2, -43.5, -40.5], [72.2, 74.0, -35.5, -32.5], [-77.0, -72.2, 40.5, 43.5]];
+// 길을 깔지 않는 자리: 옮긴 체육관 · 코트 · 경기장, 도서관 · 매점 · 온실 · 음악당
+const KEEP_OUT = [[74, 94, -50, -28], [74, 94, -25, -9], [72, 96, -5, 21], [51, 65, -.5, 14.5], [73, 95, 30, 48], [58.9, 68.1, 14.8, 21.2], [58, 65.5, -53, -47], [31.2, 38.8, -52, -45]];
 const near = (a, b) => Math.abs(a - b) < .05;
 
 export function relayCampusPaths({ world, footprints = [] }) {
   const OUT = world.OUT, pave = OUT.userData.pave; if (!pave) return null;
   // 1) 예전 보도 수집 · 숨김 (tileRoad 목록 + 같은 재질의 다른 평면 보도)
-  const rects = [], bb = new THREE.Box3();
-  (OUT.userData.paths || []).forEach(p => { p.mesh.visible = false; if (!DEAD.some(d => near(d[0], p.x1) && near(d[1], p.x2) && near(d[2], p.z1) && near(d[3], p.z2))) rects.push([p.x1, p.x2, p.z1, p.z2]); });
-  OUT.traverse(o => { if (!o.isMesh || o.material !== pave || !o.visible) return; bb.setFromObject(o); if (bb.max.y > .06) return; o.visible = false; rects.push([bb.min.x, bb.max.x, bb.min.z, bb.max.z]); });
+  const bb = new THREE.Box3();
+  (OUT.userData.paths || []).forEach(p => { p.mesh.visible = false; });
+  OUT.traverse(o => { if (!o.isMesh || o.material !== pave || !o.visible) return; bb.setFromObject(o); if (bb.max.y > .06) return; o.visible = false; });
   if (OUT.userData.pathCurb) OUT.userData.pathCurb.visible = false;
-  rects.push(...SPURS);
+  const rects = NET.slice();
   // 2) 격자에 칠하고 건물 바닥(벽 두께 포함)을 뺀다
   const nx = Math.round((X1 - X0) / CELL), nz = Math.round((Z1 - Z0) / CELL), G = new Uint8Array(nx * nz);
   const paint = (x1, x2, z1, z2, v) => { const i1 = Math.max(0, Math.round((x1 - X0) / CELL)), i2 = Math.min(nx, Math.round((x2 - X0) / CELL)), k1 = Math.max(0, Math.round((z1 - Z0) / CELL)), k2 = Math.min(nz, Math.round((z2 - Z0) / CELL)); for (let k = k1; k < k2; k++) G.fill(v, k * nx + i1, k * nx + i2); };
   rects.forEach(r => paint(...r, 1));
-  const blocks = [...Object.values(ZONES).map(Z => [Z.cx - Z.W / 2, Z.cx + Z.W / 2, Z.cz - Z.D / 2, Z.cz + Z.D / 2]), ...footprints, [4.8, 11.4, 59.6, 67.9]];   // + 경비동
+  const blocks = [...Object.values(ZONES).map(Z => [Z.cx - Z.W / 2, Z.cx + Z.W / 2, Z.cz - Z.D / 2, Z.cz + Z.D / 2]), ...footprints, ...KEEP_OUT, [4.8, 11.4, 59.6, 67.9]];   // + 경비동
   blocks.forEach(b => paint(b[0] - .05, b[1] + .05, b[2] - .05, b[3] + .05, 0));
   // 3) 겹침 없는 사각형으로 묶기 (가로 구간 → 같은 구간이 이어지는 줄끼리 세로로 합침)
   const quads = [], open = new Map();

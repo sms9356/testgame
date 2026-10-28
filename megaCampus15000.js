@@ -3,16 +3,18 @@ import * as THREE from './vendor/three.module.js';
 import { GLTFLoader } from './vendor/addons/loaders/GLTFLoader.js';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
 
-export const MEGA_CAMPUS_ZONES = [
+export const MEGA_CAMPUS_ZONES = [   // 위치 이름표 (캠퍼스 재배치 후 좌표: 서쪽 학술 · 생활 / 동쪽 스포츠)
   { id: 'dorm', name: '청운학사 (기숙사 단지)', x: -86, z: -42, w: 22, d: 14, color: '#4a322c' },
   { id: 'lake', name: '청운호 수변공원 · 호심정', x: -9, z: -86, w: 34, d: 20, color: '#244e58' },
-  { id: 'astro', name: '과학천문관 · 관측돔', x: 84, z: -34, w: 20, d: 16, color: '#2c3e54' },
-  { id: 'history', name: '서문고 역사관 · 개교기념관', x: 84, z: -11, w: 16, d: 11, color: '#5a382e' },
-  { id: 'incinerator', name: '공중전화 · 분리수거 · 소각장', x: 84, z: 15, w: 16, d: 11, color: '#3e4442' },
-  { id: 'bikes', name: '자전거보관소 · 야외수돗가 · 씨름장', x: 58, z: -13, w: 16, d: 22, color: '#2e4a44' },
+  { id: 'astro', name: '과학천문관 · 관측돔', x: -88, z: 14, w: 20, d: 16, color: '#2c3e54' },
+  { id: 'history', name: '서문고 역사관 · 개교기념관', x: -88, z: -16, w: 16, d: 11, color: '#5a382e' },
+  { id: 'fountain', name: '야외수돗가 · 씨름장', x: 56, z: -16, w: 12, d: 16, color: '#2e4a44' },
   { id: 'library', name: '중앙학술정보관 (대도서관)', x: 84, z: 39, w: 22, d: 18, color: '#4a3628' },
-  { id: 'tennis', name: '테니스 · 양궁 훈련장', x: -88, z: -16, w: 20, d: 16, color: '#224868' },
-  { id: 'sports', name: '서문고 야구 스타디움', x: -88, z: 14, w: 24, d: 26, color: '#284a3a' },
+  { id: 'gym', name: '체육관', x: 84, z: -39, w: 20, d: 22, color: '#3a2a2a' },
+  { id: 'tennis', name: '테니스 · 양궁 훈련장', x: 84, z: -17, w: 20, d: 16, color: '#224868' },
+  { id: 'sports', name: '서문고 야구 스타디움', x: 84, z: 8, w: 24, d: 26, color: '#284a3a' },
+  { id: 'bball', name: '야외농구장', x: 58, z: 7, w: 14, d: 15, color: '#3a2a22' },
+  { id: 'pool', name: '실내 수영장', x: 58, z: 35, w: 14, d: 20, color: '#2a3a46' },
   { id: 'union', name: '학생회관 · 동아리관', x: -88, z: 42, w: 22, d: 14, color: '#48382e' },
 ];
 

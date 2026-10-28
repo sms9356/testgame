@@ -3,21 +3,21 @@
 // 건물 바닥 사각형을 빼고, 새 현관마다 진입로를 이어 한 장의 겹침 없는 인도로 다시 깐다 (경계엔 연석).
 import * as THREE from './vendor/three.module.js';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { ZONES } from './facilityRebuild.js?v=243';
+import { ZONES } from './facilityRebuild.js?v=244';
 
 const CELL = .2, X0 = -130, X1 = 130, Z0 = -100, Z1 = 90;
 // 캠퍼스 재배치 후 새 인도망 (폭 2.8m 안팎): 예전 보도는 모두 걷고 동선대로 다시 깐다 — 대로 4줄 + 안쪽 종단로 + 각 건물 현관 진입로
 const NET = [
-  // 대로: 서편 남북 · 동편 남북 · 북부 동서 · 남부 동서(서문 ↔ 운동장 서쪽 / 운동장 동쪽 ↔ 동편 대로)
-  [-72.2, -69.4, -45.0, 57.2], [69.4, 72.2, -51.5, 57.2], [-69.4, 69.4, -35.2, -32.4], [-113.8, -27.2, 54.0, 57.2], [27.6, 69.4, 54.0, 57.2],
-  // 운동장 양옆 종단로 · 본관 양옆 길 · 호수 길
-  [-29.6, -27.2, 11.0, 54.0], [25.0, 27.6, 11.0, 57.2], [-39.6, -37.0, -32.4, 11.0], [37.0, 39.6, -32.4, 10.4], [-29.6, 25.0, 11.0, 12.6], [-10.6, -7.4, -77.0, -35.2],
+  // 대로: 서편 남북 · 동편 남북(야구장 펜스 · 도서관 소품을 밟지 않게 x 67.8 ~ 70.4) · 북부 동서 · 남부 동서(서문 ↔ 운동장 서쪽 / 운동장 동쪽 ↔ 동편 대로)
+  [-72.2, -69.4, -45.0, 57.2], [69.3, 71.7, -51.5, 30.0], [69.3, 70.6, 30.0, 48.0], [69.3, 71.7, 48.0, 57.2], [-69.4, 71.7, -35.2, -32.4], [-113.8, -27.2, 54.0, 57.2], [27.6, 69.3, 54.0, 57.2],
+  // 운동장 양옆 종단로 · 본관 양옆 길 · 운동장 북쪽 연결 · 호수 길
+  [-29.6, -27.2, 11.0, 54.0], [25.0, 27.6, 11.0, 54.0], [-39.6, -37.0, -32.4, 11.0], [37.0, 39.6, -32.4, 10.4], [-29.6, 25.0, 11.0, 12.6], [-10.6, -7.4, -77.0, -35.2],
   // 서쪽 학술 · 생활: 청운학사 · 역사관 · 과학천문관 · 학생회관 · 급식실
   [-87.5, -72.2, -35.0, -32.4], [-89.4, -72.2, -10.7, -7.9], [-89.4, -72.2, 22.0, 24.8], [-89.5, -86.5, 49.0, 54.0], [-69.4, -29.6, 26.6, 29.4], [-40.5, -37.5, 25.0, 26.6],
-  // 동쪽 스포츠: 체육관(남측 현관) · 테니스장 · 야구장 · 농구장 · 수영장(동측 현관) · 수돗가 · 씨름장
-  [72.2, 85.4, -27.9, -25.1], [72.2, 74.0, -18.5, -15.5], [69.4, 72.4, 6.5, 9.5], [65.0, 69.4, 5.6, 8.4], [65.0, 69.4, 33.6, 36.4], [60.0, 69.4, -13.0, -10.2],
-  // 대강당(남측 현관) ↔ 남부 대로 · 도서관 · 매점 · 온실 · 야외음악당
-  [36.6, 39.4, 37.0, 54.0], [72.2, 85.4, 48.0, 50.8], [68.1, 69.4, 16.5, 19.3], [61.0, 69.4, -47.0, -44.2], [33.6, 36.4, -45.0, -35.2],
+  // 동쪽 스포츠: 체육관(남측 현관) · 테니스장 문 · 야구장 문 · 농구장 · 수영장(동측 현관) · 수돗가 · 씨름장
+  [71.7, 85.4, -27.9, -25.1], [71.7, 73.8, -18.5, -15.5], [71.7, 72.0, 6.5, 9.5], [65.0, 69.3, 5.6, 8.4], [65.0, 69.3, 33.6, 36.4], [60.0, 69.3, -16.2, -13.4],
+  // 대강당(남측 현관) ↔ 남부 대로 · 도서관(현관 계단 앞까지) · 온실 · 야외음악당
+  [36.6, 39.4, 37.0, 54.0], [71.7, 85.4, 50.4, 53.2], [82.6, 85.4, 49.4, 50.4], [65.6, 69.3, -46.2, -43.4], [33.6, 36.4, -45.0, -35.2],
 ];
 // 길을 깔지 않는 자리: 옮긴 체육관 · 코트 · 경기장, 도서관 · 매점 · 온실 · 음악당
 const KEEP_OUT = [[74, 94, -50, -28], [74, 94, -25, -9], [72, 96, -5, 21], [51, 65, -.5, 14.5], [73, 95, 30, 48], [58.9, 68.1, 14.8, 21.2], [58, 65.5, -53, -47], [31.2, 38.8, -52, -45]];
@@ -31,6 +31,7 @@ export function relayCampusPaths({ world, footprints = [] }) {
   OUT.traverse(o => { if (!o.isMesh || o.material !== pave || !o.visible) return; bb.setFromObject(o); if (bb.max.y > .06) return; o.visible = false; });
   if (OUT.userData.pathCurb) OUT.userData.pathCurb.visible = false;
   const rects = NET.slice();
+  window.__pathNET = NET;   // 점검 스크립트용
   // 2) 격자에 칠하고 건물 바닥(벽 두께 포함)을 뺀다
   const nx = Math.round((X1 - X0) / CELL), nz = Math.round((Z1 - Z0) / CELL), G = new Uint8Array(nx * nz);
   const paint = (x1, x2, z1, z2, v) => { const i1 = Math.max(0, Math.round((x1 - X0) / CELL)), i2 = Math.min(nx, Math.round((x2 - X0) / CELL)), k1 = Math.max(0, Math.round((z1 - Z0) / CELL)), k2 = Math.min(nz, Math.round((z2 - Z0) / CELL)); for (let k = k1; k < k2; k++) G.fill(v, k * nx + i1, k * nx + i2); };
@@ -62,4 +63,26 @@ export function relayCampusPaths({ world, footprints = [] }) {
   if (curb.length) { const cm = new THREE.Mesh(mergeGeometries(curb), OUT.userData.curbMat || pave); cm.receiveShadow = true; root.add(cm); }
   OUT.add(root);
   return { quads: quads.length, curbs: curb.length, rects: rects.length };
+}
+
+// 재배치 뒤 남은 잔재 · 인도 위 장애물 정리 (늦게 불러오는 모델이 있어 몇 번 더 돈다)
+//   ① 옛 수영장 현관문(옛 자리 동쪽 벽 바깥) · 옛 야외농구장 바닥 선  ② 새 인도 위에 놓인 작은 인스턴스 소품(화단 풀 · 쓰레기통 · 라바콘 등)
+const LEFTOVER = [[-34.7, -31.5, 38.2, 43.8, 99], [28.0, 44.6, 37.0, 57.0, .06], [69.8, 72.6, -10.0, -7.0, 99], [-49.2, -47.8, 25.8, 27.2, 99]];   // + 동편 대로 위 옛 광장 소품 · 급식실 서쪽 길 위 잔해   // [x1, x2, z1, z2, 이 높이 아래 메시만]
+const CLEAN_SEEN = new WeakSet();
+export function cleanupCampus({ scene, floors }) {
+  const inner = new Set(); floors.forEach((F, i) => { if (F && i) { inner.add(F.interior); if (F.shell) inner.add(F.shell); } });
+  const bb = new THREE.Box3(), c = new THREE.Vector3(), s = new THREE.Vector3(), m4 = new THREE.Matrix4(), v = new THREE.Vector3(); let hid = 0, inst = 0;
+  const inNet = (x, z) => NET.some(q => x > q[0] + .3 && x < q[1] - .3 && z > q[2] + .3 && z < q[3] - .3);
+  const walk = o => { if (inner.has(o) || !o.visible || o.isCamera || o.isSkinnedMesh) return; const n = o.name || '';
+    if (/^(FAC_|CAMPUS_PATHS|REBUILD)/.test(n) || o.userData.relaid || o.userData.facNew) return;
+    if (o.isInstancedMesh) { let hit = 0; const e = window.__perfInst && window.__perfInst(o), arr = e ? e.src : null, cnt = e ? e.n : o.count, from = o.userData.cleanN || 0; o.userData.cleanN = cnt;   // 이미 본 인스턴스는 다시 보지 않는다
+      for (let i = from; i < cnt; i++) { if (arr) m4.fromArray(arr, i * 16); else o.getMatrixAt(i, m4); if (m4.elements[0] === 0 && m4.elements[5] === 0 && m4.elements[10] === 0) continue;
+        v.setFromMatrixPosition(m4).applyMatrix4(o.matrixWorld); if (v.y < -.5 || v.y > 2.5 || !inNet(v.x, v.z)) continue; m4.makeScale(0, 0, 0); if (arr) m4.toArray(arr, i * 16); o.setMatrixAt(i, m4); hit++; }
+      if (hit) { o.instanceMatrix.needsUpdate = true; inst += hit; } return; }
+    if (o.isMesh) { if (CLEAN_SEEN.has(o)) return; CLEAN_SEEN.add(o); v.setFromMatrixPosition(o.matrixWorld); if (!LEFTOVER.some(r => v.x > r[0] - 20 && v.x < r[1] + 20 && v.z > r[2] - 20 && v.z < r[3] + 20) && o.geometry && (o.geometry.boundingSphere || (o.geometry.computeBoundingSphere(), o.geometry.boundingSphere)).radius < 15) return;   // 잔재 구역 근처만 상자 계산 (매번 전체 상자를 재면 100ms 씩 멈췄다)
+      bb.setFromObject(o); if (bb.isEmpty()) return; bb.getCenter(c); bb.getSize(s); if (Math.max(s.x, s.z) > 25) return;
+      const L = LEFTOVER.find(r => c.x > r[0] && c.x < r[1] && c.z > r[2] && c.z < r[3] && bb.max.y < r[4] && bb.min.y > -.5); if (L) { o.visible = false; hid++; } return; }
+    o.children.forEach(walk); };
+  scene.children.forEach(walk);
+  return { hid, inst };
 }

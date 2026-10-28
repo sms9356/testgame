@@ -2,11 +2,11 @@
 //   기본으로 켜진다 (예전 건물로 보려면 주소창에 ?oldmap).
 //   예전 본관(1~3층 · 옥상) · 별관(8~10층) 건물은 감추고, 그 자리 땅(0층)에서 새 건물을 걷는다.
 //   높이는 P.sh(계단 높이 보정값)로 넘긴다 → 카메라 · 점프 · 가구 오르기 코드는 손대지 않아도 된다.
-import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=236';
-import { placeModels } from './rebuild/models.js?v=236';
-import { carve, subdivide } from './rebuild/transplant.js?v=236';
+import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=237';
+import { placeModels } from './rebuild/models.js?v=237';
+import { carve, subdivide } from './rebuild/transplant.js?v=237';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { turfMaterial } from './campusVisuals.js?v=236';
+import { turfMaterial } from './campusVisuals.js?v=237';
 
 // 예전 건물이 차지하던 땅 (이 안의 예전 메시 · 충돌 상자를 걷어 낸다)
 const OLD_MAIN = { x1: -51, x2: 51, z1: -10.6, z2: 10.9 };
@@ -43,9 +43,12 @@ export function installRebuild({ THREE, scene, floors, world }) {
     if (o.isSprite && o.visible) { for (let a = o; a; a = a.parent) if (a.isCamera || a.name === 'REBUILD' || a.isSkinnedMesh || (a.userData && (a.userData.rbKeep || a.userData.rbRoof))) return; const w = o.getWorldPosition(v); if (inOld(w.x, w.z) || inNew(w.x, w.z)) { o.visible = false; o.scale.setScalar(0); } return; }   // 예전 벽등 · 가로등의 빛 번짐 스프라이트
     if (!o.isMesh || !o.visible) return;
     for (let a = o; a; a = a.parent) if (a.userData && a.userData.rbKeep) return;   // 새 연결 통로로 옮긴 구름다리 연출
-    if (o.isInstancedMesh) { const m4 = new THREE.Matrix4(), p = new THREE.Vector3(); let hit = 0; o.updateMatrixWorld(true);
-      for (let i = 0; i < o.count; i++) { o.getMatrixAt(i, m4); p.setFromMatrixPosition(m4).applyMatrix4(o.matrixWorld); if (inOld(p.x, p.z) && p.y > -.5) { m4.makeScale(0, 0, 0); o.setMatrixAt(i, m4); hit++; } }
-      if (hit) o.instanceMatrix.needsUpdate = true; return; }
+    if (o.isInstancedMesh) { const p = new THREE.Vector3(); let hit = 0, live = 0; o.updateMatrixWorld(true);
+      // 거리 컬링이 원본 행렬을 따로 들고 있으면 그쪽을 고친다 (화면용 배열만 고치면 컬링이 원본에서 다시 살려 냈다)
+      const e = window.__perfInst && window.__perfInst(o), arr = e ? e.src : o.instanceMatrix.array, n = e ? e.n : o.count;
+      for (let i = 0; i < n; i++) { const k = i * 16; if (arr[k] === 0 && arr[k + 5] === 0 && arr[k + 10] === 0) continue; p.set(arr[k + 12], arr[k + 13], arr[k + 14]).applyMatrix4(o.matrixWorld); if (inOld(p.x, p.z) && p.y > -.5) { arr.fill(0, k, k + 16); hit++; } else live++; }
+      if (hit && !e) { let w = 0; const col = o.instanceColor && o.instanceColor.array; for (let i = 0; i < n; i++) { const k = i * 16; if (arr[k] === 0 && arr[k + 5] === 0 && arr[k + 10] === 0) continue; if (w !== i) { arr.copyWithin(w * 16, k, k + 16); if (col) col.copyWithin(w * 3, i * 3, i * 3 + 3); } w++; } o.count = w; o.instanceMatrix.needsUpdate = true; if (col) o.instanceColor.needsUpdate = true; if (!w) { o.layers.disable(0); o.layers.enable(7); } }   // 전부 걷어 냈으면 그리기 호출에서도 뺀다
+      return; }
     bb.setFromObject(o); if (bb.isEmpty()) return;
     if (bb.max.y < .3 && !o.userData.dynamic && Math.max(bb.max.x - bb.min.x, bb.max.z - bb.min.z) < 20 && inOld(bb.min.x + .9, bb.min.z + .9) && inOld(bb.max.x - .9, bb.max.z - .9) && (Math.min(bb.max.x - bb.min.x, bb.max.z - bb.min.z) < .7 || Math.max(bb.max.x - bb.min.x, bb.max.z - bb.min.z) < 12)) { o.visible = false; return; }   // 예전 건물 기단 · 경계석 띠 · 현관 포치   // 예전 건물 기단 · 경계석 띠
     // 예전 건물 1층 바닥판(나무 마루 · 복도 타일)이 새 건물 밖(본관 ↔ 별관 사이 등)에 남아 있던 것: 예전 땅 안 삼각형은 모두 걷어 내고 잔디로 덮는다
@@ -340,7 +343,8 @@ export function installRebuild({ THREE, scene, floors, world }) {
     }
     // 옥상: 순간이동 대신 새 본관 옥상을 직접 걷는다 — 예전 옥상(3층 공간)의 미션 구역 · 물건을 새 옥상(같은 x, 높이 4층 위)으로 옮긴다
     if (!R.roofMoved && FL_[3]) { R.roofMoved = true; const RF = FL_[3], top = MAIN.spec.floors * FH, zIn = z => Math.min(MAIN.layout.zS - .8, Math.max(MAIN.layout.zN + .8, z < MAIN.layout.zN + .8 ? z + 4.8 : z));
-      for (let i = world.props.length - 1; i >= 0; i--) { const q = world.props[i]; if (q.floor !== 3) continue; if (q.kind === 'roofDoor') { world.props.splice(i, 1); continue; } q.floor = 0; q.rbY = top; q.z = zIn(q.z); q._rb = true; }
+      for (let i = world.props.length - 1; i >= 0; i--) { const q = world.props[i]; if (q.floor !== 3) continue; if (q.kind === 'roofDoor') { world.props.splice(i, 1); continue; } q.floor = 0; q.rbY = top; q.z = zIn(q.z); q._rb = true;
+        if (q.mesh && q.mesh.isObject3D && q.mesh.parent === RF.interior) { const wy = q.mesh.getWorldPosition(new THREE.Vector3()).y; moveObj(q.mesh, q.x, top + Math.max(.03, wy - RF.y0), q.z); } }   // 물건 모델도 함께 (조사 지점만 옮겨지고 명찰은 숨겨진 예전 옥상에 남아 줍지 못했다)
       for (const it of world.items) { if (it.floor !== 3) continue; const nz = zIn(it.pos.z), wy = it.mesh ? it.mesh.getWorldPosition(new THREE.Vector3()).y : top + .1; it.floor = 0; it.rbY = top; it.pos.z = nz; if (it.mesh) moveObj(it.mesh, it.pos.x, wy, nz); it._rb = true; }
       // 발전기 울타리 구역 · 안테나 묶음(5구역 패치가 예전 옥상에 붙인 것)은 통째로 새 옥상에 — 안테나 쪽(북쪽 밖)만 안으로 당긴다
       for (const c of [...RF.interior.children]) { if (!c.isGroup) continue; const bx = new THREE.Box3().setFromObject(c); if (bx.isEmpty() || bx.min.x < 14 || bx.max.x > 24) continue;

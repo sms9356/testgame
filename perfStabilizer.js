@@ -61,6 +61,7 @@ function cullStep() {
     let k = 0, changed = false;
     for (let i = 0; i < n; i++) {
       const o = i * 16, lx = src[o + 12], ly = src[o + 13], lz = src[o + 14];
+      if (src[o] === 0 && src[o + 5] === 0 && src[o + 10] === 0 && src[o + 1] === 0 && src[o + 2] === 0) continue;   // 크기 0 으로 걷어 낸 인스턴스(예전 건물 소품)는 아예 그리지 않는다 — 안 보여도 정점은 매 프레임 처리됐다
       const dx = w[0] * lx + w[4] * ly + w[8] * lz + w[12] - p.x, dy = w[1] * lx + w[5] * ly + w[9] * lz + w[13] - p.y, dz = w[2] * lx + w[6] * ly + w[10] * lz + w[14] - p.z;
       if (Math.sqrt(dx * dx + dy * dy + dz * dz) - r < L) {
         if (arr[k * 16 + 12] !== lx || arr[k * 16 + 14] !== lz || arr[k * 16 + 13] !== ly) { arr.set(src.subarray(o, o + 16), k * 16); if (col) im.instanceColor.array.set(col.subarray(i * 3, i * 3 + 3), k * 3); changed = true; }
@@ -68,6 +69,7 @@ function cullStep() {
       }
     }
     if (k !== e.k || changed) { e.k = k; im.count = k; im.instanceMatrix.needsUpdate = true; if (col) im.instanceColor.needsUpdate = true; }
+    if (!k !== !!im.userData.perfEmpty) { im.userData.perfEmpty = !k; if (k) im.layers.enable(0); else { im.layers.disable(0); im.layers.enable(HIDE); } }   // 남은 인스턴스가 없으면 그리기 호출도 빼고
   }
 }
 
@@ -103,6 +105,8 @@ export function perfTick(dt, indoors) {
     cullStep(); C.cullMs = Math.round(performance.now() - t0);
   }
 }
+// 다른 모듈(예전 건물 정리)이 인스턴스를 걷어 낼 때: 컬링이 들고 있는 원본 행렬에도 반영해야 다시 살아나지 않는다
+export function perfInstanceSource(im) { if (!C) return null; const e = C.ims.find(x => x.im === im); return e || null; }
 export function perfInfo() { return C ? { R: C.R, avg: Math.round(C.avg), units: C.units.length, ims: C.ims.length, lights: C.src.length, cullMs: C.cullMs, rebuildMs: C.rebuildMs } : null; }
 
 // 백그라운드 셰이더 준비: 시작 후 늦게 불러오는 모델(문 · 소품 GLB)은 로딩 때 warmUp 에 빠져, 처음 보는 순간

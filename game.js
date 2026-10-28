@@ -8555,7 +8555,7 @@ setupAnnex(); setupCase5();
 if (!params.has('oldmap')) { RBG = installRebuild({ THREE, scene, floors, world }); window.__rbg = RBG; try { RBG.allOff(); } catch (e) { console.warn('[all off]', e); } renderer.localClippingEnabled = true;
   // 2단계: 예전 건물의 열쇠 · 쪽지 · 조사 지점을 새 방으로 (나중에 생기는 조사 지점도 몇 번 더 옮긴다)
   const sz4 = floors[4] && floors[4].stairZone, b1 = sz4 ? sz4.spawn : { x: ((floors[4] && floors[4].stairCx) || 0) + .8, z: -5.2 };
-  const rel = () => { const r = RBG.relocate({ world, floors, stairSpawnB1: b1 }); if (r.moved || r.dropped) console.info('[rebuild] 옮김', r); };
+  const rel = () => { const r = RBG.relocate({ world, floors, stairSpawnB1: b1 }); if (r.moved || r.dropped) console.info('[rebuild] 옮김', r); const f = RBG.fixRoomRefs(world); if (f.moved || f.relabeled || f.dup) console.info('[rebuild] 방 이름 맞춤', f); };
   RBG.adoptPassage(world.OUT, PASS_DOOR); if (RBG.gate) RBG.gate.closed = () => ipP.state.fireDoorClosed;   // 구름다리 방화문 연출 → 새 연결 통로
   // 새 본관 · 별관 엘리베이터: 문 여닫는 소리 · 안내 음성 (예전 건물 엘리베이터와 같은 녹음) — 칸 안이나 승강장 근처일 때만
   { const Q = []; let busy = false; const AV = new Set(['open', 'close', 'up', 'down', 'floor_1', 'floor_2', 'floor_3']);

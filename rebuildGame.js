@@ -355,6 +355,43 @@ export function installRebuild({ THREE, scene, floors, world }) {
     }
     return { moved, dropped };
   };
+  // ── 3단계: 이름에 방이 적힌 조사 지점(예: '2-4 교실 냉난방기', '교사휴게실 자판기')이 엉뚱한 방에 들어가 있으면 그 방으로 옮긴다 ──
+  //   예전 방 비율로 옮기다 보니 '2-4 교실 …' 이 회의실에, '교사휴게실 …' 이 교실에 남던 것. 새 건물에 없는 방은 성격이 가까운 방으로.
+  const ROOM_ALIAS = { '교사휴게실': '교무실 · 행정실', '휴게실': '교무실 · 행정실', '교무실': '교무실 · 행정실', '행정실': '교무실 · 행정실', '주조정실': '방송실', '방송편집실': '방송실', '방송실 장비실': '방송실',
+    '요리실': '가정실', '조리실': '가정실', '공구실': '과학실', '과학준비실': '과학실', '과학 준비실': '과학실', '언어실': '컴퓨터실', '스마트교실': '컴퓨터실', '전산실': '컴퓨터실', '양호실': '보건실', '보건실보조': '보건실', '도서관': '도서실', '독서실': '자율학습실', '학생회실': '회의실', '세척실': '과학실', '어학실': '컴퓨터실' };
+  const allRooms = () => [MAIN, ANX].flatMap(b => (b.props || []).filter(p => p.kind === 'room' && !p.exit && p.x2 - p.x1 > 2.5).map(r => ({ b, r, name: r.label || r.name || '' })));
+  const refOf = label => { const L = (label || '').replace(/^\[E\]\s*/, '');
+    let m = L.match(/^(\d)-(\d)(?!\d)/) || L.match(/^(\d)학년\s?(\d)반/); if (m) return { tok: m[0], name: `${m[1]}학년 ${m[2]}반` };
+    const names = [...new Set(allRooms().map(q => q.name))], al = Object.keys(ROOM_ALIAS).sort((a, b) => b.length - a.length);
+    for (const a of al) if (L.startsWith(a)) return { tok: a, name: ROOM_ALIAS[a] };
+    for (const n of names.sort((a, b) => b.length - a.length)) if (n.length >= 2 && L.startsWith(n)) return { tok: n, name: n };
+    return null; };
+  R.fixRoomRefs = world => {
+    const W = world, rooms = allRooms(); let moved = 0, relabeled = 0;
+    for (const p of W.props) {
+      if (p._rf || p.floor !== 0 || !p.label || !/[가-힣]/.test(p.label)) continue; p._rf = true;
+      const y = p.rbY ?? 0, cur = R.roomAt(p.x, p.z, y + .1); if (!cur) continue;
+      const ref = refOf(p.label); if (!ref) continue;
+      const curName = cur.name || cur.label || ''; if (curName === ref.name) { if (ref.tok !== ref.name && !/^\d/.test(ref.tok)) { p.label = p.label.replace(ref.tok, ref.name); relabeled++; } continue; }
+      const cands = rooms.filter(q => q.name === ref.name); if (!cands.length) continue;
+      const curF = Math.round(y / FH), t = cands.sort((a, b) => Math.abs(a.r.floor - curF) - Math.abs(b.r.floor - curF))[0];
+      if (/의자에 앉기/.test(p.label)) { p.label = p.label.replace(ref.tok + ' 교실', curName).replace(ref.tok, curName); relabeled++; continue; }   // 앉는 자리는 그 방 의자에 붙어 있다: 이름만 지금 방으로
+      const small = ['tape', 'clue', 'pick', 'case5', 'phone', 'note'].includes(p.kind), su = small ? surfaceIn(t.b, t.r, t.r.floor) : null, sp = su || spotIn(t.b, t.r, t.r.floor);   // 그 방 안에서만 (꽉 차도 다른 방으로 넘기지 않는다)
+      const dx = sp.x - p.x, dz = sp.z - p.z, dy = sp.h - y;
+      for (const k of Object.keys(p)) { const o = p[k]; if (!o || !o.isObject3D || k === 'parent') continue; const w = o.getWorldPosition(new THREE.Vector3()); group.attach(o); o.position.set(w.x + dx, w.y + dy, w.z + dz); o.visible = true; }
+      p.x = sp.x; p.z = sp.z; p.rbY = sp.h; if (p.px != null) { p.px += dx; p.pz += dz; }
+      if (ref.tok !== ref.name && !/^\d/.test(ref.tok)) p.label = p.label.replace(ref.tok, ref.name);
+      moved++;
+    }
+    // 같은 방에 같은 이름의 조사 지점이 여러 개(예전 같은 종류 방 여러 칸에서 모여든 것) → 하나만 남기고 걷는다
+    const seen = new Map(); let dup = 0;
+    for (let i = 0; i < W.props.length; i++) { const p = W.props[i]; if (p.floor !== 0 || !p._rf || !p.label || !['fz', 'robj'].includes(p.kind) || p.mega || p.main || p.q || p.fz || /의자에 앉기|스위치|문 열기|문 닫기|명찰|테이프|증거|열쇠|쪽지|기록부/.test(p.label)) continue;   // 미션 · 수집품은 건드리지 않는다
+      const rm = R.roomAt(p.x, p.z, (p.rbY ?? 0) + .1); if (!rm) continue; const key = (rm.id || rm.name) + '|' + p.label.replace(/\s*\(.*$/, '');
+      if (!seen.has(key)) { seen.set(key, p); continue; }
+      for (const k of Object.keys(p)) { const o = p[k]; if (o && o.isObject3D && k !== 'parent') o.visible = false; }
+      W.props.splice(i--, 1); dup++; }
+    return { moved, relabeled, dup };
+  };
   // 예전 층(1·2·8~10층 · 예전 본관 땅)으로 가는 순간이동 → 새 건물의 같은 자리
   R.mapTeleport = (to, from, world) => {
     if (from === 4 && to.floor === 0 && R.b1Return) return R.b1Return;

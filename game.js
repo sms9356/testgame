@@ -18,23 +18,23 @@ import { buildMissionGroups, recordCompleted, normalizeCompletedLog } from './my
 import { settleStoryGhost } from './storyGhost.js';
 import { GLTFLoader } from './vendor/addons/loaders/GLTFLoader.js';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { createNPCVisuals } from './npcVisuals.js?v=245';
-import { applyGuardSeatedPose } from './guardSeatedPose.js?v=245';
+import { createNPCVisuals } from './npcVisuals.js?v=246';
+import { applyGuardSeatedPose } from './guardSeatedPose.js?v=246';
 import { createCampusCctvLive, collectCampusCctvFeeds } from './campusCctvLive.js';
-import { applyExteriorFloorVisibility, shouldStreamGuardCctv } from './exteriorRenderBudget.js?v=245';
-import { GUARD_LAYOUT } from './guardRoomLayout.js?v=245';
-import { ANNEX_KEYS, CABINET_CODE } from './guardAnnex.js?v=245';
-import { installGuardRoom } from './guardRoom.js?v=245';
+import { applyExteriorFloorVisibility, shouldStreamGuardCctv } from './exteriorRenderBudget.js?v=246';
+import { GUARD_LAYOUT } from './guardRoomLayout.js?v=246';
+import { ANNEX_KEYS, CABINET_CODE } from './guardAnnex.js?v=246';
+import { installGuardRoom } from './guardRoom.js?v=246';
 import { prepareModelGeometry } from './modelGeometry.js';
 import { modelFootprint, overlaps, removeDuplicateModels } from './placement.js';
-import { turfMaterial } from './campusVisuals.js?v=245';
+import { turfMaterial } from './campusVisuals.js?v=246';
 import { installInfirmaryAssets, updateInfirmaryCabinets } from './infirmaryAssets.js';
-import { installRebuild } from './rebuildGame.js?v=245';
-import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js?v=245'; import { updateWindowFakes } from './windowInteriors.js?v=245';
-import { drawMap } from './map.js?v=245';
-import { buildMegaCampus15000, MEGA_CAMPUS_ZONES } from './megaCampus15000.js?v=245';
-import { installFacilityRebuild, inTwoStory, ZONES as FAC_ZONES } from './facilityRebuild.js?v=245';
-import { relayoutCampus } from './campusRelayout.js?v=245';
+import { installRebuild } from './rebuildGame.js?v=246';
+import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js?v=246'; import { updateWindowFakes } from './windowInteriors.js?v=246';
+import { drawMap } from './map.js?v=246';
+import { buildMegaCampus15000, MEGA_CAMPUS_ZONES } from './megaCampus15000.js?v=246';
+import { installFacilityRebuild, inTwoStory, ZONES as FAC_ZONES } from './facilityRebuild.js?v=246';
+import { relayoutCampus } from './campusRelayout.js?v=246';
 import { makeDress, makeHair, makeGhostFace, makeGraffiti, makeKeypad, loadPBR, pbr, makeGlow as makeGlowTex, makePaintingStare, makeSign, makeBlood } from './tex.js';
 import { warmUp } from './bake.js';
 import { createStaticDistanceLOD } from './staticDistanceLOD.js';
@@ -51,14 +51,14 @@ import './basementRoomsPatch.js';     // 지하 전기실 · 보일러실 (사�
 import './classroomRemodelPatch.js';  // 교실 리모델링 · 의자에 앉기 (사용자 제공) → window.classroomRemodelPatch
 import './school37RoomsPatch.js';    // 본관 · 별관 37개 특별실 가구 · 동선 (사용자 제공) → window.school37RoomsPatch
 import './new37UniquePatch.js';     // 37개 구역 신규 특수 설비 · 벽면 레일 (사용자 제공) → window.new37UniquePatch
-import './megaExpansionPatch.js?v=245';   // 메가 익스팬션 · 최적화 · 4막 사건 기록 · 수집품 · 미니게임 (사용자 제공) → window.megaSchoolPatch
+import './megaExpansionPatch.js?v=246';   // 메가 익스팬션 · 최적화 · 4막 사건 기록 · 수집품 · 미니게임 (사용자 제공) → window.megaSchoolPatch
 import './poolMachineryPatch.js';     // 수영장 · 남/녀 탈의실·샤워실 · 기계실 철문 (사용자 제공) → window.poolAndMachineryPatch
-import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx, setSfxBusyCheck } from './audio.js?v=245'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=245'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera, perfInstanceSource } from './perfStabilizer.js?v=245'; window.__perfInst = perfInstanceSource; import { upgradePlainMaterials } from './plainUpgrade.js?v=245'; import { relayCampusPaths, cleanupCampus } from './campusPaths.js?v=245'; import { installHudV2, tickHudV2 } from './hudV2.js?v=245'; import { installPartnerRadio, tickPartnerRadio } from './partnerRadio.js?v=245';
-import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js?v=245';
-import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, HYPOTHESES, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, SIDEQUESTS, HEADQUEST, COLLECT, } from './story.js?v=245';
-import { isSpeechBusy } from './voice.js?v=245';
+import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx, setSfxBusyCheck } from './audio.js?v=246'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=246'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera, perfInstanceSource } from './perfStabilizer.js?v=246'; window.__perfInst = perfInstanceSource; import { upgradePlainMaterials } from './plainUpgrade.js?v=246'; import { relayCampusPaths, cleanupCampus } from './campusPaths.js?v=246'; import { installHudV2, tickHudV2 } from './hudV2.js?v=246'; import { installPartnerRadio, tickPartnerRadio } from './partnerRadio.js?v=246';
+import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js?v=246';
+import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, HYPOTHESES, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, SIDEQUESTS, HEADQUEST, COLLECT, } from './story.js?v=246';
+import { isSpeechBusy } from './voice.js?v=246';
 import { SET, saveSET, resetSET, DIFF, keyLabel } from './settings.js';
-import { initI18n, setLang, lang as curLang } from './i18n.js?v=245';   // 언어 패치 (한국어 · English · 日本語 · 中文)
+import { initI18n, setLang, lang as curLang } from './i18n.js?v=246';   // 언어 패치 (한국어 · English · 日本語 · 中文)
 initI18n();
 const K = () => SET.keys;
 let guardRoomController = null, guardControlProps = [], guardCctvData = null, campusCctv = null;
@@ -77,7 +77,7 @@ function syncGuardDevices() {
 function toggleGuardCCTV(persist = true) { FL.guardCctvOn = !(FL.guardCctvOn ?? true); sfx.click(); syncGuardDevices(); if (persist) save(true); return FL.guardCctvOn; }
 function toggleGuardLight() { FL.guardLightOn = !(FL.guardLightOn ?? false); sfx.click(); syncGuardDevices(); say(FL.guardLightOn ? '경비실 전등을 켰다' : '경비실 전등을 껐다', 1800); save(true); return FL.guardLightOn; }
 
-import { run as runMini, MG } from './minigames.js?v=245';
+import { run as runMini, MG } from './minigames.js?v=246';
 import { SCHEMA, BUILD, storageKeys, itemUid, propUid, doorUid, assignUids, readSlot, writeSlot, hasSlot, clearSlot, repairProgress } from './saveSystem.js';
 const NOTE_CAST = {
   n_seomun_ilbo: { spk: 'reporter', audioId: 'call_119', stage: '(📰 서문일보 사회부 한진우 기자의 긴급 특보 리포팅)' },
@@ -2876,7 +2876,7 @@ function ensureCharsel3D() {
     const rim = new THREE.DirectionalLight(0xffd6e0, 0.85); rim.position.set(0, 2.4, -2.5);
     sc.add(hemi, key, fill, rim);
     st.scenes[k] = sc;
-    loader.load(`assets/characters/${k}.glb?v=245`, gltf => {
+    loader.load(`assets/characters/${k}.glb?v=246`, gltf => {
       const m = gltf.scene;
       npcVisuals.enhanceCharacterMaterials?.(m, k);
       m.traverse(o => { if (o.isMesh || o.isSkinnedMesh) o.frustumCulled = false; });
@@ -4535,7 +4535,7 @@ function placeSiteTapes() {
     ['ts_lake', () => near(() => world.props.find(q => q.k === 'lake_capsule'), .7, .3)],        // 호심정
     ['ts_pool2', () => near(() => world.props.find(q => q.kind === 'drain' && q.floor === 6), 1.4, -.6)],   // 수영장 배수구 옆
     ['ts_bunker', () => near(() => world.props.find(q => q.k === 'bunker_audit'), .8, .6)],      // 방공호 서고
-    ['ts_incin', () => near(() => world.props.find(q => q.k === 'east_incinerator'), 1.4, .3)],  // 소각로 투입구 옆
+    ['ts_incin', () => near(() => world.props.find(q => q.k === 'east_incinerator') || world.props.find(q => q.k === 'east_fountain'), 1.4, .3)],  // 소각로 투입구 옆 (소각장 철거 뒤: 야외 수돗가 옆 — 용역 기사가 쉬던 곳)
     ['ts_green', () => near(() => world.props.find(q => q.k === 'greenhouse_herb'), .6, .3)],    // 생물부 온실 약초 선반
   ];
   const mat = new THREE.MeshStandardMaterial({ color: 0x2a2a2c, roughness: .5, metalness: .3 }), btn = new THREE.MeshStandardMaterial({ color: 0xb83228, roughness: .4 });
@@ -4550,6 +4550,8 @@ function placeSiteTapes() {
   }
 }
 { const t = setInterval(() => { if (window.__modelsDone) { clearInterval(t); try { placeSiteTapes(); } catch (e) { console.warn('[site tapes]', e); } } }, 500); }
+// 지하 기계실 원심 송풍기: 조사 지점이 송풍기 몸체와 옆 설비 사이 0.3m 틈에 끼어 다가설 수 없었다 → 송풍기 남쪽 앞면으로
+{ const t = setInterval(() => { const p = world.props.find(q => q.floor === 4 && /원심 송풍기 터빈/.test(q.label || '')); if (!p) return; clearInterval(t); if (p.z < -5) { p.x = -22.4; p.z = -4.6; } }, 1500); setTimeout(() => clearInterval(t), 60000); }
 // 반장 증언 녹음기 (1998.10.13 학급 조사): 새 본관 1 · 2학년 교실마다 반장 자리(앞줄 책상) 위에 — 일부는 거짓 증언(연표에서 다른 증언과 어긋남 표시)
 async function placeClassReps() {
   if (!RBG || !RBG.classRooms) return; const st = { t: performance.now() };
@@ -5571,16 +5573,16 @@ const XT = { search: null, para: 75 + Math.random() * 40, paraLast: [], mbox: nu
   const MS = [
     { id: 'music', f: 2, room: '음악실', dx: -1.6, d: 3.4, look: 'xylo', label: '실로폰 — 남겨진 음 따라 치기', game: 'simon', opts: { title: '실로폰 — 하늘의 연습곡' }, reward: { col: 'c07', item: { candy: 1 } }, cap: '마지막 음이 끝나자, 누군가 박수를 쳤다. 두 번.' },
     { id: 'comp', f: 1, room: '컴퓨터실', dx: 1.8, d: 3.4, look: 'pc', label: '고장 난 PC — 깨진 파일 복구', game: 'memory', opts: { title: '깨진 파일 아이콘 짝 맞추기', icons: ['💾', '🖥', '📁', '🖨', '📀', '⌨'] }, reward: { item: { battery: 2 } }, cap: '복구된 폴더 이름: 「HANEUL_방송원고_최종_진짜최종」' },
-    { id: 'bcast', f: 2, x: -20.45, z: -2.72, onTop: .7, look: 'radioTop', label: '오실로스코프 수신기 — 파형 동조하기', game: 'oscilloscope', opts: { title: '방송실 오실로스코프 — 주파수·진폭·위상 동조' }, reward: { col: 'c28', item: { charm: 1 } }, cap: '파형이 겹쳐지자 잡음 너머로 목소리가 또렷해졌다. “…고마워.”' },
-    { id: 'lab', f: 1, room: '과학실', dx: 1.4, d: 4.2, look: 'beaker', label: '실험대 — 시약 중화 적정 실험 (pH 7.2)', game: 'chemMix', opts: { title: '과학실 실험대 — 시약 중화 적정 (목표 pH 7.2)' }, reward: { col: 'c27', item: { salt: 2 } }, cap: '중화된 비커 바닥에 순백색 결정이 맺혔다 — 굵은 소금과 발광 시약이다.' },
+    { id: 'bcast', f: 2, x: -20.45, z: -2.72, onTop: .7, look: 'radioTop', label: '오실로스코프 수신기 — 파형 동조하기', game: 'oscilloscope', opts: { title: '방송실 오실로스코프 — 주파수·진폭·위상 동조' }, reward: { col: 'c28', item: { candy: 1 } }, cap: '파형이 겹쳐지자 잡음 너머로 목소리가 또렷해졌다. “…고마워.”' },
+    { id: 'lab', f: 1, room: '과학실', dx: 1.4, d: 4.2, look: 'beaker', label: '실험대 — 시약 중화 적정 실험 (pH 7.2)', game: 'chemMix', opts: { title: '과학실 실험대 — 시약 중화 적정 (목표 pH 7.2)' }, reward: { col: 'c27', item: { medkit: 1 } }, cap: '중화된 비커 바닥에 순백색 결정이 맺혔다 — 굵은 소금과 발광 시약이다.' },
     { id: 'gym', f: 5, x: 32.4, z: 18.5, look: 'hoop', label: '농구공 — 물리 궤적 자유투 슛 (3골)', game: 'hoopShot', opts: { title: '체육관 코트 — 물리 포물선 자유투 (3골 성공)' }, reward: { item: { candy: 2, battery: 1 } }, replay: true, cap: '마지막 슛이 림을 통과하자, 2층 관람석에서 환호성이 아주 작게 들렸다.' },
-    { id: 'gymBooth', f: 5, x: 44.9, z: 26.4, onTop: 1.6, look: 'radioTop', label: '체육관 2층 방송부스 콘솔 — 리허설 릴테이프 파형 복원', game: 'oscilloscope', opts: { title: '체육관 방송·조명 제어부스 — 1998 학예제 리허설 파형 동조' }, reward: { col: 'c31', item: { charm: 1, battery: 1 } }, cap: '스포트라이트가 무대를 비추며 그날의 리허설 음성이 울려 퍼진다 — “하늘아, 내일 본방송 꼭 성공하자!”' },
+    { id: 'gymBooth', f: 5, x: 44.9, z: 26.4, onTop: 1.6, look: 'radioTop', label: '체육관 2층 방송부스 콘솔 — 리허설 릴테이프 파형 복원', game: 'oscilloscope', opts: { title: '체육관 방송·조명 제어부스 — 1998 학예제 리허설 파형 동조' }, reward: { col: 'c31', item: { candy: 1, battery: 1 } }, cap: '스포트라이트가 무대를 비추며 그날의 리허설 음성이 울려 퍼진다 — “하늘아, 내일 본방송 꼭 성공하자!”' },
     { id: 'poolValve', f: 6, x: -51.6, z: 33.3, onTop: .85, look: 'beaker', label: '수질관리실 제어반 — 3연동 다이빙풀 수압 밸브 동조', game: 'valveBalance', opts: { title: '수질관리실 — 3연동 다이빙풀 배수 수압 동조 (42~58 PSI)' }, reward: { col: 'c24', item: { medkit: 1, battery: 1 } }, cap: '다이빙 보조풀의 배수 밸브가 열리며 바닥에 가라앉아 있던 1998년 수영부 초시계가 모습을 드러냈다!' },
     { id: 'poolSauna', f: 6, x: -54.8, z: 23.2, onTop: .42, look: 'radioTop', label: '체온유지실 온열 제어기 — 회로 복구', game: 'fuse', opts: { title: '체온유지실 맥반석 스토브 — 온열 회로 켜기', N: 4 }, reward: { col: 'c32', item: { thermos: 1 } }, cap: '스토브에 따뜻한 온기가 돌며 얼어붙었던 숨이 가라앉는다.' },
     { id: 'cafe', f: 7, x: -34.6, z: 21.1, look: 'gacha', label: '뽑기 기계 돌리기', game: 'gacha', replay: true },
     { id: 'art', f: 2, room: '미술실', dx: -1.2, d: 4.0, look: 'easel', label: '이젤 — 그림 조각 짝 맞추기', game: 'memory', opts: { title: '찢긴 그림 조각 짝 맞추기', icons: ['🎨', '🖌', '🗿', '🖼', '✏', '📐', '🌙'] }, reward: { col: 'c06', item: { thermos: 1 } }, cap: '맞춰진 그림 속 소녀가, 눈을 깜빡인 것 같다.' },
-    { id: 'av', f: 1, room: '시청각실', dx: 0, d: 3.8, look: 'projector', label: '영사기 — 듀얼 렌즈 초점 & 트래킹 복원', game: 'filmFocus', opts: { title: '시청각실 영사기 — 렌즈 초점 & 필름 트래킹 동기화' }, reward: { item: { matches: 2, battery: 1 } }, cap: '스크린에 졸업식 장면이 선명하게 멈춘다. 3학년 2반 줄, 한 자리가 비어 있다.' },
-    { id: 'club', f: 9, room: '동아리실 (204)', dx: 1.2, d: 3.6, look: 'drum', label: '드럼 — 박자 따라 치기', game: 'simon', opts: { title: '밴드부 드럼 — 따라 치기', pads: ['킥', '스네어', '하이햇', '심벌'], notes: [110, 196, 523, 784] }, reward: { item: { musicbox: 1 } }, cap: '마지막 심벌이 울리자 동아리실 불이 한 번 깜빡였다.' },
+    { id: 'av', f: 1, room: '시청각실', dx: 0, d: 3.8, look: 'projector', label: '영사기 — 듀얼 렌즈 초점 & 트래킹 복원', game: 'filmFocus', opts: { title: '시청각실 영사기 — 렌즈 초점 & 필름 트래킹 동기화' }, reward: { item: { thermos: 1, battery: 1 } }, cap: '스크린에 졸업식 장면이 선명하게 멈춘다. 3학년 2반 줄, 한 자리가 비어 있다.' },
+    { id: 'club', f: 9, room: '동아리실 (204)', dx: 1.2, d: 3.6, look: 'drum', label: '드럼 — 박자 따라 치기', game: 'simon', opts: { title: '밴드부 드럼 — 따라 치기', pads: ['킥', '스네어', '하이햇', '심벌'], notes: [110, 196, 523, 784] }, reward: { item: { thermos: 1 } }, cap: '마지막 심벌이 울리자 동아리실 불이 한 번 깜빡였다.' },
   ];
   MS.forEach(m => {
     let x = m.x, z = m.z, ry = 0;
@@ -8349,13 +8351,13 @@ function megaNotify(m) { const t = String(m).split('\n'); say(t[0].replace(/^\S+
     world.props.push({ kind: 'robj', k: 'bunker_light', t: 'bunker', floor: 4, x: bx + 1.15, z: z1 - .85, y: 1.35, r: 2.0, label: '방공호 주 전등 스위치 조작하기', bkLightGroup });
     {
       const bLoader = new GLTFLoader();
-      bLoader.load('assets/models/sf/sf_bunker_props_pack.glb?v=245', gltf => {
+      bLoader.load('assets/models/sf/sf_bunker_props_pack.glb?v=246', gltf => {
         const bm = gltf.scene; bm.position.set(bx, 0, z0 + .45);
         if (window.__upgradePure3DScene) window.__upgradePure3DScene(bm); else bm.traverse(o => { o.userData.dynamic = true; });
         R.add(bm);
         if (gltf.animations && gltf.animations.length) { const mx = new THREE.AnimationMixer(bm); mx.userData = { floor: 4, x: bx, z: z0 + .45 }; gltf.animations.forEach(c => mx.clipAction(c).play()); (window.__campusAnimMixers ||= []).push(mx); }
       }, undefined, () => {});
-      bLoader.load('assets/models/sf/sf_pump_policeline_scene.glb?v=245', gltf => {
+      bLoader.load('assets/models/sf/sf_pump_policeline_scene.glb?v=246', gltf => {
         const pm = gltf.scene; pm.position.set(32.0, 0, -3.65);
         pm.traverse(o => { o.userData.dynamic = true; if (o.isMesh) { o.castShadow = false; o.receiveShadow = true; if (o.material?.map) o.material.map.colorSpace = THREE.SRGBColorSpace; } });
         R.add(pm);
@@ -8581,7 +8583,8 @@ $('setDiff').onchange = e => setS('diff', e.target.value); $('setJump').onchange
 $('setFlash').onchange = e => setS('flashReduce', e.target.checked); $('setFearFx').onchange = e => setS('fearFx', e.target.checked);
 $('setCaps').onchange = e => { setS('captions', e.target.checked); caption('효과음 자막 미리보기'); }; $('setTips').onchange = e => setS('tips', e.target.checked); $('setPhotos').onchange = e => setS('areaPhotos', e.target.checked);
 $('setMic').onchange = async e => { setS('mic', e.target.checked); if (e.target.checked) await micStart(); else micStop(); };
-addEventListener('pointerdown', () => { if (SET.mic && !MIC.on) micStart(); }, { once: true });
+if (SET.mic) { SET.mic = false; saveSET(); }   // 마이크 소리 감지: 소리를 듣고 오는 존재가 없어져 게임에 쓸모가 없다 → 끔 (권한 요청도 하지 않는다)
+{ const row = $('setMic') && $('setMic').closest('label, .row, div'); if (row) row.style.display = 'none'; }
 if (matchMedia('(pointer: coarse)').matches || !('exitPointerLock' in document)) $('mobileNote').style.display = 'block';
 $('setContrast').onchange = e => setS('contrast', e.target.checked); $('setUi').oninput = e => setS('ui', e.target.value / 100);
 // 키 재지정

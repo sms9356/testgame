@@ -2,11 +2,11 @@
 //   기본으로 켜진다 (예전 건물로 보려면 주소창에 ?oldmap).
 //   예전 본관(1~3층 · 옥상) · 별관(8~10층) 건물은 감추고, 그 자리 땅(0층)에서 새 건물을 걷는다.
 //   높이는 P.sh(계단 높이 보정값)로 넘긴다 → 카메라 · 점프 · 가구 오르기 코드는 손대지 않아도 된다.
-import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=256';
-import { placeModels } from './rebuild/models.js?v=256';
-import { carve, subdivide } from './rebuild/transplant.js?v=256';
+import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=257';
+import { placeModels } from './rebuild/models.js?v=257';
+import { carve, subdivide } from './rebuild/transplant.js?v=257';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { turfMaterial } from './campusVisuals.js?v=256';
+import { turfMaterial } from './campusVisuals.js?v=257';
 
 // 예전 건물이 차지하던 땅 (이 안의 예전 메시 · 충돌 상자를 걷어 낸다)
 const OLD_MAIN = { x1: -51, x2: 51, z1: -10.6, z2: 10.9 };
@@ -458,6 +458,25 @@ export function installRebuild({ THREE, scene, floors, world }) {
   R.elevs = []; const ELV = [];
   const mElv = new THREE.MeshStandardMaterial({ color: 0x9aa2a8, roughness: .3, metalness: .85 }), mFrame = new THREE.MeshStandardMaterial({ color: 0x3a3e42, roughness: .5, metalness: .6 });
   const mBtn = new THREE.MeshStandardMaterial({ color: 0xffb040, emissive: 0xff8a20, emissiveIntensity: .8 }), mShaft = new THREE.MeshStandardMaterial({ color: 0x8a8a84, roughness: .9 }), mCarF = new THREE.MeshStandardMaterial({ color: 0x4a4440, roughness: .7 });
+  // 리모델링(사진 기준): 승강장 문 = 헤어라인 스테인리스 + 곡선 띠 · 아래쪽 가로줄 무늬 · 주의 스티커, 칸 안 = 오렌지 목재 타공 패널 · 스테인리스 기둥 · 3면 핸드레일 · 투톤 바닥
+  const cvTex = (w, h, draw) => { const c = document.createElement('canvas'); c.width = w; c.height = h; draw(c.getContext('2d'), w, h); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; return t; };
+  const hairline = (g, w, h, base = 168) => { for (let y = 0; y < h; y++) { const v = base + (Math.random() * 26 - 13); g.fillStyle = `rgb(${v},${v + 3},${v + 6})`; g.fillRect(0, y, w, 1); } };
+  const leafTex = side => cvTex(256, 896, (g, w, h) => { hairline(g, w, h, 172);
+    g.save(); g.globalAlpha = .55; g.fillStyle = '#e8eef2'; g.beginPath(); const x0 = side < 0 ? w * .05 : w * .95;   // 곡선 띠 (가운데로 휘어 드는 밝은 띠)
+    g.moveTo(x0, h * .2); g.quadraticCurveTo(w * .5, h * .45, side < 0 ? w * .98 : w * .02, h * .52); g.lineTo(side < 0 ? w * .98 : w * .02, h * .58); g.quadraticCurveTo(w * .45, h * .5, x0, h * .3); g.fill(); g.restore();
+    g.fillStyle = 'rgba(70,76,82,.55)'; for (let y = h * .56; y < h * .98; y += 14) { const inset = Math.max(0, (h * .78 - y) * .25); g.fillRect(side < 0 ? inset : 0, y, w - inset, 6); }   // 아래쪽 가로줄 무늬
+    const stk = (x, y, c1, c2) => { g.fillStyle = c1; g.fillRect(x, y, 34, 40); g.fillStyle = c2; g.beginPath(); g.moveTo(x + 17, y + 6); g.lineTo(x + 30, y + 32); g.lineTo(x + 4, y + 32); g.fill(); };
+    stk(side < 0 ? w - 60 : 26, h * .14, '#2a2e33', '#f2f2f2'); stk(side < 0 ? 26 : w - 60, h * .78, '#f2f2f2', '#f0c020');   // 손 끼임 주의 · 경고 스티커
+  });
+  const woodTex = cvTex(256, 512, (g, w, h) => { const gr = g.createLinearGradient(0, 0, w, 0); gr.addColorStop(0, '#c8823e'); gr.addColorStop(.5, '#d99550'); gr.addColorStop(1, '#c47c3a'); g.fillStyle = gr; g.fillRect(0, 0, w, h);
+    for (let y = 0; y < h; y += 4) { g.fillStyle = `rgba(90,45,10,${.08 + Math.random() * .08})`; g.fillRect(0, y, w, 1); }
+    g.fillStyle = 'rgba(60,30,8,.35)'; for (let y = 3; y < h; y += 6) for (let x = (y / 6 % 2) * 3 + 2; x < w; x += 6) g.fillRect(x, y, 1.6, 1.6); });   // 타공(점) 무늬
+  const floorTex = cvTex(256, 256, (g, w, h) => { g.fillStyle = '#8c9094'; g.fillRect(0, 0, w, h); g.fillStyle = '#c9ccce'; g.fillRect(w * .28, 0, w * .44, h); for (let i = 0; i < 900; i++) { g.fillStyle = `rgba(255,255,255,${Math.random() * .12})`; g.fillRect(Math.random() * w, Math.random() * h, 2, 2); } });
+  const mSteel = new THREE.MeshStandardMaterial({ map: cvTex(128, 512, (g, w, h) => hairline(g, w, h, 180)), roughness: .28, metalness: .9 });
+  const mWood = new THREE.MeshStandardMaterial({ map: woodTex, roughness: .6, metalness: .05 }), mCarFloor = new THREE.MeshStandardMaterial({ map: floorTex, roughness: .35 });
+  const mLeafL = new THREE.MeshStandardMaterial({ map: leafTex(-1), roughness: .3, metalness: .85 }), mLeafR = new THREE.MeshStandardMaterial({ map: leafTex(1), roughness: .3, metalness: .85 });
+  const mCeilLt = new THREE.MeshBasicMaterial({ color: 0xfffaf0 });
+  const ledTex = (t, arrow) => cvTex(160, 48, (g, w, h) => { g.fillStyle = '#0a0606'; g.fillRect(0, 0, w, h); g.fillStyle = '#ff2a1a'; g.shadowColor = '#ff3020'; g.shadowBlur = 8; g.font = 'bold 34px monospace'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText((arrow ? arrow + ' ' : '') + t, w / 2, h / 2 + 2); });
   const EW = .6;
   [MAIN, ANX].forEach(b => {
     const T = b.spec.outer, zw = b.layout.zN - T, n = b.spec.floors, zc1 = zw - 1.7, zc2 = zw - .02;
@@ -472,20 +491,30 @@ export function installRebuild({ THREE, scene, floors, world }) {
     box(b.root, 2.1, .3, 2.3, b.mats.conc || mShaft, EX, top, zm - .04);
     // 칸 (바닥 · 벽 3면 · 천장 조명 · 조작반)
     const car = new THREE.Group(); b.root.add(car); E.car = car;
-    box(car, 1.36, .06, 1.7, mCarF, EX, .03, (zc1 + zc2) / 2); box(car, 1.36, 2.3, .04, mElv, EX, 1.18, zc1 + .02); box(car, .04, 2.3, 1.7, mElv, CAR.x1, 1.18, (zc1 + zc2) / 2); box(car, .04, 2.3, 1.7, mElv, CAR.x2, 1.18, (zc1 + zc2) / 2);
-    box(car, 1.36, .05, 1.7, mFrame, EX, 2.35, (zc1 + zc2) / 2); box(car, .5, .02, .3, new THREE.MeshBasicMaterial({ color: 0xf4f0e0 }), EX, 2.32, (zc1 + zc2) / 2);
-    box(car, .04, .5, .2, mFrame, CAR.x2 - .03, 1.2, zc2 - .35);
+    { const zm2 = (zc1 + zc2) / 2, D = zc2 - zc1;
+      box(car, 1.36, .06, 1.7, mCarFloor, EX, .03, zm2);   // 투톤 바닥 (가운데 밝은 띠)
+      box(car, 1.36, 2.3, .04, mSteel, EX, 1.18, zc1 + .02); box(car, .04, 2.3, 1.7, mSteel, CAR.x1, 1.18, zm2); box(car, .04, 2.3, 1.7, mSteel, CAR.x2, 1.18, zm2);   // 스테인리스 골조
+      box(car, .62, 2.12, .012, mWood, EX, 1.18, zc1 + .046);   // 뒷벽 가운데 목재 패널 (양옆은 스테인리스)
+      for (const sx of [-1, 1]) { const xw = sx < 0 ? CAR.x1 + .026 : CAR.x2 - .026; box(car, .012, 2.12, D - .5, mWood, xw, 1.18, zm2 - .1); }   // 옆벽 목재 패널
+      box(car, 1.36, .05, 1.7, mFrame, EX, 2.35, zm2); for (const sx of [-1, 1]) box(car, .1, .015, 1.5, mCeilLt, EX + sx * .5, 2.322, zm2);   // 천장 양쪽 조명 띠
+      box(car, .36, .015, 1.3, mSteel, EX, 2.322, zm2);
+      const rail = (len, x, z, alongZ) => { const g = new THREE.CylinderGeometry(.018, .018, len, 10); g.rotateX(alongZ ? Math.PI / 2 : 0); if (!alongZ) g.rotateZ(Math.PI / 2); const o = new THREE.Mesh(g, mSteel); o.position.set(x, .92, z); car.add(o); };
+      rail(1.1, EX, zc1 + .1, false); rail(D - .45, CAR.x1 + .1, zm2 - .12, true); rail(D - .45, CAR.x2 - .1, zm2 - .12, true);   // 3면 핸드레일
+      for (const [x, z] of [[EX - .5, zc1 + .1], [EX + .5, zc1 + .1], [CAR.x1 + .1, zc2 - .4], [CAR.x2 - .1, zc2 - .4]]) box(car, .03, .03, .1, mSteel, x, .92, z - (z < zm2 ? .05 : 0));
+      // 조작반 (오른쪽 벽 앞쪽): 스테인리스 판 + 층 버튼 + 열림/닫힘
+      box(car, .02, .62, .2, mSteel, CAR.x2 - .04, 1.2, zc2 - .32);
+      for (let k = 0; k < n; k++) box(car, .012, .045, .045, mBtn, CAR.x2 - .055, 1.0 + k * .08, zc2 - .32);
+      for (const dz of [-.05, .05]) box(car, .012, .04, .04, mFrame, CAR.x2 - .055, .92, zc2 - .32 + dz); }
     const cv = document.createElement('canvas'); cv.width = 96; cv.height = 48; const cx = cv.getContext('2d'), tex = new THREE.CanvasTexture(cv); tex.colorSpace = THREE.SRGBColorSpace;
     const disp = new THREE.Mesh(new THREE.PlaneGeometry(.22, .11), new THREE.MeshBasicMaterial({ map: tex })); disp.position.set(EX, 2.1, zc1 + .05); car.add(disp);
-    E.show = t => { cx.fillStyle = '#05080c'; cx.fillRect(0, 0, 96, 48); cx.fillStyle = '#ff9a3a'; cx.font = 'bold 28px monospace'; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText(t, 48, 26); tex.needsUpdate = true; };
+    E.show = t => { if (E.ind && t !== E._lt) { E._lt = t; const m = t.match(/^(\d+)F(.?)/); if (m) { const tx = ledTex(m[1], m[2] === '▲' ? '↑' : m[2] === '▼' ? '↓' : ''); E.ind.forEach(o => { o.material.map && o.material.map.dispose(); o.material.map = tx; o.material.needsUpdate = true; }); } } cx.fillStyle = '#05080c'; cx.fillRect(0, 0, 96, 48); cx.fillStyle = '#ff9a3a'; cx.font = 'bold 28px monospace'; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText(t, 48, 26); tex.needsUpdate = true; };
     const lamp = new THREE.PointLight(0xfff4e0, .9, 4, 2); lamp.position.set(EX, 2.1, (zc1 + zc2) / 2); car.add(lamp);
     for (let f = 0; f < n; f++) {
       const y = f * b.spec.FH, lz = b.layout.zN + .06, g = new THREE.Group(); g.position.set(EX, y, lz); b.root.add(g);
-      box(g, 1.4, .25, .08, mFrame, 0, 2.27, 0); box(g, .1, 2.15, .08, mFrame, -.65, 1.07, 0); box(g, .1, 2.15, .08, mFrame, .65, 1.07, 0);
-      const L = box(g, EW, 2.1, .04, mElv, -.3, 1.05, .05), Rr = box(g, EW, 2.1, .04, mElv, .3, 1.05, .05);
+      box(g, 1.4, .25, .08, mSteel, 0, 2.27, 0); box(g, .1, 2.15, .08, mSteel, -.65, 1.07, 0); box(g, .1, 2.15, .08, mSteel, .65, 1.07, 0);   // 스테인리스 문틀
+      const L = box(g, EW, 2.1, .04, [mSteel, mSteel, mSteel, mSteel, mLeafL, mLeafL], -.3, 1.05, .05), Rr = box(g, EW, 2.1, .04, [mSteel, mSteel, mSteel, mSteel, mLeafR, mLeafR], .3, 1.05, .05);
       box(g, .12, .2, .03, mFrame, .95, 1.15, .02); box(g, .05, .05, .02, mBtn, .95, 1.2, .04); box(g, .05, .05, .02, mBtn, .95, 1.1, .04);
-      { const c = document.createElement('canvas'); c.width = 128; c.height = 48; const x = c.getContext('2d'); x.fillStyle = '#05080c'; x.fillRect(0, 0, 128, 48); x.fillStyle = '#ff9a3a'; x.font = 'bold 30px monospace'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(`${f + 1}F`, 64, 26);
-        const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; const m = new THREE.Mesh(new THREE.PlaneGeometry(.36, .14), new THREE.MeshBasicMaterial({ map: t })); m.position.set(0, 2.5, .05); g.add(m); }
+      { const m = new THREE.Mesh(new THREE.PlaneGeometry(.36, .11), new THREE.MeshBasicMaterial({ map: ledTex('1'), toneMapped: false })); m.position.set(0, 2.5, .05); g.add(m); (E.ind ||= []).push(m); }   // 층 표시 (붉은 LED · 칸 위치를 따라 바뀐다)
       E.landing.push({ L, R: Rr });
       const [wx, wz] = b.toWorld(EX, lz + .9), [fx, fz] = b.toWorld(EX, lz + 1.6);
       R.elevs.push({ b, f, n, x: wx, z: wz, rbY: y, out: { x: fx, z: fz }, yaw: Math.atan2(-(fx - wx), -(fz - wz)), E });
@@ -520,6 +549,7 @@ export function installRebuild({ THREE, scene, floors, world }) {
     const fHere = e.f; if (Math.abs(E.y - fHere * E.b.spec.FH) < .05) { E.doorT = 1; E.wait = 5; return 'open'; }
     E.target = fHere; E.go = true; E.doorT = 0; return 'call';
   };
+  R.elevGo = (e, nf) => { const E = e.E; if (E.moving || nf < 0 || nf >= E.n) return 'end'; if (Math.abs(E.y - nf * E.b.spec.FH) < .05) { E.doorT = 1; E.wait = 5; return 'here'; } E.target = nf; E.doorT = 0; E.go = true; return 'go'; };   // 칸 안 층 버튼
   R.elevTo = (e, dir) => { const nf = e.f + dir; if (nf < 0 || nf >= e.n) return null; const t = R.elevs.find(q => q.b === e.b && q.f === nf); return { floor: 0, x: t.out.x, z: t.out.z, yaw: t.yaw, sh: t.rbY }; };
   const _ev = new THREE.Vector3();
   R.elevTick = (dt, P, sfx) => {

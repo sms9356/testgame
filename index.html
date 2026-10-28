@@ -382,6 +382,28 @@
   #win{background:linear-gradient(rgba(0,0,0,.45),rgba(0,0,0,.9)),url(assets/ui/title_main.webp) 62% 50%/cover no-repeat}
   #endTag{font-size:12px;letter-spacing:.5em;padding:4px 14px;border:1px solid #c09a50;color:#e8c880;margin-bottom:12px}
   #endTag.normal{border-color:#6a7a8a;color:#a8b8c8}
+  #outro{position:fixed;inset:0;z-index:60;background:#050505;display:none;align-items:center;justify-content:center;cursor:pointer}
+  #outro.show{display:flex}
+  #outro .card{width:min(560px,88vw);padding:26px 28px;opacity:0;transform:translateY(14px) rotate(-.6deg);transition:opacity .7s,transform .7s;box-shadow:0 18px 60px rgba(0,0,0,.8);font-family:inherit}
+  #outro .card.on{opacity:1;transform:none}
+  #outro .ty{font-size:11px;letter-spacing:.4em;margin-bottom:6px;opacity:.75}
+  #outro .meta{font-size:12px;opacity:.7;border-bottom:1px solid currentColor;padding-bottom:8px;margin-bottom:14px}
+  #outro .head{font-size:22px;font-weight:700;line-height:1.35;margin-bottom:12px}
+  #outro .body{font-size:14px;line-height:1.75}
+  #outro .card.news{background:#e9e4d6;color:#1c1a16;font-family:'Noto Serif KR',serif}
+  #outro .card.news .head{font-size:25px}
+  #outro .card.police{background:#dfe5ea;color:#14202c;border-top:8px solid #1d3b6e}
+  #outro .card.police .ty{color:#1d3b6e;font-weight:700}
+  #outro .card.school{background:#f4f1e8;color:#2a2418;border:2px double #8a6a3a}
+  #outro .card.school .ty{color:#8a6a3a}
+  #outro .card.sms{background:#1b1f26;color:#e8eef6;border-radius:18px;width:min(380px,82vw)}
+  #outro .card.sms .body{background:#2d6cdf;border-radius:14px 14px 14px 4px;padding:10px 14px;font-size:15px}
+  #outro .card.sms .head{font-size:17px}
+  #outro .skip{position:absolute;bottom:22px;right:26px;font-size:11px;color:#777;letter-spacing:.1em}
+  #outro .dots{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);display:flex;gap:6px}
+  #outro .dots i{width:6px;height:6px;border-radius:50%;background:#444}
+  #outro .dots i.on{background:#bbb}
+  #endTag.cover{border-color:#7a3a3a;color:#c89090}
   #endTitle{font-family:'East Sea Dokdo','Noto Serif KR',serif;font-size:clamp(52px,9vw,96px);font-weight:400;color:#efe8d8;text-shadow:3px 3px 0 #5a0c10;letter-spacing:.05em;margin-bottom:6px}
   #endStats{display:grid;grid-template-columns:auto auto;gap:4px 24px;font-size:13px;color:#b8b4a8;margin:16px 0 22px;text-align:left}
   #endStats b{color:#fff;font-weight:400}
@@ -816,9 +838,10 @@
 <div id="noteBox" class="overlay"><div id="note"></div><p class="sub" style="margin-top:24px">E 또는 클릭으로 닫기</p></div>
 <div id="dead" class="overlay"><h2 style="color:#b3262e">당신은 돌아오지 못했다</h2>
   <p class="story" id="deadText">칠판에 한 줄이 더 늘었다.<br>“다시, 여기서.”</p><div class="menuBtns" style="margin-top:18px"><button class="btn pri" id="retryBtn">마지막 저장에서 다시</button><button class="btn" id="restartBtn">처음부터</button><button class="btn" id="deadTitleBtn">타이틀로</button></div></div>
+<div id="outro"><div class="card"></div><div class="dots"></div><div class="skip">클릭 · Space — 넘기기</div></div>
 <div id="win" class="overlay"><div id="endTag">TRUE END</div><div id="endTitle"></div><p class="story" id="winText"></p><div id="endStats"></div><div class="menuBtns"><button class="btn" id="againBtn">타이틀로</button></div></div>
 <div id="bye" class="overlay"><p class="story">브라우저는 보안상 웹 게임이 탭을 직접 닫을 수 없습니다.<br>탭을 닫거나(<kbd>Ctrl</kbd>+<kbd>W</kbd>) 타이틀로 돌아가세요. 진행 상황은 자동 저장되어 있습니다.</p><button class="btn" id="byeBack" style="margin-top:20px">타이틀로 돌아가기</button></div>
 
-<script type="module" src="game.js?v=246"></script>
+<script type="module" src="game.js?v=249"></script>
 </body>
 </html>

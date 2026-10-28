@@ -20,7 +20,8 @@ const E = (p, f, a) => p.evaluate(f, a);
 async function finalChoice(p, i) {
   await p.waitForFunction(() => document.getElementById('choice').classList.contains('show'), null, { timeout: 30000 });
   await p.evaluate(i => document.querySelectorAll('#choiceBtns button')[i].click(), i);
-  await p.waitForFunction(() => document.getElementById('win').classList.contains('show'), null, { timeout: 30000 });
+  // 결말 자료(뉴스 · 경찰 · 학교) 세 장을 넘긴다
+  await p.waitForFunction(() => { const o = document.getElementById('outro'); if (o.classList.contains('show') && o.querySelector('.card.on')) { o.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true })); window.__outroN = (window.__outroN || 0) + 1; } return document.getElementById('win').classList.contains('show'); }, null, { timeout: 40000, polling: 900 });
 }
 const W = (p, t) => p.waitForTimeout(t);
 // 새 게임 · 이어하기는 교실 소품 모델 로딩이 끝난 뒤 시작한다(whenAssetsReady) — 로딩 화면이 닫힐 때까지 기다린다
@@ -86,9 +87,9 @@ async function normalRun(char) {
   await saveReload(p, '정문 열쇠 후'); ok(await E(p, () => __g.FL.gatekey) && await E(p, () => __g.objective().ch) === 6, '복원: 정문 열쇠 · 제6장');
   await E(p, () => { __g.ghost.active = false; __g.state = 'playing'; __g.P.floor = 0; __g.P.x = 0; __g.P.z = 67; __g.P.yaw = Math.PI; });
   await p.evaluate(s => new Promise(r => { const t0 = __g.tNow; const f = () => { if (__g.tNow - t0 >= s) r(); else requestAnimationFrame(f); }; requestAnimationFrame(f); }), .4);
-  await p.keyboard.press('KeyE'); await finalChoice(p, 2);
+  await p.keyboard.press('KeyE'); await finalChoice(p, 1);
   ok(await E(p, () => __g.state) === 'won' && (await E(p, () => document.getElementById('endTag').textContent)) === 'NORMAL END', 'NORMAL 엔딩 도달');
-  ok(await E(p, () => __g.FL.final) === 'C' && (await E(p, () => document.getElementById('winText').textContent)).includes('END C'), '마지막 선택 C (은폐) 후일담');
+  ok(await E(p, () => __g.FL.final) === 'B0' && (await E(p, () => document.getElementById('winText').textContent)).includes('END B?'), '마지막 선택 B (혼자 떠남) 후일담');
   ok(p.errors === 0, '콘솔 오류 없음'); await p.close();
 }
 
@@ -222,11 +223,29 @@ async function saveEdgeCases() {
   await t.close();
 }
 
+// 은폐 엔딩: 마지막 선택 C → 교장실 전화 → 거래 · 혼자 묻기
+async function coverRun() {
+  console.log('\n■ 은폐 엔딩 (마지막 선택 C → 교장실의 전화)');
+  for (const [k, title, fin] of [[0, '침묵의 서약', 'C'], [1, '교장실의 거래', 'C2']]) {
+    const p = await page(); await ready(p);
+    await E(p, () => { localStorage.removeItem('haegyo_endings'); __g.newGame(); }); await started(p); await p.keyboard.press('Space'); await W(p, 400);
+    await E(p, () => { __g.state = 'playing'; __g.winGame(); });
+    await p.waitForFunction(() => document.getElementById('choice').classList.contains('show'), null, { timeout: 30000 });
+    await E(p, () => document.querySelectorAll('#choiceBtns button')[2].click());
+    await W(p, 600); await finalChoice(p, k);
+    ok(await E(p, () => document.getElementById('endTag').textContent) === 'COVER-UP END' && await E(p, () => document.getElementById('endTitle').textContent) === title && await E(p, () => __g.FL.final) === fin, `은폐 엔딩 도달 — ${title} (END ${fin})`);
+    ok(await E(p, () => JSON.parse(localStorage.getItem('haegyo_endings') || '[]').includes('cover')), '엔딩 기록에 COVER-UP 저장');
+    ok(await E(p, () => window.__outroN >= 3), '결말 자료 세 장 (학교 · 경찰 · 뉴스) 표시');
+    ok(p.errors === 0, '콘솔 오류 없음'); await p.close();
+  }
+}
+
 // E2E_ONLY=reach,extras … 처럼 일부만 돌릴 수 있다
 const ONLY = (process.env.E2E_ONLY || '').split(',').filter(Boolean), run = (k, f) => !ONLY.length || ONLY.includes(k) ? f() : null;
 await run('normal', () => normalRun('jihun'));
 await run('normal', () => normalRun('seoyeon'));
 await run('true', trueRun);
+await run('cover', coverRun);
 await run('extras', extrasRun);
 await run('reach', reachAudit);
 await run('save', saveEdgeCases);

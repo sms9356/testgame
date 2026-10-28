@@ -124,6 +124,22 @@
   /* ===== HUD ===== */
   #hud{position:fixed;inset:0;pointer-events:none;display:none;z-index:5}
   #hud.show{display:block}
+  #devs{position:absolute;right:18px;bottom:18px;display:flex;gap:10px;align-items:flex-end;font-family:inherit}
+  #devs .dv{background:rgba(10,13,17,.82);border:1px solid #3a444c;border-radius:10px;padding:8px 10px;color:#cfd6dc;font-size:11px;min-width:118px;box-shadow:0 6px 18px rgba(0,0,0,.45)}
+  #devs .dv b{display:block;font-size:12px;color:#e8edf0;margin-bottom:4px;letter-spacing:.04em}
+  #devs .ph{display:flex;justify-content:space-between;gap:8px;align-items:center}
+  #devs .bars{display:inline-flex;gap:2px;align-items:flex-end;height:11px}#devs .bars i{width:3px;background:#55606a;border-radius:1px}#devs .bars i.on{background:#9fe0a8}
+  #devs .key{display:inline-block;border:1px solid #5a6670;border-radius:4px;padding:0 4px;font-size:10px;color:#aab4bc;margin-top:4px}
+  #devs .wt{position:relative}
+  #devs .led{display:inline-block;width:8px;height:8px;border-radius:50%;background:#2a3a2e;margin-right:6px;vertical-align:middle;box-shadow:inset 0 0 2px #000}
+  #devs .wt.rx .led{background:#4dff7a;box-shadow:0 0 8px #4dff7a}#devs .wt.tx .led{background:#ff4a3a;box-shadow:0 0 8px #ff4a3a}
+  #devs .wave{display:flex;gap:2px;height:14px;align-items:center;margin-top:4px}#devs .wave i{width:3px;height:3px;background:#4a5660;border-radius:1px}
+  #devs .wt.rx .wave i,#devs .wt.tx .wave i{animation:wv .5s ease-in-out infinite alternate;background:#9fe0a8}#devs .wt.tx .wave i{background:#ff9a8a}
+  #devs .wave i:nth-child(2n){animation-delay:.15s}#devs .wave i:nth-child(3n){animation-delay:.3s}
+  @keyframes wv{from{height:3px}to{height:14px}}
+  #devs .wt.rx{border-color:#4dff7a88}#devs .wt.tx{border-color:#ff4a3a88}
+  #devs .ant{position:absolute;right:12px;top:-14px;width:4px;height:16px;background:#2a3036;border-radius:2px 2px 0 0;border:1px solid #3a444c;border-bottom:0}
+
   .panel{background:var(--panel);border:1px solid var(--line)}
   #objP{max-height:calc(100vh - 220px);overflow-y:auto;scrollbar-width:thin;position:absolute;left:20px;top:18px;width:330px;padding:10px 14px 12px;font-size:13px;line-height:1.6;border-left:3px solid var(--gold)}
   #chapter{font-size:11px;letter-spacing:.25em;color:#c09a50;margin-bottom:4px}
@@ -644,7 +660,7 @@
 <canvas id="c"></canvas>
 <div id="vig"></div><div id="fear"></div><div id="hide"></div><div id="fade"></div><div id="flash"></div>
 
-<div id="hud">
+<div id="hud"><div id="devs"><div class="dv"><b>📱 휴대폰</b><div class="ph"><span id="dvClock">--:--</span><span class="bars" id="dvSig"><i style="height:3px"></i><i style="height:5px"></i><i style="height:8px"></i><i style="height:11px"></i></span></div><div class="ph"><span id="dvBat">🔋 --%</span><span class="key" id="dvPKey">P</span></div></div><div class="dv wt" id="dvWt"><span class="ant"></span><b>📻 무전기 · CH 3</b><div><span class="led"></span><span id="dvWtTxt">대기 중</span></div><div class="wave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div></div>
   <div id="objTab" title="목표 바 펼치기 (O)">◆ 목표 <kbd>O</kbd></div>
   <div id="objP" class="panel"><button id="objTog" title="목표 바: 펼치기 · 한 줄 · 숨기기 (O)"><span id="objTogI">▾</span><kbd>O</kbd></button><div id="objMini"><b id="omCh"></b><span id="omText"></span><em id="omProg"></em></div><div id="chapter"></div><div class="m">메인 미션 · 실종된 선배</div><div id="objText"></div><div id="objWhere"></div><div id="objDir"><i>➤</i><span></span></div><div id="subs"></div>
     <div id="optBox"><b id="optTitle"></b><div id="optSubs"></div></div><div id="sqBox"><b id="sqTitle"></b><div id="sqSubs"></div></div><div id="zoneBox"><b id="zoneTitle"></b><div id="zoneSubs"></div></div><div id="phBox"><b id="phTitle"></b><div id="phSubs"></div></div></div>
@@ -842,6 +858,6 @@
 <div id="win" class="overlay"><div id="endTag">TRUE END</div><div id="endTitle"></div><p class="story" id="winText"></p><div id="endStats"></div><div class="menuBtns"><button class="btn" id="againBtn">타이틀로</button></div></div>
 <div id="bye" class="overlay"><p class="story">브라우저는 보안상 웹 게임이 탭을 직접 닫을 수 없습니다.<br>탭을 닫거나(<kbd>Ctrl</kbd>+<kbd>W</kbd>) 타이틀로 돌아가세요. 진행 상황은 자동 저장되어 있습니다.</p><button class="btn" id="byeBack" style="margin-top:20px">타이틀로 돌아가기</button></div>
 
-<script type="module" src="game.js?v=257"></script>
+<script type="module" src="game.js?v=258"></script>
 </body>
 </html>

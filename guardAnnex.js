@@ -96,12 +96,30 @@ export function buildGuardAnnex({ OUT, props, boxMesh, plane, flat, col, S, make
   plane(G, new THREE.MeshBasicMaterial({ map: makeSign('정문 · 본관 · 체육관 · B1 순찰 경로', '#e8e8e0', '#2a3a4a', 16), color: 0xcfcfc4 }), 1.6, .9, 6.6, 1.6, A.z1 + .16, 0);
 
   // ── 열쇠보관실 (x 8.0 ~ 11.4) ──
-  const cab = S(null, { color: 0x5b6a5e, roughness: .55, metalness: .45 });
-  G.add(boxMesh(10.97, 11.25, .9, 2.05, 62.0, 63.6, cab, 1)); col(10.95, 11.25, 62.0, 63.6, true);
-  const pivot = new THREE.Group(); pivot.position.set(10.95, 0, 62.0); G.add(pivot);
-  const cabDoor = new THREE.Mesh(new THREE.BoxGeometry(.03, 1.13, 1.58), S(null, { color: 0x6b7a6e, roughness: .5, metalness: .5 })); cabDoor.position.set(0, 1.475, .79); pivot.add(cabDoor);
-  const pad = new THREE.Mesh(new THREE.BoxGeometry(.03, .16, .1), new THREE.MeshBasicMaterial({ color: 0xff4030 })); pad.position.set(-.02, 1.5, 1.4); pivot.add(pad);
-  const hookKeys = ANNEX_KEYS.map((k, i) => { const m = new THREE.Mesh(new THREE.BoxGeometry(.02, .1, .04), new THREE.MeshStandardMaterial({ color: k.color, metalness: .8, roughness: .3 })); m.position.set(10.96, 1.55, 62.3 + i * .35); G.add(m); return m; });
+  // 벽걸이 열쇠보관함 (H400 × W350 × D71 · 아이보리 철제 양문형 · 상단 손잡이 · 전자식 자동 잠금) — 문은 [E] 로 비밀번호를 넣으면 열리고, 창을 닫으면 저절로 닫혀 잠긴다
+  const CX = 11.245, CZ = 62.8, CY = 1.45, CW = .35, CH = .40, CD = .071, ivory = S(null, { color: 0xe8e2d0, roughness: .45, metalness: .35 });
+  const cabG = new THREE.Group(); G.add(cabG);
+  cabG.add(boxMesh(CX - .012, CX, CY - CH / 2, CY + CH / 2, CZ - CW / 2, CZ + CW / 2, ivory, 1));   // 뒤판
+  for (const [y1, y2] of [[CY - CH / 2, CY - CH / 2 + .012], [CY + CH / 2 - .012, CY + CH / 2]]) cabG.add(boxMesh(CX - CD, CX, y1, y2, CZ - CW / 2, CZ + CW / 2, ivory, 1));   // 위 · 아래판
+  for (const z of [CZ - CW / 2, CZ + CW / 2 - .012]) cabG.add(boxMesh(CX - CD, CX, CY - CH / 2, CY + CH / 2, z, z + .012, ivory, 1));   // 옆판
+  { const hm = S(null, { color: 0x2a2a2a, roughness: .5 }); cabG.add(boxMesh(CX - .045, CX - .03, CY + CH / 2, CY + CH / 2 + .03, CZ - .06, CZ + .06, hm, 1)); }   // 상단 손잡이
+  // 안쪽: 걸이 바 3단 + 노랑 · 파랑 꼬리표 (사진처럼 가운데 단은 파랑)
+  { const bar = S(null, { color: 0xb8b8b8, roughness: .3, metalness: .8 }), tagY = new THREE.MeshStandardMaterial({ color: 0xf2c418, roughness: .55 }), tagB = new THREE.MeshStandardMaterial({ color: 0x2f5fb8, roughness: .55 });
+    const tg = new THREE.BoxGeometry(.004, .045, .016), N = 14, rows = [CY + .11, CY, CY - .11];
+    const iy = new THREE.InstancedMesh(tg, tagY, N * 2), ib = new THREE.InstancedMesh(tg, tagB, N), m4 = new THREE.Matrix4(); let ky = 0, kb = 0;
+    rows.forEach((y, r) => { cabG.add(boxMesh(CX - .03, CX - .02, y + .04, y + .046, CZ - CW / 2 + .02, CZ + CW / 2 - .02, bar, 1));
+      for (let i = 0; i < N; i++) { const z = CZ - CW / 2 + .03 + i * ((CW - .06) / (N - 1)); if (r === 0 && i < ANNEX_KEYS.length) continue;   // 맨 윗단 앞자리는 이야기 열쇠
+        m4.makeTranslation(CX - .022, y + .005, z); r === 1 ? ib.setMatrixAt(kb++, m4) : iy.setMatrixAt(ky++, m4); } });
+    iy.count = ky; ib.count = kb; cabG.add(iy, ib); }
+  // 양문: 바깥쪽 경첩에서 벽 쪽(-x)으로 열린다
+  const doorM = ivory, mkDoor = (hz, dir) => { const pv = new THREE.Group(); pv.position.set(CX - CD, CY, hz); cabG.add(pv);
+    const d = new THREE.Mesh(new THREE.BoxGeometry(.012, CH - .004, CW / 2 - .003), doorM); d.position.set(-.006, 0, dir * (CW / 4)); d.castShadow = true; pv.add(d); return pv; };
+  const doorL = mkDoor(CZ - CW / 2, 1), doorR = mkDoor(CZ + CW / 2, -1);
+  { const lk = new THREE.Mesh(new THREE.CylinderGeometry(.009, .009, .01, 12), S(null, { color: 0xc8c8c8, metalness: .9, roughness: .25 })); lk.rotation.z = Math.PI / 2; lk.position.set(-.017, .02, -.03); doorR.add(lk); }
+  const pad = new THREE.Mesh(new THREE.BoxGeometry(.006, .03, .045), new THREE.MeshBasicMaterial({ color: 0xff4030 })); pad.position.set(-.015, .09, -.04); doorR.add(pad);   // 전자 잠금 표시등
+  col(CX - CD - .02, CX, CZ - CW / 2, CZ + CW / 2, false, CY + CH / 2);
+  const hookKeys = ANNEX_KEYS.map((k, i) => { const m = new THREE.Mesh(new THREE.BoxGeometry(.006, .05, .016), new THREE.MeshStandardMaterial({ color: k.color, metalness: .6, roughness: .35 })); m.position.set(CX - .022, CY + .115, CZ - CW / 2 + .03 + i * ((CW - .06) / 13)); cabG.add(m); return m; });
+  const cabDoor = { L: doorL, R: doorR, t: 0, target: 0, set(t) { this.t = t; doorL.rotation.y = -1.9 * t; doorR.rotation.y = 1.9 * t; } };
   { const st = S(null, { color: 0x7a8288, roughness: .45, metalness: .6 });   // 앵글 철제 선반 (기둥 6 · 선반 4단) + 보관 상자 (실사 골판지 상자)
     for (const x of [8.32, 9.78, 11.22]) for (const z of [64.38, 64.78]) G.add(boxMesh(x - .02, x + .02, 0, 2.0, z - .02, z + .02, st, 1));
     for (let j = 0; j < 4; j++) { const y = .12 + j * .6; G.add(boxMesh(8.3, 11.24, y, y + .025, 64.36, 64.8, st, 1)); }
@@ -125,9 +143,9 @@ export function buildGuardAnnex({ OUT, props, boxMesh, plane, flat, col, S, make
   props.push({ kind: 'ganx', k: 'live', floor: 0, x: 6.45, z: 63.4, y: 1.25, r: 1.7, label: '관제실 CCTV 모니터 월 — 실시간 화면' });
   props.push({ kind: 'ganx', k: 'archive', floor: 0, x: 5.45, z: 63.45, y: 1.0, r: 1.5, label: '1998년 녹화 테이프 열람 (VCR 데크)' });
   props.push({ kind: 'ganx', k: 'ledger', floor: 0, x: 7.35, z: 63.45, y: .85, r: 1.4, label: '열쇠 대출 장부 읽기' });
-  props.push({ kind: 'ganx', k: 'cabinet', floor: 0, x: 10.6, z: 62.8, y: 1.45, r: 1.6, label: '열쇠보관함 — 비밀번호 입력' });
+  props.push({ kind: 'ganx', k: 'cabinet', floor: 0, x: 11.15, z: 62.8, y: 1.45, r: 1.4, label: '벽걸이 열쇠보관함 — 비밀번호 입력 (자동 잠금)' });
   props.push({ kind: 'ganx', k: 'lost', floor: 0, x: 9.5, z: 62.75, y: .85, r: 1.5, label: '보관실 분실물 상자 뒤지기' });
-  return { group: G, screens, cabDoor: pivot, cabPad: pad, hookKeys, light, panelM };
+  return { group: G, screens, cabDoor, cabPad: pad, hookKeys, light, panelM };
 }
 
 // ── 당직실: (구)경비실을 철거한 자리 (x 4.8 ~ 8.25, z 64.95 ~ 67.9). 남쪽 출입문 · 근무 책상 · 경비원 의자는 예전 자리 그대로 ──

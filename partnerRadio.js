@@ -56,10 +56,12 @@ export async function play(scene) {   // 점검용으로도 쓴다
   for (let i = 0; i < lines.length; i++) {
     if (C.state() !== 'playing' && C.state() !== 'ui') break;
     const [who, text] = lines[i], id = `pr_${scene}_${p}_${i}`, radio = who !== p, name = (who === 'j' ? '지훈' : '서연') + (radio ? ' 📻' : '');
+    C.radio && C.radio(radio ? 'rx' : 'tx', who === 'j' ? '지훈' : '서연');   // 무전기 HUD: 상대 목소리는 수신 · 내 목소리는 송신 (PTT)
     const sec = await C.speak(id, radio ? 'phone' : 'none', true);
     C.subtitle(name, text, Math.max(sec, 2.4) + .3, who === 'j' ? 'jihun' : 'seoyeon');
     await new Promise(r => setTimeout(r, (Math.max(sec, 2.4) + .5) * 1000));
   }
+  C.radio && C.radio('idle');
   busyUntil = performance.now() + 4000;
 }
 

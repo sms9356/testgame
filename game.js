@@ -15,26 +15,25 @@ import { MeshBVH } from './vendor/addons/bvh/three-mesh-bvh.module.js';
   }; }
 import { elevatorLocal, elevatorWorld, elevatorRoute, restoreOutsideElevatorBay } from './elevatorLayout.js';
 import { buildMissionGroups, recordCompleted, normalizeCompletedLog } from './mysteryMissions.js';
-import { createPsychologicalDirector, PHENOMENON_LABELS } from './psychologicalHorror.js';
 import { settleStoryGhost, tickStoryGhost, showStoryGhost } from './storyGhost.js';
 import { GLTFLoader } from './vendor/addons/loaders/GLTFLoader.js';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { createNPCVisuals } from './npcVisuals.js?v=238';
-import { applyGuardSeatedPose } from './guardSeatedPose.js?v=238';
+import { createNPCVisuals } from './npcVisuals.js?v=239';
+import { applyGuardSeatedPose } from './guardSeatedPose.js?v=239';
 import { createCampusCctvLive, collectCampusCctvFeeds } from './campusCctvLive.js';
-import { applyExteriorFloorVisibility, shouldStreamGuardCctv } from './exteriorRenderBudget.js?v=238';
-import { GUARD_LAYOUT } from './guardRoomLayout.js?v=238';
-import { ANNEX_KEYS, CABINET_CODE } from './guardAnnex.js?v=238';
-import { installGuardRoom } from './guardRoom.js?v=238';
+import { applyExteriorFloorVisibility, shouldStreamGuardCctv } from './exteriorRenderBudget.js?v=239';
+import { GUARD_LAYOUT } from './guardRoomLayout.js?v=239';
+import { ANNEX_KEYS, CABINET_CODE } from './guardAnnex.js?v=239';
+import { installGuardRoom } from './guardRoom.js?v=239';
 import { prepareModelGeometry } from './modelGeometry.js';
 import { modelFootprint, overlaps, removeDuplicateModels } from './placement.js';
-import { turfMaterial } from './campusVisuals.js?v=238';
+import { turfMaterial } from './campusVisuals.js?v=239';
 import { installInfirmaryAssets, updateInfirmaryCabinets } from './infirmaryAssets.js';
-import { installRebuild } from './rebuildGame.js?v=238';
-import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js?v=238'; import { updateWindowFakes } from './windowInteriors.js?v=238';
-import { drawMap } from './map.js?v=238';
-import { buildMegaCampus15000, MEGA_CAMPUS_ZONES } from './megaCampus15000.js?v=238';
-import { installFacilityRebuild, inTwoStory } from './facilityRebuild.js?v=238';
+import { installRebuild } from './rebuildGame.js?v=239';
+import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js?v=239'; import { updateWindowFakes } from './windowInteriors.js?v=239';
+import { drawMap } from './map.js?v=239';
+import { buildMegaCampus15000, MEGA_CAMPUS_ZONES } from './megaCampus15000.js?v=239';
+import { installFacilityRebuild, inTwoStory } from './facilityRebuild.js?v=239';
 import { makeDress, makeHair, makeGhostFace, makeGraffiti, makeKeypad, loadPBR, pbr, makeGlow as makeGlowTex, makePaintingStare, makeSign, makeBlood } from './tex.js';
 import { warmUp } from './bake.js';
 import { createStaticDistanceLOD } from './staticDistanceLOD.js';
@@ -53,14 +52,14 @@ import './classroomRemodelPatch.js';  // 교실 리모델링 · 의자에 앉기
 import './subGhostSystem.js';         // 서브 유령 8종 시트지 엔진 (사용자 제공) → window.subGhostSystem
 import './school37RoomsPatch.js';    // 본관 · 별관 37개 특별실 가구 · 동선 (사용자 제공) → window.school37RoomsPatch
 import './new37UniquePatch.js';     // 37개 구역 신규 특수 설비 · 벽면 레일 (사용자 제공) → window.new37UniquePatch
-import './megaExpansionPatch.js?v=238';   // 메가 익스팬션 · 최적화 · 4막 사건 기록 · 수집품 · 미니게임 (사용자 제공) → window.megaSchoolPatch
+import './megaExpansionPatch.js?v=239';   // 메가 익스팬션 · 최적화 · 4막 사건 기록 · 수집품 · 미니게임 (사용자 제공) → window.megaSchoolPatch
 import './poolMachineryPatch.js';     // 수영장 · 남/녀 탈의실·샤워실 · 기계실 철문 (사용자 제공) → window.poolAndMachineryPatch
-import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx, setSfxBusyCheck } from './audio.js?v=238'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=238'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera, perfInstanceSource } from './perfStabilizer.js?v=238'; window.__perfInst = perfInstanceSource; import { upgradePlainMaterials } from './plainUpgrade.js?v=238'; import { relayCampusPaths } from './campusPaths.js?v=238'; import { installHudV2, tickHudV2 } from './hudV2.js?v=238'; import { installPartnerRadio, tickPartnerRadio } from './partnerRadio.js?v=238';
-import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js?v=238';
-import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, HYPOTHESES, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, SIDEQUESTS, HEADQUEST, COLLECT, LOCKER_SCARES, CHALK_QA, OUIJA_QS, PARA, TOILET_FX, MIRROR_WORDS } from './story.js?v=238';
-import { isSpeechBusy } from './voice.js?v=238';
+import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx, setSfxBusyCheck } from './audio.js?v=239'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=239'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera, perfInstanceSource } from './perfStabilizer.js?v=239'; window.__perfInst = perfInstanceSource; import { upgradePlainMaterials } from './plainUpgrade.js?v=239'; import { relayCampusPaths } from './campusPaths.js?v=239'; import { installHudV2, tickHudV2 } from './hudV2.js?v=239'; import { installPartnerRadio, tickPartnerRadio } from './partnerRadio.js?v=239';
+import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js?v=239';
+import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, HYPOTHESES, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, SIDEQUESTS, HEADQUEST, COLLECT, CHALK_QA, OUIJA_QS, MIRROR_WORDS } from './story.js?v=239';
+import { isSpeechBusy } from './voice.js?v=239';
 import { SET, saveSET, resetSET, DIFF, keyLabel } from './settings.js';
-import { initI18n, setLang, lang as curLang } from './i18n.js?v=238';   // 언어 패치 (한국어 · English · 日本語 · 中文)
+import { initI18n, setLang, lang as curLang } from './i18n.js?v=239';   // 언어 패치 (한국어 · English · 日本語 · 中文)
 initI18n();
 const K = () => SET.keys;
 let guardRoomController = null, guardControlProps = [], guardCctvData = null, campusCctv = null;
@@ -79,7 +78,7 @@ function syncGuardDevices() {
 function toggleGuardCCTV(persist = true) { FL.guardCctvOn = !(FL.guardCctvOn ?? true); sfx.click(); syncGuardDevices(); if (persist) save(true); return FL.guardCctvOn; }
 function toggleGuardLight() { FL.guardLightOn = !(FL.guardLightOn ?? false); sfx.click(); syncGuardDevices(); say(FL.guardLightOn ? '경비실 전등을 켰다' : '경비실 전등을 껐다', 1800); save(true); return FL.guardLightOn; }
 
-import { run as runMini, MG } from './minigames.js?v=238';
+import { run as runMini, MG } from './minigames.js?v=239';
 import { SCHEMA, BUILD, storageKeys, itemUid, propUid, doorUid, assignUids, readSlot, writeSlot, hasSlot, clearSlot, repairProgress } from './saveSystem.js';
 const NOTE_CAST = {
   n_seomun_ilbo: { spk: 'reporter', audioId: 'call_119', stage: '(📰 서문일보 사회부 한진우 기자의 긴급 특보 리포팅)' },
@@ -190,7 +189,6 @@ const msgs = [], clues = [], newItems = new Set();
 let storySession = 0;
 const pendingMessages = new Map();
 function beginStorySession(){++storySession;elvReset();voBusy=false;stopSpeak();document.getElementById('memTint')?.classList.remove('on');++talkRequest;clearTimeout(talkTimer);document.getElementById('dlg')?.classList.remove('show');for(const timer of pendingMessages.values())clearTimeout(timer);pendingMessages.clear();}
-const psychologicalDirector = createPsychologicalDirector();
 let voBusy = false;   // 중요한 연출(하교 방송) 중에는 휴대폰 메시지를 미룬다
 let chapterShown = 0;
 
@@ -656,7 +654,7 @@ function talk(id, ms = 3200) {
   if (vid && lineInfo(vid)) speak(vid).then(sec => { if (request !== talkRequest) return; clearTimeout(talkTimer); talkTimer = setTimeout(() => $('dlg').classList.remove('show'), Math.max(ms, sec * 1000 + 700)); });
 }
 // 이야기 장면(녹화 · 녹음 · 메시지 · 문서 · 퍼즐) 직후 잠시 그것이 물러나 있게 한다
-function storyCalm(sec = 40) { psychologicalDirector.quiet(Math.max(18,sec)); ghost.calmT = Math.max(ghost.calmT || 0, sec); if (ghost.active && !ghost.enraged && ghost.floor === P.floor && ghost.state !== 'chase') { ghost.state = 'patrol'; ghost.path = []; ghost.wait = 3; } }
+function storyCalm(sec = 40) { ghost.calmT = Math.max(ghost.calmT || 0, sec); if (ghost.active && !ghost.enraged && ghost.floor === P.floor && ghost.state !== 'chase') { ghost.state = 'patrol'; ghost.path = []; ghost.wait = 3; } }
 function addClue(id) { storyCalm(30); if (clues.includes(id)) return; clues.push(id); }
 // 게임 시각: 17:50 에 도착, 해가 지는 동안 한 시간 남짓 흐르고, 이후 실제 1분 = 게임 4분 (한 시간 플레이 ≈ 23시)
 const gameMin = (extra = 0) => Math.floor(17 * 60 + 50 + (playTime + extra) * 4 / 60 + 70 * (1 - DAY.k / .92));
@@ -910,7 +908,7 @@ function renderPhone() {
     B.querySelectorAll('img').forEach(im => { im.onclick = () => { $('lbImg').src = im.src; $('lbCap').textContent = im.dataset.t; $('lightbox').classList.add('show'); }; });
   } else if (phoneTab === 'memo') {
     const sp = (FL.spirit || []).slice().reverse().map(x => `<div class="memo">📷 <b>심령 사진</b> (${x.t || ''}) — ${x.text}<br><i>${x.subText}</i></div>`).join('');
-    const observations=(Array.isArray(FL.observations)?FL.observations:[]).filter(x=>x&&PHENOMENON_LABELS[x.id]).map(x=>`<div class="memo">관찰 기록 · ${PHENOMENON_LABELS[x.id]} · ${String(x.time||'').replace(/[<>]/g,'')}<br><small>기억의 잔향 — 객관적 증거와 대조 필요</small></div>`).join('');
+    const observations='';
     B.innerHTML = observations + (clues.length || sp ? sp + clues.slice().reverse().map(c => `<div class="memo">${CLUES[c]}</div>`).join('') : '<div class="pEmpty">아직 기록한 단서가 없습니다.</div>');
   } else if (phoneTab === 'missions') {
     B.innerHTML='<nav class="missionNav"><button data-mission-nav="main">메인</button><button data-mission-nav="side">서브</button><button data-mission-nav="special">특별</button></nav>'+missionGroups().map(g=>`<section class="missionGroup" data-mission="${g.id}" id="mission-${g.id}"><h3>${g.title}</h3><p>${g.purpose}</p>${g.items.map(it=>`<div class="memo${it.done?' missionDone':''}"><b>${it.done?'✓ ':''}${it.title}</b>${it.progress?` · ${it.progress}`:''}${it.where?`<br><small>${it.where}</small>`:''}</div>`).join('')}</section>`).join('');
@@ -1812,7 +1810,7 @@ async function useRoomObj(p) {
   if (k === 'mirror') {
     const i = await choose('거울', '금이 간 거울에 지친 얼굴이 비친다.', [{ label: '세수한다', sub: '마음을 가라앉힌다' }, { label: '거울을 오래 들여다본다' }, { label: '돌아선다' }]);
     if (i === 0) { sfx.drip(); calmDown(25, '차가운 물에 정신이 든다'); }
-    else if (i === 1) { if (Math.random() < .45 || !p.tried) { p.tried = true; const bx = P.x + Math.sin(P.yaw) * 1.2, bz = P.z + Math.cos(P.yaw) * 1.2; showApparition(P.floor, bx, bz, P.yaw, .5, null); sfx.ghostBreath(); fx.glitch(.6); shake = .35; caption('거울 속, 내 어깨 너머로 누군가 서 있었다'); setFace('surprise', 2); } else caption('…내 얼굴뿐이다'); }
+    else if (i === 1) caption('…지친 내 얼굴뿐이다');
     return;
   }
   if (k === 'cards') {
@@ -2053,23 +2051,6 @@ function die() {
 }
 
 /* ---------- 이벤트(랜덤 공포 연출) ---------- */
-function randomEvent() {
-  const id=psychologicalDirector.tick(.1,{playing:state==='playing',indoors:!isOutdoors(),busy:isSpeechBusy()||voBusy,chapter:objective().ch});
-  if(id) psychologicalPhenomenon(id);
-}
-function psychologicalPhenomenon(id) {
-  if (isDialogueActive()) { setTimeout(() => { if (state === 'playing' && !isDialogueActive()) psychologicalPhenomenon(id); }, 4200); return; }
-  const y=floors[P.floor].y0, behind=at(P.x+Math.sin(P.yaw)*6,y+.2,P.z+Math.cos(P.yaw)*6);
-  const events={
-    attendance:()=>{sfx.paper();caption('빈 교실에서 출석을 부르는 듯하다. 대답하는 목소리는 없다.');},
-    clock:()=>{sfx.click();caption('벽시계는 멈춰 있다. 방금도 같은 시각을 보았던 것 같다.');},
-    paper:()=>{sfx.paper();caption('창문은 닫혀 있는데, 누군가 종이를 넘기는 소리가 들린다.');},
-    'empty-bell':()=>{sfx.bellFar();caption('수업이 끝난 지 오래인데, 멀리서 종이 한 번 울린다.');},
-    footsteps:()=>{behind.stepBehind(.18);caption('내가 멈춘 뒤에도 발소리가 한 걸음 더 이어졌다.');},
-    'radio-memory':()=>{sfx.whisper();caption('전원이 꺼진 방송에서, 선배가 보낸 메시지의 마지막 말이 떠오른다.');window.sanitySystem.corruptUIElements();}
-  };if(!events[id])return;events[id]();
-  FL.observations=Array.isArray(FL.observations)?FL.observations:[];FL.observations.push({id,floor:P.floor,time:clockText()});FL.observations=FL.observations.slice(-24);
-}
 
 /* ---------- 입력 ---------- */
 addEventListener('keydown', e => {
@@ -2255,7 +2236,7 @@ function load(preferBackup) {
   const r = (() => { try { return readSlot(localStorage, SKEYS, SCTX, preferBackup); } catch (e) { return { data: null }; } })();
   const d = r.data;
   if (!d) { toast('세이브를 불러올 수 없습니다', '저장 데이터가 없거나 손상되었습니다', 'warn'); return false; }
-  beginStorySession(); psychologicalDirector.quiet(25);
+  beginStorySession();
   const fixes = repairProgress(d, TOTAL);
   // 1) 주인공 — 세이브의 캐릭터로 맞춘다 (외형 · 능력 · 대사)
   if (CHARACTERS[d.meta.char]) { CHAR = d.meta.char; try { localStorage.setItem(CHAR_KEY, CHAR); } catch (e) { /* ignore */ } }
@@ -2298,7 +2279,7 @@ function trimShadowCasters() { const bb = new THREE.Box3(), sz = new THREE.Vecto
   if (n) console.info(`[그림자] 그림자 드리우기 끔 ${n}개 (큰 판 · 작은 소품)`); }
 [20000, 60000].forEach(ms => setTimeout(() => { try { trimShadowCasters(); } catch (e) {} }, ms));
 function start(skipIntro = false) {
-  beginStorySession(); const epoch=storySession; psychologicalDirector.quiet(35);
+  beginStorySession(); const epoch=storySession;
   initAudio(); closeMenus(); applyChar(); { const par = renderer.extensions.has('KHR_parallel_shader_compile');   // 병렬 컴파일이 없으면 씬 전체 컴파일이 동기라 한 번에 수십 초 멈춘다 → 한 번만
   (par ? [400, 6000, 15000, 30000, 50000] : [400]).forEach(ms => setTimeout(() => { if (ms <= 6000) try { upgradePlainMaterials(scene); } catch (e) {} prewarmFloors(true, fx.composer.renderTarget1).catch(() => {}); }, ms));
   if (!par) setTimeout(() => { try { upgradePlainMaterials(scene); } catch (e) {} }, 6000); }   // 늦게 들어오는 GLB(민아 · 소품)까지 시작 연출 동안 미리 컴파일   // 시작 연출 동안 나중에 생긴 재질까지 한 번 더 예열
@@ -2906,7 +2887,7 @@ function ensureCharsel3D() {
     const rim = new THREE.DirectionalLight(0xffd6e0, 0.85); rim.position.set(0, 2.4, -2.5);
     sc.add(hemi, key, fill, rim);
     st.scenes[k] = sc;
-    loader.load(`assets/characters/${k}.glb?v=238`, gltf => {
+    loader.load(`assets/characters/${k}.glb?v=239`, gltf => {
       const m = gltf.scene;
       npcVisuals.enhanceCharacterMaterials?.(m, k);
       m.traverse(o => { if (o.isMesh || o.isSkinnedMesh) o.frustumCulled = false; });
@@ -3058,8 +3039,7 @@ function updatePlayer(dt) {
       }
       const mv = Math.hypot(P.x - ox, P.z - oz);
       P.moving = mv > .0005; P.bob += mv * (P.sprinting ? 2.4 : 2.9); P.stepD += mv;
-      if (P.stepD > (P.sprinting ? 1.9 : 1.45)) { P.stepD = 0; sfx.step(P.sprinting, 1, surfaceAt());
-        if (PSY.follow > 0) { const sp = P.sprinting; setTimeout(() => at(P.x + Math.sin(P.yaw) * 3.2, floors[P.floor].y0 + .1, P.z + Math.cos(P.yaw) * 3.2).step(sp, .75, surfaceAt()), 240 + Math.random() * 60); } }
+      if (P.stepD > (P.sprinting ? 1.9 : 1.45)) { P.stepD = 0; sfx.step(P.sprinting, 1, surfaceAt()); }
     } else P.stepD = 0;
   } else if (P.hiding) P.stamina = Math.min(100, P.stamina + 25 * dt);
   P.flashCD = Math.max(0, (P.flashCD || 0) - dt); P.pbat = Math.min(100, (P.pbat ?? 100) + dt * .35);
@@ -3561,8 +3541,6 @@ function frameBody(now) {
     if (state === 'playing') {
       ghostTick(dt, tNow);
       // 랜덤 이벤트
-      const phenomenon=psychologicalDirector.tick(dt,{playing:true,indoors:!isOutdoors(),busy:isSpeechBusy()||voBusy||performance.now()<startQuietT,chapter:objective().ch});
-      if(phenomenon) psychologicalPhenomenon(phenomenon);
       updatePrompt();
       updateEvents(dt);
     }
@@ -4340,43 +4318,9 @@ function updateEvents(dt) {
   updateEvents2(dt);
   EV.t -= dt; if (EV.t > 0) return; EV.t = .2; const step = .2;
   const f = P.floor, room = roomAt(f, P.x, P.z);
-  moreEvents(f, room, step); psych(f, room, step); toiletTick(f, room, step);
+  moreEvents(f, room, step);
   // 방에 들어온 시간
   if (room && EV.inRoom === room.id) EV.roomT += step; else { EV.inRoom = room ? room.id : null; EV.roomT = 0; }
-  EV.slamCD -= step;
-  // ① 문이 저절로 닫힌다
-  if (room && EV.roomT > 3.5 && EV.slamCD <= 0 && P.z < -3) {
-    const d = world.doorList.find(o => o.kind === 'slide' && o.floor === f && Math.abs(o.x - room.cx) < .1 && o.target > .5);
-    if (d && Math.random() < .35) { d.target = 0; d.slam = true; sfx.doorBang(0, .9); caption('문이 쾅 닫힌다'); shake = .45; EV.slamCD = 100 + Math.random() * 80; setTimeout(() => talk('doorSlam', 2400), 500); }
-    else EV.slamCD = 8;
-  }
-  // ② 음악실 피아노
-  if (room && room.type === 'music') evOnce('piano' + f, () => { sfx.piano(); caption('피아노가 혼자 울린다'); setTimeout(() => talk('piano', 2800), 1200); });
-  // ③ 화장실 칸막이 문이 쾅
-  if (room && room.type === 'toilet' && EV.roomT > 1.4) evOnce('stall', () => { const d = world.doorList.find(o => o.stall && o.floor === f && o.target > .5); if (d) { d.target = 0; d.slam = true; } sfx.doorBang(-.3, 1); shake = .4; setTimeout(() => talk('stall', 2000), 600); });
-  // ④ 3-3 교실: 뒤를 봐
-  const br = world.boardRefs.b33;
-  if (br && room && f === br.floor && room.cx === br.cx) {
-    const fz = -Math.cos(P.yaw);
-    if (EV.b33 === 0 && EV.roomT > 1.5 && fz > .55) { EV.b33T += step; if (EV.b33T > .8) { EV.b33 = 1; br.mat.map = world.makeBoardTex(['뒤 를 봐']); br.mat.needsUpdate = true; sfx.creak(); } }
-    if (EV.b33 === 1 && fz < -.6) { EV.b33 = 2; showApparition(f, br.cx, -8.2, 0, 3, 'look'); }
-  }
-  // ⑤ 복도 끝의 그림자 (유령이 깨어나기 전 복선)
-  if (!ghost.active && (f === 0 || f === 1) && Math.abs(P.z) < 1.3 && Math.abs(P.x) < 30 && playTime > 25) {
-    EV.corrT += step;
-    if (EV.corrT > 6) evOnce('corr' + f, () => {
-      const fx = -Math.sin(P.yaw), sx = P.x + Math.sign(fx || 1) * 15;
-      if (Math.abs(fx) > .7 && Math.abs(sx) < 34) { showApparition(f, sx, 0, Math.atan2(P.x - sx, 0), 1.8, null); sfx.whisper(); if (P.light) blackout = .25; }
-      else EV.done.delete('corr' + f);
-    });
-  }
-  // ⑥ 2층 첫 진입: 정전 + 다가오는 발소리
-  if (f === 1 && Math.abs(P.z) < 1.4) evOnce('lights1', () => {
-    setTimeout(() => { if (state !== 'playing') return; sfx.lightsOff(); blackout = 4.2; caption('형광등이 하나씩 꺼진다'); [14, 10, 7, 4.5, 3].forEach((d, i) => setTimeout(() => sfx.ghostStep(d, .4), 700 + i * 550)); setTimeout(() => talk('steps', 2600), 4400); }, 1500);
-  });
-  // ⑦ 체육관 · 수영장 · 급식실 입장
-  if (f === 5) evOnce('gym', () => { sfx.ball(); setTimeout(() => talk('ball', 2800), 2400); });
-  if (f === 6) evOnce('pool', () => { sfx.drip(); setTimeout(() => { sfx.splash(); }, 5200); });
   // ⑧ 방송실 도착 시 두 번째 메시지
   if (room && room.type === 'broadcast') evOnce('bcMsg', () => setTimeout(() => phoneMessage(2), 4000));
 }
@@ -4895,22 +4839,6 @@ let phoneProp = null;
   phoneProp.mesh = hs; }
 // 기억의 잔상: 따뜻한 빛으로 된 두 학생의 실루엣이 잠깐 나타나 대화하고 사라진다
 let echo = null;
-function memoryEcho(cx) {
-  storyCalm(45);
-  const mat = new THREE.MeshBasicMaterial({ color: 0xffd6a0, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending });
-  const grp = new THREE.Group(); grp.userData.dynamic = true; floors[2].interior.add(grp);
-  [[cx - .9, -8.0, 2.6], [cx + .3, -8.3, -2.4]].forEach(([x, z, ry], i) => {
-    const m = buildPlayerModel('seoyeon'); m.g.visible = true; m.g.traverse(o => { if (o.isMesh) o.material = mat; }); if (m.torch) m.torch.visible = false;
-    m.g.position.set(x, 0, z); m.g.rotation.y = ry; m.g.scale.setScalar(i ? .97 : 1); grp.add(m.g);
-    if (i === 0 && m.arms) m.arms[1].rotation.x = -1.1;   // 손을 흔드는 듯
-  });
-  const glow = new THREE.Sprite(new THREE.SpriteMaterial({ map: makeGlowTex(), color: 0xffc890, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false })); glow.scale.setScalar(3.2); glow.position.set(cx - .3, 1.2, -8.0); grp.add(glow);
-  echo = { grp, mat, glow, t: 0 };
-  fx.glitch(.25); sfx.whisper(); caption('…웃음소리. 아주 오래전의.');
-  setTimeout(() => line('echo1'), 1400);
-  setTimeout(() => line('echo2'), 7600);
-  setTimeout(() => addClue('echo'), 12500);
-}
 function updateEcho(dt) {
   if (!echo) return;
   echo.t += dt; const t = echo.t, a = t < 1.5 ? t / 1.5 : t < 11 ? 1 : Math.max(0, 1 - (t - 11) / 2.5);
@@ -4929,128 +4857,20 @@ function updateEvents2(dt) {
   if (phoneProp.ring) { phoneProp.mesh.position.y = .09 + (Math.sin(tNow * 60) > .6 ? .008 : 0); phoneProp.ringT -= dt; if (phoneProp.ringT <= 0) { phoneProp.ringT = 2.2; if (P.floor === 0) { at(phoneProp.x, 1, phoneProp.z).phone(); caption('교무실 전화벨'); } } phoneProp.life -= dt; if (phoneProp.life <= 0) { phoneProp.ring = false; phoneProp.done = true; } }
 }
 /* ---------- 심리적 공포: 따라오는 발소리 · 바뀐 칠판 · 시야 끝의 그림자 · 이름을 부르는 속삭임 ---------- */
-const PSY = { followCD: 75, follow: 0, shadowCD: 55, nameCD: 100, boards: 0, visits: {} };
-function psych(f, room, step) {
-  if (state !== 'playing' || !introDone || isSpeechBusy() || voBusy) return;
-  const chase = false;
-  // 불안도: 그것과의 거리 + 그것이 깨어났는지 + 어둠 (밝은 방에서는 덜하다)
-  const fear = (P.fear || 0) + (ghost.active ? .15 : 0) + (P.light ? 0 : .15) - (litAt(f, P.x, P.z) ? .15 : 0);
-  // 다시 들어온 교실: 칠판 글씨가 바뀌어 있다 (두 번까지)
-  if (room && EV.inRoom !== room.id) {
-    PSY.visits[room.id] = (PSY.visits[room.id] || 0) + 1;
-    const br = world.boardRefs['cls' + f + ':' + room.cx + (room.south ? 's' : '')];
-    if (room.type === 'class' && PSY.visits[room.id] === 2 && PSY.boards < 2 && playTime > 150 && br && br.mat && room.name !== '3-3') {
-      PSY.boards++; setTimeout(() => { const W = ['왜 돌아왔어?', '아직 여기 있어', '뒤를 보지 마', '같이 있자']; br.mat.map = world.makeBoardTex([W[(Math.random() * W.length) | 0]]); br.mat.needsUpdate = true; caption('칠판의 글씨가… 바뀌어 있다'); sfx.whisper(); setFace('fear', 2); }, 1600);
-    }
-  }
-  // EV-05 이상한 복도: 3층 복도 끝의 실루엣 — 다가가면 깜빡임과 함께 사라진다
-  if (f === 2 && Math.abs(P.z) < 1.5 && playTime > 40 && !chase) evOnce('ev05', () => {
-    const dir = -Math.sin(P.yaw) >= 0 ? 1 : -1, x = clamp(P.x + dir * 18, -34, 34);
-    if (Math.abs(x - P.x) < 11) { EV.done.delete('ev05'); return; }
-    showApparition(2, x, 0, Math.atan2(P.x - x, 0), 9, null); EV.sil = true; blackout = .12; sfx.lightsOff(); caption('복도 끝에… 누군가 서 있다');
-  });
-  if (EV.sil && appar.visible && P.floor === 2 && Math.abs(appar.position.x - P.x) < 9) { EV.sil = false; apparT = 0; blackout = .35; shake = .4; sfx.whisper(); caption('…사라졌다'); }
-  // EV-20 수영장 샤워실 거울: 거울 속, 내 뒤에
-  if (f === 6 && FL.girl && P.x < -39.6 && P.z > 22.8 && P.z < 27 && Math.abs(Math.sin(P.yaw) - 1) < .5) evOnce('mirror6', () => {
-    const bx = P.x + Math.sin(P.yaw) * 1.3, bz = P.z + Math.cos(P.yaw) * 1.3; showApparition(6, bx, bz, P.yaw, .6, null); at(bx, floors[6].y0 + 1.5, bz).whisper(); shake = .3; caption('거울 속, 내 뒤에 누군가 서 있었다');
-  });
-  // 선택 이벤트: 얼굴이 바뀌는 초상화 (미술실) — 눈을 돌린 사이 바뀌고, 다시 보면 눈이 떠져 있다
-  const pr = world.boardRefs.portrait;
-  if (pr && f === pr.floor && room && room.type === 'art') {
-    const dx = pr.x - P.x, dz = pr.z - P.z, d = Math.hypot(dx, dz), dot = (dx * -Math.sin(P.yaw) + dz * -Math.cos(P.yaw)) / Math.max(d, .01);
-    if (!EV.portrait && EV.roomT > 6 && dot < .2) { EV.portrait = 1; pr.mesh.material = new THREE.MeshStandardMaterial({ map: makePaintingStare(), roughness: .85 }); }
-    else if (EV.portrait === 1 && dot > .93 && d < 6) { EV.portrait = 2; sfx.whisper(); fx.glitch(.3); caption('…초상화의 눈이 떠져 있다'); setFace('surprise', 2); }
-  }
-  if (chase) return;
-  // 따라오는 발소리: 복도에서 내 발소리에 한 박자 늦게 겹치는 발소리 (멈추면 같이 멈춘다)
-  PSY.followCD -= step; if (PSY.follow > 0) PSY.follow -= step;
-  else if (PSY.followCD <= 0 && f <= 2 && Math.abs(P.z) < 1.5 && P.moving) { PSY.follow = 7; PSY.followCD = 130 + Math.random() * 90; setTimeout(() => caption('…발소리가 하나 더 들린다'), 1800); }
-  // 시야 끝의 그림자: 겁에 질렸을 때, 곁눈으로만 보이고 돌아보면 없다
-  PSY.shadowCD -= step;
-  if (PSY.shadowCD <= 0 && fear > .25 && !appar.visible && !isOutdoors()) {
-    PSY.shadowCD = 75 + Math.random() * 60;
-    const side = Math.random() < .5 ? 1 : -1, a = P.yaw + side * 1.2, d = 6 + Math.random() * 3, x = P.x - Math.sin(a) * d, z = P.z - Math.cos(a) * d;
-    if (los(floors[f].walls, P.x, P.z, x, z)) showApparition(f, x, z, Math.atan2(P.x - x, P.z - z), 1.1, null);
-  }
-  // 이름을 부르는 속삭임: 손전등을 끈 어둠 속에서, 등 뒤에서
-  PSY.nameCD -= step;
-  if (PSY.nameCD <= 0 && !P.light && fear > .25) {
-    PSY.nameCD = 160 + Math.random() * 120; const nm = CHARACTERS[CHAR].name, code = nm.charCodeAt(nm.length - 1) - 0xAC00;
-    at(P.x + Math.sin(P.yaw) * 1.5, floors[f].y0 + 1.6, P.z + Math.cos(P.yaw) * 1.5).whisper(); caption(`(등 뒤에서) …${nm}${code >= 0 && code % 28 ? '아' : '야'}`); setFace('fear', 2);
-  }
-}
-function moreEvents(f, room, step) {
+function moreEvents(f, room, step) {   // 초자연 현상 연출은 모두 걷어 내고, 이야기 진행에 필요한 장면만 남긴다
   if (state !== 'playing' || isSpeechBusy() || voBusy) return;
-  // ⑨ 천장 타일 낙하 (복도, 그것이 깨어난 뒤)
-  if (ghost.active && f <= 2 && Math.abs(P.z) < 1.5 && playTime > 90 && P.moving) evOnce('tile' + f, () => {
-    const fx2 = -Math.sin(P.yaw); const x = P.x + Math.sign(fx2 || 1) * 3.2;
-    if (Math.abs(x) < 34) dropCeilingTile(f, x, clamp(P.z, -1.2, 1.2)); else EV.done.delete('tile' + f);
-  });
-  // ⑩ 컴퓨터실 모니터가 일제히 켜진다
-  if (room && f === 1 && room.type === 'computer' && EV.roomT > 1.2) evOnce('screens', () => { screens.forEach(s => { s.visible = true; }); screenT = 7; sfx.staticNoise(2.5); fx.glitch(.5); setTimeout(() => talk('speakers', 2400), 1200); });
-  // ⑪ 젖은 발자국이 앞으로 이어진다
-  if ((f === 0 || f === 2) && Math.abs(P.z) < 1.4 && playTime > 60 && (ghost.active || playTime > 200)) evOnce('feet' + f, () => {
-    const dir = -Math.sin(P.yaw) >= 0 ? 1 : -1; if (Math.abs(P.x + dir * 8) > 32) { EV.done.delete('feet' + f); return; }
-    spawnFootprints(f, P.x + dir * 2.5, 0, dir); setTimeout(() => say('…젖은 발자국이 앞으로 이어진다', 2400), 1500);
-  });
-  // ⑫ 교무실 전화가 울린다
-  if (ghost.active && f === 0 && room && room.type === 'office') evOnce('phoneRing', () => { phoneProp.done = false; phoneProp.ring = true; phoneProp.ringT = 0; phoneProp.life = 16; });
-  // ⑬ 화장실 거울 글씨
-  if (room && room.type === 'toilet' && f === 2 && EV.roomT > 2.5) evOnce('mirror', () => {
-    const m = new THREE.Mesh(new THREE.PlaneGeometry(.8, .3), new THREE.MeshBasicMaterial({ map: makeGraffiti('뒤에 있어'), transparent: true, depthWrite: false }));
-    m.position.set(room.cx + 3.81, 1.65, -4.2); m.rotation.y = -Math.PI / 2; floors[f].interior.add(m); sfx.creak(.4); setTimeout(() => sfx.whisper(), 600);
-  });
-  // ⑯ 도서실: 마지막 반납 (대출 카드를 읽은 뒤 다시 오면)
+  // 도서실: 마지막 반납 (대출 카드를 읽은 뒤 다시 오면 — 다음 쪽지가 나타난다)
   if (room && room.type === 'library' && f === 0 && docs.some(d => d.id === 'n4') && EV.roomT > 2) evOnce('libReturn', libraryReturn);
-  // ⑰ 물 없는 수영장 바닥에 서 있는 사람
-  if (f === 6 && Math.abs(P.x + 41.5) < 4.5 && P.z > 45.6 && P.pitch < -.3) evOnce('poolFigure', () => { showApparition(6, -41.5, 40, 0, 1.6, 'look'); appar.position.y = floors[6].y0 - 1.55; caption('고인 물 한가운데… 누가 서 있다'); });
-  // ⑲ 3-5 교실: 그날의 잔상 — 하늘을 기다리던 두 친구 (위협 없는 기억 장면)
-  if (room && f === 2 && room.type === 'class' && !room.south && room.cx === SLOTS[6] && EV.roomT > 1.5) evOnce('echo', () => memoryEcho(room.cx));
-  // ⑳ 수영장 샤워실: 샤워기가 저절로 틀어져 김이 차오른다
-  if (f === 6 && P.x > -41.3 && P.z < 29.6 && P.z > 20.5) evOnce('showers', () => {
-    caption('쏴아— 샤워기가 저절로 틀어졌다'); sfx.splash(); storyCalm(20);
-    let n = 0; const iv = setInterval(() => { if (++n > 40 || state !== 'playing') { clearInterval(iv); if (n > 40) caption('물소리가 뚝 그쳤다'); return; }
-      for (let k = 0; k < 6; k++) { const x = -40.5 + ((Math.random() * 6) | 0) * 1.05; fx.emit(x + (Math.random() - .5) * .15, floors[6].y0 + 2.0, 20.6, (Math.random() - .5) * .2, -2.5, .1, .5, [.55, .6, .65], .18, .015, 4); fx.emit(x, floors[6].y0 + .3, 21, (Math.random() - .5) * .4, .3, .3, 3.5, [.85, .88, .9], .18, .5, -.05, .4, .25); }
-      if (n % 5 === 0) at(-38, floors[6].y0 + 1.5, 21).whisper(); }, 200);
-  });
-  // ㉑ 탈의실: 안쪽 락커 문이 쾅 하고 닫힌다
-  if (f === 6 && P.x < -41.7 && P.z < 29 && P.z > 20.5) evOnce('lockerBang', () => { at(-47.3, floors[6].y0 + 1, 24.5).doorBang(0, 1); shake = .35; fx.dust(-47, floors[6].y0 + 1.2, 25, 25); caption('락커 문이 쾅 닫혔다'); setFace('surprise', 2); });
-  // ㉒ 수영장 홀: 고인 물 아래에서 무언가 움직인다 (물보라 · 부표 흔들림)
-  if (f === 6 && P.z > 31 && P.z < 49 && playTime > 30) evOnce('poolRipple', () => setTimeout(() => {
-    if (state !== 'playing' || P.floor !== 6) { EV.done.delete('poolRipple'); return; }
-    const x = -41.5 + (Math.random() - .5) * 5, z = 36 + Math.random() * 7; at(x, floors[6].y0 - 1.2, z).splash();
-    for (let k = 0; k < 30; k++) fx.emit(x, floors[6].y0 - 1.25, z, (Math.random() - .5) * 2, Math.random() * 2.2, (Math.random() - .5) * 2, 1.1, [.7, .8, .8], .4, .04, 6, .5);
-    caption('첨벙— 고인 물 아래에서 무언가 움직였다');
-  }, 2500));
-  // ㉓ 수영장 기계실: 멈춰 있던 순환 펌프가 혼자 돌기 시작한다
-  if (f === 6 && P.z > 50.4) evOnce('poolPump', () => { sfx.breaker(); shake = .3; caption('웅— 멈춰 있던 펌프가 저절로 돌기 시작한다'); });
-  // ㉔ 지하 비밀 자료실: 그날 밤의 방 (그것은 들어오지 못한다)
-  if (f === 4 && P.z > 2.1) evOnce('secretRoom', () => { storyCalm(80); sfx.whisper(); fx.glitch(.2); caption('공기가 멈춘 방. 벽의 사진들이 모두 같은 밤을 찍었다'); setTimeout(() => talk('steps', 2200), 2600); });
-  // ㉕ 지하 보일러실: 전력이 돌아온 뒤 보일러가 다시 불붙는다
-  if (f === 4 && power && room && room.type === 'boiler' && EV.roomT > 1) evOnce('boilerFire', () => { sfx.boom(.6); shake = .5; fx.dust(room.cx - 1.8, floors[4].y0 + 2.4, -6.5, 40); caption('쿠르릉— 꺼져 있던 보일러에 불이 붙었다'); });
-  // ㉖ 켜 둔 형광등이 터진다 (불 켜진 방에 오래 있으면, 두 번까지)
-  if (room && litAt(f, P.x, P.z) && EV.roomT > 25 && (EV.bulbs || 0) < 2 && Math.random() < .004) {
-    const lamp = floors[f].lamps.filter(l => l.room && !l.off && l.kind !== 'dead' && Math.abs(l.x - P.x) < 4 && Math.abs(l.z - P.z) < 4)[0];
-    if (lamp) { EV.bulbs = (EV.bulbs || 0) + 1; lamp.kind = 'dead'; lamp.mesh.material = world.mats.matLampDead; lampTimer = 0; fx.spark(lamp.x, lamp.y + .35, lamp.z, 40); at(lamp.x, lamp.y, lamp.z).spark(); sfx.pinBreak(); caption('팍— 형광등이 터졌다'); setFace('surprise', 1.5); }
-  }
-  // ㉗ 3-2 — 하늘의 교실: 남은 한 자리의 휴대전화가 진동한다 (그것은 이 방에 들어오지 않는다)
-  if (room && room.south && room.name === '3-2' && EV.roomT > 1.2) evOnce('room32', () => {
-    storyCalm(120); at(room.cx, floors[f].y0 + .8, 5.6).vibrate(); fx.glitch(.2); setFace('fear', 2.5);
-    caption('국화가 놓인 책상 위에서… 휴대전화가 진동한다'); setTimeout(() => { sfx.whisper(); subtitle('???', '…오늘 방송, 들어 줄 거지?', 3.5); }, 3200);
-  });
-  if (room && room.south && room.name === '3-2') { ghost.calmT = Math.max(ghost.calmT || 0, 3); }
-  // ⑱ 체육관 첫 진입: 소리가 크게 울린다
+  // 지하 비밀 자료실: 그날 밤의 방 (그것은 들어오지 못한다)
+  if (f === 4 && P.z > 2.1) evOnce('secretRoom', () => { storyCalm(80); caption('공기가 멈춘 방. 벽의 사진들이 모두 같은 밤을 찍었다'); });
+  // 지하 보일러실: 전력이 돌아온 뒤 보일러가 다시 불붙는다
+  if (f === 4 && power && room && room.type === 'boiler' && EV.roomT > 1) evOnce('boilerFire', () => { sfx.boom(.6); shake = .5; fx.dust(room.cx - 1.8, floors[4].y0 + 2.4, -6.5, 40); caption('쿠르릉— 전력이 돌아오자 보일러에 불이 붙었다'); });
+  // 3-2 — 하늘의 교실 (그것은 이 방에 들어오지 않는다)
+  if (room && room.south && room.name === '3-2') { evOnce('room32', () => { storyCalm(120); caption('국화가 놓인 책상 하나 — 윤하늘의 자리'); }); ghost.calmT = Math.max(ghost.calmT || 0, 3); }
   if (f === 5) evOnce('gymEcho', () => caption('체육관 — 작은 소리도 크게 울린다'));
-  // ⑭ 복도 사물함이 안에서 쾅쾅
-  if (ghost.active && Math.abs(P.z) < 1.75) { const l = world.lockers.find(o => o.floor === f && Math.hypot(o.x - P.x, o.z - P.z) < 2.2 && o !== P.hiding); if (l && Math.random() < .02 * step * 5) evOnce('lockerBang' + f, () => { at(l.x, floors[f].y0 + 1, l.z).knock(); shake = .25; caption('사물함 안에서 두드리는 소리'); }); }
 }
 // ⑮ 번개가 칠 때 창밖(운동장 쪽)에 누군가 서 있다
-function lightningEvent() {
-  lightFlash = 1;
-  if (state !== 'playing' || P.floor > 2 || isOutdoors() || Math.random() > .5) return;
-  const fz = -Math.cos(P.yaw); if (fz < .55 || Math.abs(P.z) > 1.75) return;
-  showApparition(P.floor, clamp(P.x + (Math.random() - .5) * 4, -30, 30), 5.5, Math.PI, .45, null);
-}
+function lightningEvent() { lightFlash = 1; }
 let lightFlash = 0;
 
 /* ---------- 첫 10분 튜토리얼 팁 (장면 안에서 한 번씩) ---------- */
@@ -5115,8 +4935,7 @@ const TAPE_FRAGS = [
 /* ---------- 도서실 · 수영장 대표 장면 ---------- */
 function libraryReturn() {
   const it = world.items.find(i => i.kind === 'note' && i.id === 'n26'); if (!it || !it.locked) return;
-  sfx.bang(.2, .5); caption('책 한 권이 책상 위로 떨어진다'); shake = .2;
-  setTimeout(() => { it.locked = false; it.mesh.visible = true; fx.dust(it.pos.x, it.pos.y + .1, it.pos.z, 15); say('…방금 전까지 없던 대출 카드가 놓여 있다', 2600); }, 600);
+  it.locked = false; it.mesh.visible = true; say('반납대 위에 대출 카드 한 장이 끼워져 있다', 2600);
 }
 
 /* ---------- 성능 / 그래픽 품질 ---------- */
@@ -5597,8 +5416,6 @@ function headEvent(ev, p) {
     FL.keyhead = true; newItems.add('keyhead'); sfx.key(); setFace('resolve', 3); if (p.keyMeshes) p.keyMeshes.forEach(m => { m.visible = false; });
     toast('교장 직인 마스터 코어를 확보했습니다!', '소지품(Tab)에서 5대 비밀 증거와 조합하면 『서문고 진상 규명 기록부』가 완성된다', 'opt'); setTimeout(() => talk('headFound', 3200), 400);
     if (!FL.calm) setTimeout(() => {
-      blackout = Math.max(blackout, 1.6); sfx.lightsOff ? sfx.lightsOff() : sfx.click(); shake = .3;
-      const ax = P.x - Math.sin(P.yaw) * 2.6, az = P.z - Math.cos(P.yaw) * 2.6; showApparition(P.floor, ax, az, Math.atan2(P.x - ax, P.z - az), 2.2, null); sfx.ghostBreath && sfx.ghostBreath();
       setTimeout(() => { caption('“…그 사람은, 내려오지 않았어.”'); headLure(25); }, 1800);
     }, 3800);
   }
@@ -5653,7 +5470,6 @@ const XT = { search: null, para: 75 + Math.random() * 40, paraLast: [], mbox: nu
     ...COLLECT.filter(c => !usedCols.has(c.id)).map(c => ({ col: c.id })),
     ...['candy', 'candy', 'candy', 'candy', 'candy', 'thermos', 'thermos', 'thermos', 'salt', 'salt', 'salt', 'salt', 'charm', 'charm', 'charm', 'musicbox', 'musicbox', 'matches', 'matches', 'matches', 'matches'].map(k => ({ item: k })),
     ...['battery', 'battery', 'battery', 'battery', 'battery', 'medkit', 'medkit', 'medkit', 'can', 'can', 'can', 'hairpin', 'hairpin', 'hairpin'].map(k => ({ item: k })),
-    ...LOCKER_SCARES.slice(0, 3).map(sc => ({ scare: sc.k }))
   ];
   freeIdx.forEach((si, n) => { spots[si].loot = pool[n % pool.length] || { item: 'battery' }; });
   spots.forEach((sp, i) => {
@@ -5887,18 +5703,10 @@ function searchResult(p) {
     if (c) { giveCol(c.id); if (L.item) giveItem(L.item, 1, true); sfx.pickup(); lootCard(c.icon, `수집품 ${COLLECT.filter(x => FL.col[x.id]).length} / ${COLLECT.length}`, c.name, c.desc); }
   } else if (L.item) {
     giveItem(L.item, 1, true); sfx.pickup(); lootCard(ITEMS[L.item].icon, '사물함 파밍 성공', ITEMS[L.item].name, ITEMS[L.item].desc);
-  } else if (L.scare) {
-    paraScare(L.scare);
   } else {
     giveItem('candy', 1, true); sfx.pickup(); lootCard(ITEMS.candy.icon, '사물함 파밍', ITEMS.candy.name, ITEMS.candy.desc);
   }
   refreshHud(); save(true);
-}
-function paraScare(k) {
-  const sc = LOCKER_SCARES.find(x => x.k === k); shake = .45; fx.glitch(.6); setFace('surprise', 2.4); P.fear = Math.min(1, P.fear + .45);
-  ({ hand: () => { sfx.ghostBreath(); sfx.heartbeat(1.2); }, doll: () => { sfx.clank ? sfx.clank(.6) : sfx.click(); setTimeout(() => sfx.ghostGiggle(), 700); }, eyes: () => { sfx.whisper(); }, whisper: () => sfx.ghostWhisper ? sfx.ghostWhisper() : sfx.whisper(), water: () => sfx.drip(), scratch: () => sfx.creak() })[k]?.();
-  lootCard('👁', '무언가 있다', '…', sc ? sc.text : '', true); $('paraVig').classList.add('on'); setTimeout(() => $('paraVig').classList.remove('on'), 1600);
-  if (k === 'hand' || k === 'doll') { P.noiseT = Math.max(P.noiseT, 1.5); }
 }
 // ── 소모품
 function useSalt() {
@@ -5984,44 +5792,6 @@ function chalkAsk(i) {
 $('chalkClose').onclick = () => closeUI();
 $('anxClose').onclick = () => closeUI();
 // ── 초자연 현상 감독: 쫓기지 않을 때 1~2분마다 하나씩 (장이 진행될수록 잦아진다)
-function paraEvent(force) {
-  if (!force && isDialogueActive()) { XT.para = Math.max(XT.para || 0, 10); return false; }
-  const quiet={scream:'radio-memory',hands:'paper',eyes:'attendance',bleed:'clock',count:'attendance',heart:'clock',thump:'paper',steps:'footsteps'};
-  if(typeof force==='string'&&quiet[force]){psychologicalPhenomenon(quiet[force]);return true;}
-  if (!force && (state !== 'playing' || P.hiding || (ghost.active && ghost.floor === P.floor && (ghost.state === 'chase' || ghost.hunt)))) return false;
-  if (TEST && TST.noGhost && !force) return false;
-  const OUT_OK = ['giggle', 'name', 'cold', 'steps', 'scream', 'bell', 'torch', 'count', 'sob'], out = isOutdoors();
-  const pool = PARA.filter(e => !XT.paraLast.includes(e.k) && !(e.k === 'piano' && P.floor !== 2) && !(e.k === 'drag' && P.floor === 2) && !(e.k === 'shadow' && Math.abs(P.z) > 1.6)
-    && !(out && !OUT_OK.includes(e.k)) && !(e.k === 'rattle' && !world.lockers.some(l => l.floor === P.floor)) && !(e.k === 'chair' && P.floor > 2 && P.floor < 8) && !(e.k === 'torch' && !P.light) && !(e.k === 'thump' && P.floor === 3));
-  const e = typeof force === 'string' ? PARA.find(x => x.k === force) : pool[(Math.random() * pool.length) | 0]; if (!e) return false;
-  XT.paraLast.push(e.k); if (XT.paraLast.length > 5) XT.paraLast.shift();
-  const F = floors[P.floor];
-  const fxs = {
-    door: () => { const d = world.doorList.filter(d => d.floor === P.floor && d.target > .5 && Math.hypot(d.x - P.x, d.z - P.z) > 3 && Math.hypot(d.x - P.x, d.z - P.z) < 16).sort((a, b) => Math.hypot(a.x - P.x, a.z - P.z) - Math.hypot(b.x - P.x, b.z - P.z))[0]; if (d) { d.target = 0; at(d.x, F.y0 + 1.2, d.z).doorBang(0, 1); } else sfx.doorBang(0, .6); shake = .25; },
-    giggle: () => sfx.ghostGiggle(), drag: () => sfx.ghostDrag(), knock: () => sfx.knock(), ball: () => sfx.ball(), piano: () => sfx.note(185), sob: () => sfx.ghostSob(),
-    lights: () => { sfx.lightsOff(); [0, 380, 760].forEach(t => setTimeout(() => { blackout = Math.max(blackout, .22); }, t)); },
-    phone: () => { sfx.vibrate(); toast('📱 발신: 3-2 교실', '신호 없음 — 그런데 벨이 울린다', 'warn'); },
-    cold: () => { sfx.ghostBreath(); $('paraVig').classList.add('on'); setTimeout(() => $('paraVig').classList.remove('on'), 2400); },
-    shadow: () => { const fx2 = -Math.sin(P.yaw), fz2 = -Math.cos(P.yaw); let d = 0; while (d < 16 && los(F.walls, P.x, P.z, P.x + fx2 * (d + .5), P.z + fz2 * (d + .5))) d += .5; if (d > 7) { const ax = P.x + fx2 * (d - 1), az = P.z + fz2 * (d - 1); showApparition(P.floor, ax, az, Math.atan2(P.x - ax, P.z - az), 1.1, null); sfx.ghostBreath(); } else sfx.ghostStep && sfx.ghostStep(4, 0); },
-    name: () => { sfx.whisper(); setTimeout(() => caption(`“…${CH().name}.”`), 900); },
-    steps: () => { for (let i = 0; i < 7; i++) setTimeout(() => { if (state !== 'playing') return; const d = 2.2 + Math.max(0, 4 - i) * .4; at(P.x + Math.sin(P.yaw) * d, F.y0 + .1, P.z + Math.cos(P.yaw) * d).stepBehind(.8 + i * .05); if (i === 6) setTimeout(() => at(P.x + Math.sin(P.yaw) * .8, F.y0 + 1.6, P.z + Math.cos(P.yaw) * .8).ghostBreath(), 500); }, 400 + i * 520); },
-    scream: () => { sfx.scream(); setTimeout(() => { blackout = Math.max(blackout, .15); }, 1600); },
-    thump: () => { sfx.thump(4); [0, 640, 1280, 1920].forEach(t => setTimeout(() => { shake = Math.max(shake, .12); fx.dust(P.x + (Math.random() - .5) * 3, F.y0 + 3.4, P.z + (Math.random() - .5) * 3, 8); }, t)); },
-    chair: () => { const a = Math.random() * 6.28; at(P.x + Math.cos(a) * 7, F.y0 + .4, P.z + Math.sin(a) * 7).chairScrape(); },
-    torch: () => { sfx.flashlightClick(); let n = 0; const fl = () => { if (state !== 'playing') return; P.light = !P.light; n++; if (n < 5) setTimeout(fl, 90 + Math.random() * 160); else setTimeout(() => { if (!P.light) { P.light = true; sfx.flashlightClick(); } }, 1900); }; fl(); setTimeout(() => sfx.ghostBreath(), 900); },
-    hands: () => paraHands(),
-    eyes: () => paraEyes(),
-    bell: () => { sfx.bellFar(); fx.glitch(.2); },
-    radio: () => { sfx.radioVoice(); fx.glitch(.35); },
-    rattle: () => { const l = world.lockers.filter(o => o.floor === P.floor).sort((a, b) => Math.hypot(a.x - P.x, a.z - P.z) - Math.hypot(b.x - P.x, b.z - P.z))[0]; at(l.x, F.y0 + 1, l.z).rattle(18); },
-    bleed: () => paraBleed(),
-    count: () => { ['하나…', '둘…', '셋…', '넷…', '다섯…'].forEach((t, i) => setTimeout(() => { if (state === 'playing') { caption(`(속삭임) ${t}`); sfx.whisper(); } }, 1200 + i * 1100)); setTimeout(() => { if (state !== 'playing') return; caption('“…찾았다.”'); sfx.stinger(.8); at(P.x + Math.sin(P.yaw) * 1.2, F.y0 + 1.5, P.z + Math.cos(P.yaw) * 1.2).ghostGiggle(); shake = .4; fx.glitch(.6); setFace('surprise', 2); }, 7200); },
-    heart: () => { sfx.heartWall(); for (let i = 0; i < 6; i++) setTimeout(() => { shake = Math.max(shake, .06); }, i * 820); },
-    glass: () => { const a = Math.random() * 6.28; at(P.x + Math.cos(a) * 5, F.y0 + 1.6, P.z + Math.sin(a) * 5).glassCrack(); },
-  };
-  fxs[e.k] && fxs[e.k](); caption(e.text.replace(/<[^>]+>/g, '')); setFace('fear', 2.2); P.fear = Math.min(1, P.fear + .3);
-  return true;
-}
 /* ---------- 초자연 현상 2: 손자국 · 붉은 눈 · 핏방울 · 화장실 괴담 · 주변 소리 ---------- */
 const tmpFx = [];   // 잠깐 나타났다 사라지는 3D 연출 (각자 재질을 복제해 투명도를 따로 조절)
 function addTmp(f, o, life, fadeIn = .4, fadeOut = 1.2) {
@@ -6044,113 +5814,21 @@ function wallAhead(maxD = 9) {
   return { d, fx, fz, ry, x: P.x + fx * (d - .25), z: P.z + fz * (d - .25), hit: d < maxD };
 }
 let _handTex = null, _poolTex = null;
-function paraHands() {
-  const w = wallAhead(7); if (!w.hit || w.d < 1.4) { sfx.knock(); return; }
-  const f = P.floor, tx = Math.cos(w.ry), tz = -Math.sin(w.ry), wet = Math.random() < .5;
-  _handTex ||= makeBlood('hand');
-  for (let i = 0; i < 6; i++) setTimeout(() => {
-    if (P.floor !== f) return;
-    const m = new THREE.Mesh(new THREE.PlaneGeometry(.42, .42), new THREE.MeshStandardMaterial({ map: _handTex, transparent: true, depthWrite: false, roughness: .15, color: wet ? 0x5a6266 : 0xffffff, polygonOffset: true, polygonOffsetFactor: -4 }));
-    const o = (i - 2.5) * .42; m.position.set(w.x + tx * o, .95 + Math.random() * .7, w.z + tz * o); m.rotation.set(0, w.ry, (Math.random() - .5) * .8);
-    addTmp(f, m, 14, .15, 3); at(m.position.x, floors[f].y0 + m.position.y, m.position.z).slap();
-  }, 300 + i * 380);
-}
-function paraEyes() {
-  const w = wallAhead(12), d = Math.min(w.d - .4, 9); if (d < 4) { sfx.ghostBreath(); return; }
-  const f = P.floor, g = new THREE.Group(), tex = makeGlowTex('255,40,24');
-  [-.065, .065].forEach(dx => { const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, color: 0xff3020, blending: THREE.AdditiveBlending, depthWrite: false, transparent: true })); sp.scale.setScalar(.16); sp.position.x = dx; g.add(sp); });
-  g.position.set(P.x + w.fx * d, 1.42, P.z + w.fz * d); g.rotation.y = P.yaw;
-  g.userData.tick = e => { const blink = Math.sin(e.t * 9) > .93 ? 0 : 1; g.scale.set(1, blink ? 1 : .1, 1); const fx = -Math.sin(P.yaw), fz = -Math.cos(P.yaw), dx = g.position.x - P.x, dz = g.position.z - P.z, D = Math.hypot(dx, dz); if (P.light && (dx * fx + dz * fz) / D > .985 && e.t > .8 && e.life > e.t + .4) e.life = e.t + .35; };
-  addTmp(f, g, 3.2, .5, .5); at(g.position.x, floors[f].y0 + 1.4, g.position.z).ghostBreath();
-}
-function paraBleed() {
-  const f = P.floor, F = floors[f], w = wallAhead(4), d = Math.min(1.8, w.d - .5), x = P.x + w.fx * d, z = P.z + w.fz * d;
-  for (let i = 0; i < 12; i++) setTimeout(() => { if (P.floor !== f) return; fx.emit(x + (Math.random() - .5) * .1, F.y0 + 3.45, z + (Math.random() - .5) * .1, 0, -1, 0, 1.2, [.32, .01, .01], .9, .025, 9.5); if (i % 3 === 0) at(x, F.y0 + .1, z).drip(); }, 200 + i * 260);
-  _poolTex ||= makeBlood('pool');
-  setTimeout(() => { if (P.floor !== f) return; const m = new THREE.Mesh(new THREE.PlaneGeometry(.9, .9), new THREE.MeshStandardMaterial({ map: _poolTex, transparent: true, depthWrite: false, roughness: .1, polygonOffset: true, polygonOffsetFactor: -4 })); m.rotation.x = -Math.PI / 2; m.position.set(x, .015, z); addTmp(f, m, 25, 2.5, 4); }, 700);
-}
-// 화장실 괴담
-const TE = { t: 6, last: [] };
 const rbLift = (o, y) => { o.position.y += y; return o; };
 // 새 건물 화장실(r.rb): 예전 화장실(폭 7.7m · z −9.6 ~ −1.75) 기준 자리를 새 화장실 크기로 줄여 옮긴다
 const tPos = (r, lx, lz, ry = 0) => r.rb ? { x: r.cx + (lx - r.cx) * r.hw / 3.85, z: r.cz + (lz + 5.675) * r.hd / 3.92, ry } : r.south ? { x: 2 * r.cx - lx, z: -lz, ry: ry + Math.PI } : { x: lx, z: lz, ry };
 const stallDoor = (f, r, n) => world.doorList.find(o => o.stall && o.floor === f && o.stallNo === n && Math.abs(o.x - r.cx) < 4);
-function toiletTick(f, room, step) {
-  if (!room || room.type !== 'toilet' || P.hiding) { TE.t = Math.max(TE.t, 6); return; }
-  if (state !== 'playing' || (ghost.active && ghost.floor === f && (ghost.state === 'chase' || ghost.hunt))) return;
-  TE.t -= step; if (TE.t > 0) return;
-  TE.t = 20 + Math.random() * 20;
-  const fem = room.name?.includes('남자') ? false : room.name?.includes('여자') ? true : (room.south || f === 2) && !(f === 8 || f === 10);   // 여자화장실에서만 3번 칸 실내화 · 빨간 휴지 파란 휴지
-  const ks = Object.keys(TOILET_FX).filter(k => fem || k !== 'shoes').concat(FL.redblue || !fem ? [] : ['tissue', 'tissue']).filter(k => !TE.last.includes(k));
-  const k = ks[(Math.random() * ks.length) | 0]; TE.last.push(k); if (TE.last.length > 3) TE.last.shift();
-  toiletFx(k, f, room);
-}
-function toiletFx(k, f, r) {
-  const RY = r.rb ? r.y0 : 0;   // 새 건물 화장실: 그 층 바닥 높이만큼 올린다
-  const F = floors[f], X1 = r.cx + 3.85, X0 = r.cx - 3.85, y0 = F.y0 + RY;
-  if (k !== 'tissue') { caption(TOILET_FX[k]); P.fear = Math.min(1, P.fear + .2); setFace('fear', 2); }
-  if (k === 'faucet') {
-    const z = [-6.9, -6.0, -5.1, -4.2][(Math.random() * 4) | 0], p = tPos(r, X1 - .21, z), rusty = Math.random() < .6;
-    const m = new THREE.Mesh(new THREE.CylinderGeometry(.007, .01, .19, 8), new THREE.MeshStandardMaterial({ color: rusty ? 0x8a4a2a : 0xa8c8d0, roughness: .05, transparent: true, opacity: .75 }));
-    m.position.set(p.x, .875, p.z); m.userData.tick = e => { m.scale.x = m.scale.z = .8 + Math.random() * .5; if (Math.random() < .3) fx.emit(p.x, y0 + .8, p.z, (Math.random() - .5) * .4, .4, (Math.random() - .5) * .4, .3, rusty ? [.5, .28, .16] : [.7, .8, .85], .4, .015, 6); };
-    addTmp(f, rbLift(m, RY), 6.5, .2, .4); at(p.x, y0 + .9, p.z).faucet(6);
-  } else if (k === 'flush') { const i = (Math.random() * 4) | 0, p = tPos(r, X0 + i * 1.1 + .55, -9.2); at(p.x, y0 + .5, p.z).flush(); }
-  else if (k === 'stall') { const ds = [1, 2, 3, 4].map(n => stallDoor(f, r, n)).filter(d => d && d.target > .5); const d = ds[(Math.random() * ds.length) | 0]; if (d) { d.target = 0; d.slam = true; at(d.x, y0 + 1.2, d.z).doorBang(0, 1); } else at(r.cx, y0 + 1.2, -8).knock(); shake = .35; }
-  else if (k === 'flicker') { sfx.lightsOff(); [0, 300, 650, 1100].forEach(t => setTimeout(() => { blackout = Math.max(blackout, .3); }, t)); setTimeout(() => sfx.drip(), 1400); }
-  else if (k === 'mirror') {
-    const p = tPos(r, X1 - .045, -6.4 + Math.random() * 1.8, -Math.PI / 2), word = MIRROR_WORDS[(Math.random() * MIRROR_WORDS.length) | 0];
-    const m = new THREE.Mesh(new THREE.PlaneGeometry(1.2, .3), new THREE.MeshBasicMaterial({ map: makeGraffiti(word, '#a00a0a'), transparent: true, depthWrite: false, color: 0xffd0d0 }));
-    m.position.set(p.x, 1.72, p.z); m.rotation.y = p.ry; addTmp(f, rbLift(m, RY), 10, 2, 2.5); at(p.x, y0 + 1.7, p.z).glassCrack(); setTimeout(() => sfx.ghostWhisper(), 900);
-  } else if (k === 'shoes') {
-    const d = stallDoor(f, r, 3); if (d && d.target > .5) { d.target = 0; d.slam = true; at(d.x, y0 + 1.2, d.z).doorBang(0, .7); }
-    setTimeout(() => {
-      if (P.floor !== f) return;
-      const p = tPos(r, X0 + 2.75, -7.86), g = new THREE.Group(), white = new THREE.MeshStandardMaterial({ color: 0xd8d4c8, roughness: .7 }), trim = new THREE.MeshStandardMaterial({ color: 0x2a4a9a, roughness: .6 });
-      [-.09, .09].forEach(dx => { const s1 = new THREE.Mesh(new THREE.BoxGeometry(.09, .06, .24), white); s1.position.set(dx, .03, 0); g.add(s1); const s2 = new THREE.Mesh(new THREE.BoxGeometry(.092, .02, .1), trim); s2.position.set(dx, .07, .05); g.add(s2); });
-      g.position.set(p.x, 0, p.z); g.rotation.y = p.ry; g.userData.tick = e => { if (Math.hypot(P.x - p.x, P.z - p.z) < 1.5 && e.life > e.t + .3) { e.life = e.t + .25; sfx.ghostCrack(); } };
-      addTmp(f, rbLift(g, RY), 9, .3, .3); at(p.x, y0 + .8, p.z).ghostSob();
-    }, 900);
-  } else if (k === 'tissue') toiletTissue(f, r);
-}
-// "빨간 휴지 줄까, 파란 휴지 줄까?" — 3번 칸의 질문 (한 번만, 선택은 저장된다)
-function toiletTissue(f, r) {
-  const RY = r.rb ? r.y0 : 0;
-  const F = { y0: floors[f].y0 + RY }, p = tPos(r, r.cx - 3.85 + 2.75, -8.6), d = stallDoor(f, r, 3);
-  if (d && d.target > .5) { d.target = 0; d.slam = true; at(d.x, F.y0 + 1.2, d.z).doorBang(0, .8); }
-  at(p.x, F.y0 + 1.2, p.z).knock();
-  setTimeout(() => {
-    const rr = roomAt(P.floor, P.x, P.z); if (state !== 'playing' || !rr || rr.id !== r.id) return;
-    at(p.x, F.y0 + 1.3, p.z).ghostWhisper(); caption('3번 칸 안에서 — “빨간 휴지 줄까… 파란 휴지 줄까…?”'); setFace('fear', 3); P.fear = Math.min(1, P.fear + .35);
-    setTimeout(async () => {
-      if (state !== 'playing') return;
-      const i = await choose('3번 칸', '닫힌 칸 안에서 아이 목소리가 묻는다.<br><i>“빨간 휴지 줄까, 파란 휴지 줄까?”</i>', [{ label: '빨간 휴지', sub: '…' }, { label: '파란 휴지', sub: '…' }, { label: '아무 대답도 하지 않는다', sub: '숨을 죽이고 기다린다' }]);
-      FL.redblue = i + 1;
-      if (i === 0) {
-        sfx.stinger(1); sfx.screech(); shake = .9; fx.glitch(1); vig('bloodVig', 2600); setFace('surprise', 3);
-        caption('“빨간 휴지를 줄게.” — 칸막이 아래로 붉은 물이 번져 나온다');
-        _poolTex ||= makeBlood('pool'); const q = tPos(r, r.cx - 3.85 + 2.75, -7.5); const m = new THREE.Mesh(new THREE.PlaneGeometry(1.3, 1.3), new THREE.MeshStandardMaterial({ map: _poolTex, transparent: true, depthWrite: false, roughness: .08, polygonOffset: true, polygonOffsetFactor: -4 })); m.rotation.x = -Math.PI / 2; m.position.set(q.x, .016, q.z); addTmp(f, rbLift(m, RY), 60, 3, 6);
-      } else if (i === 1) {
-        sfx.ghostBreath(); sfx.stinger(.6); fx.glitch(.5); vig('frostVig', 4200); setFace('fear', 3);
-        caption('“파란 휴지를 줄게.” — 차가운 기억이 스쳐 지나간다');
-      } else {
-        sfx.heartbeat(1); setTimeout(() => { if (d) d.target = 1; at(p.x, F.y0 + 1.2, p.z).stallCreak(); caption('…한참 뒤, 3번 칸 문이 스르르 열린다. 아무도 없다. 변기 뚜껑 위에 노란 종이 한 장'); }, 2600);
-        setTimeout(() => { giveItem('charm', 1, true); sfx.pickup(); lootCard(ITEMS.charm.icon, '대답하지 않은 대가', ITEMS.charm.name, '“대답하지 않는 아이는 데려가지 않아.” — 칸 안쪽 벽에 연필로 적혀 있다.'); calmDown(30); refreshHud(); }, 5200);
-      }
-      save(true); refreshHud();
-    }, 2000);
-  }, 1500);
-}
 function vig(id, ms) { const v = $(id); if (!v) return; v.classList.add('on'); clearTimeout(v._t); v._t = setTimeout(() => v.classList.remove('on'), ms); }
 // 주변 소리: 자막 없이 14~36초마다 어딘가에서 들리는 소리 (긴장감 유지)
-const AMB_SFX = [['pipeKnock', 3], ['creak', 3], ['drip', 2], ['wind', 2], ['thump', 1], ['chairScrape', 1], ['buzz', 1], ['ghostWhisper', 1], ['glassCrack', .5], ['ghostStep', 1]];
+const AMB_SFX = [['pipeKnock', 3], ['creak', 3], ['drip', 2], ['wind', 2], ['buzz', 1]];   // 건물 소리만 (속삭임 · 발소리 같은 초자연 소리는 뺐다)
 function ambientTick(dt) {
   if (isDialogueActive()) { XT.amb = Math.max(XT.amb ?? 6, 6); return; }
   XT.amb = (XT.amb ?? 20) - dt; if (XT.amb > 0) return; XT.amb = 14 + Math.random() * 22;
   if (state !== 'playing' || !introDone || P.hiding) return;
-  const out = isOutdoors(), list = AMB_SFX.filter(([k]) => !out || ['wind', 'creak', 'ghostWhisper'].includes(k)), tot = list.reduce((a, [, w]) => a + w, 0);
+  const out = isOutdoors(), list = AMB_SFX.filter(([k]) => !out || ['wind', 'creak'].includes(k)), tot = list.reduce((a, [, w]) => a + w, 0);
   let r = Math.random() * tot, k = list[0][0]; for (const [n, w] of list) { r -= w; if (r <= 0) { k = n; break; } }
   const a = Math.random() * 6.28, d = 6 + Math.random() * 10, y = floors[P.floor].y0 + (k === 'thump' ? 3.6 : 1 + Math.random() * 1.5), S = at(P.x + Math.cos(a) * d, y, P.z + Math.sin(a) * d);
-  if (k === 'thump') S.thump(1); else if (k === 'ghostStep') S.stepBehind(.5); else S[k]();
+  S[k]();
 }
 /* ====================================================================
    확장 기능: 마이크 소리 감지 · 휴대폰 심령 카메라 · 환각(Sanity) · 조합 3종 · 복도 배전반 · 학교 차임벨 · 그것의 사물함 수색 · 페이크 퇴장
@@ -7148,21 +6826,6 @@ function doorTick(dt) {
     L.forEach(({ p, a }, i) => { const c = d.leafCols[i]; if (!on) { c.off = true; return; } p.rotation.y = a * d.open * (d.dir || 1); p.updateWorldMatrix(true, true); if (!c.off && c.o === d.open) return; c.o = d.open;
       _lb.setFromObject(p.children[0]); c.x1 = _lb.min.x; c.x2 = _lb.max.x; c.z1 = _lb.min.z; c.z2 = _lb.max.z; c.off = false; });
   }
-  // 초자연 현상: 닫힌 문이 저절로 천천히 열린다 (아무도 없는데) — 쫓기지 않을 때 1 ~ 2분마다
-  if (state !== 'playing' || P.hiding || P.inElev) return;
-  if ((DOORX.haunt -= dt) > 0) return;
-  DOORX.haunt = 60 + Math.random() * 70;
-  if (ghost.active && ghost.floor === P.floor && (ghost.state === 'chase' || ghost.hunt)) return;
-  const fx_ = -Math.sin(P.yaw), fz_ = -Math.cos(P.yaw);
-  const cand = world.doorList.filter(d => d.floor === P.floor && d.target < .5 && !d.locked && doorLeaves(d)).map(d => { const dx = d.x - P.x, dz = d.z - P.z, dd = Math.hypot(dx, dz); return { d, dd, f: (dx * fx_ + dz * fz_) / Math.max(dd, .01) }; })
-    .filter(o => o.dd > 2.5 && o.dd < 13).sort((a, b) => (b.f - b.dd * .05) - (a.f - a.dd * .05));   // 보이는 쪽 · 가까운 문 먼저
-  const o = cand[0]; if (!o) return; const d = o.d, F = floors[d.floor];
-  doorDir(d, d.x * 2 - P.x, d.z * 2 - P.z);   // 플레이어 쪽으로 열린다 — 안에서 누군가 민 것처럼
-  const slam = Math.random() < .3;
-  if (slam) { d.slam = true; d.target = 1; at(d.x, F.y0 + 1.2, d.z).doorBang(0, 1); shake = Math.max(shake, .3); caption('쾅— 아무도 없는 문이 벌컥 열렸다'); }
-  else { d.target = .0001; let t = 0; const iv = setInterval(() => { t += .05; d.target = Math.min(1, t * t * .55); if (t >= 1.35 || d.target >= 1) clearInterval(iv); }, 50);   // 끼이익… 아주 천천히
-    const A = at(d.x, F.y0 + 1.2, d.z); A.creak ? A.creak() : sfx.creak ? sfx.creak() : sfx.doorHinge(); caption('끼이익… 닫혀 있던 문이 저절로 열린다'); }
-  P.fear = Math.min(1, P.fear + (slam ? .18 : .1)); setFace('fear', 2.5); if (o.f > .5) fx.glitch(.15);
 }
 function patchRestore() {
   if (FL.fz && FL.fz !== fzP.missions) Object.assign(fzP.missions, FL.fz);
@@ -8732,13 +8395,13 @@ function megaNotify(m) { const t = String(m).split('\n'); say(t[0].replace(/^\S+
     world.props.push({ kind: 'robj', k: 'bunker_light', t: 'bunker', floor: 4, x: bx + 1.15, z: z1 - .85, y: 1.35, r: 2.0, label: '방공호 주 전등 스위치 조작하기', bkLightGroup });
     {
       const bLoader = new GLTFLoader();
-      bLoader.load('assets/models/sf/sf_bunker_props_pack.glb?v=238', gltf => {
+      bLoader.load('assets/models/sf/sf_bunker_props_pack.glb?v=239', gltf => {
         const bm = gltf.scene; bm.position.set(bx, 0, z0 + .45);
         if (window.__upgradePure3DScene) window.__upgradePure3DScene(bm); else bm.traverse(o => { o.userData.dynamic = true; });
         R.add(bm);
         if (gltf.animations && gltf.animations.length) { const mx = new THREE.AnimationMixer(bm); mx.userData = { floor: 4, x: bx, z: z0 + .45 }; gltf.animations.forEach(c => mx.clipAction(c).play()); (window.__campusAnimMixers ||= []).push(mx); }
       }, undefined, () => {});
-      bLoader.load('assets/models/sf/sf_pump_policeline_scene.glb?v=238', gltf => {
+      bLoader.load('assets/models/sf/sf_pump_policeline_scene.glb?v=239', gltf => {
         const pm = gltf.scene; pm.position.set(32.0, 0, -3.65);
         pm.traverse(o => { o.userData.dynamic = true; if (o.isMesh) { o.castShadow = false; o.receiveShadow = true; if (o.material?.map) o.material.map.colorSpace = THREE.SRGBColorSpace; } });
         R.add(pm);
@@ -8929,7 +8592,7 @@ document.querySelectorAll('#setTabs button').forEach(b => { b.onclick = () => sh
 $('setBtn2').onclick = () => openSettings('pause');
 const setS = (k, v) => { SET[k] = v; saveSET(); applySettings(); vals(); };
 $('setScreen').onchange = e => { try { if (e.target.value === 'full') document.documentElement.requestFullscreen(); else if (document.fullscreenElement) document.exitFullscreen(); } catch (err) { /* ignore */ } };
-$('quality2').onchange = e => { setS('quality', e.target.value); applyQuality(SET.quality === 'auto' ? 'mid' : SET.quality);   // 자동: 보통(해상도 1배)에서 시작해 여유가 있으면 올린다 (높음 1.5배로 시작하면 저사양에서 처음부터 버벅였다) };
+$('quality2').onchange = e => { setS('quality', e.target.value); applyQuality(SET.quality === 'auto' ? 'mid' : SET.quality); };
 $('setScale').oninput = e => { setS('scale', e.target.value / 100); };
 $('setScale').onchange = () => applyQuality(qCur);
 $('setBright').oninput = e => setS('bright', e.target.value / 100);
@@ -8978,7 +8641,7 @@ addEventListener('keydown', e => {
 }, true);
 function refreshHints() { const k = SET.keys; $('hints').innerHTML = `<div>이동 <kbd>WASD</kbd></div><div>달리기 <kbd>${keyLabel(k.run)}</kbd></div><div>손전등 <kbd>${keyLabel(k.flash)}</kbd></div><div>상호작용 <kbd>${keyLabel(k.interact)}</kbd></div><div>던지기 <kbd>${keyLabel(k.throwCan)}</kbd></div><div>앉기 <kbd>${keyLabel(k.crouch)}</kbd> · 점프 <kbd>${keyLabel(k.jump)}</kbd></div><div>시점 <kbd>${keyLabel(k.view)}</kbd></div><div>주변 살피기 <kbd>${keyLabel(k.scan)}</kbd> · 빠른 저장 <kbd>F5</kbd></div><div>일시정지 <kbd>Esc</kbd></div>`; }
 refreshHints();
-$('setReset').onclick = () => { resetSET(); setVolumes({ master: 1, sfx: 1, voice: 1, amb: 1, music: 1 }); VS.dub = true; VS.engine = 'auto'; VS.subs = true; VS.readNotes = true; VS.subSize = 1; saveVS(); applySettings(); applyQuality(SET.quality === 'auto' ? 'mid' : SET.quality);   // 자동: 보통(해상도 1배)에서 시작해 여유가 있으면 올린다 (높음 1.5배로 시작하면 저사양에서 처음부터 버벅였다) fillSettings(); refreshHints(); toast('설정', '기본값으로 되돌렸습니다', 'info'); };
+$('setReset').onclick = () => { resetSET(); setVolumes({ master: 1, sfx: 1, voice: 1, amb: 1, music: 1 }); VS.dub = true; VS.engine = 'auto'; VS.subs = true; VS.readNotes = true; VS.subSize = 1; saveVS(); applySettings(); applyQuality(SET.quality === 'auto' ? 'mid' : SET.quality); fillSettings(); refreshHints(); toast('설정', '기본값으로 되돌렸습니다', 'info'); };
 document.querySelectorAll('.btn').forEach(b => b.addEventListener('mouseenter', () => sfx.ui()));
 
 /* ---------- 테스트 모드 (?test) ---------- */
@@ -9047,8 +8710,8 @@ if (DEBUG) {
     get state() { return state; }, set state(v) { state = v; }, get tNow() { return tNow; }, openTest, EV, appar, applyQuality,
     interact, findInteract, hit, die, activateGhost, enrage, FL, MG, throwCan, throws, set playTime(v) { playTime = v; }, toggleView, get view() { return view; }, useProp, docs, msgs, clues, objective, makeGateKey, openInv, openPhone, openMap, openCharsel, openSettings, refreshHud, save, load, inv, mina,
     get power() { return power; }, set power(v) { power = v; }, get CHAR() { return CHAR; }, newGame, continueGame,
-    ELV,elvCall,elvEnter,elvLeave,elvPress,elvTick,elvReset,setTarget(t) { target = t; }, DAY, GEN, SIDEQUESTS, sqStep, sqDoneCount, useSideQuest, HEADQUEST, useHead, COLLECT, paraEvent, toiletFx, tmpFx, TE, roomAt, camMode, camShoot, CAM, MIC, SAN, BRK, setBreaker, schoolPower, craftingSystem, ghostCam, restroom, useSink, useFlush, placeAlarm, throwShock, useFirstAid, tryCombine, stunGhost, enterLocker, leaveLocker, startSearch, useMiniSpot, openChalk, chalkAsk, XT,
-    choose, missionGroups, psychologicalPhenomenon, ghostTick, enrage, activateGhost, textureBudget, SG, sgTestSpawn, sgSpawn, SG_ZONES, PL, CALL, SIT, ZOOM, SHOT, closeUI, TP, whereText, FLOOR_LABEL, S37,
+    ELV,elvCall,elvEnter,elvLeave,elvPress,elvTick,elvReset,setTarget(t) { target = t; }, DAY, GEN, SIDEQUESTS, sqStep, sqDoneCount, useSideQuest, HEADQUEST, useHead, COLLECT, tmpFx, roomAt, camMode, camShoot, CAM, MIC, SAN, BRK, setBreaker, schoolPower, craftingSystem, ghostCam, restroom, useSink, useFlush, placeAlarm, throwShock, useFirstAid, tryCombine, stunGhost, enterLocker, leaveLocker, startSearch, useMiniSpot, openChalk, chalkAsk, XT,
+    choose, missionGroups, ghostTick, enrage, activateGhost, textureBudget, SG, sgTestSpawn, sgSpawn, SG_ZONES, PL, CALL, SIT, ZOOM, SHOT, closeUI, TP, whereText, FLOOR_LABEL, S37,
     get target() { return target; },
   };
 }

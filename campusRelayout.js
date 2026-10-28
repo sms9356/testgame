@@ -75,10 +75,11 @@ export function relayoutCampus({ scene, floors, world }) {
     if (j.kind === 'inst') { splitInstances(j.o); continue; }
     if (j.kind === 'split') splitMesh(j.o);
   }
-  function splitInstances(o) {
+  function splitInstances(o, from = 0) {
     const m4 = new THREE.Matrix4(), p = new THREE.Vector3(), W = new THREE.Matrix4(), inv = new THREE.Matrix4().copy(o.matrixWorld).invert(); let hit = 0;
     const e = window.__perfInst && window.__perfInst(o), arr = e ? e.src : null, n = e ? e.n : o.count;
-    for (let i = 0; i < n; i++) {
+    o.userData.rlN = n;   // 다음 검사는 나중에 추가된 인스턴스만
+    for (let i = from; i < n; i++) {
       if (arr) m4.fromArray(arr, i * 16); else o.getMatrixAt(i, m4);
       if (m4.elements[0] === 0 && m4.elements[5] === 0 && m4.elements[10] === 0) continue;
       W.multiplyMatrices(o.matrixWorld, m4); p.setFromMatrixPosition(W); if (p.y < -1 || p.y > 30) continue;
@@ -124,14 +125,19 @@ export function relayoutCampus({ scene, floors, world }) {
   (world.doors || []).forEach(d => { if (d.floor === 0) { const J = judge(d.x, d.z); if (J && !J.rm) ops.push(() => { [d.x, d.z] = to(J, d.x, d.z); }); }
     if (d.to && d.to.floor === 0) { const J = judge(d.to.x, d.to.z); if (J && !J.rm) ops.push(() => { [d.to.x, d.to.z] = to(J, d.to.x, d.to.z); if (J.m && J.m.rot && d.to.yaw != null) d.to.yaw += Math.PI; }); } });
   ops.forEach(f => f());
+  // 제1주차장 자리에 남아 있던 경비실 물건 → 경비실로: 우편함은 출입문 동쪽 바깥벽, 테이프 #2 는 경비실 안 책상 위
+  const GUARD_SPOT = [[/우편함/, 8.55, 68.25, null], [/카세트테이프 수거/, 6.75, 67.05, .84]];
+  (world.props || []).forEach(p => { if (p.floor !== 0) return; const g = GUARD_SPOT.find(([re]) => re.test(p.label || '')); if (!g || Math.hypot(p.x - 6.5, p.z - 66.5) < 4) return;
+    const [, x, z, y] = g, dx = x - p.x, dz = z - p.z; p.x = x; p.z = z; if (p.mesh) { p.mesh.position.x += dx; p.mesh.position.z += dz; if (y != null) { p.mesh.position.y += y - (p.y ?? y); } } if (y != null) { p.y = y; p.hang = true; } });   // hang: 바닥으로 내려놓는 정리(settleFloating)에서 제외 — 책상 위에 둔다
   const out = { ...stats, jobs: jobs.length, ms: Math.round(performance.now() - t0) };
   window.__relayout = out;
   // 나중에 불러오는 모델(GLB): 옛 구역에 새로 나타난 것만 다시 옮기거나 걷는다
   const seen = new WeakSet(); scene.traverse(o => seen.add(o));
-  const again = () => { const fresh = []; scene.traverse(o => { if (seen.has(o)) return; seen.add(o); if (o.isMesh && !o.isSkinnedMesh && !o.userData.relaid && !live.has(o)) fresh.push(o); });
+  // 시설 재건축이 새로 지은 건물(역사관 · 천문관 · 대강당)은 옮기지 않는다
+  const again = () => { scene.traverse(o => { if (!o.isInstancedMesh) return; let skip = false; for (let a = o; a; a = a.parent) if (inner.has(a) || a.userData.facNew) skip = true; if (skip) return; o.updateMatrixWorld(true); const e = window.__perfInst && window.__perfInst(o), n = e ? e.n : o.count; if ((o.userData.rlN ?? 0) < n) splitInstances(o, o.userData.rlN ?? 0); }); const fresh = []; scene.traverse(o => { if (seen.has(o)) return; seen.add(o); if (o.isMesh && !o.isInstancedMesh && !o.isSkinnedMesh && !o.userData.relaid && !live.has(o)) fresh.push(o); });
     scene.updateMatrixWorld(true);
-    fresh.forEach(o => { let rel = false; for (let a = o.parent; a; a = a.parent) if (a.userData.relaid || inner.has(a)) rel = true; if (rel) return; bb.setFromObject(o); if (bb.isEmpty()) return; bb.getCenter(c); const Z = zoneOf(c.x, c.z); if (!Z || bb.max.y < -1) return;
+    fresh.forEach(o => { let rel = false; for (let a = o; a; a = a.parent) if (a.userData.relaid || a.userData.facNew || a.name === 'REBUILD' || inner.has(a)) rel = true; if (rel) return; bb.setFromObject(o); if (bb.isEmpty()) return; bb.getCenter(c); const Z = zoneOf(c.x, c.z); if (!Z || bb.max.y < -1) return;
       bb.getSize(sz); if (Math.max(sz.x, sz.z) > 40) return; if (Z.rm) kill(o); else place(o, mat(Z.m)); }); };
-  [4000, 12000, 30000, 70000].forEach(ms => setTimeout(again, ms));
+  [4000, 12000, 30000, 70000, 120000, 200000, 300000].forEach(ms => setTimeout(again, ms));
   return out;
 }

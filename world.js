@@ -4,12 +4,12 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { buildGuardAnnex, buildDutyRoom, ANNEX as GANX } from './guardAnnex.js?v=242';
-import { NOTES } from './story.js?v=242';
+import { buildGuardAnnex, buildDutyRoom, ANNEX as GANX } from './guardAnnex.js?v=243';
+import { NOTES } from './story.js?v=243';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=242';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=243';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -4663,7 +4663,7 @@ export function buildWorld(scene) {
     [[-26.9, 15, 55], [24.7, 15, 57]].forEach(([x, za, zb]) => { const p = new THREE.Mesh(new THREE.PlaneGeometry(zb - za, 4.0), fenceM); p.rotation.y = Math.PI / 2; p.position.set(x, 2.0, (za + zb) / 2); OUT.add(p);
       const P = []; for (let z = za; z <= zb + .01; z += 2.5) P.push(tube(.045, x, 0, z, x, 4.0, z)); P.push(tube(.035, x, 4.0, za, x, 4.0, zb), tube(.03, x, 1.3, za, x, 1.3, zb)); meshAt(merge(P), postM, 0, 0, 0, 0, OUT); col(x - .06, x + .06, za, zb, true); });
     [-7, 7].forEach(x => { const z = 54.8, d = new THREE.Group(); d.position.set(x, 0, z); OUT.add(d);
-      const roofG = new THREE.CylinderGeometry(1.2, 1.2, 5.0, 16, 1, true, 0, Math.PI); roofG.rotateZ(Math.PI / 2); roofG.rotateX(Math.PI / 2); const rf = new THREE.Mesh(roofG, new THREE.MeshStandardMaterial({ color: 0xc8dce8, roughness: .2, transparent: true, opacity: .55, side: THREE.DoubleSide, depthWrite: false })); rf.position.set(0, 1.05, 0); rf.rotation.y = Math.PI / 2; d.add(rf);
+      const rf = new THREE.Mesh(new THREE.BoxGeometry(5.2, .05, 1.7), new THREE.MeshStandardMaterial({ color: 0xc8dce8, roughness: .2, transparent: true, opacity: .55, side: THREE.DoubleSide, depthWrite: false })); rf.position.set(0, 2.22, -.05); rf.rotation.x = -.12; d.add(rf);   // 차양 (폴리카보네이트): 벤치와 같은 방향 — 예전엔 원통 차양이 90° 돌아가 운동장에 파란 벽처럼 서 있었다
       d.add(new THREE.Mesh(merge([bx(5.0, .06, .5, 0, .45, .2), bx(5.0, .4, .06, 0, .7, .45), ...[-2.4, 2.4].map(a => bx(.06, 2.2, 1.4, a, 1.1, 0))]), S(null, { color: 0x2a4a8a, roughness: .5 })));
       col(x - 2.5, x + 2.5, z - .1, z + .5, false, .5); });
     plane(OUT, new THREE.MeshStandardMaterial({ map: T.makeSign('본 부 석', '#1e2a3a', '#f0ead6', 30), roughness: .8 }), 2.4, .45, 13.5, 3.0, 13.4 + 2.5, 0);

@@ -3,7 +3,7 @@
 // 건물 바닥 사각형을 빼고, 새 현관마다 진입로를 이어 한 장의 겹침 없는 인도로 다시 깐다 (경계엔 연석).
 import * as THREE from './vendor/three.module.js';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { ZONES } from './facilityRebuild.js?v=253';
+import { ZONES } from './facilityRebuild.js?v=254';
 
 const CELL = .2, X0 = -130, X1 = 130, Z0 = -100, Z1 = 90;
 // 캠퍼스 재배치 후 새 인도망 (폭 2.8m 안팎): 예전 보도는 모두 걷고 동선대로 다시 깐다 — 대로 4줄 + 안쪽 종단로 + 각 건물 현관 진입로
@@ -84,5 +84,21 @@ export function cleanupCampus({ scene, floors }) {
       const L = LEFTOVER.find(r => c.x > r[0] && c.x < r[1] && c.z > r[2] && c.z < r[3] && bb.max.y < r[4] && bb.min.y > -.5); if (L) { o.visible = false; hid++; } return; }
     o.children.forEach(walk); };
   scene.children.forEach(walk);
+  hid += carveFloating(scene);
   return { hid, inst };
+}
+// 건물 이동 뒤 허공에 남은 굳힌(bake) 잔재 삼각형: 운동장 서쪽 6.5m 높이 녹슨 막대 · 받침 없이 떠 있는 옛 차양 판
+const FLOAT_BOXES = [[-49.5, -47, 5.5, 8.5, 15, 62], [-34.6, -32.2, -.1, 3.6, 38.8, 43.3]];
+const CARVED = new WeakSet();
+function carveFloating(scene) {
+  let n = 0; const v = new THREE.Vector3(), bb = new THREE.Box3();
+  scene.traverse(o => {
+    if (!o.isMesh || o.isInstancedMesh || CARVED.has(o) || !o.userData.baked || !o.geometry || !o.geometry.attributes.position) return;
+    bb.setFromObject(o); if (!FLOAT_BOXES.some(([x1, x2, y1, y2, z1, z2]) => bb.max.x > x1 && bb.min.x < x2 && bb.max.y > y1 && bb.min.y < y2 && bb.max.z > z1 && bb.min.z < z2)) return;
+    CARVED.add(o); const g = o.geometry, P = g.attributes.position, idx = g.index ? Array.from(g.index.array) : [...Array(P.count).keys()], keep = [];
+    const inBox = i => { v.fromBufferAttribute(P, i).applyMatrix4(o.matrixWorld); return FLOAT_BOXES.some(([x1, x2, y1, y2, z1, z2]) => v.x > x1 && v.x < x2 && v.y > y1 && v.y < y2 && v.z > z1 && v.z < z2); };
+    let cut = 0; for (let t = 0; t < idx.length; t += 3) { if (inBox(idx[t]) && inBox(idx[t + 1]) && inBox(idx[t + 2])) { cut++; continue; } keep.push(idx[t], idx[t + 1], idx[t + 2]); }
+    if (!cut) return; g.setIndex(keep); g.clearGroups && g.groups.length && g.groups.length === 1 && (g.groups[0].count = keep.length); g.computeBoundingSphere(); n += cut;
+  });
+  return n;
 }

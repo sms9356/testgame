@@ -3,7 +3,7 @@
 // 건물 바닥 사각형을 빼고, 새 현관마다 진입로를 이어 한 장의 겹침 없는 인도로 다시 깐다 (경계엔 연석).
 import * as THREE from './vendor/three.module.js';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { ZONES } from './facilityRebuild.js?v=237';
+import { ZONES } from './facilityRebuild.js?v=238';
 
 const CELL = .2, X0 = -130, X1 = 130, Z0 = -100, Z1 = 90;
 // 새 현관 진입로 (설계도: 모든 시설 남측 중앙 · 수영장만 동측) — 캐노피 디딤판 끝에서 가까운 간선까지

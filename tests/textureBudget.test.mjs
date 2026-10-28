@@ -29,7 +29,7 @@ assert(excluded.every(t => t.disposed === 0)); assert(yields >= 2);
 const low = source.data; const stats = budget.stats();
 assert.equal(stats.originalImages, 2); assert.equal(stats.sources, 3);
 assert(stats.currentEstimatedMiB < stats.originalEstimatedMiB);
-await budget.setQuality('high'); assert.equal(source.data, original);
+await budget.setQuality('ultra'); assert.equal(source.data, original);
 assert.equal(clone.source.data, original); assert.equal(original.width, 2048);
 await budget.setQuality('mid'); assert.equal(source.data.width, 1024);
 await budget.setQuality('low'); assert.equal(source.data, low); assert.equal(draws, 4);
@@ -38,5 +38,6 @@ await budget.prepare({ traverse(fn) { fn({ material: [{ map: late }] }); } });
 assert.equal(late.source.data.width, 512); assert.equal(late.source.data.height, 128);
 await Promise.all([budget.setQuality('high'), budget.setQuality('mid'), budget.setQuality('low')]);
 assert.equal(source.data, low); assert.equal(late.source.data.width, 512);
+await budget.setQuality('high'); assert.equal(source.data.width, 1024);   // 높음도 1K 상한
 assert.throws(() => budget.setQuality('bogus'));
 console.log('PASS: aspect, shared-source/image cache, exclusions, restore, metadata/mips, batching, late models, rapid switches, deduped estimates');

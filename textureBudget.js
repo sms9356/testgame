@@ -5,7 +5,7 @@ export function createTextureBudget({ quality = 'mid', batchSize = 2,
   isStaticImage = image => (typeof HTMLImageElement !== 'undefined' && image instanceof HTMLImageElement) ||
     (typeof ImageBitmap !== 'undefined' && image instanceof ImageBitmap),
 } = {}) {
-  const caps = { low: 512, mid: 1024, high: Infinity };
+  const caps = { low: 512, mid: 1024, high: 1024, ultra: Infinity };   // 높음도 1K: 2K · 4K 텍스처 한 장 올리는 데 수십~수백 ms 씩 멈췄다 (최고 품질만 원본)
   const records = new Map(), originals = new WeakMap();
   let revision = 0, pending = Promise.resolve();
   function register(texture) {

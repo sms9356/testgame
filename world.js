@@ -4,12 +4,12 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { buildGuardAnnex, buildDutyRoom, ANNEX as GANX } from './guardAnnex.js?v=240';
-import { NOTES } from './story.js?v=240';
+import { buildGuardAnnex, buildDutyRoom, ANNEX as GANX } from './guardAnnex.js?v=241';
+import { NOTES } from './story.js?v=241';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=240';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=241';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -753,7 +753,7 @@ export function buildWorld(scene) {
     const b2 = new THREE.Mesh(new THREE.BoxGeometry(.2, .26, .05), S(null, { color: 0xc02020, roughness: .45 })); b2.position.set(0, -.3, 0); g.add(b2);
     const btn = new THREE.Mesh(new THREE.CylinderGeometry(.04, .04, .03, 14).rotateX(Math.PI / 2), mPorc); btn.position.set(0, -.3, .035); g.add(btn);
     const dz = Math.cos(ry) * .6, dx = Math.sin(ry) * .6;
-    props.push({ kind: 'bell', floor: cur.f, x: x + dx, z: z + dz, bx: x, bz: z, label: '비상벨 누르기 (유령 유인)', cd: 0 });
+    props.push({ kind: 'bell', floor: cur.f, x: x + dx, z: z + dz, bx: x, bz: z, label: '비상벨 누르기', cd: 0 });
   }
   // CCTV 카메라 (빨간 LED)
   const camG = merge([bx(.06, .2, .06, 0, -.1, 0), bx(.14, .12, .3, 0, -.24, .1), new THREE.CylinderGeometry(.045, .05, .06, 14).rotateX(Math.PI / 2).translate(0, -.24, .27)]);

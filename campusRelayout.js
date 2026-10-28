@@ -125,8 +125,8 @@ export function relayoutCampus({ scene, floors, world }) {
   (world.doors || []).forEach(d => { if (d.floor === 0) { const J = judge(d.x, d.z); if (J && !J.rm) ops.push(() => { [d.x, d.z] = to(J, d.x, d.z); }); }
     if (d.to && d.to.floor === 0) { const J = judge(d.to.x, d.to.z); if (J && !J.rm) ops.push(() => { [d.to.x, d.to.z] = to(J, d.to.x, d.to.z); if (J.m && J.m.rot && d.to.yaw != null) d.to.yaw += Math.PI; }); } });
   ops.forEach(f => f());
-  // 제1주차장 자리에 남아 있던 경비실 물건 → 경비실로: 우편함은 출입문 동쪽 바깥벽, 테이프 #2 는 경비실 안 책상 위
-  const GUARD_SPOT = [[/우편함/, 8.55, 68.25, null], [/카세트테이프 수거/, 6.75, 67.05, .84]];
+  // 제1주차장 자리에 남아 있던 경비실 물건 → 경비실로: 우편함은 출입문 동쪽 바깥벽, 테이프 #2 는 경비실 안 책상 위 (다른 번호 테이프는 제자리)
+  const GUARD_SPOT = [[/우편함/, 8.55, 68.25, null], [/카세트테이프 수거.*테이프 #2/, 6.75, 67.05, .84]];
   (world.props || []).forEach(p => { if (p.floor !== 0) return; const g = GUARD_SPOT.find(([re]) => re.test(p.label || '')); if (!g || Math.hypot(p.x - 6.5, p.z - 66.5) < 4) return;
     const [, x, z, y] = g, dx = x - p.x, dz = z - p.z; p.x = x; p.z = z; if (p.mesh) { p.mesh.position.x += dx; p.mesh.position.z += dz; if (y != null) { p.mesh.position.y += y - (p.y ?? y); } } if (y != null) { p.y = y; p.hang = true; } });   // hang: 바닥으로 내려놓는 정리(settleFloating)에서 제외 — 책상 위에 둔다
   const out = { ...stats, jobs: jobs.length, ms: Math.round(performance.now() - t0) };

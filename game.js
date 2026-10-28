@@ -18,29 +18,28 @@ import { buildMissionGroups, recordCompleted, normalizeCompletedLog } from './my
 import { settleStoryGhost } from './storyGhost.js';
 import { GLTFLoader } from './vendor/addons/loaders/GLTFLoader.js';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { createNPCVisuals } from './npcVisuals.js?v=240';
-import { applyGuardSeatedPose } from './guardSeatedPose.js?v=240';
+import { createNPCVisuals } from './npcVisuals.js?v=241';
+import { applyGuardSeatedPose } from './guardSeatedPose.js?v=241';
 import { createCampusCctvLive, collectCampusCctvFeeds } from './campusCctvLive.js';
-import { applyExteriorFloorVisibility, shouldStreamGuardCctv } from './exteriorRenderBudget.js?v=240';
-import { GUARD_LAYOUT } from './guardRoomLayout.js?v=240';
-import { ANNEX_KEYS, CABINET_CODE } from './guardAnnex.js?v=240';
-import { installGuardRoom } from './guardRoom.js?v=240';
+import { applyExteriorFloorVisibility, shouldStreamGuardCctv } from './exteriorRenderBudget.js?v=241';
+import { GUARD_LAYOUT } from './guardRoomLayout.js?v=241';
+import { ANNEX_KEYS, CABINET_CODE } from './guardAnnex.js?v=241';
+import { installGuardRoom } from './guardRoom.js?v=241';
 import { prepareModelGeometry } from './modelGeometry.js';
 import { modelFootprint, overlaps, removeDuplicateModels } from './placement.js';
-import { turfMaterial } from './campusVisuals.js?v=240';
+import { turfMaterial } from './campusVisuals.js?v=241';
 import { installInfirmaryAssets, updateInfirmaryCabinets } from './infirmaryAssets.js';
-import { installRebuild } from './rebuildGame.js?v=240';
-import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js?v=240'; import { updateWindowFakes } from './windowInteriors.js?v=240';
-import { drawMap } from './map.js?v=240';
-import { buildMegaCampus15000, MEGA_CAMPUS_ZONES } from './megaCampus15000.js?v=240';
-import { installFacilityRebuild, inTwoStory } from './facilityRebuild.js?v=240';
+import { installRebuild } from './rebuildGame.js?v=241';
+import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js?v=241'; import { updateWindowFakes } from './windowInteriors.js?v=241';
+import { drawMap } from './map.js?v=241';
+import { buildMegaCampus15000, MEGA_CAMPUS_ZONES } from './megaCampus15000.js?v=241';
+import { installFacilityRebuild, inTwoStory } from './facilityRebuild.js?v=241';
 import { makeDress, makeHair, makeGhostFace, makeGraffiti, makeKeypad, loadPBR, pbr, makeGlow as makeGlowTex, makePaintingStare, makeSign, makeBlood } from './tex.js';
 import { warmUp } from './bake.js';
 import { createStaticDistanceLOD } from './staticDistanceLOD.js';
 import { createTextureBudget } from './textureBudget.js';
 import { createFX } from './fx.js';
-import './sanitySystem.js';   // 공포 환각 엔진 (사용자 제공) → window.sanitySystem
-import { GhostCameraSystem } from './ghostCamera.js';   // 심령 카메라 엔진 (사용자 제공)
+import { GhostCameraSystem } from './ghostCamera.js';   // 야간 카메라 엔진 (사용자 제공)
 import { CraftingSystem } from './craftingSystem.js';   // 조합 · 생존 도구 (사용자 제공)
 import { SchoolPowerEventSystem } from './schoolPowerSystem.js';   // 배전반 · 차임벨 (사용자 제공)
 import { RestroomSystem } from './restroomSystem.js';   // 화장실 세면대 · 변기 (사용자 제공)
@@ -51,14 +50,14 @@ import './basementRoomsPatch.js';     // 지하 전기실 · 보일러실 (사�
 import './classroomRemodelPatch.js';  // 교실 리모델링 · 의자에 앉기 (사용자 제공) → window.classroomRemodelPatch
 import './school37RoomsPatch.js';    // 본관 · 별관 37개 특별실 가구 · 동선 (사용자 제공) → window.school37RoomsPatch
 import './new37UniquePatch.js';     // 37개 구역 신규 특수 설비 · 벽면 레일 (사용자 제공) → window.new37UniquePatch
-import './megaExpansionPatch.js?v=240';   // 메가 익스팬션 · 최적화 · 4막 사건 기록 · 수집품 · 미니게임 (사용자 제공) → window.megaSchoolPatch
+import './megaExpansionPatch.js?v=241';   // 메가 익스팬션 · 최적화 · 4막 사건 기록 · 수집품 · 미니게임 (사용자 제공) → window.megaSchoolPatch
 import './poolMachineryPatch.js';     // 수영장 · 남/녀 탈의실·샤워실 · 기계실 철문 (사용자 제공) → window.poolAndMachineryPatch
-import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx, setSfxBusyCheck } from './audio.js?v=240'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=240'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera, perfInstanceSource } from './perfStabilizer.js?v=240'; window.__perfInst = perfInstanceSource; import { upgradePlainMaterials } from './plainUpgrade.js?v=240'; import { relayCampusPaths } from './campusPaths.js?v=240'; import { installHudV2, tickHudV2 } from './hudV2.js?v=240'; import { installPartnerRadio, tickPartnerRadio } from './partnerRadio.js?v=240';
-import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js?v=240';
-import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, HYPOTHESES, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, SIDEQUESTS, HEADQUEST, COLLECT, CHALK_QA, OUIJA_QS, MIRROR_WORDS } from './story.js?v=240';
-import { isSpeechBusy } from './voice.js?v=240';
+import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx, setSfxBusyCheck } from './audio.js?v=241'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=241'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera, perfInstanceSource } from './perfStabilizer.js?v=241'; window.__perfInst = perfInstanceSource; import { upgradePlainMaterials } from './plainUpgrade.js?v=241'; import { relayCampusPaths } from './campusPaths.js?v=241'; import { installHudV2, tickHudV2 } from './hudV2.js?v=241'; import { installPartnerRadio, tickPartnerRadio } from './partnerRadio.js?v=241';
+import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js?v=241';
+import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, HYPOTHESES, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, SIDEQUESTS, HEADQUEST, COLLECT, } from './story.js?v=241';
+import { isSpeechBusy } from './voice.js?v=241';
 import { SET, saveSET, resetSET, DIFF, keyLabel } from './settings.js';
-import { initI18n, setLang, lang as curLang } from './i18n.js?v=240';   // 언어 패치 (한국어 · English · 日本語 · 中文)
+import { initI18n, setLang, lang as curLang } from './i18n.js?v=241';   // 언어 패치 (한국어 · English · 日本語 · 中文)
 initI18n();
 const K = () => SET.keys;
 let guardRoomController = null, guardControlProps = [], guardCctvData = null, campusCctv = null;
@@ -77,7 +76,7 @@ function syncGuardDevices() {
 function toggleGuardCCTV(persist = true) { FL.guardCctvOn = !(FL.guardCctvOn ?? true); sfx.click(); syncGuardDevices(); if (persist) save(true); return FL.guardCctvOn; }
 function toggleGuardLight() { FL.guardLightOn = !(FL.guardLightOn ?? false); sfx.click(); syncGuardDevices(); say(FL.guardLightOn ? '경비실 전등을 켰다' : '경비실 전등을 껐다', 1800); save(true); return FL.guardLightOn; }
 
-import { run as runMini, MG } from './minigames.js?v=240';
+import { run as runMini, MG } from './minigames.js?v=241';
 import { SCHEMA, BUILD, storageKeys, itemUid, propUid, doorUid, assignUids, readSlot, writeSlot, hasSlot, clearSlot, repairProgress } from './saveSystem.js';
 const NOTE_CAST = {
   n_seomun_ilbo: { spk: 'reporter', audioId: 'call_119', stage: '(📰 서문일보 사회부 한진우 기자의 긴급 특보 리포팅)' },
@@ -120,12 +119,12 @@ const NOTE_CAST = {
   q4c:           { spk: 'headTeacher', audioId: 'tape5', stage: '(지하 펌프실의 두 문에 관한 진실 도면)' },
   n1:            { spk: 'haneul', audioId: 'tape4', stage: '(🕯 기념 방송 리허설을 앞둔 윤하늘과 친구의 일기)' },
   n8:            { spk: 'haneul', audioId: 'tape4', stage: '(🕯 3학년 2반 윤하늘이 직접 쓴 마지막 하교 방송 원고)' },
-  n12:           { spk: 'haneul', audioId: 'ghThanks', stage: '(붉게 지워진 졸업생 명부 옆 윤하늘의 목소리)' },
+  n12:           { spk: 'mother', audioId: 'ghThanks', stage: '(붉게 지워진 졸업생 명부를 보고 전화를 걸어 온 하늘이 어머니)' },
   n18:           { spk: 'haneul', audioId: 'tape4', stage: '(하늘이가 피아노 반주를 맡기로 한 학교종 악보)' },
   n28:           { spk: 'friend', audioId: 'echo1', stage: '(하늘·수아·다은 세 단짝 친구의 교환일기)' },
   n29:           { spk: 'haneul', audioId: 'tape4', stage: '(리허설 시간과 담력 체험 장소가 적힌 하늘이의 첫 번째 메모)' },
   q2a:           { spk: 'friend', audioId: 'echo1', stage: '(기념 방송 끝곡 학교종을 약속한 교환일기 마지막 장)' },
-  q2b:           { spk: 'haneul', audioId: 'ghThanks', stage: '(10년 만에 방송실 스피커로 울려 퍼진 세 친구의 하교 방송)' },
+  q2b:           { spk: 'mother', audioId: 'ghThanks', stage: '(폭로 방송을 들은 하늘이 어머니의 전화)' },
   q6a:           { spk: 'mina', audioId: 'tape2', stage: '(📱 언니 서다은을 위해 서문고에 들어온 민아 선배의 임시저장 글)' },
   q6b:           { spk: 'mina', audioId: 'cam1', stage: '(방송실 앞 하늘·수아·다은과 어린 민아의 사진)' },
   q6c:           { spk: 'mina', audioId: 'mw_s', stage: '(📱 민아 선배가 언니 서다은에게 남긴 마지막 음성 녹음)' },
@@ -220,7 +219,7 @@ scene.fog = new THREE.FogExp2(0x070a12, 0.03);
 const FOG_IN = new THREE.Color(0x060708), FOG_OUT = new THREE.Color(0x0c1424);
 const camera = new THREE.PerspectiveCamera(SET.fov, innerWidth / innerHeight, 0.05, 320);
 scene.add(camera);
-// 심령 카메라: scene · camera · renderer 생성 직후 초기화. 장면에 조명을 더하면 모든 재질 셰이더가 다시 컴파일되고 매 프레임 비용이 늘어나서,
+// 야간 카메라: scene · camera · renderer 생성 직후 초기화. 장면에 조명을 더하면 모든 재질 셰이더가 다시 컴파일되고 매 프레임 비용이 늘어나서,
 // 클래스의 야간투시 · 플래시 보조광(PointLight 2개) 대신 CSS 야간투시 필터 · 화면 섬광 · 손전등 감광으로 같은 연출을 낸다
 class GameGhostCam extends GhostCameraSystem { _initLights() {} }
 const ghostCam = window.ghostCam = new GameGhostCam({ scene, camera, renderer, audioCtx: sfxCtx });   /* 효과음 볼륨 설정을 따르게 (예전엔 모듈마다 AudioContext 를 따로 만들었다) */
@@ -383,7 +382,7 @@ const got = KEY_NAMES.map(() => false);
 const inv = { battery: 0, medkit: 0, hairpin: 0, can: 0, candy: 0, thermos: 0, salt: 0, charm: 0, musicbox: 0, matches: 0, tape: 0, sedative: 0, alarm: 0, shock: 0, firstaid: 0 }, docs = [];
 let gateClosed = false, gateAnim = 0, gateState = 'open';
 let lookBack = 0, introT = 0, introText = false;
-const CAM = { on: false, layer: 2, clues: [], arrow: null, shotCD: 0 };   // 휴대폰 심령 카메라 (아래 확장 기능)
+const CAM = { on: false, layer: 2, clues: [], arrow: null, shotCD: 0 };   // 휴대폰 야간 카메라 (아래 확장 기능)
 const MIC = { on: false, level: 0, risk: 0, an: null, buf: null, ctx: null, stream: null, wave: null };
 const SAN = { lvl: 0, t: 8, fov: 0, fovT: 0 };
 let STH = null;   // 계단 길게 누르기 { code, dir, t }
@@ -685,7 +684,7 @@ function bagList() {
   if (P.keys && !FL.gatekey) L.push({ id: 'keypiece', n: P.keys });
   if (inv.hairpin) L.push({ id: 'hairpin', n: inv.hairpin });
   if (inv.can) L.push({ id: 'can', n: inv.can });
-  ['candy', 'thermos', 'salt', 'charm', 'musicbox', 'matches', 'tape', 'sedative', 'alarm', 'shock', 'firstaid'].forEach(k => { if (inv[k]) L.push({ id: k, n: inv[k] }); });   // 사물함 수색 · 방 이벤트 소모품
+  ['candy', 'thermos', 'tape', 'sedative', 'firstaid'].forEach(k => { if (inv[k]) L.push({ id: k, n: inv[k] }); });   // 사물함 수색 · 방 이벤트 소모품
   if (FL.tag) L.push({ id: 'nametag' });
   ['hook', 'fuse', 'mop', 'wire'].forEach(k => { if (FL[k]) L.push({ id: k }); });
   if (FL.cam) L.push({ id: 'camcorder' });
@@ -710,10 +709,7 @@ const USE = {
   gatekey: () => { closeUI(); window.__showSchoolTruthDossier(); return '1998 서문고 진상 규명 마스터 기록부를 열람합니다.'; },
   candy: () => { inv.candy--; P.stamina = 100; P.tired = false; P.fear = Math.max(0, P.fear - .3); sfx.pickup(); refreshHud(); return '사탕을 깨물었다. 단맛에 숨이 돌아온다.'; },
   thermos: () => { inv.thermos--; P.hp = Math.min(100, P.hp + 20); calmDown(30, '따뜻한 차가 목을 타고 내려간다'); refreshHud(); return '유자차를 마셨다. 체력 +20'; },
-  salt: () => useSalt(), charm: () => '지니고만 있으면 된다. 그것에게 붙잡히는 순간 대신 타오른다.',
-  musicbox: () => { closeUI(); setTimeout(placeMusicBox, 80); },
-  matches: () => { closeUI(); setTimeout(strikeMatch, 80); },
-  nametag: () => (power ? '4층 방송실 장비에서 이 이름을 불러 줄 수 있다.' : '방송실에서 이 이름을 불러 주려면 먼저 전기가 필요하다.'),
+  nametag: () => (power ? '4층 방송실에서 폭로 방송을 할 때 이 이름을 제대로 불러 줄 수 있다.' : '방송실 장비를 쓰려면 먼저 전기를 살려야 한다.'),
   necklace: () => '“첫 녹음 기념. 우리 방송, 오래 하자.” — 민아',
   keys_jihun: () => '민아가 맡겨 둔 열쇠. 꼭 돌려줘야 한다.',
   hairpin: () => '잠긴 서랍이나 보관함 앞에서 E — 자물쇠 따기',
@@ -898,11 +894,11 @@ function renderPhone() {
     });
     refreshHud();
   } else if (phoneTab === 'photo') {
-    const ph = docs.filter(d => d.img).map(d => ({ src: `assets/img/${d.img}.webp`, title: d.title })).concat((FL.spirit || []).map((x, i) => ({ src: spiritPhoto(x), title: `심령 사진 #${i + 1} — ${x.text}` })));
+    const ph = docs.filter(d => d.img).map(d => ({ src: `assets/img/${d.img}.webp`, title: d.title })).concat((FL.spirit || []).map((x, i) => ({ src: spiritPhoto(x), title: `현장 사진 #${i + 1} — ${x.text}` })));
     B.innerHTML = shotsHtml() + (ph.length ? `<div class="pPhotos">${ph.map(d => `<img src="${d.src}" alt="" title="${d.title}" data-t="${d.title}">`).join('')}</div>` : SHOT.list.length ? '' : '<div class="pEmpty">저장된 사진이 없습니다.</div>');
     B.querySelectorAll('img').forEach(im => { im.onclick = () => { $('lbImg').src = im.src; $('lbCap').textContent = im.dataset.t; $('lightbox').classList.add('show'); }; });
   } else if (phoneTab === 'memo') {
-    const sp = (FL.spirit || []).slice().reverse().map(x => `<div class="memo">📷 <b>심령 사진</b> (${x.t || ''}) — ${x.text}<br><i>${x.subText}</i></div>`).join('');
+    const sp = (FL.spirit || []).slice().reverse().map(x => `<div class="memo">📷 <b>현장 사진</b> (${x.t || ''}) — ${x.text}<br><i>${x.subText}</i></div>`).join('');
     const observations='';
     B.innerHTML = observations + (clues.length || sp ? sp + clues.slice().reverse().map(c => `<div class="memo">${CLUES[c]}</div>`).join('') : '<div class="pEmpty">아직 기록한 단서가 없습니다.</div>');
   } else if (phoneTab === 'missions') {
@@ -917,7 +913,7 @@ function renderPhone() {
       <div class="pNote">휴대폰 배터리는 천천히 충전된다 (보조 배터리 내장)</div></div>`;
     B.querySelectorAll('button[data-t]').forEach(b => { b.onclick = () => phoneTool(b.dataset.t); });
   } else if (phoneTab === 'call') { renderCallTab(B);
-  } else if (phoneTab === 'cam') {   // [📷 카메라] — 휴대폰을 닫고 바로 심령 카메라
+  } else if (phoneTab === 'cam') {   // [📷 카메라] — 휴대폰을 닫고 바로 야간 카메라
     phoneTab = 'msg'; closeUI(); setTimeout(() => camMode(true), 60); return;
   } else if (phoneTab === 'log') {
     B.innerHTML = SUBLOG.length ? SUBLOG.slice().reverse().map(l => `<div class="pLog"><b>${l.who === '·' ? '♪' : l.who || '…'}</b><span>${l.who === '·' ? `[${l.text}]` : l.text}</span></div>`).join('') : '<div class="pEmpty">기록된 대화가 없습니다.</div>';
@@ -1144,14 +1140,14 @@ function noteVoiceFor(id) {
     n26:              { id: 'mtape_1',   fx: 'none',  who: '📼 도서실 사서 · 상담교사' },
     q4b:              { id: 'mtape_1',   fx: 'none',  who: '📼 상담교사 · 오유진 선생님' },
     q8a:              { id: 'mtape_1',   fx: 'none',  who: '📼 도서실 사서 · 송지혜 선생님' },
-    q8b:              { id: 'ghThanks',  fx: 'none',  who: '🕯 윤하늘 (1998년 3-2 방송부)' },
+    q8b:              { id: 'ghThanks',  fx: 'none',  who: '📞 윤하늘 어머니' },
     // 3-2 윤하늘 육성 (설레는 생전 방송 연습 & 안도의 작별 인사)
-    n8:               { id: 'tape4',     fx: 'none',  who: '🕯 윤하늘 (1998년 3-2 방송부)' },
-    n1:               { id: 'tape4',     fx: 'none',  who: '🕯 윤하늘 (1998년 3-2 방송부)' },
-    n18:              { id: 'tape4',     fx: 'none',  who: '🕯 윤하늘 (1998년 3-2 방송부)' },
+    n8:               { id: 'tape4',     fx: 'none',  who: '📞 윤하늘 어머니' },
+    n1:               { id: 'tape4',     fx: 'none',  who: '📞 윤하늘 어머니' },
+    n18:              { id: 'tape4',     fx: 'none',  who: '📞 윤하늘 어머니' },
     q2b:              { id: 'tape4',     fx: 'radio', who: '🕯 윤하늘 · 수아 · 다은 (하교 방송)' },
-    q1b:              { id: 'ghThanks',  fx: 'none',  who: '🕯 윤하늘 (1998년 3-2 방송부)' },
-    q5c:              { id: 'ghThanks',  fx: 'none',  who: '🕯 윤하늘 (1998년 3-2 방송부)' },
+    q1b:              { id: 'ghThanks',  fx: 'none',  who: '📞 윤하늘 어머니' },
+    q5c:              { id: 'ghThanks',  fx: 'none',  who: '📞 윤하늘 어머니' },
     // 단짝 친구 이수아 & 방송부 후배 서다은 육성 (다정한 우정과 울먹이는 참회)
     n28:              { id: 'echo1',     fx: 'none',  who: '📼 단짝 친구 · 이수아' },
     q2a:              { id: 'echo2',     fx: 'none',  who: '📼 단짝 친구 · 서다은' },
@@ -1169,8 +1165,8 @@ function noteVoiceFor(id) {
     q6b:              { id: 'phone2',    fx: 'phone', who: '📱 선배 박민아 (방송부 3학년)' },
     q6c:              { id: 'mw_' + (isJ ? 'j' : 's'), fx: 'none', who: '📱 선배 박민아 (방송부 3학년)' },
     // 어둠 속 남겨진 아이의 속삭임
-    n16:              { id: 'call_unk1', fx: 'whisper', who: '🕯 윤하늘 (차가운 어둠 속의 목소리)' },
-    h2:               { id: 'call_unk1', fx: 'whisper', who: '🕯 윤하늘 (차가운 어둠 속의 목소리)' },
+    n16:              { id: 'call_unk1', fx: 'phone', who: '📞 발신번호 표시제한 (익명 제보)' },
+    h2:               { id: 'call_unk1', fx: 'phone', who: '📞 발신번호 표시제한 (익명 제보)' },
     // 현장 일지를 발견한 주인공(서연/지훈)의 생생한 감정 연기 톤
     n9:               pLine('gym'),
     n10:              pLine('pool'),
@@ -1793,7 +1789,7 @@ async function useRoomObj(p) {
     } else if (i === 1) {
       setTimeout(() => { line('pa1', 'phone', '📞 내선 201 (방송실)'); fx.glitch(.3); setFace('fear', 2); }, 600);
     } else {
-      setTimeout(() => { at(P.x, floors[P.floor].y0 + 1.6, P.z).whisper(); sfx.ghostGiggle(); line('gh1', 'phone', '📞 내선 302 (3-2 교실)'); fx.glitch(.5); shake = .3; setFace('fear', 3); }, 700);
+      setTimeout(() => { say('📞 내선 302 — 신호만 가고 아무도 받지 않는다. 회선 대장엔 1999년 폐쇄로 적혀 있다', 3000); }, 700);
     }
     return;
   }
@@ -1886,10 +1882,10 @@ async function useRoomObj(p) {
   if (k === 'plazawater') { sfx.splash ? sfx.splash() : sfx.drip(); P.fear = Math.max(0, P.fear - .2); P.stamina = Math.min(100, P.stamina + 35); say('차가운 수돗물로 얼굴을 씻었다 — 정신이 맑아지고 숨이 고르게 돌아온다', 2800); return; }
   if (k === 'plazarecycle') { if (!p.gotCan) { p.gotCan = true; giveItem('can', 1); sfx.pickup(); } else say('분리수거함 안에 1998년 가을 가정통신문 다발이 묶여 있다', 2400); return; }
   if (k === 'greenhouse_herb') { if (!p.gotHerb) { p.gotHerb = true; giveItem('medkit', 1); sfx.pickup(); say('생물부 온실 약초 선반에서 응급 밴드와 「야간 발광 식물 배양 일지」를 찾았다', 3200); } else say('온실 화분마다 1998년 10월 12일에 멈춘 물주기 기록표가 꽂혀 있다', 2600); return; }
-  if (k === 'weather_box') { if (!p.gotBat) { p.gotBat = true; giveItem('battery', 1); sfx.pickup(); say('백엽상 안에서 예비 건전지와 10월 12일 밤 기상 관측 기록표를 발견했다', 3200); } else say('1998.10.12 23:00 기상 관측 기록 — “원인 불명의 국지성 안개 및 자기장 이상 감지”', 2800); return; }
+  if (k === 'weather_box') { if (!p.gotBat) { p.gotBat = true; giveItem('battery', 1); sfx.pickup(); say('백엽상 안에서 예비 건전지와 10월 12일 밤 기상 관측 기록표를 발견했다', 3200); } else say('1998.10.12 23:00 기상 관측 기록 — “맑음 · 강수 없음 · 기온 9℃”', 2800); return; }
   if (k === 'canteen_counter') { if (!p.gotSnack) { p.gotSnack = true; giveItem('candy', 1); giveItem('thermos', 1); sfx.pickup(); say('학우 매점 진열대에서 막대사탕과 보온병 유자차를 챙겼다', 3000); } else say('매점 창구 유리창에 “축제 당일 야간 연장 영업!” 안내문이 붙어 있다', 2400); return; }
-  if (k === 'amphitheater_stand') { if (!p.gotBox) { p.gotBox = true; giveItem('musicbox', 1); sfx.pickup(); say('야외 음악당 지휘 보면대 아래에서 태엽 오르골과 합창단 리허설 메모를 발견했다', 3200); } else say('보면대 위에 「1998 추계 학예제 피날레 — 교가 & 학교종」 악보가 펼쳐져 있다', 2600); return; }
-  if (k === 'campus_wc') { sfx.drip ? sfx.drip() : sfx.click(); P.fear = Math.max(0, (P.fear || 0) - .05); say(Math.random() < .25 ? '세면대 거울에 잠깐 누군가 서 있었던 것 같다… 돌아보니 아무도 없다' : '차가운 물로 손을 씻었다. 수도꼭지에서 녹물이 조금 섞여 나온다', 2600); return; }
+  if (k === 'amphitheater_stand') { if (!p.gotBox) { p.gotBox = true; giveItem('candy', 1); giveItem('battery', 1); sfx.pickup(); say('야외 음악당 지휘 보면대 아래에서 건전지와 합창단 리허설 메모를 발견했다', 3200); } else say('보면대 위에 「1998 추계 학예제 피날레 — 교가 & 학교종」 악보가 펼쳐져 있다', 2600); return; }
+  if (k === 'campus_wc') { sfx.drip ? sfx.drip() : sfx.click(); P.fear = Math.max(0, (P.fear || 0) - .05); say('차가운 물로 손을 씻었다. 수도꼭지에서 녹물이 조금 섞여 나온다', 2600); return; }
   if (k === 'campus_map_board') { sfx.paper(); say('15,000평 캠퍼스 전역(청운학사 기숙사·청운호 수변공원·과학천문관·중앙학술정보관·스포츠단지·학생회관)이 타일 보행로로 연결되어 있다', 3400); return; }
   if (k === 'pump_newspaper') {
     if (!docs.some(d => d.id === 'n_seomun_ilbo')) { addDoc({ id: 'n_seomun_ilbo', kind: 'note' }); }
@@ -1926,22 +1922,22 @@ async function useRoomObj(p) {
     if (!p.got) {
       const r = await mini('timetableRestore', { title: '청운학사 2층 심야 정독실 — 1998.10.12 사생 일과표 복원' });
       if (r.ok) {
-        p.got = true; giveItem('charm', 1);
+        p.got = true; giveItem('medkit', 1);
         if (!docs.some(d => d.id === 'n_dorm2f_diary')) addDoc({ id: 'n_dorm2f_diary', kind: 'note' });
         sfx.unlock(); line('vo_dorm2f_student', 'tape', '📓 2층 정독실 사생 일기');
-        say('2층 심야 정독실 비밀 수첩을 해독해 『청운학사 2층 정독실 일기』와 노란 부적을 얻었다!', 3600);
+        say('2층 심야 정독실 비밀 수첩을 해독해 『청운학사 2층 정독실 일기』와 응급 밴드를 얻었다!', 3600);
       }
     } else say('2층 정독실 책상 위에 1998학년도 수능 특강과 방송반 큐시트 초안이 놓여 있다', 2400);
     return;
   }
-  if (k === 'lake_capsule') { if (!p.got) { p.got = true; giveItem('musicbox', 1); giveItem('candy', 1); sfx.unlock(); say('청운호 호심정 정자 위 봉인함에서 태엽 오르골과 1998년 세 친구의 타임캡슐 편지를 발견했다!', 3600); } else say('호심정 기둥에 “우리의 노래가 호수 위로 영원히 퍼지길”이라 새겨져 있다', 2600); return; }
+  if (k === 'lake_capsule') { if (!p.got) { p.got = true; giveItem('candy', 2); sfx.unlock(); say('청운호 호심정 정자 위 봉인함에서 1998년 세 친구의 타임캡슐 편지를 발견했다!', 3600); } else say('호심정 기둥에 “우리의 노래가 호수 위로 영원히 퍼지길”이라 새겨져 있다', 2600); return; }
   if (k === 'astro_console') { if (!p.got) { const r = await mini('oscilloscope', { title: '과학천문관 — 천체관측 돔 성도 주파수 동조' }); if (r.ok) { p.got = true; giveItem('battery', 2); sfx.unlock(); say('천문대 성도 좌표가 맞춰지며 예비 건전지 2개를 획득했다!', 3200); } } else say('천체망원경이 1998년 10월 12일 밤의 페가수스자리를 가리키고 있다', 2600); return; }
   if (k === 'astro_scope') { say('관측 돔 굴절 망원경 — 접안렌즈 너머로 1998년 10월 12일 밤의 페가수스자리가 희미하게 보인다', 3000); return; }
-  if (k === 'astro_case') { if (!p.got) { p.got = true; giveItem('salt', 2); sfx.pickup(); say('광물 표본 진열장에서 순도 높은 암염(굵은 소금 ×2)을 획득했다!', 3000); } else say('각종 운석과 형광 광물 표본이 유리 진열장 안에 전시되어 있다', 2200); return; }
+  if (k === 'astro_case') { if (!p.got) { p.got = true; giveItem('battery', 1); sfx.pickup(); say('광물 표본 진열장 아래 서랍에서 예비 건전지를 찾았다', 3000); } else say('각종 운석과 형광 광물 표본이 유리 진열장 안에 전시되어 있다', 2200); return; }
   if (k === 'lib_microfilm') { if (!p.got) { const r = await mini('filmFocus', { title: '중앙학술정보관 — 1998년 마이크로필름 신문 복원' }); if (r.ok) { p.got = true; giveItem('hairpin', 2); giveItem('medkit', 1); sfx.photo(); say('마이크로필름 속 1998년 실종 사건 기사를 판독하고 머리핀 2개·응급 밴드를 얻었다!', 3400); } } else say('마이크로필름 화면에 1974년 개교 당시 지하 보존서고 도면이 비친다', 2600); return; }
-  if (k === 'lib_desk') { line('vo_lib_confess', 'tape', '📼 상담교사 · 사서 증언 녹음'); if (!p.got) { p.got = true; giveItem('matches', 2); sfx.pickup(); say('대도서관 사서 데스크 서랍에서 성냥갑 2개를 챙겼다', 2800); } else say('미반납 도서 목록 맨 위에 『집으로 가는 길 — 3-2 윤하늘』이 적혀 있다', 2600); return; }
+  if (k === 'lib_desk') { line('vo_lib_confess', 'tape', '📼 상담교사 · 사서 증언 녹음'); if (!p.got) { p.got = true; giveItem('hairpin', 1); sfx.pickup(); say('대도서관 사서 데스크 서랍에서 머리핀을 챙겼다', 2800); } else say('미반납 도서 목록 맨 위에 『집으로 가는 길 — 3-2 윤하늘』이 적혀 있다', 2600); return; }
   if (k === 'sports_cooler') { P.stamina = 100; P.tired = false; if (!p.got) { p.got = true; giveItem('candy', 2); giveItem('can', 1); sfx.pickup(); say('선수용 아이스박스에서 막대사탕 2개와 음료 캔을 꺼내고 숨을 돌렸다 (스태미나 100% 회복)', 3200); } else say('시원한 얼음물에 손을 적시자 피로가 가신다 (스태미나 회복)', 2200); return; }
-  if (k === 'union_console') { if (!p.got) { const r = await mini('fuse', { title: '학생회관 소극장 — 무대 음향·조명 회로 복구', N: 4 }); if (r.ok) { p.got = true; giveItem('charm', 1); giveItem('battery', 1); sfx.unlock(); say('소극장 무대 전원이 들어오며 보관함에서 노란 부적과 건전지를 획득했다!', 3200); } } else say('소극장 콘솔 위에 제32회 해교제 연극부 대본이 놓여 있다', 2400); return; }
+  if (k === 'union_console') { if (!p.got) { const r = await mini('fuse', { title: '학생회관 소극장 — 무대 음향·조명 회로 복구', N: 4 }); if (r.ok) { p.got = true; giveItem('medkit', 1); giveItem('battery', 1); sfx.unlock(); say('소극장 무대 전원이 들어오며 보관함에서 응급 밴드와 건전지를 획득했다!', 3200); } } else say('소극장 콘솔 위에 제32회 해교제 연극부 대본이 놓여 있다', 2400); return; }
   if (k === 'union_locker') { if (!p.got) { p.got = true; giveItem('candy', 1); giveItem('hairpin', 1); sfx.locker(); say('동아리연합회 사물함을 파밍해 막대사탕과 머리핀을 얻었다!', 2800); } else say('이미 파밍을 마친 동아리 사물함이다', 1800); return; }
   if (k === 'radio') {
     sfx.staticNoise(1.6); const ga = ghost.active && ghost.floor === P.floor, d = ga ? Math.hypot(ghost.x - P.x, ghost.z - P.z) : 99;
@@ -2737,7 +2733,7 @@ function finishIntro() {
   }
   const epoch=storySession;
   stopSpeak(); introText = false;
-  preload(['phone1', 'phone2', 'phone3', 'pa1', 'gh1', 'gh2', 'gh3', 'gh4', 'cam1', ...Object.keys(LINES).map(k => `l_${k}_${CK()}`)]);
+  preload(['phone1', 'phone2', 'phone3', 'pa1', 'cam1', ...Object.keys(LINES).map(k => `l_${k}_${CK()}`)]);
   $('intro').classList.remove('show'); $('introTitle').classList.remove('show'); $('hud').classList.add('show'); $('cine').classList.remove('on');
   if (!readingSave && !SET.flashReduce) { const b = $('blink'); b.classList.remove('go'); void b.offsetWidth; b.classList.add('go'); setTimeout(() => b.classList.remove('go'), 2700); }   // 눈을 뜨듯 시작
   if (!readingSave) { P.x = 0; P.z = 77.5; P.yaw = 0; P.pitch = 0; }
@@ -2877,7 +2873,7 @@ function ensureCharsel3D() {
     const rim = new THREE.DirectionalLight(0xffd6e0, 0.85); rim.position.set(0, 2.4, -2.5);
     sc.add(hemi, key, fill, rim);
     st.scenes[k] = sc;
-    loader.load(`assets/characters/${k}.glb?v=240`, gltf => {
+    loader.load(`assets/characters/${k}.glb?v=241`, gltf => {
       const m = gltf.scene;
       npcVisuals.enhanceCharacterMaterials?.(m, k);
       m.traverse(o => { if (o.isMesh || o.isSkinnedMesh) o.frustumCulled = false; });
@@ -3180,7 +3176,7 @@ function updateLighting(dt) {
     const j = Math.random(); flash.color.setRGB(.75 + .25 * (j > .8 ? 1 : 0) * repelK, .82 - .25 * repelK * j, 1 - .15 * repelK * (1 - j)); fi *= 1.1 + .35 * repelK * (Math.random() - .3);
   } else flash.color.setHex(0xfff0d0);
   setCoil(fi ? repelK : 0); if (repelK > .05) shake = Math.max(shake, .22 * repelK);
-  if (CAM.on) fi *= .3;   // 심령 카메라: 야간 투시라 손전등 빛을 줄인다 (흔적이 묻히지 않게)
+  if (CAM.on) fi *= .3;   // 야간 카메라: 야간 투시라 손전등 빛을 줄인다 (흔적이 묻히지 않게)
   // 가까운 벽 · 가구를 비출 때 하얗게 날아가던 반사: 앞쪽 장애물까지 거리에 따라 세기를 줄인다 (2.5m 안)
   const nd = fi ? flashNear() : 9, nk = nd < 3.5 ? clamp(Math.pow(nd / 3.5, 2), .03, 1) : 1;   /* 거리 감쇠(decay 1.3)를 상쇄 → 가까워도 비친 면 밝기가 거의 같다 */
   flash.intensity = fi * nk;
@@ -3475,7 +3471,7 @@ function updateHud(dt, prox, chase) {
   const dang = Math.max(MIC.risk, P.hiding && ghost.active && ghost.floor === P.floor ? (ghost.fake && ghost.fake.phase !== 'away' ? 1 : clamp(ghost.findT / 5.2, 0, 1)) : 0); $('dangerBar').style.width = dang * 100 + '%';
   if (dang > .45 && Math.random() < dt * 3) { shake = Math.max(shake, .12); sfx.locker && Math.random() < .3 && at(P.x, floors[P.floor].y0 + 1, P.z).click(); }
 }
-// 고유 능력 — 서연: 가까운 그것의 방향 감지 / 지훈: 조사 가능한 단서가 빛나 보인다
+// 고유 능력 — 서연: 가까운 단서의 방향 감지 / 지훈: 조사 가능한 단서가 빛나 보인다
 const glintTex = (() => { const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d');
   const r = g.createRadialGradient(32, 32, 0, 32, 32, 32); r.addColorStop(0, 'rgba(255,250,220,1)'); r.addColorStop(.15, 'rgba(255,230,160,.8)'); r.addColorStop(1, 'rgba(255,200,120,0)');
   g.fillStyle = r; g.fillRect(0, 0, 64, 64); g.fillStyle = 'rgba(255,255,235,.9)'; g.fillRect(31, 4, 2, 56); g.fillRect(4, 31, 56, 2);
@@ -3485,10 +3481,10 @@ for (let i = 0; i < 8; i++) { const sp = new THREE.Sprite(new THREE.SpriteMateri
 let glintT = 0;
 function updatePerks(dt) {
   const sense = $('sense');
-  if (CHAR === 'seoyeon' && ghost.active && ghost.floor === P.floor && state === 'playing') {
-    const dx = ghost.x - P.x, dz = ghost.z - P.z, d = Math.hypot(dx, dz);
-    const rx = dx * Math.cos(P.yaw) - dz * Math.sin(P.yaw), fw = -dx * Math.sin(P.yaw) - dz * Math.cos(P.yaw);
-    sense.style.opacity = d < 22 ? clamp((22 - d) / 14, .15, .9) : 0; if (d < 22) perkFlash('⚠ 그것 감지 — 서연'); sense.style.transform = `rotate(${Math.atan2(rx, fw)}rad)`;
+  if (CHAR === 'seoyeon' && state === 'playing') {   // 서연: 가장 가까운, 아직 줍지 않은 단서(쪽지 · 사진 · 테이프)의 방향
+    let best = null, bd = 18; for (const it of world.items) { if (it.taken || it.locked || it.floor !== P.floor || !(it.kind === 'note' || it.kind === 'photo')) continue; if (it.rbY != null && Math.abs(it.rbY - (P.sh || 0)) > 1.6) continue; const d = Math.hypot(it.pos.x - P.x, it.pos.z - P.z); if (d < bd) { bd = d; best = it; } }
+    if (best) { const dx = best.pos.x - P.x, dz = best.pos.z - P.z, rx = dx * Math.cos(P.yaw) - dz * Math.sin(P.yaw), fw = -dx * Math.sin(P.yaw) - dz * Math.cos(P.yaw);
+      sense.style.opacity = clamp((18 - bd) / 12, .15, .8); sense.style.transform = `rotate(${Math.atan2(rx, fw)}rad)`; } else sense.style.opacity = 0;
   } else sense.style.opacity = 0;
   glintT -= dt;
   if (CHAR !== 'jihun' || state !== 'playing') { glints.forEach(g => { g.visible = false; }); return; }
@@ -3601,7 +3597,7 @@ function flipSwitch(p, on, byPlayer = false) {
   if (on) {
     sfx.lightOn();
     if (ls.length && ls.every(l => l.kind === 'dead')) say('스위치를 올렸지만… 형광등이 모두 나갔다', 2400);
-    else if (!FL.switchTip) { FL.switchTip = true; toast('형광등을 켰습니다', '불이 켜진 방에는 그것이 쉽게 들어오지 못한다 — 대신 멀리서도 눈에 띈다', 'info'); }
+    else if (!FL.switchTip) { FL.switchTip = true; toast('형광등을 켰습니다', '켜진 방은 밝아서 단서를 찾기 쉽다 — 손전등 배터리도 아낄 수 있다', 'info'); }
   }
   P.noiseT = Math.max(P.noiseT || 0, .4);
 }
@@ -3981,7 +3977,6 @@ async function useProp(p) {
   if (p.kind === 'search') { startSearch(p); return; }
   if (p.kind === 'ldoor') { lockerDoorToggle(p); return; }
   if (p.kind === 'mspot') { useMiniSpot(p); return; }
-  if (p.kind === 'chalk') { openChalk(p); return; }
   if (p.kind === 'clue') { readMemory(p); return; }
   if (p.kind === 'cctvRec') { p.label = 'CCTV 다시 보기'; sfx.staticNoise(1.2); fx.glitch(.5); showNote({ title: 'CCTV 녹화 — 10.12 23:31 · B1 복도', img: 'b1_corr', text: '정지 화면이 지직거린다. 복도 끝 <b>배수실</b> 쪽에서 누군가 바닥의 <b>철제 덮개</b>를 끌어 덮고 있다.<br>23:33 — 화면이 검게 끊긴다. 마지막 프레임, 렌즈 바로 앞에 젖은 손바닥 자국.' }); addClue('cctv'); return; }
   if (p.kind === 'footprints') { p.done = true; poolFlashback(); return; }
@@ -4048,9 +4043,10 @@ async function useProp(p) {
     setTimeout(() => { if (state === 'playing') showNote({ ...world.PHOTOS.p5, kind: 'photo' }); }, 900);
   } else if (p.kind === 'phone') {
     p.done = true; p.ring = false; sfx.click(); fx.glitch(.5); shake = .3;
-    line('gh1', 'phone', '📞 ???'); setTimeout(() => { if (state === 'playing') talk('steps', 2400); }, 3200);
+    say('📞 수화기 너머엔 테이프가 늘어지는 듯한 잡음뿐 — 누군가 방송실 회선에 녹음기를 물려 둔 것 같다', 3200); setTimeout(() => { if (state === 'playing') talk('steps', 2400); }, 3400);
   } else if (p.kind === 'mina') {
     npcVisuals.portrait('mina', '민아 · 방송부장', 4500);
+    if (!docs.some(d => d.id === 'n_timer')) { addDoc({ id: 'n_timer', kind: 'note' }); addClue('n_timer'); }
     if (!FL.calm) {
       talk(p.tried ? 'minaAsleep' : 'minaFound', 3200); p.tried = true; say('숨은 쉬고 있다… 무언가가 아직 그녀를 붙잡고 있다.', 3000); unlockOptional();
       if (npcVisuals.has(mina)) { npcVisuals.setExpression(mina, 'Pain', .6); setTimeout(() => npcVisuals.setExpression(mina, 'Pain', 0), 1800); }   // 잠결에 얼굴을 찌푸린다
@@ -4080,12 +4076,11 @@ async function haneulBroadcast() {
     const sec=await line(`bc_${CK()}`,'pa',`📢 ${CH().name}`);
     await wait((sec+.8)*1000);if(!current())return;
     ghost.active=false;ghost.enraged=false;ghost.hunt=null;
-    if(P.floor===2)showApparition(2,-24.6,-3.6,Math.atan2(P.x+24.6,P.z+3.6),5,null);
-    const thanks=await line('ghThanks','none','하늘');
+    const thanks=await line('ghThanks','phone','📞 하늘이 어머니');
     await wait((thanks+.6)*1000);if(!current())return;
     talk('calm',3200);addClue('calm');refreshHud();save(true);
     toast('방송 복원 완료','꺼지지 않던 방송이 멎고, 기억 속 교실이 조용해졌다','opt');
-    setTimeout(()=>{if(state==='playing'&&!CALL.talking&&!(FL.calls&&FL.calls.haneul)){CALL.ring=null;callRing({id:'haneul',who:'윤하늘',num:'방송실 내선 3-1',lines:['call_hn1','call_hn2']});}},38000);
+    setTimeout(()=>{if(state==='playing'&&!CALL.talking&&!(FL.calls&&FL.calls.haneul)){CALL.ring=null;callRing({id:'haneul',who:'하늘이 어머니',num:'010-****-1012',lines:['call_hn1','call_hn2']});}},38000);
   } finally {if(epoch===storySession)voBusy=false;}
 }
 // 민아 깨우기: 3D 모델이면 깨어남(이마 짚기 · 두리번) → 일어서기 → 안도 표정 뒤 사라짐. 아니면 바로 사라짐
@@ -4654,7 +4649,7 @@ function spawnPicks() {
   });
 }
 function usePick(p) { if (p.done) return; p.done = true; p.mesh.visible = false; giveItem(p.item, 1, true); sfx.pickup(); lootCard(ITEMS[p.item].icon, '조합 재료', ITEMS[p.item].name, ITEMS[p.item].desc); refreshHud(); save(true); }
-// 오른쪽 클릭: 심령 카메라 켜기/끄기 · 카메라 모드에서 클릭: 촬영
+// 오른쪽 클릭: 야간 카메라 켜기/끄기 · 카메라 모드에서 클릭: 촬영
 addEventListener('contextmenu', e => { if (state === 'playing') e.preventDefault(); });
 addEventListener('mousedown', e => {
   if (state !== 'playing' || (!document.pointerLockElement && !DEBUG)) return;
@@ -4870,9 +4865,8 @@ const TIPS = [
   { id: 'interact', when: () => !!target && target.type !== 'stairs', text: '<kbd>E</kbd> 조사 — 쪽지 · 문 · 사물함 · 장치' },
   { id: 'map', when: () => gateClosed && playTime > 20, text: '<kbd>M</kbd> 지도(★ 현재 목표) · <kbd>Tab</kbd> 소지품 · <kbd>P</kbd> 휴대폰' },
   { id: 'hide', when: () => world.lockers.some(l => l.floor === P.floor && Math.hypot(l.x - P.x, l.z - P.z) < 2.6), text: '복도와 교실의 사물함에서 <kbd>E</kbd> 를 눌러 수집품·퀘스트아이템·생존물품을 파밍할 수 있다' },
-  { id: 'ghost', when: () => ghost.active, text: '유령은 남겨진 기억을 전한다 — 다가가거나 손전등으로 비추어 이야기를 들어 보자' },
-  { id: 'safe', when: () => !!safeRoomAt(), text: '<b>안전 구역</b> — 그것이 들어오지 않는다. 들어오면 자동 저장된다' },
-  { id: 'can', when: () => inv.can > 0, text: '<kbd>G</kbd> 빈 캔 던지기 — 떨어진 곳의 소리로 그것을 유인' },
+  { id: 'safe', when: () => !!safeRoomAt(), text: '<b>쉼터</b> — 들어오면 자동 저장된다' },
+  { id: 'can', when: () => inv.can > 0, text: '<kbd>G</kbd> 빈 캔 던지기 — 떨어진 곳에서 소리가 난다' },
   { id: 'combine', when: () => P.keys >= TOTAL || (FL.mop && FL.wire), text: '<kbd>Tab</kbd> 소지품 › 아이템 선택 › <kbd>C</kbd> 조합 › 상대 아이템 선택' },
   { id: 'crouch', when: () => ghost.active && playTime > 30, text: '<kbd>C</kbd> 앉기 — 느리지만 발소리가 거의 없고 잘 보이지 않는다 · <kbd>Space</kbd> 점프' },
   { id: 'view', when: () => playTime > 240, text: '<kbd>V</kbd> 1인칭 / 3인칭 시점 전환' },
@@ -5458,7 +5452,7 @@ const XT = { search: null, para: 75 + Math.random() * 40, paraLast: [], mbox: nu
   const usedCols = new Set(['c16', 'c17', 'c23', 'c29']);
   const pool = [
     ...COLLECT.filter(c => !usedCols.has(c.id)).map(c => ({ col: c.id })),
-    ...['candy', 'candy', 'candy', 'candy', 'candy', 'thermos', 'thermos', 'thermos', 'salt', 'salt', 'salt', 'salt', 'charm', 'charm', 'charm', 'musicbox', 'musicbox', 'matches', 'matches', 'matches', 'matches'].map(k => ({ item: k })),
+    ...['candy', 'candy', 'candy', 'candy', 'candy', 'thermos', 'thermos', 'thermos', 'candy', 'candy', 'thermos', 'battery', 'battery', 'medkit', 'hairpin'].map(k => ({ item: k })),
     ...['battery', 'battery', 'battery', 'battery', 'battery', 'medkit', 'medkit', 'medkit', 'can', 'can', 'can', 'hairpin', 'hairpin', 'hairpin'].map(k => ({ item: k })),
   ];
   freeIdx.forEach((si, n) => { spots[si].loot = pool[n % pool.length] || { item: 'battery' }; });
@@ -5581,7 +5575,6 @@ const XT = { search: null, para: 75 + Math.random() * 40, paraLast: [], mbox: nu
     { id: 'poolValve', f: 6, x: -51.6, z: 33.3, onTop: .85, look: 'beaker', label: '수질관리실 제어반 — 3연동 다이빙풀 수압 밸브 동조', game: 'valveBalance', opts: { title: '수질관리실 — 3연동 다이빙풀 배수 수압 동조 (42~58 PSI)' }, reward: { col: 'c24', item: { medkit: 1, battery: 1 } }, cap: '다이빙 보조풀의 배수 밸브가 열리며 바닥에 가라앉아 있던 1998년 수영부 초시계가 모습을 드러냈다!' },
     { id: 'poolSauna', f: 6, x: -54.8, z: 23.2, onTop: .42, look: 'radioTop', label: '체온유지실 온열 제어기 — 회로 복구', game: 'fuse', opts: { title: '체온유지실 맥반석 스토브 — 온열 회로 켜기', N: 4 }, reward: { col: 'c32', item: { thermos: 1 } }, cap: '스토브에 따뜻한 온기가 돌며 얼어붙었던 숨이 가라앉는다.' },
     { id: 'cafe', f: 7, x: -34.6, z: 21.1, look: 'gacha', label: '뽑기 기계 돌리기', game: 'gacha', replay: true },
-    { id: 'counsel', f: 0, room: '상담실', dx: 0, d: 3.6, look: 'ouija', label: '분신사바 판 — 질문하기', game: 'ouija', opts: { title: '분신사바', qs: OUIJA_QS }, reward: { item: { charm: 1, matches: 1 } }, cap: '촛불이 혼자 꺼졌다.', scare: true },
     { id: 'art', f: 2, room: '미술실', dx: -1.2, d: 4.0, look: 'easel', label: '이젤 — 그림 조각 짝 맞추기', game: 'memory', opts: { title: '찢긴 그림 조각 짝 맞추기', icons: ['🎨', '🖌', '🗿', '🖼', '✏', '📐', '🌙'] }, reward: { col: 'c06', item: { thermos: 1 } }, cap: '맞춰진 그림 속 소녀가, 눈을 깜빡인 것 같다.' },
     { id: 'av', f: 1, room: '시청각실', dx: 0, d: 3.8, look: 'projector', label: '영사기 — 듀얼 렌즈 초점 & 트래킹 복원', game: 'filmFocus', opts: { title: '시청각실 영사기 — 렌즈 초점 & 필름 트래킹 동기화' }, reward: { item: { matches: 2, battery: 1 } }, cap: '스크린에 졸업식 장면이 선명하게 멈춘다. 3학년 2반 줄, 한 자리가 비어 있다.' },
     { id: 'club', f: 9, room: '동아리실 (204)', dx: 1.2, d: 3.6, look: 'drum', label: '드럼 — 박자 따라 치기', game: 'simon', opts: { title: '밴드부 드럼 — 따라 치기', pads: ['킥', '스네어', '하이햇', '심벌'], notes: [110, 196, 523, 784] }, reward: { item: { musicbox: 1 } }, cap: '마지막 심벌이 울리자 동아리실 불이 한 번 깜빡였다.' },
@@ -5599,7 +5592,6 @@ const XT = { search: null, para: 75 + Math.random() * 40, paraLast: [], mbox: nu
     LAYOUT[f].types.forEach((t, i) => {
       if (t === 'class') {
         const rm = LAYOUT[f].names[i];
-        world.props.push({ kind: 'chalk', floor: f, x: SLOTS[i] - .6, z: -8.2, y: 1.5, label: '칠판에 분필로 쓰기', br: 'cls' + f + ':' + SLOTS[i], room: rm, uid: `chalk:${f}:${i}` });
         fzProp({
           id: `ac08_${f}_${i}`,
           promptText: `[E] ${rm} 교실 2008년형 냉난방기 · 빔프로젝터 제어반 조작`,
@@ -5649,7 +5641,6 @@ const XT = { search: null, para: 75 + Math.random() * 40, paraLast: [], mbox: nu
     LAYOUT_S[f].types.forEach((t, i) => {
       if (t === 'class') {
         const rm = LAYOUT_S[f].names[i];
-        world.props.push({ kind: 'chalk', floor: f, x: SLOTS[i] + .6, z: 8.2, y: 1.5, label: '칠판에 분필로 쓰기', br: 'cls' + f + ':' + SLOTS[i] + 's', room: rm, uid: `chalk:${f}:s${i}` });
       }
     });
   }
@@ -5676,7 +5667,7 @@ function giveItem(k, n = 1, quiet) { inv[k] = (inv[k] || 0) + n; newItems.add(k)
 function giveCol(id) {
   FL.col = FL.col || {}; if (FL.col[id]) return false; FL.col[id] = 1; newItems.add(id);
   const n = COLLECT.filter(c => FL.col[c.id]).length;
-  if (n === COLLECT.length) { giveItem('charm', 1, true); giveItem('thermos', 1, true); setTimeout(() => { toast('수집품을 모두 모았다', `하늘의 물건 ${COLLECT.length}개 — 보답: 노란 부적 · 보온병 유자차`, 'opt'); sfx.win ? sfx.win() : sfx.unlock(); refreshHud(); }, 2800); }
+  if (n === COLLECT.length) { giveItem('medkit', 1, true); giveItem('thermos', 1, true); setTimeout(() => { toast('수집품을 모두 모았다', `하늘의 물건 ${COLLECT.length}개 — 보답: 응급 밴드 · 보온병 유자차`, 'opt'); sfx.win ? sfx.win() : sfx.unlock(); refreshHud(); }, 2800); }
   return true;
 }
 function searchResult(p) {
@@ -5749,10 +5740,9 @@ async function gacha(p) {
   const r = await mini('gachaCrank', { title: `급식실 캡슐 뽑기 기계 (${n + 1} / 3회차) — 동전 투입 & 크랭크 360° 회전` });
   if (!r.ok) return;
   FL.ms.cafe = n + 1;
-  const table = [['candy', '🍭'], ['matches', '🔥'], ['battery', '🔋'], ['salt', '🧂'], ['can', '🥫']], k = n === 2 && !(FL.col || {}).c11 ? null : table[(Math.random() * table.length) | 0][0];
+  const table = [['candy', '🍭'], ['thermos', '🍵'], ['battery', '🔋'], ['hairpin', '📍'], ['can', '🥫']], k = n === 2 && !(FL.col || {}).c11 ? null : table[(Math.random() * table.length) | 0][0];
   if (!k) { giveCol('c11'); const c = COLLECT.find(x => x.id === 'c11'); lootCard(c.icon, '캡슐 속 — 수집품', c.name, c.desc); }
   else { giveItem(k, 1, true); lootCard(ITEMS[k].icon, `캡슐 ${n + 1} / 3`, ITEMS[k].name, ITEMS[k].desc); }
-  if (n === 1) setTimeout(() => { sfx.ghostGiggle(); caption('“나도 한 번만…” — 아이 목소리가 바로 뒤에서'); }, 1200);
   refreshHud(); save(true);
 }
 // ── 칠판: 질문을 쓰면 대답이 적힌다 (3D 칠판 텍스처도 바뀐다)
@@ -5821,7 +5811,7 @@ function ambientTick(dt) {
   S[k]();
 }
 /* ====================================================================
-   확장 기능: 마이크 소리 감지 · 휴대폰 심령 카메라 · 환각(Sanity) · 조합 3종 · 복도 배전반 · 학교 차임벨 · 그것의 사물함 수색 · 페이크 퇴장
+   확장 기능: 마이크 소리 감지 · 휴대폰 야간 카메라 · 환각(Sanity) · 조합 3종 · 복도 배전반 · 학교 차임벨 · 그것의 사물함 수색 · 페이크 퇴장
    ==================================================================== */
 // ── 1. 마이크 소리 감지 (선택, 기본 끔) ──
 async function micStart() {
@@ -5849,7 +5839,7 @@ function micTick(dt) {
   $('micLv').style.width = MIC.level * 100 + '%'; $('micRisk').style.width = MIC.risk * 100 + '%';
 }
 
-// ── 2. 휴대폰 심령 카메라 (오른쪽 클릭 · X · 휴대폰 › 카메라) ──
+// ── 2. 휴대폰 야간 카메라 (오른쪽 클릭 · X · 휴대폰 › 카메라) ──
 camera.layers.disable(2);
 const ghostTarget = { position: new THREE.Vector3() };
 const ghostAim = () => { const G = ghost; if (!G.active || G.floor !== P.floor) return null; ghostTarget.position.set(G.x, floors[G.floor].y0 + 1.4, G.z); return ghostTarget; };
@@ -5858,7 +5848,7 @@ function camMode(on) {
   if (on && (P.pbat ?? 100) <= 1) { say('휴대폰 배터리가 없다', 1600); return; }
   ghostCam.phoneBattery = P.pbat ?? 100;
   ghostCam.toggleCamera(m => say(m, 2200)); CAM.on = ghostCam.isActive;
-  if (CAM.on && !FL.camTip) { FL.camTip = true; toast('심령 카메라', '맨눈에 안 보이던 흔적이 화면에 떠오른다 · 클릭/R: 플래시 촬영(20%) · 오른쪽 클릭/X: 끄기', 'info'); }
+  if (CAM.on && !FL.camTip) { FL.camTip = true; toast('야간 카메라', '맨눈에 안 보이던 흔적이 화면에 떠오른다 · 클릭/R: 플래시 촬영(20%) · 오른쪽 클릭/X: 끄기', 'info'); }
 }
 function camShoot() {
   if (!CAM.on) return;
@@ -5868,7 +5858,7 @@ function camShoot() {
   P.pbat = ghostCam.phoneBattery; if (ok) { fx.lightning(); fx.glitch(.15); SHOT.req = true; }
 }
 // ── 사진 미션: 「사라진 앨범」 (사진부 의뢰 · 6단계 연계) ──
-// 제2장부터. 단계마다 힌트가 오고, 그 장소를 심령 카메라(X)로 겨누고 찍으면(클릭 · R) 다음 단계가 열린다. 단계마다 다른 대사 · 마지막에 수집품
+// 제2장부터. 단계마다 힌트가 오고, 그 장소를 야간 카메라(X)로 겨누고 찍으면(클릭 · R) 다음 단계가 열린다. 단계마다 다른 대사 · 마지막에 수집품
 const PHOTOQ = [
   { f: 0, x: -10.2, z: 17.2, r: 7, hint: '운동장 조회대 — 10년 전 아침 조회 사진과 같은 자리', where: '운동장 조회대', ok: '찰칵 — 화면 속 조회대 위에 마이크를 든 여자아이가 겹쳐 찍혔다' },
   { f: 0, x: -10.4, z: -8.6, r: 5, hint: '교무실 금고 앞 — “선생님들이 숨긴 것”', where: '본관 1층 교무실', ok: '찰칵 — 금고 문틈에서 새어 나온 빛이 사진에만 남았다. 누군가 안쪽에서 문을 미는 손자국' },
@@ -5892,15 +5882,15 @@ function photoCheck(force) {
 }
 function pqHud() {
   const box = $('phBox'); if (!box) return; const k = pqStep(), on = objective().ch >= 2;
-  if (on && !FL.pqStart) { FL.pqStart = true; setTimeout(() => toast('사진 미션 — 사라진 앨범', PQ_MSG[0] + ' (심령 카메라 X · 클릭으로 촬영)', 'opt'), 1500); }
+  if (on && !FL.pqStart) { FL.pqStart = true; setTimeout(() => toast('사진 미션 — 사라진 앨범', PQ_MSG[0] + ' (야간 카메라 X · 클릭으로 촬영)', 'opt'), 1500); }
   box.style.display = on ? 'block' : 'none';
   $('phTitle').textContent = `서브 미션 · 사라진 앨범 (${k}/${PHOTOQ.length})`;
   $('phSubs').innerHTML = PHOTOQ.map((T, i) => i < k ? `<div class="chk done">📷 ${T.where}</div>` : i === k ? `<div class="chk">📷 ${T.hint}</div>` : '').join('');
 }
-// 심령 사진: FL.spirit 에 저장(세이브 유지) → 휴대폰 사진 · 메모 탭
+// 현장 사진: FL.spirit 에 저장(세이브 유지) → 휴대폰 사진 · 메모 탭
 function captureClue(c) {
   FL.spirit ||= []; if (FL.spirit.some(x => x.id === c.id)) return;
-  FL.spirit.push({ id: c.id, text: c.text, subText: c.subText, t: clockText() }); sfx.pickup(); toast('심령 사진 저장', `${c.text} — 휴대폰 › 사진 · 메모`, 'opt'); save(true);
+  FL.spirit.push({ id: c.id, text: c.text, subText: c.subText, t: clockText() }); sfx.pickup(); toast('현장 사진 저장', `${c.text} — 휴대폰 › 사진 · 메모`, 'opt'); save(true);
 }
 function spiritPhoto(x) {   // 저장된 글씨로 사진을 다시 그린다 (초록 야간투시 톤)
   const c = document.createElement('canvas'); c.width = 320; c.height = 180; const g = c.getContext('2d');
@@ -5930,11 +5920,11 @@ function buildCamClues() {
   // 금고 힌트: 교무실 금고 앞 바닥의 손글씨 — 그날의 날짜
   const sf = world.props.find(p => p.kind === 'safe');
   if (sf) { const r = roomAt(sf.floor, sf.x, sf.z), cx = r ? r.cx : sf.x, dx = cx - sf.x, dz = -5.6 - sf.z, d = Math.hypot(dx, dz) || 1; textPlane(sf.floor, '10 월 12 일', 1.4, sf.x + dx / d * 1.1, .03, sf.z + dz / d * 1.1, Math.atan2(dx, dz) + Math.PI, -Math.PI / 2, '#ffffff'); }
-  // 사용자 지정 심령 단서 3곳 (GhostCameraSystem.createHiddenWallClue · 촬영하면 휴대폰 사진 · 메모에 저장)
+  // 사용자 지정 숨은 단서 3곳 (GhostCameraSystem.createHiddenWallClue · 촬영하면 휴대폰 사진 · 메모에 저장)
   const V = (f, x, y, z) => new THREE.Vector3(x, floors[f].y0 + y, z);
   ghostCam.createHiddenWallClue({ position: V(0, -5.4, 1.75, -9.5), rotationY: 0, text: '금고: 그날의 날짜', subText: '10월 12일 — 네 자리 숫자', clueId: 'sp_safe' });
   ghostCam.createHiddenWallClue({ position: V(1, -35.88, 1.6, .5), rotationY: Math.PI / 2, text: `조각 → ${KEY_WHERE[2]}`, subText: '약품장 맨 아래 칸을 봐', clueId: 'sp_key' });
-  ghostCam.createHiddenWallClue({ position: V(0, -28.2, 2.0, -3.0), rotationY: -Math.PI / 2, text: '3번 칸 — 대답하지 마', subText: '거울 속, 네 뒤에 서 있어', clueId: 'sp_toilet' });
+  ghostCam.createHiddenWallClue({ position: V(0, -28.2, 2.0, -3.0), rotationY: -Math.PI / 2, text: '3번 칸 — 1998.10.12 23:10', subText: '“관리인 아저씨가 열쇠 꾸러미를 들고 지나감” — 낙서', clueId: 'sp_toilet' });
   // 목표 방향 화살표 (매 프레임 위치 갱신)
   const ar = new THREE.Mesh(new THREE.ConeGeometry(.12, .4, 12).rotateX(Math.PI / 2), glowM(0xffe070)); ar.layers.set(CAM.layer); ar.userData.dynamic = true; scene.add(ar); CAM.arrow = ar;
 }
@@ -5949,8 +5939,8 @@ function camTick(dt) {
 // ── 3. 환각 (공포 75% 이상) ──
 // 공포 환각 연결 (사용자 제공 SanityHallucinationSystem): 공포 0~100 · 접근성 '공포 화면 효과'를 끄면 실행하지 않는다
 const fakeMsgs = [];   // 환각 문자 — 휴대폰 메시지함에 잠시 끼어들었다가 공포가 50% 이하로 내려가면 사라진다 (저장하지 않음)
-window.sanitySystem.audioCtx = sfxCtx;
-{ const S = window.sanitySystem, orig = S.triggerFakePhoneNotification.bind(S);
+if (window.sanitySystem) window.sanitySystem.audioCtx = sfxCtx;
+if (window.sanitySystem) { const S = window.sanitySystem, orig = S.triggerFakePhoneNotification.bind(S);
   S.triggerFakePhoneNotification = () => { orig(); fakeMsgs.push({ who: $('sanity-sms-sender').textContent, text: $('sanity-sms-body').textContent, t: clockText() }); refreshHud(); }; }
 function sanityTick(dt) {
   const S = window.sanitySystem;
@@ -7062,7 +7052,7 @@ function sitTick() {
 
 /* ── 13. 시야 확대(Z) · 휴대폰 카메라 앨범 · 전화 앱 · 걸려 오는 전화 ──
    · Z 를 누르고 있으면 시야가 천천히 당겨진다 (마우스 감도도 같이 낮아져 멀리 있는 글씨 · 그림자를 살피기 좋다)
-   · 심령 카메라로 찍은 장면은 화면 그대로 휴대폰 › 사진 › '내가 찍은 사진' 에 남는다 (최근 12장 · 이 브라우저에 저장)
+   · 야간 카메라로 찍은 장면은 화면 그대로 휴대폰 › 사진 › '내가 찍은 사진' 에 남는다 (최근 12장 · 이 브라우저에 저장)
    · 휴대폰 › 전화: 연락처 · 최근 기록 — 신호가 없으면 대부분 걸리지 않는다 (옥상 안테나로 신호를 잡으면 119 · 집에 걸 수 있다)
    · 이야기 중간중간 전화가 걸려 온다 — P 로 받고, Backspace 로 끊는다. 벨소리를 오래 두면 그것이 소리를 듣고 온다 */
 const ZOOM = { k: 0 };
@@ -7090,8 +7080,8 @@ function shotGrab() {   // fx.render 바로 뒤 (같은 프레임이라 WebGL �
 registerLines({
   call_mina1: { spk: 'mina', text: '……여보세요? 들려? 나야, 민아! 아직 학교 안이지? 복도에서 계속 누가 발소리를 내며 걸어 다녀. 내가 나올 때까지 3층 복도 끝은 조심해야 해.' },
   call_mina2: { spk: 'mina', text: '……여보세요? 아직 거기 있어? 방금 본관 뒤쪽 별관 건물에 불이 켜졌어. 아무도 없는 곳인데 누가 켠 거야…… 제발 끊지 마, 나 지금 방송실 장비실 안에 숨어 있어……' },
-  call_unk1: { spk: 'ghost', text: '……추워…… 여긴 물이 너무 차가워…… 왜 다들 나만 두고 먼저 집에 갔어……' },
-  call_unk2: { spk: 'ghost', text: '……지금 네가 앉아 있는 그 의자…… 거기, 원래 내 자리야……' },
+  call_unk1: { spk: 'junho', text: '……누군지는 묻지 마. 해마다 23시 40분에 나오는 그 방송, 귀신 같은 거 아니야. 방송실 장비실 선반 위를 봐. 타이머가 있을 거야.' },
+  call_unk2: { spk: 'guard', text: '학생, 지금 3-2 교실 의자에 앉아 있지? 경비실 CCTV에 다 보여. 그 자리… 하늘이 자리여. 십 년째 아무도 못 치웠어.' },
   call_guard: { spk: 'guard', text: '어이, 학생! 나 경비실이여. 아직도 본관 안에 있는 겨? 해가 다 떨어졌는디 거기 혼자 돌아댕기믄 큰일 나유! 복도에서 무슨 소리가 나도 절대 대답허지 말고, 어서 정문 쪽으로 나와유!' },
   call_home: { spk: 'mom', text: '여보세요? 얘, 너 지금 어디야! 왜 이렇게 전화가 끊겨…… 서문고 앞이라고? 거기 위험하니까 꼼짝 말고 정문 쪽에 나와 있어, 엄마가 지금 바로 갈게!' },
   // 4단계: 은폐를 밝히는 사람들 — 문서에서 번호를 찾으면 연락처가 생긴다 (외부 번호라 신호 필요)
@@ -7115,8 +7105,8 @@ registerLines({
   call_jh2: { spk: 'junho', text: '잠근 건 저예요. 열쇠는 교무부장님께 드렸고요. 꺼내 주신다고 했어요. 그 말을 믿었어요.' },
   call_jh3: { spk: 'junho', text: '증언이 필요하면 할게요. 제 이름 걸고요. 십 년 동안, 하고 싶었던 말이에요.' },
   call_jh4: { spk: 'junho', text: '하늘이한테… 미안하다고 전해 줄 수 있어요? 저는 아직, 그 이름을 소리 내서 못 부르겠어요.' },
-  call_hn1: { spk: 'haneul', text: '…들렸어. 내 이름, 끝까지.' },
-  call_hn2: { spk: 'haneul', text: '고마워. 이제 집에 갈게. 엄마한테… 방송 잘 들었냐고, 물어봐 줘.' },
+  call_hn1: { spk: 'mother', text: '……방송 들었어요. 우리 하늘이 이름, 끝까지 불러 줬지요.' },
+  call_hn2: { spk: 'mother', text: '십 년 동안 아무도 대답해 주지 않았어요. 고마워요. 이제 그 애를… 제대로 보내 줄 수 있겠어요.' },
   // 엄마와의 통화 — 진행에 따라 세 번 (처음 · 증거를 모은 뒤 · 폭로 방송 뒤)
   call_home_a1: { spk: 'mom', text: '여보세요? 얘, 너 지금 어디야! 왜 이렇게 전화가 자꾸 끊겨……' },
   call_home_a2: { spk: 'mom', text: '서문고? 이 밤에 거길 왜 들어가. 거기서 십 년 전에 애 하나 없어졌던 거, 너도 알잖아.' },
@@ -7155,10 +7145,10 @@ const CONTACTS = [
 ];
 const INCALLS = [
   { id: 'mina1', who: '민아 선배', num: '010-2481-1012', lines: ['call_mina1'], topic: 'mina1', summary: '복도의 발소리 경고 · 4층 방송실 근처', when: () => P.keys >= 1 && FL.cam },
-  { id: 'unk1', who: '발신번호 표시제한', num: '— — —', lines: ['call_unk1'], topic: 'unk1', summary: '차가운 물속에서 들려온 흐느낌', when: () => P.keys >= 2 && (P.floor === 2 || P.floor === 1) && !isOutdoors() },
+  { id: 'unk1', who: '발신번호 표시제한', num: '— — —', lines: ['call_unk1'], topic: 'unk1', summary: '익명 제보 — 방송실 장비실의 타이머', when: () => P.keys >= 2 && (P.floor === 2 || P.floor === 1) && !isOutdoors() },
   { id: 'guard', who: '정문 경비실 (내선 100)', num: '내선 100', lines: ['gd_call'], topic: 'guard', summary: '무인 경비실 자동응답기 — 1998년 녹음 · 소리에 대답하지 말 것', when: () => P.keys >= 3 },
   { id: 'mina2', who: '민아 선배', num: '010-2481-1012', lines: ['call_mina2'], topic: 'mina2', summary: '별관 점등 목격 · 방송실 장비실 은신 중', when: () => !!FL.anPow },
-  { id: 'unk2', who: '발신번호 표시제한', num: '3-2 교실', lines: ['call_unk2'], topic: 'unk2', summary: '교실 의자 주인의 속삭임', when: () => !!SIT.chair },
+  { id: 'unk2', who: '발신번호 표시제한', num: '경비실', lines: ['call_unk2'], topic: 'unk2', summary: '경비실 CCTV — 하늘이의 자리', when: () => !!SIT.chair },
   { id: 'home', who: '집 (엄마)', num: '02-542-3381', lines: ['call_home'], topic: 'home', summary: '정문 앞 대기 당부 · 즉시 출발', when: () => !!FL.sos },
 ];
 const CALL = { ring: null, ringT: 0, bellT: 0, talking: null, talkSec: 0, coolT: 75, log: [], dialBuf: '' };
@@ -7288,8 +7278,8 @@ function dialNumber(rawNum) {
     callOut('mina'); return;
   }
   if (num === '302') {
-    CALL.log.push({ who: '내선 302 (3-2 교실)', t: clockText(), kind: '발신', lines: ['gh1'], summary: '폐쇄된 3-2 교실 수화기 너머의 속삭임' });
-    closeUI(); callTalk('내선 302 (3-2 교실)', ['gh1'], true); return;
+    CALL.log.push({ who: '내선 302 (3-2 교실)', t: clockText(), kind: '발신', lines: [], summary: '1999년 폐쇄된 회선 — 연결되지 않음' });
+    closeUI(); say('📞 내선 302 — 1999년에 폐쇄된 회선입니다', 2600); return;
   }
   if (num === '1012') {
     CALL.log.push({ who: '주파수 1012 (기억의 전파)', t: clockText(), kind: '수신', lines: ['tape4'], summary: '윤하늘의 생전 하교 방송 리허설 전파' });
@@ -7307,7 +7297,7 @@ function callOut(id) {
   closeUI();
   const sig = !!FL.sos;
   if (id === 'unk') {
-    CALL.log.push({ who: c.name, t: clockText(), kind: '발신', lines: ['call_unk1'], summary: '알 수 없는 주파수 응답' });
+    CALL.log.push({ who: c.name, t: clockText(), kind: '발신', lines: ['call_unk1'], summary: '익명 제보' });
     callTalk(c.name, ['call_unk1'], true, 'unk1'); return;
   }
   if (id === 'guard') {
@@ -7680,7 +7670,7 @@ const infirmaryExtraSlots = [], infirmaryCabinetViews = []; for (const room of S
     if (p.done) return;
     if (p.floor === 4) { const r = await mini('maze', { title: `${p.room} — 어둠 속 선반 사이`, item: '물건' }); if (!r.ok) {  P.fear = Math.min(1, P.fear + .2); sfx.stinger(.5); shake = Math.max(shake, .4); say('어둠 속에서 길을 놓쳤다 — 다시 방향을 살펴보자', 2600); refreshHud(); return; } }   // B1: 손전등 미로
     p.done = true; syncInfirmaryCabinets(); FL.s37 ||= {}; FL.s37[p.uid] = 1;
-    const loot = ['battery', 'candy', 'medkit', 'matches', 'salt', 'thermos'][Math.floor(Math.random() * 6)];
+    const loot = ['battery', 'candy', 'medkit', 'hairpin', 'candy', 'thermos'][Math.floor(Math.random() * 6)];
     giveItem(loot, 1, true); sfx.pickup(); lootCard(loot, '수색', ITEMS[loot].name, `${p.room}에서 찾았다`); refreshHud(); return;
   }
   if (/전원/.test(t) && !p.solved) { const r = await mini('rings', { title: `${p.room} — 단말기 잠금 해제` }); if (!r.ok) { sfx.buzz(); say('삐— 잠금이 다시 걸렸다', 2000); return; } p.solved = true; giveItem('battery', 1, true); lootCard('battery', '단말기', ITEMS.battery.name, '보조 전원함에서 꺼냈다'); }
@@ -8360,13 +8350,13 @@ function megaNotify(m) { const t = String(m).split('\n'); say(t[0].replace(/^\S+
     world.props.push({ kind: 'robj', k: 'bunker_light', t: 'bunker', floor: 4, x: bx + 1.15, z: z1 - .85, y: 1.35, r: 2.0, label: '방공호 주 전등 스위치 조작하기', bkLightGroup });
     {
       const bLoader = new GLTFLoader();
-      bLoader.load('assets/models/sf/sf_bunker_props_pack.glb?v=240', gltf => {
+      bLoader.load('assets/models/sf/sf_bunker_props_pack.glb?v=241', gltf => {
         const bm = gltf.scene; bm.position.set(bx, 0, z0 + .45);
         if (window.__upgradePure3DScene) window.__upgradePure3DScene(bm); else bm.traverse(o => { o.userData.dynamic = true; });
         R.add(bm);
         if (gltf.animations && gltf.animations.length) { const mx = new THREE.AnimationMixer(bm); mx.userData = { floor: 4, x: bx, z: z0 + .45 }; gltf.animations.forEach(c => mx.clipAction(c).play()); (window.__campusAnimMixers ||= []).push(mx); }
       }, undefined, () => {});
-      bLoader.load('assets/models/sf/sf_pump_policeline_scene.glb?v=240', gltf => {
+      bLoader.load('assets/models/sf/sf_pump_policeline_scene.glb?v=241', gltf => {
         const pm = gltf.scene; pm.position.set(32.0, 0, -3.65);
         pm.traverse(o => { o.userData.dynamic = true; if (o.isMesh) { o.castShadow = false; o.receiveShadow = true; if (o.material?.map) o.material.map.colorSpace = THREE.SRGBColorSpace; } });
         R.add(pm);
@@ -8480,7 +8470,7 @@ function featTick(dt) {
   if (STH) { if (!keys[STH.code] || !target || target.type !== 'stairs' || state !== 'playing') STH = null; else if ((STH.t += dt) > .18) { const d = STH.dir; STH = null; changeFloor(d); } }
   { const pr = $('prompt'), k = STH ? Math.min(1, STH.t / .18) : 0; pr.style.backgroundImage = k > 0 ? `linear-gradient(90deg, rgba(232,200,112,.45) ${k * 100}%, transparent ${k * 100}%)` : ''; }   // 계단 길게 누르기 진행 표시
   for (const p of world.props) if (p.kind === 'pick' && p.done && p.mesh.visible) p.mesh.visible = false;
-  micTick(dt); camTick(dt); sanityTick(dt); trapTick(dt); breakerTick(dt); patchTick(dt); if (P.floor === 4) basementTick(dt); if (P.floor === 6 || P.floor === 0) poolTick(dt); sitTick(); zoomTick(dt); callTick(dt); sgTick(dt); s37Tick(); elvTick(dt); updateSchoolDoors(world); doorTick(dt); n37.update(dt); megaTick(dt); if ((P.stamInfT || 0) > 0) { P.stamInfT -= dt; if (P.stamInfT < 0) P.stamInfT = 0; P.stamina = 100; P.tired = false; } }
+  micTick(dt); camTick(dt); trapTick(dt); breakerTick(dt); patchTick(dt); if (P.floor === 4) basementTick(dt); if (P.floor === 6 || P.floor === 0) poolTick(dt); sitTick(); zoomTick(dt); callTick(dt); sgTick(dt); s37Tick(); elvTick(dt); updateSchoolDoors(world); doorTick(dt); n37.update(dt); megaTick(dt); if ((P.stamInfT || 0) > 0) { P.stamInfT -= dt; if (P.stamInfT < 0) P.stamInfT = 0; P.stamina = 100; P.tired = false; } }
 
 function extrasTick(dt) {
   searchTick(dt); tmpTick(dt); ambientTick(dt); featTick(dt);
@@ -8593,7 +8583,7 @@ addEventListener('pointerdown', () => { if (SET.mic && !MIC.on) micStart(); }, {
 if (matchMedia('(pointer: coarse)').matches || !('exitPointerLock' in document)) $('mobileNote').style.display = 'block';
 $('setContrast').onchange = e => setS('contrast', e.target.checked); $('setUi').oninput = e => setS('ui', e.target.value / 100);
 // 키 재지정
-const KEY_ACTIONS = [['camera', '휴대폰 심령 카메라'], ['crouch', '앉기 (웅크리기)'], ['jump', '점프'], ['interact', '조사 · 상호작용'], ['flash', '손전등'], ['inv', '소지품'], ['map', '지도'], ['phone', '휴대폰'], ['throwCan', '캔 던지기'], ['view', '시점 전환'], ['run', '달리기'], ['down', '계단 내려가기'], ['scan', '주변 살피기'], ['quest', '목표 바 펼치기 · 한 줄 · 숨기기']];
+const KEY_ACTIONS = [['camera', '휴대폰 야간 카메라'], ['crouch', '앉기 (웅크리기)'], ['jump', '점프'], ['interact', '조사 · 상호작용'], ['flash', '손전등'], ['inv', '소지품'], ['map', '지도'], ['phone', '휴대폰'], ['throwCan', '캔 던지기'], ['view', '시점 전환'], ['run', '달리기'], ['down', '계단 내려가기'], ['scan', '주변 살피기'], ['quest', '목표 바 펼치기 · 한 줄 · 숨기기']];
 let remapping = null;
 function renderKeys() {
   $('keyRemap').innerHTML = KEY_ACTIONS.map(([k, n]) => `<span>${n}</span><button data-k="${k}" class="${remapping === k ? 'wait' : ''}">${remapping === k ? '키를 누르세요…' : keyLabel(SET.keys[k])}</button>`).join('');

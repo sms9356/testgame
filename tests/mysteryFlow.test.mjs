@@ -28,15 +28,6 @@ test('a broadcast cancelled by load cannot later play dialogue or change the res
  vm.createContext(ctx);vm.runInContext(method('async function haneulBroadcast() {','// 민아 깨우기:'),ctx);const pending=ctx.haneulBroadcast();assert.equal(ctx.voBusy,true);ctx.storySession=2;ctx.voBusy=false;release();await pending;assert.equal(ctx.ghost.active,true);assert.equal(ctx.voBusy,false);
 });
 globalThis.window={};globalThis.document={getElementById:()=>({})};
-const {SanityHallucinationSystem}=await import('../sanitySystem.js');
-test('memory text effect cannot select real mission or puzzle text and preserves newer text',t=>{
- const restorers=[],target={textContent:'기억',dataset:{},classList:{add(){},remove(){}}};
- const selectors=[];globalThis.document.querySelectorAll=selector=>{selectors.push(selector);return [target];};
- t.mock.method(globalThis,'setTimeout',fn=>{restorers.push(fn);return 0;});
- const engine={creepyPhrases:['시계가 같은 시각이다'],activeTextRestorers:[]};
- SanityHallucinationSystem.prototype.corruptUIElements.call(engine);
- assert.deepEqual(selectors,['[data-memory-echo]']);assert.equal(target.textContent,'시계가 같은 시각이다');target.textContent='새로운 기억';restorers[0]();assert.equal(target.textContent,'새로운 기억');
-});
 test('rescuing the senior before collecting her recording does not regress to the missing-person opening',()=>{
  const ctx={FL:{mina:true,cam:false},P:{keys:0},docs:[],got:[false],LOC:{office:{where:'교무실'}}};vm.createContext(ctx);vm.runInContext(method('function objective() {','function missionGroups()'),ctx);
  assert.equal(ctx.objective().ch,2);assert.match(ctx.objective().main,/금고/);

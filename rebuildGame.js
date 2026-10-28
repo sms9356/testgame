@@ -2,11 +2,11 @@
 //   기본으로 켜진다 (예전 건물로 보려면 주소창에 ?oldmap).
 //   예전 본관(1~3층 · 옥상) · 별관(8~10층) 건물은 감추고, 그 자리 땅(0층)에서 새 건물을 걷는다.
 //   높이는 P.sh(계단 높이 보정값)로 넘긴다 → 카메라 · 점프 · 가구 오르기 코드는 손대지 않아도 된다.
-import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=252';
-import { placeModels } from './rebuild/models.js?v=252';
-import { carve, subdivide } from './rebuild/transplant.js?v=252';
+import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=253';
+import { placeModels } from './rebuild/models.js?v=253';
+import { carve, subdivide } from './rebuild/transplant.js?v=253';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { turfMaterial } from './campusVisuals.js?v=252';
+import { turfMaterial } from './campusVisuals.js?v=253';
 
 // 예전 건물이 차지하던 땅 (이 안의 예전 메시 · 충돌 상자를 걷어 낸다)
 const OLD_MAIN = { x1: -51, x2: 51, z1: -10.6, z2: 10.9 };
@@ -294,7 +294,8 @@ export function installRebuild({ THREE, scene, floors, world }) {
       if (it._rb || !isOld(it.floor, it.pos.x, it.pos.z)) continue; it._rb = true; it._old = { f: it.floor, x: it.pos.x, z: it.pos.z };
       if (it.floor === 2 && inBC(it.pos.x, it.pos.z)) { let [x, z] = bcSpot(it.kind), oy = it.pos.y - BC.y0; if (oy > .3 && bcTop < BC_TOP.length) { const t = BC_TOP[bcTop++]; x = t[0]; z = t[1]; if (it.baseY != null) it.baseY += t[2] + .02 - oy; oy = t[2] + .02; } else if (oy > .3) { if (it.baseY != null) it.baseY -= oy - .03; oy = .03; } it.floor = 0; it.rbY = BCY; it.pos.set(x, BCY + oy, z); if (it.baseY != null) it.baseY = BCY + it.baseY - BC.y0; if (it.mesh) moveObj(it.mesh, x, BCY + oy, z); moved++; continue; }
       const sk = it.kind === 'key' ? SPECIAL_KEY[it.idx] : null;
-      const tgt = sk ? (() => { const rs = roomsOf(sk[0], sk[1]).filter(r => r.type === sk[2]); return rs.length ? { b: sk[0], f: sk[1], room: rs[0] } : pickRoom(it.floor, it.pos.x); })() : pickRoom(it.floor, it.pos.x);
+      const byNm = it.kind === 'camcorder' ? (() => { const r = roomsOf(MAIN, 0).find(q => /1학년 1반|(^|\D)1-1(\D|$)/.test(q.label || q.name || '')); return r ? { b: MAIN, f: 0, room: r } : null; })() : null;   // 민아의 캠코더는 이야기대로 1-1 교실
+      const tgt = byNm || (sk ? (() => { const rs = roomsOf(sk[0], sk[1]).filter(r => r.type === sk[2]); return rs.length ? { b: sk[0], f: sk[1], room: rs[0] } : pickRoom(it.floor, it.pos.x); })() : pickRoom(it.floor, it.pos.x));
       if (!tgt) continue;
       let oy = it.pos.y - (FL_[it.floor]?.y0 || 0), s = null;
       if (oy > .25) { const su = tgt.room && surfaceIn(tgt.b, tgt.room, tgt.f); if (su) { s = su; const ny = su.top - su.h + .02; if (it.baseY != null) it.baseY += ny - oy; oy = ny; } }   // 원래 책상 · 선반 위에 있던 것 → 새 방 가구 위

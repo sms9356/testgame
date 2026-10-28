@@ -97,10 +97,13 @@ export function perfTick(dt, indoors) {
   C.lsT = (C.lsT || 0) + dt; if (C.lsT > .08) { C.lsT = 0; lightStep(); }   // 조명 고르기는 초당 12번이면 충분
   const ms = Math.min(250, dt * 1000); C.avg += (ms - C.avg) * .05;
   C.t += dt; C.rebuildT += dt;
-  C.rbN ||= 0; if (C.rebuildT > [4, 15, 40][C.rbN] && C.rbN < 3) { C.rbN++; rebuild(); }   // 늦게 불러오는 소품 GLB 도 컬링에 넣는다
+  // 늦게 불러오는 소품 GLB(교실 책상 · 의자 인스턴스 등)도 컬링에 넣는다 — 실제 시간 기준: 예전엔 게임 시간(dt 상한) 기준이라
+  //   프레임이 느린 PC 에서는 등록이 한없이 늦어져 책상 · 의자 수천 개(1,600만 삼각형)를 계속 그리며 더 느려지는 악순환이었다
+  C.t0 ||= C.now; C.rbN ||= 0; const RB_AT = [3, 8, 15, 30, 60, 120, 240];
+  if (C.rbN < RB_AT.length && C.now - C.t0 > RB_AT[C.rbN] * 1000) { C.rbN++; const t1 = performance.now(); rebuild(); C.rebuildMs = Math.round(performance.now() - t1); (window.__perfRb ||= []).push(C.rebuildMs); }
   C.lightT = (C.lightT || 0) + dt; if (C.lightT > 6) { C.lightT = 0; scanLights(); }   // 씬 전체 순회 — 새 조명은 드물게만 생긴다
-  if (C.t > .25) {
-    C.t = 0; const t0 = performance.now();
+  if (!C.cullAt || C.now - C.cullAt > 250) { C.cullAt = C.now; C.t = 0;
+    const t0 = performance.now();
     if (C.avg > 45) C.R = Math.max(14, C.R - 1); else if (C.avg < 24) C.R = Math.min(30, C.R + .5);
     cullStep(); C.cullMs = Math.round(performance.now() - t0);
   }

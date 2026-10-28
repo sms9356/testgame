@@ -19,6 +19,8 @@ jobs:
           mkdir -p desktop/game
           for f in index.html *.js style.css; do cp "$f" desktop/game/; done
           for d in assets vendor voice music lang rebuild; do [ -d "$d" ] && cp -r "$d" desktop/game/; done
+          # 실행에 쓰지 않는 원본 작업 파일(캐릭터 .blend/.fbx/.obj · 렌더 · 품질검사 · 미사용 텍스처 묶음)은 exe 에서 뺀다
+          rm -rf desktop/game/assets/characters/{Mina,Guard,QualityControl,GameIntegration} desktop/game/assets/schoolwide
           du -sh desktop/game
       - name: Build
         working-directory: desktop

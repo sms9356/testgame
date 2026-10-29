@@ -2,11 +2,11 @@
 //   기본으로 켜진다 (예전 건물로 보려면 주소창에 ?oldmap).
 //   예전 본관(1~3층 · 옥상) · 별관(8~10층) 건물은 감추고, 그 자리 땅(0층)에서 새 건물을 걷는다.
 //   높이는 P.sh(계단 높이 보정값)로 넘긴다 → 카메라 · 점프 · 가구 오르기 코드는 손대지 않아도 된다.
-import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=263';
-import { placeModels } from './rebuild/models.js?v=263';
-import { carve, subdivide } from './rebuild/transplant.js?v=263';
+import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=265';
+import { placeModels } from './rebuild/models.js?v=265';
+import { carve, subdivide } from './rebuild/transplant.js?v=265';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { turfMaterial } from './campusVisuals.js?v=263';
+import { turfMaterial } from './campusVisuals.js?v=265';
 
 // 예전 건물이 차지하던 땅 (이 안의 예전 메시 · 충돌 상자를 걷어 낸다)
 const OLD_MAIN = { x1: -51, x2: 51, z1: -10.6, z2: 10.9 };
@@ -425,6 +425,25 @@ export function installRebuild({ THREE, scene, floors, world }) {
   //   사물함 파밍(복도 · 별관 · 교실) → 교실 뒤 사물함 벽 앞 · 비상벨 → 복도 화재 발신기 · 배전반 → 복도 외벽 · 감정 카드 → 상담실
   const VIS = { body: new THREE.MeshStandardMaterial({ color: 0x2a2c30, roughness: .5, metalness: .3 }), reel: new THREE.MeshStandardMaterial({ color: 0xc8c8c0, roughness: .4, metalness: .6 }), led: new THREE.MeshBasicMaterial({ color: 0xff3020 }),
     panel: new THREE.MeshStandardMaterial({ color: 0x9aa6a0, roughness: .6, metalness: .4 }), warn: new THREE.MeshBasicMaterial({ color: 0xf0c020 }), red: new THREE.MeshStandardMaterial({ color: 0xc8241c, roughness: .5 }), btn: new THREE.MeshStandardMaterial({ color: 0xf2f2f2, roughness: .4 }) };
+  // ── 5단계: 옮긴 물건을 바로 아래 받침(책상 · 선반 · 바닥) 위에 내려놓는다 ──
+  //   예전 자리의 높이(벽 · 높은 선반)를 그대로 가지고 와 새 방 한가운데 허공에 떠 있던 것. 벽에 거는 것(비상벨 · 배전반 · 게시물)은 그대로
+  R.settleMoved = world => {
+    const W = world, bx = new THREE.Box3(); let n = 0;
+    const supportAt = (x, z, below) => { let best = null; for (const B of [MAIN, ANX]) { const [lx, lz] = B.toLocal(x, z); if (!B.layout || lx < -B.layout.L / 2 - .3 || lx > B.layout.L / 2 + .3 || lz < B.layout.zN - .3 || lz > B.layout.zS + .3) continue;
+        const f = Math.max(0, Math.floor((below + .05) / FH)); best = f * FH;
+        for (const c of B.col) { if (c.y2 == null || c.y2 > below + .06 || c.y2 < best || c.y2 - (c.y1 ?? 0) > 2.4) continue; if (lx > c.x1 + .02 && lx < c.x2 - .02 && lz > c.z1 + .02 && lz < c.z2 - .02) best = c.y2; } } return best; };
+    R._sup = supportAt;
+    const WALL = /게시|액자|공지|시계|포스터|명패|달력|스위치|비상벨|배전반|분전반|거울|칠판|현판|안내/;
+    const settle = (objs, label, onDy) => { if (!objs.length) return; bx.makeEmpty(); for (const o of objs) bx.expandByObject(o); if (bx.isEmpty()) return;
+      if (WALL.test(label || '')) { const fl = Math.max(0, Math.floor((bx.min.y + .05) / FH)) * FH, h = bx.min.y - fl; if (h > .7 && h < 2.2) return; }   // 벽에 걸린 높이(0.7~2.2m)면 그대로, 천장 · 바닥 아래로 빠진 것만 바로잡는다
+      const s = bx.getSize(new THREE.Vector3()); if (s.y > 2.2 || Math.max(s.x, s.z) > 3) return; const c = bx.getCenter(new THREE.Vector3()), sup = supportAt(c.x, c.z, bx.min.y); if (sup == null) return;
+      const dy = sup - bx.min.y; if (Math.abs(dy) < .03) return; for (const o of objs) o.position.y += dy; onDy && onDy(dy); n++; };
+    for (const p of W.props) { if ((p.rbY == null && !R.inBuilding(p.x, p.z)) || p.floor !== 0 || p.kind === 'bell' || p.kind === 'cbreaker' || p.visMesh || p.hang) continue;
+      settle(objsOf(p), p.label, dy => { if (p.y != null) p.y = Math.max(.15, p.y + dy); }); }
+    for (const it of W.items) { if ((it.rbY == null && !R.inBuilding(it.pos.x, it.pos.z)) || it.taken || it.floor !== 0 || !it.mesh || it.locked) continue;
+      settle([it.mesh], it.label || it.kind, dy => { it.pos.y += dy; if (it.baseY != null) it.baseY += dy; }); }
+    return { n };
+  };
   R.relinkGeneric = world => {
     const W = world; let n = 0, drop = 0;
     const lay = (b, f) => (b.props || []).filter(q => q.kind === 'room' && q.floor === f);

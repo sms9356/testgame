@@ -2,11 +2,11 @@
 //   기본으로 켜진다 (예전 건물로 보려면 주소창에 ?oldmap).
 //   예전 본관(1~3층 · 옥상) · 별관(8~10층) 건물은 감추고, 그 자리 땅(0층)에서 새 건물을 걷는다.
 //   높이는 P.sh(계단 높이 보정값)로 넘긴다 → 카메라 · 점프 · 가구 오르기 코드는 손대지 않아도 된다.
-import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=286';
-import { placeModels } from './rebuild/models.js?v=286';
-import { carve, subdivide } from './rebuild/transplant.js?v=286';
+import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=287';
+import { placeModels } from './rebuild/models.js?v=287';
+import { carve, subdivide } from './rebuild/transplant.js?v=287';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { turfMaterial } from './campusVisuals.js?v=286';
+import { turfMaterial } from './campusVisuals.js?v=287';
 
 // 예전 건물이 차지하던 땅 (이 안의 예전 메시 · 충돌 상자를 걷어 낸다)
 const OLD_MAIN = { x1: -51, x2: 51, z1: -10.6, z2: 10.9 };
@@ -156,7 +156,7 @@ export function installRebuild({ THREE, scene, floors, world }) {
       }
       const L = b.layout.L, cst = b.layout.rooms.find(q => q.kind === 'cstair');
       for (let f = 0; f < b.spec.floors; f++) {   // 복도: 중앙 계단 서쪽 · 복도 북벽
-        const x = cst ? cst.x1 - .6 : 0;
+        const x = -L / 2 + 1.1;   // 복도 서쪽 끝(계단실 옆) 북벽 — 가운데 현관 · 엘리베이터 문과 겹치지 않게
         add(f, x, zN + .012, 1, { x1: -L / 2, x2: L / 2, z1: zN, z2: 0 }, `${f + 1}층 복도 형광등 스위치`);
       }
     }
@@ -809,10 +809,11 @@ export function installRebuild({ THREE, scene, floors, world }) {
     for (let i = W.props.length - 1; i >= 0; i--) if (W.props[i]._drop) W.props.splice(i, 1);
     // 화장실 세면대: 옛 화장실에서 옮겨 온 세면대 조사 지점(바닥 가운데 22cm 높이 옛 세면대 잔해) → 새 연립 세면대의 세면볼 3개 앞으로, 옛 모형은 숨긴다
     if (!R._sinkFix) { R._sinkFix = true; const slots = [];
-      for (const B of [MAIN, ANX]) for (const q of (B.props || [])) if (q.kind === 'sink') for (const dz of [-.58, 0, .58]) { const [x, z] = B.toWorld(q.x, q.z + dz); slots.push({ x, z, h: q.floor * FH, used: false }); }
+      for (const B of [MAIN, ANX]) for (const q of (B.props || [])) if (q.kind === 'sink') { const rm = (B.props || []).find(r => r.kind === 'room' && r.type === 'toilet' && r.floor === q.floor && q.x > r.x1 - .2 && q.x < r.x2 + .2), wsx = rm ? (Math.abs(q.x - rm.x1) < Math.abs(q.x - rm.x2) ? rm.x1 : rm.x2) : q.x - .7, dS = Math.sign(q.x - wsx) || 1;
+        for (const dz of [-.58, 0, .58]) { const [x, z] = B.toWorld(q.x, q.z + dz), [tx, tz] = B.toWorld(wsx + dS * .2, q.z + dz); slots.push({ x, z, h: q.floor * FH, tap: { x: tx, y: q.floor * FH + 1.07, z: tz }, used: false }); } }
       for (const p of W.props) { if (p.kind !== 'sink' || p.rbY == null || p.floor !== 0) continue; for (const o of objsOf(p)) o.visible = false;
         let best = null, bd = 1e9; for (const sl of slots) { if (sl.used || Math.abs(sl.h - p.rbY) > .5) continue; const d = Math.hypot(sl.x - p.x, sl.z - p.z); if (d < bd) { bd = d; best = sl; } }
-        if (!best || bd > 6) { p._drop = true; continue; } best.used = true; p.x = best.x; p.z = best.z; if (p.px != null) { p.px = best.x; p.pz = best.z; } p.y = .9; up++; }
+        if (!best || bd > 6) { p._drop = true; continue; } best.used = true; p.x = best.x; p.z = best.z; if (p.px != null) { p.px = best.x; p.pz = best.z; } p.y = .9; if (p.sinkObj && p.sinkObj.group) p.sinkObj.group.position.set(best.tap.x, best.tap.y - .9, best.tap.z); if (p.ctx) { p.ctx.f = 0; p.ctx.rb = best.h; p.ctx.tap = { x: best.tap.x + (best.x - best.tap.x) * .0, z: best.tap.z }; const ry = Math.atan2(best.x - best.tap.x, best.z - best.tap.z); p.ctx.mirror = { x: best.tap.x - (best.x - best.tap.x) / Math.max(.01, Math.hypot(best.x - best.tap.x, best.z - best.tap.z)) * .2, y: best.h + 1.45, z: best.tap.z - (best.z - best.tap.z) / Math.max(.01, Math.hypot(best.x - best.tap.x, best.z - best.tap.z)) * .2, ry }; } up++; }
       for (let i = W.props.length - 1; i >= 0; i--) if (W.props[i]._drop) W.props.splice(i, 1); }
     // 대출 카드함: 모형 없이 [E] 만 뜨던 자리 → 나무 카드 목록함 (서랍 4×3, 놋쇠 손잡이 · 이름표)
     for (const p of W.props) { if (p._cardBox || p.k !== 'cards' || p.rbY == null || objsOf(p).length) continue; p._cardBox = true;

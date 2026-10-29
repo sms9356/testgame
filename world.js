@@ -4,12 +4,12 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { buildGuardAnnex, buildDutyRoom, ANNEX as GANX } from './guardAnnex.js?v=286';
-import { NOTES } from './story.js?v=286';
+import { buildGuardAnnex, buildDutyRoom, ANNEX as GANX } from './guardAnnex.js?v=287';
+import { NOTES } from './story.js?v=287';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=286';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=287';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -3774,7 +3774,7 @@ export function buildWorld(scene) {
     [-40.5, -37.5].forEach(x => add(mWoodDark, .12, 3.1, .4, x, 0, z1 - .15)); add(mWoodDark, 3.12, .12, .4, -39, 3.04, z1 - .15);
     plane(F.interior, new THREE.MeshBasicMaterial({ map: T.makeSign('비상구', '#0a3a1a', '#7dffa0', 30) }), 1.4, .35, -39, 3.5, z1 - t - .02, Math.PI);
     [11, 15, 19].forEach(z => win3D(F.interior, 2.4, 1.6, x0 + t + .02, 2.4, z, Math.PI / 2));
-    restroomWC(x1 - t, z1 - t, -1, -1, H, '급식실 화장실');   // 동남 구석 (손 씻는 곳 옆)
+    // (급식실 화장실은 철거 — 위생상 조리 공간 옆 화장실 없음 · 학생 화장실은 본관 이용)
     [-45, -34].forEach(x => plane(F.interior, mWin, 3, 1.6, x, 2.4, z1 - t - .02, Math.PI));
     // ── 급식실 리모델링 (참고 배치도 · 3D 평면도 · 가구 규격도, 18 × 14m) ──
     //   북쪽 2.8m: 조리실(주방) · 관계자 출입구(서) · 식기 보관/배식 보조(동) | 배식대 7.2m | 식사 공간 6인 식탁 16개(4×4) 96석
@@ -3792,9 +3792,30 @@ export function buildWorld(scene) {
     add(mGlass, 7.0, .45, .03, -37.8, 1.25, kz + .85); for (let k = 0; k <= 6; k++) add(mSS, .03, .5, .03, -41.3 + k * 1.16, .9, kz + .85); add(mSS, 7.2, .03, .35, -37.8, 1.45, kz + .7);
     add(mSS, 7.2, .04, .25, -37.8, .9, kz + 1.12);   // 식판 레일
     // 주방 안 (배식대 뒤): 조리대 · 국솥 · 오븐 · 냉장고 · 식기 보관대
-    add(mMetal, 3, .9, 1, -45, 0, 10, { col: true }); add(mMetal, 2.4, .9, 1, -41, 0, 10, { col: true }); add(mMetal, 2.6, .5, 1.2, -41, 3.0, 10);   // 조리대 · 가스 화구대 · 후드 (미션 위치 그대로)
+    add(mMetal, 3, .9, 1, -45, 0, 10, { col: true }); add(mMetal, 2.4, .9, 1, -41, 0, 10, { col: true });   // 조리대 · 가스 화구대 (미션 위치 그대로 · 후드는 아래 전문 장비로)
     cyl(mMetal, .35, .45, -45, .9, 10); cyl(mMetal, .3, .4, -41.5, .9, 10); add(mMetal, 1.2, 1.3, 1.0, -46.9, 0, 11.6, { col: true });
     add(mSS, 1.0, 1.9, .7, x0 + 2.6, 0, z0 + .55, { col: true }); add(mSS, 1.0, 1.9, .7, x0 + 3.7, 0, z0 + .55, { col: true });   // 업소용 냉장고
+    // ── 단체급식 조리 장비 (전문 주방 구성): 조리대 상부선반 · 6구 회전식 가스레인지 화구 · 스테인리스 후드 · 식기세척기 라인 · 3단 가스 취반기 · 양념 선반 · 바닥 배수 ──
+    { const knob = S(null, { color: 0x1a1a1a, roughness: .4 }), flame = new THREE.MeshBasicMaterial({ color: 0x3a6aff }), mGrate = S(null, { color: 0x222426, roughness: .6, metalness: .6 }), mRed = S(null, { color: 0xb02020, roughness: .5 }), mWhiteP = S(null, { color: 0xeeeeea, roughness: .4 });
+      // 작업 조리대 (-45,10): 스테인리스 상판 테두리 · 하부 선반 · 벽 쪽 백스플래시 · 위 2단 벽선반에 냄비 · 도마 2장
+      add(mSS, 3.04, .04, 1.04, -45, .88, 10); add(mSSd, 2.9, .03, .9, -45, .22, 10); add(mSS, 3.0, .35, .03, -45, .9, 9.49);
+      [1.45, 1.85].forEach(y => add(mSS, 3.0, .03, .35, -45, y, 9.35)); [-46.1, -45.4, -44.6, -43.9].forEach((x, i) => cyl(i % 2 ? mSS : mSSd, .14 + (i % 2) * .04, .22, x, 1.48, 9.36, 16));
+      add(mWhiteP, .5, .02, .35, -45.6, .92, 10.1); add(S(null, { color: 0x3a6a3a, roughness: .5 }), .45, .02, .3, -44.6, .92, 10.15);
+      // 회전식 가스레인지 (-41,10): 무쇠 삼발이 6구 + 버너 링 · 앞 조절 노브 · 가스 배관
+      for (let i = 0; i < 3; i++) for (let j = 0; j < 2; j++) { const x = -41.8 + i * .8, z = 9.75 + j * .5; add(mGrate, .5, .03, .42, x, .9, z); const rg = new THREE.Mesh(new THREE.TorusGeometry(.09, .012, 6, 18), flame); rg.rotation.x = Math.PI / 2; rg.position.set(x, .935, z); cur.interior.add(rg); cyl(knob, .025, .04, x, .45, 10.52); }
+      add(S(null, { color: 0xc8a030, roughness: .4, metalness: .7 }), 2.4, .04, .04, -41, .2, 9.52);
+      // 대형 후드 (가스레인지 위): 위로 좁아지는 스테인리스 몸통 · 그리스 필터 줄 · 천장 덕트
+      add(mSS, 2.7, .06, 1.3, -41, 2.75, 10); add(mSSd, 2.5, .02, 1.1, -41, 2.73, 10); for (let k = 0; k < 6; k++) add(mGrate, .02, .04, 1.0, -42.1 + k * .44, 2.71, 10); add(mSS, 1.9, .5, .9, -41, 2.81, 10); add(mSS, .6, H - 3.3, .5, -41, 3.3, 10);
+      // 식기세척 라인 (-35.9 ~ -33.2, 북벽): 애벌 세척 싱크 · 도어형 업소용 식기세척기 · 식판 적재대
+      add(mSS, 1.0, .9, .7, -35.3, 0, z0 + .65, { col: true }); add(mSSd, .8, .02, .5, -35.3, .88, z0 + .65); cyl(mSS, .015, .5, -35.6, .9, z0 + .4); add(mSS, .02, .02, .35, -35.6, 1.38, z0 + .55);
+      add(mSS, .75, 1.5, .75, -34.4, 0, z0 + .7, { col: true }); add(mSSd, .7, .5, .02, -34.4, .9, z0 + 1.08); add(knob, .2, .06, .02, -34.4, 1.42, z0 + 1.08); add(new THREE.MeshBasicMaterial({ color: 0x30ff80 }), .04, .02, .01, -34.25, 1.43, z0 + 1.09);
+      add(mSS, .9, .9, .7, -33.65, 0, z0 + .65, { col: true }); for (let k = 0; k < 8; k++) add(S(null, { color: 0xc8ccd0, roughness: .3, metalness: .7 }), .55, .015, .4, -33.65, .92 + k * .02, z0 + .65);
+      // 3단 가스 취반기 (밥솥 캐비닛, -34.5, 10.7): 문 3짝 · 손잡이 · 온도계
+      add(mSS, .8, 1.55, .7, -34.5, 0, 10.75, { col: true }); for (let k = 0; k < 3; k++) { add(mSSd, .72, .02, .02, -34.5, .4 + k * .45, 10.39); add(knob, .3, .03, .03, -34.5, .58 + k * .45, 10.38); } cyl(mWhiteP, .05, .02, -34.25, 1.4, 10.39);
+      // 양념 · 식재료 선반 (서쪽 벽): 3단 스테인리스 선반 + 양념통 · 쌀 포대
+      [.4, .95, 1.5].forEach(y => add(mSS, .45, .03, 1.0, x0 + .55, y, 9.2)); [x0 + .35, x0 + .75].forEach(x => [8.72, 9.68].forEach(z => add(mSS, .03, 1.55, .03, x, 0, z))); for (let k = 0; k < 4; k++) cyl(k % 2 ? mRed : mWhiteP, .07, .2, x0 + .55, .98, 8.85 + k * .24); add(S(null, { color: 0xd8ccaa, roughness: .9 }), .4, .3, .6, x0 + .55, .43, 9.2);
+      // 바닥 배수 트렌치 그레이팅 (조리 라인 앞)
+      add(mGrate, 9.0, .01, .25, -41.5, .012, 11.05); }
     add(mSS, 2.6, .9, .7, -31.9, 0, z0 + .5, { col: true }); for (let k = 0; k < 4; k++) add(mSS, 2.6, .03, .6, -31.9, 1.2 + k * .35, z0 + .45);   // 식기 보관 / 배식 보조
     awall(-33.0, -32.9, z0 + t, kz - .1, H);   // 식기 보관실 칸막이
     plane(F.interior, new THREE.MeshBasicMaterial({ map: T.makeSign('관계자 외 출입금지 →', '#a01818', '#fff', 22), color: 0xd0c8c0 }), .9, .22, -41.7, 2.3, kz + .11);

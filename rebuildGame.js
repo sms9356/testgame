@@ -2,11 +2,11 @@
 //   기본으로 켜진다 (예전 건물로 보려면 주소창에 ?oldmap).
 //   예전 본관(1~3층 · 옥상) · 별관(8~10층) 건물은 감추고, 그 자리 땅(0층)에서 새 건물을 걷는다.
 //   높이는 P.sh(계단 높이 보정값)로 넘긴다 → 카메라 · 점프 · 가구 오르기 코드는 손대지 않아도 된다.
-import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=281';
-import { placeModels } from './rebuild/models.js?v=281';
-import { carve, subdivide } from './rebuild/transplant.js?v=281';
+import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=282';
+import { placeModels } from './rebuild/models.js?v=282';
+import { carve, subdivide } from './rebuild/transplant.js?v=282';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { turfMaterial } from './campusVisuals.js?v=281';
+import { turfMaterial } from './campusVisuals.js?v=282';
 
 // 예전 건물이 차지하던 땅 (이 안의 예전 메시 · 충돌 상자를 걷어 낸다)
 const OLD_MAIN = { x1: -51, x2: 51, z1: -10.6, z2: 10.9 };
@@ -767,7 +767,8 @@ export function installRebuild({ THREE, scene, floors, world }) {
       objs = objs.filter(o => o && o.isObject3D); if (!objs.length) return;
       for (const o of objs) if (o.parent && !shown(o.parent)) { group.attach(o); re++; }   // 퀘스트 단계가 되면 켜지는 모형도 미리 옮겨 단다
       const bb = new THREE.Box3(); for (const o of objs) { T.setFromObject(o); if (!T.isEmpty()) bb.union(T); } if (bb.isEmpty()) return;
-      if (flat && bb.max.y - bb.min.y < .06 && bb.max.y < rb + .08) {   // 바닥에 납작하게 깔린 쪽지 · 사진 · 명찰 → 가까운 책상 · 탁자 위로 (같은 방, 2.5m 안)
+      if (flat && bb.max.y < rb + .6 && bb.min.y < rb + .05 && (bb.max.y - bb.min.y < .06 || bb.max.y - bb.min.y < .5)) {   // 바닥에 납작하게 깔린 쪽지 · 사진 · 명찰 → 가까운 책상 · 탁자 위로 (같은 방, 2.5m 안)
+        { const c0 = bb.getCenter(V), s1 = R._sup(c0.x, c0.z, rb + 1.25); if (s1 != null && s1 > rb + .5 && s1 < rb + 1.2) { const dy = s1 + .004 - bb.min.y; for (const o of objs) { if (o.parent !== group) group.attach(o); o.position.y += dy; } onMove && onMove(dy); up++; return; } }   // 바로 위가 책상 · 탁자면 그 위로
         let best = null, bd = 2.5; for (const B of [MAIN, ANX]) { const [lx, lz] = B.toLocal(x, z); if (lx < -B.layout.L / 2 || lx > B.layout.L / 2 || lz < B.layout.zN || lz > B.layout.zS) continue; const rm = R.roomAt(x, z, rb + .1);
           for (const c of B.col) { if (c.y2 == null || c.y2 < rb + .6 || c.y2 > rb + 1.15 || (c.y1 != null && (c.y1 > rb + .1 || c.y1 < rb - .5)) || c.x2 - c.x1 > 2.6 || c.z2 - c.z1 > 2.6 || c.x2 - c.x1 < .35 || c.z2 - c.z1 < .3) continue;
             const cx = (c.x1 + c.x2) / 2, cz = (c.z1 + c.z2) / 2, d = Math.hypot(cx - lx, cz - lz); if (d >= bd) continue; const [wx, wz] = B.toWorld(cx, cz); if (rm && (R.roomAt(wx, wz, rb + .1) || {}).id !== rm.id) continue; bd = d; best = { x: wx, z: wz, y: c.y2 }; } }
@@ -777,7 +778,20 @@ export function installRebuild({ THREE, scene, floors, world }) {
       for (const o of objs) { if (o.parent !== group) group.attach(o); o.position.y += dy; } onMove && onMove(dy); up++;
     };
     for (const it of W.items) { if (it.taken || it.rbY == null || !it.mesh) continue; fix([it.mesh], it.pos.x, it.pos.z, it.rbY, (dy, dx = 0, dz = 0) => { it.pos.x += dx; it.pos.y += dy; it.pos.z += dz; if (it.baseY != null) it.baseY += dy; }, /note|photo|nametag|paper|clue/.test(it.kind)); }
-    for (const p of W.props) { if (p.done || p.rbY == null || p.floor !== 0) continue; fix(objsOf(p), p.x, p.z, p.rbY, (dy, dx = 0, dz = 0) => { p.x += dx; p.z += dz; if (p.px != null) { p.px += dx; p.pz += dz; } }, /명찰|쪽지|사진|메모/.test(p.label || '')); }
+    // 대출 카드함: 모형 없이 [E] 만 뜨던 자리 → 나무 카드 목록함 (서랍 4×3, 놋쇠 손잡이 · 이름표)
+    for (const p of W.props) { if (p._cardBox || p.k !== 'cards' || p.rbY == null || objsOf(p).length) continue; p._cardBox = true;
+      const wd = new THREE.MeshStandardMaterial({ color: 0x6e4a2c, roughness: .6 }), br = new THREE.MeshStandardMaterial({ color: 0xb08a4a, roughness: .35, metalness: .8 }), lb = new THREE.MeshStandardMaterial({ color: 0xece4cc, roughness: .9 });
+      const g = new THREE.Group(), body = new THREE.Mesh(new THREE.BoxGeometry(.62, .92, .46), wd); body.position.y = .46; g.add(body);
+      for (let i = 0; i < 4; i++) for (let j = 0; j < 3; j++) { const y = .24 + i * .19, x = -.2 + j * .2, fr = new THREE.Mesh(new THREE.BoxGeometry(.18, .16, .015), wd); fr.position.set(x, y, .235); g.add(fr);
+        const h = new THREE.Mesh(new THREE.BoxGeometry(.05, .012, .02), br); h.position.set(x, y - .03, .248); g.add(h); const l = new THREE.Mesh(new THREE.BoxGeometry(.06, .03, .004), lb); l.position.set(x, y + .03, .244); g.add(l); }
+      g.position.set(p.x, p.rbY, p.z); g.rotation.y = Math.atan2(p.x * .0, 1); group.add(g); p.mesh = g; up++; }
+    // 잠긴 증거함(자물쇠 보관함)과 그 안의 증거 조각: 따로 옮겨져 상자는 바닥 · 조각은 허공에 있던 것 → 조각 자리의 책상 위에 상자를 놓고 조각은 상자 안에
+    for (const p of W.props) { if (p.kind !== 'lock' || p.keyIdx == null || p.rbY == null || p._lk) continue; const it = W.items.find(i => i.kind === 'key' && i.idx === p.keyIdx); if (!it || it.rbY == null) continue; p._lk = true;
+      const objs = objsOf(p); if (!objs.length) continue; const bb = new THREE.Box3(); for (const o of objs) { T.setFromObject(o); if (!T.isEmpty()) bb.union(T); } if (bb.isEmpty()) continue;
+      const s0 = R._sup(it.pos.x, it.pos.z, it.rbY + 1.25), top = s0 != null && s0 > it.rbY + .3 ? s0 : it.rbY, c = bb.getCenter(V), dx = it.pos.x - c.x, dz = it.pos.z - c.z, dy = top + .003 - bb.min.y;
+      for (const o of objs) { if (o.parent !== group) group.attach(o); o.position.x += dx; o.position.y += dy; o.position.z += dz; } p.x += dx; p.z += dz; if (p.px != null) { p.px += dx; p.pz += dz; } p.rbY = it.rbY; up++;
+      if (it.mesh) { const kb = new THREE.Box3().setFromObject(it.mesh), ky = top + (bb.max.y - bb.min.y) * .35 - kb.min.y; if (it.mesh.parent !== group) group.attach(it.mesh); it.mesh.position.y += ky; it.pos.y += ky; if (it.baseY != null) it.baseY += ky; } }
+    for (const p of W.props) { if (p.done || p.rbY == null || p.floor !== 0) continue; fix(objsOf(p), p.x, p.z, p.rbY, (dy, dx = 0, dz = 0) => { p.x += dx; p.z += dz; if (p.px != null) { p.px += dx; p.pz += dz; } }, /명찰|쪽지|사진|메모/.test(p.label || '') || ['clue', 'pick', 'note', 'tape'].includes(p.kind)); }
     return { re, up };
   };
   return R;

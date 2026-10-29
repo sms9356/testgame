@@ -2,11 +2,11 @@
 //   기본으로 켜진다 (예전 건물로 보려면 주소창에 ?oldmap).
 //   예전 본관(1~3층 · 옥상) · 별관(8~10층) 건물은 감추고, 그 자리 땅(0층)에서 새 건물을 걷는다.
 //   높이는 P.sh(계단 높이 보정값)로 넘긴다 → 카메라 · 점프 · 가구 오르기 코드는 손대지 않아도 된다.
-import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=278';
-import { placeModels } from './rebuild/models.js?v=278';
-import { carve, subdivide } from './rebuild/transplant.js?v=278';
+import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=280';
+import { placeModels } from './rebuild/models.js?v=280';
+import { carve, subdivide } from './rebuild/transplant.js?v=280';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { turfMaterial } from './campusVisuals.js?v=278';
+import { turfMaterial } from './campusVisuals.js?v=280';
 
 // 예전 건물이 차지하던 땅 (이 안의 예전 메시 · 충돌 상자를 걷어 낸다)
 const OLD_MAIN = { x1: -51, x2: 51, z1: -10.6, z2: 10.9 };
@@ -480,7 +480,7 @@ export function installRebuild({ THREE, scene, floors, world }) {
         else kill(p); } }   // 상담실마다 하나 — 남는 감정 카드는 걷는다
     for (let i = W.props.length - 1; i >= 0; i--) if (W.props[i]._drop) W.props.splice(i, 1);
     // 모형 없는 조사 지점에 모형을 붙인다: 녹음기(반장 · 교사 증언) · 배전반 · 비상벨 — 빈 허공에 [E] 만 뜨던 것
-    for (const p of W.props) { if (p._vis || !inNew(p) || objsOf(p).length) continue;
+    for (const p of W.props) { if (p._vis || !(inNew(p) || (p.kind === 'tape' && p.floor === 0)) || objsOf(p).length) continue;   // 바깥 증언 녹음기도 모형이 없으면 붙인다
       const mk = p.kind === 'tape' ? 'tape' : p.kind === 'cbreaker' ? 'panel' : p.kind === 'bell' ? 'bell' : null; if (!mk) continue; p._vis = true;
       const g = new THREE.Group(), y = p.rbY ?? 0;
       if (mk === 'tape') { const su = R.groundAt(p.x, p.z, y + 1.3), top = su != null && su - y > .4 && su - y < 1.3 ? su : y; { const bm = new THREE.Mesh(new THREE.BoxGeometry(.26, .08, .15), VIS.body); bm.position.y = .04; g.add(bm); }
@@ -757,6 +757,28 @@ export function installRebuild({ THREE, scene, floors, world }) {
     { const core = MAIN.layout.rooms.find(r => r.kind === 'core'); if (core) add('rb_entrance', '본관 1F · 중앙 현관', V(MAIN, core.x2 - .4, (MAIN.spec.CEIL || 2.7) - .22, MAIN.layout.zS - .6), V(MAIN, core.x1 + .5, .9, MAIN.layout.zN / 2)); }
     add('rb_bridge', '2F · 본관 ↔ 별관 구름다리', [BRX + 1.4, FHB + 2.55, BRZ2 - .6], [BRX, FHB + .9, BRZ1 + 1]);
     return (R._cctv = out);
+  };
+  // 새 건물로 옮긴 퀘스트 물건 · 쪽지 · 녹음기 모형 바로잡기: ① 숨긴 옛 층에 매달려 안 보이던 모형을 새 건물 쪽으로 옮겨 달고
+  //   ② 바닥 아래(한 층 밑 · 땅속)에 묻힌 모형은 그 자리 받침면(책상 · 선반 · 바닥) 위로 올린다
+  R.fixVisible = world => {
+    const W = world, T = new THREE.Box3(), V = new THREE.Vector3(); let re = 0, up = 0;
+    const shown = o => { for (let a = o; a; a = a.parent) { if (!a.visible) return false; if (a.isScene) return true; } return false; };
+    const fix = (objs, x, z, rb, onMove, flat) => {
+      objs = objs.filter(o => o && o.isObject3D); if (!objs.length) return;
+      for (const o of objs) if (o.parent && !shown(o.parent)) { group.attach(o); re++; }   // 퀘스트 단계가 되면 켜지는 모형도 미리 옮겨 단다
+      const bb = new THREE.Box3(); for (const o of objs) { T.setFromObject(o); if (!T.isEmpty()) bb.union(T); } if (bb.isEmpty()) return;
+      if (flat && bb.max.y - bb.min.y < .06 && bb.max.y < rb + .08) {   // 바닥에 납작하게 깔린 쪽지 · 사진 · 명찰 → 가까운 책상 · 탁자 위로 (같은 방, 2.5m 안)
+        let best = null, bd = 2.5; for (const B of [MAIN, ANX]) { const [lx, lz] = B.toLocal(x, z); if (lx < -B.layout.L / 2 || lx > B.layout.L / 2 || lz < B.layout.zN || lz > B.layout.zS) continue; const rm = R.roomAt(x, z, rb + .1);
+          for (const c of B.col) { if (c.y2 == null || c.y2 < rb + .6 || c.y2 > rb + 1.15 || (c.y1 != null && (c.y1 > rb + .1 || c.y1 < rb - .5)) || c.x2 - c.x1 > 2.6 || c.z2 - c.z1 > 2.6 || c.x2 - c.x1 < .35 || c.z2 - c.z1 < .3) continue;
+            const cx = (c.x1 + c.x2) / 2, cz = (c.z1 + c.z2) / 2, d = Math.hypot(cx - lx, cz - lz); if (d >= bd) continue; const [wx, wz] = B.toWorld(cx, cz); if (rm && (R.roomAt(wx, wz, rb + .1) || {}).id !== rm.id) continue; bd = d; best = { x: wx, z: wz, y: c.y2 }; } }
+        if (best) { const c0 = bb.getCenter(V), dx = best.x - c0.x, dz = best.z - c0.z, dy = best.y + .004 - bb.min.y; for (const o of objs) { if (o.parent !== group) group.attach(o); o.position.x += dx; o.position.y += dy; o.position.z += dz; } onMove && onMove(dy, dx, dz); up++; return; } }
+      if (bb.max.y > rb + .015 && bb.min.y > rb - .12) return;   // 바닥 위에 제대로 있다
+      const s = R._sup ? R._sup(x, z, rb + 1.25) : rb, base = s != null && s >= rb - .05 && s < rb + 1.3 ? s : rb, dy = base + .004 - bb.min.y;
+      for (const o of objs) { if (o.parent !== group) group.attach(o); o.position.y += dy; } onMove && onMove(dy); up++;
+    };
+    for (const it of W.items) { if (it.taken || it.rbY == null || !it.mesh) continue; fix([it.mesh], it.pos.x, it.pos.z, it.rbY, (dy, dx = 0, dz = 0) => { it.pos.x += dx; it.pos.y += dy; it.pos.z += dz; if (it.baseY != null) it.baseY += dy; }, /note|photo|nametag|paper|clue/.test(it.kind)); }
+    for (const p of W.props) { if (p.done || p.rbY == null || p.floor !== 0) continue; fix(objsOf(p), p.x, p.z, p.rbY, (dy, dx = 0, dz = 0) => { p.x += dx; p.z += dz; if (p.px != null) { p.px += dx; p.pz += dz; } }, /명찰|쪽지|사진|메모/.test(p.label || '')); }
+    return { re, up };
   };
   return R;
 }

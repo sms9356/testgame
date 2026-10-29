@@ -4,7 +4,7 @@
 //   전기(분전반 · 2등용 형광등 · 콘센트 · 스위치) · 소방(소화전함 · 소화기 · 감지기 · 유도등 · 방화문) · 수도(세면대 · 배관)
 import * as THREE from '../vendor/three.module.js';
 import { mergeGeometries } from '../vendor/addons/utils/BufferGeometryUtils.js';
-import { makeFlag } from '../tex.js?v=263';
+import { makeFlag } from '../tex.js?v=265';
 // 교실 앞면 꾸밈 공용 (반 이름 · 텍스처 캐시)
 const NAMES = ['김민수', '이서연', '박지훈', '최유진', '정하늘', '강도윤', '조수아', '윤재현', '장예린', '임태호', '한소영', '오준서', '서지민', '신동혁', '권나연', '황민재', '안채원', '송우진', '전다은', '홍석진'];
 let flagTex = null; const decorTex = new Map();
@@ -1102,6 +1102,14 @@ export function buildMainBuilding(opt = {}) {
   // ── U자 계단 (층마다 2개 비행 + 중간 참) ──
   function stair(r, f, y0) {
     const w = (r.x2 - r.x1 - .6) / 2, xa = r.x1 + .15, xb = xa + w + .3, { zA, zB, zL } = SG(r), run = zB - zA, H = S.FH, n = 12, rise = H / 2 / n, tr = run / n;
+    if (f < S.floors - 1 || (opt.roofStair && r.x1 > 0)) {   // 중간참 정면 벽: 층 안내판 (위층 ▲ / 아래층 ▼) + 비상구 표지 — 계단을 오르내리며 바로 보이는 벽
+      const up = f < S.floors - 1 ? `${f + 2}층` : '옥상', dn = `${f + 1}층`, c = document.createElement('canvas'); c.width = 512; c.height = 384; const g = c.getContext('2d');
+      g.fillStyle = '#f2f0e8'; g.fillRect(0, 0, 512, 384); g.strokeStyle = '#1f5a3a'; g.lineWidth = 14; g.strokeRect(7, 7, 498, 370);
+      g.fillStyle = '#1f2a24'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = 'bold 120px sans-serif'; g.fillText(up, 256, 112); g.fillText(dn, 256, 276);
+      g.fillStyle = '#1f5a3a'; g.font = 'bold 70px sans-serif'; g.fillText('▲', 70, 112); g.fillText('▼', 70, 276); g.fillRect(40, 190, 432, 6);
+      const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; const m = new THREE.Mesh(new THREE.PlaneGeometry(1.0, .75), new THREE.MeshBasicMaterial({ map: t, toneMapped: false }));
+      m.position.set((r.x1 + r.x2) / 2, y0 + H / 2 + 1.35, zL - .03); m.rotation.y = Math.PI; root.add(m);
+      exitSign((r.x1 + r.x2) / 2, y0 + H / 2 + 1.86, zL - .06); }
     box('terr', r.x1, r.x2, y0, y0 + .02, zN, zA);   // 층 참 (보행면은 슬래브 쪽에서)
     const roofUp = opt.roofStair && f === S.floors - 1 && r.x1 > 0;   // 맨 위층 동쪽 계단실: 옥상까지 이어지는 계단 + 옥탑 계단실
     // 벽 쪽 핸드레일 (비행마다 기울어진 봉 + 받침대)

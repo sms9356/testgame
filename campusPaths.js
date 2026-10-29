@@ -1,9 +1,10 @@
+import { FAC_MOVES } from './campusRelayout.js?v=261';
 // 캠퍼스 인도 재배치: 예전 배치(옛 시설 · 옛 본관 기준)로 깔린 보도블록이 새 건물 벽을 뚫고 지나가거나
 // 서로 겹쳐(같은 높이 → 깜빡임) 지저분했다 → 예전 보도를 모두 걷고, 같은 경로를 격자로 합친 뒤
 // 건물 바닥 사각형을 빼고, 새 현관마다 진입로를 이어 한 장의 겹침 없는 인도로 다시 깐다 (경계엔 연석).
 import * as THREE from './vendor/three.module.js';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { ZONES } from './facilityRebuild.js?v=258';
+import { ZONES } from './facilityRebuild.js?v=261';
 
 const CELL = .2, X0 = -130, X1 = 130, Z0 = -100, Z1 = 90;
 // 캠퍼스 재배치 후 새 인도망 (폭 2.8m 안팎): 예전 보도는 모두 걷고 동선대로 다시 깐다 — 대로 4줄 + 안쪽 종단로 + 각 건물 현관 진입로
@@ -85,10 +86,14 @@ export function cleanupCampus({ scene, floors }) {
     o.children.forEach(walk); };
   scene.children.forEach(walk);
   hid += carveFloating(scene);
+  // 옮긴 시설(역사관 · 천문관 · 대강당 · 수영장)의 옛 자리에 남은 통째 충돌 상자: 빈 땅인데 건물처럼 막혀 있었다
+  const F0 = floors[0]; if (F0) for (const k of ['col', 'walls']) { const L = F0[k]; if (!L) continue;
+    for (let i = L.length - 1; i >= 0; i--) { const r = L[i]; if (r.x1 == null) continue; const cx = (r.x1 + r.x2) / 2, cz = (r.z1 + r.z2) / 2, w = r.x2 - r.x1, d = r.z2 - r.z1;
+      if (w > 6 && d > 6 && Object.values(FAC_MOVES).some(m => Math.abs(cx - m.from[0]) < 3 && Math.abs(cz - m.from[1]) < 3 && !Object.values(FAC_MOVES).some(n => Math.abs(cx - n.to[0]) < n.W / 2 && Math.abs(cz - n.to[1]) < n.D / 2))) { L.splice(i, 1); hid++; } } }
   return { hid, inst };
 }
 // 건물 이동 뒤 남은 굳힌(bake) 잔재 삼각형: 운동장 서쪽 6.5m 높이 녹슨 막대 · 받침 없이 떠 있는 옛 차양 판 · 마당의 옛 경계석 띠
-const FLOAT_BOXES = [[-49.5, -47, 5.5, 8.5, 15, 62], [-34.6, -32.2, -.1, 3.6, 38.8, 43.3],
+const FLOAT_BOXES = [[-49.5, -47, 5.5, 8.5, 15, 62], [-62, -30, 4.5, 9, 27, 62], [-34.6, -32.2, -.1, 3.6, 38.8, 43.3],
   [-37, 37, -.3, .6, -32.2, -4.2]];   // 본관 ↔ 별관 사이 마당: 예전 건물 경계석 · 바닥 띠(흰 줄 · 붉은 줄)가 잔디 위로 비쳤다
 const CARVED = new WeakSet();
 function carveFloating(scene) {

@@ -127,6 +127,8 @@
   #devs{position:absolute;right:18px;bottom:18px;display:flex;gap:10px;align-items:flex-end;font-family:inherit}
   #devs .dv{background:rgba(10,13,17,.82);border:1px solid #3a444c;border-radius:10px;padding:8px 10px;color:#cfd6dc;font-size:11px;min-width:118px;box-shadow:0 6px 18px rgba(0,0,0,.45)}
   #devs .dv b{display:block;font-size:12px;color:#e8edf0;margin-bottom:4px;letter-spacing:.04em}
+  #devs .dv:first-child{border-radius:16px;border:2px solid #2c3238;background:linear-gradient(180deg,#0d1014,#06080a);position:relative;padding-top:12px}
+  #devs .dv:first-child:before{content:'';position:absolute;top:4px;left:50%;transform:translateX(-50%);width:30px;height:5px;border-radius:3px;background:#000;box-shadow:inset 0 0 0 1px #1c2024}
   #devs .ph{display:flex;justify-content:space-between;gap:8px;align-items:center}
   #devs .bars{display:inline-flex;gap:2px;align-items:flex-end;height:11px}#devs .bars i{width:3px;background:#55606a;border-radius:1px}#devs .bars i.on{background:#9fe0a8}
   #devs .key{display:inline-block;border:1px solid #5a6670;border-radius:4px;padding:0 4px;font-size:10px;color:#aab4bc;margin-top:4px}
@@ -303,6 +305,22 @@
   .pTabs button{flex:1;background:#14181c;border:0;color:#aab;padding:8px 0;font-family:inherit;font-size:12px;border-radius:8px;cursor:pointer}
   .pTabs button.on{background:#2a3644;color:#fff}
   #pBody{flex:1;overflow:auto;padding:4px}
+  .pIsland{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:96px;height:24px;background:#000;border-radius:14px;z-index:2;box-shadow:inset 0 0 0 1px #15181b}
+  .pIsland:after{content:'';position:absolute;right:14px;top:8px;width:8px;height:8px;border-radius:50%;background:#1a2230;box-shadow:inset 0 0 2px #4a6aa0}
+  .pStatus{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:#e8edf2;padding:4px 18px 10px;font-weight:600}
+  .pRight{display:flex;gap:6px;align-items:center}.pCarrier{display:none}
+  .pSig{display:inline-flex;gap:1.5px;align-items:flex-end;height:10px}.pSig i{width:3px;background:#e8edf2;border-radius:1px}.pSig i:nth-child(1){height:3px}.pSig i:nth-child(2){height:5px}.pSig i:nth-child(3){height:7px;opacity:.35}.pSig i:nth-child(4){height:10px;opacity:.35}
+  .pHead{font-size:20px;font-weight:700;color:#fff;padding:2px 8px 8px}
+  .pTabs{display:grid;grid-template-columns:repeat(5,1fr);gap:6px 4px;margin:8px 0 0;padding:10px 6px 6px;background:rgba(30,36,44,.72);border-radius:22px;backdrop-filter:blur(6px)}
+  .pTabs button{display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:0;color:#c8d0d8;padding:2px 0;font-family:inherit;font-size:10px;cursor:pointer;border-radius:10px}
+  .pTabs button i{font-style:normal;font-size:20px;width:38px;height:38px;display:flex;align-items:center;justify-content:center;border-radius:11px;background:linear-gradient(160deg,#2c3846,#1a222c);box-shadow:0 2px 6px rgba(0,0,0,.4)}
+  .pTabs button.on{color:#fff}.pTabs button.on i{background:linear-gradient(160deg,#3a78c8,#2456a0)}
+  .pHome{width:110px;height:4px;border-radius:3px;background:#d8dde2;opacity:.75;margin:8px auto 2px}
+  .pRec{display:flex;align-items:center;gap:10px;background:#10161c;border:1px solid #23303c;border-radius:14px;padding:9px 10px;margin-bottom:7px}
+  .pRec .ic{font-size:20px}.pRec .tx{flex:1;min-width:0}.pRec .tx b{display:block;color:#eef2f6;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pRec .tx small{color:#8a9aa8;font-size:11px}
+  .pRec button{width:34px;height:34px;border-radius:50%;border:0;background:#2456a0;color:#fff;font-size:14px;cursor:pointer}.pRec.playing{border-color:#4d9bff}.pRec.playing button{background:#c0392b}
+  .pRecHead{display:flex;justify-content:space-between;color:#9fb0c0;font-size:11px;margin:2px 4px 8px}
+
   .bubble .av{float:left;width:34px;height:34px;border-radius:50%;object-fit:cover;object-position:50% 30%;margin:0 8px 2px 0;border:1px solid #3a5068}
   .pTool{display:flex;flex-direction:column;gap:8px}
   .pCard{background:#10161c;border:1px solid #23303c;border-radius:12px;padding:10px 12px;font-size:13px;line-height:1.5;color:#c8d0d8}
@@ -710,9 +728,12 @@
 <div id="invZoom" class="overlay"><div class="win"><div class="head"><b id="izName"></b><button class="x" id="izClose">닫기</button></div><div class="big" id="izBig"></div><p id="izText"></p></div></div>
 <!-- 휴대폰 -->
 <div id="phone" class="overlay"><div class="phoneFrame">
-  <div class="pStatus"><span id="pClock">23:40</span><b>신호 없음 ✕</b><span id="pBat">🔋 100%</span></div>
-  <div class="pTabs"><button data-p="msg">메시지</button><button data-p="photo">사진</button><button data-p="memo">메모</button><button data-p="tl">사건</button><button data-p="missions">미션</button><button data-p="tool">도구</button><button data-p="call">전화</button><button data-p="cam">카메라</button><button data-p="log">기록</button></div>
-  <div id="pBody"></div><div class="pHint">P / Esc 닫기 · Q / E 탭 전환</div></div></div>
+  <div class="pIsland"></div>
+  <div class="pStatus"><span id="pClock">23:40</span><span class="pRight"><span class="pCarrier">SKT LTE</span><span class="pSig"><i></i><i></i><i></i><i></i></span><span id="pBat">🔋 100%</span></span></div>
+  <div class="pHead" id="pTitle">메시지</div>
+  <div id="pBody"></div>
+  <div class="pTabs"><button data-p="msg"><i>💬</i>메시지</button><button data-p="call"><i>📞</i>전화</button><button data-p="rec"><i>🎙️</i>녹음</button><button data-p="photo"><i>🖼️</i>사진</button><button data-p="cam"><i>📷</i>카메라</button><button data-p="memo"><i>📝</i>메모</button><button data-p="tl"><i>🧩</i>사건</button><button data-p="missions"><i>✅</i>미션</button><button data-p="tool"><i>🧰</i>도구</button><button data-p="log"><i>📜</i>기록</button></div>
+  <div class="pHome"></div><div class="pHint">P / Esc 닫기 · Q / E 앱 전환</div></div></div>
 <!-- 지도 -->
 <div id="mapOv" class="overlay"><div class="win" id="mapWrap">
   <div class="head"><b>지도</b><span style="font-size:12px;color:var(--dim)">휠 / <kbd>Z</kbd> <kbd>X</kbd> 확대·축소 · 드래그 이동</span><button class="x" data-close>닫기 <kbd>M</kbd></button></div>
@@ -858,6 +879,6 @@
 <div id="win" class="overlay"><div id="endTag">TRUE END</div><div id="endTitle"></div><p class="story" id="winText"></p><div id="endStats"></div><div class="menuBtns"><button class="btn" id="againBtn">타이틀로</button></div></div>
 <div id="bye" class="overlay"><p class="story">브라우저는 보안상 웹 게임이 탭을 직접 닫을 수 없습니다.<br>탭을 닫거나(<kbd>Ctrl</kbd>+<kbd>W</kbd>) 타이틀로 돌아가세요. 진행 상황은 자동 저장되어 있습니다.</p><button class="btn" id="byeBack" style="margin-top:20px">타이틀로 돌아가기</button></div>
 
-<script type="module" src="game.js?v=258"></script>
+<script type="module" src="game.js?v=261"></script>
 </body>
 </html>

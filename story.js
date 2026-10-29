@@ -627,46 +627,46 @@ export const MEMORIES = {
 //   need: 'power' · 'mina' · 'key4' · 'hairpin' (조건), take/give: 퀘스트 아이템, doc: 얻는 문서, choice: 선택지(첫 번째가 '마음을 쓰는' 선택)
 export const SIDEQUESTS = [
   { id: 'attend', title: '늘 제일 먼저 오던 아이', steps: [
-    { f: 0, room: '1-1', dx: -1.65, d: 6.75, look: 'board', label: '개근 스티커판 살펴보기', doc: 'q1a', goal: '1-1 — 교탁 옆 개근 스티커판' },
-    { f: 0, room: '교무실', dx: 2.8, d: .55, look: 'book', label: '10월 13일 출석부 펼치기', doc: 'q1b', goal: '교무실 — 10월 13일 출석부의 “결석”',
+    { f: 0, room: '1-1', dx: -1.65, d: 6.75, look: 'board', label: '개근 스티커판 살펴보기', doc: 'q1a', goal: '본관 1층 1학년 1반 — 교탁 옆 개근 스티커판' },
+    { f: 0, room: '교무실', dx: 2.8, d: .55, look: 'book', label: '10월 13일 출석부 펼치기', doc: 'q1b', goal: '본관 1층 교무실 — 10월 13일 출석부의 “결석”',
       choice: { title: '10월 13일 출석부', text: '3학년 2반 윤하늘 — <b>결석</b>. 교감의 글씨다.', opts: [{ label: '“결석”을 지우고 “출석”이라 고쳐 쓴다', sub: '그 아이는 그날 아침에도 학교에 있었다' }, { label: '그대로 덮는다' }] },
       event: 'bell', reward: { battery: 1, medkit: 1 } }] },
   { id: 'trio', title: '세 사람의 방송', steps: [
-    { f: 2, room: '3-5', dx: 1.55, d: 6.65, look: 'book', label: '교환일기 마지막 장 읽기', doc: 'q2a', goal: '3-5 — 창가 쪽 교환일기' },
-    { f: 2, room: '음악실', dx: -2.9, d: .55, look: 'tape', label: '카세트 서랍 열기', give: 'tapeTrio', goal: '음악실 — 카세트 서랍의 반주 테이프' },
-    { f: 2, room: '방송실', dx: 1.0, d: 2.2, look: 'deck', label: '반주 테이프 틀기', need: 'power', take: 'tapeTrio', doc: 'q2b', goal: '방송실 — 반주 테이프 틀기 (전원 필요)', event: 'song', reward: { medkit: 2 } }] },
+    { f: 2, room: '3-5', dx: 1.55, d: 6.65, look: 'book', label: '교환일기 마지막 장 읽기', doc: 'q2a', goal: '본관 3층 3학년 5반 — 창가 쪽 교환일기' },
+    { f: 2, room: '음악실', dx: -2.9, d: .55, look: 'tape', label: '카세트 서랍 열기', give: 'tapeTrio', goal: '별관 1층 음악실 — 카세트 서랍의 반주 테이프' },
+    { f: 2, room: '방송실', dx: 1.0, d: 2.2, look: 'deck', label: '반주 테이프 틀기', need: 'power', take: 'tapeTrio', doc: 'q2b', goal: '본관 4층 방송실 — 반주 테이프 틀기 (전원 필요)', event: 'song', reward: { medkit: 2 } }] },
   { id: 'nurse', title: '다섯 번째 조각의 주인', steps: [
-    { f: 0, room: '보건실', dx: 2.9, d: .55, look: 'letter', label: '약품장 아래 편지 읽기', doc: 'q3a', goal: '보건실 — 약품장 아래 편지' },
+    { f: 0, room: '보건실', dx: 2.9, d: .55, look: 'letter', label: '약품장 아래 편지 읽기', doc: 'q3a', goal: '본관 1층 보건실 — 약품장 아래 편지' },
     { f: 6, x: -36.5, z: 44.4, look: 'flower', label: '배수구 물길 앞에 서기', need: 'key4', doc: 'q3b', goal: '수영장 — 배수구 앞 (다섯 번째 조각을 찾은 뒤)',
       choice: { title: '물길 앞에서', text: '보건교사가 조각을 던졌던 물길. 손에는 그 조각이 있다.', opts: [{ label: '잠시 눈을 감고 묵념한다' }, { label: '그냥 지나간다' }] }, event: 'water', reward: { battery: 1, medkit: 1 } }] },
   { id: 'prank', title: '담력 체험의 네 사람', steps: [
-    { f: 2, room: '학생회실', dx: 2.9, d: .55, look: 'paper', label: '방송부 행사 명단 찾기', doc: 'q4a', goal: '학생회실 — 방송부 행사 명단' },
-    { f: 1, room: '기록 보관실', dx: -2.9, d: .55, look: 'drawer', label: '봉인된 진술서 서랍 따기', need: 'hairpin', doc: 'q4b', goal: '기록 보관실 — 잠긴 서랍 (머리핀 필요)', event: 'pick' },
-    { f: 2, room: '3-4', dx: -1.55, d: 6.65, look: 'paper', label: '큐시트 뒷면의 도면 맞춰 보기', doc: 'q4c', goal: '3-4 — 방송부 큐시트 뒷면', event: 'truth', reward: { battery: 2 } }] },
+    { f: 2, room: '학생회실', dx: 2.9, d: .55, look: 'paper', label: '방송부 행사 명단 찾기', doc: 'q4a', goal: '본관 2층 회의실 — 방송부 행사 명단' },
+    { f: 1, room: '기록 보관실', dx: -2.9, d: .55, look: 'drawer', label: '봉인된 진술서 서랍 따기', need: 'hairpin', doc: 'q4b', goal: '본관 4층 창고 — 잠긴 서랍 (머리핀 필요)', event: 'pick' },
+    { f: 2, room: '3-4', dx: -1.55, d: 6.65, look: 'paper', label: '큐시트 뒷면의 도면 맞춰 보기', doc: 'q4c', goal: '본관 3층 3학년 4반 — 방송부 큐시트 뒷면', event: 'truth', reward: { battery: 2 } }] },
   { id: 'letter', title: '정은수 선생님의 편지', steps: [
-    { f: 2, room: '3-2', dx: 1.45, d: 6.55, look: 'letter', label: '교탁 속 편지 꺼내기', doc: 'q5a', give: 'letterT', goal: '3-2 — 교탁 속 편지' },
-    { f: 1, room: '교사 휴게실', dx: 2.9, d: .55, look: 'box', label: '휴게실 우편함 뒤지기', doc: 'q5b', goal: '교사 휴게실 — 우편함' },
+    { f: 2, room: '3-2', dx: 1.45, d: 6.55, look: 'letter', label: '교탁 속 편지 꺼내기', doc: 'q5a', give: 'letterT', goal: '본관 3층 3학년 2반 — 교탁 속 편지' },
+    { f: 1, room: '교사 휴게실', dx: 2.9, d: .55, look: 'box', label: '휴게실 우편함 뒤지기', doc: 'q5b', goal: '본관 1층 교무실 · 행정실 — 우편함' },
     { f: 0, x: 24.6, z: 67.9, look: 'post', label: '경비실 우편함에 편지 넣기', take: 'letterT', doc: 'q5c', goal: '정문 경비실 — 우편함', event: 'post', reward: { battery: 2 } }] },
   { id: 'mina', title: '민아가 여기 온 이유', steps: [
-    { f: 1, room: '컴퓨터실', dx: 2.9, d: .55, look: 'monitor', label: '켜져 있는 모니터 보기', doc: 'q6a', goal: '컴퓨터실 — 켜져 있는 모니터' },
-    { f: 1, room: '2-5', dx: -1.55, d: 1.25, look: 'photo', label: '게시판의 사진 보기', doc: 'q6b', goal: '2-5 — 게시판 사진' },
-    { f: 2, room: '방송실', dx: -1.0, d: 2.2, look: 'tape', label: '민아가 남긴 녹음기 재생', need: 'mina', doc: 'q6c', goal: '방송실 — 민아의 녹음기 (민아를 깨운 뒤)', event: 'mina', reward: { medkit: 1, battery: 1 } }] },
+    { f: 1, room: '컴퓨터실', dx: 2.9, d: .55, look: 'monitor', label: '켜져 있는 모니터 보기', doc: 'q6a', goal: '별관 1층 컴퓨터실 — 켜져 있는 모니터' },
+    { f: 1, room: '2-5', dx: -1.55, d: 1.25, look: 'photo', label: '게시판의 사진 보기', doc: 'q6b', goal: '본관 2층 2학년 5반 — 게시판 사진' },
+    { f: 2, room: '방송실', dx: -1.0, d: 2.2, look: 'tape', label: '민아가 남긴 녹음기 재생', need: 'mina', doc: 'q6c', goal: '본관 4층 방송실 — 민아의 녹음기 (민아를 깨운 뒤)', event: 'mina', reward: { medkit: 1, battery: 1 } }] },
   { id: 'light', title: '10년 늦은 비상등', steps: [
-    { f: 1, room: '과학실', dx: -2.9, d: .55, look: 'box', label: '공구함 열기', doc: 'q7a', give: 'emBattery', goal: '과학실 — 공구함' },
-    { f: 4, room: '펌프실', dx: 2.9, d: .55, look: 'lamp', label: '비상등에 배터리팩 끼우기', take: 'emBattery', doc: 'q7b', goal: '지하 펌프실 — 문 옆 비상등', event: 'light', reward: { battery: 1 } }] },
+    { f: 1, room: '과학실', dx: -2.9, d: .55, look: 'box', label: '공구함 열기', doc: 'q7a', give: 'emBattery', goal: '별관 2층 과학실 — 공구함' },
+    { f: 4, room: '펌프실', dx: 2.9, d: .55, look: 'lamp', label: '비상등에 배터리팩 끼우기', take: 'emBattery', doc: 'q7b', goal: '지하 B1 펌프실 — 문 옆 비상등', event: 'light', reward: { battery: 1 } }] },
   { id: 'book', title: '집으로 가는 길', steps: [
-    { f: 2, room: '3-3', dx: -1.55, d: 1.25, look: 'book', label: '사물함 위의 책 집기', doc: 'q8a', give: 'bookHome', goal: '3-3 — 사물함 위의 책' },
-    { f: 0, room: '도서실', dx: 2.9, d: .55, look: 'box', label: '반납함에 책 넣기', take: 'bookHome', doc: 'q8b', goal: '도서실 — 반납함', event: 'library', reward: { medkit: 1, battery: 1 } }] },
+    { f: 2, room: '3-3', dx: -1.55, d: 1.25, look: 'book', label: '사물함 위의 책 집기', doc: 'q8a', give: 'bookHome', goal: '본관 3층 3학년 3반 — 사물함 위의 책' },
+    { f: 0, room: '도서실', dx: 2.9, d: .55, look: 'box', label: '반납함에 책 넣기', take: 'bookHome', doc: 'q8b', goal: '본관 2층 도서실 — 반납함', event: 'library', reward: { medkit: 1, battery: 1 } }] },
 ];
 
 // 제4장 · 열쇠의 머리 — 다섯 조각을 모은 뒤 열리는 본편 장 (별관 1~3층). 의뢰와 같은 조사 지점 방식 · 진행은 FL.sq.head
 //   mini: 미니게임 (circuit 배선 · slide 사진 맞추기), code: 비밀번호 (키패드), need: 'anPow' (별관 전원)
 export const HEADQUEST = { id: 'head', title: '교장의 최종 은폐 내막 · 마스터 코어 추적', steps: [
   { f: 1, room: '교장실', dx: 2.4, d: .6, look: 'paper', label: '교장 책상 서랍 열기', doc: 'h1', goal: '본관 2층 교장실 — 책상 서랍', where: '본관 2층 · 교장실' },
-  { f: 8, room: '별관 현관', dx: 2.6, d: 1.4, look: 'plaque', label: '개교 머릿돌 동판 읽기', doc: 'h2', goal: '별관 1층 현관 — 개교 머릿돌', where: '별관 1층 · 현관 (본관 1층 계단실 북쪽 유리 통로)' },
-  { f: 8, room: '공구실', dx: -2.6, d: .16, look: 'panel', label: '별관 분전반 배선 잇기', mini: 'circuit', doc: 'h3', goal: '별관 1층 공구실 — 분전반 (별관 전원)', where: '별관 1층 · 공구실', event: 'annexPower' },
-  { f: 9, room: '디지털실습실', dx: 2.6, d: .6, look: 'monitor', label: '보안 PC — 끊긴 CCTV 화면 복구', mini: 'slide', need: 'anPow', doc: 'h4', goal: '별관 2층 디지털실습실 — 보안 PC', where: '별관 2층 · 디지털실습실', event: 'cctv' },
-  { f: 10, room: '전시 공간', dx: 0, d: 2.2, look: 'case', label: '진열장 비밀번호 입력', code: '0302', need: 'anPow', doc: 'h5', goal: '별관 3층 전시 공간 — 진열장 (번호: 학교가 태어난 날)', where: '별관 3층 · 전시 공간', event: 'head' }] };
+  { f: 8, room: '별관 현관', dx: 2.6, d: 1.4, look: 'plaque', label: '개교 머릿돌 동판 읽기', doc: 'h2', goal: '별관 1층 미술실 — 개교 머릿돌 동판', where: '별관 1층 · 현관 (본관 1층 계단실 북쪽 유리 통로)' },
+  { f: 8, room: '공구실', dx: -2.6, d: .16, look: 'panel', label: '별관 분전반 배선 잇기', mini: 'circuit', doc: 'h3', goal: '별관 1층 가정실 — 분전반 (별관 전원)', where: '별관 1층 · 공구실', event: 'annexPower' },
+  { f: 9, room: '디지털실습실', dx: 2.6, d: .6, look: 'monitor', label: '보안 PC — 끊긴 CCTV 화면 복구', mini: 'slide', need: 'anPow', doc: 'h4', goal: '별관 1층 컴퓨터실 — 보안 PC', where: '별관 2층 · 디지털실습실', event: 'cctv' },
+  { f: 10, room: '전시 공간', dx: 0, d: 2.2, look: 'case', label: '진열장 비밀번호 입력', code: '0302', need: 'anPow', doc: 'h5', goal: '본관 3층 자율학습실 — 진열장 (번호: 학교가 태어난 날)', where: '별관 3층 · 전시 공간', event: 'head' }] };
 
 // 수집품 14종 — 사물함 · 방 곳곳에서. 모두 모으면 보답이 있다 (소지품 › 수집품)
 export const COLLECT = [

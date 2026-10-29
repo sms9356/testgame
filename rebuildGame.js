@@ -2,11 +2,11 @@
 //   기본으로 켜진다 (예전 건물로 보려면 주소창에 ?oldmap).
 //   예전 본관(1~3층 · 옥상) · 별관(8~10층) 건물은 감추고, 그 자리 땅(0층)에서 새 건물을 걷는다.
 //   높이는 P.sh(계단 높이 보정값)로 넘긴다 → 카메라 · 점프 · 가구 오르기 코드는 손대지 않아도 된다.
-import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=268';
-import { placeModels } from './rebuild/models.js?v=268';
-import { carve, subdivide } from './rebuild/transplant.js?v=268';
+import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=270';
+import { placeModels } from './rebuild/models.js?v=270';
+import { carve, subdivide } from './rebuild/transplant.js?v=270';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { turfMaterial } from './campusVisuals.js?v=268';
+import { turfMaterial } from './campusVisuals.js?v=270';
 
 // 예전 건물이 차지하던 땅 (이 안의 예전 메시 · 충돌 상자를 걷어 낸다)
 const OLD_MAIN = { x1: -51, x2: 51, z1: -10.6, z2: 10.9 };
@@ -379,7 +379,10 @@ export function installRebuild({ THREE, scene, floors, world }) {
   // 녹음기(증언 테이프): 화자 · 제목으로 알맞은 방 — 반장 녹음은 그 반, 교사는 자기 교과실
   const TAPE_ROOM = [[/(\d)학년 (\d)반 반장/, m => `${m[1]}학년 ${m[2]}반`], [/3-2 담임/, () => '3학년 2반'], [/상담교사/, () => '상담실'], [/보건교사|구급대/, () => '보건실'],
     [/음악교사/, () => '음악실'], [/미술교사/, () => '미술실'], [/과학부장/, () => '과학실'], [/사서|서다은/, () => '도서실'], [/교감/, () => '교무실 · 행정실'], [/어머니/, () => '상담실']];
-  const tapeRef = p => { if (p.kind !== 'tape') return null; const t = `${p.title || ''} ${p.spk || ''}`; for (const [re, f] of TAPE_ROOM) { const m = t.match(re); if (m) return { tok: '', name: f(m) }; } return null; };
+  // 서브 퀘스트 조사 지점 → 이야기 속 방 (새 건물 이름): 학생회실 → 회의실, 기록 보관실 → 창고, 디지털실습실 → 컴퓨터실
+  const SQ_ROOM = { 'attend:0': '1학년 1반', 'trio:0': '3학년 5반', 'trio:1': '음악실', 'nurse:0': '보건실', 'prank:0': '회의실', 'prank:1': '창고', 'prank:2': '3학년 4반', 'mina:0': '컴퓨터실', 'mina:1': '2학년 5반', 'book:0': '3학년 3반', 'book:1': '도서실', 'head:3': '컴퓨터실', 'head:4': '자율학습실' };
+  const sqRef = p => { if (p.kind === 'ganx' && p.k === 'box' && p.key === 'main') return { tok: '', name: '교무실 · 행정실' }; const m = /^sq:(.+)$/.exec(p.uid || ''); return m && SQ_ROOM[m[1]] ? { tok: '', name: SQ_ROOM[m[1]] } : null; };
+  const tapeRef = p => { const sq = sqRef(p); if (sq) return sq; if (p.kind !== 'tape') return null; const t = `${p.title || ''} ${p.spk || ''}`; for (const [re, f] of TAPE_ROOM) { const m = t.match(re); if (m) return { tok: '', name: f(m) }; } return null; };
   R.fixRoomRefs = world => {
     const W = world, rooms = allRooms(); let moved = 0, relabeled = 0, dup = 0;
     for (const p of W.props) {

@@ -5,7 +5,10 @@ export function buildMissionGroups({flags={},documents=[],quests=[],objective}) 
   const stage=q=>Math.min(q.steps.length,Math.max(0,Math.floor(Number(flags.sq?.[q.id])||0)));
   return [
     {id:'main',title:flags.mina?'메인 미션 · 함께 돌아가는 길':'메인 미션 · 실종된 선배',purpose:'민아 선배의 흔적을 추적하고, 방송실의 기억을 풀어 함께 돌아간다.',items:[{id:'current',title:objective.main,done:false,where:objective.loc?.where},...objective.subs.map(([title,done],i)=>({id:`step-${i}`,title,done:!!done}))]},
-    {id:'side',title:'서브 미션 · 남겨진 부탁',purpose:'학교의 일상과 증언을 복원한다. 진행 중인 메인 미션과 별개로 조사할 수 있다.',items:quests.map(q=>{const n=stage(q);return {id:q.id,title:q.title,done:n===q.steps.length,where:n===q.steps.length?'조사 완료':q.steps[n].goal,progress:`${n}/${q.steps.length}`};})},
+    {id:'side',title:'서브 미션 · 남겨진 부탁',purpose:'학교의 일상과 증언을 복원한다. 진행 중인 메인 미션과 별개로 조사할 수 있다.',items:quests.map(q=>{const n=stage(q);return {id:q.id,title:q.title,done:n===q.steps.length,where:n===q.steps.length?'조사 완료':q.steps[n].goal,progress:`${n}/${q.steps.length}`};}).concat([
+{id:'keybox',title:'경비실 열쇠보관함(번호: 관제실 열쇠 대출 장부의 마지막 대출 시각) → 잠긴 증거함 3개 열기 (본관 교무실 · 체육관 창고 · 지하 시설창고)',done:!!(flags.box_main&&flags.box_gym&&flags.box_base),progress:`${['box_main','box_gym','box_base'].filter(k=>flags[k]).length}/3`},
+      {id:'b1gate',title:'지하 B1 철문 열기 — 열쇠 꾸러미는 본관 1층 교무실 금고 안 (번호: 참사 당일 날짜)',done:!!flags.b1Open}
+    ])},
     {id:'special',title:'특별 미션 · 그날의 진실',purpose:'발견한 기록을 대조해 과거 사건의 모순과 빠진 이름을 확인한다. 선배 수색과 별도의 진상 조사다.',items:[
       {id:'contradiction',title:'방송부원과 경비의 진술 대조',done:has('n23')&&has('n24')},
       {id:'witnesses',title:'사건 증언 테이프 6개 복원',done:count(flags.mega?.tapes)>=6,progress:`${Math.min(6,count(flags.mega?.tapes))}/6`},

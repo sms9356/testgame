@@ -2,11 +2,11 @@
 //   기본으로 켜진다 (예전 건물로 보려면 주소창에 ?oldmap).
 //   예전 본관(1~3층 · 옥상) · 별관(8~10층) 건물은 감추고, 그 자리 땅(0층)에서 새 건물을 걷는다.
 //   높이는 P.sh(계단 높이 보정값)로 넘긴다 → 카메라 · 점프 · 가구 오르기 코드는 손대지 않아도 된다.
-import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=270';
-import { placeModels } from './rebuild/models.js?v=270';
-import { carve, subdivide } from './rebuild/transplant.js?v=270';
+import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=271';
+import { placeModels } from './rebuild/models.js?v=271';
+import { carve, subdivide } from './rebuild/transplant.js?v=271';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { turfMaterial } from './campusVisuals.js?v=270';
+import { turfMaterial } from './campusVisuals.js?v=271';
 
 // 예전 건물이 차지하던 땅 (이 안의 예전 메시 · 충돌 상자를 걷어 낸다)
 const OLD_MAIN = { x1: -51, x2: 51, z1: -10.6, z2: 10.9 };
@@ -417,6 +417,10 @@ export function installRebuild({ THREE, scene, floors, world }) {
       for (let rr = .5; rr < 3.5 && !done; rr += .45) for (let a = 0; a < 12 && !done; a++) { const lx = mx + Math.cos(a / 12 * 6.283) * rr, lz = mz + Math.sin(a / 12 * 6.283) * rr; if (lx < t.r.x1 + .4 || lx > t.r.x2 - .4 || lz < t.r.z1 + .4 || lz > t.r.z2 - .4) continue;
         const [x, z] = t.b.toWorld(lx, lz); if (W.props.some(q => q !== p && !q._drop && q.floor === 0 && Math.abs((q.rbY ?? 0) - h) < 1 && Math.hypot(q.x - x, q.z - z) < .7)) continue;
         const dx = x - p.x, dz = z - p.z; for (const k of Object.keys(p)) { const o = p[k]; if (o && o.isObject3D && k !== 'parent') { o.position.x += dx; o.position.z += dz; } } p.x = x; p.z = z; if (p.px != null) { p.px += dx; p.pz += dz; } done = true; } }
+    // 옛 건물에서 옮겨 온 물건 중 새 방에 어울리지 않는 것: 세면대 · 수도꼭지는 물 쓰는 방에만, 옛 형광등 스위치는 새 건물 스위치가 있으니 걷는다
+    for (const p of W.props) { if (!p._old || p._drop || p.floor !== 0 || !p.label) continue; const rm = R.roomAt(p.x, p.z, (p.rbY ?? 0) + .1), rn = rm ? (rm.name || rm.label || '') : '';
+      const wet = /수도꼭지|세면대|싱크|개수대/.test(p.label) && !/화장실|과학실|가정실|미술실|보건실/.test(rn), oldSw = p.kind !== 'switch' && /스위치/.test(p.label) && /형광등|전등|조명/.test(p.label);
+      if (wet || oldSw) { for (const o of objsOf(p)) o.visible = false; p._drop = true; } }
     for (let i = W.props.length - 1; i >= 0; i--) if (W.props[i]._drop) { W.props.splice(i, 1); dup++; }
     const seen = new Map();
     for (let i = 0; i < W.props.length; i++) { const p = W.props[i]; if (p.floor !== 0 || !p._rf || !p.label || !['fz', 'robj'].includes(p.kind) || p.mega || p.main || p.q || /의자에 앉기|스위치|문 열기|문 닫기|명찰|테이프|증거|열쇠|쪽지|기록부/.test(p.label)) continue;   // 미션 · 수집품은 건드리지 않는다

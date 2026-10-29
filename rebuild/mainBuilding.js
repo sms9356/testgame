@@ -4,7 +4,7 @@
 //   전기(분전반 · 2등용 형광등 · 콘센트 · 스위치) · 소방(소화전함 · 소화기 · 감지기 · 유도등 · 방화문) · 수도(세면대 · 배관)
 import * as THREE from '../vendor/three.module.js';
 import { mergeGeometries } from '../vendor/addons/utils/BufferGeometryUtils.js';
-import { makeFlag } from '../tex.js?v=276';
+import { makeFlag } from '../tex.js?v=277';
 // 교실 앞면 꾸밈 공용 (반 이름 · 텍스처 캐시)
 const NAMES = ['김민수', '이서연', '박지훈', '최유진', '정하늘', '강도윤', '조수아', '윤재현', '장예린', '임태호', '한소영', '오준서', '서지민', '신동혁', '권나연', '황민재', '안채원', '송우진', '전다은', '홍석진'];
 let flagTex = null; const decorTex = new Map();
@@ -1230,7 +1230,7 @@ export function buildMainBuilding(opt = {}) {
       { const za = man ? 3.6 : 3.0, zb = za + 1.8;   // 연립 세면대 (참고 규격도): 인조대리석 상판 + 앞 턱 · 들어간 회색 하부장(발 걸이) · 뒤 선반 · 강화유리 거울 판 · 구스넥 수전 3 · 물비누 디스펜서
         bx(SS, 'white', 0, .58, .8, .86, za, zb, { solid: true }); bx(SS, 'white', .52, .58, .62, .8, za, zb); bx(SS, 'steelG', 0, .48, .08, .8, za + .03, zb - .03); bx(SS, 'rubber', 0, .44, 0, .08, za + .06, zb - .06);
         bx(SS, 'white', 0, .13, .86, .95, za, zb); bx(SS, 'alu', 0, .02, .95, 1.9, za - .01, za + .01); bx(SS, 'alu', 0, .02, .95, 1.9, zb - .01, zb + .01); bx(SS, 'glass', .015, .025, .95, 1.88, za, zb); bx(SS, 'alu', 0, .03, 1.88, 1.9, za, zb);
-        [za + .32, za + .9, zb - .32].forEach(z => { bx(SS, 'porc', .16, .46, .845, .862, z - .2, z + .2); bx(SS, 'screen', .19, .43, .846, .863, z - .16, z + .16); bx(SS, 'alu', .29, .33, .8635, .865, z - .02, z + .02);   // 하부 매입 세면볼 (안쪽 그림자 · 배수구)
+        [za + .32, za + .9, zb - .32].forEach(z => { bx(SS, 'porc', .16, .46, .845, .862, z - .2, z + .2); bx(SS, 'hpl', .19, .43, .846, .863, z - .16, z + .16); bx(SS, 'alu', .29, .33, .8635, .865, z - .02, z + .02);   // 하부 매입 세면볼 (안쪽 그림자 · 배수구)
           bx(SS, 'alu', .06, .09, .95, 1.17, z - .015, z + .015); bx(SS, 'alu', .06, .22, 1.15, 1.18, z - .015, z + .015); bx(SS, 'alu', .2, .225, 1.07, 1.17, z - .013, z + .013); });   // 구스넥 수전
         bx(SS, 'alu', .03, .1, .95, 1.12, zb - .1, zb - .03); bx(SS, 'rubber', .09, .1, 1.04, 1.07, zb - .08, zb - .05);   // 물비누 디스펜서
         bx(SS, 'white', 0, .2, 1.2, 1.44, za - .45, za - .17, { solid: true });   // 핸드타월기 (280×240×200)

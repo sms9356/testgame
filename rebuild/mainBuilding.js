@@ -4,7 +4,7 @@
 //   전기(분전반 · 2등용 형광등 · 콘센트 · 스위치) · 소방(소화전함 · 소화기 · 감지기 · 유도등 · 방화문) · 수도(세면대 · 배관)
 import * as THREE from '../vendor/three.module.js';
 import { mergeGeometries } from '../vendor/addons/utils/BufferGeometryUtils.js';
-import { makeFlag } from '../tex.js?v=280';
+import { makeFlag } from '../tex.js?v=281';
 // 교실 앞면 꾸밈 공용 (반 이름 · 텍스처 캐시)
 const NAMES = ['김민수', '이서연', '박지훈', '최유진', '정하늘', '강도윤', '조수아', '윤재현', '장예린', '임태호', '한소영', '오준서', '서지민', '신동혁', '권나연', '황민재', '안채원', '송우진', '전다은', '홍석진'];
 let flagTex = null; const decorTex = new Map();
@@ -136,7 +136,13 @@ export function buildMainBuilding(opt = {}) {
     wall: M('wall', () => pbr('paint', { own: false, map: TEX.wall(), nScale: .5, rough: 1 })),       // 아이보리 수성 페인트 + 실사 요철
     wain: M('wain', () => pbr('d2_tex_paint', { own: false, map: TEX.wainscot(), nScale: .7, rough: .75 })),   // 녹색 유성 페인트 (벗겨진 요철)
     conc: M('conc', () => pbr('step', { rough: 1 })),                                   // 콘크리트 (실사)
-    brick: M('brick', () => pbr('brick', { rough: .95 })),                              // 적벽돌 (실사)
+    brick: M('brick', () => new THREE.MeshStandardMaterial({ roughness: .9, map: canvasTex(512, 512, (g, w, h) => {   // 외벽: 2000년대 한국 학교 — 미색 수성 도장 콘크리트 (거푸집 이음 · 빗물 얼룩 · 잔 얼룩)
+      g.fillStyle = '#ece8df'; g.fillRect(0, 0, w, h); for (let i = 0; i < 9000; i++) { const v = 214 + rnd() * 30 | 0; g.fillStyle = `rgba(${v},${v - 2},${v - 8},.5)`; g.fillRect(rnd() * w, rnd() * h, 1.5, 1.5); }
+      for (let i = 0; i < 18; i++) { const x = rnd() * w, y = rnd() * h * .6, ww = 6 + rnd() * 18, gr = g.createLinearGradient(0, y, 0, y + 90 + rnd() * 140); gr.addColorStop(0, 'rgba(120,112,98,.22)'); gr.addColorStop(1, 'rgba(120,112,98,0)'); g.fillStyle = gr; g.fillRect(x, y, ww, 230); }   // 창틀 아래 빗물 자국
+      g.strokeStyle = 'rgba(150,144,132,.45)'; g.lineWidth = 1.5; g.beginPath(); g.moveTo(0, h / 2); g.lineTo(w, h / 2); g.moveTo(w / 2, 0); g.lineTo(w / 2, h); g.stroke();   // 거푸집 · 줄눈
+      for (let i = 0; i < 40; i++) { g.fillStyle = 'rgba(90,96,80,.08)'; g.beginPath(); g.arc(rnd() * w, rnd() * h, 4 + rnd() * 26, 0, 7); g.fill(); } }) })),   // (예전 적벽돌 대신)
+    band: M('band', () => new THREE.MeshStandardMaterial({ color: 0x2f6e8c, roughness: .55, metalness: .1 })),   // 층마다 두른 청록 띠 (학교 상징색)
+    plinth: M('plinth', () => pbr('step', { color: 0x8c8e90, rough: .85 })),                // 1층 하부 화강석 걸레받이
     board: M('board', () => new THREE.MeshStandardMaterial({ map: TEX.board(), roughness: .8 })),
     alu: M('alu', () => new THREE.MeshStandardMaterial({ color: 0xb8bcc0, roughness: .35, metalness: .7 })),
     glass: M('glass', () => new THREE.MeshStandardMaterial({ color: 0xbfd6dc, roughness: .08, metalness: .1, transparent: true, opacity: .16, depthWrite: false, side: THREE.DoubleSide })),
@@ -353,6 +359,11 @@ export function buildMainBuilding(opt = {}) {
     const exitOps = f === 0 && opt.endExits ? [{ a: zN + .3, b: zN + 1.6, y1: 0, y2: 2.2 }] : [];
     wallZ('brick', -LY.L / 2 - T, -LY.L / 2, zN - T, zS + T, y0, exitOps);
     wallZ('brick', LY.L / 2, LY.L / 2 + T, zN - T, zS + T, y0, exitOps);
+    { const L2 = LY.L / 2 + T, o = .04;   // 외벽 장식: 층 슬래브 높이마다 청록 띠 (두께 .28) · 1층 화강석 걸레받이 (0.9m)
+      if (f > 0) { box('band', -L2 - o, L2 + o, y0 - .16, y0 + .12, zS + T, zS + T + o); box('band', -L2 - o, L2 + o, y0 - .16, y0 + .12, zN - T - o, zN - T); box('band', -L2 - o, -L2, y0 - .16, y0 + .12, zN - T - o, zS + T + o); box('band', L2, L2 + o, y0 - .16, y0 + .12, zN - T - o, zS + T + o); }
+      if (f === 0) { const sp = (a, b, z1, z2, X) => box('plinth', a, b, 0, .9, z1, z2);
+        const segs = (wins, z1, z2) => { let x = -L2; for (const w of wins.filter(q => q.door && q.y1 === 0).sort((p, q) => p.a - q.a)) { if (w.a > x) sp(x, w.a, z1, z2); x = Math.max(x, w.b); } if (x < L2) sp(x, L2, z1, z2); };
+        segs(winsS, zS + T, zS + T + .03); segs(winsN, zN - T - .03, zN - T); if (!exitOps.length) { box('plinth', -L2 - .03, -L2, 0, .9, zN - T, zS + T); box('plinth', L2, L2 + .03, 0, .9, zN - T, zS + T); } } }
     if (exitOps.length) [-1, 1].forEach(sx => {   // 별관 양 끝 비상구: 바깥으로 열린 녹색 철문 · 비상구 유도등 · 문턱
       const xw = sx * (LY.L / 2 + T / 2);
       box('steelG', xw - .16, xw + .16, 2.2, 2.28, zN + .25, zN + 1.65); [zN + .3, zN + 1.6].forEach(z => box('steelG', xw - .16, xw + .16, 0, 2.2, z - .04, z + .04));

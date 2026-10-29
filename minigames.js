@@ -591,8 +591,9 @@ function ouija({ title = '테이프 판독', qs = [] }) {
   qbox.querySelectorAll('button').forEach(b => { b.onclick = () => { if (ans) return; ans = qs[+b.dataset.i]; qbox.innerHTML = `<div class="mgInfo">“${ans.q}”</div>`; sfx.click && sfx.click(); started = true; }; });
   const loop = now => {
     const dt = Math.min(.12, (now - lastT) / 1000); lastT = now; t += dt;
-    g.fillStyle = '#20160e'; g.fillRect(0, 0, 440, 220); g.strokeStyle = '#6a5038'; g.strokeRect(6, 6, 428, 208);
-    g.font = '20px serif'; g.textAlign = 'center'; g.fillStyle = '#d8c8a0'; pos.forEach(o => g.fillText(o.ch, o.x, o.y + 7));
+    g.fillStyle = '#10161a'; g.fillRect(0, 0, 440, 220); g.strokeStyle = '#3a4c58'; g.strokeRect(6, 6, 428, 208);   // 판독기 LCD 패널
+    g.fillStyle = 'rgba(120,220,150,.06)'; for (let yy = 10; yy < 214; yy += 4) g.fillRect(8, yy, 424, 1);
+    g.font = '18px monospace'; g.textAlign = 'center'; g.fillStyle = '#8fe0a8'; pos.forEach(o => g.fillText(o.ch, o.x, o.y + 7));
     if (started && ans) {
       if (!hold) { lost += dt; if (lost > .6) { status('버튼을 뗐다 — 테이프가 늘어나 끊겼다', 'err'); sfx.buzz(); started = false; setTimeout(() => close(false), 700); } }
       else lost = 0;
@@ -600,8 +601,7 @@ function ouija({ title = '테이프 판독', qs = [] }) {
       px += (tgt.x - px) * Math.min(1, dt * 2.2) + Math.sin(t * 9) * .6; py += (tgt.y - py) * Math.min(1, dt * 2.2) + Math.cos(t * 7) * .6;
       if (Math.hypot(tgt.x - px, tgt.y - py) < 3) { shown += seq[k] === '예' || seq[k] === '아니오' ? `[${seq[k]}] ` : seq[k]; k++; sfx.knock ? sfx.knock() : sfx.click(); if (k >= seq.length) { started = false; status(`…${ans.r || shown}`, 'ok'); setTimeout(() => close(true), 1400); } }
     }
-    g.strokeStyle = 'rgba(240,220,170,.9)'; g.lineWidth = 3; g.beginPath(); g.moveTo(px, py - 26); g.lineTo(px - 20, py + 14); g.lineTo(px + 20, py + 14); g.closePath(); g.stroke();
-    g.beginPath(); g.arc(px, py, 8, 0, 7); g.stroke(); g.lineWidth = 1;
+    g.strokeStyle = 'rgba(255,190,90,.95)'; g.lineWidth = 2; g.strokeRect(px - 16, py - 16, 32, 32); g.beginPath(); g.moveTo(px, 10); g.lineTo(px, 212); g.stroke(); g.lineWidth = 1;   // 판독 커서 (재생 헤드)
     g.fillStyle = '#e8c870'; g.font = '15px sans-serif'; g.fillText(shown, 220, 205); g.textAlign = 'left';
     if (started && !hold) { g.fillStyle = 'rgba(200,60,40,.35)'; g.fillRect(0, 0, 440, 220); }
     raf = requestAnimationFrame(loop);

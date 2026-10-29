@@ -1,5 +1,5 @@
 // 더빙 · 자막: voice/manifest.json 의 사전 생성 음성(내장) + 캐릭터별 성도 포먼트/피치 변조 및 브라우저 신경망 음성 합성(Web Speech) 하이브리드 엔진
-import { playVoice, stopVoice, loadVoice, isVoicePlaying } from './audio.js?v=258';
+import { playVoice, stopVoice, loadVoice, isVoicePlaying } from './audio.js?v=261';
 
 const SPEAKER = {
   seoyeon: '🎙 김서연 (방송부 2학년)',
@@ -145,7 +145,7 @@ applySubSize();
 let manifestPromise = null;
 export async function loadManifest() {
   if (!manifestPromise) {
-    manifestPromise = fetch('voice/manifest.json?v=258').then(r => r.json()).then(m => {
+    manifestPromise = fetch('voice/manifest.json?v=261').then(r => r.json()).then(m => {
       manifest = { ...manifest, ...m };
       for (const [k, val] of Object.entries(manifest)) {
         if (val && val.audioFile && m[val.audioFile]) {
@@ -251,8 +251,23 @@ let storyPending = 0;
 const pendingLines = new Map();
 export const isSpeechBusy = () => storyPending > 0 || isVoicePlaying() || !!(typeof window !== 'undefined' && window.speechSynthesis?.speaking);
 
+// 더빙 순번: 앞 목소리가 끝날 때까지 기다렸다가 재생한다 (예전엔 새 대사가 앞 대사를 그 자리에서 끊었다)
+//   이야기 대사는 최대 15초 기다린다 · 혼잣말 같은 짧은 대사는 2.5초 안에 차례가 안 오면 소리만 건너뛴다 (자막은 그대로)
+let gate = Promise.resolve(), gateEpoch = 0;
 export async function speak(id, fx = 'none', story = false) {
   if (!story && (storyPending || performance.now() < protectedUntil)) return 0;
+  const myEpoch = gateEpoch, prev = gate; let release; gate = new Promise(r => { release = r; });
+  const late = await Promise.race([prev.then(() => false), new Promise(r => setTimeout(() => r(true), story ? 15000 : 2500))]);
+  if (myEpoch !== gateEpoch) { release(); return 0; }
+  if (late && !story) { prev.then(release); return 0; }
+  let sec = 0;
+  try { sec = await speakNow(id, fx); } catch (e) { release(); throw e; }
+  if (!VS.dub) { release(); return sec; }
+  const done = playbackDone, cap = new Promise(r => setTimeout(r, (sec || 0) * 1000 + 1200));
+  (done ? Promise.race([done, cap]) : new Promise(r => setTimeout(r, (sec || 0) * 1000))).then(release);
+  return sec;
+}
+async function speakNow(id, fx) {
   ++speechRequest; playbackDone = null;
   const info = manifest[id];
   const est = info ? info.dur : 2.5;
@@ -289,7 +304,7 @@ export async function speak(id, fx = 'none', story = false) {
 export function stopSpeak() {
   clearTimeout(subTimer);
   if (typeof document !== 'undefined') document.getElementById('sub')?.classList.remove('show');
-  ++storyEpoch; pendingLines.clear(); storyPending = 0; storyTail = Promise.resolve(); protectedUntil = 0; ++speechRequest;
+  ++storyEpoch; pendingLines.clear(); storyPending = 0; storyTail = Promise.resolve(); protectedUntil = 0; ++speechRequest; ++gateEpoch; gate = Promise.resolve();
   stopVoice();
   if (typeof window !== 'undefined' && 'speechSynthesis' in window) speechSynthesis.cancel();
 }
@@ -351,9 +366,8 @@ export function line(id, fx, whoOverride) {
   let completion = Promise.resolve();
   const job = storyTail.then(async () => {
     if (epoch !== storyEpoch) return 0;
-    const pending = speak(id, fx, true), request = speechRequest;
-    const sec = await pending;
-    if (epoch !== storyEpoch || request !== speechRequest) return 0;
+    const sec = await speak(id, fx, true);   // 순번을 기다린 뒤 재생 (그 사이 stopSpeak 가 오면 epoch 가 바뀐다)
+    if (epoch !== storyEpoch) return 0;
     const timeout = new Promise(resolve => setTimeout(resolve, (playbackDone ? sec * 2 + 5 : sec) * 1000));
     completion = playbackDone ? Promise.race([playbackDone, timeout]) : timeout;
     protectedUntil = performance.now() + sec * 1000;

@@ -47,7 +47,7 @@ export function detailize(m, name = '') {
   if (m.emissive && m.emissiveIntensity > .2 && m.emissive.getHex() !== 0) return false;
   if (SKIP.test(name) || SKIP.test(m.name || '')) return false;
   const k = kindOf(m), t = tex(k); m.map = t;
-  if (k !== 'glaze') { m.bumpMap = t; m.bumpScale = k === 'rough' ? .9 : .35; }
+  if (k !== 'glaze') { m.bumpMap = t; m.bumpScale = k === 'rough' ? .9 : .35; m.roughnessMap = t; }   // 결 · 얼룩 따라 광택도 달라진다
   m.userData.detailed = true; m.needsUpdate = true; return true;
 }
 // 장면(또는 그룹)을 훑어 UV 가 있는 민무늬 메시 재질에 디테일 — 같은 재질은 한 번만
@@ -71,4 +71,23 @@ export function setupEnv(renderer, scene, intensity = .32) {
   const pm = new THREE.PMREMGenerator(renderer), rt = pm.fromScene(env, .04); pm.dispose();
   scene.environment = rt.texture; scene.environmentIntensity = intensity;
   env.traverse(o => { if (o.geometry) o.geometry.dispose(); });
+}
+
+// 바닥 · 벽처럼 비스듬히 보는 면이 흐려지지 않게 모든 텍스처 이방성 필터를 올린다 (GPU 비용 거의 없음)
+export function sharpenTextures(root, renderer, level = 8) {
+  const max = Math.min(level, renderer.capabilities.getMaxAnisotropy?.() || 1), seen = new Set(); let n = 0;
+  root.traverse(o => { if (!o.isMesh) return; for (const m of [].concat(o.material)) { if (!m) continue; for (const k of ['map', 'normalMap', 'roughnessMap']) { const t = m[k]; if (!t || seen.has(t)) continue; seen.add(t); if ((t.anisotropy || 1) < max) { t.anisotropy = max; t.needsUpdate = true; n++; } } } });
+  return n;
+}
+// 과도한 고폴리 소품 경량화: 상자처럼 단순한 모양인데 수십만 삼각형인 스캔 모델(골판지 상자 등) → 같은 크기 · 재질의 상자 지오메트리
+export function slimHeavyProps(root, names = /cardboard_box/i, maxTris = 3000) {
+  let n = 0, saved = 0;
+  root.traverse(o => {
+    if (!o.isMesh || !o.geometry) return; let nm = '', a = o; for (let i = 0; i < 5 && a; i++, a = a.parent) nm += ' ' + (a.name || ''); if (!names.test(nm)) return;
+    const g = o.geometry, tris = (g.index ? g.index.count : g.attributes.position.count) / 3; if (tris <= maxTris) return;
+    g.computeBoundingBox(); const bb = g.boundingBox, s = bb.getSize(new THREE.Vector3()), c = bb.getCenter(new THREE.Vector3());
+    const box = new THREE.BoxGeometry(Math.max(s.x, .001), Math.max(s.y, .001), Math.max(s.z, .001)); box.translate(c.x, c.y, c.z);
+    o.geometry = box; g.dispose(); n++; saved += tris - 12;
+  });
+  return { n, saved };
 }

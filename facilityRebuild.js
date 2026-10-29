@@ -5,7 +5,7 @@
 //   재질: F-01 ~ F-05 바닥 · W-01 ~ W-05 벽 · C-01 ~ C-04 천장 (Poly Haven CC0 실사 스캔 텍스처, assets/tex/fac_* · 미터 단위 UV)
 import * as THREE from './vendor/three.module.js';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { pbr } from './tex.js?v=280';
+import { pbr } from './tex.js?v=284';
 
 const FH = 3.6, CEIL = 2.9, WALL_T = .24, LIN = .06;
 const TL = new THREE.TextureLoader(), TEX = {};
@@ -27,7 +27,7 @@ function lib() {
     F04: [facMat('f04', { color: 0xe8eae6, roughness: .8 }), 1.0], F05: [facMat('f05', { color: 0xc2c6c8 }), 2.4],
     W01: [facMat('w01', { color: 0xf2eee2 }), 2.2], W02: [facMat('w01', { color: 0xbfb9ae }), 2.2], W03: [facMat('w01', { color: 0xeee0c4 }), 2.2], W04: [facMat('w04', { color: 0xc8cdcb }), 2.6], W05: [facMat('w05', { color: 0xf4f6f5 }), 1.2],
     C01: [oldMat('ceil', { color: 0xf4f2ee }), 2.4], C02: [PM(0x44494a, .9), 1], C03: [oldMat('ceil', { color: 0xf6f7f4 }), 1.8], C04: [oldMat('step', { color: 0xa6a8a5 }), 2.4],
-    BRICK: [facMat('brick'), 2.2], CONC: [oldMat('facade', { color: 0xd4d0c8 }), 3.0], GRANITE: [oldMat('step', { color: 0x8a8c8e }), 1.6], SLAB: [oldMat('step', { color: 0xb8b8b2 }), 3.0],
+    BRICK: [facMat('brick'), 2.2], PAINT: [oldMat('facade', { color: 0xf1ede5 }), 3.0], BAND: [PM(0x2f6e8c, .55, .1), 1], CONC: [oldMat('facade', { color: 0xd4d0c8 }), 3.0], GRANITE: [oldMat('step', { color: 0x8a8c8e }), 1.6], SLAB: [oldMat('step', { color: 0xb8b8b2 }), 3.0],
     STEEL: [oldMat('paint', { color: 0x8a949a, metalness: .35 }), 1.0], GREENSTEEL: [oldMat('locker', { color: 0x7d9a88, metalness: .3 }), 1.4], GREYSTEEL: [oldMat('locker', { color: 0xb2b6b4, metalness: .3 }), 1.4],
     LPM: [oldMat('varnish', { color: 0xe8d6b8 }), 1.2], WOOD: [oldMat('varnishDark', { color: 0xc89870 }), 1.2], DARKWOOD: [oldMat('varnishDark', { color: 0x7a5236 }), 1.2], CHECKER: [facMat('metal', { color: 0xb0b4b6, metalness: .5 }), 1.2],
     SS: [PM(0xc6cacc, .28, .85), 1], CHROME: [PM(0xe0e4e6, .18, .95), 1], BLACK: [PM(0x16181a, .45, .3), 1], LACQUER: [PM(0x08090a, .12, .2), 1], RUBBER: [PM(0x1c1c1c, .9), 1],
@@ -278,7 +278,7 @@ function stairHoleOf(r) { const sx = r.x1 + .35; return { x1: sx - .05, x2: sx +
 
 // 바깥 껍데기: 외벽(벽돌) · 기단 · 층 띠 · 처마 · 파라펫 · 창 · 현관 캐노피 · 간판 · 지붕 · 슬래브 충돌
 function shell(B, o = {}) {
-  const { W, D } = B.Z, H = B.H, t = WALL_T, hw = W / 2, hd = D / 2, ext = o.ext || 'BRICK';
+  const { W, D } = B.Z, H = B.H, t = WALL_T, hw = W / 2, hd = D / 2, ext = o.ext || 'PAINT';   // 본관 · 별관과 같은 미색 도장 외벽 (예전 적벽돌 → 학교 통일 외관)
   const doorGap = o.door ?? 2.0;
   // 외벽 (현관 구멍 포함) — 바깥 벽돌 · 안쪽은 실 라이너가 덮는다. side: 'S'(남측 가운데, 기본) | 'E'(동측 가운데)
   const E = o.side === 'E', C = (x1, x2, z1, z2) => { const r = B.col(x1, x2, z1, z2, { lvl: 0, maxY: 99 }); delete r.maxY; if (B.levels > 1) B.ctx.floors[0].walls.push(r); };
@@ -293,7 +293,8 @@ function shell(B, o = {}) {
   // 기단 (화강석 0.6m) · 층 띠 · 처마 코니스 · 파라펫
   const ring = (y, h, out, mk) => { B.box(W + 2 * out, h, out + .02, mk, 0, y, -hd - out / 2); B.box(W + 2 * out, h, out + .02, mk, 0, y, hd + out / 2); B.box(out + .02, h, D + 2 * out, mk, -hw - out / 2, y, 0); B.box(out + .02, h, D + 2 * out, mk, hw + out / 2, y, 0); };
   ring(.3, .6, .05, 'GRANITE');
-  for (let l = 1; l < B.levels; l++) ring(l * FH, .3, .06, 'CONC');
+  for (let l = 1; l < B.levels; l++) ring(l * FH, .3, .06, 'BAND');   // 층 띠: 학교 상징 청록
+  if (B.levels === 1) ring(H * .62, .26, .05, 'BAND');   // 단층(강당 · 식당): 창 위 청록 띠
   ring(H - .15, .3, .1, 'CONC');
   B.box(W + .3, .9, .18, 'CONC', 0, H + .45, -hd + .05); B.box(W + .3, .9, .18, 'CONC', 0, H + .45, hd - .05); B.box(.18, .9, D, 'CONC', -hw + .05, H + .45, 0); B.box(.18, .9, D, 'CONC', hw - .05, H + .45, 0);
   B.box(W + .4, .06, .26, 'ALU', 0, H + .93, -hd + .05); B.box(W + .4, .06, .26, 'ALU', 0, H + .93, hd - .05); B.box(.26, .06, D + .4, 'ALU', -hw + .05, H + .93, 0); B.box(.26, .06, D + .4, 'ALU', hw - .05, H + .93, 0);

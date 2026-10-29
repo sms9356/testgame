@@ -2,11 +2,11 @@
 //   기본으로 켜진다 (예전 건물로 보려면 주소창에 ?oldmap).
 //   예전 본관(1~3층 · 옥상) · 별관(8~10층) 건물은 감추고, 그 자리 땅(0층)에서 새 건물을 걷는다.
 //   높이는 P.sh(계단 높이 보정값)로 넘긴다 → 카메라 · 점프 · 가구 오르기 코드는 손대지 않아도 된다.
-import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=284';
-import { placeModels } from './rebuild/models.js?v=284';
-import { carve, subdivide } from './rebuild/transplant.js?v=284';
+import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=285';
+import { placeModels } from './rebuild/models.js?v=285';
+import { carve, subdivide } from './rebuild/transplant.js?v=285';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { turfMaterial } from './campusVisuals.js?v=284';
+import { turfMaterial } from './campusVisuals.js?v=285';
 
 // 예전 건물이 차지하던 땅 (이 안의 예전 메시 · 충돌 상자를 걷어 낸다)
 const OLD_MAIN = { x1: -51, x2: 51, z1: -10.6, z2: 10.9 };
@@ -785,6 +785,28 @@ export function installRebuild({ THREE, scene, floors, world }) {
       [.1, .16].forEach(x => { const k = new THREE.Mesh(new THREE.CylinderGeometry(.022, .022, .02, 14), kn); k.rotation.x = Math.PI / 2; k.position.set(x, .08, .125); g.add(k); });
       const an = new THREE.Mesh(new THREE.CylinderGeometry(.004, .004, .5, 6), kn); an.position.set(.17, .44, -.08); an.rotation.z = -.3; g.add(an);
       const s0 = R._sup(p.x, p.z, p.rbY + 1.25), top = s0 != null && s0 > p.rbY + .3 ? s0 : p.rbY; g.position.set(p.x, top + .002, p.z); group.add(g); p.mesh = g; up++; }
+    // 모형 없이 [E] 만 뜨던 옛 장비 · 좌석 조사 지점 정리 (새 건물 기준)
+    //  ① 교실 '냉난방기 · 빔프로젝터 제어반' → 천장형 빔프로젝터 + 복도 쪽 벽걸이 에어컨 모형을 달고 조사 지점을 에어컨 앞으로
+    //  ② 의자 · 소파 → 같은 방 가장 가까운 좌석(높이 .35~.6) 위로, 장비 · 서류 → 가까운 책상 · 장비(높이 .6 이상) 앞으로 (3m 안)
+    //  ③ 붙일 가구가 없으면 이야기와 무관한 옛 장식 지점은 걷는다
+    const roomRect = (x, z, rb) => { const f = Math.round((rb + .1) / FH); for (const B of [MAIN, ANX]) { const [lx, lz] = B.toLocal(x, z); const r = (B.props || []).find(q => q.kind === 'room' && q.floor === f && lx > q.x1 && lx < q.x2 && lz > q.z1 && lz < q.z2); if (r) return { B, r, lx, lz }; } return null; };
+    const acM = new THREE.MeshStandardMaterial({ color: 0xeeeeea, roughness: .45 }), dkM = new THREE.MeshStandardMaterial({ color: 0x2a2c30, roughness: .4, metalness: .3 }), lensM = new THREE.MeshStandardMaterial({ color: 0x0a0c10, roughness: .1, metalness: .6 });
+    const mesh = (geo, m, x, y, z, g) => { const o = new THREE.Mesh(geo, m); o.position.set(x, y, z); g.add(o); return o; };
+    for (const p of W.props) { if (p._eq || p.floor !== 0 || p.rbY == null || p._drop || objsOf(p).length || !p.label) continue;
+      const lab = p.label, rr = roomRect(p.x, p.z, p.rbY); if (!rr) continue; const { B, r } = rr, rb = p.rbY;
+      if (/냉난방기.*빔프로젝터/.test(lab)) { p._eq = true; const ang = -Math.atan2(B.toWorld(1, 0)[1] - B.toWorld(0, 0)[1], B.toWorld(1, 0)[0] - B.toWorld(0, 0)[0]);
+        const g = new THREE.Group(), ax = (r.x1 + r.x2) / 2 + 2, [wx, wz] = B.toWorld(ax, r.z1 + .16); g.position.set(wx, rb + 2.15, wz); g.rotation.y = ang; group.add(g);
+        mesh(new THREE.BoxGeometry(.9, .29, .21), acM, 0, 0, 0, g); mesh(new THREE.BoxGeometry(.84, .03, .01), dkM, 0, -.11, .106, g); mesh(new THREE.BoxGeometry(.06, .015, .005), new THREE.MeshBasicMaterial({ color: 0x40ff80 }), .35, .06, .106, g);   // 벽걸이 에어컨 (토출구 · 전원 LED)
+        const pj = new THREE.Group(), [cx, cz] = B.toWorld((r.x1 + r.x2) / 2, (r.z1 + r.z2) / 2); pj.position.set(cx, rb + (B.spec.CEIL || 2.7), cz); pj.rotation.y = ang; group.add(pj);
+        mesh(new THREE.CylinderGeometry(.02, .02, .28, 8), dkM, 0, -.14, 0, pj); mesh(new THREE.BoxGeometry(.32, .1, .26), acM, 0, -.32, 0, pj); const ln = mesh(new THREE.CylinderGeometry(.035, .035, .03, 14), lensM, -.1, -.32, .135, pj); ln.rotation.x = Math.PI / 2;   // 천장 빔프로젝터
+        p.mesh = g; p.mesh2 = pj; const [ix, iz] = B.toWorld(ax, r.z1 + .8); p.x = ix; p.z = iz; p.y = 1.6; if (p.px != null) { p.px = ix; p.pz = iz; } up++; continue; }
+      if (!/의자|소파|장비|PC|믹서|스위처|데크|콘솔|세척기|그라인더|무정전|단말기|보관함|실험대|투시경|회의록|서류/.test(lab)) continue; p._eq = true;
+      const seat = /의자|소파/.test(lab), lo = seat ? .35 : .6, hi = seat ? .62 : 2.2; let best = null, bd = 3;
+      for (const c of B.col) { if (c.y2 == null || c.y2 < rb + lo || c.y2 > rb + hi || (c.y1 != null && (c.y1 > rb + .1 || c.y1 < rb - .5)) || c.x2 - c.x1 > 3 || c.z2 - c.z1 > 3) continue;
+        const cx = (c.x1 + c.x2) / 2, cz = (c.z1 + c.z2) / 2; if (cx < r.x1 || cx > r.x2 || cz < r.z1 || cz > r.z2) continue; const d = Math.hypot(cx - rr.lx, cz - rr.lz); if (d < bd) { bd = d; best = { cx, cz }; } }
+      if (best) { const [wx, wz] = B.toWorld(best.cx, best.cz); p.x = wx; p.z = wz; if (p.px != null) { p.px = wx; p.pz = wz; } up++; }
+      else if (!(p.main || p.mega || p.q || p.uid)) { p._drop = true; } }
+    for (let i = W.props.length - 1; i >= 0; i--) if (W.props[i]._drop) W.props.splice(i, 1);
     // 대출 카드함: 모형 없이 [E] 만 뜨던 자리 → 나무 카드 목록함 (서랍 4×3, 놋쇠 손잡이 · 이름표)
     for (const p of W.props) { if (p._cardBox || p.k !== 'cards' || p.rbY == null || objsOf(p).length) continue; p._cardBox = true;
       const wd = new THREE.MeshStandardMaterial({ color: 0x6e4a2c, roughness: .6 }), br = new THREE.MeshStandardMaterial({ color: 0xb08a4a, roughness: .35, metalness: .8 }), lb = new THREE.MeshStandardMaterial({ color: 0xece4cc, roughness: .9 });

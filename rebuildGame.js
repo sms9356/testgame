@@ -2,11 +2,11 @@
 //   기본으로 켜진다 (예전 건물로 보려면 주소창에 ?oldmap).
 //   예전 본관(1~3층 · 옥상) · 별관(8~10층) 건물은 감추고, 그 자리 땅(0층)에서 새 건물을 걷는다.
 //   높이는 P.sh(계단 높이 보정값)로 넘긴다 → 카메라 · 점프 · 가구 오르기 코드는 손대지 않아도 된다.
-import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=282';
-import { placeModels } from './rebuild/models.js?v=282';
-import { carve, subdivide } from './rebuild/transplant.js?v=282';
+import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=283';
+import { placeModels } from './rebuild/models.js?v=283';
+import { carve, subdivide } from './rebuild/transplant.js?v=283';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { turfMaterial } from './campusVisuals.js?v=282';
+import { turfMaterial } from './campusVisuals.js?v=283';
 
 // 예전 건물이 차지하던 땅 (이 안의 예전 메시 · 충돌 상자를 걷어 낸다)
 const OLD_MAIN = { x1: -51, x2: 51, z1: -10.6, z2: 10.9 };
@@ -778,6 +778,13 @@ export function installRebuild({ THREE, scene, floors, world }) {
       for (const o of objs) { if (o.parent !== group) group.attach(o); o.position.y += dy; } onMove && onMove(dy); up++;
     };
     for (const it of W.items) { if (it.taken || it.rbY == null || !it.mesh) continue; fix([it.mesh], it.pos.x, it.pos.z, it.rbY, (dy, dx = 0, dz = 0) => { it.pos.x += dx; it.pos.y += dy; it.pos.z += dz; if (it.baseY != null) it.baseY += dy; }, /note|photo|nametag|paper|clue/.test(it.kind)); }
+    // 방송 수신기(megaRadio): 모형 없던 자리 → 탁상형 단파 수신기 (주파수 다이얼 창 · 노브 2 · 안테나)
+    for (const p of W.props) { if (p._rx || p.kind !== 'megaRadio' || p.rbY == null || objsOf(p).length) continue; p._rx = true;
+      const cs = new THREE.MeshStandardMaterial({ color: 0x2a2c2e, roughness: .5, metalness: .4 }), dl = new THREE.MeshStandardMaterial({ color: 0xd8c890, emissive: 0x6a5420, emissiveIntensity: .6 }), kn = new THREE.MeshStandardMaterial({ color: 0xb8b8b4, metalness: .8, roughness: .3 });
+      const g = new THREE.Group(), bd = new THREE.Mesh(new THREE.BoxGeometry(.42, .2, .24), cs); bd.position.y = .1; g.add(bd); const w = new THREE.Mesh(new THREE.BoxGeometry(.22, .06, .005), dl); w.position.set(-.06, .13, .121); g.add(w);
+      [.1, .16].forEach(x => { const k = new THREE.Mesh(new THREE.CylinderGeometry(.022, .022, .02, 14), kn); k.rotation.x = Math.PI / 2; k.position.set(x, .08, .125); g.add(k); });
+      const an = new THREE.Mesh(new THREE.CylinderGeometry(.004, .004, .5, 6), kn); an.position.set(.17, .44, -.08); an.rotation.z = -.3; g.add(an);
+      const s0 = R._sup(p.x, p.z, p.rbY + 1.25), top = s0 != null && s0 > p.rbY + .3 ? s0 : p.rbY; g.position.set(p.x, top + .002, p.z); group.add(g); p.mesh = g; up++; }
     // 대출 카드함: 모형 없이 [E] 만 뜨던 자리 → 나무 카드 목록함 (서랍 4×3, 놋쇠 손잡이 · 이름표)
     for (const p of W.props) { if (p._cardBox || p.k !== 'cards' || p.rbY == null || objsOf(p).length) continue; p._cardBox = true;
       const wd = new THREE.MeshStandardMaterial({ color: 0x6e4a2c, roughness: .6 }), br = new THREE.MeshStandardMaterial({ color: 0xb08a4a, roughness: .35, metalness: .8 }), lb = new THREE.MeshStandardMaterial({ color: 0xece4cc, roughness: .9 });

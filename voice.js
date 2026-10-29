@@ -1,5 +1,5 @@
 // 더빙 · 자막: voice/manifest.json 의 사전 생성 음성(내장) + 캐릭터별 성도 포먼트/피치 변조 및 브라우저 신경망 음성 합성(Web Speech) 하이브리드 엔진
-import { playVoice, stopVoice, loadVoice, isVoicePlaying } from './audio.js?v=288';
+import { playVoice, stopVoice, loadVoice, isVoicePlaying } from './audio.js?v=290';
 
 const SPEAKER = {
   seoyeon: '🎙 김서연 (방송부 2학년)',
@@ -20,9 +20,9 @@ const SPEAKER = {
   counselor: '📼 상담교사 · 오유진 선생님',
   witness_counselor: '📼 상담교사 · 오유진 선생님',
   mina: '📱 선배 박민아 (방송부 3학년)',
-  haneul: '🕯 윤하늘 (1998년 3-2 방송부)',
+  haneul: '📼 윤하늘 (1998년 3-2 방송부 · 리허설 녹음)',
   pa: '📢 서문고 교내 방송',
-  ghost: '👁 어둠 속의 목소리',
+  ghost: '📢 출처 불명의 방송',
   guard: '🔦 당직 경비원 · 박종철 아저씨',
   friend: '📼 단짝 친구 · 이수아',
   friend2: '📼 단짝 친구 · 서다은',
@@ -145,7 +145,7 @@ applySubSize();
 let manifestPromise = null;
 export async function loadManifest() {
   if (!manifestPromise) {
-    manifestPromise = fetch('voice/manifest.json?v=288').then(r => r.json()).then(m => {
+    manifestPromise = fetch('voice/manifest.json?v=290').then(r => r.json()).then(m => {
       manifest = { ...manifest, ...m };
       for (const [k, val] of Object.entries(manifest)) {
         if (val && val.audioFile && m[val.audioFile]) {

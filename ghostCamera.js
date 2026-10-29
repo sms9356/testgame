@@ -53,14 +53,14 @@ class GhostCameraSystem {
           <div class="cam-corner br"></div>
         </div>
         <div class="cam-top-bar">
-          <div class="cam-rec"><span class="cam-rec-dot"></span><span>REC · SPIRIT CAM [IR]</span></div>
-          <div id="cam-emf-status">영적 파장: 안정 (0.1 mG)</div>
+          <div class="cam-rec"><span class="cam-rec-dot"></span><span>REC · IR NIGHT CAM</span></div>
+          <div id="cam-emf-status">형광 반응: 없음</div>
           <div id="cam-battery-txt">🔋 100%</div>
         </div>
         <div id="cam-reticle"></div>
         <div class="cam-bottom-bar">
           <div id="cam-clue-hint">맨눈에 보이지 않는 흔적을 비추세요</div>
-          <div id="cam-flash-status">[클릭 / R] 플래시 촬영 (배터리 -20% · 그것 퇴치)</div>
+          <div id="cam-flash-status">[클릭 / R] 플래시 촬영 (배터리 -20%)</div>
         </div>
       `;
       document.body.appendChild(overlay);
@@ -107,7 +107,7 @@ class GhostCameraSystem {
       }
       if (this.nightVisionLight) this.nightVisionLight.intensity = 1.35;
       this.playCamPowerSound(true);
-      if (notifyUI) notifyUI("휴대폰 심령 카메라 ON — 숨겨진 단서 투시 및 플래시 퇴치 가능");
+      if (notifyUI) notifyUI("휴대폰 야간 카메라 ON — 형광 표시 흔적 촬영 가능");
     } else {
       document.body.classList.remove("ghost-cam-active");
       if (this.camera && this.camera.layers) {
@@ -122,7 +122,7 @@ class GhostCameraSystem {
   /* =========================================================
      3. 맨눈엔 안 보이고 카메라로만 보이는 '심령 단서/금고 힌트' 생성기
      ========================================================= */
-  createHiddenWallClue({ position, rotationY = 0, text = "금고 앞자리: 1 9", subText = "교무실 책상 밑을 보지 마", clueId = "clue_1" }) {
+  createHiddenWallClue({ position, rotationY = 0, text = "금고 앞자리: 1 9", subText = "교무실 책상 밑을 확인", clueId = "clue_1" }) {
     const canvas = document.createElement("canvas");
     canvas.width = 512;
     canvas.height = 256;
@@ -137,15 +137,10 @@ class GhostCameraSystem {
     ctx.fillText(text, 36, 110);
 
     ctx.font = "26px serif";
-    ctx.fillStyle = "#ff5566";
-    ctx.shadowColor = "#ff1133";
+    ctx.fillStyle = "#b8ffd0";
+    ctx.shadowColor = "#40ff90";
     ctx.fillText(subText, 40, 175);
 
-    // 손바닥 자국 노이즈
-    ctx.fillStyle = "rgba(180, 255, 210, 0.18)";
-    ctx.beginPath();
-    ctx.arc(420, 128, 45, 0, Math.PI * 2);
-    ctx.fill();
 
     const tex = new THREE.CanvasTexture(canvas);
     const mat = new THREE.MeshBasicMaterial({
@@ -248,8 +243,8 @@ class GhostCameraSystem {
     }
     if (emfEl) {
       emfEl.textContent = isLockedOn
-        ? `⚠ 영적 반응 포착! (${emfValue} mG)`
-        : `영적 파장: ${emfValue} mG`;
+        ? `⚠ 형광 잉크 반응 포착! (${emfValue})`
+        : `형광 반응: ${emfValue}`;
       emfEl.style.color = isLockedOn ? "#ff3b3b" : "#8cffaa";
     }
     if (flashEl) {
@@ -312,7 +307,7 @@ class GhostCameraSystem {
           stunMonsterCallback(3.8); // 3.8초간 괴물 강제 스턴 및 후퇴!
         }
         if (notifyUI) {
-          notifyUI("📸 [영적 제압 성공] 강렬한 플래시 빛에 '그것'이 비명을 지르며 물러난다!");
+          notifyUI("📸 플래시가 번쩍였다.");
         }
       }
     }
@@ -323,7 +318,7 @@ class GhostCameraSystem {
       aimedClue.photographed = true;
       this.capturedPhotos.push({
         id: aimedClue.id,
-        title: `심령 사진 #${this.capturedPhotos.length + 1}`,
+        title: `현장 사진 #${this.capturedPhotos.length + 1}`,
         text: aimedClue.text,
         subText: aimedClue.subText,
         time: "23:40"

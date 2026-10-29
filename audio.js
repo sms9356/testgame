@@ -40,7 +40,7 @@ export function initAudio() {
   // 유령 근접음(숨소리/속삭임)
   proxFilter = loopNoise(900, 'bandpass', 3);
   proxGain = ac.createGain(); proxGain.gain.value = 0; proxFilter.connect(proxGain); proxGain.connect(bus.sfx);
-  buildBreath(); buildGhostVoice(); buildMusic();
+  buildBreath(); buildMusic();   // 귀신 허밍(buildGhostVoice)은 설정 변경으로 폐기
 }
 export function setVolumes(v) {
   Object.assign(VOL, v); try { localStorage.setItem('haegyo_vol', JSON.stringify(VOL)); } catch (e) { /* ignore */ }
@@ -535,6 +535,8 @@ function laterAt(s, fn) { const p = sfxPos; setTimeout(() => { sfxPos = p; try {
   slap() { noiseBurst(.09, 900, 'lowpass', .55); noiseBurst(.05, 2600, 'bandpass', .12); },
   radioVoice() { noiseBurst(2.4, 2600, 'bandpass', .22); for (let i = 0; i < 9; i++) later(300 + i * 190, () => { const f = 300 + Math.random() * 260; tone(f, .16, 'sawtooth', .02, 0, 1, f * .85); noiseBurst(.12, 1400 + Math.random() * 800, 'bandpass', .12); }); },
 };
+// 설정 변경(유령 · 초자연 현상 완전 폐기): 귀신 웃음 · 속삭임 · 흐느낌 · 끌림 · 숨소리 효과음은 재생하지 않는다 (호출부 호환을 위해 빈 함수로 남김)
+for (const k of ['whisper', 'ghostLaugh', 'ghostGiggle', 'ghostSob', 'ghostWhisper', 'ghostDrag', 'ghostBreath']) if (typeof sfx[k] === 'function') sfx[k] = () => {};
 // 이상현상 효과음은 대사·증언 녹음 위에 겹치지 않게: 대사가 나오는 동안엔 끝날 때까지(최대 9초) 미뤘다가 재생, 그래도 길면 버린다
 const ANOMALY_SFX = ['whisper', 'stinger', 'ghostBreath', 'screech', 'ghostLaugh', 'ghostGiggle', 'ghostWhisper', 'ghostStep', 'ghostCrack', 'knock', 'musicBox', 'doorBang', 'thump', 'tension', 'staticNoise'];
 let sfxBusy = () => false;

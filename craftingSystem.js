@@ -32,7 +32,7 @@ class CraftingSystem {
         resultId: "med_kit",
         resultName: "응급 처치 키트",
         ingredients: { bandage: 1, pill: 1 },
-        desc: "즉시 체력 100% 회복, 공포 0화, 25초간 스태미나 무한 질주."
+        desc: "즉시 체력 100% 회복, 긴장 해소, 25초간 스태미나 무한 질주."
       }
     ];
 
@@ -106,7 +106,7 @@ class CraftingSystem {
     this.scene.add(trapGroup);
     this.activeTraps.push({ group: trapGroup, position: pos, triggered: false });
 
-    if (notifyUI) notifyUI("바닥에 경보 함정을 설치했습니다. 괴물이 밟으면 작동합니다.");
+    if (notifyUI) notifyUI("바닥에 경보 함정을 설치했습니다. 누군가 밟으면 경보가 울립니다.");
     return true;
   }
 
@@ -159,7 +159,7 @@ class CraftingSystem {
     }
 
     this.playHealSound();
-    if (notifyUI) notifyUI("응급 처치 키트를 사용했다! HP가 회복되고, 공포가 사라지며 25초간 지치지 않는다.");
+    if (notifyUI) notifyUI("응급 처치 키트를 사용했다! HP가 회복되고, 긴장이 풀리며 25초간 지치지 않는다.");
     return true;
   }
 
@@ -179,7 +179,7 @@ class CraftingSystem {
         trap.triggered = true;
         this.playTrapTriggerSound();
 
-        if (notifyUI) notifyUI("⚠ [경보 함정 작동] 괴물이 함정을 밟았습니다! 위치가 노출되었습니다.");
+        if (notifyUI) notifyUI("⚠ [경보 함정 작동] 누군가 함정을 밟았습니다!");
         if (typeof alertMonsterFn === "function") {
           alertMonsterFn(trap.position, 35, 0); // 큰 소음으로 괴물 어그로 고정
         }

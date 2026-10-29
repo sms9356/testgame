@@ -666,7 +666,7 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
       pmesh(new THREE.PlaneGeometry(2.6, .28), new THREE.MeshBasicMaterial({ map: makeSign('야외 음수대 (수돗가) · 물을 아껴 씁시다', '#163832', '#e8fff8', 20) }), fxC, 1.45, fzC, g, { cast: false });
       pmesh(new THREE.PlaneGeometry(2.6, .28), new THREE.MeshBasicMaterial({ map: makeSign('야외 음수대 (수돗가) · 물을 아껴 씁시다', '#163832', '#e8fff8', 20) }), fxC, 1.45, fzC, g, { ry: Math.PI, cast: false });
       addCol(fxC - 4.1, fxC + 4.1, fzC - .75, fzC + .75);
-      world.props.push({ kind: 'robj', k: 'east_fountain', t: 'mega15k', floor: 0, x: fxC, z: fzC + 1.25, y: .95, r: 2.2, label: '야외 타일 수돗가 수도꼭지 틀어 찬물로 세수하기 (공포 감소 · 스태미나 회복)' });
+      world.props.push({ kind: 'robj', k: 'east_fountain', t: 'mega15k', floor: 0, x: fxC, z: fzC + 1.25, y: .95, r: 2.2, label: '야외 타일 수돗가 수도꼭지 틀어 찬물로 세수하기 (긴장 완화 · 스태미나 회복)' });
     }
 
     // ── (2) 체육부 전통 씨름장(원형 모래판 · 차양막) & 3단 철봉·평행봉 체력단련장 (x: 58.0, z: -21.5) ──
@@ -749,7 +749,7 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
       pbox(.12, .12, .95, woodLight, bxB - .55, 2.08, bzB, g, { ry: Math.PI / 2 });
       pmesh(new THREE.PlaneGeometry(1.8, .28), new THREE.MeshBasicMaterial({ map: makeSign('구관 학교 종 (1968~1998)', '#221a12', '#f6e4b8', 20) }), bxB - 1.18, 2.75, bzB, g, { ry: -Math.PI / 2, cast: false });
       addCol(bxB - 1.35, bxB + 1.35, bzB - 1.35, bzB + 1.35);
-      world.props.push({ kind: 'robj', k: 'east_bell', t: 'mega15k', floor: 0, x: bxB - 1.65, z: bzB, y: 1.4, r: 2.2, label: '구관 청동 학교 종(銅鍾) 타종하기 (종소리로 괴물 강력 유인)' });
+      world.props.push({ kind: 'robj', k: 'east_bell', t: 'mega15k', floor: 0, x: bxB - 1.65, z: bzB, y: 1.4, r: 2.2, label: '구관 청동 학교 종(銅鍾) 타종하기 (종소리가 캠퍼스에 울린다)' });
     }
 
     // ── (4) 90년대 공중전화 부스 2동 · 학우매점 야외 평상/파라솔 쉼터 & 학교 분리수거장 · 벽돌 소각장 (x: 84.0, z: +15.0) ──

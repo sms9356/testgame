@@ -40,13 +40,13 @@ class RestroomSystem {
       group,
       promptText: "[E] 세면대 수도꼭지 틀기 (정신 차리기 / 물소리로 유인)",
       onInteract: (playerState, notifyUI, alertMonsterFn) => {
-        const isBlood = Math.random() < 0.25;
+        const isBlood = false, _isBloodOld = Math.random() < 0.25;
         if (isBlood) {
           if (playerState) playerState.fear = Math.min(100, (playerState.fear || 0) + 18);
-          if (notifyUI) notifyUI("수도꼭지에서 검붉은 핏물이 쏟아진다! (공포 증가)");
+          if (notifyUI) notifyUI("낡은 배관에서 녹슨 흙탕물이 쏟아진다.");
         } else {
           if (playerState) playerState.fear = Math.max(0, (playerState.fear || 0) - 25);
-          if (notifyUI) notifyUI("시원한 수돗물로 세수를 했다. (공포 -25%)");
+          if (notifyUI) notifyUI("시원한 수돗물로 세수를 했다. (긴장 -25%)");
         }
         if (typeof alertMonsterFn === "function") alertMonsterFn(group.position, 14);
       }

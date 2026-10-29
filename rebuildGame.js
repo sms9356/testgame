@@ -2,11 +2,11 @@
 //   기본으로 켜진다 (예전 건물로 보려면 주소창에 ?oldmap).
 //   예전 본관(1~3층 · 옥상) · 별관(8~10층) 건물은 감추고, 그 자리 땅(0층)에서 새 건물을 걷는다.
 //   높이는 P.sh(계단 높이 보정값)로 넘긴다 → 카메라 · 점프 · 가구 오르기 코드는 손대지 않아도 된다.
-import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=265';
-import { placeModels } from './rebuild/models.js?v=265';
-import { carve, subdivide } from './rebuild/transplant.js?v=265';
+import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=270';
+import { placeModels } from './rebuild/models.js?v=270';
+import { carve, subdivide } from './rebuild/transplant.js?v=270';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { turfMaterial } from './campusVisuals.js?v=265';
+import { turfMaterial } from './campusVisuals.js?v=270';
 
 // 예전 건물이 차지하던 땅 (이 안의 예전 메시 · 충돌 상자를 걷어 낸다)
 const OLD_MAIN = { x1: -51, x2: 51, z1: -10.6, z2: 10.9 };
@@ -134,6 +134,8 @@ export function installRebuild({ THREE, scene, floors, world }) {
         const y0 = f * FH, n = dir * .012;
         const ls = lamps.filter(l => { const [px, pz] = b.toLocal(l.position.x, l.position.z); return px > rect.x1 && px < rect.x2 && pz > rect.z1 && pz < rect.z2 && l.position.y > y0 && l.position.y < y0 + FH; });
         if (!ls.length) return;   // 점조명이 없는 방(화장실 등)은 스위치를 달지 않는다
+        { const hit = (x, z, ya, yb) => b.col.some(c => (c.y2 == null ? ya < 3 : c.y2 > ya && (c.y1 ?? 0) < yb) && x > c.x1 - .3 && x < c.x2 + .3 && z > c.z1 - .3 && z < c.z2 + .3);   // 가구가 스위치 앞을 막으면 벽을 따라 빈 자리로
+          if (hit(lx, lz + dir * .45, y0 + .1, y0 + 1.6)) for (const o of [.5, -.5, 1, -1, 1.5, -1.5, 2, -2, 2.6, -2.6]) { const nx = lx + o; if (nx < rect.x1 + .3 || nx > rect.x2 - .3) continue; if (!hit(nx, lz + dir * .45, y0 + .1, y0 + 1.6)) { lx = nx; break; } } }
         put('plate', .09, .13, .02, b, lx, y0 + 1.3, lz, rot); put('key', .028, .05, .012, b, lx, y0 + 1.31, lz + n, rot);
         put('pipe', .026, CEIL - 1.37, .026, b, lx, y0 + (1.37 + CEIL) / 2 - .06, lz + dir * .016, rot);
         put('pipe', .1, .1, .05, b, lx, y0 + CEIL - .18, lz + dir * .03, rot);
@@ -300,7 +302,7 @@ export function installRebuild({ THREE, scene, floors, world }) {
       if (it._rb || !isOld(it.floor, it.pos.x, it.pos.z)) continue; it._rb = true; it._old = { f: it.floor, x: it.pos.x, z: it.pos.z };
       if (it.floor === 2 && inBC(it.pos.x, it.pos.z)) { let [x, z] = bcSpot(it.kind), oy = it.pos.y - BC.y0; if (oy > .3 && bcTop < BC_TOP.length) { const t = BC_TOP[bcTop++]; x = t[0]; z = t[1]; if (it.baseY != null) it.baseY += t[2] + .02 - oy; oy = t[2] + .02; } else if (oy > .3) { if (it.baseY != null) it.baseY -= oy - .03; oy = .03; } it.floor = 0; it.rbY = BCY; it.pos.set(x, BCY + oy, z); if (it.baseY != null) it.baseY = BCY + it.baseY - BC.y0; if (it.mesh) moveObj(it.mesh, x, BCY + oy, z); moved++; continue; }
       const sk = it.kind === 'key' ? SPECIAL_KEY[it.idx] : null;
-      const byNm = it.kind === 'camcorder' ? (() => { const r = roomsOf(MAIN, 0).find(q => /1학년 1반|(^|\D)1-1(\D|$)/.test(q.label || q.name || '')); return r ? { b: MAIN, f: 0, room: r } : null; })() : null;   // 민아의 캠코더는 이야기대로 1-1 교실
+      const byNm = it.kind === 'wire' ? (() => { const r = roomsOf(ANX, 0).find(q => /가정실/.test(q.label || q.name || '')); return r ? { b: ANX, f: 0, room: r } : null; })() : it.kind === 'camcorder' ? (() => { const r = roomsOf(MAIN, 0).find(q => /1학년 1반|(^|\D)1-1(\D|$)/.test(q.label || q.name || '')); return r ? { b: MAIN, f: 0, room: r } : null; })() : null;   // 민아의 캠코더는 이야기대로 1-1 교실
       const tgt = byNm || (sk ? (() => { const rs = roomsOf(sk[0], sk[1]).filter(r => r.type === sk[2]); return rs.length ? { b: sk[0], f: sk[1], room: rs[0] } : pickRoom(it.floor, it.pos.x); })() : pickRoom(it.floor, it.pos.x));
       if (!tgt) continue;
       let oy = it.pos.y - (FL_[it.floor]?.y0 || 0), s = null;
@@ -377,7 +379,10 @@ export function installRebuild({ THREE, scene, floors, world }) {
   // 녹음기(증언 테이프): 화자 · 제목으로 알맞은 방 — 반장 녹음은 그 반, 교사는 자기 교과실
   const TAPE_ROOM = [[/(\d)학년 (\d)반 반장/, m => `${m[1]}학년 ${m[2]}반`], [/3-2 담임/, () => '3학년 2반'], [/상담교사/, () => '상담실'], [/보건교사|구급대/, () => '보건실'],
     [/음악교사/, () => '음악실'], [/미술교사/, () => '미술실'], [/과학부장/, () => '과학실'], [/사서|서다은/, () => '도서실'], [/교감/, () => '교무실 · 행정실'], [/어머니/, () => '상담실']];
-  const tapeRef = p => { if (p.kind !== 'tape') return null; const t = `${p.title || ''} ${p.spk || ''}`; for (const [re, f] of TAPE_ROOM) { const m = t.match(re); if (m) return { tok: '', name: f(m) }; } return null; };
+  // 서브 퀘스트 조사 지점 → 이야기 속 방 (새 건물 이름): 학생회실 → 회의실, 기록 보관실 → 창고, 디지털실습실 → 컴퓨터실
+  const SQ_ROOM = { 'attend:0': '1학년 1반', 'trio:0': '3학년 5반', 'trio:1': '음악실', 'nurse:0': '보건실', 'prank:0': '회의실', 'prank:1': '창고', 'prank:2': '3학년 4반', 'mina:0': '컴퓨터실', 'mina:1': '2학년 5반', 'book:0': '3학년 3반', 'book:1': '도서실', 'head:3': '컴퓨터실', 'head:4': '자율학습실' };
+  const sqRef = p => { if (p.kind === 'ganx' && p.k === 'box' && p.key === 'main') return { tok: '', name: '교무실 · 행정실' }; const m = /^sq:(.+)$/.exec(p.uid || ''); return m && SQ_ROOM[m[1]] ? { tok: '', name: SQ_ROOM[m[1]] } : null; };
+  const tapeRef = p => { const sq = sqRef(p); if (sq) return sq; if (p.kind !== 'tape') return null; const t = `${p.title || ''} ${p.spk || ''}`; for (const [re, f] of TAPE_ROOM) { const m = t.match(re); if (m) return { tok: '', name: f(m) }; } return null; };
   R.fixRoomRefs = world => {
     const W = world, rooms = allRooms(); let moved = 0, relabeled = 0, dup = 0;
     for (const p of W.props) {

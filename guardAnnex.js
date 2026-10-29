@@ -6,7 +6,7 @@ export const ANNEX = Object.freeze({ x1: 4.8, x2: 11.4, z1: 59.6, z2: 64.95, h: 
 // 키 보관함 비밀번호 = 펌프실 열쇠가 나간 시각 (대출 장부 22:50)
 export const CABINET_CODE = '2250';
 export const ANNEX_KEYS = [
-  { id: 'main', name: '본관 열쇠', tag: '본관 숙직실 · 행정 서류함', color: '#c9a64a' },
+  { id: 'main', name: '본관 열쇠', tag: '본관 교무실 · 숙직 서류함', color: '#c9a64a' },
   { id: 'gym', name: '체육관 열쇠', tag: '체육관 기구 창고 · 당직 함', color: '#4a8ac9' },
   { id: 'base', name: '지하실 열쇠', tag: '지하 시설창고 · 기밀 상자', color: '#c94a4a' },
 ];

@@ -8603,7 +8603,9 @@ function boardTex(head) { const c = document.createElement('canvas'); c.width = 
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; return t; }
 let _invMeshes = null;
 function invSpot(b, r, y) {   // 방 벽에서 가구 · 칠판 · 창문에 가리지 않는 빈 자리 (벽 쪽으로 쏜 광선이 모두 벽에 닿는 곳)
-  if (!_invMeshes) { _invMeshes = []; scene.traverse(o => { if (o.isMesh && !o.isInstancedMesh && !/^INV_BOARD_/.test(o.parent && o.parent.name || '')) _invMeshes.push(o); }); }
+  if (!_invMeshes) { _invMeshes = []; const v = new THREE.Vector3(); scene.updateMatrixWorld(); scene.traverse(o => { if (!o.isMesh || o.isInstancedMesh || !o.geometry || /^INV_BOARD_/.test(o.parent && o.parent.name || '')) return; const g = o.geometry; if (!g.boundingSphere) g.computeBoundingSphere(); const bs = g.boundingSphere; if (!bs || !isFinite(bs.radius)) return; v.copy(bs.center).applyMatrix4(o.matrixWorld); _invMeshes.push({ o, x: v.x, y: v.y, z: v.z, r: bs.radius * o.matrixWorld.getMaxScaleOnAxis() }); }); }
+  // 이 방 둘레(±1.6m · 이 층 높이)에 걸친 메시만 광선 검사 (전체 씬 검사로 로딩 직후 1~2초 멈추던 것 방지)
+  { const [ax, az] = b.toWorld(r.x1, r.z1), [bx, bz] = b.toWorld(r.x2, r.z2), x1 = Math.min(ax, bx) - 1.6, x2 = Math.max(ax, bx) + 1.6, z1 = Math.min(az, bz) - 1.6, z2 = Math.max(az, bz) + 1.6; invSpot.near = _invMeshes.filter(q => q.x + q.r > x1 && q.x - q.r < x2 && q.z + q.r > z1 && q.z - q.r < z2 && q.y + q.r > y - .2 && q.y - q.r < y + 3.6).map(q => q.o); }
   const rc = new THREE.Raycaster(), o = new THREE.Vector3(), d = new THREE.Vector3(), W = (lx, lz) => b.toWorld(lx, lz);
   const walls = [ // [로컬 벽 위 점 (t: 0~1), 로컬 안쪽 법선]
     t => [r.x1 + .02, r.z1 + (r.z2 - r.z1) * t, 1, 0], t => [r.x2 - .02, r.z1 + (r.z2 - r.z1) * t, -1, 0], t => [r.x1 + (r.x2 - r.x1) * t, r.z1 + .02, 0, 1], t => [r.x1 + (r.x2 - r.x1) * t, r.z2 - .02, 0, -1]];
@@ -8614,14 +8616,14 @@ function invSpot(b, r, y) {   // 방 벽에서 가구 · 칠판 · 창문에 가
     let ok = true, wallD = null, dMin = 9, dMax = 0; const hitObjs = new Set();
     for (const s of [-.85, -.4, 0, .4, .85]) for (const h of [1.05, 1.55, 2.05]) { if (!ok) break;
       o.set(x + nx * 1.4 + tx * s, y + h, z + nz * 1.4 + tz * s); d.set(-nx, 0, -nz); rc.set(o, d); rc.far = 1.6;
-      const hit = rc.intersectObjects(_invMeshes, false)[0]; const m = hit && (Array.isArray(hit.object.material) ? hit.object.material[0] : hit.object.material); if (!hit || hit.distance < 1.3 || (m && (m.transparent || m.opacity < 1 || m.transmission > 0)) || /glass|window|유리|창/i.test(hit.object.name || '')) { ok = false; break; } wallD = hit.distance; hitObjs.add(hit.object); dMin = Math.min(dMin, wallD); dMax = Math.max(dMax, wallD); }
+      const hit = rc.intersectObjects(invSpot.near, false)[0]; const m = hit && (Array.isArray(hit.object.material) ? hit.object.material[0] : hit.object.material); if (!hit || hit.distance < 1.3 || (m && (m.transparent || m.opacity < 1 || m.transmission > 0)) || /glass|window|유리|창/i.test(hit.object.name || '')) { ok = false; break; } wallD = hit.distance; hitObjs.add(hit.object); dMin = Math.min(dMin, wallD); dMax = Math.max(dMax, wallD); }
     if (ok && (dMax - dMin > (invSpot.tol || .012) || hitObjs.size > (invSpot.tol ? 2 : 1))) ok = false;   // 같은 벽 한 장에만 닿아야 (액자 · 화이트보드 · 현수막 겹침 금지)   // 벽면이 평평해야 (흡음판 · 게시물 · 칠판 돌출 금지)
     if (ok) { const off = (wallD != null ? 1.4 - wallD : 0) + .03; return { x: x + nx * off, z: z + nz * off, ry: Math.atan2(nx, nz), nx, nz }; } }
   return null;
 }
-function installInvestigationBoards() {
+async function installInvestigationBoards() {
   if (!RBG || !RBG.BLD || world._invBoards) return; world._invBoards = true;
-  for (const B of INV_BOARDS) { try {
+  for (const B of INV_BOARDS) { await new Promise(r => setTimeout(r, 30)); try {   // 게시물 하나씩 나눠서 (한 프레임에 몰아 계산하지 않는다)
     const b = RBG.BLD.find(q => q.name === B.b); if (!b || !b.props) continue;
     const FHb = (b.spec && b.spec.FH) || 3.6, y = B.f * FHb; let sp = null;
     for (const r of b.props.filter(p => p.kind === 'room' && p.floor === B.f && [].concat(B.room).includes(p.label)).sort((a, c) => [].concat(B.room).indexOf(a.label) - [].concat(B.room).indexOf(c.label))) { sp = invSpot(b, r, y); if (sp) break; }
@@ -8636,7 +8638,7 @@ function installInvestigationBoards() {
     world.props.push({ kind: 'look', _rb: true, floor: 0, x: px, z: pz, rbY: y, y: y + 1.5, r: 1.6, label: B.head + ' 읽기', n: 0, fn: () => { showNote({ kind: 'board', id: B.id, title: B.title, text: B.text }); return ''; } });
   } catch (e) { console.warn('[조사 게시물]', B.id, e); } }
 }
-if (!params.has('oldmap')) { RBG = installRebuild({ THREE, scene, floors, world }); window.__rbg = RBG; try { RBG.allOff(); } catch (e) { console.warn('[all off]', e); } renderer.localClippingEnabled = true; setTimeout(() => { try { installInvestigationBoards(); } catch (e) { console.warn('[조사 게시물]', e); } }, 2500);
+if (!params.has('oldmap')) { RBG = installRebuild({ THREE, scene, floors, world }); window.__rbg = RBG; try { RBG.allOff(); } catch (e) { console.warn('[all off]', e); } renderer.localClippingEnabled = true; setTimeout(() => { installInvestigationBoards().catch(e => console.warn('[조사 게시물]', e)); }, 2500);
   // 2단계: 예전 건물의 열쇠 · 쪽지 · 조사 지점을 새 방으로 (나중에 생기는 조사 지점도 몇 번 더 옮긴다)
   const sz4 = floors[4] && floors[4].stairZone, b1 = sz4 ? sz4.spawn : { x: ((floors[4] && floors[4].stairCx) || 0) + .8, z: -5.2 };
   const rel = () => { const r = RBG.relocate({ world, floors, stairSpawnB1: b1 }); if (r.moved || r.dropped) console.info('[rebuild] 옮김', r); const f = RBG.fixRoomRefs(world); if (f.moved || f.relabeled || f.dup) console.info('[rebuild] 방 이름 맞춤', f); const g2 = RBG.relinkGeneric(world); if (g2.n || g2.drop) console.info('[rebuild] 공용 조사 지점 다시 잇기', g2); const s3 = RBG.settleMoved(world); if (s3.n) console.info('[rebuild] 허공 물건 내려놓기', s3); const fv = RBG.fixVisible(world); if (fv.re || fv.up) console.info('[rebuild] 안 보이던 · 묻힌 물건 바로잡기', fv); };

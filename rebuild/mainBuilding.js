@@ -4,7 +4,7 @@
 //   전기(분전반 · 2등용 형광등 · 콘센트 · 스위치) · 소방(소화전함 · 소화기 · 감지기 · 유도등 · 방화문) · 수도(세면대 · 배관)
 import * as THREE from '../vendor/three.module.js';
 import { mergeGeometries } from '../vendor/addons/utils/BufferGeometryUtils.js';
-import { makeFlag } from '../tex.js?v=274';
+import { makeFlag } from '../tex.js?v=275';
 // 교실 앞면 꾸밈 공용 (반 이름 · 텍스처 캐시)
 const NAMES = ['김민수', '이서연', '박지훈', '최유진', '정하늘', '강도윤', '조수아', '윤재현', '장예린', '임태호', '한소영', '오준서', '서지민', '신동혁', '권나연', '황민재', '안채원', '송우진', '전다은', '홍석진'];
 let flagTex = null; const decorTex = new Map();
@@ -168,6 +168,7 @@ export function buildMainBuilding(opt = {}) {
       g.fillStyle = '#1c1c1e'; g.fillRect(0, 0, w, h); const rows = [[15, 13.2], [14, 13.2], [13, 13.2], [12, 13.2], [8, 13.2]];
       rows.forEach(([n, kw], r) => { for (let i = 0; i < n; i++) { const x = 6 + i * (w * .72 / 15), y = 6 + r * 17; g.fillStyle = '#2c2c30'; g.fillRect(x, y, w * .72 / 15 - 2, 14); g.fillStyle = 'rgba(190,190,180,.35)'; g.fillRect(x + 3, y + 3, 3, 3); } });
       for (let r = 0; r < 5; r++) for (let i = 0; i < 4; i++) { g.fillStyle = '#2c2c30'; g.fillRect(w * .8 + i * 12, 6 + r * 17, 10, 14); } }) })),
+    brass: M('brass', () => new THREE.MeshStandardMaterial({ color: 0x9a7a40, roughness: .38, metalness: .9 })),   // 청동 배수 트랩
     hood: M('hood', () => new THREE.MeshStandardMaterial({ roughness: .32, metalness: .85, map: canvasTex(64, 256, (g, w, h) => { for (let y = 0; y < h; y++) { const v = 176 + Math.random() * 30 | 0; g.fillStyle = `rgb(${v},${v + 2},${v + 5})`; g.fillRect(0, y, w, 1); } }) })),   // 헤어라인 스테인리스 (주방 후드)
     crt: M('crt', () => new THREE.MeshStandardMaterial({ roughness: .5, map: canvasTex(128, 128, (g, w, h) => {   // 누렇게 바랜 베이지 플라스틱 (CRT · 본체) + 통풍구 줄
       g.fillStyle = '#d4cbb2'; g.fillRect(0, 0, w, h); for (let i = 0; i < 900; i++) { const v = 195 + Math.random() * 30 | 0; g.fillStyle = `rgba(${v},${v - 6},${v - 26},.4)`; g.fillRect(Math.random() * w, Math.random() * h, 1.2, 1.2); }
@@ -1218,7 +1219,12 @@ export function buildMainBuilding(opt = {}) {
         toilet(w + dir * .38, zc, y0, -dir); bx(SW, 'alu', .02, .12, .7, .95, za + .05, za + .1);   // 휴지걸이
         if (!man) { bx(SW, 'hpl', .05, .35, 0, .6, za + cw - .3, za + cw - .1, { solid: true }); } }   // 위생용품 수거함 (부스 안)
       // 소변기 3 (400×700, 센서식) + 칸막이 — 남자만
-      if (man) for (let k = 0; k < 3; k++) { const z = 2.2 + k * .8; bx(SW, 'porc', 0, .35, .45, 1.15, z - .2, z + .2, { solid: true }); bx(SW, 'rubber', .3, .36, .55, 1.0, z - .14, z + .14); bx(SW, 'alu', .0, .06, 1.15, 1.25, z - .05, z + .05);
+      if (man) for (let k = 0; k < 3; k++) { const z = 2.2 + k * .8; // 벽걸이 소변기 (W450 D320 H880, 바닥에서 550): 백자 몸통 · 위 덮개 · 양 옆 날개 · 앞 턱 + 센서 창 · 플러시 밸브 · 청동 S트랩
+        bx(SW, 'porc', 0, .12, .55, 1.43, z - .225, z + .225, { solid: true }); bx(SW, 'porc', .12, .3, 1.22, 1.43, z - .2, z + .2); bx(SW, 'porc', .12, .32, .62, 1.22, z - .225, z - .17); bx(SW, 'porc', .12, .32, .62, 1.22, z + .17, z + .225);
+        bx(SW, 'porc', .12, .34, .55, .68, z - .225, z + .225); bx(SW, 'porc', .3, .345, .66, .74, z - .2, z + .2); bx(SW, 'white', .12, .125, .68, 1.22, z - .17, z + .17); bx(SW, 'rubber', .2, .26, .681, .684, z - .035, z + .035);
+        bx(SW, 'rubber', .3, .305, 1.27, 1.35, z - .07, z + .07); bx(SW, 'exitG', .305, .307, 1.3, 1.32, z - .04, z - .025);
+        bx(SW, 'alu', .03, .07, 1.43, 1.62, z - .022, z + .022); bx(SW, 'alu', .02, .08, 1.6, 1.65, z - .04, z + .04);
+        bx(SW, 'brass', .04, .18, .4, .55, z - .035, z + .035); bx(SW, 'brass', .04, .1, .22, .42, z - .03, z + .03); bx(SW, 'brass', .0, .1, .2, .26, z - .035, z + .035);
         bx(SW, 'hpl', 0, .45, .4, 1.5, z + .4 - .015, z + .4 + .015); if (!k) bx(SW, 'hpl', 0, .45, .4, 1.5, z - .4 - .015, z - .4 + .015); }
       // 세면대 카운터 (1800, 인조대리석 · 2구) + 거울 (1800×900) + 핸드타월기 + 휴지통
       { const za = man ? 3.6 : 3.0, zb = za + 1.8; bx(SS, 'granite', 0, .55, .76, .8, za, zb, { solid: true }); bx(SS, 'granite', .5, .55, .55, .76, za, zb); bx(SS, 'alu', .3, .34, 0, .76, za + .9 - .02, za + .9 + .02);

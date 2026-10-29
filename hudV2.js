@@ -6,7 +6,7 @@ let C = null;
 export function installHudV2(ctx) {
   C = { ...ctx, mode: 'minimal', idle: 0, last: '', playT: 0, v: new ctx.THREE.Vector3() };
   try { const m = localStorage.getItem('hud_mode'); if (MODES.includes(m)) C.mode = m; } catch (e) { /* ignore */ }
-  const css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'hudV2.css?v=274'; document.head.appendChild(css);
+  const css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'hudV2.css?v=275'; document.head.appendChild(css);
   const wp = document.createElement('div'); wp.id = 'wpMark'; wp.innerHTML = '<i></i><b></b>'; document.getElementById('hud').appendChild(wp); C.wp = wp;
   const tag = document.createElement('div'); tag.id = 'hudModeTag'; document.body.appendChild(tag); C.tag = tag;
   addEventListener('keydown', e => { if (e.code !== 'F1') return; e.preventDefault(); setMode(MODES[(MODES.indexOf(C.mode) + 1) % MODES.length], true); });

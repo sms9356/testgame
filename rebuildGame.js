@@ -2,11 +2,11 @@
 //   기본으로 켜진다 (예전 건물로 보려면 주소창에 ?oldmap).
 //   예전 본관(1~3층 · 옥상) · 별관(8~10층) 건물은 감추고, 그 자리 땅(0층)에서 새 건물을 걷는다.
 //   높이는 P.sh(계단 높이 보정값)로 넘긴다 → 카메라 · 점프 · 가구 오르기 코드는 손대지 않아도 된다.
-import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=285';
-import { placeModels } from './rebuild/models.js?v=285';
-import { carve, subdivide } from './rebuild/transplant.js?v=285';
+import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=286';
+import { placeModels } from './rebuild/models.js?v=286';
+import { carve, subdivide } from './rebuild/transplant.js?v=286';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { turfMaterial } from './campusVisuals.js?v=285';
+import { turfMaterial } from './campusVisuals.js?v=286';
 
 // 예전 건물이 차지하던 땅 (이 안의 예전 메시 · 충돌 상자를 걷어 낸다)
 const OLD_MAIN = { x1: -51, x2: 51, z1: -10.6, z2: 10.9 };
@@ -807,6 +807,13 @@ export function installRebuild({ THREE, scene, floors, world }) {
       if (best) { const [wx, wz] = B.toWorld(best.cx, best.cz); p.x = wx; p.z = wz; if (p.px != null) { p.px = wx; p.pz = wz; } up++; }
       else if (!(p.main || p.mega || p.q || p.uid)) { p._drop = true; } }
     for (let i = W.props.length - 1; i >= 0; i--) if (W.props[i]._drop) W.props.splice(i, 1);
+    // 화장실 세면대: 옛 화장실에서 옮겨 온 세면대 조사 지점(바닥 가운데 22cm 높이 옛 세면대 잔해) → 새 연립 세면대의 세면볼 3개 앞으로, 옛 모형은 숨긴다
+    if (!R._sinkFix) { R._sinkFix = true; const slots = [];
+      for (const B of [MAIN, ANX]) for (const q of (B.props || [])) if (q.kind === 'sink') for (const dz of [-.58, 0, .58]) { const [x, z] = B.toWorld(q.x, q.z + dz); slots.push({ x, z, h: q.floor * FH, used: false }); }
+      for (const p of W.props) { if (p.kind !== 'sink' || p.rbY == null || p.floor !== 0) continue; for (const o of objsOf(p)) o.visible = false;
+        let best = null, bd = 1e9; for (const sl of slots) { if (sl.used || Math.abs(sl.h - p.rbY) > .5) continue; const d = Math.hypot(sl.x - p.x, sl.z - p.z); if (d < bd) { bd = d; best = sl; } }
+        if (!best || bd > 6) { p._drop = true; continue; } best.used = true; p.x = best.x; p.z = best.z; if (p.px != null) { p.px = best.x; p.pz = best.z; } p.y = .9; up++; }
+      for (let i = W.props.length - 1; i >= 0; i--) if (W.props[i]._drop) W.props.splice(i, 1); }
     // 대출 카드함: 모형 없이 [E] 만 뜨던 자리 → 나무 카드 목록함 (서랍 4×3, 놋쇠 손잡이 · 이름표)
     for (const p of W.props) { if (p._cardBox || p.k !== 'cards' || p.rbY == null || objsOf(p).length) continue; p._cardBox = true;
       const wd = new THREE.MeshStandardMaterial({ color: 0x6e4a2c, roughness: .6 }), br = new THREE.MeshStandardMaterial({ color: 0xb08a4a, roughness: .35, metalness: .8 }), lb = new THREE.MeshStandardMaterial({ color: 0xece4cc, roughness: .9 });

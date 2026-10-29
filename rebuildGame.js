@@ -2,11 +2,11 @@
 //   기본으로 켜진다 (예전 건물로 보려면 주소창에 ?oldmap).
 //   예전 본관(1~3층 · 옥상) · 별관(8~10층) 건물은 감추고, 그 자리 땅(0층)에서 새 건물을 걷는다.
 //   높이는 P.sh(계단 높이 보정값)로 넘긴다 → 카메라 · 점프 · 가구 오르기 코드는 손대지 않아도 된다.
-import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=272';
-import { placeModels } from './rebuild/models.js?v=272';
-import { carve, subdivide } from './rebuild/transplant.js?v=272';
+import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=273';
+import { placeModels } from './rebuild/models.js?v=273';
+import { carve, subdivide } from './rebuild/transplant.js?v=273';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { turfMaterial } from './campusVisuals.js?v=272';
+import { turfMaterial } from './campusVisuals.js?v=273';
 
 // 예전 건물이 차지하던 땅 (이 안의 예전 메시 · 충돌 상자를 걷어 낸다)
 const OLD_MAIN = { x1: -51, x2: 51, z1: -10.6, z2: 10.9 };
@@ -135,7 +135,9 @@ export function installRebuild({ THREE, scene, floors, world }) {
         const ls = lamps.filter(l => { const [px, pz] = b.toLocal(l.position.x, l.position.z); return px > rect.x1 && px < rect.x2 && pz > rect.z1 && pz < rect.z2 && l.position.y > y0 && l.position.y < y0 + FH; });
         if (!ls.length) return;   // 점조명이 없는 방(화장실 등)은 스위치를 달지 않는다
         { const hit = (x, z, ya, yb) => b.col.some(c => (c.y2 == null ? ya < 3 : c.y2 > ya && (c.y1 ?? 0) < yb) && x > c.x1 - .3 && x < c.x2 + .3 && z > c.z1 - .3 && z < c.z2 + .3);   // 가구가 스위치 앞을 막으면 벽을 따라 빈 자리로
-          if (hit(lx, lz + dir * .45, y0 + .1, y0 + 1.6)) for (const o of [.5, -.5, 1, -1, 1.5, -1.5, 2, -2, 2.6, -2.6]) { const nx = lx + o; if (nx < rect.x1 + .3 || nx > rect.x2 - .3) continue; if (!hit(nx, lz + dir * .45, y0 + .1, y0 + 1.6)) { lx = nx; break; } } }
+          const inDoor = x => b.layout.rooms.some(q => q.kind === 'class' && ((x > q.x1 + .5 && x < q.x1 + 1.9) || (x > q.x2 - 1.9 && x < q.x2 - .5)));   // 앞 · 뒷문 개구부(미닫이 문짝 자리 포함) 위엔 달지 않는다
+          if (Math.abs(lz) < 1 && inDoor(lx)) { const c = [lx - .9, lx + .9, lx - 1.6, lx + 1.6].find(x => x > rect.x1 + .3 && x < rect.x2 - .3 && !inDoor(x)); if (c != null) lx = c; }
+          if (hit(lx, lz + dir * .45, y0 + .1, y0 + 1.6)) for (const o of [.5, -.5, 1, -1, 1.5, -1.5, 2, -2, 2.6, -2.6]) { const nx = lx + o; if (nx < rect.x1 + .3 || nx > rect.x2 - .3 || (Math.abs(lz) < 1 && inDoor(nx))) continue; if (!hit(nx, lz + dir * .45, y0 + .1, y0 + 1.6)) { lx = nx; break; } } }
         put('plate', .09, .13, .02, b, lx, y0 + 1.3, lz, rot); put('key', .028, .05, .012, b, lx, y0 + 1.31, lz + n, rot);
         put('pipe', .026, CEIL - 1.37, .026, b, lx, y0 + (1.37 + CEIL) / 2 - .06, lz + dir * .016, rot);
         put('pipe', .1, .1, .05, b, lx, y0 + CEIL - .18, lz + dir * .03, rot);

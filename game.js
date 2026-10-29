@@ -3137,7 +3137,7 @@ function updatePlayer(dt) {
   if (!introDone && P.floor === 0 && P.z < MAIN_ZS - .5) { introDone = true; talk('inside', 3500); refreshHud(); setTimeout(() => toast('팁', '쪽지를 읽고, 사물함을 파밍해 아이템과 단서를 모으세요. (Tab 소지품 · P 휴대폰 · M 지도)', 'info'), 1500); }
 
   P.invuln = Math.max(0, P.invuln - dt);
-  if (!P.bcast && P.floor === 2 && P.x > -35.8 && P.x < -20.2 && P.z < -2) { P.bcast = true; sfx.broadcast(); setTimeout(() => line('pa1', 'pa'), 900); setTimeout(() => talk('speakers', 3600), 8500); }
+  if (!P.bcast && ((P.floor === 2 && P.x > -35.8 && P.x < -20.2 && P.z < -2) || /방송실/.test(rbHere()))) { P.bcast = true; sfx.broadcast(); setTimeout(() => line('pa1', 'pa'), 900); setTimeout(() => talk('speakers', 3600), 8500); }
   // 손전등/배터리
   if (P.light && P.battery > 0) P.battery = Math.max(0, P.battery - .26 * dt * (CHAR === 'seoyeon' ? .75 : 1) * DF().battery);   // 100% ≈ 7~9분
   if (P.battery <= 0 && P.light && !P.phoneLight) { if (inv.battery > 0) useBattery(); else { P.phoneLight = true; toast('손전등이 꺼졌습니다', '휴대폰 불빛으로 비춘다 — 건전지를 찾으세요', 'warn'); caption('손전등 전구가 꺼진다'); } }
@@ -5965,8 +5965,19 @@ const PHOTOQ = [
 ];
 const PQ_MSG = ['사진부 선배가 남긴 메모: “앨범의 빈 칸을 채워 줘. 처음은 조회대.”', '두 번째 칸: 교무실 금고. 거기서 그날 밤 회의가 있었어.', '세 번째 칸은 음악실. 하늘이는 반주를 맡았었지.', '네 번째: 두 건물 사이 통로. 그날 밤 거기로 뛰어갔대.', '다섯 번째… 수영장. 미안, 이건 나도 못 찍었어.', '마지막 칸. 옥상. 우리가 처음 찍었던 곳.'];
 const pqStep = () => FL.pq || 0;
+function pqTarget(T) {   // 새 건물: 예전 층 좌표의 사진 자리 → 옮긴 금고 · 피아노 · 2층 높이 연결 통로 자리 (층 높이 rbY 포함)
+  if (!RBG || !T) return T; let m = null;
+  if (T.f === 1 && T.x > -1.7 && T.x < 3.7 && T.z > -20.6 && T.z < -9.8 && RBG.passToNew) { const [x, z] = RBG.passToNew(T.x, T.z); m = { x, z, rbY: 3.6 }; }
+  else { const pk = T.col === 'c21' ? 'piano' : /금고/.test(T.hint) ? 'safe' : null, p = pk && world.props.find(q => q.kind === pk && q.rbY != null);
+    m = p ? { x: p.x, z: p.z, rbY: p.rbY } : RBG.mapLoc({ f: T.f, x: T.x, z: T.z }, world); }
+  if (!m || m.rbY == null) return T;
+  const lab = RBG.where(m.x, m.z, m.rbY + .5) || (RBG.inWalkway && RBG.inWalkway({ floor: 0, x: m.x, z: m.z, sh: m.rbY }) ? '본관 ↔ 별관 연결 통로 (2층 높이)' : null);
+  return { ...T, f: 0, x: m.x, z: m.z, rbY: m.rbY, where: lab || T.where, hint: lab ? (([h, ...r]) => { const core = h.replace(/^(본관 ↔ 별관 2층 |본관 |별관 )?(\d층 )?/, ''); return `${lab}${lab.includes(core) ? '' : ' · ' + core}${r.length ? ' — ' + r.join(' — ') : ''}`; })(T.hint.split(' — ')) : T.hint };
+}
+// 새 건물: 지금 서 있는 방 이름 (예전 층 번호로만 걸려 있던 이벤트를 새 건물 방에서도 발동)
+function rbHere() { return RBG && P.floor === 0 && RBG.where ? (RBG.where(P.x, P.z, (P.sh || 0) + .5) || '') : ''; }
 function photoCheck(force) {
-  const k = pqStep(), T = PHOTOQ[k]; if (!T || (!force && objective().ch < 2) || T.f !== P.floor) return;
+  const k = pqStep(), T = pqTarget(PHOTOQ[k]); if (!T || (!force && objective().ch < 2) || T.f !== P.floor || (T.rbY != null && Math.abs((P.sh || 0) - T.rbY) > 1.8)) return;
   const dx = T.x - P.x, dz = T.z - P.z, d = Math.hypot(dx, dz); if (d > T.r || d < .4) return;
   const fx0 = -Math.sin(P.yaw), fz0 = -Math.cos(P.yaw); if ((dx * fx0 + dz * fz0) / d < Math.cos(.5)) { say('조금 더 정면으로 — 그 자리가 화면 가운데 오게', 1800); return; }
   FL.pq = k + 1; FL.pqShots ||= []; FL.pqShots.push({ k, t: clockText() });
@@ -5981,7 +5992,7 @@ function pqHud() {
   if (on && !FL.pqStart) { FL.pqStart = true; setTimeout(() => toast('사진 미션 — 사라진 앨범', PQ_MSG[0] + ' (야간 카메라 X · 클릭으로 촬영)', 'opt'), 1500); }
   box.style.display = on ? 'block' : 'none';
   $('phTitle').textContent = `서브 미션 · 사라진 앨범 (${k}/${PHOTOQ.length})`;
-  $('phSubs').innerHTML = PHOTOQ.map((T, i) => i < k ? `<div class="chk done">📷 ${T.where}</div>` : i === k ? `<div class="chk">📷 ${T.hint}</div>` : '').join('');
+  $('phSubs').innerHTML = PHOTOQ.map(pqTarget).map((T, i) => i < k ? `<div class="chk done">📷 ${T.where}</div>` : i === k ? `<div class="chk">📷 ${T.hint}</div>` : '').join('');
 }
 // 현장 사진: FL.spirit 에 저장(세이브 유지) → 휴대폰 사진 · 메모 탭
 function captureClue(c) {
@@ -7238,7 +7249,7 @@ const CONTACTS = [
 ];
 const INCALLS = [
   { id: 'mina1', who: '민아 선배', num: '010-2481-1012', lines: ['call_mina1'], topic: 'mina1', summary: '복도의 발소리 경고 · 4층 방송실 근처', when: () => P.keys >= 1 && FL.cam },
-  { id: 'unk1', who: '발신번호 표시제한', num: '— — —', lines: ['call_unk1'], topic: 'unk1', summary: '익명 제보 — 방송실 장비실의 타이머', when: () => P.keys >= 2 && (P.floor === 2 || P.floor === 1) && !isOutdoors() },
+  { id: 'unk1', who: '발신번호 표시제한', num: '— — —', lines: ['call_unk1'], topic: 'unk1', summary: '익명 제보 — 방송실 장비실의 타이머', when: () => P.keys >= 2 && (P.floor === 2 || P.floor === 1 || /^본관 [2-4]층/.test(rbHere())) && !isOutdoors() },
   { id: 'guard', who: '정문 경비실 (내선 100)', num: '내선 100', lines: ['gd_call'], topic: 'guard', summary: '무인 경비실 자동응답기 — 1998년 녹음 · 소리에 대답하지 말 것', when: () => P.keys >= 3 },
   { id: 'mina2', who: '민아 선배', num: '010-2481-1012', lines: ['call_mina2'], topic: 'mina2', summary: '별관 점등 목격 · 방송실 장비실 은신 중', when: () => !!FL.anPow },
   { id: 'unk2', who: '발신번호 표시제한', num: '경비실', lines: ['call_unk2'], topic: 'unk2', summary: '경비실 CCTV — 하늘이의 자리', when: () => !!SIT.chair },
@@ -8700,7 +8711,30 @@ document.querySelectorAll('.btn').forEach(b => b.addEventListener('mouseenter', 
 /* ---------- 테스트 모드 (?test) ---------- */
 // 37개 특별실 · 보조실 순간이동 (방 문 안쪽에서 방을 바라보게)
 function S37_TP() { return S37.rooms.map(r => [`[37실] ${{ 4: 'B1', 0: '1F', 1: '2F', 2: '3F', 8: '별관 1F', 9: '별관 2F', 10: '별관 3F' }[r.f]} ${r.name}`, { floor: r.f, x: r.cx, z: -r.s * 2.6, yaw: r.s > 0 ? 0 : Math.PI }]); }
-const TP = [
+function rbTpList(old) { try { return rbTpBuild(old); } catch (e) { console.warn('[tp]', e); return old; } }
+function rbTpBuild(old) {   // 새 건물(재건축): 예전 층(1·2·8~10층 · 예전 본관 땅) 순간이동 대신 새 건물의 실제 복도 · 방 · 퍼즐 앞으로
+  const B = RBG && RBG.BLD; if (!B) return old;
+  const isOldTo = t => t.floor === 1 || t.floor === 2 || (t.floor >= 8 && t.floor <= 10) || (t.floor === 0 && RBG.inside(t.x, t.z));
+  const out = old.filter(([, t]) => !isOldTo(t) );
+  const yawOf = (b, lx, lz, lx2, lz2) => { const [x, z] = b.toWorld(lx, lz), [x2, z2] = b.toWorld(lx2, lz2); return Math.atan2(-(x2 - x), -(z2 - z)); };
+  const fhOf = b => (b.spec && b.spec.FH) || 3.6;
+  for (const b of B) { if (!b.layout || !b.props) continue; const fl = [...new Set(b.props.filter(p => p.kind === 'room').map(p => p.floor))].sort((a, c) => a - c);
+    for (const f of fl) { const [x, z] = b.toWorld(0, -1.8); out.push([b.name + ' ' + (f + 1) + 'F 복도', { floor: 0, x, z, sh: f * fhOf(b), yaw: yawOf(b, 0, -1.8, 1, -1.8) }]); } }
+  if (RBG.passToNew) { const [x, z] = RBG.passToNew(.8, -15.2); out.push(['본관 ↔ 별관 연결 통로 (2층 높이)', { floor: 0, x, z, sh: 3.6, yaw: 0 }]); }
+  for (const b of B) { if (!b.props) continue; const seen = {};
+    for (const r of b.props.filter(p => p.kind === 'room' && p.label && !/비상구/.test(p.label))) { const key = r.floor + r.label; seen[key] = (seen[key] || 0) + 1;
+      const cx = (r.x1 + r.x2) / 2, ez = r.z1 + 1.1, [x, z] = b.toWorld(cx, ez);
+      out.push(['[방] ' + b.name + ' ' + (r.floor + 1) + '층 ' + r.label + (seen[key] > 1 ? ' ' + seen[key] : ''), { floor: 0, x, z, sh: r.floor * fhOf(b), yaw: yawOf(b, cx, ez, cx, ez + 1) }]); } }
+  const OBJ = ['safe', 'case5', 'lock', 'piano', 'easel', 'mspot', 'megaRadio', 'mina', 'console', 'cctvRec'];
+  for (const p of world.props.filter(q => q.rbY != null && OBJ.includes(q.kind)).sort((a, c) => OBJ.indexOf(a.kind) - OBJ.indexOf(c.kind))) {
+    const b = B.find(q => q.layout && (([lx, lz]) => Math.abs(lx) < q.layout.L / 2 + .5 && lz > q.layout.zN - .5 && lz < q.layout.zS + .5)(q.toLocal(p.x, p.z))); if (!b) continue;
+    const [lx, lz] = b.toLocal(p.x, p.z), f = Math.round(p.rbY / fhOf(b)), rm = b.props.find(r => r.kind === 'room' && r.floor === f && lx > r.x1 && lx < r.x2 && lz > r.z1 && lz < r.z2);
+    let dx = 0, dz = lz > -1.8 ? -1 : 1; if (rm) { dx = (rm.x1 + rm.x2) / 2 - lx; dz = (rm.z1 + rm.z2) / 2 - lz; const dl = Math.hypot(dx, dz) || 1; dx /= dl; dz /= dl; }
+    const sx = lx + dx * 1.3, sz = lz + dz * 1.3, [x, z] = b.toWorld(sx, sz);
+    out.push(['[퍼즐] ' + (p.label || p.kind) + ' — ' + (RBG.where(p.x, p.z, p.rbY + .5) || b.name), { floor: 0, x, z, sh: p.rbY, yaw: yawOf(b, sx, sz, lx, lz) }]); }
+  return out;
+}
+const TP_OLD = [
   ['정문 앞 (도로)', { floor: 0, x: 0, z: 76, yaw: 0 }], ['운동장 · 본관 현관', { floor: 0, x: 0, z: 4, yaw: 0 }],
   ['본관 1F 복도', { floor: 0, x: 0, z: 0, yaw: -Math.PI / 2 }], ['본관 2F 복도', { floor: 1, x: 0, z: 0, yaw: -Math.PI / 2 }],
   ['본관 3F (방송실 앞)', { floor: 2, x: -24, z: 0, yaw: 0 }], ['옥상', { floor: 3, x: 0, z: -7.5, yaw: 0 }],
@@ -8714,11 +8748,12 @@ const TP = [
   ['교무실 금고', { floor: 0, x: -10.4, z: -8.0, yaw: Math.PI / 2 }], ['도서실 서랍 (자물쇠 따기)', { floor: 0, x: 32.6, z: -7.4, yaw: 0 }], ['과학실 약품장 (다이얼)', { floor: 1, x: 31, z: -4.8, yaw: Math.PI / 2 }],
   ['체육관 기구함 (다이얼)', { floor: 5, x: 30.6, z: 20.6, yaw: Math.PI / 2 }], ['수영장 배수구 (갈고리)', { floor: 6, x: -41.5, z: 46.9, yaw: 0 }], ['음악실 피아노', { floor: 10, x: -6.2, z: -6.2, yaw: 0 }], ['미술실 그림 퍼즐', { floor: 10, x: -1.2, z: -4.6, yaw: 0 }], ['보건실 녹음기', { floor: 0, x: -5.6, z: 4.6, yaw: -Math.PI / 2 }], ['B1 전기실', { floor: 4, x: -16, z: -4, yaw: Math.PI / 2 }], ['3-3 교실', { floor: 2, x: -8, z: -3, yaw: 0 }], ['음악실', { floor: 10, x: -8, z: -3, yaw: 0 }],
 ];
+const TP = RBG ? rbTpList(TP_OLD) : TP_OLD;   // 새 건물이면 예전 층 · [37실] 좌표 대신 새 건물 복도 · 방 · 퍼즐 앞으로
 function testAct(fn) { closeUI(); setTimeout(fn, 60); }
 function renderTest() {
   const b = (label, on, fn) => { const el = document.createElement('button'); el.textContent = label; if (on) el.classList.add('on'); el.onclick = fn; return el; };
   const tp = $('testTp'), ac = $('testAct'); tp.innerHTML = ''; ac.innerHTML = '';
-  TP.forEach(([n, to]) => tp.appendChild(b(n, false, () => testAct(() => { if (!gateClosed && to.z < GATE_Z - 3) { gateClosed = true; gateState = 'closed'; gateAnim = 1; gate.setOpen(0); } teleport(to); }))));
+  (RBG ? rbTpList(TP_OLD) : TP_OLD).forEach(([n, to]) => tp.appendChild(b(n, false, () => testAct(() => { if (!gateClosed && to.z < GATE_Z - 3) { gateClosed = true; gateState = 'closed'; gateAnim = 1; gate.setOpen(0); } teleport(to); }))));
   ac.appendChild(b(`무적 ${TST.god ? 'ON' : 'OFF'}`, TST.god, () => { TST.god = !TST.god; renderTest(); }));
   ac.appendChild(b(`유령 ${TST.noGhost ? 'OFF' : 'ON'}`, !TST.noGhost, () => { TST.noGhost = !TST.noGhost; if (TST.noGhost) { ghost.active = false; ghost.hunt = null; } renderTest(); }));
   ac.appendChild(b('유령 바로 깨우기', false, () => testAct(() => { TST.noGhost = false; ghost.active = true; ghostRelocate(); toast('테스트', '유령을 현재 층으로 불렀습니다.', 'warn'); })));

@@ -79,3 +79,15 @@ export function sharpenTextures(root, renderer, level = 8) {
   root.traverse(o => { if (!o.isMesh) return; for (const m of [].concat(o.material)) { if (!m) continue; for (const k of ['map', 'normalMap', 'roughnessMap']) { const t = m[k]; if (!t || seen.has(t)) continue; seen.add(t); if ((t.anisotropy || 1) < max) { t.anisotropy = max; t.needsUpdate = true; n++; } } } });
   return n;
 }
+// 과도한 고폴리 소품 경량화: 상자처럼 단순한 모양인데 수십만 삼각형인 스캔 모델(골판지 상자 등) → 같은 크기 · 재질의 상자 지오메트리
+export function slimHeavyProps(root, names = /cardboard_box/i, maxTris = 3000) {
+  let n = 0, saved = 0;
+  root.traverse(o => {
+    if (!o.isMesh || !o.geometry) return; let nm = '', a = o; for (let i = 0; i < 5 && a; i++, a = a.parent) nm += ' ' + (a.name || ''); if (!names.test(nm)) return;
+    const g = o.geometry, tris = (g.index ? g.index.count : g.attributes.position.count) / 3; if (tris <= maxTris) return;
+    g.computeBoundingBox(); const bb = g.boundingBox, s = bb.getSize(new THREE.Vector3()), c = bb.getCenter(new THREE.Vector3());
+    const box = new THREE.BoxGeometry(Math.max(s.x, .001), Math.max(s.y, .001), Math.max(s.z, .001)); box.translate(c.x, c.y, c.z);
+    o.geometry = box; g.dispose(); n++; saved += tris - 12;
+  });
+  return { n, saved };
+}

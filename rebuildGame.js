@@ -2,11 +2,11 @@
 //   기본으로 켜진다 (예전 건물로 보려면 주소창에 ?oldmap).
 //   예전 본관(1~3층 · 옥상) · 별관(8~10층) 건물은 감추고, 그 자리 땅(0층)에서 새 건물을 걷는다.
 //   높이는 P.sh(계단 높이 보정값)로 넘긴다 → 카메라 · 점프 · 가구 오르기 코드는 손대지 않아도 된다.
-import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=271';
-import { placeModels } from './rebuild/models.js?v=271';
-import { carve, subdivide } from './rebuild/transplant.js?v=271';
+import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=272';
+import { placeModels } from './rebuild/models.js?v=272';
+import { carve, subdivide } from './rebuild/transplant.js?v=272';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { turfMaterial } from './campusVisuals.js?v=271';
+import { turfMaterial } from './campusVisuals.js?v=272';
 
 // 예전 건물이 차지하던 땅 (이 안의 예전 메시 · 충돌 상자를 걷어 낸다)
 const OLD_MAIN = { x1: -51, x2: 51, z1: -10.6, z2: 10.9 };
@@ -381,7 +381,8 @@ export function installRebuild({ THREE, scene, floors, world }) {
     [/음악교사/, () => '음악실'], [/미술교사/, () => '미술실'], [/과학부장/, () => '과학실'], [/사서|서다은/, () => '도서실'], [/교감/, () => '교무실 · 행정실'], [/어머니/, () => '상담실']];
   // 서브 퀘스트 조사 지점 → 이야기 속 방 (새 건물 이름): 학생회실 → 회의실, 기록 보관실 → 창고, 디지털실습실 → 컴퓨터실
   const SQ_ROOM = { 'attend:0': '1학년 1반', 'trio:0': '3학년 5반', 'trio:1': '음악실', 'nurse:0': '보건실', 'prank:0': '회의실', 'prank:1': '창고', 'prank:2': '3학년 4반', 'mina:0': '컴퓨터실', 'mina:1': '2학년 5반', 'book:0': '3학년 3반', 'book:1': '도서실', 'head:3': '컴퓨터실', 'head:4': '자율학습실' };
-  const sqRef = p => { if (p.kind === 'ganx' && p.k === 'box' && p.key === 'main') return { tok: '', name: '교무실 · 행정실' }; const m = /^sq:(.+)$/.exec(p.uid || ''); return m && SQ_ROOM[m[1]] ? { tok: '', name: SQ_ROOM[m[1]] } : null; };
+  const MSPOT_ROOM = [[/드럼|실로폰/, '음악실'], [/영사기/, '회의실'], [/고장 난 PC/, '컴퓨터실'], [/이젤/, '미술실']];
+  const sqRef = p => { if (p.kind === 'mspot') { const r = MSPOT_ROOM.find(([re]) => re.test(p.label || '')); if (r) return { tok: '', name: r[1] }; } if (p.kind === 'ganx' && p.k === 'box' && p.key === 'main') return { tok: '', name: '교무실 · 행정실' }; const m = /^sq:(.+)$/.exec(p.uid || ''); return m && SQ_ROOM[m[1]] ? { tok: '', name: SQ_ROOM[m[1]] } : null; };
   const tapeRef = p => { const sq = sqRef(p); if (sq) return sq; if (p.kind !== 'tape') return null; const t = `${p.title || ''} ${p.spk || ''}`; for (const [re, f] of TAPE_ROOM) { const m = t.match(re); if (m) return { tok: '', name: f(m) }; } return null; };
   R.fixRoomRefs = world => {
     const W = world, rooms = allRooms(); let moved = 0, relabeled = 0, dup = 0;
@@ -419,6 +420,8 @@ export function installRebuild({ THREE, scene, floors, world }) {
         const dx = x - p.x, dz = z - p.z; for (const k of Object.keys(p)) { const o = p[k]; if (o && o.isObject3D && k !== 'parent') { o.position.x += dx; o.position.z += dz; } } p.x = x; p.z = z; if (p.px != null) { p.px += dx; p.pz += dz; } done = true; } }
     // 옛 건물에서 옮겨 온 물건 중 새 방에 어울리지 않는 것: 세면대 · 수도꼭지는 물 쓰는 방에만, 옛 형광등 스위치는 새 건물 스위치가 있으니 걷는다
     for (const p of W.props) { if (!p._old || p._drop || p.floor !== 0 || !p.label) continue; const rm = R.roomAt(p.x, p.z, (p.rbY ?? 0) + .1), rn = rm ? (rm.name || rm.label || '') : '';
+      const junk = p.kind === 'fz' && /홀 전시 작품|할로겐 투광기|사진부 암실|스팀 밸브|방화문 닫고/.test(p.label);   // 새 건물에 없는 옛 홀 · 암실 · 연결복도 장치
+      if (junk) { for (const o of objsOf(p)) o.visible = false; p._drop = true; continue; }
       const wet = /수도꼭지|세면대|싱크|개수대/.test(p.label) && !/화장실|과학실|가정실|미술실|보건실/.test(rn), oldSw = p.kind !== 'switch' && /스위치/.test(p.label) && /형광등|전등|조명/.test(p.label);
       if (wet || oldSw) { for (const o of objsOf(p)) o.visible = false; p._drop = true; } }
     for (let i = W.props.length - 1; i >= 0; i--) if (W.props[i]._drop) { W.props.splice(i, 1); dup++; }

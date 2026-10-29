@@ -60,3 +60,15 @@ export function autoDetail(root) {
   });
   return n;
 }
+// 실내 반사 환경광 (IBL): 형광등 패널이 달린 회색 방을 PMREM 으로 한 번 구워 장면 환경맵으로 — 금속 · 유약 · 니스 면에 은은한 반사
+export function setupEnv(renderer, scene, intensity = .32) {
+  if (scene.userData.envReady) return; scene.userData.envReady = true;
+  const env = new THREE.Scene(), room = new THREE.Mesh(new THREE.BoxGeometry(12, 4, 12), new THREE.MeshBasicMaterial({ color: 0x3a3c3e, side: THREE.BackSide })); room.position.y = 2; env.add(room);
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(12, 12), new THREE.MeshBasicMaterial({ color: 0x241e18 })); floor.rotation.x = -Math.PI / 2; floor.position.y = .01; env.add(floor);
+  const panel = new THREE.MeshBasicMaterial({ color: 0xe8eef4 });
+  for (const [x, z] of [[-3, -3], [3, -3], [-3, 3], [3, 3], [0, 0]]) { const p = new THREE.Mesh(new THREE.PlaneGeometry(1.4, .35), panel); p.rotation.x = Math.PI / 2; p.position.set(x, 3.98, z); env.add(p); }
+  const win = new THREE.Mesh(new THREE.PlaneGeometry(8, 1.6), new THREE.MeshBasicMaterial({ color: 0x5a6a80 })); win.position.set(0, 2, -5.98); env.add(win);
+  const pm = new THREE.PMREMGenerator(renderer), rt = pm.fromScene(env, .04); pm.dispose();
+  scene.environment = rt.texture; scene.environmentIntensity = intensity;
+  env.traverse(o => { if (o.geometry) o.geometry.dispose(); });
+}

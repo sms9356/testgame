@@ -156,6 +156,10 @@ export function drawMap(ctx, W, H, o) {
     o.rb.shells.forEach(pts => poly(pts, '#3a3e40', '#9ab0be'));
     o.rb.rooms.forEach(r => { poly(r.pts, r.here ? '#4a5a4e' : r.stair ? '#55584e' : r.hall ? '#2a2e30' : '#30363a', '#0c0c0c'); if (labels && r.label) { ctx.fillStyle = '#d6d2c2'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(r.label, X(r.cx), Y(r.cz)); } });
   }
+  // 목표 방 강조 (정확한 좌표 대신 방 전체를 은은하게 깜빡) — 새 본관 · 별관 평면
+  if (o.rb && o.target) { const T = o.target, inPoly = pts => { let c = false; for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) { const [xi, zi] = pts[i], [xj, zj] = pts[j]; if ((zi > T.z) !== (zj > T.z) && T.x < (xj - xi) * (T.z - zi) / (zj - zi) + xi) c = !c; } return c; };
+    const r = o.rb.rooms.find(q => !q.hall && inPoly(q.pts)); if (r) { const a = .45 + .35 * Math.sin((o.t || 0) * 4); ctx.beginPath(); r.pts.forEach(([x, z], i) => i ? ctx.lineTo(X(x), Y(z)) : ctx.moveTo(X(x), Y(z))); ctx.closePath(); ctx.fillStyle = `rgba(242,193,78,${a * .35})`; ctx.fill(); ctx.strokeStyle = `rgba(242,193,78,${a + .2})`; ctx.lineWidth = 2.5; ctx.stroke(); ctx.lineWidth = 1;
+      if (labels) { const cx = r.pts.reduce((s, p) => s + p[0], 0) / r.pts.length, cz = r.pts.reduce((s, p) => s + p[1], 0) / r.pts.length; ctx.fillStyle = '#f2c14e'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('★', X(cx), Y(cz) - 12); } } }
   // Discovery-first: items, devices, lockers and exact objective coordinates are not plotted.
   // 문 상태 (열림: 초록 / 닫힘: 빨강)
   doors.forEach(d => { ctx.fillStyle = d.transition ? '#74b9e8' : d.open ? '#5fc47a' : '#b04040'; const w = Math.max(4, (d.slide ? 1.4 : .9) * S); ctx.fillRect(X(d.x) - w / 2, Y(d.z) - 1.5, w, 3); });

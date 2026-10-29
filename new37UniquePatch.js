@@ -518,7 +518,7 @@ class New37UniqueRoomsPatch {
 
       case "음악실":
         mount(this._buildOrchestraGongAndTimpani(), "N", 0, 1.5, 0.5, 1.9,
-          "[E] 대형 황동 징(Gong) 강타하기 쳐 보기",
+          "[E] 대형 황동 징(Gong) 쳐 보기",
           ({ notify, alertMonster }) => {
             this._playSFX("gong");
             if (typeof window.onPatchFlashStunMonster === "function") window.onPatchFlashStunMonster(4.0);

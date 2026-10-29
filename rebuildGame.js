@@ -2,11 +2,11 @@
 //   기본으로 켜진다 (예전 건물로 보려면 주소창에 ?oldmap).
 //   예전 본관(1~3층 · 옥상) · 별관(8~10층) 건물은 감추고, 그 자리 땅(0층)에서 새 건물을 걷는다.
 //   높이는 P.sh(계단 높이 보정값)로 넘긴다 → 카메라 · 점프 · 가구 오르기 코드는 손대지 않아도 된다.
-import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=261';
-import { placeModels } from './rebuild/models.js?v=261';
-import { carve, subdivide } from './rebuild/transplant.js?v=261';
+import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=263';
+import { placeModels } from './rebuild/models.js?v=263';
+import { carve, subdivide } from './rebuild/transplant.js?v=263';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { turfMaterial } from './campusVisuals.js?v=261';
+import { turfMaterial } from './campusVisuals.js?v=263';
 
 // 예전 건물이 차지하던 땅 (이 안의 예전 메시 · 충돌 상자를 걷어 낸다)
 const OLD_MAIN = { x1: -51, x2: 51, z1: -10.6, z2: 10.9 };
@@ -287,6 +287,12 @@ export function installRebuild({ THREE, scene, floors, world }) {
     }
     return null;
   };
+  const objsOf = p => {   // 소품의 3D 부품 (중첩된 anim.g 포함 · 부모-자식 중복 제거)
+    const out = new Set(); for (const k of Object.keys(p)) { const o = p[k]; if (o && o.isObject3D && k !== 'parent') out.add(o); }
+    for (const k of ['g', 'mesh', 'grp']) { const o = p.anim && p.anim[k]; if (o && o.isObject3D) out.add(o); }
+    const L = [...out], inside = (o, q) => { for (let a = o.parent; a; a = a.parent) if (a === q) return true; return false; };
+    return L.filter(o => !L.some(q => q !== o && inside(o, q)));
+  };
   R.relocate = ({ world, floors: FL_, stairSpawnB1 }) => {
     R._relocWorld = world;
     let moved = 0, dropped = 0;
@@ -324,7 +330,9 @@ export function installRebuild({ THREE, scene, floors, world }) {
       const su = small && tgt.room ? surfaceIn(tgt.b, tgt.room, tgt.f) : null, s = su || spotAny(tgt.b, tgt.room, tgt.f);
       let oy = Math.max(.05, p.y ?? 1), base = s.h;
       if (su) { base = su.top; oy = su.top - su.h + .08; }
-      for (const k of Object.keys(p)) if (p[k] && p[k].isObject3D && k !== 'parent') moveObj(p[k], s.x, base, s.z);
+      { const oldY0 = FL_[p.floor]?.y0 || 0, dx = s.x - p.x, dz = s.z - p.z;   // 부품(몸체 · 문 · 녹음기 모형)의 상대 위치를 지키며 함께 옮긴다 — 예전엔 조사 지점만 오고 모형은 숨긴 옛 층에 남았다
+        for (const o of objsOf(p)) { const w = o.getWorldPosition(new THREE.Vector3()); group.attach(o); o.position.set(w.x + dx, s.h + (su ? Math.max(0, su.top - s.h - .74) : 0) + (w.y - oldY0), w.z + dz); o.visible = true; }
+        if (p.kind === 'safe' && p.key && p.key.pos) { const kx = s.x - .9, ky = s.h + .38, kz = s.z; p.key.pos.set(kx, ky, kz); if (p.key.baseY != null) p.key.baseY = ky; p.key.floor = 0; p.key.rbY = s.h; p.key._rb = true; if (p.key.mesh) { group.attach(p.key.mesh); p.key.mesh.position.set(kx, ky, kz); } } }   // 금고 속 열쇠도 금고 안으로
       p.floor = 0; p.rbY = s.h; p.x = s.x; p.z = s.z; p.y = oy; if (p.px != null) { p.px = s.x; p.pz = s.z; } moved++;
     }
     for (const d of world.doors) if (!d._rb && isOld(d.floor, d.x, d.z)) { d._rb = true; d.floor = park(d.floor); dropped++; }
@@ -392,7 +400,7 @@ export function installRebuild({ THREE, scene, floors, world }) {
         return spotIn(t.b, t.r, t.r.floor); })();
       used.push({ x: sp2.x, z: sp2.z, h: sp2.h }); p._rfT = t;
       const dx = sp2.x - p.x, dz = sp2.z - p.z, dy = sp2.h - y;
-      for (const k of Object.keys(p)) { const o = p[k]; if (!o || !o.isObject3D || k === 'parent') continue; const w = o.getWorldPosition(new THREE.Vector3()); group.attach(o); o.position.set(w.x + dx, w.y + dy, w.z + dz); o.visible = true; }
+      for (const o of objsOf(p)) { const w = o.getWorldPosition(new THREE.Vector3()); group.attach(o); o.position.set(w.x + dx, w.y + dy, w.z + dz); o.visible = true; }
       p.x = sp2.x; p.z = sp2.z; p.rbY = sp2.h; if (p.px != null) { p.px += dx; p.pz += dz; }
       if (ref.tok && ref.tok !== ref.name && !/^\d/.test(ref.tok)) p.label = p.label.replace(ref.tok, ref.name);
       moved++;
@@ -412,6 +420,45 @@ export function installRebuild({ THREE, scene, floors, world }) {
       for (const k of Object.keys(p)) { const o = p[k]; if (o && o.isObject3D && k !== 'parent') o.visible = false; }
       W.props.splice(i--, 1); dup++; }
     return { moved, relabeled, dup };
+  };
+  // ── 4단계: 이름만 있고 실물과 따로 놀던 공용 조사 지점을 새 건물의 실제 물건에 다시 잇는다 ──
+  //   사물함 파밍(복도 · 별관 · 교실) → 교실 뒤 사물함 벽 앞 · 비상벨 → 복도 화재 발신기 · 배전반 → 복도 외벽 · 감정 카드 → 상담실
+  const VIS = { body: new THREE.MeshStandardMaterial({ color: 0x2a2c30, roughness: .5, metalness: .3 }), reel: new THREE.MeshStandardMaterial({ color: 0xc8c8c0, roughness: .4, metalness: .6 }), led: new THREE.MeshBasicMaterial({ color: 0xff3020 }),
+    panel: new THREE.MeshStandardMaterial({ color: 0x9aa6a0, roughness: .6, metalness: .4 }), warn: new THREE.MeshBasicMaterial({ color: 0xf0c020 }), red: new THREE.MeshStandardMaterial({ color: 0xc8241c, roughness: .5 }), btn: new THREE.MeshStandardMaterial({ color: 0xf2f2f2, roughness: .4 }) };
+  R.relinkGeneric = world => {
+    const W = world; let n = 0, drop = 0;
+    const lay = (b, f) => (b.props || []).filter(q => q.kind === 'room' && q.floor === f);
+    const classes = [MAIN, ANX].flatMap(b => (b.props || []).filter(q => q.kind === 'room' && q.type === 'class').map(r => ({ b, r })));
+    const lockerSpots = classes.flatMap(({ b, r }) => [.3, .55, .8].map(t => { const lz = r.z1 + .3 + (r.z2 - r.z1 - .6) * t, [x, z] = b.toWorld(r.x2 - .95, lz), [fx, fz] = b.toWorld(r.x2, lz); return { x, z, h: r.floor * FH, face: [fx, fz], room: r.label }; }));
+    const alarmSpots = [MAIN, ANX].flatMap(b => { const zN = b.layout.zN; return [...Array(b.spec.floors).keys()].flatMap(f => lay(b, f).filter(q => q.type === 'class').filter((_, i) => i % 2 === 0).map(r => { const [x, z] = b.toWorld(r.x2 + .75, zN + .6); return { x, z, h: f * FH }; })); });
+    const panelSpots = [MAIN, ANX].flatMap(b => { const zN = b.layout.zN; return [...Array(b.spec.floors).keys()].flatMap(f => lay(b, f).filter(q => q.type === 'class').filter((_, i) => i % 2 === 1).map(r => { const [x, z] = b.toWorld(r.x1 + .9, zN + .6); return { x, z, h: f * FH }; })); });
+    const take = (list, p) => { if (!list.length) return null; const y = p.rbY ?? 0; list.sort((a, c) => (Math.abs(a.h - y) * 10 + Math.hypot(a.x - p.x, a.z - p.z)) - (Math.abs(c.h - y) * 10 + Math.hypot(c.x - p.x, c.z - p.z))); return list.shift(); };
+    const put = (p, s, y) => { const dx = s.x - p.x, dz = s.z - p.z, dy = s.h - (p.rbY ?? 0); for (const o of objsOf(p)) { const w = o.getWorldPosition(new THREE.Vector3()); group.attach(o); o.position.set(w.x + dx, w.y + dy, w.z + dz); }
+      p.x = s.x; p.z = s.z; p.rbY = s.h; if (y != null) p.y = y; if (p.px != null) { p.px += dx; p.pz += dz; } p._relink = true; n++; };
+    const kill = p => { for (const k of Object.keys(p)) { const o = p[k]; if (o && o.isObject3D && k !== 'parent') o.visible = false; } p._drop = true; drop++; };
+    const inNew = p => p.floor === 0 && p.rbY != null && R.inBuilding(p.x, p.z);
+    for (const p of W.props) { if (p._relink || !inNew(p)) continue; const L = p.label || '';
+      if (p.kind === 'search' && /사물함 파밍/.test(L) && !/탈의실|샤워실|사감|기숙사/.test(L)) { const s = take(lockerSpots, p); if (s) { put(p, s, 1.0); p.label = '교실 사물함 파밍하기'; } else kill(p); }
+      else if (p.kind === 'bell') { const s = take(alarmSpots, p); if (s) put(p, s, 1.45); }
+      else if (p.kind === 'cbreaker') { const s = take(panelSpots, p); if (s) put(p, s, 1.4); }
+      else if (/감정 카드/.test(L)) { const r = classes.length && [MAIN, ANX].flatMap(b => (b.props || []).filter(q => q.kind === 'room' && /상담실/.test(q.label || '')).map(r => ({ b, r }))); const t = r && r.sort((a, c) => Math.abs(a.r.floor * FH - (p.rbY ?? 0)) - Math.abs(c.r.floor * FH - (p.rbY ?? 0)))[0];
+        if (t && !t.r._card) { t.r._card = true; const s = spotIn(t.b, t.r, t.r.floor, true) || spotIn(t.b, t.r, t.r.floor); put(p, s, .9); }
+        else if (r && r.length > 1 && !r[1].r._card) { const u = r.find(q => !q.r._card); u.r._card = true; put(p, spotIn(u.b, u.r, u.r.floor, true) || spotIn(u.b, u.r, u.r.floor), .9); }
+        else kill(p); } }   // 상담실마다 하나 — 남는 감정 카드는 걷는다
+    for (let i = W.props.length - 1; i >= 0; i--) if (W.props[i]._drop) W.props.splice(i, 1);
+    // 모형 없는 조사 지점에 모형을 붙인다: 녹음기(반장 · 교사 증언) · 배전반 · 비상벨 — 빈 허공에 [E] 만 뜨던 것
+    for (const p of W.props) { if (p._vis || !inNew(p) || objsOf(p).length) continue;
+      const mk = p.kind === 'tape' ? 'tape' : p.kind === 'cbreaker' ? 'panel' : p.kind === 'bell' ? 'bell' : null; if (!mk) continue; p._vis = true;
+      const g = new THREE.Group(), y = p.rbY ?? 0;
+      if (mk === 'tape') { const su = R.groundAt(p.x, p.z, y + 1.3), top = su != null && su - y > .4 && su - y < 1.3 ? su : y; { const bm = new THREE.Mesh(new THREE.BoxGeometry(.26, .08, .15), VIS.body); bm.position.y = .04; g.add(bm); }
+        for (const sx of [-.055, .055]) { const r = new THREE.Mesh(new THREE.CylinderGeometry(.03, .03, .012, 14), VIS.reel); r.position.set(sx, .085, -.01); g.add(r); }
+        const led = new THREE.Mesh(new THREE.BoxGeometry(.012, .008, .012), VIS.led); led.position.set(.1, .084, .05); g.add(led); g.position.set(p.x, top + .005, p.z); g.rotation.y = (p.x * 7 + p.z * 3) % 6.28; }
+      else if (mk === 'panel') { g.add(new THREE.Mesh(new THREE.BoxGeometry(.5, .7, .12), VIS.panel)); const lab = new THREE.Mesh(new THREE.BoxGeometry(.18, .06, .01), VIS.warn); lab.position.set(0, .26, .065); g.add(lab); g.position.set(p.x, y + 1.4, p.z); }
+      else { const bx = new THREE.Mesh(new THREE.BoxGeometry(.22, .3, .08), VIS.red); g.add(bx); const btn = new THREE.Mesh(new THREE.CylinderGeometry(.045, .045, .03, 16), VIS.btn); btn.rotation.x = Math.PI / 2; btn.position.set(0, -.03, .05); g.add(btn); g.position.set(p.x, y + 1.45, p.z); }
+      if (mk !== 'tape') { let best = null, bd = 9; for (const B of [MAIN, ANX]) { const [lx, lz] = B.toLocal(p.x, p.z); if (Math.abs(lz - B.layout.zN) < bd) { bd = Math.abs(lz - B.layout.zN); best = B; } }   // 복도 외벽에 붙여 단다 (벽을 등지게)
+        if (best) { const [lx] = best.toLocal(p.x, p.z), [wx, wz] = best.toWorld(lx, best.layout.zN + .07), [ox, oz] = best.toWorld(lx, best.layout.zN + 1); g.position.x = wx; g.position.z = wz; g.rotation.y = Math.atan2(ox - wx, oz - wz); } }
+      group.add(g); p.visMesh = g; }
+    return { n, drop };
   };
   // 예전 층(1·2·8~10층 · 예전 본관 땅)으로 가는 순간이동 → 새 건물의 같은 자리
   R.mapTeleport = (to, from, world) => {
@@ -549,6 +596,9 @@ export function installRebuild({ THREE, scene, floors, world }) {
       box(car, .02, .62, .2, mSteel, CAR.x2 - .04, 1.2, zc2 - .32);
       for (let k = 0; k < n; k++) box(car, .012, .045, .045, mBtn, CAR.x2 - .055, 1.0 + k * .08, zc2 - .32);
       for (const dz of [-.05, .05]) box(car, .012, .04, .04, mFrame, CAR.x2 - .055, .92, zc2 - .32 + dz); }
+    // 칸 문 (안쪽 미닫이 2짝): 승강장 문과 함께 열리고 닫힌다 — 칸 안에서 문이 없어 승강로 벽이 그대로 보이던 것
+    E.carL = box(car, EW, 2.1, .03, mSteel, EX - .3, 1.08, zc2 - .06); E.carR = box(car, EW, 2.1, .03, mSteel, EX + .3, 1.08, zc2 - .06);
+    box(car, 1.36, .08, .06, mSteel, EX, 2.17, zc2 - .06);   // 문 위 인방
     const cv = document.createElement('canvas'); cv.width = 96; cv.height = 48; const cx = cv.getContext('2d'), tex = new THREE.CanvasTexture(cv); tex.colorSpace = THREE.SRGBColorSpace;
     const disp = new THREE.Mesh(new THREE.PlaneGeometry(.22, .11), new THREE.MeshBasicMaterial({ map: tex })); disp.position.set(EX, 2.1, zc1 + .05); car.add(disp);
     E.show = t => { if (E.ind && t !== E._lt) { E._lt = t; const m = t.match(/^(\d+)F(.?)/); if (m) { const tx = ledTex(m[1], m[2] === '▲' ? '↑' : m[2] === '▼' ? '↓' : ''); E.ind.forEach(o => { o.material.map && o.material.map.dispose(); o.material.map = tx; o.material.needsUpdate = true; }); } } cx.fillStyle = '#05080c'; cx.fillRect(0, 0, 96, 48); cx.fillStyle = '#ff9a3a'; cx.font = 'bold 28px monospace'; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText(t, 48, 26); tex.needsUpdate = true; };
@@ -605,6 +655,7 @@ export function installRebuild({ THREE, scene, floors, world }) {
       if (E.door !== E.doorT) E.door += Math.sign(E.doorT - E.door) * Math.min(Math.abs(E.doorT - E.door), dt * 1.4);
       const fNow = Math.round(E.y / FHb);
       E.landing.forEach((l, i) => { const k = i === fNow && !E.moving ? E.door : 0; l.L.position.x = -.3 - k * .58; l.R.position.x = .3 + k * .58; });
+      if (E.carL) { const k = E.moving ? 0 : E.door; E.carL.position.x = E.EX - .3 - k * .56; E.carR.position.x = E.EX + .3 + k * .56; }
       const h = P && P.floor === 0 ? elvAt(P.x, P.z) : null, rider = h && h.E === E && h.lz < E.zw && Math.abs((P.sh || 0) - E.y) < 1.3;
       if (E.go && E.door <= .01) { E.go = false; E.moving = Math.abs(ty - E.y) > .01; if (E.moving) { sfx && sfx.elevator && sfx.elevator(Math.abs(ty - E.y) / 1.2); R.onElev && R.onElev(ty > E.y ? 'up' : 'down', E, near); } }
       if (E.moving) { const d = ty - E.y, st = Math.sign(d) * Math.min(Math.abs(d), dt * 1.2 * Math.min(1, .25 + Math.abs(d))); E.y += st; if (rider) P.sh = E.y + .06;

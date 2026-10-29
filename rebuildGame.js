@@ -2,11 +2,11 @@
 //   기본으로 켜진다 (예전 건물로 보려면 주소창에 ?oldmap).
 //   예전 본관(1~3층 · 옥상) · 별관(8~10층) 건물은 감추고, 그 자리 땅(0층)에서 새 건물을 걷는다.
 //   높이는 P.sh(계단 높이 보정값)로 넘긴다 → 카메라 · 점프 · 가구 오르기 코드는 손대지 않아도 된다.
-import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=277';
-import { placeModels } from './rebuild/models.js?v=277';
-import { carve, subdivide } from './rebuild/transplant.js?v=277';
+import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=278';
+import { placeModels } from './rebuild/models.js?v=278';
+import { carve, subdivide } from './rebuild/transplant.js?v=278';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { turfMaterial } from './campusVisuals.js?v=277';
+import { turfMaterial } from './campusVisuals.js?v=278';
 
 // 예전 건물이 차지하던 땅 (이 안의 예전 메시 · 충돌 상자를 걷어 낸다)
 const OLD_MAIN = { x1: -51, x2: 51, z1: -10.6, z2: 10.9 };
@@ -743,5 +743,20 @@ export function installRebuild({ THREE, scene, floors, world }) {
   R.footprints = FOOTPRINTS;
   R.classRooms = [MAIN, ANX].flatMap(b => b.props.filter(r => r.kind === 'room' && /^\d학년 \d+반$/.test(r.label || '')).map(r => { const [cx, cz] = b.toWorld((r.x1 + r.x2) / 2, (r.z1 + r.z2) / 2), [fx, fz] = b.toWorld(r.x1 + 2.6, (r.z1 + r.z2) / 2); return { label: r.label, y0: r.floor * b.spec.FH, cx, cz, fx, fz }; }));   // 교실 (반장 증언 배치용)
   R.extra = []; { const bX = R.blocked; R.blocked = (x, z, y, r) => R.extra.some(c => Math.abs(y - c.y) < .5 && x + r > c.x1 && x - r < c.x2 && z + r > c.z1 && z - r < c.z2) || bX(x, z, y, r); }   // 나중에 놓는 받침 수납장 등   // 새 본관 · 별관 바닥 사각형 (인도 재배치용)
+  // 새 본관 · 별관 CCTV: 층마다 복도 양 끝 천장 돔 카메라 (복도를 길게 내려다본다) + 중앙 현관 · 2층 구름다리 — 경비실 실시간 모니터 채널
+  R.cctvFeeds = () => {
+    if (R._cctv) return R._cctv; const out = [], V = (b, lx, y, lz) => { const [x, z] = b.toWorld(lx, lz); return [x, y, z]; };
+    const domeM = new THREE.MeshStandardMaterial({ color: 0x15171a, roughness: .15, metalness: .4 }), baseM = new THREE.MeshStandardMaterial({ color: 0xe8e6e0, roughness: .6 }), ledM = new THREE.MeshBasicMaterial({ color: 0xff2a20 });
+    const dome = ([x, y, z]) => { const g = new THREE.Group(); g.position.set(x, y + .2, z);   // 천장 부착형 돔 (Ø140): 흰 받침 + 검은 반구 + 빨간 녹화 LED
+      const bm = new THREE.Mesh(new THREE.CylinderGeometry(.08, .085, .04, 20), baseM); g.add(bm); const dm = new THREE.Mesh(new THREE.SphereGeometry(.065, 18, 10, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2), domeM); dm.position.y = -.02; g.add(dm);
+      const l = new THREE.Mesh(new THREE.SphereGeometry(.007, 6, 4), ledM); l.position.set(.07, -.02, 0); g.add(l); group.add(g); };
+    const add = (id, label, pos, tgt) => { dome(pos); out.push({ id, label, floor: 0, outdoor: false, position: [pos[0], pos[1] - .1, pos[2]], target: tgt }); };
+    for (const b of [MAIN, ANX]) { const L = b.layout.L, zN = b.layout.zN, FH = b.spec.FH, CEIL = b.spec.CEIL || 2.7, zc = zN / 2;
+      for (let f = 0; f < b.spec.floors; f++) { const y = f * FH + CEIL - .22;
+        for (const sd of [-1, 1]) { const p = V(b, sd * (L / 2 - 1), y, zN + .4); add(`rb_${b.name}_${f}_${sd}`, `${b.name} ${f + 1}F · 복도 ${p[0] < b.toWorld(0, 0)[0] ? '서쪽' : '동쪽'} 끝`, p, V(b, -sd * (L / 2 - 8), f * FH + .9, zc)); } } }
+    { const core = MAIN.layout.rooms.find(r => r.kind === 'core'); if (core) add('rb_entrance', '본관 1F · 중앙 현관', V(MAIN, core.x2 - .4, (MAIN.spec.CEIL || 2.7) - .22, MAIN.layout.zS - .6), V(MAIN, core.x1 + .5, .9, MAIN.layout.zN / 2)); }
+    add('rb_bridge', '2F · 본관 ↔ 별관 구름다리', [BRX + 1.4, FHB + 2.55, BRZ2 - .6], [BRX, FHB + .9, BRZ1 + 1]);
+    return (R._cctv = out);
+  };
   return R;
 }

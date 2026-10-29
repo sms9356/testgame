@@ -2,11 +2,11 @@
 //   기본으로 켜진다 (예전 건물로 보려면 주소창에 ?oldmap).
 //   예전 본관(1~3층 · 옥상) · 별관(8~10층) 건물은 감추고, 그 자리 땅(0층)에서 새 건물을 걷는다.
 //   높이는 P.sh(계단 높이 보정값)로 넘긴다 → 카메라 · 점프 · 가구 오르기 코드는 손대지 않아도 된다.
-import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=287';
-import { placeModels } from './rebuild/models.js?v=287';
-import { carve, subdivide } from './rebuild/transplant.js?v=287';
+import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=288';
+import { placeModels } from './rebuild/models.js?v=288';
+import { carve, subdivide } from './rebuild/transplant.js?v=288';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { turfMaterial } from './campusVisuals.js?v=287';
+import { turfMaterial } from './campusVisuals.js?v=288';
 
 // 예전 건물이 차지하던 땅 (이 안의 예전 메시 · 충돌 상자를 걷어 낸다)
 const OLD_MAIN = { x1: -51, x2: 51, z1: -10.6, z2: 10.9 };
@@ -399,7 +399,7 @@ export function installRebuild({ THREE, scene, floors, world }) {
       const small = ['tape', 'clue', 'pick', 'case5', 'phone', 'note'].includes(p.kind), su = small ? surfaceIn(t.b, t.r, t.r.floor) : null, sp = su || spotIn(t.b, t.r, t.r.floor, true);   // 그 방 안에서만 (꽉 차도 다른 방으로 넘기지 않는다)
       let sp_ = sp; if (sp_ && W.props.some(q => q !== p && q.floor === 0 && Math.abs((q.rbY ?? 0) - sp_.h) < 1 && Math.hypot(q.x - sp_.x, q.z - sp_.z) < .7)) sp_ = null;   // 다른 조사 지점과 포개지는 자리는 버린다
       const story = p.mega || p.main || p.q || /명찰|테이프|증거|열쇠|쪽지|기록부|녹음/.test(p.label);
-      if (!sp_ && !story) { for (const k of Object.keys(p)) { const o = p[k]; if (o && o.isObject3D && k !== 'parent') o.visible = false; } p._drop = true; continue; }   // 자리가 없는 옛 방 장식은 방 한가운데 겹쳐 두지 않고 걷는다
+      if (!sp_ && !story) { for (const o of objsOf(p)) o.visible = false; p._drop = true; continue; }   // 자리가 없는 옛 방 장식은 방 한가운데 겹쳐 두지 않고 걷는다
       const sp2 = sp_ || (() => {   // 방이 가구로 꽉 차도 이야기 물건끼리 한 점에 포개지지 않게: 가운데 둘레를 돌며 빈 자리
         const h = t.r.floor * FH, busy = (x, z) => W.props.some(q => q !== p && q.floor === 0 && Math.abs((q.rbY ?? 0) - h) < 1 && Math.hypot(q.x - x, q.z - z) < .7);
         const mx = (t.r.x1 + t.r.x2) / 2, mz = (t.r.z1 + t.r.z2) / 2;
@@ -431,7 +431,7 @@ export function installRebuild({ THREE, scene, floors, world }) {
     for (let i = 0; i < W.props.length; i++) { const p = W.props[i]; if (p.floor !== 0 || !p._rf || !p.label || !['fz', 'robj'].includes(p.kind) || p.mega || p.main || p.q || /의자에 앉기|스위치|문 열기|문 닫기|명찰|테이프|증거|열쇠|쪽지|기록부/.test(p.label)) continue;   // 미션 · 수집품은 건드리지 않는다
       const rm = R.roomAt(p.x, p.z, (p.rbY ?? 0) + .1); if (!rm) continue; const key = (rm.id || rm.name) + '|' + p.label.replace(/\s*\(.*$/, '');
       if (!seen.has(key)) { seen.set(key, p); continue; }
-      for (const k of Object.keys(p)) { const o = p[k]; if (o && o.isObject3D && k !== 'parent') o.visible = false; }
+      for (const o of objsOf(p)) o.visible = false;
       W.props.splice(i--, 1); dup++; }
     return { moved, relabeled, dup };
   };
@@ -468,7 +468,7 @@ export function installRebuild({ THREE, scene, floors, world }) {
     const take = (list, p) => { if (!list.length) return null; const y = p.rbY ?? 0; list.sort((a, c) => (Math.abs(a.h - y) * 10 + Math.hypot(a.x - p.x, a.z - p.z)) - (Math.abs(c.h - y) * 10 + Math.hypot(c.x - p.x, c.z - p.z))); return list.shift(); };
     const put = (p, s, y) => { const dx = s.x - p.x, dz = s.z - p.z, dy = s.h - (p.rbY ?? 0); for (const o of objsOf(p)) { const w = o.getWorldPosition(new THREE.Vector3()); group.attach(o); o.position.set(w.x + dx, w.y + dy, w.z + dz); }
       p.x = s.x; p.z = s.z; p.rbY = s.h; if (y != null) p.y = y; if (p.px != null) { p.px += dx; p.pz += dz; } p._relink = true; n++; };
-    const kill = p => { for (const k of Object.keys(p)) { const o = p[k]; if (o && o.isObject3D && k !== 'parent') o.visible = false; } p._drop = true; drop++; };
+    const kill = p => { for (const o of objsOf(p)) o.visible = false; p._drop = true; drop++; };
     const inNew = p => p.floor === 0 && p.rbY != null && R.inBuilding(p.x, p.z);
     for (const p of W.props) { if (p._relink || !inNew(p)) continue; const L = p.label || '';
       if (p.kind === 'search' && /사물함 파밍/.test(L) && !/탈의실|샤워실|사감|기숙사/.test(L)) { const s = take(lockerSpots, p); if (s) { put(p, s, 1.0); p.label = '교실 사물함 파밍하기'; } else kill(p); }
@@ -777,7 +777,7 @@ export function installRebuild({ THREE, scene, floors, world }) {
       const s = R._sup ? R._sup(x, z, rb + 1.25) : rb, base = s != null && s >= rb - .05 && s < rb + 1.3 ? s : rb, dy = base + .004 - bb.min.y;
       for (const o of objs) { if (o.parent !== group) group.attach(o); o.position.y += dy; } onMove && onMove(dy); up++;
     };
-    for (const it of W.items) { if (it.taken || it.rbY == null || !it.mesh) continue; fix([it.mesh], it.pos.x, it.pos.z, it.rbY, (dy, dx = 0, dz = 0) => { it.pos.x += dx; it.pos.y += dy; it.pos.z += dz; if (it.baseY != null) it.baseY += dy; }, /note|photo|nametag|paper|clue/.test(it.kind)); }
+    for (const it of W.items) { if (it.taken || it.rbY == null || !it.mesh) continue; fix([it.mesh], it.pos.x, it.pos.z, it.rbY, (dy, dx = 0, dz = 0) => { it.pos.x += dx; it.pos.y += dy; it.pos.z += dz; if (it.baseY != null) it.baseY += dy; }, true); }
     // 방송 수신기(megaRadio): 모형 없던 자리 → 탁상형 단파 수신기 (주파수 다이얼 창 · 노브 2 · 안테나)
     for (const p of W.props) { if (p._rx || p.kind !== 'megaRadio' || p.rbY == null || objsOf(p).length) continue; p._rx = true;
       const cs = new THREE.MeshStandardMaterial({ color: 0x2a2c2e, roughness: .5, metalness: .4 }), dl = new THREE.MeshStandardMaterial({ color: 0xd8c890, emissive: 0x6a5420, emissiveIntensity: .6 }), kn = new THREE.MeshStandardMaterial({ color: 0xb8b8b4, metalness: .8, roughness: .3 });
@@ -815,6 +815,14 @@ export function installRebuild({ THREE, scene, floors, world }) {
         let best = null, bd = 1e9; for (const sl of slots) { if (sl.used || Math.abs(sl.h - p.rbY) > .5) continue; const d = Math.hypot(sl.x - p.x, sl.z - p.z); if (d < bd) { bd = d; best = sl; } }
         if (!best || bd > 6) { p._drop = true; continue; } best.used = true; p.x = best.x; p.z = best.z; if (p.px != null) { p.px = best.x; p.pz = best.z; } p.y = .9; if (p.sinkObj && p.sinkObj.group) p.sinkObj.group.position.set(best.tap.x, best.tap.y - .9, best.tap.z); if (p.ctx) { p.ctx.f = 0; p.ctx.rb = best.h; p.ctx.tap = { x: best.tap.x + (best.x - best.tap.x) * .0, z: best.tap.z }; const ry = Math.atan2(best.x - best.tap.x, best.z - best.tap.z); p.ctx.mirror = { x: best.tap.x - (best.x - best.tap.x) / Math.max(.01, Math.hypot(best.x - best.tap.x, best.z - best.tap.z)) * .2, y: best.h + 1.45, z: best.tap.z - (best.z - best.tap.z) / Math.max(.01, Math.hypot(best.x - best.tap.x, best.z - best.tap.z)) * .2, ry }; } up++; }
       for (let i = W.props.length - 1; i >= 0; i--) if (W.props[i]._drop) W.props.splice(i, 1); }
+    // 벽걸이 방 장치(robj: 인터폰 · 복사 카운터 · 단말기 · 약품함 · 감정 카드판 등)가 옛 벽 자리 허공에 떠 있던 것 → 새 방에서 가장 가까운 벽면에 붙이고 방 안쪽을 보게
+    for (const p of W.props) { if (p._wall || p.kind !== 'robj' || p.rbY == null || !p.anim || !p.anim.g || p.k === 'light_switch' || p._drop) continue; p._wall = true;
+      const rr = roomRect(p.x, p.z, p.rbY); if (!rr) continue; const { B, r } = rr, g = p.anim.g, wp = g.getWorldPosition(new THREE.Vector3()), [lx, lz] = B.toLocal(wp.x, wp.z);
+      const ed = [[lx - r.x1, 'x1'], [r.x2 - lx, 'x2'], [lz - r.z1, 'z1'], [r.z2 - lz, 'z2']].sort((a, b) => a[0] - b[0])[0][1];
+      const nx = ed === 'x1' ? r.x1 + .12 : ed === 'x2' ? r.x2 - .12 : Math.min(r.x2 - .6, Math.max(r.x1 + .6, lx)), nz = ed === 'z1' ? r.z1 + .12 : ed === 'z2' ? r.z2 - .12 : Math.min(r.z2 - .6, Math.max(r.z1 + .6, lz));
+      const inn = ed === 'x1' ? [1, 0] : ed === 'x2' ? [-1, 0] : ed === 'z1' ? [0, 1] : [0, -1], [wx, wz] = B.toWorld(nx, nz), [ix, iz] = B.toWorld(nx + inn[0], nz + inn[1]);
+      if (g.parent !== group) group.attach(g); g.position.set(wx, p.rbY + 1.35, wz); g.rotation.set(0, Math.atan2(ix - wx, iz - wz), 0);
+      const [px, pz] = B.toWorld(nx + inn[0] * .55, nz + inn[1] * .55); p.x = px; p.z = pz; if (p.px != null) { p.px = px; p.pz = pz; } up++; }
     // 대출 카드함: 모형 없이 [E] 만 뜨던 자리 → 나무 카드 목록함 (서랍 4×3, 놋쇠 손잡이 · 이름표)
     for (const p of W.props) { if (p._cardBox || p.k !== 'cards' || p.rbY == null || objsOf(p).length) continue; p._cardBox = true;
       const wd = new THREE.MeshStandardMaterial({ color: 0x6e4a2c, roughness: .6 }), br = new THREE.MeshStandardMaterial({ color: 0xb08a4a, roughness: .35, metalness: .8 }), lb = new THREE.MeshStandardMaterial({ color: 0xece4cc, roughness: .9 });

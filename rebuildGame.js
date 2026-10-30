@@ -2,11 +2,11 @@
 //   항상 켜진다 (예전 건물 모드는 폐지).
 //   예전 본관(1~3층 · 옥상) · 별관(8~10층) 건물은 감추고, 그 자리 땅(0층)에서 새 건물을 걷는다.
 //   높이는 P.sh(계단 높이 보정값)로 넘긴다 → 카메라 · 점프 · 가구 오르기 코드는 손대지 않아도 된다.
-import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=302';
-import { placeModels } from './rebuild/models.js?v=302';
-import { carve, subdivide } from './rebuild/transplant.js?v=302';
+import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=303';
+import { placeModels } from './rebuild/models.js?v=303';
+import { carve, subdivide } from './rebuild/transplant.js?v=303';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { turfMaterial } from './campusVisuals.js?v=302';
+import { turfMaterial } from './campusVisuals.js?v=303';
 
 // 예전 건물이 차지하던 땅 (이 안의 예전 메시 · 충돌 상자를 걷어 낸다)
 const OLD_MAIN = { x1: -51, x2: 51, z1: -10.6, z2: 10.9 };
@@ -873,7 +873,8 @@ export function installRebuild({ THREE, scene, floors, world }) {
         const mine = new Set(); os.forEach(o => o.traverse(c => mine.add(c))); const bb = new THREE.Box3(); os.forEach(o => { T.setFromObject(o); if (!T.isEmpty()) bb.union(T); }); if (bb.isEmpty()) continue;
         const c = bb.getCenter(V), base = p.rbY ?? 0; O.set(c.x, base + 1.4, c.z); rc.set(O, dn); rc.far = 1.45;
         const hit = rc.intersectObjects(scene.children, true).find(h => h.object.isMesh && !mine.has(h.object) && h.object.visible && !h.object.material?.transparent && h.point.y > base - .05 && h.point.y < base + 1.35);
-        if (!hit) continue; const dy = hit.point.y + .004 - bb.min.y; if (Math.abs(dy) < .005) continue; for (const o of os) { if (o.parent !== group) group.attach(o); o.position.y += dy; } up++; } }
+        let ty = hit ? hit.point.y + .004 : bb.min.y; if (ty - base > .68 && ty - base < .8) ty = Math.max(ty, base + .806);   // 학생 책상(모델 윗면 ≈ .80) 위 — 충돌 상자 윗면(.76)에 놓으면 상판 속에 묻혀 안 보였다
+        const dy = ty - bb.min.y; if (Math.abs(dy) < .005) continue; for (const o of os) { if (o.parent !== group) group.attach(o); o.position.y += dy; } up++; } }
     return { re, up };
   };
   return R;

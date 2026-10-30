@@ -4,7 +4,7 @@
 //   전기(분전반 · 2등용 형광등 · 콘센트 · 스위치) · 소방(소화전함 · 소화기 · 감지기 · 유도등 · 방화문) · 수도(세면대 · 배관)
 import * as THREE from '../vendor/three.module.js';
 import { mergeGeometries } from '../vendor/addons/utils/BufferGeometryUtils.js';
-import { makeFlag } from '../tex.js?v=299';
+import { makeFlag } from '../tex.js?v=306';
 // 교실 앞면 꾸밈 공용 (반 이름 · 텍스처 캐시)
 const NAMES = ['김민수', '이서연', '박지훈', '최유진', '정하늘', '강도윤', '조수아', '윤재현', '장예린', '임태호', '한소영', '오준서', '서지민', '신동혁', '권나연', '황민재', '안채원', '송우진', '전다은', '홍석진'];
 let flagTex = null; const decorTex = new Map();
@@ -215,7 +215,8 @@ export function buildMainBuilding(opt = {}) {
     B('rubber', .12, .124, .092, .102, -.05, .05); B('exitG', .12, .124, .094, .1, .15, .158);                 // 상표 띠 · 전원 LED
     B('crt', .12, .125, .092, .104, .11, .135);                                                                  // 전원 버튼
     if (kb) { B('rubber', .16, .34, 0, .02, -.23, .23); B('kbd', .17, .33, .02, .028, -.22, .22); B('rubber', .2, .3, 0, .03, .29, .345); }   // 키보드 · 마우스
-    if (tower) { const ty = tower === 'floor' ? -y : 0, l0 = tower === 'floor' ? .05 : .3;
+    if (tower) { const ty = tower === 'floor' ? Math.floor((y + .1) / S.FH) * S.FH - y : 0,   // 책상 밑: 그 층 바닥 (예전엔 절대 높이 0 → 위층 본체가 1층 방 바닥에 떨어졌다)
+       l0 = tower === 'floor' ? .05 : .3;
       const T = (key, f1, f2, y1, y2, l1, l2, o) => B(key, f1, f2, ty / scale + y1, ty / scale + y2, l0 + l1, l0 + l2, o);
       T('pcCase', -.3, .14, 0, .43, 0, .19, { solid: true });                                                    // 본체 (W190 D440 H430)
       T('alu', .14, .145, .04, .2, .02, .17); T('rubber', .14, .146, .33, .36, .02, .17); T('rubber', .14, .146, .28, .31, .02, .17);   // 은색 앞판 · ODD 2단

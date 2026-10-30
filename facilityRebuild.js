@@ -5,7 +5,7 @@
 //   재질: F-01 ~ F-05 바닥 · W-01 ~ W-05 벽 · C-01 ~ C-04 천장 (Poly Haven CC0 실사 스캔 텍스처, assets/tex/fac_* · 미터 단위 UV)
 import * as THREE from './vendor/three.module.js';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { pbr } from './tex.js?v=299';
+import { pbr } from './tex.js?v=306';
 
 const FH = 3.6, CEIL = 2.9, WALL_T = .24, LIN = .06;
 const TL = new THREE.TextureLoader(), TEX = {};
@@ -778,7 +778,7 @@ export function installFacilityRebuild(ctx) {
   //   씬 전체 판정을 다시 돌리면 수 초씩 멈췄다 → 설치 뒤 새로 생긴 메시(기존 묶음 안에 비동기로 붙은 GLB 포함)만 골라 본다
   const seen = new WeakSet(); scene.traverse(o => seen.add(o));
   const keepNew = o => { for (let a = o; a; a = a.parent) if (a.userData && (a.userData.facNew || a.userData.facKeep)) return true; return false; };
-  const again = () => { const live = new Set(); [...(world.props || []), ...(world.items || [])].forEach(p => { if (p.mesh) p.mesh.traverse(c => live.add(c)); if (p.led) live.add(p.led); });   // 게임이 나중에 놓은 조사 소품 · 아이템은 건드리지 않는다
+  const again = () => { const live = new Set(); [...(world.props || []), ...(world.items || [])].forEach(p => { for (const k of Object.keys(p)) { const o = p[k]; if (o && o.isObject3D && k !== 'parent') o.traverse(c => live.add(c)); } if (p.anim && p.anim.g) p.anim.g.traverse(c => live.add(c)); });   // 물건에 딸린 모든 모형(대역 녹음기 visMesh 등)을 살린다 — 예전엔 p.mesh 만 봐서 지워졌다   // 게임이 나중에 놓은 조사 소품 · 아이템은 건드리지 않는다
     const fresh = []; scene.traverse(o => { if (seen.has(o)) return; seen.add(o); if ((o.isMesh || o.isSprite || o.isLight) && !o.isSkinnedMesh && !live.has(o) && !keepNew(o)) fresh.push(o); }); if (!fresh.length) return;
     const tmp = { scene: { children: fresh, updateMatrixWorld: () => fresh.forEach(c => c.updateMatrixWorld(true)) }, floors, world }; demolish(tmp, zones, keepMesh, false); };
   [4000, 12000, 30000, 70000].forEach(ms => setTimeout(again, ms));

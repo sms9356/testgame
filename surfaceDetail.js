@@ -1,7 +1,7 @@
 // 텍스처 없는 단색 가구 · 장식 · 시설 재질에 가벼운 표면 디테일을 입힌다 (깨진 블록처럼 보이던 민무늬 면 보완)
 // 256px 캔버스 텍스처 5종을 한 번만 만들어 모든 재질이 공유한다 — 색은 재질 color 가 곱해지므로 텍스처는 밝은 회색 계열
 import * as THREE from './vendor/three.module.js';
-import { makePMREM } from './engine.js?v=299';
+import { makePMREM } from './engine.js?v=306';
 
 const TEX = {};
 const rnd = (() => { let s = 9; return () => (s = (s * 16807) % 2147483647) / 2147483647; })();

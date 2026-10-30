@@ -33,7 +33,7 @@ import { modelFootprint, overlaps, removeDuplicateModels } from './placement.js'
 import { turfMaterial } from './campusVisuals.js?v=306';
 import { installInfirmaryAssets, updateInfirmaryCabinets } from './infirmaryAssets.js';
 import { installRebuild } from './rebuildGame.js?v=306';
-import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js?v=314'; import { updateWindowFakes } from './windowInteriors.js?v=306';
+import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js?v=315'; import { updateWindowFakes } from './windowInteriors.js?v=306';
 import { drawMap } from './map.js?v=306';
 import { buildMegaCampus15000, MEGA_CAMPUS_ZONES } from './megaCampus15000.js?v=306';
 import { installFacilityRebuild, inTwoStory, ZONES as FAC_ZONES } from './facilityRebuild.js?v=306';
@@ -6397,18 +6397,24 @@ function skeletonModel(parent) {
   pbox(.8, 2.05, .1, steel, -.4, 1.025, 0, dp); pbox(.06, .5, .08, PM(0x30343a, .3, .8), -.7, 1.1, .08, dp); pmesh(new THREE.PlaneGeometry(.22, .3), PM(0x9ab4c4, .1, .2, { transparent: true, opacity: .5 }), -.4, 1.6, .055, dp, { cast: false });
   FZ.freezerDoor = { piv: dp, t: Math.PI / 2, target: Math.PI / 2 }; FZ.freezerCol = { x1: -37.75, x2: -36.95, z1: 10.42, z2: 10.62 };
   // 국솥: 스테인리스 원통 + 테두리 + 손잡이 + 기울여 둔 뚜껑
-  vat.position.set(-45.35, .45, 11.6); vat.scale.setScalar(.85);
-  pmesh(new THREE.TorusGeometry(.575, .035, 8, 28), steel, -45.35, .9, 11.6, g, { rx: Math.PI / 2 });
-  [-1, 1].forEach(s => pmesh(new THREE.TorusGeometry(.09, .018, 6, 12, Math.PI), steelD, -45.35 + s * .6, .8, 11.6, g, { ry: Math.PI / 2, rz: s * Math.PI / 2 }));
-  pcyl(.6, .6, .04, steelD, -44.7, .6, 12.15, g, { rx: 1.2, rz: .3 });
-  F7.col.push({ x1: -45.95, x2: -44.75, z1: 11.0, z2: 12.2, h: .9 });
-  const vatHide = { floor: 7, x: -45.35, z: 11.6, y: y0, dir: { x: 1, z: 0 }, noPick: true, label: '국솥 안에 숨기' }; world.lockers.push(vatHide);
+  vat.position.set(-43.0, .45, 11.3); vat.scale.setScalar(.85);
+  pmesh(new THREE.TorusGeometry(.575, .035, 8, 28), steel, -43.0, .9, 11.3, g, { rx: Math.PI / 2 });
+  [-1, 1].forEach(s => pmesh(new THREE.TorusGeometry(.09, .018, 6, 12, Math.PI), steelD, -43.0 + s * .6, .8, 11.3, g, { ry: Math.PI / 2, rz: s * Math.PI / 2 }));
+  pcyl(.6, .6, .04, steelD, -42.3, .6, 11.95, g, { rx: 1.2, rz: .3 });
+  F7.col.push({ x1: -43.6, x2: -42.4, z1: 10.7, z2: 11.9, h: .9 });
+  // 국솥 받침: 가스 화구 옆(주방 조리 라인)으로 이사 — 주철 삼발이 버너 · 받침 다리 · 벽 쪽 가스 배관 + 노란 중간밸브 · 배수 밸브
+  { const iron = PM(0x2a2a2c, .7, .5), brass = PM(0xc8a030, .35, .8), yel = PM(0xd8b020, .5, .2);
+    pcyl(.5, .5, .05, iron, -43.0, .03, 11.3, g); [0, 1, 2, 3].forEach(k => { const a = k * Math.PI / 2 + .785; pbox(.05, .2, .05, iron, -43.0 + Math.cos(a) * .42, .1, 11.3 + Math.sin(a) * .42, g); });
+    pmesh(new THREE.TorusGeometry(.2, .02, 6, 20), iron, -43.0, .1, 11.3, g, { rx: Math.PI / 2 });
+    pcyl(.022, .022, 1.0, brass, -42.45, .13, 10.85, g, { rz: Math.PI / 2 }); pcyl(.022, .022, .9, brass, -41.95, .55, 10.85, g); pbox(.08, .05, .05, yel, -41.95, .75, 10.85, g);
+    pcyl(.03, .03, .16, steelD, -43.0, .5, 11.86, g, { rx: Math.PI / 2 }); pbox(.06, .03, .03, PM(0xb02020, .5), -43.0, .5, 11.96, g); }
+  const vatHide = { floor: 7, x: -43.0, z: 11.3, y: y0, dir: { x: 1, z: 0 }, noPick: true, label: '국솥 안에 숨기' }; world.lockers.push(vatHide);
   // 가스 화구: 기존 조리대(-41, 10) 위에 버너 받침 · 밸브 손잡이
   stove.visible = false;
   [[-40.55, 9.8], [-40.55, 10.25]].forEach(([x, z]) => { pmesh(new THREE.TorusGeometry(.13, .012, 6, 18), PM(0x1a1a1a, .5, .6), x, .915, z, g, { rx: Math.PI / 2 }); pcyl(.05, .06, .03, PM(0x3a3a3a, .5, .7), x, .91, z, g); });
   [-40.3, -40.0].forEach(x => pcyl(.025, .025, .04, PM(0xc81a10, .5), x, .75, 10.52, g, { rx: Math.PI / 2 }));
   FZ.stoveAt = { x: -40.55, y: y0 + .95, z: 10.0 };
-  fzProp(IA(fzP, 'cafeteria_vat'), 7, -45.35, 11.6, .9, { r: 1.5, hide: vatHide });
+  fzProp(IA(fzP, 'cafeteria_vat'), 7, -43.0, 11.3, .9, { r: 1.5, hide: vatHide });
   fzProp(IA(fzP, 'cafeteria_gas_stove'), 7, -40.6, 10.6, .95, { r: 1.4 });
   fzProp(IA(fzP, 'cafeteria_frozen_key'), 7, -38.3, 9.1, 1.1, { r: 1.25 });
   fzProp(IA(fzP, 'cafeteria_freezer_lever'), 7, -36.3, 9.3, 1.35, { r: 1.2 });
@@ -6523,7 +6529,7 @@ function zoneLabel() {
   return null;
 }
 const ZONE_MAP = { 0: [[GUARD_LAYOUT.cx, GUARD_LAYOUT.cz, '경비실 · 정문 개폐기'], [-11, 15.6, '조회대 마이크'], [-21.6, 61.4, '모래밭 · 타임캡슐'], [.8, (WALKWAY.z1 + WALKWAY.z2) / 2, '실내 연결복도']],
-  1: [[32, -6.2, '과학실 · 시약'], [28.8, -8.6, '골격 모형']], 3: [[19, 2.3, '비상발전기'], [21.1, -4.2, '안테나']], 7: [[-37.4, 9.4, '냉동창고'], [-45.4, 11.6, '국솥'], [-40.6, 10.2, '가스 화구']] };
+  1: [[32, -6.2, '과학실 · 시약'], [28.8, -8.6, '골격 모형']], 3: [[19, 2.3, '비상발전기'], [21.1, -4.2, '안테나']], 7: [[-37.4, 9.4, '냉동창고'], [-43.0, 11.3, '국솥'], [-40.6, 10.2, '가스 화구']] };
 
 /* ── 8. 실내 연결복도: 유리 통로(x -1.6 ~ 3.6) 안쪽에 막힌 실내 복도(폭 3.4m · 천장 2.9m)를 짓는다 ──
    본관 계단실 북문(x 1.25) · 별관 현관(x 0)이 모두 안에 들어오게 가운데 x 0.8. 방화문은 별관 현관 바로 앞(z −12.95) — 닫으면 별관 출입이 막힌다 */

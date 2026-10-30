@@ -3829,13 +3829,13 @@ export function buildWorld(scene) {
       // ── 조리실 사실 묘사: 고무 매트 · 국자 걸이 · 소화기 · 가스 안전 표지 · 장화 · 앞치마 · 대걸레 양동이 ──
       { const mRub = S(null, { color: 0x1c1c1c, roughness: .95 }), mBoot = S(null, { color: 0xe8e8e0, roughness: .6 }), mApron = S(null, { color: 0xf0eee8, roughness: .9, side: THREE.DoubleSide }), mApronB = S(null, { color: 0x2a4a6a, roughness: .9, side: THREE.DoubleSide }), mExt = S(null, { color: 0xc01810, roughness: .4 }), mYel = S(null, { color: 0xd8b020, roughness: .5 });
         add(mRub, 2.6, .012, .6, -45, .005, 10.85); add(mRub, 2.2, .012, .6, -41, .005, 11.0);   // 조리대 · 화구 앞 미끄럼 방지 고무 매트
-        cyl(mExt, .085, .5, -39.95, 0, 11.95, 14); add(new THREE.MeshStandardMaterial({ color: 0x1a1a1a }), .05, .1, .05, -39.95, .5, 11.95);   // 분말 소화기 (화구 옆 바닥)
+        cyl(mExt, .085, .5, -39.95, 0, 12.08, 14); add(new THREE.MeshStandardMaterial({ color: 0x1a1a1a }), .05, .1, .05, -39.95, .5, 12.08);   // 분말 소화기 (화구 옆 바닥)
         plane(F.interior, new THREE.MeshBasicMaterial({ map: T.makeSign('가스 사용 후 중간밸브 잠금', '#d8b020', '#1a1a1a', 18), color: 0xd8d0b0 }), .9, .26, -41, 1.25, 9.37);
         // 서쪽 벽 (관계자 통로 옆 — 위쪽 칸막이가 없는 열린 통로라 벽에 붙인다): 위생 안내 · 고리에 건 위생복 · 앞치마 · 흰 장화
         plane(F.interior, new THREE.MeshBasicMaterial({ map: T.makeSign('위생모 · 위생복 착용', '#1a4a6a', '#fff', 20), color: 0xd0d0d0 }), .9, .24, x0 + t + .02, 2.1, 11.85, Math.PI / 2);
         [11.35, 11.85, 12.35].forEach((z, k) => { add(mSS, .08, .02, .02, x0 + t + .04, 1.75, z); const ap = new THREE.Mesh(new THREE.PlaneGeometry(.5, .8), k === 1 ? mApronB : mApron); ap.position.set(x0 + t + .07, 1.32, z); ap.rotation.y = Math.PI / 2; ap.rotation.z = .03; F.interior.add(ap); });
         [11.3, 11.48, 12.0, 12.18].forEach(z => { add(mBoot, .14, .32, .12, x0 + t + .22, 0, z); add(mBoot, .26, .06, .12, x0 + t + .3, 0, z); });   // 조리용 흰 장화 두 켤레
-        cyl(mYel, .2, .3, -44.2, 0, 11.85, 14); add(mYel, .3, .06, .2, -44.2, .3, 11.85); add(mWoodDark, .025, 1.2, .025, -44.1, .3, 11.8);   // 대걸레 양동이 · 짜개
+        cyl(mYel, .2, .3, -31.0, 0, 11.7, 14); add(mYel, .3, .06, .2, -31.0, .3, 11.7); add(mWoodDark, .025, 1.2, .025, -30.9, .3, 11.65);   // 대걸레 양동이: 식기 보관실 구석 (조리실 통로에서 뺌)   // 대걸레 양동이 · 짜개
       }   // 원본 GLB 가 11 × 21 × 5m 단위 — s 없이 놓으면 식당 홀 전체를 가로지르는 거대한 선반 판 · 검은 기둥이 됐다 (높이 1.85m 로 축소)
       model('cr101/CR-005', -41.8, .935, 9.75, .2); model('cr101/CR-005', -40.2, .935, 10.25, -.4);
       model('cr101/CR-012', -31.9, .9, z0 + .5, 0); model('cr101/CR-009', x0 + .32, 1.55, 10.6, Math.PI / 2);

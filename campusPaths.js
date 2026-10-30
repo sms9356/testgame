@@ -8,20 +8,41 @@ import { ZONES } from './facilityRebuild.js?v=306';
 
 const CELL = .2, X0 = -130, X1 = 130, Z0 = -100, Z1 = 90;
 // 캠퍼스 재배치 후 새 인도망 (폭 2.8m 안팎): 예전 보도는 모두 걷고 동선대로 다시 깐다 — 대로 4줄 + 안쪽 종단로 + 각 건물 현관 진입로
+// ── 인도망 v2 (전면 재설계): 예전 인도 · 연석 · 잔재(굳힌 메시 포함)는 모두 걷고, 지금 건물 현관 · 시설 출입구 기준으로 다시 깐다 ──
+//   위계: ① 정문 앞마당 → 운동장 남쪽 산책로 → 운동장 양옆 산책로 → 본관 앞 광장  ② 본관 · 별관 사이 중앙 횡단로(별관 현관 · 비상구 2곳 · 연결로)
+//         ③ 외곽 순환 대로 (북 · 서 · 동 · 남)  ④ 각 건물 현관 진입로 — 폭: 대로 2.8~3.2m · 진입로 2.4~2.8m
 const NET = [
-  // 대로: 서편 남북 · 동편 남북(야구장 펜스 · 도서관 소품을 밟지 않게 x 67.8 ~ 70.4) · 북부 동서 · 남부 동서(서문 ↔ 운동장 서쪽 / 운동장 동쪽 ↔ 동편 대로)
-  [-72.2, -69.4, -45.0, 57.2], [69.3, 71.7, -51.5, 30.0], [69.3, 70.6, 30.0, 48.0], [69.3, 71.7, 48.0, 57.2], [-69.4, 71.7, -35.2, -32.4], [-113.8, -27.2, 54.0, 57.2], [27.6, 69.3, 54.0, 57.2],
-  // 운동장 양옆 종단로 · 본관 양옆 길 · 운동장 북쪽 연결 · 호수 길
-  [-29.6, -27.2, 11.0, 54.0], [25.0, 27.6, 11.0, 54.0], [-39.6, -37.0, -32.4, 11.0], [37.0, 39.6, -32.4, 10.4], [-29.6, 25.0, 11.0, 12.6], [-10.6, -7.4, -77.0, -35.2],
-  // 서쪽 학술 · 생활: 청운학사 · 역사관 · 과학천문관 · 학생회관 · 급식실
-  [-87.5, -72.2, -35.0, -32.4], [-89.4, -72.2, -10.7, -7.9], [-89.4, -72.2, 22.0, 24.8], [-89.5, -86.5, 49.0, 54.0], [-69.4, -29.6, 26.6, 29.4], [-54.75, -29.6, 11.8, 14.2],
-  // 동쪽 스포츠: 체육관(남측 현관) · 테니스장 문 · 야구장 문 · 농구장 · 수영장(동측 현관) · 수돗가 · 씨름장
-  [71.7, 85.4, -27.9, -25.1], [71.7, 73.8, -18.5, -15.5], [71.7, 72.0, 6.5, 9.5], [65.0, 69.3, 5.6, 8.4], [65.0, 69.3, 33.6, 36.4], [60.0, 69.3, -16.2, -13.4],
-  // 대강당(남측 현관) ↔ 남부 대로 · 도서관(현관 계단 앞까지) · 온실 · 야외음악당
-  [71.7, 85.4, 50.4, 53.2], [82.6, 85.4, 49.4, 50.4], [65.6, 69.3, -46.2, -43.4], [33.6, 36.4, -45.0, -35.2],
+  // ① 정문 축
+  [-5.0, 4.4, 59.4, 69.6],                 // 정문 앞마당 (경비실 서쪽 · 정문 기둥 사이)
+  [-19.4, 30.0, 56.0, 59.4],               // 운동장 남쪽 산책로 (관람 벤치 뒤 · 운동장 가장자리)
+  [-27.2, -19.4, 53.4, 56.0],              // 남서 모서리 연결 (야외 운동기구 모래밭 피함)
+  [-29.6, -27.2, 10.5, 56.0], [27.4, 30.0, 10.5, 59.4],   // 운동장 서 · 동 산책로
+  [-54.75, 50.0, 10.5, 13.6],              // 본관 앞 광장 (정문 현관 · 급식실 현관까지)
+  // ② 본관 ↔ 별관
+  [-69.4, 69.3, -15.9, -13.5],             // 중앙 횡단로: 별관 남쪽 벽을 따라 서편 대로 ↔ 동편 대로 (별관 현관 · 비상구 2곳)
+  [-4.6, -1.4, -13.5, -4.1],               // 별관 현관 ↔ 본관 북쪽 현관 연결로
+  [-52.2, -50.0, -15.9, 10.5],             // 본관 서쪽 옆길 (급식실 현관 ↔ 중앙 횡단로)
+  // ③ 외곽 순환 대로
+  [-72.2, 71.7, -35.2, -32.4],             // 북부 대로
+  [-72.2, -69.4, -45.0, 57.2],             // 서편 대로
+  [69.3, 71.7, -51.5, 30.0], [69.3, 70.6, 30.0, 48.0], [69.3, 71.7, 48.0, 57.2],   // 동편 대로 (도서관 서쪽 벽에서 좁아짐)
+  [-113.8, -29.6, 54.0, 57.2], [30.0, 69.3, 54.0, 57.2],   // 남부 대로 (서문 ↔ 운동장 · 운동장 ↔ 동편 대로)
+  [-69.4, -29.6, 26.6, 29.4],              // 중서부 연결로 (서편 대로 ↔ 운동장 서쪽 산책로 · 급식실 남쪽)
+  // ④ 현관 진입로 — 북쪽 학술정원 · 서쪽 학술 · 생활 · 동쪽 스포츠
+  [1.6, 4.4, -44.0, -35.2],                // 북쪽 광장 (분수 화단)
+  [-10.6, -7.4, -75.5, -35.2],             // 호수 정원
+  [33.6, 36.4, -45.0, -35.2],              // 야외음악당
+  [65.5, 69.3, -51.2, -48.6],              // 생태온실
+  [-87.5, -72.2, -35.0, -32.4], [-89.4, -72.2, -10.7, -7.9], [-89.4, -72.2, 22.0, 24.8], [-89.5, -86.5, 49.0, 54.0],   // 청운학사 · 역사관 · 과학천문관 · 학생회관
+  [-52.5, -47.9, 56.4, 57.2],              // 대강당 현관 앞 (남부 대로와 이어짐)
+  [71.7, 85.4, -27.9, -25.1], [71.7, 73.8, -18.5, -15.5], [71.7, 72.6, 6.5, 9.5], [65.0, 69.3, 5.6, 8.4],   // 체육관 · 테니스장 · 야구장 · 농구장
+  [67.6, 69.3, 33.6, 36.4], [62.0, 69.3, 21.2, 23.6],   // 수영장 · 매점
+  [71.7, 85.4, 50.4, 53.2], [82.6, 85.4, 48.5, 50.4],   // 도서관
 ];
-// 길을 깔지 않는 자리: 옮긴 체육관 · 코트 · 경기장, 도서관 · 매점 · 온실 · 음악당
-const KEEP_OUT = [[74, 94, -50, -28], [74, 94, -25, -9], [72, 96, -5, 21], [51, 65, -.5, 14.5], [73, 95, 30, 48], [58.9, 68.1, 14.8, 21.2], [58, 65.5, -53, -47], [31.2, 38.8, -52, -45]];
+// 길을 깔지 않는 자리: 시설 · 코트 · 경기장 · 정자 · 기념석 · 모래밭 · 운동장 잔디
+const KEEP_OUT = [[74, 94, -50, -28], [74, 94, -25, -9], [72, 96, -5, 21], [51, 65, -.5, 14.5], [73, 95, 30, 48], [58.9, 68.1, 14.8, 21.2], [58, 65.5, -53, -47], [31.2, 38.8, -52, -45],
+  [-30.6, -19.4, 55.2, 60.5], [-14.3, -8.8, 60.4, 66.6], [-22.2, -17.6, 62.4, 65.7], [3.9, 11.6, 59.3, 68.2], [-27.2, 27.2, 14.9, 53.4], [50.7, 60.2, -26.2, -16.4], [53.0, 62.8, -13.2, -9.6], [-5.2, 11.2, -60.2, -44.0], [-26.6, 8.6, -96.5, -75.5]];
+window.__pathKEEP = KEEP_OUT;
 const near = (a, b) => Math.abs(a - b) < .05;
 
 export function relayCampusPaths({ world, footprints = [] }) {
@@ -31,6 +52,11 @@ export function relayCampusPaths({ world, footprints = [] }) {
   (OUT.userData.paths || []).forEach(p => { p.mesh.visible = false; });
   OUT.traverse(o => { if (!o.isMesh || o.material !== pave || !o.visible) return; bb.setFromObject(o); if (bb.max.y > .06) return; o.visible = false; });
   if (OUT.userData.pathCurb) OUT.userData.pathCurb.visible = false;
+  // v2: 다른 재배치가 남긴 옛 보도 · 연석(동편 baked_relaid 평판), 본관 ↔ 별관 옛 연결 보도, 이미 굳힌(bake) 옛 연석 삼각형까지 걷는다
+  { const scene = OUT.parent || OUT; const curbMat = OUT.userData.curbMat; const b2 = new THREE.Box3();
+    scene.traverse(o => { if (!o.isMesh || !o.visible) return; if (o.name === 'RB_link_path') { o.visible = false; return; }
+      let rel = false; for (let a = o; a; a = a.parent) if (a.name === 'baked_relaid' || a.userData.relaid) rel = true; if (!rel) return; if (o.material !== pave && o.material !== curbMat) return; b2.setFromObject(o); if (b2.max.y - b2.min.y < .15) o.visible = false; });
+    carveOldWalks(scene, pave, curbMat); }
   const rects = NET.slice();
   window.__pathNET = NET;   // 점검 스크립트용
   // 2) 격자에 칠하고 건물 바닥(벽 두께 포함)을 뺀다
@@ -66,6 +92,19 @@ export function relayCampusPaths({ world, footprints = [] }) {
   return { quads: quads.length, curbs: curb.length, rects: rects.length };
 }
 
+// 굳힌(bake) 메시 속 옛 보도 · 연석 삼각형: 재질이 보도 · 연석이고, 세 꼭짓점이 모두 땅에 붙은 높이(≤ 9cm)이며, 캠퍼스 담장 안(바깥 차도 연석은 둔다)
+const WALK_CARVED = new WeakSet();
+export function carveOldWalks(scene, pave, curbMat) {
+  let n = 0; const v = new THREE.Vector3();
+  scene.traverse(o => { if (!o.isMesh || o.isInstancedMesh || WALK_CARVED.has(o) || !o.userData.baked || !o.geometry || !o.geometry.attributes.position) return;
+    if (o.material !== pave && o.material !== curbMat) return; for (let a = o; a; a = a.parent) if (a.name === 'CAMPUS_PATHS') return;
+    WALK_CARVED.add(o); o.updateMatrixWorld(); const g = o.geometry, P = g.attributes.position, idx = g.index ? Array.from(g.index.array) : [...Array(P.count).keys()], keep = [];
+    const low = i => { v.fromBufferAttribute(P, i).applyMatrix4(o.matrixWorld); return v.y > -.03 && v.y < .095 && v.x > -113.6 && v.x < 118 && v.z > -99 && v.z < 69.4; };
+    let cut = 0; for (let t = 0; t < idx.length; t += 3) { if (low(idx[t]) && low(idx[t + 1]) && low(idx[t + 2])) { cut++; continue; } keep.push(idx[t], idx[t + 1], idx[t + 2]); }
+    if (!cut) return; if (!keep.length) { o.visible = false; n += cut; return; } g.setIndex(keep); if (g.groups.length === 1) g.groups[0].count = keep.length; g.computeBoundingSphere(); n += cut; });
+  return n;
+}
+
 // 재배치 뒤 남은 잔재 · 인도 위 장애물 정리 (늦게 불러오는 모델이 있어 몇 번 더 돈다)
 //   ① 옛 수영장 현관문(옛 자리 동쪽 벽 바깥) · 옛 야외농구장 바닥 선  ② 새 인도 위에 놓인 작은 인스턴스 소품(화단 풀 · 쓰레기통 · 라바콘 등)
 const LEFTOVER = [[-34.7, -31.5, 38.2, 43.8, 99], [28.0, 44.6, 37.0, 57.0, .06], [69.8, 72.6, -10.0, -7.0, 99], [-49.2, -47.8, 25.8, 27.2, 99]];   // + 동편 대로 위 옛 광장 소품 · 급식실 서쪽 길 위 잔해   // [x1, x2, z1, z2, 이 높이 아래 메시만]
@@ -78,7 +117,8 @@ export function cleanupCampus({ scene, floors }) {
     if (/^(FAC_|CAMPUS_PATHS|REBUILD)/.test(n) || o.userData.relaid || o.userData.facNew) return;
     if (o.isInstancedMesh) { let hit = 0; const e = window.__perfInst && window.__perfInst(o), arr = e ? e.src : null, cnt = e ? e.n : o.count, from = o.userData.cleanN || 0; o.userData.cleanN = cnt;   // 이미 본 인스턴스는 다시 보지 않는다
       for (let i = from; i < cnt; i++) { if (arr) m4.fromArray(arr, i * 16); else o.getMatrixAt(i, m4); if (m4.elements[0] === 0 && m4.elements[5] === 0 && m4.elements[10] === 0) continue;
-        v.setFromMatrixPosition(m4).applyMatrix4(o.matrixWorld); if (v.y < -.5 || v.y > 2.5 || !inNet(v.x, v.z)) continue; m4.makeScale(0, 0, 0); if (arr) m4.toArray(arr, i * 16); o.setMatrixAt(i, m4); hit++; }
+        v.setFromMatrixPosition(m4).applyMatrix4(o.matrixWorld); if (v.y < -.5 || v.y > 2.5 || !inNet(v.x, v.z)) continue;
+        { const gs = o.geometry.boundingSphere || (o.geometry.computeBoundingSphere(), o.geometry.boundingSphere); const sc = Math.hypot(m4.elements[0], m4.elements[1], m4.elements[2]); if (gs && gs.radius * sc > 1.3) continue; } /* 나무 · 큰 조형물은 남긴다 */ m4.makeScale(0, 0, 0); if (arr) m4.toArray(arr, i * 16); o.setMatrixAt(i, m4); hit++; }
       if (hit) { o.instanceMatrix.needsUpdate = true; inst += hit; } return; }
     if (o.isMesh) { if (CLEAN_SEEN.has(o)) return; CLEAN_SEEN.add(o); v.setFromMatrixPosition(o.matrixWorld); if (!LEFTOVER.some(r => v.x > r[0] - 20 && v.x < r[1] + 20 && v.z > r[2] - 20 && v.z < r[3] + 20) && o.geometry && (o.geometry.boundingSphere || (o.geometry.computeBoundingSphere(), o.geometry.boundingSphere)).radius < 15) return;   // 잔재 구역 근처만 상자 계산 (매번 전체 상자를 재면 100ms 씩 멈췄다)
       bb.setFromObject(o); if (bb.isEmpty()) return; bb.getCenter(c); bb.getSize(s); if (Math.max(s.x, s.z) > 25) return;
@@ -86,6 +126,7 @@ export function cleanupCampus({ scene, floors }) {
     o.children.forEach(walk); };
   scene.children.forEach(walk);
   hid += carveFloating(scene);
+  { const OUT = window.__g && window.__g.world && window.__g.world.OUT; if (OUT && OUT.userData.pave) hid += carveOldWalks(scene, OUT.userData.pave, OUT.userData.curbMat); }
   // 옮긴 시설(역사관 · 천문관 · 대강당 · 수영장)의 옛 자리에 남은 통째 충돌 상자: 빈 땅인데 건물처럼 막혀 있었다
   const F0 = floors[0]; if (F0) for (const k of ['col', 'walls']) { const L = F0[k]; if (!L) continue;
     for (let i = L.length - 1; i >= 0; i--) { const r = L[i]; if (r.x1 == null) continue; const cx = (r.x1 + r.x2) / 2, cz = (r.z1 + r.z2) / 2, w = r.x2 - r.x1, d = r.z2 - r.z1;

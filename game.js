@@ -3407,6 +3407,9 @@ function areaCheck(dt) {
   else if (f === 7) k = 'cafe'; else if (f === 3) k = 'roof';
   else if (f === 0 && !(RBG ? RBG.inBuilding(P.x, P.z) : inBldg(P.x, P.z))) {
     if (P.z > 60) k = 'gate'; else if (P.x < -40 && Math.abs(P.z - 32) < 9) k = 'westGate'; else if (Math.abs(P.x) < 22 && P.z < -10.5) k = 'annexOut';
+  } else if (f === 0 && RBG && RBG.inBuilding(P.x, P.z)) {   // 새 건물: 예전 층 배치(roomAt)로 고르면 음악실에 '교실', 방송실에 '본관 복도' 카드가 떴다 → 새 방 이름으로
+    const w = RBG.where(P.x, P.z, (P.sh || 0) + .5) || '';
+    k = /교무실|행정실/.test(w) ? 'office' : /도서실/.test(w) ? 'library' : /과학실/.test(w) ? 'lab' : /음악실/.test(w) ? 'music' : /미술실/.test(w) ? 'art' : /컴퓨터실/.test(w) ? 'computer' : /보건실/.test(w) ? 'nurse' : /화장실/.test(w) ? 'toilet' : /계단/.test(w) ? 'stair' : /방송실/.test(w) ? 'broadcast' : /\d학년 \d+반|빈 교실|자율학습/.test(w) ? 'class' : !w ? (P.z < -10 ? 'annex' : 'corridor') : null;
   } else if (f <= 2 || f === 4 || f >= 8) {
     const an = f >= 8, sl = an ? ANNEX.slots : SLOTS, lay = an ? ANNEX.floors[f - 8] : LAYOUT[f];
     const sr = roomAt(f, P.x, P.z);

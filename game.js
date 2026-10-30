@@ -8678,13 +8678,14 @@ function repairStrayInteractables() {
     { // 같은 방의 책상 · 탁자(충돌 상자 윗면 0.6~1.0m) 가운데 가장 가까운 곳으로 — 바닥 · 휠체어 밑에 놓이지 않게
       const room = RBG.where(p.x, p.z, p.rbY + .5); let bs = null;
       for (const b of RBG.BLD) { if (!b.col) continue; for (const c of b.col) { if (c.y2 == null || c.furn2) continue; const rel = c.y2 - p.rbY; if (rel < .6 || rel > 1.0 || (c.x2 - c.x1) < .45 || (c.z2 - c.z1) < .35 || (c.x2 - c.x1) > 3 || (c.z2 - c.z1) > 3) continue;
-        const [cx, cz] = b.toWorld((c.x1 + c.x2) / 2, (c.z1 + c.z2) / 2); if (RBG.where(cx, cz, p.rbY + .5) !== room) continue; const d = Math.hypot(cx - p.x, cz - p.z); if (d > 4 || (bs && d >= bs.d)) continue;
-          rc.set(new THREE.Vector3(cx, c.y2 + .5, cz), dn); rc.far = .7; const h0 = rc.intersectObjects(scene.children, true).find(h => h.object.isMesh && !h.object.isSprite && h.object.visible !== false && !h.object.material?.transparent); if (!h0 || Math.abs(h0.point.y - c.y2) > .12) continue;   // 실제 평평한 윗면(책상 상판)이 있는 곳만
-          bs = { x: cx, z: cz, top: Math.max(c.y2, h0.point.y), d }; } }
+        const [cx, cz] = b.toWorld((c.x1 + c.x2) / 2, (c.z1 + c.z2) / 2); if (RBG.where(cx, cz, p.rbY + .5) !== room) continue; const d = Math.hypot(cx - p.x, cz - p.z); const pref = (rel >= .68 && rel <= .86) ? 0 : 1.5, dd = d + pref; if (d > 4 || (bs && dd >= bs.d)) continue;
+          rc.set(new THREE.Vector3(cx, c.y2 + .5, cz), dn); rc.far = .7; const hs = rc.intersectObjects(scene.children, true).filter(h => h.object.isMesh && !h.object.isSprite && h.object.visible !== false && !h.object.material?.transparent), h0 = hs[0]; if (!h0 || !hs.some(h => Math.abs(h.point.y - c.y2) < .15)) continue;   // 실제 평평한 윗면(책상 상판)이 있는 곳만
+          bs = { x: cx, z: cz, top: Math.max(c.y2, ...hs.filter(h => Math.abs(h.point.y - c.y2) < .15).map(h => h.point.y)), d: dd }; } }
       if (bs) { let tx = bs.x, tz = bs.z; if (world.props.some(q => q !== p && q.kind === 'tape' && Math.hypot(q.x - tx, q.z - tz) < .3)) tx += .32;   // 같은 책상의 다른 녹음기와 겹치지 않게
         const dx = tx - p.x, dz = tz - p.z; p.x = tx; p.z = tz; if (p.px != null) { p.px += dx; p.pz += dz; } p._deskTop = bs.top; } }
     rc.set(new THREE.Vector3(p.x, p.rbY + 1.3, p.z), dn); rc.far = 1.35; const hit = rc.intersectObjects(near, false).find(h => !h.object.material?.transparent && h.point.y > p.rbY - .05);
-    const top = p._deskTop != null ? p._deskTop : hit ? hit.point.y : p.rbY, g = new THREE.Group(), body = new THREE.MeshStandardMaterial({ color: 0x2a2c30, roughness: .55, metalness: .2 }), reel = new THREE.MeshStandardMaterial({ color: 0xd8d0c0, roughness: .6 });
+    const colTop = hit && RBG.BLD.some(b => b.col && (([lx, lz]) => b.col.some(c => c.y2 != null && Math.abs(c.y2 - hit.point.y) < .08 && lx > c.x1 && lx < c.x2 && lz > c.z1 && lz < c.z2))(b.toLocal(p.x, p.z)));   // 레이가 맞은 곳이 실제 가구 윗면일 때만 (모서리 · 틈새에 걸려 허공에 뜨던 것)
+    const top = p._deskTop != null ? p._deskTop : (hit && colTop) ? hit.point.y : p.rbY, g = new THREE.Group(), body = new THREE.MeshStandardMaterial({ color: 0x2a2c30, roughness: .55, metalness: .2 }), reel = new THREE.MeshStandardMaterial({ color: 0xd8d0c0, roughness: .6 });
     const bm = new THREE.Mesh(new THREE.BoxGeometry(.26, .08, .15), body); bm.position.y = .04; g.add(bm);
     for (const sx of [-.055, .055]) { const r = new THREE.Mesh(new THREE.CylinderGeometry(.03, .03, .012, 14), reel); r.position.set(sx, .085, -.01); g.add(r); }
     const led = new THREE.Mesh(new THREE.BoxGeometry(.012, .008, .012), new THREE.MeshBasicMaterial({ color: 0xff3020 })); led.position.set(.1, .084, .05); g.add(led);

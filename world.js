@@ -3815,7 +3815,27 @@ export function buildWorld(scene) {
       // 양념 · 식재료 선반 (서쪽 벽): 3단 스테인리스 선반 + 양념통 · 쌀 포대
       [.4, .95, 1.5].forEach(y => add(mSS, .45, .03, 1.0, x0 + .55, y, 9.2)); [x0 + .35, x0 + .75].forEach(x => [8.72, 9.68].forEach(z => add(mSS, .03, 1.55, .03, x, 0, z))); for (let k = 0; k < 4; k++) cyl(k % 2 ? mRed : mWhiteP, .07, .2, x0 + .55, .98, 8.85 + k * .24); add(S(null, { color: 0xd8ccaa, roughness: .9 }), .4, .3, .6, x0 + .55, .43, 9.2);
       // 확장 구역 (남쪽 1m): 스틸 저장 선반 2 · 화구 위 곰솥 2 · 배식대 쪽 식기 건조대 · 식단 게시판 (실제 GLB 모델)
-      model('steel_frame_shelves_01', -46.6, 0, kz - .45, Math.PI, { col: [1.0, .45], s: .0865 }); model('steel_frame_shelves_01', -42.9, 0, kz - .45, Math.PI, { col: [1.0, .45], s: .0865 });   // 국솥 옆에 기대 둔 뚜껑(-44.7)과 겹치던 것 → 동쪽으로   // 원본 GLB 가 11 × 21 × 5m 단위 — s 없이 놓으면 식당 홀 전체를 가로지르는 거대한 선반 판 · 검은 기둥이 됐다 (높이 1.85m 로 축소)
+      /* 선반 1 → 냉동창고 옆 (아래) */ /* 선반 2 → 냉동창고 옆 (아래) */
+      // ── 식재료 선반 2: 냉동창고 양옆 빈 벽 (동: 개수대 · 취반기 사이 / 서: 가스레인지와 냉동창고 사이) — 홀 쪽 벽에 붙어 통로를 막던 자리에서 이사 ──
+      model('steel_frame_shelves_01', -35.42, 0, 9.75, -Math.PI / 2, { col: [1.0, .45], s: .0865 }); model('steel_frame_shelves_01', -39.3, 0, 8.86, Math.PI / 2, { col: [1.0, .45], s: .0865 });
+      { const mBox = S(null, { color: 0xa8865a, roughness: .9 }), mTape = S(null, { color: 0xc8b890, roughness: .7 }), mSack = S(null, { color: 0xe4dccb, roughness: 1 }), mCan = S(null, { color: 0xb0b4b8, roughness: .3, metalness: .8 }), mRedL = S(null, { color: 0xa83020, roughness: .6 }), mGrn = S(null, { color: 0x3a6a3a, roughness: .7 });
+        const fill = (x, z, alongZ) => { const L = (a, b) => alongZ ? [x + b, z + a] : [x + a, z + b];
+          [[-.28, .3], [.24, .3]].forEach(([a, b], k) => { const [px, pz] = L(a, b * 0); add(mSack, alongZ ? .36 : .42, .2, alongZ ? .42 : .36, px, .06, pz); add(mSack, alongZ ? .3 : .36, .12, alongZ ? .36 : .3, px, .26, pz); });   // 바닥 칸: 쌀 · 밀가루 포대 (20kg)
+          [-.3, 0, .3].forEach((a, k) => { const [px, pz] = L(a, 0); add(k === 1 ? mGrn : mBox, .26, .2, .3, px, .52, pz); add(mTape, .27, .015, .05, px, .725, pz); });   // 2 칸: 식재료 상자 (테이프 봉함)
+          for (let k = 0; k < 6; k++) { const [px, pz] = L(-.36 + k * .145, (k % 2) * .06 - .03); cyl(k % 3 === 2 ? mRedL : mCan, .055, .17, px, .98, pz, 12); }   // 3 칸: 통조림 · 고추장 통
+          [-.22, .2].forEach(a => { const [px, pz] = L(a, 0); for (let q = 0; q < 4; q++) add(mCan, .34, .025, .28, px, 1.43 + q * .03, pz); });   // 4 칸: 포개 둔 스테인리스 바트
+          { const [px, pz] = L(0, 0); add(mBox, .5, .25, .32, px, 1.83, pz); } };
+        fill(-35.42, 9.75, true); fill(-39.3, 8.86, true); }
+      // ── 조리실 사실 묘사: 고무 매트 · 국자 걸이 · 소화기 · 가스 안전 표지 · 장화 · 앞치마 · 대걸레 양동이 ──
+      { const mRub = S(null, { color: 0x1c1c1c, roughness: .95 }), mBoot = S(null, { color: 0xe8e8e0, roughness: .6 }), mApron = S(null, { color: 0xf0eee8, roughness: .9, side: THREE.DoubleSide }), mApronB = S(null, { color: 0x2a4a6a, roughness: .9, side: THREE.DoubleSide }), mExt = S(null, { color: 0xc01810, roughness: .4 }), mYel = S(null, { color: 0xd8b020, roughness: .5 });
+        add(mRub, 2.6, .012, .6, -45, .005, 10.85); add(mRub, 2.2, .012, .6, -41, .005, 11.0);   // 조리대 · 화구 앞 미끄럼 방지 고무 매트
+        cyl(mExt, .085, .5, -39.95, 0, 11.95, 14); add(new THREE.MeshStandardMaterial({ color: 0x1a1a1a }), .05, .1, .05, -39.95, .5, 11.95);   // 분말 소화기 (화구 옆 바닥)
+        plane(F.interior, new THREE.MeshBasicMaterial({ map: T.makeSign('가스 사용 후 중간밸브 잠금', '#d8b020', '#1a1a1a', 18), color: 0xd8d0b0 }), .9, .26, -41, 1.25, 9.37);
+        plane(F.interior, new THREE.MeshBasicMaterial({ map: T.makeSign('위생모 · 위생복 착용', '#1a4a6a', '#fff', 20), color: 0xd0d0d0 }), .9, .24, -46.6, 2.0, kz - .11, Math.PI);
+        [-47.2, -46.6, -46.0].forEach((x, k) => { add(mSS, .02, .02, .08, x, 1.75, kz - .14); const ap = new THREE.Mesh(new THREE.PlaneGeometry(.5, .8), k === 1 ? mApronB : mApron); ap.position.set(x, 1.32, kz - .2); ap.rotation.y = Math.PI; ap.rotation.x = .03; F.interior.add(ap); });   // 벽 고리 위생복 · 앞치마
+        [[-47.0, 0], [-46.78, .06], [-46.3, 0], [-46.08, .04]].forEach(([x, r]) => { add(mBoot, .12, .32, .14, x, 0, kz - .3); add(mBoot, .12, .06, .26, x, 0, kz - .36); });   // 조리용 흰 장화 두 켤레
+        cyl(mYel, .2, .3, -44.2, 0, 11.85, 14); add(mYel, .3, .06, .2, -44.2, .3, 11.85); add(mWoodDark, .025, 1.2, .025, -44.1, .3, 11.8);   // 대걸레 양동이 · 짜개
+      }   // 원본 GLB 가 11 × 21 × 5m 단위 — s 없이 놓으면 식당 홀 전체를 가로지르는 거대한 선반 판 · 검은 기둥이 됐다 (높이 1.85m 로 축소)
       model('cr101/CR-005', -41.8, .935, 9.75, .2); model('cr101/CR-005', -40.2, .935, 10.25, -.4);
       model('cr101/CR-012', -31.9, .9, z0 + .5, 0); model('cr101/CR-009', x0 + .32, 1.55, 10.6, Math.PI / 2);
       // 바닥 배수 트렌치 그레이팅 (조리 라인 앞)

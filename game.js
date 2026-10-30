@@ -199,7 +199,7 @@ const canvas = $('c');
 const renderer = await createRenderer({ canvas, pref: SET.engine || 'auto' });   // 신규 엔진: WebGPU(지원 시) · 아니면 WebGL — engine.js
 renderer.setPixelRatio(Math.min(devicePixelRatio, 1.75));
 // GPU 확인: 브라우저 하드웨어 가속이 꺼져 소프트웨어 렌더러(SwiftShader · llvmpipe)로 그리면 안내한다
-{ const gl = renderer.getContext(), ext = gl && gl.getExtension('WEBGL_debug_renderer_info'), gpu = ENGINE.webgpu ? 'WebGPU' : ext ? String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL)) : '';
+{ const gl = renderer.getContext(), ext = !ENGINE.webgpu && gl && gl.getExtension ? gl.getExtension('WEBGL_debug_renderer_info') : null, gpu = ENGINE.webgpu ? 'WebGPU' : ext ? String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL)) : '';
   window.__gpu = gpu; window.__gpuSoftware = /swiftshader|llvmpipe|software|basic render/i.test(gpu);
   if (window.__gpuSoftware && !new URLSearchParams(location.search).has('norender')) setTimeout(() => { try { say('⚠ 그래픽카드(GPU)를 쓰지 못하고 있습니다 — 브라우저 설정에서 “하드웨어 가속 사용”을 켜고 다시 시작하세요', 9000); } catch (e) {} }, 4000); }
 renderer.setSize(innerWidth, innerHeight);

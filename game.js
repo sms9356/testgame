@@ -8652,7 +8652,46 @@ async function installInvestigationBoards() {
     world.props.push({ kind: 'look', _rb: true, floor: 0, x: px, z: pz, rbY: y, y: y + 1.5, r: 1.6, label: B.head + ' 읽기', n: 0, fn: () => { showNote({ kind: 'board', id: B.id, title: B.title, text: B.text }); return ''; } });
   } catch (e) { console.warn('[조사 게시물]', B.id, e); } }
 }
-{ RBG = installRebuild({ THREE, scene, floors, world }); window.__rbg = RBG; try { RBG.allOff(); } catch (e) { console.warn('[all off]', e); } renderer.localClippingEnabled = true; setTimeout(() => { installInvestigationBoards().catch(e => console.warn('[조사 게시물]', e)); }, 2500); setTimeout(() => { furnishRooms({ scene, RBG, world, getP: () => P }).then(n => n && console.info('[가구 보강]', n)).catch(e => console.warn('[furnish v2]', e)); }, 4000); try { installRoomUI({ P, world, getRBG: () => RBG, getState: () => state, getTarget: () => target, keyInteract: () => (K().interact || 'KeyE') }); } catch (e) { console.warn('[room ui]', e); }
+// 상호작용 지점 위치 보정 (방 밖 · 외벽 속으로 밀려난 녹음기 · 쪽지 · 단서를 가장 가까운 방 안 가구 위로, 쪽지 상호작용 높이를 실제 쪽지 높이에 맞춤)
+function repairStrayInteractables() {
+  if (!RBG || !RBG.BLD || !RBG.where) return 0; let n = 0; const v = new THREE.Vector3();
+  const KINDS = new Set(['tape', 'clue', 'note', 'pick', 'lock', 'case5', 'search', 'mspot', 'photo', 'key', 'battery', 'medkit', 'hairpin', 'can']);
+  const objs = p => ['mesh', 'anim', 'visMesh', 'piv', 'grp', 'obj'].map(k => p[k]).filter(o => o && o.isObject3D);
+  const moveTo = (p, x, z) => { const ox = p.pos ? p.pos.x : p.x, oz = p.pos ? p.pos.z : p.z, dx = x - ox, dz = z - oz; if (p.pos) { p.pos.x = x; p.pos.z = z; } else { p.x = x; p.z = z; } if (p.px != null) { p.px += dx; p.pz += dz; } for (const o of objs(p)) { o.position.x += dx; o.position.z += dz; o.updateMatrixWorld(true); } };
+  for (const p of [...world.props, ...world.items]) {
+    if (p.rbY == null || p.taken || p._strayFixed || !KINDS.has(p.kind)) continue;
+    const x = p.pos ? p.pos.x : p.x, z = p.pos ? p.pos.z : p.z; if (x == null) continue;
+    // 쪽지 · 아이템: 상호작용 높이(pos.y)를 실제로 그려진 쪽지 높이에 맞춘다
+    if (p.pos && p.mesh && p.mesh.getWorldPosition) { p.mesh.getWorldPosition(v); if (Math.abs(v.y - p.pos.y) > .3 && v.y > p.rbY - .1 && v.y < p.rbY + 2.4) { p.pos.y = v.y; n++; } }
+    if (RBG.where(x, z, p.rbY + .5)) continue;   // 방 안이면 그대로
+    let best = null;
+    for (const b of RBG.BLD) { if (!b.props || !b.layout) continue; const [lx, lz] = b.toLocal(x, z); const f = Math.round(p.rbY / ((b.spec && b.spec.FH) || 3.6));
+      for (const r of b.props) { if (r.kind !== 'room' || r.floor !== f || /비상구|계단|현관/.test(r.label || '')) continue; const cx = Math.max(r.x1 + .6, Math.min(r.x2 - .6, lx)), cz = Math.max(r.z1 + .9, Math.min(r.z2 - .6, lz)), d = Math.hypot(cx - lx, cz - lz); if (d < 1.6 && (!best || d < best.d)) best = { b, cx, cz, d }; } }
+    if (!best) continue;
+    const [wx, wz] = best.b.toWorld(best.cx, best.cz); moveTo(p, wx, wz); p._strayFixed = true; n++;
+  }
+  // 녹음기인데 눈에 보이는 모형이 하나도 없는 것 → 카세트 녹음기 모형을 그 자리 가구 윗면에 (프롬프트만 허공에 뜨던 것)
+  const rc = new THREE.Raycaster(), dn = new THREE.Vector3(0, -1, 0); rc.camera = camera;
+  for (const p of world.props) { if (p.kind !== 'tape' || p.rbY == null || p.done || p._recVis) continue;
+    const has = ['mesh', 'anim', 'visMesh', 'piv', 'grp', 'obj'].some(k => p[k] && p[k].isObject3D && !new THREE.Box3().setFromObject(p[k]).isEmpty()); if (has) continue;
+    const near = []; scene.traverse(o => { if (o.isMesh && o.visible !== false && !o.isInstancedMesh && o.geometry) { if (!o.geometry.boundingSphere) o.geometry.computeBoundingSphere(); const s = o.geometry.boundingSphere; if (!s) return; v.copy(s.center).applyMatrix4(o.matrixWorld); if (Math.hypot(v.x - p.x, v.z - p.z) < s.radius * o.matrixWorld.getMaxScaleOnAxis() + .3) near.push(o); } });
+    { // 같은 방의 책상 · 탁자(충돌 상자 윗면 0.6~1.0m) 가운데 가장 가까운 곳으로 — 바닥 · 휠체어 밑에 놓이지 않게
+      const room = RBG.where(p.x, p.z, p.rbY + .5); let bs = null;
+      for (const b of RBG.BLD) { if (!b.col) continue; for (const c of b.col) { if (c.y2 == null || c.furn2) continue; const rel = c.y2 - p.rbY; if (rel < .6 || rel > 1.0 || (c.x2 - c.x1) < .45 || (c.z2 - c.z1) < .35 || (c.x2 - c.x1) > 3 || (c.z2 - c.z1) > 3) continue;
+        const [cx, cz] = b.toWorld((c.x1 + c.x2) / 2, (c.z1 + c.z2) / 2); if (RBG.where(cx, cz, p.rbY + .5) !== room) continue; const d = Math.hypot(cx - p.x, cz - p.z); if (d > 4 || (bs && d >= bs.d)) continue;
+          rc.set(new THREE.Vector3(cx, c.y2 + .5, cz), dn); rc.far = .7; const h0 = rc.intersectObjects(scene.children, true).find(h => h.object.isMesh && !h.object.isSprite && h.object.visible !== false && !h.object.material?.transparent); if (!h0 || Math.abs(h0.point.y - c.y2) > .12) continue;   // 실제 평평한 윗면(책상 상판)이 있는 곳만
+          bs = { x: cx, z: cz, top: Math.max(c.y2, h0.point.y), d }; } }
+      if (bs) { let tx = bs.x, tz = bs.z; if (world.props.some(q => q !== p && q.kind === 'tape' && Math.hypot(q.x - tx, q.z - tz) < .3)) tx += .32;   // 같은 책상의 다른 녹음기와 겹치지 않게
+        const dx = tx - p.x, dz = tz - p.z; p.x = tx; p.z = tz; if (p.px != null) { p.px += dx; p.pz += dz; } p._deskTop = bs.top; } }
+    rc.set(new THREE.Vector3(p.x, p.rbY + 1.3, p.z), dn); rc.far = 1.35; const hit = rc.intersectObjects(near, false).find(h => !h.object.material?.transparent && h.point.y > p.rbY - .05);
+    const top = p._deskTop != null ? p._deskTop : hit ? hit.point.y : p.rbY, g = new THREE.Group(), body = new THREE.MeshStandardMaterial({ color: 0x2a2c30, roughness: .55, metalness: .2 }), reel = new THREE.MeshStandardMaterial({ color: 0xd8d0c0, roughness: .6 });
+    const bm = new THREE.Mesh(new THREE.BoxGeometry(.26, .08, .15), body); bm.position.y = .04; g.add(bm);
+    for (const sx of [-.055, .055]) { const r = new THREE.Mesh(new THREE.CylinderGeometry(.03, .03, .012, 14), reel); r.position.set(sx, .085, -.01); g.add(r); }
+    const led = new THREE.Mesh(new THREE.BoxGeometry(.012, .008, .012), new THREE.MeshBasicMaterial({ color: 0xff3020 })); led.position.set(.1, .084, .05); g.add(led);
+    g.position.set(p.x, top + .004, p.z); g.rotation.y = (p.x * 7 + p.z * 3) % 6.28; g.name = 'REC_VIS_' + (p.id || ''); g.userData.rbKeep = true; scene.add(g); p.visMesh = g; p._recVis = true; n++; }
+  return n;
+}
+{ RBG = installRebuild({ THREE, scene, floors, world }); window.__rbg = RBG; try { RBG.allOff(); } catch (e) { console.warn('[all off]', e); } renderer.localClippingEnabled = true; setTimeout(() => { installInvestigationBoards().catch(e => console.warn('[조사 게시물]', e)); }, 2500); setTimeout(() => { furnishRooms({ scene, RBG, world, getP: () => P }).then(n => n && console.info('[가구 보강]', n)).catch(e => console.warn('[furnish v2]', e)); }, 4000); [6000, 16000, 32000].forEach(t => setTimeout(() => { try { const n = repairStrayInteractables(); if (n) console.info('[상호작용 위치 보정]', n); } catch (e) { console.warn('[stray fix]', e); } }, t)); try { installRoomUI({ P, world, getRBG: () => RBG, getState: () => state, getTarget: () => target, keyInteract: () => (K().interact || 'KeyE') }); } catch (e) { console.warn('[room ui]', e); }
   // 2단계: 예전 건물의 열쇠 · 쪽지 · 조사 지점을 새 방으로 (나중에 생기는 조사 지점도 몇 번 더 옮긴다)
   const sz4 = floors[4] && floors[4].stairZone, b1 = sz4 ? sz4.spawn : { x: ((floors[4] && floors[4].stairCx) || 0) + .8, z: -5.2 };
   const rel = () => { const r = RBG.relocate({ world, floors, stairSpawnB1: b1 }); if (r.moved || r.dropped) console.info('[rebuild] 옮김', r); const f = RBG.fixRoomRefs(world); if (f.moved || f.relabeled || f.dup) console.info('[rebuild] 방 이름 맞춤', f); const g2 = RBG.relinkGeneric(world); if (g2.n || g2.drop) console.info('[rebuild] 공용 조사 지점 다시 잇기', g2); const s3 = RBG.settleMoved(world); if (s3.n) console.info('[rebuild] 허공 물건 내려놓기', s3); const fv = RBG.fixVisible(world); if (fv.re || fv.up) console.info('[rebuild] 안 보이던 · 묻힌 물건 바로잡기', fv); };

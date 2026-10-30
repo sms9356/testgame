@@ -4,12 +4,12 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { buildGuardAnnex, buildDutyRoom, ANNEX as GANX } from './guardAnnex.js?v=298';
-import { NOTES } from './story.js?v=298';
+import { buildGuardAnnex, buildDutyRoom, ANNEX as GANX } from './guardAnnex.js?v=299';
+import { NOTES } from './story.js?v=299';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=298';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=299';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -5148,50 +5148,10 @@ export function buildWorld(scene) {
   [[-60, -59, 70, 90], [59, 60, 70, 90], [-60, 60, 82, 83]].forEach(([a, b, c, d]) => col(a, b, c, d));
   col(-60, -50, GATE_Z - .5, GATE_Z + .5);
 
-  // 별관 건물(체육관/급식실) — 외관만
-  const gym = boxMesh(28, 48, 0, 8, 12.5, 34.5, mFacade, 3); OUT.add(gym); col(28, 48, 12.5, 34.5, true);
-  // 아치형 골강판 지붕 (외부 설정도): 반원 단면을 납작하게 눌러 길이 방향으로 뽑고, 골은 아치를 따라가게 UV 를 돌린다
-  function barrelRoof(cx, cz, w, len, y, rise) {
-    const r = w / 2, g = new THREE.CylinderGeometry(r, r, len, 28, 1, true, Math.PI / 2, Math.PI); g.rotateX(Math.PI / 2); g.scale(1, rise / r, 1);
-    const uv = g.attributes.uv, arc = Math.PI * r * .8;
-    for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getY(i) * len / 2.7, uv.getX(i) * arc / 2.7);
-    const m = new THREE.Mesh(g, mRoofMetal); m.position.set(cx, y, cz); OUT.add(m);
-    const sh = new THREE.Shape(); sh.absellipse(0, 0, r - .25, rise - .1, 0, Math.PI, false);
-    [cz - len / 2 + .3, cz + len / 2 - .3].forEach((z, k) => { const e = new THREE.Mesh(new THREE.ShapeGeometry(sh, 20), mFacade); e.position.set(cx, y, z); e.rotation.y = k ? 0 : Math.PI; OUT.add(e); });
-    const eave = []; [-1, 1].forEach(s2 => eave.push(bx(.18, .18, len, cx + s2 * (r - .1), y + .05, cz, 2)));   // 처마 홈통
-    OUT.add(new THREE.Mesh(merge(eave), mRust));
-  }
-  barrelRoof(38, 23.5, 21, 23, 8, 3.3);
-  const poolB = boxMesh(-48, -34, 0, 6.4, 31, 51, mBlueMetal, 2.5); OUT.add(poolB); col(-48, -34, 31, 51, true);   // 급식실과 6m 띄움
-  OUT.add(boxMesh(-48.2, -33.8, 6.3, 6.5, 30.8, 51.2, mFacade, 3)); barrelRoof(-41, 41, 15, 20.6, 6.5, 2.5);
-  [33, 36.5, 45.5, 49].forEach(z => plane(OUT, pickWin(), 2.4, 1.8, -33.98, 3.6, z, Math.PI / 2));
-  plane(OUT, new THREE.MeshBasicMaterial({ map: T.makeSign('수 영 장', '#1e2a2e', '#d9e4d0', 34), color: 0x9aa59a }), 2.2, .55, -33.97, 3.8, 41, Math.PI / 2);
-  // 큰 건물 출입문: 문틀 + 양여닫이(유리창 · 밀대) + 콘크리트 차양 — 건물 높이에 맞춘 사람 크기 (w × h)
-  function bigDoor(x, z, ry, w, h) {
-    const g = new THREE.Group(), lw = w / 2 - .05;
-    const fr = [bx(.14, h + .14, .16, -w / 2 - .07, (h + .14) / 2, .04), bx(.14, h + .14, .16, w / 2 + .07, (h + .14) / 2, .04), bx(w + .28, .14, .16, 0, h + .07, .04)];
-    g.add(new THREE.Mesh(merge(fr), mRust));
-    [-1, 1].forEach(sd => {
-      const leaf = new THREE.Mesh(new THREE.BoxGeometry(lw, h - .02, .05), mDoor); leaf.position.set(sd * (lw / 2 + .02), h / 2, .03); g.add(leaf);
-      const gl = new THREE.Mesh(new THREE.PlaneGeometry(lw * .55, h * .32), mGlass); gl.position.set(sd * (lw / 2 + .02), h * .68, .06); g.add(gl);
-      const bar = new THREE.Mesh(new THREE.BoxGeometry(lw * .7, .05, .06), mChrome); bar.position.set(sd * (lw / 2 + .02), 1.05, .09); g.add(bar);
-    });
-    const can = new THREE.Mesh(new THREE.BoxGeometry(w + 1.0, .16, 1.3), mFacade); can.position.set(0, h + .35, .65); g.add(can);
-    const step = new THREE.Mesh(new THREE.BoxGeometry(w + .8, .12, 1.0), mFacade); step.position.set(0, .06, .5); g.add(step);
-    g.position.set(x, 0, z); g.rotation.y = ry; OUT.add(g);
-  }
-  bigDoor(-33.96, 41, Math.PI / 2, 2.6, 2.9);
-  bigDoor(38, 34.52, 0, 3.0, 3.2);
-  plane(OUT, new THREE.MeshBasicMaterial({ map: T.makeSign('체 육 관', '#1e2a2e', '#d9e4d0', 34), color: 0x9aa59a }), 2.6, .65, 38, 4.2, 34.54, 0);
-  const cafe = boxMesh(-48, -30, 0, 4.5, 12.5, 25, mFacade, 3); OUT.add(cafe); col(-48, -30, 12.5, 25, true);
-  OUT.add(boxMesh(-48.4, -29.6, 4.5, 4.75, 12.1, 25.4, mFacade, 3), boxMesh(-48.4, -29.6, 4.75, 5.4, 12.1, 12.35, mFacade, 3), boxMesh(-48.4, -29.6, 4.75, 5.4, 25.15, 25.4, mFacade, 3), boxMesh(-48.4, -48.15, 4.75, 5.4, 12.1, 25.4, mFacade, 3), boxMesh(-29.85, -29.6, 4.75, 5.4, 12.1, 25.4, mFacade, 3));   // 평지붕 + 파라펫
+  // 옛 체육관 · 수영장 · 급식실 외관(박스 · 지붕 · 문 · 간판 · 창 · 통짜 충돌)은 철거 — 시설 재건축(facilityRebuild)이 새 자리에 새 외관을 짓는다. 출입 문은 재배치 코드가 옮긴다
   doors.push({ floor: 0, x: 38, z: 35.9, r: 2.0, label: '체육관 들어가기', to: { floor: 5, x: 38, z: 28.1, yaw: 0 } });
   doors.push({ floor: 0, x: -32.7, z: 41, r: 2.0, label: '수영장 들어가기', to: { floor: 6, x: -35.5, z: 38, yaw: Math.PI / 2 } });
   doors.push({ floor: 0, x: -39, z: 26.4, r: 2.0, label: '급식실 들어가기', to: { floor: 7, x: -39, z: 20.5, yaw: 0 } });
-  bigDoor(-39, 25.02, 0, 3.0, 3.0);
-  plane(OUT, new THREE.MeshBasicMaterial({ map: T.makeSign('급 식 실', '#1e2a2e', '#d9e4d0', 34), color: 0x9aa59a }), 2.2, .55, -39, 3.85, 25.04, 0);
-  [[33, 12.48], [38, 12.48], [43, 12.48]].forEach(([x, z]) => plane(OUT, pickWin(), 3, 1.6, x, 5.2, z, Math.PI));
-  [[-44, 12.48], [-39, 12.48], [-34, 12.48]].forEach(([x, z]) => plane(OUT, pickWin(), 3, 1.6, x, 2.4, z, Math.PI));
 
 
   // 나무: 건물/길을 피해서 배치, 울퉁불퉁한 수관 + 개체별 색 변화

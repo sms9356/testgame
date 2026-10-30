@@ -33,10 +33,10 @@ import { modelFootprint, overlaps, removeDuplicateModels } from './placement.js'
 import { turfMaterial } from './campusVisuals.js?v=306';
 import { installInfirmaryAssets, updateInfirmaryCabinets } from './infirmaryAssets.js';
 import { installRebuild } from './rebuildGame.js?v=306';
-import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js?v=319'; import { updateWindowFakes } from './windowInteriors.js?v=306';
-import { drawMap } from './map.js?v=319';
+import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js?v=320'; import { updateWindowFakes } from './windowInteriors.js?v=306';
+import { drawMap } from './map.js?v=320';
 import { buildMegaCampus15000, MEGA_CAMPUS_ZONES } from './megaCampus15000.js?v=306';
-import { installFacilityRebuild, inTwoStory, ZONES as FAC_ZONES } from './facilityRebuild.js?v=306';
+import { installFacilityRebuild, inTwoStory, ZONES as FAC_ZONES } from './facilityRebuild.js?v=320';
 import { relayoutCampus } from './campusRelayout.js?v=306';
 import { makeDress, makeHair, makeGhostFace, makeGraffiti, makeKeypad, loadPBR, pbr, makeGlow as makeGlowTex, makePaintingStare, makeSign, makeBlood } from './tex.js';
 import { warmUp } from './bake.js';
@@ -56,7 +56,7 @@ import './school37RoomsPatch.js';    // 본관 · 별관 37개 특별실 가구 
 import './new37UniquePatch.js';     // 37개 구역 신규 특수 설비 · 벽면 레일 (사용자 제공) → window.new37UniquePatch
 import './megaExpansionPatch.js?v=306';   // 메가 익스팬션 · 최적화 · 4막 사건 기록 · 수집품 · 미니게임 (사용자 제공) → window.megaSchoolPatch
 import './poolMachineryPatch.js';     // 수영장 · 남/녀 탈의실·샤워실 · 기계실 철문 (사용자 제공) → window.poolAndMachineryPatch
-import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx, setSfxBusyCheck } from './audio.js?v=306'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=306'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera, perfInstanceSource } from './perfStabilizer.js?v=306'; window.__perfInst = perfInstanceSource; import { upgradePlainMaterials } from './plainUpgrade.js?v=306'; import { relayCampusPaths, cleanupCampus } from './campusPaths.js?v=319'; import { installStreetscape } from './streetV2.js?v=319'; import { installHudV2, tickHudV2 } from './hudV2.js?v=306'; import { installPartnerRadio, tickPartnerRadio } from './partnerRadio.js?v=306';
+import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx, setSfxBusyCheck } from './audio.js?v=306'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=306'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera, perfInstanceSource } from './perfStabilizer.js?v=306'; window.__perfInst = perfInstanceSource; import { upgradePlainMaterials } from './plainUpgrade.js?v=306'; import { relayCampusPaths, cleanupCampus } from './campusPaths.js?v=320'; import { installStreetscape } from './streetV2.js?v=320'; import { installHudV2, tickHudV2 } from './hudV2.js?v=306'; import { installPartnerRadio, tickPartnerRadio } from './partnerRadio.js?v=306';
 import { installRoomUI } from './roomUI.js?v=306';   // 방별 현장 조사 카드 · 상호작용 아이콘 · 획득/목표 애니메이션
 import { furnishRooms } from './furnishV2.js?v=310';   // 방 용도별 실사 가구 보강 (상담실 소파 · 교무실 냉온수기 · 창고 선반 …)
 import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js?v=306';

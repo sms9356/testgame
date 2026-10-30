@@ -132,7 +132,7 @@ export function buildGuardAnnex({ OUT, props, boxMesh, plane, flat, col, S, make
     model('wall_clock', 6.6, 2.35, A.z1 + .17, 0); model('wall_clock', 9.75, 2.35, A.z2 - .17, Math.PI);
     model('korean_fire_extinguisher_01', 7.72, 0, 60.1, -Math.PI / 2); model('korean_fire_extinguisher_01', 8.3, 0, 63.9, Math.PI / 2);
     model('fire_alarm', A.x1 + .17, 1.5, 63.6, Math.PI / 2); model('power_box_01', A.x2 - .35, 1.3, 60.4, -Math.PI / 2);
-    model('potted_plant_04', 7.7, 0, 60.0, 0, { s: 2.4 }); model('security_camera_01', A.x1 - .12, 2.55, A.z1 + .25, -Math.PI / 4);
+    model('potted_plant_04', 6.95, 0, 60.05, 0, { s: 2.4 });   // 소화기(7.72, 60.1)와 같은 자리에 겹쳐 있던 것 → 벽을 따라 0.75m 옆으로 model('security_camera_01', A.x1 - .12, 2.55, A.z1 + .25, -Math.PI / 4);
   }
   { const bin = new THREE.Mesh(new THREE.CylinderGeometry(.15, .12, .36, 14, 1, true), S(null, { color: 0x3a5a7a, roughness: .5, side: THREE.DoubleSide })); bin.position.set(7.75, .18, 62.9); G.add(bin); }
   // 조명 (정전 · 전원과 함께 켜고 끈다)

@@ -2,11 +2,11 @@
 //   기본으로 켜진다 (예전 건물로 보려면 주소창에 ?oldmap).
 //   예전 본관(1~3층 · 옥상) · 별관(8~10층) 건물은 감추고, 그 자리 땅(0층)에서 새 건물을 걷는다.
 //   높이는 P.sh(계단 높이 보정값)로 넘긴다 → 카메라 · 점프 · 가구 오르기 코드는 손대지 않아도 된다.
-import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=294';
-import { placeModels } from './rebuild/models.js?v=294';
-import { carve, subdivide } from './rebuild/transplant.js?v=294';
+import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=295';
+import { placeModels } from './rebuild/models.js?v=295';
+import { carve, subdivide } from './rebuild/transplant.js?v=295';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { turfMaterial } from './campusVisuals.js?v=294';
+import { turfMaterial } from './campusVisuals.js?v=295';
 
 // 예전 건물이 차지하던 땅 (이 안의 예전 메시 · 충돌 상자를 걷어 낸다)
 const OLD_MAIN = { x1: -51, x2: 51, z1: -10.6, z2: 10.9 };
@@ -729,7 +729,17 @@ export function installRebuild({ THREE, scene, floors, world }) {
     const rooms = (b.props || []).filter(p => p.kind === 'room' && p.floor === f).map(p => { const [cx, cz] = b.toWorld(p.x ?? (p.x1 + p.x2) / 2, p.z ?? (p.z1 + p.z2) / 2); return { pts: corners(b, p.x1, p.x2, p.z1, p.z2), label: p.label, cx, cz }; });
     b.layout.rooms.filter(r => r.kind === 'stair').forEach(r => { const [cx, cz] = b.toWorld((r.x1 + r.x2) / 2, b.layout.zS / 2); rooms.push({ pts: corners(b, r.x1, r.x2, b.layout.zN, b.layout.zS), label: '계단', cx, cz, stair: true }); });
     { const [cx, cz] = b.toWorld(0, b.layout.zN / 2); rooms.unshift({ pts: corners(b, -b.layout.L / 2, b.layout.L / 2, b.layout.zN, 0), label: '복도', cx, cz, hall: true }); }
-    return { clear: [OLD_MAIN, OLD_ANNEX], shells, rooms, floors: b.spec.floors };
+    // 지도 디테일: 이 층 가구 윤곽(책상 · 장 · 실험대 등) · 엘리베이터 · 계단 · 비상구 · 현관 아이콘
+    const y0 = f * FH, furn = [];
+    for (const c of b.col) { if (c.y2 == null) continue; const y1 = c.y1 ?? 0, h = c.y2 - y1, w = c.x2 - c.x1, d = c.z2 - c.z1;
+      if (y1 < y0 - .1 || y1 > y0 + .6 || h < .3 || h > 2.4 || w > 4 || d > 4 || w < .15 || d < .15 || (w > 2.6 && d < .25) || (d > 2.6 && w < .25)) continue; furn.push(corners(b, c.x1, c.x2, c.z1, c.z2)); }
+    const icons = [];
+    b.layout.rooms.filter(r => r.kind === 'stair' || r.kind === 'cstair').forEach(r => { const [x, z] = b.toWorld((r.x1 + r.x2) / 2, r.kind === 'cstair' ? 2.4 : b.layout.zS / 2); icons.push({ x, z, t: 'stair' }); });
+    R.elevs.filter(e => e.b === b && e.f === f).forEach(e => icons.push({ x: e.x, z: e.z, t: 'elev' }));
+    if (f === 0) { const core = b.layout.rooms.find(r => r.kind === 'core'); if (core) { const [x, z] = b.toWorld((core.x1 + core.x2) / 2, b.layout.zN - .4); icons.push({ x, z, t: 'door', label: '현관' }); }
+      if (b === ANX) [-1, 1].forEach(sx => { const [x, z] = b.toWorld(sx * (b.layout.L / 2), b.layout.zN + .95); icons.push({ x, z, t: 'exit' }); }); }
+    if (f === 1) { const [x, z] = [BRX, (BRZ1 + BRZ2) / 2]; icons.push({ x, z, t: 'bridge', label: '구름다리' }); }
+    return { clear: [OLD_MAIN, OLD_ANNEX], shells, rooms, furn, icons, title: `${b.name} ${f + 1}층`, floors: b.spec.floors };
   };
   // 계단실 출입문 표시: 철문 + 표지판 (bx: 표지판 x, 문짝은 벽 쪽으로)
   const sign = (sx, y, z, text, ry, door = false) => {
@@ -777,6 +787,14 @@ export function installRebuild({ THREE, scene, floors, world }) {
       const s = R._sup ? R._sup(x, z, rb + 1.25) : rb, base = s != null && s >= rb - .05 && s < rb + 1.3 ? s : rb, dy = base + .004 - bb.min.y;
       for (const o of objs) { if (o.parent !== group) group.attach(o); o.position.y += dy; } onMove && onMove(dy); up++;
     };
+    // 가구 속에 박힌 아이템(구급상자 등) → 그 가구 윗면 위로 (1.3m 이하) 아니면 바깥 빈 바닥으로
+    for (const it of W.items) { if (it.taken || it.rbY == null || !it.mesh || it._emb) continue; it._emb = true; const bb = new THREE.Box3().setFromObject(it.mesh); if (bb.isEmpty()) continue;
+      for (const B of [MAIN, ANX]) { const [lx, lz] = B.toLocal(it.pos.x, it.pos.z); if (lx < -B.layout.L / 2 || lx > B.layout.L / 2 || lz < B.layout.zN || lz > B.layout.zS) continue;
+        const c = B.col.find(c => c.y2 != null && c.y2 > bb.min.y + .03 && (c.y1 ?? 0) < bb.max.y - .03 && lx > c.x1 - .05 && lx < c.x2 + .05 && lz > c.z1 - .05 && lz < c.z2 + .05 && c.x2 - c.x1 < 3.5 && c.z2 - c.z1 < 3.5); if (!c) break;
+        if (c.y2 < it.rbY + 1.3) { const dy = c.y2 + .004 - bb.min.y; if (it.mesh.parent !== group) group.attach(it.mesh); it.mesh.position.y += dy; it.pos.y += dy; if (it.baseY != null) it.baseY += dy; up++; break; }
+        const cands = [[c.x1 - .3, lz], [c.x2 + .3, lz], [lx, c.z1 - .3], [lx, c.z2 + .3]].sort((a, b) => Math.hypot(a[0] - lx, a[1] - lz) - Math.hypot(b[0] - lx, b[1] - lz));
+        for (const [qx, qz] of cands) { if (B.col.some(k => k.y2 != null && k.y2 > it.rbY + .05 && (k.y1 ?? 0) < it.rbY + .5 && qx > k.x1 - .15 && qx < k.x2 + .15 && qz > k.z1 - .15 && qz < k.z2 + .15)) continue; const [wx, wz] = B.toWorld(qx, qz), dx = wx - it.pos.x, dz = wz - it.pos.z, dy = it.rbY + .004 - bb.min.y; if (it.mesh.parent !== group) group.attach(it.mesh); it.mesh.position.x += dx; it.mesh.position.y += dy; it.mesh.position.z += dz; it.pos.x = wx; it.pos.z = wz; it.pos.y += dy; up++; break; }
+        break; } }
     for (const it of W.items) { if (it.taken || it.rbY == null || !it.mesh) continue; fix([it.mesh], it.pos.x, it.pos.z, it.rbY, (dy, dx = 0, dz = 0) => { it.pos.x += dx; it.pos.y += dy; it.pos.z += dz; if (it.baseY != null) it.baseY += dy; }, true); }
     // 방송 수신기(megaRadio): 모형 없던 자리 → 탁상형 단파 수신기 (주파수 다이얼 창 · 노브 2 · 안테나)
     for (const p of W.props) { if (p._rx || p.kind !== 'megaRadio' || p.rbY == null || objsOf(p).length) continue; p._rx = true;
@@ -819,8 +837,11 @@ export function installRebuild({ THREE, scene, floors, world }) {
     for (const p of W.props) { if (p._wall || p.kind !== 'robj' || p.rbY == null || !p.anim || !p.anim.g || p.k === 'light_switch' || p._drop) continue; p._wall = true;
       const rr = roomRect(p.x, p.z, p.rbY); if (!rr) continue; const { B, r } = rr, g = p.anim.g, wp = g.getWorldPosition(new THREE.Vector3()), [lx, lz] = B.toLocal(wp.x, wp.z);
       const ed = [[lx - r.x1, 'x1'], [r.x2 - lx, 'x2'], [lz - r.z1, 'z1'], [r.z2 - lz, 'z2']].sort((a, b) => a[0] - b[0])[0][1];
-      const nx = ed === 'x1' ? r.x1 + .12 : ed === 'x2' ? r.x2 - .12 : Math.min(r.x2 - .6, Math.max(r.x1 + .6, lx)), nz = ed === 'z1' ? r.z1 + .12 : ed === 'z2' ? r.z2 - .12 : Math.min(r.z2 - .6, Math.max(r.z1 + .6, lz));
-      const inn = ed === 'x1' ? [1, 0] : ed === 'x2' ? [-1, 0] : ed === 'z1' ? [0, 1] : [0, -1], [wx, wz] = B.toWorld(nx, nz), [ix, iz] = B.toWorld(nx + inn[0], nz + inn[1]);
+      let nx = ed === 'x1' ? r.x1 + .12 : ed === 'x2' ? r.x2 - .12 : Math.min(r.x2 - .6, Math.max(r.x1 + .6, lx)), nz = ed === 'z1' ? r.z1 + .12 : ed === 'z2' ? r.z2 - .12 : Math.min(r.z2 - .6, Math.max(r.z1 + .6, lz));
+      let inn = ed === 'x1' ? [1, 0] : ed === 'x2' ? [-1, 0] : ed === 'z1' ? [0, 1] : [0, -1];
+      { const along = inn[0] ? [0, 1] : [1, 0], hy1 = p.rbY + 1.05, hy2 = p.rbY + 1.7, busy = (x, z) => B.col.some(c => c.y2 != null && c.y2 > hy1 && (c.y1 ?? 0) < hy2 && x + .3 > c.x1 && x - .3 < c.x2 && z + .3 > c.z1 && z - .3 < c.z2);   // 벽에 붙은 높은 장 · 사물함과 겹치면 벽을 따라 빈 자리로
+        for (const o of [0, .6, -.6, 1.2, -1.2, 1.8, -1.8, 2.6, -2.6, 3.4, -3.4]) { const tx = nx + along[0] * o, tz = nz + along[1] * o; if (tx < r.x1 + .3 || tx > r.x2 - .3 || tz < r.z1 + .3 || tz > r.z2 - .3) continue; if (!busy(tx, tz)) { nx = tx; nz = tz; break; } } }
+      const [wx, wz] = B.toWorld(nx, nz), [ix, iz] = B.toWorld(nx + inn[0], nz + inn[1]);
       if (g.parent !== group) group.attach(g); g.position.set(wx, p.rbY + 1.35, wz); g.rotation.set(0, Math.atan2(ix - wx, iz - wz), 0);
       const [px, pz] = B.toWorld(nx + inn[0] * .55, nz + inn[1] * .55); p.x = px; p.z = pz; if (p.px != null) { p.px = px; p.pz = pz; } up++; }
     // 대출 카드함: 모형 없이 [E] 만 뜨던 자리 → 나무 카드 목록함 (서랍 4×3, 놋쇠 손잡이 · 이름표)

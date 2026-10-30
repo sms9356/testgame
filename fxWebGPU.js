@@ -2,7 +2,7 @@
 //   fx.js(WebGL · GLSL)와 같은 API 를 돌려준다 — 게임 코드는 엔진을 몰라도 된다.
 //   WebGPU 는 점(Points) 크기를 1px 로만 그려서, 먼지 · 꽃잎 · 불꽃 · 연기는 인스턴스 스프라이트(PointsNodeMaterial + Sprite.count)로 그린다.
 import * as THREE from './vendor/three.module.js';
-import { ENGINE } from './engine.js?v=294';
+import { ENGINE } from './engine.js?v=295';
 
 export async function createFXWebGPU(renderer, scene, camera) {
   const W = ENGINE.W, T = ENGINE.TSL;

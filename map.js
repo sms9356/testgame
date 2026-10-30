@@ -41,8 +41,8 @@ export function drawMap(ctx, W, H, o) {
     fillRect(-3, 2, 3, 69, 'rgba(120,120,110,.4)');
     // 기존 건물 평면 + 3D 입체 볼륨
     fillRect(74, -50, 94, -28, '#3a2a2a'); box3D(74, -50, 94, -28, 8.0, '#3a2a2a', '#5c4238', '#281c18');   // 체육관 (동쪽)
-    box3D(29, 11, 47, 37, 7.5, '#4a3a28', '#68523a', '#2c2218');   // 대강당 (옛 체육관 자리)
-    fillRect(-48, 12.5, -30, 25, '#3a3030'); box3D(-48, 12.5, -30, 25, 4.8, '#3a3030', '#584842', '#261e1c');
+    box3D(-59, 29.8, -41, 53.8, 7.5, '#4a3a28', '#68523a', '#2c2218');   // 대강당 (운동장 서남쪽)
+    fillRect(-67.25, 4, -54.75, 22, '#3a3030'); box3D(-67.25, 4, -54.75, 22, 4.8, '#3a3030', '#584842', '#261e1c');   // 급식실 (운동장 서쪽)
     fillRect(51, 25, 65, 45, '#2a3a46');   box3D(51, 25, 65, 45, 6.4, '#2a3a46', '#3c586c', '#1a2630');   // 수영장 (동쪽)
     fillRect(GUARD_SPUR.x1, GUARD_SPUR.z1, GUARD_SPUR.x2, GUARD_SPUR.z2, '#55554b');
     // 경비동: 관제실 · 열쇠보관실 (북) + 당직실 (남, 예전 경비실 자리)
@@ -79,9 +79,9 @@ export function drawMap(ctx, W, H, o) {
     if (labels) {
       ctx.fillStyle = '#d8e4ec'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
       ctx.fillText('운동장(트랙·축구장)', X(0), Y(36)); ctx.fillText('조회대', X(-11), Y(16.4)); ctx.fillText('스탠드', X(13.5), Y(12.6));
-      ctx.fillText('야외농구장', X(58), Y(7)); ctx.fillText('체육관', X(84), Y(-39)); ctx.fillText('급식실', X(-39), Y(19)); ctx.fillText('수영장', X(58), Y(35));
+      ctx.fillText('야외농구장', X(58), Y(7)); ctx.fillText('체육관', X(84), Y(-39)); ctx.fillText('급식실', X(-61), Y(13)); ctx.fillText('수영장', X(58), Y(35));
       ctx.fillText('경비동', X(8.1), Y(62.4)); ctx.fillText('경비실·당직실', X(GUARD_LAYOUT.cx), Y(GUARD_LAYOUT.cz)); ctx.fillText(o.rb ? '본관(1~4F)' : '', X(0), Y(-5.2)); ctx.fillText(o.rb ? '별관(1~3F)' : '별관(1~3F)', X(0), Y(o.rb ? -30 : -19.25 - ANNEX_DZ));
-      ctx.fillText('대강당', X(38), Y(24)); ctx.fillText('중정', X(MEGA.court.x), Y(MEGA.court.z));
+      ctx.fillText('대강당', X(-50), Y(42)); ctx.fillText('중정', X(MEGA.court.x), Y(MEGA.court.z));
       ctx.fillText('◀ 서문(탈출구)', X(-106), Y(55.6)); ctx.fillText('정문', X(0), Y(GATE_Z) - 8);
       ctx.fillText('생태온실', X(62), Y(-50)); ctx.fillText('학우매점', X(63.5), Y(18)); ctx.fillText('야외음악당', X(35.0), Y(-48.5));
       ctx.fillText('청운정', X(-11.5), Y(63.5));

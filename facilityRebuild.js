@@ -5,7 +5,7 @@
 //   재질: F-01 ~ F-05 바닥 · W-01 ~ W-05 벽 · C-01 ~ C-04 천장 (Poly Haven CC0 실사 스캔 텍스처, assets/tex/fac_* · 미터 단위 UV)
 import * as THREE from './vendor/three.module.js';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { pbr } from './tex.js?v=296';
+import { pbr } from './tex.js?v=299';
 
 const FH = 3.6, CEIL = 2.9, WALL_T = .24, LIN = .06;
 const TL = new THREE.TextureLoader(), TEX = {};
@@ -74,12 +74,12 @@ export function taegukgiTexture() {
 // ───────── 철거 ─────────
 // 캠퍼스 재배치 (campusRelayout.js): 서쪽 = 학술 · 생활(청운학사 · 학생회관 · 역사관 · 과학천문관), 동쪽 = 스포츠(수영장 …), 체육관 자리 = 대강당, 소각장 철거
 export const ZONES = {
-  dorm: { cx: -86, cz: -42, W: 22, D: 14 }, union: { cx: -88, cz: 42, W: 22, D: 14 }, aud: { cx: 38, cz: 24, W: 18, D: 26 },
+  dorm: { cx: -86, cz: -42, W: 22, D: 14 }, union: { cx: -88, cz: 42, W: 22, D: 14 }, aud: { cx: -50, cz: 41.8, W: 18, D: 24 },   // 운동장 서남쪽 (본관에서 운동장 전망이 트이게 — 예전 38, 24)
   astro: { cx: -88, cz: 14, W: 20, D: 16 }, hist: { cx: -88, cz: -16, W: 15.6, D: 10.6 },
-  cafe: { cx: -39, cz: 18.75, W: 18, D: 12.5 }, pool: { cx: 58, cz: 35, W: 14, D: 20 },
+  cafe: { cx: -61, cz: 13, W: 12.5, D: 18 }, pool: { cx: 58, cz: 35, W: 14, D: 20 },   // 급식실: 운동장 서쪽 · 동측(운동장 쪽) 현관 — 예전 -39, 18.75
 };
 // 옛 자리 (걷어 낼 터)
-const OLD_ZONES = { aud: { cx: -25, cz: -48, W: 18, D: 26 }, recy: { cx: 84, cz: 15, W: 16, D: 11 }, astro: { cx: 84, cz: -34, W: 20, D: 16 }, hist: { cx: 84, cz: -11, W: 15.6, D: 10.6 }, pool: { cx: -41, cz: 41, W: 14, D: 20 } };
+const OLD_ZONES = { aud: { cx: -25, cz: -48, W: 18, D: 26 }, aud2: { cx: 38, cz: 24, W: 18, D: 26 }, cafe: { cx: -39, cz: 18.75, W: 18, D: 12.5 }, recy: { cx: 84, cz: 15, W: 16, D: 11 }, astro: { cx: 84, cz: -34, W: 20, D: 16 }, hist: { cx: 84, cz: -11, W: 15.6, D: 10.6 }, pool: { cx: -41, cz: 41, W: 14, D: 20 } };
 export const FACILITY_ZONES = ZONES;
 export const TWO_STORY = ['dorm', 'union', 'astro', 'hist'].map(k => ZONES[k]);
 export const inTwoStory = (x, z) => TWO_STORY.some(Z => Math.abs(x - Z.cx) < Z.W / 2 + .1 && Math.abs(z - Z.cz) < Z.D / 2 + .1);
@@ -740,7 +740,7 @@ function retexture(F, rules) {   // 실내 층(6 · 7)의 바닥/벽/천장 메�
 // ───────── 설치 ─────────
 export function installFacilityRebuild(ctx) {
   const { world, floors, scene } = ctx, t0 = performance.now();
-  const ids = ['dorm', 'union', 'aud', 'astro', 'hist'], zones = [...ids.map(k => ZONES[k]), ...['aud', 'recy', 'astro', 'hist'].map(k => OLD_ZONES[k])];
+  const ids = ['dorm', 'union', 'aud', 'astro', 'hist'], zones = [...ids.map(k => ZONES[k]), ...['aud', 'aud2', 'recy', 'astro', 'hist'].map(k => OLD_ZONES[k])];
   // 보존: 퀘스트 물건(메시 있는 것) · 사물함/숨는 곳 메시
   const protect = new Set(); const keep = o => { if (!o) return; o.traverse ? o.traverse(c => protect.add(c)) : protect.add(o); for (let a = o.parent; a; a = a.parent) protect.add(a); };
   // 조상까지 보호하면 그룹이 통째로 살아남으므로, 조상은 walk 단계에서만 통과시키고 메시는 개별 판정 → protect 에는 메시만
@@ -767,8 +767,10 @@ export function installFacilityRebuild(ctx) {
     (world.lockers || []).forEach(l => { if (l.floor === 0 && inZone(l, Z)) { l.x = B.wx(anchors.curtain[0]); l.z = B.wz(anchors.curtain[1]); l.y = 1.0; } }); }
   // 급식실 · 수영장: 외관 신축 + 실내 마감 재질 코드 (F-01/W-05/C-01 · F-04/W-05/C-03)
   const ext = [];
-  { const kill2 = demolishExterior(ctx, [ZONES.cafe, OLD_ZONES.pool, ZONES.pool]); ext.push(kill2); }
-  buildShellOnly(ctx, ZONES.cafe, 'cafe', '급 식 실', 'CAFETERIA · 배식 · 식사', 5.0);
+  { const kill2 = demolishExterior(ctx, [ZONES.cafe, OLD_ZONES.cafe, OLD_ZONES.pool, ZONES.pool]); ext.push(kill2); }
+  buildShellOnly(ctx, ZONES.cafe, 'cafe', '급 식 실', 'CAFETERIA · 배식 · 식사', 5.0, 'E');
+  { const Z = ZONES.cafe, ex = Z.cx + Z.W / 2;   // 급식실 이사: 바깥 출입문(들어가기) · 실내에서 나가기 도착점을 새 동측 현관으로
+    for (const d of world.doors || []) { if (d.floor === 0 && d.to && d.to.floor === 7) { d.x = ex + 1.4; d.z = Z.cz; } if (d.floor === 7 && d.to && d.to.floor === 0) d.to = { floor: 0, x: ex + 1.6, z: Z.cz, yaw: -Math.PI / 2 }; } }
   buildShellOnly(ctx, ZONES.pool, 'pool', '실내 수영장', 'INDOOR POOL · 학교 수영 교육', 6.4, 'E');
   const rt = retexture(floors[7], { F: 'F01', W: 'W05', C: 'C01' }) + retexture(floors[6], { F: 'F04', W: 'W05', C: 'C03' });
   window.__facilityRebuild = { removed: res.removed, ext, retextured: rt, ms: Math.round(performance.now() - t0) };
@@ -800,7 +802,7 @@ function demolishExterior(ctx, zones) {
   const walk = o => { if (inner.has(o) || o.isCamera || o.isSkinnedMesh || (o.userData && (o.userData.facNew || o.userData.facKeep))) return;
     if (o.isMesh && !o.isInstancedMesh) { bb.setFromObject(o); if (bb.isEmpty()) return; bb.getSize(sz); bb.getCenter(v);
       const Z = zones.find(Z => v.x > Z.cx - Z.W / 2 - .6 && v.x < Z.cx + Z.W / 2 + .6 && v.z > Z.cz - Z.D / 2 - .6 && v.z < Z.cz + Z.D / 2 + .6);
-      if (Z && sz.x < Z.W + 2 && sz.z < Z.D + 2 && bb.max.y > .3 && bb.min.y > -1 && bb.max.y < 12) kill.push(o); return; }
+      if (Z && sz.x < Z.W + 8 && sz.z < Z.D + 8 && bb.max.y > .3 && bb.min.y > -1 && bb.max.y < 12) kill.push(o); return; }   // 옛 외벽 통짜 메시는 구역보다 조금 크다(예: 급식실 18.8 × 18.9m) — 가운데가 구역 안이면 걷는다
     for (let i = o.children.length - 1; i >= 0; i--) walk(o.children[i]); };
   scene.children.forEach(walk); kill.forEach(o => { o.parent && o.parent.remove(o); n++; });
   return n;

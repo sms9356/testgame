@@ -29,7 +29,7 @@ test('옥상 남쪽과 확장 구역이 지도에 포함된다', () => {
   assert.ok(hasRect(record(3), -36.3, -9.9, 72.6, 19.8));
   const outside = record(0);
   assert.ok(hasRect(outside, -20, -32, 40, 11.5));
-  assert.ok(hasRect(outside, 29, 11, 18, 26));   // 대강당 (캠퍼스 재배치: 옛 체육관 자리)
+  assert.ok(hasRect(outside, -59, 29.8, 18, 24));   // 대강당 (운동장 서남쪽으로 이전)
   assert.ok(hasRect(outside, -5, -60, 16, 16));
   assert.ok(hasRect(outside, -1.6, -20.5, 5.2, 10.6));
   assert.ok(hasRect(record(4), 12, -34, 12, 20));

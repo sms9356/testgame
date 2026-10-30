@@ -41,7 +41,7 @@
   /* ===== 타이틀 ===== */
   #title{z-index:22;align-items:stretch;justify-content:flex-start;text-align:left;padding:0;background:#000;overflow:hidden}
   /* 타이틀 연출: 천천히 다가가는 배경 · 빗줄기 · 가끔 치는 번개 · 깜빡이며 떠오르는 로고 · 차례로 들어오는 메뉴 */
-  #title .tbg{position:absolute;inset:-4%;background:url(assets/ui/title_main.webp) 88% 50%/cover no-repeat;animation:tKen 38s ease-in-out infinite alternate;will-change:transform}
+  #title .tbg{position:absolute;inset:-4%;background:url(assets/ui/title_main.webp?v=295) 88% 50%/cover no-repeat;animation:tKen 38s ease-in-out infinite alternate;will-change:transform}
   #title .train{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:.22;background:repeating-linear-gradient(104deg,transparent 0 46px,rgba(200,215,230,.55) 46px 47px,transparent 47px 93px);background-size:240px 240px;animation:tRain .45s linear infinite}
   #title .tflash{position:absolute;inset:0;z-index:1;pointer-events:none;background:#cfd8ff;mix-blend-mode:overlay;opacity:0;animation:tFlash 11s 3s infinite}
   #title.show .logo{animation:tLogo 2.6s ease-out both}
@@ -413,7 +413,7 @@
   #introTitle{position:fixed;left:0;right:0;top:34%;z-index:24;text-align:center;pointer-events:none;opacity:0;transition:opacity 1.6s}
   #introTitle.show{opacity:1}
   #dead{background:linear-gradient(rgba(40,0,0,.72),rgba(0,0,0,.94)),url(assets/img/gate_night.webp) center/cover no-repeat}
-  #win{background:linear-gradient(rgba(0,0,0,.45),rgba(0,0,0,.9)),url(assets/ui/title_main.webp) 62% 50%/cover no-repeat}
+  #win{background:linear-gradient(rgba(0,0,0,.45),rgba(0,0,0,.9)),url(assets/ui/title_main.webp?v=295) 62% 50%/cover no-repeat}
   #endTag{font-size:12px;letter-spacing:.5em;padding:4px 14px;border:1px solid #c09a50;color:#e8c880;margin-bottom:12px}
   #endTag.normal{border-color:#6a7a8a;color:#a8b8c8}
   #outro{position:fixed;inset:0;z-index:60;background:#050505;display:none;align-items:center;justify-content:center;cursor:pointer}
@@ -673,7 +673,7 @@
 .pTabs{overflow-x:auto;flex-wrap:nowrap;scrollbar-width:thin}.pTabs button{flex:0 0 auto;min-width:44px;white-space:nowrap}
 .missionNav{display:flex;gap:8px;position:sticky;top:0;background:#151a1c;padding:6px;z-index:1}.missionNav button{flex:1;background:#26323b;color:#e0e4e7;border:1px solid #42515c;border-radius:6px;padding:7px;font:inherit;cursor:pointer}.missionNav button:hover,.missionNav button:focus-visible{background:#3b4c59;outline:1px solid #c4b883}.missionGroup{margin:0 0 20px;scroll-margin-top:64px}.missionGroup h3{color:#d0c59f;margin-bottom:5px}.missionGroup p{font-size:12px;color:#a7aea8}.missionDone{opacity:.6}
 </style>
-<link rel="stylesheet" href="uiV3.css?v=294">
+<link rel="stylesheet" href="uiV3.css?v=295">
 </head>
 <body>
 <canvas id="c"></canvas>
@@ -761,7 +761,9 @@
 <div id="loading" class="overlay show" style="z-index:40;background:#000"><h2 style="letter-spacing:.3em;color:#8d897d;font-size:18px">불러오는 중…</h2><p class="sub" id="loadMsg">학교 문을 여는 중</p></div>
 
 <!-- 타이틀 -->
-<div id="title" class="overlay show"><div class="tbg"></div><div class="train"></div><div class="tflash"></div><div class="col">
+<div id="title" class="overlay show"><div class="tbg"></div><div class="tQuote">그날 밤,
+학교는
+<b>거짓말을 했다</b></div><div class="train"></div><div class="tflash"></div><div class="col">
   <div><div class="logo">서문고</div></div>
   <div class="tagline">잊혀진 시간</div>
   <div class="en">THE ABANDONED SCHOOL</div>

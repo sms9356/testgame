@@ -76,7 +76,7 @@ export function taegukgiTexture() {
 export const ZONES = {
   dorm: { cx: -86, cz: -42, W: 22, D: 14 }, union: { cx: -88, cz: 42, W: 22, D: 14 }, aud: { cx: -50, cz: 41.8, W: 18, D: 24 },   // 운동장 서남쪽 (본관에서 운동장 전망이 트이게 — 예전 38, 24)
   astro: { cx: -88, cz: 14, W: 20, D: 16 }, hist: { cx: -88, cz: -16, W: 15.6, D: 10.6 },
-  cafe: { cx: -61, cz: 13, W: 12.5, D: 18 }, pool: { cx: 58, cz: 35, W: 14, D: 20 },   // 급식실: 운동장 서쪽 · 동측(운동장 쪽) 현관 — 예전 -39, 18.75
+  cafe: { cx: -61, cz: 13, W: 12.5, D: 18 }, pool: { cx: 58, cz: 35, W: 14, D: 20 }, gym: { cx: 84, cz: -39, W: 20, D: 22 },   // 체육관: 벽 없이 창틀 · 창만 떠 있던 옛 골조 → 새 외관 (실내는 5층 공간)   // 급식실: 운동장 서쪽 · 동측(운동장 쪽) 현관 — 예전 -39, 18.75
 };
 // 옛 자리 (걷어 낼 터)
 const OLD_ZONES = { aud: { cx: -25, cz: -48, W: 18, D: 26 }, aud2: { cx: 38, cz: 24, W: 18, D: 26 }, cafe: { cx: -39, cz: 18.75, W: 18, D: 12.5 }, recy: { cx: 84, cz: 15, W: 16, D: 11 }, astro: { cx: 84, cz: -34, W: 20, D: 16 }, hist: { cx: 84, cz: -11, W: 15.6, D: 10.6 }, pool: { cx: -41, cz: 41, W: 14, D: 20 } };
@@ -772,6 +772,7 @@ export function installFacilityRebuild(ctx) {
   { const Z = ZONES.cafe, ex = Z.cx + Z.W / 2;   // 급식실 이사: 바깥 출입문(들어가기) · 실내에서 나가기 도착점을 새 동측 현관으로
     for (const d of world.doors || []) { if (d.floor === 0 && d.to && d.to.floor === 7) { d.x = ex + 1.4; d.z = Z.cz; } if (d.floor === 7 && d.to && d.to.floor === 0) d.to = { floor: 0, x: ex + 1.6, z: Z.cz, yaw: -Math.PI / 2 }; } }
   buildShellOnly(ctx, ZONES.pool, 'pool', '실내 수영장', 'INDOOR POOL · 학교 수영 교육', 6.4, 'E');
+  buildShellOnly(ctx, ZONES.gym, 'gym', '체 육 관', 'GYMNASIUM · 실내 체육관', 9.0, 'S');
   const rt = retexture(floors[7], { F: 'F01', W: 'W05', C: 'C01' }) + retexture(floors[6], { F: 'F04', W: 'W05', C: 'C03' });
   window.__facilityRebuild = { removed: res.removed, ext, retextured: rt, ms: Math.round(performance.now() - t0) };
   // 나중에 불러오는 모델(GLB)이 옛 터에 다시 나타나면 걷어 낸다

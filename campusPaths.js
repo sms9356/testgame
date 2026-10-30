@@ -4,7 +4,7 @@ import { FAC_MOVES } from './campusRelayout.js?v=306';
 // 건물 바닥 사각형을 빼고, 새 현관마다 진입로를 이어 한 장의 겹침 없는 인도로 다시 깐다 (경계엔 연석).
 import * as THREE from './vendor/three.module.js';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { ZONES } from './facilityRebuild.js?v=306';
+import { ZONES } from './facilityRebuild.js?v=320';
 
 const CELL = .2, X0 = -130, X1 = 130, Z0 = -100, Z1 = 90;
 // 캠퍼스 재배치 후 새 인도망 (폭 2.8m 안팎): 예전 보도는 모두 걷고 동선대로 다시 깐다 — 대로 4줄 + 안쪽 종단로 + 각 건물 현관 진입로
@@ -14,9 +14,9 @@ const CELL = .2, X0 = -130, X1 = 130, Z0 = -100, Z1 = 90;
 const NET = [
   // ① 정문 축
   [-5.0, 4.4, 59.4, 69.6],                 // 정문 앞마당 (경비실 서쪽 · 정문 기둥 사이)
-  [-19.4, 30.0, 56.0, 59.4],               // 운동장 남쪽 산책로 (관람 벤치 뒤 · 운동장 가장자리)
-  [-27.2, -19.4, 53.4, 56.0],              // 남서 모서리 연결 (야외 운동기구 모래밭 피함)
-  [-29.6, -27.2, 10.5, 56.0], [27.4, 30.0, 10.5, 59.4],   // 운동장 서 · 동 산책로
+  [-19.4, 30.0, 58.9, 62.0],               // 운동장 남쪽 산책로 (운동장 잔디 끝 ~ 정자 · 기념석 앞)
+  [-32.2, -19.4, 60.5, 62.0], [-32.2, -29.6, 56.0, 62.0],   // 남서 연결 (야외 운동기구 모래밭 남쪽으로 돌아 서쪽 산책로와 이음)
+  [-29.6, -27.2, 10.5, 56.0], [27.4, 30.0, 10.5, 62.0],   // 운동장 서 · 동 산책로
   [-54.75, 50.0, 10.5, 13.6],              // 본관 앞 광장 (정문 현관 · 급식실 현관까지)
   // ② 본관 ↔ 별관
   [-69.4, 69.3, -15.9, -13.5],             // 중앙 횡단로: 별관 남쪽 벽을 따라 서편 대로 ↔ 동편 대로 (별관 현관 · 비상구 2곳)
@@ -125,6 +125,9 @@ export function cleanupCampus({ scene, floors }) {
       const L = LEFTOVER.find(r => c.x > r[0] && c.x < r[1] && c.z > r[2] && c.z < r[3] && bb.max.y < r[4] && bb.min.y > -.5); if (L) { o.visible = false; hid++; } return; }
     o.children.forEach(walk); };
   scene.children.forEach(walk);
+  // 옛 체육관 골조(창틀 · 창 · 띠 — 벽 없이 떠 있던 것): 새 외관(FAC_gym)을 지었으니 걷는다
+  scene.traverse(o => { if (!o.isMesh || !o.visible) return; let rel = false, fac = false; for (let a = o; a; a = a.parent) { if (a.userData && a.userData.relaid) rel = true; if (/^FAC_/.test(a.name || '')) fac = true; } if (!rel || fac) return;
+    bb.setFromObject(o); if (bb.isEmpty() || bb.max.y < .3) return; bb.getCenter(c); if (c.x > 73.4 && c.x < 94.6 && c.z > -50.6 && c.z < -27.4) { o.visible = false; hid++; } });
   hid += carveFloating(scene);
   { const OUT = window.__g && window.__g.world && window.__g.world.OUT; if (OUT && OUT.userData.pave) hid += carveOldWalks(scene, OUT.userData.pave, OUT.userData.curbMat); }
   // 옮긴 시설(역사관 · 천문관 · 대강당 · 수영장)의 옛 자리에 남은 통째 충돌 상자: 빈 땅인데 건물처럼 막혀 있었다
@@ -134,7 +137,8 @@ export function cleanupCampus({ scene, floors }) {
   return { hid, inst };
 }
 // 건물 이동 뒤 남은 굳힌(bake) 잔재 삼각형: 운동장 서쪽 6.5m 높이 녹슨 막대 · 받침 없이 떠 있는 옛 차양 판 · 마당의 옛 경계석 띠
-const FLOAT_BOXES = [[-49.5, -47, 5.5, 8.5, 15, 62], [-62, -30, 4.5, 9, 27, 62], [-34.6, -32.2, -.1, 3.6, 38.8, 43.3],
+const FLOAT_BOXES = [[-48.8, -29.6, .05, .62, 24.5, 25.7],   // 옛 급식실 터 남쪽 기초 띠 (높이 0.4m 회색 줄)
+  [-49.5, -47, 5.5, 8.5, 15, 62], [-62, -30, 4.5, 9, 27, 62], [-34.6, -32.2, -.1, 3.6, 38.8, 43.3],
   [-37, 37, -.3, .6, -32.2, -4.2]];   // 본관 ↔ 별관 사이 마당: 예전 건물 경계석 · 바닥 띠(흰 줄 · 붉은 줄)가 잔디 위로 비쳤다
 const CARVED = new WeakSet();
 function carveFloating(scene) {

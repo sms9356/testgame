@@ -2,7 +2,7 @@
 //   ── 인도 사각형(window.__pathNET)과 건물 · 시설 금지 구역(window.__pathKEEP + 건물 바닥)을 보고 잔디 쪽 가장자리에만 놓는다
 //   ── 같은 모양은 InstancedMesh 한 벌로 (그리기 호출 최소) · 충돌 상자는 바깥 0층 col 에 추가 · 문 · 현관 앞 3m 는 비운다
 import * as THREE from './vendor/three.module.js';
-import { ZONES as FZ } from './facilityRebuild.js?v=306';
+import { ZONES as FZ } from './facilityRebuild.js?v=320';
 
 const S = (c, r = .6, m = 0, e) => new THREE.MeshStandardMaterial({ color: c, roughness: r, metalness: m, ...(e || {}) });
 function signTex(lines, bg = '#1e3a2e', fg = '#f2efe4', w = 512, h = 384, title) {
@@ -69,7 +69,7 @@ export function installStreetscape({ scene, world, floors, footprints = [] }) {
         put('seat', geo.seat, mWood, x, 0, z, ry); put('back', geo.back, mWood, x, 0, z, ry);
         [-.72, .72].forEach(o => { const lx = x + Math.cos(ry) * o, lz = z - Math.sin(ry) * o; put('legs', geo.legs, mSteel, lx, .22, lz, ry); });
         const bw = alongX ? [.9, .25] : [.25, .9]; col(x - bw[0], x + bw[0], z - bw[1], z + bw[1], .8); take(x, z, 1.1); benches++;
-        const bx = x + Math.cos(ry) * 1.25, bz = z - Math.sin(ry) * 1.25; if (free(bx, bz, .3)) { put('bin', geo.bin, mBin, bx, 0, bz); put('lid', geo.lid, mBinLid, bx, 0, bz); col(bx - .25, bx + .25, bz - .25, bz + .25, .9); take(bx, bz, .4); bins++; }
+        const bx = x + Math.cos(ry) * 1.55, bz = z - Math.sin(ry) * 1.55; if (free(bx, bz, .3)) { put('bin', geo.bin, mBin, bx, 0, bz); put('lid', geo.lid, mBinLid, bx, 0, bz); col(bx - .25, bx + .25, bz - .25, bz + .25, .9); take(bx, bz, .4); bins++; }
         break; } }
     // 맨홀 · 배수구 (보도 위, 걸려 넘어지지 않게 납작): 맨홀 30m · 배수구 18m
     for (let s = 9; s < L - 2; s += 30) { const x = alongX ? x1 + s : (x1 + x2) / 2, z = alongX ? (z1 + z2) / 2 : z1 + s; put('man', geo.man, mIron, x, 0, z); mans++; }

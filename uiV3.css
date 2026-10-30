@@ -1,0 +1,69 @@
+/* UI v3 — 「사건 파일」 디자인 (설정 변경: 1998.10.12 은폐 사건 조사물)
+   · 겹치던 HUD 정리: 목표 패널 ↔ 상단 나침반, 미니맵 ↔ 시계/플레이 시간, 도움말 ↔ 캐릭터 패널
+   · 색 체계: 짙은 청회색 패널 + 서류 호박색(강조) + 기록 빨강(경고) · 얇은 서류 테두리
+   · 기능 · ID · 동작은 그대로, 보이는 모양만 바꾼다 */
+:root{--v3-ink:#e9e3d4;--v3-dim:#9aa3a8;--v3-amber:#e2b35a;--v3-red:#c8463c;--v3-line:rgba(226,179,90,.28);--v3-panel:linear-gradient(168deg,rgba(22,26,31,.86),rgba(8,10,12,.92))}
+
+/* ── 공통 패널: 서류철 느낌의 이중 테두리 + 모서리 표시 ── */
+html body #hud .panel,html body #who,html body #objP,html body #devs .dv,html body #tip{background:var(--v3-panel)!important;border:1px solid rgba(255,255,255,.06)!important;border-radius:6px!important;box-shadow:0 10px 28px rgba(0,0,0,.5),inset 0 0 0 1px rgba(226,179,90,.06)!important}
+html body #objP{border-left:3px solid var(--v3-amber)!important}
+html body #who{border-left:3px solid var(--v3-red)!important}
+
+/* ── 겹침 수정 1: 목표 패널은 상단 나침반 왼쪽 끝 앞에서 멈춘다 ── */
+html body #objP.compact{max-width:calc(50vw - 300px)!important;min-width:260px}
+html body #objP.compact #objMini{text-overflow:ellipsis}
+html body #objMini b,html body #objMini span{overflow:hidden;text-overflow:ellipsis}
+@media (max-width:1180px){html body #hudTopBar{top:58px!important}}
+
+/* ── 상단 나침반 · 날짜 바: 가운데 고정 · 같은 패널 말씨 ── */
+html body #hudTopBar{left:50%!important;transform:translateX(-50%);border-radius:6px!important;background:var(--v3-panel)!important;border:1px solid var(--v3-line)!important;box-shadow:0 8px 22px rgba(0,0,0,.45)!important}
+html body #compDeg{color:var(--v3-amber)!important}
+
+/* ── 겹침 수정 2: 미니맵 위에 얹혀 있던 시계 · 플레이 시간을 지도 아래 한 줄로 ── */
+html body #mini{border-radius:50%;box-shadow:0 0 0 1px rgba(226,179,90,.35),0 0 0 5px rgba(8,10,12,.7),0 10px 26px rgba(0,0,0,.55)!important}
+html body #miniMap{border:1px solid rgba(226,179,90,.45)!important}
+html body #clock{left:auto!important;right:0!important;top:auto!important;bottom:-30px!important;border-radius:4px;background:rgba(8,10,12,.85)!important;border:1px solid var(--v3-line)!important;color:var(--v3-ink)!important;letter-spacing:.06em}
+html body #ptime{left:0!important;bottom:-30px!important;border-radius:4px;background:rgba(8,10,12,.85)!important;border:1px solid var(--v3-line)!important;color:var(--v3-dim)!important}
+html body #floor{border-radius:4px;background:rgba(8,10,12,.9)!important;border:1px solid var(--v3-amber)!important;color:var(--v3-amber)!important;font-weight:700}
+html body #rbtns{top:212px!important}
+html body #testBadge{right:200px!important;border-radius:4px}
+
+/* ── 겹침 수정 3: 도움말은 캐릭터 패널 위로 ── */
+html body #tip{bottom:150px!important;border-left:3px solid #8cc0e8!important}
+
+/* ── 캐릭터 패널 · 게이지 ── */
+html body #who .nm{letter-spacing:.04em}
+html body #who .bar{height:5px!important;border-radius:3px!important;background:rgba(255,255,255,.06)!important}
+html body #fearBar{background:linear-gradient(90deg,#b8742a,#f0b450)!important}   /* 긴장: 보라(초자연) → 호박색 */
+
+/* ── 퀵슬롯: 번호 배지 · 선택 강조 ── */
+html body #slots .slot{border-radius:6px!important;border:1px solid rgba(255,255,255,.08)!important;background:var(--v3-panel)!important}
+html body #slots .slot small{top:3px;left:5px;color:var(--v3-amber);font-weight:700}
+html body #slots .slot.on,html body #slots .slot.sel{border-color:var(--v3-amber)!important;box-shadow:0 0 0 1px rgba(226,179,90,.4),0 0 18px rgba(226,179,90,.18)!important}
+
+/* ── 상호작용 안내 ── */
+html body #prompt{border:1px solid rgba(226,179,90,.45)!important;box-shadow:0 0 0 4px rgba(0,0,0,.35),0 0 24px rgba(226,179,90,.14)!important;letter-spacing:.04em}
+html body #prompt kbd{background:var(--v3-amber)!important}
+
+/* ── 알림(토스트): 서류 메모 ── */
+html body #toasts>*{border-radius:4px!important;border-left:3px solid var(--v3-amber)!important;background:linear-gradient(168deg,rgba(26,28,30,.94),rgba(10,11,12,.96))!important}
+
+/* ── 일시정지: 사건 파일 표지 ── */
+html body #pause{background:radial-gradient(ellipse at 50% 40%,rgba(18,20,22,.72),rgba(0,0,0,.92))!important}
+html body #pause h2{font-family:'Noto Serif KR',serif;letter-spacing:.3em;font-weight:700;position:relative}
+html body #pause h2::after{content:'CASE 1998-1012 · 서문고 사건 기록';display:block;margin-top:10px;font:600 11px/1 'Noto Sans KR',sans-serif;letter-spacing:.35em;color:var(--v3-amber);opacity:.85}
+html body #pause .menuBtns{position:relative;padding:22px 26px 18px;background:linear-gradient(170deg,rgba(30,27,22,.8),rgba(12,11,9,.9));border:1px solid var(--v3-line);border-radius:4px;box-shadow:0 20px 60px rgba(0,0,0,.6),inset 0 0 0 4px rgba(0,0,0,.25)}
+html body #pause .menuBtns::before{content:'대외비';position:absolute;right:-14px;top:-16px;transform:rotate(8deg);padding:3px 10px;border:2px solid var(--v3-red);color:var(--v3-red);font:800 13px/1.2 'Noto Sans KR',sans-serif;letter-spacing:.3em;background:rgba(10,8,8,.6);opacity:.85}
+html body #pause .menuBtns .btn{border-radius:3px!important;border:1px solid rgba(226,179,90,.18)!important;background:linear-gradient(180deg,rgba(40,36,30,.65),rgba(18,16,14,.75))!important;transition:border-color .2s,background .2s,transform .15s}
+html body #pause .menuBtns .btn:hover,html body #pause .menuBtns .btn:focus-visible{border-color:var(--v3-amber)!important;background:linear-gradient(180deg,rgba(70,56,32,.7),rgba(30,24,16,.8))!important;transform:translateX(3px)}
+html body #pause #resumeBtn{border-color:rgba(226,179,90,.55)!important;color:#fff3d6}
+
+/* ── 큰 창(소지품 · 지도 · 설정 · 퀘스트): 같은 서류 테두리 ── */
+html body .overlay>.win{border-radius:6px!important;border:1px solid var(--v3-line)!important;box-shadow:0 24px 70px rgba(0,0,0,.65),inset 0 0 0 1px rgba(0,0,0,.4)!important}
+html body .overlay>.win .head b{letter-spacing:.2em}
+
+/* ── 쪽지 · 문서 창 ── */
+html body #noteBox #note{filter:drop-shadow(0 18px 40px rgba(0,0,0,.6))}
+
+/* 접근성: 움직임 줄이기 */
+@media (prefers-reduced-motion:reduce){html body #pause .menuBtns .btn{transition:none}}

@@ -72,3 +72,28 @@ html body #noteBox #note{filter:drop-shadow(0 18px 40px rgba(0,0,0,.6))}
 html body #title .tQuote{position:absolute;right:5.5vw;top:12vh;z-index:2;white-space:pre-line;text-align:left;font-family:'East Sea Dokdo','Noto Serif KR',serif;font-size:clamp(28px,3.4vw,52px);line-height:1.25;color:#efe6d2;letter-spacing:.06em;text-shadow:0 0 18px rgba(0,0,0,.9),0 2px 4px rgba(0,0,0,.8);opacity:.92;pointer-events:none}
 html body #title .tQuote b{color:#e2b35a;font-weight:400}
 @media (max-width:900px){html body #title .tQuote{display:none}}
+
+/* ── 로딩 v2: 사건 기록 페이지 + 일러스트 ── */
+html body #loading{flex-direction:column;justify-content:center;align-items:center;gap:22px;background:radial-gradient(ellipse at 50% 40%,#12161a,#000 75%)!important}
+#loading .ldWrap{display:flex;gap:0;width:min(1060px,90vw);height:min(460px,56vh);border:1px solid rgba(226,179,90,.28);border-radius:6px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.7);background:#0b0d0f}
+#loading .ldArt{position:relative;flex:1.15;overflow:hidden;background:#000}
+#loading .ldArt img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transform:scale(1.04);transition:opacity 1.2s ease,transform 9s linear;filter:saturate(.9) contrast(1.05)}
+#loading .ldArt img.on{opacity:1;transform:scale(1.12)}
+#loading .ldVig{position:absolute;inset:0;background:linear-gradient(90deg,transparent 60%,#0b0d0f),radial-gradient(ellipse at 40% 50%,transparent 55%,rgba(0,0,0,.55));pointer-events:none}
+#loading .ldPage{position:relative;flex:1;padding:30px 34px;text-align:left;background:linear-gradient(170deg,#1c1a16,#100f0d);color:#e9e3d4;display:flex;flex-direction:column}
+#loading .ldPage::before{content:'';position:absolute;inset:12px;border:1px solid rgba(226,179,90,.14);pointer-events:none}
+#loading .ldHead{display:flex;justify-content:space-between;font:600 11px/1 'Noto Sans KR',sans-serif;letter-spacing:.28em;color:#e2b35a;padding-bottom:12px;border-bottom:1px solid rgba(226,179,90,.25);margin-bottom:22px}
+#loading .ldDate{font-size:12px;letter-spacing:.2em;color:#9aa3a8;margin-bottom:8px}
+#loading .ldPage h3{font-family:'Noto Serif KR',serif;font-size:clamp(18px,2vw,24px);line-height:1.4;margin:0 0 16px;color:#f2ead8}
+#loading .ldPage p{font-family:'Noto Serif KR',serif;font-size:clamp(14px,1.3vw,16px);line-height:1.9;color:#cfc6b2;margin:0}
+#loading .ldPage.in h3,#loading .ldPage.in p,#loading .ldPage.in .ldDate{animation:ldIn .9s ease both}
+#loading .ldPage.in p{animation-delay:.15s}
+@keyframes ldIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+#loading .ldStamp{margin-top:auto;align-self:flex-end;transform:rotate(-6deg);padding:4px 12px;border:2px solid #c8463c;color:#c8463c;font:800 13px/1.2 'Noto Sans KR',sans-serif;letter-spacing:.35em;opacity:.8}
+#loading .ldFoot{width:min(1060px,90vw);text-align:center}
+#loading .ldFoot h2{margin:14px 0 4px}
+#loading .ldBar{height:3px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden}
+#loading .ldBar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#8a6a30,#e2b35a);box-shadow:0 0 12px rgba(226,179,90,.5);transition:width .3s}
+#loading .ldHint{margin-top:10px;font-size:11px;letter-spacing:.2em;color:#5d6366}
+@media (max-width:760px){#loading .ldWrap{flex-direction:column;height:auto}#loading .ldArt{height:34vh;flex:none}}
+@media (prefers-reduced-motion:reduce){#loading .ldArt img{transition:opacity .3s}#loading .ldArt img.on{transform:none}}

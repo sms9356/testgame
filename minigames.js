@@ -1,5 +1,5 @@
-// 미니게임: 자물쇠 따기 · 다이얼 자물쇠 · 배선 퍼즐 · 피아노 · 슬라이딩 퍼즐 · 갈고리 낚기 · 녹음 순서 · 짝 맞추기 · 주파수 · 순서 따라 하기 · 타이밍 · 분신사바
-//          + 증기 배관(압력) · 어둠 속 미로(그것 추격) · 맞물린 고리 암호 · 틀린 그림 찾기 · 퓨즈판
+// 미니게임: 자물쇠 따기 · 다이얼 자물쇠 · 배선 퍼즐 · 피아노 · 슬라이딩 퍼즐 · 갈고리 낚기 · 녹음 순서 · 짝 맞추기 · 주파수 · 순서 따라 하기 · 타이밍 · 테이프 판독
+//          + 증기 배관(압력) · 어둠 속 미로(경비원 순찰) · 맞물린 고리 암호 · 틀린 그림 찾기 · 퓨즈판
 // run(kind, opts) → Promise<{ ok }>. 열려 있는 동안 MG.active 가 true 이고, 키 입력은 여기서 처리한다.
 import { sfx } from './audio.js?v=140';
 
@@ -544,7 +544,7 @@ function simon({ title = '순서 따라 하기', pads = ['도', '레', '미', '�
 }
 
 /* ---------- 11. 타이밍 (게이지) ---------- */
-// 왕복하는 바늘이 초록 구간에 들어왔을 때 Space / 클릭. need 번 성공하면 끝 (농구 슛 · 비커 눈금 · 부적 붙이기 등)
+// 왕복하는 바늘이 초록 구간에 들어왔을 때 Space / 클릭. need 번 성공하면 끝 (농구 슛 · 비커 눈금 · 증거 스티커 붙이기 등)
 function timing({ title = '타이밍', hint = '바늘이 <b style="color:#60e0a0">초록 구간</b>에 들어왔을 때 <b>Space / 클릭</b>', need = 3, tries = 5, icon = '', okText = '성공!', missText = '빗나갔다…' }) {
   const p = open(title, hint + ` — <b>${tries}</b>번 중 <b>${need}</b>번`);
   const c = canvas(440, 140), g = c.getContext('2d');
@@ -575,10 +575,10 @@ function timing({ title = '타이밍', hint = '바늘이 <b style="color:#60e0a0
   return p;
 }
 
-/* ---------- 12. 분신사바 (위저 보드) ---------- */
-// 질문을 고르면 말판이 저절로 움직여 글자를 짚는다. 플레이어는 손을 떼지 않게 Space 를 계속 누르고 있어야 한다 (떼면 실패)
-function ouija({ title = '분신사바', qs = [] }) {
-  const p = open(title, '질문을 고른 뒤, 말판이 대답을 마칠 때까지 <b>Space / 마우스 버튼</b>을 계속 누르고 있어라 — 손을 떼면 안 된다');
+/* ---------- 12. 테이프 판독 (자모 판독기) ---------- */
+// 질문을 고르면 판독 커서가 손상된 녹음에서 자모를 하나씩 짚는다. 플레이어는 손을 떼지 않게 Space 를 계속 누르고 있어야 한다 (떼면 실패)
+function ouija({ title = '테이프 판독', qs = [] }) {
+  const p = open(title, '질문을 고른 뒤, 판독이 끝날 때까지 <b>Space / 마우스 버튼</b>으로 재생 버튼을 계속 누르고 있어라 — 떼면 테이프가 씹힌다');
   const c = canvas(440, 220), g = c.getContext('2d');
   const L = 'ㄱㄴㄷㄹㅁㅂㅅㅇㅈㅊㅋㅌㅍㅎ'.split('').concat(['예', '아니오']);
   const pos = L.map((ch, i) => i < 14 ? { ch, x: 40 + (i % 7) * 60, y: 70 + ((i / 7) | 0) * 56 } : { ch, x: i === 14 ? 70 : 370, y: 26 });
@@ -588,20 +588,20 @@ function ouija({ title = '분신사바', qs = [] }) {
   const down = () => { hold = true; }, up = () => { hold = false; };
   c.addEventListener('mousedown', down); addEventListener('mouseup', up); cleanups.push(() => removeEventListener('mouseup', up));
   keys(e => { if (e.code === 'Space') hold = e.type === 'keydown'; });
-  qbox.querySelectorAll('button').forEach(b => { b.onclick = () => { if (ans) return; ans = qs[+b.dataset.i]; qbox.innerHTML = `<div class="mgInfo">“${ans.q}”</div>`; sfx.whisper && sfx.whisper(); started = true; }; });
+  qbox.querySelectorAll('button').forEach(b => { b.onclick = () => { if (ans) return; ans = qs[+b.dataset.i]; qbox.innerHTML = `<div class="mgInfo">“${ans.q}”</div>`; sfx.click && sfx.click(); started = true; }; });
   const loop = now => {
     const dt = Math.min(.12, (now - lastT) / 1000); lastT = now; t += dt;
-    g.fillStyle = '#20160e'; g.fillRect(0, 0, 440, 220); g.strokeStyle = '#6a5038'; g.strokeRect(6, 6, 428, 208);
-    g.font = '20px serif'; g.textAlign = 'center'; g.fillStyle = '#d8c8a0'; pos.forEach(o => g.fillText(o.ch, o.x, o.y + 7));
+    g.fillStyle = '#10161a'; g.fillRect(0, 0, 440, 220); g.strokeStyle = '#3a4c58'; g.strokeRect(6, 6, 428, 208);   // 판독기 LCD 패널
+    g.fillStyle = 'rgba(120,220,150,.06)'; for (let yy = 10; yy < 214; yy += 4) g.fillRect(8, yy, 424, 1);
+    g.font = '18px monospace'; g.textAlign = 'center'; g.fillStyle = '#8fe0a8'; pos.forEach(o => g.fillText(o.ch, o.x, o.y + 7));
     if (started && ans) {
-      if (!hold) { lost += dt; if (lost > .6) { status('손을 뗐다 — 말판이 바닥으로 떨어졌다', 'err'); sfx.ghostLaugh ? sfx.ghostLaugh() : sfx.buzz(); started = false; setTimeout(() => close(false), 700); } }
+      if (!hold) { lost += dt; if (lost > .6) { status('버튼을 뗐다 — 테이프가 늘어나 끊겼다', 'err'); sfx.buzz(); started = false; setTimeout(() => close(false), 700); } }
       else lost = 0;
       const seq = ans.a, tgt = pos.find(o => o.ch === seq[k]) || pos[0];
       px += (tgt.x - px) * Math.min(1, dt * 2.2) + Math.sin(t * 9) * .6; py += (tgt.y - py) * Math.min(1, dt * 2.2) + Math.cos(t * 7) * .6;
       if (Math.hypot(tgt.x - px, tgt.y - py) < 3) { shown += seq[k] === '예' || seq[k] === '아니오' ? `[${seq[k]}] ` : seq[k]; k++; sfx.knock ? sfx.knock() : sfx.click(); if (k >= seq.length) { started = false; status(`…${ans.r || shown}`, 'ok'); setTimeout(() => close(true), 1400); } }
     }
-    g.strokeStyle = 'rgba(240,220,170,.9)'; g.lineWidth = 3; g.beginPath(); g.moveTo(px, py - 26); g.lineTo(px - 20, py + 14); g.lineTo(px + 20, py + 14); g.closePath(); g.stroke();
-    g.beginPath(); g.arc(px, py, 8, 0, 7); g.stroke(); g.lineWidth = 1;
+    g.strokeStyle = 'rgba(255,190,90,.95)'; g.lineWidth = 2; g.strokeRect(px - 16, py - 16, 32, 32); g.beginPath(); g.moveTo(px, 10); g.lineTo(px, 212); g.stroke(); g.lineWidth = 1;   // 판독 커서 (재생 헤드)
     g.fillStyle = '#e8c870'; g.font = '15px sans-serif'; g.fillText(shown, 220, 205); g.textAlign = 'left';
     if (started && !hold) { g.fillStyle = 'rgba(200,60,40,.35)'; g.fillRect(0, 0, 440, 220); }
     raf = requestAnimationFrame(loop);
@@ -671,10 +671,10 @@ function pipes({ title = '증기 배관 — 압력을 빼라', time = 70 } = {})
 }
 
 /* ---------- 14. 어둠 속 더듬기 (손전등 미로) ---------- */
-// 위에서 본 어두운 미로: 손전등 반경만 보인다. 열쇠(또는 찾는 물건)를 주워 출구로. 그것이 돌아다니다가 빛 안에 들어온 플레이어를 쫓는다
+// 위에서 본 어두운 미로: 손전등 반경만 보인다. 물건을 주워 출구로. 야간 경비원이 순찰하다가 빛 안에 들어온 플레이어를 쫓는다
 function maze({ title = '어둠 속 — 선반 사이를 더듬어라', item = '물건', W = [11, 13, 15][(Math.random() * 3) | 0], H = [9, 11][(Math.random() * 2) | 0] } = {}) {
   const S = 34;
-  const p = open(title, `<b>WASD / 방향키</b>로 이동 · <b>Shift</b> 손전등 끄기(숨기) — 불을 끄면 그것이 놓친다<br><b style="color:#ffd070">${item}</b>을 주워 <b style="color:#80ffb0">출구</b>로. 그것에 닿으면 실패`);
+  const p = open(title, `<b>WASD / 방향키</b>로 이동 · <b>Shift</b> 손전등 끄기(숨기) — 불을 끄면 야간 경비원이 놓친다<br><b style="color:#ffd070">${item}</b>을 주워 <b style="color:#80ffb0">출구</b>로. 경비원에게 들키면 실패`);
   const c = canvas(W * S, H * S), g = c.getContext('2d');
   // 미로 생성 (DFS) + 고리 몇 개
   const wall = Array.from({ length: H }, () => Array(W).fill(1)), carve = (x, y) => { wall[y][x] = 0; [[2, 0], [-2, 0], [0, 2], [0, -2]].sort(() => Math.random() - .5).forEach(([dx, dy]) => { const nx = x + dx, ny = y + dy; if (nx > 0 && ny > 0 && nx < W - 1 && ny < H - 1 && wall[ny][nx]) { wall[y + dy / 2][x + dx / 2] = 0; carve(nx, ny); } }); };
@@ -703,19 +703,19 @@ function maze({ title = '어둠 속 — 선반 사이를 더듬어라', item = '
       if (sees) { gh.chase = 2.5; gh.tx = pl.x; gh.ty = pl.y; } else gh.chase -= dt;
       if (gh.chase <= 0 && (Math.hypot(gh.tx - gh.x, gh.ty - gh.y) < .3 || !gh.tx)) { const f2 = free[(Math.random() * free.length) | 0]; gh.tx = f2[0] + .5; gh.ty = f2[1] + .5; }
       const d = Math.hypot(gh.tx - gh.x, gh.ty - gh.y) || 1, gs = gh.wake > 0 ? 0 : (gh.chase > 0 ? 2.15 : 1.2) * dt; move(gh, (gh.tx - gh.x) / d * gs, (gh.ty - gh.y) / d * gs, .25);
-      if (Math.hypot(pl.x - gh.x, pl.y - gh.y) < .55) { dead = true; sfx.stinger ? sfx.stinger(.6) : sfx.buzz(); status('그것에게 붙잡혔다…', 'err'); setTimeout(() => finish && close(false), 800); }
+      if (Math.hypot(pl.x - gh.x, pl.y - gh.y) < .55) { dead = true; sfx.stinger ? sfx.stinger(.6) : sfx.buzz(); status('야간 경비원에게 들켰다…', 'err'); setTimeout(() => finish && close(false), 800); }
       if (Math.random() < dt * .6) sfx.step ? sfx.step() : 0;
     }
     g.fillStyle = '#000'; g.fillRect(0, 0, c.width, c.height);
     for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) { g.fillStyle = wall[y][x] ? '#2a2620' : '#11100e'; g.fillRect(x * S, y * S, S, S); if (wall[y][x]) { g.fillStyle = '#3a342a'; g.fillRect(x * S + 3, y * S + 3, S - 6, 4); } }
     if (!has) { g.font = '20px sans-serif'; g.textAlign = 'center'; g.fillText('🗝', key[0] * S + S / 2, key[1] * S + S / 2 + 7); }
     g.fillStyle = has ? '#60ffa0' : '#2a5a3a'; g.fillRect(exit[0] * S + 6, exit[1] * S + 6, S - 12, S - 12);
-    g.fillStyle = '#e8e4e0'; g.beginPath(); g.ellipse(gh.x * S, gh.y * S, 9, 12, 0, 0, 7); g.fill(); g.fillStyle = '#000'; g.fillRect(gh.x * S - 5, gh.y * S - 4, 3, 4); g.fillRect(gh.x * S + 2, gh.y * S - 4, 3, 4);
+    { const ga = Math.atan2(gh.ty - gh.y, gh.tx - gh.x) || 0; g.fillStyle = 'rgba(255,240,180,.16)'; g.beginPath(); g.moveTo(gh.x * S, gh.y * S); g.arc(gh.x * S, gh.y * S, S * 2.2, ga - .45, ga + .45); g.closePath(); g.fill(); g.fillStyle = '#2c3e66'; g.beginPath(); g.arc(gh.x * S, gh.y * S, 9, 0, 7); g.fill(); g.fillStyle = '#d8c070'; g.fillRect(gh.x * S - 3, gh.y * S - 9, 6, 3); }
     g.fillStyle = '#ffd070'; g.beginPath(); g.arc(pl.x * S, pl.y * S, 8, 0, 7); g.fill();
     // 어둠: 손전등 반경 밖은 가린다
     const r = dark ? S * .9 : S * 2.6, gr = g.createRadialGradient(pl.x * S, pl.y * S, r * .35, pl.x * S, pl.y * S, r);
     gr.addColorStop(0, 'rgba(0,0,0,0)'); gr.addColorStop(1, 'rgba(0,0,0,.985)'); g.fillStyle = gr; g.fillRect(0, 0, c.width, c.height);
-    const near = Math.hypot(pl.x - gh.x, pl.y - gh.y); if (near < 3.5) { g.fillStyle = `rgba(140,0,0,${(3.5 - near) / 3.5 * .25})`; g.fillRect(0, 0, c.width, c.height); }
+    const near = Math.hypot(pl.x - gh.x, pl.y - gh.y); if (near < 3.5) { g.fillStyle = `rgba(150,110,0,${(3.5 - near) / 3.5 * .25})`; g.fillRect(0, 0, c.width, c.height); }
     raf = requestAnimationFrame(loop);
   };
   raf = requestAnimationFrame(loop);

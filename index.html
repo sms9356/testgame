@@ -412,7 +412,7 @@
   #intro small{position:absolute;bottom:22px;color:#5a574e;font-size:12px;letter-spacing:.2em}
   #introTitle{position:fixed;left:0;right:0;top:34%;z-index:24;text-align:center;pointer-events:none;opacity:0;transition:opacity 1.6s}
   #introTitle.show{opacity:1}
-  #dead{background:linear-gradient(rgba(40,0,0,.72),rgba(0,0,0,.94)),url(assets/img/ghost_cut.webp) center/cover no-repeat}
+  #dead{background:linear-gradient(rgba(40,0,0,.72),rgba(0,0,0,.94)),url(assets/img/gate_night.webp) center/cover no-repeat}
   #win{background:linear-gradient(rgba(0,0,0,.45),rgba(0,0,0,.9)),url(assets/ui/title_main.webp) 62% 50%/cover no-repeat}
   #endTag{font-size:12px;letter-spacing:.5em;padding:4px 14px;border:1px solid #c09a50;color:#e8c880;margin-bottom:12px}
   #endTag.normal{border-color:#6a7a8a;color:#a8b8c8}
@@ -461,7 +461,7 @@
   #choiceBtns button:hover,#choiceBtns button:focus{border-color:#c8a060;background:rgba(40,34,24,.95)}
   #memTint{position:fixed;inset:0;z-index:5;pointer-events:none;opacity:0;transition:opacity 1.2s;background:radial-gradient(ellipse at center,rgba(60,190,200,.08),rgba(10,60,70,.55));mix-blend-mode:screen}
   #memTint.on{opacity:1}
-  #jump{position:fixed;inset:0;z-index:8;pointer-events:none;opacity:0;background:#000 url(assets/img/ghost_cut.webp) center 20%/auto 135% no-repeat;filter:contrast(1.35) saturate(.5) brightness(1.15)}
+  #jump{position:fixed;inset:0;z-index:8;pointer-events:none;opacity:0;display:none;background:#000;filter:contrast(1.35) saturate(.5) brightness(1.15)}
   #jump.show{animation:jmp 1.9s steps(1) forwards}
   @keyframes jmp{0%{opacity:1;transform:scale(1)}12%{opacity:0}18%{opacity:1;transform:scale(1.08)}30%{opacity:.15}38%{opacity:1;transform:scale(1.18)}90%{opacity:1}100%{opacity:0}}
   #gallery{z-index:24}
@@ -694,7 +694,7 @@
     <div class="bars"><div class="nm"><span><span id="pName">서연</span><small id="pAge"></small></span><span id="stat">정상</span></div>
       <div class="row"><u>HP</u><div class="bar"><i id="hpBar"></i></div></div>
       <div class="row"><u>ST</u><div class="bar"><i id="sta"></i></div></div>
-      <div class="row"><u>공포</u><div class="bar"><i id="fearBar" style="width:0"></i></div></div></div></div>
+      <div class="row"><u>긴장</u><div class="bar"><i id="fearBar" style="width:0"></i></div></div></div></div>
   <div id="slots">
     <div class="slot" id="s1"><small>1</small><img src="assets/ui/it_flash.webp" alt=""><div class="sb"><i id="batBar"></i></div></div>
     <div class="slot" id="s2"><small>2</small><img src="assets/ui/it_battery.webp" alt=""><em id="c2">0</em></div>
@@ -776,7 +776,7 @@
     <button id="mQuit">게임 종료</button>
   </div>
   <div id="tLang"><button data-lang="ko">한국어</button><button data-lang="en">English</button><button data-lang="ja">日本語</button><button data-lang="zh">中文</button></div>
-  <div id="tFoot">1인칭 공포 어드벤처 · 헤드폰 권장<br><span id="tEnd"></span><a id="testLink" href="?test" style="display:none">테스트 모드로 실행</a></div>
+  <div id="tFoot">1인칭 미스터리 추리 어드벤처 · 헤드폰 권장<br><span id="tEnd"></span><a id="testLink" href="?test" style="display:none">테스트 모드로 실행</a></div>
 </div></div>
 <div id="newConfirm" class="overlay"><div class="win"><p class="story" style="margin:0 auto 18px">새 게임을 시작하면 저장된 진행 상황이 지워집니다.<br>계속할까요?</p>
   <div style="display:flex;gap:10px;justify-content:center"><button class="btn pri" id="ncYes">새로 시작</button><button class="btn" id="ncNo">취소</button></div></div></div>
@@ -824,7 +824,7 @@
     <span>환경음</span><input type="range" id="vol_amb" min="0" max="100">
     <span>음악</span><input type="range" id="vol_music" min="0" max="100">
     <span>게임 중 BGM</span><label><input type="checkbox" id="setBgm"> 「서문고의 그림자」 <input type="range" id="setBgmVol" min="0" max="100" style="width:90px;vertical-align:middle"></label>
-    <h4>안내</h4><span style="grid-column:1/3;font-size:12px;color:var(--dim);line-height:1.7">발소리 · 숨소리 · 그것의 위치는 입체 음향(HRTF)으로 들립니다. 헤드폰을 쓰면 방향을 구분하기 쉽습니다.</span>
+    <h4>안내</h4><span style="grid-column:1/3;font-size:12px;color:var(--dim);line-height:1.7">발소리 · 숨소리 · 주변 소리의 위치는 입체 음향(HRTF)으로 들립니다. 헤드폰을 쓰면 방향을 구분하기 쉽습니다.</span>
   </div></div>
   <div class="setPage" data-s="ctl"><div class="setgrid">
     <h4>마우스</h4>
@@ -854,12 +854,12 @@
   </div></div>
   <div class="setPage" data-s="acc"><div class="setgrid">
     <h4>게임</h4>
-    <span>탐색 난이도 · 유령 공격 없음</span><select id="setDiff"><option value="easy">쉬움 — 손전등 배터리 절약</option><option value="normal">보통 — 표준 배터리 소모</option><option value="hard">어려움 — 빠른 배터리 소모</option></select>
+    <span>탐색 난이도</span><select id="setDiff"><option value="easy">쉬움 — 손전등 배터리 절약</option><option value="normal">보통 — 표준 배터리 소모</option><option value="hard">어려움 — 빠른 배터리 소모</option></select>
     <span>마이크 소리 감지</span><label><input type="checkbox" id="setMic"> 주변 소리 시각화 · 녹음 분위기 연출 (마이크 권한 필요)</label>
     <h4>접근성</h4>
-    <span>공포 연출</span><select id="setJump"><option value="soft">심리적 공포 · 전체 화면 기습 이미지 없음</option></select>
+    <span>긴장 연출</span><select id="setJump"><option value="soft">심리적 긴장 · 전체 화면 기습 이미지 없음</option></select>
     <span>번쩍임 · 글리치</span><label><input type="checkbox" id="setFlash"> 번개 섬광 · 화면 깨짐 효과 줄이기</label>
-    <span>공포 화면 효과</span><label><input type="checkbox" id="setFearFx"> 그것이 가까울 때 붉은 테두리</label>
+    <span>긴장 화면 효과</span><label><input type="checkbox" id="setFearFx"> 긴장이 높을 때 붉은 테두리</label>
     <span>효과음 자막</span><label><input type="checkbox" id="setCaps"> [발소리] [문 닫힘] 같은 소리 설명</label>
     <span>도움말 팁</span><label><input type="checkbox" id="setTips"> 처음 10분 동안 조작 팁 표시</label>
     <span>장소 사진 카드</span><label><input type="checkbox" id="setPhotos"> 새 장소에 들어갈 때 사진 카드 표시 (끄면 이름만)</label>
@@ -880,6 +880,6 @@
 <div id="bye" class="overlay"><p class="story">브라우저는 보안상 웹 게임이 탭을 직접 닫을 수 없습니다.<br>탭을 닫거나(<kbd>Ctrl</kbd>+<kbd>W</kbd>) 타이틀로 돌아가세요. 진행 상황은 자동 저장되어 있습니다.</p><button class="btn" id="byeBack" style="margin-top:20px">타이틀로 돌아가기</button></div>
 
 <script type="importmap">{ "imports": { "three": "./vendor/three.module.js", "three/webgpu": "./vendor/three.webgpu.js", "three/tsl": "./vendor/three.tsl.js" } }</script>
-<script type="module" src="game.js?v=289"></script>
+<script type="module" src="game.js?v=294"></script>
 </body>
 </html>

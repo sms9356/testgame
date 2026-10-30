@@ -345,7 +345,7 @@ class New37UniqueRoomsPatch {
       // ---------------- [본관 지하 1층] ----------------
       case "청소도구실":
         mount(this._buildUVSterilizerAndEyeChart(), "N", 0, 1.6, 0.6, 1.5,
-          "[E] 회전식 탈수기 카트 페달 밟기 (금속 회전 소음으로 괴물 유인)",
+          "[E] 회전식 탈수기 카트 페달 밟기 (금속 회전 소음이 난다)",
           ({ notify, alertMonster }) => {
             this._playSFX("clang");
             if (notify) notify("🪣 탈수기 기어가 요란하게 돌아가며 지하 복도의 시선을 끈다!");
@@ -434,7 +434,7 @@ class New37UniqueRoomsPatch {
           ({ notify }) => {
             this._playSFX("beep");
             if (window.schoolPatchAddon) window.schoolPatchAddon.addFear(-30);
-            if (notify) notify("💉 자외선 소독기에서 [응급 진정 주사기]를 꺼내 투여했다! 시력검사표 하단에 붉은 숫자 [0419]가 선명히 보인다! (공포 -30%)");
+            if (notify) notify("💉 자외선 소독기에서 [응급 진정 주사기]를 꺼내 투여했다! 시력검사표 하단에 붉은 숫자 [0419]가 선명히 보인다! (긴장 -30%)");
           });
         break;
 
@@ -509,7 +509,7 @@ class New37UniqueRoomsPatch {
 
       case "동아리실":
         mount(this._buildDarkroomPhotoTray(), "W", -1.0, 1.6, 0.7, 1.5,
-          "[E] 사진부 암실(Darkroom) 인화액 수조에 필름 담그기 (심령 사진 현상)",
+          "[E] 사진부 암실(Darkroom) 인화액 수조에 필름 담그기 (1998년 필름 현상)",
           ({ notify }) => {
             this._playSFX("splash");
             if (notify) notify("📷 붉은 암실 조명 아래 인화지 위로 '교무실 금고 뒤에 숨겨진 통로' 사진이 서서히 떠올랐다!");
@@ -518,11 +518,11 @@ class New37UniqueRoomsPatch {
 
       case "음악실":
         mount(this._buildOrchestraGongAndTimpani(), "N", 0, 1.5, 0.5, 1.9,
-          "[E] 대형 황동 징(Gong) 강타하기 (저주파 공명음으로 주변 괴물 4초간 경직!)",
+          "[E] 대형 황동 징(Gong) 쳐 보기",
           ({ notify, alertMonster }) => {
             this._playSFX("gong");
             if (typeof window.onPatchFlashStunMonster === "function") window.onPatchFlashStunMonster(4.0);
-            if (notify) notify("🔔 [콰아아앙—!] 거대한 황동 징의 저주파 공명이 별관 전체를 뒤흔든다! 괴물이 귀를 막고 4초간 경직된다!");
+            if (notify) notify("🔔 [콰아아앙—!] 거대한 황동 징의 저주파 공명이 별관 전체를 뒤흔든다!");
             if (alertMonster) alertMonster(centerPos, 40);
           });
         break;
@@ -535,7 +535,7 @@ class New37UniqueRoomsPatch {
           `[E] ${roomName} 1000W 할로겐 투광기 점등 (입구 방향 강력한 섬광 방어벽 생성)`,
           ({ notify }) => {
             this._playSFX("beep");
-            if (notify) notify("💡 1000W 할로겐 스포트라이트가 복도 입구를 향해 눈부신 빛을 뿜어내어 괴물의 접근을 막아준다!");
+            if (notify) notify("💡 1000W 할로겐 스포트라이트가 복도 입구를 향해 눈부신 빛을 뿜어낸다!");
           });
         break;
     }

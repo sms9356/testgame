@@ -120,7 +120,7 @@ class SchoolPowerEventSystem {
     this.playPowerOnSound();
 
     if (notifyUI) {
-      notifyUI("⚡ [전력 복구 성공] 배전반 스위치가 올라갔습니다! 복도 비상등이 켜지며 공포가 진정됩니다.");
+      notifyUI("⚡ [전력 복구 성공] 배전반 스위치가 올라갔습니다! 복도 비상등이 켜지며 긴장이 풀립니다.");
     }
   }
 

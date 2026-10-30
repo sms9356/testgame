@@ -200,7 +200,7 @@ class IndoorCorridorPassagePatch {
         if (this.steamParticles) this.steamParticles.material.opacity = 0.65;
         this._playSound("steam_burst");
 
-        notify("💨 [스팀 연막 작동] 배관에서 뜨거운 수증기가 터져 나와 통로 시야를 가리고 소음을 냅니다! (12초간 괴물 시야 차단)");
+        notify("💨 [스팀 연막 작동] 배관에서 뜨거운 수증기가 터져 나와 통로 시야를 가리고 소음을 냅니다!");
         if (alertMonsterFn) alertMonsterFn(centerPos, 20.0);
       }
     });
@@ -254,7 +254,7 @@ class IndoorCorridorPassagePatch {
         this.rightDoorPivot.rotation.y = 0;
         this._playSound("door_slam");
 
-        notify("🔒 [방화문 봉쇄] 무거운 철제 방화문을 닫고 부서진 걸상 다리를 손잡이에 끼워 잠갔습니다! (25초간 괴물 통과 불가)");
+        notify("🔒 [방화문 봉쇄] 무거운 철제 방화문을 닫고 부서진 걸상 다리를 손잡이에 끼워 잠갔습니다!");
         if (blockMonsterPathFn) blockMonsterPathFn(true);
         if (alertMonsterFn) alertMonsterFn(centerPos, 24.0);
       }

@@ -4,12 +4,12 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { buildGuardAnnex, buildDutyRoom, ANNEX as GANX } from './guardAnnex.js?v=289';
-import { NOTES } from './story.js?v=289';
+import { buildGuardAnnex, buildDutyRoom, ANNEX as GANX } from './guardAnnex.js?v=294';
+import { NOTES } from './story.js?v=294';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=289';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=294';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -735,7 +735,7 @@ export function buildWorld(scene) {
   }
   const PHOTOS = {
     p1: { img: 'old_class', title: '사진 — 3학년 2반', text: '칠판에 “다시, 여기서.” 라고 적힌 교실 사진.<br>뒷면: <b>“10.12 마지막 수업”</b>' },
-    p2: { img: 'gym_stage', title: '사진 — 기념 방송 리허설', text: '무대 커튼 뒤에 흐릿한 형체가 찍혀 있다.<br>뒷면: “이 사진, 버려 줘.”' },
+    p2: { img: 'gym_stage', title: '사진 — 기념 방송 리허설', text: '무대 커튼 뒤에 흐릿한 사람 그림자가 찍혀 있다. 그날 리허설에 명단에 없는 누군가가 있었다.<br>뒷면: “이 사진, 버려 줘.”' },
     p3: { img: 'v_corridor', title: '사진 — 3층 복도', text: '복도 끝에 누군가 서 있다.<br>찍힌 날짜가 <b>오늘</b>이다.' },
   };
   const photoTex = {};
@@ -746,7 +746,7 @@ export function buildWorld(scene) {
     const ph = new THREE.Mesh(new THREE.PlaneGeometry(.18, .12), photoTex[id]); ph.rotation.x = -Math.PI / 2; ph.position.y = .003; g.add(ph); g.rotation.y = ry;
     items.push({ kind: 'photo', id, floor: cur.f, pos: new THREE.Vector3(x, cur.y0 + y, z), mesh: g, taken: false, label: '사진 줍기', ...P });
   }
-  // 비상벨 (누르면 학교에 울려 유령을 끌어들인다)
+  // 비상벨 (누르면 학교 전체에 울린다)
   function alarmBell(x, z, ry = 0) {
     const g = new THREE.Group(); g.position.set(x, 1.55, z); g.rotation.y = ry; cur.interior.add(g);
     g.add(new THREE.Mesh(new THREE.CylinderGeometry(.13, .13, .07, 20).rotateX(Math.PI / 2), S(null, { color: 0xb01a1a, roughness: .4 })));
@@ -790,9 +790,9 @@ export function buildWorld(scene) {
   const bucketG = merge([new THREE.CylinderGeometry(.17, .14, .32, 16, 1, true).translate(0, .16, 0), new THREE.CircleGeometry(.14, 16).rotateX(-Math.PI / 2).translate(0, .01, 0), new THREE.TorusGeometry(.17, .008, 6, 20, Math.PI).translate(0, .32, 0)]);
   const mopG = merge([tube(.015, 0, 0, 0, .05, 1.35, .02), ...Array.from({ length: 14 }, (_, i) => tube(.012, 0, .02, 0, Math.cos(i * .45) * .18, -.0, Math.sin(i * .45) * .18))]);
   function mopBucket(x, z) { meshAt(bucketG, S(null, { color: 0x2a5aa0, roughness: .5, side: THREE.DoubleSide }), x, 0, z); const m = meshAt(mopG, S(null, { color: 0x8a8070, roughness: 1 }), x + .25, .02, z + .05); m.rotation.z = .25; col(x - .2, x + .2, z - .2, z + .2); }
-  // 핏자국 데칼
-  const bloodM = {}; ['hand', 'drag', 'splat'].forEach(k => { bloodM[k] = new THREE.MeshStandardMaterial({ map: T.makeBlood(k), transparent: true, depthWrite: false, roughness: .3, polygonOffset: true, polygonOffsetFactor: -3 }); });
-  function blood(kind, x, y, z, w, ry = 0, floor = false) { const m = new THREE.Mesh(new THREE.PlaneGeometry(w, w), bloodM[kind]); m.position.set(x, y, z); if (floor) { m.rotation.x = -Math.PI / 2; m.rotation.z = ry; } else m.rotation.y = ry; cur.interior.add(m); }
+  // 얼룩 데칼 (설정 변경: 핏자국 폐기 → 누수 · 녹물 얼룩. 벽 손자국은 만들지 않는다)
+  const bloodM = {}; ['hand', 'drag', 'splat'].forEach(k => { bloodM[k] = new THREE.MeshStandardMaterial({ map: T.makeBlood(k), transparent: true, depthWrite: false, roughness: .85, polygonOffset: true, polygonOffsetFactor: -3 }); });
+  function blood(kind, x, y, z, w, ry = 0, floor = false) { if (kind === 'hand') return; const m = new THREE.Mesh(new THREE.PlaneGeometry(w, w), bloodM[kind]); m.position.set(x, y, z); if (floor) { m.rotation.x = -Math.PI / 2; m.rotation.z = ry; } else m.rotation.y = ry; cur.interior.add(m); }
 
   /* ---------- 상호작용 문 ---------- */
   const doorList = [], props = [];
@@ -831,12 +831,12 @@ export function buildWorld(scene) {
 
   /* ---------- 방 가구 ---------- */
   const boardTexts = [
-    ['다시, 여기서…', '아직 수업이 끝나지 않았어'],
-    ['왜 나만 두고 갔어…', '지하가 너무 어두워'],
-    ['모두 어디 갔니…', '11시 40분 하교 방송'],
-    ['돌 아 와…', '내 자리 지우지 마'],
-    ['출 석 확 인', '3학년 2반 윤하늘 — 현 재'],
-    ['뒤 를  돌 아 보 지  마', '바로 네 뒤에 서 있어']
+    ['다시, 여기서', '1998.10.12 — 잊지 않는다'],
+    ['10/12 야간 자율학습', '23:40 하교 방송 예정'],
+    ['지하 배수실 출입 금지', '— 교무부'],
+    ['10/12 결석 3명?', '출석부 수정됨 (교무부)'],
+    ['출 석 확 인', '3학년 2반 윤하늘 — 결 석 처 리'],
+    ['진상 규명하라', '1998 졸업생 일동']
   ];
   const OFFICERS_BY_SEED = [
     { pres: '이 준 호', vpres: '김 민 지', noisy: ['박 철 수  正', '김 영 호  ㅜ', '최 진 우  ㅡ'], duty: '12번 · 27번' },
@@ -986,14 +986,14 @@ export function buildWorld(scene) {
     '3-5': { c: [[1.9, 4.4], [4.9, 2.4], [6.1, 4.5], [3.9, 3.7]], clue: ['연필 스케치', '찢긴 그림', 3.34, 2.84] },
     '1-4': { c: [[1.92, 4.43], [5.37, 2.25], [4.24, 5.5], [6.46, 3.95]], clue: ['녹슨 열쇠', '닫힌 서랍', 3.04, 2.76] },
     '1-5': { c: [[4.47, 2.58], [6.3, 3.71], [3.62, 4.44], [5.78, 3.55]], clue: ['낡은 학교지도', '비어 있는 교실', 5.23, 5.81] },
-    '2-2': { c: [[5.9, 5.14], [6.12, 2.01], [1.33, 3.25], [6.19, 5.9]], clue: ['카세트테이프', '녹음된 속삭임', 5.55, 5.35] },
+    '2-2': { c: [[5.9, 5.14], [6.12, 2.01], [1.33, 3.25], [6.19, 5.9]], clue: ['카세트테이프', '녹음된 증언', 5.55, 5.35] },
     '3-1': { c: [[5.9, 5.14], [6.12, 2.01], [1.33, 3.25], [6.19, 5.9]], clue: ['마지막 시간표', '마지막 정규 수업', 5.55, 5.35] },
     '3-2': { c: [[1.92, 4.43], [5.37, 2.25], [4.24, 5.5], [6.46, 3.95]], clue: ['손상된 휴대전화', '연결되지 않는 전화', 3.04, 2.76] },
     '3-6': { c: [[5.65, 5.49], [2.21, 3.19], [3.78, 2.64], [3.0, 5.26]], clue: ['잠긴 서랍', '잠긴 모임 장소', 1.61, 5.58] },
     '3-7': { c: [[5.02, 5.3], [6.33, 4.47], [2.3, 5.8], [3.69, 4.59]], clue: ['수첩 낱장', '남겨진 기록', 6.24, 4.9] },
     '3-8': { c: [[6.48, 3.53], [1.99, 5.79], [5.51, 4.44], [1.34, 5.34]], clue: ['붉은 명단', '잠금된 마지막 교실', 6.16, 5.1] },
     'C-01': { c: [], clue: ['로그 기록 USB', '전원이 꺼진 마지막 접속', 3.5, 6.6] }, 'M-01': { c: [], clue: ['찢어진 악보', '새벽 방송과 악보', 3.5, 6.6] },
-    'A-01': { c: [], clue: ['붉은 초상 스케치', '지워진 그림 속 인물', 3.5, 6.6] }, 'S-01': { c: [], clue: ['과거 실험일지', '실험 기록과 유리병', 3.5, 6.6] },
+    'A-01': { c: [], clue: ['얼굴이 지워진 초상 스케치', '지워진 그림 속 인물', 3.5, 6.6] }, 'S-01': { c: [], clue: ['과거 실험일지', '실험 기록과 유리병', 3.5, 6.6] },
   };
   const csvXZ = (cx, X, Y) => [cx - 4 + X, -9.6 + Y * 7.85 / 7.5];
   const mProj = S(null, { color: 0xd8d8d0, roughness: .45 }), mScreenR = S(null, { color: 0xeeeeea, roughness: .8 });
@@ -1020,7 +1020,7 @@ export function buildWorld(scene) {
   const classSeed = (cx, name) => { let h = cur.f * 31 + (curSouth ? 7 : 0); for (const ch of String(name)) h = h * 33 + ch.charCodeAt(0); return Math.abs(h) % 3 + 1; };
   function classroom(cx, name) {
     const zN = -9.6, seed = classSeed(cx, name), mir = seed === 2 ? -1 : 1;
-    const ghostLines = name === '3-3' ? ['자 습 중', '뒤 를  돌 아 봐'] : boardTexts[Math.abs(seed + cur.f * 3 + (cx | 0)) % boardTexts.length];
+    const ghostLines = name === '3-3' ? ['자 습 중', '감독: 담임 (서명 지워짐)'] : boardTexts[Math.abs(seed + cur.f * 3 + (cx | 0)) % boardTexts.length];
     frontWall(cx, zN, true, []);
     const bKey = 'cls' + cur.f + ':' + cx + (curSouth ? 's' : '');
     boardRefs[bKey] = {
@@ -1637,7 +1637,7 @@ export function buildWorld(scene) {
   const binSmallG = merge([new THREE.CylinderGeometry(.11, .1, .3, 14).translate(0, .15, 0), new THREE.CylinderGeometry(.115, .115, .025, 14).translate(0, .31, 0)]);
   const rollG = new THREE.CylinderGeometry(.055, .055, .1, 14).rotateZ(Math.PI / 2);
   const mPaperRoll = S(null, { color: 0xe8e4d8, roughness: .95 });
-  const STALL_SCRIBBLE = [['3번 칸 열지 마', '#2a3a8a'], ['빨간 휴지 줄까?', '#8a1018'], ['파란 휴지 줄까?', '#1a3a9a'], ['민아 ♥ 하늘', '#3a3a3a'], ['여기 누가 있어', '#2a2a2a'], ['10.12 11:40', '#5a1010'], ['선생님 미워', '#2a4a2a'], ['문 두드리지 마', '#3a2a5a']];
+  const STALL_SCRIBBLE = [['3번 칸 열지 마', '#2a3a8a'], ['휴지 좀 채워라', '#8a1018'], ['시험 망함 ㅠ', '#1a3a9a'], ['민아 ♥ 하늘', '#3a3a3a'], ['관리인 열쇠 봤음', '#2a2a2a'], ['10.12 11:40', '#5a1010'], ['선생님 미워', '#2a4a2a'], ['3번 칸 왜 잠갔지?', '#3a2a5a']];
   // 남 / 여 화장실: 본관 북쪽 = 남자(3층은 여자), 남쪽 = 여자, 별관은 1 · 3층 남자 · 2층 여자
   const toiletGender = (f, south, annex, cx = 0, name = '') => {
     if (name && name.includes('여자')) return 'f';
@@ -1668,7 +1668,7 @@ export function buildWorld(scene) {
     for (let i = 0; i < N; i++) {
       const a = xs(i) + (i === 0 ? .1 : .06), b = xs(i + 1) - .06, xc = (xs(i) + xs(i + 1)) / 2, w = b - a, locked = G === 'f' && i === 2;
       const d = hingeDoor(a, zF, w, 1.75, .13, 1.35, !locked, mStallDoor, '칸막이 문'); d.stall = true; d.stallNo = i + 1; if (locked) d.locked = true;
-      if (!locked) { lockers.push({ floor: cur.f, x: xc, z: -8.15, y: cur.y0, dir: { x: 0, z: 1 }, stallDoor: d, label: '칸막이 안에 숨기 (문을 닫는다)' }); props.push({ kind: 'flush', floor: cur.f, x: xc, z: -9.05, y: .55, label: '변기 물 내리기 — 큰 소리 (그것이 22m 안에서 몰려온다)' }); }
+      if (!locked) { lockers.push({ floor: cur.f, x: xc, z: -8.15, y: cur.y0, dir: { x: 0, z: 1 }, stallDoor: d, label: '칸막이 안에 숨기 (문을 닫는다)' }); props.push({ kind: 'flush', floor: cur.f, x: xc, z: -9.05, y: .55, label: '변기 물 내리기 — 큰 소리가 난다' }); }
       else {   // 잠긴 3번 칸: 문 아래 15cm 틈으로 피 묻은 실내화 두 짝
         const wsh = S(null, { color: 0xd8d0c4, roughness: .7 }), rsh = S(null, { color: 0x6a0c0c, roughness: .4 });
         [-.09, .09].forEach(dx => { add(wsh, .09, .06, .24, xc + dx, 0, -7.86); add(rsh, .092, .015, .1, xc + dx, .06, -7.8); }); blood('splat', xc, .012, -7.95, .7, 0, true);
@@ -1676,7 +1676,7 @@ export function buildWorld(scene) {
       const num = new THREE.Mesh(new THREE.PlaneGeometry(.12, .12), new THREE.MeshBasicMaterial({ map: T.makeNumber(i + 1), color: 0x9a9a92 })); num.position.set(w / 2, 1.62, .025); d.piv.add(num);
       const ind = new THREE.Mesh(new THREE.BoxGeometry(.06, .025, .012), S(null, { color: locked ? 0x8a1a14 : 0x2a6a2a, roughness: .4 })); ind.position.set(w - .1, 1.12, .026); d.piv.add(ind);
       const hook = new THREE.Mesh(merge([tube(.006, 0, 0, 0, 0, 0, -.05), tube(.006, 0, 0, -.05, 0, .04, -.06)]), mAlu); hook.position.set(w / 2, 1.55, -.02); d.piv.add(hook);
-      if (locked) { const sc = new THREE.Mesh(new THREE.PlaneGeometry(.7, .175), new THREE.MeshBasicMaterial({ map: T.makeGraffiti('열지 마', '#2a3a8a'), transparent: true, depthWrite: false })); sc.position.set(w / 2, 1.3, .024); d.piv.add(sc); }
+      if (locked) { const sc = new THREE.Mesh(new THREE.PlaneGeometry(.7, .175), new THREE.MeshBasicMaterial({ map: T.makeGraffiti('사용 금지 — 행정실', '#2a3a8a'), transparent: true, depthWrite: false })); sc.position.set(w / 2, 1.3, .024); d.piv.add(sc); }
       if (false) {   // 화변기 + 단 (지금은 남녀 모두 양변기 — 형상은 남겨 둔다)
         meshAt(squatTopG, mTFloor, xc, .12, Z0 + .525); add(mTFloor, 1.03, .12, .02, xc, 0, Z0 + 1.04);   // 단 윗면(변기 구멍) + 앞면
         meshAt(squatG, mPorc, xc, .12, Z0 + .525 + .1); meshAt(new THREE.CircleGeometry(.07, 14).scale(1, 1.4, 1).rotateX(-Math.PI / 2), mHoleW, xc, .015, Z0 + .525 + .2);   // 물 고인 배수 구멍
@@ -3615,7 +3615,7 @@ export function buildWorld(scene) {
     ceilingDamage(-34, 34, -1.2, 1.2, 9); SLOTS.forEach(cx => { if (rnd() < .5) ceilingDamage(cx - 3, cx + 3, -8.5, -2.5, 1); });
     exitSign(0, 2.95, -1.43); exitSign(-35, 2.9, 0, Math.PI / 2); exitSign(35, 2.9, 0, -Math.PI / 2);
     extinguisher(-1.6, -1.25); extinguisher(33.5, 1.2);
-    graffiti(pick(['다시, 여기서', '나가지 마', '뒤를 봐', '같이 놀자']), SLOTS[2] + 2.5, 1.6, -1.44, 0, 2.6);
+    graffiti(pick(['1998.10.12 잊지 않는다', '학교는 거짓말쟁이', '진실을 밝혀라', '윤하늘 어디 있어?']), SLOTS[2] + 2.5, 1.6, -1.44, 0, 2.6);
     [-26, 6, 22].forEach(x => bin(x, 1.15));
     if (!o.basement || f === 4) { alarmBell(-12.5, -1.43, 0); cctv(-35.6, CH, -1.2, 0, {target:[0,1.5,0],label:AREA_NAMES[f]+' · 복도 서쪽'}); cctv(35.6, CH, -1.2, 0, {target:[0,1.5,0],label:AREA_NAMES[f]+' · 복도 동쪽'}); }
     if (f === 0) { addPhoto('p1', SLOTS[6] + 2.6, .76, -8.7, .2); blood('drag', -3, .015, -.4, 1.8, 1.5, true); }

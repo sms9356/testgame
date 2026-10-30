@@ -460,7 +460,7 @@ export const makeCalendar = () => ctex(256, 320, (g, w, h) => {
   }
   stains(g, w, h, 8, 'rgba(90,70,30,.4)', 40); speckle(g, w, h, 300, ['#6a5a40'], 1, 4, .3);
 }, { repeat: false });
-export const makeGraffiti = (text, col = '#8a1018') => ctex(512, 128, (g, w, h) => {
+export const makeGraffiti = (text, col = '#3a3a3a') => ctex(512, 128, (g, w, h) => {
   g.clearRect(0, 0, w, h); g.fillStyle = col; g.font = `900 72px ${FONT}`; g.textAlign = 'center'; g.textBaseline = 'middle';
   g.save(); g.translate(w / 2, h / 2); g.rotate(-.04); g.fillText(text, 0, 0); g.restore();
   g.globalCompositeOperation = 'source-atop'; drips(g, w, h * .4, h * .6, 30, 'rgba(70,0,0,.9)'); speckle(g, w, h, 300, ['#200'], 2, 6, .5);
@@ -670,7 +670,7 @@ export function pbrConcrete(N = 512, col = [128, 126, 118]) {
 // 핏자국·손자국·끌린 자국 데칼 (투명)
 export const makeBlood = (kind = 'hand') => ctex(256, 256, (g, w, h) => {
   g.clearRect(0, 0, w, h);
-  const red = () => `rgba(${rr(70, 110) | 0},${rr(4, 14) | 0},${rr(6, 14) | 0},${rr(.55, .9)})`;
+  const red = () => `rgba(${rr(58, 82) | 0},${rr(44, 60) | 0},${rr(28, 40) | 0},${rr(.22, .42)})`;   // 설정 변경: 핏자국 → 누수 · 녹물 얼룩 (갈색 · 반투명)
   if (kind === 'hand') {
     for (let k = 0; k < 3; k++) {
       g.save(); g.translate(rr(60, 196), rr(60, 196)); g.rotate(rr(-.6, .6)); g.fillStyle = red();

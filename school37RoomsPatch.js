@@ -468,7 +468,7 @@ class School37RoomsMasterPatch {
       case "진로상담실":
       case "교사휴게실":
         place(this._prefabSofaLoungeSet(), -hw + 0.7, -hd + 0.8, 0, 1.8, 1.2, 0.9, false, {
-          promptText: `[E] ${roomName} 소파에 앉아 숨 고르기 (공포 -15%)`
+          promptText: `[E] ${roomName} 소파에 앉아 숨 고르기 (긴장 -15%)`
         });
         place(this._prefabHeavyStorageRack(), hw - 0.3, -hd + 0.4, -Math.PI / 2, 0.7, 1.6, 2.0);
         break;
@@ -551,7 +551,7 @@ class School37RoomsMasterPatch {
 
       case "음악실":
         place(this._prefabGrandPiano(), -hw + 0.9, -hd + 0.9, Math.PI / 6, 1.6, 1.9, 1.2, false, {
-          promptText: "[E] 그랜드 피아노 건반 누르기 (피아노 소리로 괴물 강력 유인)"
+          promptText: "[E] 그랜드 피아노 건반 누르기 (피아노 소리가 별관에 울린다)"
         });
         place(this._prefabLanguageBoothRow(), hw - 0.9, -hd + 0.7, 0, 2.2, 0.8, 1.0);
         break;

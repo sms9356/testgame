@@ -172,18 +172,18 @@ class FiveZonesExpansionPatch {
     // 상호작용 등록: CCTV 모니터
     this._registerInteractable(cctvMonitor, {
       id: "guard_cctv",
-      promptText: "[E] 경비실 4분할 CCTV 모니터 확인 (괴물 위치 파악)",
+      promptText: "[E] 경비실 4분할 CCTV 모니터 확인 (순찰 경로 · 녹화 확인)",
       onInteract: ({ notify, revealMonsterOnMap }) => {
-        const isScare = Math.random() < 0.3;
+        const isScare = false;
         this._drawCCTVFrame(isScare);
         cctvTex.needsUpdate = true;
         this._playSound("static");
 
         if (isScare) {
           this._addPlayerFear(20);
-          notify("📺 [CCTV CAM-03] 화면에 '그것'의 얼굴이 정면으로 찍혀 있다! 바로 창문 밖이다! (공포 +20%)");
+          notify("📺 [CCTV CAM-03] 녹화 목록에 1998.10.12 23:10~23:50 구간이 삭제된 흔적이 있다.");
         } else {
-          notify("📺 [CCTV 확인] 본관 복도와 급식실 채널을 스캔하여 15초간 지도에 '그것'의 위치를 표시합니다.");
+          notify("📺 [CCTV 확인] 본관 복도와 급식실 채널을 스캔했습니다. 움직임은 없습니다.");
           if (revealMonsterOnMap) revealMonsterOnMap(15.0);
         }
       }
@@ -200,7 +200,7 @@ class FiveZonesExpansionPatch {
           notify("⚠ [전력 부족] 정문 모터가 작동하지 않는다. '옥상 비상발전기'를 먼저 가동해야 한다! (새 목표 등록)");
         } else {
           this._playSound("power_up");
-          notify("🚨 [정문 개방 시작] 발전기 전력이 공급되어 정문 철문이 열리기 시작합니다! 소음을 듣고 '그것'이 달려옵니다!");
+          notify("🚨 [정문 개방 시작] 발전기 전력이 공급되어 정문 철문이 열리기 시작합니다!");
           if (triggerFinalGateOpen) triggerFinalGateOpen();
         }
       }
@@ -272,10 +272,10 @@ class FiveZonesExpansionPatch {
     // 상호작용: 조회대 마이크 방송 (초장거리 어그로 유인)
     this._registerInteractable(micStand, {
       id: "yard_mic",
-      promptText: "[E] 조회대 앰프 마이크 켜기 (운동장 전체로 괴물 유인)",
+      promptText: "[E] 조회대 앰프 마이크 켜기 (운동장 전체로 방송)",
       onInteract: ({ notify, alertMonster }) => {
         this._playSound("mic_howl");
-        notify("📢 [운동장 조회대] 귀를 찢는 하울링이 밤하늘에 울려 퍼집니다! 본관에 있던 '그것'이 운동장으로 뛰쳐나옵니다!");
+        notify("📢 [운동장 조회대] 귀를 찢는 하울링이 밤하늘에 울려 퍼집니다!");
         if (alertMonster) alertMonster(originPos, 50.0);
       }
     });
@@ -523,7 +523,7 @@ class FiveZonesExpansionPatch {
         }
         this.missions.rooftopGeneratorOn = true;
         this._playSound("power_up");
-        notify("⚡ [미션 완료: 비상발전기 가동] 옥상 경광등이 켜지며 경비실 정문 개폐기에 전력이 공급됩니다! 엔진 소리를 듣고 '그것'이 옥상으로 올라옵니다!");
+        notify("⚡ [미션 완료: 비상발전기 가동] 옥상 경광등이 켜지며 경비실 정문 개폐기에 전력이 공급됩니다!");
         if (alertMonster) alertMonster(originPos, 60.0);
       }
     });

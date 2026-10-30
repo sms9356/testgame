@@ -36,7 +36,7 @@ export async function furnishRooms({ scene, RBG, world, getP }) {
         o.position.set(wx, y, wz); o.updateMatrixWorld(true); const b2 = new THREE.Box3().setFromObject(o);
         o.position.x += wx - (b2.min.x + b2.max.x) / 2; o.position.z += wz - (b2.min.z + b2.max.z) / 2; o.position.y += y - b2.min.y + .002;   // 자리 가운데 · 바닥에 딱
         o.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } });
-        o.name = 'FURN2_' + name; o.userData.furn2 = { f: r.floor, b: b.name, room: r.label }; scene.add(o);
+        o.name = 'FURN2_' + name; o.userData.furn2 = { f: r.floor, b: b.name, room: r.label }; o.userData.rbKeep = true;   // 예전 건물 자리 정리(숨김) 대상에서 제외 scene.add(o);
         b.col.push({ x1: spot.x - spot.hw, x2: spot.x + spot.hw, z1: spot.z - spot.hd, z2: spot.z + spot.hd, y1: y, y2: y + H, furn2: true });
         pts.push([spot.x, spot.z]);
         placed.push({ o, b, f: r.floor, room: r.label, name });

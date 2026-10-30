@@ -3817,7 +3817,7 @@ export function buildWorld(scene) {
       // 확장 구역 (남쪽 1m): 스틸 저장 선반 2 · 화구 위 곰솥 2 · 배식대 쪽 식기 건조대 · 식단 게시판 (실제 GLB 모델)
       /* 선반 1 → 냉동창고 옆 (아래) */ /* 선반 2 → 냉동창고 옆 (아래) */
       // ── 식재료 선반 2: 냉동창고 양옆 빈 벽 (동: 개수대 · 취반기 사이 / 서: 가스레인지와 냉동창고 사이) — 홀 쪽 벽에 붙어 통로를 막던 자리에서 이사 ──
-      model('steel_frame_shelves_01', -35.42, 0, 9.75, -Math.PI / 2, { col: [1.0, .45], s: .0865 }); model('steel_frame_shelves_01', -39.3, 0, 8.86, Math.PI / 2, { col: [1.0, .45], s: .0865 });
+      model('steel_frame_shelves_01', -35.45, 0, 9.48, 0, { col: [1.0, .45], s: .0865 });   // 앞면을 남쪽 통로로 (옆으로 세우면 냉동창고 벽과 0.35m 틈이라 다가설 수 없었다) model('steel_frame_shelves_01', -39.3, 0, 8.86, Math.PI / 2, { col: [1.0, .45], s: .0865 });
       { const mBox = S(null, { color: 0xa8865a, roughness: .9 }), mTape = S(null, { color: 0xc8b890, roughness: .7 }), mSack = S(null, { color: 0xe4dccb, roughness: 1 }), mCan = S(null, { color: 0xb0b4b8, roughness: .3, metalness: .8 }), mRedL = S(null, { color: 0xa83020, roughness: .6 }), mGrn = S(null, { color: 0x3a6a3a, roughness: .7 });
         const fill = (x, z, alongZ) => { const L = (a, b) => alongZ ? [x + b, z + a] : [x + a, z + b];
           [[-.28, .3], [.24, .3]].forEach(([a, b], k) => { const [px, pz] = L(a, b * 0); add(mSack, alongZ ? .36 : .42, .2, alongZ ? .42 : .36, px, .06, pz); add(mSack, alongZ ? .3 : .36, .12, alongZ ? .36 : .3, px, .26, pz); });   // 바닥 칸: 쌀 · 밀가루 포대 (20kg)
@@ -3825,7 +3825,7 @@ export function buildWorld(scene) {
           for (let k = 0; k < 6; k++) { const [px, pz] = L(-.36 + k * .145, (k % 2) * .06 - .03); cyl(k % 3 === 2 ? mRedL : mCan, .055, .17, px, .98, pz, 12); }   // 3 칸: 통조림 · 고추장 통
           [-.22, .2].forEach(a => { const [px, pz] = L(a, 0); for (let q = 0; q < 4; q++) add(mCan, .34, .025, .28, px, 1.43 + q * .03, pz); });   // 4 칸: 포개 둔 스테인리스 바트
           { const [px, pz] = L(0, 0); add(mBox, .5, .25, .32, px, 1.83, pz); } };
-        fill(-35.42, 9.75, true); fill(-39.3, 8.86, true); }
+        fill(-35.45, 9.48, false); fill(-39.3, 8.86, true); }
       // ── 조리실 사실 묘사: 고무 매트 · 국자 걸이 · 소화기 · 가스 안전 표지 · 장화 · 앞치마 · 대걸레 양동이 ──
       { const mRub = S(null, { color: 0x1c1c1c, roughness: .95 }), mBoot = S(null, { color: 0xe8e8e0, roughness: .6 }), mApron = S(null, { color: 0xf0eee8, roughness: .9, side: THREE.DoubleSide }), mApronB = S(null, { color: 0x2a4a6a, roughness: .9, side: THREE.DoubleSide }), mExt = S(null, { color: 0xc01810, roughness: .4 }), mYel = S(null, { color: 0xd8b020, roughness: .5 });
         add(mRub, 2.6, .012, .6, -45, .005, 10.85); add(mRub, 2.2, .012, .6, -41, .005, 11.0);   // 조리대 · 화구 앞 미끄럼 방지 고무 매트

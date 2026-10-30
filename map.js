@@ -154,7 +154,17 @@ export function drawMap(ctx, W, H, o) {
     const poly = (pts, c, st) => { ctx.beginPath(); pts.forEach(([x, z], i) => i ? ctx.lineTo(X(x), Y(z)) : ctx.moveTo(X(x), Y(z))); ctx.closePath(); if (c) { ctx.fillStyle = c; ctx.fill(); } if (st) { ctx.strokeStyle = st; ctx.lineWidth = 1.5; ctx.stroke(); } };
     o.rb.clear.forEach(r => fillRect(r.x1, r.z1, r.x2, r.z2, '#1f2622'));
     o.rb.shells.forEach(pts => poly(pts, '#3a3e40', '#9ab0be'));
-    o.rb.rooms.forEach(r => { poly(r.pts, r.here ? '#4a5a4e' : r.stair ? '#55584e' : r.hall ? '#2a2e30' : '#30363a', '#0c0c0c'); if (labels && r.label) { ctx.fillStyle = '#d6d2c2'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(r.label, X(r.cx), Y(r.cz)); } });
+    o.rb.rooms.forEach(r => poly(r.pts, r.here ? '#4a5a4e' : r.stair ? '#55584e' : r.hall ? '#2a2e30' : '#30363a', '#0c0c0c'));
+    if (o.rb.furn && S > 6) o.rb.furn.forEach(pts => poly(pts, 'rgba(150,140,120,.28)', 'rgba(200,190,170,.25)'));   // 가구 윤곽 (확대했을 때만)
+    if (labels) o.rb.rooms.forEach(r => { if (!r.label || r.stair) return; const xs = r.pts.map(p => X(p[0])), rw = Math.max(...xs) - Math.min(...xs) - 4; let lab = r.label, fs = S > 6 ? 12 : 11; ctx.textAlign = 'center';   // 좁은 방은 글자를 줄이거나 줄임말로
+      const fit = () => { ctx.font = `${fs >= 12 ? 'bold ' : ''}${fs}px sans-serif`; return ctx.measureText(lab).width <= rw; };
+      if (!fit()) { fs = 9; if (!fit()) { lab = lab.replace(/남자 화장실/, '남WC').replace(/여자 화장실/, '여WC').replace(/중앙 계단/, '계단').replace(/중앙 현관/, '현관').replace(/ · 행정실/, '').replace(/학년 (\d+)반/, '-$1'); if (!fit()) return; } } const w = ctx.measureText(lab).width + 8; ctx.fillStyle = 'rgba(10,12,14,.55)'; ctx.fillRect(X(r.cx) - w / 2, Y(r.cz) - 9, w, 14); ctx.fillStyle = '#e6e0cc'; ctx.fillText(lab, X(r.cx), Y(r.cz) + 2); });
+    (o.rb.icons || []).forEach(ic => { const x = X(ic.x), y = Y(ic.z), sz = Math.max(9, Math.min(16, S * 1.3)); ctx.save(); ctx.translate(x, y); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      const badge = (bg, fg, txt) => { ctx.fillStyle = bg; ctx.beginPath(); ctx.arc(0, 0, sz * .62, 0, 7); ctx.fill(); ctx.strokeStyle = 'rgba(0,0,0,.6)'; ctx.lineWidth = 1.5; ctx.stroke(); ctx.fillStyle = fg; ctx.font = `bold ${Math.round(sz * .62)}px sans-serif`; ctx.fillText(txt, 0, 1); };
+      if (ic.t === 'stair') badge('#c8a040', '#1a1408', '⇅'); else if (ic.t === 'elev') badge('#4a8ac8', '#fff', 'EV'); else if (ic.t === 'exit') badge('#1fa64a', '#fff', '🚪'); else badge('#d0c8b0', '#1a1a1a', ic.t === 'bridge' ? '⇄' : '▲');
+      if (ic.label && labels) { ctx.font = '10px sans-serif'; ctx.fillStyle = '#f0e8d0'; ctx.fillText(ic.label, 0, sz * .62 + 8); } ctx.restore(); });
+    if (labels && o.rb.title) { ctx.save(); ctx.fillStyle = 'rgba(10,16,22,.8)'; ctx.fillRect(14, 56, 230, 58); ctx.strokeStyle = 'rgba(130,195,235,.5)'; ctx.strokeRect(14, 56, 230, 58); ctx.fillStyle = '#e8f2f8'; ctx.font = 'bold 15px sans-serif'; ctx.textAlign = 'left'; ctx.fillText('📍 ' + o.rb.title, 24, 77);
+      ctx.font = '11px sans-serif'; ctx.fillStyle = '#c8a040'; ctx.fillText('⇅ 계단', 24, 99); ctx.fillStyle = '#7ab0e0'; ctx.fillText('EV 엘리베이터', 72, 99); ctx.fillStyle = '#5fd080'; ctx.fillText('🚪 비상구', 170, 99); ctx.restore(); }
   }
   // 목표 방 강조 (정확한 좌표 대신 방 전체를 은은하게 깜빡) — 새 본관 · 별관 평면
   if (o.rb && o.target) { const T = o.target, inPoly = pts => { let c = false; for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) { const [xi, zi] = pts[i], [xj, zj] = pts[j]; if ((zi > T.z) !== (zj > T.z) && T.x < (xj - xi) * (T.z - zi) / (zj - zi) + xi) c = !c; } return c; };

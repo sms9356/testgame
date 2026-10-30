@@ -60,7 +60,7 @@ export function drawMap(ctx, W, H, o) {
     strokeRect(-50, NORTH_Z, 50, 70, '#6a6a60', 1.5);
     fillRect(-4, GATE_Z - .6, 4, GATE_Z + .6, '#8a4a30');
     // 캠퍼스 타일 인도 네트워크 (서쪽 끝 서문 x=-114, z=55.6 직결 및 전 캠퍼스 완전 연결!) & 3대 섹션 건물 3D 입체 볼륨
-    (window.__pathNET || [])
+    ((typeof window !== 'undefined' && window.__pathNET) || [])
       .forEach(([x1, x2, z1, z2]) => fillRect(x1, z1, x2, z2, 'rgba(145,140,125,.42)'));   // 새 인도망 (campusPaths.js NET)
     fillRect(-114.6, 51.4, -113.2, 59.8, '#8a4a30'); // 서쪽 끝 외곽 서문(西門, x=-114, z=55.6)
     box3D(58, -53, 65.5, -47, 3.6, '#2a4a38', '#467a5c', '#1a3024');   // 생태온실 (동북 학술정원)

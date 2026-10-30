@@ -2358,7 +2358,7 @@ function trimShadowCasters() { const bb = new THREE.Box3(), sz = new THREE.Vecto
 function start(skipIntro = false) {
   beginStorySession(); const epoch=storySession;
   initAudio(); closeMenus(); applyChar(); { const par = renderer.extensions.has('KHR_parallel_shader_compile');   // 병렬 컴파일이 없으면 씬 전체 컴파일이 동기라 한 번에 수십 초 멈춘다 → 한 번만
-  (par ? [400, 6000, 15000, 30000, 50000] : [400]).forEach(ms => setTimeout(() => { if (ms <= 6000) try { upgradePlainMaterials(scene); } catch (e) {} prewarmFloors(true, fx.composer.renderTarget1).catch(() => {}); }, ms));
+  (par ? [400, 6000, 15000, 30000, 50000] : [400]).forEach(ms => setTimeout(() => { if (ms <= 6000) try { upgradePlainMaterials(scene); } catch (e) {} prewarmFloors(true, (fx.composer ? fx.composer.renderTarget1 : null)).catch(() => {}); }, ms));
   if (!par) setTimeout(() => { try { upgradePlainMaterials(scene); } catch (e) {} }, 6000); }   // 늦게 들어오는 GLB(민아 · 소품)까지 시작 연출 동안 미리 컴파일   // 시작 연출 동안 나중에 생긴 재질까지 한 번 더 예열
   if (!readingSave) { DAY.k = .92; DAY.start = -1; DAY.done = false; delete FL.night; GUARD_WALK.startedWalk = false; GUARD_WALK.greetedGate = false; }
   refreshHud(); chapterShown = objective().ch;

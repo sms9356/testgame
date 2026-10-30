@@ -28,7 +28,7 @@ export async function createFXWebGPU(renderer, scene, camera) {
     const c = st.sub(.5), d = length(c);
     st.addAssign(c.mul(d).mul(d).mul(U.uFear.mul(.045).add(.008)));   // 렌즈 왜곡
     const ca = U.uFear.mul(.004).add(.0003).add(U.uGlitch.mul(.012));   // 색수차
-    const col = vec3(sceneTex.sample(st.add(c.mul(ca))).r, sceneTex.sample(st).g, sceneTex.sample(st.sub(c.mul(ca))).b).add(bloomPass.mul(U.uBloom)).toVar();
+    const col = vec3(sceneTex.sample(st.add(c.mul(ca))).r, sceneTex.sample(st).g, sceneTex.sample(st.sub(c.mul(ca))).b).add(bloomPass.rgb.mul(U.uBloom)).toVar();
     const l = luminance(col);
     col.assign(mix(col, vec3(l), U.uFear.mul(.25).add(.18)));
     col.mulAssign(mix(vec3(.86, .98, 1.08), vec3(1.07, 1.0, .9), smoothstep(.02, .5, l)));

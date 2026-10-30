@@ -78440,7 +78440,7 @@ class GPUTextureViewDescriptor {
 		 * @type {string}
 		 * @default 'rgba'
 		 */
-		this.swizzle = 'rgba';
+		this.swizzle = undefined;   // (게임 패치) 구형 WebGPU 구현은 'rgba' 문자열을 거부한다 — 기본값은 생략
 
 	}
 
@@ -78458,7 +78458,7 @@ class GPUTextureViewDescriptor {
 		this.mipLevelCount = undefined;
 		this.baseArrayLayer = 0;
 		this.arrayLayerCount = undefined;
-		this.swizzle = 'rgba';
+		this.swizzle = undefined;
 
 	}
 

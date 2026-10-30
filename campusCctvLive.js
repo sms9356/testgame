@@ -1,9 +1,10 @@
 import * as THREE from './vendor/three.module.js';
+import { makeRenderTarget, ENGINE } from './engine.js';
 
 const WIDTH = 256, HEIGHT = 192, MAX_RENDER_HZ = 6, READBACK_MS = 500;
 export function createCampusCctvLive({ renderer, scene, feeds = [], floorRoots = [], monitorMeshes = [], onClose, onChannelsChanged, onPowerToggle, getPowered, initialChannels = [], visibilityForFeed, renderCapture } = {}) {
   if (!renderer || !scene) throw new TypeError('renderer and scene are required');
-  const targets = Array.from({ length: 3 }, () => new THREE.WebGLRenderTarget(WIDTH, HEIGHT, { depthBuffer: true, stencilBuffer: false }));
+  const targets = Array.from({ length: 3 }, () => makeRenderTarget(WIDTH, HEIGHT, { depthBuffer: true, stencilBuffer: false }));
   const cameras = Array.from({ length: 3 }, () => new THREE.PerspectiveCamera(55, WIDTH / HEIGHT, 0.1, 1000));
   let feedList = Array.isArray(feeds) ? feeds.slice() : [], monitors = Array.from(monitorMeshes || []), channelIds = [], cursor = 0, elapsed = 0, readbackElapsed = 0, opened = false, disposed = false, overlay = null, renderCount=0, poweredNow=Boolean(getPowered?.()), channelFeedIds=[null,null,null];
   const textures = targets.map(t => { t.texture.colorSpace=THREE.SRGBColorSpace; return t.texture; });
@@ -55,7 +56,13 @@ export function createCampusCctvLive({ renderer, scene, feeds = [], floorRoots =
     const cadence=1/MAX_RENDER_HZ; if(powered&&(near||opened)&&elapsed>=cadence){elapsed%=cadence; const ix=(cursor++%3); try{renderFeed(ix);}catch(e){throw e;} }
     if(opened && readbackElapsed>=READBACK_MS/1000){readbackElapsed%=READBACK_MS/1000; readCanvases();}
   }
-  function readCanvases(){ if(!overlay||!renderer.readRenderTargetPixels)return; const canvases=overlay.querySelectorAll('canvas'); for(let i=0;i<3;i++){const c=canvases[i],ctx=c?.getContext?.('2d');if(!ctx)continue;if(!poweredNow){ctx.fillStyle='#050808';ctx.fillRect(0,0,WIDTH,HEIGHT);ctx.fillStyle='#9bb5aa';ctx.font='14px sans-serif';ctx.fillText('전원 꺼짐',85,100);continue;}try{const data=new Uint8Array(WIDTH*HEIGHT*4);renderer.readRenderTargetPixels(targets[i],0,0,WIDTH,HEIGHT,data);const flipped=new Uint8ClampedArray(data.length);for(let y=0;y<HEIGHT;y++)flipped.set(data.subarray(y*WIDTH*4,(y+1)*WIDTH*4),(HEIGHT-1-y)*WIDTH*4);ctx.putImageData(new ImageData(flipped,WIDTH,HEIGHT),0,0);ctx.fillStyle='rgba(0,0,0,.65)';ctx.fillRect(0,0,WIDTH,23);ctx.fillStyle='#d4ffe2';ctx.font='12px sans-serif';ctx.fillText((feedList.find(f=>f.id===channelIds[i])?.label||'신호 없음').slice(0,28),5,16);ctx.fillText(new Date().toLocaleTimeString('ko-KR'),165,HEIGHT-8);}catch{}}
+  // 신규 엔진(WebGPU): 픽셀 읽기가 비동기 — 위아래가 이미 바른 순서로 온다
+  let gpuReading=false;
+  async function readCanvasesGPU(){ if(gpuReading)return; gpuReading=true; try{ const canvases=overlay.querySelectorAll('canvas');
+    for(let i=0;i<3;i++){ const c=canvases[i],ctx=c?.getContext?.('2d'); if(!ctx)continue; if(!poweredNow){ctx.fillStyle='#050808';ctx.fillRect(0,0,WIDTH,HEIGHT);ctx.fillStyle='#9bb5aa';ctx.font='14px sans-serif';ctx.fillText('전원 꺼짐',85,100);continue;}
+      const data=await renderer.readRenderTargetPixelsAsync(targets[i],0,0,WIDTH,HEIGHT); if(!overlay)break; const px=new Uint8ClampedArray(data.buffer?data.buffer.slice(0,WIDTH*HEIGHT*4):data); ctx.putImageData(new ImageData(px,WIDTH,HEIGHT),0,0);
+      ctx.fillStyle='rgba(0,0,0,.65)';ctx.fillRect(0,0,WIDTH,23);ctx.fillStyle='#d4ffe2';ctx.font='12px sans-serif';ctx.fillText((feedList.find(f=>f.id===channelIds[i])?.label||'신호 없음').slice(0,28),5,16);ctx.fillText(new Date().toLocaleTimeString('ko-KR'),165,HEIGHT-8); } }catch{} gpuReading=false; }
+  function readCanvases(){ if(!overlay)return; if(ENGINE.webgpu&&renderer.readRenderTargetPixelsAsync){ readCanvasesGPU(); return; } if(!renderer.readRenderTargetPixels)return; const canvases=overlay.querySelectorAll('canvas'); for(let i=0;i<3;i++){const c=canvases[i],ctx=c?.getContext?.('2d');if(!ctx)continue;if(!poweredNow){ctx.fillStyle='#050808';ctx.fillRect(0,0,WIDTH,HEIGHT);ctx.fillStyle='#9bb5aa';ctx.font='14px sans-serif';ctx.fillText('전원 꺼짐',85,100);continue;}try{const data=new Uint8Array(WIDTH*HEIGHT*4);renderer.readRenderTargetPixels(targets[i],0,0,WIDTH,HEIGHT,data);const flipped=new Uint8ClampedArray(data.length);for(let y=0;y<HEIGHT;y++)flipped.set(data.subarray(y*WIDTH*4,(y+1)*WIDTH*4),(HEIGHT-1-y)*WIDTH*4);ctx.putImageData(new ImageData(flipped,WIDTH,HEIGHT),0,0);ctx.fillStyle='rgba(0,0,0,.65)';ctx.fillRect(0,0,WIDTH,23);ctx.fillStyle='#d4ffe2';ctx.font='12px sans-serif';ctx.fillText((feedList.find(f=>f.id===channelIds[i])?.label||'신호 없음').slice(0,28),5,16);ctx.fillText(new Date().toLocaleTimeString('ko-KR'),165,HEIGHT-8);}catch{}}
   }
   function dispose(){if(disposed)return;disposed=true;overlay?.remove();overlay=null;for(const t of targets)t.dispose();}
   return { textures, setFeeds, setMonitors, tick, open, close:closeUI, get isOpen(){return opened;}, get channels(){return channelIds.slice();}, restoreChannels, get diagnostics(){return {feedCount:feedList.length, channelCount:channelIds.length, rendersPerSecond:MAX_RENDER_HZ, targetSize:[WIDTH,HEIGHT],renderCount,channelFeedIds:channelFeedIds.slice(),powered:poweredNow,disposed};}, dispose };

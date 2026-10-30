@@ -1,6 +1,7 @@
 // 텍스처 없는 단색 가구 · 장식 · 시설 재질에 가벼운 표면 디테일을 입힌다 (깨진 블록처럼 보이던 민무늬 면 보완)
 // 256px 캔버스 텍스처 5종을 한 번만 만들어 모든 재질이 공유한다 — 색은 재질 color 가 곱해지므로 텍스처는 밝은 회색 계열
 import * as THREE from './vendor/three.module.js';
+import { makePMREM } from './engine.js';
 
 const TEX = {};
 const rnd = (() => { let s = 9; return () => (s = (s * 16807) % 2147483647) / 2147483647; })();
@@ -68,7 +69,7 @@ export function setupEnv(renderer, scene, intensity = .32) {
   const panel = new THREE.MeshBasicMaterial({ color: 0xe8eef4 });
   for (const [x, z] of [[-3, -3], [3, -3], [-3, 3], [3, 3], [0, 0]]) { const p = new THREE.Mesh(new THREE.PlaneGeometry(1.4, .35), panel); p.rotation.x = Math.PI / 2; p.position.set(x, 3.98, z); env.add(p); }
   const win = new THREE.Mesh(new THREE.PlaneGeometry(8, 1.6), new THREE.MeshBasicMaterial({ color: 0x5a6a80 })); win.position.set(0, 2, -5.98); env.add(win);
-  const pm = new THREE.PMREMGenerator(renderer), rt = pm.fromScene(env, .04); pm.dispose();
+  const pm = makePMREM(renderer), rt = pm.fromScene(env, .04); pm.dispose();
   scene.environment = rt.texture; scene.environmentIntensity = intensity;
   env.traverse(o => { if (o.geometry) o.geometry.dispose(); });
 }

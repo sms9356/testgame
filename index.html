@@ -673,7 +673,7 @@
 .pTabs{overflow-x:auto;flex-wrap:nowrap;scrollbar-width:thin}.pTabs button{flex:0 0 auto;min-width:44px;white-space:nowrap}
 .missionNav{display:flex;gap:8px;position:sticky;top:0;background:#151a1c;padding:6px;z-index:1}.missionNav button{flex:1;background:#26323b;color:#e0e4e7;border:1px solid #42515c;border-radius:6px;padding:7px;font:inherit;cursor:pointer}.missionNav button:hover,.missionNav button:focus-visible{background:#3b4c59;outline:1px solid #c4b883}.missionGroup{margin:0 0 20px;scroll-margin-top:64px}.missionGroup h3{color:#d0c59f;margin-bottom:5px}.missionGroup p{font-size:12px;color:#a7aea8}.missionDone{opacity:.6}
 </style>
-<link rel="stylesheet" href="uiV3.css?v=295">
+<link rel="stylesheet" href="uiV3.css?v=296">
 </head>
 <body>
 <canvas id="c"></canvas>
@@ -758,7 +758,8 @@
 
 <div id="mg" class="overlay"><div class="win"><div class="head"><b id="mgTitle"></b><button class="x" id="mgCancel">포기 <kbd>Esc</kbd></button></div><div id="mgHint"></div><div id="mgBody"></div><div id="mgStatus"></div></div></div>
 
-<div id="loading" class="overlay show" style="z-index:40;background:#000"><h2 style="letter-spacing:.3em;color:#8d897d;font-size:18px">불러오는 중…</h2><p class="sub" id="loadMsg">학교 문을 여는 중</p></div>
+<div id="loading" class="overlay show" style="z-index:40;background:#000"><div class="ldWrap"><div class="ldArt"><img id="ldImg" class="on" alt=""><img id="ldImg2" alt=""><div class="ldVig"></div></div><div class="ldPage" id="ldPage"><div class="ldHead"><span>CASE 1998-1012 · 사건 기록</span><span id="ldNo">01 / 06</span></div><div class="ldDate" id="ldDate"></div><h3 id="ldTitle"></h3><p id="ldText"></p><div class="ldStamp">기록 보존</div></div></div><div class="ldFoot"><div class="ldBar"><i id="ldFill"></i></div><h2 style="letter-spacing:.3em;color:#8d897d;font-size:18px">불러오는 중…</h2><p class="sub" id="loadMsg">학교 문을 여는 중</p><div class="ldHint">← → · 클릭: 기록 넘기기</div></div></div>
+<script src="loadingV2.js?v=296"></script>
 
 <!-- 타이틀 -->
 <div id="title" class="overlay show"><div class="tbg"></div><div class="tQuote">그날 밤,

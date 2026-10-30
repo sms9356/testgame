@@ -5,7 +5,7 @@
 //   재질: F-01 ~ F-05 바닥 · W-01 ~ W-05 벽 · C-01 ~ C-04 천장 (Poly Haven CC0 실사 스캔 텍스처, assets/tex/fac_* · 미터 단위 UV)
 import * as THREE from './vendor/three.module.js';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { pbr } from './tex.js?v=296';
+import { pbr } from './tex.js?v=297';
 
 const FH = 3.6, CEIL = 2.9, WALL_T = .24, LIN = .06;
 const TL = new THREE.TextureLoader(), TEX = {};
@@ -800,7 +800,7 @@ function demolishExterior(ctx, zones) {
   const walk = o => { if (inner.has(o) || o.isCamera || o.isSkinnedMesh || (o.userData && (o.userData.facNew || o.userData.facKeep))) return;
     if (o.isMesh && !o.isInstancedMesh) { bb.setFromObject(o); if (bb.isEmpty()) return; bb.getSize(sz); bb.getCenter(v);
       const Z = zones.find(Z => v.x > Z.cx - Z.W / 2 - .6 && v.x < Z.cx + Z.W / 2 + .6 && v.z > Z.cz - Z.D / 2 - .6 && v.z < Z.cz + Z.D / 2 + .6);
-      if (Z && sz.x < Z.W + 2 && sz.z < Z.D + 2 && bb.max.y > .3 && bb.min.y > -1 && bb.max.y < 12) kill.push(o); return; }
+      if (Z && sz.x < Z.W + 8 && sz.z < Z.D + 8 && bb.max.y > .3 && bb.min.y > -1 && bb.max.y < 12) kill.push(o); return; }   // 옛 외벽 통짜 메시는 구역보다 조금 크다(예: 급식실 18.8 × 18.9m) — 가운데가 구역 안이면 걷는다
     for (let i = o.children.length - 1; i >= 0; i--) walk(o.children[i]); };
   scene.children.forEach(walk); kill.forEach(o => { o.parent && o.parent.remove(o); n++; });
   return n;

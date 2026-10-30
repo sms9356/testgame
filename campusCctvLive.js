@@ -1,5 +1,5 @@
 import * as THREE from './vendor/three.module.js';
-import { makeRenderTarget, ENGINE } from './engine.js?v=303';
+import { makeRenderTarget, ENGINE } from './engine.js?v=304';
 
 const WIDTH = 256, HEIGHT = 192, MAX_RENDER_HZ = 6, READBACK_MS = 500;
 export function createCampusCctvLive({ renderer, scene, feeds = [], floorRoots = [], monitorMeshes = [], onClose, onChannelsChanged, onPowerToggle, getPowered, initialChannels = [], visibilityForFeed, renderCapture } = {}) {

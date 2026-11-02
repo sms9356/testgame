@@ -8314,12 +8314,6 @@ function megaNotify(m) { const t = String(m).split('\n'); say(t[0].replace(/^\S+
         // 창고: 철제 선반 · 상자 / 준비공간: 싱크대 · 작업대
         [x0 + .5, x0 + 1.45].forEach(x => { pbox(.9, 1.8, .45, PM(0x7a7e82, .5, .5), x, .9, z0 + .25, O); for (let r = 0; r < 3; r++) pbox(.75, .3, .35, PM(0xb08a58, .9), x, .35 + r * .55, z0 + .27, O); }); F0.col.push({ x1: x0, x2: x0 + 1.95, z1: z0, z2: z0 + .5 });
         pbox(2.4, .85, .6, PM(0xc8ccd0, .35, .6), xS + 1.4, .425, z0 + .3, O); pbox(.5, .02, .4, PM(0x30363a, .3, .7), xS + .9, .86, z0 + .3, O); F0.col.push({ x1: xS + .2, x2: xS + 2.6, z1: z0, z2: z0 + .6, h: .85 });
-        // 서벽 음료 냉장고 (1200×700×2000 · 유리문)
-        { const fx = x0 + .35, fz = zP + 1.3; pbox(.7, 2.0, 1.2, PM(0x1a3a6a, .4, .3), fx, 1.0, fz, O); pmesh(new THREE.PlaneGeometry(1.1, 1.75), new THREE.MeshStandardMaterial({ color: 0xc8e4f0, emissive: 0x8ac8e8, emissiveIntensity: .45, transparent: true, opacity: .55 }), fx + .36, 1.05, fz, O, { ry: Math.PI / 2, cast: false });
-          for (let r = 0; r < 4; r++) for (let k = 0; k < 6; k++) pcyl(.035, .035, .22, CAN[(r + k) % 4], fx + .2, .35 + r * .42, fz - .45 + k * .18, O);
-          pbox(1.1, .24, .04, PM(0x1e3a8a, .5), fx + .37, 1.98, fz, O, { ry: Math.PI / 2, cast: false }); F0.col.push({ x1: x0, x2: x0 + .72, z1: fz - .6, z2: fz + .6 }); }
-        // 중앙 스낵 · 간식 진열대 2열 (900×450×1500 × 3) · 남서 빵 · 간식 진열대
-        const snackC = [0xd83a2a, 0xe8b020, 0x2a8a3a, 0x3a6ad8, 0xe86a20, 0x8a3ab0];
         // 실제 과자 포장 · 음료 캔 라벨 텍스처 (캔버스로 그린 1998년풍 포장: 바탕색 · 흰 띠 · 상품명 · 광택 띠 · 중량 표기) — 같은 재질을 진열대 전체가 나눠 쓴다
         const pack = (name, bg, fg, sub) => { const c = document.createElement('canvas'); c.width = 128; c.height = 128; const g2 = c.getContext('2d'); const gr = g2.createLinearGradient(0, 0, 128, 128); gr.addColorStop(0, bg); gr.addColorStop(1, '#000'); g2.fillStyle = bg; g2.fillRect(0, 0, 128, 128); g2.globalAlpha = .35; g2.fillStyle = gr; g2.fillRect(0, 0, 128, 128); g2.globalAlpha = 1;
           g2.fillStyle = '#fff'; g2.beginPath(); g2.ellipse(64, 60, 60, 26, -.12, 0, 7); g2.fill(); g2.fillStyle = fg; g2.font = 'bold 24px sans-serif'; g2.textAlign = 'center'; g2.textBaseline = 'middle'; g2.fillText(name, 64, 60); g2.fillStyle = '#fff'; g2.font = '11px sans-serif'; g2.fillText(sub, 64, 108);
@@ -8327,6 +8321,12 @@ function megaNotify(m) { const t = String(m).split('\n'); say(t[0].replace(/^\S+
         const SNACK = [['새우깡', '#d8261c', '#d8261c', '90g'], ['초코파이', '#b0141c', '#5a2a10', '12개입'], ['꿀꽈배기', '#e8a810', '#8a4a00', '80g'], ['포카칩', '#2a5ad8', '#1a3a8a', '66g'], ['맛동산', '#e86a20', '#8a2a00', '95g'], ['빼빼로', '#c8102e', '#3a1a10', '52g']].map(a => pack(...a));
         const CAN = [['콜라', '#c8102e', '#c8102e', '250ml'], ['사이다', '#2a8a3a', '#1a6a2a', '250ml'], ['식혜', '#e8b020', '#7a4a00', '238ml'], ['포카리', '#2a6ad8', '#1a4aa8', '245ml']].map(a => pack(...a));
         const CUP = [['신라면', '#c81414', '#c81414', '컵'], ['육개장', '#e8a010', '#8a3a00', '사발'], ['튀김우동', '#2a5ad8', '#1a3a8a', '컵']].map(a => pack(...a));
+        // 서벽 음료 냉장고 (1200×700×2000 · 유리문)
+        { const fx = x0 + .35, fz = zP + 1.3; pbox(.7, 2.0, 1.2, PM(0x1a3a6a, .4, .3), fx, 1.0, fz, O); pmesh(new THREE.PlaneGeometry(1.1, 1.75), new THREE.MeshStandardMaterial({ color: 0xc8e4f0, emissive: 0x8ac8e8, emissiveIntensity: .45, transparent: true, opacity: .55 }), fx + .36, 1.05, fz, O, { ry: Math.PI / 2, cast: false });
+          for (let r = 0; r < 4; r++) for (let k = 0; k < 6; k++) pcyl(.035, .035, .22, CAN[(r + k) % 4], fx + .2, .35 + r * .42, fz - .45 + k * .18, O);
+          pbox(1.1, .24, .04, PM(0x1e3a8a, .5), fx + .37, 1.98, fz, O, { ry: Math.PI / 2, cast: false }); F0.col.push({ x1: x0, x2: x0 + .72, z1: fz - .6, z2: fz + .6 }); }
+        // 중앙 스낵 · 간식 진열대 2열 (900×450×1500 × 3) · 남서 빵 · 간식 진열대
+        const snackC = [0xd83a2a, 0xe8b020, 0x2a8a3a, 0x3a6ad8, 0xe86a20, 0x8a3ab0];
         const gondola = (x, z, len, alongX = true) => { const n = Math.round(len / .9); pbox(alongX ? len : .45, 1.5, alongX ? .45 : len, creamM, x, .75, z, O);
           for (let r = 0; r < 4; r++) for (let k = 0; k < n * 3; k++) { const tt = -len / 2 + (k + .5) * len / (n * 3); [-1, 1].forEach(sd => pbox(alongX ? .26 : .06, .24, alongX ? .06 : .26, SNACK[(k + r + (sd > 0 ? 2 : 0)) % 6], x + (alongX ? tt : sd * .2), .32 + r * .33, z + (alongX ? sd * .2 : tt), O, { cast: false })); }
           F0.col.push({ x1: x - (alongX ? len / 2 : .23), x2: x + (alongX ? len / 2 : .23), z1: z - (alongX ? .23 : len / 2), z2: z + (alongX ? .23 : len / 2) }); };

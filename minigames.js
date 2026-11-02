@@ -2308,6 +2308,63 @@ function voltageSync({ title = '⚡ 노후 배전반 — 3상(R·S·T) 전압 �
   raf = requestAnimationFrame(loop); return p;
 }
 
+/* ---------- 24b. 캡슐 뽑기 기계 3D (gacha3D) — 실제 기계: 유리 돔 속 캡슐 · 동전 투입 · 크랭크 360° · 배출구로 굴러 나온 캡슐을 열기 ---------- */
+function gacha3D({ title = '급식실 캡슐 뽑기 기계' } = {}) {
+  let r; try { r = new THREE.WebGLRenderer({ antialias: true }); } catch (e) { return gachaCrank({ title }); }
+  const p = open(title, '<b>① 동전 넣기</b> 버튼(또는 C) → <b>② 크랭크를 마우스로 둥글게 끌어</b>(또는 D/Space 연타) 한 바퀴 → <b>③ 굴러 나온 캡슐 클릭</b>(또는 Enter)으로 열기');
+  const W = 460, H = 330; r.setPixelRatio(Math.min(2, devicePixelRatio || 1)); r.setSize(W, H); r.outputColorSpace = THREE.SRGBColorSpace; r.toneMapping = THREE.ACESFilmicToneMapping; r.shadowMap.enabled = true;
+  r.domElement.className = 'mgCanvas'; r.domElement.dataset.own3d = '1'; $('mgBody').appendChild(r.domElement);
+  const btn = document.createElement('button'); btn.className = 'btn'; btn.textContent = '🪙 100원 동전 넣기 (C)'; $('mgBody').appendChild(btn);
+  const sc = new THREE.Scene(); sc.background = new THREE.Color(0x0c0a0a); sc.fog = new THREE.Fog(0x0c0a0a, 6, 12);
+  const cam = new THREE.PerspectiveCamera(34, W / H, .05, 30); cam.position.set(.55, 1.15, 3.1); cam.lookAt(0, .78, 0);
+  sc.add(new THREE.HemisphereLight(0xfff0e0, 0x201410, .55)); const key = new THREE.SpotLight(0xffe8c8, 30, 10, .6, .5, 1.5); key.position.set(1.6, 3, 2.4); key.castShadow = true; sc.add(key, key.target);
+  const rim = new THREE.PointLight(0x80b0ff, 3, 6); rim.position.set(-1.6, 1.4, -1); sc.add(rim);
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(12, 12), new THREE.MeshStandardMaterial({ color: 0x5a5048, roughness: .8 })); floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; sc.add(floor);
+  const red = new THREE.MeshStandardMaterial({ color: 0xc8202a, roughness: .32, metalness: .2 }), chrome = new THREE.MeshStandardMaterial({ color: 0xd8dce0, roughness: .18, metalness: 1 }), dark = new THREE.MeshStandardMaterial({ color: 0x141414, roughness: .6 });
+  const M = (g, m, x, y, z) => { const o = new THREE.Mesh(g, m); o.position.set(x, y, z); o.castShadow = true; o.receiveShadow = true; sc.add(o); return o; };
+  M(new THREE.CylinderGeometry(.42, .46, .06, 40), chrome, 0, .03, 0);   // 받침
+  const body = M(new THREE.BoxGeometry(.72, .62, .66), red, 0, .37, 0);   // 본체
+  M(new THREE.CylinderGeometry(.36, .36, .05, 40), chrome, 0, .705, 0);   // 돔 받침 링
+  const dome = M(new THREE.SphereGeometry(.34, 40, 28), new THREE.MeshStandardMaterial({ color: 0xdfefff, roughness: .05, metalness: .1, transparent: true, opacity: .16, depthWrite: false }), 0, 1.02, 0); dome.castShadow = false;
+  M(new THREE.CylinderGeometry(.09, .12, .07, 24), red, 0, 1.37, 0);   // 뚜껑
+  // 라벨판 (가격 · 이름)
+  { const c = document.createElement('canvas'); c.width = 256; c.height = 128; const g = c.getContext('2d'); g.fillStyle = '#f4e8c8'; g.fillRect(0, 0, 256, 128); g.fillStyle = '#c8202a'; g.font = 'bold 40px sans-serif'; g.textAlign = 'center'; g.fillText('행운 캡슐', 128, 52); g.fillStyle = '#222'; g.font = 'bold 34px sans-serif'; g.fillText('₩100', 128, 104);
+    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; M(new THREE.PlaneGeometry(.38, .19), new THREE.MeshStandardMaterial({ map: t, roughness: .5 }), 0, .55, .331); }
+  // 동전 투입구 · 크랭크 · 배출구
+  M(new THREE.BoxGeometry(.12, .1, .02), chrome, .2, .36, .335); M(new THREE.BoxGeometry(.06, .012, .01), dark, .2, .38, .347);
+  const crank = new THREE.Group(); crank.position.set(-.12, .34, .345); sc.add(crank);
+  const hub = new THREE.Mesh(new THREE.CylinderGeometry(.075, .075, .04, 30), chrome); hub.rotation.x = Math.PI / 2; crank.add(hub);
+  const arm = new THREE.Mesh(new THREE.BoxGeometry(.2, .04, .03), chrome); arm.position.set(.07, 0, .03); crank.add(arm);
+  const knob = new THREE.Mesh(new THREE.SphereGeometry(.03, 16, 12), dark); knob.position.set(.16, 0, .05); crank.add(knob);
+  const chute = M(new THREE.BoxGeometry(.2, .14, .06), dark, 0, .14, .34); const flap = M(new THREE.BoxGeometry(.19, .12, .01), new THREE.MeshStandardMaterial({ color: 0xdfefff, transparent: true, opacity: .3, depthWrite: false }), 0, .14, .372);
+  // 돔 속 캡슐 (반반 색 · 위아래 반구)
+  const COL = [0xff4060, 0x40a0ff, 0xffd030, 0x50d080, 0xc060ff, 0xff8030], caps = [];
+  const capsule = col => { const g = new THREE.Group(), top = new THREE.Mesh(new THREE.SphereGeometry(.05, 18, 10, 0, Math.PI * 2, 0, Math.PI / 2), new THREE.MeshStandardMaterial({ color: col, roughness: .18, metalness: .05 })), bot = new THREE.Mesh(new THREE.SphereGeometry(.05, 18, 10, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2), new THREE.MeshStandardMaterial({ color: 0xf4f4f0, roughness: .3 })); top.castShadow = bot.castShadow = true; g.add(top, bot); g.userData = { top, bot }; return g; };
+  for (let i = 0; i < 38; i++) { const c = capsule(COL[i % COL.length]), a = Math.random() * Math.PI * 2, rr = Math.sqrt(Math.random()) * .27, y = .78 + Math.random() * .3 * (1 - rr / .34); c.position.set(Math.cos(a) * rr, y, Math.sin(a) * rr); c.rotation.set(Math.random() * 3, Math.random() * 3, Math.random() * 3); c.userData.base = c.position.clone(); sc.add(c); caps.push(c); }
+  const coin = M(new THREE.CylinderGeometry(.025, .025, .005, 24), new THREE.MeshStandardMaterial({ color: 0xd8c070, metalness: 1, roughness: .3 }), .2, .55, .5); coin.rotation.x = Math.PI / 2; coin.visible = false;
+  let coinIn = false, coinT = -1, ang = 0, last = null, drop = null, dropT = 0, opened = false, openT = 0, shake = 0;
+  const insert = () => { if (coinIn || coinT >= 0) return; coinT = 0; coin.visible = true; sfx.click(); btn.disabled = true; };
+  btn.onclick = insert;
+  const turn = da => { if (!coinIn) { status('먼저 동전을 넣으세요', 'err'); sfx.buzz(); return; } if (drop) return; if (da <= 0) return; const before = Math.floor(ang / (Math.PI / 4)); ang += da; shake = .25;
+    if (Math.floor(ang / (Math.PI / 4)) > before) { sfx.dial && sfx.dial(); sfx.tumbler && Math.random() < .3 && sfx.tumbler(); }
+    if (ang >= Math.PI * 2) { ang = Math.PI * 2; const c = caps.splice((Math.random() * caps.length) | 0, 1)[0]; drop = c; dropT = 0; c.userData.from = c.position.clone(); sfx.unlock && sfx.unlock(); status('덜컥 — 캡슐이 굴러 나온다!', 'ok'); } };
+  const cv = r.domElement, crankScreen = () => { const v = crank.getWorldPosition(new THREE.Vector3()).project(cam), b = cv.getBoundingClientRect(); return { x: b.left + (v.x + 1) / 2 * b.width, y: b.top + (1 - v.y) / 2 * b.height }; };
+  const angAt = e => { const c0 = crankScreen(); return Math.atan2(e.clientY - c0.y, e.clientX - c0.x); };
+  cv.addEventListener('mousedown', e => { if (drop && dropT > 1.1 && !opened) { opened = true; openT = 0; sfx.pickup && sfx.pickup(); return; } last = angAt(e); });
+  const mm = e => { if (last == null) return; const a = angAt(e); let d = a - last; if (d > Math.PI) d -= Math.PI * 2; if (d < -Math.PI) d += Math.PI * 2; last = a; turn(d); };
+  const mu = () => { last = null; }; addEventListener('mousemove', mm); addEventListener('mouseup', mu); cleanups.push(() => { removeEventListener('mousemove', mm); removeEventListener('mouseup', mu); r.dispose(); });
+  keys(e => { if (e.type !== 'keydown') return; if (e.code === 'KeyC') insert(); if (e.code === 'KeyD' || e.code === 'Space') turn(Math.PI / 6); if (e.code === 'Enter' && drop && dropT > 1.1 && !opened) { opened = true; openT = 0; sfx.pickup && sfx.pickup(); } });
+  let lt = performance.now();
+  const loop = now => { const dt = Math.min(.05, (now - lt) / 1000); lt = now;
+    if (coinT >= 0) { coinT += dt; coin.position.set(.2, .55 - Math.min(1, coinT / .5) * .17, .5 - Math.min(1, coinT / .5) * .15); if (coinT > .55) { coin.visible = false; coinT = -1; coinIn = true; sfx.clank ? sfx.clank(.6) : sfx.click(); status('동전이 떨어졌다 — 크랭크를 돌리세요', 'ok'); } }
+    crank.rotation.z = -ang; shake = Math.max(0, shake - dt * 2);
+    caps.forEach((c, i) => { const b = c.userData.base; c.position.set(b.x + Math.sin(now / 60 + i) * .006 * shake * 4, b.y + Math.abs(Math.sin(now / 45 + i * 1.7)) * .012 * shake * 4, b.z + Math.cos(now / 55 + i) * .006 * shake * 4); c.rotation.y += shake * dt * 3; });
+    if (drop && !opened) { dropT += dt; const f = drop.userData.from; if (dropT < .5) drop.position.lerpVectors(f, new THREE.Vector3(0, .72, 0), dropT / .5); else if (dropT < 1.1) { const k = (dropT - .5) / .6; drop.position.set(0, .26 - k * .14 + Math.abs(Math.sin(k * 9)) * .04 * (1 - k), .3 + k * .22); drop.rotation.x += dt * 9; flap.rotation.x = -Math.sin(Math.min(1, k * 2) * Math.PI) * .9; } else { drop.position.y = .12 + Math.sin(now / 300) * .004; flap.rotation.x = 0; } }
+    if (opened) { openT += dt; const k = Math.min(1, openT / .6); drop.userData.top.position.y = k * .09; drop.userData.top.rotation.x = -k * 1.2; drop.userData.bot.position.y = -k * .02; drop.rotation.x = 0; cam.position.lerp(new THREE.Vector3(.1, .5, 1.1), dt * 2); cam.lookAt(drop.position); if (openT > 1.1) { r.render(sc, cam); return close(true); } }
+    else { cam.position.x = .55 + Math.sin(now / 2400) * .05; cam.lookAt(0, .78, 0); }
+    r.render(sc, cam); raf = requestAnimationFrame(loop); };
+  raf = requestAnimationFrame(loop); return p;
+}
 /* ---------- 24. 1998 캡슐 뽑기 기계 — 동전 투입 & 크랭크 360° 회전 (gachaCrank) ---------- */
 function gachaCrank({ title = '급식실 캡슐 뽑기 기계 — 동전 투입 & 크랭크 360° 회전' } = {}) {
   const p = open(title, '<b>1) [100원 주화 투입]</b>을 누른 뒤, <b>2) 크랭크 손잡이를 마우스로 둥글게 드래그(또는 Space/D 연타)</b>해 360° 한 바퀴를 끝까지 돌려 캡슐을 뽑아라!');
@@ -2391,5 +2448,5 @@ function gachaCrank({ title = '급식실 캡슐 뽑기 기계 — 동전 투입 
 
 export function run(kind, opts = {}) {
   if (MG.active) return Promise.resolve({ ok: false });
-  return ({ lockpick, dial, circuit, piano, slide, fishing, order, memory, tune, simon, timing, ouija, pipes, maze, rings, spotdiff, fuse, oscilloscope, chemMix, hoopShot, filmFocus, valveBalance, stampApprove, omrGrade, timetableRestore, libraryCatalog, cassetteSplice, microscopeSlide, sketchLine, voltageSync, gachaCrank })[kind](opts);
+  return ({ lockpick, dial, circuit, piano, slide, fishing, order, memory, tune, simon, timing, ouija, pipes, maze, rings, spotdiff, fuse, oscilloscope, chemMix, hoopShot, filmFocus, valveBalance, stampApprove, omrGrade, timetableRestore, libraryCatalog, cassetteSplice, microscopeSlide, sketchLine, voltageSync, gachaCrank, gacha3D })[kind](opts);
 }

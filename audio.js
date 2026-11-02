@@ -412,6 +412,11 @@ function laterAt(s, fn) { const p = sfxPos; setTimeout(() => { sfxPos = p; try {
   dtmf(d) { const R = { 1: [697, 1209], 2: [697, 1336], 3: [697, 1477], 4: [770, 1209], 5: [770, 1336], 6: [770, 1477], 7: [852, 1209], 8: [852, 1336], 9: [852, 1477], 0: [941, 1336] }[d] || [941, 1209]; tone(R[0], .12, 'sine', .07); tone(R[1], .12, 'sine', .07); },
   ringback(n = 2) { for (let i = 0; i < n; i++) setTimeout(() => { tone(440, 1, 'sine', .045); tone(480, 1, 'sine', .045); }, i * 3000); },
   pickupClick() { noiseBurst(.05, 2500, 'bandpass', .35); setTimeout(() => noiseBurst(.4, 900, 'lowpass', .05), 60); },
+  // 소비 아이템 사용음: 사탕 깨물기 · 차 마시기(후루룩 + 꿀꺽) · 밴드 뜯기 · 건전지 끼우기
+  crunch() { for (let i = 0; i < 4; i++) setTimeout(() => noiseBurst(.05 + Math.random() * .04, 2600 + Math.random() * 1800, 'bandpass', .35), i * 110 + Math.random() * 40); },
+  sip() { noiseBurst(.5, 900, 'bandpass', .12); setTimeout(() => { tone(180, .12, 'sine', .08, 0, 1, 120); noiseBurst(.08, 400, 'lowpass', .2); }, 650); },
+  bandage() { noiseBurst(.32, 3800, 'highpass', .28); setTimeout(() => noiseBurst(.18, 5200, 'highpass', .18), 260); },
+  batteryIn() { noiseBurst(.03, 3000, 'bandpass', .5); setTimeout(() => { noiseBurst(.025, 1800, 'bandpass', .6); tone(2200, .04, 'square', .03); }, 160); },
   waterDrain() {
     for (let i = 0; i < 8; i++) setTimeout(() => {
       noiseBurst(.38, 650 + i * 70, 'bandpass', .38 - i * .03);

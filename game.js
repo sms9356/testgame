@@ -7251,6 +7251,12 @@ function refinishB1() {
   [-1.45, 1.45].forEach(z => box(LINE, X1 + .3, X2 - .3, .006, .012, z - .04, z + .04));
   for (let x = X1 + 2; x < X2 - 1; x += 4.5) box(LED, x - .6, x + .6, H - .06, H - .02, -.06, .06);
   box(TRAY, X1 + .3, X2 - .3, H - .32, H - .28, .9, 1.3);
+  // 진입 계단실: 숨겨진 옛 계단 자리에 새 철골 계단 (콘크리트 디딤판 12단 · 철제 측판 · 난간) + 'B1 ↑ 본관 1층' 유도등 — 시각만 (오르내림은 계단 구역 판정 그대로)
+  { const cx = F.stairCx ?? 0, sx1 = cx - 2.45, sx2 = cx - 1.2, zA = -2.4, zB = -8.6, n = 12, STEP = mk(0x9a9a94, .85), STEEL = mk(0x3a4046, .5, .6), RAIL = mk(0xd8b020, .45, .3);
+    for (let k = 0; k < n; k++) { const za = zA + (zB - zA) * k / n, zb = zA + (zB - zA) * (k + 1) / n, h = H * (k + 1) / n; box(STEP, sx1, sx2, h - .06, h, Math.min(za, zb), Math.max(za, zb)); }
+    for (let k = 0; k < n; k++) { const z = zA + (zB - zA) * (k + .5) / n, h = H * (k + .5) / n; box(STEEL, sx1 - .06, sx1, h - .25, h, z - .26, z + .26); box(STEEL, sx2, sx2 + .06, h - .25, h, z - .26, z + .26); box(RAIL, sx2 + .1, sx2 + .14, h + .85, h + .9, z - .27, z + .27); if (k % 3 === 0) box(RAIL, sx2 + .1, sx2 + .14, h, h + .88, z - .02, z + .02); }
+    const c = document.createElement('canvas'); c.width = 256; c.height = 64; const g2 = c.getContext('2d'); g2.fillStyle = '#0a5a2a'; g2.fillRect(0, 0, 256, 64); g2.fillStyle = '#fff'; g2.font = 'bold 30px sans-serif'; g2.textAlign = 'center'; g2.textBaseline = 'middle'; g2.fillText('↑ 본관 1층', 128, 34);
+    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; const sg = new THREE.Mesh(new THREE.PlaneGeometry(.8, .2), new THREE.MeshStandardMaterial({ map: t, emissive: 0xffffff, emissiveMap: t, emissiveIntensity: .9 })); sg.position.set(cx - 1.8, y0 + 2.5, -1.9); sg.userData.b1new = true; g.add(sg); }
   console.info('[B1 새 설계] 숨긴 옛 메시', hid, '새 벽', walls.length); return hid;
 }
 function nurseChairFix() { if (!RBG || !RBG.nurseChairs) return; const nc = RBG.nurseChairs(); if (!nc.length) return; const chairs = world.props.filter(q => q.fz && q.fz.type === 'classroom_chair' && /보건실/.test((q.label || '') + (q.fz.label || '')));   // 옛 보건실 의자 앉기 지점: 하나는 새 보건실 책상 의자로, 나머지는 걷어 낸다 (침대 위에 떠 있던 것)

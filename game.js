@@ -1,9 +1,9 @@
 // 서문고 — 잊혀진 시간 : 1인칭 학교 공포 게임 (Three.js)
 import * as THREE from './vendor/three.module.js';
 import { MeshBVH } from './vendor/addons/bvh/three-mesh-bvh.module.js';
-import { createRenderer, ENGINE } from './engine.js?v=324';
-import { createFXWebGPU } from './fxWebGPU.js?v=324';
-import { autoDetail, setupEnv, sharpenTextures, slimHeavyProps } from './surfaceDetail.js?v=324';
+import { createRenderer, ENGINE } from './engine.js?v=325';
+import { createFXWebGPU } from './fxWebGPU.js?v=325';
+import { autoDetail, setupEnv, sharpenTextures, slimHeavyProps } from './surfaceDetail.js?v=325';
 // 광선 검사 가속 (three-mesh-bvh, MIT): 건물 통짜 메시에 광선을 쏘는 배치 보정 · 상호작용 검사가 삼각형을 전부 훑느라
 //   로딩 중 수십 초 멈추던 것('응답 없는 페이지') → 큰 정적 메시는 처음 검사할 때 BVH 를 한 번 만들어 쓴다
 { const base = THREE.Mesh.prototype.raycast, R = new THREE.Ray(), M4 = new THREE.Matrix4(), S = new THREE.Sphere();
@@ -21,23 +21,23 @@ import { buildMissionGroups, recordCompleted, normalizeCompletedLog } from './my
 import { settleStoryGhost } from './storyGhost.js';
 import { GLTFLoader } from './vendor/addons/loaders/GLTFLoader.js';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { createNPCVisuals } from './npcVisuals.js?v=324';
-import { applyGuardSeatedPose } from './guardSeatedPose.js?v=324';
+import { createNPCVisuals } from './npcVisuals.js?v=325';
+import { applyGuardSeatedPose } from './guardSeatedPose.js?v=325';
 import { createCampusCctvLive, collectCampusCctvFeeds } from './campusCctvLive.js';
-import { applyExteriorFloorVisibility, shouldStreamGuardCctv } from './exteriorRenderBudget.js?v=324';
-import { GUARD_LAYOUT } from './guardRoomLayout.js?v=324';
-import { ANNEX_KEYS, CABINET_CODE } from './guardAnnex.js?v=324';
-import { installGuardRoom } from './guardRoom.js?v=324';
+import { applyExteriorFloorVisibility, shouldStreamGuardCctv } from './exteriorRenderBudget.js?v=325';
+import { GUARD_LAYOUT } from './guardRoomLayout.js?v=325';
+import { ANNEX_KEYS, CABINET_CODE } from './guardAnnex.js?v=325';
+import { installGuardRoom } from './guardRoom.js?v=325';
 import { prepareModelGeometry } from './modelGeometry.js';
 import { modelFootprint, overlaps, removeDuplicateModels } from './placement.js';
-import { turfMaterial } from './campusVisuals.js?v=324';
+import { turfMaterial } from './campusVisuals.js?v=325';
 import { installInfirmaryAssets, updateInfirmaryCabinets } from './infirmaryAssets.js';
-import { installRebuild } from './rebuildGame.js?v=324';
-import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js?v=324'; import { updateWindowFakes } from './windowInteriors.js?v=324';
-import { drawMap } from './map.js?v=324';
-import { buildMegaCampus15000, MEGA_CAMPUS_ZONES } from './megaCampus15000.js?v=324';
-import { installFacilityRebuild, inTwoStory, ZONES as FAC_ZONES } from './facilityRebuild.js?v=324';
-import { relayoutCampus } from './campusRelayout.js?v=324';
+import { installRebuild } from './rebuildGame.js?v=325';
+import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js?v=325'; import { updateWindowFakes } from './windowInteriors.js?v=325';
+import { drawMap } from './map.js?v=325';
+import { buildMegaCampus15000, MEGA_CAMPUS_ZONES } from './megaCampus15000.js?v=325';
+import { installFacilityRebuild, inTwoStory, ZONES as FAC_ZONES } from './facilityRebuild.js?v=325';
+import { relayoutCampus } from './campusRelayout.js?v=325';
 import { makeDress, makeHair, makeGhostFace, makeGraffiti, makeKeypad, loadPBR, pbr, makeGlow as makeGlowTex, makePaintingStare, makeSign, makeBlood } from './tex.js';
 import { warmUp } from './bake.js';
 import { createStaticDistanceLOD } from './staticDistanceLOD.js';
@@ -54,16 +54,16 @@ import './basementRoomsPatch.js';     // 지하 전기실 · 보일러실 (사�
 import './classroomRemodelPatch.js';  // 교실 리모델링 · 의자에 앉기 (사용자 제공) → window.classroomRemodelPatch
 import './school37RoomsPatch.js';    // 본관 · 별관 37개 특별실 가구 · 동선 (사용자 제공) → window.school37RoomsPatch
 import './new37UniquePatch.js';     // 37개 구역 신규 특수 설비 · 벽면 레일 (사용자 제공) → window.new37UniquePatch
-import './megaExpansionPatch.js?v=324';   // 메가 익스팬션 · 최적화 · 4막 사건 기록 · 수집품 · 미니게임 (사용자 제공) → window.megaSchoolPatch
+import './megaExpansionPatch.js?v=325';   // 메가 익스팬션 · 최적화 · 4막 사건 기록 · 수집품 · 미니게임 (사용자 제공) → window.megaSchoolPatch
 import './poolMachineryPatch.js';     // 수영장 · 남/녀 탈의실·샤워실 · 기계실 철문 (사용자 제공) → window.poolAndMachineryPatch
-import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx, setSfxBusyCheck } from './audio.js?v=324'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=324'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera, perfInstanceSource } from './perfStabilizer.js?v=324'; window.__perfInst = perfInstanceSource; import { upgradePlainMaterials } from './plainUpgrade.js?v=324'; import { relayCampusPaths, cleanupCampus } from './campusPaths.js?v=324'; import { installStreetscape } from './streetV2.js?v=324'; import { installHudV2, tickHudV2 } from './hudV2.js?v=324'; import { installPartnerRadio, tickPartnerRadio } from './partnerRadio.js?v=324';
-import { installRoomUI } from './roomUI.js?v=324';   // 방별 현장 조사 카드 · 상호작용 아이콘 · 획득/목표 애니메이션
-import { furnishRooms } from './furnishV2.js?v=324';   // 방 용도별 실사 가구 보강 (상담실 소파 · 교무실 냉온수기 · 창고 선반 …)
-import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js?v=324';
-import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, HYPOTHESES, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, COVER_END, ENDING_OUTRO, OUTRO_TYPE, SIDEQUESTS, HEADQUEST, COLLECT, } from './story.js?v=324';
-import { isSpeechBusy } from './voice.js?v=324';
+import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx, setSfxBusyCheck } from './audio.js?v=325'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=325'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera, perfInstanceSource } from './perfStabilizer.js?v=325'; window.__perfInst = perfInstanceSource; import { upgradePlainMaterials } from './plainUpgrade.js?v=325'; import { relayCampusPaths, cleanupCampus } from './campusPaths.js?v=325'; import { installStreetscape } from './streetV2.js?v=325'; import { installHudV2, tickHudV2 } from './hudV2.js?v=325'; import { installPartnerRadio, tickPartnerRadio } from './partnerRadio.js?v=325';
+import { installRoomUI } from './roomUI.js?v=325';   // 방별 현장 조사 카드 · 상호작용 아이콘 · 획득/목표 애니메이션
+import { furnishRooms } from './furnishV2.js?v=325';   // 방 용도별 실사 가구 보강 (상담실 소파 · 교무실 냉온수기 · 창고 선반 …)
+import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js?v=325';
+import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, HYPOTHESES, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, COVER_END, ENDING_OUTRO, OUTRO_TYPE, SIDEQUESTS, HEADQUEST, COLLECT, } from './story.js?v=325';
+import { isSpeechBusy } from './voice.js?v=325';
 import { SET, saveSET, resetSET, DIFF, keyLabel } from './settings.js';
-import { initI18n, setLang, lang as curLang } from './i18n.js?v=324';   // 언어 패치 (한국어 · English · 日本語 · 中文)
+import { initI18n, setLang, lang as curLang } from './i18n.js?v=325';   // 언어 패치 (한국어 · English · 日本語 · 中文)
 initI18n();
 const K = () => SET.keys;
 let guardRoomController = null, guardControlProps = [], guardCctvData = null, campusCctv = null;
@@ -82,7 +82,7 @@ function syncGuardDevices() {
 function toggleGuardCCTV(persist = true) { FL.guardCctvOn = !(FL.guardCctvOn ?? true); sfx.click(); syncGuardDevices(); if (persist) save(true); return FL.guardCctvOn; }
 function toggleGuardLight() { FL.guardLightOn = !(FL.guardLightOn ?? false); sfx.click(); syncGuardDevices(); say(FL.guardLightOn ? '경비실 전등을 켰다' : '경비실 전등을 껐다', 1800); save(true); return FL.guardLightOn; }
 
-import { run as runMini, MG } from './minigames.js?v=324';
+import { run as runMini, MG } from './minigames.js?v=325';
 import { SCHEMA, BUILD, storageKeys, itemUid, propUid, doorUid, assignUids, readSlot, writeSlot, hasSlot, clearSlot, repairProgress } from './saveSystem.js';
 const NOTE_CAST = {
   n_seomun_ilbo: { spk: 'reporter', audioId: 'call_119', stage: '(📰 서문일보 사회부 한진우 기자의 긴급 특보 리포팅)' },
@@ -2989,7 +2989,7 @@ function ensureCharsel3D() {
     const rim = new THREE.DirectionalLight(0xffd6e0, 0.85); rim.position.set(0, 2.4, -2.5);
     sc.add(hemi, key, fill, rim);
     st.scenes[k] = sc;
-    loader.load(`assets/characters/${k}.glb?v=324`, gltf => {
+    loader.load(`assets/characters/${k}.glb?v=325`, gltf => {
       const m = gltf.scene;
       npcVisuals.enhanceCharacterMaterials?.(m, k);
       m.traverse(o => { if (o.isMesh || o.isSkinnedMesh) o.frustumCulled = false; });
@@ -3363,7 +3363,7 @@ function updateCamera(dt, t) {
   const bob = SET.bob ? Math.sin(P.bob) * (P.sprinting ? .05 : .028) : 0;
   P.shV = lerp(P.shV || 0, P.sh || 0, Math.min(1, dt * 14));
   P.jyV = (P.vy || 0) !== 0 ? (P.jy || 0) : lerp(P.jyV || 0, P.jy || 0, Math.min(1, dt * 16));   // 낮은 단을 걸어 오를 때 시점이 툭 튀지 않게 (점프 중엔 그대로)
-  let ey = P.hiding ? 1.45 : P.sitting ? 1.12 + P.shV : 1.62 - (P.crouchK || 0) * .55 + P.jyV + P.shV + (INT_ANIM.dipY || 0) + bob * (1 - (P.crouchK || 0) * .5);
+  let ey = P.hiding ? 1.45 : P.sitting ? (P.lying ? .86 : 1.12) + P.shV : 1.62 - (P.crouchK || 0) * .55 + P.jyV + P.shV + (INT_ANIM.dipY || 0) + bob * (1 - (P.crouchK || 0) * .5);
   camera.position.set(P.x, F.y0 + ey, P.z);
   let yaw = P.yaw, pitch = P.pitch + (INT_ANIM.pitchAdd || 0);
   if (shake > 0) { shake = Math.max(0, shake - dt * 1.4); const k = SET.shake ? .05 : .008; yaw += (Math.random() - .5) * k * shake; pitch += (Math.random() - .5) * k * shake; }
@@ -4083,6 +4083,7 @@ async function useProp(p) {
   if (p.kind === 'fz') { fzUse(p); return; }   // 사용자 패치(5대 구역 · 실내 연결복도) 상호작용
   if (p.kind === 'switch') { flipSwitch(p, !p.on, true); return; }
   if (p.kind === 'elevator') { elvCall(p); return; }
+  if (p.kind === 'bed') { lieDown(p); return; }
   if (p.kind === 'elBtn') { elvPress(p); return; }
   if (p.kind === 'robj') { useRoomObj(p); return; }
   if (p.kind === 'guardnpc') { talkGuard(p); return; }
@@ -7162,9 +7163,12 @@ const SIT = { chair: null, back: null };
     });
   });
 }
+function nurseChairFix() { if (!RBG || !RBG.nurseChairs) return; const nc = RBG.nurseChairs(); if (!nc.length) return; const chairs = world.props.filter(q => q.fz && q.fz.type === 'classroom_chair' && /보건실/.test((q.label || '') + (q.fz.label || '')));   // 옛 보건실 의자 앉기 지점: 하나는 새 보건실 책상 의자로, 나머지는 걷어 낸다 (침대 위에 떠 있던 것)
+      chairs.forEach((q, i) => { const s = nc[i]; if (s) { q.x = s.x; q.z = s.z; q.rbY = s.y; q.floor = 0; q.label = '보건실 책상 의자에 앉기'; q._nurse = true; if (q.fz) q.fz.promptText = '[E] 보건실 책상 의자에 앉기'; } else { const k = world.props.indexOf(q); if (k >= 0) world.props.splice(k, 1); } });  }
 function sitDown(c, data) {
   if (SIT.chair || P.hiding) return;
-  SIT.back = { x: P.x, z: P.z };
+  SIT.back = { x: P.x, z: P.z, yaw: P.yaw };
+  { const p = world.props.find(q => q.fz === data); if (p) data.chairGroup.position.set(p.x, floors[c.f].y0 + (p.rbY || 0), p.z); }   // 새 건물로 옮겨진 의자: 예전 자리가 아니라 지금 자리에 앉는다
   const ref = { position: V3(P.x, floors[P.floor].y0, P.z) };
   crP.sitOnChair(data.chairGroup, ref, m => say(m, 4200));
   P.x = ref.position.x; P.z = ref.position.z; P.crouch = false; P.runOn = false;
@@ -7173,13 +7177,32 @@ function sitDown(c, data) {
 }
 function standUp() {
   if (!SIT.chair) { P.sitting = false; return; }
+  if (SIT.chair.lie) { getUpFromBed(); return; }
   const ref = { position: V3(SIT.back.x, floors[P.floor].y0, SIT.back.z) };
   crP.playerOriginalPos = ref.position.clone(); crP.standUp(ref);
-  // 클래스는 원래 자리에서 0.6m 뒤로 비켜선다 — 그 자리가 책상 · 벽이면 원래 자리로
-  const F = floors[P.floor], nx = ref.position.x, nz = ref.position.z, hit = r => nx > r.x1 - .25 && nx < r.x2 + .25 && nz > r.z1 - .25 && nz < r.z2 + .25 && !(r.h != null && r.h < .5);
-  const ok = !F.col.some(hit);
-  P.x = ok ? nx : SIT.back.x; P.z = ok ? nz : SIT.back.z;
+  P.x = SIT.back.x; P.z = SIT.back.z;   // 앉기 전에 서 있던 자리로 그대로 (뒤로 비켜서다 책상 · 침대에 끼이던 것)
   SIT.chair = null; P.sitting = false;
+}
+// 침대에 눕기: 침대 옆으로 다가가 걸터앉았다가(0.5초) 몸을 뉘며 천장을 올려다본다(0.7초) — 누워 있는 동안 공포가 서서히 가라앉고 숨이 고른다
+//   일어나기(Space · W · E): 반대 순서로 몸을 일으켜 누웠던 자리 옆, 원래 서 있던 곳으로 돌아온다
+const LIE = { t: 0, phase: null, bed: null };
+function lieDown(p) {
+  if (SIT.chair || P.hiding) return; const b = p.bed;
+  SIT.back = { x: P.x, z: P.z, yaw: P.yaw }; SIT.chair = { f: P.floor, lie: true }; P.sitting = true; P.lying = false; P.crouch = false; P.runOn = false;
+  LIE.bed = b; LIE.phase = 'down'; LIE.t = 0; LIE.from = { x: P.x, z: P.z, yaw: P.yaw, pitch: P.pitch };
+  LIE.yaw = Math.atan2(-(b.hx - b.x), -(b.hz - b.z)) + Math.PI;   // 머리 쪽에서 발끝 쪽을 본다
+  sfx.creak(); say('침대에 몸을 뉘었다 — 삐걱이는 스프링, 소독약 냄새…  (Space · W 일어나기)', 3600);
+}
+function getUpFromBed() { if (LIE.phase === 'up') return; LIE.phase = 'up'; LIE.t = 0; LIE.from = { x: P.x, z: P.z, yaw: P.yaw, pitch: P.pitch }; sfx.creak(); }
+function lieTick(dt) {
+  if (!LIE.phase) return; LIE.t += dt; const b = LIE.bed, ease = k => k * k * (3 - 2 * k), lerpA = (a, c, k) => a + Math.atan2(Math.sin(c - a), Math.cos(c - a)) * k;
+  if (LIE.phase === 'down') { const k = ease(Math.min(1, LIE.t / 1.2)), k1 = ease(Math.min(1, LIE.t / .5));
+    P.x = LIE.from.x + (b.x - LIE.from.x) * k1; P.z = LIE.from.z + (b.z - LIE.from.z) * k1; P.yaw = lerpA(LIE.from.yaw, LIE.yaw, k1); P.pitch = LIE.from.pitch + (1.25 - LIE.from.pitch) * ease(Math.max(0, (LIE.t - .4) / .8)); P.lying = LIE.t > .45;
+    if (LIE.t >= 1.2) LIE.phase = 'rest'; }
+  else if (LIE.phase === 'rest') { P.pitch = 1.25 + Math.sin(performance.now() / 1800) * .03; P.fear = Math.max(0, P.fear - dt * .02); P.stamina = Math.min(100, (P.stamina || 0) + dt * 12); if ((LIE.br = (LIE.br || 0) - dt) <= 0) { LIE.br = 4.5; sfx.breath && sfx.breath(); } }
+  else if (LIE.phase === 'up') { const k = ease(Math.min(1, LIE.t / 1.0));
+    P.pitch = LIE.from.pitch * (1 - k); P.lying = k < .5; P.x = LIE.from.x + (SIT.back.x - LIE.from.x) * ease(Math.max(0, (LIE.t - .4) / .6)); P.z = LIE.from.z + (SIT.back.z - LIE.from.z) * ease(Math.max(0, (LIE.t - .4) / .6)); P.yaw = lerpA(LIE.from.yaw, SIT.back.yaw, k);
+    if (LIE.t >= 1.0) { LIE.phase = null; P.lying = false; SIT.chair = null; P.sitting = false; P.x = SIT.back.x; P.z = SIT.back.z; } }
 }
 function sitTick() {
   if (!SIT.chair) { P.sitting = false; return; }   // 불러온 세이브 등 의자 없이 앉은 상태로 남지 않게
@@ -8514,13 +8537,13 @@ function megaNotify(m) { const t = String(m).split('\n'); say(t[0].replace(/^\S+
     world.props.push({ kind: 'robj', k: 'bunker_light', t: 'bunker', floor: 4, x: bx + 1.15, z: z1 - .85, y: 1.35, r: 2.0, label: '방공호 주 전등 스위치 조작하기', bkLightGroup });
     {
       const bLoader = new GLTFLoader();
-      bLoader.load('assets/models/sf/sf_bunker_props_pack.glb?v=324', gltf => {
+      bLoader.load('assets/models/sf/sf_bunker_props_pack.glb?v=325', gltf => {
         const bm = gltf.scene; bm.position.set(bx, 0, z0 + .45);
         if (window.__upgradePure3DScene) window.__upgradePure3DScene(bm); else bm.traverse(o => { o.userData.dynamic = true; });
         R.add(bm);
         if (gltf.animations && gltf.animations.length) { const mx = new THREE.AnimationMixer(bm); mx.userData = { floor: 4, x: bx, z: z0 + .45 }; gltf.animations.forEach(c => mx.clipAction(c).play()); (window.__campusAnimMixers ||= []).push(mx); }
       }, undefined, () => {});
-      bLoader.load('assets/models/sf/sf_pump_policeline_scene.glb?v=324', gltf => {
+      bLoader.load('assets/models/sf/sf_pump_policeline_scene.glb?v=325', gltf => {
         const pm = gltf.scene; pm.position.set(32.0, 0, -3.65);
         pm.traverse(o => { o.userData.dynamic = true; if (o.isMesh) { o.castShadow = false; o.receiveShadow = true; if (o.material?.map) o.material.map.colorSpace = THREE.SRGBColorSpace; } });
         R.add(pm);
@@ -8634,7 +8657,7 @@ function featTick(dt) {
   if (STH) { if (!keys[STH.code] || !target || target.type !== 'stairs' || state !== 'playing') STH = null; else if ((STH.t += dt) > .18) { const d = STH.dir; STH = null; changeFloor(d); } }
   { const pr = $('prompt'), k = STH ? Math.min(1, STH.t / .18) : 0; pr.style.backgroundImage = k > 0 ? `linear-gradient(90deg, rgba(232,200,112,.45) ${k * 100}%, transparent ${k * 100}%)` : ''; }   // 계단 길게 누르기 진행 표시
   for (const p of world.props) if (p.kind === 'pick' && p.done && p.mesh.visible) p.mesh.visible = false;
-  micTick(dt); camTick(dt); trapTick(dt); breakerTick(dt); patchTick(dt); if (P.floor === 4) basementTick(dt); if (P.floor === 6 || P.floor === 0) poolTick(dt); sitTick(); zoomTick(dt); callTick(dt); sgTick(dt); s37Tick(); elvTick(dt); updateSchoolDoors(world); doorTick(dt); n37.update(dt); megaTick(dt); if ((P.stamInfT || 0) > 0) { P.stamInfT -= dt; if (P.stamInfT < 0) P.stamInfT = 0; P.stamina = 100; P.tired = false; } }
+  micTick(dt); camTick(dt); trapTick(dt); breakerTick(dt); patchTick(dt); if (P.floor === 4) basementTick(dt); if (P.floor === 6 || P.floor === 0) poolTick(dt); sitTick(); lieTick(dt); zoomTick(dt); callTick(dt); sgTick(dt); s37Tick(); elvTick(dt); updateSchoolDoors(world); doorTick(dt); n37.update(dt); megaTick(dt); if ((P.stamInfT || 0) > 0) { P.stamInfT -= dt; if (P.stamInfT < 0) P.stamInfT = 0; P.stamina = 100; P.tired = false; } }
 
 function extrasTick(dt) {
   searchTick(dt); tmpTick(dt); ambientTick(dt); featTick(dt);
@@ -8752,10 +8775,10 @@ function repairStrayInteractables() {
     g.position.set(p.x, top + .004, p.z); g.rotation.y = (p.x * 7 + p.z * 3) % 6.28; g.name = 'REC_VIS_' + (p.id || ''); g.userData.rbKeep = true; scene.add(g); p.visMesh = g; p._recVis = true; n++; }
   return n;
 }
-{ RBG = installRebuild({ THREE, scene, floors, world }); window.__rbg = RBG; try { RBG.allOff(); } catch (e) { console.warn('[all off]', e); } renderer.localClippingEnabled = true; setTimeout(() => { installInvestigationBoards().catch(e => console.warn('[조사 게시물]', e)); }, 2500); setTimeout(() => { furnishRooms({ scene, RBG, world, getP: () => P }).then(n => n && console.info('[가구 보강]', n)).catch(e => console.warn('[furnish v2]', e)); }, 4000); [6000, 16000, 32000].forEach(t => setTimeout(() => { try { const n = repairStrayInteractables(); if (n) console.info('[상호작용 위치 보정]', n); } catch (e) { console.warn('[stray fix]', e); } }, t)); try { installRoomUI({ P, world, getRBG: () => RBG, getState: () => state, getTarget: () => target, keyInteract: () => (K().interact || 'KeyE') }); } catch (e) { console.warn('[room ui]', e); }
+{ RBG = installRebuild({ THREE, scene, floors, world }); window.__rbg = RBG; setTimeout(() => { try { (RBG.beds ? RBG.beds() : []).forEach((b, i) => world.props.push({ kind: 'bed', floor: 0, rbY: b.y, x: b.x, z: b.z, y: b.y + .7, r: 1.4, label: '침대에 눕기 — 잠시 숨 고르기', bed: b, _rb: true })); nurseChairFix(); } catch (e) { console.warn('[bed]', e); } }, 3500); try { RBG.allOff(); } catch (e) { console.warn('[all off]', e); } renderer.localClippingEnabled = true; setTimeout(() => { installInvestigationBoards().catch(e => console.warn('[조사 게시물]', e)); }, 2500); setTimeout(() => { furnishRooms({ scene, RBG, world, getP: () => P }).then(n => n && console.info('[가구 보강]', n)).catch(e => console.warn('[furnish v2]', e)); }, 4000); [6000, 16000, 32000].forEach(t => setTimeout(() => { try { const n = repairStrayInteractables(); if (n) console.info('[상호작용 위치 보정]', n); } catch (e) { console.warn('[stray fix]', e); } }, t)); try { installRoomUI({ P, world, getRBG: () => RBG, getState: () => state, getTarget: () => target, keyInteract: () => (K().interact || 'KeyE') }); } catch (e) { console.warn('[room ui]', e); }
   // 2단계: 예전 건물의 열쇠 · 쪽지 · 조사 지점을 새 방으로 (나중에 생기는 조사 지점도 몇 번 더 옮긴다)
   const sz4 = floors[4] && floors[4].stairZone, b1 = sz4 ? sz4.spawn : { x: ((floors[4] && floors[4].stairCx) || 0) + .8, z: -5.2 };
-  const rel = () => { const r = RBG.relocate({ world, floors, stairSpawnB1: b1 }); if (r.moved || r.dropped) console.info('[rebuild] 옮김', r); const f = RBG.fixRoomRefs(world); if (f.moved || f.relabeled || f.dup) console.info('[rebuild] 방 이름 맞춤', f); const g2 = RBG.relinkGeneric(world); if (g2.n || g2.drop) console.info('[rebuild] 공용 조사 지점 다시 잇기', g2); const s3 = RBG.settleMoved(world); if (s3.n) console.info('[rebuild] 허공 물건 내려놓기', s3); const fv = RBG.fixVisible(world); if (fv.re || fv.up) console.info('[rebuild] 안 보이던 · 묻힌 물건 바로잡기', fv); };
+  const rel = () => { const r = RBG.relocate({ world, floors, stairSpawnB1: b1 }); if (r.moved || r.dropped) console.info('[rebuild] 옮김', r); const f = RBG.fixRoomRefs(world); if (f.moved || f.relabeled || f.dup) console.info('[rebuild] 방 이름 맞춤', f); const g2 = RBG.relinkGeneric(world); if (g2.n || g2.drop) console.info('[rebuild] 공용 조사 지점 다시 잇기', g2); const s3 = RBG.settleMoved(world); if (s3.n) console.info('[rebuild] 허공 물건 내려놓기', s3); nurseChairFix(); const fv = RBG.fixVisible(world); if (fv.re || fv.up) console.info('[rebuild] 안 보이던 · 묻힌 물건 바로잡기', fv); };
   RBG.adoptPassage(world.OUT, PASS_DOOR); if (RBG.gate) RBG.gate.closed = () => ipP.state.fireDoorClosed;   // 구름다리 방화문 연출 → 새 연결 통로
   // 새 본관 · 별관 엘리베이터: 문 여닫는 소리 · 안내 음성 (예전 건물 엘리베이터와 같은 녹음) — 칸 안이나 승강장 근처일 때만
   { const Q = []; let busy = false; const AV = new Set(['open', 'close', 'up', 'down', 'floor_1', 'floor_2', 'floor_3']);

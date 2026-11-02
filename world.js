@@ -4,12 +4,12 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { buildGuardAnnex, buildDutyRoom, ANNEX as GANX } from './guardAnnex.js?v=324';
-import { NOTES } from './story.js?v=324';
+import { buildGuardAnnex, buildDutyRoom, ANNEX as GANX } from './guardAnnex.js?v=325';
+import { NOTES } from './story.js?v=325';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=324';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=325';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -1908,6 +1908,7 @@ export function buildWorld(scene) {
   const EL_LABEL = { 4: 'B1', 0: '1F', 1: '2F', 2: '3F', 8: '1F', 9: '2F', 10: '3F' };
   function elevator(cx) {
     const bay=elevatorBay(cx),x=bay.doorX,z=bay.doorZ;cur.elevatorBay=bay;
+    if (cur.basement) { wallSeg(bay.front, bay.front + .2, bay.z1, bay.z2, 0, FH); return; }   // 지하 B1: 승강기 없음 (예전 본관 승강로 자리) — 막힌 벽
     // A continuous full-height wall reserves a shaft, rather than a freestanding cabin in the landing.
     wallSeg(bay.front,bay.front+.2,bay.z1,z-bay.halfOpening,0,FH);
     wallSeg(bay.front,bay.front+.2,z+bay.halfOpening,bay.z2,0,FH);

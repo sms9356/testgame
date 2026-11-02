@@ -2,11 +2,12 @@
 //   항상 켜진다 (예전 건물 모드는 폐지).
 //   예전 본관(1~3층 · 옥상) · 별관(8~10층) 건물은 감추고, 그 자리 땅(0층)에서 새 건물을 걷는다.
 //   높이는 P.sh(계단 높이 보정값)로 넘긴다 → 카메라 · 점프 · 가구 오르기 코드는 손대지 않아도 된다.
-import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=324';
-import { placeModels } from './rebuild/models.js?v=324';
-import { carve, subdivide } from './rebuild/transplant.js?v=324';
+import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=325';
+import { placeModels } from './rebuild/models.js?v=325';
+import { carve, subdivide } from './rebuild/transplant.js?v=325';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { turfMaterial } from './campusVisuals.js?v=324';
+import { turfMaterial } from './campusVisuals.js?v=325';
+import { ENGINE } from './engine.js?v=325';
 
 // 예전 건물이 차지하던 땅 (이 안의 예전 메시 · 충돌 상자를 걷어 낸다)
 const OLD_MAIN = { x1: -51, x2: 51, z1: -10.6, z2: 10.9 };
@@ -568,11 +569,16 @@ export function installRebuild({ THREE, scene, floors, world }) {
   }
   // 바닥 판 자르기: 사각 기둥 (x xw~xb · z z1~z2 · 높이 0.15 아래) 안의 픽셀만 버린다
   const pitClip = [new THREE.Plane(new THREE.Vector3(-1, 0, 0), B1PIT.x1), new THREE.Plane(new THREE.Vector3(1, 0, 0), -B1PIT.x2), new THREE.Plane(new THREE.Vector3(0, 0, -1), B1PIT.zt), new THREE.Plane(new THREE.Vector3(0, 0, 1), -B1PIT.zw), new THREE.Plane(new THREE.Vector3(0, 1, 0), -.15)];
-  const clipFloor = () => { const cx = (B1PIT.x1 + B1PIT.x2) / 2, cz = (B1PIT.zt + B1PIT.zw) / 2; scene.traverse(o => {
+  const clipFloor = () => { const cx = (B1PIT.x1 + B1PIT.x2) / 2, cz = (B1PIT.zt + B1PIT.zw) / 2, later = []; scene.traverse(o => {
     if (!o.isMesh || o.userData.pitClip || o.parent === group) return; const g = o.geometry; if (!g.boundingBox) g.computeBoundingBox(); const b = new THREE.Box3().copy(g.boundingBox).applyMatrix4(o.matrixWorld);
     if (b.max.y > .2 || b.min.y < -.6 || b.max.y < -.3 || cx < b.min.x || cx > b.max.x || cz < b.min.z || cz > b.max.z) { if (!(o.name === 'RB_terr' || o.name === 'RB_conc')) return; }
-    o.userData.pitClip = true; const fix = m => { const c = m.clone(); c.clippingPlanes = pitClip; c.clipIntersection = true; c.clipShadows = true; c.needsUpdate = true; return c; };
-    o.material = Array.isArray(o.material) ? o.material.map(fix) : fix(o.material); }); };
+    o.userData.pitClip = true;
+    // WebGPU 렌더러는 재질별 clippingPlanes 를 무시한다 → 같은 부모 아래 ClippingGroup 으로 옮겨 장면 그래프 단위로 자른다
+    if (ENGINE.webgpu && ENGINE.W && ENGINE.W.ClippingGroup && o.parent) { later.push(() => { const par = o.parent; if (!par || par.isClippingGroup) return; let cg = par.children.find(c => c.isClippingGroup && c.userData.pit);
+      if (!cg) { cg = new ENGINE.W.ClippingGroup(); cg.userData.pit = true; cg.userData.dynamic = par.userData && par.userData.dynamic; cg.clippingPlanes = pitClip; cg.clipIntersection = true; cg.clipShadows = true; par.add(cg); }
+      cg.attach(o); }); return; }
+    const fix = m => { const c = m.clone(); c.clippingPlanes = pitClip; c.clipIntersection = true; c.clipShadows = true; c.needsUpdate = true; return c; };
+    o.material = Array.isArray(o.material) ? o.material.map(fix) : fix(o.material); }); later.forEach(f => f()); };
   R.clipFloor = clipFloor; setTimeout(clipFloor, 500); setTimeout(clipFloor, 8000);
   const inPit = (x, z) => x > B1PIT.x1 && x < B1PIT.x2 && z > B1PIT.zt && z < B1PIT.zw;
   R.inPit = inPit;
@@ -911,5 +917,10 @@ export function installRebuild({ THREE, scene, floors, world }) {
         for (const o of b.os) { if (o.parent !== group) group.attach(o); o.position.x += dx; } b.p.x += dx; b.bb.translate(new THREE.Vector3(dx, 0, 0)); up++; } }
     return { re, up };
   };
+  // 보건실 책상 의자 자리 (mainBuilding 'nurse': 책상 x1+2 · z2-1.2, 의자 z2-0.6)
+  R.nurseChairs = () => { const out = []; for (const B of [MAIN, ANX]) for (const r of (B.props || [])) { if (r.kind !== 'room' || r.type !== 'nurse') continue; const [x, z] = B.toWorld(r.x1 + 2, r.z2 - .6); out.push({ x, z, y: r.floor * FH }); } return out; };
+  // 보건실 침대 3개의 실제 자리 (mainBuilding 'nurse': 방 동쪽 벽에 붙은 침대, z1+2.0 부터 1.9m 간격) — 눕기 상호작용용
+  R.beds = () => { const out = []; for (const B of [MAIN, ANX]) for (const r of (B.props || [])) { if (r.kind !== 'room' || r.type !== 'nurse') continue;
+    for (let k = 0; k < 3; k++) { const lz = r.z1 + 2.0 + k * 1.9, [x, z] = B.toWorld(r.x2 - 1.15, lz), [hx, hz] = B.toWorld(r.x2 - .35, lz); out.push({ x, z, hx, hz, y: r.floor * FH, label: (r.label || '보건실') }); } } return out; };
   return R;
 }

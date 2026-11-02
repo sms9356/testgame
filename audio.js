@@ -37,7 +37,8 @@ export function initAudio() {
   // 지속 저주파 드론 제거: 대사와 필요한 효과음은 별도 버스로 유지.
   ['school-bell', 'class-chime', 'pa-chime'].forEach(name => loadVoice(`assets/sfx/${name}.mp3`).then(b => { if (b) schoolSamples.set(name, b); }));
   // 실제 녹음 효과음 (ElevenLabs 생성): 발소리 3종 · 문 · 사물함 · 철문 · 종이 · 열쇠 · 줍기 · 물방울 · 물튀김 — 없으면 합성음으로
-  ['sfx-step-tile', 'sfx-step-wood', 'sfx-step-metal', 'sfx-door-creak', 'sfx-door-slam', 'sfx-locker', 'sfx-steel-door', 'sfx-paper', 'sfx-keys', 'sfx-pickup', 'sfx-drip', 'sfx-splash'].forEach(name => loadVoice(`assets/sfx/${name}.mp3`).then(b => { if (b) schoolSamples.set(name, b); }));
+  ['sfx-step-tile', 'sfx-step-wood', 'sfx-step-metal', 'sfx-door-creak', 'sfx-door-slam', 'sfx-locker', 'sfx-steel-door', 'sfx-paper', 'sfx-keys', 'sfx-pickup', 'sfx-drip', 'sfx-splash', 'sfx-ghost-step', 'sfx-screech', 'sfx-flicker', 'sfx-heartbeat', 'sfx-wind'].forEach(name => loadVoice(`assets/sfx/${name}.mp3`).then(b => { if (!b) return; schoolSamples.set(name, b);
+  }));
   buildAmbience();
   // 유령 근접음(숨소리/속삭임)
   proxFilter = loopNoise(900, 'bandpass', 3);
@@ -286,9 +287,12 @@ function schoolCue(name, volume = .5, rate = 1) {
   return true;
 }
 // 녹음 효과음 재생: 같은 소리가 겹쳐도 되며(발소리) 길이를 잘라 쓸 수 있다 · 재생 속도를 살짝 흔들어 매번 다르게
-function sample(name, volume = .5, rate = 1, maxDur = 0) {
-  if (!ok()) return false; const buffer = schoolSamples.get(name); if (!buffer) return false;
-  const src = ac.createBufferSource(); src.buffer = buffer; src.playbackRate.value = rate; const gain = out(0, volume); src.connect(gain);
+// 밤바람 배경음: 소리가 처음 날 때(오디오가 풀린 뒤) 아주 작게 반복으로 깐다
+let windOn = false;
+function windLoop() { if (windOn || !schoolSamples.has('sfx-wind')) return; windOn = true; const src = ac.createBufferSource(); src.buffer = schoolSamples.get('sfx-wind'); src.loop = true; const g = out(0, .05); src.connect(g); src.start(); }
+function sample(name, volume = .5, rate = 1, maxDur = 0, pan = 0) {
+  if (!ok()) return false; windLoop(); const buffer = schoolSamples.get(name); if (!buffer) return false;
+  const src = ac.createBufferSource(); src.buffer = buffer; src.playbackRate.value = rate; const gain = out(pan, volume); src.connect(gain);
   if (maxDur > 0) { src.start(0, 0, maxDur); gain.gain.setTargetAtTime(0, ac.currentTime + maxDur * .7, maxDur * .1); } else src.start();
   src.addEventListener('ended', () => { src.disconnect(); gain.disconnect(); }); return true;
 }
@@ -382,8 +386,8 @@ function laterAt(s, fn) { const p = sfxPos; setTimeout(() => { sfxPos = p; try {
     }
     if (Math.random() < .06) noiseBurst(.10, 3400, 'highpass', .07, 0, v);
   },
-  ghostStep(dist, pan) { const v = Math.max(0, 1 - dist / 22); if (v > 0.02) { noiseBurst(0.14, 300, 'lowpass', 0.9 * v, pan); tone(70, 0.12, 'sine', 0.5 * v, pan); } },
-  heartbeat(v = 1) { tone(58, 0.14, 'sine', 0.8 * v); setTimeout(() => tone(46, 0.18, 'sine', 0.6 * v), 130); },
+  ghostStep(dist, pan) { const vv = Math.max(0, 1 - dist / 22); if (vv > .02 && sample('sfx-ghost-step', .7 * vv, .9 + Math.random() * .15, 0, pan)) return; const v = Math.max(0, 1 - dist / 22); if (v > 0.02) { noiseBurst(0.14, 300, 'lowpass', 0.9 * v, pan); tone(70, 0.12, 'sine', 0.5 * v, pan); } },
+  heartbeat(v = 1) { if (sample('sfx-heartbeat', .55 * v)) return; tone(58, 0.14, 'sine', 0.8 * v); setTimeout(() => tone(46, 0.18, 'sine', 0.6 * v), 130); },
   pickup() { if (sample('sfx-pickup', .45, .95 + Math.random() * .1)) return;
     noiseBurst(.06, 2200, 'bandpass', .28);
     tone(520, .09, 'triangle', .12, 0, 1, 680);
@@ -438,7 +442,7 @@ function laterAt(s, fn) { const p = sfxPos; setTimeout(() => { sfxPos = p; try {
   bang(pan = 0, v = 1) { noiseBurst(0.35, 500, 'lowpass', 1.0, pan, v); tone(60, 0.4, 'sine', 1.0, pan, v, 35); },
   creak(pan = 0) { tone(150, 1.2, 'sawtooth', 0.07, pan, 1, 95); },
   alert() { tone(392, 1.8, 'sine', .025); },
-  screech() { flow(2.4, 780, .04, .35, 1.1); },
+  screech() { if (sample('sfx-screech', .8)) return; flow(2.4, 780, .04, .35, 1.1); },
   stairs() { for (let i = 0; i < 6; i++) setTimeout(() => noiseBurst(0.1, 500, 'lowpass', 0.35), i * 180); },
   win() { [523, 659, 784, 1047].forEach((f, i) => setTimeout(() => tone(f, 1.6, 'sine', 0.25), i * 220)); },
   broadcast() { if (schoolCue('pa-chime', .6)) { noiseBurst(.3, 1800, 'bandpass', .025); return; } noiseBurst(.4, 1800, 'bandpass', .08); tone(880, .6, 'sine', .2, 0, 1, 660); setTimeout(() => tone(660, .9, 'sine', .2, 0, 1, 440), 700); setTimeout(() => noiseBurst(1.2, 2500, 'bandpass', .4), 1500); },
@@ -460,7 +464,7 @@ function laterAt(s, fn) { const p = sfxPos; setTimeout(() => { sfxPos = p; try {
   ball() { [0, 520, 960, 1330, 1640, 1890, 2090, 2250].forEach((t, i) => setTimeout(() => { noiseBurst(.12, 220, 'lowpass', .9 - i * .09); tone(85, .14, 'sine', .7 - i * .07); }, t)); },
   drip() { if (sample('sfx-drip', .45)) return; for (let i = 0; i < 6; i++) setTimeout(() => tone(1500 + Math.random() * 600, .12, 'sine', .08, Math.random() - .5, 1, 700), i * 800 + Math.random() * 400); },
   splash() { if (sample('sfx-splash', .55)) return; noiseBurst(1.2, 1200, 'bandpass', .5); noiseBurst(.6, 400, 'lowpass', .5); },
-  lightsOff() { for (let i = 0; i < 6; i++) setTimeout(() => { noiseBurst(.05, 3000, 'highpass', .4); tone(60, .1, 'square', .05); }, i * 260); },
+  lightsOff() { if (sample('sfx-flicker', .5)) return; for (let i = 0; i < 6; i++) setTimeout(() => { noiseBurst(.05, 3000, 'highpass', .4); tone(60, .1, 'square', .05); }, i * 260); },
   thunder(far = 2) { const v = Math.max(.25, 1.2 - far * .3); noiseBurst(2.8 + far, 140, 'lowpass', v, 0, 1); noiseBurst(.4, 900, 'lowpass', v * .7, 0, 1); setTimeout(() => noiseBurst(2.2, 90, 'lowpass', v * .8), 300); },
   spark() { for (let i = 0; i < 5; i++) setTimeout(() => { noiseBurst(.04, 4000, 'highpass', .35); tone(120, .05, 'square', .04); }, i * 45 + Math.random() * 40); },
   classBell() { if (!schoolCue('class-chime', .65)) sfx.bell(); },

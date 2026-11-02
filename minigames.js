@@ -434,6 +434,24 @@ function fishing({ title = '배수구 — 갈고리 걸기', need = 1 }) {
   const AX = 220, AY = 18;
   let len = 120, ang = .4, av = 0, hooked = false, reel = 0, tension = 0, miss = 0, caught = 0, held = {}, t = 0, lastT = performance.now();
   let rx = 120 + Math.random() * 200, ry = 210 + Math.random() * 40, rvx = 18;
+  // 3D 배수 집수정 단면: 콘크리트 벽 · 철망 덮개 · 출렁이는 수면 · 낚싯줄과 갈고리 · 물살에 떠다니는 금빛 열쇠고리 (좌표는 2D 물리 그대로 옮김)
+  const F3 = (() => { let r; try { r = new THREE.WebGLRenderer({ antialias: true }); } catch (e) { return null; }
+    r.setPixelRatio(Math.min(2, devicePixelRatio || 1)); r.setSize(440, 300); r.outputColorSpace = THREE.SRGBColorSpace; r.toneMapping = THREE.ACESFilmicToneMapping; r.domElement.className = 'mgCanvas'; r.domElement.dataset.own3d = '1'; $('mgBody').insertBefore(r.domElement, c); c.height = 40; c.style.height = 'auto';
+    const sc = new THREE.Scene(); sc.background = new THREE.Color(0x05090b); sc.fog = new THREE.Fog(0x05090b, 3, 7); const cam = new THREE.PerspectiveCamera(42, 440 / 300, .05, 20); cam.position.set(0, -.2, 3.6); cam.lookAt(0, -.6, 0);
+    sc.add(new THREE.HemisphereLight(0x8ab0c0, 0x101010, .5)); const fl = new THREE.SpotLight(0xfff0d8, 22, 8, .5, .6, 1.4); fl.position.set(.3, 1.6, 1.8); fl.target.position.set(0, -1.2, 0); sc.add(fl, fl.target);
+    const X = x => (x - 220) / 100, Y = y => 1.3 - y / 100, conc = new THREE.MeshStandardMaterial({ color: 0x4a4e4a, roughness: .95 }), rust = new THREE.MeshStandardMaterial({ color: 0x5a3a22, roughness: .7, metalness: .5 });
+    [-1, 1].forEach(sd => { const w = new THREE.Mesh(new THREE.BoxGeometry(.5, 3.2, 1.6), conc); w.position.set(sd * 1.95, -.3, 0); sc.add(w); }); const back = new THREE.Mesh(new THREE.PlaneGeometry(4.4, 3.2), conc); back.position.set(0, -.3, -.8); sc.add(back);
+    for (let x = -1.65; x < 1.7; x += .22) { const b = new THREE.Mesh(new THREE.BoxGeometry(.06, .06, 1.2), rust); b.position.set(x, 1.18, 0); sc.add(b); }
+    const wg = new THREE.PlaneGeometry(3.4, 1.4, 40, 16); wg.rotateX(-Math.PI / 2); const water = new THREE.Mesh(wg, new THREE.MeshStandardMaterial({ color: 0x1a4a58, roughness: .12, metalness: .3, transparent: true, opacity: .82 })); water.position.y = Y(150); sc.add(water);
+    const line = new THREE.Mesh(new THREE.CylinderGeometry(.006, .006, 1, 6), new THREE.MeshStandardMaterial({ color: 0xd8d6c8, roughness: .6 })); sc.add(line);
+    const hook = new THREE.Mesh(new THREE.TorusGeometry(.06, .012, 8, 20, Math.PI * 1.4), new THREE.MeshStandardMaterial({ color: 0xc8c0a8, metalness: .9, roughness: .3 })); sc.add(hook);
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(.09, .018, 10, 26), new THREE.MeshStandardMaterial({ color: 0xe0b850, metalness: 1, roughness: .25, emissive: 0x302000 })); sc.add(ring);
+    const key = new THREE.Mesh(new THREE.BoxGeometry(.03, .16, .01), ring.material); sc.add(key);
+    return { render(hx, hy, rx2, ry2, tt) { const pos = wg.attributes.position; for (let i = 0; i < pos.count; i++) { const x = pos.getX(i), z = pos.getZ(i); pos.setY(i, Math.sin(x * 4 + tt * 2.2) * .025 + Math.cos(z * 5 + tt * 1.7) * .02); } pos.needsUpdate = true; wg.computeVertexNormals();
+      const ax = X(AX), ay = Y(AY), bx = X(hx), by = Y(hy), dx = bx - ax, dy = by - ay, L = Math.hypot(dx, dy); line.scale.y = L; line.position.set((ax + bx) / 2, (ay + by) / 2, 0); line.rotation.z = Math.atan2(-dx, dy) + 0 * Math.PI;
+      hook.position.set(bx + .02, by - .03, 0); ring.position.set(X(rx2), Y(ry2), .02); ring.rotation.set(Math.sin(tt) * .4, tt * .7, 0); key.position.set(X(rx2), Y(ry2) - .14, .02); key.rotation.z = Math.sin(tt * 1.3) * .3;
+      fl.position.x = .3 + Math.sin(tt * .7) * .1; r.render(sc, cam); }, dispose() { r.dispose(); } }; })();
+  if (F3) cleanups.push(() => F3.dispose());
   MG.fh = { get hooked() { return hooked; }, get tension() { return tension; }, get reel() { return reel; }, get s() { return { len, ang, av, rx, ry, AX, AY }; } };
   keys(e => { held[e.code] = e.type === 'keydown'; });
   const loop = now => {
@@ -456,6 +474,7 @@ function fishing({ title = '배수구 — 갈고리 걸기', need = 1 }) {
     draw(); raf = requestAnimationFrame(loop);
   };
   function draw() {
+    if (F3) { F3.render(AX + Math.sin(ang) * len, AY + Math.cos(ang) * len, rx, ry, t); g.fillStyle = '#070d10'; g.fillRect(0, 0, 440, 40); g.fillStyle = 'rgba(255,255,255,.08)'; g.fillRect(60, 22, 320, 10); g.fillStyle = tension > .75 ? '#e05040' : '#60e0a0'; g.fillRect(60, 22, 320 * Math.min(1, tension), 10); g.fillStyle = '#d8d0b8'; g.font = '11px sans-serif'; g.fillText('줄 장력', 62, 16); return; }
     g.fillStyle = '#070d10'; g.fillRect(0, 0, 440, 300);
     g.fillStyle = '#20282a'; g.fillRect(0, 0, 50, 300); g.fillRect(390, 0, 50, 300);   // 배수관 벽
     for (let k = 0; k < 14; k++) { g.fillStyle = `rgba(40,90,110,${.12 + .08 * Math.sin(t * 2 + k)})`; g.fillRect(50, 150 + k * 11 + Math.sin(t * 1.5 + k) * 3, 340, 5); }

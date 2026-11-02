@@ -33,10 +33,61 @@ function injectAltBar(title) {
   btnDeduce.onclick = () => { if (!MG.active) return; sfx.unlock(); status('현장 단서 추리로 해독 성공!', 'ok'); close(true); };
   bar.appendChild(btnDeduce);
 }
+/* ---------- 3D 무대: 모든 미니게임 화면을 실제 사물 위에 올린다 ----------
+   책상(나뭇결) · 기기 본체(주제에 따라 강철 제어반 / 종이 서류 / 검은 장비) · 마우스를 따라 움직이는 손전등 빛 · 먼지 · 화면 반사광
+   게임 캔버스는 CSS 3D 로 같은 각도만큼 눕혀 기기 앞면에 얹는다 (브라우저가 기울어진 화면 위 클릭 좌표를 그대로 맞춰 준다) */
+const ST = { r: null, sc: null, cam: null, slab: null, spot: null, desk: null, dust: null, raf: 0, mx: .5, my: .5, theme: '' };
+function stageTheme(t) { return /배선|퓨즈|배관|단말기|밸브|오실로|회로|금고|다이얼|전력|수압|차단기|증기|고리|주파수|라디오|수신기|콘솔/.test(t) ? 'metal' : /OMR|시간표|도서|카드|승인|서류|사진|그림|쪽지|명찰|신문|필름|테이프|판독|순서|맞추기/.test(t) ? 'paper' : 'device'; }
+function stageInit() {
+  if (ST.r) return ST.r; try { ST.r = new THREE.WebGLRenderer({ antialias: true, alpha: true }); } catch (e) { ST.r = false; return false; }
+  const r = ST.r; r.setPixelRatio(Math.min(1.5, devicePixelRatio || 1)); r.outputColorSpace = THREE.SRGBColorSpace; r.toneMapping = THREE.ACESFilmicToneMapping; r.shadowMap.enabled = true;
+  r.domElement.className = 'mgStageBg'; const sc = ST.sc = new THREE.Scene(); sc.fog = new THREE.Fog(0x050404, 6, 14);
+  ST.cam = new THREE.PerspectiveCamera(30, 1.5, .1, 40); ST.cam.position.set(0, 5.6, 2.6); ST.cam.lookAt(0, 0, .2);
+  const wc = document.createElement('canvas'); wc.width = wc.height = 512; const g = wc.getContext('2d'); g.fillStyle = '#5a3a1e'; g.fillRect(0, 0, 512, 512);
+  for (let y = 0; y < 512; y++) { const v = 60 + 30 * Math.sin(y * .09 + Math.sin(y * .013) * 4) + Math.random() * 14; g.fillStyle = `rgba(${v + 40},${v * .6 + 10},${v * .3},.35)`; g.fillRect(0, y, 512, 1); }
+  for (let i = 0; i < 40; i++) { g.strokeStyle = 'rgba(20,10,4,.25)'; g.beginPath(); const x = Math.random() * 512, y = Math.random() * 512; g.moveTo(x, y); g.lineTo(x + Math.random() * 90 - 45, y + Math.random() * 6); g.stroke(); }
+  const wt = new THREE.CanvasTexture(wc); wt.colorSpace = THREE.SRGBColorSpace; wt.wrapS = wt.wrapT = THREE.RepeatWrapping; wt.repeat.set(2, 2);
+  ST.desk = new THREE.Mesh(new THREE.PlaneGeometry(16, 12), new THREE.MeshStandardMaterial({ map: wt, roughness: .62, bumpMap: wt, bumpScale: .6 })); ST.desk.rotation.x = -Math.PI / 2; ST.desk.receiveShadow = true; sc.add(ST.desk);
+  ST.slab = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshStandardMaterial({ color: 0x222, roughness: .5, metalness: .3 })); ST.slab.castShadow = true; sc.add(ST.slab);
+  // 소품: 머그컵 · 볼펜 · 흩어진 종이 (어둑한 책상 위 현실감)
+  const mug = new THREE.Mesh(new THREE.CylinderGeometry(.22, .2, .42, 24, 1, true), new THREE.MeshStandardMaterial({ color: 0xe8e2d8, roughness: .3, side: THREE.DoubleSide })); mug.position.set(2.9, .21, -.6); mug.castShadow = true; sc.add(mug);
+  const pen = new THREE.Mesh(new THREE.CylinderGeometry(.025, .025, 1.1, 10), new THREE.MeshStandardMaterial({ color: 0x1a2a60, roughness: .3, metalness: .4 })); pen.rotation.set(0, .6, Math.PI / 2); pen.position.set(-2.8, .03, 1.1); pen.castShadow = true; sc.add(pen);
+  const sheet = new THREE.Mesh(new THREE.PlaneGeometry(1.4, 1.9), new THREE.MeshStandardMaterial({ color: 0xd8cfb8, roughness: .95 })); sheet.rotation.set(-Math.PI / 2, 0, .35); sheet.position.set(-3.1, .005, -1.0); sheet.receiveShadow = true; sc.add(sheet);
+  sc.add(new THREE.HemisphereLight(0x8a9ab0, 0x1a1008, .25));
+  ST.spot = new THREE.SpotLight(0xfff0d8, 60, 14, .55, .6, 1.6); ST.spot.position.set(0, 5, 2.5); ST.spot.castShadow = true; ST.spot.shadow.mapSize.set(1024, 1024); sc.add(ST.spot, ST.spot.target);
+  const dg = new THREE.BufferGeometry(), dp = new Float32Array(240 * 3); for (let i = 0; i < 240; i++) { dp[i * 3] = (Math.random() - .5) * 8; dp[i * 3 + 1] = Math.random() * 3; dp[i * 3 + 2] = (Math.random() - .5) * 6; } dg.setAttribute('position', new THREE.BufferAttribute(dp, 3));
+  ST.dust = new THREE.Points(dg, new THREE.PointsMaterial({ color: 0xffeedd, size: .02, transparent: true, opacity: .5, depthWrite: false })); sc.add(ST.dust);
+  return r;
+}
+function stageWrap(cv) {
+  const r = stageInit(); if (!r || cv.dataset.st || cv.closest('.mgStage')) return; cv.dataset.st = '1';
+  const W = cv.width || cv.offsetWidth, H = cv.height || cv.offsetHeight, theme = stageTheme($('mgTitle').textContent || ''), box = document.createElement('div'); box.className = 'mgStage';
+  const sw = Math.min(W + 120, 640), sh = H + 110; box.style.cssText = `position:relative;width:${sw}px;max-width:100%;height:${sh}px;perspective:2000px;display:flex;align-items:center;justify-content:center;overflow:hidden;border-radius:6px;background:#050404`;
+  cv.parentNode.insertBefore(box, cv); box.appendChild(r.domElement); box.appendChild(cv);
+  r.domElement.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none'; r.setSize(sw, sh, false); ST.cam.aspect = sw / sh; ST.cam.updateProjectionMatrix();
+  cv.style.position = 'relative'; cv.style.transform = 'rotateX(9deg) translateY(-4px)'; cv.style.transformOrigin = '50% 60%'; cv.style.boxShadow = '0 18px 30px rgba(0,0,0,.65), 0 0 0 1px rgba(255,255,255,.06)';
+  cv.style.borderRadius = theme === 'paper' ? '2px' : '4px'; if (theme === 'paper') cv.style.filter = 'sepia(.25) contrast(1.05)';
+  const gl = document.createElement('div'); gl.style.cssText = `position:absolute;pointer-events:none;width:${W}px;height:${H}px;transform:rotateX(9deg) translateY(-4px);transform-origin:50% 60%;background:linear-gradient(115deg,rgba(255,255,255,.10) 0%,rgba(255,255,255,0) 35%,rgba(255,255,255,0) 70%,rgba(255,255,255,.05) 100%);mix-blend-mode:screen;border-radius:4px`; box.appendChild(gl);
+  // 기기 본체: 캔버스 비율에 맞춰 화면보다 한 뼘 크게 (주제별 재질)
+  const k = 3.6 / Math.max(W, H * 1.2), w3 = W * k + (theme === 'paper' ? .25 : .55), d3 = H * k + (theme === 'paper' ? .3 : .6);
+  ST.slab.scale.set(w3, theme === 'paper' ? .02 : .22, d3); ST.slab.position.set(0, ST.slab.scale.y / 2, .15);
+  ST.slab.material.color.setHex(theme === 'metal' ? 0x4a5058 : theme === 'paper' ? 0xe0d6bc : 0x1c1c20); ST.slab.material.metalness = theme === 'metal' ? .75 : theme === 'paper' ? 0 : .3; ST.slab.material.roughness = theme === 'paper' ? .95 : theme === 'metal' ? .38 : .45;
+  ST.theme = theme;
+  const mv = e => { const b = box.getBoundingClientRect(); ST.mx = (e.clientX - b.left) / b.width; ST.my = (e.clientY - b.top) / b.height; }; box.addEventListener('mousemove', mv);
+  cancelAnimationFrame(ST.raf); const t0 = performance.now();
+  const loop = () => { if (!MG.active || !box.isConnected) return; const t = (performance.now() - t0) / 1000;
+    ST.spot.target.position.set((ST.mx - .5) * 5, 0, (ST.my - .5) * 4); ST.spot.position.set((ST.mx - .5) * 2 + Math.sin(t * 1.3) * .05, 5, 2.5 + Math.cos(t * 1.1) * .05);
+    ST.spot.intensity = 58 + Math.sin(t * 7) * 1.5 + (Math.random() < .01 ? -25 : 0);   // 손전등 미세 떨림 · 가끔 깜박
+    ST.dust.rotation.y = t * .02; ST.dust.position.y = Math.sin(t * .3) * .05; r.render(ST.sc, ST.cam); ST.raf = requestAnimationFrame(loop); };
+  ST.raf = requestAnimationFrame(loop);
+}
 function open(title, hint) {
   MG.active = true;
   $('mgTitle').textContent = title; $('mgHint').innerHTML = hint || ''; $('mgStatus').textContent = ''; $('mgStatus').className = '';
   $('mgBody').innerHTML = ''; $('mg').classList.add('show');
+  { const body = $('mgBody'); if (ST.obs) ST.obs.disconnect(); ST.obs = new MutationObserver(() => body.querySelectorAll('canvas.mgCanvas:not([data-st]):not([data-own3d])').forEach(c => { if (c.width >= 200 && c.height >= 120) stageWrap(c); })); ST.obs.observe(body, { childList: true, subtree: true }); }
+  // 캔버스 없는 미니게임(버튼 · 카드 격자 등): 첫 화면이 그려진 뒤 본문 첫 덩어리를 같은 무대에 얹는다
+  setTimeout(() => { const body = $('mgBody'); if (!MG.active || body.querySelector('canvas.mgCanvas, .mgStage')) return; const el = [...body.children].find(e => !e.classList.contains('mgInfo') && e.offsetWidth >= 200 && e.offsetHeight >= 100); if (el) { el.style.background = el.style.background || 'transparent'; stageWrap(el); } }, 60);
   injectAltBar(title); errN = 0; clearTimeout(hintTimer); hintTimer = setTimeout(showDeduce, 60000);   // 단서 추리(즉시 해독)는 두 번 실패하거나 1분이 지나야 나온다
   return new Promise(res => { finish = res; });
 }
@@ -44,7 +95,7 @@ function showDeduce() { const b = document.getElementById('mgDeduce'); if (b && 
 function close(ok) {
   cancelAnimationFrame(raf); raf = 0; clearTimeout(hintTimer);
   if (keyH) { removeEventListener('keydown', keyH, true); removeEventListener('keyup', keyH, true); keyH = null; }
-  cleanups.forEach(f => f()); cleanups = [];
+  cleanups.forEach(f => f()); cleanups = []; if (ST.obs) ST.obs.disconnect(); cancelAnimationFrame(ST.raf);
   const f = finish; finish = null;
   const done = () => { $('mg').classList.remove('show'); MG.active = false; if (f) f({ ok }); };
   if (ok) { $('mgStatus').textContent = '성공!'; $('mgStatus').className = 'ok'; setTimeout(done, 650); } else done();
@@ -69,7 +120,7 @@ $('mgCancel').onclick = () => { if (finish) close(false); };
 //   2D 좌표(px · y)를 그대로 받아 3D 로 옮겨 그린다 (1px = 1cm). WebGL 을 못 쓰면 null → 기존 2D 그림
 function lock3D(host, N, PX) {
   let r; try { r = new THREE.WebGLRenderer({ antialias: true, alpha: false }); } catch (e) { return null; }
-  r.setPixelRatio(Math.min(2, devicePixelRatio || 1)); r.setSize(460, 300); r.domElement.className = 'mgCanvas'; host.appendChild(r.domElement);
+  r.setPixelRatio(Math.min(2, devicePixelRatio || 1)); r.setSize(460, 300); r.domElement.className = 'mgCanvas'; r.domElement.dataset.own3d = '1'; host.appendChild(r.domElement);
   r.outputColorSpace = THREE.SRGBColorSpace; r.toneMapping = THREE.ACESFilmicToneMapping;
   const sc = new THREE.Scene(); sc.background = new THREE.Color(0x0b0a08);
   const cam = new THREE.PerspectiveCamera(32, 460 / 300, .1, 50); cam.position.set(.9, 1.1, 5.4); cam.lookAt(0, .55, 0);

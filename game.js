@@ -7163,7 +7163,7 @@ const SIT = { chair: null, back: null };
     });
   });
 }
-function nurseChairFix() { if (!RBG || !RBG.nurseChairs) return; const nc = RBG.nurseChairs(); if (!nc.length) return; const chairs = world.props.filter(q => q.fz && q.fz.type === 'classroom_chair' && /보건실/.test(q.fz.label || q.label || ''));   // 옛 보건실 의자 앉기 지점: 하나는 새 보건실 책상 의자로, 나머지는 걷어 낸다 (침대 위에 떠 있던 것)
+function nurseChairFix() { if (!RBG || !RBG.nurseChairs) return; const nc = RBG.nurseChairs(); if (!nc.length) return; const chairs = world.props.filter(q => q.fz && q.fz.type === 'classroom_chair' && /보건실/.test((q.label || '') + (q.fz.label || '')));   // 옛 보건실 의자 앉기 지점: 하나는 새 보건실 책상 의자로, 나머지는 걷어 낸다 (침대 위에 떠 있던 것)
       chairs.forEach((q, i) => { const s = nc[i]; if (s) { q.x = s.x; q.z = s.z; q.rbY = s.y; q.floor = 0; q.label = '보건실 책상 의자에 앉기'; q._nurse = true; if (q.fz) q.fz.promptText = '[E] 보건실 책상 의자에 앉기'; } else { const k = world.props.indexOf(q); if (k >= 0) world.props.splice(k, 1); } });  }
 function sitDown(c, data) {
   if (SIT.chair || P.hiding) return;

@@ -572,6 +572,23 @@ function memory({ title = '짝 맞추기', icons = ['📻', '🎹', '📼', '�
     lock = true; miss++; sfx.buzz(); const a = first; first = null;
     setTimeout(() => { a.open = c.open = false; lock = false; render(); if (miss >= maxMiss) { status('…카드가 모두 뒤집혔다', 'err'); setTimeout(() => close(false), 600); } }, 650);
   };
+  // 3D 카드: 책상 위 카드(뒷면 교표 · 앞면 그림) — 클릭하면 실제로 뒤집히고, 짝이 맞으면 살짝 떠오르며 금테가 빛난다
+  (() => { let r; try { r = new THREE.WebGLRenderer({ antialias: true }); } catch (e) { return; }
+    r.setPixelRatio(Math.min(2, devicePixelRatio || 1)); r.setSize(460, 300); r.outputColorSpace = THREE.SRGBColorSpace; r.toneMapping = THREE.ACESFilmicToneMapping; r.domElement.className = 'mgCanvas'; r.domElement.dataset.own3d = '1'; $('mgBody').insertBefore(r.domElement, box); box.style.display = 'none';
+    const sc = new THREE.Scene(); sc.background = new THREE.Color(0x0c0a08); const cam = new THREE.PerspectiveCamera(34, 460 / 300, .05, 20); cam.position.set(0, 2.2, 1.5); cam.lookAt(0, 0, .05);
+    sc.add(new THREE.HemisphereLight(0xfff0dc, 0x140c06, .5)); const L = new THREE.SpotLight(0xfff0dc, 16, 7, .7, .5, 1.4); L.position.set(.5, 2.4, 1); sc.add(L, L.target);
+    const desk = new THREE.Mesh(new THREE.PlaneGeometry(6, 4), new THREE.MeshStandardMaterial({ color: 0x5a3a20, roughness: .55 })); desk.rotation.x = -Math.PI / 2; sc.add(desk);
+    const tex = draw => { const c2 = document.createElement('canvas'); c2.width = 128; c2.height = 176; const g2 = c2.getContext('2d'); draw(g2); const t = new THREE.CanvasTexture(c2); t.colorSpace = THREE.SRGBColorSpace; return t; };
+    const backT = tex(g2 => { g2.fillStyle = '#2a3a5a'; g2.fillRect(0, 0, 128, 176); g2.strokeStyle = '#c8a860'; g2.lineWidth = 6; g2.strokeRect(8, 8, 112, 160); g2.fillStyle = '#c8a860'; g2.font = 'bold 30px serif'; g2.textAlign = 'center'; g2.textBaseline = 'middle'; g2.fillText('서문', 64, 76); g2.font = '16px serif'; g2.fillText('1987', 64, 108); }); backT.center.set(.5, .5); backT.rotation = Math.PI;
+    const cols = deck.length > 12 ? 5 : 4, rows = Math.ceil(deck.length / cols), CW = .34, CH = .46, gap = .08;
+    const cards = deck.map((d, i) => { const front = tex(g2 => { g2.fillStyle = '#f4ecd8'; g2.fillRect(0, 0, 128, 176); g2.strokeStyle = '#8a6a3a'; g2.lineWidth = 4; g2.strokeRect(6, 6, 116, 164); g2.font = '72px sans-serif'; g2.textAlign = 'center'; g2.textBaseline = 'middle'; g2.fillText(d.ic, 64, 92); });
+      const m = [new THREE.MeshStandardMaterial({ color: 0xe8e0cc }), new THREE.MeshStandardMaterial({ color: 0xe8e0cc }), new THREE.MeshStandardMaterial({ map: front, roughness: .5 }), new THREE.MeshStandardMaterial({ map: backT, roughness: .5 }), new THREE.MeshStandardMaterial({ color: 0xe8e0cc }), new THREE.MeshStandardMaterial({ color: 0xe8e0cc })];
+      const o = new THREE.Mesh(new THREE.BoxGeometry(CW, .012, CH), m); const x = i % cols, y = (i / cols) | 0; o.position.set((x - (cols - 1) / 2) * (CW + gap), .01, (y - (rows - 1) / 2) * (CH + gap)); o.rotation.z = Math.PI; o.userData.i = i; sc.add(o); return { o, flip: 0, lift: 0 }; });
+    const rc = new THREE.Raycaster(), mv = new THREE.Vector2();
+    r.domElement.addEventListener('mousedown', e => { const b = r.domElement.getBoundingClientRect(); mv.set((e.clientX - b.left) / b.width * 2 - 1, -((e.clientY - b.top) / b.height) * 2 + 1); rc.setFromCamera(mv, cam); const h = rc.intersectObjects(cards.map(c3 => c3.o))[0]; if (h) flip(h.object.userData.i); });
+    const lp = () => { if (!MG.active) { r.dispose(); return; } cards.forEach((c3, i) => { const d = deck[i], tgt = d.open || d.done ? 1 : 0; c3.flip += (tgt - c3.flip) * .2; c3.lift += ((d.done ? 1 : 0) - c3.lift) * .1;
+        c3.o.rotation.z = Math.PI * (1 - c3.flip); c3.o.position.y = .01 + Math.sin(c3.flip * Math.PI) * .12 + c3.lift * .03; if (d.done) c3.o.material[2].emissive = new THREE.Color(0x302000); });
+      r.render(sc, cam); requestAnimationFrame(lp); }; requestAnimationFrame(lp); })();
   keys(() => {});
   render();
   return p;

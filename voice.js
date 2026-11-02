@@ -1,5 +1,5 @@
 // 더빙 · 자막: voice/manifest.json 의 사전 생성 음성(내장) + 캐릭터별 성도 포먼트/피치 변조 및 브라우저 신경망 음성 합성(Web Speech) 하이브리드 엔진
-import { playVoice, stopVoice, loadVoice, isVoicePlaying } from './audio.js?v=306';
+import { playVoice, stopVoice, loadVoice, isVoicePlaying } from './audio.js?v=322';
 
 const SPEAKER = {
   seoyeon: '🎙 김서연 (방송부 2학년)',
@@ -40,6 +40,7 @@ const SPEAKER = {
   janitor: '📼 환경미화원 · 김순례',
   mom: '🏠 엄마',
   dispatcher: '🚑 119 종합상황실',
+  police: '🚓 112 경찰 상황실',
 };
 
 // 브라우저 음성: 화자별 성별 ('f': 여성 / 'm': 남성)
@@ -48,7 +49,7 @@ const GENDER = {
   nurse: 'f', witness_nurse: 'f', homeroom: 'f', librarian: 'f', counselor: 'f', witness_counselor: 'f',
   jihun: 'm', narrator: 'm', reporter: 'm', principal: 'm', witness_principal: 'm',
   scienceTeacher: 'm', witness_science: 'm', peTeacher: 'm', headTeacher: 'm', teacher: 'm', pa: 'm', guard: 'm',
-  junho: 'm', paramedic: 'm', vicePrincipal: 'm', electrician: 'm', snackLady: 'f', mother: 'f', dormMother: 'f', classRep: 'f', cook: 'f', musicTeacher: 'f', janitor: 'f', artTeacher: 'm', mom: 'f', dispatcher: 'f',
+  junho: 'm', paramedic: 'm', vicePrincipal: 'm', electrician: 'm', snackLady: 'f', mother: 'f', dormMother: 'f', classRep: 'f', cook: 'f', musicTeacher: 'f', janitor: 'f', artTeacher: 'm', mom: 'f', dispatcher: 'f', police: 'm',
 };
 
 // 나이 · 성별 · 역할에 맞춘 정밀 음높이
@@ -145,7 +146,7 @@ applySubSize();
 let manifestPromise = null;
 export async function loadManifest() {
   if (!manifestPromise) {
-    manifestPromise = fetch('voice/manifest.json?v=306').then(r => r.json()).then(m => {
+    manifestPromise = fetch('voice/manifest.json?v=322').then(r => r.json()).then(m => {
       manifest = { ...manifest, ...m };
       for (const [k, val] of Object.entries(manifest)) {
         if (val && val.audioFile && m[val.audioFile]) {

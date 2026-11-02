@@ -485,7 +485,7 @@ class School37RoomsMasterPatch {
       case "보건실":
       case "보건실보조":
         place(this._prefabBedWithCurtain(), -hw + 0.5, -hd + 0.6, 0, 1.1, 2.0, 1.8, false, {
-          promptText: "[E] 보건실 커튼 침대 안에 숨기 / 응급 밴드 탐색"
+          promptText: "[E] 보건실 침대 옆 응급 밴드 탐색"
         });
         if (roomName === "보건실") {
           place(this._prefabBedWithCurtain(), hw - 0.5, -hd + 0.6, 0, 1.1, 2.0, 1.8);

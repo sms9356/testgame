@@ -396,7 +396,7 @@ class FiveZonesExpansionPatch {
     // 상호작용 1: 대형 국솥 은신
     this._registerInteractable(cookingVat, {
       id: "cafeteria_vat",
-      promptText: "[E] 대형 조리용 국솥 안에 숨기 (은신)",
+      promptText: "[E] 대형 조리용 국솥 살펴보기",
       onInteract: ({ notify, togglePlayerHide }) => {
         this._playSound("metal_clang");
         notify("차갑고 기름때 낀 대형 국솥 안으로 몸을 웅크리고 뚜껑을 덮었다.");

@@ -4,7 +4,7 @@
 //   전기(분전반 · 2등용 형광등 · 콘센트 · 스위치) · 소방(소화전함 · 소화기 · 감지기 · 유도등 · 방화문) · 수도(세면대 · 배관)
 import * as THREE from '../vendor/three.module.js';
 import { mergeGeometries } from '../vendor/addons/utils/BufferGeometryUtils.js';
-import { makeFlag } from '../tex.js?v=306';
+import { makeFlag } from '../tex.js?v=322';
 // 교실 앞면 꾸밈 공용 (반 이름 · 텍스처 캐시)
 const NAMES = ['김민수', '이서연', '박지훈', '최유진', '정하늘', '강도윤', '조수아', '윤재현', '장예린', '임태호', '한소영', '오준서', '서지민', '신동혁', '권나연', '황민재', '안채원', '송우진', '전다은', '홍석진'];
 let flagTex = null; const decorTex = new Map();
@@ -895,6 +895,22 @@ export function buildMainBuilding(opt = {}) {
       props.push({ kind: 'search', label: '마스터 테이프 보관장 뒤지기', x: XP + 2.9, y: y0 + 1.0, z: z1 + .9, floor: f });
       props.push({ kind: 'search', label: '영상 편집석 서랍 열기', x: X1 + 6.9, y: y0 + .9, z: z2 - 1.25, floor: f });
       props.push({ kind: 'search', label: '스튜디오 소품장 열기', x: X2 - .95, y: y0 + 1.0, z: z1 + 1.0, floor: f });
+      // ── 장비실 (스튜디오 남동쪽 구석, 3.2m × 4.2m): 칸막이벽 · 열린 철문 · 장비 선반 · 카세트 타이머 — 민아가 갇혀 있던 곳
+      { const EX = X1 + 14.6, EZ = z1 + 5.4, DZ1 = z1 + 6.1, DZ2 = z1 + 7.1;
+        box('wall', EX - .06, EX + .06, y0, y0 + S.CEIL, EZ, DZ1, { solid: true }); box('wall', EX - .06, EX + .06, y0, y0 + S.CEIL, DZ2, z2, { solid: true }); box('wall', EX - .06, EX + .06, y0 + 2.1, y0 + S.CEIL, DZ1, DZ2);   // 서쪽 벽 + 문 위 상인방
+        box('wall', EX, X2, y0, y0 + S.CEIL, EZ - .06, EZ + .06, { solid: true });   // 북쪽 벽
+        box('steelG', EX - .08, EX + .08, y0, y0 + 2.12, DZ1 - .05, DZ1); box('steelG', EX - .08, EX + .08, y0, y0 + 2.12, DZ2, DZ2 + .05); box('steelG', EX - .08, EX + .08, y0 + 2.08, y0 + 2.14, DZ1 - .05, DZ2 + .05);   // 문틀
+        box('steelG', EX - .92, EX - .08, y0 + .01, y0 + 2.05, DZ1 - .04, DZ1 + .0); box('alu', EX - .85, EX - .8, y0 + .98, y0 + 1.08, DZ1 + .0, DZ1 + .05);   // 복도 쪽으로 활짝 열어 둔 방화 철문 (벽에 붙어 길을 막지 않는다)
+        sign('장비실', .5, .16, EX - .07, y0 + 2.3, (DZ1 + DZ2) / 2, -Math.PI / 2, '#20242a', '#e8e8e8', false);
+        // 북쪽 벽 스틸 선반 (4단): 카세트 데크 · 예약 타이머 · 테이프 상자 · 케이블 뭉치
+        box('steelG', EX + .3, X2 - .2, y0, y0 + 2.0, EZ + .08, EZ + .5, { solid: true });
+        [.35, .8, 1.25, 1.7].forEach(h => box('alu', EX + .28, X2 - .18, y0 + h - .02, y0 + h, EZ + .07, EZ + .52));
+        box('rack', EX + .5, EX + .95, y0 + .82, y0 + .95, EZ + .12, EZ + .45); box('ledR', EX + .88, EX + .91, y0 + .9, y0 + .92, EZ + .46, EZ + .47);   // 카세트 데크 (빨간 대기등)
+        box('white', EX + 1.1, EX + 1.32, y0 + .82, y0 + .98, EZ + .15, EZ + .4); cyl('rubber', EX + 1.21, y0 + .9, EZ + .41, .06, .015, .06, 16);   // 기계식 예약 타이머
+        for (let k = 0; k < 6; k++) box(k % 2 ? 'screen' : 'rubber', EX + .4 + k * .2, EX + .55 + k * .2, y0 + 1.27, y0 + 1.47, EZ + .12, EZ + .42);   // 테이프 상자
+        for (let k = 0; k < 3; k++) cyl('rubber', EX + 1.7 + k * .35, y0 + .37, EZ + .3, .14, .1, .14, 14);   // 케이블 뭉치
+        box('rack', X2 - .7, X2 - .1, y0, y0 + 1.6, z2 - 1.3, z2 - .7, { solid: true }); for (let k = 0; k < 5; k++) box('ledG', X2 - .72, X2 - .7, y0 + .3 + k * .25, y0 + .32 + k * .25, z2 - 1.2, z2 - 1.15);   // 앰프 랙 (축전지 배선)
+        props.push({ kind: 'search', label: '장비실 선반 뒤지기', x: EX + 1.6, y: y0 + 1.0, z: EZ + .9, floor: f }); }
       }
     } else if (type === 'broadcast') {   // 방송실: 주조정 콘솔 · 녹음 부스 유리벽 · 장비랙
       cabinetD(x1 + 2.1, x1 + 4.4, z1 + 2.2, z1 + 3.0, y0, .78, 'steelG', 'z+');   // 콘솔 하부장

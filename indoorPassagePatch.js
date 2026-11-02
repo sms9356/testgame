@@ -272,7 +272,7 @@ class IndoorCorridorPassagePatch {
 
     this._registerInteractable(mopLocker, {
       id: "passage_mop_locker",
-      promptText: "[E] 복도 청소도구함 안에 숨기 (사물함 은신 연동)",
+      promptText: "[E] 복도 청소도구함 살펴보기",
       onInteract: ({ notify, togglePlayerHide }) => {
         this._playSound("door_heavy");
         notify("곰팡이와 락스 냄새가 나는 좁은 청소도구함 안으로 몸을 숨겼다. [Space]로 숨을 참을 수 있다.");

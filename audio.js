@@ -404,6 +404,14 @@ function laterAt(s, fn) { const p = sfxPos; setTimeout(() => { sfxPos = p; try {
       tone(490, 0.16, 'sine', 0.07, 0, 1, 430);
     });
   },
+  // 수면 찰랑임: 낮은 대역 물결 노이즈 + 아주 옅은 저음 (수영장 가장자리)
+  lap(v = 1) { noiseBurst(.9 + Math.random() * .6, 380 + Math.random() * 260, 'lowpass', .1 * v); if (Math.random() < .35) tone(150 + Math.random() * 60, .35, 'sine', .015 * v, 0, 1, 110); },
+  // 물 빠지는 소용돌이: 길게 이어지는 꾸르륵 소리 (배수 이벤트)
+  gurgle(sec = 8) { const n = Math.round(sec * 3); for (let i = 0; i < n; i++) setTimeout(() => { noiseBurst(.45, 300 + Math.random() * 500, 'bandpass', .32 * (1 - i / n * .6)); if (i % 2) tone(90 + Math.random() * 120, .3, 'sine', .07, 0, 1, 60); }, i * 330); },
+  // 전화 신호음 (한국 PSTN): DTMF 버튼음 · 연결음(링백 440+480Hz, 1초 울림 2초 쉼) · 연결 딸깍
+  dtmf(d) { const R = { 1: [697, 1209], 2: [697, 1336], 3: [697, 1477], 4: [770, 1209], 5: [770, 1336], 6: [770, 1477], 7: [852, 1209], 8: [852, 1336], 9: [852, 1477], 0: [941, 1336] }[d] || [941, 1209]; tone(R[0], .12, 'sine', .07); tone(R[1], .12, 'sine', .07); },
+  ringback(n = 2) { for (let i = 0; i < n; i++) setTimeout(() => { tone(440, 1, 'sine', .045); tone(480, 1, 'sine', .045); }, i * 3000); },
+  pickupClick() { noiseBurst(.05, 2500, 'bandpass', .35); setTimeout(() => noiseBurst(.4, 900, 'lowpass', .05), 60); },
   waterDrain() {
     for (let i = 0; i < 8; i++) setTimeout(() => {
       noiseBurst(.38, 650 + i * 70, 'bandpass', .38 - i * .03);

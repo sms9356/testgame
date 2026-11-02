@@ -1033,7 +1033,6 @@ function rings({ title = '단말기 잠금 — 고리 암호', clue = null, maxM
   if ([0, 1, 2].every(i => off[i] === target[i])) turn(1, 1);
   const p = open(title, `고리를 <b>클릭</b>(왼쪽 / 오른쪽 클릭 = 반대 방향)해서 <b style="color:#ffd070">읽는 선</b>에 단서의 기호 세 개를 맞춰라<br>안쪽 고리 → 바깥 고리가 반대로 · 바깥 고리 → 가운데 고리가 같은 방향으로 함께 돈다 — 남은 회전 <b id="rgLeft">${maxMoves}</b>`);
   const c = canvas(420, 340), g = c.getContext('2d'); let moves = 0, won = false;
-  screen3D(c, { kind: 'metal' });
   const draw = () => {
     g.fillStyle = '#0b0d10'; g.fillRect(0, 0, 420, 340);
     const cx = 170, cy = 170, R = [62, 104, 146];
@@ -1044,10 +1043,34 @@ function rings({ title = '단말기 잠금 — 고리 암호', clue = null, maxM
     g.fillStyle = '#ffd070'; g.beginPath(); g.moveTo(cx - 7, cy - R[2] - 14); g.lineTo(cx + 7, cy - R[2] - 14); g.lineTo(cx, cy - R[2] - 4); g.fill();
   };
   const click = (e, d) => { if (won || !finish) return; const rc = c.getBoundingClientRect(), x = (e.clientX - rc.left) * c.width / rc.width - 170, y = (e.clientY - rc.top) * c.height / rc.height - 170, r = Math.hypot(x, y);
-    const i = r < 84 ? 0 : r < 126 ? 1 : r < 168 ? 2 : -1; if (i < 0) return; turn(i, d); moves++; sfx.dial(); const L = document.getElementById('rgLeft'); if (L) L.textContent = maxMoves - moves; draw();
+    const i = r < 84 ? 0 : r < 126 ? 1 : r < 168 ? 2 : -1; doTurn(i, d); };
+  const doTurn = (i, d) => { if (won || !finish || i < 0) return; turn(i, d); moves++; sfx.dial(); const L = document.getElementById('rgLeft'); if (L) L.textContent = maxMoves - moves; draw();
     if ([0, 1, 2].every(k => off[k] === target[k])) { won = true; sfx.fuse ? sfx.fuse() : sfx.click(); setTimeout(() => close(true), 400); }
     else if (moves >= maxMoves) { sfx.buzz(); status('잠금이 초기화된다…', 'err'); setTimeout(() => finish && close(false), 700); } };
   c.addEventListener('click', e => click(e, 1)); c.addEventListener('contextmenu', e => { e.preventDefault(); click(e, -1); });
+  // 3D 금속 고리 자물쇠: 동심원 고리 3개(황동·강철·구리)에 기호가 새겨져 있고 클릭한 고리가 부드럽게 돈다. 위쪽 노란 화살표가 읽는 선, 오른쪽 황동 판이 단서.
+  (() => { let r; try { r = new THREE.WebGLRenderer({ antialias: true }); } catch (e) { return; }
+    r.setPixelRatio(Math.min(2, devicePixelRatio || 1)); r.setSize(460, 330); r.outputColorSpace = THREE.SRGBColorSpace; r.toneMapping = THREE.ACESFilmicToneMapping; r.domElement.className = 'mgCanvas'; r.domElement.dataset.own3d = '1'; c.dataset.st = '1'; c.parentNode.insertBefore(r.domElement, c); c.style.display = 'none';
+    const sc = new THREE.Scene(); sc.background = new THREE.Color(0x0b0a09); const cam = new THREE.PerspectiveCamera(30, 460 / 330, .05, 20); cam.position.set(.3, -.3, 4.1); cam.lookAt(.3, .02, 0);
+    sc.add(new THREE.HemisphereLight(0xfff0dc, 0x140c06, .55)); const Ls = new THREE.SpotLight(0xfff0dc, 24, 8, .6, .5, 1.3); Ls.position.set(1, 1.8, 2.6); sc.add(Ls, Ls.target);
+    const M = (c3, o = {}) => new THREE.MeshStandardMaterial(Object.assign({ color: c3, roughness: .35, metalness: .85 }, o));
+    const plate = new THREE.Mesh(new THREE.BoxGeometry(2.6, 1.9, .1), M(0x2a2e34, { metalness: .5, roughness: .55 })); plate.position.set(.3, 0, -.1); sc.add(plate);
+    const RR = [[.12, .34], [.36, .58], [.6, .82]], cols3 = [0xc8a050, 0xa8b4c0, 0xb8704a], ringsG = [];
+    const symTex = (ch, col) => { const cv = document.createElement('canvas'); cv.width = cv.height = 64; const q = cv.getContext('2d'); q.fillStyle = col; q.font = '44px serif'; q.textAlign = 'center'; q.textBaseline = 'middle'; q.fillText(ch, 32, 34); const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; return t; };
+    RR.forEach(([a0, a1], i) => { const gr = new THREE.Group(); const shp = new THREE.Shape(); shp.absarc(0, 0, a1 - .005, 0, Math.PI * 2, false); const hh = new THREE.Path(); hh.absarc(0, 0, a0 + .005, 0, Math.PI * 2, true); shp.holes.push(hh); const ring = new THREE.Mesh(new THREE.ExtrudeGeometry(shp, { depth: .05, bevelEnabled: true, bevelSize: .006, bevelThickness: .006, bevelSegments: 2, curveSegments: 64 }), M(cols3[i])); ring.position.z = -.02; gr.add(ring);
+      const hole = new THREE.Mesh(new THREE.CylinderGeometry(a0, a0, .2, 48), M(0x111111, { metalness: .2 })); hole.rotation.x = Math.PI / 2; if (i === 0) hole.visible = false;
+      
+      const rs = (a0 + a1) / 2; for (let k = 0; k < N; k++) { const ang = Math.PI / 2 - k / N * Math.PI * 2; const sp = new THREE.Mesh(new THREE.PlaneGeometry(.17, .17), new THREE.MeshBasicMaterial({ map: symTex(SYM[k], '#1a1208'), transparent: true })); sp.position.set(Math.cos(ang) * rs, Math.sin(ang) * rs, .04); sp.rotation.z = ang - Math.PI / 2; gr.add(sp); }
+      gr.position.z = i * .001; sc.add(gr); ringsG.push({ gr, a: 0, z: .036 + i * .011 }); });
+    const cap = new THREE.Mesh(new THREE.CylinderGeometry(.11, .11, .12, 32), M(0x303030)); cap.rotation.x = Math.PI / 2; sc.add(cap);
+    const arrow = new THREE.Mesh(new THREE.ConeGeometry(.05, .1, 3), new THREE.MeshStandardMaterial({ color: 0xffd070, emissive: 0x806020 })); arrow.rotation.z = Math.PI; arrow.position.set(0, .9, .06); sc.add(arrow);
+    const clueP = new THREE.Mesh(new THREE.BoxGeometry(.42, 1.1, .03), M(0xb08a40, { roughness: .4 })); clueP.position.set(1.3, 0, -.03); sc.add(clueP);
+    target.forEach((t, i) => { const sp = new THREE.Mesh(new THREE.PlaneGeometry(.26, .26), new THREE.MeshBasicMaterial({ map: symTex(SYM[t], '#201406'), transparent: true })); sp.position.set(1.3, .32 - i * .32, .0); sc.add(sp); });
+    const rc = new THREE.Raycaster(), mv = new THREE.Vector2(), pl = new THREE.Plane(new THREE.Vector3(0, 0, 1), -.04), hp = new THREE.Vector3();
+    const pick = (e, d) => { const b = r.domElement.getBoundingClientRect(); mv.set((e.clientX - b.left) / b.width * 2 - 1, -((e.clientY - b.top) / b.height) * 2 + 1); rc.setFromCamera(mv, cam); if (!rc.ray.intersectPlane(pl, hp)) return; const rr = Math.hypot(hp.x, hp.y); const i = rr < .35 ? 0 : rr < .59 ? 1 : rr < .84 ? 2 : -1; doTurn(i, d); };
+    r.domElement.addEventListener('click', e => pick(e, 1)); r.domElement.addEventListener('contextmenu', e => { e.preventDefault(); pick(e, -1); });
+    const lp = () => { if (!MG.active) { r.dispose(); return; } ringsG.forEach((o, i) => { const tgt = off[i] / N * Math.PI * 2; let d = tgt - o.a; d = ((d + Math.PI) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2) - Math.PI; o.a += d * .18; o.gr.rotation.z = o.a; });
+      arrow.material.emissiveIntensity = won ? 2 : 1; r.render(sc, cam); requestAnimationFrame(lp); }; requestAnimationFrame(lp); })();
   keys(() => {}); draw();
   return p;
 }

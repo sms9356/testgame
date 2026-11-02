@@ -112,7 +112,7 @@ function keys(fn) {
 // 3D 기기 화면: 2D 캔버스를 실제 장비(브라운관 오실로스코프·금속 단말기·나무 게임판)의 화면 텍스처로 띄운다.
 //   원래 캔버스는 화면 밖에 숨기고(크기는 유지 — 기존 좌표 계산 그대로), 화면을 클릭/드래그/휠하면 같은 위치로 이벤트를 넘긴다.
 //   knobs(): [0..1] 배열을 돌려주면 하단 회전 노브가 그 값대로 돈다.
-function screen3D(c, { kind = 'metal', knobs = null } = {}) {
+function screen3D(c, { kind = 'metal', knobs = null, prop = null } = {}) {
   let r; try { r = new THREE.WebGLRenderer({ antialias: true }); } catch (e) { return; }
   const W = 480, H = Math.round(480 * (c.height / c.width) + 70); r.setPixelRatio(Math.min(2, devicePixelRatio || 1)); r.setSize(W, H); r.outputColorSpace = THREE.SRGBColorSpace; r.toneMapping = THREE.ACESFilmicToneMapping;
   r.domElement.className = 'mgCanvas'; r.domElement.dataset.own3d = '1'; c.dataset.st = '1'; c.parentNode.insertBefore(r.domElement, c);
@@ -127,7 +127,21 @@ function screen3D(c, { kind = 'metal', knobs = null } = {}) {
   const glass = new THREE.Mesh(new THREE.PlaneGeometry(sw, shh), new THREE.MeshPhysicalMaterial({ color: 0xffffff, transparent: true, opacity: .08, roughness: .05, clearcoat: 1 })); glass.position.z = .03; sc.add(glass);
   const kn = []; if (knobs) { const n = knobs().length; for (let i = 0; i < n; i++) { const g = new THREE.Group(); const k = new THREE.Mesh(new THREE.CylinderGeometry(.07, .08, .06, 24), new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: .4, metalness: .3 })); k.rotation.x = Math.PI / 2; g.add(k); const m = new THREE.Mesh(new THREE.BoxGeometry(.012, .05, .01), new THREE.MeshBasicMaterial({ color: 0xffffff })); m.position.set(0, .04, .035); g.add(m); g.position.set((i - (n - 1) / 2) * .45, -shh / 2 - .26, .02); sc.add(g); kn.push(g); } }
   if (kind === 'scope') { const led = new THREE.Mesh(new THREE.SphereGeometry(.018, 10, 8), new THREE.MeshBasicMaterial({ color: 0x40ff80 })); led.position.set(sw / 2 + .07, -shh / 2 - .26, .02); sc.add(led); }
-  cam.position.set(0, .05, Math.max((shh + .9) / 2 / Math.tan(15 * Math.PI / 180), (sw + .6) / 2 / Math.tan(15 * Math.PI / 180) / (W / H))); cam.lookAt(0, -.14, 0);
+  // 기기 옆/위 소품 (실제 장비 느낌): 책상 상판 + 주제별 3D 소품
+  const yTop = -.14 + (shh + .62) / 2, yBot = -.14 - (shh + .62) / 2, spin = [], M = (c3, o = {}) => new THREE.MeshStandardMaterial(Object.assign({ color: c3, roughness: .5 }, o));
+  const desk = new THREE.Mesh(new THREE.BoxGeometry(sw + 3, .06, 1.6), M(0x4a3420, { roughness: .75 })); desk.position.set(0, yBot - .03, -.3); sc.add(desk);
+  const P = new THREE.Group(); sc.add(P); let side = 0;
+  if (prop === 'antenna') { const a2 = new THREE.Mesh(new THREE.CylinderGeometry(.006, .01, .6, 6), M(0xc8c8c8, { metalness: .9, roughness: .2 })); a2.position.set(sw / 2 - .05, yTop + .28, -.3); a2.rotation.z = -.35; P.add(a2); }
+  if (prop === 'reels') [-.38, .38].forEach(x => { const g = new THREE.Group(); const d = new THREE.Mesh(new THREE.CylinderGeometry(.3, .3, .03, 32), M(0x9aa0a8, { metalness: .8, roughness: .3 })); d.rotation.x = Math.PI / 2; g.add(d); for (let k = 0; k < 3; k++) { const h2 = new THREE.Mesh(new THREE.CylinderGeometry(.07, .07, .04, 14), M(0x111111)); h2.rotation.x = Math.PI / 2; h2.position.set(Math.cos(k * 2.1) * .16, Math.sin(k * 2.1) * .16, 0); g.add(h2); } g.position.set(x, yTop + .3, -.3); P.add(g); spin.push(g); });
+  if (prop === 'microscope') { side = 1; const g = new THREE.Group(); g.add(Object.assign(new THREE.Mesh(new THREE.BoxGeometry(.32, .05, .4), M(0x202428)), {})); const arm = new THREE.Mesh(new THREE.BoxGeometry(.07, .6, .1), M(0x2a2e34)); arm.position.set(0, .3, -.13); arm.rotation.x = .15; g.add(arm); const tube = new THREE.Mesh(new THREE.CylinderGeometry(.045, .05, .45, 18), M(0xe8e8e8, { metalness: .5, roughness: .3 })); tube.position.set(0, .5, .02); tube.rotation.x = -.35; g.add(tube); const st = new THREE.Mesh(new THREE.BoxGeometry(.26, .02, .22), M(0x15171a)); st.position.set(0, .2, .03); g.add(st); const sl = new THREE.Mesh(new THREE.BoxGeometry(.18, .005, .06), new THREE.MeshPhysicalMaterial({ color: 0xddeeff, transparent: true, opacity: .5 })); sl.position.set(0, .215, .03); g.add(sl); g.scale.setScalar(1.5); g.position.set(sw / 2 + .5, yBot + .04, -.15); g.rotation.y = -.5; P.add(g); }
+  if (prop === 'beakers') { side = 1; [[0, .14, 0x70b0ff], [.24, .1, 0xff8060], [-.05, .08, 0x80e090]].forEach(([dx, r2, col], k) => { const gl = new THREE.Mesh(new THREE.CylinderGeometry(r2 * .5, r2 * .5, r2 * 2.2, 20, 1, true), new THREE.MeshPhysicalMaterial({ color: 0xffffff, transparent: true, opacity: .25, roughness: .05, side: THREE.DoubleSide })); const lq = new THREE.Mesh(new THREE.CylinderGeometry(r2 * .47, r2 * .47, r2 * 1.2, 20), M(col, { transparent: true, opacity: .75, emissive: col, emissiveIntensity: .15 })); const x = sw / 2 + .3 + dx, z = -.1 - k * .18; gl.position.set(x, yBot + r2 * 1.1, z); lq.position.set(x, yBot + r2 * .6, z); P.add(gl, lq); }); }
+  if (prop === 'ball') { side = 1; const b2 = new THREE.Mesh(new THREE.SphereGeometry(.17, 28, 20), M(0xd0682a, { roughness: .8 })); b2.position.set(sw / 2 + .4, yBot + .17, -.1); P.add(b2); spin.push(b2); }
+  if (prop === 'tape') { side = 1; const t2 = new THREE.Mesh(new THREE.BoxGeometry(.4, .02, .25), M(0x1a1a1a)); t2.position.set(sw / 2 + .4, yBot + .01, -.05); t2.rotation.y = .3; P.add(t2); const lb = new THREE.Mesh(new THREE.BoxGeometry(.3, .022, .12), M(0xe8dcc0)); lb.position.copy(t2.position); lb.position.y += .002; lb.rotation.y = .3; P.add(lb); }
+  if (prop === 'pipe') { const p2 = new THREE.Mesh(new THREE.CylinderGeometry(.07, .07, sw + 3, 18), M(0x6a5a48, { metalness: .7, roughness: .45 })); p2.rotation.z = Math.PI / 2; p2.position.set(0, yTop + .25, -.75); P.add(p2); const v2 = new THREE.Mesh(new THREE.TorusGeometry(.13, .025, 8, 24), M(0xb02020, { metalness: .4 })); v2.position.set(sw / 2 + .2, yTop + .25, -.62); P.add(v2); spin.push(v2); }
+  if (prop === 'lamp') { side = 1; const base = new THREE.Mesh(new THREE.CylinderGeometry(.1, .12, .03, 20), M(0x2a3a2a)); base.position.set(-(sw / 2 + .4), yBot + .015, -.2); P.add(base); const pole = new THREE.Mesh(new THREE.CylinderGeometry(.012, .012, .7, 8), M(0x2a3a2a)); pole.position.set(-(sw / 2 + .4), yBot + .35, -.2); P.add(pole); const shade = new THREE.Mesh(new THREE.ConeGeometry(.14, .16, 20, 1, true), M(0x2f5a3a, { side: THREE.DoubleSide })); shade.position.set(-(sw / 2 + .28), yBot + .7, -.1); shade.rotation.z = -.6; P.add(shade); const wl = new THREE.PointLight(0xffd8a0, 1.2, 3); wl.position.set(-(sw / 2 + .2), yBot + .6, 0); P.add(wl); }
+  const wAll = sw + .6 + side * 1.2;
+  const extra = prop === 'reels' ? .7 : prop === 'antenna' ? .45 : prop === 'pipe' ? .4 : 0, hAll = shh + .9 + extra, cy = -.14 + extra / 2;
+  cam.position.set(0, cy + .19, Math.max(hAll / 2 / Math.tan(15 * Math.PI / 180), wAll / 2 / Math.tan(15 * Math.PI / 180) / (W / H))); cam.lookAt(0, cy, 0);
   const rc = new THREE.Raycaster(), mv = new THREE.Vector2();
   const fwd = (type, e) => { const b = r.domElement.getBoundingClientRect(); mv.set((e.clientX - b.left) / b.width * 2 - 1, -((e.clientY - b.top) / b.height) * 2 + 1); rc.setFromCamera(mv, cam); const hit = rc.intersectObject(scr)[0]; if (!hit && !/move|up/.test(type)) return;
     const uv = hit ? hit.uv : { x: .5, y: .5 }, cb = c.getBoundingClientRect(), x = cb.left + Math.min(1, Math.max(0, uv.x)) * cb.width, y = cb.top + (1 - Math.min(1, Math.max(0, uv.y))) * cb.height;
@@ -136,7 +150,7 @@ function screen3D(c, { kind = 'metal', knobs = null } = {}) {
     else c.dispatchEvent(new MouseEvent(type, { clientX: x, clientY: y, button: e.button, buttons: e.buttons, bubbles: true, cancelable: true })); };
   ['mousedown', 'mousemove', 'mouseup', 'click', 'contextmenu', 'pointerdown', 'pointermove', 'pointerup'].forEach(t => r.domElement.addEventListener(t, e => { if (t === 'contextmenu') e.preventDefault(); fwd(t, e); }));
   r.domElement.addEventListener('wheel', e => fwd('wheel', e), { passive: false });
-  const loop = () => { if (!MG.active) { r.dispose(); return; } tex.needsUpdate = true; if (knobs) { const v = knobs(); kn.forEach((g, i) => g.rotation.z = Math.PI * .75 - v[i] * Math.PI * 1.5); } r.render(sc, cam); requestAnimationFrame(loop); }; requestAnimationFrame(loop);
+  const loop = () => { if (!MG.active) { r.dispose(); return; } tex.needsUpdate = true; if (knobs) { const v = knobs(); kn.forEach((g, i) => g.rotation.z = Math.PI * .75 - v[i] * Math.PI * 1.5); } spin.forEach(o => o.rotation.z += .01); r.render(sc, cam); requestAnimationFrame(loop); }; requestAnimationFrame(loop);
 }
 function canvas(w, h) { const c = document.createElement('canvas'); c.width = w; c.height = h; c.className = 'mgCanvas'; $('mgBody').appendChild(c); return c; }
 $('mgCancel').onclick = () => { if (finish) close(false); };
@@ -628,7 +642,7 @@ function memory({ title = '짝 맞추기', icons = ['📻', '🎹', '📼', '�
 function tune({ title = '라디오 주파수 맞추기', label = '…이 방송을 듣는 사람에게…' }) {
   const p = open(title, '<b>1) 주 동조 다이얼(A·D / 상단 스케일 드래그)</b>로 목표 주파수 대역을 찾고,<br><b>2) 미세 동조·안테나 게인 노브(W·S / 하단 노브 드래그)</b>를 맞춰 신호 감도 90% 이상에서 <b>[Space / 주파수 잠금]</b>을 눌러라');
   const c = canvas(480, 250), g = c.getContext('2d');
-  screen3D(c, { kind: 'wood' });
+  screen3D(c, { kind: 'wood', prop: 'antenna' });
   const targetF = .22 + Math.random() * .58, targetG = .25 + Math.random() * .55;
   let f = .08, gain = .85, hold = 0, lastT = performance.now(), t = 0, dn = {}, dragMode = null, lastTick = 0;
 
@@ -830,7 +844,7 @@ function timing({ title = '타이밍', hint = '바늘이 <b style="color:#60e0a0
 function ouija({ title = '테이프 판독', qs = [] }) {
   const p = open(title, '질문을 고른 뒤, 판독이 끝날 때까지 <b>Space / 마우스 버튼</b>으로 재생 버튼을 계속 누르고 있어라 — 떼면 테이프가 씹힌다');
   const c = canvas(440, 220), g = c.getContext('2d');
-  screen3D(c, { kind: 'wood' });
+  screen3D(c, { kind: 'wood', prop: 'tape' });
   const L = 'ㄱㄴㄷㄹㅁㅂㅅㅇㅈㅊㅋㅌㅍㅎ'.split('').concat(['예', '아니오']);
   const pos = L.map((ch, i) => i < 14 ? { ch, x: 40 + (i % 7) * 60, y: 70 + ((i / 7) | 0) * 56 } : { ch, x: i === 14 ? 70 : 370, y: 26 });
   const qbox = document.createElement('div'); qbox.className = 'ouQ'; $('mgBody').appendChild(qbox);
@@ -867,7 +881,7 @@ function pipes({ title = '증기 배관 — 압력을 빼라', time = 70 } = {})
   const R = 5, C = 6, S = 62, ox = 46, oy = 34;
   const p = open(title, `타일을 클릭해 돌려 <b style="color:#ffb070">밸브</b>의 증기를 <b style="color:#70d8ff">배출구 두 곳</b>으로 모두 보내라 (우클릭: 반대로)<br>열린 관 끝으로 증기가 새면 <b>압력이 더 빨리</b> 오른다 — 계기판이 빨간 칸에 닿으면 터진다`);
   const c = canvas(C * S + ox * 2, R * S + oy + 30), g = c.getContext('2d');
-  screen3D(c, { kind: 'metal' });
+  screen3D(c, { kind: 'metal', prop: 'pipe' });
   const rot = m => ((m << 1) | (m >> 3)) & 15, conn = (a, b) => (b[0] < a[0] ? 1 : b[1] > a[1] ? 2 : b[0] > a[0] ? 4 : 8);
   const grid = Array.from({ length: R }, () => Array(C).fill(0));
   const src = 1 + ((Math.random() * (R - 2)) | 0), outs = Math.random() < .5 ? [0, R - 1] : [[0, 2], [2, 4], [0, 3], [1, 4]][(Math.random() * 4) | 0];   // 판마다 다른 위치
@@ -1019,7 +1033,7 @@ function rings({ title = '단말기 잠금 — 고리 암호', clue = null, maxM
 function stampApprove({ title = '학생회실 — 1998 해교제 야간 잔류 승인원 검수 및 직인 날인' } = {}) {
   const p = open(title, '<b>1단계:</b> 기안문에서 <b style="color:#ff8a70">조작된 위조 조항 3줄(2·4·5번)</b>을 클릭해 적색 교정펜으로 정정하라<br><b>2단계:</b> 우측 <b>[관인 수직 각도(A·D)]</b>를 0°에 맞추고 <b>[인주 묻히기]</b> 후, <b>[결재란을 꾹 눌러(Hold)]</b> 압력 70~95%에서 떼어 날인하라!');
   const c = canvas(540, 350), g = c.getContext('2d');
-  screen3D(c, { kind: 'paper' });
+  screen3D(c, { kind: 'paper', prop: 'lamp' });
   const items = [
     { txt: '문서번호: 서문학생 제1998-1012호 (기안일: 1998. 10. 12)', bad: false },
     { txt: '1. 행 사 명: 제30회 해교제 전야제 합동 리허설 및 방송 점검', bad: false },
@@ -1176,7 +1190,7 @@ function stampApprove({ title = '학생회실 — 1998 해교제 야간 잔류 �
 function omrGrade({ title = '교무실 — 1998학년도 기말고사 OMR 답안지 판독 및 복원' } = {}) {
   const p = open(title, '<b>1) 적색 채점 필름(상단 슬라이더 또는 A·D)</b>을 움직여 좌우 기준점(⊕)에 정렬한 뒤,<br><b>2) [1번 수정테이프]</b>로 오답 마킹을 지우고 <b>[2번 컴퓨터용 사인펜]</b>으로 붉은 정답 구멍에 마킹하여 <b>[Space / 광학 판독]</b>을 실행하라!');
   const c = canvas(520, 350), g = c.getContext('2d');
-  screen3D(c, { kind: 'paper' });
+  screen3D(c, { kind: 'paper', prop: 'lamp' });
   const ans = [3, 1, 5, 2, 4];
   // 각 문항의 마킹 배열 (복수 마킹이나 오답이 있으면 수정테이프로 먼저 지워야 함!)
   const marks = [[2], [1], [4], [5], [4]];
@@ -1313,7 +1327,7 @@ function omrGrade({ title = '교무실 — 1998학년도 기말고사 OMR 답안
 function timetableRestore({ title = '교실 게시판 — 1998년 10월 12일 학급 시간표 & 당번 자석 복원' } = {}) {
   const p = open(title, '<b>1) 하단 자석 명패(1~5번 클릭 또는 숫자키)</b> 중 단서에 맞는 과목/당번 자석을 먼저 선택한 뒤,<br><b>2) 위쪽 시간표의 알맞은 교시 칸</b>을 클릭해 부착하고, 4칸을 모두 올바르게 채운 뒤 <b>[Space / 황동 압정 잠금]</b>을 눌러라!');
   const c = canvas(520, 350), g = c.getContext('2d');
-  screen3D(c, { kind: 'paper' });
+  screen3D(c, { kind: 'paper', prop: 'lamp' });
   const slots = [
     { period: '1교시 (09:00)', hint: '시약 중화 적정 실험 (화학실 이동 수업)', want: '화 학 I', placed: '화 학 I', locked: true },
     { period: '2교시 (10:00)', hint: '1998 현대문학 시 강독 (교실 수업)', want: '국 어 II', placed: null, locked: false },
@@ -1415,7 +1429,7 @@ function timetableRestore({ title = '교실 게시판 — 1998년 10월 12일 �
 function libraryCatalog({ title = '도서실 — KDC 청구기호 도서 대출 카드 & 금서 서가 배열' } = {}) {
   const p = open(title, '<b>1단계:</b> 책 표지 상단을 클릭해 두 권씩 자리를 바꿔 <b>KDC 청구기호 오름차순(100→300→400→800→900)</b>으로 배열하라<br><b>2단계:</b> 각 책 하단의 <b>[▲ / ▼ 라벨 슬라이더]</b>를 눌러 붉은 청구기호 라벨 높이를 <b>점선 기준선</b>에 맞춘 뒤 <b>[Space / 서가 잠금 해제]</b>를 눌러라!');
   const c = canvas(520, 340), g = c.getContext('2d');
-  screen3D(c, { kind: 'paper' });
+  screen3D(c, { kind: 'paper', prop: 'lamp' });
   const books = [
     { code: 400, label: '400 자연과학', sub: '화학실험 편람', col: '#244a38', tagLv: 1 },
     { code: 100, label: '100 철학·심리', sub: '융의 그림자 원형', col: '#4a2c38', tagLv: 0 },
@@ -1510,7 +1524,7 @@ function libraryCatalog({ title = '도서실 — KDC 청구기호 도서 대출 
 function cassetteSplice({ title = '방송실 — 1998년 하교 방송 카세트테이프 마그네틱 필름 접합' } = {}) {
   const p = open(title, '<b>1단계:</b> 끊어진 <b>마그네틱 테이프 파단부 3곳</b>을 클릭해 스플라이싱 테이프로 접합하라<br><b>2단계:</b> 우측 <b>[헤드 방위각(Azimuth) 드라이버 나사(A·D / 노브)]</b>를 돌려 L/R 위상 동조율을 88% 이상 맞춘 뒤 <b>[Space / 재생 검증]</b>을 눌러라!');
   const c = canvas(520, 340), g = c.getContext('2d');
-  screen3D(c, { kind: 'metal' });
+  screen3D(c, { kind: 'metal', prop: 'tape' });
   const breaks = [
     { x: 118, y: 218, fixed: false },
     { x: 205, y: 232, fixed: false },
@@ -1611,7 +1625,7 @@ function cassetteSplice({ title = '방송실 — 1998년 하교 방송 카세트
 function microscopeSlide({ title = '과학준비실 — 광학 현미경 프레파라트 표본 초점·배율 판독' } = {}) {
   const p = open(title, '<b>1) 대물렌즈[400x]</b> 전환 → <b>2) 프레파라트 스테이지[WASD / 뷰포트 드래그]</b>로 표본을 십자선 중앙에 이동 →<br><b>3) 미동 초점 나사[Q·E]</b>와 <b>4) 조리개 광량[Z·C]</b>을 맞춘 뒤 <b>[Space / 표본 판독 확정]</b>을 눌러라!');
   const c = canvas(520, 340), g = c.getContext('2d');
-  screen3D(c, { kind: 'metal' });
+  screen3D(c, { kind: 'metal', prop: 'microscope' });
   let mag = 100, focus = 0.18, targetFocus = 0.68, iris = 0.25, targetIris = 0.62;
   let sx = 46, sy = -38, dragStage = false, lastMouse = [0, 0];
 
@@ -1907,7 +1921,7 @@ function oscilloscope({ title = '오실로스코프 — 주파수·진폭·위�
 function chemMix({ title = '실험대 — 시약 중화 적정 (목표 pH 7.2)' } = {}) {
   const p = open(title, '<b>1번(산성 적정액)</b> · <b>2번(염기성 시약)</b> · <b>3번(완충 냉각액)</b> 버튼 클릭 또는 키 입력<br>pH를 <b>7.0 ~ 7.4</b>, 온도를 <b>40°C 이하</b>로 맞춘 뒤 <b>Space(교반 결정화)</b>를 눌러라');
   const c = canvas(460, 300), g = c.getContext('2d');
-  screen3D(c, { kind: 'metal' });
+  screen3D(c, { kind: 'metal', prop: 'beakers' });
   let ph = 4.2 + (Math.random() < .5 ? -.8 : 4.4), temp = 28, stir = 0, drops = [], lastT = performance.now();
   const addReagent = kind => {
     if (!finish) return;
@@ -1997,7 +2011,7 @@ function chemMix({ title = '실험대 — 시약 중화 적정 (목표 pH 7.2)' 
 function hoopShot({ title = '체육관 코트 — 물리 궤적 자유투 (3골 성공)' } = {}) {
   const p = open(title, '마우스 위·아래(또는 <b>W · S</b>)로 발사 각도 조준 · <b>마우스 버튼 / Space</b>를 누르고 있다가 떼면 슛!<br>백보드 반동을 이용하거나 클린샷으로 <b>3골</b>을 성공시켜라');
   const c = canvas(480, 300), g = c.getContext('2d');
-  screen3D(c, { kind: 'metal' });
+  screen3D(c, { kind: 'metal', prop: 'ball' });
   let ang = 54 * Math.PI / 180, pwr = 0, charging = false, dir = 1, goals = 0, shots = 0;
   let ball = null, rimX = 392, rimY = 118, rimR = 22, boardX = 420, lastT = performance.now();
 
@@ -2101,7 +2115,7 @@ function hoopShot({ title = '체육관 코트 — 물리 궤적 자유투 (3골 
 function filmFocus({ title = '영사기 — 듀얼 렌즈 초점 & 필름 트래킹 복원' } = {}) {
   const p = open(title, '<b>A · D(또는 마우스 좌우)</b>로 대물렌즈 초점 링 조절 · <b>W · S(또는 마우스 상하)</b>로 필름 수직 트래킹 동기화<br>화면 떨림과 초점 흐림이 사라졌을 때 <b>Space / 클릭</b>으로 프레임 고정!');
   const c = canvas(460, 290), g = c.getContext('2d');
-  screen3D(c, { kind: 'wood' });
+  screen3D(c, { kind: 'wood', prop: 'reels' });
   const tf = .22 + Math.random() * .56, tt = .22 + Math.random() * .56;
   let uf = .88, ut = .12, dn = {}, lastT = performance.now();
   c.addEventListener('mousemove', e => {
@@ -2171,7 +2185,7 @@ function filmFocus({ title = '영사기 — 듀얼 렌즈 초점 & 필름 트래
 function valveBalance({ title = '수질관리실 — 3연동 배수 수압 밸브 동조' } = {}) {
   const p = open(title, '밸브 1 · 2 · 3을 클릭(또는 <b>1 · 2 · 3 키</b>)해 회전시켜 세 배관의 수압을 모두 <b style="color:#60ffa0">안전 구역(42 ~ 58 PSI)</b>에 맞춘 뒤 <b>배수 레버(Space)</b>를 당겨라');
   const c = canvas(460, 290), g = c.getContext('2d');
-  screen3D(c, { kind: 'metal' });
+  screen3D(c, { kind: 'metal', prop: 'pipe' });
   let psi = [24, 72, 30], angs = [0, 0, 0];
   const turnValve = i => {
     if (!finish) return;

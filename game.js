@@ -7227,6 +7227,19 @@ const SIT = { chair: null, back: null };
     });
   });
 }
+// 지하 B1 새 마감: 옛 본관 지하의 나무 판넬 · 회반죽 벽 · 타일 바닥을 새 건물 설비층 재질로 바꾼다
+//   벽 = 회색 도장 블록 + 아래 진녹색 띠 느낌(약간 어두운 회녹), 바닥 = 에폭시 콘크리트(회녹 광택), 천장 = 노출 콘크리트. 문 · 장비 · 소품(작은 메시)은 그대로
+function refinishB1() {
+  const F = floors[4]; if (!F || F._refin) return; F._refin = true; const bb = new THREE.Box3(), sz = new THREE.Vector3(), y0 = F.y0 || 0;
+  const mk = (c, r, m = 0) => new THREE.MeshStandardMaterial({ color: c, roughness: r, metalness: m });
+  const WALL = mk(0x9a9e98, .88), WALLLOW = mk(0x4a5a50, .8), FLOOR = mk(0x6a7468, .42, .05), CEIL = mk(0x8a8a86, .95); let n = 0;
+  [F.interior, F.shell].forEach(root => root && root.traverse(o => { if (!o.isMesh || o.isInstancedMesh || o.isSkinnedMesh || !o.geometry) return; const m0 = [].concat(o.material)[0]; if (!m0 || m0.transparent || (m0.emissive && m0.emissiveIntensity > .3 && m0.emissive.getHex())) return;
+    bb.setFromObject(o); if (bb.isEmpty()) return; bb.getSize(sz); const lo = bb.min.y - y0, hi = bb.max.y - y0;
+    let m = null; if (sz.y < .3 && Math.max(sz.x, sz.z) > 2.5 && hi < .25) m = FLOOR; else if (sz.y < .4 && Math.max(sz.x, sz.z) > 2.5 && lo > 2.2) m = CEIL;
+    else if (sz.y > 1.0 && Math.min(sz.x, sz.z) < .45 && Math.max(sz.x, sz.z) > 1.2) m = hi < 1.3 ? WALLLOW : WALL;
+    if (!m) return; o.material = Array.isArray(o.material) ? o.material.map(() => m) : m; n++; }));
+  console.info('[B1 마감]', n);
+}
 function nurseChairFix() { if (!RBG || !RBG.nurseChairs) return; const nc = RBG.nurseChairs(); if (!nc.length) return; const chairs = world.props.filter(q => q.fz && q.fz.type === 'classroom_chair' && /보건실/.test((q.label || '') + (q.fz.label || '')));   // 옛 보건실 의자 앉기 지점: 하나는 새 보건실 책상 의자로, 나머지는 걷어 낸다 (침대 위에 떠 있던 것)
       chairs.forEach((q, i) => { const s = nc[i]; if (s) { q.x = s.x; q.z = s.z; q.rbY = s.y; q.floor = 0; q.label = '보건실 책상 의자에 앉기'; q._nurse = true; if (q.fz) q.fz.promptText = '[E] 보건실 책상 의자에 앉기'; } else { const k = world.props.indexOf(q); if (k >= 0) world.props.splice(k, 1); } });  }
 function sitDown(c, data) {
@@ -8846,7 +8859,7 @@ function repairStrayInteractables() {
     g.position.set(p.x, top + .004, p.z); g.rotation.y = (p.x * 7 + p.z * 3) % 6.28; g.name = 'REC_VIS_' + (p.id || ''); g.userData.rbKeep = true; scene.add(g); p.visMesh = g; p._recVis = true; n++; }
   return n;
 }
-{ RBG = installRebuild({ THREE, scene, floors, world }); window.__rbg = RBG; setTimeout(() => { try { (RBG.beds ? RBG.beds() : []).forEach((b, i) => world.props.push({ kind: 'bed', floor: 0, rbY: b.y, x: b.x, z: b.z, y: b.y + .7, r: 1.4, label: '침대에 눕기 — 잠시 숨 고르기', bed: b, _rb: true })); nurseChairFix(); } catch (e) { console.warn('[bed]', e); } }, 3500); try { RBG.allOff(); } catch (e) { console.warn('[all off]', e); } renderer.localClippingEnabled = true; setTimeout(() => { installInvestigationBoards().catch(e => console.warn('[조사 게시물]', e)); }, 2500); setTimeout(() => { furnishRooms({ scene, RBG, world, getP: () => P }).then(n => n && console.info('[가구 보강]', n)).catch(e => console.warn('[furnish v2]', e)); }, 4000); [6000, 16000, 32000].forEach(t => setTimeout(() => { try { const n = repairStrayInteractables(); if (n) console.info('[상호작용 위치 보정]', n); } catch (e) { console.warn('[stray fix]', e); } }, t)); try { installRoomUI({ P, world, getRBG: () => RBG, getState: () => state, getTarget: () => target, keyInteract: () => (K().interact || 'KeyE') }); } catch (e) { console.warn('[room ui]', e); }
+{ RBG = installRebuild({ THREE, scene, floors, world }); window.__rbg = RBG; setTimeout(() => { try { refinishB1(); } catch (e) { console.warn('[B1 refinish]', e); } }, 5000); setTimeout(() => { try { (RBG.beds ? RBG.beds() : []).forEach((b, i) => world.props.push({ kind: 'bed', floor: 0, rbY: b.y, x: b.x, z: b.z, y: b.y + .7, r: 1.4, label: '침대에 눕기 — 잠시 숨 고르기', bed: b, _rb: true })); nurseChairFix(); } catch (e) { console.warn('[bed]', e); } }, 3500); try { RBG.allOff(); } catch (e) { console.warn('[all off]', e); } renderer.localClippingEnabled = true; setTimeout(() => { installInvestigationBoards().catch(e => console.warn('[조사 게시물]', e)); }, 2500); setTimeout(() => { furnishRooms({ scene, RBG, world, getP: () => P }).then(n => n && console.info('[가구 보강]', n)).catch(e => console.warn('[furnish v2]', e)); }, 4000); [6000, 16000, 32000].forEach(t => setTimeout(() => { try { const n = repairStrayInteractables(); if (n) console.info('[상호작용 위치 보정]', n); } catch (e) { console.warn('[stray fix]', e); } }, t)); try { installRoomUI({ P, world, getRBG: () => RBG, getState: () => state, getTarget: () => target, keyInteract: () => (K().interact || 'KeyE') }); } catch (e) { console.warn('[room ui]', e); }
   // 2단계: 예전 건물의 열쇠 · 쪽지 · 조사 지점을 새 방으로 (나중에 생기는 조사 지점도 몇 번 더 옮긴다)
   const sz4 = floors[4] && floors[4].stairZone, b1 = sz4 ? sz4.spawn : { x: ((floors[4] && floors[4].stairCx) || 0) + .8, z: -5.2 };
   const rel = () => { const r = RBG.relocate({ world, floors, stairSpawnB1: b1 }); if (r.moved || r.dropped) console.info('[rebuild] 옮김', r); const f = RBG.fixRoomRefs(world); if (f.moved || f.relabeled || f.dup) console.info('[rebuild] 방 이름 맞춤', f); const g2 = RBG.relinkGeneric(world); if (g2.n || g2.drop) console.info('[rebuild] 공용 조사 지점 다시 잇기', g2); const s3 = RBG.settleMoved(world); if (s3.n) console.info('[rebuild] 허공 물건 내려놓기', s3); nurseChairFix(); const fv = RBG.fixVisible(world); if (fv.re || fv.up) console.info('[rebuild] 안 보이던 · 묻힌 물건 바로잡기', fv); };

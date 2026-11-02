@@ -3717,22 +3717,16 @@
  },
  "call_mina1": {
   "spk": "mina",
-  "text": "……여보세요? 들려? 나야, 민아! 아직 학교 안이지? 복도에서 계속 누가 발소리를 내며 걸어 다녀. 내가 나올 때까지 3층 복도 끝은 조심해야 해.",
-  "dur": 10.96,
+  "text": "……여보세요? 들려? 나야, 민아! 아직 학교 안이지? 복도에서 계속 누가 발소리를 내며 걸어 다녀. 내가 나올 때까지 4층 복도 끝은 조심해야 해.",
+  "dur": 14.72,
   "baked": true,
   "eleven": "……여보세요? 들려? 나야, 민아! 아직 학교 안이지? 복도에서 계속 누가 발소리를 내며 걸어 다녀. 내가 나올 때까지 3층 복도 끝은 조심해야 해.",
   "generation": {
    "voice_id": "oGV8pbtfEm7fbDPdSfrx",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.3
-   },
-   "delivery": "fear",
-   "input_sha256": "ff83cdb0aa0a9803cc9ee4a69ea8bd9e2fd57262e43455a14ed96637439fce9f",
-   "audio_sha256": "b3bc0e155700aa25ea763e7ef87a4bd88048effb8c2fd77ad9c6c6b824dce047",
-   "request_id": "dgGMjhGrSvJ0RHNxTB4N",
-   "review_status": "verified"
+   "delivery": "emotive v2 (breath/emotion tags)",
+   "review_status": "generated"
   }
  },
  "note_q8b": {
@@ -3776,21 +3770,15 @@
  "call_mina2": {
   "spk": "mina",
   "text": "……여보세요? 아직 거기 있어? 방금 본관 뒤쪽 별관 건물에 불이 켜졌어. 아무도 없는 곳인데 누가 켠 거야…… 제발 끊지 마, 나 지금 방송실 장비실 안에 숨어 있어……",
-  "dur": 12.4,
+  "dur": 14.88,
   "baked": true,
   "eleven": "……여보세요? 아직 거기 있어? 방금 본관 뒤쪽 별관 건물에 불이 켜졌어. 아무도 없는 곳인데 누가 켠 거야…… 제발 끊지 마, 나 지금 방송실 장비실 안에 숨어 있어……",
   "generation": {
    "voice_id": "oGV8pbtfEm7fbDPdSfrx",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.28
-   },
-   "delivery": "fear",
-   "input_sha256": "b43ca9a1b3f0ff358b1060e72695af25e32d4c1fdf5e968255202611276fdd71",
-   "audio_sha256": "e0ba989ec5d342dd1d0ef8189569d5b0bc1f9679a574384208e0d5459f7e85ad",
-   "request_id": "TLE840GB9tro8DIW7eHg",
-   "review_status": "verified"
+   "delivery": "emotive v2 (breath/emotion tags)",
+   "review_status": "generated"
   }
  },
  "call_unk2": {
@@ -3813,23 +3801,17 @@
   }
  },
  "call_home": {
-  "spk": "friend2",
+  "spk": "mom",
   "text": "여보세요? 얘, 너 지금 어디야! 왜 이렇게 전화가 끊겨…… 서문고 앞이라고? 거기 위험하니까 꼼짝 말고 정문 쪽에 나와 있어, 엄마가 지금 바로 갈게!",
-  "dur": 10.56,
+  "dur": 11.92,
   "baked": true,
   "eleven": "여보세요? 얘, 너 지금 어디야! 왜 이렇게 전화가 끊겨…… 서문고 앞이라고? 거기 위험하니까 꼼짝 말고 정문 쪽에 나와 있어, 엄마가 지금 바로 갈게!",
   "generation": {
-   "voice_id": "j3SYRikKBpDmPJsvd1rf",
+   "voice_id": "4p0HBzAAGyju0nYfNntV",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.34
-   },
-   "delivery": "fear",
-   "input_sha256": "19b96aaae4cd6a58689298fc0955006b020bc066496193389253e891e72d962b",
-   "audio_sha256": "a48dddf0a3e46f9e10fcde76b6911f982ee65cb4685268088f72005480c5f7a6",
-   "request_id": "vV7VkPl2xs19fHiTckRP",
-   "review_status": "verified"
+   "delivery": "emotive v2 (breath/emotion tags)",
+   "review_status": "generated"
   }
  },
  "call_guard": {
@@ -8225,6 +8207,71 @@
    "language_code": "ko",
    "input_sha256": "8207a7aed65d3d835bdae67373daafb645dd0925d335b4f46a0d3184dc5ec2c7",
    "audio_sha256": "fbc8f7f2680578ce066837ef41176e5b7b8cbea7696821724e1198d25ffe1653",
+   "review_status": "generated"
+  }
+ },
+ "call_112_a1": {
+  "spk": "police",
+  "text": "네, 112 경찰입니다. 무슨 일이십니까? …… 여보세요? 목소리가 작게 들리세요. 크게 말씀하실 수 없는 상황이면 숫자 버튼을 눌러 주세요.",
+  "dur": 11.04,
+  "baked": true,
+  "generation": {
+   "voice_id": "M7AHsCtFdpWTIL58I3ap",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "emotive v2 (breath/emotion tags)",
+   "review_status": "generated"
+  }
+ },
+ "call_112_a2": {
+  "spk": "police",
+  "text": "서문고등학교 안이라고요? 지금 혼자 계십니까? …… 알겠습니다. 침착하세요. 휴대폰 위치 확인하고 있습니다.",
+  "dur": 9.28,
+  "baked": true,
+  "generation": {
+   "voice_id": "M7AHsCtFdpWTIL58I3ap",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "emotive v2 (breath/emotion tags)",
+   "review_status": "generated"
+  }
+ },
+ "call_112_a3": {
+  "spk": "police",
+  "text": "위치 잡혔습니다. 서문지구대 순찰차 바로 보내겠습니다. 정문 쪽으로 나올 수 있으면 불 켜진 곳으로 이동하시고, 전화는 끊지 말고 계세요.",
+  "dur": 9.04,
+  "baked": true,
+  "generation": {
+   "voice_id": "M7AHsCtFdpWTIL58I3ap",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "emotive v2 (breath/emotion tags)",
+   "review_status": "generated"
+  }
+ },
+ "call_112_b1": {
+  "spk": "police",
+  "text": "112입니다. 아까 서문고 신고하신 분 맞으시죠? 순찰차가 정문에 도착했는데 문이 안에서 잠겨 있답니다.",
+  "dur": 8.24,
+  "baked": true,
+  "generation": {
+   "voice_id": "M7AHsCtFdpWTIL58I3ap",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "emotive v2 (breath/emotion tags)",
+   "review_status": "generated"
+  }
+ },
+ "call_112_b2": {
+  "spk": "police",
+  "text": "1998년 10월 실종 사건이요? …… 잠시만요. 조회해 보니 당시 단순 사고로 종결 처리돼 있네요. 증거가 있으시면 절대 훼손하지 마시고 사진부터 찍어 두세요.",
+  "dur": 14.4,
+  "baked": true,
+  "generation": {
+   "voice_id": "M7AHsCtFdpWTIL58I3ap",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "emotive v2 (breath/emotion tags)",
    "review_status": "generated"
   }
  }

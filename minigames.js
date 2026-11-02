@@ -2,6 +2,7 @@
 //          + 증기 배관(압력) · 어둠 속 미로(경비원 순찰) · 맞물린 고리 암호 · 틀린 그림 찾기 · 퓨즈판
 // run(kind, opts) → Promise<{ ok }>. 열려 있는 동안 MG.active 가 true 이고, 키 입력은 여기서 처리한다.
 import { sfx } from './audio.js?v=140';
+import * as THREE from './vendor/three.module.js';
 
 export const MG = { active: false, win: () => { if (finish) close(true); } };   // win: 디버그용 즉시 성공
 const $ = id => document.getElementById(id);
@@ -64,6 +65,60 @@ $('mgCancel').onclick = () => { if (finish) close(false); };
 // 실제 원통 자물쇠처럼: 텐션 렌치로 실린더에 약한 회전 압력(Q·E / 휠)을 걸고, 머리핀 끝(A·D / 마우스)으로 핀을 하나씩 밀어 올린다(W·Space / 클릭 유지).
 // 압력을 받으면 핀 하나만 걸린다(바인딩). 그 핀을 전단선까지 올리면 "딸깍" 고정, 다음 핀이 걸린다. 너무 올리면 끼어 버리니 텐션을 풀어 처음부터.
 // 텐션이 너무 세면 핀이 안 올라가고 머리핀이 휜다 → 부러짐. 너무 약하면 고정된 핀이 떨어진다.
+// 3D 자물쇠 단면 (Three.js WebGL 미니 장면): 황동 하우징 · 플러그 · 핀 텀블러(키 핀 · 드라이버 핀 · 스프링) · 머리핀 · 텐션 렌치
+//   2D 좌표(px · y)를 그대로 받아 3D 로 옮겨 그린다 (1px = 1cm). WebGL 을 못 쓰면 null → 기존 2D 그림
+function lock3D(host, N, PX) {
+  let r; try { r = new THREE.WebGLRenderer({ antialias: true, alpha: false }); } catch (e) { return null; }
+  r.setPixelRatio(Math.min(2, devicePixelRatio || 1)); r.setSize(460, 300); r.domElement.className = 'mgCanvas'; host.appendChild(r.domElement);
+  r.outputColorSpace = THREE.SRGBColorSpace; r.toneMapping = THREE.ACESFilmicToneMapping;
+  const sc = new THREE.Scene(); sc.background = new THREE.Color(0x0b0a08);
+  const cam = new THREE.PerspectiveCamera(32, 460 / 300, .1, 50); cam.position.set(.9, 1.1, 5.4); cam.lookAt(0, .55, 0);
+  sc.add(new THREE.HemisphereLight(0xfff2dc, 0x201810, .7)); const key = new THREE.DirectionalLight(0xfff0d0, 2.2); key.position.set(2, 4, 5); sc.add(key);
+  const rim = new THREE.PointLight(0xffc880, 6, 8); rim.position.set(-2.5, 1.2, 2); sc.add(rim);
+  const brass = new THREE.MeshStandardMaterial({ color: 0xb08a40, metalness: .85, roughness: .35 }), brassD = new THREE.MeshStandardMaterial({ color: 0x7a5e2a, metalness: .8, roughness: .5 });
+  const steel = new THREE.MeshStandardMaterial({ color: 0xb8bcc4, metalness: .9, roughness: .25 }), dark = new THREE.MeshStandardMaterial({ color: 0x14100a, roughness: .9 });
+  const kp = new THREE.MeshStandardMaterial({ color: 0xd0a850, metalness: .9, roughness: .3, emissive: 0x000000 });
+  const X = x => (x - 260) / 100, Y = y => (178 - y) / 100;
+  // 하우징 (뒤판 + 윗덩어리 단면) · 플러그 (돌아가는 실린더) · 열쇠 구멍
+  const back = new THREE.Mesh(new THREE.BoxGeometry(3.2, 2.0, .2), brassD); back.position.set(0, .7, -.45); sc.add(back);
+  const top = new THREE.Mesh(new THREE.BoxGeometry(3.0, 1.0, .22), brass); top.position.set(0, Y(70), -.26);   // 단면: 앞쪽 절반은 잘라 내 핀이 보인다 sc.add(top);
+  const plug = new THREE.Group(); plug.position.set(0, Y(157), 0); sc.add(plug);
+  const pc = new THREE.Mesh(new THREE.CylinderGeometry(.38, .38, 3.0, 40, 1, false, Math.PI / 2, Math.PI), brass); pc.material = brass.clone(); pc.material.side = THREE.DoubleSide; pc.rotation.z = Math.PI / 2; plug.add(pc);
+  const kw = new THREE.Mesh(new THREE.BoxGeometry(3.02, .1, .14), dark); kw.position.set(0, -.2, -.05); plug.add(kw);
+  // 전단선: 가는 빛줄기
+  const shear = new THREE.Mesh(new THREE.BoxGeometry(3.1, .008, .01), new THREE.MeshBasicMaterial({ color: 0xffd870 })); shear.position.set(0, Y(120), .3); sc.add(shear);
+  const pins = PX.map(x => { const g = new THREE.Group(); g.position.x = X(x); sc.add(g);
+    const hole = new THREE.Mesh(new THREE.CylinderGeometry(.13, .13, 1.55, 18, 1, true, Math.PI / 2, Math.PI), new THREE.MeshStandardMaterial({ color: 0x2a2012, roughness: .8, side: THREE.DoubleSide })); hole.position.y = .78; hole.position.z = .02; g.add(hole);
+    const k = new THREE.Mesh(new THREE.CylinderGeometry(.09, .09, 1, 20), kp.clone()); k.geometry.translate(0, .5, 0); g.add(k);
+    const tipC = new THREE.Mesh(new THREE.ConeGeometry(.09, .08, 20), k.material); tipC.rotation.x = Math.PI; g.add(tipC);
+    const d = new THREE.Mesh(new THREE.CylinderGeometry(.09, .09, .34, 20), steel.clone()); d.geometry.translate(0, .17, 0); g.add(d);
+    const pts = []; for (let j = 0; j <= 80; j++) { const a = j / 80 * Math.PI * 2 * 9; pts.push(new THREE.Vector3(Math.cos(a) * .075, j / 80, Math.sin(a) * .075)); }
+    const sp = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 160, .009, 5), steel); g.add(sp);
+    return { k, tipC, d, sp }; });
+  // 머리핀 (굽은 철사) · 텐션 렌치
+  const pinM = new THREE.MeshStandardMaterial({ color: 0x4a4a52, metalness: .9, roughness: .35 });
+  const hp = new THREE.Group(); sc.add(hp); const shaft = new THREE.Mesh(new THREE.CylinderGeometry(.022, .022, 1, 10), pinM); shaft.geometry.rotateZ(Math.PI / 2); shaft.geometry.translate(-.5, 0, 0); hp.add(shaft);
+  const hook = new THREE.Mesh(new THREE.CylinderGeometry(.02, .02, .14, 10), pinM); hook.position.set(0, .06, 0); hp.add(hook);
+  const wr = new THREE.Mesh(new THREE.BoxGeometry(.06, .4, .05), steel); wr.position.set(X(112), Y(195), .15); sc.add(wr);
+  const wr2 = new THREE.Mesh(new THREE.BoxGeometry(.6, .06, .05), steel); wr2.position.set(X(85), Y(208), .15); sc.add(wr2);
+  return {
+    dom: r.domElement,
+    render(st) {   // st: { lift, need, set, jam, binding, px, tip, ten, turn, feel }
+      const sh = st.feel > 0 ? (Math.random() - .5) * .012 : 0;
+      plug.rotation.x = -st.turn * 1.2; wr.rotation.z = -st.ten * .25;
+      pins.forEach((P, k) => { const kpLen = (178 - 120 - st.need[k]) / 100, base = st.lift[k] / 100, rot = k < 0 ? 0 : 0;
+        P.k.scale.y = Math.max(.02, kpLen); P.k.position.y = base; P.tipC.position.y = base - .02;
+        const top = base + kpLen; P.d.position.y = top; const sTop = 1.5; P.sp.position.y = top + .34; P.sp.scale.y = Math.max(.05, sTop - top - .34);
+        P.k.material.color.setHex(st.set[k] ? 0x70d090 : st.binding === k && st.feel > 0 ? 0xf0d070 : 0xd0a850); P.k.material.emissive.setHex(st.set[k] ? 0x0a3018 : 0);
+        P.d.material.color.setHex(st.jam[k] ? 0xc05040 : 0xb8bcc4);
+        if (st.turn > 0 && st.set[k]) { P.k.position.y = base; } });
+      hp.position.set(X(st.px), Y(178) + .02 + Math.min(st.tip, 8) / 100 + sh, .12); hp.rotation.z = -.08 - Math.min(st.tip, 8) / 120;
+      rim.intensity = 5 + Math.sin(performance.now() / 300) * .6;
+      r.render(sc, cam);
+    },
+    dispose() { r.dispose(); sc.traverse(o => { if (o.geometry) o.geometry.dispose(); }); }
+  };
+}
 function lockpick({ pins, usePin, tol = 9 }) {
   const p = open('자물쇠 따기 — 핀 텀블러', '<b>Q · E / 휠</b> 텐션 · <b>A · D / 마우스</b> 핀 위치 · <b>W · Space / 클릭 유지</b> 밀어 올리기<br>걸린 핀만 뻑뻑하다 — 전단선(점선)에 맞으면 딸깍. 너무 밀면 끼니 텐션을 풀었다 다시');
   const c = canvas(460, 300), g = c.getContext('2d');
@@ -73,6 +128,10 @@ function lockpick({ pins, usePin, tol = 9 }) {
   const lift = Array(N).fill(0), set = Array(N).fill(false), jam = Array(N).fill(false);
   let px = 100, up = false, tip = 0, ten = 0, strain = 0, left = pins(), turn = 0, opened = false, lastT = performance.now(), feel = 0, lastI = -1;
   MG.lp = { need, order, PX, set, lift, get ten() { return ten; }, get tip() { return tip; } };   // 테스트용 상태
+  // 3D 단면 뷰: 2D 캔버스는 텐션 게이지 띠만 남기고(높이 40) 위에 3D 장면을 얹는다. 마우스 조작은 3D 화면에서도 같게
+  const L3 = lock3D($('mgBody'), N, PX); if (L3) { $('mgBody').insertBefore(L3.dom, c); c.height = 40; c.style.height = 'auto'; cleanups.push(() => L3.dispose());
+    L3.dom.addEventListener('mousemove', e => { const r = L3.dom.getBoundingClientRect(); px = clamp(((e.clientX - r.left) / r.width) * 460, 80, 400); });
+    L3.dom.addEventListener('mousedown', () => { up = true; }); L3.dom.addEventListener('wheel', e => { e.preventDefault(); setTen(ten + (e.deltaY < 0 ? .06 : -.06)); }, { passive: false }); }
   const upd = () => { info.innerHTML = `남은 머리핀 <b>${left}</b>개 · 고정된 핀 <b>${set.filter(Boolean).length}</b> / ${N}`; }; upd();
   const binding = () => order.find(i => !set[i]);
   const under = () => { let best = -1, bd = 14; PX.forEach((x, i) => { const d = Math.abs(x - px); if (d < bd) { bd = d; best = i; } }); return best; };
@@ -115,6 +174,9 @@ function lockpick({ pins, usePin, tol = 9 }) {
     draw(); raf = requestAnimationFrame(loop);
   };
   function draw() {
+    if (L3) { L3.render({ lift, need, set, jam, binding: binding(), px, tip, ten, turn, feel });   // 3D 뷰 + 아래 텐션 게이지
+      g.fillStyle = '#0d0b09'; g.fillRect(0, 0, 460, 40); g.fillStyle = 'rgba(255,255,255,.08)'; g.fillRect(20, 20, 420, 12); g.fillStyle = 'rgba(96,224,160,.25)'; g.fillRect(20 + 420 * .18, 20, 420 * .6, 12);
+      g.fillStyle = ten > .78 ? '#e05040' : ten < .18 ? '#8a8a8a' : '#60e0a0'; g.fillRect(20, 20, 420 * ten, 12); g.fillStyle = '#d8d0b8'; g.font = '11px sans-serif'; g.fillText('텐션', 22, 14); if (strain > .05) { g.fillStyle = '#e05040'; g.fillText('머리핀이 휜다!', 360, 14); } return; }
     const sh = feel > 0 ? (Math.random() - .5) * 1.5 : 0;
     g.fillStyle = '#0d0b09'; g.fillRect(0, 0, 460, 300);
     g.fillStyle = '#7d6a3e'; g.fillRect(110, 20, 300, 100);   // 몸통(하우징)

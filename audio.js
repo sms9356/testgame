@@ -36,6 +36,8 @@ export function initAudio() {
   revSend = ac.createGain(); revSend.gain.value = .25; revSend.connect(rev); rev.connect(bus.sfx);
   // 지속 저주파 드론 제거: 대사와 필요한 효과음은 별도 버스로 유지.
   ['school-bell', 'class-chime', 'pa-chime'].forEach(name => loadVoice(`assets/sfx/${name}.mp3`).then(b => { if (b) schoolSamples.set(name, b); }));
+  // 실제 녹음 효과음 (ElevenLabs 생성): 발소리 3종 · 문 · 사물함 · 철문 · 종이 · 열쇠 · 줍기 · 물방울 · 물튀김 — 없으면 합성음으로
+  ['sfx-step-tile', 'sfx-step-wood', 'sfx-step-metal', 'sfx-door-creak', 'sfx-door-slam', 'sfx-locker', 'sfx-steel-door', 'sfx-paper', 'sfx-keys', 'sfx-pickup', 'sfx-drip', 'sfx-splash'].forEach(name => loadVoice(`assets/sfx/${name}.mp3`).then(b => { if (b) schoolSamples.set(name, b); }));
   buildAmbience();
   // 유령 근접음(숨소리/속삭임)
   proxFilter = loopNoise(900, 'bandpass', 3);
@@ -283,6 +285,13 @@ function schoolCue(name, volume = .5, rate = 1) {
   source.addEventListener('ended', () => { source.disconnect(); gain.disconnect(); });
   return true;
 }
+// 녹음 효과음 재생: 같은 소리가 겹쳐도 되며(발소리) 길이를 잘라 쓸 수 있다 · 재생 속도를 살짝 흔들어 매번 다르게
+function sample(name, volume = .5, rate = 1, maxDur = 0) {
+  if (!ok()) return false; const buffer = schoolSamples.get(name); if (!buffer) return false;
+  const src = ac.createBufferSource(); src.buffer = buffer; src.playbackRate.value = rate; const gain = out(0, volume); src.connect(gain);
+  if (maxDur > 0) { src.start(0, 0, maxDur); gain.gain.setTargetAtTime(0, ac.currentTime + maxDur * .7, maxDur * .1); } else src.start();
+  src.addEventListener('ended', () => { src.disconnect(); gain.disconnect(); }); return true;
+}
 let curVoice = null, voiceRequest = 0;
 export const isVoicePlaying = () => !!curVoice;
 export async function playVoice(url, fx = 'none', emo = null) {
@@ -349,6 +358,7 @@ export function setProximity(v, t) {
 function laterAt(s, fn) { const p = sfxPos; setTimeout(() => { sfxPos = p; try { fn(); } finally { sfxPos = null; } }, s * 1000); } export const sfx = {
   step(run = false, v = 1, surf = 'tile') {
     const k = run ? 1.45 : 1, j = 1 + (Math.random() - .5) * .14;
+    { const nm = surf === 'wood' ? 'sfx-step-wood' : surf === 'metal' ? 'sfx-step-metal' : (surf === 'tile' || surf === 'wet') ? 'sfx-step-tile' : null; if (nm && sample(nm, .32 * k * v, j * (run ? 1.08 : 1), .5)) return; }
     if (surf === 'wood') {
       noiseBurst(.045, 1900 * j, 'bandpass', .22 * k, 0, v);
       noiseBurst(.095, 380 * j, 'lowpass', .34 * k, 0, v);
@@ -374,19 +384,19 @@ function laterAt(s, fn) { const p = sfxPos; setTimeout(() => { sfxPos = p; try {
   },
   ghostStep(dist, pan) { const v = Math.max(0, 1 - dist / 22); if (v > 0.02) { noiseBurst(0.14, 300, 'lowpass', 0.9 * v, pan); tone(70, 0.12, 'sine', 0.5 * v, pan); } },
   heartbeat(v = 1) { tone(58, 0.14, 'sine', 0.8 * v); setTimeout(() => tone(46, 0.18, 'sine', 0.6 * v), 130); },
-  pickup() {
+  pickup() { if (sample('sfx-pickup', .45, .95 + Math.random() * .1)) return;
     noiseBurst(.06, 2200, 'bandpass', .28);
     tone(520, .09, 'triangle', .12, 0, 1, 680);
     setTimeout(() => { noiseBurst(.04, 3200, 'highpass', .18); tone(980, .18, 'sine', .14); }, 65);
   },
-  key() {
+  key() { if (sample('sfx-keys', .5)) return;
     [1480, 2120, 2860, 3540].forEach((f, i) => setTimeout(() => {
       noiseBurst(.025, 4200, 'highpass', .18);
       tone(f * (1 + (Math.random() - .5) * .03), .26, 'sine', .13);
       tone(f * 1.414, .14, 'triangle', .05);
     }, i * 65));
   },
-  paper() {
+  paper() { if (sample('sfx-paper', .5, .95 + Math.random() * .1)) return;
     noiseBurst(0.14, 2600, 'bandpass', 0.26);
     setTimeout(() => noiseBurst(0.18, 3400, 'highpass', 0.22), 55);
   },
@@ -394,7 +404,7 @@ function laterAt(s, fn) { const p = sfxPos; setTimeout(() => { sfxPos = p; try {
     noiseBurst(0.022, 3200, 'bandpass', 0.36);
     tone(1450, 0.025, 'triangle', 0.08, 0, 1, 920);
   },
-  locker() {
+  locker() { if (sample('sfx-locker', .5, .95 + Math.random() * .1)) return;
     // 철제 사물함 개폐: 금속 걸쇠 딸깍 + 경첩 마찰 + 중공 철판 울림
     noiseBurst(0.035, 3100, 'bandpass', 0.42);
     tone(1680, 0.03, 'triangle', 0.07, 0, 1, 1100);
@@ -423,7 +433,7 @@ function laterAt(s, fn) { const p = sfxPos; setTimeout(() => { sfxPos = p; try {
       tone(280 + (i % 3) * 90, .24, 'sine', .08, 0, 1, 190);
     }, i * 240);
   },
-  gateClang() { noiseBurst(0.9, 2200, 'bandpass', 0.7); [180, 243, 351].forEach(f => tone(f, 1.6, 'square', 0.09, 0, 1, f * 0.97)); tone(55, 0.8, 'sine', 0.9); },
+  gateClang() { if (sample('sfx-steel-door', .7)) return; noiseBurst(0.9, 2200, 'bandpass', 0.7); [180, 243, 351].forEach(f => tone(f, 1.6, 'square', 0.09, 0, 1, f * 0.97)); tone(55, 0.8, 'sine', 0.9); },
   gateOpen() { tone(90, 3, 'sawtooth', 0.12, 0, 1, 60); noiseBurst(2.5, 600, 'bandpass', 0.2); },
   bang(pan = 0, v = 1) { noiseBurst(0.35, 500, 'lowpass', 1.0, pan, v); tone(60, 0.4, 'sine', 1.0, pan, v, 35); },
   creak(pan = 0) { tone(150, 1.2, 'sawtooth', 0.07, pan, 1, 95); },
@@ -433,8 +443,8 @@ function laterAt(s, fn) { const p = sfxPos; setTimeout(() => { sfxPos = p; try {
   win() { [523, 659, 784, 1047].forEach((f, i) => setTimeout(() => tone(f, 1.6, 'sine', 0.25), i * 220)); },
   broadcast() { if (schoolCue('pa-chime', .6)) { noiseBurst(.3, 1800, 'bandpass', .025); return; } noiseBurst(.4, 1800, 'bandpass', .08); tone(880, .6, 'sine', .2, 0, 1, 660); setTimeout(() => tone(660, .9, 'sine', .2, 0, 1, 440), 700); setTimeout(() => noiseBurst(1.2, 2500, 'bandpass', .4), 1500); },
   doorSlide(v = 1) { noiseBurst(.55, 420, 'lowpass', .35 * v); tone(140, .5, 'sawtooth', .04 * v, 0, 1, 110); },
-  doorHinge(v = 1) { tone(220, .6, 'sawtooth', .05 * v, 0, 1, 330); noiseBurst(.3, 900, 'bandpass', .15 * v); },
-  doorBang(pan = 0, v = 1) { noiseBurst(.4, 380, 'lowpass', 1.1 * v, pan); tone(70, .35, 'sine', .9 * v, pan, 1, 40); noiseBurst(.15, 2500, 'bandpass', .3 * v, pan); }, doorOpen(v = 1) { noiseBurst(.05, 3000, 'bandpass', .5 * v); tone(1800, .035, 'square', .045 * v); laterAt(.05, () => { noiseBurst(.5, 320, 'lowpass', .42 * v); noiseBurst(.45, 1400, 'bandpass', .07 * v); tone(95, .45, 'triangle', .07 * v, 0, 1, 120); }); }, doorClose(t = .42, v = 1) { noiseBurst(.42, 300, 'lowpass', .42 * v); noiseBurst(.38, 1300, 'bandpass', .06 * v); tone(110, .38, 'triangle', .06 * v, 0, 1, 85); laterAt(t, () => { noiseBurst(.16, 240, 'lowpass', .7 * v); tone(80, .2, 'sine', .4 * v, 0, 1, 55); noiseBurst(.04, 3400, 'bandpass', .4 * v); tone(2000, .03, 'square', .045 * v); }); },   // 미닫이 양문: 걸쇠 딸깍 + 레일 구르는 소리 / 구르다 문틀에 탁 + 걸쇠
+  doorHinge(v = 1) { if (sample('sfx-door-creak', .4 * v, .95 + Math.random() * .1)) return; tone(220, .6, 'sawtooth', .05 * v, 0, 1, 330); noiseBurst(.3, 900, 'bandpass', .15 * v); },
+  doorBang(pan = 0, v = 1) { if (sample('sfx-door-slam', .6 * v)) return; noiseBurst(.4, 380, 'lowpass', 1.1 * v, pan); tone(70, .35, 'sine', .9 * v, pan, 1, 40); noiseBurst(.15, 2500, 'bandpass', .3 * v, pan); }, doorOpen(v = 1) { noiseBurst(.05, 3000, 'bandpass', .5 * v); tone(1800, .035, 'square', .045 * v); laterAt(.05, () => { noiseBurst(.5, 320, 'lowpass', .42 * v); noiseBurst(.45, 1400, 'bandpass', .07 * v); tone(95, .45, 'triangle', .07 * v, 0, 1, 120); }); }, doorClose(t = .42, v = 1) { noiseBurst(.42, 300, 'lowpass', .42 * v); noiseBurst(.38, 1300, 'bandpass', .06 * v); tone(110, .38, 'triangle', .06 * v, 0, 1, 85); laterAt(t, () => { noiseBurst(.16, 240, 'lowpass', .7 * v); tone(80, .2, 'sine', .4 * v, 0, 1, 55); noiseBurst(.04, 3400, 'bandpass', .4 * v); tone(2000, .03, 'square', .045 * v); }); },   // 미닫이 양문: 걸쇠 딸깍 + 레일 구르는 소리 / 구르다 문틀에 탁 + 걸쇠
   piano() { [196, 233, 220, 185, 196, 156, 175].forEach((f, i) => setTimeout(() => { tone(f, 2.2, 'triangle', .18); tone(f * 2.01, 1.6, 'sine', .05); }, i * 520 + Math.random() * 60)); },
   phone() { for (let i = 0; i < 3; i++) setTimeout(() => { noiseBurst(.35, 160, 'lowpass', .5); tone(120, .35, 'square', .05); }, i * 600); },
   beep() { tone(1400, .08, 'square', .07); },
@@ -448,8 +458,8 @@ function laterAt(s, fn) { const p = sfxPos; setTimeout(() => { sfxPos = p; try {
   unlock() { [880, 1175, 1568].forEach((f, i) => setTimeout(() => tone(f, .25, 'square', .06), i * 90)); setTimeout(() => { noiseBurst(.25, 600, 'lowpass', .5); tone(90, .4, 'sine', .4); }, 320); },
   breaker() { noiseBurst(.2, 300, 'lowpass', 1.2); tone(60, .5, 'sine', .9, 0, 1, 40); setTimeout(() => { tone(50, 2.5, 'sawtooth', .05); tone(100, 2.5, 'sine', .04); }, 250); },
   ball() { [0, 520, 960, 1330, 1640, 1890, 2090, 2250].forEach((t, i) => setTimeout(() => { noiseBurst(.12, 220, 'lowpass', .9 - i * .09); tone(85, .14, 'sine', .7 - i * .07); }, t)); },
-  drip() { for (let i = 0; i < 6; i++) setTimeout(() => tone(1500 + Math.random() * 600, .12, 'sine', .08, Math.random() - .5, 1, 700), i * 800 + Math.random() * 400); },
-  splash() { noiseBurst(1.2, 1200, 'bandpass', .5); noiseBurst(.6, 400, 'lowpass', .5); },
+  drip() { if (sample('sfx-drip', .45)) return; for (let i = 0; i < 6; i++) setTimeout(() => tone(1500 + Math.random() * 600, .12, 'sine', .08, Math.random() - .5, 1, 700), i * 800 + Math.random() * 400); },
+  splash() { if (sample('sfx-splash', .55)) return; noiseBurst(1.2, 1200, 'bandpass', .5); noiseBurst(.6, 400, 'lowpass', .5); },
   lightsOff() { for (let i = 0; i < 6; i++) setTimeout(() => { noiseBurst(.05, 3000, 'highpass', .4); tone(60, .1, 'square', .05); }, i * 260); },
   thunder(far = 2) { const v = Math.max(.25, 1.2 - far * .3); noiseBurst(2.8 + far, 140, 'lowpass', v, 0, 1); noiseBurst(.4, 900, 'lowpass', v * .7, 0, 1); setTimeout(() => noiseBurst(2.2, 90, 'lowpass', v * .8), 300); },
   spark() { for (let i = 0; i < 5; i++) setTimeout(() => { noiseBurst(.04, 4000, 'highpass', .35); tone(120, .05, 'square', .04); }, i * 45 + Math.random() * 40); },

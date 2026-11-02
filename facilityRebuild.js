@@ -5,7 +5,7 @@
 //   재질: F-01 ~ F-05 바닥 · W-01 ~ W-05 벽 · C-01 ~ C-04 천장 (Poly Haven CC0 실사 스캔 텍스처, assets/tex/fac_* · 미터 단위 UV)
 import * as THREE from './vendor/three.module.js';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { pbr } from './tex.js?v=327';
+import { pbr } from './tex.js?v=328';
 
 const FH = 3.6, CEIL = 2.9, WALL_T = .24, LIN = .06;
 const TL = new THREE.TextureLoader(), TEX = {};
@@ -773,7 +773,7 @@ export function installFacilityRebuild(ctx) {
     for (const d of world.doors || []) { if (d.floor === 0 && d.to && d.to.floor === 7) { d.x = ex + 1.4; d.z = Z.cz; } if (d.floor === 7 && d.to && d.to.floor === 0) d.to = { floor: 0, x: ex + 1.6, z: Z.cz, yaw: -Math.PI / 2 }; } }
   buildShellOnly(ctx, ZONES.pool, 'pool', '실내 수영장', 'INDOOR POOL · 학교 수영 교육', 6.4, 'E');
   buildShellOnly(ctx, ZONES.gym, 'gym', '체 육 관', 'GYMNASIUM · 실내 체육관', 9.0, 'S');
-  const rt = retexture(floors[7], { F: 'F01', W: 'W05', C: 'C01' }) + retexture(floors[6], { F: 'F04', W: 'W05', C: 'C03' });
+  const rt = retexture(floors[7], { F: 'F01', W: 'W05', C: 'C01' }) + retexture(floors[6], { F: 'F04', W: 'W05', C: 'C03' }) + retexture(floors[4], { F: 'F05', W: 'W04', C: 'C04' });   // 지하 B1: 새 건물 설비층 마감 (에폭시 콘크리트 바닥 · 도장 블록벽 · 노출 설비 천장)
   window.__facilityRebuild = { removed: res.removed, ext, retextured: rt, ms: Math.round(performance.now() - t0) };
   // 나중에 불러오는 모델(GLB)이 옛 터에 다시 나타나면 걷어 낸다
   //   씬 전체 판정을 다시 돌리면 수 초씩 멈췄다 → 설치 뒤 새로 생긴 메시(기존 묶음 안에 비동기로 붙은 GLB 포함)만 골라 본다

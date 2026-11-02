@@ -7237,6 +7237,7 @@ function refinishB1() {
   scene.traverse(o => { if (!o.isMesh || o.isSkinnedMesh || !o.geometry || o.userData.b1new) return; bb.setFromObject(o); if (bb.isEmpty()) return; bb.getCenter(c); bb.getSize(sz);
     if (c.y < y0 - .6 || c.y > y0 + 4.5 || Math.abs(c.x) > 38 || c.z < -36 || c.z > 12) return;
     const room = sz.y >= 2 && Math.max(sz.x, sz.z) >= 6, slab = sz.y < .35 && Math.max(sz.x, sz.z) >= 6, wall = sz.y >= 2 && Math.min(sz.x, sz.z) < .5 && Math.max(sz.x, sz.z) >= 1.5;
+    const m0 = [].concat(o.material)[0]; if (m0 && (m0.transparent || m0.opacity < 1 || (m0.emissive && m0.emissiveIntensity > .3 && m0.emissive.getHex()))) return;   // 물 · 유리 · 발광면(침수 바닥 · 비상등)은 남긴다
     if (room || slab || wall) { o.visible = false; hid++; } });
   const g = new THREE.Group(); g.userData.b1new = true; scene.add(g);
   const mk = (col, r, m = 0, e) => new THREE.MeshStandardMaterial(Object.assign({ color: col, roughness: r, metalness: m }, e || {}));

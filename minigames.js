@@ -645,6 +645,8 @@ function tune({ title = '라디오 주파수 맞추기', label = '…이 방송�
   screen3D(c, { kind: 'wood', prop: 'antenna' });
   const targetF = .22 + Math.random() * .58, targetG = .25 + Math.random() * .55;
   let f = .08, gain = .85, hold = 0, lastT = performance.now(), t = 0, dn = {}, dragMode = null, lastTick = 0;
+  // 실제 조작(키·마우스) 전에는 절대 성공 처리하지 않는다 — 조작 없이 "성공!"으로 닫히던 현상 방지
+  let touched = false; const touch = () => { touched = true; }; ['keydown', 'mousedown', 'wheel', 'pointerdown'].forEach(ev => addEventListener(ev, touch, true)); cleanups.push(() => ['keydown', 'mousedown', 'wheel', 'pointerdown'].forEach(ev => removeEventListener(ev, touch, true)));
 
   const setFromMouse = e => {
     const r = c.getBoundingClientRect(), x = (e.clientX - r.left) * c.width / r.width, y = (e.clientY - r.top) * c.height / r.height;
@@ -675,7 +677,7 @@ function tune({ title = '라디오 주파수 맞추기', label = '…이 방송�
   }, { passive: false });
 
   const tryLock = () => {
-    if (!finish) return;
+    if (!finish || !touched) return;
     const df = Math.abs(f - targetF), dg = Math.abs(gain - targetG);
     const clear = clamp(1 - (df / .075 * .65 + dg / .18 * .35), 0, 1);
     if (clear >= .85) { sfx.radio ? sfx.radio() : sfx.unlock(); close(true); }
@@ -699,7 +701,7 @@ function tune({ title = '라디오 주파수 맞추기', label = '…이 방송�
     const fLock = clamp(1 - df / .08, 0, 1), gLock = clamp(1 - dg / .20, 0, 1);
     const clear = clamp(fLock * .68 + gLock * .32, 0, 1);
     hold = clear >= .88 ? hold + dt : Math.max(0, hold - dt * 1.5);
-    if (hold >= 1.25 && finish) { sfx.radio ? sfx.radio() : sfx.unlock(); return close(true); }
+    if (hold >= 1.25 && finish && touched) { sfx.radio ? sfx.radio() : sfx.unlock(); return close(true); }
 
     g.fillStyle = '#0a0f0d'; g.fillRect(0, 0, 480, 250);
     // 상단 오디오 스펙트럼 & S-미터

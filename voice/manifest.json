@@ -3751,20 +3751,14 @@
  "call_unk1": {
   "spk": "junho",
   "text": "……누군지는 묻지 마. 해마다 23시 40분에 나오는 그 방송, 귀신 같은 거 아니야. 방송실 장비실 선반 위를 봐. 타이머가 있을 거야.",
-  "dur": 9.8,
+  "dur": 11.36,
   "baked": true,
-  "eleven": "[quietly] [nervous] ……누군지는 묻지 마. 해마다 23시 40분에 나오는 그 방송, 귀신 같은 거 아니야. 방송실 장비실 선반 위를 봐. 타이머가 있을 거야.",
   "generation": {
    "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.28
-   },
-   "delivery": "whisper",
-   "input_sha256": "607ef04bcab95b9453cc2511e95598b7aa29765696887f6dc44f9b7e7eef04b3",
-   "audio_sha256": "16417ed694c07df2335eae2c8312c199d0e1632d416eca11b48a483e81a8f696",
-   "review_status": "unreviewed"
+   "delivery": "emotive v2 (breath/emotion tags)",
+   "review_status": "generated"
   }
  },
  "call_mina2": {
@@ -3784,20 +3778,14 @@
  "call_unk2": {
   "spk": "guard",
   "text": "학생, 지금 3-2 교실 의자에 앉아 있지? 경비실 CCTV에 다 보여. 그 자리… 하늘이 자리여. 십 년째 아무도 못 치웠어.",
-  "dur": 12.43,
+  "dur": 12.48,
   "baked": true,
-  "eleven": "학생, 지금 3-2 교실 의자에 앉아 있지? 경비실 CCTV에 다 보여. 그 자리… 하늘이 자리여. 십 년째 아무도 못 치웠어.",
   "generation": {
    "voice_id": "lZLh6IYERWP1xQ7NnDOg",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.28
-   },
-   "delivery": "whisper",
-   "input_sha256": "b0262878b49f705f48575339a3b703f58fc582647002d3c60ffefe050ea78e3c",
-   "audio_sha256": "a684da2024d7a4247ba267a7800ca6449087eae8c61fec145085ea5bd6b00878",
-   "review_status": "unreviewed"
+   "delivery": "emotive v2 (breath/emotion tags)",
+   "review_status": "generated"
   }
  },
  "call_home": {
@@ -3817,21 +3805,14 @@
  "call_guard": {
   "spk": "guard",
   "text": "어이, 학생! 나 경비실이여. 아직도 본관 안에 있는 겨? 해가 다 떨어졌는디 거기 혼자 돌아댕기믄 큰일 나유! 복도에서 무슨 소리가 나도 절대 대답허지 말고, 어서 정문 쪽으로 나와유!",
-  "dur": 12.24,
+  "dur": 12.96,
   "baked": true,
-  "eleven": "어이, 학생! 나 경비실이여. 아직도 본관 안에 있는 겨? 해가 다 떨어졌는디 거기 혼자 돌아댕기믄 큰일 나유! 복도에서 무슨 소리가 나도 절대 대답허지 말고, 어서 정문 쪽으로 나와유!",
   "generation": {
    "voice_id": "lZLh6IYERWP1xQ7NnDOg",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.34
-   },
-   "delivery": "fear",
-   "input_sha256": "261a6363b759ee64183bfcc349c0238fbf277ef4cb483796d9482aa391940147",
-   "audio_sha256": "a9e6e069eab1d7278a45f00a99cd297e673a6c0ed0954bd21429de93791bc236",
-   "request_id": "KEYOpexVFdihQXRnULLC",
-   "review_status": "verified"
+   "delivery": "emotive v2 (breath/emotion tags)",
+   "review_status": "generated"
   }
  },
  "note_h5": {
@@ -3873,20 +3854,13 @@
  "call_119": {
   "spk": "narrator",
   "text": "119 종합상황실입니다. 전파 상태가 매우 불안정합니다. 이 시간에 서문고등학교 내부라고요? 위치 추적 완료했습니다. 구조대가 정문으로 출동 중이니 즉시 정문 쪽으로 대피하십시오.",
-  "dur": 12.24,
+  "dur": 10.8,
   "baked": true,
-  "eleven": "119 종합상황실입니다. 전파 상태가 매우 불안정합니다. 이 시간에 서문고등학교 내부라고요? 위치 추적 완료했습니다. 구조대가 정문으로 출동 중이니 즉시 정문 쪽으로 대피하십시오.",
   "generation": {
    "voice_id": "6wIijutElRjsgwLbECzl",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.45
-   },
-   "delivery": "normal",
-   "input_sha256": "ad8a30443f790999255a0d1b611c34862d01623f452d5a91b33c91f48434a66f",
-   "audio_sha256": "a00a7ae352f58cf738ea48e29f7995ed5eb1199285c930d850c99e15b9e37100",
-   "request_id": "cLhTdudr4Os6Ajx9lkus",
+   "delivery": "emotive v2 (breath/emotion tags)",
    "review_status": "generated"
   }
  },
@@ -5851,288 +5825,234 @@
  "call_119_a1": {
   "spk": "dispatcher",
   "text": "네, 119 종합상황실입니다. 신고자분, 천천히 말씀해 주세요.",
-  "dur": 5.49,
+  "dur": 5.68,
   "baked": true,
-  "eleven": "[calm] [professional] 네, 119 종합상황실입니다. 신고자분, 천천히 말씀해 주세요.",
   "generation": {
    "voice_id": "nNTkFJj9NHSRZIngrG19",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[calm] [professional]",
-   "input_sha256": "8e70576c7e48361f0ea5fce704ff45166ce7db9905cbce1cb2a7962e8d9fa438",
-   "audio_sha256": "1080889c9bd7adc67830537a83dfd333eaf9fc1fdd3062f913e1cbdf866872fd",
+   "delivery": "emotive v2 (breath/emotion tags)",
    "review_status": "generated"
   }
  },
  "call_119_a2": {
   "spk": "dispatcher",
   "text": "이 시간에 서문고등학교 안이요? 전파가 많이 끊깁니다. 지금 다치신 데는 없으십니까?",
-  "dur": 6.24,
+  "dur": 6.16,
   "baked": true,
-  "eleven": "[calm] [professional] 이 시간에 서문고등학교 안이요? 전파가 많이 끊깁니다. 지금 다치신 데는 없으십니까?",
   "generation": {
    "voice_id": "nNTkFJj9NHSRZIngrG19",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[calm] [professional]",
-   "input_sha256": "1702545db5b28ee7839b4468cfd61b4ef3d90f37de38f8be215c977538544f12",
-   "audio_sha256": "ffc1739d6cd13399567b133a6980ea2a2f6cf4518c522d2b25513deda3092995",
+   "delivery": "emotive v2 (breath/emotion tags)",
    "review_status": "generated"
   }
  },
  "call_119_a3": {
   "spk": "dispatcher",
   "text": "위치 추적 들어갑니다. 잠시만요…… 확인됐습니다. 본관 쪽이네요. 서문소방서 구조대에 출동 지시했습니다.",
-  "dur": 8.28,
+  "dur": 8.4,
   "baked": true,
-  "eleven": "[calm] [professional] 위치 추적 들어갑니다. 잠시만요…… 확인됐습니다. 본관 쪽이네요. 서문소방서 구조대에 출동 지시했습니다.",
   "generation": {
    "voice_id": "nNTkFJj9NHSRZIngrG19",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[calm] [professional]",
-   "input_sha256": "32933a16d5c24af1520f580e2cf8f4eb6c78ac1dd6c222d9fc3b1866fa3a79bd",
-   "audio_sha256": "2567e8a09bb12223f8dcf806c990210e5fb94f7f5063e5be58096dcb32f73ada",
+   "delivery": "emotive v2 (breath/emotion tags)",
    "review_status": "generated"
   }
  },
  "call_119_a4": {
   "spk": "dispatcher",
   "text": "도착까지 이십 분 정도 걸립니다. 잠긴 공간에는 들어가지 마시고, 휴대폰 배터리를 아끼세요.",
-  "dur": 7.08,
+  "dur": 6.8,
   "baked": true,
-  "eleven": "[calm] [professional] 도착까지 이십 분 정도 걸립니다. 잠긴 공간에는 들어가지 마시고, 휴대폰 배터리를 아끼세요.",
   "generation": {
    "voice_id": "nNTkFJj9NHSRZIngrG19",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[calm] [professional]",
-   "input_sha256": "52eab0e77c0270e6abeb1075f9e86f549f861d7f621e21dd8f9a3efe96ce563f",
-   "audio_sha256": "5081428aa4237f74095e09859ee5cf82aa19d4b6f14a7ee29713577d558d81eb",
+   "delivery": "emotive v2 (breath/emotion tags)",
    "review_status": "generated"
   }
  },
  "call_119_a5": {
   "spk": "dispatcher",
   "text": "혹시 거기 다른 분도 계십니까? …… 여보세요? 신고자분? 방금 뒤에서 들린 목소리는…… 누구죠?",
-  "dur": 9.09,
+  "dur": 8.8,
   "baked": true,
-  "eleven": "[calm] [professional] 혹시 거기 다른 분도 계십니까? [long pause] [concerned] 여보세요? 신고자분? [nervous] 방금 뒤에서 들린 목소리는…… 누구죠?",
   "generation": {
    "voice_id": "nNTkFJj9NHSRZIngrG19",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[calm] [professional] [long pause] [concerned] [nervous]",
-   "input_sha256": "9eb0ff4ea1de386962049dbe6d18c7ce92cfcb8174e4bf513fb0b77ceb24b6f2",
-   "audio_sha256": "2be57e9c07980b1867db954d6d68f458cb1095b86b4c825c2e59d1438129dc60",
+   "delivery": "emotive v2 (breath/emotion tags)",
    "review_status": "generated"
   }
  },
  "call_119_b1": {
   "spk": "dispatcher",
   "text": "네, 상황실입니다. 아까 서문고에서 신고하신 분 맞으시죠? 구조대가 정문 쇠사슬을 끊고 있습니다.",
-  "dur": 7.47,
+  "dur": 7.12,
   "baked": true,
-  "eleven": "[calm] [professional] 네, 상황실입니다. 아까 서문고에서 신고하신 분 맞으시죠? 구조대가 정문 쇠사슬을 끊고 있습니다.",
   "generation": {
    "voice_id": "nNTkFJj9NHSRZIngrG19",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[calm] [professional]",
-   "input_sha256": "c0aca67cf3d8ced9db1aa286fe5f8c808f37b78dbb9380ff1f4f9bf2d2f27e2a",
-   "audio_sha256": "27016135e96d18719777979c337cc3bef9f036eef8534f8a1673698ffbb08e4a",
+   "delivery": "emotive v2 (breath/emotion tags)",
    "review_status": "generated"
   }
  },
  "call_119_b2": {
   "spk": "dispatcher",
   "text": "지하 펌프실이요? 잠시만요…… 1998년 10월 13일 새벽, 같은 학교 같은 장소로 구급 출동 기록이 있네요. 신고는 사고 일곱 시간 뒤에 들어왔습니다.",
-  "dur": 12.51,
+  "dur": 13.84,
   "baked": true,
-  "eleven": "[professional] 지하 펌프실이요? [pause] 잠시만요…… [surprised] 1998년 10월 13일 새벽, 같은 학교 같은 장소로 구급 출동 기록이 있네요. [quietly] 신고는 사고 일곱 시간 뒤에 들어왔습니다.",
   "generation": {
    "voice_id": "nNTkFJj9NHSRZIngrG19",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[professional] [pause] [surprised] [quietly]",
-   "input_sha256": "4ba0095905fad473278aca33ed15892720e2ce558619cb85379276c2b5925053",
-   "audio_sha256": "f4f2551852c30170594cc229aaf956299fe6c92546ff567c6376088948111b34",
+   "delivery": "emotive v2 (breath/emotion tags)",
    "review_status": "generated"
   }
  },
  "call_119_b3": {
   "spk": "dispatcher",
   "text": "그 기록, 저희 쪽에도 남아 있습니다. 경찰에 같이 넘기겠습니다. 지금은 신고자분 안전이 먼저입니다. 정문으로 오세요.",
-  "dur": 8.67,
+  "dur": 8.72,
   "baked": true,
-  "eleven": "[calm] [professional] 그 기록, 저희 쪽에도 남아 있습니다. 경찰에 같이 넘기겠습니다. 지금은 신고자분 안전이 먼저입니다. 정문으로 오세요.",
   "generation": {
    "voice_id": "nNTkFJj9NHSRZIngrG19",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[calm] [professional]",
-   "input_sha256": "96cf50cbd145355dcace5f4f0713b4ee1c583306fba2558da711a4e09c0ddeb7",
-   "audio_sha256": "c764e4544d36341be6e38c3d62c5bce5c70baf0d2de2caf9d3d97d764e40ecc2",
+   "delivery": "emotive v2 (breath/emotion tags)",
    "review_status": "generated"
   }
  },
  "call_home_a1": {
   "spk": "mom",
   "text": "여보세요? 얘, 너 지금 어디야! 왜 이렇게 전화가 자꾸 끊겨……",
-  "dur": 5.15,
+  "dur": 5.2,
   "baked": true,
-  "eleven": "[panicked] 여보세요? 얘, 너 지금 어디야! [frustrated] 왜 이렇게 전화가 자꾸 끊겨……",
   "generation": {
    "voice_id": "4p0HBzAAGyju0nYfNntV",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[panicked] [frustrated]",
-   "input_sha256": "4e23e468248c348ce3f4776ab68e2e00b49ce958bd4b530c5442ae923c24a346",
-   "audio_sha256": "0976c250abcf943664e693680439932d39701016bfca65a1a75d2f2fc0ac540c",
+   "delivery": "emotive v2 (breath/emotion tags)",
    "review_status": "generated"
   }
  },
  "call_home_a2": {
   "spk": "mom",
   "text": "서문고? 이 밤에 거길 왜 들어가. 거기서 십 년 전에 애 하나 없어졌던 거, 너도 알잖아.",
-  "dur": 7.2,
+  "dur": 8.0,
   "baked": true,
-  "eleven": "[shocked] 서문고? 이 밤에 거길 왜 들어가. [worried] 거기서 십 년 전에 애 하나 없어졌던 거, 너도 알잖아.",
   "generation": {
    "voice_id": "4p0HBzAAGyju0nYfNntV",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[shocked] [worried]",
-   "input_sha256": "53f281e554e7fddf17f8483d538d2bc74dd58f1393c5e94796665337e92773f9",
-   "audio_sha256": "fd0f0dd89667b8fd4b0d49b5b9449f3743ffb9eff3d1a93783316135dcc705a4",
+   "delivery": "emotive v2 (breath/emotion tags)",
    "review_status": "generated"
   }
  },
  "call_home_a3": {
   "spk": "mom",
   "text": "민아가 거길 왜 들어가…… 알았어. 엄마가 지금 바로 차 끌고 갈게. 정문 쪽에서 절대 움직이지 마.",
-  "dur": 9.09,
+  "dur": 9.28,
   "baked": true,
-  "eleven": "[sighs] 민아가 거길 왜 들어가…… [firmly] 알았어. 엄마가 지금 바로 차 끌고 갈게. 정문 쪽에서 절대 움직이지 마.",
   "generation": {
    "voice_id": "4p0HBzAAGyju0nYfNntV",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[sighs] [firmly]",
-   "input_sha256": "909afa2ad5bf59dbce27c7e35d2f988d4d3173c49825e40078bd1791a6ab6c1a",
-   "audio_sha256": "44a8896d636e90a28097e3c5b13b1b4e091c864799a885d9c51d6539acf54b13",
+   "delivery": "emotive v2 (breath/emotion tags)",
    "review_status": "generated"
   }
  },
  "call_home_a4": {
   "spk": "mom",
   "text": "그리고 얘…… 누가 이름 불러도 대답하지 마. 그 학교 얘긴…… 아니다. 그냥, 조심해. 알았지?",
-  "dur": 10.27,
+  "dur": 9.84,
   "baked": true,
-  "eleven": "[hesitant] 그리고 얘…… [whispers] 누가 이름 불러도 대답하지 마. 그 학교 얘긴…… [pause] [softly] 아니다. 그냥, 조심해. 알았지?",
   "generation": {
    "voice_id": "4p0HBzAAGyju0nYfNntV",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[hesitant] [whispers] [pause] [softly]",
-   "input_sha256": "c820dbec8fa29f0340737e3f68c299a42a0394825be3d137056ecc4167f7edcc",
-   "audio_sha256": "6dd0b2ad5471bdfaf271b3bc9b37770e0868c0cbb12b45ef30660821cfa8c41c",
+   "delivery": "emotive v2 (breath/emotion tags)",
    "review_status": "generated"
   }
  },
  "call_home_b1": {
   "spk": "mom",
   "text": "또 너구나…… 엄마 지금 고가도로 위야. 비가 와서 차가 꼼짝도 안 해.",
-  "dur": 5.88,
+  "dur": 7.04,
   "baked": true,
-  "eleven": "[breathless] 또 너구나…… [stressed] 엄마 지금 고가도로 위야. 비가 와서 차가 꼼짝도 안 해.",
   "generation": {
    "voice_id": "4p0HBzAAGyju0nYfNntV",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[breathless] [stressed]",
-   "input_sha256": "518a86977fb2c7485b70d88427427253cb1aa4b15e074243561a1e30479eaa4d",
-   "audio_sha256": "47dd89bf2ba1dfbde38565187c376d1850e01e11631b46b2f40aee9720af6988",
+   "delivery": "emotive v2 (breath/emotion tags)",
    "review_status": "generated"
   }
  },
  "call_home_b2": {
   "spk": "mom",
   "text": "뭐? 그 애가 실종된 게 아니라고? 그때 교장이 뉴스에 나와서 그랬어. 아이가 하교하다가 사라졌다고…… 다들 그 말을 믿었어.",
-  "dur": 11.65,
+  "dur": 11.68,
   "baked": true,
-  "eleven": "[shocked] 뭐? 그 애가 실종된 게 아니라고? [pause] [quietly] 그때 교장이 뉴스에 나와서 그랬어. 아이가 하교하다가 사라졌다고…… [sad] 다들 그 말을 믿었어.",
   "generation": {
    "voice_id": "4p0HBzAAGyju0nYfNntV",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[shocked] [pause] [quietly] [sad]",
-   "input_sha256": "f0fb5e315940d1bace7f6af07f5df3c9858bfbe1ccc51bb80a0c401324b11c8d",
-   "audio_sha256": "fc6923594c8edc2e17a0178da99d9661e902eb8dff655db399b761c594e33cc2",
+   "delivery": "emotive v2 (breath/emotion tags)",
    "review_status": "generated"
   }
  },
  "call_home_b3": {
   "spk": "mom",
   "text": "그게 정말 증거면…… 사진 찍어 둬, 전부. 엄마 친구가 신문사에 있어. 근데 너부터 살아서 나와야 해. 약속해.",
-  "dur": 10.19,
+  "dur": 10.32,
   "baked": true,
-  "eleven": "[determined] 그게 정말 증거면…… 사진 찍어 둬, 전부. 엄마 친구가 신문사에 있어. [voice breaking] 근데 너부터 살아서 나와야 해. 약속해.",
   "generation": {
    "voice_id": "4p0HBzAAGyju0nYfNntV",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[determined] [voice breaking]",
-   "input_sha256": "c45e138f3c08898a1745ffd6768ad535d9fe1ff5e41d68d9d6b0a1d837685e43",
-   "audio_sha256": "fac78db41d8c398a0caa480e85554522979c107d54bc56ae614042ce6e9c8b3e",
+   "delivery": "emotive v2 (breath/emotion tags)",
    "review_status": "generated"
   }
  },
  "call_home_c1": {
   "spk": "mom",
   "text": "방금 라디오에서…… 네 목소리가 나왔어. 서문고등학교 방송실이라고.",
-  "dur": 5.64,
+  "dur": 5.68,
   "baked": true,
-  "eleven": "[breathless] [emotional] 방금 라디오에서…… 네 목소리가 나왔어. 서문고등학교 방송실이라고.",
   "generation": {
    "voice_id": "4p0HBzAAGyju0nYfNntV",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[breathless] [emotional]",
-   "input_sha256": "1bb5b045dfc8eb5c31040c34c0a66ae8d7a7f476b5fb97a86baaa1cf1e9b800c",
-   "audio_sha256": "c8d8c2c145df0d08d1942c83ad5309f85e9c30d8a3cf6032461971eecb262313",
+   "delivery": "emotive v2 (breath/emotion tags)",
    "review_status": "generated"
   }
  },
  "call_home_c2": {
   "spk": "mom",
   "text": "그 애 엄마도 지금 이 방송을 듣고 있겠지…… 십 년 동안, 얼마나 기다렸을까.",
-  "dur": 8.12,
+  "dur": 7.52,
   "baked": true,
-  "eleven": "[crying] 그 애 엄마도 지금 이 방송을 듣고 있겠지…… [sobbing] 십 년 동안, 얼마나 기다렸을까.",
   "generation": {
    "voice_id": "4p0HBzAAGyju0nYfNntV",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[crying] [sobbing]",
-   "input_sha256": "0c96ac0667cc3b970a3f833dd87ce19bad0ddf9d20396e0684f50f2ab9115edc",
-   "audio_sha256": "707371eed69236a90789b0c0894a2638945cd9bed0f824b5fd7734253011f851",
+   "delivery": "emotive v2 (breath/emotion tags)",
    "review_status": "generated"
   }
  },
  "call_home_c3": {
   "spk": "mom",
   "text": "정문 앞에 경찰차가 와 있어. 천천히, 침착하게 나와. 엄마 여기 있어. 장하다, 우리 애.",
-  "dur": 10.53,
+  "dur": 9.2,
   "baked": true,
-  "eleven": "[sniffles] [warmly] 정문 앞에 경찰차가 와 있어. 천천히, 침착하게 나와. 엄마 여기 있어. [crying] 장하다, 우리 애.",
   "generation": {
    "voice_id": "4p0HBzAAGyju0nYfNntV",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[sniffles] [warmly] [crying]",
-   "input_sha256": "c14d73c668a6e79dca675a9759c49a3a7d4d3dd2125b9158ecc8d7ed238b8704",
-   "audio_sha256": "c1b71eee1497ee6162061095f55d1a4580b1c3ad5bd6718831d9ac2f1335973a",
+   "delivery": "emotive v2 (breath/emotion tags)",
    "review_status": "generated"
   }
  },
@@ -6395,171 +6315,287 @@
  "call_rep_a1": {
   "spk": "reporter",
   "text": "서문일보 사회부입니다. …서문고요? 그 사건이라면, 십 년 전에 제가 쓴 기사가 하루 만에 내려갔습니다.",
-  "dur": 8.2,
+  "dur": 8.32,
   "baked": true,
-  "eleven": "[serious] [low voice] 서문일보 사회부입니다. …서문고요? 그 사건이라면, 십 년 전에 제가 쓴 기사가 하루 만에 내려갔습니다."
+  "generation": {
+   "voice_id": "J3IV02ZzZmojOIQbmpu0",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "emotive v2 (breath/emotion tags)",
+   "review_status": "generated"
+  }
  },
  "call_rep_a2": {
   "spk": "reporter",
   "text": "증거 없이는 한 줄도 못 씁니다. 학교가 뭘 숨겼는지, 손에 잡히는 걸 가져오세요. 기록이든, 녹화든.",
-  "dur": 7.39,
+  "dur": 7.28,
   "baked": true,
-  "eleven": "[serious] [low voice] 증거 없이는 한 줄도 못 씁니다. 학교가 뭘 숨겼는지, 손에 잡히는 걸 가져오세요. 기록이든, 녹화든."
+  "generation": {
+   "voice_id": "J3IV02ZzZmojOIQbmpu0",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "emotive v2 (breath/emotion tags)",
+   "review_status": "generated"
+  }
  },
  "call_rep_a3": {
   "spk": "reporter",
   "text": "그리고 학생, 거기 오래 있지 말아요. 그 학교는… 아직 그날 밤을 안 끝냈습니다.",
-  "dur": 6.43,
+  "dur": 6.48,
   "baked": true,
-  "eleven": "[serious] [low voice] 그리고 학생, 거기 오래 있지 말아요. 그 학교는… 아직 그날 밤을 안 끝냈습니다."
+  "generation": {
+   "voice_id": "J3IV02ZzZmojOIQbmpu0",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "emotive v2 (breath/emotion tags)",
+   "review_status": "generated"
+  }
  },
  "call_rep_b1": {
   "spk": "reporter",
   "text": "CCTV 캡처라고요? 열쇠를 쥔 교무부장이 문을 안 열었다… 십 년 동안 바로 그 한 장면이 없었어요.",
-  "dur": 8.12,
+  "dur": 8.4,
   "baked": true,
-  "eleven": "[serious] [low voice] CCTV 캡처라고요? 열쇠를 쥔 교무부장이 문을 안 열었다… 십 년 동안 바로 그 한 장면이 없었어요."
+  "generation": {
+   "voice_id": "J3IV02ZzZmojOIQbmpu0",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "emotive v2 (breath/emotion tags)",
+   "review_status": "generated"
+  }
  },
  "call_rep_b2": {
   "spk": "reporter",
   "text": "숙직 일지, 장비 수령부, 펌프실 자물쇠까지 모이면 재단도 더는 못 덮습니다.",
-  "dur": 5.88,
+  "dur": 5.28,
   "baked": true,
-  "eleven": "[serious] [low voice] 숙직 일지, 장비 수령부, 펌프실 자물쇠까지 모이면 재단도 더는 못 덮습니다."
+  "generation": {
+   "voice_id": "J3IV02ZzZmojOIQbmpu0",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "emotive v2 (breath/emotion tags)",
+   "review_status": "generated"
+  }
  },
  "call_rep_b3": {
   "spk": "reporter",
   "text": "학생 목소리로, 지금 본 걸 그대로 남겨 두세요. 그게 제일 강한 증언이 됩니다.",
-  "dur": 5.96,
+  "dur": 6.08,
   "baked": true,
-  "eleven": "[serious] [low voice] 학생 목소리로, 지금 본 걸 그대로 남겨 두세요. 그게 제일 강한 증언이 됩니다."
+  "generation": {
+   "voice_id": "J3IV02ZzZmojOIQbmpu0",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "emotive v2 (breath/emotion tags)",
+   "review_status": "generated"
+  }
  },
  "call_rep_c1": {
   "spk": "reporter",
   "text": "들었습니다. 방송이요. 우리 신문사 라디오에서도 잡혔어요. 데스크가 1면을 통째로 비워 두라네요.",
-  "dur": 7.31,
+  "dur": 7.84,
   "baked": true,
-  "eleven": "[serious] [low voice] 들었습니다. 방송이요. 우리 신문사 라디오에서도 잡혔어요. 데스크가 1면을 통째로 비워 두라네요."
+  "generation": {
+   "voice_id": "J3IV02ZzZmojOIQbmpu0",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "emotive v2 (breath/emotion tags)",
+   "review_status": "generated"
+  }
  },
  "call_rep_c2": {
   "spk": "reporter",
   "text": "십 년 만에 기사 제목을 다시 씁니다. 실종이 아니라, 은폐라고.",
-  "dur": 5.15,
+  "dur": 5.6,
   "baked": true,
-  "eleven": "[serious] [low voice] 십 년 만에 기사 제목을 다시 씁니다. 실종이 아니라, 은폐라고."
+  "generation": {
+   "voice_id": "J3IV02ZzZmojOIQbmpu0",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "emotive v2 (breath/emotion tags)",
+   "review_status": "generated"
+  }
  },
  "call_rep_c3": {
   "spk": "reporter",
   "text": "고마워요. 그리고… 윤하늘 학생에게도. 이제 집에 갈 수 있겠네요.",
-  "dur": 5.88,
+  "dur": 6.48,
   "baked": true,
-  "eleven": "[serious] [low voice] 고마워요. 그리고… 윤하늘 학생에게도. 이제 집에 갈 수 있겠네요."
+  "generation": {
+   "voice_id": "J3IV02ZzZmojOIQbmpu0",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "emotive v2 (breath/emotion tags)",
+   "review_status": "generated"
+  }
  },
  "call_og1": {
   "spk": "guard",
   "text": "여보세유? …서문고? 아이고, 이 밤에 그 학교 얘기를 누가 묻는댜.",
-  "dur": 6.84,
+  "dur": 7.68,
   "baked": true,
-  "eleven": "[tired] [old man, warm] 여보세유? …서문고? 아이고, 이 밤에 그 학교 얘기를 누가 묻는댜."
+  "generation": {
+   "voice_id": "lZLh6IYERWP1xQ7NnDOg",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "emotive v2 (breath/emotion tags)",
+   "review_status": "generated"
+  }
  },
  "call_og2": {
   "spk": "guard",
   "text": "경비실 열쇠함 말이여? 그거 번호는 경비장이 바꾸랬어. 마지막으로 나간 열쇠 시각으로. 장부 보면 나와유.",
-  "dur": 8.59,
+  "dur": 8.64,
   "baked": true,
-  "eleven": "[tired] [old man, warm] 경비실 열쇠함 말이여? 그거 번호는 경비장이 바꾸랬어. 마지막으로 나간 열쇠 시각으로. 장부 보면 나와유."
+  "generation": {
+   "voice_id": "lZLh6IYERWP1xQ7NnDOg",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "emotive v2 (breath/emotion tags)",
+   "review_status": "generated"
+  }
  },
  "call_og3": {
   "spk": "guard",
   "text": "그날 밤 마지막으로 나간 게… 펌프실 열쇠여. 교무부장이 가져가서, 끝내 안 돌려줬지.",
-  "dur": 8.05,
+  "dur": 8.0,
   "baked": true,
-  "eleven": "[tired] [old man, warm] 그날 밤 마지막으로 나간 게… 펌프실 열쇠여. 교무부장이 가져가서, 끝내 안 돌려줬지."
+  "generation": {
+   "voice_id": "lZLh6IYERWP1xQ7NnDOg",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "emotive v2 (breath/emotion tags)",
+   "review_status": "generated"
+  }
  },
  "call_og4": {
   "spk": "guard",
   "text": "학생, 그 함 안에 지하실 열쇠도 있을 거여. 내가 못 한 거… 학생이 대신 좀 해 줘유.",
-  "dur": 7.89,
+  "dur": 7.6,
   "baked": true,
-  "eleven": "[tired] [old man, warm] 학생, 그 함 안에 지하실 열쇠도 있을 거여. 내가 못 한 거… 학생이 대신 좀 해 줘유."
+  "generation": {
+   "voice_id": "lZLh6IYERWP1xQ7NnDOg",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "emotive v2 (breath/emotion tags)",
+   "review_status": "generated"
+  }
  },
  "call_hr1": {
   "spk": "homeroom",
   "text": "…네, 하늘이 담임이었던 사람입니다. 이 번호는 어떻게 아셨어요?",
-  "dur": 6.53,
+  "dur": 6.64,
   "baked": true,
-  "eleven": "[sad] [softly] …네, 하늘이 담임이었던 사람입니다. 이 번호는 어떻게 아셨어요?"
+  "generation": {
+   "voice_id": "UqW1DivwFt1NwUMSGnTn",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "emotive v2 (breath/emotion tags)",
+   "review_status": "generated"
+  }
  },
  "call_hr2": {
   "spk": "homeroom",
   "text": "그 편지요. 끝내 못 부쳤어요. 학교가 결석으로 적으라고 했을 때, 저는 그 칸을 비워 뒀습니다.",
-  "dur": 9.25,
+  "dur": 9.84,
   "baked": true,
-  "eleven": "[sad] [softly] 그 편지요. 끝내 못 부쳤어요. 학교가 결석으로 적으라고 했을 때, 저는 그 칸을 비워 뒀습니다."
+  "generation": {
+   "voice_id": "UqW1DivwFt1NwUMSGnTn",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "emotive v2 (breath/emotion tags)",
+   "review_status": "generated"
+  }
  },
  "call_hr3": {
   "spk": "homeroom",
   "text": "부탁 하나만 할게요. 출석부 마지막 칸, 하늘이 이름 옆에… 출석이라고 적어 주세요. 저 대신.",
-  "dur": 9.48,
+  "dur": 9.2,
   "baked": true,
-  "eleven": "[sad] [softly] 부탁 하나만 할게요. 출석부 마지막 칸, 하늘이 이름 옆에… 출석이라고 적어 주세요. 저 대신."
+  "generation": {
+   "voice_id": "UqW1DivwFt1NwUMSGnTn",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "emotive v2 (breath/emotion tags)",
+   "review_status": "generated"
+  }
  },
  "call_jh1": {
   "spk": "junho",
   "text": "…이준호입니다. 이 번호로 전화가 올 줄은 몰랐어요.",
-  "dur": 4.44,
+  "dur": 5.52,
   "baked": true,
-  "eleven": "[trembling] [regretful] …이준호입니다. 이 번호로 전화가 올 줄은 몰랐어요."
+  "generation": {
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "emotive v2 (breath/emotion tags)",
+   "review_status": "generated"
+  }
  },
  "call_jh2": {
   "spk": "junho",
   "text": "잠근 건 저예요. 열쇠는 교무부장님께 드렸고요. 꺼내 주신다고 했어요. 그 말을 믿었어요.",
-  "dur": 7.63,
+  "dur": 7.92,
   "baked": true,
-  "eleven": "[trembling] [regretful] 잠근 건 저예요. 열쇠는 교무부장님께 드렸고요. 꺼내 주신다고 했어요. 그 말을 믿었어요."
+  "generation": {
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "emotive v2 (breath/emotion tags)",
+   "review_status": "generated"
+  }
  },
  "call_jh3": {
   "spk": "junho",
   "text": "증언이 필요하면 할게요. 제 이름 걸고요. 십 년 동안, 하고 싶었던 말이에요.",
-  "dur": 6.53,
+  "dur": 6.0,
   "baked": true,
-  "eleven": "[trembling] [regretful] 증언이 필요하면 할게요. 제 이름 걸고요. 십 년 동안, 하고 싶었던 말이에요."
+  "generation": {
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "emotive v2 (breath/emotion tags)",
+   "review_status": "generated"
+  }
  },
  "call_jh4": {
   "spk": "junho",
   "text": "하늘이한테… 미안하다고 전해 줄 수 있어요? 저는 아직, 그 이름을 소리 내서 못 부르겠어요.",
-  "dur": 8.2,
+  "dur": 9.12,
   "baked": true,
-  "eleven": "[trembling] [regretful] 하늘이한테… 미안하다고 전해 줄 수 있어요? 저는 아직, 그 이름을 소리 내서 못 부르겠어요."
+  "generation": {
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "emotive v2 (breath/emotion tags)",
+   "review_status": "generated"
+  }
  },
  "call_hn1": {
   "spk": "mother",
   "text": "……방송 들었어요. 우리 하늘이 이름, 끝까지 불러 줬지요.",
-  "dur": 5.07,
+  "dur": 6.4,
   "baked": true,
-  "eleven": "[emotional] [softly] ……방송 들었어요. 우리 하늘이 이름, 끝까지 불러 줬지요.",
   "generation": {
    "voice_id": "ksaI0TCD9BstzEzlxj4q",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "input_sha256": "068b4ccad58f844bbead5a34c3a08efab4da189b5ee80d4291918c8fe0d5832f",
-   "audio_sha256": "09448fee670b06bd7264df378b3a6bbf31be4b2ed76c747a4753a4153fe83138",
-   "review_status": "unreviewed"
+   "delivery": "emotive v2 (breath/emotion tags)",
+   "review_status": "generated"
   }
  },
  "call_hn2": {
   "spk": "mother",
   "text": "십 년 동안 아무도 대답해 주지 않았어요. 고마워요. 이제 그 애를… 제대로 보내 줄 수 있겠어요.",
-  "dur": 8.36,
+  "dur": 9.36,
   "baked": true,
-  "eleven": "[emotional] [softly] 십 년 동안 아무도 대답해 주지 않았어요. 고마워요. 이제 그 애를… 제대로 보내 줄 수 있겠어요.",
   "generation": {
    "voice_id": "ksaI0TCD9BstzEzlxj4q",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "input_sha256": "489d8963eb7cd8639485de706e790dc74513cf1214ca03d9b7e66cb29a094688",
-   "audio_sha256": "950f5773d6a72b77b61b27a72290865714efb094aa1d6885d8897030043aa6f2",
-   "review_status": "unreviewed"
+   "delivery": "emotive v2 (breath/emotion tags)",
+   "review_status": "generated"
   }
  },
  "nd_n_guard_diary": {

@@ -109,6 +109,34 @@ function keys(fn) {
   };
   addEventListener('keydown', keyH, true); addEventListener('keyup', keyH, true);
 }
+// 3D 기기 화면: 2D 캔버스를 실제 장비(브라운관 오실로스코프·금속 단말기·나무 게임판)의 화면 텍스처로 띄운다.
+//   원래 캔버스는 화면 밖에 숨기고(크기는 유지 — 기존 좌표 계산 그대로), 화면을 클릭/드래그/휠하면 같은 위치로 이벤트를 넘긴다.
+//   knobs(): [0..1] 배열을 돌려주면 하단 회전 노브가 그 값대로 돈다.
+function screen3D(c, { kind = 'metal', knobs = null } = {}) {
+  let r; try { r = new THREE.WebGLRenderer({ antialias: true }); } catch (e) { return; }
+  const W = 480, H = Math.round(480 * (c.height / c.width) + 70); r.setPixelRatio(Math.min(2, devicePixelRatio || 1)); r.setSize(W, H); r.outputColorSpace = THREE.SRGBColorSpace; r.toneMapping = THREE.ACESFilmicToneMapping;
+  r.domElement.className = 'mgCanvas'; r.domElement.dataset.own3d = '1'; c.dataset.st = '1'; c.parentNode.insertBefore(r.domElement, c);
+  c.style.cssText += ';position:fixed;left:-10000px;top:0;opacity:0;pointer-events:none';
+  const sc = new THREE.Scene(); sc.background = new THREE.Color(0x0a0908); const cam = new THREE.PerspectiveCamera(30, W / H, .05, 30);
+  sc.add(new THREE.HemisphereLight(0xfff2e0, 0x120c08, .55)); const L = new THREE.SpotLight(0xfff0dc, 22, 8, .7, .5, 1.3); L.position.set(.6, 2.2, 2.4); sc.add(L, L.target);
+  const asp = c.width / c.height, sw = 1.6, shh = sw / asp, tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace;
+  const bodyC = kind === 'scope' ? 0x8a8c84 : kind === 'wood' ? 0x5c3a1e : 0x3c424a;
+  const body = new THREE.Mesh(new THREE.BoxGeometry(sw + .34, shh + .62, .7), new THREE.MeshStandardMaterial({ color: bodyC, roughness: kind === 'wood' ? .7 : .45, metalness: kind === 'metal' ? .6 : .15 })); body.position.set(0, -.14, -.36); sc.add(body);
+  const bez = new THREE.Mesh(new THREE.BoxGeometry(sw + .1, shh + .1, .04), new THREE.MeshStandardMaterial({ color: 0x141414, roughness: .6 })); bez.position.z = .0; sc.add(bez);
+  const scr = new THREE.Mesh(new THREE.PlaneGeometry(sw, shh), new THREE.MeshBasicMaterial({ map: tex, toneMapped: false })); scr.position.z = .025; sc.add(scr);
+  const glass = new THREE.Mesh(new THREE.PlaneGeometry(sw, shh), new THREE.MeshPhysicalMaterial({ color: 0xffffff, transparent: true, opacity: .08, roughness: .05, clearcoat: 1 })); glass.position.z = .03; sc.add(glass);
+  const kn = []; if (knobs) { const n = knobs().length; for (let i = 0; i < n; i++) { const g = new THREE.Group(); const k = new THREE.Mesh(new THREE.CylinderGeometry(.07, .08, .06, 24), new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: .4, metalness: .3 })); k.rotation.x = Math.PI / 2; g.add(k); const m = new THREE.Mesh(new THREE.BoxGeometry(.012, .05, .01), new THREE.MeshBasicMaterial({ color: 0xffffff })); m.position.set(0, .04, .035); g.add(m); g.position.set((i - (n - 1) / 2) * .45, -shh / 2 - .26, .02); sc.add(g); kn.push(g); } }
+  if (kind === 'scope') { const led = new THREE.Mesh(new THREE.SphereGeometry(.018, 10, 8), new THREE.MeshBasicMaterial({ color: 0x40ff80 })); led.position.set(sw / 2 + .07, -shh / 2 - .26, .02); sc.add(led); }
+  cam.position.set(0, .05, Math.max((shh + .9) / 2 / Math.tan(15 * Math.PI / 180), (sw + .6) / 2 / Math.tan(15 * Math.PI / 180) / (W / H))); cam.lookAt(0, -.14, 0);
+  const rc = new THREE.Raycaster(), mv = new THREE.Vector2();
+  const fwd = (type, e) => { const b = r.domElement.getBoundingClientRect(); mv.set((e.clientX - b.left) / b.width * 2 - 1, -((e.clientY - b.top) / b.height) * 2 + 1); rc.setFromCamera(mv, cam); const hit = rc.intersectObject(scr)[0]; if (!hit && type !== 'mousemove' && type !== 'mouseup') return;
+    const uv = hit ? hit.uv : { x: .5, y: .5 }, cb = c.getBoundingClientRect(), x = cb.left + Math.min(1, Math.max(0, uv.x)) * cb.width, y = cb.top + (1 - Math.min(1, Math.max(0, uv.y))) * cb.height;
+    if (type === 'wheel') { e.preventDefault(); c.dispatchEvent(new WheelEvent('wheel', { clientX: x, clientY: y, deltaY: e.deltaY, bubbles: true, cancelable: true })); }
+    else c.dispatchEvent(new MouseEvent(type, { clientX: x, clientY: y, button: e.button, buttons: e.buttons, bubbles: true, cancelable: true })); };
+  ['mousedown', 'mousemove', 'mouseup', 'click', 'contextmenu'].forEach(t => r.domElement.addEventListener(t, e => { if (t === 'contextmenu') e.preventDefault(); fwd(t, e); }));
+  r.domElement.addEventListener('wheel', e => fwd('wheel', e), { passive: false });
+  const loop = () => { if (!MG.active) { r.dispose(); return; } tex.needsUpdate = true; if (knobs) { const v = knobs(); kn.forEach((g, i) => g.rotation.z = Math.PI * .75 - v[i] * Math.PI * 1.5); } r.render(sc, cam); requestAnimationFrame(loop); }; requestAnimationFrame(loop);
+}
 function canvas(w, h) { const c = document.createElement('canvas'); c.width = w; c.height = h; c.className = 'mgCanvas'; $('mgBody').appendChild(c); return c; }
 $('mgCancel').onclick = () => { if (finish) close(false); };
 
@@ -767,6 +795,7 @@ function simon({ title = '순서 따라 하기', pads = ['도', '레', '미', '�
 function timing({ title = '타이밍', hint = '바늘이 <b style="color:#60e0a0">초록 구간</b>에 들어왔을 때 <b>Space / 클릭</b>', need = 3, tries = 5, icon = '', okText = '성공!', missText = '빗나갔다…' }) {
   const p = open(title, hint + ` — <b>${tries}</b>번 중 <b>${need}</b>번`);
   const c = canvas(440, 140), g = c.getContext('2d');
+  screen3D(c, { kind: 'scope' });
   let t = 0, sp = 1.1, hits = 0, used = 0, zone = .3 + Math.random() * .4, w = .18, lastT = performance.now(), flash = 0, fc = '#60e0a0';
   const act = () => {
     if (!finish) return; const pos = (Math.sin(t * sp * 2.4) + 1) / 2; used++;
@@ -835,6 +864,7 @@ function pipes({ title = '증기 배관 — 압력을 빼라', time = 70 } = {})
   const R = 5, C = 6, S = 62, ox = 46, oy = 34;
   const p = open(title, `타일을 클릭해 돌려 <b style="color:#ffb070">밸브</b>의 증기를 <b style="color:#70d8ff">배출구 두 곳</b>으로 모두 보내라 (우클릭: 반대로)<br>열린 관 끝으로 증기가 새면 <b>압력이 더 빨리</b> 오른다 — 계기판이 빨간 칸에 닿으면 터진다`);
   const c = canvas(C * S + ox * 2, R * S + oy + 30), g = c.getContext('2d');
+  screen3D(c, { kind: 'metal' });
   const rot = m => ((m << 1) | (m >> 3)) & 15, conn = (a, b) => (b[0] < a[0] ? 1 : b[1] > a[1] ? 2 : b[0] > a[0] ? 4 : 8);
   const grid = Array.from({ length: R }, () => Array(C).fill(0));
   const src = 1 + ((Math.random() * (R - 2)) | 0), outs = Math.random() < .5 ? [0, R - 1] : [[0, 2], [2, 4], [0, 3], [1, 4]][(Math.random() * 4) | 0];   // 판마다 다른 위치
@@ -895,6 +925,7 @@ function maze({ title = '어둠 속 — 선반 사이를 더듬어라', item = '
   const S = 34;
   const p = open(title, `<b>WASD / 방향키</b>로 이동 · <b>Shift</b> 손전등 끄기(숨기) — 불을 끄면 야간 경비원이 놓친다<br><b style="color:#ffd070">${item}</b>을 주워 <b style="color:#80ffb0">출구</b>로. 경비원에게 들키면 실패`);
   const c = canvas(W * S, H * S), g = c.getContext('2d');
+  screen3D(c, { kind: 'wood' });
   // 미로 생성 (DFS) + 고리 몇 개
   const wall = Array.from({ length: H }, () => Array(W).fill(1)), carve = (x, y) => { wall[y][x] = 0; [[2, 0], [-2, 0], [0, 2], [0, -2]].sort(() => Math.random() - .5).forEach(([dx, dy]) => { const nx = x + dx, ny = y + dy; if (nx > 0 && ny > 0 && nx < W - 1 && ny < H - 1 && wall[ny][nx]) { wall[y + dy / 2][x + dx / 2] = 0; carve(nx, ny); } }); };
   carve(1, 1); for (let k = 0; k < 7; k++) { const x = 1 + ((Math.random() * (W - 2)) | 0), y = 1 + ((Math.random() * (H - 2)) | 0); if ((x + y) % 2) wall[y][x] = 0; }
@@ -1758,6 +1789,7 @@ function oscilloscope({ title = '오실로스코프 — 주파수·진폭·위�
   const c = canvas(480, 310), g = c.getContext('2d');
   const tf = 1.6 + Math.random() * 2.2, ta = 42 + Math.random() * 44, tp = Math.random() * 5.2;
   let uf = 2.5, ua = 60, up = 0, hold = 0, lastT = performance.now(), dn = {}, dragDial = -1;
+  screen3D(c, { kind: 'scope', knobs: () => [(uf - .8) / 4, (ua - 18) / 80, up / (Math.PI * 2)] });
 
   c.addEventListener('mousedown', e => {
     const r = c.getBoundingClientRect(), x = (e.clientX - r.left) * c.width / r.width, y = (e.clientY - r.top) * c.height / r.height;

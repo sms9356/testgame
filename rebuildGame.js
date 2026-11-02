@@ -2,11 +2,11 @@
 //   항상 켜진다 (예전 건물 모드는 폐지).
 //   예전 본관(1~3층 · 옥상) · 별관(8~10층) 건물은 감추고, 그 자리 땅(0층)에서 새 건물을 걷는다.
 //   높이는 P.sh(계단 높이 보정값)로 넘긴다 → 카메라 · 점프 · 가구 오르기 코드는 손대지 않아도 된다.
-import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=307';
-import { placeModels } from './rebuild/models.js?v=307';
-import { carve, subdivide } from './rebuild/transplant.js?v=307';
+import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=322';
+import { placeModels } from './rebuild/models.js?v=322';
+import { carve, subdivide } from './rebuild/transplant.js?v=322';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { turfMaterial } from './campusVisuals.js?v=307';
+import { turfMaterial } from './campusVisuals.js?v=322';
 
 // 예전 건물이 차지하던 땅 (이 안의 예전 메시 · 충돌 상자를 걷어 낸다)
 const OLD_MAIN = { x1: -51, x2: 51, z1: -10.6, z2: 10.9 };
@@ -82,7 +82,7 @@ export function installRebuild({ THREE, scene, floors, world }) {
   const BC_CHAIR = [[BX + 2.5, 3.0], [BX + 2.5, 4.8], [BX + 6.9, 8.5], [BX + 12.3, 6.1], [BX + 13.5, 7.3], [BX + 11.1, 7.3], [BX + 16.5, 2.5], [BX + 16.5, 3.8]]; let bcChair = 0;
   // 공중에 뜬 물건(바닥 위 0.3m 넘게): 실제 가구 윗면으로 [x, z, 높이]
   const BC_TOP = [[BX + 6.3, 9.2, .76], [BX + 12.0, 7.0, .79], [BX + 15.5, 3.4, .82], [BX + 12.6, 7.6, .79], [BX + 7.5, 9.2, .76]]; let bcTop = 0;
-  const BC_FREE = [[BX + 4.4, 4.2], [BX + 6.6, 3.0], [BXP + 3.2, 5.6], [BXP + 5.2, 8.6], [BX + 6.2, 6.6], [BXP + 7.4, 6.0]];
+  const BC_FREE = [[BX + 4.4, 4.2], [BX + 6.6, 3.0], [BXP + 3.2, 5.6], [BXP + 5.2, 8.6], [BX + 6.2, 6.6], [BXP + 4.8, 5.0]];
   let bcFree = 0; const bcUsed = {};
   const bcTaken = [];
   const bcFreeSpot = () => {   // 방 안 격자에서 가구에 막히지 않고 다른 조사 지점과 1.2m 이상 떨어진 자리
@@ -96,7 +96,7 @@ export function installRebuild({ THREE, scene, floors, world }) {
     //   민아 머리 위에 겹치지 않게 앵커 데스크 쪽 바닥에 한 줄로 내려놓는다
     const [x, z] = BC_SLOT.mina[0], isMina = Math.abs(w.x + 21.65) < .15 && Math.abs(w.z + 8.45) < .15; MAIN.root.attach(c);
     if (isMina) { c.position.set(x, BCY + Math.max(0, w.y - BC.y0), z); c.rotation.y = -Math.PI / 2; }
-    else { side++; c.position.set(x - .2, BCY, z - 1.0 - .7 * side); c.rotation.y = -Math.PI / 2; } } }   // 민아 · 민아 소지품: 스튜디오 동쪽 구석 벽에 기대 앉음
+    else { side++; c.position.set(x - .4 - .45 * Math.min(side, 4), BCY, z + .6); c.rotation.y = -Math.PI / 2; } } }   // 장비실 안 남쪽 바닥에 한 줄 (북쪽 선반 · 동쪽 앰프 랙을 피해)   // 민아 · 민아 소지품: 스튜디오 동쪽 구석 벽에 기대 앉음
   clearOld();
   // 예전 건물 터(본관 · 별관 옛 자리)에 잔디: 새 본관 · 별관 바닥 밑은 비우고 덮는다 (길 · 보도블록은 위에 그대로)
   let FOOTPRINTS = []; { const holes = FOOTPRINTS = [MAIN, ANX].map(b => { const c = [[-b.layout.L / 2 - .5, b.layout.zN - .5], [b.layout.L / 2 + .5, b.layout.zS + .5]].map(([a, d]) => b.toWorld(a, d)); return [Math.min(c[0][0], c[1][0]), Math.max(c[0][0], c[1][0]), Math.min(c[0][1], c[1][1]), Math.max(c[0][1], c[1][1])]; });
@@ -447,7 +447,7 @@ export function installRebuild({ THREE, scene, floors, world }) {
         const f = Math.max(0, Math.floor((below + .05) / FH)); best = f * FH;
         for (const c of B.col) { if (c.y2 == null || c.y2 > below + .06 || c.y2 < best || c.y2 - (c.y1 ?? 0) > 2.4) continue; if (lx > c.x1 + .02 && lx < c.x2 - .02 && lz > c.z1 + .02 && lz < c.z2 - .02) best = c.y2; } } return best; };
     R._sup = supportAt;
-    const WALL = /게시|액자|공지|시계|포스터|명패|달력|스위치|비상벨|배전반|분전반|거울|칠판|현판|안내/;
+    const WALL = /게시|액자|공지|시계|포스터|명패|달력|스위치|비상벨|배전반|분전반|거울|칠판|현판|안내|냉난방기|빔프로젝터|에어컨/;
     const settle = (objs, label, onDy) => { if (!objs.length) return; bx.makeEmpty(); for (const o of objs) bx.expandByObject(o); if (bx.isEmpty()) return;
       if (WALL.test(label || '')) { const fl = Math.max(0, Math.floor((bx.min.y + .05) / FH)) * FH, h = bx.min.y - fl; if (h > .7 && h < 2.2) return; }   // 벽에 걸린 높이(0.7~2.2m)면 그대로, 천장 · 바닥 아래로 빠진 것만 바로잡는다
       const s = bx.getSize(new THREE.Vector3()); if (s.y > 2.2 || Math.max(s.x, s.z) > 3) return; const c = bx.getCenter(new THREE.Vector3()), sup = supportAt(c.x, c.z, bx.min.y); if (sup == null) return;
@@ -817,7 +817,7 @@ export function installRebuild({ THREE, scene, floors, world }) {
         mesh(new THREE.BoxGeometry(.9, .29, .21), acM, 0, 0, 0, g); mesh(new THREE.BoxGeometry(.84, .03, .01), dkM, 0, -.11, .106, g); mesh(new THREE.BoxGeometry(.06, .015, .005), new THREE.MeshBasicMaterial({ color: 0x40ff80 }), .35, .06, .106, g);   // 벽걸이 에어컨 (토출구 · 전원 LED)
         const pj = new THREE.Group(), [cx, cz] = B.toWorld((r.x1 + r.x2) / 2, (r.z1 + r.z2) / 2); pj.position.set(cx, rb + (B.spec.CEIL || 2.7), cz); pj.rotation.y = ang; group.add(pj);
         mesh(new THREE.CylinderGeometry(.02, .02, .28, 8), dkM, 0, -.14, 0, pj); mesh(new THREE.BoxGeometry(.32, .1, .26), acM, 0, -.32, 0, pj); const ln = mesh(new THREE.CylinderGeometry(.035, .035, .03, 14), lensM, -.1, -.32, .135, pj); ln.rotation.x = Math.PI / 2;   // 천장 빔프로젝터
-        p.mesh = g; p.mesh2 = pj; const [ix, iz] = B.toWorld(ax, r.z1 + .8); p.x = ix; p.z = iz; p.y = 1.6; if (p.px != null) { p.px = ix; p.pz = iz; } up++; continue; }
+        p.mesh = g; p.mesh2 = pj; p.hang = true; const [ix, iz] = B.toWorld(ax, r.z1 + .8); p.x = ix; p.z = iz; p.y = 1.6; if (p.px != null) { p.px = ix; p.pz = iz; } up++; continue; }
       if (!/의자|소파|장비|PC|믹서|스위처|데크|콘솔|세척기|그라인더|무정전|단말기|보관함|실험대|투시경|회의록|서류/.test(lab)) continue; p._eq = true;
       const seat = /의자|소파/.test(lab), lo = seat ? .35 : .6, hi = seat ? .62 : 2.2; let best = null, bd = 3;
       for (const c of B.col) { if (c.y2 == null || c.y2 < rb + lo || c.y2 > rb + hi || (c.y1 != null && (c.y1 > rb + .1 || c.y1 < rb - .5)) || c.x2 - c.x1 > 3 || c.z2 - c.z1 > 3) continue;
@@ -884,6 +884,9 @@ export function installRebuild({ THREE, scene, floors, world }) {
         const mine = new Set(); it.mesh.traverse(c => mine.add(c)); const c = bb.getCenter(new THREE.Vector3()); rc.set(new THREE.Vector3(c.x, bb.min.y + .01, c.z), dn); rc.far = 1.4;
         const hit = rc.intersectObjects(scene.children, true).find(h => h.object.isMesh && !mine.has(h.object) && h.object.visible && !h.object.material?.transparent && h.point.y > it.rbY - .05); if (!hit) continue;
         const dy = hit.point.y + .004 - bb.min.y; if (dy > -.06) continue; if (it.mesh.parent !== group) group.attach(it.mesh); it.mesh.position.y += dy; it.pos.y += dy; if (it.baseY != null) it.baseY += dy; up++; } }
+    // 바닥에 떨어진 옛 스위치 LED · 터미널 화면 잔재(초록 불빛) 숨기기: 초록 발광 소품이 그 층 바닥 60cm 안에 있으면 그 묶음째 감춘다
+    if ((W._grn = (W._grn || 0) + 1) <= 8) { const P = new THREE.Vector3(); group.traverse(o => { if (!o.isMesh || !o.visible || !o.material || !o.material.isMeshBasicMaterial) return; const h = o.material.color.getHex(); if (h !== 0x40ff80 && h !== 0x38c070 && h !== 0x1c3326) return;
+      o.getWorldPosition(P); const fl = Math.floor((P.y + .1) / 3.6) * 3.6; if (P.y - fl > .6) return; const g = o.parent && o.parent !== group ? o.parent : o; g.visible = false; up++; }); }
     // 같은 자리에 겹쳐 놓인 아이템(쪽지 위 캔 등) → 뒤의 것을 옆으로 25cm 비킨다
     for (let i = 0; i < W.items.length; i++) { const a = W.items[i]; if (a.taken || !a.mesh || a.rbY == null) continue;
       for (let j = i + 1; j < W.items.length; j++) { const b = W.items[j]; if (b.taken || !b.mesh || b._sep2 || b.rbY == null || Math.abs(a.rbY - b.rbY) > .5 || Math.hypot(a.pos.x - b.pos.x, a.pos.z - b.pos.z) > .12) continue;

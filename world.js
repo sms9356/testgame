@@ -4,12 +4,12 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { buildGuardAnnex, buildDutyRoom, ANNEX as GANX } from './guardAnnex.js?v=306';
-import { NOTES } from './story.js?v=306';
+import { buildGuardAnnex, buildDutyRoom, ANNEX as GANX } from './guardAnnex.js?v=322';
+import { NOTES } from './story.js?v=322';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=306';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=322';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -1804,7 +1804,7 @@ export function buildWorld(scene) {
   const ROBJ_OF = { nurse: 'med', sick: 'med', office: 'phone', staff: 'phone', principal: 'phone', meeting: 'phone', toilet: 'mirror', library: 'cards', reading: 'cards', archive: 'cards', records: 'cards',
     computer: 'term', digital: 'term', av: 'term', lab: 'chem', prepS: 'chem', cooking: 'snack', counsel: 'emo', counselS: 'emo', print: 'copier', wash: 'water', student: 'ballot', tool: 'radio', equip: 'radio' };
   const ROBJ_LABEL = { med: '약품함 열기', phone: '수화기 들기', mirror: '거울 보기', cards: '대출 카드함 뒤지기', term: '단말기 켜기', chem: '약품 선반 살피기', snack: '간식 바구니 뒤지기', emo: '감정 카드 고르기', copier: '복사 카운터 누르기', water: '수도꼭지 틀기', ballot: '투표함 열기', radio: '무전기 켜기' };
-  const mRedCross = new THREE.MeshBasicMaterial({ color: 0xb02020 }), mTermScr = new THREE.MeshBasicMaterial({ color: 0x38c070 }), mBeige = S(null, { color: 0xc8bc9c, roughness: .6 });
+  const mRedCross = new THREE.MeshBasicMaterial({ color: 0xb02020 }), mTermScr = new THREE.MeshBasicMaterial({ color: 0x1c3326 }), mBeige = S(null, { color: 0xc8bc9c, roughness: .6 });
   function roomObj(t, cx) {
     const k = ROBJ_OF[t]; if (!k) return;
     if (t === 'toilet') return;

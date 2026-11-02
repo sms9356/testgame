@@ -92,7 +92,7 @@ class ClassroomRemodelPatch {
       padding: 8px 18px; border-radius: 4px; font-size: 14px; font-family: monospace;
       z-index: 9970; display: none; pointer-events: none;
     `;
-    div.textContent = "[E] 의자에 앉기 (숨기 / 경계) · [Space/W] 일어나기";
+    div.textContent = "[E] 의자에 앉기 (경계) · [Space/W] 일어나기";
     document.body.appendChild(div);
   }
 
@@ -225,7 +225,7 @@ class ClassroomRemodelPatch {
       mesh: seat,
       chairGroup,
       label,
-      promptText: `[E] ${label}에 앉기 (숨기 / 경계)`,
+      promptText: `[E] ${label}에 앉기 (경계)`,
       onInteract: (playerRef, notifyFn) => {
         this.sitOnChair(chairGroup, playerRef, notifyFn);
       }

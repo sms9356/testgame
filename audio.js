@@ -37,7 +37,7 @@ export function initAudio() {
   // 지속 저주파 드론 제거: 대사와 필요한 효과음은 별도 버스로 유지.
   ['school-bell', 'class-chime', 'pa-chime'].forEach(name => loadVoice(`assets/sfx/${name}.mp3`).then(b => { if (b) schoolSamples.set(name, b); }));
   // 실제 녹음 효과음 (ElevenLabs 생성): 발소리 3종 · 문 · 사물함 · 철문 · 종이 · 열쇠 · 줍기 · 물방울 · 물튀김 — 없으면 합성음으로
-  ['sfx-step-tile', 'sfx-step-wood', 'sfx-step-metal', 'sfx-door-creak', 'sfx-door-slam', 'sfx-locker', 'sfx-steel-door', 'sfx-paper', 'sfx-keys', 'sfx-pickup', 'sfx-drip', 'sfx-splash', 'sfx-ghost-step', 'sfx-screech', 'sfx-flicker', 'sfx-heartbeat', 'sfx-wind'].forEach(name => loadVoice(`assets/sfx/${name}.mp3`).then(b => { if (!b) return; schoolSamples.set(name, b);
+  ['sfx-step-tile', 'sfx-step-wood', 'sfx-step-metal', 'sfx-door-creak', 'sfx-door-slam', 'sfx-locker', 'sfx-steel-door', 'sfx-paper', 'sfx-keys', 'sfx-pickup', 'sfx-drip', 'sfx-splash', 'sfx-flicker', 'sfx-heartbeat', 'sfx-wind'].forEach(name => loadVoice(`assets/sfx/${name}.mp3`).then(b => { if (!b) return; schoolSamples.set(name, b);
   }));
   buildAmbience();
   // 유령 근접음(숨소리/속삭임)

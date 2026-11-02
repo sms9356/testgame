@@ -1674,10 +1674,29 @@ function fuse({ title = '퓨즈판 — 모든 회로를 켜라', N = Math.random
       g.fillRect(px + 18, py + 14, S - 36, S - 28); g.shadowBlur = 0; g.fillStyle = '#b8b0a0'; g.fillRect(px + 26, py + 8, S - 52, 6); g.fillRect(px + 26, py + S - 14, S - 52, 6); }
     g.fillStyle = '#c8c0a8'; g.font = '12px sans-serif'; g.fillText(`남은 조작 ${max - used}`, 20, N * S + 40);
   };
-  c.addEventListener('click', e => { if (won || !finish) return; const rc = c.getBoundingClientRect(), x = ((e.clientX - rc.left) * c.width / rc.width - 20) / S | 0, y = ((e.clientY - rc.top) * c.height / rc.height - 20) / S | 0;
-    if (x < 0 || x >= N || y < 0 || y >= N) return; flip(y, x); used++; sfx.click(); draw();
+  const doFlip = (y, x) => { if (won || !finish) return;
+    if (x < 0 || x >= N || y < 0 || y >= N) return; flip(y, x); used++; sfx.click(); draw(); status(`남은 조작 ${max - used}`);
     if (on.flat().every(Boolean)) { won = true; sfx.fuse ? sfx.fuse() : 0; setTimeout(() => close(true), 450); }
-    else if (used >= max) { sfx.spark ? sfx.spark() : sfx.buzz(); status('퓨즈가 과열됐다 — 스파크!', 'err'); setTimeout(() => finish && close(false), 700); } });
+    else if (used >= max) { sfx.spark ? sfx.spark() : sfx.buzz(); status('퓨즈가 과열됐다 — 스파크!', 'err'); setTimeout(() => finish && close(false), 700); } };
+  c.addEventListener('click', e => { const rc = c.getBoundingClientRect(); doFlip(((e.clientY - rc.top) * c.height / rc.height - 20) / S | 0, ((e.clientX - rc.left) * c.width / rc.width - 20) / S | 0); });
+  // 3D 분전반: 강철 패널 · 도자기 퓨즈 홀더 N×N · 유리관 퓨즈(켜지면 초록 필라멘트 발광 · 꺼지면 검붉게 탄 자국) — 클릭하면 레버처럼 눌렸다 올라온다
+  (() => { let r; try { r = new THREE.WebGLRenderer({ antialias: true }); } catch (e) { return; }
+    r.setPixelRatio(Math.min(2, devicePixelRatio || 1)); r.setSize(420, 320); r.outputColorSpace = THREE.SRGBColorSpace; r.toneMapping = THREE.ACESFilmicToneMapping; r.domElement.className = 'mgCanvas'; r.domElement.dataset.own3d = '1'; $('mgBody').insertBefore(r.domElement, c); c.style.display = 'none'; c.dataset.st = '1';
+    const sc = new THREE.Scene(); sc.background = new THREE.Color(0x0a0c0d); const cam = new THREE.PerspectiveCamera(32, 420 / 320, .05, 20); cam.position.set(.15, .1, 2.75); cam.lookAt(0, 0, 0);
+    sc.add(new THREE.HemisphereLight(0xd8e4ff, 0x101010, .45)); const L = new THREE.SpotLight(0xfff0dc, 14, 6, .6, .5, 1.4); L.position.set(.8, 1.2, 1.6); sc.add(L, L.target);
+    const steel = new THREE.MeshStandardMaterial({ color: 0x5a6068, roughness: .45, metalness: .8 }), cer = new THREE.MeshStandardMaterial({ color: 0xe8e2d4, roughness: .4 }), cap = new THREE.MeshStandardMaterial({ color: 0xb8bcc2, metalness: 1, roughness: .25 });
+    const span = 1.3, cs = span / N; const pnl = new THREE.Mesh(new THREE.BoxGeometry(span + .25, span + .25, .06), steel); pnl.position.z = -.05; sc.add(pnl);
+    const cells = [];
+    for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) { const gx = -span / 2 + (x + .5) * cs, gy = span / 2 - (y + .5) * cs, grp = new THREE.Group(); grp.position.set(gx, gy, 0); sc.add(grp);
+      const hold = new THREE.Mesh(new THREE.BoxGeometry(cs * .78, cs * .78, .05), cer); grp.add(hold);
+      const glassM = new THREE.MeshStandardMaterial({ color: 0x9ad8a8, emissive: 0x30ff60, emissiveIntensity: 1, transparent: true, opacity: .85, roughness: .1 });
+      const tube = new THREE.Mesh(new THREE.CylinderGeometry(cs * .13, cs * .13, cs * .5, 16), glassM); tube.rotation.z = Math.PI / 2; tube.position.z = .05; grp.add(tube);
+      [-1, 1].forEach(sd => { const cp = new THREE.Mesh(new THREE.CylinderGeometry(cs * .15, cs * .15, cs * .08, 16), cap); cp.rotation.z = Math.PI / 2; cp.position.set(sd * cs * .27, 0, .05); grp.add(cp); });
+      hold.userData = tube.userData = { y, x }; cells.push({ grp, tube, glassM, y, x, push: 0 }); }
+    const rc = new THREE.Raycaster(), mv = new THREE.Vector2();
+    r.domElement.addEventListener('mousedown', e => { const b = r.domElement.getBoundingClientRect(); mv.set((e.clientX - b.left) / b.width * 2 - 1, -((e.clientY - b.top) / b.height) * 2 + 1); rc.setFromCamera(mv, cam); const h = rc.intersectObjects(cells.map(o => o.grp), true)[0]; if (!h) return; const u = h.object.userData; cells.find(o => o.y === u.y && o.x === u.x).push = 1; doFlip(u.y, u.x); });
+    const lp = () => { if (!MG.active) { r.dispose(); return; } cells.forEach(o => { const lit = on[o.y][o.x]; o.glassM.color.setHex(lit ? 0x9ad8a8 : 0x3a1a14); o.glassM.emissive.setHex(lit ? 0x30ff60 : 0x200400); o.glassM.emissiveIntensity = lit ? .9 + Math.sin(performance.now() / 200 + o.x) * .1 : .4; o.push = Math.max(0, o.push - .08); o.grp.position.z = -o.push * .04; });
+      r.render(sc, cam); requestAnimationFrame(lp); }; requestAnimationFrame(lp); })();
   keys(() => {}); draw();
   return p;
 }

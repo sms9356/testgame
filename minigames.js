@@ -277,7 +277,26 @@ function dial({ code, title = '다이얼 자물쇠', hint = '', onFail }) {
     if (val.join('') === code) { sfx.tumbler(); close(true); }
     else { sfx.buzz(); status('열리지 않는다', 'err'); if (onFail) onFail(); box.classList.remove('shake'); void box.offsetWidth; box.classList.add('shake'); }
   };
-  btn.onclick = check;
+  // 3D 황동 자물쇠: 숫자 바퀴 n개 · 걸쇠 — 화면의 바퀴 위쪽/아래쪽을 클릭(또는 휠)하면 돌아간다. 맞으면 걸쇠가 튀어 오른다
+  const D3 = (() => { let r; try { r = new THREE.WebGLRenderer({ antialias: true }); } catch (e) { return null; }
+    const W = 440, H = 280; r.setPixelRatio(Math.min(2, devicePixelRatio || 1)); r.setSize(W, H); r.outputColorSpace = THREE.SRGBColorSpace; r.toneMapping = THREE.ACESFilmicToneMapping; r.domElement.className = 'mgCanvas'; r.domElement.dataset.own3d = '1'; $('mgBody').insertBefore(r.domElement, box); box.style.display = 'none';
+    const sc = new THREE.Scene(); sc.background = new THREE.Color(0x0d0b09); const cam = new THREE.PerspectiveCamera(30, W / H, .05, 20); cam.position.set(0, .15, 2.2); cam.lookAt(0, .1, 0);
+    sc.add(new THREE.HemisphereLight(0xfff0dc, 0x1a1208, .6)); const L = new THREE.SpotLight(0xffe8c8, 14, 6, .6, .5, 1.5); L.position.set(.8, 1.4, 1.6); sc.add(L, L.target);
+    const brass = new THREE.MeshStandardMaterial({ color: 0xb8902c, metalness: .9, roughness: .3 }), steel = new THREE.MeshStandardMaterial({ color: 0xc8ccd0, metalness: 1, roughness: .2 });
+    const wW = .16, span = n * wW + .14; const body = new THREE.Mesh(new THREE.BoxGeometry(span, .5, .32), brass); body.position.y = -.05; sc.add(body);
+    const shackle = new THREE.Mesh(new THREE.TorusGeometry(span * .34, .04, 14, 32, Math.PI), steel); shackle.position.y = .2; sc.add(shackle);
+    const dig = (() => { const c = document.createElement('canvas'); c.width = 640; c.height = 64; const g = c.getContext('2d'); g.fillStyle = '#e8e0cc'; g.fillRect(0, 0, 640, 64); g.font = 'bold 48px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+      for (let d = 0; d < 10; d++) { g.fillStyle = 'rgba(0,0,0,.18)'; g.fillRect(d * 64, 0, 2, 64); g.fillStyle = '#1a1208'; g.save(); g.translate(32 + d * 64, 32); g.rotate(Math.PI / 2); g.fillText(String(d), 0, 2); g.restore(); } const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t; })();
+    const wheels = []; for (let i = 0; i < n; i++) { const w = new THREE.Mesh(new THREE.CylinderGeometry(.11, .11, wW * .82, 30, 1, true), new THREE.MeshStandardMaterial({ map: dig, roughness: .5, metalness: .1, side: THREE.DoubleSide })); w.rotation.z = Math.PI / 2; const piv = new THREE.Group(); piv.position.set(-((n - 1) * wW) / 2 + i * wW, -.05, .17); piv.add(w); sc.add(piv); w.userData.i = i; wheels.push({ piv, w, cur: 0 }); }
+    const ring = new THREE.Mesh(new THREE.BoxGeometry(wW * .9, .25, .005), new THREE.MeshBasicMaterial({ color: 0xffd060, transparent: true, opacity: .35 })); ring.position.z = .29; sc.add(ring);
+    const rc = new THREE.Raycaster(), mv = new THREE.Vector2();
+    r.domElement.addEventListener('mousedown', e => { const b = r.domElement.getBoundingClientRect(); mv.set((e.clientX - b.left) / b.width * 2 - 1, -((e.clientY - b.top) / b.height) * 2 + 1); rc.setFromCamera(mv, cam); const h = rc.intersectObjects(wheels.map(o => o.w))[0]; if (!h) return; const i = h.object.userData.i; sel = i; turn(i, h.point.y > -.05 ? 1 : -1); });
+    r.domElement.addEventListener('wheel', e => { e.preventDefault(); turn(sel, e.deltaY < 0 ? 1 : -1); }, { passive: false });
+    let open3 = 0, shake = 0; const lp = () => { if (!MG.active) { r.dispose(); return; } wheels.forEach((o, i) => { const tgt = val[i] / 10 * Math.PI * 2; o.cur += (tgt - o.cur) * .25; o.piv.rotation.x = o.cur; });
+      ring.position.x = wheels[sel].piv.position.x; if (open3 > 0) { open3 = Math.min(1, open3 + .05); shackle.position.y = .2 + open3 * .12; } shake = Math.max(0, shake - .05); body.position.x = Math.sin(performance.now() / 20) * .01 * shake;
+      r.render(sc, cam); requestAnimationFrame(lp); }; requestAnimationFrame(lp);
+    return { opened: () => { open3 = .01; }, fail: () => { shake = 1; } }; })();
+  const check0 = check; btn.onclick = () => { if (val.join('') === code && D3) { D3.opened(); sfx.tumbler(); setTimeout(() => close(true), 700); return; } if (D3 && val.join('') !== code) D3.fail(); check0(); };
   keys(e => {
     if (e.type !== 'keydown') return;
     if (e.code === 'ArrowLeft' || e.code === 'KeyA') { sel = (sel + n - 1) % n; render(); }
@@ -285,7 +304,7 @@ function dial({ code, title = '다이얼 자물쇠', hint = '', onFail }) {
     if (e.code === 'ArrowUp' || e.code === 'KeyW') turn(sel, 1);
     if (e.code === 'ArrowDown' || e.code === 'KeyS') turn(sel, -1);
     if (/^(Digit|Numpad)\d$/.test(e.code)) { val[sel] = +e.code.slice(-1); sfx.dial(); sel = Math.min(n - 1, sel + 1); render(); }
-    if (e.code === 'Enter') check();
+    if (e.code === 'Enter') btn.onclick();
   });
   render();
   return p;

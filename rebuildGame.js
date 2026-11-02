@@ -2,11 +2,11 @@
 //   항상 켜진다 (예전 건물 모드는 폐지).
 //   예전 본관(1~3층 · 옥상) · 별관(8~10층) 건물은 감추고, 그 자리 땅(0층)에서 새 건물을 걷는다.
 //   높이는 P.sh(계단 높이 보정값)로 넘긴다 → 카메라 · 점프 · 가구 오르기 코드는 손대지 않아도 된다.
-import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=306';
-import { placeModels } from './rebuild/models.js?v=306';
-import { carve, subdivide } from './rebuild/transplant.js?v=306';
+import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=307';
+import { placeModels } from './rebuild/models.js?v=307';
+import { carve, subdivide } from './rebuild/transplant.js?v=307';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { turfMaterial } from './campusVisuals.js?v=306';
+import { turfMaterial } from './campusVisuals.js?v=307';
 
 // 예전 건물이 차지하던 땅 (이 안의 예전 메시 · 충돌 상자를 걷어 낸다)
 const OLD_MAIN = { x1: -51, x2: 51, z1: -10.6, z2: 10.9 };
@@ -875,9 +875,28 @@ export function installRebuild({ THREE, scene, floors, world }) {
       for (const p of W.props) { if (p.kind !== 'tape' || p.floor !== 0 || p._seat) continue; const os = objsOf(p); if (!os.length) continue; p._seat = true;
         const mine = new Set(); os.forEach(o => o.traverse(c => mine.add(c))); const bb = new THREE.Box3(); os.forEach(o => { T.setFromObject(o); if (!T.isEmpty()) bb.union(T); }); if (bb.isEmpty()) continue;
         const c = bb.getCenter(V), base = p.rbY ?? 0; O.set(c.x, base + 1.4, c.z); rc.set(O, dn); rc.far = 1.45;
-        const hit = rc.intersectObjects(scene.children, true).find(h => h.object.isMesh && !mine.has(h.object) && h.object.visible && !h.object.material?.transparent && h.point.y > base - .05 && h.point.y < base + 1.35);
+        const hit = rc.intersectObjects(scene.children, true).find(h => h.object.isMesh && !mine.has(h.object) && h.object.visible && !h.object.material?.transparent && h.point.y > base - .05 && h.point.y < base + 1.35 && (h.point.y < base + .95 || Math.abs((R._sup(c.x, c.z, h.point.y + .05) ?? -9) - h.point.y) < .08));   // 높은 곳은 실제 받침(충돌체)이 있을 때만 — 허공의 장식 메시 위로 뜨지 않게
         let ty = hit ? hit.point.y + .004 : bb.min.y; if (ty - base > .68 && ty - base < .8 && /학년 \d+반/.test(R.where(c.x, c.z, base + .5) || '')) ty = Math.max(ty, base + .806);   // 학생 책상(모델 윗면 ≈ .80) 위 — 충돌 상자 윗면(.76)에 놓으면 상판 속에 묻혀 안 보였다
         const dy = ty - bb.min.y; if (Math.abs(dy) < .005) continue; for (const o of os) { if (o.parent !== group) group.attach(o); o.position.y += dy; } up++; } }
+    // 뜬 아이템(열쇠 · 쪽지 등) 내려놓기: 바로 아래 실제 그려진 면 위로 (6cm 넘게 떠 있을 때만)
+    { const rc = new THREE.Raycaster(), dn = new THREE.Vector3(0, -1, 0); rc.camera = new THREE.PerspectiveCamera();
+      for (const it of W.items) { if (it.taken || it.floor !== 0 || it.rbY == null || !it.mesh || it._drp) continue; it._drp = true; const bb = new THREE.Box3().setFromObject(it.mesh); if (bb.isEmpty()) continue;
+        const mine = new Set(); it.mesh.traverse(c => mine.add(c)); const c = bb.getCenter(new THREE.Vector3()); rc.set(new THREE.Vector3(c.x, bb.min.y + .01, c.z), dn); rc.far = 1.4;
+        const hit = rc.intersectObjects(scene.children, true).find(h => h.object.isMesh && !mine.has(h.object) && h.object.visible && !h.object.material?.transparent && h.point.y > it.rbY - .05); if (!hit) continue;
+        const dy = hit.point.y + .004 - bb.min.y; if (dy > -.06) continue; if (it.mesh.parent !== group) group.attach(it.mesh); it.mesh.position.y += dy; it.pos.y += dy; if (it.baseY != null) it.baseY += dy; up++; } }
+    // 같은 자리에 겹쳐 놓인 아이템(쪽지 위 캔 등) → 뒤의 것을 옆으로 25cm 비킨다
+    for (let i = 0; i < W.items.length; i++) { const a = W.items[i]; if (a.taken || !a.mesh || a.rbY == null) continue;
+      for (let j = i + 1; j < W.items.length; j++) { const b = W.items[j]; if (b.taken || !b.mesh || b._sep2 || b.rbY == null || Math.abs(a.rbY - b.rbY) > .5 || Math.hypot(a.pos.x - b.pos.x, a.pos.z - b.pos.z) > .12) continue;
+        b._sep2 = true; if (b.mesh.parent !== group) group.attach(b.mesh); b.mesh.position.x += .25; b.pos.x += .25; up++; } }
+    // 작은 퀘스트 소품끼리 · 아이템과 겹친 것 (교장 책상 서랍 × 금고, 쪽지 × 명찰 등) → 소품을 한 번만 옆으로 비킨다
+    { const SM = new Set(['case5', 'sq', 'fz', 'tape', 'clue', 'pick', 'phone']), bx = os => { const bb = new THREE.Box3(); os.forEach(o => { T.setFromObject(o); if (!T.isEmpty()) bb.union(T); }); return bb; };
+      const E = []; for (const it of W.items) if (!it.taken && it.mesh && it.rbY != null) E.push({ os: [it.mesh], fixed: true });
+      for (const p of W.props) { if (!SM.has(p.kind) || p._drop || p.rbY == null) continue; const os = objsOf(p); if (os.length) E.push({ os, p }); }
+      for (const e of E) e.bb = bx(e.os).expandByScalar(.02);
+      for (const b of E) { if (!b.p || b.p._sep3 || b.bb.isEmpty() || b.bb.getSize(V).length() > 1.2) continue;
+        const a = E.find(a => a !== b && !a.bb.isEmpty() && a.bb.getSize(V).length() < 1.6 && a.bb.intersectsBox(b.bb)); if (!a) continue; b.p._sep3 = true;
+        const w = (a.bb.max.x - a.bb.min.x + b.bb.max.x - b.bb.min.x) / 2 + .03, ca = a.bb.getCenter(new THREE.Vector3()), cb = b.bb.getCenter(new THREE.Vector3()), dx = (cb.x >= ca.x ? 1 : -1) * w - (cb.x - ca.x);
+        for (const o of b.os) { if (o.parent !== group) group.attach(o); o.position.x += dx; } b.p.x += dx; b.bb.translate(new THREE.Vector3(dx, 0, 0)); up++; } }
     return { re, up };
   };
   return R;

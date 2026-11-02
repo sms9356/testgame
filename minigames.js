@@ -384,7 +384,7 @@ function piano({ melody, sheet, onFail }) {
   const disp = document.createElement('div'); disp.className = 'pianoDisp'; $('mgBody').appendChild(disp);
   let idx = 0, played = [];
   kb.innerHTML = NOTES.map(([n], i) => `<button data-i="${i}"><small>${i + 1}</small>${n}</button>`).join('');
-  const press = i => {
+  let press = i => {
     const b = kb.children[i]; b.classList.add('down'); setTimeout(() => b.classList.remove('down'), 160);
     sfx.note(NOTES[i][1]); played.push(NOTES[i][0]);
     if (i === melody[idx]) { idx++; if (idx === melody.length) { setTimeout(() => close(true), 400); } }
@@ -394,6 +394,24 @@ function piano({ melody, sheet, onFail }) {
   kb.querySelectorAll('button').forEach(b => { b.onclick = () => press(+b.dataset.i); });
   keys(e => { if (e.type === 'keydown' && /^(Digit|Numpad)[1-8]$/.test(e.code)) press(+e.code.slice(-1) - 1); });
   disp.textContent = '…';
+  // 3D 업라이트 피아노: 검은 래커 본체 · 흰 건반 8 (누르면 내려간다) · 장식 검은 건반 · 보면대 악보 · 촛불 — 건반 클릭 또는 숫자 키
+  (() => { let r; try { r = new THREE.WebGLRenderer({ antialias: true }); } catch (e) { return; }
+    r.setPixelRatio(Math.min(2, devicePixelRatio || 1)); r.setSize(460, 280); r.outputColorSpace = THREE.SRGBColorSpace; r.toneMapping = THREE.ACESFilmicToneMapping; r.domElement.className = 'mgCanvas'; r.domElement.dataset.own3d = '1'; $('mgBody').insertBefore(r.domElement, kb); kb.style.display = 'none';
+    const sc = new THREE.Scene(); sc.background = new THREE.Color(0x0b0908); const cam = new THREE.PerspectiveCamera(34, 460 / 280, .05, 20); cam.position.set(0, 1.05, 1.25); cam.lookAt(0, .82, 0);
+    sc.add(new THREE.HemisphereLight(0xffe8cc, 0x100c08, .45)); const cl = new THREE.PointLight(0xffb060, 3.5, 4); cl.position.set(-.55, 1.25, .1); sc.add(cl); const key = new THREE.SpotLight(0xfff0dc, 10, 5, .6, .5, 1.5); key.position.set(.4, 2, 1.2); sc.add(key, key.target);
+    const lac = new THREE.MeshStandardMaterial({ color: 0x0c0a0a, roughness: .18, metalness: .2 }), ivory = new THREE.MeshStandardMaterial({ color: 0xf0ead8, roughness: .35 }), ebony = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: .3 });
+    const add = (g, m, x, y, z) => { const o = new THREE.Mesh(g, m); o.position.set(x, y, z); sc.add(o); return o; };
+    add(new THREE.BoxGeometry(1.4, 1.2, .25), lac, 0, 1.1, -.25); add(new THREE.BoxGeometry(1.4, .06, .4), lac, 0, .72, -.05); add(new THREE.BoxGeometry(1.42, .04, .08), lac, 0, .86, -.21);
+    const KW = .085, keysM = NOTES.map((_, i) => { const k = add(new THREE.BoxGeometry(KW - .005, .03, .28), ivory.clone(), (i - (NOTES.length - 1) / 2) * KW, .77, .03); k.userData.i = i; return k; });
+    [0, 1, 3, 4, 5].forEach(i => { if (i + 1 < NOTES.length) add(new THREE.BoxGeometry(KW * .55, .035, .17), ebony, (i + .5 - (NOTES.length - 1) / 2) * KW, .8, -.03); });
+    const sh = document.createElement('canvas'); sh.width = 256; sh.height = 160; const g2 = sh.getContext('2d'); g2.fillStyle = '#e8dcc0'; g2.fillRect(0, 0, 256, 160); g2.strokeStyle = '#444'; for (let l = 0; l < 2; l++) for (let k = 0; k < 5; k++) { g2.beginPath(); g2.moveTo(10, 40 + l * 60 + k * 7); g2.lineTo(246, 40 + l * 60 + k * 7); g2.stroke(); }
+    g2.fillStyle = '#222'; g2.font = 'bold 15px sans-serif'; g2.textAlign = 'center'; g2.fillText((sheet || '…').replace(/<[^>]+>/g, '').slice(0, 30), 128, 22); const st = new THREE.CanvasTexture(sh); st.colorSpace = THREE.SRGBColorSpace;
+    const stand = add(new THREE.PlaneGeometry(.42, .26), new THREE.MeshStandardMaterial({ map: st, roughness: .8 }), 0, 1.02, -.12); stand.rotation.x = -.25;
+    add(new THREE.CylinderGeometry(.02, .02, .14, 12), new THREE.MeshStandardMaterial({ color: 0xf0e8d0 }), -.55, 1.16, -.06); const flame = add(new THREE.SphereGeometry(.012, 8, 6), new THREE.MeshBasicMaterial({ color: 0xffc060 }), -.55, 1.25, -.06);
+    const down = new Array(NOTES.length).fill(0), rc = new THREE.Raycaster(), mv = new THREE.Vector2();
+    r.domElement.addEventListener('mousedown', e => { const b = r.domElement.getBoundingClientRect(); mv.set((e.clientX - b.left) / b.width * 2 - 1, -((e.clientY - b.top) / b.height) * 2 + 1); rc.setFromCamera(mv, cam); const h = rc.intersectObjects(keysM)[0]; if (h) press(h.object.userData.i); });
+    const press0 = press; press = i => { down[i] = 1; keysM[i].material.color.setHex(0xffe6a0); setTimeout(() => keysM[i].material.color.setHex(0xf0ead8), 180); press0(i); };
+    const lp = () => { if (!MG.active) { r.dispose(); return; } keysM.forEach((k, i) => { down[i] = Math.max(0, down[i] - .12); k.position.y = .77 - down[i] * .012; k.rotation.x = down[i] * .06; }); cl.intensity = 3.2 + Math.sin(performance.now() / 90) * .4 + Math.random() * .3; flame.scale.y = 1 + Math.random() * .3; r.render(sc, cam); requestAnimationFrame(lp); }; requestAnimationFrame(lp); })();
   return p;
 }
 

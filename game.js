@@ -7230,15 +7230,15 @@ const SIT = { chair: null, back: null };
 // 지하 B1 새 마감: 옛 본관 지하의 나무 판넬 · 회반죽 벽 · 타일 바닥을 새 건물 설비층 재질로 바꾼다
 //   벽 = 회색 도장 블록 + 아래 진녹색 띠 느낌(약간 어두운 회녹), 바닥 = 에폭시 콘크리트(회녹 광택), 천장 = 노출 콘크리트. 문 · 장비 · 소품(작은 메시)은 그대로
 function refinishB1() {
-  const F = floors[4]; if (!F || F._refin) return; F._refin = true; const bb = new THREE.Box3(), sz = new THREE.Vector3(), y0 = F.y0 || 0;
-  const mk = (c, r, m = 0) => new THREE.MeshStandardMaterial({ color: c, roughness: r, metalness: m });
-  const WALL = mk(0x9a9e98, .88), WALLLOW = mk(0x4a5a50, .8), FLOOR = mk(0x6a7468, .42, .05), CEIL = mk(0x8a8a86, .95); let n = 0;
-  [F.interior, F.shell].forEach(root => root && root.traverse(o => { if (!o.isMesh || o.isInstancedMesh || o.isSkinnedMesh || !o.geometry) return; const m0 = [].concat(o.material)[0]; if (!m0 || m0.transparent || (m0.emissive && m0.emissiveIntensity > .3 && m0.emissive.getHex())) return;
-    bb.setFromObject(o); if (bb.isEmpty()) return; bb.getSize(sz); const lo = bb.min.y - y0, hi = bb.max.y - y0;
-    let m = null; if (sz.y < .3 && Math.max(sz.x, sz.z) > 2.5 && hi < .25) m = FLOOR; else if (sz.y < .4 && Math.max(sz.x, sz.z) > 2.5 && lo > 2.2) m = CEIL;
-    else if (sz.y > 1.0 && Math.min(sz.x, sz.z) < .45 && Math.max(sz.x, sz.z) > 1.2) m = hi < 1.3 ? WALLLOW : WALL;
-    if (!m) return; o.material = Array.isArray(o.material) ? o.material.map(() => m) : m; n++; }));
-  console.info('[B1 마감]', n);
+  const F = floors[4]; if (!F) return; const bb = new THREE.Box3(), c = new THREE.Vector3(), sz = new THREE.Vector3(), y0 = F.y0 || 0, swap = new Map(); let n = 0;
+  const mk = (col, r, m = 0) => new THREE.MeshStandardMaterial({ color: col, roughness: r, metalness: m });
+  const WALL = mk(0xa4a8a2, .86), WALLD = mk(0x56645a, .8), FLOOR = mk(0x5e6a60, .38, .05), hsl = {};
+  const pickFor = m => { if (swap.has(m)) return swap.get(m); let r = null; const col = m.color || new THREE.Color(1, 1, 1); col.getHSL(hsl);
+    if (m.transparent || (m.emissive && m.emissiveIntensity > .3 && m.emissive.getHex())) r = null; else if (hsl.l < .28) r = FLOOR; else if (hsl.h > .05 && hsl.h < .14 && hsl.s > .2) r = WALLD; else r = WALL; swap.set(m, r); return r; };
+  scene.traverse(o => { if (!o.isMesh || o.isSkinnedMesh || o.isInstancedMesh || !o.geometry || o.userData.b1fin) return; bb.setFromObject(o); if (bb.isEmpty()) return; bb.getCenter(c); bb.getSize(sz);
+    if (c.y < y0 - .5 || c.y > y0 + 4.2 || Math.abs(c.x) > 38 || c.z < -36 || c.z > 12 || Math.max(sz.x, sz.z) < 3 || sz.y > 4.5) return;
+    const mats = [].concat(o.material), nm = mats.map(m => pickFor(m) || m); if (nm.every((m, i) => m === mats[i])) return; o.material = Array.isArray(o.material) ? nm : nm[0]; o.userData.b1fin = true; n++; });
+  console.info('[B1 마감]', n, 'y0', y0); return n;
 }
 function nurseChairFix() { if (!RBG || !RBG.nurseChairs) return; const nc = RBG.nurseChairs(); if (!nc.length) return; const chairs = world.props.filter(q => q.fz && q.fz.type === 'classroom_chair' && /보건실/.test((q.label || '') + (q.fz.label || '')));   // 옛 보건실 의자 앉기 지점: 하나는 새 보건실 책상 의자로, 나머지는 걷어 낸다 (침대 위에 떠 있던 것)
       chairs.forEach((q, i) => { const s = nc[i]; if (s) { q.x = s.x; q.z = s.z; q.rbY = s.y; q.floor = 0; q.label = '보건실 책상 의자에 앉기'; q._nurse = true; if (q.fz) q.fz.promptText = '[E] 보건실 책상 의자에 앉기'; } else { const k = world.props.indexOf(q); if (k >= 0) world.props.splice(k, 1); } });  }

@@ -4,12 +4,12 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { buildGuardAnnex, buildDutyRoom, ANNEX as GANX } from './guardAnnex.js?v=328';
-import { NOTES } from './story.js?v=328';
+import { buildGuardAnnex, buildDutyRoom, ANNEX as GANX } from './guardAnnex.js?v=329';
+import { NOTES } from './story.js?v=329';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=328';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=329';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -2083,7 +2083,7 @@ export function buildWorld(scene) {
       }
       // 위/아래층 계단실 서쪽 벽 표지판 · 소화기 · 형광등 등기구도 동일하게 배치하여 층 전환 순간 팝인(Pop-in) 완전 제거!
       if (tf === 0 || tf === 4) {
-        plane(cur.interior, new THREE.MeshBasicMaterial({ map: T.makeSign(tf === 0 ? '↓ B1 지하층' : 'B1 지하층  ↑ 1층', '#1a1a1a', '#e8d070', 26), color: 0xb0a890 }), 1.2, .3, cx - 3.83, dy + 2.3, -4.2, Math.PI / 2);
+        plane(cur.interior, new THREE.MeshBasicMaterial({ map: T.makeSign(tf === 0 ? '↓ B1 지하층' : 'B1 지하 설비층  ↑ 본관 1층', '#1a1a1a', '#e8d070', 26), color: 0xb0a890 }), 1.2, .3, cx - 3.83, dy + 2.3, -4.2, Math.PI / 2);
       }
       {
         const sgTxt = tf === 4 ? '▲ 1층 올라가는 계단' : (tf === 10 ? '▼ 아래층 내려가는 계단' : '▲ 위층   ▼ 아래층');
@@ -2139,7 +2139,7 @@ export function buildWorld(scene) {
     if (cur.stairCx == null) cur.stairCx = cx;
     col(cx - 2.56, cx - 2.44, -7.7, z0 + .1); col(cx - 1.25, cx - 1.15, -9.6, z0 + .1);
     elevator(cx);
-    if (cur.f === 0 || cur.f === 4) plane(cur.interior, new THREE.MeshBasicMaterial({ map: T.makeSign(cur.f === 0 ? '↓ B1 지하층' : 'B1 지하층  ↑ 1층', '#1a1a1a', '#e8d070', 26), color: 0xb0a890 }), 1.2, .3, cx - 3.83, 2.3, -4.2, Math.PI / 2);
+    if (cur.f === 0 || cur.f === 4) plane(cur.interior, new THREE.MeshBasicMaterial({ map: T.makeSign(cur.f === 0 ? '↓ B1 지하층' : 'B1 지하 설비층  ↑ 본관 1층', '#1a1a1a', '#e8d070', 26), color: 0xb0a890 }), 1.2, .3, cx - 3.83, 2.3, -4.2, Math.PI / 2);
     if (cur.f <= 2 && !cur.annex && !cur.basement) {
       add(mWoodDark, .12, 2.45, .28, cx + .05, 0, -9.75); add(mWoodDark, .12, 2.45, .28, cx + 1.55, 0, -9.75); add(mWoodDark, 1.62, .12, .28, cx + .8, 2.45, -9.75);
       flat(cur.interior, mFloorTile, cx + .05, cx + 1.55, -10.2, -9.5, .012);

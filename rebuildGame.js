@@ -2,11 +2,11 @@
 //   항상 켜진다 (예전 건물 모드는 폐지).
 //   예전 본관(1~3층 · 옥상) · 별관(8~10층) 건물은 감추고, 그 자리 땅(0층)에서 새 건물을 걷는다.
 //   높이는 P.sh(계단 높이 보정값)로 넘긴다 → 카메라 · 점프 · 가구 오르기 코드는 손대지 않아도 된다.
-import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=322';
-import { placeModels } from './rebuild/models.js?v=322';
-import { carve, subdivide } from './rebuild/transplant.js?v=322';
+import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=323';
+import { placeModels } from './rebuild/models.js?v=323';
+import { carve, subdivide } from './rebuild/transplant.js?v=323';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { turfMaterial } from './campusVisuals.js?v=322';
+import { turfMaterial } from './campusVisuals.js?v=323';
 
 // 예전 건물이 차지하던 땅 (이 안의 예전 메시 · 충돌 상자를 걷어 낸다)
 const OLD_MAIN = { x1: -51, x2: 51, z1: -10.6, z2: 10.9 };
@@ -872,6 +872,15 @@ export function installRebuild({ THREE, scene, floors, world }) {
       const base = p.rbY ?? 0, h = bb.min.y - base; if (h > .68 && h < .8 && /학년 \d+반/.test(R.where(p.x, p.z, base + .5) || '')) { const dy = base + .806 - bb.min.y; for (const o of os) { if (o.parent !== group) group.attach(o); o.position.y += dy; } } }
     // 녹음기 최종 안착: 충돌 상자가 아니라 실제로 그려지는 책상 · 탁자 메시 윗면에 레이캐스트로 올린다 (책상 모델 윗면이 충돌 상자보다 높아 녹음기가 상판 속에 묻혀 안 보이던 것)
     { const rc = new THREE.Raycaster(), dn = new THREE.Vector3(0, -1, 0), O = new THREE.Vector3(); rc.camera = new THREE.PerspectiveCamera();   // 스프라이트도 레이에 걸리면 카메라가 필요하다 (없으면 로딩이 멈췄다)
+      // 의자 좌석(바닥 위 0.3~0.68m)에 얹힌 교실 녹음기 → 2m 안 가장 가까운 책상 윗면 가운데로
+      for (const p of W.props) { if (p.kind !== 'tape' || p.floor !== 0 || p._desk || p.rbY == null) continue; const os = objsOf(p); if (!os.length) continue;
+        const bb = new THREE.Box3(); os.forEach(o => { T.setFromObject(o); if (!T.isEmpty()) bb.union(T); }); if (bb.isEmpty()) continue; const h = bb.min.y - p.rbY; if (h < .3 || h > .68 || !/학년 \d+반/.test(R.where(p.x, p.z, p.rbY + .5) || '')) continue;
+        // 책상은 충돌 상자가 없어 레이로 찾는다: 둘레 1.4m 격자에서 위에서 쏴 바닥 위 0.70~0.86m 에 맞는 그려진 면(책상 상판) 중 가장 가까운 곳
+        let best = null, bd = 9; { const rc2 = new THREE.Raycaster(); rc2.camera = new THREE.PerspectiveCamera(); const mine = new Set(); os.forEach(o => o.traverse(c => mine.add(c))); const dn2 = new THREE.Vector3(0, -1, 0);
+          for (let ox = -1.4; ox <= 1.41; ox += .2) for (let oz = -1.4; oz <= 1.41; oz += .2) { const d = Math.hypot(ox, oz); if (d > 1.4 || d >= bd) continue; rc2.set(new THREE.Vector3(p.x + ox, p.rbY + 1.3, p.z + oz), dn2); rc2.far = 1.0;
+            const hit = rc2.intersectObjects(scene.children, true).find(h => h.object.isMesh && h.object.visible && !mine.has(h.object) && !h.object.material?.transparent);
+            if (hit && hit.point.y - p.rbY > .7 && hit.point.y - p.rbY < .86 && (!hit.face || hit.face.normal.y > .5 || true)) { bd = d; best = { x: p.x + ox, z: p.z + oz }; } } }
+        p._desk = true; if (!best) continue; const c0 = bb.getCenter(V), dx = best.x - c0.x, dz = best.z - c0.z; for (const o of os) { if (o.parent !== group) group.attach(o); o.position.x += dx; o.position.z += dz; } p.x += dx; p.z += dz; p._seat = false; up++; }
       for (const p of W.props) { if (p.kind !== 'tape' || p.floor !== 0 || p._seat) continue; const os = objsOf(p); if (!os.length) continue; p._seat = true;
         const mine = new Set(); os.forEach(o => o.traverse(c => mine.add(c))); const bb = new THREE.Box3(); os.forEach(o => { T.setFromObject(o); if (!T.isEmpty()) bb.union(T); }); if (bb.isEmpty()) continue;
         const c = bb.getCenter(V), base = p.rbY ?? 0; O.set(c.x, base + 1.4, c.z); rc.set(O, dn); rc.far = 1.45;

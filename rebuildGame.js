@@ -2,12 +2,12 @@
 //   항상 켜진다 (예전 건물 모드는 폐지).
 //   예전 본관(1~3층 · 옥상) · 별관(8~10층) 건물은 감추고, 그 자리 땅(0층)에서 새 건물을 걷는다.
 //   높이는 P.sh(계단 높이 보정값)로 넘긴다 → 카메라 · 점프 · 가구 오르기 코드는 손대지 않아도 된다.
-import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=332';
-import { placeModels } from './rebuild/models.js?v=332';
-import { carve, subdivide } from './rebuild/transplant.js?v=332';
+import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=333';
+import { placeModels } from './rebuild/models.js?v=333';
+import { carve, subdivide } from './rebuild/transplant.js?v=333';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { turfMaterial } from './campusVisuals.js?v=332';
-import { ENGINE } from './engine.js?v=332';
+import { turfMaterial } from './campusVisuals.js?v=333';
+import { ENGINE } from './engine.js?v=333';
 
 // 예전 건물이 차지하던 땅 (이 안의 예전 메시 · 충돌 상자를 걷어 낸다)
 const OLD_MAIN = { x1: -51, x2: 51, z1: -10.6, z2: 10.9 };
@@ -776,6 +776,8 @@ export function installRebuild({ THREE, scene, floors, world }) {
   };
   // 새 건물로 옮긴 퀘스트 물건 · 쪽지 · 녹음기 모형 바로잡기: ① 숨긴 옛 층에 매달려 안 보이던 모형을 새 건물 쪽으로 옮겨 달고
   //   ② 바닥 아래(한 층 밑 · 땅속)에 묻힌 모형은 그 자리 받침면(책상 · 선반 · 바닥) 위로 올린다
+  // 창밖 풍경용 가짜 창(windowFakes) 등은 받침 면이 아니다 — 녹음기 · 아이템을 올려놓지 않는다
+  const fakeObj = o => { for (let a = o; a; a = a.parent) if (/windowFakes|skyline|backdrop/i.test(a.name || '')) return true; return false; };
   R.fixVisible = world => {
     const W = world, T = new THREE.Box3(), V = new THREE.Vector3(); let re = 0, up = 0;
     const shown = o => { for (let a = o; a; a = a.parent) { if (!a.visible) return false; if (a.isScene) return true; } return false; };
@@ -890,14 +892,14 @@ export function installRebuild({ THREE, scene, floors, world }) {
       for (const p of W.props) { if (p.kind !== 'tape' || p.floor !== 0 || p._seat) continue; const os = objsOf(p); if (!os.length) continue; p._seat = true;
         const mine = new Set(); os.forEach(o => o.traverse(c => mine.add(c))); const bb = new THREE.Box3(); os.forEach(o => { T.setFromObject(o); if (!T.isEmpty()) bb.union(T); }); if (bb.isEmpty()) continue;
         const c = bb.getCenter(V), base = p.rbY ?? 0; O.set(c.x, base + 1.4, c.z); rc.set(O, dn); rc.far = 1.45;
-        const hit = rc.intersectObjects(scene.children, true).find(h => h.object.isMesh && !mine.has(h.object) && h.object.visible && !h.object.material?.transparent && h.point.y > base - .05 && h.point.y < base + 1.35 && (h.point.y < base + .95 || Math.abs((R._sup(c.x, c.z, h.point.y + .05) ?? -9) - h.point.y) < .08));   // 높은 곳은 실제 받침(충돌체)이 있을 때만 — 허공의 장식 메시 위로 뜨지 않게
+        const hit = rc.intersectObjects(scene.children, true).find(h => h.object.isMesh && !fakeObj(h.object) && !mine.has(h.object) && h.object.visible && !h.object.material?.transparent && h.point.y > base - .05 && h.point.y < base + 1.35 && (h.point.y < base + .95 || Math.abs((R._sup(c.x, c.z, h.point.y + .05) ?? -9) - h.point.y) < .08));   // 높은 곳은 실제 받침(충돌체)이 있을 때만 — 허공의 장식 메시 위로 뜨지 않게
         let ty = hit ? hit.point.y + .004 : bb.min.y; if (ty - base > .68 && ty - base < .8 && /학년 \d+반/.test(R.where(c.x, c.z, base + .5) || '')) ty = Math.max(ty, base + .806);   // 학생 책상(모델 윗면 ≈ .80) 위 — 충돌 상자 윗면(.76)에 놓으면 상판 속에 묻혀 안 보였다
         const dy = ty - bb.min.y; if (Math.abs(dy) < .005) continue; for (const o of os) { if (o.parent !== group) group.attach(o); o.position.y += dy; } up++; } }
     // 뜬 아이템(열쇠 · 쪽지 등) 내려놓기: 바로 아래 실제 그려진 면 위로 (6cm 넘게 떠 있을 때만)
     { const rc = new THREE.Raycaster(), dn = new THREE.Vector3(0, -1, 0); rc.camera = new THREE.PerspectiveCamera();
       for (const it of W.items) { if (it.taken || it.floor !== 0 || it.rbY == null || !it.mesh || it._drp) continue; it._drp = true; const bb = new THREE.Box3().setFromObject(it.mesh); if (bb.isEmpty()) continue;
         const mine = new Set(); it.mesh.traverse(c => mine.add(c)); const c = bb.getCenter(new THREE.Vector3()); rc.set(new THREE.Vector3(c.x, bb.min.y + .01, c.z), dn); rc.far = 1.4;
-        const hit = rc.intersectObjects(scene.children, true).find(h => h.object.isMesh && !mine.has(h.object) && h.object.visible && !h.object.material?.transparent && h.point.y > it.rbY - .05); if (!hit) continue;
+        const hit = rc.intersectObjects(scene.children, true).find(h => h.object.isMesh && !fakeObj(h.object) && !mine.has(h.object) && h.object.visible && !h.object.material?.transparent && h.point.y > it.rbY - .05); if (!hit) continue;
         const dy = hit.point.y + .004 - bb.min.y; if (dy > -.06) continue; if (it.mesh.parent !== group) group.attach(it.mesh); it.mesh.position.y += dy; it.pos.y += dy; if (it.baseY != null) it.baseY += dy; up++; } }
     // 바닥에 떨어진 옛 스위치 LED · 터미널 화면 잔재(초록 불빛) 숨기기: 초록 발광 소품이 그 층 바닥 60cm 안에 있으면 그 묶음째 감춘다
     if ((W._grn = (W._grn || 0) + 1) <= 8) { const P = new THREE.Vector3(); group.traverse(o => { if (!o.isMesh || !o.visible || !o.material || !o.material.isMeshBasicMaterial) return; const h = o.material.color.getHex(); if (h !== 0x40ff80 && h !== 0x38c070 && h !== 0x1c3326) return;

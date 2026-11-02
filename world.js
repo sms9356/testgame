@@ -1908,6 +1908,7 @@ export function buildWorld(scene) {
   const EL_LABEL = { 4: 'B1', 0: '1F', 1: '2F', 2: '3F', 8: '1F', 9: '2F', 10: '3F' };
   function elevator(cx) {
     const bay=elevatorBay(cx),x=bay.doorX,z=bay.doorZ;cur.elevatorBay=bay;
+    if (cur.basement) { wallSeg(bay.front, bay.front + .2, bay.z1, bay.z2, 0, FH); return; }   // 지하 B1: 승강기 없음 (예전 본관 승강로 자리) — 막힌 벽
     // A continuous full-height wall reserves a shaft, rather than a freestanding cabin in the landing.
     wallSeg(bay.front,bay.front+.2,bay.z1,z-bay.halfOpening,0,FH);
     wallSeg(bay.front,bay.front+.2,z+bay.halfOpening,bay.z2,0,FH);

@@ -363,12 +363,30 @@ function circuit({ title = '배선 퍼즐', hint = '' } = {}) {
       g.fillStyle = g.strokeStyle; g.beginPath(); g.arc(cx, cy, 7, 0, 7); g.fill();
     }
   };
-  const click = (e, dir) => {
-    if (won) return; const rc = c.getBoundingClientRect(), x = ((e.clientX - rc.left) * c.width / rc.width - 40) / S | 0, y = ((e.clientY - rc.top) * c.height / rc.height - 10) / S | 0;
-    if (x < 0 || x >= C || y < 0 || y >= R) return;
-    grid[y][x] = dir > 0 ? rot(grid[y][x]) : rot(rot(rot(grid[y][x]))); sfx.dial(); draw();
-    if (won) { sfx.fuse(); close(true); }
-  };
+  const turnTile = (y, x, dir) => { if (won || x < 0 || x >= C || y < 0 || y >= R) return; grid[y][x] = dir > 0 ? rot(grid[y][x]) : rot(rot(rot(grid[y][x]))); sfx.dial(); draw(); W3 && W3.spin(y, x, dir); if (won) { sfx.fuse(); setTimeout(() => close(true), 600); } };
+  const click = (e, dir) => { const rc = c.getBoundingClientRect(); turnTile(((e.clientY - rc.top) * c.height / rc.height - 10) / S | 0, ((e.clientX - rc.left) * c.width / rc.width - 40) / S | 0, dir); };
+  // 3D 배선반: 베이클라이트 판 위 회전 타일(구리 전선 · 단자) — 전기가 흐르면 노랗게, 차단기까지 이어지면 초록으로 · 왼쪽 전원 단자함 · 오른쪽 차단기
+  const W3 = (() => { let r; try { r = new THREE.WebGLRenderer({ antialias: true }); } catch (e) { return null; }
+    r.setPixelRatio(Math.min(2, devicePixelRatio || 1)); r.setSize(460, 300); r.outputColorSpace = THREE.SRGBColorSpace; r.toneMapping = THREE.ACESFilmicToneMapping; r.domElement.className = 'mgCanvas'; r.domElement.dataset.own3d = '1'; $('mgBody').insertBefore(r.domElement, c); c.style.display = 'none'; c.dataset.st = '1';
+    const sc = new THREE.Scene(); sc.background = new THREE.Color(0x0a0c0e); const cam = new THREE.PerspectiveCamera(34, 460 / 300, .05, 20); cam.position.set(0, -.9, 2.4); cam.lookAt(0, 0, 0);
+    sc.add(new THREE.HemisphereLight(0xdde6ff, 0x101010, .5)); const L = new THREE.SpotLight(0xfff0dc, 14, 6, .7, .5, 1.4); L.position.set(.6, .8, 1.8); sc.add(L, L.target);
+    const T = .3, bx0 = -(C - 1) * T / 2, by0 = (R - 1) * T / 2, board = new THREE.Mesh(new THREE.BoxGeometry(C * T + .7, R * T + .2, .05), new THREE.MeshStandardMaterial({ color: 0x2a1c14, roughness: .5 })); board.position.z = -.04; sc.add(board);
+    const src = new THREE.Mesh(new THREE.BoxGeometry(.16, .18, .1), new THREE.MeshStandardMaterial({ color: 0xd8a820, roughness: .4 })); src.position.set(bx0 - .3, by0 - r0 * T, .02); sc.add(src);
+    const brk = new THREE.Mesh(new THREE.BoxGeometry(.16, .2, .1), new THREE.MeshStandardMaterial({ color: 0x3a8ab8, roughness: .4, emissive: 0x000000 })); brk.position.set(bx0 + (C - 1) * T + .3, by0 - r1 * T, .02); sc.add(brk);
+    const tiles = []; const cu = c3 => new THREE.MeshStandardMaterial({ color: c3, metalness: .7, roughness: .35, emissive: 0x000000 });
+    const build = (y, x) => { const t = tiles[y * C + x]; while (t.arms.children.length) t.arms.remove(t.arms.children[0]); const m = grid[y][x];
+      [[1, 0, 1], [2, 1, 0], [4, 0, -1], [8, -1, 0]].forEach(([bit, dx, dy]) => { if (!(m & bit)) return; const arm = new THREE.Mesh(new THREE.BoxGeometry(dx ? T / 2 : .045, dy ? T / 2 : .045, .03), t.mat); arm.position.set(dx * T / 4, dy * T / 4, .03); t.arms.add(arm); });
+      const hub = new THREE.Mesh(new THREE.CylinderGeometry(.035, .035, .04, 14), t.mat); hub.rotation.x = Math.PI / 2; hub.position.z = .03; t.arms.add(hub); };
+    for (let y = 0; y < R; y++) for (let x = 0; x < C; x++) { const g3 = new THREE.Group(); g3.position.set(bx0 + x * T, by0 - y * T, 0); sc.add(g3);
+      const plate = new THREE.Mesh(new THREE.BoxGeometry(T * .92, T * .92, .03), new THREE.MeshStandardMaterial({ color: 0x3a3430, roughness: .6 })); plate.userData = { y, x }; g3.add(plate);
+      const arms = new THREE.Group(); g3.add(arms); tiles.push({ g3, plate, arms, mat: cu(0x8a6a48), spin: 0 }); build(y, x); }
+    const rc = new THREE.Raycaster(), mv = new THREE.Vector2();
+    const pick = (e, dir) => { const b = r.domElement.getBoundingClientRect(); mv.set((e.clientX - b.left) / b.width * 2 - 1, -((e.clientY - b.top) / b.height) * 2 + 1); rc.setFromCamera(mv, cam); const h = rc.intersectObjects(tiles.map(t => t.plate))[0]; if (h) turnTile(h.object.userData.y, h.object.userData.x, dir); };
+    r.domElement.addEventListener('mousedown', e => { if (e.button === 0) pick(e, 1); }); r.domElement.addEventListener('contextmenu', e => { e.preventDefault(); pick(e, -1); });
+    const lp = () => { if (!MG.active) { r.dispose(); return; } const on = powered(); for (let y = 0; y < R; y++) for (let x = 0; x < C; x++) { const t = tiles[y * C + x]; const hot = on[y][x];
+        t.mat.color.setHex(hot ? (won ? 0x60ffa0 : 0xffd060) : 0x8a6a48); t.mat.emissive.setHex(hot ? (won ? 0x20a050 : 0x805010) : 0); t.spin *= .8; t.arms.rotation.z = t.spin; }
+      brk.material.emissive.setHex(won ? 0x20a050 : 0); r.render(sc, cam); requestAnimationFrame(lp); }; requestAnimationFrame(lp);
+    return { spin: (y, x, dir) => { const t = tiles[y * C + x]; build(y, x); t.spin = dir * Math.PI / 2; } }; })();
   c.addEventListener('click', e => click(e, 1)); c.addEventListener('contextmenu', e => { e.preventDefault(); click(e, -1); });
   keys(() => {});
   draw();

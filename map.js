@@ -10,6 +10,7 @@ export function drawMap(ctx, W, H, o) {
   ctx.clearRect(0, 0, W, H);
   ctx.save();
   const fillRect = (x1, z1, x2, z2, c) => { ctx.fillStyle = c; ctx.fillRect(X(x1), Y(z1), (x2 - x1) * S, (z2 - z1) * S); };
+  const campusLabels = [], campusLab = (t, x, y) => { if (t) campusLabels.push([t, x, y]); };
   const strokeRect = (x1, z1, x2, z2, c, w = 1) => { ctx.strokeStyle = c; ctx.lineWidth = w; ctx.strokeRect(X(x1), Y(z1), (x2 - x1) * S, (z2 - z1) * S); };
 
   // 3D 입체 건물 볼륨 렌더러 (평면 fillRect 는 기존 테스트 호환을 위해 먼저 그리고, 그 위에 3D 아이소메트릭 입체 측벽·지붕·고도 음영을 렌더링한다)
@@ -59,8 +60,7 @@ export function drawMap(ctx, W, H, o) {
     strokeRect(-50, NORTH_Z, 50, 70, '#6a6a60', 1.5);
     fillRect(-4, GATE_Z - .6, 4, GATE_Z + .6, '#8a4a30');
     // 캠퍼스 타일 인도 네트워크 (서쪽 끝 서문 x=-114, z=55.6 직결 및 전 캠퍼스 완전 연결!) & 3대 섹션 건물 3D 입체 볼륨
-    [[-72.2, -69.4, -45.0, 57.2], [69.3, 71.7, -51.5, 30.0], [69.3, 70.6, 30.0, 48.0], [69.3, 71.7, 48.0, 57.2], [-69.4, 71.7, -35.2, -32.4], [-113.8, -27.2, 54.0, 57.2], [27.6, 69.3, 54.0, 57.2], [-29.6, -27.2, 11.0, 54.0], [25.0, 27.6, 11.0, 54.0], [-39.6, -37.0, -32.4, 11.0], [37.0, 39.6, -32.4, 10.4], [-29.6, 25.0, 11.0, 12.6], [-10.6, -7.4, -77.0, -35.2],
-     [-87.5, -72.2, -35.0, -32.4], [-89.4, -72.2, -10.7, -7.9], [-89.4, -72.2, 22.0, 24.8], [-89.5, -86.5, 49.0, 54.0], [-69.4, -29.6, 26.6, 29.4], [71.7, 85.4, -27.9, -25.1], [71.7, 73.8, -18.5, -15.5], [65.0, 69.3, 5.6, 8.4], [65.0, 69.3, 33.6, 36.4], [60.0, 69.3, -16.2, -13.4], [36.6, 39.4, 37.0, 54.0], [71.7, 85.4, 50.4, 53.2], [65.6, 69.3, -46.2, -43.4], [33.6, 36.4, -45.0, -35.2]]
+    ((typeof window !== 'undefined' && window.__pathNET) || [])
       .forEach(([x1, x2, z1, z2]) => fillRect(x1, z1, x2, z2, 'rgba(145,140,125,.42)'));   // 새 인도망 (campusPaths.js NET)
     fillRect(-114.6, 51.4, -113.2, 59.8, '#8a4a30'); // 서쪽 끝 외곽 서문(西門, x=-114, z=55.6)
     box3D(58, -53, 65.5, -47, 3.6, '#2a4a38', '#467a5c', '#1a3024');   // 생태온실 (동북 학술정원)
@@ -77,17 +77,17 @@ export function drawMap(ctx, W, H, o) {
     box3D(-99, 35, -77, 49, 9.0, '#48342e', '#6a4c42', '#2a1e1a');     // 학생회관·동아리관 3D 볼륨 (인도 z=54~57.2 북쪽에 깔끔히 배치!)
     fillRect(-13.8, 61.2, -9.2, 65.8, '#4a3828');                                                      // 청운정(육각정)
     if (labels) {
-      ctx.fillStyle = '#d8e4ec'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
-      ctx.fillText('운동장(트랙·축구장)', X(0), Y(36)); ctx.fillText('조회대', X(-11), Y(16.4)); ctx.fillText('스탠드', X(13.5), Y(12.6));
-      ctx.fillText('야외농구장', X(58), Y(7)); ctx.fillText('체육관', X(84), Y(-39)); ctx.fillText('급식실', X(-61), Y(13)); ctx.fillText('수영장', X(58), Y(35));
-      ctx.fillText('경비동', X(8.1), Y(62.4)); ctx.fillText('경비실·당직실', X(GUARD_LAYOUT.cx), Y(GUARD_LAYOUT.cz)); ctx.fillText(o.rb ? '본관(1~4F)' : '', X(0), Y(-5.2)); ctx.fillText(o.rb ? '별관(1~3F)' : '별관(1~3F)', X(0), Y(o.rb ? -30 : -19.25 - ANNEX_DZ));
-      ctx.fillText('대강당', X(-50), Y(42)); ctx.fillText('중정', X(MEGA.court.x), Y(MEGA.court.z));
-      ctx.fillText('◀ 서문(탈출구)', X(-106), Y(55.6)); ctx.fillText('정문', X(0), Y(GATE_Z) - 8);
-      ctx.fillText('생태온실', X(62), Y(-50)); ctx.fillText('학우매점', X(63.5), Y(18)); ctx.fillText('야외음악당', X(35.0), Y(-48.5));
-      ctx.fillText('청운정', X(-11.5), Y(63.5));
-      ctx.fillText('청운학사(2F기숙사)', X(-86), Y(-42)); ctx.fillText('청운호·호심정', X(-9), Y(-86));
-      ctx.fillText('과학천문관', X(-88), Y(14)); ctx.fillText('서문고역사관', X(-88), Y(-16)); ctx.fillText('수돗가', X(58), Y(-10)); ctx.fillText('씨름장', X(55.5), Y(-21.5)); ctx.fillText('중앙도서관', X(84), Y(39));
-      ctx.fillText('테니스·양궁장', X(84), Y(-17)); ctx.fillText('야구스타디움', X(84), Y(8)); ctx.fillText('학생회관', X(-88), Y(42));
+      // 캠퍼스 이름표는 모아 두었다가 건물을 다 그린 뒤 겹치지 않게 한 번에 (경비동 · 경비실 겹침, 건물에 가려 잘리던 이름 방지)
+      campusLab('운동장(트랙·축구장)', X(0), Y(36)); campusLab('조회대', X(-11), Y(16.4)); campusLab('스탠드', X(13.5), Y(12.6));
+      campusLab('야외농구장', X(58), Y(7)); campusLab('체육관', X(84), Y(-39)); campusLab('급식실', X(-61), Y(13)); campusLab('수영장', X(58), Y(35));
+      campusLab('경비동', X(8.1), Y(62.4)); campusLab('경비실·당직실', X(GUARD_LAYOUT.cx), Y(GUARD_LAYOUT.cz)); campusLab(o.rb ? '본관(1~4F)' : '', X(0), Y(-5.2)); campusLab(o.rb ? '별관(1~3F)' : '별관(1~3F)', X(0), Y(o.rb ? -30 : -19.25 - ANNEX_DZ));
+      campusLab('대강당', X(-50), Y(42)); campusLab('중정', X(MEGA.court.x), Y(MEGA.court.z));
+      campusLab('◀ 서문(탈출구)', X(-106), Y(55.6)); campusLab('정문', X(0), Y(GATE_Z) - 8);
+      campusLab('생태온실', X(62), Y(-50)); campusLab('학우매점', X(63.5), Y(18)); campusLab('야외음악당', X(35.0), Y(-48.5));
+      campusLab('청운정', X(-11.5), Y(63.5));
+      campusLab('청운학사(2F기숙사)', X(-86), Y(-42)); campusLab('청운호·호심정', X(-9), Y(-86));
+      campusLab('과학천문관', X(-88), Y(14)); campusLab('서문고역사관', X(-88), Y(-16)); campusLab('수돗가', X(58), Y(-10)); campusLab('씨름장', X(55.5), Y(-21.5)); campusLab('중앙도서관', X(84), Y(39));
+      campusLab('테니스·양궁장', X(84), Y(-17)); campusLab('야구스타디움', X(84), Y(8)); campusLab('학생회관', X(-88), Y(42));
     }
   }
   if (floor === 5) {
@@ -170,6 +170,17 @@ export function drawMap(ctx, W, H, o) {
   if (o.rb && o.target) { const T = o.target, inPoly = pts => { let c = false; for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) { const [xi, zi] = pts[i], [xj, zj] = pts[j]; if ((zi > T.z) !== (zj > T.z) && T.x < (xj - xi) * (T.z - zi) / (zj - zi) + xi) c = !c; } return c; };
     const r = o.rb.rooms.find(q => !q.hall && inPoly(q.pts)); if (r) { const a = .45 + .35 * Math.sin((o.t || 0) * 4); ctx.beginPath(); r.pts.forEach(([x, z], i) => i ? ctx.lineTo(X(x), Y(z)) : ctx.moveTo(X(x), Y(z))); ctx.closePath(); ctx.fillStyle = `rgba(242,193,78,${a * .35})`; ctx.fill(); ctx.strokeStyle = `rgba(242,193,78,${a + .2})`; ctx.lineWidth = 2.5; ctx.stroke(); ctx.lineWidth = 1;
       if (labels) { const cx = r.pts.reduce((s, p) => s + p[0], 0) / r.pts.length, cz = r.pts.reduce((s, p) => s + p[1], 0) / r.pts.length; ctx.fillStyle = '#f2c14e'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('★', X(cx), Y(cz) - 12); } } }
+  if (campusLabels.length) {   // 캠퍼스 이름표: 겹치면 위아래로 비켜 놓고, 그래도 자리가 없으면 생략 · 어두운 테두리로 건물 위에서도 읽히게
+    ctx.save(); ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center'; const placed = [];
+    for (const [t, x, y] of campusLabels) {
+      const w = ((ctx.measureText && ctx.measureText(t).width) || t.length * 7) + 8; let yy = null;
+      for (const dy of [0, -13, 13, -26, 26]) { const r = { x1: x - w / 2, x2: x + w / 2, y1: y + dy - 11, y2: y + dy + 3 }; if (!placed.some(p => r.x1 < p.x2 && r.x2 > p.x1 && r.y1 < p.y2 && r.y2 > p.y1)) { placed.push(r); yy = y + dy; break; } }
+      if (yy == null) continue;
+      if (ctx.strokeText) { ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(6,10,14,.85)'; ctx.strokeText(t, x, yy); }
+      ctx.fillStyle = '#e6ecf0'; ctx.fillText(t, x, yy);
+    }
+    ctx.restore();
+  }
   // Discovery-first: items, devices, lockers and exact objective coordinates are not plotted.
   // 문 상태 (열림: 초록 / 닫힘: 빨강)
   doors.forEach(d => { ctx.fillStyle = d.transition ? '#74b9e8' : d.open ? '#5fc47a' : '#b04040'; const w = Math.max(4, (d.slide ? 1.4 : .9) * S); ctx.fillRect(X(d.x) - w / 2, Y(d.z) - 1.5, w, 3); });

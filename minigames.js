@@ -813,7 +813,6 @@ function simon({ title = '순서 따라 하기', pads = ['도', '레', '미', '�
 function timing({ title = '타이밍', hint = '바늘이 <b style="color:#60e0a0">초록 구간</b>에 들어왔을 때 <b>Space / 클릭</b>', need = 3, tries = 5, icon = '', okText = '성공!', missText = '빗나갔다…' }) {
   const p = open(title, hint + ` — <b>${tries}</b>번 중 <b>${need}</b>번`);
   const c = canvas(440, 140), g = c.getContext('2d');
-  screen3D(c, { kind: 'scope' });
   let t = 0, sp = 1.1, hits = 0, used = 0, zone = .3 + Math.random() * .4, w = .18, lastT = performance.now(), flash = 0, fc = '#60e0a0';
   const act = () => {
     if (!finish) return; const pos = (Math.sin(t * sp * 2.4) + 1) / 2; used++;
@@ -824,6 +823,37 @@ function timing({ title = '타이밍', hint = '바늘이 <b style="color:#60e0a0
   };
   c.addEventListener('click', act);
   keys(e => { if (e.type === 'keydown' && (e.code === 'Space' || e.code === 'Enter')) act(); });
+  // 3D 아날로그 계기: 황동 테 반원 눈금판 위로 실제 바늘이 흔들리고, 초록 구간은 눈금판에 색칠된 호. 빨간 버튼(클릭/Space)을 누르면 눌림.
+  //   기회는 위쪽 램프(회색→꺼짐), 성공은 초록 램프로 켜진다. WebGL 이 안 되면 원래 2D 막대 그대로.
+  (() => { let r; try { r = new THREE.WebGLRenderer({ antialias: true }); } catch (e) { return; }
+    r.setPixelRatio(Math.min(2, devicePixelRatio || 1)); r.setSize(460, 300); r.outputColorSpace = THREE.SRGBColorSpace; r.toneMapping = THREE.ACESFilmicToneMapping; r.domElement.className = 'mgCanvas'; r.domElement.dataset.own3d = '1'; c.dataset.st = '1'; c.parentNode.insertBefore(r.domElement, c); c.style.display = 'none';
+    const sc = new THREE.Scene(); sc.background = new THREE.Color(0x0b0a09); const cam = new THREE.PerspectiveCamera(32, 460 / 300, .05, 20); cam.position.set(0, .25, 3); cam.lookAt(0, .05, 0);
+    sc.add(new THREE.HemisphereLight(0xfff0dc, 0x140c06, .5)); const L = new THREE.SpotLight(0xfff0dc, 20, 8, .6, .5, 1.3); L.position.set(.8, 2, 2.5); sc.add(L, L.target);
+    const M = (c3, o = {}) => new THREE.MeshStandardMaterial(Object.assign({ color: c3, roughness: .5 }, o));
+    const panel = new THREE.Mesh(new THREE.BoxGeometry(2.4, 1.6, .12), M(0x3a4048, { metalness: .6, roughness: .4 })); panel.position.set(0, 0, -.08); sc.add(panel);
+    const R0 = .62, A0 = Math.PI * .85, A1 = Math.PI * .15, ang = v => A0 + (A1 - A0) * v, CY = -.2;
+    const face = new THREE.Mesh(new THREE.CircleGeometry(R0 + .06, 48, 0, Math.PI), M(0xeee6d0, { roughness: .8 })); face.position.set(0, CY, .0); sc.add(face);
+    const rim = new THREE.Mesh(new THREE.TorusGeometry(R0 + .07, .025, 10, 48, Math.PI), M(0xb08a40, { metalness: .9, roughness: .25 })); rim.position.set(0, CY, .01); sc.add(rim);
+    for (let k = 0; k <= 20; k++) { const a = ang(k / 20), len = k % 5 ? .05 : .1; const tk = new THREE.Mesh(new THREE.BoxGeometry(.008, len, .004), new THREE.MeshBasicMaterial({ color: 0x222222 })); tk.position.set(Math.cos(a) * (R0 - len / 2), CY + Math.sin(a) * (R0 - len / 2), .006); tk.rotation.z = a - Math.PI / 2; sc.add(tk); }
+    const zm = new THREE.MeshBasicMaterial({ color: 0x40c070, side: THREE.DoubleSide }); let zMesh = null;
+    const buildZone = () => { if (zMesh) { sc.remove(zMesh); zMesh.geometry.dispose(); } const a1 = ang(Math.min(1, zone + w / 2)), a0 = ang(Math.max(0, zone - w / 2)); zMesh = new THREE.Mesh(new THREE.RingGeometry(R0 - .16, R0 - .02, 32, 1, a1, a0 - a1), zm); zMesh.position.set(0, CY, .004); sc.add(zMesh); };
+    buildZone(); let lastZone = zone;
+    const needle = new THREE.Group(); const nd = new THREE.Mesh(new THREE.BoxGeometry(.014, R0 - .04, .006), M(0xc02020)); nd.position.y = (R0 - .04) / 2; needle.add(nd); needle.position.set(0, CY, .02); sc.add(needle);
+    const hub = new THREE.Mesh(new THREE.CylinderGeometry(.04, .04, .03, 20), M(0x202020, { metalness: .6 })); hub.rotation.x = Math.PI / 2; hub.position.set(0, CY, .03); sc.add(hub);
+    const glass = new THREE.Mesh(new THREE.CircleGeometry(R0 + .06, 48, 0, Math.PI), new THREE.MeshPhysicalMaterial({ color: 0xffffff, transparent: true, opacity: .07, roughness: .05, clearcoat: 1 })); glass.position.set(0, CY, .045); sc.add(glass);
+    const btnBase = new THREE.Mesh(new THREE.CylinderGeometry(.13, .14, .05, 28), M(0x202020, { metalness: .5 })); btnBase.rotation.x = Math.PI / 2; btnBase.position.set(0, -.55, .0); sc.add(btnBase);
+    const btn = new THREE.Mesh(new THREE.CylinderGeometry(.1, .1, .08, 28), M(0xc81e1e, { roughness: .35, emissive: 0x400000 })); btn.rotation.x = Math.PI / 2; btn.position.set(0, -.55, .05); sc.add(btn);
+    const lamp = (x, y) => { const m = M(0x303030, { emissive: 0x000000 }); const o = new THREE.Mesh(new THREE.SphereGeometry(.04, 14, 10), m); o.position.set(x, y, .02); sc.add(o); return m; };
+    const tryL = [...Array(tries)].map((_, k) => lamp(-.95 + k * .12, .62)), hitL = [...Array(need)].map((_, k) => lamp(.95 - k * .12, .62));
+    let press = 0; const act0 = act;
+    const rc = new THREE.Raycaster(), mv = new THREE.Vector2();
+    let lastUsed = 0; r.domElement.addEventListener('mousedown', () => act0());
+    const lp = () => { if (!MG.active) { r.dispose(); return; } const x = (Math.sin(t * sp * 2.4) + 1) / 2; needle.rotation.z = ang(x) - Math.PI / 2;
+      if (zone !== lastZone) { lastZone = zone; buildZone(); }
+      tryL.forEach((m, k) => { m.emissive.setHex(k < used ? 0x000000 : 0xb08020); m.emissiveIntensity = 1; }); hitL.forEach((m, k) => { m.emissive.setHex(k < hits ? 0x30ff70 : 0x000000); });
+      zm.color.setHex(flash > 0 && fc === '#e06a5a' ? 0xd04030 : flash > 0 ? 0x80ffb0 : 0x40c070);
+      if (used !== lastUsed) { lastUsed = used; press = 1; } press = Math.max(0, press - .1); btn.position.z = .05 - press * .035; r.render(sc, cam); requestAnimationFrame(lp); };
+    requestAnimationFrame(lp); })();
   const loop = now => {
     const dt = Math.min(.12, (now - lastT) / 1000); lastT = now; t += dt; flash = Math.max(0, flash - dt * 3);
     const x = (Math.sin(t * sp * 2.4) + 1) / 2;

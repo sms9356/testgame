@@ -744,6 +744,21 @@ function simon({ title = '순서 따라 하기', pads = ['도', '레', '미', '�
   el.forEach((b, i) => { b.onclick = () => press(i); });
   keys(e => { if (e.type === 'keydown' && /^(Digit|Numpad)[1-4]$/.test(e.code)) press(+e.code.slice(-1) - 1); });
   play();
+  // 3D 실로폰: 나무 틀 위 색깔 음판 4개 (길이가 음높이대로 짧아진다) — 소리가 나면 음판이 빛나며 떨리고, 클릭한 음판을 채가 친다
+  (() => { let rr; try { rr = new THREE.WebGLRenderer({ antialias: true }); } catch (e) { return; }
+    rr.setPixelRatio(Math.min(2, devicePixelRatio || 1)); rr.setSize(440, 280); rr.outputColorSpace = THREE.SRGBColorSpace; rr.toneMapping = THREE.ACESFilmicToneMapping; rr.domElement.className = 'mgCanvas'; rr.domElement.dataset.own3d = '1'; $('mgBody').insertBefore(rr.domElement, box); box.style.display = 'none';
+    const sc = new THREE.Scene(); sc.background = new THREE.Color(0x0c0a08); const cam = new THREE.PerspectiveCamera(34, 440 / 280, .05, 20); cam.position.set(0, 1.5, 1.4); cam.lookAt(0, 0, 0);
+    sc.add(new THREE.HemisphereLight(0xfff0dc, 0x140c06, .5)); const L = new THREE.SpotLight(0xfff0dc, 14, 6, .7, .5, 1.4); L.position.set(.4, 2, 1); sc.add(L, L.target);
+    const wood = new THREE.MeshStandardMaterial({ color: 0x6a4424, roughness: .6 }); [-1, 1].forEach(sd => { const rail = new THREE.Mesh(new THREE.BoxGeometry(.05, .06, 1.1), wood); rail.position.set(sd * .2 * 0 + 0, -.03, 0); rail.position.z = 0; rail.rotation.y = 0; rail.position.x = sd * .55; sc.add(rail); });
+    const rail2 = new THREE.Mesh(new THREE.BoxGeometry(1.2, .05, .05), wood); rail2.position.set(0, -.03, -.25); sc.add(rail2); const rail3 = rail2.clone(); rail3.position.z = .25; sc.add(rail3);
+    const bars = cols.map((c3, i) => { const len = .8 - i * .1, m = new THREE.MeshStandardMaterial({ color: c3, roughness: .35, emissive: c3, emissiveIntensity: 0 }); const b = new THREE.Mesh(new THREE.BoxGeometry(.2, .04, len), m); b.position.set(-.39 + i * .26, .02, 0); b.userData.i = i; sc.add(b);
+      const lab = document.createElement('canvas'); lab.width = 64; lab.height = 64; const g2 = lab.getContext('2d'); g2.fillStyle = '#fff'; g2.font = 'bold 34px sans-serif'; g2.textAlign = 'center'; g2.textBaseline = 'middle'; g2.fillText(String(i + 1), 32, 34); const t = new THREE.CanvasTexture(lab);
+      const lp = new THREE.Mesh(new THREE.PlaneGeometry(.1, .1), new THREE.MeshBasicMaterial({ map: t, transparent: true })); lp.rotation.x = -Math.PI / 2; lp.position.set(b.position.x, .042, len / 2 - .08); sc.add(lp); return { b, m, sh: 0 }; });
+    const mallet = new THREE.Group(); const stick = new THREE.Mesh(new THREE.CylinderGeometry(.008, .008, .5, 8), wood); stick.rotation.z = Math.PI / 2.4; mallet.add(stick); const head = new THREE.Mesh(new THREE.SphereGeometry(.035, 14, 10), new THREE.MeshStandardMaterial({ color: 0xe8e0d0, roughness: .8 })); head.position.set(-.2, -.1, 0); mallet.add(head); sc.add(mallet);
+    let hitT = 0, hitI = 0; const rc = new THREE.Raycaster(), mv = new THREE.Vector2();
+    rr.domElement.addEventListener('mousedown', e => { const bb = rr.domElement.getBoundingClientRect(); mv.set((e.clientX - bb.left) / bb.width * 2 - 1, -((e.clientY - bb.top) / bb.height) * 2 + 1); rc.setFromCamera(mv, cam); const h = rc.intersectObjects(bars.map(o => o.b))[0]; if (h) { hitI = h.object.userData.i; hitT = 1; press(hitI); } });
+    const loop = () => { if (!MG.active) { rr.dispose(); return; } bars.forEach((o, i) => { const on = el[i].classList.contains('on'); if (on) o.sh = 1; o.m.emissiveIntensity = on ? .9 : 0; o.sh *= .88; o.b.position.y = .02 + Math.sin(performance.now() / 18 + i) * .004 * o.sh; });
+      hitT = Math.max(0, hitT - .08); const bx = bars[hitI].b.position.x; mallet.position.set(bx + .22, .12 + (1 - Math.sin(hitT * Math.PI)) * .08, .1); rr.render(sc, cam); requestAnimationFrame(loop); }; requestAnimationFrame(loop); })();
   return p;
 }
 

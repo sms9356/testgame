@@ -2,12 +2,12 @@
 //   항상 켜진다 (예전 건물 모드는 폐지).
 //   예전 본관(1~3층 · 옥상) · 별관(8~10층) 건물은 감추고, 그 자리 땅(0층)에서 새 건물을 걷는다.
 //   높이는 P.sh(계단 높이 보정값)로 넘긴다 → 카메라 · 점프 · 가구 오르기 코드는 손대지 않아도 된다.
-import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN, grafMaterial } from './rebuild/mainBuilding.js?v=367';
-import { placeModels } from './rebuild/models.js?v=367';
-import { carve, subdivide } from './rebuild/transplant.js?v=367';
+import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN, grafMaterial } from './rebuild/mainBuilding.js?v=368';
+import { placeModels } from './rebuild/models.js?v=368';
+import { carve, subdivide } from './rebuild/transplant.js?v=368';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { turfMaterial } from './campusVisuals.js?v=367';
-import { ENGINE } from './engine.js?v=367';
+import { turfMaterial } from './campusVisuals.js?v=368';
+import { ENGINE } from './engine.js?v=368';
 
 // 예전 건물이 차지하던 땅 (이 안의 예전 메시 · 충돌 상자를 걷어 낸다)
 const OLD_MAIN = { x1: -51, x2: 51, z1: -10.6, z2: 10.9 };
@@ -202,9 +202,9 @@ export function installRebuild({ THREE, scene, floors, world }) {
   R.deskGraffiti = () => { if (R._graf) return R._graf; let n = 0; const rc = new THREE.Raycaster(), m4 = new THREE.Matrix4(), p = new THREE.Vector3(), q = new THREE.Quaternion(), s3 = new THREE.Vector3(), tmp = new THREE.Mesh();
     group.updateMatrixWorld(true);
     group.traverse(o => { if (!o.isInstancedMesh || !/^RBM_SchoolDesk_01/.test(o.name)) return;
-      for (let i = 0; i < o.count; i += 1) { if ((i * 7919) % 11) continue; o.getMatrixAt(i, m4); m4.premultiply(o.matrixWorld); m4.decompose(p, q, s3);
+      const N = o.instanceMatrix ? o.instanceMatrix.count : o.count; for (let i = 0; i < N; i += 1) { if ((i * 7919) % 11) continue; o.getMatrixAt(i, m4); m4.premultiply(o.matrixWorld); m4.decompose(p, q, s3);
         tmp.geometry = o.geometry; tmp.material = o.material; tmp.matrixWorld.copy(m4); tmp.matrixAutoUpdate = false;
-        rc.set(new THREE.Vector3(p.x, p.y + 1.6, p.z), new THREE.Vector3(0, -1, 0)); const h = rc.intersectObject(tmp, false)[0]; if (!h || h.point.y - p.y < .55 || h.point.y - p.y > 1) continue;
+        const h = { point: { y: p.y + .885 } };   // 학생 책상 윗면 높이 (실측 0.885m) — 모델을 단순화해도 그대로
         const d = new THREE.Mesh(new THREE.PlaneGeometry(.32, .22), grafMaterial(n % 6)); d.rotation.set(-Math.PI / 2, 0, new THREE.Euler().setFromQuaternion(q).y + ((i % 5) - 2) * .12); d.position.set(p.x, h.point.y + .003, p.z); d.renderOrder = 2; d.userData.rbFloor = o.userData.rbFloor; o.parent.attach(d); n++; } });
     return (R._graf = n); };
 

@@ -4,7 +4,7 @@
 //   전기(분전반 · 2등용 형광등 · 콘센트 · 스위치) · 소방(소화전함 · 소화기 · 감지기 · 유도등 · 방화문) · 수도(세면대 · 배관)
 import * as THREE from '../vendor/three.module.js';
 import { mergeGeometries } from '../vendor/addons/utils/BufferGeometryUtils.js';
-import { makeFlag } from '../tex.js?v=356';
+import { makeFlag } from '../tex.js?v=357';
 // 교실 앞면 꾸밈 공용 (반 이름 · 텍스처 캐시)
 const NAMES = ['김민수', '이서연', '박지훈', '최유진', '정하늘', '강도윤', '조수아', '윤재현', '장예린', '임태호', '한소영', '오준서', '서지민', '신동혁', '권나연', '황민재', '안채원', '송우진', '전다은', '홍석진'];
 let flagTex = null; const decorTex = new Map();
@@ -79,13 +79,20 @@ const TEX = {
     for (let i = 0; i < 1400; i++) { g.fillStyle = `rgba(90,85,75,${.15 + rnd() * .25})`; g.fillRect(rnd() * w, rnd() * h, 1.5, 1.5); }
     g.fillStyle = '#c8c4b8'; g.fillRect(0, 0, w, 4); g.fillRect(0, 0, 4, h);
   }),
-  wall: () => canvasTex(256, 256, (g, w, h) => {   // 수성페인트 미장 벽 (상부 아이보리)
+  wall: () => canvasTex(512, 512, (g, w, h) => {   // 수성페인트 미장 벽 (상부 아이보리): 미세 반점 + 누런 물 얼룩 · 흘러내린 자국 · 덧바른 미장 · 손때
     g.fillStyle = '#e8e2d2'; g.fillRect(0, 0, w, h);
-    for (let i = 0; i < 2500; i++) { const v = 200 + rnd() * 40; g.fillStyle = `rgba(${v},${v - 6},${v - 18},.25)`; g.fillRect(rnd() * w, rnd() * h, 2, 2); }
+    for (let i = 0; i < 9000; i++) { const v = 200 + rnd() * 40; g.fillStyle = `rgba(${v},${v - 6},${v - 18},.22)`; g.fillRect(rnd() * w, rnd() * h, 2, 2); }
+    for (let i = 0; i < 6; i++) { const x = rnd() * w, y = rnd() * h, r = 30 + rnd() * 90, gr = g.createRadialGradient(x, y, 0, x, y, r); gr.addColorStop(0, `rgba(150,130,90,${.05 + rnd() * .08})`); gr.addColorStop(1, 'rgba(150,130,90,0)'); g.fillStyle = gr; g.fillRect(x - r, y - r, r * 2, r * 2); }   // 누렇게 번진 물 얼룩
+    for (let i = 0; i < 14; i++) { const x = rnd() * w, y0 = rnd() * h * .5, L = 60 + rnd() * 220; const gr = g.createLinearGradient(0, y0, 0, y0 + L); gr.addColorStop(0, 'rgba(120,105,80,.10)'); gr.addColorStop(1, 'rgba(120,105,80,0)'); g.fillStyle = gr; g.fillRect(x, y0, 1.5 + rnd() * 2.5, L); }   // 흘러내린 자국
+    for (let i = 0; i < 4; i++) { g.fillStyle = `rgba(245,242,232,${.25 + rnd() * .2})`; g.fillRect(rnd() * w, rnd() * h, 40 + rnd() * 70, 25 + rnd() * 50); }   // 덧바른 미장(조금 더 흰 네모)
+    for (let i = 0; i < 40; i++) { g.fillStyle = `rgba(70,60,50,${.04 + rnd() * .06})`; g.fillRect(rnd() * w, h * .65 + rnd() * h * .35, 4 + rnd() * 18, 1 + rnd() * 3); }   // 아래쪽 손때 · 긁힘
   }),
-  wainscot: () => canvasTex(256, 256, (g, w, h) => {   // 하부 1.2m 녹색 유성페인트 (징두리)
+  wainscot: () => canvasTex(512, 512, (g, w, h) => {   // 하부 1.2m 녹색 유성페인트 (징두리): 붓 자국 · 벗겨진 칠(아래 미색 바탕이 드러남) · 신발 자국
     g.fillStyle = '#5f7a62'; g.fillRect(0, 0, w, h);
-    for (let i = 0; i < 1800; i++) { g.fillStyle = `rgba(30,50,35,${rnd() * .2})`; g.fillRect(rnd() * w, rnd() * h, 2, 3); }
+    for (let y = 0; y < h; y += 2) { g.fillStyle = `rgba(${rnd() < .5 ? '255,255,255' : '20,40,25'},${rnd() * .035})`; g.fillRect(0, y, w, 2); }   // 가로 붓 자국
+    for (let i = 0; i < 6000; i++) { g.fillStyle = `rgba(30,50,35,${rnd() * .18})`; g.fillRect(rnd() * w, rnd() * h, 2, 3); }
+    for (let i = 0; i < 8; i++) { const x = rnd() * w, y = h * .55 + rnd() * h * .45, r = 2 + rnd() * 7; g.fillStyle = '#a8a690'; g.beginPath(); for (let k = 0; k < 9; k++) { const a = k / 9 * 6.283, rr = r * (.5 + rnd() * .7); g.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr); } g.fill(); g.strokeStyle = 'rgba(30,40,30,.35)'; g.lineWidth = 1; g.stroke(); }   // 벗겨진 칠
+    for (let i = 0; i < 30; i++) { g.fillStyle = `rgba(20,20,18,${.06 + rnd() * .12})`; g.fillRect(rnd() * w, h * .82 + rnd() * h * .16, 10 + rnd() * 30, 2 + rnd() * 5); }   // 아래쪽 신발 자국
   }),
   board: () => canvasTex(512, 256, (g, w, h) => {   // 녹색 칠판 + 분필 자국
     g.fillStyle = '#2f4a3a'; g.fillRect(0, 0, w, h);
@@ -132,9 +139,9 @@ export function buildMainBuilding(opt = {}) {
   const mat = {
     wood: M('wood', () => pbr('wood', { rough: .9 })),                                   // 노후 참나무 마루 (실사)
     terr: M('terr', () => pbr('tile', { rough: .8 })),                                   // 인조석 물갈기 · 모자이크 (실사)
-    ceil: M('ceil', () => pbr('ceil', { own: false, map: TEX.ceiling(), nScale: .12 })),  // 텍스 천장: 색은 밝게, 요철은 실사
-    wall: M('wall', () => pbr('paint', { own: false, map: TEX.wall(), nScale: .5, rough: 1 })),       // 아이보리 수성 페인트 + 실사 요철
-    wain: M('wain', () => pbr('d2_tex_paint', { own: false, map: TEX.wainscot(), nScale: .7, rough: .75 })),   // 녹색 유성 페인트 (벗겨진 요철)
+    ceil: M('ceil', () => pbr('ceil', { own: false, map: TEX.ceiling(), nScale: .3 })),  // 텍스 천장: 색은 밝게, 요철은 실사
+    wall: M('wall', () => pbr('paint', { own: false, map: TEX.wall(), nScale: .85, rough: 1 })),       // 아이보리 수성 페인트 + 실사 요철
+    wain: M('wain', () => pbr('d2_tex_paint', { own: false, map: TEX.wainscot(), nScale: 1, rough: .7 })),   // 녹색 유성 페인트 (벗겨진 요철)
     conc: M('conc', () => pbr('step', { rough: 1 })),                                   // 콘크리트 (실사)
     brick: M('brick', () => new THREE.MeshStandardMaterial({ roughness: .9, map: canvasTex(512, 512, (g, w, h) => {   // 외벽: 2000년대 한국 학교 — 미색 수성 도장 콘크리트 (거푸집 이음 · 빗물 얼룩 · 잔 얼룩)
       g.fillStyle = '#ece8df'; g.fillRect(0, 0, w, h); for (let i = 0; i < 9000; i++) { const v = 214 + rnd() * 30 | 0; g.fillStyle = `rgba(${v},${v - 2},${v - 8},.5)`; g.fillRect(rnd() * w, rnd() * h, 1.5, 1.5); }

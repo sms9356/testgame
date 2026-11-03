@@ -2,7 +2,7 @@
 //   ── 인도 사각형(window.__pathNET)과 건물 · 시설 금지 구역(window.__pathKEEP + 건물 바닥)을 보고 잔디 쪽 가장자리에만 놓는다
 //   ── 같은 모양은 InstancedMesh 한 벌로 (그리기 호출 최소) · 충돌 상자는 바깥 0층 col 에 추가 · 문 · 현관 앞 3m 는 비운다
 import * as THREE from './vendor/three.module.js';
-import { ZONES as FZ } from './facilityRebuild.js?v=365';
+import { ZONES as FZ } from './facilityRebuild.js?v=366';
 
 const S = (c, r = .6, m = 0, e) => new THREE.MeshStandardMaterial({ color: c, roughness: r, metalness: m, ...(e || {}) });
 function signTex(lines, bg = '#1e3a2e', fg = '#f2efe4', w = 512, h = 384, title) {

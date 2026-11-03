@@ -2,12 +2,12 @@
 //   항상 켜진다 (예전 건물 모드는 폐지).
 //   예전 본관(1~3층 · 옥상) · 별관(8~10층) 건물은 감추고, 그 자리 땅(0층)에서 새 건물을 걷는다.
 //   높이는 P.sh(계단 높이 보정값)로 넘긴다 → 카메라 · 점프 · 가구 오르기 코드는 손대지 않아도 된다.
-import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN, grafMaterial } from './rebuild/mainBuilding.js?v=365';
-import { placeModels } from './rebuild/models.js?v=365';
-import { carve, subdivide } from './rebuild/transplant.js?v=365';
+import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN, grafMaterial } from './rebuild/mainBuilding.js?v=366';
+import { placeModels } from './rebuild/models.js?v=366';
+import { carve, subdivide } from './rebuild/transplant.js?v=366';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { turfMaterial } from './campusVisuals.js?v=365';
-import { ENGINE } from './engine.js?v=365';
+import { turfMaterial } from './campusVisuals.js?v=366';
+import { ENGINE } from './engine.js?v=366';
 
 // 예전 건물이 차지하던 땅 (이 안의 예전 메시 · 충돌 상자를 걷어 낸다)
 const OLD_MAIN = { x1: -51, x2: 51, z1: -10.6, z2: 10.9 };
@@ -238,7 +238,7 @@ export function installRebuild({ THREE, scene, floors, world }) {
   };
   const roomsOf = (b, f) => (b.props || []).filter(p => p.kind === 'room' && p.floor === f && p.x2 - p.x1 > 2.5 && p.type !== 'toilet' && p.label !== '중앙 계단' && !p.exit);
   const OLDMAP = { 0: [MAIN, 0], 1: [MAIN, 1], 2: [MAIN, 2], 8: [ANX, 0], 9: [ANX, 1], 10: [ANX, 2] };
-  const SPECIAL_KEY = { 0: [MAIN, 0, 'staff'], 1: [ANX, 1, 'library'], 2: [ANX, 1, 'science'] };
+  const SPECIAL_KEY = { 0: [MAIN, 0, 'staff'], 1: [MAIN, 1, 'library'], 2: [ANX, 1, 'science'] };
   const TOILET = new Set(['flush', 'sink']);
   const DROP = new Set(['switch', 'look', 'ldoor', 'elevator', 'roofDoor', 'passSwitch']);
   let seed = 1; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
@@ -379,8 +379,8 @@ export function installRebuild({ THREE, scene, floors, world }) {
   };
   // ── 3단계: 이름에 방이 적힌 조사 지점(예: '2-4 교실 냉난방기', '교사휴게실 자판기')이 엉뚱한 방에 들어가 있으면 그 방으로 옮긴다 ──
   //   예전 방 비율로 옮기다 보니 '2-4 교실 …' 이 회의실에, '교사휴게실 …' 이 교실에 남던 것. 새 건물에 없는 방은 성격이 가까운 방으로.
-  const ROOM_ALIAS = { '교사휴게실': '교무실 · 행정실', '휴게실': '교무실 · 행정실', '교무실': '교무실 · 행정실', '행정실': '교무실 · 행정실', '주조정실': '방송실', '방송편집실': '방송실', '방송실 장비실': '방송실',
-    '요리실': '가정실', '조리실': '가정실', '공구실': '과학실', '과학준비실': '과학실', '과학 준비실': '과학실', '언어실': '컴퓨터실', '스마트교실': '컴퓨터실', '전산실': '컴퓨터실', '양호실': '보건실', '보건실보조': '보건실', '도서관': '도서실', '독서실': '자율학습실', '학생회실': '회의실', '세척실': '과학실', '어학실': '컴퓨터실' };
+  const ROOM_ALIAS = { '교사휴게실': '교사 휴게실', '휴게실': '교사 휴게실', '교무실': '교무실 · 행정실', '행정실': '교무실 · 행정실', '주조정실': '방송실', '방송편집실': '방송실', '방송실 장비실': '방송실',
+    '요리실': '가정실', '조리실': '가정실', '공구실': '기술실', '과학준비실': '과학준비실', '과학 준비실': '과학준비실', '언어실': '영어전용실', '스마트교실': '컴퓨터실', '전산실': '컴퓨터실', '양호실': '보건실', '보건실보조': '보건실', '도서관': '도서실', '독서실': '자율학습실', '학생회실': '학생회실', '세척실': '과학실', '어학실': '영어전용실' };
   const allRooms = () => [MAIN, ANX].flatMap(b => (b.props || []).filter(p => p.kind === 'room' && !p.exit && p.x2 - p.x1 > 2.5).map(r => ({ b, r, name: r.label || r.name || '' })));
   const refOf = label => { const L = (label || '').replace(/^\[E\]\s*/, '');
     let m = L.match(/^(\d)-(\d)(?!\d)/) || L.match(/^(\d)학년\s?(\d)반/); if (m) return { tok: m[0], name: `${m[1]}학년 ${m[2]}반` };
@@ -402,7 +402,7 @@ export function installRebuild({ THREE, scene, floors, world }) {
       if (p._rf || p.floor !== 0 || !p.label || !/[가-힣]/.test(p.label)) continue; p._rf = true;
       const y = p.rbY ?? 0, cur = R.roomAt(p.x, p.z, y + .1); if (!cur) continue;
       const ref = tapeRef(p) || refOf(p.label); if (!ref) continue;
-      const curName = cur.name || cur.label || ''; if (curName === ref.name) { if (ref.tok && ref.tok !== ref.name && !/^\d/.test(ref.tok)) { p.label = p.label.replace(ref.tok, ref.name); relabeled++; } continue; }
+      const curName = cur.name || cur.label || ''; if (curName === ref.name) { if (ref.tok && ref.tok !== ref.name && !/^\d/.test(ref.tok) && !p.label.replace(/^\[E\]\s*/, '').startsWith(ref.name)) { p.label = p.label.replace(ref.tok, ref.name); relabeled++; } continue; }
       const cands = rooms.filter(q => q.name === ref.name); if (!cands.length) continue;
       const curF = Math.round(y / FH), t = cands.sort((a, b) => Math.abs(a.r.floor - curF) - Math.abs(b.r.floor - curF))[0];
       if (/의자에 앉기/.test(p.label)) { p.label = p.label.replace(ref.tok + ' 교실', curName).replace(ref.tok, curName); relabeled++; continue; }   // 앉는 자리는 그 방 의자에 붙어 있다: 이름만 지금 방으로

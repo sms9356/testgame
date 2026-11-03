@@ -8375,5 +8375,837 @@
    "language_code": "ko",
    "delivery": "[slowly] [regretful]"
   }
+ },
+ "r_home_a1_j": {
+  "spk": "jihun",
+  "text": "엄마, 나 괜찮아. 서문고 안이야… 민아가 여기 들어갔대서.",
+  "dur": 4.62,
+  "baked": true,
+  "eleven": "[worried] 엄마, 나 괜찮아. 서문고 안이야… 민아가 여기 들어갔대서.",
+  "generation": {
+   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[worried]"
+  }
+ },
+ "r_home_a1_s": {
+  "spk": "seoyeon",
+  "text": "엄마, 나 괜찮아. 서문고 안이야… 민아 선배가 여기 들어갔다고 해서.",
+  "dur": 5.33,
+  "baked": true,
+  "eleven": "[worried] 엄마, 나 괜찮아. 서문고 안이야… 민아 선배가 여기 들어갔다고 해서.",
+  "generation": {
+   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[worried]"
+  }
+ },
+ "r_home_a2_j": {
+  "spk": "jihun",
+  "text": "알아. 그래도 민아를 두고 그냥 나갈 순 없어.",
+  "dur": 2.87,
+  "baked": true,
+  "eleven": "[firm] 알아. 그래도 민아를 두고 그냥 나갈 순 없어.",
+  "generation": {
+   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[firm]"
+  }
+ },
+ "r_home_a2_s": {
+  "spk": "seoyeon",
+  "text": "알아요… 그래도 선배를 두고 혼자 나갈 순 없어.",
+  "dur": 3.24,
+  "baked": true,
+  "eleven": "[firm] 알아요… 그래도 선배를 두고 혼자 나갈 순 없어.",
+  "generation": {
+   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[firm]"
+  }
+ },
+ "r_home_a3_j": {
+  "spk": "jihun",
+  "text": "응, 정문 쪽에 있을게. 빨리 와.",
+  "dur": 2.27,
+  "baked": true,
+  "eleven": "[relieved] 응, 정문 쪽에 있을게. 빨리 와.",
+  "generation": {
+   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[relieved]"
+  }
+ },
+ "r_home_a3_s": {
+  "spk": "seoyeon",
+  "text": "응, 정문 쪽에 있을게. 엄마, 빨리 와.",
+  "dur": 3.0,
+  "baked": true,
+  "eleven": "[relieved] 응, 정문 쪽에 있을게. 엄마, 빨리 와.",
+  "generation": {
+   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[relieved]"
+  }
+ },
+ "r_home_b1_j": {
+  "spk": "jihun",
+  "text": "엄마, 그 애… 실종된 게 아니었어. 지하에 갇혔던 거야.",
+  "dur": 4.05,
+  "baked": true,
+  "eleven": "[urgent] 엄마, 그 애… 실종된 게 아니었어. 지하에 갇혔던 거야.",
+  "generation": {
+   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[urgent]"
+  }
+ },
+ "r_home_b1_s": {
+  "spk": "seoyeon",
+  "text": "엄마, 그 애 실종된 게 아니었어. 지하 펌프실에 갇혀 있었던 거야.",
+  "dur": 4.31,
+  "baked": true,
+  "eleven": "[urgent] 엄마, 그 애 실종된 게 아니었어. 지하 펌프실에 갇혀 있었던 거야.",
+  "generation": {
+   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[urgent]"
+  }
+ },
+ "r_home_b2_j": {
+  "spk": "jihun",
+  "text": "증거가 있어. 학교가 일부러 덮은 거야.",
+  "dur": 2.53,
+  "baked": true,
+  "eleven": "[serious] 증거가 있어. 학교가 일부러 덮은 거야.",
+  "generation": {
+   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[serious]"
+  }
+ },
+ "r_home_b2_s": {
+  "spk": "seoyeon",
+  "text": "증거 찾았어. 학교가 일부러 덮은 거라고.",
+  "dur": 2.9,
+  "baked": true,
+  "eleven": "[serious] 증거 찾았어. 학교가 일부러 덮은 거라고.",
+  "generation": {
+   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[serious]"
+  }
+ },
+ "r_home_c1_j": {
+  "spk": "jihun",
+  "text": "응… 내가 했어. 하늘이 이름, 끝까지 불렀어.",
+  "dur": 4.18,
+  "baked": true,
+  "eleven": "[softly] 응… 내가 했어. 하늘이 이름, 끝까지 불렀어.",
+  "generation": {
+   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[softly]"
+  }
+ },
+ "r_home_c1_s": {
+  "spk": "seoyeon",
+  "text": "응, 나야. 하늘 선배 이름… 끝까지 불렀어.",
+  "dur": 3.94,
+  "baked": true,
+  "eleven": "[softly] 응, 나야. 하늘 선배 이름… 끝까지 불렀어.",
+  "generation": {
+   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[softly]"
+  }
+ },
+ "r_home_c2_j": {
+  "spk": "jihun",
+  "text": "…나 이제 나갈게, 엄마.",
+  "dur": 1.57,
+  "baked": true,
+  "eleven": "[tearful] …나 이제 나갈게, 엄마.",
+  "generation": {
+   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[tearful]"
+  }
+ },
+ "r_home_c2_s": {
+  "spk": "seoyeon",
+  "text": "엄마… 나 이제 나갈게.",
+  "dur": 1.88,
+  "baked": true,
+  "eleven": "[tearful] 엄마… 나 이제 나갈게.",
+  "generation": {
+   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[tearful]"
+  }
+ },
+ "r_112_a1_j": {
+  "spk": "jihun",
+  "text": "서문고등학교 안이에요… 크게 말 못 해요.",
+  "dur": 2.85,
+  "baked": true,
+  "eleven": "[whispering] 서문고등학교 안이에요… 크게 말 못 해요.",
+  "generation": {
+   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[whispering]"
+  }
+ },
+ "r_112_a1_s": {
+  "spk": "seoyeon",
+  "text": "서문고등학교 안이에요… 크게 말을 못 하겠어요.",
+  "dur": 3.19,
+  "baked": true,
+  "eleven": "[whispering] 서문고등학교 안이에요… 크게 말을 못 하겠어요.",
+  "generation": {
+   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[whispering]"
+  }
+ },
+ "r_112_a2_j": {
+  "spk": "jihun",
+  "text": "네, 혼자예요. 친구가 안에서 연락이 끊겼어요.",
+  "dur": 3.4,
+  "baked": true,
+  "eleven": "[whispering] 네, 혼자예요. 친구가 안에서 연락이 끊겼어요.",
+  "generation": {
+   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[whispering]"
+  }
+ },
+ "r_112_a2_s": {
+  "spk": "seoyeon",
+  "text": "네… 혼자예요. 선배가 여기서 연락이 끊겼어요.",
+  "dur": 3.68,
+  "baked": true,
+  "eleven": "[whispering] 네… 혼자예요. 선배가 여기서 연락이 끊겼어요.",
+  "generation": {
+   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[whispering]"
+  }
+ },
+ "r_112_b1_j": {
+  "spk": "jihun",
+  "text": "네, 저예요. 그리고… 1998년 10월 실종 사건 기록 좀 확인해 주세요.",
+  "dur": 5.25,
+  "baked": true,
+  "eleven": "[serious] 네, 저예요. 그리고… 1998년 10월 실종 사건 기록 좀 확인해 주세요.",
+  "generation": {
+   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[serious]"
+  }
+ },
+ "r_112_b1_s": {
+  "spk": "seoyeon",
+  "text": "네, 저예요. 혹시… 1998년 10월 실종 사건 기록 좀 찾아 주실 수 있어요?",
+  "dur": 6.06,
+  "baked": true,
+  "eleven": "[serious] 네, 저예요. 혹시… 1998년 10월 실종 사건 기록 좀 찾아 주실 수 있어요?",
+  "generation": {
+   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[serious]"
+  }
+ },
+ "r_119_a1_j": {
+  "spk": "jihun",
+  "text": "학교에 갇혔어요. 서문고등학교요.",
+  "dur": 2.25,
+  "baked": true,
+  "eleven": "[nervous] 학교에 갇혔어요. 서문고등학교요.",
+  "generation": {
+   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[nervous]"
+  }
+ },
+ "r_119_a1_s": {
+  "spk": "seoyeon",
+  "text": "학교 안에 갇혔어요. 서문고등학교요.",
+  "dur": 2.48,
+  "baked": true,
+  "eleven": "[nervous] 학교 안에 갇혔어요. 서문고등학교요.",
+  "generation": {
+   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[nervous]"
+  }
+ },
+ "r_119_a2_j": {
+  "spk": "jihun",
+  "text": "다친 데는 없어요. 정문이 안에서 잠겼어요.",
+  "dur": 2.69,
+  "baked": true,
+  "eleven": "[nervous] 다친 데는 없어요. 정문이 안에서 잠겼어요.",
+  "generation": {
+   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[nervous]"
+  }
+ },
+ "r_119_a2_s": {
+  "spk": "seoyeon",
+  "text": "다친 데는 없어요. 근데 정문이 잠겨서 못 나가요.",
+  "dur": 3.53,
+  "baked": true,
+  "eleven": "[nervous] 다친 데는 없어요. 근데 정문이 잠겨서 못 나가요.",
+  "generation": {
+   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[nervous]"
+  }
+ },
+ "r_119_a4_j": {
+  "spk": "jihun",
+  "text": "네… 배터리 아낄게요.",
+  "dur": 1.57,
+  "baked": true,
+  "eleven": "[quietly] 네… 배터리 아낄게요.",
+  "generation": {
+   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[quietly]"
+  }
+ },
+ "r_119_a4_s": {
+  "spk": "seoyeon",
+  "text": "네, 알겠어요. 배터리 아낄게요.",
+  "dur": 2.35,
+  "baked": true,
+  "eleven": "[quietly] 네, 알겠어요. 배터리 아낄게요.",
+  "generation": {
+   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[quietly]"
+  }
+ },
+ "r_119_b1_j": {
+  "spk": "jihun",
+  "text": "지하 펌프실에… 십 년 전 그날 기록 없어요?",
+  "dur": 2.95,
+  "baked": true,
+  "eleven": "[serious] 지하 펌프실에… 십 년 전 그날 기록 없어요?",
+  "generation": {
+   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[serious]"
+  }
+ },
+ "r_119_b1_s": {
+  "spk": "seoyeon",
+  "text": "혹시 지하 펌프실… 십 년 전 출동 기록 있어요?",
+  "dur": 3.58,
+  "baked": true,
+  "eleven": "[serious] 혹시 지하 펌프실… 십 년 전 출동 기록 있어요?",
+  "generation": {
+   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[serious]"
+  }
+ },
+ "r_119_b2_j": {
+  "spk": "jihun",
+  "text": "일곱 시간이요…? 그동안 아무도 신고 안 한 거네요.",
+  "dur": 3.03,
+  "baked": true,
+  "eleven": "[shocked] 일곱 시간이요…? 그동안 아무도 신고 안 한 거네요.",
+  "generation": {
+   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[shocked]"
+  }
+ },
+ "r_119_b2_s": {
+  "spk": "seoyeon",
+  "text": "일곱 시간 뒤라고요…? 그동안 아무도 안 불렀던 거예요.",
+  "dur": 3.55,
+  "baked": true,
+  "eleven": "[shocked] 일곱 시간 뒤라고요…? 그동안 아무도 안 불렀던 거예요.",
+  "generation": {
+   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[shocked]"
+  }
+ },
+ "r_rep_a1_j": {
+  "spk": "jihun",
+  "text": "그 사건 기사요. 지금 그 학교 안에 있어요.",
+  "dur": 2.48,
+  "baked": true,
+  "eleven": "[determined] 그 사건 기사요. 지금 그 학교 안에 있어요.",
+  "generation": {
+   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[determined]"
+  }
+ },
+ "r_rep_a1_s": {
+  "spk": "seoyeon",
+  "text": "그 사건이요. 저 지금 그 학교 안에 있어요.",
+  "dur": 2.61,
+  "baked": true,
+  "eleven": "[determined] 그 사건이요. 저 지금 그 학교 안에 있어요.",
+  "generation": {
+   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[determined]"
+  }
+ },
+ "r_rep_a2_j": {
+  "spk": "jihun",
+  "text": "알겠어요. 찾아서 다시 연락할게요.",
+  "dur": 2.14,
+  "baked": true,
+  "eleven": "[firm] 알겠어요. 찾아서 다시 연락할게요.",
+  "generation": {
+   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[firm]"
+  }
+ },
+ "r_rep_a2_s": {
+  "spk": "seoyeon",
+  "text": "알겠어요. 증거 찾아서 꼭 다시 전화할게요.",
+  "dur": 2.9,
+  "baked": true,
+  "eleven": "[firm] 알겠어요. 증거 찾아서 꼭 다시 전화할게요.",
+  "generation": {
+   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[firm]"
+  }
+ },
+ "r_rep_b1_j": {
+  "spk": "jihun",
+  "text": "CCTV 캡처 찾았어요. 교무부장이 열쇠를 쥐고 있었어요.",
+  "dur": 3.55,
+  "baked": true,
+  "eleven": "[excited] CCTV 캡처 찾았어요. 교무부장이 열쇠를 쥐고 있었어요.",
+  "generation": {
+   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[excited]"
+  }
+ },
+ "r_rep_b1_s": {
+  "spk": "seoyeon",
+  "text": "CCTV 캡처를 찾았어요. 열쇠는 교무부장이 갖고 있었어요.",
+  "dur": 3.92,
+  "baked": true,
+  "eleven": "[excited] CCTV 캡처를 찾았어요. 열쇠는 교무부장이 갖고 있었어요.",
+  "generation": {
+   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[excited]"
+  }
+ },
+ "r_rep_b2_j": {
+  "spk": "jihun",
+  "text": "다 모아 볼게요.",
+  "dur": 0.78,
+  "baked": true,
+  "eleven": "[determined] 다 모아 볼게요.",
+  "generation": {
+   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[determined]"
+  }
+ },
+ "r_rep_b2_s": {
+  "spk": "seoyeon",
+  "text": "남은 것도 다 모아 볼게요.",
+  "dur": 1.52,
+  "baked": true,
+  "eleven": "[determined] 남은 것도 다 모아 볼게요.",
+  "generation": {
+   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[determined]"
+  }
+ },
+ "r_rep_c1_j": {
+  "spk": "jihun",
+  "text": "…들으셨어요? 다행이다.",
+  "dur": 1.59,
+  "baked": true,
+  "eleven": "[relieved] …들으셨어요? 다행이다.",
+  "generation": {
+   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[relieved]"
+  }
+ },
+ "r_rep_c1_s": {
+  "spk": "seoyeon",
+  "text": "들으셨어요…? 다행이에요.",
+  "dur": 1.75,
+  "baked": true,
+  "eleven": "[relieved] 들으셨어요…? 다행이에요.",
+  "generation": {
+   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[relieved]"
+  }
+ },
+ "r_rep_c2_j": {
+  "spk": "jihun",
+  "text": "꼭 그렇게 써 주세요.",
+  "dur": 1.1,
+  "baked": true,
+  "eleven": "[softly] 꼭 그렇게 써 주세요.",
+  "generation": {
+   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[softly]"
+  }
+ },
+ "r_rep_c2_s": {
+  "spk": "seoyeon",
+  "text": "꼭… 그렇게 써 주세요.",
+  "dur": 1.49,
+  "baked": true,
+  "eleven": "[softly] 꼭… 그렇게 써 주세요.",
+  "generation": {
+   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[softly]"
+  }
+ },
+ "r_og1_j": {
+  "spk": "jihun",
+  "text": "아저씨, 1998년에 서문고 당직이셨죠? 꼭 여쭤볼 게 있어요.",
+  "dur": 4.57,
+  "baked": true,
+  "eleven": "[polite] 아저씨, 1998년에 서문고 당직이셨죠? 꼭 여쭤볼 게 있어요.",
+  "generation": {
+   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[polite]"
+  }
+ },
+ "r_og1_s": {
+  "spk": "seoyeon",
+  "text": "아저씨, 1998년에 서문고 당직 서셨죠? 하나만 여쭤볼게요.",
+  "dur": 4.83,
+  "baked": true,
+  "eleven": "[polite] 아저씨, 1998년에 서문고 당직 서셨죠? 하나만 여쭤볼게요.",
+  "generation": {
+   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[polite]"
+  }
+ },
+ "r_og2_j": {
+  "spk": "jihun",
+  "text": "마지막으로 나간 열쇠가 뭐였는데요?",
+  "dur": 1.88,
+  "baked": true,
+  "eleven": "[curious] 마지막으로 나간 열쇠가 뭐였는데요?",
+  "generation": {
+   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[curious]"
+  }
+ },
+ "r_og2_s": {
+  "spk": "seoyeon",
+  "text": "그날 마지막으로 나간 열쇠가 뭐였어요?",
+  "dur": 2.38,
+  "baked": true,
+  "eleven": "[curious] 그날 마지막으로 나간 열쇠가 뭐였어요?",
+  "generation": {
+   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[curious]"
+  }
+ },
+ "r_og3_j": {
+  "spk": "jihun",
+  "text": "…교무부장이요.",
+  "dur": 0.89,
+  "baked": true,
+  "eleven": "[stunned] …교무부장이요.",
+  "generation": {
+   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[stunned]"
+  }
+ },
+ "r_og3_s": {
+  "spk": "seoyeon",
+  "text": "교무부장 선생님이…",
+  "dur": 1.23,
+  "baked": true,
+  "eleven": "[stunned] 교무부장 선생님이…",
+  "generation": {
+   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[stunned]"
+  }
+ },
+ "r_hr1_j": {
+  "spk": "jihun",
+  "text": "하늘이 담임 선생님이 쓰신 편지를 봤어요.",
+  "dur": 2.27,
+  "baked": true,
+  "eleven": "[gently] 하늘이 담임 선생님이 쓰신 편지를 봤어요.",
+  "generation": {
+   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[gently]"
+  }
+ },
+ "r_hr1_s": {
+  "spk": "seoyeon",
+  "text": "선생님이 하늘 선배한테 쓰신 편지를 봤어요.",
+  "dur": 2.85,
+  "baked": true,
+  "eleven": "[gently] 선생님이 하늘 선배한테 쓰신 편지를 봤어요.",
+  "generation": {
+   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[gently]"
+  }
+ },
+ "r_hr2_j": {
+  "spk": "jihun",
+  "text": "왜 그 칸을 비워 두셨어요?",
+  "dur": 1.49,
+  "baked": true,
+  "eleven": "[softly] 왜 그 칸을 비워 두셨어요?",
+  "generation": {
+   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[softly]"
+  }
+ },
+ "r_hr2_s": {
+  "spk": "seoyeon",
+  "text": "그 칸… 왜 비워 두셨어요?",
+  "dur": 2.25,
+  "baked": true,
+  "eleven": "[softly] 그 칸… 왜 비워 두셨어요?",
+  "generation": {
+   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[softly]"
+  }
+ },
+ "r_jh1_j": {
+  "spk": "jihun",
+  "text": "그날 밤, 펌프실 문… 당신이 잠갔죠?",
+  "dur": 2.87,
+  "baked": true,
+  "eleven": "[tense] 그날 밤, 펌프실 문… 당신이 잠갔죠?",
+  "generation": {
+   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[tense]"
+  }
+ },
+ "r_jh1_s": {
+  "spk": "seoyeon",
+  "text": "그날 밤 펌프실 문, 선배가 잠근 거죠?",
+  "dur": 2.87,
+  "baked": true,
+  "eleven": "[tense] 그날 밤 펌프실 문, 선배가 잠근 거죠?",
+  "generation": {
+   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[tense]"
+  }
+ },
+ "r_jh2_j": {
+  "spk": "jihun",
+  "text": "그걸 왜 십 년 동안 말 안 했어요?",
+  "dur": 1.91,
+  "baked": true,
+  "eleven": "[angry] 그걸 왜 십 년 동안 말 안 했어요?",
+  "generation": {
+   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[angry]"
+  }
+ },
+ "r_jh2_s": {
+  "spk": "seoyeon",
+  "text": "왜 십 년 동안… 아무 말도 안 했어요?",
+  "dur": 2.46,
+  "baked": true,
+  "eleven": "[hurt] 왜 십 년 동안… 아무 말도 안 했어요?",
+  "generation": {
+   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[hurt]"
+  }
+ },
+ "r_jh3_j": {
+  "spk": "jihun",
+  "text": "…전할게요. 꼭.",
+  "dur": 1.23,
+  "baked": true,
+  "eleven": "[softly] …전할게요. 꼭.",
+  "generation": {
+   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[softly]"
+  }
+ },
+ "r_jh3_s": {
+  "spk": "seoyeon",
+  "text": "…꼭 전할게요.",
+  "dur": 0.81,
+  "baked": true,
+  "eleven": "[softly] …꼭 전할게요.",
+  "generation": {
+   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[softly]"
+  }
+ },
+ "r_hn1_j": {
+  "spk": "jihun",
+  "text": "제가… 할 수 있는 건 그것뿐이었어요.",
+  "dur": 2.77,
+  "baked": true,
+  "eleven": "[tearful] 제가… 할 수 있는 건 그것뿐이었어요.",
+  "generation": {
+   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[tearful]"
+  }
+ },
+ "r_hn1_s": {
+  "spk": "seoyeon",
+  "text": "제가 할 수 있는 게… 그것밖에 없었어요.",
+  "dur": 2.66,
+  "baked": true,
+  "eleven": "[tearful] 제가 할 수 있는 게… 그것밖에 없었어요.",
+  "generation": {
+   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[tearful]"
+  }
+ },
+ "r_vm1_j": {
+  "spk": "jihun",
+  "text": "민아… 세 시간 전 메시지야. 4층 복도 끝이라고 했지.",
+  "dur": 3.81,
+  "baked": true,
+  "eleven": "[worried] 민아… 세 시간 전 메시지야. 4층 복도 끝이라고 했지.",
+  "generation": {
+   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[worried]"
+  }
+ },
+ "r_vm1_s": {
+  "spk": "seoyeon",
+  "text": "선배… 세 시간 전에 남긴 메시지야. 4층 복도 끝이라고 했어.",
+  "dur": 4.26,
+  "baked": true,
+  "eleven": "[worried] 선배… 세 시간 전에 남긴 메시지야. 4층 복도 끝이라고 했어.",
+  "generation": {
+   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[worried]"
+  }
+ },
+ "r_vm2_j": {
+  "spk": "jihun",
+  "text": "방송실 장비실… 거기 숨어 있었구나. 기다려, 민아.",
+  "dur": 3.94,
+  "baked": true,
+  "eleven": "[determined] 방송실 장비실… 거기 숨어 있었구나. 기다려, 민아.",
+  "generation": {
+   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[determined]"
+  }
+ },
+ "r_vm2_s": {
+  "spk": "seoyeon",
+  "text": "방송실 장비실에 숨어 있었구나… 선배, 조금만 기다려.",
+  "dur": 3.76,
+  "baked": true,
+  "eleven": "[determined] 방송실 장비실에 숨어 있었구나… 선배, 조금만 기다려.",
+  "generation": {
+   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[determined]"
+  }
  }
 }

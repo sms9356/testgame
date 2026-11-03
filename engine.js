@@ -10,6 +10,7 @@ function want(pref) {
   const q = new URLSearchParams(location.search);
   if (q.has('webgl')) return 'webgl';
   if (q.has('webgpu')) return 'webgpu';
+  try { if (localStorage.getItem('engineFallback') === 'webgl') return 'webgl'; } catch (e) {}   // 지난번 WebGPU 장치가 끊겨(화면이 새까매짐) 자동으로 WebGL 로 바꾼 상태
   return pref || 'auto';
 }
 
@@ -33,6 +34,12 @@ export async function createRenderer({ canvas, pref = 'auto', antialias = true }
       await r.init();
       if (!r.backend || !r.backend.isWebGPUBackend) throw new Error('WebGPU 백엔드 초기화 실패');
       Object.assign(ENGINE, { name: 'webgpu', webgpu: true, W, TSL, reason: '' });
+      // 안정화: WebGPU 장치가 끊기거나(device lost) 검증 오류가 쏟아지면 화면이 새까매진다 → WebGL 로 바꿔 다시 연다 (한 번만)
+      try { const dev = r.backend.device; let errs = 0;
+        const fall = why => { try { if (localStorage.getItem('engineFallback') === 'webgl') return; localStorage.setItem('engineFallback', 'webgl'); } catch (e) { return; } console.warn('[엔진] WebGPU 문제 → WebGL 로 다시 시작:', why); setTimeout(() => location.reload(), 300); };
+        dev && dev.lost && dev.lost.then(info => { if (info && info.reason !== 'destroyed') fall('device lost ' + (info.message || '')); });
+        dev && dev.addEventListener && dev.addEventListener('uncapturederror', ev => { if (++errs >= 20) fall('GPU 오류 ' + (ev.error && ev.error.message || '')); });
+      } catch (e) {}
       r.isWebGPU = true;
       return shim(r);
     } catch (e) { ENGINE.reason = String(e && e.message || e); console.warn('[엔진] WebGPU 사용 불가 → WebGL', e); }

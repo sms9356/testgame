@@ -8310,5 +8310,70 @@
    "delivery": "emotive v2 (breath/emotion tags)",
    "review_status": "generated"
   }
+ },
+ "news_quote": {
+  "spk": "reporter",
+  "text": "기사에 인용된 녹취를 그대로 옮깁니다. \"정전은 단순 사고, 학생은 귀가 중 실종이다. 펌프실 얘기는 이 방을 나가는 순간 없던 일로 한다.\" 그날 밤 회의에 있던 다섯 명 중, 이 발언을 부인한 사람은 아무도 없었습니다.",
+  "dur": 15.04,
+  "baked": true,
+  "eleven": "[professional] [grave] 기사에 인용된 녹취를 그대로 옮깁니다. \"정전은 단순 사고, 학생은 귀가 중 실종이다. 펌프실 얘기는 이 방을 나가는 순간 없던 일로 한다.\" 그날 밤 회의에 있던 다섯 명 중, 이 발언을 부인한 사람은 아무도 없었습니다.",
+  "generation": {
+   "voice_id": "J3IV02ZzZmojOIQbmpu0",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[professional] [grave]"
+  }
+ },
+ "vo_dorm_lookout": {
+  "spk": "friend2",
+  "text": "정독실 불 끄고 몰래 빠져나왔어요. 수아 언니가… 하늘 언니 펌프실에 잠깐만 가둬서 겁만 주자고 했어요. 저는 계단에서 망만 봤어요. 그런데, 그 열쇠… 교무부장 선생님이 가져가시는 걸, 제가 봤어요.",
+  "dur": 18.72,
+  "baked": true,
+  "eleven": "[sad] [whispering] 정독실 불 끄고 몰래 빠져나왔어요. 수아 언니가… 하늘 언니 펌프실에 잠깐만 가둬서 겁만 주자고 했어요. 저는 계단에서 망만 봤어요. 그런데, 그 열쇠… 교무부장 선생님이 가져가시는 걸, 제가 봤어요.",
+  "generation": {
+   "voice_id": "j3SYRikKBpDmPJsvd1rf",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[sad] [whispering]"
+  }
+ },
+ "vo_astro_tune": {
+  "spk": "scienceTeacher",
+  "text": "동조 기록, 밤 열한 시 오십이 분. 구십팔 점 사 메가헤르츠에 방송부 송신기 반송파가 아직 살아 있다. 누군가 원고를 끝까지 읽으려 했던 거야. 신호는… 위가 아니라, 지하에서 올라오고 있다.",
+  "dur": 14.16,
+  "baked": true,
+  "eleven": "[serious] [tense] 동조 기록, 밤 열한 시 오십이 분. 구십팔 점 사 메가헤르츠에 방송부 송신기 반송파가 아직 살아 있다. 누군가 원고를 끝까지 읽으려 했던 거야. 신호는… 위가 아니라, 지하에서 올라오고 있다.",
+  "generation": {
+   "voice_id": "4JJwo477JUAx3HV0T7n7",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[serious] [tense]"
+  }
+ },
+ "vo_lib_lastseen": {
+  "spk": "counselor",
+  "text": "열 시 반쯤이었어요. 하늘이가 도서실 창가에서 원고를 소리 내서 읽고 있더라고요. \"선생님, 내일 이거 꼭 들어 주세요.\" 그렇게 웃었어요. 그게… 제가 본 하늘이의 마지막 얼굴이에요.",
+  "dur": 14.16,
+  "baked": true,
+  "eleven": "[gently] [tearful] 열 시 반쯤이었어요. 하늘이가 도서실 창가에서 원고를 소리 내서 읽고 있더라고요. \"선생님, 내일 이거 꼭 들어 주세요.\" 그렇게 웃었어요. 그게… 제가 본 하늘이의 마지막 얼굴이에요.",
+  "generation": {
+   "voice_id": "oxjV6KVVajggAI4msV3d",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[gently] [tearful]"
+  }
+ },
+ "vo_principal_dawn": {
+  "spk": "principal",
+  "text": "새벽 네 시. 교육청에 올릴 보고서를 세 번 고쳐 썼네. 정전도, 펌프실도, 전부 지워 버렸지. 마지막 장에 그 아이 이름을 쓰려다가… 끝내 펜을 놓았어.",
+  "dur": 13.76,
+  "baked": true,
+  "eleven": "[slowly] [regretful] 새벽 네 시. 교육청에 올릴 보고서를 세 번 고쳐 썼네. 정전도, 펌프실도, 전부 지워 버렸지. 마지막 장에 그 아이 이름을 쓰려다가… 끝내 펜을 놓았어.",
+  "generation": {
+   "voice_id": "kiVK4omWhBQ9AzwcaRq7",
+   "model_id": "eleven_v4",
+   "language_code": "ko",
+   "delivery": "[slowly] [regretful]"
+  }
  }
 }

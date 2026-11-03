@@ -4,10 +4,20 @@
 //   전기(분전반 · 2등용 형광등 · 콘센트 · 스위치) · 소방(소화전함 · 소화기 · 감지기 · 유도등 · 방화문) · 수도(세면대 · 배관)
 import * as THREE from '../vendor/three.module.js';
 import { mergeGeometries } from '../vendor/addons/utils/BufferGeometryUtils.js';
-import { makeFlag } from '../tex.js?v=359';
+import { makeFlag } from '../tex.js?v=361';
 // 교실 앞면 꾸밈 공용 (반 이름 · 텍스처 캐시)
 const NAMES = ['김민수', '이서연', '박지훈', '최유진', '정하늘', '강도윤', '조수아', '윤재현', '장예린', '임태호', '한소영', '오준서', '서지민', '신동혁', '권나연', '황민재', '안채원', '송우진', '전다은', '홍석진'];
 let flagTex = null; const decorTex = new Map();
+// 책상 위 낙서 · 칼자국: 연필 · 볼펜 글씨 + 긁힌 선 (투명 판, 책상 윗면에 붙인다). 6가지를 돌려 쓴다 (재질 공유)
+const GRAF = ['민아 ♡ 하늘', '졸업하고 싶다', '수학 시험 망함 ㅠ', '서문고 3-2 화이팅', '여기 앉지 마', '시험범위 p.41~78'], grafMat = [];
+export function grafMaterial(k) { if (grafMat[k]) return grafMat[k]; const c = document.createElement('canvas'); c.width = 256; c.height = 176; const g = c.getContext('2d');
+  const pen = k % 3 === 0 ? 'rgba(40,60,140,.75)' : k % 3 === 1 ? 'rgba(60,60,60,.7)' : 'rgba(120,30,30,.65)';
+  g.save(); g.translate(128, 88); g.rotate((k % 2 ? -1 : 1) * .12); g.fillStyle = pen; g.font = `${k % 2 ? 'bold ' : ''}26px "Nanum Pen Script","Gaegu",cursive,sans-serif`; g.textAlign = 'center'; g.fillText(GRAF[k], 0, 0); g.restore();
+  g.strokeStyle = 'rgba(70,45,20,.55)'; g.lineWidth = 1.2; for (let i = 0; i < 7; i++) { const x = Math.random() * 256, y = Math.random() * 176; g.beginPath(); g.moveTo(x, y); g.lineTo(x + (Math.random() - .5) * 90, y + (Math.random() - .5) * 20); g.stroke(); }   // 칼 · 컴퍼스 긁힘
+  if (k === 0) { g.strokeStyle = pen; g.lineWidth = 2; g.beginPath(); g.ellipse(128, 84, 100, 34, -.12, 0, 7); g.stroke(); }
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4;
+  return (grafMat[k] = new THREE.MeshStandardMaterial({ map: t, transparent: true, roughness: .8, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -4 })); }
+let grafN = 0;
 const canvasPlane = (w, h, cw, ch, draw, key, transparent = false) => { let t = key && decorTex.get(key);
   if (!t) { const c = document.createElement('canvas'); c.width = cw; c.height = ch; draw(c.getContext('2d'), cw, ch); t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; if (key) decorTex.set(key, t); }
   return new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshStandardMaterial({ map: t, roughness: .85, transparent, polygonOffset: true, polygonOffsetFactor: -2 })); };
@@ -74,10 +84,14 @@ const TEX = {
     for (let i = 0; i < 9000; i++) { const v = 60 + rnd() * 160; g.fillStyle = `rgba(${v},${v * .95},${v * .88},${.5 + rnd() * .5})`; g.beginPath(); g.arc(rnd() * w, rnd() * h, .6 + rnd() * 2.4, 0, 7); g.fill(); }
     g.fillStyle = '#a08850'; g.fillRect(0, 0, w, 3); g.fillRect(0, 0, 3, h);
   }),
-  ceiling: () => canvasTex(256, 256, (g, w, h) => {   // 600각 텍스 천장 (흡음 타공)
-    g.fillStyle = '#e4e1d8'; g.fillRect(0, 0, w, h);
-    for (let i = 0; i < 1400; i++) { g.fillStyle = `rgba(90,85,75,${.15 + rnd() * .25})`; g.fillRect(rnd() * w, rnd() * h, 1.5, 1.5); }
-    g.fillStyle = '#c8c4b8'; g.fillRect(0, 0, w, 4); g.fillRect(0, 0, 4, h);
+  ceiling: () => canvasTex(512, 512, (g, w, h) => {   // 600각 텍스 천장 4×4장 (2.4m): 장마다 미세한 색차 · 흡음 타공 · 몇 장은 누런 물 얼룩 테 · 처짐 그늘 · 교체한 새 텍스
+    const n = 4, ts = w / n;
+    for (let ty = 0; ty < n; ty++) for (let tx = 0; tx < n; tx++) { const x0 = tx * ts, y0 = ty * ts, v = 222 + (rnd() * 14 - 7) | 0, fresh = rnd() < .08;
+      g.fillStyle = fresh ? '#f0eee6' : `rgb(${v},${v - 3},${v - 10})`; g.fillRect(x0, y0, ts, ts);
+      for (let i = 0; i < 380; i++) { g.fillStyle = `rgba(90,85,75,${.12 + rnd() * .25})`; g.fillRect(x0 + rnd() * ts, y0 + rnd() * ts, 1.5, 1.5); }
+      if (!fresh && rnd() < .22) { const cx = x0 + ts * (.3 + rnd() * .4), cy = y0 + ts * (.3 + rnd() * .4), r = ts * (.2 + rnd() * .3), gr = g.createRadialGradient(cx, cy, r * .5, cx, cy, r); gr.addColorStop(0, 'rgba(170,140,90,.18)'); gr.addColorStop(.85, 'rgba(150,115,60,.35)'); gr.addColorStop(1, 'rgba(150,115,60,0)'); g.fillStyle = gr; g.beginPath(); g.arc(cx, cy, r, 0, 7); g.fill(); }   // 물 얼룩 (가장자리가 진한 테)
+      if (rnd() < .15) { const gr = g.createLinearGradient(x0, y0, x0 + ts, y0 + ts); gr.addColorStop(0, 'rgba(0,0,0,0)'); gr.addColorStop(.5, 'rgba(0,0,0,.08)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(x0, y0, ts, ts); }   // 처진 장 그늘
+      g.fillStyle = '#b8b4a8'; g.fillRect(x0, y0, ts, 3); g.fillRect(x0, y0, 3, ts); }   // T-바 틀
   }),
   wall: () => canvasTex(512, 512, (g, w, h) => {   // 수성페인트 미장 벽 (상부 아이보리): 미세 반점 + 누런 물 얼룩 · 흘러내린 자국 · 덧바른 미장 · 손때
     g.fillStyle = '#e8e2d2'; g.fillRect(0, 0, w, h);
@@ -121,7 +135,7 @@ function pbr(name, { own = true, map = null, color = 0xffffff, nScale = 1, rough
     roughnessMap: tx(name + '_rough.webp'), roughness: rough, metalness: metal, color });
 }
 // 재질별 텍스처 1장이 덮는 실제 크기(m) — 상자 UV 를 이 값으로 나눈다
-const UVM = { white: 1.4, crt: 2.2, deskTop: 3, wood: 2.2, terr: 2.4, ceil: 1.2, wall: 2.5, wain: 2.5, conc: 2.5, brick: 1.6, stepc: 1.6, tile: 1.2, twall: 1.2, lockerM: 1.2, door: 1.0, steelG: 1.2, facade: 3 };
+const UVM = { white: 1.4, crt: 2.2, deskTop: 3, wood: 2.2, terr: 2.4, ceil: 2.4, wall: 2.5, wain: 2.5, conc: 2.5, brick: 1.6, stepc: 1.6, tile: 1.2, twall: 1.2, lockerM: 1.2, door: 1.0, steelG: 1.2, facade: 3 };
 
 export function buildMainBuilding(opt = {}) {
   const S = { ...SPEC, ...(opt.spec || {}) }, PLAN = opt.plan || ROOM_PLAN, LY = layout(S, opt.centerStair || null), root = new THREE.Group(); root.name = opt.name || 'REBUILD_MAIN';
@@ -135,6 +149,7 @@ export function buildMainBuilding(opt = {}) {
   const geo = new Map();  // 재질키 → 지오메트리 목록 (끝에서 병합 → 드로콜 최소화)
   const mats = {}, stairwells = [], doors = [], models = []; let s_sci = 0, s_lib = 0, s_staff = 0; let y_ = 0, rmx = 0, rmz = 0, bseed = 7; const br = () => (bseed = (bseed * 16807) % 2147483647) / 2147483647;   // rmx/rmz: 지금 꾸미는 방의 중심
   const mdl = (name, x, y, z, ry = 0, o = {}) => models.push({ name, x, y, z, ry, ...o });
+  const deskGraffiti = (x, y, z) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(.34, .23), grafMaterial(grafN++ % GRAF.length)); m.rotation.set(-Math.PI / 2, 0, Math.PI / 2 + (br() - .5) * .6); m.position.set(x + (br() - .5) * .08, y, z + (br() - .5) * .2); m.renderOrder = 2; root.add(m); };
   const M = (key, make) => mats[key] || (mats[key] = make());
   const mat = {
     wood: M('wood', () => pbr('wood', { rough: .9 })),                                   // 노후 참나무 마루 (실사)

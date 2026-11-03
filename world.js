@@ -4,12 +4,12 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { buildGuardAnnex, buildDutyRoom, ANNEX as GANX } from './guardAnnex.js?v=348';
-import { NOTES } from './story.js?v=348';
+import { buildGuardAnnex, buildDutyRoom, ANNEX as GANX } from './guardAnnex.js?v=350';
+import { NOTES } from './story.js?v=350';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=348';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=350';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -364,8 +364,9 @@ export function buildWorld(scene) {
   }
   function addNote(id, x, y, z, ry = 0) {
     if (items.some(i => i.kind === 'note' && i.id === id)) return;
-    const m = new THREE.Mesh(new THREE.PlaneGeometry(.3, .22), mPaperN);
-    m.rotation.set(-Math.PI / 2, 0, ry); m.position.set(x, y + .01, z); m.userData.dynamic = true; cur.interior.add(m);
+    // 반으로 접혔다 펴진 쪽지 (가운데 접힌 자국으로 살짝 솟은 두 장) — 바닥에 붙은 납작한 판 대신
+    const m = new THREE.Group(); [-1, 1].forEach(sd => { const h2 = new THREE.Mesh(new THREE.PlaneGeometry(.15, .22), mPaperN); h2.rotation.set(-Math.PI / 2, sd * .12, 0); h2.position.set(sd * .075, .006, 0); h2.material.side = THREE.DoubleSide; m.add(h2); });
+    m.rotation.y = ry; m.position.set(x, y + .005, z); m.userData.dynamic = true; cur.interior.add(m);
     items.push({ kind: 'note', id, floor: cur.f, pos: new THREE.Vector3(x, cur.y0 + y, z), mesh: m, title: NOTES[id].title, text: NOTES[id].text, taken: false, label: '쪽지 읽기' });
   }
   function addBattery(x, y, z) {
@@ -400,14 +401,19 @@ export function buildWorld(scene) {
   const glowTexY = T.makeGlow('255,200,90'), glowTexG = T.makeGlow('90,255,140');
   function addKey(id, idx, x, y, z) {
     const g = new THREE.Group();
-    const gold = S(null, { color: 0xe0b44a, emissive: 0x6a4a10, roughness: .35, metalness: .7 });
-    const ring = new THREE.Mesh(new THREE.TorusGeometry(.05, .014, 8, 16), gold); ring.position.x = -.08; g.add(ring);
-    const shaft = new THREE.Mesh(new THREE.BoxGeometry(.18, .02, .02), gold); g.add(shaft);
-    [.05, .08].forEach(px => { const t = new THREE.Mesh(new THREE.BoxGeometry(.015, .05, .02), gold); t.position.set(px, -.03, 0); g.add(t); });
+    // 은폐 비밀 증거: 누런 서류 증거 봉투(붉은 '대외비' 도장 · 끈 단추) 위에 꼬리표 달린 녹슨 열쇠 꾸러미 — 예전 '황금 열쇠 조각' 모양을 새 증거물로 교체
+    const env = new THREE.Mesh(new THREE.BoxGeometry(.26, .012, .19), S(null, { color: 0xc9a66b, roughness: .92 })); g.add(env);
+    const flap = new THREE.Mesh(new THREE.BoxGeometry(.26, .004, .06), S(null, { color: 0xb8945a, roughness: .9 })); flap.position.set(0, .008, -.065); g.add(flap);
+    const stamp = new THREE.Mesh(new THREE.BoxGeometry(.08, .002, .035), S(null, { color: 0xb02020, roughness: .7 })); stamp.position.set(.06, .008, .04); stamp.rotation.y = .18; g.add(stamp);
+    const btn = new THREE.Mesh(new THREE.CylinderGeometry(.012, .012, .006, 12), S(null, { color: 0x8a6a3a })); btn.position.set(0, .011, -.04); g.add(btn);
+    const rust = S(null, { color: 0x7a5a3a, roughness: .55, metalness: .7 });
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(.028, .005, 6, 16), rust); ring.rotation.x = Math.PI / 2; ring.position.set(-.05, .02, .02); g.add(ring);
+    const shaft = new THREE.Mesh(new THREE.BoxGeometry(.075, .006, .012), rust); shaft.position.set(.0, .02, .03); shaft.rotation.y = -.3; g.add(shaft);
+    const tag = new THREE.Mesh(new THREE.BoxGeometry(.04, .003, .06), S(null, { color: 0xe8dcc0, roughness: .9 })); tag.position.set(-.09, .018, .05); tag.rotation.y = .4; g.add(tag);
     const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTexY, blending: THREE.AdditiveBlending, depthWrite: false }));
-    sp.scale.set(1.2, 1.2, 1.2); g.add(sp);
-    g.position.set(x, y + .12, z); g.userData.dynamic = true; cur.interior.add(g);
-    items.push({ kind: 'key', idx, floor: cur.f, pos: new THREE.Vector3(x, cur.y0 + y + .12, z), mesh: g, taken: false, label: `학교 비밀 증거 조각 확보하기 (${KEY_NAMES[idx]})`, baseY: y + .12 });
+    sp.scale.set(.7, .7, .7); g.add(sp);
+    g.position.set(x, y + .02, z); g.userData.dynamic = true; cur.interior.add(g);
+    items.push({ kind: 'key', idx, floor: cur.f, pos: new THREE.Vector3(x, cur.y0 + y + .02, z), mesh: g, taken: false, label: `은폐 증거 봉투 확보하기 (${KEY_NAMES[idx]})`, baseY: y + .02 });
   }
   function papers(cx, z1, z2, n, spread = 3.4) {
     for (let i = 0; i < n; i++) {

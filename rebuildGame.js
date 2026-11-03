@@ -2,12 +2,12 @@
 //   항상 켜진다 (예전 건물 모드는 폐지).
 //   예전 본관(1~3층 · 옥상) · 별관(8~10층) 건물은 감추고, 그 자리 땅(0층)에서 새 건물을 걷는다.
 //   높이는 P.sh(계단 높이 보정값)로 넘긴다 → 카메라 · 점프 · 가구 오르기 코드는 손대지 않아도 된다.
-import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN } from './rebuild/mainBuilding.js?v=359';
-import { placeModels } from './rebuild/models.js?v=359';
-import { carve, subdivide } from './rebuild/transplant.js?v=359';
+import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN, grafMaterial } from './rebuild/mainBuilding.js?v=361';
+import { placeModels } from './rebuild/models.js?v=361';
+import { carve, subdivide } from './rebuild/transplant.js?v=361';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { turfMaterial } from './campusVisuals.js?v=359';
-import { ENGINE } from './engine.js?v=359';
+import { turfMaterial } from './campusVisuals.js?v=361';
+import { ENGINE } from './engine.js?v=361';
 
 // 예전 건물이 차지하던 땅 (이 안의 예전 메시 · 충돌 상자를 걷어 낸다)
 const OLD_MAIN = { x1: -51, x2: 51, z1: -10.6, z2: 10.9 };
@@ -198,6 +198,15 @@ export function installRebuild({ THREE, scene, floors, world }) {
       if (r) { const [cx, cz] = b.toWorld((r.x1 + r.x2) / 2, (r.z1 + r.z2) / 2); return { id: `rb:${b.name}:${f}:${r.label}`, type: ({ bcast: 'broadcast', staff: 'office' })[r.type] || r.type || 'room', name: r.label, cx, cz, rb: true, y0: f * MAIN.spec.FH, hw: (r.x2 - r.x1) / 2 - .2, hd: (r.z2 - r.z1) / 2 - .2 }; } } return null; },
     where(x, z, y) { const f = Math.round(y / MAIN.spec.FH); for (const b of BLD) { const [lx, lz] = b.toLocal(x, z); const r = (b.props || []).find(p => p.kind === 'room' && p.floor === f && lx > p.x1 && lx < p.x2 && lz > p.z1 && lz < p.z2); if (r) return `${b.name} ${f + 1}층 ${r.label}`; } return null; },
   };
+  // 책상 낙서: 실제로 놓인 학생 책상 인스턴스 위를 광선으로 재서 윗면에 붙인다 (모델이 다 올라온 뒤 · 책상 11개 중 1개꼴)
+  R.deskGraffiti = () => { if (R._graf) return R._graf; let n = 0; const rc = new THREE.Raycaster(), m4 = new THREE.Matrix4(), p = new THREE.Vector3(), q = new THREE.Quaternion(), s3 = new THREE.Vector3(), tmp = new THREE.Mesh();
+    group.updateMatrixWorld(true);
+    group.traverse(o => { if (!o.isInstancedMesh || !/^RBM_SchoolDesk_01/.test(o.name)) return;
+      for (let i = 0; i < o.count; i += 1) { if ((i * 7919) % 11) continue; o.getMatrixAt(i, m4); m4.premultiply(o.matrixWorld); m4.decompose(p, q, s3);
+        tmp.geometry = o.geometry; tmp.material = o.material; tmp.matrixWorld.copy(m4); tmp.matrixAutoUpdate = false;
+        rc.set(new THREE.Vector3(p.x, p.y + 1.6, p.z), new THREE.Vector3(0, -1, 0)); const h = rc.intersectObject(tmp, false)[0]; if (!h || h.point.y - p.y < .55 || h.point.y - p.y > 1) continue;
+        const d = new THREE.Mesh(new THREE.PlaneGeometry(.32, .22), grafMaterial(n % 6)); d.rotation.set(-Math.PI / 2, 0, new THREE.Euler().setFromQuaternion(q).y + ((i % 5) - 2) * .12); d.position.set(p.x, h.point.y + .003, p.z); d.renderOrder = 2; d.userData.rbFloor = o.userData.rbFloor; o.parent.attach(d); n++; } });
+    return (R._graf = n); };
 
   // 한 걸음 이동: 새 건물 땅이면 true (예전 계단 · 통로 순간이동 코드는 건너뛴다)
   //   P.sh = 발밑 높이. 0.5m 넘는 단 · 벽 · 가구는 막는다. 층 사이 허공으로는 걸어 나가지 않는다.

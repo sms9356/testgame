@@ -4,12 +4,12 @@
 //   전기(분전반 · 2등용 형광등 · 콘센트 · 스위치) · 소방(소화전함 · 소화기 · 감지기 · 유도등 · 방화문) · 수도(세면대 · 배관)
 import * as THREE from '../vendor/three.module.js';
 import { mergeGeometries } from '../vendor/addons/utils/BufferGeometryUtils.js';
-import { makeFlag } from '../tex.js?v=361';
+import { makeFlag } from '../tex.js?v=362';
 // 교실 앞면 꾸밈 공용 (반 이름 · 텍스처 캐시)
 const NAMES = ['김민수', '이서연', '박지훈', '최유진', '정하늘', '강도윤', '조수아', '윤재현', '장예린', '임태호', '한소영', '오준서', '서지민', '신동혁', '권나연', '황민재', '안채원', '송우진', '전다은', '홍석진'];
 let flagTex = null; const decorTex = new Map();
 // 책상 위 낙서 · 칼자국: 연필 · 볼펜 글씨 + 긁힌 선 (투명 판, 책상 윗면에 붙인다). 6가지를 돌려 쓴다 (재질 공유)
-const GRAF = ['민아 ♡ 하늘', '졸업하고 싶다', '수학 시험 망함 ㅠ', '서문고 3-2 화이팅', '여기 앉지 마', '시험범위 p.41~78'], grafMat = [];
+const GRAF = ['수능 D-400', '졸면 죽는다', '수학 시험 망함 ㅠ', '서문고 3-2 화이팅', '떠든 사람: 김민수', '시험범위 p.41~78'], grafMat = [];
 export function grafMaterial(k) { if (grafMat[k]) return grafMat[k]; const c = document.createElement('canvas'); c.width = 256; c.height = 176; const g = c.getContext('2d');
   const pen = k % 3 === 0 ? 'rgba(40,60,140,.75)' : k % 3 === 1 ? 'rgba(60,60,60,.7)' : 'rgba(120,30,30,.65)';
   g.save(); g.translate(128, 88); g.rotate((k % 2 ? -1 : 1) * .12); g.fillStyle = pen; g.font = `${k % 2 ? 'bold ' : ''}26px "Nanum Pen Script","Gaegu",cursive,sans-serif`; g.textAlign = 'center'; g.fillText(GRAF[k], 0, 0); g.restore();

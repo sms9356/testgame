@@ -2066,7 +2066,6 @@ function chemMix({ title = '실험대 — 시약 중화 적정 (목표 pH 7.2)' 
 function hoopShot({ title = '체육관 코트 — 물리 궤적 자유투 (3골 성공)' } = {}) {
   const p = open(title, '마우스 위·아래(또는 <b>W · S</b>)로 발사 각도 조준 · <b>마우스 버튼 / Space</b>를 누르고 있다가 떼면 슛!<br>백보드 반동을 이용하거나 클린샷으로 <b>3골</b>을 성공시켜라');
   const c = canvas(480, 300), g = c.getContext('2d');
-  screen3D(c, { kind: 'metal', prop: 'ball' });
   let ang = 54 * Math.PI / 180, pwr = 0, charging = false, dir = 1, goals = 0, shots = 0;
   let ball = null, rimX = 392, rimY = 118, rimR = 22, boardX = 420, lastT = performance.now();
 
@@ -2163,6 +2162,40 @@ function hoopShot({ title = '체육관 코트 — 물리 궤적 자유투 (3골 
     raf = requestAnimationFrame(loop);
   };
   raf = requestAnimationFrame(loop);
+  // 3D 체육관 코트 (옆에서 본 시점): 마루 · 3점 라인, 유리 백보드 · 주황 림 · 그물, 실제 공이 2D 물리 좌표(1px=1cm)를 그대로 따라 난다.
+  //   조준 점선 · 파워 게이지 · 점수판도 3D. 마우스 입력은 숨긴 원래 캔버스의 같은 위치로 넘긴다.
+  (() => { let r; try { r = new THREE.WebGLRenderer({ antialias: true }); } catch (e) { return; }
+    r.setPixelRatio(Math.min(2, devicePixelRatio || 1)); r.setSize(480, 300); r.outputColorSpace = THREE.SRGBColorSpace; r.toneMapping = THREE.ACESFilmicToneMapping; r.domElement.className = 'mgCanvas'; r.domElement.dataset.own3d = '1'; c.dataset.st = '1'; c.parentNode.insertBefore(r.domElement, c);
+    c.style.cssText += ';position:fixed;left:-10000px;top:0;opacity:0;pointer-events:none';
+    const X = x => (x - 240) / 100, Y = y => (255 - y) / 100;
+    const sc = new THREE.Scene(); sc.background = new THREE.Color(0x101318); const cam = new THREE.PerspectiveCamera(34, 480 / 300, .05, 40); cam.position.set(0, 1.25, 4.6); cam.lookAt(0, .95, 0);
+    sc.add(new THREE.HemisphereLight(0xfff4e0, 0x2a1a10, .7)); const L = new THREE.SpotLight(0xfff2dc, 40, 14, .7, .5, 1.2); L.position.set(.5, 4.5, 2.5); L.target.position.set(.5, .8, 0); sc.add(L, L.target);
+    const M = (c3, o = {}) => new THREE.MeshStandardMaterial(Object.assign({ color: c3, roughness: .5 }, o));
+    const fc = document.createElement('canvas'); fc.width = 512; fc.height = 128; const fg = fc.getContext('2d'); fg.fillStyle = '#b07a44'; fg.fillRect(0, 0, 512, 128); for (let k = 0; k < 32; k++) { fg.fillStyle = `rgba(60,30,10,${.05 + Math.random() * .12})`; fg.fillRect(k * 16, 0, 1, 128); } fg.fillStyle = '#f2f2ee'; fg.fillRect(0, 60, 512, 4); fg.fillRect(330, 0, 4, 128);
+    const ft = new THREE.CanvasTexture(fc); ft.colorSpace = THREE.SRGBColorSpace; const floor = new THREE.Mesh(new THREE.PlaneGeometry(8, 3), M(0xffffff, { map: ft, roughness: .35 })); floor.rotation.x = -Math.PI / 2; floor.position.set(0, 0, -.5); sc.add(floor);
+    const wall = new THREE.Mesh(new THREE.PlaneGeometry(8, 4), M(0x5a6470, { roughness: .9 })); wall.position.set(0, 2, -2); sc.add(wall);
+    const bx0 = X(boardX + 4); const pole = new THREE.Mesh(new THREE.CylinderGeometry(.05, .06, 2.4, 14), M(0x30343a, { metalness: .6 })); pole.position.set(bx0 + .45, 1.2, -.15); sc.add(pole);
+    const arm = new THREE.Mesh(new THREE.BoxGeometry(.5, .06, .06), M(0x30343a, { metalness: .6 })); arm.position.set(bx0 + .22, Y(93), -.15); sc.add(arm);
+    const board = new THREE.Mesh(new THREE.BoxGeometry(.04, .78, 1.05), new THREE.MeshPhysicalMaterial({ color: 0xe8f4ff, transparent: true, opacity: .45, roughness: .05 })); board.position.set(bx0, Y(93), 0); sc.add(board);
+    const sq = new THREE.Mesh(new THREE.BoxGeometry(.045, .3, .4), M(0xffffff, { transparent: true, opacity: .0 })); sc.add(sq);
+    const sqL = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(.046, .3, .42)), new THREE.LineBasicMaterial({ color: 0xd04020 })); sqL.position.set(bx0 - .005, Y(rimY) + .2, 0); sc.add(sqL);
+    const rimM = M(0xe0501c, { metalness: .5, roughness: .35 }); const rim = new THREE.Mesh(new THREE.TorusGeometry(rimR / 100 + .02, .012, 8, 32), rimM); rim.rotation.x = Math.PI / 2; rim.position.set(X(rimX + 4), Y(rimY), 0); sc.add(rim);
+    const netG = new THREE.CylinderGeometry(rimR / 100 + .02, rimR / 100 - .06, .34, 12, 3, true); const net = new THREE.Mesh(netG, new THREE.MeshBasicMaterial({ color: 0xf0f0e8, wireframe: true, transparent: true, opacity: .7 })); net.position.set(rim.position.x, Y(rimY) - .17, 0); sc.add(net);
+    const bc = document.createElement('canvas'); bc.width = 128; bc.height = 64; const bg2 = bc.getContext('2d'); bg2.fillStyle = '#d86a28'; bg2.fillRect(0, 0, 128, 64); bg2.strokeStyle = '#1a0c04'; bg2.lineWidth = 3; [16, 48, 80, 112].forEach(x => { bg2.beginPath(); bg2.moveTo(x, 0); bg2.lineTo(x, 64); bg2.stroke(); }); bg2.beginPath(); bg2.moveTo(0, 32); bg2.lineTo(128, 32); bg2.stroke();
+    const btx = new THREE.CanvasTexture(bc); btx.colorSpace = THREE.SRGBColorSpace; const bm = new THREE.Mesh(new THREE.SphereGeometry(.12, 28, 20), M(0xffffff, { map: btx, roughness: .75 })); sc.add(bm);
+    const dots = [...Array(11)].map(() => { const d = new THREE.Mesh(new THREE.SphereGeometry(.018, 8, 6), new THREE.MeshBasicMaterial({ color: 0xffd76e, transparent: true, opacity: .7 })); sc.add(d); return d; });
+    const gaugeBg = new THREE.Mesh(new THREE.BoxGeometry(.1, 1.2, .05), M(0x222830)); gaugeBg.position.set(X(55), 1.0, 0); sc.add(gaugeBg);
+    const gauge = new THREE.Mesh(new THREE.BoxGeometry(.08, 1.2, .06), new THREE.MeshBasicMaterial({ color: 0x58ff98 })); sc.add(gauge);
+    const scC = document.createElement('canvas'); scC.width = 256; scC.height = 96; const scG = scC.getContext('2d'); const scT = new THREE.CanvasTexture(scC); scT.colorSpace = THREE.SRGBColorSpace;
+    const board2 = new THREE.Mesh(new THREE.PlaneGeometry(1.1, .41), new THREE.MeshBasicMaterial({ map: scT })); board2.position.set(-.6, 2.25, -1.95); sc.add(board2); let lastScore = '';
+    const fwd = (type, e) => { const b = r.domElement.getBoundingClientRect(), cb = c.getBoundingClientRect(); c.dispatchEvent(new MouseEvent(type, { clientX: cb.left + (e.clientX - b.left) / b.width * cb.width, clientY: cb.top + (e.clientY - b.top) / b.height * cb.height, bubbles: true })); };
+    ['mousemove', 'mousedown'].forEach(t => r.domElement.addEventListener(t, e => fwd(t, e)));
+    let spin = 0;
+    const lp = () => { if (!MG.active) { r.dispose(); return; } const bx = ball ? ball.x : 74, by = ball ? ball.y : 220; bm.position.set(X(bx), Y(by), 0); if (ball) { spin -= ball.vx * .0006; bm.rotation.z = spin; }
+      const v0 = 340 + (charging ? pwr : .55) * 280; dots.forEach((d, i) => { const tt = (i + 1) * .055; d.visible = !ball; d.position.set(X(74 + Math.cos(ang) * v0 * tt), Y(220 - Math.sin(ang) * v0 * tt + .5 * 560 * tt * tt), 0); });
+      gauge.scale.y = Math.max(.001, pwr); gauge.position.set(X(55), 1.0 - .6 + .6 * pwr, .01);
+      const sTxt = goals + '/' + shots + '/' + Math.round(ang * 180 / Math.PI); if (sTxt !== lastScore) { lastScore = sTxt; scG.fillStyle = '#0a0a0a'; scG.fillRect(0, 0, 256, 96); scG.fillStyle = '#ff4030'; scG.font = 'bold 44px monospace'; scG.textAlign = 'center'; scG.fillText(`${goals} / 3`, 80, 62); scG.fillStyle = '#ffd050'; scG.font = 'bold 26px monospace'; scG.fillText(`${Math.round(ang * 180 / Math.PI)}°`, 196, 60); scT.needsUpdate = true; }
+      net.scale.y = ball && ball.scored && ball.y < rimY + 60 ? .8 : 1; r.render(sc, cam); requestAnimationFrame(lp); }; requestAnimationFrame(lp); })();
   return p;
 }
 

@@ -37,7 +37,7 @@ export function initAudio() {
   // 지속 저주파 드론 제거: 대사와 필요한 효과음은 별도 버스로 유지.
   ['school-bell', 'class-chime', 'pa-chime'].forEach(name => loadVoice(`assets/sfx/${name}.mp3`).then(b => { if (b) schoolSamples.set(name, b); }));
   // 실제 녹음 효과음 (ElevenLabs 생성): 발소리 3종 · 문 · 사물함 · 철문 · 종이 · 열쇠 · 줍기 · 물방울 · 물튀김 — 없으면 합성음으로
-  ['sfx-step-tile', 'sfx-step-wood', 'sfx-step-metal', 'sfx-door-creak', 'sfx-door-slam', 'sfx-locker', 'sfx-steel-door', 'sfx-paper', 'sfx-keys', 'sfx-pickup', 'sfx-drip', 'sfx-splash', 'sfx-flicker', 'sfx-heartbeat', 'sfx-wind'].forEach(name => loadVoice(`assets/sfx/${name}.mp3`).then(b => { if (!b) return; schoolSamples.set(name, b);
+  ['sfx-step-tile', 'sfx-step-wood', 'sfx-step-metal', 'sfx-door-creak', 'sfx-door-slam', 'sfx-locker', 'sfx-steel-door', 'sfx-paper', 'sfx-keys', 'sfx-pickup', 'sfx-drip', 'sfx-splash', 'sfx-flicker', 'sfx-heartbeat', 'sfx-wind', 'sfx-piano-c4'].forEach(name => loadVoice(`assets/sfx/${name}.mp3`).then(b => { if (!b) return; schoolSamples.set(name, b);
   }));
   buildAmbience();
   // 유령 근접음(숨소리/속삭임)
@@ -478,7 +478,7 @@ function laterAt(s, fn) { const p = sfxPos; setTimeout(() => { sfxPos = p; try {
   pinBreak() { noiseBurst(.08, 6000, 'highpass', .5); tone(3200, .06, 'square', .05, 0, 1, 1800); },
   tumbler() { noiseBurst(.12, 900, 'bandpass', .5); tone(180, .2, 'square', .08, 0, 1, 120); setTimeout(() => { noiseBurst(.08, 2400, 'bandpass', .4); tone(520, .12, 'square', .05); }, 120); },
   dial() { noiseBurst(.025, 3800, 'bandpass', .3); tone(1900, .02, 'square', .02); },
-  note(f) { tone(f, 1.8, 'triangle', .22); tone(f * 2.003, 1.2, 'sine', .06); tone(f * 3.01, .5, 'sine', .02); },
+  note(f) { if (!ac) initAudio(); if (ac && ac.state === 'suspended') ac.resume().catch(() => {}); if (sample('sfx-piano-c4', .7, f / 261.7)) return; tone(f, 1.8, 'triangle', .22); tone(f * 2.003, 1.2, 'sine', .06); tone(f * 3.01, .5, 'sine', .02); },   // 실제 업라이트 피아노 녹음(가운데 도)을 음높이만큼 재생 속도로 바꿔 친다 — 없으면 합성음
   clank(v = 1) { tone(1250, .25, 'square', .05 * v, 0, 1, 1100); tone(1840, .18, 'square', .03 * v); noiseBurst(.15, 3000, 'bandpass', .35 * v); setTimeout(() => { tone(1150, .15, 'square', .03 * v); noiseBurst(.08, 3000, 'bandpass', .2 * v); }, 160); },
   throwIt() { noiseBurst(.18, 1400, 'bandpass', .12); },
   hook() { noiseBurst(.4, 700, 'bandpass', .3); tone(240, .3, 'triangle', .06, 0, 1, 180); },

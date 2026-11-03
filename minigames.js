@@ -640,6 +640,37 @@ function order({ title, frags, showTimes, onFail }) {
 
 /* ---------- 8. 짝 맞추기 (기억력) ---------- */
 // 카드를 두 장씩 뒤집어 같은 그림을 찾는다. 틀린 횟수가 많으면 실패
+// 카드 앞면 그림: 이모지 대신 직접 그린 빈티지 삽화 (1990년대 학교 물건 · 컴퓨터실 · 미술실). 모르는 그림은 이모지로.
+function cardArt(g, ic) {
+  const W = 128, H = 176, cx = 64, cy = 92, R = (x, y, w, h, c) => { g.fillStyle = c; g.fillRect(x, y, w, h); }, C = (x, y, r, c) => { g.fillStyle = c; g.beginPath(); g.arc(x, y, r, 0, 7); g.fill(); }, S = (c, w) => { g.strokeStyle = c; g.lineWidth = w; }, L = (pts) => { g.beginPath(); pts.forEach(([x, y], i) => i ? g.lineTo(x, y) : g.moveTo(x, y)); g.stroke(); };
+  const bg = g.createRadialGradient(cx, cy, 10, cx, cy, 90); bg.addColorStop(0, '#f8f0dc'); bg.addColorStop(1, '#dccaa0'); g.fillStyle = bg; g.fillRect(0, 0, W, H);
+  S('#8a6a3a', 4); g.strokeRect(6, 6, W - 12, H - 12); S('rgba(138,106,58,.5)', 1); g.strokeRect(12, 12, W - 24, H - 24);
+  for (let i = 0; i < 120; i++) { g.fillStyle = `rgba(110,80,40,${Math.random() * .08})`; g.fillRect(Math.random() * W, Math.random() * H, 2, 2); }
+  g.save(); g.lineJoin = 'round';
+  const D = {
+    '📻': () => { R(28, 70, 72, 46, '#6a3a1e'); R(32, 74, 34, 38, '#2a1a10'); for (let y = 78; y < 110; y += 5) R(34, y, 30, 2, '#5a4030'); R(70, 76, 26, 12, '#e8d8a0'); S('#c02020', 1.5); L([[76, 76], [76, 88]]); C(76, 102, 6, '#c8a860'); C(90, 102, 6, '#c8a860'); S('#888', 2); L([[90, 70], [104, 40]]); },
+    '🎹': () => { R(18, 74, 92, 40, '#111'); for (let i = 0; i < 8; i++) R(21 + i * 11, 78, 10, 32, '#f4eee0'); [0, 1, 3, 4, 5].forEach(i => R(28 + i * 11, 78, 6, 19, '#111')); R(18, 66, 92, 8, '#2a1a10'); },
+    '📼': () => { R(20, 72, 88, 48, '#1c1c1c'); R(28, 78, 72, 14, '#e8dcc0'); g.fillStyle = '#c02020'; g.font = 'bold 9px sans-serif'; g.fillText('1998.10.12', 34, 89); C(46, 104, 9, '#555'); C(82, 104, 9, '#555'); C(46, 104, 3, '#111'); C(82, 104, 3, '#111'); R(52, 100, 24, 8, '#3a2a1a'); },
+    '🔔': () => { g.fillStyle = '#c8a040'; g.beginPath(); g.moveTo(40, 112); g.quadraticCurveTo(42, 60, 64, 58); g.quadraticCurveTo(86, 60, 88, 112); g.closePath(); g.fill(); R(34, 110, 60, 7, '#a07a28'); C(64, 122, 6, '#7a5a20'); C(64, 54, 5, '#a07a28'); S('rgba(255,240,200,.6)', 3); L([[52, 70], [48, 104]]); },
+    '📕': () => { R(34, 56, 60, 76, '#a02a22'); R(34, 56, 8, 76, '#6a1a14'); R(50, 70, 36, 20, '#e8d8b0'); g.fillStyle = '#6a1a14'; g.font = 'bold 8px serif'; g.textAlign = 'center'; g.fillText('학교 일지', 68, 84); g.textAlign = 'left'; R(94, 60, 4, 70, '#f0e8d0'); },
+    '🗝': () => { S('#9a7a3a', 7); g.beginPath(); g.arc(46, 80, 14, 0, 7); g.stroke(); L([[60, 86], [100, 112]]); L([[86, 103], [80, 114]]); L([[95, 109], [89, 120]]); S('#e0c070', 2); g.beginPath(); g.arc(44, 77, 10, 3.6, 5.2); g.stroke(); },
+    '💾': () => { R(30, 62, 68, 68, '#2a3a6a'); R(44, 62, 38, 22, '#c0c4c8'); R(70, 66, 8, 14, '#2a3a6a'); R(38, 96, 52, 30, '#f0ece0'); S('#3a6aca', 1); for (let y = 104; y < 124; y += 6) L([[42, y], [86, y]]); },
+    '🖥': () => { R(26, 58, 76, 56, '#d8d0b8'); R(32, 64, 64, 44, '#1a2a2a'); g.fillStyle = '#40e080'; g.font = '9px monospace'; g.fillText('C:\\>_', 36, 78); R(54, 114, 20, 8, '#c8c0a8'); R(40, 122, 48, 6, '#b8b098'); },
+    '📁': () => { g.fillStyle = '#d8a840'; g.beginPath(); g.moveTo(26, 72); g.lineTo(54, 72); g.lineTo(60, 80); g.lineTo(102, 80); g.lineTo(102, 124); g.lineTo(26, 124); g.closePath(); g.fill(); R(30, 86, 72, 38, '#e8bc58'); R(36, 76, 40, 6, '#f4f0e4'); },
+    '🖨': () => { R(28, 82, 72, 34, '#c8c0aa'); R(40, 56, 48, 28, '#f6f2e8'); S('#555', 1); for (let y = 62; y < 80; y += 5) L([[44, y], [84, y]]); R(36, 116, 56, 16, '#f6f2e8'); C(88, 92, 3, '#40c060'); },
+    '📀': () => { const gr = g.createRadialGradient(64, 92, 6, 64, 92, 40); gr.addColorStop(0, '#fff'); gr.addColorStop(.4, '#e8c860'); gr.addColorStop(.7, '#c8a0e0'); gr.addColorStop(1, '#a0d0e0'); C(64, 92, 40, gr); C(64, 92, 9, '#dccaa0'); S('rgba(0,0,0,.3)', 1); g.beginPath(); g.arc(64, 92, 40, 0, 7); g.stroke(); },
+    '⌨': () => { R(16, 80, 96, 40, '#d0c8b0'); for (let r = 0; r < 4; r++) for (let k = 0; k < 9; k++) R(20 + k * 10 + (r % 2) * 3, 84 + r * 8, 8, 6, '#f0ece0'); R(36, 114, 50, 4, '#f0ece0'); },
+    '🎨': () => { g.fillStyle = '#c8945a'; g.beginPath(); g.ellipse(64, 94, 42, 32, -.2, 0, 7); g.fill(); C(78, 108, 7, '#dccaa0'); [['#d02020', 44, 82], ['#2050c0', 60, 74], ['#e0c020', 78, 78], ['#20a040', 46, 102], ['#f0f0f0', 90, 92]].forEach(([c, x, y]) => C(x, y, 7, c)); },
+    '🖌': () => { S('#7a4a24', 7); L([[38, 128], [76, 72]]); R(74, 60, 14, 16, '#b8b8b8'); g.fillStyle = '#2050c0'; g.beginPath(); g.moveTo(76, 62); g.lineTo(90, 62); g.lineTo(92, 44); g.lineTo(80, 38); g.closePath(); g.fill(); },
+    '🗿': () => { R(40, 120, 48, 10, '#8a8478'); g.fillStyle = '#a8a294'; g.beginPath(); g.moveTo(46, 120); g.lineTo(44, 64); g.quadraticCurveTo(64, 46, 84, 64); g.lineTo(82, 120); g.closePath(); g.fill(); R(50, 78, 10, 4, '#5a554c'); R(68, 78, 10, 4, '#5a554c'); R(60, 84, 8, 18, '#8a8478'); R(54, 106, 20, 4, '#5a554c'); },
+    '🖼': () => { R(26, 60, 76, 64, '#8a6a2a'); R(32, 66, 64, 52, '#7aa8c8'); g.fillStyle = '#4a7a3a'; g.beginPath(); g.moveTo(32, 118); g.lineTo(52, 90); g.lineTo(66, 104); g.lineTo(80, 84); g.lineTo(96, 118); g.fill(); C(82, 76, 6, '#f8e8a0'); },
+    '✏': () => { g.save(); g.translate(64, 92); g.rotate(-.7); R(-8, -46, 16, 74, '#e8b820'); R(-8, -54, 16, 10, '#e88888'); R(-8, -46, 16, 4, '#b8b8b8'); g.fillStyle = '#e8c890'; g.beginPath(); g.moveTo(-8, 28); g.lineTo(8, 28); g.lineTo(0, 44); g.fill(); g.fillStyle = '#333'; g.beginPath(); g.moveTo(-3, 38); g.lineTo(3, 38); g.lineTo(0, 44); g.fill(); g.restore(); },
+    '📐': () => { g.fillStyle = 'rgba(80,160,200,.55)'; g.beginPath(); g.moveTo(30, 124); g.lineTo(98, 124); g.lineTo(30, 56); g.closePath(); g.fill(); S('#2a6a8a', 2); g.stroke(); S('#2a6a8a', 1); for (let i = 0; i < 10; i++) L([[36 + i * 6, 124], [36 + i * 6, 118]]); },
+    '🌙': () => { R(20, 50, 88, 84, '#1a2440'); C(70, 88, 26, '#f4e8b0'); C(82, 80, 24, '#1a2440'); for (let i = 0; i < 12; i++) C(24 + Math.random() * 80, 54 + Math.random() * 76, 1, '#fff'); },
+  };
+  if (D[ic]) D[ic](); else { g.font = '72px "Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = '#222'; g.fillText(ic, cx, cy); }
+  g.restore();
+}
 function memory({ title = '짝 맞추기', icons = ['📻', '🎹', '📼', '🔔', '📕', '🗝'], maxMiss = 8 }) {
   const p = open(title, '카드를 클릭해 두 장씩 뒤집고 <b>같은 그림</b>을 모두 찾아라 · 틀린 횟수가 다 차면 실패');
   const deck = [...icons, ...icons].map((ic, i) => ({ ic, id: i, open: false, done: false })).sort(() => Math.random() - .5);
@@ -668,7 +699,7 @@ function memory({ title = '짝 맞추기', icons = ['📻', '🎹', '📼', '�
     const tex = draw => { const c2 = document.createElement('canvas'); c2.width = 128; c2.height = 176; const g2 = c2.getContext('2d'); draw(g2); const t = new THREE.CanvasTexture(c2); t.colorSpace = THREE.SRGBColorSpace; return t; };
     const backT = tex(g2 => { g2.fillStyle = '#2a3a5a'; g2.fillRect(0, 0, 128, 176); g2.strokeStyle = '#c8a860'; g2.lineWidth = 6; g2.strokeRect(8, 8, 112, 160); g2.fillStyle = '#c8a860'; g2.font = 'bold 30px serif'; g2.textAlign = 'center'; g2.textBaseline = 'middle'; g2.fillText('서문', 64, 76); g2.font = '16px serif'; g2.fillText('1987', 64, 108); }); backT.center.set(.5, .5); backT.rotation = Math.PI;
     const cols = deck.length > 12 ? 5 : 4, rows = Math.ceil(deck.length / cols), CW = .34, CH = .46, gap = .08;
-    const cards = deck.map((d, i) => { const front = tex(g2 => { g2.fillStyle = '#f4ecd8'; g2.fillRect(0, 0, 128, 176); g2.strokeStyle = '#8a6a3a'; g2.lineWidth = 4; g2.strokeRect(6, 6, 116, 164); g2.font = '72px "Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif'; g2.textAlign = 'center'; g2.textBaseline = 'middle'; g2.fillText(/[\u2300-\u2BFF\u2600-\u27BF]/.test(d.ic) && !d.ic.includes('\uFE0F') ? d.ic + '\uFE0F' : d.ic, 64, 92); });
+    const cards = deck.map((d, i) => { const front = tex(g2 => cardArt(g2, d.ic));
       const m = [new THREE.MeshStandardMaterial({ color: 0xe8e0cc }), new THREE.MeshStandardMaterial({ color: 0xe8e0cc }), new THREE.MeshStandardMaterial({ map: front, roughness: .5 }), new THREE.MeshStandardMaterial({ map: backT, roughness: .5 }), new THREE.MeshStandardMaterial({ color: 0xe8e0cc }), new THREE.MeshStandardMaterial({ color: 0xe8e0cc })];
       const o = new THREE.Mesh(new THREE.BoxGeometry(CW, .012, CH), m); const x = i % cols, y = (i / cols) | 0; o.position.set((x - (cols - 1) / 2) * (CW + gap), .01, (y - (rows - 1) / 2) * (CH + gap)); o.rotation.z = Math.PI; o.userData.i = i; sc.add(o); return { o, flip: 0, lift: 0 }; });
     const rc = new THREE.Raycaster(), mv = new THREE.Vector2();

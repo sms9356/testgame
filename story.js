@@ -617,7 +617,7 @@ export const CLUES = {
   h3: '별관은 따로 전기가 들어온다. 그날 밤 정전 때도 별관은 불이 켜져 있었다.',
   h4: '교장은 그날 밤 불 켜진 별관에 있었다. 펌프실 열쇠는 “내일 아침”으로 미뤘다.',
   n_timer: '방송실 장비실의 카세트 타이머 — 1999년부터 해마다 23:40, 이준호가 하늘의 리허설 테이프를 틀어 왔다.',
-  h5: '별관 자율학습실 진열장에서 교장 직인 마스터 코어를 찾았다 — 5대 비밀 증거 조각과 합치면 서문고 진상 규명 마스터 기록부가 완성된다.',
+  h5: '본관 3층 자율학습실 진열장에서 교장 직인 마스터 코어를 찾았다 — 5대 비밀 증거 조각과 합치면 서문고 진상 규명 마스터 기록부가 완성된다.',
 };
 
 export const CREDITS = [
@@ -672,7 +672,7 @@ export const SIDEQUESTS = [
     { f: 1, room: '교사 휴게실', dx: 2.9, d: .55, look: 'box', label: '휴게실 우편함 뒤지기', doc: 'q5b', goal: '본관 1층 교무실 · 행정실 — 우편함' },
     { f: 0, x: 24.6, z: 67.9, look: 'post', label: '경비실 우편함에 편지 넣기', take: 'letterT', doc: 'q5c', goal: '정문 경비실 — 우편함', event: 'post', reward: { battery: 2 } }] },
   { id: 'mina', title: '민아가 여기 온 이유', steps: [
-    { f: 1, room: '컴퓨터실', dx: 2.9, d: .55, look: 'monitor', label: '켜져 있는 모니터 보기', doc: 'q6a', goal: '별관 1층 컴퓨터실 — 켜져 있는 모니터' },
+    { f: 1, room: '컴퓨터실', dx: 2.9, d: .55, look: 'monitor', label: '켜져 있는 모니터 보기', doc: 'q6a', goal: '본관 4층 컴퓨터실 — 켜져 있는 모니터' },
     { f: 1, room: '2-5', dx: -1.55, d: 1.25, look: 'photo', label: '게시판의 사진 보기', doc: 'q6b', goal: '본관 2층 2학년 5반 — 게시판 사진' },
     { f: 2, room: '방송실', dx: -1.0, d: 2.2, look: 'tape', label: '민아가 남긴 녹음기 재생', need: 'mina', doc: 'q6c', goal: '본관 4층 방송실 — 민아의 녹음기 (민아를 깨운 뒤)', event: 'mina', reward: { medkit: 1, battery: 1 } }] },
   { id: 'light', title: '10년 늦은 비상등', steps: [
@@ -689,7 +689,7 @@ export const HEADQUEST = { id: 'head', title: '교장의 최종 은폐 내막 ·
   { f: 1, room: '교장실', dx: 2.4, d: .6, look: 'paper', label: '교장 책상 서랍 열기', doc: 'h1', goal: '본관 2층 교장실 — 책상 서랍', where: '본관 2층 · 교장실' },
   { f: 8, room: '별관 현관', dx: 2.6, d: 1.4, look: 'plaque', label: '개교 머릿돌 동판 읽기', doc: 'h2', goal: '별관 1층 미술실 — 개교 머릿돌 동판', where: '별관 1층 · 현관 (본관 1층 계단실 북쪽 유리 통로)' },
   { f: 8, room: '공구실', dx: -2.6, d: .16, look: 'panel', label: '별관 분전반 배선 잇기', mini: 'circuit', doc: 'h3', goal: '별관 1층 가정실 — 분전반 (별관 전원)', where: '별관 1층 · 가정실 분전반', event: 'annexPower' },
-  { f: 9, room: '디지털실습실', dx: 2.6, d: .6, look: 'monitor', label: '보안 PC — 끊긴 CCTV 화면 복구', mini: 'slide', need: 'anPow', doc: 'h4', goal: '별관 1층 컴퓨터실 — 보안 PC', where: '별관 1층 · 컴퓨터실', event: 'cctv' },
+  { f: 9, room: '디지털실습실', dx: 2.6, d: .6, look: 'monitor', label: '보안 PC — 끊긴 CCTV 화면 복구', mini: 'slide', need: 'anPow', doc: 'h4', goal: '본관 4층 컴퓨터실 — 보안 PC', where: '본관 4층 · 컴퓨터실', event: 'cctv' },
   { f: 10, room: '전시 공간', dx: 0, d: 2.2, look: 'case', label: '진열장 비밀번호 입력', code: '0302', need: 'anPow', doc: 'h5', goal: '본관 3층 자율학습실 — 진열장 (번호: 학교가 태어난 날)', where: '본관 3층 · 자율학습실', event: 'head' }] };
 
 // 수집품 14종 — 사물함 · 방 곳곳에서. 모두 모으면 보답이 있다 (소지품 › 수집품)

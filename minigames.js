@@ -181,7 +181,18 @@ function screen3D(c, { kind = 'metal', knobs = null, prop = null, anim = null, p
   if (prop === 'ball') { side = 1; const b2 = new THREE.Mesh(new THREE.SphereGeometry(.17, 28, 20), M(0xd0682a, { roughness: .8 })); b2.position.set(sw / 2 + .4, yBot + .17, -.1); P.add(b2); spin.push(b2); }
   if (prop === 'tape') { side = 1; const t2 = new THREE.Mesh(new THREE.BoxGeometry(.4, .02, .25), M(0x1a1a1a)); t2.position.set(sw / 2 + .4, yBot + .01, -.05); t2.rotation.y = .3; P.add(t2); const lb = new THREE.Mesh(new THREE.BoxGeometry(.3, .022, .12), M(0xe8dcc0)); lb.position.copy(t2.position); lb.position.y += .002; lb.rotation.y = .3; P.add(lb); }
   if (prop === 'pipe') { const p2 = new THREE.Mesh(new THREE.CylinderGeometry(.07, .07, sw + 3, 18), M(0x6a5a48, { metalness: .7, roughness: .45 })); p2.rotation.z = Math.PI / 2; p2.position.set(0, yTop + .25, -.75); P.add(p2); const v2 = new THREE.Mesh(new THREE.TorusGeometry(.13, .025, 8, 24), M(0xb02020, { metalness: .4 })); v2.position.set(sw / 2 + .2, yTop + .25, -.62); P.add(v2); spin.push(v2); }
-  if (prop === 'lamp') { side = 1; const base = new THREE.Mesh(new THREE.CylinderGeometry(.1, .12, .03, 20), M(0x2a3a2a)); base.position.set(-(sw / 2 + .4), yBot + .015, -.2); P.add(base); const pole = new THREE.Mesh(new THREE.CylinderGeometry(.012, .012, .7, 8), M(0x2a3a2a)); pole.position.set(-(sw / 2 + .4), yBot + .35, -.2); P.add(pole); const shade = new THREE.Mesh(new THREE.ConeGeometry(.14, .16, 20, 1, true), M(0x2f5a3a, { side: THREE.DoubleSide })); shade.position.set(-(sw / 2 + .28), yBot + .7, -.1); shade.rotation.z = -.6; P.add(shade); const wl = new THREE.PointLight(0xffd8a0, 1.2, 3); wl.position.set(-(sw / 2 + .2), yBot + .6, 0); P.add(wl); }
+  const DESKTOOLS = ['stamp', 'omr', 'magnets', 'cards'];
+  if (DESKTOOLS.includes(prop)) {   // 서류 책상 도구 (오른쪽): 직인과 인주 · 컴퓨터용 사인펜과 수정테이프 · 자석 · 도서 카드함 — 왼쪽엔 스탠드
+    const tx = sw / 2 + .5, ty = yBot, TG = new THREE.Group();
+    if (prop === 'stamp') { const pad = new THREE.Mesh(new THREE.CylinderGeometry(.11, .11, .035, 24), M(0x222222, { metalness: .4 })); pad.position.set(tx, ty + .02, -.05); TG.add(pad); const ink = new THREE.Mesh(new THREE.CylinderGeometry(.095, .095, .005, 24), M(0xa01818, { roughness: .9 })); ink.position.set(tx, ty + .04, -.05); TG.add(ink);
+      const st = new THREE.Group(); const h = new THREE.Mesh(new THREE.CylinderGeometry(.03, .045, .16, 18), M(0x5a2a14, { roughness: .4 })); h.position.y = .1; st.add(h); const base = new THREE.Mesh(new THREE.CylinderGeometry(.05, .05, .03, 18), M(0xc8a860, { metalness: .6 })); base.position.y = .015; st.add(base); st.position.set(tx + .05, ty, .2); st.rotation.z = .25; TG.add(st); }
+    if (prop === 'omr') { const pen = new THREE.Mesh(new THREE.CylinderGeometry(.009, .009, .3, 10), M(0x111111)); pen.rotation.z = Math.PI / 2; pen.rotation.y = .4; pen.position.set(tx, ty + .01, .1); TG.add(pen); const cap = new THREE.Mesh(new THREE.CylinderGeometry(.011, .011, .06, 10), M(0xffffff)); cap.rotation.z = Math.PI / 2; cap.rotation.y = .4; cap.position.set(tx + .14, ty + .012, .04); TG.add(cap);
+      const tape = new THREE.Mesh(new THREE.BoxGeometry(.13, .035, .05), M(0x3a7ad0, { roughness: .4 })); tape.position.set(tx - .02, ty + .018, -.12); tape.rotation.y = -.3; TG.add(tape); const roll = new THREE.Mesh(new THREE.CylinderGeometry(.018, .018, .055, 14), M(0xf4f4f0)); roll.rotation.x = Math.PI / 2; roll.position.set(tx + .05, ty + .02, -.15); TG.add(roll); }
+    if (prop === 'magnets') { [[0xd03030, -.06, .05], [0x3070d0, .06, .1], [0xe0c020, 0, -.08], [0x30a050, .1, -.05], [0xe07020, -.1, -.12]].forEach(([c3, dx, dz]) => { const m2 = new THREE.Mesh(new THREE.CylinderGeometry(.035, .035, .02, 18), M(c3, { roughness: .35 })); m2.position.set(tx + dx, ty + .01, dz); TG.add(m2); }); }
+    if (prop === 'cards') { const bx2 = new THREE.Mesh(new THREE.BoxGeometry(.24, .14, .34), M(0x6a4424, { roughness: .6 })); bx2.position.set(tx, ty + .07, -.05); TG.add(bx2); for (let k = 0; k < 9; k++) { const cd = new THREE.Mesh(new THREE.BoxGeometry(.2, .16, .004), M(k % 3 ? 0xf0e8d0 : 0xe8d8a8, { roughness: .9 })); cd.position.set(tx, ty + .1 + (k % 2) * .01, -.18 + k * .03); cd.rotation.x = -.2; TG.add(cd); } const tab = new THREE.Mesh(new THREE.BoxGeometry(.06, .03, .005), M(0xc03030)); tab.position.set(tx + .05, ty + .2, -.03); TG.add(tab); }
+    [...TG.children].forEach(o => { o.position.set(tx + (o.position.x - tx) * 1.8, ty + (o.position.y - ty) * 1.8, o.position.z * 1.8); o.scale.multiplyScalar(1.8); P.add(o); });   // 종이 크기에 맞게 키운다
+    side = 1.3; }
+  if (prop === 'lamp' || DESKTOOLS.includes(prop)) { side = 1; const base = new THREE.Mesh(new THREE.CylinderGeometry(.1, .12, .03, 20), M(0x2a3a2a)); base.position.set(-(sw / 2 + .4), yBot + .015, -.2); P.add(base); const pole = new THREE.Mesh(new THREE.CylinderGeometry(.012, .012, .7, 8), M(0x2a3a2a)); pole.position.set(-(sw / 2 + .4), yBot + .35, -.2); P.add(pole); const shade = new THREE.Mesh(new THREE.ConeGeometry(.14, .16, 20, 1, true), M(0x2f5a3a, { side: THREE.DoubleSide })); shade.position.set(-(sw / 2 + .28), yBot + .7, -.1); shade.rotation.z = -.6; P.add(shade); const wl = new THREE.PointLight(0xffd8a0, 1.2, 3); wl.position.set(-(sw / 2 + .2), yBot + .6, 0); P.add(wl); }
   const wAll = prop === 'microscope' || prop === 'projector' ? sw + 1.9 : sw + .6 + side * 1.2;
   const extra = prop === 'reels' ? .7 : prop === 'antenna' ? .45 : prop === 'pipe' ? .4 : 0, low = prop === 'valves' || prop === 'breaker' ? .5 : 0, hAll = shh + .9 + extra + low, cy = -.14 + extra / 2 - low / 2;
   const xo = prop === 'microscope' || prop === 'projector' ? -.65 : 0; cam.position.set(xo, cy + .19, Math.max(hAll / 2 / Math.tan(15 * Math.PI / 180), wAll / 2 / Math.tan(15 * Math.PI / 180) / (W / H))); cam.lookAt(xo, cy, 0);
@@ -1163,7 +1174,7 @@ function rings({ title = '단말기 잠금 — 고리 암호', clue = null, maxM
 function stampApprove({ title = '학생회실 — 1998 해교제 야간 잔류 승인원 검수 및 직인 날인' } = {}) {
   const p = open(title, '<b>1단계:</b> 기안문에서 <b style="color:#ff8a70">조작된 위조 조항 3줄(2·4·5번)</b>을 클릭해 적색 교정펜으로 정정하라<br><b>2단계:</b> 우측 <b>[관인 수직 각도(A·D)]</b>를 0°에 맞추고 <b>[인주 묻히기]</b> 후, <b>[결재란을 꾹 눌러(Hold)]</b> 압력 70~95%에서 떼어 날인하라!');
   const c = canvas(540, 350), g = c.getContext('2d');
-  screen3D(c, { kind: 'paper', prop: 'lamp' });
+  screen3D(c, { kind: 'paper', prop: 'stamp' });
   const items = [
     { txt: '문서번호: 서문학생 제1998-1012호 (기안일: 1998. 10. 12)', bad: false },
     { txt: '1. 행 사 명: 제30회 해교제 전야제 합동 리허설 및 방송 점검', bad: false },
@@ -1320,7 +1331,7 @@ function stampApprove({ title = '학생회실 — 1998 해교제 야간 잔류 �
 function omrGrade({ title = '교무실 — 1998학년도 기말고사 OMR 답안지 판독 및 복원' } = {}) {
   const p = open(title, '<b>1) 적색 채점 필름(상단 슬라이더 또는 A·D)</b>을 움직여 좌우 기준점(⊕)에 정렬한 뒤,<br><b>2) [1번 수정테이프]</b>로 오답 마킹을 지우고 <b>[2번 컴퓨터용 사인펜]</b>으로 붉은 정답 구멍에 마킹하여 <b>[Space / 광학 판독]</b>을 실행하라!');
   const c = canvas(520, 350), g = c.getContext('2d');
-  screen3D(c, { kind: 'paper', prop: 'lamp' });
+  screen3D(c, { kind: 'paper', prop: 'omr' });
   const ans = [3, 1, 5, 2, 4];
   // 각 문항의 마킹 배열 (복수 마킹이나 오답이 있으면 수정테이프로 먼저 지워야 함!)
   const marks = [[2], [1], [4], [5], [4]];
@@ -1457,7 +1468,7 @@ function omrGrade({ title = '교무실 — 1998학년도 기말고사 OMR 답안
 function timetableRestore({ title = '교실 게시판 — 1998년 10월 12일 학급 시간표 & 당번 자석 복원' } = {}) {
   const p = open(title, '<b>1) 하단 자석 명패(1~5번 클릭 또는 숫자키)</b> 중 단서에 맞는 과목/당번 자석을 먼저 선택한 뒤,<br><b>2) 위쪽 시간표의 알맞은 교시 칸</b>을 클릭해 부착하고, 4칸을 모두 올바르게 채운 뒤 <b>[Space / 황동 압정 잠금]</b>을 눌러라!');
   const c = canvas(520, 350), g = c.getContext('2d');
-  screen3D(c, { kind: 'paper', prop: 'lamp' });
+  screen3D(c, { kind: 'paper', prop: 'magnets' });
   const slots = [
     { period: '1교시 (09:00)', hint: '시약 중화 적정 실험 (화학실 이동 수업)', want: '화 학 I', placed: '화 학 I', locked: true },
     { period: '2교시 (10:00)', hint: '1998 현대문학 시 강독 (교실 수업)', want: '국 어 II', placed: null, locked: false },
@@ -1559,7 +1570,7 @@ function timetableRestore({ title = '교실 게시판 — 1998년 10월 12일 �
 function libraryCatalog({ title = '도서실 — KDC 청구기호 도서 대출 카드 & 금서 서가 배열' } = {}) {
   const p = open(title, '<b>1단계:</b> 책 표지 상단을 클릭해 두 권씩 자리를 바꿔 <b>KDC 청구기호 오름차순(100→300→400→800→900)</b>으로 배열하라<br><b>2단계:</b> 각 책 하단의 <b>[▲ / ▼ 라벨 슬라이더]</b>를 눌러 붉은 청구기호 라벨 높이를 <b>점선 기준선</b>에 맞춘 뒤 <b>[Space / 서가 잠금 해제]</b>를 눌러라!');
   const c = canvas(520, 340), g = c.getContext('2d');
-  screen3D(c, { kind: 'paper', prop: 'lamp' });
+  screen3D(c, { kind: 'paper', prop: 'cards' });
   const books = [
     { code: 400, label: '400 자연과학', sub: '화학실험 편람', col: '#244a38', tagLv: 1 },
     { code: 100, label: '100 철학·심리', sub: '융의 그림자 원형', col: '#4a2c38', tagLv: 0 },

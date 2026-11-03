@@ -112,7 +112,7 @@ function keys(fn) {
 // 3D 기기 화면: 2D 캔버스를 실제 장비(브라운관 오실로스코프·금속 단말기·나무 게임판)의 화면 텍스처로 띄운다.
 //   원래 캔버스는 화면 밖에 숨기고(크기는 유지 — 기존 좌표 계산 그대로), 화면을 클릭/드래그/휠하면 같은 위치로 이벤트를 넘긴다.
 //   knobs(): [0..1] 배열을 돌려주면 하단 회전 노브가 그 값대로 돈다.
-function screen3D(c, { kind = 'metal', knobs = null, prop = null } = {}) {
+function screen3D(c, { kind = 'metal', knobs = null, prop = null, anim = null } = {}) {
   let r; try { r = new THREE.WebGLRenderer({ antialias: true }); } catch (e) { return; }
   const W = 480, H = Math.round(480 * (c.height / c.width) + 70); r.setPixelRatio(Math.min(2, devicePixelRatio || 1)); r.setSize(W, H); r.outputColorSpace = THREE.SRGBColorSpace; r.toneMapping = THREE.ACESFilmicToneMapping;
   r.domElement.className = 'mgCanvas'; r.domElement.dataset.own3d = '1'; c.dataset.st = '1'; c.parentNode.insertBefore(r.domElement, c);
@@ -133,15 +133,31 @@ function screen3D(c, { kind = 'metal', knobs = null, prop = null } = {}) {
   const P = new THREE.Group(); sc.add(P); let side = 0;
   if (prop === 'antenna') { const a2 = new THREE.Mesh(new THREE.CylinderGeometry(.006, .01, .6, 6), M(0xc8c8c8, { metalness: .9, roughness: .2 })); a2.position.set(sw / 2 - .05, yTop + .28, -.3); a2.rotation.z = -.35; P.add(a2); }
   if (prop === 'reels') [-.38, .38].forEach(x => { const g = new THREE.Group(); const d = new THREE.Mesh(new THREE.CylinderGeometry(.3, .3, .03, 32), M(0x9aa0a8, { metalness: .8, roughness: .3 })); d.rotation.x = Math.PI / 2; g.add(d); for (let k = 0; k < 3; k++) { const h2 = new THREE.Mesh(new THREE.CylinderGeometry(.07, .07, .04, 14), M(0x111111)); h2.rotation.x = Math.PI / 2; h2.position.set(Math.cos(k * 2.1) * .16, Math.sin(k * 2.1) * .16, 0); g.add(h2); } g.position.set(x, yTop + .3, -.3); P.add(g); spin.push(g); });
-  if (prop === 'microscope') { side = 1; const g = new THREE.Group(); g.add(Object.assign(new THREE.Mesh(new THREE.BoxGeometry(.32, .05, .4), M(0x202428)), {})); const arm = new THREE.Mesh(new THREE.BoxGeometry(.07, .6, .1), M(0x2a2e34)); arm.position.set(0, .3, -.13); arm.rotation.x = .15; g.add(arm); const tube = new THREE.Mesh(new THREE.CylinderGeometry(.045, .05, .45, 18), M(0xe8e8e8, { metalness: .5, roughness: .3 })); tube.position.set(0, .5, .02); tube.rotation.x = -.35; g.add(tube); const st = new THREE.Mesh(new THREE.BoxGeometry(.26, .02, .22), M(0x15171a)); st.position.set(0, .2, .03); g.add(st); const sl = new THREE.Mesh(new THREE.BoxGeometry(.18, .005, .06), new THREE.MeshPhysicalMaterial({ color: 0xddeeff, transparent: true, opacity: .5 })); sl.position.set(0, .215, .03); g.add(sl); g.scale.setScalar(1.5); g.position.set(sw / 2 + .5, yBot + .04, -.15); g.rotation.y = -.5; P.add(g); }
+  let MS = null; if (prop === 'microscope') { side = 1.3;   // 실제로 움직이는 현미경: 리볼버(배율에 따라 회전) · 스테이지(WASD 위치) · 미동/조동 나사(초점) · 광원(조리개 밝기)
+    const g = new THREE.Group(), blk = M(0x1c2024, { roughness: .35, metalness: .3 }), crm = M(0xd8dce0, { metalness: .9, roughness: .2 }), cream = M(0xe8e2d4, { roughness: .4 });
+    const base = new THREE.Mesh(new THREE.BoxGeometry(.34, .05, .42), cream); base.position.y = .025; g.add(base);
+    const arm = new THREE.Mesh(new THREE.BoxGeometry(.08, .55, .1), cream); arm.position.set(0, .3, -.15); arm.rotation.x = .12; g.add(arm);
+    const head = new THREE.Mesh(new THREE.BoxGeometry(.1, .1, .16), cream); head.position.set(0, .56, -.06); g.add(head);
+    const eye = new THREE.Mesh(new THREE.CylinderGeometry(.025, .028, .16, 18), blk); eye.position.set(0, .64, -.13); eye.rotation.x = -.6; g.add(eye);
+    const rev = new THREE.Group(); rev.position.set(0, .48, .02); g.add(rev); const revD = new THREE.Mesh(new THREE.CylinderGeometry(.06, .07, .03, 24), crm); rev.add(revD);
+    [[.012, .05, 0xd0d0d0], [.014, .075, 0xd8c040], [.016, .1, 0xc83030]].forEach(([rr, ln, col], k) => { const a3 = k * Math.PI * 2 / 3, o = new THREE.Mesh(new THREE.CylinderGeometry(rr, rr * 1.3, ln, 14), crm); o.position.set(Math.sin(a3) * .04, -ln / 2 - .01, Math.cos(a3) * .04); rev.add(o); const band = new THREE.Mesh(new THREE.CylinderGeometry(rr * 1.32, rr * 1.32, .008, 14), M(col)); band.position.copy(o.position); band.position.y = -.025; rev.add(band); });
+    const stage = new THREE.Group(); stage.position.set(0, .3, .02); g.add(stage); stage.add(new THREE.Mesh(new THREE.BoxGeometry(.22, .015, .2), blk));
+    const slide = new THREE.Mesh(new THREE.BoxGeometry(.15, .004, .05), new THREE.MeshPhysicalMaterial({ color: 0xddeeff, transparent: true, opacity: .55, roughness: .05 })); slide.position.y = .01; stage.add(slide);
+    const spec = new THREE.Mesh(new THREE.CylinderGeometry(.008, .008, .002, 12), M(0x2a7a5a)); spec.position.y = .013; slide.add(spec);
+    const clipM = M(0xb0b4b8, { metalness: .8 }); [-1, 1].forEach(sd => { const cl = new THREE.Mesh(new THREE.BoxGeometry(.04, .003, .012), clipM); cl.position.set(sd * .06, .014, -.02); stage.add(cl); });
+    const knob = new THREE.Group(); knob.position.set(.06, .2, -.12); g.add(knob); const kn = new THREE.Mesh(new THREE.CylinderGeometry(.045, .045, .03, 24), blk); kn.rotation.z = Math.PI / 2; knob.add(kn); for (let k = 0; k < 8; k++) { const rib = new THREE.Mesh(new THREE.BoxGeometry(.032, .006, .006), crm); rib.position.set(.0, Math.cos(k * .785) * .045, Math.sin(k * .785) * .045); rib.rotation.x = k * .785; knob.add(rib); }
+    const fine = new THREE.Mesh(new THREE.CylinderGeometry(.025, .025, .02, 18), crm); fine.rotation.z = Math.PI / 2; fine.position.set(.085, .2, -.12); g.add(fine);
+    const lampM = new THREE.MeshBasicMaterial({ color: 0xfff2c0 }); const lamp = new THREE.Mesh(new THREE.CylinderGeometry(.03, .03, .01, 18), lampM); lamp.position.set(0, .056, .02); g.add(lamp);
+    const beam = new THREE.Mesh(new THREE.CylinderGeometry(.01, .03, .24, 16, 1, true), new THREE.MeshBasicMaterial({ color: 0xfff2c0, transparent: true, opacity: .12, depthWrite: false })); beam.position.set(0, .18, .02); g.add(beam);
+    g.scale.setScalar(1.9); g.position.set(-(sw / 2 + .6), yBot + .0, -.1); g.rotation.y = .55; P.add(g); MS = { rev, stage, knob, fine, lampM, beam }; }
   if (prop === 'beakers') { side = 1; [[0, .14, 0x70b0ff], [.24, .1, 0xff8060], [-.05, .08, 0x80e090]].forEach(([dx, r2, col], k) => { const gl = new THREE.Mesh(new THREE.CylinderGeometry(r2 * .5, r2 * .5, r2 * 2.2, 20, 1, true), new THREE.MeshPhysicalMaterial({ color: 0xffffff, transparent: true, opacity: .25, roughness: .05, side: THREE.DoubleSide })); const lq = new THREE.Mesh(new THREE.CylinderGeometry(r2 * .47, r2 * .47, r2 * 1.2, 20), M(col, { transparent: true, opacity: .75, emissive: col, emissiveIntensity: .15 })); const x = sw / 2 + .3 + dx, z = -.1 - k * .18; gl.position.set(x, yBot + r2 * 1.1, z); lq.position.set(x, yBot + r2 * .6, z); P.add(gl, lq); }); }
   if (prop === 'ball') { side = 1; const b2 = new THREE.Mesh(new THREE.SphereGeometry(.17, 28, 20), M(0xd0682a, { roughness: .8 })); b2.position.set(sw / 2 + .4, yBot + .17, -.1); P.add(b2); spin.push(b2); }
   if (prop === 'tape') { side = 1; const t2 = new THREE.Mesh(new THREE.BoxGeometry(.4, .02, .25), M(0x1a1a1a)); t2.position.set(sw / 2 + .4, yBot + .01, -.05); t2.rotation.y = .3; P.add(t2); const lb = new THREE.Mesh(new THREE.BoxGeometry(.3, .022, .12), M(0xe8dcc0)); lb.position.copy(t2.position); lb.position.y += .002; lb.rotation.y = .3; P.add(lb); }
   if (prop === 'pipe') { const p2 = new THREE.Mesh(new THREE.CylinderGeometry(.07, .07, sw + 3, 18), M(0x6a5a48, { metalness: .7, roughness: .45 })); p2.rotation.z = Math.PI / 2; p2.position.set(0, yTop + .25, -.75); P.add(p2); const v2 = new THREE.Mesh(new THREE.TorusGeometry(.13, .025, 8, 24), M(0xb02020, { metalness: .4 })); v2.position.set(sw / 2 + .2, yTop + .25, -.62); P.add(v2); spin.push(v2); }
   if (prop === 'lamp') { side = 1; const base = new THREE.Mesh(new THREE.CylinderGeometry(.1, .12, .03, 20), M(0x2a3a2a)); base.position.set(-(sw / 2 + .4), yBot + .015, -.2); P.add(base); const pole = new THREE.Mesh(new THREE.CylinderGeometry(.012, .012, .7, 8), M(0x2a3a2a)); pole.position.set(-(sw / 2 + .4), yBot + .35, -.2); P.add(pole); const shade = new THREE.Mesh(new THREE.ConeGeometry(.14, .16, 20, 1, true), M(0x2f5a3a, { side: THREE.DoubleSide })); shade.position.set(-(sw / 2 + .28), yBot + .7, -.1); shade.rotation.z = -.6; P.add(shade); const wl = new THREE.PointLight(0xffd8a0, 1.2, 3); wl.position.set(-(sw / 2 + .2), yBot + .6, 0); P.add(wl); }
-  const wAll = sw + .6 + side * 1.2;
+  const wAll = prop === 'microscope' ? sw + 1.9 : sw + .6 + side * 1.2;
   const extra = prop === 'reels' ? .7 : prop === 'antenna' ? .45 : prop === 'pipe' ? .4 : 0, hAll = shh + .9 + extra, cy = -.14 + extra / 2;
-  cam.position.set(0, cy + .19, Math.max(hAll / 2 / Math.tan(15 * Math.PI / 180), wAll / 2 / Math.tan(15 * Math.PI / 180) / (W / H))); cam.lookAt(0, cy, 0);
+  const xo = prop === 'microscope' ? -.65 : 0; cam.position.set(xo, cy + .19, Math.max(hAll / 2 / Math.tan(15 * Math.PI / 180), wAll / 2 / Math.tan(15 * Math.PI / 180) / (W / H))); cam.lookAt(xo, cy, 0);
   const rc = new THREE.Raycaster(), mv = new THREE.Vector2();
   const fwd = (type, e) => { const b = r.domElement.getBoundingClientRect(); mv.set((e.clientX - b.left) / b.width * 2 - 1, -((e.clientY - b.top) / b.height) * 2 + 1); rc.setFromCamera(mv, cam); const hit = rc.intersectObject(scr)[0]; if (!hit && !/move|up/.test(type)) return;
     const uv = hit ? hit.uv : { x: .5, y: .5 }, cb = c.getBoundingClientRect(), x = cb.left + Math.min(1, Math.max(0, uv.x)) * cb.width, y = cb.top + (1 - Math.min(1, Math.max(0, uv.y))) * cb.height;
@@ -150,7 +166,7 @@ function screen3D(c, { kind = 'metal', knobs = null, prop = null } = {}) {
     else c.dispatchEvent(new MouseEvent(type, { clientX: x, clientY: y, button: e.button, buttons: e.buttons, bubbles: true, cancelable: true })); };
   ['mousedown', 'mousemove', 'mouseup', 'click', 'contextmenu', 'pointerdown', 'pointermove', 'pointerup'].forEach(t => r.domElement.addEventListener(t, e => { if (t === 'contextmenu') e.preventDefault(); fwd(t, e); }));
   r.domElement.addEventListener('wheel', e => fwd('wheel', e), { passive: false });
-  const loop = () => { if (!MG.active) { r.dispose(); return; } tex.needsUpdate = true; if (knobs) { const v = knobs(); kn.forEach((g, i) => g.rotation.z = Math.PI * .75 - v[i] * Math.PI * 1.5); } spin.forEach(o => o.rotation.z += .01); r.render(sc, cam); requestAnimationFrame(loop); }; requestAnimationFrame(loop);
+  const loop = () => { if (!MG.active) { r.dispose(); return; } tex.needsUpdate = true; if (knobs) { const v = knobs(); kn.forEach((g, i) => g.rotation.z = Math.PI * .75 - v[i] * Math.PI * 1.5); } spin.forEach(o => o.rotation.z += .01); if (MS && anim) { const a = anim(); const tgt = a.mag === 40 ? 0 : a.mag === 100 ? Math.PI * 2 / 3 : Math.PI * 4 / 3; MS.rev.rotation.y += (-tgt - MS.rev.rotation.y) * .15; MS.stage.position.x = a.sx * .0008; MS.stage.position.z = .02 + a.sy * .0008; MS.knob.rotation.x = a.focus * 9; MS.fine.rotation.x = a.focus * 18; MS.lampM.color.setScalar(.3 + a.iris * .9); MS.beam.material.opacity = .04 + a.iris * .2; } r.render(sc, cam); requestAnimationFrame(loop); }; requestAnimationFrame(loop);
 }
 function canvas(w, h) { const c = document.createElement('canvas'); c.width = w; c.height = h; c.className = 'mgCanvas'; $('mgBody').appendChild(c); return c; }
 $('mgCancel').onclick = () => { if (finish) close(false); };
@@ -1680,9 +1696,9 @@ function cassetteSplice({ title = '방송실 — 1998년 하교 방송 카세트
 function microscopeSlide({ title = '과학준비실 — 광학 현미경 프레파라트 표본 초점·배율 판독' } = {}) {
   const p = open(title, '<b>1) 대물렌즈[400x]</b> 전환 → <b>2) 프레파라트 스테이지[WASD / 뷰포트 드래그]</b>로 표본을 십자선 중앙에 이동 →<br><b>3) 미동 초점 나사[Q·E]</b>와 <b>4) 조리개 광량[Z·C]</b>을 맞춘 뒤 <b>[Space / 표본 판독 확정]</b>을 눌러라!');
   const c = canvas(520, 340), g = c.getContext('2d');
-  screen3D(c, { kind: 'metal', prop: 'microscope' });
   let mag = 100, focus = 0.18, targetFocus = 0.68, iris = 0.25, targetIris = 0.62;
   let sx = 46, sy = -38, dragStage = false, lastMouse = [0, 0];
+  screen3D(c, { kind: 'metal', prop: 'microscope', anim: () => ({ mag, sx, sy, focus, iris }) });
 
   function draw() {
     g.fillStyle = '#090c10'; g.fillRect(0, 0, c.width, c.height);

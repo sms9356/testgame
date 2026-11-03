@@ -1976,7 +1976,6 @@ function oscilloscope({ title = '오실로스코프 — 주파수·진폭·위�
 function chemMix({ title = '실험대 — 시약 중화 적정 (목표 pH 7.2)' } = {}) {
   const p = open(title, '<b>1번(산성 적정액)</b> · <b>2번(염기성 시약)</b> · <b>3번(완충 냉각액)</b> 버튼 클릭 또는 키 입력<br>pH를 <b>7.0 ~ 7.4</b>, 온도를 <b>40°C 이하</b>로 맞춘 뒤 <b>Space(교반 결정화)</b>를 눌러라');
   const c = canvas(460, 300), g = c.getContext('2d');
-  screen3D(c, { kind: 'metal', prop: 'beakers' });
   let ph = 4.2 + (Math.random() < .5 ? -.8 : 4.4), temp = 28, stir = 0, drops = [], lastT = performance.now();
   const addReagent = kind => {
     if (!finish) return;
@@ -2059,6 +2058,51 @@ function chemMix({ title = '실험대 — 시약 중화 적정 (목표 pH 7.2)' 
     raf = requestAnimationFrame(loop);
   };
   raf = requestAnimationFrame(loop);
+  // 3D 실험대: 철제 스탠드에 매달린 유리 뷰렛 3개(산·염기·완충), 가운데 비커 용액이 pH 따라 색이 변하고 교반 막대가 돈다. 디지털 pH·온도계, 빨간 교반 버튼.
+  //   뷰렛/버튼을 클릭하면 같은 시약 투입·교반. 방울은 실제로 떨어진다.
+  (() => { let r; try { r = new THREE.WebGLRenderer({ antialias: true }); } catch (e) { return; }
+    r.setPixelRatio(Math.min(2, devicePixelRatio || 1)); r.setSize(460, 300); r.outputColorSpace = THREE.SRGBColorSpace; r.toneMapping = THREE.ACESFilmicToneMapping; r.domElement.className = 'mgCanvas'; r.domElement.dataset.own3d = '1'; c.dataset.st = '1'; c.parentNode.insertBefore(r.domElement, c); c.style.display = 'none';
+    const sc = new THREE.Scene(); sc.background = new THREE.Color(0x0d1014); const cam = new THREE.PerspectiveCamera(34, 460 / 300, .05, 20); cam.position.set(0, .75, 2.3); cam.lookAt(0, .42, 0);
+    sc.add(new THREE.HemisphereLight(0xeef4ff, 0x14100c, .65)); const L = new THREE.SpotLight(0xffffff, 18, 7, .7, .5, 1.3); L.position.set(.6, 2.2, 1.6); sc.add(L, L.target);
+    const M = (c3, o = {}) => new THREE.MeshStandardMaterial(Object.assign({ color: c3, roughness: .5 }, o)), glass = new THREE.MeshPhysicalMaterial({ color: 0xffffff, transparent: true, opacity: .22, roughness: .05, side: THREE.DoubleSide, depthWrite: false });
+    const top = new THREE.Mesh(new THREE.BoxGeometry(2.4, .06, 1.1), M(0x1c2a24, { roughness: .35 })); top.position.y = -.03; sc.add(top);
+    const rod = new THREE.Mesh(new THREE.CylinderGeometry(.012, .012, 1.3, 10), M(0xb0b4b8, { metalness: .9, roughness: .25 })); rod.position.set(0, .65, -.32); sc.add(rod);
+    const bar = new THREE.Mesh(new THREE.CylinderGeometry(.01, .01, 1.0, 8), rod.material); bar.rotation.z = Math.PI / 2; bar.position.set(0, 1.12, -.32); sc.add(bar);
+    const cols = [0xff5a5a, 0x5a9eff, 0x60ffb0], XS = [-.34, 0, .34], burs = XS.map((x, k) => { const g2 = new THREE.Group(); g2.position.set(x, .62, -.12);
+      const tube = new THREE.Mesh(new THREE.CylinderGeometry(.03, .03, .62, 16, 1, true), glass); tube.position.y = .2; g2.add(tube);
+      const liq = new THREE.Mesh(new THREE.CylinderGeometry(.026, .026, .5, 16), new THREE.MeshStandardMaterial({ color: cols[k], transparent: true, opacity: .8, emissive: cols[k], emissiveIntensity: .25 })); liq.position.y = .16; g2.add(liq);
+      const tip = new THREE.Mesh(new THREE.ConeGeometry(.018, .09, 12), glass); tip.rotation.x = Math.PI; tip.position.y = -.15; g2.add(tip);
+      const cock = new THREE.Mesh(new THREE.BoxGeometry(.08, .016, .016), M(0x202020)); cock.position.y = -.09; g2.add(cock);
+      const clamp3 = new THREE.Mesh(new THREE.BoxGeometry(.03, .03, .22), rod.material); clamp3.position.set(0, .48, -.1); g2.add(clamp3);
+      const hit = new THREE.Mesh(new THREE.CylinderGeometry(.07, .07, .8, 8), new THREE.MeshBasicMaterial({ visible: false })); hit.position.y = .15; hit.userData.k = k + 1; g2.add(hit);
+      sc.add(g2); return { g2, liq, cock, hit }; });
+    const bk = new THREE.Mesh(new THREE.CylinderGeometry(.24, .22, .36, 32, 1, true), glass); bk.position.set(0, .18, 0); sc.add(bk);
+    const bkBot = new THREE.Mesh(new THREE.CircleGeometry(.22, 32), glass); bkBot.rotation.x = -Math.PI / 2; bkBot.position.set(0, .005, 0); sc.add(bkBot);
+    const liqM = new THREE.MeshStandardMaterial({ color: 0xff7060, transparent: true, opacity: .8, roughness: .1 }); const liq = new THREE.Mesh(new THREE.CylinderGeometry(.225, .215, .22, 32), liqM); liq.position.set(0, .115, 0); sc.add(liq);
+    const surf = new THREE.Mesh(new THREE.CircleGeometry(.225, 32), liqM); surf.rotation.x = -Math.PI / 2; surf.position.set(0, .226, 0); sc.add(surf);
+    const stirB = new THREE.Mesh(new THREE.CapsuleGeometry(.012, .12, 4, 8), M(0xf4f4f4)); stirB.rotation.z = Math.PI / 2; stirB.position.set(0, .02, 0); sc.add(stirB);
+    const plate = new THREE.Mesh(new THREE.BoxGeometry(.6, .02, .5), M(0xd8d8d0)); plate.position.set(0, -.0, 0); sc.add(plate);
+    const meter = new THREE.Mesh(new THREE.BoxGeometry(.42, .3, .1), M(0x2a3036)); meter.position.set(.82, .2, 0); meter.rotation.y = -.35; sc.add(meter);
+    const mc = document.createElement('canvas'); mc.width = 256; mc.height = 160; const mg2 = mc.getContext('2d'); const mt = new THREE.CanvasTexture(mc); mt.colorSpace = THREE.SRGBColorSpace;
+    const disp = new THREE.Mesh(new THREE.PlaneGeometry(.36, .225), new THREE.MeshBasicMaterial({ map: mt })); disp.position.set(0, 0, .051); meter.add(disp);
+    const probe = new THREE.Mesh(new THREE.CylinderGeometry(.008, .008, .5, 8), M(0x404040)); probe.position.set(.15, .35, .05); probe.rotation.z = -.2; sc.add(probe);
+    const btn = new THREE.Mesh(new THREE.CylinderGeometry(.07, .07, .05, 24), M(0xc81e1e, { emissive: 0x300000 })); btn.position.set(-.82, .03, .15); btn.userData.stir = true; sc.add(btn);
+    const btnB = new THREE.Mesh(new THREE.BoxGeometry(.24, .04, .24), M(0x30343a)); btnB.position.set(-.82, .0, .15); sc.add(btnB);
+    const lc = document.createElement('canvas'); lc.width = 128; lc.height = 32; const lg = lc.getContext('2d'); lg.fillStyle = '#fff'; lg.font = 'bold 22px sans-serif'; lg.textAlign = 'center'; lg.fillText('교반', 64, 24); const lt = new THREE.CanvasTexture(lc);
+    const lab = new THREE.Mesh(new THREE.PlaneGeometry(.2, .05), new THREE.MeshBasicMaterial({ map: lt, transparent: true })); lab.rotation.x = -Math.PI / 2; lab.position.set(-.82, .03, .32); sc.add(lab);
+    const dropsG = []; let lastDrops = 0;
+    const rc = new THREE.Raycaster(), mv = new THREE.Vector2();
+    r.domElement.addEventListener('mousedown', e => { const b = r.domElement.getBoundingClientRect(); mv.set((e.clientX - b.left) / b.width * 2 - 1, -((e.clientY - b.top) / b.height) * 2 + 1); rc.setFromCamera(mv, cam); const h = rc.intersectObjects([btn, ...burs.map(o => o.hit)])[0]; if (!h) return; if (h.object.userData.stir) tryStir(); else addReagent(h.object.userData.k); });
+    let lastTxt = '', sp = 0;
+    const lp = () => { if (!MG.active) { r.dispose(); return; }
+      if (drops.length > lastDrops) { const d = drops[drops.length - 1], k = d.x < 190 ? 0 : d.x < 270 ? 1 : 2; const m = new THREE.Mesh(new THREE.SphereGeometry(.014, 8, 6), new THREE.MeshBasicMaterial({ color: cols[k] })); m.position.set(XS[k], .44, -.12); m.userData.v = 0; m.userData.tx = XS[k] * .3; sc.add(m); dropsG.push(m); burs[k].cock.rotation.y = 1.2; burs[k].liq.scale.y = Math.max(.2, burs[k].liq.scale.y - .02); burs[k].liq.position.y = .16 - (1 - burs[k].liq.scale.y) * .25; }
+      lastDrops = drops.length;
+      for (let i = dropsG.length - 1; i >= 0; i--) { const m = dropsG[i]; m.userData.v += .004; m.position.y -= m.userData.v; m.position.z += (0 - m.position.z) * .08; m.position.x += (m.userData.tx - m.position.x) * .08; if (m.position.y < .23) { sc.remove(m); dropsG.splice(i, 1); } }
+      burs.forEach(o => { o.cock.rotation.y *= .9; });
+      const okPh = ph >= 6.95 && ph <= 7.45; liqM.color.setHex(ph < 6.95 ? 0xf06048 : okPh ? 0x4beb9b : 0x5f82fa); liqM.emissive = liqM.color.clone().multiplyScalar(.15);
+      sp += .05 + stir * .6; stirB.rotation.y = sp; surf.position.y = .226 + Math.sin(performance.now() / 120) * .004 * (1 + stir * 4);
+      const txt = ph.toFixed(2) + '|' + temp.toFixed(0); if (txt !== lastTxt) { lastTxt = txt; mg2.fillStyle = '#0a140e'; mg2.fillRect(0, 0, 256, 160); mg2.font = 'bold 50px monospace'; mg2.fillStyle = okPh ? '#60ffa8' : '#ffd060'; mg2.fillText('pH ' + ph.toFixed(2), 14, 64); mg2.font = 'bold 40px monospace'; mg2.fillStyle = temp <= 42 ? '#80d8ff' : '#ff6060'; mg2.fillText(temp.toFixed(0) + ' °C', 14, 130); mg2.font = '18px sans-serif'; mg2.fillStyle = '#8aa'; mg2.fillText('7.0~7.4 · ≤42°C', 120, 150); mt.needsUpdate = true; }
+      btn.material.emissive.setHex(okPh && temp <= 42 ? 0x40ff60 : 0x300000); btn.position.y = .03 - stir * .015; r.render(sc, cam); requestAnimationFrame(lp); }; requestAnimationFrame(lp); })();
   return p;
 }
 

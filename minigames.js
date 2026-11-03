@@ -112,7 +112,7 @@ function keys(fn) {
 // 3D 기기 화면: 2D 캔버스를 실제 장비(브라운관 오실로스코프·금속 단말기·나무 게임판)의 화면 텍스처로 띄운다.
 //   원래 캔버스는 화면 밖에 숨기고(크기는 유지 — 기존 좌표 계산 그대로), 화면을 클릭/드래그/휠하면 같은 위치로 이벤트를 넘긴다.
 //   knobs(): [0..1] 배열을 돌려주면 하단 회전 노브가 그 값대로 돈다.
-function screen3D(c, { kind = 'metal', knobs = null, prop = null, anim = null } = {}) {
+function screen3D(c, { kind = 'metal', knobs = null, prop = null, anim = null, pick = null } = {}) {
   let r; try { r = new THREE.WebGLRenderer({ antialias: true }); } catch (e) { return; }
   const W = 480, H = Math.round(480 * (c.height / c.width) + 70); r.setPixelRatio(Math.min(2, devicePixelRatio || 1)); r.setSize(W, H); r.outputColorSpace = THREE.SRGBColorSpace; r.toneMapping = THREE.ACESFilmicToneMapping;
   r.domElement.className = 'mgCanvas'; r.domElement.dataset.own3d = '1'; c.dataset.st = '1'; c.parentNode.insertBefore(r.domElement, c);
@@ -133,6 +133,21 @@ function screen3D(c, { kind = 'metal', knobs = null, prop = null, anim = null } 
   const P = new THREE.Group(); sc.add(P); let side = 0;
   if (prop === 'antenna') { const a2 = new THREE.Mesh(new THREE.CylinderGeometry(.006, .01, .6, 6), M(0xc8c8c8, { metalness: .9, roughness: .2 })); a2.position.set(sw / 2 - .05, yTop + .28, -.3); a2.rotation.z = -.35; P.add(a2); }
   if (prop === 'reels') [-.38, .38].forEach(x => { const g = new THREE.Group(); const d = new THREE.Mesh(new THREE.CylinderGeometry(.3, .3, .03, 32), M(0x9aa0a8, { metalness: .8, roughness: .3 })); d.rotation.x = Math.PI / 2; g.add(d); for (let k = 0; k < 3; k++) { const h2 = new THREE.Mesh(new THREE.CylinderGeometry(.07, .07, .04, 14), M(0x111111)); h2.rotation.x = Math.PI / 2; h2.position.set(Math.cos(k * 2.1) * .16, Math.sin(k * 2.1) * .16, 0); g.add(h2); } g.position.set(x, yTop + .3, -.3); P.add(g); spin.push(g); });
+  const picks = []; let VL = null, VS = null;
+  if (prop === 'valves') {   // 화면 아래 배관 3줄: 빨간 핸들 밸브(클릭하면 그 밸브를 돌림) + 압력계 바늘이 PSI 를 따라간다
+    const pipeM = M(0x6a5a48, { metalness: .7, roughness: .45 }), red = M(0xb02020, { metalness: .4, roughness: .4 }), face = M(0xf0ece0, { roughness: .6 }), grn = new THREE.MeshBasicMaterial({ color: 0x40c070, side: THREE.DoubleSide });
+    VL = [-.55, 0, .55].map((x, i) => { const pp = new THREE.Mesh(new THREE.CylinderGeometry(.06, .06, .9, 16), pipeM); pp.position.set(x * sw / 1.6, yBot + .05, .5); pp.scale.y = .25; P.add(pp);
+      const wh = new THREE.Group(); wh.position.set(x * sw / 1.6 - .08, yBot + .2, .6); P.add(wh); const rim = new THREE.Mesh(new THREE.TorusGeometry(.12, .016, 8, 28), red); wh.add(rim); for (let k = 0; k < 4; k++) { const sp = new THREE.Mesh(new THREE.BoxGeometry(.24, .016, .016), red); sp.rotation.z = k * Math.PI / 4; wh.add(sp); }
+      const hit = new THREE.Mesh(new THREE.CircleGeometry(.15, 16), new THREE.MeshBasicMaterial({ visible: false })); hit.userData.pick = i; wh.add(hit); picks.push(hit);
+      const gg = new THREE.Group(); gg.position.set(x * sw / 1.6 + .14, yBot + .14, .58); P.add(gg); gg.add(new THREE.Mesh(new THREE.CylinderGeometry(.08, .08, .03, 24).rotateX(Math.PI / 2), M(0x30343a, { metalness: .7 }))); const fc = new THREE.Mesh(new THREE.CircleGeometry(.07, 24), face); fc.position.z = .016; gg.add(fc);
+      const zone = new THREE.Mesh(new THREE.RingGeometry(.05, .066, 16, 1, Math.PI / 2 - .25, .5), grn); zone.position.z = .017; gg.add(zone);
+      const nd = new THREE.Mesh(new THREE.BoxGeometry(.006, .06, .004), M(0xc01010)); nd.geometry.translate(0, .03, 0); nd.position.z = .019; gg.add(nd); return { wh, nd }; });
+  }
+  if (prop === 'breaker') {   // 배전반 아래: R·S·T 상 트림 다이얼 3개(전압 따라 회전, 클릭하면 조절) + 큰 차단기 레버
+    const blk = M(0x1c1c1c, { roughness: .4 }), crm = M(0xc8ccd0, { metalness: .9, roughness: .2 }); const cols3 = [0xd03030, 0xe0c030, 0x3070d0];
+    VS = { dials: [-.5, -.15, .2].map((x, i) => { const d = new THREE.Group(); d.position.set(x * sw / 1.4, yBot + .12, .55); P.add(d); d.add(new THREE.Mesh(new THREE.CylinderGeometry(.09, .1, .06, 28).rotateX(Math.PI / 2), blk)); const mk = new THREE.Mesh(new THREE.BoxGeometry(.012, .07, .01), M(cols3[i], { emissive: cols3[i], emissiveIntensity: .4 })); mk.position.set(0, .045, .035); d.add(mk); const hit = new THREE.Mesh(new THREE.CircleGeometry(.11, 16), new THREE.MeshBasicMaterial({ visible: false })); hit.position.z = .04; hit.userData.pick = i; d.add(hit); picks.push(hit); return d; }) };
+    const lv = new THREE.Group(); lv.position.set(.62 * sw / 1.4, yBot + .15, .55); P.add(lv); lv.add(new THREE.Mesh(new THREE.BoxGeometry(.2, .3, .08), M(0x30343a, { metalness: .6 }))); const arm = new THREE.Mesh(new THREE.BoxGeometry(.04, .2, .04), crm); arm.geometry.translate(0, .1, 0); arm.position.z = .06; lv.add(arm); const kn = new THREE.Mesh(new THREE.SphereGeometry(.035, 12, 10), M(0xc02020)); kn.position.y = .2; arm.add(kn); VS.lever = arm;
+  }
   let PJ = null; if (prop === 'projector') { side = 1.3;   // 16mm 영사기: 앞뒤 필름 릴이 돌고(트래킹이 어긋날수록 덜컹), 렌즈 경통이 초점 링 따라 돌며 앞뒤로 움직이고, 빛줄기가 화면으로 뻗는다
     const g = new THREE.Group(), body = M(0x3a3f44, { metalness: .6, roughness: .35 }), crm = M(0xc8ccd0, { metalness: .9, roughness: .2 }), blk = M(0x141414, { roughness: .4 });
     const box2 = new THREE.Mesh(new THREE.BoxGeometry(.5, .28, .22), body); box2.position.y = .26; g.add(box2);
@@ -168,7 +183,7 @@ function screen3D(c, { kind = 'metal', knobs = null, prop = null, anim = null } 
   if (prop === 'pipe') { const p2 = new THREE.Mesh(new THREE.CylinderGeometry(.07, .07, sw + 3, 18), M(0x6a5a48, { metalness: .7, roughness: .45 })); p2.rotation.z = Math.PI / 2; p2.position.set(0, yTop + .25, -.75); P.add(p2); const v2 = new THREE.Mesh(new THREE.TorusGeometry(.13, .025, 8, 24), M(0xb02020, { metalness: .4 })); v2.position.set(sw / 2 + .2, yTop + .25, -.62); P.add(v2); spin.push(v2); }
   if (prop === 'lamp') { side = 1; const base = new THREE.Mesh(new THREE.CylinderGeometry(.1, .12, .03, 20), M(0x2a3a2a)); base.position.set(-(sw / 2 + .4), yBot + .015, -.2); P.add(base); const pole = new THREE.Mesh(new THREE.CylinderGeometry(.012, .012, .7, 8), M(0x2a3a2a)); pole.position.set(-(sw / 2 + .4), yBot + .35, -.2); P.add(pole); const shade = new THREE.Mesh(new THREE.ConeGeometry(.14, .16, 20, 1, true), M(0x2f5a3a, { side: THREE.DoubleSide })); shade.position.set(-(sw / 2 + .28), yBot + .7, -.1); shade.rotation.z = -.6; P.add(shade); const wl = new THREE.PointLight(0xffd8a0, 1.2, 3); wl.position.set(-(sw / 2 + .2), yBot + .6, 0); P.add(wl); }
   const wAll = prop === 'microscope' || prop === 'projector' ? sw + 1.9 : sw + .6 + side * 1.2;
-  const extra = prop === 'reels' ? .7 : prop === 'antenna' ? .45 : prop === 'pipe' ? .4 : 0, hAll = shh + .9 + extra, cy = -.14 + extra / 2;
+  const extra = prop === 'reels' ? .7 : prop === 'antenna' ? .45 : prop === 'pipe' ? .4 : 0, low = prop === 'valves' || prop === 'breaker' ? .5 : 0, hAll = shh + .9 + extra + low, cy = -.14 + extra / 2 - low / 2;
   const xo = prop === 'microscope' || prop === 'projector' ? -.65 : 0; cam.position.set(xo, cy + .19, Math.max(hAll / 2 / Math.tan(15 * Math.PI / 180), wAll / 2 / Math.tan(15 * Math.PI / 180) / (W / H))); cam.lookAt(xo, cy, 0);
   const rc = new THREE.Raycaster(), mv = new THREE.Vector2();
   const fwd = (type, e) => { const b = r.domElement.getBoundingClientRect(); mv.set((e.clientX - b.left) / b.width * 2 - 1, -((e.clientY - b.top) / b.height) * 2 + 1); rc.setFromCamera(mv, cam); const hit = rc.intersectObject(scr)[0]; if (!hit && !/move|up/.test(type)) return;
@@ -176,9 +191,10 @@ function screen3D(c, { kind = 'metal', knobs = null, prop = null, anim = null } 
     if (type === 'wheel') { e.preventDefault(); c.dispatchEvent(new WheelEvent('wheel', { clientX: x, clientY: y, deltaY: e.deltaY, bubbles: true, cancelable: true })); }
     else if (type.startsWith('pointer')) c.dispatchEvent(new PointerEvent(type, { clientX: x, clientY: y, button: e.button, buttons: e.buttons, pointerId: e.pointerId, bubbles: true, cancelable: true }));
     else c.dispatchEvent(new MouseEvent(type, { clientX: x, clientY: y, button: e.button, buttons: e.buttons, bubbles: true, cancelable: true })); };
+  r.domElement.addEventListener('mousedown', e => { if (!picks.length || !pick) return; const b = r.domElement.getBoundingClientRect(); mv.set((e.clientX - b.left) / b.width * 2 - 1, -((e.clientY - b.top) / b.height) * 2 + 1); rc.setFromCamera(mv, cam); const h = rc.intersectObjects(picks, false)[0]; if (h) { e.stopImmediatePropagation(); pick(h.object.userData.pick, e.button === 2 ? -1 : 1); } }, true);
   ['mousedown', 'mousemove', 'mouseup', 'click', 'contextmenu', 'pointerdown', 'pointermove', 'pointerup'].forEach(t => r.domElement.addEventListener(t, e => { if (t === 'contextmenu') e.preventDefault(); fwd(t, e); }));
   r.domElement.addEventListener('wheel', e => fwd('wheel', e), { passive: false });
-  const loop = () => { if (!MG.active) { r.dispose(); return; } tex.needsUpdate = true; if (knobs) { const v = knobs(); kn.forEach((g, i) => g.rotation.z = Math.PI * .75 - v[i] * Math.PI * 1.5); } spin.forEach(o => o.rotation.z += .01); if (PJ && anim) PJ.update(anim()); if (MS && anim) { const a = anim(); const tgt = a.mag === 40 ? 0 : a.mag === 100 ? Math.PI * 2 / 3 : Math.PI * 4 / 3; MS.rev.rotation.y += (-tgt - MS.rev.rotation.y) * .15; MS.stage.position.x = a.sx * .0008; MS.stage.position.z = .02 + a.sy * .0008; MS.knob.rotation.x = a.focus * 9; MS.fine.rotation.x = a.focus * 18; MS.lampM.color.setScalar(.3 + a.iris * .9); MS.beam.material.opacity = .04 + a.iris * .2; } r.render(sc, cam); requestAnimationFrame(loop); }; requestAnimationFrame(loop);
+  const loop = () => { if (!MG.active) { r.dispose(); return; } tex.needsUpdate = true; if (knobs) { const v = knobs(); kn.forEach((g, i) => g.rotation.z = Math.PI * .75 - v[i] * Math.PI * 1.5); } spin.forEach(o => o.rotation.z += .01); if (PJ && anim) PJ.update(anim()); if (VL && anim) { const a = anim(); VL.forEach((o, i) => { o.wh.rotation.z += ((-a.angs[i]) - o.wh.rotation.z) * .15; o.nd.rotation.z = (1 - a.psi[i] / 100) * Math.PI * 1.4 - Math.PI * .7; }); } if (VS && anim) { const a = anim(); VS.dials.forEach((d, i) => { d.rotation.z = -(a.volts[i] - 215) / 45 * 2.2; }); VS.lever.rotation.z = a.on ? -.5 : .5; } if (MS && anim) { const a = anim(); const tgt = a.mag === 40 ? 0 : a.mag === 100 ? Math.PI * 2 / 3 : Math.PI * 4 / 3; MS.rev.rotation.y += (-tgt - MS.rev.rotation.y) * .15; MS.stage.position.x = a.sx * .0008; MS.stage.position.z = .02 + a.sy * .0008; MS.knob.rotation.x = a.focus * 9; MS.fine.rotation.x = a.focus * 18; MS.lampM.color.setScalar(.3 + a.iris * .9); MS.beam.material.opacity = .04 + a.iris * .2; } r.render(sc, cam); requestAnimationFrame(loop); }; requestAnimationFrame(loop);
 }
 function canvas(w, h) { const c = document.createElement('canvas'); c.width = w; c.height = h; c.className = 'mgCanvas'; $('mgBody').appendChild(c); return c; }
 $('mgCancel').onclick = () => { if (finish) close(false); };
@@ -2345,8 +2361,8 @@ function filmFocus({ title = '영사기 — 듀얼 렌즈 초점 & 필름 트래
 function valveBalance({ title = '수질관리실 — 3연동 배수 수압 밸브 동조' } = {}) {
   const p = open(title, '밸브 1 · 2 · 3을 클릭(또는 <b>1 · 2 · 3 키</b>)해 회전시켜 세 배관의 수압을 모두 <b style="color:#60ffa0">안전 구역(42 ~ 58 PSI)</b>에 맞춘 뒤 <b>배수 레버(Space)</b>를 당겨라');
   const c = canvas(460, 290), g = c.getContext('2d');
-  screen3D(c, { kind: 'metal', prop: 'pipe' });
   let psi = [24, 72, 30], angs = [0, 0, 0];
+  screen3D(c, { kind: 'metal', prop: 'valves', anim: () => ({ psi, angs }), pick: i => turnValve(i) });
   const turnValve = i => {
     if (!finish) return;
     sfx.clank ? sfx.clank(.6) : sfx.click();
@@ -2559,8 +2575,8 @@ function sketchLine(opts = {}) {
 function voltageSync({ title = '⚡ 노후 배전반 — 3상(R·S·T) 전압 트림 & 위상 동기화 차단기' } = {}) {
   const p = open(title, '<b>1단계:</b> R상 · S상 · T상 <b>전압 트림 다이얼(클릭 또는 1·2·3 키)</b>을 조절해 세 변압기 전압을 모두 <b style="color:#60ffa0">215 ~ 225V 정격 구간</b>에 맞춰라<br><b>2단계:</b> 우측 <b>위상 동기경(Synchroscope) 바늘</b>이 상단 12시 초록 구간에 들어왔을 때 <b>[Space / 차단기 투입]</b>을 눌러라!');
   const c = canvas(500, 310), g = c.getContext('2d');
-  screen3D(c, { kind: 'metal' });
   let volts = [190, 240, 200], syncAng = Math.PI, lastT = performance.now();
+  screen3D(c, { kind: 'metal', prop: 'breaker', anim: () => ({ volts, on: !finish }), pick: (i, d) => adjustPhase(i, d * 5) });
 
   const adjustPhase = (i, dv) => {
     if (!finish) return;

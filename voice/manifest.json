@@ -9801,5 +9801,101 @@
    "language_code": "ko",
    "delivery": "[pained]"
   }
+ },
+ "l_eqLocked_j": {
+  "spk": "jihun",
+  "text": "안 열려… 안에서 뭔가 쓰러지는 소리가 났어. 꼬리표엔 예비 열쇠가 경비실에 있다고 적혀 있어.",
+  "dur": 7.26,
+  "baked": true,
+  "eleven": true,
+  "generation": {
+   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "model_id": "eleven_v4",
+   "language_code": "ko"
+  }
+ },
+ "l_eqKeyGot_j": {
+  "spk": "jihun",
+  "text": "방송실 장비실 예비 열쇠… 이거다. 빨리 4층으로 돌아가자.",
+  "dur": 5.46,
+  "baked": true,
+  "eleven": true,
+  "generation": {
+   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "model_id": "eleven_v4",
+   "language_code": "ko"
+  }
+ },
+ "l_eqOpen_j": {
+  "spk": "jihun",
+  "text": "열렸다… 민아야, 거기 있어?",
+  "dur": 4.6,
+  "baked": true,
+  "eleven": true,
+  "generation": {
+   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "model_id": "eleven_v4",
+   "language_code": "ko"
+  }
+ },
+ "l_bcRead_j": {
+  "spk": "jihun",
+  "text": "하늘아, 네가 못 한 방송… 이제 내가 대신 읽을게.",
+  "dur": 5.64,
+  "baked": true,
+  "eleven": true,
+  "generation": {
+   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "model_id": "eleven_v4",
+   "language_code": "ko"
+  }
+ },
+ "l_eqLocked_s": {
+  "spk": "seoyeon",
+  "text": "문이 잠겼어… 안에 누가 있는 것 같아. 예비 열쇠는 경비실 열쇠함에 있대.",
+  "dur": 6.09,
+  "baked": true,
+  "eleven": true,
+  "generation": {
+   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "model_id": "eleven_v4",
+   "language_code": "ko"
+  }
+ },
+ "l_eqKeyGot_s": {
+  "spk": "seoyeon",
+  "text": "찾았다, 장비실 예비 열쇠. 선배, 조금만 기다려요.",
+  "dur": 4.68,
+  "baked": true,
+  "eleven": true,
+  "generation": {
+   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "model_id": "eleven_v4",
+   "language_code": "ko"
+  }
+ },
+ "l_eqOpen_s": {
+  "spk": "seoyeon",
+  "text": "열렸어… 선배! 민아 선배, 들려요?",
+  "dur": 4.23,
+  "baked": true,
+  "eleven": true,
+  "generation": {
+   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "model_id": "eleven_v4",
+   "language_code": "ko"
+  }
+ },
+ "l_bcRead_s": {
+  "spk": "seoyeon",
+  "text": "하늘 선배… 선배가 끝내지 못한 방송, 제가 읽을게요.",
+  "dur": 5.38,
+  "baked": true,
+  "eleven": true,
+  "generation": {
+   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "model_id": "eleven_v4",
+   "language_code": "ko"
+  }
  }
 }

@@ -4,7 +4,7 @@
 //   전기(분전반 · 2등용 형광등 · 콘센트 · 스위치) · 소방(소화전함 · 소화기 · 감지기 · 유도등 · 방화문) · 수도(세면대 · 배관)
 import * as THREE from '../vendor/three.module.js';
 import { mergeGeometries } from '../vendor/addons/utils/BufferGeometryUtils.js';
-import { makeFlag } from '../tex.js?v=394';
+import { makeFlag } from '../tex.js?v=395';
 // 교실 앞면 꾸밈 공용 (반 이름 · 텍스처 캐시)
 const NAMES = ['김민수', '이서연', '박지훈', '최유진', '정하늘', '강도윤', '조수아', '윤재현', '장예린', '임태호', '한소영', '오준서', '서지민', '신동혁', '권나연', '황민재', '안채원', '송우진', '전다은', '홍석진'];
 let flagTex = null; const decorTex = new Map();
@@ -1005,11 +1005,11 @@ export function buildMainBuilding(opt = {}) {
       [[0, -1], [1, 0], [-1, 0]].forEach(([a, b2]) => { chairAt(tx + a * 1.2, tz + b2 * 1.2); cyl('alu', tx + a * .5, y0 + .77, tz + b2 * .5, .012, .35); box('rubber', tx + a * .5 - .04, tx + a * .5 + .04, y0 + 1.1, y0 + 1.24, tz + b2 * .5 - .04, tz + b2 * .5 + .04);
         const hp = new THREE.TorusGeometry(.08, .012, 6, 12, Math.PI); hp.translate(tx + a * .35, y0 + .78, tz + b2 * .35); G('rubber', hp); });
       // 마스터 테이프 보관장 (복도 쪽 벽, 유리문) · 스튜디오 소품장
-      cabinet(XP + .4, XP + 5.4, z1 + .05, z1 + .55, 1.2, 'wood', true);
-      for (let k = 0; k < 40; k++) box(k % 3 ? 'screen' : 'rubber', XP + .5 + k * .12, XP + .58 + k * .12, y0 + .3, y0 + .5, z1 + .1, z1 + .5);
+      cabinet(XP + 1.3, XP + 5.4, z1 + .05, z1 + .55, 1.2, 'wood', true);   // 문 앞을 비워 둔다
+      for (let k = 0; k < 33; k++) box(k % 3 ? 'screen' : 'rubber', XP + 1.4 + k * .12, XP + 1.48 + k * .12, y0 + .3, y0 + .5, z1 + .1, z1 + .5);
       cabinet(X2 - 1.6, X2 - .3, z1 + .05, z1 + .6, 1.6, 'steelG');
       if (!opt.noClues) { clueNote('n8', XP - 1.45, y0 + .9, z1 + 5.6, f, .1); clueTape('ts_mina', tx - .3, y0 + .78, tz, f); }
-      props.push({ kind: 'search', label: '마스터 테이프 보관장 뒤지기', x: XP + 2.9, y: y0 + 1.0, z: z1 + .9, floor: f });
+      props.push({ kind: 'search', label: '마스터 테이프 보관장 뒤지기', x: XP + 3.35, y: y0 + 1.0, z: z1 + .9, floor: f });
       props.push({ kind: 'search', label: '영상 편집석 서랍 열기', x: X1 + 3.6, y: y0 + .9, z: z2 - 1.25, floor: f });
       props.push({ kind: 'search', label: '스튜디오 소품장 열기', x: X2 - .95, y: y0 + 1.0, z: z1 + 1.0, floor: f });
       // ── 장비실 (조정실 남동쪽, 유리벽 뒤 3.2m × 2.8m): 칸막이벽 · 잠긴 방화 철문(문짝은 게임 쪽에서 · 열쇠로 연다) · 장비 선반 · 카세트 타이머 — 민아가 갇혀 있던 곳

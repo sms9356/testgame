@@ -2,12 +2,12 @@
 //   항상 켜진다 (예전 건물 모드는 폐지).
 //   예전 본관(1~3층 · 옥상) · 별관(8~10층) 건물은 감추고, 그 자리 땅(0층)에서 새 건물을 걷는다.
 //   높이는 P.sh(계단 높이 보정값)로 넘긴다 → 카메라 · 점프 · 가구 오르기 코드는 손대지 않아도 된다.
-import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN, grafMaterial } from './rebuild/mainBuilding.js?v=387';
-import { placeModels } from './rebuild/models.js?v=387';
-import { carve, subdivide } from './rebuild/transplant.js?v=387';
+import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN, grafMaterial } from './rebuild/mainBuilding.js?v=388';
+import { placeModels } from './rebuild/models.js?v=388';
+import { carve, subdivide } from './rebuild/transplant.js?v=388';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { turfMaterial } from './campusVisuals.js?v=387';
-import { ENGINE } from './engine.js?v=387';
+import { turfMaterial } from './campusVisuals.js?v=388';
+import { ENGINE } from './engine.js?v=388';
 
 // 예전 건물이 차지하던 땅 (이 안의 예전 메시 · 충돌 상자를 걷어 낸다)
 const OLD_MAIN = { x1: -51, x2: 51, z1: -10.6, z2: 10.9 };
@@ -76,14 +76,14 @@ export function installRebuild({ THREE, scene, floors, world }) {
   const inBC = (x, z) => x > BC.x1 && x < BC.x2 && z > BC.z1 && z < BC.z2, BCY = 3 * MAIN.spec.FH;
   // 방송실 자리: 새 방송실 가구 배치(mainBuilding 'bcast') 기준 — X1 = 서쪽 첫 교실 칸 안쪽 벽
   const BX = MAIN.layout.rooms.find(r => r.kind === 'class').x1 + MAIN.spec.wall / 2, BXP = BX + 9;
-  const BC_SLOT = { console: [[BX + 2.55, 3.9]], cctvRec: [[BX + 1.75, 9.05]], tape: [[BXP + 1.0, 1.05], [BXP + 2.2, 1.05], [BXP + 3.4, 1.05], [BXP + 4.6, 1.05]], mina: [[BX + 17.0, 7.4]], sq: [[BXP + 4.6, 6.2], [BXP + 1.8, 8.6], [BX + 4.6, 6.6]] };
+  const BC_SLOT = { console: [[BXP - 2.55, 3.9]], cctvRec: [[BX + 1.75, 9.05]], tape: [[BXP + 1.0, 1.05], [BXP + 2.2, 1.05], [BXP + 3.4, 1.05], [BXP + 4.6, 1.05]], mina: [[BXP - 0.75, 7.6]], sq: [[BXP + 4.6, 6.2], [BXP + 1.8, 8.6], [BX + 4.6, 6.6]] };
   // 5구역 장비 조사 지점: 이름에 맞는 장비 앞으로 (랙 · 스위처 · 믹서 · 편집 PC)
-  const BC_FZ = [[/랙|VTR|셀렉터/, [BX + 3.45, 1.5]], [/스위처|CRT/, [BX + 2.6, 2.0]], [/믹서|마이크/, [BX + 2.6, 5.7]], [/NLE|편집 ?PC/, [BX + 6.1, 8.4]]];
+  const BC_FZ = [[/랙|VTR|셀렉터/, [BX + 3.45, 1.5]], [/스위처|CRT/, [BX + 2.6, 2.0]], [/믹서|마이크/, [BXP - 2.6, 5.7]], [/NLE|편집 ?PC/, [BX + 2.8, 8.4]]];
   // 의자에 앉기: 방송실 실제 의자 자리 (주조정 콘솔 의자 2 · 편집석 의자 · 라디오 원탁 의자 3 · 앵커 의자 2)
-  const BC_CHAIR = [[BX + 2.5, 3.0], [BX + 2.5, 4.8], [BX + 6.9, 8.5], [BX + 12.3, 6.1], [BX + 13.5, 7.3], [BX + 11.1, 7.3], [BX + 16.5, 2.5], [BX + 16.5, 3.8]]; let bcChair = 0;
+  const BC_CHAIR = [[BXP - 2.5, 3.0], [BXP - 2.5, 4.8], [BX + 3.6, 8.5], [BX + 12.3, 6.1], [BX + 13.5, 7.3], [BX + 11.1, 7.3], [BX + 16.5, 2.5], [BX + 16.5, 3.8]]; let bcChair = 0;
   // 공중에 뜬 물건(바닥 위 0.3m 넘게): 실제 가구 윗면으로 [x, z, 높이]
-  const BC_TOP = [[BX + 6.3, 9.2, .76], [BX + 12.0, 7.0, .79], [BX + 15.5, 3.4, .82], [BX + 12.6, 7.6, .79], [BX + 7.5, 9.2, .76]]; let bcTop = 0;
-  const BC_FREE = [[BX + 4.4, 4.2], [BX + 6.6, 3.0], [BXP + 3.2, 5.6], [BXP + 5.2, 8.6], [BX + 6.2, 6.6], [BXP + 4.8, 5.0]];
+  const BC_TOP = [[BX + 3.0, 9.2, .76], [BX + 12.0, 7.0, .79], [BX + 15.5, 3.4, .82], [BX + 12.6, 7.6, .79], [BX + 4.2, 9.2, .76]]; let bcTop = 0;
+  const BC_FREE = [[BX + 4.4, 4.2], [BX + 4.4, 6.0], [BXP + 3.2, 5.6], [BXP + 5.2, 8.6], [BX + 2.0, 6.6], [BXP + 4.8, 5.0]];
   let bcFree = 0; const bcUsed = {};
   const bcTaken = [];
   const bcFreeSpot = () => {   // 방 안 격자에서 가구에 막히지 않고 다른 조사 지점과 1.2m 이상 떨어진 자리
@@ -97,7 +97,7 @@ export function installRebuild({ THREE, scene, floors, world }) {
     //   민아 머리 위에 겹치지 않게 앵커 데스크 쪽 바닥에 한 줄로 내려놓는다
     const [x, z] = BC_SLOT.mina[0], isMina = Math.abs(w.x + 21.65) < .15 && Math.abs(w.z + 8.45) < .15; MAIN.root.attach(c);
     if (isMina) { c.position.set(x, BCY + Math.max(0, w.y - BC.y0), z); c.rotation.y = -Math.PI / 2; }
-    else { side++; c.position.set(x - .4 - .45 * Math.min(side, 4), BCY, z + .6); c.rotation.y = -Math.PI / 2; } } }   // 장비실 안 남쪽 바닥에 한 줄 (북쪽 선반 · 동쪽 앰프 랙을 피해)   // 민아 · 민아 소지품: 스튜디오 동쪽 구석 벽에 기대 앉음
+    else { side++; c.position.set(x - .4 - .45 * Math.min(side, 3), BCY, z + .6); c.rotation.y = -Math.PI / 2; } } }   // 장비실 안 남쪽 바닥에 한 줄 (북쪽 선반 · 동쪽 앰프 랙을 피해)   // 민아 · 민아 소지품: 스튜디오 동쪽 구석 벽에 기대 앉음
   clearOld();
   // 예전 건물 터(본관 · 별관 옛 자리)에 잔디: 새 본관 · 별관 바닥 밑은 비우고 덮는다 (길 · 보도블록은 위에 그대로)
   let FOOTPRINTS = []; { const holes = FOOTPRINTS = [MAIN, ANX].map(b => { const c = [[-b.layout.L / 2 - .5, b.layout.zN - .5], [b.layout.L / 2 + .5, b.layout.zS + .5]].map(([a, d]) => b.toWorld(a, d)); return [Math.min(c[0][0], c[1][0]), Math.max(c[0][0], c[1][0]), Math.min(c[0][1], c[1][1]), Math.max(c[0][1], c[1][1])]; });

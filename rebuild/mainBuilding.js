@@ -4,7 +4,7 @@
 //   전기(분전반 · 2등용 형광등 · 콘센트 · 스위치) · 소방(소화전함 · 소화기 · 감지기 · 유도등 · 방화문) · 수도(세면대 · 배관)
 import * as THREE from '../vendor/three.module.js';
 import { mergeGeometries } from '../vendor/addons/utils/BufferGeometryUtils.js';
-import { makeFlag } from '../tex.js?v=387';
+import { makeFlag } from '../tex.js?v=388';
 // 교실 앞면 꾸밈 공용 (반 이름 · 텍스처 캐시)
 const NAMES = ['김민수', '이서연', '박지훈', '최유진', '정하늘', '강도윤', '조수아', '윤재현', '장예린', '임태호', '한소영', '오준서', '서지민', '신동혁', '권나연', '황민재', '안채원', '송우진', '전다은', '홍석진'];
 let flagTex = null; const decorTex = new Map();
@@ -943,14 +943,14 @@ export function buildMainBuilding(opt = {}) {
       box('crt', X1 + .38, X1 + .44, y0 + .85, y0 + 1.5, z1 + 4.2, z1 + 6.2); box('mon', X1 + .44, X1 + .45, y0 + .9, y0 + 1.45, z1 + 4.3, z1 + 6.1);
       sign('PGM', .5, .14, X1 + .46, y0 + 1.52, z1 + 2.6, Math.PI / 2, '#300', '#f44'); sign('PVW', .5, .14, X1 + .46, y0 + 1.52, z1 + 5.2, Math.PI / 2, '#030', '#4f6');
       // 메인 콘솔: 하부장 + 경사 믹서 (페이더 32 · 노브 줄 · VU 미터 브리지) + 근접 모니터 스피커
-      cabinetD(X1 + 1.0, X1 + 1.95, z1 + 1.4, z1 + 6.4, y0, .78, 'steelG', 'x+');
-      { const g = new THREE.BoxGeometry(1.0, .06, 5.0); g.rotateZ(-.16); g.translate(X1 + 1.47, y0 + .84, z1 + 3.9); G('rubber', g); }
-      for (let k = 0; k < 32; k++) { const fz = z1 + 1.6 + k * .145; box('alu', X1 + 1.55, X1 + 1.82, y0 + .8, y0 + .82, fz - .01, fz + .01); box('white', X1 + 1.6 + (k * 37 % 7) * .03, X1 + 1.64 + (k * 37 % 7) * .03, y0 + .82, y0 + .85, fz - .02, fz + .02);
-        for (let j = 0; j < 3; j++) cyl(j ? 'rubber' : 'red', X1 + 1.12 + j * .12, y0 + .9 - j * .02, fz, .014, .03); }
-      box('rubber', X1 + .98, X1 + 1.08, y0 + .92, y0 + 1.22, z1 + 1.5, z1 + 6.3); for (let k = 0; k < 16; k++) { const lz = z1 + 1.7 + k * .29; box(k % 5 === 4 ? 'ledR' : 'ledG', X1 + 1.08, X1 + 1.09, y0 + .97, y0 + .97 + .05 + (k * 13 % 5) * .03, lz - .04, lz + .04); }
-      [z1 + 1.2, z1 + 6.6].forEach(z => { box('rubber', X1 + 1.05, X1 + 1.4, y0 + .8, y0 + 1.3, z - .17, z + .17); cyl('rubber', X1 + 1.41, y0 + .95, z, .07, .02); });
-      chairX(X1 + 2.5, z1 + 3.0, 1); chairX(X1 + 2.5, z1 + 4.8, 1);
-      sign('송출 콘솔 · MASTER', .9, .16, X1 + 1.96, y0 + .6, z1 + 3.9, Math.PI / 2, '#20262c', '#d8e0e8', false);
+      cabinetD(XP - 1.95, XP - 1.0, z1 + 1.4, z1 + 6.4, y0, .78, 'steelG', 'x-');   // 콘솔: 유리벽을 마주 보게 (운영자는 서쪽에 앉아 스튜디오를 본다)
+      { const g = new THREE.BoxGeometry(1.0, .06, 5.0); g.rotateZ(.16); g.translate(XP - 1.47, y0 + .84, z1 + 3.9); G('rubber', g); }
+      for (let k = 0; k < 32; k++) { const fz = z1 + 1.6 + k * .145; box('alu', XP - 1.82, XP - 1.55, y0 + .8, y0 + .82, fz - .01, fz + .01); box('white', XP - 1.64 - (k * 37 % 7) * .03, XP - 1.6 - (k * 37 % 7) * .03, y0 + .82, y0 + .85, fz - .02, fz + .02);
+        for (let j = 0; j < 3; j++) cyl(j ? 'rubber' : 'red', XP - 1.12 - j * .12, y0 + .9 - j * .02, fz, .014, .03); }
+      box('rubber', XP - 1.08, XP - .98, y0 + .92, y0 + 1.22, z1 + 1.5, z1 + 6.3); for (let k = 0; k < 16; k++) { const lz = z1 + 1.7 + k * .29; box(k % 5 === 4 ? 'ledR' : 'ledG', XP - 1.09, XP - 1.08, y0 + .97, y0 + .97 + .05 + (k * 13 % 5) * .03, lz - .04, lz + .04); }
+      [z1 + 1.2, z1 + 6.6].forEach(z => { box('rubber', XP - 1.4, XP - 1.05, y0 + .8, y0 + 1.3, z - .17, z + .17); cyl('rubber', XP - 1.41, y0 + .95, z, .07, .02); });
+      chairX(XP - 2.5, z1 + 3.0, -1); chairX(XP - 2.5, z1 + 4.8, -1);
+      sign('송출 콘솔 · MASTER', .9, .16, XP - 1.96, y0 + .6, z1 + 3.9, -Math.PI / 2, '#20262c', '#d8e0e8', false);
       // 19인치 장비랙 4대 (복도 쪽 벽): VTR 데크 · 비디오 스위처 · 패치베이 · 전관방송 앰프 — 깜빡이는 LED
       for (let k = 0; k < 4; k++) { const rx = X1 + 2.3 + k * .78; cabinet(rx, rx + .66, z1 + .05, z1 + .75, 2.0, 'rack');
         for (let j = 0; j < 7; j++) { const yy = y0 + .25 + j * .24; box(j % 3 === 0 ? 'alu' : 'screen', rx + .05, rx + .61, yy, yy + .18, z1 + .75, z1 + .77); box(j % 2 ? 'ledG' : 'ledR', rx + .5, rx + .54, yy + .07, yy + .11, z1 + .77, z1 + .78); if (j % 3 === 1) box('rubber', rx + .1, rx + .4, yy + .05, yy + .1, z1 + .77, z1 + .79); } }
@@ -962,14 +962,18 @@ export function buildMainBuilding(opt = {}) {
       // CCTV 녹화기 받침 + 모니터 (남서 구석)
       box('lockerM', X1 + .3, X1 + 1.3, y0, y0 + .72, z1 + 8.7, z2 - .3, { solid: true }); box('crt', X1 + .45, X1 + .95, y0 + .72, y0 + 1.12, z1 + 8.9, z1 + 9.4); box('mon', X1 + .95, X1 + .96, y0 + .76, y0 + 1.08, z1 + 8.95, z1 + 9.35); box('rubber', X1 + .4, X1 + 1.2, y0 + .72, y0 + .8, z1 + 9.45, z2 - .35);
       // 영상 편집석 (남쪽 창가): NLE PC 2대 · 키보드 · 조그 셔틀 · 의자
-      desk(X1 + 6.9, z2 - .75, 3.0, .8, .74); [X1 + 6.2, X1 + 7.6].forEach(mx => { box('crt', mx - .25, mx + .25, y0 + .79, y0 + 1.2, z2 - .95, z2 - .55); box('mon', mx - .2, mx + .2, y0 + .84, y0 + 1.16, z2 - .96, z2 - .95); box('crt', mx - .22, mx + .22, y0 + .74, y0 + .76, z2 - 1.12, z2 - 1.0); });
-      cyl('rubber', X1 + 6.9, y0 + .74, z2 - 1.05, .06, .03); chairAt(X1 + 6.9, z2 - 1.5);
+      desk(X1 + 3.6, z2 - .75, 3.0, .8, .74); [X1 + 2.9, X1 + 4.3].forEach(mx => { box('crt', mx - .25, mx + .25, y0 + .79, y0 + 1.2, z2 - .95, z2 - .55); box('mon', mx - .2, mx + .2, y0 + .84, y0 + 1.16, z2 - .96, z2 - .95); box('crt', mx - .22, mx + .22, y0 + .74, y0 + .76, z2 - 1.12, z2 - 1.0); });
+      cyl('rubber', X1 + 3.6, y0 + .74, z2 - 1.05, .06, .03); chairAt(X1 + 3.6, z2 - 1.5);
       // 방송 시간표 게시판 · 벽시계
       box('cork', X1 + .02, X1 + .06, y0 + 1.35, y0 + 2.15, z1 + 8.65, z2 - .25); sign('방송 편성표 1998.10', .7, .5, X1 + .07, y0 + 1.75, (z1 + 8.65 + z2 - .25) / 2, Math.PI / 2, '#f0ece0', '#203040', false);   // 창을 가리지 않게 서쪽 벽 CCTV 받침 위
       // ── 방음 유리 칸막이 · 방음문 (가운데) · ON AIR 등 ──
-      box('wall', XP - .1, XP + .1, y0, y0 + S.CEIL, z1, z1 + 3.0, { solid: true }); box('wall', XP - .1, XP + .1, y0, y0 + S.CEIL, z1 + 4.0, z2, { solid: true });
-      box('glass', XP - .105, XP - .095, y0 + .9, y0 + 2.1, z1 + .4, z1 + 2.7); box('glass', XP + .095, XP + .105, y0 + .9, y0 + 2.1, z1 + .4, z1 + 2.7);   // 이중 유리
-      box('glass', XP - .105, XP - .095, y0 + .9, y0 + 2.1, z1 + 4.3, z2 - .4); box('glass', XP + .095, XP + .105, y0 + .9, y0 + 2.1, z1 + 4.3, z2 - .4);
+      // 유리벽: 허리벽(0.8m) 위로 천장 밑(2.45m)까지 이중 투명 유리 · 멀리온 — 조정실에서 녹음실이 훤히 보인다. 장비실 구간(남쪽 2.8m)만 막힌 벽
+      { const ZQ = z2 - 2.8, seg = [[z1, z1 + 3.0], [z1 + 4.0, ZQ]];
+        seg.forEach(([a, b]) => { box('wall', XP - .1, XP + .1, y0, y0 + .8, a, b); box('wall', XP - .1, XP + .1, y0 + 2.45, y0 + S.CEIL, a, b); col.push({ x1: XP - .1, x2: XP + .1, z1: a, z2: b, y1: y0, y2: y0 + S.CEIL });
+          box('glass', XP - .03, XP - .02, y0 + .8, y0 + 2.45, a + .05, b - .05); box('glass', XP + .02, XP + .03, y0 + .8, y0 + 2.45, a + .05, b - .05);
+          box('alu', XP - .1, XP + .1, y0 + .78, y0 + .82, a, b); box('alu', XP - .1, XP + .1, y0 + 2.43, y0 + 2.47, a, b);
+          for (let z = a + 1.2; z < b - .3; z += 1.2) box('alu', XP - .06, XP + .06, y0 + .8, y0 + 2.45, z - .03, z + .03); });
+        box('wall', XP - .1, XP + .1, y0, y0 + S.CEIL, ZQ, z2, { solid: true }); }
       box('wall', XP - .1, XP + .1, y0 + 2.15, y0 + S.CEIL, z1 + 3.0, z1 + 4.0);
       box('steelG', XP - .12, XP + .12, y0, y0 + 2.15, z1 + 2.95, z1 + 3.02); box('steelG', XP - .12, XP + .12, y0, y0 + 2.15, z1 + 3.98, z1 + 4.05); box('steelG', XP - .12, XP + .12, y0 + 2.1, y0 + 2.18, z1 + 2.95, z1 + 4.05);   // 문틀
       box('steelG', XP + .12, XP + .2, y0, y0 + 2.08, z1 + 4.05, z1 + 4.95); box('rubber', XP + .2, XP + .22, y0 + 1.0, y0 + 1.05, z1 + 4.7, z1 + 4.85); box('glass', XP + .19, XP + .21, y0 + 1.3, y0 + 1.8, z1 + 4.3, z1 + 4.7);   // 열어 둔 방음문 (창 · 손잡이)
@@ -1000,26 +1004,25 @@ export function buildMainBuilding(opt = {}) {
       cabinet(XP + .4, XP + 5.4, z1 + .05, z1 + .55, 1.2, 'wood', true);
       for (let k = 0; k < 40; k++) box(k % 3 ? 'screen' : 'rubber', XP + .5 + k * .12, XP + .58 + k * .12, y0 + .3, y0 + .5, z1 + .1, z1 + .5);
       cabinet(X2 - 1.6, X2 - .3, z1 + .05, z1 + .6, 1.6, 'steelG');
-      if (!opt.noClues) { clueNote('n8', X1 + 1.45, y0 + .9, z1 + 5.6, f, .1); clueTape('ts_mina', tx - .3, y0 + .78, tz, f); }
+      if (!opt.noClues) { clueNote('n8', XP - 1.45, y0 + .9, z1 + 5.6, f, .1); clueTape('ts_mina', tx - .3, y0 + .78, tz, f); }
       props.push({ kind: 'search', label: '마스터 테이프 보관장 뒤지기', x: XP + 2.9, y: y0 + 1.0, z: z1 + .9, floor: f });
-      props.push({ kind: 'search', label: '영상 편집석 서랍 열기', x: X1 + 6.9, y: y0 + .9, z: z2 - 1.25, floor: f });
+      props.push({ kind: 'search', label: '영상 편집석 서랍 열기', x: X1 + 3.6, y: y0 + .9, z: z2 - 1.25, floor: f });
       props.push({ kind: 'search', label: '스튜디오 소품장 열기', x: X2 - .95, y: y0 + 1.0, z: z1 + 1.0, floor: f });
-      // ── 장비실 (스튜디오 남동쪽 구석, 3.2m × 4.2m): 칸막이벽 · 열린 철문 · 장비 선반 · 카세트 타이머 — 민아가 갇혀 있던 곳
-      { const EX = X1 + 14.6, EZ = z1 + 5.4, DZ1 = z1 + 6.1, DZ2 = z1 + 7.1;
-        box('wall', EX - .06, EX + .06, y0, y0 + S.CEIL, EZ, DZ1, { solid: true }); box('wall', EX - .06, EX + .06, y0, y0 + S.CEIL, DZ2, z2, { solid: true }); box('wall', EX - .06, EX + .06, y0 + 2.1, y0 + S.CEIL, DZ1, DZ2);   // 서쪽 벽 + 문 위 상인방
-        box('wall', EX, X2, y0, y0 + S.CEIL, EZ - .06, EZ + .06, { solid: true });   // 북쪽 벽
-        box('steelG', EX - .08, EX + .08, y0, y0 + 2.12, DZ1 - .05, DZ1); box('steelG', EX - .08, EX + .08, y0, y0 + 2.12, DZ2, DZ2 + .05); box('steelG', EX - .08, EX + .08, y0 + 2.08, y0 + 2.14, DZ1 - .05, DZ2 + .05);   // 문틀
-        box('steelG', EX - .92, EX - .08, y0 + .01, y0 + 2.05, DZ1 - .04, DZ1 + .0); box('alu', EX - .85, EX - .8, y0 + .98, y0 + 1.08, DZ1 + .0, DZ1 + .05);   // 복도 쪽으로 활짝 열어 둔 방화 철문 (벽에 붙어 길을 막지 않는다)
-        sign('장비실', .5, .16, EX - .07, y0 + 2.3, (DZ1 + DZ2) / 2, -Math.PI / 2, '#20242a', '#e8e8e8', false);
-        // 북쪽 벽 스틸 선반 (4단): 카세트 데크 · 예약 타이머 · 테이프 상자 · 케이블 뭉치
-        box('steelG', EX + .3, X2 - .2, y0, y0 + 2.0, EZ + .08, EZ + .5, { solid: true });
-        [.35, .8, 1.25, 1.7].forEach(h => box('alu', EX + .28, X2 - .18, y0 + h - .02, y0 + h, EZ + .07, EZ + .52));
-        box('rack', EX + .5, EX + .95, y0 + .82, y0 + .95, EZ + .12, EZ + .45); box('ledR', EX + .88, EX + .91, y0 + .9, y0 + .92, EZ + .46, EZ + .47);   // 카세트 데크 (빨간 대기등)
-        box('white', EX + 1.1, EX + 1.32, y0 + .82, y0 + .98, EZ + .15, EZ + .4); cyl('rubber', EX + 1.21, y0 + .9, EZ + .41, .06, .015, .06, 16);   // 기계식 예약 타이머
-        for (let k = 0; k < 6; k++) box(k % 2 ? 'screen' : 'rubber', EX + .4 + k * .2, EX + .55 + k * .2, y0 + 1.27, y0 + 1.47, EZ + .12, EZ + .42);   // 테이프 상자
-        for (let k = 0; k < 3; k++) cyl('rubber', EX + 1.7 + k * .35, y0 + .37, EZ + .3, .14, .1, .14, 14);   // 케이블 뭉치
-        box('rack', X2 - .7, X2 - .1, y0, y0 + 1.6, z2 - 1.3, z2 - .7, { solid: true }); for (let k = 0; k < 5; k++) box('ledG', X2 - .72, X2 - .7, y0 + .3 + k * .25, y0 + .32 + k * .25, z2 - 1.2, z2 - 1.15);   // 앰프 랙 (축전지 배선)
-        props.push({ kind: 'search', label: '장비실 선반 뒤지기', x: EX + 1.6, y: y0 + 1.0, z: EZ + .9, floor: f }); }
+      // ── 장비실 (조정실 남동쪽, 유리벽 뒤 3.2m × 2.8m): 칸막이벽 · 잠긴 방화 철문(문짝은 게임 쪽에서 · 열쇠로 연다) · 장비 선반 · 카세트 타이머 — 민아가 갇혀 있던 곳
+      { const EX = XP - 3.2, EZ = z2 - 2.8, DX1 = XP - 2.9, DX2 = XP - 2.0;
+        box('wall', EX - .06, EX + .06, y0, y0 + S.CEIL, EZ, z2, { solid: true });   // 서쪽 벽
+        box('wall', EX, DX1, y0, y0 + S.CEIL, EZ - .06, EZ + .06, { solid: true }); box('wall', DX2, XP - .1, y0, y0 + S.CEIL, EZ - .06, EZ + .06, { solid: true }); box('wall', DX1, DX2, y0 + 2.1, y0 + S.CEIL, EZ - .06, EZ + .06);   // 북쪽 벽 + 문 위 상인방
+        box('steelG', DX1 - .05, DX1, y0, y0 + 2.12, EZ - .08, EZ + .08); box('steelG', DX2, DX2 + .05, y0, y0 + 2.12, EZ - .08, EZ + .08); box('steelG', DX1 - .05, DX2 + .05, y0 + 2.08, y0 + 2.14, EZ - .08, EZ + .08);   // 문틀
+        sign('장비실 · 관계자 외 출입금지', .9, .16, (DX1 + DX2) / 2, y0 + 2.32, EZ - .075, Math.PI, '#20242a', '#e8e8e8', false);
+        // 서쪽 벽 스틸 선반 (4단): 카세트 데크 · 예약 타이머 · 테이프 상자 · 케이블 뭉치
+        box('steelG', EX + .08, EX + .5, y0, y0 + 2.0, EZ + .3, z2 - .2, { solid: true });
+        [.35, .8, 1.25, 1.7].forEach(h => box('alu', EX + .07, EX + .52, y0 + h - .02, y0 + h, EZ + .28, z2 - .18));
+        box('rack', EX + .12, EX + .45, y0 + .82, y0 + .95, EZ + .5, EZ + .95); box('ledR', EX + .46, EX + .47, y0 + .9, y0 + .92, EZ + .88, EZ + .91);   // 카세트 데크 (빨간 대기등)
+        box('white', EX + .15, EX + .4, y0 + .82, y0 + .98, EZ + 1.1, EZ + 1.32); cyl('rubber', EX + .41, y0 + .9, EZ + 1.21, .06, .015, .06, 16);   // 기계식 예약 타이머
+        for (let k = 0; k < 6; k++) box(k % 2 ? 'screen' : 'rubber', EX + .12, EX + .42, y0 + 1.27, y0 + 1.47, EZ + .4 + k * .3, EZ + .62 + k * .3);   // 테이프 상자
+        for (let k = 0; k < 3; k++) cyl('rubber', EX + .3, y0 + .37, EZ + .7 + k * .45, .14, .1, .14, 14);   // 케이블 뭉치
+        box('rack', XP - .75, XP - .15, y0, y0 + 1.6, z2 - 1.0, z2 - .3, { solid: true }); for (let k = 0; k < 5; k++) box('ledG', XP - .77, XP - .75, y0 + .3 + k * .25, y0 + .32 + k * .25, z2 - .9, z2 - .85);   // 앰프 랙 (축전지 배선)
+        props.push({ kind: 'search', label: '장비실 선반 뒤지기', x: EX + .9, y: y0 + 1.0, z: EZ + 1.4, floor: f }); }
       }
     } else if (type === 'broadcast') {   // 방송실: 주조정 콘솔 · 녹음 부스 유리벽 · 장비랙
       cabinetD(x1 + 2.1, x1 + 4.4, z1 + 2.2, z1 + 3.0, y0, .78, 'steelG', 'z+');   // 콘솔 하부장

@@ -228,7 +228,15 @@ export function createFX(renderer, scene, camera) {
   // 후처리 경로에서도 계단 현상이 없도록 MSAA (높음: 4x, 중간: 2x)
   function setMSAA(n) { [composer.renderTarget1, composer.renderTarget2].forEach(rt => { if (rt.samples !== n) { rt.samples = n; rt.dispose(); } }); }
   function setQuality(q) { mode = q; rainG.setDrawRange(0, (q === 'high' ? 1800 : q === 'mid' ? 1100 : 600) * 2); bloom.enabled = q === 'high' && opt.bloom; dust.visible = q !== 'low'; setMSAA(q === 'high' ? 4 : q === 'mid' ? 2 : 0); }
-  function resize(w, h, pr) { composer.setPixelRatio(pr); composer.setSize(w, h); bloom.setSize(w / 2, h / 2); }
+  // 주변광 차폐(GTAO): 그래픽 '최고'에서만 — 벽 모서리 · 책상 밑 · 걸레받이에 부드러운 접촉 그림자 (장면 깊이 · 법선을 한 번 더 그리므로 그래픽카드 전용)
+  let ao = null, aoWant = false, aoLoading = false;
+  async function setAO(on) { aoWant = !!on; if (ao) { ao.enabled = aoWant; return; } if (!aoWant || aoLoading) return; aoLoading = true;
+    try { const { GTAOPass } = await import('./vendor/addons/postprocessing/GTAOPass.js'); renderer.getSize(size); const pr = renderer.getPixelRatio();
+      ao = new GTAOPass(scene, camera, size.x * pr, size.y * pr); ao.blendIntensity = .85;
+      ao.updateGtaoMaterial({ radius: .45, distanceExponent: 1.5, thickness: 1.2, scale: 1.1, samples: 12, distanceFallOff: 1, screenSpaceRadius: false });
+      ao.updatePdMaterial({ lumaPhi: 10, depthPhi: 2, normalPhi: 3, radius: 6, rings: 2, samples: 12 });
+      composer.insertPass(ao, 1); ao.enabled = aoWant; } catch (e) { console.warn('[AO]', e); } finally { aoLoading = false; } }
+  function resize(w, h, pr) { composer.setPixelRatio(pr); composer.setSize(w, h); bloom.setSize(w / 2, h / 2); if (ao) ao.setSize(w * pr, h * pr); }
 
   const _dir = new THREE.Vector3();
   function render(dt, c) {
@@ -273,5 +281,5 @@ export function createFX(renderer, scene, camera) {
     sparks.visible = any;
     if (mode === 'low') renderer.render(scene, camera); else composer.render(dt);
   }
-  return { render, setQuality, setOpts, resize, dust: dustBurst, ghostSmoke, breath, emit, lightning, glitch, spark, composer, cone };
+  return { render, setQuality, setOpts, resize, setAO, dust: dustBurst, ghostSmoke, breath, emit, lightning, glitch, spark, composer, cone };
 }

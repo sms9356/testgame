@@ -690,7 +690,7 @@ export const makeBlood = (kind = 'hand') => ctex(256, 256, (g, w, h) => {
 const _pbr = {};
 export let windowAtlasTexture = null;
 export async function loadPBR() {
-  const L = new THREE.TextureLoader(), names = ['wall', 'tile', 'wood', 'ceil', 'step', 'base', 'varnish', 'varnishDark', 'paint', 'locker', 'rust', 'door', 'brick', 'facade', 'dirt', 'track', 'pooltile', 'roofmetal', 'bluemetal', 'twall', 'tfloor'];
+  const L = new THREE.TextureLoader(), names = ['wall', 'tile', 'wood', 'ceil', 'step', 'base', 'varnish', 'varnishDark', 'paint', 'locker', 'rust', 'door', 'brick', 'facade', 'dirt', 'track', 'pooltile', 'roofmetal', 'bluemetal', 'twall', 'tfloor', 'bc_fabric', 'bc_leather', 'bc_metal'];
   await Promise.all([...names.flatMap(n => ['map', 'normal', 'rough'].map(async m => {
     const orig = `assets/tex/${n}_${m}.webp`, bk = bakedUrl(orig); let t = bk ? await L.loadAsync(bk).catch(() => null) : null; if (!t) { t = await L.loadAsync(orig).catch(() => null); if (!t) return; refineFurnitureTexture(t, n, m); }
     t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 16; if (m === 'map') t.colorSpace = THREE.SRGBColorSpace;   // 비스듬한 바닥도 선명하게 (GPU 최대값으로 자동 제한)

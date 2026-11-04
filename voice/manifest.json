@@ -3064,23 +3064,19 @@
   }
  },
  "teacher2": {
-  "spk": "teacher",
-  "text": "교감은 출석부의 윤하늘 이름 옆에 결석이라고 적으라더군. 나는 끝까지 쓰지 않았다. 삼 년 내내 아침마다 제일 먼저 등교하던 아이였으니까.",
-  "dur": 13.04,
+  "spk": "homeroom",
+  "text": "교감은 출석부에 결석이라고 적으라더군요. 저는 끝까지 쓰지 않았어요. 삼 년 내내, 아침마다 제일 먼저 등교하던 아이였으니까요.",
+  "dur": 12.36,
   "baked": true,
   "eleven": "교감은 출석부의 윤하늘 이름 옆에 결석이라고 적으라더군. 나는 끝까지 쓰지 않았다. 삼 년 내내 아침마다 제일 먼저 등교하던 아이였으니까.",
   "generation": {
-   "voice_id": "dYYoaNsbIzON6ZOkqrct",
+   "voice_id": "UqW1DivwFt1NwUMSGnTn",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.38
-   },
-   "delivery": "normal",
-   "input_sha256": "8aced97ca92fd0ba80baf311ec044d0dadba17030302776c278a4fa1c5738486",
-   "audio_sha256": "47e7256e656e72d143563387b28bda44955109162364b97fe82de9346d13b7b3",
-   "request_id": "j9JlyFhJMx83tOVVuTja",
-   "review_status": "verified"
+   "delivery": "[sad] [softly]",
+   "input_sha256": "557ac96b8290f668f4a4acd1bd6bcbe7089f49f3e3b453e93f450b18c043d0e4",
+   "audio_sha256": "c475f95c855d248f80bc01fce851c804f48f4ba709d1e49de909edc770253723",
+   "review_status": "generated"
   }
  },
  "note_n27": {
@@ -5425,11 +5421,11 @@
  "vo_pump_forensic": {
   "spk": "headTeacher",
   "text": "열쇠는 내 주머니에 있었다. 버릇 좀 고쳐 주겠다고… 내가 쥐고 있었어. 정전이 났을 때 바로 내려가서 문만 열었어도… 그 아이는 마이크 앞에 섰을 거다.",
-  "dur": 14.03,
+  "dur": 15.65,
   "baked": true,
   "eleven": "[regretful] [heavy] [hesitant] 열쇠는 내 주머니에 있었다. 버릇 좀 고쳐 주겠다고… 내가 쥐고 있었어. 정전이 났을 때 바로 내려가서 문만 열었어도… 그 아이는 마이크 앞에 섰을 거다.",
   "generation": {
-   "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+   "voice_id": "dYYoaNsbIzON6ZOkqrct",
    "model_id": "eleven_v4",
    "language_code": "ko",
    "delivery": "[regretful] [heavy] [hesitant]",

@@ -4,10 +4,29 @@
 //   전기(분전반 · 2등용 형광등 · 콘센트 · 스위치) · 소방(소화전함 · 소화기 · 감지기 · 유도등 · 방화문) · 수도(세면대 · 배관)
 import * as THREE from '../vendor/three.module.js';
 import { mergeGeometries } from '../vendor/addons/utils/BufferGeometryUtils.js';
-import { makeFlag } from '../tex.js?v=372';
+import { makeFlag } from '../tex.js?v=373';
 // 교실 앞면 꾸밈 공용 (반 이름 · 텍스처 캐시)
 const NAMES = ['김민수', '이서연', '박지훈', '최유진', '정하늘', '강도윤', '조수아', '윤재현', '장예린', '임태호', '한소영', '오준서', '서지민', '신동혁', '권나연', '황민재', '안채원', '송우진', '전다은', '홍석진'];
 let flagTex = null; const decorTex = new Map();
+// 1998년 게시물 종류 (복도)
+const NOTICES = [
+  { t: '가 정 통 신 문', s: '제1998-87호', b: ['10월 12일(월) 개교 30주년', '기념 방송 및 야간 자율학습', '실시 안내', '', '학부모님께서는 자녀의 귀가', '시간을 확인해 주시기 바랍니다.'], c: '#f2ead2', h: '#1a1a1a' },
+  { t: '10월 급식 식단표', s: '서문고등학교 영양실', b: ['12(월) 쌀밥 · 미역국 · 제육볶음', '13(화) 카레라이스 · 깍두기', '14(수) 비빔밥 · 계란국', '15(목) 짜장면 · 단무지', '16(금) 김치볶음밥 · 어묵국'], c: '#fff8e0', h: '#2a5a2a' },
+  { t: '제32회 학예제', s: '1998. 10. 12 ~ 10. 14', b: ['합창 · 연극 · 밴드 공연', '사진부 전시 (본관 4층)', '방송부 30주년 특집 방송', '', '많은 참여 바랍니다'], c: '#e8f0ff', h: '#1a3a8a' },
+  { t: '면학 분위기 조성', s: '학생부', b: ['복도에서 뛰지 맙시다', '바른 언어를 사용합시다', '쓰레기는 분리수거', '실내화 착용 철저', '', '— 선도부 —'], c: '#f4f0e0', h: '#8a1a1a' },
+  { t: '수능 D-37', s: '1999학년도 대학수학능력시험', b: ['11월 18일(수)', '', '"오늘 흘린 땀방울이', '내일의 웃음이 된다"', '', '3학년부'], c: '#fff0f0', h: '#a01818' },
+  { t: '야간 자율학습 안내', s: '교무부', b: ['1·2학년 21:00 까지', '3학년 22:00 까지', '', '22시 이후 교내 잔류 금지', '본관 출입문 22:30 자동 잠금', '— 당직 교사 확인 —'], c: '#eef4ea', h: '#2a2a2a' },
+];
+function drawNotice(g, W, H, n) {
+  g.fillStyle = n.c; g.fillRect(0, 0, W, H);
+  const gr = g.createLinearGradient(0, 0, W, H); gr.addColorStop(0, 'rgba(160,130,60,.18)'); gr.addColorStop(1, 'rgba(120,90,40,.05)'); g.fillStyle = gr; g.fillRect(0, 0, W, H);   // 누렇게 바램
+  g.fillStyle = n.h; g.textAlign = 'center'; g.font = 'bold 26px serif'; g.fillText(n.t, W / 2, 46); g.font = '13px serif'; g.fillStyle = '#555'; g.fillText(n.s, W / 2, 68);
+  g.strokeStyle = n.h; g.lineWidth = 2; g.beginPath(); g.moveTo(24, 80); g.lineTo(W - 24, 80); g.stroke();
+  g.fillStyle = '#222'; g.font = '16px sans-serif'; g.textAlign = 'left'; n.b.forEach((l, i) => g.fillText(l, 22, 112 + i * 28));
+  g.fillStyle = '#c02020'; g.beginPath(); g.arc(W / 2, 10, 6, 0, 7); g.fill();   // 압정
+  for (let i = 0; i < 160; i++) { g.fillStyle = `rgba(90,70,40,${Math.random() * .08})`; g.fillRect(Math.random() * W, Math.random() * H, 2, 2); }
+}
+
 // 책상 위 낙서 · 칼자국: 연필 · 볼펜 글씨 + 긁힌 선 (투명 판, 책상 윗면에 붙인다). 6가지를 돌려 쓴다 (재질 공유)
 const GRAF = ['수능 D-400', '졸면 죽는다', '수학 시험 망함 ㅠ', '서문고 3-2 화이팅', '떠든 사람: 김민수', '시험범위 p.41~78'], grafMat = [];
 export function grafMaterial(k) { if (grafMat[k]) return grafMat[k]; const c = document.createElement('canvas'); c.width = 256; c.height = 176; const g = c.getContext('2d');
@@ -476,6 +495,8 @@ export function buildMainBuilding(opt = {}) {
     LY.rooms.filter(r => r.kind === 'stair').forEach(r => exitSign((r.x1 + r.x2) / 2 + (r.x1 < 0 ? 3 : -3), y0 + 2.35, zN / 2, true));
     // 복도 실사 소품: 발신기(화재경보) · 복도 끝 CCTV · 계단실 앞 화분 · 화장실 앞 미끄럼 주의 표지
     LY.rooms.filter(r => r.kind === 'class').forEach((r, i) => { if (i % 2 === 0) mdl('fire_alarm', r.x2 + .75, y0 + 1.45, zN + .01); });   // 소화전 맞은편 기둥 옆 벽
+    // 1998년 복도 게시물: 앞문과 복도 창 사이 벽에 A4 한 장씩 (가정통신문 · 급식표 · 학급 시간표 · 대회 포스터 · 표어) — 압정 · 누렇게 바랜 종이
+    LY.rooms.filter(r => r.kind === 'class').forEach((r, i) => { const k = (i + f * 3) % NOTICES.length; const p = canvasPlane(.42, .58, 256, 354, (g, W, H) => drawNotice(g, W, H, NOTICES[k]), 'notice' + k, false); p.position.set(r.x2 + .38, y0 + 1.45, zN + .014); p.rotation.set(0, 0, (k % 3 - 1) * .03); root.add(p); });
     [-1, 1].forEach(sx => mdl('security_camera_01', sx * (LY.L / 2 - .5), y0 + S.CEIL - .15, zN + .35, sx > 0 ? -Math.PI / 2 : Math.PI / 2));
     LY.rooms.filter(r => r.kind === 'stair').forEach(r => { const x = r.x1 < 0 ? r.x2 + .5 : r.x1 - .5; mdl('potted_plant_04', x, y0, zN + .35, 0, { s: 2.6 }); });
     { const c = LY.rooms.find(r => r.kind === 'core'); if ((f + 1) % 2) mdl('WetFloorSign_01', c.x1 + 1.5, y0, -.9, .6); }

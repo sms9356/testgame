@@ -4,12 +4,12 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { buildGuardAnnex, buildDutyRoom, ANNEX as GANX } from './guardAnnex.js?v=371';
-import { NOTES } from './story.js?v=371';
+import { buildGuardAnnex, buildDutyRoom, ANNEX as GANX } from './guardAnnex.js?v=372';
+import { NOTES } from './story.js?v=372';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=371';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=372';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -4664,7 +4664,7 @@ export function buildWorld(scene) {
     // 축구장 선: 중앙선 · 센터서클 · 양쪽 골 에어리어 · 페널티 에어리어
     line(.08, R0 * 2 - .4, 0, CZ); arc(3, 0, CZ, 0, Math.PI * 2, .08);
     const cFlagM = S(null, { color: 0xd43828, roughness: .75, side: THREE.DoubleSide });
-    [-1, 1].forEach(sd => { const gx = sd * 19.2;
+    [-1, 1].forEach(sd => { const gx = sd * 17.6;   // 그물 뒤끝(gx+1.6)이 트랙 안쪽 곡선(골 폭에서 x≈19.9) 안에 들도록
       line(.08, 14, gx - sd * 5, CZ); line(5, .08, gx - sd * 2.5, CZ - 7); line(5, .08, gx - sd * 2.5, CZ + 7);   // 페널티 에어리어
       line(.08, 8, gx - sd * 2, CZ); line(2, .08, gx - sd * 1, CZ - 4); line(2, .08, gx - sd * 1, CZ + 4);         // 골 에어리어
       arc(1.8, gx - sd * 3.6, CZ, sd > 0 ? Math.PI * .65 : -Math.PI * .35, Math.PI * .7, .07);                    // 페널티 아크
@@ -4673,9 +4673,10 @@ export function buildWorld(scene) {
       const gp = [tube(.06, gx, 0, CZ - 3.66, gx, 2.44, CZ - 3.66), tube(.06, gx, 0, CZ + 3.66, gx, 2.44, CZ + 3.66), tube(.06, gx, 2.44, CZ - 3.66, gx, 2.44, CZ + 3.66),
         tube(.025, gx, 2.44, CZ - 3.66, gx + sd * 1.6, 0, CZ - 3.66), tube(.025, gx, 2.44, CZ + 3.66, gx + sd * 1.6, 0, CZ + 3.66), tube(.025, gx + sd * 1.6, 0, CZ - 3.66, gx + sd * 1.6, 0, CZ + 3.66)];
       OUT.add(new THREE.Mesh(merge(gp), mPoleW));
-      [-9.2, 9.2].forEach(dz => {
-        OUT.add(new THREE.Mesh(tube(.018, gx, 0, CZ + dz, gx, 1.35, CZ + dz), mPoleW));
-        const fg = new THREE.Mesh(new THREE.PlaneGeometry(.34, .22), cFlagM); fg.position.set(gx - sd * .17, 1.22, CZ + dz); OUT.add(fg);
+      const fx = sd * 14.8;   // 코너 깃발: 트랙 안쪽 곡선(z ±8.6 에서 x≈15.3) 안에
+      [-8.6, 8.6].forEach(dz => {
+        OUT.add(new THREE.Mesh(tube(.018, fx, 0, CZ + dz, fx, 1.35, CZ + dz), mPoleW));
+        const fg = new THREE.Mesh(new THREE.PlaneGeometry(.34, .22), cFlagM); fg.position.set(fx - sd * .17, 1.22, CZ + dz); OUT.add(fg);
       });
       col(gx - .08, gx + .08, CZ - 3.74, CZ - 3.58, true); col(gx - .08, gx + .08, CZ + 3.58, CZ + 3.74, true); col(Math.min(gx, gx + sd * 1.6), Math.max(gx, gx + sd * 1.6), CZ - 3.7, CZ + 3.7);
     });

@@ -4,7 +4,7 @@
 //   전기(분전반 · 2등용 형광등 · 콘센트 · 스위치) · 소방(소화전함 · 소화기 · 감지기 · 유도등 · 방화문) · 수도(세면대 · 배관)
 import * as THREE from '../vendor/three.module.js';
 import { mergeGeometries } from '../vendor/addons/utils/BufferGeometryUtils.js';
-import { makeFlag } from '../tex.js?v=393';
+import { makeFlag } from '../tex.js?v=394';
 // 교실 앞면 꾸밈 공용 (반 이름 · 텍스처 캐시)
 const NAMES = ['김민수', '이서연', '박지훈', '최유진', '정하늘', '강도윤', '조수아', '윤재현', '장예린', '임태호', '한소영', '오준서', '서지민', '신동혁', '권나연', '황민재', '안채원', '송우진', '전다은', '홍석진'];
 let flagTex = null; const decorTex = new Map();
@@ -980,7 +980,7 @@ export function buildMainBuilding(opt = {}) {
         box('wall', XP - .1, XP + .1, y0, y0 + S.CEIL, ZQ, z2, { solid: true }); }
       box('wall', XP - .1, XP + .1, y0 + 2.15, y0 + S.CEIL, z1 + .35, z1 + 1.35);
       box('steelG', XP - .12, XP + .12, y0, y0 + 2.15, z1 + .3, z1 + .37); box('steelG', XP - .12, XP + .12, y0, y0 + 2.15, z1 + 1.33, z1 + 1.4); box('steelG', XP - .12, XP + .12, y0 + 2.1, y0 + 2.18, z1 + .3, z1 + 1.4);   // 문틀
-      box('steelG', XP + .12, XP + .2, y0, y0 + 2.08, z1 + 1.4, z1 + 2.3); box('rubber', XP + .2, XP + .22, y0 + 1.0, y0 + 1.05, z1 + 2.05, z1 + 2.2); box('glass', XP + .19, XP + .21, y0 + 1.3, y0 + 1.8, z1 + 1.65, z1 + 2.05);   // 열어 둔 방음문 (창 · 손잡이)
+      box('alu', XP - .14, XP + .14, y0, y0 + .015, z1 + .37, z1 + 1.33);   // 알루미늄 문턱 (문짝은 game.js — 두꺼운 방음문 · 원형 창)
       sign('ON AIR', .6, .2, XP - .11, y0 + 2.4, z1 + .85, -Math.PI / 2); sign('ON AIR', .6, .2, XP + .11, y0 + 2.4, z1 + .85, Math.PI / 2);
       // ── 스튜디오 ──
       // 흡음 폼: 동쪽 벽(배경막 남쪽) · 복도 쪽 벽 위쪽, 남쪽 창은 두꺼운 암막 커튼

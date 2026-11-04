@@ -10185,5 +10185,53 @@
    "model_id": "eleven_v4",
    "language_code": "ko"
   }
+ },
+ "cue_check": {
+  "spk": "mina",
+  "text": "마이크 체크… 들려? 내가 손 들면 시작이야.",
+  "dur": 4.15,
+  "baked": true,
+  "eleven": true,
+  "generation": {
+   "voice_id": "oGV8pbtfEm7fbDPdSfrx",
+   "model_id": "eleven_v4",
+   "language_code": "ko"
+  }
+ },
+ "cue_count": {
+  "spk": "mina",
+  "text": "스탠바이… 다섯, 넷, 셋…",
+  "dur": 4.1,
+  "baked": true,
+  "eleven": true,
+  "generation": {
+   "voice_id": "oGV8pbtfEm7fbDPdSfrx",
+   "model_id": "eleven_v4",
+   "language_code": "ko"
+  }
+ },
+ "cue_go": {
+  "spk": "mina",
+  "text": "큐!",
+  "dur": 0.99,
+  "baked": true,
+  "eleven": true,
+  "generation": {
+   "voice_id": "oGV8pbtfEm7fbDPdSfrx",
+   "model_id": "eleven_v4",
+   "language_code": "ko"
+  }
+ },
+ "cue_done": {
+  "spk": "mina",
+  "text": "잘했어… 끝까지 나갔어. 언니가 들었을 거야.",
+  "dur": 4.83,
+  "baked": true,
+  "eleven": true,
+  "generation": {
+   "voice_id": "oGV8pbtfEm7fbDPdSfrx",
+   "model_id": "eleven_v4",
+   "language_code": "ko"
+  }
  }
 }

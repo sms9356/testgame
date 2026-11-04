@@ -8947,7 +8947,7 @@
  "r_og2_j": {
   "spk": "jihun",
   "text": "마지막으로 나간 열쇠가 뭐였는데요?",
-  "dur": 1.88,
+  "dur": 3.53,
   "baked": true,
   "eleven": "[curious] 마지막으로 나간 열쇠가 뭐였는데요?",
   "generation": {
@@ -8999,7 +8999,7 @@
  "r_hr1_j": {
   "spk": "jihun",
   "text": "하늘이 담임 선생님이 쓰신 편지를 봤어요.",
-  "dur": 2.27,
+  "dur": 4.23,
   "baked": true,
   "eleven": "[gently] 하늘이 담임 선생님이 쓰신 편지를 봤어요.",
   "generation": {
@@ -9311,7 +9311,7 @@
  "l_m_staff_j": {
   "spk": "jihun",
   "text": "교무실이다. 여기서부터 기록을 찾아보자.",
-  "dur": 2.43,
+  "dur": 3.74,
   "baked": true,
   "eleven": "[determined] 교무실이다. 여기서부터 기록을 찾아보자.",
   "generation": {
@@ -9779,7 +9779,7 @@
  "l_m_elev_s": {
   "spk": "seoyeon",
   "text": "엘리베이터가 아직 작동해…?",
-  "dur": 1.49,
+  "dur": 2.93,
   "baked": true,
   "eleven": "[puzzled] 엘리베이터가 아직 작동해…?",
   "generation": {

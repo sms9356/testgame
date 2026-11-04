@@ -5,7 +5,7 @@
 //   재질: F-01 ~ F-05 바닥 · W-01 ~ W-05 벽 · C-01 ~ C-04 천장 (Poly Haven CC0 실사 스캔 텍스처, assets/tex/fac_* · 미터 단위 UV)
 import * as THREE from './vendor/three.module.js';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { pbr } from './tex.js?v=382';
+import { pbr } from './tex.js?v=384';
 
 const FH = 3.6, CEIL = 2.9, WALL_T = .24, LIN = .06;
 const TL = new THREE.TextureLoader(), TEX = {};
@@ -709,6 +709,15 @@ function buildAuditorium(ctx, Z) {   // 대강당 18 × 26m · 1층 (공연 · �
     lampsGrid(B, { ...r, ceil: 3.0 }, 2.4); }
   { const r = sto; [0, 1].forEach(k => F.shelf(B, r.x1 + 1.2 + k * 2.0, r.z2 - .35, Math.PI, 0, 1.8, .45, 1.8, 'GREYSTEEL', 5, ['BLACK', 'PANEL'])); for (let k = 0; k < 6; k++) B.box(.45, .9, .06, 'FRAME', r.x1 + 1.0 + k * .07, .45, r.z1 + 1.2, { rz: .12 }); lampsGrid(B, { ...r, ceil: 3.0 }, 2.4); }
   { const r = lobby; lampsGrid(B, { ...r, ceil: 3.0 }, 2.4); B.box(1.6, 1.0, .02, 'CORK', 2.6, 1.6, r.z1 + .08); B.sign('객석 입구', '', 1.4, .22, 0, 2.85, r.z1 + .07, 0, ['#1c2a34', '#f4eedc']); }
+  // 디테일 보강: 측벽 흡음 패널 · 객석 통로 발밑등 · 행사 현수막 · 보면대 · 마이크 스탠드 · 모니터 스피커 · 흩어진 팸플릿 · 소화기
+  for (let z = zStage + 2.2; z < zLobby - 1; z += 2.4) [-1, 1].forEach(s => { B.box(.05, 2.2, 1.9, (Math.round(z) % 2) ? 'FABRIC' : 'VELVET', s * (hx - .03), 3.2, z); B.box(.06, .08, 2.0, 'DARKWOOD', s * (hx - .04), 1.0, z); });
+  for (let k = 0; k < 12; k++) { const z = zStage + 2.4 + k * .95; [-.66, .66].forEach(x => B.box(.08, .05, .04, 'WHITE', x, .2, z + .3)); }
+  B.sign('제1회 서문고 방송제 · 방송부 창립 30주년 기념 하교 방송', '1998. 10. 12 리허설 · 10. 13 본공연', 7.2, .9, 0, hallCeil - 1.9, zStage - .32, 0, ['#5a1020', '#f4e6c0']);
+  [[-1.8, -.9], [-1.0, -1.1], [1.2, -1.0]].forEach(([dx, dz]) => { const x = dx, z = zStage + dz - 1.2; B.cyl(.012, .012, 1.1, 'STEEL', x, stageH + .55, z); B.box(.45, .32, .02, 'BLACK', x, stageH + 1.15, z, { rx: -.35 }); B.cyl(.18, .18, .02, 'STEEL', x, stageH + .01, z, { seg: 12 }); });
+  [-.6, .6].forEach(x => { B.cyl(.01, .01, 1.5, 'STEEL', x, stageH + .75, zStage - .9); B.cyl(.02, .02, .14, 'BLACK', x, stageH + 1.55, zStage - .85, { rx: -.6 }); B.cyl(.16, .16, .02, 'BLACK', x, stageH + .01, zStage - .9, { seg: 12 }); });
+  [-2.6, 2.6].forEach(x => { const m = B.box(.55, .3, .4, 'BLACK', x, stageH + .15, zStage - .35, { rx: .5 }); });
+  for (let k = 0; k < 14; k++) { const x = (Math.sin(k * 7.3) * .5) * 2 * hx * .7, z = zStage + 2.6 + ((k * 3.7) % 11); B.box(.21, .004, .3, 'WHITE', x, .035, z, { ry: k * 1.3 }); }
+  [-1, 1].forEach(s => { B.cyl(.08, .08, .5, 'RED', s * (hx - .25), .25, zLobby - .6, { seg: 12 }); B.cyl(.03, .03, .08, 'BLACK', s * (hx - .25), .54, zLobby - .6); });
   B.addSwitch(1.9, B.Z.D / 2 - WALL_T - LIN - .01, Math.PI, 0, '대강당 형광등 스위치');
   B.finish();
   // 비상구 2 (동 · 서 측벽 앞쪽) 표지

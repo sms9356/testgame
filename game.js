@@ -7265,6 +7265,35 @@ function b1Tex(kind) { const N = 512, c = document.createElement('canvas'); c.wi
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(kind === 'floor' ? 10 : 8, 4); t.anisotropy = 8;
   const rt = new THREE.CanvasTexture(R); rt.wrapS = rt.wrapT = THREE.RepeatWrapping; rt.repeat.copy(t.repeat);
   return new THREE.MeshStandardMaterial({ map: t, roughnessMap: rt, roughness: 1, metalness: kind === 'floor' ? .05 : 0 }); }
+// 수영장 디테일 보강: 킥판 거치대 · 수영장 덮개 롤러 · 웅덩이 · 수면 반사광(코스틱) · 살펴보기 3종
+function installPoolDetail() {
+  const F = floors[6]; if (!F || F._poolDetail) return 0; F._poolDetail = true; const y0 = F.y0 || 0;
+  const g = new THREE.Group(); g.name = 'poolDetail'; scene.add(g);
+  const mk = (c, r, m = 0, e) => new THREE.MeshStandardMaterial(Object.assign({ color: c, roughness: r, metalness: m }, e || {}));
+  const box = (m, x, y, z, w, h, d, ry = 0) => { const o = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m); o.position.set(x, y0 + y, z); o.rotation.y = ry; o.castShadow = o.receiveShadow = true; g.add(o); return o; };
+  const cyl = (m, x, y, z, r, h, rx = 0, rz = 0) => { const o = new THREE.Mesh(new THREE.CylinderGeometry(r, r, h, 14), m); o.position.set(x, y0 + y, z); o.rotation.set(rx, 0, rz); o.castShadow = true; g.add(o); return o; };
+  const WHITE = mk(0xe6e4dc, .45), STEEL = mk(0xb8c0c4, .25, .85), RED = mk(0xc02020, .5), YEL = mk(0xe0b020, .5), BLUE = mk(0x2060c0, .55), FOAM = [mk(0x2a7ad8, .9), mk(0xe8c020, .9), mk(0xd84030, .9), mk(0x30a860, .9)];
+  // 킥판 · 풀부이 거치대 (동쪽 데크 남쪽)
+  { const x = -35, z = 34.2; box(STEEL, x, .55, z, .9, 1.1, .05); box(STEEL, x, .55, z + .4, .9, 1.1, .05);
+    for (let i = 0; i < 9; i++) { const k = box(FOAM[i % 4], x - .36 + i * .09, .45, z + .2, .025, .48, .36); k.rotation.z = (Math.random() - .5) * .12; }
+    for (let i = 0; i < 4; i++) box(FOAM[(i + 1) % 4], x + .2 * (i - 1.5), 1.18, z + .2, .14, .1, .3); }
+  // 수영장 덮개 롤러 (남쪽 끝, 서쪽 데크)
+  { const x = -48.6, z = 30.4; [-1.6, 1.6].forEach(d => box(STEEL, x, .55, z + d, .08, 1.1, .3)); const r = cyl(BLUE, x, .85, z, .32, 3.1, Math.PI / 2); r.material = mk(0x1e5aa8, .6); cyl(STEEL, x, .85, z, .05, 3.4, Math.PI / 2); }
+  // 데크 웅덩이: 거울처럼 번들거리는 얇은 물막
+  { const W = mk(0x8fa8b0, .04, .1, { transparent: true, opacity: .55 }); [[-36, 31], [-48.8, 34], [-36.2, 44], [-41, 47.2], [-44, 30.5], [-35.6, 36.4]].forEach(([x, z], i) => { const o = new THREE.Mesh(new THREE.CircleGeometry(.35 + (i % 3) * .18, 20), W); o.rotation.x = -Math.PI / 2; o.scale.set(1, .6 + (i % 2) * .5, 1); o.position.set(x, y0 + .025, z); g.add(o); }); }
+  // 수면 반사광(코스틱): 천장에 일렁이는 빛 무늬
+  { const c = document.createElement('canvas'); c.width = c.height = 256; const q = c.getContext('2d'); q.fillStyle = '#000'; q.fillRect(0, 0, 256, 256); q.filter = 'blur(5px)'; q.strokeStyle = 'rgba(150,220,245,.5)'; q.lineWidth = 6;
+    for (let i = 0; i < 70; i++) { q.beginPath(); const x = Math.random() * 256, y = Math.random() * 256, r = 10 + Math.random() * 22; q.ellipse(x, y, r, r * (.5 + Math.random() * .5), Math.random() * 3, 0, Math.PI * 2); q.stroke(); }
+    const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(3, 5);
+    const m = new THREE.MeshBasicMaterial({ map: t, transparent: true, opacity: .07, blending: THREE.AdditiveBlending, depthWrite: false });
+    const o = new THREE.Mesh(new THREE.PlaneGeometry(8.2, 13.5), m); o.rotation.x = Math.PI / 2; o.position.set(-41.5, y0 + 6.2, 38.75); g.add(o);
+    let last = 0; (function anim(ts) { if (!o.parent) return; if (ts - last > 66) { last = ts; t.offset.x = Math.sin(ts / 2300) * .08; t.offset.y += .0009; } requestAnimationFrame(anim); })(0); }
+  // 살펴보기
+  const add = (x, z, y, label, fn) => world.props.push({ kind: 'look', floor: 6, x, z, y: y0 + y, r: 1.5, label, fn, n: 0, _rb: true });
+  add(-35, 34.2, .8, '킥판 거치대 뒤적이기', p => { sfx.paper(); if (!p.n++ && typeof giveItem === 'function') { try { giveItem('battery', 1); } catch (e) {} return '킥판 사이에 끼워진 건전지 하나를 찾았다.'; } return pk(['킥판마다 이름이 적혀 있다. 한 장에만 “윤”.', '젖은 킥판에서 락스 냄새가 훅 올라온다.']); });
+  add(-48.6, 30.4, .9, '덮개 롤러 돌려 보기', () => { sfx.clank(); return pk(['롤러가 끼익 돌다 멈춘다. 덮개 끝이 물속으로 처져 있다.', '덮개 아래 물 위로 무언가 떠올랐다가 가라앉았다.']); });
+  return g.children.length;
+}
 function refinishB1() {
   const F = floors[4]; if (!F || F._b1new) return 0; F._b1new = true; const y0 = F.y0 || 0, H = 3.0, bb = new THREE.Box3(), sz = new THREE.Vector3(), c = new THREE.Vector3(); let hid = 0;
   const keep = new Set(); for (const d of [...(world.doors || []), ...(world.doorList || [])]) if (d.floor === 4) for (const k of Object.keys(d)) { const v = d[k]; if (v && v.isObject3D) v.traverse(x => keep.add(x)); }   // 문(철문 · 방폭문 · 덮개)은 절대 숨기지 않는다 — 크기가 벽 기준에 걸려 사라지던 문제
@@ -8935,7 +8964,7 @@ function repairStrayInteractables() {
     g.position.set(p.x, top + .004, p.z); g.rotation.y = (p.x * 7 + p.z * 3) % 6.28; g.name = 'REC_VIS_' + (p.id || ''); g.userData.rbKeep = true; scene.add(g); p.visMesh = g; p._recVis = true; n++; }
   return n;
 }
-{ RBG = installRebuild({ THREE, scene, floors, world }); window.__rbg = RBG; setTimeout(() => { try { refinishB1(); } catch (e) { console.warn('[B1 refinish]', e); } }, 12000); setTimeout(() => { try { (RBG.beds ? RBG.beds() : []).forEach((b, i) => world.props.push({ kind: 'bed', floor: 0, rbY: b.y, x: b.x, z: b.z, y: b.y + .7, r: 1.4, label: '침대에 눕기 — 잠시 숨 고르기', bed: b, _rb: true })); nurseChairFix(); } catch (e) { console.warn('[bed]', e); } }, 3500); try { RBG.allOff(); } catch (e) { console.warn('[all off]', e); } renderer.localClippingEnabled = true; setTimeout(() => { installInvestigationBoards().catch(e => console.warn('[조사 게시물]', e)); }, 2500); setTimeout(() => { furnishRooms({ scene, RBG, world, getP: () => P }).then(n => n && console.info('[가구 보강]', n)).catch(e => console.warn('[furnish v2]', e)); }, 4000); [20000, 45000].forEach(t => setTimeout(() => { try { if (RBG && RBG.deskGraffiti && !RBG._graf) { const n = RBG.deskGraffiti(); if (n) console.info('[책상 낙서]', n); } } catch (e) { console.warn('[graffiti]', e); } }, t)); [6000, 16000, 32000].forEach(t => setTimeout(() => { try { const n = repairStrayInteractables(); if (n) console.info('[상호작용 위치 보정]', n); } catch (e) { console.warn('[stray fix]', e); } }, t)); try { installRoomUI({ P, world, getRBG: () => RBG, getState: () => state, getTarget: () => target, keyInteract: () => (K().interact || 'KeyE') }); } catch (e) { console.warn('[room ui]', e); }
+{ RBG = installRebuild({ THREE, scene, floors, world }); window.__rbg = RBG; setTimeout(() => { try { refinishB1(); } catch (e) { console.warn('[B1 refinish]', e); } }, 12000); setTimeout(() => { try { const n = installPoolDetail(); if (n) console.info('[수영장 디테일]', n); } catch (e) { console.warn('[pool detail]', e); } }, 13000); setTimeout(() => { try { (RBG.beds ? RBG.beds() : []).forEach((b, i) => world.props.push({ kind: 'bed', floor: 0, rbY: b.y, x: b.x, z: b.z, y: b.y + .7, r: 1.4, label: '침대에 눕기 — 잠시 숨 고르기', bed: b, _rb: true })); nurseChairFix(); } catch (e) { console.warn('[bed]', e); } }, 3500); try { RBG.allOff(); } catch (e) { console.warn('[all off]', e); } renderer.localClippingEnabled = true; setTimeout(() => { installInvestigationBoards().catch(e => console.warn('[조사 게시물]', e)); }, 2500); setTimeout(() => { furnishRooms({ scene, RBG, world, getP: () => P }).then(n => n && console.info('[가구 보강]', n)).catch(e => console.warn('[furnish v2]', e)); }, 4000); [20000, 45000].forEach(t => setTimeout(() => { try { if (RBG && RBG.deskGraffiti && !RBG._graf) { const n = RBG.deskGraffiti(); if (n) console.info('[책상 낙서]', n); } } catch (e) { console.warn('[graffiti]', e); } }, t)); [6000, 16000, 32000].forEach(t => setTimeout(() => { try { const n = repairStrayInteractables(); if (n) console.info('[상호작용 위치 보정]', n); } catch (e) { console.warn('[stray fix]', e); } }, t)); try { installRoomUI({ P, world, getRBG: () => RBG, getState: () => state, getTarget: () => target, keyInteract: () => (K().interact || 'KeyE') }); } catch (e) { console.warn('[room ui]', e); }
   // 2단계: 예전 건물의 열쇠 · 쪽지 · 조사 지점을 새 방으로 (나중에 생기는 조사 지점도 몇 번 더 옮긴다)
   const sz4 = floors[4] && floors[4].stairZone, b1 = sz4 ? sz4.spawn : { x: ((floors[4] && floors[4].stairCx) || 0) + .8, z: -5.2 };
   const rel = () => { const r = RBG.relocate({ world, floors, stairSpawnB1: b1 }); if (r.moved || r.dropped) console.info('[rebuild] 옮김', r); const f = RBG.fixRoomRefs(world); if (f.moved || f.relabeled || f.dup) console.info('[rebuild] 방 이름 맞춤', f); const g2 = RBG.relinkGeneric(world); if (g2.n || g2.drop) console.info('[rebuild] 공용 조사 지점 다시 잇기', g2); const s3 = RBG.settleMoved(world); if (s3.n) console.info('[rebuild] 허공 물건 내려놓기', s3); nurseChairFix(); const fv = RBG.fixVisible(world); if (fv.re || fv.up) console.info('[rebuild] 안 보이던 · 묻힌 물건 바로잡기', fv); };

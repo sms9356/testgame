@@ -9897,5 +9897,293 @@
    "model_id": "eleven_v4",
    "language_code": "ko"
   }
+ },
+ "mc_start_m": {
+  "spk": "mina",
+  "text": "응… 너희가 와 줘서 다행이야. 혼자였으면 못 나갔을 거야.",
+  "dur": 6.32,
+  "baked": true,
+  "eleven": true,
+  "generation": {
+   "voice_id": "oGV8pbtfEm7fbDPdSfrx",
+   "model_id": "eleven_v4",
+   "language_code": "ko"
+  }
+ },
+ "mc_stairs_m": {
+  "spk": "mina",
+  "text": "고마워… 사흘 동안 이 계단을 몇 번이나 오르내렸는지 몰라.",
+  "dur": 6.53,
+  "baked": true,
+  "eleven": true,
+  "generation": {
+   "voice_id": "oGV8pbtfEm7fbDPdSfrx",
+   "model_id": "eleven_v4",
+   "language_code": "ko"
+  }
+ },
+ "mc_eqroom_m": {
+  "spk": "mina",
+  "text": "장비실 문이 뒤에서 철컥 잠겼을 때… 진짜 끝인 줄 알았어.",
+  "dur": 6.01,
+  "baked": true,
+  "eleven": true,
+  "generation": {
+   "voice_id": "oGV8pbtfEm7fbDPdSfrx",
+   "model_id": "eleven_v4",
+   "language_code": "ko"
+  }
+ },
+ "mc_ghost_m": {
+  "spk": "mina",
+  "text": "뒤돌아보지 마. 그냥 계속 걸어.",
+  "dur": 3.34,
+  "baked": true,
+  "eleven": true,
+  "generation": {
+   "voice_id": "oGV8pbtfEm7fbDPdSfrx",
+   "model_id": "eleven_v4",
+   "language_code": "ko"
+  }
+ },
+ "mc_idle_m": {
+  "spk": "mina",
+  "text": "…방금 무슨 소리 들리지 않았어?",
+  "dur": 3.24,
+  "baked": true,
+  "eleven": true,
+  "generation": {
+   "voice_id": "oGV8pbtfEm7fbDPdSfrx",
+   "model_id": "eleven_v4",
+   "language_code": "ko"
+  }
+ },
+ "mc_bcast_m": {
+  "spk": "mina",
+  "text": "아까 그 방송… 하늘 언니 목소리, 언니가 말하던 그대로였어.",
+  "dur": 6.43,
+  "baked": true,
+  "eleven": true,
+  "generation": {
+   "voice_id": "oGV8pbtfEm7fbDPdSfrx",
+   "model_id": "eleven_v4",
+   "language_code": "ko"
+  }
+ },
+ "mc_outdoor_m": {
+  "spk": "mina",
+  "text": "십 년 동안 언니는 이 문을 못 나갔어. 우리가 대신 나가는 거야.",
+  "dur": 6.16,
+  "baked": true,
+  "eleven": true,
+  "generation": {
+   "voice_id": "oGV8pbtfEm7fbDPdSfrx",
+   "model_id": "eleven_v4",
+   "language_code": "ko"
+  }
+ },
+ "mc_gate_m": {
+  "spk": "mina",
+  "text": "나가면 제일 먼저 언니한테 전화할 거야. 다 끝났다고.",
+  "dur": 4.57,
+  "baked": true,
+  "eleven": true,
+  "generation": {
+   "voice_id": "oGV8pbtfEm7fbDPdSfrx",
+   "model_id": "eleven_v4",
+   "language_code": "ko"
+  }
+ },
+ "mc_start_j": {
+  "spk": "jihun",
+  "text": "발목은 괜찮아? 천천히 가도 돼.",
+  "dur": 3.4,
+  "baked": true,
+  "eleven": true,
+  "generation": {
+   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "model_id": "eleven_v4",
+   "language_code": "ko"
+  }
+ },
+ "mc_stairs_j": {
+  "spk": "jihun",
+  "text": "계단이야. 내 어깨 잡아.",
+  "dur": 2.85,
+  "baked": true,
+  "eleven": true,
+  "generation": {
+   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "model_id": "eleven_v4",
+   "language_code": "ko"
+  }
+ },
+ "mc_eqroom_j": {
+  "spk": "jihun",
+  "text": "이제 괜찮아. 내가 열쇠 찾아왔잖아.",
+  "dur": 3.66,
+  "baked": true,
+  "eleven": true,
+  "generation": {
+   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "model_id": "eleven_v4",
+   "language_code": "ko"
+  }
+ },
+ "mc_ghost_j": {
+  "spk": "jihun",
+  "text": "알았어… 손 놓지 마.",
+  "dur": 3.0,
+  "baked": true,
+  "eleven": true,
+  "generation": {
+   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "model_id": "eleven_v4",
+   "language_code": "ko"
+  }
+ },
+ "mc_idle_j": {
+  "spk": "jihun",
+  "text": "아니… 바람 소리일 거야. 가자.",
+  "dur": 3.84,
+  "baked": true,
+  "eleven": true,
+  "generation": {
+   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "model_id": "eleven_v4",
+   "language_code": "ko"
+  }
+ },
+ "mc_bcast_j": {
+  "spk": "jihun",
+  "text": "응. 이번엔 끝까지 나갔어.",
+  "dur": 3.42,
+  "baked": true,
+  "eleven": true,
+  "generation": {
+   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "model_id": "eleven_v4",
+   "language_code": "ko"
+  }
+ },
+ "mc_outdoor_j": {
+  "spk": "jihun",
+  "text": "밖이다. 공기가 다르네.",
+  "dur": 3.89,
+  "baked": true,
+  "eleven": true,
+  "generation": {
+   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "model_id": "eleven_v4",
+   "language_code": "ko"
+  }
+ },
+ "mc_gate_j": {
+  "spk": "jihun",
+  "text": "정문까지 조금만 더.",
+  "dur": 2.06,
+  "baked": true,
+  "eleven": true,
+  "generation": {
+   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "model_id": "eleven_v4",
+   "language_code": "ko"
+  }
+ },
+ "mc_start_s": {
+  "spk": "seoyeon",
+  "text": "선배, 발목 괜찮아요? 천천히 가요.",
+  "dur": 3.92,
+  "baked": true,
+  "eleven": true,
+  "generation": {
+   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "model_id": "eleven_v4",
+   "language_code": "ko"
+  }
+ },
+ "mc_stairs_s": {
+  "spk": "seoyeon",
+  "text": "계단이에요. 제 어깨 잡으세요.",
+  "dur": 3.19,
+  "baked": true,
+  "eleven": true,
+  "generation": {
+   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "model_id": "eleven_v4",
+   "language_code": "ko"
+  }
+ },
+ "mc_eqroom_s": {
+  "spk": "seoyeon",
+  "text": "이제 괜찮아요. 제가 열쇠 찾아왔잖아요.",
+  "dur": 4.08,
+  "baked": true,
+  "eleven": true,
+  "generation": {
+   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "model_id": "eleven_v4",
+   "language_code": "ko"
+  }
+ },
+ "mc_ghost_s": {
+  "spk": "seoyeon",
+  "text": "네… 선배, 손 놓지 마세요.",
+  "dur": 3.81,
+  "baked": true,
+  "eleven": true,
+  "generation": {
+   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "model_id": "eleven_v4",
+   "language_code": "ko"
+  }
+ },
+ "mc_idle_s": {
+  "spk": "seoyeon",
+  "text": "아무것도요… 바람 소리일 거예요. 가요.",
+  "dur": 4.18,
+  "baked": true,
+  "eleven": true,
+  "generation": {
+   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "model_id": "eleven_v4",
+   "language_code": "ko"
+  }
+ },
+ "mc_bcast_s": {
+  "spk": "seoyeon",
+  "text": "네. 이번엔 끝까지 나갔어요.",
+  "dur": 3.79,
+  "baked": true,
+  "eleven": true,
+  "generation": {
+   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "model_id": "eleven_v4",
+   "language_code": "ko"
+  }
+ },
+ "mc_outdoor_s": {
+  "spk": "seoyeon",
+  "text": "밖이에요… 공기가 달라요.",
+  "dur": 4.0,
+  "baked": true,
+  "eleven": true,
+  "generation": {
+   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "model_id": "eleven_v4",
+   "language_code": "ko"
+  }
+ },
+ "mc_gate_s": {
+  "spk": "seoyeon",
+  "text": "정문까지 조금만 더요.",
+  "dur": 2.38,
+  "baked": true,
+  "eleven": true,
+  "generation": {
+   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "model_id": "eleven_v4",
+   "language_code": "ko"
+  }
  }
 }

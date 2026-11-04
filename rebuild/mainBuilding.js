@@ -4,7 +4,7 @@
 //   전기(분전반 · 2등용 형광등 · 콘센트 · 스위치) · 소방(소화전함 · 소화기 · 감지기 · 유도등 · 방화문) · 수도(세면대 · 배관)
 import * as THREE from '../vendor/three.module.js';
 import { mergeGeometries } from '../vendor/addons/utils/BufferGeometryUtils.js';
-import { makeFlag } from '../tex.js?v=391';
+import { makeFlag } from '../tex.js?v=392';
 // 교실 앞면 꾸밈 공용 (반 이름 · 텍스처 캐시)
 const NAMES = ['김민수', '이서연', '박지훈', '최유진', '정하늘', '강도윤', '조수아', '윤재현', '장예린', '임태호', '한소영', '오준서', '서지민', '신동혁', '권나연', '황민재', '안채원', '송우진', '전다은', '홍석진'];
 let flagTex = null; const decorTex = new Map();
@@ -456,11 +456,14 @@ export function buildMainBuilding(opt = {}) {
     // 복도벽(교실 ↔ 복도): 교실마다 앞 · 뒤 미닫이문 + 상부 고창
     LY.rooms.forEach(r => {
       if (r.kind === 'class') {
-        const ops = [{ a: r.x1 + .7, b: r.x1 + 1.7, y1: 0, y2: 2.1 }, { a: r.x2 - 1.7, b: r.x2 - .7, y1: 0, y2: 2.1 }, { a: r.x1 + 2.4, b: r.x2 - 2.4, y1: 1.6, y2: 2.4 }];
+        const idx = LY.rooms.filter(q => q.kind === 'class').indexOf(r), type = PLAN[f][idx], name = roomName(f, idx);
+        // 방송실(두 칸): 출입문은 조정실 앞문 하나뿐 — 나머지 세 문 자리는 벽 (방음 · 보안)
+        const D0 = [{ a: r.x1 + .7, b: r.x1 + 1.7, y1: 0, y2: 2.1, k: 0 }, { a: r.x2 - 1.7, b: r.x2 - .7, y1: 0, y2: 2.1, k: 1 }];
+        const dops = type === 'bcast' ? (PLAN[f][idx - 1] !== 'bcast' ? [D0[0]] : []) : D0;
+        const ops = [...dops, { a: r.x1 + 2.4, b: r.x2 - 2.4, y1: 1.6, y2: 2.4 }];
         wallX('wall', r.x1, r.x2, -S.wall / 2, S.wall / 2, y0, ops);
         finishX(r.x1, r.x2, S.wall / 2, 1, y0, ops); finishX(r.x1, r.x2, -S.wall / 2, -1, y0, ops);
-        const idx = LY.rooms.filter(q => q.kind === 'class').indexOf(r), type = PLAN[f][idx], name = roomName(f, idx);
-        ops.slice(0, 2).forEach((o, k) => { box('alu', o.a - .05, o.a, y0, y0 + 2.15, -.12, .12); box('alu', o.b, o.b + .05, y0, y0 + 2.15, -.12, .12); box('alu', o.a, o.b, y0 + 2.1, y0 + 2.15, -.12, .12);
+        dops.forEach(o => { const k = o.k; box('alu', o.a - .05, o.a, y0, y0 + 2.15, -.12, .12); box('alu', o.b, o.b + .05, y0, y0 + 2.15, -.12, .12); box('alu', o.a, o.b, y0 + 2.1, y0 + 2.15, -.12, .12);
           // 미서기 나무문 (복도 쪽 레일, 벽 안쪽으로 밀려 들어간다) + 문 위 실명판
           const w = o.b - o.a; doors.push({ kind: 'slide', mat: type === 'bcast' ? 'steelG' : 'lockerM', win: true, w, h: 2.08, t: .04, px: (o.a + o.b) / 2, py: y0, pz: -.14, ox: 0, oz: 0, dir: k ? -1 : 1, open: (f + idx + k) % 3 === 0,
             cx1: o.a, cx2: o.b, cz1: -.18, cz2: -.1, mx: (o.a + o.b) / 2, mz: -.5, label: `${name} ${k ? '뒷문' : '앞문'}`, floor: f });

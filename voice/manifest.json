@@ -228,13 +228,13 @@
   }
  },
  "tape3": {
-  "spk": "teacher",
+  "spk": "headTeacher",
   "text": "오늘 밤 지하 펌프실 건은 단순 실종 사고로 정리한다. 경찰이나 교육청에 새어 나가선 안 돼. 오늘 밤 학교에 남아 있던 우리 다섯 사람이 정문 열쇠를 한 조각씩 나눠 맡기로 했다. 교무실 금고, 도서실, 과학실, 체육관, 그리고 수영장. 다섯 명이 모두 모이기 전엔, 그 누구도 오늘 밤을 다시 열 수 없다.",
-  "dur": 22.24,
+  "dur": 23.25,
   "baked": true,
   "eleven": "오늘 밤 지하 펌프실 건은 단순 실종 사고로 정리한다. 경찰이나 교육청에 새어 나가선 안 돼. 오늘 밤 학교에 남아 있던 우리 다섯 사람이 정문 열쇠를 한 조각씩 나눠 맡기로 했다. 교무실 금고, 도서실, 과학실, 체육관, 그리고 수영장. 다섯 명이 모두 모이기 전엔, 그 누구도 오늘 밤을 다시 열 수 없다.",
   "generation": {
-   "voice_id": "dYYoaNsbIzON6ZOkqrct",
+   "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
    "model_id": "eleven_v4",
    "language_code": "ko",
    "voice_settings": {
@@ -3004,13 +3004,13 @@
   }
  },
  "tape5": {
-  "spk": "teacher",
+  "spk": "headTeacher",
   "text": "사실 그날 밤, 지하 펌프실 철문 열쇠는 내 주머니 속에 있었다. 준호 녀석이 장난이라며 가져온 열쇠를, 버릇 좀 고쳐 주겠다며 내가 쥐고 있었어. 정전이 났을 때 바로 내려가 문만 열어 줬어도, 그 아이는 살아서 마이크 앞에 섰을 거다. 학교 명예를 지킨다는 핑계로 내가 그 아이를 죽였다. 누군가 이 녹음을 듣는다면, 부디 내 대신 그 아이의 이름을 불러 다오.",
-  "dur": 28.64,
+  "dur": 28.68,
   "baked": true,
   "eleven": "사실 그날 밤, 지하 펌프실 철문 열쇠는 내 주머니 속에 있었다. 준호 녀석이 장난이라며 가져온 열쇠를, 버릇 좀 고쳐 주겠다며 내가 쥐고 있었어. 정전이 났을 때 바로 내려가 문만 열어 줬어도, 그 아이는 살아서 마이크 앞에 섰을 거다. 학교 명예를 지킨다는 핑계로 내가 그 아이를 죽였다. 누군가 이 녹음을 듣는다면, 부디 내 대신 그 아이의 이름을 불러 다오.",
   "generation": {
-   "voice_id": "dYYoaNsbIzON6ZOkqrct",
+   "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
    "model_id": "eleven_v4",
    "language_code": "ko",
    "voice_settings": {
@@ -5421,11 +5421,11 @@
  "vo_pump_forensic": {
   "spk": "headTeacher",
   "text": "열쇠는 내 주머니에 있었다. 버릇 좀 고쳐 주겠다고… 내가 쥐고 있었어. 정전이 났을 때 바로 내려가서 문만 열었어도… 그 아이는 마이크 앞에 섰을 거다.",
-  "dur": 15.65,
+  "dur": 14.03,
   "baked": true,
   "eleven": "[regretful] [heavy] [hesitant] 열쇠는 내 주머니에 있었다. 버릇 좀 고쳐 주겠다고… 내가 쥐고 있었어. 정전이 났을 때 바로 내려가서 문만 열었어도… 그 아이는 마이크 앞에 섰을 거다.",
   "generation": {
-   "voice_id": "dYYoaNsbIzON6ZOkqrct",
+   "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
    "model_id": "eleven_v4",
    "language_code": "ko",
    "delivery": "[regretful] [heavy] [hesitant]",
@@ -6703,11 +6703,11 @@
  "nd_n6": {
   "spk": "mina",
   "text": "뒤따라오는 사람은 보이지 않았다. 내가 멈춰도 발소리는 한 걸음 더 이어졌다 — 이 학교에 나 말고 누가 있다. 기억을 믿기 전에, 사진과 녹음의 시간을 서로 맞춰 봐. — 민아",
-  "dur": 12.83,
+  "dur": 14.45,
   "baked": true,
   "eleven": "뒤따라오는 사람은 보이지 않았다. 내가 멈춰도 발소리는 한 걸음 더 이어졌다 — 이 학교에 나 말고 누가 있다. 기억을 믿기 전에, 사진과 녹음의 시간을 서로 맞춰 봐. — 민아",
   "generation": {
-   "voice_id": "8G6jifm9f1BhHXadvwOt",
+   "voice_id": "oGV8pbtfEm7fbDPdSfrx",
    "model_id": "eleven_v4",
    "language_code": "ko",
    "review_status": "unreviewed",

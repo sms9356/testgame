@@ -4,12 +4,12 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { buildGuardAnnex, buildDutyRoom, ANNEX as GANX } from './guardAnnex.js?v=373';
-import { NOTES } from './story.js?v=373';
+import { buildGuardAnnex, buildDutyRoom, ANNEX as GANX } from './guardAnnex.js?v=376';
+import { NOTES } from './story.js?v=376';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=373';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=376';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -4680,6 +4680,12 @@ export function buildWorld(scene) {
       });
       col(gx - .08, gx + .08, CZ - 3.74, CZ - 3.58, true); col(gx - .08, gx + .08, CZ + 3.58, CZ + 3.74, true); col(Math.min(gx, gx + sd * 1.6), Math.max(gx, gx + sd * 1.6), CZ - 3.7, CZ + 3.7);
     });
+    // 1998년 학교 운동장 계단식 콘크리트 스탠드 (트랙 북쪽 · 운동장을 바라본다) — 단 높이 0.35m (점프로 오를 수 있다) · 중앙 통로는 비운다
+    { const cM = S(null, { color: 0x9a968c, roughness: .95 }), edgeM = S(null, { color: 0x7a766c, roughness: .9 }), x1 = 3, x2 = 15;
+      for (let k = 0; k < 4; k++) { const za = 26.2 - (k + 1) * .75, zb = 26.2 - k * .75, h = (k + 1) * .35; const m = new THREE.Mesh(new THREE.BoxGeometry(x2 - x1, h, zb - za), cM); m.position.set((x1 + x2) / 2, h / 2, (za + zb) / 2); m.receiveShadow = true; OUT.add(m);
+        const e = new THREE.Mesh(new THREE.BoxGeometry(x2 - x1, .04, .06), edgeM); e.position.set((x1 + x2) / 2, h + .02, zb - .03); OUT.add(e); col(x1, x2, za, zb, false, h); }
+      const back = new THREE.Mesh(new THREE.BoxGeometry(x2 - x1, 1.6, .15), edgeM); back.position.set((x1 + x2) / 2, .8, 23.12); OUT.add(back);
+      for (let k = 0; k < 3; k++) { const t = new THREE.Mesh(new THREE.PlaneGeometry(1.2, .25), new THREE.MeshBasicMaterial({ map: T.makeSign(['청 군', '백 군', '3-2 화이팅'][k], 'rgba(0,0,0,0)', ['#3060c0', '#e8e8e0', '#c03030'][k], 40), transparent: true, depthWrite: false })); t.position.set(x1 + 2 + k * 4, .35 * (k + 1) + .005, 26.2 - k * .75 - .4); t.rotation.x = -Math.PI / 2; OUT.add(t); } }
     // 운동장 잔디 위 축구공 & 체육 수업용 드리블 라바콘
     [[-1.4, 39.2, .4], [14.8, 41.5, 1.7], [-17.6, 38.4, 2.5], [-24.2, 56.4, .9]].forEach(([bx0, bz0, bry]) => model('sf_soccer_ball', bx0, 0, bz0, bry, { out: true }));
     [[-12.5, 29.8], [-11.3, 29.8], [-10.1, 29.8], [-8.9, 29.8], [27.8, 40.5], [27.8, 42.0]].forEach(([cx0, cz0], ci) => model('sf_traffic_cone', cx0, 0, cz0, ci * .5, { out: true }));

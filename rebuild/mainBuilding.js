@@ -4,7 +4,7 @@
 //   전기(분전반 · 2등용 형광등 · 콘센트 · 스위치) · 소방(소화전함 · 소화기 · 감지기 · 유도등 · 방화문) · 수도(세면대 · 배관)
 import * as THREE from '../vendor/three.module.js';
 import { mergeGeometries } from '../vendor/addons/utils/BufferGeometryUtils.js';
-import { makeFlag } from '../tex.js?v=392';
+import { makeFlag } from '../tex.js?v=393';
 // 교실 앞면 꾸밈 공용 (반 이름 · 텍스처 캐시)
 const NAMES = ['김민수', '이서연', '박지훈', '최유진', '정하늘', '강도윤', '조수아', '윤재현', '장예린', '임태호', '한소영', '오준서', '서지민', '신동혁', '권나연', '황민재', '안채원', '송우진', '전다은', '홍석진'];
 let flagTex = null; const decorTex = new Map();
@@ -971,16 +971,17 @@ export function buildMainBuilding(opt = {}) {
       box('cork', X1 + .02, X1 + .06, y0 + 1.35, y0 + 2.15, z1 + 8.65, z2 - .25); sign('방송 편성표 1998.10', .7, .5, X1 + .07, y0 + 1.75, (z1 + 8.65 + z2 - .25) / 2, Math.PI / 2, '#f0ece0', '#203040', false);   // 창을 가리지 않게 서쪽 벽 CCTV 받침 위
       // ── 방음 유리 칸막이 · 방음문 (가운데) · ON AIR 등 ──
       // 유리벽: 허리벽(0.8m) 위로 천장 밑(2.45m)까지 이중 투명 유리 · 멀리온 — 조정실에서 녹음실이 훤히 보인다. 장비실 구간(남쪽 2.8m)만 막힌 벽
-      { const ZQ = z2 - 2.8, seg = [[z1, z1 + 3.0], [z1 + 4.0, ZQ]];
+      { const ZQ = z2 - 2.8, seg = [[z1 + 1.35, ZQ]];   // 문은 북쪽 끝(장비실 반대편) — 콘솔 뒤로 비집고 들어가던 가운데 문을 옮겼다
+        box('wall', XP - .1, XP + .1, y0, y0 + S.CEIL, z1, z1 + .35, { solid: true });
         seg.forEach(([a, b]) => { box('wall', XP - .1, XP + .1, y0, y0 + .8, a, b); box('wall', XP - .1, XP + .1, y0 + 2.45, y0 + S.CEIL, a, b); col.push({ x1: XP - .1, x2: XP + .1, z1: a, z2: b, y1: y0, y2: y0 + S.CEIL });
           box('glass', XP - .03, XP - .02, y0 + .8, y0 + 2.45, a + .05, b - .05); box('glass', XP + .02, XP + .03, y0 + .8, y0 + 2.45, a + .05, b - .05);
           box('alu', XP - .1, XP + .1, y0 + .78, y0 + .82, a, b); box('alu', XP - .1, XP + .1, y0 + 2.43, y0 + 2.47, a, b);
           for (let z = a + 1.2; z < b - .3; z += 1.2) box('alu', XP - .06, XP + .06, y0 + .8, y0 + 2.45, z - .03, z + .03); });
         box('wall', XP - .1, XP + .1, y0, y0 + S.CEIL, ZQ, z2, { solid: true }); }
-      box('wall', XP - .1, XP + .1, y0 + 2.15, y0 + S.CEIL, z1 + 3.0, z1 + 4.0);
-      box('steelG', XP - .12, XP + .12, y0, y0 + 2.15, z1 + 2.95, z1 + 3.02); box('steelG', XP - .12, XP + .12, y0, y0 + 2.15, z1 + 3.98, z1 + 4.05); box('steelG', XP - .12, XP + .12, y0 + 2.1, y0 + 2.18, z1 + 2.95, z1 + 4.05);   // 문틀
-      box('steelG', XP + .12, XP + .2, y0, y0 + 2.08, z1 + 4.05, z1 + 4.95); box('rubber', XP + .2, XP + .22, y0 + 1.0, y0 + 1.05, z1 + 4.7, z1 + 4.85); box('glass', XP + .19, XP + .21, y0 + 1.3, y0 + 1.8, z1 + 4.3, z1 + 4.7);   // 열어 둔 방음문 (창 · 손잡이)
-      sign('ON AIR', .6, .2, XP - .11, y0 + 2.4, z1 + 3.5, -Math.PI / 2); sign('ON AIR', .6, .2, XP + .11, y0 + 2.4, z1 + 3.5, Math.PI / 2);
+      box('wall', XP - .1, XP + .1, y0 + 2.15, y0 + S.CEIL, z1 + .35, z1 + 1.35);
+      box('steelG', XP - .12, XP + .12, y0, y0 + 2.15, z1 + .3, z1 + .37); box('steelG', XP - .12, XP + .12, y0, y0 + 2.15, z1 + 1.33, z1 + 1.4); box('steelG', XP - .12, XP + .12, y0 + 2.1, y0 + 2.18, z1 + .3, z1 + 1.4);   // 문틀
+      box('steelG', XP + .12, XP + .2, y0, y0 + 2.08, z1 + 1.4, z1 + 2.3); box('rubber', XP + .2, XP + .22, y0 + 1.0, y0 + 1.05, z1 + 2.05, z1 + 2.2); box('glass', XP + .19, XP + .21, y0 + 1.3, y0 + 1.8, z1 + 1.65, z1 + 2.05);   // 열어 둔 방음문 (창 · 손잡이)
+      sign('ON AIR', .6, .2, XP - .11, y0 + 2.4, z1 + .85, -Math.PI / 2); sign('ON AIR', .6, .2, XP + .11, y0 + 2.4, z1 + .85, Math.PI / 2);
       // ── 스튜디오 ──
       // 흡음 폼: 동쪽 벽(배경막 남쪽) · 복도 쪽 벽 위쪽, 남쪽 창은 두꺼운 암막 커튼
       box('foam', X2 - .08, X2 - .02, y0 + .3, y0 + 2.6, z1 + 5.3, z2 - .3); box('foam', XP + 1.8, X1 + 15.9, y0 + 1.4, y0 + 2.6, z1 + .01, z1 + .07);

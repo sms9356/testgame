@@ -7362,12 +7362,11 @@ function refinishB1() {
   const F = floors[4]; if (!F || F._b1new) return 0; F._b1new = true; const y0 = F.y0 || 0, H = 3.0, bb = new THREE.Box3(), sz = new THREE.Vector3(), c = new THREE.Vector3(); let hid = 0;
   const keep = new Set(); for (const d of [...(world.doors || []), ...(world.doorList || [])]) if (d.floor === 4) for (const k of Object.keys(d)) { const v = d[k]; if (v && v.isObject3D) v.traverse(x => keep.add(x)); }   // 문(철문 · 방폭문 · 덮개)은 절대 숨기지 않는다 — 크기가 벽 기준에 걸려 사라지던 문제
   scene.traverse(o => { if (!o.isMesh || o.isSkinnedMesh || !o.geometry || o.userData.b1new || keep.has(o)) return; bb.setFromObject(o); if (bb.isEmpty()) return; bb.getCenter(c); bb.getSize(sz);
+    { const sc = F.stairCx ?? 0; if (c.x > sc - 3.2 && c.x < sc + .2 && c.z > -11 && c.z < -1 && c.y > y0 + 2.6 && c.y < y0 + 12) { o.visible = false; hid++; return; } }   // 옛 계단 윗비행(지하→옛 1층): 새 계단 위로 비스듬히 보이던 회색 판 — 같은 한 번의 순회에서 처리
     if (c.y < y0 - .6 || c.y > y0 + 4.5 || Math.abs(c.x) > 38 || c.z < -36 || c.z > 12) return;
     const room = sz.y >= 2 && Math.max(sz.x, sz.z) >= 6, slab = sz.y < .35 && Math.max(sz.x, sz.z) >= 6, wall = sz.y >= 2 && Math.min(sz.x, sz.z) < .5 && Math.max(sz.x, sz.z) >= 1.5;
     const m0 = [].concat(o.material)[0]; if (m0 && (m0.transparent || m0.opacity < 1 || (m0.emissive && m0.emissiveIntensity > .3 && m0.emissive.getHex()))) return;   // 물 · 유리 · 발광면(침수 바닥 · 비상등)은 남긴다
     if (slab && !room && !wall) { o.visible = false; hid++; } });   // 옛 바닥 · 천장 판만 숨긴다 — 방 벽 통메시까지 숨기면 충돌 상자가 얇지 않은 벽은 다시 그려지지 않아 지하가 텅 빈 공간처럼 보였다
-  { const sc = F.stairCx ?? 0; scene.traverse(o => { if (!o.isMesh || o.userData.b1new || keep.has(o)) return; let q = o; while (q) { if (q.userData.b1new) return; q = q.parent; } bb.setFromObject(o); if (bb.isEmpty()) return; bb.getCenter(c);   // 옛 계단 윗비행(지하→옛 1층): 새 계단 위 천장 너머로 비스듬히 보이던 회색 판
-    if (c.x > sc - 3.2 && c.x < sc + .2 && c.z > -11 && c.z < -1 && c.y > y0 + 2.6 && c.y < y0 + 12) { o.visible = false; hid++; } }); }
   const g = new THREE.Group(); g.userData.b1new = true; scene.add(g);
   const mk = (col, r, m = 0, e) => new THREE.MeshStandardMaterial(Object.assign({ color: col, roughness: r, metalness: m }, e || {}));
   const UP = mk(0xa7aba5, .86), LOW = mk(0x4f5d53, .78), TRIM = mk(0x2e3530, .6, .2), FLOOR = b1Tex('floor'), CEIL = b1Tex('ceil'), LED = mk(0xffffff, .4, 0, { emissive: 0xe8f0ff, emissiveIntensity: 1.6 }), TRAY = mk(0x9aa0a6, .4, .7), LINE = mk(0xe8c020, .5);

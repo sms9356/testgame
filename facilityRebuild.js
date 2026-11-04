@@ -5,7 +5,7 @@
 //   재질: F-01 ~ F-05 바닥 · W-01 ~ W-05 벽 · C-01 ~ C-04 천장 (Poly Haven CC0 실사 스캔 텍스처, assets/tex/fac_* · 미터 단위 UV)
 import * as THREE from './vendor/three.module.js';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { pbr } from './tex.js?v=384';
+import { pbr } from './tex.js?v=385';
 
 const FH = 3.6, CEIL = 2.9, WALL_T = .24, LIN = .06;
 const TL = new THREE.TextureLoader(), TEX = {};
@@ -719,6 +719,14 @@ function buildAuditorium(ctx, Z) {   // 대강당 18 × 26m · 1층 (공연 · �
   for (let k = 0; k < 14; k++) { const x = (Math.sin(k * 7.3) * .5) * 2 * hx * .7, z = zStage + 2.6 + ((k * 3.7) % 11); B.box(.21, .004, .3, 'WHITE', x, .035, z, { ry: k * 1.3 }); }
   [-1, 1].forEach(s => { B.cyl(.08, .08, .5, 'RED', s * (hx - .25), .25, zLobby - .6, { seg: 12 }); B.cyl(.03, .03, .08, 'BLACK', s * (hx - .25), .54, zLobby - .6); });
   B.addSwitch(1.9, B.Z.D / 2 - WALL_T - LIN - .01, Math.PI, 0, '대강당 형광등 스위치');
+  // 외관 보강 (남측 현관 앞): 공연 포스터 게시함 2 · 세로 현수막 2 · 화분 4 · 벤치 2 · 바닥 안내판
+  { const zf = B.Z.D / 2 + .02;
+    [-1, 1].forEach(s => { const x = s * 4.2; B.box(1.3, 1.7, .12, 'ALU', x, 1.45, zf + .06); B.box(1.15, 1.5, .02, 'CORK', x, 1.45, zf + .13);
+      B.sign(s < 0 ? '방송제 리허설' : '하교 방송 30주년', s < 0 ? '10.12 PM 10:00 · 3층 방송실' : '10.13 본공연 · 대강당', 1.0, .5, x, 1.75, zf + .15, 0, ['#f2eadb', '#5a1020']);
+      B.box(.9, 3.2, .02, 'VELVET', s * 6.6, 4.4, zf + .03); B.sign('서문고', '', .8, .3, s * 6.6, 5.6, zf + .045, 0, ['#5a1020', '#f4e6c0']);
+      [2.9, 7.6].forEach(px => { const x2 = s * px, z2 = zf + 1.1; B.box(.7, .55, .7, 'CONC', x2, .275, z2); B.box(.62, .05, .62, 'SOIL' in lib() ? 'SOIL' : 'DARKWOOD', x2, .55, z2); B.cyl(.03, .04, .5, 'DARKWOOD', x2, .8, z2); B.cyl(.28, .2, .5, 'GREEN' in lib() ? 'GREEN' : 'FABRIC', x2, 1.2, z2, { seg: 10 }); B.col(x2 - .35, x2 + .35, z2 - .35, z2 + .35, {}); });
+      const bx = s * 5.3, bz = zf + 2.4; B.box(1.6, .06, .42, 'WOOD', bx, .45, bz); [-.65, .65].forEach(d => B.box(.06, .45, .38, 'FRAME', bx + d, .225, bz)); B.col(bx - .8, bx + .8, bz - .21, bz + .21, { h: .5 }); });
+    B.box(.6, .9, .04, 'WHITE', 2.0, .7, zf + 3.0, { rx: -.2 }); B.sign('관계자 외 출입금지', '2008 안전 점검 · 폐쇄', .55, .3, 2.0, .78, zf + 3.04, 0, ['#f4f0e4', '#b01818']); }
   B.finish();
   // 비상구 2 (동 · 서 측벽 앞쪽) 표지
   [-1, 1].forEach(s => B.sign('비 상 구', '', .7, .2, s * (hx - .02), 2.5, zStage + 3, -s * Math.PI / 2, ['#0a3a1a', '#7dffa0']));

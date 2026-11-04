@@ -5,23 +5,21 @@ let turf;
 export function turfMaterial() {
   if (turf) return turf;
   const n=1024, canvas=document.createElement('canvas'); canvas.width=canvas.height=n;
-  const ctx=canvas.getContext('2d');ctx.fillStyle='#334d2a';ctx.fillRect(0,0,n,n);
+  // 1998년 학교 운동장: 다져진 마사토 흙바닥 — 모래 · 자갈 알갱이 · 발자국 · 빗물 자국 · 가장자리에만 듬성듬성 잡초
+  const ctx=canvas.getContext('2d');ctx.fillStyle='#8f7a5a';ctx.fillRect(0,0,n,n);
   let seed=48117; const random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296;};
-  const palettes=['#897f43','#203c24','#476539','#597843'],paths=palettes.map(()=>new Path2D());
-  for(let i=0;i<24000;i++){
-    const x=random()*n,y=random()*n,length=2+random()*8,a=random()*Math.PI*2;
-    const v=random(),p=paths[v<.12?0:v<.36?1:v<.72?2:3];
-    const dx=Math.cos(a)*length,dy=Math.sin(a)*length;
-    for(const ox of [-n,0,n])for(const oy of [-n,0,n]){if(x+ox+Math.abs(dx)<0||x+ox-Math.abs(dx)>n||y+oy+Math.abs(dy)<0||y+oy-Math.abs(dy)>n)continue;p.moveTo(x+ox,y+oy);p.lineTo(x+ox+dx,y+oy+dy);}
-  }
-  ctx.lineWidth=.9;palettes.forEach((col,i)=>{ctx.strokeStyle=col;ctx.stroke(paths[i]);});
+  for(let i=0;i<40;i++){const x=random()*n,y=random()*n,r=40+random()*160,g=ctx.createRadialGradient(x,y,0,x,y,r),dark=random()<.5;g.addColorStop(0,dark?'rgba(80,62,40,.22)':'rgba(176,156,120,.2)');g.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=g;ctx.fillRect(x-r,y-r,r*2,r*2);}
+  for(let i=0;i<60000;i++){const v=random();ctx.fillStyle=v<.4?'rgba(70,56,38,.5)':v<.75?'rgba(190,172,140,.55)':'rgba(120,108,92,.6)';const s2=random()<.92?1+random()*1.5:2.5+random()*3;ctx.fillRect(random()*n,random()*n,s2,s2);}   // 모래 · 자갈
+  for(let i=0;i<220;i++){const x=random()*n,y=random()*n,a=random()*6.28;ctx.save();ctx.translate(x,y);ctx.rotate(a);ctx.fillStyle='rgba(60,46,30,.18)';ctx.beginPath();ctx.ellipse(0,0,9,4,0,0,7);ctx.fill();ctx.restore();}   // 운동화 자국
+  for(let i=0;i<12;i++){ctx.strokeStyle='rgba(70,54,36,.18)';ctx.lineWidth=2+random()*3;ctx.beginPath();let x=random()*n,y=random()*n;ctx.moveTo(x,y);for(let k=0;k<8;k++){x+=(random()-.5)*90;y+=random()*60;ctx.lineTo(x,y);}ctx.stroke();}   // 빗물이 흘러간 자국
+  for(let i=0;i<500;i++){const x=random()*n,y=random()*n;ctx.strokeStyle=random()<.5?'rgba(70,96,46,.55)':'rgba(96,110,52,.45)';ctx.lineWidth=1;for(let k=0;k<5;k++){ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+(random()-.5)*8,y-3-random()*7);ctx.stroke();}}   // 듬성듬성 잡초
   const map=new THREE.CanvasTexture(canvas);map.colorSpace=THREE.SRGBColorSpace;map.wrapS=map.wrapT=THREE.RepeatWrapping;map.anisotropy=8;
   // Separate data map: a subtle fibre normal, never interpreted as sRGB.
   const normalCanvas=document.createElement('canvas');normalCanvas.width=normalCanvas.height=256;
   const ng=normalCanvas.getContext('2d'),data=ng.createImageData(256,256);
   for(let i=0;i<data.data.length;i+=4){data.data[i]=122+random()*12;data.data[i+1]=122+random()*12;data.data[i+2]=254;data.data[i+3]=255;}ng.putImageData(data,0,0);
   const normal=new THREE.CanvasTexture(normalCanvas);normal.wrapS=normal.wrapT=THREE.RepeatWrapping;
-  turf=new THREE.MeshStandardMaterial({map,normalMap:normal,normalScale:new THREE.Vector2(.2,.2),roughness:.96,metalness:0});
+  turf=new THREE.MeshStandardMaterial({map,normalMap:normal,normalScale:new THREE.Vector2(.5,.5),roughness:1,metalness:0});
   turf.name='school-turf';return turf;
 }
 

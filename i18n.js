@@ -9,13 +9,22 @@ import { SET, saveSET } from './settings.js';
 export const LANGS = { ko: '한국어', en: 'English', ja: '日本語', zh: '中文' };
 export const SPEECH_LANG = { ko: 'ko-KR', en: 'en-US', ja: 'ja-JP', zh: 'zh-CN' };
 const HG = /[가-힣]/;
-let dict = null, tpls = [], cache = new Map(), vpack = null;
+let dict = null, tpls = [], cache = new Map(), vpack = null, hdict = new Map();
+// 굵은 글씨 · 줄바꿈이 섞인 안내문은 글자 조각마다 번역하면 어순이 깨진다 → 사전의 '<html>' 항목으로 요소 전체를 통째로 바꾼다
+//   <b>숫자</b> 처럼 실행 중 바뀌는 숫자는 §0 · §1 … 로 표시해 순서가 달라도 제자리에 넣는다
+const HNUM = />(\d+)<|(\d+)(?=개)/g;
+const hkey = h => { let i = 0; const nums = []; const k = h.replace(HNUM, (m, d, e) => { nums.push(d ?? e); return d != null ? '>§' + (i++) + '<' : '§' + (i++); }); return [k, nums]; };
+function trHtml(el) {
+  if (!hdict.size || !el.firstElementChild || !HG.test(el.innerHTML)) return false;
+  const [k, nums] = hkey(el.innerHTML.trim()); const v = hdict.get(k); if (v == null) return false;
+  el.innerHTML = v.replace(/§(\d+)/g, (m, i) => nums[+i] ?? ''); return true;
+}
 const MISS = new Set();
 export const lang = () => (LANGS[SET.lang] ? SET.lang : 'ko');
 
 function esc(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
 function build(obj) {
-  dict = new Map(); tpls = []; cache = new Map();
+  dict = new Map(); tpls = []; cache = new Map(); hdict = new Map();
   const addEntry = (k, v) => {
     if (!k || !v) return;
     if (k.includes('{}')) {
@@ -27,6 +36,7 @@ function build(obj) {
   };
   for (const [k, v] of Object.entries(obj)) {
     if (!v) continue;
+    if (k.startsWith('<html>')) { hdict.set(k.slice(6), v); continue; }
     addEntry(k, v);
     const kt = k.trim(), vt = v.trim();
     if (kt !== k) addEntry(kt, vt);
@@ -87,10 +97,12 @@ function trText(n) { const v = n.nodeValue; if (v && HG.test(v)) { const t = tr(
 function trEl(el) {
   if (el.nodeType === 3) { trText(el); return; }
   if (el.nodeType !== 1 || el.tagName === 'SCRIPT' || el.tagName === 'STYLE') return;
+  if (trHtml(el)) return;
   for (const at of ATTRS) { const v = el.getAttribute(at); if (v && HG.test(v)) { const t = tr(v); if (t !== v) el.setAttribute(at, t); } }
   const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT);
   for (let n = w.nextNode(); n; n = w.nextNode()) {
     if (n.nodeType === 3) trText(n);
+    else if (trHtml(n)) continue;
     else for (const at of ATTRS) { const v = n.getAttribute(at); if (v && HG.test(v)) { const t = tr(v); if (t !== v) n.setAttribute(at, t); } }
   }
 }
@@ -102,7 +114,7 @@ function startObserver() {
     for (const m of list) {
       if (m.type === 'characterData') trText(m.target);
       else if (m.type === 'attributes') trEl(m.target);
-      else m.addedNodes.forEach(trEl);
+      else { if (m.target.nodeType === 1 && trHtml(m.target)) continue; m.addedNodes.forEach(trEl); }
     }
   });
   mo.observe(document.body, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ATTRS });
@@ -137,8 +149,8 @@ window.__i18n = { get miss() { return [...MISS]; }, tr, lang, LANGS, setLang, ha
 // 음성 연결 (영어 · 일본어 · 중국어):
 //   1) voice/<언어>/ 의 신경망 음성 팩(Microsoft Edge 신경망 음성으로 미리 만든 파일 — tools/gen_voice_pack.py)에 그 대사가 있으면 그것을 재생
 //   2) 없으면 번역된 대사를 브라우저 음성(그 언어 목소리)으로 읽는다. 그 언어 목소리도 없으면 null → 원래 한국어 더빙
-import { VHOOK, emoFor } from './voice.js?v=408';
-import { playVoice } from './audio.js?v=408';
+import { VHOOK, emoFor } from './voice.js?v=409';
+import { playVoice } from './audio.js?v=409';
 // 대사 → 번역문 (쪽지처럼 제목 · 본문 조각으로 등록된 대사는 조각별로 번역해 잇는다)
 export const voiceText = info => (info.parts ? info.parts.map(p => tr(p)).join('. ') : tr(info.text.replace(/<[^>]+>/g, ' '))).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
 VHOOK.speak = (id, info, fx) => {

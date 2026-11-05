@@ -709,7 +709,7 @@ export function buildWorld(scene) {
     ts_electric: { title: '증언 카세트 — 학교 전기 기사', spk: '전기 기사 배만수', fx: 'radio', minSh: 0 },
     ts_pe2: { title: '증언 카세트 — 체육부장 강태식 (두 번째 테이프)', spk: '체육부장 강태식', fx: 'radio', minSh: 0 },
     ts_reporter2: { title: '증언 카세트 — 서문일보 한진우 기자', spk: '서문일보 기자 한진우', fx: 'radio', minSh: 0 },
-    gd_radio1: { title: '경비 무전 교신 ① 22:15 — 펌프실 쪽 철문 두드리는 소리', spk: '당직 경비원 박종철', fx: 'radio' },
+    gd_radio1: { title: '경비 무전 교신 ① 22:45 — 펌프실 쪽 철문 두드리는 소리', spk: '당직 경비원 박종철', fx: 'radio' },
     gd_radio2: { title: '경비 무전 교신 ② 23:05 — “아침에 열라고유?”', spk: '당직 경비원 박종철', fx: 'radio' },
     gd_radio3: { title: '경비 무전 교신 ③ 23:20 — 정전, 지하의 소리가 멎다', spk: '당직 경비원 박종철', fx: 'radio' },
     gd_log1: { title: '경비 근무 일지 — 1998.10.12 (교대 기록)', spk: '당직 경비원 박종철', fx: 'none' },

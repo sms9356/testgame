@@ -726,7 +726,7 @@ export function buildMainBuilding(opt = {}) {
           for (let lv = 0; lv < 5; lv++) for (let z = Z0 + .4; z < z2 - .8; z += .42) if (br() < .85) box(br() < .5 ? 'cork' : 'white', x + .05, x + .45, y0 + lv * .44 + .03, y0 + lv * .44 + .3, z, z + .36); }
         table(x2 - .9, Z0 + .8, 1.2, .7); search('「1998 학사 기록」 상자', x1 + 2.0, zm, 1.2); sign('기록보존실 — 무단 반출 금지', xm, y0 + 2.2, z1 + .03, 2.4, 0, '#7a1a1a', '#fff'); }
       else if (type === 'teacher') {   // 교사 휴게실: 소파 · 낮은 탁자 · 전기포트 · 냉장고 · 개인 사물함
-        box('dkwood', x1, x2, y0 + .02, y0 + .03, z1, z2); box('leather', x1 + .8, x1 + 3.2, y0, y0 + .45, z2 - 1.1, z2 - .3, { solid: true }); box('leather', x1 + .8, x1 + 3.2, y0 + .45, y0 + .9, z2 - .5, z2 - .3);
+        box('dkwood', x1, x2, y0 + .02, y0 + .03, z1, z2); mdl('sf_sofa', x1 + 2.0, y0, z2 - .8, Math.PI); col.push({ x1: x1 + .9, x2: x1 + 3.1, z1: z2 - 1.28, z2: z2 - .15, y1: y0, y2: y0 + .8 });   // 실사 응접 소파 (예전: 가죽색 상자 2개)
         table(x1 + 2, z2 - 2, 1.4, .7, .42, 'dkwood'); box('white', x2 - .8, x2 - .1, y0, y0 + 1.6, z2 - .9, z2 - .2, { solid: true }); table(x2 - 1.6, zm, 1.2, .6, .85); cyl('alu', x2 - 1.9, y0 + .85, zm, .08, .2, .07, 14); cyl('porc', x2 - 1.4, y0 + .85, zm, .04, .09, .04, 10);
         for (let k = 0; k < 6; k++) box('lockerM', x2 - .5, x2 - .05, y0, y0 + 1.8, Z0 + k * .45, Z0 + k * .45 + .43); search('교사 개인 사물함', x2 - .3, Z0 + 1.2); }
       else if (type === 'club') {   // 사진부 암실 · 동아리실: 붉은 안전등 · 현상 트레이 · 빨랫줄에 걸린 인화지 · 확대기
@@ -762,9 +762,11 @@ export function buildMainBuilding(opt = {}) {
         for (let k = 0; k < 7; k++) { const yr = 1992 + k, x = x1 + 1 + k * 1.05; const fr = canvasPlane(.8, .55, 192, 132, (g, W, H) => { g.fillStyle = '#5a3a1e'; g.fillRect(0, 0, W, H); g.fillStyle = yr === 1998 ? '#2a2a2a' : '#b8b0a0'; g.fillRect(10, 10, W - 20, H - 34); g.fillStyle = '#e8d8a0'; g.font = 'bold 18px serif'; g.textAlign = 'center'; g.fillText(yr === 1998 ? '1998 — (사진 없음)' : yr + ' 졸업', W / 2, H - 9); }, 'grad' + yr); fr.position.set(x, y0 + 1.7, z2 - .03); fr.rotation.y = Math.PI; root.add(fr); }
         sign('서문고 역사관 1968 ~', xm, y0 + 2.4, z2 - .03, 2.6, Math.PI, '#5a3a1e', '#e8d8a0'); search('1998년 빈 액자 뒤', x1 + 1 + 6 * 1.05, z2 - .3, 1.7); }
       else if (type === 'lounge') {   // 학생 휴게 공간: 자판기 · 소파 벤치 · 원형 테이블 · 게시판 낙서
-        box('tile', x1, x2, y0 + .02, y0 + .03, z1, z2); box('red', x2 - .9, x2 - .1, y0, y0 + 1.8, Z0, Z0 + .8, { solid: true }); box('glass', x2 - .92, x2 - .9, y0 + .7, y0 + 1.6, Z0 + .1, Z0 + .7); box('red', x2 - .9, x2 - .1, y0, y0 + 1.8, Z0 + 1, Z0 + 1.8, { solid: true });
+        box('tile', x1, x2, y0 + .02, y0 + .03, z1, z2);
+        mdl('sf_vending', x2 - .37, y0, Z0 + .5, -Math.PI / 2); mdl('sf_vending', x2 - .37, y0, Z0 + 1.55, -Math.PI / 2); col.push({ x1: x2 - .9, x2: x2 - .1, z1: Z0, z2: Z0 + 2.05, y1: y0, y2: y0 + 1.85 });   // 실사 음료 자판기 2 (예전: 빨간 상자 + 유리 판)
         for (let k = 0; k < 3; k++) { const cx = x1 + 2 + k * 2.2, cz = z2 - 2; cyl('white', cx, y0 + .72, cz, .45, .03, .45, 20); cyl('alu', cx, y0, cz, .04, .72); col.push({ x1: cx - .45, x2: cx + .45, z1: cz - .45, z2: cz + .45, y1: y0, y2: y0 + .75 }); stool(cx - .7, cz, .46); stool(cx + .7, cz, .46); }
-        box('leather', x1 + .3, x1 + .8, y0, y0 + .45, Z0, z2 - 3, { solid: true }); search('자판기 반환구', x2 - .5, Z0 + .4, .5); }
+        for (let zz = Z0 + 1.1; zz + 1.0 < z2 - 3; zz += 2.1) mdl('sf_sofa', x1 + .55, y0, zz, Math.PI / 2, { s: .9 });   // 벽 따라 실사 소파 (예전: 가죽색 상자 벤치)
+        col.push({ x1: x1 + .1, x2: x1 + 1.0, z1: Z0, z2: z2 - 3, y1: y0, y2: y0 + .5 }); search('자판기 반환구', x2 - .5, Z0 + .4, .5); }
       ROOMLOG.push(type); return;
     }
     if (x2 - x1 > 6 && !['principal', 'meeting', 'office', 'library'].includes(type)) corkBoard(x1 + 2.5, x2 - 2.5, y0 + .9, y0 + 1.5, z1 + .02, 1);   // 복도 쪽 코르크 게시판 (문 · 채광창 사이 벽면만)

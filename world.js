@@ -4,12 +4,12 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { buildGuardAnnex, buildDutyRoom, ANNEX as GANX } from './guardAnnex.js?v=411';
-import { NOTES } from './story.js?v=411';
+import { buildGuardAnnex, buildDutyRoom, ANNEX as GANX } from './guardAnnex.js?v=412';
+import { NOTES } from './story.js?v=412';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=411';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=412';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -709,7 +709,7 @@ export function buildWorld(scene) {
     ts_electric: { title: '증언 카세트 — 학교 전기 기사', spk: '전기 기사 배만수', fx: 'radio', minSh: 0 },
     ts_pe2: { title: '증언 카세트 — 체육부장 강태식 (두 번째 테이프)', spk: '체육부장 강태식', fx: 'radio', minSh: 0 },
     ts_reporter2: { title: '증언 카세트 — 서문일보 한진우 기자', spk: '서문일보 기자 한진우', fx: 'radio', minSh: 0 },
-    gd_radio1: { title: '경비 무전 교신 ① 22:15 — 펌프실 쪽 철문 두드리는 소리', spk: '당직 경비원 박종철', fx: 'radio' },
+    gd_radio1: { title: '경비 무전 교신 ① 22:45 — 펌프실 쪽 철문 두드리는 소리', spk: '당직 경비원 박종철', fx: 'radio' },
     gd_radio2: { title: '경비 무전 교신 ② 23:05 — “아침에 열라고유?”', spk: '당직 경비원 박종철', fx: 'radio' },
     gd_radio3: { title: '경비 무전 교신 ③ 23:20 — 정전, 지하의 소리가 멎다', spk: '당직 경비원 박종철', fx: 'radio' },
     gd_log1: { title: '경비 근무 일지 — 1998.10.12 (교대 기록)', spk: '당직 경비원 박종철', fx: 'none' },
@@ -1686,7 +1686,7 @@ export function buildWorld(scene) {
     for (let i = 0; i < N; i++) {
       const a = xs(i) + (i === 0 ? .1 : .06), b = xs(i + 1) - .06, xc = (xs(i) + xs(i + 1)) / 2, w = b - a, locked = G === 'f' && i === 2;
       const d = hingeDoor(a, zF, w, 1.75, .13, 1.35, !locked, mStallDoor, '칸막이 문'); d.stall = true; d.stallNo = i + 1; if (locked) d.locked = true;
-      if (!locked) { lockers.push({ floor: cur.f, x: xc, z: -8.15, y: cur.y0, dir: { x: 0, z: 1 }, stallDoor: d, label: '칸막이 안에 숨기 (문을 닫는다)' }); props.push({ kind: 'flush', floor: cur.f, x: xc, z: -9.05, y: .55, label: '변기 물 내리기 — 큰 소리가 난다' }); }
+      if (!locked) { lockers.push({ floor: cur.f, x: xc, z: -8.15, y: cur.y0, dir: { x: 0, z: 1 }, stallDoor: d, noPick: true, label: '칸막이 안에 숨기 (문을 닫는다)' }); props.push({ kind: 'flush', floor: cur.f, x: xc, z: -9.05, y: .55, label: '변기 물 내리기 — 큰 소리가 난다' }); }
       else {   // 잠긴 3번 칸: 문 아래 15cm 틈으로 피 묻은 실내화 두 짝
         const wsh = S(null, { color: 0xd8d0c4, roughness: .7 }), rsh = S(null, { color: 0x6a0c0c, roughness: .4 });
         [-.09, .09].forEach(dx => { add(wsh, .09, .06, .24, xc + dx, 0, -7.86); add(rsh, .092, .015, .1, xc + dx, .06, -7.8); }); blood('splat', xc, .012, -7.95, .7, 0, true);

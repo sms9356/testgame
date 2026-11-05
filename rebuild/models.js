@@ -1,11 +1,11 @@
-// 실사 소품 모델(Poly Haven CC0, assets/models/<name>/<name>.gltf)을 이름별 InstancedMesh 로 배치한다
+// 실사 소품 모델(Poly Haven CC0, assets/models/<name>/<name>.gltf · sf_ 팩은 assets/models/sf/<name>.glb)을 이름별 InstancedMesh 로 배치한다
 //   list: [{ name, x, y, z, ry, s }]  — 같은 모델 수백 개(책상 · 의자)도 드로콜 몇 개로 끝난다
 import * as THREE from '../vendor/three.module.js';
 import { GLTFLoader } from '../vendor/addons/loaders/GLTFLoader.js';
 
 const loader = new GLTFLoader();
 const cache = {};
-const load = name => cache[name] || (cache[name] = new Promise((res, rej) => loader.load(new URL(`../assets/models/${name}/${name}.gltf`, import.meta.url).href, g => res(g.scene), undefined, rej)));
+const load = name => cache[name] || (cache[name] = new Promise((res, rej) => loader.load(new URL(name.startsWith('sf_') ? `../assets/models/sf/${name}.glb` : `../assets/models/${name}/${name}.gltf`, import.meta.url).href, g => res(g.scene), undefined, rej)));
 
 // floorH 를 주면 층별로 따로 InstancedMesh 를 만든다 (im.userData.rbFloor) — 지금 층만 그리기 위해
 export function placeModels(parent, list, { shadows = true, floorH = 0 } = {}) {

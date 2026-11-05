@@ -181,13 +181,16 @@ async function reachAudit() {
     const S = .2, r = .3, FF = {};
     const AREA = { 0: [-100, 100, -100, 90, [0, 40]], 1: [-36, 36, -10, 10, [4, 0]], 2: [-36, 36, -10, 10, [4, 0]], 3: [-36, 36, -10, 10, [0, -6]], 4: [-36, 36, -36, 10, [4, 0]], 5: [15, 52, 5, 33, [38, 27]], 6: [-60, -28, 16, 60, [-35.5, 38]], 7: [-49, -29, 7, 23, [-39, 20]], 8: [-21, 21, -10, 10, [-15.2, -5.2]], 9: [-21, 21, -10, 10, [-15.2, -5.2]], 10: [-21, 21, -10, 10, [-15.2, -5.2]] };
     const flood = f => { if (FF[f]) return FF[f]; const F = g.floors[f]; const [x0, x1, z0, z1, [sx, sz]] = AREA[f]; const nx = Math.round((x1 - x0) / S), nz = Math.round((z1 - z0) / S);
-      const blocked = (x, z) => F.col.some(c => !c.off && !(c.h != null && c.h <= .4) && !(c.y0 != null && c.y0 > 1.5) && x > c.x1 - r && x < c.x2 + r && z > c.z1 - r && z < c.z2 + r);
-      const seen = new Uint8Array(nx * nz), q = [];
+      // 높이를 따라 걷는다(게임의 STEP_UP 처럼): 발 높이 + 0.4m 이하 윗면은 올라서고(관람석 · 무대 계단을 한 단씩), 그보다 높은 것만 막는다
+      const blocked = (x, z, ft = 0) => F.col.some(c => !c.off && !(c.h != null && c.h <= ft + .4) && !(c.y0 != null && c.y0 > ft + 1.5) && x > c.x1 - r && x < c.x2 + r && z > c.z1 - r && z < c.z2 + r);
+      const supAt = (x, z, ft) => F.col.reduce((s, c) => !c.off && c.h != null && c.h <= ft + .4 && c.h > s && x > c.x1 - .1 && x < c.x2 + .1 && z > c.z1 - .1 && z < c.z2 + .1 ? c.h : s, 0);
+      const seen = new Uint8Array(nx * nz), hh = new Float32Array(nx * nz), q = [];
       for (const [ax, az] of [[sx, sz], ...(SEEDS[f] || [])]) { let si = Math.round((ax - x0) / S), sk = Math.round((az - z0) / S);
       outer: for (let d = 0; d < 20; d++) for (let a = -d; a <= d; a++) for (const [i, k] of [[si + a, sk - d], [si + a, sk + d], [si - d, sk + a], [si + d, sk + a]]) if (i >= 0 && k >= 0 && i < nx && k < nz && !blocked(x0 + i * S, z0 + k * S)) { si = i; sk = k; break outer; }
       seen[sk * nx + si] = 1; q.push([si, sk]); }
-      while (q.length) { const [i, k] = q.pop(); for (const [di, dk] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const a = i + di, c = k + dk; if (a < 0 || c < 0 || a >= nx || c >= nz) continue; const id = c * nx + a; if (seen[id]) continue; if (blocked(x0 + a * S, z0 + c * S)) { seen[id] = 2; continue; } seen[id] = 1; q.push([a, c]); } }
-      return FF[f] = (x, z) => { const i = Math.round((x - x0) / S), k = Math.round((z - z0) / S); return i >= 0 && k >= 0 && i < nx && k < nz && seen[k * nx + i] === 1; }; };
+      while (q.length) { const [i, k] = q.pop(), ft = hh[k * nx + i]; for (const [di, dk] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const a = i + di, c = k + dk; if (a < 0 || c < 0 || a >= nx || c >= nz) continue; const id = c * nx + a; if (seen[id] === 1) continue; const x = x0 + a * S, z = z0 + c * S; if (blocked(x, z, ft)) { seen[id] = 2; continue; } seen[id] = 1; hh[id] = supAt(x, z, ft); q.push([a, c]); } }
+      const at = (x, z) => { const i = Math.round((x - x0) / S), k = Math.round((z - z0) / S); return i >= 0 && k >= 0 && i < nx && k < nz && seen[k * nx + i] === 1 ? k * nx + i : -1; };
+      const fn = (x, z) => at(x, z) >= 0; fn.h = (x, z) => hh[at(x, z)] || 0; return FF[f] = fn; };
     const T = [];
     g.world.items.forEach(it => { if (!it.taken && it.kind !== 'key' && it.id !== 'n27') T.push({ o: it, f: it.floor, x: it.pos.x, z: it.pos.z, id: it.kind + ':' + (it.id ?? '') }); });
     g.world.props.forEach(q => { if (q.kind !== 'switch' && q.minSh == null && !q.after && !(q.kind === 'tape' && q.id === 'tape5')) T.push({ o: q, f: q.floor, x: q.x, z: q.z, id: q.kind + ':' + (q.uid || q.k || '') }); });
@@ -200,10 +203,10 @@ async function reachAudit() {
       const R = window.__rbg, hy = t.o.rbY, ok2 = up2 ? (() => true) : hy != null && R ? ((px, pz) => { const gg = R.groundAt(px, pz, hy + .1); return gg != null && Math.abs(gg - hy) < .3 && !R.blocked(px, pz, hy, .3); }) : flood(t.f), wd = t.o.done, wl = t.o.locked; if (!t.l) { t.o.done = false; t.o.locked = false; }
       let ok = false;
       for (const rr of [.5, .7, .9, 1.1, 1.3, 1.6]) { for (let a = 0; a < 24 && !ok; a++) { const an = a / 24 * Math.PI * 2, px = t.x + Math.cos(an) * rr, pz = t.z + Math.sin(an) * rr; if (!ok2(px, pz)) continue;
-        g.P.floor = t.f; g.P.x = px; g.P.z = pz; g.P.sh = hy ?? 0; g.P.jy = up2 ? 3.85 : 0; g.P.yaw = Math.atan2(-(t.x - px), -(t.z - pz)); const h = g.findInteract(); if (h && (h.it === t.o || h.p === t.o || h.l === t.o)) ok = true; } if (ok) break; }
+        g.P.floor = t.f; g.P.x = px; g.P.z = pz; g.P.sh = hy ?? 0; g.P.jy = up2 ? 3.85 : ok2.h ? ok2.h(px, pz) : 0; g.P.yaw = Math.atan2(-(t.x - px), -(t.z - pz)); const h = g.findInteract(); if (h && (h.it === t.o || h.p === t.o || h.l === t.o)) ok = true; } if (ok) break; }
       if (!t.l) { t.o.done = wd; t.o.locked = wl; }
       if (!ok) { let why = 'no-floor';   // 진단: 다가설 자리가 없나 · 있는데 다른 것이 골라지나
-        for (const rr of [.5, .9, 1.3]) for (let a = 0; a < 24; a++) { const an = a / 24 * Math.PI * 2, px = t.x + Math.cos(an) * rr, pz = t.z + Math.sin(an) * rr; if (!ok2(px, pz)) continue; g.P.floor = t.f; g.P.x = px; g.P.z = pz; g.P.sh = hy ?? 0; g.P.jy = up2 ? 3.85 : 0; g.P.yaw = Math.atan2(-(t.x - px), -(t.z - pz)); const h = g.findInteract(); why = h ? 'other:' + (h.label || h.type).slice(0, 18) : 'none'; break; }
+        for (const rr of [.5, .9, 1.3]) for (let a = 0; a < 24; a++) { const an = a / 24 * Math.PI * 2, px = t.x + Math.cos(an) * rr, pz = t.z + Math.sin(an) * rr; if (!ok2(px, pz)) continue; g.P.floor = t.f; g.P.x = px; g.P.z = pz; g.P.sh = hy ?? 0; g.P.jy = up2 ? 3.85 : ok2.h ? ok2.h(px, pz) : 0; g.P.yaw = Math.atan2(-(t.x - px), -(t.z - pz)); const h = g.findInteract(); why = h ? 'other:' + (h.label || h.type).slice(0, 18) : 'none'; break; }
         out.push(`${t.id} (${t.f}: ${t.x.toFixed(1)}, ${t.z.toFixed(1)}) [${why}]`); }
     }
     return out;

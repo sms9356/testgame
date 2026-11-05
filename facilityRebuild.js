@@ -697,7 +697,7 @@ function buildAuditorium(ctx, Z) {   // 대강당 18 × 26m · 1층 (공연 · �
   { const seatZ0 = zStage + 2.4, rowGap = .95, nRow = 12, sw = .55, gS = [], gF = [];
     const seat = (x, z) => { gS.push(boxUV(.5, .08, .48, 1).translate(B.wx(x), .46, B.wz(z)), boxUV(.5, .5, .07, 1).translate(B.wx(x), .78, B.wz(z + .26)).rotateX(0)); gF.push(new THREE.BoxGeometry(.04, .46, .5).translate(B.wx(x + .27), .23, B.wz(z + .02)), new THREE.BoxGeometry(.05, .06, .42).translate(B.wx(x + .27), .62, B.wz(z))); };
     for (let rI = 0; rI < nRow; rI++) { const z = seatZ0 + rI * rowGap; [[-.7 - 8 * sw, -.7], [.7, .7 + 8 * sw]].forEach(([a, b]) => { for (let k = 0; k < 8; k++) seat(a + sw * (k + .5), z); B.col(a, b, z - .25, z + .32, { h: .5 }); }); }
-    for (let k = 0; k < 8; k++) seat(-2.2 + sw * (k + .5), seatZ0 - 1.1); B.col(-2.2, 2.2, seatZ0 - 1.35, seatZ0 - .78, { h: .5 });
+    for (let k = 0; k < 8; k++) seat(-2.2 + sw * (k + .5), seatZ0 - 1.4); B.col(-2.2, 2.2, seatZ0 - 1.65, seatZ0 - 1.08, { h: .5 });   // 맨 앞 중앙 열: 가운데 통로 끝을 막지 않게 첫 열과 0.8m 띄운다 (로비 → 통로 → 무대 앞으로 들어가는 유일한 길)
     const ms = new THREE.Mesh(mergeGeometries(gS), lib().FABRIC[0]), mf = new THREE.Mesh(mergeGeometries(gF), lib().FRAME[0]); [ms, mf].forEach(m => { m.userData.dynamic = true; m.castShadow = true; B.g.add(m); });
     B.plane(1.3, nRow * rowGap + 1.5, 'CARPET', 0, .03, seatZ0 + nRow * rowGap / 2 - .6); an.tag = [-.7 - 3 * sw, seatZ0 + 4 * rowGap - .45]; }
   // 노출 트러스 (C-02 차콜 천장 아래) + 형광등 · 무대 PAR

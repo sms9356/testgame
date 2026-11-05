@@ -3793,7 +3793,7 @@ const LOOKS = [
   [/water_cooler/, '정수기에서 물 마시기', p => { P.stamina = 100; P.tired = false; P.fear = Math.max(0, P.fear - .08); sfx.drip(); return p.n++ ? '미지근한 물이 똑똑 떨어진다.' : '물이 아직 나온다. 숨이 조금 고른다.'; }],
   [/fire_extinguisher/, '소화기 점검표 보기', () => { sfx.paper(); return pk(['점검표 마지막 서명: 1998. 10. 12. — 그 뒤 칸은 전부 비어 있다.', '압력계 바늘이 0에 붙어 있다. 아무도 이걸 다시 채우지 않았다.', '안전핀에 붉은 리본이 묶여 있다. “쓰지 마시오 — 교무부”']); }],
   [/crt_tv/, 'TV 전원 눌러 보기', () => { sfx.staticNoise(.8); fx.glitch(.25); return pk(['지지직… 화면에 23:40이 잠깐 떴다가 사라진다.', '방송실 화면조정 패턴. 오른쪽 아래 자막: 송출 대기.', '전원이 들어오지 않는다. 그런데 화면에 손자국이 남아 있다.']); }],
-  [/bulletin_board/, '게시판 읽기', () => { sfx.paper(); return pk(['방송부 창립 30주년 기념 하교 방송 — 10월 12일(목) 밤 10시. 진행: 3-2 윤하늘', '분실물: 방수 손목시계(검정) — 찾아가지 않으면 폐기', '공지: 지하 펌프실 출입 금지. 열쇠는 교무실에서만 관리함.']); }],
+  [/bulletin_board/, '게시판 읽기', () => { sfx.paper(); return pk(['방송부 창립 30주년 기념 하교 방송 — 10월 12일(월) 밤 10시. 진행: 3-2 윤하늘', '분실물: 방수 손목시계(검정) — 찾아가지 않으면 폐기', '공지: 지하 펌프실 출입 금지. 열쇠는 교무실에서만 관리함.']); }],
   [/fuse_box|power_box/, '분전반 표시 보기', () => { sfx.click(); return pk(['차단기 이름표: B1 펌프실 · 비상등 — 누군가 붉은 테이프로 덮어 놓았다.', '합선 위험 — 교체 요망 (1998.9). 결재란은 비어 있다.']); }],
   [/wooden_bookshelf|bookshelf/, '책장 살펴보기', () => { sfx.paper(); return pk(['『집으로 가는 길』 — 빈 자리만 남아 있다. 대출 중.', '1998 졸업앨범. 3학년 2반 한 페이지가 뜯겨 나갔다.', '먼지 쌓인 학급문집. 마지막 글: “내일도 1등으로 올게.”']); }],
   [/sf_vending/, '자판기 버튼 눌러 보기', () => { sfx.clank(); return pk(['덜컹. 아무것도 나오지 않는다. 가격표는 1998년 그대로다.', '동전 반환구에 500원짜리가 하나 남아 있다. 1998년 발행.']); }],
@@ -8531,7 +8531,7 @@ function megaNotify(m) { const t = String(m).split('\n'); say(t[0].replace(/^\S+
       pbox(3.3, .18, .85, roofDark, bxB, 2.60, bzB, O);
       pbox(2.9, 1.35, .12, woodP, bxB, 1.65, bzB, O);
       pbox(2.74, 1.18, .04, PM(0x8c6d46, .9), bxB, 1.65, bzB + .05, O);
-      pmesh(new THREE.PlaneGeometry(2.65, .28), new THREE.MeshBasicMaterial({ map: makeSign('해교고 학사 공지 · 제32회 학예제 & 체육대회 안내', '#1b3228', '#f2ead2', 22) }), bxB, 2.12, bzB + .08, O, { cast: false });
+      pmesh(new THREE.PlaneGeometry(2.65, .28), new THREE.MeshBasicMaterial({ map: makeSign('서문고 학사 공지 · 제32회 학예제 & 체육대회 안내', '#1b3228', '#f2ead2', 22) }), bxB, 2.12, bzB + .08, O, { cast: false });
       [[-0.90, 1.62, '합창제 리허설 안내', '#f4eed8', '#222'], [-0.28, 1.66, '야간 자율학습 수칙', '#dcecf4', '#182838'], [0.32, 1.60, '방송부원 모집 공고', '#f8e0dc', '#481818'], [0.92, 1.64, '수영장 휴장 안내', '#e2f2e4', '#183820']].forEach(([ox, oy, txt, bg, fg]) => {
         pmesh(new THREE.PlaneGeometry(.52, .68), new THREE.MeshBasicMaterial({ map: makeSign(txt, bg, fg, 18) }), bxB + ox, oy, bzB + .085, O, { cast: false });
       });

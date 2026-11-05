@@ -892,7 +892,7 @@ export function buildWorld(scene) {
     // 좌측 분필 필기: 날짜 · 주번 · 공지
     g.fillStyle = 'rgba(240, 245, 238, 0.88)';
     g.font = `bold 20px ${T.FONT}`; g.textAlign = 'left';
-    g.fillText('10월 12일 (목)', 22, 42);
+    g.fillText('10월 12일 (월)', 22, 42);
     g.font = `bold 17px ${T.FONT}`;
     g.fillStyle = 'rgba(245, 232, 168, 0.90)';
     g.fillText('[일일 주번]', 22, 82);

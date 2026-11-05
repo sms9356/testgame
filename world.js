@@ -4,12 +4,12 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { buildGuardAnnex, buildDutyRoom, ANNEX as GANX } from './guardAnnex.js?v=409';
-import { NOTES } from './story.js?v=409';
+import { buildGuardAnnex, buildDutyRoom, ANNEX as GANX } from './guardAnnex.js?v=410';
+import { NOTES } from './story.js?v=410';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=409';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=410';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -892,7 +892,7 @@ export function buildWorld(scene) {
     // 좌측 분필 필기: 날짜 · 주번 · 공지
     g.fillStyle = 'rgba(240, 245, 238, 0.88)';
     g.font = `bold 20px ${T.FONT}`; g.textAlign = 'left';
-    g.fillText('10월 12일 (목)', 22, 42);
+    g.fillText('10월 12일 (월)', 22, 42);
     g.font = `bold 17px ${T.FONT}`;
     g.fillStyle = 'rgba(245, 232, 168, 0.90)';
     g.fillText('[일일 주번]', 22, 82);

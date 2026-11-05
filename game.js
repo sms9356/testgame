@@ -2982,10 +2982,15 @@ function applyChar() {
 }
 // 소품 모델 · 텍스처가 아직 들어오는 중이면 시작 전에 마저 받는다: 플레이 중에 매 프레임 텍스처를 올리면 움직일 때마다 끊겼다
 function whenAssetsReady(go) {
-  const st = window.__modelLoadState; if (window.__modelsDone || !st || TEST) return go();
-  const ov = $('loading'), msg = $('loadMsg'), t0 = performance.now(); ov.classList.add('show');
-  const iv = setInterval(() => { const s = window.__modelLoadState; if (msg && s) msg.textContent = `교실 소품을 들여놓는 중 · ${s.completed} / ${s.total}`;
-    if (window.__modelsDone || performance.now() - t0 > 90000) { clearInterval(iv); setTimeout(() => { ov.classList.remove('show'); go(); }, 400); } }, 250);
+  // 소품은 장식일 뿐 (충돌·진행은 buildWorld 가 이미 만듦) — 끝까지 기다리지 않는다: 요청 하나가 멈추면(네트워크 끊김 · 백그라운드 탭) 예전엔 최대 90초 메뉴에 갇혔다.
+  //   진행이 STALL_MS 동안 멈추거나 총 MAX_MS 가 지나면 시작하고 나머지는 플레이 중에 들어오게 둔다. norender(자동 점검)는 기다리지 않는다.
+  const st = window.__modelLoadState; if (window.__modelsDone || !st || TEST || NORENDER) return go();
+  const MAX_MS = 25000, STALL_MS = 6000;
+  const ov = $('loading'), msg = $('loadMsg'), t0 = performance.now(); let lastN = st.completed, lastT = t0, fired = false; ov.classList.add('show');
+  const iv = setInterval(() => { const s = window.__modelLoadState, now = performance.now(); if (msg && s) msg.textContent = `교실 소품을 들여놓는 중 · ${s.completed} / ${s.total}`;
+    if (s && s.completed !== lastN) { lastN = s.completed; lastT = now; }
+    if (fired) return;
+    if (window.__modelsDone || now - t0 > MAX_MS || now - lastT > STALL_MS) { fired = true; clearInterval(iv); setTimeout(() => { ov.classList.remove('show'); go(); }, 400); } }, 250);
 }
 function newGame() {
   try { clearSlot(localStorage, SKEYS); } catch (e) { /* ignore */ }

@@ -1686,7 +1686,7 @@ export function buildWorld(scene) {
     for (let i = 0; i < N; i++) {
       const a = xs(i) + (i === 0 ? .1 : .06), b = xs(i + 1) - .06, xc = (xs(i) + xs(i + 1)) / 2, w = b - a, locked = G === 'f' && i === 2;
       const d = hingeDoor(a, zF, w, 1.75, .13, 1.35, !locked, mStallDoor, '칸막이 문'); d.stall = true; d.stallNo = i + 1; if (locked) d.locked = true;
-      if (!locked) { lockers.push({ floor: cur.f, x: xc, z: -8.15, y: cur.y0, dir: { x: 0, z: 1 }, stallDoor: d, label: '칸막이 안에 숨기 (문을 닫는다)' }); props.push({ kind: 'flush', floor: cur.f, x: xc, z: -9.05, y: .55, label: '변기 물 내리기 — 큰 소리가 난다' }); }
+      if (!locked) { lockers.push({ floor: cur.f, x: xc, z: -8.15, y: cur.y0, dir: { x: 0, z: 1 }, stallDoor: d, noPick: true, label: '칸막이 안에 숨기 (문을 닫는다)' }); props.push({ kind: 'flush', floor: cur.f, x: xc, z: -9.05, y: .55, label: '변기 물 내리기 — 큰 소리가 난다' }); }
       else {   // 잠긴 3번 칸: 문 아래 15cm 틈으로 피 묻은 실내화 두 짝
         const wsh = S(null, { color: 0xd8d0c4, roughness: .7 }), rsh = S(null, { color: 0x6a0c0c, roughness: .4 });
         [-.09, .09].forEach(dx => { add(wsh, .09, .06, .24, xc + dx, 0, -7.86); add(rsh, .092, .015, .1, xc + dx, .06, -7.8); }); blood('splat', xc, .012, -7.95, .7, 0, true);

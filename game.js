@@ -7437,7 +7437,7 @@ function installEqDoor() {
   EQ.mesh = pivot; if (FL.eqOpen) { EQ.ang = -1.45; pivot.rotation.y = EQ.ang; }
   { const bB = RBG.blocked, XP = -34.4; RBG.blocked = (x, z, y, r) => { if (y > EQ.y - .4 && y < EQ.y + 2.2) { const t = Math.max(0, Math.min(.93, (x - (XP + .1)) * .121 + (z - 1.33) * .993)), px = XP + .1 + .121 * t, pz = 1.33 + .993 * t; if (Math.hypot(x - px, z - pz) < r + .04) return true; } return bB(x, z, y, r); }; }   // 열린 방음문 문짝(녹음실 쪽 173° · 유리벽에 붙음) — 통과하지 못하게
   const bA = RBG.blocked; RBG.blocked = (x, z, y, r) => { if (!FL.eqOpen && y > EQ.y - .4 && y < EQ.y + 2.2 && Math.abs(z - EQ.z) < r + .06 && x > EQ.x1 - .05 && x < EQ.x2 + .05) return true; return bA(x, z, y, r); };
-  world.props.push({ kind: 'eqDoor', floor: 0, rbY: EQ.y, x: (EQ.x1 + EQ.x2) / 2, z: EQ.z - .5, y: EQ.y + 1.1, r: 1.5, label: '장비실 철문', _rb: true });
+  world.props.push({ kind: 'eqDoor', floor: 0, rbY: EQ.y, x: (EQ.x1 + EQ.x2) / 2, z: EQ.z - .5, y: EQ.y + 1.1, r: 1.5, label: '장비실 철문', _rb: true, _rf: true, _eq: true });   // 고정된 철문: 방 이름 맞춤 · '장비' 가구 붙이기 단계가 문을 믹서 책상으로 끌고 가지 않게
   world.props.push({ kind: 'bcRead', floor: 0, rbY: EQ.y, x: -27.1, z: 3.15, y: EQ.y + 1.0, r: 1.6, label: '앵커석 방송 대본 살펴보기', _rb: true });
   setTimeout(installGuardWall, 4000);
 }

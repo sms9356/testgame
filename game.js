@@ -9385,7 +9385,7 @@ if (DEBUG) {
     photoCheck, PHOTOQ,
     flashNearProbe: () => { FN.t = 0; return flashNear(); }, agProbe: () => { const t = performance.now(); AG.t = 0; antiGlareTick(); return performance.now() - t; },
     bcAuto() { BC.power = true; BC.amp = 1; BC.ch = 'all'; BC.fader = 70; closeUI(); if (FL.tag && power && !FL.calm) useBcRead(); else bcOnAir(); },   // 진 엔딩 방송은 녹음실 앵커석에서 대본 낭독
-    inv, fx,
+    inv, fx, EQ, optLoc, liveLoc, get power() { return power; }, set power(v) { power = v; },
     minaF: MINA_F, CONTACTS, CALL, callOut, bcOpen,
     tp(x, z, f = 0, yaw = 0, pitch = 0) { P.x = x; P.z = z; P.floor = f; P.yaw = yaw; P.pitch = pitch; },
     give() { world.items.filter(i => i.kind === 'key').forEach(i => { i.taken = true; i.mesh.visible = false; got[i.idx] = true; }); P.keys = TOTAL; refreshHud(); },

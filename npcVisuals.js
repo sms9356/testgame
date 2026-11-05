@@ -50,29 +50,27 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
       const s = Math.sin(x * 127.1 + y * 311.7) * 43758.5453;
       return s - Math.floor(s);
     };
-    // ① 실제 인간 피부 모공(Micro-Pores) & 미세 표피 결 탄젠트 노멀맵
-    const skinNormal = buildNormal(256, 14, 2.2, (x, y) => {
-      const n1 = hash(x, y);
-      const pore = n1 > 0.78 ? -(n1 - 0.78) * 3.5 : (n1 - 0.4) * 0.35;
-      const crease = Math.sin(x * 0.35 + Math.cos(y * 0.28) * 2.0) * 0.18;
-      return pore + crease;
+    // 부드러운 값 노이즈 (타일링): 저주파 사인 항은 8비트 양자화에서 등고선 무늬(얼굴·재킷의 물결 줄)를 만들어서 쓰지 않는다
+    const vnoise = (x, y, cell, size) => {
+      const n = size / cell, gx = x / cell, gy = y / cell, x0 = Math.floor(gx), y0 = Math.floor(gy);
+      const fx = gx - x0, fy = gy - y0, sx = fx * fx * (3 - 2 * fx), sy = fy * fy * (3 - 2 * fy);
+      const h = (i, j) => hash(((i % n) + n) % n, ((j % n) + n) % n);
+      return (h(x0, y0) * (1 - sx) + h(x0 + 1, y0) * sx) * (1 - sy) + (h(x0, y0 + 1) * (1 - sx) + h(x0 + 1, y0 + 1) * sx) * sy;
+    };
+    // ① 피부 모공 · 잔결: 고주파 노이즈 + 드문 모공 (낮은 세기로 쓴다)
+    const skinNormal = buildNormal(256, 22, 1.6, (x, y, s) => {
+      const fine = vnoise(x, y, 2, s) * 0.35 + vnoise(x, y, 4, s) * 0.25;
+      const p = hash(x, y); return fine - (p > 0.93 ? (p - 0.93) * 6 : 0);
     });
-    // ② 고밀도 의상 직물(교복·경비복·모자·가방) 능직 트윌 위브 탄젠트 노멀맵
-    const fabricNormal = buildNormal(256, 18, 2.8, (x, y) => {
-      const warp = Math.sin((x + y) * 1.5708) * 0.45;
-      const weft = Math.cos((x - y) * 1.5708) * 0.35;
-      const fold = Math.sin(x * 0.08 + Math.sin(y * 0.05) * 2.5) * 0.4;
-      return warp + weft + fold + (hash(x, y) - 0.5) * 0.15;
+    // ② 교복·경비복 울 능직(트윌): 대각 골 + 실 굵기 노이즈
+    const fabricNormal = buildNormal(256, 24, 2.2, (x, y, s) => {
+      const twill = Math.abs(((x + y) % 4) - 2) / 2;
+      return twill * 0.5 + vnoise(x, y, 2, s) * 0.3 + vnoise(x, y, 8, s) * 0.2;
     });
-    // ③ 천연 가죽(벨트·홀스터·구두·로퍼) 페블 그레인 탄젠트 노멀맵
-    const leatherNormal = buildNormal(256, 10, 2.4, (x, y) => {
-      const cell = Math.sin(x * 0.45) * Math.cos(y * 0.45) * 0.5;
-      return cell + (hash(x >> 1, y >> 1) - 0.5) * 0.4;
-    });
-    // ④ 머리카락 세로 스트랜드 결 탄젠트 노멀맵
-    const hairNormal = buildNormal(256, 8, 2.6, (x, y) => {
-      return Math.sin(x * 1.8 + Math.sin(y * 0.12) * 1.5) * 0.65 + (hash(x, y >> 2) - 0.5) * 0.3;
-    });
+    // ③ 가죽 페블 그레인
+    const leatherNormal = buildNormal(256, 10, 2.0, (x, y, s) => vnoise(x, y, 4, s) * 0.6 + vnoise(x, y, 2, s) * 0.3);
+    // ④ 머리카락 결: 세로(v) 방향으로 길게 늘인 노이즈
+    const hairNormal = buildNormal(256, 6, 2.4, (x, y, s) => vnoise(x, 0, 2, s) * 0.6 + vnoise(x, 0, 1, s) * 0.2 + vnoise(x, y, 16, s) * 0.2);
     normalMaps = { skinNormal, fabricNormal, leatherNormal, hairNormal };
     return normalMaps;
   }
@@ -101,73 +99,166 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
     tex.userData = { ...(tex.userData || {}), remasteredV151: true };
     tex.needsUpdate = true;
   }
+  // 표준 재질 → 물리 재질 (sheen · clearcoat 를 쓰려고): 텍스처 · 색 · 알파 설정은 그대로 옮긴다
+  function toPhysical(mat) {
+    if (mat.isMeshPhysicalMaterial) return mat;
+    const p = new THREE.MeshPhysicalMaterial();
+    THREE.MeshStandardMaterial.prototype.copy.call(p, mat);
+    p.defines = { STANDARD: '', PHYSICAL: '' };
+    p.name = mat.name;
+    return p;
+  }
+  // 피부 산란 근사: 그늘진 쪽에도 붉은 기가 남도록 간접광에 피의 색을 조금 더하고, 명암 경계를 따뜻하게 감싼다
+  function addSkinScatter(mat, warm) {
+    mat.onBeforeCompile = sh => {
+      sh.fragmentShader = sh.fragmentShader.replace('#include <lights_fragment_end>', `#include <lights_fragment_end>
+        reflectedLight.indirectDiffuse += diffuseColor.rgb * vec3(${warm.map(v => v.toFixed(3)).join(',')});
+        reflectedLight.directDiffuse *= vec3(1.0, 0.96, 0.93) + vec3(0.06, 0.02, 0.0) * (1.0 - smoothstep(0.0, 0.6, length(reflectedLight.directDiffuse)));`);
+    };
+    mat.customProgramCacheKey = () => 'skinScatter' + warm.join();
+  }
   function enhanceCharacterMaterials(model, id) {
     const nm = getNormalMaps();
+    const swapped = new Map();
     model.traverse(obj => {
       if (!obj.isMesh && !obj.isSkinnedMesh) return;
       obj.castShadow = true;
       obj.receiveShadow = true;
       obj.frustumCulled = false;
-      const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
-      mats.filter(Boolean).forEach(mat => {
-        if (!mat.isMeshStandardMaterial) return;
+      const arr = Array.isArray(obj.material);
+      const mats = arr ? obj.material : [obj.material];
+      const out = mats.map(mat => {
+        if (!mat || !mat.isMeshStandardMaterial) return mat;
+        if (swapped.has(mat)) return swapped.get(mat);
         const mName = ((obj.name || '') + '_' + (mat.name || '')).toLowerCase();
+        let m = mat;
         if (/eye/.test(mName) && !/brow|lash|bunny/.test(mName)) {
           reprojectEyeMeshUVs(obj);
+          m = toPhysical(mat);
           const eyeTex = getPhotorealEyeTexture();
-          mat.map = eyeTex;
-          mat.roughness = 0.04;
-          mat.metalness = 0.08;
-          mat.emissive = new THREE.Color(0xffffff);
-          mat.emissiveMap = eyeTex;
-          mat.emissiveIntensity = 0.04;
+          m.map = eyeTex;
+          m.roughness = 0.35;           // 공막은 촉촉하되 거울은 아니다 — 반사는 각막(clearcoat)이 맡는다
+          m.metalness = 0;
+          m.clearcoat = 1; m.clearcoatRoughness = 0.03;
+          m.emissive = new THREE.Color(0xffffff); m.emissiveMap = eyeTex; m.emissiveIntensity = 0.05;
         } else if (/skin|body|face|head/.test(mName)) {
           if (mat.map) remasterCharacterTexture(mat.map, 'skin', id);
-          mat.roughness = id === 'guard' ? 0.48 : 0.42;
-          mat.metalness = 0.01;
-          mat.emissive = new THREE.Color(0x1a0e0a);
-          if (mat.map) mat.emissiveMap = mat.map;
-          mat.emissiveIntensity = 0.025;
-          if (!mat.normalMap) {
-            mat.normalMap = nm.skinNormal;
-            mat.normalScale = new THREE.Vector2(0.28, 0.28);
-          }        } else if (/teeth/.test(mName)) {
-          mat.roughness = 0.18;
-          mat.emissive = new THREE.Color(0x2a2824);
-          mat.emissiveIntensity = 0.12;
-        } else if (/hair|bang|brow|lash/.test(mName)) {
-          mat.roughness = 0.42;
-          mat.metalness = 0.08;
-          if (!mat.normalMap && /hair|bang/.test(mName)) {
-            mat.normalMap = nm.hairNormal;
-            mat.normalScale = new THREE.Vector2(0.42, 0.42);
-          }
+          m = toPhysical(mat);
+          m.roughness = id === 'guard' ? 0.62 : 0.55;   // 피지 · 땀이 적은 맨 피부: 0.5~0.65
+          m.metalness = 0;
+          m.specularIntensity = 0.55;                   // 피부 F0 ≈ 0.028 (기본 0.04 보다 낮다)
+          m.sheen = id === 'guard' ? 0.12 : 0.3;        // 솜털 (가장자리 부드러운 광)
+          m.sheenRoughness = 0.55;
+          m.sheenColor = new THREE.Color(id === 'guard' ? 0x8a6a58 : 0xffd2c0);
+          m.emissive = new THREE.Color(0x000000); m.emissiveIntensity = 0; m.emissiveMap = null;
+          if (!m.normalMap) { m.normalMap = nm.skinNormal; m.normalScale = new THREE.Vector2(0.12, 0.12); }
+          addSkinScatter(m, id === 'guard' ? [0.07, 0.025, 0.015] : [0.1, 0.03, 0.025]);
+        } else if (/teeth/.test(mName)) {
+          mat.roughness = 0.25; mat.metalness = 0;
+          mat.emissive = new THREE.Color(0x000000); mat.emissiveIntensity = 0;
+        } else if (/tongue/.test(mName)) {
+          mat.roughness = 0.3; mat.metalness = 0;
+        } else if (/hair|bang/.test(mName)) {
+          // 머리카락 카드: 블렌딩 대신 알파 테스트 + 깊이 기록 → 정렬 깨짐(뒷머리가 앞머리를 덮음) 없이 가닥 끝이 살아난다
+          m = toPhysical(mat);
+          if (/bang/.test(mName)) { m.transparent = true; m.alphaTest = 0.1; m.depthWrite = true; }   // 앞머리: 가닥 끝은 블렌딩으로 부드럽게, 희미한 가장자리만 잘라 깊이를 쓴다
+          else { m.transparent = false; m.alphaTest = 0.42; m.depthWrite = true; m.alphaToCoverage = true; }
+          if (m.map) { m.map.wrapS = m.map.wrapT = THREE.ClampToEdgeWrapping; m.map.needsUpdate = true; }   // 반복 래핑이면 카드 끝에서 반대편 가닥을 샘플해 이마에 가는 선이 생긴다
+          m.roughness = 0.5; m.metalness = 0;
+          m.sheen = 0.6; m.sheenRoughness = 0.35; m.sheenColor = new THREE.Color(id === 'guard' ? 0x8a8680 : 0x5a4a44);   // 결을 따라 흐르는 광택 띠
+          m.specularIntensity = 0.7;
+          m.side = THREE.DoubleSide;
+          if (!m.normalMap) { m.normalMap = nm.hairNormal; m.normalScale = new THREE.Vector2(0.35, 0.35); }
+        } else if (/brow|lash/.test(mName)) {
+          mat.roughness = 0.7; mat.metalness = 0; mat.depthWrite = false;   // 얇은 반투명 카드는 블렌딩 유지, 깊이는 쓰지 않는다
         } else if (/uniform|suit|capfabric|backpack|tie|ribbon|skirt|pants|shirt|blazer/.test(mName)) {
-          mat.roughness = 0.68;
-          mat.metalness = 0.05;
-          if (mat.map) { mat.emissive = new THREE.Color(0xffffff); mat.emissiveMap = mat.map; mat.emissiveIntensity = 0.08; }
-          if (!mat.normalMap) {
-            mat.normalMap = nm.fabricNormal;
-            mat.normalScale = new THREE.Vector2(0.52, 0.52);
-          }
+          m = toPhysical(mat);
+          m.roughness = /ribbon|tie/.test(mName) ? 0.55 : 0.86;
+          m.metalness = 0;
+          m.sheen = /backpack/.test(mName) ? 0.15 : 0.45;   // 울 · 폴리 혼방 교복의 보풀 광
+          m.sheenRoughness = 0.7;
+          m.sheenColor = new THREE.Color(0x9aa4c0);
+          m.emissive = new THREE.Color(0x000000); m.emissiveIntensity = 0; m.emissiveMap = null;
+          if (!m.normalMap) { m.normalMap = nm.fabricNormal; m.normalScale = new THREE.Vector2(0.35, 0.35); }
+          else { m.normalScale = new THREE.Vector2(0.7, 0.7); }
         } else if (/leather|belt|holster|pouch|boot|loafer|shoe|strap/.test(mName)) {
-          mat.roughness = 0.25;
-          mat.metalness = 0.12;
-          if (!mat.normalMap) {
-            mat.normalMap = nm.leatherNormal;
-            mat.normalScale = new THREE.Vector2(0.38, 0.38);
-          }
+          m = toPhysical(mat);
+          m.roughness = /strap|pouch|holster/.test(mName) ? 0.6 : 0.42;
+          m.metalness = 0;
+          if (/loafer|shoe|boot/.test(mName)) { m.clearcoat = 0.7; m.clearcoatRoughness = 0.18; }   // 광 낸 구두
+          if (!m.normalMap) { m.normalMap = nm.leatherNormal; m.normalScale = new THREE.Vector2(0.3, 0.3); }
         } else if (/badge|buckle|steel|button|emblem|zip/.test(mName)) {
-          mat.roughness = 0.18;
-          mat.metalness = 0.92;
-          mat.emissive = new THREE.Color(0x3a2e14);
-          mat.emissiveIntensity = 0.15;
+          mat.roughness = 0.28;
+          mat.metalness = 0.9;
+          mat.emissive = new THREE.Color(0x000000); mat.emissiveIntensity = 0;
         } else if (mat.roughness < 0.14) {
           mat.roughness = 0.14;
         }
-        mat.needsUpdate = true;
+        m.needsUpdate = true;
+        swapped.set(mat, m);
+        if (m !== mat) mat.dispose();
+        return m;
       });
+      obj.material = arr ? out : out[0];
     });
+    if (id === 'mina') addMinaUniformDetail(model);
+  }
+
+  // 민아 교복 디테일 (2008 여고 동복): 오른쪽 가슴 명찰 "3학년 박민아" (왼쪽은 교표), 넥 리본을 실제 크기로 키운다
+  let nameTagTex = null;
+  function addMinaUniformDetail(model) {
+    if (model.userData.minaDetail) return; model.userData.minaDetail = true;
+    try {
+      model.updateMatrixWorld(true);
+      // 리본: 바인드 공간 기하를 자기 중심으로 1.45배 (스키닝은 그대로 — 정점만 커진다)
+      ['Mina_RibbonBow', 'Mina_RibbonTail_L', 'Mina_RibbonTail_R'].forEach(n => {
+        const o = model.getObjectByName(n); const g = o && o.geometry; if (!g || g.userData.ribbonScaled) return;
+        g.userData.ribbonScaled = true; g.computeBoundingBox();
+        const c = new THREE.Vector3(); (n === 'Mina_RibbonBow' ? g.boundingBox : model.getObjectByName('Mina_RibbonBow').geometry.boundingBox || g.boundingBox).getCenter(c);
+        g.translate(-c.x, -c.y, -c.z); g.scale(1.45, 1.45, 1.45); g.translate(c.x, c.y, c.z); g.computeBoundingBox(); g.computeBoundingSphere();
+      });
+      // 명찰: 교표(왼쪽 가슴)의 좌우 대칭 자리 = 오른쪽 가슴. 바인드 공간에서 가장 가까운 교복 정점을 찾아
+      //   그 정점의 본 가중치를 그대로 쓰는 SkinnedMesh 로 만든다 → 앉기 · 달리기 등 어떤 동작에서도 옷과 같이 움직인다
+      const emb = model.getObjectByName('Mina_Emblem'), suit = model.getObjectByName('Mina_Suit');
+      if (!emb || !suit || !suit.isSkinnedMesh || !emb.geometry) return;
+      emb.geometry.computeBoundingBox();
+      const ec = emb.geometry.boundingBox.getCenter(new THREE.Vector3());
+      const tx = -ec.x, ty = ec.y + 0.012, tz = ec.z;
+      const sp = suit.geometry.attributes.position, sn = suit.geometry.attributes.normal;
+      let best = -1, bd = 1e9;
+      for (let i = 0; i < sp.count; i++) {
+        const z = sp.getZ(i); if (z < tz - 0.04) continue;
+        const d = (sp.getX(i) - tx) ** 2 + (sp.getY(i) - ty) ** 2 + 0.25 * (z - tz) ** 2;
+        if (d < bd) { bd = d; best = i; }
+      }
+      if (best < 0) return;
+      // 판 넓이 안에서 가장 앞으로 나온 교복 정점 + 여유 → 가슴 곡면에 묻히지 않는다 (교복 메시가 성겨 삼각형이 정점보다 불룩하다)
+      let zMax = sp.getZ(best);
+      for (let i = 0; i < sp.count; i++) if (Math.abs(sp.getX(i) - tx) < 0.05 && Math.abs(sp.getY(i) - ty) < 0.025 && sp.getZ(i) < zMax + 0.05) zMax = Math.max(zMax, sp.getZ(i));
+      const P = new THREE.Vector3(tx, ty, zMax + 0.004);
+      const N = new THREE.Vector3(tx < 0 ? -0.18 : 0.18, 0.1, 1).normalize();   // 가슴 바깥쪽 · 약간 위를 향한다
+      if (!nameTagTex) {
+        nameTagTex = new THREE.TextureLoader().load(new URL('./assets/characters/mina_nametag.webp', import.meta.url).href);
+        if (THREE.SRGBColorSpace) nameTagTex.colorSpace = THREE.SRGBColorSpace;
+        nameTagTex.anisotropy = 8;
+      }
+      const geo = new THREE.BoxGeometry(0.074, 0.0204, 0.0025);   // 얇은 아크릴 판 (옆면이 보여 스티커처럼 납작하지 않다)
+      const o3 = new THREE.Object3D(); o3.position.copy(P).addScaledVector(N, 0.0035); o3.lookAt(o3.position.clone().add(N)); o3.updateMatrix();
+      geo.applyMatrix4(o3.matrix);
+      const n = geo.attributes.position.count, si = new Uint16Array(n * 4), sw = new Float32Array(n * 4);
+      const SI = suit.geometry.attributes.skinIndex, SW = suit.geometry.attributes.skinWeight;
+      for (let i = 0; i < n; i++) for (let k = 0; k < 4; k++) { si[i * 4 + k] = SI.getComponent(best, k); sw[i * 4 + k] = SW.getComponent(best, k); }
+      geo.setAttribute('skinIndex', new THREE.Uint16BufferAttribute(si, 4));
+      geo.setAttribute('skinWeight', new THREE.Float32BufferAttribute(sw, 4));
+      const face = new THREE.MeshPhysicalMaterial({ map: nameTagTex, roughness: 0.3, clearcoat: 0.8, clearcoatRoughness: 0.1 });
+      const edge = new THREE.MeshStandardMaterial({ color: 0x14285e, roughness: 0.4 });
+      const tag = new THREE.SkinnedMesh(geo, [edge, edge, edge, edge, face, edge]);   // BoxGeometry 그룹 4 = +Z 앞면
+      tag.name = 'Mina_NameTag';
+      tag.position.copy(suit.position); tag.quaternion.copy(suit.quaternion); tag.scale.copy(suit.scale);
+      tag.castShadow = false; tag.receiveShadow = true; tag.frustumCulled = false;
+      suit.parent.add(tag);
+      tag.bind(suit.skeleton, suit.bindMatrix);
+    } catch (e) { console.warn('[npc] mina detail', e && e.message); }
   }
 
   function reprojectEyeMeshUVs(eyeMesh) {
@@ -209,7 +300,7 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
     if (eyeTexCache) return eyeTexCache;
     const N = 512, cv = document.createElement('canvas'); cv.width = cv.height = N;
     const ctx = cv.getContext('2d');
-    const cx = N * 0.5, cy = N * 0.50, irisR = N * 0.37, pupilR = N * 0.15;
+    const cx = N * 0.5, cy = N * 0.50, irisR = N * 0.30, pupilR = N * 0.11;
     const img = ctx.createImageData(N, N);
     const d = img.data;
     for (let y = 0; y < N; y++) {
@@ -219,7 +310,7 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
         // 윗눈꺼풀 그림자 & 아랫눈꺼풀 음영으로 놀란 눈 느낌을 완전히 없애고 깊이감 있는 실제 사람의 눈매 구현
         let lidShade = 1.0;
         if (y < cy - irisR * 0.15) {
-          lidShade = Math.max(0.22, 1.0 - (cy - irisR * 0.15 - y) / (N * 0.28));
+          lidShade = Math.max(0.5, 1.0 - (cy - irisR * 0.15 - y) / (N * 0.4));
         } else if (y > cy + irisR * 0.55) {
           lidShade = Math.max(0.55, 1.0 - (y - (cy + irisR * 0.55)) / (N * 0.28));
         }
@@ -421,7 +512,7 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
       if (options.onLoad) { try { options.onLoad(pivot); } catch (e) { console.warn('[NPC] onLoad', e); } }
       return { ok: true, id, url, clips: clips.length };
     }).catch(err => {
-      originalChildren.forEach(child => { child.visible = true; });
+      originalChildren.forEach(child => { child.visible = true; }); console.warn('[npc] load failed', id, err && err.message);
       return { ok: false, id, url, error: String(err.message) };
     });
     pending.set(holder, task);

@@ -5,7 +5,7 @@
 //   재질: F-01 ~ F-05 바닥 · W-01 ~ W-05 벽 · C-01 ~ C-04 천장 (Poly Haven CC0 실사 스캔 텍스처, assets/tex/fac_* · 미터 단위 UV)
 import * as THREE from './vendor/three.module.js';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { pbr } from './tex.js?v=410';
+import { pbr } from './tex.js?v=411';
 
 const FH = 3.6, CEIL = 2.9, WALL_T = .24, LIN = .06;
 const TL = new THREE.TextureLoader(), TEX = {};
@@ -712,7 +712,7 @@ function buildAuditorium(ctx, Z) {   // 대강당 18 × 26m · 1층 (공연 · �
   // 디테일 보강: 측벽 흡음 패널 · 객석 통로 발밑등 · 행사 현수막 · 보면대 · 마이크 스탠드 · 모니터 스피커 · 흩어진 팸플릿 · 소화기
   for (let z = zStage + 2.2; z < zLobby - 1; z += 2.4) [-1, 1].forEach(s => { B.box(.05, 2.2, 1.9, (Math.round(z) % 2) ? 'FABRIC' : 'VELVET', s * (hx - .03), 3.2, z); B.box(.06, .08, 2.0, 'DARKWOOD', s * (hx - .04), 1.0, z); });
   for (let k = 0; k < 12; k++) { const z = zStage + 2.4 + k * .95; [-.66, .66].forEach(x => B.box(.08, .05, .04, 'WHITE', x, .2, z + .3)); }
-  B.sign('제1회 서문고 방송제 · 방송부 창립 30주년 기념 하교 방송', '1998. 10. 12 리허설 · 10. 13 본공연', 7.2, .9, 0, hallCeil - 1.9, zStage - .32, 0, ['#5a1020', '#f4e6c0']);
+  B.sign('제1회 서문고 방송제 · 방송부 창립 30주년 기념 하교 방송', '1998. 10. 12 리허설 22:00 · 하교 방송 23:40', 7.2, .9, 0, hallCeil - 1.9, zStage - .32, 0, ['#5a1020', '#f4e6c0']);
   [[-1.8, -.9], [-1.0, -1.1], [1.2, -1.0]].forEach(([dx, dz]) => { const x = dx, z = zStage + dz - 1.2; B.cyl(.012, .012, 1.1, 'STEEL', x, stageH + .55, z); B.box(.45, .32, .02, 'BLACK', x, stageH + 1.15, z, { rx: -.35 }); B.cyl(.18, .18, .02, 'STEEL', x, stageH + .01, z, { seg: 12 }); });
   [-.6, .6].forEach(x => { B.cyl(.01, .01, 1.5, 'STEEL', x, stageH + .75, zStage - .9); B.cyl(.02, .02, .14, 'BLACK', x, stageH + 1.55, zStage - .85, { rx: -.6 }); B.cyl(.16, .16, .02, 'BLACK', x, stageH + .01, zStage - .9, { seg: 12 }); });
   [-2.6, 2.6].forEach(x => { const m = B.box(.55, .3, .4, 'BLACK', x, stageH + .15, zStage - .35, { rx: .5 }); });
@@ -722,7 +722,7 @@ function buildAuditorium(ctx, Z) {   // 대강당 18 × 26m · 1층 (공연 · �
   // 외관 보강 (남측 현관 앞): 공연 포스터 게시함 2 · 세로 현수막 2 · 화분 4 · 벤치 2 · 바닥 안내판
   { const zf = B.Z.D / 2 + .02;
     [-1, 1].forEach(s => { const x = s * 4.2; B.box(1.3, 1.7, .12, 'ALU', x, 1.45, zf + .06); B.box(1.15, 1.5, .02, 'CORK', x, 1.45, zf + .13);
-      B.sign(s < 0 ? '방송제 리허설' : '하교 방송 30주년', s < 0 ? '10.12 PM 10:00 · 3층 방송실' : '10.13 본공연 · 대강당', 1.0, .5, x, 1.75, zf + .15, 0, ['#f2eadb', '#5a1020']);
+      B.sign(s < 0 ? '방송제 리허설' : '하교 방송 30주년', s < 0 ? '10.12 PM 10:00 · 4층 방송실' : '10.12 PM 11:40 · 하교 방송', 1.0, .5, x, 1.75, zf + .15, 0, ['#f2eadb', '#5a1020']);
       B.box(.9, 3.2, .02, 'VELVET', s * 6.6, 4.4, zf + .03); B.sign('서문고', '', .8, .3, s * 6.6, 5.6, zf + .045, 0, ['#5a1020', '#f4e6c0']);
       [2.9, 7.6].forEach(px => { const x2 = s * px, z2 = zf + 1.1; B.box(.7, .55, .7, 'CONC', x2, .275, z2); B.box(.62, .05, .62, 'SOIL' in lib() ? 'SOIL' : 'DARKWOOD', x2, .55, z2); B.cyl(.03, .04, .5, 'DARKWOOD', x2, .8, z2); B.cyl(.28, .2, .5, 'GREEN' in lib() ? 'GREEN' : 'FABRIC', x2, 1.2, z2, { seg: 10 }); B.col(x2 - .35, x2 + .35, z2 - .35, z2 + .35, {}); });
       const bx = s * 5.3, bz = zf + 2.4; B.box(1.6, .06, .42, 'WOOD', bx, .45, bz); [-.65, .65].forEach(d => B.box(.06, .45, .38, 'FRAME', bx + d, .225, bz)); B.col(bx - .8, bx + .8, bz - .21, bz + .21, { h: .5 }); });

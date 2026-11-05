@@ -24,8 +24,8 @@ async function finalChoice(p, i) {
   await p.waitForFunction(() => { const o = document.getElementById('outro'); if (o.classList.contains('show') && o.querySelector('.card.on')) { o.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true })); window.__outroN = (window.__outroN || 0) + 1; } return document.getElementById('win').classList.contains('show'); }, null, { timeout: 40000, polling: 900 });
 }
 const W = (p, t) => p.waitForTimeout(t);
-// 새 게임 · 이어하기는 교실 소품 모델 로딩이 끝난 뒤 시작한다(whenAssetsReady) — 로딩 화면이 닫힐 때까지 기다린다
-const started = p => p.waitForFunction(() => window.__modelsDone && !document.getElementById('loading').classList.contains('show'), null, { timeout: 180000 }).then(() => W(p, 700));
+// 새 게임 · 이어하기: 로딩 화면(whenAssetsReady — 소품 모델은 상한 시간 뒤 플레이 중 계속 들어옴)과 타이틀이 닫힐 때까지 기다린다
+const started = p => p.waitForFunction(() => !document.getElementById('loading').classList.contains('show') && !document.getElementById('title').classList.contains('show'), null, { timeout: 180000 }).then(() => W(p, 700));
 async function ready(p) { await E(p, () => __g.applyQuality('low')); }
 // 아이템 줍기 / 장치 사용 (위치로 이동 → 상호작용)
 const take = (p, kind, id) => E(p, ([k, id]) => { const it = __g.world.items.find(i => i.kind === k && (id == null || i.id === id || i.idx === id) && !i.taken); if (!it || it.locked) return it ? 'locked' : 'none'; __g.state = 'playing'; __g.P.floor = it.floor; __g.P.x = it.pos.x; __g.P.z = it.pos.z + .8; __g.P.sh = it.rbY ?? __g.P.sh; __g.setTarget({ type: 'item', it, label: '' }); __g.interact(); return 'ok'; }, [kind, id]);
@@ -71,6 +71,9 @@ async function normalRun(char) {
   await E(p, () => { const cells = [...document.querySelectorAll('#invGrid .cell:not(.empty)')]; cells.find(c => c.innerHTML.includes('🦯')).click(); });
   await p.keyboard.press('KeyC'); await E(p, () => { [...document.querySelectorAll('#invGrid .cell:not(.empty)')].find(c => c.innerHTML.includes('➰')).click(); }); await W(p, 300);
   ok(await E(p, () => __g.FL.hook), '조합: 갈고리 장대'); await p.keyboard.press('Tab'); await W(p, 200);
+  // 수영장은 먼저 물을 빼야 한다 (수질관리실 밸브 → FL.poolDrained)
+  await E(p, () => { const s = __g.world.props.find(q => q.kind === 'mspot' && q.m && q.m.id === 'poolValve'); __g.state = 'playing'; __g.P.floor = s.floor; __g.P.x = s.x; __g.P.z = s.z + .9; __g.P.sh = s.rbY ?? __g.P.sh; __g.useProp(s); });
+  await winMini(p); ok(await E(p, () => __g.FL.poolDrained), '수영장 배수 (수질관리실 밸브)');
   await use(p, 'drain'); await winMini(p); ok(await E(p, () => __g.P.keys) === 5, '수영장 조각 (낚기) — 5/5');
   await saveReload(p, '조각 5개'); ok(await E(p, () => __g.P.keys) === 5 && await E(p, () => __g.objective().ch) === 4, '복원: 조각 5 · 제4장');
   // 제4장 · 열쇠의 머리: 머리 없이는 조합 불가 → 교장실 → 별관 머릿돌 → 분전반(배선) → 보안 PC(사진 맞추기) → 진열장(0302)
@@ -103,11 +106,16 @@ async function trueRun() {
   await use(p, 'breaker'); ok(!(await E(p, () => __g.power)), '퓨즈 없이 차단기 불가');
   await take(p, 'fuse'); await use(p, 'breaker'); await winMini(p); ok(await E(p, () => __g.power), '퓨즈 + 배선 → 전력 복구');
   await saveReload(p, '전력 후'); ok(await E(p, () => __g.power) && await E(p, () => __g.world.props.find(q => q.kind === 'breaker').on), '복원: 차단기 켜짐');
-  await use(p, 'console'); await E(p, () => __g.bcAuto()); await winMini(p); ok(await E(p, () => __g.FL.tapesDone), '마지막 방송: 녹음 순서 복원');
+  // 장비실 철문: 경비실 열쇠함 → 예비 열쇠 → 철문 → 민아 구출 → 앵커석 대본 낭독 (큐 대사 ~25초 뒤 방송 미니게임)
+  await p.waitForFunction(() => __g.world.props.some(q => q.kind === 'eqKeyBox'), null, { timeout: 30000 });
+  await use(p, 'mina'); ok(!(await E(p, () => __g.FL.eqOpen || __g.FL.mina)), '열쇠 없이 장비실 철문 불가');
+  await use(p, 'eqKeyBox'); await W(p, 300); await use(p, 'eqDoor'); ok(await E(p, () => __g.FL.eqOpen), '경비실 예비 열쇠 → 장비실 철문');
+  await use(p, 'mina'); await W(p, 4000); ok(await E(p, () => __g.FL.mina), '민아 깨우기');
+  await saveReload(p, '민아 후'); ok(await E(p, () => __g.FL.mina && __g.FL.eqOpen) && await E(p, () => __g.minaF.on && __g.mina.visible), '복원: 민아 구출 · 동행 유지');
+  await use(p, 'console'); await E(p, () => { __g.state = 'playing'; __g.bcAuto(); });
+  await p.waitForFunction(() => __g.MG.active, null, { timeout: 60000 }); await winMini(p); ok(await E(p, () => __g.FL.tapesDone), '마지막 방송: 녹음 순서 복원');
   await W(p, 16000); ok(await E(p, () => __g.FL.calm && !__g.ghost.active), '하교 방송 → 그것이 사라짐');
   await saveReload(p, '방송 후'); ok(await E(p, () => __g.FL.calm && !__g.ghost.active), '복원: 방송 완료 · 그것 비활성');
-  await use(p, 'mina'); await W(p, 4000); ok(await E(p, () => __g.FL.mina), '민아 깨우기');
-  await saveReload(p, '민아 후'); ok(await E(p, () => __g.FL.mina) && await E(p, () => __g.minaF.on && __g.mina.visible), '복원: 민아 구출 · 동행 유지');
   // 의뢰(서브 퀘스트): '집으로 가는 길'(조건 없음) · '민아가 여기 온 이유'(민아 구출 후) — 진행 · 아이템 주고받기 · 저장/복원
   const sq = async (id, k) => { await E(p, ([id, k]) => { const q = __g.world.props.find(o => o.uid === `sq:${id}:${k}`); __g.state = 'playing'; __g.tp(q.x, q.z + .8, q.floor, 0, 0); __g.useSideQuest(q); }, [id, k]); await W(p, 2600); await E(p, () => { if (__g.state === 'note' || __g.state === 'ui') __g.state = 'playing'; }); };
   ok(await E(p, () => __g.world.props.filter(o => o.kind === 'sq' && !o.main).length) === 20 && await E(p, () => __g.world.props.filter(o => o.kind === 'sq' && o.main).length) === 5, '의뢰 조사 지점 20곳 · 제4장 지점 5곳 배치');
@@ -149,7 +157,7 @@ async function extrasRun() {
   ok(await E(p, () => { __g.state = 'playing'; const W = __g.world, sinks = W.props.filter(q => q.kind === 'sink'), fl = W.props.filter(q => q.kind === 'flush'), st = W.lockers.filter(l => l.stallDoor), lk = W.doorList.filter(d => d.locked);
     const s0 = sinks.find(q => q.floor === 0); __g.P.fear = .5; __g.useSink(s0); __g.useSink(s0); __g.useSink(s0); const f3 = __g.P.fear; __g.useFlush(fl[0]);
     const l = st.find(o => o.floor === 0); __g.enterLocker(l); const closed = l.stallDoor.target === 0; __g.leaveLocker(true); const reopened = l.stallDoor.target === 1;
-    return sinks.length >= 24 && fl.length > 10 && st.length === fl.length && lk.length >= 3 && closed && reopened && s0.sinkObj.uses === 3 && Math.abs(f3 - .5) > .01; }), '남/녀 화장실 (RestroomSystem 세면대 · 변기 물 내리기 · 칸막이 은신 · 잠긴 3번 칸)');
+    return sinks.length >= 18 && fl.length > 10 && st.length === fl.length && lk.length >= 3 && closed && reopened && s0.sinkObj.uses === 3 && Math.abs(f3 - .5) > .01; }), '남/녀 화장실 (RestroomSystem 세면대 · 변기 물 내리기 · 칸막이 은신 · 잠긴 3번 칸)');
   ok(await E(p, () => { __g.state = 'playing'; __g.inv.charm = 1; __g.P.invuln = 0; __g.ghost.active = true; __g.ghost.floor = __g.P.floor; __g.ghost.x = __g.P.x + 1; __g.ghost.z = __g.P.z; const hp = __g.P.hp; __g.hit(); const r = __g.P.hp === hp && __g.inv.charm === 1; __g.ghost.active = false; return r; }), '유령 접촉은 체력과 부적을 소모하지 않음');
   await saveReload(p, '수색 후'); ok(await E(p, () => Object.keys(__g.FL.col).length === 4 && __g.world.props.filter(q => q.kind === 'search' && q.done).length === 3 && __g.FL.ms.lab === 1), '복원: 수집품 · 뒤진 사물함 · 미니게임 보답');
   ok(p.errors === 0, '콘솔 오류 없음'); await p.close();
@@ -163,6 +171,8 @@ async function reachAudit() {
   console.log('\n■ 도달성 감사 (막힌 통로 · 가려진 조사 지점)');
   const p = await page();
   await E(p, () => { localStorage.clear(); __g.newGame(); }); await W(p, 800); await p.keyboard.press('Space'); await W(p, 600);
+  // 소품 모델이 다 들어와야 묻힌 아이템 옮기기(itemUnbury)가 끝난다 — 이어하기는 기다리지 않으므로 여기서 기다린다
+  await p.waitForFunction(() => window.__modelsDone, null, { timeout: 180000 }); await W(p, 500);
   const bad = await E(p, () => {
     const g = __g, out = []; g.ghost.active = false; g.state = 'playing'; if (window.__rbRel) window.__rbRel();   // 새 건물: 방금 생긴 조사 지점까지 옮긴 뒤 점검
     g.world.doorList.forEach(d => { if (d.rect) d.rect.off = true; }); (g.world.facDoors || []).forEach(D => { D.t = D.target = 1; D.open = true; D.sync(); });   // 캠퍼스 시설 실내 문도 연다

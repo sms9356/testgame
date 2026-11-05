@@ -5661,7 +5661,7 @@
  "gd_log1": {
   "spk": "guard",
   "text": "근무 일지. 10월 12일 월요일. 오후 여섯 시 교대. 방송부 애들 기념 방송 땜시 본관 개방, 리허설은 밤 열 시, 하교 방송은 열한 시 사십 분. 교무부장 지시, 지하 펌프실 열쇠는 경비실에 두지 말 것. 이상 무… 라고 적었는디.",
-  "dur": 16.2,
+  "dur": 19.2,
   "baked": true,
   "eleven": "[elderly voice] [rough] 근무 일지. 10월 12일 월요일. 오후 여섯 시 교대. 방송부 애들 기념 방송 땜시 본관 개방, 리허설은 밤 열 시, 하교 방송은 열한 시 사십 분. 교무부장 지시, 지하 펌프실 열쇠는 경비실에 두지 말 것. 이상 무… 라고 적었는디.",
   "generation": {
@@ -5669,8 +5669,8 @@
    "model_id": "eleven_v4",
    "language_code": "ko",
    "delivery": "[elderly voice] [rough]",
-   "input_sha256": "df1bf16e34ee9532f296b0156a37a881d793a42918861fcd3740c35df8c79b34",
-   "audio_sha256": "fb8be697e083e3632352bf212fa98de106b73921937d30901a598bfe09c1486e",
+   "input_sha256": "95f0e64a83db589b4b4af5bd53f0ffb34461b337c780e23efc51f34a15e2e242",
+   "audio_sha256": "19ed4f5c12a47987a72d4f1dcaa509218efc0933f529e21e8ef1483a420c0019",
    "review_status": "generated"
   }
  },

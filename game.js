@@ -4566,7 +4566,7 @@ function storyItem(kind, f, x, y, z, mesh, label, glowColor) {
 // 장비실에 주저앉은 민아 (서현고 교복)
 const mina = new THREE.Group(), minaProps = new THREE.Group();
 // 민아 (서브 캐릭터 시트): 17세 · 162cm · 남색 블레이저(교표) · 흰 셔츠 · 버건디 리본 · 남색/버건디 체크 플리츠 스커트 · 흰 양말 · 검정 로퍼
-// 낮게 묶은 포니테일 + 앞머리 · 검정 백팩(토끼 키링) · 손전등 · 작은 노트 · 스마트폰 — 장비실 벽에 기대 잠든 자세
+// 낮게 묶은 포니테일 + 앞머리 · 검정 백팩(토끼 키링) · 손전등 · 작은 노트 · 폴더폰 — 장비실 벽에 기대 잠든 자세
 {
   const F = floors[2], M = (c, r = .8, o = {}) => new THREE.MeshStandardMaterial({ color: c, roughness: r, ...o });
   const plaid = (() => { const N = 128, cv = document.createElement('canvas'); cv.width = cv.height = N; const g = cv.getContext('2d');
@@ -4601,17 +4601,40 @@ const mina = new THREE.Group(), minaProps = new THREE.Group();
   tadd(new THREE.BoxGeometry(.17, .07, .03), hairM, .03, .6, .11, .7, 0, .25);   // 앞머리
   [-1, 1].forEach(s => tadd(new THREE.BoxGeometry(.03, .16, .05), hairM, .02 + s * .085, .5, .05, .3, 0, .25));   // 옆머리
   tadd(new THREE.CapsuleGeometry(.035, .2, 6, 8), hairM, -.02, .44, -.1, .5, 0, .1);   // 낮게 묶은 포니테일
-  // 소품: 백팩(토끼 키링) · 바닥의 손전등(희미하게 켜짐) · 노트 · 스마트폰(화면 빛)
+  // 소품: 백팩(토끼 키링) · 바닥의 손전등(희미하게 켜짐) · 노트 · 폴더폰(화면 빛)
   add(new THREE.BoxGeometry(.3, .38, .16), bagM, .38, .19, .1, 0, -.4).geometry.translate(0, 0, 0);
   add(new THREE.BoxGeometry(.22, .14, .05), bagM, .43, .14, .2, 0, -.4);
   add(new THREE.SphereGeometry(.035, 10, 8), M(0xf0c8cc, .9), .5, .3, .25); add(new THREE.SphereGeometry(.022, 8, 6), M(0xf0c8cc, .9), .5, .35, .25);
   [-1, 1].forEach(s => add(new THREE.CapsuleGeometry(.008, .03, 4, 6), M(0xf0c8cc, .9), .5 + s * .012, .385, .25));   // 토끼 귀
-  // 바닥 소품은 따로 둔다 (3D 모델로 바뀌어도 남는다): 오른손 옆 손전등(희미하게 켜짐) · 발치의 스마트폰(화면 빛) · 왼쪽 노트
+  // 바닥 소품은 따로 둔다 (3D 모델로 바뀌어도 남는다): 오른손 옆 손전등(희미하게 켜짐) · 발치의 폴더폰(화면 빛) · 왼쪽 노트
   const padd = (geo, m, x, y, z, rx = 0, ry = 0, rz = 0) => { const o = new THREE.Mesh(geo, m); o.position.set(x, y, z); o.rotation.set(rx, ry, rz); minaProps.add(o); return o; };
   const fl = padd(new THREE.CylinderGeometry(.022, .03, .2, 12), M(0x1a1a1a, .4, { metalness: .5 }), -.5, .03, .18, 0, 0, Math.PI / 2); fl.rotation.y = .6;
   padd(new THREE.CircleGeometry(.026, 12), new THREE.MeshBasicMaterial({ color: 0xffe8c0 }), -.42, .03, .24, 0, -1.0);
   padd(new THREE.BoxGeometry(.12, .015, .16), M(0x5a6a4a, .8), .36, .008, .5, 0, .3);   // 작은 노트
-  padd(new THREE.BoxGeometry(.07, .008, .14), M(0x111216, .3), -.2, .006, .78, 0, -.2); padd(new THREE.PlaneGeometry(.06, .12), new THREE.MeshBasicMaterial({ color: 0x8ab4e8 }), -.2, .012, .78, -Math.PI / 2, 0, .2);
+  { // 2008년식 폴더폰(애니콜/싸이언 풍): 바닥에 놓인 채 살짝 열려 안쪽 LCD가 빛난다 · 하트 줄 고리(스트랩)
+    const ph = new THREE.Group(); ph.position.set(-.2, 0, .78); ph.rotation.y = -.2; minaProps.add(ph);
+    const shell = M(0x8a1c2c, .35, { metalness: .4 }), inner = M(0x1a1a1e, .4, { metalness: .3 }), keyM = M(0xc8ccd4, .45, { metalness: .5 });
+    const pa = (geo, m, x, y, z, rx = 0, ry = 0, rz = 0, par = ph) => { const o = new THREE.Mesh(geo, m); o.position.set(x, y, z); o.rotation.set(rx, ry, rz); par.add(o); return o; };
+    // 아래 반쪽(키패드): 경첩은 z -.002, 몸체는 +z 방향
+    pa(new THREE.BoxGeometry(.048, .012, .088), shell, 0, .006, .044);
+    pa(new THREE.BoxGeometry(.042, .002, .08), inner, 0, .0125, .044);
+    pa(new THREE.CylinderGeometry(.009, .009, .002, 12), keyM, 0, .0138, .016);   // 방향키(nav pad)
+    pa(new THREE.CylinderGeometry(.0035, .0035, .0025, 8), inner, 0, .0145, .016);
+    [-1, 1].forEach(sx => pa(new THREE.BoxGeometry(.008, .0018, .006), keyM, sx * .015, .0138, .016));   // 통화/종료 키
+    for (let r = 0; r < 4; r++) for (let c = 0; c < 3; c++) pa(new THREE.BoxGeometry(.01, .0018, .007), keyM, (c - 1) * .013, .0138, .034 + r * .011);   // 3x4 숫자키
+    pa(new THREE.CylinderGeometry(.0065, .0065, .05, 10), shell, 0, .0105, -.002, 0, 0, Math.PI / 2);   // 경첩 원통
+    // 위 반쪽(화면): 경첩에서 -z 방향으로, 바닥에서 약 25° 들린 채 살짝 열림
+    const top = new THREE.Group(); top.position.set(0, .0105, -.002); top.rotation.x = -.44; ph.add(top);
+    pa(new THREE.BoxGeometry(.048, .01, .084), shell, 0, 0, -.042, 0, 0, 0, top);
+    pa(new THREE.PlaneGeometry(.036, .048), new THREE.MeshBasicMaterial({ color: 0x8ab4e8 }), 0, .0052, -.046, -Math.PI / 2, 0, 0, top);   // 안쪽 LCD(빛)
+    pa(new THREE.BoxGeometry(.012, .001, .003), inner, 0, .0052, -.076, 0, 0, 0, top);   // 수화부
+    pa(new THREE.PlaneGeometry(.018, .014), new THREE.MeshBasicMaterial({ color: 0x223040 }), 0, -.0052, -.05, Math.PI / 2, 0, 0, top);   // 바깥 보조 화면
+    pa(new THREE.CylinderGeometry(.003, .003, .002, 10), inner, 0, -.0058, -.072, 0, 0, 0, top);   // 카메라
+    // 스트랩 고리 + 작은 하트 참
+    pa(new THREE.TorusGeometry(.006, .0012, 4, 10), keyM, .02, .004, .094, Math.PI / 2);
+    pa(new THREE.CylinderGeometry(.001, .001, .03, 4), M(0xe86a9a, .8), .03, .002, .106, Math.PI / 2, 0, .9);
+    pa(new THREE.SphereGeometry(.007, 8, 6), M(0xf2a0c0, .6), .042, .006, .116).scale.set(1, .7, 1);
+  }
   mina.position.set(-21.65, 0, -8.45); mina.userData.dynamic = true; F.interior.add(mina);   // interior 그룹이 이미 층 높이(y0)만큼 올라가 있다
   minaProps.position.copy(mina.position); minaProps.userData.dynamic = true; F.interior.add(minaProps);
   [mina, minaProps].forEach(g => g.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } }));

@@ -580,7 +580,7 @@ export function buildMainBuilding(opt = {}) {
     const put = (mesh, y, z) => { mesh.position.set(x1 + .046, y, z); mesh.rotation.y = Math.PI / 2; root.add(mesh); };
     // 칠판 필기: 칠판 전체 크기의 투명 판 — 보는 사람 기준 오른쪽 1/3 에만 분필 글씨
     put(canvasPlane(4.8, 1.2, 1536, 384, (g, w, h) => { g.clearRect(0, 0, w, h); const x = w * .7; g.strokeStyle = 'rgba(235,235,225,.55)'; g.lineWidth = 3; g.beginPath(); g.moveTo(x - 30, 30); g.lineTo(x - 30, h - 30); g.stroke();
-      g.fillStyle = 'rgba(242,242,232,.85)'; g.font = 'bold 50px serif'; g.fillText('10월 12일 (목)', x, 90); g.font = 'bold 44px serif'; g.fillText(`주번: ${a}`, x, 170); g.fillText(`        ${b}`, x, 230);
+      g.fillStyle = 'rgba(242,242,232,.85)'; g.font = 'bold 50px serif'; g.fillText('10월 12일 (월)', x, 90); g.font = 'bold 44px serif'; g.fillText(`주번: ${a}`, x, 170); g.fillText(`        ${b}`, x, 230);
       g.font = '36px serif'; g.fillStyle = 'rgba(242,242,232,.7)'; g.fillText('※ 7교시 후 청소', x, 310); }, null, true), y0 + 1.55, zc);
     // 시간표 (칠판 오른쪽 벽): 흰 종이 + 요일 칸
     const z2 = zc - 2.4 - .65;

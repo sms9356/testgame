@@ -7393,7 +7393,7 @@ function installBcastDetail() {
   // ── 고증 · 질감 3 ── 방음문 · 유리 얼룩 · 녹음실 흡음 천장 · 카펫 마모
   { const XP = X1 + 9;
     // 방음문: 두께 6cm 철제 문짝 · 원형 관찰창 · 고무 개스킷 · 푸시바 · 하부 킥플레이트 — 녹음실 쪽으로 115° 열림 (통로를 막지 않게)
-    { const pv = new THREE.Group(); pv.position.set(XP + .1, Y, Z1 + 1.33); pv.rotation.y = -3.02;   // 거의 활짝(173°) — 유리벽 쪽 도어 자석에 붙여 둔 상태 g.add(pv); const W = .93, Hh = 2.05;
+    { const pv = new THREE.Group(); pv.position.set(XP + .1, Y, Z1 + 1.33); pv.rotation.y = -3.02; g.add(pv); const W = .93, Hh = 2.05;   // 거의 활짝(173°) — 유리벽 쪽 도어 자석에 붙여 둔 상태
       const DOORM = new THREE.MeshStandardMaterial({ color: 0x6a7076, roughness: .42, metalness: .55 }), GASK = mk(0x111214, .9), ALU = mk(0xc8ccd0, .3, .85), GL = new THREE.MeshStandardMaterial({ color: 0x9ab8c8, roughness: .05, metalness: .1, transparent: true, opacity: .35 });
       const leaf = new THREE.Mesh(new THREE.BoxGeometry(.06, Hh, W), DOORM); leaf.position.set(0, Hh / 2, -W / 2); pv.add(leaf);
       [[-.032], [.032]].forEach(([dx]) => { const gk = new THREE.Mesh(new THREE.BoxGeometry(.004, Hh - .04, W - .04), GASK); gk.position.set(dx, Hh / 2, -W / 2); gk.scale.set(1, 1, 1); pv.add(gk); const fr = new THREE.Mesh(new THREE.BoxGeometry(.006, Hh - .1, W - .1), DOORM); fr.position.set(dx * 1.05, Hh / 2, -W / 2); pv.add(fr); });

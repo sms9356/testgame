@@ -48,8 +48,8 @@ export const MEGA = { gym: { x: -25, z: -48, w: 18, d: 26 }, court: { x: 3, z: -
 export const WALKWAY = { x1: -1.6, x2: 3.6, z1: -13.5 - ANNEX_DZ, z2: -9.9 };   // 본관 남쪽 외벽 바깥면 (남쪽 방: z 1.75 ~ 9.6)
 export const ANNEX = { slots: [-16, -8, 0, 8, 16], floors: [
   { types: ['stair', 'counsel', 'cooking', 'tech', 'library'], names: ['계단', '상담실', '요리실', '기술·가정실 (102)', '도서실'] },
-  { types: ['stair', 'computer', 'lang', 'smart', 'lab'], names: ['계단', '컴퓨터실', '언어실 (202)', '스마트교실 (203)', '과학실'] },
-  { types: ['stair', 'music', 'art', 'craft', 'fusion'], names: ['계단', '음악실', '미술실', '공예실', '창의융합실 (103)'] }] };
+  { types: ['stair', 'computer', 'lang', 'smart', 'lab'], names: ['계단', '컴퓨터실', '언어실 (202)', '멀티미디어실 (203)', '과학실'] },
+  { types: ['stair', 'music', 'art', 'craft', 'fusion'], names: ['계단', '음악실', '미술실', '공예실', '특별활동실 (103)'] }] };
 export const GATE_Z = 70;
 export const KEY_NAMES = ['교무실', '도서실', '과학실', '체육관', '수영장'];
 export const KEY_ROOMS = [{ f: 0, x: -8, z: -5.5 }, { f: 8, x: 16, z: -5.5 }, { f: 9, x: 16, z: -5.5 }, { f: 5, x: 29.5, z: 20.5 }, { f: 6, x: -35.8, z: 44 }];
@@ -1136,7 +1136,7 @@ export function buildWorld(scene) {
       bx(.12, .18, .025, cx - 1.22, 1.38, -1.77),
       bx(.09, .13, .022, cx + 1.22, 1.38, -1.77)
     ]), mPVC08));
-    plane(cur.interior, new THREE.MeshBasicMaterial({ map: T.makeSign('LG WHISEN · 22°C 운전중', '#142820', '#70ffaa', 18) }), .09, .06, cx - 1.22, 1.41, -1.785, Math.PI);
+    plane(cur.interior, new THREE.MeshBasicMaterial({ map: T.makeSign('냉난방 · 22°C 운전중', '#142820', '#70ffaa', 18) }), .09, .06, cx - 1.22, 1.41, -1.785, Math.PI);
 
     // ── [2008년식 리모델링 ③] 우측 교사용 멀티미디어 PC 데스크 (19인치 평면 LCD 모니터 + 슬림 블랙 PC 본체 + 광마우스 + 출석부) ──
     teacherDesk(cx + 2.6, zN + 1.0);

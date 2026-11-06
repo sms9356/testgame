@@ -495,8 +495,8 @@ class New37UniqueRoomsPatch {
           });
         break;
 
-      case "창의융합실(103)":
-      case "스마트교실":
+      case "특별활동실(103)":
+      case "멀티미디어실":
       case "언어실":
         mount(this._buildServerRackAndUPS(), "N", 0, 1.7, 0.75, 2.0,
           `[E] ${roomName} 무정전 전원장치(UPS) 연결 — 손전등 & 휴대폰 배터리 100% 급속 충전!`,

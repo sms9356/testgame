@@ -5165,7 +5165,7 @@ let perkCD = 0;
 function perkFlash(text) { if (perkCD > 0) return; perkCD = 8; const el = $('perkTag'); el.textContent = text; el.classList.remove('show'); void el.offsetWidth; el.classList.add('show'); sfx.tension(.2); }
 /* ---------- 마지막 방송: 그날 밤의 녹음 조각을 순서대로 복원 ---------- */
 const TAPE_FRAGS = [
-  { id: 'a', t: '23:05', text: '“…담력 체험 시작. 하늘이 들어갔다. 문 잠갔어. 10분만 있다가 열어 주자.”' },
+  { id: 'a', t: '22:40', text: '“…담력 체험 시작. 하늘이 들어갔다. 문 잠갔어. 10분만 있다가 열어 주자.”' },
   { id: 'b', t: '23:20', text: '“…정전이다! 다들 나가, 빨리! …하늘이는? 하늘이는 누가 꺼냈어?”' },
   { id: 'c', t: '23:30', text: '“…펌프실 문이 밖에서 잠겨 있습니다. 열쇠는… 교무부장님이 가져가셨습니다.”' },
   { id: 'd', t: '23:40', text: '“…3학년 2반 윤하늘. 오늘 방송은… 오늘 하루도 수고 많—” (끊김)' },
@@ -5851,7 +5851,7 @@ const XT = { search: null, para: 75 + Math.random() * 40, paraLast: [], mbox: nu
           promptText: `[E] ${rm} 교실 2008년형 냉난방기 · 빔프로젝터 제어반 조작`,
           onInteract: () => {
             sfx.click();
-            toast(`${rm} 멀티미디어 · 냉난방 제어반`, '2008년형 LG 휘센 4-Way 천장형 냉난방기 (희망온도 22°C) 및 DLP 빔프로젝터 대기 전원이 확인되었다.', 'info');
+            toast(`${rm} 멀티미디어 · 냉난방 제어반`, '2008년형 4-Way 천장형 냉난방기 (희망온도 22°C) 및 DLP 빔프로젝터 대기 전원이 확인되었다.', 'info');
           }
         }, f, SLOTS[i] - 1.22, -1.85, 1.38, { r: 1.45 });
       } else if (t === 'broadcast' && SLOTS[i] === -24) {
@@ -8216,8 +8216,8 @@ roomSwap(s37, 'populateRoomByType', RB_S37);
 Object.values(s37.textures).forEach(srgb);
 const S37 = { rooms: [], props: [], placed: 0, skipped: 0 };
 const S37_LIST = { 4: ['청소도구실', '기계실 (보일러)', '펌프실', '창고'], 0: ['상담실', '교사 휴게실', '보건실'], 1: ['회의실', '2층 홀', '교사 휴게실', '상담실'], 2: ['3층 홀', '교사 휴게실', '상담실'],
-  8: ['상담실', '요리실', '기술·가정실 (102)', '보건실 보조', '공구실', '인쇄실', '진로상담실 (104)', '세척실'], 9: ['언어실 (202)', '스마트교실 (203)', '과학 준비실', '디지털실습실', '기록 보관실', '동아리실 (204)'], 10: ['공예실', '창의융합실 (103)', '시청각실', '학생회실', '열람실', '작업실'] };
-const S37_TYPE = { '기계실 (보일러)': '기계실', '창고': '시설창고실', '자재실 · 창고': '시설창고실', '시설 창고': '시설창고실', '보건실 보조': '보건실보조', '교사 휴게실': '교사휴게실', '2층 홀': '2층홀', '3층 홀': '3층홀', '실습 준비실': '실습준비실', '자재 창고': '자재창고', '진로상담실 (104)': '진로상담실', '창의융합실 (103)': '창의융합실(103)', '요리실': '요리실(101)', '요리실 (101)': '요리실(101)', '과학 준비실': '과학준비실', '언어실 (202)': '언어실', '교재 창고': '교재창고실', '스마트교실 (203)': '스마트교실', '동아리실 (204)': '동아리실', '음악실': '음악실', '음악실 (301)': '음악실', '전시 공간': '전시공간', '공예실': '공예실', '공예실 (303)': '공예실' };
+  8: ['상담실', '요리실', '기술·가정실 (102)', '보건실 보조', '공구실', '인쇄실', '진로상담실 (104)', '세척실'], 9: ['언어실 (202)', '멀티미디어실 (203)', '과학 준비실', '디지털실습실', '기록 보관실', '동아리실 (204)'], 10: ['공예실', '특별활동실 (103)', '시청각실', '학생회실', '열람실', '작업실'] };
+const S37_TYPE = { '기계실 (보일러)': '기계실', '창고': '시설창고실', '자재실 · 창고': '시설창고실', '시설 창고': '시설창고실', '보건실 보조': '보건실보조', '교사 휴게실': '교사휴게실', '2층 홀': '2층홀', '3층 홀': '3층홀', '실습 준비실': '실습준비실', '자재 창고': '자재창고', '진로상담실 (104)': '진로상담실', '특별활동실 (103)': '특별활동실(103)', '요리실': '요리실(101)', '요리실 (101)': '요리실(101)', '과학 준비실': '과학준비실', '언어실 (202)': '언어실', '교재 창고': '교재창고실', '멀티미디어실 (203)': '멀티미디어실', '동아리실 (204)': '동아리실', '음악실': '음악실', '음악실 (301)': '음악실', '전시 공간': '전시공간', '공예실': '공예실', '공예실 (303)': '공예실' };
 {
   const RW = 7.6, RD = 7.5, _mFootByFloor = {};
   const getFloorModelRects = f => _mFootByFloor[f] || (_mFootByFloor[f] = world.MODELS.filter(m => m.f === f).map(modelFootprint).filter(b => b && b.y1 < 1.8 && b.y2 > .1));
@@ -8729,9 +8729,9 @@ function megaNotify(m) { const t = String(m).split('\n'); say(t[0].replace(/^\S+
         const pack = (name, bg, fg, sub) => { const c = document.createElement('canvas'); c.width = 128; c.height = 128; const g2 = c.getContext('2d'); const gr = g2.createLinearGradient(0, 0, 128, 128); gr.addColorStop(0, bg); gr.addColorStop(1, '#000'); g2.fillStyle = bg; g2.fillRect(0, 0, 128, 128); g2.globalAlpha = .35; g2.fillStyle = gr; g2.fillRect(0, 0, 128, 128); g2.globalAlpha = 1;
           g2.fillStyle = '#fff'; g2.beginPath(); g2.ellipse(64, 60, 60, 26, -.12, 0, 7); g2.fill(); g2.fillStyle = fg; g2.font = 'bold 24px sans-serif'; g2.textAlign = 'center'; g2.textBaseline = 'middle'; g2.fillText(name, 64, 60); g2.fillStyle = '#fff'; g2.font = '11px sans-serif'; g2.fillText(sub, 64, 108);
           g2.fillStyle = 'rgba(255,255,255,.25)'; g2.fillRect(0, 14, 128, 6); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return new THREE.MeshStandardMaterial({ map: t, roughness: .32, metalness: .05 }); };
-        const SNACK = [['새우깡', '#d8261c', '#d8261c', '90g'], ['초코파이', '#b0141c', '#5a2a10', '12개입'], ['꿀꽈배기', '#e8a810', '#8a4a00', '80g'], ['포카칩', '#2a5ad8', '#1a3a8a', '66g'], ['맛동산', '#e86a20', '#8a2a00', '95g'], ['빼빼로', '#c8102e', '#3a1a10', '52g']].map(a => pack(...a));
-        const CAN = [['콜라', '#c8102e', '#c8102e', '250ml'], ['사이다', '#2a8a3a', '#1a6a2a', '250ml'], ['식혜', '#e8b020', '#7a4a00', '238ml'], ['포카리', '#2a6ad8', '#1a4aa8', '245ml']].map(a => pack(...a));
-        const CUP = [['신라면', '#c81414', '#c81414', '컵'], ['육개장', '#e8a010', '#8a3a00', '사발'], ['튀김우동', '#2a5ad8', '#1a3a8a', '컵']].map(a => pack(...a));
+        const SNACK = [['새우칩', '#d8261c', '#d8261c', '90g'], ['초코파이', '#b0141c', '#5a2a10', '12개입'], ['꿀꽈배기', '#e8a810', '#8a4a00', '80g'], ['감자칩', '#2a5ad8', '#1a3a8a', '66g'], ['땅콩과자', '#e86a20', '#8a2a00', '95g'], ['막대과자', '#c8102e', '#3a1a10', '52g']].map(a => pack(...a));
+        const CAN = [['콜라', '#c8102e', '#c8102e', '250ml'], ['사이다', '#2a8a3a', '#1a6a2a', '250ml'], ['식혜', '#e8b020', '#7a4a00', '238ml'], ['이온음료', '#2a6ad8', '#1a4aa8', '245ml']].map(a => pack(...a));
+        const CUP = [['매운라면', '#c81414', '#c81414', '컵'], ['육개장', '#e8a010', '#8a3a00', '사발'], ['튀김우동', '#2a5ad8', '#1a3a8a', '컵']].map(a => pack(...a));
         // 서벽 음료 냉장고 (1200×700×2000 · 유리문)
         { const fx = x0 + .35, fz = zP + 1.3; pbox(.7, 2.0, 1.2, PM(0x1a3a6a, .4, .3), fx, 1.0, fz, O); pmesh(new THREE.PlaneGeometry(1.1, 1.75), new THREE.MeshStandardMaterial({ color: 0xc8e4f0, emissive: 0x8ac8e8, emissiveIntensity: .45, transparent: true, opacity: .55 }), fx + .36, 1.05, fz, O, { ry: Math.PI / 2, cast: false });
           for (let r = 0; r < 4; r++) for (let k = 0; k < 6; k++) pcyl(.035, .035, .22, CAN[(r + k) % 4], fx + .2, .35 + r * .42, fz - .45 + k * .18, O);

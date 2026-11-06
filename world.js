@@ -4696,6 +4696,7 @@ export function buildWorld(scene) {
     OUT.add(new THREE.Mesh(merge(g), mStep));
     meshAt(merge([tube(.03, x0 - W / 2 + .1, H, z0 - D / 2 + .1, x0 - W / 2 + .1, H + 1, z0 - D / 2 + .1), tube(.03, x0 + W / 2 - .1, H, z0 - D / 2 + .1, x0 + W / 2 - .1, H + 1, z0 - D / 2 + .1), tube(.03, x0 - W / 2 + .1, H + 1, z0 - D / 2 + .1, x0 + W / 2 - .1, H + 1, z0 - D / 2 + .1), tube(.03, x0 - W / 2 + .1, H, z0 + D / 2 - .1, x0 - W / 2 + .1, H + 1, z0 + D / 2 - .1), tube(.03, x0 - W / 2 + .1, H + 1, z0 - D / 2 + .1, x0 - W / 2 + .1, H + 1, z0 + D / 2 - .1)]), mRailSteel, 0, 0, 0, 0, OUT);
     meshAt(merge([bx(.9, 1.1, .5, 0, .55, 0)]), mWoodDark, x0, H, z0 - .4, 0, OUT);   // 연설대
+    meshAt(merge([tube(.008, x0 + .25, H + 1.1, z0 - .45, x0 + .25, H + 1.32, z0 - .3), new THREE.CylinderGeometry(.022, .016, .1, 8).rotateX(-1.1).translate(x0 + .25, H + 1.34, z0 - .26), bx(.12, .03, .1, x0 + .25, H + 1.115, z0 - .5)]), mBlack, 0, 0, 0, 0, OUT);   // 연설대 거위목 마이크
     plane(OUT, new THREE.MeshStandardMaterial({ map: T.makeSign('조 회 대', '#2a2420', '#d8d0b8', 30), roughness: .9 }), 1.6, .35, x0, H / 2, z0 + D / 2 + .01);
     col(x0 - W / 2, x0 + W / 2, z0 - D / 2, z0 + D / 2, false, H);
     col(x0 - W / 2, x0 + W / 2, z0 - D / 2, z0 - D / 2 + .16, false, H + 1); col(x0 - W / 2, x0 - W / 2 + .16, z0 - D / 2, z0 + D / 2, false, H + 1);   // 뒤 · 서쪽 난간 (위에서 떨어지지 않게)
@@ -4727,6 +4728,12 @@ export function buildWorld(scene) {
     const canopyG = bx(x2 - x1 + .4, .06, 2.45, 0, 0, 0, 2); canopyG.rotateX(-.11); canopyG.translate((x1 + x2) / 2, 3.28, z0 + 1.3);
     stRoof.push(canopyG); OUT.add(new THREE.Mesh(merge(stRoof), mBlueMetal));
     model('sf_bleacher', -21.5, 0, 18.6, 0, { out: true, col: [3.8, 2.1] });
+    // 스탠드 계단 앞면 낙서 (매직 · 분필 — 졸업생들이 남긴 것) · 동쪽 끝 쓰레기통 2 (일반 / 재활용)
+    { const tag = (txt, col2, w, x, y, z, rz) => { const cv = document.createElement('canvas'); cv.width = 512; cv.height = 96; const g2 = cv.getContext('2d'); g2.fillStyle = col2; g2.font = 'italic bold 54px "Nanum Pen Script", "Noto Sans KR", sans-serif'; g2.textBaseline = 'middle'; g2.fillText(txt, 12, 50);
+        const t2 = new THREE.CanvasTexture(cv); t2.colorSpace = THREE.SRGBColorSpace; const m = new THREE.Mesh(new THREE.PlaneGeometry(w, w * 96 / 512), new THREE.MeshStandardMaterial({ map: t2, transparent: true, depthWrite: false, roughness: .95, polygonOffset: true, polygonOffsetFactor: -2 })); m.position.set(x, y, z); m.rotation.z = rz; OUT.add(m); };
+      tag('98 졸업 3-7 영원히!', 'rgba(30,40,90,.8)', 1.1, 8.2, .55, z0 + 1.6 + .003, .03); tag('민수 ♥ 지영', 'rgba(150,30,40,.75)', .85, 14.6, .33, z0 + 2.4 + .003, -.05); tag('서문FC 우승', 'rgba(235,235,225,.6)', 1.0, 19.4, .12, z0 + 3.2 + .003, .02); }
+    [['일반', 0x2d5568, 14.1], ['재활용', 0x2e7a4a, 14.75]].forEach(([n, c, z]) => { meshAt(merge([new THREE.CylinderGeometry(.24, .2, .7, 14, 1, true).translate(0, .35, 0), new THREE.TorusGeometry(.24, .02, 6, 16).rotateX(Math.PI / 2).translate(0, .7, 0), new THREE.CircleGeometry(.2, 14).rotateX(-Math.PI / 2).translate(0, .02, 0)]), S(null, { color: c, roughness: .55, side: THREE.DoubleSide }), x2 + .5, 0, z, 0, OUT);
+      plane(OUT, new THREE.MeshStandardMaterial({ map: T.makeSign(n, '#f0f0e8', '#1a1a1a', 30), roughness: .8 }), .26, .1, x2 + .5, .5, z + .245); col(x2 + .26, x2 + .74, z - .24, z + .24); });
   }
   // 운동장 리모델링 (참고 평면도 · 54.0 × 44.0m): 우레탄 트랙 4레인 · 인조잔디 축구장 (기존) + 조명탑 4 (H12m · LED 투광등) · 동 · 서 철망 펜스 (H4.0, 남 · 북은 정문 · 본관 동선으로 개방) · 선수 대기석 2 (5000 × 1500 × 2200 · 차양) · 스탠드 본부석 현판
   { const postM = S(null, { color: 0x8a9094, roughness: .45, metalness: .6 }), fenceM = new THREE.MeshStandardMaterial({ color: 0x2a5a3a, roughness: .6, metalness: .3, transparent: true, opacity: .28, side: THREE.DoubleSide, depthWrite: false });

@@ -35,7 +35,7 @@ function lib() {
     FABRIC: [PM(0x2c3e5e, .95), 1], RED: [PM(0x7a1820, .9), 1], VELVET: [PM(0x6a1018, .95), 1], MATTRESS: [PM(0xd8d4c6, .9), 1], BLANKET: [PM(0x54708a, .95), 1],
     WHITE: [PM(0xeeeeea, .5), 1], PORC: [PM(0xf4f4f0, .2, .05), 1], HDPE_B: [PM(0x2e5aa8, .6), 1], HDPE_G: [PM(0x2e8a4a, .6), 1], HDPE_Y: [PM(0xd8b820, .6), 1], HDPE_GR: [PM(0x6a6e70, .6), 1],
     FRAME: [PM(0x3a4046, .45, .6), 1], ALU: [PM(0xb8bcc0, .35, .8), 1], REFRACT: [PM(0x6a5446, .95), 1], SOOT: [PM(0x1a1614, .95), 1], PANEL: [PM(0xd8d2c4, .8), 1], CORK: [PM(0x9a7448, .95), 1],
-    HOUSING: [PM(0xe8e8e4, .5, .2), 1], GREEN: [PM(0x2e5a3a, .7), 1], BOARD: [PM(0x24382e, .85), 1], DOME: [PM(0xc8ccd0, .35, .7), 1], TEAL: [PM(0x2c7a8a, .5, .2), 1],
+    HOUSING: [PM(0xe8e8e4, .5, .2), 1], BRASS: [PM(0xb08a3a, .4, .7), 1], TOWEL: [PM(0xd8c8a0, .95), 1], SHOE: [PM(0xe4e2dc, .8), 1], GREEN: [PM(0x2e5a3a, .7), 1], BOARD: [PM(0x24382e, .85), 1], DOME: [PM(0xc8ccd0, .35, .7), 1], TEAL: [PM(0x2c7a8a, .5, .2), 1],
   };
   return LIB;
 }
@@ -452,7 +452,10 @@ function buildDorm(ctx, Z) {   // 청운학사 22 × 14m · 2층 (기숙사 · �
   // 식당 · 라운지: 식탁 2 (1800×900) + 의자 4
   { const r = byName(R0, '식당 · 라운지'), cz = (r.z1 + r.z2) / 2 + .4; [r.x1 + 3.4, r.x1 + 6.6].forEach(x => { F.table(B, x, cz, 1.8, .9, .75, 0, 'LPM'); [-1, 1].forEach(s => F.chair(B, x + s * .45, cz + .75, Math.PI, 0)); }); B.model('sf_sofa', r.x2 - 1.4, 0, r.z2 - .55, Math.PI); B.col(r.x2 - 2.4, r.x2 - .4, r.z2 - 1.0, r.z2 - .1, { h: .45 }); }
   // 로비 · 계단: 신발장 · 게시판
-  { const r = byName(R0, '로비 · 계단'); F.shelf(B, r.x1 + 3.2, r.z2 - .3, Math.PI, 0, 2.4, .35, 1.2, 'WOOD', 4); B.box(1.4, .9, .02, 'CORK', r.x1 + 4.6, 1.6, r.z1 + .08); }
+  { const r = byName(R0, '로비 · 계단'); F.shelf(B, r.x1 + 3.2, r.z2 - .3, Math.PI, 0, 2.4, .35, 1.2, 'WOOD', 4); B.box(1.4, .9, .02, 'CORK', r.x1 + 4.6, 1.6, r.z1 + .08);
+    // 신발장 안 실내화 · 운동화 (칸마다 몇 켤레 비움) + 호실 안내 표지
+    for (let k = 0; k < 3; k++) for (let j = 0; j < 8; j++) { if ((j * 5 + k * 3) % 7 === 2) continue; const x = r.x1 + 3.2 - 1.05 + j * .3, y = .08 + k * (1.1 / 3) + .045; [-.045, .045].forEach(d => B.box(.08, .07, .24, (j + k) % 3 ? 'SHOE' : 'BLANKET', x + d, y, r.z2 - .3 + .02)); }
+    B.sign('신발장 · 실내화로 갈아 신을 것', '201 ~ 204호 칸 · 사감', 1.4, .26, r.x1 + 3.2, 1.45, r.z2 - .07, Math.PI, ['#f2ecd8', '#3a2a1a']); }
   { const r = byName(R0, '화장실'); F.toilets(B, r, 4); }
   { const r = byName(R0, '샤워실'); F.showers(B, r, 4); }
   { const r = byName(R0, '창고'); [0, 1].forEach(k => F.shelf(B, r.x1 + 1.3 + k * 2.4, r.z1 + .35, 0, 0, 1.8, .45, 1.8, 'GREYSTEEL', 5, ['PANEL', 'CORK', 'WHITE'])); F.shelf(B, r.x2 - .35, r.z1 + 2.4, -Math.PI / 2, 0, 1.8, .45, 1.8, 'GREYSTEEL', 5, ['BLANKET', 'WHITE']); }
@@ -461,11 +464,18 @@ function buildDorm(ctx, Z) {   // 청운학사 22 × 14m · 2층 (기숙사 · �
   ['기숙사 A (4인실)', '기숙사 B (4인실)'].forEach((n, i) => { const r = byName(R1, n);
     F.bunk(B, r.x1 + .7, r.z1 + 1.2, 0, 1); F.bunk(B, r.x1 + 2.0, r.z1 + 1.2, 0, 1);
     F.lockers(B, r.x2 - .35, r.z1 + 1.4, -Math.PI / 2, 1, 4);
+    ['김정민', '이상훈', '박성호', '최재원', '정우진', '한승철', '오동규', '윤태식'].slice(i * 4, i * 4 + 4).forEach((nm, k) => { if (i === 0 && k === 3) return;   // 여닫는 문(dorm_locker)엔 붙이지 않는다
+      B.sign(nm, `${201 + i}호 · ${k + 1}`, .26, .07, r.x2 - .35 - .278, FH + 1.42, r.z1 + 1.4 - .6 + k * .4, -Math.PI / 2, ['#f4f0e2', '#1a1a1a']); });
     F.desk(B, r.x1 + 4.0, r.z1 + .45, 0, 1); F.desk(B, r.x1 + 5.3, r.z1 + .45, 0, 1); F.chair(B, r.x1 + 4.0, r.z1 + 1.05, Math.PI, 1); F.chair(B, r.x1 + 5.3, r.z1 + 1.05, Math.PI, 1);
     if (i === 0) { const p = new THREE.Group(); p.position.set(B.wx(r.x2 - .1), FH, B.wz(r.z1 + 1.4 + .6)); p.userData.dynamic = true; B.g.add(p); const d = new THREE.Mesh(new THREE.BoxGeometry(.012, 1.74, .38), lib().GREENSTEEL[0]); d.position.set(-.01, .9, -.19); p.add(d); piv.locker = p; piv.lockerAt = [r.x2 - .8, r.z1 + 1.6]; } });
   // 공부방: 책상 4 (카렐) + 의자 4 + 서가
   { const r = byName(R1, '공부방'); for (let k = 0; k < 4; k++) { const x = r.x1 + .9 + k * 1.4; F.desk(B, x, r.z2 - .45, Math.PI, 1); F.chair(B, x, r.z2 - 1.05, 0, 1); B.box(.03, .5, .6, 'PANEL', x + .62, FH + 1.0, r.z2 - .45); }
     F.shelf(B, r.x1 + .4, (r.z1 + r.z2) / 2, Math.PI / 2, 1, 1.8, .35, 1.8, 'WOOD', 5, ['RED', 'BLANKET', 'GREEN']); piv.studyAt = [r.x1 + 2.3, r.z2 - .9]; }
+  { const r = byName(R1, '라운지'), rx = r.x2 - .45, rz = (r.z1 + r.z2) / 2 - .3;   // 빨래건조대 (X자 접이식 · 수건 · 체육복)
+    [-.6, .6].forEach(dz => { B.box(.025, 1.0, .025, 'ALU', rx - .2, FH + .5, rz + dz, { rz: .38 }); B.box(.025, 1.0, .025, 'ALU', rx + .2, FH + .5, rz + dz, { rz: -.38 }); });
+    for (let k = 0; k < 4; k++) B.box(.012, .012, 1.25, 'ALU', rx - .27 + k * .18, FH + .9 + (k % 3 ? .02 : 0), rz);
+    [['TOWEL', -.4], ['WHITE', .05], ['BLANKET', .42], ['TOWEL', .3]].forEach(([m, dz], k) => B.box(.01, .42 + (k % 2) * .1, .34, m, rx - .27 + k * .18, FH + .7 - (k % 2) * .05, rz + dz));
+    B.col(rx - .35, rx + .35, rz - .7, rz + .7, { lvl: 1 }); }
   { const r = byName(R1, '라운지'); F.table(B, (r.x1 + r.x2) / 2, (r.z1 + r.z2) / 2 + .6, 1.2, .7, .45, 1, 'WOOD'); B.model('sf_sofa', (r.x1 + r.x2) / 2, FH, r.z2 - .55, Math.PI); B.col((r.x1 + r.x2) / 2 - 1, (r.x1 + r.x2) / 2 + 1, r.z2 - 1.0, r.z2 - .1, { lvl: 1, h: .45 }); }
   { const r = byName(R1, '화장실 (2층)'); F.toilets(B, r, 3); piv.wcAt = r.sinkAt; }
   { const r = byName(R1, '샤워실 (2층)'); F.showers(B, r, 4); }
@@ -485,7 +495,15 @@ function buildUnion(ctx, Z) {   // 학생회관 22 × 14m · 2층 (학생자치 
   const F = FURN, piv = {};
   // 학생식당: 테이블 6 (1800×750) × 의자 36
   { const r = byName(R0, '학생식당'); for (let i = 0; i < 2; i++) for (let j = 0; j < 3; j++) { const x = r.x1 + 2.7 + i * 3.9, z = r.z1 + 1.15 + j * 1.75;
-      F.table(B, x, z, 1.8, .75, .74, 0, 'LPM'); for (let k = -1; k <= 1; k++) { F.chair(B, x + k * .58, z - .62, 0, 0, 'WOOD', .42, .45, .82); F.chair(B, x + k * .58, z + .62, Math.PI, 0, 'WOOD', .42, .45, .82); } } }
+      F.table(B, x, z, 1.8, .75, .74, 0, 'LPM'); for (let k = -1; k <= 1; k++) { F.chair(B, x + k * .58, z - .62, 0, 0, 'WOOD', .42, .45, .82); F.chair(B, x + k * .58, z + .62, Math.PI, 0, 'WOOD', .42, .45, .82); } }
+    // 퇴식대 (식판 반납 · 동쪽 벽): 스테인리스 선반 + 쌓인 식판 · 수저통 · 잔반통 + 안내 / 남쪽 벽 이번 주 식단표
+    const tx = r.x2 - .38, tz = r.z1 + 2.75; F.table(B, tx, tz, 1.8, .6, .9, 0, 'SS', 'SS', Math.PI / 2);
+    for (let k = 0; k < 3; k++) for (let n = 0; n < 7 - k * 2; n++) B.box(.36, .018, .48, n % 4 ? 'SS' : 'HDPE_GR', tx, .9 + .01 + n * .02, tz - .55 + k * .42);
+    [-.03, .09].forEach((dx, k) => { B.cyl(.07, .065, .18, 'SS', tx + dx, .99, tz + .55, { open: true }); for (let j = 0; j < 6; j++) B.box(.008, .22, .008, k ? 'CHROME' : 'SS', tx + dx + Math.sin(j * 2.1) * .03, 1.02, tz + .55 + Math.cos(j * 2.1) * .03, { rz: Math.sin(j) * .12 }); });   // 수저통 (숟가락 · 젓가락)
+    B.cyl(.22, .2, .55, 'HDPE_GR', tx - .05, .275, tz + 1.25); B.col(tx - .27, tx + .17, tz + 1.03, tz + 1.47, {});
+    B.box(.02, .26, .84, 'ALU', tx + .285, 1.15, tz - .1); B.sign('퇴 식 구', '식판 · 수저 분리해서 반납', .8, .2, tx + .27, 1.15, tz - .1, -Math.PI / 2, ['#2a2a2a', '#f0f0f0']);   // 탁상 안내판 (뒤 벽은 창)
+    const mz = r.z1 + 3.0; B.box(.03, 1.0, 1.5, 'BOARD', r.x1 + .08, 1.75, mz); B.sign('이번 주 식단 (10월 2주)', '월 김치볶음밥 · 화 카레 · 수 짜장 · 목 비빔밥 · 금 떡볶이', 1.36, .3, r.x1 + .1, 2.05, mz, Math.PI / 2, ['#24382e', '#f2ecd8']);   // 서쪽 칸막이벽 (남쪽 벽은 창)
+    for (let k = 0; k < 4; k++) B.box(.005, .27, .2, k % 2 ? 'WHITE' : 'PANEL', r.x1 + .1, 1.6 - (k % 2) * .05, mz + .45 - k * .3, { rx: (k - 1.5) * .04 }); }
   // 매점: 진열대 4 (900×450×1800) + 계산대
   { const r = byName(R0, '매점'); B.model('sf_beverage_fridge', r.x1 + 3.05, 0, r.z2 - .45, Math.PI); B.col(r.x1 + 2.2, r.x1 + 3.9, r.z2 - .85, r.z2 - .05, {});   // 음료 냉장 쇼케이스 (진열대 두 칸 자리)
     for (let k = 0; k < 2; k++) F.shelf(B, r.x1 + .6 + k * 1.0, r.z2 - .35, Math.PI, 0, .9, .45, 1.8, 'STEEL', 5, ['RED', 'HDPE_Y', 'HDPE_B', 'GREEN']); F.table(B, r.x1 + .9, r.z1 + 1.6, 1.4, .6, .95, 0, 'WOOD', 'WOOD', Math.PI / 2); }
@@ -689,6 +707,9 @@ function buildAuditorium(ctx, Z) {   // 대강당 18 × 26m · 1층 (공연 · �
     B.sign(nm.replace(/ \(.\)/, ''), '', .9, .14, dx[0] + .6, 2.4, zStage + .075, 0, ['#f2efe6', '#1c2226']); });
   // 무대 커튼 (방염 벨벳) · 상부 막 · 무대 조명바 3 (6000×300×500) · 태극기 · 강연대 · 그랜드피아노
   B.box(sx2 - sx1, 1.1, .1, 'VELVET', 0, hallCeil - .6, zStage - .2); [-1, 1].forEach(s => { for (let k = 0; k < 6; k++) B.box(.32, hallCeil - 1.2 - stageH, .12, 'VELVET', s * ((sx2 - sx1) / 2 - .2 - k * .26), stageH + (hallCeil - 1.2 - stageH) / 2, zStage - .25 - (k % 2) * .06); });
+  [-1, 1].forEach(s => { const bx0 = s * ((sx2 - sx1) / 2 - .85), y = stageH + 1.35;   // 커튼 묶음 끈 (금색 술 · 무대 측벽 고리)
+    B.box(1.62, .06, .24, 'BRASS', bx0, y, zStage - .28, { rz: s * .05 }); B.cyl(.012, .012, .5, 'BRASS', bx0 - s * .7, y - .28, zStage - .16); B.cyl(.045, .02, .16, 'BRASS', bx0 - s * .7, y - .58, zStage - .16, { seg: 8 });
+    B.box(.05, .1, .1, 'BRASS', s * ((sx2 - sx1) / 2 - .02), y, zStage - .28); });
   B.box(sx2 - sx1 - .4, hallCeil - 1.6 - stageH, .06, 'VELVET', 0, stageH + (hallCeil - 1.6 - stageH) / 2, -hz + .5);   // 무대 뒤 배경막
   [-hz + 1.6, -hz + 3.4, zStage - 1.2].forEach(z => { B.box(6.0, .3, .3, 'BLACK', 0, hallCeil - .9, z); for (let k = -2; k <= 2; k++) { B.cyl(.12, .14, .3, 'BLACK', k * 1.2, hallCeil - 1.2, z, { seg: 12 }); } B.cyl(.012, .012, .9, 'STEEL', -2.9, hallCeil - .45, z); B.cyl(.012, .012, .9, 'STEEL', 2.9, hallCeil - .45, z); });
   { const fm = new THREE.MeshStandardMaterial({ map: taegukgiTexture(), roughness: .8 }); B.mesh(new THREE.PlaneGeometry(2.7, 1.8), fm, 0, 4.4, -hz + .54); B.box(2.8, 1.9, .03, 'DARKWOOD', 0, 4.4, -hz + .52); }
@@ -703,7 +724,14 @@ function buildAuditorium(ctx, Z) {   // 대강당 18 × 26m · 1층 (공연 · �
     for (let rI = 0; rI < nRow; rI++) { const z = seatZ0 + rI * rowGap; [[-.7 - 8 * sw, -.7], [.7, .7 + 8 * sw]].forEach(([a, b]) => { for (let k = 0; k < 8; k++) seat(a + sw * (k + .5), z); B.col(a, b, z - .25, z + .32, { h: .5 }); }); }
     for (let k = 0; k < 8; k++) seat(-2.2 + sw * (k + .5), seatZ0 - 1.4); B.col(-2.2, 2.2, seatZ0 - 1.65, seatZ0 - 1.08, { h: .5 });   // 맨 앞 중앙 열: 가운데 통로 끝을 막지 않게 첫 열과 0.8m 띄운다 (로비 → 통로 → 무대 앞으로 들어가는 유일한 길)
     const ms = new THREE.Mesh(mergeGeometries(gS), lib().FABRIC[0]), mf = new THREE.Mesh(mergeGeometries(gF), lib().FRAME[0]); [ms, mf].forEach(m => { m.userData.dynamic = true; m.castShadow = true; B.g.add(m); });
-    B.plane(1.3, nRow * rowGap + 1.5, 'CARPET', 0, .03, seatZ0 + nRow * rowGap / 2 - .6); an.tag = [-.7 - 3 * sw, seatZ0 + 4 * rowGap - .45]; }
+    B.plane(1.3, nRow * rowGap + 1.5, 'CARPET', 0, .03, seatZ0 + nRow * rowGap / 2 - .6); an.tag = [-.7 - 3 * sw, seatZ0 + 4 * rowGap - .45];
+    // 객석 열 번호판 (통로 쪽 팔걸이 끝): 숫자 12개를 한 장의 캔버스에 그리고 UV 로 잘라 한 메시로 합친다
+    { const cv = document.createElement('canvas'); cv.width = 768; cv.height = 64; const g2 = cv.getContext('2d'); g2.fillStyle = '#d8c48a'; g2.fillRect(0, 0, 768, 64); g2.fillStyle = '#2a1e10'; g2.font = 'bold 40px "Noto Sans KR", sans-serif'; g2.textAlign = 'center'; g2.textBaseline = 'middle';
+      for (let i = 0; i < nRow; i++) g2.fillText(`${i + 1}열`, 32 + i * 64, 34);
+      const t2 = new THREE.CanvasTexture(cv); t2.colorSpace = THREE.SRGBColorSpace; const gN = [];
+      for (let rI = 0; rI < nRow; rI++) [-1, 1].forEach(sd => { const pg = new THREE.PlaneGeometry(.12, .08), uv = pg.attributes.uv; for (let k = 0; k < uv.count; k++) uv.setX(k, (rI + uv.getX(k)) / nRow);
+        pg.rotateY(sd < 0 ? Math.PI / 2 : -Math.PI / 2); pg.translate(B.wx(sd * .68), .32, B.wz(seatZ0 + rI * rowGap + .02)); gN.push(pg); if (sd > 0) B.box(.04, .46, .5, 'FRAME', .705, .23, seatZ0 + rI * rowGap + .02); });   // 오른쪽 블록은 통로 쪽 옆판이 없어 하나 더 세운다
+      const mn = new THREE.Mesh(mergeGeometries(gN), new THREE.MeshBasicMaterial({ map: t2, color: 0x9a9a90 })); mn.userData.dynamic = true; B.g.add(mn); } }
   // 노출 트러스 (C-02 차콜 천장 아래) + 형광등 · 무대 PAR
   for (let z = -hz + 2; z < zLobby; z += 3.2) { B.box(2 * hx, .3, .12, 'BLACK', 0, hallCeil - .2, z); B.box(2 * hx, .06, .06, 'BLACK', 0, hallCeil - .65, z); for (let x = -hx + .8; x < hx; x += 1.6) B.box(.04, .5, .04, 'BLACK', x, hallCeil - .42, z, { rz: .6 }); }
   for (let x = -6; x <= 6; x += 3) for (let z = zStage + 2; z < zLobby - 1; z += 3.2) B.lamp(x, z, 0, hallCeil - .7);

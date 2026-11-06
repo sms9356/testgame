@@ -2200,7 +2200,7 @@
  "note_n15": {
   "spk": "narrator",
   "text": "멀티미디어실 로그. 전자칠판 예약 기록 — 매년  10월 12일 23:30 , 같은 교실 사진을 띄우도록 예약돼 있다. 예약 계정:  JUNHO98 . 메모란:  “다시, 여기서.” ",
-  "dur": 15.73,
+  "dur": 16.72,
   "baked": true,
   "eleven": "멀티미디어실 로그. 전자칠판 예약 기록 — 매년 10월 12일 23:30, 같은 교실 사진을 띄우도록 예약돼 있다. 예약 계정: JUNHO98. 메모란: “다시, 여기서.”",
   "generation": {
@@ -2211,8 +2211,8 @@
     "stability": 0.5
    },
    "delivery": "normal",
-   "input_sha256": "5234937222c195196c6d952d91132e39cfbb500303c6d3757a33ef55a5dc84de",
-   "audio_sha256": "0fe0b5936d5f6d69f6c8d5cc8103512d0e9ad651693a777b12d26e5f6fdc8cf0",
+   "input_sha256": "bb90bd3115921f0ce1186c9ce64212cc13b6261555d1d0fe249cba1b238ba7c8",
+   "audio_sha256": "fca316db650ac4ad6138e7b35ed3c1a7365edf5026fe0c9ec2056d0880856c84",
    "review_status": "unreviewed"
   }
  },

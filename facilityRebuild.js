@@ -488,7 +488,9 @@ function buildUnion(ctx, Z) {   // 학생회관 22 × 14m · 2층 (학생자치 
       F.table(B, x, z, 1.8, .75, .74, 0, 'LPM'); for (let k = -1; k <= 1; k++) { F.chair(B, x + k * .58, z - .62, 0, 0, 'WOOD', .42, .45, .82); F.chair(B, x + k * .58, z + .62, Math.PI, 0, 'WOOD', .42, .45, .82); } } }
   // 매점: 진열대 4 (900×450×1800) + 계산대
   { const r = byName(R0, '매점'); B.model('sf_beverage_fridge', r.x1 + 3.05, 0, r.z2 - .45, Math.PI); B.col(r.x1 + 2.2, r.x1 + 3.9, r.z2 - .85, r.z2 - .05, {});   // 음료 냉장 쇼케이스 (진열대 두 칸 자리)
-    for (let k = 0; k < 2; k++) F.shelf(B, r.x1 + .6 + k * 1.0, r.z2 - .35, Math.PI, 0, .9, .45, 1.8, 'STEEL', 5, ['RED', 'HDPE_Y', 'HDPE_B', 'GREEN']); F.table(B, r.x1 + .9, r.z1 + 1.6, 1.4, .6, .95, 0, 'WOOD', 'WOOD', Math.PI / 2); }
+    B.model('sf_snack_shelf', r.x1 + 1.1, 0, r.z2 - .34, Math.PI); B.col(r.x1 + .3, r.x1 + 1.9, r.z2 - .64, r.z2 - .05, {});   // 실사 과자 진열대 (예전: 철제 선반 + 색 상자 '상품')
+    B.model('sf_snack_counter_v2', r.x1 + 1.25, 0, r.z1 + 2.4, Math.PI); B.col(r.x1 + .05, r.x1 + 2.45, r.z1 + 1.97, r.z1 + 2.4, { h: 1.0 }); B.col(r.x1 + .05, r.x1 + .5, r.z1 + 2.4, r.z1 + 4.1, { h: 1.0 });   // ㄱ자 계산대 (금전등록기 · 팝콘기) — 문 쪽을 본다
+    B.model('sf_icecream_freezer', r.x2 - .42, 0, r.z1 + 2.7, -Math.PI / 2); B.col(r.x2 - .82, r.x2 - .05, r.z1 + 1.9, r.z1 + 3.5, { h: .9 }); }   // 아이스크림 냉동고
   { const r = byName(R0, '공용 창고'); F.shelf(B, r.x1 + 1.2, r.z2 - .35, Math.PI, 0, 1.8, .45, 1.8, 'GREYSTEEL', 5, ['PANEL', 'CORK']); F.shelf(B, r.x2 - 1.2, r.z2 - .35, Math.PI, 0, 1.8, .45, 1.8, 'GREYSTEEL', 5, ['WHITE', 'CORK']); }
   // 학생회실: 수납장 2 (union_locker) + 회의 책상
   { const r = byName(R0, '학생회실'); F.cabinet(B, r.x1 + .9, r.z1 + .3, 0, 0, .9, .45, 1.8, 'GREYSTEEL'); F.cabinet(B, r.x1 + 1.85, r.z1 + .3, 0, 0, .9, .45, 1.8, 'WOOD');

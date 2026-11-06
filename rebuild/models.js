@@ -5,7 +5,8 @@ import { GLTFLoader } from '../vendor/addons/loaders/GLTFLoader.js';
 
 const loader = new GLTFLoader();
 const cache = {};
-const load = name => cache[name] || (cache[name] = new Promise((res, rej) => loader.load(new URL(name.startsWith('sf_') ? `../assets/models/sf/${name}.glb` : `../assets/models/${name}/${name}.gltf`, import.meta.url).href, g => res(g.scene), undefined, rej)));
+const url = name => name.startsWith('sf_') ? `../assets/models/sf/${name}.glb` : name.includes('/') ? `../assets/models/${name}.glb` : `../assets/models/${name}/${name}.gltf`;   // 'h133/CLS-014' 처럼 폴더/이름 이면 .glb
+const load = name => cache[name] || (cache[name] = new Promise((res, rej) => loader.load(new URL(url(name), import.meta.url).href, g => res(g.scene), undefined, rej)));
 
 // floorH 를 주면 층별로 따로 InstancedMesh 를 만든다 (im.userData.rbFloor) — 지금 층만 그리기 위해
 export function placeModels(parent, list, { shadows = true, floorH = 0 } = {}) {

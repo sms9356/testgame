@@ -2,7 +2,7 @@
 <style>html,body{margin:0;background:#2a2c30}canvas{display:block}</style>
 <script type="importmap">{"imports":{"three":"../vendor/three.module.js"}}</script></head><body>
 <script type="module">
-// 캐릭터 GLB 단독 뷰어 (재질·애니메이션 확인용): tools/charViewer.html?c=mina&view=front|side|back|face&clip=idle
+// 캐릭터 GLB 단독 뷰어 (재질·애니메이션 확인용): tools/charViewer.html?c=mina|seoyeon|jihun&view=front|side|back|face|chest&clip=idle|walk&t=45
 import * as THREE from 'three';
 import { GLTFLoader } from '../vendor/addons/loaders/GLTFLoader.js';
 import { createNPCVisuals } from '../npcVisuals.js';
@@ -19,6 +19,7 @@ window.__THREE = THREE;
 const nv = createNPCVisuals({ THREE, GLTFLoader });
 const holder = new THREE.Group(); sc.add(holder); window.__holder = holder;
 const cam = new THREE.PerspectiveCamera(view === 'face' ? 16 : 30, W / H, .05, 50);
+const _tl0 = performance.now();
 const res = await nv.load(c, holder, { url: '../assets/characters/' + c + '.glb', native: true, clipNames: [q.get('clip') || 'idle'] });
 const _nt = holder.getObjectByName('Mina_NameTag'), _em = holder.getObjectByName('Mina_Emblem'); holder.updateMatrixWorld(true); window.__res = { ...res, nameTag: _nt && _nt.getWorldPosition(new THREE.Vector3()).toArray().map(v => +v.toFixed(3)), emblem: _em && new THREE.Box3().setFromObject(_em).getCenter(new THREE.Vector3()).toArray().map(v => +v.toFixed(3)) };
 const steps = +(q.get('t') || 45);
@@ -31,7 +32,11 @@ else if (view === 'side') { cam.position.set(4.2, h * .55, 0); cam.lookAt(0, h *
 else if (view === 'back') { cam.position.set(0, h * .55, -4.2); cam.lookAt(0, h * .5, 0); }
 else if (view === 'chest') { cam.position.set(hp.x + .2, hp.y - .25, hp.z + 1.3); cam.lookAt(hp.x, hp.y - .3, hp.z); }
 else { const fy = hp.y + (c === 'guard' ? .02 : .08); cam.position.set(hp.x + .2, fy, hp.z + 1.2); cam.lookAt(hp.x, fy, hp.z); }
+const _tl1 = performance.now();
+await r.compileAsync(sc, cam);   // 게임의 prepare 와 같은 선(先)컴파일 → 첫 렌더에 셰이더 멈춤이 없다
+const _tl2 = performance.now();
 await new Promise(r => setTimeout(r, 1000));
 nv.update(1 / 30); r.render(sc, cam);
+window.__perf = { loadMs: Math.round(_tl1 - _tl0), compileMs: Math.round(_tl2 - _tl1), programs: r.info.programs.length, clipSpeed: holder.userData.clipSpeed };
 window.__ready = true;
 </script></body></html>

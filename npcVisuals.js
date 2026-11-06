@@ -71,7 +71,14 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
     const leatherNormal = buildNormal(256, 10, 2.0, (x, y, s) => vnoise(x, y, 4, s) * 0.6 + vnoise(x, y, 2, s) * 0.3);
     // ④ 머리카락 결: 세로(v) 방향으로 길게 늘인 노이즈
     const hairNormal = buildNormal(256, 6, 2.4, (x, y, s) => vnoise(x, 0, 2, s) * 0.6 + vnoise(x, 0, 1, s) * 0.2 + vnoise(x, y, 16, s) * 0.2);
-    normalMaps = { skinNormal, fabricNormal, leatherNormal, hairNormal };
+    // ⑤ 교복 몸판: 큰 주름(세로로 늘인 저주파 골 · 팔꿈치 · 허리 구김) + 능직 결을 한 장에 — 반복을 낮춰 주름이 옷 크기로 보인다
+    const fabricFoldNormal = buildNormal(512, 5, 2.0, (x, y, s) => {
+      const twill = Math.abs(((x + y) % 4) - 2) / 2;
+      const fold = vnoise(x, Math.floor(y / 3) * 3, 64, s) * 0.55 + vnoise(x, y, 32, s) * 0.35;   // 세로 방향 처짐 주름
+      const crease = Math.pow(1 - Math.abs(vnoise(x, y, 48, s) * 2 - 1), 6) * 0.35;                // 접힌 자국 (날카로운 능선)
+      return fold * 2.4 + crease * 1.6 + twill * 0.16 + vnoise(x, y, 2, s) * 0.08;
+    });
+    normalMaps = { skinNormal, fabricNormal, leatherNormal, hairNormal, fabricFoldNormal };
     return normalMaps;
   }
 
@@ -109,16 +116,59 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
     return p;
   }
   // 피부 산란 근사: 그늘진 쪽에도 붉은 기가 남도록 간접광에 피의 색을 조금 더하고, 명암 경계를 따뜻하게 감싼다
-  function addSkinScatter(mat, warm) {
+  //   face(선택): 바인드 공간 입 중심(치아 메시 중심) → 입술 붉은 기 · 촉촉한 광 · 볼 홍조를 정점 위치로 칠한다 (텍스처 UV 와 무관 · 스키닝과 같이 움직인다)
+  //   유니폼 값만 다르고 셰이더 키는 같아서 민아 · 서연 · 지훈이 같은 프로그램을 재사용한다
+  function addSkinScatter(mat, warm, face) {
+    const uMouth = { value: face ? face.mouth.clone() : new THREE.Vector3(0, -99, 0) };
+    const uFace = { value: new THREE.Vector4(face ? face.lip : 0, face ? face.blush : 0, face ? face.cheekX : 0.04, face ? face.scale : 1) };
+    const uCheek = { value: new THREE.Vector2(face ? face.cheekDY : 0.03, 0) };
+    mat.userData.faceUniforms = { uMouth, uFace, uCheek };
     mat.onBeforeCompile = sh => {
-      sh.fragmentShader = sh.fragmentShader.replace('#include <lights_fragment_end>', `#include <lights_fragment_end>
+      sh.uniforms.uMouth = uMouth; sh.uniforms.uFace = uFace; sh.uniforms.uCheek = uCheek;
+      sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nvarying vec3 vBindP;')
+        .replace('#include <begin_vertex>', '#include <begin_vertex>\nvBindP = position;');
+      sh.fragmentShader = sh.fragmentShader.replace('#include <common>', `#include <common>
+        varying vec3 vBindP; uniform vec3 uMouth; uniform vec4 uFace; uniform vec2 uCheek; float fLip = 0.0;`)
+        .replace('#include <map_fragment>', `#include <map_fragment>
+        {
+          vec3 d = (vBindP - uMouth) / uFace.w;
+          float front = smoothstep(-0.012, 0.004, d.z);
+          fLip = exp(-(d.x * d.x) / (0.021 * 0.021) - ((d.y + 0.002) * (d.y + 0.002)) / (0.0075 * 0.0075)) * front * uFace.x;
+          vec2 cL = vec2(d.x - uFace.z, d.y - uCheek.x), cR = vec2(d.x + uFace.z, d.y - uCheek.x);
+          float blush = (exp(-dot(cL, cL) / (0.02 * 0.02)) + exp(-dot(cR, cR) / (0.02 * 0.02))) * smoothstep(-0.05, -0.02, d.z) * uFace.y;
+          diffuseColor.rgb = mix(diffuseColor.rgb, diffuseColor.rgb * vec3(1.0, 0.6, 0.64), clamp(fLip, 0.0, 1.0));
+          diffuseColor.rgb = mix(diffuseColor.rgb, diffuseColor.rgb * vec3(1.02, 0.8, 0.8), clamp(blush, 0.0, 1.0));
+        }`)
+        .replace('#include <roughnessmap_fragment>', '#include <roughnessmap_fragment>\nroughnessFactor = mix(roughnessFactor, 0.32, clamp(fLip, 0.0, 1.0));')
+        .replace('#include <lights_fragment_end>', `#include <lights_fragment_end>
         reflectedLight.indirectDiffuse += diffuseColor.rgb * vec3(${warm.map(v => v.toFixed(3)).join(',')});
         reflectedLight.directDiffuse *= vec3(1.0, 0.96, 0.93) + vec3(0.06, 0.02, 0.0) * (1.0 - smoothstep(0.0, 0.6, length(reflectedLight.directDiffuse)));`);
     };
-    mat.customProgramCacheKey = () => 'skinScatter' + warm.join();
+    mat.customProgramCacheKey = () => 'skinScatterFace' + warm.join();
+  }
+  // 입 중심 (바인드 공간): 치아 메시 경계 상자의 앞쪽 중심. 볼 간격은 눈 메시 폭에서 얻는다
+  function findFaceAnchor(model) {
+    let teeth = null, eyes = null;
+    model.traverse(o => { if (!o.geometry) return; const n = o.name.toLowerCase(); if (/teeth/.test(n)) teeth = o; else if (/_eyes$/.test(n)) eyes = o; });
+    if (!teeth) return null;
+    // 치아 메시는 잇몸 · 안쪽까지 커서 상자 중심이 입보다 낮다 → 가장 앞쪽 앞니 정점들의 평균이 입술 사이 높이다
+    teeth.geometry.computeBoundingBox(); const tb = teeth.geometry.boundingBox, tp = teeth.geometry.attributes.position;
+    let sy = 0, sx = 0, cnt = 0;
+    for (let i = 0; i < tp.count; i++) if (tp.getZ(i) > tb.max.z - 0.008) { sx += tp.getX(i); sy += tp.getY(i); cnt++; }
+    const mouth = new THREE.Vector3(cnt ? sx / cnt : 0, cnt ? sy / cnt : (tb.min.y + tb.max.y) / 2, tb.max.z + 0.006);
+    let cheekX = 0.04, cheekDY = 0.03;
+    if (eyes) {
+      eyes.geometry.computeBoundingBox(); const eb = eyes.geometry.boundingBox;
+      cheekX = Math.max(0.025, Math.min(0.06, (eb.max.x - eb.min.x) * 0.5));
+      cheekDY = Math.max(0.015, Math.min(0.06, (eb.min.y - 0.022) - mouth.y));   // 광대 = 눈 밑 2cm 남짓
+    }
+    return { mouth, cheekX, cheekDY, scale: 1 };
   }
   function enhanceCharacterMaterials(model, id) {
     const nm = getNormalMaps();
+    const faceA = id === 'guard' ? null : findFaceAnchor(model);
+    const female = id === 'mina' || id === 'seoyeon';
+    const face = faceA && { ...faceA, lip: female ? 0.85 : 0.35, blush: female ? 0.55 : 0.18 };
     const swapped = new Map();
     model.traverse(obj => {
       if (!obj.isMesh && !obj.isSkinnedMesh) return;
@@ -152,7 +202,7 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
           m.sheenColor = new THREE.Color(id === 'guard' ? 0x8a6a58 : 0xffd2c0);
           m.emissive = new THREE.Color(0x000000); m.emissiveIntensity = 0; m.emissiveMap = null;
           if (!m.normalMap) { m.normalMap = nm.skinNormal; m.normalScale = new THREE.Vector2(0.12, 0.12); }
-          addSkinScatter(m, id === 'guard' ? [0.07, 0.025, 0.015] : [0.1, 0.03, 0.025]);
+          addSkinScatter(m, id === 'guard' ? [0.07, 0.025, 0.015] : [0.1, 0.03, 0.025], face);
         } else if (/teeth/.test(mName)) {
           mat.roughness = 0.25; mat.metalness = 0;
           mat.emissive = new THREE.Color(0x000000); mat.emissiveIntensity = 0;
@@ -164,13 +214,14 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
           if (/bang/.test(mName)) { m.transparent = true; m.alphaTest = 0.1; m.depthWrite = true; }   // 앞머리: 가닥 끝은 블렌딩으로 부드럽게, 희미한 가장자리만 잘라 깊이를 쓴다
           else { m.transparent = false; m.alphaTest = 0.42; m.depthWrite = true; m.alphaToCoverage = true; }
           if (m.map) { m.map.wrapS = m.map.wrapT = THREE.ClampToEdgeWrapping; m.map.needsUpdate = true; }   // 반복 래핑이면 카드 끝에서 반대편 가닥을 샘플해 이마에 가는 선이 생긴다
-          m.roughness = 0.5; m.metalness = 0;
-          m.sheen = 0.6; m.sheenRoughness = 0.35; m.sheenColor = new THREE.Color(id === 'guard' ? 0x8a8680 : 0x5a4a44);   // 결을 따라 흐르는 광택 띠
-          m.specularIntensity = 0.7;
+          m.roughness = 0.44; m.metalness = 0;
+          m.sheen = 0.7; m.sheenRoughness = 0.35; m.sheenColor = new THREE.Color(id === 'guard' ? 0x8a8680 : 0x5a4a44);   // 결을 따라 흐르는 광택 띠
+          m.specularIntensity = 0.8; m.specularColor = new THREE.Color(id === 'guard' ? 0xd8d4cc : 0xe8d8cc);   // 검은 머리의 따뜻한 1차 반사
           m.side = THREE.DoubleSide;
           if (!m.normalMap) { m.normalMap = nm.hairNormal; m.normalScale = new THREE.Vector2(0.35, 0.35); }
         } else if (/brow|lash/.test(mName)) {
-          mat.roughness = 0.7; mat.metalness = 0; mat.depthWrite = false;   // 얇은 반투명 카드는 블렌딩 유지, 깊이는 쓰지 않는다
+          mat.roughness = 0.7; mat.metalness = 0; mat.depthWrite = false;
+          if (!mat.userData.lashTone) { mat.userData.lashTone = true; mat.color.multiplyScalar(/lash/.test(mName) ? 0.55 : 0.85); }   // 속눈썹은 더 짙게 · 눈썹은 살짝   // 얇은 반투명 카드는 블렌딩 유지, 깊이는 쓰지 않는다
         } else if (/uniform|suit|capfabric|backpack|tie|ribbon|skirt|pants|shirt|blazer/.test(mName)) {
           m = toPhysical(mat);
           m.roughness = /ribbon|tie/.test(mName) ? 0.55 : 0.86;
@@ -179,7 +230,11 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
           m.sheenRoughness = 0.7;
           m.sheenColor = new THREE.Color(0x9aa4c0);
           m.emissive = new THREE.Color(0x000000); m.emissiveIntensity = 0; m.emissiveMap = null;
-          if (!m.normalMap) { m.normalMap = nm.fabricNormal; m.normalScale = new THREE.Vector2(0.35, 0.35); }
+          if (!m.normalMap) {
+            const body = /uniform|suit|skirt|pants|shirt|blazer/.test(mName) && !/capfabric/.test(mName);
+            m.normalMap = body ? nm.fabricFoldNormal : nm.fabricNormal;
+            m.normalScale = body ? new THREE.Vector2(0.45, 0.45) : new THREE.Vector2(0.35, 0.35);
+          }
           else { m.normalScale = new THREE.Vector2(0.7, 0.7); }
         } else if (/leather|belt|holster|pouch|boot|loafer|shoe|strap/.test(mName)) {
           m = toPhysical(mat);
@@ -400,7 +455,7 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
       lastPos: null,
       lastHolderYaw: null,
       phaseSeed: Math.random() * Math.PI * 2,
-      applied: { nx: 0, ny: 0, hx: 0, hy: 0, hz: 0 }
+      applied: { nx: 0, ny: 0, hx: 0, hy: 0, hz: 0, sx: 0, cz: 0 }
     };
   }
 
@@ -409,7 +464,10 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
     const a = rig.applied;
     if (rig.neck) { rig.neck.rotation.x -= a.nx; rig.neck.rotation.y -= a.ny; }
     if (rig.head) { rig.head.rotation.x -= a.hx; rig.head.rotation.y -= a.hy; rig.head.rotation.z -= a.hz; }
-    a.nx = a.ny = a.hx = a.hy = a.hz = 0;
+    if (rig.spine3) rig.spine3.rotation.x -= a.sx;
+    if (rig.clavL) rig.clavL.rotation.z -= a.cz;
+    if (rig.clavR) rig.clavR.rotation.z += a.cz;
+    a.nx = a.ny = a.hx = a.hy = a.hz = a.sx = a.cz = 0;
   }
 
   // ── 3. 휴머노이드 생체역학 모션 시스템 (HumanoidMotionSystem: Analytic Limb Aiming IK/FK) ──
@@ -475,6 +533,7 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
       if (id === 'guard') sculptGuardRealisticHead(model);
 
       const clips = gltf.animations || [];
+      holder.userData.clipSpeed = measureGaitSpeeds(model, clips);
       if (clips.length) {
         const mixer = new THREE.AnimationMixer(model);
         const wanted = (options.clipNames ||
@@ -649,12 +708,60 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
 
     if (rig.neck) { rig.neck.rotation.x += a.nx; rig.neck.rotation.y += a.ny; }
     if (rig.head) { rig.head.rotation.x += a.hx; rig.head.rotation.y += a.hy; rig.head.rotation.z += a.hz; }
+    // 서 있을 때 숨쉬기: 가슴(spine_03)이 들숨에 살짝 펴지고 쇄골이 함께 오른다 (걷는 중에는 걸음이 덮으므로 줄인다)
+    if (id !== 'guard') {
+      const still = 1 - rig.walkBlend;
+      a.sx = -breath * 0.014 * still; a.cz = breath * 0.012 * still;
+      if (rig.spine3) rig.spine3.rotation.x += a.sx;
+      if (rig.clavL) rig.clavL.rotation.z += a.cz;
+      if (rig.clavR) rig.clavR.rotation.z -= a.cz;
+    }
 
     if (id === 'guard' && holder.userData.torchFx && holder.userData.torchFx.visible) {
       const sweep = Math.sin(tNow * 1.8) * 0.20;
       holder.userData.torchFx.rotation.y = sweep;
       holder.userData.torchFx.rotation.x = Math.sin(tNow * 1.1) * 0.06;
     }
+  }
+  // 제자리 걷기 · 달리기 클립의 '설계 속도' (m/s): 디딤발이 지면을 뒤로 미는 거리 / 디딤 시간 (≈ 주기의 60%).
+  //   실제 이동 속도와 맞춰 timeScale 을 바꾸면 발 미끄러짐(스케이팅)이 줄어든다
+  function measureGaitSpeeds(model, clips) {
+    const out = {};
+    const foot = model.getObjectByName('foot_l') || model.getObjectByName('ball_l');
+    if (!foot) return out;
+    const gait = clips.filter(c => /walk|run/i.test(c.name));
+    if (!gait.length) return out;
+    const mx = new THREE.AnimationMixer(model), p = new THREE.Vector3();
+    try {
+      for (const c of gait) {
+        const act = mx.clipAction(c); act.play();
+        let zMin = 1e9, zMax = -1e9; const n = Math.max(8, Math.round(c.duration * 30)), zs = [];
+        for (let i = 0; i <= n; i++) { mx.setTime(c.duration * i / n); model.updateMatrixWorld(true); foot.getWorldPosition(p); zs.push(p.z); zMin = Math.min(zMin, p.z); zMax = Math.max(zMax, p.z); }
+        act.stop();
+        // 클립에 걸음 주기가 몇 번 들었는지: 발이 가운데를 앞으로 지나가는 횟수
+        const mid = (zMin + zMax) / 2; let cycles = 0;
+        for (let i = 1; i < zs.length; i++) if (zs[i - 1] < mid && zs[i] >= mid) cycles++;
+        const v = (zMax - zMin) * Math.max(1, cycles) / Math.max(0.2, c.duration * 0.6);
+        if (v > 0.2 && v < 8) out[c.name.toLowerCase()] = v;
+      }
+    } catch (e) {}
+    mx.stopAllAction(); mx.uncacheRoot(model);
+    return out;
+  }
+  // 이동 속도에 맞춰 걷기 · 달리기 재생 속도를 부드럽게 맞춘다 (게임이 timeScale 을 직접 정한 경우는 건드리지 않는다)
+  const _gaitPos = new WeakMap();
+  function matchGaitSpeed(holder, dt) {
+    const act = holder.userData.npcAction, spd = holder.userData.clipSpeed;
+    const last = _gaitPos.get(holder), pos = holder.position;
+    if (!last) { _gaitPos.set(holder, { x: pos.x, z: pos.z, v: 0 }); return; }
+    const inst = Math.hypot(pos.x - last.x, pos.z - last.z) / dt;
+    last.x = pos.x; last.z = pos.z;
+    last.v += ((inst > 20 ? last.v : inst) - last.v) * Math.min(1, dt * 6);   // 순간이동(층 이동)은 무시
+    if (!act || !spd || holder.userData.noGaitMatch) return;
+    const nominal = spd[act.getClip().name.toLowerCase()];
+    if (!nominal || last.v < 0.15) return;
+    const want = Math.max(0.7, Math.min(1.7, last.v / nominal));
+    act.timeScale += (want - act.timeScale) * Math.min(1, dt * 4);
   }
   function update(dt) {
     if (!Number.isFinite(dt) || dt <= 0) return;
@@ -664,6 +771,7 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
       if (holder.visible) {
         const entry = rigs.get(holder);
         if (entry) clearAppliedOffsets(entry.rig);
+        matchGaitSpeed(holder, stepDt);
         m.update(stepDt);
         if (entry) applyHumanBiomechanics(holder, entry, stepDt, tNow);
       }
@@ -703,6 +811,7 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
     act.play();
     if (prev && prev !== act) prev.crossFadeTo(act, fade, false);
     holder.userData.npcAction = act;
+    if (entry && entry.id !== 'guard') holder.userData.curClipName = clip.name;   // 경비원은 게임이 직접 기록한다
     if (!once) return Promise.resolve(true);
     return new Promise(res => {
       const h = e => { if (e.action === act) { mixer.removeEventListener('finished', h); res(true); } };

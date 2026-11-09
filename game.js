@@ -1139,7 +1139,7 @@ $('bigMap').addEventListener('wheel', e => { e.preventDefault(); mapZoom = clamp
 function useBattery() {
   if (inv.battery <= 0) { toast('건전지가 없습니다', '', 'warn'); return false; }
   if (P.battery >= 95 && (P.pbat ?? 100) >= 95) { say('손전등 · 휴대폰 배터리 모두 충분하다', 1800); return false; }
-  inv.battery--; P.battery = Math.min(100, P.battery + 45); sfx.batteryIn && sfx.batteryIn(); consumeFX('battery'); P.pbat = Math.min(100, (P.pbat ?? 100) + 50);   // 휴대폰도 +50% if (!P.light) P.light = true; sfx.pickup(); toast('건전지를 교체했습니다', '손전등 배터리 +45% · 휴대폰 +50%', 'info'); refreshHud(); return true;
+  inv.battery--; P.battery = Math.min(100, P.battery + 45); sfx.batteryIn && sfx.batteryIn(); consumeFX('battery'); P.pbat = Math.min(100, (P.pbat ?? 100) + 50); /* 휴대폰도 +50% */ if (!P.light) P.light = true; sfx.pickup(); toast('건전지를 교체했습니다', '손전등 배터리 +45% · 휴대폰 +50%', 'info'); refreshHud(); return true;
 }
 function useMedkit() {
   if (inv.medkit <= 0) { toast('응급 밴드가 없습니다', '', 'warn'); return false; }
@@ -6571,7 +6571,7 @@ function skeletonModel(parent) {
   pbox(.8, 2.05, .1, steel, -.4, 1.025, 0, dp); pbox(.06, .5, .08, PM(0x30343a, .3, .8), -.7, 1.1, .08, dp); pmesh(new THREE.PlaneGeometry(.22, .3), PM(0x9ab4c4, .1, .2, { transparent: true, opacity: .5 }), -.4, 1.6, .055, dp, { cast: false });
   FZ.freezerDoor = { piv: dp, t: Math.PI / 2, target: Math.PI / 2 }; FZ.freezerCol = { x1: -37.75, x2: -36.95, z1: 10.42, z2: 10.62 };
   // 국솥: 스테인리스 원통 + 테두리 + 손잡이 + 기울여 둔 뚜껑
-  vat.position.set(-42.85, .45, 9.9);   // 국솥: 작업대(-43.5)와 가스레인지(-42.2) 사이 조리 라인 안 — 남쪽 통로(z 10.6~12.2)를 막던 자리에서 이사 vat.scale.setScalar(.85);
+  vat.position.set(-42.85, .45, 9.9); vat.scale.setScalar(.85);   // 국솥: 작업대(-43.5)와 가스레인지(-42.2) 사이 조리 라인 안 — 남쪽 통로(z 10.6~12.2)를 막던 자리에서 이사
   pmesh(new THREE.TorusGeometry(.575, .035, 8, 28), steel, -42.85, .9, 9.9, g, { rx: Math.PI / 2 });
   [-1, 1].forEach(s => pmesh(new THREE.TorusGeometry(.09, .018, 6, 12, Math.PI), steelD, -42.85, .8, 9.9 + s * .6, g, { rz: s * Math.PI / 2 }));
   pcyl(.6, .6, .04, steelD, -42.85, 1.0, 9.75, g, { rx: .35 });   // 뚜껑: 반쯤 걸쳐 열어 둔 채
@@ -9500,7 +9500,7 @@ async function settleFloating() {
       } else if (gap > .06) dy = -gap + .005; }
     else { h = first(new T.Vector3(c.x, bb.min.y + 1.2, c.z), DN, 1.3); if (h && h.point.y > bb.min.y + .02) dy = h.point.y - bb.min.y + .005; }   // 바닥 밑으로 꺼진 것
     if (!dy) continue;
-    m.position.y += dy; if (prop) { if (o.y != null) { o.y += dy; if (o.rbY != null && o.y < o.rbY - .1 && o.y < .02) o.y = .02; } }   // 층 기준 상대 높이가 바닥 아래로 내려가지 않게 else if (o.pos) { o.pos.y += dy; if (o.baseY != null) o.baseY += dy; }
+    m.position.y += dy; if (prop) { if (o.y != null) { o.y += dy; if (o.rbY != null && o.y < o.rbY - .1 && o.y < .02) o.y = .02; } } /* 층 기준 상대 높이가 바닥 아래로 내려가지 않게 */ else if (o.pos) { o.pos.y += dy; if (o.baseY != null) o.baseY += dy; }
     moved++;
   }
   tmpSet = new Set(); }

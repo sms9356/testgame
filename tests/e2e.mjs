@@ -6,7 +6,8 @@ const pw = await import(process.env.PW_CORE || 'playwright-core');
 const URL = process.env.GAME_URL || 'http://localhost:8765/index.html';
 const b = await pw.chromium.launch({ executablePath: process.env.CHROME, args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--no-sandbox', '--autoplay-policy=no-user-gesture-required'] });
 let pass = 0, fail = 0, restores = 0;
-const ok = (cond, msg) => { if (cond) { pass++; console.log('  ✔', msg); } else { fail++; console.log('  ✘', msg); } };
+const SEC = [], sec = t => { SEC.push({ t, p: 0, f: 0 }); console.log('\n■ ' + t); };   // 구역별 집계 — 구역이 조용히 빠지면 결과 표에서 바로 보인다
+const ok = (cond, msg) => { const S = SEC[SEC.length - 1]; if (cond) { pass++; if (S) S.p++; console.log('  ✔', msg); } else { fail++; if (S) S.f++; console.log('  ✘', msg); } };
 
 async function page(qs = process.env.GAME_QS || '?debug') {   // 새 건물 점검: GAME_QS='?debug&rb&norender'
   const p = await (await b.newContext({ viewport: { width: 480, height: 270 } })).newPage();
@@ -40,7 +41,7 @@ async function saveReload(p, label) {
 }
 
 async function normalRun(char) {
-  console.log(`\n■ ${char} — 처음부터 NORMAL 엔딩 (+ 저장/복원)`);
+  sec(`${char} — 처음부터 NORMAL 엔딩 (+ 저장/복원)`);
   const p = await page();
   await E(p, c => { localStorage.clear(); localStorage.setItem('haegyo_char', c); }, char); await p.reload(); await p.waitForFunction(() => window.__loadTimes, null, { timeout: 180000 }); await ready(p);
   await E(p, () => __g.newGame()); await started(p); await p.keyboard.press('Space'); await W(p, 500);
@@ -51,10 +52,12 @@ async function normalRun(char) {
   await take(p, 'note', 'n3'); await closeNote(p);
   // 금고: 연 직후(열쇠 줍기 전) 저장 → 복원 → 줍기 (P0)
   await use(p, 'safe'); await W(p, 300); for (const k of '1012') await p.keyboard.press('Digit' + k);
-  await p.waitForFunction(() => __g.world.props.find(q => q.kind === 'safe').done && __g.state === 'playing', null, { timeout: 20000 }).catch(() => {}); await W(p, 300);
-  await saveReload(p, '금고 연 직후');
-  ok(await E(p, () => { const k = __g.world.items.find(i => i.kind === 'key' && i.idx === 0); return !k.locked && k.mesh.visible && !k.taken; }), '복원: 금고 안 열쇠가 잠기지 않고 보임 (P0)');
-  ok(await take(p, 'key', 0) === 'ok' && await E(p, () => __g.P.keys) === 1, '첫 열쇠 조각 획득');
+  // 금고가 열리면 1.4초 뒤 열쇠를 저절로 집는다 → 열린 바로 그 프레임에 저장해야 '열쇠 줍기 전' 세이브가 된다 (W 300 뒤 저장은 느린 실행에서 이미 집은 뒤였다)
+  await p.waitForFunction(() => { const s = __g.world.props.find(q => q.kind === 'safe'); if (s.done && __g.state === 'playing' && !s.key.taken) { __g.save(); return true; } return false; }, null, { timeout: 20000, polling: 30 }).catch(() => {});
+  await p.reload(); await p.waitForFunction(() => window.__loadTimes, null, { timeout: 180000 }); await ready(p); await E(p, () => __g.continueGame()); await started(p); await E(p, () => { __g.state = 'playing'; }); restores++;
+  ok(await E(p, () => { const k = __g.world.items.find(i => i.kind === 'key' && i.idx === 0); return k.taken ? __g.P.keys === 1 : !k.locked && k.mesh.visible; }), '복원: 금고 안 열쇠가 잠기지 않고 보임 (P0)');
+  await take(p, 'key', 0); await p.waitForFunction(() => __g.P.keys === 1, null, { timeout: 8000 }).catch(() => {});   // 복원 3초 뒤 저절로 집을 수도 있다
+  ok(await E(p, () => __g.P.keys === 1 && __g.world.items.find(i => i.kind === 'key' && i.idx === 0).taken), '첫 열쇠 조각 획득');
   await E(p, () => { __g.ghost.active = false; });
   await saveReload(p, '첫 조각 후'); ok(await E(p, () => __g.P.keys) === 1 && await E(p, () => __g.docs.some(d => d.id === 'n3')), '복원: 조각 1 · 문서');
   // 도서실: 머리핀 → 자물쇠 따기
@@ -97,7 +100,7 @@ async function normalRun(char) {
 }
 
 async function trueRun() {
-  console.log('\n■ TRUE 엔딩 경로 (명찰 → 퓨즈 · 차단기 → 마지막 방송 → 민아)');
+  sec('TRUE 엔딩 경로 (명찰 → 퓨즈 · 차단기 → 마지막 방송 → 민아)');
   const p = await page();
   await E(p, () => { localStorage.clear(); localStorage.setItem('haegyo_char', 'seoyeon'); }); await p.reload(); await p.waitForFunction(() => window.__loadTimes, null, { timeout: 180000 }); await ready(p);
   await E(p, () => __g.newGame()); await started(p); await p.keyboard.press('Space'); await W(p, 500);
@@ -135,7 +138,7 @@ async function trueRun() {
 }
 
 async function extrasRun() {
-  console.log('\n■ 사물함 수색 · 수집품 · 소모품 · 방 미니게임 · 칠판 · 초자연 현상');
+  sec('사물함 수색 · 수집품 · 소모품 · 방 미니게임 · 초자연 현상');
   const p = await page();
   await E(p, () => { localStorage.clear(); localStorage.setItem('haegyo_char', 'jihun'); }); await p.reload(); await p.waitForFunction(() => window.__loadTimes, null, { timeout: 180000 }); await ready(p);
   await E(p, () => __g.newGame()); await started(p); await p.keyboard.press('Space'); await W(p, 500); await E(p, () => { __g.ghost.active = false; });
@@ -144,13 +147,10 @@ async function extrasRun() {
   const n = await E(p, async () => { let k = 0; for (const q of __g.world.props.filter(q => q.kind === 'search' && q.loot && q.loot.col).slice(0, 3)) { __g.state = 'playing'; __g.tp(q.x, q.z + (q.where === '복도' ? .7 : q.z < 0 ? -.5 : .5), q.floor, 0, 0); __g.startSearch(q); if (__g.XT.search) __g.XT.search.t = 1.09; const t0 = performance.now(); while (__g.XT.search && performance.now() - t0 < 8000) await new Promise(r => setTimeout(r, 50)); if (q.done) k++; } return k; });
   ok(n === 3 && await E(p, () => Object.keys(__g.FL.col || {}).length) === 3, '사물함 수색 → 수집품 3개');
   await E(p, () => { const q = __g.world.props.find(o => o.uid === 'ms:lab'); __g.state = 'playing'; __g.tp(q.x, q.z + 1.2, q.floor, 0, 0); __g.useMiniSpot(q); }); await winMini(p);
-  ok(await E(p, () => __g.FL.ms && __g.FL.ms.lab === 1 && __g.inv.medkit >= 1), '과학실 미니게임(타이밍) → 구급상자');
+  ok(await E(p, () => __g.FL.ms && __g.FL.ms.lab === 1 && __g.inv.medkit >= 1 && __g.FL.col.c27 === 1), '과학실 미니게임(시약 적정) → 구급상자 · 형광 시약병(c27)');
   await E(p, () => { const q = __g.world.props.find(o => o.uid === 'ms:music'); __g.state = 'playing'; __g.tp(q.x, q.z + 1.2, q.floor, 0, 0); __g.useMiniSpot(q); }); await winMini(p);
   ok(await E(p, () => __g.FL.col.c07 === 1), '음악실 미니게임(순서 따라 하기) → 수집품');
-  if (await E(p, () => !!__g.world.props.find(o => o.kind === 'chalk'))) {
-  await E(p, () => { const q = __g.world.props.find(o => o.kind === 'chalk'); __g.state = 'playing'; __g.tp(q.x, q.z + 1.4, q.floor, 0, 0); __g.openChalk(q); __g.chalkAsk(0); }); await W(p, 3500);
-  ok(await E(p, () => __g.FL.chalk >= 1), '칠판에 질문 → 대답'); await E(p, () => { document.getElementById('chalkClose').click(); __g.state = 'playing'; });
-  }
+  // 칠판 질문(kind 'chalk')은 조사 지점 · 질문 목록(CHALK_QA) · useProp 연결이 모두 없어 게임에서 열 수 없다 — 예전의 조건부 검사는 늘 조용히 건너뛰었으므로 뺐다
   ok(await E(p, () => { __g.state = 'playing'; const i = __g.inv; i.medkit = 1; i.sedative = 1; __g.tryCombine('medkit', 'sedative'); __g.P.hp = 40; __g.useFirstAid(); return i.firstaid === 0 && __g.P.hp === 100; }), '조합 (CraftingSystem: 응급 처치 키트)');
   ok(await E(p, () => { __g.state = 'playing'; __g.camMode(true); const on = __g.CAM.on && __g.camera.layers.isEnabled(2); __g.P.pbat = 100; const b0 = __g.P.pbat; __g.camShoot(); const shot = __g.P.pbat <= b0 - 19.9; const ov = document.body.classList.contains('ghost-cam-active'); __g.camMode(false); return on && ov && shot && !__g.camera.layers.isEnabled(2) && __g.CAM.clues.length > 50 && __g.ghostCam.hiddenClues.length === 3; }), '심령 카메라 (GhostCameraSystem: 숨은 단서 레이어 · 플래시 촬영)');
   ok(await E(p, () => { __g.state = 'playing'; __g.setBreaker(0, true); const on = __g.BRK[0].on; __g.setBreaker(0, false); __g.schoolPower.chimeTimer = 0; return on && __g.world.props.filter(q => q.kind === 'cbreaker').length === 7 && __g.schoolPower.powerBoxes.length === 7; }), '배전반 7곳 (SchoolPowerEventSystem) · 차임벨');
@@ -159,7 +159,9 @@ async function extrasRun() {
     const l = st.find(o => o.floor === 0); __g.enterLocker(l); const closed = l.stallDoor.target === 0; __g.leaveLocker(true); const reopened = l.stallDoor.target === 1;
     return sinks.length >= 18 && fl.length > 10 && st.length === fl.length && lk.length >= 3 && closed && reopened && s0.sinkObj.uses === 3 && Math.abs(f3 - .5) > .01; }), '남/녀 화장실 (RestroomSystem 세면대 · 변기 물 내리기 · 칸막이 은신 · 잠긴 3번 칸)');
   ok(await E(p, () => { __g.state = 'playing'; __g.inv.charm = 1; __g.P.invuln = 0; __g.ghost.active = true; __g.ghost.floor = __g.P.floor; __g.ghost.x = __g.P.x + 1; __g.ghost.z = __g.P.z; const hp = __g.P.hp; __g.hit(); const r = __g.P.hp === hp && __g.inv.charm === 1; __g.ghost.active = false; return r; }), '유령 접촉은 체력과 부적을 소모하지 않음');
-  await saveReload(p, '수색 후'); ok(await E(p, () => Object.keys(__g.FL.col).length === 4 && __g.world.props.filter(q => q.kind === 'search' && q.done).length === 3 && __g.FL.ms.lab === 1), '복원: 수집품 · 뒤진 사물함 · 미니게임 보답');
+  const bf = await E(p, () => JSON.stringify([Object.keys(__g.FL.col), __g.world.props.filter(q => q.kind === 'search' && q.done).map(q => q.uid || q.x), __g.FL.ms]));
+  await saveReload(p, '수색 후'); const af = await E(p, () => JSON.stringify([Object.keys(__g.FL.col), __g.world.props.filter(q => q.kind === 'search' && q.done).map(q => q.uid || q.x), __g.FL.ms]));
+  ok(bf === af && await E(p, () => Object.keys(__g.FL.col).length === 5 && __g.FL.col.c27 === 1 && __g.world.props.filter(q => q.kind === 'search' && q.done).length === 3 && __g.FL.ms.lab === 1), '복원: 수집품 · 뒤진 사물함 · 미니게임 보답' + (bf === af ? '' : ` — 전 ${bf} / 후 ${af}`));
   ok(p.errors === 0, '콘솔 오류 없음'); await p.close();
 }
 
@@ -168,7 +170,7 @@ async function extrasRun() {
 // 모든 아이템 · 장치 · 의뢰 · 수색 · 미니게임 · 칠판 · 숨는 사물함을 '걸어갈 수 있는 자리에서 바라보고 E' 로 고를 수 있는지 확인한다.
 // 예외: 잠긴 보관함 · 금고 · 서랍 속 물건(먼저 열어야 함), 철제 덮개로만 들어가는 비밀 자료실
 async function reachAudit() {
-  console.log('\n■ 도달성 감사 (막힌 통로 · 가려진 조사 지점)');
+  sec('도달성 감사 (막힌 통로 · 가려진 조사 지점)');
   const p = await page();
   await E(p, () => { localStorage.clear(); __g.newGame(); }); await W(p, 800); await p.keyboard.press('Space'); await W(p, 600);
   // 소품 모델이 다 들어와야 묻힌 아이템 옮기기(itemUnbury)가 끝난다 — 이어하기는 기다리지 않으므로 여기서 기다린다
@@ -216,7 +218,7 @@ async function reachAudit() {
 }
 
 async function saveEdgeCases() {
-  console.log('\n■ 저장 예외: 캐릭터 유지 · 손상 세이브 백업 복구 · 테스트 세이브 분리');
+  sec('저장 예외: 캐릭터 유지 · 손상 세이브 백업 복구 · 테스트 세이브 분리');
   const p = await page();
   await E(p, () => { localStorage.clear(); localStorage.setItem('haegyo_char', 'jihun'); }); await p.reload(); await p.waitForFunction(() => window.__loadTimes, null, { timeout: 180000 }); await ready(p);
   await E(p, () => __g.newGame()); await started(p); await p.keyboard.press('Space'); await W(p, 400);
@@ -238,7 +240,7 @@ async function saveEdgeCases() {
 
 // 은폐 엔딩: 마지막 선택 C → 교장실 전화 → 거래 · 혼자 묻기
 async function coverRun() {
-  console.log('\n■ 은폐 엔딩 (마지막 선택 C → 교장실의 전화)');
+  sec('은폐 엔딩 (마지막 선택 C → 교장실의 전화)');
   for (const [k, title, fin] of [[0, '침묵의 서약', 'C'], [1, '교장실의 거래', 'C2']]) {
     const p = await page(); await ready(p);
     await E(p, () => { localStorage.removeItem('haegyo_endings'); __g.newGame(); }); await started(p); await p.keyboard.press('Space'); await W(p, 400);
@@ -262,6 +264,7 @@ await run('cover', coverRun);
 await run('extras', extrasRun);
 await run('reach', reachAudit);
 await run('save', saveEdgeCases);
+for (const S of SEC) console.log(`  ${S.f ? '✘' : '✔'} ${S.p + S.f}건 (실패 ${S.f}) — ${S.t}`);
 console.log(`\n결과: 통과 ${pass} · 실패 ${fail} · 저장/복원 ${restores}회`);
 await b.close();
 process.exit(fail ? 1 : 0);

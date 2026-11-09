@@ -230,7 +230,7 @@ function lock3D(host, N, PX) {
   const X = x => (x - 260) / 100, Y = y => (178 - y) / 100;
   // 하우징 (뒤판 + 윗덩어리 단면) · 플러그 (돌아가는 실린더) · 열쇠 구멍
   const back = new THREE.Mesh(new THREE.BoxGeometry(3.2, 2.0, .2), brassD); back.position.set(0, .7, -.45); sc.add(back);
-  const top = new THREE.Mesh(new THREE.BoxGeometry(3.0, 1.0, .22), brass); top.position.set(0, Y(70), -.26);   // 단면: 앞쪽 절반은 잘라 내 핀이 보인다 sc.add(top);
+  const top = new THREE.Mesh(new THREE.BoxGeometry(3.0, 1.0, .22), brass); top.position.set(0, Y(70), -.26); sc.add(top);   // 단면: 앞쪽 절반은 잘라 내 핀이 보인다
   const plug = new THREE.Group(); plug.position.set(0, Y(157), 0); sc.add(plug);
   const pc = new THREE.Mesh(new THREE.CylinderGeometry(.38, .38, 3.0, 40, 1, false, Math.PI / 2, Math.PI), brass); pc.material = brass.clone(); pc.material.side = THREE.DoubleSide; pc.rotation.z = Math.PI / 2; plug.add(pc);
   const kw = new THREE.Mesh(new THREE.BoxGeometry(3.02, .1, .14), dark); kw.position.set(0, -.2, -.05); plug.add(kw);
@@ -522,7 +522,7 @@ function piano({ melody, sheet, onFail }) {
     [0, 1, 3, 4, 5].forEach(i => { if (i + 1 < NOTES.length) add(new THREE.BoxGeometry(KW * .55, .035, .17), ebony, (i + .5 - (NOTES.length - 1) / 2) * KW, .8, -.03); });
     const sh = document.createElement('canvas'); sh.width = 256; sh.height = 160; const g2 = sh.getContext('2d'); g2.fillStyle = '#e8dcc0'; g2.fillRect(0, 0, 256, 160); g2.strokeStyle = '#444'; for (let l = 0; l < 2; l++) for (let k = 0; k < 5; k++) { g2.beginPath(); g2.moveTo(10, 40 + l * 60 + k * 7); g2.lineTo(246, 40 + l * 60 + k * 7); g2.stroke(); }
     g2.fillStyle = '#1a1208'; g2.font = 'bold 22px sans-serif'; g2.textAlign = 'center'; g2.fillText((sheet || '악보 없음 …').replace(/<[^>]+>/g, '').slice(0, 30), 128, 26); const st = new THREE.CanvasTexture(sh); st.colorSpace = THREE.SRGBColorSpace;
-    const stand = add(new THREE.PlaneGeometry(.42, .26), new THREE.MeshBasicMaterial({ map: st, color: 0xb8ac90, toneMapped: false }), 0, 1.02, -.12);   // 조명에 하얗게 날아가 악보 글씨가 안 보이던 문제 → 조명 영향 없는 재질 stand.rotation.x = -.25;
+    const stand = add(new THREE.PlaneGeometry(.42, .26), new THREE.MeshBasicMaterial({ map: st, color: 0xb8ac90, toneMapped: false }), 0, 1.02, -.12); stand.rotation.x = -.25;   // 조명에 하얗게 날아가 악보 글씨가 안 보이던 문제 → 조명 영향 없는 재질
     add(new THREE.CylinderGeometry(.02, .02, .14, 12), new THREE.MeshStandardMaterial({ color: 0xf0e8d0 }), -.55, 1.16, -.06); const flame = add(new THREE.SphereGeometry(.012, 8, 6), new THREE.MeshBasicMaterial({ color: 0xffc060 }), -.55, 1.25, -.06);
     const down = new Array(NOTES.length).fill(0), rc = new THREE.Raycaster(), mv = new THREE.Vector2();
     r.domElement.addEventListener('mousedown', e => { const b = r.domElement.getBoundingClientRect(); mv.set((e.clientX - b.left) / b.width * 2 - 1, -((e.clientY - b.top) / b.height) * 2 + 1); rc.setFromCamera(mv, cam); const h = rc.intersectObjects(keysM)[0]; if (h) press(h.object.userData.i); });

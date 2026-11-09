@@ -207,4 +207,50 @@ export const MAT = {
   streak: () => shared('m_streak', () => decal(rainStreak())),
   grime: () => shared('m_grime', () => decal(baseGrime())),
   wear: (lanes, front) => { const L = lanes.map(q => q.map(v => +v.toFixed(3))), F = front.map(v => +v.toFixed(3)); return shared('m_wear' + JSON.stringify([L, F]), () => decal(decoWear(L, F))); },
+  // 소품 라운드 2
+  extTag: () => shared('m_extTag', () => new THREE.MeshStandardMaterial({ map: extTag(), roughness: .6, side: THREE.DoubleSide })),
+  exitPicto: () => shared('m_exitPicto', () => { const t = exitPicto(); return new THREE.MeshStandardMaterial({ map: t, roughness: .4, emissive: 0x9affb0, emissiveIntensity: .25, emissiveMap: t, polygonOffset: true, polygonOffsetFactor: -2 }); }),   // 축광: 어둠 속에서 은은히 빛난다
+  deskCal: () => shared('m_deskCal', () => new THREE.MeshStandardMaterial({ map: deskCal(), roughness: .7, side: THREE.DoubleSide })),
+  notice08: () => shared('m_notice08', () => new THREE.MeshStandardMaterial({ map: noticeBoard08(), roughness: .85, transparent: true, alphaTest: .05, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 })),
 };
+
+// ── 소품 라운드 2: 소화기 점검표 · 축광 피난구 유도표지 · 탁상달력 · 복도 게시판 게시물 (2008년 10월) ──
+// 소화기 목에 거는 노란 점검표 (2008.03 점검)
+export const extTag = () => cv(128, 192, (g, w, h) => {
+  g.fillStyle = '#f2d23a'; g.fillRect(0, 0, w, h); g.fillStyle = '#fff'; g.beginPath(); g.arc(w / 2, 14, 7, 0, 7); g.fill();
+  g.fillStyle = '#b01818'; g.fillRect(0, 26, w, 30); g.fillStyle = '#fff'; g.font = 'bold 22px sans-serif'; g.textAlign = 'center'; g.fillText('점 검 표', w / 2, 49);
+  g.fillStyle = '#1a1a1a'; g.font = 'bold 26px sans-serif'; g.fillText('2008.03', w / 2, 92); g.font = 'bold 20px sans-serif'; g.fillText('점검', w / 2, 116);
+  g.font = '15px sans-serif'; g.fillText('압력 : 정상', w / 2, 144); g.fillText('소방안전관리자', w / 2, 168); g.strokeStyle = '#1a1a1a'; g.strokeRect(3, 3, w - 6, h - 6);
+});
+// 벽부착 축광 피난구 유도표지 (KS 피난구 표지: 녹색 바탕 · 흰 달리는 사람 · 문 + '비상구')
+export const exitPicto = () => cv(512, 192, (g, w, h) => {
+  g.fillStyle = '#0f8a3e'; g.fillRect(0, 0, w, h); g.strokeStyle = '#e8fff0'; g.lineWidth = 4; g.strokeRect(6, 6, w - 12, h - 12);
+  const W = '#f4fff4'; g.fillStyle = W; g.fillRect(28, 26, 92, 140); g.fillStyle = '#0f8a3e'; g.fillRect(40, 38, 68, 128);   // 문틀
+  g.fillStyle = W; g.beginPath(); g.arc(178, 52, 15, 0, 7); g.fill(); g.strokeStyle = W; g.lineCap = 'round'; g.lineJoin = 'round'; g.lineWidth = 17;
+  g.beginPath(); g.moveTo(170, 74); g.lineTo(150, 116); g.lineTo(172, 132); g.lineTo(162, 166); g.moveTo(150, 116); g.lineTo(122, 140); g.moveTo(166, 82); g.lineTo(136, 92); g.lineTo(122, 78); g.moveTo(168, 80); g.lineTo(196, 102); g.lineTo(214, 92); g.stroke();
+  // 피난구 표지는 화살표 없이 (방향 표지는 통로유도표지가 맡는다)
+  g.font = 'bold 64px sans-serif'; g.textBaseline = 'middle'; g.textAlign = 'center'; g.fillText('비상구', 370, 86); g.font = 'bold 24px sans-serif'; g.fillText('EXIT', 370, 144);
+});
+// 탁상달력 2008년 10월 (1일 = 수요일 · 3일 개천절 빨간 날 · 9일 한글날은 이때 평일)
+export const deskCal = () => cv(256, 208, (g, w, h) => {
+  g.fillStyle = '#fbfaf4'; g.fillRect(0, 0, w, h); g.fillStyle = '#2a4a8a'; g.fillRect(0, 0, w, 40); g.fillStyle = '#fff'; g.font = 'bold 26px sans-serif'; g.textAlign = 'center'; g.fillText('2008. 10', w / 2, 29);
+  const d = ['일', '월', '화', '수', '목', '금', '토'], cw = w / 7; g.font = 'bold 15px sans-serif'; d.forEach((t, i) => { g.fillStyle = i === 0 ? '#c01818' : i === 6 ? '#2050b0' : '#333'; g.fillText(t, cw * i + cw / 2, 60); });
+  g.font = '17px sans-serif'; for (let n = 1; n <= 31; n++) { const p = n + 2, c = p % 7, r = p / 7 | 0; g.fillStyle = c === 0 || n === 3 ? '#c01818' : c === 6 ? '#2050b0' : '#222'; g.fillText(String(n), cw * c + cw / 2, 86 + r * 25); }
+  g.strokeStyle = '#c01818'; g.lineWidth = 2; g.beginPath(); g.arc(cw * 5 + cw / 2, 86 + 2 * 25 - 6, 13, 0, 7); g.stroke();   // 17(금) 동그라미: 학예제 끝
+});
+// 복도 게시판 게시물 한 장 (투명 바탕): 가정통신문 · 방과후학교 안내 · 학교폭력 예방 포스터 — 상표 · 실존 기관 로고 없음
+export const noticeBoard08 = () => { const t = cv(1024, 384, (g, w, h) => { g.clearRect(0, 0, w, h);
+  const paper = (x, y, pw, ph, rot, bg, title, tc, lines, fs = 18) => { g.save(); g.translate(x + pw / 2, y + ph / 2); g.rotate(rot); g.translate(-pw / 2, -ph / 2);
+    g.fillStyle = 'rgba(0,0,0,.25)'; g.fillRect(4, 5, pw, ph); g.fillStyle = bg; g.fillRect(0, 0, pw, ph); g.fillStyle = tc; g.font = 'bold 26px sans-serif'; g.textAlign = 'center'; g.fillText(title, pw / 2, 38);
+    g.textAlign = 'left'; g.fillStyle = '#222'; g.font = `${fs}px sans-serif`; lines.forEach((t, i) => g.fillText(t, 16, 74 + i * (fs + 8)));
+    [[10, 10], [pw - 10, 10]].forEach(([a, b]) => { g.fillStyle = '#1a6ad0'; g.beginPath(); g.arc(a, b, 6, 0, 7); g.fill(); }); g.restore(); };
+  paper(20, 20, 300, 340, -.012, '#f6f1dc', '가 정 통 신 문', '#1a1a1a', ['제2008-91호', '2학기 중간고사 결과 및', '학부모 상담주간 안내', '', '· 상담: 10.20(월) ~ 10.24(금)', '· 장소: 각 학년 교무실', '· 회신서는 담임께 제출', '', '         서문고등학교장'], 17);
+  paper(350, 30, 300, 330, .015, '#eaf3ff', '방과후학교 안내', '#1a4a9a', ['2008학년도 2학기', '', '· 수능 대비 언어 · 수리 · 외국어', '· 논술 특강 (3학년)', '· 컴퓨터 자격증 (1 · 2학년)', '· 매주 월 ~ 목 16:30 ~ 18:10', '· 수강료: 강좌별 안내문 참조', '', '— 방과후학교 담당 —'], 17);
+  g.save(); g.translate(680, 24); g.rotate(-.008); g.fillStyle = 'rgba(0,0,0,.25)'; g.fillRect(4, 5, 320, 340); g.fillStyle = '#fff6e8'; g.fillRect(0, 0, 320, 340);
+  g.fillStyle = '#d02a2a'; g.fillRect(0, 0, 320, 70); g.fillStyle = '#fff'; g.font = 'bold 30px sans-serif'; g.textAlign = 'center'; g.fillText('학교폭력 STOP!', 160, 46);
+  g.fillStyle = '#ffcf3a'; g.beginPath(); g.arc(100, 150, 44, 0, 7); g.fill(); g.beginPath(); g.arc(220, 150, 44, 0, 7); g.fill();   // 손잡은 두 친구 (단순 얼굴)
+  g.fillStyle = '#333'; [[86, 140], [114, 140], [206, 140], [234, 140]].forEach(([a, b]) => { g.beginPath(); g.arc(a, b, 5, 0, 7); g.fill(); });
+  g.strokeStyle = '#333'; g.lineWidth = 4; [100, 220].forEach(cx => { g.beginPath(); g.arc(cx, 158, 18, .2, Math.PI - .2); g.stroke(); });
+  g.strokeStyle = '#e08a2a'; g.lineWidth = 10; g.beginPath(); g.moveTo(140, 190); g.quadraticCurveTo(160, 210, 180, 190); g.stroke();
+  g.fillStyle = '#222'; g.font = 'bold 22px sans-serif'; g.fillText('친구는 지켜 주는 것', 160, 248); g.font = '17px sans-serif'; g.fillText('보고도 모른 척하면 방관자입니다', 160, 278);
+  g.fillStyle = '#d02a2a'; g.font = 'bold 19px sans-serif'; g.fillText('신고 · 상담 : 학생부 · 상담실', 160, 314); g.restore(); }); t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping; return t; };

@@ -543,7 +543,7 @@ export function buildMainBuilding(opt = {}) {
   const yr = yf(S.floors), eSt = opt.roofStair ? LY.rooms.filter(r => r.kind === 'stair').pop() : null, zA_ = zN + 2.8, zL_ = eSt ? SG(eSt).zL : zS;
   const ups = opt.roofStair ? LY.rooms.filter(r => isSt(r) && r.x1 > 0).sort((a, b) => a.x1 - b.x1) : [];   // 옥상까지 오르는 계단(동쪽 끝 · 중앙 계단): 그 위 슬래브를 뚫는다 — 중앙 계단은 판에 막혀 머리가 뚫고 나가던 것
   if (ups.length) { let cx = -LY.L / 2 - T;
-    for (const u of ups) { const g = SG(u); box('conc', cx, u.x1, yr - S.slab, yr, zN - T, zS + T); box('conc', u.x1, u.x2, yr - S.slab, yr, zN - T, g.zA); box('conc', u.x1, u.x2, yr - S.slab, yr, g.zL, zS + T); cx = u.x2; }
+    for (const u of ups) { const g = SG(u); box('conc', cx, u.x1, yr - S.slab, yr, zN - T, zS + T); box('conc', u.x1, u.x2, yr - S.slab, yr, zN - T, zN);   /* 옥탑 층 참(인조석 판, zN ~ zA)이 이 자리를 덮는다 — 옥상 슬래브와 같은 높이로 겹쳐 깜빡이던 것 */ box('conc', u.x1, u.x2, yr - S.slab, yr, g.zL, zS + T); cx = u.x2; }
     box('conc', cx, LY.L / 2 + T, yr - S.slab, yr, zN - T, zS + T);
   } else box('conc', -LY.L / 2 - T, LY.L / 2 + T, yr - S.slab, yr, zN - T, zS + T);
   box('brick', -LY.L / 2 - T, LY.L / 2 + T, yr, yr + 1.1, zS, zS + T, { solid: true }); box('brick', -LY.L / 2 - T, LY.L / 2 + T, yr, yr + 1.1, zN - T, zN, { solid: true });
@@ -624,13 +624,14 @@ export function buildMainBuilding(opt = {}) {
   function classroom(r, f, y0, type = 'class', name = '') {
     const x1 = r.x1 + S.wall / 2, x2 = r.x2 - S.wall / 2, z1 = S.wall / 2, z2 = zS;
     if (!type.startsWith('toilet')) box('wood', x1, x2, y0, y0 + .02, z1, z2);   // 화장실 칸은 타일 바닥을 따로 깐다
-    finishX(x1, x2, z2 - .001, -1, y0, [{ a: x1 + .4, b: x2 - .4, y1: .9, y2: 2.4 }]);
+    const wetRoom = type.startsWith('toilet');   // 화장실 칸은 타일 벽이 마감을 대신한다 (페인트 · 징두리 마감과 같은 면에 겹쳐 깜박이던 것)
+    if (!wetRoom) finishX(x1, x2, z2 - .001, -1, y0, [{ a: x1 + .4, b: x2 - .4, y1: .9, y2: 2.4 }]);
     for (let k = 0; k < 4; k++) radiator(x1 + 1 + k * 2, x1 + 2.2 + k * 2, y0 + .15, z2 - .2, z2 - .08);   // 창 아래 주물 라디에이터
     for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) fluor(x1 + 1.6 + i * 2.9, y0 + S.CEIL - .05, z1 + 1.3 + j * 2.4, false);
     detector((x1 + x2) / 2, y0 + S.CEIL, (z1 + z2) / 2);
     if (type.includes('+')) {   // 한 칸을 칸막이로 나눈 두 방 (앞문 → 서쪽 방, 뒷문 → 동쪽 방)
       const [ta, tb] = type.split('+'), xm = (x1 + x2) / 2, [na, nb] = name.split(' · ');
-      wallZ('wall', xm - S.wall / 2, xm + S.wall / 2, S.wall / 2, zS, y0); finishZ(xm - S.wall / 2, -1, S.wall / 2, zS, y0); finishZ(xm + S.wall / 2, 1, S.wall / 2, zS, y0);
+      wallZ('wall', xm - S.wall / 2, xm + S.wall / 2, S.wall / 2, zS, y0); if (!wetRoom) { finishZ(xm - S.wall / 2, -1, S.wall / 2, zS, y0); finishZ(xm + S.wall / 2, 1, S.wall / 2, zS, y0); }
       props.push({ kind: 'room', type: ta, label: na, x: (x1 + xm) / 2, y: y0, z: (z1 + z2) / 2, floor: f, x1, x2: xm - S.wall / 2, z1, z2 });
       props.push({ kind: 'room', type: tb, label: nb, x: (xm + x2) / 2, y: y0, z: (z1 + z2) / 2, floor: f, x1: xm + S.wall / 2, x2, z1, z2 });
       if (ta === 'toiletM') { props.pop(); props.pop(); toiletRoom(x1 - .1, xm - S.wall / 2 + .1, '남', f, y0); toiletRoom(xm + S.wall / 2 - .1, x2 + .1, '여', f, y0); return; }   // 1층 화장실 2개 (남 · 여)
@@ -1366,7 +1367,7 @@ export function buildMainBuilding(opt = {}) {
     if (roofUp) {   // 옥탑: 옥상 높이 층 참 + 벽 + 지붕 (옥상 출입문은 북쪽 벽)
       const yr = y0 + H, ph = 2.8;
       box('terr', r.x1, r.x2, yr - .25, yr, zN, zA); walk.push({ x1: r.x1, x2: r.x2, z1: zN, z2: zA, h: () => yr, f: f + 1 });
-      box('conc', r.x1 - .2, r.x2 + .2, yr, yr + ph, zN - .2, zN, { solid: true }); box('conc', r.x1 - .2, r.x2 + .2, yr, yr + ph, zL, zL + .2, { solid: true });
+      box('conc', r.x1 - .2, r.x2 + .2, yr, yr + ph, zN - .2, zN + .01, { solid: true });   /* 안쪽 면을 1cm 들여 옥상 파라펫 안쪽 면과 겹쳐 깜빡이지 않게 */ box('conc', r.x1 - .2, r.x2 + .2, yr, yr + ph, zL, zL + .2, { solid: true });
       box('conc', r.x1 - .2, r.x1, yr, yr + ph, zN + 1.55, zL, { solid: true }); box('conc', r.x1 - .2, r.x1, yr, yr + .02, zN, zN + .2, { solid: true }); box('conc', r.x1 - .2, r.x1, yr, yr + ph, zN, zN + .2, { solid: true }); box('conc', r.x1 - .2, r.x1, yr + 2.1, yr + ph, zN + .2, zN + 1.55);   // 서벽: 옥상 쪽 출입구 (z zN+.2 ~ zN+1.55)
       box('steelG', r.x1 - .2, r.x1 - .15, yr + 2.05, yr + 2.12, zN + .15, zN + 1.6); box('steelG', r.x1 - .22, r.x1 + .02, yr, yr + 2.1, zN + .15, zN + .2); box('steelG', r.x1 - .22, r.x1 + .02, yr, yr + 2.1, zN + 1.55, zN + 1.6);   // 문틀
       box('steelG', r.x1 - 1.3, r.x1 - .2, yr, yr + 2.05, zN + 1.55, zN + 1.6);   // 바깥으로 열어 둔 철문 짝

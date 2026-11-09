@@ -2552,7 +2552,7 @@ let readingSave = false;
 const fmtAgo = t => { if (!t) return ''; const m = Math.round((Date.now() - t) / 60000); return m < 1 ? '방금 전' : m < 60 ? `${m}분 전` : m < 1440 ? `${Math.round(m / 60)}시간 전` : new Date(t).toLocaleDateString('ko-KR'); };
 const tipsDone = new Set();
 const MENUS = ['title', 'charsel', 'newConfirm', 'settings', 'gallery', 'credits'];
-function closeMenus() { MENUS.forEach(k => $(k).classList.remove('show')); }
+function closeMenus() { MENUS.forEach(k => $(k).classList.remove('show')); stopCharsel3D(true); }
 function applyChar() {
   const c = CH();
   document.documentElement.style.setProperty('--acc', c.color);
@@ -2595,94 +2595,155 @@ function openCharsel(mode) {
   $('csOk').textContent = mode === 'new' ? '결정 · 시작' : '결정'; renderCharsel(); sfx.ui && sfx.ui();
 }
 let csShowSheet = false, cs3dState = null;
+// 캐릭터 선택 3D 미리보기 — 화면이 열려 있을 때만 돈다: 나가면 rAF 를 끊고 렌더러(GL 컨텍스트)를 버린다. 모델은 다시 열 때를 위해 CPU 쪽만 남긴다.
+//   렌더러 하나를 카드마다 돌려 쓰고 2D 캔버스로 옮긴다(WebGL 컨텍스트를 카드 수만큼 만들지 않음). 해상도는 카드 실제 크기 × devicePixelRatio.
+function csShadowTex() {
+  const c = document.createElement('canvas'); c.width = c.height = 128; const g = c.getContext('2d');
+  const gr = g.createRadialGradient(64, 64, 0, 64, 64, 64); gr.addColorStop(0, 'rgba(0,0,0,.78)'); gr.addColorStop(.45, 'rgba(0,0,0,.42)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
+  g.fillStyle = gr; g.fillRect(0, 0, 128, 128); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+}
 function ensureCharsel3D() {
-  if (cs3dState) return cs3dState;
-  const st = { scenes: {}, mixers: {}, models: {}, yaw: { jihun: 0.25, seoyeon: -0.25 }, drag: null, renderer: null, cam: null, raf: 0, last: performance.now() };
-  const loader = new GLTFLoader();
-  ['jihun', 'seoyeon'].forEach(k => {
-    const sc = new THREE.Scene();
-    const hemi = new THREE.HemisphereLight(0xf6f2ec, 0x3a4052, 1.4);
-    const key = new THREE.DirectionalLight(0xfff4e8, 1.9); key.position.set(1.8, 2.6, 2.8);
-    const fill = new THREE.DirectionalLight(0xc8daf8, 0.95); fill.position.set(-2.0, 1.8, 1.6);
-    const rim = new THREE.DirectionalLight(0xffd6e0, 0.85); rim.position.set(0, 2.4, -2.5);
-    sc.add(hemi, key, fill, rim);
-    st.scenes[k] = sc;
-    loader.load(`assets/characters/${k}.glb?v=416`, gltf => {
-      const m = gltf.scene;
-      npcVisuals.enhanceCharacterMaterials?.(m, k);
-      m.traverse(o => { if (o.isMesh || o.isSkinnedMesh) o.frustumCulled = false; });
-      const b = new THREE.Box3().setFromObject(m);
-      m.position.set(-(b.min.x + b.max.x) / 2, -b.min.y, -(b.min.z + b.max.z) / 2);
-      const piv = new THREE.Group(); piv.add(m); sc.add(piv);
-      st.models[k] = { piv, h: b.max.y - b.min.y, compiled: false };
-      const clip = (gltf.animations || []).find(c => c.name.toLowerCase() === 'idle') || gltf.animations?.[0];
-      if (clip) { const mx = new THREE.AnimationMixer(m); mx.clipAction(clip).play(); st.mixers[k] = mx; }
+  if (NORENDER) return null;   // 자동 점검: GL 없이 진행만 본다
+  let st = cs3dState;
+  if (!st) {
+    st = cs3dState = { scenes: {}, mixers: {}, models: {}, rims: {}, yaw: { jihun: 0.25, seoyeon: -0.25 }, focus: {}, drag: null, renderer: null, cam: null, raf: 0, last: 0, t: 0, canvases: [], shadowTex: csShadowTex() };
+    const loader = new GLTFLoader();
+    ['jihun', 'seoyeon'].forEach(k => {
+      const sc = new THREE.Scene();
+      // 3점 조명: 따뜻한 키(교실 형광등 아래 느낌) · 차가운 필 · 캐릭터 색 림 + 약한 반구광
+      sc.add(new THREE.HemisphereLight(0xe8e6f0, 0x1a1c24, 0.75));
+      const key = new THREE.DirectionalLight(0xfff0dc, 2.3); key.position.set(1.6, 2.8, 2.4);
+      const fill = new THREE.DirectionalLight(0x9fb8e8, 0.7); fill.position.set(-2.2, 1.4, 1.8);
+      const rim = new THREE.DirectionalLight(new THREE.Color(CHARACTERS[k]?.color || '#ffd6e0'), 2.0); rim.position.set(-0.6, 2.2, -2.6);
+      sc.add(key, fill, rim); st.rims[k] = rim;
+      // 접지 그림자(블롭) — 실시간 그림자맵 없이 발을 바닥에 붙인다
+      const sh = new THREE.Mesh(new THREE.PlaneGeometry(1.15, 1.15), new THREE.MeshBasicMaterial({ map: st.shadowTex, transparent: true, depthWrite: false }));
+      sh.rotation.x = -Math.PI / 2; sh.position.y = 0.002; sh.renderOrder = -1; sc.add(sh);
+      st.scenes[k] = sc; st.focus[k] = k === csPick ? 1 : 0;
+      loader.load(`assets/characters/${k}.glb?v=416`, gltf => {
+        if (cs3dState !== st) return;   // 받는 사이에 화면을 떠났다
+        const m = gltf.scene;
+        npcVisuals.enhanceCharacterMaterials?.(m, k);
+        m.traverse(o => { if (o.isMesh || o.isSkinnedMesh) o.frustumCulled = false; });
+        const b = new THREE.Box3().setFromObject(m);
+        m.position.set(-(b.min.x + b.max.x) / 2, -b.min.y, -(b.min.z + b.max.z) / 2);
+        const piv = new THREE.Group(); piv.add(m); sc.add(piv);
+        st.models[k] = { piv, h: b.max.y - b.min.y, compiled: false, fade: 0 };
+        const clip = (gltf.animations || []).find(c => c.name.toLowerCase() === 'idle') || gltf.animations?.[0];
+        if (clip) { const mx = new THREE.AnimationMixer(m); mx.clipAction(clip).play(); st.mixers[k] = mx; }
+      }, undefined, () => {});
     });
+    st.cam = new THREE.PerspectiveCamera(34, 240 / 380, 0.05, 15);
+  }
+  if (!st.raf) { st.last = performance.now(); st.raf = requestAnimationFrame(csTick); }
+  return st;
+}
+function csTick(now) {
+  const st = cs3dState; if (!st) return;
+  if (!$('charsel')?.classList.contains('show')) { stopCharsel3D(); return; }
+  st.raf = requestAnimationFrame(csTick);
+  const dt = Math.min(0.05, (now - st.last) / 1000); st.last = now; st.t += dt;
+  if (csShowSheet || document.hidden) return;
+  const W = st.cw | 0, H = st.ch | 0; if (!W || !H || !st.canvases.length) return;   // 크기는 카드를 그릴 때 한 번만 잰다(매 프레임 레이아웃 읽기 없음)
+  if (!st.renderer) {
+    try {
+      st.renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: 'low-power' });
+      st.renderer.setPixelRatio(1);
+      st.renderer.outputColorSpace = THREE.SRGBColorSpace;
+      st.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      st.renderer.toneMappingExposure = 1.05;
+      st.size = '';
+    } catch (e) { stopCharsel3D(); return; }
+  }
+  const sz = W + 'x' + H; if (st.size !== sz) { st.renderer.setSize(W, H, false); st.cam.aspect = W / H; st.cam.updateProjectionMatrix(); st.size = sz; }
+  for (const cv of st.canvases) {
+    const k = cv.dataset.char, md = st.models[k], sc = st.scenes[k];
+    if (!md || !sc) continue;
+    if (!md.compiled) { md.compiled = true; try { st.renderer.compile(sc, st.cam); } catch (e) {} continue; }   // 첫 프레임 셰이더 컴파일 끊김 방지 — 컴파일한 프레임은 그리지 않는다
+    const sel = k === csPick, f = st.focus[k] = THREE.MathUtils.damp(st.focus[k] ?? 0, sel ? 1 : 0, 5, dt);
+    md.fade = Math.min(1, md.fade + dt * 2.2);
+    if (st.drag?.k !== k) st.yaw[k] += dt * (sel ? 0.32 : 0.12);
+    md.piv.rotation.y = st.yaw[k];
+    md.piv.position.y = Math.sin(st.t * 1.6 + (k === 'jihun' ? 0 : 1.3)) * 0.004;   // 숨쉬기
+    st.mixers[k]?.update(dt * (0.6 + 0.4 * f));
+    st.rims[k].intensity = 1.0 + 1.6 * f;
+    // 카메라 돌리: 선택되면 상반신 쪽으로 다가간다
+    const h = md.h || 1.7, lookY = THREE.MathUtils.lerp(h * 0.5, h * 0.55, f), dist = THREE.MathUtils.lerp(h * 1.78, h * 1.56, f);
+    st.cam.position.set(Math.sin(st.t * 0.35) * 0.04, lookY + 0.05, dist); st.cam.lookAt(0, lookY, 0);
+    st.renderer.toneMappingExposure = 0.72 + 0.36 * f;
+    st.renderer.render(sc, st.cam);
+    const ctx = cv.__ctx || (cv.__ctx = cv.getContext('2d'));
+    ctx.globalAlpha = 1; ctx.clearRect(0, 0, cv.width, cv.height);
+    ctx.globalAlpha = md.fade; ctx.drawImage(st.renderer.domElement, 0, 0, cv.width, cv.height);
+  }
+}
+function stopCharsel3D(full) {
+  const st = cs3dState; if (!st) return;
+  if (st.raf) cancelAnimationFrame(st.raf); st.raf = 0; st.drag = null;
+  if (st.renderer) { try { st.renderer.dispose(); st.renderer.forceContextLoss(); } catch (e) { /* ignore */ } st.renderer = null; }
+  Object.values(st.models).forEach(md => { md.compiled = false; md.fade = 0; });
+  if (full) {   // 게임으로 들어갈 때: 미리보기 모델은 더 쓸 일이 없다
+    Object.values(st.mixers).forEach(mx => mx.stopAllAction());
+    Object.values(st.scenes).forEach(sc => sc.traverse(o => { o.geometry?.dispose(); [].concat(o.material || []).forEach(m => { for (const v of Object.values(m)) if (v?.isTexture) v.dispose(); m.dispose(); }); }));
+    st.shadowTex.dispose(); cs3dState = null;
+  }
+}
+function csSelect(k, sound = true) {
+  if (!CHARACTERS[k] || k === csPick) return;
+  csPick = k;
+  $('csCards').querySelectorAll('.cs').forEach(el => { const on = el.dataset.k === k; el.classList.toggle('on', on); el.setAttribute('aria-selected', on); if (on && document.activeElement?.closest?.('#charsel')) el.focus({ preventScroll: true }); });
+  if (sound) sfx.ui && sfx.ui();
+}
+function csApplyView() {
+  const sheet = csShowSheet || NORENDER;
+  $('csCards').querySelectorAll('.cs').forEach(el => {
+    const cv = el.querySelector('canvas.cs3d'), im = el.querySelector('img.csSheet'), bt = el.querySelector('.csViewToggle');
+    if (cv) cv.style.display = sheet ? 'none' : 'block'; if (im) im.style.display = sheet ? 'block' : 'none';
+    if (bt) { bt.textContent = csShowSheet ? '3D 렌더링 보기' : '2D 시트지 보기'; bt.style.display = NORENDER ? 'none' : ''; }
   });
-  st.cam = new THREE.PerspectiveCamera(36, 240 / 380, 0.05, 15);
-  const tick = now => {
-    st.raf = requestAnimationFrame(tick);
-    if (!$('charsel')?.classList.contains('show') || csShowSheet) return;
-    const dt = Math.min(0.05, (now - st.last) / 1000); st.last = now;
-    if (!st.renderer) {
-      try {
-        st.renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-        st.renderer.setSize(240, 380);
-        st.renderer.outputColorSpace = THREE.SRGBColorSpace;
-        st.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        st.renderer.toneMappingExposure = 1.08;
-      } catch (e) { return; }
-    }
-    document.querySelectorAll('canvas.cs3d').forEach(cv => {
-      const k = cv.dataset.char, md = st.models[k], sc = st.scenes[k];
-      if (!md || !sc) return;
-      if (!md.compiled) { md.compiled = true; try { st.renderer.compile(sc, st.cam); } catch (e) {} }   // 첫 프레임 셰이더 컴파일 끊김 방지
-      if (st.drag?.k !== k) st.yaw[k] += dt * 0.45;
-      md.piv.rotation.y = st.yaw[k];
-      st.mixers[k]?.update(dt);
-      const topY = k === 'jihun' ? 0.90 : 0.84, dist = k === 'jihun' ? 2.68 : 2.48;
-      st.cam.position.set(0, topY, dist); st.cam.lookAt(0, topY - 0.03, 0);
-      st.renderer.render(sc, st.cam);
-      const ctx = cv.getContext('2d');
-      ctx.clearRect(0, 0, cv.width, cv.height);
-      ctx.drawImage(st.renderer.domElement, 0, 0, cv.width, cv.height);
-    });
-  };
-  st.raf = requestAnimationFrame(tick);
-  return (cs3dState = st);
+  if (cs3dState) cs3dState.canvases = sheet ? [] : [...document.querySelectorAll('#csCards canvas.cs3d')];
 }
 function renderCharsel() {
-  ensureCharsel3D();
+  const st = ensureCharsel3D();
   $('csCards').innerHTML = Object.entries(CHARACTERS).map(([k, c]) => `
-    <div class="cs${k === csPick ? ' on' : ''}" data-k="${k}" style="--c:${c.color}">
-      <img class="pt" src="assets/ui/${c.portrait}.webp" alt="">
+    <div class="cs${k === csPick ? ' on' : ''}" data-k="${k}" style="--c:${c.color}" tabindex="0" role="option" aria-selected="${k === csPick}">
+      <img class="pt" src="assets/ui/${c.portrait}.webp" alt="" decoding="async">
       <div><h3>${c.name}<small>${c.age} · ${c.sex}</small></h3>
         <table><tr><td>학교</td><td>${c.school}</td></tr><tr><td>성격</td><td>${c.pers}</td></tr><tr><td>특징</td><td>${c.trait}</td></tr><tr><td>소개</td><td>${c.intro}</td></tr></table>
         <div class="q">“${c.quote}”</div></div>
-      <div class="bd" style="position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden">
-        <canvas class="cs3d" data-char="${k}" width="240" height="380" style="width:100%;height:100%;object-fit:contain;cursor:grab;${csShowSheet ? 'display:none' : 'display:block'}" title="드래그하여 360° 회전"></canvas>
-        <img src="assets/ui/${c.body}.webp" alt="" style="width:100%;height:100%;object-fit:contain;${csShowSheet ? 'display:block' : 'display:none'}">
-        <button type="button" class="csViewToggle" style="position:absolute;bottom:6px;right:6px;z-index:3;font-size:11px;padding:3px 7px;background:rgba(12,15,22,.82);color:#e8e4dc;border:1px solid rgba(255,255,255,.22);border-radius:4px;cursor:pointer">${csShowSheet ? '3D 렌더링 보기' : '2D 시트지 보기'}</button>
+      <div class="bd">
+        <canvas class="cs3d" data-char="${k}" width="240" height="380" title="드래그하여 360° 회전"></canvas>
+        <img class="csSheet" src="assets/ui/${c.body}.webp" alt="" decoding="async" loading="lazy">
+        <button type="button" class="csViewToggle" tabindex="-1"></button>
       </div>
-      <div class="faces">${c.faces.map((f, i) => `<figure><img src="assets/ui/${f}.webp" alt="">${c.faceNames[i]}</figure>`).join('')}</div>
+      <div class="faces">${c.faces.map((f, i) => `<figure><img src="assets/ui/${f}.webp" alt="" decoding="async">${c.faceNames[i]}</figure>`).join('')}</div>
       <div class="perk">${c.perk.map(p => `<span>★ ${p}</span>`).join('')}</div>
       <div class="kit"><b>시작 아이템</b><div class="its">${c.items.map(id => `<div class="it">${iconHTML(ITEMS[id].icon)}<span>${ITEMS[id].name.replace(/ \(.*\)/, '')}</span></div>`).join('')}</div></div>
     </div>`).join('');
-  $('csCards').querySelectorAll('.cs').forEach(el => { el.onclick = () => { csPick = el.dataset.k; renderCharsel(); sfx.ui && sfx.ui(); }; el.ondblclick = () => $('csOk').click(); });
-  $('csCards').querySelectorAll('.csViewToggle').forEach(btn => { btn.onclick = e => { e.stopPropagation(); csShowSheet = !csShowSheet; renderCharsel(); }; });
+  $('csCards').querySelectorAll('.cs').forEach(el => { el.onclick = () => csSelect(el.dataset.k); el.ondblclick = () => $('csOk').click(); el.onfocus = () => csSelect(el.dataset.k); });
+  $('csCards').querySelectorAll('.csViewToggle').forEach(btn => { btn.onclick = e => { e.stopPropagation(); csShowSheet = !csShowSheet; csApplyView(); }; });
   $('csCards').querySelectorAll('canvas.cs3d').forEach(cv => {
-    cv.onpointerdown = e => { e.stopPropagation(); const k = cv.dataset.char; cs3dState.drag = { k, x: e.clientX, y0: cs3dState.yaw[k] }; cv.setPointerCapture(e.pointerId); };
+    cv.onpointerdown = e => { if (!cs3dState) return; e.stopPropagation(); const k = cv.dataset.char; csSelect(k); cs3dState.drag = { k, x: e.clientX, y0: cs3dState.yaw[k] }; cv.setPointerCapture(e.pointerId); };
     cv.onpointermove = e => { if (cs3dState?.drag?.k === cv.dataset.char) cs3dState.yaw[cv.dataset.char] = cs3dState.drag.y0 + (e.clientX - cs3dState.drag.x) * 0.015; };
     cv.onpointerup = cv.onpointercancel = () => { if (cs3dState) cs3dState.drag = null; };
   });
+  csApplyView();
+  // 카드 크기는 여기서 한 번만 잰다: 캔버스 버퍼 = 표시 크기 × DPR (최대 2배)
+  if (st) requestAnimationFrame(() => {
+    const cv = document.querySelector('#csCards canvas.cs3d'); if (!cv || !cs3dState) return;
+    const r = cv.getBoundingClientRect(), dpr = Math.min(2, devicePixelRatio || 1);
+    const w = Math.max(120, Math.round(r.width * dpr)), h = Math.max(190, Math.round(r.height * dpr));
+    cs3dState.cw = w; cs3dState.ch = h; document.querySelectorAll('#csCards canvas.cs3d').forEach(c => { c.width = w; c.height = h; c.__ctx = null; });
+  });
 }
+function leaveCharsel(toGame) { $('charsel').classList.remove('show'); stopCharsel3D(toGame); }
 $('csOk').onclick = () => {
   CHAR = csPick; try { localStorage.setItem(CHAR_KEY, CHAR); } catch (e) { /* ignore */ }
   applyChar();
-  if (csMode === 'new') { $('charsel').classList.remove('show'); newGame(); }
-  else { $('charsel').classList.remove('show'); $('title').classList.add('show'); refreshTitle(); toast('주인공 선택', `${CH().name}(으)로 플레이합니다`, 'info'); }
+  if (csMode === 'new') { leaveCharsel(true); newGame(); }
+  else { leaveCharsel(false); $('title').classList.add('show'); refreshTitle(); toast('주인공 선택', `${CH().name}(으)로 플레이합니다`, 'info'); }
 };
-$('csPrev').onclick = $('csBack').onclick = () => { $('charsel').classList.remove('show'); $('title').classList.add('show'); refreshTitle(); };
+$('csPrev').onclick = $('csBack').onclick = () => { leaveCharsel(false); $('title').classList.add('show'); refreshTitle(); };
 $('mContinue').onclick = () => { closeMenus(); continueGame(); };
 $('mNew').onclick = () => { if (hasSave()) $('newConfirm').classList.add('show'); else openCharsel('new'); };
 $('ncYes').onclick = () => { $('newConfirm').classList.remove('show'); openCharsel('new'); };
@@ -2698,7 +2759,7 @@ document.querySelectorAll('#tMenu button').forEach(b => b.addEventListener('mous
 addEventListener('keydown', e => {
   if (state !== 'menu') return;
   if ($('charsel').classList.contains('show')) {
-    if (['ArrowLeft', 'ArrowRight', 'KeyA', 'KeyD'].includes(e.code)) { csPick = csPick === 'jihun' ? 'seoyeon' : 'jihun'; renderCharsel(); }
+    if (['ArrowLeft', 'ArrowRight', 'KeyA', 'KeyD'].includes(e.code)) { const ks = Object.keys(CHARACTERS), d = e.code === 'ArrowLeft' || e.code === 'KeyA' ? -1 : 1; csSelect(ks[(ks.indexOf(csPick) + d + ks.length) % ks.length]); }
     else if (e.code === 'Enter') { e.preventDefault(); e.stopImmediatePropagation(); if (!e.repeat) $('csOk').click(); } else if (e.code === 'Escape') $('csBack').click();
     return;
   }
@@ -2707,6 +2768,60 @@ addEventListener('keydown', e => {
   if (e.code === 'ArrowDown' || e.code === 'ArrowUp' || e.code === 'KeyS' || e.code === 'KeyW') { i = (i + (e.code === 'ArrowDown' || e.code === 'KeyS' ? 1 : btns.length - 1)) % btns.length; btns.forEach((b, k) => b.classList.toggle('sel', k === i)); sfx.ui && sfx.ui(); }
   else if (e.code === 'Enter' && i >= 0) btns[i].click();
 });
+/* 타이틀 분위기 루프: 깊이 2층 빗줄기(캔버스) · 마우스 시차 · 게임패드 → 메뉴 키 입력. 메뉴 상태일 때만 돌고, 게임에 들어가면 스스로 멈춘다. */
+const titleFx = (() => {
+  const T = $('title'), cv = $('tFx'), ctx = cv?.getContext('2d');
+  const reduce = matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  let raf = 0, last = 0, W = 0, H = 0, drops = [], px = 0, py = 0, tx = 0, ty = 0, pad = {}, padRep = 0;
+  const resize = () => {
+    if (!cv) return; const dpr = Math.min(1.5, devicePixelRatio || 1);
+    W = cv.width = Math.round(innerWidth * dpr); H = cv.height = Math.round(innerHeight * dpr);
+    const n = Math.round(Math.min(340, W * H / 9000)); drops = [];
+    for (let i = 0; i < n; i++) { const z = i % 3 === 0 ? 1 : 0.45 + Math.random() * 0.3; drops.push({ x: Math.random() * W, y: Math.random() * H, z, l: (14 + Math.random() * 18) * z * dpr, v: (900 + Math.random() * 500) * z * dpr }); }
+  };
+  const key = code => dispatchEvent(new KeyboardEvent('keydown', { code, key: code, bubbles: true }));
+  const pollPad = dt => {
+    const gp = navigator.getGamepads ? [...navigator.getGamepads()].find(g => g && g.connected) : null; if (!gp) return;
+    const b = i => !!gp.buttons[i]?.pressed, ay = gp.axes[1] || 0, ax = gp.axes[0] || 0;
+    const now = { up: b(12) || ay < -0.55, down: b(13) || ay > 0.55, left: b(14) || ax < -0.55, right: b(15) || ax > 0.55, ok: b(0) || b(9), back: b(1) };
+    const map = { up: 'ArrowUp', down: 'ArrowDown', left: 'ArrowLeft', right: 'ArrowRight', ok: 'Enter', back: 'Escape' };
+    padRep -= dt;
+    for (const k in now) {
+      if (now[k] && !pad[k]) { key(map[k]); padRep = 0.42; }
+      else if (now[k] && padRep <= 0 && k !== 'ok' && k !== 'back') { key(map[k]); padRep = 0.14; }   // 방향은 누르고 있으면 반복
+    }
+    pad = now;
+  };
+  const tick = now => {
+    if (state !== 'menu') { raf = 0; return; }   // 게임 시작 — 루프 종료
+    raf = requestAnimationFrame(tick);
+    const dt = Math.min(0.05, (now - (last || now)) / 1000); last = now;
+    pollPad(dt);
+    if (!T.classList.contains('show') || document.hidden) return;
+    // 시차: CSS 변수 두 개만 바꾼다(레이아웃 없음, 합성만)
+    px += (tx - px) * Math.min(1, dt * 3); py += (ty - py) * Math.min(1, dt * 3);
+    T.style.setProperty('--px', px.toFixed(4)); T.style.setProperty('--py', py.toFixed(4));
+    if (!ctx || reduce) return;
+    ctx.clearRect(0, 0, W, H);
+    const wind = 0.26 + px * 0.06;
+    for (const layer of [0, 1]) {
+      ctx.beginPath(); ctx.strokeStyle = layer ? 'rgba(210,222,240,.34)' : 'rgba(170,186,210,.16)'; ctx.lineWidth = layer ? 1.4 : 1;
+      for (const d of drops) {
+        if ((d.z === 1) !== !!layer) continue;
+        d.y += d.v * dt; d.x -= d.v * dt * wind;
+        if (d.y > H) { d.y = -d.l; d.x = Math.random() * W * 1.3; }
+        if (d.x < -40) d.x += W + 80;
+        ctx.moveTo(d.x, d.y); ctx.lineTo(d.x + d.l * wind, d.y - d.l);
+      }
+      ctx.stroke();
+    }
+  };
+  const run = () => { if (!raf && state === 'menu') { last = 0; raf = requestAnimationFrame(tick); } };
+  if (cv && !NORENDER) { T.classList.add('fxon'); resize(); addEventListener('resize', resize, { passive: true }); }
+  T.addEventListener('pointermove', e => { tx = e.clientX / innerWidth * 2 - 1; ty = e.clientY / innerHeight * 2 - 1; }, { passive: true });
+  run();
+  return { run };
+})();
 $('saveBtn').addEventListener('click', () => save());
 $('titleBtn').addEventListener('click', () => location.reload());
 $('bakBtn').addEventListener('click', () => { try { sessionStorage.setItem(AUTO_KEY, 'backup'); } catch (e) { /* ignore */ } location.reload(); });

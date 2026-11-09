@@ -120,6 +120,48 @@
   .cs .perk span{font-size:11px;padding:3px 8px;border:1px solid color-mix(in srgb,var(--c) 60%,transparent);color:var(--c);background:color-mix(in srgb,var(--c) 10%,transparent)}
   #csNote{margin:14px 0 10px;font-size:12px;color:var(--dim)}
   #csBtns{display:flex;gap:12px;justify-content:center}
+  /* ===== 타이틀 · 캐릭터 선택 고급화 (UI/엔진) — 모두 합성 전용 속성(transform/opacity)만 움직인다 ===== */
+  #title{--px:0;--py:0}
+  #title .tbg{translate:calc(var(--px) * -18px) calc(var(--py) * -12px)}
+  #title .tQuote{translate:calc(var(--px) * 8px) calc(var(--py) * 5px)}
+  #title.fxon .train{display:none}
+  #tFx{position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none}
+  #title .tlamp{position:absolute;right:14%;top:-10%;width:60vw;height:70vh;z-index:1;pointer-events:none;background:radial-gradient(ellipse at 50% 20%,rgba(214,226,255,.16),transparent 62%);mix-blend-mode:screen;animation:tLamp 7.3s steps(1) infinite}
+  @keyframes tLamp{0%,100%{opacity:.9}41%{opacity:.25}42%{opacity:.85}43.5%{opacity:.15}45%{opacity:.95}78%{opacity:.7}79%{opacity:1}}
+  #title .tvig{position:absolute;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse 120% 90% at 55% 45%,transparent 52%,rgba(0,0,0,.72) 100%)}
+  #title .tgrain,#charsel .tgrain{position:absolute;inset:-60px;z-index:3;pointer-events:none;opacity:.075;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");animation:tGrain .5s steps(4) infinite}
+  @keyframes tGrain{0%{transform:translate(0,0)}25%{transform:translate(-23px,17px)}50%{transform:translate(19px,-31px)}75%{transform:translate(-11px,-9px)}100%{transform:translate(0,0)}}
+  #title .logo{will-change:opacity}
+  #title.show .logo{animation:tLogo 2.6s ease-out both,tBreath 9s 3s ease-in-out infinite}
+  @keyframes tBreath{0%,100%{text-shadow:0 0 2px #fff,4px 4px 0 #7a0e14,0 0 34px rgba(190,20,30,.75)}50%{text-shadow:0 0 2px #fff,4px 4px 0 #7a0e14,0 0 52px rgba(210,24,36,.95)}}
+  #tMenu button{transition:color .2s,padding-left .28s cubic-bezier(.2,.8,.2,1),letter-spacing .28s;outline:none}
+  #tMenu button:before{transition:width .32s cubic-bezier(.2,.8,.2,1)}
+  #tMenu button.sel{letter-spacing:.24em;text-shadow:0 0 12px rgba(255,90,90,.35)}
+  #tMenu button:focus-visible{box-shadow:inset 2px 0 0 #e8c870}
+  #tMenu:after{content:'';display:block;height:1px;margin-top:10px;background:linear-gradient(90deg,rgba(170,24,34,.7),transparent)}
+  #tHint{margin-top:10px;font-size:11px;color:#77736a;letter-spacing:.18em}
+  @media (prefers-reduced-motion:reduce){#title .tlamp,#title .tgrain,#charsel .tgrain,#title.show .logo{animation:none}#title .tbg,#title .tQuote{translate:none}}
+  /* 캐릭터 선택: 선택 카드 강조 · 3D 무대 */
+  #charsel{overflow:hidden}
+  #charsel>*:not(.tgrain){position:relative;z-index:4}
+  #charsel.show #csCards .cs{animation:csIn .55s cubic-bezier(.2,.8,.2,1) both}
+  #charsel.show #csCards .cs:nth-child(2){animation-delay:.08s}
+  @keyframes csIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  .cs{transition:border-color .3s,box-shadow .35s,opacity .35s,filter .35s,transform .35s cubic-bezier(.2,.8,.2,1);outline:none}
+  #csCards:has(.cs.on) .cs:not(.on){opacity:.62;filter:saturate(.55) brightness(.8);transform:scale(.975)}
+  #csCards .cs:not(.on):hover{opacity:.85;filter:none}
+  .cs.on{transform:translateY(-3px)}
+  .cs:focus-visible{box-shadow:0 0 0 2px #e8c870,0 0 30px color-mix(in srgb,var(--c) 45%,transparent)}
+  .cs .bd{position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;border-radius:2px;
+    background:radial-gradient(ellipse 70% 22% at 50% 92%,color-mix(in srgb,var(--c) 22%,transparent),transparent 70%),linear-gradient(180deg,rgba(255,255,255,.02),rgba(0,0,0,.25))}
+  .cs.on .bd{background:radial-gradient(ellipse 70% 24% at 50% 92%,color-mix(in srgb,var(--c) 40%,transparent),transparent 72%),radial-gradient(ellipse 60% 50% at 50% 30%,rgba(255,240,220,.07),transparent 70%)}
+  .cs canvas.cs3d{width:100%;height:100%;display:block;cursor:grab}
+  .cs canvas.cs3d:active{cursor:grabbing}
+  .cs img.csSheet{width:100%;height:100%;object-fit:contain;display:none}
+  .csViewToggle{position:absolute;bottom:6px;right:6px;z-index:3;font-size:11px;padding:3px 7px;background:rgba(12,15,22,.82);color:#e8e4dc;border:1px solid rgba(255,255,255,.22);border-radius:4px;cursor:pointer;opacity:.75;transition:opacity .2s;white-space:nowrap}
+  .cs:hover .csViewToggle,.cs.on .csViewToggle{opacity:1}
+  #csHint{margin:-4px 0 10px;font-size:11px;color:#77736a;letter-spacing:.18em}
 
   /* ===== HUD ===== */
   #hud{position:fixed;inset:0;pointer-events:none;display:none;z-index:5}
@@ -785,9 +827,9 @@
 <script src="loadingV2.js?v=296"></script>
 
 <!-- 타이틀 -->
-<div id="title" class="overlay show"><div class="tbg"></div><div class="tQuote">그날 밤,
+<div id="title" class="overlay show"><div class="tbg"></div><div class="tlamp"></div><canvas id="tFx" aria-hidden="true"></canvas><div class="tQuote">그날 밤,
 학교는
-<b>거짓말을 했다</b></div><div class="train"></div><div class="tflash"></div><div class="col">
+<b>거짓말을 했다</b></div><div class="train"></div><div class="tflash"></div><div class="tvig"></div><div class="tgrain"></div><div class="col">
   <div><div class="logo">서문고</div></div>
   <div class="tagline">잊혀진 시간</div>
   <div class="en">THE ABANDONED SCHOOL</div>
@@ -802,6 +844,7 @@
     <button id="mDub">더빙 ON</button>
     <button id="mQuit">게임 종료</button>
   </div>
+  <div id="tHint">↑↓ 선택 · Enter 결정</div>
   <div id="tLang"><button data-lang="ko">한국어</button><button data-lang="en">English</button><button data-lang="ja">日本語</button><button data-lang="zh">中文</button></div>
   <div id="tFoot">1인칭 미스터리 추리 어드벤처 · 헤드폰 권장<br><span id="tEnd"></span><a id="testLink" href="?test" style="display:none">테스트 모드로 실행</a></div>
 </div></div>
@@ -810,9 +853,11 @@
 
 <!-- 캐릭터 선택 -->
 <div id="charsel" class="overlay">
+  <div class="tgrain"></div>
   <div class="csTitle">잊혀진 교실</div><div class="csSub">캐릭터 선택</div>
   <div id="csCards"></div>
   <div id="csNote">⚠ 선택한 주인공에 따라 대사 · 목소리 · 시작 소지품 · 고유 능력이 달라집니다. 이야기의 결말은 같습니다.</div>
+  <div id="csHint">← → 선택 · Enter 결정 · Esc 처음으로</div>
   <div id="csBtns"><button class="btn" id="csPrev">◀ 이전</button><button class="btn pri" id="csOk">결정</button><button class="btn" id="csBack">처음으로</button></div>
 </div>
 

@@ -538,7 +538,7 @@ class FiveZonesExpansionPatch {
           return;
         }
         this.missions.rooftopSignalSent = true;
-        // 기존 휴대폰 UI의 '신호 없음 ✕' 텍스트를 '📶 LTE (1칸)'으로 실시간 패치!
+        // 기존 휴대폰 UI의 '신호 없음 ✕' 텍스트를 '📶 미약한 신호 (1칸)'으로 실시간 패치!
         document.querySelectorAll("b").forEach((b) => {
           if (b.textContent.includes("신호 없음")) b.textContent = "📶 미약한 신호 연결됨";
         });

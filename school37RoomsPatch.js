@@ -533,9 +533,9 @@ class School37RoomsMasterPatch {
         break;
       }
 
-      case "창의융합실(103)":
+      case "특별활동실(103)":
       case "언어실":
-      case "스마트교실":
+      case "멀티미디어실":
         place(this._prefabLanguageBoothRow(), -hw + 0.9, -hd + 0.7, 0, 2.2, 0.8, 1.2, false, {
           promptText: `[E] ${roomName} 단말기 모니터 전원 켜기`
         });

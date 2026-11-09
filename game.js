@@ -22,7 +22,6 @@ import { settleStoryGhost } from './storyGhost.js';
 import { GLTFLoader } from './vendor/addons/loaders/GLTFLoader.js';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
 import { createNPCVisuals } from './npcVisuals.js?v=416';
-import { applyGuardSeatedPose } from './guardSeatedPose.js?v=416';
 import { createCampusCctvLive, collectCampusCctvFeeds } from './campusCctvLive.js';
 import { applyExteriorFloorVisibility, shouldStreamGuardCctv } from './exteriorRenderBudget.js?v=416';
 import { GUARD_LAYOUT } from './guardRoomLayout.js?v=416';
@@ -2419,10 +2418,10 @@ function start(skipIntro = false) {
   initAudio(); closeMenus(); applyChar(); { const par = renderer.extensions.has('KHR_parallel_shader_compile');   // 병렬 컴파일이 없으면 씬 전체 컴파일이 동기라 한 번에 수십 초 멈춘다 → 한 번만
   (par ? [400, 6000, 15000, 30000, 50000] : [400]).forEach(ms => setTimeout(() => { if (ms <= 6000) try { upgradePlainMaterials(scene); } catch (e) {} prewarmFloors(true, (fx.composer ? fx.composer.renderTarget1 : null)).catch(() => {}); }, ms));
   if (!par) setTimeout(() => { try { upgradePlainMaterials(scene); } catch (e) {} }, 6000); }   // 늦게 들어오는 GLB(민아 · 소품)까지 시작 연출 동안 미리 컴파일   // 시작 연출 동안 나중에 생긴 재질까지 한 번 더 예열
-  if (!readingSave) { DAY.k = .92; DAY.start = -1; DAY.done = false; delete FL.night; GUARD_WALK.startedWalk = false; GUARD_WALK.greetedGate = false; }
+  if (!readingSave) { DAY.k = .92; DAY.start = -1; DAY.done = false; delete FL.night; }
   refreshHud(); chapterShown = objective().ch;
   if (skipIntro || TEST) { finishIntro(); return; }
-  state = 'intro'; introT = 0; introText = true; introCue = 0; introGuardEnd = 0; introEndT = 99; $('intro').classList.add('show'); $('cine').classList.add('on');
+  state = 'intro'; introT = 0; introText = true; introCue = 0; introEndT = 99; $('intro').classList.add('show'); $('cine').classList.add('on');
   // 캐릭터 성별 분기 인트로: 서연(여성 캐릭터)은 여성 성우 독백(intro1_s~intro4_s), 지훈(남성 캐릭터)은 남성 성우 독백(intro1_j~intro4_j)으로 재생!
   const isSeoyeon = CHAR === 'seoyeon';
   const ids = isSeoyeon ? ['intro1_s', 'intro2_s', 'intro3_s', 'intro4_s'] : ['intro1_j', 'intro2_j', 'intro3_j', 'intro4_j'];
@@ -2435,7 +2434,7 @@ function start(skipIntro = false) {
     p.dataset.from = labelFor(i);
     p.textContent = (VO[ids[i]] || VO['intro' + (i + 1)]).text;
   });
-  preload([...ids, 'guard1']);
+  preload(ids);
   const W = s => new Promise(r => setTimeout(r, s * 1000 / (DEBUG && window.__introJump ? 6 : 1)));
   (async () => {
     await W(.9);
@@ -2452,84 +2451,7 @@ function start(skipIntro = false) {
     if (epoch===storySession && state === 'intro') { sfx.swell(1.6, .35); await W(1.5); if(epoch!==storySession||state!=='intro')return;introText = false; introT = 6; }
   })();
 }
-// 정문 입구에서 초반 대화 후 순간이동하지 않고 실제 통로·정문·경비실 문을 따라 걸어가 의자에 착석하는 경비원 AI
-let introGuard = null, introCue = 0, introGuardEnd = 0, introEndT = 0;
-// 경비실 외벽(x: 4.1~7.9, z: 65.0~68.1)을 절대 관통하지 않고 보도블록과 출입문(x=6.95, z=68.01)으로만 정확히 다니도록 학습된 16-노드 AI 순찰 네비게이션 그래프
-const GUARD_WAYPOINTS = [
-  { x: 1.30, z: 73.60, label: 'gate_front' },
-  { x: 1.25, z: 69.15, label: 'spur_junction', pose: 'inspect', pause: 2.8, lookYaw: 0 },
-  { x: 4.50, z: 69.15, label: 'booth_approach_south' },
-  { x: 6.95, z: 69.15, label: 'booth_door_out', doorCheck: true },
-  { x: 6.95, z: 67.35, label: 'booth_door_in', doorCheck: true, insideSeatPass: true },
-  { x: 6.95, z: 66.22, label: 'booth_aisle', insideSeatPass: true },
-  { x: GUARD_LAYOUT.npc.x, z: GUARD_LAYOUT.npc.z, label: 'booth_seat', insideSeatPass: true, seatPause: 9.0 },
-  { x: 6.95, z: 66.22, label: 'patrol_exit_aisle', insideSeatPass: true },
-  { x: 6.95, z: 67.35, label: 'patrol_exit_threshold', doorCheck: true, insideSeatPass: true },
-  { x: 6.95, z: 69.15, label: 'patrol_exit_door', doorCheck: true },
-  { x: 1.25, z: 69.15, label: 'patrol_to_main_road' },
-  { x: 1.25, z: 62.50, label: 'main_road_mid' },
-  { x: -3.80, z: 57.00, label: 'plaza_west', pose: 'radio', pause: 3.6, lookYaw: 2.85 },
-  { x: 0.00, z: 46.20, label: 'main_steps', pose: 'stand', pause: 4.2, lookYaw: Math.PI },
-  { x: 3.60, z: 57.00, label: 'plaza_east', pose: 'stance', pause: 3.4, lookYaw: -2.75 },
-  { x: 1.25, z: 62.50, label: 'return_main_road' }
-];
-const GUARD_WALK = {
-  state: 'walking', // 'gate_talk' | 'walking' | 'patrol_pause' | 'seated' | 'leaving_duty' | 'off_duty'
-  wpIndex: 1,
-  phase: 0,
-  stepAcc: 0,
-  doorWait: 0,
-  pauseTimer: 0,
-  seatTimer: 8.5,
-  talkWait: 0,
-  talking: false,
-  startedWalk: true,
-  greetedGate: false,
-  stuckT: 0
-};
-function buildGuardNPC() {
-  const g = new THREE.Group(), M = (c, r = .8, o = {}) => new THREE.MeshStandardMaterial({ color: c, roughness: r, ...o });
-  const uni = M(0x283450, .82), pants = M(0x1c2130, .85), skin = M(0xc9a088, .62), boot = M(0x111111, .4), badge = M(0xc8a040, .35, { metalness: .7 }), blk = M(0x15161a, .5), gray = M(0x8a8a88, .7);
-  const cap = (r, h, m) => new THREE.Mesh(new THREE.CapsuleGeometry(r, h, 6, 12), m);
-  const seatedBody = new THREE.Group(); seatedBody.position.y = -.36; g.add(seatedBody);
-  const put = (o, ...a) => { if (o.isBufferGeometry) o = new THREE.Mesh(o, a.shift()); const [x, y, z, p = seatedBody] = a; o.position.set(x, y, z); p.add(o); return o; };
-  const legs = [];
-  [-1, 1].forEach(s => {
-    const thigh = put(cap(.085, .30, pants), s * .11, .56, .21, g); thigh.rotation.x = Math.PI / 2;
-    const shin = put(cap(.075, .31, pants), s * .11, .27, .42, g);
-    const foot = put(new THREE.BoxGeometry(.12, .10, .26), boot, s * .11, .05, .49, g);
-    legs.push({ s, thigh, shin, foot });
-  });
-  put(new THREE.BoxGeometry(.4, .07, .24), blk, 0, .9, 0);   // 근무 벨트
-  put(new THREE.BoxGeometry(.07, .12, .05), blk, -.2, .87, .1); put(new THREE.BoxGeometry(.06, .16, .04), blk, .2, .88, .1);   // 파우치 · 무전기
-  const body = put(cap(.2, .42, uni), 0, 1.22, 0); body.scale.set(1.05, 1, .74);
-  put(new THREE.BoxGeometry(.08, .45, .02), M(0x23283a, .7), 0, 1.25, .15);   // 지퍼 · 넥타이 선
-  const patch = new THREE.Mesh(new THREE.PlaneGeometry(.12, .045), new THREE.MeshBasicMaterial({ map: makeSign('SECURITY', '#20242c', '#d8d4c4', 22), color: 0xb0aca0 })); put(patch, .1, 1.37, .152);
-  put(new THREE.CircleGeometry(.035, 12), badge, -.11, 1.37, .152);
-  put(new THREE.BoxGeometry(.11, .025, .01), M(0xd8d8d0, .6), .1, 1.31, .152);   // 명찰
-  const arms = [];
-  [-1, 1].forEach(s => { const a = put(cap(.06, .44, uni), s * .26, 1.15, 0); a.rotation.z = s * .1; const hand = put(new THREE.SphereGeometry(.045, 10, 8), skin, s * .29, .88, .02); arms.push({ s, a, hand }); });
-  put(new THREE.CylinderGeometry(.05, .055, .08, 10), skin, 0, 1.53, 0);
-  const head = put(new THREE.SphereGeometry(.105, 18, 14), skin, 0, 1.66, .01); head.scale.set(.95, 1.08, 1);
-  put(new THREE.BoxGeometry(.14, .02, .01), gray, 0, 1.6, .1);   // 희끗한 콧수염
-  [-1, 1].forEach(s => { put(new THREE.SphereGeometry(.012, 8, 6), blk, s * .036, 1.685, .094); put(new THREE.BoxGeometry(.04, .008, .01), gray, s * .036, 1.708, .095); put(new THREE.SphereGeometry(.026, 8, 6), skin, s * .1, 1.66, 0).scale.set(.5, 1, .8); });   // 눈 · 눈썹 · 귀
-  put(new THREE.BoxGeometry(.024, .04, .03), skin, 0, 1.65, .105);   // 코
-  put(new THREE.CylinderGeometry(.108, .104, .07, 18, 1, true, Math.PI * .6, Math.PI * .8), gray, 0, 1.7, 0);   // 모자 아래 희끗한 옆 · 뒷머리
-  put(new THREE.CylinderGeometry(.115, .118, .08, 18), uni, 0, 1.77, 0);
-  put(new THREE.BoxGeometry(.2, .015, .13), blk, 0, 1.735, .1);   // 모자 챙
-  put(new THREE.CircleGeometry(.025, 12), badge, 0, 1.79, .118);
-  put(new THREE.CylinderGeometry(.025, .02, .2, 10), blk, .3, .95, .1).rotation.x = Math.PI / 2;   // 손전등
-  g.traverse(o => { if (o.isMesh) o.castShadow = true; });
-  g.userData.procParts = { seatedBody, legs, arms };
-  return g;
-}
-function buildGuard() { return guardNPC; }
-const NO_GUARD = true;   // 일요일 밤의 서문고 — 당직 경비원은 순찰을 나가 자리에 없고, 경비실엔 그날 밤의 무전기와 일지만 남았다
-const guardNPC = buildGuardNPC(); guardNPC.position.set(GUARD_LAYOUT.npc.x, .02, GUARD_LAYOUT.npc.z); guardNPC.rotation.y = 0; guardNPC.name = 'GUARD_SEATED_NPC'; world.OUT.add(guardNPC);
-introGuard = guardNPC;
-if (NO_GUARD) { guardNPC.visible = false; Object.defineProperty(guardNPC, 'visible', { get: () => false, set: () => {} }); }   // 어떤 경로로도 다시 나타나지 않게
-const guardPropRef = { kind: 'guardnpc', floor: NO_GUARD ? -1 : 0, x: GUARD_LAYOUT.npc.x, z: GUARD_LAYOUT.npc.z, y: 1.15, label: '경비 아저씨와 이야기하기' };
-world.props.push(guardPropRef);
+let introCue = 0, introEndT = 0;
 // 경비실 책상: 1998년 무전기(교신 3개) · 근무 일지 묶음(3장) · 2008년 증언 카세트
 {
   const M = (c, r = .6, m = 0) => new THREE.MeshStandardMaterial({ color: c, roughness: r, metalness: m });
@@ -2549,128 +2471,7 @@ world.props.push(guardPropRef);
   world.props.push({ kind: 'glog', floor: 0, x: lx, z: lz, y: dy, r: 1.5, n: 0, label: '경비 근무 일지 묶음 넘기기' });
   world.props.push({ kind: 'tape', id: 'ts_guard', floor: 0, x: tx, z: tz, y: ty, r: 1.5, label: '증언 카세트 재생', ...world.TAPES.ts_guard });
 }
-if (!NO_GUARD) npcLoad('guard', guardNPC, { url: 'assets/characters/guard.glb', height: 1.75, native: true, clipNames: ['idle'], onLoad: () => {
-  guardNPC.userData.seatedReport = applyGuardSeatedPose(guardNPC,GUARD_LAYOUT.seat);
-  if (GUARD_WALK.state !== 'seated') setGuardPoseMode(GUARD_WALK.state === 'walking' ? 'walk' : 'stand', GUARD_WALK.phase);
-} });
-{
-  const torchFx = new THREE.Group(); torchFx.name = 'GUARD_TORCH_FX'; torchFx.visible = false;
-  const lens = new THREE.Sprite(new THREE.SpriteMaterial({ map: makeGlowTex(), color: 0xfff0d0, blending: THREE.AdditiveBlending, depthWrite: false }));
-  lens.scale.setScalar(.55); lens.position.set(.24, 1.10, .46); torchFx.add(lens);
-  const beam = new THREE.Mesh(new THREE.ConeGeometry(.85, 4.6, 18, 1, true), new THREE.MeshBasicMaterial({ color: 0xfff0d0, transparent: true, opacity: .075, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide }));
-  beam.geometry.translate(0, -2.3, 0); beam.rotation.x = -Math.PI / 2 - .22; beam.position.set(.24, 1.10, .46); torchFx.add(beam);
-  guardNPC.add(torchFx); guardNPC.userData.torchFx = torchFx;
-}
-const guardCap = new THREE.Mesh(new THREE.CylinderGeometry(.115, .118, .08, 18), new THREE.MeshStandardMaterial({ color: 0x283450, roughness: .8 })); guardCap.position.set(GUARD_LAYOUT.cap.x, GUARD_LAYOUT.cap.y, GUARD_LAYOUT.cap.z); guardCap.visible = false; world.OUT.add(guardCap);
-
-function syncGuardPropPosition() {
-  guardPropRef.x = guardNPC.position.x;
-  guardPropRef.z = guardNPC.position.z;
-  guardPropRef.y = GUARD_WALK.state === 'seated' ? 1.15 : 1.42;
-}
-function setGuardPoseMode(mode, phase = 0) {
-  const pp = guardNPC.userData.procParts;
-  const tfx = guardNPC.userData.torchFx;
-  if (tfx) tfx.visible = mode !== 'seated';
-  if (mode === 'seated') {
-    if (pp) {
-      pp.seatedBody.position.y = -.36;
-      pp.legs.forEach(({ s, thigh, shin, foot }) => {
-        thigh.position.set(s * .11, .56, .21); thigh.rotation.x = Math.PI / 2;
-        shin.position.set(s * .11, .27, .42); shin.rotation.x = 0;
-        foot.position.set(s * .11, .05, .49); foot.rotation.x = 0;
-      });
-      pp.arms.forEach(({ s, a }) => { a.rotation.x = 0; a.rotation.z = s * .1; });
-    }
-    guardNPC.position.set(GUARD_LAYOUT.npc.x, .02, GUARD_LAYOUT.npc.z);
-    guardNPC.rotation.y = 0;
-    if (guardNPC.userData.characterModel) {
-      guardNPC.userData.curClipName = 'Seated';
-      guardNPC.userData.npcAction?.getMixer?.()?.stopAllAction();
-      guardNPC.userData.seatedReport = applyGuardSeatedPose(guardNPC, GUARD_LAYOUT.seat);
-    }
-    syncGuardPropPosition();
-    return;
-  }
-  if (pp) {
-    const breath = Math.sin(performance.now() * 0.002) * 0.015;
-    pp.seatedBody.position.y = breath;
-    const sw = mode === 'walk' ? Math.sin(phase) * .46 : Math.sin(performance.now() * 0.0015) * 0.03;
-    pp.legs.forEach(({ s, thigh, shin, foot }) => {
-      const lsw = sw * s;
-      thigh.position.set(s * .11, .62, Math.sin(lsw) * .09); thigh.rotation.x = lsw;
-      shin.position.set(s * .11, .28, Math.sin(lsw) * .17 - Math.max(0, -lsw) * .07); shin.rotation.x = Math.max(0, -lsw * .68);
-      foot.position.set(s * .11, .05, .05 + Math.sin(lsw) * .19); foot.rotation.x = lsw * .28;
-    });
-    pp.arms.forEach(({ s, a }) => {
-      if (mode === 'radio' && s < 0) { a.rotation.x = -1.35; a.rotation.z = 0.25; }
-      else if (mode === 'inspect') { a.rotation.x = s > 0 ? -1.05 : -0.35; a.rotation.z = s * 0.1; }
-      else { a.rotation.x = s > 0 ? -.85 : -sw * s * .58; a.rotation.z = s * .08; }
-    });
-  }
-  const cm = guardNPC.userData.characterModel;
-  if (cm) {
-    if (guardNPC.userData.seated) {
-      const pel = cm.getObjectByName('pelvis');
-      if (pel && guardNPC.userData.origPelvisPos) pel.position.copy(guardNPC.userData.origPelvisPos);
-      guardNPC.userData.seated = false;
-    }
-    const clipMap = {
-      walk: 'Walk',
-      stand: 'Idle',
-      inspect: 'Inspect',
-      radio: 'RadioUse',
-      stance: 'GuardStance',
-      torch: 'FlashlightHold'
-    };
-    const want = clipMap[mode] || 'Idle';
-    if (guardNPC.userData.curClipName !== want) {
-      guardNPC.userData.curClipName = want;
-      npcVisuals.play(guardNPC, want, { fade: .28, speed: mode === 'walk' ? 1.08 : 1.0 });
-    }
-  }
-  syncGuardPropPosition();
-}
-function placeGuardAtGateForIntro() {
-  const wp0 = GUARD_WAYPOINTS[0];
-  GUARD_WALK.state = 'gate_talk';
-  GUARD_WALK.wpIndex = 1;
-  GUARD_WALK.phase = 0;
-  GUARD_WALK.stepAcc = 0;
-  GUARD_WALK.doorWait = 0;
-  GUARD_WALK.pauseTimer = 0;
-  GUARD_WALK.talkWait = 4.2;
-  GUARD_WALK.talking = false;
-  GUARD_WALK.startedWalk = false;
-  guardNPC.visible = true;
-  guardNPC.position.set(wp0.x, .02, wp0.z);
-  guardNPC.rotation.y = -.15;
-  setGuardPoseMode('stand', 0);
-}
-function startGuardWalkToBooth() {
-  GUARD_WALK.state = 'walking';
-  GUARD_WALK.startedWalk = true;
-  if (GUARD_WALK.wpIndex < 1 || GUARD_WALK.wpIndex >= GUARD_WAYPOINTS.length) GUARD_WALK.wpIndex = 1;
-  setGuardPoseMode('walk', GUARD_WALK.phase);
-}
-function startGuardPatrolRound(startWp = 1) {
-  GUARD_WALK.state = 'walking';
-  GUARD_WALK.startedWalk = true;
-  GUARD_WALK.talking = false;
-  GUARD_WALK.wpIndex = startWp;
-  const wp = GUARD_WAYPOINTS[startWp] || GUARD_WAYPOINTS[1];
-  guardNPC.position.set(wp.x, .02, wp.z);
-  setGuardPoseMode('walk', GUARD_WALK.phase);
-}
-function resetGuardToSeatedImmediate() {
-  GUARD_WALK.state = 'seated';
-  GUARD_WALK.wpIndex = 6;
-  GUARD_WALK.seatTimer = 9.0;
-  GUARD_WALK.startedWalk = true;
-  GUARD_WALK.talking = false;
-  setGuardPoseMode('seated', 0);
-}
-function lockMainGateByGuard() {
+function lockMainGateAuto() {
   if (gateClosed) return;
   gateClosed = true;
   gateState = 'closing';
@@ -2685,190 +2486,10 @@ function lockMainGateByGuard() {
     }
   }, 650);
 }
-function triggerGuard7PMClockOut() {
-  if (GUARD_WALK.state === 'off_duty' || GUARD_WALK.state === 'leaving_duty') return;
-  GUARD_WALK.state = 'leaving_duty';
-  GUARD_WALK.talking = false;
-  guardNPC.visible = true;
-  if (state === 'playing') {
-    toast('19:00 · 경비원 퇴근 및 정문 폐쇄', '퇴근 시간이 되어 경비 아저씨가 정문을 걸어 잠그러 이동합니다', 'info');
-    if (P.floor === 0 && P.z > 20) line('guardBye', 'none', '🔦 당직 경비원 · 박종철 아저씨');
-  }
-  setGuardPoseMode('walk', GUARD_WALK.phase);
+// 당직 경비원은 순찰 중이라 자리에 없다 — 저녁 7시(또는 밤)가 되면 아무도 없는 정문이 혼자 닫힌다
+function updateGateAutoLock() {
+  if (state === 'playing' && (FL.night || DAY.k <= 0.32) && !gateClosed) lockMainGateAuto();
 }
-function updateGuardWalk(dt) {
-  if (NO_GUARD) {   // 당직 경비원은 순찰 중: 몸체 · 대화를 끄고, 저녁 7시엔 아무도 없는 정문이 혼자 닫힌다
-    guardNPC.visible = false; guardPropRef.floor = -1;
-    if (state === 'playing' && (FL.night || DAY.k <= 0.32) && !gateClosed) lockMainGateByGuard();
-    return;
-  }
-  if (GUARD_WALK.state === 'off_duty') {
-    if (!gateClosed && state === 'playing') lockMainGateByGuard();
-    guardNPC.visible = false;
-    guardPropRef.floor = -1;
-    return;
-  }
-  // 저녁 7시(19:00, 해가 기울어 DAY.k <= 0.32 또는 FL.night)가 되면 경비원이 정문으로 걸어 나가 정문을 잠그고 퇴근한다!
-  if (state === 'playing' && (FL.night || DAY.k <= 0.32) && GUARD_WALK.state !== 'leaving_duty') {
-    triggerGuard7PMClockOut();
-  }
-  if (!guardNPC.visible) return;
-  const gx = guardNPC.position.x, gz = guardNPC.position.z;
-  const turnToward = (targetYaw, rate = 7) => {
-    let diff = ((targetYaw - guardNPC.rotation.y + Math.PI * 3) % (Math.PI * 2)) - Math.PI;
-    guardNPC.rotation.y += diff * Math.min(1, dt * rate);
-  };
-  // 19:00 퇴근 이동 중: 경비실에서 나와 정문(z = 70.0)을 통과한 직후(z >= 70.8) 정문 철문을 쾅 닫고 잠근 뒤 밖(z = 75.8)으로 퇴근 완료!
-  if (GUARD_WALK.state === 'leaving_duty') {
-    const exitTarget = (gz < 68.8 && gx > 4.2) ? { x: 6.95, z: 69.2 } : (gz < 69.5 && gx > 2.2) ? { x: 1.25, z: 69.2 } : { x: 1.25, z: 75.8 };
-    if (gz <= 68.6 && gz >= 67.5 && gx >= 6.0 && !(FL.guardDoorOpen ?? true)) {
-      FL.guardDoorOpen = true; sfx.doorOpen(); syncGuardDevices();
-    }
-    // 경비 아저씨가 정문(GATE_Z = 70) 바깥쪽(z >= 70.75)에 도달하는 순간 정문을 닫고 쇠사슬 자물쇠를 잠근다!
-    if (!gateClosed && gz >= GATE_Z + 0.75) {
-      lockMainGateByGuard();
-    }
-    const dx = exitTarget.x - gx, dz = exitTarget.z - gz, dist = Math.hypot(dx, dz);
-    if (dist < 0.22 && exitTarget.z > 74.5) {
-      if (!gateClosed) lockMainGateByGuard();
-      GUARD_WALK.state = 'off_duty';
-      guardNPC.visible = false;
-      guardPropRef.floor = -1;
-      if (state === 'playing') caption('철컥 — 경비 아저씨가 정문을 밖에서 걸어 잠그고 퇴근하며 야간 무인 경비 상태로 전환되었다.');
-      return;
-    }
-    const step = Math.min(dist, 2.15 * dt);
-    guardNPC.position.set(gx + (dx / Math.max(0.01, dist)) * step, .02, gz + (dz / Math.max(0.01, dist)) * step);
-    turnToward(Math.atan2(dx, dz), 8.0);
-    GUARD_WALK.phase += step * 3.8;
-    setGuardPoseMode('walk', GUARD_WALK.phase);
-    syncGuardPropPosition();
-    return;
-  }
-  if (GUARD_WALK.talking) {
-    if (GUARD_WALK.state !== 'seated') {
-      setGuardPoseMode('stand', GUARD_WALK.phase);
-      turnToward(Math.atan2(P.x - gx, P.z - gz), 8);
-    }
-    return;
-  }
-  if (GUARD_WALK.state === 'seated') {
-    if (guardNPC.userData.characterModel && !guardNPC.userData.seated) setGuardPoseMode('seated', 0);
-    syncGuardPropPosition();
-    if (state === 'playing' && P.floor === 0) {
-      GUARD_WALK.seatTimer = (GUARD_WALK.seatTimer ?? 9.0) - dt;
-      if (GUARD_WALK.seatTimer <= 0) {
-        GUARD_WALK.state = 'walking';
-        GUARD_WALK.wpIndex = 7;
-        guardNPC.position.set(6.85, .02, 66.22);
-        setGuardPoseMode('walk', GUARD_WALK.phase);
-      }
-    }
-    return;
-  }
-  if (GUARD_WALK.state === 'gate_talk') {
-    setGuardPoseMode('stand', 0);
-    turnToward(Math.atan2(P.x - gx, P.z - gz), 6);
-    if (state === 'playing') {
-      GUARD_WALK.talkWait -= dt;
-      if (GUARD_WALK.talkWait <= 0 || P.z < GATE_Z + 1.2) {
-        startGuardWalkToBooth();
-      }
-    }
-    return;
-  }
-  if (GUARD_WALK.state === 'patrol_pause') {
-    const curWp = GUARD_WAYPOINTS[GUARD_WALK.wpIndex] || {};
-    setGuardPoseMode(curWp.pose || 'stand', GUARD_WALK.phase);
-    if (curWp.lookYaw != null) turnToward(curWp.lookYaw + Math.sin(performance.now() * 0.0012) * 0.35, 5);
-    GUARD_WALK.pauseTimer -= dt;
-    if (GUARD_WALK.pauseTimer <= 0) {
-      GUARD_WALK.state = 'walking';
-      GUARD_WALK.wpIndex = (GUARD_WALK.wpIndex + 1) % GUARD_WAYPOINTS.length;
-      if (GUARD_WALK.wpIndex === 0) GUARD_WALK.wpIndex = 1;
-      setGuardPoseMode('walk', GUARD_WALK.phase);
-    }
-    return;
-  }
-  if (GUARD_WALK.state !== 'walking') return;
-  const wp = GUARD_WAYPOINTS[GUARD_WALK.wpIndex];
-  if (!wp) { startGuardPatrolRound(1); return; }
-  if (wp.doorCheck || (gz <= 68.6 && gz >= 67.7 && gx >= 6.2)) {
-    if (!(FL.guardDoorOpen ?? true)) {
-      FL.guardDoorOpen = true;
-      sfx.doorOpen();
-      syncGuardDevices();
-      GUARD_WALK.doorWait = .42;
-    }
-  }
-  if (GUARD_WALK.doorWait > 0) {
-    GUARD_WALK.doorWait -= dt;
-    setGuardPoseMode('stand', GUARD_WALK.phase);
-    turnToward(Math.PI, 8);
-    return;
-  }
-  const dx = wp.x - gx, dz = wp.z - gz, dist = Math.hypot(dx, dz);
-  if (dist < .16) {
-    guardNPC.position.x = wp.x;
-    guardNPC.position.z = wp.z;
-    syncGuardPropPosition();
-    if (wp.seatPause) {
-      resetGuardToSeatedImmediate();
-      GUARD_WALK.seatTimer = wp.seatPause;
-      return;
-    }
-    if (wp.pause > 0) {
-      GUARD_WALK.state = 'patrol_pause';
-      GUARD_WALK.pauseTimer = wp.pause;
-      setGuardPoseMode(wp.pose || 'stand', GUARD_WALK.phase);
-      return;
-    }
-    GUARD_WALK.wpIndex++;
-    if (GUARD_WALK.wpIndex >= GUARD_WAYPOINTS.length) GUARD_WALK.wpIndex = 1;
-    return;
-  }
-  if (state === 'playing' && P.floor === 0) {
-    const pdx = P.x - gx, pdz = P.z - gz, pDist = Math.hypot(pdx, pdz);
-    const dot = (pdx * dx + pdz * dz) / ((pDist * dist) || 1);
-    if (pDist < 1.15 && dot > .35) {
-      setGuardPoseMode('stand', GUARD_WALK.phase);
-      turnToward(Math.atan2(pdx, pdz), 7);
-      return;
-    }
-  }
-  const speed = 1.66;
-  const step = Math.min(dist, speed * dt);
-  const baseAng = Math.atan2(dx, dz);
-  const pos = { x: gx + Math.sin(baseAng) * step, z: gz + Math.cos(baseAng) * step };
-  const cols = floors[0]?.col;
-  const filtered = cols ? (wp.insideSeatPass
-    ? (floors[0]._seatPassCols ||= cols.filter(c => !(c.x1 >= 5.3 && c.x2 <= 6.2 && c.z1 >= 65.6 && c.z2 <= 66.55)))
-    : cols) : null;
-  if (filtered) collide(filtered, pos, .21);
-  let moved = Math.hypot(pos.x - gx, pos.z - gz);
-  let moveAng = baseAng;
-  if (filtered && moved < step * 0.55) {
-    for (const off of [0.65, -0.65, 1.22, -1.22, 1.65, -1.65]) {
-      const tryAng = baseAng + off;
-      const cand = { x: gx + Math.sin(tryAng) * step, z: gz + Math.cos(tryAng) * step };
-      collide(filtered, cand, .21);
-      const cmv = Math.hypot(cand.x - gx, cand.z - gz);
-      if (cmv > moved * 1.25) {
-        pos.x = cand.x; pos.z = cand.z; moved = cmv; moveAng = tryAng; break;
-      }
-    }
-  }
-  guardNPC.position.set(pos.x, .02, pos.z);
-  turnToward(moveAng, 7.8);
-  GUARD_WALK.phase += moved * 3.8;
-  GUARD_WALK.stepAcc += moved;
-  if (GUARD_WALK.stepAcc >= .56) {
-    GUARD_WALK.stepAcc = 0;
-    if (state === 'playing' && P.floor === 0) at(pos.x, .1, pos.z).step(false, .48, pos.z < 67.9 ? 'tile' : 'stone');
-  }
-  setGuardPoseMode('walk', GUARD_WALK.phase);
-}
-window.__guardWalk = { state: GUARD_WALK, waypoints: GUARD_WAYPOINTS, startAtGate: placeGuardAtGateForIntro, walkToBooth: startGuardWalkToBooth, startPatrol: startGuardPatrolRound, clockOut7PM: triggerGuard7PMClockOut, seatImmediate: resetGuardToSeatedImmediate, step: updateGuardWalk };
 
 function finishIntro() {
   // 새 게임: 민아의 음성 메시지("서문일보 호외부터 봐") 다음엔 정문으로 가기 전에 호외부터 펼친다 — 가설은 여기서 시작
@@ -2888,56 +2509,15 @@ function finishIntro() {
   if (!readingSave && !SET.flashReduce) { const b = $('blink'); b.classList.remove('go'); void b.offsetWidth; b.classList.add('go'); setTimeout(() => b.classList.remove('go'), 2700); }   // 눈을 뜨듯 시작
   if (!readingSave) { P.x = 0; P.z = 77.5; P.yaw = 0; P.pitch = 0; }
   state = 'playing';
-  if (readingSave) {
-    resetGuardToSeatedImmediate();
-  } else {
-    // 인트로를 스킵했거나 아직 정문 대화를 시작하지 않았다면 정문 입구에 서서 첫 대사를 건넨 뒤 경비실로 걸어가게 한다
-    if (!NO_GUARD && !GUARD_WALK.startedWalk) {
-      placeGuardAtGateForIntro();
-      GUARD_WALK.talkWait = 2.6;
-      if (!GUARD_WALK.greetedGate) {
-        GUARD_WALK.greetedGate = true;
-        setTimeout(async () => {
-          if (epoch !== storySession || state !== 'playing') return;
-          sfx.flashlightClick();
-          const sec = await speak('guard1');
-          subtitle('경비 아저씨', VO.guard1.text, Math.max(sec, 2.8) + .4);
-          npcVisuals.portrait('guard', '경비원', (Math.max(sec, 2.8) + .4) * 1000);
-          setTimeout(() => { if (epoch === storySession && state === 'playing') startGuardWalkToBooth(); }, 1800);
-        }, 350);
-      } else {
-        setTimeout(() => { if (epoch === storySession && state === 'playing') startGuardWalkToBooth(); }, 900);
-      }
-    }
+  if (!readingSave) {
     startQuietT = performance.now() + 6500;
     setTimeout(() => {if(epoch===storySession&&state==='playing')showChapter(1);}, 600);
-    setTimeout(() => {if(epoch===storySession&&state==='playing')talk('arrive', 4200);}, NO_GUARD || GUARD_WALK.startedWalk ? 1500 : 3600);
+    setTimeout(() => {if(epoch===storySession&&state==='playing')talk('arrive', 4200);}, 1500);
     setTimeout(() => { if (epoch===storySession && state === 'playing' && P.floor === 0 && isOutdoors()) phoneMessage(0,epoch); }, 10500);   /* 아직 정문 · 운동장에 있을 때만 */
   }
 }
 let guardGift = false;
-async function talkGuard(p) {
-  GUARD_WALK.talking = true;
-  try {
-    const say2 = async id => { const sec = await speak(id); subtitle('경비 아저씨', VO[id].text, Math.max(2.5, sec) + .4); npcVisuals.portrait('guard', '경비 아저씨', (Math.max(2.5, sec) + .4) * 1000); return sec; };
-    await say2('guardHi');
-    for (let n = 0; n < 4 && state === 'playing'; n++) {
-      const opts = [{ label: '민아라는 학생 못 보셨어요?' }, { label: '이 학교에 무슨 일이 있었어요?' }, { label: guardGift ? '(건전지는 이미 받았다)' : '손전등 건전지 좀 있으세요?' }, { label: '이만 가 볼게요' }];
-      const desc = GUARD_WALK.state === 'seated'
-        ? '경비실 창가 의자에 앉아 있던 경비원이 손전등을 만지작거린다.'
-        : '정문에서 경비실로 걸어가던 경비원이 발걸음을 멈추고 손전등을 고쳐 쥔다.';
-      const i = await choose('경비 아저씨', desc, opts);
-      if (i === 3) { say2('guardBye'); setTimeout(() => triggerGuard7PMClockOut(), 1200); break; }
-      if (i === 0) await wait(1000 * await say2('guardMina'));
-      else if (i === 1) await wait(1000 * await say2('guardPast'));
-      else if (!guardGift) { guardGift = true; inv.battery += 2; refreshHud(); sfx.pickup(); toast('건전지 2개를 받았다', '경비 아저씨: 열한 시 사십 분 전에는 나와야 한다', 'info'); await wait(1000 * await say2('guardGift')); }
-    }
-  } finally {
-    GUARD_WALK.talking = false;
-    if (GUARD_WALK.state === 'gate_talk') startGuardWalkToBooth();
-  }
-}
-// 인트로: 검은 화면 텍스트 → 공중 전경(번개 · 타이틀) → 정문으로 하강(경비원이 첫 대사 후 정문을 통과해 경비실로 걸어간다) → 플레이 시작
+// 인트로: 검은 화면 텍스트 → 공중 전경(번개 · 타이틀) → 정문으로 하강(불 꺼진 빈 경비실) → 플레이 시작
 function updateIntro(dt) {
   introT += dt * (DEBUG && window.__introJump ? 6 : 1);
   if (introText) introT = Math.min(introT, 5.99);
@@ -2948,13 +2528,9 @@ function updateIntro(dt) {
     const cue = (n, fn) => { if (introCue < n && T >= [0, 6.6, 8.2, 9.4, 12.8, 13.6, 17.2][n]) { introCue = n; fn(); } };
     cue(1, () => { fx.lightning(); sfx.thunder(.6); });
     cue(2, () => { sfx.swell(1.2, .4); });
-    cue(3, () => { fx.lightning(); sfx.boom(); $('introTitle').classList.add('show'); sfx.musicBox(7, .6); if (!NO_GUARD) placeGuardAtGateForIntro(); });
-    cue(4, () => { $('introTitle').classList.remove('show'); if (!NO_GUARD) placeGuardAtGateForIntro(); sfx.flashlightClick(); });
-    if (NO_GUARD) cue(5, () => { GUARD_WALK.greetedGate = true; introGuardEnd = 0; introEndT = T + 1.6; sfx.gateClang(); caption('녹슨 정문이 바람에 삐걱인다. 불 꺼진 경비실 창문 너머엔 아무도 없다.'); });
-    else cue(5, async () => { GUARD_WALK.greetedGate = true; introGuardEnd = T + 12; const sec = await speak('guard1'); introGuardEnd = introT + Math.max(sec, 3) + .3; subtitle('경비 아저씨', VO.guard1.text, Math.max(sec, 3) + .4); npcVisuals.portrait('guard', '경비원', (Math.max(sec, 3) + .4) * 1000); });
-    // 대사가 끝난 뒤 사라지지 않고 몸을 돌려 정문 안쪽 경비실로 걸어가기 시작한다
-    if (!NO_GUARD && introCue === 5 && T >= Math.max(17.2, introGuardEnd)) { introCue = 6; startGuardWalkToBooth(); caption('경비 아저씨가 손전등을 비추며 경비실 쪽으로 걸어간다'); introEndT = T + 2.2; }
-    updateGuardWalk(dt);
+    cue(3, () => { fx.lightning(); sfx.boom(); $('introTitle').classList.add('show'); sfx.musicBox(7, .6); });
+    cue(4, () => { $('introTitle').classList.remove('show'); sfx.flashlightClick(); });
+    cue(5, () => { introEndT = T + 1.6; sfx.gateClang(); caption('녹슨 정문이 바람에 삐걱인다. 불 꺼진 경비실 창문 너머엔 아무도 없다.'); });
     // 공중 전경 → 정문 앞으로 하강
     const k1 = ease(clamp((T - 6) / 6.2, 0, 1)), k2 = ease(clamp((T - 12.2) / 5.4, 0, 1));
     const ax = lerp(-26, 0, k1), ay = lerp(24, 8, k1), az = lerp(104, 92, k1);
@@ -3198,8 +2774,7 @@ function updatePlayer(dt) {
     if (!Number.isFinite(P.sh) || (P.sh < 0 && !(RBG && P.floor === 0 && RBG.inPit(P.x, P.z)))) P.sh = 0; }   // 지하 계단 구덩이 안은 음수 높이 허용
   P.crouchK = lerp(P.crouchK || 0, P.crouch && !P.hiding ? 1 : 0, Math.min(1, dt * 9));
 
-  // 정문 개방 유지: 초반에는 정문이 바로 잠기지 않고 열려 있으며, 경비원이 퇴근하는 시점(19:00)에 맞춰 잠긴다!
-  if (GUARD_WALK.state === 'gate_talk' && state === 'playing' && P.z < GATE_Z + 1.5) startGuardWalkToBooth();
+  // 정문 개방 유지: 초반에는 정문이 바로 잠기지 않고 열려 있으며, 저녁 7시(19:00)에 자동으로 잠긴다
   if (!gateClosed && state === 'playing' && P.floor === 0 && P.z < GATE_Z - 3 && DAY.start < 0) {
     DAY.start = playTime;
   }
@@ -3392,7 +2967,7 @@ function updateDay(dt) {
   sky.stars.material.opacity = night; sky.stars.material.transparent = true; sky.moonGlow.material.opacity = night;
   DAY.rain = 0; setRainLevel(0);   // 비 효과 제거 (요청)
   world.winMats[9].emissiveIntensity = night * 2.4;
-  { const here = GUARD_WALK.state !== 'off_duty' && !FL.night; guardNPC.visible = here; guardCap.visible = !here; const gp = world.props.find(q => q.kind === 'guardnpc'); if (gp) gp.done = !here || GUARD_WALK.state === 'leaving_duty'; }   // 해가 지면 경비원은 사라지고 모자만 남는다   // 밤이 되면 불 켜진 교실 창 몇 개 (아무도 없는데)
+  // 밤이 되면 불 켜진 교실 창 몇 개 (아무도 없는데)
   // 낮의 소리: 가끔 까마귀
   if (dk > .3 && state === 'playing' && isOutdoors() && Math.random() < dt / 14) sfx.crow(Math.random() * 2 - 1);
 }
@@ -3665,7 +3240,7 @@ function frameBody(now) {
     if (state === 'playing') { playTime += dt; statAcc += dt; if (statAcc > 30) statFlush(); }
     if (state !== 'dead') updatePlayer(dt);
     updateGate(dt);
-    updateGuardWalk(dt);
+    updateGateAutoLock();
     if (blackout > 0) blackout -= dt;
     if (state === 'playing') {
       ghostTick(dt, tNow);
@@ -4225,7 +3800,6 @@ async function useProp(p) {
   if (p.kind === 'bed') { lieDown(p); return; }
   if (p.kind === 'elBtn') { elvPress(p); return; }
   if (p.kind === 'robj') { useRoomObj(p); return; }
-  if (p.kind === 'guardnpc') { talkGuard(p); return; }
   if (p.kind === 'sq') { p.main ? useHead(p) : useSideQuest(p); return; }
   if (p.kind === 'search') { startSearch(p); return; }
   if (p.kind === 'ldoor') { lockerDoorToggle(p); return; }
@@ -9435,7 +9009,7 @@ try { installHudV2({ THREE, P, camera, objDir, getState: () => state, objArrow: 
 if (DEBUG) {
   window.__g = {
     P, ghost, floors, world, scene, camera, renderer, THREE, start: () => start(true),
-    setIntroT(t) { introText = false; introT = t; }, introInfo: () => ({ state, introT: +introT.toFixed(1), cue: introCue, guard: !!(introGuard && introGuard.visible), cam: camera.position.toArray().map(v => +v.toFixed(1)) }),
+    setIntroT(t) { introText = false; introT = t; }, introInfo: () => ({ state, introT: +introT.toFixed(1), cue: introCue, cam: camera.position.toArray().map(v => +v.toFixed(1)) }),
     photoCheck, PHOTOQ,
     flashNearProbe: () => { FN.t = 0; return flashNear(); }, agProbe: () => { const t = performance.now(); AG.t = 0; antiGlareTick(); return performance.now() - t; },
     bcAuto() { BC.power = true; BC.amp = 1; BC.ch = 'all'; BC.fader = 70; closeUI(); if (FL.tag && power && !FL.calm) useBcRead(); else bcOnAir(); },   // 진 엔딩 방송은 녹음실 앵커석에서 대본 낭독

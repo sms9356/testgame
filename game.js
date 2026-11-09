@@ -2421,7 +2421,7 @@ function start(skipIntro = false) {
   if (!readingSave) { DAY.k = .92; DAY.start = -1; DAY.done = false; delete FL.night; }
   refreshHud(); chapterShown = objective().ch;
   if (skipIntro || TEST) { finishIntro(); return; }
-  state = 'intro'; introT = 0; introText = true; introCue = 0; introEndT = 99; $('intro').classList.add('show'); $('cine').classList.add('on');
+  state = 'intro'; introStartMs = performance.now(); introT = 0; introText = true; introCue = 0; introEndT = 99; $('intro').classList.add('show'); $('cine').classList.add('on');
   // 캐릭터 성별 분기 인트로: 서연(여성 캐릭터)은 여성 성우 독백(intro1_s~intro4_s), 지훈(남성 캐릭터)은 남성 성우 독백(intro1_j~intro4_j)으로 재생!
   const isSeoyeon = CHAR === 'seoyeon';
   const ids = isSeoyeon ? ['intro1_s', 'intro2_s', 'intro3_s', 'intro4_s'] : ['intro1_j', 'intro2_j', 'intro3_j', 'intro4_j'];
@@ -2541,8 +2541,11 @@ function updateIntro(dt) {
   updateLighting(dt);
   if (T > Math.max(19.2, introEndT)) finishIntro();
 }
-addEventListener('keydown', e => { if (state === 'intro' && ['Space', 'Enter', 'Escape'].includes(e.code)) finishIntro(); });
-$('intro').addEventListener('click', () => { if (state === 'intro') finishIntro(); });
+// 인트로 건너뛰기: 캐릭터 선택에서 누른 Enter(같은 키 이벤트 · 키 반복)가 바로 인트로를 넘기던 문제 — 시작 1.5초 동안과 키 반복은 무시
+let introStartMs = 0;
+const introSkippable = () => performance.now() - introStartMs > 1500;
+addEventListener('keydown', e => { if (state === 'intro' && !e.repeat && introSkippable() && ['Space', 'Enter', 'Escape'].includes(e.code)) finishIntro(); });
+$('intro').addEventListener('click', () => { if (state === 'intro' && introSkippable()) finishIntro(); });
 
 /* ---------- 타이틀 · 캐릭터 선택 ---------- */
 let readingSave = false;
@@ -2561,7 +2564,7 @@ function whenAssetsReady(go) {
   // 소품은 장식일 뿐 (충돌·진행은 buildWorld 가 이미 만듦) — 끝까지 기다리지 않는다: 요청 하나가 멈추면(네트워크 끊김 · 백그라운드 탭) 예전엔 최대 90초 메뉴에 갇혔다.
   //   진행이 STALL_MS 동안 멈추거나 총 MAX_MS 가 지나면 시작하고 나머지는 플레이 중에 들어오게 둔다. norender(자동 점검)는 기다리지 않는다.
   const st = window.__modelLoadState; if (window.__modelsDone || !st || TEST || NORENDER) return go();
-  const MAX_MS = 25000, STALL_MS = 6000;
+  const MAX_MS = 12000, STALL_MS = 4000;
   const ov = $('loading'), msg = $('loadMsg'), t0 = performance.now(); let lastN = st.completed, lastT = t0, fired = false; ov.classList.add('show');
   const iv = setInterval(() => { const s = window.__modelLoadState, now = performance.now(); if (msg && s) msg.textContent = `교실 소품을 들여놓는 중 · ${s.completed} / ${s.total}`;
     if (s && s.completed !== lastN) { lastN = s.completed; lastT = now; }
@@ -2696,7 +2699,7 @@ addEventListener('keydown', e => {
   if (state !== 'menu') return;
   if ($('charsel').classList.contains('show')) {
     if (['ArrowLeft', 'ArrowRight', 'KeyA', 'KeyD'].includes(e.code)) { csPick = csPick === 'jihun' ? 'seoyeon' : 'jihun'; renderCharsel(); }
-    else if (e.code === 'Enter') $('csOk').click(); else if (e.code === 'Escape') $('csBack').click();
+    else if (e.code === 'Enter') { e.preventDefault(); e.stopImmediatePropagation(); if (!e.repeat) $('csOk').click(); } else if (e.code === 'Escape') $('csBack').click();
     return;
   }
   if (!$('title').classList.contains('show') || MENUS.slice(2).some(k => $(k).classList.contains('show'))) { if (e.code === 'Escape') MENUS.slice(2).forEach(k => $(k).classList.remove('show')); return; }

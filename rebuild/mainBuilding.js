@@ -162,6 +162,7 @@ export function buildMainBuilding(opt = {}) {
   const props = [];    // 상호작용 지점 {kind,label,x,y,z,floor}
   const lights = [];   // 형광등 위치 (게임 쪽 조명 예산이 고른다)
   const geo = new Map();  // 재질키 → 지오메트리 목록 (끝에서 병합 → 드로콜 최소화)
+  const moonWins = [];   // 창 개구부 (달빛 기둥 · 먼지용)
   const mats = {}, stairwells = [], doors = [], models = []; let s_sci = 0, s_lib = 0, s_staff = 0; let y_ = 0, rmx = 0, rmz = 0, bseed = 7; const br = () => (bseed = (bseed * 16807) % 2147483647) / 2147483647;   // rmx/rmz: 지금 꾸미는 방의 중심
   const mdl = (name, x, y, z, ry = 0, o = {}) => models.push({ name, x, y, z, ry, ...o });
   const deskGraffiti = (x, y, z) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(.34, .23), grafMaterial(grafN++ % GRAF.length)); m.rotation.set(-Math.PI / 2, 0, Math.PI / 2 + (br() - .5) * .6); m.position.set(x + (br() - .5) * .08, y, z + (br() - .5) * .2); m.renderOrder = 2; root.add(m); };
@@ -479,6 +480,7 @@ export function buildMainBuilding(opt = {}) {
       for (let k = 0; k < nS; k++) { const x = w.a + (k + .5) * sw, dz = k % 2 ? .035 : -.035; box('aluW', x - .025, x + .025, y0 + w.y1 + .06, y0 + w.y2 - .06 - tH, z + dz - .02, z + dz + .02); }   // 미서기 짝 맞춤 살 (바깥 · 안 짝이 번갈아)
       if (tH) box('aluW', w.a + .05, w.b - .05, y0 + w.y2 - tH - .04, y0 + w.y2 - tH + .01, z - .065, z + .065);   // 위 고정창 가로살
       box('glass', w.a + .05, w.b - .05, y0 + w.y1 + .06, y0 + w.y2 - .06, z - .046, z - .03); box('glass', w.a + .05, w.b - .05, y0 + w.y1 + .06, y0 + w.y2 - .06, z + .03, z + .046);   // 이중 유리 (바깥 짝 · 안 짝)
+      moonWins.push({ a: w.a + .05, b: w.b - .05, y1: y0 + w.y1 + .06, y2: y0 + w.y2 - .06, z, out: z > 0 ? 1 : -1, f, y0, nS });   // 달빛 창 기둥용 (moonShafts.js)
       // 바깥 콘크리트 창대 (물끊기) · 상인방
       const out = z > 0 ? 1 : -1, zo = z + out * (T / 2);
       box('trim', w.a - .08, w.b + .08, y0 + w.y1 - .06, y0 + w.y1, Math.min(zo - out * .01, zo + out * .12), Math.max(zo - out * .01, zo + out * .12));
@@ -1798,7 +1800,7 @@ export function buildMainBuilding(opt = {}) {
   // 세계 ↔ 건물 좌표 (건물은 원점 기준으로 지은 뒤 통째로 옮기고 돌린다)
   const toLocal = (x, z) => { const dx = x - OX, dz = z - OZ; return [dx * cR - dz * sR, dx * sR + dz * cR]; };
   const toWorld = (x, z) => [OX + x * cR + z * sR, OZ - x * sR + z * cR];
-  return { elevX: ELX, mats, root, col, walk, props, lights, groundAt, layout: LY, spec: S, stairwells, doors, tickDoors, nearDoor, models, toLocal, toWorld, name: opt.label || '본관' };
+  return { moonWins, elevX: ELX, mats, root, col, walk, props, lights, groundAt, layout: LY, spec: S, stairwells, doors, tickDoors, nearDoor, models, toLocal, toWorld, name: opt.label || '본관' };
 }
 
 // 본관 ↔ 별관 1층 연결 통로 (유리 커튼월 복도, 천장 2.9m)

@@ -27,6 +27,8 @@ async function finalChoice(p, i) {
 const W = (p, t) => p.waitForTimeout(t);
 // 새 게임 · 이어하기: 로딩 화면(whenAssetsReady — 소품 모델은 상한 시간 뒤 플레이 중 계속 들어옴)과 타이틀이 닫힐 때까지 기다린다
 const started = p => p.waitForFunction(() => !document.getElementById('loading').classList.contains('show') && !document.getElementById('title').classList.contains('show'), null, { timeout: 180000 }).then(() => W(p, 700));
+// 인트로 건너뛰기: 시작 1.5초 동안은 Space · Enter 를 무시한다(introSkippable) → 그 뒤에 눌러야 실제로 넘어간다
+const skipIntro = async p => { await p.waitForFunction(() => __g.state !== 'intro' || __g.introSkippable(), null, { timeout: 10000, polling: 100 }).catch(() => W(p, 1600)); await p.keyboard.press('Space'); };
 async function ready(p) { await E(p, () => __g.applyQuality('low')); }
 // 아이템 줍기 / 장치 사용 (위치로 이동 → 상호작용)
 const take = (p, kind, id) => E(p, ([k, id]) => { const it = __g.world.items.find(i => i.kind === k && (id == null || i.id === id || i.idx === id) && !i.taken); if (!it || it.locked) return it ? 'locked' : 'none'; __g.state = 'playing'; __g.P.floor = it.floor; __g.P.x = it.pos.x; __g.P.z = it.pos.z + .8; __g.P.sh = it.rbY ?? __g.P.sh; __g.setTarget({ type: 'item', it, label: '' }); __g.interact(); return 'ok'; }, [kind, id]);
@@ -44,7 +46,7 @@ async function normalRun(char) {
   sec(`${char} — 처음부터 NORMAL 엔딩 (+ 저장/복원)`);
   const p = await page();
   await E(p, c => { localStorage.clear(); localStorage.setItem('haegyo_char', c); }, char); await p.reload(); await p.waitForFunction(() => window.__loadTimes, null, { timeout: 180000 }); await ready(p);
-  await E(p, () => __g.newGame()); await started(p); await p.keyboard.press('Space'); await W(p, 500);
+  await E(p, () => __g.newGame()); await started(p); await skipIntro(p); await W(p, 500);
   ok(await E(p, () => __g.CHAR) === char, `주인공 ${char}`);
   await E(p, () => { __g.P.z = -1; });
   ok(await take(p, 'camcorder') === 'ok', '캠코더 획득'); await W(p, 300);
@@ -103,7 +105,7 @@ async function trueRun() {
   sec('TRUE 엔딩 경로 (명찰 → 퓨즈 · 차단기 → 마지막 방송 → 민아)');
   const p = await page();
   await E(p, () => { localStorage.clear(); localStorage.setItem('haegyo_char', 'seoyeon'); }); await p.reload(); await p.waitForFunction(() => window.__loadTimes, null, { timeout: 180000 }); await ready(p);
-  await E(p, () => __g.newGame()); await started(p); await p.keyboard.press('Space'); await W(p, 500);
+  await E(p, () => __g.newGame()); await started(p); await skipIntro(p); await W(p, 500);
   await take(p, 'nametag'); ok(await E(p, () => __g.FL.tag), '명찰');
   await saveReload(p, '명찰 후'); ok(await E(p, () => __g.FL.tag && __g.FL.opt), '복원: 명찰 · 특별 목표');
   await use(p, 'breaker'); ok(!(await E(p, () => __g.power)), '퓨즈 없이 차단기 불가');
@@ -141,7 +143,7 @@ async function extrasRun() {
   sec('사물함 수색 · 수집품 · 소모품 · 방 미니게임 · 초자연 현상');
   const p = await page();
   await E(p, () => { localStorage.clear(); localStorage.setItem('haegyo_char', 'jihun'); }); await p.reload(); await p.waitForFunction(() => window.__loadTimes, null, { timeout: 180000 }); await ready(p);
-  await E(p, () => __g.newGame()); await started(p); await p.keyboard.press('Space'); await W(p, 500); await E(p, () => { __g.ghost.active = false; });
+  await E(p, () => __g.newGame()); await started(p); await skipIntro(p); await W(p, 500); await E(p, () => { __g.ghost.active = false; });
   ok(await E(p, () => __g.world.props.filter(q => q.kind === 'search').length) >= 40 && await E(p, () => __g.world.props.filter(q => q.kind === 'mspot').length) >= 10, '수색 지점 40곳 이상 · 방 미니게임 10곳 이상');
   // 수집품이 든 사물함 3곳을 실제로 뒤진다 (가만히 1.1초)
   const n = await E(p, async () => { let k = 0; for (const q of __g.world.props.filter(q => q.kind === 'search' && q.loot && q.loot.col).slice(0, 3)) { __g.state = 'playing'; __g.tp(q.x, q.z + (q.where === '복도' ? .7 : q.z < 0 ? -.5 : .5), q.floor, 0, 0); __g.startSearch(q); if (__g.XT.search) __g.XT.search.t = 1.09; const t0 = performance.now(); while (__g.XT.search && performance.now() - t0 < 8000) await new Promise(r => setTimeout(r, 50)); if (q.done) k++; } return k; });
@@ -172,7 +174,7 @@ async function extrasRun() {
 async function reachAudit() {
   sec('도달성 감사 (막힌 통로 · 가려진 조사 지점)');
   const p = await page();
-  await E(p, () => { localStorage.clear(); __g.newGame(); }); await W(p, 800); await p.keyboard.press('Space'); await W(p, 600);
+  await E(p, () => { localStorage.clear(); __g.newGame(); }); await started(p); await skipIntro(p); await W(p, 600);
   // 소품 모델이 다 들어와야 묻힌 아이템 옮기기(itemUnbury)가 끝난다 — 이어하기는 기다리지 않으므로 여기서 기다린다
   await p.waitForFunction(() => window.__modelsDone, null, { timeout: 180000 }); await W(p, 500);
   const bad = await E(p, () => {
@@ -221,7 +223,7 @@ async function saveEdgeCases() {
   sec('저장 예외: 캐릭터 유지 · 손상 세이브 백업 복구 · 테스트 세이브 분리');
   const p = await page();
   await E(p, () => { localStorage.clear(); localStorage.setItem('haegyo_char', 'jihun'); }); await p.reload(); await p.waitForFunction(() => window.__loadTimes, null, { timeout: 180000 }); await ready(p);
-  await E(p, () => __g.newGame()); await started(p); await p.keyboard.press('Space'); await W(p, 400);
+  await E(p, () => __g.newGame()); await started(p); await skipIntro(p); await W(p, 400);
   await E(p, () => { __g.state = 'playing'; __g.P.hp = 77; __g.save(); __g.P.hp = 55; __g.save(); localStorage.setItem('haegyo_char', 'seoyeon'); });
   await p.reload(); await p.waitForFunction(() => window.__loadTimes, null, { timeout: 180000 }); await ready(p);
   await E(p, () => __g.continueGame()); await started(p);
@@ -243,7 +245,7 @@ async function coverRun() {
   sec('은폐 엔딩 (마지막 선택 C → 교장실의 전화)');
   for (const [k, title, fin] of [[0, '침묵의 서약', 'C'], [1, '교장실의 거래', 'C2']]) {
     const p = await page(); await ready(p);
-    await E(p, () => { localStorage.removeItem('haegyo_endings'); __g.newGame(); }); await started(p); await p.keyboard.press('Space'); await W(p, 400);
+    await E(p, () => { localStorage.removeItem('haegyo_endings'); __g.newGame(); }); await started(p); await skipIntro(p); await W(p, 400);
     await E(p, () => { __g.state = 'playing'; __g.winGame(); });
     await p.waitForFunction(() => document.getElementById('choice').classList.contains('show'), null, { timeout: 30000 });
     await E(p, () => document.querySelectorAll('#choiceBtns button')[2].click());

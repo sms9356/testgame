@@ -8961,6 +8961,7 @@ setTimeout(() => prewarmFloors(false, fx.composer ? fx.composer.renderTarget1 : 
 // 메뉴에 있는 동안 '게임 중 조명'으로 장면 전체를 한 번 그려 둔다 — 시작 직후 셰이더 239개(그림자 깊이 · 손전등 조명 조합)를 한꺼번에 컴파일하며 멈추던 문제.
 //   재건축 · 가구 · 모델이 다 붙은 뒤(25초 · 60초) 다시 한 번. 플레이 중에는 하지 않는다.
 function menuPrewarm() { if (state !== 'menu') return;
+  if (window.__gpuSoftware && !renderer.extensions.has('KHR_parallel_shader_compile')) return;   // 소프트웨어 GL: 컬링 없이 씬 전체를 그리면 동기 컴파일로 1분 넘게 멈춘다 (prewarmFloors 와 같은 이유)
   // WebGPU 렌더러: WebGL 렌더 타깃·직접 렌더로 예열하면 렌더러가 깨져 새 게임 시작 후 화면이 새까매질 수 있다 → 비동기 컴파일만(물체 수집은 호출 순간 동기로 끝나므로 바로 원상복구)
   if (renderer.isWebGPURenderer || (typeof ENGINE !== 'undefined' && ENGINE.webgpu)) { if (!renderer.compileAsync) return; const shown = []; try { scene.traverse(o => { if (!o.visible && !o.isLight && !o.isCamera) { o.visible = true; shown.push(o); } }); renderer.compileAsync(scene, camera).catch(() => {}); } catch (e) { console.warn('[menu prewarm]', e); } finally { shown.forEach(o => { o.visible = false; }); } return; } const shown = [], prevI = flash.intensity, prevC = flash.castShadow, prevRT = renderer.getRenderTarget();
   const unc = []; try { scene.traverse(o => { if (!o.visible && !o.isLight && !o.isCamera) { o.visible = true; shown.push(o); } if (o.isMesh && o.frustumCulled) { o.frustumCulled = false; unc.push(o); } });   // 화면 밖 물체도 셰이더가 만들어지도록 컬링을 잠깐 끈다
@@ -9136,7 +9137,7 @@ try { installHudV2({ THREE, P, camera, objDir, getState: () => state, objArrow: 
 if (DEBUG) {
   window.__g = {
     P, ghost, floors, world, scene, camera, renderer, THREE, start: () => start(true),
-    setIntroT(t) { introText = false; introT = t; }, introInfo: () => ({ state, introT: +introT.toFixed(1), cue: introCue, cam: camera.position.toArray().map(v => +v.toFixed(1)) }),
+    setIntroT(t) { introText = false; introT = t; }, introSkippable, introInfo: () => ({ state, introT: +introT.toFixed(1), cue: introCue, cam: camera.position.toArray().map(v => +v.toFixed(1)) }),
     photoCheck, PHOTOQ,
     flashNearProbe: () => { FN.t = 0; return flashNear(); }, agProbe: () => { const t = performance.now(); AG.t = 0; antiGlareTick(); return performance.now() - t; },
     bcAuto() { BC.power = true; BC.amp = 1; BC.ch = 'all'; BC.fader = 70; closeUI(); if (FL.tag && power && !FL.calm) useBcRead(); else bcOnAir(); },   // 진 엔딩 방송은 녹음실 앵커석에서 대본 낭독

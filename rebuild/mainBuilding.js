@@ -1333,13 +1333,13 @@ export function buildMainBuilding(opt = {}) {
     } else if (type === 'study') {   // 자율학습실 (참고 자료 · 8.8 × 9.9m): 1인 칸막이 학습 책상 28석 (4열 × 7줄, 창 쪽을 본다) · 측면 통로 1.0 / 중앙 통로 1.2 · 교사 데스크 · 화이트보드 · 게시판 · 서가 · 블라인드 · 천장형 냉난방기
       darkMats(); const { plane, ctex } = artHelpers();
       mat.studyG = mat.studyG || M('studyG', () => new THREE.MeshStandardMaterial({ color: 0x24423a, roughness: .55, metalness: .2 }));
-      mat.ledS = mat.ledS || M('ledS', () => new THREE.MeshStandardMaterial({ color: 0xfff4dc, emissive: 0xffe6b0, emissiveIntensity: 1.1 }));
+      mat.ledS = mat.ledS || M('ledS', () => new THREE.MeshStandardMaterial({ color: 0xf4f8f0, emissive: 0xe8f2e4, emissiveIntensity: 1.0 }));
       box('dkwood', x1, x2, y0 + .02, y0 + .03, z1, z2);
       box('wain', x1 + .005, x1 + .02, y0, y0 + 1.0, z1 + .1, z2 - .1); box('wain', x2 - .02, x2 - .005, y0, y0 + 1.0, z1 + .1, z2 - .1);   // 녹색 징두리
-      // 1인 학습 책상 (W1000 D600 H1200): 상판 · 좌우 · 뒤 칸막이 · 윗 선반 + LED 스탠드 · 이동 서랍장 (W400 D600 H600) · 학습 의자
+      // 1인 학습 책상 (W1000 D600 H1200): 상판 · 좌우 · 뒤 칸막이 · 윗 선반 밑 내장 형광등 스탠드 (FL 직관 · 2008 독서실 책상) · 이동 서랍장 (W400 D600 H600) · 학습 의자
       const carrel = (cx, cz) => { const a = cx - .5, b = cx + .5, f2 = cz - .3, bk = cz + .3;   // 앉는 쪽 = 복도 쪽(-z) · 칸막이 뒤판 = 창 쪽(+z): 창을 보고 앉는다
         box('dkwood', a, b, y0 + .72, y0 + .75, f2, bk); box('dkwood', a, a + .025, y0, y0 + 1.2, f2, bk); box('dkwood', b - .025, b, y0, y0 + 1.2, f2, bk); box('dkwood', a, b, y0 + .75, y0 + 1.2, bk - .025, bk);
-        box('dkwood', a + .03, b - .03, y0 + 1.0, y0 + 1.02, bk - .26, bk - .025); box('ledS', a + .1, b - .1, y0 + .985, y0 + 1.0, bk - .16, bk - .12);   // 윗 선반 · LED
+        box('dkwood', a + .03, b - .03, y0 + 1.0, y0 + 1.02, bk - .26, bk - .025); box('ledS', a + .1, b - .1, y0 + .985, y0 + 1.0, bk - .16, bk - .12);   // 윗 선반 · 선반 밑 형광등
         box('studyG', b - .45, b - .04, y0, y0 + .6, f2 + .05, bk - .05, { solid: true }); for (let k = 0; k < 3; k++) box('alu', b - .3, b - .19, y0 + .14 + k * .19, y0 + .16 + k * .19, f2 + .04, f2 + .05);   // 이동 서랍장
         for (let k = 0; k < 4; k++) box(['white', 'red', 'cork', 'lockerM'][(k + Math.round(cx * 3 + cz)) & 3], a + .08 + k * .05, a + .12 + k * .05, y0 + 1.02, y0 + 1.22, bk - .22, bk - .05);   // 선반 위 책
         col.push({ x1: a, x2: b, z1: f2, z2: bk, y1: y0, y2: y0 + 1.2 });
@@ -1388,7 +1388,7 @@ export function buildMainBuilding(opt = {}) {
     } else if (type === 'library') {   // 도서실 (참고 평면도 · 가구 규격도, 8.8 × 9.9m): 열람 테이블 6인용 (1800×900×720) 3 · 4인 테이블 · 열람 의자 · 벽면 단면 책장 (900×300×2000) · 창가 낮은 책장 · 사서 데스크 (2400×900, PC · 복합기) · 화이트보드 · 게시판 · 벽시계 · 화분
       darkMats();
       mat.studyG = mat.studyG || M('studyG', () => new THREE.MeshStandardMaterial({ color: 0x24423a, roughness: .55, metalness: .2 }));
-      mat.ledS = mat.ledS || M('ledS', () => new THREE.MeshStandardMaterial({ color: 0xfff4dc, emissive: 0xffe6b0, emissiveIntensity: 1.1 }));
+      mat.ledS = mat.ledS || M('ledS', () => new THREE.MeshStandardMaterial({ color: 0xf4f8f0, emissive: 0xe8f2e4, emissiveIntensity: 1.0 }));
       const BK = ['white', 'red', 'cork', 'lockerM', 'screen', 'studyG'];
       const shelfX = (xa, side, za, zb, h = 2.0) => { const xb = xa + side * .3, lo = Math.min(xa, xb), hi = Math.max(xa, xb); box('wood', lo, hi, y0, y0 + h, za, zb, { solid: true }); const n = Math.max(1, Math.round(h / .4)); for (let j = 0; j < n; j++) { const yy = y0 + .08 + j * (h - .1) / n; box('wood', lo, hi + (side > 0 ? .005 : 0), yy, yy + .02, za, zb); for (let q = 0, z = za + .03; z < zb - .06; q++) { const w = .03 + ((q * 7 + j) % 3) * .012; if ((q + j) % 7) box(BK[(q * 5 + j) % BK.length], side > 0 ? hi - .02 : lo, side > 0 ? hi : lo + .02, yy + .02, yy + .22 + ((q + j) % 3) * .04, z, z + w); z += w + .005; } } };
       const shelfZ = (za, side, xa, xb, h) => { const zb = za + side * .3, lo = Math.min(za, zb), hi = Math.max(za, zb); box('wood', xa, xb, y0, y0 + h, lo, hi, { solid: true }); for (let q = 0, x = xa + .03; x < xb - .06; q++) { const w = .03 + (q % 3) * .012; if (q % 6) box(BK[q % BK.length], x, x + w, y0 + .1, y0 + .34, side > 0 ? hi : lo - .005, side > 0 ? hi + .005 : lo); x += w + .005; } };

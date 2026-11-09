@@ -14,6 +14,8 @@ async function page(qs = process.env.GAME_QS || '?debug') {   // 새 건물 점�
   // 외부 요청(구글 웹폰트 등)은 막는다: 샌드박스 프록시에서 응답 없이 매달린 폰트 요청이 'load' · 새로고침을 수 분씩 붙잡았다 — 글꼴은 대체 글꼴로 그려지고 게임 동작과는 무관
   if (!process.env.E2E_NET) await ctx.route(u => !/^https?:\/\/(localhost|127\.0\.0\.1)[:/]/.test(u.href), r => r.abort());
   const p = await ctx.newPage();
+  // waitForFunction 기본 polling 은 requestAnimationFrame — 소프트웨어 GL 에서 한 프레임이 수 초 · 무거운 장면에선 rAF 가 한참 멎어 조건이 참인데도 시간 초과가 났다 → 시간 간격 polling
+  const wff = p.waitForFunction.bind(p); p.waitForFunction = (f, arg, o = {}) => wff(f, arg, { polling: 250, ...o });
   p.setDefaultNavigationTimeout(180000); p.setDefaultTimeout(60000);
   p.errors = 0; p.on('pageerror', e => { p.errors++; console.log('   [pageerror]', e.message, (e.stack || '').split('\n')[1] || ''); });
   await p.goto(URL + qs, { timeout: 180000 }); await p.waitForFunction(() => window.__loadTimes, null, { timeout: 180000 });

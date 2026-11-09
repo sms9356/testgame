@@ -305,17 +305,21 @@
   .pTabs button{flex:1;background:#14181c;border:0;color:#aab;padding:8px 0;font-family:inherit;font-size:12px;border-radius:8px;cursor:pointer}
   .pTabs button.on{background:#2a3644;color:#fff}
   #pBody{flex:1;overflow:auto;padding:4px}
-  .pIsland{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:96px;height:24px;background:#000;border-radius:14px;z-index:2;box-shadow:inset 0 0 0 1px #15181b}
-  .pIsland:after{content:'';position:absolute;right:14px;top:8px;width:8px;height:8px;border-radius:50%;background:#1a2230;box-shadow:inset 0 0 2px #4a6aa0}
+  /* 2008 폴더폰: 은회색 클램셸 윗판 · 수화부 슬릿 · 내부 TFT-LCD 창 (스마트폰 노치/홈바 없음) */
+  .pIsland{position:absolute;top:6px;left:50%;transform:translateX(-50%);width:60px;height:5px;background:repeating-linear-gradient(90deg,#1a1c1f 0 3px,#4a4f55 3px 5px);border-radius:3px;z-index:2}
+  .pIsland:after{content:'';position:absolute;left:-30px;top:-1px;width:7px;height:7px;border-radius:50%;background:#1a2230;box-shadow:inset 0 0 2px #4a6aa0}
   .pStatus{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:#e8edf2;padding:4px 18px 10px;font-weight:600}
-  .pRight{display:flex;gap:6px;align-items:center}.pCarrier{display:none}
+  .pRight{display:flex;gap:6px;align-items:center}.pCarrier{font-size:10px;letter-spacing:.06em;color:#b8d8ff}
   .pSig{display:inline-flex;gap:1.5px;align-items:flex-end;height:10px}.pSig i{width:3px;background:#e8edf2;border-radius:1px}.pSig i:nth-child(1){height:3px}.pSig i:nth-child(2){height:5px}.pSig i:nth-child(3){height:7px;opacity:.35}.pSig i:nth-child(4){height:10px;opacity:.35}
   .pHead{font-size:20px;font-weight:700;color:#fff;padding:2px 8px 8px}
-  .pTabs{display:grid;grid-template-columns:repeat(5,1fr);gap:6px 4px;margin:8px 0 0;padding:10px 6px 6px;background:rgba(30,36,44,.72);border-radius:22px;backdrop-filter:blur(6px)}
+  .pTabs{display:grid;grid-template-columns:repeat(5,1fr);gap:4px 3px;margin:6px 0 0;padding:6px 4px 4px;background:linear-gradient(#20324a,#142030);border:1px solid #3a5878;border-radius:3px}
   .pTabs button{display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:0;color:#c8d0d8;padding:2px 0;font-family:inherit;font-size:10px;cursor:pointer;border-radius:10px}
-  .pTabs button i{font-style:normal;font-size:20px;width:38px;height:38px;display:flex;align-items:center;justify-content:center;border-radius:11px;background:linear-gradient(160deg,#2c3846,#1a222c);box-shadow:0 2px 6px rgba(0,0,0,.4)}
-  .pTabs button.on{color:#fff}.pTabs button.on i{background:linear-gradient(160deg,#3a78c8,#2456a0)}
-  .pHome{width:110px;height:4px;border-radius:3px;background:#d8dde2;opacity:.75;margin:8px auto 2px}
+  .pTabs button i{font-style:normal;font-size:16px;width:32px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:3px;background:linear-gradient(#3a4c62,#24303e);border:1px solid #4e6680}
+  .pTabs button.on{color:#ffe890}.pTabs button.on i{background:linear-gradient(#f0a030,#c06a10);border-color:#ffd070}
+  .pHome{display:flex;justify-content:space-between;align-items:center;margin:8px 2px 2px;padding:6px 10px;border-radius:0 0 18px 18px;background:linear-gradient(#c9ced4,#8e959c);color:#1c2024;font-size:11px;font-weight:700;box-shadow:inset 0 1px 0 #eef1f4}
+  .pHome i{font-style:normal;width:26px;height:16px;border-radius:50%;background:radial-gradient(#e8ecf0,#9aa2aa);box-shadow:inset 0 0 0 1px #6a7278}
+  .phoneFrame{background:linear-gradient(#0a1424,#05080e) padding-box,linear-gradient(160deg,#d8dde2,#7e868e 45%,#b4bac0) border-box;border:10px solid transparent;border-radius:22px 22px 14px 14px}
+  #pBody{background:linear-gradient(#0e1a2a,#0a121c);border:1px solid #2a3a4e}
   .pRec{display:flex;align-items:center;gap:10px;background:#10161c;border:1px solid #23303c;border-radius:14px;padding:9px 10px;margin-bottom:7px}
   .pRec .ic{font-size:20px}.pRec .tx{flex:1;min-width:0}.pRec .tx b{display:block;color:#eef2f6;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pRec .tx small{color:#8a9aa8;font-size:11px}
   .pRec button{width:34px;height:34px;border-radius:50%;border:0;background:#2456a0;color:#fff;font-size:14px;cursor:pointer}.pRec.playing{border-color:#4d9bff}.pRec.playing button{background:#c0392b}
@@ -753,7 +757,7 @@
   <div class="pHead" id="pTitle">메시지</div>
   <div id="pBody"></div>
   <div class="pTabs"><button data-p="msg"><i>💬</i>메시지</button><button data-p="call"><i>📞</i>전화</button><button data-p="rec"><i>🎙️</i>녹음</button><button data-p="photo"><i>🖼️</i>사진</button><button data-p="cam"><i>📷</i>카메라</button><button data-p="gps"><i>🛰️</i>GPS</button><button data-p="memo"><i>📝</i>메모</button><button data-p="tl"><i>🧩</i>사건</button><button data-p="missions"><i>✅</i>미션</button><button data-p="tool"><i>🧰</i>도구</button><button data-p="log"><i>📜</i>기록</button></div>
-  <div class="pHome"></div><div class="pHint">P / Esc 닫기 · Q / E 앱 전환</div></div></div>
+  <div class="pHome"><span>메뉴</span><i></i><span>취소</span></div><div class="pHint">P / Esc 닫기 · Q / E 메뉴 전환</div></div></div>
 <!-- 지도 -->
 <div id="mapOv" class="overlay"><div class="win" id="mapWrap">
   <div class="head"><b>지도</b><span style="font-size:12px;color:var(--dim)">휠 / <kbd>Z</kbd> <kbd>X</kbd> 확대·축소 · 드래그 이동</span><button class="x" data-close>닫기 <kbd>M</kbd></button></div>

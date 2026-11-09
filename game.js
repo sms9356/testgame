@@ -7331,7 +7331,7 @@ const SIT = { chair: null, back: null };
 //   벽 = 회색 도장 블록 + 아래 진녹색 띠 느낌(약간 어두운 회녹), 바닥 = 에폭시 콘크리트(회녹 광택), 천장 = 노출 콘크리트. 문 · 장비 · 소품(작은 메시)은 그대로
 // 지하 B1 새 설계 (1단계 · 구조체): 옛 본관 지하의 벽 · 바닥 · 천장 메시(방 단위로 합쳐진 큰 덩어리)를 숨기고,
 //   충돌 상자(벽이 실제로 있는 자리)를 그대로 따라 새 건물 설비층 규격으로 다시 짓는다 — 충돌 · 문 자리 · 퀘스트 좌표는 그대로라 진행이 깨지지 않는다
-//   벽: 하부 1.1m 진회녹 도장 + 상부 회색 도장 블록 + 상단 몰딩 · 바닥: 에폭시 + 복도 노란 안전선 · 천장: 노출 콘크리트 + 선형 LED 등 · 케이블 트레이
+//   벽: 하부 1.1m 진회녹 도장 + 상부 회색 도장 블록 + 상단 몰딩 · 바닥: 에폭시 + 복도 노란 안전선 · 천장: 노출 콘크리트 + 40W 형광등 (철제 반사갓 · FL 직관) · 케이블 트레이
 // 지하 바닥 · 천장 질감: 습한 콘크리트 — 고인 물(광택) · 녹물 자국 · 곰팡이 얼룩 · 균열 · 거푸집 이음선
 function b1Tex(kind) { const N = 512, c = document.createElement('canvas'); c.width = c.height = N; const g = c.getContext('2d'), r = Math.random;
   const R = document.createElement('canvas'); R.width = R.height = 256; const rg = R.getContext('2d'); rg.fillStyle = kind === 'floor' ? '#b8b8b8' : '#f0f0f0'; rg.fillRect(0, 0, 256, 256);
@@ -7531,7 +7531,7 @@ function refinishB1() {
     if (slab && !room && !wall) { o.visible = false; hid++; } });   // 옛 바닥 · 천장 판만 숨긴다 — 방 벽 통메시까지 숨기면 충돌 상자가 얇지 않은 벽은 다시 그려지지 않아 지하가 텅 빈 공간처럼 보였다
   const g = new THREE.Group(); g.userData.b1new = true; scene.add(g);
   const mk = (col, r, m = 0, e) => new THREE.MeshStandardMaterial(Object.assign({ color: col, roughness: r, metalness: m }, e || {}));
-  const UP = mk(0xa7aba5, .86), LOW = mk(0x4f5d53, .78), TRIM = mk(0x2e3530, .6, .2), FLOOR = b1Tex('floor'), CEIL = b1Tex('ceil'), LED = mk(0xffffff, .4, 0, { emissive: 0xe8f0ff, emissiveIntensity: 1.6 }), TRAY = mk(0x9aa0a6, .4, .7), LINE = mk(0xe8c020, .5);
+  const UP = mk(0xa7aba5, .86), LOW = mk(0x4f5d53, .78), TRIM = mk(0x2e3530, .6, .2), FLOOR = b1Tex('floor'), CEIL = b1Tex('ceil'), LED = mk(0xf4f6ee, .4, 0, { emissive: 0xeef4e6, emissiveIntensity: 1.3 }), FLH = mk(0xd8dad4, .5, .3), TRAY = mk(0x9aa0a6, .4, .7), LINE = mk(0xe8c020, .5);
   const box = (m, x1, x2, ya, yb, z1, z2) => { const o = new THREE.Mesh(new THREE.BoxGeometry(Math.max(.01, x2 - x1), yb - ya, Math.max(.01, z2 - z1)), m); o.position.set((x1 + x2) / 2, y0 + (ya + yb) / 2, (z1 + z2) / 2); o.userData.b1new = true; o.receiveShadow = true; g.add(o); return o; };
   const walls = F.col.filter(w => w.x1 != null && !w.off && (w.h == null || w.h > 2) && (w.y0 == null || w.y0 < 1) && Math.min(w.x2 - w.x1, w.z2 - w.z1) < .5 && Math.max(w.x2 - w.x1, w.z2 - w.z1) > .6);
   let X1 = 1e9, X2 = -1e9, Z1 = 1e9, Z2 = -1e9;
@@ -7539,9 +7539,9 @@ function refinishB1() {
     X1 = Math.min(X1, w.x1); X2 = Math.max(X2, w.x2); Z1 = Math.min(Z1, w.z1); Z2 = Math.max(Z2, w.z2); });
   if (!walls.length) return 0;
   box(FLOOR, X1, X2, -.05, .02, Z1, Z2); box(CEIL, X1, X2, H, H + .1, Z1, Z2);
-  // 본 복도 (z −1.75 ~ 1.75): 노란 안전선 2줄 · 천장 선형 LED · 케이블 트레이
+  // 본 복도 (z −1.75 ~ 1.75): 노란 안전선 2줄 · 천장 2008 형광등 (반사갓 + FL40 직관 2본) · 케이블 트레이
   [-1.45, 1.45].forEach(z => box(LINE, X1 + .3, X2 - .3, .021, .026, z - .04, z + .04));
-  for (let x = X1 + 2; x < X2 - 1; x += 4.5) box(LED, x - .6, x + .6, H - .06, H - .02, -.06, .06);
+  for (let x = X1 + 2; x < X2 - 1; x += 4.5) { box(FLH, x - .64, x + .64, H - .05, H, -.1, .1); [-.045, .045].forEach(dz => box(LED, x - .6, x + .6, H - .085, H - .05, dz - .016, dz + .016)); }
   box(TRAY, X1 + .3, X2 - .3, H - .32, H - .28, .9, 1.3);
   // 고증 보강 (2000년대 학교 지하 설비 복도): 천장 배관 3줄(소화 적색 · 급수 청색 · 배수 회색) + 행거 · 유량 화살표, 옥내소화전함, 물웅덩이 · 누수 얼룩, 소화기, 청소 도구, 안전 표지
   { const PR = mk(0xa02018, .5, .3), PB = mk(0x2a4a7a, .5, .3), PG = mk(0x6a6e6a, .6, .4), HANG = mk(0x3a3e40, .5, .6);
@@ -8751,11 +8751,11 @@ function megaNotify(m) { const t = String(m).split('\n'); say(t[0].replace(/^\S+
         // 창고: 철제 선반 · 상자 / 준비공간: 싱크대 · 작업대
         [x0 + .5, x0 + 1.45].forEach(x => { pbox(.9, 1.8, .45, PM(0x7a7e82, .5, .5), x, .9, z0 + .25, O); for (let r = 0; r < 3; r++) pbox(.75, .3, .35, PM(0xb08a58, .9), x, .35 + r * .55, z0 + .27, O); }); F0.col.push({ x1: x0, x2: x0 + 1.95, z1: z0, z2: z0 + .5 });
         pbox(2.4, .85, .6, PM(0xc8ccd0, .35, .6), xS + 1.4, .425, z0 + .3, O); pbox(.5, .02, .4, PM(0x30363a, .3, .7), xS + .9, .86, z0 + .3, O); F0.col.push({ x1: xS + .2, x2: xS + 2.6, z1: z0, z2: z0 + .6, h: .85 });
-        // 실제 과자 포장 · 음료 캔 라벨 텍스처 (캔버스로 그린 1998년풍 포장: 바탕색 · 흰 띠 · 상품명 · 광택 띠 · 중량 표기) — 같은 재질을 진열대 전체가 나눠 쓴다
+        // 실제 과자 포장 · 음료 캔 라벨 텍스처 (캔버스로 그린 2008년 매점 포장 · 상표 없는 일반 상품명: 바탕색 · 흰 띠 · 상품명 · 광택 띠 · 중량 표기) — 같은 재질을 진열대 전체가 나눠 쓴다
         const pack = (name, bg, fg, sub) => { const c = document.createElement('canvas'); c.width = 128; c.height = 128; const g2 = c.getContext('2d'); const gr = g2.createLinearGradient(0, 0, 128, 128); gr.addColorStop(0, bg); gr.addColorStop(1, '#000'); g2.fillStyle = bg; g2.fillRect(0, 0, 128, 128); g2.globalAlpha = .35; g2.fillStyle = gr; g2.fillRect(0, 0, 128, 128); g2.globalAlpha = 1;
           g2.fillStyle = '#fff'; g2.beginPath(); g2.ellipse(64, 60, 60, 26, -.12, 0, 7); g2.fill(); g2.fillStyle = fg; g2.font = 'bold 24px sans-serif'; g2.textAlign = 'center'; g2.textBaseline = 'middle'; g2.fillText(name, 64, 60); g2.fillStyle = '#fff'; g2.font = '11px sans-serif'; g2.fillText(sub, 64, 108);
           g2.fillStyle = 'rgba(255,255,255,.25)'; g2.fillRect(0, 14, 128, 6); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return new THREE.MeshStandardMaterial({ map: t, roughness: .32, metalness: .05 }); };
-        const SNACK = [['새우칩', '#d8261c', '#d8261c', '90g'], ['초코파이', '#b0141c', '#5a2a10', '12개입'], ['꿀꽈배기', '#e8a810', '#8a4a00', '80g'], ['감자칩', '#2a5ad8', '#1a3a8a', '66g'], ['땅콩과자', '#e86a20', '#8a2a00', '95g'], ['막대과자', '#c8102e', '#3a1a10', '52g']].map(a => pack(...a));
+        const SNACK = [['새우칩', '#d8261c', '#d8261c', '90g'], ['초코 케이크', '#b0141c', '#5a2a10', '12개입'], ['꽈배기 스낵', '#e8a810', '#8a4a00', '80g'], ['감자칩', '#2a5ad8', '#1a3a8a', '66g'], ['땅콩과자', '#e86a20', '#8a2a00', '95g'], ['막대과자', '#c8102e', '#3a1a10', '52g']].map(a => pack(...a));
         const CAN = [['콜라', '#c8102e', '#c8102e', '250ml'], ['사이다', '#2a8a3a', '#1a6a2a', '250ml'], ['식혜', '#e8b020', '#7a4a00', '238ml'], ['이온음료', '#2a6ad8', '#1a4aa8', '245ml']].map(a => pack(...a));
         const CUP = [['매운라면', '#c81414', '#c81414', '컵'], ['육개장', '#e8a010', '#8a3a00', '사발'], ['튀김우동', '#2a5ad8', '#1a3a8a', '컵']].map(a => pack(...a));
         // 서벽 음료 냉장고 (1200×700×2000 · 유리문)

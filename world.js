@@ -1068,7 +1068,7 @@ export function buildWorld(scene) {
       bx(.90, .08, .04, 0, 1.04, -.27),
       bx(.70, .58, .02, 0, .56, -.285)
     ]), mWoodDark, cx, 0, zN + .86);
-    // 전자교탁 상판 내장 서브 터치스크린 & 구즈넥 마이크
+    // 전자교탁 상판 내장 제어 패널 LCD (버튼식 AV 셀렉터) & 구즈넥 마이크
     plane(cur.interior, mLCDScreen, .34, .22, cx - .16, 1.022, zN + .88, 0, -Math.PI / 2);
     cur.interior.add(new THREE.Mesh(merge([
       tube(.007, cx + .22, 1.02, zN + .72, cx + .22, 1.24, zN + .76),
@@ -1180,7 +1180,7 @@ export function buildWorld(scene) {
     extinguisher(cx + 2.92, -1.98);
     [0, 1].forEach(k => add(mRecy[k], .34, .58, .34, cx + 3.22 + k * .36, 0, -1.98, { col: k === 1 }));
 
-    // ── [2008년식 리모델링 ⑤] 3분단 × 2열 짝꿍 × 6행 = 36석 2008년식 책걸상 행렬 & 책상 위 EBS 교재·텀블러·필통 소품 ──
+    // ── [2008년식 리모델링 ⑤] 3분단 × 2열 짝꿍 × 6행 = 36석 2008년식 책걸상 행렬 & 책상 위 EBS 교재·보온 물병·필통 소품 ──
     const dCls = CLS[name], keep = dCls && dCls.c.length ? dCls.c.map(([X, Y]) => csvXZ(cx, X, Y)) : [];
     deskGrid(
       cx,
@@ -4735,7 +4735,7 @@ export function buildWorld(scene) {
     [['일반', 0x2d5568, 14.1], ['재활용', 0x2e7a4a, 14.75]].forEach(([n, c, z]) => { meshAt(merge([new THREE.CylinderGeometry(.24, .2, .7, 14, 1, true).translate(0, .35, 0), new THREE.TorusGeometry(.24, .02, 6, 16).rotateX(Math.PI / 2).translate(0, .7, 0), new THREE.CircleGeometry(.2, 14).rotateX(-Math.PI / 2).translate(0, .02, 0)]), S(null, { color: c, roughness: .55, side: THREE.DoubleSide }), x2 + .5, 0, z, 0, OUT);
       plane(OUT, new THREE.MeshStandardMaterial({ map: T.makeSign(n, '#f0f0e8', '#1a1a1a', 30), roughness: .8 }), .26, .1, x2 + .5, .5, z + .245); col(x2 + .26, x2 + .74, z - .24, z + .24); });
   }
-  // 운동장 리모델링 (참고 평면도 · 54.0 × 44.0m): 우레탄 트랙 4레인 · 인조잔디 축구장 (기존) + 조명탑 4 (H12m · LED 투광등) · 동 · 서 철망 펜스 (H4.0, 남 · 북은 정문 · 본관 동선으로 개방) · 선수 대기석 2 (5000 × 1500 × 2200 · 차양) · 스탠드 본부석 현판
+  // 운동장 리모델링 (참고 평면도 · 54.0 × 44.0m): 우레탄 트랙 4레인 · 인조잔디 축구장 (기존) + 조명탑 4 (H12m · 메탈할라이드 투광등) · 동 · 서 철망 펜스 (H4.0, 남 · 북은 정문 · 본관 동선으로 개방) · 선수 대기석 2 (5000 × 1500 × 2200 · 차양) · 스탠드 본부석 현판
   { const postM = S(null, { color: 0x8a9094, roughness: .45, metalness: .6 }), fenceM = new THREE.MeshStandardMaterial({ color: 0x2a5a3a, roughness: .6, metalness: .3, transparent: true, opacity: .28, side: THREE.DoubleSide, depthWrite: false });
     [[-26, 16.5], [23.6, 16.5], [-26, 54], [23.6, 54]].forEach(([x, z]) => { meshAt(merge([tube(.18, 0, 0, 0, 0, 12, 0), bx(2.4, .12, .4, 0, 12, 0), bx(.1, 1.0, .1, -1.0, 12.5, 0), bx(.1, 1.0, .1, 1.0, 12.5, 0), bx(2.4, .1, .3, 0, 13.0, 0)]), postM, x, 0, z, 0, OUT);
       [-.8, 0, .8].forEach(d => [12.5, 13.3].forEach(y => meshAt(bx(.5, .4, .25, 0, 0, 0), new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xf4f8ff, emissiveIntensity: .9 }), x + d, y, z, 0, OUT))); col(x - .25, x + .25, z - .25, z + .25); });

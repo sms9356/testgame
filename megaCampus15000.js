@@ -617,7 +617,7 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
     // ── (1) 학생 자전거 보관소 & 야외 타일 수돗가(단체 음수대) (x: 58.0, z: -6.5) ──
     {
       const bxC = 58.0, bzC = -4.5;
-      // 서문고 자전거보관소 (참고 배치도 · 규격도 · 평면도): 12.0 × 4.6m 개방형 · 콘크리트 슬래브 · 아연도금 각관 기둥 □150 × 6 (H2500, 베이스 250×250) · H형강 보 100×200 · 아연도강판 골지붕 · LED 방수등 3 · 학교명 현판 3000×250 · 양면 거치대 2열 (중앙 통행로 약 1.5m) · 배수 트렌치 그레이팅
+      // 서문고 자전거보관소 (참고 배치도 · 규격도 · 평면도): 12.0 × 4.6m 개방형 · 콘크리트 슬래브 · 아연도금 각관 기둥 □150 × 6 (H2500, 베이스 250×250) · H형강 보 100×200 · 아연도강판 골지붕 · 방수형 형광등 3 · 학교명 현판 3000×250 · 양면 거치대 2열 (중앙 통행로 약 1.5m) · 배수 트렌치 그레이팅
       const galvM = PM(0xa8acb0, .38, .75), roofM = PM(0x9aa0a4, .45, .6), ledM = new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xf4f8ff, emissiveIntensity: 1.2 });
       pbox(12.0, .1, 4.6, PM(0xbcb8ae, .85), bxC, .05, bzC, g, { cast: false });
       [-5.85, 0, 5.85].forEach(dx => [-2.15, 2.15].forEach(dz => { pbox(.15, 2.5, .15, galvM, bxC + dx, 1.35, bzC + dz, g); pbox(.25, .02, .25, galvM, bxC + dx, .11, bzC + dz, g, { cast: false }); addCol(bxC + dx - .1, bxC + dx + .1, bzC + dz - .1, bzC + dz + .1); }));

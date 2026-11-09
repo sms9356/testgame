@@ -2,41 +2,73 @@
 <style>html,body{margin:0;background:#2a2c30}canvas{display:block}</style>
 <script type="importmap">{"imports":{"three":"../vendor/three.module.js"}}</script></head><body>
 <script type="module">
-// 캐릭터 GLB 단독 뷰어 (재질·애니메이션 확인용): tools/charViewer.html?c=mina|seoyeon|jihun&view=front|side|back|face|chest&clip=idle|walk&t=45
+// 캐릭터 GLB 단독 뷰어 (재질·애니메이션 확인용)
+//   tools/charViewer.html?c=mina&view=front|side|back|face|chest&clip=idle&t=45
+//   애니메이션 모드: &mode=idle|walk|run|sit|work|look|turn  (walk/run 은 실제로 홀더를 이동시켜 보폭 보정·발 미끄러짐을 잰다)
+//   시간 진행: window.__step(n, dt) → n 프레임 진행 후 렌더, window.__slip = 디딤발 평균 미끄러짐 속도(m/s)
 import * as THREE from 'three';
 import { GLTFLoader } from '../vendor/addons/loaders/GLTFLoader.js';
-import { createNPCVisuals } from '../npcVisuals.js';
-const q = new URLSearchParams(location.search), c = q.get('c') || 'mina', view = q.get('view') || 'front';
-const W = 720, H = 960, r = new THREE.WebGLRenderer({ antialias: true }); r.setSize(W, H);
+const { createNPCVisuals } = await import(new URLSearchParams(location.search).get('lib') || '../npcVisuals.js');
+const q = new URLSearchParams(location.search), c = q.get('c') || 'mina', view = q.get('view') || 'front', mode = q.get('mode') || '';
+const W = +(q.get('w') || 720), H = +(q.get('h') || 960), r = new THREE.WebGLRenderer({ antialias: true }); r.setSize(W, H);
 r.toneMapping = THREE.ACESFilmicToneMapping; r.outputColorSpace = THREE.SRGBColorSpace; r.shadowMap.enabled = true;
 document.body.appendChild(r.domElement);
 const sc = new THREE.Scene(); sc.background = new THREE.Color(0x2a2c30);
 sc.add(new THREE.HemisphereLight(0xdfe6f0, 0x302a26, .6));
-const key = new THREE.DirectionalLight(0xfff1e0, 2.6); key.position.set(2, 3, 3); key.castShadow = true; key.shadow.mapSize.set(2048, 2048); key.shadow.bias = -0.0004; key.shadow.normalBias = 0.02; Object.assign(key.shadow.camera, { left: -1.2, right: 1.2, top: 2.2, bottom: -.2, near: .5, far: 10 }); sc.add(key);
+const key = new THREE.DirectionalLight(0xfff1e0, 2.6); key.position.set(2, 3, 3); key.castShadow = true; key.shadow.mapSize.set(2048, 2048); key.shadow.bias = -0.0004; key.shadow.normalBias = 0.02; Object.assign(key.shadow.camera, { left: -1.2, right: 1.2, top: 2.2, bottom: -.2, near: .5, far: 10 }); sc.add(key); sc.add(key.target);
 const fill = new THREE.DirectionalLight(0xbcd0ff, .8); fill.position.set(-3, 1.5, 1.5); sc.add(fill);
 const rim = new THREE.DirectionalLight(0xffffff, 1.6); rim.position.set(0, 2.5, -3); sc.add(rim);
+// 바닥 격자 (미끄러짐을 눈으로 보기 위해)
+const grid = new THREE.GridHelper(40, 160, 0x555a66, 0x3a3e46); sc.add(grid);
 window.__THREE = THREE;
 const nv = createNPCVisuals({ THREE, GLTFLoader });
 const holder = new THREE.Group(); sc.add(holder); window.__holder = holder;
 const cam = new THREE.PerspectiveCamera(view === 'face' ? 16 : 30, W / H, .05, 50);
-const _tl0 = performance.now();
-const res = await nv.load(c, holder, { url: '../assets/characters/' + c + '.glb', native: true, clipNames: [q.get('clip') || 'idle'] });
+const clip0 = q.get('clip') || ({ walk: 'Walk', run: 'Run', sit: 'SittingAgainstWall' }[mode]) || 'idle';
+const res = await nv.load(c, holder, { url: '../assets/characters/' + c + '.glb', native: true, clipNames: [clip0] });
 const _nt = holder.getObjectByName('Mina_NameTag'), _em = holder.getObjectByName('Mina_Emblem'); holder.updateMatrixWorld(true); window.__res = { ...res, nameTag: _nt && _nt.getWorldPosition(new THREE.Vector3()).toArray().map(v => +v.toFixed(3)), emblem: _em && new THREE.Box3().setFromObject(_em).getCenter(new THREE.Vector3()).toArray().map(v => +v.toFixed(3)) };
+const speed = mode === 'run' ? 3.8 : mode === 'walk' ? 1.6 : 0;
+if (mode === 'work') holder.userData.workPose = true;
+if (q.has('prop')) holder.userData.showProp = true;
+const look = new THREE.Vector3(1.5, 1.6, 1.5); if (mode === 'look') holder.userData.lookTarget = look;
+const fL = holder.getObjectByName('foot_l'), fR = holder.getObjectByName('foot_r'), bL = holder.getObjectByName('ball_l'), bR = holder.getObjectByName('ball_r'), tmp = new THREE.Vector3(), a = new THREE.Vector3(), b2 = new THREE.Vector3(), pa = new THREE.Vector3(), pb = new THREE.Vector3();
+let slipSum = 0, slipN = 0, T = 0, minY = 1e9, lastLowL = null;
+function step(dt) {
+  T += dt;
+  if (speed) holder.position.z += speed * dt;
+  if (mode === 'turn') holder.rotation.y += dt * 2.0;
+  if (mode === 'look') look.set(Math.sin(T * .8) * 2, 1.4 + Math.sin(T * 1.3) * .3, 1.5);
+  nv.update(dt); holder.updateMatrixWorld(true);
+  if (fL && fR) {
+    fL.getWorldPosition(a); fR.getWorldPosition(b2);
+    if (bL) { bL.getWorldPosition(tmp); if (tmp.y < a.y) a.copy(tmp); } if (bR) { bR.getWorldPosition(tmp); if (tmp.y < b2.y) b2.copy(tmp); }
+    const lowL = a.y < b2.y, [cur, prev] = lowL ? [a, pa] : [b2, pb];
+    minY = Math.min(minY, cur.y);
+    // 디딤발: 직전 프레임에도 같은 발이 낮았고 지면(최저 높이)에 붙어 있을 때만 잰다
+    if (T > .5 && prev.lengthSq() && lowL === lastLowL && cur.y < minY + .012 && prev.y < minY + .012) { slipSum += Math.hypot(cur.x - prev.x, cur.z - prev.z) / dt; slipN++; }
+    lastLowL = lowL;
+    pa.copy(a); pb.copy(b2);
+  }
+}
 const steps = +(q.get('t') || 45);
-for (let i = 0; i < steps; i++) nv.update(1 / 30);
+for (let i = 0; i < steps; i++) step(1 / 30);
 holder.updateMatrixWorld(true);
-const b = new THREE.Box3().setFromObject(holder), h = b.max.y - b.min.y;
-const head = holder.getObjectByName('head'); const hp = new THREE.Vector3(); head && head.getWorldPosition(hp);
-if (view === 'front') { cam.position.set(0, h * .55, 4.2); cam.lookAt(0, h * .5, 0); }
-else if (view === 'side') { cam.position.set(4.2, h * .55, 0); cam.lookAt(0, h * .5, 0); }
-else if (view === 'back') { cam.position.set(0, h * .55, -4.2); cam.lookAt(0, h * .5, 0); }
-else if (view === 'chest') { cam.position.set(hp.x + .2, hp.y - .25, hp.z + 1.3); cam.lookAt(hp.x, hp.y - .3, hp.z); }
-else { const fy = hp.y + (c === 'guard' ? .02 : .08); cam.position.set(hp.x + .2, fy, hp.z + 1.2); cam.lookAt(hp.x, fy, hp.z); }
-const _tl1 = performance.now();
-await r.compileAsync(sc, cam);   // 게임의 prepare 와 같은 선(先)컴파일 → 첫 렌더에 셰이더 멈춤이 없다
-const _tl2 = performance.now();
+const bx = new THREE.Box3().setFromObject(holder), h = bx.max.y - bx.min.y;
+const head = holder.getObjectByName('head'); const hp = new THREE.Vector3();
+function frame() {
+  head && head.getWorldPosition(hp); const z0 = holder.position.z;
+  key.position.set(2, 3, 3 + z0); key.target.position.set(0, 0, z0);
+  if (view === 'front') { cam.position.set(0, h * .55, 4.2 + z0); cam.lookAt(0, h * .5, z0); }
+  else if (view === 'side') { cam.position.set(4.2, h * .45, z0); cam.lookAt(0, h * .45, z0); }
+  else if (view === 'back') { cam.position.set(0, h * .55, -4.2 + z0); cam.lookAt(0, h * .5, z0); }
+  else if (view === 'feet') { cam.position.set(2.2, .4, z0); cam.lookAt(0, .2, z0); }
+  else if (view === 'chest') { cam.position.set(hp.x + .2, hp.y - .25, hp.z + 1.3); cam.lookAt(hp.x, hp.y - .3, hp.z); }
+  else { const fy = hp.y + (c === 'guard' ? .02 : .08); cam.position.set(hp.x + .2, fy, hp.z + 1.2); cam.lookAt(hp.x, fy, hp.z); }
+  r.render(sc, cam);
+}
+window.__step = (n = 1, dt = 1 / 30) => { for (let i = 0; i < n; i++) step(dt); frame(); return { slip: slipN ? +(slipSum / slipN).toFixed(3) : null, timeScale: holder.userData.npcAction && +holder.userData.npcAction.timeScale.toFixed(3) }; };
+await r.compileAsync(sc, cam);
 await new Promise(r => setTimeout(r, 1000));
-nv.update(1 / 30); r.render(sc, cam);
-window.__perf = { loadMs: Math.round(_tl1 - _tl0), compileMs: Math.round(_tl2 - _tl1), programs: r.info.programs.length, clipSpeed: holder.userData.clipSpeed };
+window.__step(1);
 window.__ready = true;
 </script></body></html>

@@ -3035,7 +3035,7 @@ function ensureCharsel3D() {
       const b = new THREE.Box3().setFromObject(m);
       m.position.set(-(b.min.x + b.max.x) / 2, -b.min.y, -(b.min.z + b.max.z) / 2);
       const piv = new THREE.Group(); piv.add(m); sc.add(piv);
-      st.models[k] = { piv, h: b.max.y - b.min.y };
+      st.models[k] = { piv, h: b.max.y - b.min.y, compiled: false };
       const clip = (gltf.animations || []).find(c => c.name.toLowerCase() === 'idle') || gltf.animations?.[0];
       if (clip) { const mx = new THREE.AnimationMixer(m); mx.clipAction(clip).play(); st.mixers[k] = mx; }
     });
@@ -3057,6 +3057,7 @@ function ensureCharsel3D() {
     document.querySelectorAll('canvas.cs3d').forEach(cv => {
       const k = cv.dataset.char, md = st.models[k], sc = st.scenes[k];
       if (!md || !sc) return;
+      if (!md.compiled) { md.compiled = true; try { st.renderer.compile(sc, st.cam); } catch (e) {} }   // 첫 프레임 셰이더 컴파일 끊김 방지
       if (st.drag?.k !== k) st.yaw[k] += dt * 0.45;
       md.piv.rotation.y = st.yaw[k];
       st.mixers[k]?.update(dt);
@@ -4046,17 +4047,26 @@ function minaFollowStart() {
   if (!mina) return; MINA_F.on = true; FL.minaFollow = true;
   scene.attach(mina); mina.visible = true; mina.traverse(o => { if (o.material && o.material.transparent && o.material.opacity < 1) { o.material.opacity = 1; o.material.transparent = false; } });
   MINA_F.anim = ''; MINA_F.lastFloor = -1;
+  mina.userData.noBlink = false; mina.userData.showProp = true; mina.userData.workPose = false;   // 깨어난 뒤: 눈 깜빡임 · 손전등 소품
 }
-function minaPlay(n) { if (MINA_F.anim === n) return; MINA_F.anim = n; if (npcVisuals.has(mina)) npcVisuals.play(mina, n, { fade: .25 }); }
+const MINA_FADE = { Idle: .45, ScaredIdle: .4, Walk: .3, Run: .25 };   // 걷기→멈춤은 길게, 걷기→달리기는 짧게 교차 페이드
+function minaPlay(n) { if (MINA_F.anim === n) return; MINA_F.anim = n; if (npcVisuals.has(mina)) npcVisuals.play(mina, n, { fade: MINA_FADE[n] || .3, speed: MINA_F.turning && n === 'Walk' ? .55 : 1 }); }
 function minaFollowTick(dt) {
   if (!MINA_F.on || !mina) return;
-  if (MINA_F.hold) { minaPlay('Idle'); return; }   // 방송 중: 조정실 콘솔에 앉아 있다
+  if (MINA_F.hold) { mina.userData.workPose = true; minaPlay('Idle'); return; }   // 방송 중: 조정실 콘솔에 앉아 있다 (npcVisuals 절차적 착석 · 콘솔 조작 자세)
+  mina.userData.workPose = false;
   const fy = (floors[P.floor]?.y0 || 0) + (P.sh || 0), bx = P.x + Math.sin(P.yaw) * 1.5, bz = P.z + Math.cos(P.yaw) * 1.5;
   const dx = bx - mina.position.x, dz = bz - mina.position.z, d = Math.hypot(dx, dz), dp = Math.hypot(P.x - mina.position.x, P.z - mina.position.z);
   if (MINA_F.lastFloor !== P.floor || Math.abs(mina.position.y - fy) > 1.6 || dp > 14) { mina.position.set(bx, fy, bz); MINA_F.lastFloor = P.floor; minaPlay('Idle'); return; }
   mina.position.y += (fy - mina.position.y) * Math.min(1, dt * 8);
-  if (dp > 1.9 && d > .25) { const sp = dp > 5 ? 3.8 : 1.6, st = Math.min(d, sp * dt); mina.position.x += dx / d * st; mina.position.z += dz / d * st; mina.rotation.y = Math.atan2(dx, dz); minaPlay(dp > 5 ? 'Run' : 'Walk'); }
-  else { minaPlay(ghost.active && ghost.floor === P.floor ? 'ScaredIdle' : 'Idle'); const ty = Math.atan2(P.x - mina.position.x, P.z - mina.position.z); mina.rotation.y += Math.atan2(Math.sin(ty - mina.rotation.y), Math.cos(ty - mina.rotation.y)) * Math.min(1, dt * 4); }
+  if (dp > 1.9 && d > .25) { const sp = dp > 5 ? 3.8 : 1.6, st = Math.min(d, sp * dt); mina.position.x += dx / d * st; mina.position.z += dz / d * st; mina.rotation.y = Math.atan2(dx, dz); MINA_F.turning = false; minaPlay(dp > 5 ? 'Run' : 'Walk'); }
+  else {
+    // 제자리 회전: 크게 돌아야 하면 발을 옮기며(Walk 를 느리게) 돌고, 다 돌면 Idle — 미끄러지듯 도는 스케이팅 방지
+    const ty = Math.atan2(P.x - mina.position.x, P.z - mina.position.z), err = Math.atan2(Math.sin(ty - mina.rotation.y), Math.cos(ty - mina.rotation.y));
+    MINA_F.turning = Math.abs(err) > (MINA_F.turning ? .18 : .7);
+    if (MINA_F.turning) { minaPlay('Walk'); mina.rotation.y += Math.sign(err) * Math.min(Math.abs(err), dt * 2.6); }
+    else { minaPlay(ghost.active && ghost.floor === P.floor ? 'ScaredIdle' : 'Idle'); mina.rotation.y += err * Math.min(1, dt * 3); }
+  }
   // 동행 대화: 상황에 맞는 주고받기(더빙)를 한 번씩 — 다 쓰면 예전처럼 짧은 혼잣말 자막
   MINA_F.idleT = Math.hypot(P.x - (MINA_F.px ?? P.x), P.z - (MINA_F.pz ?? P.z)) < .05 ? (MINA_F.idleT || 0) + dt : 0; MINA_F.px = P.x; MINA_F.pz = P.z;
   if (state === 'playing' && !isSpeechBusy() && !MINA_F.chatting && (MINA_F.talkT -= dt) <= 0) {
@@ -4647,7 +4657,7 @@ const mina = new THREE.Group(), minaProps = new THREE.Group();
   // 3D 모델(162cm 실제 크기 · native): 서 있는 몸 그대로 '벽에 기대 앉기' 동작으로 앉힌다 — 크기를 앉은 키에 맞춰 줄이지 않는다(비율 왜곡 없음)
   // offset z: 앉은 자세의 백팩 뒷면이 장비 랙 앞면(z -8.94)에 닿도록
   npcLoad('mina', mina, { url: 'assets/characters/mina.glb', native: true, offset: [0, 0, .36], clipNames: ['sittingagainstwall'],
-    onLoad: () => { mina.userData.noBlink = true; npcVisuals.setExpression(mina, 'Asleep', 1); } });
+    onLoad: () => { if (MINA_F.on) { mina.userData.showProp = true; return; } mina.userData.noBlink = true; npcVisuals.setExpression(mina, 'Asleep', 1); } });   // 이어하기로 이미 동행 중이면 잠든 얼굴로 되돌리지 않는다
 }
 
 /* ---------- 추가 상호작용 오브젝트: 잠긴 보관함 · 다이얼 · 배수구 · 피아노 · 그림 · 도구 ---------- */
@@ -9414,7 +9424,7 @@ if (DEBUG) {
     flashNearProbe: () => { FN.t = 0; return flashNear(); }, agProbe: () => { const t = performance.now(); AG.t = 0; antiGlareTick(); return performance.now() - t; },
     bcAuto() { BC.power = true; BC.amp = 1; BC.ch = 'all'; BC.fader = 70; closeUI(); if (FL.tag && power && !FL.calm) useBcRead(); else bcOnAir(); },   // 진 엔딩 방송은 녹음실 앵커석에서 대본 낭독
     inv, fx, EQ, optLoc, liveLoc, get power() { return power; }, set power(v) { power = v; },
-    minaF: MINA_F, CONTACTS, CALL, callOut, bcOpen,
+    minaF: MINA_F, minaDbg: { mina, npcVisuals, follow() { FL.mina = true; minaFollowStart(); }, wake: () => minaWake() }, CONTACTS, CALL, callOut, bcOpen,
     tp(x, z, f = 0, yaw = 0, pitch = 0) { P.x = x; P.z = z; P.floor = f; P.yaw = yaw; P.pitch = pitch; },
     give() { world.items.filter(i => i.kind === 'key').forEach(i => { i.taken = true; i.mesh.visible = false; got[i.idx] = true; }); P.keys = TOTAL; refreshHud(); },
     get state() { return state; }, set state(v) { state = v; }, get tNow() { return tNow; }, openTest, EV, appar, applyQuality,

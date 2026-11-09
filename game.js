@@ -266,6 +266,13 @@ const flash = new THREE.SpotLight(0xfff0d0, 0, 30, 0.56, 0.82, 1.3);   // 가장
 // 손전등 산란광: 빛이 벽 · 바닥에 튀어 주변이 희미하게 보이는 효과 (항상 장면에 있어 셰이더 재컴파일 없음)
 const spill = new THREE.PointLight(0xffe8cc, 0, 7, 2); camera.add(spill); spill.position.set(0, .1, -1.2);
 flash.position.set(0.12, -0.08, 0); flash.target.position.set(0, 0, -6);
+// 손전등 쿠키: 2008년 반사갓 손전등 — 밝은 중심 · 반사갓 링 · 약간 어긋난 얼룩 (그림자 맵 추가 없음 · 시작 시 한 번만 셰이더에 반영)
+if (!ENGINE.webgpu) { const c = document.createElement('canvas'); c.width = c.height = 128; const g = c.getContext('2d'), id = g.createImageData(128, 128);
+  for (let y = 0; y < 128; y++) for (let x = 0; x < 128; x++) { const dx = (x - 63.5) / 64, dy = (y - 63.5) / 64, r = Math.hypot(dx, dy), r2 = Math.hypot(dx - .05, dy + .03);
+    let v = .5 * Math.exp(-r * r * 9) + .55 * Math.exp(-Math.pow((r - .42) / .07, 2)) * .35 + .42 * Math.max(0, 1 - r * 1.05) + .5 * Math.exp(-r2 * r2 * 40);
+    v *= 1 - .06 * Math.sin(Math.atan2(dy, dx) * 7 + r * 9); v *= r < .98 ? 1 : 0; const t = Math.min(1, v), o = (y * 128 + x) * 4;
+    id.data[o] = 255 * t; id.data[o + 1] = 246 * t; id.data[o + 2] = 222 * t; id.data[o + 3] = 255; }
+  g.putImageData(id, 0, 0); const tx = new THREE.CanvasTexture(c); tx.colorSpace = THREE.SRGBColorSpace; flash.map = tx; }
 camera.add(flash, flash.target);
 flash.castShadow = true; flash.shadow.mapSize.set(1024, 1024); flash.shadow.camera.near = .15; flash.shadow.camera.far = 26;
 flash.shadow.bias = -.0006; flash.shadow.normalBias = .03;
@@ -2987,7 +2994,7 @@ function updateLighting(dt) {
     const baseLamps = !indoors && P.floor === 0 ? world.campusDesign.lights : F.lamps;
     const lamps=ELV.p&&ELV.cur===P.floor&&ELV.cabinLamp?[...baseLamps,ELV.cabinLamp]:baseLamps;
     const pyEye = (F ? F.y0 : 0) + (P.sh || 0) + 2.2; const c = lamps.filter(l => l.kind !== 'dead' && !l.off).map(l => ({ l, d: l.cabin&&P.inElev?-1:Math.hypot(l.x - P.x, l.z - P.z, (l.y - pyEye) * .75) })).filter(o => o.d < 16).sort((a, b) => a.d - b.d).slice(0, 4);
-    pool.forEach((p, i) => { const o = c[i]; if (o) { p.position.set(o.l.x, o.l.y, o.l.z); p.color.setHex(o.l.cabin?0xfff0d4:o.l.street ? 0xffd4a1 : 0xcfe6d6); p.distance = o.l.cabin?5:o.l.street ? 15 : 12; p.userData.kind = o.l.kind; p.userData.lamp = o.l; p.userData.on = true; } else p.userData.on = false; });
+    pool.forEach((p, i) => { const o = c[i]; if (o) { p.position.set(o.l.x, o.l.y, o.l.z); p.color.setHex(o.l.cabin?0xfff0d4:o.l.street ? 0xffb468 : 0xdce9ee); p.distance = o.l.cabin?5:o.l.street ? 15 : 12; p.userData.kind = o.l.kind; p.userData.lamp = o.l; p.userData.on = true; } else p.userData.on = false; });
   }
   ELV.light=pool.find(p=>p.userData.on&&p.userData.lamp?.cabin)||null;
   updateGenerator(dt, indoors);
@@ -2999,8 +3006,10 @@ function updateLighting(dt) {
     if (st < 0) { p.intensity = 0; return; }
     // 켤 때: 스타터가 두 번 깜빡인 뒤 안정 (무작위 점멸 대신 정해진 짧은 패턴) · 고장 램프: 램프 재질과 같은 부드러운 감광
     const fl = st < .9 ? (SET.flashReduce || SET.noFlicker ? Math.min(1, st / .9) : st < .12 || (st > .3 && st < .42) ? .55 : st < .6 ? .25 + st : 1) : p.userData.kind === 'flick' ? (lp.mat && lp.mat.userData.v != null ? lp.mat.userData.v : 1) : 1;
-    p.intensity = 7 * fl * GEN.gain * (power ? 1 : .86);
+    p.intensity = 7 * fl * GEN.gain * (power ? 1 : .86) * (p.userData.kind === 'flick' && !(SET.flashReduce || SET.noFlicker) ? .96 + .04 * Math.sin(tNow * 754) : 1);   // 죽어 가는 관: 120Hz 미세 떨림
+    if (p.userData.kind === 'flick' && fl < .8 && sfx.tubeBuzz && Math.random() < dt * 3) { const dd = Math.hypot(p.position.x - P.x, p.position.z - P.z); if (dd < 6) sfx.tubeBuzz(1 - dd / 6); }   // 안정기 웅 소리 (깜빡일 때)
   });
+  if (flash.map && !flash.castShadow) { flash.updateMatrixWorld(); flash.target.updateMatrixWorld(); flash.shadow.updateMatrices(flash); }   // 쿠키 투영 행렬 (그림자 꺼진 낮음 품질)
   // 손전등
   const near = ghost.active && ghost.floor === P.floor ? clamp(1 - Math.hypot(ghost.x - P.x, ghost.z - P.z) / 9, 0, 1) : 0;
   let fi = P.light && P.battery > 0 ? 45 : 0;   // 80 → 45: 모든 면이 번들거리던 반사 줄이기

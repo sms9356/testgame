@@ -458,6 +458,7 @@ function laterAt(s, fn) { const p = sfxPos; setTimeout(() => { sfxPos = p; try {
   elevatorButton() { tone(1046.5,.09,'sine',.055);tone(1568,.055,'sine',.014); },
   elevatorChime() { tone(1046.5,.55,'sine',.08);later(150,()=>tone(1318.5,.8,'sine',.065)); },
   elevator(d = 2) { tone(62, d, 'sawtooth', .05, 0, 1, 58); tone(124, d, 'sine', .05); noiseBurst(d, 260, 'lowpass', .22); for (let i = 1; i < d * 2; i++) setTimeout(() => noiseBurst(.06, 900, 'bandpass', .12), i * 500 + Math.random() * 200); },
+  tubeBuzz(v = 1) { tone(120, .22, 'sawtooth', .012 * v, 0, 1, 118); tone(240, .18, 'sine', .006 * v); },   // 2008 자기식 안정기 형광등 웅 소리
   buzz() { tone(110, .35, 'square', .15); tone(116, .35, 'square', .12); },
   unlock() { [880, 1175, 1568].forEach((f, i) => setTimeout(() => tone(f, .25, 'square', .06), i * 90)); setTimeout(() => { noiseBurst(.25, 600, 'lowpass', .5); tone(90, .4, 'sine', .4); }, 320); },
   breaker() { noiseBurst(.2, 300, 'lowpass', 1.2); tone(60, .5, 'sine', .9, 0, 1, 40); setTimeout(() => { tone(50, 2.5, 'sawtooth', .05); tone(100, 2.5, 'sine', .04); }, 250); },

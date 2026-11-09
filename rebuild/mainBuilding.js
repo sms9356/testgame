@@ -209,6 +209,9 @@ export function buildMainBuilding(opt = {}) {
       g.fillStyle = 'rgba(70,66,60,.18)'; g.fillRect(0, 0, w, 3); g.fillRect(0, h - 3, w, 3); }) })),
     lamp: M('lamp', () => new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xf4f6ff, emissiveIntensity: 1.4 })),
     exitG: M('exitG', () => new THREE.MeshStandardMaterial({ color: 0x1fa64a, emissive: 0x1fa64a, emissiveIntensity: 1.2 })),
+    exitHalo: M('exitHalo', () => { const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d'), gr = g.createRadialGradient(32, 32, 2, 32, 32, 32);   // 유도등 녹색 번짐 (가산 평면)
+      gr.addColorStop(0, 'rgba(60,255,120,.55)'); gr.addColorStop(.45, 'rgba(30,200,90,.18)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(0, 0, 64, 64);
+      return new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(c), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide, toneMapped: false }); }),
     extLamp: M('extLamp', () => new THREE.MeshBasicMaterial({ color: 0xfff4dc, toneMapped: false })),
     exitSign: M('exitSign', () => { const c = document.createElement('canvas'); c.width = 256; c.height = 96; const g = c.getContext('2d');   // 비상구 유도등 표지 (녹색 바탕 · 달리는 사람 · 문 · '비상구')
       g.fillStyle = '#1aa04a'; g.fillRect(0, 0, 256, 96); g.fillStyle = '#f4fff6'; g.fillRect(14, 14, 54, 68); g.fillStyle = '#1aa04a'; g.fillRect(22, 22, 38, 60);
@@ -1763,8 +1766,8 @@ export function buildMainBuilding(opt = {}) {
   function detector(x, y, z) { const g = new THREE.CylinderGeometry(.06, .07, .04, 12); g.translate(x, y - .02, z); (geo.get('white') || geo.set('white', []).get('white')).push(g); }
   // 유도등: 흰 테 + 앞뒤 표지면. alongX = true 면 복도를 따라 보이도록(표지면이 ±x 를 향함)
   function exitSign(x, y, z, alongX = false) { const w = .2, t = .025;
-    if (alongX) { box('white', x - t - .006, x + t + .006, y - .01, y + .15, z - w - .01, z + w + .01); for (const sx of [-1, 1]) { const g = new THREE.PlaneGeometry(w * 2, .14); g.rotateY(sx * Math.PI / 2); g.translate(x + sx * (t + .008), y + .07, z); G('exitSign', g); } }
-    else { box('white', x - w - .01, x + w + .01, y - .01, y + .15, z - t - .006, z + t + .006); for (const sz of [-1, 1]) { const g = new THREE.PlaneGeometry(w * 2, .14); if (sz < 0) g.rotateY(Math.PI); g.translate(x, y + .07, z + sz * (t + .008)); G('exitSign', g); } } }
+    if (alongX) { box('white', x - t - .006, x + t + .006, y - .01, y + .15, z - w - .01, z + w + .01); for (const sx of [-1, 1]) { const g = new THREE.PlaneGeometry(w * 2, .14); g.rotateY(sx * Math.PI / 2); g.translate(x + sx * (t + .008), y + .07, z); G('exitSign', g); const h = new THREE.PlaneGeometry(w * 3.4, .5); h.rotateY(sx * Math.PI / 2); h.translate(x + sx * (t + .03), y + .07, z); G('exitHalo', h); } }
+    else { box('white', x - w - .01, x + w + .01, y - .01, y + .15, z - t - .006, z + t + .006); for (const sz of [-1, 1]) { const g = new THREE.PlaneGeometry(w * 2, .14); if (sz < 0) g.rotateY(Math.PI); g.translate(x, y + .07, z + sz * (t + .008)); G('exitSign', g); const h = new THREE.PlaneGeometry(w * 3.4, .5); if (sz < 0) h.rotateY(Math.PI); h.translate(x, y + .07, z + sz * (t + .03)); G('exitHalo', h); } } }
   // 실사 한국식 분말 소화기
   function extinguisher(x, y0, z, ry = 0) { mdl('korean_fire_extinguisher_01', x, y0, z, ry);
     { const g = new THREE.PlaneGeometry(.05, .075); g.rotateZ(.08); g.rotateY(ry); g.translate(x + Math.sin(ry) * .125 + Math.cos(ry) * .03, y0 + .4, z + Math.cos(ry) * .125 - Math.sin(ry) * .03); G('extTag', g); }   // 목에 건 노란 점검표 '2008.03 점검'
@@ -1773,7 +1776,7 @@ export function buildMainBuilding(opt = {}) {
 
   // 계단실 위 슬래브 · 반자 구멍: 해당 층 위 슬래브에서 계단실 영역을 뺀다 — 단순화: 계단실 영역 위 반자 제거용 표시만 남긴다
   // 병합
-  for (const [key, list] of geo) { const g = mergeGeometries(list, false); const m = new THREE.Mesh(g, mat[key]); m.castShadow = !['glass', 'lamp', 'wear', 'streak', 'grime'].includes(key); m.receiveShadow = true; m.name = 'RB_' + key; root.add(m); }
+  for (const [key, list] of geo) { const g = mergeGeometries(list, false); const m = new THREE.Mesh(g, mat[key]); m.castShadow = !['glass', 'lamp', 'wear', 'streak', 'grime', 'exitHalo'].includes(key); m.receiveShadow = true; m.name = 'RB_' + key; root.add(m); }
   // 바닥 높이 조회 (계단 포함): 발 높이 기준으로 올라설 수 있는 가장 높은 면
   const groundAt = (x, z, feet) => { let best = null; for (const w of walk) { if (x < w.x1 || x > w.x2 || z < w.z1 || z > w.z2) continue; const h = w.h(x, z); if (h <= feet + .45 && (best == null || h > best)) best = h; } return best; };
   // 문짝: 병합하지 않은 개별 메시 (열고 닫는 애니메이션 · 닫혔을 때만 충돌)

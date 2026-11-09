@@ -4,12 +4,12 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { buildGuardAnnex, buildDutyRoom, ANNEX as GANX } from './guardAnnex.js?v=416';
-import { NOTES } from './story.js?v=416';
+import { buildGuardAnnex, buildDutyRoom, ANNEX as GANX } from './guardAnnex.js?v=417';
+import { NOTES } from './story.js?v=417';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=416';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=417';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -1068,7 +1068,7 @@ export function buildWorld(scene) {
       bx(.90, .08, .04, 0, 1.04, -.27),
       bx(.70, .58, .02, 0, .56, -.285)
     ]), mWoodDark, cx, 0, zN + .86);
-    // 전자교탁 상판 내장 서브 터치스크린 & 구즈넥 마이크
+    // 전자교탁 상판 내장 제어 패널 LCD (버튼식 AV 셀렉터) & 구즈넥 마이크
     plane(cur.interior, mLCDScreen, .34, .22, cx - .16, 1.022, zN + .88, 0, -Math.PI / 2);
     cur.interior.add(new THREE.Mesh(merge([
       tube(.007, cx + .22, 1.02, zN + .72, cx + .22, 1.24, zN + .76),
@@ -1180,7 +1180,7 @@ export function buildWorld(scene) {
     extinguisher(cx + 2.92, -1.98);
     [0, 1].forEach(k => add(mRecy[k], .34, .58, .34, cx + 3.22 + k * .36, 0, -1.98, { col: k === 1 }));
 
-    // ── [2008년식 리모델링 ⑤] 3분단 × 2열 짝꿍 × 6행 = 36석 2008년식 책걸상 행렬 & 책상 위 EBS 교재·텀블러·필통 소품 ──
+    // ── [2008년식 리모델링 ⑤] 3분단 × 2열 짝꿍 × 6행 = 36석 2008년식 책걸상 행렬 & 책상 위 EBS 교재·보온 물병·필통 소품 ──
     const dCls = CLS[name], keep = dCls && dCls.c.length ? dCls.c.map(([X, Y]) => csvXZ(cx, X, Y)) : [];
     deskGrid(
       cx,
@@ -3929,7 +3929,8 @@ export function buildWorld(scene) {
     shelf3D(cx - 3.6, -6.4, Math.PI / 2, 3.2, 2.0, .42, 5, .7);
     add(mFabric, 2.0, .45, .8, cx + 2.4, 0, -3.0, { col: true }); add(mFabric, 2.0, .5, .2, cx + 2.4, .45, -2.7);
     [[cx + 3.3, -9.2], [cx - 3.3, -2.6]].forEach(([x, z]) => cyl(S(null, { color: 0x2a4a22, roughness: 1 }), .22, .7, x, 0, z));
-    addNote('n14', cx, .77, -6.4); addMedkit(cx + 3.2, 0, -8.6); papers(cx, -8, -2.4, 9);
+    // n14(방송부 회의록)는 q4a(방송부 담력 체험 명단)와 같은 내용이라 배치하지 않는다 — id · 더빙은 남겨 둠
+    addMedkit(cx + 3.2, 0, -8.6); papers(cx, -8, -2.4, 9);
   }
   // 기술·가정실 (102) — 사용자 제공 'Room102 Actual3D' 팩의 실제 GLB (assets/models/th102) + 팩의 공유 PBR 텍스처 14종.
   // 팩 배치표(문 = y 0 · 뒷벽 = y 6.5m, 8.4m 폭)를 게임 방(문 z -1.75 · 뒷벽 z -9.6, 폭 8m)으로 비례 변환. 문 · 명패 · 형광등 · 창 · 벽/바닥/천장 모듈은
@@ -4735,7 +4736,7 @@ export function buildWorld(scene) {
     [['일반', 0x2d5568, 14.1], ['재활용', 0x2e7a4a, 14.75]].forEach(([n, c, z]) => { meshAt(merge([new THREE.CylinderGeometry(.24, .2, .7, 14, 1, true).translate(0, .35, 0), new THREE.TorusGeometry(.24, .02, 6, 16).rotateX(Math.PI / 2).translate(0, .7, 0), new THREE.CircleGeometry(.2, 14).rotateX(-Math.PI / 2).translate(0, .02, 0)]), S(null, { color: c, roughness: .55, side: THREE.DoubleSide }), x2 + .5, 0, z, 0, OUT);
       plane(OUT, new THREE.MeshStandardMaterial({ map: T.makeSign(n, '#f0f0e8', '#1a1a1a', 30), roughness: .8 }), .26, .1, x2 + .5, .5, z + .245); col(x2 + .26, x2 + .74, z - .24, z + .24); });
   }
-  // 운동장 리모델링 (참고 평면도 · 54.0 × 44.0m): 우레탄 트랙 4레인 · 인조잔디 축구장 (기존) + 조명탑 4 (H12m · LED 투광등) · 동 · 서 철망 펜스 (H4.0, 남 · 북은 정문 · 본관 동선으로 개방) · 선수 대기석 2 (5000 × 1500 × 2200 · 차양) · 스탠드 본부석 현판
+  // 운동장 리모델링 (참고 평면도 · 54.0 × 44.0m): 우레탄 트랙 4레인 · 인조잔디 축구장 (기존) + 조명탑 4 (H12m · 메탈할라이드 투광등) · 동 · 서 철망 펜스 (H4.0, 남 · 북은 정문 · 본관 동선으로 개방) · 선수 대기석 2 (5000 × 1500 × 2200 · 차양) · 스탠드 본부석 현판
   { const postM = S(null, { color: 0x8a9094, roughness: .45, metalness: .6 }), fenceM = new THREE.MeshStandardMaterial({ color: 0x2a5a3a, roughness: .6, metalness: .3, transparent: true, opacity: .28, side: THREE.DoubleSide, depthWrite: false });
     [[-26, 16.5], [23.6, 16.5], [-26, 54], [23.6, 54]].forEach(([x, z]) => { meshAt(merge([tube(.18, 0, 0, 0, 0, 12, 0), bx(2.4, .12, .4, 0, 12, 0), bx(.1, 1.0, .1, -1.0, 12.5, 0), bx(.1, 1.0, .1, 1.0, 12.5, 0), bx(2.4, .1, .3, 0, 13.0, 0)]), postM, x, 0, z, 0, OUT);
       [-.8, 0, .8].forEach(d => [12.5, 13.3].forEach(y => meshAt(bx(.5, .4, .25, 0, 0, 0), new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xf4f8ff, emissiveIntensity: .9 }), x + d, y, z, 0, OUT))); col(x - .25, x + .25, z - .25, z + .25); });

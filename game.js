@@ -1,9 +1,9 @@
 // 서문고 — 잊혀진 시간 : 1인칭 학교 공포 게임 (Three.js)
 import * as THREE from './vendor/three.module.js';
 import { MeshBVH } from './vendor/addons/bvh/three-mesh-bvh.module.js';
-import { createRenderer, ENGINE } from './engine.js?v=416';
-import { createFXWebGPU } from './fxWebGPU.js?v=416';
-import { autoDetail, setupEnv, sharpenTextures, slimHeavyProps } from './surfaceDetail.js?v=416';
+import { createRenderer, ENGINE } from './engine.js?v=417';
+import { createFXWebGPU } from './fxWebGPU.js?v=417';
+import { autoDetail, setupEnv, sharpenTextures, slimHeavyProps } from './surfaceDetail.js?v=417';
 // 광선 검사 가속 (three-mesh-bvh, MIT): 건물 통짜 메시에 광선을 쏘는 배치 보정 · 상호작용 검사가 삼각형을 전부 훑느라
 //   로딩 중 수십 초 멈추던 것('응답 없는 페이지') → 큰 정적 메시는 처음 검사할 때 BVH 를 한 번 만들어 쓴다
 { const base = THREE.Mesh.prototype.raycast, R = new THREE.Ray(), M4 = new THREE.Matrix4(), S = new THREE.Sphere();
@@ -21,23 +21,22 @@ import { buildMissionGroups, recordCompleted, normalizeCompletedLog } from './my
 import { settleStoryGhost } from './storyGhost.js';
 import { GLTFLoader } from './vendor/addons/loaders/GLTFLoader.js';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { createNPCVisuals } from './npcVisuals.js?v=416';
-import { applyGuardSeatedPose } from './guardSeatedPose.js?v=416';
+import { createNPCVisuals } from './npcVisuals.js?v=417';
 import { createCampusCctvLive, collectCampusCctvFeeds } from './campusCctvLive.js';
-import { applyExteriorFloorVisibility, shouldStreamGuardCctv } from './exteriorRenderBudget.js?v=416';
-import { GUARD_LAYOUT } from './guardRoomLayout.js?v=416';
-import { ANNEX_KEYS, CABINET_CODE } from './guardAnnex.js?v=416';
-import { installGuardRoom } from './guardRoom.js?v=416';
+import { applyExteriorFloorVisibility, shouldStreamGuardCctv } from './exteriorRenderBudget.js?v=417';
+import { GUARD_LAYOUT } from './guardRoomLayout.js?v=417';
+import { ANNEX_KEYS, CABINET_CODE } from './guardAnnex.js?v=417';
+import { installGuardRoom } from './guardRoom.js?v=417';
 import { prepareModelGeometry } from './modelGeometry.js';
 import { modelFootprint, overlaps, removeDuplicateModels } from './placement.js';
-import { turfMaterial } from './campusVisuals.js?v=416';
+import { turfMaterial } from './campusVisuals.js?v=417';
 import { installInfirmaryAssets, updateInfirmaryCabinets } from './infirmaryAssets.js';
-import { installRebuild } from './rebuildGame.js?v=416';
-import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js?v=416'; import { updateWindowFakes } from './windowInteriors.js?v=416';
-import { drawMap } from './map.js?v=416';
-import { buildMegaCampus15000, MEGA_CAMPUS_ZONES } from './megaCampus15000.js?v=416';
-import { installFacilityRebuild, inTwoStory, ZONES as FAC_ZONES } from './facilityRebuild.js?v=416';
-import { relayoutCampus } from './campusRelayout.js?v=416';
+import { installRebuild } from './rebuildGame.js?v=417';
+import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js?v=417'; import { updateWindowFakes } from './windowInteriors.js?v=417';
+import { drawMap } from './map.js?v=417';
+import { buildMegaCampus15000, MEGA_CAMPUS_ZONES } from './megaCampus15000.js?v=417';
+import { installFacilityRebuild, inTwoStory, ZONES as FAC_ZONES } from './facilityRebuild.js?v=417';
+import { relayoutCampus } from './campusRelayout.js?v=417';
 import { makeDress, makeHair, makeGhostFace, makeGraffiti, makeKeypad, loadPBR, pbr, makeGlow as makeGlowTex, makePaintingStare, makeSign, makeBlood } from './tex.js';
 import { warmUp } from './bake.js';
 import { createStaticDistanceLOD } from './staticDistanceLOD.js';
@@ -54,16 +53,16 @@ import './basementRoomsPatch.js';     // 지하 전기실 · 보일러실 (사�
 import './classroomRemodelPatch.js';  // 교실 리모델링 · 의자에 앉기 (사용자 제공) → window.classroomRemodelPatch
 import './school37RoomsPatch.js';    // 본관 · 별관 37개 특별실 가구 · 동선 (사용자 제공) → window.school37RoomsPatch
 import './new37UniquePatch.js';     // 37개 구역 신규 특수 설비 · 벽면 레일 (사용자 제공) → window.new37UniquePatch
-import './megaExpansionPatch.js?v=416';   // 메가 익스팬션 · 최적화 · 4막 사건 기록 · 수집품 · 미니게임 (사용자 제공) → window.megaSchoolPatch
+import './megaExpansionPatch.js?v=417';   // 메가 익스팬션 · 최적화 · 4막 사건 기록 · 수집품 · 미니게임 (사용자 제공) → window.megaSchoolPatch
 import './poolMachineryPatch.js';     // 수영장 · 남/녀 탈의실·샤워실 · 기계실 철문 (사용자 제공) → window.poolAndMachineryPatch
-import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx, setSfxBusyCheck } from './audio.js?v=416'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=416'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera, perfInstanceSource } from './perfStabilizer.js?v=416'; window.__perfInst = perfInstanceSource; import { upgradePlainMaterials } from './plainUpgrade.js?v=416'; import { relayCampusPaths, cleanupCampus } from './campusPaths.js?v=416'; import { installStreetscape } from './streetV2.js?v=416'; import { installHudV2, tickHudV2 } from './hudV2.js?v=416'; import { installPartnerRadio, tickPartnerRadio } from './partnerRadio.js?v=416';
-import { installRoomUI } from './roomUI.js?v=416';   // 방별 현장 조사 카드 · 상호작용 아이콘 · 획득/목표 애니메이션
-import { furnishRooms } from './furnishV2.js?v=416';   // 방 용도별 실사 가구 보강 (상담실 소파 · 교무실 냉온수기 · 창고 선반 …)
-import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js?v=416';
-import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, HYPOTHESES, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, COVER_END, ENDING_OUTRO, OUTRO_TYPE, SIDEQUESTS, HEADQUEST, COLLECT, } from './story.js?v=416';
-import { isSpeechBusy } from './voice.js?v=416';
+import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx, setSfxBusyCheck } from './audio.js?v=417'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=417'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera, perfInstanceSource } from './perfStabilizer.js?v=417'; window.__perfInst = perfInstanceSource; import { upgradePlainMaterials } from './plainUpgrade.js?v=417'; import { relayCampusPaths, cleanupCampus } from './campusPaths.js?v=417'; import { installStreetscape } from './streetV2.js?v=417'; import { installHudV2, tickHudV2 } from './hudV2.js?v=417'; import { installPartnerRadio, tickPartnerRadio } from './partnerRadio.js?v=417';
+import { installRoomUI } from './roomUI.js?v=417';   // 방별 현장 조사 카드 · 상호작용 아이콘 · 획득/목표 애니메이션
+import { furnishRooms } from './furnishV2.js?v=417';   // 방 용도별 실사 가구 보강 (상담실 소파 · 교무실 냉온수기 · 창고 선반 …)
+import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js?v=417';
+import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, HYPOTHESES, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, COVER_END, ENDING_OUTRO, OUTRO_TYPE, SIDEQUESTS, HEADQUEST, COLLECT, } from './story.js?v=417';
+import { isSpeechBusy } from './voice.js?v=417';
 import { SET, saveSET, resetSET, DIFF, keyLabel } from './settings.js';
-import { initI18n, setLang, lang as curLang } from './i18n.js?v=416';   // 언어 패치 (한국어 · English · 日本語 · 中文)
+import { initI18n, setLang, lang as curLang } from './i18n.js?v=417';   // 언어 패치 (한국어 · English · 日本語 · 中文)
 initI18n();
 const K = () => SET.keys;
 let guardRoomController = null, guardControlProps = [], guardCctvData = null, campusCctv = null;
@@ -82,7 +81,7 @@ function syncGuardDevices() {
 function toggleGuardCCTV(persist = true) { FL.guardCctvOn = !(FL.guardCctvOn ?? true); sfx.click(); syncGuardDevices(); if (persist) save(true); return FL.guardCctvOn; }
 function toggleGuardLight() { FL.guardLightOn = !(FL.guardLightOn ?? false); sfx.click(); syncGuardDevices(); say(FL.guardLightOn ? '경비실 전등을 켰다' : '경비실 전등을 껐다', 1800); save(true); return FL.guardLightOn; }
 
-import { run as runMini, MG } from './minigames.js?v=416';
+import { run as runMini, MG } from './minigames.js?v=417';
 import { SCHEMA, BUILD, storageKeys, itemUid, propUid, doorUid, assignUids, readSlot, writeSlot, hasSlot, clearSlot, repairProgress } from './saveSystem.js';
 const NOTE_CAST = {
   n_seomun_ilbo: { spk: 'reporter', audioId: 'call_119', stage: '(📰 서문일보 사회부 한진우 기자의 긴급 특보 리포팅)' },
@@ -140,6 +139,8 @@ const NV_SPK = {"n_guard_diary": "guard", "n24": "guard", "n2": "nurse", "q3a": 
 for (const [k, spk] of Object.entries(NV_SPK)) NOTE_CAST[k] = { ...(NOTE_CAST[k] || {}), spk, audioId: 'nv_' + k };
 NOTE_CAST.n_seomun_ilbo = { ...NOTE_CAST.n_seomun_ilbo, audioId: 'news_rep' };
 // 문서 원문 낭독(nd_*): 각 문서를 쓴 사람의 목소리로 원문 그대로 읽는다 (감정 태그 · ElevenLabs v4) — 자막과 음성이 글자 하나까지 같다
+// 더빙 녹음이 없는 보충 문서 — 남의 녹음으로 대신 읽지 않고 자막(또는 브라우저 음성)만
+const UNVOICED_NOTES = new Set(['nx_ups', 'nx_diary98', 'nx_slip', 'nx_paper08', 'nx_memo08']);
 const ND_IDS = ["n_guard_diary", "n_principal_tape", "n_bunker_audit", "n_dorm2f_diary", "n1", "n2", "n3", "n4", "n6", "n7", "n8", "n9", "n10", "n11", "n12", "n13", "n17", "n18", "n19", "n20", "n21", "n22", "n23", "n24", "n25", "n26", "n27", "n28", "n29", "q1a", "q1b", "q2a", "q2b", "q3a", "q3b", "q4a", "q4b", "q4c", "q5a", "q5b", "q5c", "q7a", "q7b", "q8a", "h1", "h3", "h4", "h5", "q8b", "n14", "n15", "n16"];
 for (const k of ND_IDS) NOTE_CAST[k] = { ...(NOTE_CAST[k] || {}), audioId: 'nd_' + k };
 const RECAST_LINE_KEYS = new Set(['gate', 'office', 'key', 'keyLast', 'headMissing', 'headFound', 'keyMade', 'needCombine', 'pumpPolice', 'seomunPaper', 'dorm2fClimb', 'bunkerEnter', 'westGateReloc']);
@@ -155,7 +156,7 @@ loadManifest().then(() => {
     const keepExact = k === 'n5' || k === 'n6';
     return ['note_' + k, {
       spk: cast.spk,
-      audioId: NV_SPK[k] ? cast.audioId : keepExact ? ('note_' + k) : (cast.audioId || ('note_' + k)),
+      audioId: UNVOICED_NOTES.has(k) ? undefined : NV_SPK[k] ? cast.audioId : keepExact ? ('note_' + k) : (cast.audioId || ('note_' + k)),
       customTimbre: !NV_SPK[k] && !keepExact && !!cast.audioId,
       stage: cast.stage || '',
       text: n.title + '. ' + n.text,
@@ -1184,6 +1185,7 @@ function noteVoiceFor(id) {
   const pLine = k => ({ id: 'l_' + k + '_' + (isJ ? 'j' : 's'), fx: 'none', who: pWho });
   const NV_WHO = { guard: '🔦 당직 경비원 · 박종철 아저씨', nurse: '📼 보건교사 · 임소연 선생님', homeroom: '📼 3-2 담임 · 정은수 선생님', principal: '📼 제9대 교장 · 한석규', headTeacher: '📼 교무부장 · 권오현', scienceTeacher: '📼 과학부장 · 최동혁 선생님', peTeacher: '📼 체육부장 · 강태식 선생님', librarian: '📼 도서실 사서 · 송지혜 선생님', junho: '📼 전 방송부 3학년 · 이준호', haneul: '🕯 윤하늘 (1998년 3-2 방송부)', friend: '📼 단짝 친구 · 이수아', friend2: '📼 단짝 친구 · 서다은', mina: '📱 선배 박민아 (방송부 3학년)', reporter: '📰 서문일보 · 한진우 기자', dormMother: '📼 청운학사 사감 · 문정희', electrician: '📼 전기 기사 · 배만수', snackLady: '📼 매점 아주머니', narrator: '📖 내레이션' };
   if (id === 'nC') return { id: 'nv_nC_' + (isJ ? 'j' : 's'), fx: 'none', who: pWho };
+  if (UNVOICED_NOTES.has(id)) return { id: 'note_' + id, fx: 'none', who: '📄 문서' };
   if (id === 'n_seomun_ilbo') return { id: 'news_rep', fx: 'radio', who: NV_WHO.reporter };
   if (NV_SPK[id]) { const spk = NV_SPK[id]; return { id: 'nv_' + id, fx: spk === 'mina' ? 'phone' : /^(n_guard_diary|n_principal_tape|n_bunker_audit|q2b)$/.test(id) ? 'radio' : 'none', who: NV_WHO[spk] || '📼 증언' }; }
   const MAP = {
@@ -2419,10 +2421,10 @@ function start(skipIntro = false) {
   initAudio(); closeMenus(); applyChar(); { const par = renderer.extensions.has('KHR_parallel_shader_compile');   // 병렬 컴파일이 없으면 씬 전체 컴파일이 동기라 한 번에 수십 초 멈춘다 → 한 번만
   (par ? [400, 6000, 15000, 30000, 50000] : [400]).forEach(ms => setTimeout(() => { if (ms <= 6000) try { upgradePlainMaterials(scene); } catch (e) {} prewarmFloors(true, (fx.composer ? fx.composer.renderTarget1 : null)).catch(() => {}); }, ms));
   if (!par) setTimeout(() => { try { upgradePlainMaterials(scene); } catch (e) {} }, 6000); }   // 늦게 들어오는 GLB(민아 · 소품)까지 시작 연출 동안 미리 컴파일   // 시작 연출 동안 나중에 생긴 재질까지 한 번 더 예열
-  if (!readingSave) { DAY.k = .92; DAY.start = -1; DAY.done = false; delete FL.night; GUARD_WALK.startedWalk = false; GUARD_WALK.greetedGate = false; }
+  if (!readingSave) { DAY.k = .92; DAY.start = -1; DAY.done = false; delete FL.night; }
   refreshHud(); chapterShown = objective().ch;
   if (skipIntro || TEST) { finishIntro(); return; }
-  state = 'intro'; introT = 0; introText = true; introCue = 0; introGuardEnd = 0; introEndT = 99; $('intro').classList.add('show'); $('cine').classList.add('on');
+  state = 'intro'; introStartMs = performance.now(); introT = 0; introText = true; introCue = 0; introEndT = 99; $('intro').classList.add('show'); $('cine').classList.add('on');
   // 캐릭터 성별 분기 인트로: 서연(여성 캐릭터)은 여성 성우 독백(intro1_s~intro4_s), 지훈(남성 캐릭터)은 남성 성우 독백(intro1_j~intro4_j)으로 재생!
   const isSeoyeon = CHAR === 'seoyeon';
   const ids = isSeoyeon ? ['intro1_s', 'intro2_s', 'intro3_s', 'intro4_s'] : ['intro1_j', 'intro2_j', 'intro3_j', 'intro4_j'];
@@ -2435,7 +2437,7 @@ function start(skipIntro = false) {
     p.dataset.from = labelFor(i);
     p.textContent = (VO[ids[i]] || VO['intro' + (i + 1)]).text;
   });
-  preload([...ids, 'guard1']);
+  preload(ids);
   const W = s => new Promise(r => setTimeout(r, s * 1000 / (DEBUG && window.__introJump ? 6 : 1)));
   (async () => {
     await W(.9);
@@ -2452,84 +2454,7 @@ function start(skipIntro = false) {
     if (epoch===storySession && state === 'intro') { sfx.swell(1.6, .35); await W(1.5); if(epoch!==storySession||state!=='intro')return;introText = false; introT = 6; }
   })();
 }
-// 정문 입구에서 초반 대화 후 순간이동하지 않고 실제 통로·정문·경비실 문을 따라 걸어가 의자에 착석하는 경비원 AI
-let introGuard = null, introCue = 0, introGuardEnd = 0, introEndT = 0;
-// 경비실 외벽(x: 4.1~7.9, z: 65.0~68.1)을 절대 관통하지 않고 보도블록과 출입문(x=6.95, z=68.01)으로만 정확히 다니도록 학습된 16-노드 AI 순찰 네비게이션 그래프
-const GUARD_WAYPOINTS = [
-  { x: 1.30, z: 73.60, label: 'gate_front' },
-  { x: 1.25, z: 69.15, label: 'spur_junction', pose: 'inspect', pause: 2.8, lookYaw: 0 },
-  { x: 4.50, z: 69.15, label: 'booth_approach_south' },
-  { x: 6.95, z: 69.15, label: 'booth_door_out', doorCheck: true },
-  { x: 6.95, z: 67.35, label: 'booth_door_in', doorCheck: true, insideSeatPass: true },
-  { x: 6.95, z: 66.22, label: 'booth_aisle', insideSeatPass: true },
-  { x: GUARD_LAYOUT.npc.x, z: GUARD_LAYOUT.npc.z, label: 'booth_seat', insideSeatPass: true, seatPause: 9.0 },
-  { x: 6.95, z: 66.22, label: 'patrol_exit_aisle', insideSeatPass: true },
-  { x: 6.95, z: 67.35, label: 'patrol_exit_threshold', doorCheck: true, insideSeatPass: true },
-  { x: 6.95, z: 69.15, label: 'patrol_exit_door', doorCheck: true },
-  { x: 1.25, z: 69.15, label: 'patrol_to_main_road' },
-  { x: 1.25, z: 62.50, label: 'main_road_mid' },
-  { x: -3.80, z: 57.00, label: 'plaza_west', pose: 'radio', pause: 3.6, lookYaw: 2.85 },
-  { x: 0.00, z: 46.20, label: 'main_steps', pose: 'stand', pause: 4.2, lookYaw: Math.PI },
-  { x: 3.60, z: 57.00, label: 'plaza_east', pose: 'stance', pause: 3.4, lookYaw: -2.75 },
-  { x: 1.25, z: 62.50, label: 'return_main_road' }
-];
-const GUARD_WALK = {
-  state: 'walking', // 'gate_talk' | 'walking' | 'patrol_pause' | 'seated' | 'leaving_duty' | 'off_duty'
-  wpIndex: 1,
-  phase: 0,
-  stepAcc: 0,
-  doorWait: 0,
-  pauseTimer: 0,
-  seatTimer: 8.5,
-  talkWait: 0,
-  talking: false,
-  startedWalk: true,
-  greetedGate: false,
-  stuckT: 0
-};
-function buildGuardNPC() {
-  const g = new THREE.Group(), M = (c, r = .8, o = {}) => new THREE.MeshStandardMaterial({ color: c, roughness: r, ...o });
-  const uni = M(0x283450, .82), pants = M(0x1c2130, .85), skin = M(0xc9a088, .62), boot = M(0x111111, .4), badge = M(0xc8a040, .35, { metalness: .7 }), blk = M(0x15161a, .5), gray = M(0x8a8a88, .7);
-  const cap = (r, h, m) => new THREE.Mesh(new THREE.CapsuleGeometry(r, h, 6, 12), m);
-  const seatedBody = new THREE.Group(); seatedBody.position.y = -.36; g.add(seatedBody);
-  const put = (o, ...a) => { if (o.isBufferGeometry) o = new THREE.Mesh(o, a.shift()); const [x, y, z, p = seatedBody] = a; o.position.set(x, y, z); p.add(o); return o; };
-  const legs = [];
-  [-1, 1].forEach(s => {
-    const thigh = put(cap(.085, .30, pants), s * .11, .56, .21, g); thigh.rotation.x = Math.PI / 2;
-    const shin = put(cap(.075, .31, pants), s * .11, .27, .42, g);
-    const foot = put(new THREE.BoxGeometry(.12, .10, .26), boot, s * .11, .05, .49, g);
-    legs.push({ s, thigh, shin, foot });
-  });
-  put(new THREE.BoxGeometry(.4, .07, .24), blk, 0, .9, 0);   // 근무 벨트
-  put(new THREE.BoxGeometry(.07, .12, .05), blk, -.2, .87, .1); put(new THREE.BoxGeometry(.06, .16, .04), blk, .2, .88, .1);   // 파우치 · 무전기
-  const body = put(cap(.2, .42, uni), 0, 1.22, 0); body.scale.set(1.05, 1, .74);
-  put(new THREE.BoxGeometry(.08, .45, .02), M(0x23283a, .7), 0, 1.25, .15);   // 지퍼 · 넥타이 선
-  const patch = new THREE.Mesh(new THREE.PlaneGeometry(.12, .045), new THREE.MeshBasicMaterial({ map: makeSign('SECURITY', '#20242c', '#d8d4c4', 22), color: 0xb0aca0 })); put(patch, .1, 1.37, .152);
-  put(new THREE.CircleGeometry(.035, 12), badge, -.11, 1.37, .152);
-  put(new THREE.BoxGeometry(.11, .025, .01), M(0xd8d8d0, .6), .1, 1.31, .152);   // 명찰
-  const arms = [];
-  [-1, 1].forEach(s => { const a = put(cap(.06, .44, uni), s * .26, 1.15, 0); a.rotation.z = s * .1; const hand = put(new THREE.SphereGeometry(.045, 10, 8), skin, s * .29, .88, .02); arms.push({ s, a, hand }); });
-  put(new THREE.CylinderGeometry(.05, .055, .08, 10), skin, 0, 1.53, 0);
-  const head = put(new THREE.SphereGeometry(.105, 18, 14), skin, 0, 1.66, .01); head.scale.set(.95, 1.08, 1);
-  put(new THREE.BoxGeometry(.14, .02, .01), gray, 0, 1.6, .1);   // 희끗한 콧수염
-  [-1, 1].forEach(s => { put(new THREE.SphereGeometry(.012, 8, 6), blk, s * .036, 1.685, .094); put(new THREE.BoxGeometry(.04, .008, .01), gray, s * .036, 1.708, .095); put(new THREE.SphereGeometry(.026, 8, 6), skin, s * .1, 1.66, 0).scale.set(.5, 1, .8); });   // 눈 · 눈썹 · 귀
-  put(new THREE.BoxGeometry(.024, .04, .03), skin, 0, 1.65, .105);   // 코
-  put(new THREE.CylinderGeometry(.108, .104, .07, 18, 1, true, Math.PI * .6, Math.PI * .8), gray, 0, 1.7, 0);   // 모자 아래 희끗한 옆 · 뒷머리
-  put(new THREE.CylinderGeometry(.115, .118, .08, 18), uni, 0, 1.77, 0);
-  put(new THREE.BoxGeometry(.2, .015, .13), blk, 0, 1.735, .1);   // 모자 챙
-  put(new THREE.CircleGeometry(.025, 12), badge, 0, 1.79, .118);
-  put(new THREE.CylinderGeometry(.025, .02, .2, 10), blk, .3, .95, .1).rotation.x = Math.PI / 2;   // 손전등
-  g.traverse(o => { if (o.isMesh) o.castShadow = true; });
-  g.userData.procParts = { seatedBody, legs, arms };
-  return g;
-}
-function buildGuard() { return guardNPC; }
-const NO_GUARD = true;   // 일요일 밤의 서문고 — 당직 경비원은 순찰을 나가 자리에 없고, 경비실엔 그날 밤의 무전기와 일지만 남았다
-const guardNPC = buildGuardNPC(); guardNPC.position.set(GUARD_LAYOUT.npc.x, .02, GUARD_LAYOUT.npc.z); guardNPC.rotation.y = 0; guardNPC.name = 'GUARD_SEATED_NPC'; world.OUT.add(guardNPC);
-introGuard = guardNPC;
-if (NO_GUARD) { guardNPC.visible = false; Object.defineProperty(guardNPC, 'visible', { get: () => false, set: () => {} }); }   // 어떤 경로로도 다시 나타나지 않게
-const guardPropRef = { kind: 'guardnpc', floor: NO_GUARD ? -1 : 0, x: GUARD_LAYOUT.npc.x, z: GUARD_LAYOUT.npc.z, y: 1.15, label: '경비 아저씨와 이야기하기' };
-world.props.push(guardPropRef);
+let introCue = 0, introEndT = 0;
 // 경비실 책상: 1998년 무전기(교신 3개) · 근무 일지 묶음(3장) · 2008년 증언 카세트
 {
   const M = (c, r = .6, m = 0) => new THREE.MeshStandardMaterial({ color: c, roughness: r, metalness: m });
@@ -2549,128 +2474,7 @@ world.props.push(guardPropRef);
   world.props.push({ kind: 'glog', floor: 0, x: lx, z: lz, y: dy, r: 1.5, n: 0, label: '경비 근무 일지 묶음 넘기기' });
   world.props.push({ kind: 'tape', id: 'ts_guard', floor: 0, x: tx, z: tz, y: ty, r: 1.5, label: '증언 카세트 재생', ...world.TAPES.ts_guard });
 }
-if (!NO_GUARD) npcLoad('guard', guardNPC, { url: 'assets/characters/guard.glb', height: 1.75, native: true, clipNames: ['idle'], onLoad: () => {
-  guardNPC.userData.seatedReport = applyGuardSeatedPose(guardNPC,GUARD_LAYOUT.seat);
-  if (GUARD_WALK.state !== 'seated') setGuardPoseMode(GUARD_WALK.state === 'walking' ? 'walk' : 'stand', GUARD_WALK.phase);
-} });
-{
-  const torchFx = new THREE.Group(); torchFx.name = 'GUARD_TORCH_FX'; torchFx.visible = false;
-  const lens = new THREE.Sprite(new THREE.SpriteMaterial({ map: makeGlowTex(), color: 0xfff0d0, blending: THREE.AdditiveBlending, depthWrite: false }));
-  lens.scale.setScalar(.55); lens.position.set(.24, 1.10, .46); torchFx.add(lens);
-  const beam = new THREE.Mesh(new THREE.ConeGeometry(.85, 4.6, 18, 1, true), new THREE.MeshBasicMaterial({ color: 0xfff0d0, transparent: true, opacity: .075, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide }));
-  beam.geometry.translate(0, -2.3, 0); beam.rotation.x = -Math.PI / 2 - .22; beam.position.set(.24, 1.10, .46); torchFx.add(beam);
-  guardNPC.add(torchFx); guardNPC.userData.torchFx = torchFx;
-}
-const guardCap = new THREE.Mesh(new THREE.CylinderGeometry(.115, .118, .08, 18), new THREE.MeshStandardMaterial({ color: 0x283450, roughness: .8 })); guardCap.position.set(GUARD_LAYOUT.cap.x, GUARD_LAYOUT.cap.y, GUARD_LAYOUT.cap.z); guardCap.visible = false; world.OUT.add(guardCap);
-
-function syncGuardPropPosition() {
-  guardPropRef.x = guardNPC.position.x;
-  guardPropRef.z = guardNPC.position.z;
-  guardPropRef.y = GUARD_WALK.state === 'seated' ? 1.15 : 1.42;
-}
-function setGuardPoseMode(mode, phase = 0) {
-  const pp = guardNPC.userData.procParts;
-  const tfx = guardNPC.userData.torchFx;
-  if (tfx) tfx.visible = mode !== 'seated';
-  if (mode === 'seated') {
-    if (pp) {
-      pp.seatedBody.position.y = -.36;
-      pp.legs.forEach(({ s, thigh, shin, foot }) => {
-        thigh.position.set(s * .11, .56, .21); thigh.rotation.x = Math.PI / 2;
-        shin.position.set(s * .11, .27, .42); shin.rotation.x = 0;
-        foot.position.set(s * .11, .05, .49); foot.rotation.x = 0;
-      });
-      pp.arms.forEach(({ s, a }) => { a.rotation.x = 0; a.rotation.z = s * .1; });
-    }
-    guardNPC.position.set(GUARD_LAYOUT.npc.x, .02, GUARD_LAYOUT.npc.z);
-    guardNPC.rotation.y = 0;
-    if (guardNPC.userData.characterModel) {
-      guardNPC.userData.curClipName = 'Seated';
-      guardNPC.userData.npcAction?.getMixer?.()?.stopAllAction();
-      guardNPC.userData.seatedReport = applyGuardSeatedPose(guardNPC, GUARD_LAYOUT.seat);
-    }
-    syncGuardPropPosition();
-    return;
-  }
-  if (pp) {
-    const breath = Math.sin(performance.now() * 0.002) * 0.015;
-    pp.seatedBody.position.y = breath;
-    const sw = mode === 'walk' ? Math.sin(phase) * .46 : Math.sin(performance.now() * 0.0015) * 0.03;
-    pp.legs.forEach(({ s, thigh, shin, foot }) => {
-      const lsw = sw * s;
-      thigh.position.set(s * .11, .62, Math.sin(lsw) * .09); thigh.rotation.x = lsw;
-      shin.position.set(s * .11, .28, Math.sin(lsw) * .17 - Math.max(0, -lsw) * .07); shin.rotation.x = Math.max(0, -lsw * .68);
-      foot.position.set(s * .11, .05, .05 + Math.sin(lsw) * .19); foot.rotation.x = lsw * .28;
-    });
-    pp.arms.forEach(({ s, a }) => {
-      if (mode === 'radio' && s < 0) { a.rotation.x = -1.35; a.rotation.z = 0.25; }
-      else if (mode === 'inspect') { a.rotation.x = s > 0 ? -1.05 : -0.35; a.rotation.z = s * 0.1; }
-      else { a.rotation.x = s > 0 ? -.85 : -sw * s * .58; a.rotation.z = s * .08; }
-    });
-  }
-  const cm = guardNPC.userData.characterModel;
-  if (cm) {
-    if (guardNPC.userData.seated) {
-      const pel = cm.getObjectByName('pelvis');
-      if (pel && guardNPC.userData.origPelvisPos) pel.position.copy(guardNPC.userData.origPelvisPos);
-      guardNPC.userData.seated = false;
-    }
-    const clipMap = {
-      walk: 'Walk',
-      stand: 'Idle',
-      inspect: 'Inspect',
-      radio: 'RadioUse',
-      stance: 'GuardStance',
-      torch: 'FlashlightHold'
-    };
-    const want = clipMap[mode] || 'Idle';
-    if (guardNPC.userData.curClipName !== want) {
-      guardNPC.userData.curClipName = want;
-      npcVisuals.play(guardNPC, want, { fade: .28, speed: mode === 'walk' ? 1.08 : 1.0 });
-    }
-  }
-  syncGuardPropPosition();
-}
-function placeGuardAtGateForIntro() {
-  const wp0 = GUARD_WAYPOINTS[0];
-  GUARD_WALK.state = 'gate_talk';
-  GUARD_WALK.wpIndex = 1;
-  GUARD_WALK.phase = 0;
-  GUARD_WALK.stepAcc = 0;
-  GUARD_WALK.doorWait = 0;
-  GUARD_WALK.pauseTimer = 0;
-  GUARD_WALK.talkWait = 4.2;
-  GUARD_WALK.talking = false;
-  GUARD_WALK.startedWalk = false;
-  guardNPC.visible = true;
-  guardNPC.position.set(wp0.x, .02, wp0.z);
-  guardNPC.rotation.y = -.15;
-  setGuardPoseMode('stand', 0);
-}
-function startGuardWalkToBooth() {
-  GUARD_WALK.state = 'walking';
-  GUARD_WALK.startedWalk = true;
-  if (GUARD_WALK.wpIndex < 1 || GUARD_WALK.wpIndex >= GUARD_WAYPOINTS.length) GUARD_WALK.wpIndex = 1;
-  setGuardPoseMode('walk', GUARD_WALK.phase);
-}
-function startGuardPatrolRound(startWp = 1) {
-  GUARD_WALK.state = 'walking';
-  GUARD_WALK.startedWalk = true;
-  GUARD_WALK.talking = false;
-  GUARD_WALK.wpIndex = startWp;
-  const wp = GUARD_WAYPOINTS[startWp] || GUARD_WAYPOINTS[1];
-  guardNPC.position.set(wp.x, .02, wp.z);
-  setGuardPoseMode('walk', GUARD_WALK.phase);
-}
-function resetGuardToSeatedImmediate() {
-  GUARD_WALK.state = 'seated';
-  GUARD_WALK.wpIndex = 6;
-  GUARD_WALK.seatTimer = 9.0;
-  GUARD_WALK.startedWalk = true;
-  GUARD_WALK.talking = false;
-  setGuardPoseMode('seated', 0);
-}
-function lockMainGateByGuard() {
+function lockMainGateAuto() {
   if (gateClosed) return;
   gateClosed = true;
   gateState = 'closing';
@@ -2685,190 +2489,10 @@ function lockMainGateByGuard() {
     }
   }, 650);
 }
-function triggerGuard7PMClockOut() {
-  if (GUARD_WALK.state === 'off_duty' || GUARD_WALK.state === 'leaving_duty') return;
-  GUARD_WALK.state = 'leaving_duty';
-  GUARD_WALK.talking = false;
-  guardNPC.visible = true;
-  if (state === 'playing') {
-    toast('19:00 · 경비원 퇴근 및 정문 폐쇄', '퇴근 시간이 되어 경비 아저씨가 정문을 걸어 잠그러 이동합니다', 'info');
-    if (P.floor === 0 && P.z > 20) line('guardBye', 'none', '🔦 당직 경비원 · 박종철 아저씨');
-  }
-  setGuardPoseMode('walk', GUARD_WALK.phase);
+// 당직 경비원은 순찰 중이라 자리에 없다 — 저녁 7시(또는 밤)가 되면 아무도 없는 정문이 혼자 닫힌다
+function updateGateAutoLock() {
+  if (state === 'playing' && (FL.night || DAY.k <= 0.32) && !gateClosed) lockMainGateAuto();
 }
-function updateGuardWalk(dt) {
-  if (NO_GUARD) {   // 당직 경비원은 순찰 중: 몸체 · 대화를 끄고, 저녁 7시엔 아무도 없는 정문이 혼자 닫힌다
-    guardNPC.visible = false; guardPropRef.floor = -1;
-    if (state === 'playing' && (FL.night || DAY.k <= 0.32) && !gateClosed) lockMainGateByGuard();
-    return;
-  }
-  if (GUARD_WALK.state === 'off_duty') {
-    if (!gateClosed && state === 'playing') lockMainGateByGuard();
-    guardNPC.visible = false;
-    guardPropRef.floor = -1;
-    return;
-  }
-  // 저녁 7시(19:00, 해가 기울어 DAY.k <= 0.32 또는 FL.night)가 되면 경비원이 정문으로 걸어 나가 정문을 잠그고 퇴근한다!
-  if (state === 'playing' && (FL.night || DAY.k <= 0.32) && GUARD_WALK.state !== 'leaving_duty') {
-    triggerGuard7PMClockOut();
-  }
-  if (!guardNPC.visible) return;
-  const gx = guardNPC.position.x, gz = guardNPC.position.z;
-  const turnToward = (targetYaw, rate = 7) => {
-    let diff = ((targetYaw - guardNPC.rotation.y + Math.PI * 3) % (Math.PI * 2)) - Math.PI;
-    guardNPC.rotation.y += diff * Math.min(1, dt * rate);
-  };
-  // 19:00 퇴근 이동 중: 경비실에서 나와 정문(z = 70.0)을 통과한 직후(z >= 70.8) 정문 철문을 쾅 닫고 잠근 뒤 밖(z = 75.8)으로 퇴근 완료!
-  if (GUARD_WALK.state === 'leaving_duty') {
-    const exitTarget = (gz < 68.8 && gx > 4.2) ? { x: 6.95, z: 69.2 } : (gz < 69.5 && gx > 2.2) ? { x: 1.25, z: 69.2 } : { x: 1.25, z: 75.8 };
-    if (gz <= 68.6 && gz >= 67.5 && gx >= 6.0 && !(FL.guardDoorOpen ?? true)) {
-      FL.guardDoorOpen = true; sfx.doorOpen(); syncGuardDevices();
-    }
-    // 경비 아저씨가 정문(GATE_Z = 70) 바깥쪽(z >= 70.75)에 도달하는 순간 정문을 닫고 쇠사슬 자물쇠를 잠근다!
-    if (!gateClosed && gz >= GATE_Z + 0.75) {
-      lockMainGateByGuard();
-    }
-    const dx = exitTarget.x - gx, dz = exitTarget.z - gz, dist = Math.hypot(dx, dz);
-    if (dist < 0.22 && exitTarget.z > 74.5) {
-      if (!gateClosed) lockMainGateByGuard();
-      GUARD_WALK.state = 'off_duty';
-      guardNPC.visible = false;
-      guardPropRef.floor = -1;
-      if (state === 'playing') caption('철컥 — 경비 아저씨가 정문을 밖에서 걸어 잠그고 퇴근하며 야간 무인 경비 상태로 전환되었다.');
-      return;
-    }
-    const step = Math.min(dist, 2.15 * dt);
-    guardNPC.position.set(gx + (dx / Math.max(0.01, dist)) * step, .02, gz + (dz / Math.max(0.01, dist)) * step);
-    turnToward(Math.atan2(dx, dz), 8.0);
-    GUARD_WALK.phase += step * 3.8;
-    setGuardPoseMode('walk', GUARD_WALK.phase);
-    syncGuardPropPosition();
-    return;
-  }
-  if (GUARD_WALK.talking) {
-    if (GUARD_WALK.state !== 'seated') {
-      setGuardPoseMode('stand', GUARD_WALK.phase);
-      turnToward(Math.atan2(P.x - gx, P.z - gz), 8);
-    }
-    return;
-  }
-  if (GUARD_WALK.state === 'seated') {
-    if (guardNPC.userData.characterModel && !guardNPC.userData.seated) setGuardPoseMode('seated', 0);
-    syncGuardPropPosition();
-    if (state === 'playing' && P.floor === 0) {
-      GUARD_WALK.seatTimer = (GUARD_WALK.seatTimer ?? 9.0) - dt;
-      if (GUARD_WALK.seatTimer <= 0) {
-        GUARD_WALK.state = 'walking';
-        GUARD_WALK.wpIndex = 7;
-        guardNPC.position.set(6.85, .02, 66.22);
-        setGuardPoseMode('walk', GUARD_WALK.phase);
-      }
-    }
-    return;
-  }
-  if (GUARD_WALK.state === 'gate_talk') {
-    setGuardPoseMode('stand', 0);
-    turnToward(Math.atan2(P.x - gx, P.z - gz), 6);
-    if (state === 'playing') {
-      GUARD_WALK.talkWait -= dt;
-      if (GUARD_WALK.talkWait <= 0 || P.z < GATE_Z + 1.2) {
-        startGuardWalkToBooth();
-      }
-    }
-    return;
-  }
-  if (GUARD_WALK.state === 'patrol_pause') {
-    const curWp = GUARD_WAYPOINTS[GUARD_WALK.wpIndex] || {};
-    setGuardPoseMode(curWp.pose || 'stand', GUARD_WALK.phase);
-    if (curWp.lookYaw != null) turnToward(curWp.lookYaw + Math.sin(performance.now() * 0.0012) * 0.35, 5);
-    GUARD_WALK.pauseTimer -= dt;
-    if (GUARD_WALK.pauseTimer <= 0) {
-      GUARD_WALK.state = 'walking';
-      GUARD_WALK.wpIndex = (GUARD_WALK.wpIndex + 1) % GUARD_WAYPOINTS.length;
-      if (GUARD_WALK.wpIndex === 0) GUARD_WALK.wpIndex = 1;
-      setGuardPoseMode('walk', GUARD_WALK.phase);
-    }
-    return;
-  }
-  if (GUARD_WALK.state !== 'walking') return;
-  const wp = GUARD_WAYPOINTS[GUARD_WALK.wpIndex];
-  if (!wp) { startGuardPatrolRound(1); return; }
-  if (wp.doorCheck || (gz <= 68.6 && gz >= 67.7 && gx >= 6.2)) {
-    if (!(FL.guardDoorOpen ?? true)) {
-      FL.guardDoorOpen = true;
-      sfx.doorOpen();
-      syncGuardDevices();
-      GUARD_WALK.doorWait = .42;
-    }
-  }
-  if (GUARD_WALK.doorWait > 0) {
-    GUARD_WALK.doorWait -= dt;
-    setGuardPoseMode('stand', GUARD_WALK.phase);
-    turnToward(Math.PI, 8);
-    return;
-  }
-  const dx = wp.x - gx, dz = wp.z - gz, dist = Math.hypot(dx, dz);
-  if (dist < .16) {
-    guardNPC.position.x = wp.x;
-    guardNPC.position.z = wp.z;
-    syncGuardPropPosition();
-    if (wp.seatPause) {
-      resetGuardToSeatedImmediate();
-      GUARD_WALK.seatTimer = wp.seatPause;
-      return;
-    }
-    if (wp.pause > 0) {
-      GUARD_WALK.state = 'patrol_pause';
-      GUARD_WALK.pauseTimer = wp.pause;
-      setGuardPoseMode(wp.pose || 'stand', GUARD_WALK.phase);
-      return;
-    }
-    GUARD_WALK.wpIndex++;
-    if (GUARD_WALK.wpIndex >= GUARD_WAYPOINTS.length) GUARD_WALK.wpIndex = 1;
-    return;
-  }
-  if (state === 'playing' && P.floor === 0) {
-    const pdx = P.x - gx, pdz = P.z - gz, pDist = Math.hypot(pdx, pdz);
-    const dot = (pdx * dx + pdz * dz) / ((pDist * dist) || 1);
-    if (pDist < 1.15 && dot > .35) {
-      setGuardPoseMode('stand', GUARD_WALK.phase);
-      turnToward(Math.atan2(pdx, pdz), 7);
-      return;
-    }
-  }
-  const speed = 1.66;
-  const step = Math.min(dist, speed * dt);
-  const baseAng = Math.atan2(dx, dz);
-  const pos = { x: gx + Math.sin(baseAng) * step, z: gz + Math.cos(baseAng) * step };
-  const cols = floors[0]?.col;
-  const filtered = cols ? (wp.insideSeatPass
-    ? (floors[0]._seatPassCols ||= cols.filter(c => !(c.x1 >= 5.3 && c.x2 <= 6.2 && c.z1 >= 65.6 && c.z2 <= 66.55)))
-    : cols) : null;
-  if (filtered) collide(filtered, pos, .21);
-  let moved = Math.hypot(pos.x - gx, pos.z - gz);
-  let moveAng = baseAng;
-  if (filtered && moved < step * 0.55) {
-    for (const off of [0.65, -0.65, 1.22, -1.22, 1.65, -1.65]) {
-      const tryAng = baseAng + off;
-      const cand = { x: gx + Math.sin(tryAng) * step, z: gz + Math.cos(tryAng) * step };
-      collide(filtered, cand, .21);
-      const cmv = Math.hypot(cand.x - gx, cand.z - gz);
-      if (cmv > moved * 1.25) {
-        pos.x = cand.x; pos.z = cand.z; moved = cmv; moveAng = tryAng; break;
-      }
-    }
-  }
-  guardNPC.position.set(pos.x, .02, pos.z);
-  turnToward(moveAng, 7.8);
-  GUARD_WALK.phase += moved * 3.8;
-  GUARD_WALK.stepAcc += moved;
-  if (GUARD_WALK.stepAcc >= .56) {
-    GUARD_WALK.stepAcc = 0;
-    if (state === 'playing' && P.floor === 0) at(pos.x, .1, pos.z).step(false, .48, pos.z < 67.9 ? 'tile' : 'stone');
-  }
-  setGuardPoseMode('walk', GUARD_WALK.phase);
-}
-window.__guardWalk = { state: GUARD_WALK, waypoints: GUARD_WAYPOINTS, startAtGate: placeGuardAtGateForIntro, walkToBooth: startGuardWalkToBooth, startPatrol: startGuardPatrolRound, clockOut7PM: triggerGuard7PMClockOut, seatImmediate: resetGuardToSeatedImmediate, step: updateGuardWalk };
 
 function finishIntro() {
   // 새 게임: 민아의 음성 메시지("서문일보 호외부터 봐") 다음엔 정문으로 가기 전에 호외부터 펼친다 — 가설은 여기서 시작
@@ -2888,56 +2512,15 @@ function finishIntro() {
   if (!readingSave && !SET.flashReduce) { const b = $('blink'); b.classList.remove('go'); void b.offsetWidth; b.classList.add('go'); setTimeout(() => b.classList.remove('go'), 2700); }   // 눈을 뜨듯 시작
   if (!readingSave) { P.x = 0; P.z = 77.5; P.yaw = 0; P.pitch = 0; }
   state = 'playing';
-  if (readingSave) {
-    resetGuardToSeatedImmediate();
-  } else {
-    // 인트로를 스킵했거나 아직 정문 대화를 시작하지 않았다면 정문 입구에 서서 첫 대사를 건넨 뒤 경비실로 걸어가게 한다
-    if (!NO_GUARD && !GUARD_WALK.startedWalk) {
-      placeGuardAtGateForIntro();
-      GUARD_WALK.talkWait = 2.6;
-      if (!GUARD_WALK.greetedGate) {
-        GUARD_WALK.greetedGate = true;
-        setTimeout(async () => {
-          if (epoch !== storySession || state !== 'playing') return;
-          sfx.flashlightClick();
-          const sec = await speak('guard1');
-          subtitle('경비 아저씨', VO.guard1.text, Math.max(sec, 2.8) + .4);
-          npcVisuals.portrait('guard', '경비원', (Math.max(sec, 2.8) + .4) * 1000);
-          setTimeout(() => { if (epoch === storySession && state === 'playing') startGuardWalkToBooth(); }, 1800);
-        }, 350);
-      } else {
-        setTimeout(() => { if (epoch === storySession && state === 'playing') startGuardWalkToBooth(); }, 900);
-      }
-    }
+  if (!readingSave) {
     startQuietT = performance.now() + 6500;
     setTimeout(() => {if(epoch===storySession&&state==='playing')showChapter(1);}, 600);
-    setTimeout(() => {if(epoch===storySession&&state==='playing')talk('arrive', 4200);}, NO_GUARD || GUARD_WALK.startedWalk ? 1500 : 3600);
+    setTimeout(() => {if(epoch===storySession&&state==='playing')talk('arrive', 4200);}, 1500);
     setTimeout(() => { if (epoch===storySession && state === 'playing' && P.floor === 0 && isOutdoors()) phoneMessage(0,epoch); }, 10500);   /* 아직 정문 · 운동장에 있을 때만 */
   }
 }
 let guardGift = false;
-async function talkGuard(p) {
-  GUARD_WALK.talking = true;
-  try {
-    const say2 = async id => { const sec = await speak(id); subtitle('경비 아저씨', VO[id].text, Math.max(2.5, sec) + .4); npcVisuals.portrait('guard', '경비 아저씨', (Math.max(2.5, sec) + .4) * 1000); return sec; };
-    await say2('guardHi');
-    for (let n = 0; n < 4 && state === 'playing'; n++) {
-      const opts = [{ label: '민아라는 학생 못 보셨어요?' }, { label: '이 학교에 무슨 일이 있었어요?' }, { label: guardGift ? '(건전지는 이미 받았다)' : '손전등 건전지 좀 있으세요?' }, { label: '이만 가 볼게요' }];
-      const desc = GUARD_WALK.state === 'seated'
-        ? '경비실 창가 의자에 앉아 있던 경비원이 손전등을 만지작거린다.'
-        : '정문에서 경비실로 걸어가던 경비원이 발걸음을 멈추고 손전등을 고쳐 쥔다.';
-      const i = await choose('경비 아저씨', desc, opts);
-      if (i === 3) { say2('guardBye'); setTimeout(() => triggerGuard7PMClockOut(), 1200); break; }
-      if (i === 0) await wait(1000 * await say2('guardMina'));
-      else if (i === 1) await wait(1000 * await say2('guardPast'));
-      else if (!guardGift) { guardGift = true; inv.battery += 2; refreshHud(); sfx.pickup(); toast('건전지 2개를 받았다', '경비 아저씨: 열한 시 사십 분 전에는 나와야 한다', 'info'); await wait(1000 * await say2('guardGift')); }
-    }
-  } finally {
-    GUARD_WALK.talking = false;
-    if (GUARD_WALK.state === 'gate_talk') startGuardWalkToBooth();
-  }
-}
-// 인트로: 검은 화면 텍스트 → 공중 전경(번개 · 타이틀) → 정문으로 하강(경비원이 첫 대사 후 정문을 통과해 경비실로 걸어간다) → 플레이 시작
+// 인트로: 검은 화면 텍스트 → 공중 전경(번개 · 타이틀) → 정문으로 하강(불 꺼진 빈 경비실) → 플레이 시작
 function updateIntro(dt) {
   introT += dt * (DEBUG && window.__introJump ? 6 : 1);
   if (introText) introT = Math.min(introT, 5.99);
@@ -2948,13 +2531,9 @@ function updateIntro(dt) {
     const cue = (n, fn) => { if (introCue < n && T >= [0, 6.6, 8.2, 9.4, 12.8, 13.6, 17.2][n]) { introCue = n; fn(); } };
     cue(1, () => { fx.lightning(); sfx.thunder(.6); });
     cue(2, () => { sfx.swell(1.2, .4); });
-    cue(3, () => { fx.lightning(); sfx.boom(); $('introTitle').classList.add('show'); sfx.musicBox(7, .6); if (!NO_GUARD) placeGuardAtGateForIntro(); });
-    cue(4, () => { $('introTitle').classList.remove('show'); if (!NO_GUARD) placeGuardAtGateForIntro(); sfx.flashlightClick(); });
-    if (NO_GUARD) cue(5, () => { GUARD_WALK.greetedGate = true; introGuardEnd = 0; introEndT = T + 1.6; sfx.gateClang(); caption('녹슨 정문이 바람에 삐걱인다. 불 꺼진 경비실 창문 너머엔 아무도 없다.'); });
-    else cue(5, async () => { GUARD_WALK.greetedGate = true; introGuardEnd = T + 12; const sec = await speak('guard1'); introGuardEnd = introT + Math.max(sec, 3) + .3; subtitle('경비 아저씨', VO.guard1.text, Math.max(sec, 3) + .4); npcVisuals.portrait('guard', '경비원', (Math.max(sec, 3) + .4) * 1000); });
-    // 대사가 끝난 뒤 사라지지 않고 몸을 돌려 정문 안쪽 경비실로 걸어가기 시작한다
-    if (!NO_GUARD && introCue === 5 && T >= Math.max(17.2, introGuardEnd)) { introCue = 6; startGuardWalkToBooth(); caption('경비 아저씨가 손전등을 비추며 경비실 쪽으로 걸어간다'); introEndT = T + 2.2; }
-    updateGuardWalk(dt);
+    cue(3, () => { fx.lightning(); sfx.boom(); $('introTitle').classList.add('show'); sfx.musicBox(7, .6); });
+    cue(4, () => { $('introTitle').classList.remove('show'); sfx.flashlightClick(); });
+    cue(5, () => { introEndT = T + 1.6; sfx.gateClang(); caption('녹슨 정문이 바람에 삐걱인다. 불 꺼진 경비실 창문 너머엔 아무도 없다.'); });
     // 공중 전경 → 정문 앞으로 하강
     const k1 = ease(clamp((T - 6) / 6.2, 0, 1)), k2 = ease(clamp((T - 12.2) / 5.4, 0, 1));
     const ax = lerp(-26, 0, k1), ay = lerp(24, 8, k1), az = lerp(104, 92, k1);
@@ -2965,15 +2544,18 @@ function updateIntro(dt) {
   updateLighting(dt);
   if (T > Math.max(19.2, introEndT)) finishIntro();
 }
-addEventListener('keydown', e => { if (state === 'intro' && ['Space', 'Enter', 'Escape'].includes(e.code)) finishIntro(); });
-$('intro').addEventListener('click', () => { if (state === 'intro') finishIntro(); });
+// 인트로 건너뛰기: 캐릭터 선택에서 누른 Enter(같은 키 이벤트 · 키 반복)가 바로 인트로를 넘기던 문제 — 시작 1.5초 동안과 키 반복은 무시
+let introStartMs = 0;
+const introSkippable = () => performance.now() - introStartMs > 1500;
+addEventListener('keydown', e => { if (state === 'intro' && !e.repeat && introSkippable() && ['Space', 'Enter', 'Escape'].includes(e.code)) finishIntro(); });
+$('intro').addEventListener('click', () => { if (state === 'intro' && introSkippable()) finishIntro(); });
 
 /* ---------- 타이틀 · 캐릭터 선택 ---------- */
 let readingSave = false;
 const fmtAgo = t => { if (!t) return ''; const m = Math.round((Date.now() - t) / 60000); return m < 1 ? '방금 전' : m < 60 ? `${m}분 전` : m < 1440 ? `${Math.round(m / 60)}시간 전` : new Date(t).toLocaleDateString('ko-KR'); };
 const tipsDone = new Set();
 const MENUS = ['title', 'charsel', 'newConfirm', 'settings', 'gallery', 'credits'];
-function closeMenus() { MENUS.forEach(k => $(k).classList.remove('show')); }
+function closeMenus() { MENUS.forEach(k => $(k).classList.remove('show')); stopCharsel3D(true); }
 function applyChar() {
   const c = CH();
   document.documentElement.style.setProperty('--acc', c.color);
@@ -2985,7 +2567,7 @@ function whenAssetsReady(go) {
   // 소품은 장식일 뿐 (충돌·진행은 buildWorld 가 이미 만듦) — 끝까지 기다리지 않는다: 요청 하나가 멈추면(네트워크 끊김 · 백그라운드 탭) 예전엔 최대 90초 메뉴에 갇혔다.
   //   진행이 STALL_MS 동안 멈추거나 총 MAX_MS 가 지나면 시작하고 나머지는 플레이 중에 들어오게 둔다. norender(자동 점검)는 기다리지 않는다.
   const st = window.__modelLoadState; if (window.__modelsDone || !st || TEST || NORENDER) return go();
-  const MAX_MS = 25000, STALL_MS = 6000;
+  const MAX_MS = 12000, STALL_MS = 4000;
   const ov = $('loading'), msg = $('loadMsg'), t0 = performance.now(); let lastN = st.completed, lastT = t0, fired = false; ov.classList.add('show');
   const iv = setInterval(() => { const s = window.__modelLoadState, now = performance.now(); if (msg && s) msg.textContent = `교실 소품을 들여놓는 중 · ${s.completed} / ${s.total}`;
     if (s && s.completed !== lastN) { lastN = s.completed; lastT = now; }
@@ -3016,94 +2598,155 @@ function openCharsel(mode) {
   $('csOk').textContent = mode === 'new' ? '결정 · 시작' : '결정'; renderCharsel(); sfx.ui && sfx.ui();
 }
 let csShowSheet = false, cs3dState = null;
+// 캐릭터 선택 3D 미리보기 — 화면이 열려 있을 때만 돈다: 나가면 rAF 를 끊고 렌더러(GL 컨텍스트)를 버린다. 모델은 다시 열 때를 위해 CPU 쪽만 남긴다.
+//   렌더러 하나를 카드마다 돌려 쓰고 2D 캔버스로 옮긴다(WebGL 컨텍스트를 카드 수만큼 만들지 않음). 해상도는 카드 실제 크기 × devicePixelRatio.
+function csShadowTex() {
+  const c = document.createElement('canvas'); c.width = c.height = 128; const g = c.getContext('2d');
+  const gr = g.createRadialGradient(64, 64, 0, 64, 64, 64); gr.addColorStop(0, 'rgba(0,0,0,.78)'); gr.addColorStop(.45, 'rgba(0,0,0,.42)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
+  g.fillStyle = gr; g.fillRect(0, 0, 128, 128); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+}
 function ensureCharsel3D() {
-  if (cs3dState) return cs3dState;
-  const st = { scenes: {}, mixers: {}, models: {}, yaw: { jihun: 0.25, seoyeon: -0.25 }, drag: null, renderer: null, cam: null, raf: 0, last: performance.now() };
-  const loader = new GLTFLoader();
-  ['jihun', 'seoyeon'].forEach(k => {
-    const sc = new THREE.Scene();
-    const hemi = new THREE.HemisphereLight(0xf6f2ec, 0x3a4052, 1.4);
-    const key = new THREE.DirectionalLight(0xfff4e8, 1.9); key.position.set(1.8, 2.6, 2.8);
-    const fill = new THREE.DirectionalLight(0xc8daf8, 0.95); fill.position.set(-2.0, 1.8, 1.6);
-    const rim = new THREE.DirectionalLight(0xffd6e0, 0.85); rim.position.set(0, 2.4, -2.5);
-    sc.add(hemi, key, fill, rim);
-    st.scenes[k] = sc;
-    loader.load(`assets/characters/${k}.glb?v=416`, gltf => {
-      const m = gltf.scene;
-      npcVisuals.enhanceCharacterMaterials?.(m, k);
-      m.traverse(o => { if (o.isMesh || o.isSkinnedMesh) o.frustumCulled = false; });
-      const b = new THREE.Box3().setFromObject(m);
-      m.position.set(-(b.min.x + b.max.x) / 2, -b.min.y, -(b.min.z + b.max.z) / 2);
-      const piv = new THREE.Group(); piv.add(m); sc.add(piv);
-      st.models[k] = { piv, h: b.max.y - b.min.y, compiled: false };
-      const clip = (gltf.animations || []).find(c => c.name.toLowerCase() === 'idle') || gltf.animations?.[0];
-      if (clip) { const mx = new THREE.AnimationMixer(m); mx.clipAction(clip).play(); st.mixers[k] = mx; }
+  if (NORENDER) return null;   // 자동 점검: GL 없이 진행만 본다
+  let st = cs3dState;
+  if (!st) {
+    st = cs3dState = { scenes: {}, mixers: {}, models: {}, rims: {}, yaw: { jihun: 0.25, seoyeon: -0.25 }, focus: {}, drag: null, renderer: null, cam: null, raf: 0, last: 0, t: 0, canvases: [], shadowTex: csShadowTex() };
+    const loader = new GLTFLoader();
+    ['jihun', 'seoyeon'].forEach(k => {
+      const sc = new THREE.Scene();
+      // 3점 조명: 따뜻한 키(교실 형광등 아래 느낌) · 차가운 필 · 캐릭터 색 림 + 약한 반구광
+      sc.add(new THREE.HemisphereLight(0xe8e6f0, 0x1a1c24, 0.75));
+      const key = new THREE.DirectionalLight(0xfff0dc, 2.3); key.position.set(1.6, 2.8, 2.4);
+      const fill = new THREE.DirectionalLight(0x9fb8e8, 0.7); fill.position.set(-2.2, 1.4, 1.8);
+      const rim = new THREE.DirectionalLight(new THREE.Color(CHARACTERS[k]?.color || '#ffd6e0'), 2.0); rim.position.set(-0.6, 2.2, -2.6);
+      sc.add(key, fill, rim); st.rims[k] = rim;
+      // 접지 그림자(블롭) — 실시간 그림자맵 없이 발을 바닥에 붙인다
+      const sh = new THREE.Mesh(new THREE.PlaneGeometry(1.15, 1.15), new THREE.MeshBasicMaterial({ map: st.shadowTex, transparent: true, depthWrite: false }));
+      sh.rotation.x = -Math.PI / 2; sh.position.y = 0.002; sh.renderOrder = -1; sc.add(sh);
+      st.scenes[k] = sc; st.focus[k] = k === csPick ? 1 : 0;
+      loader.load(`assets/characters/${k}.glb?v=417`, gltf => {
+        if (cs3dState !== st) return;   // 받는 사이에 화면을 떠났다
+        const m = gltf.scene;
+        npcVisuals.enhanceCharacterMaterials?.(m, k);
+        m.traverse(o => { if (o.isMesh || o.isSkinnedMesh) o.frustumCulled = false; });
+        const b = new THREE.Box3().setFromObject(m);
+        m.position.set(-(b.min.x + b.max.x) / 2, -b.min.y, -(b.min.z + b.max.z) / 2);
+        const piv = new THREE.Group(); piv.add(m); sc.add(piv);
+        st.models[k] = { piv, h: b.max.y - b.min.y, compiled: false, fade: 0 };
+        const clip = (gltf.animations || []).find(c => c.name.toLowerCase() === 'idle') || gltf.animations?.[0];
+        if (clip) { const mx = new THREE.AnimationMixer(m); mx.clipAction(clip).play(); st.mixers[k] = mx; }
+      }, undefined, () => {});
     });
+    st.cam = new THREE.PerspectiveCamera(34, 240 / 380, 0.05, 15);
+  }
+  if (!st.raf) { st.last = performance.now(); st.raf = requestAnimationFrame(csTick); }
+  return st;
+}
+function csTick(now) {
+  const st = cs3dState; if (!st) return;
+  if (!$('charsel')?.classList.contains('show')) { stopCharsel3D(); return; }
+  st.raf = requestAnimationFrame(csTick);
+  const dt = Math.min(0.05, (now - st.last) / 1000); st.last = now; st.t += dt;
+  if (csShowSheet || document.hidden) return;
+  const W = st.cw | 0, H = st.ch | 0; if (!W || !H || !st.canvases.length) return;   // 크기는 카드를 그릴 때 한 번만 잰다(매 프레임 레이아웃 읽기 없음)
+  if (!st.renderer) {
+    try {
+      st.renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: 'low-power' });
+      st.renderer.setPixelRatio(1);
+      st.renderer.outputColorSpace = THREE.SRGBColorSpace;
+      st.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      st.renderer.toneMappingExposure = 1.05;
+      st.size = '';
+    } catch (e) { stopCharsel3D(); return; }
+  }
+  const sz = W + 'x' + H; if (st.size !== sz) { st.renderer.setSize(W, H, false); st.cam.aspect = W / H; st.cam.updateProjectionMatrix(); st.size = sz; }
+  for (const cv of st.canvases) {
+    const k = cv.dataset.char, md = st.models[k], sc = st.scenes[k];
+    if (!md || !sc) continue;
+    if (!md.compiled) { md.compiled = true; try { st.renderer.compile(sc, st.cam); } catch (e) {} continue; }   // 첫 프레임 셰이더 컴파일 끊김 방지 — 컴파일한 프레임은 그리지 않는다
+    const sel = k === csPick, f = st.focus[k] = THREE.MathUtils.damp(st.focus[k] ?? 0, sel ? 1 : 0, 5, dt);
+    md.fade = Math.min(1, md.fade + dt * 2.2);
+    if (st.drag?.k !== k) st.yaw[k] += dt * (sel ? 0.32 : 0.12);
+    md.piv.rotation.y = st.yaw[k];
+    md.piv.position.y = Math.sin(st.t * 1.6 + (k === 'jihun' ? 0 : 1.3)) * 0.004;   // 숨쉬기
+    st.mixers[k]?.update(dt * (0.6 + 0.4 * f));
+    st.rims[k].intensity = 1.0 + 1.6 * f;
+    // 카메라 돌리: 선택되면 상반신 쪽으로 다가간다
+    const h = md.h || 1.7, lookY = THREE.MathUtils.lerp(h * 0.5, h * 0.55, f), dist = THREE.MathUtils.lerp(h * 1.78, h * 1.56, f);
+    st.cam.position.set(Math.sin(st.t * 0.35) * 0.04, lookY + 0.05, dist); st.cam.lookAt(0, lookY, 0);
+    st.renderer.toneMappingExposure = 0.72 + 0.36 * f;
+    st.renderer.render(sc, st.cam);
+    const ctx = cv.__ctx || (cv.__ctx = cv.getContext('2d'));
+    ctx.globalAlpha = 1; ctx.clearRect(0, 0, cv.width, cv.height);
+    ctx.globalAlpha = md.fade; ctx.drawImage(st.renderer.domElement, 0, 0, cv.width, cv.height);
+  }
+}
+function stopCharsel3D(full) {
+  const st = cs3dState; if (!st) return;
+  if (st.raf) cancelAnimationFrame(st.raf); st.raf = 0; st.drag = null;
+  if (st.renderer) { try { st.renderer.dispose(); st.renderer.forceContextLoss(); } catch (e) { /* ignore */ } st.renderer = null; }
+  Object.values(st.models).forEach(md => { md.compiled = false; md.fade = 0; });
+  if (full) {   // 게임으로 들어갈 때: 미리보기 모델은 더 쓸 일이 없다
+    Object.values(st.mixers).forEach(mx => mx.stopAllAction());
+    Object.values(st.scenes).forEach(sc => sc.traverse(o => { o.geometry?.dispose(); [].concat(o.material || []).forEach(m => { for (const v of Object.values(m)) if (v?.isTexture) v.dispose(); m.dispose(); }); }));
+    st.shadowTex.dispose(); cs3dState = null;
+  }
+}
+function csSelect(k, sound = true) {
+  if (!CHARACTERS[k] || k === csPick) return;
+  csPick = k;
+  $('csCards').querySelectorAll('.cs').forEach(el => { const on = el.dataset.k === k; el.classList.toggle('on', on); el.setAttribute('aria-selected', on); if (on && document.activeElement?.closest?.('#charsel')) el.focus({ preventScroll: true }); });
+  if (sound) sfx.ui && sfx.ui();
+}
+function csApplyView() {
+  const sheet = csShowSheet || NORENDER;
+  $('csCards').querySelectorAll('.cs').forEach(el => {
+    const cv = el.querySelector('canvas.cs3d'), im = el.querySelector('img.csSheet'), bt = el.querySelector('.csViewToggle');
+    if (cv) cv.style.display = sheet ? 'none' : 'block'; if (im) im.style.display = sheet ? 'block' : 'none';
+    if (bt) { bt.textContent = csShowSheet ? '3D 렌더링 보기' : '2D 시트지 보기'; bt.style.display = NORENDER ? 'none' : ''; }
   });
-  st.cam = new THREE.PerspectiveCamera(36, 240 / 380, 0.05, 15);
-  const tick = now => {
-    st.raf = requestAnimationFrame(tick);
-    if (!$('charsel')?.classList.contains('show') || csShowSheet) return;
-    const dt = Math.min(0.05, (now - st.last) / 1000); st.last = now;
-    if (!st.renderer) {
-      try {
-        st.renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-        st.renderer.setSize(240, 380);
-        st.renderer.outputColorSpace = THREE.SRGBColorSpace;
-        st.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        st.renderer.toneMappingExposure = 1.08;
-      } catch (e) { return; }
-    }
-    document.querySelectorAll('canvas.cs3d').forEach(cv => {
-      const k = cv.dataset.char, md = st.models[k], sc = st.scenes[k];
-      if (!md || !sc) return;
-      if (!md.compiled) { md.compiled = true; try { st.renderer.compile(sc, st.cam); } catch (e) {} }   // 첫 프레임 셰이더 컴파일 끊김 방지
-      if (st.drag?.k !== k) st.yaw[k] += dt * 0.45;
-      md.piv.rotation.y = st.yaw[k];
-      st.mixers[k]?.update(dt);
-      const topY = k === 'jihun' ? 0.90 : 0.84, dist = k === 'jihun' ? 2.68 : 2.48;
-      st.cam.position.set(0, topY, dist); st.cam.lookAt(0, topY - 0.03, 0);
-      st.renderer.render(sc, st.cam);
-      const ctx = cv.getContext('2d');
-      ctx.clearRect(0, 0, cv.width, cv.height);
-      ctx.drawImage(st.renderer.domElement, 0, 0, cv.width, cv.height);
-    });
-  };
-  st.raf = requestAnimationFrame(tick);
-  return (cs3dState = st);
+  if (cs3dState) cs3dState.canvases = sheet ? [] : [...document.querySelectorAll('#csCards canvas.cs3d')];
 }
 function renderCharsel() {
-  ensureCharsel3D();
+  const st = ensureCharsel3D();
   $('csCards').innerHTML = Object.entries(CHARACTERS).map(([k, c]) => `
-    <div class="cs${k === csPick ? ' on' : ''}" data-k="${k}" style="--c:${c.color}">
-      <img class="pt" src="assets/ui/${c.portrait}.webp" alt="">
+    <div class="cs${k === csPick ? ' on' : ''}" data-k="${k}" style="--c:${c.color}" tabindex="0" role="option" aria-selected="${k === csPick}">
+      <img class="pt" src="assets/ui/${c.portrait}.webp" alt="" decoding="async">
       <div><h3>${c.name}<small>${c.age} · ${c.sex}</small></h3>
         <table><tr><td>학교</td><td>${c.school}</td></tr><tr><td>성격</td><td>${c.pers}</td></tr><tr><td>특징</td><td>${c.trait}</td></tr><tr><td>소개</td><td>${c.intro}</td></tr></table>
         <div class="q">“${c.quote}”</div></div>
-      <div class="bd" style="position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden">
-        <canvas class="cs3d" data-char="${k}" width="240" height="380" style="width:100%;height:100%;object-fit:contain;cursor:grab;${csShowSheet ? 'display:none' : 'display:block'}" title="드래그하여 360° 회전"></canvas>
-        <img src="assets/ui/${c.body}.webp" alt="" style="width:100%;height:100%;object-fit:contain;${csShowSheet ? 'display:block' : 'display:none'}">
-        <button type="button" class="csViewToggle" style="position:absolute;bottom:6px;right:6px;z-index:3;font-size:11px;padding:3px 7px;background:rgba(12,15,22,.82);color:#e8e4dc;border:1px solid rgba(255,255,255,.22);border-radius:4px;cursor:pointer">${csShowSheet ? '3D 렌더링 보기' : '2D 시트지 보기'}</button>
+      <div class="bd">
+        <canvas class="cs3d" data-char="${k}" width="240" height="380" title="드래그하여 360° 회전"></canvas>
+        <img class="csSheet" src="assets/ui/${c.body}.webp" alt="" decoding="async" loading="lazy">
+        <button type="button" class="csViewToggle" tabindex="-1"></button>
       </div>
-      <div class="faces">${c.faces.map((f, i) => `<figure><img src="assets/ui/${f}.webp" alt="">${c.faceNames[i]}</figure>`).join('')}</div>
+      <div class="faces">${c.faces.map((f, i) => `<figure><img src="assets/ui/${f}.webp" alt="" decoding="async">${c.faceNames[i]}</figure>`).join('')}</div>
       <div class="perk">${c.perk.map(p => `<span>★ ${p}</span>`).join('')}</div>
       <div class="kit"><b>시작 아이템</b><div class="its">${c.items.map(id => `<div class="it">${iconHTML(ITEMS[id].icon)}<span>${ITEMS[id].name.replace(/ \(.*\)/, '')}</span></div>`).join('')}</div></div>
     </div>`).join('');
-  $('csCards').querySelectorAll('.cs').forEach(el => { el.onclick = () => { csPick = el.dataset.k; renderCharsel(); sfx.ui && sfx.ui(); }; el.ondblclick = () => $('csOk').click(); });
-  $('csCards').querySelectorAll('.csViewToggle').forEach(btn => { btn.onclick = e => { e.stopPropagation(); csShowSheet = !csShowSheet; renderCharsel(); }; });
+  $('csCards').querySelectorAll('.cs').forEach(el => { el.onclick = () => csSelect(el.dataset.k); el.ondblclick = () => $('csOk').click(); el.onfocus = () => csSelect(el.dataset.k); });
+  $('csCards').querySelectorAll('.csViewToggle').forEach(btn => { btn.onclick = e => { e.stopPropagation(); csShowSheet = !csShowSheet; csApplyView(); }; });
   $('csCards').querySelectorAll('canvas.cs3d').forEach(cv => {
-    cv.onpointerdown = e => { e.stopPropagation(); const k = cv.dataset.char; cs3dState.drag = { k, x: e.clientX, y0: cs3dState.yaw[k] }; cv.setPointerCapture(e.pointerId); };
+    cv.onpointerdown = e => { if (!cs3dState) return; e.stopPropagation(); const k = cv.dataset.char; csSelect(k); cs3dState.drag = { k, x: e.clientX, y0: cs3dState.yaw[k] }; cv.setPointerCapture(e.pointerId); };
     cv.onpointermove = e => { if (cs3dState?.drag?.k === cv.dataset.char) cs3dState.yaw[cv.dataset.char] = cs3dState.drag.y0 + (e.clientX - cs3dState.drag.x) * 0.015; };
     cv.onpointerup = cv.onpointercancel = () => { if (cs3dState) cs3dState.drag = null; };
   });
+  csApplyView();
+  // 카드 크기는 여기서 한 번만 잰다: 캔버스 버퍼 = 표시 크기 × DPR (최대 2배)
+  if (st) requestAnimationFrame(() => {
+    const cv = document.querySelector('#csCards canvas.cs3d'); if (!cv || !cs3dState) return;
+    const r = cv.getBoundingClientRect(), dpr = Math.min(2, devicePixelRatio || 1);
+    const w = Math.max(120, Math.round(r.width * dpr)), h = Math.max(190, Math.round(r.height * dpr));
+    cs3dState.cw = w; cs3dState.ch = h; document.querySelectorAll('#csCards canvas.cs3d').forEach(c => { c.width = w; c.height = h; c.__ctx = null; });
+  });
 }
+function leaveCharsel(toGame) { $('charsel').classList.remove('show'); stopCharsel3D(toGame); }
 $('csOk').onclick = () => {
   CHAR = csPick; try { localStorage.setItem(CHAR_KEY, CHAR); } catch (e) { /* ignore */ }
   applyChar();
-  if (csMode === 'new') { $('charsel').classList.remove('show'); newGame(); }
-  else { $('charsel').classList.remove('show'); $('title').classList.add('show'); refreshTitle(); toast('주인공 선택', `${CH().name}(으)로 플레이합니다`, 'info'); }
+  if (csMode === 'new') { leaveCharsel(true); newGame(); }
+  else { leaveCharsel(false); $('title').classList.add('show'); refreshTitle(); toast('주인공 선택', `${CH().name}(으)로 플레이합니다`, 'info'); }
 };
-$('csPrev').onclick = $('csBack').onclick = () => { $('charsel').classList.remove('show'); $('title').classList.add('show'); refreshTitle(); };
+$('csPrev').onclick = $('csBack').onclick = () => { leaveCharsel(false); $('title').classList.add('show'); refreshTitle(); };
 $('mContinue').onclick = () => { closeMenus(); continueGame(); };
 $('mNew').onclick = () => { if (hasSave()) $('newConfirm').classList.add('show'); else openCharsel('new'); };
 $('ncYes').onclick = () => { $('newConfirm').classList.remove('show'); openCharsel('new'); };
@@ -3119,8 +2762,8 @@ document.querySelectorAll('#tMenu button').forEach(b => b.addEventListener('mous
 addEventListener('keydown', e => {
   if (state !== 'menu') return;
   if ($('charsel').classList.contains('show')) {
-    if (['ArrowLeft', 'ArrowRight', 'KeyA', 'KeyD'].includes(e.code)) { csPick = csPick === 'jihun' ? 'seoyeon' : 'jihun'; renderCharsel(); }
-    else if (e.code === 'Enter') $('csOk').click(); else if (e.code === 'Escape') $('csBack').click();
+    if (['ArrowLeft', 'ArrowRight', 'KeyA', 'KeyD'].includes(e.code)) { const ks = Object.keys(CHARACTERS), d = e.code === 'ArrowLeft' || e.code === 'KeyA' ? -1 : 1; csSelect(ks[(ks.indexOf(csPick) + d + ks.length) % ks.length]); }
+    else if (e.code === 'Enter') { e.preventDefault(); e.stopImmediatePropagation(); if (!e.repeat) $('csOk').click(); } else if (e.code === 'Escape') $('csBack').click();
     return;
   }
   if (!$('title').classList.contains('show') || MENUS.slice(2).some(k => $(k).classList.contains('show'))) { if (e.code === 'Escape') MENUS.slice(2).forEach(k => $(k).classList.remove('show')); return; }
@@ -3128,6 +2771,60 @@ addEventListener('keydown', e => {
   if (e.code === 'ArrowDown' || e.code === 'ArrowUp' || e.code === 'KeyS' || e.code === 'KeyW') { i = (i + (e.code === 'ArrowDown' || e.code === 'KeyS' ? 1 : btns.length - 1)) % btns.length; btns.forEach((b, k) => b.classList.toggle('sel', k === i)); sfx.ui && sfx.ui(); }
   else if (e.code === 'Enter' && i >= 0) btns[i].click();
 });
+/* 타이틀 분위기 루프: 깊이 2층 빗줄기(캔버스) · 마우스 시차 · 게임패드 → 메뉴 키 입력. 메뉴 상태일 때만 돌고, 게임에 들어가면 스스로 멈춘다. */
+const titleFx = (() => {
+  const T = $('title'), cv = $('tFx'), ctx = cv?.getContext('2d');
+  const reduce = matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  let raf = 0, last = 0, W = 0, H = 0, drops = [], px = 0, py = 0, tx = 0, ty = 0, pad = {}, padRep = 0;
+  const resize = () => {
+    if (!cv) return; const dpr = Math.min(1.5, devicePixelRatio || 1);
+    W = cv.width = Math.round(innerWidth * dpr); H = cv.height = Math.round(innerHeight * dpr);
+    const n = Math.round(Math.min(340, W * H / 9000)); drops = [];
+    for (let i = 0; i < n; i++) { const z = i % 3 === 0 ? 1 : 0.45 + Math.random() * 0.3; drops.push({ x: Math.random() * W, y: Math.random() * H, z, l: (14 + Math.random() * 18) * z * dpr, v: (900 + Math.random() * 500) * z * dpr }); }
+  };
+  const key = code => dispatchEvent(new KeyboardEvent('keydown', { code, key: code, bubbles: true }));
+  const pollPad = dt => {
+    const gp = navigator.getGamepads ? [...navigator.getGamepads()].find(g => g && g.connected) : null; if (!gp) return;
+    const b = i => !!gp.buttons[i]?.pressed, ay = gp.axes[1] || 0, ax = gp.axes[0] || 0;
+    const now = { up: b(12) || ay < -0.55, down: b(13) || ay > 0.55, left: b(14) || ax < -0.55, right: b(15) || ax > 0.55, ok: b(0) || b(9), back: b(1) };
+    const map = { up: 'ArrowUp', down: 'ArrowDown', left: 'ArrowLeft', right: 'ArrowRight', ok: 'Enter', back: 'Escape' };
+    padRep -= dt;
+    for (const k in now) {
+      if (now[k] && !pad[k]) { key(map[k]); padRep = 0.42; }
+      else if (now[k] && padRep <= 0 && k !== 'ok' && k !== 'back') { key(map[k]); padRep = 0.14; }   // 방향은 누르고 있으면 반복
+    }
+    pad = now;
+  };
+  const tick = now => {
+    if (state !== 'menu') { raf = 0; return; }   // 게임 시작 — 루프 종료
+    raf = requestAnimationFrame(tick);
+    const dt = Math.min(0.05, (now - (last || now)) / 1000); last = now;
+    pollPad(dt);
+    if (!T.classList.contains('show') || document.hidden) return;
+    // 시차: CSS 변수 두 개만 바꾼다(레이아웃 없음, 합성만)
+    px += (tx - px) * Math.min(1, dt * 3); py += (ty - py) * Math.min(1, dt * 3);
+    T.style.setProperty('--px', px.toFixed(4)); T.style.setProperty('--py', py.toFixed(4));
+    if (!ctx || reduce) return;
+    ctx.clearRect(0, 0, W, H);
+    const wind = 0.26 + px * 0.06;
+    for (const layer of [0, 1]) {
+      ctx.beginPath(); ctx.strokeStyle = layer ? 'rgba(210,222,240,.34)' : 'rgba(170,186,210,.16)'; ctx.lineWidth = layer ? 1.4 : 1;
+      for (const d of drops) {
+        if ((d.z === 1) !== !!layer) continue;
+        d.y += d.v * dt; d.x -= d.v * dt * wind;
+        if (d.y > H) { d.y = -d.l; d.x = Math.random() * W * 1.3; }
+        if (d.x < -40) d.x += W + 80;
+        ctx.moveTo(d.x, d.y); ctx.lineTo(d.x + d.l * wind, d.y - d.l);
+      }
+      ctx.stroke();
+    }
+  };
+  const run = () => { if (!raf && state === 'menu') { last = 0; raf = requestAnimationFrame(tick); } };
+  if (cv && !NORENDER) { T.classList.add('fxon'); resize(); addEventListener('resize', resize, { passive: true }); }
+  T.addEventListener('pointermove', e => { tx = e.clientX / innerWidth * 2 - 1; ty = e.clientY / innerHeight * 2 - 1; }, { passive: true });
+  run();
+  return { run };
+})();
 $('saveBtn').addEventListener('click', () => save());
 $('titleBtn').addEventListener('click', () => location.reload());
 $('bakBtn').addEventListener('click', () => { try { sessionStorage.setItem(AUTO_KEY, 'backup'); } catch (e) { /* ignore */ } location.reload(); });
@@ -3198,8 +2895,7 @@ function updatePlayer(dt) {
     if (!Number.isFinite(P.sh) || (P.sh < 0 && !(RBG && P.floor === 0 && RBG.inPit(P.x, P.z)))) P.sh = 0; }   // 지하 계단 구덩이 안은 음수 높이 허용
   P.crouchK = lerp(P.crouchK || 0, P.crouch && !P.hiding ? 1 : 0, Math.min(1, dt * 9));
 
-  // 정문 개방 유지: 초반에는 정문이 바로 잠기지 않고 열려 있으며, 경비원이 퇴근하는 시점(19:00)에 맞춰 잠긴다!
-  if (GUARD_WALK.state === 'gate_talk' && state === 'playing' && P.z < GATE_Z + 1.5) startGuardWalkToBooth();
+  // 정문 개방 유지: 초반에는 정문이 바로 잠기지 않고 열려 있으며, 저녁 7시(19:00)에 자동으로 잠긴다
   if (!gateClosed && state === 'playing' && P.floor === 0 && P.z < GATE_Z - 3 && DAY.start < 0) {
     DAY.start = playTime;
   }
@@ -3392,7 +3088,7 @@ function updateDay(dt) {
   sky.stars.material.opacity = night; sky.stars.material.transparent = true; sky.moonGlow.material.opacity = night;
   DAY.rain = 0; setRainLevel(0);   // 비 효과 제거 (요청)
   world.winMats[9].emissiveIntensity = night * 2.4;
-  { const here = GUARD_WALK.state !== 'off_duty' && !FL.night; guardNPC.visible = here; guardCap.visible = !here; const gp = world.props.find(q => q.kind === 'guardnpc'); if (gp) gp.done = !here || GUARD_WALK.state === 'leaving_duty'; }   // 해가 지면 경비원은 사라지고 모자만 남는다   // 밤이 되면 불 켜진 교실 창 몇 개 (아무도 없는데)
+  // 밤이 되면 불 켜진 교실 창 몇 개 (아무도 없는데)
   // 낮의 소리: 가끔 까마귀
   if (dk > .3 && state === 'playing' && isOutdoors() && Math.random() < dt / 14) sfx.crow(Math.random() * 2 - 1);
 }
@@ -3665,7 +3361,7 @@ function frameBody(now) {
     if (state === 'playing') { playTime += dt; statAcc += dt; if (statAcc > 30) statFlush(); }
     if (state !== 'dead') updatePlayer(dt);
     updateGate(dt);
-    updateGuardWalk(dt);
+    updateGateAutoLock();
     if (blackout > 0) blackout -= dt;
     if (state === 'playing') {
       ghostTick(dt, tNow);
@@ -4225,7 +3921,6 @@ async function useProp(p) {
   if (p.kind === 'bed') { lieDown(p); return; }
   if (p.kind === 'elBtn') { elvPress(p); return; }
   if (p.kind === 'robj') { useRoomObj(p); return; }
-  if (p.kind === 'guardnpc') { talkGuard(p); return; }
   if (p.kind === 'sq') { p.main ? useHead(p) : useSideQuest(p); return; }
   if (p.kind === 'search') { startSearch(p); return; }
   if (p.kind === 'ldoor') { lockerDoorToggle(p); return; }
@@ -4732,6 +4427,12 @@ addNoteAt('n27', 2, SLOTS[5] + 2.6, .76, -8.6, .3);           // 3-4 교실 교�
 addNoteAt('n28', 2, SLOTS[6] - 2.9, .02, -2.3, .6);           // 3-5 교실 사물함 앞 — 교환일기
 addNoteAt('n26', 8, ANNEX.slots[4] - .2, .77, -8.45, .1);           // 별관 1F 도서실 — 이벤트로 나타나는 대출 카드
 { const it = world.items.find(i => i.kind === 'note' && i.id === 'n26'); it.locked = true; it.mesh.visible = false; }
+// 보충 문서 (더빙 없음 — UNVOICED_NOTES: 자막 · 번역만)
+addNoteAt('nx_memo08', 0, 6.6, .02, 1.0, -.3);                // 1층 복도 — 행사 안내문 옆, 민아가 떨어뜨린 지도교사 메모 (2008)
+addNoteAt('nx_paper08', 2, SLOTS[1] - .4, .02, -2.6, .2);     // 방송실 — 『서현고 소식』 스크랩 (2008)
+addNoteAt('nx_diary98', 2, SLOTS[6] - 2.3, .02, -1.6, -.2);   // 3-5 교실 사물함 앞 — 교환일기 옆, 수아의 일기 한 장 (1998)
+addNoteAt('nx_ups', 4, SLOTS[7] - 1.5, .02, -3.4, .4);        // 지하 기계실 정비 작업대 아래 — UPS 작업 확인서 (1998)
+addNoteAt('nx_slip', 4, SLOTS[8] - 2.2, .02, -3.8, .6);       // 지하 펌프실 — 명찰 근처, 문틈의 쪽지 (1998)
 // 도구 · 소모품
 tool('hairpin', 0, SLOTS[3] - 2.4, .66, 8.0, mkPin(), '머리핀 줍기', 0xffd0e0);               // 본관 1F 보건실 침대
 tool('hairpin', 1, SLOTS[1] + 2.3, .77, -8.45, mkPin(), '머리핀 줍기', 0xffd0e0);         // 2-1 교탁
@@ -7331,7 +7032,7 @@ const SIT = { chair: null, back: null };
 //   벽 = 회색 도장 블록 + 아래 진녹색 띠 느낌(약간 어두운 회녹), 바닥 = 에폭시 콘크리트(회녹 광택), 천장 = 노출 콘크리트. 문 · 장비 · 소품(작은 메시)은 그대로
 // 지하 B1 새 설계 (1단계 · 구조체): 옛 본관 지하의 벽 · 바닥 · 천장 메시(방 단위로 합쳐진 큰 덩어리)를 숨기고,
 //   충돌 상자(벽이 실제로 있는 자리)를 그대로 따라 새 건물 설비층 규격으로 다시 짓는다 — 충돌 · 문 자리 · 퀘스트 좌표는 그대로라 진행이 깨지지 않는다
-//   벽: 하부 1.1m 진회녹 도장 + 상부 회색 도장 블록 + 상단 몰딩 · 바닥: 에폭시 + 복도 노란 안전선 · 천장: 노출 콘크리트 + 선형 LED 등 · 케이블 트레이
+//   벽: 하부 1.1m 진회녹 도장 + 상부 회색 도장 블록 + 상단 몰딩 · 바닥: 에폭시 + 복도 노란 안전선 · 천장: 노출 콘크리트 + 40W 형광등 (철제 반사갓 · FL 직관) · 케이블 트레이
 // 지하 바닥 · 천장 질감: 습한 콘크리트 — 고인 물(광택) · 녹물 자국 · 곰팡이 얼룩 · 균열 · 거푸집 이음선
 function b1Tex(kind) { const N = 512, c = document.createElement('canvas'); c.width = c.height = N; const g = c.getContext('2d'), r = Math.random;
   const R = document.createElement('canvas'); R.width = R.height = 256; const rg = R.getContext('2d'); rg.fillStyle = kind === 'floor' ? '#b8b8b8' : '#f0f0f0'; rg.fillRect(0, 0, 256, 256);
@@ -7531,7 +7232,7 @@ function refinishB1() {
     if (slab && !room && !wall) { o.visible = false; hid++; } });   // 옛 바닥 · 천장 판만 숨긴다 — 방 벽 통메시까지 숨기면 충돌 상자가 얇지 않은 벽은 다시 그려지지 않아 지하가 텅 빈 공간처럼 보였다
   const g = new THREE.Group(); g.userData.b1new = true; scene.add(g);
   const mk = (col, r, m = 0, e) => new THREE.MeshStandardMaterial(Object.assign({ color: col, roughness: r, metalness: m }, e || {}));
-  const UP = mk(0xa7aba5, .86), LOW = mk(0x4f5d53, .78), TRIM = mk(0x2e3530, .6, .2), FLOOR = b1Tex('floor'), CEIL = b1Tex('ceil'), LED = mk(0xffffff, .4, 0, { emissive: 0xe8f0ff, emissiveIntensity: 1.6 }), TRAY = mk(0x9aa0a6, .4, .7), LINE = mk(0xe8c020, .5);
+  const UP = mk(0xa7aba5, .86), LOW = mk(0x4f5d53, .78), TRIM = mk(0x2e3530, .6, .2), FLOOR = b1Tex('floor'), CEIL = b1Tex('ceil'), LED = mk(0xf4f6ee, .4, 0, { emissive: 0xeef4e6, emissiveIntensity: 1.3 }), FLH = mk(0xd8dad4, .5, .3), TRAY = mk(0x9aa0a6, .4, .7), LINE = mk(0xe8c020, .5);
   const box = (m, x1, x2, ya, yb, z1, z2) => { const o = new THREE.Mesh(new THREE.BoxGeometry(Math.max(.01, x2 - x1), yb - ya, Math.max(.01, z2 - z1)), m); o.position.set((x1 + x2) / 2, y0 + (ya + yb) / 2, (z1 + z2) / 2); o.userData.b1new = true; o.receiveShadow = true; g.add(o); return o; };
   const walls = F.col.filter(w => w.x1 != null && !w.off && (w.h == null || w.h > 2) && (w.y0 == null || w.y0 < 1) && Math.min(w.x2 - w.x1, w.z2 - w.z1) < .5 && Math.max(w.x2 - w.x1, w.z2 - w.z1) > .6);
   let X1 = 1e9, X2 = -1e9, Z1 = 1e9, Z2 = -1e9;
@@ -7539,9 +7240,9 @@ function refinishB1() {
     X1 = Math.min(X1, w.x1); X2 = Math.max(X2, w.x2); Z1 = Math.min(Z1, w.z1); Z2 = Math.max(Z2, w.z2); });
   if (!walls.length) return 0;
   box(FLOOR, X1, X2, -.05, .02, Z1, Z2); box(CEIL, X1, X2, H, H + .1, Z1, Z2);
-  // 본 복도 (z −1.75 ~ 1.75): 노란 안전선 2줄 · 천장 선형 LED · 케이블 트레이
+  // 본 복도 (z −1.75 ~ 1.75): 노란 안전선 2줄 · 천장 2008 형광등 (반사갓 + FL40 직관 2본) · 케이블 트레이
   [-1.45, 1.45].forEach(z => box(LINE, X1 + .3, X2 - .3, .021, .026, z - .04, z + .04));
-  for (let x = X1 + 2; x < X2 - 1; x += 4.5) box(LED, x - .6, x + .6, H - .06, H - .02, -.06, .06);
+  for (let x = X1 + 2; x < X2 - 1; x += 4.5) { box(FLH, x - .64, x + .64, H - .05, H, -.1, .1); [-.045, .045].forEach(dz => box(LED, x - .6, x + .6, H - .085, H - .05, dz - .016, dz + .016)); }
   box(TRAY, X1 + .3, X2 - .3, H - .32, H - .28, .9, 1.3);
   // 고증 보강 (2000년대 학교 지하 설비 복도): 천장 배관 3줄(소화 적색 · 급수 청색 · 배수 회색) + 행거 · 유량 화살표, 옥내소화전함, 물웅덩이 · 누수 얼룩, 소화기, 청소 도구, 안전 표지
   { const PR = mk(0xa02018, .5, .3), PB = mk(0x2a4a7a, .5, .3), PG = mk(0x6a6e6a, .6, .4), HANG = mk(0x3a3e40, .5, .6);
@@ -8751,11 +8452,11 @@ function megaNotify(m) { const t = String(m).split('\n'); say(t[0].replace(/^\S+
         // 창고: 철제 선반 · 상자 / 준비공간: 싱크대 · 작업대
         [x0 + .5, x0 + 1.45].forEach(x => { pbox(.9, 1.8, .45, PM(0x7a7e82, .5, .5), x, .9, z0 + .25, O); for (let r = 0; r < 3; r++) pbox(.75, .3, .35, PM(0xb08a58, .9), x, .35 + r * .55, z0 + .27, O); }); F0.col.push({ x1: x0, x2: x0 + 1.95, z1: z0, z2: z0 + .5 });
         pbox(2.4, .85, .6, PM(0xc8ccd0, .35, .6), xS + 1.4, .425, z0 + .3, O); pbox(.5, .02, .4, PM(0x30363a, .3, .7), xS + .9, .86, z0 + .3, O); F0.col.push({ x1: xS + .2, x2: xS + 2.6, z1: z0, z2: z0 + .6, h: .85 });
-        // 실제 과자 포장 · 음료 캔 라벨 텍스처 (캔버스로 그린 1998년풍 포장: 바탕색 · 흰 띠 · 상품명 · 광택 띠 · 중량 표기) — 같은 재질을 진열대 전체가 나눠 쓴다
+        // 실제 과자 포장 · 음료 캔 라벨 텍스처 (캔버스로 그린 2008년 매점 포장 · 상표 없는 일반 상품명: 바탕색 · 흰 띠 · 상품명 · 광택 띠 · 중량 표기) — 같은 재질을 진열대 전체가 나눠 쓴다
         const pack = (name, bg, fg, sub) => { const c = document.createElement('canvas'); c.width = 128; c.height = 128; const g2 = c.getContext('2d'); const gr = g2.createLinearGradient(0, 0, 128, 128); gr.addColorStop(0, bg); gr.addColorStop(1, '#000'); g2.fillStyle = bg; g2.fillRect(0, 0, 128, 128); g2.globalAlpha = .35; g2.fillStyle = gr; g2.fillRect(0, 0, 128, 128); g2.globalAlpha = 1;
           g2.fillStyle = '#fff'; g2.beginPath(); g2.ellipse(64, 60, 60, 26, -.12, 0, 7); g2.fill(); g2.fillStyle = fg; g2.font = 'bold 24px sans-serif'; g2.textAlign = 'center'; g2.textBaseline = 'middle'; g2.fillText(name, 64, 60); g2.fillStyle = '#fff'; g2.font = '11px sans-serif'; g2.fillText(sub, 64, 108);
           g2.fillStyle = 'rgba(255,255,255,.25)'; g2.fillRect(0, 14, 128, 6); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return new THREE.MeshStandardMaterial({ map: t, roughness: .32, metalness: .05 }); };
-        const SNACK = [['새우칩', '#d8261c', '#d8261c', '90g'], ['초코파이', '#b0141c', '#5a2a10', '12개입'], ['꿀꽈배기', '#e8a810', '#8a4a00', '80g'], ['감자칩', '#2a5ad8', '#1a3a8a', '66g'], ['땅콩과자', '#e86a20', '#8a2a00', '95g'], ['막대과자', '#c8102e', '#3a1a10', '52g']].map(a => pack(...a));
+        const SNACK = [['새우칩', '#d8261c', '#d8261c', '90g'], ['초코 케이크', '#b0141c', '#5a2a10', '12개입'], ['꽈배기 스낵', '#e8a810', '#8a4a00', '80g'], ['감자칩', '#2a5ad8', '#1a3a8a', '66g'], ['땅콩과자', '#e86a20', '#8a2a00', '95g'], ['막대과자', '#c8102e', '#3a1a10', '52g']].map(a => pack(...a));
         const CAN = [['콜라', '#c8102e', '#c8102e', '250ml'], ['사이다', '#2a8a3a', '#1a6a2a', '250ml'], ['식혜', '#e8b020', '#7a4a00', '238ml'], ['이온음료', '#2a6ad8', '#1a4aa8', '245ml']].map(a => pack(...a));
         const CUP = [['매운라면', '#c81414', '#c81414', '컵'], ['육개장', '#e8a010', '#8a3a00', '사발'], ['튀김우동', '#2a5ad8', '#1a3a8a', '컵']].map(a => pack(...a));
         // 서벽 음료 냉장고 (1200×700×2000 · 유리문)
@@ -8993,13 +8694,13 @@ function megaNotify(m) { const t = String(m).split('\n'); say(t[0].replace(/^\S+
     world.props.push({ kind: 'robj', k: 'bunker_light', t: 'bunker', floor: 4, x: bx + 1.15, z: z1 - .85, y: 1.35, r: 2.0, label: '방공호 주 전등 스위치 조작하기', bkLightGroup });
     {
       const bLoader = new GLTFLoader();
-      bLoader.load('assets/models/sf/sf_bunker_props_pack.glb?v=416', gltf => {
+      bLoader.load('assets/models/sf/sf_bunker_props_pack.glb?v=417', gltf => {
         const bm = gltf.scene; bm.position.set(bx, 0, z0 + .45);
         if (window.__upgradePure3DScene) window.__upgradePure3DScene(bm); else bm.traverse(o => { o.userData.dynamic = true; });
         R.add(bm);
         if (gltf.animations && gltf.animations.length) { const mx = new THREE.AnimationMixer(bm); mx.userData = { floor: 4, x: bx, z: z0 + .45 }; gltf.animations.forEach(c => mx.clipAction(c).play()); (window.__campusAnimMixers ||= []).push(mx); }
       }, undefined, () => {});
-      bLoader.load('assets/models/sf/sf_pump_policeline_scene.glb?v=416', gltf => {
+      bLoader.load('assets/models/sf/sf_pump_policeline_scene.glb?v=417', gltf => {
         const pm = gltf.scene; pm.position.set(32.0, 0, -3.65);
         pm.traverse(o => { o.userData.dynamic = true; if (o.isMesh) { o.castShadow = false; o.receiveShadow = true; if (o.material?.map) o.material.map.colorSpace = THREE.SRGBColorSpace; } });
         R.add(pm);
@@ -9435,7 +9136,7 @@ try { installHudV2({ THREE, P, camera, objDir, getState: () => state, objArrow: 
 if (DEBUG) {
   window.__g = {
     P, ghost, floors, world, scene, camera, renderer, THREE, start: () => start(true),
-    setIntroT(t) { introText = false; introT = t; }, introInfo: () => ({ state, introT: +introT.toFixed(1), cue: introCue, guard: !!(introGuard && introGuard.visible), cam: camera.position.toArray().map(v => +v.toFixed(1)) }),
+    setIntroT(t) { introText = false; introT = t; }, introInfo: () => ({ state, introT: +introT.toFixed(1), cue: introCue, cam: camera.position.toArray().map(v => +v.toFixed(1)) }),
     photoCheck, PHOTOQ,
     flashNearProbe: () => { FN.t = 0; return flashNear(); }, agProbe: () => { const t = performance.now(); AG.t = 0; antiGlareTick(); return performance.now() - t; },
     bcAuto() { BC.power = true; BC.amp = 1; BC.ch = 'all'; BC.fader = 70; closeUI(); if (FL.tag && power && !FL.calm) useBcRead(); else bcOnAir(); },   // 진 엔딩 방송은 녹음실 앵커석에서 대본 낭독

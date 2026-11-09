@@ -22,11 +22,11 @@ test('registered CCTV mounts replace duplicate imported cameras and cover every 
  for(const name of ['체육관 · 무대/코트','수영장 · 풀 홀','급식실 · 식당','옥상 · 발전기/출입구','경비실 · 관제 데스크'])assert.ok(w.includes(name));
  assert.match(w,/GATE_Z-\.79/);assert.match(w,/mountY:3\.388/);
 });
-test('guardroom uses real target textures, persistent channels and seated rig; recorded clues remain',async()=>{
+test('guardroom uses real target textures, persistent channels and empty booth; recorded clues remain',async()=>{
  const g=await readFile(new URL('../game.js',import.meta.url),'utf8'),r=await readFile(new URL('../guardRoom.js',import.meta.url),'utf8');
  assert.match(g,/collectCampusCctvFeeds\(world.CCTV_CAMERAS\)/);
  assert.match(g,/setLiveTextures\(campusCctv.textures\)/);
- assert.match(g,/restoreChannels\(FL.guardCctvChannels/);assert.match(g,/applyGuardSeatedPose\(guardNPC,GUARD_LAYOUT.seat\)/);
+ assert.match(g,/restoreChannels\(FL.guardCctvChannels/);assert.doesNotMatch(g,/guardNPC|GUARD_WALK/);assert.match(g,/kind: 'gradio'/);assert.match(g,/kind: 'glog'/);assert.match(g,/id: 'ts_guard'/);
  assert.doesNotMatch(g,/fzP\._drawCCTVFrame\(/);assert.match(g,/CCTV 녹화 — 10.12 23:31/);
  assert.match(r,/liveScreenMaterials\[i\]/);
 });

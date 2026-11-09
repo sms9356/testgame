@@ -7,6 +7,7 @@ import * as THREE from './vendor/three.module.js';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
 import { pbr } from './tex.js?v=417';
 import { placeModels } from './rebuild/models.js?v=417';
+import * as PT from './rebuild/periodTex.js?v=417';   // 본관 · 별관과 같은 시대 재질 (데코타일 · 인조석 · 걸레받이 · 외벽 풍화) — 모듈 캐시로 한 벌만 만든다
 
 const FH = 3.6, CEIL = 2.9, WALL_T = .24, LIN = .06;
 const TL = new THREE.TextureLoader(), TEX = {};
@@ -34,6 +35,9 @@ function lib() {
     SS: [PM(0xc6cacc, .28, .85), 1], CHROME: [PM(0xe0e4e6, .18, .95), 1], BLACK: [PM(0x16181a, .45, .3), 1], LACQUER: [PM(0x08090a, .12, .2), 1], RUBBER: [PM(0x1c1c1c, .9), 1],
     FABRIC: [PM(0x2c3e5e, .95), 1], RED: [PM(0x7a1820, .9), 1], VELVET: [PM(0x6a1018, .95), 1], MATTRESS: [PM(0xd8d4c6, .9), 1], BLANKET: [PM(0x54708a, .95), 1],
     WHITE: [PM(0xeeeeea, .5), 1], PORC: [PM(0xf4f4f0, .2, .05), 1], HDPE_B: [PM(0x2e5aa8, .6), 1], HDPE_G: [PM(0x2e8a4a, .6), 1], HDPE_Y: [PM(0xd8b820, .6), 1], HDPE_GR: [PM(0x6a6e70, .6), 1],
+    DECO: [PT.MAT.deco(), 2.4], SKIRT: [PT.MAT.skirt(), 1], STREAK: [PT.MAT.streak(), 1], GRIME: [PT.MAT.grime(), 1],   // 2008 교실 · 사무실 PVC 데코타일 · 진회녹색 걸레받이 · 빗물 자국 · 밑동 때
+    TERR: [PT.shared('mb_terr', () => new THREE.MeshStandardMaterial({ map: PT.terrazzo(), roughnessMap: PT.terrazzoRough(), roughness: .55 })), 2.4],   // 복도 · 로비 인조석 (본관과 같은 재질 객체)
+
     FRAME: [PM(0x3a4046, .45, .6), 1], SASH: [PM(0xd6dadd, .32, .55), 1], GRILLE: [PM(0xe9e9e4, .5, .35), 1], PVC: [PM(0x9fa3a3, .55, .1), 1], ACU: [PM(0xe4e4de, .5, .15), 1], TRIM: [PM(0xf2eee4, .78), 1], ALU: [PM(0xb8bcc0, .35, .8), 1], REFRACT: [PM(0x6a5446, .95), 1], SOOT: [PM(0x1a1614, .95), 1], PANEL: [PM(0xd8d2c4, .8), 1], CORK: [PM(0x9a7448, .95), 1],
     HOUSING: [PM(0xe8e8e4, .5, .2), 1], BRASS: [PM(0xb08a3a, .4, .7), 1], TOWEL: [PM(0xd8c8a0, .95), 1], SHOE: [PM(0xe4e2dc, .8), 1], GREEN: [PM(0x2e5a3a, .7), 1], BOARD: [PM(0x24382e, .85), 1], DOME: [PM(0xc8ccd0, .35, .7), 1], TEAL: [PM(0x2c7a8a, .5, .2), 1],
   };
@@ -181,7 +185,7 @@ class Fac {
     for (const [k, list] of Object.entries(this.buckets)) {
       if (!list.length) continue;
       const g = mergeGeometries(list.map(q => q.index ? q : q), false); if (!g) { console.warn('[fac] merge fail', k); continue; }
-      g.computeBoundingSphere(); const m = new THREE.Mesh(g, mats[k][0]); m.name = this.o.id + '_' + k; m.userData.dynamic = true; m.castShadow = !/^(F0|C0|W0|SLAB|CARPET)/.test(k); m.receiveShadow = true; this.g.add(m);
+      g.computeBoundingSphere(); const m = new THREE.Mesh(g, mats[k][0]); m.name = this.o.id + '_' + k; m.userData.dynamic = true; m.castShadow = !/^(F0|C0|W0|SLAB|CARPET|DECO|TERR|STREAK|GRIME)/.test(k); m.receiveShadow = true; this.g.add(m);
     }
     for (const [lvl, list] of Object.entries(this.lamps)) {
       const g = mergeGeometries(list, false); g.computeBoundingBox(); const c = new THREE.Vector3(); g.boundingBox.getCenter(c); c.y = +lvl * FH + CEIL - .1; g.translate(-c.x, -c.y, -c.z);
@@ -212,9 +216,9 @@ function room(B, r) {
   };
   side('N', r.x1, r.x2, r.z1); side('S', r.x1, r.x2, r.z2); side('W', r.z1, r.z2, r.x1); side('E', r.z1, r.z2, r.x2);
 }
-function baseb(B, dir, p, q, fixed, y0) { if (q - p < .05) return; const L = q - p, m = (p + q) / 2, o = LIN + .012;
-  if (dir === 'N') B.box(L, .1, .024, 'DARKWOOD', m, y0 + .05, fixed + o); else if (dir === 'S') B.box(L, .1, .024, 'DARKWOOD', m, y0 + .05, fixed - o);
-  else if (dir === 'W') B.box(.024, .1, L, 'DARKWOOD', fixed + o, y0 + .05, m); else B.box(.024, .1, L, 'DARKWOOD', fixed - o, y0 + .05, m); }
+function baseb(B, dir, p, q, fixed, y0) { if (q - p < .05) return; const L = q - p, m = (p + q) / 2, o = LIN + .012, H = .12;   // 진회녹색 PVC 걸레받이 12cm (본관과 같은 재질)
+  if (dir === 'N') B.box(L, H, .024, 'SKIRT', m, y0 + H / 2, fixed + o); else if (dir === 'S') B.box(L, H, .024, 'SKIRT', m, y0 + H / 2, fixed - o);
+  else if (dir === 'W') B.box(.024, H, L, 'SKIRT', fixed + o, y0 + H / 2, m); else B.box(.024, H, L, 'SKIRT', fixed - o, y0 + H / 2, m); }
 
 // 문틀 + 여닫는 문짝 (닫힌 채 시작 · [E] 로 연다 — 예전엔 열린 채 고정된 장식이라 닫을 수 없었다). open: 열리는 쪽(실 방향) 부호 · 0 이면 문틀만
 function doorway(B, axis, at, a, b, lvl, open = 1, leafMat = 'DARKWOOD') {
@@ -249,7 +253,7 @@ function layoutLevel(B, lvl, spec) {
   row(spec.N, -hz, c0 - .06, true); row(spec.S, c1 + .06, hz, false);
   const corr = { name: spec.corrName || '복도', x1: -hx, x2: hx, z1: c0 + .06, z2: c1 - .06, lvl, fin: spec.corrFin || 'gen', corridor: true }; rooms.push(corr);
   // 구멍: 실 ↔ 복도 문 (1.0m), 로비는 복도 쪽 전면 개방, 현관은 남쪽 외벽 2.0m
-  rooms.forEach(r => { r.gaps = { N: [], S: [], W: [], E: [] }; const f = FIN[r.fin || 'gen']; r.F = r.F || f[0]; r.W = r.W || f[1]; r.C = r.C || f[2]; });
+  rooms.forEach(r => { r.gaps = { N: [], S: [], W: [], E: [] }; const f = FIN[r.fin || 'gen']; r.F = r.F || ((r.fin || 'gen') === 'gen' ? (r.corridor || r.lobby ? 'TERR' : 'DECO') : f[0]); r.W = r.W || f[1]; r.C = r.C || f[2]; });   // 일반 실: 본관 교실과 같은 데코타일 · 복도 · 로비: 인조석
   const doorW = 1.0;
   rooms.filter(r => !r.corridor).forEach(r => {
     const dir = r.north ? 'S' : 'N', cd = r.north ? 'N' : 'S';
@@ -308,6 +312,12 @@ function shell(B, o = {}) {
     else { B.box(out + .02, h, D + 2 * out, mk, hw + out / 2, y, 0); seg(W + 2 * out, (l, c) => B.box(l, h, out + .02, mk, c, y, hd + out / 2)); } };
   // 2008 외관 리모델링: 화강석 기단 0.3m + 치장벽돌 하부 벽(창대 밑까지) — 출입구 폭은 비운다
   ring(.15, .3, .05, 'GRANITE', doorGap + .1); ring(.575, .55, .03, 'BRICK', doorGap + .1);
+  {   // 치장벽돌 위 밑동 흙때 · 백화 (투명 덧칠 — 벽돌 겉면 4mm 앞, 현관 폭은 비운다)
+    const off = .043, gap = doorGap + .1, gp = (L, x, z, ry) => { const g = new THREE.PlaneGeometry(L, .55), uv = g.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setX(i, uv.getX(i) * L / 2 + x * .13); B.geo(g, 'GRIME', x, .575, z, { ry }); };
+    const side = (L, at, ry, cut) => { if (!cut) return at(L, 0, ry); const a = L / 2 - gap / 2; at(a, -(gap / 2 + a / 2), ry); at(a, gap / 2 + a / 2, ry); };
+    side(W + .06, (L, u, ry) => gp(L, u, -hd - off, ry), Math.PI, false); side(W + .06, (L, u, ry) => gp(L, u, hd + off, ry), 0, !E);
+    side(D + .06, (L, u, ry) => gp(L, -hw - off, u, ry), -Math.PI / 2, false); side(D + .06, (L, u, ry) => gp(L, hw + off, u, ry), Math.PI / 2, E);
+  }
   for (let l = 1; l < B.levels; l++) ring(l * FH, .3, .06, 'BAND');   // 층 띠: 학교 상징 청록
   if (B.levels === 1) ring(H * .62, .26, .05, 'BAND');   // 단층(강당 · 식당): 창 위 청록 띠
   ring(H - .15, .3, .1, 'CONC');
@@ -357,6 +367,8 @@ function shell(B, o = {}) {
     fr(.03, ww + .1, .07, y + wh / 2); fr(.03, ww + .1, .07, y - wh / 2); fr(.03, .07, wh, y); fr(.03, .07, wh, y, .06, 'SASH', -ww / 2); fr(.03, .07, wh, y, .06, 'SASH', ww / 2);
     fr(.034, ww, .045, y + wh / 2 - .42, .05); [-ww / 4, ww / 4].forEach((uo, k) => fr(k ? .05 : .018, .035, wh - .5, y - .21, .02, 'SASH', uo));   // 위 고정창 가로살 · 미서기 짝 살
     const [sx, sz] = p(.09); if (side) B.box(.16, .05, ww + .2, 'TRIM', sx, y - wh / 2 - .05, sz); else B.box(ww + .2, .05, .16, 'TRIM', sx, y - wh / 2 - .05, sz);
+    { const lo = y < FH, top = y - wh / 2 - .075, bot = lo ? .32 : top - .6, [qx, qz] = p(lo ? .047 : .004), sg = new THREE.PlaneGeometry(ww + .1, top - bot), uv = sg.attributes.uv;   // 창대 밑 빗물 자국 (1층은 치장벽돌 겉면 위)
+      for (let i = 0; i < uv.count; i++) uv.setX(i, uv.getX(i) * (ww + .1) / 1.6 + ((x + z) * .37 % 1)); B.geo(sg, 'STREAK', qx, (top + bot) / 2, qz, { ry: ry + (out < 0 ? Math.PI : 0) }); }
     if (y < FH) {   // 1층 방범창: 백색 철봉 12cm 간격 + 가로 띠철 3줄 (창대 위)
       for (let u = -ww / 2 + .08; u < ww / 2 - .04; u += .12) fr(.085, .016, wh - .04, y, .016, 'GRILLE', u);
       [y - wh / 2 + .06, y, y + wh / 2 - .06].forEach(yy => fr(.085, ww + .1, .03, yy, .03, 'GRILLE'));

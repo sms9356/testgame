@@ -400,7 +400,9 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
       lastPos: null,
       lastHolderYaw: null,
       phaseSeed: Math.random() * Math.PI * 2,
-      applied: { nx: 0, ny: 0, hx: 0, hy: 0, hz: 0 }
+      speed: 0, workK: 0, idleK: 1,
+      fingers: ['index', 'middle', 'ring', 'pinky'].flatMap(f => ['_l', '_r'].map(sd => b(f + '_02' + sd))).filter(Boolean),
+      applied: { nx: 0, ny: 0, hx: 0, hy: 0, hz: 0, pz: 0, sz: 0, fx: 0 }
     };
   }
 
@@ -409,7 +411,10 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
     const a = rig.applied;
     if (rig.neck) { rig.neck.rotation.x -= a.nx; rig.neck.rotation.y -= a.ny; }
     if (rig.head) { rig.head.rotation.x -= a.hx; rig.head.rotation.y -= a.hy; rig.head.rotation.z -= a.hz; }
-    a.nx = a.ny = a.hx = a.hy = a.hz = 0;
+    if (rig.pelvis) rig.pelvis.rotation.z -= a.pz;
+    if (rig.spine2) rig.spine2.rotation.z -= a.sz;
+    if (a.fx) for (const f of rig.fingers) f.rotation.z -= a.fx;
+    a.nx = a.ny = a.hx = a.hy = a.hz = a.pz = a.sz = a.fx = 0;
   }
 
   // ── 3. 휴머노이드 생체역학 모션 시스템 (HumanoidMotionSystem: Analytic Limb Aiming IK/FK) ──
@@ -433,6 +438,89 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
     if (blend >= 0.999) joint.quaternion.copy(_qParentInv);
     else joint.quaternion.slerp(_qParentInv, blend);
     joint.updateWorldMatrix(false, true);
+  }
+
+
+  // ── 보폭 보정: 클립마다 "디딤발이 지면을 뒤로 미는 속도" = 클립이 표현하는 이동 속도를 미리 잰다 → 실제 이동 속도로 재생 속도를 맞춰 발 미끄러짐 제거
+  function calibrateStrides(model, clips, rig) {
+    const out = new Map();
+    if (!rig.footL || !rig.footR) return out;
+    const mx = new THREE.AnimationMixer(model), pL = new THREE.Vector3(), pR = new THREE.Vector3(), qL = new THREE.Vector3(), qR = new THREE.Vector3();
+    const par = model.parent; if (par) par.updateMatrixWorld(true);
+    const toLocal = v => (par ? par.worldToLocal(v) : v);
+    for (const clip of clips) {
+      if (!/walk|run/i.test(clip.name)) continue;
+      const act = mx.clipAction(clip); act.play();
+      // 부모(피벗) 공간 +z = 캐릭터 정면. 디딤발(낮은 발)의 z 속도: 정상 보행이면 뒤(-z)로 흐른다.
+      //   이 GLB 들의 Walk/Run 은 시간이 거꾸로 저장돼 있어 디딤발이 앞으로 미끄러진다(문워크) → dir = -1 로 역재생
+      const N = 60, dtS = clip.duration / N, L = [], R = [], bL = new THREE.Vector3(), bR = new THREE.Vector3();
+      // 접지점 = 발목(foot)과 발볼(ball) 중 낮은 쪽 (뒤꿈치→앞꿈치로 구르는 동안 실제로 바닥에 닿은 곳)
+      for (let i = 0; i <= N; i++) {
+        mx.setTime(i * dtS); model.updateMatrixWorld(true);
+        toLocal(rig.footL.getWorldPosition(pL)); toLocal(rig.footR.getWorldPosition(pR));
+        if (rig.ballL) { toLocal(rig.ballL.getWorldPosition(bL)); if (bL.y < pL.y) pL.copy(bL); }
+        if (rig.ballR) { toLocal(rig.ballR.getWorldPosition(bR)); if (bR.y < pR.y) pR.copy(bR); }
+        L.push(pL.y, pL.z); R.push(pR.y, pR.z);
+      }
+      let minY = 1e9; for (let i = 0; i < L.length; i += 2) minY = Math.min(minY, L[i], R[i]);
+      const sp = [];
+      for (const A of [L, R]) for (let i = 2; i < A.length; i += 2) if (A[i] < minY + .015 && A[i - 2] < minY + .015) sp.push((A[i + 1] - A[i - 1]) / dtS);
+      sp.sort((x, y) => x - y);
+      const med = sp.length ? sp[(sp.length * .5) | 0] : 0, dir = med > 0 ? -1 : 1, v = Math.abs(med);
+      const e = model.matrixWorld.elements;
+      if (v > .05) out.set(clip, { v, dir, scale: Math.hypot(e[0], e[1], e[2]) });
+      act.stop(); mx.uncacheAction(clip);
+    }
+    mx.stopAllAction(); mx.setTime(0);
+    return out;
+  }
+  // ── 2차 움직임: 머리카락 · 리본 끈 끝이 몸의 가속에 늦게 따라오는 스프링 (뼈가 없으니 정점 셰이더에서 바인드 공간으로 흔든다 → 그 뒤 스키닝)
+  function addSecondaryWobble(model) {
+    const sw = { u: { uSwayT: { value: 0 }, uSway: { value: new THREE.Vector3() } }, x: 0, z: 0, vx: 0, vz: 0, lvx: 0, lvz: 0, init: false };
+    const done = new Set();
+    model.traverse(o => {
+      if (!o.isSkinnedMesh || !/Mina_Hair|Mina_RibbonTail/.test(o.name) || done.has(o.material)) return;
+      const mat = o.material; done.add(mat);
+      const g = o.geometry; g.computeBoundingBox(); const bb = g.boundingBox;
+      const ribbon = /Ribbon/.test(o.name), top = ribbon ? bb.max.y : bb.max.y - (bb.max.y - bb.min.y) * .25, len = Math.max(.02, top - bb.min.y);
+      const prev = mat.onBeforeCompile, prevKey = mat.customProgramCacheKey && mat.customProgramCacheKey.bind(mat);
+      mat.onBeforeCompile = (sh, r) => {
+        if (prev) prev.call(mat, sh, r);
+        sh.uniforms.uSwayT = sw.u.uSwayT; sh.uniforms.uSway = sw.u.uSway;
+        sh.vertexShader = 'uniform float uSwayT;\nuniform vec3 uSway;\n' + sh.vertexShader.replace('#include <begin_vertex>', `#include <begin_vertex>
+          { float w = clamp((${top.toFixed(4)} - position.y) / ${len.toFixed(4)}, 0.0, 1.0); w *= w;
+            transformed.xz += (uSway.xz + vec2(sin(uSwayT * 1.7 + position.y * 23.0), cos(uSwayT * 1.3 + position.x * 17.0)) * ${ribbon ? '0.0035' : '0.0022'}) * w * ${ribbon ? '1.6' : '1.0'};
+            transformed.y += abs(uSway.x + uSway.z) * w * -0.25; }`);
+      };
+      mat.customProgramCacheKey = () => (prevKey ? prevKey() : '') + 'sway' + top.toFixed(3);
+      mat.needsUpdate = true;
+    });
+    return done.size ? sw : null;
+  }
+  // 민아의 손전등 ("손전등 꺼지면 말해. 내 거 아직 남았어") — 오른손 본에 붙는 작은 펜라이트. 재질 공유
+  let torchMats = null;
+  function attachFlashlight(model, rig) {
+    if (!rig.handR) return null;
+    const mid = model.getObjectByName('middle_01_r'); if (!mid) return null;
+    torchMats ||= { body: new THREE.MeshStandardMaterial({ color: 0x23262b, roughness: .38, metalness: .75 }), lens: new THREE.MeshStandardMaterial({ color: 0xfff2d0, emissive: 0xffe7b0, emissiveIntensity: .6, roughness: .1 }) };
+    model.updateMatrixWorld(true);
+    const hp = rig.handR.getWorldPosition(new THREE.Vector3()), mp = mid.getWorldPosition(new THREE.Vector3());
+    const ws = rig.handR.getWorldScale(new THREE.Vector3()).x || 1;
+    const g = new THREE.Group(); g.name = 'Mina_Flashlight';
+    const body = new THREE.Mesh(new THREE.CylinderGeometry(.014, .012, .15, 12), torchMats.body);
+    const head = new THREE.Mesh(new THREE.CylinderGeometry(.019, .015, .035, 12), torchMats.body); head.position.y = .09;
+    const lens = new THREE.Mesh(new THREE.CircleGeometry(.016, 12), torchMats.lens); lens.position.y = .108; lens.rotation.x = -Math.PI / 2;
+    g.add(body, head, lens); g.traverse(o => { if (o.isMesh) o.castShadow = true; });
+    // 손 → 가운뎃손가락 방향을 따라 손바닥 안쪽에 쥔다 (손 로컬 좌표로 변환)
+    const dirW = mp.clone().sub(hp).normalize();
+    const qInv = rig.handR.getWorldQuaternion(new THREE.Quaternion()).invert();
+    const dirL = dirW.clone().applyQuaternion(qInv);
+    g.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dirL);
+    g.position.copy(mp.clone().sub(hp).multiplyScalar(.75)).applyQuaternion(qInv).divideScalar(ws);
+    g.scale.setScalar(1 / ws);
+    g.visible = false;
+    rig.handR.add(g);
+    return g;
   }
 
   async function load(id, holder, options = {}) {
@@ -495,7 +583,12 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
       }
 
       const rig = extractHumanRig(model, id);
-      rigs.set(holder, { id, rig, model });
+      const entry = { id, rig, model, strideRef: clips.length ? calibrateStrides(model, clips, rig) : null, sway: null, prop: null };
+      if (rig.thighL && rig.calfL) { model.updateMatrixWorld(true); entry.sitDrop = rig.thighL.getWorldPosition(new THREE.Vector3()).distanceTo(rig.calfL.getWorldPosition(new THREE.Vector3())) * .92; }
+      entry.baseY = model.position.y;
+      { const a0 = holder.userData.npcAction, r0 = a0 && entry.strideRef && entry.strideRef.get(a0.getClip()); if (r0) a0.timeScale = r0.dir; }
+      if (id === 'mina' || id === 'seoyeon') { entry.sway = addSecondaryWobble(model); if (id === 'mina') entry.prop = attachFlashlight(model, rig); }
+      rigs.set(holder, entry);
 
       if (prepare) { try { await prepare(pivot); } catch (e) {} }
       originalChildren.forEach(child => { if (child.name !== 'GUARD_TORCH_FX') child.visible = false; });
@@ -566,6 +659,7 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
     if (!rig.lastPos) return;
     const movedDist = Math.hypot(holder.position.x - rig.lastPos.x, holder.position.z - rig.lastPos.z);
     rig.lastPos.copy(holder.position);
+    rig.speed += (Math.min(8, movedDist / Math.max(.001, dt)) - rig.speed) * Math.min(1, dt * 10);
     const clipName = String(holder.userData.curClipName || '').toLowerCase();
     const isWalking = clipName.includes('walk') || clipName.includes('run') || movedDist > 0.002;
     rig.walkBlend += ((isWalking ? 1 : 0) - rig.walkBlend) * Math.min(1, dt * 9);
@@ -618,11 +712,33 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
       aimBoneCharSpace(curYaw, rig.foreR, rig.handR, -0.08 + Math.sin(tNow * 1.6) * 0.06, torchAimY, 0.76, 0.94);
     }
 
-    // ④ 시선 추적 IK (Smooth Head & Neck Look-At)
+    // ⑤ 민아 · 주인공: 콘솔 작업(앉은) 자세 · 대기 중 체중 이동과 손가락 움직임
+    if (id !== 'guard') {
+      rig.workK += ((holder.userData.workPose ? 1 : 0) - rig.workK) * Math.min(1, dt * 2.5);
+      const wk = rig.workK;
+      if (entry.model) entry.model.position.y = entry.baseY - (entry.sitDrop || 0) * wk;
+      if (wk > .005 && rig.thighL && rig.armL) {
+        const tap = Math.sin(tNow * 3.1) * .05, tap2 = Math.sin(tNow * 2.3 + 1) * .05;
+        aimBoneCharSpace(curYaw, rig.thighL, rig.calfL, .05, -.08, 1, wk);
+        aimBoneCharSpace(curYaw, rig.calfL, rig.footL, .03, -1, .12, wk);
+        aimBoneCharSpace(curYaw, rig.thighR, rig.calfR, -.05, -.08, 1, wk);
+        aimBoneCharSpace(curYaw, rig.calfR, rig.footR, -.03, -1, .12, wk);
+        aimBoneCharSpace(curYaw, rig.spine2, rig.spine3, 0, 1, .22, wk * .8);
+        aimBoneCharSpace(curYaw, rig.armL, rig.foreL, .16, -.82, .45, wk);
+        aimBoneCharSpace(curYaw, rig.foreL, rig.handL, -.18, -.2 + tap, 1, wk);
+        aimBoneCharSpace(curYaw, rig.armR, rig.foreR, -.16, -.82, .45, wk);
+        aimBoneCharSpace(curYaw, rig.foreR, rig.handR, .18, -.2 + tap2, 1, wk);
+      }
+      rig.idleK = (1 - rig.walkBlend) * (1 - wk);
+    }
+
+    // ④ 시선 추적 IK (Smooth Head & Neck Look-At) — userData.lookTarget(Vector3) 가 있으면 그쪽(관심 지점), 없으면 플레이어
     let wantLookYaw = 0, wantLookPitch = 0;
     const g = typeof window !== 'undefined' ? window.__g : null;
-    if (g && g.P && id !== 'jihun' && id !== 'seoyeon') {
-      const dx = g.P.x - holder.position.x, dz = g.P.z - holder.position.z;
+    const lt = holder.userData.lookTarget || (g && g.P && id !== 'jihun' && id !== 'seoyeon' ? g.P : null);
+    if (holder.userData.workPose) wantLookPitch = .2 + Math.sin(tNow * .6) * .03;
+    else if (lt) {
+      const dx = lt.x - holder.position.x, dz = lt.z - holder.position.z;
       const dist = Math.hypot(dx, dz);
       if (dist < 6.8 && dist > 0.25) {
         const toPlayerYaw = Math.atan2(dx, dz);
@@ -631,6 +747,7 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
         if (Math.abs(relYaw) < 1.25) {
           wantLookYaw = Math.max(-0.52, Math.min(0.52, relYaw * 0.65));
           wantLookPitch = Math.max(-0.16, Math.min(0.16, Math.sin(tNow * 2.0) * 0.02));
+        if (holder.userData.lookTarget && lt.y != null) wantLookPitch = Math.max(-.3, Math.min(.3, -Math.atan2(lt.y - holder.position.y - 1.45, dist) * .8));
         }
       } else if (id === 'guard') {
         wantLookYaw = Math.sin(tNow * 1.1) * 0.24;
@@ -649,12 +766,47 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
 
     if (rig.neck) { rig.neck.rotation.x += a.nx; rig.neck.rotation.y += a.ny; }
     if (rig.head) { rig.head.rotation.x += a.hx; rig.head.rotation.y += a.hy; rig.head.rotation.z += a.hz; }
+    if (id !== 'guard' && rig.idleK > .01) {
+      const ik = rig.idleK, ws = Math.sin(tNow * .31 + rig.phaseSeed) + .35 * Math.sin(tNow * .83 + rig.phaseSeed * 2);
+      a.pz = ws * .028 * ik; a.sz = -a.pz * .8;   // 짝다리 체중 이동 (골반 기울기 ↔ 상체 보상)
+      a.fx = (.5 + .5 * Math.sin(tNow * .7 + rig.phaseSeed)) * .14 * ik;   // 손가락이 천천히 오므려졌다 펴짐
+      if (rig.pelvis) rig.pelvis.rotation.z += a.pz;
+      if (rig.spine2) rig.spine2.rotation.z += a.sz;
+      for (const f of rig.fingers) f.rotation.z += a.fx;
+    }
 
     if (id === 'guard' && holder.userData.torchFx && holder.userData.torchFx.visible) {
       const sweep = Math.sin(tNow * 1.8) * 0.20;
       holder.userData.torchFx.rotation.y = sweep;
       holder.userData.torchFx.rotation.x = Math.sin(tNow * 1.1) * 0.06;
     }
+  }
+  // 보폭 맞춤 재생 속도 · 머리카락/리본 스프링 · 소품 표시 (프레임당 할당 없음)
+  function secondary(holder, entry, dt, tNow) {
+    const rig = entry.rig, act = holder.userData.npcAction;
+    if (entry.strideRef && act && holder.userData.autoStride !== false) {
+      const ref = entry.strideRef.get(act.getClip());
+      if (ref && rig.speed > .1) {
+        const e = entry.model.matrixWorld.elements, sc = Math.hypot(e[0], e[1], e[2]) / ref.scale;
+        const want = ref.dir * Math.max(.5, Math.min(2.6, rig.speed / (ref.v * sc)));
+        act.timeScale += (want - act.timeScale) * Math.min(1, dt * 6);
+      }
+    }
+    const sw = entry.sway;
+    if (sw) {
+      const yaw = (holder.rotation.y || 0) + (holder.userData.characterModel ? holder.userData.characterModel.rotation.y : 0);
+      const p = holder.position;
+      if (!sw.init) { sw.px = p.x; sw.pz = p.z; sw.init = true; }
+      const vx = (p.x - sw.px) / dt, vz = (p.z - sw.pz) / dt; sw.px = p.x; sw.pz = p.z;
+      // 세계 가속 → 캐릭터 로컬(바인드 공간: +z 앞)로 회전, 관성 반대 방향으로 스프링을 민다
+      const ax = Math.max(-30, Math.min(30, (vx - sw.lvx) / dt)), az = Math.max(-30, Math.min(30, (vz - sw.lvz) / dt)); sw.lvx = vx; sw.lvz = vz;
+      const c = Math.cos(yaw), s = Math.sin(yaw), lx = ax * c - az * s, lz = ax * s + az * c;
+      const spd = Math.hypot(vx, vz), bob = Math.sin(tNow * 9) * Math.min(1, spd / 3) * .006;
+      sw.vx += (-60 * sw.x - 7 * sw.vx - lx * .02) * dt; sw.vz += (-60 * sw.z - 7 * sw.vz - lz * .02 - spd * .35) * dt;
+      sw.x = Math.max(-.05, Math.min(.05, sw.x + sw.vx * dt)); sw.z = Math.max(-.05, Math.min(.05, sw.z + sw.vz * dt));
+      sw.u.uSway.value.set(sw.x + bob, 0, sw.z); sw.u.uSwayT.value = tNow;
+    }
+    if (entry.prop) entry.prop.visible = !!holder.userData.showProp && !holder.userData.workPose;   // 콘솔 앞에서는 손전등을 내려놓는다
   }
   function update(dt) {
     if (!Number.isFinite(dt) || dt <= 0) return;
@@ -665,7 +817,7 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
         const entry = rigs.get(holder);
         if (entry) clearAppliedOffsets(entry.rig);
         m.update(stepDt);
-        if (entry) applyHumanBiomechanics(holder, entry, stepDt, tNow);
+        if (entry) { applyHumanBiomechanics(holder, entry, stepDt, tNow); secondary(holder, entry, stepDt, tNow); }
       }
     });
     for (const b of blinkers) {
@@ -692,8 +844,10 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
       || clips.find(c => c.name.toLowerCase().includes(String(name).toLowerCase()));
     if (!clip) return Promise.resolve(false);
     const prev = holder.userData.npcAction, act = mixer.clipAction(clip);
+    const sr = entry && entry.strideRef && entry.strideRef.get(clip);
+    if (sr) speed *= sr.dir;   // 역저장 보행 클립은 거꾸로 재생
     if (prev === act && act.isRunning() && !once) {
-      act.timeScale = speed;
+      if (!sr) act.timeScale = speed;
       return Promise.resolve(true);
     }
     act.reset();
@@ -710,5 +864,5 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
     });
   }
   const has = holder => !!(holder && holder.userData.characterModel);
-  return { load, portrait, update, setExpression, play, has, enhanceCharacterMaterials };
+  return { load, portrait, update, setExpression, play, has, enhanceCharacterMaterials, _rigs: rigs };
 }

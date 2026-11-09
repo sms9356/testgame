@@ -139,6 +139,8 @@ const NV_SPK = {"n_guard_diary": "guard", "n24": "guard", "n2": "nurse", "q3a": 
 for (const [k, spk] of Object.entries(NV_SPK)) NOTE_CAST[k] = { ...(NOTE_CAST[k] || {}), spk, audioId: 'nv_' + k };
 NOTE_CAST.n_seomun_ilbo = { ...NOTE_CAST.n_seomun_ilbo, audioId: 'news_rep' };
 // 문서 원문 낭독(nd_*): 각 문서를 쓴 사람의 목소리로 원문 그대로 읽는다 (감정 태그 · ElevenLabs v4) — 자막과 음성이 글자 하나까지 같다
+// 더빙 녹음이 없는 보충 문서 — 남의 녹음으로 대신 읽지 않고 자막(또는 브라우저 음성)만
+const UNVOICED_NOTES = new Set(['nx_ups', 'nx_diary98', 'nx_slip', 'nx_paper08', 'nx_memo08']);
 const ND_IDS = ["n_guard_diary", "n_principal_tape", "n_bunker_audit", "n_dorm2f_diary", "n1", "n2", "n3", "n4", "n6", "n7", "n8", "n9", "n10", "n11", "n12", "n13", "n17", "n18", "n19", "n20", "n21", "n22", "n23", "n24", "n25", "n26", "n27", "n28", "n29", "q1a", "q1b", "q2a", "q2b", "q3a", "q3b", "q4a", "q4b", "q4c", "q5a", "q5b", "q5c", "q7a", "q7b", "q8a", "h1", "h3", "h4", "h5", "q8b", "n14", "n15", "n16"];
 for (const k of ND_IDS) NOTE_CAST[k] = { ...(NOTE_CAST[k] || {}), audioId: 'nd_' + k };
 const RECAST_LINE_KEYS = new Set(['gate', 'office', 'key', 'keyLast', 'headMissing', 'headFound', 'keyMade', 'needCombine', 'pumpPolice', 'seomunPaper', 'dorm2fClimb', 'bunkerEnter', 'westGateReloc']);
@@ -154,7 +156,7 @@ loadManifest().then(() => {
     const keepExact = k === 'n5' || k === 'n6';
     return ['note_' + k, {
       spk: cast.spk,
-      audioId: NV_SPK[k] ? cast.audioId : keepExact ? ('note_' + k) : (cast.audioId || ('note_' + k)),
+      audioId: UNVOICED_NOTES.has(k) ? undefined : NV_SPK[k] ? cast.audioId : keepExact ? ('note_' + k) : (cast.audioId || ('note_' + k)),
       customTimbre: !NV_SPK[k] && !keepExact && !!cast.audioId,
       stage: cast.stage || '',
       text: n.title + '. ' + n.text,
@@ -1183,6 +1185,7 @@ function noteVoiceFor(id) {
   const pLine = k => ({ id: 'l_' + k + '_' + (isJ ? 'j' : 's'), fx: 'none', who: pWho });
   const NV_WHO = { guard: '🔦 당직 경비원 · 박종철 아저씨', nurse: '📼 보건교사 · 임소연 선생님', homeroom: '📼 3-2 담임 · 정은수 선생님', principal: '📼 제9대 교장 · 한석규', headTeacher: '📼 교무부장 · 권오현', scienceTeacher: '📼 과학부장 · 최동혁 선생님', peTeacher: '📼 체육부장 · 강태식 선생님', librarian: '📼 도서실 사서 · 송지혜 선생님', junho: '📼 전 방송부 3학년 · 이준호', haneul: '🕯 윤하늘 (1998년 3-2 방송부)', friend: '📼 단짝 친구 · 이수아', friend2: '📼 단짝 친구 · 서다은', mina: '📱 선배 박민아 (방송부 3학년)', reporter: '📰 서문일보 · 한진우 기자', dormMother: '📼 청운학사 사감 · 문정희', electrician: '📼 전기 기사 · 배만수', snackLady: '📼 매점 아주머니', narrator: '📖 내레이션' };
   if (id === 'nC') return { id: 'nv_nC_' + (isJ ? 'j' : 's'), fx: 'none', who: pWho };
+  if (UNVOICED_NOTES.has(id)) return { id: 'note_' + id, fx: 'none', who: '📄 문서' };
   if (id === 'n_seomun_ilbo') return { id: 'news_rep', fx: 'radio', who: NV_WHO.reporter };
   if (NV_SPK[id]) { const spk = NV_SPK[id]; return { id: 'nv_' + id, fx: spk === 'mina' ? 'phone' : /^(n_guard_diary|n_principal_tape|n_bunker_audit|q2b)$/.test(id) ? 'radio' : 'none', who: NV_WHO[spk] || '📼 증언' }; }
   const MAP = {
@@ -4424,6 +4427,12 @@ addNoteAt('n27', 2, SLOTS[5] + 2.6, .76, -8.6, .3);           // 3-4 교실 교�
 addNoteAt('n28', 2, SLOTS[6] - 2.9, .02, -2.3, .6);           // 3-5 교실 사물함 앞 — 교환일기
 addNoteAt('n26', 8, ANNEX.slots[4] - .2, .77, -8.45, .1);           // 별관 1F 도서실 — 이벤트로 나타나는 대출 카드
 { const it = world.items.find(i => i.kind === 'note' && i.id === 'n26'); it.locked = true; it.mesh.visible = false; }
+// 보충 문서 (더빙 없음 — UNVOICED_NOTES: 자막 · 번역만)
+addNoteAt('nx_memo08', 0, 6.6, .02, 1.0, -.3);                // 1층 복도 — 행사 안내문 옆, 민아가 떨어뜨린 지도교사 메모 (2008)
+addNoteAt('nx_paper08', 2, SLOTS[1] - .4, .02, -2.6, .2);     // 방송실 — 『서현고 소식』 스크랩 (2008)
+addNoteAt('nx_diary98', 2, SLOTS[6] - 2.3, .02, -1.6, -.2);   // 3-5 교실 사물함 앞 — 교환일기 옆, 수아의 일기 한 장 (1998)
+addNoteAt('nx_ups', 4, SLOTS[7] - 1.5, .02, -3.4, .4);        // 지하 기계실 정비 작업대 아래 — UPS 작업 확인서 (1998)
+addNoteAt('nx_slip', 4, SLOTS[8] - 2.2, .02, -3.8, .6);       // 지하 펌프실 — 명찰 근처, 문틈의 쪽지 (1998)
 // 도구 · 소모품
 tool('hairpin', 0, SLOTS[3] - 2.4, .66, 8.0, mkPin(), '머리핀 줍기', 0xffd0e0);               // 본관 1F 보건실 침대
 tool('hairpin', 1, SLOTS[1] + 2.3, .77, -8.45, mkPin(), '머리핀 줍기', 0xffd0e0);         // 2-1 교탁

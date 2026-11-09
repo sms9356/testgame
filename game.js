@@ -1573,7 +1573,7 @@ async function rbElev(e, dir) {
     const E = e.E, nf = await choose(`${E.b.name} 엘리베이터 조작반`, `지금 <b>${e.f + 1}층</b> — 갈 층 버튼을 누른다`, Array.from({ length: e.n }, (_, k) => ({ label: `${k + 1}층${k === e.f ? ' (현재 층)' : ''}`, sub: elvFloorNote(E.b.name, k) })));
     sfx.elevatorButton ? sfx.elevatorButton() : sfx.click(); const r = RBG.elevGo(e, nf); if (r === 'here') say('문이 다시 열린다', 1000); return; }
   rbElevStep(e, dir); }
-function elvFloorNote(bn, k) { return bn === '본관' ? ['1학년 교실 · 교무실 · 보건실', '2학년 교실 · 교장실 · 도서실', '3학년 교실 · 진로상담실', '방송실 · 컴퓨터실 · 옥상 계단'][k] || '' : ['음악실 · 미술실 · 가정실', '과학실 · 도서실 · 자율학습실', '3학년 6~9반'][k] || ''; }
+function elvFloorNote(bn, k) { return bn === '본관' ? ['1학년 교실 · 교무실 · 보건실', '2학년 교실 · 교장실 · 도서실', '3학년 교실 · 진로상담실', '방송실 · 컴퓨터실 · 옥상 계단'][k] || '' : ['음악실 · 미술실 · 가정실', '과학실 · 도서실', '3학년 6~9반 · 자율학습실'][k] || ''; }
 function rbElevStep(e, dir) { if (!e.inCar && dir < 0) dir = 1; const r = RBG.elevAct ? RBG.elevAct(e, dir) : null; sfx.elevatorButton ? sfx.elevatorButton() : sfx.click(); if (r === 'end') say('더 갈 층이 없다', 1200); else if (r === 'call') say('엘리베이터를 불렀다 — 칸이 오는 소리가 들린다', 1800); }
 function teleport(to) {
   if (state !== 'playing') return;
@@ -3909,7 +3909,7 @@ async function useProp(p) {
     if (radio && p.led) p.led.material.color.setHex(0xff3020);
     setTimeout(() => line(id, radio ? 'radio' : 'none', '🔦 당직 경비원 · 박종철 (1998)').then(() => { if (radio && p.led) p.led.material.color.setHex(0x401010); }), 250);
     p.label = radio ? `경비 무전기 — 다음 교신 듣기 (${p.n % 3 + 1}/3)` : `경비 근무 일지 — 다음 장 (${p.n % 3 + 1}/3)`;
-    if (radio && !guardGift) { guardGift = true; inv.battery += 2; sfx.pickup(); toast('건전지 2개', '무전기 옆 서랍에 손전등용 건전지가 남아 있었다', 'info'); }
+    if (radio && !guardGift) { guardGift = true; inv.battery += 2; sfx.pickup(); toast('건전지 2개', '무전기 옆 서랍에 건전지 2개와 누렇게 바랜 쪽지 — “혹시 누가 또 들어오믄 쓰라고 남겨 둬유. 열한 시 사십 분 전엔 나가유. —경비 박종철, 1999.2”', 'info'); }
     if (!docs.find(d => d.id === id)) { addDoc({ id, kind: 'tape' }); if (CLUES[id]) addClue(id); refreshHud(); toast(radio ? '📻 1998.10.12 경비 무전 교신' : '📒 경비 근무 일지', world.TAPES[id]?.title || '', 'info'); }
     return;
   }

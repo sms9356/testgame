@@ -39,6 +39,9 @@ function desk(g, w, h) {
     for (let i = 0; i < 2; i++) { g.fillStyle = 'rgba(245,244,236,.85)'; g.beginPath(); g.ellipse(X + r() * W, Y + r() * H, 3 + r() * 4, 1.5 + r() * 2, r() * 3, 0, 7); g.fill(); }   // 수정액
     for (let i = 0; i < 6; i++) { g.fillStyle = 'rgba(60,60,60,.12)'; g.fillRect(X + r() * W, Y + r() * H, 20 + r() * 40, 2); }   // 연필 자국
     const ge = g.createRadialGradient(X + W / 2, Y + H / 2, Math.min(W, H) * .2, X + W / 2, Y + H / 2, Math.max(W, H) * .7); ge.addColorStop(0, 'rgba(60,40,20,0)'); ge.addColorStop(1, 'rgba(60,40,20,.18)'); g.fillStyle = ge; g.fillRect(X, Y, W, H);   // 손때 · 가장자리 그늘
+    { const sx = X + W * .12, sy = Y + H * (ay > .5 ? .7 : .12); g.save(); g.translate(sx, sy); g.scale(-1, 1); g.fillStyle = 'rgba(250,248,238,.92)'; g.fillRect(-46, 0, 46, 13); g.strokeStyle = 'rgba(40,80,160,.6)'; g.lineWidth = 1; g.strokeRect(-46, 0, 46, 13);   // 이름 스티커 (반 · 번호 · 이름, 모서리 들뜸)
+      g.fillStyle = '#1a2a6a'; g.font = '8px sans-serif'; g.fillText(ay > .5 ? '3-2 14 박준혁' : '3-2 07 이지은', -44, 10); g.fillStyle = 'rgba(0,0,0,.2)'; g.fillRect(-46, 11, 8, 2); g.restore(); }
+    for (let i = 0; i < 2; i++) { const gx = X + r() * W, gy = Y + r() * H, gr = 2.5 + r() * 2.5; g.fillStyle = ['rgba(210,120,150,.85)', 'rgba(150,150,140,.85)'][i]; g.beginPath(); g.ellipse(gx, gy, gr, gr * .8, r() * 3, 0, 7); g.fill(); g.fillStyle = 'rgba(255,255,255,.35)'; g.fillRect(gx - 1, gy - 1, 1.5, 1); }   // 눌어붙은 껌
     g.restore(); }
 }
 const JOBS = { SchoolChair_01: chair, SchoolDesk_01: desk };

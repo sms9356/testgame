@@ -5,9 +5,9 @@
 //   재질: F-01 ~ F-05 바닥 · W-01 ~ W-05 벽 · C-01 ~ C-04 천장 (Poly Haven CC0 실사 스캔 텍스처, assets/tex/fac_* · 미터 단위 UV)
 import * as THREE from './vendor/three.module.js';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { pbr } from './tex.js?v=418';
-import { placeModels } from './rebuild/models.js?v=418';
-import * as PT from './rebuild/periodTex.js?v=418';   // 본관 · 별관과 같은 시대 재질 (데코타일 · 인조석 · 걸레받이 · 외벽 풍화) — 모듈 캐시로 한 벌만 만든다
+import { pbr } from './tex.js?v=419';
+import { placeModels } from './rebuild/models.js?v=419';
+import * as PT from './rebuild/periodTex.js?v=419';   // 본관 · 별관과 같은 시대 재질 (데코타일 · 인조석 · 걸레받이 · 외벽 풍화) — 모듈 캐시로 한 벌만 만든다
 
 const FH = 3.6, CEIL = 2.9, WALL_T = .24, LIN = .06;
 const TL = new THREE.TextureLoader(), TEX = {};
@@ -471,8 +471,24 @@ function buildTwoStory(B, spec) {
   if (top) { top.noFloor = true; const h = hole; B.plane(top.x2 - top.x1, top.z2 - h.z2, top.F, (top.x1 + top.x2) / 2, FH + .025, (h.z2 + top.z2) / 2); if (top.x2 > h.x2) B.plane(top.x2 - h.x2, h.z2 - top.z1, top.F, (h.x2 + top.x2) / 2, FH + .025, (top.z1 + h.z2) / 2); if (h.x1 > top.x1) B.plane(h.x1 - top.x1, h.z2 - top.z1, top.F, (top.x1 + h.x1) / 2, FH + .025, (top.z1 + h.z2) / 2); }
   levelSlab(B, 1, hole);
   buildRooms(B, R0); buildRooms(B, R1);
+  const ent = R0.find(r => r.lobby); if (ent) entryKit(B, ent);
   return { R0, R1 };
 }
+// 2008 현관 소품 (2층 시설 공통): 출입문 옆 스테인리스 우산꽂이 · 소화기 + '2008.03 점검' 표 · 문 위 축광 비상구 표지 — 문 폭(-1 ~ 1) 밖 구석만 쓴다
+function entryKit(B, r) {
+  const ux = r.x1 + .32, uz = r.z2 - .32; B.cyl(.16, .16, .55, 'SS', ux, .275, uz, { seg: 16 }); B.cyl(.165, .165, .02, 'BLACK', ux, .55, uz, { seg: 16, open: true });
+  [['RED', .05, .04], ['BLACK', -.05, .03], ['TEAL', .02, -.06]].forEach(([k, a, b]) => B.cyl(.012, .03, .85, k, ux + a, .45, uz + b, { seg: 6, rz: a * 1.2, rx: b * 1.2 }));
+  B.col(ux - .18, ux + .18, uz - .18, uz + .18);
+  extTagged(B, r.x2 - .25, r.z2 - .3, Math.PI, 0);
+  exitPicto(B, 0, Math.min(2.62, CEIL - .2), r.z2 - .015, Math.PI);
+}
+// 소화기 (실사 모델) + 목에 건 노란 점검표 '2008.03 점검' — ry: 앞(손잡이 쪽)이 보는 방향
+function extTagged(B, x, z, ry, lvl = 0) { B.model('korean_fire_extinguisher_01', x, lvl * FH, z, ry);
+  B.mesh(new THREE.PlaneGeometry(.05, .075), PT.MAT.extTag(), x + Math.sin(ry) * .09 + Math.cos(ry) * .03, lvl * FH + .42, z + Math.cos(ry) * .09 - Math.sin(ry) * .03, { ry, rz: .08 }); }
+// 벽부착 축광 피난구 유도표지 (녹색 · 달리는 사람) — 판 앞면이 ry 방향을 본다
+function exitPicto(B, x, y, z, ry) { B.mesh(new THREE.PlaneGeometry(.5, .19), PT.MAT.exitPicto(), x, y, z, { ry }); }
+// 코르크 게시판 위 2008년 10월 게시물 (가정통신문 · 방과후학교 안내 · 학교폭력 예방 포스터)
+function notice08(B, w, h, x, y, z, ry) { B.mesh(new THREE.PlaneGeometry(w, h), PT.MAT.notice08(), x, y, z, { ry }); }
 const byName = (R, n) => R.find(r => r.name === n);
 
 function buildDorm(ctx, Z) {   // 청운학사 22 × 14m · 2층 (기숙사 · 생활)
@@ -492,7 +508,7 @@ function buildDorm(ctx, Z) {   // 청운학사 22 × 14m · 2층 (기숙사 · �
   // 식당 · 라운지: 식탁 2 (1800×900) + 의자 4
   { const r = byName(R0, '식당 · 라운지'), cz = (r.z1 + r.z2) / 2 + .4; [r.x1 + 3.4, r.x1 + 6.6].forEach(x => { F.table(B, x, cz, 1.8, .9, .75, 0, 'LPM'); [-1, 1].forEach(s => F.chair(B, x + s * .45, cz + .75, Math.PI, 0)); }); B.model('sf_sofa', r.x2 - 1.4, 0, r.z2 - .55, Math.PI); B.col(r.x2 - 2.4, r.x2 - .4, r.z2 - 1.0, r.z2 - .1, { h: .45 }); }
   // 로비 · 계단: 신발장 · 게시판
-  { const r = byName(R0, '로비 · 계단'); F.shelf(B, r.x1 + 3.2, r.z2 - .3, Math.PI, 0, 2.4, .35, 1.2, 'WOOD', 4); B.box(1.4, .9, .02, 'CORK', r.x1 + 4.6, 1.6, r.z1 + .08);
+  { const r = byName(R0, '로비 · 계단'); F.shelf(B, r.x1 + 3.2, r.z2 - .3, Math.PI, 0, 2.4, .35, 1.2, 'WOOD', 4); B.box(1.4, .9, .02, 'CORK', r.x1 + 4.6, 1.6, r.z1 + .08); notice08(B, 1.3, .49, r.x1 + 4.6, 1.6, r.z1 + .095, 0);
     // 신발장 안 실내화 · 운동화 (칸마다 몇 켤레 비움) + 호실 안내 표지
     for (let k = 0; k < 3; k++) for (let j = 0; j < 8; j++) { if ((j * 5 + k * 3) % 7 === 2) continue; const x = r.x1 + 3.2 - 1.05 + j * .3, y = .08 + k * (1.1 / 3) + .045; [-.045, .045].forEach(d => B.box(.08, .07, .24, (j + k) % 3 ? 'SHOE' : 'BLANKET', x + d, y, r.z2 - .3 + .02)); }
     B.sign('신발장 · 실내화로 갈아 신을 것', '201 ~ 204호 칸 · 사감', 1.4, .26, r.x1 + 3.2, 1.45, r.z2 - .07, Math.PI, ['#f2ecd8', '#3a2a1a']); }
@@ -782,7 +798,9 @@ function buildAuditorium(ctx, Z) {   // 대강당 18 × 26m · 1층 (공연 · �
     F.chair(B, r.x1 + 3.0, r.z1 + 1.3, 0, 0); B.box(.6, 1.8, .6, 'BLACK', r.x1 + .5, .9, r.z2 - .5); B.col(r.x1 + .2, r.x1 + .8, r.z2 - .8, r.z2 - .2, {}); an.mixer = [r.x1 + 3.0, r.z1 + 1.35];
     lampsGrid(B, { ...r, ceil: 3.0 }, 2.4); }
   { const r = sto; [0, 1].forEach(k => F.shelf(B, r.x1 + 1.2 + k * 2.0, r.z2 - .35, Math.PI, 0, 1.8, .45, 1.8, 'GREYSTEEL', 5, ['BLACK', 'PANEL'])); for (let k = 0; k < 6; k++) B.box(.45, .9, .06, 'FRAME', r.x1 + 1.0 + k * .07, .45, r.z1 + 1.2, { rz: .12 }); lampsGrid(B, { ...r, ceil: 3.0 }, 2.4); }
-  { const r = lobby; lampsGrid(B, { ...r, ceil: 3.0 }, 2.4); B.box(1.6, 1.0, .02, 'CORK', 2.6, 1.6, r.z1 + .08); B.sign('객석 입구', '', 1.4, .22, 0, 2.85, r.z1 + .07, 0, ['#1c2a34', '#f4eedc']); }
+  { const r = lobby; lampsGrid(B, { ...r, ceil: 3.0 }, 2.4); B.box(1.6, 1.0, .02, 'CORK', 2.6, 1.6, r.z1 + .08); notice08(B, 1.5, .56, 2.6, 1.6, r.z1 + .095, 0);
+    { const ux = -2.0, uz = r.z2 - .35; B.cyl(.16, .16, .55, 'SS', ux, .275, uz, { seg: 16 }); [['RED', .05, .04], ['BLACK', -.04, -.05]].forEach(([k, a, b]) => B.cyl(.012, .03, .85, k, ux + a, .45, uz + b, { seg: 6, rz: a * 1.2, rx: b * 1.2 })); B.col(ux - .18, ux + .18, uz - .18, uz + .18); }   // 우산꽂이
+    exitPicto(B, 0, 2.8, r.z2 - .015, Math.PI); B.sign('객석 입구', '', 1.4, .22, 0, 2.85, r.z1 + .07, 0, ['#1c2a34', '#f4eedc']); }
   // 디테일 보강: 측벽 흡음 패널 · 객석 통로 발밑등 · 행사 현수막 · 보면대 · 마이크 스탠드 · 모니터 스피커 · 흩어진 팸플릿 · 소화기
   for (let z = zStage + 2.2; z < zLobby - 1; z += 2.4) [-1, 1].forEach(s => { B.box(.05, 2.2, 1.9, (Math.round(z) % 2) ? 'FABRIC' : 'VELVET', s * (hx - .03), 3.2, z); B.box(.06, .08, 2.0, 'DARKWOOD', s * (hx - .04), 1.0, z); });
   for (let k = 0; k < 12; k++) { const z = zStage + 2.4 + k * .95; [-.66, .66].forEach(x => B.box(.08, .05, .04, 'WHITE', x, .2, z + .3)); }
@@ -791,7 +809,7 @@ function buildAuditorium(ctx, Z) {   // 대강당 18 × 26m · 1층 (공연 · �
   [-.6, .6].forEach(x => { B.cyl(.01, .01, 1.5, 'STEEL', x, stageH + .75, zStage - .9); B.cyl(.02, .02, .14, 'BLACK', x, stageH + 1.55, zStage - .85, { rx: -.6 }); B.cyl(.16, .16, .02, 'BLACK', x, stageH + .01, zStage - .9, { seg: 12 }); });
   [-2.6, 2.6].forEach(x => { const m = B.box(.55, .3, .4, 'BLACK', x, stageH + .15, zStage - .35, { rx: .5 }); });
   for (let k = 0; k < 14; k++) { const x = (Math.sin(k * 7.3) * .5) * 2 * hx * .7, z = zStage + 2.6 + ((k * 3.7) % 11); B.box(.21, .004, .3, 'WHITE', x, .035, z, { ry: k * 1.3 }); }
-  [-1, 1].forEach(s => B.model('korean_fire_extinguisher_01', s * (hx - .25), 0, zLobby - .6, -s * Math.PI / 2));   // 분말 소화기 (실사)
+  [-1, 1].forEach(s => extTagged(B, s * (hx - .25), zLobby - .6, -s * Math.PI / 2));   // 분말 소화기 (실사)
   B.addSwitch(1.9, B.Z.D / 2 - WALL_T - LIN - .01, Math.PI, 0, '대강당 형광등 스위치');
   // 외관 보강 (남측 현관 앞): 공연 포스터 게시함 2 · 세로 현수막 2 · 화분 4 · 벤치 2 · 바닥 안내판
   { const zf = B.Z.D / 2 + .02;

@@ -542,8 +542,12 @@ export function installRebuild({ THREE, scene, floors, world }) {
       else if (s.y < .35 && bb.max.y < y0 + .4) o.material = terr(len);   // 바닥
       else if (s.y < .35 && bb.min.y > y0 + 2.2) o.material = ceil(len);   // 천장
       else if (s.y <= 2 && s.y > .5 && Math.min(s.x, s.z) < .35 && bb.max.y < y0 + 1.6) o.material = mWain; });
-    // 녹색 걸레받이 벽: 벽마다 안쪽 면에 1.2m (예전엔 한쪽 벽에만 있었다)
     const cx = (all.min.x + all.max.x) / 2;
+    // 예전 구름다리의 얇은 마감판(징두리 · 띠)이 벽 안쪽 면과 같은 면에 붙어 있어 깜빡였다 → 벽 안쪽 면에 닿은 판은 통로 안쪽으로 5mm 띄운다
+    { const inner = walls.map(w => (w.min.x + w.max.x) / 2 < cx ? w.max.x : w.min.x), pw = new THREE.Vector3(), pl = new THREE.Vector3();
+      O.traverse(o => { if (!o.isMesh || o.isInstancedMesh || o.material === mPaint) return; bb.setFromObject(o); const s = bb.getSize(v); if (Math.min(s.x, s.z) > .35 || s.x > .35) return;
+        for (const xi of inner) { const sg = xi < cx ? 1 : -1; if (Math.abs(bb.min.x - xi) < .003 || Math.abs(bb.max.x - xi) < .003) { o.getWorldPosition(pw); pl.copy(pw); pw.x += sg * .005; o.parent.worldToLocal(pw); o.parent.worldToLocal(pl); o.position.add(pw.sub(pl)); o.updateMatrixWorld(true); break; } } }); }
+    // 녹색 걸레받이 벽: 벽마다 안쪽 면에 1.2m (예전엔 한쪽 벽에만 있었다)
     const sides = new Map(); for (const w of walls) { if (w.max.y - w.min.y < 2) continue; const k = (w.min.x + w.max.x) / 2 < cx ? 'L' : 'R', e = sides.get(k); if (!e) sides.set(k, w.clone()); else e.union(w); }   // 벽 조각이 여러 개라도 한쪽에 한 줄
     for (const w of sides.values()) { const inner = (w.min.x + w.max.x) / 2 < cx ? w.max.x + .006 : w.min.x - .006, sgn = inner > cx ? -1 : 1;
       const g = new THREE.BoxGeometry(.012, 1.2, w.max.z - w.min.z), m = new THREE.Mesh(g, mWain); m.position.set(inner + sgn * .006, y0 + .62, (w.min.z + w.max.z) / 2); group.add(m); }

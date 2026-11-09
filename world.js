@@ -4,12 +4,12 @@ import * as T from './tex.js';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { buildGuardAnnex, buildDutyRoom, ANNEX as GANX } from './guardAnnex.js?v=417';
-import { NOTES } from './story.js?v=417';
+import { buildGuardAnnex, buildDutyRoom, ANNEX as GANX } from './guardAnnex.js?v=418';
+import { NOTES } from './story.js?v=418';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=417';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=418';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -699,7 +699,7 @@ export function buildWorld(scene) {
     ts_lib2: { title: '증언 카세트 — 중앙학술정보관 사서 (2008)', spk: '대도서관 사서 정미란', fx: 'radio', minSh: 0 },
     ts_astro: { title: '증언 카세트 — 과학천문관 지도교사', spk: '천문부 지도교사 서재훈', fx: 'radio', minSh: 0 },
     ts_history: { title: '증언 카세트 — 역사관 전시 관리인', spk: '역사관 관리인 최만석', fx: 'radio', minSh: 0 },
-    ts_union: { title: '증언 카세트 — 2008 학생회장 인터뷰', spk: '2008 학생회장 한유리', fx: 'radio', minSh: 0 },
+    ts_union: { title: '증언 카세트 — 2008 서현고 학생회장 인터뷰 (민아 취재)', spk: '서현고 학생회장 한유리 (2008 · 옛 서문고 학생회 승계)', fx: 'radio', minSh: 0 },
     ts_auditor: { title: '증언 카세트 — 대강당 음향 담당 (1998)', spk: '방송부 음향 담당 이준호', fx: 'radio', minSh: 0 },
     ts_lake: { title: '증언 카세트 — 호심정 산책하던 주민', spk: '인근 주민 송경자', fx: 'radio', minSh: 0 },
     ts_pool2: { title: '증언 카세트 — 수영부 코치 (기계실 기록)', spk: '수영부 코치 강태식', fx: 'radio', minSh: 0 },

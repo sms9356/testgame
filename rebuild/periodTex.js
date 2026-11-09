@@ -143,3 +143,68 @@ export const nonSlip = () => cv(256, 32, (g, w, h) => {
   g.fillStyle = 'rgba(0,0,0,.6)'; for (let y = 9; y < h - 8; y += 4) g.fillRect(0, y, w, 1.5);
   for (let i = 0; i < 60; i++) { g.fillStyle = `rgba(200,195,180,${r() * .25})`; g.fillRect(r() * w, 6 + r() * (h - 12), 2 + r() * 8, 1); }
 });
+
+// ── 라운드 2: 교실 데코타일 · 걸레받이 · 외벽 풍화 ──
+// 같은 텍스처 · 재질을 본관 · 별관 · 시설이 함께 쓴다 (건물마다 캔버스를 다시 그리지 않게 모듈 단위 캐시)
+const SHARED = {};
+export const shared = (key, make) => SHARED[key] || (SHARED[key] = make());
+
+// PVC 데코타일 300 × 300 (2.4m 한 장 = 8 × 8장): 미색 · 회 두 톤 엇갈림 · 장마다 색차 · 칩 무늬 · 검은 줄눈 · 굽 자국 · 의자 끌린 긁힘
+export const decoTile = () => cv(1024, 1024, (g, w, h) => {
+  const r = rng(3003), n = 8, s = w / n;
+  g.fillStyle = '#4a4740'; g.fillRect(0, 0, w, h);
+  for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) {
+    const x = i * s + 1, y = j * s + 1, q = s - 2, alt = (i + j) % 2, d = (r() - .5) * 10;
+    const b = alt ? [206, 200, 186] : [188, 186, 178]; g.fillStyle = `rgb(${b[0] + d | 0},${b[1] + d | 0},${b[2] + d | 0})`; g.fillRect(x, y, q, q);
+    for (let k = 0; k < 260; k++) { const v = r() < .5 ? '120,116,106' : '235,232,222'; g.fillStyle = `rgba(${v},${.15 + r() * .3})`; g.fillRect(x + r() * q, y + r() * q, 1 + r() * 2.5, 1 + r() * 2.5); }   // 칩 무늬
+    g.strokeStyle = `rgba(110,104,92,${.12 + r() * .1})`; g.lineWidth = 1 + r() * 2; g.beginPath(); let px = x + r() * q, py = y; g.moveTo(px, py);   // 옅은 대리석 결
+    for (let k = 0; k < 6; k++) { px += (r() - .3) * q * .3; py += q / 6; g.lineTo(Math.min(x + q, Math.max(x, px)), py); } g.stroke();
+    if (r() < .12) { g.fillStyle = 'rgba(250,248,240,.18)'; g.fillRect(x, y, q, q); }   // 나중에 갈아 끼운 새 장
+    if (r() < .08) { g.fillStyle = 'rgba(40,36,30,.35)'; g.fillRect(x + (r() < .5 ? 0 : q - 3), y, 3, q); }   // 벌어진 이음
+  }
+  for (let i = 0; i < 70; i++) { g.strokeStyle = `rgba(25,22,20,${.18 + r() * .3})`; g.lineWidth = 1.5 + r() * 2.5; const x = r() * w, y = r() * h, a = r() * 6.28, L = 6 + r() * 22;   // 고무 굽 자국
+    g.beginPath(); g.arc(x, y, L, a, a + .6 + r()); g.stroke(); }
+  for (let i = 0; i < 90; i++) { g.strokeStyle = `rgba(80,74,64,${.08 + r() * .14})`; g.lineWidth = .7; const x = r() * w, y = r() * h, L = 20 + r() * 70; g.beginPath(); g.moveTo(x, y); g.lineTo(x + L, y + (r() - .5) * 8); g.stroke(); }   // 의자 끌린 긁힘
+  for (let i = 0; i < 10; i++) blob(g, r() * w, r() * h, 60 + r() * 140, 'rgba(110,98,74,.07)', 'rgba(110,98,74,0)');   // 왁스 때 얼룩
+});
+export const decoRough = () => cv(256, 256, (g, w, h) => { const r = rng(3004); g.fillStyle = '#9a9a9a'; g.fillRect(0, 0, w, h);
+  for (let i = 0; i < 26; i++) blob(g, r() * w, r() * h, 15 + r() * 40, `rgba(${r() < .5 ? '70,70,70' : '210,210,210'},.3)`, 'rgba(150,150,150,0)'); }, false);
+
+// 교실 한 칸 전체(바닥 x · z 를 0~1 로)에 덮는 닳은 동선: lanes = [[z0,z1]] 분단 사이 통로 · front = [x0,x1] 교탁 앞 띠
+//   캔버스 x = 방의 x(칠판 → 뒤), 캔버스 y = 방의 z(복도 → 창). 투명 바탕 위에 회갈색 때
+export const decoWear = (lanes, front) => cv(512, 512, (g, w, h) => {
+  const r = rng(3005);
+  const band = (x0, x1, y0, y1, a) => { for (let k = 0; k < 900; k++) { const x = x0 + r() * (x1 - x0), y = y0 + (y1 - y0) * (.5 + (r() + r() + r() - 1.5) * .45), rr = 3 + r() * 10;
+    g.fillStyle = `rgba(92,82,66,${a * (.4 + r() * .6)})`; g.beginPath(); g.ellipse(x, y, rr * 1.8, rr, 0, 0, 7); g.fill(); } };
+  lanes.forEach(([a, b]) => band(front[1] * w, w * .97, a * h, b * h, .05));
+  band(front[0] * w, front[1] * w, h * .08, h * .92, .035);   // 교탁 앞 · 칠판 앞 가로 동선
+  band(0, w, 0, h * .1, .06);   // 복도 쪽 앞 · 뒷문 동선 (가장 많이 밟힘)
+  for (let i = 0; i < 50; i++) { g.strokeStyle = `rgba(20,18,16,${.12 + r() * .2})`; g.lineWidth = 1 + r() * 1.5; const [a, b] = lanes[(r() * lanes.length) | 0] || [0, .1];   // 통로 굽 자국
+    const x = front[1] * w + r() * (1 - front[1]) * w, y = (a + r() * (b - a)) * h; g.beginPath(); g.arc(x, y, 3 + r() * 8, r() * 6, r() * 6 + 1); g.stroke(); }
+});
+
+// 외벽 빗물 자국 (창대 밑 한 장, 위 → 아래로 옅어짐): 투명 바탕 위 세로 줄
+export const rainStreak = () => cv(256, 256, (g, w, h) => {
+  const r = rng(4004);
+  for (let i = 0; i < 26; i++) { const x = r() * w, ww = 2 + r() * 12, L = h * (.35 + r() * .65), a = .06 + r() * .14, gr = g.createLinearGradient(0, 0, 0, L);
+    gr.addColorStop(0, `rgba(70,66,56,${a})`); gr.addColorStop(1, 'rgba(70,66,56,0)'); g.fillStyle = gr; g.fillRect(x, 0, ww, L); }
+  const top = g.createLinearGradient(0, 0, 0, h * .18); top.addColorStop(0, 'rgba(60,56,48,.16)'); top.addColorStop(1, 'rgba(60,56,48,0)'); g.fillStyle = top; g.fillRect(0, 0, w, h * .18);   // 창대 바로 밑 고인 때
+});
+// 건물 밑동 때 + 벽돌 백화 (높이 한 장, 가로 2m 반복): 아래 짙은 흙탕 튄 자국 · 그 위 흰 소금꽃 얼룩
+export const baseGrime = () => cv(512, 256, (g, w, h) => {
+  const r = rng(5005);
+  const gr = g.createLinearGradient(0, h, 0, 0); gr.addColorStop(0, 'rgba(48,42,32,.42)'); gr.addColorStop(.35, 'rgba(60,54,42,.14)'); gr.addColorStop(1, 'rgba(60,54,42,0)'); g.fillStyle = gr; g.fillRect(0, 0, w, h);
+  for (let i = 0; i < 1400; i++) { const y = h - Math.pow(r(), 2.2) * h * .6; g.fillStyle = `rgba(52,44,34,${.08 + r() * .2})`; g.fillRect(r() * w, y, 1 + r() * 2.5, 1 + r() * 2.5); }   // 빗물 튄 흙
+  for (let i = 0; i < 5; i++) { const x = r() * w, y = h * (.45 + r() * .35), rr = 10 + r() * 30;   // 백화 (흰 소금꽃)
+    g.save(); g.translate(x, y); g.scale(1.6, 1); blob(g, 0, 0, rr, 'rgba(236,234,226,.16)', 'rgba(236,234,226,0)'); g.restore();
+    for (let k = 0; k < 40; k++) { g.fillStyle = `rgba(245,244,238,${.08 + r() * .16})`; g.fillRect(x + (r() - .5) * rr * 2.4, y + (r() - .5) * rr, 1 + r() * 2, 1 + r() * 2); } }
+});
+// 공용 재질 (투명 덧칠 · 데코타일 · 걸레받이)
+const decal = map => new THREE.MeshStandardMaterial({ map, transparent: true, depthWrite: false, roughness: .95, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
+export const MAT = {
+  deco: () => shared('m_deco', () => new THREE.MeshStandardMaterial({ map: decoTile(), roughnessMap: decoRough(), roughness: .62, metalness: 0 })),
+  skirt: () => shared('m_skirt', () => new THREE.MeshStandardMaterial({ color: 0x34403a, roughness: .5, metalness: .05 })),   // 진회녹색 PVC 걸레받이 (반광)
+  streak: () => shared('m_streak', () => decal(rainStreak())),
+  grime: () => shared('m_grime', () => decal(baseGrime())),
+  wear: (lanes, front) => { const L = lanes.map(q => q.map(v => +v.toFixed(3))), F = front.map(v => +v.toFixed(3)); return shared('m_wear' + JSON.stringify([L, F]), () => decal(decoWear(L, F))); },
+};

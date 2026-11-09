@@ -1080,7 +1080,7 @@ export function buildWorld(scene) {
     add(mWoodDark, 1.44, .28, .03, cx - 1.26, 2.72, zN + .04);
     plane(cur.interior, new THREE.MeshBasicMaterial({ map: T.makeSign('급훈 : 미래를 여는 창의인 · 성실과 책임', '#162c22', '#f2e8c8', 22) }), 1.36, .22, cx - 1.26, 2.86, zN + .06);
     add(mWoodDark, 1.44, .28, .03, cx + 1.26, 2.72, zN + .04);
-    const rightSignTxt = cur.f === 2 ? ('2009 대학수학능력시험 D-30  |  제 ' + name + ' 반') : ('2008학년도 제 ' + name + ' 학급 (정원 35명)');
+    const rightSignTxt = cur.f === 2 ? ('2009학년도 대학수학능력시험 D-34  |  제 ' + name + ' 반') : ('2008학년도 제 ' + name + ' 학급 (정원 35명)');
     plane(cur.interior, new THREE.MeshBasicMaterial({ map: T.makeSign(rightSignTxt, '#1e242c', '#e8f0f8', 21) }), 1.36, .22, cx + 1.26, 2.86, zN + .06);
     [-2.22, 2.22].forEach(sx => {
       add(mACWhite, .22, .30, .14, cx + sx, 2.72, zN + .08);
@@ -1216,7 +1216,7 @@ export function buildWorld(scene) {
     for (let k = 0; k < 3; k++) shelf3D(cx + (k - 1) * 1.45, zN + .26, 0, 1.25, 2.15, .42, 6, .85);
     // 동쪽 벽면: 대형 『1998학년도 2학기 주간 학사일정 및 교직원 담당 현황판』 칠판 & 달력
     add(mWoodDark, .05, 1.28, 3.2, cx + 3.82, 1.15, -5.6);
-    plane(cur.interior, new THREE.MeshBasicMaterial({ map: T.makeSign('1998학년도 2학기 주간 학사일정표  |  10.12 방송부 30주년 기념방송  |  교무부 · 학생부 · 연구부', '#162c22', '#f2ead4', 20) }), 3.08, 1.16, cx + 3.79, 1.79, -5.6, -Math.PI / 2);
+    plane(cur.interior, new THREE.MeshBasicMaterial({ map: T.makeSign('2008학년도 2학기 주간 학사일정표  |  10.15 학예제 · 11.13 수능  |  교무부 · 학생부 · 연구부 (NEIS)', '#162c22', '#f2ead4', 20) }), 3.08, 1.16, cx + 3.79, 1.79, -5.6, -Math.PI / 2);
     plane(cur.interior, new THREE.MeshStandardMaterial({ map: T.makeCalendar(), roughness: .9 }), .52, .65, cx + 3.82, 1.78, -8.1, -Math.PI / 2);
 
     // ② 북쪽 중앙 상석: 교감 · 교무부장 헤드 데스크 (z = -7.85, 남쪽을 바라봄)
@@ -4280,7 +4280,7 @@ export function buildWorld(scene) {
     tbl(mWoodDark, 1.6, .75, .8, 22.2, 0, 14.2, { col: true }); deskChair(22.2, 13.3, 0); crt(21.8, .76, 14.1);
     tbl(mWoodDark, 1.6, .75, .8, 25.4, 0, 14.2, { col: true }); deskChair(25.4, 13.3, 0);
     trophyCase(20.6, 16.5, Math.PI / 2, 1.8);
-    plane(F.interior, new THREE.MeshStandardMaterial({ map: T.makeSign('제32회 체육대회 결승 대진표  |  계주 마지막 주자: 3-2 윤하늘', '#f0eee6', '#1e2830', 20), roughness: .4 }), 2.8, 1.2, 24.0, 1.75, gz0 + t + .03, 0);
+    plane(F.interior, new THREE.MeshStandardMaterial({ map: T.makeSign('[빛바랜 액자] 1998 제32회 체육대회 결승 대진표  |  계주 마지막 주자: 3-2 윤하늘', '#f0eee6', '#1e2830', 20), roughness: .4 }), 2.8, 1.2, 24.0, 1.75, gz0 + t + .03, 0);
     for (let k = 0; k < 4; k++) add(mLockerT, .62, 1.85, .52, 21.2 + k * .66, 0, 19.45, { col: true, ry: Math.PI });
     // 체육용구 보관실 가구: 대형 용구 선반 2열 · 뜀틀(Vaulting Box) · 농구공 바구니 카트 · 줄다리기 밧줄 · 평균대
     shelf3D(20.6, 22.8, Math.PI / 2, 2.8, 2.1, .55, 4, 0);

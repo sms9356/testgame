@@ -3929,7 +3929,8 @@ export function buildWorld(scene) {
     shelf3D(cx - 3.6, -6.4, Math.PI / 2, 3.2, 2.0, .42, 5, .7);
     add(mFabric, 2.0, .45, .8, cx + 2.4, 0, -3.0, { col: true }); add(mFabric, 2.0, .5, .2, cx + 2.4, .45, -2.7);
     [[cx + 3.3, -9.2], [cx - 3.3, -2.6]].forEach(([x, z]) => cyl(S(null, { color: 0x2a4a22, roughness: 1 }), .22, .7, x, 0, z));
-    addNote('n14', cx, .77, -6.4); addMedkit(cx + 3.2, 0, -8.6); papers(cx, -8, -2.4, 9);
+    // n14(방송부 회의록)는 q4a(방송부 담력 체험 명단)와 같은 내용이라 배치하지 않는다 — id · 더빙은 남겨 둠
+    addMedkit(cx + 3.2, 0, -8.6); papers(cx, -8, -2.4, 9);
   }
   // 기술·가정실 (102) — 사용자 제공 'Room102 Actual3D' 팩의 실제 GLB (assets/models/th102) + 팩의 공유 PBR 텍스처 14종.
   // 팩 배치표(문 = y 0 · 뒷벽 = y 6.5m, 8.4m 폭)를 게임 방(문 z -1.75 · 뒷벽 z -9.6, 폭 8m)으로 비례 변환. 문 · 명패 · 형광등 · 창 · 벽/바닥/천장 모듈은

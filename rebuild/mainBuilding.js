@@ -38,6 +38,17 @@ export function grafMaterial(k) { if (grafMat[k]) return grafMat[k]; const c = d
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4;
   return (grafMat[k] = new THREE.MeshStandardMaterial({ map: t, transparent: true, roughness: .8, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -4 })); }
 let grafN = 0;
+// 교실 뒷벽 게시물 (2008년 10월, 투명 판 한 장 · 모든 교실 공유): 10월 급식 식단표 · 청소 당번표 · 수능 D-day (2009학년도 수능 11.13)
+const backBoardDraw = (g, w, h) => { g.clearRect(0, 0, w, h);
+  const paper = (x, y, pw, ph, rot, bg, title, tc, lines, fs = 17) => { g.save(); g.translate(x + pw / 2, y + ph / 2); g.rotate(rot); g.translate(-pw / 2, -ph / 2);
+    g.fillStyle = 'rgba(0,0,0,.25)'; g.fillRect(4, 5, pw, ph); g.fillStyle = bg; g.fillRect(0, 0, pw, ph); g.fillStyle = tc; g.font = 'bold 24px sans-serif'; g.textAlign = 'center'; g.fillText(title, pw / 2, 32);
+    g.textAlign = 'left'; g.fillStyle = '#222'; g.font = `${fs}px sans-serif`; lines.forEach((t, i) => g.fillText(t, 14, 62 + i * (fs + 7)));
+    g.fillStyle = '#c82020'; g.beginPath(); g.arc(pw / 2, 8, 6, 0, 7); g.fill(); g.restore(); };
+  paper(16, 18, 330, 320, -.015, '#fbf6e2', '10월 급식 식단표', '#2a5a2a', ['6(월) 쌀밥 · 된장국 · 불고기', '7(화) 잡곡밥 · 김치찌개 · 계란말이', '8(수) 카레라이스 · 깍두기 · 요구르트', '9(목) 짜장덮밥 · 단무지 · 귤', '10(금) 비빔밥 · 미역국 · 떡', '13(월) 쌀밥 · 육개장 · 제육볶음', '14(화) 김치볶음밥 · 어묵국', '15(수) 스파게티 · 마늘빵 · 우유', '— 영양사 —'], 16);
+  paper(366, 30, 300, 300, .02, '#eef4fb', '청소 당번표', '#1a3a7a', ['교실 바닥 : 1 ~ 6번', '칠판 · 분필 : 7 ~ 9번', '복도 · 창틀 : 10 ~ 15번', '화장실 : 16 ~ 20번', '분리수거 : 21 ~ 24번', '※ 매주 월요일 교대', '※ 대걸레는 빨아서 널 것'], 17);
+  g.save(); g.translate(690, 40); g.rotate(-.01); g.fillStyle = 'rgba(0,0,0,.25)'; g.fillRect(4, 5, 250, 270); g.fillStyle = '#fff'; g.fillRect(0, 0, 250, 270);
+  g.fillStyle = '#b01818'; g.font = 'bold 30px sans-serif'; g.textAlign = 'center'; g.fillText('2009학년도 수능', 125, 46); g.font = 'bold 96px sans-serif'; g.fillText('D-34', 125, 160);
+  g.fillStyle = '#222'; g.font = '18px sans-serif'; g.fillText('2008. 11. 13 (목)', 125, 200); g.fillText('지금 자면 꿈을 꾸지만', 125, 232); g.fillText('지금 공부하면 꿈을 이룬다', 125, 256); g.restore(); };
 const canvasPlane = (w, h, cw, ch, draw, key, transparent = false) => { let t = key && decorTex.get(key);
   if (!t) { const c = document.createElement('canvas'); c.width = cw; c.height = ch; draw(c.getContext('2d'), cw, ch); t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; if (key) decorTex.set(key, t); }
   return new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshStandardMaterial({ map: t, roughness: .85, transparent, polygonOffset: true, polygonOffsetFactor: -2 })); };
@@ -731,6 +742,9 @@ export function buildMainBuilding(opt = {}) {
     walk.push({ x1, x2: x1 + 1.2, z1: z1 + 1.2, z2: z2 - 1.2, h: () => y0 + .2, f });
     { const g = new THREE.BoxGeometry(.03, 1.2, 4.8); g.translate(x1 + .025, y0 + 1.55, (z1 + z2) / 2); G('chalk', g); }   // 기본 상자 UV: 칠판 면 한 장에 텍스처 1장 (반복 무늬 없이)
     box('tray', x1 + .04, x1 + .12, y0 + .9, y0 + .94, (z1 + z2) / 2 - 2.4, (z1 + z2) / 2 + 2.4);
+    { const zc = (z1 + z2) / 2, yt = y0 + .94;   // 분필 받침 위: 칠판지우개 2개(펠트 + 나무 등) · 분필 종이갑 (흰 · 색분필)
+      [zc - 1.6, zc + .9].forEach(z => { box('rubber', x1 + .05, x1 + .11, yt, yt + .012, z, z + .14); box('wood', x1 + .055, x1 + .105, yt + .012, yt + .04, z + .005, z + .135); });
+      box('white', x1 + .05, x1 + .11, yt, yt + .06, zc - .9, zc - .78); box('recycY', x1 + .05, x1 + .11, yt, yt + .06, zc - .76, zc - .66); }
     if (type === 'class') classDecor(name, x1, (z1 + z2) / 2, y0);   // 칠판 필기(한쪽) · 시간표 · 교훈 · 태극기 액자
     // 교탁
     lectern(x1 + 1.8, (z1 + z2) / 2, y0);
@@ -756,6 +770,7 @@ export function buildMainBuilding(opt = {}) {
     // 뒤쪽 사물함 (36칸, 높이 1.2) + 게시판
     lockerWall(x2 - .02, z1 + .3, z2 - .3, y0, 1.2);
     corkBoardZ(x2 - .02, -1, z1 + 1, z2 - 1, y0 + 1.4, y0 + 2.4);   // 뒷벽 학급 게시판
+    if (type === 'class') { const bp = canvasPlane(2.4, .9, 960, 360, backBoardDraw, 'backBoard08', true); bp.position.set(x2 - .052, y0 + 1.9, z1 + 2.4); bp.rotation.y = -Math.PI / 2; root.add(bp); }   // 2008 학급 게시물: 급식 식단표 · 청소 당번표 · 수능 D-day
     // 3학년 2반(윤하늘의 반): 교탁 위 담임 수첩 · 교환일기 · 개근 스티커판 · 첫 번째 메모
     if (name === '3학년 2반' && !opt.noClues) { clueNote('n27', x1 + 1.8, y0 + 1.0, (z1 + z2) / 2, f, .2); clueNote('n28', x1 + 3.0, y0 + .74, zz0 + .36, f, -.3); clueNote('q1a', x2 - .03 - .05, y0 + 1.3, z1 + 2.0, f); clueNote('n29', x1 + 3.0, y0 + .74, zz0 + 1.08, f, .5); }
     // 태극기 액자 · 스피커 · 시계
@@ -1553,7 +1568,10 @@ export function buildMainBuilding(opt = {}) {
       finishZ(r.x2 - S.wall / 2, -1, 0, zS, y0); finishX(lx, r.x2, zS, -1, y0, [{ a: r.x1 + 2.7, b: r.x2 - 2.7, y1: 0, y2: 2.6 }]);
       box('terr', lx + .1, r.x2 - .1, y0, y0 + .02, .1, zS);
       for (const sx of [-1, 1]) { const x0 = sx < 0 ? lx + S.wall / 2 + .1 : r.x2 - .55;   // 신발장 (양 벽)
-        for (let k = 0; k < 3; k++) { const z = 1.2 + k * 1.3; box('lockerM', x0, x0 + .4, y0, y0 + 1.6, z, z + 1.2, { solid: true }); for (let j = 1; j < 5; j++) box('alu', x0 - .005, x0 + .405, y0 + j * .32, y0 + j * .32 + .015, z, z + 1.2); } }
+        for (let k = 0; k < 3; k++) { const z = 1.2 + k * 1.3; box('lockerM', x0, x0 + .4, y0, y0 + 1.6, z, z + 1.2, { solid: true }); for (let j = 1; j < 5; j++) box('alu', x0 - .005, x0 + .405, y0 + j * .32, y0 + j * .32 + .015, z, z + 1.2);
+          const fx = sx < 0 ? x0 + .4 : x0, d = sx < 0 ? 1 : -1;   // 칸마다 실내화 (흰 고무 + 파란 띠, 앞코가 칸 밖으로 살짝) — 몇 칸은 비었다
+          for (let j = 0; j < 5; j++) for (let q = 0; q < 5; q++) { if (((k * 7 + j * 3 + q * 5 + (sx > 0 ? 2 : 0)) % 6) === 0) continue; const zz = z + .06 + q * .23, yy = y0 + j * .32 + .015, xa = Math.min(fx - d * .02, fx + d * .025), xb = Math.max(fx - d * .02, fx + d * .025);
+            [0, .1].forEach(o => { box('white', xa, xb, yy, yy + .05, zz + o, zz + o + .085); box('recycB', xa, xb, yy + .05, yy + .065, zz + o + .01, zz + o + .075); }); } } }
       box('steelG', r.x1 + .3, r.x1 + 1.1, y0 + .6, y0 + 2.0, zN + .02, zN + .25, { solid: true });
       props.push({ kind: 'panel', label: `${f + 1}층 분전반`, x: r.x1 + .7, y: y0 + 1.3, z: zN + .3, floor: f });
       props.push({ kind: 'room', label: '중앙 현관', x1: r.x1 + OFFICE_EXT, x2: r.x2, z1: 0, z2: zS, floor: f });

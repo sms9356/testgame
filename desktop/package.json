@@ -2,20 +2,30 @@
   "name": "haegyo-desktop",
   "productName": "서문고 - 잊혀진 시간",
   "version": "1.1.0",
-  "description": "서문고 — 잊혀진 시간 (데스크톱 테스트판)",
+  "description": "서문고 — 잊혀진 시간 (데스크톱 / Steam 판)",
   "main": "main.cjs",
   "author": "sms9356",
   "license": "MIT",
+  "scripts": {
+    "start": "electron . --dev",
+    "build": "electron-builder --win --publish never",
+    "build:steam": "electron-builder --win dir --publish never"
+  },
   "devDependencies": {
     "electron": "33.2.1",
     "electron-builder": "25.1.8"
+  },
+  "optionalDependencies": {
+    "steamworks.js": "0.4.0"
   },
   "build": {
     "appId": "com.sms9356.haegyo",
     "productName": "Haegyo",
     "asar": false,
-    "files": ["main.cjs", "icon.png", "game/**/*"],
-    "win": { "target": [{ "target": "portable", "arch": ["x64"] }, { "target": "zip", "arch": ["x64"] }], "icon": "icon.ico" },
+    "files": ["main.cjs", "preload.cjs", "icon.png", "steam/**/*", "game/**/*", "node_modules/steamworks.js/**/*"],
+    "extraFiles": [{ "from": "game/vendor/fonts/OFL.txt", "to": "licenses/fonts-OFL.txt" }, { "from": "game/vendor/THREE_LICENSE", "to": "licenses/three.js-MIT.txt" }],
+    "win": { "target": [{ "target": "dir", "arch": ["x64"] }, { "target": "portable", "arch": ["x64"] }, { "target": "zip", "arch": ["x64"] }], "icon": "icon.ico" },
+    "linux": { "target": [{ "target": "dir", "arch": ["x64"] }], "category": "Game" },
     "portable": { "artifactName": "Haegyo-${version}-portable.exe" },
     "artifactName": "Haegyo-${version}-win-x64.${ext}",
     "directories": { "output": "dist" }

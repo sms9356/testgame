@@ -1,7 +1,7 @@
 // 경비동 별관: 정문 안쪽 기존 경비실 북쪽 벽에 바로 붙인 관제실 + 열쇠보관실.
 // 중앙 보도(서쪽)로 출입문이 나 있고, 남쪽 벽은 경비실 북쪽 벽과 맞닿는다.
 import * as THREE from './vendor/three.module.js';
-import { collectRefs, dedupeMaterials, batchStaticChildren } from './rebuild/staticBatch.js?v=426';
+import { collectRefs, dedupeMaterials, batchStaticChildren } from './rebuild/staticBatch.js?v=427';
 const KEEP = new WeakMap();   // 관제실 반환값(화면 · 열쇠 · 보관함 문 …) — 근무실 정리 때도 건드리지 않는다
 
 export const ANNEX = Object.freeze({ x1: 4.8, x2: 11.4, z1: 59.6, z2: 64.95, h: 2.8, t: .15, xp: 8.0, doorZ1: 61.2, doorZ2: 62.2, innerZ1: 60.3, innerZ2: 61.3 });

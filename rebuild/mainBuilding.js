@@ -4,9 +4,9 @@
 //   전기(분전반 · 2등용 형광등 · 콘센트 · 스위치) · 소방(소화전함 · 소화기 · 감지기 · 유도등 · 방화문) · 수도(세면대 · 배관)
 import * as THREE from '../vendor/three.module.js';
 import { mergeGeometries } from '../vendor/addons/utils/BufferGeometryUtils.js';
-import { makeFlag } from '../tex.js?v=426';
-import * as PT from './periodTex.js?v=426';
-import { collectRefs, dedupeMaterials, batchStaticChildren } from './staticBatch.js?v=426';
+import { makeFlag } from '../tex.js?v=427';
+import * as PT from './periodTex.js?v=427';
+import { collectRefs, dedupeMaterials, batchStaticChildren } from './staticBatch.js?v=427';
 // 교실 앞면 꾸밈 공용 (반 이름 · 텍스처 캐시)
 const NAMES = ['김민수', '이서연', '박지훈', '최유진', '정하늘', '강도윤', '조수아', '윤재현', '장예린', '임태호', '한소영', '오준서', '서지민', '신동혁', '권나연', '황민재', '안채원', '송우진', '전다은', '홍석진'];
 let flagTex = null; const decorTex = new Map();
@@ -115,7 +115,7 @@ const TEX = {
     for (let ty = 0; ty < n; ty++) for (let tx = 0; tx < n; tx++) { const x0 = tx * ts, y0 = ty * ts, v = 222 + (rnd() * 14 - 7) | 0, fresh = rnd() < .08;
       g.fillStyle = fresh ? '#f0eee6' : `rgb(${v},${v - 3},${v - 10})`; g.fillRect(x0, y0, ts, ts);
       for (let i = 0; i < 380; i++) { g.fillStyle = `rgba(90,85,75,${.12 + rnd() * .25})`; g.fillRect(x0 + rnd() * ts, y0 + rnd() * ts, 1.5, 1.5); }
-      if (!fresh && rnd() < .22) { const cx = x0 + ts * (.3 + rnd() * .4), cy = y0 + ts * (.3 + rnd() * .4), r = ts * (.2 + rnd() * .3), gr = g.createRadialGradient(cx, cy, r * .5, cx, cy, r); gr.addColorStop(0, 'rgba(170,140,90,.18)'); gr.addColorStop(.85, 'rgba(150,115,60,.35)'); gr.addColorStop(1, 'rgba(150,115,60,0)'); g.fillStyle = gr; g.beginPath(); g.arc(cx, cy, r, 0, 7); g.fill(); }   // 물 얼룩 (가장자리가 진한 테)
+      if (!fresh && rnd() < .08) { const cx = x0 + ts * (.3 + rnd() * .4), cy = y0 + ts * (.3 + rnd() * .4), r = ts * (.2 + rnd() * .3), gr = g.createRadialGradient(cx, cy, r * .5, cx, cy, r); gr.addColorStop(0, 'rgba(170,140,90,.09)'); gr.addColorStop(.85, 'rgba(150,115,60,.17)'); gr.addColorStop(1, 'rgba(150,115,60,0)'); g.fillStyle = gr; g.beginPath(); g.arc(cx, cy, r, 0, 7); g.fill(); }   // 물 얼룩 (가장자리가 진한 테)
       if (rnd() < .15) { const gr = g.createLinearGradient(x0, y0, x0 + ts, y0 + ts); gr.addColorStop(0, 'rgba(0,0,0,0)'); gr.addColorStop(.5, 'rgba(0,0,0,.08)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(x0, y0, ts, ts); }   // 처진 장 그늘
       g.fillStyle = '#b8b4a8'; g.fillRect(x0, y0, ts, 3); g.fillRect(x0, y0, 3, ts); }   // T-바 틀
   }),

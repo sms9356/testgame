@@ -54,6 +54,10 @@ export function installCampusGrounds({ scene, world, floors, footprints = [] }) 
       o.material = dirt; n++; }); info.track = n; }
 
   // ── 2) 외곽 담장: 붉은 벽돌 + 위에 철망 (정문 좌우 남쪽 담) ──
+  // 정문 서쪽 담(-114.5 ~ -4.5)의 충돌 상자는 중심점(-59.5, 70)이 제2주차장 정리 영역 안이라 시설 재건축 때 함께 지워졌다
+  //   → 담 메시는 그대로라 플레이어 · 카메라가 담을 통과해 거리로 나갔다. 빠진 구간만 다시 세운다 (facKeep: 이후 정리에도 남는다)
+  { const has = C.some(c => !c.off && c.x1 != null && c.x1 < -40 && c.x2 > -20 && c.z1 < 70 && c.z2 > 70);
+    if (!has) { const r = { x1: -114.5, x2: -4.5, z1: 69.75, z2: 70.25, facKeep: true, grounds08: true }; C.push(r); (F0.walls || (F0.walls = [])).push(r); info.westWallCol = true; } }
   { let wallMat = null; scene.traverse(o => { if (!wallMat && o.isMesh && o.material && o.material.bumpScale === .015 && o.material.map) wallMat = o.material; });
     if (wallMat) { const t = brickTex(); t.wrapS = t.wrapT = THREE.RepeatWrapping; wallMat.map = t; wallMat.bumpMap = t; wallMat.bumpScale = .01; wallMat.color.set(0xffffff); wallMat.needsUpdate = true; info.brick = true; }
     // 철망: 담 위 0.9m · 2.5m 마다 ㄱ자 지주 (한 벌) + 마름모 철망 (알파 텍스처 한 장)
@@ -155,7 +159,9 @@ export function installCampusGrounds({ scene, world, floors, footprints = [] }) 
       const im = new THREE.InstancedMesh(g, m, L.length); im.castShadow = shadow; im.receiveShadow = true;
       L.forEach(([x, z], i) => { const s = .85 + rnd() * .35; Q.setFromAxisAngle(Yv, rnd() * 6.28); P.set(x, 0, z); Sc.set(s, s, s); M.compose(P, Q, Sc); im.setMatrixAt(i, M); if (color) im.setColorAt(i, cc.setHSL(color[0] + rnd() * color[1], color[2], color[3] + rnd() * .08)); });
       im.computeBoundingSphere(); root.add(im); };
-    inst(trunkG, S(0x4a3c30, .95), ginkgo, true); inst(crown, S(0xe8b828, .85, 0, { flatShading: true }), ginkgo, true);
+    // 잎 덩어리: 달빛(푸른 방향광 · 반구광)만 받으면 노랑의 파랑 성분이 없어 보랏빛 회색으로 죽는다 → 약한 주황 자체광으로 10월 은행잎 색을 지킨다
+    const mCrown = S(0xf0b020, .9, 0, { flatShading: true, emissive: 0xa86a10, emissiveIntensity: .42 }); mCrown.userData.noDetail = true; mCrown.name = 'ginkgo-crown-2008';
+    inst(trunkG, S(0x4a3c30, .95), ginkgo, true); inst(crown, mCrown, ginkgo, true);
     inst(juniper, S(0x1f3a24, .9, 0, { flatShading: true }), jun, true);
     // 낙엽: 은행잎 · 마른 잎 — 나무 밑에 많이, 인도 위로도 조금 날린다 (평평한 작은 판 한 벌)
     const leafG = new THREE.PlaneGeometry(.11, .09).rotateX(-Math.PI / 2); const leaves = [];
@@ -165,6 +171,17 @@ export function installCampusGrounds({ scene, world, floors, footprints = [] }) 
       leaves.forEach(([x, z, g], i) => { Q.setFromAxisAngle(Yv, rnd() * 6.28); P.set(x, .02 + rnd() * .006, z); const s = .7 + rnd() * .7; Sc.set(s, 1, s); M.compose(P, Q, Sc); im.setMatrixAt(i, M);
         im.setColorAt(i, g && rnd() < .8 ? cc.setHSL(.12 + rnd() * .03, .78, .45 + rnd() * .1) : cc.setHSL(.07 + rnd() * .04, .5, .22 + rnd() * .1)); });
       im.computeBoundingSphere(); root.add(im); }
+    // 원래 캠퍼스 나무(world: 120그루 한 벌)의 수관 색 — 정문 옆 벚나무가 10월에 분홍 꽃빛(H .9~.95)이라 안개 속에서 보랏빛 회색으로 보였다
+    //   → 벚나무는 붉은 단풍, 나머지는 은행 · 느티 가을빛(호박색 · 마른 올리브)으로. 개체 색만 바꾼다 (형상 · 충돌 그대로)
+    { let n = 0; const hc = { h: 0, s: 0, l: 0 }; scene.traverse(o => { if (!o.isInstancedMesh || !o.instanceColor || o.parent === root || o.count < 60 || o.count > 200 || !o.material || !o.material.flatShading) return;
+        if (!o.geometry.boundingBox) o.geometry.computeBoundingBox(); if (o.geometry.boundingBox.max.y < 5.5) return;
+        for (let i = 0; i < o.count; i++) { o.getColorAt(i, cc); cc.getHSL(hc);
+          if (hc.h > .8) cc.setHSL(.03 + rnd() * .04, .62, .26 + rnd() * .08);                       // 벚나무 단풍
+          else if (rnd() < .4) cc.setHSL(.10 + rnd() * .03, .6, .2 + rnd() * .08);                  // 은행 · 느티 노란 잎
+          else cc.setHSL(.13 + rnd() * .07, .38, .09 + rnd() * .06);                                // 마른 올리브 (밤 실루엣)
+          o.setColorAt(i, cc); }
+        o.instanceColor.needsUpdate = true; if (o.material.emissive) { o.material.emissive.set(0x3a2208); o.material.emissiveIntensity = .22; } n++; });
+      info.autumnCrowns = n; }
     info.ginkgo = ginkgo.length; info.juniper = jun.length; info.leaves = leaves.length; }
 
   OUT.add(root); window.__grounds = info; return info;

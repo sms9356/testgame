@@ -4,6 +4,8 @@
 // 2) 거리 컬링: 안개 너머(실내 ~24m)의 소품 · 가구는 그리지 않는다 (visible 은 건드리지 않고 레이어만 바꾼다 — 게임 로직과 충돌 없음).
 //    인스턴스 가구는 가까운 인스턴스만 앞으로 모아 count 를 줄인다.
 // 3) 적응형: 프레임이 무거우면 컬링 거리를 줄이고, 여유가 생기면 다시 늘린다.
+import { perfMark } from './perfProfiler.js?v=426';
+import { whenIdle } from './idleTasks.js?v=426';
 const POOL = 6, HIDE = 7;
 let C = null;
 
@@ -21,6 +23,8 @@ function scanLights() {
   const seen = new Set(C.src); C.src = C.src.filter(o => o.parent);
   C.scene.traverse(o => { if (o.isPointLight && !o.userData.perfPool) { if (o.layers.test(C.camera.layers)) { o.layers.disable(0); o.layers.enable(HIDE); } if (!seen.has(o)) C.src.push(o); } });
 }
+const rebuildJob = () => { if (!C) return; const t1 = performance.now(); rebuild(); C.rebuildMs = Math.round(performance.now() - t1); if (typeof window !== 'undefined') (window.__perfRb ||= []).push(C.rebuildMs); };
+const scanJob = () => { if (C) scanLights(); };
 function rebuild() {
   const { scene, floors, world } = C;
   // 점조명 (풀 제외) — 카메라 레이어에서 빼 조명 개수 계산에 들어가지 않게
@@ -94,18 +98,19 @@ function lightStep() {
 export function perfTick(dt, indoors) {
   if (!C) return;
   C.indoors = !!indoors; C.now = performance.now();
-  C.lsT = (C.lsT || 0) + dt; if (C.lsT > .08) { C.lsT = 0; lightStep(); }   // 조명 고르기는 초당 12번이면 충분
+  C.lsT = (C.lsT || 0) + dt; if (C.lsT > .08) { C.lsT = 0; perfMark('L.pre'); lightStep(); perfMark('L.lightStep'); }   // 조명 고르기는 초당 12번이면 충분
   const ms = Math.min(250, dt * 1000); C.avg += (ms - C.avg) * .05;
   C.t += dt; C.rebuildT += dt;
   // 늦게 불러오는 소품 GLB(교실 책상 · 의자 인스턴스 등)도 컬링에 넣는다 — 실제 시간 기준: 예전엔 게임 시간(dt 상한) 기준이라
   //   프레임이 느린 PC 에서는 등록이 한없이 늦어져 책상 · 의자 수천 개(1,600만 삼각형)를 계속 그리며 더 느려지는 악순환이었다
   C.t0 ||= C.now; C.rbN ||= 0; const RB_AT = [3, 8, 15, 30, 60, 120, 240];
-  if (C.rbN < RB_AT.length && C.now - C.t0 > RB_AT[C.rbN] * 1000) { C.rbN++; const t1 = performance.now(); rebuild(); C.rebuildMs = Math.round(performance.now() - t1); (window.__perfRb ||= []).push(C.rebuildMs); }
-  C.lightT = (C.lightT || 0) + dt; if (C.lightT > 6) { C.lightT = 0; scanLights(); }   // 씬 전체 순회 — 새 조명은 드물게만 생긴다
+  //   씬 전체를 훑는 일(수~수십 ms)이라 걷는 도중이 아니라 멈춰 섰을 때 돌린다 (idleTasks: 계속 움직이면 최대 12초 뒤)
+  if (C.rbN < RB_AT.length && C.now - C.t0 > RB_AT[C.rbN] * 1000) { C.rbN++; whenIdle(rebuildJob, 12000); }
+  C.lightT = (C.lightT || 0) + dt; if (C.lightT > 6) { C.lightT = 0; whenIdle(scanJob, 5000); }   // 씬 전체 순회 — 새 조명은 드물게만 생긴다
   if (!C.cullAt || C.now - C.cullAt > 250) { C.cullAt = C.now; C.t = 0;
     const t0 = performance.now();
     if (C.avg > 45) C.R = Math.max(14, C.R - 1); else if (C.avg < 24) C.R = Math.min(30, C.R + .5);
-    cullStep(); C.cullMs = Math.round(performance.now() - t0);
+    cullStep(); perfMark('L.cullStep'); C.cullMs = Math.round(performance.now() - t0);
   }
 }
 // 다른 모듈(예전 건물 정리)이 인스턴스를 걷어 낼 때: 컬링이 들고 있는 원본 행렬에도 반영해야 다시 살아나지 않는다

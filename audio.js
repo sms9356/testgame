@@ -1,5 +1,5 @@
 // WebAudio 사운드 엔진 — 합성 효과음 + 공간 음향(HRTF) + 구역별 잔향/환경음 + 음악 + 음성(더빙) 재생
-let revSlots = [], revCur = 0, spaceKey = '';
+let revSlots = [], spaceKey = '';
 let ac = null, master, comp, bus = {}, rev, revSend, noiseBuf, proxGain, proxFilter;
 const ok = () => ac && ac.state !== 'closed';
 const VOL = { master: .9, sfx: 1, voice: 1, amb: .8, music: .6 };
@@ -36,7 +36,8 @@ export function initAudio() {
   rev = ac.createConvolver(); rev.buffer = makeIR(2.6, 3.2);
   revSend = ac.createGain(); revSend.gain.value = .25;
   // 공간별 잔향: 두 슬롯(컨볼버) 사이 교차 페이드 — 플레이어가 있는 곳(복도·교실·화장실·계단·바깥)에 맞춘 합성 IR
-  revSlots = [rev, ac.createConvolver()].map((c, i) => { const g = ac.createGain(); g.gain.value = i ? 0 : 1; revSend.connect(g); g.connect(c); c.connect(bus.sfx); return { c, g, key: i ? '' : 'default' }; });
+  revSlots = [rev].map(c => { const g = ac.createGain(); g.gain.value = 1; revSend.connect(g); g.connect(c); c.connect(bus.sfx); return { c, g, key: 'default' }; });
+  prewarmSpaces();
   // 지속 저주파 드론 제거: 대사와 필요한 효과음은 별도 버스로 유지.
   ['school-bell', 'class-chime', 'pa-chime'].forEach(name => loadVoice(`assets/sfx/${name}.mp3`).then(b => { if (b) schoolSamples.set(name, b); }));
   // 실제 녹음 효과음 (ElevenLabs 생성): 발소리 3종 · 문 · 사물함 · 철문 · 종이 · 열쇠 · 줍기 · 물방울 · 물튀김 — 없으면 합성음으로
@@ -204,17 +205,28 @@ function makeSpaceIR(k) {
   }
   return (irCache[k] = b);
 }
+// 끊김 방지: 예전엔 공간이 바뀔 때마다(복도 → 교실 → 계단 …) 그 자리에서 IR 을 합성하고(3초 스테레오 = 26만 샘플 난수) 컨볼버에 넣어(FFT 분할)
+//   한 프레임이 30~120ms 멎었다. 이제 공간마다 컨볼버를 하나씩 미리 만들어 두고(오디오 시작 뒤 한가할 때 하나씩) 전환은 게인 교차 페이드만 한다.
+const revNodes = {};
+function revNode(k) {
+  let n = revNodes[k]; if (n) return n;
+  const c = ac.createConvolver(); c.buffer = makeSpaceIR(k); const g = ac.createGain(); g.gain.value = 0; g.connect(c); c.connect(bus.sfx);
+  return (revNodes[k] = { c, g, linked: false });
+}
+function prewarmSpaces() {
+  const keys = Object.keys(SPACES); let i = 0;
+  const idle = window.requestIdleCallback ? f => window.requestIdleCallback(f, { timeout: 1500 }) : f => setTimeout(f, 300);
+  const next = () => { while (i < keys.length && revNodes[keys[i]]) i++; if (i >= keys.length || !ac) return; try { revNode(keys[i++]); } catch (e) { return; } setTimeout(() => idle(next), 250); };
+  setTimeout(() => idle(next), 600);
+}
 export function setSpace(k) {
   if (!ok() || !revSlots.length || !SPACES[k] || k === spaceKey) return;
-  spaceKey = k; const t = ac.currentTime;
-  let idx = revSlots.findIndex(s => s.key === k);
-  if (idx < 0) {   // 쉬는 슬롯에 새 IR — 컨볼버 버퍼는 다시 넣을 수 없는 브라우저가 있어 새 노드로 갈아 낀다
-    idx = 1 - revCur; const s = revSlots[idx];
-    if (s.key) { const n = ac.createConvolver(); s.g.disconnect(); s.c.disconnect(); s.g.connect(n); n.connect(bus.sfx); s.c = n; }
-    s.c.buffer = makeSpaceIR(k); s.key = k;
-  }
-  revSlots.forEach((s, i) => s.g.gain.setTargetAtTime(i === idx ? 1 : 0, t, .25));
-  revCur = idx; revSend.gain.setTargetAtTime(SPACES[k].send, t, .4);
+  spaceKey = k; const t = ac.currentTime, cur = revNode(k);
+  if (!cur.linked) { revSend.connect(cur.g); cur.linked = true; }
+  revSlots[0].g.gain.setTargetAtTime(0, t, .25);   // 시작 때의 기본 잔향
+  for (const key in revNodes) { const n = revNodes[key]; n.g.gain.setTargetAtTime(n === cur ? 1 : 0, t, .25);
+    if (n !== cur && n.linked) { clearTimeout(n.offT); n.offT = setTimeout(() => { if (spaceKey !== key && n.linked) { try { revSend.disconnect(n.g); } catch (e) { /* ignore */ } n.linked = false; } }, 2500); } }   // 쉬는 컨볼버는 입력을 끊어 연산을 쉬게 한다
+  revSend.gain.setTargetAtTime(SPACES[k].send, t, .4);
 }
 export const getSpace = () => spaceKey;
 

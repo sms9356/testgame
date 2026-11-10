@@ -48,21 +48,25 @@ export function installRoomUI({ P, world, getRBG, getState, getTarget, keyIntera
     card.classList.toggle('done', !!pts.length && d >= pts.length);
     if (full) { card.classList.remove('mini', 'on'); void card.offsetWidth; card.classList.add('on'); shownAt = performance.now(); }
   }
+  const place = () => { place.dirty = false; place.t = performance.now(); const op = document.getElementById('objP'); if (op) { const r = op.getBoundingClientRect(), z = parseFloat(getComputedStyle(card).zoom) || 1; if (r.height) { const top = ((r.bottom + 10) / z) + 'px'; if (card.style.top !== top) card.style.top = top; } } };
+  place.dirty = true; place.t = 0;
+  try { const op = document.getElementById('objP'); if (op && window.ResizeObserver) new ResizeObserver(() => { place.dirty = true; }).observe(op); addEventListener('resize', () => { place.dirty = true; }); } catch (e) { /* ignore */ }
   // 방 바뀜 감지 (0.4초마다)
   setInterval(() => {
     const st = getState(); if (st !== 'playing') { card.classList.add('hide'); return; } card.classList.remove('hide');
-    { const op = document.getElementById('objP'); if (op) { const r = op.getBoundingClientRect(), z = parseFloat(getComputedStyle(card).zoom) || 1; if (r.height) card.style.top = ((r.bottom + 10) / z) + 'px'; } }   // 목표 패널(펼침 · 접힘) 바로 아래
+    if (place.dirty || performance.now() - place.t > 5000) place();   // 목표 패널(펼침 · 접힘) 바로 아래 — 예전엔 0.4초마다 강제 레이아웃(getBoundingClientRect + getComputedStyle)을 했다 → 패널 크기가 바뀔 때만
     const name = P.floor === 0 ? roomOf(P.x, P.z, (P.sh || 0) + .5) : '';
     if (name !== curRoom) { curRoom = name; if (name) render(true); else card.classList.remove('on', 'mini'); }
     else if (name && card.classList.contains('on') && !card.classList.contains('mini') && performance.now() - shownAt > 6000) card.classList.add('mini');
   }, 400);
   // 상호작용 안내: 대상 종류 아이콘 · 방 색 · 튀어나오기
   const pr = document.getElementById('prompt');
+  let lastRc = '';
   setInterval(() => {
     if (!pr) return; const t = getTarget(); const kind = t ? (t.type === 'prop' ? t.p && t.p.kind : t.type === 'item' ? (t.it && t.it.kind) || 'item' : t.type) : null;
     const key = t ? (t.label || '') + kind : null;
     if (key !== lastTgt) { lastTgt = key; pr.dataset.ic = kind ? (KIND_IC[kind] || '•') : ''; pr.classList.remove('pop'); if (t) { void pr.offsetWidth; pr.classList.add('pop'); } }
-    pr.style.setProperty('--rc', curRoom ? typeOf(curRoom).c : '#e2b35a');
+    { const rc = curRoom ? typeOf(curRoom).c : '#e2b35a'; if (rc !== lastRc) { lastRc = rc; pr.style.setProperty('--rc', rc); } }
   }, 120);
   // E를 누르는 순간의 대상을 '확인함'으로 기록 (게임보다 먼저 듣는다)
   addEventListener('keydown', e => { if (e.code !== keyInteract() || getState() !== 'playing') return; const t = getTarget(); const p = t && (t.p || t.it || t.prop); if (p) { const id = uid(p); if (!seen.has(id)) { seen.add(id); if (curRoom) setTimeout(() => render(false), 150); } } }, true);

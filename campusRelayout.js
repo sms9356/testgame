@@ -4,6 +4,7 @@
 //   시설 재건축(facilityRebuild)이 짓는 건물은 ZONES 좌표만 바꾸면 새 자리에 지어지므로, 여기서는 그 안의 조사 지점 · 문 같은 데이터만 옮긴다.
 //   나머지(체육관 외관 · 코트 · 경기장 묶음)는 메시째로 옮긴다: 묶음이 구역 안에 다 들어가면 통째로, 합쳐진(bake) 메시는 삼각형 단위로 나눠서.
 import * as THREE from './vendor/three.module.js';
+import { whenIdle, idleTimeout, idleInterval, setIdleProbe } from './idleTasks.js?v=426';
 
 // [이름, 원래 구역 x1, x2, z1, z2, 새 중심으로의 이동 dx, dz, 회전(0 | π: 구역 중심 기준 반 바퀴 — 출입구 방향을 동편 대로 쪽으로)]
 export const MOVES = [
@@ -138,6 +139,6 @@ export function relayoutCampus({ scene, floors, world }) {
     scene.updateMatrixWorld(true);
     fresh.forEach(o => { let rel = false; for (let a = o; a; a = a.parent) if (a.userData.relaid || a.userData.facNew || a.name === 'REBUILD' || inner.has(a)) rel = true; if (rel) return; bb.setFromObject(o); if (bb.isEmpty()) return; bb.getCenter(c); const Z = zoneOf(c.x, c.z); if (!Z || bb.max.y < -1) return;
       bb.getSize(sz); if (Math.max(sz.x, sz.z) > 40) return; if (Z.rm) kill(o); else place(o, mat(Z.m)); }); };
-  [4000, 12000, 30000, 70000, 120000, 200000, 300000].forEach(ms => setTimeout(again, ms));
+  [4000, 12000, 30000, 70000, 120000, 200000, 300000].forEach(ms => idleTimeout(again, ms));
   return out;
 }

@@ -202,6 +202,7 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
           m.sheenColor = new THREE.Color(id === 'guard' ? 0x8a6a58 : 0xffd2c0);
           m.emissive = new THREE.Color(0x000000); m.emissiveIntensity = 0; m.emissiveMap = null;
           if (!m.normalMap) { m.normalMap = nm.skinNormal; m.normalScale = new THREE.Vector2(0.12, 0.12); }
+          m.specularColor = new THREE.Color(0xfff4ee);   // 피부 정반사는 아주 약간 따뜻하게
           addSkinScatter(m, id === 'guard' ? [0.07, 0.025, 0.015] : [0.1, 0.03, 0.025], face);
         } else if (/teeth/.test(mName)) {
           mat.roughness = 0.25; mat.metalness = 0;
@@ -218,6 +219,7 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
           m.sheen = 0.7; m.sheenRoughness = 0.35; m.sheenColor = new THREE.Color(id === 'guard' ? 0x8a8680 : 0x5a4a44);   // 결을 따라 흐르는 광택 띠
           m.specularIntensity = 0.8; m.specularColor = new THREE.Color(id === 'guard' ? 0xd8d4cc : 0xe8d8cc);   // 검은 머리의 따뜻한 1차 반사
           m.side = THREE.DoubleSide;
+          if ('anisotropy' in m) { m.anisotropy = 0.55; m.anisotropyRotation = Math.PI / 2; }   // 가닥 방향(카드 V축)으로 늘어진 하이라이트 (Kajiya-Kay 근사)
           if (!m.normalMap) { m.normalMap = nm.hairNormal; m.normalScale = new THREE.Vector2(0.35, 0.35); }
         } else if (/brow|lash/.test(mName)) {
           mat.roughness = 0.7; mat.metalness = 0; mat.depthWrite = false;
@@ -228,7 +230,10 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
           m.metalness = 0;
           m.sheen = /backpack/.test(mName) ? 0.15 : 0.45;   // 울 · 폴리 혼방 교복의 보풀 광
           m.sheenRoughness = 0.7;
-          m.sheenColor = new THREE.Color(0x9aa4c0);
+          // 2008 동복: 남색 울 블레이저는 차갑고 어두운 보풀 광, 넥타이/리본은 폴리 능직이라 결이 촘촘하고 약간 더 반짝인다
+          m.sheenColor = new THREE.Color(/tie|ribbon/.test(mName) ? 0x7a6a78 : /shirt/.test(mName) ? 0xd8dce4 : 0x5e6a8c);
+          if (/tie|ribbon/.test(mName)) { m.specularIntensity = 0.6; m.sheenRoughness = 0.45; }
+          else if (/blazer|suit|uniform|skirt|pants/.test(mName)) { m.specularIntensity = 0.35; }   // 울은 정반사가 약하다
           m.emissive = new THREE.Color(0x000000); m.emissiveIntensity = 0; m.emissiveMap = null;
           if (!m.normalMap) {
             const body = /uniform|suit|skirt|pants|shirt|blazer/.test(mName) && !/capfabric/.test(mName);
@@ -845,6 +850,11 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
       const sweep = Math.sin(tNow * 1.8) * 0.20;
       holder.userData.torchFx.rotation.y = sweep;
       holder.userData.torchFx.rotation.x = Math.sin(tNow * 1.1) * 0.06;
+    }
+    else if (holder.userData.torchFx && holder.userData.torchFx.visible) {   // 민아 등: 손전등 빛이 시선을 따라간다 (머리보다 약간 늦게 · 손떨림)
+      const tf = holder.userData.torchFx;
+      tf.rotation.y += (rig.lookYaw * 0.9 + Math.sin(tNow * 2.3) * 0.015 - tf.rotation.y) * Math.min(1, dt * 4);
+      tf.rotation.x += (-rig.lookPitch * 0.9 + Math.sin(tNow * 1.7) * 0.012 - tf.rotation.x) * Math.min(1, dt * 4);
     }
   }
   // 보폭 맞춤 재생 속도 · 머리카락/리본 스프링 · 소품 표시 (프레임당 할당 없음)

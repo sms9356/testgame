@@ -2,12 +2,12 @@
 //   항상 켜진다 (예전 건물 모드는 폐지).
 //   예전 본관(1~3층 · 옥상) · 별관(8~10층) 건물은 감추고, 그 자리 땅(0층)에서 새 건물을 걷는다.
 //   높이는 P.sh(계단 높이 보정값)로 넘긴다 → 카메라 · 점프 · 가구 오르기 코드는 손대지 않아도 된다.
-import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN, grafMaterial } from './rebuild/mainBuilding.js?v=425';
-import { placeModels } from './rebuild/models.js?v=425';
-import { carve, subdivide } from './rebuild/transplant.js?v=425';
+import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN, grafMaterial } from './rebuild/mainBuilding.js?v=426';
+import { placeModels } from './rebuild/models.js?v=426';
+import { carve, subdivide } from './rebuild/transplant.js?v=426';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { turfMaterial } from './campusVisuals.js?v=425';
-import { ENGINE } from './engine.js?v=425';
+import { turfMaterial } from './campusVisuals.js?v=426';
+import { ENGINE } from './engine.js?v=426';
 
 // 예전 건물이 차지하던 땅 (이 안의 예전 메시 · 충돌 상자를 걷어 낸다)
 const OLD_MAIN = { x1: -51, x2: 51, z1: -10.6, z2: 10.9 };
@@ -795,7 +795,7 @@ export function installRebuild({ THREE, scene, floors, world }) {
     const W = world, T = new THREE.Box3(), V = new THREE.Vector3(); let re = 0, up = 0;
     const shown = o => { for (let a = o; a; a = a.parent) { if (!a.visible) return false; if (a.isScene) return true; } return false; };
     // 그 자리(0.4m 안 · 같은 층)에 이미 다른 조사 지점 · 아이템이 있나 — 같은 책상 · 좌석 가운데로 둘이 끌려가 서로 가려 고를 수 없던 것
-    const occ = (x, z, h, self) => W.props.some(q => q !== self && !q._drop && q.floor === 0 && Math.abs((q.rbY ?? 0) - h) < 1 && Math.hypot(q.x - x, q.z - z) < .4) || W.items.some(i => i !== self && !i.taken && i.floor === 0 && i.rbY != null && Math.abs(i.rbY - h) < 1 && Math.hypot(i.pos.x - x, i.pos.z - z) < .4);
+    const occ = (x, z, h, self) => W.props.some(q => q !== self && !q._drop && !q.done && q.kind !== "room" && q.floor === 0 && Math.abs((q.rbY ?? 0) - h) < 1 && Math.hypot(q.x - x, q.z - z) < .95) || W.items.some(i => i !== self && !i.taken && i.floor === 0 && i.rbY != null && Math.abs(i.rbY - h) < 1 && Math.hypot(i.pos.x - x, i.pos.z - z) < .95);   // 0.95m: 다른 조사 지점과 프롬프트를 다투지 않게 (예전 0.4m 는 수색 · 미니게임 책상에 쪽지를 겹쳐 놓았다)
     const fix = (objs, x, z, rb, onMove, flat, self) => {
       objs = objs.filter(o => o && o.isObject3D); if (!objs.length) return;
       for (const o of objs) if (o.parent && !shown(o.parent)) { group.attach(o); re++; }   // 퀘스트 단계가 되면 켜지는 모형도 미리 옮겨 단다

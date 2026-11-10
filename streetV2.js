@@ -2,7 +2,7 @@
 //   ── 인도 사각형(window.__pathNET)과 건물 · 시설 금지 구역(window.__pathKEEP + 건물 바닥)을 보고 잔디 쪽 가장자리에만 놓는다
 //   ── 같은 모양은 InstancedMesh 한 벌로 (그리기 호출 최소) · 충돌 상자는 바깥 0층 col 에 추가 · 문 · 현관 앞 3m 는 비운다
 import * as THREE from './vendor/three.module.js';
-import { ZONES as FZ } from './facilityRebuild.js?v=425';
+import { ZONES as FZ } from './facilityRebuild.js?v=426';
 
 const S = (c, r = .6, m = 0, e) => new THREE.MeshStandardMaterial({ color: c, roughness: r, metalness: m, ...(e || {}) });
 function signTex(lines, bg = '#1e3a2e', fg = '#f2efe4', w = 512, h = 384, title) {
@@ -31,7 +31,7 @@ export function installStreetscape({ scene, world, floors, footprints = [] }) {
   const take = (x, z, r) => used.push([x, z, r]);
 
   // ── 모양 (한 벌씩) ──
-  const mPole = S(0x2e3236, .45, .7), mHead = S(0xe8e4d8, .4, .2, { emissive: 0xffe2a8, emissiveIntensity: .9 }), mWood = S(0x8a5a32, .7), mSteel = S(0x5a5e62, .4, .75), mBin = S(0x2f5a3a, .6, .3), mBinLid = S(0x23262a, .5, .5),
+  const mPole = S(0x2e3236, .45, .7), mHead = S(0xe8dcc0, .4, .2, { emissive: 0xffa64a, emissiveIntensity: .9 }), mWood = S(0x8a5a32, .7), mSteel = S(0x5a5e62, .4, .75), mBin = S(0x2f5a3a, .6, .3), mBinLid = S(0x23262a, .5, .5),
     mIron = S(0x2a2a2a, .8, .6), mGrate = S(0x3a3c3e, .7, .6), mYellow = S(0xd8b020, .5, .2), mPost = S(0x4a4e52, .5, .6), mConc = S(0x9a968c, .9);
   const geo = {
     pole: new THREE.CylinderGeometry(.055, .075, 4.4, 10).translate(0, 2.2, 0), base: new THREE.CylinderGeometry(.16, .2, .32, 12).translate(0, .16, 0),

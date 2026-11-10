@@ -115,7 +115,7 @@ const TEX = {
     for (let ty = 0; ty < n; ty++) for (let tx = 0; tx < n; tx++) { const x0 = tx * ts, y0 = ty * ts, v = 222 + (rnd() * 14 - 7) | 0, fresh = rnd() < .08;
       g.fillStyle = fresh ? '#f0eee6' : `rgb(${v},${v - 3},${v - 10})`; g.fillRect(x0, y0, ts, ts);
       for (let i = 0; i < 380; i++) { g.fillStyle = `rgba(90,85,75,${.12 + rnd() * .25})`; g.fillRect(x0 + rnd() * ts, y0 + rnd() * ts, 1.5, 1.5); }
-      if (!fresh && rnd() < .22) { const cx = x0 + ts * (.3 + rnd() * .4), cy = y0 + ts * (.3 + rnd() * .4), r = ts * (.2 + rnd() * .3), gr = g.createRadialGradient(cx, cy, r * .5, cx, cy, r); gr.addColorStop(0, 'rgba(170,140,90,.18)'); gr.addColorStop(.85, 'rgba(150,115,60,.35)'); gr.addColorStop(1, 'rgba(150,115,60,0)'); g.fillStyle = gr; g.beginPath(); g.arc(cx, cy, r, 0, 7); g.fill(); }   // 물 얼룩 (가장자리가 진한 테)
+      if (!fresh && rnd() < .08) { const cx = x0 + ts * (.3 + rnd() * .4), cy = y0 + ts * (.3 + rnd() * .4), r = ts * (.2 + rnd() * .3), gr = g.createRadialGradient(cx, cy, r * .5, cx, cy, r); gr.addColorStop(0, 'rgba(170,140,90,.09)'); gr.addColorStop(.85, 'rgba(150,115,60,.17)'); gr.addColorStop(1, 'rgba(150,115,60,0)'); g.fillStyle = gr; g.beginPath(); g.arc(cx, cy, r, 0, 7); g.fill(); }   // 물 얼룩 (가장자리가 진한 테)
       if (rnd() < .15) { const gr = g.createLinearGradient(x0, y0, x0 + ts, y0 + ts); gr.addColorStop(0, 'rgba(0,0,0,0)'); gr.addColorStop(.5, 'rgba(0,0,0,.08)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(x0, y0, ts, ts); }   // 처진 장 그늘
       g.fillStyle = '#b8b4a8'; g.fillRect(x0, y0, ts, 3); g.fillRect(x0, y0, 3, ts); }   // T-바 틀
   }),

@@ -4,8 +4,9 @@
 //   전기(분전반 · 2등용 형광등 · 콘센트 · 스위치) · 소방(소화전함 · 소화기 · 감지기 · 유도등 · 방화문) · 수도(세면대 · 배관)
 import * as THREE from '../vendor/three.module.js';
 import { mergeGeometries } from '../vendor/addons/utils/BufferGeometryUtils.js';
-import { makeFlag } from '../tex.js?v=423';
-import * as PT from './periodTex.js?v=423';
+import { makeFlag } from '../tex.js?v=424';
+import * as PT from './periodTex.js?v=424';
+import { collectRefs, dedupeMaterials, batchStaticChildren } from './staticBatch.js?v=424';
 // 교실 앞면 꾸밈 공용 (반 이름 · 텍스처 캐시)
 const NAMES = ['김민수', '이서연', '박지훈', '최유진', '정하늘', '강도윤', '조수아', '윤재현', '장예린', '임태호', '한소영', '오준서', '서지민', '신동혁', '권나연', '황민재', '안채원', '송우진', '전다은', '홍석진'];
 let flagTex = null; const decorTex = new Map();
@@ -53,7 +54,9 @@ const backBoardDraw = (g, w, h) => { g.clearRect(0, 0, w, h);
   g.fillStyle = '#222'; g.font = '18px sans-serif'; g.fillText('2008. 11. 13 (목)', 125, 200); g.fillText('지금 자면 꿈을 꾸지만', 125, 232); g.fillText('지금 공부하면 꿈을 이룬다', 125, 256); g.restore(); };
 const canvasPlane = (w, h, cw, ch, draw, key, transparent = false) => { let t = key && decorTex.get(key);
   if (!t) { const c = document.createElement('canvas'); c.width = cw; c.height = ch; draw(c.getContext('2d'), cw, ch); t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; if (key) decorTex.set(key, t); }
-  return new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshStandardMaterial({ map: t, roughness: .85, transparent, polygonOffset: true, polygonOffsetFactor: -2 })); };
+  const mk = transparent ? 'mT' : 'mO'; let m = t.userData[mk];   // 같은 텍스처 · 같은 설정 재질은 하나로 (교실마다 새 재질을 만들던 것 — 중복 재질 ~100개)
+  if (!m) { m = new THREE.MeshStandardMaterial({ map: t, roughness: .85, transparent, polygonOffset: true, polygonOffsetFactor: -2 }); if (key) t.userData[mk] = m; }
+  return new THREE.Mesh(new THREE.PlaneGeometry(w, h), m); };
 
 
 export const DESK_RY = Math.PI / 2, CHAIR_RY = -Math.PI / 2;   // 의자: 등받이가 교실 뒤쪽(+x) — 칠판(서쪽)을 바라본다 (측정으로 확인)   // 모델 정면 보정 (스크린샷으로 맞춘다)
@@ -1802,7 +1805,9 @@ export function buildMainBuilding(opt = {}) {
   // 세계 ↔ 건물 좌표 (건물은 원점 기준으로 지은 뒤 통째로 옮기고 돌린다)
   const toLocal = (x, z) => { const dx = x - OX, dz = z - OZ; return [dx * cR - dz * sR, dx * sR + dz * cR]; };
   const toWorld = (x, z) => [OX + x * cR + z * sR, OZ - x * sR + z * cR];
-  return { moonWins, elevX: ELX, mats, root, col, walk, props, lights, groundAt, layout: LY, spec: S, stairwells, doors, tickDoors, nearDoor, models, toLocal, toWorld, name: opt.label || '본관' };
+  const API = { moonWins, elevX: ELX, mats, root, col, walk, props, lights, groundAt, layout: LY, spec: S, stairwells, doors, tickDoors, nearDoor, models, toLocal, toWorld, name: opt.label || '본관' };
+  { const refs = collectRefs({ ...API, root: null }); for (const k in mats) refs.mats.add(mats[k]); dedupeMaterials(root, refs); batchStaticChildren(root, { objs: refs.objs, band: S.FH }); }   // 중복 재질 · 정적 메시 합치기 (성능)
+  return API;
 }
 
 // 본관 ↔ 별관 1층 연결 통로 (유리 커튼월 복도, 천장 2.9m)

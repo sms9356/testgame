@@ -1,6 +1,8 @@
 // 경비동 별관: 정문 안쪽 기존 경비실 북쪽 벽에 바로 붙인 관제실 + 열쇠보관실.
 // 중앙 보도(서쪽)로 출입문이 나 있고, 남쪽 벽은 경비실 북쪽 벽과 맞닿는다.
 import * as THREE from './vendor/three.module.js';
+import { collectRefs, dedupeMaterials, batchStaticChildren } from './rebuild/staticBatch.js?v=424';
+const KEEP = new WeakMap();   // 관제실 반환값(화면 · 열쇠 · 보관함 문 …) — 근무실 정리 때도 건드리지 않는다
 
 export const ANNEX = Object.freeze({ x1: 4.8, x2: 11.4, z1: 59.6, z2: 64.95, h: 2.8, t: .15, xp: 8.0, doorZ1: 61.2, doorZ2: 62.2, innerZ1: 60.3, innerZ2: 61.3 });
 // 키 보관함 비밀번호 = 펌프실 열쇠가 나간 시각 (대출 장부 22:50)
@@ -145,7 +147,9 @@ export function buildGuardAnnex({ OUT, props, boxMesh, plane, flat, col, S, make
   props.push({ kind: 'ganx', k: 'ledger', floor: 0, x: 7.35, z: 63.45, y: .85, r: 1.4, label: '열쇠 대출 장부 읽기' });
   props.push({ kind: 'ganx', k: 'cabinet', floor: 0, x: 11.15, z: 62.8, y: 1.45, r: 1.4, label: '벽걸이 열쇠보관함 — 비밀번호 입력 (자동 잠금)' });
   props.push({ kind: 'ganx', k: 'lost', floor: 0, x: 9.5, z: 62.75, y: .85, r: 1.5, label: '보관실 분실물 상자 뒤지기' });
-  return { group: G, screens, cabDoor, cabPad: pad, hookKeys, light, panelM };
+  const API = { group: G, screens, cabDoor, cabPad: pad, hookKeys, light, panelM };
+  { const refs = collectRefs({ ...API, group: null, props, mats }); KEEP.set(G, refs); dedupeMaterials(G, refs); batchStaticChildren(G, { objs: refs.objs, band: 10 }); }   // 중복 재질 · 정적 메시 합치기 (성능)
+  return API;
 }
 
 // ── 당직실: (구)경비실을 철거한 자리 (x 4.8 ~ 8.25, z 64.95 ~ 67.9). 남쪽 출입문 · 근무 책상 · 경비원 의자는 예전 자리 그대로 ──
@@ -198,7 +202,9 @@ export function buildDutyRoom({ G, props, boxMesh, plane, flat, col, S, makeSign
   props.push({ kind: 'ganx', k: 'glocker', floor: 0, x: 5.24, z: 65.75, y: 1.0, r: 1.4, label: '경비원 사물함 열기' });
   props.push({ kind: 'ganx', k: 'kettle', floor: 0, x: 7.65, z: 66.55, y: .9, r: 1.3, label: '보온 주전자 만져 보기' });
   props.push({ kind: 'ganx', k: 'contacts', floor: 0, x: 5.15, z: 65.25, y: 1.5, r: 1.3, label: '비상연락망 읽기' });
-  return { light, panelM };
+  const API = { light, panelM };
+  { const refs = collectRefs({ ...API, props, mats }), keep = KEEP.get(G); if (keep) { keep.objs.forEach(o => refs.objs.add(o)); keep.mats.forEach(m => refs.mats.add(m)); } dedupeMaterials(G, refs); batchStaticChildren(G, { objs: refs.objs, band: 10 }); }
+  return API;
 }
 
 // 사무용 회전의자 (5발 바퀴 받침 · 가스 실린더 · 쿠션 좌판 · 등받이)

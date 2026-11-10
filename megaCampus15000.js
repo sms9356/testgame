@@ -1,5 +1,6 @@
 // 15,000평(약 50,000㎡) 캠퍼스 3대 섹션(①학술·생활 건물 섹션 ②종합 운동·스포츠 섹션 ③제1·제2 대형 주차장 섹션) 및 10종 .glb 모델(애니메이션 5종 포함) 빌더
 import * as THREE from './vendor/three.module.js';
+import { dedupeMaterials } from './rebuild/staticBatch.js?v=424';
 import { GLTFLoader } from './vendor/addons/loaders/GLTFLoader.js';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
 
@@ -1286,7 +1287,7 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
   // 정적 소품 합치기: 청크 바로 아래의 움직이지 않는 상자 · 원기둥 · 판(서가의 책 칸 · 책상 다리 · 의자 …)을 재질별 한 덩어리로
   //   (도서관 하나가 메시 ~800개 = 드로우콜 ~800). 모양 · 재질 · 그림자 설정은 그대로, 위치만 미리 구워 넣는다.
   //   예전 본관 터 근처 메시는 재건축 정리(rebuildGame hideIn)가 하나씩 감추므로 건드리지 않는다.
-  for (const { g } of chunks) batchStaticChunk(g);
+  for (const { g } of chunks) { dedupeMaterials(g); batchStaticChunk(g); }   // 같은 설정 · 같은 텍스처 원본 재질을 먼저 하나로 → 합칠 수 있는 묶음이 커진다
   return chunks;
 }
 

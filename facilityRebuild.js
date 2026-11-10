@@ -5,9 +5,10 @@
 //   재질: F-01 ~ F-05 바닥 · W-01 ~ W-05 벽 · C-01 ~ C-04 천장 (Poly Haven CC0 실사 스캔 텍스처, assets/tex/fac_* · 미터 단위 UV)
 import * as THREE from './vendor/three.module.js';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { pbr } from './tex.js?v=427';
-import { placeModels } from './rebuild/models.js?v=427';
-import * as PT from './rebuild/periodTex.js?v=427';   // 본관 · 별관과 같은 시대 재질 (데코타일 · 인조석 · 걸레받이 · 외벽 풍화) — 모듈 캐시로 한 벌만 만든다
+import { whenIdle, idleTimeout, idleInterval, setIdleProbe } from './idleTasks.js?v=428';
+import { pbr } from './tex.js?v=428';
+import { placeModels } from './rebuild/models.js?v=428';
+import * as PT from './rebuild/periodTex.js?v=428';   // 본관 · 별관과 같은 시대 재질 (데코타일 · 인조석 · 걸레받이 · 외벽 풍화) — 모듈 캐시로 한 벌만 만든다
 
 const FH = 3.6, CEIL = 2.9, WALL_T = .24, LIN = .06;
 const TL = new THREE.TextureLoader(), TEX = {};
@@ -893,7 +894,7 @@ export function installFacilityRebuild(ctx) {
   const again = () => { const live = new Set(); [...(world.props || []), ...(world.items || [])].forEach(p => { for (const k of Object.keys(p)) { const o = p[k]; if (o && o.isObject3D && k !== 'parent') o.traverse(c => live.add(c)); } if (p.anim && p.anim.g) p.anim.g.traverse(c => live.add(c)); });   // 물건에 딸린 모든 모형(대역 녹음기 visMesh 등)을 살린다 — 예전엔 p.mesh 만 봐서 지워졌다   // 게임이 나중에 놓은 조사 소품 · 아이템은 건드리지 않는다
     const fresh = []; scene.traverse(o => { if (seen.has(o)) return; seen.add(o); if ((o.isMesh || o.isSprite || o.isLight) && !o.isSkinnedMesh && !live.has(o) && !keepNew(o)) fresh.push(o); }); if (!fresh.length) return;
     const tmp = { scene: { children: fresh, updateMatrixWorld: () => fresh.forEach(c => c.updateMatrixWorld(true)) }, floors, world }; demolish(tmp, zones, keepMesh, false); };
-  [4000, 12000, 30000, 70000].forEach(ms => setTimeout(again, ms));
+  [4000, 12000, 30000, 70000].forEach(ms => idleTimeout(again, ms));
   // 새 가구(객석 줄 · 진열장)가 옛 조사 지점 위에 놓여 다가설 자리가 없어진 경우 → 가까운 빈 바닥으로 옮긴다
   const rescue = () => { const C = floors[0].col || [], R = .3;
     const free = (x, z) => !C.some(c => !c.off && !(c.h != null && c.h <= .34) && !(c.y0 != null && c.y0 > 1.5) && x > c.x1 - R && x < c.x2 + R && z > c.z1 - R && z < c.z2 + R);

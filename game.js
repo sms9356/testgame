@@ -413,59 +413,81 @@ let blackout = 0, shake = 0, nextEvent = 40, lampTimer = 0, introDone = false, e
 const keys = {};
 
 /* ---------- 유령 ---------- */
-// 의문의 학생(유령): 10년 전 교복 — 남색 재킷 · 붉은 리본 · 주름치마 · 검은 스타킹, 얼굴을 가린 긴 머리. 반투명하게 비친다
+// 의문의 학생(유령): 1998년 동복 — 남색 재킷 · 흰 셔츠 · 붉은 리본 · 주름치마 · 검은 스타킹, 얼굴을 덮은 긴 머리.
+// 만화처럼 보이지 않도록 입체 모형 대신 흐릿한 실루엣 한 장(재질 1개)을 세로축 빌보드로 세운다:
+// 가장자리 감쇠(프레넬 느낌) · 아지랑이 왜곡 · 노이즈 소멸 · 입김. 조명 · 그림자 추가 없음.
+function makeGhostSilhouette() {
+  const W = 256, H = 512, c = document.createElement('canvas'); c.width = W; c.height = H;
+  const x = c.getContext('2d'), sx = W / 1.0, sy = H / 2.0, X = u => W / 2 + u * sx, Y = v => H - v * sy;   // 1m × 2m 평면, 바닥 = 0
+  const blob = (col, pts, blur) => { x.filter = `blur(${blur}px)`; x.fillStyle = col; x.beginPath(); pts.forEach(([u, v], i) => i ? x.lineTo(X(u), Y(v)) : x.moveTo(X(u), Y(v))); x.closePath(); x.fill(); };
+  // 다리 (검은 스타킹, 발끝은 흐려져 사라진다)
+  blob('#0b0b0f', [[-.12, .95], [-.115, .25], [-.085, .12], [-.06, .25], [-.03, .95]], 3);
+  blob('#0b0b0f', [[.03, .95], [.06, .25], [.085, .12], [.115, .25], [.12, .95]], 3);
+  // 주름치마
+  blob('#24222c', [[-.15, 1.28], [.15, 1.28], [.27, .9], [-.27, .9]], 2);
+  x.filter = 'blur(1px)'; x.strokeStyle = 'rgba(0,0,0,.35)'; x.lineWidth = 2;
+  for (let i = -5; i <= 5; i++) { x.beginPath(); x.moveTo(X(i * .025), Y(1.27)); x.lineTo(X(i * .05), Y(.91)); x.stroke(); }
+  // 팔 (소매 + 창백한 손이 힘없이 늘어진다)
+  [-1, 1].forEach(s => { blob('#171c2a', [[s * .17, 1.63], [s * .22, 1.6], [s * .23, 1.12], [s * .18, 1.12]], 2); blob('#8d8b88', [[s * .18, 1.12], [s * .23, 1.12], [s * .225, .98], [s * .19, .97]], 2); });
+  // 재킷 몸통
+  blob('#1a2030', [[-.18, 1.64], [-.08, 1.7], [.08, 1.7], [.18, 1.64], [.17, 1.3], [.14, 1.24], [-.14, 1.24], [-.17, 1.3]], 2);
+  blob('#9c9e9a', [[-.045, 1.69], [.045, 1.69], [0, 1.52]], 1);   // 셔츠 깃
+  blob('#6a1018', [[-.04, 1.63], [.04, 1.63], [.02, 1.55], [0, 1.6], [-.02, 1.55]], 1);   // 리본
+  // 목 · 숙인 머리 · 얼굴을 덮고 가슴까지 늘어진 긴 머리
+  blob('#7e7c79', [[-.03, 1.72], [.03, 1.72], [.03, 1.66], [-.03, 1.66]], 2);
+  x.filter = 'blur(2px)'; x.fillStyle = '#7a7672'; x.beginPath(); x.ellipse(X(0), Y(1.82), .085 * sx, .11 * sy, 0, 0, 7); x.fill();
+  x.fillStyle = '#070606'; x.beginPath(); x.ellipse(X(0), Y(1.86), .11 * sx, .11 * sy, 0, 0, 7); x.fill();
+  for (let i = 0; i < 70; i++) {   // 머리카락 가닥: 얼굴 앞을 덮고 어깨 아래로 흐른다
+    const u0 = (Math.random() - .5) * .2, len = .3 + Math.random() * .35, u1 = u0 * 1.6 + (Math.random() - .5) * .06;
+    x.filter = 'blur(1px)'; x.strokeStyle = `rgba(6,5,5,${.5 + Math.random() * .5})`; x.lineWidth = 2 + Math.random() * 4;
+    x.beginPath(); x.moveTo(X(u0 * .8), Y(1.93)); x.quadraticCurveTo(X(u0 * 1.3), Y(1.8), X(u1), Y(1.88 - len)); x.stroke();
+  }
+  x.filter = 'none';
+  const tx = new THREE.CanvasTexture(c); tx.colorSpace = THREE.SRGBColorSpace; return tx;
+}
+function makeGhostMaterial(low) {
+  return new THREE.ShaderMaterial({
+    transparent: true, depthWrite: false, side: THREE.DoubleSide, toneMapped: false,
+    defines: { OCT: low ? 2 : 4 },
+    uniforms: { map: { value: makeGhostSilhouette() }, uT: { value: 0 }, uVis: { value: 0 }, uHaze: { value: 1 }, uBreath: { value: 1 }, uRim: { value: .5 } },
+    vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
+    fragmentShader: `
+      uniform sampler2D map; uniform float uT, uVis, uHaze, uBreath, uRim; varying vec2 vUv;
+      float h(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+      float n2(vec2 p){ vec2 i = floor(p), f = fract(p); f = f * f * (3. - 2. * f); return mix(mix(h(i), h(i + vec2(1, 0)), f.x), mix(h(i + vec2(0, 1)), h(i + 1.), f.x), f.y); }
+      float fbm(vec2 p){ float s = 0., a = .5; for (int i = 0; i < OCT; i++){ s += a * n2(p); p *= 2.03; a *= .5; } return s; }
+      void main(){
+        vec2 uv = vUv;
+        uv.x += (n2(vec2(uv.y * 14., uT * 1.3)) - .5) * .018 * uHaze;   // 아지랑이: 가로로 일렁인다
+        uv.y += (n2(vec2(uv.x * 9., uT * .9 + 7.)) - .5) * .006 * uHaze;
+        vec4 tx = texture2D(map, uv);
+        float d = .012, ga = abs(texture2D(map, uv + vec2(d, 0.)).a - texture2D(map, uv - vec2(d, 0.)).a) + abs(texture2D(map, uv + vec2(0., d)).a - texture2D(map, uv - vec2(0., d)).a);
+        ga = clamp(ga, 0., 1.);
+        float a = tx.a * (1. - .55 * ga);                                   // 가장자리는 묽게 (프레넬처럼)
+        float n = fbm(uv * vec2(5., 9.) + vec2(0., -uT * .18));
+        float th = mix(.62, .08, smoothstep(.04, .45, uv.y));              // 발 쪽부터 노이즈로 녹아 사라진다
+        a *= smoothstep(th - .1, th + .1, n) * (.75 + .25 * n);
+        vec3 col = tx.rgb * .85 + vec3(.05, .07, .09) + vec3(.35, .45, .55) * ga * uRim;   // 차가운 테두리빛
+        // 입김: 숙인 얼굴 앞에서 몇 초마다 희미하게 피어올라 흩어진다
+        float bt = fract(uT * .22), by = .835 + bt * .09;
+        vec2 bp = (vUv - vec2(.56 + bt * .08, by)) * vec2(12., 18.);
+        float br = exp(-dot(bp, bp)) * fbm(vUv * 18. + vec2(uT * .4, -uT * .8)) * sin(bt * 3.1416) * uBreath;
+        col = mix(col, vec3(.7, .76, .82), clamp(br * 1.4, 0., 1.));
+        float A = clamp(a + br * .5, 0., 1.) * uVis;
+        if (A < .004) discard;
+        gl_FragColor = vec4(col, A);
+      }`,
+  });
+}
 function buildGhost() {
   const g = new THREE.Group(), inner = new THREE.Group(); g.add(inner);
-  const DS = THREE.DoubleSide;
-  const ghostM = (col, o = {}) => new THREE.MeshStandardMaterial({ color: col, roughness: .85, transparent: true, opacity: .9, emissive: 0x0c1218, side: DS, depthWrite: true, ...o });
-  const jacket = ghostM(0x1a2030), shirt = ghostM(0x9a9c98, { emissive: 0x141818 }), skirtM = ghostM(0x2c2a34), stock = ghostM(0x0c0c10);
-  const skinM = new THREE.MeshStandardMaterial({ color: 0x8c8a86, roughness: .9, emissive: 0x101214 });
-  const faceM = new THREE.MeshStandardMaterial({ map: makeGhostFace(), color: 0x9a9690, roughness: .9 });
-  const hairM = new THREE.MeshStandardMaterial({ map: makeHair(), color: 0x0e0c0b, roughness: .75, side: DS, alphaTest: .3 });
-  const capM = new THREE.MeshStandardMaterial({ color: 0x060505, roughness: .8 });
-  const ribbon = new THREE.MeshStandardMaterial({ color: 0x6a1018, roughness: .6, emissive: 0x1a0204 });
-  const part = (geo, m, x, y, z, p = inner) => { const o = new THREE.Mesh(geo, m); o.position.set(x, y, z); p.add(o); return o; };
-  // 다리 (검은 스타킹 · 발끝이 바닥에서 살짝 뜬다)
-  [-1, 1].forEach(s => { const l = part(new THREE.CylinderGeometry(.052, .04, .78, 12), stock, s * .085, .55, 0); l.rotation.z = s * .02; part(new THREE.BoxGeometry(.08, .05, .2), stock, s * .085, .15, -.03); });
-  // 주름치마: 각진 원뿔 + 주름 굴곡
-  const sk = new THREE.CylinderGeometry(.17, .29, .38, 24, 2, true), sp = sk.attributes.position;
-  for (let i = 0; i < sp.count; i++) { const x = sp.getX(i), z = sp.getZ(i), a = Math.atan2(z, x), r = Math.hypot(x, z), k = 1 + .06 * Math.sign(Math.sin(a * 12)) * (sp.getY(i) < 0 ? 1 : .3); sp.setXYZ(i, Math.cos(a) * r * k, sp.getY(i), Math.sin(a) * r * k); }
-  sk.computeVertexNormals(); part(sk, skirtM, 0, 1.02, 0);
-  // 몸통: 셔츠 + 재킷 + 리본
-  const torso = new THREE.LatheGeometry([[.12, 0], [.165, .05], [.175, .25], [.16, .42], [.12, .5], [.05, .53]].map(p => new THREE.Vector2(p[0], p[1])), 20);
-  const t = part(torso, jacket, 0, 1.18, 0); t.scale.set(1, 1, .72);
-  part(new THREE.BoxGeometry(.1, .2, .02), shirt, 0, 1.55, -.115);
-  const rb = part(new THREE.BoxGeometry(.12, .045, .03), ribbon, 0, 1.63, -.13); [-1, 1].forEach(s => { const tl = part(new THREE.BoxGeometry(.03, .1, .02), ribbon, s * .02, 1.57, -.135); tl.rotation.z = s * .25; }); rb.rotation.z = .05;
-  part(new THREE.CylinderGeometry(.04, .05, .12, 10), skinM, 0, 1.75, 0);
-  // 머리: 고개를 숙이고, 앞머리가 얼굴을 덮는다
-  const head = new THREE.Group(); head.position.set(0, 1.86, 0); head.rotation.x = .32; inner.add(head);
-  const face = new THREE.Mesh(new THREE.SphereGeometry(.105, 24, 18), faceM); face.scale.set(.88, 1.12, .95); head.add(face);
-  const cap = new THREE.Mesh(new THREE.SphereGeometry(.118, 18, 14, 0, Math.PI * 2, 0, Math.PI * .62), capM); cap.position.set(0, .015, .01); cap.rotation.x = -.3; head.add(cap);
-  const hair = [];
-  const strand = (a, w, L, fwd = 0) => {
-    const pg = new THREE.PlaneGeometry(w, L, 1, 6); pg.translate(0, -L / 2, 0);
-    const m = new THREE.Mesh(pg, hairM); const r = .112 + fwd;
-    m.position.set(Math.sin(a) * r, .06, Math.cos(a) * r); m.rotation.order = 'YXZ'; m.rotation.y = a; m.rotation.x = fwd ? -.2 : -.12; head.add(m); hair.push(m); return m;
-  };
-  for (let i = 0; i < 26; i++) strand(Math.PI * (.3 + i / 25 * 1.4), .1 + Math.random() * .05, .75 + Math.random() * .35);
-  [-.5, -.28, -.08, .12, .32, .52].forEach((a, i) => strand(a + Math.PI, .07, .62 + (i % 2) * .1, .01));   // 얼굴을 가리는 앞머리
-  // 팔: 소매 + 창백한 손, 손가락
-  const arms = [];
-  [-1, 1].forEach(s => {
-    const sh = new THREE.Group(); sh.position.set(s * .2, 1.62, 0); inner.add(sh);
-    part(new THREE.CylinderGeometry(.045, .04, .3, 10), jacket, 0, -.15, 0, sh);
-    const el = new THREE.Group(); el.position.y = -.3; el.rotation.x = -.25; sh.add(el);
-    part(new THREE.CylinderGeometry(.04, .035, .26, 10), jacket, 0, -.12, 0, el);
-    part(new THREE.CylinderGeometry(.024, .018, .1, 8), skinM, 0, -.29, 0, el);
-    const hand = part(new THREE.BoxGeometry(.045, .08, .02), skinM, 0, -.38, 0, el);
-    for (let k = 0; k < 4; k++) { const f = new THREE.Mesh(new THREE.CylinderGeometry(.005, .003, .1, 4), skinM); f.position.set(-.016 + k * .011, -.46, 0); f.rotation.z = (k - 1.5) * .06; el.add(f); }
-    sh.rotation.set(-.15, 0, s * .06); arms.push(sh);
-  });
-  inner.position.y = .1;   // 살짝 떠 있다
-  // 조명은 그룹 밖(씬)에 항상 둔다 — 보였다 안 보였다 하면 조명 개수가 바뀌어 모든 셰이더가 다시 컴파일되며 크게 끊긴다
+  const mat = makeGhostMaterial(SET.quality === 'low');
+  const body = new THREE.Mesh(new THREE.PlaneGeometry(1, 2), mat); body.position.y = 1; body.renderOrder = 5; inner.add(body);
+  inner.position.y = .06;   // 살짝 떠 있다
+  // 예전 PointLight는 남겨 두되 늘 0 — 조명 개수가 바뀌면 모든 셰이더가 다시 컴파일된다
   const glow = new THREE.PointLight(0x6a8aa8, 0, 5); scene.add(glow);
   g.visible = false; scene.add(g);
-  return { group: g, inner, head, arms, hair, glow };
+  return { group: g, inner, body, mat, head: inner, arms: [], hair: [], glow, vis: 0, flk: 1 };
 }
 const ghost = {
   ...buildGhost(), active: false, floor: 1, x: -30, z: 0, yaw: 0, state: 'patrol', path: [], target: null, wait: 2,
@@ -489,19 +511,33 @@ scene.traverse(o => {
   o.castShadow = true; o.receiveShadow = true;
 });
 
+const _gv = new THREE.Vector3(), _gf = new THREE.Vector3();
 function ghostVisual(dt, t) {
-  const G = ghost; G.group.visible = false; G.glow.intensity = 0; return;   // 귀신 삭제
-  G.group.visible = G.floor === P.floor && !(P.floor === 0 && P.z > 1.9 && G.z > 1.8 && false);
-  G.group.position.set(G.x, floors[G.floor].y0 + .08 + Math.sin(t * 2) * .05, G.z);
-  G.group.rotation.y = G.yaw;
-  const chasing = G.state === 'chase' || G.hunt;
-  G.inner.rotation.z = Math.sin(t * 1.7) * .05;
-  G.head.rotation.z = Math.sin(t * .9) * .15 + (chasing ? Math.sin(t * 30) * .06 : 0);
-  G.inner.position.x = chasing ? (Math.random() - .5) * .04 : 0;
-  G.arms.forEach((a, i) => { a.rotation.x = -.35 + Math.sin(t * (chasing ? 7 : 1.4) + i * 2) * (chasing ? .5 : .12) - (chasing ? .6 : 0); });
-  G.glow.position.set(G.x, floors[G.floor].y0 + 1.8, G.z);
-  G.glow.intensity = G.group.visible ? .5 + .4 * Math.sin(t * 5) : 0;
-  G.hair.forEach((h, i) => { h.rotation.z = Math.sin(t * (chasing ? 6 : 1.3) + i * .7) * (chasing ? .12 : .04); });
+  const G = ghost; G.glow.intensity = 0;   // 조명은 쓰지 않는다
+  const on = !!G.active && G.floor === P.floor && floors[G.floor];
+  if (!on) { G.group.visible = false; G.vis = 0; return; }
+  const calm = SET.flashReduce || SET.noFlicker, U = G.mat.uniforms;
+  // 발소리 없는 미끄러짐 + 아주 작은 상하 흔들림
+  G.group.position.set(G.x, floors[G.floor].y0 + Math.sin(t * 1.1) * .018, G.z);
+  G.group.rotation.y = Math.atan2(camera.position.x - G.x, camera.position.z - G.z);   // 세로축 빌보드
+  G.inner.rotation.z = Math.sin(t * .7) * .012;
+  // 정면으로 보면 옅어지고, 시야 가장자리에 있을 때 더 또렷하다
+  camera.getWorldDirection(_gf); _gv.set(G.x - camera.position.x, floors[G.floor].y0 + 1.3 - camera.position.y, G.z - camera.position.z);
+  const dist = _gv.length() || 1, look = _gf.dot(_gv.divideScalar(dist));
+  let vis = .22 + .38 * THREE.MathUtils.smoothstep(.985 - look, 0, .25);
+  vis *= 1 - THREE.MathUtils.smoothstep(dist, 14, 24);
+  // 손전등에 잡히면 끊기듯 깜빡이며 사라지려 한다 (접근성: 깜빡임 대신 부드럽게 옅어짐)
+  const lit = P.light && P.battery > 0 && look > .93 && dist < 12;
+  if (lit) {
+    if (calm) G.flk += (.35 - G.flk) * Math.min(1, dt * 2);
+    else { if (Math.random() < dt * 9) G.flk = Math.random() < .45 ? .05 : .4 + Math.random() * .5; }
+  } else G.flk += (1 - G.flk) * Math.min(1, dt * 1.5);
+  vis *= G.flk;
+  G.vis += (vis - G.vis) * Math.min(1, dt * 4);
+  G.group.visible = G.vis > .01;
+  U.uT.value = t; U.uVis.value = G.vis;
+  U.uHaze.value = calm ? .4 : 1; U.uRim.value = .35 + .3 * (1 - THREE.MathUtils.clamp(look, 0, 1));
+  U.uBreath.value = qCur === 'low' ? 0 : 1;
 }
 
 /* ---------- UI ---------- */

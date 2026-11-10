@@ -1,0 +1,66 @@
+/* UI 다듬기 — 자막 가독성 · 알림 쌓기 · 문서 뷰어(손글씨/타자 · 1998/2008 · 페이지 넘김) · 2008 폴더폰 · 게임패드 초점
+   ID · 동작은 그대로, 보이는 모양만 바꾼다 (uiV3.css 뒤에 불러온다) */
+@import url('https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&family=Nanum+Gothic+Coding:wght@400;700&family=Nanum+Myeongjo:wght@400;700&display=swap');
+
+/* ── 자막: 반투명 판 · 화자 색 · 최대 폭 · 한국어 줄바꿈(어절 단위) ── */
+html body #sub{max-width:min(880px,78vw)!important;padding:8px 20px 9px!important;border-radius:4px;
+  background:linear-gradient(180deg,rgba(6,7,9,calc(var(--subBg) * 1.05)),rgba(6,7,9,calc(var(--subBg) * .9)))!important;
+  box-shadow:0 0 0 1px rgba(255,255,255,calc(var(--subBg) * .08)),0 6px 22px rgba(0,0,0,calc(var(--subBg) * .9));
+  word-break:keep-all;overflow-wrap:anywhere;text-wrap:balance;line-height:1.55!important;letter-spacing:.01em;
+  -webkit-backdrop-filter:blur(calc(var(--subBg) * 6px));backdrop-filter:blur(calc(var(--subBg) * 6px))}
+html body #sub b{display:block;font-size:.74em;letter-spacing:.14em;margin:0 0 2px;font-weight:700}
+html body #sub span{display:block}
+/* 주인공 대사 창과 겹치지 않게 위로 */
+body:has(#dlg.show) #sub{bottom:calc(150px * var(--subScale) + 70px)!important}
+#dlgText,#cap{word-break:keep-all;overflow-wrap:anywhere}
+
+/* ── 알림: 작게 · 쌓일 때 오래된 것은 흐리게 · 오른쪽에서 밀려 들어옴 ── */
+html body #toasts{width:280px;gap:6px}
+html body #toasts>.toast{padding:7px 12px 8px!important;font-size:12.5px;line-height:1.45;word-break:keep-all;transition:opacity .4s,transform .4s;animation:upToastIn .35s cubic-bezier(.2,.8,.2,1) both}
+html body #toasts>.toast b{display:block;font-size:11px;letter-spacing:.16em;margin-bottom:1px}
+html body #toasts>.toast:nth-last-child(n+3){opacity:.72}
+html body #toasts>.toast:nth-last-child(n+4){opacity:.45;transform:scale(.97);transform-origin:right center}
+html body #toasts>.toast.out{opacity:0!important;transform:translateX(24px)}
+html body #toasts>.toast.warn{border-left-color:var(--v3-red,#c8463c)!important}
+html body #toasts>.toast.info{border-left-color:#7fb2d8!important}
+html body #toasts>.toast.opt{border-left-color:#b48ae0!important}
+@keyframes upToastIn{from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:none}}
+
+/* ── 문서 뷰어: 페이지 넘김 · 종이 질감 · 손글씨 / 타자 ── */
+#noteBox{perspective:1400px}
+#noteBox.show #note{animation:upPage .55s cubic-bezier(.2,.75,.25,1) both;transform-origin:left center}
+@keyframes upPage{0%{opacity:0;transform:rotateY(-38deg) translateX(-30px)}60%{opacity:1}100%{opacity:1;transform:rotateY(0) rotate(-.6deg)}}
+#note[data-doc]>div{position:relative;max-height:78vh;overflow:auto;scrollbar-width:thin}
+#note[data-doc]:not([data-doc=tape])>div::after{content:'';position:absolute;inset:0;pointer-events:none;mix-blend-mode:multiply;opacity:.5;
+  background:radial-gradient(ellipse at 12% 8%,rgba(120,90,40,.18),transparent 40%),radial-gradient(ellipse at 90% 95%,rgba(110,80,30,.22),transparent 45%),
+  repeating-radial-gradient(circle at 37% 61%,rgba(0,0,0,.025) 0 1px,transparent 1px 3px)}
+/* 손글씨(1998 일기 · 쪽지 · 편지) */
+#note[data-doc=hand]>div>div:nth-last-child(2){font-family:'Nanum Pen Script','East Sea Dokdo',cursive!important;font-size:23px!important;line-height:28px;color:#1d2a52!important;letter-spacing:.01em}
+/* 타자 · 인쇄 문서: 1998 은 명조 활자, 2008 은 레이저 프린터 고딕 */
+#note[data-doc=official][data-era="1998"]>div,#note[data-doc=log][data-era="1998"]>div{font-family:'Nanum Myeongjo','Noto Serif KR',serif!important}
+#note[data-era="2008"]>div{font-family:'Nanum Gothic Coding','Noto Sans KR',monospace!important;background-color:#f4f3ee!important}
+#note[data-era="2008"][data-doc=hand]>div>div:nth-last-child(2){color:#14203a!important}
+#note[data-era="2008"]>div>div:nth-last-child(2){letter-spacing:0}
+#note p.sub,#noteBox>p.sub{letter-spacing:.2em;font-size:11px;opacity:.6}
+
+/* ── 2008 폴더폰: 접히는 경첩 · 반사 LCD · 비트맵 상태 표시줄 ── */
+#phone .phoneFrame::before{content:'';position:absolute;left:18%;right:18%;top:-9px;height:7px;border-radius:4px 4px 0 0;background:linear-gradient(#c9ced3,#7e868e);box-shadow:0 -1px 0 rgba(255,255,255,.4) inset;z-index:2;pointer-events:none}
+#phone .pIsland{display:none!important}   /* 2008 폰에는 노치가 없다 */
+#phone .pStatus{font-family:'Nanum Gothic Coding',monospace;font-size:11px!important;letter-spacing:.04em;background:linear-gradient(#2b4f86,#16305a);color:#e8f0ff;padding:2px 8px!important;border-radius:2px;text-shadow:0 1px 0 #000}
+#phone .pHead{font-size:15px!important;padding:4px 8px!important;margin:3px 0 4px!important;background:linear-gradient(#f2f5f8,#c6ced8);color:#13243c!important;border-radius:2px;letter-spacing:.06em;font-weight:700}
+#phone #pBody{background:linear-gradient(180deg,rgba(150,190,240,.06),transparent 30%),#0b1626;border:1px solid #2b4566;border-radius:2px;box-shadow:inset 0 0 18px rgba(0,0,0,.6)}
+#phone #pBody::-webkit-scrollbar{width:4px}#phone #pBody::-webkit-scrollbar-thumb{background:#4a6a90}
+#phone .pTabs button:focus-visible,#phone .pTabs button.on{outline:none}
+#phone .pHome{font-family:'Nanum Gothic Coding',monospace}
+#phone #pBody button{white-space:nowrap;flex-shrink:0}
+
+/* ── 일시정지 · 설정: 키보드/게임패드 초점 표시 ── */
+.gpFocus,.overlay .btn:focus-visible,.overlay button:focus-visible,.overlay select:focus-visible,.overlay input:focus-visible{outline:2px solid var(--v3-amber,#e2b35a)!important;outline-offset:2px}
+html body #pause .menuBtns .btn.gpFocus{border-color:var(--v3-amber)!important;transform:translateX(3px)}
+html body #settings .setPage label,html body #settings .setPage>div{word-break:keep-all}
+
+/* ── 로딩 화면: 진행 바 위 퍼센트 ── */
+#loading .ldBar{position:relative}
+#loading .ldPct{display:block;margin-top:6px;font:600 11px/1 'Nanum Gothic Coding',monospace;letter-spacing:.24em;color:#8a7a58}
+
+@media (prefers-reduced-motion:reduce){#noteBox.show #note,html body #toasts>.toast{animation:none}}

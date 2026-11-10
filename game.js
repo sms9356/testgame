@@ -698,7 +698,9 @@ function refreshHud() {
 }
 function toast(title, desc = '', kind = '') {
   const t = document.createElement('div'); t.className = 'toast panel ' + kind; t.innerHTML = `<b>${title}</b>${desc}`;
-  $('toasts').appendChild(t); setTimeout(() => t.remove(), 4200);
+  // 표시 시간: 글 길이에 비례 (3.2 ~ 7초) · 사라질 때 살짝 밀려 나간다
+  const ms = Math.min(7000, 3200 + (String(title) + String(desc)).replace(/<[^>]*>/g, '').length * 45);
+  $('toasts').appendChild(t); setTimeout(() => t.classList.add('out'), ms - 400); setTimeout(() => t.remove(), ms);
   while ($('toasts').children.length > 4) $('toasts').firstChild.remove();
 }
 let talkTimer = 0, talkRequest = 0;
@@ -1341,6 +1343,7 @@ function showNote(it) {
   storyCalm(35);
   state = 'note';
   if (it.id === 'n_seomun_ilbo' || it.newspaper) {
+    $('note').dataset.doc = 'paper'; $('note').dataset.era = '1998';
     const whoName = CHAR === 'jihun' ? '지훈' : '서연';
     $('note').innerHTML = [
       '<div style="background:#e8dfc8;color:#181512;padding:18px 22px;border:3px double #2b241d;box-shadow:inset 0 0 28px rgba(60,42,20,0.28);font-family:serif;line-height:1.55;max-width:640px;margin:0 auto;text-align:left;">',
@@ -1438,6 +1441,9 @@ function showNote(it) {
     ].join('');
   }
   $('note').innerHTML = docHTML;
+  // 문서 종류 · 연대: CSS 가 손글씨(1998 일기 · 쪽지) / 활자(공문 · 일지) / 2008 레이저 인쇄 글꼴을 고른다
+  $('note').dataset.doc = isTape ? 'tape' : isOfficial ? 'official' : isLogbook ? 'log' : isDiary || it.kind === 'note' ? 'hand' : 'paper';
+  $('note').dataset.era = /200[0-9]|201[0-9]/.test(tStr + ' ' + (it.year || '')) || /\b200[0-9][.\-년]/.test(String(it.text || '')) ? '2008' : '1998';
   $('noteBox').classList.add('show'); it.img ? sfx.photo() : sfx.paper();
   stopSpeak();
   if (it.voiceKey) line(it.voiceKey, 'tape', it.voiceWho || '📼 녹취록 재생');
@@ -9237,7 +9243,7 @@ if (DEBUG) {
     minaF: MINA_F, minaDbg: { mina, npcVisuals, follow() { FL.mina = true; minaFollowStart(); }, wake: () => minaWake() }, CONTACTS, CALL, callOut, bcOpen,
     tp(x, z, f = 0, yaw = 0, pitch = 0) { P.x = x; P.z = z; P.floor = f; P.yaw = yaw; P.pitch = pitch; },
     give() { world.items.filter(i => i.kind === 'key').forEach(i => { i.taken = true; i.mesh.visible = false; got[i.idx] = true; }); P.keys = TOTAL; refreshHud(); },
-    get state() { return state; }, set state(v) { state = v; }, get tNow() { return tNow; }, openTest, EV, appar, applyQuality,
+    showNote, get state() { return state; }, set state(v) { state = v; }, get tNow() { return tNow; }, openTest, EV, appar, applyQuality,
     interact, findInteract, hit, die, activateGhost, enrage, FL, MG, throwCan, throws, set playTime(v) { playTime = v; }, toggleView, get view() { return view; }, useProp, docs, msgs, clues, objective, makeGateKey, openInv, openPhone, openMap, openCharsel, openSettings, refreshHud, save, load, inv, mina,
     get power() { return power; }, set power(v) { power = v; }, get CHAR() { return CHAR; }, newGame, continueGame,
     ELV,elvCall,elvEnter,elvLeave,elvPress,elvTick,elvReset,setTarget(t) { target = t; }, DAY, GEN, SIDEQUESTS, sqStep, sqDoneCount, useSideQuest, HEADQUEST, useHead, COLLECT, tmpFx, roomAt, camMode, camShoot, CAM, MIC, SAN, BRK, setBreaker, schoolPower, craftingSystem, ghostCam, restroom, useSink, useFlush, placeAlarm, throwShock, useFirstAid, tryCombine, stunGhost, enterLocker, leaveLocker, startSearch, useMiniSpot, openChalk, chalkAsk, XT, winGame,

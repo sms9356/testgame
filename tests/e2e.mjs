@@ -28,7 +28,7 @@ const E = (p, f, a) => p.evaluate(f, a);
 // 새로고침: 샌드박스에서 reload 가 180초 넘게 commit 되지 않는 일이 있었다 → 60초 안에 안 되면 같은 주소로 다시 연다(localStorage 는 유지)
 async function reloadP(p) {
   try { await p.reload({ waitUntil: 'commit', timeout: 60000 }); }
-  catch (e) { out('   [reload 지연 → goto 재시도] ' + e.message.split('\n')[0]); await p.goto(p.url() && p.url() !== 'about:blank' ? p.url() : URL, { waitUntil: 'commit', timeout: 180000 }); }
+  catch (e) { out('   [reload 지연 → goto 재시도] ' + e.message.split('\n')[0]); await p.goto(p.url() && p.url() !== 'about:blank' ? p.url() : URL, { waitUntil: 'commit', timeout: 180000 }).catch(e => out('   [goto: 늦게 시작된 reload 와 겹침 — 그쪽을 기다림] ' + e.message.split('\n')[0])); }
   await p.waitForFunction(() => window.__loadTimes, null, { timeout: 180000 });
 }
 // 정문을 연 뒤 마지막 선택(EV-23): 선택지가 뜨면 고른다

@@ -31,7 +31,7 @@ export function installStreetscape({ scene, world, floors, footprints = [] }) {
   const take = (x, z, r) => used.push([x, z, r]);
 
   // ── 모양 (한 벌씩) ──
-  const mPole = S(0x2e3236, .45, .7), mHead = S(0xe8e4d8, .4, .2, { emissive: 0xffe2a8, emissiveIntensity: .9 }), mWood = S(0x8a5a32, .7), mSteel = S(0x5a5e62, .4, .75), mBin = S(0x2f5a3a, .6, .3), mBinLid = S(0x23262a, .5, .5),
+  const mPole = S(0x2e3236, .45, .7), mHead = S(0xe8dcc0, .4, .2, { emissive: 0xffa64a, emissiveIntensity: .9 }), mWood = S(0x8a5a32, .7), mSteel = S(0x5a5e62, .4, .75), mBin = S(0x2f5a3a, .6, .3), mBinLid = S(0x23262a, .5, .5),
     mIron = S(0x2a2a2a, .8, .6), mGrate = S(0x3a3c3e, .7, .6), mYellow = S(0xd8b020, .5, .2), mPost = S(0x4a4e52, .5, .6), mConc = S(0x9a968c, .9);
   const geo = {
     pole: new THREE.CylinderGeometry(.055, .075, 4.4, 10).translate(0, 2.2, 0), base: new THREE.CylinderGeometry(.16, .2, .32, 12).translate(0, .16, 0),

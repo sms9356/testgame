@@ -1,0 +1,14 @@
+{
+  "_comment": "Steam achievement mapping. Each apiName must exist with the same name in Steamworks (App Admin > Stats & Achievements). Rules are evaluated by steamBridge.js from local save data (localStorage); the game code itself knows nothing about Steam.",
+  "achievements": [
+    { "apiName": "ENDING_NORMAL", "rule": { "type": "ending", "id": "normal" }, "ko": "노멀 엔딩", "en": "Normal Ending", "ja": "ノーマルエンド", "zh": "普通结局" },
+    { "apiName": "ENDING_TRUE", "rule": { "type": "ending", "id": "true" }, "ko": "진 엔딩", "en": "True Ending", "ja": "トゥルーエンド", "zh": "真结局" },
+    { "apiName": "ENDING_COVER", "rule": { "type": "ending", "id": "cover" }, "ko": "은폐 엔딩", "en": "Cover-Up Ending", "ja": "隠蔽エンド", "zh": "掩盖结局" },
+    { "apiName": "ALL_ENDINGS", "rule": { "type": "allEndings", "ids": ["normal", "true", "cover"] }, "ko": "모든 결말", "en": "Every Ending", "ja": "すべての結末", "zh": "全部结局" },
+    { "apiName": "FIRST_DEATH", "rule": { "type": "deaths", "min": 1 }, "ko": "첫 번째 죽음", "en": "First Death", "ja": "最初の死", "zh": "初次死亡" },
+    { "apiName": "DOCS_10", "rule": { "type": "docs", "min": 10 }, "ko": "기록 수집가", "en": "Archivist", "ja": "記録収集家", "zh": "档案收集者" },
+    { "apiName": "DOCS_30", "rule": { "type": "docs", "min": 30 }, "ko": "잊혀진 시간의 기록", "en": "Records of Forgotten Time", "ja": "忘れられた時間の記録", "zh": "被遗忘时光的记录" },
+    { "apiName": "CLUES_10", "rule": { "type": "clues", "min": 10 }, "ko": "탐정", "en": "Detective", "ja": "探偵", "zh": "侦探" },
+    { "apiName": "SPEEDRUN_60", "rule": { "type": "bestTimeUnder", "sec": 3600 }, "ko": "한 시간 안에", "en": "Within the Hour", "ja": "一時間以内に", "zh": "一小时之内" }
+  ]
+}

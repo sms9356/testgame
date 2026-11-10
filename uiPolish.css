@@ -1,6 +1,6 @@
 /* UI 다듬기 — 자막 가독성 · 알림 쌓기 · 문서 뷰어(손글씨/타자 · 1998/2008 · 페이지 넘김) · 2008 폴더폰 · 게임패드 초점
    ID · 동작은 그대로, 보이는 모양만 바꾼다 (uiV3.css 뒤에 불러온다) */
-@import url('https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&family=Nanum+Gothic+Coding:wght@400;700&family=Nanum+Myeongjo:wght@400;700&display=swap');
+/* 폰트(Nanum Pen Script · Nanum Gothic Coding · Nanum Myeongjo)는 index.html 의 vendor/fonts/fonts.css 에서 로컬로 불러온다 */
 
 /* ── 자막: 반투명 판 · 화자 색 · 최대 폭 · 한국어 줄바꿈(어절 단위) ── */
 html body #sub{max-width:min(880px,78vw)!important;padding:8px 20px 9px!important;border-radius:4px;

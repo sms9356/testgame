@@ -6,7 +6,12 @@
   "scripts": {
     "start": "python3 -m http.server 8000",
     "test": "node --experimental-vm-modules --test tests/*.test.mjs",
-    "test:e2e": "node tests/e2e.mjs"
+    "test:e2e": "node tests/e2e.mjs",
+    "desktop:install": "npm --prefix desktop install --no-audit --no-fund",
+    "desktop": "npm --prefix desktop start",
+    "desktop:stage": "node tools/stage-desktop.mjs",
+    "desktop:build": "node tools/stage-desktop.mjs && npm --prefix desktop run build",
+    "desktop:build:steam": "node tools/stage-desktop.mjs && npm --prefix desktop run build:steam"
   },
   "license": "MIT"
 }

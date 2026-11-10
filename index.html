@@ -6,8 +6,7 @@
 <link rel="stylesheet" href="style.css">
 <link rel="icon" href="data:,">
 <title>서문고 — 잊혀진 시간</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=East+Sea+Dokdo&family=Noto+Sans+KR:wght@300;400;500;700&family=Noto+Serif+KR:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="vendor/fonts/fonts.css"><!-- 로컬 OFL 폰트 (tools/vendor-fonts.mjs) — 오프라인/Steam -->
 <style>
   :root{--red:#b3262e;--ink:#d8d4c8;--dim:#8d897d;--line:#3a4650;--panel:rgba(9,12,16,.82);--acc:#d86a7a;--gold:#f2c14e;--subScale:1;--subBg:.45}
   *{box-sizing:border-box;margin:0;padding:0}
@@ -957,5 +956,6 @@
 <script type="importmap">{ "imports": { "three": "./vendor/three.module.js", "three/webgpu": "./vendor/three.webgpu.js", "three/tsl": "./vendor/three.tsl.js" } }</script>
 <script type="module" src="game.js?v=426"></script>
 <script src="uiPolish.js?v=426" defer></script>
+<script src="steamBridge.js" defer></script>
 </body>
 </html>

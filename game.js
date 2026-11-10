@@ -2540,11 +2540,11 @@ let introCue = 0, introEndT = 0;
   put(new THREE.BoxGeometry(.21, .006, .29), M(0xe8e0c8, .95), lx, dy + .038, lz, -.12);
   { const vr = put(new THREE.BoxGeometry(.11, .028, .06), M(0x2c2e33, .4, .3), 6.28, dy + .014, 67.08, -.2); put(new THREE.BoxGeometry(.012, .006, .012), new THREE.MeshBasicMaterial({ color: 0xb02020 }), 6.31, dy + .03, 67.07); }   // 보이스레코더 (책상 동쪽)
   const tx = 5.68, tz = 66.72, ty = .79;   // 증언 카세트: 책상이 꽉 차서 옆 간이침대 위에
-  put(new THREE.BoxGeometry(.11, .018, .07), M(0x222226, .45), tx, ty + .01, tz, .5);
-  put(new THREE.BoxGeometry(.09, .004, .05), M(0xd8c8a0, .8), tx, ty + .021, tz, .5);
+  const tgA = put(new THREE.BoxGeometry(.11, .018, .07), M(0x222226, .45), tx, ty + .01, tz, .5);
+  const tgB = put(new THREE.BoxGeometry(.09, .004, .05), M(0xd8c8a0, .8), tx, ty + .021, tz, .5);
   world.props.push({ kind: 'gradio', floor: 0, x: rx, z: rz, y: ry0 + .1, r: 1.5, n: 0, led, label: '경비 무전기 켜기 — 1998.10.12 교신 기록' });
   world.props.push({ kind: 'glog', floor: 0, x: lx, z: lz, y: dy, r: 1.5, n: 0, label: '경비 근무 일지 묶음 넘기기' });
-  world.props.push({ kind: 'tape', id: 'ts_guard', floor: 0, x: tx, z: tz, y: ty, r: 1.5, label: '증언 카세트 재생', ...world.TAPES.ts_guard });
+  world.props.push({ kind: 'tape', id: 'ts_guard', floor: 0, x: tx, z: tz, y: ty, r: 1.5, label: '증언 카세트 재생', mesh: tgA, visMesh: tgB, ...world.TAPES.ts_guard });   // 모형을 묶어 둔다 — 자리 보정이 프롬프트만 옮기고 카세트는 두고 가지 않게
 }
 function lockMainGateAuto() {
   if (gateClosed) return;
@@ -4619,8 +4619,9 @@ function placeSiteTapes() {
     const b = new THREE.Mesh(new THREE.BoxGeometry(.26, .07, .15), mat); b.position.y = .035; g.add(b);
     const k = new THREE.Mesh(new THREE.BoxGeometry(.038, .018, .026), btn); k.position.set(.045, .076, .05); g.add(k);
     g.userData.dynamic = true; (f === 0 ? scene : F.interior).add(g); if (f === 0) g.position.y += 0;
-    world.props.push({ kind: 'tape', id, floor: f, x, z, y: y + .1, r: 1.6, label: '증언 카세트 재생', ...world.TAPES[id] });
+    world.props.push({ kind: 'tape', id, floor: f, x, z, y: y + .1, r: 1.6, label: '증언 카세트 재생', visMesh: g, ...world.TAPES[id] });
   }
+  try { declutterInteractables(); } catch (e) { console.warn('[declutter]', e); }   // 피아노 · 이젤 옆 0.6m 에 놓여 그 조사 지점과 프롬프트를 다투던 것
 }
 { const t = setInterval(() => { if (window.__modelsDone) { clearInterval(t); try { placeSiteTapes(); } catch (e) { console.warn('[site tapes]', e); } } }, 500); }
 // 지하 기계실 원심 송풍기: 조사 지점이 송풍기 몸체와 옆 설비 사이 0.3m 틈에 끼어 다가설 수 없었다 → 송풍기 남쪽 앞면으로
@@ -4642,8 +4643,8 @@ async function placeClassReps() {
     const g = new THREE.Group(); g.position.set(...spot); g.rotation.y = Math.PI / 2;
     const b = new THREE.Mesh(new THREE.BoxGeometry(.24, .06, .14), mat); b.position.y = .03; g.add(b);
     const k = new THREE.Mesh(new THREE.BoxGeometry(.036, .016, .024), btn); k.position.set(.045, .068, .045); g.add(k);
-    g.userData.dynamic = true; g.userData.rbKeep = true; scene.add(g);
-    world.props.push({ kind: 'tape', id, floor: 0, rbY: room.y0, x: spot[0], z: spot[2], y: spot[1] + .1, r: 1.6, label: '반장 녹음기 재생', ...world.TAPES[id] });
+    g.userData.dynamic = true; g.userData.rbKeep = true; scene.add(g);   // visMesh 로 묶는다 — 없으면 보정 루틴이 '모형 없는 녹음기'로 보고 책상 밑 바닥에 녹음기를 하나 더 놓았다
+    world.props.push({ kind: 'tape', id, floor: 0, rbY: room.y0, x: spot[0], z: spot[2], y: spot[1] + .1, r: 1.6, label: '반장 녹음기 재생', visMesh: g, ...world.TAPES[id] });
   }
 }
 { let n = 0; const t = setInterval(() => { if (RBG && (window.__modelsDone || ++n > 40)) { clearInterval(t); placeClassReps().catch(e => console.warn('[class reps]', e)); } }, 600); }
@@ -9029,6 +9030,52 @@ function repairStrayInteractables() {
     for (const sx of [-.055, .055]) { const r = new THREE.Mesh(new THREE.CylinderGeometry(.03, .03, .012, 14), reel); r.position.set(sx, .085, -.01); g.add(r); }
     const led = new THREE.Mesh(new THREE.BoxGeometry(.012, .008, .012), new THREE.MeshBasicMaterial({ color: 0xff3020 })); led.position.set(.1, .084, .05); g.add(led);
     g.position.set(p.x, top + .004, p.z); g.rotation.y = (p.x * 7 + p.z * 3) % 6.28; g.name = 'REC_VIS_' + (p.id || ''); g.userData.rbKeep = true; scene.add(g); p.visMesh = g; p._recVis = true; n++; }
+  try { n += declutterInteractables(); } catch (e) { console.warn('[declutter]', e); }
+  return n;
+}
+// 상호작용 지점 정리: 같은 층 0.9m 안에서 프롬프트를 다투는 줍기 물건(녹음기 · 쪽지 · 사진 · 단서 · 아이템)을 가장 가까운 빈 자리로 옮기고,
+// 가구 충돌 상자 속에 묻힌 것은 윗면으로 올리고, 허공에 뜬 것은 아래 표면으로 내린다. 고정 지점(미니게임 · 자물쇠 · 수색 · 설비)은 움직이지 않는다.
+function declutterInteractables() {
+  if (!RBG || !RBG.BLD) return 0; let n = 0;
+  const MOV = new Set(['tape', 'note', 'photo', 'clue', 'pick', 'key', 'battery', 'medkit', 'hairpin', 'can', 'fuse', 'camcorder', 'nametag', 'wire', 'mop']);
+  const IGN = new Set(['room', 'door', 'idoor', 'bed', 'switch', 'bell', 'robj', 'light', 'hide', 'locker', 'sit', 'look']);
+  const objs = p => ['mesh', 'anim', 'visMesh', 'piv', 'grp', 'obj'].map(k => p[k]).filter(o => o && o.isObject3D);
+  const E = [];
+  for (const it of world.items) if (!it.taken && !it.locked && it.pos) E.push({ o: it, item: true, kind: it.kind });
+  for (const p of world.props) if (!p.done && p.x != null && !IGN.has(p.kind) && !(p.after && !p.after.done)) E.push({ o: p, kind: p.kind });
+  const X = e => e.item ? e.o.pos.x : e.o.x, Z = e => e.item ? e.o.pos.z : e.o.z, base = e => e.o.rbY != null ? e.o.rbY : ((floors[e.o.floor] && floors[e.o.floor].y0) || 0);
+  const lvl = e => e.o.floor + '|' + Math.round(base(e) / 1.8);
+  const cols = (x, z, f) => { const out = []; for (const b of RBG.BLD) { if (!b.col) continue; const [lx, lz] = b.toLocal(x, z); for (const c of b.col) if (!c.off && lx > c.x1 && lx < c.x2 && lz > c.z1 && lz < c.z2) out.push(c); } return out; };
+  const blocked = (x, z, y0, y1, pad) => RBG.BLD.some(b => b.col && (([lx, lz]) => b.col.some(c => !c.off && lx > c.x1 - pad && lx < c.x2 + pad && lz > c.z1 - pad && lz < c.z2 + pad && (c.y1 == null || (c.y1 < y1 && c.y2 > y0))))(b.toLocal(x, z)));
+  const rc = new THREE.Raycaster(), dn = new THREE.Vector3(0, -1, 0), bb = new THREE.Box3();
+  let meshes = null; const getMeshes = () => meshes || (meshes = (() => { const a = []; scene.traverse(o => { if (o.isMesh && o.visible !== false && !o.isSprite && !(o.material && o.material.transparent)) a.push(o); }); return a; })());
+  const surf = (x, z, b0, own) => { rc.set(new THREE.Vector3(x, b0 + 1.25, z), dn); rc.far = 1.45; const h = rc.intersectObjects(getMeshes(), false).find(h => !own.has(h.object) && h.point.y > b0 - .1); let y = h ? h.point.y : null;
+    for (const c of cols(x, z)) if (c.y2 != null && c.y2 > b0 - .05 && c.y2 < b0 + 1.2 && (y == null || c.y2 > y + .02) && (c.y1 == null || c.y1 < b0 + .05 || c.y2 - c.y1 < 1.25)) y = c.y2; return y; };
+  const shift = (e, dx, dy, dz) => { const p = e.o; if (e.item) { p.pos.x += dx; p.pos.y += dy; p.pos.z += dz; } else { p.x += dx; p.z += dz; if (p.y != null) p.y += dy; if (p.px != null) { p.px += dx; p.pz += dz; } } for (const o of objs(p)) { o.position.x += dx; o.position.y += dy; o.position.z += dz; o.updateMatrixWorld(true); } };
+  const vis = e => { bb.makeEmpty(); for (const o of objs(e.o)) bb.expandByObject(o); return bb.isEmpty() || bb.max.y - bb.min.y > 1.2 ? null : bb.clone(); };
+  const room = (x, z, b0) => RBG.where ? RBG.where(x, z, b0 + .5) : null;
+  for (const e of E) { if (!MOV.has(e.kind)) continue; const b0 = base(e), v = vis(e); if (!v) continue; const own = new Set(); objs(e.o).forEach(o => o.traverse(q => own.add(q))); const cx = (v.min.x + v.max.x) / 2, cz = (v.min.z + v.max.z) / 2;
+    const emb = cols(cx, cz).find(c => c.y1 != null && c.y1 < v.min.y - .02 && c.y2 > v.max.y + .05 && c.y2 - b0 < 1.3);   // 가구 속에 묻힘 → 그 가구 윗면으로
+    if (emb && v.min.y - emb.y1 > .06) { rc.set(new THREE.Vector3(cx, v.min.y + .05, cz), dn); rc.far = .12; if (!rc.intersectObjects(getMeshes(), false).some(h => !own.has(h.object))) { shift(e, 0, emb.y2 + .004 - v.min.y, 0); n++; continue; } }   // 책상 밑 바닥 · 열린 선반 위(바로 아래 면이 있음)는 그대로
+    const s = surf(cx, cz, b0, own); if (s != null && v.min.y - s > .25) { shift(e, 0, s + .004 - v.min.y, 0); n++; } }   // 허공에 뜸 → 아래 표면으로
+  const reachAt = (x, z, b0, rm) => { for (let r = .5; r <= 1.3; r += .4) for (let a2 = 0; a2 < 12; a2++) { const sx = x + Math.cos(a2 / 12 * 6.283) * r, sz = z + Math.sin(a2 / 12 * 6.283) * r; if (!blocked(sx, sz, b0 + .2, b0 + 1.7, .3) && room(sx, sz, b0) === rm) return true; } return false; };
+  const tooClose = (e, x, z) => E.some(q => q !== e && lvl(q) === lvl(e) && Math.hypot(X(q) - x, Z(q) - z) < .95);
+  for (let i = 0; i < E.length; i++) for (let j = i + 1; j < E.length; j++) { const a = E[i], c = E[j];
+    if (lvl(a) !== lvl(c) || Math.hypot(X(a) - X(c), Z(a) - Z(c)) >= .9) continue;
+    const e = MOV.has(c.kind) && objs(c.o).length ? c : MOV.has(a.kind) && objs(a.o).length ? a : null;
+    if (!e) { if (a.item || c.item || (a.kind === c.kind && /^(sink|flush|ganx|search|cbreaker)$/.test(a.kind))) continue;   // 고정 지점 둘: 모형은 두고 프롬프트 지점만 서로 0.9m 떨어지게 벌린다
+      let dx = X(c) - X(a), dz = Z(c) - Z(a), d = Math.hypot(dx, dz); if (d < .01) { dx = 1; dz = 0; d = 1; } const m = .95 - Math.hypot(X(c) - X(a), Z(c) - Z(a)), ux = dx / d, uz = dz / d;
+      const ok = (q, x, z) => q.o.rbY == null || reachAt(x, z, base(q), room(X(q), Z(q), base(q)));   // 옛 층(경비실 등): 벽에 단 쪽(뒤에 놓인 것)은 두고 앞의 것을 옮긴다   // 옮긴 프롬프트 지점에 다가설 자리가 있어야
+      const opt = (a.o.rbY == null ? [[1, 0], [.5, .5]] : [[0, 1], [1, 0], [.5, .5]]).find(([ka, kc]) => (!ka || ok(a, X(a) - ux * m * ka, Z(a) - uz * m * ka)) && (!kc || ok(c, X(c) + ux * m * kc, Z(c) + uz * m * kc))); if (!opt) continue;
+      a.o.x -= ux * m * opt[0]; a.o.z -= uz * m * opt[0]; c.o.x += ux * m * opt[1]; c.o.z += uz * m * opt[1]; n++; continue; }
+    const b0 = base(e), x0 = X(e), z0 = Z(e), rm = room(x0, z0, b0), v = vis(e), own = new Set(); objs(e.o).forEach(o => o.traverse(q => own.add(q)));
+    const h0 = v ? v.min.y : (e.item ? e.o.pos.y : b0), s0 = surf(x0, z0, b0, own); let best = null;
+    for (let r = .3; r <= 2.6 && !best; r += .15) for (let k = 0; k < 24; k++) { const an = k / 24 * Math.PI * 2, x = x0 + Math.cos(an) * r, z = z0 + Math.sin(an) * r;
+      if (tooClose(e, x, z) || room(x, z, b0) !== rm) continue; if (e.o.rbY == null && floors[e.o.floor] && (!los(floors[e.o.floor].walls, x0, z0, x, z) || !los(floors[e.o.floor].doorWalls || [], x0, z0, x, z))) continue; const s = surf(x, z, b0, own); if (s == null) continue;   // 옛 층: 벽 너머로 옮기지 않는다
+      if (blocked(x, z, s + .03, s + .3, .12)) continue;   // 벽 · 가구 속 금지
+      if (!reachAt(x, z, b0, rm)) continue;
+      const sc = r + (s0 != null && Math.abs(s - s0) < .05 ? 0 : (s0 != null && s0 - b0 > .4 && s - b0 < .3) ? 1.5 : .5); if (!best || sc < best.sc) best = { x, z, s, sc }; }   // 책상 위 물건은 되도록 같은 높이 면에 (바닥으로 내리지 않는다)
+    if (!best) continue; shift(e, best.x - x0, v ? best.s + .004 - h0 : (best.s - (s0 ?? best.s)), best.z - z0); n++; }
   return n;
 }
 { RBG = installRebuild({ THREE, scene, floors, world }); window.__rbg = RBG; try { MOONFX = installMoonShafts({ scene, blds: [RBG.MAIN, RBG.ANX], moonPos: MOON_POS }); MOONFX.setQuality(qCur); window.__moon = MOONFX; } catch (e) { console.warn('[moon shafts]', e); } setTimeout(() => { try { refinishB1(); } catch (e) { console.warn('[B1 refinish]', e); } }, 12000); setTimeout(() => { for (const [nm, fn] of [['수영장 디테일', installPoolDetail], ['방송실 디테일', installBcastDetail], ['장비실 철문', installEqDoor]]) { try { const n = fn(); if (n) console.info('[' + nm + ']', n); } catch (e) { console.warn('[' + nm + ']', e); } } try { } catch (e) { console.warn('[pool detail]', e); } }, 13000); setTimeout(() => { try { (RBG.beds ? RBG.beds() : []).forEach((b, i) => world.props.push({ kind: 'bed', floor: 0, rbY: b.y, x: b.x, z: b.z, y: b.y + .7, r: 1.4, label: '침대에 눕기 — 잠시 숨 고르기', bed: b, _rb: true })); nurseChairFix(); } catch (e) { console.warn('[bed]', e); } }, 3500); try { RBG.allOff(); } catch (e) { console.warn('[all off]', e); } renderer.localClippingEnabled = true; setTimeout(() => { installInvestigationBoards().catch(e => console.warn('[조사 게시물]', e)); }, 2500); setTimeout(() => { furnishRooms({ scene, RBG, world, getP: () => P }).then(n => n && console.info('[가구 보강]', n)).catch(e => console.warn('[furnish v2]', e)); }, 4000); [20000, 45000].forEach(t => setTimeout(() => { try { if (RBG && RBG.deskGraffiti && !RBG._graf) { const n = RBG.deskGraffiti(); if (n) console.info('[책상 낙서]', n); } } catch (e) { console.warn('[graffiti]', e); } }, t)); [6000, 16000, 32000].forEach(t => setTimeout(() => { try { const n = repairStrayInteractables(); if (n) console.info('[상호작용 위치 보정]', n); } catch (e) { console.warn('[stray fix]', e); } }, t)); try { installRoomUI({ P, world, getRBG: () => RBG, getState: () => state, getTarget: () => target, keyInteract: () => (K().interact || 'KeyE') }); } catch (e) { console.warn('[room ui]', e); }

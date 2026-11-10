@@ -119,6 +119,8 @@ export function perfInfo() { return C ? { R: C.R, avg: Math.round(C.avg), units:
 export async function prewarmFloors(force = false, rt = null) {
   if (!C || (C.prewarm && (!force || C.prewarm.pending))) return;
   const { renderer, scene, camera } = C;
+  // 소프트웨어 GL(SwiftShader · llvmpipe)에는 병렬 컴파일이 없어 씬 전체 동기 컴파일이 메인 스레드를 1~2분 멈췄다(타이틀 · 시작 직후 먹통, 자동 점검 시간 초과) → 건너뛴다
+  if (window.__gpuSoftware && !(renderer.compileAsync && renderer.extensions.has('KHR_parallel_shader_compile'))) { C.prewarm = { ms: 0, progs: 0, skipped: 'software' }; return; }
   C.prewarm = { pending: true };
   const t0 = performance.now(), p0 = renderer.info.programs.length, shown = [], hid = [];
   scene.traverse(o => { if (!o.visible && !o.isLight) { o.visible = true; shown.push(o); } if (o.isMesh && !o.layers.test(camera.layers)) { o.layers.enable(0); hid.push(o); } });

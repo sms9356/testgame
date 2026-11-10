@@ -6,14 +6,17 @@ const pw = await import(process.env.PW_CORE || 'playwright-core');
 const URL = process.env.GAME_URL || 'http://localhost:8765/index.html';
 const b = await pw.chromium.launch({ executablePath: process.env.CHROME, args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--no-sandbox', '--autoplay-policy=no-user-gesture-required'] });
 let pass = 0, fail = 0, restores = 0;
-const SEC = [], sec = t => { SEC.push({ t, p: 0, f: 0 }); console.log('\n■ ' + t); };   // 구역별 집계 — 구역이 조용히 빠지면 결과 표에서 바로 보인다
-const ok = (cond, msg) => { const S = SEC[SEC.length - 1]; if (cond) { pass++; if (S) S.p++; console.log('  ✔', msg); } else { fail++; if (S) S.f++; console.log('  ✘', msg); } };
+const out = m => process.stdout.write(m + '\n');
+const secDone = () => { const S = SEC[SEC.length - 1]; if (S && !S.done) { S.done = 1; out(`  ⇒ 구역 결과: ${S.f ? '✘' : '✔'} 통과 ${S.p} · 실패 ${S.f} — ${S.t}`); } };
+const SEC = [], sec = t => { secDone(); SEC.push({ t, p: 0, f: 0 }); out('\n■ ' + t); };   // 구역별 집계 — 구역이 조용히 빠지면 결과 표에서 바로 보인다
+const ok = (cond, msg) => { const S = SEC[SEC.length - 1]; if (cond) { pass++; if (S) S.p++; out('  ✔ ' + msg); } else { fail++; if (S) S.f++; out('  ✘ ' + msg); } };
 
 async function page(qs = process.env.GAME_QS || '?debug') {   // 새 건물 점검: GAME_QS='?debug&rb&norender'
   const ctx = await b.newContext({ viewport: { width: 480, height: 270 } });
   // 외부 요청(구글 웹폰트 등)은 막는다: 샌드박스 프록시에서 응답 없이 매달린 폰트 요청이 'load' · 새로고침을 수 분씩 붙잡았다 — 글꼴은 대체 글꼴로 그려지고 게임 동작과는 무관
   if (!process.env.E2E_NET) await ctx.route(u => !/^https?:\/\/(localhost|127\.0\.0\.1)[:/]/.test(u.href), r => r.abort());
   const p = await ctx.newPage();
+  p.close = () => ctx.close().catch(() => {});   // 구역마다 컨텍스트째 닫아 GPU · 메모리를 돌려준다
   // waitForFunction 기본 polling 은 requestAnimationFrame — 소프트웨어 GL 에서 한 프레임이 수 초 · 무거운 장면에선 rAF 가 한참 멎어 조건이 참인데도 시간 초과가 났다 → 시간 간격 polling
   const wff = p.waitForFunction.bind(p); p.waitForFunction = (f, arg, o = {}) => wff(f, arg, { polling: 250, ...o });
   p.setDefaultNavigationTimeout(180000); p.setDefaultTimeout(60000);
@@ -22,6 +25,12 @@ async function page(qs = process.env.GAME_QS || '?debug') {   // 새 건물 점�
   return p;
 }
 const E = (p, f, a) => p.evaluate(f, a);
+// 새로고침: 샌드박스에서 reload 가 180초 넘게 commit 되지 않는 일이 있었다 → 60초 안에 안 되면 같은 주소로 다시 연다(localStorage 는 유지)
+async function reloadP(p) {
+  try { await p.reload({ waitUntil: 'commit', timeout: 60000 }); }
+  catch (e) { out('   [reload 지연 → goto 재시도] ' + e.message.split('\n')[0]); await p.goto(p.url() && p.url() !== 'about:blank' ? p.url() : URL, { waitUntil: 'commit', timeout: 180000 }); }
+  await p.waitForFunction(() => window.__loadTimes, null, { timeout: 180000 });
+}
 // 정문을 연 뒤 마지막 선택(EV-23): 선택지가 뜨면 고른다
 async function finalChoice(p, i) {
   await p.waitForFunction(() => document.getElementById('choice').classList.contains('show'), null, { timeout: 90000 });
@@ -43,7 +52,7 @@ const closeNote = p => E(p, () => { if (__g.state === 'note') { document.getElem
 // 새로고침은 'load' 이벤트가 아니라 __loadTimes 를 기다린다: 소프트웨어 GL 에서 프레임 하나가 2초 · 셰이더 동기 컴파일이 수십 초라 'load' 대기가 180초를 넘기곤 했다
 async function saveReload(p, label) {
   await E(p, () => { __g.state = 'playing'; __g.save(); });
-  await p.reload({ waitUntil: 'commit' }); await p.waitForFunction(() => window.__loadTimes, null, { timeout: 180000 }); await ready(p);
+  await reloadP(p); await ready(p);
   await E(p, () => __g.continueGame()); await started(p); await E(p, () => { __g.state = 'playing'; });
   restores++; return label;
 }
@@ -51,7 +60,7 @@ async function saveReload(p, label) {
 async function normalRun(char) {
   sec(`${char} — 처음부터 NORMAL 엔딩 (+ 저장/복원)`);
   const p = await page();
-  await E(p, c => { localStorage.clear(); localStorage.setItem('haegyo_char', c); }, char); await p.reload({ waitUntil: 'commit' }); await p.waitForFunction(() => window.__loadTimes, null, { timeout: 180000 }); await ready(p);
+  await E(p, c => { localStorage.clear(); localStorage.setItem('haegyo_char', c); }, char); await reloadP(p); await ready(p);
   await E(p, () => __g.newGame()); await started(p); await skipIntro(p); await W(p, 500);
   ok(await E(p, () => __g.CHAR) === char, `주인공 ${char}`);
   await E(p, () => { __g.P.z = -1; });
@@ -62,7 +71,7 @@ async function normalRun(char) {
   await use(p, 'safe'); await W(p, 300); for (const k of '1012') await p.keyboard.press('Digit' + k);
   // 금고가 열리면 1.4초 뒤 열쇠를 저절로 집는다 → 열린 바로 그 프레임에 저장해야 '열쇠 줍기 전' 세이브가 된다 (W 300 뒤 저장은 느린 실행에서 이미 집은 뒤였다)
   await p.waitForFunction(() => { const s = __g.world.props.find(q => q.kind === 'safe'); if (s.done && __g.state === 'playing' && !s.key.taken) { __g.save(); return true; } return false; }, null, { timeout: 20000, polling: 30 }).catch(() => {});
-  await p.reload({ waitUntil: 'commit' }); await p.waitForFunction(() => window.__loadTimes, null, { timeout: 180000 }); await ready(p); await E(p, () => __g.continueGame()); await started(p); await E(p, () => { __g.state = 'playing'; }); restores++;
+  await reloadP(p); await ready(p); await E(p, () => __g.continueGame()); await started(p); await E(p, () => { __g.state = 'playing'; }); restores++;
   ok(await E(p, () => { const k = __g.world.items.find(i => i.kind === 'key' && i.idx === 0); return k.taken ? __g.P.keys === 1 : !k.locked && k.mesh.visible; }), '복원: 금고 안 열쇠가 잠기지 않고 보임 (P0)');
   await take(p, 'key', 0); await p.waitForFunction(() => __g.P.keys === 1, null, { timeout: 8000 }).catch(() => {});   // 복원 3초 뒤 저절로 집을 수도 있다
   ok(await E(p, () => __g.P.keys === 1 && __g.world.items.find(i => i.kind === 'key' && i.idx === 0).taken), '첫 열쇠 조각 획득');
@@ -110,7 +119,7 @@ async function normalRun(char) {
 async function trueRun() {
   sec('TRUE 엔딩 경로 (명찰 → 퓨즈 · 차단기 → 마지막 방송 → 민아)');
   const p = await page();
-  await E(p, () => { localStorage.clear(); localStorage.setItem('haegyo_char', 'seoyeon'); }); await p.reload({ waitUntil: 'commit' }); await p.waitForFunction(() => window.__loadTimes, null, { timeout: 180000 }); await ready(p);
+  await E(p, () => { localStorage.clear(); localStorage.setItem('haegyo_char', 'seoyeon'); }); await reloadP(p); await ready(p);
   await E(p, () => __g.newGame()); await started(p); await skipIntro(p); await W(p, 500);
   await take(p, 'nametag'); ok(await E(p, () => __g.FL.tag), '명찰');
   await saveReload(p, '명찰 후'); ok(await E(p, () => __g.FL.tag && __g.FL.opt), '복원: 명찰 · 특별 목표');
@@ -148,7 +157,7 @@ async function trueRun() {
 async function extrasRun() {
   sec('사물함 수색 · 수집품 · 소모품 · 방 미니게임 · 초자연 현상');
   const p = await page();
-  await E(p, () => { localStorage.clear(); localStorage.setItem('haegyo_char', 'jihun'); }); await p.reload({ waitUntil: 'commit' }); await p.waitForFunction(() => window.__loadTimes, null, { timeout: 180000 }); await ready(p);
+  await E(p, () => { localStorage.clear(); localStorage.setItem('haegyo_char', 'jihun'); }); await reloadP(p); await ready(p);
   await E(p, () => __g.newGame()); await started(p); await skipIntro(p); await W(p, 500); await E(p, () => { __g.ghost.active = false; });
   ok(await E(p, () => __g.world.props.filter(q => q.kind === 'search').length) >= 40 && await E(p, () => __g.world.props.filter(q => q.kind === 'mspot').length) >= 10, '수색 지점 40곳 이상 · 방 미니게임 10곳 이상');
   // 수집품이 든 사물함 3곳을 실제로 뒤진다 (가만히 1.1초)
@@ -228,14 +237,14 @@ async function reachAudit() {
 async function saveEdgeCases() {
   sec('저장 예외: 캐릭터 유지 · 손상 세이브 백업 복구 · 테스트 세이브 분리');
   const p = await page();
-  await E(p, () => { localStorage.clear(); localStorage.setItem('haegyo_char', 'jihun'); }); await p.reload({ waitUntil: 'commit' }); await p.waitForFunction(() => window.__loadTimes, null, { timeout: 180000 }); await ready(p);
+  await E(p, () => { localStorage.clear(); localStorage.setItem('haegyo_char', 'jihun'); }); await reloadP(p); await ready(p);
   await E(p, () => __g.newGame()); await started(p); await skipIntro(p); await W(p, 400);
   await E(p, () => { __g.state = 'playing'; __g.P.hp = 77; __g.save(); __g.P.hp = 55; __g.save(); localStorage.setItem('haegyo_char', 'seoyeon'); });
-  await p.reload({ waitUntil: 'commit' }); await p.waitForFunction(() => window.__loadTimes, null, { timeout: 180000 }); await ready(p);
+  await reloadP(p); await ready(p);
   await E(p, () => __g.continueGame()); await started(p);
   ok(await E(p, () => __g.CHAR) === 'jihun', '메뉴에서 서연을 골라도 이어하기는 저장된 지훈'); restores++;
   await E(p, () => localStorage.setItem('haegyo_save_v5', '{손상된 데이터'));
-  await p.reload({ waitUntil: 'commit' }); await p.waitForFunction(() => window.__loadTimes, null, { timeout: 180000 }); await ready(p);
+  await reloadP(p); await ready(p);
   await E(p, () => __g.continueGame()); await started(p);
   ok(await E(p, () => __g.P.hp) === 77, '본 세이브 손상 → 백업 세이브(이전 저장)로 복구'); restores++;
   await p.close();
@@ -264,7 +273,8 @@ async function coverRun() {
 }
 
 // E2E_ONLY=reach,extras … 처럼 일부만 돌릴 수 있다
-const ONLY = (process.env.E2E_ONLY || '').split(',').filter(Boolean), run = (k, f) => !ONLY.length || ONLY.includes(k) ? f() : null;
+const ONLY = (process.env.E2E_ONLY || '').split(',').filter(Boolean);
+const run = async (k, f) => { if (ONLY.length && !ONLY.includes(k)) return; try { await f(); } catch (e) { ok(false, `구역 중단: ${e.message.split('\n')[0]}`); } secDone(); };   // 한 구역이 죽어도 나머지는 돈다
 await run('normal', () => normalRun('jihun'));
 await run('normal', () => normalRun('seoyeon'));
 await run('true', trueRun);

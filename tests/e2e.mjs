@@ -189,6 +189,8 @@ async function extrasRun() {
 async function reachAudit() {
   sec('도달성 감사 (막힌 통로 · 가려진 조사 지점)');
   const p = await page();
+  // 소프트웨어 GL: 게임 화면에선 매 프레임 전체 장면을 그려 모델 작업(프레임당 하나)이 30초에 하나꼴로 느려진다 → 가벼운 타이틀 화면에서 먼저 다 받는다
+  await p.waitForFunction(() => window.__modelsDone, null, { timeout: 180000 });
   await E(p, () => { localStorage.clear(); __g.newGame(); }); await started(p); await skipIntro(p); await W(p, 600);
   // 소품 모델이 다 들어와야 묻힌 아이템 옮기기(itemUnbury)가 끝난다 — 이어하기는 기다리지 않으므로 여기서 기다린다
   await p.waitForFunction(() => window.__modelsDone, null, { timeout: 180000 }); await W(p, 500);

@@ -19,6 +19,7 @@ export function loadSurfaceTexture(loader,url,channel) {
     new THREE.ImageLoader().load(url,img=>{texture.image=img;texture.needsUpdate=true;refineModelTexture(texture,url,channel);resolve(true);},undefined,fail);
   });
   texture.userData.ready=ready;
+  if(bk)(globalThis.__texByFile ||= new Map()).set(bk.split('/').pop(),texture);   // 본관 재건축(tx)이 같은 구운 파일을 또 받지 않게
   texture.wrapS=texture.wrapT=THREE.RepeatWrapping;texture.anisotropy=8;
   if(channel==='BaseColor')texture.colorSpace=THREE.SRGBColorSpace;
   return texture;

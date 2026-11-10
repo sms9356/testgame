@@ -56,7 +56,7 @@ import './school37RoomsPatch.js';    // 본관 · 별관 37개 특별실 가구 
 import './new37UniquePatch.js';     // 37개 구역 신규 특수 설비 · 벽면 레일 (사용자 제공) → window.new37UniquePatch
 import './megaExpansionPatch.js?v=422';   // 메가 익스팬션 · 최적화 · 4막 사건 기록 · 수집품 · 미니게임 (사용자 제공) → window.megaSchoolPatch
 import './poolMachineryPatch.js';     // 수영장 · 남/녀 탈의실·샤워실 · 기계실 철문 (사용자 제공) → window.poolAndMachineryPatch
-import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx, setSfxBusyCheck } from './audio.js?v=422'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=422'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera, perfInstanceSource } from './perfStabilizer.js?v=422'; window.__perfInst = perfInstanceSource; import { upgradePlainMaterials } from './plainUpgrade.js?v=422'; import { relayCampusPaths, cleanupCampus } from './campusPaths.js?v=422'; import { installStreetscape } from './streetV2.js?v=422'; import { installHudV2, tickHudV2 } from './hudV2.js?v=422'; import { installPartnerRadio, tickPartnerRadio } from './partnerRadio.js?v=422';
+import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx, setSfxBusyCheck, setSpace, tickNight } from './audio.js?v=422'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=422'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera, perfInstanceSource } from './perfStabilizer.js?v=422'; window.__perfInst = perfInstanceSource; import { upgradePlainMaterials } from './plainUpgrade.js?v=422'; import { relayCampusPaths, cleanupCampus } from './campusPaths.js?v=422'; import { installStreetscape } from './streetV2.js?v=422'; import { installHudV2, tickHudV2 } from './hudV2.js?v=422'; import { installPartnerRadio, tickPartnerRadio } from './partnerRadio.js?v=422';
 import { installRoomUI } from './roomUI.js?v=422';   // 방별 현장 조사 카드 · 상호작용 아이콘 · 획득/목표 애니메이션
 import { furnishRooms } from './furnishV2.js?v=422';   // 방 용도별 실사 가구 보강 (상담실 소파 · 교무실 냉온수기 · 창고 선반 …)
 import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js?v=422';
@@ -409,7 +409,7 @@ const MIC = { on: false, level: 0, risk: 0, an: null, buf: null, ctx: null, stre
 const SAN = { lvl: 0, t: 8, fov: 0, fovT: 0 };
 let STH = null;   // 계단 길게 누르기 { code, dir, t }
 let repelK = 0;   // 손전등 집중 조사 진행도 (0~1): 빛 색 떨림 · 시야 좁힘 · 흔들림 · 코일 소리
-let blackout = 0, shake = 0, nextEvent = 40, lampTimer = 0, introDone = false, escaped = false;
+let blackout = 0, shake = 0, nextEvent = 40, lampTimer = 0, litD = 99, introDone = false, escaped = false;
 const keys = {};
 
 /* ---------- 유령 ---------- */
@@ -1196,8 +1196,28 @@ function surfaceAt() {
   const f = P.floor;
   if (f === 0 && isOutdoors()) return (Math.abs(P.x) < 3.4 || (P.z > MAIN_ZS && P.z < 14 && Math.abs(P.x) < 46)) ? 'tile' : 'dirt';
   if (f === 5) return 'wood';
+  { const w = rbHere(); if (w || (f === 0 && RBG && RBG.inBuilding(P.x, P.z))) return rbSurface(w); }   // 새 건물: 재건 재질(인조석 복도 · PVC 데코타일 교실 · 자기질 타일 화장실 · 계단)에 맞춘다
   if (f >= 0 && f !== 3 && f < 11) { const r = roomAt(f, P.x, P.z); if (r && WOOD_ROOMS.includes(r.type)) return 'wood'; if (r && r.type === 'stair') return 'metal'; }
   return 'tile';
+}
+function rbSurface(w) {
+  if (/화장실/.test(w)) return 'ceramic';
+  if (/계단/.test(w)) return 'stairs';
+  if (!w || /복도|현관|로비|홀/.test(w)) return 'terrazzo';
+  if (/무용|음악|강당|체육/.test(w)) return 'wood';
+  return 'pvc';
+}
+// 잔향 공간: 새 건물은 방 이름으로, 그 밖은 환경음 구역으로
+let spaceW = '', spaceV = 'corridor', spaceT = 0;
+function spaceAt(a) {
+  if (a === 'out' || a === 'roof') return 'outdoor';
+  if (a === 'b1') return 'basement';
+  if (a === 'hall') return 'hall';
+  if ((spaceT -= 1) > 0) return spaceV; spaceT = 10;   // rbHere는 방 목록을 훑으니 10프레임에 한 번만
+  const w = rbHere(); if (w === spaceW && w) return spaceV; spaceW = w;
+  if (w) spaceV = /화장실/.test(w) ? 'toilet' : /계단/.test(w) ? 'stair' : /복도|현관|로비/.test(w) ? 'corridor' : /체육|강당|무용/.test(w) ? 'hall' : 'classroom';
+  else spaceV = a === 'room' ? 'classroom' : 'corridor';
+  return spaceV;
 }
 const _fwd = new THREE.Vector3();
 function updateSound(dt) {
@@ -1206,6 +1226,8 @@ function updateSound(dt) {
   let a = 'in';
   if (isOutdoors()) a = P.floor === 3 ? 'roof' : 'out'; else if (P.floor === 4) a = 'b1'; else if (P.floor === 5 || P.floor === 6) a = 'hall'; else if (roomAt(P.floor, P.x, P.z)) a = 'room';
   setAmbience(a, dt);
+  setSpace(spaceAt(a));
+  tickNight(dt, { playing: state === 'playing', out: a === 'out' || a === 'roof', indoor: a !== 'out' && a !== 'roof', lit: 1 - litD / 4, power: !!power && !(blackout > 0) });
   const chase = false;
   const gprox = ghost.active && ghost.storyTime > 0 && ghost.floor === P.floor ? clamp(1 - Math.hypot(ghost.x - P.x, ghost.z - P.z) / 16, 0, 1) : 0;
   setMusic(state === 'menu' ? 'menu' : chase ? 'chase' : 'none', dt, SET.bgm && (state === 'playing' || state === 'ui' || state === 'trans') ? SET.bgmVol * (1 - gprox * .85) : state === 'dead' || state === 'won' ? .35 : 0);
@@ -3031,7 +3053,7 @@ function updateLighting(dt) {
     lampTimer = .2;
     const baseLamps = !indoors && P.floor === 0 ? world.campusDesign.lights : F.lamps;
     const lamps=ELV.p&&ELV.cur===P.floor&&ELV.cabinLamp?[...baseLamps,ELV.cabinLamp]:baseLamps;
-    const pyEye = (F ? F.y0 : 0) + (P.sh || 0) + 2.2; const c = lamps.filter(l => l.kind !== 'dead' && !l.off).map(l => ({ l, d: l.cabin&&P.inElev?-1:Math.hypot(l.x - P.x, l.z - P.z, (l.y - pyEye) * .75) })).filter(o => o.d < 16).sort((a, b) => a.d - b.d).slice(0, 4);
+    const pyEye = (F ? F.y0 : 0) + (P.sh || 0) + 2.2; const c = lamps.filter(l => l.kind !== 'dead' && !l.off).map(l => ({ l, d: l.cabin&&P.inElev?-1:Math.hypot(l.x - P.x, l.z - P.z, (l.y - pyEye) * .75) })).filter(o => o.d < 16).sort((a, b) => a.d - b.d).slice(0, 4); litD = c.length && !c[0].l.street ? Math.max(0, c[0].d) : 99;
     pool.forEach((p, i) => { const o = c[i]; if (o) { p.position.set(o.l.x, o.l.y, o.l.z); p.color.setHex(o.l.cabin?0xfff0d4:o.l.street ? 0xffb468 : 0xdce9ee); p.distance = o.l.cabin?5:o.l.street ? 15 : 12; p.userData.kind = o.l.kind; p.userData.lamp = o.l; p.userData.on = true; } else p.userData.on = false; });
   }
   ELV.light=pool.find(p=>p.userData.on&&p.userData.lamp?.cabin)||null;

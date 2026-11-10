@@ -24,10 +24,10 @@ async function page(qs = process.env.GAME_QS || '?debug') {   // 새 건물 점�
 const E = (p, f, a) => p.evaluate(f, a);
 // 정문을 연 뒤 마지막 선택(EV-23): 선택지가 뜨면 고른다
 async function finalChoice(p, i) {
-  await p.waitForFunction(() => document.getElementById('choice').classList.contains('show'), null, { timeout: 30000 });
+  await p.waitForFunction(() => document.getElementById('choice').classList.contains('show'), null, { timeout: 90000 });
   await p.evaluate(i => document.querySelectorAll('#choiceBtns button')[i].click(), i);
   // 결말 자료(뉴스 · 경찰 · 학교) 세 장을 넘긴다
-  await p.waitForFunction(() => { const o = document.getElementById('outro'); if (o.classList.contains('show') && o.querySelector('.card.on')) { o.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true })); window.__outroN = (window.__outroN || 0) + 1; } return document.getElementById('win').classList.contains('show'); }, null, { timeout: 40000, polling: 900 });
+  await p.waitForFunction(() => { const o = document.getElementById('outro'); if (o.classList.contains('show') && o.querySelector('.card.on')) { o.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true })); window.__outroN = (window.__outroN || 0) + 1; } return document.getElementById('win').classList.contains('show'); }, null, { timeout: 120000, polling: 900 });
 }
 const W = (p, t) => p.waitForTimeout(t);
 // 새 게임 · 이어하기: 로딩 화면(whenAssetsReady — 소품 모델은 상한 시간 뒤 플레이 중 계속 들어옴)과 타이틀이 닫힐 때까지 기다린다

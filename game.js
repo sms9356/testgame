@@ -3767,6 +3767,18 @@ function minaSpot() {
   }
   return { x: P.x, z: P.z };
 }
+// 민아 시선: 평소엔 주인공의 머리(눈높이), 가끔 소리 난 쪽(주인공 주변)이나 같은 층 귀신 쪽을 잠깐 본다
+const _minaLT = new THREE.Vector3();
+function minaLookTick(dt, fy) {
+  const L = MINA_F.look ||= { t: 0, cd: 4, x: 0, z: 0 }; L.t -= dt; L.cd -= dt;
+  if (L.t <= 0 && L.cd <= 0) {
+    if (ghost.active && ghost.floor === P.floor && Math.hypot(ghost.x - mina.position.x, ghost.z - mina.position.z) < 20) { L.x = ghost.x; L.z = ghost.z; L.t = 1.4; L.cd = 3 + Math.random() * 3; }
+    else if ((P.noiseT || 0) > .3) { const a = Math.random() * 6.283; L.x = P.x + Math.sin(a) * 4; L.z = P.z + Math.cos(a) * 4; L.t = .9; L.cd = 5 + Math.random() * 4; }
+    else if (Math.random() < dt * .08) { const a = mina.rotation.y + (Math.random() - .5) * 2; L.x = mina.position.x + Math.sin(a) * 5; L.z = mina.position.z + Math.cos(a) * 5; L.t = 1.1; L.cd = 6 + Math.random() * 6; }
+  }
+  if (L.t > 0) _minaLT.set(L.x, fy + 1.4, L.z); else _minaLT.set(P.x, fy + 1.55, P.z);
+  mina.userData.lookTarget = _minaLT;
+}
 function minaFollowTick(dt) {
   if (!MINA_F.on || !mina) return;
   if (MINA_F.hold) { mina.userData.workPose = true; minaPlay('Idle'); return; }   // 방송 중: 조정실 콘솔에 앉아 있다 (npcVisuals 절차적 착석 · 콘솔 조작 자세)
@@ -3775,14 +3787,18 @@ function minaFollowTick(dt) {
   const dx = bx - mina.position.x, dz = bz - mina.position.z, d = Math.hypot(dx, dz), dp = Math.hypot(P.x - mina.position.x, P.z - mina.position.z);
   if (MINA_F.lastFloor !== P.floor || Math.abs(mina.position.y - fy) > 1.6 || dp > 14) { const q = minaSpot(fy); mina.position.set(q.x, fy, q.z); MINA_F.lastFloor = P.floor; minaPlay('Idle'); return; }
   mina.position.y += (fy - mina.position.y) * Math.min(1, dt * 8);
-  if (dp > 1.9 && d > .25) { const sp = dp > 5 ? 3.8 : 1.6, st = Math.min(d, sp * dt), mx = mina.position.x, mz = mina.position.z, ba = Math.atan2(dx, dz), cs = colsAt(floors[P.floor]) || [];
+  // 속도는 가감속으로 부드럽게 (출발 · 정지 블렌딩) — 보폭 맞춤 재생(npcVisuals)이 실제 이동 속도를 읽어 발 미끄러짐을 없앤다
+  const wantV = dp > 1.9 && d > .25 ? (dp > 5 ? 3.8 : 1.6) : 0; MINA_F.v = MINA_F.v ?? 0;
+  MINA_F.v += (wantV - MINA_F.v) * Math.min(1, dt * (wantV > MINA_F.v ? 3.2 : 5.5));
+  minaLookTick(dt, fy);
+  if (MINA_F.v > .12 && d > .08) { const sp = MINA_F.v, st = Math.min(d, sp * dt), mx = mina.position.x, mz = mina.position.z, ba = Math.atan2(dx, dz), cs = colsAt(floors[P.floor]) || [];
     // 벽 충돌: 주인공과 같은 콜라이더로 막고, 막히면 좌우로 비켜 걷는다(맵 뚫기 방지)
     const tryMv = a => { const q = { x: mx + Math.sin(a) * st, z: mz + Math.cos(a) * st }; collide(cs, q, .22); return q; };
     let q = tryMv(ba), mv = Math.hypot(q.x - mx, q.z - mz), ma = ba;
     if (mv < st * .55) for (const o of [.65, -.65, 1.22, -1.22, 1.65, -1.65]) { const c = tryMv(ba + o), cm = Math.hypot(c.x - mx, c.z - mz); if (cm > mv * 1.25) { q = c; mv = cm; ma = ba + o; break; } }
     if (mv < st * .1) MINA_F.stuck = (MINA_F.stuck || 0) + dt; else MINA_F.stuck = 0;
     if (MINA_F.stuck > 2.5) { MINA_F.stuck = 0; MINA_F.lastFloor = -1; }   // 오래 막히면 플레이어 뒤로 다시 배치
-    mina.position.x = q.x; mina.position.z = q.z; mina.rotation.y = ma; MINA_F.turning = false; minaPlay(dp > 5 ? 'Run' : 'Walk'); }
+    mina.position.x = q.x; mina.position.z = q.z; mina.rotation.y = ma; MINA_F.turning = false; minaPlay(sp > 2.6 ? 'Run' : 'Walk'); }
   else {
     // 제자리 회전: 크게 돌아야 하면 발을 옮기며(Walk 를 느리게) 돌고, 다 돌면 Idle — 미끄러지듯 도는 스케이팅 방지
     const ty = Math.atan2(P.x - mina.position.x, P.z - mina.position.z), err = Math.atan2(Math.sin(ty - mina.rotation.y), Math.cos(ty - mina.rotation.y));

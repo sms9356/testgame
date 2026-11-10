@@ -3837,6 +3837,13 @@ function minaLookTick(dt, fy) {
   if (L.t > 0) _minaLT.set(L.x, fy + 1.4, L.z); else _minaLT.set(P.x, fy + 1.55, P.z);
   mina.userData.lookTarget = _minaLT;
 }
+const _MF_NOCOL = [], _MF_SIDE = [.65, -.65, 1.22, -1.22, 1.65, -1.65], _MF_Q = { x: 0, z: 0 }, _MF_C = { x: 0, z: 0 };
+// 모서리에서 한 벽 밖으로 밀려 다른 벽 속에 들어가는 경우는 이동 취소
+function _mfTry(cs, q, mx, mz, a, st) {
+  q.x = mx + Math.sin(a) * st; q.z = mz + Math.cos(a) * st; collide(cs, q, .22);
+  for (const c of cs) if (q.x > c.x1 + .02 && q.x < c.x2 - .02 && q.z > c.z1 + .02 && q.z < c.z2 - .02) { q.x = mx; q.z = mz; break; }
+  return q;
+}
 function minaFollowTick(dt) {
   if (!MINA_F.on || !mina) return;
   if (MINA_F.hold) { mina.userData.workPose = true; minaPlay('Idle'); return; }   // 방송 중: 조정실 콘솔에 앉아 있다 (npcVisuals 절차적 착석 · 콘솔 조작 자세)
@@ -3849,12 +3856,10 @@ function minaFollowTick(dt) {
   const wantV = dp > 1.9 && d > .25 ? (dp > 5 ? 3.8 : 1.6) : 0; MINA_F.v = MINA_F.v ?? 0;
   MINA_F.v += (wantV - MINA_F.v) * Math.min(1, dt * (wantV > MINA_F.v ? 3.2 : 5.5));
   minaLookTick(dt, fy);
-  if (MINA_F.v > .12 && d > .08 && (wantV > 0 || dp > 1.5)) { const sp = MINA_F.v, st = Math.min(d, sp * dt), mx = mina.position.x, mz = mina.position.z, ba = Math.atan2(dx, dz), cs = colsAt(floors[P.floor]) || [];
-    // 벽 충돌: 주인공과 같은 콜라이더로 막고, 막히면 좌우로 비켜 걷는다(맵 뚫기 방지)
-    const inCol = q => cs.some(c => q.x > c.x1 + .02 && q.x < c.x2 - .02 && q.z > c.z1 + .02 && q.z < c.z2 - .02);   // 모서리에서 한 벽 밖으로 밀려 다른 벽 속에 들어가는 경우는 이동 취소
-    const tryMv = a => { const q = { x: mx + Math.sin(a) * st, z: mz + Math.cos(a) * st }; collide(cs, q, .22); return inCol(q) ? { x: mx, z: mz } : q; };
-    let q = tryMv(ba), mv = Math.hypot(q.x - mx, q.z - mz), ma = ba;
-    if (mv < st * .55) for (const o of [.65, -.65, 1.22, -1.22, 1.65, -1.65]) { const c = tryMv(ba + o), cm = Math.hypot(c.x - mx, c.z - mz); if (cm > mv * 1.25) { q = c; mv = cm; ma = ba + o; break; } }
+  if (MINA_F.v > .12 && d > .08 && (wantV > 0 || dp > 1.5)) { const sp = MINA_F.v, st = Math.min(d, sp * dt), mx = mina.position.x, mz = mina.position.z, ba = Math.atan2(dx, dz), cs = colsAt(floors[P.floor]) || _MF_NOCOL;
+    // 벽 충돌: 주인공과 같은 콜라이더로 막고, 막히면 좌우로 비켜 걷는다(맵 뚫기 방지) — 매 프레임 클로저 · 객체를 만들지 않게 재사용 버퍼
+    let q = _mfTry(cs, _MF_Q, mx, mz, ba, st), mv = Math.hypot(q.x - mx, q.z - mz), ma = ba;
+    if (mv < st * .55) for (const o of _MF_SIDE) { const c = _mfTry(cs, _MF_C, mx, mz, ba + o, st), cm = Math.hypot(c.x - mx, c.z - mz); if (cm > mv * 1.25) { q.x = c.x; q.z = c.z; mv = cm; ma = ba + o; break; } }
     if (mv < st * .1) MINA_F.stuck = (MINA_F.stuck || 0) + dt; else MINA_F.stuck = 0;
     if (MINA_F.stuck > 2.5) { MINA_F.stuck = 0; MINA_F.lastFloor = -1; }   // 오래 막히면 플레이어 뒤로 다시 배치
     mina.position.x = q.x; mina.position.z = q.z; mina.rotation.y = ma; MINA_F.turning = false; minaPlay(sp > 2.6 ? 'Run' : 'Walk'); }
@@ -6693,7 +6698,7 @@ const STEEL = [];   // { f, x, z, data } — 문짝 하나
   // 문짝 텍스처: 같은 번호 · 녹 조합은 한 번만 그리고 줄여서 공유한다 (사물함 수백 칸 × 512×1024 두 장이면 GPU 메모리가 수백 MB)
   const orig = clP.textures.buildLockerDoorMaps, cache = new Map();
   const shrink = (tex, w, h, color) => { const c = document.createElement('canvas'); c.width = w; c.height = h; c.getContext('2d').drawImage(tex.image, 0, 0, w, h); const t = new THREE.CanvasTexture(c); if (color) t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; return t; };
-  clP.textures.buildLockerDoorMaps = (num, rust) => { const k = num + (rust ? 'r' : ''); if (!cache.has(k)) { const m = orig(num, rust); cache.set(k, { map: shrink(m.map, 192, 384, true), bumpMap: shrink(m.bumpMap, 96, 192) }); } return cache.get(k); };
+  clP.textures.buildLockerDoorMaps = (num, rust) => { const k = num + (rust ? 'r' : ''); if (!cache.has(k)) { const m = orig(num, rust); cache.set(k, { map: shrink(m.map, 192, 384, true), bumpMap: (cache.bump ||= shrink(m.bumpMap, 96, 192)) }); m.map.dispose(); m.bumpMap.dispose(); } return cache.get(k); };
   const LB = world.LOCKER_BOXES;
   LB.forEach(b => { if (b.slot) b.slot.visible = false; });
   const boxes = LB.filter(b => b.mesh && b.w <= .8 && b.h >= 1.3).map(b => {

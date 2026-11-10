@@ -311,7 +311,9 @@ export const makeClock = () => ctex(256, 256, (g, w, h) => {
   g.lineWidth = 5; g.beginPath(); g.moveTo(128, 128); g.lineTo(168, 150); g.stroke();
   stains(g, w, h, 8, 'rgba(60,50,30,.5)', 60);
 }, { repeat: false });
-export const makeGlow = (c = '255,210,110') => ctex(64, 64, (g, w, h) => {
+const _glowCache = new Map();   // 같은 색 글로우는 한 장만 (스프라이트 수십 개가 각자 같은 캔버스를 그려 올리던 것)
+export const makeGlow = (c = '255,210,110') => _glowCache.get(c) || _glowCache.set(c, _makeGlow(c)).get(c);
+const _makeGlow = (c) => ctex(64, 64, (g, w, h) => {
   const gr = g.createRadialGradient(32, 32, 0, 32, 32, 32);
   gr.addColorStop(0, `rgba(${c},1)`); gr.addColorStop(.35, `rgba(${c},.35)`); gr.addColorStop(1, `rgba(${c},0)`);
   g.fillStyle = gr; g.fillRect(0, 0, 64, 64);
@@ -695,6 +697,7 @@ export async function loadPBR() {
     const orig = `assets/tex/${n}_${m}.webp`, bk = bakedUrl(orig); let t = bk ? await L.loadAsync(bk).catch(() => null) : null; if (!t) { t = await L.loadAsync(orig).catch(() => null); if (!t) return; refineFurnitureTexture(t, n, m); }
     t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 16; if (m === 'map') t.colorSpace = THREE.SRGBColorSpace;   // 비스듬한 바닥도 선명하게 (GPU 최대값으로 자동 제한)
     (_pbr[n] ||= {})[m === 'map' ? 'map' : m === 'normal' ? 'normalMap' : 'roughnessMap'] = t;
+    if (t.image && !t.userData?.furnitureDetail) (globalThis.__texByFile ||= new Map()).set(String(t.image.src || '').split('/').pop(), t);   // 같은 파일을 다른 모듈(본관 재건축)이 또 내려받지 않게 공유
   })), L.loadAsync('assets/tex/win_atlas.webp').then(t=>{t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=4;windowAtlasTexture=t;}).catch(()=>{windowAtlasTexture=makeWindow();})]); clearFurnitureDetailCache();
 }
 // 구운 텍스처가 있으면 쓰고, 없으면 즉석에서 생성

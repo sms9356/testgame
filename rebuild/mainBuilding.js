@@ -141,6 +141,8 @@ const TEX = {
 const TL = new THREE.TextureLoader(), TCACHE = {};
 function tx(file, srgb) {
   if (TCACHE[file]) return TCACHE[file];
+  const shared = globalThis.__texByFile?.get(file);   // tex.js loadPBR 이 이미 받은 같은 파일 (같은 래핑 · 색공간) — GPU 사본 · 디코딩 한 벌 절약
+  if (shared && (!srgb || shared.colorSpace === THREE.SRGBColorSpace) && (srgb || shared.colorSpace !== THREE.SRGBColorSpace)) return (TCACHE[file] = shared);
   const t = TL.load(new URL('../assets/tex/' + file, import.meta.url).href); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 8;
   if (srgb) t.colorSpace = THREE.SRGBColorSpace; return (TCACHE[file] = t);
 }

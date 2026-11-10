@@ -1283,5 +1283,36 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
     requestAnimationFrame(tickCampusAnims);
   }
 
+  // 정적 소품 합치기: 청크 바로 아래의 움직이지 않는 상자 · 원기둥 · 판(서가의 책 칸 · 책상 다리 · 의자 …)을 재질별 한 덩어리로
+  //   (도서관 하나가 메시 ~800개 = 드로우콜 ~800). 모양 · 재질 · 그림자 설정은 그대로, 위치만 미리 구워 넣는다.
+  //   예전 본관 터 근처 메시는 재건축 정리(rebuildGame hideIn)가 하나씩 감추므로 건드리지 않는다.
+  for (const { g } of chunks) batchStaticChunk(g);
   return chunks;
+}
+
+function batchStaticChunk(g) {
+  g.updateMatrixWorld(true);
+  const inv = g.matrixWorld.clone().invert(), buckets = new Map(), box = new THREE.Box3(), ctr = new THREE.Vector3();
+  const sig = geo => (geo.index ? 'i' : 'n') + Object.keys(geo.attributes).sort().map(k => k + geo.attributes[k].itemSize).join();
+  for (const m of g.children) {
+    if (!m.isMesh || m.isInstancedMesh || m.isSkinnedMesh || m.children.length || !m.visible || Array.isArray(m.material)) continue;
+    const mat = m.material, geo = m.geometry;
+    if (!mat || mat.transparent || mat.opacity < 1 || mat.alphaTest > 0 || Object.keys(geo.morphAttributes).length || m.onBeforeRender !== THREE.Object3D.prototype.onBeforeRender) continue;
+    if (Object.keys(m.userData).some(k => k !== 'dynamic')) continue;   // 이름 · 표식이 붙은 메시는 다른 코드가 찾을 수 있다
+    box.setFromObject(m).getCenter(ctr);
+    if (ctr.x > -54 && ctr.x < 54 && ctr.z > -40 && ctr.z < 17) continue;
+    const key = mat.uuid + '|' + m.castShadow + m.receiveShadow + '|' + sig(geo);
+    (buckets.get(key) || buckets.set(key, []).get(key)).push(m);
+  }
+  for (const list of buckets.values()) {
+    if (list.length < 2) continue;
+    const geos = list.map(m => { const c = m.geometry.clone(); c.applyMatrix4(inv.clone().multiply(m.matrixWorld)); return c; });
+    const merged = mergeGeometries(geos, false); geos.forEach(c => c.dispose());
+    if (!merged) continue;
+    merged.computeBoundingBox(); merged.computeBoundingSphere();
+    const mesh = new THREE.Mesh(merged, list[0].material);
+    mesh.name = g.name + '_batch'; mesh.castShadow = list[0].castShadow; mesh.receiveShadow = list[0].receiveShadow;
+    mesh.userData.dynamic = true; mesh.userData.rbChk = true; mesh.matrixAutoUpdate = false; g.add(mesh);
+    for (const m of list) { g.remove(m); m.geometry.dispose(); }
+  }
 }

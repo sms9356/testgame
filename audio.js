@@ -1,4 +1,5 @@
 // WebAudio 사운드 엔진 — 합성 효과음 + 공간 음향(HRTF) + 구역별 잔향/환경음 + 음악 + 음성(더빙) 재생
+let revSlots = [], revCur = 0, spaceKey = '';
 let ac = null, master, comp, bus = {}, rev, revSend, noiseBuf, proxGain, proxFilter;
 const ok = () => ac && ac.state !== 'closed';
 const VOL = { master: .9, sfx: 1, voice: 1, amb: .8, music: .6 };
@@ -33,7 +34,9 @@ export function initAudio() {
   for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
   // 잔향 (효과음·음성에서 보냄)
   rev = ac.createConvolver(); rev.buffer = makeIR(2.6, 3.2);
-  revSend = ac.createGain(); revSend.gain.value = .25; revSend.connect(rev); rev.connect(bus.sfx);
+  revSend = ac.createGain(); revSend.gain.value = .25;
+  // 공간별 잔향: 두 슬롯(컨볼버) 사이 교차 페이드 — 플레이어가 있는 곳(복도·교실·화장실·계단·바깥)에 맞춘 합성 IR
+  revSlots = [rev, ac.createConvolver()].map((c, i) => { const g = ac.createGain(); g.gain.value = i ? 0 : 1; revSend.connect(g); g.connect(c); c.connect(bus.sfx); return { c, g, key: i ? '' : 'default' }; });
   // 지속 저주파 드론 제거: 대사와 필요한 효과음은 별도 버스로 유지.
   ['school-bell', 'class-chime', 'pa-chime'].forEach(name => loadVoice(`assets/sfx/${name}.mp3`).then(b => { if (b) schoolSamples.set(name, b); }));
   // 실제 녹음 효과음 (ElevenLabs 생성): 발소리 3종 · 문 · 사물함 · 철문 · 종이 · 열쇠 · 줍기 · 물방울 · 물튀김 — 없으면 합성음으로
@@ -144,7 +147,11 @@ function buildAmbience() {
   // 3) 빗소리
   const rainHi = loopNaturalWind(2800, 'lowpass', 0.5), rainLo = loopNaturalWind(650, 'lowpass', 0.6);
   const rH = ac.createGain(); rH.gain.value = .05; rainHi.connect(rH); const rL = ac.createGain(); rL.gain.value = .04; rainLo.connect(rL); rainNodes.push([rH, .05], [rL, .04]);
-  amb('out', [windG, leavesG, rH, rL]);
+  // 4) 2008 밤 도시의 먼 차량 흐름 (타이어 · 엔진이 섞인 대역 잡음, 아주 느린 부풂) — 저주파 드론이 아닌 200~600Hz 대역
+  const traffic = loopNaturalWind(380, 'bandpass', 0.6);
+  const tl = ac.createOscillator(); tl.frequency.value = 0.031; const tlg = ac.createGain(); tlg.gain.value = .006; tl.connect(tlg); tl.start();
+  const trafficG = ac.createGain(); trafficG.gain.value = .012; tlg.connect(trafficG.gain); traffic.connect(trafficG);
+  amb('out', [windG, leavesG, rH, rL, trafficG]);
   // 실내 복도: 룸톤 + 형광등 웅 (120Hz)
   const room = loopNoise(260, 'lowpass'); const roomG = ac.createGain(); roomG.gain.value = .05; room.connect(roomG);
   const rainIn = loopNoise(1400, 'lowpass'); const rainInG = ac.createGain(); rainInG.gain.value = .025; rainIn.connect(rainInG); rainNodes.push([rainInG, .025]);
@@ -164,11 +171,116 @@ export function setAmbience(name, dt = .016) {
   if (curAmb !== name) {
     curAmb = name;
     Object.entries(AMB).forEach(([k, g]) => g.gain.setTargetAtTime(k === key ? (name === 'roof' ? 1.3 : 1) : 0, ac.currentTime, .8));
-    revSend.gain.setTargetAtTime(REVERB[name] ?? .2, ac.currentTime, .5);
+    if (!spaceKey) revSend.gain.setTargetAtTime(REVERB[name] ?? .2, ac.currentTime, .5);
   }
   // 무작위 물방울 (지하·수영장·실내)
   dripT -= dt;
   if (dripT <= 0) { dripT = 2 + Math.random() * 6; if (name === 'b1' || name === 'hall' || (name === 'in' && Math.random() < .4)) tone(1400 + Math.random() * 900, .1, 'sine', .05, Math.random() * 1.6 - .8, 1, 600); }
+}
+
+/* ----- 공간별 잔향 (합성 IR) ----- */
+// sec: 길이 · decay: 감쇠 곡선 · damp: 고역 감쇠(0 밝음 ~ 1 어두움) · er: 초기 반사 [ms, 크기] · send: 잔향 보내기
+const SPACES = {
+  corridor: { sec: 3.0, decay: 2.3, damp: .55, er: [[9, .5], [23, .35], [41, .3], [70, .2]], send: .34 },
+  classroom: { sec: 1.1, decay: 3.4, damp: .6, er: [[6, .45], [14, .3], [22, .2]], send: .2 },
+  toilet: { sec: 1.6, decay: 2.6, damp: .15, er: [[4, .6], [9, .5], [15, .4], [21, .3]], send: .4 },
+  stair: { sec: 2.6, decay: 2.0, damp: .4, er: [[7, .45], [19, .4], [33, .35], [52, .3]], send: .42 },
+  hall: { sec: 3.6, decay: 2.1, damp: .5, er: [[18, .4], [44, .35], [80, .25]], send: .55 },
+  basement: { sec: 2.4, decay: 2.4, damp: .7, er: [[8, .5], [20, .35]], send: .45 },
+  outdoor: { sec: .5, decay: 5, damp: .8, er: [[60, .12]], send: .05 },
+};
+const irCache = {};
+function makeSpaceIR(k) {
+  if (irCache[k]) return irCache[k];
+  const S = SPACES[k], sr = ac.sampleRate, len = Math.floor(sr * S.sec), b = ac.createBuffer(2, len, sr);
+  for (let c = 0; c < 2; c++) {
+    const d = b.getChannelData(c); let lp = 0;
+    for (let i = 0; i < len; i++) {
+      const t = i / len, a = 1 - S.damp * (.15 + .8 * t);   // 시간이 갈수록 고역이 먼저 사라진다
+      lp += (Math.random() * 2 - 1 - lp) * Math.max(.04, a);
+      d[i] = lp * Math.pow(1 - t, S.decay) * (i < 60 ? i / 60 : 1) * .9;
+    }
+    for (const [ms, g] of S.er) { const i = Math.floor(ms * (1 + c * .07) * sr / 1000); if (i < len) d[i] += g * (c ? -1 : 1); }
+  }
+  return (irCache[k] = b);
+}
+export function setSpace(k) {
+  if (!ok() || !revSlots.length || !SPACES[k] || k === spaceKey) return;
+  spaceKey = k; const t = ac.currentTime;
+  let idx = revSlots.findIndex(s => s.key === k);
+  if (idx < 0) {   // 쉬는 슬롯에 새 IR — 컨볼버 버퍼는 다시 넣을 수 없는 브라우저가 있어 새 노드로 갈아 낀다
+    idx = 1 - revCur; const s = revSlots[idx];
+    if (s.key) { const n = ac.createConvolver(); s.g.disconnect(); s.c.disconnect(); s.g.connect(n); n.connect(bus.sfx); s.c = n; }
+    s.c.buffer = makeSpaceIR(k); s.key = k;
+  }
+  revSlots.forEach((s, i) => s.g.gain.setTargetAtTime(i === idx ? 1 : 0, t, .25));
+  revCur = idx; revSend.gain.setTargetAtTime(SPACES[k].send, t, .4);
+}
+export const getSpace = () => spaceKey;
+
+/* ----- 밤 환경 이벤트 (2008년 10월 밤): 먼 오토바이 · 개 짖음 · 방범창 바람 · 건물 삐걱 · 배관 틱 · 빗방울 · 형광등 안정기 ----- */
+const NT = { bike: 20 + Math.random() * 30, dog: 12 + Math.random() * 20, grill: 15 + Math.random() * 20, creak: 10 + Math.random() * 15, tick: 6 + Math.random() * 10, pane: 1 };
+let ballastG = null;
+function farOut(pan, vol, cutoff = 1200) {   // 먼 소리: 저역통과 + 고정 팬 → 환경음 버스 (환경음 볼륨을 따른다), 조금은 공간 잔향으로
+  const g = ac.createGain(); g.gain.value = vol; const f = ac.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = cutoff; g.connect(f);
+  if (ac.createStereoPanner) { const p = ac.createStereoPanner(); p.pan.value = pan; f.connect(p); p.connect(bus.amb); } else f.connect(bus.amb);
+  const s = ac.createGain(); s.gain.value = .35; f.connect(s); s.connect(revSend);
+  setTimeout(() => { try { g.disconnect(); f.disconnect(); s.disconnect(); } catch (e) { /* ignore */ } }, 9000);
+  return g;
+}
+function nOsc(type, f0, f1, t, dur, dst) { const o = ac.createOscillator(); o.type = type; o.frequency.setValueAtTime(f0, t); o.frequency.exponentialRampToValueAtTime(f1, t + dur); o.connect(dst); o.start(t); o.stop(t + dur + .05); return o; }
+function nNoise(t, dur, freq, type, q, dst) { const s = ac.createBufferSource(); s.buffer = noiseBuf; s.loop = true; const f = ac.createBiquadFilter(); f.type = type; f.frequency.value = freq; f.Q.value = q; s.connect(f); f.connect(dst); s.start(t, Math.random()); s.stop(t + dur + .05); return f; }
+function env(t, a, h, r, v) { const e = ac.createGain(); e.gain.setValueAtTime(.0001, t); e.gain.exponentialRampToValueAtTime(v, t + a); e.gain.setValueAtTime(v, t + a + h); e.gain.exponentialRampToValueAtTime(.0001, t + a + h + r); return e; }
+const night = {
+  motorbike(v = 1) {   // 큰길을 지나가는 배달 오토바이 (2행정 엔진, 지나가며 음이 내려감)
+    const t = ac.currentTime, dur = 4 + Math.random() * 2, o = farOut(Math.random() < .5 ? -.7 : .7, .05 * v, 900);
+    const e = ac.createGain(); e.gain.setValueAtTime(.0001, t); e.gain.exponentialRampToValueAtTime(1, t + dur * .45); e.gain.exponentialRampToValueAtTime(.0001, t + dur); e.connect(o);
+    const f0 = 210 + Math.random() * 40, h = ac.createGain(); h.gain.value = .3; h.connect(e);
+    nOsc('sawtooth', f0, f0 * .78, t, dur, e); nOsc('square', f0 * 2.02, f0 * 1.55, t, dur, h);
+  },
+  dog(v = 1) {   // 동네 먼 개 짖음 (2~4번)
+    const t0 = ac.currentTime, n = 2 + (Math.random() * 3 | 0), f0 = 380 + Math.random() * 160, o = farOut(Math.random() * 1.6 - .8, .07 * v, 1600);
+    for (let i = 0; i < n; i++) { const t = t0 + i * (.32 + Math.random() * .25), e = env(t, .015, .05, .12, 1); e.connect(o); nOsc('sawtooth', f0 * 1.3, f0 * .8, t, .2, e); nNoise(t, .18, f0 * 2, 'bandpass', 2, e); }
+  },
+  grill(v = 1) {   // 방범창 쇠창살 사이로 부는 바람 휘파람 (좁은 공명 대역 잡음이 천천히 오르내림)
+    const t = ac.currentTime, dur = 2.5 + Math.random() * 3, f = 700 + Math.random() * 600, e = env(t, dur * .4, dur * .1, dur * .5, .05 * v); e.connect(farOut(Math.random() * 1.4 - .7, 1, 4000));
+    const bp = nNoise(t, dur, f, 'bandpass', 18, e); bp.frequency.setValueAtTime(f, t); bp.frequency.linearRampToValueAtTime(f * (1.1 + Math.random() * .2), t + dur * .5); bp.frequency.linearRampToValueAtTime(f * .95, t + dur);
+  },
+  creak(v = 1) {   // 식어 가는 건물의 삐걱 · 툭 (창틀 · 문 · 슬래브)
+    const t = ac.currentTime, o = farOut(Math.random() * 1.6 - .8, .06 * v, 2500);
+    if (Math.random() < .5) { const d = .4 + Math.random() * .5, e = env(t, .05, d, .15, 1); e.connect(o); const bp = nNoise(t, d + .2, 500 + Math.random() * 400, 'bandpass', 12, e); bp.frequency.linearRampToValueAtTime(300 + Math.random() * 300, t + d); }
+    else { const e = env(t, .003, .01, .09, 1.4); e.connect(o); nNoise(t, .12, 900, 'bandpass', 3, e); nOsc('sine', 260, 190, t, .1, e); }
+  },
+  tick(v = 1) {   // 라디에이터 · 배관이 식으며 내는 금속 틱 (2~5번 불규칙)
+    const n = 2 + (Math.random() * 4 | 0), o = farOut(Math.random() * 1.6 - .8, .05 * v, 6000); let t = ac.currentTime;
+    for (let i = 0; i < n; i++) { t += .12 + Math.random() * .5; const e = env(t, .001, .004, .05, 1); e.connect(o); nNoise(t, .06, 3200 + Math.random() * 800, 'bandpass', 8, e); nOsc('sine', 2100 + Math.random() * 300, 2000, t, .05, e); }
+  },
+  pane(v = 1) {   // 유리창에 듣는 빗방울
+    const t = ac.currentTime, e = env(t, .001, .002, .03, .04 * v); e.connect(farOut(Math.random() * 1.6 - .8, 1, 7000)); nNoise(t, .04, 3000 + Math.random() * 2000, 'bandpass', 4, e);
+  },
+};
+// ctx: { playing, out, indoor, lit(0~1, 가까운 켜진 형광등), power }
+export function tickNight(dt, ctx = {}) {
+  if (!ok()) return;
+  if (!ballastG) {   // 자기식 안정기 웅 소리: 240Hz 대 (120Hz 기본음은 버스 고역통과가 지운다) — 켜진 관 바로 아래서만 아주 작게
+    const o = ac.createOscillator(); o.type = 'sawtooth'; o.frequency.value = 120; const f = ac.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 240; f.Q.value = 4;
+    ballastG = ac.createGain(); ballastG.gain.value = 0; o.connect(f); f.connect(ballastG); ballastG.connect(bus.amb); o.start();
+  }
+  const on = !!ctx.playing, hum = on && ctx.indoor && ctx.power !== false ? Math.max(0, Math.min(1, ctx.lit || 0)) * .006 : 0;
+  if (Math.abs(ballastG.gain.value - hum) > 1e-4) ballastG.gain.setTargetAtTime(hum, ac.currentTime, .4);
+  if (!on || ac.state !== 'running') return;   // 메뉴 · 인트로 · 창 열림에서는 울리지 않는다
+  for (const k in NT) NT[k] -= dt;
+  if (ctx.out) {
+    if (NT.bike <= 0) { NT.bike = 40 + Math.random() * 60; night.motorbike(); }
+    if (NT.dog <= 0) { NT.dog = 25 + Math.random() * 45; night.dog(); }
+  } else if (ctx.indoor) {
+    if (NT.bike <= 0) { NT.bike = 50 + Math.random() * 60; night.motorbike(.35); }   // 창 너머로 희미하게
+    if (NT.dog <= 0) { NT.dog = 40 + Math.random() * 50; night.dog(.3); }
+    if (NT.creak <= 0) { NT.creak = 14 + Math.random() * 30; night.creak(); }
+    if (NT.tick <= 0) { NT.tick = 9 + Math.random() * 22; night.tick(); }
+  }
+  if (NT.grill <= 0) { NT.grill = 18 + Math.random() * 35; night.grill(ctx.out ? .7 : 1); }
+  if (rainLv > .05 && ctx.indoor && NT.pane <= 0) { NT.pane = (.05 + Math.random() * .3) / rainLv; night.pane(rainLv); }
 }
 
 /* ----- 숨소리 (지침·은신·공포) ----- */
@@ -362,7 +474,12 @@ export function setProximity(v, t) {
 function laterAt(s, fn) { const p = sfxPos; setTimeout(() => { sfxPos = p; try { fn(); } finally { sfxPos = null; } }, s * 1000); } export const sfx = {
   step(run = false, v = 1, surf = 'tile') {
     const k = run ? 1.45 : 1, j = 1 + (Math.random() - .5) * .14;
-    { const nm = surf === 'wood' ? 'sfx-step-wood' : surf === 'metal' ? 'sfx-step-metal' : (surf === 'tile' || surf === 'wet') ? 'sfx-step-tile' : null; if (nm && sample(nm, .32 * k * v, j * (run ? 1.08 : 1), .5)) return; }
+    // 표면별: 인조석(복도 · 계단)은 타일 녹음을 낮고 무겁게, 화장실 자기질 타일은 밝게, PVC 데코타일은 낮고 부드럽게 + 합성 질감
+    const SR = { wood: ['sfx-step-wood', 1, 1], metal: ['sfx-step-metal', 1, 1], tile: ['sfx-step-tile', 1, 1], wet: ['sfx-step-tile', 1, 1], ceramic: ['sfx-step-tile', 1.12, .95], terrazzo: ['sfx-step-tile', .9, 1.05], stairs: ['sfx-step-tile', .82, 1.15], pvc: ['sfx-step-tile', .78, .55] }[surf];
+    if (SR && sample(SR[0], .32 * k * v * SR[2], j * SR[1] * (run ? 1.08 : 1), .5)) { if (surf === 'pvc') noiseBurst(.05, 1200 * j, 'bandpass', .07 * k, 0, v); else if (surf === 'stairs') tone(150 * j, .09, 'sine', .08 * k, 0, v, 110); return; }
+    if (surf === 'ceramic') surf = 'tile';
+    else if (surf === 'stairs' || surf === 'terrazzo') { tone(140 * j, .08, 'sine', (surf === 'stairs' ? .12 : .06) * k, 0, v, 105); surf = 'tile'; }
+    else if (surf === 'pvc') { noiseBurst(.06, 900 * j, 'bandpass', .2 * k, 0, v); noiseBurst(.08, 420 * j, 'lowpass', .24 * k, 0, v); return; }
     if (surf === 'wood') {
       noiseBurst(.045, 1900 * j, 'bandpass', .22 * k, 0, v);
       noiseBurst(.095, 380 * j, 'lowpass', .34 * k, 0, v);

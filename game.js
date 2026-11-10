@@ -3791,9 +3791,10 @@ function minaFollowTick(dt) {
   const wantV = dp > 1.9 && d > .25 ? (dp > 5 ? 3.8 : 1.6) : 0; MINA_F.v = MINA_F.v ?? 0;
   MINA_F.v += (wantV - MINA_F.v) * Math.min(1, dt * (wantV > MINA_F.v ? 3.2 : 5.5));
   minaLookTick(dt, fy);
-  if (MINA_F.v > .12 && d > .08) { const sp = MINA_F.v, st = Math.min(d, sp * dt), mx = mina.position.x, mz = mina.position.z, ba = Math.atan2(dx, dz), cs = colsAt(floors[P.floor]) || [];
+  if (MINA_F.v > .12 && d > .08 && (wantV > 0 || dp > 1.5)) { const sp = MINA_F.v, st = Math.min(d, sp * dt), mx = mina.position.x, mz = mina.position.z, ba = Math.atan2(dx, dz), cs = colsAt(floors[P.floor]) || [];
     // 벽 충돌: 주인공과 같은 콜라이더로 막고, 막히면 좌우로 비켜 걷는다(맵 뚫기 방지)
-    const tryMv = a => { const q = { x: mx + Math.sin(a) * st, z: mz + Math.cos(a) * st }; collide(cs, q, .22); return q; };
+    const inCol = q => cs.some(c => q.x > c.x1 + .02 && q.x < c.x2 - .02 && q.z > c.z1 + .02 && q.z < c.z2 - .02);   // 모서리에서 한 벽 밖으로 밀려 다른 벽 속에 들어가는 경우는 이동 취소
+    const tryMv = a => { const q = { x: mx + Math.sin(a) * st, z: mz + Math.cos(a) * st }; collide(cs, q, .22); return inCol(q) ? { x: mx, z: mz } : q; };
     let q = tryMv(ba), mv = Math.hypot(q.x - mx, q.z - mz), ma = ba;
     if (mv < st * .55) for (const o of [.65, -.65, 1.22, -1.22, 1.65, -1.65]) { const c = tryMv(ba + o), cm = Math.hypot(c.x - mx, c.z - mz); if (cm > mv * 1.25) { q = c; mv = cm; ma = ba + o; break; } }
     if (mv < st * .1) MINA_F.stuck = (MINA_F.stuck || 0) + dt; else MINA_F.stuck = 0;

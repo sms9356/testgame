@@ -10,7 +10,12 @@ const SEC = [], sec = t => { SEC.push({ t, p: 0, f: 0 }); console.log('\n■ ' +
 const ok = (cond, msg) => { const S = SEC[SEC.length - 1]; if (cond) { pass++; if (S) S.p++; console.log('  ✔', msg); } else { fail++; if (S) S.f++; console.log('  ✘', msg); } };
 
 async function page(qs = process.env.GAME_QS || '?debug') {   // 새 건물 점검: GAME_QS='?debug&rb&norender'
-  const p = await (await b.newContext({ viewport: { width: 480, height: 270 } })).newPage();
+  const ctx = await b.newContext({ viewport: { width: 480, height: 270 } });
+  // 외부 요청(구글 웹폰트 등)은 막는다: 샌드박스 프록시에서 응답 없이 매달린 폰트 요청이 'load' · 새로고침을 수 분씩 붙잡았다 — 글꼴은 대체 글꼴로 그려지고 게임 동작과는 무관
+  if (!process.env.E2E_NET) await ctx.route(u => !/^https?:\/\/(localhost|127\.0\.0\.1)[:/]/.test(u.href), r => r.abort());
+  const p = await ctx.newPage();
+  // waitForFunction 기본 polling 은 requestAnimationFrame — 소프트웨어 GL 에서 한 프레임이 수 초 · 무거운 장면에선 rAF 가 한참 멎어 조건이 참인데도 시간 초과가 났다 → 시간 간격 polling
+  const wff = p.waitForFunction.bind(p); p.waitForFunction = (f, arg, o = {}) => wff(f, arg, { polling: 250, ...o });
   p.setDefaultNavigationTimeout(180000); p.setDefaultTimeout(60000);
   p.errors = 0; p.on('pageerror', e => { p.errors++; console.log('   [pageerror]', e.message, (e.stack || '').split('\n')[1] || ''); });
   await p.goto(URL + qs, { timeout: 180000 }); await p.waitForFunction(() => window.__loadTimes, null, { timeout: 180000 });
@@ -19,23 +24,26 @@ async function page(qs = process.env.GAME_QS || '?debug') {   // 새 건물 점�
 const E = (p, f, a) => p.evaluate(f, a);
 // 정문을 연 뒤 마지막 선택(EV-23): 선택지가 뜨면 고른다
 async function finalChoice(p, i) {
-  await p.waitForFunction(() => document.getElementById('choice').classList.contains('show'), null, { timeout: 30000 });
+  await p.waitForFunction(() => document.getElementById('choice').classList.contains('show'), null, { timeout: 90000 });
   await p.evaluate(i => document.querySelectorAll('#choiceBtns button')[i].click(), i);
   // 결말 자료(뉴스 · 경찰 · 학교) 세 장을 넘긴다
-  await p.waitForFunction(() => { const o = document.getElementById('outro'); if (o.classList.contains('show') && o.querySelector('.card.on')) { o.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true })); window.__outroN = (window.__outroN || 0) + 1; } return document.getElementById('win').classList.contains('show'); }, null, { timeout: 40000, polling: 900 });
+  await p.waitForFunction(() => { const o = document.getElementById('outro'); if (o.classList.contains('show') && o.querySelector('.card.on')) { o.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true })); window.__outroN = (window.__outroN || 0) + 1; } return document.getElementById('win').classList.contains('show'); }, null, { timeout: 120000, polling: 900 });
 }
 const W = (p, t) => p.waitForTimeout(t);
 // 새 게임 · 이어하기: 로딩 화면(whenAssetsReady — 소품 모델은 상한 시간 뒤 플레이 중 계속 들어옴)과 타이틀이 닫힐 때까지 기다린다
 const started = p => p.waitForFunction(() => !document.getElementById('loading').classList.contains('show') && !document.getElementById('title').classList.contains('show'), null, { timeout: 180000 }).then(() => W(p, 700));
+// 인트로 건너뛰기: 시작 1.5초 동안은 Space · Enter 를 무시한다(introSkippable) → 그 뒤에 눌러야 실제로 넘어간다
+const skipIntro = async p => { await p.waitForFunction(() => __g.state !== 'intro' || __g.introSkippable(), null, { timeout: 10000, polling: 100 }).catch(() => W(p, 1600)); await p.keyboard.press('Space'); };
 async function ready(p) { await E(p, () => __g.applyQuality('low')); }
 // 아이템 줍기 / 장치 사용 (위치로 이동 → 상호작용)
 const take = (p, kind, id) => E(p, ([k, id]) => { const it = __g.world.items.find(i => i.kind === k && (id == null || i.id === id || i.idx === id) && !i.taken); if (!it || it.locked) return it ? 'locked' : 'none'; __g.state = 'playing'; __g.P.floor = it.floor; __g.P.x = it.pos.x; __g.P.z = it.pos.z + .8; __g.P.sh = it.rbY ?? __g.P.sh; __g.setTarget({ type: 'item', it, label: '' }); __g.interact(); return 'ok'; }, [kind, id]);
 const use = (p, kind, i = 0) => E(p, ([k, i]) => { const s = __g.world.props.filter(q => q.kind === k)[i]; __g.state = 'playing'; __g.P.floor = s.floor; __g.P.x = s.x; __g.P.z = s.z + .9; __g.P.sh = s.rbY ?? __g.P.sh; __g.useProp(s); return s.label; }, [kind, i]);
 const winMini = async p => { for (let i = 0; i < 20 && !(await E(p, () => __g.MG.active)); i++) await W(p, 150); await E(p, () => __g.MG.win()); await W(p, 1000); await E(p, () => { if (__g.state === 'note' || __g.state === 'ui') __g.state = 'playing'; }); };
 const closeNote = p => E(p, () => { if (__g.state === 'note') { document.getElementById('noteBox').click(); } __g.state = 'playing'; });
+// 새로고침은 'load' 이벤트가 아니라 __loadTimes 를 기다린다: 소프트웨어 GL 에서 프레임 하나가 2초 · 셰이더 동기 컴파일이 수십 초라 'load' 대기가 180초를 넘기곤 했다
 async function saveReload(p, label) {
   await E(p, () => { __g.state = 'playing'; __g.save(); });
-  await p.reload(); await p.waitForFunction(() => window.__loadTimes, null, { timeout: 180000 }); await ready(p);
+  await p.reload({ waitUntil: 'commit' }); await p.waitForFunction(() => window.__loadTimes, null, { timeout: 180000 }); await ready(p);
   await E(p, () => __g.continueGame()); await started(p); await E(p, () => { __g.state = 'playing'; });
   restores++; return label;
 }
@@ -43,8 +51,8 @@ async function saveReload(p, label) {
 async function normalRun(char) {
   sec(`${char} — 처음부터 NORMAL 엔딩 (+ 저장/복원)`);
   const p = await page();
-  await E(p, c => { localStorage.clear(); localStorage.setItem('haegyo_char', c); }, char); await p.reload(); await p.waitForFunction(() => window.__loadTimes, null, { timeout: 180000 }); await ready(p);
-  await E(p, () => __g.newGame()); await started(p); await p.keyboard.press('Space'); await W(p, 500);
+  await E(p, c => { localStorage.clear(); localStorage.setItem('haegyo_char', c); }, char); await p.reload({ waitUntil: 'commit' }); await p.waitForFunction(() => window.__loadTimes, null, { timeout: 180000 }); await ready(p);
+  await E(p, () => __g.newGame()); await started(p); await skipIntro(p); await W(p, 500);
   ok(await E(p, () => __g.CHAR) === char, `주인공 ${char}`);
   await E(p, () => { __g.P.z = -1; });
   ok(await take(p, 'camcorder') === 'ok', '캠코더 획득'); await W(p, 300);
@@ -54,7 +62,7 @@ async function normalRun(char) {
   await use(p, 'safe'); await W(p, 300); for (const k of '1012') await p.keyboard.press('Digit' + k);
   // 금고가 열리면 1.4초 뒤 열쇠를 저절로 집는다 → 열린 바로 그 프레임에 저장해야 '열쇠 줍기 전' 세이브가 된다 (W 300 뒤 저장은 느린 실행에서 이미 집은 뒤였다)
   await p.waitForFunction(() => { const s = __g.world.props.find(q => q.kind === 'safe'); if (s.done && __g.state === 'playing' && !s.key.taken) { __g.save(); return true; } return false; }, null, { timeout: 20000, polling: 30 }).catch(() => {});
-  await p.reload(); await p.waitForFunction(() => window.__loadTimes, null, { timeout: 180000 }); await ready(p); await E(p, () => __g.continueGame()); await started(p); await E(p, () => { __g.state = 'playing'; }); restores++;
+  await p.reload({ waitUntil: 'commit' }); await p.waitForFunction(() => window.__loadTimes, null, { timeout: 180000 }); await ready(p); await E(p, () => __g.continueGame()); await started(p); await E(p, () => { __g.state = 'playing'; }); restores++;
   ok(await E(p, () => { const k = __g.world.items.find(i => i.kind === 'key' && i.idx === 0); return k.taken ? __g.P.keys === 1 : !k.locked && k.mesh.visible; }), '복원: 금고 안 열쇠가 잠기지 않고 보임 (P0)');
   await take(p, 'key', 0); await p.waitForFunction(() => __g.P.keys === 1, null, { timeout: 8000 }).catch(() => {});   // 복원 3초 뒤 저절로 집을 수도 있다
   ok(await E(p, () => __g.P.keys === 1 && __g.world.items.find(i => i.kind === 'key' && i.idx === 0).taken), '첫 열쇠 조각 획득');
@@ -102,8 +110,8 @@ async function normalRun(char) {
 async function trueRun() {
   sec('TRUE 엔딩 경로 (명찰 → 퓨즈 · 차단기 → 마지막 방송 → 민아)');
   const p = await page();
-  await E(p, () => { localStorage.clear(); localStorage.setItem('haegyo_char', 'seoyeon'); }); await p.reload(); await p.waitForFunction(() => window.__loadTimes, null, { timeout: 180000 }); await ready(p);
-  await E(p, () => __g.newGame()); await started(p); await p.keyboard.press('Space'); await W(p, 500);
+  await E(p, () => { localStorage.clear(); localStorage.setItem('haegyo_char', 'seoyeon'); }); await p.reload({ waitUntil: 'commit' }); await p.waitForFunction(() => window.__loadTimes, null, { timeout: 180000 }); await ready(p);
+  await E(p, () => __g.newGame()); await started(p); await skipIntro(p); await W(p, 500);
   await take(p, 'nametag'); ok(await E(p, () => __g.FL.tag), '명찰');
   await saveReload(p, '명찰 후'); ok(await E(p, () => __g.FL.tag && __g.FL.opt), '복원: 명찰 · 특별 목표');
   await use(p, 'breaker'); ok(!(await E(p, () => __g.power)), '퓨즈 없이 차단기 불가');
@@ -140,8 +148,8 @@ async function trueRun() {
 async function extrasRun() {
   sec('사물함 수색 · 수집품 · 소모품 · 방 미니게임 · 초자연 현상');
   const p = await page();
-  await E(p, () => { localStorage.clear(); localStorage.setItem('haegyo_char', 'jihun'); }); await p.reload(); await p.waitForFunction(() => window.__loadTimes, null, { timeout: 180000 }); await ready(p);
-  await E(p, () => __g.newGame()); await started(p); await p.keyboard.press('Space'); await W(p, 500); await E(p, () => { __g.ghost.active = false; });
+  await E(p, () => { localStorage.clear(); localStorage.setItem('haegyo_char', 'jihun'); }); await p.reload({ waitUntil: 'commit' }); await p.waitForFunction(() => window.__loadTimes, null, { timeout: 180000 }); await ready(p);
+  await E(p, () => __g.newGame()); await started(p); await skipIntro(p); await W(p, 500); await E(p, () => { __g.ghost.active = false; });
   ok(await E(p, () => __g.world.props.filter(q => q.kind === 'search').length) >= 40 && await E(p, () => __g.world.props.filter(q => q.kind === 'mspot').length) >= 10, '수색 지점 40곳 이상 · 방 미니게임 10곳 이상');
   // 수집품이 든 사물함 3곳을 실제로 뒤진다 (가만히 1.1초)
   const n = await E(p, async () => { let k = 0; for (const q of __g.world.props.filter(q => q.kind === 'search' && q.loot && q.loot.col).slice(0, 3)) { __g.state = 'playing'; __g.tp(q.x, q.z + (q.where === '복도' ? .7 : q.z < 0 ? -.5 : .5), q.floor, 0, 0); __g.startSearch(q); if (__g.XT.search) __g.XT.search.t = 1.09; const t0 = performance.now(); while (__g.XT.search && performance.now() - t0 < 8000) await new Promise(r => setTimeout(r, 50)); if (q.done) k++; } return k; });
@@ -172,7 +180,7 @@ async function extrasRun() {
 async function reachAudit() {
   sec('도달성 감사 (막힌 통로 · 가려진 조사 지점)');
   const p = await page();
-  await E(p, () => { localStorage.clear(); __g.newGame(); }); await W(p, 800); await p.keyboard.press('Space'); await W(p, 600);
+  await E(p, () => { localStorage.clear(); __g.newGame(); }); await started(p); await skipIntro(p); await W(p, 600);
   // 소품 모델이 다 들어와야 묻힌 아이템 옮기기(itemUnbury)가 끝난다 — 이어하기는 기다리지 않으므로 여기서 기다린다
   await p.waitForFunction(() => window.__modelsDone, null, { timeout: 180000 }); await W(p, 500);
   const bad = await E(p, () => {
@@ -220,14 +228,14 @@ async function reachAudit() {
 async function saveEdgeCases() {
   sec('저장 예외: 캐릭터 유지 · 손상 세이브 백업 복구 · 테스트 세이브 분리');
   const p = await page();
-  await E(p, () => { localStorage.clear(); localStorage.setItem('haegyo_char', 'jihun'); }); await p.reload(); await p.waitForFunction(() => window.__loadTimes, null, { timeout: 180000 }); await ready(p);
-  await E(p, () => __g.newGame()); await started(p); await p.keyboard.press('Space'); await W(p, 400);
+  await E(p, () => { localStorage.clear(); localStorage.setItem('haegyo_char', 'jihun'); }); await p.reload({ waitUntil: 'commit' }); await p.waitForFunction(() => window.__loadTimes, null, { timeout: 180000 }); await ready(p);
+  await E(p, () => __g.newGame()); await started(p); await skipIntro(p); await W(p, 400);
   await E(p, () => { __g.state = 'playing'; __g.P.hp = 77; __g.save(); __g.P.hp = 55; __g.save(); localStorage.setItem('haegyo_char', 'seoyeon'); });
-  await p.reload(); await p.waitForFunction(() => window.__loadTimes, null, { timeout: 180000 }); await ready(p);
+  await p.reload({ waitUntil: 'commit' }); await p.waitForFunction(() => window.__loadTimes, null, { timeout: 180000 }); await ready(p);
   await E(p, () => __g.continueGame()); await started(p);
   ok(await E(p, () => __g.CHAR) === 'jihun', '메뉴에서 서연을 골라도 이어하기는 저장된 지훈'); restores++;
   await E(p, () => localStorage.setItem('haegyo_save_v5', '{손상된 데이터'));
-  await p.reload(); await p.waitForFunction(() => window.__loadTimes, null, { timeout: 180000 }); await ready(p);
+  await p.reload({ waitUntil: 'commit' }); await p.waitForFunction(() => window.__loadTimes, null, { timeout: 180000 }); await ready(p);
   await E(p, () => __g.continueGame()); await started(p);
   ok(await E(p, () => __g.P.hp) === 77, '본 세이브 손상 → 백업 세이브(이전 저장)로 복구'); restores++;
   await p.close();
@@ -243,9 +251,9 @@ async function coverRun() {
   sec('은폐 엔딩 (마지막 선택 C → 교장실의 전화)');
   for (const [k, title, fin] of [[0, '침묵의 서약', 'C'], [1, '교장실의 거래', 'C2']]) {
     const p = await page(); await ready(p);
-    await E(p, () => { localStorage.removeItem('haegyo_endings'); __g.newGame(); }); await started(p); await p.keyboard.press('Space'); await W(p, 400);
+    await E(p, () => { localStorage.removeItem('haegyo_endings'); __g.newGame(); }); await started(p); await skipIntro(p); await p.waitForFunction(() => __g.state === 'note', null, { timeout: 20000 }).catch(() => {}); await closeNote(p); await W(p, 300);   // 인트로를 넘기면 서문일보 호외가 먼저 뜬다
     await E(p, () => { __g.state = 'playing'; __g.winGame(); });
-    await p.waitForFunction(() => document.getElementById('choice').classList.contains('show'), null, { timeout: 30000 });
+    await p.waitForFunction(() => document.getElementById('choice').classList.contains('show'), null, { timeout: 90000 });   // 소프트웨어 GL: 엔딩 연출 첫 셰이더 컴파일로 30초를 넘기기도 한다
     await E(p, () => document.querySelectorAll('#choiceBtns button')[2].click());
     await W(p, 600); await finalChoice(p, k);
     ok(await E(p, () => document.getElementById('endTag').textContent) === 'COVER-UP END' && await E(p, () => document.getElementById('endTitle').textContent) === title && await E(p, () => __g.FL.final) === fin, `은폐 엔딩 도달 — ${title} (END ${fin})`);

@@ -160,8 +160,8 @@ async function extrasRun() {
   await E(p, () => { localStorage.clear(); localStorage.setItem('haegyo_char', 'jihun'); }); await reloadP(p); await ready(p);
   await E(p, () => __g.newGame()); await started(p); await skipIntro(p); await W(p, 500); await E(p, () => { __g.ghost.active = false; });
   ok(await E(p, () => __g.world.props.filter(q => q.kind === 'search').length) >= 40 && await E(p, () => __g.world.props.filter(q => q.kind === 'mspot').length) >= 10, '수색 지점 40곳 이상 · 방 미니게임 10곳 이상');
-  // 수집품이 든 사물함 3곳을 실제로 뒤진다 (가만히 1.1초)
-  const n = await E(p, async () => { let k = 0; for (const q of __g.world.props.filter(q => q.kind === 'search' && q.loot && q.loot.col).slice(0, 3)) { __g.state = 'playing'; __g.tp(q.x, q.z + (q.where === '복도' ? .7 : q.z < 0 ? -.5 : .5), q.floor, 0, 0); __g.startSearch(q); if (__g.XT.search) __g.XT.search.t = 1.09; const t0 = performance.now(); while (__g.XT.search && performance.now() - t0 < 8000) await new Promise(r => setTimeout(r, 50)); if (q.done) k++; } return k; });
+  // 수집품이 든 사물함 3곳을 실제로 뒤진다 (가만히 1.1초) — 진행은 프레임마다: 소프트웨어 GL 게임 화면은 한 프레임이 수십 초라 넉넉히 기다린다
+  const n = await E(p, async () => { let k = 0; for (const q of __g.world.props.filter(q => q.kind === 'search' && q.loot && q.loot.col).slice(0, 3)) { __g.state = 'playing'; __g.tp(q.x, q.z + (q.where === '복도' ? .7 : q.z < 0 ? -.5 : .5), q.floor, 0, 0); __g.startSearch(q); if (__g.XT.search) __g.XT.search.t = 1.09; const t0 = performance.now(); while (__g.XT.search && performance.now() - t0 < 120000) await new Promise(r => setTimeout(r, 50)); if (q.done) k++; } return k; });
   ok(n === 3 && await E(p, () => Object.keys(__g.FL.col || {}).length) === 3, '사물함 수색 → 수집품 3개');
   await E(p, () => { const q = __g.world.props.find(o => o.uid === 'ms:lab'); __g.state = 'playing'; __g.tp(q.x, q.z + 1.2, q.floor, 0, 0); __g.useMiniSpot(q); }); await winMini(p);
   ok(await E(p, () => __g.FL.ms && __g.FL.ms.lab === 1 && __g.inv.medkit >= 1 && __g.FL.col.c27 === 1), '과학실 미니게임(시약 적정) → 구급상자 · 형광 시약병(c27)');
@@ -189,6 +189,8 @@ async function extrasRun() {
 async function reachAudit() {
   sec('도달성 감사 (막힌 통로 · 가려진 조사 지점)');
   const p = await page();
+  // 소프트웨어 GL: 게임 화면에선 매 프레임 전체 장면을 그려 모델 작업(프레임당 하나)이 30초에 하나꼴로 느려진다 → 가벼운 타이틀 화면에서 먼저 다 받는다
+  await p.waitForFunction(() => window.__modelsDone, null, { timeout: 180000 });
   await E(p, () => { localStorage.clear(); __g.newGame(); }); await started(p); await skipIntro(p); await W(p, 600);
   // 소품 모델이 다 들어와야 묻힌 아이템 옮기기(itemUnbury)가 끝난다 — 이어하기는 기다리지 않으므로 여기서 기다린다
   await p.waitForFunction(() => window.__modelsDone, null, { timeout: 180000 }); await W(p, 500);

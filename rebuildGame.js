@@ -2,12 +2,13 @@
 //   항상 켜진다 (예전 건물 모드는 폐지).
 //   예전 본관(1~3층 · 옥상) · 별관(8~10층) 건물은 감추고, 그 자리 땅(0층)에서 새 건물을 걷는다.
 //   높이는 P.sh(계단 높이 보정값)로 넘긴다 → 카메라 · 점프 · 가구 오르기 코드는 손대지 않아도 된다.
-import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN, grafMaterial } from './rebuild/mainBuilding.js?v=427';
-import { placeModels } from './rebuild/models.js?v=427';
-import { carve, subdivide } from './rebuild/transplant.js?v=427';
+import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN, grafMaterial } from './rebuild/mainBuilding.js?v=428';
+import { placeModels } from './rebuild/models.js?v=428';
+import { carve, subdivide } from './rebuild/transplant.js?v=428';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { turfMaterial } from './campusVisuals.js?v=427';
-import { ENGINE } from './engine.js?v=427';
+import { turfMaterial } from './campusVisuals.js?v=428';
+import { ENGINE } from './engine.js?v=428';
+import { whenIdle, idleTimeout, idleInterval, setIdleProbe } from './idleTasks.js?v=428';
 
 // 예전 건물이 차지하던 땅 (이 안의 예전 메시 · 충돌 상자를 걷어 낸다)
 const OLD_MAIN = { x1: -51, x2: 51, z1: -10.6, z2: 10.9 };
@@ -114,7 +115,7 @@ export function installRebuild({ THREE, scene, floors, world }) {
       const uv = g.attributes.uv, pos = g.attributes.position; for (let i = 0; i < uv.count; i++) uv.setXY(i, pos.getX(i) / 1.6, -pos.getZ(i) / 1.6);
       const pm = paveM.clone(); if (pm.map) { pm.map = pm.map.clone(); pm.map.repeat.set(1, 1); pm.map.needsUpdate = true; } const pv = new THREE.Mesh(g, pm); pv.name = 'RB_link_path'; pv.receiveShadow = true; pv.userData.rbKeep = true; scene.add(pv); } }
   // 소품 모델은 나중에 비동기로 들어온다 → 몇 번 더 걷어 낸다
-  [3000, 10000, 25000, 60000, 120000].forEach(ms => setTimeout(clearOld, ms)); { let n = 0; const iv = setInterval(() => { clearOld(); if (++n > 30) clearInterval(iv); }, 9000); }
+  [3000, 10000, 25000, 60000, 120000].forEach(ms => idleTimeout(clearOld, ms)); { let n = 0; const iv = setInterval(() => { whenIdle(clearOld); if (++n > 30) clearInterval(iv); }, 9000); }   // 한가할 때만 (걷는 도중 9초마다 6~40ms 멎던 것)
 
   // 2) 새 건물
   const group = new THREE.Group(); group.name = 'REBUILD'; group.userData.dynamic = true; scene.add(group);
@@ -592,7 +593,7 @@ export function installRebuild({ THREE, scene, floors, world }) {
       cg.attach(o); }); return; }
     const fix = m => { const c = m.clone(); c.clippingPlanes = pitClip; c.clipIntersection = true; c.clipShadows = true; c.needsUpdate = true; return c; };
     o.material = Array.isArray(o.material) ? o.material.map(fix) : fix(o.material); }); later.forEach(f => f()); };
-  R.clipFloor = clipFloor; setTimeout(clipFloor, 500); setTimeout(clipFloor, 8000);
+  R.clipFloor = clipFloor; setTimeout(clipFloor, 500); idleTimeout(clipFloor, 8000);
   const inPit = (x, z) => x > B1PIT.x1 && x < B1PIT.x2 && z > B1PIT.zt && z < B1PIT.zw;
   R.inPit = inPit;
   const pitH = z => z <= B1PIT.zt ? 0 : z >= B1PIT.zb ? -B1PIT.d : -B1PIT.d * (z - B1PIT.zt) / (B1PIT.zb - B1PIT.zt);

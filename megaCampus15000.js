@@ -1,6 +1,6 @@
 // 15,000평(약 50,000㎡) 캠퍼스 3대 섹션(①학술·생활 건물 섹션 ②종합 운동·스포츠 섹션 ③제1·제2 대형 주차장 섹션) 및 10종 .glb 모델(애니메이션 5종 포함) 빌더
 import * as THREE from './vendor/three.module.js';
-import { dedupeMaterials } from './rebuild/staticBatch.js?v=427';
+import { dedupeMaterials } from './rebuild/staticBatch.js?v=428';
 import { GLTFLoader } from './vendor/addons/loaders/GLTFLoader.js';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
 

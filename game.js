@@ -25,6 +25,7 @@ import { buildMissionGroups, recordCompleted, normalizeCompletedLog } from './my
 import { settleStoryGhost } from './storyGhost.js';
 import { GLTFLoader } from './vendor/addons/loaders/GLTFLoader.js';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
+import { installElectrical } from './electrical.js';   // 전기 배선: 스위치 → 회로 → 등기구 · 건물별 분전반 · 외등 광센서
 import { createNPCVisuals } from './npcVisuals.js?v=432';
 import { createCampusCctvLive, collectCampusCctvFeeds } from './campusCctvLive.js';
 import { applyExteriorFloorVisibility, shouldStreamGuardCctv } from './exteriorRenderBudget.js?v=432';
@@ -291,7 +292,7 @@ const _t0 = performance.now();
 await Promise.race([loadPBR(), new Promise(r => setTimeout(r, 2500))]);
 const _t1 = performance.now();
 const world = buildWorld(scene);
-let RBG = null, MOONFX = null;   // 재건축 본관 · 별관 (항상 — 예전 건물 모드 ?oldmap 은 폐지) — rebuildGame.js
+let RBG = null, MOONFX = null, ELEC = null;   // 재건축 본관 · 별관 (항상 — 예전 건물 모드 ?oldmap 은 폐지) — rebuildGame.js
 const npcVisuals = createNPCVisuals({ THREE, GLTFLoader, prepare: async obj => {
   const tex = new Set(); obj.traverse(o => { if (o.material) [].concat(o.material).forEach(m => ['map', 'normalMap', 'roughnessMap', 'metalnessMap', 'aoMap', 'alphaMap', 'emissiveMap'].forEach(k => m[k] && tex.add(m[k]))); });
   await textureBudget.prepareTextures(tex);
@@ -2076,6 +2077,7 @@ async function useRoomObj(p) {
   if (k === 'guardlight') { toggleGuardLight(); return; }
   if (k === 'fac_door') {   // 캠퍼스 시설(대강당 등) 실내 문: 여닫기
     const D = p.fdoor; D.target = D.target > .5 ? 0 : 1; D.open = D.target > .5; p.label = D.open ? '문 닫기' : '문 열기'; sfx.click(); return; }
+  if ((k === 'light_switch' || k === 'elec_panel') && ELEC && ELEC.use(p)) return;   // electrical.js: 회로 · 분전반
   if (k === 'light_switch') {   // 형광등 스위치 (새 본관 · 별관 방마다 + 캠퍼스 건물 출입문 옆)
     const sw = p.sw; sfx.click();
     if (sw.lamps) RBG.toggleSwitch(sw);
@@ -2499,6 +2501,7 @@ function load(preferBackup) {
   // 3) 월드: 아이템 → 장치 → 문 (장치 복원이 아이템 상태를 참고하므로 순서 중요)
   world.items.forEach(it => { if (d.world.items[it.uid]) { it.taken = true; it.mesh.visible = false; } });
   world.props.forEach(p => { const s = d.world.props[p.uid]; if (s) restoreProp(p, s); });
+  if (ELEC) ELEC.restore();   // 스위치 · 차단기 · 외등 모드 (FL.elec)
   world.doorList.forEach(dd => { const v = d.world.doors && d.world.doors[dd.uid]; if (v != null) { dd.target = v; dd.open = v; dd.rect.off = v > .4; dd._slideE = -1; if (dd.leafCols) dd.leafCols.forEach(c => { c.off = true; c.o = -1; }); } }); updateSchoolDoors(world);
   // 4) 필수 아이템 영구 소실 방지: 열쇠 조각 상태를 진행 기록과 맞춘다
   world.items.filter(i => i.kind === 'key').forEach(it => {
@@ -3124,7 +3127,7 @@ function updateLighting(dt) {
   perfMark('L.lamps'); updateGenerator(dt, indoors); perfMark('L.gen');
   pool.forEach((p, i) => {
     if(p.userData.on&&p.userData.lamp?.cabin){p.intensity=power?3.5:2.5;return;}
-    if (!p.userData.on || blackout > 0 || (!indoors && !p.userData.lamp?.street)) { p.intensity = 0; return; }
+    if (!p.userData.on || blackout > 0 || (!indoors && !p.userData.lamp?.street && !p.userData.lamp?.fac)) { p.intensity = 0; return; }
     if (p.userData.lamp?.street) { p.intensity = 22 * (1 - DAY.k * .65); return; }
     const lp = p.userData.lamp, st = lp && lp.start ? tNow - lp.start : 9;
     if (st < 0) { p.intensity = 0; return; }
@@ -3558,7 +3561,7 @@ function frameBody(now) {
       updatePrompt(); perfMark('prompt');
       updateEvents(dt); perfMark('events');
     }
-    updateLighting(dt); perfMark('lighting'); if (RBG) { RBG.tick(dt, P, sfx); RBG.setPower(blackout > 0, GEN.gain, power); }
+    updateLighting(dt); perfMark('lighting'); if (RBG) { RBG.tick(dt, P, sfx); if (ELEC) ELEC.tick(dt); RBG.setPower(blackout > 0, GEN.gain, power); }
     perfMark('rbg.tick'); ghostVisual(dt, tNow); perfMark('ghostVis');
     updateCamera(dt, tNow); perfMark('camera+hud');
   } else if (state === 'intro') {
@@ -3634,12 +3637,14 @@ function flipSwitch(p, on, byPlayer = false) {
   if (p.led && p.led.material) p.led.material.color.setHex(on ? 0x163822 : 0x40ff80);
   const ls = roomLamps(p), t0 = tNow;
   ls.forEach(l => { l.off = !on; l.start = on ? t0 + Math.random() * .25 : 0; l.mesh && (l.mesh.material = (!on || l.kind === 'dead') ? world.mats.matLampDead : l.mat); });
+  if (ELEC) ELEC.legacyApply(p);   // 분전반 차단기 · 건물 전원
   lampTimer = 0;
   if (!byPlayer) return;
   at(p.px, floors[p.floor].y0 + 1.3, p.pz).click();
   if (on) {
     sfx.lightOn();
-    if (ls.length && ls.every(l => l.kind === 'dead')) say('스위치를 올렸지만… 형광등이 모두 나갔다', 2400);
+    if (ELEC && p.elec && !ELEC.feed(p.elec)) say('딸깍 — 불이 들어오지 않는다. 분전반 차단기가 내려가 있다', 2400);
+    else if (ls.length && ls.every(l => l.kind === 'dead')) say('스위치를 올렸지만… 형광등이 모두 나갔다', 2400);
     else if (!FL.switchTip) { FL.switchTip = true; toast('형광등을 켰습니다', '켜진 방은 밝아서 단서를 찾기 쉽다 — 손전등 배터리도 아낄 수 있다', 'info'); }
   }
   P.noiseT = Math.max(P.noiseT || 0, .4);
@@ -9280,7 +9285,8 @@ function declutterInteractables() {
     if (!best) continue; shift(e, best.x - x0, v ? best.s + .004 - h0 : (best.s - (s0 ?? best.s)), best.z - z0); n++; }
   return n;
 }
-{ RBG = installRebuild({ THREE, scene, floors, world }); window.__rbg = RBG; try { MOONFX = installMoonShafts({ scene, blds: [RBG.MAIN, RBG.ANX], moonPos: MOON_POS }); MOONFX.setQuality(qCur); window.__moon = MOONFX; } catch (e) { console.warn('[moon shafts]', e); } idleTimeout(() => { try { refinishB1(); } catch (e) { console.warn('[B1 refinish]', e); } }, 12000); setTimeout(() => { for (const [nm, fn] of [['수영장 디테일', installPoolDetail], ['방송실 디테일', installBcastDetail], ['장비실 철문', installEqDoor]]) { try { const n = fn(); if (n) console.info('[' + nm + ']', n); } catch (e) { console.warn('[' + nm + ']', e); } } try { } catch (e) { console.warn('[pool detail]', e); } }, 13000); setTimeout(() => { try { (RBG.beds ? RBG.beds() : []).forEach((b, i) => world.props.push({ kind: 'bed', floor: 0, rbY: b.y, x: b.x, z: b.z, y: b.y + .7, r: 1.4, label: '침대에 눕기 — 잠시 숨 고르기', bed: b, _rb: true })); nurseChairFix(); } catch (e) { console.warn('[bed]', e); } }, 3500); try { RBG.allOff(); } catch (e) { console.warn('[all off]', e); } renderer.localClippingEnabled = true; setTimeout(() => { installInvestigationBoards().catch(e => console.warn('[조사 게시물]', e)); }, 2500); setTimeout(() => { furnishRooms({ scene, RBG, world, getP: () => P }).then(n => n && console.info('[가구 보강]', n)).catch(e => console.warn('[furnish v2]', e)); }, 4000); [20000, 45000].forEach(t => idleTimeout(() => { try { if (RBG && RBG.deskGraffiti && !RBG._graf) { const n = RBG.deskGraffiti(); if (n) console.info('[책상 낙서]', n); } } catch (e) { console.warn('[graffiti]', e); } }, t)); [6000, 16000, 32000].forEach(t => idleTimeout(() => { try { const n = repairStrayInteractables(); if (n) console.info('[상호작용 위치 보정]', n); } catch (e) { console.warn('[stray fix]', e); } }, t)); try { installRoomUI({ P, world, getRBG: () => RBG, getState: () => state, getTarget: () => target, keyInteract: () => (K().interact || 'KeyE') }); } catch (e) { console.warn('[room ui]', e); }
+{ RBG = installRebuild({ THREE, scene, floors, world }); window.__rbg = RBG; try { MOONFX = installMoonShafts({ scene, blds: [RBG.MAIN, RBG.ANX], moonPos: MOON_POS }); MOONFX.setQuality(qCur); window.__moon = MOONFX; } catch (e) { console.warn('[moon shafts]', e); } idleTimeout(() => { try { refinishB1(); } catch (e) { console.warn('[B1 refinish]', e); } }, 12000); setTimeout(() => { for (const [nm, fn] of [['수영장 디테일', installPoolDetail], ['방송실 디테일', installBcastDetail], ['장비실 철문', installEqDoor]]) { try { const n = fn(); if (n) console.info('[' + nm + ']', n); } catch (e) { console.warn('[' + nm + ']', e); } } try { } catch (e) { console.warn('[pool detail]', e); } }, 13000); setTimeout(() => { try { (RBG.beds ? RBG.beds() : []).forEach((b, i) => world.props.push({ kind: 'bed', floor: 0, rbY: b.y, x: b.x, z: b.z, y: b.y + .7, r: 1.4, label: '침대에 눕기 — 잠시 숨 고르기', bed: b, _rb: true })); nurseChairFix(); } catch (e) { console.warn('[bed]', e); } }, 3500); try { RBG.allOff(); } catch (e) { console.warn('[all off]', e); } try { ELEC = installElectrical({ THREE, scene, world, floors, mergeGeometries, RBG, FL, audit: {}, blackout: () => blackout, tNow: () => tNow, genGain: () => GEN.gain, power: () => power, dayK: () => DAY.k, sfx, at, say: (t, ms) => say(t, ms), noise: v => { P.noiseT = Math.max(P.noiseT || 0, v); },
+    enterUI: () => { state = 'ui'; for (const k in keys) keys[k] = false; document.exitPointerLock?.(); $('prompt').style.display = 'none'; }, exitUI: () => { if (state === 'ui') { state = 'playing'; refreshHud(); lock(); } } }); window.__elec = ELEC; } catch (e) { console.warn('[electrical]', e); } renderer.localClippingEnabled = true; setTimeout(() => { installInvestigationBoards().catch(e => console.warn('[조사 게시물]', e)); }, 2500); setTimeout(() => { furnishRooms({ scene, RBG, world, getP: () => P }).then(n => n && console.info('[가구 보강]', n)).catch(e => console.warn('[furnish v2]', e)); }, 4000); [20000, 45000].forEach(t => idleTimeout(() => { try { if (RBG && RBG.deskGraffiti && !RBG._graf) { const n = RBG.deskGraffiti(); if (n) console.info('[책상 낙서]', n); } } catch (e) { console.warn('[graffiti]', e); } }, t)); [6000, 16000, 32000].forEach(t => idleTimeout(() => { try { const n = repairStrayInteractables(); if (n) console.info('[상호작용 위치 보정]', n); } catch (e) { console.warn('[stray fix]', e); } }, t)); try { installRoomUI({ P, world, getRBG: () => RBG, getState: () => state, getTarget: () => target, keyInteract: () => (K().interact || 'KeyE') }); } catch (e) { console.warn('[room ui]', e); }
   // 2단계: 예전 건물의 열쇠 · 쪽지 · 조사 지점을 새 방으로 (나중에 생기는 조사 지점도 몇 번 더 옮긴다)
   const sz4 = floors[4] && floors[4].stairZone, b1 = sz4 ? sz4.spawn : { x: ((floors[4] && floors[4].stairCx) || 0) + .8, z: -5.2 };
   const rel = () => { const r = RBG.relocate({ world, floors, stairSpawnB1: b1 }); if (r.moved || r.dropped) console.info('[rebuild] 옮김', r); const f = RBG.fixRoomRefs(world); if (f.moved || f.relabeled || f.dup) console.info('[rebuild] 방 이름 맞춤', f); const g2 = RBG.relinkGeneric(world); if (g2.n || g2.drop) console.info('[rebuild] 공용 조사 지점 다시 잇기', g2); const s3 = RBG.settleMoved(world); if (s3.n) console.info('[rebuild] 허공 물건 내려놓기', s3); nurseChairFix(); const fv = RBG.fixVisible(world); if (fv.re || fv.up) console.info('[rebuild] 안 보이던 · 묻힌 물건 바로잡기', fv); };

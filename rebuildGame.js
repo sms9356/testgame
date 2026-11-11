@@ -174,13 +174,13 @@ export function installRebuild({ THREE, scene, floors, world }) {
           const inDoor = x => b.layout.rooms.some(q => q.kind === 'class' && ((x > q.x1 + .5 && x < q.x1 + 1.9) || (x > q.x2 - 1.9 && x < q.x2 - .5)));   // 앞 · 뒷문 개구부(미닫이 문짝 자리 포함) 위엔 달지 않는다
           if (Math.abs(lz) < 1 && inDoor(lx)) { const c = [lx - .9, lx + .9, lx - 1.6, lx + 1.6].find(x => x > rect.x1 + .3 && x < rect.x2 - .3 && !inDoor(x)); if (c != null) lx = c; }
           if (hit(lx, lz + dir * .45, y0 + .1, y0 + 1.6)) for (const o of [.5, -.5, 1, -1, 1.5, -1.5, 2, -2, 2.6, -2.6]) { const nx = lx + o; if (nx < rect.x1 + .3 || nx > rect.x2 - .3 || (Math.abs(lz) < 1 && inDoor(nx))) continue; if (!hit(nx, lz + dir * .45, y0 + .1, y0 + 1.6)) { lx = nx; break; } } }
-        put('plate', .09, .13, .02, b, lx, y0 + 1.3, lz, rot); put('key', .028, .05, .012, b, lx, y0 + 1.31, lz + n, rot);
-        put('pipe', .026, CEIL - 1.37, .026, b, lx, y0 + (1.37 + CEIL) / 2 - .06, lz + dir * .016, rot);
+        // 스위치 판 · 로커 키는 electrical.js 가 인스턴스로 그린다 (키가 실제로 눕고 서는 2008년식 와이드 로커 · 1~3구) — 여기는 전선관만
+        put('pipe', .026, CEIL - 1.27, .026, b, lx, y0 + (1.27 + CEIL) / 2 - .06, lz + dir * .016, rot);
         put('pipe', .1, .1, .05, b, lx, y0 + CEIL - .18, lz + dir * .03, rot);
         put('pipe', Math.max(1, rect.x2 - rect.x1 - .6), .026, .026, b, (rect.x1 + rect.x2) / 2, y0 + CEIL - .18, lz + dir * .02, rot);
         const [wx, wz] = b.toWorld(lx, lz + dir * .5);
-        const sw = { on: true, lamps: ls, covers: null, base: label }; switches.push(sw);
-        world.props.push({ kind: 'robj', k: 'light_switch', floor: 0, rbY: y0, x: wx, z: wz, y: y0 + 1.3, r: 1.3, label: label + ' 끄기', sw, _rb: true });
+        const [px, pz] = b.toWorld(lx, lz), [qx, qz] = b.toWorld(lx, lz + dir), sw = { on: true, lamps: ls, covers: null, base: label, rect, bld: b === ANX ? 'annex' : 'main', floor: f, pose: { x: px, y: y0 + 1.2, z: pz, nx: qx - px, nz: qz - pz } }; switches.push(sw);
+        world.props.push({ kind: 'robj', k: 'light_switch', floor: 0, rbY: y0, x: wx, z: wz, y: y0 + 1.2, r: 1.3, label: label + ' 끄기', sw, _rb: true });
       };
       for (const r of b.props) {
         if (r.kind !== 'room' || r.exit || r.x2 - r.x1 < 2 || r.z1 < -.2) continue;
@@ -197,7 +197,7 @@ export function installRebuild({ THREE, scene, floors, world }) {
       }
     }
     const mk = (key, color, rough, metal = 0) => { if (!parts[key].length) return; const g = mergeGeometries(parts[key], false); parts[key].forEach(q => q.dispose()); const m = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ color, roughness: rough, metalness: metal })); m.name = 'RB_switch_' + key; group.add(m); };
-    mk('plate', 0xece8dc, .5); mk('key', 0x2c2c2a, .5); mk('pipe', 0x9a9c98, .5, .35);
+    mk('pipe', 0x9a9c98, .5, .35);
   }
   // 충돌 상자 격자: R.blocked 가 건물마다 수천 개 상자를 매번 처음부터 훑었다 (한 프레임에 이동 · 상호작용 판정으로 수십 번 → 프로파일 상위)
   //   → 건물 지역 좌표 2m 칸으로 나눠 그 칸 것만. 상자가 추가 · 제거되면(배열 길이 변화) 다시 만든다. off 는 그때그때 본다.

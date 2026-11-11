@@ -64,7 +64,8 @@ import './megaExpansionPatch.js?v=432';   // 메가 익스팬션 · 최적화 ·
 import './poolMachineryPatch.js';     // 수영장 · 남/녀 탈의실·샤워실 · 기계실 철문 (사용자 제공) → window.poolAndMachineryPatch
 import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx, setSfxBusyCheck, setSpace, tickNight } from './audio.js?v=432'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=432'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera, perfInstanceSource } from './perfStabilizer.js?v=432'; window.__perfInst = perfInstanceSource; import { upgradePlainMaterials } from './plainUpgrade.js?v=432'; import { relayCampusPaths, cleanupCampus } from './campusPaths.js?v=432'; import { installStreetscape } from './streetV2.js?v=432'; import { installCampusGrounds } from './campusGrounds2008.js?v=432'; import { installHudV2, tickHudV2 } from './hudV2.js?v=432'; import { installPartnerRadio, tickPartnerRadio } from './partnerRadio.js?v=432';
 import { installRoomUI } from './roomUI.js?v=432';   // 방별 현장 조사 카드 · 상호작용 아이콘 · 획득/목표 애니메이션
-import { furnishRooms } from './furnishV2.js?v=432';   // 방 용도별 실사 가구 보강 (상담실 소파 · 교무실 냉온수기 · 창고 선반 …)
+import { furnishRooms } from './furnishV2.js?v=432';
+import { installInteractionsPlus } from './interactionsPlus.js?v=432';   // 생활 상호작용 보강 (분리수거함 · 청소함 · 창밖 · 커튼 · 학급 게시판 · 수업 종 · 카세트 데크 · 정수기)   // 방 용도별 실사 가구 보강 (상담실 소파 · 교무실 냉온수기 · 창고 선반 …)
 import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js?v=432';
 import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, HYPOTHESES, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, COVER_END, ENDING_OUTRO, OUTRO_TYPE, SIDEQUESTS, INTRO_COLD, CHAPTER_BEATS, SMS_FROM, ENDING_EPILOGUE, ENDING_SHOT, ENDING_STINGER, OUTRO_EXTRA_TYPE, HEADQUEST, COLLECT, } from './story.js?v=432';
 import { isSpeechBusy } from './voice.js?v=432';
@@ -834,12 +835,14 @@ const USE = {
   hook: () => '수영장 배수구에서 쓸 수 있다.',
   mop: () => { startCombine('mop'); return '무엇과 묶을까?'; }, wire: () => { startCombine('wire'); return '무엇에 감을까?'; },
 };
-const canCombine = id => RECIPES.some(r => r.a === id || r.b === id);
+// 실제로 만들 수 있는 조합만 (경보 함정 · 쇼트 폭탄은 CraftingSystem 레시피에서 빠져 조합하면 늘 실패했다)
+const LIVE_RECIPES = RECIPES.filter(r => !['alarm', 'shock'].includes(r.fn));
+const canCombine = id => LIVE_RECIPES.some(r => r.a === id || r.b === id);
 function craftNow() { const r = craftingSystem.recipes[invSel]; if (!r) return; const ok = craftingSystem.craft(r.resultId, m => { invMsg = m; }); if (ok) { newItems.add({ trap_can: 'alarm', short_bomb: 'shock', med_kit: 'firstaid' }[r.resultId]); refreshHud(); } else sfx.buzz(); renderInv(); }
 function startCombine(id) { combineFrom = id; invMsg = `「${ITEMS[id].name}」과(와) 조합할 아이템을 고르세요 · Esc 취소`; renderInv(); }
 function tryCombine(a, b) {
   combineFrom = null;
-  const r = RECIPES.find(x => (x.a === a && x.b === b) || (x.a === b && x.b === a));
+  const r = LIVE_RECIPES.find(x => (x.a === a && x.b === b) || (x.a === b && x.b === a));
   if (!r) { talk('combineFail', 2200); invMsg = '이 둘은 함께 쓸 수 없다.'; sfx.buzz(); renderInv(); return; }
   if (r.fn === 'recharge') invMsg = useBattery() ? '손전등 배터리를 갈아 끼웠다.' : '';
   else if (r.fn === 'hook') { FL.hook = true; FL.mop = false; FL.wire = false; newItems.add('hook'); sfx.hook(); invMsg = '대걸레 자루에 철사를 감아 갈고리 장대를 만들었다!'; talk('hookMade', 3000); toast('조합 성공', '갈고리 장대 — 수영장 배수구에서 사용'); save(true); }
@@ -898,8 +901,18 @@ function invUse(it) {
   if (state === 'ui' && $('inv').classList.contains('show')) renderInv();
 }
 function zoom(title, big, text) {
-  $('izName').textContent = title; $('izBig').innerHTML = big; $('izText').innerHTML = text; $('invZoom').classList.add('show');
+  $('izName').textContent = title; $('izBig').innerHTML = `<div class="izRot">${big}</div><small class="izHint">드래그 · 방향키로 돌려 보기 · 휠로 확대</small>`; $('izText').innerHTML = text; $('invZoom').classList.add('show');
+  IZ.rx = -8; IZ.ry = 18; IZ.s = 1; izApply();
 }
+// 아이템 자세히 보기: 아이콘을 손에 들고 돌려 보듯 기울이기 (CSS 3D — 드래그 · 방향키 · 휠 확대)
+const IZ = { rx: 0, ry: 0, s: 1, drag: null };
+function izApply() { const r = document.querySelector('#izBig .izRot'); if (r) r.style.transform = `perspective(700px) rotateX(${IZ.rx}deg) rotateY(${IZ.ry}deg) scale(${IZ.s})`; }
+{ const B = $('izBig');
+  if (B) { B.addEventListener('pointerdown', e => { IZ.drag = [e.clientX, e.clientY, IZ.rx, IZ.ry]; B.setPointerCapture?.(e.pointerId); });
+    B.addEventListener('pointermove', e => { if (!IZ.drag) return; const [x0, y0, rx, ry] = IZ.drag; IZ.ry = ry + (e.clientX - x0) * .6; IZ.rx = clamp(rx - (e.clientY - y0) * .5, -70, 70); izApply(); });
+    addEventListener('pointerup', () => { IZ.drag = null; });
+    B.addEventListener('wheel', e => { e.preventDefault(); IZ.s = clamp(IZ.s * (e.deltaY < 0 ? 1.1 : .9), .6, 2.2); izApply(); }, { passive: false });
+    addEventListener('keydown', e => { if (!$('invZoom').classList.contains('show')) return; const d = { ArrowLeft: [0, -15], ArrowRight: [0, 15], ArrowUp: [-12, 0], ArrowDown: [12, 0] }[e.code]; if (!d) return; e.preventDefault(); e.stopPropagation(); IZ.rx = clamp(IZ.rx + d[0], -70, 70); IZ.ry += d[1]; izApply(); }, true); } }
 function renderInv() {
   document.querySelectorAll('#invTabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === invTab));
   const grid = $('invGrid'), det = $('invDetail'); grid.innerHTML = ''; det.innerHTML = '';
@@ -914,7 +927,7 @@ function renderInv() {
       const it = its[i], c = document.createElement('div');
       if (!it) { c.className = 'cell empty'; grid.appendChild(c); continue; }
       c.className = 'cell' + (i === invSel ? ' sel' : '') + (combineFrom ? ' pick' : '') + (it.cat === 'key' ? ' cat-key' : ['candy', 'thermos', 'medkit', 'battery', 'firstaid'].includes(it.id) ? ' cat-use' : '');
-      { const rs = RECIPES.filter(r => r.a === it.id || r.b === it.id); c.title = it.name + (rs.length ? '\n조합: ' + rs.map(r => `${ITEMS[r.a === it.id ? r.b : r.a].name} → ${RESULT[r.fn]}`).join(' · ') : ''); }
+      { const rs = LIVE_RECIPES.filter(r => r.a === it.id || r.b === it.id); c.title = it.name + (rs.length ? '\n조합: ' + rs.map(r => `${ITEMS[r.a === it.id ? r.b : r.a].name} → ${RESULT[r.fn]}`).join(' · ') : ''); }
       c.innerHTML = iconHTML(it.icon) + (it.n > 1 ? `<em>×${it.n}</em>` : '') + (newItems.has(it.id) ? '<span class="new">NEW</span>' : '');
       c.onclick = () => { if (combineFrom) { tryCombine(combineFrom, it.id); return; } invSel = i; invMsg = ''; renderInv(); };
       grid.appendChild(c);
@@ -956,7 +969,7 @@ function renderInv() {
 }
 const RESULT = { recharge: '손전등 배터리 충전', gatekey: '서문고 진상 규명 마스터 기록부 (비밀 증거 5개 + 교장 직인 코어)', hook: '갈고리 장대', alarm: '경보 함정', shock: '쇼트 폭탄', firstaid: '응급 처치 키트' };
 function recipeHTML(id) {
-  const rs = RECIPES.filter(r => r.a === id || r.b === id); if (!rs.length) return '';
+  const rs = LIVE_RECIPES.filter(r => r.a === id || r.b === id); if (!rs.length) return '';
   return `<div style="margin-top:8px;font-size:12px;color:#8cc0e8">${rs.map(r => `조합: ${ITEMS[r.a].name} + ${ITEMS[r.b].name} → <b>${RESULT[r.fn]}</b>`).join('<br>')}</div>`;
 }
 function keyPieceHTML() {
@@ -4736,7 +4749,7 @@ tool('hairpin', 6, -37.6, .45, 28.3, mkPin(), '머리핀 줍기', 0xffd0e0);    
 tool('fuse', 4, SLOTS[7] - 1.5, .91, -4.15, mkFuse(), '예비 퓨즈 줍기', 0xa0e0ff);          // 지하 기계실 정비 작업대
 tool('mop', 4, SLOTS[6] - 1.0, .02, -6.8, mkMop(), '대걸레 자루 줍기', 0xffe0a0);          // 지하 청소도구실
 tool('wire', 8, ANNEX.slots[3] + 2.9, .77, -4.8, mkWire(), '철사 뭉치 줍기', 0xffe0a0);    // 별관 1F 기술·가정실 (cx = 8)
-[[0, -20, -1.25], [0, 12, -1.25], [1, -4, -1.25], [1, 28, -1.25], [2, 4, -1.25], [2, -30, -1.25], [5, 35, 25], [7, -36, 18.5]].forEach(([f, x, z]) => tool('can', f, x, .0, z, mkCan(), '빈 캔 줍기', 0xffffff));
+// 복도 바닥에 흩어 두던 빈 캔 8개는 정리했다(잡동사니) — 빈 캔은 수색 · 보관함 · 분리수거함 · 아이스박스에서만 나온다
 // 열쇠 조각을 지키는 자물쇠들
 lockBox(8, ANNEX.slots[4] + .6, .75, -8.6, 0, 'pick', { keyIdx: 1, label: '대출 데스크 서랍 따기', tol: 10 });
 lockBox(9, ANNEX.slots[4] - 2.4, .92, -4.8, Math.PI / 2, 'dial', { keyIdx: 2, code: '314', label: '약품장 다이얼 자물쇠', clue: 'n17', clueText: '칠판 메모 — 원주율 앞 세 자리' });
@@ -4912,7 +4925,8 @@ function updateThrows(dt) {
 
 
 // 조합 재료 줍기: 절연 테이프(공예실 · 별관 작업실 · 방송실) · 보건실 진정제(보건실 · 보건실 보조)
-const PICK_SPOTS = [['tape', 2, -13.8, .87, -4.6], ['tape', 9, -18.0, .87, 4.8], ['tape', 1, 10.0, .02, 1.35], ['sedative', 0, -18.6, .02, .7], ['sedative', 8, 6.0, .02, 1.35]];
+// 절연 테이프 줍기 3곳은 뺐다: 테이프는 경보 함정 조합에만 쓰였는데 그 조합(괴물 대비용)이 CraftingSystem 에서 빠져 쓸 데가 없다
+const PICK_SPOTS = [['sedative', 0, -18.6, .02, .7], ['sedative', 8, 6.0, .02, 1.35]];
 function spawnPicks() {
   const tapeG = new THREE.TorusGeometry(.06, .028, 8, 18), botG = new THREE.CylinderGeometry(.035, .035, .1, 12);
   const tapeM = new THREE.MeshStandardMaterial({ color: 0x141414, roughness: .55 }), botM = new THREE.MeshStandardMaterial({ color: 0x8a5a24, roughness: .25, transparent: true, opacity: .9 });
@@ -7397,15 +7411,15 @@ function installBcastDetail() {
   // 큐시트 흩어짐 (콘솔 앞 바닥)
   for (let k = 0; k < 6; k++) box(PAPER, X1 + 2.2 + (k % 3) * .35, .035 + k * .001, Z1 + 2.4 + (k * 1.7 % 2.2), .21, .002, .297, k * .9);
   // 콘솔 끝 테이프 케이스 더미 · 종이컵 2
-  for (let k = 0; k < 7; k++) { box(CASE, X1 + 1.2, .9 + k * .026, Z1 + 6.85, .14, .024, .1, (k % 3) * .08); box(LBL, X1 + 1.2, .9 + k * .026, Z1 + 6.85 + .051, .1, .012, .002, (k % 3) * .08); }
-  [[X1 + 1.3, Z1 + 1.0], [X1 + 1.25, Z1 + 1.15]].forEach(([x, z]) => { const c = new THREE.Mesh(new THREE.CylinderGeometry(.04, .03, .09, 12), CUP); c.position.set(x, Y + .95, z); g.add(c); });
+  for (let k = 0; k < 7; k++) { box(CASE, X1 + 1.15, .732 + k * .026, Z1 + 9.05, .14, .024, .1, (k % 3) * .08); box(LBL, X1 + 1.15, .732 + k * .026, Z1 + 9.05 + .051, .1, .012, .002, (k % 3) * .08); }   // CCTV 녹화기 받침 위 (예전: 서쪽 벽 앞 허공 0.9m)
+  [[X1 + 3.22, Z1 + 8.98], [X1 + 3.23, Z1 + 9.5]].forEach(([x, z]) => { const c = new THREE.Mesh(new THREE.CylinderGeometry(.04, .03, .09, 12), CUP); c.position.set(x, Y + .785, z); g.add(c); });   // 영상 편집석 책상 위 (예전: 허공)
   // 걸어 둔 헤드폰 (랙 옆면 고리)
   { const h = new THREE.Mesh(new THREE.TorusGeometry(.09, .012, 6, 16, Math.PI), BLK); h.position.set(X1 + 2.25, Y + 1.55, Z1 + .78); g.add(h); [-1, 1].forEach(s => { const e = new THREE.Mesh(new THREE.CylinderGeometry(.045, .045, .035, 12), BLK); e.rotation.x = Math.PI / 2; e.position.set(X1 + 2.25 + s * .09, Y + 1.5, Z1 + .78); g.add(e); }); }
   // ── 고증 보강 2 ── XP = 유리벽, 녹음실 = XP 동쪽
   { const XP = X1 + 9, WOOD = mk(0x6a4a30, .7), STEEL = mk(0x8a9094, .45, .6), CRT = mk(0x2a2c2e, .5), SCR = new THREE.MeshStandardMaterial({ color: 0x1a2a3a, emissive: 0x30506a, emissiveIntensity: .35, roughness: .2 }), TAPE = mk(0xe8d020, .8), WHITE = mk(0xf0eee8, .8), RED = mk(0xb02020, .6);
     // 콘솔 위: 원고 묶음 · 카세트 3 · 볼펜 (운영자 쪽 가장자리)
-    box(PAPER, XP - 2.15, .9, Z1 + 2.2, .21, .012, .3, .2); box(PAPER, XP - 2.15, .913, Z1 + 2.22, .21, .002, .297, .05);
-    for (let k = 0; k < 3; k++) { box(CASE, XP - 2.1, .9, Z1 + 5.3 + k * .13, .1, .016, .066, .3 * k); box(LBL, XP - 2.1, .909, Z1 + 5.3 + k * .13, .07, .002, .04, .3 * k); }
+    box(PAPER, XP - 1.86, .815, Z1 + 2.2, .21, .012, .3, .2).rotation.z = .16; box(PAPER, XP - 1.86, .828, Z1 + 2.22, .21, .002, .297, .05).rotation.z = .16;   // 콘솔 운영자 쪽 가장자리 (경사면 위)
+    for (let k = 0; k < 3; k++) { box(CASE, XP - 1.86, .822, Z1 + 5.3 + k * .13, .1, .016, .066, .3 * k); box(LBL, XP - 1.86, .831, Z1 + 5.3 + k * .13, .07, .002, .04, .3 * k); }
     // 녹음실 앵커 데스크(X1+15.2~15.9 · z 1.7~4.5): 대본 2부 · 물병 2 · 이름표 「진행 · 하늘」
     [[2.5], [3.8]].forEach(([z]) => { box(PAPER, X1 + 15.6, .81, Z1 + z, .21, .006, .297, .1); const bt = new THREE.Mesh(new THREE.CylinderGeometry(.033, .033, .22, 12), mk(0xc8e0f0, .1, 0)); bt.material.transparent = true; bt.material.opacity = .55; bt.position.set(X1 + 15.35, Y + .91, Z1 + z + .3); g.add(bt); });
     { const c = document.createElement('canvas'); c.width = 256; c.height = 64; const q = c.getContext('2d'); q.fillStyle = '#f4f0e4'; q.fillRect(0, 0, 256, 64); q.fillStyle = '#1c2a48'; q.font = 'bold 34px sans-serif'; q.textAlign = 'center'; q.textBaseline = 'middle'; q.fillText('진행 · 윤하늘', 128, 34);
@@ -7453,6 +7467,10 @@ function installBcastDetail() {
   const add = (x, z, y, label, fn) => world.props.push({ kind: 'look', floor: 0, rbY: Y, x, z, y: Y + y, r: 1.4, label, fn, n: 0, _rb: true });
   add(X1 + 2.5, Z1 + 2.8, .3, '바닥의 큐시트 주워 보기', p => { sfx.paper(); return p.n++ % 2 ? '“23:40 — 하교 방송 (윤하늘) / 끝곡: 학교종” 그 줄에만 빨간 펜으로 동그라미가 쳐져 있다.' : '1998.10.12 리허설 큐시트. “22:00 마이크 체크 · 22:30 담력 체험(?) · 23:40 본방” — 누군가 물음표를 꾹꾹 눌러 썼다.'; });
   add(X1 + 2.25, Z1 + 1.1, 1.4, '걸어 둔 헤드폰 써 보기', () => { sfx.staticNoise(.6); P.fear = Math.min(1, (P.fear || 0) + .06); return pk(['지직거리는 잡음 사이로 숨소리가 들린다. 아주 가까이서.', '“…들려? 수아야, 다은아…” 헤드폰을 벗자 방 안이 너무 조용하다.', '아무 소리도 나지 않는다. 그런데 오른쪽 귀만 차갑다.']); });
+  // 방송실 안에서 허공에 뜬 소비 아이템을 받침 위로 (감사: 건전지 1.11m · 응급 밴드 0.39m 가 아무것도 없는 자리에 떠 있었다)
+  for (const it of world.items) { if (it.taken || !it.pos || !it.mesh || Math.abs(it.pos.y - Y - .8) > 1.2 || it.pos.x < X1 || it.pos.x > X1 + 17.8 || it.pos.z < Z1 || it.pos.z > Z1 + 10) continue;
+    const to = it.kind === 'battery' ? [X1 + 12.1, .8, Z1 + 7.0] : it.kind === 'medkit' ? [X1 + 12.55, .78, Z1 + 7.65] : null; if (!to) continue;   // 둘 다 라디오 토크 원탁 위 (마이크 붐 사이)
+    const dy = Y + to[1] + .1 - it.pos.y; it.pos.set(to[0], it.pos.y + dy, to[2]); it.mesh.position.x += to[0] - it.mesh.position.x; it.mesh.position.y += dy; it.mesh.position.z = to[2]; if (it.baseY != null) it.baseY += dy; }
   try { upgradePlainMaterials(g); } catch (e) {}
   return g.children.length;
 }
@@ -9293,6 +9311,7 @@ function declutterInteractables() {
   return n;
 }
 { RBG = installRebuild({ THREE, scene, floors, world }); window.__rbg = RBG; try { MOONFX = installMoonShafts({ scene, blds: [RBG.MAIN, RBG.ANX], moonPos: MOON_POS }); MOONFX.setQuality(qCur); window.__moon = MOONFX; } catch (e) { console.warn('[moon shafts]', e); } idleTimeout(() => { try { refinishB1(); } catch (e) { console.warn('[B1 refinish]', e); } }, 12000); setTimeout(() => { for (const [nm, fn] of [['수영장 디테일', installPoolDetail], ['방송실 디테일', installBcastDetail], ['장비실 철문', installEqDoor]]) { try { const n = fn(); if (n) console.info('[' + nm + ']', n); } catch (e) { console.warn('[' + nm + ']', e); } } try { } catch (e) { console.warn('[pool detail]', e); } }, 13000); setTimeout(() => { try { (RBG.beds ? RBG.beds() : []).forEach((b, i) => world.props.push({ kind: 'bed', floor: 0, rbY: b.y, x: b.x, z: b.z, y: b.y + .7, r: 1.4, label: '침대에 눕기 — 잠시 숨 고르기', bed: b, _rb: true })); nurseChairFix(); } catch (e) { console.warn('[bed]', e); } }, 3500); try { RBG.allOff(); } catch (e) { console.warn('[all off]', e); } renderer.localClippingEnabled = true; setTimeout(() => { installInvestigationBoards().catch(e => console.warn('[조사 게시물]', e)); }, 2500); setTimeout(() => { furnishRooms({ scene, RBG, world, getP: () => P }).then(n => n && console.info('[가구 보강]', n)).catch(e => console.warn('[furnish v2]', e)); }, 4000); [20000, 45000].forEach(t => idleTimeout(() => { try { if (RBG && RBG.deskGraffiti && !RBG._graf) { const n = RBG.deskGraffiti(); if (n) console.info('[책상 낙서]', n); } } catch (e) { console.warn('[graffiti]', e); } }, t)); [6000, 16000, 32000].forEach(t => idleTimeout(() => { try { const n = repairStrayInteractables(); if (n) console.info('[상호작용 위치 보정]', n); } catch (e) { console.warn('[stray fix]', e); } }, t)); try { installRoomUI({ P, world, getRBG: () => RBG, getState: () => state, getTarget: () => target, keyInteract: () => (K().interact || 'KeyE') }); } catch (e) { console.warn('[room ui]', e); }
+if (RBG) setTimeout(() => { try { const n = installInteractionsPlus({ THREE, scene, world, RBG, sfx, showNote, P }); if (n) console.info('[생활 상호작용]', n); } catch (e) { console.warn('[interactions+]', e); } }, 5000);
   // 2단계: 예전 건물의 열쇠 · 쪽지 · 조사 지점을 새 방으로 (나중에 생기는 조사 지점도 몇 번 더 옮긴다)
   const sz4 = floors[4] && floors[4].stairZone, b1 = sz4 ? sz4.spawn : { x: ((floors[4] && floors[4].stairCx) || 0) + .8, z: -5.2 };
   const rel = () => { const r = RBG.relocate({ world, floors, stairSpawnB1: b1 }); if (r.moved || r.dropped) console.info('[rebuild] 옮김', r); const f = RBG.fixRoomRefs(world); if (f.moved || f.relabeled || f.dup) console.info('[rebuild] 방 이름 맞춤', f); const g2 = RBG.relinkGeneric(world); if (g2.n || g2.drop) console.info('[rebuild] 공용 조사 지점 다시 잇기', g2); const s3 = RBG.settleMoved(world); if (s3.n) console.info('[rebuild] 허공 물건 내려놓기', s3); nurseChairFix(); const fv = RBG.fixVisible(world); if (fv.re || fv.up) console.info('[rebuild] 안 보이던 · 묻힌 물건 바로잡기', fv); };

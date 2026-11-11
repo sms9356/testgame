@@ -469,8 +469,9 @@ export function buildMainBuilding(opt = {}) {
     if (exitOps.length) [-1, 1].forEach(sx => {   // 별관 양 끝 비상구: 바깥으로 열린 녹색 철문 · 비상구 유도등 · 문턱
       const xw = sx * (LY.L / 2 + T / 2);
       box('steelG', xw - .16, xw + .16, 2.2, 2.28, zN + .25, zN + 1.65); [zN + .3, zN + 1.6].forEach(z => box('steelG', xw - .16, xw + .16, 0, 2.2, z - .04, z + .04));
-      { const w = 1.26, hz = zN + .32;   // 비상구 철문 (닫힌 채 시작 · [E] 로 여닫는다 · 바깥으로 열린다)
-        doors.push({ kind: 'swing', axisZ: true, mat: 'steelG', win: false, w, h: 2.16, t: .05, px: xw, py: 0, pz: hz, ox: 0, oz: w / 2, dir: sx, open: false,
+      { const w = 1.22, hz = zN + .34;   // 문틀 기둥(±.04) 안쪽 개구부 1.22m 에 맞춘다 (예전 1.26: 기둥에 박혔다)
+          // 비상구 철문 (닫힌 채 시작 · [E] 로 여닫는다 · 바깥으로 열린다)
+        doors.push({ kind: 'swing', axisZ: true, mat: 'steelG', win: false, w, h: 2.196, t: .05, px: xw, py: 0, pz: hz, ox: 0, oz: w / 2, dir: sx, open: false,
           cx1: xw - .1, cx2: xw + .1, cz1: hz, cz2: hz + w, mx: xw - sx * .7, mz: zN + .95, label: '비상구 철문', floor: 0 }); }
       box('lamp', xw - sx * .2 - .2, xw - sx * .2 + .2, 2.32, 2.5, zN + .75, zN + 1.15); exitSign(sx * (LY.L / 2 - .05), y0 + 2.4, zN + .95, true);
       walk.push({ x1: Math.min(xw - .2, xw + sx * .2) - .2, x2: Math.max(xw - .2, xw + sx * .2) + .2, z1: zN + .3, z2: zN + 1.6, h: () => 0, f: 0 });
@@ -500,7 +501,7 @@ export function buildMainBuilding(opt = {}) {
       const d = { a: core.x1 + ENT_IN, b: core.x2 - ENT_IN };
       box('alu', d.a, d.b, ENT_H - .1, ENT_H, zN - .2, zN - .1); [d.a, (d.a + d.b) / 2, d.b].forEach(x => box('alu', x - .04, x + .04, 0, ENT_H - .1, zN - .2, zN - .1));
       if (opt.bridge) for (let k = 0; k < 4; k++) { const lz = zN - T - 1.2 - k * 2.2; [d.a + .6, d.b - .6].forEach(x => { box('alu', x - .32, x + .32, 3.28, 3.32, lz - .14, lz + .14); box('extLamp', x - .3, x + .3, 3.25, 3.28, lz - .12, lz + .12); }); if (k % 2 === 0) { const pl = new THREE.PointLight(0xffeccc, 1.6, 9, 1.7); pl.position.set((d.a + d.b) / 2, 3.0, lz - 1.1); pl.userData.alwaysOn = true; root.add(pl); } }   // 현관 통로(구름다리 밑) 천장등: 건물 소등과 상관없이 밤새 켜진 보안등
-      { const w = (d.b - d.a) / 2; [[d.a, 1], [d.b, -1]].forEach(([hx, sx]) => doors.push({ kind: 'swing', mat: 'alu', win: false, w, h: ENT_H - .15, t: .05, px: hx, py: 0, pz: zN - .15, ox: sx * w / 2, oz: 0, dir: sx, open: false,
+      { const w = (d.b - d.a) / 2 - .08; [[d.a, 1], [d.b, -1]].forEach(([hx, sx]) => doors.push({ kind: 'swing', mat: 'alu', win: false, w, h: ENT_H - .104, t: .05, px: hx, py: 0, pz: zN - .15, ox: sx * (.04 + w / 2), oz: 0, dir: sx, open: false,
           cx1: Math.min(hx, hx + sx * w), cx2: Math.max(hx, hx + sx * w), cz1: zN - .2, cz2: zN - .1, mx: (d.a + d.b) / 2, mz: zN - .2, label: '현관 유리문', floor: 0, glassLeaf: true })); }
       if (!opt.bridge) box('conc', d.a - 1, d.b + 1, 3.0, 3.2, zN - 3.2, zN - T);   // 구름다리가 있으면 그것이 차양
       // 현관 위 교명판 · 출입등 2개
@@ -515,7 +516,7 @@ export function buildMainBuilding(opt = {}) {
     if (f === 0 && opt.southEntry) {   // 남쪽 정문 현관 (운동장 · 정문을 마주 본다): 유리문 2짝 · 캐노피 · 교명판 · 출입등
       const d = { a: core.x1 + ENT_IN, b: core.x2 - ENT_IN }, zd = zS + T;
       box('alu', d.a, d.b, ENT_H - .1, ENT_H, zS + .1, zS + .2); [d.a, (d.a + d.b) / 2, d.b].forEach(x => box('alu', x - .04, x + .04, 0, ENT_H - .1, zS + .1, zS + .2));
-      { const w = (d.b - d.a) / 2; [[d.a, 1], [d.b, -1]].forEach(([hx, sx]) => doors.push({ kind: 'swing', mat: 'alu', win: false, w, h: ENT_H - .15, t: .05, px: hx, py: 0, pz: zS + .15, ox: sx * w / 2, oz: 0, dir: -sx, open: false,
+      { const w = (d.b - d.a) / 2 - .08; [[d.a, 1], [d.b, -1]].forEach(([hx, sx]) => doors.push({ kind: 'swing', mat: 'alu', win: false, w, h: ENT_H - .104, t: .05, px: hx, py: 0, pz: zS + .15, ox: sx * (.04 + w / 2), oz: 0, dir: -sx, open: false,
           cx1: Math.min(hx, hx + sx * w), cx2: Math.max(hx, hx + sx * w), cz1: zS + .1, cz2: zS + .2, mx: (d.a + d.b) / 2, mz: zS + .2, label: '정문 현관 유리문', floor: 0, glassLeaf: true })); }
       // 2008 현관 리모델링: 백색 도장 캐노피 + 알루미늄 후레싱 · 치장벽돌 기둥 · 화강석 포치(+15cm) · 동쪽 장애인 경사로(1/16) + 스테인리스 난간
       box('trim', d.a - 1, d.b + 1, 3.0, 3.2, zd - .01, zd + 3.0); box('aluW', d.a - 1.03, d.b + 1.03, 3.2, 3.26, zd + 2.9, zd + 3.04); box('aluW', d.a - 1.03, d.b + 1.03, 3.2, 3.26, zd - .01, zd + 2.9);   // 캐노피 + 지붕 후레싱
@@ -564,7 +565,7 @@ export function buildMainBuilding(opt = {}) {
         { const xi = r.x1 < 0 ? r.x2 : r.x1; wallZ('conc', xi - S.wall / 2, xi + S.wall / 2, zN, zS, y0, [{ a: zN + .1, b: zN + 2.6, y1: 0, y2: 2.2 }]);
           // 갑종 방화문 양개 (평소 자석으로 열어 둔 상태 — 계단실 쪽으로 젖혀진다)
           const w = 1.25, sx = r.x1 < 0 ? -1 : 1;
-          [[zN + .1, 1], [zN + 2.6, -1]].forEach(([hz, sz]) => doors.push({ kind: 'swing', axisZ: true, mat: 'steelG', win: true, w, h: 2.18, t: .05, px: xi, py: y0, pz: hz, ox: 0, oz: sz * w / 2, dir: sx * sz, open: true,
+          [[zN + .1, 1], [zN + 2.6, -1]].forEach(([hz, sz]) => doors.push({ kind: 'swing', axisZ: true, mat: 'steelG', win: true, w, h: 2.196, t: .05, px: xi, py: y0, pz: hz, ox: 0, oz: sz * w / 2, dir: sx * sz, open: true,
             cx1: xi - .1, cx2: xi + .1, cz1: Math.min(hz, hz + sz * w), cz2: Math.max(hz, hz + sz * w), mx: xi + (r.x1 < 0 ? .6 : -.6), mz: zN + 1.35, label: '계단실 방화문', floor: f })); }   // 복도 쪽 벽만 (바깥쪽은 외벽), 방화문 개구부
         { const xi = r.x1 < 0 ? r.x2 : r.x1, sd = r.x1 < 0 ? -1 : 1;
           finishZ(xi - sd * S.wall / 2, -sd, zN + 2.6, zS, y0); finishZ(xi + sd * S.wall / 2, sd, zN + 2.6, zS, y0); }   // 계단실 칸막이벽 양면 마감 (문 개구부 남쪽)
@@ -1619,7 +1620,7 @@ export function buildMainBuilding(opt = {}) {
     wallX('wall', r.x1, r.x2, -S.wall / 2, S.wall / 2, y0, ops); finishX(r.x1, r.x2, -S.wall / 2, -1, y0, ops);
     ops.forEach((o, k) => {   // 화장실 출입구: 알루미늄 틀 반투명 간유리문 (닫힌 채 · [E] 로 여닫음) + 문 위 표지판
       box('alu', o.a - .05, o.a + .008, y0, y0 + 2.15, -.12, .12); box('alu', o.b - .008, o.b + .05, y0, y0 + 2.15, -.12, .12); box('alu', o.a, o.b, y0 + 2.088, y0 + 2.15, -.12, .12);   // 문틀이 개구부 면에서 살짝 나와 벽 면과 겹치지 않게
-      doors.push({ kind: 'swing', mat: 'alu', win: false, w: o.b - o.a, h: 2.06, t: .04, px: k ? o.b : o.a, py: y0, pz: 0, ox: (k ? -1 : 1) * (o.b - o.a) / 2, oz: 0, dir: k ? 1 : -1, open: false,
+      doors.push({ kind: 'swing', mat: 'alu', win: false, w: o.b - o.a - .016, h: 2.084, t: .04, px: k ? o.b : o.a, py: y0, pz: 0, ox: (k ? -1 : 1) * (o.b - o.a) / 2, oz: 0, dir: k ? 1 : -1, open: false,
         cx1: o.a, cx2: o.b, cz1: -.08, cz2: .08, mx: (o.a + o.b) / 2, mz: -.5, label: `${k ? '여' : '남'}자 화장실 문`, floor: f, glassLeaf: true, frosted: true });
       const c = document.createElement('canvas'); c.width = 256; c.height = 64; const g = c.getContext('2d'); g.fillStyle = '#f4f4f0'; g.fillRect(0, 0, 256, 64); g.fillStyle = k ? '#c8283a' : '#1f4fa8'; g.fillRect(0, 0, 64, 64);
       g.fillStyle = '#fff'; g.beginPath(); g.arc(32, 18, 8, 0, 7); g.fill(); if (k) { g.beginPath(); g.moveTo(32, 26); g.lineTo(46, 56); g.lineTo(18, 56); g.closePath(); g.fill(); } else g.fillRect(24, 28, 16, 28);
@@ -1789,7 +1790,9 @@ export function buildMainBuilding(opt = {}) {
   // 문짝: 병합하지 않은 개별 메시 (열고 닫는 애니메이션 · 닫혔을 때만 충돌)
   for (const d of doors) {
     const g = new THREE.Group(); g.position.set(d.px, d.py, d.pz); root.add(g); d.group = g;
-    const leaf = new THREE.Mesh(d.axisZ ? uvBox(d.t, d.h, d.w) : uvBox(d.w, d.h, d.t), d.glassLeaf ? (d.frosted ? mat.frost : mat.glass) : mat[d.mat]); if (d.glassLeaf) { const fr = new THREE.Mesh(new THREE.BoxGeometry(d.w, .08, d.t + .01), mat.alu); fr.position.set(d.ox, .04, 0); g.add(fr); const fr2 = fr.clone(); fr2.position.y = d.h - .04; g.add(fr2); } leaf.position.set(d.ox, d.h / 2, d.oz); g.add(leaf);
+    // 문짝 틈: 여닫이는 문틀과 옆 · 위 4mm, 바닥 마감(+6mm) 위 9mm / 미서기는 8mm 띄운다 (d.h = 문짝 윗면 높이). 예전엔 문틀 · 바닥과 딱 붙거나 겹쳤다
+    const LIFT = d.kind === 'swing' ? .015 : .014, LW = d.kind === 'swing' ? d.w - .008 : d.w, LH = d.h - LIFT;
+    const leaf = new THREE.Mesh(d.axisZ ? uvBox(d.t, LH, LW) : uvBox(LW, LH, d.t), d.glassLeaf ? (d.frosted ? mat.frost : mat.glass) : mat[d.mat]); if (d.glassLeaf) { const fr = new THREE.Mesh(new THREE.BoxGeometry(LW, .08, d.t + .01), mat.alu); fr.position.set(d.ox, LIFT + .04, 0); g.add(fr); const fr2 = fr.clone(); fr2.position.y = d.h - .04; g.add(fr2); } leaf.position.set(d.ox, LIFT + LH / 2, d.oz); g.add(leaf);
     if (d.win) { const gw = d.kind === 'swing' ? d.w * .5 : .5; const gl = new THREE.Mesh(d.axisZ ? new THREE.BoxGeometry(d.t + .004, .7, gw) : new THREE.BoxGeometry(gw, .7, d.t + .004), mat.glass); gl.position.set(d.ox, d.h * .7, d.oz); g.add(gl); }
     { const hd = new THREE.Mesh(d.axisZ ? new THREE.BoxGeometry(d.t + .06, .12, .03) : new THREE.BoxGeometry(.03, .12, d.t + .06), mat.alu); const k = d.kind === 'swing' ? .42 : -.4; hd.position.set(d.ox * (d.axisZ ? 1 : 1) + (d.axisZ ? 0 : Math.sign(d.ox || 1) * d.w * Math.abs(k) * (d.kind === 'swing' ? 1 : -1)), 1.0, d.oz + (d.axisZ ? Math.sign(d.oz) * d.w * .42 : 0)); g.add(hd); }
     d.col = { x1: d.cx1, x2: d.cx2, z1: d.cz1, z2: d.cz2, y1: d.py, y2: d.py + d.h, door: d }; col.push(d.col);

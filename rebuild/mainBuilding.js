@@ -581,7 +581,9 @@ export function buildMainBuilding(opt = {}) {
     LY.rooms.filter(r => r.kind === 'class').forEach((r, i) => {
       extinguisher(r.x1 + .35, y0, -.32, Math.PI); if (i % 2 === 0) hydrant(r.x2 - .95, y0, zN + .05, f);   // 창과 창 사이 벽(기둥 옆)에 — 창 앞에 떠 있지 않게
       detector(r.x1 + 4.5, y0 + S.CEIL, zN / 2);
+      [[3, 3.3], [6, 3.3], [3, 6.8], [6, 6.8]].forEach(([dx, z]) => sprink(r.x1 + dx, y0 + S.CEIL, z));   // 교실 스프링클러 헤드 (2008 소방 보강)
     });
+    for (let x = -LY.L / 2 + 5.25; x < LY.L / 2 - 2; x += 4.5) sprink(x, y0 + S.CEIL, zN / 2);   // 복도 스프링클러 헤드 — 형광등 사이 (2008 소방 보강)
     LY.rooms.filter(r => r.kind === 'stair').forEach(r => exitSign((r.x1 + r.x2) / 2 + (r.x1 < 0 ? 3 : -3), y0 + 2.35, zN / 2, true));
     // 복도 실사 소품: 발신기(화재경보) · 복도 끝 CCTV · 계단실 앞 화분 · 화장실 앞 미끄럼 주의 표지
     LY.rooms.filter(r => r.kind === 'class').forEach((r, i) => { if (i % 2 === 0) mdl('fire_alarm', r.x2 + .75, y0 + 1.45, zN + .01); });   // 소화전 맞은편 기둥 옆 벽
@@ -1770,6 +1772,8 @@ export function buildMainBuilding(opt = {}) {
     const [a, b] = alongX ? [.6, .15] : [.15, .6];
     box('lamp', x - a, x + a, y - .02, y, z - b, z + b); lights.push({ x, y: y - .1, z });
   }
+  // 하향식 스프링클러 헤드: 황동 몸체 + 디플렉터 (같은 재질 키로 층 끝에서 한 메시로 합친다)
+  function sprink(x, y, z) { cyl('brass', x, y - .07, z, .011, .07, .011, 6); cyl('alu', x, y - .085, z, .032, .008, .032, 10); cyl('alu', x, y - .012, z, .04, .012, .04, 10); }
   function detector(x, y, z) { const g = new THREE.CylinderGeometry(.06, .07, .04, 12); g.translate(x, y - .02, z); (geo.get('white') || geo.set('white', []).get('white')).push(g); }
   // 유도등: 흰 테 + 앞뒤 표지면. alongX = true 면 복도를 따라 보이도록(표지면이 ±x 를 향함)
   function exitSign(x, y, z, alongX = false) { const w = .2, t = .025;

@@ -2064,7 +2064,9 @@ async function useRoomObj(p) {
   }
   if (k === 'guarddoor') {
     if ((FL.guardDoorOpen ?? true) && guardRoomController && !guardRoomController.canClose(P)) { say('문 앞에서 조금 물러나야 한다',1800); return; }
-    FL.guardDoorOpen = !(FL.guardDoorOpen ?? true); sfx.click(); syncGuardDevices(); save(true); return;
+    FL.guardDoorOpen = !(FL.guardDoorOpen ?? true); syncGuardDevices(); save(true);
+    { const L = guardRoomController?.guardRoom?.layout || world.guardRoom?.layout || { doorX: 6.55, doorZ: 68.01 }, sp = at(L.doorX + .43, 1.2, L.doorZ); FL.guardDoorOpen ? (sp.doorOpen ? sp.doorOpen(.8) : sfx.doorHinge(.7)) : (sp.doorClose ? sp.doorClose(.38, .8) : sfx.doorHinge(.7)); P.noiseT = .6; }   // 다른 여닫이 문과 같은 위치 효과음 (예전엔 버튼 딸깍 소리뿐)
+    return;
   }
   if (k === 'guardlight') { toggleGuardLight(); return; }
   if (k === 'fac_door') {   // 캠퍼스 시설(대강당 등) 실내 문: 여닫기
@@ -2481,7 +2483,7 @@ function load(preferBackup) {
   Object.assign(P, d.player); if (RBG) { const m = RBG.mapTeleport({ floor: P.floor, x: P.x, z: P.z, yaw: P.yaw, sh: d.player.sh }, -1, world); P.floor = m.floor; P.x = m.x; P.z = m.z; P.sh = m.sh ?? 0; }   // 예전 건물 기준 세이브도 새 건물의 같은 자리로
   if(restoreOutsideElevatorBay(P,floors[P.floor]?.elevatorBay)){P.sh=P.shV=P.jy=P.jyV=P.vy=0;} P.hiding = null; $('hide').classList.remove('show');$('peekEye').classList.remove('on');
   got.splice(0, TOTAL, ...d.progress.got.slice(0, TOTAL).map(Boolean));
-  Object.assign(inv, d.inv); Object.assign(FL, d.progress.FL || {}); B1D && B1D.sync(); campusCctv?.restoreChannels(FL.guardCctvChannels||[]); power = !!d.progress.power;
+  Object.assign(inv, d.inv); Object.assign(FL, d.progress.FL || {}); B1D && B1D.sync(); campusCctv?.restoreChannels(FL.guardCctvChannels||[]); if (guardRoomController) { syncGuardDevices(); guardRoomController.tick(1); } power = !!d.progress.power;
   msgs.length = 0; msgs.push(...(d.msgs || [])); clues.length = 0; clues.push(...(d.clues || []));
   docs.length = 0; (d.docs || []).forEach(x => addDoc(x));
   EV.done.clear(); (d.events || []).forEach(e => EV.done.add(e)); EV.b33 = d.b33 || 0;

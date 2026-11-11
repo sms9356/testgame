@@ -95,8 +95,8 @@ export function drawMap(ctx, W, H, o) {
     strokeRect(28, 8, 48, 30, '#8a8a80', 2);
     if (labels) { ctx.fillStyle = '#e8e0c8'; ctx.font = '13px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('무대', X(38), Y(10.6)); ctx.fillText('농구 코트', X(37), Y(20)); ctx.fillText('관람석', X(45.5), Y(20)); ctx.fillText('기록석', X(29.8), Y(17.8)); ctx.fillText('출입문', X(38), Y(29.3)); }
   } else if (floor === 7) {
-    fillRect(-48, 8, -30, 22, '#3a4038'); fillRect(-46.5, 12.5, -34, 13.4, '#6a6a60'); fillRect(-46.5, 9, -39.5, 11, '#4a4a48'); fillRect(-45, 15.5, -33.3, 16.5, '#6a5a3a'); fillRect(-45, 18.7, -33.3, 19.7, '#6a5a3a');
-    strokeRect(-48, 8, -30, 22, '#8a8a80', 2);
+    fillRect(-48, 4.6, -30, 22, '#3a4038'); fillRect(-34.5, 4.9, -30.3, 8, '#3a4448'); fillRect(-46.5, 12.5, -34, 13.4, '#6a6a60'); fillRect(-46.5, 9, -39.5, 11, '#4a4a48'); fillRect(-45, 15.5, -33.3, 16.5, '#6a5a3a'); fillRect(-45, 18.7, -33.3, 19.7, '#6a5a3a');
+    strokeRect(-48, 4.6, -30, 22, '#8a8a80', 2);
     if (labels) { ctx.fillStyle = '#e8e8d8'; ctx.font = '13px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('조리실', X(-43), Y(9.6)); ctx.fillText('배식대', X(-38), Y(12.6)); ctx.fillText('식당 홀', X(-39), Y(17.6)); ctx.fillText('창고', X(-32), Y(9.4)); ctx.fillText('출입문', X(-39), Y(21.6)); }
   } else if (floor === 6) {
     fillRect(-50, 20, -34, 58, '#3a4048'); fillRect(-45.6, 32, -37.4, 45.5, '#2a6a86');

@@ -12,7 +12,7 @@ const PLAN = [
   [/회의실/, ['cooler']],
   [/보건실/, ['cooler']],
   [/창고/, ['shelf', 'shelf', 'chest', 'box', 'box', 'box']],
-  [/방송실/, ['shelf', 'box']],
+  // 방송실은 장비가 다 들어차 있어 보강하지 않는다 (철제 선반이 뉴스 배경막 옆 · 유리벽 앞에 끼어 들어갔다)
   [/빈 교실/, ['box', 'box', 'chair', 'chair', 'board']],
   [/중앙 현관/, ['vend'], 'side'],
   [/자율학습실/, ['cooler']],

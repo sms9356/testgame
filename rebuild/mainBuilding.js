@@ -818,9 +818,28 @@ export function buildMainBuilding(opt = {}) {
     { const tz = (z1 + z2) / 2 + 2.55; box('alu', x1 + .02, x1 + .2, y0 + 2.15, y0 + 2.25, tz + .4, tz + .5); box('rubber', x1 + .2, x1 + .28, y0 + 1.85, y0 + 2.45, tz - .02, tz + .92); box('screen', x1 + .28, x1 + .285, y0 + 1.89, y0 + 2.41, tz + .02, tz + .88); }
     box('white', x1 + .08, x1 + .5, y0, y0 + 1.8, z2 - .95, z2 - .5, { solid: true }); box('rubber', x1 + .5, x1 + .505, y0 + 1.45, y0 + 1.7, z2 - .9, z2 - .55); box('screen', x1 + .5, x1 + .506, y0 + 1.2, y0 + 1.3, z2 - .8, z2 - .65); box('exitG', x1 + .505, x1 + .51, y0 + 1.25, y0 + 1.27, z2 - .63, z2 - .61);
     box('wood', x1 + 1.95, x1 + 2.55, y0, y0 + .72, (z1 + z2) / 2 + 1.7, (z1 + z2) / 2 + 2.3, { solid: true }); retroPC(x1 + 2.2, y0 + .72, (z1 + z2) / 2 + 2.0, 'x+', { tower: null, kb: true, scale: .85, lcd: true });
-    mdl('metal_trash_can', x1 + 1.65, y0, z2 - .5, .4); col.push({ x1: x1 + 1.35, x2: x1 + 1.95, z1: z2 - .8, z2: z2 - .2, y1: y0, y2: y0 + .9 });   // 창가 앞 구석 쓰레기통 (교단 옆 — 뒷줄 의자와 겹치지 않게)
+    classBins(x1 + .66, z2, y0);   // 청소함 옆 창가 구석: 2008년식 교실 분리수거함 3통 (실외용 철제 쓰레기통 모델을 바꿨다)
     classExtras(x1, x2, z1, z2, y0);   // 창 커튼 · 청소함
     if (type === 'class') era08Class(name, f, x1, x2, z1, z2, y0);   // 2008: 실물화상기 · 달력 · 환경미화 (203 멀티미디어 설비)
+  }
+  // 교실 분리수거함 (2008 공립 고교 교실): 회색 일반쓰레기 · 파랑 재활용(캔 · 플라스틱) · 초록 종이류 — PP 사각 통 (W400 D360 H620) + 앞으로 젖히는 스윙 뚜껑 · 앞면 라벨.
+  //   창가 벽(z2)에 붙여 바닥에 놓고, 청소함(x1 ~ x1 + .55) 바로 옆 → 교단 · 책상 줄(x1 + 2.6~) · 앞문 동선과 겹치지 않는다
+  function classBins(xa, z2, y0) {
+    mat.binGr = mat.binGr || M('binGr', () => new THREE.MeshStandardMaterial({ color: 0x8c9196, roughness: .55 }));
+    const zb1 = z2 - .5, zb2 = z2 - .14, H = .6, W = .4;
+    [['binGr', '일반쓰레기', '#5a5e62'], ['recycB', '재활용 (캔·플라스틱)', '#1e4c8a'], ['recycG', '종이류', '#2a6a34']].forEach(([k, t, c], i) => {
+      const xb1 = xa + i * .43, xb2 = xb1 + W;
+      box(k, xb1 + .015, xb2 - .015, y0, y0 + .03, zb1 + .015, zb2 - .015);   // 바닥 테두리 (살짝 좁은 밑동)
+      box(k, xb1, xb2, y0 + .03, y0 + H, zb1, zb2);   // 몸통
+      box(k, xb1 - .01, xb2 + .01, y0 + H, y0 + H + .035, zb1 - .012, zb2 + .005);   // 뚜껑 테
+      box('rubber', xb1 + .05, xb2 - .05, y0 + H + .035, y0 + H + .04, zb1 + .02, zb1 + .2);   // 스윙 플랩 (어두운 틈)
+      box(k, xb1 + .06, xb2 - .06, y0 + H + .04, y0 + H + .06, zb1 + .21, zb1 + .24);   // 플랩 축
+      const lb = canvasPlane(.32, .14, 256, 112, (g, w, h) => { g.fillStyle = '#f6f4ec'; g.fillRect(0, 0, w, h); g.fillStyle = c; g.fillRect(0, 0, w, 30); g.fillStyle = '#fff'; g.font = 'bold 22px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('분리수거', w / 2, 16);
+        g.fillStyle = c; g.font = `bold ${t.length > 6 ? 26 : 40}px sans-serif`; g.fillText(t, w / 2, 72); }, 'clsBin' + i);
+      lb.position.set((xb1 + xb2) / 2, y0 + .43, zb1 - .002); lb.rotation.y = Math.PI; lb.name = 'RB_clsBinLabel'; root.add(lb);
+    });
+    col.push({ x1: xa - .02, x2: xa + 1.27, z1: zb1 - .03, z2: z2, y1: y0, y2: y0 + .7 });
+    props.push({ kind: 'binLook', x: xa + .63, y: y0 + .8, z: zb1 - .1 });   // 상호작용(분리수거함 들여다보기) 자리 — game.js 가 읽는다
   }
   // 교실 세부: 남쪽 창 커튼(레일 + 양 끝 · 가운데에 묶어 걷은 주름) · 교단 옆 창가 구석 철제 청소함(빗자루 · 대걸레)
   function classExtras(x1, x2, z1, z2, y0) {

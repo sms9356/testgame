@@ -4,9 +4,9 @@
 //   전기(분전반 · 2등용 형광등 · 콘센트 · 스위치) · 소방(소화전함 · 소화기 · 감지기 · 유도등 · 방화문) · 수도(세면대 · 배관)
 import * as THREE from '../vendor/three.module.js';
 import { mergeGeometries } from '../vendor/addons/utils/BufferGeometryUtils.js';
-import { makeFlag } from '../tex.js?v=431';
-import * as PT from './periodTex.js?v=431';
-import { collectRefs, dedupeMaterials, batchStaticChildren } from './staticBatch.js?v=431';
+import { makeFlag } from '../tex.js?v=432';
+import * as PT from './periodTex.js?v=432';
+import { collectRefs, dedupeMaterials, batchStaticChildren } from './staticBatch.js?v=432';
 // 교실 앞면 꾸밈 공용 (반 이름 · 텍스처 캐시)
 const NAMES = ['김민수', '이서연', '박지훈', '최유진', '정하늘', '강도윤', '조수아', '윤재현', '장예린', '임태호', '한소영', '오준서', '서지민', '신동혁', '권나연', '황민재', '안채원', '송우진', '전다은', '홍석진'];
 let flagTex = null; const decorTex = new Map();
@@ -698,14 +698,14 @@ export function buildMainBuilding(opt = {}) {
       lt.material.metalness = .7; lt.material.roughness = .3; lt.material.alphaTest = .3; sh.material.depthWrite = false;
       sh.position.set(cx + .03, yr + .52, zS + T + .004); lt.position.set(cx, yr + .55, zS + T + .05); root.add(sh); root.add(lt); }
     // 북쪽(마당 · 구름다리 쪽) 파라펫에도 건물 이름 금속 글자: 구름다리(2층 띠 높이까지)보다 한참 위라 마당 어디서나 보인다
-    if (opt.bridge) { const txt = opt.label || '본관', W = Math.min(coreR.x2 - coreR.x1 - 1.2, txt.length * 2.1), H = 1.3, cx = (coreR.x1 + coreR.x2) / 2;
-      const draw = shadow => (g, w, h) => { g.clearRect(0, 0, w, h); g.font = `bold ${h * .8 | 0}px "Noto Sans KR", "Malgun Gothic", sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle';
+    if (opt.bridge) { const txt = opt.label || '본관', W = Math.min(coreR.x2 - coreR.x1 - 1.2, txt.length * 1.8), H = W / 2, CH = 256, cx = (coreR.x1 + coreR.x2) / 2;   // 글자 높이 ≈ 1.4m (마당에서 4층 위를 올려다봐도 읽히게) · 캔버스 비율 = 판 비율 (글자가 판 절반만 쓰고 가로로 눌리던 것)
+      const draw = shadow => (g, w, h) => { g.clearRect(0, 0, w, h); g.font = `bold ${h * .88 | 0}px "Noto Sans KR", "Malgun Gothic", sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle';
         if (shadow) { g.fillStyle = 'rgba(40,36,30,.55)'; g.fillText(txt, w / 2, h / 2 + 4, w - 8); return; }
         const gr = g.createLinearGradient(0, 0, 0, h); gr.addColorStop(0, '#f6f8fa'); gr.addColorStop(.45, '#aeb4ba'); gr.addColorStop(.55, '#c8ced4'); gr.addColorStop(1, '#7e868e'); g.fillStyle = gr; g.fillText(txt, w / 2, h / 2, w - 8);
         g.lineWidth = 3; g.strokeStyle = 'rgba(60,64,70,.7)'; g.strokeText(txt, w / 2, h / 2, w - 8); };
-      const sh = canvasPlane(W, H, 512, 160, draw(true), 'ltrNS_' + txt, true), lt = canvasPlane(W, H, 512, 160, draw(false), 'ltrN_' + txt, true);
+      const sh = canvasPlane(W, H, 512, CH, draw(true), 'ltrNS2_' + txt, true), lt = canvasPlane(W, H, 512, CH, draw(false), 'ltrN2_' + txt, true);
       lt.material.metalness = .7; lt.material.roughness = .3; lt.material.alphaTest = .3; sh.material.depthWrite = false;
-      sh.position.set(cx - .03, yr + .37, zN - T - .004); lt.position.set(cx, yr + .4, zN - T - .05); sh.rotation.y = lt.rotation.y = Math.PI; lt.name = 'RB_ltrN'; root.add(sh); root.add(lt); }
+      sh.position.set(cx - .03, yr + .22, zN - T - .004); lt.position.set(cx, yr + .25, zN - T - .05); sh.rotation.y = lt.rotation.y = Math.PI; lt.name = 'RB_ltrN'; root.add(sh); root.add(lt); }
     // 별관 · 일반 옥상 (출입 없음): 실외기 · FRP 물탱크 · 파라펫 갓돌 + 안전 난간
     if (!opt.roofStair) {
       box('trim', -L2 - T - .04, L2 + T + .04, yr + 1.1, yr + 1.16, zS - .04, zS + T + .04); box('trim', -L2 - T - .04, L2 + T + .04, yr + 1.1, yr + 1.16, zN - T - .04, zN + .04);

@@ -2,14 +2,14 @@
 //   항상 켜진다 (예전 건물 모드는 폐지).
 //   예전 본관(1~3층 · 옥상) · 별관(8~10층) 건물은 감추고, 그 자리 땅(0층)에서 새 건물을 걷는다.
 //   높이는 P.sh(계단 높이 보정값)로 넘긴다 → 카메라 · 점프 · 가구 오르기 코드는 손대지 않아도 된다.
-import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN, grafMaterial } from './rebuild/mainBuilding.js?v=431';
-import { placeModels } from './rebuild/models.js?v=431';
-import { installArtFrames } from './rebuild/artFrames.js?v=431';
-import { carve, subdivide } from './rebuild/transplant.js?v=431';
+import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN, grafMaterial } from './rebuild/mainBuilding.js?v=432';
+import { placeModels } from './rebuild/models.js?v=432';
+import { installArtFrames } from './rebuild/artFrames.js?v=432';
+import { carve, subdivide } from './rebuild/transplant.js?v=432';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { turfMaterial } from './campusVisuals.js?v=431';
-import { ENGINE } from './engine.js?v=431';
-import { whenIdle, idleTimeout, idleInterval, setIdleProbe } from './idleTasks.js?v=431';
+import { turfMaterial } from './campusVisuals.js?v=432';
+import { ENGINE } from './engine.js?v=432';
+import { whenIdle, idleTimeout, idleInterval, setIdleProbe } from './idleTasks.js?v=432';
 
 // 예전 건물이 차지하던 땅 (이 안의 예전 메시 · 충돌 상자를 걷어 낸다)
 const OLD_MAIN = { x1: -51, x2: 51, z1: -10.6, z2: 10.9 };
@@ -29,6 +29,9 @@ export function installRebuild({ THREE, scene, floors, world }) {
   const NOOP = () => {};
   const OLD_FLOORS = [1, 2, 3, 8, 9, 10].map(f => floors[f]).filter(Boolean);
   [1, 2, 3, 8, 9, 10].forEach(f => { const F = floors[f]; if (!F) return; F.interior.visible = false; if (F.shell) F.shell.visible = false; });
+  // 예전 층의 '창 너머 가짜 교실'(windowFakes)은 새 본관 · 별관 · 마당 허공(높이 4m 안팎)에 그대로 걸려 있었다 — 숨긴 부모 밑이라 화면엔 안 보여도
+  //   부모 가시성을 보지 않는 광선 검사(시야 · 도구)에 걸렸다. 순수 장식(상호작용 · 충돌 없음)이라 장면에서 떼어 낸다
+  OLD_FLOORS.forEach(F => { if (F.winFake) F.winFake.removeFromParent(); });
   // 옥상(예전 3층 공간)은 새 본관 지붕 높이로 올린다 — 옥상에 있을 때만 보인다 (예전 지붕이 새 건물 4층 안에 떠 보이지 않게)
   const ROOF = floors[3]; let roofDy = 0;
   if (ROOF) { roofDy = MAIN.spec.floors * MAIN.spec.FH - ROOF.y0; ROOF.y0 += roofDy; ROOF.interior.position.y += roofDy; if (ROOF.shell) ROOF.shell.position.y += roofDy; }
@@ -210,6 +213,7 @@ export function installRebuild({ THREE, scene, floors, world }) {
     const out = g.big ? g.big.slice() : []; for (let i = i1; i <= i2; i++) for (let j = j1; j <= j2; j++) { const L = g.m.get(i * 8192 + j); if (L) for (const c of L) if (!out.includes(c)) out.push(c); } return out;
   };
   const R = {
+    oldFloors: new Set(OLD_FLOORS),   // 숨긴 예전 층 (CCTV 등 다른 렌더 경로가 다시 켜지 않게)
     MAIN, ANX, WK, BLD, group, lamps,
     groundAt(x, z, feet) { let best = null; for (const b of BLD) { const [lx, lz] = b.toLocal(x, z), g = b.groundAt(lx, lz, feet); if (g != null && (best == null || g > best)) best = g; } return best; },
     blocked(x, z, y, r) { if (R.gate && y > MAIN.spec.FH - .4 && y < MAIN.spec.FH + .6 && R.gate.closed() && Math.abs(z - R.gate.z) < r + .08 && x > R.gate.x1 && x < R.gate.x2) return true; for (const b of BLD) { const [lx, lz] = b.toLocal(x, z), L = colCells(b, lx, lz, r); if (L) for (let i = 0; i < L.length; i++) { const c = L[i]; if (!c.off && lx + r > c.x1 && lx - r < c.x2 && lz + r > c.z1 && lz - r < c.z2 && y + 1.7 > c.y1 + .001 && y + .35 < c.y2) return true; } } return false; },

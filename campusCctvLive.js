@@ -1,5 +1,5 @@
 import * as THREE from './vendor/three.module.js';
-import { makeRenderTarget, ENGINE } from './engine.js?v=431';
+import { makeRenderTarget, ENGINE } from './engine.js?v=432';
 
 const WIDTH = 256, HEIGHT = 192, MAX_RENDER_HZ = 6, READBACK_MS = 500;
 export function createCampusCctvLive({ renderer, scene, feeds = [], floorRoots = [], monitorMeshes = [], onClose, onChannelsChanged, onPowerToggle, getPowered, initialChannels = [], visibilityForFeed, renderCapture } = {}) {
@@ -12,6 +12,7 @@ export function createCampusCctvLive({ renderer, scene, feeds = [], floorRoots =
   function validIds(ids) { const known=new Set(feedList.map(idOf)), out=[null,null,null]; Array.from(ids||[]).slice(0,3).forEach((id,i)=>{if(known.has(id))out[i]=id}); let n=0; for(let i=0;i<3;i++)if(out[i]==null){while(n<feedList.length&&out.includes(idOf(feedList[n])))n++;if(n<feedList.length)out[i]=idOf(feedList[n++]);else if(feedList.length)out[i]=idOf(feedList[i%feedList.length]);} return out; }
   channelIds = validIds(initialChannels);
   function syncChannels() { channelIds = validIds(channelIds); if (overlay) refreshUI(); }
+  function setFloorRoots(next) { floorRoots = Array.isArray(next) ? next.slice() : []; }   // 재건축: 숨긴 예전 층(껍데기 · 가짜 창)은 CCTV 렌더 때도 켜지 않게 빼낸다
   function setFeeds(next) { feedList = Array.isArray(next) ? next.slice() : []; channelIds = validIds(channelIds); cursor = 0; syncChannels(); }
   function setMonitors(next) { monitors = Array.from(next || []); }
   function restoreChannels(ids) { channelIds = validIds(ids); syncChannels(); }
@@ -65,7 +66,7 @@ export function createCampusCctvLive({ renderer, scene, feeds = [], floorRoots =
   function readCanvases(){ if(!overlay)return; if(ENGINE.webgpu&&renderer.readRenderTargetPixelsAsync){ readCanvasesGPU(); return; } if(!renderer.readRenderTargetPixels)return; const canvases=overlay.querySelectorAll('canvas'); for(let i=0;i<3;i++){const c=canvases[i],ctx=c?.getContext?.('2d');if(!ctx)continue;if(!poweredNow){ctx.fillStyle='#050808';ctx.fillRect(0,0,WIDTH,HEIGHT);ctx.fillStyle='#9bb5aa';ctx.font='14px sans-serif';ctx.fillText('전원 꺼짐',85,100);continue;}try{const data=new Uint8Array(WIDTH*HEIGHT*4);renderer.readRenderTargetPixels(targets[i],0,0,WIDTH,HEIGHT,data);const flipped=new Uint8ClampedArray(data.length);for(let y=0;y<HEIGHT;y++)flipped.set(data.subarray(y*WIDTH*4,(y+1)*WIDTH*4),(HEIGHT-1-y)*WIDTH*4);ctx.putImageData(new ImageData(flipped,WIDTH,HEIGHT),0,0);ctx.fillStyle='rgba(0,0,0,.65)';ctx.fillRect(0,0,WIDTH,23);ctx.fillStyle='#d4ffe2';ctx.font='12px sans-serif';ctx.fillText((feedList.find(f=>f.id===channelIds[i])?.label||'신호 없음').slice(0,28),5,16);ctx.fillText(new Date().toLocaleTimeString('ko-KR'),165,HEIGHT-8);}catch{}}
   }
   function dispose(){if(disposed)return;disposed=true;overlay?.remove();overlay=null;for(const t of targets)t.dispose();}
-  return { textures, setFeeds, setMonitors, tick, open, close:closeUI, get isOpen(){return opened;}, get channels(){return channelIds.slice();}, restoreChannels, get diagnostics(){return {feedCount:feedList.length, channelCount:channelIds.length, rendersPerSecond:MAX_RENDER_HZ, targetSize:[WIDTH,HEIGHT],renderCount,channelFeedIds:channelFeedIds.slice(),powered:poweredNow,disposed};}, dispose };
+  return { textures, setFeeds, setFloorRoots, setMonitors, tick, open, close:closeUI, get isOpen(){return opened;}, get channels(){return channelIds.slice();}, restoreChannels, get diagnostics(){return {feedCount:feedList.length, channelCount:channelIds.length, rendersPerSecond:MAX_RENDER_HZ, targetSize:[WIDTH,HEIGHT],renderCount,channelFeedIds:channelFeedIds.slice(),powered:poweredNow,disposed};}, dispose };
 }
 
 export function collectCampusCctvFeeds(records) {

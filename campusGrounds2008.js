@@ -3,7 +3,7 @@
 //   ── 모두 InstancedMesh / 합친 메시 · 공용 재질 · 그림자 드리우는 조명 없음. 인도(window.__pathNET) · 금지 구역 · 충돌 상자 · 조사 지점은 피한다.
 import * as THREE from './vendor/three.module.js';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import * as PT from './rebuild/periodTex.js?v=431';   // 소품 사실감: 은행잎 · 나무껍질 · 향나무 · 차 도장 텍스처 (모듈 캐시 한 벌)
+import * as PT from './rebuild/periodTex.js?v=432';   // 소품 사실감: 은행잎 · 나무껍질 · 향나무 · 차 도장 텍스처 (모듈 캐시 한 벌)
 
 const S = (c, r = .7, m = 0, e) => new THREE.MeshStandardMaterial({ color: c, roughness: r, metalness: m, ...(e || {}) });
 const canvasTex = (w, h, draw) => { const c = document.createElement('canvas'); c.width = w; c.height = h; draw(c.getContext('2d'), w, h); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; return t; };

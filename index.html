@@ -456,6 +456,27 @@
   @keyframes buzz{from{transform:translateX(-2px)}to{transform:translateX(2px)}}
   #intro p:nth-child(1){color:#8d897d;font-size:14px;letter-spacing:.3em}
   #intro small{position:absolute;bottom:22px;color:#5a574e;font-size:12px;letter-spacing:.2em}
+  #introPhone{width:min(260px,70vw);border:2px solid #2c3238;border-radius:14px;background:linear-gradient(#14181d,#0a0c0f);padding:10px;box-shadow:0 0 40px rgba(90,160,220,.12)}
+  #introPhone .lcd{background:linear-gradient(#a8c4b8,#86a89a);color:#13241c;border-radius:4px;padding:8px 10px;font-family:'Courier New',monospace;text-align:left;font-size:12px;line-height:1.5;box-shadow:inset 0 0 8px rgba(0,0,0,.35)}
+  #introPhone .d{font-weight:700;font-size:15px;letter-spacing:.06em;border-bottom:1px solid rgba(19,36,28,.35);margin-bottom:4px}
+  #introPhone.ring{animation:buzz .12s 8 alternate}#introPhone.ring .lcd,#introPhone.play .lcd{background:linear-gradient(#b9dcf0,#8fbad6)}
+  #introPhone.end .lcd{background:linear-gradient(#6a7a72,#4c5a54);color:#1a221e}
+  #introLoc{position:fixed;left:6vw;bottom:calc(11vh + 18px);z-index:24;pointer-events:none;color:#e8e0cc;font-size:clamp(12px,1.6vw,16px);letter-spacing:.18em;opacity:0;transition:opacity 1.2s;border-left:2px solid #b0141e;padding-left:10px;text-shadow:0 1px 6px #000}
+  #introLoc.on{opacity:1}
+  #chapterCard em{display:block;margin-top:8px;font-style:normal;color:#cfc6b2;font-size:clamp(13px,1.7vw,17px);letter-spacing:.12em;text-shadow:0 0 12px #000}
+  #outro .card.letter{background:#f2ead8;color:#2a2216;font-family:'Noto Serif KR',serif;border-left:6px solid #a8322c}
+  #outro .card.shot{background:transparent;color:#e8e0cc;box-shadow:none;text-align:center;font-family:'Noto Serif KR',serif}
+  #outro .card.shot .ty{color:#b0141e}#outro .card.shot .meta{border:0}#outro .card.shot .body{font-size:17px}
+  #outro .card.credits{background:transparent;color:#d8d0bc;box-shadow:none;text-align:center;height:min(70vh,520px);overflow:hidden;-webkit-mask:linear-gradient(transparent,#000 12%,#000 88%,transparent);mask:linear-gradient(transparent,#000 12%,#000 88%,transparent)}
+  #outro .card.credits .meta{border:0}
+  #outro .card.credits.on .roll{animation:creditRoll 15s linear forwards}
+  #outro .roll{padding-top:52vh}#outro .roll p{margin:0 0 16px;font-size:14px}#outro .roll p small{display:block;color:#8a8678;letter-spacing:.2em;font-size:11px}
+  #outro .roll .cl{font-size:64px}#outro .roll .ctag{letter-spacing:.35em;margin-bottom:26px}#outro .roll .cmem{margin-top:28px;color:#e8c870}
+  #outro .cph{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:26px}#outro .cph img{width:100%;aspect-ratio:4/3;object-fit:cover;filter:sepia(.35) contrast(1.05);border:3px solid #eee6d2;transform:rotate(-1deg)}#outro .cph img:nth-child(2n){transform:rotate(1.4deg)}
+  @keyframes creditRoll{from{transform:translateY(0)}to{transform:translateY(-100%)}}
+  #outro .card.stinger{background:#0c0e11;color:#cfd6dc;border:1px solid #b0141e;border-radius:12px}
+  #outro .card.stinger .ty{color:#ff4a3a}
+  @media (prefers-reduced-motion:reduce){#outro .card.credits.on .roll{animation:none;padding-top:0}#introPhone.ring{animation:none}}
   #introTitle{position:fixed;left:0;right:0;top:34%;z-index:24;text-align:center;pointer-events:none;opacity:0;transition:opacity 1.6s}
   #introTitle.show{opacity:1}
   #dead{background:linear-gradient(rgba(40,0,0,.72),rgba(0,0,0,.94)),url(assets/img/gate_night.webp) center/cover no-repeat}
@@ -774,13 +795,13 @@
   <div id="dlg"><img id="dlgFace" src="assets/ui/seoyeon_f1.webp" alt=""><div><span id="dlgName">서연</span><span id="dlgText"></span></div></div>
   <div id="cross"></div><div id="sense"><i></i></div><div id="prompt"></div><div id="msg"></div>
   <div id="viewTag"></div><div id="floorTag"></div><div id="tip"><small>도움말</small><span id="tipText"></span></div><div id="safeTag">안전 구역</div><div id="perkTag"></div>
-  <div id="chapterCard"><small id="ccNum"></small><b id="ccTitle"></b></div>
+  <div id="chapterCard"><small id="ccNum"></small><b id="ccTitle"></b><em id="ccHook"></em></div>
 </div>
 <div id="hurt"></div>
 <div id="clickHint">화면을 클릭하면 시점 조작이 다시 켜집니다</div>
 <div id="breath">숨 참기 <kbd>Space</kbd><div class="bar"><i id="breathBar"></i></div><div style="margin-top:6px;color:#e88">주변 소리</div><div class="bar"><i id="dangerBar" style="background:#d04040;width:0"></i></div></div><div id="cap"></div>
-<div id="intro"><p></p><p></p><p class="q"></p><p></p><small>클릭 / Space — 건너뛰기</small></div>
-<div id="evPulse"></div><div id="evStreak"></div><div id="pings"></div><div id="cine"></div><div id="blink"></div><div id="introTitle"><div class="logo" style="font-size:clamp(90px,14vw,150px)">서문고</div><div class="tagline">잊혀진 시간</div></div>
+<div id="intro"><div id="introPhone"></div><p></p><p></p><p class="q"></p><p></p><small>클릭 / Space — 건너뛰기</small></div>
+<div id="evPulse"></div><div id="evStreak"></div><div id="pings"></div><div id="cine"></div><div id="blink"></div><div id="introLoc"></div><div id="introTitle"><div class="logo" style="font-size:clamp(90px,14vw,150px)">서문고</div><div class="tagline">잊혀진 시간</div></div>
 <div id="memoryEcho" data-memory-echo aria-hidden="true">기억의 잔향</div><div id="sub"></div>
 <div id="card"><img alt=""><b></b><span></span></div>
 <div id="choice"><div class="box"><b id="choiceTitle"></b><p id="choiceText"></p><div id="choiceBtns"></div></div></div>

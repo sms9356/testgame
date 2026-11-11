@@ -31,7 +31,7 @@ const KINDS = {
     for (let i = 0; i < 30; i++) { g.fillStyle = 'rgba(185,185,185,.3)'; g.beginPath(); g.arc(rnd() * n, rnd() * n, 6 + rnd() * 22, 0, 7); g.fill(); } },
 };
 const tex = k => TEX[k] || (TEX[k] = canvas(KINDS[k]));
-const SKIP = /window|screen|lamp|glass|sky|water|exit|sign|light|glow|ghost|mina|guard|char|hair|skin|eye|fx|particle|flame|fog|led|bulb/i;
+const SKIP = /window|screen|lamp|glass|sky(?!bridge)|water|exit|sign|light|glow|ghost|mina|guard|char|hair|skin|eye|fx|particle|flame|fog|led|bulb/i;
 
 function kindOf(m) {
   if (m.metalness >= .5) return 'brushed';
@@ -42,22 +42,37 @@ function kindOf(m) {
   return 'paint';
 }
 // 재질 하나에 디테일 (이미 맵이 있거나 투명 · 발광 · 특수 재질이면 그대로)
-export function detailize(m, name = '') {
+// 같은 256px 무늬가 큰 면(벤치 · 덤불 · 마당 판)에 한 장으로 늘어나 20~50px/m 로 뭉개지던 것 → 재질이 덮는 가장 큰 크기에 맞춰 반복 (≥ ~110px/m)
+//   반복 단계별 사본은 원본 이미지(Source)를 공유한다 — GPU 메모리 · 업로드는 한 벌
+const REP = {};
+const texRep = (k, rep) => { if (rep <= 1) return tex(k); const key = k + rep; if (REP[key]) return REP[key]; const t = tex(k).clone(); t.repeat.set(rep, rep); t.needsUpdate = true; return (REP[key] = t); };
+const repFor = m => m <= 2.4 ? 1 : Math.min(16, 2 ** Math.round(Math.log2(m / 2.3)));   // m: UV 한 단위의 월드 길이 → 256px 한 장이 ≤ ~2.3m 를 덮게
+export function detailize(m, name = '', rep = 1) {
   if (!m || !m.isMeshStandardMaterial || m.map || m.userData.noDetail || m.userData.detailed) return false;
   if (m.transparent || m.opacity < 1 || m.wireframe || m.vertexColors) return false;
   if (m.emissive && m.emissiveIntensity > .2 && m.emissive.getHex() !== 0) return false;
   if (SKIP.test(name) || SKIP.test(m.name || '')) return false;
-  const k = kindOf(m), t = tex(k); m.map = t;
+  const k = kindOf(m), t = texRep(k, rep); m.map = t;
   if (k !== 'glaze') { m.bumpMap = t; m.bumpScale = k === 'rough' ? .9 : .35; m.roughnessMap = t; }   // 결 · 얼룩 따라 광택도 달라진다
   m.userData.detailed = true; m.needsUpdate = true; return true;
 }
 // 장면(또는 그룹)을 훑어 UV 가 있는 민무늬 메시 재질에 디테일 — 같은 재질은 한 번만
+const _ws = new THREE.Vector3(), _a = new THREE.Vector3(), _b = new THREE.Vector3(), _c = new THREE.Vector3();
+// UV 한 단위가 덮는 월드 길이(m): 삼각형 월드 넓이 ÷ UV 넓이 (상자 · 구 · 원기둥 · 병합 묶음 모두 같은 식) — 표본 ≤400개
+function uvMetres(o) {
+  const g = o.geometry, p = g.attributes.position, uv = g.attributes.uv, ix = g.index, n = ix ? ix.count : p.count; o.getWorldScale(_ws);
+  const st = Math.max(3, Math.floor(n / 3 / 400) * 3); let A = 0, U = 0;
+  for (let t = 0; t + 2 < n; t += st) { const i0 = ix ? ix.getX(t) : t, i1 = ix ? ix.getX(t + 1) : t + 1, i2 = ix ? ix.getX(t + 2) : t + 2;
+    _a.fromBufferAttribute(p, i0).multiply(_ws); _b.fromBufferAttribute(p, i1).multiply(_ws).sub(_a); _c.fromBufferAttribute(p, i2).multiply(_ws).sub(_a); A += _b.cross(_c).length() / 2;
+    const u0 = uv.getX(i0), v0 = uv.getY(i0); U += Math.abs((uv.getX(i1) - u0) * (uv.getY(i2) - v0) - (uv.getX(i2) - u0) * (uv.getY(i1) - v0)) / 2; }
+  return U > 1e-9 ? Math.sqrt(A / U) : 0; }
 export function autoDetail(root) {
   let n = 0;
   root.traverse(o => {
     if (!o.isMesh || o.isSkinnedMesh || o.isInstancedMesh && o.userData.noDetail || !o.geometry || !o.geometry.attributes.uv) return;
     let nm = '', a = o; for (let i = 0; i < 4 && a; i++, a = a.parent) nm += ' ' + (a.name || '');
-    for (const m of [].concat(o.material)) if (detailize(m, nm)) n++;
+    const ms = [].concat(o.material), size = ms.some(m => m && m.isMeshStandardMaterial && !m.map && !m.userData.detailed) ? uvMetres(o) : 0;
+    for (const m of ms) if (detailize(m, nm, repFor(size))) n++;
   });
   return n;
 }

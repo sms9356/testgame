@@ -1,6 +1,7 @@
 // 폐교 월드 빌더 — 레퍼런스(배치도/정문/교실/소품 시트)를 기반으로 학교 전체를 절차적으로 생성한다.
 import * as THREE from './vendor/three.module.js';
 import * as T from './tex.js';
+import * as PT from './rebuild/periodTex.js?v=430';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
@@ -724,7 +725,7 @@ export function buildWorld(scene) {
   function tapeRecorder(id, x, y, z, ry = 0) {
     if (props.some(p => p.kind === 'tape' && p.id === id)) return;   // 같은 방 빌더가 여러 층에서 돌아도 증언 테이프는 하나만
     const g = dyn(new THREE.Group()); g.position.set(x, y, z); g.rotation.y = ry; cur.interior.add(g);
-    g.add(new THREE.Mesh(merge([bx(.26, .07, .15, 0, .035, 0), bx(.035, .015, .025, .09, .075, .05)]), mTape));
+    g.add(PT.cassetteRecorder(0x2a2a2c));   // 둥근 몸체 · 스피커 그릴 · 테이프 창 · 건반 · 손잡이 · 안테나 (예전 민무늬 상자)
     const playBtn = dyn(new THREE.Mesh(new THREE.BoxGeometry(.038, .018, .026), S(null, { color: 0xb83228, roughness: .4 })));
     playBtn.position.set(.045, .076, .05); g.add(playBtn);
     const win = new THREE.Mesh(new THREE.BoxGeometry(.12, .005, .075), new THREE.MeshStandardMaterial({ color: 0x4a3e2d, roughness: .25 })); win.position.set(-.045, .072, -.01); g.add(win);
@@ -4130,7 +4131,7 @@ export function buildWorld(scene) {
     const r = rnd(); const kind = room ? (r < .62 ? 'on' : r < .85 ? 'flick' : 'dead') : (r < .45 ? 'on' : r < .75 ? 'flick' : 'dead');
     const m = kind === 'on' ? matLampOn : kind === 'dead' ? matLampDead : flickerMats[(rnd() * 4) | 0];
     const t = dyn(new THREE.Mesh(new THREE.BoxGeometry(1.3, .05, .12), m)); t.position.set(x, y, z); cur.interior.add(t);
-    const hs = new THREE.Mesh(new THREE.BoxGeometry(1.4, .04, .22), lampHousing); hs.position.set(x, y + .06, z); cur.interior.add(hs);
+    const hs = new THREE.Mesh(new THREE.BoxGeometry(1.4, .075, .22), lampHousing); hs.position.set(x, y + .0625, z);   // 관과 반자 사이를 메운다 (예전엔 관 · 등기구 · 천장 사이가 1.5cm씩 떠 있었다) cur.interior.add(hs);
     cur.lamps.push({ x, y: cur.y0 + y - .4, z, kind, mat: m, mesh: t, room });
   }
   // 벽 형광등 스위치: 같은 room 키를 가진 형광등을 켜고 끈다 (방에 들어서면 문 옆 벽에 있다)
@@ -4368,7 +4369,7 @@ export function buildWorld(scene) {
     water.rotation.x = -Math.PI / 2; water.position.set((bx0 + bx1) / 2, WL, (bz0 + bz1) / 2); F.interior.add(water); water.userData.dynamic = true; POOL.water = water;
     { const leafG = new THREE.CircleGeometry(.07, 5); leafG.rotateX(-Math.PI / 2); const lm = [];
       for (let k = 0; k < 160; k++) lm.push(MX(rr(bx0 + .1, bx1 - .1), WL + .005, rr(bz0 + .1, bz1 - .1), rnd() * 6));
-      const im = inst(F.interior, leafG, S(null, { color: 0xffffff, roughness: .9, side: THREE.DoubleSide }), lm); lm.forEach((_, i) => im.setColorAt(i, new THREE.Color(pick([0x7a6a30, 0x5a4a22, 0x8a5a2a, 0x4a5a2a])))); }
+      const im = inst(F.interior, leafG, S(null, { color: 0xffffff, roughness: .9, side: THREE.DoubleSide }), lm); lm.forEach((_, i) => im.setColorAt(i, new THREE.Color(pick([0x7a6a30, 0x5a4a22, 0x8a5a2a, 0x4a5a2a])))); im.userData.dynamic = true; (POOL.floaters = POOL.floaters || []).push(im); }
     // 레인 줄: 빨강 · 흰색 · 파랑 부표 (물 위에 뜨고, 일부는 끊어져 가라앉음)
     { const fg = new THREE.SphereGeometry(.07, 8, 6); fg.scale(1, .8, 1.4); const ms = [], cols = [];
       for (let k = 1; k < 4; k++) { const x = bx0 + k * LW, broken = k === 2;
@@ -4377,7 +4378,7 @@ export function buildWorld(scene) {
           const sag = broken && z > 40 && z < 41.2 ? -.18 * Math.sin((z - 40) / 1.2 * Math.PI) : 0;
           ms.push(MX(x + Math.sin(z * 1.7 + k) * .03, WL + .03 + sag, z)); const end = z < bz0 + 4.6 || z > bz1 - 4.6;
           cols.push(end ? (i % 2 ? 0xc02020 : 0xd8b020) : (i % 4 < 2 ? 0x2048a0 : 0xd8b020)); } }
-      const im = inst(F.interior, fg, S(null, { roughness: .45 }), ms); cols.forEach((c, i) => im.setColorAt(i, new THREE.Color(c))); }
+      const im = inst(F.interior, fg, S(null, { roughness: .45 }), ms); cols.forEach((c, i) => im.setColorAt(i, new THREE.Color(c))); im.userData.dynamic = true; (POOL.floaters = POOL.floaters || []).push(im); }
     // 출발대 1~6 (남쪽 끝)
     // 남쪽 끝은 벽과 수조 사이 통로가 좁아 출발대가 길을 막았다 → 넓은 북쪽 데크로 (사다리 자리 1 · 6 레인은 비움)
     for (let k = 0; k < 4; k++) { const x = bx0 + (k + .5) * LW;

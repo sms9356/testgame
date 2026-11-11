@@ -380,7 +380,7 @@ function menuBGM(dt) {
 export function setMusic(mode, dt, game = 0) {
   if (!ok() || !musG.menu) return;
   const want = mode === 'menu' ? 1 : mode === 'chase' ? 0 : game;
-  if (bgmEl && Math.abs(want - bgmWant) > .01) { bgmWant = want; bgmG.gain.setTargetAtTime(want * .9, ac.currentTime, want > .5 ? .5 : 1.2); if (want > 0 && bgmEl.paused) bgmEl.play().catch(() => {}); }
+  if (bgmEl && (Math.abs(want - bgmWant) > .04 || (want === 0) !== (bgmWant === 0))) { bgmWant = want; if (bgmG.gain.cancelAndHoldAtTime) bgmG.gain.cancelAndHoldAtTime(ac.currentTime); bgmG.gain.setTargetAtTime(want * .9, ac.currentTime, want > .5 ? .5 : 1.2); if (want > 0 && bgmEl.paused) bgmEl.play().catch(() => {}); }
   const synth = mode === 'menu' && !bgmOk;   // 음악 파일을 못 읽으면 합성 테마로 대신한다
   if (mode + synth !== musMode) { musMode = mode + synth; musG.menu.gain.setTargetAtTime(synth ? 1 : 0, ac.currentTime, .6); musG.chase.gain.setTargetAtTime(mode === 'chase' ? 1 : 0, ac.currentTime, mode === 'chase' ? .15 : 1.2); }
   if (synth) menuBGM(dt);

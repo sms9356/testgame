@@ -504,7 +504,10 @@ export function buildMainBuilding(opt = {}) {
       if (!opt.bridge) box('conc', d.a - 1, d.b + 1, 3.0, 3.2, zN - 3.2, zN - T);   // 구름다리가 있으면 그것이 차양
       // 현관 위 교명판 · 출입등 2개
       { const c = document.createElement('canvas'); c.width = 1024; c.height = 160; const g = c.getContext('2d'); g.fillStyle = '#2a2622'; g.fillRect(0, 0, 1024, 160); g.fillStyle = '#d8c9a0'; g.font = 'bold 92px serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(opt.signText || '서 문 고 등 학 교', 512, 84);
-        const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; const sg = new THREE.Mesh(new THREE.PlaneGeometry(4.6, .72), new THREE.MeshStandardMaterial({ map: t, roughness: .6, metalness: .3 })); sg.position.set((core.x1 + core.x2) / 2, opt.bridge ? 3.08 : 3.75, zN - T - .02); if (opt.bridge) sg.scale.set(.62, .5, 1); /* 구름다리 밑: 문 위 낮게 */ sg.rotation.y = Math.PI; root.add(sg); }
+        const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; const sg = new THREE.Mesh(new THREE.PlaneGeometry(4.6, .72), new THREE.MeshStandardMaterial({ map: t, roughness: .6, metalness: .3 })); sg.position.set((core.x1 + core.x2) / 2, 3.75, zN - T - .02); sg.rotation.y = Math.PI; if (!opt.bridge) root.add(sg); }
+      // 구름다리가 현관 위를 덮는 건물: 교명판을 다리 밑(그늘 · 가려짐) 대신 현관 동쪽 벽기둥에 세로 현판으로 (눈높이, 다리 밖이라 마당 · 보도에서 보인다)
+      if (opt.bridge) { const txt = opt.label || '본관', pl = canvasPlane(.56, 1.9, 128, 432, (g, W, H) => { g.fillStyle = '#2a2622'; g.fillRect(0, 0, W, H); g.strokeStyle = '#a89870'; g.lineWidth = 6; g.strokeRect(8, 8, W - 16, H - 16); g.fillStyle = '#d8c9a0'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = 'bold 50px serif'; const t = ('서문고' + txt).split(''); t.forEach((ch, i) => g.fillText(ch, W / 2, 40 + i * (H - 80) / (t.length - 1))); }, 'plaque_' + txt);
+        const px = core.x2 - 1.25; box('trim', px - .32, px + .32, .52, 2.48, zN - T - .03, zN - T); pl.position.set(px, 1.5, zN - T - .035); pl.rotation.y = Math.PI; root.add(pl); }
       [d.a - .6, d.b + .6].forEach(x => { box('alu', x - .1, x + .1, 2.55, 2.85, zN - T - .14, zN - T); box('extLamp', x - .08, x + .08, 2.58, 2.82, zN - T - .16, zN - T - .14); lights.push({ x, y: 2.6, z: zN - T - .6 }); });
       exitSign((d.a + d.b) / 2, ENT_H + .06, zN - T - .04);   // 현관 위 비상구 유도등
       mdl('security_camera_01', d.a - .3, opt.bridge ? 3.15 : 2.9, zN - T - .45, Math.PI);   // 현관 CCTV (바깥을 본다)
@@ -694,6 +697,15 @@ export function buildMainBuilding(opt = {}) {
       const sh = canvasPlane(W, H, 1024, 128, draw(true), 'ltrS_' + txt, true), lt = canvasPlane(W, H, 1024, 128, draw(false), 'ltr_' + txt, true);
       lt.material.metalness = .7; lt.material.roughness = .3; lt.material.alphaTest = .3; sh.material.depthWrite = false;
       sh.position.set(cx + .03, yr + .52, zS + T + .004); lt.position.set(cx, yr + .55, zS + T + .05); root.add(sh); root.add(lt); }
+    // 북쪽(마당 · 구름다리 쪽) 파라펫에도 건물 이름 금속 글자: 구름다리(2층 띠 높이까지)보다 한참 위라 마당 어디서나 보인다
+    if (opt.bridge) { const txt = opt.label || '본관', W = Math.min(coreR.x2 - coreR.x1 - 1.2, txt.length * 2.1), H = 1.3, cx = (coreR.x1 + coreR.x2) / 2;
+      const draw = shadow => (g, w, h) => { g.clearRect(0, 0, w, h); g.font = `bold ${h * .8 | 0}px "Noto Sans KR", "Malgun Gothic", sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle';
+        if (shadow) { g.fillStyle = 'rgba(40,36,30,.55)'; g.fillText(txt, w / 2, h / 2 + 4, w - 8); return; }
+        const gr = g.createLinearGradient(0, 0, 0, h); gr.addColorStop(0, '#f6f8fa'); gr.addColorStop(.45, '#aeb4ba'); gr.addColorStop(.55, '#c8ced4'); gr.addColorStop(1, '#7e868e'); g.fillStyle = gr; g.fillText(txt, w / 2, h / 2, w - 8);
+        g.lineWidth = 3; g.strokeStyle = 'rgba(60,64,70,.7)'; g.strokeText(txt, w / 2, h / 2, w - 8); };
+      const sh = canvasPlane(W, H, 512, 160, draw(true), 'ltrNS_' + txt, true), lt = canvasPlane(W, H, 512, 160, draw(false), 'ltrN_' + txt, true);
+      lt.material.metalness = .7; lt.material.roughness = .3; lt.material.alphaTest = .3; sh.material.depthWrite = false;
+      sh.position.set(cx - .03, yr + .37, zN - T - .004); lt.position.set(cx, yr + .4, zN - T - .05); sh.rotation.y = lt.rotation.y = Math.PI; lt.name = 'RB_ltrN'; root.add(sh); root.add(lt); }
     // 별관 · 일반 옥상 (출입 없음): 실외기 · FRP 물탱크 · 파라펫 갓돌 + 안전 난간
     if (!opt.roofStair) {
       box('trim', -L2 - T - .04, L2 + T + .04, yr + 1.1, yr + 1.16, zS - .04, zS + T + .04); box('trim', -L2 - T - .04, L2 + T + .04, yr + 1.1, yr + 1.16, zN - T - .04, zN + .04);
@@ -1816,7 +1828,7 @@ export function buildMainBuilding(opt = {}) {
 }
 
 // 본관 ↔ 별관 1층 연결 통로 (유리 커튼월 복도, 천장 2.9m)
-export function buildWalkway({ x1, x2, z1, z2, y = 0 }) {   // y: 바닥 높이 (2층 구름다리면 층 높이)
+export function buildWalkway({ x1, x2, z1, z2, y = 0, sup = null }) {   // sup: [x 왼, x 오] 구름다리 껍데기 바깥면 (보 · 기둥을 거기에 맞춘다)   // y: 바닥 높이 (2층 구름다리면 층 높이)
   const root = new THREE.Group(); root.name = 'REBUILD_WALKWAY'; const col = [], walk = [{ x1, x2, z1, z2, h: () => y, f: y > .5 ? 1 : 0 }], lights = [];
   const mat = { terr: pbr('tile', { rough: .8 }), conc: pbr('step', { rough: 1 }), alu: new THREE.MeshStandardMaterial({ color: 0xb8bcc0, roughness: .35, metalness: .7 }),
     glass: new THREE.MeshStandardMaterial({ color: 0xbfd6dc, roughness: .08, metalness: .1, transparent: true, opacity: .16, depthWrite: false, side: THREE.DoubleSide }), lamp: new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xf4f6ff, emissiveIntensity: 1.4 }) };
@@ -1827,8 +1839,8 @@ export function buildWalkway({ x1, x2, z1, z2, y = 0 }) {   // y: 바닥 높이 
   for (let z = z1 + 1.5; z < z2 - 1; z += 3) { add(mat.lamp, (x1 + x2) / 2 - .6, (x1 + x2) / 2 + .6, y + 2.86, y + 2.9, z - .15, z + .15); lights.push({ x: (x1 + x2) / 2, y: y + 2.7, z }); }
   // 구름다리 구조: 바닥 밑 보 · 기둥 (늘 보이게 따로 묶는다 — 실내 겉모습을 다른 것으로 바꿔도 남는다)
   const support = new THREE.Group(); support.name = 'REBUILD_BRIDGE_SUPPORT';
-  if (y > .5) { add(mat.conc, x1 - .3, x2 + .3, y - .6, y - .25, z1, z2, false, support);
-    for (const z of [z1 + 1.2, (z1 + z2) / 2, z2 - 1.2]) for (const x of [x1 - .1, x2 + .1]) add(mat.conc, x - .22, x + .22, 0, y - .6, z - .22, z + .22, true, support); }
+  if (y > .5) { const [sa, sb] = sup || [x1 - .3, x2 + .3]; add(mat.conc, sa, sb, y - .6, y - .25, z1, z2, false, support);
+    for (const z of [z1 + 1.2, (z1 + z2) / 2, z2 - 1.2]) for (const x of [sa + .2, sb - .2]) add(mat.conc, x - .22, x + .22, 0, y - .6, z - .22, z + .22, true, support); }
   const id = (x, z) => [x, z];
   return { root, support, col, walk, lights, toLocal: id, toWorld: id, groundAt: (x, z, feet) => (x >= x1 && x <= x2 && z >= z1 && z <= z2 && Math.abs(feet - y) < .5) ? y : null, props: [], doors: [], tickDoors() {}, nearDoor() { return null; }, models: [], name: '연결 통로' };
 }

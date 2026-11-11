@@ -2,14 +2,14 @@
 //   항상 켜진다 (예전 건물 모드는 폐지).
 //   예전 본관(1~3층 · 옥상) · 별관(8~10층) 건물은 감추고, 그 자리 땅(0층)에서 새 건물을 걷는다.
 //   높이는 P.sh(계단 높이 보정값)로 넘긴다 → 카메라 · 점프 · 가구 오르기 코드는 손대지 않아도 된다.
-import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN, grafMaterial } from './rebuild/mainBuilding.js?v=429';
-import { placeModels } from './rebuild/models.js?v=429';
-import { installArtFrames } from './rebuild/artFrames.js?v=429';
-import { carve, subdivide } from './rebuild/transplant.js?v=429';
+import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN, grafMaterial } from './rebuild/mainBuilding.js?v=430';
+import { placeModels } from './rebuild/models.js?v=430';
+import { installArtFrames } from './rebuild/artFrames.js?v=430';
+import { carve, subdivide } from './rebuild/transplant.js?v=430';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { turfMaterial } from './campusVisuals.js?v=429';
-import { ENGINE } from './engine.js?v=429';
-import { whenIdle, idleTimeout, idleInterval, setIdleProbe } from './idleTasks.js?v=429';
+import { turfMaterial } from './campusVisuals.js?v=430';
+import { ENGINE } from './engine.js?v=430';
+import { whenIdle, idleTimeout, idleInterval, setIdleProbe } from './idleTasks.js?v=430';
 
 // 예전 건물이 차지하던 땅 (이 안의 예전 메시 · 충돌 상자를 걷어 낸다)
 const OLD_MAIN = { x1: -51, x2: 51, z1: -10.6, z2: 10.9 };
@@ -551,11 +551,11 @@ export function installRebuild({ THREE, scene, floors, world }) {
     const mPaint = new THREE.MeshStandardMaterial({ color: 0xe9e5da, roughness: .88 }), mWain = new THREE.MeshStandardMaterial({ color: 0x3e6a56, roughness: .6 });
     const terr = (L) => new THREE.MeshStandardMaterial({ roughness: .45, map: tx(256, 256, (g, w, h) => { g.fillStyle = '#9a9b94'; g.fillRect(0, 0, w, h); for (let i = 0; i < 1400; i++) { const c = 120 + Math.random() * 110 | 0; g.fillStyle = `rgb(${c},${c - 4},${c - 10})`; g.fillRect(Math.random() * w, Math.random() * h, 2 + Math.random() * 2, 2 + Math.random() * 2); } g.strokeStyle = '#6e6f6a'; g.lineWidth = 2; g.strokeRect(0, 0, w, h); }, 1, Math.max(1, L / .6)) });
     const ceil = (L) => new THREE.MeshStandardMaterial({ roughness: .9, map: tx(128, 128, (g, w, h) => { g.fillStyle = '#e4e2dc'; g.fillRect(0, 0, w, h); for (let i = 0; i < 300; i++) { g.fillStyle = 'rgba(120,118,110,.25)'; g.fillRect(Math.random() * w, Math.random() * h, 1.5, 1.5); } g.strokeStyle = '#b9b7ae'; g.lineWidth = 3; g.strokeRect(0, 0, w, h); }, 5, Math.max(1, L / .6)) });
-    const walls = [];
+    const walls = [], curtain = [];
     O.traverse(o => { if (!o.isMesh || o.isInstancedMesh || o.userData.keepMat) return; const m = [].concat(o.material)[0]; if (!m || !m.isMeshStandardMaterial || m.name === 'passGlass') return;
       bb.setFromObject(o); const s = bb.getSize(v); const len = Math.max(s.x, s.z);
       if (len < 6) return;   // 소품 · 문 · 의자는 그대로
-      if (s.y > 2 && Math.min(s.x, s.z) < .35) { o.material = mPaint; walls.push(bb.clone()); }   // 긴 벽
+      if (s.y > 2 && Math.min(s.x, s.z) < .35) { o.material = mPaint; walls.push(bb.clone()); if (s.z > s.x) curtain.push({ o, b: bb.clone() }); }   // 긴 벽 (옆벽은 아래에서 커튼월로)
       else if (s.y < .35 && bb.max.y < y0 + .4) o.material = terr(len);   // 바닥
       else if (s.y < .35 && bb.min.y > y0 + 2.2) o.material = ceil(len);   // 천장
       else if (s.y <= 2 && s.y > .5 && Math.min(s.x, s.z) < .35 && bb.max.y < y0 + 1.6) o.material = mWain; });
@@ -564,6 +564,15 @@ export function installRebuild({ THREE, scene, floors, world }) {
     { const inner = walls.map(w => (w.min.x + w.max.x) / 2 < cx ? w.max.x : w.min.x), pw = new THREE.Vector3(), pl = new THREE.Vector3();
       O.traverse(o => { if (!o.isMesh || o.isInstancedMesh || o.material === mPaint) return; bb.setFromObject(o); const s = bb.getSize(v); if (Math.min(s.x, s.z) > .35 || s.x > .35) return;
         for (const xi of inner) { const sg = xi < cx ? 1 : -1; if (Math.abs(bb.min.x - xi) < .003 || Math.abs(bb.max.x - xi) < .003) { o.getWorldPosition(pw); pl.copy(pw); pw.x += sg * .005; o.parent.worldToLocal(pw); o.parent.worldToLocal(pl); o.position.add(pw.sub(pl)); o.updateMatrixWorld(true); break; } } }); }
+    // 옆벽 → 알루미늄 커튼월: 아래 스팬드럴(걸레받이 높이까지 불투명) · 틴트 유리 한 장 · 위 스팬드럴(천장 띠) · 1.5m 간격 멀리언 · 가로 트랜섬
+    //   충돌은 바닥 층의 벽 충돌 상자 그대로(메시와 무관). 유리 재질 하나 · depthWrite false · 조명 추가 없음 → 안팎에서 비쳐 보인다
+    { const mGlass = new THREE.MeshStandardMaterial({ name: 'passGlass', color: 0x9fb8bc, roughness: .06, metalness: .2, transparent: true, opacity: .26, depthWrite: false, side: THREE.DoubleSide }), mAlu = new THREE.MeshStandardMaterial({ color: 0xa9adb0, roughness: .35, metalness: .7 });
+      const bxm = (m, x1, x2, y1, y2, z1, z2) => { const q = new THREE.Mesh(new THREE.BoxGeometry(x2 - x1, y2 - y1, z2 - z1), m); q.position.set((x1 + x2) / 2, (y1 + y2) / 2, (z1 + z2) / 2); q.userData.keepMat = true; q.receiveShadow = true; group.add(q); return q; };
+      for (const { o, b } of curtain) { o.visible = false; const yb = b.min.y, yt = b.max.y, ys = y0 + 1.24, yh = yt - .32, xm = (b.min.x + b.max.x) / 2;
+        bxm(mPaint, b.min.x, b.max.x, yb, ys, b.min.z, b.max.z); bxm(mPaint, b.min.x, b.max.x, yh, yt, b.min.z, b.max.z);   // 스팬드럴
+        bxm(mGlass, xm - .006, xm + .006, ys, yh, b.min.z, b.max.z).castShadow = false;
+        const n = Math.max(1, Math.round((b.max.z - b.min.z) / 1.5)); for (let k = 0; k <= n; k++) { const z = Math.min(b.max.z - .03, Math.max(b.min.z + .03, b.min.z + k * (b.max.z - b.min.z) / n)); bxm(mAlu, b.min.x - .01, b.max.x + .01, ys, yh, z - .03, z + .03); }
+        bxm(mAlu, b.min.x - .01, b.max.x + .01, ys, ys + .05, b.min.z, b.max.z); bxm(mAlu, b.min.x - .01, b.max.x + .01, yh - .05, yh, b.min.z, b.max.z); } }
     // 녹색 걸레받이 벽: 벽마다 안쪽 면에 1.2m (예전엔 한쪽 벽에만 있었다)
     const sides = new Map(); for (const w of walls) { if (w.max.y - w.min.y < 2) continue; const k = (w.min.x + w.max.x) / 2 < cx ? 'L' : 'R', e = sides.get(k); if (!e) sides.set(k, w.clone()); else e.union(w); }   // 벽 조각이 여러 개라도 한쪽에 한 줄
     for (const w of sides.values()) { const inner = (w.min.x + w.max.x) / 2 < cx ? w.max.x + .006 : w.min.x - .006, sgn = inner > cx ? -1 : 1;

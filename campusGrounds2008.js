@@ -168,7 +168,7 @@ export function installCampusGrounds({ scene, world, floors, footprints = [] }) 
     for (const [x, z] of ginkgo) for (let k = 0; k < 90; k++) { const a = rnd() * 6.28, r = Math.pow(rnd(), .7) * 3.4; leaves.push([x + Math.cos(a) * r, z + Math.sin(a) * r, 1]); }
     for (let k = 0; k < 900; k++) { const r = NET[(rnd() * NET.length) | 0]; if (!r) break; leaves.push([r[0] + rnd() * (r[1] - r[0]), r[2] + rnd() * (r[3] - r[2]), 0]); }
     if (leaves.length) { const im = new THREE.InstancedMesh(leafG, S(0xffffff, .9, 0, { side: THREE.DoubleSide }), leaves.length); im.receiveShadow = true; im.name = 'grounds08_leaves';
-      leaves.forEach(([x, z, g], i) => { Q.setFromAxisAngle(Yv, rnd() * 6.28); P.set(x, .02 + rnd() * .006, z); const s = .7 + rnd() * .7; Sc.set(s, 1, s); M.compose(P, Q, Sc); im.setMatrixAt(i, M);
+      leaves.forEach(([x, z, g], i) => { Q.setFromAxisAngle(Yv, rnd() * 6.28); P.set(x, (onPath(x, z, .1) ? .02 : -.012) + rnd() * .006, z);   // 잔디(-0.02) 위 낙엽은 잔디에 붙인다 — 예전엔 인도 높이(.02)로 깔려 잔디 위 4cm 에 떠 있었다 const s = .7 + rnd() * .7; Sc.set(s, 1, s); M.compose(P, Q, Sc); im.setMatrixAt(i, M);
         im.setColorAt(i, g && rnd() < .8 ? cc.setHSL(.12 + rnd() * .03, .78, .45 + rnd() * .1) : cc.setHSL(.07 + rnd() * .04, .5, .22 + rnd() * .1)); });
       im.computeBoundingSphere(); root.add(im); }
     // 원래 캠퍼스 나무(world: 120그루 한 벌)의 수관 색 — 정문 옆 벚나무가 10월에 분홍 꽃빛(H .9~.95)이라 안개 속에서 보랏빛 회색으로 보였다

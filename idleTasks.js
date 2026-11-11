@@ -10,7 +10,7 @@ function pump() {
   timer = 0; if (!Q.length) return;
   const t = now(); let busy = false; try { busy = !!(probe && probe()); } catch (e) { busy = false; }
   let i = busy ? Q.findIndex(q => t >= q.due) : 0;
-  if (i >= 0 && t - lastRun >= 180) { const q = Q.splice(i, 1)[0]; try { q.fn(); } catch (e) { console.warn('[idle task]', e); } lastRun = now(); }
+  if (i >= 0 && t - lastRun >= 180) { const q = Q.splice(i, 1)[0]; const t1 = now(); try { q.fn(); } catch (e) { console.warn('[idle task]', e); } lastRun = now(); if (lastRun - t1 > 50 && typeof window !== 'undefined') { const L = (window.__idleSlow ||= []); if (L.length < 60) L.push({ t: Math.round(t1), ms: Math.round(lastRun - t1), busy, fn: (q.fn.name || String(q.fn)).slice(0, 90) }); } }
   if (Q.length) timer = setTimeout(pump, busy ? 250 : 190);
 }
 export function whenIdle(fn, maxWait = 45000) {

@@ -28,6 +28,8 @@
 body.hud-minimal #hints,body.hud-minimal #rbtns{opacity:0;transition:opacity .6s}
 body.hud-minimal.hud-calm #who{opacity:.12;transition:opacity 1.2s}
 body.hud-minimal #who{transition:opacity .3s}
+body.hud-minimal.hud-calm #slots,body.hud-minimal.hud-calm #mini,body.hud-minimal.hud-calm #objP{opacity:.35;transition:opacity 1.6s}   /* 가만히 있으면 HUD 가 사라져 화면이 비어 보이게 (몰입) */
+body.hud-minimal #slots,body.hud-minimal #mini,body.hud-minimal #objP{transition:opacity .3s}
 body:not(.hud-full).hud-hintsOld #hints{opacity:0}
 body.hud-off #hud>*:not(#prompt):not(#cross):not(#dlg):not(#msg):not(#chapterCard):not(#toasts):not(#sense){opacity:0!important;transition:opacity .5s}
 

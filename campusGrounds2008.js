@@ -3,6 +3,7 @@
 //   ── 모두 InstancedMesh / 합친 메시 · 공용 재질 · 그림자 드리우는 조명 없음. 인도(window.__pathNET) · 금지 구역 · 충돌 상자 · 조사 지점은 피한다.
 import * as THREE from './vendor/three.module.js';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
+import * as PT from './rebuild/periodTex.js?v=431';   // 소품 사실감: 은행잎 · 나무껍질 · 향나무 · 차 도장 텍스처 (모듈 캐시 한 벌)
 
 const S = (c, r = .7, m = 0, e) => new THREE.MeshStandardMaterial({ color: c, roughness: r, metalness: m, ...(e || {}) });
 const canvasTex = (w, h, draw) => { const c = document.createElement('canvas'); c.width = w; c.height = h; draw(c.getContext('2d'), w, h); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; return t; };
@@ -116,14 +117,14 @@ export function installCampusGrounds({ scene, world, floors, footprints = [] }) 
     const wheels = (len, wd) => { const L = []; for (const sx of [-1, 1]) for (const sz of [-1, 1]) L.push(new THREE.CylinderGeometry(.31, .31, .2, 12).rotateX(Math.PI / 2).translate(sx * len * .32, .31, sz * (wd / 2 - .08)));
       L.push(new THREE.BoxGeometry(.12, .22, wd * .98).translate(len / 2, .42, 0), new THREE.BoxGeometry(.12, .22, wd * .98).translate(-len / 2, .42, 0)); return mergeGeometries(L.map(g => g.index ? g.toNonIndexed() : g)); };
     const geo = { sedan: [gbox(body.sedan), gbox(glass.sedan), wheels(4.6, 1.76)], mini: [gbox(body.mini), gbox(glass.mini), wheels(3.5, 1.5)], van: [gbox(body.van), gbox(glass.van), wheels(4.9, 1.86)] };
-    const mPaint = S(0xffffff, .38, .45), mGlass = S(0x14181c, .15, .6), mTire = S(0x141414, .85);
+    const mPaint = S(0xffffff, .38, .45, { map: PT.shared('carPaint', PT.carPaint) }), mGlass = S(0x14181c, .15, .6, { map: PT.shared('screenGlass', PT.screenGlass), roughnessMap: PT.shared('screenRough', PT.screenRough) }), mTire = S(0x141414, .85);   // 도장: 오렌지필 · 빗물 먼지 · 흙탕 점 / 유리: 먼지 · 물 얼룩
     const slots = []; for (let x = X1 + .5 + SL / 2; x < X2 - .5; x += SL) slots.push(x);
     const pick = [['sedan', 0xd8d8d2], ['sedan', 0x2a2c30], ['van', 0xc8ccc8], ['mini', 0xb8a050], ['sedan', 0x9aa0a6], null, ['sedan', 0x5a1c1c], null, ['mini', 0x3a5a7a], ['sedan', 0xd0ccc0]];
     const per = {}; let cars = 0;
     slots.forEach((x, i) => { const c = pick[i % pick.length]; const z = (ZS + Z2) / 2 + .05;
       if (!c || hitCol(x, z, .9) || nearSpot(x, z, 3)) return; (per[c[0]] ||= []).push([x, z, c[1], rnd() < .5 ? Math.PI / 2 : -Math.PI / 2]); cars++; });
     const M = new THREE.Matrix4(), Q = new THREE.Quaternion(), P = new THREE.Vector3(), Sc = new THREE.Vector3(1, 1, 1), Yv = new THREE.Vector3(0, 1, 0), col3 = new THREE.Color();
-    for (const [k, L] of Object.entries(per)) { geo[k].forEach((g, gi) => { if (g.attributes.uv) g.deleteAttribute('uv'); const im = new THREE.InstancedMesh(g, [mPaint, mGlass, mTire][gi], L.length); im.castShadow = gi === 0; im.receiveShadow = true;
+    for (const [k, L] of Object.entries(per)) { geo[k].forEach((g, gi) => { if (g.attributes.uv) g.deleteAttribute('uv'); if (gi < 2) g = PT.boxProjectUV(g, 1.2); const im = new THREE.InstancedMesh(g, [mPaint, mGlass, mTire][gi], L.length); im.castShadow = gi === 0; im.receiveShadow = true;
         L.forEach(([x, z, c, ry], i) => { Q.setFromAxisAngle(Yv, ry); P.set(x, 0, z); M.compose(P, Q, Sc); im.setMatrixAt(i, M); if (gi === 0) im.setColorAt(i, col3.set(c)); });
         im.computeBoundingSphere(); root.add(im); });
       L.forEach(([x, z]) => { col(x - 1, x + 1, z - 2.45, z + 2.45, 1.5); used.push([x, z, 2.6]); }); }
@@ -155,14 +156,14 @@ export function installCampusGrounds({ scene, world, floors, footprints = [] }) 
     const ginkgo = []; for (const [x, z] of cands) if (free(x, z, 1.6)) { ginkgo.push([x, z]); used.push([x, z, 1.6]); col(x - .22, x + .22, z - .22, z + .22); }
     const jun = []; for (const [x, z] of [[-12, 68.4], [-6.5, 68.5], [-16, 67.6], [11.8, 68.3], [-38, 11.2], [38, 11.2]]) if (free(x, z, .8)) { jun.push([x, z]); used.push([x, z, .8]); col(x - .5, x + .5, z - .5, z + .5); }
     const M = new THREE.Matrix4(), Q = new THREE.Quaternion(), P = new THREE.Vector3(), Sc = new THREE.Vector3(), Yv = new THREE.Vector3(0, 1, 0), cc = new THREE.Color();
-    const inst = (g, m, L, shadow, color) => { if (!L.length) return; if (g.attributes.uv) g.deleteAttribute('uv');   // uv 없음 → 단색 보강(노멀 맵)이 덮지 않는다 (잎 덩어리가 하늘빛에 보랏빛으로 번졌다)
+    const inst = (g, m, L, shadow, color, uvS = 0) => { if (!L.length) return; if (g.attributes.uv) g.deleteAttribute('uv'); if (uvS) g = PT.boxProjectUV(g, uvS);   // 알베도만 (노멀 맵 없음 → 달빛에 보랏빛으로 번지지 않는다)   // uv 없음 → 단색 보강(노멀 맵)이 덮지 않는다 (잎 덩어리가 하늘빛에 보랏빛으로 번졌다)
       const im = new THREE.InstancedMesh(g, m, L.length); im.castShadow = shadow; im.receiveShadow = true;
       L.forEach(([x, z], i) => { const s = .85 + rnd() * .35; Q.setFromAxisAngle(Yv, rnd() * 6.28); P.set(x, 0, z); Sc.set(s, s, s); M.compose(P, Q, Sc); im.setMatrixAt(i, M); if (color) im.setColorAt(i, cc.setHSL(color[0] + rnd() * color[1], color[2], color[3] + rnd() * .08)); });
       im.computeBoundingSphere(); root.add(im); };
     // 잎 덩어리: 달빛(푸른 방향광 · 반구광)만 받으면 노랑의 파랑 성분이 없어 보랏빛 회색으로 죽는다 → 약한 주황 자체광으로 10월 은행잎 색을 지킨다
-    const mCrown = S(0xf0b020, .9, 0, { flatShading: true, emissive: 0xa86a10, emissiveIntensity: .42 }); mCrown.userData.noDetail = true; mCrown.name = 'ginkgo-crown-2008';
-    inst(trunkG, S(0x4a3c30, .95), ginkgo, true); inst(crown, mCrown, ginkgo, true);
-    inst(juniper, S(0x1f3a24, .9, 0, { flatShading: true }), jun, true);
+    const fol = PT.shared('ginkgoFoliage', PT.ginkgoFoliage), mCrown = S(0xf0b020, .9, 0, { flatShading: true, emissive: 0xa86a10, emissiveIntensity: .42, map: fol, emissiveMap: fol });   // 부채꼴 잎 무더기 · 그늘 틈 (예전 민무늬 노랑 덩어리) mCrown.userData.noDetail = true; mCrown.name = 'ginkgo-crown-2008';
+    inst(trunkG, S(0x4a3c30, .95, 0, { map: PT.shared('barkTex', PT.barkTex) }), ginkgo, true, null, 1.2); inst(crown, mCrown, ginkgo, true, null, 1.6);
+    inst(juniper, S(0x1f3a24, .9, 0, { flatShading: true, map: PT.shared('needleFoliage', PT.needleFoliage) }), jun, true, null, .8);
     // 낙엽: 은행잎 · 마른 잎 — 나무 밑에 많이, 인도 위로도 조금 날린다 (평평한 작은 판 한 벌)
     const leafG = new THREE.PlaneGeometry(.11, .09).rotateX(-Math.PI / 2); const leaves = [];
     for (const [x, z] of ginkgo) for (let k = 0; k < 90; k++) { const a = rnd() * 6.28, r = Math.pow(rnd(), .7) * 3.4; leaves.push([x + Math.cos(a) * r, z + Math.sin(a) * r, 1]); }

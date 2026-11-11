@@ -2,14 +2,14 @@
 //   항상 켜진다 (예전 건물 모드는 폐지).
 //   예전 본관(1~3층 · 옥상) · 별관(8~10층) 건물은 감추고, 그 자리 땅(0층)에서 새 건물을 걷는다.
 //   높이는 P.sh(계단 높이 보정값)로 넘긴다 → 카메라 · 점프 · 가구 오르기 코드는 손대지 않아도 된다.
-import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN, grafMaterial } from './rebuild/mainBuilding.js?v=430';
-import { placeModels } from './rebuild/models.js?v=430';
-import { installArtFrames } from './rebuild/artFrames.js?v=430';
-import { carve, subdivide } from './rebuild/transplant.js?v=430';
+import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN, grafMaterial } from './rebuild/mainBuilding.js?v=431';
+import { placeModels } from './rebuild/models.js?v=431';
+import { installArtFrames } from './rebuild/artFrames.js?v=431';
+import { carve, subdivide } from './rebuild/transplant.js?v=431';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { turfMaterial } from './campusVisuals.js?v=430';
-import { ENGINE } from './engine.js?v=430';
-import { whenIdle, idleTimeout, idleInterval, setIdleProbe } from './idleTasks.js?v=430';
+import { turfMaterial } from './campusVisuals.js?v=431';
+import { ENGINE } from './engine.js?v=431';
+import { whenIdle, idleTimeout, idleInterval, setIdleProbe } from './idleTasks.js?v=431';
 
 // 예전 건물이 차지하던 땅 (이 안의 예전 메시 · 충돌 상자를 걷어 낸다)
 const OLD_MAIN = { x1: -51, x2: 51, z1: -10.6, z2: 10.9 };
@@ -22,7 +22,7 @@ export function installRebuild({ THREE, scene, floors, world }) {
   const ANX = buildMainBuilding({ spec: ANNEX_SPEC, plan: ANNEX_PLAN, x: -3, z: -20, ry: Math.PI, bridge: true, endExits: true, name: 'REBUILD_ANNEX', label: '별관', prefix: '', signText: '서문고 별관 · 예술 실습동', noLib: true, classLabel: (f, n) => `3학년 ${n + 5}반` });
   // 구름다리 (2층): 본관 북쪽 외벽 ↔ 별관 복도쪽 외벽, 두 건물 코어(현관) 앞 x 에서
   const BRX = MAIN.toWorld((MAIN.layout.rooms.find(r => r.kind === 'core').x1 + MAIN.layout.rooms.find(r => r.kind === 'core').x2) / 2, 0)[0], BRZ2 = MAIN.toWorld(0, MAIN.layout.zN - MAIN.spec.outer)[1], BRZ1 = ANX.toWorld(0, ANX.layout.zN - ANX.spec.outer)[1];
-  const WK = buildWalkway({ x1: BRX - 1.9, x2: BRX + 1.9, z1: BRZ1, z2: BRZ2, y: MAIN.spec.FH });
+  const WK = buildWalkway({ x1: BRX - 1.9, x2: BRX + 1.9, z1: BRZ1, z2: BRZ2, y: MAIN.spec.FH, sup: [BRX - .2 - 1.96, BRX - .2 + 1.96] });
   const BLD = [MAIN, ANX, WK];
 
   // 1) 예전 본관 · 별관 감추기: 층 통째(1~3층 · 옥상 · 별관) + 0층 · 야외에서 그 땅 위에 선 것
@@ -122,6 +122,36 @@ export function installRebuild({ THREE, scene, floors, world }) {
   const group = new THREE.Group(); group.name = 'REBUILD'; group.userData.dynamic = true; scene.add(group);
   BLD.forEach(b => { group.add(b.root); if (b.models.length) placeModels(b.root, b.models, { shadows: false, floorH: b.spec ? b.spec.FH : 0 }); });
   if (WK.support) group.add(WK.support);   // 구름다리 기둥 · 보
+  buildBridgeShell();
+  // 구름다리 바깥 껍데기: 실내(옛 skybridge2F, 폭 3.6m · 높이 2.9m)만 있어 두 건물 사이에 뜬 버스처럼 보였다
+  //   → 층 높이 그대로(보 밑 FH−0.6 ~ 파라펫 2FH = 건물 층간 띠와 같은 줄) 감싸고, 두 외벽 속 0.15m 까지 묻은 뒤 접합부에 신축 이음 덮개를 두른다
+  function buildBridgeShell() {
+    const FH = MAIN.spec.FH, y0 = FH, cx = BRX - .2, hw = 1.8, so = hw + .16, za = BRZ1 - .15, zb = BRZ2 + .15, yb = y0 - .6, yt = 2 * FH, ys = y0 + 1.24, yh = y0 + 2.58;
+    const G = new THREE.Group(); G.name = 'REBUILD_BRIDGE_SHELL'; G.userData.rbKeep = true; group.add(G);
+    const mWall = new THREE.MeshStandardMaterial({ color: 0xe6e0d0, roughness: .85 }), mBand = new THREE.MeshStandardMaterial({ color: 0xf2f0ea, roughness: .7 }),
+      mAlu = new THREE.MeshStandardMaterial({ color: 0x9ea3a8, roughness: .35, metalness: .7 }), mJoint = new THREE.MeshStandardMaterial({ color: 0x2c2c2e, roughness: .9 }), mRoof = new THREE.MeshStandardMaterial({ color: 0x6b6d68, roughness: .95 });
+    const bx = (m, x1, x2, y1, y2, z1, z2, shadow = true) => { const q = new THREE.Mesh(new THREE.BoxGeometry(x2 - x1, y2 - y1, z2 - z1), m); q.position.set((x1 + x2) / 2, (y1 + y2) / 2, (z1 + z2) / 2); q.castShadow = shadow; q.receiveShadow = true; q.userData.keepMat = true; G.add(q); return q; };
+    for (const s of [-1, 1]) { const xi = cx + s * hw, xo = cx + s * so, a = Math.min(xi, xo), b = Math.max(xi, xo);
+      bx(mWall, a, b, yb, ys, za, zb); bx(mWall, a, b, yh, yt, za, zb);   // 아래 · 위 스팬드럴 (유리띠 위아래)
+      bx(mBand, a - .02, b + .02, yb, yb + .3, za, zb); bx(mBand, a - .02, b + .02, yt - .3, yt, za, zb);   // 층간 띠 (건물 백색 띠와 같은 높이)
+      bx(mAlu, a - .01, b + .01, ys, ys + .06, za, zb); bx(mAlu, a - .01, b + .01, yh - .06, yh, za, zb);   // 창대 · 창머리
+      const n = Math.max(1, Math.round((BRZ2 - BRZ1) / 1.5)); for (let k = 0; k <= n; k++) { const z = BRZ1 + .04 + k * (BRZ2 - BRZ1 - .08) / n; bx(mAlu, Math.min(xo, xo + s * .04) - .02, Math.max(xo, xo + s * .04) + .02, ys, yh, z - .04, z + .04, false); } }
+    bx(mWall, cx - so, cx + so, yb, yb + .05, za, zb);   // 밑면 (소핏)
+    bx(mRoof, cx - so, cx + so, y0 + 3.1, y0 + 3.3, za, zb);   // 지붕 슬래브 (실내 천장 위)
+    bx(mBand, cx - so - .03, cx + so + .03, yt, yt + .06, za, zb);   // 파라펫 갓돌
+    for (const s of [-1, 1]) bx(mWall, s < 0 ? cx - so : cx + so - .16, s < 0 ? cx - so + .16 : cx + so, y0 + 3.3, yt, za, zb);
+    // 접합부: 외벽 앞 신축 이음(검은 실링) + 알루미늄 덮개 띠 (ㄷ자 테두리)
+    for (const [zw, d] of [[BRZ1, 1], [BRZ2, -1]]) { const z1 = Math.min(zw, zw + d * .06), z2 = Math.max(zw, zw + d * .06), z3 = Math.min(zw + d * .06, zw + d * .14), z4 = Math.max(zw + d * .06, zw + d * .14);
+      bx(mJoint, cx - so - .03, cx - hw, yb - .03, yt + .09, z1, z2, false); bx(mJoint, cx + hw, cx + so + .03, yb - .03, yt + .09, z1, z2, false);   // ㄷ자 실링 (통로 안은 비운다)
+      bx(mJoint, cx - hw, cx + hw, yb - .03, y0 - .21, z1, z2, false); bx(mJoint, cx - hw, cx + hw, y0 + 3.11, yt + .09, z1, z2, false);
+      [[cx - so - .1, cx - so + .02], [cx + so - .02, cx + so + .1]].forEach(([a, b]) => bx(mAlu, a, b, yb - .08, yt + .12, z3, z4, false));
+      bx(mAlu, cx - so - .1, cx + so + .1, yt + .06, yt + .14, z3, z4, false); bx(mAlu, cx - so - .1, cx + so + .1, yb - .1, yb - .02, z3, z4, false); }
+    // 실내 옆벽과 같은 줄의 충돌벽 (예전엔 오른쪽 벽 바깥 0.3m 까지 걸어 들어갔다) + 건물 출입구가 통로보다 넓으면 벽 두께만큼 메움
+    for (const s of [-1, 1]) WK.col.push({ x1: s < 0 ? cx - hw : cx + hw - .2, x2: s < 0 ? cx - hw + .2 : cx + hw, z1: BRZ1, z2: BRZ2, y1: y0, y2: y0 + 2.95 });
+    for (const [B, zf] of [[MAIN, BRZ2], [ANX, BRZ1]]) { const core = B.layout.rooms.find(r => r.kind === 'core'), xs = [core.x1 + 2.6, core.x2 - 2.6].map(x => B.toWorld(x, B.layout.zN)[0]), oa = Math.min(...xs), ob = Math.max(...xs), dz = zf === BRZ2 ? 1 : -1, z1 = Math.min(zf, zf + dz * B.spec.outer), z2 = Math.max(zf, zf + dz * B.spec.outer);
+      if (oa < cx - hw + .2) { bx(mWall, oa - .01, cx - hw + .2, y0, y0 + 2.42, z1, z2); WK.col.push({ x1: oa, x2: cx - hw + .2, z1, z2, y1: y0, y2: y0 + 2.42 }); }
+      if (ob > cx + hw - .2) { bx(mWall, cx + hw - .2, ob + .01, y0, y0 + 2.42, z1, z2); WK.col.push({ x1: cx + hw - .2, x2: ob, z1, z2, y1: y0, y2: y0 + 2.42 }); } }
+  }
   // 형광등: 자리마다 점조명 (perfStabilizer 조명 풀이 가까운 것만 골라 비춘다)
   const lamps = [];
   BLD.forEach(b => b.lights.forEach(l => { const [x, z] = b.toWorld(l.x, l.z); const p = new THREE.PointLight(0xf2f4ff, 1.6, 9, 1.6); p.position.set(x, l.y, z); p.userData.on = true; group.add(p); lamps.push(p); }));

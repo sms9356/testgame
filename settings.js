@@ -3,7 +3,7 @@ export const DEF = {
   quality: 'auto', scale: 1, bright: 1, fov: 72, bloom: true, grain: false, bgm: true, bgmVol: .3, objArrow: true, objMode: 'full', bob: true, bobK: 1, shake: true, showFps: false, showPlay: true,
   sens: 1, invertY: false, runToggle: false, hints: true, view: 1, camDist: 2.4,
   subBg: .45, subNames: true,
-  diff: 'normal', jump: 'soft', flashReduce: false, fearFx: true, captions: true, tips: true, areaPhotos: false, contrast: false, ui: 1, mic: false, lang: 'ko',
+  diff: 'normal', jump: 'soft', flashReduce: false, fearFx: true, captions: true, tips: true, areaPhotos: false, contrast: false, motionBlur: false, classicBars: false, minimap: true, paperMap: false, ui: 1, mic: false, lang: 'ko',
   keys: { interact: 'KeyE', flash: 'KeyF', inv: 'Tab', map: 'KeyM', phone: 'KeyP', throwCan: 'KeyG', view: 'KeyV', run: 'ShiftLeft', down: 'KeyQ', crouch: 'KeyC', jump: 'Space', scan: 'KeyH', camera: 'KeyX', quest: 'KeyO' },
 };
 export const SET = { ...DEF, keys: { ...DEF.keys } };

@@ -4,7 +4,7 @@
 //   시설 재건축(facilityRebuild)이 짓는 건물은 ZONES 좌표만 바꾸면 새 자리에 지어지므로, 여기서는 그 안의 조사 지점 · 문 같은 데이터만 옮긴다.
 //   나머지(체육관 외관 · 코트 · 경기장 묶음)는 메시째로 옮긴다: 묶음이 구역 안에 다 들어가면 통째로, 합쳐진(bake) 메시는 삼각형 단위로 나눠서.
 import * as THREE from './vendor/three.module.js';
-import { whenIdle, idleTimeout, idleInterval, setIdleProbe } from './idleTasks.js?v=430';
+import { whenIdle, idleTimeout, idleInterval, setIdleProbe } from './idleTasks.js?v=431';
 
 // [이름, 원래 구역 x1, x2, z1, z2, 새 중심으로의 이동 dx, dz, 회전(0 | π: 구역 중심 기준 반 바퀴 — 출입구 방향을 동편 대로 쪽으로)]
 export const MOVES = [
@@ -97,6 +97,7 @@ export function relayoutCampus({ scene, floors, world }) {
     const tag = new Int16Array(n).fill(-1); let any = false;
     for (let t = 0; t < n; t++) { a.fromBufferAttribute(pos, t * 3).applyMatrix4(M); b2.fromBufferAttribute(pos, t * 3 + 1).applyMatrix4(M); c2.fromBufferAttribute(pos, t * 3 + 2).applyMatrix4(M);
       const x = (a.x + b2.x + c2.x) / 3, y = (a.y + b2.y + c2.y) / 3, z = (a.z + b2.z + c2.z) / 3; if (y < -1 || y > 30) continue;
+      if (Math.max(Math.abs(a.x - b2.x), Math.abs(a.x - c2.x), Math.abs(b2.x - c2.x), Math.abs(a.z - b2.z), Math.abs(a.z - c2.z), Math.abs(b2.z - c2.z)) > 20) continue;   // 구역보다 긴 삼각형(외곽 담장 윗면 · 옆면 등)은 그대로 — 무게중심만 보고 반쪽을 떼면 담 윗면이 대각선으로 사라졌다
       const Z = zones.findIndex(Z => inR(Z.r, x, z)); if (Z >= 0) { tag[t] = Z; any = true; } }
     if (!any) return;
     const pick = sel => { const out = new THREE.BufferGeometry(); for (const [k, at] of Object.entries(g.attributes)) { const s = at.itemSize, src = at.array, dst = new src.constructor(sel.length * 3 * s); sel.forEach((t, i) => dst.set(src.subarray(t * 3 * s, (t + 1) * 3 * s), i * 3 * s)); out.setAttribute(k, new THREE.BufferAttribute(dst, s, at.normalized)); } return out; };

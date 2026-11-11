@@ -344,6 +344,12 @@ export const makeCourt = () => ctex(1024, 1024, (g, w, h) => {
   g.strokeRect(70, 150, w - 140, h - 300); g.beginPath(); g.moveTo(70, h / 2); g.lineTo(w - 70, h / 2); g.stroke();
   g.beginPath(); g.arc(w / 2, h / 2, 110, 0, 6.3); g.stroke();
   [150, h - 150].forEach((y, i) => { g.strokeRect(w / 2 - 130, i ? y - 240 : y, 260, 240); g.beginPath(); g.arc(w / 2, i ? y - 240 : y + 240, 130, i ? Math.PI : 0, i ? 6.3 : Math.PI); g.stroke(); });
+  // 겸용 코트 라인 (2008 학교 체육관 관례): 배구 9 × 18m (노랑 · 네트 지주 x 36.5 · z 20 기준) + 배드민턴 6.1 × 13.4m 2면 (초록 · 동서 방향)
+  const PX = w / 19.4, PZ = h / 21.4, vx = (36.5 - 28.3) * PX, vz = (20 - 8.3) * PZ;
+  g.lineWidth = 5; g.strokeStyle = 'rgba(222,186,40,.78)'; g.strokeRect(vx - 4.5 * PX, vz - 9 * PZ, 9 * PX, 18 * PZ);
+  [-3, 3].forEach(d => { g.beginPath(); g.moveTo(vx - 4.5 * PX, vz + d * PZ); g.lineTo(vx + 4.5 * PX, vz + d * PZ); g.stroke(); });
+  g.lineWidth = 4; g.strokeStyle = 'rgba(40,140,80,.78)'; [vz - 4.6 * PZ, vz + 4.6 * PZ].forEach(cy => { const bx = w / 2, hw = 6.7 * PX, hh = 3.05 * PZ; g.strokeRect(bx - hw, cy - hh, 2 * hw, 2 * hh);
+    g.beginPath(); g.moveTo(bx, cy - hh); g.lineTo(bx, cy + hh); [-1.98, 1.98].forEach(d => { g.moveTo(bx + d * PX, cy - hh); g.lineTo(bx + d * PX, cy + hh); }); g.moveTo(bx - hw, cy); g.lineTo(bx - 1.98 * PX, cy); g.moveTo(bx + 1.98 * PX, cy); g.lineTo(bx + hw, cy); g.stroke(); });
   stains(g, w, h, 40, 'rgba(15,10,6,.55)', 110); stains(g, w, h, 12, 'rgba(60,90,80,.3)', 90);
   speckle(g, w, h, 2500, ['#1a1008', '#8a7a60'], 2, 10, .4);
   for (let i = 0; i < 9; i++) { g.fillStyle = 'rgba(8,6,4,.85)'; g.beginPath(); const x = rnd() * w, y = rnd() * h; for (let k = 0; k < 7; k++) g.lineTo(x + Math.cos(k) * rr(20, 70), y + Math.sin(k) * rr(10, 50)); g.fill(); }
@@ -358,7 +364,7 @@ export const makePoolTile = () => ctex(256, 256, (g, w, h) => {
 export const makeBanner = () => ctex(512, 128, (g, w, h) => {
   g.fillStyle = '#c9c4ae'; g.fillRect(0, 0, w, h); stains(g, w, h, 12, 'rgba(70,60,30,.5)', 50); speckle(g, w, h, 600, ['#5a5440', '#e8e4d0'], 2, 7, .4);
   g.fillStyle = '#1f3a6a'; g.font = `900 46px ${FONT}`; g.textAlign = 'center'; g.fillText('건강한 몸, 밝은 미래', w / 2, 66);
-  g.font = `22px ${FONT}`; g.fillText('- ○중학교 -', w / 2, 104); g.strokeStyle = '#1f3a6a'; g.lineWidth = 4; g.strokeRect(4, 4, w - 8, h - 8);
+  g.font = `22px ${FONT}`; g.fillText('- 서문고등학교 -', w / 2, 104); g.strokeStyle = '#1f3a6a'; g.lineWidth = 4; g.strokeRect(4, 4, w - 8, h - 8);
 }, { repeat: false });
 export const makeScore = () => ctex(256, 96, (g, w, h) => {
   g.fillStyle = '#0c0c0c'; g.fillRect(0, 0, w, h); g.fillStyle = '#c02020'; g.font = 'bold 54px monospace'; g.textAlign = 'center'; g.fillText('07 : 23', w / 2, 62);

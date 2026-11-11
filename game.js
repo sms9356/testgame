@@ -69,6 +69,7 @@ import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, ha
 import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, HYPOTHESES, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, COVER_END, ENDING_OUTRO, OUTRO_TYPE, SIDEQUESTS, INTRO_COLD, CHAPTER_BEATS, SMS_FROM, ENDING_EPILOGUE, ENDING_SHOT, ENDING_STINGER, OUTRO_EXTRA_TYPE, HEADQUEST, COLLECT, } from './story.js?v=432';
 import { isSpeechBusy } from './voice.js?v=432';
 import { SET, saveSET, resetSET, DIFF, keyLabel } from './settings.js';
+import { detectIntegrated, createDynRes } from './igpu.js';
 import { initI18n, setLang, lang as curLang } from './i18n.js?v=432';   // 언어 패치 (한국어 · English · 日本語 · 中文)
 initI18n();
 const K = () => SET.keys;
@@ -208,6 +209,10 @@ let chapterShown = 0;
 const canvas = $('c');
 const renderer = await createRenderer({ canvas, pref: SET.engine || 'auto' });   // 신규 엔진: WebGPU(지원 시) · 아니면 WebGL — engine.js
 renderer.setPixelRatio(Math.min(devicePixelRatio, 1.75));
+// 내장 그래픽(Intel UHD/Iris Xe · AMD Vega · Apple) 감지: 처음 실행(자동 품질)이면 'iGPU / 저사양' 경로를 기본으로 — 사용자가 고른 값은 건드리지 않는다
+const GPU_INFO = ENGINE.webgpu ? detectIntegrated(null) : detectIntegrated(renderer);
+if (/[?&]igpu\b/.test(location.search)) SET.quality = 'igpu';   // 테스트용 강제
+else if (!SET.igpuSeen) { if (GPU_INFO.integrated && SET.quality === 'auto') SET.quality = 'igpu'; SET.igpuSeen = true; try { saveSET(); } catch (e) { /* ignore */ } }
 // GPU 확인: 브라우저 하드웨어 가속이 꺼져 소프트웨어 렌더러(SwiftShader · llvmpipe)로 그리면 안내한다
 { const gl = renderer.getContext(), ext = !ENGINE.webgpu && gl && gl.getExtension ? gl.getExtension('WEBGL_debug_renderer_info') : null, gpu = ENGINE.webgpu ? 'WebGPU' : ext ? String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL)) : '';
   window.__gpu = gpu; window.__gpuSoftware = /swiftshader|llvmpipe|software|basic render/i.test(gpu);
@@ -227,7 +232,7 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 const scene = new THREE.Scene();
 const staticLOD = createStaticDistanceLOD(scene);
-const textureBudget = createTextureBudget({ quality: SET.quality === 'auto' ? 'high' : SET.quality });
+const textureBudget = createTextureBudget({ quality: SET.quality === 'auto' ? 'high' : SET.quality === 'igpu' ? 'low' : SET.quality });
 const texWarm = !ENGINE.webgpu && !new URLSearchParams(location.search).has('norender') ? createTexWarm(THREE, renderer, scene) : null;   // 처음 1분: 색 공간 · 이방성 점검 + 텍스처를 프레임마다 조금씩 미리 올림
 scene.background = new THREE.Color(0x05070d);
 scene.fog = new THREE.FogExp2(0x070a12, 0.03);
@@ -488,7 +493,7 @@ function makeGhostMaterial(low) {
 }
 function buildGhost() {
   const g = new THREE.Group(), inner = new THREE.Group(); g.add(inner);
-  const mat = makeGhostMaterial(SET.quality === 'low');
+  const mat = makeGhostMaterial(SET.quality === 'low' || SET.quality === 'igpu');
   const body = new THREE.Mesh(new THREE.PlaneGeometry(1, 2), mat); body.position.y = 1; body.renderOrder = 5; inner.add(body);
   inner.position.y = .06;   // 살짝 떠 있다
   // 예전 PointLight는 남겨 두되 늘 0 — 조명 개수가 바뀌면 모든 셰이더가 다시 컴파일된다
@@ -3081,7 +3086,7 @@ function updateLighting(dt) {
   hemi.intensity = BRIGHT ? 1.5 : lerp(hemi.intensity, indoors ? lerp(.34, .66, dk) : lerp(.68, 1.15, dk), k) + (indoors && P.floor <= 2 ? lightFlash * (Math.sin(tNow * 60) > 0 ? .9 : .3) : 0);
   if (scene.environment) scene.environmentIntensity = Math.min(.3, hemi.intensity * .28);   // 반사 환경광은 밝기를 따라간다 (어두운 밤 실내는 거의 0)
   fillLight.intensity = lerp(fillLight.intensity, indoors ? 0 : lerp(.85, .5, dk), k);
-  scene.fog.density = lerp(scene.fog.density, indoors ? lerp(.042, .028, dk) : lerp(.014, .0075, dk), k);   // 실내 밤 .05 → .042: 20m 앞이 43% · 35m 끝이 9% 남는다 (예전엔 25m 넘으면 거의 검게 뭉개짐) — 안개색이 거의 검정이라 씻겨 보이지 않는다
+  scene.fog.density = lerp(scene.fog.density, (indoors ? lerp(.042, .028, dk) : lerp(.014, .0075, dk)) * (IGPU ? (indoors ? 1.1 : 1.6) : 1), k);   // 실내 밤 .05 → .042: 20m 앞이 43% · 35m 끝이 9% 남는다 (예전엔 25m 넘으면 거의 검게 뭉개짐) — 안개색이 거의 검정이라 씻겨 보이지 않는다
   if (MOONFX) { MOONFX.tick(dt, camera, dk); perfMark('L.moon'); }
   scene.fog.color.lerp(indoors ? _c1.copy(FOG_IN).lerp(FOG_IN_DAY, dk) : _c1.copy(FOG_OUT).lerp(FOG_DAY, dk), k);
   // Outside window impostors avoid a sudden full-floor render on approach.
@@ -3117,7 +3122,7 @@ function updateLighting(dt) {
     lampTimer = .2;
     const baseLamps = !indoors && P.floor === 0 ? world.campusDesign.lights : F.lamps;
     const lamps=ELV.p&&ELV.cur===P.floor&&ELV.cabinLamp?[...baseLamps,ELV.cabinLamp]:baseLamps;
-    const pyEye = (F ? F.y0 : 0) + (P.sh || 0) + 2.2; const c = lamps.filter(l => l.kind !== 'dead' && !l.off).map(l => ({ l, d: l.cabin&&P.inElev?-1:Math.hypot(l.x - P.x, l.z - P.z, (l.y - pyEye) * .75) })).filter(o => o.d < 16).sort((a, b) => a.d - b.d).slice(0, 4); litD = c.length && !c[0].l.street ? Math.max(0, c[0].d) : 99;
+    const pyEye = (F ? F.y0 : 0) + (P.sh || 0) + 2.2; const c = lamps.filter(l => l.kind !== 'dead' && !l.off).map(l => ({ l, d: l.cabin&&P.inElev?-1:Math.hypot(l.x - P.x, l.z - P.z, (l.y - pyEye) * .75) })).filter(o => o.d < 16).sort((a, b) => a.d - b.d).slice(0, poolMax()); litD = c.length && !c[0].l.street ? Math.max(0, c[0].d) : 99;
     pool.forEach((p, i) => { const o = c[i]; if (o) { p.position.set(o.l.x, o.l.y, o.l.z); p.color.setHex(o.l.cabin?0xfff0d4:o.l.street ? 0xffb468 : 0xdce9ee); p.distance = o.l.cabin?5:o.l.street ? 15 : 12; p.userData.kind = o.l.kind; p.userData.lamp = o.l; p.userData.on = true; } else p.userData.on = false; });
   }
   ELV.light=pool.find(p=>p.userData.on&&p.userData.lamp?.cabin)||null;
@@ -5193,15 +5198,21 @@ function libraryReturn() {
 }
 
 /* ---------- 성능 / 그래픽 품질 ---------- */
-const QUAL = { ultra: { pr: 2, sh: 2048, label: '최고' }, high: { pr: 1.5, sh: 1024, label: '높음' }, mid: { pr: 1, sh: 512, label: '보통' }, low: { pr: 1, sh: 0, label: '낮음' } };
+const QUAL = { ultra: { pr: 2, sh: 2048, label: '최고' }, high: { pr: 1.5, sh: 1024, label: '높음' }, mid: { pr: 1, sh: 512, label: '보통' }, low: { pr: 1, sh: 0, label: '낮음' }, igpu: { pr: 1, sh: 512, label: '저사양' } };
+// iGPU / 저사양: 후처리 · 달빛 기둥 · 먼지 · LOD 는 '낮음' 단계로, 그림자는 끄지 않고(셰이더 재컴파일 방지) 512 맵, 텍스처 512 상한, 시야 거리 · 안개 단축, 풀 조명 2개, 동적 해상도 0.6~1.0
+let IGPU = false; const IGPU_FAR = 170, BASE_FAR = 320;
+const dynRes = createDynRes({ apply: s => { if (!IGPU) return; perfNote('dynres ' + s); renderer.setPixelRatio(Math.min(devicePixelRatio, 1) * SET.scale * s); renderer.setSize(innerWidth, innerHeight); fx.resize(innerWidth, innerHeight, renderer.getPixelRatio()); } });
+const poolMax = () => IGPU ? 2 : 4;
 let perfUp = 0; const perfDowned = {};
 let qCur = SET.quality === 'auto' ? 'mid' : SET.quality, perfAcc = 0, perfN = 0, perfWin = 0, fpsShown = 60;
 function applyQuality(q) {
-  qCur = q; const c = SET.quality === 'auto' && q === 'low' ? { pr: .85, sh: 256 } : QUAL[q];   // 자동 조정: 그림자를 끄면 모든 재질 셰이더를 다시 만들어 수 초 멈춘다 → 끄지 않고 해상도 · 그림자 크기만 줄인다
+  const ig = q === 'igpu'; const c = ig ? QUAL.igpu : SET.quality === 'auto' && q === 'low' ? { pr: .85, sh: 256 } : QUAL[q]; if (ig) q = 'low';
+  if (IGPU !== ig) { IGPU = ig; pool.forEach((l, i) => { l.visible = i < poolMax(); }); camera.far = ig ? IGPU_FAR : BASE_FAR; camera.updateProjectionMatrix(); }
+  qCur = q;   // 자동 조정: 그림자를 끄면 모든 재질 셰이더를 다시 만들어 수 초 멈춘다 → 끄지 않고 해상도 · 그림자 크기만 줄인다
   const q3 = q === 'ultra' ? 'high' : q;   // 텍스처 예산 · 후처리는 high 와 같은 단계 (픽셀 비율 · 그림자만 더 높다)
-  if (SET.quality !== 'auto' || !textureBudget._autoSet) { textureBudget._autoSet = SET.quality === 'auto'; textureBudget.setQuality(SET.quality === 'auto' ? 'high' : q === 'ultra' ? 'ultra' : q3).catch(e => console.warn('[texture budget]', e)); }   // 자동 품질이 오르내릴 때마다 모든 텍스처를 줄였다 다시 올리며(수백 장 재업로드) 렉이 반복됐다 → 자동 조정은 해상도 · 그림자만
-  renderer.setPixelRatio(Math.min(devicePixelRatio, c.pr) * SET.scale); renderer.setSize(innerWidth, innerHeight); fx.resize(innerWidth, innerHeight, renderer.getPixelRatio()); fx.setQuality(q3); if (fx.setAO) fx.setAO(q === 'ultra' && SET.quality === 'ultra');   // 최고 품질을 직접 고른 경우에만 주변광 차폐
-  if (MOONFX) MOONFX.setQuality(q); if (texWarm) texWarm.setQuality(q);   // 달빛 기둥 · 먼지: 높음 이상만
+  if (SET.quality !== 'auto' || !textureBudget._autoSet) { textureBudget._autoSet = SET.quality === 'auto'; textureBudget.setQuality(SET.quality === 'auto' ? 'high' : IGPU ? 'low' : q === 'ultra' ? 'ultra' : q3).catch(e => console.warn('[texture budget]', e)); }   // 자동 품질이 오르내릴 때마다 모든 텍스처를 줄였다 다시 올리며(수백 장 재업로드) 렉이 반복됐다 → 자동 조정은 해상도 · 그림자만
+  renderer.setPixelRatio(Math.min(devicePixelRatio, c.pr) * SET.scale * (IGPU ? dynRes.scale : 1)); renderer.setSize(innerWidth, innerHeight); fx.resize(innerWidth, innerHeight, renderer.getPixelRatio()); fx.setQuality(q3); if (fx.setAO) fx.setAO(q === 'ultra' && SET.quality === 'ultra');   // 최고 품질을 직접 고른 경우에만 주변광 차폐
+  if (MOONFX) MOONFX.setQuality(q); if (texWarm) texWarm.setQuality(q); dynRes.setEnabled(IGPU);   // 달빛 기둥 · 먼지: 높음 이상만
   const sh = c.sh > 0;
   if (sh && flash.shadow.mapSize.x !== c.sh) { flash.shadow.mapSize.set(c.sh, c.sh); if (flash.shadow.map) { flash.shadow.map.dispose(); flash.shadow.map = null; } }
   if (renderer.shadowMap.enabled !== sh || flash.castShadow !== sh) {
@@ -5212,10 +5223,11 @@ function applyQuality(q) {
 let qPending = null; const qRun = () => { const f = qPending; qPending = null; if (f) { perfNote('quality change'); f(); perfAcc = perfN = perfWin = 0; } };
 function perfTick(dt) {
   if (state !== 'playing') return;
+  dynRes.tick(dt);
   perfAcc += dt; perfN++; perfWin += dt;
   if (perfWin >= 2.5) {
     const fps = perfN / perfAcc; fpsShown = fps; perfAcc = 0; perfN = 0; perfWin = 0;
-    $('fps').textContent = `${fps.toFixed(0)} FPS · ${QUAL[qCur].label}`;
+    $('fps').textContent = `${fps.toFixed(0)} FPS · ${IGPU ? QUAL.igpu.label + ' ' + Math.round(dynRes.scale * 100) + '%' : QUAL[qCur].label}`;
     // 품질 전환(해상도 · 그림자 맵 · 후처리 버퍼 다시 만들기)은 한 프레임이 길게 멎는다 → 걷는 도중이 아니라 멈춰 섰을 때 바꾼다 (낮출 때는 최대 4초, 올릴 때는 20초까지 기다림)
     if (SET.quality === 'auto' && fps < 38 && qCur !== 'low') { perfUp = 0; const to = qCur === 'high' ? 'mid' : 'low'; qPending = () => { if (SET.quality !== 'auto' || qCur === to) return; applyQuality(to); toast('그래픽 품질 자동 조정', `${QUAL[qCur].label}(으)로 낮췄습니다`, 'info'); }; whenIdle(qRun, 4000); }
     else if (SET.quality === 'auto' && fps > 56 && qCur !== 'high' && !perfDowned[qCur]) { if (++perfUp >= 3) { perfUp = 0; const from = qCur, to = qCur === 'low' ? 'mid' : 'high'; qPending = () => { if (SET.quality !== 'auto' || qCur !== from) return; applyQuality(to); perfDowned[from] = false; toast('그래픽 품질 자동 조정', `여유가 있어 ${QUAL[qCur].label}(으)로 올렸습니다`, 'info'); }; whenIdle(qRun, 20000); } }
@@ -9352,7 +9364,7 @@ const setS = (k, v) => { SET[k] = v; saveSET(); applySettings(); vals(); };
 $('setScreen').onchange = e => { try { if (e.target.value === 'full') document.documentElement.requestFullscreen(); else if (document.fullscreenElement) document.exitFullscreen(); } catch (err) { /* ignore */ } };
 $('quality2').onchange = e => { setS('quality', e.target.value); applyQuality(SET.quality === 'auto' ? 'mid' : SET.quality); };
 $('setScale').oninput = e => { setS('scale', e.target.value / 100); };
-$('setScale').onchange = () => applyQuality(qCur);
+$('setScale').onchange = () => applyQuality(IGPU ? 'igpu' : qCur);
 $('setBright').oninput = e => setS('bright', e.target.value / 100);
 $('setFov').oninput = e => setS('fov', +e.target.value);
 $('setNoFlicker').onchange = e => setS('noFlicker', e.target.checked); $('setObjArrow').onchange = e => setS('objArrow', e.target.checked); $('setBgm').onchange = e => setS('bgm', e.target.checked); $('setBgmVol').oninput = e => setS('bgmVol', e.target.value / 100);

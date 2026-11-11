@@ -10,6 +10,7 @@ import { NOTES } from './story.js?v=430';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
+import { buildSafe } from './safeModel.js';
 import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=430';
 
 export const FH = 4, CH = 3.6;
@@ -1280,23 +1281,10 @@ export function buildWorld(scene) {
 
     // ⑤ 금고 (비밀번호: 그날의 날짜 MMDD = 1012)
     { const sx = cx - 3.5, sz = -8.6;
-      // 1990년대 교무실 내화 금고: 두꺼운 국방색 강판 몸체 · 받침 다리 · 상판 몰딩 · 황동 명판 / 문: 크롬 다이얼 + 숫자 키패드 + 3살 바퀴 손잡이 + 경첩 3개
-      const paint = S(null, { color: 0x34443a, roughness: .42, metalness: .6 }), trim = S(null, { color: 0x1c201c, roughness: .6, metalness: .4 }), brass = S(null, { color: 0xb8923e, roughness: .3, metalness: .9 });
-      const safeBody = meshAt(merge([bx(.1, .86, .7, -.28, .47, 0), bx(.66, .86, .07, 0, .47, -.315), bx(.66, .86, .07, 0, .47, .315), bx(.66, .07, .7, 0, .075, 0), bx(.66, .07, .7, 0, .875, 0), bx(.5, .02, .56, 0, .42, 0)]), paint, sx, 0, sz);
-      meshAt(merge([bx(.7, .03, .74, 0, .925, 0), bx(.06, .04, .06, -.28, .02, -.3), bx(.06, .04, .06, -.28, .02, .3), bx(.06, .04, .06, .28, .02, -.3), bx(.06, .04, .06, .28, .02, .3)]), trim, sx, 0, sz);
-      meshAt(bx(.012, .05, .2, .33, .8, 0), brass, sx, 0, sz);
-      // 안쪽: 증거 봉투 (열쇠 꾸러미가 든 누런 서류 봉투)
-      meshAt(bx(.22, .015, .3, .02, .435, 0), S(null, { color: 0xc8a870, roughness: .9 }), sx, 0, sz);
-      const piv = dyn(new THREE.Group()); piv.position.set(sx + .33, 0, sz - .315); cur.interior.add(piv);
-      const door = new THREE.Mesh(new THREE.BoxGeometry(.07, .8, .63), paint); door.position.set(0, .47, .315); piv.add(door);
-      const frame = new THREE.Mesh(new THREE.BoxGeometry(.012, .7, .54), trim); frame.position.set(.04, .47, .315); piv.add(frame);
-      const dial = new THREE.Mesh(new THREE.CylinderGeometry(.075, .08, .03, 32), mChrome); dial.rotation.z = Math.PI / 2; dial.position.set(.06, .6, .315); piv.add(dial);
-      const knob = new THREE.Mesh(new THREE.CylinderGeometry(.03, .035, .04, 20), S(null, { color: 0x111111, roughness: .4 })); knob.rotation.z = Math.PI / 2; knob.position.set(.085, .6, .315); piv.add(knob);
-      const kp = new THREE.Mesh(new THREE.PlaneGeometry(.11, .16), new THREE.MeshBasicMaterial({ map: T.makeKeypad() })); kp.position.set(.042, .6, .5); kp.rotation.y = Math.PI / 2; piv.add(kp);
-      const hub = new THREE.Mesh(new THREE.CylinderGeometry(.03, .03, .05, 16), mChrome); hub.rotation.z = Math.PI / 2; hub.position.set(.07, .34, .315); piv.add(hub);
-      for (let k = 0; k < 3; k++) { const a = k * Math.PI * 2 / 3, sp = new THREE.Mesh(new THREE.CylinderGeometry(.009, .009, .13, 8), mChrome); sp.position.set(.09, .34 + Math.sin(a) * .065, .315 + Math.cos(a) * .065); sp.rotation.x = -a; piv.add(sp); const bl = new THREE.Mesh(new THREE.SphereGeometry(.018, 10, 8), mChrome); bl.position.set(.09, .34 + Math.sin(a) * .13, .315 + Math.cos(a) * .13); piv.add(bl); }
-      [.18, .47, .76].forEach(y => { const hg = new THREE.Mesh(new THREE.CylinderGeometry(.018, .018, .09, 10), trim); hg.position.set(.02, y, -.005); piv.add(hg); });
-      const hd = hub;
+      // 1990년대 교무실 내화 금고 (safeModel.js): 국방색 법랑 강판 · 크롬 테두리 · 숫자 다이얼 · 3살 손잡이 · 경첩 핀 · 내부 선반/서랍/장부
+      const SM = buildSafe({ W: .64, H: .92, D: .64, variant: 'olive' });
+      const safeBody = dyn(SM.body); safeBody.position.set(sx, 0, sz); cur.interior.add(safeBody);
+      const piv = dyn(SM.piv); piv.userData.dial = SM.dial; piv.position.x += sx; piv.position.z += sz; cur.interior.add(piv);
       col(sx - .34, sx + .37, sz - .36, sz + .36);
       addKey('office', 0, sx, .38, sz); const key = items[items.length - 1]; key.locked = true; key.mesh.visible = false;
       props.push({ kind: 'safe', floor: cur.f, x: sx + .9, z: sz, piv, body: safeBody, key, open: 0, label: '금고 조사하기' }); }   // body: 새 건물로 옮길 때 금고 몸체도 함께
@@ -5303,7 +5291,7 @@ export function buildWorld(scene) {
       else d.piv.rotation.y = d.open * d.angOpen * (d.dir || 1);
     }
     for (const p of props) {
-      if (p.kind === 'safe') p.piv.rotation.y = -p.open * 1.7;
+      if (p.kind === 'safe' && !p.opening) p.piv.rotation.y = p.open * 1.95;
       if (p.kind === 'breaker') p.lev.rotation.z += ((p.on ? -.6 : -2.4) - p.lev.rotation.z) * Math.min(1, dt * 10);
       else if (p.kind === 'switch') { p.key.rotation.x += ((p.on ? -.35 : .35) - p.key.rotation.x) * Math.min(1, dt * 18); p.led.visible = !p.on; }
     }

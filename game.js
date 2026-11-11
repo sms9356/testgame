@@ -31,6 +31,7 @@ import { applyExteriorFloorVisibility, shouldStreamGuardCctv } from './exteriorR
 import { GUARD_LAYOUT } from './guardRoomLayout.js?v=430';
 import { ANNEX_KEYS, CABINET_CODE } from './guardAnnex.js?v=430';
 import { installGuardRoom } from './guardRoom.js?v=430';
+import { buildSafe, SAFE_OPEN_ANGLE } from './safeModel.js';
 import { prepareModelGeometry } from './modelGeometry.js';
 import { modelFootprint, overlaps, removeDuplicateModels } from './placement.js';
 import { turfMaterial } from './campusVisuals.js?v=430';
@@ -3864,7 +3865,7 @@ function useCase5(p) {
   const k = p.k, N = world.NOTES;
   if (k === 'psafe') {
     if (FL.ev_fund) { sfx.paper(); showNote(N.n_fund_receipt); return; }
-    kpProp = { code: PRINCIPAL_CODE, prop: p, onOpen: () => { FL.ev_fund = true; p.label = '열린 교장실 금고 (재단 서류)'; sfx.unlock(); addDoc({ id: 'n_fund_receipt', kind: 'note' }); addClue('n_fund_receipt'); toast('🗄 교장실 금고가 열렸다', N.n_fund_receipt.title, 'info'); storyCalm(50); save(true); setTimeout(() => showNote(N.n_fund_receipt), 500); },
+    kpProp = { code: PRINCIPAL_CODE, prop: p, onOpen: () => { FL.ev_fund = true; swingSafeDoor(p.mesh?.userData.door); p.label = '열린 교장실 금고 (재단 서류)'; sfx.unlock(); addDoc({ id: 'n_fund_receipt', kind: 'note' }); addClue('n_fund_receipt'); toast('🗄 교장실 금고가 열렸다', N.n_fund_receipt.title, 'info'); storyCalm(50); save(true); setTimeout(() => showNote(N.n_fund_receipt), 500); },
       hints: ['힌트 ① 교장은 <b>“그날 밤 그 사람과 만난 시각”</b>을 번호로 썼다', '힌트 ② 관제실 CCTV 캡처 ② — 교장실 앞에 두 사람', '힌트 ③ 23:10 → 2 3 1 0'] };
     kpBuf = ''; ++keypadSequence; kpOpening = false; $('kpTitle').textContent = '교장실 금고'; $('kpHint').innerHTML = '다이얼 금고 — 숫자 4자리'; renderKeypad(); openUI('keypad'); sfx.beep(); return;
   }
@@ -3893,8 +3894,11 @@ function recordTestimony(who) {
   FL.ev_testimony = true; addDoc({ id: 'n_junho_testimony', kind: 'note' }); addClue('n_junho_testimony');
   toast('🎙 증언 녹음 완료', `${who}의 실명 증언을 카세트에 담았다 (증거 ${evCount()}/${EVIDENCE5.length})`, 'info'); save(true); return true;
 }
+function swingSafeDoor(piv) { if (!piv) return; piv.userData.swinging = true; const t0 = performance.now(), a0 = piv.rotation.y; sfx.clank?.();
+  const step = () => { const k = Math.min(1, (performance.now() - t0) / 900); piv.rotation.y = a0 + (SAFE_OPEN_ANGLE - a0) * (1 - (1 - k) ** 3); if (k < 1) requestAnimationFrame(step); else piv.userData.swinging = false; }; requestAnimationFrame(step); }
 function case5Visual() {
   for (const q of world.props) { if (q.kind !== 'case5') continue;
+    if (q.k === 'psafe' && FL.ev_fund && q.mesh?.userData.door && !q.mesh.userData.door.userData.swinging) q.mesh.userData.door.rotation.y = SAFE_OPEN_ANGLE;
     if (q.k === 'psafe') q.label = FL.ev_fund ? '열린 교장실 금고 (재단 서류)' : '교장실 금고 (다이얼 4자리)';
     if (q.k === 'recorder') { q.done = !!inv.recorder; if (q.mesh) q.mesh.children[0].visible = !q.done; q.label = q.done ? '빈 녹음기 거치대' : '방송부 휴대용 녹음기'; } }
 }
@@ -3921,10 +3925,9 @@ function setupCase5() {
     n_attend: { title: '3-2 출석부 — 마지막 칸', text: '<b>[1998.10.12 · 3학년 2반]</b><br>윤하늘 — <b>출석</b><br><br>십 년 만에 채워진 칸. 펜 자국 아래로, 지워진 연필 글씨가 비친다.<br><i>“결석 처리 요망 — 교무부”</i>' },
     n_junho_testimony: { title: '증언 녹음 — 이준호 (전 방송부)', text: '<b>[카세트 녹음 · 실명 증언]</b><br>“저는 1998년 10월 12일 밤, 교무부장 선생님 지시로 펌프실 철문을 잠갔습니다. 안에 하늘이가 있는 걸 알았습니다.<br>열쇠는 바로 교무부장 선생님께 드렸고, <b>‘아침에 내가 연다’</b>고 하셨습니다.<br>그 문은 아침까지 열리지 않았습니다.”<br><br>— 이준호, 서명 대신 이름을 세 번 또박또박 말했다.' },
   });
-  const safeMat = new THREE.MeshStandardMaterial({ color: 0x2b2f36, roughness: .45, metalness: .7 }), dialMat = new THREE.MeshStandardMaterial({ color: 0xc8b06a, roughness: .3, metalness: .85 });
   const paperMat = new THREE.MeshStandardMaterial({ color: 0x6b3b2a, roughness: .8 }), recMat = new THREE.MeshStandardMaterial({ color: 0x1d1f22, roughness: .5, metalness: .3 });
   const mk = kind => { const g = new THREE.Group();
-    if (kind === 'psafe') { const b = new THREE.Mesh(new THREE.BoxGeometry(.6, .7, .55), safeMat); b.position.y = .35; g.add(b); const d = new THREE.Mesh(new THREE.CylinderGeometry(.07, .07, .03, 20), dialMat); d.rotation.x = Math.PI / 2; d.position.set(.1, .45, .29); g.add(d); }
+    if (kind === 'psafe') { const sm = buildSafe({ W: .56, H: .76, D: .52, variant: 'grey' }), inner = new THREE.Group(); inner.rotation.y = -Math.PI / 2; inner.add(sm.body, sm.piv); g.add(inner); g.userData.door = sm.piv; sm.piv.userData.dial = sm.dial; if (FL.ev_fund) sm.piv.rotation.y = SAFE_OPEN_ANGLE; }   // 교장실 내화금고 (safeModel.js · 짙은 회색 법랑)
     else if (kind === 'attend') { const t = new THREE.Mesh(new THREE.BoxGeometry(.6, .72, .45), new THREE.MeshStandardMaterial({ color: 0x8a6a48, roughness: .7 })); t.position.y = .36; g.add(t); const bk = new THREE.Mesh(new THREE.BoxGeometry(.32, .04, .24), paperMat); bk.position.y = .74; g.add(bk); }
     else { const t = new THREE.Mesh(new THREE.BoxGeometry(.24, .07, .14), recMat); t.position.y = .78; g.add(t); const s = new THREE.Mesh(new THREE.BoxGeometry(.5, .74, .4), new THREE.MeshStandardMaterial({ color: 0x55585e, roughness: .6, metalness: .4 })); s.position.y = .37; g.add(s); }
     return g; };
@@ -4312,6 +4315,63 @@ function keypadKey(e) {
 }
 document.querySelectorAll('#kpGrid button').forEach(b => b.onclick = () => keypadPress(b.dataset.k));
 $('kpClose').onclick = () => closeUI();
+// ── 금고 다이얼 UI: 0~99 눈금 회전 다이얼 (왼쪽-오른쪽-왼쪽-오른쪽) · 숫자마다 딸깍 · 3D 금고 다이얼도 함께 돈다 ──
+// 해답/플래그/저장 키는 그대로 — 숫자 d 는 다이얼 눈금 d×10 에 맞추는 것으로 입력된다 (키보드 숫자 입력도 그대로 동작)
+const KD = { ang: 0, target: 0, dir: 1, raf: 0, lastTick: -1, tickT: 0, drag: null, on: false };
+const kpSafeDoor = () => kpProp && (kpProp.kind === 'safe' ? kpProp.piv : kpProp.prop?.k === 'psafe' ? kpProp.prop.mesh?.userData.door : null);
+const kpIsSafe = () => !!kpProp && (kpProp.kind === 'safe' || kpProp.prop?.k === 'psafe');
+function kdDraw() {
+  const cv = $('kpDial'); if (!cv) return; const g = cv.getContext('2d'), W = cv.width, c = W / 2, R = W * .46;
+  g.clearRect(0, 0, W, W);
+  // 문짝 법랑 + 크롬 베젤
+  let gr = g.createRadialGradient(c, c, R * .9, c, c, W * .5); gr.addColorStop(0, '#596355'); gr.addColorStop(1, '#2c322a'); g.fillStyle = gr; g.fillRect(0, 0, W, W);
+  gr = g.createLinearGradient(0, 0, W, W); gr.addColorStop(0, '#f0f2f4'); gr.addColorStop(.5, '#7d8286'); gr.addColorStop(1, '#d0d4d8');
+  g.fillStyle = gr; g.beginPath(); g.arc(c, c, R * 1.06, 0, 7); g.fill(); g.fillStyle = '#25282b'; g.beginPath(); g.arc(c, c, R * 1.005, 0, 7); g.fill();
+  g.save(); g.translate(c, c); g.rotate(-KD.ang / 100 * Math.PI * 2);
+  gr = g.createRadialGradient(-R * .3, -R * .35, 10, 0, 0, R); gr.addColorStop(0, '#eef0f2'); gr.addColorStop(.75, '#a7abaf'); gr.addColorStop(1, '#6c7074');
+  g.fillStyle = gr; g.beginPath(); g.arc(0, 0, R, 0, 7); g.fill();
+  g.strokeStyle = '#111'; g.fillStyle = '#111'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = `bold ${W * .062 | 0}px Arial,sans-serif`;
+  for (let n = 0; n < 100; n++) { const a = -Math.PI / 2 + n / 100 * Math.PI * 2, L = n % 5 === 0; g.lineWidth = L ? 3 : 1.5;
+    g.beginPath(); g.moveTo(Math.cos(a) * R * .97, Math.sin(a) * R * .97); g.lineTo(Math.cos(a) * R * (L ? .85 : .91), Math.sin(a) * R * (L ? .85 : .91)); g.stroke();
+    if (n % 10 === 0) { g.save(); g.translate(Math.cos(a) * R * .74, Math.sin(a) * R * .74); g.rotate(a + Math.PI / 2); g.fillText(String(n), 0, 0); g.restore(); } }
+  g.fillStyle = '#17191b'; g.beginPath(); g.arc(0, 0, R * .6, 0, 7); g.fill();
+  for (let i = 0; i < 40; i++) { const a = i / 40 * Math.PI * 2; g.strokeStyle = 'rgba(255,255,255,.12)'; g.lineWidth = 3; g.beginPath(); g.moveTo(Math.cos(a) * R * .5, Math.sin(a) * R * .5); g.lineTo(Math.cos(a) * R * .59, Math.sin(a) * R * .59); g.stroke(); }
+  gr = g.createRadialGradient(-R * .12, -R * .15, 2, 0, 0, R * .48); gr.addColorStop(0, '#4a4e52'); gr.addColorStop(1, '#1d2023'); g.fillStyle = gr; g.beginPath(); g.arc(0, 0, R * .48, 0, 7); g.fill();
+  g.restore();
+  // 고정 인덱스 표시(위쪽 삼각형) + 방향 표시
+  g.fillStyle = '#e8e2c8'; g.strokeStyle = '#000'; g.lineWidth = 2; g.beginPath(); g.moveTo(c, c - R * 1.0); g.lineTo(c - 12, c - R * 1.0 - 22); g.lineTo(c + 12, c - R * 1.0 - 22); g.closePath(); g.fill(); g.stroke();
+  const step = kpBuf.length; if (step < 4) { g.fillStyle = '#ffd98a'; g.font = `bold ${W * .05 | 0}px sans-serif`; g.textAlign = 'left'; g.fillText(step % 2 ? 'R ↻' : '↺ L', 8, 24); }
+}
+function kdTick(n) { const t = performance.now(); if (t - KD.tickT > 28) { KD.tickT = t; sfx.click(); } KD.lastTick = n; }
+function kdSet(a) {
+  const prev = Math.floor(KD.ang), now = Math.floor(a); KD.ang = a; if (prev !== now) kdTick(now);
+  const door = kpSafeDoor(), d = door?.userData.dial; if (d) d.rotation.x = -a / 100 * Math.PI * 2;
+  kdDraw();
+}
+function kdAnimate() { cancelAnimationFrame(KD.raf); let last = performance.now();
+  const f = () => { const t = performance.now(), dt = Math.min(.05, (t - last) / 1000); last = t; const rem = KD.target - KD.ang;
+    if (Math.abs(rem) < .05) { kdSet(KD.target); return; } kdSet(KD.ang + Math.sign(rem) * Math.min(Math.abs(rem), Math.max(25, Math.abs(rem) * 4) * dt)); KD.raf = requestAnimationFrame(f); };
+  KD.raf = requestAnimationFrame(f); }
+function kdTurnToDigit(i, d) {   // i번째 숫자: 짝수=왼쪽(눈금 증가), 홀수=오른쪽(감소). 첫 숫자는 한 바퀴 더 돌려 초기화
+  const num = d * 10, cur = ((KD.ang % 100) + 100) % 100, left = i % 2 === 0;
+  let delta = left ? (num - cur + 100) % 100 : -((cur - num + 100) % 100);
+  if (i === 0) delta += 100; KD.target = KD.ang + delta; kdAnimate();
+}
+function kpDialSync() {
+  const on = kpIsSafe(); $('keypad').classList.toggle('dialMode', on); KD.on = on;
+  if (on) kdDraw();
+}
+{ const cv = $('kpDial'); if (cv) {
+  const angOf = e => { const r = cv.getBoundingClientRect(); return Math.atan2(e.clientY - r.top - r.height / 2, e.clientX - r.left - r.width / 2); };
+  cv.addEventListener('pointerdown', e => { if (kpOpening || kpBuf.length >= 4) return; cancelAnimationFrame(KD.raf); KD.drag = { a: angOf(e), moved: 0 }; cv.setPointerCapture?.(e.pointerId); });
+  cv.addEventListener('pointermove', e => { if (!KD.drag) return; const a = angOf(e); let da = a - KD.drag.a; if (da > Math.PI) da -= Math.PI * 2; if (da < -Math.PI) da += Math.PI * 2; KD.drag.a = a; KD.drag.moved += Math.abs(da); kdSet(KD.ang - da / (Math.PI * 2) * 100); });
+  const up = () => { if (!KD.drag) return; const moved = KD.drag.moved; KD.drag = null; if (moved < .35) return;
+    const snap = Math.round(KD.ang / 10) * 10; KD.target = snap; kdAnimate(); const digit = String(((snap / 10) % 10 + 10) % 10); setTimeout(() => { if (KD.on && !kpOpening) { KD.fromDrag = true; keypadPress(digit); KD.fromDrag = false; } }, 160); };
+  cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
+} }
+{ const _rk = renderKeypad; renderKeypad = function () { _rk(); try { kpDialSync(); } catch (e) { /* 다이얼 UI 없음 */ } }; }
+{ const _kp = keypadPress; keypadPress = function (k) { const n = kpBuf.length; _kp(k); if (KD.on && !KD.fromDrag && /^\d$/.test(k) && kpBuf.length === n + 1) kdTurnToDigit(n, +k); }; }
+
 
 /* ---------- 스크립트 이벤트 ---------- */
 // 환영: 유령과 같은 모델이지만 해치지 않는다. 잠깐 보였다 사라진다.

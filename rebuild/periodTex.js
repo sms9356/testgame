@@ -254,3 +254,117 @@ export const noticeBoard08 = () => { const t = cv(1024, 384, (g, w, h) => { g.cl
   g.strokeStyle = '#e08a2a'; g.lineWidth = 10; g.beginPath(); g.moveTo(140, 190); g.quadraticCurveTo(160, 210, 180, 190); g.stroke();
   g.fillStyle = '#222'; g.font = 'bold 22px sans-serif'; g.fillText('친구는 지켜 주는 것', 160, 248); g.font = '17px sans-serif'; g.fillText('보고도 모른 척하면 방관자입니다', 160, 278);
   g.fillStyle = '#d02a2a'; g.font = 'bold 19px sans-serif'; g.fillText('신고 · 상담 : 학생부 · 상담실', 160, 314); g.restore(); }); t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping; return t; };
+
+// ── 라운드 3 (소품 사실감): 흐릿하거나 단색이던 소품 재질. 색은 재질 color 가 곱해지므로 대부분 밝은 무채색으로 그린다 · shared() 로 한 벌 ──
+// 책 등 · 표지 천(0.3m 한 장): 클로스 결 + 금박 띠 · 제목 띠 · 바랜 얼룩 — 책마다 다른 높이로 잘려 붙어 책등 무늬가 제각각 보인다
+export const bookCloth = () => cv(256, 512, (g, w, h) => {
+  const r = rng(1984); g.fillStyle = '#e4e2dc'; g.fillRect(0, 0, w, h);
+  for (let y = 0; y < h; y += 2) { g.fillStyle = `rgba(0,0,0,${.03 + r() * .03})`; g.fillRect(0, y, w, 1); }   // 클로스 가로 결
+  for (let x = 0; x < w; x += 3) { g.fillStyle = `rgba(255,255,255,${r() * .05})`; g.fillRect(x, 0, 1, h); }
+  for (let k = 0; k < 6; k++) { const y = (k + .3 + r() * .4) * h / 6; g.fillStyle = 'rgba(255,236,160,.75)'; g.fillRect(0, y, w, 3); g.fillRect(0, y + 7, w, 2);   // 금박 띠
+    g.fillStyle = 'rgba(20,16,10,.35)'; g.fillRect(0, y + 18, w, 22 + r() * 18);   // 제목 띠
+    g.fillStyle = 'rgba(255,240,190,.6)'; for (let i = 0; i < 9; i++) g.fillRect(14 + i * 26 + r() * 6, y + 24, 10 + r() * 8, 10); }   // 읽히지 않는 금박 획
+  for (let i = 0; i < 40; i++) blob(g, r() * w, r() * h, 10 + r() * 30, 'rgba(255,255,255,.08)', 'rgba(255,255,255,0)');
+  for (let i = 0; i < 300; i++) { g.fillStyle = `rgba(255,255,255,${r() * .2})`; g.fillRect(r() * w, r() * h, 1, 1 + r() * 3); }
+});
+// 비닐 바인더(문서철): 매끈한 PVC + 책등 라벨 꽂이(흰 종이 + 손글씨 줄) + 손가락 구멍 + 손때
+export const binderVinyl = () => cv(256, 512, (g, w, h) => {
+  const r = rng(808); g.fillStyle = '#eceae6'; g.fillRect(0, 0, w, h);
+  for (let i = 0; i < 30; i++) blob(g, r() * w, r() * h, 12 + r() * 40, 'rgba(0,0,0,.05)', 'rgba(0,0,0,0)');
+  for (let k = 0; k < 3; k++) { const y = k * h / 3 + 30; g.fillStyle = 'rgba(0,0,0,.18)'; g.fillRect(18, y - 2, w - 36, 92); g.fillStyle = '#fbfaf2'; g.fillRect(22, y, w - 44, 86);   // 라벨 꽂이
+    g.strokeStyle = 'rgba(30,40,120,.7)'; g.lineWidth = 2; for (let l = 0; l < 3; l++) { g.beginPath(); let x = 32; g.moveTo(x, y + 22 + l * 22); while (x < w - 50) { x += 6 + r() * 8; g.lineTo(x, y + 20 + l * 22 + (r() - .5) * 5); } g.stroke(); }
+    g.fillStyle = 'rgba(20,20,20,.7)'; g.beginPath(); g.ellipse(w / 2, y + 128, 16, 26, 0, 0, 7); g.fill(); }   // 손가락 구멍
+  for (let i = 0; i < 500; i++) { g.fillStyle = `rgba(255,255,255,${r() * .25})`; g.fillRect(r() * w, r() * h, 1, 1); }
+});
+// 누렇게 바랜 베이지 ABS (CRT · 본체) 512: 미세 텍스처 · 통풍구 · 손때 · 테이프 자국 — 예전 128px 은 모니터 한 면에 58px/m 로 뭉개졌다
+export const beigePlastic = () => cv(512, 512, (g, w, h) => {
+  const r = rng(1998); g.fillStyle = '#d4cbb2'; g.fillRect(0, 0, w, h);
+  for (let i = 0; i < 9000; i++) { const v = 190 + r() * 40 | 0; g.fillStyle = `rgba(${v},${v - 6},${v - 28},.35)`; g.fillRect(r() * w, r() * h, 1.2, 1.2); }
+  const gy = g.createLinearGradient(0, 0, 0, h); gy.addColorStop(0, 'rgba(150,120,60,.16)'); gy.addColorStop(1, 'rgba(150,120,60,0)'); g.fillStyle = gy; g.fillRect(0, 0, w, h);   // 형광등 황변
+  g.fillStyle = 'rgba(60,54,40,.45)'; for (let y = 40; y < 140; y += 12) g.fillRect(48, y, w - 96, 5);   // 통풍구
+  for (let i = 0; i < 14; i++) blob(g, r() * w, r() * h, 18 + r() * 40, 'rgba(90,72,40,.12)', 'rgba(90,72,40,0)');   // 손때
+  for (let i = 0; i < 3; i++) { g.fillStyle = 'rgba(235,225,190,.55)'; g.save(); g.translate(r() * w, 200 + r() * 260); g.rotate((r() - .5) * .4); g.fillRect(0, 0, 60 + r() * 40, 16); g.restore(); }   // 테이프 뗀 자국
+});
+// 꺼진 화면 유리: 먼지 · 지문 · 위쪽 형광등 반사 (밝은 회색 — color 가 곱해진다) + 지문 자리만 탁한 거칠기
+export const screenGlass = () => cv(512, 512, (g, w, h) => {
+  const r = rng(77077); g.fillStyle = '#d8d8d8'; g.fillRect(0, 0, w, h);
+  const gr = g.createLinearGradient(0, 0, w * .4, h); gr.addColorStop(0, 'rgba(255,255,255,.5)'); gr.addColorStop(.35, 'rgba(255,255,255,0)'); g.fillStyle = gr; g.fillRect(0, 0, w, h);
+  for (let i = 0; i < 1200; i++) { g.fillStyle = `rgba(255,255,255,${r() * .5})`; g.fillRect(r() * w, r() * h, 1, 1); }
+  for (let i = 0; i < 8; i++) blob(g, r() * w, h * (.4 + r() * .6), 14 + r() * 20, 'rgba(255,255,255,.22)', 'rgba(255,255,255,0)');
+});
+export const screenRough = () => cv(256, 256, (g, w, h) => { const r = rng(5150); g.fillStyle = '#303030'; g.fillRect(0, 0, w, h);
+  for (let i = 0; i < 26; i++) blob(g, r() * w, h * (.35 + r() * .65), 6 + r() * 12, 'rgba(170,170,170,.7)', 'rgba(170,170,170,0)');
+  for (let i = 0; i < 700; i++) { g.fillStyle = `rgba(200,200,200,${r() * .6})`; g.fillRect(r() * w, r() * h, 1, 1); } }, false);
+// 은행잎 수관 (10월): 부채꼴 잎 무더기 · 사이 그늘 틈 — 밝은 무채색(재질 노랑이 곱해진다), 자체광 맵으로도 써서 틈은 어둡게
+export const ginkgoFoliage = () => cv(512, 512, (g, w, h) => {
+  const r = rng(1010); g.fillStyle = '#4a4232'; g.fillRect(0, 0, w, h);
+  for (let i = 0; i < 2600; i++) { const x = r() * w, y = r() * h, s = 5 + r() * 9, a = r() * 6.28, v = 170 + r() * 85 | 0, ye = r() < .15 ? -40 : 0;
+    const wx = x < 20 ? w : x > w - 20 ? -w : 0, wy = y < 20 ? h : y > h - 20 ? -h : 0, offs = [[0, 0]]; if (wx) offs.push([wx, 0]); if (wy) offs.push([0, wy]); if (wx && wy) offs.push([wx, wy]);   // 이음매 없이 반복
+    for (const [ox, oy] of offs) {
+      g.save(); g.translate(x + ox, y + oy); g.rotate(a); g.fillStyle = `rgb(${v},${v - 6 + ye},${v - 40 + ye})`; g.beginPath(); g.moveTo(0, 0); g.arc(0, 0, s, -.75, .75); g.closePath(); g.fill();   // 부채꼴 잎
+      g.strokeStyle = 'rgba(80,60,20,.35)'; g.lineWidth = .7; g.beginPath(); g.moveTo(0, 0); g.lineTo(-s * .5, 0); g.stroke(); g.restore(); } }
+  for (let i = 0; i < 26; i++) blob(g, r() * w, r() * h, 14 + r() * 26, 'rgba(30,24,14,.45)', 'rgba(30,24,14,0)');   // 잎 사이 그늘
+});
+// 나무껍질: 세로로 갈라진 골 · 이끼 얼룩 — 밝은 회색 (재질 갈색이 곱해진다)
+export const barkTex = () => cv(256, 512, (g, w, h) => {
+  const r = rng(4747); g.fillStyle = '#c8c4bc'; g.fillRect(0, 0, w, h);
+  for (let i = 0; i < 70; i++) { let x = r() * w, y = 0; g.strokeStyle = `rgba(40,34,28,${.35 + r() * .35})`; g.lineWidth = 1.5 + r() * 3.5; g.beginPath(); g.moveTo(x, y);
+    while (y < h) { y += 10 + r() * 30; x += (r() - .5) * 10; g.lineTo(x, y); } g.stroke(); }
+  for (let i = 0; i < 4000; i++) { const v = 150 + r() * 100 | 0; g.fillStyle = `rgba(${v},${v},${v - 6},.4)`; g.fillRect(r() * w, r() * h, 1 + r() * 2, 1); }
+  for (let i = 0; i < 10; i++) blob(g, r() * w, r() * h, 10 + r() * 30, 'rgba(110,140,90,.25)', 'rgba(110,140,90,0)');   // 이끼
+});
+// 향나무 비늘잎 — 짙은 초록 수관용 밝은 무채색
+export const needleFoliage = () => cv(256, 256, (g, w, h) => {
+  const r = rng(3131); g.fillStyle = '#5a5a52'; g.fillRect(0, 0, w, h);
+  for (let i = 0; i < 2400; i++) { const x = r() * w, y = r() * h, L = 4 + r() * 7, a = -1.2 - r() * .8, v = 150 + r() * 100 | 0; g.strokeStyle = `rgb(${v},${v + 8},${v - 10})`; g.lineWidth = 1.2; g.beginPath(); g.moveTo(x, y); g.lineTo(x + Math.cos(a) * L, y + Math.sin(a) * L); g.stroke(); }
+  for (let i = 0; i < 18; i++) blob(g, r() * w, r() * h, 8 + r() * 18, 'rgba(20,24,18,.5)', 'rgba(20,24,18,0)');
+});
+// 자동차 도장 (2008 국산 세단 · 경차 · 승합차, 상표 없음): 미세 오렌지필 · 빗물 먼지 줄 · 흙탕 튄 점 · 세차 긁힘 — 밝은 무채색 (개체 색이 곱해진다)
+export const carPaint = () => cv(512, 512, (g, w, h) => {
+  const r = rng(2008); g.fillStyle = '#f0f0ee'; g.fillRect(0, 0, w, h);
+  for (let i = 0; i < 6000; i++) { const v = 220 + r() * 35 | 0; g.fillStyle = `rgba(${v},${v},${v},.35)`; g.fillRect(r() * w, r() * h, 2, 2); }
+  for (let i = 0; i < 40; i++) { const x = r() * w, gr = g.createLinearGradient(0, 0, 0, h); gr.addColorStop(0, 'rgba(120,110,90,0)'); gr.addColorStop(1, 'rgba(120,110,90,.22)'); g.fillStyle = gr; g.fillRect(x, r() * h * .5, 1 + r() * 3, h); }
+  for (let i = 0; i < 260; i++) { g.fillStyle = `rgba(100,86,64,${r() * .35})`; g.beginPath(); g.arc(r() * w, h * (.55 + r() * .45), .6 + r() * 2.2, 0, 7); g.fill(); }
+  for (let i = 0; i < 12; i++) { g.strokeStyle = 'rgba(255,255,255,.35)'; g.lineWidth = .6; g.beginPath(); const x = r() * w, y = r() * h; g.moveTo(x, y); g.lineTo(x + (r() - .5) * 60, y + (r() - .5) * 8); g.stroke(); }
+});
+// 상자 투영 UV (UV 가 없거나 늘어난 단순 형상용): 정점 노멀의 주축 평면으로 투영, s m 당 한 장
+export function boxProjectUV(geo, s = 1) {
+  const g = geo.index ? geo.toNonIndexed() : geo; if (!g.attributes.normal) g.computeVertexNormals();
+  const p = g.attributes.position, n = g.attributes.normal, uv = new Float32Array(p.count * 2);
+  for (let i = 0; i < p.count; i++) { const ax = Math.abs(n.getX(i)), ay = Math.abs(n.getY(i)), az = Math.abs(n.getZ(i)), x = p.getX(i), y = p.getY(i), z = p.getZ(i);
+    const [u, v] = ay >= ax && ay >= az ? [x, z] : ax >= az ? [z, y] : [x, y]; uv[i * 2] = u / s; uv[i * 2 + 1] = v / s; }
+  g.setAttribute('uv', new THREE.BufferAttribute(uv, 2)); return g;
+}
+
+// 휴대용 카세트 녹음기 (1990년대 국산 보급형, 상표 없음) 앞면 · 윗면 아틀라스: 스피커 그릴 · 테이프 창 · 피아노 건반 6 · 'STEREO CASSETTE RECORDER'
+export const cassetteFace = () => cv(512, 256, (g, w, h) => {
+  const r = rng(1993); g.fillStyle = '#2c2c2e'; g.fillRect(0, 0, w, h);
+  for (let i = 0; i < 3000; i++) { g.fillStyle = `rgba(255,255,255,${r() * .05})`; g.fillRect(r() * w, r() * h, 1, 1); }
+  // 앞면 (아래 절반): 스피커 그릴 원형 구멍 + 테이프 창
+  g.fillStyle = '#1a1a1c'; g.fillRect(8, 136, 180, 112); g.fillStyle = '#060606'; for (let y = 144; y < 244; y += 8) for (let x = 16; x < 184; x += 8) { g.beginPath(); g.arc(x, y, 2.2, 0, 7); g.fill(); }
+  g.fillStyle = '#4a3e2d'; g.fillRect(210, 150, 160, 86); g.fillStyle = 'rgba(255,255,255,.18)'; g.fillRect(214, 154, 152, 10);
+  [250, 330].forEach(x => { g.fillStyle = '#e8e2d0'; g.beginPath(); g.arc(x, 194, 18, 0, 7); g.fill(); g.fillStyle = '#222'; g.beginPath(); g.arc(x, 194, 7, 0, 7); g.fill(); });
+  g.fillStyle = '#b8b8b0'; g.font = 'bold 13px sans-serif'; g.fillText('STEREO CASSETTE RECORDER', 300, 144); g.fillStyle = '#c03028'; g.fillRect(390, 160, 10, 10); g.fillStyle = '#9a9a92'; g.font = '11px sans-serif'; g.fillText('REC', 404, 169); g.fillText('AM/FM  2-BAND', 390, 220);
+  // 윗면 (위 절반): 건반 6 (재생 빨강) · 볼륨 홈 · 손때
+  ['#888', '#888', '#b83228', '#888', '#888', '#888'].forEach((c, i) => { g.fillStyle = '#111'; g.fillRect(20 + i * 40, 20, 36, 60); g.fillStyle = c; g.fillRect(22 + i * 40, 22, 32, 52); g.fillStyle = 'rgba(255,255,255,.25)'; g.fillRect(22 + i * 40, 22, 32, 6); });
+  g.fillStyle = '#ddd'; g.font = '10px sans-serif'; ['REC', '◀◀', '▶', '▶▶', '■', '❚❚'].forEach((t, i) => g.fillText(t, 28 + i * 40, 96));
+  g.fillStyle = '#111'; g.fillRect(280, 40, 200, 10); g.fillStyle = '#aaa'; g.fillRect(360, 34, 14, 22);
+  for (let i = 0; i < 10; i++) blob(g, r() * w, r() * h, 10 + r() * 30, 'rgba(255,255,255,.05)', 'rgba(255,255,255,0)');
+});
+const CAS = {};
+// 녹음기 그룹: 둥근 몸체(모서리 깎은 상자) + 앞 · 윗면 아틀라스 판 + 손잡이 + 안테나 — 지오메트리 · 재질 공유
+export function cassetteRecorder(color = 0x2a2a2c) {
+  if (!CAS.geo) { const t = shared('cassetteFace', cassetteFace);
+    const sub = (u0, v0, u1, v1, pw, ph) => { const p = new THREE.PlaneGeometry(pw, ph), uv = p.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, u0 + uv.getX(i) * (u1 - u0), v0 + uv.getY(i) * (v1 - v0)); return p; };
+    CAS.body = new THREE.CylinderGeometry(.035, .035, .26, 10).rotateZ(Math.PI / 2);   // 둥근 앞뒤 모서리 → 아래 상자와 합쳐 둥근 몸체
+    CAS.box = new THREE.BoxGeometry(.26, .07, .08);
+    CAS.front = sub(0, 0, 1, .5, .25, .04); CAS.top = sub(0, .5, 1, 1, .25, .07).rotateX(-Math.PI / 2);
+    CAS.handle = new THREE.TorusGeometry(.07, .007, 6, 14, Math.PI); CAS.ant = new THREE.CylinderGeometry(.003, .003, .22, 5);
+    CAS.face = new THREE.MeshStandardMaterial({ map: t, roughness: .55, metalness: .1 }); CAS.metal = new THREE.MeshStandardMaterial({ color: 0x9a9ea2, roughness: .35, metalness: .8 }); CAS.geo = true; }
+  const key = 'm' + color; CAS[key] = CAS[key] || new THREE.MeshStandardMaterial({ color, roughness: .5, metalness: .25 });
+  const g = new THREE.Group(), M = (geo, m, x, y, z, rx = 0, rz = 0) => { const o = new THREE.Mesh(geo, m); o.position.set(x, y, z); o.rotation.set(rx, 0, rz); g.add(o); return o; };
+  M(CAS.body, CAS[key], 0, .035, -.04); M(CAS.body, CAS[key], 0, .035, .04); M(CAS.box, CAS[key], 0, .035, 0);
+  M(CAS.front, CAS.face, 0, .035, .0752); M(CAS.top, CAS.face, 0, .0702, 0);
+  M(CAS.handle, CAS.metal, 0, .07, -.045); M(CAS.ant, CAS.metal, .115, .17, -.06, 0, -.35);
+  return g;
+}

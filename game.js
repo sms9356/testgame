@@ -6,6 +6,7 @@ import { perfProfInit, perfFrameBegin, perfMark, perfFrameEnd, perfNote } from '
 import { whenIdle, idleTimeout, idleInterval, setIdleProbe } from './idleTasks.js?v=430';
 import { createMoveFeel, targetSpeed, stepVelocity, stopVelocity, advanceStride, restStride, motionScale, landImpulse, feelTick } from './moveFeel.js?v=430';
 import { createFXWebGPU } from './fxWebGPU.js?v=430';
+import * as PT from './rebuild/periodTex.js?v=430';
 import { autoDetail, setupEnv, sharpenTextures, slimHeavyProps } from './surfaceDetail.js?v=430';
 // 광선 검사 가속 (three-mesh-bvh, MIT): 건물 통짜 메시에 광선을 쏘는 배치 보정 · 상호작용 검사가 삼각형을 전부 훑느라
 //   로딩 중 수십 초 멈추던 것('응답 없는 페이지') → 큰 정적 메시는 처음 검사할 때 BVH 를 한 번 만들어 쓴다
@@ -4739,8 +4740,7 @@ function placeSiteTapes() {
     if (world.props.some(q => q.kind === 'tape' && q.id === id) || !world.TAPES[id]) continue;
     const p = fn(); if (!p) continue; const [f, x, z] = p, F = floors[f]; if (!F) continue;
     const y = surf(f, x, z), g = new THREE.Group(); g.position.set(x, y, z); g.rotation.y = (x * 7 + z * 3) % 6.28;
-    const b = new THREE.Mesh(new THREE.BoxGeometry(.26, .07, .15), mat); b.position.y = .035; g.add(b);
-    const k = new THREE.Mesh(new THREE.BoxGeometry(.038, .018, .026), btn); k.position.set(.045, .076, .05); g.add(k);
+    g.add(PT.cassetteRecorder(0x2a2a2c));   // 휴대용 카세트 녹음기 (예전 민무늬 상자 + 버튼)
     g.userData.dynamic = true; (f === 0 ? scene : F.interior).add(g); if (f === 0) g.position.y += 0;
     world.props.push({ kind: 'tape', id, floor: f, x, z, y: y + .1, r: 1.6, label: '증언 카세트 재생', visMesh: g, ...world.TAPES[id] });
   }
@@ -4764,8 +4764,7 @@ async function placeClassReps() {
       rc.set(new V(x, room.y0 + 1.4, z), new V(0, -1, 0)); rc.far = 1.2; const h = rc.intersectObjects(col, false)[0]; if (h && h.point.y > room.y0 + .6 && h.point.y < room.y0 + .9) spot = [x, h.point.y, z]; }
     if (!spot) spot = [room.fx, room.y0 + .76, room.fz];
     const g = new THREE.Group(); g.position.set(...spot); g.rotation.y = Math.PI / 2;
-    const b = new THREE.Mesh(new THREE.BoxGeometry(.24, .06, .14), mat); b.position.y = .03; g.add(b);
-    const k = new THREE.Mesh(new THREE.BoxGeometry(.036, .016, .024), btn); k.position.set(.045, .068, .045); g.add(k);
+    g.add(PT.cassetteRecorder(0x3a3226));   // 휴대용 카세트 녹음기 (예전 민무늬 상자 + 버튼)
     g.userData.dynamic = true; g.userData.rbKeep = true; scene.add(g);   // visMesh 로 묶는다 — 없으면 보정 루틴이 '모형 없는 녹음기'로 보고 책상 밑 바닥에 녹음기를 하나 더 놓았다
     world.props.push({ kind: 'tape', id, floor: 0, rbY: room.y0, x: spot[0], z: spot[2], y: spot[1] + .1, r: 1.6, label: '반장 녹음기 재생', visMesh: g, ...world.TAPES[id] });
   }
@@ -7118,7 +7117,7 @@ const PL = { doors: [], water: null, glows: [], mist: [], dripT: 1, t: 0 };
     Object.assign(pWater.material, { emissive: new THREE.Color(0x2fd8c8), emissiveMap: ct, emissiveIntensity: .35, depthWrite: false }); pWater.material.needsUpdate = true;
     PL.water = { m: pWater.material, ct };
     // 수조는 물이 가득 찬 상태로 시작 — 수질관리실 제어반(밸브 동조)을 풀면 물이 빠진다. 가득 찬 동안은 테두리 난간 판정으로 들어갈 수 없다
-    PL.mesh = pWater; PL.full = -.16; PL.low = WL - .01; pWater.position.y = FL.poolDrained ? PL.low : PL.full;
+    PL.mesh = pWater; PL.full = -.16; PL.low = WL - .01; pWater.position.y = FL.poolDrained ? PL.low : PL.full; PL.syncFloat = () => { const dy = PL.mesh.position.y - PL.low; if (PL._fy === dy) return; PL._fy = dy; (world.POOL.floaters || []).forEach(m => { m.position.y = dy; m.updateMatrix(); m.updateMatrixWorld(true); }); }; PL.syncFloat();   // 낙엽 · 레인 부표는 보이는 수면을 따라 뜬다
     PL.bars = [[bx0 - .15, bx1 + .15, bz0 - .15, bz0], [bx0 - .15, bx1 + .15, bz1, bz1 + .15], [bx0 - .15, bx0, bz0, bz1], [bx1, bx1 + .15, bz0, bz1]].map(([x1, x2, z1, z2]) => { const c = { x1, x2, z1, z2, h: 1.2, off: !!FL.poolDrained }; F6.col.push(c); return c; });
   }
   // 수중등: 수조 긴 벽(동 · 서)에 4개씩 — 발광 렌즈 + 빛무리 (물 바로 아래)
@@ -7217,7 +7216,7 @@ function poolTick(dt) {
   });
   if (moved || PL.doors.some(q => q.jolt > 0)) poolCols();
   if (P.floor !== 6 || state !== 'playing') return;
-  if (PL.mesh) { const tgt = FL.poolDrained ? PL.low : PL.full, y = PL.mesh.position.y; if (Math.abs(y - tgt) > .002) PL.mesh.position.y = y + Math.sign(tgt - y) * Math.min(Math.abs(tgt - y), dt * .14);   // 물이 천천히 빠진다 (약 8초)
+  if (PL.mesh) { const tgt = FL.poolDrained ? PL.low : PL.full, y = PL.mesh.position.y; if (Math.abs(y - tgt) > .002) PL.mesh.position.y = y + Math.sign(tgt - y) * Math.min(Math.abs(tgt - y), dt * .14); PL.syncFloat();   // 물이 천천히 빠진다 (약 8초)
     PL.bars.forEach(c => c.off = !!FL.poolDrained);
     if (P.floor === 6 && !FL.poolDrained && (PL.lapT = (PL.lapT || 0) - dt) <= 0) { PL.lapT = 1.6 + Math.random() * 1.8; const d = Math.hypot(P.x - (-41.5), P.z - 38.75); if (d < 14) sfx.lap && sfx.lap(Math.max(.25, 1 - d / 14)); } }
   if (PL.water) { PL.water.ct.offset.set(Math.sin(PL.t * .21) * .08, PL.t * .018); PL.water.m.emissiveIntensity = .3 + Math.sin(PL.t * 1.3) * .08; }

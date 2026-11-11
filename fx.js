@@ -9,11 +9,11 @@ import { OutputPass } from './vendor/addons/postprocessing/OutputPass.js';
 const FinalShader = {
   uniforms: {
     tDiffuse: { value: null }, uTime: { value: 0 }, uFear: { value: 0 }, uGlitch: { value: 0 },
-    uGrain: { value: 0 }, uRes: { value: new THREE.Vector2(1, 1) }, uFlash: { value: 0 }, uHurt: { value: 0 }, uRain: { value: 0 },
+    uGrain: { value: 0 }, uRes: { value: new THREE.Vector2(1, 1) }, uFlash: { value: 0 }, uHurt: { value: 0 }, uRain: { value: 0 }, uExp: { value: 1 }, uCA: { value: 1 },
   },
   vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
   fragmentShader: `
-    uniform sampler2D tDiffuse; uniform float uTime, uFear, uGlitch, uGrain, uFlash, uHurt, uRain; uniform vec2 uRes; varying vec2 vUv;
+    uniform sampler2D tDiffuse; uniform float uTime, uFear, uGlitch, uGrain, uFlash, uHurt, uRain, uExp, uCA; uniform vec2 uRes; varying vec2 vUv;
     float h(vec2 p){ return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
     void main(){
       vec2 uv = vUv;
@@ -42,12 +42,14 @@ const FinalShader = {
       }
       vec2 c = uv - .5; float d = length(c);
       // 렌즈 왜곡 + 색수차
-      uv += c * d * d * (.008 + uFear * .045);
-      float ca = .0003 + uFear * .004 + uGlitch * .012;
+      uv += c * d * d * (.008 + uFear * .045) * uCA;
+      float ca = (.0003 + uFear * .004) * uCA + uGlitch * .012;
       vec3 col;
       col.r = texture2D(tDiffuse, uv + c * ca).r;
       col.g = texture2D(tDiffuse, uv).g;
       col.b = texture2D(tDiffuse, uv - c * ca).b;
+      // 눈의 적응(자동 노출): 어두운 복도에 오래 있으면 조금씩 밝아지고, 형광등 교실에 들어서면 잠깐 눈부셨다가 가라앉는다
+      col *= uExp;
       // 색보정: 어두운 곳은 청록, 밝은 곳은 따뜻하게, 채도 약간 낮춤
       float l = dot(col, vec3(.2126, .7152, .0722));
       col = mix(col, vec3(l), .18 + uFear * .25);
@@ -84,7 +86,7 @@ export function createFX(renderer, scene, camera) {
   const size = new THREE.Vector2(); renderer.getSize(size);
   const composer = new EffectComposer(renderer);
   const renderPass = new RenderPass(scene, camera);
-  const bloom = new UnrealBloomPass(new THREE.Vector2(size.x / 2, size.y / 2), .55, .45, .82);
+  const bloom = new UnrealBloomPass(new THREE.Vector2(size.x / 2, size.y / 2), .5, .5, .86);   // 형광등 · 비상구 표지처럼 아주 밝은 곳만 번지게 (문턱 .86)
   const final = new ShaderPass(FinalShader);
   const output = new OutputPass();
   const safe = new ShaderPass(SafeShader);
@@ -221,8 +223,15 @@ export function createFX(renderer, scene, camera) {
   }
 
   let flashT = 0, glitchT = 0;
-  const opt = { bloom: true, grain: true, glitch: 1, flash: 1 };   // 설정 · 접근성
-  function setOpts(o) { Object.assign(opt, o); bloom.enabled = mode === 'high' && opt.bloom; final.uniforms.uGrain.value = opt.grain ? .016 : 0; }
+  const opt = { bloom: true, grain: true, glitch: 1, flash: 1, adapt: true };   // 설정 · 접근성
+  function setOpts(o) { Object.assign(opt, o); bloom.enabled = mode === 'high' && opt.bloom; final.uniforms.uGrain.value = opt.grain ? (opt.flash < 1 ? .009 : .016) : 0; final.uniforms.uCA.value = opt.flash < 1 ? .35 : 1; }   // 빛 번쩍임 줄이기: 그레인 · 색수차 · 렌즈 왜곡도 약하게
+  // 자동 노출: 주변 조도(lum, 대략 lux 비슷한 상대값)에 따라 목표 노출을 정하고, 어두워질 때는 느리게(간상세포 적응) · 밝아질 때는 빠르게 따라간다
+  let expCur = 1;
+  function adapt(dt, lum) {
+    if (mode === 'low' || !opt.adapt || lum == null) { expCur = 1; return 1; }
+    const t = Math.min(1.35, Math.max(.8, 1.12 / Math.pow(.25 + lum, .22)));
+    const k = t > expCur ? .35 : 1.6; expCur += (t - expCur) * Math.min(1, dt * k); return expCur;
+  }
   function lightning() { flashT = 1; }
   function glitch(s = .6) { glitchT = Math.max(glitchT, Math.min(.12,s) * opt.glitch); }
   // 후처리 경로에서도 계단 현상이 없도록 MSAA (높음: 4x, 중간: 2x)
@@ -241,7 +250,7 @@ export function createFX(renderer, scene, camera) {
   const _dir = new THREE.Vector3();
   function render(dt, c) {
     const u = final.uniforms;
-    u.uTime.value += dt; u.uFear.value = c.fear; u.uHurt.value = c.hurt || 0;
+    u.uTime.value += dt; u.uFear.value = c.fear; u.uHurt.value = c.hurt || 0; u.uExp.value = adapt(Math.min(dt, .1), c.lum);
     glitchT = Math.max(0, glitchT - dt); u.uGlitch.value = Math.min(1, glitchT + (c.fear > .9 ? (c.fear - .9) * 1.5 * opt.glitch : 0));
     flashT = Math.max(0, flashT - dt * 3.2);
     u.uFlash.value = flashT > 0 ? (Math.sin(flashT * 40) > 0 ? flashT : flashT * .3) * (c.outdoors ? .9 : .25) * opt.flash : 0;

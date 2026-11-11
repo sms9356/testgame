@@ -280,7 +280,7 @@ if (!ENGINE.webgpu) { const c = document.createElement('canvas'); c.width = c.he
 camera.add(flash, flash.target);
 flash.castShadow = true; flash.shadow.mapSize.set(1024, 1024); flash.shadow.camera.near = .15; flash.shadow.camera.far = 26;
 flash.shadow.bias = -.0006; flash.shadow.normalBias = .03;
-const pool = [];
+const pool = []; let envLum = 1;
 for (let i = 0; i < 4; i++) { const l = new THREE.PointLight(0xcfe6d6, 0, 12, 1.7); scene.add(l); pool.push(l); }
 
 const _t0 = performance.now();
@@ -3090,6 +3090,7 @@ function updateLighting(dt) {
     p.intensity = 7 * fl * GEN.gain * (power ? 1 : .86) * (p.userData.kind === 'flick' && !(SET.flashReduce || SET.noFlicker) ? .96 + .04 * Math.sin(tNow * 754) : 1);   // 죽어 가는 관: 120Hz 미세 떨림
     if (p.userData.kind === 'flick' && fl < .8 && sfx.tubeBuzz && Math.random() < dt * 3) { const dd = Math.hypot(p.position.x - P.x, p.position.z - P.z); if (dd < 6) sfx.tubeBuzz(1 - dd / 6); }   // 안정기 웅 소리 (깜빡일 때)
   });
+  { let L = 0; for (const p of pool) if (p.intensity > 0) { const dx = p.position.x - P.x, dz = p.position.z - P.z, dy = p.position.y - (floors[P.floor]?.y0 ?? 0) - 1.6; L += p.intensity / (1 + dx * dx + dy * dy + dz * dz); } envLum = L + (indoors ? 0 : .6); }   // 눈의 적응(자동 노출)용 주변 조도 근사
   if (flash.map && !flash.castShadow) { flash.updateMatrixWorld(); flash.target.updateMatrixWorld(); flash.shadow.updateMatrices(flash); }   // 쿠키 투영 행렬 (그림자 꺼진 낮음 품질)
   // 손전등
   const near = ghost.active && ghost.floor === P.floor ? clamp(1 - Math.hypot(ghost.x - P.x, ghost.z - P.z) / 9, 0, 1) : 0;
@@ -3547,7 +3548,7 @@ function frameBody(now) {
   perfMark('weather+fx'); updateSound(dt); perfMark('sound');
   updatePings(dt); perfMark('pings'); updateObjDir(dt); perfMark('objDir'); tickHudV2(dt); perfMark('hudV2'); tickPartnerRadio(dt); perfMark('radio');
   campusCctv?.tick(dt,{powered:FL.guardCctvOn??true,near:shouldStreamGuardCctv(P,state,GUARD_LAYOUT),quality:qCur}); perfMark('cctv');
-  if (!NORENDER) staticLOD.render(camera, now, qCur, () => fx.render(dt, { fear: P.fear || 0, flash: flash.intensity / 95, outdoors: outdoorsNow, floorY: floors[P.floor].y0, hurt: hurtFx, rain: 0 }));
+  if (!NORENDER) staticLOD.render(camera, now, qCur, () => fx.render(dt, { fear: P.fear || 0, flash: flash.intensity / 95, outdoors: outdoorsNow, floorY: floors[P.floor].y0, hurt: hurtFx, rain: 0, lum: envLum }));
   perfMark('render');
   if (SHOT.req) shotGrab();   // 카메라 앨범: 방금 그린 화면
 }

@@ -3864,8 +3864,8 @@ export function buildWorld(scene) {
     awall(-33.0, -32.9, z0 + t, kz - .1, H);   // 식기 보관실 칸막이
     plane(F.interior, new THREE.MeshBasicMaterial({ map: T.makeSign('관계자 외 출입금지 →', '#a01818', '#fff', 22), color: 0xd0c8c0 }), .9, .22, -41.7, 2.3, kz + .11);
     // 6인 식탁 (W1800 D750 H740) × 16 · 학생 의자 (W420 D480 H760) 96
-    const tableC = (cx, cz) => { add(mTop, 1.8, .03, .75, cx, .71, cz, { col: true }); [[-.82, -.3], [.82, -.3], [-.82, .3], [.82, .3]].forEach(([dx, dz]) => add(mLeg, .04, .71, .04, cx + dx, 0, cz + dz)); add(mLeg, 1.6, .03, .03, cx, .15, cz);
-      for (const sd of [-1, 1]) for (let k = -1; k <= 1; k++) { const x = cx + k * .58, z = cz + sd * .62; add(mPly, .42, .03, .4, x, .44, z); add(mPly, .4, .32, .02, x, .52, z + sd * .2); [[-.18, -.17], [.18, -.17], [-.18, .17], [.18, .17]].forEach(([a, b]) => add(mLeg, .025, .44, .025, x + a, 0, z + b)); } };
+    const tableC = (cx, cz) => { add(mTop, 1.8, .03, .75, cx, .71, cz, { col: true }); [[-.82, -.3], [.82, -.3], [-.82, .3], [.82, .3]].forEach(([dx, dz]) => add(mLeg, .04, .71, .04, cx + dx, 0, cz + dz)); [-.3, .3].forEach(dz => add(mLeg, 1.6, .03, .03, cx, .15, cz + dz));   // 가로대는 다리 두 개를 잇는다 (예전: 다리 사이 가운데에 떠 있었다)
+      for (const sd of [-1, 1]) for (let k = -1; k <= 1; k++) { const x = cx + k * .58, z = cz + sd * .62; add(mPly, .42, .03, .4, x, .44, z); add(mPly, .4, .32, .02, x, .47, z + sd * .2); [[-.18, -.17], [.18, -.17], [-.18, .17], [.18, .17]].forEach(([a, b]) => add(mLeg, .025, .44, .025, x + a, 0, z + b)); } };
     const TX = [-45.4, -41.9, -38.4, -34.9], TZ = [14.85, 16.75, 18.65];   // 출입문 쪽 맨 끝 줄(z 20.55)은 철거 — 문 앞 1.5m 에 의자 줄이 막고 서 있었다 (입장 지점이 식탁 위)   // 조리실 확장만큼 식탁 줄을 남쪽으로 · 간격 1.9m
     TX.forEach(x => TZ.forEach(z => tableC(x, z)));
     TX.forEach(x => TZ.forEach(z => { for (let k = 0; k < 2; k++) if (rnd() < .45) tray(x - .5 + k + rr(-.1, .1), .74, z + (rnd() < .5 ? -.2 : .2), rr(-.3, .3)); }));

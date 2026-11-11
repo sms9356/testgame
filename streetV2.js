@@ -36,7 +36,7 @@ export function installStreetscape({ scene, world, floors, footprints = [] }) {
   const geo = {
     pole: new THREE.CylinderGeometry(.055, .075, 4.4, 10).translate(0, 2.2, 0), base: new THREE.CylinderGeometry(.16, .2, .32, 12).translate(0, .16, 0),
     arm: new THREE.BoxGeometry(.06, .06, .9).translate(0, 4.3, .4), head: new THREE.BoxGeometry(.3, .12, .55).translate(0, 4.24, .82),
-    seat: new THREE.BoxGeometry(1.7, .05, .44).translate(0, .44, 0), back: new THREE.BoxGeometry(1.7, .36, .05).translate(0, .72, -.22), legs: new THREE.BoxGeometry(.06, .44, .44),
+    seat: new THREE.BoxGeometry(1.7, .05, .44).translate(0, .44, 0), back: new THREE.BoxGeometry(1.7, .36, .05).translate(0, .645, -.22), legs: new THREE.BoxGeometry(.06, .44, .44),
     bin: new THREE.CylinderGeometry(.24, .21, .82, 14).translate(0, .41, 0), lid: new THREE.CylinderGeometry(.26, .26, .06, 14).translate(0, .85, 0),
     man: new THREE.CylinderGeometry(.34, .34, .012, 20).translate(0, .016, 0), grate: new THREE.BoxGeometry(.5, .012, .9).translate(0, .016, 0),
     boll: new THREE.CylinderGeometry(.09, .1, .8, 10).translate(0, .4, 0), bollBand: new THREE.CylinderGeometry(.102, .102, .08, 10).translate(0, .66, 0),

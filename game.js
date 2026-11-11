@@ -63,7 +63,7 @@ import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, 
 import { installRoomUI } from './roomUI.js?v=429';   // 방별 현장 조사 카드 · 상호작용 아이콘 · 획득/목표 애니메이션
 import { furnishRooms } from './furnishV2.js?v=429';   // 방 용도별 실사 가구 보강 (상담실 소파 · 교무실 냉온수기 · 창고 선반 …)
 import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js?v=429';
-import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, HYPOTHESES, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, COVER_END, ENDING_OUTRO, OUTRO_TYPE, SIDEQUESTS, HEADQUEST, COLLECT, } from './story.js?v=429';
+import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, HYPOTHESES, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, COVER_END, ENDING_OUTRO, OUTRO_TYPE, SIDEQUESTS, INTRO_COLD, CHAPTER_BEATS, SMS_FROM, ENDING_EPILOGUE, ENDING_SHOT, ENDING_STINGER, OUTRO_EXTRA_TYPE, HEADQUEST, COLLECT, } from './story.js?v=429';
 import { isSpeechBusy } from './voice.js?v=429';
 import { SET, saveSET, resetSET, DIFF, keyLabel } from './settings.js';
 import { initI18n, setLang, lang as curLang } from './i18n.js?v=429';   // 언어 패치 (한국어 · English · 日本語 · 中文)
@@ -144,7 +144,7 @@ for (const [k, spk] of Object.entries(NV_SPK)) NOTE_CAST[k] = { ...(NOTE_CAST[k]
 NOTE_CAST.n_seomun_ilbo = { ...NOTE_CAST.n_seomun_ilbo, audioId: 'news_rep' };
 // 문서 원문 낭독(nd_*): 각 문서를 쓴 사람의 목소리로 원문 그대로 읽는다 (감정 태그 · ElevenLabs v4) — 자막과 음성이 글자 하나까지 같다
 // 더빙 녹음이 없는 보충 문서 — 남의 녹음으로 대신 읽지 않고 자막(또는 브라우저 음성)만
-const UNVOICED_NOTES = new Set(['nx_ups', 'nx_diary98', 'nx_slip', 'nx_paper08', 'nx_memo08']);
+const UNVOICED_NOTES = new Set(['nx_ups', 'nx_diary98', 'nx_slip', 'nx_paper08', 'nx_memo08', 'nx_cam1', 'nx_cam2', 'nx_guard98']);
 const ND_IDS = ["n_guard_diary", "n_principal_tape", "n_bunker_audit", "n_dorm2f_diary", "n1", "n2", "n3", "n4", "n6", "n7", "n8", "n9", "n10", "n11", "n12", "n13", "n17", "n18", "n19", "n20", "n21", "n22", "n23", "n24", "n25", "n26", "n27", "n28", "n29", "q1a", "q1b", "q2a", "q2b", "q3a", "q3b", "q4a", "q4b", "q4c", "q5a", "q5b", "q5c", "q7a", "q7b", "q8a", "h1", "h3", "h4", "h5", "q8b", "n14", "n15", "n16"];
 for (const k of ND_IDS) NOTE_CAST[k] = { ...(NOTE_CAST[k] || {}), audioId: 'nd_' + k };
 const RECAST_LINE_KEYS = new Set(['gate', 'office', 'key', 'keyLast', 'headMissing', 'headFound', 'keyMade', 'needCombine', 'pumpPolice', 'seomunPaper', 'dorm2fClimb', 'bunkerEnter', 'westGateReloc']);
@@ -640,7 +640,22 @@ function unlockOptional() {
 function showChapter(n) {
   const c = CHAPTERS[n - 1]; if (!c) return;
   $('ccNum').textContent = `CHAPTER ${n}`; $('ccTitle').textContent = c.title.split('·')[1].trim();
-  const el = $('chapterCard'); el.classList.add('show'); setTimeout(() => el.classList.remove('show'), 3800);
+  const hk = $('ccHook'); if (hk) hk.textContent = (CHAPTER_BEATS[n] && CHAPTER_BEATS[n].hook) || '';
+  const el = $('chapterCard'); el.classList.add('show'); setTimeout(() => el.classList.remove('show'), 4600);
+}
+// 장 전환 연출: 이전 장의 마지막 장면(cliff) 자막 → 새 장 카드(hook) → 장 중반에 발신번호 표시제한 문자(sms, 더빙 없음)
+function chapterBeat(prev, n) {
+  const epoch = storySession, cl = CHAPTER_BEATS[prev] && CHAPTER_BEATS[prev].cliff;
+  if (cl && n > prev) caption(cl);
+  setTimeout(() => { if (epoch === storySession && state !== 'won') showChapter(n); }, cl && n > prev ? 2600 : 0);
+  if (CHAPTER_BEATS[n] && CHAPTER_BEATS[n].sms) setTimeout(() => storySms(n, epoch), 75000);
+}
+function storySms(n, epoch = storySession) {
+  if (epoch !== storySession || ['won', 'dead'].includes(state)) return;
+  const b = CHAPTER_BEATS[n]; if (!b || !b.sms) return;
+  const L = FL.sms || (FL.sms = []); if (L.some(m => m.n === n)) return;
+  L.push({ n, t: clockText() }); sfx.phone && sfx.phone(); sfx.vibrate && sfx.vibrate();
+  toast('📱 ' + SMS_FROM, b.sms, 'info'); refreshHud();
 }
 // 목표 바 모드: 펼침 → 한 줄(상태 표시줄) → 숨김 → 펼침 (J 키 · 버튼). 새 목표가 생기면 접혀 있어도 4.5초 동안 펼쳐 보여 준다
 const OBJ_MODES = ['full', 'compact', 'hidden'], OBJ_ICON = { full: '▾', compact: '▸', hidden: '◂' };
@@ -680,7 +695,7 @@ function objDoneSplit() {
 }
 function refreshHud() {
   const o = objective();
-  if (o.ch !== chapterShown) { const prev = chapterShown; chapterShown = o.ch; if (prev && state === 'playing') { showChapter(o.ch); sfx.alert && o.ch > 1 && toast('새로운 장', CHAPTERS[o.ch - 1].title, 'info'); } }
+  if (o.ch !== chapterShown) { const prev = chapterShown; chapterShown = o.ch; if (prev && state === 'playing') { chapterBeat(prev, o.ch); sfx.alert && o.ch > 1 && toast('새로운 장', CHAPTERS[o.ch - 1].title, 'info'); } }
   $('chapter').textContent = CHAPTERS[o.ch - 1].title;
   $('objText').textContent = o.main; $('objWhere').textContent = o.loc ? '📍 ' + o.loc.where : '';
   objMini(o);
@@ -984,7 +999,8 @@ function renderPhone() {
   if (phoneTab === 'msg') {
     const fk = fakeMsgs.slice().reverse().map(m => `<div class="bubble unread" style="border-color:#a02020"><small style="color:#ff6060">${m.who} · ${m.t}</small>${m.text}</div>`).join('');
     const banner = '<div style="background:rgba(35,52,72,0.55);border:1px solid rgba(110,165,230,0.35);border-radius:6px;padding:7px 10px;margin-bottom:8px;font-size:11.5px;color:#cfe4ff;display:flex;justify-content:space-between;align-items:center;"><span>📱 <b>음성 사서함</b> (자동 재생 꺼짐 — 메시지를 클릭하면 음성이 재생됩니다)</span></div>';
-    B.innerHTML = banner + fk + (msgs.length ? msgs.slice().reverse().map(m => `<div class="bubble${m.read ? '' : ' unread'}" data-id="${m.id}" style="cursor:pointer;transition:transform .12s,border-color .15s;"><img class="av" src="assets/ui/mina_portrait.webp" alt=""><small style="display:flex;justify-content:space-between;align-items:center;"><span>📱 민아 선배 · ${m.t}</span><span style="background:#1e6b45;color:#fff;padding:2px 8px;border-radius:10px;font-weight:bold;font-size:10.5px;">🔊 클릭하여 음성 재생</span></small>${VO[m.id].text}</div>`).join('') : '<div class="pEmpty">수신된 음성 메시지가 없습니다.<br>신호 없음</div>');
+    const sm = (FL.sms || []).slice().reverse().filter(m => CHAPTER_BEATS[m.n] && CHAPTER_BEATS[m.n].sms).map(m => `<div class="bubble" style="border-color:#5a6470"><small style="color:#9aa6b4">✉ ${SMS_FROM} · ${m.t}</small>${CHAPTER_BEATS[m.n].sms}</div>`).join('');
+    B.innerHTML = banner + fk + sm + (msgs.length ? msgs.slice().reverse().map(m => `<div class="bubble${m.read ? '' : ' unread'}" data-id="${m.id}" style="cursor:pointer;transition:transform .12s,border-color .15s;"><img class="av" src="assets/ui/mina_portrait.webp" alt=""><small style="display:flex;justify-content:space-between;align-items:center;"><span>📱 민아 선배 · ${m.t}</span><span style="background:#1e6b45;color:#fff;padding:2px 8px;border-radius:10px;font-weight:bold;font-size:10.5px;">🔊 클릭하여 음성 재생</span></small>${VO[m.id].text}</div>`).join('') : '<div class="pEmpty">수신된 음성 메시지가 없습니다.<br>신호 없음</div>');
     B.querySelectorAll('.bubble[data-id]').forEach(b => {
       b.onclick = () => window.__playPhoneMsg(b.dataset.id);
     });
@@ -2159,8 +2175,15 @@ function choose(title, text, opts) {
   });
 }
 // 엔딩 아웃트로: 결말마다 다른 뉴스 · 경찰 · 학교 · 문자 자료 세 장 (클릭 · Space 로 넘김)
-function playOutro(fin) {
-  const cards = ENDING_OUTRO[fin]; if (!cards) return Promise.resolve();
+// 크레딧 카드: 출연 · 제작 목록이 위로 흐르고, 플레이 중 찍은 사진 · 모은 문서 사진이 함께 지나간다
+function creditsHtml() {
+  const ph = SHOT.list.slice(-6).map(s => s.src).concat(docs.filter(d => d.img).slice(0, 8).map(d => `assets/img/${d.img}.webp`)).slice(0, 8);
+  return `<div class="roll">${ph.length ? `<div class="cph">${ph.map(src => `<img src="${src}" alt="">`).join('')}</div>` : ''}<div class="logo cl">서문고</div><div class="ctag">잊혀진 시간</div>${CREDITS.map(([a, b]) => `<p><small>${a}</small>${b}</p>`).join('')}<p class="cmem">윤하늘 (1980 – 1998)을 기억하며</p></div>`;
+}
+function playOutro(fin, endId = "normal") {
+  const base = ENDING_OUTRO[fin]; if (!base) return Promise.resolve();
+  const sh = ENDING_SHOT[endId];
+  const cards = [...base, ...(ENDING_EPILOGUE[endId] || []), ...(sh ? [{ t: 'shot', meta: sh.meta, head: '', body: sh.body, d: 8000 }] : []), { t: 'credits', meta: '', head: '', body: creditsHtml(), d: 16000 }, ...(ENDING_STINGER[endId] ? [{ ...ENDING_STINGER[endId], t: 'stinger' }] : [])];
   return new Promise(res => {
     const box = $('outro'), card = box.querySelector('.card'), dots = box.querySelector('.dots');
     state = 'ui'; $('hud').classList.remove('show'); document.exitPointerLock?.();
@@ -2173,12 +2196,12 @@ function playOutro(fin) {
       setTimeout(() => {
         if (done) return;
         card.className = 'card ' + c.t;
-        card.innerHTML = `<div class="ty">${OUTRO_TYPE[c.t]}</div><div class="meta">${c.meta}</div><div class="head">${c.head}</div><div class="body">${c.body}</div>`;
+        card.innerHTML = `<div class="ty">${OUTRO_TYPE[c.t] || OUTRO_EXTRA_TYPE[c.t] || ''}</div><div class="meta">${c.meta}</div><div class="head">${c.head}</div><div class="body">${c.body}</div>`;
         [...dots.children].forEach((d, k) => d.classList.toggle('on', k === i));
         requestAnimationFrame(() => card.classList.add('on'));
-        c.t === 'sms' ? sfx.phone() : sfx.paper();
+        c.t === 'sms' || c.t === 'stinger' ? sfx.phone() : c.t === 'shot' ? (sfx.swell && sfx.swell(1.4, .3)) : c.t === 'credits' ? (sfx.musicBox && sfx.musicBox(7, .5)) : sfx.paper();
       }, i ? 450 : 0);
-      tm = setTimeout(next, 6500);
+      tm = setTimeout(next, c.d || 6500);
     }
     const kd = e => { if (e.code === 'Space' || e.code === 'Enter' || e.code === 'Escape') { e.preventDefault(); e.stopPropagation(); e.code === 'Escape' ? end() : next(); } };
     const pd = e => { e.preventDefault(); e.stopPropagation(); next(); };   // 다른 요소가 포인터를 잡고 있어도 넘어가도록 창 단계에서 받는다
@@ -2203,7 +2226,7 @@ async function winGame() {
   }
   if (cover) end = 'cover';
   FL.final = fin;
-  await playOutro(fin);
+  await playOutro(fin, end);
   setTimeout(() => {
     state = 'won'; sfx.win(); stopSpeak(); $('hud').classList.remove('show');
     try { const e = new Set(JSON.parse(localStorage.getItem(ENDINGS_KEY) || '[]')); e.add(end); e.add('final' + fin[0]); localStorage.setItem(ENDINGS_KEY, JSON.stringify([...e])); clearSlot(localStorage, SKEYS); } catch (err) { /* ignore */ }
@@ -2495,8 +2518,9 @@ function start(skipIntro = false) {
   beginStorySession(); const epoch=storySession;
   initAudio(); closeMenus(); applyChar(); { const par = renderer.extensions.has('KHR_parallel_shader_compile');   // 병렬 컴파일이 없으면 씬 전체 컴파일이 동기라 한 번에 수십 초 멈춘다 → 한 번만
   // 플레이 중 다시 예열(씬 전체 순회 + 컴파일 요청)은 새 모델이 들어왔을 때만, 그리고 멈춰 서 있을 때 돌린다 — 예전엔 시작 6 · 15 · 30 · 50초에 걷는 도중 무조건 돌았다
+  let warmDone; introWarm = new Promise(r => warmDone = r);   // 첫 셰이더 예열이 끝나야 인트로 더빙을 시작 — 예열로 화면이 멈춘 동안 더빙이 흘러가 버리던 문제
   { let pwSig = ''; const pwKey = () => (window.__modelJobs ? window.__modelJobs.length : 0) + ':' + ((window.__modelLoadState && window.__modelLoadState.completed) || 0) + ':' + scene.children.length + ':' + world.props.length;
-    (par ? [400, 6000, 15000, 30000, 50000] : [400]).forEach(ms => { const job = () => { const k = pwKey(); if (ms > 400 && k === pwSig) return; pwSig = k; perfNote('prewarm'); if (ms <= 6000) try { upgradePlainMaterials(scene); } catch (e) {} prewarmFloors(true, (fx.composer ? fx.composer.renderTarget1 : null)).catch(() => {}); }; if (ms <= 400) setTimeout(job, ms); else idleTimeout(job, ms, 60000); }); }
+    (par ? [400, 6000, 15000, 30000, 50000] : [400]).forEach(ms => { const job = () => { const k = pwKey(); if (ms > 400 && k === pwSig) return; pwSig = k; perfNote('prewarm'); if (ms <= 6000) try { upgradePlainMaterials(scene); } catch (e) {} const pw = prewarmFloors(true, (fx.composer ? fx.composer.renderTarget1 : null)).catch(() => {}); if (ms === 400) Promise.resolve(pw).finally(() => requestAnimationFrame(() => requestAnimationFrame(warmDone))); }; if (ms <= 400) setTimeout(job, ms); else idleTimeout(job, ms, 60000); }); }
   if (!par) setTimeout(() => { try { upgradePlainMaterials(scene); } catch (e) {} }, 6000); }   // 늦게 들어오는 GLB(민아 · 소품)까지 시작 연출 동안 미리 컴파일   // 시작 연출 동안 나중에 생긴 재질까지 한 번 더 예열
   if (!readingSave) { DAY.k = .92; DAY.start = -1; DAY.done = false; delete FL.night; }
   refreshHud(); chapterShown = objective().ch;
@@ -2516,11 +2540,14 @@ function start(skipIntro = false) {
   });
   preload(ids);
   const W = s => new Promise(r => setTimeout(r, s * 1000 / (DEBUG && window.__introJump ? 6 : 1)));
+  introPhone('idle'); introLoc('');
   (async () => {
+    await Promise.race([introWarm, new Promise(r => setTimeout(r, 20000))]); introStartMs = performance.now();
     await W(.9);
     for (let i = 0; i < 4; i++) {
       if (epoch!==storySession || state !== 'intro') return;
-      if (i === 2) { sfx.vibrate(); await W(1.2); if (epoch!==storySession || state !== 'intro') return; }
+      if (i === 2) { introPhone('ring'); sfx.vibrate(); await W(1.2); if (epoch!==storySession || state !== 'intro') return; introPhone('play'); }
+      if (i === 3) introPhone('end');
       ps[i].classList.add('on');
       const vEntry = VO[ids[i]] || VO['intro' + (i + 1)];
       const whoBadge = labelFor(i);
@@ -2532,6 +2559,15 @@ function start(skipIntro = false) {
   })();
 }
 let introCue = 0, introEndT = 0;
+// 콜드 오픈 폴더폰 화면 (2008) — 날짜 · 시각 · 부재중 · 음성 사서함 상태. 글자는 INTRO_COLD (번역 사전에 있음)
+function introPhone(mode) {
+  const el = $('introPhone'); if (!el) return;
+  el.className = mode;
+  const C = INTRO_COLD, st = { idle: C.missed, ring: C.from, play: C.playing, end: C.ended }[mode] || '';
+  el.innerHTML = `<div class="lcd"><div class="d">${C.date}</div><div class="s">${st}</div>${mode === 'ring' || mode === 'play' ? `<div class="f">${C.from}</div>` : ''}</div>`;
+}
+// 공중 전경 · 하강 동안의 장소 자막 (레터박스 아래 왼쪽)
+function introLoc(t) { const el = $('introLoc'); if (!el) return; el.classList.remove('on'); if (!t) return; el.textContent = t; void el.offsetWidth; el.classList.add('on'); }
 // 경비실 책상: 1998년 무전기(교신 3개) · 근무 일지 묶음(3장) · 2008년 증언 카세트
 {
   const M = (c, r = .6, m = 0) => new THREE.MeshStandardMaterial({ color: c, roughness: r, metalness: m });
@@ -2585,7 +2621,7 @@ function finishIntro() {
   const epoch=storySession;
   if (!keepNoteVo) stopSpeak(); keepNoteVo = false; introText = false;
   preload(['phone1', 'phone2', 'phone3', 'pa1', 'cam1', ...Object.keys(LINES).map(k => `l_${k}_${CK()}`)]);
-  $('intro').classList.remove('show'); $('introTitle').classList.remove('show'); $('hud').classList.add('show'); $('cine').classList.remove('on');
+  $('intro').classList.remove('show'); $('introTitle').classList.remove('show'); introLoc(''); $('hud').classList.add('show'); $('cine').classList.remove('on');
   if (!readingSave && !SET.flashReduce) { const b = $('blink'); b.classList.remove('go'); void b.offsetWidth; b.classList.add('go'); setTimeout(() => b.classList.remove('go'), 2700); }   // 눈을 뜨듯 시작
   if (!readingSave) { P.x = 0; P.z = 77.5; P.yaw = 0; P.pitch = 0; }
   state = 'playing';
@@ -2606,10 +2642,10 @@ function updateIntro(dt) {
   else {
     if ($('intro').classList.contains('show')) { $('intro').classList.remove('show'); }
     const cue = (n, fn) => { if (introCue < n && T >= [0, 6.6, 8.2, 9.4, 12.8, 13.6, 17.2][n]) { introCue = n; fn(); } };
-    cue(1, () => { fx.lightning(); sfx.thunder(.6); });
+    cue(1, () => { fx.lightning(); sfx.thunder(.6); introLoc(INTRO_COLD.locBus); });
     cue(2, () => { sfx.swell(1.2, .4); });
-    cue(3, () => { fx.lightning(); sfx.boom(); $('introTitle').classList.add('show'); sfx.musicBox(7, .6); });
-    cue(4, () => { $('introTitle').classList.remove('show'); sfx.flashlightClick(); });
+    cue(3, () => { fx.lightning(); sfx.boom(); introLoc(INTRO_COLD.locSchool); $('introTitle').classList.add('show'); sfx.musicBox(7, .6); });
+    cue(4, () => { $('introTitle').classList.remove('show'); sfx.flashlightClick(); introLoc(INTRO_COLD.locGate); });
     cue(5, () => { introEndT = T + 1.6; sfx.gateClang(); caption('녹슨 정문이 바람에 삐걱인다. 불 꺼진 경비실 창문 너머엔 아무도 없다.'); });
     // 공중 전경 → 정문 앞으로 하강
     const k1 = ease(clamp((T - 6) / 6.2, 0, 1)), k2 = ease(clamp((T - 12.2) / 5.4, 0, 1));
@@ -2622,7 +2658,7 @@ function updateIntro(dt) {
   if (T > Math.max(19.2, introEndT)) finishIntro();
 }
 // 인트로 건너뛰기: 캐릭터 선택에서 누른 Enter(같은 키 이벤트 · 키 반복)가 바로 인트로를 넘기던 문제 — 시작 1.5초 동안과 키 반복은 무시
-let introStartMs = 0;
+let introStartMs = 0, introWarm = Promise.resolve();
 const introSkippable = () => performance.now() - introStartMs > 1500;
 addEventListener('keydown', e => { if (state === 'intro' && !e.repeat && introSkippable() && ['Space', 'Enter', 'Escape'].includes(e.code)) finishIntro(); });
 $('intro').addEventListener('click', () => { if (state === 'intro' && introSkippable()) finishIntro(); });
@@ -4614,6 +4650,9 @@ addNoteAt('nx_paper08', 2, SLOTS[1] - .4, .02, -2.6, .2);     // 방송실 — �
 addNoteAt('nx_diary98', 2, SLOTS[6] - 2.3, .02, -1.6, -.2);   // 3-5 교실 사물함 앞 — 교환일기 옆, 수아의 일기 한 장 (1998)
 addNoteAt('nx_ups', 4, SLOTS[7] - 1.5, .02, -3.4, .4);        // 지하 기계실 정비 작업대 아래 — UPS 작업 확인서 (1998)
 addNoteAt('nx_slip', 4, SLOTS[8] - 2.2, .02, -3.8, .6);       // 지하 펌프실 — 명찰 근처, 문틈의 쪽지 (1998)
+addNoteAt('nx_guard98', 0, SLOTS[2] + .6, .02, -3.0, .3);     // 본관 1층 교실 — 경비원 무전 수첩 한 장 (1998, 2장 중반 · 경비원은 기록으로만 등장)
+addNoteAt('nx_cam1', 1, SLOTS[1] + .8, .02, -3.0, -.4);       // 본관 2층 — 민아의 캠코더 테이프 #2 (3장 중반: 23:40 스피커)
+addNoteAt('nx_cam2', 2, SLOTS[2] - .6, .02, -2.8, .5);        // 본관 3층 — 민아의 캠코더 테이프 #3 (4~5장: 방송실 타이머 · 장비실 철문)
 // 도구 · 소모품
 tool('hairpin', 0, SLOTS[3] - 2.4, .66, 8.0, mkPin(), '머리핀 줍기', 0xffd0e0);               // 본관 1F 보건실 침대
 tool('hairpin', 1, SLOTS[1] + 2.3, .77, -8.45, mkPin(), '머리핀 줍기', 0xffd0e0);         // 2-1 교탁

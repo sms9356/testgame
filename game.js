@@ -291,6 +291,9 @@ flash.castShadow = true; flash.shadow.mapSize.set(1024, 1024); flash.shadow.came
 flash.shadow.bias = -.0006; flash.shadow.normalBias = .03;
 const pool = []; let envLum = 1;
 for (let i = 0; i < 4; i++) { const l = new THREE.PointLight(0xcfe6d6, 0, 12, 1.7); scene.add(l); pool.push(l); }
+let IGPU = false; const IGPU_FAR = 170, BASE_FAR = 320;
+const dynRes = createDynRes({ apply: s => { if (!IGPU) return; perfNote('dynres ' + s); renderer.setPixelRatio(Math.min(devicePixelRatio, 1) * SET.scale * s); renderer.setSize(innerWidth, innerHeight); fx.resize(innerWidth, innerHeight, renderer.getPixelRatio()); } });
+const poolMax = () => IGPU ? 2 : 4;
 
 const _t0 = performance.now();
 await Promise.race([loadPBR(), new Promise(r => setTimeout(r, 2500))]);
@@ -5200,9 +5203,6 @@ function libraryReturn() {
 /* ---------- 성능 / 그래픽 품질 ---------- */
 const QUAL = { ultra: { pr: 2, sh: 2048, label: '최고' }, high: { pr: 1.5, sh: 1024, label: '높음' }, mid: { pr: 1, sh: 512, label: '보통' }, low: { pr: 1, sh: 0, label: '낮음' }, igpu: { pr: 1, sh: 512, label: '저사양' } };
 // iGPU / 저사양: 후처리 · 달빛 기둥 · 먼지 · LOD 는 '낮음' 단계로, 그림자는 끄지 않고(셰이더 재컴파일 방지) 512 맵, 텍스처 512 상한, 시야 거리 · 안개 단축, 풀 조명 2개, 동적 해상도 0.6~1.0
-let IGPU = false; const IGPU_FAR = 170, BASE_FAR = 320;
-const dynRes = createDynRes({ apply: s => { if (!IGPU) return; perfNote('dynres ' + s); renderer.setPixelRatio(Math.min(devicePixelRatio, 1) * SET.scale * s); renderer.setSize(innerWidth, innerHeight); fx.resize(innerWidth, innerHeight, renderer.getPixelRatio()); } });
-const poolMax = () => IGPU ? 2 : 4;
 let perfUp = 0; const perfDowned = {};
 let qCur = SET.quality === 'auto' ? 'mid' : SET.quality, perfAcc = 0, perfN = 0, perfWin = 0, fpsShown = 60;
 function applyQuality(q) {

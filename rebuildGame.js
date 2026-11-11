@@ -4,6 +4,7 @@
 //   높이는 P.sh(계단 높이 보정값)로 넘긴다 → 카메라 · 점프 · 가구 오르기 코드는 손대지 않아도 된다.
 import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN, grafMaterial } from './rebuild/mainBuilding.js?v=428';
 import { placeModels } from './rebuild/models.js?v=428';
+import { installArtFrames } from './rebuild/artFrames.js?v=428';
 import { carve, subdivide } from './rebuild/transplant.js?v=428';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
 import { turfMaterial } from './campusVisuals.js?v=428';
@@ -940,5 +941,6 @@ export function installRebuild({ THREE, scene, floors, world }) {
   // 보건실 침대 3개의 실제 자리 (mainBuilding 'nurse': 방 동쪽 벽에 붙은 침대, z1+2.0 부터 1.9m 간격) — 눕기 상호작용용
   R.beds = () => { const out = []; for (const B of [MAIN, ANX]) for (const r of (B.props || [])) { if (r.kind !== 'room' || r.type !== 'nurse') continue;
     for (let k = 0; k < 3; k++) { const lz = r.z1 + 2.0 + k * 1.9, [x, z] = B.toWorld(r.x2 - 1.15, lz), [hx, hz] = B.toWorld(r.x2 - .35, lz); out.push({ x, z, hx, hz, y: r.floor * FH, label: (r.label || '보건실') }); } } return out; };
+  installArtFrames({ scene, world, buildings: [MAIN, ANX] });   // 액자 그림 · 사진 (rebuild/artFrames.js)
   return R;
 }

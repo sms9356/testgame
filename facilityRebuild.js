@@ -312,15 +312,16 @@ function shell(B, o = {}) {
     if (E) { B.box(W + 2 * out, h, out + .02, mk, 0, y, hd + out / 2); seg(D + 2 * out, (l, c) => B.box(out + .02, h, l, mk, hw + out / 2, y, c)); }
     else { B.box(out + .02, h, D + 2 * out, mk, hw + out / 2, y, 0); seg(W + 2 * out, (l, c) => B.box(l, h, out + .02, mk, c, y, hd + out / 2)); } };
   // 2008 외관 리모델링: 화강석 기단 0.3m + 치장벽돌 하부 벽(창대 밑까지) — 출입구 폭은 비운다
-  ring(.15, .3, .05, 'GRANITE', doorGap + .1); ring(.575, .55, .03, 'BRICK', doorGap + .1);
+  // 문틀 바깥 케이싱(양옆 .12m)까지 비운다 — 예전엔 기단 · 벽돌 띠 끝이 문틀과 5cm 어긋나 벽 단면이 보였다
+  const jamb = doorGap + .24; ring(.15, .3, .05, 'GRANITE', jamb); ring(.575, .55, .03, 'BRICK', jamb);
   {   // 치장벽돌 위 밑동 흙때 · 백화 (투명 덧칠 — 벽돌 겉면 4mm 앞, 현관 폭은 비운다)
-    const off = .043, gap = doorGap + .1, gp = (L, x, z, ry) => { const g = new THREE.PlaneGeometry(L, .55), uv = g.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setX(i, uv.getX(i) * L / 2 + x * .13); B.geo(g, 'GRIME', x, .575, z, { ry }); };
+    const off = .043, gap = jamb, gp = (L, x, z, ry) => { const g = new THREE.PlaneGeometry(L, .55), uv = g.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setX(i, uv.getX(i) * L / 2 + x * .13); B.geo(g, 'GRIME', x, .575, z, { ry }); };
     const side = (L, at, ry, cut) => { if (!cut) return at(L, 0, ry); const a = L / 2 - gap / 2; at(a, -(gap / 2 + a / 2), ry); at(a, gap / 2 + a / 2, ry); };
     side(W + .06, (L, u, ry) => gp(L, u, -hd - off, ry), Math.PI, false); side(W + .06, (L, u, ry) => gp(L, u, hd + off, ry), 0, !E);
     side(D + .06, (L, u, ry) => gp(L, -hw - off, u, ry), -Math.PI / 2, false); side(D + .06, (L, u, ry) => gp(L, hw + off, u, ry), Math.PI / 2, E);
   }
   for (let l = 1; l < B.levels; l++) ring(l * FH, .3, .06, 'BAND');   // 층 띠: 학교 상징 청록
-  if (B.levels === 1) ring(H * .62, .26, .05, 'BAND');   // 단층(강당 · 식당): 창 위 청록 띠
+  if (B.levels === 1) ring(H * .62, .26, .05, 'BAND', 4.6);   // 단층 창 위 띠: 현관 캐노피(폭 4.4) 양끝에서 멈춘다 (예전엔 캐노피를 뚫고 지나갔다)   // 단층(강당 · 식당): 창 위 청록 띠
   ring(H - .15, .3, .1, 'CONC');
   B.box(W + .3, .9, .18, 'CONC', 0, H + .45, -hd + .05); B.box(W + .3, .9, .18, 'CONC', 0, H + .45, hd - .05); B.box(.18, .9, D, 'CONC', -hw + .05, H + .45, 0); B.box(.18, .9, D, 'CONC', hw - .05, H + .45, 0);
   B.box(W + .4, .06, .26, 'ALU', 0, H + .93, -hd + .05); B.box(W + .4, .06, .26, 'ALU', 0, H + .93, hd - .05); B.box(.26, .06, D + .4, 'ALU', -hw + .05, H + .93, 0); B.box(.26, .06, D + .4, 'ALU', hw - .05, H + .93, 0);
@@ -343,9 +344,15 @@ function shell(B, o = {}) {
   [-1.9, 1.9].forEach(u => { const [x, z] = P(u, 2.3); B.cyl(.12, .12, 3.0, 'CONC', x, 1.5, z, { seg: 16 }); cl(u - .14, u + .14, 2.16, 2.44, { lvl: 0, maxY: 99 }); });
   bx(4.2, .12, 2.2, 'GRANITE', 0, .06, 1.2); cl(-2.1, 2.1, 0, 2.3, { lvl: 0, h: .12 });
   { const [x, z] = P(0, .14); B.sign(o.sign || B.o.name, o.signSub || '', 3.4, .62, x, 3.55, z, RY, ['#1c2a34', '#f4eedc']); }
-  if (o.closedDoor) { bx(2.0, 2.4, .12, 'DARKWOOD', 0, 1.2, -.12); bx(.04, .8, .02, 'CHROME', -.12, 1.1, -.04); bx(.04, .8, .02, 'CHROME', .12, 1.1, -.04); bx(.02, 2.4, .14, 'FRAME', 0, 1.2, -.11); cl(-1.05, 1.05, -.25, 0, { lvl: 0, maxY: 99 }); }
-  else { [-1, 1].forEach(s => { bx(.05, 2.4, .06, 'FRAME', s * 1.0, 1.2, -.1); const [gx, gz] = P(s * 1.45, -.3); const gl = B.mesh(new THREE.PlaneGeometry(.9, 2.2), GLASS(), gx, 1.12, gz, { ry: RY + s * Math.PI / 2 }); gl.renderOrder = 2; bx(.04, 2.3, .95, 'FRAME', s * 1.92, 1.15, -.3); }); }
-  bx(2.1, .1, .1, 'FRAME', 0, 2.42, -.1);
+  {   // 출입문: 벽 구멍 폭(doorGap)에 맞춘 문틀 · 문짝 — 예전엔 2.0m 고정이라 2.4 · 2.6m 구멍 양옆에 틈이 나고, 열린 유리문 옆판이 벽 속에 박혀 있었다
+    const hg = doorGap / 2, dh = 2.4;
+    [-1, 1].forEach(s => { bx(.06, dh, t + .04, 'FRAME', s * (hg - .03), dh / 2, -t / 2); bx(.12, dh + .06, .04, 'FRAME', s * (hg + .06), (dh + .06) / 2, .02); });   // 문틀(벽 두께 덮개) · 바깥 케이싱
+    bx(doorGap, .06, t + .04, 'FRAME', 0, dh - .03, -t / 2); bx(doorGap + .36, .1, .04, 'FRAME', 0, dh + .05, .02);   // 상인방 · 머리 케이싱
+    if (o.closedDoor) { const lw = hg - .07;
+      [-1, 1].forEach(s => { bx(lw, dh - .08, .05, 'DARKWOOD', s * (lw / 2 + .01), (dh - .08) / 2, -.12); bx(.04, .8, .02, 'CHROME', s * .12, 1.1, -.085); });
+      bx(.02, dh - .08, .06, 'FRAME', 0, (dh - .08) / 2, -.12); cl(-hg, hg, -.2, -.05, { lvl: 0, maxY: 99 }); }
+    else { const lw = hg - .08;   // 유리 양개문: 안쪽으로 90° 열어 벽 안면에 붙여 둔 짝 (통로 폭 그대로)
+      [-1, 1].forEach(s => { const u = s * (hg - .1), n = -t - .02 - lw / 2; bx(.04, dh - .1, lw, 'FRAME', u, (dh - .1) / 2, n, {}); const [gx, gz] = P(u - s * .03, n); const gl = B.mesh(new THREE.PlaneGeometry(lw - .1, dh - .3), GLASS(), gx, (dh - .1) / 2, gz, { ry: RY + Math.PI / 2 }); gl.renderOrder = 2; }); } }
   // 현관 비상구 유도등 (문 위) · CCTV (캐노피 밑, 바깥을 본다)
   { const [x, z] = P(0, .035); bx(.46, .17, .05, 'WHITE', 0, 2.62, .025); B.mesh(new THREE.PlaneGeometry(.42, .14), EXIT_MAT(), x, 2.62, z + (E ? 0 : .021), { ry: RY }).position.x += E ? .021 : 0; }
   { const [x, z] = P(1.55, .5); B.model('security_camera_01', x, 2.86, z, RY); }
@@ -354,8 +361,10 @@ function shell(B, o = {}) {
   const winIn = new THREE.MeshStandardMaterial({ color: 0x6a8494, roughness: .1, metalness: .2, emissive: 0x1a2a38, emissiveIntensity: .55 });
   const wins = [], ww = 1.6, wh = 1.5, step = o.winStep || 3.2;
   for (let l = 0; l < B.levels; l++) { const y = l * FH + 1.65; if (o.noWin && o.noWin(l)) continue;
-    for (let x = -hw + 2.0; x <= hw - 2.0 + .01; x += step) { wins.push([x, y, -hd, 0]); if (E || Math.abs(x) > 2.8) wins.push([x, y, hd, 0]); }
-    for (let z = -hd + 2.2; z <= hd - 2.2 + .01; z += step) { wins.push([-hw, y, z, 1]); if (!E || Math.abs(z) > 2.8) wins.push([hw, y, z, 1]); } }
+    // 창 배열: 면 가운데를 기준으로 대칭 (예전엔 한쪽 모서리에서 step 씩 세어 반대쪽 끝이 비어 비대칭) · 현관 면은 캐노피 폭(±2.2) + 창 반폭 밖만
+    const row = (L, m) => { const n = Math.max(1, Math.floor((L - 2 * m) / step + 1e-6) + 1), a = -(n - 1) * step / 2; return Array.from({ length: n }, (_, i) => a + i * step); }, clear = Math.max(2.3 + ww / 2, doorGap / 2 + .2 + ww / 2);
+    for (const x of row(W, 2.0)) { wins.push([x, y, -hd, 0]); if (E || Math.abs(x) > clear) wins.push([x, y, hd, 0]); }
+    for (const z of row(D, 2.2)) { wins.push([-hw, y, z, 1]); if (!E || Math.abs(z) > clear) wins.push([hw, y, z, 1]); } }
   const wg = [], wgIn = [];
   wins.forEach(([x, y, z, side]) => {
     const out = side ? Math.sign(x) : Math.sign(z), ry = side ? Math.PI / 2 : 0;
@@ -461,7 +470,11 @@ function lampsGrid(B, r, step = 2.4) { const w = r.x2 - r.x1, d = r.z2 - r.z1, n
   for (let i = 0; i < nx; i++) for (let j = 0; j < nz; j++) { const x = r.x1 + w * (i + .5) / nx, z = r.z1 + d * (j + .5) / nz; if (h && x > h.x1 - .3 && x < h.x2 + .3 && z < h.z2 + .3) continue; B.lamp(x, z, r.lvl, r.lvl * FH + (r.ceil ?? CEIL) - .04); } }
 function roomSign(B, r) { if (r.corridor || r.lobby || !r.doorAt) return; const y = r.lvl * FH + 2.42, [p, q] = r.doorAt, z = r.north ? r.z2 + .14 : r.z1 - .14;
   B.box(.62, .16, .02, 'FRAME', (p + q) / 2, y, z); B.sign(r.name, '', .58, .13, (p + q) / 2, y, r.north ? z + .012 : z - .012, r.north ? 0 : Math.PI, ['#f2efe6', '#1c2226']); }
-function buildRooms(B, rooms) { rooms.forEach(r => { room(B, r); if (!r.noLamps) lampsGrid(B, r, r.corridor ? 3.0 : 2.4); roomSign(B, r); }); }
+function buildRooms(B, rooms) { rooms.forEach(r => { room(B, r); if (!r.noLamps) { lampsGrid(B, r, r.corridor ? 3.0 : 2.4); fireGrid(B, r, r.corridor ? 3.0 : 2.4); } roomSign(B, r); }); }
+// 2008 소방 보강: 형광등 격자 옆 하향식 스프링클러 헤드 (등마다 0.8m 옆) + 방마다 감지기 1 (복도 = 연기식, 실 = 차동식) — 재질별 버킷에 합쳐진다
+function fireGrid(B, r, step) { if (r.stair) return; const w = r.x2 - r.x1, d = r.z2 - r.z1, nx = Math.max(1, Math.round(w / step)), nz = Math.max(1, Math.round(d / step)), y = r.lvl * FH + (r.ceil ?? CEIL);
+  for (let i = 0; i < nx; i++) for (let j = 0; j < nz; j++) { const x = r.x1 + w * (i + .5) / nx, z = r.z1 + d * (j + .5) / nz + (d > 1.8 ? .8 : 0); B.cyl(.011, .011, .07, 'CHROME', x, y - .035, z, { seg: 6 }); B.cyl(.032, .032, .008, 'CHROME', x, y - .075, z, { seg: 10 }); }
+  const cx = r.x1 + w * .5 / nx + (w > 3 ? .9 : 0), cz = r.z1 + d * .5 / nz - (d > 1.8 ? .7 : 0); B.cyl(.07, .06, .045, 'WHITE', cx, y - .022, cz, { seg: 14 }); }
 
 function buildTwoStory(B, spec) {
   shell(B, spec.shell || {});

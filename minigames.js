@@ -2853,5 +2853,7 @@ function gachaCrank({ title = '급식실 캡슐 뽑기 기계 — 동전 투입 
 
 export function run(kind, opts = {}) {
   if (MG.active) return Promise.resolve({ ok: false });
-  return ({ lockpick, dial, circuit, piano, slide, fishing, order, memory, tune, simon, timing, ouija, pipes, maze, rings, spotdiff, fuse, oscilloscope, chemMix, hoopShot, filmFocus, valveBalance, stampApprove, omrGrade, timetableRestore, libraryCatalog, cassetteSplice, microscopeSlide, sketchLine, voltageSync, gachaCrank, gacha3D })[kind](opts);
+  // 미니게임 하나가 열리다 예외를 내면 MG.active 가 켜진 채 남아 이후 모든 미니게임 · 조작이 막혔다 → 닫고 실패로 돌려준다
+  try { return ({ lockpick, dial, circuit, piano, slide, fishing, order, memory, tune, simon, timing, ouija, pipes, maze, rings, spotdiff, fuse, oscilloscope, chemMix, hoopShot, filmFocus, valveBalance, stampApprove, omrGrade, timetableRestore, libraryCatalog, cassetteSplice, microscopeSlide, sketchLine, voltageSync, gachaCrank, gacha3D })[kind](opts); }
+  catch (e) { console.warn('[minigame]', kind, e); try { if (MG.active) close(false); } catch (e2) { $('mg').classList.remove('show'); MG.active = false; } return Promise.resolve({ ok: false }); }
 }

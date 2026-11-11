@@ -166,10 +166,23 @@ export function installRebuild({ THREE, scene, floors, world }) {
     const mk = (key, color, rough, metal = 0) => { if (!parts[key].length) return; const g = mergeGeometries(parts[key], false); parts[key].forEach(q => q.dispose()); const m = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ color, roughness: rough, metalness: metal })); m.name = 'RB_switch_' + key; group.add(m); };
     mk('plate', 0xece8dc, .5); mk('key', 0x2c2c2a, .5); mk('pipe', 0x9a9c98, .5, .35);
   }
+  // 충돌 상자 격자: R.blocked 가 건물마다 수천 개 상자를 매번 처음부터 훑었다 (한 프레임에 이동 · 상호작용 판정으로 수십 번 → 프로파일 상위)
+  //   → 건물 지역 좌표 2m 칸으로 나눠 그 칸 것만. 상자가 추가 · 제거되면(배열 길이 변화) 다시 만든다. off 는 그때그때 본다.
+  const CG = 2, colGrid = new WeakMap();
+  const colCells = (b, lx, lz, r) => {
+    let g = colGrid.get(b); const col = b.col; if (!col) return null;
+    if (!g || g.col !== col || g.n !== col.length) { g = { col, n: col.length, m: new Map(), x: 0, z: 0 }; colGrid.set(b, g);
+      for (const c of col) { const i1 = Math.floor(c.x1 / CG), i2 = Math.floor(c.x2 / CG), j1 = Math.floor(c.z1 / CG), j2 = Math.floor(c.z2 / CG);
+        if (!(i2 - i1 < 400 && j2 - j1 < 400)) { (g.big ||= []).push(c); continue; }
+        for (let i = i1; i <= i2; i++) for (let j = j1; j <= j2; j++) { const k = i * 8192 + j; let L = g.m.get(k); if (!L) g.m.set(k, L = []); L.push(c); } } }
+    const i1 = Math.floor((lx - r) / CG), i2 = Math.floor((lx + r) / CG), j1 = Math.floor((lz - r) / CG), j2 = Math.floor((lz + r) / CG);
+    if (i1 === i2 && j1 === j2 && !g.big) return g.m.get(i1 * 8192 + j1) || null;
+    const out = g.big ? g.big.slice() : []; for (let i = i1; i <= i2; i++) for (let j = j1; j <= j2; j++) { const L = g.m.get(i * 8192 + j); if (L) for (const c of L) if (!out.includes(c)) out.push(c); } return out;
+  };
   const R = {
     MAIN, ANX, WK, BLD, group, lamps,
     groundAt(x, z, feet) { let best = null; for (const b of BLD) { const [lx, lz] = b.toLocal(x, z), g = b.groundAt(lx, lz, feet); if (g != null && (best == null || g > best)) best = g; } return best; },
-    blocked(x, z, y, r) { if (R.gate && y > MAIN.spec.FH - .4 && y < MAIN.spec.FH + .6 && R.gate.closed() && Math.abs(z - R.gate.z) < r + .08 && x > R.gate.x1 && x < R.gate.x2) return true; return BLD.some(b => { const [lx, lz] = b.toLocal(x, z); return b.col.some(c => !c.off && lx + r > c.x1 && lx - r < c.x2 && lz + r > c.z1 && lz - r < c.z2 && y + 1.7 > c.y1 + .001 && y + .35 < c.y2); }); },
+    blocked(x, z, y, r) { if (R.gate && y > MAIN.spec.FH - .4 && y < MAIN.spec.FH + .6 && R.gate.closed() && Math.abs(z - R.gate.z) < r + .08 && x > R.gate.x1 && x < R.gate.x2) return true; for (const b of BLD) { const [lx, lz] = b.toLocal(x, z), L = colCells(b, lx, lz, r); if (L) for (let i = 0; i < L.length; i++) { const c = L[i]; if (!c.off && lx + r > c.x1 && lx - r < c.x2 && lz + r > c.z1 && lz - r < c.z2 && y + 1.7 > c.y1 + .001 && y + .35 < c.y2) return true; } } return false; },
     nearDoor(x, z, y) { let best = null, bd = 9; for (const b of BLD) { const [lx, lz] = b.toLocal(x, z), d = b.nearDoor(lx, lz, y); if (d) { const dd = Math.hypot(d.mx - lx, d.mz - lz); if (dd < bd) { bd = dd; best = d; } } } return best; },
     toggleDoor(d) { const t = d.target > .5 ? 0 : 1; d.target = t;   // 양여닫이(현관 유리문 2짝): 두 짝이 같은 손잡이 자리를 공유한다 → 함께 연다 (예전엔 한 짝만 열렸다)
       for (const b of BLD) if (b.doors && b.doors.includes(d)) b.doors.forEach(o => { if (o !== d && o.label === d.label && Math.abs(o.mx - d.mx) < .05 && Math.abs(o.mz - d.mz) < .05 && Math.abs(o.py - d.py) < .1) o.target = t; }); },
@@ -212,13 +225,15 @@ export function installRebuild({ THREE, scene, floors, world }) {
 
   // 한 걸음 이동: 새 건물 땅이면 true (예전 계단 · 통로 순간이동 코드는 건너뛴다)
   //   P.sh = 발밑 높이. 0.5m 넘는 단 · 벽 · 가구는 막는다. 층 사이 허공으로는 걸어 나가지 않는다.
-  R.BLD = BLD;   // 감사 · 테스트용
+  R.BLD = BLD; R._baseBlocked = R.blocked;   // 감사 · 테스트용 (격자 판정 = 선형 판정 검증용)
   R.step = (P, px, pz) => {
     const feet = P.sh || 0;
     if (!inOld(P.x, P.z) && feet < .3 && feet > -.3 && !inPit(P.x, P.z)) return false;   // 지하 계단 구덩이는 예전 건물 자리 밖이어도 새 건물이 높이를 맡는다
     const ok = (x, z) => { const g = R.groundAt(x, z, feet); if (g == null) return feet < .3 && !R.blocked(x, z, 0, .3) ? 0 : null; if (g - feet > .5) return null; return R.blocked(x, z, Math.max(feet, g), .3) ? null : g; };
     let g = ok(P.x, P.z);
-    if (g == null) { g = ok(P.x, pz); if (g != null) P.z = pz; else { g = ok(px, P.z); if (g != null) P.x = px; else { P.x = px; P.z = pz; g = feet; } } }
+    if (g == null) { g = ok(P.x, pz); if (g != null) P.z = pz; else { g = ok(px, P.z); if (g != null) P.x = px; else {   // 이미 가구 · 벽 충돌 상자 안에 서 있으면(저장 위치 · 순간이동 · 나중에 놓인 가구) 어느 쪽으로도 못 움직여 갇혔다 → 그 안에서는 걸어 나갈 수 있게
+        const g0 = R.groundAt(px, pz, feet), inside = R.blocked(px, pz, g0 == null ? feet : Math.max(feet, g0), .3), gn = R.groundAt(P.x, P.z, feet);
+        if (inside && (gn == null ? feet < .3 : gn - feet <= .5)) g = gn == null ? feet : gn; else { P.x = px; P.z = pz; g = feet; } } } }
     P.sh = g;
     return true;
   };
@@ -793,7 +808,13 @@ export function installRebuild({ THREE, scene, floors, world }) {
   //   ② 바닥 아래(한 층 밑 · 땅속)에 묻힌 모형은 그 자리 받침면(책상 · 선반 · 바닥) 위로 올린다
   // 창밖 풍경용 가짜 창(windowFakes) 등은 받침 면이 아니다 — 녹음기 · 아이템을 올려놓지 않는다
   const fakeObj = o => { for (let a = o; a; a = a.parent) if (/windowFakes|skyline|backdrop/i.test(a.name || '')) return true; return false; };
+  // 장면 메시 경계구 목록 (x · z 근처 것만 광선 검사): 녹음기 · 아이템마다 scene.children 전체(1만여 메시)에 광선을 수백 번 쏘던 것이 한 번에 0.5~2초 멈췄다
+  const sceneNear = () => { let idx = null; const v = new THREE.Vector3();
+    return (x, z, pad) => { if (!idx) { idx = []; scene.traverse(o => { if (!o.isMesh || !o.geometry) return; let sp; if (o.isInstancedMesh) { if (!o.boundingSphere) o.computeBoundingSphere(); sp = o.boundingSphere; } else { if (!o.geometry.boundingSphere) o.geometry.computeBoundingSphere(); sp = o.geometry.boundingSphere; } if (!sp) return;
+        v.copy(sp.center).applyMatrix4(o.matrixWorld); idx.push({ o, x: v.x, z: v.z, r: sp.radius * o.matrixWorld.getMaxScaleOnAxis() }); }); }
+      const out = []; for (const it of idx) { const dx = it.x - x, dz = it.z - z, R2 = it.r + pad; if (dx * dx + dz * dz < R2 * R2) out.push(it.o); } return out; }; };
   R.fixVisible = world => {
+    const near = sceneNear();
     const W = world, T = new THREE.Box3(), V = new THREE.Vector3(); let re = 0, up = 0;
     const shown = o => { for (let a = o; a; a = a.parent) { if (!a.visible) return false; if (a.isScene) return true; } return false; };
     // 그 자리(0.4m 안 · 같은 층)에 이미 다른 조사 지점 · 아이템이 있나 — 같은 책상 · 좌석 가운데로 둘이 끌려가 서로 가려 고를 수 없던 것
@@ -903,20 +924,20 @@ export function installRebuild({ THREE, scene, floors, world }) {
         // 책상은 충돌 상자가 없어 레이로 찾는다: 둘레 1.4m 격자에서 위에서 쏴 바닥 위 0.70~0.86m 에 맞는 그려진 면(책상 상판) 중 가장 가까운 곳
         let best = null, bd = 9; { const rc2 = new THREE.Raycaster(); rc2.camera = new THREE.PerspectiveCamera(); const mine = new Set(); os.forEach(o => o.traverse(c => mine.add(c))); const dn2 = new THREE.Vector3(0, -1, 0);
           for (let ox = -1.4; ox <= 1.41; ox += .2) for (let oz = -1.4; oz <= 1.41; oz += .2) { const d = Math.hypot(ox, oz); if (d > 1.4 || d >= bd) continue; rc2.set(new THREE.Vector3(p.x + ox, p.rbY + 1.3, p.z + oz), dn2); rc2.far = 1.0;
-            const hit = rc2.intersectObjects(scene.children, true).find(h => h.object.isMesh && h.object.visible && !mine.has(h.object) && !h.object.material?.transparent);
+            const hit = rc2.intersectObjects(near(p.x + ox, p.z + oz, .1), false).find(h => h.object.isMesh && h.object.visible && !mine.has(h.object) && !h.object.material?.transparent);
             if (hit && hit.point.y - p.rbY > .7 && hit.point.y - p.rbY < .86 && (!hit.face || hit.face.normal.y > .5 || true)) { bd = d; best = { x: p.x + ox, z: p.z + oz }; } } }
         p._desk = true; if (!best) continue; const c0 = bb.getCenter(V), dx = best.x - c0.x, dz = best.z - c0.z; for (const o of os) { if (o.parent !== group) group.attach(o); o.position.x += dx; o.position.z += dz; } p.x += dx; p.z += dz; p._seat = false; up++; }
       for (const p of W.props) { if (p.kind !== 'tape' || p.floor !== 0 || p._seat) continue; const os = objsOf(p); if (!os.length) continue; p._seat = true;
         const mine = new Set(); os.forEach(o => o.traverse(c => mine.add(c))); const bb = new THREE.Box3(); os.forEach(o => { T.setFromObject(o); if (!T.isEmpty()) bb.union(T); }); if (bb.isEmpty()) continue;
         const c = bb.getCenter(V), base = p.rbY ?? 0; O.set(c.x, base + 1.4, c.z); rc.set(O, dn); rc.far = 1.45;
-        const hit = rc.intersectObjects(scene.children, true).find(h => h.object.isMesh && !fakeObj(h.object) && !mine.has(h.object) && h.object.visible && !h.object.material?.transparent && h.point.y > base - .05 && h.point.y < base + 1.35 && (h.point.y < base + .95 || Math.abs((R._sup(c.x, c.z, h.point.y + .05) ?? -9) - h.point.y) < .08));   // 높은 곳은 실제 받침(충돌체)이 있을 때만 — 허공의 장식 메시 위로 뜨지 않게
+        const hit = rc.intersectObjects(near(c.x, c.z, .1), false).find(h => h.object.isMesh && !fakeObj(h.object) && !mine.has(h.object) && h.object.visible && !h.object.material?.transparent && h.point.y > base - .05 && h.point.y < base + 1.35 && (h.point.y < base + .95 || Math.abs((R._sup(c.x, c.z, h.point.y + .05) ?? -9) - h.point.y) < .08));   // 높은 곳은 실제 받침(충돌체)이 있을 때만 — 허공의 장식 메시 위로 뜨지 않게
         let ty = hit ? hit.point.y + .004 : bb.min.y; if (ty - base > .68 && ty - base < .8 && /학년 \d+반/.test(R.where(c.x, c.z, base + .5) || '')) ty = Math.max(ty, base + .806);   // 학생 책상(모델 윗면 ≈ .80) 위 — 충돌 상자 윗면(.76)에 놓으면 상판 속에 묻혀 안 보였다
         const dy = ty - bb.min.y; if (Math.abs(dy) < .005) continue; for (const o of os) { if (o.parent !== group) group.attach(o); o.position.y += dy; } up++; } }
     // 뜬 아이템(열쇠 · 쪽지 등) 내려놓기: 바로 아래 실제 그려진 면 위로 (6cm 넘게 떠 있을 때만)
     { const rc = new THREE.Raycaster(), dn = new THREE.Vector3(0, -1, 0); rc.camera = new THREE.PerspectiveCamera();
       for (const it of W.items) { if (it.taken || it.floor !== 0 || it.rbY == null || !it.mesh || it._drp) continue; it._drp = true; const bb = new THREE.Box3().setFromObject(it.mesh); if (bb.isEmpty()) continue;
         const mine = new Set(); it.mesh.traverse(c => mine.add(c)); const c = bb.getCenter(new THREE.Vector3()); rc.set(new THREE.Vector3(c.x, bb.min.y + .01, c.z), dn); rc.far = 1.4;
-        const hit = rc.intersectObjects(scene.children, true).find(h => h.object.isMesh && !fakeObj(h.object) && !mine.has(h.object) && h.object.visible && !h.object.material?.transparent && h.point.y > it.rbY - .05); if (!hit) continue;
+        const hit = rc.intersectObjects(near(c.x, c.z, .1), false).find(h => h.object.isMesh && !fakeObj(h.object) && !mine.has(h.object) && h.object.visible && !h.object.material?.transparent && h.point.y > it.rbY - .05); if (!hit) continue;
         const dy = hit.point.y + .004 - bb.min.y; if (dy > -.06) continue; if (it.mesh.parent !== group) group.attach(it.mesh); it.mesh.position.y += dy; it.pos.y += dy; if (it.baseY != null) it.baseY += dy; up++; } }
     // 바닥에 떨어진 옛 스위치 LED · 터미널 화면 잔재(초록 불빛) 숨기기: 초록 발광 소품이 그 층 바닥 60cm 안에 있으면 그 묶음째 감춘다
     if ((W._grn = (W._grn || 0) + 1) <= 8) { const P = new THREE.Vector3(); group.traverse(o => { if (!o.isMesh || !o.visible || !o.material || !o.material.isMeshBasicMaterial) return; const h = o.material.color.getHex(); if (h !== 0x40ff80 && h !== 0x38c070 && h !== 0x1c3326) return;

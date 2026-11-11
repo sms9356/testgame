@@ -37,3 +37,19 @@ body.hud-off #hud>*:not(#prompt):not(#cross):not(#dlg):not(#msg):not(#chapterCar
 body.hud-lowbat #s1{border-color:#ff5a4a!important;animation:lowB 1s steps(2) infinite} @keyframes lowB{50%{box-shadow:0 0 14px rgba(255,80,60,.8)}}
 body.hud-lowhp #hurt{animation:lowH 1.1s ease-in-out infinite} @keyframes lowH{0%,100%{opacity:.15}45%{opacity:.55}}
 body.hud-lowhp #who{opacity:1!important}
+
+/* 사실적인 상태 표시: 기본은 스태미나 · 긴장 막대를 숨기고 숨소리 · 화면 가장자리로 (설정 › 클래식 상태 막대로 되돌림) */
+body.hud-diegetic #who .row:has(#sta),body.hud-diegetic #who .row:has(#fearBar){display:none}
+/* 미니맵 끄기 · 2008년 종이 안내도 스타일 */
+body.map-off #mini{display:none!important}
+html body.map-paper #mini{border-radius:6px!important;background:#e9dfc4!important;box-shadow:0 0 0 1px #8a7a58,0 6px 18px rgba(0,0,0,.55)!important;transform:rotate(-1.2deg)}
+body.map-paper #miniMap{filter:sepia(.85) saturate(.6) contrast(.9) brightness(1.15);mix-blend-mode:multiply;border-radius:4px}
+body.map-paper #mini #floor,body.map-paper #mini #clock{color:#3b2f1c;text-shadow:none;font-family:'Gungsuh','Batang',serif}
+/* 2008 폴더폰 문자 알림: 작은 LCD 창 + 진동 */
+html body #toasts>.toast.sms{background:linear-gradient(180deg,#b9c8a6,#9fb08c)!important;color:#1d2618!important;border:2px solid #2a3324!important;border-left-width:2px!important;border-radius:6px!important;font-family:'DotumChe','GulimChe',monospace;box-shadow:0 0 0 3px #15181c,0 8px 22px rgba(0,0,0,.6)!important;animation:smsVib .32s linear 3}
+html body #toasts>.toast.sms b{color:#10160d!important}
+@keyframes smsVib{0%,100%{transform:translateX(0)}25%{transform:translateX(-3px) rotate(-.6deg)}75%{transform:translateX(3px) rotate(.6deg)}}
+@media (prefers-reduced-motion:reduce){html body #toasts>.toast.sms{animation:none}}
+/* 작은 화면: HUD 패널을 줄여 화면을 가리지 않게 (목표 마커 · 조준점 · 상호작용 안내 · 대사는 그대로) */
+@media (max-height:560px),(max-width:860px){#hud>*:not(#wpMark):not(#cross):not(#prompt):not(#dlg){zoom:.66}}
+@media (max-height:400px){#hud>*:not(#wpMark):not(#cross):not(#prompt):not(#dlg){zoom:.52}}

@@ -45,6 +45,7 @@ import { makeDress, makeHair, makeGhostFace, makeGraffiti, makeKeypad, loadPBR, 
 import { warmUp } from './bake.js';
 import { createStaticDistanceLOD } from './staticDistanceLOD.js';
 import { createTextureBudget } from './textureBudget.js';
+import { createTexWarm } from './texWarm.js';
 import { createFX } from './fx.js';
 import { GhostCameraSystem } from './ghostCamera.js';   // 야간 카메라 엔진 (사용자 제공)
 import { CraftingSystem } from './craftingSystem.js';   // 조합 · 생존 도구 (사용자 제공)
@@ -225,6 +226,7 @@ renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 const scene = new THREE.Scene();
 const staticLOD = createStaticDistanceLOD(scene);
 const textureBudget = createTextureBudget({ quality: SET.quality === 'auto' ? 'high' : SET.quality });
+const texWarm = !ENGINE.webgpu && !new URLSearchParams(location.search).has('norender') ? createTexWarm(THREE, renderer, scene) : null;   // 처음 1분: 색 공간 · 이방성 점검 + 텍스처를 프레임마다 조금씩 미리 올림
 scene.background = new THREE.Color(0x05070d);
 scene.fog = new THREE.FogExp2(0x070a12, 0.03);
 const FOG_IN = new THREE.Color(0x05070a), FOG_OUT = new THREE.Color(0x0c1424);
@@ -715,7 +717,8 @@ function refreshHud() {
   const con = world.props.find(p => p.kind === 'console'); if (con) con.label = FL.calm ? '방송 장비 (조용하다)' : FL.tag && power ? '송출 콘솔 — 녹음실 마이크 연결' : '방송 장비 사용'; const rd = world.props.find(p => p.kind === 'bcRead'); if (rd) rd.label = FL.calm ? '하교 방송 원고 다시 보기' : FL.tag && power ? '하늘을 위해 방송 대본 읽기 (하교 방송)' : '앵커석 방송 대본 살펴보기';
 }
 function toast(title, desc = '', kind = '') {
-  const t = document.createElement('div'); t.className = 'toast panel ' + kind; t.innerHTML = `<b>${title}</b>${desc}`;
+  const sms = /^(📱|📩)/u.test(String(title)); const t = document.createElement('div'); t.className = 'toast panel ' + kind + (sms ? ' sms' : ''); t.innerHTML = `<b>${title}</b>${desc}`;
+  if (sms) { try { if (!SET.flashReduce && navigator.vibrate) navigator.vibrate([90, 60, 90]); } catch (e) {} }   // 2008 폴더폰 문자: 진동 + 작은 LCD 창 스타일
   // 표시 시간: 글 길이에 비례 (3.2 ~ 7초) · 사라질 때 살짝 밀려 나간다
   const ms = Math.min(7000, 3200 + (String(title) + String(desc)).replace(/<[^>]*>/g, '').length * 45);
   $('toasts').appendChild(t); setTimeout(() => t.classList.add('out'), ms - 400); setTimeout(() => t.remove(), ms);
@@ -3584,7 +3587,8 @@ function frameBody(now) {
   perfMark('weather+fx'); updateSound(dt); perfMark('sound');
   updatePings(dt); perfMark('pings'); updateObjDir(dt); perfMark('objDir'); tickHudV2(dt); perfMark('hudV2'); tickPartnerRadio(dt); perfMark('radio');
   campusCctv?.tick(dt,{powered:FL.guardCctvOn??true,near:shouldStreamGuardCctv(P,state,GUARD_LAYOUT),quality:qCur}); perfMark('cctv');
-  if (!NORENDER) staticLOD.render(camera, now, qCur, () => fx.render(dt, { fear: P.fear || 0, flash: flash.intensity / 95, outdoors: outdoorsNow, floorY: floors[P.floor].y0, hurt: hurtFx, rain: 0, lum: envLum }));
+  if (texWarm && !NORENDER && state === 'playing') { if (!texWarm._on) { texWarm._on = 1; texWarm.after(textureBudget.ready()); } texWarm.tick(dt); }
+  if (!NORENDER) staticLOD.render(camera, now, qCur, () => fx.render(dt, { fear: P.fear || 0, flash: flash.intensity / 95, outdoors: outdoorsNow, floorY: floors[P.floor].y0, hurt: hurtFx, rain: 0, lum: envLum, yaw: P.yaw, pitch: P.pitch, dof: state === 'note', sta: SET.classicBars ? 1 : (P.stamina ?? 100) / 100 }));
   perfMark('render');
   if (SHOT.req) shotGrab();   // 카메라 앨범: 방금 그린 화면
 }
@@ -5136,7 +5140,7 @@ function applyQuality(q) {
   const q3 = q === 'ultra' ? 'high' : q;   // 텍스처 예산 · 후처리는 high 와 같은 단계 (픽셀 비율 · 그림자만 더 높다)
   if (SET.quality !== 'auto' || !textureBudget._autoSet) { textureBudget._autoSet = SET.quality === 'auto'; textureBudget.setQuality(SET.quality === 'auto' ? 'high' : q === 'ultra' ? 'ultra' : q3).catch(e => console.warn('[texture budget]', e)); }   // 자동 품질이 오르내릴 때마다 모든 텍스처를 줄였다 다시 올리며(수백 장 재업로드) 렉이 반복됐다 → 자동 조정은 해상도 · 그림자만
   renderer.setPixelRatio(Math.min(devicePixelRatio, c.pr) * SET.scale); renderer.setSize(innerWidth, innerHeight); fx.resize(innerWidth, innerHeight, renderer.getPixelRatio()); fx.setQuality(q3); if (fx.setAO) fx.setAO(q === 'ultra' && SET.quality === 'ultra');   // 최고 품질을 직접 고른 경우에만 주변광 차폐
-  if (MOONFX) MOONFX.setQuality(q);   // 달빛 기둥 · 먼지: 높음 이상만
+  if (MOONFX) MOONFX.setQuality(q); if (texWarm) texWarm.setQuality(q);   // 달빛 기둥 · 먼지: 높음 이상만
   const sh = c.sh > 0;
   if (sh && flash.shadow.mapSize.x !== c.sh) { flash.shadow.mapSize.set(c.sh, c.sh); if (flash.shadow.map) { flash.shadow.map.dispose(); flash.shadow.map = null; } }
   if (renderer.shadowMap.enabled !== sh || flash.castShadow !== sh) {
@@ -5162,7 +5166,8 @@ function perfTick(dt) {
 function applySettings() {
   renderer.toneMappingExposure = 1.3 * SET.bright;
   world.flickCfg.calm = SET.flashReduce || SET.noFlicker;
-  fx.setOpts({ bloom: SET.bloom, grain: SET.grain, glitch: SET.flashReduce ? .2 : 1, flash: SET.flashReduce ? .25 : 1 });
+  fx.setOpts({ bloom: SET.bloom, grain: SET.grain, glitch: SET.flashReduce ? .2 : 1, flash: SET.flashReduce ? .25 : 1, mblur: !!SET.motionBlur && !SET.flashReduce });
+  { const bc = document.body.classList; bc.toggle('hud-diegetic', !SET.classicBars); bc.toggle('map-off', SET.minimap === false); bc.toggle('map-paper', !!SET.paperMap); }   // 상태 막대 대신 숨소리 · 화면 가장자리 / 미니맵 끄기 · 종이 지도
   $('fps').classList.toggle('on', SET.showFps || TEST); $('ptime').classList.toggle('off', SET.showPlay === false); $('hints').style.display = SET.hints ? '' : 'none';
   document.documentElement.style.setProperty('--subBg', SET.subBg);
   document.body.classList.toggle('noNames', !SET.subNames); document.body.classList.toggle('contrast', !!SET.contrast);
@@ -9266,7 +9271,7 @@ function fillSettings() {
   $('setDub').checked = VS.dub; $('setVoice').value = VS.engine; $('setVoice').querySelector('[value=browser]').disabled = !hasBrowserVoice(); $('vEngine').textContent = '현재: ' + engineLabel() + (hasNaturalVoice() ? '' : ' · 이 브라우저에는 자연스러운 한국어 음성이 없습니다 (Edge 권장)');
   $('setSubs').checked = VS.subs; $('setNotes').checked = VS.readNotes; $('setSubSize').value = String(VS.subSize); $('setNames').checked = SET.subNames; $('setSubBg').value = SET.subBg * 100;
   $('setCaps').checked = SET.captions; $('setTips').checked = SET.tips; $('setPhotos').checked = SET.areaPhotos; $('setMic').checked = !!SET.mic; $('setContrast').checked = SET.contrast; $('setUi').value = Math.round(SET.ui * 100); renderKeys();
-  $('setDiff').value = SET.diff; $('setLang').value = curLang(); $('setJump').value = SET.jump; $('setFlash').checked = SET.flashReduce; $('setFearFx').checked = SET.fearFx;
+  $('setDiff').value = SET.diff; $('setLang').value = curLang(); $('setJump').value = SET.jump; $('setFlash').checked = SET.flashReduce; $('setFearFx').checked = SET.fearFx; $('setMBlur').checked = !!SET.motionBlur; $('setClassicBars').checked = !!SET.classicBars; $('setMinimap').checked = SET.minimap !== false; $('setPaperMap').checked = !!SET.paperMap;
   vals();
 }
 function vals() {
@@ -9290,7 +9295,7 @@ $('setScale').onchange = () => applyQuality(qCur);
 $('setBright').oninput = e => setS('bright', e.target.value / 100);
 $('setFov').oninput = e => setS('fov', +e.target.value);
 $('setNoFlicker').onchange = e => setS('noFlicker', e.target.checked); $('setObjArrow').onchange = e => setS('objArrow', e.target.checked); $('setBgm').onchange = e => setS('bgm', e.target.checked); $('setBgmVol').oninput = e => setS('bgmVol', e.target.value / 100);
-$('setBloom').onchange = e => setS('bloom', e.target.checked); $('setGrain').onchange = e => setS('grain', e.target.checked);
+$('setBloom').onchange = e => setS('bloom', e.target.checked); $('setMBlur').onchange = e => setS('motionBlur', e.target.checked); $('setClassicBars').onchange = e => setS('classicBars', e.target.checked); $('setMinimap').onchange = e => setS('minimap', e.target.checked); $('setPaperMap').onchange = e => setS('paperMap', e.target.checked); $('setGrain').onchange = e => setS('grain', e.target.checked);
 $('setBob').onchange = e => setS('bob', e.target.checked); $('setBobK').oninput = e => { $('setBobKV').textContent = e.target.value + '%'; setS('bobK', e.target.value / 100); }; $('setShake').onchange = e => setS('shake', e.target.checked); $('setFps').onchange = e => setS('showFps', e.target.checked); $('setPlay').onchange = e => setS('showPlay', e.target.checked);
 ['master', 'sfx', 'voice', 'amb', 'music'].forEach(k => { $('vol_' + k).oninput = e => { setVolumes({ [k]: e.target.value / 100 }); }; });
 $('vol_voice').onchange = () => speak(`l_heal_${CK()}`);
@@ -9431,7 +9436,7 @@ if (DEBUG) {
     minaF: MINA_F, minaDbg: { mina, npcVisuals, follow() { FL.mina = true; minaFollowStart(); }, wake: () => minaWake() }, CONTACTS, CALL, callOut, bcOpen,
     tp(x, z, f = 0, yaw = 0, pitch = 0) { P.x = x; P.z = z; P.floor = f; P.yaw = yaw; P.pitch = pitch; },
     give() { world.items.filter(i => i.kind === 'key').forEach(i => { i.taken = true; i.mesh.visible = false; got[i.idx] = true; }); P.keys = TOTAL; refreshHud(); },
-    showNote, get state() { return state; }, set state(v) { state = v; }, get tNow() { return tNow; }, openTest, EV, appar, applyQuality,
+    showNote, get state() { return state; }, set state(v) { state = v; }, get tNow() { return tNow; }, openTest, EV, appar, applyQuality, texWarm,
     interact, findInteract, hit, die, activateGhost, enrage, FL, MG, throwCan, throws, set playTime(v) { playTime = v; }, toggleView, get view() { return view; }, useProp, docs, msgs, clues, objective, makeGateKey, openInv, openPhone, openMap, openCharsel, openSettings, refreshHud, save, load, inv, mina,
     get power() { return power; }, set power(v) { power = v; }, get CHAR() { return CHAR; }, newGame, continueGame,
     ELV,elvCall,elvEnter,elvLeave,elvPress,elvTick,elvReset,setTarget(t) { target = t; }, DAY, GEN, SIDEQUESTS, sqStep, sqDoneCount, useSideQuest, HEADQUEST, useHead, COLLECT, tmpFx, roomAt, camMode, camShoot, CAM, MIC, SAN, BRK, setBreaker, schoolPower, craftingSystem, ghostCam, restroom, useSink, useFlush, placeAlarm, throwShock, useFirstAid, tryCombine, stunGhost, enterLocker, leaveLocker, startSearch, useMiniSpot, openChalk, chalkAsk, XT, winGame,

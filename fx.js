@@ -9,11 +9,11 @@ import { OutputPass } from './vendor/addons/postprocessing/OutputPass.js';
 const FinalShader = {
   uniforms: {
     tDiffuse: { value: null }, uTime: { value: 0 }, uFear: { value: 0 }, uGlitch: { value: 0 },
-    uGrain: { value: 0 }, uRes: { value: new THREE.Vector2(1, 1) }, uFlash: { value: 0 }, uHurt: { value: 0 }, uRain: { value: 0 }, uExp: { value: 1 }, uCA: { value: 1 },
+    uGrain: { value: 0 }, uRes: { value: new THREE.Vector2(1, 1) }, uFlash: { value: 0 }, uHurt: { value: 0 }, uRain: { value: 0 }, uExp: { value: 1 }, uCA: { value: 1 }, uBlur: { value: new THREE.Vector2() }, uDof: { value: 0 }, uSta: { value: 1 },
   },
   vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
   fragmentShader: `
-    uniform sampler2D tDiffuse; uniform float uTime, uFear, uGlitch, uGrain, uFlash, uHurt, uRain, uExp, uCA; uniform vec2 uRes; varying vec2 vUv;
+    uniform sampler2D tDiffuse; uniform float uTime, uFear, uGlitch, uGrain, uFlash, uHurt, uRain, uExp, uCA, uDof, uSta; uniform vec2 uRes, uBlur; varying vec2 vUv;
     float h(vec2 p){ return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
     void main(){
       vec2 uv = vUv;
@@ -48,6 +48,16 @@ const FinalShader = {
       col.r = texture2D(tDiffuse, uv + c * ca).r;
       col.g = texture2D(tDiffuse, uv).g;
       col.b = texture2D(tDiffuse, uv - c * ca).b;
+      // 모션 블러(카메라 회전 속도 방향, 옵션) · 피사계 심도(쪽지 · 연출 중 배경을 흐리게) — 둘 다 꺼져 있으면 추가 샘플 없음
+      if (uDof > 0.0 || dot(uBlur, uBlur) > 1e-7) {
+        vec3 acc = col; float ang = h(gl_FragCoord.xy) * 6.283;
+        for (int i = 1; i < 8; i++) {
+          float fi = float(i);
+          vec2 o = uBlur * (fi / 7.0 - .5) + uDof * .012 * sqrt(fi / 7.0) * vec2(cos(ang + fi * 2.4), sin(ang + fi * 2.4)) * vec2(uRes.y / uRes.x, 1.0);
+          acc += texture2D(tDiffuse, uv + o).rgb;
+        }
+        col = acc / 8.0;
+      }
       // 눈의 적응(자동 노출): 어두운 복도에 오래 있으면 조금씩 밝아지고, 형광등 교실에 들어서면 잠깐 눈부셨다가 가라앉는다
       col *= uExp;
       // 색보정: 어두운 곳은 청록, 밝은 곳은 따뜻하게, 채도 약간 낮춤
@@ -58,6 +68,8 @@ const FinalShader = {
       // 비네팅 (공포가 오르면 붉게, 좁게)
       float v = smoothstep(.85, .25 - uFear * .1, d);
       col *= mix(.35, 1.0, v);
+      // 숨이 찰 때: 막대 대신 화면 가장자리가 숨 쉬듯 조여 든다 (클래식 막대 설정이면 uSta = 1)
+      float tired = clamp(1.0 - uSta * 2.5, 0.0, 1.0); col *= mix(1.0, mix(.55, .85, .5 + .5 * sin(uTime * 4.2)), tired * (1.0 - v) * .9);
       col = mix(col, col * vec3(1.35, .45, .4), (1.0 - v) * (uFear * .8 + uHurt));
       // 번개 섬광
       col += uFlash * vec3(.55, .62, .8) * (.5 + .5 * v);
@@ -223,10 +235,10 @@ export function createFX(renderer, scene, camera) {
   }
 
   let flashT = 0, glitchT = 0;
-  const opt = { bloom: true, grain: true, glitch: 1, flash: 1, adapt: true };   // 설정 · 접근성
+  const opt = { bloom: true, grain: true, glitch: 1, flash: 1, adapt: true, mblur: false };   // 설정 · 접근성
   function setOpts(o) { Object.assign(opt, o); bloom.enabled = mode === 'high' && opt.bloom; final.uniforms.uGrain.value = opt.grain ? (opt.flash < 1 ? .009 : .016) : 0; final.uniforms.uCA.value = opt.flash < 1 ? .35 : 1; }   // 빛 번쩍임 줄이기: 그레인 · 색수차 · 렌즈 왜곡도 약하게
   // 자동 노출: 주변 조도(lum, 대략 lux 비슷한 상대값)에 따라 목표 노출을 정하고, 어두워질 때는 느리게(간상세포 적응) · 밝아질 때는 빠르게 따라간다
-  let expCur = 1;
+  let expCur = 1, prevYaw = null, prevPitch = 0;
   function adapt(dt, lum) {
     if (mode === 'low' || !opt.adapt || lum == null) { expCur = 1; return 1; }
     const t = Math.min(1.35, Math.max(.8, 1.12 / Math.pow(.25 + lum, .22)));
@@ -250,7 +262,11 @@ export function createFX(renderer, scene, camera) {
   const _dir = new THREE.Vector3();
   function render(dt, c) {
     const u = final.uniforms;
-    u.uTime.value += dt; u.uFear.value = c.fear; u.uHurt.value = c.hurt || 0; u.uExp.value = adapt(Math.min(dt, .1), c.lum);
+    u.uTime.value += dt; u.uFear.value = c.fear; u.uHurt.value = c.hurt || 0; u.uExp.value = adapt(Math.min(dt, .1), c.lum); u.uSta.value = c.sta ?? 1;
+    // 모션 블러: 프레임 사이 시점 회전량 → 화면 방향 번짐 (높음 이상 · 옵션) / 피사계 심도: 쪽지 읽기 등 (높음 이상)
+    { let bx = 0, by = 0; if (opt.mblur && mode === 'high' && c.yaw != null && prevYaw != null && dt > 0) { let dy = c.yaw - prevYaw; dy = Math.atan2(Math.sin(dy), Math.cos(dy)); bx = Math.max(-.04, Math.min(.04, dy * .35)); by = Math.max(-.04, Math.min(.04, -(c.pitch - prevPitch) * .35)); if (Math.hypot(bx, by) < .002) bx = by = 0; }
+      prevYaw = c.yaw; prevPitch = c.pitch; u.uBlur.value.set(bx, by);
+      u.uDof.value += ((c.dof && mode === 'high' ? 1 : 0) - u.uDof.value) * Math.min(1, dt * 4); if (u.uDof.value < .02) u.uDof.value = 0; }
     glitchT = Math.max(0, glitchT - dt); u.uGlitch.value = Math.min(1, glitchT + (c.fear > .9 ? (c.fear - .9) * 1.5 * opt.glitch : 0));
     flashT = Math.max(0, flashT - dt * 3.2);
     u.uFlash.value = flashT > 0 ? (Math.sin(flashT * 40) > 0 ? flashT : flashT * .3) * (c.outdoors ? .9 : .25) * opt.flash : 0;

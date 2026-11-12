@@ -172,7 +172,7 @@ function gradPhoto(seed, year) {
     for (let k = 0; k < N; k++) { const x = 20 + k * (W - 40) / (N - 1) + rr(-2, 2); const girl = !boys || (year >= 1996 && rnd() < .45);
       if (row === 4 && Math.abs(x - W / 2) < W * .22) figure(g, x, y + rr(-1, 1), s, { body: pick(['#3a3a3c', '#4a4238', '#2a2c30']), collar: '#e8e4dc', tie: '#5a2a2a', hair: rnd() < .4 ? '#6a6660' : '#1a1816' });
       else figure(g, x, y + rr(-2, 2), s, { body: uni, collar: girl && year >= 2000 ? '#e8e8e8' : (year < 1990 ? null : '#dcdcdc'), tie: year >= 2000 ? '#7a2030' : null, long: girl && rnd() < .5 }); } }
-  g.fillStyle = '#f4f0e4'; g.font = '700 15px "Nanum Myeongjo"'; g.textAlign = 'left'; g.fillText(`서화고등학교 제${no}회 졸업기념  ${year}. 2.`, 14, 24);
+  g.fillStyle = '#f4f0e4'; g.font = '700 15px "Nanum Myeongjo"'; g.textAlign = 'left'; g.fillText(`서린고등학교 제${no}회 졸업기념  ${year}. 2.`, 14, 24);
   photoAge(c, { seed, blur: 1.1, sepia: year < 1992 ? .9 : year < 2000 ? .35 : .1, fade: year < 2000 ? .32 : .15, shift: year < 2000 ? [8, 0, -10] : [0, 2, 4], grain: year < 2000 ? 34 : 18, scratch: year < 2000 ? 3 : 1 });
   const out = mk(W + 24, H + 24), q = ctx(out); q.fillStyle = year < 2000 ? '#ece2c8' : '#f4f2ea'; q.fillRect(0, 0, out.width, out.height); q.drawImage(c, 12, 12); return out;
 }
@@ -180,7 +180,7 @@ function bcastPhoto(seed) {   // 1998 방송부 (바랜 컬러 · 오렌지 날�
   rnd = R(seed); const W = 480, H = 336, c = mk(W, H), g = ctx(c);
   g.fillStyle = '#b8b0a0'; g.fillRect(0, 0, W, H); g.fillStyle = '#d8d0bc'; for (let y = 6; y < H * .55; y += 10) for (let x = 6; x < W; x += 10) { g.fillStyle = 'rgba(80,70,60,.25)'; g.fillRect(x, y, 2, 2); }   // 흡음 타공판
   g.fillStyle = '#e8e4d0'; g.fillRect(W * .66, H * .06, W * .28, H * .3); g.fillStyle = 'rgba(120,120,110,.6)'; for (let y = H * .06; y < H * .36; y += 5) g.fillRect(W * .66, y, W * .28, 1.5);   // 블라인드
-  g.fillStyle = '#2a4a8a'; g.fillRect(W * .08, H * .08, W * .3, H * .1); g.fillStyle = '#f4f0e0'; g.font = '700 22px "Nanum Pen Script"'; g.fillText('ON AIR  서화 방송부', W * .1, H * .155);
+  g.fillStyle = '#2a4a8a'; g.fillRect(W * .08, H * .08, W * .3, H * .1); g.fillStyle = '#f4f0e0'; g.font = '700 22px "Nanum Pen Script"'; g.fillText('ON AIR  서린 방송부', W * .1, H * .155);
   [[.2, '#1c1c24', 1], [.36, '#22222a', 0], [.52, '#1c1c24', 1], [.68, '#262630', 0], [.82, '#1c1c24', 1]].forEach(([fx, b, long], k) => figure(g, W * fx + rr(-6, 6), H * (.5 + (k % 2) * .03), 21, { body: b, collar: '#e0e0dc', tie: '#6a2030', long: !!long, skin: '#d4a888' }));
   g.fillStyle = '#7a7a78'; g.fillRect(0, H * .72, W, H * .28); g.fillStyle = '#4a4a4c'; g.fillRect(W * .05, H * .74, W * .9, H * .2);
   for (let k = 0; k < 16; k++) { const x = W * .08 + k * W * .052; g.fillStyle = '#2a2a2a'; g.fillRect(x, H * .78, 4, 34); g.fillStyle = '#d8d8d0'; g.fillRect(x - 3, H * .78 + rr(0, 28), 10, 6); g.fillStyle = pick(['#c03030', '#e0e0d0', '#3060c0']); g.beginPath(); g.arc(x + 2, H * .76, 3, 0, 7); g.fill(); }
@@ -203,10 +203,10 @@ function seal(g, x, y, s, txt) { g.save(); g.translate(x, y); g.rotate(rr(-.05, 
   [...txt].forEach((ch, k) => g.fillText(ch, (k % 2 ? -1 : 1) * s * .2, -s * .06 + Math.floor(k / 2) * s * .4)); g.globalCompositeOperation = 'destination-out'; for (let k = 0; k < 40; k++) g.fillRect(rr(-s / 2, s / 2), rr(-s / 2, s / 2), rr(1, 3), rr(1, 3)); g.restore(); }
 function motto(seed) { rnd = R(seed); const W = 512, H = 208, c = hanji(W, H, seed), g = ctx(c);
   inkText(g, W, H, q => { q.font = '400 112px "East Sea Dokdo"'; q.textAlign = 'center'; q.fillText('성실 정직 봉사', W / 2 - 18, H * .66); q.font = '400 26px "East Sea Dokdo"'; q.save(); q.translate(W - 34, 24); ['무', '자', '년', '가', '을'].forEach((ch, k) => q.fillText(ch, 0, k * 24)); q.restore(); }, seed);
-  seal(g, W - 34, H - 34, 30, '서화'); return c; }
+  seal(g, W - 34, H - 34, 30, '서린'); return c; }
 function scroll(seed) { rnd = R(seed); const W = 220, H = 512, c = hanji(W, H, seed), g = ctx(c);
   inkText(g, W, H, q => { q.font = '400 84px "East Sea Dokdo"'; q.textAlign = 'center'; ['배', '우', '고', '익', '히', '다'].forEach((ch, k) => q.fillText(ch, W / 2 + 10, 86 + k * 70)); q.font = '400 22px "East Sea Dokdo"'; ['서', '문', '고', '개', '교', '40', '주', '년'].forEach((ch, k) => q.fillText(ch, 24, 70 + k * 22)); }, seed);
-  seal(g, 24, 270, 24, '서화'); seal(g, 24, 300, 24, '학이'); return c; }
+  seal(g, 24, 270, 24, '서린'); seal(g, 24, 300, 24, '학이'); return c; }
 function certificate(seed, o) { rnd = R(seed); const W = 362, H = 512, c = mk(W, H), g = ctx(c), n = noise(seed);
   g.fillStyle = '#f6f0dc'; g.fillRect(0, 0, W, H); eachPx(c, (p, i, x, y) => { const v = (fbm(n, x * .02, y * .02, 3) - .5) * 14; p[i] = clamp(p[i] + v); p[i + 1] = clamp(p[i + 1] + v); p[i + 2] = clamp(p[i + 2] + v - 4); });
   const bc = o.border || '#3a6a4a'; g.strokeStyle = bc; g.lineWidth = 6; g.strokeRect(16, 16, W - 32, H - 32); g.lineWidth = 1.5; g.strokeRect(26, 26, W - 52, H - 52);
@@ -272,7 +272,7 @@ const POSTERS = [
   { name: 'poster_peace', bg: ['#fde4ea', '#e46a8a'], ink: '#5a0a2a', lines: ['친구야,', '먼저 손 내밀게'], size: 50, tag: '2008 학교폭력 예방 · 2-1', prize: '장려',
     art: (g, W, H) => { [[-1, '#f4c8a0'], [1, '#e0b088']].forEach(([s, col]) => { g.fillStyle = col; g.beginPath(); g.ellipse(W / 2 + s * 46, H * .38, 60, 34, s * .4, 0, 7); g.fill(); g.strokeStyle = '#8a5a3a'; g.lineWidth = 3; g.stroke(); });
       g.fillStyle = '#e8304a'; const x = W / 2, y = H * .16; g.beginPath(); g.moveTo(x, y + 30); g.bezierCurveTo(x - 50, y - 5, x - 20, y - 35, x, y - 10); g.bezierCurveTo(x + 20, y - 35, x + 50, y - 5, x, y + 30); g.fill(); } },
-  { name: 'poster_choir', bg: ['#2a2a5a', '#0a0a24'], ink: '#d8b040', lines: ['2008 서화 합창제', '10. 24 (금) 대강당'], size: 40, tag: '음악부 제작 · 2008',
+  { name: 'poster_choir', bg: ['#2a2a5a', '#0a0a24'], ink: '#d8b040', lines: ['2008 서린 합창제', '10. 24 (금) 대강당'], size: 40, tag: '음악부 제작 · 2008',
     art: (g, W, H) => { g.fillStyle = '#d8b040'; for (let k = 0; k < 5; k++) g.fillRect(W * .1, H * .2 + k * 16, W * .8, 1.5); [[.25, 0], [.4, 2], [.55, 1], [.7, 3]].forEach(([fx, l]) => { const x = W * fx, y = H * .2 + l * 16 + 8; g.beginPath(); g.ellipse(x, y, 10, 7, -.4, 0, 7); g.fill(); g.fillRect(x + 8, y - 54, 3, 54); });
       for (let k = 0; k < 40; k++) { g.fillStyle = `rgba(255,255,220,${rr(.2, .9)})`; g.fillRect(rr(0, W), rr(0, H * .7), 2, 2); } } },
 ];
@@ -287,10 +287,10 @@ add('oil_sea_dusk', () => seaDusk(61)); add('oil_sea_dusk2', () => seaDusk(77));
 [1989, 1993, 1997, 2001, 2004, 2007].forEach(y => add(`photo_grad_${y}`, () => gradPhoto(200 + y % 100, y)));
 add('photo_bcast_1998', () => bcastPhoto(1998));
 add('callig_motto', () => motto(5)); add('callig_scroll', () => scroll(6));
-add('cert_science_2007', () => certificate(301, { no: '제 2007-112 호', prize: '최우수상', who: '제2학년 3반  정 하 율', body: '위 학생은 2007학년도 교내 과학탐구대회에서 탁월한 성적을 거두었으므로 이 상장을 수여합니다.', date: '2007년 10월 26일', by: '서화고등학교장' }));
-add('cert_choir_2006', () => certificate(302, { no: '제 2006-41 호', prize: '대  상', who: '제2학년 5반', border: '#6a3a5a', body: '위 학급은 2006학년도 서화 합창제에서 아름다운 화음과 협동심으로 으뜸이 되었기에 이 상장을 수여합니다.', date: '2006년 10월 20일', by: '서화고등학교장' }));
-add('cert_school_2005', () => certificate(303, { no: '제 2005-7 호', title: '표 창 장', prize: '환경 가꾸기 우수학교', who: '서화고등학교', border: '#2a4a7a', body: '귀교는 학교 숲 가꾸기와 자원 재활용 교육에 힘써 학생들의 환경 의식을 높이는 데 이바지하였으므로 이에 표창합니다.', date: '2005년 12월 9일', by: '교 육 감' }));
-add('cert_bcast_2008', () => certificate(304, { no: '제 2008-58 호', prize: '우수상', who: '방송부', border: '#7a4a1a', body: '위 동아리는 2008학년도 교내 영상 · 방송 제작 발표회에서 성실한 준비로 좋은 작품을 만들었으므로 이 상장을 수여합니다.', date: '2008년 7월 11일', by: '서화고등학교장' }));
+add('cert_science_2007', () => certificate(301, { no: '제 2007-112 호', prize: '최우수상', who: '제2학년 3반  정 하 율', body: '위 학생은 2007학년도 교내 과학탐구대회에서 탁월한 성적을 거두었으므로 이 상장을 수여합니다.', date: '2007년 10월 26일', by: '서린고등학교장' }));
+add('cert_choir_2006', () => certificate(302, { no: '제 2006-41 호', prize: '대  상', who: '제2학년 5반', border: '#6a3a5a', body: '위 학급은 2006학년도 서린 합창제에서 아름다운 화음과 협동심으로 으뜸이 되었기에 이 상장을 수여합니다.', date: '2006년 10월 20일', by: '서린고등학교장' }));
+add('cert_school_2005', () => certificate(303, { no: '제 2005-7 호', title: '표 창 장', prize: '환경 가꾸기 우수학교', who: '서린고등학교', border: '#2a4a7a', body: '귀교는 학교 숲 가꾸기와 자원 재활용 교육에 힘써 학생들의 환경 의식을 높이는 데 이바지하였으므로 이에 표창합니다.', date: '2005년 12월 9일', by: '교 육 감' }));
+add('cert_bcast_2008', () => certificate(304, { no: '제 2008-58 호', prize: '우수상', who: '방송부', border: '#7a4a1a', body: '위 동아리는 2008학년도 교내 영상 · 방송 제작 발표회에서 성실한 준비로 좋은 작품을 만들었으므로 이 상장을 수여합니다.', date: '2008년 7월 11일', by: '서린고등학교장' }));
 add('art_wc_school', () => watercolorSchool(401)); add('art_wc_cosmos', () => watercolorFlowers(402)); add('art_still_life', () => stillLife(403)); add('art_plaster_sketch', () => plasterSketch(404));
 POSTERS.forEach((p, k) => add(p.name, () => poster(500 + k, p)));
 

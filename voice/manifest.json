@@ -1,17 +1,17 @@
 {
  "intro1": {
   "spk": "narrator",
-  "text": "2008년 10월 12일, 오후 다섯 시 오십 분. 십 년 전 그 참사를 조용히 덮어 버린 서화고등학교 너머로 검붉은 해가 기울기 시작했다.",
-  "dur": 11.55,
+  "text": "2008년 10월 12일, 오후 다섯 시 오십 분. 십 년 전 그 참사를 조용히 덮어 버린 서린고등학교 너머로 검붉은 해가 기울기 시작했다.",
+  "dur": 11.65,
   "baked": true,
-  "eleven": "[low voice] [slowly] 2008년 10월 12일, 오후 다섯 시 오십 분. 십 년 전 그 참사를 조용히 덮어 버린 서화고등학교 너머로 검붉은 해가 기울기 시작했다.",
+  "eleven": "[low voice] [slowly] 2008년 10월 12일, 오후 다섯 시 오십 분. 십 년 전 그 참사를 조용히 덮어 버린 서린고등학교 너머로 검붉은 해가 기울기 시작했다.",
   "generation": {
    "voice_id": "8G6jifm9f1BhHXadvwOt",
    "model_id": "eleven_v4",
    "language_code": "ko",
    "delivery": "[low voice] [slowly]",
-   "input_sha256": "eabff2460525f1d3d0119d567802d957bcae82d0b7644c1c203d47701b247c67",
-   "audio_sha256": "5c8a606d28f7a0e207f942db1e99d8857d5fe510e7b15cf62a0012f75355c4b9",
+   "input_sha256": "bfe3342761cb6b377f01dd4c331f260d00d9d4ae7e8f7aff11be7421d8a9181b",
+   "audio_sha256": "13e57d0fc0b8ede9bdae145aad196ed8c713f7041f77b97b28cf614b359dfac2",
    "review_status": "unreviewed"
   }
  },
@@ -269,17 +269,17 @@
  },
  "endTrue": {
   "spk": "narrator",
-  "text": "그날 밤, 서화고 스피커에서 학교가 십 년 동안 숨겨 온 진실이 흘러나갔다. 민아를 부축해 정문을 나서는 두 사람의 등 뒤, 방송실 창가에서 이준호가 낡은 카세트 타이머의 전원을 껐다.",
-  "dur": 15.07,
+  "text": "그날 밤, 서린고 스피커에서 학교가 십 년 동안 숨겨 온 진실이 흘러나갔다. 민아를 부축해 정문을 나서는 두 사람의 등 뒤, 방송실 창가에서 이준호가 낡은 카세트 타이머의 전원을 껐다.",
+  "dur": 14.76,
   "baked": true,
-  "eleven": "[low voice] [slowly] 그날 밤, 서화고 스피커에서 학교가 십 년 동안 숨겨 온 진실이 흘러나갔다. 민아를 부축해 정문을 나서는 두 사람의 등 뒤, 방송실 창가에서 이준호가 낡은 카세트 타이머의 전원을 껐다.",
+  "eleven": "[low voice] [slowly] 그날 밤, 서린고 스피커에서 학교가 십 년 동안 숨겨 온 진실이 흘러나갔다. 민아를 부축해 정문을 나서는 두 사람의 등 뒤, 방송실 창가에서 이준호가 낡은 카세트 타이머의 전원을 껐다.",
   "generation": {
    "voice_id": "8G6jifm9f1BhHXadvwOt",
    "model_id": "eleven_v4",
    "language_code": "ko",
    "delivery": "[low voice] [slowly] [pause] [softly]",
-   "input_sha256": "a7be88710a36dc25377851e0a0ade90c2f8a6e6c7153a7a2737b0ab4318e5bc5",
-   "audio_sha256": "21d4c9b3cf5a0ab335018bd286d479fad647b7ed6cefde46186faef4fc96d766",
+   "input_sha256": "aa82bbc6d9e430ac0990f9204df94dbce0fcc1b18b4dae2cbf9ac14affa64a08",
+   "audio_sha256": "9a7d74b19941b1df1a2a3b6890ef2edba4515023e8e5414c28b949ac22133ac6",
    "review_status": "unreviewed"
   }
  },
@@ -691,33 +691,33 @@
  },
  "l_keyMade_j": {
   "spk": "jihun",
-  "text": "1998 서화고 진상 규명 마스터 기록부가 완성됐어! 이제 방송실에서 윤하늘 선배의 진실을 송출하고 세상에 폭로할 수 있어!",
-  "dur": 8.44,
+  "text": "1998 서린고 진상 규명 마스터 기록부가 완성됐어! 이제 방송실에서 윤하늘 선배의 진실을 송출하고 세상에 폭로할 수 있어!",
+  "dur": 8.67,
   "baked": true,
-  "eleven": "[urgently] 1998 서화고 진상 규명 마스터 기록부가 완성됐어! 이제 방송실에서 윤하늘 선배의 진실을 송출하고 세상에 폭로할 수 있어!",
+  "eleven": "[urgently] 1998 서린고 진상 규명 마스터 기록부가 완성됐어! 이제 방송실에서 윤하늘 선배의 진실을 송출하고 세상에 폭로할 수 있어!",
   "generation": {
    "voice_id": "zBfkllpYmUyxwRyQt8Zw",
    "model_id": "eleven_v4",
    "language_code": "ko",
    "delivery": "[urgently]",
-   "input_sha256": "3c5b89d0d4f6abcd752a1cbeff204e4ac013976bc5f1129623a2d27a29d6da2c",
-   "audio_sha256": "c10036a31fe9dd8bf35e0c60e94b120468e15e1f1b282e3eb89bb5f34b05fc14",
+   "input_sha256": "919b401a231c9616802d70147db95fc9a52b15e195074a1d82e6cb39a00f3852",
+   "audio_sha256": "8becd8662bc7b2599e58df50f4380c320587db9f57ba3fa8efc2c26c597755c1",
    "review_status": "unreviewed"
   }
  },
  "l_keyMade_s": {
   "spk": "seoyeon",
-  "text": "드디어 서화고 진상 규명 기록부와 마스터 인장이 하나로 맞춰졌어! 이제 하늘 언니의 억울한 진실을 세상에 알릴 수 있어!",
-  "dur": 7.97,
+  "text": "드디어 서린고 진상 규명 기록부와 마스터 인장이 하나로 맞춰졌어! 이제 하늘 언니의 억울한 진실을 세상에 알릴 수 있어!",
+  "dur": 8.05,
   "baked": true,
-  "eleven": "[urgently] 드디어 서화고 진상 규명 기록부와 마스터 인장이 하나로 맞춰졌어! 이제 하늘 언니의 억울한 진실을 세상에 알릴 수 있어!",
+  "eleven": "[urgently] 드디어 서린고 진상 규명 기록부와 마스터 인장이 하나로 맞춰졌어! 이제 하늘 언니의 억울한 진실을 세상에 알릴 수 있어!",
   "generation": {
    "voice_id": "Mwr1G7n3SF7eQxbSp4At",
    "model_id": "eleven_v4",
    "language_code": "ko",
    "delivery": "[urgently]",
-   "input_sha256": "0ddeda994cd5662d465415625ca26530b0e42439e4d608d355f2782eecb0e16d",
-   "audio_sha256": "c04d497afad8b8a485d484278bc1e64cb77ebd2f6e58bf8823fb38d92bc85a63",
+   "input_sha256": "6db3a46c3798ff5095671dfde1d48f757c7299aeaf5f690807a235b1be514926",
+   "audio_sha256": "2b722518893615f3faebd39b65a01c91278f4648350c948951b1e88c49784893",
    "review_status": "unreviewed"
   }
  },
@@ -1854,33 +1854,33 @@
  },
  "bc_j": {
   "spk": "jihun",
-  "text": "여기는 서화고등학교 방송실입니다. 1998년 10월 12일 밤, 3학년 2반 윤하늘은 실종된 게 아닙니다. 지하 펌프실 철문 안에 갇혀 있었고, 열쇠를 쥔 어른들은 끝내 내려가지 않았습니다. 학교는 그 밤을 단순 실종으로 덮었습니다. 지금부터, 그 증거를 하나씩 공개하겠습니다.",
-  "dur": 21.39,
+  "text": "여기는 서린고등학교 방송실입니다. 1998년 10월 12일 밤, 3학년 2반 윤하늘은 실종된 게 아닙니다. 지하 펌프실 철문 안에 갇혀 있었고, 열쇠를 쥔 어른들은 끝내 내려가지 않았습니다. 학교는 그 밤을 단순 실종으로 덮었습니다. 지금부터, 그 증거를 하나씩 공개하겠습니다.",
+  "dur": 21.16,
   "baked": true,
-  "eleven": "[determined] [steady voice] 여기는 서화고등학교 방송실입니다. [pause] 1998년 10월 12일 밤, 3학년 2반 윤하늘은 실종된 게 아닙니다. [voice breaking] 지하 펌프실 철문 안에 갇혀 있었고, 열쇠를 쥔 어른들은 끝내 내려가지 않았습니다. [angry] 학교는 그 밤을 단순 실종으로 덮었습니다. [determined] 지금부터, 그 증거를 하나씩 공개하겠습니다.",
+  "eleven": "[determined] [steady voice] 여기는 서린고등학교 방송실입니다. [pause] 1998년 10월 12일 밤, 3학년 2반 윤하늘은 실종된 게 아닙니다. [voice breaking] 지하 펌프실 철문 안에 갇혀 있었고, 열쇠를 쥔 어른들은 끝내 내려가지 않았습니다. [angry] 학교는 그 밤을 단순 실종으로 덮었습니다. [determined] 지금부터, 그 증거를 하나씩 공개하겠습니다.",
   "generation": {
    "voice_id": "zBfkllpYmUyxwRyQt8Zw",
    "model_id": "eleven_v4",
    "language_code": "ko",
    "delivery": "[determined] [steady voice] [pause] [voice breaking] [angry] [determined]",
-   "input_sha256": "2c7ad0208bb423fe345884577324c2d53aeb384ecea4d83553395cfdb6f76501",
-   "audio_sha256": "41cc24278c1020e70bc2014ec0b6086c6809fff18646032ff0f287170d852385",
+   "input_sha256": "2844a729bbc9af6919a6a284a8a078f4a1236ec2e21933f3b212de83d282a21e",
+   "audio_sha256": "656497f940c52f9f9de9dc364235051f7b8f61c0e18e9b101802dbbbd69c87c3",
    "review_status": "unreviewed"
   }
  },
  "bc_s": {
   "spk": "seoyeon",
-  "text": "여기는 서화고등학교 방송실입니다. 1998년 10월 12일 밤, 윤하늘 선배는 사라진 게 아니에요. 지하 펌프실에 갇혀서, 문을 두드리고 있었어요. 열쇠를 가진 어른들은 아무도 내려가지 않았고, 학교는 그걸 실종이라고 적었어요. 이제, 그 기록을 전부 공개할게요.",
-  "dur": 21.47,
+  "text": "여기는 서린고등학교 방송실입니다. 1998년 10월 12일 밤, 윤하늘 선배는 사라진 게 아니에요. 지하 펌프실에 갇혀서, 문을 두드리고 있었어요. 열쇠를 가진 어른들은 아무도 내려가지 않았고, 학교는 그걸 실종이라고 적었어요. 이제, 그 기록을 전부 공개할게요.",
+  "dur": 22.05,
   "baked": true,
-  "eleven": "[trembling voice] 여기는 서화고등학교 방송실입니다. [pause] 1998년 10월 12일 밤, 윤하늘 선배는 사라진 게 아니에요. [crying] 지하 펌프실에 갇혀서, 문을 두드리고 있었어요. [angry] 열쇠를 가진 어른들은 아무도 내려가지 않았고, 학교는 그걸 실종이라고 적었어요. [determined] 이제, 그 기록을 전부 공개할게요.",
+  "eleven": "[trembling voice] 여기는 서린고등학교 방송실입니다. [pause] 1998년 10월 12일 밤, 윤하늘 선배는 사라진 게 아니에요. [crying] 지하 펌프실에 갇혀서, 문을 두드리고 있었어요. [angry] 열쇠를 가진 어른들은 아무도 내려가지 않았고, 학교는 그걸 실종이라고 적었어요. [determined] 이제, 그 기록을 전부 공개할게요.",
   "generation": {
    "voice_id": "Mwr1G7n3SF7eQxbSp4At",
    "model_id": "eleven_v4",
    "language_code": "ko",
    "delivery": "[trembling voice] [pause] [crying] [angry] [determined]",
-   "input_sha256": "bdc6b68db98d5a61a0aa742962d09fe86884bb8b236a72a90e3c40a5e832f0c8",
-   "audio_sha256": "a66d97edeba53b327914de2261f59bde7406a91f965242ba196a24be8c1a253d",
+   "input_sha256": "a27fb17fc74f35564666f61acf46de60b3507fbfcc75931d6ff8318522cffbd1",
+   "audio_sha256": "06884367f2570ed405e7e3123a7aad99a424c44c50d7ff1e9c656f77d08606e6",
    "review_status": "unreviewed"
   }
  },
@@ -2866,10 +2866,10 @@
  },
  "note_n21": {
   "spk": "narrator",
-  "text": "학교 행사 안내문. [가정통신문] 10월 12일(목)  방송부 창립 30주년 기념 특별 하교 방송 . 방송부원은 밤 10시까지 방송실에서 리허설을 진행합니다. — 서화고등학교장",
+  "text": "학교 행사 안내문. [가정통신문] 10월 12일(목)  방송부 창립 30주년 기념 특별 하교 방송 . 방송부원은 밤 10시까지 방송실에서 리허설을 진행합니다. — 서린고등학교장",
   "dur": 13.64,
   "baked": true,
-  "eleven": "학교 행사 안내문. [가정통신문] 10월 12일(목)  방송부 창립 30주년 기념 특별 하교 방송 . 방송부원은 밤 10시까지 방송실에서 리허설을 진행합니다. — 서화고등학교장",
+  "eleven": "학교 행사 안내문. [가정통신문] 10월 12일(목)  방송부 창립 30주년 기념 특별 하교 방송 . 방송부원은 밤 10시까지 방송실에서 리허설을 진행합니다. — 서린고등학교장",
   "generation": {
    "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
    "model_id": "eleven_v4",
@@ -2878,8 +2878,8 @@
     "stability": 0.5
    },
    "delivery": "normal",
-   "input_sha256": "7c976dac8b0ea341a53280b608327a154522812c82b0cd58f940cb42ce1e47ac",
-   "audio_sha256": "9ad62a3dec057594dfda56ffbf77ae57efb16ef608388fdc089908d03a4ff36e",
+   "input_sha256": "232cc712954d14ae3ea934815aba2d51b528ebaec0d4dd5bda14786a4b7792f8",
+   "audio_sha256": "998ac42f2b6d1923ee3ace5ab77be117d9467b7141df8878922e365fa8a59c9e",
    "review_status": "unreviewed"
   }
  },
@@ -3592,10 +3592,10 @@
  },
  "note_h2": {
   "spk": "narrator",
-  "text": "별관 머릿돌.  서화고등학교  1974년  3월 2일  개교 「배움은 집으로 가는 길을 밝힌다」  동판 아래 누군가 못으로 긁어 놓았다:  “집에 못 간 애도 있어요” ",
-  "dur": 14.03,
+  "text": "별관 머릿돌.  서린고등학교  1974년  3월 2일  개교 「배움은 집으로 가는 길을 밝힌다」  동판 아래 누군가 못으로 긁어 놓았다:  “집에 못 간 애도 있어요” ",
+  "dur": 14.29,
   "baked": true,
-  "eleven": "별관 머릿돌.  서화고등학교  1974년  3월 2일  개교 「배움은 집으로 가는 길을 밝힌다」  동판 아래 누군가 못으로 긁어 놓았다:  “집에 못 간 애도 있어요” ",
+  "eleven": "별관 머릿돌.  서린고등학교  1974년  3월 2일  개교 「배움은 집으로 가는 길을 밝힌다」  동판 아래 누군가 못으로 긁어 놓았다:  “집에 못 간 애도 있어요” ",
   "generation": {
    "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
    "model_id": "eleven_v4",
@@ -3604,8 +3604,8 @@
     "stability": 0.5
    },
    "delivery": "normal",
-   "input_sha256": "36ef046520dd2d6aa52daf74bc810467ec1a231a7d6ff22db921e39f940e613d",
-   "audio_sha256": "07a3546cd3f00f8dfd0fb1383ad9e76a8f4b2d909a178b9022dacd73a708d46e",
+   "input_sha256": "1784ddea43cc8849bc07c75c6591de584659ef5c5e226cf9b919e5418c98548b",
+   "audio_sha256": "ad5012c895de7c17817a2f79d18083a81b7f5484a75badbf2017d9ca1dbc0c76",
    "review_status": "unreviewed"
   }
  },
@@ -3784,18 +3784,18 @@
  },
  "call_home": {
   "spk": "mom",
-  "text": "여보세요? 얘, 너 지금 어디야! 왜 이렇게 전화가 끊겨…… 서화고 앞이라고? 거기 위험하니까 꼼짝 말고 정문 쪽에 나와 있어, 엄마가 지금 바로 갈게!",
-  "dur": 11.55,
+  "text": "여보세요? 얘, 너 지금 어디야! 왜 이렇게 전화가 끊겨…… 서린고 앞이라고? 거기 위험하니까 꼼짝 말고 정문 쪽에 나와 있어, 엄마가 지금 바로 갈게!",
+  "dur": 11.47,
   "baked": true,
-  "eleven": "여보세요? 얘, 너 지금 어디야! 왜 이렇게 전화가 끊겨…… 서화고 앞이라고? 거기 위험하니까 꼼짝 말고 정문 쪽에 나와 있어, 엄마가 지금 바로 갈게!",
+  "eleven": "여보세요? 얘, 너 지금 어디야! 왜 이렇게 전화가 끊겨…… 서린고 앞이라고? 거기 위험하니까 꼼짝 말고 정문 쪽에 나와 있어, 엄마가 지금 바로 갈게!",
   "generation": {
    "voice_id": "4p0HBzAAGyju0nYfNntV",
    "model_id": "eleven_v4",
    "language_code": "ko",
    "delivery": "emotive v2 (breath/emotion tags)",
    "review_status": "unreviewed",
-   "input_sha256": "6c8ea8ac71d1ca401720441c183fddf988878aaa0d65cefa9a4c3a88806a5edf",
-   "audio_sha256": "492ea95e2ca4babfc5ab0ce85b09ee0fa69df66f7d35e4295b4b24100e1db63d"
+   "input_sha256": "71ca35dc8e2b086aa2bbaaa4c4d3edd0d8023c85d8409ce3065ecc7fdfc81a57",
+   "audio_sha256": "9a92b9248d0a9a8d81fd7a844acc066a98cb9874159adcdcebb3720769911b05"
   }
  },
  "call_guard": {
@@ -3849,8 +3849,8 @@
  },
  "call_119": {
   "spk": "narrator",
-  "text": "119 종합상황실입니다. 전파 상태가 매우 불안정합니다. 이 시간에 서화고등학교 내부라고요? 위치 추적 완료했습니다. 구조대가 정문으로 출동 중이니 즉시 정문 쪽으로 대피하십시오.",
-  "dur": 12.2,
+  "text": "119 종합상황실입니다. 전파 상태가 매우 불안정합니다. 이 시간에 서린고등학교 내부라고요? 위치 추적 완료했습니다. 구조대가 정문으로 출동 중이니 즉시 정문 쪽으로 대피하십시오.",
+  "dur": 12.12,
   "baked": true,
   "generation": {
    "voice_id": "6wIijutElRjsgwLbECzl",
@@ -3858,8 +3858,8 @@
    "language_code": "ko",
    "delivery": "emotive v2 (breath/emotion tags)",
    "review_status": "unreviewed",
-   "input_sha256": "43bfcfa8c01356f7e8d661bdd3ae9c1f9aa39f8fa5e58942e3f46358b345eabb",
-   "audio_sha256": "9e6a90eef193436dee9dbe155fb81b617f50e2b5b315e5b6df478c8a3133b6c9"
+   "input_sha256": "732ba104901390bdc6187cea66d307eb58e6d06424a8101096d052b83a91705c",
+   "audio_sha256": "eefe6e8cbf51e0c87f8b3f23b29d2a0eb72ecede1b9655a50707ae0856b09511"
   }
  },
  "mtape_4": {
@@ -4222,17 +4222,17 @@
  },
  "intro1n": {
   "spk": "narrator",
-  "text": "2008년 10월 12일, 일요일. 저녁 다섯 시 오십 분. 십 년 전 그 사고를 덮어 버린 서화고등학교 너머로… 검붉은 해가 기울고 있다.",
-  "dur": 12.04,
+  "text": "2008년 10월 12일, 일요일. 저녁 다섯 시 오십 분. 십 년 전 그 사고를 덮어 버린 서린고등학교 너머로… 검붉은 해가 기울고 있다.",
+  "dur": 12.93,
   "baked": true,
-  "eleven": "[low voice] [slowly] 2008년 10월 12일, 일요일. 저녁 다섯 시 오십 분. 십 년 전 그 사고를 덮어 버린 서화고등학교 너머로… 검붉은 해가 기울고 있다.",
+  "eleven": "[low voice] [slowly] 2008년 10월 12일, 일요일. 저녁 다섯 시 오십 분. 십 년 전 그 사고를 덮어 버린 서린고등학교 너머로… 검붉은 해가 기울고 있다.",
   "generation": {
    "voice_id": "8G6jifm9f1BhHXadvwOt",
    "model_id": "eleven_v4",
    "language_code": "ko",
    "delivery": "[low voice] [slowly]",
-   "input_sha256": "cf51762cbf7faa35fcf5cb25e4f6821c1c58092ffdfeb98b8b3e63f4672a2ce1",
-   "audio_sha256": "ae916fb18efb7827b8c9c5b2849e2d888aa718436aa28b93e56ed9a2243a1bfe",
+   "input_sha256": "55fa92e41bf224dfde4774cb54e2acc94fd535acd1b3249c3d502b276a35b4c2",
+   "audio_sha256": "c83cd51bcb661eb7a16f59f1d4f15420365ff144f3898c9213071203056ba2d7",
    "review_status": "unreviewed"
   }
  },
@@ -4254,17 +4254,17 @@
  },
  "intro3n": {
   "spk": "mina",
-  "text": "나야, 민아. 이 메시지가 언제 들어갈지 모르겠어… 여기 신호가 이상해. 십 년 전 그날 밤, 학교는 사고를 그냥 실종으로 덮었어. 선생님 다섯 명이 증거를 나눠서 숨긴 것 같아. 혹시 내가 계속 연락이 안 되면… 서화일보 호외부터 봐. 거기서부터 시작하면 돼.",
-  "dur": 22.44,
+  "text": "나야, 민아. 이 메시지가 언제 들어갈지 모르겠어… 여기 신호가 이상해. 십 년 전 그날 밤, 학교는 사고를 그냥 실종으로 덮었어. 선생님 다섯 명이 증거를 나눠서 숨긴 것 같아. 혹시 내가 계속 연락이 안 되면… 서린일보 호외부터 봐. 거기서부터 시작하면 돼.",
+  "dur": 22.2,
   "baked": true,
-  "eleven": "[frightened] [softly] [hesitant] 나야, 민아. 이 메시지가 언제 들어갈지 모르겠어… 여기 신호가 이상해. 십 년 전 그날 밤, 학교는 사고를 그냥 실종으로 덮었어. 선생님 다섯 명이 증거를 나눠서 숨긴 것 같아. 혹시 내가 계속 연락이 안 되면… 서화일보 호외부터 봐. 거기서부터 시작하면 돼.",
+  "eleven": "[frightened] [softly] [hesitant] 나야, 민아. 이 메시지가 언제 들어갈지 모르겠어… 여기 신호가 이상해. 십 년 전 그날 밤, 학교는 사고를 그냥 실종으로 덮었어. 선생님 다섯 명이 증거를 나눠서 숨긴 것 같아. 혹시 내가 계속 연락이 안 되면… 서린일보 호외부터 봐. 거기서부터 시작하면 돼.",
   "generation": {
    "voice_id": "oGV8pbtfEm7fbDPdSfrx",
    "model_id": "eleven_v4",
    "language_code": "ko",
    "delivery": "[frightened] [softly] [hesitant]",
-   "input_sha256": "7e5cf9e3f28944c1bf656bc5da4149ac7941aaeefe26f1429394596c9a47757b",
-   "audio_sha256": "29de58cb2788466fadc99d232aa1341ebbc756ba1d71e0da984c2fe76400e15b",
+   "input_sha256": "c119d9e3b1c15dd4b78a5c948cc1f530eec93b5cb96f52207bbdc78ab580a699",
+   "audio_sha256": "b5b9196ca164ab69937fc624192165be36353266be2f2492be1382f2f3138666",
    "review_status": "unreviewed"
   }
  },
@@ -4302,17 +4302,17 @@
  },
  "news_rep": {
   "spk": "reporter",
-  "text": "서화일보 사회부 한진우입니다. 어젯밤 열한 시 이십 분경, 서화고 본관 정전 직후 3학년 윤하늘 양이 실종됐습니다. 학교 측은 귀가 중 실종이라 밝혔지만, 감식반은 지하 펌프실 철문이 밖에서 잠겨 있던 흔적을 확보했습니다. 학교는 오늘 아침, 추가 취재를 일절 거부했습니다.",
-  "dur": 17.63,
+  "text": "서린일보 사회부 한진우입니다. 어젯밤 열한 시 이십 분경, 서린고 본관 정전 직후 3학년 윤하늘 양이 실종됐습니다. 학교 측은 귀가 중 실종이라 밝혔지만, 감식반은 지하 펌프실 철문이 밖에서 잠겨 있던 흔적을 확보했습니다. 학교는 오늘 아침, 추가 취재를 일절 거부했습니다.",
+  "dur": 17.71,
   "baked": true,
-  "eleven": "[professional] [urgent] 서화일보 사회부 한진우입니다. 어젯밤 열한 시 이십 분경, 서화고 본관 정전 직후 3학년 윤하늘 양이 실종됐습니다. 학교 측은 귀가 중 실종이라 밝혔지만, 감식반은 지하 펌프실 철문이 밖에서 잠겨 있던 흔적을 확보했습니다. 학교는 오늘 아침, 추가 취재를 일절 거부했습니다.",
+  "eleven": "[professional] [urgent] 서린일보 사회부 한진우입니다. 어젯밤 열한 시 이십 분경, 서린고 본관 정전 직후 3학년 윤하늘 양이 실종됐습니다. 학교 측은 귀가 중 실종이라 밝혔지만, 감식반은 지하 펌프실 철문이 밖에서 잠겨 있던 흔적을 확보했습니다. 학교는 오늘 아침, 추가 취재를 일절 거부했습니다.",
   "generation": {
    "voice_id": "J3IV02ZzZmojOIQbmpu0",
    "model_id": "eleven_v4",
    "language_code": "ko",
    "delivery": "[professional] [urgent]",
-   "input_sha256": "75f6298b86eee31a1e8e667445205e23c28e78bf9522bc532d5b46e4be593bac",
-   "audio_sha256": "44abc4f6297418161a61f7dd7bb91f841158e88fb0e546d986a223109d597a13",
+   "input_sha256": "e8ec2521bfc6d590211d7e88813c308d7af2ca15c31b7fad0055583a2ff89346",
+   "audio_sha256": "75b2f10d03660c3443428b9625b5008820e8f2469b226d98e43a32f897f2a985",
    "review_status": "unreviewed"
   }
  },
@@ -5134,17 +5134,17 @@
  },
  "nv_h2": {
   "spk": "narrator",
-  "text": "서화고등학교, 1974년 3월 2일 개교. 배움은 집으로 가는 길을 밝힌다. 동판 아래, 누군가 못으로 긁어 놓았다. 집에 못 간 애도 있어요.",
-  "dur": 13.71,
+  "text": "서린고등학교, 1974년 3월 2일 개교. 배움은 집으로 가는 길을 밝힌다. 동판 아래, 누군가 못으로 긁어 놓았다. 집에 못 간 애도 있어요.",
+  "dur": 14.11,
   "baked": true,
-  "eleven": "[low voice] [slowly] 서화고등학교, 1974년 3월 2일 개교. 배움은 집으로 가는 길을 밝힌다. 동판 아래, 누군가 못으로 긁어 놓았다. 집에 못 간 애도 있어요.",
+  "eleven": "[low voice] [slowly] 서린고등학교, 1974년 3월 2일 개교. 배움은 집으로 가는 길을 밝힌다. 동판 아래, 누군가 못으로 긁어 놓았다. 집에 못 간 애도 있어요.",
   "generation": {
    "voice_id": "8G6jifm9f1BhHXadvwOt",
    "model_id": "eleven_v4",
    "language_code": "ko",
    "delivery": "[low voice] [slowly]",
-   "input_sha256": "7b747df532c3c47e65f0a143dfeff0d90024f11cb9a6f18c9b8964bab3be5632",
-   "audio_sha256": "b0cf6753311e057bbc06397b5ee12da809cd8fdd746a3b8a35ef5f811f7d48bb",
+   "input_sha256": "77c7c17c16418e2de3244b1597848bb0c7e8e15d1041003d52ec53cbf3f5cff6",
+   "audio_sha256": "24745283fc1a1d24a2de6a7927e518b6f8d58ae4f04d3d091d9e413258875001",
    "review_status": "unreviewed"
   }
  },
@@ -5486,17 +5486,17 @@
  },
  "ts_paramedic": {
   "spk": "paramedic",
-  "text": "서화소방서 구급대 기록입니다. 서화고 출동 요청 접수 시각은 10월 13일 오전 여섯 시 십 분. 사고 시각으로부터 약 일곱 시간 뒤입니다. 그날 밤엔, 신고가 한 건도 없었습니다.",
+  "text": "서린소방서 구급대 기록입니다. 서린고 출동 요청 접수 시각은 10월 13일 오전 여섯 시 십 분. 사고 시각으로부터 약 일곱 시간 뒤입니다. 그날 밤엔, 신고가 한 건도 없었습니다.",
   "dur": 13.64,
   "baked": true,
-  "eleven": "[calm] [professional] 서화소방서 구급대 기록입니다. 서화고 출동 요청 접수 시각은 10월 13일 오전 여섯 시 십 분. 사고 시각으로부터 약 일곱 시간 뒤입니다. 그날 밤엔, 신고가 한 건도 없었습니다.",
+  "eleven": "[calm] [professional] 서린소방서 구급대 기록입니다. 서린고 출동 요청 접수 시각은 10월 13일 오전 여섯 시 십 분. 사고 시각으로부터 약 일곱 시간 뒤입니다. 그날 밤엔, 신고가 한 건도 없었습니다.",
   "generation": {
    "voice_id": "M7AHsCtFdpWTIL58I3ap",
    "model_id": "eleven_v4",
    "language_code": "ko",
    "delivery": "[calm] [professional]",
-   "input_sha256": "f2661c1e6ea7be31ab6c55bda4fb6b02225fb43e42deea4add5818e12ed5fb5e",
-   "audio_sha256": "8511473c2e909229eaa3cda5d95067165a74ccd58fc71de2df5d83222188ca2a",
+   "input_sha256": "4f9d5e3a72cfa37a852e41d464261bedaac07ddeb3cb5e94554b10e09182d603",
+   "audio_sha256": "8a95d2d15bec3e5ae8455d99ca474683d91ee109822310122ad9d89365aae5cf",
    "review_status": "unreviewed"
   }
  },
@@ -5726,17 +5726,17 @@
  },
  "gd_call": {
   "spk": "guard",
-  "text": "서화고등학교 정문 경비실입니다. 지금은 근무자가 자리에 없슈. 용건 남기시믄… 밤에는 본관 출입 금지여유. 지하는 물이 차서 위험허니께, 절대 내려가지 마유.",
-  "dur": 13.09,
+  "text": "서린고등학교 정문 경비실입니다. 지금은 근무자가 자리에 없슈. 용건 남기시믄… 밤에는 본관 출입 금지여유. 지하는 물이 차서 위험허니께, 절대 내려가지 마유.",
+  "dur": 12.67,
   "baked": true,
-  "eleven": "[elderly voice] [rough] 서화고등학교 정문 경비실입니다. 지금은 근무자가 자리에 없슈. 용건 남기시믄… 밤에는 본관 출입 금지여유. 지하는 물이 차서 위험허니께, 절대 내려가지 마유.",
+  "eleven": "[elderly voice] [rough] 서린고등학교 정문 경비실입니다. 지금은 근무자가 자리에 없슈. 용건 남기시믄… 밤에는 본관 출입 금지여유. 지하는 물이 차서 위험허니께, 절대 내려가지 마유.",
   "generation": {
    "voice_id": "lZLh6IYERWP1xQ7NnDOg",
    "model_id": "eleven_v4",
    "language_code": "ko",
    "delivery": "[elderly voice] [rough]",
-   "input_sha256": "e2f915b9f882b45b0599907417986443c9bb29457970df5ec31d804ec7411842",
-   "audio_sha256": "62bb4ab95a09ed451d4a7a860d9add22ababaf83f688b684c7f329ff06555d20",
+   "input_sha256": "37a393c726c0599262efea77c27d0782e7a95fc615e3abed61f8b2c753d44445",
+   "audio_sha256": "a487e042bbe1c70ca54bec89a0702eecd9398e4cd9cf8cb2a0598b09f8627ce2",
    "review_status": "unreviewed"
   }
  },
@@ -5835,8 +5835,8 @@
  },
  "call_119_a2": {
   "spk": "dispatcher",
-  "text": "이 시간에 서화고등학교 안이요? 전파가 많이 끊깁니다. 지금 다치신 데는 없으십니까?",
-  "dur": 6.19,
+  "text": "이 시간에 서린고등학교 안이요? 전파가 많이 끊깁니다. 지금 다치신 데는 없으십니까?",
+  "dur": 6.27,
   "baked": true,
   "generation": {
    "voice_id": "nNTkFJj9NHSRZIngrG19",
@@ -5844,14 +5844,14 @@
    "language_code": "ko",
    "delivery": "emotive v2 (breath/emotion tags)",
    "review_status": "unreviewed",
-   "input_sha256": "143fb9e833b5a6785a5009aff9c6efb088a407f0b57e18c6439ac174e29b09f3",
-   "audio_sha256": "7b87af379012319dcbdd84fa4bb84d0121e7f35e82e168252d3eabe9ec358b7c"
+   "input_sha256": "ec2f9d40fbe2702e7f2a8a8faccee4869140f49e331af1d520a4431294831963",
+   "audio_sha256": "efc552c7d9a5490644ac17b9f8f8102523805342855326547a9eedef12df5fde"
   }
  },
  "call_119_a3": {
   "spk": "dispatcher",
-  "text": "위치 추적 들어갑니다. 잠시만요…… 확인됐습니다. 본관 쪽이네요. 서화소방서 구조대에 출동 지시했습니다.",
-  "dur": 8.12,
+  "text": "위치 추적 들어갑니다. 잠시만요…… 확인됐습니다. 본관 쪽이네요. 서린소방서 구조대에 출동 지시했습니다.",
+  "dur": 8.2,
   "baked": true,
   "generation": {
    "voice_id": "nNTkFJj9NHSRZIngrG19",
@@ -5859,8 +5859,8 @@
    "language_code": "ko",
    "delivery": "emotive v2 (breath/emotion tags)",
    "review_status": "unreviewed",
-   "input_sha256": "01d5f6ce04469c5b6da1461faaf40452ac5bf4189f140db27698e55603c9e790",
-   "audio_sha256": "78bbfb9aeb3f5f7d253bbfdb890cb8b9bef6e1ce5e052ecb49153ab83561acbe"
+   "input_sha256": "9e49bcab46bcee4d377dcc6fbb0a341e1fd7c8aa4e0645bb4675b2cda5d63bf2",
+   "audio_sha256": "1f060399371164898daa06c2e49d3742726cdf107d0a08803e2bdf5056495161"
   }
  },
  "call_119_a4": {
@@ -5891,7 +5891,7 @@
  },
  "call_119_b1": {
   "spk": "dispatcher",
-  "text": "네, 상황실입니다. 아까 서화고에서 신고하신 분 맞으시죠? 구조대가 정문 쇠사슬을 끊고 있습니다.",
+  "text": "네, 상황실입니다. 아까 서린고에서 신고하신 분 맞으시죠? 구조대가 정문 쇠사슬을 끊고 있습니다.",
   "dur": 7.24,
   "baked": true,
   "generation": {
@@ -5900,8 +5900,8 @@
    "language_code": "ko",
    "delivery": "emotive v2 (breath/emotion tags)",
    "review_status": "unreviewed",
-   "input_sha256": "828ad7060c16d764eb1d9bd5c28cde755154badc9ef7a86c59b347df69227b6c",
-   "audio_sha256": "c74b940764c4de22fc882c3c3ea1e78c45503b255caefe6599a3484b93ec4ffd"
+   "input_sha256": "dc30d3e4224e96d3fe2f6340035531a45e3e4e18d45909dc1b18a7fd33491da4",
+   "audio_sha256": "344ef5b66f0a4cef5a4d1bdf142b1e88f044d0569f185bfc289957dce9830573"
   }
  },
  "call_119_b2": {
@@ -5945,8 +5945,8 @@
  },
  "call_home_a2": {
   "spk": "mom",
-  "text": "서화고? 이 밤에 거길 왜 들어가. 거기서 십 년 전에 애 하나 없어졌던 거, 너도 알잖아.",
-  "dur": 7.55,
+  "text": "서린고? 이 밤에 거길 왜 들어가. 거기서 십 년 전에 애 하나 없어졌던 거, 너도 알잖아.",
+  "dur": 7.31,
   "baked": true,
   "generation": {
    "voice_id": "4p0HBzAAGyju0nYfNntV",
@@ -5954,8 +5954,8 @@
    "language_code": "ko",
    "delivery": "emotive v2 (breath/emotion tags)",
    "review_status": "unreviewed",
-   "input_sha256": "2dad1bc5013599d18f1f2025ae4f99d7847492f183a04d55ace5483e6d64fe53",
-   "audio_sha256": "45a01aadbb75890e1f6bf435ba53be43e99e9cf8dfb10e5bd1cf1f2ccd2ad4a9"
+   "input_sha256": "4e45f5e9b8cf9272b62bdc32b3b9d260ca276bc24d1796da5304c5e2287f760c",
+   "audio_sha256": "4433e204d9048b9f35297025a18a4af2386f9194f656f09f7f5d18a58767b321"
   }
  },
  "call_home_a3": {
@@ -6025,8 +6025,8 @@
  },
  "call_home_c1": {
   "spk": "mom",
-  "text": "방금 라디오에서…… 네 목소리가 나왔어. 서화고등학교 방송실이라고.",
-  "dur": 5.96,
+  "text": "방금 라디오에서…… 네 목소리가 나왔어. 서린고등학교 방송실이라고.",
+  "dur": 5.88,
   "baked": true,
   "generation": {
    "voice_id": "4p0HBzAAGyju0nYfNntV",
@@ -6034,8 +6034,8 @@
    "language_code": "ko",
    "delivery": "emotive v2 (breath/emotion tags)",
    "review_status": "unreviewed",
-   "input_sha256": "2dc1550034e56a01530614d5f46a983603538fc08a469836ece02e52d0460d24",
-   "audio_sha256": "d932a99ffdbeab75b0a8625e67ea747e1978b3eee38c8ae3c9634c3f3859d927"
+   "input_sha256": "9974635308ad06525595ca4fe2f1a7dd08cb5051786b00b86eb1b6664fbe7e9b",
+   "audio_sha256": "f273ba19b3e181553e9b0bb25f8c4b32c4ba34018953093bbb0abc321fd1d7b1"
   }
  },
  "call_home_c2": {
@@ -6194,17 +6194,17 @@
  },
  "l_pumpPolice_j": {
   "spk": "jihun",
-  "text": "지하 펌프실 한복판에 경찰 폴리스라인이 쳐져 있어… 바닥에 1998년 서화일보 지역신문 호외가 떨어져 있네.",
-  "dur": 8.91,
+  "text": "지하 펌프실 한복판에 경찰 폴리스라인이 쳐져 있어… 바닥에 1998년 서린일보 지역신문 호외가 떨어져 있네.",
+  "dur": 8.75,
   "baked": true,
-  "eleven": "[tense] 지하 펌프실 한복판에 경찰 폴리스라인이 쳐져 있어… 바닥에 1998년 서화일보 지역신문 호외가 떨어져 있네.",
+  "eleven": "[tense] 지하 펌프실 한복판에 경찰 폴리스라인이 쳐져 있어… 바닥에 1998년 서린일보 지역신문 호외가 떨어져 있네.",
   "generation": {
    "voice_id": "zBfkllpYmUyxwRyQt8Zw",
    "model_id": "eleven_v4",
    "language_code": "ko",
    "delivery": "[tense]",
-   "input_sha256": "9e81dfccdc6369a3963c246a5bf58270c778d50341f0d4e40255246eca546216",
-   "audio_sha256": "1c64ef6bf91ba678b1cc968b24c6086362cd59517032349d33e072453590e3fd",
+   "input_sha256": "38e748ac973d0ed77ef663ffc1885bacaca1b0354d08271a4a21c52004b49eee",
+   "audio_sha256": "600e27e8f6e685d2157e797b9b972c6121a86c1b45144a8874b587e3a0bb3561",
    "review_status": "unreviewed"
   }
  },
@@ -6226,33 +6226,33 @@
  },
  "l_seomunPaper_j": {
   "spk": "jihun",
-  "text": "1998년 10월 13일자 서화일보 호외… \"서화고 3학년 윤하늘 양 심야 실종, 지하 배수 펌프실 안쪽에서 마지막 흔적 발견\"이라고 적혀 있어.",
-  "dur": 11.47,
+  "text": "1998년 10월 13일자 서린일보 호외… \"서린고 3학년 윤하늘 양 심야 실종, 지하 배수 펌프실 안쪽에서 마지막 흔적 발견\"이라고 적혀 있어.",
+  "dur": 11.08,
   "baked": true,
-  "eleven": "[tense] 1998년 10월 13일자 서화일보 호외… \"서화고 3학년 윤하늘 양 심야 실종, 지하 배수 펌프실 안쪽에서 마지막 흔적 발견\"이라고 적혀 있어.",
+  "eleven": "[tense] 1998년 10월 13일자 서린일보 호외… \"서린고 3학년 윤하늘 양 심야 실종, 지하 배수 펌프실 안쪽에서 마지막 흔적 발견\"이라고 적혀 있어.",
   "generation": {
    "voice_id": "zBfkllpYmUyxwRyQt8Zw",
    "model_id": "eleven_v4",
    "language_code": "ko",
    "delivery": "[tense]",
-   "input_sha256": "3908af2df0c1ce2175895fe692c412e0bc3c0ddee9ee7fde2d1c0cdf29451ae3",
-   "audio_sha256": "defd6c252b9d82ab3fb57891f69f6faa73d3067e7f8f3513f5f190e08c797bdb",
+   "input_sha256": "fc34be4a1378aa31a6c9b94de8f1e0e25c95911a014ae9da35795a62a96896af",
+   "audio_sha256": "d397ce69d2dfbc1a39f42bf969ca47e7a0cce617b45090db726f4307385b6ad9",
    "review_status": "unreviewed"
   }
  },
  "l_seomunPaper_s": {
   "spk": "seoyeon",
-  "text": "서화일보 특별 호외야… 학교 측은 단순 가출이라고 주장했지만, 경찰 감식반은 펌프실 문이 밖에서 잠겨 있었다고 기록했어.",
-  "dur": 9.72,
+  "text": "서린일보 특별 호외야… 학교 측은 단순 가출이라고 주장했지만, 경찰 감식반은 펌프실 문이 밖에서 잠겨 있었다고 기록했어.",
+  "dur": 9.8,
   "baked": true,
-  "eleven": "[nervous] 서화일보 특별 호외야… 학교 측은 단순 가출이라고 주장했지만, 경찰 감식반은 펌프실 문이 밖에서 잠겨 있었다고 기록했어.",
+  "eleven": "[nervous] 서린일보 특별 호외야… 학교 측은 단순 가출이라고 주장했지만, 경찰 감식반은 펌프실 문이 밖에서 잠겨 있었다고 기록했어.",
   "generation": {
    "voice_id": "Mwr1G7n3SF7eQxbSp4At",
    "model_id": "eleven_v4",
    "language_code": "ko",
    "delivery": "[nervous]",
-   "input_sha256": "e37178228f7904ac6fd65817df38d6f8e1fbfbe1673554320d0df18a76bc0f37",
-   "audio_sha256": "cd4a531e4cb38bf40a2ef0d2cb5f5c7ce6ee2efd2667d951dc9c909d71faa458",
+   "input_sha256": "2b327d8876382e5733159078583a781af1b85dd432158656cec7283920fe742a",
+   "audio_sha256": "3a0b1d1bf2923cf2b77be471d38a6c7a598993152ff6a674371a2c074a653b0a",
    "review_status": "unreviewed"
   }
  },
@@ -6322,8 +6322,8 @@
  },
  "call_rep_a1": {
   "spk": "reporter",
-  "text": "서화일보 사회부입니다. …서화고요? 그 사건이라면, 십 년 전에 제가 쓴 기사가 하루 만에 내려갔습니다.",
-  "dur": 7.39,
+  "text": "서린일보 사회부입니다. …서린고요? 그 사건이라면, 십 년 전에 제가 쓴 기사가 하루 만에 내려갔습니다.",
+  "dur": 7.47,
   "baked": true,
   "generation": {
    "voice_id": "J3IV02ZzZmojOIQbmpu0",
@@ -6331,8 +6331,8 @@
    "language_code": "ko",
    "delivery": "emotive v2 (breath/emotion tags)",
    "review_status": "unreviewed",
-   "input_sha256": "b9ade102b54a83d1ae37b9d2a9226edcc37b41ab9b2d9574512f91d4b96c296a",
-   "audio_sha256": "0fe36efb96eb72f66412244bd12491bdabdd7acccb6656d073c248c4fb31ddd6"
+   "input_sha256": "0d6d99234da232b2ad74d50d3cc140f9ac80222863904f8ba3236068d797e37e",
+   "audio_sha256": "875a9fbf71a2401822efbb1e6d537b8bbb0bafea5c8e0906da3d2a546b6163dc"
   }
  },
  "call_rep_a2": {
@@ -6441,8 +6441,8 @@
  },
  "call_og1": {
   "spk": "guard",
-  "text": "여보세유? …서화고? 아이고, 이 밤에 그 학교 얘기를 누가 묻는댜.",
-  "dur": 6.11,
+  "text": "여보세유? …서린고? 아이고, 이 밤에 그 학교 얘기를 누가 묻는댜.",
+  "dur": 6.43,
   "baked": true,
   "generation": {
    "voice_id": "lZLh6IYERWP1xQ7NnDOg",
@@ -6450,8 +6450,8 @@
    "language_code": "ko",
    "delivery": "emotive v2 (breath/emotion tags)",
    "review_status": "unreviewed",
-   "input_sha256": "a17c4389e81ee9ad492ef3a28ce8128113c59e8914f0242994690b057bdf58cd",
-   "audio_sha256": "773ea9ec67d233a83e33fa38ab7897feeb0faf160b8575a958dd1b90faf81d25"
+   "input_sha256": "5e39c8c7ad9ebb3f7953a5ad91e45b84a322ae1aad1ff3fb4e8dea1d34fd3112",
+   "audio_sha256": "bb74e7caa485b1b118be111e510a563fc09ea1f650bbdea5b3114480cff194da"
   }
  },
  "call_og2": {
@@ -6627,17 +6627,17 @@
  },
  "nd_n_principal_tape": {
   "spk": "principal",
-  "text": "[1998년 10월 12일 23:10 교장실 극비 녹취록 — 제9대 교장] “지하 배전반 노후 합선과 펌프실 감금 사고가 경찰이나 서화일보 기자들에게 새어 나가면 재단과 학교는 끝장일세. 보고서에는 무조건 하교 후 단순 실종으로 적게. 오늘 밤 학교에 남아 있던 우리 다섯(교무실·도서실·과학실·체육관·수영장)이 비상 정문 열쇠를 한 조각씩 나누어 봉인하고, 열쇠의 머리는 내 금고와 별관에 숨기겠네. 교장실 괘종시계를 자정(12:00)에 맞추면 서고 금고가 열린다네.”",
-  "dur": 33.23,
+  "text": "[1998년 10월 12일 23:10 교장실 극비 녹취록 — 제9대 교장] “지하 배전반 노후 합선과 펌프실 감금 사고가 경찰이나 서린일보 기자들에게 새어 나가면 재단과 학교는 끝장일세. 보고서에는 무조건 하교 후 단순 실종으로 적게. 오늘 밤 학교에 남아 있던 우리 다섯(교무실·도서실·과학실·체육관·수영장)이 비상 정문 열쇠를 한 조각씩 나누어 봉인하고, 열쇠의 머리는 내 금고와 별관에 숨기겠네. 교장실 괘종시계를 자정(12:00)에 맞추면 서고 금고가 열린다네.”",
+  "dur": 34.04,
   "baked": true,
-  "eleven": "[1998년 10월 12일 23:10 교장실 극비 녹취록 — 제9대 교장] “지하 배전반 노후 합선과 펌프실 감금 사고가 경찰이나 서화일보 기자들에게 새어 나가면 재단과 학교는 끝장일세. 보고서에는 무조건 하교 후 단순 실종으로 적게. 오늘 밤 학교에 남아 있던 우리 다섯(교무실·도서실·과학실·체육관·수영장)이 비상 정문 열쇠를 한 조각씩 나누어 봉인하고, 열쇠의 머리는 내 금고와 별관에 숨기겠네. 교장실 괘종시계를 자정(12:00)에 맞추면 서고 금고가 열린다네.”",
+  "eleven": "[1998년 10월 12일 23:10 교장실 극비 녹취록 — 제9대 교장] “지하 배전반 노후 합선과 펌프실 감금 사고가 경찰이나 서린일보 기자들에게 새어 나가면 재단과 학교는 끝장일세. 보고서에는 무조건 하교 후 단순 실종으로 적게. 오늘 밤 학교에 남아 있던 우리 다섯(교무실·도서실·과학실·체육관·수영장)이 비상 정문 열쇠를 한 조각씩 나누어 봉인하고, 열쇠의 머리는 내 금고와 별관에 숨기겠네. 교장실 괘종시계를 자정(12:00)에 맞추면 서고 금고가 열린다네.”",
   "generation": {
    "voice_id": "kiVK4omWhBQ9AzwcaRq7",
    "model_id": "eleven_v4",
    "language_code": "ko",
    "review_status": "unreviewed",
-   "input_sha256": "146fcc4ebd3dd3f5e435d425716cdbb4fa216daa4bfe37f75c614a485b0cb535",
-   "audio_sha256": "4d827927038d2badbf57862c3ec16f8001528ff57fd8a39ecc4c0afccf023490"
+   "input_sha256": "b27b1c40d7347b80b2ab6b64193cfaeab756e3a57ecabb22639872b019152fdf",
+   "audio_sha256": "8385b38e98a3359f155b3b3265e09289a3ef3b9e8557915d654a03f55a947780"
   }
  },
  "nd_n_bunker_audit": {
@@ -6793,17 +6793,17 @@
  },
  "nd_n11": {
   "spk": "headTeacher",
-  "text": "지하 B1 점검 완료. 비상 통로는 봉인. 단, 5대 비밀 증거와 교장 직인 코어를 결합해 서화고 진상 규명 기록부(마스터 인장)가 완성되면 비상 통로와 교문의 봉인이 풀린다.",
-  "dur": 13.64,
+  "text": "지하 B1 점검 완료. 비상 통로는 봉인. 단, 5대 비밀 증거와 교장 직인 코어를 결합해 서린고 진상 규명 기록부(마스터 인장)가 완성되면 비상 통로와 교문의 봉인이 풀린다.",
+  "dur": 13.71,
   "baked": true,
-  "eleven": "지하 B1 점검 완료. 비상 통로는 봉인. 단, 5대 비밀 증거와 교장 직인 코어를 결합해 서화고 진상 규명 기록부(마스터 인장)가 완성되면 비상 통로와 교문의 봉인이 풀린다.",
+  "eleven": "지하 B1 점검 완료. 비상 통로는 봉인. 단, 5대 비밀 증거와 교장 직인 코어를 결합해 서린고 진상 규명 기록부(마스터 인장)가 완성되면 비상 통로와 교문의 봉인이 풀린다.",
   "generation": {
    "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
    "model_id": "eleven_v4",
    "language_code": "ko",
    "review_status": "unreviewed",
-   "input_sha256": "4d24020c4334601742feeea536755e6f90682f5a9c4fe83dcd22a821a42ee82e",
-   "audio_sha256": "dad7ca333bf53d426ffaf3af732eab98c160ad27788beacfe14a89d2a6e64d6a"
+   "input_sha256": "a23ad48024cb213e24c2d7a0e9dafbb15e40e501c72774a4ed120c3fe594f4d7",
+   "audio_sha256": "b46b1061effb3f5adc7d7a7f988e6c5d436ca6552e8bc34af3b1561e0e314a9f"
   }
  },
  "nd_n12": {
@@ -6888,17 +6888,17 @@
  },
  "nd_n21": {
   "spk": "principal",
-  "text": "[가정통신문] 10월 12일(목) 방송부 창립 30주년 기념 특별 하교 방송. 방송부원은 밤 10시까지 방송실에서 리허설을 진행합니다. — 서화고등학교장",
-  "dur": 11.15,
+  "text": "[가정통신문] 10월 12일(목) 방송부 창립 30주년 기념 특별 하교 방송. 방송부원은 밤 10시까지 방송실에서 리허설을 진행합니다. — 서린고등학교장",
+  "dur": 11.0,
   "baked": true,
-  "eleven": "[가정통신문] 10월 12일(목) 방송부 창립 30주년 기념 특별 하교 방송. 방송부원은 밤 10시까지 방송실에서 리허설을 진행합니다. — 서화고등학교장",
+  "eleven": "[가정통신문] 10월 12일(목) 방송부 창립 30주년 기념 특별 하교 방송. 방송부원은 밤 10시까지 방송실에서 리허설을 진행합니다. — 서린고등학교장",
   "generation": {
    "voice_id": "kiVK4omWhBQ9AzwcaRq7",
    "model_id": "eleven_v4",
    "language_code": "ko",
    "review_status": "unreviewed",
-   "input_sha256": "2709a9909f5ead6a5327fbea7f466906f480986a71b24b02867e09e6b9dc8ab4",
-   "audio_sha256": "b8ceec615fe133dc5d633a39c382ca6645e729580d30b080d987c9395ed4786a"
+   "input_sha256": "6ee2e89c178f6093d46fe3f78a2dc191223532494d39d81478910e7a2b925ba6",
+   "audio_sha256": "6d93af9469ac9c8e4d20a3ef8bdd0dbd8951585fef2011a3ae069a70c276ad64"
   }
  },
  "nd_n22": {
@@ -8283,8 +8283,8 @@
  },
  "call_112_a2": {
   "spk": "police",
-  "text": "서화고등학교 안이라고요? 지금 혼자 계십니까? …… 알겠습니다. 침착하세요. 휴대폰 위치 확인하고 있습니다.",
-  "dur": 8.91,
+  "text": "서린고등학교 안이라고요? 지금 혼자 계십니까? …… 알겠습니다. 침착하세요. 휴대폰 위치 확인하고 있습니다.",
+  "dur": 9.4,
   "baked": true,
   "generation": {
    "voice_id": "M7AHsCtFdpWTIL58I3ap",
@@ -8292,13 +8292,13 @@
    "language_code": "ko",
    "delivery": "emotive v2 (breath/emotion tags)",
    "review_status": "unreviewed",
-   "input_sha256": "f8617c0589ede16186d28f14cd5d7bce4f869f488a5e103cbc371f99c44c3848",
-   "audio_sha256": "5a48888c0a06432b194b556bef1740cc1e5ecf679d3f59c191686bfc37b729a2"
+   "input_sha256": "703694f62e2850418f92e877523fca14af3a79844d55e5f56d92b6c039a11e76",
+   "audio_sha256": "439231d916507b89baa36b3d800730a9c236c1625cb4a38820e11dbece89368d"
   }
  },
  "call_112_a3": {
   "spk": "police",
-  "text": "위치 잡혔습니다. 서화지구대 순찰차 바로 보내겠습니다. 정문 쪽으로 나올 수 있으면 불 켜진 곳으로 이동하시고, 전화는 끊지 말고 계세요.",
+  "text": "위치 잡혔습니다. 서린지구대 순찰차 바로 보내겠습니다. 정문 쪽으로 나올 수 있으면 불 켜진 곳으로 이동하시고, 전화는 끊지 말고 계세요.",
   "dur": 8.83,
   "baked": true,
   "generation": {
@@ -8307,14 +8307,14 @@
    "language_code": "ko",
    "delivery": "emotive v2 (breath/emotion tags)",
    "review_status": "unreviewed",
-   "input_sha256": "9525ae7a4777dad79903dfb9382cd6e594d79f653932127e0dc254a02189c811",
-   "audio_sha256": "e7328c2a4bbbe38dfaee1cf1955f3099947ce40a5a1b5096ace9dc46ae2fa6d0"
+   "input_sha256": "df2c264180342fa12afdb5dceee8f786eb9c0a90386431ad4e99bf59fadbef84",
+   "audio_sha256": "6c92e474f4d1f00e40d5788301e11189d3ece7bbd91035e9222cdfeea68c1276"
   }
  },
  "call_112_b1": {
   "spk": "police",
-  "text": "112입니다. 아까 서화고 신고하신 분 맞으시죠? 순찰차가 정문에 도착했는데 문이 안에서 잠겨 있답니다.",
-  "dur": 8.12,
+  "text": "112입니다. 아까 서린고 신고하신 분 맞으시죠? 순찰차가 정문에 도착했는데 문이 안에서 잠겨 있답니다.",
+  "dur": 7.97,
   "baked": true,
   "generation": {
    "voice_id": "M7AHsCtFdpWTIL58I3ap",
@@ -8322,8 +8322,8 @@
    "language_code": "ko",
    "delivery": "emotive v2 (breath/emotion tags)",
    "review_status": "unreviewed",
-   "input_sha256": "8c0720ede1d98e0124968c60b362e5d5bd82014c3256068c436cfc11dc6c1036",
-   "audio_sha256": "d174b37a4c6bfa6b943b5a6c22b47789c9bb8ff89628a9c01973df2f2338119e"
+   "input_sha256": "0b03b9a6ab8c024e3612643aa3760b46aa1d02b88f12bf619502aceb625678c9",
+   "audio_sha256": "9ae8b817ea1364d0eac4e705729f71bdb1ab82cf98c62416c75297651790da40"
   }
  },
  "call_112_b2": {
@@ -8406,33 +8406,33 @@
  },
  "r_home_a1_j": {
   "spk": "jihun",
-  "text": "엄마, 나 괜찮아. 서화고 안이야… 민아가 여기 들어갔대서.",
+  "text": "엄마, 나 괜찮아. 서린고 안이야… 민아가 여기 들어갔대서.",
   "dur": 5.33,
   "baked": true,
-  "eleven": "[worried] 엄마, 나 괜찮아. 서화고 안이야… 민아가 여기 들어갔대서.",
+  "eleven": "[worried] 엄마, 나 괜찮아. 서린고 안이야… 민아가 여기 들어갔대서.",
   "generation": {
    "voice_id": "zBfkllpYmUyxwRyQt8Zw",
    "model_id": "eleven_v4",
    "language_code": "ko",
    "delivery": "[worried]",
-   "input_sha256": "1c9463852a99baf7228e196a39e0993f25483341d18e1774f1a664a5beed9f35",
-   "audio_sha256": "fc7b5c0d97edd31f5aa3eab04f83356bd6d2644376bd6cda03efb16dbcd0ba49",
+   "input_sha256": "e9b9ff8420114f7ecf3469b9f91e94bf1f5644801174a9b9b7b1b3d9bee45008",
+   "audio_sha256": "d817d5f61669b4d8bde83a6ccc5d1b8816cca1eb4719e4893cb076343491a767",
    "review_status": "unreviewed"
   }
  },
  "r_home_a1_s": {
   "spk": "seoyeon",
-  "text": "엄마, 나 괜찮아. 서화고 안이야… 민아 선배가 여기 들어갔다고 해서.",
-  "dur": 6.53,
+  "text": "엄마, 나 괜찮아. 서린고 안이야… 민아 선배가 여기 들어갔다고 해서.",
+  "dur": 6.35,
   "baked": true,
-  "eleven": "[worried] 엄마, 나 괜찮아. 서화고 안이야… 민아 선배가 여기 들어갔다고 해서.",
+  "eleven": "[worried] 엄마, 나 괜찮아. 서린고 안이야… 민아 선배가 여기 들어갔다고 해서.",
   "generation": {
    "voice_id": "Mwr1G7n3SF7eQxbSp4At",
    "model_id": "eleven_v4",
    "language_code": "ko",
    "delivery": "[worried]",
-   "input_sha256": "72d83d48ac3602d013983c1b430485ece03fc1d701808b54d1e9cb4d7da9b0a9",
-   "audio_sha256": "baade4cb06a4361eb18f367940b55e141b9a9a047946548900bc0e6db61f3e99",
+   "input_sha256": "ce7752f86874b1af83f62c42e52d29d6744f5add8729119eafb94ecbcd85ecba",
+   "audio_sha256": "9589cdfbe5a032dbab2354cdfadffb86332221c999c8ed01afec43ac71b7726d",
    "review_status": "unreviewed"
   }
  },
@@ -8594,33 +8594,33 @@
  },
  "r_112_a1_j": {
   "spk": "jihun",
-  "text": "서화고등학교 안이에요… 크게 말 못 해요.",
-  "dur": 3.55,
+  "text": "서린고등학교 안이에요… 크게 말 못 해요.",
+  "dur": 3.47,
   "baked": true,
-  "eleven": "[whispering] 서화고등학교 안이에요… 크게 말 못 해요.",
+  "eleven": "[whispering] 서린고등학교 안이에요… 크게 말 못 해요.",
   "generation": {
    "voice_id": "zBfkllpYmUyxwRyQt8Zw",
    "model_id": "eleven_v4",
    "language_code": "ko",
    "delivery": "[whispering]",
-   "input_sha256": "0f8f04ec455d47fac47b9925154739fd8126a086a2da78c679dfb9160fb66483",
-   "audio_sha256": "e2316cec196f818ddf4ca50c6e64f8cee28e1c7d2b193c5e606f6e92752192e4",
+   "input_sha256": "78d4078e4c9af7523a1cbcb58a1a6926c73671d9d17ff8b08cbae0af7b322779",
+   "audio_sha256": "85fd4ca40bd00dd3810879b000b5dd9fb38bace643f45efa2b24e90abd5a2f6d",
    "review_status": "unreviewed"
   }
  },
  "r_112_a1_s": {
   "spk": "seoyeon",
-  "text": "서화고등학교 안이에요… 크게 말을 못 하겠어요.",
+  "text": "서린고등학교 안이에요… 크게 말을 못 하겠어요.",
   "dur": 4.28,
   "baked": true,
-  "eleven": "[whispering] 서화고등학교 안이에요… 크게 말을 못 하겠어요.",
+  "eleven": "[whispering] 서린고등학교 안이에요… 크게 말을 못 하겠어요.",
   "generation": {
    "voice_id": "Mwr1G7n3SF7eQxbSp4At",
    "model_id": "eleven_v4",
    "language_code": "ko",
    "delivery": "[whispering]",
-   "input_sha256": "f2bc4809a66160ef99e0ec06404e0699d2f1ddf9925119793d4c881f17602e1d",
-   "audio_sha256": "27fb01bca16c2ad18fe44eeb324b303683f21aa2680f94b029f59e99f71b7f1c",
+   "input_sha256": "6ef1cafa8dbe36b3e711b0f4954fb1f57a59319d54732576af8842a5fe0fd8aa",
+   "audio_sha256": "61f77785b1a7c836cf7a7805b8108f8ff83827a2b199389818cb454855537a1e",
    "review_status": "unreviewed"
   }
  },
@@ -8678,33 +8678,33 @@
  },
  "r_119_a1_j": {
   "spk": "jihun",
-  "text": "학교에 갇혔어요. 서화고등학교요.",
-  "dur": 3.4,
+  "text": "학교에 갇혔어요. 서린고등학교요.",
+  "dur": 3.32,
   "baked": true,
-  "eleven": "[nervous] 학교에 갇혔어요. 서화고등학교요.",
+  "eleven": "[nervous] 학교에 갇혔어요. 서린고등학교요.",
   "generation": {
    "voice_id": "zBfkllpYmUyxwRyQt8Zw",
    "model_id": "eleven_v4",
    "language_code": "ko",
    "delivery": "[nervous]",
-   "input_sha256": "7542ecba129dc0850c0d5082f9cbfe8493c106ea84263272dee7416ddecdc13c",
-   "audio_sha256": "9ae225b56d7d2b9970dc83536bd1386ae322eba2b54ab23bd30f5f74f201f51f",
+   "input_sha256": "cd0d4a43aaa15174983fc8457954bae5ddd152d0408e4c9d39c2be061e3ee9d1",
+   "audio_sha256": "fd49a0742eef1de434384c80d4aaeef9d959996af35f46432ce6e9ea6ab3cec8",
    "review_status": "unreviewed"
   }
  },
  "r_119_a1_s": {
   "spk": "seoyeon",
-  "text": "학교 안에 갇혔어요. 서화고등학교요.",
-  "dur": 3.63,
+  "text": "학교 안에 갇혔어요. 서린고등학교요.",
+  "dur": 3.55,
   "baked": true,
-  "eleven": "[nervous] 학교 안에 갇혔어요. 서화고등학교요.",
+  "eleven": "[nervous] 학교 안에 갇혔어요. 서린고등학교요.",
   "generation": {
    "voice_id": "Mwr1G7n3SF7eQxbSp4At",
    "model_id": "eleven_v4",
    "language_code": "ko",
    "delivery": "[nervous]",
-   "input_sha256": "8ce5d3c957a294263ec3b54594536e3d8dcf5c9d571136405d8516acce11739b",
-   "audio_sha256": "b960a592cd53ebf60d9b031dbed61c6bff4c5d0e34787caa1d51c328ca71f6a2",
+   "input_sha256": "34d53edf494ca93836163cd4352ee49c86bfb801e83e9b3b6c2547f709c1ed9e",
+   "audio_sha256": "5abdeb528ca14a78b8231df5a628c945c094eb8abc424492a98d9f230d442cb3",
    "review_status": "unreviewed"
   }
  },
@@ -8970,33 +8970,33 @@
  },
  "r_og1_j": {
   "spk": "jihun",
-  "text": "아저씨, 1998년에 서화고 당직이셨죠? 꼭 여쭤볼 게 있어요.",
+  "text": "아저씨, 1998년에 서린고 당직이셨죠? 꼭 여쭤볼 게 있어요.",
   "dur": 5.56,
   "baked": true,
-  "eleven": "[polite] 아저씨, 1998년에 서화고 당직이셨죠? 꼭 여쭤볼 게 있어요.",
+  "eleven": "[polite] 아저씨, 1998년에 서린고 당직이셨죠? 꼭 여쭤볼 게 있어요.",
   "generation": {
    "voice_id": "zBfkllpYmUyxwRyQt8Zw",
    "model_id": "eleven_v4",
    "language_code": "ko",
    "delivery": "[polite]",
-   "input_sha256": "cdfa984ac0fcb486e366d22709e5e5e359dcacf278b25e5de9edfdeb090e58fe",
-   "audio_sha256": "8b7d2050741b53f0e5c4c4af00350abd5c8f93342c863f72da24e2fdb78f8a05",
+   "input_sha256": "5593b76108d3499ce6c6c81a790969007cefac8210cdc47c952f3fa038703dc4",
+   "audio_sha256": "e8e692190ad43afa60d872ea8690553b0eb8a29256976f1103477eb12c3efbdb",
    "review_status": "unreviewed"
   }
  },
  "r_og1_s": {
   "spk": "seoyeon",
-  "text": "아저씨, 1998년에 서화고 당직 서셨죠? 하나만 여쭤볼게요.",
+  "text": "아저씨, 1998년에 서린고 당직 서셨죠? 하나만 여쭤볼게요.",
   "dur": 5.96,
   "baked": true,
-  "eleven": "[polite] 아저씨, 1998년에 서화고 당직 서셨죠? 하나만 여쭤볼게요.",
+  "eleven": "[polite] 아저씨, 1998년에 서린고 당직 서셨죠? 하나만 여쭤볼게요.",
   "generation": {
    "voice_id": "Mwr1G7n3SF7eQxbSp4At",
    "model_id": "eleven_v4",
    "language_code": "ko",
    "delivery": "[polite]",
-   "input_sha256": "370db2ba3f377dcf0cd60b7968de0e64cebf6311f65c704756975d22cc5fd50e",
-   "audio_sha256": "fafe8f435ad0aacaabc0baa7a86bc60ffb3adeb6f783e1636400a7c20e8ca33e",
+   "input_sha256": "4ef72ae07d92cc39a34ac1fe981544ccdf44cc3f20ec16dde4f8911aa66a7c31",
+   "audio_sha256": "0c40628d6dd07c72ce7ef3563dbdbc87caa43a65475e43b3e6e00b287afd1ed1",
    "review_status": "unreviewed"
   }
  },

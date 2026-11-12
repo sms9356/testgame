@@ -318,7 +318,7 @@ const _makeGlow = (c) => ctex(64, 64, (g, w, h) => {
   gr.addColorStop(0, `rgba(${c},1)`); gr.addColorStop(.35, `rgba(${c},.35)`); gr.addColorStop(1, `rgba(${c},0)`);
   g.fillStyle = gr; g.fillRect(0, 0, 64, 64);
 }, { repeat: false });
-export const makeGatePlaque = (text = '서화고') => ctex(128, 512, (g, w, h) => {
+export const makeGatePlaque = (text = '서린고') => ctex(128, 512, (g, w, h) => {
   g.fillStyle = '#2a2620'; g.fillRect(0, 0, w, h);
   speckle(g, w, h, 600, ['#14120e', '#5a5444'], 2, 8, .5); stains(g, w, h, 10, 'rgba(10,10,6,.5)', 50);
   g.fillStyle = '#c8bea0'; g.font = `900 ${Math.min(84, (h - 40) / text.length)}px ${FONT}`; g.textAlign = 'center'; g.textBaseline = 'middle';
@@ -364,7 +364,7 @@ export const makePoolTile = () => ctex(256, 256, (g, w, h) => {
 export const makeBanner = () => ctex(512, 128, (g, w, h) => {
   g.fillStyle = '#c9c4ae'; g.fillRect(0, 0, w, h); stains(g, w, h, 12, 'rgba(70,60,30,.5)', 50); speckle(g, w, h, 600, ['#5a5440', '#e8e4d0'], 2, 7, .4);
   g.fillStyle = '#1f3a6a'; g.font = `900 46px ${FONT}`; g.textAlign = 'center'; g.fillText('건강한 몸, 밝은 미래', w / 2, 66);
-  g.font = `22px ${FONT}`; g.fillText('- 서화고등학교 -', w / 2, 104); g.strokeStyle = '#1f3a6a'; g.lineWidth = 4; g.strokeRect(4, 4, w - 8, h - 8);
+  g.font = `22px ${FONT}`; g.fillText('- 서린고등학교 -', w / 2, 104); g.strokeStyle = '#1f3a6a'; g.lineWidth = 4; g.strokeRect(4, 4, w - 8, h - 8);
 }, { repeat: false });
 export const makeScore = () => ctex(256, 96, (g, w, h) => {
   g.fillStyle = '#0c0c0c'; g.fillRect(0, 0, w, h); g.fillStyle = '#c02020'; g.font = 'bold 54px monospace'; g.textAlign = 'center'; g.fillText('07 : 23', w / 2, 62);

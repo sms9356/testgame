@@ -43,7 +43,7 @@ export function installInteractionsPlus({ THREE, scene, world, RBG, sfx, showNot
       }
     }
     // 교실 분리수거함 (mainBuilding classBins 가 남긴 자리)
-    for (const q of b.props.filter(p => p.kind === 'binLook')) add(b, q.x, q.z, q.y - .8, .8, '분리수거함 들여다보기', p => { sfx.clank(.4); return pk(['구겨진 방송 원고 한 장 — “모두, 집으로 돌아가세요.”', '찢어진 기사 스크랩. “서화고 ‘단순 실종’…”', '빈 우유팩과 매점 빵 봉지뿐이다.', '종이류 칸에 가정통신문 다발 — “10월 12일 야간 자율학습 없음”.']); }, 1.3);
+    for (const q of b.props.filter(p => p.kind === 'binLook')) add(b, q.x, q.z, q.y - .8, .8, '분리수거함 들여다보기', p => { sfx.clank(.4); return pk(['구겨진 방송 원고 한 장 — “모두, 집으로 돌아가세요.”', '찢어진 기사 스크랩. “서린고 ‘단순 실종’…”', '빈 우유팩과 매점 빵 봉지뿐이다.', '종이류 칸에 가정통신문 다발 — “10월 12일 야간 자율학습 없음”.']); }, 1.3);
     // 방송실 조정실 카세트 데크 (콘솔 북쪽 끝 · 근접 모니터 옆): 「학교종」 반주 테이프
     const bc = rooms.find(r => r.type === 'bcast');
     if (bc) { const XP = bc.x1 + 9, y0 = bc.floor * FH; add(b, XP - 2.25, bc.z1 + 6.95, y0, .95, '카세트 데크 재생', p => { if (p.playing) return '테이프가 돌아가고 있다.'; p.playing = true; sfx.tape(); playTape(() => { p.playing = false; });

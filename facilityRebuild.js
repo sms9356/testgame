@@ -1,4 +1,4 @@
-// 캠퍼스 8개 시설 재건축 (사용자 제공 「서화고 8개 시설 종합 콘셉트 설계」 PDF · 시설 면적 일람 · 가구/설비 일람 · 재질/벽지/천장 코드 CSV)
+// 캠퍼스 8개 시설 재건축 (사용자 제공 「서린고 8개 시설 종합 콘셉트 설계」 PDF · 시설 면적 일람 · 가구/설비 일람 · 재질/벽지/천장 코드 CSV)
 //   본관 · 별관을 뺀 예전 건물(청운학사 · 학생회관 · 대강당 · 분리수거/소각장 · 과학천문관 · 역사관)은 터(외곽 치수 그대로)의 메시 · 충돌 상자 · 조명을 걷어 내고 새로 짓는다.
 //   급식실 · 수영장은 실내가 따로 된 층(6 · 7층 공간)이라 퀘스트 장치(배수구 · 냉동창고 · 철문)를 살리고, 바깥 건물을 새로 짓고 실내 마감을 재질 코드로 바꾼다.
 //   공통: 남측 중앙 출입구 · 북측/남측 실 + 가운데 복도 · 2층 건물은 직선 계단 · 600×600 T-bar 천장 · 2구 형광등 · 벽돌/철근콘크리트 외장
@@ -515,7 +515,7 @@ const byName = (R, n) => R.find(r => r.name === n);
 
 function buildDorm(ctx, Z) {   // 청운학사 22 × 14m · 2층 (기숙사 · 생활)
   const B = new Fac(ctx, Z, { id: 'dorm', name: '청운학사', levels: 2 });
-  const { R0, R1 } = buildTwoStory(B, { shell: { sign: '청 운 학 사', signSub: 'CHEONGUN DORMITORY · 서화고등학교 기숙사' },
+  const { R0, R1 } = buildTwoStory(B, { shell: { sign: '청 운 학 사', signSub: 'CHEONGUN DORMITORY · 서린고등학교 기숙사' },
     L0: { corr: [-1.2, 1.2], N: [{ name: '로비 · 계단', w: 6.6, stair: true, open: true }, { name: '사감실', w: 5.0 }, { name: '공용부엌', w: 5.2, fin: 'wet', W: 'W05', F: 'F01' }, { name: '창고', w: 5.2, fin: 'ind' }],
       S: [{ name: '화장실', w: 4.8, fin: 'wet', door: .8 }, { name: '세면장 · 샤워실', w: 4.7, fin: 'wet', door: .75 }, { name: '현관', w: 3.0, lobby: true }, { name: '식당 · 라운지', w: 9.5, door: .12 }] },
     L1: { corr: [-1.2, 1.2], N: [{ name: '계단홀', w: 6.6, stairTop: true, open: true }, { name: '기숙사 A (4인실)', w: 7.7, fin: 'dorm' }, { name: '기숙사 B (4인실)', w: 7.7, fin: 'dorm' }],
@@ -605,7 +605,7 @@ function buildUnion(ctx, Z) {   // 학생회관 22 × 14m · 2층 (학생자치 
     // 동아리 현판 + 손으로 그린 모집 포스터 (전지 · 매직) — 칠판 양옆 벽
     const club = { '동아리실 1': ['사진부 「빛그림」', '흑백 현상 · 10월 출사 · 신입 부원 모집', '#2a2a2a', '#f2ecd8'], '동아리실 2': ['밴드부 「소리샘」', '축제 공연 연습 · 화 · 목 17:00', '#7a1f1f', '#f8e8c8'], '동아리실 3': ['문예부 「글나래」', '교지 원고 마감 10월 24일', '#1f3a5a', '#eef2f6'] }[n];
     B.sign(club[0], club[1], 1.6, .34, (r.x1 + r.x2) / 2, l * FH + 2.32, r.z1 + .1, 0, [club[2], club[3]]);
-    [-1.6, 1.6].forEach((dx, k) => B.mesh(new THREE.PlaneGeometry(.62, .86), new THREE.MeshStandardMaterial({ map: posterTex(k ? '부원 모집' : club[0].split(' ')[0], k ? ['2008 2학기', '학생회관 ' + (l + 1) + '층', '관심 있는 1학년', '누구나 환영!'] : ['가을 축제', '「서화제」', '10. 31 (금)', '많이 와 주세요'], k ? '#f0d848' : '#e9e3d2', k ? '#1a1a1a' : club[2]), roughness: .9 }), (r.x1 + r.x2) / 2 + dx, l * FH + 1.45, r.z1 + .1, { rz: (k - .5) * .04 })); });
+    [-1.6, 1.6].forEach((dx, k) => B.mesh(new THREE.PlaneGeometry(.62, .86), new THREE.MeshStandardMaterial({ map: posterTex(k ? '부원 모집' : club[0].split(' ')[0], k ? ['2008 2학기', '학생회관 ' + (l + 1) + '층', '관심 있는 1학년', '누구나 환영!'] : ['가을 축제', '「서린제」', '10. 31 (금)', '많이 와 주세요'], k ? '#f0d848' : '#e9e3d2', k ? '#1a1a1a' : club[2]), roughness: .9 }), (r.x1 + r.x2) / 2 + dx, l * FH + 1.45, r.z1 + .1, { rz: (k - .5) * .04 })); });
   // 회의실: 회의 테이블 2 (2400×1200) + 의자
   { const r = byName(R1, '회의실'), cx = (r.x1 + r.x2) / 2, cz = (r.z1 + r.z2) / 2; F.table(B, cx - 1.25, cz, 2.4, 1.2, .74, 1, 'LPM'); F.table(B, cx + 1.25, cz, 2.4, 1.2, .74, 1, 'LPM');
     for (let k = -2; k <= 2; k++) { if (!k) continue; F.chair(B, cx + k * 1.0, cz - .9, 0, 1); F.chair(B, cx + k * 1.0, cz + .9, Math.PI, 1); } F.cabinet(B, r.x1 + .5, r.z2 - .3, Math.PI, 1, .9, .45, 1.8, 'WOOD'); }
@@ -623,7 +623,7 @@ function buildUnion(ctx, Z) {   // 학생회관 22 × 14m · 2층 (학생자치 
 
 function buildHistory(ctx, Z) {   // 역사관 15.6 × 10.6m · 2층 (학교 · 지역 기록 전시)
   const B = new Fac(ctx, Z, { id: 'hist', name: '역사관', levels: 2 });
-  const { R0, R1 } = buildTwoStory(B, { shell: { sign: '서화고 역사관', signSub: '개교기념관 · SEOHWA HISTORY HALL', winStep: 2.8 },
+  const { R0, R1 } = buildTwoStory(B, { shell: { sign: '서린고 역사관', signSub: '개교기념관 · SEORIN HISTORY HALL', winStep: 2.8 },
     L0: { corr: [-1.0, 1.0], corrFin: 'exh', N: [{ name: '중앙 로비 · 계단', w: 5.6, stair: true, open: true, fin: 'exh' }, { name: '학교역사 전시', w: 5.0, fin: 'exh', open: true }, { name: '지역역사 전시', w: 5.0, fin: 'exh', open: true }],
       S: [{ name: '사무실', w: 6.3, door: .8 }, { name: '현관', w: 3.0, lobby: true, fin: 'exh' }, { name: '자료 보관실', w: 6.3, fin: 'ind', door: .2 }] },
     L1: { corr: [-1.0, 1.0], corrFin: 'exh', N: [{ name: '계단홀', w: 5.6, stairTop: true, open: true, fin: 'exh' }, { name: '기획전시실', w: 5.0, fin: 'exh', open: true }, { name: '아카이브 열람실', w: 5.0, fin: 'read' }],
@@ -638,8 +638,8 @@ function buildHistory(ctx, Z) {   // 역사관 15.6 × 10.6m · 2층 (학교 · 
     B.box(.5, .5, .5, 'GREYSTEEL', cx + 1.1, .95 + .28, (r.z1 + r.z2) / 2 - 1.0); an.museum = [cx + 1.1, (r.z1 + r.z2) / 2 - .3]; }
   // 지역역사 전시: 진열장 2 + 벽면 패널 3
   { const r = byName(R0, '지역역사 전시'), cx = (r.x1 + r.x2) / 2; [-1.15, 1.15].forEach((dx, k) => F.vitrine(B, cx + dx, (r.z1 + r.z2) / 2, 0, 0, 1.4, .75, .95, 'DARKWOOD', y => exhibit(y, cx + dx, (r.z1 + r.z2) / 2, k + 2)));
-    [-1.5, 0, 1.5].forEach((dx, k) => F.panel(B, cx + dx, r.z1 + .1, 0, 0, 'PANEL', ['서화동 옛 지도', '1970년대 학교 앞 거리', '지역 신문 스크랩'][k]));
-    [['기증품 · 졸업생 기증', '1회 졸업 앨범 · 교복 단추 · 학생증 (1971)'], ['기증품 · 서화동 주민 기증', '옛 교문 현판 탁본 · 등사기 (1999)']].forEach(([t, d], k) => B.sign(t, d, .62, .13, cx + (k ? 1.15 : -1.15), .62, (r.z1 + r.z2) / 2 + .39, 0, ['#efe6cf', '#3a2a18'])); }
+    [-1.5, 0, 1.5].forEach((dx, k) => F.panel(B, cx + dx, r.z1 + .1, 0, 0, 'PANEL', ['서린동 옛 지도', '1970년대 학교 앞 거리', '지역 신문 스크랩'][k]));
+    [['기증품 · 졸업생 기증', '1회 졸업 앨범 · 교복 단추 · 학생증 (1971)'], ['기증품 · 서린동 주민 기증', '옛 교문 현판 탁본 · 등사기 (1999)']].forEach(([t, d], k) => B.sign(t, d, .62, .13, cx + (k ? 1.15 : -1.15), .62, (r.z1 + r.z2) / 2 + .39, 0, ['#efe6cf', '#3a2a18'])); }
   // 사무실: 책상 2 + 서가 2
   { const r = byName(R0, '사무실'); F.desk(B, r.x1 + 1.3, r.z1 + 1.4, 0, 0, 1.2, .6, .72); F.desk(B, r.x1 + 2.7, r.z1 + 1.4, 0, 0, 1.2, .6, .72); F.chair(B, r.x1 + 1.3, r.z1 + 2.0, Math.PI, 0); F.chair(B, r.x1 + 2.7, r.z1 + 2.0, Math.PI, 0);
     F.shelf(B, r.x2 - .35, r.z1 + 1.3, -Math.PI / 2, 0, .9, .45, 1.8, 'GREYSTEEL', 5, ['WHITE', 'PANEL']); F.shelf(B, r.x2 - .35, r.z1 + 2.3, -Math.PI / 2, 0, .9, .45, 1.8, 'GREYSTEEL', 5, ['CORK', 'WHITE']); }
@@ -657,7 +657,7 @@ function buildHistory(ctx, Z) {   // 역사관 15.6 × 10.6m · 2층 (학교 · 
   { const r = byName(R1, '관리실'); F.desk(B, r.x1 + 1.6, r.z1 + 1.2, 0, 1, 1.4, .7, .74); F.chair(B, r.x1 + 1.6, r.z1 + 1.85, Math.PI, 1); F.cabinet(B, r.x2 - .4, r.z1 + 1.2, -Math.PI / 2, 1, .9, .45, 1.8, 'GREYSTEEL'); }
   // 1층 복도 연표 띠 (사무실 복도 벽 · 1968 개교 ~ 2008 개교 40주년) — 한 장의 캔버스
   { const c = document.createElement('canvas'); c.width = 2048; c.height = 256; const g = c.getContext('2d'); g.fillStyle = '#2b2219'; g.fillRect(0, 0, 2048, 256); g.fillStyle = '#c9a85a'; g.fillRect(40, 128, 1968, 6);
-    g.textAlign = 'center'; g.font = 'bold 34px "Noto Sans KR", sans-serif'; g.fillText('서화고등학교 발자취 · 1968 ~ 2008', 1024, 52);
+    g.textAlign = 'center'; g.font = 'bold 34px "Noto Sans KR", sans-serif'; g.fillText('서린고등학교 발자취 · 1968 ~ 2008', 1024, 52);
     [['1968', '개교 · 6학급'], ['1971', '제1회 졸업'], ['1978', '신관 준공'], ['1988', '체육관 준공'], ['1998', '개교 30주년 · 방송제'], ['2003', '급식실 개관'], ['2008', '개교 40주년']].forEach(([y, t], i) => { const x = 140 + i * 295;
       g.fillStyle = '#c9a85a'; g.beginPath(); g.arc(x, 131, 12, 0, 7); g.fill(); g.font = 'bold 40px "Noto Sans KR", sans-serif'; g.fillText(y, x, 105); g.fillStyle = '#efe6cf'; g.font = '500 28px "Noto Sans KR", sans-serif'; g.fillText(t, x, 190, 280); });
     const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; B.mesh(new THREE.PlaneGeometry(3.6, .45), new THREE.MeshStandardMaterial({ map: t, roughness: .8 }), -5.3, 1.55, .89, { ry: Math.PI }); }
@@ -670,7 +670,7 @@ function buildHistory(ctx, Z) {   // 역사관 15.6 × 10.6m · 2층 (학교 · 
 
 function buildAstro(ctx, Z) {   // 과학천문관 20 × 16m · 2층 (천문 교육 · 관측) + 관측돔
   const B = new Fac(ctx, Z, { id: 'astro', name: '과학천문관', levels: 2 });
-  const { R0, R1 } = buildTwoStory(B, { shell: { sign: '서화 과학천문관', signSub: 'SEOHWA SCIENCE & ASTRONOMY HALL', ext: 'CONC', noRoofKit: true },
+  const { R0, R1 } = buildTwoStory(B, { shell: { sign: '서린 과학천문관', signSub: 'SEORIN SCIENCE & ASTRONOMY HALL', ext: 'CONC', noRoofKit: true },
     L0: { corr: [-1.2, 1.2], N: [{ name: '로비 · 계단', w: 6.6, stair: true, open: true }, { name: '천체투영실', w: 7.4 }, { name: '전시실', w: 6.0, fin: 'exh' }],
       S: [{ name: '장비보관', w: 8.5, fin: 'ind', door: .8 }, { name: '현관', w: 3.0, lobby: true }, { name: '관측 제어실', w: 8.5, door: .15 }] },
     L1: { corr: [-1.2, 1.2], corrFin: 'exh', N: [{ name: '계단홀', w: 6.6, stairTop: true, open: true }, { name: '관측돔 · 망원경', w: 13.4, noCeil: true, noLamps: true }],
@@ -822,7 +822,7 @@ function buildAuditorium(ctx, Z) {   // 대강당 18 × 26m · 1층 (공연 · �
   [sx1 + .08, sx2 - .08].forEach(x => B.box(.16, hallCeil - stageH - 1.0, .06, 'DARKWOOD', x, stageH + (hallCeil - stageH - 1.0) / 2, zStage + .15));
   B.box(sx2 - sx1 - .3, .1, .05, 'DARKWOOD', 0, stageH - .05, zStage + .06);   // 무대 앞 단 몰딩
   // 교기 (깃대 받침 · 무대 동측) — 국기는 뒷벽 중앙, 교기는 무대 위 오른편에 세우는 것이 행사 관례
-  { const fx = sx2 - 1.3, fz = -hz + 1.6, t = canvasSign('서 화', '서화고등학교 · 1968', 512, 340, '#1d2f5e', '#f0dc98');
+  { const fx = sx2 - 1.3, fz = -hz + 1.6, t = canvasSign('서 린', '서린고등학교 · 1968', 512, 340, '#1d2f5e', '#f0dc98');
     B.cyl(.18, .22, .1, 'BRASS', fx, stageH + .05, fz, { seg: 12 }); B.cyl(.02, .02, 2.6, 'BRASS', fx, stageH + 1.35, fz); B.sph(.05, 'BRASS', fx, stageH + 2.68, fz, { ws: 8, hs: 6 });
     B.mesh(new THREE.PlaneGeometry(1.05, .7), new THREE.MeshStandardMaterial({ map: t, roughness: .85, side: THREE.DoubleSide }), fx + .55, stageH + 2.2, fz, { rz: -.04 });
     B.box(.06, .06, .1, 'BRASS', fx + 1.1, stageH + 1.82, fz); B.col(fx - .22, fx + .22, fz - .22, fz + .22, { h: stageH + 2.6 }); }
@@ -860,7 +860,7 @@ function buildAuditorium(ctx, Z) {   // 대강당 18 × 26m · 1층 (공연 · �
   // 디테일 보강: 측벽 흡음 패널 · 객석 통로 발밑등 · 행사 현수막 · 보면대 · 마이크 스탠드 · 모니터 스피커 · 흩어진 팸플릿 · 소화기
   for (let z = zStage + 2.2; z < zLobby - 1; z += 2.4) [-1, 1].forEach(s => { B.box(.05, 2.2, 1.9, (Math.round(z) % 2) ? 'FABRIC' : 'VELVET', s * (hx - .03), 3.2, z); B.box(.06, .08, 2.0, 'DARKWOOD', s * (hx - .04), 1.0, z); });
   for (let k = 0; k < 12; k++) { const z = zStage + 2.4 + k * .95; [-.66, .66].forEach(x => B.box(.08, .05, .04, 'WHITE', x, .2, z + .3)); }
-  B.sign('제1회 서화고 방송제 · 방송부 창립 30주년 기념 하교 방송', '1998. 10. 12 리허설 22:00 · 하교 방송 23:40', 7.2, .9, 0, hallCeil - 1.9, zStage - .32, 0, ['#5a1020', '#f4e6c0']);
+  B.sign('제1회 서린고 방송제 · 방송부 창립 30주년 기념 하교 방송', '1998. 10. 12 리허설 22:00 · 하교 방송 23:40', 7.2, .9, 0, hallCeil - 1.9, zStage - .32, 0, ['#5a1020', '#f4e6c0']);
   [[-1.8, -.9], [-1.0, -1.1], [1.2, -1.0]].forEach(([dx, dz]) => { const x = dx, z = zStage + dz - 1.2; B.cyl(.012, .012, 1.1, 'STEEL', x, stageH + .55, z); B.box(.45, .32, .02, 'BLACK', x, stageH + 1.15, z, { rx: -.35 }); B.cyl(.18, .18, .02, 'STEEL', x, stageH + .01, z, { seg: 12 }); });
   [-.6, .6].forEach(x => { B.cyl(.01, .01, 1.5, 'STEEL', x, stageH + .75, zStage - .9); B.cyl(.02, .02, .14, 'BLACK', x, stageH + 1.55, zStage - .85, { rx: -.6 }); B.cyl(.16, .16, .02, 'BLACK', x, stageH + .01, zStage - .9, { seg: 12 }); });
   [-2.6, 2.6].forEach(x => { const m = B.box(.55, .3, .4, 'BLACK', x, stageH + .15, zStage - .35, { rx: .5 }); });
@@ -871,7 +871,7 @@ function buildAuditorium(ctx, Z) {   // 대강당 18 × 26m · 1층 (공연 · �
   { const zf = B.Z.D / 2 + .02;
     [-1, 1].forEach(s => { const x = s * 4.2; B.box(1.3, 1.7, .12, 'ALU', x, 1.45, zf + .06); B.box(1.15, 1.5, .02, 'CORK', x, 1.45, zf + .13);
       B.sign(s < 0 ? '방송제 리허설' : '하교 방송 30주년', s < 0 ? '10.12 PM 10:00 · 4층 방송실' : '10.12 PM 11:40 · 하교 방송', 1.0, .5, x, 1.75, zf + .15, 0, ['#f2eadb', '#5a1020']);
-      B.box(.9, 3.2, .02, 'VELVET', s * 6.6, 4.4, zf + .03); B.sign('서화고', '', .8, .3, s * 6.6, 5.6, zf + .045, 0, ['#5a1020', '#f4e6c0']);
+      B.box(.9, 3.2, .02, 'VELVET', s * 6.6, 4.4, zf + .03); B.sign('서린고', '', .8, .3, s * 6.6, 5.6, zf + .045, 0, ['#5a1020', '#f4e6c0']);
       [2.9, 7.6].forEach(px => { const x2 = s * px, z2 = zf + 1.1; B.box(.7, .45, .7, 'CONC', x2, .225, z2); B.box(.62, .03, .62, 'SOIL' in lib() ? 'SOIL' : 'DARKWOOD', x2, .45, z2); B.model('potted_plant_04', x2, .46, z2, px, 3.4); B.col(x2 - .35, x2 + .35, z2 - .35, z2 + .35, {}); });   // 콘크리트 화분대 + 실사 화분 (예전: 갓 모양 원통 덤불)
       const bx = s * 5.3, bz = zf + 2.4; B.model('sf_park_bench', bx, 0, bz, 0); B.col(bx - .92, bx + .92, bz - .3, bz + .3, { h: .5 }); });   // 실사 공원 벤치 (예전: 판자 + 상자 다리)
     B.box(.6, .9, .04, 'WHITE', 2.0, .7, zf + 3.0, { rx: -.2 }); B.sign('관계자 외 출입금지', '2008 안전 점검 · 폐쇄', .55, .3, 2.0, .78, zf + 3.04, 0, ['#f4f0e4', '#b01818']); }

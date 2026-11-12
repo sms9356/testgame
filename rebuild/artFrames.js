@@ -197,7 +197,7 @@ export function installArtFrames({ scene, world, buildings, delay = 2500 }) {
         if (p.x == null || p.z == null) continue; const [x, z] = b.toWorld(p.x, p.z); avoid.push({ x, z, y: p.y ?? (p.floor || 0) * FH + 1 }); }
       for (const d of b.doors || []) if (d.mx != null) { const [x, z] = b.toWorld(d.mx, d.mz); avoid.push({ x, z, y: (d.py || 0) + 1, r: .7 }); }
       if (b.name === '본관') for (let f = 0; f < Math.min(3, b.spec.floors); f++) { const N = ROOM_ART.corridor; zones.push({ ...wbox(-b.layout.L / 2 + 6, b.layout.L / 2 - 6, b.layout.zN + .15, -.15), y0: f * FH, key: 'corridor', max: 3, names: N.map((_, i) => N[(i + f * 3) % N.length]) }); } }
-    for (const [id, key, lv] of [['hist', 'fac_hist', [0, 1]], ['union', 'fac_union', [0, 1]], ['aud', 'fac_aud', [0]]]) { const g = scene.getObjectByName('FAC_' + id), Z = FZ[id]; if (!g || !Z) continue; roots.push(g);
+    for (const [id, key, lv] of [['hist', 'fac_hist', [0, 1]], ['union', 'fac_union', [0, 1]], ['aud', 'fac_aud', [0]]]) { const g = scene.getObjectByName('FAC_' + id), Z = FZ[id]; if (!g || !Z) continue; roots.push(g); for (const a of g.userData.artAvoid || []) avoid.push(a);
       let x1 = Z.cx - Z.W / 2 + .3, x2 = Z.cx + Z.W / 2 - .3, z1 = Z.cz - Z.D / 2 + .3, z2 = Z.cz + Z.D / 2 - .3; if (id === 'aud') { x1 = Z.cx - 3.6; x2 = Z.cx + 3.6; z1 = Z.cz + Z.D / 2 - 4.7; }   // 대강당은 남측 로비만
       const names = ROOM_ART[key]; const half = Math.ceil(names.length / lv.length); lv.forEach((l, i) => zones.push({ x1, x2, z1, z2, y0: l * 3.6, key, names: names.slice(i * half, (i + 1) * half) })); }
     for (const p of world.props || []) { if (p.kind === 'room' || p.x == null) continue; avoid.push({ x: p.x, z: p.z, y: p.y ?? ((p.rbY ?? 0) + 1) }); }

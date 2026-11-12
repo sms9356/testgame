@@ -181,7 +181,8 @@ export function buildMainBuilding(opt = {}) {
     ceil: M('ceil', () => pbr('ceil', { own: false, map: TEX.ceiling(), nScale: .3 })),  // 텍스 천장: 색은 밝게, 요철은 실사
     wall: M('wall', () => pbr('paint', { own: false, map: TEX.wall(), nScale: .85, rough: 1 })),       // 아이보리 수성 페인트 + 실사 요철
     wain: M('wain', () => pbr('d2_tex_paint', { own: false, map: TEX.wainscot(), nScale: 1, rough: .7 })),   // 녹색 유성 페인트 (벗겨진 요철)
-    conc: M('conc', () => pbr('step', { rough: 1 })),                                   // 콘크리트 (실사)
+    conc: MAINB ? M('conc', () => new THREE.MeshStandardMaterial({ color: 0xdedad0, roughness: .95, map: TEX.wall() }))   // 본관: 구조 콘크리트(계단 코어 · 계단 밑면 · 보 · 옥탑)도 미색 수성 도장 — 돌 무늬 스캔이 대리석 기둥처럼 보이던 것
+      : M('conc', () => pbr('step', { rough: 1 })),                                   // 콘크리트 (실사)
     brick: M('brick', () => new THREE.MeshStandardMaterial({ roughness: .9, map: canvasTex(512, 512, (g, w, h) => {   // 외벽: 2000년대 한국 학교 — 미색 수성 도장 콘크리트 (거푸집 이음 · 빗물 얼룩 · 잔 얼룩)
       g.fillStyle = '#ece8df'; g.fillRect(0, 0, w, h); for (let i = 0; i < 9000; i++) { const v = 214 + rnd() * 30 | 0; g.fillStyle = `rgba(${v},${v - 2},${v - 8},.5)`; g.fillRect(rnd() * w, rnd() * h, 1.5, 1.5); }
       for (let i = 0; i < 18; i++) { const x = rnd() * w, y = rnd() * h * .6, ww = 6 + rnd() * 18, gr = g.createLinearGradient(0, y, 0, y + 90 + rnd() * 140); gr.addColorStop(0, 'rgba(120,112,98,.07)'); gr.addColorStop(1, 'rgba(120,112,98,0)'); g.fillStyle = gr; g.fillRect(x, y, ww, 230); }   // 창틀 아래 빗물 자국

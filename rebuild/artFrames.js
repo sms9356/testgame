@@ -18,23 +18,26 @@ const KIND = {
   cert: { L: .44, bw: .025, d: .025, frame: 'gilt', glass: true },
   poster: { L: .62, bw: .014, d: .02, frame: 'alu', glass: true },
   student: { L: .6, bw: .02, d: .022, frame: 'oak', glass: true },
+  hero: { L: 1.3, bw: .035, d: .035, frame: 'black', glass: true },   // 학교 전경 항공 사진
+  emblem: { L: .7, bw: .06, d: .045, frame: 'gilt', glass: true },   // 교표
+  song: { L: .78, bw: .035, d: .03, frame: 'oak', glass: true },   // 교가
 };
-const kindOf = n => /^oil_/.test(n) ? 'oil' : /^portrait_/.test(n) ? 'portrait' : /^photo_/.test(n) ? 'photo' : n === 'callig_scroll' ? 'scroll' : /^callig_/.test(n) ? 'callig' : /^cert_/.test(n) ? 'cert' : /^poster_/.test(n) ? 'poster' : 'student';
-const HEIGHT = { oil: 1.68, portrait: 1.78, photo: 1.62, callig: 1.95, scroll: 1.6, cert: 1.55, poster: 1.5, student: 1.52 };
+const kindOf = n => n === 'photo_aerial_campus' ? 'hero' : n === 'emblem_seorin' ? 'emblem' : n === 'callig_school_song' ? 'song' : /^oil_/.test(n) ? 'oil' : /^portrait_/.test(n) ? 'portrait' : /^photo_/.test(n) ? 'photo' : n === 'callig_scroll' ? 'scroll' : /^callig_/.test(n) ? 'callig' : /^cert_/.test(n) ? 'cert' : /^poster_/.test(n) ? 'poster' : 'student';
+const HEIGHT = { oil: 1.68, portrait: 1.78, photo: 1.62, callig: 1.95, scroll: 1.6, cert: 1.55, poster: 1.5, student: 1.52, hero: 1.7, emblem: 1.75, song: 1.62 };
 
 // 방 종류 → 걸 그림 (순서대로, 자리가 나는 만큼)
 const ROOM_ART = {
-  principal: ['callig_motto', 'portrait_p6', 'portrait_p7', 'portrait_p8', 'portrait_p9', 'portrait_p10', 'portrait_p11', 'oil_mountain_mist'],
-  staff: ['oil_sea_dusk', 'cert_school_2005', 'cert_science_2007', 'photo_grad_2007', 'callig_scroll'],
-  hall: ['oil_hanok_village', 'callig_motto', 'oil_mountain_dawn', 'cert_school_2005'],
-  library: ['callig_scroll', 'oil_hanok_village2', 'poster_book'],
-  corridor: ['photo_grad_2001', 'oil_mountain_autumn', 'poster_water', 'photo_grad_2004', 'poster_energy', 'poster_peace', 'oil_sea_dusk2'],
+  principal: ['callig_motto', 'photo_aerial_campus', 'portrait_p6', 'portrait_p7', 'portrait_p8', 'portrait_p9', 'portrait_p10', 'portrait_p11', 'emblem_seorin'],
+  staff: ['oil_sea_dusk', 'cert_school_2005', 'cert_science_2007', 'photo_grad_2007', 'callig_school_song', 'photo_classroom_2006'],
+  hall: ['emblem_seorin', 'photo_aerial_campus', 'callig_school_song', 'callig_motto', 'oil_hanok_village', 'cert_school_2005'],
+  library: ['photo_library_2008', 'callig_scroll', 'oil_hanok_village2', 'poster_book'],
+  corridor: ['photo_grad_2001', 'photo_spring_1999', 'poster_water', 'photo_grad_2004', 'photo_sports_1997', 'poster_energy', 'photo_autumn_2006', 'poster_peace', 'photo_gym_2005', 'oil_mountain_autumn'],
   art: ['art_wc_school', 'art_still_life', 'art_wc_cosmos', 'art_plaster_sketch', 'poster_water', 'poster_energy', 'poster_book', 'poster_peace'],
   music: ['poster_choir', 'oil_sea_dusk2', 'cert_choir_2006'],
-  history: ['photo_grad_1989', 'photo_grad_1993', 'photo_grad_1997', 'oil_hanok_village'],
-  fac_hist: ['photo_bcast_1998', 'portrait_p9', 'photo_grad_1989', 'photo_grad_1993', 'photo_grad_1997', 'photo_grad_2001', 'oil_mountain_dawn'],
-  fac_union: ['cert_bcast_2008', 'photo_grad_2004', 'poster_choir', 'poster_peace', 'oil_mountain_autumn'],
-  fac_aud: ['oil_sea_dusk', 'cert_choir_2006', 'photo_grad_2007', 'poster_choir'],
+  history: ['photo_opening_1968', 'photo_grad_1989', 'photo_grad_1993', 'photo_grad_1997', 'photo_gate_1994', 'photo_bcast_1998'],
+  fac_hist: ['photo_opening_1968', 'photo_aerial_campus', 'photo_bcast_1998', 'photo_grad_1989', 'photo_grad_1993', 'photo_grad_1997', 'photo_gate_1994', 'photo_gate_autumn_1996', 'photo_sports_1997', 'photo_grad_2001', 'emblem_seorin', 'portrait_p9'],
+  fac_union: ['cert_bcast_2008', 'photo_seorinje_2007', 'photo_sports_1997', 'photo_grad_2004', 'poster_choir', 'poster_peace', 'oil_mountain_autumn'],
+  fac_aud: ['photo_seorinje_2007', 'oil_sea_dusk', 'cert_choir_2006', 'photo_grad_2007', 'poster_choir', 'emblem_seorin'],
 };
 
 let MATS = null;
@@ -148,13 +151,13 @@ function buildFrame(rec, im, atlasRect, G, rnd) {
 }
 
 const loadImg = src => new Promise(res => { const im = new Image(); im.onload = () => res(im); im.onerror = () => res(null); im.src = src; });
-// 쓰는 그림만 2048² 아틀라스로 (선반 패킹, 넘치면 축소)
+// 쓰는 그림만 2048 × (≤3072) 아틀라스로 (선반 패킹, 넘치면 축소) — 사진이 늘어 2048² 에선 0.65배로 뭉개졌다
 function packAtlas(imgs) {
-  const S = 2048, list = Object.entries(imgs).sort((a, b) => b[1].height - a[1].height);
+  const S = 2048, SH = 3072, list = Object.entries(imgs).sort((a, b) => b[1].height - a[1].height);
   for (let sc = 1; sc > .2; sc -= .05) { let x = 0, y = 0, rowH = 0, ok = true; const rect = {};
-    for (const [n, im] of list) { const w = Math.ceil(im.width * sc) + 4, h = Math.ceil(im.height * sc) + 4; if (x + w > S) { x = 0; y += rowH; rowH = 0; } if (y + h > S) { ok = false; break; } rect[n] = [x + 2, y + 2, w - 4, h - 4]; x += w; rowH = Math.max(rowH, h); }
+    for (const [n, im] of list) { const w = Math.ceil(im.width * sc) + 4, h = Math.ceil(im.height * sc) + 4; if (x + w > S) { x = 0; y += rowH; rowH = 0; } if (y + h > SH) { ok = false; break; } rect[n] = [x + 2, y + 2, w - 4, h - 4]; x += w; rowH = Math.max(rowH, h); }
     if (!ok) continue;
-    const c = document.createElement('canvas'); c.width = S; c.height = Math.min(S, 1 << Math.ceil(Math.log2(y + rowH))); const g = c.getContext('2d'); g.fillStyle = '#555'; g.fillRect(0, 0, c.width, c.height);
+    const c = document.createElement('canvas'); c.width = S; c.height = Math.min(SH, Math.ceil((y + rowH) / 256) * 256); const g = c.getContext('2d'); g.fillStyle = '#555'; g.fillRect(0, 0, c.width, c.height);
     const uv = {}; for (const [n, [rx, ry, rw, rh]] of Object.entries(rect)) { g.drawImage(imgs[n], rx, ry, rw, rh); uv[n] = [(rx + .5) / S, 1 - (ry + rh - .5) / c.height, (rx + rw - .5) / S, 1 - (ry + .5) / c.height]; }
     const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; t.flipY = true; return { tex: t, uv };
   }

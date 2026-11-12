@@ -3,7 +3,11 @@ let revSlots = [], spaceKey = '';
 let ac = null, master, comp, bus = {}, rev, revSend, noiseBuf, proxGain, proxFilter;
 const ok = () => ac && ac.state !== 'closed';
 const VOL = { master: .9, sfx: 1, voice: 1, amb: .8, music: .6 };
-try { Object.assign(VOL, JSON.parse(localStorage.getItem('haegyo_vol') || '{}')); } catch (e) { /* ignore */ }
+try {
+  const o = JSON.parse(localStorage.getItem('haegyo_vol') || '{}'); Object.assign(VOL, o);
+  // 일회성 복구(prefsV 2): 예전 빌드에서 0 으로 저장된 음성 · 마스터 볼륨 때문에 더빙이 들리지 않던 문제 → 한 번만 기본값으로
+  if ((o.prefsV || 0) < 2) { if (!(VOL.voice > .05)) VOL.voice = 1; if (!(VOL.master > .05)) VOL.master = .9; VOL.prefsV = 2; localStorage.setItem('haegyo_vol', JSON.stringify(VOL)); }
+} catch (e) { /* ignore */ }
 
 function makeIR(sec, decay) {   // 합성 임펄스 응답 (잔향)
   const len = ac.sampleRate * sec, b = ac.createBuffer(2, len, ac.sampleRate);

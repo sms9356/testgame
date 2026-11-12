@@ -133,11 +133,14 @@ export function emoFor(id) {
 }
 
 let manifest = {};
-export const VS = { dub: true, engine: 'auto', subs: true, readNotes: true, subSize: 1 };
+export const VS = { dub: true, engine: 'auto', subs: true, readNotes: true, subSize: 1, prefsV: 2 };
 try {
   const o = JSON.parse(localStorage.getItem('haegyo_voice') || '{}');
   if (o.mode) { if (o.mode === 'off') o.dub = false; else o.engine = o.mode === 'browser' ? 'browser' : 'auto'; delete o.mode; }
   Object.assign(VS, o);
+  // 일회성 복구(prefsV 2): 예전 빌드에서 저장된 '더빙 끔' · '브라우저 음성' 설정이 영구히 남아
+  //   새로 녹음한 성우 더빙이 '사라진' 것처럼 들렸다 → 한 번만 기본값(내장 성우 더빙)으로 되돌린다. 이후 선택은 그대로 존중.
+  if ((o.prefsV || 0) < 2) { VS.dub = true; VS.engine = 'auto'; VS.prefsV = 2; try { localStorage.setItem('haegyo_voice', JSON.stringify(VS)); } catch (e) { /* ignore */ } }
 } catch (e) { /* ignore */ }
 export function saveVS() { try { localStorage.setItem('haegyo_voice', JSON.stringify(VS)); } catch (e) { /* ignore */ } applySubSize(); }
 function applySubSize() { if (typeof document !== 'undefined') document.documentElement.style.setProperty('--subScale', VS.subSize); }

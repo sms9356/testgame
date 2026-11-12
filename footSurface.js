@@ -61,11 +61,16 @@ export function createFootSurface({ THREE, scene, cell = .6 }) {
     });
     cache.clear(); builtAt = now; stats.built++; stats.buildMs = +(performance.now() - t0).toFixed(1); stats.items = items.length;
   }
+  let rebuildQueued = false;
   const visible = o => { for (let a = o; a; a = a.parent) if (!a.visible) return false; return true; };
   // (x, 발 높이 y, z) → { surface, src } 또는 null
   function probe(x, y, z) {
     const now = performance.now(); stats.probes++;
-    if (now - builtAt > 30000) build(now);   // 문 · 실내 묶음이 켜지고 꺼지므로 30초마다 다시 모은다 (몇 ms)
+    if (builtAt < 0 || !items.length) build(now);
+    else if (now - builtAt > 30000 && !rebuildQueued) {   // 30초마다 다시 모으되, 걷는 프레임이 아니라 한가한 때에 (예전엔 걸음 중 ~230ms 멈춤)
+      rebuildQueued = true; const ric = globalThis.requestIdleCallback || (f => setTimeout(f, 200));
+      ric(() => { rebuildQueued = false; build(performance.now()); }, { timeout: 4000 });
+    }
     const key = Math.round(x / cell) + ',' + Math.round(z / cell) + ',' + Math.round(y * 2);
     let r = cache.get(key);
     if (r === undefined) {

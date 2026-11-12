@@ -2,37 +2,37 @@
  "intro1": {
   "spk": "narrator",
   "text": "2008년 10월 12일, 오후 다섯 시 오십 분. 십 년 전 그 참사를 조용히 덮어 버린 서린고등학교 너머로 검붉은 해가 기울기 시작했다.",
-  "dur": 11.65,
+  "dur": 11.311,
   "baked": true,
-  "eleven": "[low voice] [slowly] 2008년 10월 12일, 오후 다섯 시 오십 분. 십 년 전 그 참사를 조용히 덮어 버린 서린고등학교 너머로 검붉은 해가 기울기 시작했다.",
+  "eleven": "[low voice] 2008년 10월 12일, 오후 다섯 시 오십 분. 십 년 전 그 참사를 조용히 덮어 버린 서린고등학교 너머로 검붉은 해가 기울기 시작했다.",
   "generation": {
    "voice_id": "8G6jifm9f1BhHXadvwOt",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[low voice] [slowly]",
-   "input_sha256": "bfe3342761cb6b377f01dd4c331f260d00d9d4ae7e8f7aff11be7421d8a9181b",
-   "audio_sha256": "13e57d0fc0b8ede9bdae145aad196ed8c713f7041f77b97b28cf614b359dfac2",
-   "review_status": "unreviewed"
+   "delivery": "[low voice]",
+   "input_sha256": "5ca72140abf924809f034473f04865ac4d4c3d429a0e2f3e12933823ec34aacb",
+   "audio_sha256": "ced0f502db4e86e73070149b3ae0db5bc82346d4e9e8e48edcacc8e3fb02c917",
+   "generation_id": "OlemD5i6NDPWanBvcXjn",
+   "flow_session_id": "Q4IeyVLCksWlMlWmWKHo",
+   "review_status": "listening_required"
   }
  },
  "intro2": {
   "spk": "narrator",
   "text": "어젯밤, 방송부 선배 민아가 담력체험을 하겠다며 밤의 학교에 몰래 숨어 들어간 뒤 연락이 끊겼다. 함께 갔던 아이들은 모두 도망쳐 나왔지만, 민아만 돌아오지 못했다.",
-  "dur": 12.48,
+  "dur": 12.591,
   "baked": true,
-  "eleven": "어젯밤, 방송부 선배 민아가 담력체험을 하겠다며 밤의 학교에 몰래 숨어 들어간 뒤 연락이 끊겼다. 함께 갔던 아이들은 모두 도망쳐 나왔지만, 민아만 돌아오지 못했다.",
+  "eleven": "[low voice] 어젯밤, 방송부 선배 민아가 담력체험을 하겠다며 밤의 학교에 몰래 숨어 들어간 뒤 연락이 끊겼다. 함께 갔던 아이들은 모두 도망쳐 나왔지만, 민아만 돌아오지 못했다.",
   "generation": {
    "voice_id": "8G6jifm9f1BhHXadvwOt",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.4
-   },
-   "delivery": "normal",
-   "input_sha256": "8f93dbb742ba025b84ab4fe7d7ff5b130f4499e5a13e07b6e5a881ca251c7b7a",
-   "audio_sha256": "bdd40d33fe2688cbbe92f8f339f064cf13fbb847d9e98f474e94e0f528d13b4b",
-   "request_id": "v9WHrUDaYilWN2UYyOui",
-   "review_status": "generated"
+   "delivery": "[low voice]",
+   "input_sha256": "8cf53e30a2d40a9483b521fd4fba5f74eb74df1b0dc14c85e66125117af35839",
+   "audio_sha256": "f61dd1eda8c3d7d591e8b061dd4c9e160eb1f8e5f5118bf43f75310e96037029",
+   "generation_id": "DdLlqBvZj0QAWelo7Jtz",
+   "flow_session_id": "E4pyLowqsOKIb7NfGNR8",
+   "review_status": "listening_required"
   }
  },
  "intro3": {
@@ -57,20 +57,19 @@
  "intro4": {
   "spk": "narrator",
   "text": "십 년 전 오늘 밤, 이 학교에서 한 아이가 사라졌다. 그리고 해마다 10월 12일 밤 열한 시 사십 분이면, 학교 스피커에서 그 아이의 목소리가 흘러나온다는 소문이 돈다.",
-  "dur": 13.95,
+  "dur": 12.931,
   "baked": true,
-  "eleven": "십 년 전 오늘 밤, 이 학교에서 한 아이가 사라졌다. 그리고 해마다 10월 12일 밤 열한 시 사십 분이면, 학교 스피커에서 그 아이의 목소리가 흘러나온다는 소문이 돈다.",
+  "eleven": "[low voice] 십 년 전 오늘 밤, 이 학교에서 한 아이가 사라졌다. 그리고 해마다 10월 12일 밤 열한 시 사십 분이면, 학교 스피커에서 그 아이의 목소리가 흘러나온다는 소문이 돈다.",
   "generation": {
    "voice_id": "8G6jifm9f1BhHXadvwOt",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.4
-   },
-   "delivery": "normal",
-   "input_sha256": "64caa23ed03210e35ba38559357d6387c798b6ad8dcad510355a97ab7102aae2",
-   "audio_sha256": "093538f7a7dec3970f09f1cdd18f26ced1c8a60fe558d3836b36ba3aa3123f30",
-   "review_status": "unreviewed"
+   "delivery": "[low voice]",
+   "input_sha256": "d688ce4d4e9b424c9e173edf8785aab67711ca14d3d1da5884990362c05f0343",
+   "audio_sha256": "a7e0d4aadbe872b2d8cb25f85b200279ce47e4d597abc06e1713b4e658a42773",
+   "generation_id": "rOEFS4hcweAaHyHQxPWd",
+   "flow_session_id": "srIMZUU93YDom5Fh5bAc",
+   "review_status": "listening_required"
   }
  },
  "cam1": {
@@ -4223,33 +4222,37 @@
  "intro1n": {
   "spk": "narrator",
   "text": "2008년 10월 12일, 일요일. 저녁 다섯 시 오십 분. 십 년 전 그 사고를 덮어 버린 서린고등학교 너머로… 검붉은 해가 기울고 있다.",
-  "dur": 12.93,
+  "dur": 11.468,
   "baked": true,
-  "eleven": "[low voice] [slowly] 2008년 10월 12일, 일요일. 저녁 다섯 시 오십 분. 십 년 전 그 사고를 덮어 버린 서린고등학교 너머로… 검붉은 해가 기울고 있다.",
+  "eleven": "[low voice] 2008년 10월 12일, 일요일. 저녁 다섯 시 오십 분. 십 년 전 그 사고를 덮어 버린 서린고등학교 너머로… 검붉은 해가 기울고 있다.",
   "generation": {
    "voice_id": "8G6jifm9f1BhHXadvwOt",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[low voice] [slowly]",
-   "input_sha256": "55fa92e41bf224dfde4774cb54e2acc94fd535acd1b3249c3d502b276a35b4c2",
-   "audio_sha256": "c83cd51bcb661eb7a16f59f1d4f15420365ff144f3898c9213071203056ba2d7",
-   "review_status": "unreviewed"
+   "delivery": "[low voice]",
+   "input_sha256": "3feabca66b9b3e8d02d397f0e56a65a0c9b9c7207f0f29115e4c9e9d7f672ff5",
+   "audio_sha256": "978068a9dc28383c750dae18fb4b6e3fbf95bcea1876f86c32a11b34551db26a",
+   "generation_id": "xegY9DmXBw0OYTRyiI4t",
+   "flow_session_id": "JVLoVBLgjCVQSj9e5hiw",
+   "review_status": "listening_required"
   }
  },
  "intro2n": {
   "spk": "narrator",
   "text": "사흘 전, 방송부 선배 민아는 1998년 그날 밤 학교가 숨긴 진실을 파헤치겠다며 혼자 밤의 학교로 숨어 들어갔다. 그 뒤로 전화는 한 번도 연결되지 않았다. 대신… 신호가 약한 곳에서 보낸 음성 메시지만, 며칠씩 늦게 하나씩 도착하고 있다.",
-  "dur": 21.16,
+  "dur": 20.506,
   "baked": true,
-  "eleven": "[low voice] [slowly] 사흘 전, 방송부 선배 민아는 1998년 그날 밤 학교가 숨긴 진실을 파헤치겠다며 혼자 밤의 학교로 숨어 들어갔다. 그 뒤로 전화는 한 번도 연결되지 않았다. 대신… 신호가 약한 곳에서 보낸 음성 메시지만, 며칠씩 늦게 하나씩 도착하고 있다.",
+  "eleven": "[low voice] 사흘 전, 방송부 선배 민아는 1998년 그날 밤 학교가 숨긴 진실을 파헤치겠다며 혼자 밤의 학교로 숨어 들어갔다. 그 뒤로 전화는 한 번도 연결되지 않았다. 대신… 신호가 약한 곳에서 보낸 음성 메시지만, 며칠씩 늦게 하나씩 도착하고 있다.",
   "generation": {
    "voice_id": "8G6jifm9f1BhHXadvwOt",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[low voice] [slowly]",
-   "input_sha256": "67f71a31de27bc30bd3b2ec7349502bb2100effd8335694495ec868ccee851ec",
-   "audio_sha256": "973e55e71c022997c68e789bbf752386fae6a41eba41e55f038999471df96b3f",
-   "review_status": "unreviewed"
+   "delivery": "[low voice]",
+   "input_sha256": "e4cc2de512914f2981f6a23233cd52fde9a787a7cdcde7b6403719332b60a878",
+   "audio_sha256": "fbac0d5679a2c68cefa40c781a10433e099e9ca2904658925d96392b950cf46f",
+   "generation_id": "2B8FBFtD6lgxJKf3vE5q",
+   "flow_session_id": "cOhmJ8w4AvoNV6PlNrnL",
+   "review_status": "listening_required"
   }
  },
  "intro3n": {

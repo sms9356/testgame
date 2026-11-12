@@ -5,8 +5,8 @@
 //   그림은 한 장의 아틀라스로 묶고, 액자 · 유리 · 그림은 재질별로 하나의 메시로 합친다 (드로콜 ~6).
 import * as THREE from '../vendor/three.module.js';
 import { mergeGeometries } from '../vendor/addons/utils/BufferGeometryUtils.js';
-import { ZONES as FZ } from '../facilityRebuild.js?v=432';
-import { idleTimeout } from '../idleTasks.js?v=432';
+import { ZONES as FZ } from '../facilityRebuild.js?v=433';
+import { idleTimeout } from '../idleTasks.js?v=433';
 
 // 분류별 크기(긴 변 m) · 액자 (테 폭, 두께, 재질, 유리, 매트)
 const KIND = {

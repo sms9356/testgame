@@ -205,7 +205,7 @@ function motto(seed) { rnd = R(seed); const W = 512, H = 208, c = hanji(W, H, se
   inkText(g, W, H, q => { q.font = '400 112px "East Sea Dokdo"'; q.textAlign = 'center'; q.fillText('성실 정직 봉사', W / 2 - 18, H * .66); q.font = '400 26px "East Sea Dokdo"'; q.save(); q.translate(W - 34, 24); ['무', '자', '년', '가', '을'].forEach((ch, k) => q.fillText(ch, 0, k * 24)); q.restore(); }, seed);
   seal(g, W - 34, H - 34, 30, '서린'); return c; }
 function scroll(seed) { rnd = R(seed); const W = 220, H = 512, c = hanji(W, H, seed), g = ctx(c);
-  inkText(g, W, H, q => { q.font = '400 84px "East Sea Dokdo"'; q.textAlign = 'center'; ['배', '우', '고', '익', '히', '다'].forEach((ch, k) => q.fillText(ch, W / 2 + 10, 86 + k * 70)); q.font = '400 22px "East Sea Dokdo"'; ['서', '문', '고', '개', '교', '40', '주', '년'].forEach((ch, k) => q.fillText(ch, 24, 70 + k * 22)); }, seed);
+  inkText(g, W, H, q => { q.font = '400 84px "East Sea Dokdo"'; q.textAlign = 'center'; ['배', '우', '고', '익', '히', '다'].forEach((ch, k) => q.fillText(ch, W / 2 + 10, 86 + k * 70)); q.font = '400 22px "East Sea Dokdo"'; ['서', '린', '고', '개', '교', '40', '주', '년'].forEach((ch, k) => q.fillText(ch, 24, 70 + k * 22)); }, seed);
   seal(g, 24, 270, 24, '서린'); seal(g, 24, 300, 24, '학이'); return c; }
 function certificate(seed, o) { rnd = R(seed); const W = 362, H = 512, c = mk(W, H), g = ctx(c), n = noise(seed);
   g.fillStyle = '#f6f0dc'; g.fillRect(0, 0, W, H); eachPx(c, (p, i, x, y) => { const v = (fbm(n, x * .02, y * .02, 3) - .5) * 14; p[i] = clamp(p[i] + v); p[i + 1] = clamp(p[i + 1] + v); p[i + 2] = clamp(p[i + 2] + v - 4); });

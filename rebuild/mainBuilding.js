@@ -441,7 +441,7 @@ export function buildMainBuilding(opt = {}) {
     if (MAINB) { const clad = (xa, xb, za, zb, o) => { box('wall', xa, xb, y0 + 1.2, y0 + S.CEIL, za, zb); box('wain', xa, xb, y0 + .003, y0 + 1.2, za, zb); box('skirt', xa - .015, xb + .015, y0 + .003, y0 + .12, o < 0 ? za - .015 : za, o > 0 ? zb + .015 : zb); },
         xs = [...new Set(LY.rooms.flatMap(r => [r.x1, r.x2]))].filter(x => Math.abs(x) < LY.L / 2 - .01), clsI = r => LY.rooms.filter(q => q.kind === 'class').indexOf(r);
       xs.forEach(x => { clad(x - .262, x + .262, -.262, -S.wall / 2, -1); const adj = LY.rooms.filter(r => r.x1 === x || r.x2 === x);
-        if (adj.every(r => r.kind === 'class' && !/toilet/.test(PLAN[f][clsI(r)] || ''))) { clad(x - .262, x + .262, S.wall / 2, .262, 1); clad(x - .262, x + .262, zS - .112, zS, -1); } }); }
+        if (adj.every(r => (r.kind === 'class' && !/toilet/.test(PLAN[f][clsI(r)] || '')) || (r.kind === 'core' && f === 0) || isSt(r))) { clad(x - .262, x + .262, S.wall / 2, .262, 1); clad(x - .262, x + .262, zS - .112, zS, -1); } }); }
     // 외벽: 남측(교실 창 띠) · 북측(복도 창) · 동서 마구리
     const winsS = [], winsN = [];
     LY.rooms.forEach(r => {

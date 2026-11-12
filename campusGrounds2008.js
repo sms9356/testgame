@@ -85,7 +85,7 @@ export function installCampusGrounds({ scene, world, floors, footprints = [] }) 
   { const x = -9.2, z = 68.3; if (!hitCol(x, z, .2)) {
       const base = new THREE.BoxGeometry(3.2, .35, 1.2).translate(x, .175, z), rock = new THREE.DodecahedronGeometry(1, 0).scale(1.45, .78, .42).translate(x, 1.05, z);
       add(mergeGeometries([base.toNonIndexed(), rock.toNonIndexed()]), mStone, true);
-      const t = signTex((g, w, h) => { g.clearRect(0, 0, w, h); g.fillStyle = '#1a1612'; g.font = 'bold 96px "Noto Serif KR", serif'; g.textAlign = 'center'; g.fillText('서문고등학교', w / 2, 120); g.font = '40px "Noto Serif KR", serif'; g.fillText('誠實 · 勤勉 · 創意', w / 2, 190); }, 1024, 224);
+      const t = signTex((g, w, h) => { g.clearRect(0, 0, w, h); g.fillStyle = '#1a1612'; g.font = 'bold 96px "Noto Serif KR", serif'; g.textAlign = 'center'; g.fillText('서린고등학교', w / 2, 120); g.font = '40px "Noto Serif KR", serif'; g.fillText('誠實 · 勤勉 · 創意', w / 2, 190); }, 1024, 224);
       const p = add(new THREE.PlaneGeometry(2.2, .48), new THREE.MeshStandardMaterial({ map: t, transparent: true, depthWrite: false, roughness: .9, polygonOffset: true, polygonOffsetFactor: -2 }));
       p.position.set(x, 1.12, z - .37); p.rotation.y = Math.PI;
       col(x - 1.6, x + 1.6, z - .6, z + .6); used.push([x, z, 1.8]); info.nameStone = true; } }
@@ -99,8 +99,8 @@ export function installCampusGrounds({ scene, world, floors, footprints = [] }) 
 
   // ── 4) 현수막 2: 바깥(거리 쪽) 수시 합격 · 안쪽(운동장 쪽) 축제 ──
   { const mk = (t, w, h, x, y, z, ry) => { const m = add(new THREE.PlaneGeometry(w, h), new THREE.MeshStandardMaterial({ map: t, roughness: .95, side: THREE.FrontSide })); m.position.set(x, y, z); m.rotation.y = ry; };
-    mk(bannerTex(['축  2009학년도 수시모집 합격', '3학년 김○○(○○대)  이○○(○○교대)  박○○(○○대)  외 27명  — 서문고등학교 동문회 —']), 8, 1.5, 14, 1.75, 69.71, Math.PI);
-    mk(bannerTex(['제22회 서문제 · 10월 24일(금) ~ 25일(토)', '학교폭력 없는 행복한 학교 · 10월은 독서의 달'], '#1c4a8a'), 7, 1.3, -20, 1.75, 69.71, Math.PI);
+    mk(bannerTex(['축  2009학년도 수시모집 합격', '3학년 김○○(○○대)  이○○(○○교대)  박○○(○○대)  외 27명  — 서린고등학교 동문회 —']), 8, 1.5, 14, 1.75, 69.71, Math.PI);
+    mk(bannerTex(['제22회 서린제 · 10월 24일(금) ~ 25일(토)', '학교폭력 없는 행복한 학교 · 10월은 독서의 달'], '#1c4a8a'), 7, 1.3, -20, 1.75, 69.71, Math.PI);
     const ropes = [new THREE.BoxGeometry(.02, .02, .3).translate(10, 2.5, 69.8), new THREE.BoxGeometry(.02, .02, .3).translate(18, 2.5, 69.8)]; add(mergeGeometries(ropes), mDark); }
 
   // ── 5) 교직원 주차장 (옛 제1주차장 터, 정문 동쪽 · 남쪽 담장 밑): 아스팔트 + 흰 주차선 · 카 스토퍼 · 차량 7대 ──

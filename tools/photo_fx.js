@@ -1,8 +1,8 @@
 // 사진 현상기 (tools/capture_photos.mjs 가 빈 페이지에 넣어 돌린다)
-//   게임 3D 장면을 찍은 원본(raw)에 인물 실루엣 · 만국기 대신 삼각 깃발 · 현수막 · 꽃가지 등을 얹고,
+//   게임 3D 장면을 찍은 원본(raw)에 3D 인물 층(photo_people.js) · 만국기 대신 삼각 깃발 · 현수막 · 꽃가지 등을 얹고,
 //   시대별 사진 질감을 입힌다: 1968 흑백 인화(물결 테두리) · 80~90년대 컬러 필름(바램 · 색 틀어짐 · 입자 · 주변부 어둠 · 빛샘 ·
 //   오렌지 날짜 각인 · 흰 테두리 인화지 스캔) · 2008 디지털 카메라(선명 · 차가운 화이트밸런스 · 센서 노이즈).
-//   얼굴은 모두 이목구비 없이 흐릿한 실루엣이다 (실제 인물 없음).
+//   인물은 게임 캐릭터 모델을 복제한 3D 렌더이며 실제 인물이 아니다.
 (() => {
 const R = s => { let a = s >>> 0; return () => { a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; };
 let rnd = R(1); const rr = (a, b) => a + (b - a) * rnd();
@@ -16,48 +16,11 @@ window.loadRaws = async raws => { for (const [k, u] of Object.entries(raws)) { c
 function frame(src, W, H, crop = [0, 0, 1, 1]) { const im = RAW[src]; if (!im) return null; const c = mk(W, H), g = cx(c);
   g.drawImage(im, crop[0] * im.width, crop[1] * im.height, crop[2] * im.width, crop[3] * im.height, 0, 0, W, H); return c; }
 
-// ── 인물 실루엣 (교복 · 체육복 · 정장) ──
-const SKIN = ['#c99a78', '#b88a68', '#d2a684', '#a87c5c'], HAIR = ['#141110', '#1c1712', '#221a14'];
-function person(g, x, y, s, o) {   // y = 어깨선, s = 머리 반지름 (얼굴은 이목구비 없는 흐린 타원)
-  const w = s * (o.wide || 3.1), body = o.body || s * 5;
-  const B = new Path2D(), sl = s * rr(.15, .35); B.moveTo(x - w / 2, y + s * .6); B.quadraticCurveTo(x - w / 2 + s * .05, y - s * .1 + sl, x - w * .3, y - s * .32); B.lineTo(x + w * .3, y - s * .32); B.quadraticCurveTo(x + w / 2 - s * .05, y - s * .1 + sl, x + w / 2, y + s * .6); B.lineTo(x + w / 2 - s * .05, y + body); B.lineTo(x - w / 2 + s * .05, y + body); B.closePath();
-  g.fillStyle = o.coat; g.fill(B);
-  const lg = g.createLinearGradient(x - w / 2, y - s, x + w / 2, y + body); lg.addColorStop(0, 'rgba(255,255,255,.16)'); lg.addColorStop(.45, 'rgba(255,255,255,0)'); lg.addColorStop(1, 'rgba(0,0,0,.35)'); g.fillStyle = lg; g.fill(B);
-  g.strokeStyle = 'rgba(0,0,0,.35)'; g.lineWidth = Math.max(.6, s * .12); g.beginPath(); g.moveTo(x - w * .36, y + s * .9); g.lineTo(x - w * .4, y + body); g.moveTo(x + w * .36, y + s * .9); g.lineTo(x + w * .4, y + body); g.stroke();   // 팔 윤곽
-  if (o.shirt) { g.fillStyle = o.shirt; g.beginPath(); g.moveTo(x - s * .55, y - s * .3); g.lineTo(x + s * .55, y - s * .3); g.lineTo(x, y + s * 1.5); g.closePath(); g.fill(); }
-  if (o.tie) { g.fillStyle = o.tie; g.fillRect(x - s * .14, y - s * .1, s * .28, s * 1.3); }
-  if (o.collar) { g.fillStyle = o.collar; g.fillRect(x - s * .6, y - s * .42, s * 1.2, s * .3); }
-  g.fillStyle = o.skin; g.fillRect(x - s * .32, y - s * .75, s * .64, s * .6);   // 목
-  g.beginPath(); g.ellipse(x, y - s * 1.4, s * .82, s, 0, 0, 7); g.fill();
-  const sh = g.createLinearGradient(x - s, 0, x + s, 0); sh.addColorStop(0, 'rgba(0,0,0,.18)'); sh.addColorStop(.5, 'rgba(0,0,0,0)'); sh.addColorStop(1, 'rgba(0,0,0,.22)'); g.fillStyle = sh; g.beginPath(); g.ellipse(x, y - s * 1.4, s * .82, s, 0, 0, 7); g.fill();
-  g.fillStyle = o.hair; g.beginPath();
-  if (o.long) { g.ellipse(x, y - s * 1.55, s * .92, s * .98, 0, Math.PI * .95, Math.PI * 2.05); g.fill(); g.fillRect(x - s * .92, y - s * 1.55, s * .3, s * 1.45); g.fillRect(x + s * .62, y - s * 1.55, s * .3, s * 1.45); }
-  else { g.ellipse(x, y - s * 1.62, s * .86, s * .82, 0, Math.PI, Math.PI * 2); g.fill(); g.fillRect(x - s * .86, y - s * 1.66, s * .2, s * .55); g.fillRect(x + s * .66, y - s * 1.66, s * .2, s * .55); }
-  if (o.cap) { g.fillStyle = o.cap; g.fillRect(x - s * .9, y - s * 2.4, s * 1.8, s * .55); g.fillRect(x - s * 1.05, y - s * 1.9, s * 2.1, s * .14); }
-}
-const UNI = {   // 졸업 연도별 교복
-  1968: { coat: '#1a1a1c', collar: '#1a1a1c', cap: '#141416', hair: 1 },
-  1989: { coat: '#1b1c22', collar: '#e8e6e0', hair: 1 },
-  1993: { coat: '#20243a', shirt: '#e6e4de', tie: '#5a2026' },
-  1997: { coat: '#1f2a44', shirt: '#ebe9e4', tie: '#6a1e2a' },
-  2001: { coat: '#2a3426', shirt: '#ecebe6', tie: '#6a5520' },
-  2004: { coat: '#1e2740', shirt: '#eeeeea', tie: '#7a2030' },
-  2007: { coat: '#262c3e', shirt: '#f0f0ee', tie: '#2a4a7a' },
-};
-function crowdRows(c, o) {   // 계단 위 단체 사진: rows = [[y(0..1), 명수, 머리 반지름(px)], ...] 뒤에서 앞 순서
-  const L = mk(c.width, c.height), g = cx(L), W = c.width, u = o.uni, x0 = (o.x0 ?? .08) * W, x1 = (o.x1 ?? .92) * W;
-  o.rows.forEach(([fy, n, s], ri) => { const y = fy * c.height, dx = (x1 - x0) / (n - 1), off = ri % 2 ? dx / 2 : 0;
-    for (let i = 0; i < n; i++) { const x = x0 + i * dx + off * (i < n - 1 ? 1 : 0) + rr(-1.5, 1.5), girl = o.mixed && rnd() < .45, teacher = ri === o.rows.length - 1 && Math.abs(i - (n - 1) / 2) < 2.1 && o.teachers;
-      person(g, x, y + rr(-1.5, 1.5), s * rr(.94, 1.05), teacher ? { coat: ['#3a3a3e', '#4a4238', '#2c2e34'][i % 3], shirt: '#e8e6e0', tie: '#5a3030', skin: SKIN[i % 4], hair: '#2a2622', wide: 3.3 }
-        : { ...u, cap: u.cap && !girl ? u.cap : null, long: girl, skin: SKIN[(i + ri) % 4], hair: HAIR[i % 3], body: s * 6 }); } });
-  const b = mk(c.width, c.height), q = cx(b); q.filter = `blur(${o.soft ?? .7}px)`; q.drawImage(L, 0, 0); cx(c).drawImage(b, 0, 0);
-  // 발치 그림자
-  const G = cx(c); G.fillStyle = 'rgba(0,0,0,.18)'; o.rows.forEach(([fy, n, s]) => G.fillRect(x0 - s, fy * c.height + s * 5.4, x1 - x0 + 2 * s, s * .8));
-}
-function scatter(c, n, area, s, o) {   // 운동장 · 광장의 작은 사람들
-  const g = cx(c); for (let i = 0; i < n; i++) { const fy = rr(area[1], area[3]), k = .55 + (fy - area[1]) / (area[3] - area[1]) * .7, x = rr(area[0], area[2]) * c.width, y = fy * c.height;
-    person(g, x, y, s * k, { coat: o.coats[i % o.coats.length], shirt: o.shirt, skin: SKIN[i % 4], hair: HAIR[i % 3], long: rnd() < .4, body: s * k * 5.5 }); }
-}
+// ── 3D 인물 층 합성 (tools/photo_people.js 가 같은 카메라로 그린 사람 + 접지 그림자, 원본의 2배 해상도 RGBA) ──
+function people(c, key, crop = [0, 0, 1, 1], soft = .35) { const im = RAW[key + '_people']; if (!im) return;
+  const L = mk(c.width, c.height), g = cx(L); g.imageSmoothingQuality = 'high';
+  g.drawImage(im, crop[0] * im.width, crop[1] * im.height, crop[2] * im.width, crop[3] * im.height, 0, 0, c.width, c.height);
+  const q = cx(c); q.save(); if (soft) q.filter = `blur(${soft}px)`; q.drawImage(L, 0, 0); q.restore(); }
 function bunting(c, lines, seed) {   // 운동장 위 줄 깃발 (단색 삼각기 — 국기 아님)
   const g = cx(c), cols = ['#d23a2a', '#f0c22a', '#2a6ad0', '#2aa04a', '#f4f0e8', '#e06a1a']; rnd = R(seed);
   for (const [x0, y0, x1, y1, sag] of lines) { const W = c.width, H = c.height; g.strokeStyle = 'rgba(40,40,40,.7)'; g.lineWidth = 1; g.beginPath();
@@ -67,8 +30,6 @@ function bunting(c, lines, seed) {   // 운동장 위 줄 깃발 (단색 삼각�
 function banner(c, x, y, w, h, txt, sub, col = '#b8242a') { const g = cx(c); g.save(); g.fillStyle = col; g.fillRect(x, y, w, h); g.strokeStyle = 'rgba(255,255,255,.7)'; g.lineWidth = 1; g.strokeRect(x + 2, y + 2, w - 4, h - 4);
   g.fillStyle = '#fff8e0'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = `700 ${h * .5 | 0}px "Noto Sans KR"`; g.fillText(txt, x + w / 2, y + h * (sub ? .4 : .52), w - 8);
   if (sub) { g.font = `400 ${h * .22 | 0}px "Noto Sans KR"`; g.fillText(sub, x + w / 2, y + h * .78, w - 8); } g.restore(); }
-function tent(c, x, y, w, h, col) { const g = cx(c); g.fillStyle = col; g.beginPath(); g.moveTo(x, y + h * .35); g.lineTo(x + w * .15, y); g.lineTo(x + w * .85, y); g.lineTo(x + w, y + h * .35); g.closePath(); g.fill();
-  g.fillStyle = 'rgba(0,0,0,.35)'; g.fillRect(x + w * .02, y + h * .35, w * .96, h * .06); g.fillStyle = '#555'; g.fillRect(x + 2, y + h * .35, 1.5, h * .65); g.fillRect(x + w - 3, y + h * .35, 1.5, h * .65); }
 function branches(c, side, kind, seed) {   // 초점 밖 앞쪽 나뭇가지: 벚꽃(spring) · 은행잎(autumn)
   rnd = R(seed); const L = mk(c.width, c.height), g = cx(L), W = c.width, H = c.height, sx = side === 'L' ? 0 : W, dir = side === 'L' ? 1 : -1;
   const pts = []; g.strokeStyle = '#2a1e18'; g.lineCap = 'round';
@@ -125,17 +86,18 @@ function print(c, o) {   // 인화지 테두리 · 스캔 (white: 90년대 현�
 // ── 사진 목록 ──
 const L = [];
 const add = (name, src, fn) => L.push({ name, src, fn });
-const gradYear = (y, crop, seed, src = 'steps') => add(`photo_grad_${y}`, src, () => { rnd = R(seed); const c = frame(src, 512, 340, crop); if (!c) return null;
-  const s = src === 'facade' ? 5.6 : 6.2, mixed = y >= 1997; crowdRows(c, { uni: UNI[y], mixed, teachers: true, rows: [[.52, 19, s * 1.12], [.585, 19, s * 1.18], [.65, 18, s * 1.24], [.715, 18, s * 1.3], [.79, 17, s * 1.36]], x0: .08, x1: .92 });
+const gradYear = (y, crop, seed, src) => add(`photo_grad_${y}`, src, () => { rnd = R(seed); const c = frame(src, 512, 340, crop); if (!c) return null;
+  people(c, `grad_${y}`, crop, y < 1992 ? .55 : .35);
   const n = y - 1970, old = y < 1992, mid = y < 2002;
-  develop(c, { seed, bright: 1.18, blur: old ? 1 : .7, sat: old ? .55 : mid ? .82 : 1, fade: old ? .3 : mid ? .18 : .06, sepia: old ? .35 : 0, shift: old ? [10, 2, -14] : mid ? [8, 0, -6] : [0, 0, 4], contrast: old ? .9 : 1.04, grain: old ? 26 : mid ? 16 : 7, vignette: old ? .5 : .3, dust: old ? 70 : mid ? 30 : 0, scratch: old ? 5 : 1,
+  develop(c, { seed, bright: old ? 1.3 : 1.12, blur: old ? .8 : .5, sat: old ? .55 : mid ? .82 : 1, fade: old ? .3 : mid ? .18 : .06, sepia: old ? .35 : 0, shift: old ? [10, 2, -14] : mid ? [8, 0, -6] : [0, 0, 4], contrast: old ? .9 : 1.04, grain: old ? 24 : mid ? 15 : 7, vignette: old ? .5 : .3, dust: old ? 70 : mid ? 30 : 0, scratch: old ? 5 : 1,
     caption: [`제${n}회 졸업기념  ${y}. 2.`, .1, `700 ${y < 2000 ? 19 : 17}px "${y < 2000 ? 'Noto Serif KR' : 'Noto Sans KR'}"`], leak: y === 1993 ? [1, .1, .5, 'rgba(255,120,40,.35)'] : null });
   return print(c, { border: y < 2004 ? 'white' : 'none', seed, yellow: old ? .16 : .07 }); });
-gradYear(1989, [.12, .18, .78, .82], 189, 'facade'); gradYear(1993, [.0, .04, 1, .96], 193); gradYear(1997, [.2, .2, .62, .8], 197, 'facade');
-gradYear(2001, [.0, .02, 1, .98], 201); gradYear(2004, [.03, .05, .94, .95], 204); gradYear(2007, [.0, .0, 1, 1], 207);
+const GA = [.12, .3, .76, .62], GB = [.08, .24, .72, .66];   // 단체가 화면을 채우게 자른다 (grad_a = 현관 앞 · grad_b = 운동장 쪽에서 본 본관)
+gradYear(1989, GB, 189, 'grad_b'); gradYear(1993, GA, 193, 'grad_a'); gradYear(1997, GB, 197, 'grad_b');
+gradYear(2001, GA, 201, 'grad_a'); gradYear(2004, GA, 204, 'grad_a'); gradYear(2007, GB, 207, 'grad_b');
 
-add('photo_opening_1968', 'facade', () => { rnd = R(68); const c = frame('facade', 512, 352, [.05, .1, .9, .9]); if (!c) return null;
-  crowdRows(c, { uni: UNI[1968], teachers: true, rows: [[.72, 22, 4.6], [.82, 20, 5.2]], x0: .1, x1: .9, soft: .9 });
+add('photo_opening_1968', 'grad_b', () => { rnd = R(68); const OC = [.06, .14, .86, .76], c = frame('grad_b', 512, 352, OC); if (!c) return null;
+  people(c, 'opening_1968', OC, .8);
   develop(c, { seed: 68, bright: 1.3, blur: 1.2, mono: true, sepia: .55, contrast: .95, fade: .22, grain: 30, vignette: .55, dust: 110, scratch: 9, hair: 1, caption: ['서린고등학교 개교 기념  1968. 3. 2.', .1, '700 19px "Nanum Myeongjo"'] });
   return print(c, { border: 'deckle', seed: 68, yellow: .22 }); });
 add('photo_aerial_campus', 'aerial', () => { const c = frame('aerial', 1024, 704, [.04, .12, .92, .88]); if (!c) return null;
@@ -147,20 +109,19 @@ add('photo_gate_1994', 'gate', () => { rnd = R(94); const c = frame('gate', 512,
 add('photo_gate_autumn_1996', 'gate_in', () => { rnd = R(96); const c = frame('gate_in', 512, 352); if (!c) return null; branches(c, 'L', 'autumn', 96);
   develop(c, { seed: 96, blur: .7, sat: .9, fade: .16, shift: [16, 6, -14], contrast: 1, grain: 16, vignette: .42, dust: 24, date: "'96 10 21" });
   return print(c, { border: 'white', seed: 96 }); });
-add('photo_sports_1997', 'field', () => { rnd = R(97); const c = frame('field', 512, 352); if (!c) return null;
+add('photo_sports_1997', 'field', () => { rnd = R(97); const SC = [.18, .26, .62, .62], c = frame('field', 512, 352, SC); if (!c) return null;
   bunting(c, [[0, .05, 1, .14, .1], [0, .2, .8, .02, .08]], 97);
-  tent(c, 30, 196, 80, 34, '#e8e6dc'); tent(c, 108, 186, 70, 30, '#3a6ac0');
-  scatter(c, 70, [.3, .55, .95, .9], 5.2, { coats: ['#f2f2ee', '#f2f2ee', '#1e2a6a', '#c8302a', '#f2f2ee'], shirt: null });
+  people(c, 'sports_1997', SC, .35);
   develop(c, { seed: 97, blur: .7, sat: .92, fade: .15, shift: [10, 2, -8], contrast: 1.02, grain: 16, vignette: .4, dust: 20, leak: [1, 0, .45, 'rgba(255,140,50,.3)'], date: "'97 5 3" });
   return print(c, { border: 'white', seed: 97 }); });
 add('photo_seorinje_2007', 'aud', () => { rnd = R(207); const c = frame('aud', 512, 352); if (!c) return null;
   banner(c, 152, 120, 160, 34, '제40회 서린제', '2007. 10. 19 ~ 20 · 대강당');
-  scatter(c, 46, [.05, .74, .98, .97], 6, { coats: ['#262c3e', '#262c3e', '#e8e8e4', '#3a3a40'], shirt: '#f0f0ee' });
+  people(c, 'seorinje_2007', [0, 0, 1, 1], .25);
   develop(c, { seed: 207, sharpen: .6, sat: 1.12, contrast: 1.06, shift: [-2, 0, 8], grain: 7, vignette: .15, bright: 1.06 }); return c; });
-add('photo_bcast_1998', 'bcast', () => { rnd = R(198); const c = frame('bcast', 500, 392, [.0, .06, 1, .94]); if (!c) return null;
-  const g = cx(c); [[.36, .62, 10, 0], [.47, .61, 10, 1], [.58, .62, 10.4, 0], [.69, .63, 10, 1], [.41, .72, 11, 1], [.53, .73, 11.2, 0], [.65, .73, 11, 0]].forEach(([x, y, s, gl], i) => person(g, x * 500, y * 392, s, { coat: i === 2 ? '#3a4a6a' : '#1f2a44', shirt: '#ebe9e4', tie: '#6a1e2a', skin: SKIN[i % 4], hair: HAIR[i % 3], long: !!gl, body: s * 8, wide: 3.4 }));
-  const b = mk(500, 392), q = cx(b); q.filter = 'blur(.6px)'; q.drawImage(c, 0, 0); g.drawImage(b, 0, 0);
-  develop(c, { seed: 198, bright: 1.45, blur: .9, sat: .82, fade: .26, shift: [14, -2, 6], contrast: .95, grain: 22, vignette: .5, leak: [0, .15, .55, 'rgba(255,80,40,.4)'], dust: 46, scratch: 2, date: "'98 9 25" });
+add('photo_bcast_1998', 'bcast', () => { rnd = R(198); const BC = [.3, .2, .62, .66], c = frame('bcast', 500, 392, BC); if (!c) return null;
+  people(c, 'bcast_1998', BC, .45);
+  { const q = cx(c), G = q.createRadialGradient(250, 210, 20, 250, 210, 260); G.addColorStop(0, 'rgba(255,240,220,.10)'); G.addColorStop(1, 'rgba(255,240,220,0)'); q.save(); q.globalCompositeOperation = 'screen'; q.fillStyle = G; q.fillRect(0, 0, 500, 392); q.restore(); }   // 플래시 빛 퍼짐
+  develop(c, { seed: 198, bright: 1.7, blur: .9, sat: .82, fade: .26, shift: [14, -2, 6], contrast: .95, grain: 22, vignette: .5, leak: [0, .15, .55, 'rgba(255,80,40,.4)'], dust: 46, scratch: 2, date: "'98 9 25" });
   return print(c, { border: 'white', seed: 198, yellow: .12 }); });
 add('photo_gym_2005', 'gym', () => { const c = frame('gym', 512, 352); if (!c) return null; develop(c, { seed: 205, sharpen: .4, sat: 1.04, contrast: 1.05, shift: [6, 2, -4], grain: 9, vignette: .25, bright: 1.08 }); return c; });
 add('photo_library_2008', 'library', () => { const c = frame('library', 512, 352); if (!c) return null; develop(c, { seed: 208, sharpen: .5, sat: 1.05, contrast: 1.04, shift: [-2, 0, 6], grain: 8, vignette: .18, bright: 1.08 }); return c; });

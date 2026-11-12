@@ -1,4 +1,4 @@
-# Steam release checklist — 서린고 — 잊혀진 시간
+# Steam release checklist — 서린고 : 잊혀진 시간
 
 ## Done in the repo
 

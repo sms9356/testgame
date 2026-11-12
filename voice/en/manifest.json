@@ -12,7 +12,17 @@
 "intro1": {
 "spk": "narrator",
 "src": "2008년 10월 12일, 오후 다섯 시 오십 분. 십 년 전 그 참사를 조용히 덮어 버린 서린고등학교 너머로 검붉은 해가 기울기 시작했다.",
-"dur": 12
+"dur": 11.77,
+"generation": {
+"engine": "elevenlabs",
+"voice_id": "t0eCaS57KWbQQc1wRkah",
+"voice_name": "Russ - Deep American Documentary Narrator",
+"model_id": "eleven_v4",
+"role": "narrator",
+"generation_id": "7QezmW9TpyBrFdIuXHYa",
+"post": "highpass70+loudnorm-17/-2/9, mono 32k 40k",
+"audio_sha256": "a067c5323ef13bf95b2fad773441e6d8a47b87655afd12d27141100b33086d3f"
+}
 },
 "intro3": {
 "spk": "mina",
@@ -97,7 +107,17 @@
 "endTrue": {
 "spk": "narrator",
 "src": "그날 밤, 서린고의 마지막 하교 방송이 끝났다. 민아는 아무것도 기억하지 못했다. 정문을 나서는 순간, 누군가 뒤에서 작게 손을 흔들었다.",
-"dur": 12.06
+"dur": 10.91,
+"generation": {
+"engine": "elevenlabs",
+"voice_id": "t0eCaS57KWbQQc1wRkah",
+"voice_name": "Russ - Deep American Documentary Narrator",
+"model_id": "eleven_v4",
+"role": "narrator",
+"generation_id": "vanjgAk0P8iqIKq7sjDz",
+"post": "highpass70+loudnorm-17/-2/9, mono 32k 40k",
+"audio_sha256": "fb0afeee3f1113e74be45672e77d088e750794579ce999d50f00ccfe62c6a2b7"
+}
 },
 "l_arrive_s": {
 "spk": "seoyeon",
@@ -756,8 +776,18 @@
 },
 "note_n21": {
 "spk": "narrator",
-"src": "학교 행사 안내문. [가정통신문] 10월 12일(목)  방송부 창립 30주년 기념 특별 하교 방송 . 방송부원은 밤 10시까지 방송실에서 리허설을 진행합니다. — 서린고등학교장",
-"dur": 17.64
+"src": "학교 행사 안내문. [가정통신문] 10월 12일(월)  방송부 창립 30주년 기념 특별 하교 방송 . 방송부원은 밤 10시부터 방송실에서 리허설을 진행하며, 하교 방송은 밤 11시 40분에 송출됩니다. — 서린고등학교장",
+"dur": 19.08,
+"generation": {
+"engine": "elevenlabs",
+"voice_id": "t0eCaS57KWbQQc1wRkah",
+"voice_name": "Russ - Deep American Documentary Narrator",
+"model_id": "eleven_v4",
+"role": "narrator",
+"generation_id": "Do0yLseJu8ngDZmueoYC",
+"post": "highpass70+loudnorm-17/-2/9, mono 32k 40k",
+"audio_sha256": "403f8198f77be671658902f533f76d3d4ba07cf248d3e8fabe2724943b77be36"
+}
 },
 "note_n19": {
 "spk": "narrator",
@@ -957,7 +987,17 @@
 "note_h2": {
 "spk": "narrator",
 "src": "별관 머릿돌.  서린고등학교  1974년  3월 2일  개교 「배움은 집으로 가는 길을 밝힌다」  동판 아래 누군가 못으로 긁어 놓았다:  “집에 못 간 애도 있어요” ",
-"dur": 12.96
+"dur": 14.36,
+"generation": {
+"engine": "elevenlabs",
+"voice_id": "t0eCaS57KWbQQc1wRkah",
+"voice_name": "Russ - Deep American Documentary Narrator",
+"model_id": "eleven_v4",
+"role": "narrator",
+"generation_id": "bJlVkUByUyUWKKDQReV6",
+"post": "highpass70+loudnorm-17/-2/9, mono 32k 40k",
+"audio_sha256": "0f37829f6364c558e768863dbc6bcc8758505f47c53a224f1e9a134f6416fb88"
+}
 },
 "note_q8a": {
 "spk": "narrator",
@@ -1067,7 +1107,17 @@
 "call_119": {
 "spk": "narrator",
 "src": "119 종합상황실입니다. 전파 상태가 매우 불안정합니다. 이 시간에 서린고등학교 내부라고요? 위치 추적 완료했습니다. 구조대가 정문으로 출동 중이니 즉시 정문 쪽으로 대피하십시오.",
-"dur": 13.6
+"dur": 14.76,
+"generation": {
+"engine": "elevenlabs",
+"voice_id": "kfGEdprt9Oe4pbdP8VTo",
+"voice_name": "Katie - IVR & Customer Service",
+"model_id": "eleven_v4",
+"role": "dispatcher",
+"generation_id": "Pbv28Hb5WjWS9uQBjrkh",
+"post": "highpass70+loudnorm-17/-2/9, mono 32k 40k",
+"audio_sha256": "0c553c295b93e75fe5411a318f8c69d46ba3ac0e9515758efb060753d19a339c"
+}
 },
 "sg_sg_pool": {
 "spk": "ghost",
@@ -1107,7 +1157,17 @@
 "intro1n": {
 "spk": "narrator",
 "src": "2008년 10월 12일, 일요일. 저녁 다섯 시 오십 분. 십 년 전 그 사고를 덮어 버린 서린고등학교 너머로… 검붉은 해가 기울고 있다.",
-"dur": 12.8
+"dur": 12.46,
+"generation": {
+"engine": "elevenlabs",
+"voice_id": "t0eCaS57KWbQQc1wRkah",
+"voice_name": "Russ - Deep American Documentary Narrator",
+"model_id": "eleven_v4",
+"role": "narrator",
+"generation_id": "szZ8jpm9CsXiwyl3DWfb",
+"post": "highpass70+loudnorm-17/-2/9, mono 32k 40k",
+"audio_sha256": "beeaf5cc05a3552749551cf198b84c7dfea79e43e16227eb41da9973c53e7417"
+}
 },
 "intro2n": {
 "spk": "narrator",
@@ -1122,12 +1182,32 @@
 "call_119_a2": {
 "spk": "dispatcher",
 "src": "이 시간에 서린고등학교 안이요? 전파가 많이 끊깁니다. 지금 다치신 데는 없으십니까?",
-"dur": 5.12
+"dur": 5.87,
+"generation": {
+"engine": "elevenlabs",
+"voice_id": "kfGEdprt9Oe4pbdP8VTo",
+"voice_name": "Katie - IVR & Customer Service",
+"model_id": "eleven_v4",
+"role": "dispatcher",
+"generation_id": "HmA610cxGgQAih4f4Odk",
+"post": "highpass70+loudnorm-17/-2/9, mono 32k 40k",
+"audio_sha256": "27bf133df5a55fbfbcbafe51fcb54a565b2d4c6f0827baa2ab83a4c2244f5694"
+}
 },
 "call_home_a2": {
 "spk": "mom",
 "src": "서린고? 이 밤에 거길 왜 들어가. 거기서 십 년 전에 애 하나 없어졌던 거, 너도 알잖아.",
-"dur": 7.2
+"dur": 7.27,
+"generation": {
+"engine": "elevenlabs",
+"voice_id": "NMbEhOPNJop9OLjdn7UU",
+"voice_name": "Tiff's Voice",
+"model_id": "eleven_v4",
+"role": "mom",
+"generation_id": "SkiAX86VxNDCD3FMWHbi",
+"post": "highpass70+loudnorm-17/-2/9, mono 32k 40k",
+"audio_sha256": "4751f4cc7633bc7c868422aa648b158b42d0b8a0158dad3c06ab8745be01ed63"
+}
 },
 "pr_start_s_0": {
 "spk": "jihun",

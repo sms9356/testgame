@@ -2,7 +2,7 @@
 //   list: [{ name, x, y, z, ry, s }]  — 같은 모델 수백 개(책상 · 의자)도 드로콜 몇 개로 끝난다
 import * as THREE from '../vendor/three.module.js';
 import { GLTFLoader } from '../vendor/addons/loaders/GLTFLoader.js';
-import { retexSchoolModel } from './modelRetex.js?v=434';
+import { retexSchoolModel } from './modelRetex.js?v=435';
 
 const loader = new GLTFLoader();
 const cache = {};

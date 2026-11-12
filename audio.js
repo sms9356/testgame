@@ -487,37 +487,69 @@ export function setProximity(v, t) {
   proxFilter.frequency.setTargetAtTime(500 + 900 * (0.5 + 0.5 * Math.sin(t * 1.3)), ac.currentTime, 0.2);
 }
 
+// 표면별 발소리 바탕: smp [녹음, 재생 속도, 크기] · hard: 합성 대체음 높이 · soft: 무른 바닥(착지 충격이 작다)
+const STEP_SURF = {
+  tile: { smp: ['sfx-step-tile', 1, 1], hard: 1 }, kitchen: { smp: ['sfx-step-tile', 1.04, .95], hard: 1 }, ceramic: { smp: ['sfx-step-tile', 1.12, .95], hard: 1.1 },
+  terrazzo: { smp: ['sfx-step-tile', .9, 1.05], hard: .9 }, stairs: { smp: ['sfx-step-tile', .82, 1.15], hard: .85 }, pvc: { smp: ['sfx-step-tile', .78, .55], hard: .7 },
+  concrete: { smp: ['sfx-step-tile', .72, .9], hard: .75 }, roofpaint: { smp: ['sfx-step-tile', .84, .7], hard: .8 }, stone: { smp: ['sfx-step-tile', .95, .95], hard: .95 },
+  paver: { smp: ['sfx-step-tile', .88, .75], hard: .85 }, asphalt: { smp: ['sfx-step-tile', .7, .6], hard: .7 },
+  wood: { smp: ['sfx-step-wood', 1, 1] }, sportwood: { smp: ['sfx-step-wood', 1.15, .9] }, stage: { smp: ['sfx-step-wood', .8, 1.1] },
+  metal: { smp: ['sfx-step-metal', 1, 1] }, grate: { smp: ['sfx-step-metal', .85, .9] },
+  wet: { smp: ['sfx-step-tile', 1.05, .85], hard: 1 }, puddle: { soft: true },
+  carpet: { soft: true }, rubber: { soft: true }, dirt: { soft: true }, track: { soft: true }, gravel: { soft: true }, grass: { soft: true }, leaves: { soft: true },
+};
+export const STEP_SURFACES = Object.keys(STEP_SURF);
 function laterAt(s, fn) { const p = sfxPos; setTimeout(() => { sfxPos = p; try { fn(); } finally { sfxPos = null; } }, s * 1000); } export const sfx = {
-  step(run = false, v = 1, surf = 'tile') {
-    const k = run ? 1.45 : 1, j = 1 + (Math.random() - .5) * .14;
-    // 표면별: 인조석(복도 · 계단)은 타일 녹음을 낮고 무겁게, 화장실 자기질 타일은 밝게, PVC 데코타일은 낮고 부드럽게 + 합성 질감
-    const SR = { wood: ['sfx-step-wood', 1, 1], metal: ['sfx-step-metal', 1, 1], tile: ['sfx-step-tile', 1, 1], wet: ['sfx-step-tile', 1, 1], ceramic: ['sfx-step-tile', 1.12, .95], terrazzo: ['sfx-step-tile', .9, 1.05], stairs: ['sfx-step-tile', .82, 1.15], pvc: ['sfx-step-tile', .78, .55] }[surf];
-    if (SR && sample(SR[0], .32 * k * v * SR[2], j * SR[1] * (run ? 1.08 : 1), .5)) { if (surf === 'pvc') noiseBurst(.05, 1200 * j, 'bandpass', .07 * k, 0, v); else if (surf === 'stairs') tone(150 * j, .09, 'sine', .08 * k, 0, v, 110); return; }
-    if (surf === 'ceramic') surf = 'tile';
-    else if (surf === 'stairs' || surf === 'terrazzo') { tone(140 * j, .08, 'sine', (surf === 'stairs' ? .12 : .06) * k, 0, v, 105); surf = 'tile'; }
-    else if (surf === 'pvc') { noiseBurst(.06, 900 * j, 'bandpass', .2 * k, 0, v); noiseBurst(.08, 420 * j, 'lowpass', .24 * k, 0, v); return; }
-    if (surf === 'wood') {
-      noiseBurst(.045, 1900 * j, 'bandpass', .22 * k, 0, v);
-      noiseBurst(.095, 380 * j, 'lowpass', .34 * k, 0, v);
-      tone(185 * j, .085, 'triangle', .12 * k, 0, v, 128);
-      if (run && Math.random() < .28) laterAt(.04, () => tone(540 * j, .07, 'sine', .035 * v, 0, v, 480));
-    } else if (surf === 'dirt') {
-      noiseBurst(.14, 1650 * j, 'bandpass', .26 * k, 0, v);
-      noiseBurst(.08, 3400 * j, 'highpass', .14 * k, 0, v);
-      laterAt(.035, () => noiseBurst(.09, 920 * j, 'bandpass', .16 * k, 0, v));
-    } else if (surf === 'metal') {
-      noiseBurst(.05, 2200 * j, 'bandpass', .28 * k, 0, v);
-      tone(310 * j, .14, 'triangle', .07 * k, 0, v, 260);
-      tone(690 * j, .09, 'sine', .04 * k, 0, v, 640);
-    } else if (surf === 'wet') {
-      noiseBurst(.09, 1350 * j, 'bandpass', .30 * k, 0, v);
-      laterAt(.025, () => noiseBurst(.11, 2800 * j, 'bandpass', .20 * k, 0, v));
-    } else {
-      noiseBurst(.035, 2750 * j, 'bandpass', .26 * k, 0, v);
-      noiseBurst(.075, 580 * j, 'lowpass', .24 * k, 0, v);
-      laterAt(.03, () => noiseBurst(.04, 1850 * j, 'bandpass', .12 * k, 0, v));
+  // 발소리: 표면(surf) × 걸음새(mode: walk · run · crouch · land)마다 다른 층(녹음 샘플 + 합성)을 섞는다. 고른 변형은 sfx.lastStep 에 남는다 (점검용)
+  //   run 은 예전처럼 true/false 로도 받는다. crouch 는 작고 고음이 깎인 소리, land 는 무겁고 길다.
+  step(run = false, v = 1, surf = 'tile', mode) {
+    const md = mode || (run ? 'run' : 'walk'), k = md === 'run' ? 1.45 : md === 'land' ? 1.7 : md === 'crouch' ? .45 : 1, j = 1 + (Math.random() - .5) * .14;
+    const lo = md === 'crouch' ? .6 : 1;   // 웅크리면 높은 성분을 낮춘다
+    const S = STEP_SURF[surf] ? surf : 'tile', D = STEP_SURF[S], L = [];
+    const smp = (n, vol, rate, dur = .5) => { if (sample(n, vol * k * v, rate * j * (md === 'run' ? 1.08 : md === 'land' ? .9 : 1), dur)) { L.push(n.replace('sfx-step-', '').replace('sfx-', '')); return true; } return false; };
+    const nb = (dur, f, type, vol) => { noiseBurst(dur, f * j * (type === 'lowpass' ? 1 : lo), type, vol * k, 0, v); };
+    const tn = (f, dur, type, vol, slide) => tone(f * j, dur, type, vol * k, 0, v, slide ? slide * j : null);
+    const syn = n => L.push(n);
+    // 1) 바탕: 녹음 샘플이 있는 단단한 바닥은 샘플(피치 · 크기로 성격), 없거나 못 읽으면 합성
+    let base = D.smp ? smp(D.smp[0], .32 * D.smp[2], D.smp[1]) : false;
+    if (!base) {
+      if (D.hard) { nb(.035, 2750 * D.hard, 'bandpass', .26); nb(.075, 580 * D.hard, 'lowpass', .24); laterAt(.03, () => nb(.04, 1850 * D.hard, 'bandpass', .12)); syn('hard'); }
+      else if (S === 'wood' || S === 'sportwood' || S === 'stage') { nb(.045, 1900, 'bandpass', .22); nb(.095, 380, 'lowpass', .34); tn(185, .085, 'triangle', .12, 128); syn('wood'); }
+      else if (S === 'metal' || S === 'grate') { nb(.05, 2200, 'bandpass', .28); tn(310, .14, 'triangle', .07, 260); tn(690, .09, 'sine', .04, 640); syn('metal'); }
     }
-    if (Math.random() < .06) noiseBurst(.10, 3400, 'highpass', .07, 0, v);
+    // 2) 표면 고유의 층
+    switch (S) {
+      case 'pvc': nb(.05, 1200, 'bandpass', .07); syn('pvc-soft'); break;
+      case 'stairs': tn(150, .09, 'sine', .08, 110); syn('stair-thud'); break;
+      case 'terrazzo': tn(140, .08, 'sine', .05, 105); syn('stone-thud'); break;
+      case 'concrete': nb(.06, 3600, 'highpass', .06); tn(120, .07, 'sine', .05, 90); syn('grit'); break;
+      case 'roofpaint': nb(.03, 2100, 'bandpass', .07); laterAt(.05, () => nb(.03, 3200, 'bandpass', .03)); syn('tacky'); break;   // 방수 도막: 살짝 끈적하게 떨어지는 소리
+      case 'kitchen': if (Math.random() < .3) { laterAt(.04, () => tn(1500, .06, 'sine', .018, 1900)); syn('squeak'); } break;
+      case 'sportwood': tn(210, .07, 'triangle', .06, 160); if (md === 'run' ? Math.random() < .35 : Math.random() < .12) { laterAt(.05, () => tn(1700, .09, 'sine', .028, 2500)); syn('sneaker-squeak'); } break;
+      case 'stage': tn(92, .22, 'sine', .14, 70); tn(184, .12, 'triangle', .05, 150); syn('hollow-boom'); break;   // 속 빈 무대 · 단상: 낮게 울린다
+      case 'wood': if (md === 'run' && Math.random() < .28) { laterAt(.04, () => tn(540, .07, 'sine', .035, 480)); syn('creak'); } break;
+      case 'carpet': nb(.09, 420, 'lowpass', .2); nb(.06, 900, 'bandpass', .05); syn('muffled'); break;
+      case 'rubber': nb(.08, 300, 'lowpass', .26); tn(95, .06, 'sine', .06, 80); syn('rubber-thud'); break;
+      case 'metal': tn(420, .18, 'triangle', .035, 400); syn('clang'); break;
+      case 'grate': tn(430, .22, 'triangle', .06, 415); laterAt(.06, () => { nb(.04, 3000, 'bandpass', .07); tn(860, .1, 'sine', .02, 850); }); syn('grate-rattle'); break;
+      case 'wet': nb(.09, 1350, 'bandpass', .2); laterAt(.025, () => nb(.11, 2800, 'bandpass', .14)); smp('sfx-splash', .07, 1.7, .22); syn('wet-slap'); break;
+      case 'puddle': if (!smp('sfx-splash', .2, 1.25, .45)) nb(.18, 1600, 'bandpass', .3); laterAt(.03, () => nb(.14, 2600, 'bandpass', .18)); syn('splash'); break;
+      case 'dirt': nb(.14, 1650, 'bandpass', .26); nb(.08, 3400, 'highpass', .12); laterAt(.035, () => nb(.09, 920, 'bandpass', .16)); syn('dirt-crunch'); break;
+      case 'track': nb(.11, 2100, 'bandpass', .22); nb(.06, 4200, 'highpass', .1); laterAt(.03, () => nb(.07, 1300, 'bandpass', .12)); syn('masato-crunch'); break;
+      case 'gravel': for (let i = 0; i < 4; i++) laterAt(i * .022 + Math.random() * .01, () => nb(.035, 2600 + Math.random() * 2400, 'bandpass', .16)); nb(.08, 700, 'lowpass', .14); syn('gravel-crunch'); break;
+      case 'grass': nb(.2, 2600, 'bandpass', .09); nb(.1, 260, 'lowpass', .2); syn('grass-swish'); break;
+      case 'leaves': nb(.1, 260, 'lowpass', .18); for (let i = 0; i < 5; i++) laterAt(i * .018 + Math.random() * .012, () => nb(.03, 3500 + Math.random() * 3000, 'highpass', .1)); syn('leaf-crunch'); break;
+      case 'paver': nb(.04, 3800, 'highpass', .05); syn('paver-grit'); break;
+      case 'asphalt': nb(.05, 3200, 'highpass', .07); nb(.06, 500, 'lowpass', .1); syn('asphalt-scuff'); break;
+      case 'stone': tn(160, .06, 'sine', .05, 120); syn('stone'); break;
+    }
+    // 3) 걸음새: 달리기는 미끄러지는 끌림, 착지는 낮은 충격, 웅크리기는 천 스침만
+    if (md === 'land') { tn(70, .16, 'sine', .16 * (D.soft ? .6 : 1), 45); syn('land-thump'); if (D.soft) nb(.16, 1500, 'bandpass', .14); }
+    else if (md === 'run' && Math.random() < .25 && !D.soft) { laterAt(.06, () => nb(.05, 2400, 'bandpass', .05)); syn('scuff'); }
+    else if (md === 'crouch' && Math.random() < .5) { nb(.07, 1800, 'bandpass', .03 / k); syn('cloth'); }
+    if (Math.random() < .06) noiseBurst(.10, 3400 * lo, 'highpass', .07, 0, v);
+    sfx.lastStep = { surf: S, mode: md, variant: S + '/' + md + '/' + L.join('+') };
+    return sfx.lastStep;
   },
   ghostStep(dist, pan) { const vv = Math.max(0, 1 - dist / 22); if (vv > .02 && sample('sfx-ghost-step', .7 * vv, .9 + Math.random() * .15, 0, pan)) return; const v = Math.max(0, 1 - dist / 22); if (v > 0.02) { noiseBurst(0.14, 300, 'lowpass', 0.9 * v, pan); tone(70, 0.12, 'sine', 0.5 * v, pan); } },
   heartbeat(v = 1) { if (sample('sfx-heartbeat', .55 * v)) return; tone(58, 0.14, 'sine', 0.8 * v); setTimeout(() => tone(46, 0.18, 'sine', 0.6 * v), 130); },

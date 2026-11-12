@@ -145,7 +145,7 @@ export function installNeighborhood({ scene, camera }) {
   const t0 = performance.now();
   const [fMap, fEm] = facadeTextures(false), [farMap] = facadeTextures(true), [sMap, sEm] = shopTextures(), poolTex = radialTex(), haloTex = radialTex();
   const M = {
-    props: glowPatch(new THREE.MeshLambertMaterial({ vertexColors: true }), .1),
+    props: glowPatch(new THREE.MeshLambertMaterial({ vertexColors: true, userData: { surface: 'asphalt' } }), .1),   // 발소리: 담장 너머 차도 · 보도
     facade: glowPatch(new THREE.MeshLambertMaterial({ vertexColors: true, map: fMap, emissiveMap: fEm, emissive: 0xffffff, emissiveIntensity: .95 }), .1),
     shop: glowPatch(new THREE.MeshLambertMaterial({ vertexColors: true, map: sMap, emissiveMap: sEm, emissive: 0xffffff, emissiveIntensity: .9 }), .05),
     pool: new THREE.MeshBasicMaterial({ map: poolTex, color: 0x8a5420, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 }),

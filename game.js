@@ -4,6 +4,7 @@ import { MeshBVH } from './vendor/addons/bvh/three-mesh-bvh.module.js';
 import { createRenderer, ENGINE } from './engine.js?v=435';
 import { perfProfInit, perfFrameBegin, perfMark, perfFrameEnd, perfNote } from './perfProfiler.js?v=435';
 import { whenIdle, idleTimeout, idleInterval, setIdleProbe } from './idleTasks.js?v=435';
+import { createFootSurface, SURFACE_FEEL } from './footSurface.js?v=435';
 import { createMoveFeel, targetSpeed, stepVelocity, stopVelocity, advanceStride, restStride, motionScale, landImpulse, feelTick } from './moveFeel.js?v=435';
 import { createFXWebGPU } from './fxWebGPU.js?v=435';
 import * as PT from './rebuild/periodTex.js?v=435';
@@ -1240,13 +1241,68 @@ function useMedkit() {
   inv.medkit--; P.hp = Math.min(100, P.hp + 50); setFace('relief', 3); sfx.bandage ? sfx.bandage() : sfx.paper(); consumeFX('medkit'); toast('응급 밴드를 사용했습니다', '체력 +50', 'info'); talk('heal', 2400); refreshHud(); return true;
 }
 const WOOD_ROOMS = ['class', 'office', 'library', 'music', 'art', 'counsel', 'nurse', 'club', 'craft'];
-function surfaceAt() {
-  const f = P.floor;
-  if (f === 0 && isOutdoors()) return (Math.abs(P.x) < 3.4 || (P.z > MAIN_ZS && P.z < 14 && Math.abs(P.x) < 46)) ? 'tile' : 'dirt';
-  if (f === 5) return 'wood';
-  { const w = rbHere(); if (w || (f === 0 && RBG && RBG.inBuilding(P.x, P.z))) return rbSurface(w); }   // 새 건물: 재건 재질(인조석 복도 · PVC 데코타일 교실 · 자기질 타일 화장실 · 계단)에 맞춘다
-  if (f >= 0 && f !== 3 && f < 11) { const r = roomAt(f, P.x, P.z); if (r && WOOD_ROOMS.includes(r.type)) return 'wood'; if (r && r.type === 'stair') return 'metal'; }
+// 발밑 재질: ① 발 아래 바닥 메시(재질 태그 · 이름) ② 구역 규칙으로 다듬기/대신하기 (footSurface.js)
+const FS = createFootSurface({ THREE, scene });
+const KITCHEN_R = [-47.7, -30.3, 8.3, 12.45];
+function zoneSurface(f, x, z, yRel) {   // 메시를 못 찾았을 때 · 구역 고유 바닥
+  if (f === 3) return 'roofpaint';                                  // 옥상 우레탄 방수 도막
+  if (f === 4) return 'concrete';                                   // 지하 설비층
+  if (f === 5) return yRel > .5 ? 'stage' : 'sportwood';            // 체육관 마루 · 무대
+  if (f === 6) return 'wet';                                        // 수영장 데크 · 탈의실
+  if (f === 7) return x > KITCHEN_R[0] && x < KITCHEN_R[1] && z > KITCHEN_R[2] && z < KITCHEN_R[3] ? 'kitchen' : 'tile';
+  if (f === 0) { const w = RBG && RBG.where ? (RBG.where(x, z, yRel + .5) || '') : '';
+    if (w || (RBG && RBG.inBuilding(x, z))) return rbSurface(w);
+    if (!(RBG ? RBG.inBuilding(x, z) : inBldg(x, z))) {             // 바깥: 인도망 → 보도블록, 운동장 → 흙, 나머지 → 잔디
+      const NET = window.__pathNET; if (NET && NET.some(r => x > r[0] && x < r[1] && z > r[2] && z < r[3])) return 'paver';
+      if (Math.abs(x) < 27 && z > 15 && z < 59) return 'dirt';
+      return 'grass'; } }
+  if (f >= 0 && f < 11) { const r = roomAt(f, x, z); if (r && WOOD_ROOMS.includes(r.type)) return 'wood'; if (r && r.type === 'stair') return 'stairs'; }
   return 'tile';
+}
+// (x, z, 층, 발 높이 world y) → { surface, src, zone }
+function surfaceInfo(x = P.x, z = P.z, f = P.floor, y) {
+  const y0 = floors[f]?.y0 ?? 0; if (y == null) y = y0 + (P.sh || 0);
+  let hit = null; try { hit = FS.probe(x, y, z); } catch (e) { hit = null; }
+  const zone = zoneSurface(f, x, z, y - y0); let s = hit ? hit.surface : zone, src = hit ? 'mesh:' + hit.src : 'zone';
+  if (hit) {   // 구역이 더 잘 아는 경우
+    if (zone === 'stairs' && /terrazzo|concrete|stone|pvc|tile/.test(s)) { s = 'stairs'; src += '+zone'; }
+    else if (f === 6 && /ceramic|tile|concrete|stone/.test(s)) { s = 'wet'; src += '+zone'; }          // 수영장 데크: 늘 젖어 있다
+    else if (f === 5 && s === 'wood') { s = y - y0 > .5 ? 'stage' : 'sportwood'; src += '+zone'; }   // 체육관: 무대 · 단상은 속 빈 나무
+    else if (f === 4 && /tile|stone/.test(s)) { s = 'concrete'; src += '+zone'; }
+    else if (f === 0 && s === 'concrete' && /terrazzo|pvc|ceramic|wood/.test(zone)) { s = zone; src += '+zone'; }   // 새 건물: 문턱 · 슬래브 가장자리의 콘크리트보다 방 마감을 따른다
+    else if (s === 'leaves' && f !== 0) { s = zone; src = 'zone'; }
+  }
+  return { surface: s, src, zone };
+}
+function surfaceAt() { return surfaceInfo().surface; }
+let SURF = { surface: 'tile', src: 'init', zone: '' }, surfT = 0;
+function surfFeel() { if ((surfT -= 1) <= 0) { surfT = 20; if (state === 'playing') SURF = surfaceInfo(); } return SURFACE_FEEL[SURF.surface] || SURFACE_FEEL_NONE; }
+const SURFACE_FEEL_NONE = { speed: 1, bob: 1 };
+// 발 디딤: 소리 + 작은 시각 효과 (먼지 · 물방울 · 낙엽, 품질 '낮음'에서는 끔)
+function playerStep(mode, force, vol = 1) {
+  SURF = surfaceInfo(); surfT = 20; const s = force || SURF.surface;
+  const r = sfx.step(mode === 'run' || mode === 'land', vol, s, mode);
+  stepFx(s, P.x, (floors[P.floor]?.y0 ?? 0) + (P.sh || 0), P.z, mode);
+  if (DEBUG && window.__stepLog) { window.__stepLog.push({ f: P.floor, x: +P.x.toFixed(1), z: +P.z.toFixed(1), surface: s, src: force ? 'furniture' : SURF.src, zone: SURF.zone, mode, variant: r && r.variant }); if (window.__stepLog.length > 500) window.__stepLog.shift(); }
+  return r;
+}
+function stepFx(s, x, y, z, mode) {
+  if (!fx.emit || qCur === 'low' || IGPU) return;
+  const R = () => Math.random() - .5, fwx = -Math.sin(P.yaw) * .35, fwz = -Math.cos(P.yaw) * .35, n = mode === 'run' || mode === 'land' ? 1.6 : mode === 'crouch' ? .5 : 1;
+  if (s === 'dirt' || s === 'track' || s === 'gravel') for (let k = 0; k < Math.round(4 * n); k++) { const c = .38 + Math.random() * .12; fx.emit(x + fwx + R() * .3, y + .04, z + fwz + R() * .3, R() * .5, .25 + Math.random() * .35, R() * .5, .9 + Math.random() * .6, [c * 1.1, c * .95, c * .75], .22, .04 + Math.random() * .05, -.15, 1.8, .07); }
+  else if (s === 'wet' || s === 'puddle') for (let k = 0; k < Math.round((s === 'puddle' ? 7 : 3) * n); k++) fx.emit(x + fwx + R() * .25, y + .03, z + fwz + R() * .25, R() * .9, .8 + Math.random() * 1.1, R() * .9, .45 + Math.random() * .3, [.62, .78, .86], .35, .02 + Math.random() * .02, 4.5, .4, 0);
+  else if (s === 'leaves') for (let k = 0; k < Math.round(3 * n); k++) { const o = Math.random(); fx.emit(x + fwx + R() * .35, y + .05, z + fwz + R() * .35, R() * .6, .5 + Math.random() * .5, R() * .6, 1.1 + Math.random() * .6, o < .6 ? [.85, .62, .12] : [.55, .36, .14], .5, .035 + Math.random() * .02, .9, 2.2, 0); }
+}
+// 민아 발소리: 민아가 실제로 걸은 거리로 보폭을 세고, 민아 발밑 재질로 3D 위치에서 (조금 작게)
+const MINA_STEP = { s: 0, x: null, z: null };
+function minaStepTick(running) {
+  if (!mina) return; const x = mina.position.x, z = mina.position.z;
+  if (MINA_STEP.x == null) { MINA_STEP.x = x; MINA_STEP.z = z; return; }
+  const d = Math.hypot(x - MINA_STEP.x, z - MINA_STEP.z); MINA_STEP.x = x; MINA_STEP.z = z; if (d > 2) return;   // 순간 이동(재배치)은 세지 않는다
+  const s0 = MINA_STEP.s; MINA_STEP.s += d / (running ? 1.6 : 1.25); if (Math.floor(MINA_STEP.s) === Math.floor(s0)) return;
+  const inf = surfaceInfo(x, z, P.floor, mina.position.y), r = at(x, mina.position.y + .05, z).step(running, .55, inf.surface, running ? 'run' : 'walk');
+  if (DEBUG && window.__stepLog) window.__stepLog.push({ who: 'mina', f: P.floor, x: +x.toFixed(1), z: +z.toFixed(1), surface: inf.surface, src: inf.src, variant: sfx.lastStep && sfx.lastStep.variant });
+  if (Math.hypot(P.x - x, P.z - z) < 12) stepFx(inf.surface, x, mina.position.y, z, running ? 'run' : 'walk');
 }
 function rbSurface(w) {
   if (/화장실/.test(w)) return 'ceramic';
@@ -3001,7 +3057,7 @@ function updatePlayer(dt) {
     // 이동감: 입력 → 목표 속도 → 가속 · 감속 곡선(moveFeel.js). 충돌 · 계단 처리는 예전 그대로이고, 한 프레임에 갈 거리만 속도에서 나온다
     const l = Math.hypot(fw, sd) || 1;
     const dx = want ? (-Math.sin(P.yaw) * fw + Math.cos(P.yaw) * sd) / l : 0, dz = want ? (-Math.cos(P.yaw) * fw - Math.sin(P.yaw) * sd) / l : 0;
-    const spd = stepVelocity(MF, dx, dz, targetSpeed(fw, sd, P.sprinting, P.crouch), want, dt);
+    const spd = stepVelocity(MF, dx, dz, targetSpeed(fw, sd, P.sprinting, P.crouch) * surfFeel().speed, want, dt);   // 표면: 흙 · 잔디 · 젖은 바닥은 아주 조금 느리다
     if (spd > 0) {
       const ux = MF.vx / spd, uz = MF.vz / spd;
       const ox = P.x, oz = P.z, of0 = P.floor;
@@ -3031,7 +3087,7 @@ function updatePlayer(dt) {
       else if (P.floor !== of0) MF.lastSh = null;
       const mvd = P.floor === of0 ? Math.min(mv, tot * 1.05) : tot;
       P.moving = mvd > .0005; P.bob += mvd * Math.PI / (P.sprinting ? 1.9 : P.crouch ? 1.0 : 1.45);
-      if (advanceStride(MF, mvd, P.sprinting, P.crouch)) sfx.step(P.sprinting, 1, surfaceAt());   // 발소리: 시점이 가장 낮아지는 순간(발이 닿을 때)과 맞춘다
+      if (advanceStride(MF, mvd, P.sprinting, P.crouch)) playerStep(P.sprinting ? 'run' : P.crouch ? 'crouch' : 'walk');   // 발소리: 시점이 가장 낮아지는 순간(발이 닿을 때)과 맞춘다 (발밑 재질별 소리 · 먼지/물튀김/낙엽)
       lastMotionT = performance.now();
     } else restStride(MF);
   } else if (P.hiding) P.stamina = Math.min(100, P.stamina + 25 * dt);
@@ -3042,7 +3098,7 @@ function updatePlayer(dt) {
   // 점프 · 가구 위: 발 아래 가장 높은 가구 윗면이 바닥이 된다 (가장자리를 벗어나면 떨어진다)
   { const sup = P.sh ? 0 : supportAt(floors[P.floor], P.x, P.z, P.jy || 0);
     if (P.vy > 0 || (P.jy || 0) > sup + .001) { P.vy -= 13 * dt; P.jy = Math.max(sup, (P.jy || 0) + P.vy * dt);
-      if (P.jy <= sup + 1e-4 && P.vy <= 0) { if (P.vy < -1.5) { sfx.step(true, 1.1, sup > .1 ? 'wood' : surfaceAt()); P.noiseT = Math.max(P.noiseT, .25); landImpulse(MF, -P.vy); } P.vy = 0; P.jy = sup; if (jumpBuf > 0) { jumpBuf = 0; tryJump(); } } }
+      if (P.jy <= sup + 1e-4 && P.vy <= 0) { if (P.vy < -1.5) { playerStep('land', sup > .1 ? 'wood' : null, Math.min(1.3, .8 + -P.vy * .06)); P.noiseT = Math.max(P.noiseT, .25); landImpulse(MF, -P.vy); } P.vy = 0; P.jy = sup; if (jumpBuf > 0) { jumpBuf = 0; tryJump(); } } }
     if (jumpBuf > 0) jumpBuf -= dt;
     else if ((P.jy || 0) < sup) P.jy = sup;
     if (!Number.isFinite(P.jy) || P.jy < 0) P.jy = 0;
@@ -3288,7 +3344,7 @@ function updateCamera(dt, t) {
   // 이동감 연출값 (걸음 흔들림 · 기울임 · 눌림 · 숨 · 달리기 시야각 · 손전등 지연) — 설정의 흔들림 강도와 '동작 줄이기'를 따른다
   const fp = camDistNow < .05, red = REDUCED.on || !!SET.flashReduce;
   FO.dt = dt; FO.speed = Math.hypot(MF.vx, MF.vz); FO.sprinting = P.sprinting; FO.crouchK = P.crouchK || 0; FO.strafe = MF.vx * Math.cos(P.yaw) - MF.vz * Math.sin(P.yaw);
-  FO.yaw = P.yaw; FO.pitch = P.pitch; FO.sh = (P.sh || 0) + (P.jy || 0); FO.stamina = P.stamina; FO.grounded = !(P.vy || 0); FO.scale = motionScale(SET, REDUCED.on); FO.reduced = red; FO.still = !!(P.hiding || P.sitting || lookBack > 0 || (state !== 'playing' && state !== 'trans'));
+  FO.yaw = P.yaw; FO.pitch = P.pitch; FO.sh = (P.sh || 0) + (P.jy || 0); FO.stamina = P.stamina; FO.grounded = !(P.vy || 0); FO.scale = motionScale(SET, REDUCED.on) * surfFeel().bob; FO.reduced = red; FO.still = !!(P.hiding || P.sitting || lookBack > 0 || (state !== 'playing' && state !== 'trans'));
   const fo = feelTick(MF, FO);
   // 계단 · 턱: 발밑 높이를 부드럽게 따라간다 (층 이동처럼 크게 바뀌면 바로)
   if (Math.abs((P.sh || 0) - (P.shV || 0)) > 1.6) P.shV = P.sh || 0; else P.shV = lerp(P.shV || 0, P.sh || 0, 1 - Math.exp(-dt * 13));
@@ -4025,7 +4081,7 @@ function minaFollowTick(dt) {
     if (mv < st * .55) for (const o of _MF_SIDE) { const c = _mfTry(cs, _MF_C, mx, mz, ba + o, st), cm = Math.hypot(c.x - mx, c.z - mz); if (cm > mv * 1.25) { q.x = c.x; q.z = c.z; mv = cm; ma = ba + o; break; } }
     if (mv < st * .1) MINA_F.stuck = (MINA_F.stuck || 0) + dt; else MINA_F.stuck = 0;
     if (MINA_F.stuck > 2.5) { MINA_F.stuck = 0; MINA_F.lastFloor = -1; }   // 오래 막히면 플레이어 뒤로 다시 배치
-    mina.position.x = q.x; mina.position.z = q.z; mina.rotation.y = ma; MINA_F.turning = false; minaPlay(sp > 2.6 ? 'Run' : 'Walk'); }
+    mina.position.x = q.x; mina.position.z = q.z; mina.rotation.y = ma; MINA_F.turning = false; minaPlay(sp > 2.6 ? 'Run' : 'Walk'); minaStepTick(sp > 2.6); }
   else {
     // 제자리 회전: 크게 돌아야 하면 발을 옮기며(Walk 를 느리게) 돌고, 다 돌면 Idle — 미끄러지듯 도는 스케이팅 방지
     const ty = Math.atan2(P.x - mina.position.x, P.z - mina.position.z), err = Math.atan2(Math.sin(ty - mina.rotation.y), Math.cos(ty - mina.rotation.y));
@@ -6496,9 +6552,9 @@ function fzFloor(parent, tex, x1, x2, z1, z2, y, rep, rough = .9) {
 }
 {
   const tx = fzP.textures;
-  fzFloor(FLR(3), tx.rooftopUrethane, -36.3, 36.3, -9.9, MAIN_ZS, .014, 5, .95);
-  fzFloor(FLR(1), tx.scienceLabTile, 28.15, 35.85, -9.45, -1.75, .014, 2.4, .55);
-  fzFloor(FLR(7), tx.kitchenTile, -47.7, -30.3, 8.3, 12.45, .014, 2.6, .7);
+  fzFloor(FLR(3), tx.rooftopUrethane, -36.3, 36.3, -9.9, MAIN_ZS, .014, 5, .95).material.userData.surface = 'roofpaint';   // 발소리 재질 태그
+  fzFloor(FLR(1), tx.scienceLabTile, 28.15, 35.85, -9.45, -1.75, .014, 2.4, .55).material.userData.surface = 'ceramic';
+  fzFloor(FLR(7), tx.kitchenTile, -47.7, -30.3, 8.3, 12.45, .014, 2.6, .7).material.userData.surface = 'kitchen';
   // 운동장: 트랙 안쪽 축구장(직선 22m + 양끝 반원) 모양으로 — 트랙 · 선 아래
   const CZ = 40, SX = 11, R0 = 9.56, sh = new THREE.Shape();
   sh.moveTo(-SX, -CZ - R0); sh.lineTo(SX, -CZ - R0); sh.absarc(SX, -CZ, R0, -Math.PI / 2, Math.PI / 2, false); sh.lineTo(-SX, -CZ + R0); sh.absarc(-SX, -CZ, R0, Math.PI / 2, Math.PI * 1.5, false);
@@ -7385,7 +7441,7 @@ function installPoolDetail() {
   // 수영장 덮개 롤러 (남쪽 끝, 서쪽 데크)
   { const x = -48.6, z = 30.4; [-1.6, 1.6].forEach(d => box(STEEL, x, .55, z + d, .08, 1.1, .3)); const r = cyl(BLUE, x, .85, z, .32, 3.1, Math.PI / 2); r.material = mk(0x1e5aa8, .6); cyl(STEEL, x, .85, z, .05, 3.4, Math.PI / 2); }
   // 데크 웅덩이: 거울처럼 번들거리는 얇은 물막
-  { const W = mk(0x8fa8b0, .04, .1, { transparent: true, opacity: .55 }); [[-36, 31], [-48.8, 34], [-36.2, 44], [-41, 47.2], [-44, 30.5], [-35.6, 36.4]].forEach(([x, z], i) => { const o = new THREE.Mesh(new THREE.CircleGeometry(.35 + (i % 3) * .18, 20), W); o.rotation.x = -Math.PI / 2; o.scale.set(1, .6 + (i % 2) * .5, 1); o.position.set(x, y0 + .025, z); g.add(o); }); }
+  { const W = mk(0x8fa8b0, .04, .1, { transparent: true, opacity: .55 }); W.userData.surface = 'puddle'; [[-36, 31], [-48.8, 34], [-36.2, 44], [-41, 47.2], [-44, 30.5], [-35.6, 36.4]].forEach(([x, z], i) => { const o = new THREE.Mesh(new THREE.CircleGeometry(.35 + (i % 3) * .18, 20), W); o.rotation.x = -Math.PI / 2; o.scale.set(1, .6 + (i % 2) * .5, 1); o.position.set(x, y0 + .025, z); g.add(o); }); }
   // 수면 반사광(코스틱): 천장에 일렁이는 빛 무늬
   { const c = document.createElement('canvas'); c.width = c.height = 256; const q = c.getContext('2d'); q.fillStyle = '#000'; q.fillRect(0, 0, 256, 256); q.filter = 'blur(5px)'; q.strokeStyle = 'rgba(150,220,245,.5)'; q.lineWidth = 6;
     for (let i = 0; i < 70; i++) { q.beginPath(); const x = Math.random() * 256, y = Math.random() * 256, r = 10 + Math.random() * 22; q.ellipse(x, y, r, r * (.5 + Math.random() * .5), Math.random() * 3, 0, Math.PI * 2); q.stroke(); }
@@ -9540,7 +9596,7 @@ if (DEBUG) {
     get power() { return power; }, set power(v) { power = v; }, get CHAR() { return CHAR; }, newGame, continueGame,
     ELV,elvCall,elvEnter,elvLeave,elvPress,elvTick,elvReset,setTarget(t) { target = t; }, DAY, GEN, SIDEQUESTS, sqStep, sqDoneCount, useSideQuest, HEADQUEST, useHead, COLLECT, tmpFx, roomAt, camMode, camShoot, CAM, MIC, SAN, BRK, setBreaker, schoolPower, craftingSystem, ghostCam, restroom, useSink, useFlush, placeAlarm, throwShock, useFirstAid, tryCombine, stunGhost, enterLocker, leaveLocker, startSearch, useMiniSpot, openChalk, chalkAsk, XT, winGame,
     choose, missionGroups, ghostTick, enrage, activateGhost, textureBudget, SG, sgTestSpawn, sgSpawn, SG_ZONES, PL, CALL, SIT, ZOOM, SHOT, closeUI, TP, whereText, FLOOR_LABEL, S37,
-    get target() { return target; }, teleport, runMini, get RBG() { return RBG; },
+    get target() { return target; }, teleport, runMini, get RBG() { return RBG; }, surfaceInfo, playerStep, FS, sfx,
   };
 }
 // 형광등 스위치 초기 상태 반영 (방마다 일부만 켜져 있다)

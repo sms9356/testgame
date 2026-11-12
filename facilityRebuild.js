@@ -42,6 +42,7 @@ function lib() {
     FRAME: [PM(0x3a4046, .45, .6), 1], SASH: [PM(0xd6dadd, .32, .55), 1], GRILLE: [PM(0xe9e9e4, .5, .35), 1], PVC: [PM(0x9fa3a3, .55, .1), 1], ACU: [PM(0xe4e4de, .5, .15), 1], TRIM: [PM(0xf2eee4, .78), 1], ALU: [PM(0xb8bcc0, .35, .8), 1], REFRACT: [PM(0x6a5446, .95), 1], SOOT: [PM(0x1a1614, .95), 1], PANEL: [PM(0xd8d2c4, .8), 1], CORK: [PM(0x9a7448, .95), 1],
     HOUSING: [PM(0xe8e8e4, .5, .2), 1], BRASS: [PM(0xb08a3a, .4, .7), 1], TOWEL: [PM(0xd8c8a0, .95), 1], SHOE: [PM(0xe4e2dc, .8), 1], GREEN: [PM(0x2e5a3a, .7), 1], BOARD: [PM(0x24382e, .85), 1], DOME: [PM(0xc8ccd0, .35, .7), 1], TEAL: [PM(0x2c7a8a, .5, .2), 1],
   };
+  for (const [k, sf] of Object.entries({ F01: 'tile', F02: 'wood', F03: 'wood', F04: 'ceramic', F05: 'concrete', CARPET: 'carpet', DECO: 'pvc', TERR: 'terrazzo', GRANITE: 'stone', DARKWOOD: 'stage', CHECKER: 'metal', RUBBER: 'rubber' })) if (LIB[k] && !LIB[k][0].userData.surface) LIB[k][0].userData.surface = sf;   // 발소리 재질 태그 (footSurface.js)
   return LIB;
 }
 const GLASS = () => new THREE.MeshStandardMaterial({ color: 0x9fb8c4, roughness: .06, metalness: .3, transparent: true, opacity: .32, depthWrite: false });

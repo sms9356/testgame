@@ -20,7 +20,7 @@ export function turfMaterial() {
   for(let i=0;i<data.data.length;i+=4){data.data[i]=122+random()*12;data.data[i+1]=122+random()*12;data.data[i+2]=254;data.data[i+3]=255;}ng.putImageData(data,0,0);
   const normal=new THREE.CanvasTexture(normalCanvas);normal.wrapS=normal.wrapT=THREE.RepeatWrapping;
   turf=new THREE.MeshStandardMaterial({map,normalMap:normal,normalScale:new THREE.Vector2(.5,.5),roughness:1,metalness:0});
-  turf.name='school-turf';return turf;
+  turf.name='school-turf';turf.userData.surface='dirt';return turf;   // 발소리: 다진 마사토 흙
 }
 
 export function buildCampusDesign({out,facade,brick,concrete,metal,colliders}) {

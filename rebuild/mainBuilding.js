@@ -160,6 +160,7 @@ const UVM = { book0: .3, book1: .3, book2: .3, book3: .3, binder0: .3, binder1: 
 export function buildMainBuilding(opt = {}) {
   const S = { ...SPEC, ...(opt.spec || {}) }, PLAN = opt.plan || ROOM_PLAN, LY = layout(S, opt.centerStair || null), root = new THREE.Group(); root.name = opt.name || 'REBUILD_MAIN';
   const csR = LY.rooms.find(r => r.kind === 'cstair'), ELX = csR ? (csR.x1 + csR.x2) / 2 : 3.7;   // 엘리베이터: 중앙 계단실 앞 (없으면 x 3.7)
+  const MAINB = !opt.spec;   // 본관 전용 손질 (별관은 별관 팀 — 같은 빌더를 쓰므로 여기서 갈라 둔다)
   const OX = opt.x || 0, OZ = opt.z || 0, RY = opt.ry || 0, cR = Math.cos(RY), sR = Math.sin(RY);
   root.position.set(OX, 0, OZ); root.rotation.y = RY;
   const col = [];      // 충돌 AABB {x1,x2,z1,z2,y1,y2}
@@ -246,7 +247,9 @@ export function buildMainBuilding(opt = {}) {
       const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.wrapS = THREE.RepeatWrapping; t.repeat.set(2, 1);
       return new THREE.MeshStandardMaterial({ map: t, roughness: .95, side: THREE.DoubleSide, transparent: true, opacity: .82, depthWrite: false }); }),
     porc: M('porc', () => new THREE.MeshStandardMaterial({ color: 0xf2f2ee, roughness: .15 })),
-    tile: M('tile', () => pbr('tfloor', { rough: .7 })),                                // 화장실 바닥 타일 (실사)
+    shoeSt: M('shoeSt', () => new THREE.MeshStandardMaterial({ color: 0x9aa3a0, roughness: .5, metalness: .35, map: TEX.wall() })),   // 현관 신발장: 회녹색 분체도장 철제 (손때 얼룩 = 벽 텍스처 재활용)
+    tile: MAINB ? M('tile', () => new THREE.MeshStandardMaterial({ color: 0xc4c7c2, map: PT.shared('mb_toiletTileTex', PT.toiletTile), normalMap: tx('d2_tex_paint_normal.webp'), normalScale: new THREE.Vector2(.12, .12), roughness: .62 }))   // 본관 화장실 · 실험실 바닥: 연회색 논슬립 자기질 200각 (어두운 갈색 스캔 타일이 흙바닥처럼 보이던 것)
+      : M('tile', () => pbr('tfloor', { rough: .7 })),                                // 화장실 바닥 타일 (실사)
     rubber: M('rubber', () => new THREE.MeshStandardMaterial({ color: 0x3a3a38, roughness: .8 })),
     lockerM: M('lockerM', () => pbr('varnish', { rough: .8 })),                          // 니스 칠 나무 (사물함 · 문 · 서가)
   };
@@ -434,6 +437,11 @@ export function buildMainBuilding(opt = {}) {
       box('ceil', r.x1, r.x2, y0 + S.CEIL, y0 + S.CEIL + .02, zN, zA); });
     // 기둥 (500×500) — 교실 경계마다 외벽 · 복도벽 라인에
     LY.rooms.forEach(r => [r.x1, r.x2].forEach(x => [zS + T / 2, 0].forEach(z => box('conc', x - .25, x + .25, y0 + .003, top - S.slab, z - .25, z + .25, { solid: true }))));
+    // 본관: 실내로 튀어나온 기둥도 벽과 같이 미장 · 도장 (상부 아이보리 · 하부 녹색 징두리 · 걸레받이) — 노출 콘크리트 기둥이 복도 · 교실에 나무 기둥처럼 보이던 것
+    if (MAINB) { const clad = (xa, xb, za, zb, o) => { box('wall', xa, xb, y0 + 1.2, y0 + S.CEIL, za, zb); box('wain', xa, xb, y0 + .003, y0 + 1.2, za, zb); box('skirt', xa - .015, xb + .015, y0 + .003, y0 + .12, o < 0 ? za - .015 : za, o > 0 ? zb + .015 : zb); },
+        xs = [...new Set(LY.rooms.flatMap(r => [r.x1, r.x2]))].filter(x => Math.abs(x) < LY.L / 2 - .01), clsI = r => LY.rooms.filter(q => q.kind === 'class').indexOf(r);
+      xs.forEach(x => { clad(x - .262, x + .262, -.262, -S.wall / 2, -1); const adj = LY.rooms.filter(r => r.x1 === x || r.x2 === x);
+        if (adj.every(r => (r.kind === 'class' && !/toilet/.test(PLAN[f][clsI(r)] || '')) || (r.kind === 'core' && f === 0) || isSt(r))) { clad(x - .262, x + .262, S.wall / 2, .262, 1); clad(x - .262, x + .262, zS - .112, zS, -1); } }); }
     // 외벽: 남측(교실 창 띠) · 북측(복도 창) · 동서 마구리
     const winsS = [], winsN = [];
     LY.rooms.forEach(r => {
@@ -1649,7 +1657,7 @@ export function buildMainBuilding(opt = {}) {
       finishZ(r.x2 - S.wall / 2, -1, 0, zS, y0); finishX(lx, r.x2, zS, -1, y0, [{ a: r.x1 + 2.7, b: r.x2 - 2.7, y1: 0, y2: 2.6 }]);
       box('terr', lx + .1, r.x2 - .1, y0, y0 + .02, .1, zS);
       for (const sx of [-1, 1]) { const x0 = sx < 0 ? lx + S.wall / 2 + .1 : r.x2 - .55;   // 신발장 (양 벽)
-        for (let k = 0; k < 3; k++) { const z = 1.2 + k * 1.3; box('lockerM', x0, x0 + .4, y0, y0 + 1.6, z, z + 1.2, { solid: true }); for (let j = 1; j < 5; j++) box('alu', x0 - .005, x0 + .405, y0 + j * .32, y0 + j * .32 + .015, z, z + 1.2);
+        for (let k = 0; k < 3; k++) { const z = 1.2 + k * 1.3; box(MAINB ? 'shoeSt' : 'lockerM', x0, x0 + .4, y0, y0 + 1.6, z, z + 1.2, { solid: true }); for (let j = 1; j < 5; j++) box('alu', x0 - .005, x0 + .405, y0 + j * .32, y0 + j * .32 + .015, z, z + 1.2);
           const fx = sx < 0 ? x0 + .4 : x0, d = sx < 0 ? 1 : -1;   // 칸마다 실내화 (흰 고무 + 파란 띠, 앞코가 칸 밖으로 살짝) — 몇 칸은 비었다
           for (let j = 0; j < 5; j++) for (let q = 0; q < 5; q++) { if (((k * 7 + j * 3 + q * 5 + (sx > 0 ? 2 : 0)) % 6) === 0) continue; const zz = z + .06 + q * .23, yy = y0 + j * .32 + .015, xa = Math.min(fx - d * .02, fx + d * .025), xb = Math.max(fx - d * .02, fx + d * .025);
             [0, .1].forEach(o => { box('white', xa, xb, yy, yy + .05, zz + o, zz + o + .085); box('recycB', xa, xb, yy + .05, yy + .065, zz + o + .01, zz + o + .075); }); } } }

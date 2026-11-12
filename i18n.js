@@ -44,12 +44,14 @@ function build(obj) {
   }
   tpls.sort((a, b) => b.w - a.w);   // 글자가 많이 고정된 틀부터
 }
+const GAME_TITLE = '서린고 : 잊혀진 시간';
 export async function loadLang(code = lang()) {
   document.documentElement.lang = code;
-  if (code === 'ko') { dict = null; tpls = []; cache = new Map(); return; }
+  if (code === 'ko') { dict = null; tpls = []; cache = new Map(); document.title = GAME_TITLE; return; }
   fetch(`voice/${code}/manifest.json`).then(r => r.ok ? r.json() : null).then(m => { vpack = m; }).catch(() => { vpack = null; });   // 신경망 음성 팩
   try { build(await (await fetch(`lang/${code}.json`, { cache: 'no-cache' })).json()); }
   catch (e) { console.warn('[i18n] 사전을 불러오지 못했다:', code, e && e.message); dict = null; }
+  document.title = tr(GAME_TITLE);   // 탭 · 창 제목도 언어에 맞게
 }
 // 한 문장 번역 (없으면 원문)
 export function tr(s) {
@@ -149,8 +151,8 @@ window.__i18n = { get miss() { return [...MISS]; }, tr, lang, LANGS, setLang, ha
 // 음성 연결 (영어 · 일본어 · 중국어):
 //   1) voice/<언어>/ 의 신경망 음성 팩(Microsoft Edge 신경망 음성으로 미리 만든 파일 — tools/gen_voice_pack.py)에 그 대사가 있으면 그것을 재생
 //   2) 없으면 번역된 대사를 브라우저 음성(그 언어 목소리)으로 읽는다. 그 언어 목소리도 없으면 null → 원래 한국어 더빙
-import { VHOOK, emoFor } from './voice.js?v=434';
-import { playVoice } from './audio.js?v=434';
+import { VHOOK, emoFor } from './voice.js?v=435';
+import { playVoice } from './audio.js?v=435';
 // 대사 → 번역문 (쪽지처럼 제목 · 본문 조각으로 등록된 대사는 조각별로 번역해 잇는다)
 export const voiceText = info => (info.parts ? info.parts.map(p => tr(p)).join('. ') : tr(info.text.replace(/<[^>]+>/g, ' '))).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
 VHOOK.speak = (id, info, fx) => {

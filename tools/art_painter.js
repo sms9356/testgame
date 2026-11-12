@@ -212,6 +212,7 @@ function certificate(seed, o) { rnd = R(seed); const W = 362, H = 512, c = mk(W,
   const bc = o.border || '#3a6a4a'; g.strokeStyle = bc; g.lineWidth = 6; g.strokeRect(16, 16, W - 32, H - 32); g.lineWidth = 1.5; g.strokeRect(26, 26, W - 52, H - 52);
   g.fillStyle = bc; for (let k = 0; k < 18; k++) { [[30 + k * (W - 60) / 17, 21], [30 + k * (W - 60) / 17, H - 21]].forEach(([x, y]) => { g.save(); g.translate(x, y); g.rotate(Math.PI / 4); g.fillRect(-3, -3, 6, 6); g.restore(); }); }
   for (let k = 0; k < 26; k++) { [[21, 30 + k * (H - 60) / 25], [W - 21, 30 + k * (H - 60) / 25]].forEach(([x, y]) => { g.save(); g.translate(x, y); g.rotate(Math.PI / 4); g.fillRect(-3, -3, 6, 6); g.restore(); }); }
+  if (/서린고등학교장/.test(o.by)) { emblem(g, W / 2, H / 2 + 30, 120, { alpha: .07 }); emblem(g, W - 62, 62, 18); }
   g.fillStyle = '#1a1a1a'; g.textAlign = 'left'; g.font = '400 12px "Nanum Myeongjo"'; g.fillText(o.no, 44, 58);
   g.textAlign = 'center'; g.font = '700 46px "Nanum Myeongjo"'; g.fillText(o.title || '상  장', W / 2, 120);
   g.font = '700 18px "Nanum Myeongjo"'; g.fillText(o.prize, W / 2, 168); g.font = '400 15px "Nanum Myeongjo"'; g.fillText(o.who, W / 2, 196);
@@ -277,6 +278,37 @@ const POSTERS = [
       for (let k = 0; k < 40; k++) { g.fillStyle = `rgba(255,255,220,${rr(.2, .9)})`; g.fillRect(rr(0, W), rr(0, H * .7), 2, 2); } } },
 ];
 
+// ── 서린고 교표 (원 + 방패 · 세 그루 소나무 숲 · 물결 · 금빛 '서린' · 둘레 글자) ──
+function emblem(g, x, y, Rr, o = {}) { const gold = o.gold || '#c8a24a', navy = o.navy || '#1c2a52', green = o.green || '#2e6a44', a = o.alpha ?? 1;
+  g.save(); g.globalAlpha = a; g.translate(x, y);
+  g.fillStyle = navy; g.beginPath(); g.arc(0, 0, Rr, 0, 7); g.fill(); g.strokeStyle = gold; g.lineWidth = Rr * .05; g.beginPath(); g.arc(0, 0, Rr * .95, 0, 7); g.stroke(); g.lineWidth = Rr * .02; g.beginPath(); g.arc(0, 0, Rr * .7, 0, 7); g.stroke();
+  const ring = (txt, r, a0, a1, sz, flip) => { g.font = `700 ${sz}px "Noto Serif KR"`; g.fillStyle = gold; g.textAlign = 'center'; g.textBaseline = 'middle'; const n = txt.length;
+    for (let i = 0; i < n; i++) { const t = a0 + (a1 - a0) * (n === 1 ? .5 : i / (n - 1)); g.save(); g.rotate(t); g.translate(0, flip ? r : -r); g.fillText(txt[i], 0, 0); g.restore(); } };
+  if (Rr > 40) { ring('SEORIN HIGH SCHOOL', Rr * .83, -1.15, 1.15, Rr * .12 | 0, false); ring('1968', Rr * .83, .3, -.3, Rr * .12 | 0, true);
+    g.fillStyle = gold; [-1.42, 1.42].forEach(t => { g.save(); g.rotate(t); g.translate(0, -Rr * .83); g.beginPath(); g.arc(0, 0, Rr * .025, 0, 7); g.fill(); g.restore(); }); }
+  const S = Rr * .62, sh = new Path2D(); sh.moveTo(-S * .78, -S * .82); sh.lineTo(S * .78, -S * .82); sh.lineTo(S * .78, S * .05); sh.quadraticCurveTo(S * .7, S * .7, 0, S * 1.02); sh.quadraticCurveTo(-S * .7, S * .7, -S * .78, S * .05); sh.closePath();
+  g.fillStyle = green; g.fill(sh); g.strokeStyle = gold; g.lineWidth = Rr * .035; g.stroke(sh);
+  g.save(); g.clip(sh);
+  g.fillStyle = '#f4efe0'; [[-S * .36, S * .32, .82], [0, S * .26, 1], [S * .36, S * .32, .82]].forEach(([tx, ty, k]) => { for (let j = 0; j < 3; j++) { const w = S * (.34 - j * .08) * k, top = ty - S * (.32 + j * .2) * k; g.beginPath(); g.moveTo(tx, top - S * .14 * k); g.lineTo(tx + w, top + S * .14 * k); g.lineTo(tx - w, top + S * .14 * k); g.closePath(); g.fill(); } g.fillRect(tx - S * .03, ty, S * .06, S * .12); });
+  g.strokeStyle = '#9cc4e4'; g.lineWidth = S * .05; for (let k = 0; k < 2; k++) { g.beginPath(); for (let t = -S; t <= S; t += 2) g.lineTo(t, S * (.55 + k * .14) + Math.sin(t / S * 9) * S * .04); g.stroke(); }
+  g.restore();
+  g.fillStyle = gold; g.font = `700 ${S * .44 | 0}px "Nanum Myeongjo"`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('서린', 0, -S * .58);
+  g.restore(); }
+function emblemFrame(seed) { rnd = R(seed); const W = 400, H = 512, c = mk(W, H), g = ctx(c), n = noise(seed);
+  g.fillStyle = '#1a2340'; g.fillRect(0, 0, W, H); eachPx(c, (p, i, x, y) => { const v = (fbm(n, x * .3, y * .3, 2) - .5) * 16; p[i] = clamp(p[i] + v); p[i + 1] = clamp(p[i + 1] + v); p[i + 2] = clamp(p[i + 2] + v); });   // 벨벳
+  g.strokeStyle = '#c8a24a'; g.lineWidth = 2; g.strokeRect(18, 18, W - 36, H - 36);
+  g.shadowColor = 'rgba(0,0,0,.6)'; g.shadowBlur = 14; g.shadowOffsetY = 5; emblem(g, W / 2, 210, 140); g.shadowColor = 'transparent';
+  g.fillStyle = '#d8b65a'; g.textAlign = 'center'; g.textBaseline = 'alphabetic'; g.font = '700 34px "Nanum Myeongjo"'; g.fillText('서 린 고 등 학 교', W / 2, 410); g.font = '400 15px "Noto Serif KR"'; g.fillStyle = '#b8a070'; g.fillText('교표  ·  숲처럼 푸르게, 물처럼 맑게', W / 2, 446);
+  return c; }
+function schoolSong(seed) { rnd = R(seed); const W = 362, H = 512, c = hanji(W, H, seed), g = ctx(c);
+  emblem(g, W / 2, 52, 28); g.textBaseline = 'alphabetic';
+  g.fillStyle = '#1a1612'; g.textAlign = 'center'; g.font = '700 26px "Nanum Myeongjo"'; g.fillText('서린고등학교 교가', W / 2, 112);
+  const V = [['1.', '푸른 산 정기 받아 우뚝 선 배움터', '서린의 숲 우거져 그늘도 깊다', '슬기를 갈고 닦아 내일을 여는', '아아 우리 서린 영원하여라'], ['2.', '맑은 물 굽이굽이 흘러가듯이', '성실 정직 봉사로 함께 걸으리', '겨레의 빛이 되어 세상에 서는', '아아 우리 서린 영원하여라']];
+  let y = 156; g.font = '400 16px "Nanum Myeongjo"';
+  for (const v of V) { g.textAlign = 'left'; g.fillText(v[0], 40, y); for (let i = 1; i < v.length; i++) { g.fillText(v[i], 64, y); y += 30; } y += 18; }
+  g.textAlign = 'center'; g.font = '400 13px "Nanum Myeongjo"'; g.fillStyle = '#4a4036'; g.fillText('1968년 개교와 함께 제정', W / 2, H - 46);
+  return c; }
+
 const LIST = [];
 const add = (name, fn) => LIST.push({ name, fn });
 add('oil_mountain_mist', () => mountains(11, 'mist')); add('oil_mountain_dawn', () => mountains(23, 'dawn')); add('oil_mountain_autumn', () => mountains(37, 'autumn'));
@@ -284,8 +316,8 @@ add('oil_hanok_village', () => hanok(41)); add('oil_hanok_village2', () => hanok
 add('oil_sea_dusk', () => seaDusk(61)); add('oil_sea_dusk2', () => seaDusk(77));
 [[6, '오병철', '1981 ~ 1986', { glasses: 1 }], [7, '윤재덕', '1986 ~ 1991', { bald: 1, grey: 1 }], [8, '서동만', '1991 ~ 1996', { glasses: 1, grey: 1 }], [9, '한석규', '1996 ~ 1999', { badge: 1 }], [10, '임정길', '1999 ~ 2003', { glasses: 1 }], [11, '차상호', '2003 ~ 2007', { grey: 1, badge: 1 }]]
   .forEach(([n, nm, y, o]) => add(`portrait_p${n}`, () => portrait(100 + n, `제${n}대 교장`, nm, y, o)));
-[1989, 1993, 1997, 2001, 2004, 2007].forEach(y => add(`photo_grad_${y}`, () => gradPhoto(200 + y % 100, y)));
-add('photo_bcast_1998', () => bcastPhoto(1998));
+// 사진(photo_*)은 tools/capture_photos.mjs 가 실제 3D 장면을 찍어 만든다
+add('emblem_seorin', () => emblemFrame(7)); add('callig_school_song', () => schoolSong(8));
 add('callig_motto', () => motto(5)); add('callig_scroll', () => scroll(6));
 add('cert_science_2007', () => certificate(301, { no: '제 2007-112 호', prize: '최우수상', who: '제2학년 3반  정 하 율', body: '위 학생은 2007학년도 교내 과학탐구대회에서 탁월한 성적을 거두었으므로 이 상장을 수여합니다.', date: '2007년 10월 26일', by: '서린고등학교장' }));
 add('cert_choir_2006', () => certificate(302, { no: '제 2006-41 호', prize: '대  상', who: '제2학년 5반', border: '#6a3a5a', body: '위 학급은 2006학년도 서린 합창제에서 아름다운 화음과 협동심으로 으뜸이 되었기에 이 상장을 수여합니다.', date: '2006년 10월 20일', by: '서린고등학교장' }));

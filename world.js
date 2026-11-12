@@ -3914,7 +3914,7 @@ export function buildWorld(scene) {
       model('cr101/CR-005', -41.8, .935, 9.75, .2); model('cr101/CR-005', -40.2, .935, 10.25, -.4);
       model('cr101/CR-012', -31.9, .9, z0 + .5, 0); model('cr101/CR-009', x0 + .32, 1.55, 10.6, Math.PI / 2);
       // 바닥 배수 트렌치 그레이팅 (조리 라인 앞)
-      add(mGrate, 9.0, .01, .25, -41.5, .012, 11.05); }
+      mGrate.userData.surface = 'grate'; add(mGrate, 9.0, .01, .25, -41.5, .012, 11.05); }   // 발소리: 배수 트렌치 그레이팅
     add(mSS, 2.6, .9, .7, -31.9, 0, z0 + .5, { col: true }); for (let k = 0; k < 4; k++) add(mSS, 2.6, .03, .6, -31.9, 1.2 + k * .35, z0 + .45);   // 식기 보관 / 배식 보조
     awall(-33.0, -32.9, zX + 3.5, 10.6, H); awall(-33.0, -32.9, 11.6, kz - .1, H); awall(-33.0, -32.9, 10.6, 11.6, H, 2.1);   // 식기 보관실 칸막이 (예전엔 사방이 막혀 들어갈 수 없었다 → 조리실 쪽 출입구)
     cafeKitchenX(F, { x0, x1, z0, zX, z1, H, t, kz, mSS, mSSd });
@@ -4234,7 +4234,7 @@ export function buildWorld(scene) {
 
   function buildGym() {
     const F = areaFloor(5, 60), x0 = 28, x1 = 48, z0 = 8, z1 = 30, H = 8, t = .3;
-    const mCourt = new THREE.MeshStandardMaterial({ map: T.makeCourt(), roughness: .42, metalness: .06 });
+    const mCourt = new THREE.MeshStandardMaterial({ map: T.makeCourt(), roughness: .42, metalness: .06, userData: { surface: 'sportwood' } });
     const mBall = S(null, { color: 0xb04a20 }), mGreen = S(null, { color: 0x244838 }), mScore = new THREE.MeshBasicMaterial({ map: T.makeScore() });
     const mBanner = new THREE.MeshStandardMaterial({ map: T.makeBanner(), roughness: .85 });
     const mCurt = S(T.makeCurtain(), { side: THREE.DoubleSide });
@@ -4391,7 +4391,7 @@ export function buildWorld(scene) {
     const mBlueL = mLockerT.clone(); mBlueL.color.setHex(0x86a8d0);
     const mSteel = S(null, { color: 0x9aa4a8, roughness: .3, metalness: .8 }), mTank = grunge(S(T.makeMetal([96, 138, 132]), { roughness: .6, metalness: .45 }));
     const mPipeR = S(null, { color: 0x8a2018, roughness: .5, metalness: .4 }), mPipeB = S(null, { color: 0x2a4a7a, roughness: .5, metalness: .4 }), mPipeG = S(null, { color: 0x5a6060, roughness: .5, metalness: .6 });
-    const mMat = S(null, { color: 0x2a5ab0, roughness: .8 }), mDrain = S(null, { color: 0x2a2c2e, roughness: .4, metalness: .7 });
+    const mMat = S(null, { color: 0x2a5ab0, roughness: .8 }), mDrain = S(null, { color: 0x2a2c2e, roughness: .4, metalness: .7 }); mMat.userData.surface = 'rubber'; mDrain.userData.surface = 'grate';   // 발소리 재질 태그
     const sign = (txt, bg, fg, fs, w, h, x, y, z, ry = 0) => plane(F.interior, new THREE.MeshStandardMaterial({ map: T.makeSign(txt, bg, fg, fs), roughness: .85 }), w, h, x, y, z, ry);
     const wallSignH = (txt, x, y, z, ry, w = 2.6) => sign(txt, '#e8e2d2', '#b01818', 30, w, w * .3, x, y, z, ry);
     // 바닥 (수조 위는 비움) · 천장
@@ -4651,7 +4651,7 @@ export function buildWorld(scene) {
     tapeRecorder('tape4', -38.2, .45, 28.3, .5);
 
     // 바닥 물웅덩이 (젖은 반사)
-    const pud = new THREE.MeshStandardMaterial({ color: 0x1a2428, roughness: .05, metalness: .2, transparent: true, opacity: .55, depthWrite: false });
+    const pud = new THREE.MeshStandardMaterial({ color: 0x1a2428, roughness: .05, metalness: .2, transparent: true, opacity: .55, depthWrite: false, userData: { surface: 'puddle' } });
     [[-47.5, 37], [-36.2, 31.5], [-40.5, 47.8], [-38.5, 52.5], [-45.5, 26.5], [-38.5, 24.5]].forEach(([x, z]) => { const p = new THREE.Mesh(new THREE.CircleGeometry(rr(.6, 1.2), 18), pud); p.rotation.x = -Math.PI / 2; p.position.set(x, .02, z); p.scale.set(1, rr(.6, 1), 1); F.interior.add(p); });
     addBattery(-46.8, 0, 48.8);
     [-46, -41.5, -37].forEach(x => [33, 38.5, 44].forEach(z => areaLamp(x, z, H - .7, 'poolHall'))); lightSwitch(x1 - t - .02, 36.3, -Math.PI / 2, 'poolHall', '수영장 홀');
@@ -4685,7 +4685,7 @@ export function buildWorld(scene) {
   const outWall = (x1, x2, z1, z2, h, mat, wall = true) => { const m = boxMesh(x1, x2, 0, h, z1, z2, mat); OUT.add(m); col(x1, x2, z1, z2, wall); };
 
   // 지면: 본관(-36.0~36.0, -9.6~9.6)과 별관(-28.0~28.0, -32.0~-20.5) 실내 바닥 영역을 모두 비우고 분할 시공하여 실내외 바닥 겹침(Z-fighting) 원천 차단!
-  const groundMat = S(T.makeGround());
+  const groundMat = S(T.makeGround()); groundMat.userData.surface = 'grass';   // 발소리 재질 태그: 캠퍼스 잔디 · 풀밭
   flat(OUT, groundMat, -320, 320, -260, -31.68, -.06, 8);
   flat(OUT, groundMat, -320, -19.6, -31.68, -20.5, -.06, 6);
   flat(OUT, groundMat, 27.6, 320, -31.68, -20.5, -.06, 6);
@@ -4706,7 +4706,7 @@ export function buildWorld(scene) {
   // 운동장 (재배치): 동서로 긴 200m 급 우레탄 트랙 — 체육관(x 28) · 수영장(x -34) · 급식실과 3m 이상 띄움. 안쪽은 흙 축구장 (선 · 골대 · 그물)
   const PG = { CZ: 40, SX: 11, R0: 9.6, R1: 13.2 };
   const mNet = (() => { const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d'); g.strokeStyle = '#e8e8e0'; g.lineWidth = 3; for (let i = 0; i <= 64; i += 16) { g.beginPath(); g.moveTo(i, 0); g.lineTo(i, 64); g.stroke(); g.beginPath(); g.moveTo(0, i); g.lineTo(64, i); g.stroke(); } const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.colorSpace = THREE.SRGBColorSpace; return new THREE.MeshStandardMaterial({ map: t, alphaTest: .45, side: THREE.DoubleSide, roughness: .9 }); })();
-  { const trM = PB('track', () => T.pbrTrack(512)); trM.polygonOffset = true; trM.polygonOffsetFactor = -1;
+  { const trM = PB('track', () => T.pbrTrack(512)); trM.userData.surface = 'track'; trM.polygonOffset = true; trM.polygonOffsetFactor = -1;
     const lineM = new THREE.MeshStandardMaterial({ color: 0xd8d4c8, roughness: .8, transparent: true, opacity: .8, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 });
     const { CZ, SX, R0, R1 } = PG, Y = .013, LW = (R1 - R0) / 4;
     const uvPlanar = (geo, sc) => { const p = geo.attributes.position, uv = geo.attributes.uv; for (let i = 0; i < p.count; i++) uv.setXY(i, p.getX(i) / sc, p.getY(i) / sc); return geo; };
@@ -4848,13 +4848,13 @@ export function buildWorld(scene) {
     meshAt(bx(.4, .8, .4, 0, .4, 0), mWoodDark, x0 + .5, 0, z1 - .5, 0, OUT); col(x0 + .3, x0 + .7, z1 - .7, z1 - .3);
     [[x0 + .25, z0 + .25], [x1 - .25, z0 + .25], [x0 + .25, z1 - .25], [x1 - .25, z1 - .25]].forEach(([x, z]) => { meshAt(tube(.07, x, 0, z, x, 6.0, z), postM, 0, 0, 0, 0, OUT); meshAt(bx(.7, .3, .3, 0, 0, 0), new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xf4f8ff, emissiveIntensity: .9 }), x, 6.1, z, 0, OUT); });
   }
-  const pave = S(T.makePaving()); flat(OUT, pave, -3.2, 3.2, MAIN_ZS, PG.CZ - PG.R1 - .2, .01, 4); flat(OUT, pave, -3.2, 3.2, PG.CZ + PG.R1 + .2, 69.5, .01, 4); flat(OUT, pave, -16, 16, MAIN_ZS, 11, .01, 4);   // 정문 길은 운동장(트랙 · 흙)을 가로지른다
+  const pave = S(T.makePaving()); pave.userData.surface = 'paver'; flat(OUT, pave, -3.2, 3.2, MAIN_ZS, PG.CZ - PG.R1 - .2, .01, 4); flat(OUT, pave, -3.2, 3.2, PG.CZ + PG.R1 + .2, 69.5, .01, 4); flat(OUT, pave, -16, 16, MAIN_ZS, 11, .01, 4);   // 정문 길은 운동장(트랙 · 흙)을 가로지른다
   // 진입로 가로등 · 현관 앞 & 운동장 가장자리 캠퍼스 벤치 (sf_park_bench)
   [[-25.8, 24.0, Math.PI / 2], [-25.8, 48.0, Math.PI / 2], [24.0, 56.5, Math.PI]].forEach(([x, z, ry]) => model('sf_park_bench', x, 0, z, ry, { out: true, col: [1.85, .64] }));
   flat(OUT, pave, -46, 46, 11, 14, .005, 4);
   const asph = S(T.makeAsphalt()); flat(OUT, asph, -120, 120, 73, 82, 0.005, 8);
   // 웅덩이
-  const puddle = new THREE.MeshStandardMaterial({ color: 0x2a3640, roughness: .12, metalness: 0, transparent: true, opacity: .55, depthWrite: false });
+  const puddle = new THREE.MeshStandardMaterial({ color: 0x2a3640, roughness: .12, metalness: 0, transparent: true, opacity: .55, depthWrite: false, userData: { surface: 'puddle' } });
   [[0, 12.5], [-2, 30], [1.5, 50], [-20, 40], [14, 30], [-9, 46], [22, 44], [-26, 26], [8, 20], [27, 52], [-14, 18], [5, 62]].forEach(([x, z]) => {
     const geo = new THREE.CircleGeometry(1, 28), pp = geo.attributes.position; for (let i = 1; i < pp.count; i++) { const k = .7 + rnd() * .5; pp.setXY(i, pp.getX(i) * k, pp.getY(i) * k * rr(.6, 1)); }
     const p = new THREE.Mesh(geo, puddle); p.rotation.x = -Math.PI / 2; p.rotation.z = rnd() * 6; p.scale.setScalar(rr(.9, 2.3)); p.position.set(x, .022, z); OUT.add(p); });
@@ -5063,7 +5063,7 @@ export function buildWorld(scene) {
     tileRoad(72.2, 74.0, -35.5, -32.5, false, true);     // 과학천문관 정문 진입 지선
     tileRoad(60.0, 69.4, 21.4, 24.2, false, true);       // 1998 구관 학우매점 전면 진입 지선
     tileRoad(72.2, 73.2, 37.5, 40.5, false, true);       // 중앙학술정보관(대도서관) 정문 진입 지선
-    { const cm = new THREE.Mesh(merge(curbG), mStep); OUT.add(cm); OUT.userData.pathCurb = cm; OUT.userData.curbMat = mStep; }
+    { const cm = new THREE.Mesh(merge(curbG), mStep); OUT.add(cm); OUT.userData.pathCurb = cm; OUT.userData.curbMat = mStep; }   // 연석: 발소리는 인도(paver)로 본다 (mStep 은 계단과 함께 쓴다)
   }
 
   // 본관-별관 2층·3층 공중 구름다리 (Skybridge) & 1층 개방형 필로티 기둥 구조:

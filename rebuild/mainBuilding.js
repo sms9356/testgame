@@ -253,6 +253,7 @@ export function buildMainBuilding(opt = {}) {
     rubber: M('rubber', () => new THREE.MeshStandardMaterial({ color: 0x3a3a38, roughness: .8 })),
     lockerM: M('lockerM', () => pbr('varnish', { rough: .8 })),                          // 니스 칠 나무 (사물함 · 문 · 서가)
   };
+  for (const [k, sf] of Object.entries({ terr: 'terrazzo', deco: 'pvc', wear: 'pvc', tile: 'ceramic', wood: 'wood', dkwood: 'wood', conc: 'concrete', roofCoat: 'roofpaint', nonslip: 'stairs', rubber: 'rubber' })) if (mat[k] && !mat[k].userData.surface) mat[k].userData.surface = sf;   // 발소리 재질 태그 (footSurface.js)
   mat.nonslip = M('nonslip', () => new THREE.MeshStandardMaterial({ map: PT.nonSlip(), roughness: .85, metalness: .1 }));   // 계단 논슬립
   // 2008 교실 바닥 PVC 데코타일 · 진회녹색 걸레받이 · 외벽 빗물 자국 · 밑동 때(백화) — 본관 · 별관 · 시설이 한 재질을 함께 쓴다 (periodTex 모듈 캐시)
   mat.roofCoat = M('roofCoat', () => new THREE.MeshStandardMaterial({ map: PT.roofCoat(), roughnessMap: PT.roofRough(), roughness: 1, metalness: .02 }));   // 옥상 녹색 방수 페인트 (본관 · 별관 한 정의 — 예전엔 두 곳에 같은 정의)
@@ -1904,6 +1905,7 @@ export function buildWalkway({ x1, x2, z1, z2, y = 0, sup = null }) {   // sup: 
     glass: new THREE.MeshStandardMaterial({ color: 0xbfd6dc, roughness: .08, metalness: .1, transparent: true, opacity: .16, depthWrite: false, side: THREE.DoubleSide }), lamp: new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xf4f6ff, emissiveIntensity: 1.4 }) };
   const uvb = (w, h, d, u) => { const g = new THREE.BoxGeometry(w, h, d), uv = g.attributes.uv, n = g.attributes.normal; for (let i = 0; i < uv.count; i++) { const ax = Math.abs(n.getX(i)), ay = Math.abs(n.getY(i)); uv.setXY(i, uv.getX(i) * (ax > .5 ? d : w) / u, uv.getY(i) * (ay > .5 ? d : h) / u); } return g; };
   const add = (m, a, b, y1, y2, c, d, solid, par = root) => { const g = new THREE.Mesh(uvb(b - a, y2 - y1, d - c, m === mat.terr ? 2.4 : 2.5), m); g.position.set((a + b) / 2, (y1 + y2) / 2, (c + d) / 2); g.receiveShadow = true; g.castShadow = true; par.add(g); if (solid) col.push({ x1: a, x2: b, z1: c, z2: d, y1, y2 }); };
+  mat.terr.userData.surface = 'terrazzo';   // 발소리 재질 태그
   add(mat.terr, x1, x2, y - .25, y, z1, z2); add(mat.conc, x1 - .2, x2 + .2, y + 2.9, y + 3.15, z1, z2);
   [x1 - .1, x2].forEach(x => { add(mat.conc, x, x + .1, y, y + .6, z1, z2, true); add(mat.glass, x + .04, x + .06, y + .6, y + 2.85, z1, z2, true); const n = Math.round((z2 - z1) / 2); for (let k = 0; k <= n; k++) { const z = z1 + k * (z2 - z1) / n; add(mat.alu, x, x + .1, y + .6, y + 2.9, z - .04, z + .04); } });
   for (let z = z1 + 1.5; z < z2 - 1; z += 3) { add(mat.lamp, (x1 + x2) / 2 - .6, (x1 + x2) / 2 + .6, y + 2.86, y + 2.9, z - .15, z + .15); lights.push({ x: (x1 + x2) / 2, y: y + 2.7, z }); }

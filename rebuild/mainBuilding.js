@@ -187,7 +187,8 @@ export function buildMainBuilding(opt = {}) {
       for (let i = 0; i < 18; i++) { const x = rnd() * w, y = rnd() * h * .6, ww = 6 + rnd() * 18, gr = g.createLinearGradient(0, y, 0, y + 90 + rnd() * 140); gr.addColorStop(0, 'rgba(120,112,98,.07)'); gr.addColorStop(1, 'rgba(120,112,98,0)'); g.fillStyle = gr; g.fillRect(x, y, ww, 230); }   // 창틀 아래 빗물 자국
       g.strokeStyle = 'rgba(150,144,132,.45)'; g.lineWidth = 1.5; g.beginPath(); g.moveTo(0, h / 2); g.lineTo(w, h / 2); g.moveTo(w / 2, 0); g.lineTo(w / 2, h); g.stroke();   // 거푸집 · 줄눈
       for (let i = 0; i < 40; i++) { g.fillStyle = 'rgba(90,96,80,.08)'; g.beginPath(); g.arc(rnd() * w, rnd() * h, 4 + rnd() * 26, 0, 7); g.fill(); } }) })),   // (예전 적벽돌 대신)
-    band: M('band', () => new THREE.MeshStandardMaterial({ color: 0x2f6e8c, roughness: .55, metalness: .1 })),   // 층마다 두른 청록 띠 (학교 상징색)
+    spand: M('spand', () => new THREE.MeshStandardMaterial({ color: 0xd9c7a2, roughness: .85, map: TEX.wall() })),   // 본관 창 밑 스팬드럴: 연황토 수성 도장
+    band: M('band', () => new THREE.MeshStandardMaterial({ color: MAINB ? 0x3f6a50 : 0x2f6e8c, roughness: .55, metalness: .1 })),   // 층마다 두른 청록 띠 (학교 상징색)
     plinth: M('plinth', () => new THREE.MeshStandardMaterial({ map: TEX.brick(), color: 0xcdb8ac, roughness: .86 })),   // 2008 외관 리모델링: 1층 하부 · 기둥 피복 치장벽돌 (적갈색 + 미색 줄눈) — 예전 화강석 걸레받이
     trim: M('trim', () => new THREE.MeshStandardMaterial({ color: 0xf2eee4, roughness: .78 })),             // 외벽 재도장: 창대 · 상인방 · 층간 띠 · 캐노피 (백색 수성 도장)
     aluW: M('aluW', () => new THREE.MeshStandardMaterial({ color: 0xd6dadd, roughness: .32, metalness: .55 })),   // 은백색 알루미늄 이중창 틀 (2000년대 창호 교체)
@@ -439,9 +440,8 @@ export function buildMainBuilding(opt = {}) {
     LY.rooms.forEach(r => [r.x1, r.x2].forEach(x => [zS + T / 2, 0].forEach(z => box('conc', x - .25, x + .25, y0 + .003, top - S.slab, z - .25, z + .25, { solid: true }))));
     // 본관: 실내로 튀어나온 기둥도 벽과 같이 미장 · 도장 (상부 아이보리 · 하부 녹색 징두리 · 걸레받이) — 노출 콘크리트 기둥이 복도 · 교실에 나무 기둥처럼 보이던 것
     if (MAINB) { const clad = (xa, xb, za, zb, o) => { box('wall', xa, xb, y0 + 1.2, y0 + S.CEIL, za, zb); box('wain', xa, xb, y0 + .003, y0 + 1.2, za, zb); box('skirt', xa - .015, xb + .015, y0 + .003, y0 + .12, o < 0 ? za - .015 : za, o > 0 ? zb + .015 : zb); },
-        xs = [...new Set(LY.rooms.flatMap(r => [r.x1, r.x2]))].filter(x => Math.abs(x) < LY.L / 2 - .01), clsI = r => LY.rooms.filter(q => q.kind === 'class').indexOf(r);
-      xs.forEach(x => { clad(x - .262, x + .262, -.262, -S.wall / 2, -1); const adj = LY.rooms.filter(r => r.x1 === x || r.x2 === x);
-        if (adj.every(r => (r.kind === 'class' && !/toilet/.test(PLAN[f][clsI(r)] || '')) || (r.kind === 'core' && f === 0) || isSt(r))) { clad(x - .262, x + .262, S.wall / 2, .262, 1); clad(x - .262, x + .262, zS - .112, zS, -1); } }); }
+        xs = [...new Set(LY.rooms.flatMap(r => [r.x1, r.x2]))];   // 양 끝 계단실 모서리 기둥 · 현관 · 계단실 안쪽 면까지 전부 (돌 무늬 기둥이 남아 있던 것)
+      xs.forEach(x => { clad(x - .262, x + .262, -.262, -S.wall / 2, -1); clad(x - .262, x + .262, S.wall / 2, .262, 1); clad(x - .262, x + .262, zS - .112, zS, -1); }); }
     // 외벽: 남측(교실 창 띠) · 북측(복도 창) · 동서 마구리
     const winsS = [], winsN = [];
     LY.rooms.forEach(r => {
@@ -496,7 +496,9 @@ export function buildMainBuilding(opt = {}) {
       // 바깥 콘크리트 창대 (물끊기) · 상인방
       const out = z > 0 ? 1 : -1, zo = z + out * (T / 2);
       box('trim', w.a - .08, w.b + .08, y0 + w.y1 - .06, y0 + w.y1, Math.min(zo - out * .01, zo + out * .12), Math.max(zo - out * .01, zo + out * .12));
-      if (f > 0) wallDecal('streak', w.a - .05, w.b + .05, y0 + .14, y0 + w.y1 - .06, zo, out, 1.6, (w.a * .37 + f * .21) % 1);   // 창대 밑 빗물 자국 (아래 층 띠 위까지)
+      const spd = MAINB && out > 0 && w.y1 > .6 && w.y1 < 1.2;   // 본관 남면: 창 밑 스팬드럴 패널 (연한 황토색 도장 판 · 위아래 줄눈) — 흰 벽면에 층마다 가로 리듬
+      if (spd) { box('spand', w.a - .08, w.b + .08, y0 + .16, y0 + w.y1 - .06, zo - .01, zo + .025); box('rubber', w.a - .08, w.b + .08, y0 + .16, y0 + .175, zo, zo + .027); }
+      if (f > 0) wallDecal('streak', w.a - .05, w.b + .05, y0 + .16, y0 + w.y1 - .06, zo + (spd ? .025 : 0), out, 1.6, (w.a * .37 + f * .21) % 1);   // 창대 밑 빗물 자국 (아래 층 띠 위까지)
       box('trim', w.a - .05, w.b + .05, y0 + w.y2, y0 + w.y2 + .12, Math.min(zo - out * .01, zo + out * .04), Math.max(zo - out * .01, zo + out * .04));
       if (f === 0 && w.y1 < 2) {   // 1층 방범창: 백색 철봉 (12cm 간격) + 가로 띠철 3줄 · 벽에 고정하는 귀 — 창대 위에 선다
         const g1 = zo + out * .035, g2 = zo + out * .055, za = Math.min(g1, g2), zb = Math.max(g1, g2), ya = y0 + w.y1 + .02, yb = y0 + w.y2 - .02;
@@ -571,7 +573,7 @@ export function buildMainBuilding(opt = {}) {
         { const nx = LY.rooms[LY.rooms.indexOf(r) + 1]; if (nx && nx.kind === 'class') { if (type === 'bcast' && PLAN[f][idx + 1] === 'bcast') box('wood', r.x2 - S.wall / 2 - .01, r.x2 + S.wall / 2 + .01, y0, y0 + .02, S.wall / 2, zS); else wallZ('wall', r.x2 - S.wall / 2, r.x2 + S.wall / 2, 0, zS, y0); } }
         classroom(r, f, y0, type, name);
       } else if (r.kind === 'stair') {
-        { const xi = r.x1 < 0 ? r.x2 : r.x1; wallZ('conc', xi - S.wall / 2, xi + S.wall / 2, zN - .1, zS + .1, y0, [{ a: zN + .1, b: zN + 2.6, y1: 0, y2: 2.2 }]);   // 양 끝을 외벽 속으로 10cm 묻어 마구리 면이 외벽 · 마감면과 겹쳐 깜빡이지 않게
+        { const xi = r.x1 < 0 ? r.x2 : r.x1; wallZ(MAINB ? 'wall' : 'conc', xi - S.wall / 2, xi + S.wall / 2, zN - .1, zS + .1, y0, [{ a: zN + .1, b: zN + 2.6, y1: 0, y2: 2.2 }]);   // 양 끝을 외벽 속으로 10cm 묻어 마구리 면이 외벽 · 마감면과 겹쳐 깜빡이지 않게
           // 갑종 방화문 양개 (평소 자석으로 열어 둔 상태 — 계단실 쪽으로 젖혀진다)
           const w = 1.22, sx = r.x1 < 0 ? -1 : 1;   // 경첩을 문틀 안쪽으로 3cm — 열린 문짝이 벽(문설주) 속으로 파고들던 것
           [[zN + .13, 1], [zN + 2.57, -1]].forEach(([hz, sz]) => doors.push({ kind: 'swing', axisZ: true, mat: 'steelG', win: true, w, h: 2.196, t: .05, px: xi, py: y0, pz: hz, ox: 0, oz: sz * w / 2, dir: sx * sz, open: true,

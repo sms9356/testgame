@@ -678,7 +678,8 @@ function buildHistory(ctx, Z) {   // 역사관 15.6 × 10.6m · 2층 (학교 · 
     g.textAlign = 'center'; g.font = 'bold 34px "Noto Sans KR", sans-serif'; g.fillText('서린고등학교 발자취 · 1968 ~ 2008', 1024, 52);
     [['1968', '개교 · 6학급'], ['1971', '제1회 졸업'], ['1978', '신관 준공'], ['1988', '체육관 준공'], ['1998', '개교 30주년 · 방송제'], ['2003', '급식실 개관'], ['2008', '개교 40주년']].forEach(([y, t], i) => { const x = 140 + i * 295;
       g.fillStyle = '#c9a85a'; g.beginPath(); g.arc(x, 131, 12, 0, 7); g.fill(); g.font = 'bold 40px "Noto Sans KR", sans-serif'; g.fillText(y, x, 105); g.fillStyle = '#efe6cf'; g.font = '500 28px "Noto Sans KR", sans-serif'; g.fillText(t, x, 190, 280); });
-    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; B.mesh(new THREE.PlaneGeometry(3.6, .45), new THREE.MeshStandardMaterial({ map: t, roughness: .8, polygonOffset: true, polygonOffsetFactor: -2 }), -5.3, 1.55, .87, { ry: Math.PI }); B.box(3.68, .53, .02, 'DARKWOOD', -5.3, 1.55, .885); B.box(3.72, .03, .05, 'BRASS', -5.3, 1.29, .87); }
+    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; B.mesh(new THREE.PlaneGeometry(3.6, .45), new THREE.MeshStandardMaterial({ map: t, roughness: .8, polygonOffset: true, polygonOffsetFactor: -2 }), -5.3, 1.55, .845, { ry: Math.PI }); B.box(3.68, .53, .025, 'DARKWOOD', -5.3, 1.55, .865); B.box(3.72, .03, .05, 'BRASS', -5.3, 1.29, .85);
+    (B.g.userData.artAvoid ||= []).push(...[-6.6, -5.3, -4.0].map(x => ({ x: B.wx(x), z: B.wz(.85), y: 1, r: .8 }))); }   // 액자(artFrames)가 연표 위에 걸리지 않게
   // 벽면 패널 (나머지 3): 복도 · 계단홀
   F.panel(B, 2.5, -1.0 + .1, 0, 1, 'PANEL', '연혁 1968 ~ 2008'); F.panel(B, 4.0, -1.0 + .1, 0, 1, 'PANEL', '교가 · 교훈'); F.panel(B, -2.0, 1.0 - .1, Math.PI, 0, 'PANEL', '관람 안내');
   B.addSwitch(1.6, B.Z.D / 2 - WALL_T - LIN - .01, Math.PI, 0, '1층 형광등 스위치'); B.addSwitch(byName(R1, '계단홀').x2 - .3, byName(R1, '계단홀').z1 + LIN + .01, 0, 1, '2층 형광등 스위치');

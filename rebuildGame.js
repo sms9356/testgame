@@ -19,7 +19,7 @@ const inOld = (x, z) => inBox(OLD_MAIN, x, z) || inBox(OLD_ANNEX, x, z);
 
 export function installRebuild({ THREE, scene, floors, world }) {
   const MAIN = buildMainBuilding({ southEntry: true, roofStair: true, centerStair: 'east', bridge: true });
-  const ANX = buildMainBuilding({ spec: ANNEX_SPEC, plan: ANNEX_PLAN, x: -3, z: -20, ry: Math.PI, bridge: true, endExits: true, name: 'REBUILD_ANNEX', label: '별관', prefix: '', signText: '서문고 별관 · 예술 실습동', noLib: true, classLabel: (f, n) => `3학년 ${n + 5}반` });
+  const ANX = buildMainBuilding({ spec: ANNEX_SPEC, plan: ANNEX_PLAN, x: -3, z: -20, ry: Math.PI, bridge: true, endExits: true, name: 'REBUILD_ANNEX', label: '별관', prefix: '', signText: '서화고 별관 · 예술 실습동', noLib: true, classLabel: (f, n) => `3학년 ${n + 5}반` });
   // 구름다리 (2층): 본관 북쪽 외벽 ↔ 별관 복도쪽 외벽, 두 건물 코어(현관) 앞 x 에서
   const BRX = MAIN.toWorld((MAIN.layout.rooms.find(r => r.kind === 'core').x1 + MAIN.layout.rooms.find(r => r.kind === 'core').x2) / 2, 0)[0], BRZ2 = MAIN.toWorld(0, MAIN.layout.zN - MAIN.spec.outer)[1], BRZ1 = ANX.toWorld(0, ANX.layout.zN - ANX.spec.outer)[1];
   const WK = buildWalkway({ x1: BRX - 1.9, x2: BRX + 1.9, z1: BRZ1, z2: BRZ2, y: MAIN.spec.FH, sup: [BRX - .2 - 1.96, BRX - .2 + 1.96] });

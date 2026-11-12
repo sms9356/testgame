@@ -1,4 +1,4 @@
-# Steam release checklist — 서문고 — 잊혀진 시간
+# Steam release checklist — 서화고 — 잊혀진 시간
 
 ## Done in the repo
 
@@ -13,7 +13,7 @@
   - [x] Background and occluded-window throttling are disabled, as are renderer backgrounding and background timer throttling.
   - [x] DevTools are disabled in packaged builds. They are available only in `npm run desktop` (`--dev`) via Ctrl+Shift+F12.
   - [x] Other security settings: contextIsolation and sandbox are on, nodeIntegration is off, external navigation is blocked, the app runs as a single instance, and there is no menu bar.
-  - [x] Save data uses `localStorage`, which Electron keeps under `app.getPath('userData')` (Windows: `%APPDATA%/서문고 - 잊혀진 시간`).
+  - [x] Save data uses `localStorage`, which Electron keeps under `app.getPath('userData')` (Windows: `%APPDATA%/서화고 - 잊혀진 시간`).
 - [x] **Scripts.**
   - `npm run desktop:install` installs Electron and electron-builder in `desktop/`. This needs network access.
   - `npm run desktop` runs the game from the repo root, with DevTools allowed.
@@ -63,4 +63,4 @@
    - Check the licenses of every audio, voice, model and texture asset (TTS and voice-cloning terms, purchased models) before commercial release.
    - Write a privacy note: the microphone is used only locally, if that feature is enabled.
 9. **Pricing, release date, Coming Soon page** (it must be live for at least 2 weeks before release), and the build review submission.
-10. **Optional:** Steam Cloud. Point Auto-Cloud at `%APPDATA%/서문고 - 잊혀진 시간/Local Storage/` (Windows) to sync saves.
+10. **Optional:** Steam Cloud. Point Auto-Cloud at `%APPDATA%/서화고 - 잊혀진 시간/Local Storage/` (Windows) to sync saves.

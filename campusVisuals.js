@@ -49,7 +49,7 @@ export function buildCampusDesign({out,facade,brick,concrete,metal,colliders}) {
   for(const x of [-36.45,36.45]){add(front,new THREE.BoxGeometry(.18,12,.35),concrete,x,6,-9.95);add(front,new THREE.BoxGeometry(.18,.2,20),trim,x,12.2,0);}
   // Slim entry canopy follows the existing porch footprint; no posts in the door.
   add(front,new THREE.BoxGeometry(6.2,.07,2.95),trim,0,3.245,11.325);
-  const signCanvas=document.createElement('canvas');signCanvas.width=1024;signCanvas.height=256;const sc=signCanvas.getContext('2d');sc.fillStyle='#253b3e';sc.fillRect(0,0,1024,256);sc.strokeStyle='#b9ac85';sc.lineWidth=8;sc.strokeRect(12,12,1000,232);sc.fillStyle='#e8e3d2';sc.font='bold 94px sans-serif';sc.textAlign='center';sc.fillText('서 문 고 등 학 교',512,164);
+  const signCanvas=document.createElement('canvas');signCanvas.width=1024;signCanvas.height=256;const sc=signCanvas.getContext('2d');sc.fillStyle='#253b3e';sc.fillRect(0,0,1024,256);sc.strokeStyle='#b9ac85';sc.lineWidth=8;sc.strokeRect(12,12,1000,232);sc.fillStyle='#e8e3d2';sc.font='bold 94px sans-serif';sc.textAlign='center';sc.fillText('서 화 고 등 학 교',512,164);
   const signMap=new THREE.CanvasTexture(signCanvas);signMap.colorSpace=THREE.SRGBColorSpace;
   add(front,new THREE.BoxGeometry(5.6,.72,.08),steel,0,4.7,10.35);
   add(front,new THREE.PlaneGeometry(5.5,.67),new THREE.MeshStandardMaterial({map:signMap,roughness:.8}),0,4.7,10.397);

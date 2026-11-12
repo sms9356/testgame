@@ -51,7 +51,7 @@ html body #toasts>*{border-radius:4px!important;border-left:3px solid var(--v3-a
 /* ── 일시정지: 사건 파일 표지 ── */
 html body #pause{background:radial-gradient(ellipse at 50% 40%,rgba(18,20,22,.72),rgba(0,0,0,.92))!important}
 html body #pause h2{font-family:'Noto Serif KR',serif;letter-spacing:.3em;font-weight:700;position:relative}
-html body #pause h2::after{content:'CASE 1998-1012 · 서문고 사건 기록';display:block;margin-top:10px;font:600 11px/1 'Noto Sans KR',sans-serif;letter-spacing:.35em;color:var(--v3-amber);opacity:.85}
+html body #pause h2::after{content:'CASE 1998-1012 · 서화고 사건 기록';display:block;margin-top:10px;font:600 11px/1 'Noto Sans KR',sans-serif;letter-spacing:.35em;color:var(--v3-amber);opacity:.85}
 html body #pause .menuBtns{position:relative;padding:22px 26px 18px;background:linear-gradient(170deg,rgba(30,27,22,.8),rgba(12,11,9,.9));border:1px solid var(--v3-line);border-radius:4px;box-shadow:0 20px 60px rgba(0,0,0,.6),inset 0 0 0 4px rgba(0,0,0,.25)}
 html body #pause .menuBtns::before{content:'대외비';position:absolute;right:-14px;top:-16px;transform:rotate(8deg);padding:3px 10px;border:2px solid var(--v3-red);color:var(--v3-red);font:800 13px/1.2 'Noto Sans KR',sans-serif;letter-spacing:.3em;background:rgba(10,8,8,.6);opacity:.85}
 html body #pause .menuBtns .btn{border-radius:3px!important;border:1px solid rgba(226,179,90,.18)!important;background:linear-gradient(180deg,rgba(40,36,30,.65),rgba(18,16,14,.75))!important;transition:border-color .2s,background .2s,transform .15s}

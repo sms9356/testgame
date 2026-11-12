@@ -82,7 +82,7 @@ export function installStreetscape({ scene, world, floors, footprints = [] }) {
   const root = flush();
   // 캠퍼스 안내도 (정문 앞마당 · 중앙 횡단로 · 서편 대로 남쪽) + 방향 표지 (주요 교차점)
   const mapLines = ['본관 (교실 · 교무실 · 보건실)  ↑ 정면', '별관 (특별실 · 방송실)  ↑ 본관 뒤', '급식실 · 대강당  ← 서쪽', '체육관 · 수영장 · 도서관  → 동쪽', '청운학사 · 역사관 · 천문관  ← 서편 대로', '호수 정원 · 야외음악당  ↑ 북쪽'];
-  const boardTex = signTex(mapLines, '#1e3a2e', '#f2efe4', 640, 400, '서문고등학교 캠퍼스 안내');
+  const boardTex = signTex(mapLines, '#1e3a2e', '#f2efe4', 640, 400, '서화고등학교 캠퍼스 안내');
   const board = (x, z, ry) => { const g = new THREE.Group(); g.position.set(x, 0, z); g.rotation.y = ry;
     [-.75, .75].forEach(o => { const p = new THREE.Mesh(geo.post, mPost); p.position.x = o; g.add(p); });
     const fr = new THREE.Mesh(new THREE.BoxGeometry(1.7, 1.1, .08), mPost); fr.position.y = 1.65; g.add(fr);

@@ -244,7 +244,7 @@ export const noticeBoard08 = () => { const t = cv(1024, 384, (g, w, h) => { g.cl
     g.fillStyle = 'rgba(0,0,0,.25)'; g.fillRect(4, 5, pw, ph); g.fillStyle = bg; g.fillRect(0, 0, pw, ph); g.fillStyle = tc; g.font = 'bold 26px sans-serif'; g.textAlign = 'center'; g.fillText(title, pw / 2, 38);
     g.textAlign = 'left'; g.fillStyle = '#222'; g.font = `${fs}px sans-serif`; lines.forEach((t, i) => g.fillText(t, 16, 74 + i * (fs + 8)));
     [[10, 10], [pw - 10, 10]].forEach(([a, b]) => { g.fillStyle = '#1a6ad0'; g.beginPath(); g.arc(a, b, 6, 0, 7); g.fill(); }); g.restore(); };
-  paper(20, 20, 300, 340, -.012, '#f6f1dc', '가 정 통 신 문', '#1a1a1a', ['제2008-91호', '2학기 중간고사 결과 및', '학부모 상담주간 안내', '', '· 상담: 10.20(월) ~ 10.24(금)', '· 장소: 각 학년 교무실', '· 회신서는 담임께 제출', '', '         서문고등학교장'], 17);
+  paper(20, 20, 300, 340, -.012, '#f6f1dc', '가 정 통 신 문', '#1a1a1a', ['제2008-91호', '2학기 중간고사 결과 및', '학부모 상담주간 안내', '', '· 상담: 10.20(월) ~ 10.24(금)', '· 장소: 각 학년 교무실', '· 회신서는 담임께 제출', '', '         서화고등학교장'], 17);
   paper(350, 30, 300, 330, .015, '#eaf3ff', '방과후학교 안내', '#1a4a9a', ['2008학년도 2학기', '', '· 수능 대비 언어 · 수리 · 외국어', '· 논술 특강 (3학년)', '· 컴퓨터 자격증 (1 · 2학년)', '· 매주 월 ~ 목 16:30 ~ 18:10', '· 수강료: 강좌별 안내문 참조', '', '— 방과후학교 담당 —'], 17);
   g.save(); g.translate(680, 24); g.rotate(-.008); g.fillStyle = 'rgba(0,0,0,.25)'; g.fillRect(4, 5, 320, 340); g.fillStyle = '#fff6e8'; g.fillRect(0, 0, 320, 340);
   g.fillStyle = '#d02a2a'; g.fillRect(0, 0, 320, 70); g.fillStyle = '#fff'; g.font = 'bold 30px sans-serif'; g.textAlign = 'center'; g.fillText('학교폭력 STOP!', 160, 46);

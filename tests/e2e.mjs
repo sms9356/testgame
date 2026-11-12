@@ -262,7 +262,7 @@ async function coverRun() {
   sec('은폐 엔딩 (마지막 선택 C → 교장실의 전화)');
   for (const [k, title, fin] of [[0, '침묵의 서약', 'C'], [1, '교장실의 거래', 'C2']]) {
     const p = await page(); await ready(p);
-    await E(p, () => { localStorage.removeItem('haegyo_endings'); __g.newGame(); }); await started(p); await skipIntro(p); await p.waitForFunction(() => __g.state === 'note', null, { timeout: 20000 }).catch(() => {}); await closeNote(p); await W(p, 300);   // 인트로를 넘기면 서문일보 호외가 먼저 뜬다
+    await E(p, () => { localStorage.removeItem('haegyo_endings'); __g.newGame(); }); await started(p); await skipIntro(p); await p.waitForFunction(() => __g.state === 'note', null, { timeout: 20000 }).catch(() => {}); await closeNote(p); await W(p, 300);   // 인트로를 넘기면 서화일보 호외가 먼저 뜬다
     await E(p, () => { __g.state = 'playing'; __g.winGame(); });
     await p.waitForFunction(() => document.getElementById('choice').classList.contains('show'), null, { timeout: 90000 });   // 소프트웨어 GL: 엔딩 연출 첫 셰이더 컴파일로 30초를 넘기기도 한다
     await E(p, () => document.querySelectorAll('#choiceBtns button')[2].click());

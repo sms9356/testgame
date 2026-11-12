@@ -1,4 +1,4 @@
-// 서문고 — 잊혀진 시간 : 데스크톱(Steam) 실행판 (Electron)
+// 서화고 — 잊혀진 시간 : 데스크톱(Steam) 실행판 (Electron)
 // 게임 파일을 app://game/ 으로 내보낸다 — file:// 로 열면 ES 모듈 · fetch(텍스처 · 음성 · 모델)가 막힌다
 // 세이브: localStorage → Electron 이 app.getPath('userData') 아래(Windows: %APPDATA%/<productName>)에 보관한다
 const { app, BrowserWindow, protocol, net, session, Menu, ipcMain, shell } = require('electron');
@@ -46,7 +46,7 @@ app.whenReady().then(() => {
 
   const st = readWin();
   const win = new BrowserWindow({ width: st.width || 1600, height: st.height || 900, x: st.x, y: st.y, minWidth: 960, minHeight: 540,
-    fullscreen: st.fullscreen !== false, backgroundColor: '#05050c', title: '서문고 — 잊혀진 시간', icon: path.join(__dirname, 'icon.png'), show: false,
+    fullscreen: st.fullscreen !== false, backgroundColor: '#05050c', title: '서화고 — 잊혀진 시간', icon: path.join(__dirname, 'icon.png'), show: false,
     webPreferences: { preload: path.join(__dirname, 'preload.cjs'), contextIsolation: true, sandbox: true, nodeIntegration: false,
       backgroundThrottling: false, devTools: DEV, spellcheck: false } });
   win.once('ready-to-show', () => win.show());

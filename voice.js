@@ -1,11 +1,11 @@
 // 더빙 · 자막: voice/manifest.json 의 사전 생성 음성(내장) + 캐릭터별 성도 포먼트/피치 변조 및 브라우저 신경망 음성 합성(Web Speech) 하이브리드 엔진
-import { playVoice, stopVoice, loadVoice, isVoicePlaying } from './audio.js?v=432';
+import { playVoice, stopVoice, loadVoice, isVoicePlaying } from './audio.js?v=433';
 
 const SPEAKER = {
   seoyeon: '🎙 김서연 (방송부 2학년)',
   jihun: '🎙 박지훈 (서현고 2학년)',
   narrator: '📖 내레이션',
-  reporter: '📰 서문일보 사회부 한진우 기자',
+  reporter: '📰 서린일보 사회부 한진우 기자',
   principal: '📼 제9대 교장 · 한석규',
   witness_principal: '📼 제9대 교장 · 한석규',
   nurse: '📼 보건교사 · 임소연 선생님',
@@ -21,7 +21,7 @@ const SPEAKER = {
   witness_counselor: '📼 상담교사 · 오유진 선생님',
   mina: '📱 선배 박민아 (방송부 3학년)',
   haneul: '📼 윤하늘 (1998년 3-2 방송부 · 리허설 녹음)',
-  pa: '📢 서문고 교내 방송',
+  pa: '📢 서린고 교내 방송',
   ghost: '📢 출처 불명의 방송',
   guard: '🔦 당직 경비원 · 박종철 아저씨',
   friend: '📼 단짝 친구 · 이수아',
@@ -29,7 +29,7 @@ const SPEAKER = {
   junho: '📼 전 방송부 3학년 · 이준호',
   snackLady: '📼 매점 아주머니',
   mother: '📼 윤하늘 어머니',
-  paramedic: '📻 서문소방서 구급대',
+  paramedic: '📻 서린소방서 구급대',
   vicePrincipal: '📼 교감 · 노태수',
   dormMother: '📼 청운학사 사감 · 문정희',
   classRep: '📼 반장 증언 (1998.10.13 학급 조사)',
@@ -146,7 +146,7 @@ applySubSize();
 let manifestPromise = null;
 export async function loadManifest() {
   if (!manifestPromise) {
-    manifestPromise = fetch('voice/manifest.json?v=432').then(r => r.json()).then(m => {
+    manifestPromise = fetch('voice/manifest.json?v=433').then(r => r.json()).then(m => {
       manifest = { ...manifest, ...m };
       for (const [k, val] of Object.entries(manifest)) {
         if (val && val.audioFile && m[val.audioFile]) {

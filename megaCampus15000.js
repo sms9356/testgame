@@ -1,6 +1,6 @@
 // 15,000평(약 50,000㎡) 캠퍼스 3대 섹션(①학술·생활 건물 섹션 ②종합 운동·스포츠 섹션 ③제1·제2 대형 주차장 섹션) 및 10종 .glb 모델(애니메이션 5종 포함) 빌더
 import * as THREE from './vendor/three.module.js';
-import { dedupeMaterials } from './rebuild/staticBatch.js?v=432';
+import { dedupeMaterials } from './rebuild/staticBatch.js?v=433';
 import { GLTFLoader } from './vendor/addons/loaders/GLTFLoader.js';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
 
@@ -8,12 +8,12 @@ export const MEGA_CAMPUS_ZONES = [   // 위치 이름표 (캠퍼스 재배치 �
   { id: 'dorm', name: '청운학사 (기숙사 단지)', x: -86, z: -42, w: 22, d: 14, color: '#4a322c' },
   { id: 'lake', name: '청운호 수변공원 · 호심정', x: -9, z: -86, w: 34, d: 20, color: '#244e58' },
   { id: 'astro', name: '과학천문관 · 관측돔', x: -88, z: 14, w: 20, d: 16, color: '#2c3e54' },
-  { id: 'history', name: '서문고 역사관 · 개교기념관', x: -88, z: -16, w: 16, d: 11, color: '#5a382e' },
+  { id: 'history', name: '서린고 역사관 · 개교기념관', x: -88, z: -16, w: 16, d: 11, color: '#5a382e' },
   { id: 'fountain', name: '야외수돗가 · 씨름장', x: 56, z: -16, w: 12, d: 16, color: '#2e4a44' },
   { id: 'library', name: '중앙학술정보관 (대도서관)', x: 84, z: 39, w: 22, d: 18, color: '#4a3628' },
   { id: 'gym', name: '체육관', x: 84, z: -39, w: 20, d: 22, color: '#3a2a2a' },
   { id: 'tennis', name: '테니스 · 양궁 훈련장', x: 84, z: -17, w: 20, d: 16, color: '#224868' },
-  { id: 'sports', name: '서문고 야구 스타디움', x: 84, z: 8, w: 24, d: 26, color: '#284a3a' },
+  { id: 'sports', name: '서린고 야구 스타디움', x: 84, z: 8, w: 24, d: 26, color: '#284a3a' },
   { id: 'bball', name: '야외농구장', x: 58, z: 7, w: 14, d: 15, color: '#3a2a22' },
   { id: 'pool', name: '실내 수영장', x: 58, z: 35, w: 14, d: 20, color: '#2a3a46' },
   { id: 'union', name: '학생회관 · 동아리관', x: -88, z: 42, w: 22, d: 14, color: '#48382e' },
@@ -40,15 +40,14 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
   };
 
   // 형광등 스위치 (출입문 옆 안쪽 벽) + 노출 전선관(스위치 → 천장 정션박스 → 벽 상단을 따라 등기구까지)
-  const swPlateM = PM(0xece8dc, .5), swKeyM = PM(0x2c2c2a, .5), conduitM = PM(0x9a9c98, .5, .35);
+  const conduitM = PM(0x9a9c98, .5, .35);
   const addSwitch = (grp, x, z, ry, rect, top = 3.7, y0 = 0, label = '형광등 스위치') => {
     const nx = Math.sin(ry), nz = Math.cos(ry);
-    pbox(.09, .13, .02, swPlateM, x, y0 + 1.3, z, grp, { ry, cast: false });
-    pbox(.028, .05, .012, swKeyM, x + nx * .014, y0 + 1.31, z + nz * .014, grp, { ry, cast: false });
-    pcyl(.013, .013, top - 1.37, conduitM, x + nx * .016, y0 + (1.37 + top) / 2, z + nz * .016, grp, { cast: false, seg: 8 });
+    // 스위치 판 · 로커 키는 electrical.js 가 그린다
+    pcyl(.013, .013, top - 1.27, conduitM, x + nx * .016, y0 + (1.27 + top) / 2, z + nz * .016, grp, { cast: false, seg: 8 });
     pbox(.1, .1, .05, conduitM, x + nx * .03, y0 + top - .12, z + nz * .03, grp, { ry, cast: false });
     pbox(Math.min(8, Math.max(rect.x2 - rect.x1, rect.z2 - rect.z1) - .6), .026, .026, conduitM, x + nx * .02, y0 + top - .12, z + nz * .02, grp, { ry, cast: false });
-    world.props.push({ kind: 'robj', k: 'light_switch', t: 'mega15k', floor: 0, x: x + nx * .45, z: z + nz * .45, y: y0 + 1.3, r: 1.5, label: label + ' 끄기', sw: { grp, rect, on: true, base: label } });
+    world.props.push({ kind: 'robj', k: 'light_switch', t: 'mega15k', floor: 0, x: x + nx * .45, z: z + nz * .45, y: y0 + 1.2, r: 1.5, label: label + ' 끄기', sw: { grp, rect, on: true, base: label, bName: grp.name || '캠퍼스 건물', bid: 'mega:' + Math.round(x) + ':' + Math.round(z), lvl: y0 > 1 ? 1 : 0, lampY: y0 + 3.74, pose: { x, y: y0 + 1.2, z, nx, nz } } });
   };
   // 화장실 (지하 · 옥상 제외 모든 층 필수): 모서리에 2.6 × 2.2m 칸 — 칸막이벽 2면(문 구멍) · 타일 바닥 · 양변기 · 세면대 · 거울 · 표지
   const wcTileM = PM(0xd8dcd8, .35), wcPorcM = PM(0xf2f2ee, .25), wcMirM = PM(0x9fb4bc, .1, .6), wcWallM = PM(0xe8e6de, .8);
@@ -499,7 +498,7 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
   }
 
   /* =========================================================================
-     ③ [학술·연구 섹션] 서문 과학천문관 & 대형 천체관측 돔 — 동북 (x: 84, z: -34)
+     ③ [학술·연구 섹션] 서린 과학천문관 & 대형 천체관측 돔 — 동북 (x: 84, z: -34)
      ========================================================================= */
   {
     const cx = 84, cz = -34, W = 20, D = 16, H = 8.8;
@@ -514,10 +513,10 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
     pbox(1.8, .24, 4.4, stoneM, cx - W / 2 - 1.1, 3.1, cz, g);
     [-1.8, 1.8].forEach(dz => pcyl(.20, .22, 3.0, stoneM, cx - W / 2 - 1.8, 1.5, cz + dz, g));
     pbox(.12, .62, 4.4, darkMetal, cx - W / 2 - 2.02, 3.45, cz, g, { cast: false });
-    pmesh(new THREE.PlaneGeometry(4.2, .52), new THREE.MeshBasicMaterial({ map: makeSign('서문 과학천문관 · 천체관측소', '#142438', '#d8f0ff', 24) }), cx - W / 2 - 2.09, 3.45, cz, g, { ry: -Math.PI / 2, cast: false });
+    pmesh(new THREE.PlaneGeometry(4.2, .52), new THREE.MeshBasicMaterial({ map: makeSign('서린 과학천문관 · 천체관측소', '#142438', '#d8f0ff', 24) }), cx - W / 2 - 2.09, 3.45, cz, g, { ry: -Math.PI / 2, cast: false });
     // 남측(광장 조망면)에도 과학천문관 대형 현판 장착
     pbox(5.6, .62, .14, darkMetal, cx, 8.15, cz + D / 2 + .42, g, { cast: false });
-    pmesh(new THREE.PlaneGeometry(5.4, .52), new THREE.MeshBasicMaterial({ map: makeSign('서문 과학천문관 · SEOMUN OBSERVATORY', '#142438', '#d8f0ff', 22) }), cx, 8.15, cz + D / 2 + .50, g, { cast: false });
+    pmesh(new THREE.PlaneGeometry(5.4, .52), new THREE.MeshBasicMaterial({ map: makeSign('서린 과학천문관 · SEORIN OBSERVATORY', '#142438', '#d8f0ff', 22) }), cx, 8.15, cz + D / 2 + .50, g, { cast: false });
     // 실내 리모델링 (참고 배치도 · 20.0 × 16.0m): 서측 정문 → 로비 / 북측 장비보관실 · 작업실 (약 30m²) / 남측 관측 제어실 (약 30m²) / 가운데 전시 공간 (태양계 모형 · 진열장) / 동북 천문 교육실 / 동남 관측 돔 (굴절 망원경 · 원형 드럼벽)
     const x0 = cx - W / 2, x1 = cx + W / 2, z0 = cz - D / 2, z1 = cz + D / 2, xA = x0 + 6, xB = x0 + 10.6, zE = cz - .2;   // xA: 서측 방 열 끝 · xB: 전시 공간 끝 · zE: 교육실 | 돔 경계
     iwall(g, x0, cz - 3, xA, cz - 3, [[x0 + 2.0, x0 + 3.2]]); iwall(g, x0, cz + 3, xA, cz + 3, [[x0 + 2.0, x0 + 3.2]]);
@@ -565,7 +564,7 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
     pbox(2.2, .28, 6.4, stoneM, cx - W / 2 - 1.2, 3.3, cz, g);
     [-2.6, 2.6].forEach(dz => pcyl(.22, .24, 3.2, stoneM, cx - W / 2 - 2.0, 1.6, cz + dz, g));
     pbox(.14, .68, 5.2, darkMetal, cx - W / 2 - 2.35, 3.68, cz, g, { cast: false });
-    pmesh(new THREE.PlaneGeometry(5.0, .56), new THREE.MeshBasicMaterial({ map: makeSign('서문 중앙학술정보관 · 대도서관', '#221a14', '#f4e8c8', 24) }), cx - W / 2 - 2.43, 3.68, cz, g, { ry: -Math.PI / 2, cast: false });
+    pmesh(new THREE.PlaneGeometry(5.0, .56), new THREE.MeshBasicMaterial({ map: makeSign('서린 중앙학술정보관 · 대도서관', '#221a14', '#f4e8c8', 24) }), cx - W / 2 - 2.43, 3.68, cz, g, { ry: -Math.PI / 2, cast: false });
     // 대도서관 1층 리모델링 (참고 1층 평면도 · 22.0 × 18.0m): 서측 정문 → 중앙 로비 (원형 열람 테이블 · 2층 계단) / 북측 자료정리실 · 사무실 / 남측 기록보관실 · 멀티미디어실 / 동북 열람실 A · 동남 열람실 B (양면 서가 · 열람 테이블)
     const x0 = cx - W / 2, x1 = cx + W / 2, z0 = cz - D / 2, z1 = cz + D / 2, xA = x0 + 11, zN = z0 + 5.5, zS = z1 - 5.5, zA = cz - 2.2, zB = cz + 2.2;
     iwall(g, x0, zN, xA, zN, [[x0 + 2.0, x0 + 3.2], [x0 + 7.4, x0 + 8.6]]); iwall(g, x0 + 5.2, z0, x0 + 5.2, zN);
@@ -591,7 +590,7 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
     for (let k = 0; k < 4; k++) { pbox(.9, 1.8, .45, PM(0xa8aab0, .5, .45), x0 + .6 + k * 1.0, .9, z1 - .3, g); } addCol(x0, x0 + 4.2, z1 - .55, z1);
     for (let k = 0; k < 3; k++) { const x = x0 + 6.4 + k * 1.4; deskT(g, x, z1 - 1.0, 1.2, .7); monitor(g, x, .74, z1 - .8, Math.PI); }
     pbox(1.0, .82, .9, woodDark, x0 + 9.8, .41, zS + 1.4, g); pbox(.55, .62, .55, darkMetal, x0 + 9.8, 1.12, zS + 1.4, g); addCol(x0 + 9.3, x0 + 10.3, zS + .95, zS + 1.85);
-    pmesh(new THREE.PlaneGeometry(.46, .38), new THREE.MeshBasicMaterial({ map: makeSign('1998.10.13 호외 — 서문고 심야 실종 사건 특보', '#101814', '#80ffb8', 18) }), x0 + 9.8, 1.15, zS + 1.11, g, { ry: Math.PI, cast: false });
+    pmesh(new THREE.PlaneGeometry(.46, .38), new THREE.MeshBasicMaterial({ map: makeSign('1998.10.13 호외 — 서린고 심야 실종 사건 특보', '#101814', '#80ffb8', 18) }), x0 + 9.8, 1.15, zS + 1.11, g, { ry: Math.PI, cast: false });
     world.props.push({ kind: 'robj', k: 'lib_microfilm', t: 'mega15k', floor: 0, x: x0 + 9.8, z: zS + .6, y: 1.1, r: 2.2, label: '마이크로필름 판독기로 1998년 신문 기사 복원하기' });
     // 북측(광장 조망면) 대도서관 현판 추가
     pbox(5.8, .62, .14, darkMetal, cx, 8.55, cz - D / 2 - .42, g, { cast: false });
@@ -603,7 +602,7 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
      ④-B [동편 캠퍼스 신규 학교 특화 구역 4종] (기존에 없던 한국 고등학교 대표 야외·부속 시설 완비!)
      1) 학생 자전거 보관소(폴리카보네이트 캐노피 · 자전거 14대) & 야외 타일 수돗가(단체 음수대 8구) (x: 58, z: -6.5)
      2) 체육부 전통 씨름장(원형 모래판 · 4주 차양막) & 3단 철봉 · 평행봉 체력단련장 (x: 58, z: -20.5)
-     3) 서문고 역사관 · 개교기념관 (워커블 단층 붉은벽돌 박물관 · 트로피/타임캡슐 전시) & 구관 동종(학교 종) 종각 (x: 84, z: -11.0)
+     3) 서린고 역사관 · 개교기념관 (워커블 단층 붉은벽돌 박물관 · 트로피/타임캡슐 전시) & 구관 동종(학교 종) 종각 (x: 84, z: -11.0)
      4) 90년대 옥색 공중전화 부스 2동 · 학우매점 야외 평상/파라솔 쉼터 & 학교 분리수거장 · 구식 벽돌 소각장 (x: 84, z: +15.0)
      ========================================================================= */
   {
@@ -618,7 +617,7 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
     // ── (1) 학생 자전거 보관소 & 야외 타일 수돗가(단체 음수대) (x: 58.0, z: -6.5) ──
     {
       const bxC = 58.0, bzC = -4.5;
-      // 서문고 자전거보관소 (참고 배치도 · 규격도 · 평면도): 12.0 × 4.6m 개방형 · 콘크리트 슬래브 · 아연도금 각관 기둥 □150 × 6 (H2500, 베이스 250×250) · H형강 보 100×200 · 아연도강판 골지붕 · 방수형 형광등 3 · 학교명 현판 3000×250 · 양면 거치대 2열 (중앙 통행로 약 1.5m) · 배수 트렌치 그레이팅
+      // 서린고 자전거보관소 (참고 배치도 · 규격도 · 평면도): 12.0 × 4.6m 개방형 · 콘크리트 슬래브 · 아연도금 각관 기둥 □150 × 6 (H2500, 베이스 250×250) · H형강 보 100×200 · 아연도강판 골지붕 · 방수형 형광등 3 · 학교명 현판 3000×250 · 양면 거치대 2열 (중앙 통행로 약 1.5m) · 배수 트렌치 그레이팅
       const galvM = PM(0xa8acb0, .38, .75), roofM = PM(0x9aa0a4, .45, .6), ledM = new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xf4f8ff, emissiveIntensity: 1.2 });
       pbox(12.0, .1, 4.6, PM(0xbcb8ae, .85), bxC, .05, bzC, g, { cast: false });
       [-5.85, 0, 5.85].forEach(dx => [-2.15, 2.15].forEach(dz => { pbox(.15, 2.5, .15, galvM, bxC + dx, 1.35, bzC + dz, g); pbox(.25, .02, .25, galvM, bxC + dx, .11, bzC + dz, g, { cast: false }); addCol(bxC + dx - .1, bxC + dx + .1, bzC + dz - .1, bzC + dz + .1); }));
@@ -628,7 +627,7 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
       for (let k = 0; k < 40; k++) pbox(.06, .03, 4.9, roofM, bxC - 6.1 + k * .31, 2.855, bzC, g, { cast: false });   // 골지붕 리브
       [-4, 0, 4].forEach(dx => { pbox(1.24, .08, .1, galvM, bxC + dx, 2.56, bzC, g, { cast: false }); pbox(1.18, .03, .06, ledM, bxC + dx, 2.51, bzC, g, { cast: false }); });
       pbox(3.0, .25, .05, PM(0x1e2e5a, .5, .3), bxC + 2.0, 2.7, bzC + 2.23, g, { cast: false });
-      pmesh(new THREE.PlaneGeometry(2.96, .23), new THREE.MeshBasicMaterial({ map: makeSign('서문고등학교 자전거보관소', '#1e2e5a', '#ffffff', 24) }), bxC + 2.0, 2.7, bzC + 2.26, g, { cast: false });
+      pmesh(new THREE.PlaneGeometry(2.96, .23), new THREE.MeshBasicMaterial({ map: makeSign('서린고등학교 자전거보관소', '#1e2e5a', '#ffffff', 24) }), bxC + 2.0, 2.7, bzC + 2.26, g, { cast: false });
       // 양면 거치대 (1400×580×600 모듈 · 강관 루프) + 자전거 40대 — 북열 · 남열, 각 2구간 × 10대 (형상은 재질별로 합쳐 메시 수를 줄인다)
       const bikeColors = [0x9a2222, 0x1e4878, 0xe8e8e4, 0x585c64, 0x6a2858, 0x2a2a2c];
       const gRack = [], gTire = [], gChrome = [], gSeat = [], gCol = bikeColors.map(() => []);
@@ -709,7 +708,7 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
       world.props.push({ kind: 'robj', k: 'east_ssireum', t: 'mega15k', floor: 0, x: sxC, z: szC + 3.3, y: .4, r: 2.5, label: '씨름장 모래판 파헤쳐 1998년 체육대회 유실물 수색하기' });
     }
 
-    // ── (3) 서문고 역사관 · 개교기념관 (워커블 적벽돌 단층 박물관) & 구관 동종(학교 종) 종각 (x: 84.0, z: -11.0) ──
+    // ── (3) 서린고 역사관 · 개교기념관 (워커블 적벽돌 단층 박물관) & 구관 동종(학교 종) 종각 (x: 84.0, z: -11.0) ──
     {
       const hxC = 84.5, hzC = -11.0, hw = 15.6, hd = 10.6, hh = 4.6;
       buildShell(g, hxC, hzC, hw, hd, hh, brickM, darkMetal, 'W', woodFloor);
@@ -717,14 +716,14 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
       pbox(1.8, .24, 4.4, stoneM, hxC - hw / 2 - 1.0, 3.15, hzC, g);
       [-1.8, 1.8].forEach(dz => pcyl(.18, .20, 3.1, stoneM, hxC - hw / 2 - 1.7, 1.55, hzC + dz, g));
       pbox(.14, .58, 4.6, darkMetal, hxC - hw / 2 - 1.92, 3.52, hzC, g, { cast: false });
-      pmesh(new THREE.PlaneGeometry(4.4, .48), new THREE.MeshBasicMaterial({ map: makeSign('서문고 역사관 · 개교기념관 (SEOMUN HISTORY MUSEUM · 1968)', '#281814', '#f6e8c8', 20) }), hxC - hw / 2 - 2.0, 3.52, hzC, g, { ry: -Math.PI / 2, cast: false });
+      pmesh(new THREE.PlaneGeometry(4.4, .48), new THREE.MeshBasicMaterial({ map: makeSign('서린고 역사관 · 개교기념관 (SEORIN HISTORY MUSEUM · 1968)', '#281814', '#f6e8c8', 20) }), hxC - hw / 2 - 2.0, 3.52, hzC, g, { ry: -Math.PI / 2, cast: false });
       // 역사관 실내 리모델링 (참고 배치도 · 15.6 × 10.6m): 서측 정문 → 로비/홀 (안내 데스크) · 북측 자료보관실 · 남측 사무실 · 동쪽 전시실 1 (학교 역사) · 전시실 2 (지역 역사)
       const x0 = hxC - hw / 2, x1 = hxC + hw / 2, z0 = hzC - hd / 2, z1 = hzC + hd / 2, xA = x0 + 6.0;
       iwall(g, x0, z0 + 3.5, xA, z0 + 3.5, [[x0 + 3.0, x0 + 4.2]]); iwall(g, x0, z1 - 3.0, xA, z1 - 3.0, [[x0 + 3.0, x0 + 4.2]]);
       iwall(g, xA, z0, xA, z1, [[hzC - 1.9, hzC - .7], [hzC + .7, hzC + 1.9]]); iwall(g, xA, hzC, x1, hzC, [[x1 - 2.4, x1 - 1.2]]);
       // 로비: 안내 데스크 (1800×700×1000) · 전시 패널 · 학교 상징 기념비
       pbox(1.8, 1.0, .7, woodLight, x0 + 3.5, .5, z0 + 3.95, g); addCol(x0 + 2.6, x0 + 4.4, z0 + 3.6, z0 + 4.3, false, 1.0); monitor(g, x0 + 3.1, 1.0, z0 + 3.8, Math.PI);
-      pmesh(new THREE.PlaneGeometry(2.4, 1.3), new THREE.MeshBasicMaterial({ map: makeSign('우리의 역사 우리의 미래 · 서문고 개교 1968', '#2a1e14', '#f4e4c0', 18) }), x0 + 3.0, 1.7, z1 - 3.08, g, { ry: Math.PI, cast: false });
+      pmesh(new THREE.PlaneGeometry(2.4, 1.3), new THREE.MeshBasicMaterial({ map: makeSign('우리의 역사 우리의 미래 · 서린고 개교 1968', '#2a1e14', '#f4e4c0', 18) }), x0 + 3.0, 1.7, z1 - 3.08, g, { ry: Math.PI, cast: false });
       // 자료보관실 (북서): 서가 · 문서 보관함 · 사무용 책상
       [x0 + .5, x0 + 1.45, x0 + 2.4].forEach(x => steelShelf(g, x, z0 + .3, .9, .45, 1.8, PM(0xb08a58, .9))); steelShelf(g, xA - .3, z0 + 1.6, .45, .9, 1.8, PM(0xb08a58, .9)); deskT(g, x0 + 1.4, z0 + 2.3, 1.2, .7);
       // 사무실 (남서): 사무용 책상 (1200×700) + 의자 · 문서 보관함 · PC
@@ -733,10 +732,10 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
       [-1, 1].forEach(s => { const zc = hzC + s * hd / 4, zw = s < 0 ? z0 : z1;
         for (let k = 0; k < (s < 0 ? 3 : 4); k++) tallCase(g, xA + 1.4 + k * 1.9, zw - s * .35, 1.2, .6);
         vitrine(g, (xA + x1) / 2, zc, 1.8, .75); vitrine(g, (xA + x1) / 2 + 2.6, zc, 1.2, .6);
-        pmesh(new THREE.PlaneGeometry(2.6, 1.5), new THREE.MeshBasicMaterial({ map: makeSign(s < 0 ? '서문고 30년 연혁 (1968~1998)  |  1998.10.12 제30회 개교기념 방송제 특별전시' : '서문 지역 역사 지도 · 향토 유물', '#1c1612', '#f4e4c0', 18) }), x1 - .08, 1.9, zc, g, { ry: -Math.PI / 2, cast: false }); });
+        pmesh(new THREE.PlaneGeometry(2.6, 1.5), new THREE.MeshBasicMaterial({ map: makeSign(s < 0 ? '서린고 30년 연혁 (1968~1998)  |  1998.10.12 제30회 개교기념 방송제 특별전시' : '서린 지역 역사 지도 · 향토 유물', '#1c1612', '#f4e4c0', 18) }), x1 - .08, 1.9, zc, g, { ry: -Math.PI / 2, cast: false }); });
       // 황동 타임캡슐 좌대 (전시실 1)
       pbox(1.0, .9, 1.0, stoneM, xA + 1.6, .45, hzC - 1.6, g); pcyl(.28, .28, .6, goldM, xA + 1.6, 1.15, hzC - 1.6, g, { rz: Math.PI / 2 }); addCol(xA + 1.1, xA + 2.1, hzC - 2.1, hzC - 1.1);
-      world.props.push({ kind: 'robj', k: 'east_museum', t: 'mega15k', floor: 0, x: xA + 2.8, z: hzC - 1.4, y: 1.1, r: 2.4, label: '서문고 역사관 개교 30주년 기념 타임캡슐 & 1998년 졸업앨범 기록 조사하기' });
+      world.props.push({ kind: 'robj', k: 'east_museum', t: 'mega15k', floor: 0, x: xA + 2.8, z: hzC - 1.4, y: 1.1, r: 2.4, label: '서린고 역사관 개교 30주년 기념 타임캡슐 & 1998년 졸업앨범 기록 조사하기' });
 
       // ★ 역사관 앞마당(x: 74.5, z: -4.2): 구관 청동 학교 종(銅鍾) 종각 파빌리온
       const bxB = 72.0, bzB = -8.5;   // 역사관 진입로 · 건물 모서리와 겹치던 자리(74.8, −3.8)에서 서쪽 마당으로
@@ -826,7 +825,7 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
       world.props.push({ kind: 'robj', k: 'east_incinerator', t: 'mega15k', floor: 0, x: ixC - 1.9, z: izC, y: 1.0, r: 2.3, label: '구식 벽돌 소각로 투입구 열어 타다 남은 1998년 방송부 원고 조각 확인하기' });
     }
 
-    // ── (5) 동편 중앙 교차로(x: 74.8, z: 3.2): 서문 백주년 학술 시계탑 & 동편 대로 가로등 17기 ──
+    // ── (5) 동편 중앙 교차로(x: 74.8, z: 3.2): 서린 백주년 학술 시계탑 & 동편 대로 가로등 17기 ──
     {
       const cx = 74.8, cz = 3.2;
       pbox(2.4, .42, 2.4, stoneM, cx, .21, cz, g);
@@ -837,7 +836,7 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
         pmesh(new THREE.CircleGeometry(.40, 18), lampEm, cx + ox, 4.25, cz + oz, g, { ry, cast: false });
       });
       pmesh(new THREE.SphereGeometry(.38, 16, 12), goldM, cx, 6.32, cz, g);
-      pmesh(new THREE.PlaneGeometry(2.1, .34), new THREE.MeshBasicMaterial({ map: makeSign('서문 백주년 시계탑 · 동편 캠퍼스 광장', '#18242c', '#f4e8c8', 20) }), cx - .58, 2.05, cz, g, { ry: -Math.PI / 2, cast: false });
+      pmesh(new THREE.PlaneGeometry(2.1, .34), new THREE.MeshBasicMaterial({ map: makeSign('서린 백주년 시계탑 · 동편 캠퍼스 광장', '#18242c', '#f4e8c8', 20) }), cx - .58, 2.05, cz, g, { ry: -Math.PI / 2, cast: false });
       addCol(cx - 1.2, cx + 1.2, cz - 1.2, cz + 1.2);
 
       // 동편 남북 종단 대로(x = 68.8 / 72.8) 및 동서 보행로(z = 3.0) 가로등
@@ -887,13 +886,13 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
     pmesh(new THREE.PlaneGeometry(1.4, .4), new THREE.MeshBasicMaterial({ map: makeSign('코치 구역', '#1c2a24', '#e8f0e8', 20) }), cx + 1.6, 1.6, z1 - .1, g, { ry: Math.PI, cast: false });
     // 외곽 펜스 (3.0m) · 남측 출입구 · 학교명 현판 · 조명 폴
     fenceLine(g, x0, z0, x1, z0, 4.0); fenceLine(g, x0, z0, x0, z1, 3.0); fenceLine(g, x1, z0, x1, z1, 3.0); fenceLine(g, x0, z1, x1, z1, 3.0, [[cx - .2, cx + 1.4]]);
-    pbox(2.4, .5, .08, PM(0x1e2e5a, .5, .3), cx - 1.8, 1.4, z1 + .08, g, { cast: false }); pmesh(new THREE.PlaneGeometry(2.3, .45), new THREE.MeshBasicMaterial({ map: makeSign('서문고등학교 테니스 · 양궁장', '#1e2e5a', '#ffffff', 20) }), cx - 1.8, 1.4, z1 + .13, g, { cast: false });
+    pbox(2.4, .5, .08, PM(0x1e2e5a, .5, .3), cx - 1.8, 1.4, z1 + .08, g, { cast: false }); pmesh(new THREE.PlaneGeometry(2.3, .45), new THREE.MeshBasicMaterial({ map: makeSign('서린고등학교 테니스 · 양궁장', '#1e2e5a', '#ffffff', 20) }), cx - 1.8, 1.4, z1 + .13, g, { cast: false });
     [[x0 + .3, z0 + .3], [x0 + .3, z1 - .3], [x1 - .3, z0 + .3], [cx, z0 + .3]].forEach(([x, z]) => lightPole(g, x, z));
     chunks.push({ id: 'chunk_tennis', g, x: cx, z: cz });
   }
 
   /* =========================================================================
-     ⑤-B [종합 스포츠 섹션 2] 서문고 야구 스타디움 (내야 다이아몬드 · 양측 덕아웃 · 전광판) — 서중남 (x: -88, z: 17)
+     ⑤-B [종합 스포츠 섹션 2] 서린고 야구 스타디움 (내야 다이아몬드 · 양측 덕아웃 · 전광판) — 서중남 (x: -88, z: 17)
      ========================================================================= */
   {
     const cx = -88, cz = 14;
@@ -913,7 +912,7 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
       pbox(8.2, .85, .08, darkMetal, 0, .425, 1.25, dg);
       pbox(7.2, .45, .45, woodLight, 0, .225, -.75, dg);
       pbox(7.2, .45, .08, woodDark, 0, .62, -.95, dg);
-      pmesh(new THREE.PlaneGeometry(3.2, .38), new THREE.MeshBasicMaterial({ map: makeSign(di === 0 ? 'HOME DUGOUT · 서문고 야구부' : 'GUEST DUGOUT · 방문팀 덕아웃', '#162836', '#f0ead6', 22) }), 0, 2.72, 1.72, dg, { cast: false });
+      pmesh(new THREE.PlaneGeometry(3.2, .38), new THREE.MeshBasicMaterial({ map: makeSign(di === 0 ? 'HOME DUGOUT · 서린고 야구부' : 'GUEST DUGOUT · 방문팀 덕아웃', '#162836', '#f0ead6', 22) }), 0, 2.72, 1.72, dg, { cast: false });
       addCol(cx + dx - 1.5, cx + dx + 1.5, cz - 1.8, cz + 6.8);
     });
     pbox(.85, .58, .55, PM(0x2468b8, .4), cx + 6.8, .29, cz + 7.8, g);
@@ -941,7 +940,7 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
       // 그라운드 정비 카트 (롤러) · 남측 현판 벽
       { const rx = cx + 2.4, rz = z0 + 2.0; pcyl(.4, .4, 1.0, PM(0x2a6a3a, .5, .4), rx, .4, rz, g, { rz: Math.PI / 2 }); pbox(.8, .5, .6, PM(0x2a6a3a, .5, .4), rx, .9, rz + .6, g); addCol(rx - .55, rx + .55, rz - .45, rz + .95); }
       pbox(3.2, 1.6, .4, stoneM, cx - 9.0, .8, z1 + .4, g); addCol(cx - 10.6, cx - 7.4, z1 + .2, z1 + .6);
-      pmesh(new THREE.PlaneGeometry(3.0, 1.1), new THREE.MeshBasicMaterial({ map: makeSign('서문고등학교 야구 스타디움', '#6a6a60', '#1a1a1a', 26) }), cx - 9.0, .9, z1 + .61, g, { cast: false }); }
+      pmesh(new THREE.PlaneGeometry(3.0, 1.1), new THREE.MeshBasicMaterial({ map: makeSign('서린고등학교 야구 스타디움', '#6a6a60', '#1a1a1a', 26) }), cx - 9.0, .9, z1 + .61, g, { cast: false }); }
     chunks.push({ id: 'chunk_sports', g, x: cx, z: cz });
   }
 

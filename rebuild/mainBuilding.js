@@ -4,16 +4,16 @@
 //   전기(분전반 · 2등용 형광등 · 콘센트 · 스위치) · 소방(소화전함 · 소화기 · 감지기 · 유도등 · 방화문) · 수도(세면대 · 배관)
 import * as THREE from '../vendor/three.module.js';
 import { mergeGeometries } from '../vendor/addons/utils/BufferGeometryUtils.js';
-import { makeFlag } from '../tex.js?v=432';
-import * as PT from './periodTex.js?v=432';
-import { collectRefs, dedupeMaterials, batchStaticChildren } from './staticBatch.js?v=432';
+import { makeFlag } from '../tex.js?v=433';
+import * as PT from './periodTex.js?v=433';
+import { collectRefs, dedupeMaterials, batchStaticChildren } from './staticBatch.js?v=433';
 // 교실 앞면 꾸밈 공용 (반 이름 · 텍스처 캐시)
 const NAMES = ['김민수', '이서연', '박지훈', '최유진', '정하늘', '강도윤', '조수아', '윤재현', '장예린', '임태호', '한소영', '오준서', '서지민', '신동혁', '권나연', '황민재', '안채원', '송우진', '전다은', '홍석진'];
 let flagTex = null; const decorTex = new Map();
 // 2008년 10월 복도 게시물 (현재 시점 — 1998 사건 증거물과 구분)
 const NOTICES = [
   { t: '가 정 통 신 문', s: '제2008-87호', b: ['10월 10일(금) 개교 40주년', '기념 방송 및 야간 자율학습', '실시 안내', '', '학부모님께서는 자녀의 귀가', '시간을 확인해 주시기 바랍니다.'], c: '#f2ead2', h: '#1a1a1a' },
-  { t: '10월 급식 식단표', s: '서문고등학교 영양실', b: ['13(월) 쌀밥 · 미역국 · 제육볶음', '14(화) 카레라이스 · 깍두기', '15(수) 비빔밥 · 계란국', '16(목) 짜장면 · 단무지', '17(금) 김치볶음밥 · 어묵국'], c: '#fff8e0', h: '#2a5a2a' },
+  { t: '10월 급식 식단표', s: '서린고등학교 영양실', b: ['13(월) 쌀밥 · 미역국 · 제육볶음', '14(화) 카레라이스 · 깍두기', '15(수) 비빔밥 · 계란국', '16(목) 짜장면 · 단무지', '17(금) 김치볶음밥 · 어묵국'], c: '#fff8e0', h: '#2a5a2a' },
   { t: '제42회 학예제', s: '2008. 10. 15 ~ 10. 17', b: ['합창 · 연극 · 밴드 공연', '사진부 전시 (본관 4층)', '방송부 UCC 상영회', '', '많은 참여 바랍니다'], c: '#e8f0ff', h: '#1a3a8a' },
   { t: '면학 분위기 조성', s: '학생부', b: ['복도에서 뛰지 맙시다', '바른 언어를 사용합시다', '쓰레기는 분리수거', '실내화 착용 철저', '', '— 선도부 —'], c: '#f4f0e0', h: '#8a1a1a' },
   { t: '수능 D-34', s: '2009학년도 대학수학능력시험', b: ['11월 13일(목)', '', '"오늘 흘린 땀방울이', '내일의 웃음이 된다"', '', '3학년부'], c: '#fff0f0', h: '#a01818' },
@@ -32,7 +32,7 @@ function drawNotice(g, W, H, n) {
 }
 
 // 책상 위 낙서 · 칼자국: 연필 · 볼펜 글씨 + 긁힌 선 (투명 판, 책상 윗면에 붙인다). 6가지를 돌려 쓴다 (재질 공유)
-const GRAF = ['싸이월드 일촌 신청 ㄱㄱ', '졸면 죽는다', '수학 시험 망함 ㅠ', '서문고 3-2 화이팅', '떠든 사람: 김민수', '시험범위 p.41~78'], grafMat = [];
+const GRAF = ['싸이월드 일촌 신청 ㄱㄱ', '졸면 죽는다', '수학 시험 망함 ㅠ', '서린고 3-2 화이팅', '떠든 사람: 김민수', '시험범위 p.41~78'], grafMat = [];
 export function grafMaterial(k) { if (grafMat[k]) return grafMat[k]; const c = document.createElement('canvas'); c.width = 256; c.height = 176; const g = c.getContext('2d');
   const pen = k % 3 === 0 ? 'rgba(40,60,140,.75)' : k % 3 === 1 ? 'rgba(60,60,60,.7)' : 'rgba(120,30,30,.65)';
   g.save(); g.translate(128, 88); g.rotate((k % 2 ? -1 : 1) * .12); g.fillStyle = pen; g.font = `${k % 2 ? 'bold ' : ''}26px "Nanum Pen Script","Gaegu",cursive,sans-serif`; g.textAlign = 'center'; g.fillText(GRAF[k], 0, 0); g.restore();
@@ -503,10 +503,10 @@ export function buildMainBuilding(opt = {}) {
           cx1: Math.min(hx, hx + sx * w), cx2: Math.max(hx, hx + sx * w), cz1: zN - .2, cz2: zN - .1, mx: (d.a + d.b) / 2, mz: zN - .2, label: '현관 유리문', floor: 0, glassLeaf: true })); }
       if (!opt.bridge) box('conc', d.a - 1, d.b + 1, 3.0, 3.2, zN - 3.2, zN - T);   // 구름다리가 있으면 그것이 차양
       // 현관 위 교명판 · 출입등 2개
-      { const c = document.createElement('canvas'); c.width = 1024; c.height = 160; const g = c.getContext('2d'); g.fillStyle = '#2a2622'; g.fillRect(0, 0, 1024, 160); g.fillStyle = '#d8c9a0'; g.font = 'bold 92px serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(opt.signText || '서 문 고 등 학 교', 512, 84);
+      { const c = document.createElement('canvas'); c.width = 1024; c.height = 160; const g = c.getContext('2d'); g.fillStyle = '#2a2622'; g.fillRect(0, 0, 1024, 160); g.fillStyle = '#d8c9a0'; g.font = 'bold 92px serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(opt.signText || '서 린 고 등 학 교', 512, 84);
         const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; const sg = new THREE.Mesh(new THREE.PlaneGeometry(4.6, .72), new THREE.MeshStandardMaterial({ map: t, roughness: .6, metalness: .3 })); sg.position.set((core.x1 + core.x2) / 2, 3.75, zN - T - .02); sg.rotation.y = Math.PI; if (!opt.bridge) root.add(sg); }
       // 구름다리가 현관 위를 덮는 건물: 교명판을 다리 밑(그늘 · 가려짐) 대신 현관 동쪽 벽기둥에 세로 현판으로 (눈높이, 다리 밖이라 마당 · 보도에서 보인다)
-      if (opt.bridge) { const txt = opt.label || '본관', pl = canvasPlane(.56, 1.9, 128, 432, (g, W, H) => { g.fillStyle = '#2a2622'; g.fillRect(0, 0, W, H); g.strokeStyle = '#a89870'; g.lineWidth = 6; g.strokeRect(8, 8, W - 16, H - 16); g.fillStyle = '#d8c9a0'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = 'bold 50px serif'; const t = ('서문고' + txt).split(''); t.forEach((ch, i) => g.fillText(ch, W / 2, 40 + i * (H - 80) / (t.length - 1))); }, 'plaque_' + txt);
+      if (opt.bridge) { const txt = opt.label || '본관', pl = canvasPlane(.56, 1.9, 128, 432, (g, W, H) => { g.fillStyle = '#2a2622'; g.fillRect(0, 0, W, H); g.strokeStyle = '#a89870'; g.lineWidth = 6; g.strokeRect(8, 8, W - 16, H - 16); g.fillStyle = '#d8c9a0'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = 'bold 50px serif'; const t = ('서린고' + txt).split(''); t.forEach((ch, i) => g.fillText(ch, W / 2, 40 + i * (H - 80) / (t.length - 1))); }, 'plaque_' + txt);
         const px = core.x2 - 1.25; box('trim', px - .32, px + .32, .52, 2.48, zN - T - .03, zN - T); pl.position.set(px, 1.5, zN - T - .035); pl.rotation.y = Math.PI; root.add(pl); }
       [d.a - .6, d.b + .6].forEach(x => { box('alu', x - .1, x + .1, 2.55, 2.85, zN - T - .14, zN - T); box('extLamp', x - .08, x + .08, 2.58, 2.82, zN - T - .16, zN - T - .14); lights.push({ x, y: 2.6, z: zN - T - .6 }); });
       exitSign((d.a + d.b) / 2, ENT_H + .06, zN - T - .04);   // 현관 위 비상구 유도등
@@ -534,7 +534,7 @@ export function buildMainBuilding(opt = {}) {
         // 장애인 경사로 안내 표지 (파란 바탕 · 휠체어)
         const sg = canvasPlane(.3, .3, 128, 128, (g, W, H) => { g.fillStyle = '#1f4fa0'; g.fillRect(0, 0, W, H); g.strokeStyle = '#fff'; g.fillStyle = '#fff'; g.lineWidth = 9; g.beginPath(); g.arc(60, 82, 26, .3, 5.2); g.stroke(); g.beginPath(); g.arc(58, 26, 10, 0, 7); g.fill(); g.fillRect(52, 38, 11, 36); g.fillRect(52, 64, 34, 10); g.fillRect(80, 64, 10, 36); }, 'rampSign');
         sg.position.set(rx0 + rL + .02, PH + .7, zd + 1.85 + .03); root.add(sg); box('aluW', rx0 + rL - .02, rx0 + rL + .02, 0, 1.0, zd + 1.83, zd + 1.87); }
-      { const c = document.createElement('canvas'); c.width = 1024; c.height = 160; const g = c.getContext('2d'); g.fillStyle = '#2a2622'; g.fillRect(0, 0, 1024, 160); g.fillStyle = '#d8c9a0'; g.font = 'bold 92px serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(opt.signText || '서 문 고 등 학 교', 512, 84);
+      { const c = document.createElement('canvas'); c.width = 1024; c.height = 160; const g = c.getContext('2d'); g.fillStyle = '#2a2622'; g.fillRect(0, 0, 1024, 160); g.fillStyle = '#d8c9a0'; g.font = 'bold 92px serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(opt.signText || '서 린 고 등 학 교', 512, 84);
         const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; const sg = new THREE.Mesh(new THREE.PlaneGeometry(4.6, .72), new THREE.MeshStandardMaterial({ map: t, roughness: .6, metalness: .3 })); sg.position.set((core.x1 + core.x2) / 2, 3.75, zd + .02); root.add(sg); }
       [d.a - .6, d.b + .6].forEach(x => { box('alu', x - .1, x + .1, 2.55, 2.85, zd, zd + .14); box('lamp', x - .08, x + .08, 2.58, 2.82, zd + .14, zd + .16); lights.push({ x, y: 2.6, z: zd + .6 }); });
       exitSign((d.a + d.b) / 2, ENT_H + .06, zd + .04);   // 현관 위 비상구 유도등 (바깥에서도 보인다)
@@ -688,7 +688,7 @@ export function buildMainBuilding(opt = {}) {
       const pg = new THREE.CylinderGeometry(.025, .025, .9, 8); pg.translate(xw + sx * .07, y + .9, z + .3); G('acUnit', pg); };
     [-1, 1].forEach(sx => { const xw = sx * (L2 + T); for (let f = 1; f < N; f++) [2.6, 6.8].forEach(z => ac(xw, sx, yf(f) + .5, z)); });
     // 교명 금속 글자 (남쪽 파라펫, 정문 · 운동장을 본다): 스테인리스 채널 글자 + 벽에 지는 그림자
-    const LTR = opt.letters ?? (opt.southEntry ? '서문고등학교' : null);
+    const LTR = opt.letters ?? (opt.southEntry ? '서린고등학교' : null);
     if (LTR) { const txt = LTR, W = Math.min(coreR.x2 - coreR.x1 - 1.2, txt.length * 1.05), H = .78, cx = (coreR.x1 + coreR.x2) / 2;
       const draw = shadow => (g, w, h) => { g.clearRect(0, 0, w, h); g.font = `bold ${h * .8 | 0}px "Noto Sans KR", "Malgun Gothic", sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle';
         if (shadow) { g.fillStyle = 'rgba(40,36,30,.55)'; g.fillText(txt, w / 2, h / 2 + 4, w - 8); return; }
@@ -818,9 +818,28 @@ export function buildMainBuilding(opt = {}) {
     { const tz = (z1 + z2) / 2 + 2.55; box('alu', x1 + .02, x1 + .2, y0 + 2.15, y0 + 2.25, tz + .4, tz + .5); box('rubber', x1 + .2, x1 + .28, y0 + 1.85, y0 + 2.45, tz - .02, tz + .92); box('screen', x1 + .28, x1 + .285, y0 + 1.89, y0 + 2.41, tz + .02, tz + .88); }
     box('white', x1 + .08, x1 + .5, y0, y0 + 1.8, z2 - .95, z2 - .5, { solid: true }); box('rubber', x1 + .5, x1 + .505, y0 + 1.45, y0 + 1.7, z2 - .9, z2 - .55); box('screen', x1 + .5, x1 + .506, y0 + 1.2, y0 + 1.3, z2 - .8, z2 - .65); box('exitG', x1 + .505, x1 + .51, y0 + 1.25, y0 + 1.27, z2 - .63, z2 - .61);
     box('wood', x1 + 1.95, x1 + 2.55, y0, y0 + .72, (z1 + z2) / 2 + 1.7, (z1 + z2) / 2 + 2.3, { solid: true }); retroPC(x1 + 2.2, y0 + .72, (z1 + z2) / 2 + 2.0, 'x+', { tower: null, kb: true, scale: .85, lcd: true });
-    mdl('metal_trash_can', x1 + 1.65, y0, z2 - .5, .4); col.push({ x1: x1 + 1.35, x2: x1 + 1.95, z1: z2 - .8, z2: z2 - .2, y1: y0, y2: y0 + .9 });   // 창가 앞 구석 쓰레기통 (교단 옆 — 뒷줄 의자와 겹치지 않게)
+    classBins(x1 + .66, z2, y0);   // 청소함 옆 창가 구석: 2008년식 교실 분리수거함 3통 (실외용 철제 쓰레기통 모델을 바꿨다)
     classExtras(x1, x2, z1, z2, y0);   // 창 커튼 · 청소함
     if (type === 'class') era08Class(name, f, x1, x2, z1, z2, y0);   // 2008: 실물화상기 · 달력 · 환경미화 (203 멀티미디어 설비)
+  }
+  // 교실 분리수거함 (2008 공립 고교 교실): 회색 일반쓰레기 · 파랑 재활용(캔 · 플라스틱) · 초록 종이류 — PP 사각 통 (W400 D360 H620) + 앞으로 젖히는 스윙 뚜껑 · 앞면 라벨.
+  //   창가 벽(z2)에 붙여 바닥에 놓고, 청소함(x1 ~ x1 + .55) 바로 옆 → 교단 · 책상 줄(x1 + 2.6~) · 앞문 동선과 겹치지 않는다
+  function classBins(xa, z2, y0) {
+    mat.binGr = mat.binGr || M('binGr', () => new THREE.MeshStandardMaterial({ color: 0x8c9196, roughness: .55 }));
+    const zb1 = z2 - .5, zb2 = z2 - .14, H = .6, W = .4;
+    [['binGr', '일반쓰레기', '#5a5e62'], ['recycB', '재활용 (캔·플라스틱)', '#1e4c8a'], ['recycG', '종이류', '#2a6a34']].forEach(([k, t, c], i) => {
+      const xb1 = xa + i * .43, xb2 = xb1 + W;
+      box(k, xb1 + .015, xb2 - .015, y0, y0 + .03, zb1 + .015, zb2 - .015);   // 바닥 테두리 (살짝 좁은 밑동)
+      box(k, xb1, xb2, y0 + .03, y0 + H, zb1, zb2);   // 몸통
+      box(k, xb1 - .01, xb2 + .01, y0 + H, y0 + H + .035, zb1 - .012, zb2 + .005);   // 뚜껑 테
+      box('rubber', xb1 + .05, xb2 - .05, y0 + H + .035, y0 + H + .04, zb1 + .02, zb1 + .2);   // 스윙 플랩 (어두운 틈)
+      box(k, xb1 + .06, xb2 - .06, y0 + H + .04, y0 + H + .06, zb1 + .21, zb1 + .24);   // 플랩 축
+      const lb = canvasPlane(.32, .14, 256, 112, (g, w, h) => { g.fillStyle = '#f6f4ec'; g.fillRect(0, 0, w, h); g.fillStyle = c; g.fillRect(0, 0, w, 30); g.fillStyle = '#fff'; g.font = 'bold 22px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('분리수거', w / 2, 16);
+        g.fillStyle = c; g.font = `bold ${t.length > 6 ? 26 : 40}px sans-serif`; g.fillText(t, w / 2, 72); }, 'clsBin' + i);
+      lb.position.set((xb1 + xb2) / 2, y0 + .43, zb1 - .002); lb.rotation.y = Math.PI; lb.name = 'RB_clsBinLabel'; root.add(lb);
+    });
+    col.push({ x1: xa - .02, x2: xa + 1.27, z1: zb1 - .03, z2: z2, y1: y0, y2: y0 + .7 });
+    props.push({ kind: 'binLook', x: xa + .63, y: y0 + .8, z: zb1 - .1 });   // 상호작용(분리수거함 들여다보기) 자리 — game.js 가 읽는다
   }
   // 교실 세부: 남쪽 창 커튼(레일 + 양 끝 · 가운데에 묶어 걷은 주름) · 교단 옆 창가 구석 철제 청소함(빗자루 · 대걸레)
   function classExtras(x1, x2, z1, z2, y0) {
@@ -888,7 +907,7 @@ export function buildMainBuilding(opt = {}) {
       if (type === 'council') {   // 학생회실: 회의 테이블 · 학생회 깃발 · 트로피 장 · 공약 게시판
         box('dkwood', x1, x2, y0 + .02, y0 + .03, z1, z2); table(xm, zm + .6, 3.6, 1.4, .75, 'dkwood'); for (let k = 0; k < 4; k++) { mdl('SchoolChair_01', xm - 1.35 + k * .9, y0, zm - .35, 0); mdl('SchoolChair_01', xm - 1.35 + k * .9, y0, zm + 1.55, Math.PI); }
         shelf(x2 - .5, x2 - .05, z2 - 3.4, z2 - .3, 1.9, 4, 'dkwood', false); for (let k = 0; k < 6; k++) cyl('brass', x2 - .27, y0 + .5 + (k % 3) * .48, z2 - 3.0 + ((k / 3) | 0) * 1.2, .05, .22, .09, 10);
-        cyl('alu', x1 + .5, y0, z2 - .6, .02, 2.2); const fl = canvasPlane(.9, .6, 256, 170, (g, W, H) => { g.fillStyle = '#1f4f8a'; g.fillRect(0, 0, W, H); g.fillStyle = '#fff'; g.font = 'bold 36px sans-serif'; g.textAlign = 'center'; g.fillText('서문고 학생회', W / 2, H / 2 + 12); }, 'council_flag'); fl.position.set(x1 + .96, y0 + 1.8, z2 - .6); fl.rotation.y = Math.PI / 2; root.add(fl);
+        cyl('alu', x1 + .5, y0, z2 - .6, .02, 2.2); const fl = canvasPlane(.9, .6, 256, 170, (g, W, H) => { g.fillStyle = '#1f4f8a'; g.fillRect(0, 0, W, H); g.fillStyle = '#fff'; g.font = 'bold 36px sans-serif'; g.textAlign = 'center'; g.fillText('서린고 학생회', W / 2, H / 2 + 12); }, 'council_flag'); fl.position.set(x1 + .96, y0 + 1.8, z2 - .6); fl.rotation.y = Math.PI / 2; root.add(fl);
         sign('2008 학생회 공약: 야자 선택제 · 급식 만족도 조사', xm, y0 + 1.75, z2 - .03, 3.4, Math.PI); search('학생회 회의록 철', xm + 1, zm + .6); }
       else if (type === 'avroom') {   // 시청각실: 계단식 대신 줄 맞춘 접이식 의자 · 대형 스크린 · 천장 프로젝터 · 암막 커튼
         box('dkwood', x1, x2, y0 + .02, y0 + .03, z1, z2); box('white', x1 + .03, x1 + .05, y0 + .7, y0 + 2.6, zm - 2, zm + 2); box('rubber', x1 + .05, x1 + .25, y0 + .7, y0 + .75, zm - 2.1, zm + 2.1);
@@ -936,7 +955,7 @@ export function buildMainBuilding(opt = {}) {
       else if (type === 'history') {   // 학교 역사관: 유리 진열장 · 역대 졸업 사진 액자 · 개교 기념 교기 — 1998년 칸만 비어 있다
         box('dkwood', x1, x2, y0 + .02, y0 + .03, z1, z2); for (let k = 0; k < 3; k++) { const cx = x1 + 2.2 + k * 2.4; box('dkwood', cx - .6, cx + .6, y0, y0 + .8, zm - .35, zm + .35, { solid: true }); box('glass', cx - .58, cx + .58, y0 + .8, y0 + 1.3, zm - .33, zm + .33); box(['brass', 'white', 'cork'][k], cx - .2, cx + .2, y0 + .82, y0 + .95, zm - .1, zm + .1); }
         for (let k = 0; k < 7; k++) { const yr = 1992 + k, x = x1 + 1 + k * 1.05; const fr = canvasPlane(.8, .55, 192, 132, (g, W, H) => { g.fillStyle = '#5a3a1e'; g.fillRect(0, 0, W, H); g.fillStyle = yr === 1998 ? '#2a2a2a' : '#b8b0a0'; g.fillRect(10, 10, W - 20, H - 34); g.fillStyle = '#e8d8a0'; g.font = 'bold 18px serif'; g.textAlign = 'center'; g.fillText(yr === 1998 ? '1998 — (사진 없음)' : yr + ' 졸업', W / 2, H - 9); }, 'grad' + yr); fr.position.set(x, y0 + 1.7, z2 - .03); fr.rotation.y = Math.PI; root.add(fr); }
-        sign('서문고 역사관 1968 ~', xm, y0 + 2.4, z2 - .03, 2.6, Math.PI, '#5a3a1e', '#e8d8a0'); search('1998년 빈 액자 뒤', x1 + 1 + 6 * 1.05, z2 - .3, 1.7); }
+        sign('서린고 역사관 1968 ~', xm, y0 + 2.4, z2 - .03, 2.6, Math.PI, '#5a3a1e', '#e8d8a0'); search('1998년 빈 액자 뒤', x1 + 1 + 6 * 1.05, z2 - .3, 1.7); }
       else if (type === 'lounge') {   // 학생 휴게 공간: 자판기 · 소파 벤치 · 원형 테이블 · 게시판 낙서
         box('tile', x1, x2, y0 + .02, y0 + .03, z1, z2);
         mdl('sf_vending', x2 - .37, y0, Z0 + .5, -Math.PI / 2); mdl('sf_vending', x2 - .37, y0, Z0 + 1.55, -Math.PI / 2); col.push({ x1: x2 - .9, x2: x2 - .1, z1: Z0, z2: Z0 + 2.05, y1: y0, y2: y0 + 1.85 });   // 실사 음료 자판기 2 (예전: 빨간 상자 + 유리 판)
@@ -969,7 +988,7 @@ export function buildMainBuilding(opt = {}) {
         for (let k = 0; k < 6; k++) box('gold', fx - .01, fx + .01, y0 + 1.42 + k * .07, y0 + 1.46 + k * .07, fz + .03, fz + .04); }
       cabinetD(x1 + .05, x1 + .55, z1 + 2.45, z1 + 4.25, y0, .9, 'dkwood', 'x+'); box('dkwood', x1 + .05, x1 + .45, y0 + .9, y0 + 2.2, z1 + 2.45, z1 + 4.25, { solid: true }); box('glass', x1 + .45, x1 + .46, y0 + .95, y0 + 2.15, z1 + 2.5, z1 + 4.2);   // 트로피 · 서적장 (하부장 + 유리 상부장)
       for (let j = 0; j < 3; j++) { const y = y0 + 1.0 + j * .4; box('dkwood', x1 + .08, x1 + .44, y, y + .02, z1 + 2.5, z1 + 4.2); for (let k = 0; k < 4; k++) { const z = z1 + 2.7 + k * .42; if ((j + k) % 2) { cyl('gold', x1 + .25, y + .02, z, .05, .05, .07); cyl('gold', x1 + .25, y + .07, z, .015, .12); cyl('gold', x1 + .25, y + .19, z, .08, .1, .04, 14); } else for (let b = 0; b < 6; b++) box(['red', 'lockerM', 'cork', 'white'][b % 4], x1 + .12, x1 + .36, y + .02, y + .3, z - .15 + b * .05, z - .11 + b * .05); } }
-      const emblem = ctex(512, 512, (g, w, h) => { g.fillStyle = '#3a2416'; g.fillRect(0, 0, w, h); g.strokeStyle = '#c8a040'; g.lineWidth = 10; g.beginPath(); g.arc(256, 200, 120, 0, 7); g.stroke(); g.lineWidth = 4; g.beginPath(); g.arc(256, 200, 100, 0, 7); g.stroke(); g.fillStyle = '#c8a040'; g.font = 'bold 70px serif'; g.textAlign = 'center'; g.fillText('瑞文', 256, 225); g.font = 'bold 54px sans-serif'; g.fillText('서문고등학교', 256, 420); });
+      const emblem = ctex(512, 512, (g, w, h) => { g.fillStyle = '#3a2416'; g.fillRect(0, 0, w, h); g.strokeStyle = '#c8a040'; g.lineWidth = 10; g.beginPath(); g.arc(256, 200, 120, 0, 7); g.stroke(); g.lineWidth = 4; g.beginPath(); g.arc(256, 200, 100, 0, 7); g.stroke(); g.fillStyle = '#c8a040'; g.font = 'bold 70px serif'; g.textAlign = 'center'; g.fillText('瑞文', 256, 225); g.font = 'bold 54px sans-serif'; g.fillText('서린고등학교', 256, 420); });
       box('dkpanel', x1 + .005, x1 + .04, y0 + 1.06, y0 + 2.7, z1 + 4.55, z1 + 6.05); plane(emblem, 1.3, 1.3, x1 + .045, y0 + 1.9, z1 + 5.3, Math.PI / 2);
       const motto = ctex(512, 360, (g, w, h) => { g.fillStyle = '#f2ead8'; g.fillRect(0, 0, w, h); g.strokeStyle = '#3a2416'; g.lineWidth = 18; g.strokeRect(9, 9, w - 18, h - 18); g.fillStyle = '#1a1410'; g.font = 'bold 70px serif'; g.textAlign = 'center'; g.fillText('올바른 사람', 256, 150); g.fillText('더 나은 세상을', 256, 250); g.fillStyle = '#a02018'; g.fillRect(400, 280, 34, 34); });
       plane(motto, 1.4, 1.0, x1 + .03, y0 + 1.85, z1 + 7.1, Math.PI / 2);
@@ -1087,7 +1106,7 @@ export function buildMainBuilding(opt = {}) {
       { const sz = z1 + 3.9; box('rubber', x2 - .14, x2 - .04, y0 + 2.62, y0 + 2.72, sz - 1.2, sz + 1.2); box('white', x2 - .06, x2 - .05, y0 + 1.25, y0 + 2.62, sz - 1.1, sz + 1.1); box('rubber', x2 - .07, x2 - .04, y0 + 1.22, y0 + 1.26, sz - 1.12, sz + 1.12); }   // 전동 스크린 (2200×1400)
       { const wz = z1 + 6.6; box('alu', x2 - .06, x2 - .01, y0 + .95, y0 + 2.19, wz - 1.24, wz + 1.24); const wb = ctex(512, 256, (g, w, h) => { g.fillStyle = '#f6f6f2'; g.fillRect(0, 0, w, h); g.fillStyle = '#1c2a6a'; g.font = '26px sans-serif'; ['< 회의 안건 >', '1. 2학기 평가 계획', '2. 생활지도 협의', '3. 진로진학 운영 방안', '4. 기타 안건'].forEach((t, k) => g.fillText(t, 30, 44 + k * 42)); g.fillStyle = '#c03030'; g.fillText('2008. 10. 13 (월)', 300, 230); });
         plane(wb, 2.36, 1.16, x2 - .065, y0 + 1.57, wz, -Math.PI / 2); box('alu', x2 - .14, x2 - .06, y0 + .93, y0 + .96, wz - 1.1, wz + 1.1); }   // 화이트보드 (2400×1200) · 분필 받침
-      { const sg = ctex(512, 160, (g, w, h) => { g.fillStyle = '#ece4d0'; g.fillRect(0, 0, w, h); g.fillStyle = '#1a2a50'; g.beginPath(); g.arc(70, 80, 56, 0, 7); g.fill(); g.fillStyle = '#e8d8a0'; g.font = 'bold 60px serif'; g.textAlign = 'center'; g.fillText('서', 70, 102); g.fillStyle = '#1a2a50'; g.textAlign = 'left'; g.font = 'bold 50px sans-serif'; g.fillText('서문고등학교', 150, 70); g.fillText('교사회의실', 150, 132); }); plane(sg, 1.6, .5, x2 - .03, y0 + 2.75, z1 + 1.5, -Math.PI / 2); }
+      { const sg = ctex(512, 160, (g, w, h) => { g.fillStyle = '#ece4d0'; g.fillRect(0, 0, w, h); g.fillStyle = '#1a2a50'; g.beginPath(); g.arc(70, 80, 56, 0, 7); g.fill(); g.fillStyle = '#e8d8a0'; g.font = 'bold 60px serif'; g.textAlign = 'center'; g.fillText('서', 70, 102); g.fillStyle = '#1a2a50'; g.textAlign = 'left'; g.font = 'bold 50px sans-serif'; g.fillText('서린고등학교', 150, 70); g.fillText('교사회의실', 150, 132); }); plane(sg, 1.6, .5, x2 - .03, y0 + 2.75, z1 + 1.5, -Math.PI / 2); }
       mdl('wall_clock', x2 - .03, y0 + 2.75, z1 + 5.4, -Math.PI / 2);
       box('white', xm - .2, xm + .2, y0 + S.CEIL - .32, y0 + S.CEIL - .18, z1 + 3.75, z1 + 4.05); cyl('alu', xm, y0 + S.CEIL - .18, z1 + 3.9, .02, .18); cyl('rubber', xm + .21, y0 + S.CEIL - .25, z1 + 3.9, .04, .02);   // 천장 빔 프로젝터
       cabinetD(x2 - .55, x2 - .05, z2 - 1.95, z2 - .75, y0, .8, 'dkwood', 'x-'); copier(x2 - .52, x2 - .1, z2 - 1.85, z2 - 1.25, y0 + .8); box('rubber', x2 - .5, x2 - .12, y0 + .8, y0 + 1.1, z2 - 1.15, z2 - .8, { solid: true });   // 복합기 받침장 (1200×500×800) + 복합기 · 문서함
@@ -1204,10 +1223,10 @@ export function buildMainBuilding(opt = {}) {
       for (let k = 0; k < 7; k++) box('bcCurtain', XP + .4 + k * 1.2, XP + 1.6 + k * 1.2, y0 + .5, y0 + 2.55, z2 - .1, z2 - .04);
       // 뉴스 배경막 (동쪽 벽) + 앵커 데스크 · 의자 2 · 데스크 마이크
       { const c = document.createElement('canvas'); c.width = 1024; c.height = 400; const g = c.getContext('2d'); const gr = g.createLinearGradient(0, 0, 1024, 400); gr.addColorStop(0, '#0c2a5a'); gr.addColorStop(1, '#1c5a9a'); g.fillStyle = gr; g.fillRect(0, 0, 1024, 400);
-        g.strokeStyle = 'rgba(255,255,255,.12)'; for (let i = 0; i < 12; i++) { g.beginPath(); g.arc(780, 200, 40 + i * 30, 0, 7); g.stroke(); } g.fillStyle = '#f0f4fa'; g.font = 'bold 86px sans-serif'; g.textAlign = 'left'; g.fillText('SBS 서문방송', 70, 180); g.font = '40px sans-serif'; g.fillText('서문고등학교 방송부 · Since 1987', 74, 250);
+        g.strokeStyle = 'rgba(255,255,255,.12)'; for (let i = 0; i < 12; i++) { g.beginPath(); g.arc(780, 200, 40 + i * 30, 0, 7); g.stroke(); } g.fillStyle = '#f0f4fa'; g.font = 'bold 86px sans-serif'; g.textAlign = 'left'; g.fillText('SBS 서린방송', 70, 180); g.font = '40px sans-serif'; g.fillText('서린고등학교 방송부 · Since 1987', 74, 250);
         const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; const m = new THREE.Mesh(new THREE.PlaneGeometry(4.0, 1.6), new THREE.MeshStandardMaterial({ map: t, roughness: .55 })); m.position.set(X2 - .04, y0 + 1.75, z1 + 3.1); m.rotation.y = -Math.PI / 2; root.add(m); }
       box('lockerM', X1 + 15.2, X1 + 15.9, y0, y0 + .76, z1 + 1.7, z1 + 4.5, { solid: true }); box('fabric', X1 + 15.18, X1 + 15.2, y0 + .1, y0 + .7, z1 + 1.8, z1 + 4.4); box('wood', X1 + 15.1, X1 + 16.0, y0 + .76, y0 + .8, z1 + 1.6, z1 + 4.6);
-      sign('서문방송', .9, .22, X1 + 15.17, y0 + .45, z1 + 3.1, -Math.PI / 2, '#0c2a5a', '#f0f4fa', false);
+      sign('서린방송', .9, .22, X1 + 15.17, y0 + .45, z1 + 3.1, -Math.PI / 2, '#0c2a5a', '#f0f4fa', false);
       chairX(X1 + 16.5, z1 + 2.5, 1); chairX(X1 + 16.5, z1 + 3.8, 1);
       [z1 + 2.5, z1 + 3.8].forEach(z => { cyl('alu', X1 + 15.4, y0 + .8, z, .01, .25); box('rubber', X1 + 15.37, X1 + 15.43, y0 + 1.03, y0 + 1.12, z - .03, z + .03); });
       // ENG 카메라 2대 (삼각대) — 앵커석을 향해
@@ -1598,7 +1617,7 @@ export function buildMainBuilding(opt = {}) {
       // 벽 스티커: 거울 위 절수 표어 · 소변기 위 '한 걸음 앞으로' (누렇게 바랜 코팅 종이)
       { const sticker = (txt, sub, w, h, x, y, z, face, key) => { const p = canvasPlane(w, h, 320, Math.round(320 * h / w), (c, W, H) => { c.fillStyle = '#f3efd8'; c.fillRect(0, 0, W, H); c.strokeStyle = '#3a6a9a'; c.lineWidth = 6; c.strokeRect(4, 4, W - 8, H - 8); c.fillStyle = '#1e3e6e'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.font = `bold ${Math.round(H * .34)}px sans-serif`; c.fillText(txt, W / 2, sub ? H * .4 : H / 2); if (sub) { c.font = `${Math.round(H * .2)}px sans-serif`; c.fillStyle = '#444'; c.fillText(sub, W / 2, H * .76); } }, key);
           p.position.set(x, y0 + y, z); p.rotation.y = face > 0 ? Math.PI / 2 : -Math.PI / 2; p.name = 'RB_wcSticker'; root.add(p); };
-        sticker('물을 아껴 씁시다', '서문고 환경부', .7, .2, ws + dS * .035, 2.05, (man ? 3.6 : 3.0) + .9, dS, 'wcSave');
+        sticker('물을 아껴 씁시다', '서린고 환경부', .7, .2, ws + dS * .035, 2.05, (man ? 3.6 : 3.0) + .9, dS, 'wcSave');
         if (man) for (let k = 0; k < 3; k++) sticker('한 걸음 앞으로!', '', .24, .1, w + dir * .02, 1.78, 2.2 + k * .8, dir, 'wcStep'); }
       // 청소도구함 (600×500×2100) — 안쪽 끝 세면대 쪽 모서리 · 바닥 배수구
       bx(SS, 'hpl', 0, .5, 0, 2.1, zS - .7, zS - .1, { solid: true }); bx(SS, 'alu', .5, .52, 1.0, 1.15, zS - .62, zS - .58);
@@ -1643,7 +1662,7 @@ export function buildMainBuilding(opt = {}) {
     // 세면대는 화장실 벽(복도 남쪽) 두 문 사이에 — 1층 현관 앞(북쪽 벽)을 막지 않게
     if (opt.bridge && f === 1) {   // 구름다리 출입구 맞은편: 세면대 대신 학교 안내도 · 게시판 · 벤치
       box('lockerM', xm - 1.6, xm + 1.6, y0 + 1.0, y0 + 2.2, -.14, -.104); box('white', xm - 1.5, xm + 1.5, y0 + 1.06, y0 + 2.14, -.16, -.14);
-      { const c = document.createElement('canvas'); c.width = 512; c.height = 192; const g = c.getContext('2d'); g.fillStyle = '#f2efe4'; g.fillRect(0, 0, 512, 192); g.fillStyle = '#2a3a4a'; g.font = 'bold 34px sans-serif'; g.textAlign = 'center'; g.fillText('서문고등학교 안내도', 256, 46);
+      { const c = document.createElement('canvas'); c.width = 512; c.height = 192; const g = c.getContext('2d'); g.fillStyle = '#f2efe4'; g.fillRect(0, 0, 512, 192); g.fillStyle = '#2a3a4a'; g.font = 'bold 34px sans-serif'; g.textAlign = 'center'; g.fillText('서린고등학교 안내도', 256, 46);
         g.strokeStyle = '#2a3a4a'; g.lineWidth = 3; g.strokeRect(40, 70, 432, 46); g.strokeRect(120, 140, 272, 34); g.beginPath(); g.moveTo(256, 116); g.lineTo(256, 140); g.stroke(); g.font = '20px sans-serif'; g.fillText('본관 (1~4층)', 256, 100); g.fillText('별관 (1~3층)', 256, 164); g.fillStyle = '#c02020'; g.fillText('● 현재 위치: 2층 구름다리', 256, 132);
         const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; const m = new THREE.Mesh(new THREE.PlaneGeometry(2.9, 1.05), new THREE.MeshStandardMaterial({ map: t, roughness: .7 })); m.position.set(xm, y0 + 1.6, -.17); m.rotation.y = Math.PI; root.add(m); }
       box('wood', xm - 1.0, xm + 1.0, y0 + .42, y0 + .47, -.75, -.35); [xm - .85, xm + .85].forEach(x => box('deskLeg', x - .03, x + .03, y0, y0 + .42, -.7, -.4)); col.push({ x1: xm - 1.0, x2: xm + 1.0, z1: -.78, z2: -.3, y1: y0, y2: y0 + .5 });
@@ -1681,7 +1700,7 @@ export function buildMainBuilding(opt = {}) {
       card(0, 256, 192, 256, '독서 마라톤', '#2a5aa0', [], '#eef2fa');
       for (let r = 0; r < 6; r++) { g.fillStyle = '#c8d2e6'; g.fillRect(14, 334 + r * 28, 164, 2); g.fillStyle = ['#e04040', '#e0a020', '#40a040', '#4070d0', '#a040c0', '#e06080'][r]; g.fillRect(70, 318 + r * 28, 20 + (r * 37 % 90), 12); T(`${r + 1}모둠`, 14, 324 + r * 28, '14px sans-serif', '#223', 'left'); }
       // CCTV 녹화중 안내 스티커
-      g.fillStyle = '#ffd21c'; g.fillRect(192, 256, 256, 128); g.fillStyle = '#111'; g.fillRect(192, 256, 256, 10); g.fillRect(192, 374, 256, 10); T('CCTV 녹화중', 320, 304, 'bold 40px sans-serif'); T('24시간 녹화 · 서문고등학교장', 320, 348, '18px sans-serif');
+      g.fillStyle = '#ffd21c'; g.fillRect(192, 256, 256, 128); g.fillStyle = '#111'; g.fillRect(192, 256, 256, 10); g.fillRect(192, 374, 256, 10); T('CCTV 녹화중', 320, 304, 'bold 40px sans-serif'); T('24시간 녹화 · 서린고등학교장', 320, 348, '18px sans-serif');
       // 정수기 위생 점검표
       g.fillStyle = '#e8f4fb'; g.fillRect(192, 384, 256, 128); g.fillStyle = '#1a6aa8'; g.fillRect(192, 384, 256, 36); T('정수기 위생 점검표', 320, 403, 'bold 22px sans-serif', '#fff');
       ['필터 교체: 2008. 9. 22', '수질 검사: 적합 (10. 1)', '관리 책임: 행정실'].forEach((s, i) => T(s, 204, 440 + i * 24, '17px sans-serif', '#123', 'left'));

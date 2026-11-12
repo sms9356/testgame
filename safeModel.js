@@ -4,6 +4,7 @@
 // 문은 경첩(피벗 그룹)으로 회전하며 안쪽에 선반 · 서랍 · 내용물이 있다. 텍스처/재질/지오메트리는 모듈 캐시로 공유.
 // 좌표: 몸체 정면이 로컬 +x, 폭은 z(±W/2), 원점은 바닥 중앙. 피벗은 정면 -z 모서리(경첩 쪽).
 import * as THREE from './vendor/three.module.js';
+import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
 
 const C = { tex: {}, mat: {}, geo: {} };
 const rand = (s => () => (s = (s * 16807) % 2147483647) / 2147483647)(9173);
@@ -114,6 +115,17 @@ function dialKnobGeo() {   // 선반(lathe) 다이얼: 낮은 원뿔대 + 테두
   return (C.geo.knob = g);
 }
 
+// 그룹 바로 아래 메시(자식 없는 것)를 재질별로 합친다 — 모양 · UV · 재질은 그대로, 위치만 미리 구워 넣는다
+function mergeByMat(group) {
+  const by = new Map();
+  for (const m of group.children) if (m.isMesh && !m.children.length) (by.get(m.material) || by.set(m.material, []).get(m.material)).push(m);
+  for (const [mat, list] of by) {
+    if (list.length < 2) continue;
+    const geos = list.map(m => { m.updateMatrix(); let g = m.geometry.index ? m.geometry.toNonIndexed() : m.geometry.clone(); for (const k of Object.keys(g.attributes)) if (!['position', 'normal', 'uv'].includes(k)) g.deleteAttribute(k); g.clearGroups(); return g.applyMatrix4(m.matrix); });
+    const merged = mergeGeometries(geos, false); geos.forEach(g => g.dispose()); if (!merged) continue;
+    merged.computeBoundingSphere(); const mm = new THREE.Mesh(merged, mat); group.add(mm); list.forEach(m => group.remove(m));
+  }
+}
 const add = (parent, geo, mat, x, y, z, rx = 0, ry = 0, rz = 0) => { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); m.rotation.set(rx, ry, rz); parent.add(m); return m; };
 
 /**
@@ -185,6 +197,7 @@ export function buildSafe(o = {}) {
   // 경첩 핀 2 (몸체 모서리 바깥, 피벗 축 위)
   for (const yy of [.22, .78]) { add(piv, cyl('hinge', .014, .014, .09, 12), M.chrome, .0, y0 + hh * yy, -.006); add(piv, cyl('hcap', .007, .009, .012, 10), M.chrome, 0, y0 + hh * yy + .05, -.006); }
   void pl;
+  mergeByMat(body); mergeByMat(piv);   // 성능: 같은 재질 부품을 한 메시로 (몸체 23 → 9 · 문 28 → 6 드로우콜) — 다이얼(회전 그룹)은 그대로
   return { body, piv, dial, size: { W, H, D }, frontX: fx };
 }
 

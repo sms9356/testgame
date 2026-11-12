@@ -1,13 +1,13 @@
-// 서문고 — 잊혀진 시간 : 1인칭 학교 공포 게임 (Three.js)
+// 서린고 — 잊혀진 시간 : 1인칭 학교 공포 게임 (Three.js)
 import * as THREE from './vendor/three.module.js';
 import { MeshBVH } from './vendor/addons/bvh/three-mesh-bvh.module.js';
-import { createRenderer, ENGINE } from './engine.js?v=432';
-import { perfProfInit, perfFrameBegin, perfMark, perfFrameEnd, perfNote } from './perfProfiler.js?v=432';
-import { whenIdle, idleTimeout, idleInterval, setIdleProbe } from './idleTasks.js?v=432';
-import { createMoveFeel, targetSpeed, stepVelocity, stopVelocity, advanceStride, restStride, motionScale, landImpulse, feelTick } from './moveFeel.js?v=432';
-import { createFXWebGPU } from './fxWebGPU.js?v=432';
-import * as PT from './rebuild/periodTex.js?v=432';
-import { autoDetail, setupEnv, sharpenTextures, slimHeavyProps } from './surfaceDetail.js?v=432';
+import { createRenderer, ENGINE } from './engine.js?v=433';
+import { perfProfInit, perfFrameBegin, perfMark, perfFrameEnd, perfNote } from './perfProfiler.js?v=433';
+import { whenIdle, idleTimeout, idleInterval, setIdleProbe } from './idleTasks.js?v=433';
+import { createMoveFeel, targetSpeed, stepVelocity, stopVelocity, advanceStride, restStride, motionScale, landImpulse, feelTick } from './moveFeel.js?v=433';
+import { createFXWebGPU } from './fxWebGPU.js?v=433';
+import * as PT from './rebuild/periodTex.js?v=433';
+import { autoDetail, setupEnv, sharpenTextures, slimHeavyProps } from './surfaceDetail.js?v=433';
 // 광선 검사 가속 (three-mesh-bvh, MIT): 건물 통짜 메시에 광선을 쏘는 배치 보정 · 상호작용 검사가 삼각형을 전부 훑느라
 //   로딩 중 수십 초 멈추던 것('응답 없는 페이지') → 큰 정적 메시는 처음 검사할 때 BVH 를 한 번 만들어 쓴다
 { const base = THREE.Mesh.prototype.raycast, R = new THREE.Ray(), M4 = new THREE.Matrix4(), S = new THREE.Sphere();
@@ -25,24 +25,25 @@ import { buildMissionGroups, recordCompleted, normalizeCompletedLog } from './my
 import { settleStoryGhost } from './storyGhost.js';
 import { GLTFLoader } from './vendor/addons/loaders/GLTFLoader.js';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { createNPCVisuals } from './npcVisuals.js?v=432';
+import { installElectrical } from './electrical.js?v=433';   // 전기 배선: 스위치 → 회로 → 등기구 · 건물별 분전반 · 외등 광센서
+import { createNPCVisuals } from './npcVisuals.js?v=433';
 import { createCampusCctvLive, collectCampusCctvFeeds } from './campusCctvLive.js';
-import { applyExteriorFloorVisibility, shouldStreamGuardCctv } from './exteriorRenderBudget.js?v=432';
-import { GUARD_LAYOUT } from './guardRoomLayout.js?v=432';
-import { ANNEX_KEYS, CABINET_CODE } from './guardAnnex.js?v=432';
-import { installGuardRoom } from './guardRoom.js?v=432';
-import { buildSafe, SAFE_OPEN_ANGLE } from './safeModel.js?v=432';
+import { applyExteriorFloorVisibility, shouldStreamGuardCctv } from './exteriorRenderBudget.js?v=433';
+import { GUARD_LAYOUT } from './guardRoomLayout.js?v=433';
+import { ANNEX_KEYS, CABINET_CODE } from './guardAnnex.js?v=433';
+import { installGuardRoom } from './guardRoom.js?v=433';
+import { buildSafe, SAFE_OPEN_ANGLE } from './safeModel.js?v=433';
 import { prepareModelGeometry } from './modelGeometry.js';
 import { modelFootprint, overlaps, removeDuplicateModels } from './placement.js';
-import { turfMaterial } from './campusVisuals.js?v=432';
+import { turfMaterial } from './campusVisuals.js?v=433';
 import { installInfirmaryAssets, updateInfirmaryCabinets } from './infirmaryAssets.js';
-import { installRebuild } from './rebuildGame.js?v=432';
+import { installRebuild } from './rebuildGame.js?v=433';
 import { installMoonShafts } from './moonShafts.js';
-import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js?v=432'; import { updateWindowFakes } from './windowInteriors.js?v=432';
-import { drawMap } from './map.js?v=432';
-import { buildMegaCampus15000, MEGA_CAMPUS_ZONES } from './megaCampus15000.js?v=432';
-import { installFacilityRebuild, inTwoStory, ZONES as FAC_ZONES } from './facilityRebuild.js?v=432';
-import { relayoutCampus } from './campusRelayout.js?v=432';
+import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js?v=433'; import { updateWindowFakes } from './windowInteriors.js?v=433';
+import { drawMap } from './map.js?v=433';
+import { buildMegaCampus15000, MEGA_CAMPUS_ZONES } from './megaCampus15000.js?v=433';
+import { installFacilityRebuild, inTwoStory, ZONES as FAC_ZONES } from './facilityRebuild.js?v=433';
+import { relayoutCampus } from './campusRelayout.js?v=433';
 import { makeDress, makeHair, makeGhostFace, makeGraffiti, makeKeypad, loadPBR, pbr, makeGlow as makeGlowTex, makePaintingStare, makeSign, makeBlood } from './tex.js';
 import { warmUp } from './bake.js';
 import { createStaticDistanceLOD } from './staticDistanceLOD.js';
@@ -60,16 +61,18 @@ import './basementRoomsPatch.js';     // 지하 전기실 · 보일러실 (사�
 import './classroomRemodelPatch.js';  // 교실 리모델링 · 의자에 앉기 (사용자 제공) → window.classroomRemodelPatch
 import './school37RoomsPatch.js';    // 본관 · 별관 37개 특별실 가구 · 동선 (사용자 제공) → window.school37RoomsPatch
 import './new37UniquePatch.js';     // 37개 구역 신규 특수 설비 · 벽면 레일 (사용자 제공) → window.new37UniquePatch
-import './megaExpansionPatch.js?v=432';   // 메가 익스팬션 · 최적화 · 4막 사건 기록 · 수집품 · 미니게임 (사용자 제공) → window.megaSchoolPatch
+import './megaExpansionPatch.js?v=433';   // 메가 익스팬션 · 최적화 · 4막 사건 기록 · 수집품 · 미니게임 (사용자 제공) → window.megaSchoolPatch
 import './poolMachineryPatch.js';     // 수영장 · 남/녀 탈의실·샤워실 · 기계실 철문 (사용자 제공) → window.poolAndMachineryPatch
-import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx, setSfxBusyCheck, setSpace, tickNight } from './audio.js?v=432'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=432'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera, perfInstanceSource } from './perfStabilizer.js?v=432'; window.__perfInst = perfInstanceSource; import { upgradePlainMaterials } from './plainUpgrade.js?v=432'; import { relayCampusPaths, cleanupCampus } from './campusPaths.js?v=432'; import { installStreetscape } from './streetV2.js?v=432'; import { installCampusGrounds } from './campusGrounds2008.js?v=432'; import { installHudV2, tickHudV2 } from './hudV2.js?v=432'; import { installPartnerRadio, tickPartnerRadio } from './partnerRadio.js?v=432';
-import { installRoomUI } from './roomUI.js?v=432';   // 방별 현장 조사 카드 · 상호작용 아이콘 · 획득/목표 애니메이션
-import { furnishRooms } from './furnishV2.js?v=432';   // 방 용도별 실사 가구 보강 (상담실 소파 · 교무실 냉온수기 · 창고 선반 …)
-import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js?v=432';
-import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, HYPOTHESES, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, COVER_END, ENDING_OUTRO, OUTRO_TYPE, SIDEQUESTS, INTRO_COLD, CHAPTER_BEATS, SMS_FROM, ENDING_EPILOGUE, ENDING_SHOT, ENDING_STINGER, OUTRO_EXTRA_TYPE, HEADQUEST, COLLECT, } from './story.js?v=432';
-import { isSpeechBusy } from './voice.js?v=432';
+import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx, setSfxBusyCheck, setSpace, tickNight } from './audio.js?v=433'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=433'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera, perfInstanceSource } from './perfStabilizer.js?v=433'; window.__perfInst = perfInstanceSource; import { upgradePlainMaterials } from './plainUpgrade.js?v=433'; import { relayCampusPaths, cleanupCampus } from './campusPaths.js?v=433'; import { installStreetscape } from './streetV2.js?v=433'; import { installCampusGrounds } from './campusGrounds2008.js?v=433'; import { installHudV2, tickHudV2 } from './hudV2.js?v=433'; import { installPartnerRadio, tickPartnerRadio } from './partnerRadio.js?v=433';
+import { installRoomUI } from './roomUI.js?v=433';   // 방별 현장 조사 카드 · 상호작용 아이콘 · 획득/목표 애니메이션
+import { furnishRooms } from './furnishV2.js?v=433';
+import { installInteractionsPlus } from './interactionsPlus.js?v=433';   // 생활 상호작용 보강 (분리수거함 · 청소함 · 창밖 · 커튼 · 학급 게시판 · 수업 종 · 카세트 데크 · 정수기)   // 방 용도별 실사 가구 보강 (상담실 소파 · 교무실 냉온수기 · 창고 선반 …)
+import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js?v=433';
+import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, HYPOTHESES, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, COVER_END, ENDING_OUTRO, OUTRO_TYPE, SIDEQUESTS, INTRO_COLD, CHAPTER_BEATS, SMS_FROM, ENDING_EPILOGUE, ENDING_SHOT, ENDING_STINGER, OUTRO_EXTRA_TYPE, HEADQUEST, COLLECT, } from './story.js?v=433';
+import { isSpeechBusy } from './voice.js?v=433';
 import { SET, saveSET, resetSET, DIFF, keyLabel } from './settings.js';
-import { initI18n, setLang, lang as curLang } from './i18n.js?v=432';   // 언어 패치 (한국어 · English · 日本語 · 中文)
+import { detectIntegrated, createDynRes } from './igpu.js?v=433';
+import { initI18n, setLang, lang as curLang } from './i18n.js?v=433';   // 언어 패치 (한국어 · English · 日本語 · 中文)
 initI18n();
 const K = () => SET.keys;
 let guardRoomController = null, guardControlProps = [], guardCctvData = null, campusCctv = null;
@@ -88,10 +91,10 @@ function syncGuardDevices() {
 function toggleGuardCCTV(persist = true) { FL.guardCctvOn = !(FL.guardCctvOn ?? true); sfx.click(); syncGuardDevices(); if (persist) save(true); return FL.guardCctvOn; }
 function toggleGuardLight() { FL.guardLightOn = !(FL.guardLightOn ?? false); sfx.click(); syncGuardDevices(); say(FL.guardLightOn ? '경비실 전등을 켰다' : '경비실 전등을 껐다', 1800); save(true); return FL.guardLightOn; }
 
-import { run as runMini, MG } from './minigames.js?v=432';
+import { run as runMini, MG } from './minigames.js?v=433';
 import { SCHEMA, BUILD, storageKeys, itemUid, propUid, doorUid, assignUids, readSlot, writeSlot, hasSlot, clearSlot, repairProgress } from './saveSystem.js';
 const NOTE_CAST = {
-  n_seomun_ilbo: { spk: 'reporter', audioId: 'call_119', stage: '(📰 서문일보 사회부 한진우 기자의 긴급 특보 리포팅)' },
+  n_seomun_ilbo: { spk: 'reporter', audioId: 'call_119', stage: '(📰 서린일보 사회부 한진우 기자의 긴급 특보 리포팅)' },
   n_guard_diary: { spk: 'guard', audioId: 'mtape_2', stage: '(🔦 당직 경비원 박종철 아저씨의 순찰 기록 증언)' },
   n24:           { spk: 'guard', audioId: 'mtape_2', stage: '(🔦 당직 경비원 박종철 아저씨의 1998.10.12 야간 순찰 일지)' },
   n_principal_tape: { spk: 'principal', audioId: 'mtape_5', stage: '(📼 제9대 교장 한석규의 비상대책회의 극비 녹취)' },
@@ -137,7 +140,7 @@ const NOTE_CAST = {
   n29:           { spk: 'haneul', audioId: 'tape4', stage: '(리허설 시간과 담력 체험 장소가 적힌 하늘이의 첫 번째 메모)' },
   q2a:           { spk: 'friend', audioId: 'echo1', stage: '(기념 방송 끝곡 학교종을 약속한 교환일기 마지막 장)' },
   q2b:           { spk: 'mother', audioId: 'ghThanks', stage: '(폭로 방송을 들은 하늘이 어머니의 전화)' },
-  q6a:           { spk: 'mina', audioId: 'tape2', stage: '(📱 언니 서다은을 위해 서문고에 들어온 민아 선배의 임시저장 글)' },
+  q6a:           { spk: 'mina', audioId: 'tape2', stage: '(📱 언니 서다은을 위해 서린고에 들어온 민아 선배의 임시저장 글)' },
   q6b:           { spk: 'mina', audioId: 'cam1', stage: '(방송실 앞 하늘·수아·다은과 어린 민아의 사진)' },
   q6c:           { spk: 'mina', audioId: 'mw_s', stage: '(📱 민아 선배가 언니 서다은에게 남긴 마지막 음성 녹음)' },
 };
@@ -208,6 +211,10 @@ let chapterShown = 0;
 const canvas = $('c');
 const renderer = await createRenderer({ canvas, pref: SET.engine || 'auto' });   // 신규 엔진: WebGPU(지원 시) · 아니면 WebGL — engine.js
 renderer.setPixelRatio(Math.min(devicePixelRatio, 1.75));
+// 내장 그래픽(Intel UHD/Iris Xe · AMD Vega · Apple) 감지: 처음 실행(자동 품질)이면 'iGPU / 저사양' 경로를 기본으로 — 사용자가 고른 값은 건드리지 않는다
+const GPU_INFO = ENGINE.webgpu ? detectIntegrated(null) : detectIntegrated(renderer);
+if (/[?&]igpu\b/.test(location.search)) SET.quality = 'igpu';   // 테스트용 강제
+else if (!SET.igpuSeen) { if (GPU_INFO.integrated && SET.quality === 'auto') SET.quality = 'igpu'; SET.igpuSeen = true; try { saveSET(); } catch (e) { /* ignore */ } }
 // GPU 확인: 브라우저 하드웨어 가속이 꺼져 소프트웨어 렌더러(SwiftShader · llvmpipe)로 그리면 안내한다
 { const gl = renderer.getContext(), ext = !ENGINE.webgpu && gl && gl.getExtension ? gl.getExtension('WEBGL_debug_renderer_info') : null, gpu = ENGINE.webgpu ? 'WebGPU' : ext ? String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL)) : '';
   window.__gpu = gpu; window.__gpuSoftware = /swiftshader|llvmpipe|software|basic render/i.test(gpu);
@@ -227,7 +234,7 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 const scene = new THREE.Scene();
 const staticLOD = createStaticDistanceLOD(scene);
-const textureBudget = createTextureBudget({ quality: SET.quality === 'auto' ? 'high' : SET.quality });
+const textureBudget = createTextureBudget({ quality: SET.quality === 'auto' ? 'high' : SET.quality === 'igpu' ? 'low' : SET.quality });
 const texWarm = !ENGINE.webgpu && !new URLSearchParams(location.search).has('norender') ? createTexWarm(THREE, renderer, scene) : null;   // 처음 1분: 색 공간 · 이방성 점검 + 텍스처를 프레임마다 조금씩 미리 올림
 scene.background = new THREE.Color(0x05070d);
 scene.fog = new THREE.FogExp2(0x070a12, 0.03);
@@ -286,12 +293,15 @@ flash.castShadow = true; flash.shadow.mapSize.set(1024, 1024); flash.shadow.came
 flash.shadow.bias = -.0006; flash.shadow.normalBias = .03;
 const pool = []; let envLum = 1;
 for (let i = 0; i < 4; i++) { const l = new THREE.PointLight(0xcfe6d6, 0, 12, 1.7); scene.add(l); pool.push(l); }
+let IGPU = false; const IGPU_FAR = 170, BASE_FAR = 320;
+const dynRes = createDynRes({ apply: s => { if (!IGPU) return; perfNote('dynres ' + s); renderer.setPixelRatio(Math.min(devicePixelRatio, 1) * SET.scale * s); renderer.setSize(innerWidth, innerHeight); fx.resize(innerWidth, innerHeight, renderer.getPixelRatio()); } });
+const poolMax = () => IGPU ? 2 : 4;
 
 const _t0 = performance.now();
 await Promise.race([loadPBR(), new Promise(r => setTimeout(r, 2500))]);
 const _t1 = performance.now();
 const world = buildWorld(scene);
-let RBG = null, MOONFX = null;   // 재건축 본관 · 별관 (항상 — 예전 건물 모드 ?oldmap 은 폐지) — rebuildGame.js
+let RBG = null, MOONFX = null, ELEC = null;   // 재건축 본관 · 별관 (항상 — 예전 건물 모드 ?oldmap 은 폐지) — rebuildGame.js
 const npcVisuals = createNPCVisuals({ THREE, GLTFLoader, prepare: async obj => {
   const tex = new Set(); obj.traverse(o => { if (o.material) [].concat(o.material).forEach(m => ['map', 'normalMap', 'roughnessMap', 'metalnessMap', 'aoMap', 'alphaMap', 'emissiveMap'].forEach(k => m[k] && tex.add(m[k]))); });
   await textureBudget.prepareTextures(tex);
@@ -488,7 +498,7 @@ function makeGhostMaterial(low) {
 }
 function buildGhost() {
   const g = new THREE.Group(), inner = new THREE.Group(); g.add(inner);
-  const mat = makeGhostMaterial(SET.quality === 'low');
+  const mat = makeGhostMaterial(SET.quality === 'low' || SET.quality === 'igpu');
   const body = new THREE.Mesh(new THREE.PlaneGeometry(1, 2), mat); body.position.y = 1; body.renderOrder = 5; inner.add(body);
   inner.position.y = .06;   // 살짝 떠 있다
   // 예전 PointLight는 남겨 두되 늘 0 — 조명 개수가 바뀌면 모든 셰이더가 다시 컴파일된다
@@ -593,7 +603,7 @@ const KEY_HINT = [
 ];
 function objective() { const o = objective0(); return o && o.loc && typeof liveLoc === 'function' ? { ...o, loc: liveLoc(o.loc) } : o; }
 function objective0() {
-  if (FL.gatePower) return { ch: 6, main: FL.mina ? '학교의 모든 비밀을 밝혔다 — 민아와 함께 정문 밖 세상으로 나가 폭로하자' : '봉인이 풀린 정문을 통해 세상에 학교의 비밀을 알리자', loc: LOC.gate, subs: [['서문고 은폐 사건 진상 규명 완료', true], ['정문 밖으로 나가 세상에 진실 폭로하기', false]] };
+  if (FL.gatePower) return { ch: 6, main: FL.mina ? '학교의 모든 비밀을 밝혔다 — 민아와 함께 정문 밖 세상으로 나가 폭로하자' : '봉인이 풀린 정문을 통해 세상에 학교의 비밀을 알리자', loc: LOC.gate, subs: [['서린고 은폐 사건 진상 규명 완료', true], ['정문 밖으로 나가 세상에 진실 폭로하기', false]] };
   const n3 = docs.some(d => d.id === 'n3');
   if (!FL.mina && !FL.cam && P.keys === 0) { const inCampusNow = (typeof gateClosed !== 'undefined' && gateClosed) || (typeof introDone !== 'undefined' && introDone) || P.floor !== 0 || P.z < (typeof GATE_Z !== 'undefined' ? GATE_Z - 2.5 : 67.5); return { ch: 1, main: inCampusNow ? '1998년 그날 밤의 비밀을 조사하러 들어간 민아 선배의 캠코더를 찾아라' : '밤의 학교 안으로 들어가 10년 전 은폐된 사건의 첫 단서를 찾아라', loc: inCampusNow ? LOC.cam : LOC.entrance,
     subs: [['본관 진입 및 단서 수색', introDone], ['1-1 교실에서 민아의 캠코더 영상 확인하기', FL.cam]] }; }
@@ -620,7 +630,7 @@ function objective0() {
     return { ch: 4, main: s === 0 ? '5대 비밀 증거를 결속할 교장 직인 코어가 없다 — 교장실 비밀 수첩을 조사하라' : '별관의 봉인된 보안 기록과 CCTV를 복구해 교장 직인 마스터 코어를 찾아라', loc: hp ? { f: hp.floor, x: hp.x, z: hp.z, ...(hp.rbY != null ? { rbY: hp.rbY } : {}), where: st.where } : null,
       subs: HEADQUEST.steps.map((x, i) => [x.goal, s > i]) };
   }
-  if (!FL.gatekey) return { ch: 5, main: '소지품(Tab)에서 5대 비밀 증거 조각과 교장 직인 코어를 조합해 『서문고 진상 규명 기록부』를 완성하라', loc: null, subs: [[`학교 5대 비밀 증거 (${TOTAL}/${TOTAL})`, true], ['교장 직인 마스터 코어', true], ['서문고 진상 규명 마스터 기록부 완성하기', false]] };
+  if (!FL.gatekey) return { ch: 5, main: '소지품(Tab)에서 5대 비밀 증거 조각과 교장 직인 코어를 조합해 『서린고 진상 규명 기록부』를 완성하라', loc: null, subs: [[`학교 5대 비밀 증거 (${TOTAL}/${TOTAL})`, true], ['교장 직인 마스터 코어', true], ['서린고 진상 규명 마스터 기록부 완성하기', false]] };
   if (!FL.mina || !FL.calm) {
     const i=optSteps().indexOf(false), steps=['지하 펌프실에서 윤하늘의 명찰로 진실 확인','지하 전기실 예비 퓨즈와 차단기로 본관 전력 복구','방송실 장비실에서 민아 선배 구출','민아 선배는 조정실, 나는 녹음실 — 1998년 하교 방송 및 은폐 진실 송출'];
     const fuse=world.items.find(it=>it.kind==='fuse');
@@ -812,7 +822,7 @@ const USE = {
   phone_jihun: () => { closeUI(); openPhone('msg'); }, phone_seoyeon: () => { closeUI(); openPhone('msg'); },
   memo_jihun: () => { closeUI(); openPhone('memo'); }, memo_seoyeon: () => { closeUI(); openPhone('memo'); },
   keypiece: () => { startCombine('keypiece'); return '비밀 증거 조각과 교장 직인 코어를 맞춰 보자 — 결합할 대상을 선택'; },
-  gatekey: () => { closeUI(); window.__showSchoolTruthDossier(); return '1998 서문고 진상 규명 마스터 기록부를 열람합니다.'; },
+  gatekey: () => { closeUI(); window.__showSchoolTruthDossier(); return '1998 서린고 진상 규명 마스터 기록부를 열람합니다.'; },
   candy: () => { inv.candy--; P.stamina = 100; P.tired = false; P.fear = Math.max(0, P.fear - .3); sfx.crunch ? sfx.crunch() : sfx.pickup(); consumeFX('candy'); refreshHud(); return '사탕을 깨물었다. 단맛에 숨이 돌아온다.'; },
   thermos: () => { inv.thermos--; P.hp = Math.min(100, P.hp + 20); sfx.sip && sfx.sip(); consumeFX('thermos'); calmDown(30, '따뜻한 차가 목을 타고 내려간다'); refreshHud(); return '유자차를 마셨다. 체력 +20'; },
   nametag: () => (power ? '4층 방송실에서 폭로 방송을 할 때 이 이름을 제대로 불러 줄 수 있다.' : '방송실 장비를 쓰려면 먼저 전기를 살려야 한다.'),
@@ -826,12 +836,14 @@ const USE = {
   hook: () => '수영장 배수구에서 쓸 수 있다.',
   mop: () => { startCombine('mop'); return '무엇과 묶을까?'; }, wire: () => { startCombine('wire'); return '무엇에 감을까?'; },
 };
-const canCombine = id => RECIPES.some(r => r.a === id || r.b === id);
+// 실제로 만들 수 있는 조합만 (경보 함정 · 쇼트 폭탄은 CraftingSystem 레시피에서 빠져 조합하면 늘 실패했다)
+const LIVE_RECIPES = RECIPES.filter(r => !['alarm', 'shock'].includes(r.fn));
+const canCombine = id => LIVE_RECIPES.some(r => r.a === id || r.b === id);
 function craftNow() { const r = craftingSystem.recipes[invSel]; if (!r) return; const ok = craftingSystem.craft(r.resultId, m => { invMsg = m; }); if (ok) { newItems.add({ trap_can: 'alarm', short_bomb: 'shock', med_kit: 'firstaid' }[r.resultId]); refreshHud(); } else sfx.buzz(); renderInv(); }
 function startCombine(id) { combineFrom = id; invMsg = `「${ITEMS[id].name}」과(와) 조합할 아이템을 고르세요 · Esc 취소`; renderInv(); }
 function tryCombine(a, b) {
   combineFrom = null;
-  const r = RECIPES.find(x => (x.a === a && x.b === b) || (x.a === b && x.b === a));
+  const r = LIVE_RECIPES.find(x => (x.a === a && x.b === b) || (x.a === b && x.b === a));
   if (!r) { talk('combineFail', 2200); invMsg = '이 둘은 함께 쓸 수 없다.'; sfx.buzz(); renderInv(); return; }
   if (r.fn === 'recharge') invMsg = useBattery() ? '손전등 배터리를 갈아 끼웠다.' : '';
   else if (r.fn === 'hook') { FL.hook = true; FL.mop = false; FL.wire = false; newItems.add('hook'); sfx.hook(); invMsg = '대걸레 자루에 철사를 감아 갈고리 장대를 만들었다!'; talk('hookMade', 3000); toast('조합 성공', '갈고리 장대 — 수영장 배수구에서 사용'); save(true); }
@@ -839,7 +851,7 @@ function tryCombine(a, b) {
   else if (r.fn === 'gatekey') {
     if (P.keys < TOTAL) { invMsg = `학교 비밀 증거 조각이 부족하다 — ${P.keys} / ${TOTAL}`; sfx.buzz(); }
     else if (!FL.keyhead) { invMsg = '5대 비밀 증거는 모였으나 이를 결속할 교장 직인 마스터 코어가 없다.'; sfx.buzz(); talk('headMissing', 3000); }
-    else { makeGateKey(); invMsg = '5대 비밀 증거와 교장 직인 코어가 결합되어 『서문고 진상 규명 마스터 기록부』가 완성되었다!'; }
+    else { makeGateKey(); invMsg = '5대 비밀 증거와 교장 직인 코어가 결합되어 『서린고 진상 규명 마스터 기록부』가 완성되었다!'; }
   }
   renderInv();
 }
@@ -856,11 +868,11 @@ function tryJump() {
 }
 window.__showSchoolTruthDossier = () => {
   showNote({
-    title: '📁 『1998 서문고등학교 심야 참사 완전 진상 규명 기록부』',
+    title: '📁 『1998 서린고등학교 심야 참사 완전 진상 규명 기록부』',
     text: [
       '<div style="background:#1d1916;color:#f2ead8;padding:12px 14px;border:1px solid #b58c44;margin-bottom:10px;font-size:13px;line-height:1.55;">',
         '<b style="color:#ff8066;font-size:15px;">■ 사건 실체: 1998년 10월 12일 밤 윤하늘(3-2) 지하 펌프실 감금·침수 사망 및 학교 측 5인 조직적 은폐</b><br>',
-        '단순 가출·실종으로 발표되었던 1998년 서문고 방송부 윤하늘 실종 사건은 학내 폭력(담력체험 감금), 시설 안전 방치(비상등·펌프 배선 합선), 그리고 교장 이하 5인의 책임자가 학교 명예를 위해 구조 골든타임을 포기하고 기록을 조작한 <b>조직적 은폐 범죄</b>임이 최종 규명되었다.',
+        '단순 가출·실종으로 발표되었던 1998년 서린고 방송부 윤하늘 실종 사건은 학내 폭력(담력체험 감금), 시설 안전 방치(비상등·펌프 배선 합선), 그리고 교장 이하 5인의 책임자가 학교 명예를 위해 구조 골든타임을 포기하고 기록을 조작한 <b>조직적 은폐 범죄</b>임이 최종 규명되었다.',
       '</div>',
       '<b>1. [교무실 비밀 증거]</b> 교무부장은 방송부장 이준호에게서 지하 펌프실 철문 열쇠를 건네받고도 “버릇을 고쳐준다”며 방치했고, 정전 직후 경비원이 열쇠를 요청했으나 문을 열지 않고 은폐를 주도함.<br>',
       '<b>2. [도서실 비밀 증거]</b> 사서는 교장의 지시로 『집으로 가는 길』 대출 카드를 사후 위조하여 윤하늘이 하교 도중 실종된 것처럼 알리바이를 조작함.<br>',
@@ -871,14 +883,14 @@ window.__showSchoolTruthDossier = () => {
     ].join(''),
     tape: true,
     voiceKey: 'vo_bunker_tape',
-    voiceWho: '📁 1998 서문고 진상 규명 마스터 기록부'
+    voiceWho: '📁 1998 서린고 진상 규명 마스터 기록부'
   });
 };
 function makeGateKey() {
   if (FL.gatekey) return;
   if (!FL.keyhead) { toast('진상 기록부가 완성되지 않는다', '교장 직인 마스터 코어가 없다 — 제4장 목표를 확인하세요', 'warn'); return; }
   FL.gatekey = true; newItems.add('gatekey'); sfx.unlock(); setFace('resolve', 3);
-  toast('『서문고 진상 규명 마스터 기록부』 완성!', '이 학교가 은폐한 5대 비밀이 하나로 증명되었다 · 이제 방송실 송출 및 교문 봉인 해제가 가능하다');
+  toast('『서린고 진상 규명 마스터 기록부』 완성!', '이 학교가 은폐한 5대 비밀이 하나로 증명되었다 · 이제 방송실 송출 및 교문 봉인 해제가 가능하다');
   setTimeout(() => talk('keyMade', 3000), 300);
   if (FL.calm) setTimeout(() => toast('진실이 밝혀졌다', '꺼지지 않던 방송이 멎고, 기억 속 교실이 조용해졌다. ' + (FL.mina ? '민아와 함께 정문 밖으로 나가 세상에 알리자.' : '…4층 방송실의 민아 선배를 구출하자.'), 'opt'), 2600);
   else setTimeout(() => { if (state === 'ui') closeUI(); enrage(); }, 1600);
@@ -890,8 +902,18 @@ function invUse(it) {
   if (state === 'ui' && $('inv').classList.contains('show')) renderInv();
 }
 function zoom(title, big, text) {
-  $('izName').textContent = title; $('izBig').innerHTML = big; $('izText').innerHTML = text; $('invZoom').classList.add('show');
+  $('izName').textContent = title; $('izBig').innerHTML = `<div class="izRot">${big}</div><small class="izHint">드래그 · 방향키로 돌려 보기 · 휠로 확대</small>`; $('izText').innerHTML = text; $('invZoom').classList.add('show');
+  IZ.rx = -8; IZ.ry = 18; IZ.s = 1; izApply();
 }
+// 아이템 자세히 보기: 아이콘을 손에 들고 돌려 보듯 기울이기 (CSS 3D — 드래그 · 방향키 · 휠 확대)
+const IZ = { rx: 0, ry: 0, s: 1, drag: null };
+function izApply() { const r = document.querySelector('#izBig .izRot'); if (r) r.style.transform = `perspective(700px) rotateX(${IZ.rx}deg) rotateY(${IZ.ry}deg) scale(${IZ.s})`; }
+{ const B = $('izBig');
+  if (B) { B.addEventListener('pointerdown', e => { IZ.drag = [e.clientX, e.clientY, IZ.rx, IZ.ry]; B.setPointerCapture?.(e.pointerId); });
+    B.addEventListener('pointermove', e => { if (!IZ.drag) return; const [x0, y0, rx, ry] = IZ.drag; IZ.ry = ry + (e.clientX - x0) * .6; IZ.rx = clamp(rx - (e.clientY - y0) * .5, -70, 70); izApply(); });
+    addEventListener('pointerup', () => { IZ.drag = null; });
+    B.addEventListener('wheel', e => { e.preventDefault(); IZ.s = clamp(IZ.s * (e.deltaY < 0 ? 1.1 : .9), .6, 2.2); izApply(); }, { passive: false });
+    addEventListener('keydown', e => { if (!$('invZoom').classList.contains('show')) return; const d = { ArrowLeft: [0, -15], ArrowRight: [0, 15], ArrowUp: [-12, 0], ArrowDown: [12, 0] }[e.code]; if (!d) return; e.preventDefault(); e.stopPropagation(); IZ.rx = clamp(IZ.rx + d[0], -70, 70); IZ.ry += d[1]; izApply(); }, true); } }
 function renderInv() {
   document.querySelectorAll('#invTabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === invTab));
   const grid = $('invGrid'), det = $('invDetail'); grid.innerHTML = ''; det.innerHTML = '';
@@ -906,7 +928,7 @@ function renderInv() {
       const it = its[i], c = document.createElement('div');
       if (!it) { c.className = 'cell empty'; grid.appendChild(c); continue; }
       c.className = 'cell' + (i === invSel ? ' sel' : '') + (combineFrom ? ' pick' : '') + (it.cat === 'key' ? ' cat-key' : ['candy', 'thermos', 'medkit', 'battery', 'firstaid'].includes(it.id) ? ' cat-use' : '');
-      { const rs = RECIPES.filter(r => r.a === it.id || r.b === it.id); c.title = it.name + (rs.length ? '\n조합: ' + rs.map(r => `${ITEMS[r.a === it.id ? r.b : r.a].name} → ${RESULT[r.fn]}`).join(' · ') : ''); }
+      { const rs = LIVE_RECIPES.filter(r => r.a === it.id || r.b === it.id); c.title = it.name + (rs.length ? '\n조합: ' + rs.map(r => `${ITEMS[r.a === it.id ? r.b : r.a].name} → ${RESULT[r.fn]}`).join(' · ') : ''); }
       c.innerHTML = iconHTML(it.icon) + (it.n > 1 ? `<em>×${it.n}</em>` : '') + (newItems.has(it.id) ? '<span class="new">NEW</span>' : '');
       c.onclick = () => { if (combineFrom) { tryCombine(combineFrom, it.id); return; } invSel = i; invMsg = ''; renderInv(); };
       grid.appendChild(c);
@@ -946,9 +968,9 @@ function renderInv() {
     bindActs([() => line(d.tape, d.fx || 'radio', d.spk), () => zoom(d.title, d.img ? `<img src="assets/img/${d.img}.webp" alt="">` : d.icon, d.text)]);
   }
 }
-const RESULT = { recharge: '손전등 배터리 충전', gatekey: '서문고 진상 규명 마스터 기록부 (비밀 증거 5개 + 교장 직인 코어)', hook: '갈고리 장대', alarm: '경보 함정', shock: '쇼트 폭탄', firstaid: '응급 처치 키트' };
+const RESULT = { recharge: '손전등 배터리 충전', gatekey: '서린고 진상 규명 마스터 기록부 (비밀 증거 5개 + 교장 직인 코어)', hook: '갈고리 장대', alarm: '경보 함정', shock: '쇼트 폭탄', firstaid: '응급 처치 키트' };
 function recipeHTML(id) {
-  const rs = RECIPES.filter(r => r.a === id || r.b === id); if (!rs.length) return '';
+  const rs = LIVE_RECIPES.filter(r => r.a === id || r.b === id); if (!rs.length) return '';
   return `<div style="margin-top:8px;font-size:12px;color:#8cc0e8">${rs.map(r => `조합: ${ITEMS[r.a].name} + ${ITEMS[r.b].name} → <b>${RESULT[r.fn]}</b>`).join('<br>')}</div>`;
 }
 function keyPieceHTML() {
@@ -1027,7 +1049,7 @@ function renderPhone() {
     const sats = under ? 0 : indoor ? 4 + (Math.sin(t * .3) > 0) : 9 + Math.round(Math.sin(t * .2) * 2), acc = under ? null : indoor ? 12 + Math.round(6 + Math.sin(t * .7) * 5) : 3 + Math.round(1.5 + Math.sin(t) * 1.5);
     const jit = acc ? (Math.sin(t * 1.7) * acc * .15) : 0, lat = 37.5145 - (P.z + jit) * 0.0000090, lon = 127.1059 + (P.x - jit) * 0.0000113;
     const hd = ((-P.yaw * 180 / Math.PI) % 360 + 360) % 360, card = ['북', '북동', '동', '남동', '남', '남서', '서', '북서'][Math.round(hd / 45) % 8];
-    const place = (RBG && RBG.where && RBG.where(P.x, P.z, (P.sh || 0) + .5)) || FLOOR_LABEL[P.floor] || '서문고등학교 교정', d = objDir();
+    const place = (RBG && RBG.where && RBG.where(P.x, P.z, (P.sh || 0) + .5)) || FLOOR_LABEL[P.floor] || '서린고등학교 교정', d = objDir();
     B.innerHTML = `<div style="font-family:monospace;padding:6px 4px;color:#cfe8ff">
       <div style="display:flex;justify-content:space-between;font-size:11px;color:${sats ? '#7fdc8a' : '#ff7a6a'}"><span>🛰 위성 ${sats}개</span><span>${acc ? '오차 ±' + acc + 'm' : 'GPS 신호 없음 (지하)'}</span></div>
       <div style="margin:10px auto;width:150px;height:150px;border-radius:50%;border:2px solid #3a5a7a;position:relative;background:radial-gradient(#0e1a26,#071018)">
@@ -1275,7 +1297,7 @@ function noteVoiceFor(id) {
   const isJ = CHAR === 'jihun';
   const pWho = isJ ? '🎙 박지훈 (서현고 2학년)' : '🎙 김서연 (방송부 2학년)';
   const pLine = k => ({ id: 'l_' + k + '_' + (isJ ? 'j' : 's'), fx: 'none', who: pWho });
-  const NV_WHO = { guard: '🔦 당직 경비원 · 박종철 아저씨', nurse: '📼 보건교사 · 임소연 선생님', homeroom: '📼 3-2 담임 · 정은수 선생님', principal: '📼 제9대 교장 · 한석규', headTeacher: '📼 교무부장 · 권오현', scienceTeacher: '📼 과학부장 · 최동혁 선생님', peTeacher: '📼 체육부장 · 강태식 선생님', librarian: '📼 도서실 사서 · 송지혜 선생님', junho: '📼 전 방송부 3학년 · 이준호', haneul: '🕯 윤하늘 (1998년 3-2 방송부)', friend: '📼 단짝 친구 · 이수아', friend2: '📼 단짝 친구 · 서다은', mina: '📱 선배 박민아 (방송부 3학년)', reporter: '📰 서문일보 · 한진우 기자', dormMother: '📼 청운학사 사감 · 문정희', electrician: '📼 전기 기사 · 배만수', snackLady: '📼 매점 아주머니', narrator: '📖 내레이션' };
+  const NV_WHO = { guard: '🔦 당직 경비원 · 박종철 아저씨', nurse: '📼 보건교사 · 임소연 선생님', homeroom: '📼 3-2 담임 · 정은수 선생님', principal: '📼 제9대 교장 · 한석규', headTeacher: '📼 교무부장 · 권오현', scienceTeacher: '📼 과학부장 · 최동혁 선생님', peTeacher: '📼 체육부장 · 강태식 선생님', librarian: '📼 도서실 사서 · 송지혜 선생님', junho: '📼 전 방송부 3학년 · 이준호', haneul: '🕯 윤하늘 (1998년 3-2 방송부)', friend: '📼 단짝 친구 · 이수아', friend2: '📼 단짝 친구 · 서다은', mina: '📱 선배 박민아 (방송부 3학년)', reporter: '📰 서린일보 · 한진우 기자', dormMother: '📼 청운학사 사감 · 문정희', electrician: '📼 전기 기사 · 배만수', snackLady: '📼 매점 아주머니', narrator: '📖 내레이션' };
   if (id === 'nC') return { id: 'nv_nC_' + (isJ ? 'j' : 's'), fx: 'none', who: pWho };
   if (UNVOICED_NOTES.has(id)) return { id: 'note_' + id, fx: 'none', who: '📄 문서' };
   if (id === 'n_seomun_ilbo') return { id: 'news_rep', fx: 'radio', who: NV_WHO.reporter };
@@ -1359,7 +1381,7 @@ window.__readSeomunNewspaper = () => {
   const isJ = CHAR === 'jihun';
   const protagWho = isJ ? '🎙 박지훈 (현장 추리)' : '🎙 김서연 (현장 추리)';
   stopSpeak();
-  line('news_rep', 'radio', '📰 서문일보 사회부 · 한진우 기자').then(() => {
+  line('news_rep', 'radio', '📰 서린일보 사회부 · 한진우 기자').then(() => {
     if (state === 'note') line(isJ ? 'news_j' : 'news_s', 'none', protagWho);
   });
 };
@@ -1372,13 +1394,13 @@ function showNote(it) {
     $('note').innerHTML = [
       '<div style="background:#e8dfc8;color:#181512;padding:18px 22px;border:3px double #2b241d;box-shadow:inset 0 0 28px rgba(60,42,20,0.28);font-family:serif;line-height:1.55;max-width:640px;margin:0 auto;text-align:left;">',
         '<div style="display:flex;justify-content:space-between;align-items:flex-end;border-bottom:3px solid #181512;padding-bottom:6px;margin-bottom:10px;">',
-          '<span style="font-size:11px;font-family:sans-serif;color:#4a3e30;">제4102호 [특별 호외] · 발행처: 서문일보사</span>',
-          '<span style="font-size:24px;font-weight:900;letter-spacing:4px;color:#111;white-space:nowrap;">西 門 日 報 <small style="font-size:13px;letter-spacing:0px;">(서문일보)</small></span>',
+          '<span style="font-size:11px;font-family:sans-serif;color:#4a3e30;">제4102호 [특별 호외] · 발행처: 서린일보사</span>',
+          '<span style="font-size:24px;font-weight:900;letter-spacing:4px;color:#111;white-space:nowrap;">西 門 日 報 <small style="font-size:13px;letter-spacing:0px;">(서린일보)</small></span>',
           '<span style="font-size:11px;font-family:sans-serif;color:#4a3e30;">1998년 10월 13일 (화요일)</span>',
         '</div>',
         '<div style="background:#1c1815;color:#f4ebd4;padding:8px 12px;margin-bottom:12px;text-align:center;">',
-          '<div style="color:#ff6850;font-size:11px;font-family:sans-serif;font-weight:bold;letter-spacing:2px;">[긴급 사회면 특보 · 서문경찰서 수사속보]</div>',
-          '<div style="font-size:19px;font-weight:900;margin-top:3px;line-height:1.3;">“서문고 3학년 윤하늘 양 심야 실종… 지하 펌프실 폴리스라인 설치”</div>',
+          '<div style="color:#ff6850;font-size:11px;font-family:sans-serif;font-weight:bold;letter-spacing:2px;">[긴급 사회면 특보 · 서린경찰서 수사속보]</div>',
+          '<div style="font-size:19px;font-weight:900;margin-top:3px;line-height:1.3;">“서린고 3학년 윤하늘 양 심야 실종… 지하 펌프실 폴리스라인 설치”</div>',
         '</div>',
         '<div style="display:grid;grid-template-columns:1.05fr 1.25fr;gap:14px;font-size:12.5px;border-bottom:1.5px solid #5a4e3e;padding-bottom:12px;">',
           '<div style="background:#d8ceb4;border:1px solid #5a4e3e;padding:10px;">',
@@ -1387,13 +1409,13 @@ function showNote(it) {
             '<div style="font-size:11.5px;line-height:1.45;color:#221d18;">• <b>증거 01호</b>: 복도 쪽 철문 바깥에서 걸린 빗장 (교무부장 보관 열쇠 계통)<br>• <b>증거 02호</b>: 3회 이상 교체 건의가 묵살된 노후 비상등 배선 합선 흔적<br>• <b>증거 03호</b>: 23시 40분에 멈춘 방수 손목시계와 방송 원고</div>',
           '</div>',
           '<div style="text-align:justify;line-height:1.55;color:#1e1914;">',
-            '<b>【서문=특별취재반】</b> 지난 12일 밤 11시 20분경 서문고 본관 대정전 직후 방송부 3학년 2반 <b>윤하늘(18)</b> 양이 실종돼 경찰이 지하 배수 펌프실에 폴리스라인을 설치했다.<br>',
+            '<b>【서린=특별취재반】</b> 지난 12일 밤 11시 20분경 서린고 본관 대정전 직후 방송부 3학년 2반 <b>윤하늘(18)</b> 양이 실종돼 경찰이 지하 배수 펌프실에 폴리스라인을 설치했다.<br>',
             '학교 측은 단순 귀가 지연이라 해명했으나, 당직 경비원의 순찰 일지와 <b>교장실 심야 비상대책회의</b> 정황이 포착되며 조직적 은폐 의혹이 일고 있다.<br>',
             '특히 그날 밤 남아 있던 <b>5명의 책임자(교무실·도서실·과학실·체육관·수영장)</b>가 그날 밤의 원본 기록과 증거를 다섯 몫으로 나눠 각자의 구역에 숨겼다는 증언이 확보됐다. 학교 측은 오늘 아침 추가 취재를 일절 거부했다.',
           '</div>',
         '</div>',
         '<div style="margin-top:10px;display:flex;justify-content:space-between;align-items:center;font-family:sans-serif;">',
-          '<span style="font-size:12px;color:#5a281e;font-weight:bold;">📰 서문일보 사회부 한진우 기자 특보 리포팅 & ' + whoName + '의 현장 추리</span>',
+          '<span style="font-size:12px;color:#5a281e;font-weight:bold;">📰 서린일보 사회부 한진우 기자 특보 리포팅 & ' + whoName + '의 현장 추리</span>',
           '<button onclick="window.__readSeomunNewspaper()" style="background:#7a241c;color:#fff;border:1px solid #221;padding:5px 12px;font-size:12px;font-weight:bold;cursor:pointer;border-radius:3px;">🔊 뉴스 기자 목소리로 특보 다시 듣기</button>',
         '</div>',
       '</div>'
@@ -1418,7 +1440,7 @@ function showNote(it) {
         '<div style="font-size:18px;font-weight:900;color:#ffdca0;border-bottom:1px solid #4a3c2a;padding-bottom:8px;margin-bottom:12px;">📼 ' + tStr + '</div>',
         (it.img ? '<img class="photo" src="assets/img/' + it.img + '.webp" alt="" style="border:3px solid #3a3228;margin-bottom:12px;">' : ''),
         '<div style="font-size:14px;color:#efe6d5;background:rgba(255,245,220,0.04);padding:12px 14px;border-left:3px solid #d48838;border-radius:2px;">' + it.text + '</div>',
-        '<div style="margin-top:12px;display:flex;justify-content:space-between;font-size:11px;color:#9a8c74;font-family:monospace;"><span>AUDIO MAGNETIC ARCHIVE · SEOMUN HIGH</span><span>[클릭 또는 Esc로 닫기]</span></div>',
+        '<div style="margin-top:12px;display:flex;justify-content:space-between;font-size:11px;color:#9a8c74;font-family:monospace;"><span>AUDIO MAGNETIC ARCHIVE · SEORIN HIGH</span><span>[클릭 또는 Esc로 닫기]</span></div>',
       '</div>'
     ].join('');
   } else if (isOfficial) {
@@ -1426,7 +1448,7 @@ function showNote(it) {
       '<div style="background:#f3ebd8;color:#1a1612;padding:20px 24px;border:2px solid #3a3024;box-shadow:0 14px 36px rgba(0,0,0,0.6),inset 0 0 32px rgba(90,68,38,0.18);text-align:left;font-family:serif;line-height:1.65;position:relative;">',
         '<div style="display:flex;justify-content:space-between;align-items:stretch;border-bottom:2px solid #1a1612;padding-bottom:10px;margin-bottom:14px;">',
           '<div>',
-            '<div style="font-size:11px;font-family:sans-serif;color:#6a241c;font-weight:bold;letter-spacing:1.5px;">서문고등학교 대외비 문서 · 제1998-1012호</div>',
+            '<div style="font-size:11px;font-family:sans-serif;color:#6a241c;font-weight:bold;letter-spacing:1.5px;">서린고등학교 대외비 문서 · 제1998-1012호</div>',
             '<div style="font-size:20px;font-weight:900;color:#111;margin-top:4px;">' + tStr + '</div>',
           '</div>',
           '<table style="border-collapse:collapse;font-family:sans-serif;font-size:10.5px;text-align:center;color:#222;background:#ebe1ca;">',
@@ -1437,7 +1459,7 @@ function showNote(it) {
         (it.img ? '<img class="photo" src="assets/img/' + it.img + '.webp" alt="" style="border:2px solid #4a3e30;margin-bottom:12px;">' : ''),
         '<div style="font-size:14.5px;color:#1c1814;min-height:90px;">' + it.text + '</div>',
         '<div style="margin-top:16px;padding-top:8px;border-top:1px solid #8a7b62;display:flex;justify-content:space-between;align-items:center;font-family:sans-serif;font-size:11px;color:#5a4d3c;">',
-          '<span>발행처: 서문고등학교 교무처 · 보존연한: 영구(봉인)</span>',
+          '<span>발행처: 서린고등학교 교무처 · 보존연한: 영구(봉인)</span>',
           '<span style="border:2px solid #b82218;color:#b82218;padding:1px 6px;font-weight:900;transform:rotate(-4deg);display:inline-block;">대 외 비 (極秘)</span>',
         '</div>',
       '</div>'
@@ -1451,7 +1473,7 @@ function showNote(it) {
         '</div>',
         (it.img ? '<img class="photo" src="assets/img/' + it.img + '.webp" alt="" style="margin-bottom:10px;">' : ''),
         '<div style="font-size:14px;color:#201c18;background:#f7f2e6;border:1px solid #b8ac94;padding:12px 14px;">' + it.text + '</div>',
-        '<div style="margin-top:10px;text-align:right;font-size:11px;color:#5a5042;">서문고등학교 행정관리실 · 확인필</div>',
+        '<div style="margin-top:10px;text-align:right;font-size:11px;color:#5a5042;">서린고등학교 행정관리실 · 확인필</div>',
       '</div>'
     ].join('');
   } else {
@@ -1615,7 +1637,7 @@ function interact() {
     if (d.needPower && !power) { sfx.click(); say('철제 덮개가 전자 잠금으로 묶여 있다 — B1 전기실에서 전력을 먼저 복구해야 한다', 3200); addClue('fuse'); return; }
     if (d.needPower && !FL.ev14) { FL.ev14 = true; sfx.alert(); fx.glitch(.4); blackout = .3; caption('삐— 붉은 경광등이 돌며 덮개 잠금이 풀렸다'); }
     if (passDoorBlocked(d)) { sfx.click(); at(.8, 1.2, PASS.doorZ).doorBang(0, .6); say(d.floor === 8 ? '방화문에 반대편에서 빗장이 걸려 꿈쩍도 하지 않는다' : '방화문이 닫혀 빗장이 걸려 있다 — 열려면 방화문에서 E', 2800); return; }
-    if (d.need && !FL.gatekey) { sfx.click(); say(`굳게 봉인되어 있다. 『서문고 진상 규명 마스터 기록부』가 있어야 열린다 (비밀 증거 ${P.keys}/${TOTAL})`, 2600); return; }
+    if (d.need && !FL.gatekey) { sfx.click(); say(`굳게 봉인되어 있다. 『서린고 진상 규명 마스터 기록부』가 있어야 열린다 (비밀 증거 ${P.keys}/${TOTAL})`, 2600); return; }
     if (d.blastDoor) {
       sfx.clank ? sfx.clank(.85) : sfx.doorHinge?.();
       triggerInteractAnim('heavy');
@@ -1954,7 +1976,7 @@ async function useRoomObj(p) {
   }
   if (k === 'east_museum') {
     sfx.click();
-    say('서문고 역사관(1968~1998) — 『1998년 10월 12일 개교 30주년 기념방송 특별전: 3학년 2반 윤하늘 아나운서 선서문』이 유리관 안에 전시되어 있다.', 4200);
+    say('서린고 역사관(1968~1998) — 『1998년 10월 12일 개교 30주년 기념방송 특별전: 3학년 2반 윤하늘 아나운서 선서문』이 유리관 안에 전시되어 있다.', 4200);
     return;
   }
   if (k === 'east_bell') {
@@ -2011,7 +2033,7 @@ async function useRoomObj(p) {
   }
   if (k === 'term') {
     sfx.beep(); const o = objective();
-    $('note').innerHTML = `<pre style="font:13px/1.55 monospace;color:#7fe0a0;background:#061008;padding:14px;border:1px solid #1d4a2a;white-space:pre-wrap;text-align:left">SEOMUN-NET v2.3  (현재 시스템 일시: 2008-10-12)\n&gt; login: guest\n&gt; 마지막 로그 기록: 1998-10-12 23:31 (10년 전 참사 당일 · 3F 방송실)\n&gt; 남은 작업 1건:\n    ${o.main}${o.loc ? '\n    위치: ' + o.loc.where : ''}\n&gt; 시스템 메시지: <span style="color:#e06060">하교 방송이 아직 끝나지 않았습니다</span>\n&gt; _</pre><small>— 단말기 화면</small>`;
+    $('note').innerHTML = `<pre style="font:13px/1.55 monospace;color:#7fe0a0;background:#061008;padding:14px;border:1px solid #1d4a2a;white-space:pre-wrap;text-align:left">SEORIN-NET v2.3  (현재 시스템 일시: 2008-10-12)\n&gt; login: guest\n&gt; 마지막 로그 기록: 1998-10-12 23:31 (10년 전 참사 당일 · 3F 방송실)\n&gt; 남은 작업 1건:\n    ${o.main}${o.loc ? '\n    위치: ' + o.loc.where : ''}\n&gt; 시스템 메시지: <span style="color:#e06060">하교 방송이 아직 끝나지 않았습니다</span>\n&gt; _</pre><small>— 단말기 화면</small>`;
     state = 'note'; $('noteBox').classList.add('show'); storyCalm(10); return;
   }
   if (k === 'chem') {
@@ -2060,7 +2082,7 @@ async function useRoomObj(p) {
     if (!docs.some(d => d.id === 'n_principal_tape')) { addDoc({ id: 'n_principal_tape', kind: 'note' }); giveItem('battery', 1); }
     showNote({
       title: '교장실 비상대책회의 비밀 녹취록 (제9대 교장)',
-      text: '<b>[1998. 10. 12 23:10 교장실 극비 녹취 테이프]</b><br>“보고서에는 단순 실종이라고 썼네. 학교 이름이 『서문일보』 신문에 나는 게 두려웠어… 그 아이 부모에게조차 지하 펌프실 정전 얘기는 절대 하지 말라고 입단속을 시켰지.<br><br>오늘 밤 남아 있던 <b>우리 다섯(교무실·도서실·과학실·체육관·수영장)</b>이 정문 열쇠를 한 조각씩 나누어 맡기로 했네. <b>교장실 괘종시계를 자정(12:00)</b>에 맞추면 서고 금고가 열리네. 정문 열쇠 다섯 조각과 함께 우리가 감춘 기록도 부디 찾아 주게.”',
+      text: '<b>[1998. 10. 12 23:10 교장실 극비 녹취 테이프]</b><br>“보고서에는 단순 실종이라고 썼네. 학교 이름이 『서린일보』 신문에 나는 게 두려웠어… 그 아이 부모에게조차 지하 펌프실 정전 얘기는 절대 하지 말라고 입단속을 시켰지.<br><br>오늘 밤 남아 있던 <b>우리 다섯(교무실·도서실·과학실·체육관·수영장)</b>이 정문 열쇠를 한 조각씩 나누어 맡기로 했네. <b>교장실 괘종시계를 자정(12:00)</b>에 맞추면 서고 금고가 열리네. 정문 열쇠 다섯 조각과 함께 우리가 감춘 기록도 부디 찾아 주게.”',
       tape: true,
       voiceKey: 'tape_principal_secret',
       voiceWho: '📼 당시 교장선생님 비밀 육성 녹음'
@@ -2076,6 +2098,7 @@ async function useRoomObj(p) {
   if (k === 'guardlight') { toggleGuardLight(); return; }
   if (k === 'fac_door') {   // 캠퍼스 시설(대강당 등) 실내 문: 여닫기
     const D = p.fdoor; D.target = D.target > .5 ? 0 : 1; D.open = D.target > .5; p.label = D.open ? '문 닫기' : '문 열기'; sfx.click(); return; }
+  if ((k === 'light_switch' || k === 'elec_panel') && ELEC && ELEC.use(p)) return;   // electrical.js: 회로 · 분전반
   if (k === 'light_switch') {   // 형광등 스위치 (새 본관 · 별관 방마다 + 캠퍼스 건물 출입문 옆)
     const sw = p.sw; sfx.click();
     if (sw.lamps) RBG.toggleSwitch(sw);
@@ -2096,7 +2119,7 @@ async function useRoomObj(p) {
   if (k === 'campus_map_board') { sfx.paper(); say('15,000평 캠퍼스 전역(청운학사 기숙사·청운호 수변공원·과학천문관·중앙학술정보관·스포츠단지·학생회관)이 타일 보행로로 연결되어 있다', 3400); return; }
   if (k === 'pump_newspaper') {
     if (!docs.some(d => d.id === 'n_seomun_ilbo')) { addDoc({ id: 'n_seomun_ilbo', kind: 'note' }); }
-    showNote({ id: 'n_seomun_ilbo', newspaper: true, title: '『서문일보』 1998.10.13 지역신문 특별 호외', text: '' });
+    showNote({ id: 'n_seomun_ilbo', newspaper: true, title: '『서린일보』 1998.10.13 지역신문 특별 호외', text: '' });
     return;
   }
   if (k === 'bunker_light') {
@@ -2112,7 +2135,7 @@ async function useRoomObj(p) {
     if (!docs.some(d => d.id === 'n_bunker_audit')) { addDoc({ id: 'n_bunker_audit', kind: 'note' }); giveItem('battery', 1); }
     showNote({
       title: '지하 방공호 · 1998 재단 비공개 특별감사 녹취록',
-      text: '<b>[1998. 10. 12 심야 5인 책임자 봉인 회의 녹취록 — 제1특수보존서고]</b><br>“오늘 밤 지하 펌프실 건은 단순 실종 사고로 정리한다. 경찰이나 교육청, 『서문일보』에 절대 새어 나가선 안 돼.<br><br>오늘 밤 학교에 남아 있던 <b>우리 다섯 사람(교무실 금고 · 도서실 · 과학실 · 체육관 · 수영장)</b>이 정문 열쇠를 한 조각씩 나눠 맡기로 했다. 다섯 명이 모두 모이기 전엔, 그 누구도 오늘 밤을 다시 열 수 없다.”',
+      text: '<b>[1998. 10. 12 심야 5인 책임자 봉인 회의 녹취록 — 제1특수보존서고]</b><br>“오늘 밤 지하 펌프실 건은 단순 실종 사고로 정리한다. 경찰이나 교육청, 『서린일보』에 절대 새어 나가선 안 돼.<br><br>오늘 밤 학교에 남아 있던 <b>우리 다섯 사람(교무실 금고 · 도서실 · 과학실 · 체육관 · 수영장)</b>이 정문 열쇠를 한 조각씩 나눠 맡기로 했다. 다섯 명이 모두 모이기 전엔, 그 누구도 오늘 밤을 다시 열 수 없다.”',
       tape: true,
       voiceKey: 'vo_bunker_tape',
       voiceWho: '📼 방공호 5인 책임자 비밀 회의 녹취'
@@ -2185,7 +2208,7 @@ function choose(title, text, opts) {
 // 크레딧 카드: 출연 · 제작 목록이 위로 흐르고, 플레이 중 찍은 사진 · 모은 문서 사진이 함께 지나간다
 function creditsHtml() {
   const ph = SHOT.list.slice(-6).map(s => s.src).concat(docs.filter(d => d.img).slice(0, 8).map(d => `assets/img/${d.img}.webp`)).slice(0, 8);
-  return `<div class="roll">${ph.length ? `<div class="cph">${ph.map(src => `<img src="${src}" alt="">`).join('')}</div>` : ''}<div class="logo cl">서문고</div><div class="ctag">잊혀진 시간</div>${CREDITS.map(([a, b]) => `<p><small>${a}</small>${b}</p>`).join('')}<p class="cmem">윤하늘 (1980 – 1998)을 기억하며</p></div>`;
+  return `<div class="roll">${ph.length ? `<div class="cph">${ph.map(src => `<img src="${src}" alt="">`).join('')}</div>` : ''}<div class="logo cl">서린고</div><div class="ctag">잊혀진 시간</div>${CREDITS.map(([a, b]) => `<p><small>${a}</small>${b}</p>`).join('')}<p class="cmem">윤하늘 (1980 – 1998)을 기억하며</p></div>`;
 }
 function playOutro(fin, endId = "normal") {
   const base = ENDING_OUTRO[fin]; if (!base) return Promise.resolve();
@@ -2499,6 +2522,7 @@ function load(preferBackup) {
   // 3) 월드: 아이템 → 장치 → 문 (장치 복원이 아이템 상태를 참고하므로 순서 중요)
   world.items.forEach(it => { if (d.world.items[it.uid]) { it.taken = true; it.mesh.visible = false; } });
   world.props.forEach(p => { const s = d.world.props[p.uid]; if (s) restoreProp(p, s); });
+  if (ELEC) ELEC.restore();   // 스위치 · 차단기 · 외등 모드 (FL.elec)
   world.doorList.forEach(dd => { const v = d.world.doors && d.world.doors[dd.uid]; if (v != null) { dd.target = v; dd.open = v; dd.rect.off = v > .4; dd._slideE = -1; if (dd.leafCols) dd.leafCols.forEach(c => { c.off = true; c.o = -1; }); } }); updateSchoolDoors(world);
   // 4) 필수 아이템 영구 소실 방지: 열쇠 조각 상태를 진행 기록과 맞춘다
   world.items.filter(i => i.kind === 'key').forEach(it => {
@@ -2615,13 +2639,13 @@ function updateGateAutoLock() {
 }
 
 function finishIntro() {
-  // 새 게임: 민아의 음성 메시지("서문일보 호외부터 봐") 다음엔 정문으로 가기 전에 호외부터 펼친다 — 가설은 여기서 시작
+  // 새 게임: 민아의 음성 메시지("서린일보 호외부터 봐") 다음엔 정문으로 가기 전에 호외부터 펼친다 — 가설은 여기서 시작
   if (state === 'intro' && !readingSave && !TEST && !FL.newsIntro) {
     FL.newsIntro = true; stopSpeak(); introText = false; keepNoteVo = true;
     $('intro').classList.remove('show'); $('introTitle').classList.remove('show');
     addDoc({ id: 'n_seomun_ilbo', kind: 'note' });
     const np = world.items.find(i => i.kind === 'note' && i.id === 'n_seomun_ilbo'); if (np) { np.taken = true; np.mesh.visible = false; }
-    showNote({ id: 'n_seomun_ilbo', newspaper: true, title: '『서문일보』 1998.10.13 지역신문 특별 호외', text: '' });
+    showNote({ id: 'n_seomun_ilbo', newspaper: true, title: '『서린일보』 1998.10.13 지역신문 특별 호외', text: '' });
     noteAfter = () => { toast('🧩 가설 노트', '휴대폰 › 연표 탭에 다섯 가설이 기록됐다. 증언 테이프와 문서로 하나씩 검증하자.', 'info'); finishIntro(); };
     return;
   }
@@ -2743,7 +2767,7 @@ function ensureCharsel3D() {
       const sh = new THREE.Mesh(new THREE.PlaneGeometry(1.15, 1.15), new THREE.MeshBasicMaterial({ map: st.shadowTex, transparent: true, depthWrite: false }));
       sh.rotation.x = -Math.PI / 2; sh.position.y = 0.002; sh.renderOrder = -1; sc.add(sh);
       st.scenes[k] = sc; st.focus[k] = k === csPick ? 1 : 0;
-      loader.load(`assets/characters/${k}.glb?v=432`, gltf => {
+      loader.load(`assets/characters/${k}.glb?v=433`, gltf => {
         if (cs3dState !== st) return;   // 받는 사이에 화면을 떠났다
         const m = gltf.scene;
         npcVisuals.enhanceCharacterMaterials?.(m, k);
@@ -3081,7 +3105,7 @@ function updateLighting(dt) {
   hemi.intensity = BRIGHT ? 1.5 : lerp(hemi.intensity, indoors ? lerp(.34, .66, dk) : lerp(.68, 1.15, dk), k) + (indoors && P.floor <= 2 ? lightFlash * (Math.sin(tNow * 60) > 0 ? .9 : .3) : 0);
   if (scene.environment) scene.environmentIntensity = Math.min(.3, hemi.intensity * .28);   // 반사 환경광은 밝기를 따라간다 (어두운 밤 실내는 거의 0)
   fillLight.intensity = lerp(fillLight.intensity, indoors ? 0 : lerp(.85, .5, dk), k);
-  scene.fog.density = lerp(scene.fog.density, indoors ? lerp(.042, .028, dk) : lerp(.014, .0075, dk), k);   // 실내 밤 .05 → .042: 20m 앞이 43% · 35m 끝이 9% 남는다 (예전엔 25m 넘으면 거의 검게 뭉개짐) — 안개색이 거의 검정이라 씻겨 보이지 않는다
+  scene.fog.density = lerp(scene.fog.density, (indoors ? lerp(.042, .028, dk) : lerp(.014, .0075, dk)) * (IGPU ? (indoors ? 1.1 : 1.6) : 1), k);   // 실내 밤 .05 → .042: 20m 앞이 43% · 35m 끝이 9% 남는다 (예전엔 25m 넘으면 거의 검게 뭉개짐) — 안개색이 거의 검정이라 씻겨 보이지 않는다
   if (MOONFX) { MOONFX.tick(dt, camera, dk); perfMark('L.moon'); }
   scene.fog.color.lerp(indoors ? _c1.copy(FOG_IN).lerp(FOG_IN_DAY, dk) : _c1.copy(FOG_OUT).lerp(FOG_DAY, dk), k);
   // Outside window impostors avoid a sudden full-floor render on approach.
@@ -3117,14 +3141,14 @@ function updateLighting(dt) {
     lampTimer = .2;
     const baseLamps = !indoors && P.floor === 0 ? world.campusDesign.lights : F.lamps;
     const lamps=ELV.p&&ELV.cur===P.floor&&ELV.cabinLamp?[...baseLamps,ELV.cabinLamp]:baseLamps;
-    const pyEye = (F ? F.y0 : 0) + (P.sh || 0) + 2.2; const c = lamps.filter(l => l.kind !== 'dead' && !l.off).map(l => ({ l, d: l.cabin&&P.inElev?-1:Math.hypot(l.x - P.x, l.z - P.z, (l.y - pyEye) * .75) })).filter(o => o.d < 16).sort((a, b) => a.d - b.d).slice(0, 4); litD = c.length && !c[0].l.street ? Math.max(0, c[0].d) : 99;
+    const pyEye = (F ? F.y0 : 0) + (P.sh || 0) + 2.2; const c = lamps.filter(l => l.kind !== 'dead' && !l.off).map(l => ({ l, d: l.cabin&&P.inElev?-1:Math.hypot(l.x - P.x, l.z - P.z, (l.y - pyEye) * .75) })).filter(o => o.d < 16).sort((a, b) => a.d - b.d).slice(0, poolMax()); litD = c.length && !c[0].l.street ? Math.max(0, c[0].d) : 99;
     pool.forEach((p, i) => { const o = c[i]; if (o) { p.position.set(o.l.x, o.l.y, o.l.z); p.color.setHex(o.l.cabin?0xfff0d4:o.l.street ? 0xffb468 : 0xdce9ee); p.distance = o.l.cabin?5:o.l.street ? 15 : 12; p.userData.kind = o.l.kind; p.userData.lamp = o.l; p.userData.on = true; } else p.userData.on = false; });
   }
   ELV.light=pool.find(p=>p.userData.on&&p.userData.lamp?.cabin)||null;
   perfMark('L.lamps'); updateGenerator(dt, indoors); perfMark('L.gen');
   pool.forEach((p, i) => {
     if(p.userData.on&&p.userData.lamp?.cabin){p.intensity=power?3.5:2.5;return;}
-    if (!p.userData.on || blackout > 0 || (!indoors && !p.userData.lamp?.street)) { p.intensity = 0; return; }
+    if (!p.userData.on || blackout > 0 || (!indoors && !p.userData.lamp?.street && !p.userData.lamp?.fac)) { p.intensity = 0; return; }
     if (p.userData.lamp?.street) { p.intensity = 22 * (1 - DAY.k * .65); return; }
     const lp = p.userData.lamp, st = lp && lp.start ? tNow - lp.start : 9;
     if (st < 0) { p.intensity = 0; return; }
@@ -3306,7 +3330,7 @@ function updateFace(dt) {
 }
 // [이미지, 제목, 설명, 그 시절 사진 여부]
 const CARDS = {
-  gate: ['gate_night', '서문고 정문', '버려진 시간 속, 멈춘 교실의 풍경'], corridor: ['v_corridor', '본관 복도', '게시판 공지가 모두 뜯겨 나간 복도'],
+  gate: ['gate_night', '서린고 정문', '버려진 시간 속, 멈춘 교실의 풍경'], corridor: ['v_corridor', '본관 복도', '게시판 공지가 모두 뜯겨 나간 복도'],
   class: ['old_class', '교실', '칠판 구석에 지워지다 만 날짜'], office: ['old_office', '교무실', '파쇄기 옆에 쌓인 1998년 서류철'],
   library: ['v_library', '도서실', '반납되지 않은 대출 카드 세 장'], lab: ['v_lab', '과학실', '잠긴 약품장, 지워진 사용 기록'], music: ['v_music', '음악실', '피아노 뚜껑이 열려 있다'],
   art: ['v_art', '미술실', '1998년 졸업 앨범 표지 시안이 남아 있다'], computer: ['v_computer', '컴퓨터실', '포맷된 하드디스크, 남은 로그 하나'], nurse: ['v_nurse', '보건실', '그날 밤의 보건일지가 찢겨 있다'],
@@ -3350,7 +3374,7 @@ function areaCheck(dt) {
   }
   if (k) showCard(k);
 }
-const REF_TITLES = ['서문고 실내 공간 3D 모델링 시트', '서문고 정문 3D 배경 시트', '교실 소품 오브젝트 시트', '서문고 내부 3D 배치도', '서문고 배치도 / 건물 도면', '주인공 캐릭터 시트', '인게임 화면 · UI 구성', '특수 공간 상세 배치도', '상호작용 UI 시트', '체육관 내부 시트', '방송실 내부 배치', '수영장 내부 배치', '방송실 · 수영장 · 지하 B1', '학교 지도', '급식실 배치도', '별관 (특별교실동)', '서문 상세 안내도', '방송실 상세 배치도', '수영장 샤워실 · 탈의실', '전체 배치도 · 오브젝트 · 이펙트 시트', '학교 외부 창문 텍스처 시트', '서문고 외부 설정도', '학교 외관 디자인 시트', '서브 캐릭터 — 민아', '서브 캐릭터 — 경비원'];
+const REF_TITLES = ['서린고 실내 공간 3D 모델링 시트', '서린고 정문 3D 배경 시트', '교실 소품 오브젝트 시트', '서린고 내부 3D 배치도', '서린고 배치도 / 건물 도면', '주인공 캐릭터 시트', '인게임 화면 · UI 구성', '특수 공간 상세 배치도', '상호작용 UI 시트', '체육관 내부 시트', '방송실 내부 배치', '수영장 내부 배치', '방송실 · 수영장 · 지하 B1', '학교 지도', '급식실 배치도', '별관 (특별교실동)', '서문 상세 안내도', '방송실 상세 배치도', '수영장 샤워실 · 탈의실', '전체 배치도 · 오브젝트 · 이펙트 시트', '학교 외부 창문 텍스처 시트', '서린고 외부 설정도', '학교 외관 디자인 시트', '서브 캐릭터 — 민아', '서브 캐릭터 — 경비원'];
 let galTab = 'ref';
 function openGallery(tab = galTab) {
   galTab = tab; document.querySelectorAll('#galTabs button').forEach(b => b.classList.toggle('on', b.dataset.g === galTab));
@@ -3558,7 +3582,7 @@ function frameBody(now) {
       updatePrompt(); perfMark('prompt');
       updateEvents(dt); perfMark('events');
     }
-    updateLighting(dt); perfMark('lighting'); if (RBG) { RBG.tick(dt, P, sfx); RBG.setPower(blackout > 0, GEN.gain, power); }
+    updateLighting(dt); perfMark('lighting'); if (RBG) { RBG.tick(dt, P, sfx); if (ELEC) ELEC.tick(dt); RBG.setPower(blackout > 0, GEN.gain, power); }
     perfMark('rbg.tick'); ghostVisual(dt, tNow); perfMark('ghostVis');
     updateCamera(dt, tNow); perfMark('camera+hud');
   } else if (state === 'intro') {
@@ -3634,12 +3658,14 @@ function flipSwitch(p, on, byPlayer = false) {
   if (p.led && p.led.material) p.led.material.color.setHex(on ? 0x163822 : 0x40ff80);
   const ls = roomLamps(p), t0 = tNow;
   ls.forEach(l => { l.off = !on; l.start = on ? t0 + Math.random() * .25 : 0; l.mesh && (l.mesh.material = (!on || l.kind === 'dead') ? world.mats.matLampDead : l.mat); });
+  if (ELEC) ELEC.legacyApply(p);   // 분전반 차단기 · 건물 전원
   lampTimer = 0;
   if (!byPlayer) return;
   at(p.px, floors[p.floor].y0 + 1.3, p.pz).click();
   if (on) {
     sfx.lightOn();
-    if (ls.length && ls.every(l => l.kind === 'dead')) say('스위치를 올렸지만… 형광등이 모두 나갔다', 2400);
+    if (ELEC && p.elec && !ELEC.feed(p.elec)) say('딸깍 — 불이 들어오지 않는다. 분전반 차단기가 내려가 있다', 2400);
+    else if (ls.length && ls.every(l => l.kind === 'dead')) say('스위치를 올렸지만… 형광등이 모두 나갔다', 2400);
     else if (!FL.switchTip) { FL.switchTip = true; toast('형광등을 켰습니다', '켜진 방은 밝아서 단서를 찾기 쉽다 — 손전등 배터리도 아낄 수 있다', 'info'); }
   }
   P.noiseT = Math.max(P.noiseT || 0, .4);
@@ -3707,7 +3733,7 @@ const LOOKS = [
   [/standing_chalkboard/, '이동식 칠판 보기', () => { sfx.ui(); return '분필로 쓴 글씨: “리허설 22:00 · 끝곡 학교종 · 늦지 마!”'; }],
   [/medical_box/, '구급함 열어 보기', () => { sfx.click(); return '붕대 포장지만 잔뜩. 누군가 급하게 다 써 버렸다.'; }],
   [/fire_alarm/, '화재경보기 살펴보기', () => { sfx.click(); return '유리가 이미 깨져 있다. 그날 밤, 누군가 눌렀지만 울리지 않았다.'; }],
-  [/metal_trash_can/, '쓰레기통 뒤져 보기', () => { sfx.clank(); return pk(['구겨진 방송 원고 한 장 — “모두, 집으로 돌아가세요.”', '찢어진 기사 스크랩. “서문고 ‘단순 실종’…”', '빈 우유팩뿐이다.']); }],
+  [/metal_trash_can/, '쓰레기통 뒤져 보기', () => { sfx.clank(); return pk(['구겨진 방송 원고 한 장 — “모두, 집으로 돌아가세요.”', '찢어진 기사 스크랩. “서린고 ‘단순 실종’…”', '빈 우유팩뿐이다.']); }],
 ];
 const pk = a => a[Math.floor(Math.random() * a.length)];
 function addLookProps() {
@@ -3835,7 +3861,7 @@ function setupAnnex() {
   Object.assign(world.NOTES, {
     n_duty_roster: { title: '경비실 근무 교대표 (1998년 10월)', text: '<b>[정문 경비실 근무 교대표]</b><br>• 주간 06:00~18:00 — 김영수<br>• 야간 18:00~06:00 — <b>박종철</b> (10/12 당직)<br><br>10/12 칸 옆 빨간 펜: <i>“22:40 교무부장 지시 — 오늘 B1 순찰 제외. 지하는 내가 본다고 함.”</i><br>그 아래 다른 글씨: <i>“10/13부터 박종철 근무 제외 (재단 지시)”</i>' },
     n_guard_calendar: { title: '경비실 달력 — 1998년 10월', text: '10월 12일에 동그라미 — <b>“개교기념 방송 · 늦게까지 학생 있음”</b>.<br>10월 13일 칸: <i>“재단 이사장 방문 09:00 — 아무 말도 하지 말 것”</i><br>10월 20일 칸이 볼펜으로 세게 지워져 있다. 뒤로 비치는 글씨 — <b>“사직서”</b>.' },
-    n_guard_contacts: { title: '비상연락망 (1998)', text: '<b>[서문고 비상연락망]</b><br>• 교장실 — 내선 101<br>• 교무부장 — 내선 103 · 자택 (지워짐)<br>• 방송실 — 내선 201<br>• 정문 경비실 — 내선 100<br>• 야간 경비 박종철 — 자택 <b>031-562-0915</b><br>• 서문일보 사회부 — 02-735-1998 <i>(연필로 나중에 적어 넣은 듯)</i>' },
+    n_guard_contacts: { title: '비상연락망 (1998)', text: '<b>[서린고 비상연락망]</b><br>• 교장실 — 내선 101<br>• 교무부장 — 내선 103 · 자택 (지워짐)<br>• 방송실 — 내선 201<br>• 정문 경비실 — 내선 100<br>• 야간 경비 박종철 — 자택 <b>031-562-0915</b><br>• 서린일보 사회부 — 02-735-1998 <i>(연필로 나중에 적어 넣은 듯)</i>' },
     n_guard_locker: { title: '경비원 사물함 — 박종철', text: '구겨진 근무복 아래, 가족사진 한 장과 <b>쓰다 만 사직서</b>.<br><i>“본인은 1998년 10월 12일 밤, 상부 지시로 지하 순찰을 하지 않았으며, 그 결정에 따른 결과를 평생…”</i><br>마지막 줄은 비어 있다. 구급 밴드와 건전지가 함께 들어 있었다.' },
     n_key_ledger: { title: '경비실 열쇠 대출 장부 (1998.10)', text: '<b>[열쇠 대출 장부 — 1998년 10월 12일]</b><br>• 18:05 방송실 열쇠 — 방송부 윤하늘 · 반납 21:55<br>• 19:30 체육관 열쇠 — 체육부장 강태식 · 반납 21:10<br>• 20:40 본관 숙직실 — 교무부장 · 반납 20:50<br>• <b>22:50 지하 펌프실 열쇠 — 교무부장 (서명)</b> · 반납 <b>—</b><br><br>장부 맨 아래, 경비장 글씨: <i>“보관함 번호는 마지막으로 나간 열쇠의 시각으로 바꿀 것.”</i><br><br>표지 안쪽 연필 메모: <i>박종철 (야간) 자택 031-562-0915</i>' },
     n_lost_badge: { title: '분실물 상자 — 방송부 명찰', text: '먼지 쌓인 분실물 상자 맨 밑, <b>“방송부 · 윤하늘”</b> 명찰이 있다.<br>뒷면에 볼펜으로 — <i>“10/12 기념 방송 끝나면 엄마한테 바로 전화.”</i><br>상자 구석에서 손전등 건전지 하나를 찾았다.' },
@@ -3923,7 +3949,7 @@ function case5Place() {
 }
 function setupCase5() {
   Object.assign(world.NOTES, {
-    n_fund_receipt: { title: '교장실 금고 — 재단 송금 확인서 (1998.10.13)', text: '<b>[서문학원 재단 → 학교 · 긴급 집행]</b><br>• 일자: 1998년 10월 13일 (사고 다음 날)<br>• 항목: <b>“언론 대응비”</b> 3,000만 원 · <b>“유가족 합의 선지급”</b> 2,000만 원<br>• 비고: <i>“B1 관련 기록 일체 재단 보관. 교무부장 전보 조치.”</i><br><br>결재란 서명 — 교장, 재단 이사장.' },
+    n_fund_receipt: { title: '교장실 금고 — 재단 송금 확인서 (1998.10.13)', text: '<b>[서린학원 재단 → 학교 · 긴급 집행]</b><br>• 일자: 1998년 10월 13일 (사고 다음 날)<br>• 항목: <b>“언론 대응비”</b> 3,000만 원 · <b>“유가족 합의 선지급”</b> 2,000만 원<br>• 비고: <i>“B1 관련 기록 일체 재단 보관. 교무부장 전보 조치.”</i><br><br>결재란 서명 — 교장, 재단 이사장.' },
     n_attend: { title: '3-2 출석부 — 마지막 칸', text: '<b>[1998.10.12 · 3학년 2반]</b><br>윤하늘 — <b>출석</b><br><br>십 년 만에 채워진 칸. 펜 자국 아래로, 지워진 연필 글씨가 비친다.<br><i>“결석 처리 요망 — 교무부”</i>' },
     n_junho_testimony: { title: '증언 녹음 — 이준호 (전 방송부)', text: '<b>[카세트 녹음 · 실명 증언]</b><br>“저는 1998년 10월 12일 밤, 교무부장 선생님 지시로 펌프실 철문을 잠갔습니다. 안에 하늘이가 있는 걸 알았습니다.<br>열쇠는 바로 교무부장 선생님께 드렸고, <b>‘아침에 내가 연다’</b>고 하셨습니다.<br>그 문은 아침까지 열리지 않았습니다.”<br><br>— 이준호, 서명 대신 이름을 세 번 또박또박 말했다.' },
   });
@@ -4728,7 +4754,7 @@ tool('hairpin', 6, -37.6, .45, 28.3, mkPin(), '머리핀 줍기', 0xffd0e0);    
 tool('fuse', 4, SLOTS[7] - 1.5, .91, -4.15, mkFuse(), '예비 퓨즈 줍기', 0xa0e0ff);          // 지하 기계실 정비 작업대
 tool('mop', 4, SLOTS[6] - 1.0, .02, -6.8, mkMop(), '대걸레 자루 줍기', 0xffe0a0);          // 지하 청소도구실
 tool('wire', 8, ANNEX.slots[3] + 2.9, .77, -4.8, mkWire(), '철사 뭉치 줍기', 0xffe0a0);    // 별관 1F 기술·가정실 (cx = 8)
-[[0, -20, -1.25], [0, 12, -1.25], [1, -4, -1.25], [1, 28, -1.25], [2, 4, -1.25], [2, -30, -1.25], [5, 35, 25], [7, -36, 18.5]].forEach(([f, x, z]) => tool('can', f, x, .0, z, mkCan(), '빈 캔 줍기', 0xffffff));
+// 복도 바닥에 흩어 두던 빈 캔 8개는 정리했다(잡동사니) — 빈 캔은 수색 · 보관함 · 분리수거함 · 아이스박스에서만 나온다
 // 열쇠 조각을 지키는 자물쇠들
 lockBox(8, ANNEX.slots[4] + .6, .75, -8.6, 0, 'pick', { keyIdx: 1, label: '대출 데스크 서랍 따기', tol: 10 });
 lockBox(9, ANNEX.slots[4] - 2.4, .92, -4.8, Math.PI / 2, 'dial', { keyIdx: 2, code: '314', label: '약품장 다이얼 자물쇠', clue: 'n17', clueText: '칠판 메모 — 원주율 앞 세 자리' });
@@ -4904,7 +4930,8 @@ function updateThrows(dt) {
 
 
 // 조합 재료 줍기: 절연 테이프(공예실 · 별관 작업실 · 방송실) · 보건실 진정제(보건실 · 보건실 보조)
-const PICK_SPOTS = [['tape', 2, -13.8, .87, -4.6], ['tape', 9, -18.0, .87, 4.8], ['tape', 1, 10.0, .02, 1.35], ['sedative', 0, -18.6, .02, .7], ['sedative', 8, 6.0, .02, 1.35]];
+// 절연 테이프 줍기 3곳은 뺐다: 테이프는 경보 함정 조합에만 쓰였는데 그 조합(괴물 대비용)이 CraftingSystem 에서 빠져 쓸 데가 없다
+const PICK_SPOTS = [['sedative', 0, -18.6, .02, .7], ['sedative', 8, 6.0, .02, 1.35]];
 function spawnPicks() {
   const tapeG = new THREE.TorusGeometry(.06, .028, 8, 18), botG = new THREE.CylinderGeometry(.035, .035, .1, 12);
   const tapeM = new THREE.MeshStandardMaterial({ color: 0x141414, roughness: .55 }), botM = new THREE.MeshStandardMaterial({ color: 0x8a5a24, roughness: .25, transparent: true, opacity: .9 });
@@ -5193,15 +5220,18 @@ function libraryReturn() {
 }
 
 /* ---------- 성능 / 그래픽 품질 ---------- */
-const QUAL = { ultra: { pr: 2, sh: 2048, label: '최고' }, high: { pr: 1.5, sh: 1024, label: '높음' }, mid: { pr: 1, sh: 512, label: '보통' }, low: { pr: 1, sh: 0, label: '낮음' } };
+const QUAL = { ultra: { pr: 2, sh: 2048, label: '최고' }, high: { pr: 1.5, sh: 1024, label: '높음' }, mid: { pr: 1, sh: 512, label: '보통' }, low: { pr: 1, sh: 0, label: '낮음' }, igpu: { pr: 1, sh: 512, label: '저사양' } };
+// iGPU / 저사양: 후처리 · 달빛 기둥 · 먼지 · LOD 는 '낮음' 단계로, 그림자는 끄지 않고(셰이더 재컴파일 방지) 512 맵, 텍스처 512 상한, 시야 거리 · 안개 단축, 풀 조명 2개, 동적 해상도 0.6~1.0
 let perfUp = 0; const perfDowned = {};
 let qCur = SET.quality === 'auto' ? 'mid' : SET.quality, perfAcc = 0, perfN = 0, perfWin = 0, fpsShown = 60;
 function applyQuality(q) {
-  qCur = q; const c = SET.quality === 'auto' && q === 'low' ? { pr: .85, sh: 256 } : QUAL[q];   // 자동 조정: 그림자를 끄면 모든 재질 셰이더를 다시 만들어 수 초 멈춘다 → 끄지 않고 해상도 · 그림자 크기만 줄인다
+  const ig = q === 'igpu'; const c = ig ? QUAL.igpu : SET.quality === 'auto' && q === 'low' ? { pr: .85, sh: 256 } : QUAL[q]; if (ig) q = 'low';
+  if (IGPU !== ig) { IGPU = ig; pool.forEach((l, i) => { l.visible = i < poolMax(); }); camera.far = ig ? IGPU_FAR : BASE_FAR; camera.updateProjectionMatrix(); }
+  qCur = q;   // 자동 조정: 그림자를 끄면 모든 재질 셰이더를 다시 만들어 수 초 멈춘다 → 끄지 않고 해상도 · 그림자 크기만 줄인다
   const q3 = q === 'ultra' ? 'high' : q;   // 텍스처 예산 · 후처리는 high 와 같은 단계 (픽셀 비율 · 그림자만 더 높다)
-  if (SET.quality !== 'auto' || !textureBudget._autoSet) { textureBudget._autoSet = SET.quality === 'auto'; textureBudget.setQuality(SET.quality === 'auto' ? 'high' : q === 'ultra' ? 'ultra' : q3).catch(e => console.warn('[texture budget]', e)); }   // 자동 품질이 오르내릴 때마다 모든 텍스처를 줄였다 다시 올리며(수백 장 재업로드) 렉이 반복됐다 → 자동 조정은 해상도 · 그림자만
-  renderer.setPixelRatio(Math.min(devicePixelRatio, c.pr) * SET.scale); renderer.setSize(innerWidth, innerHeight); fx.resize(innerWidth, innerHeight, renderer.getPixelRatio()); fx.setQuality(q3); if (fx.setAO) fx.setAO(q === 'ultra' && SET.quality === 'ultra');   // 최고 품질을 직접 고른 경우에만 주변광 차폐
-  if (MOONFX) MOONFX.setQuality(q); if (texWarm) texWarm.setQuality(q);   // 달빛 기둥 · 먼지: 높음 이상만
+  if (SET.quality !== 'auto' || !textureBudget._autoSet) { textureBudget._autoSet = SET.quality === 'auto'; textureBudget.setQuality(SET.quality === 'auto' ? 'high' : IGPU ? 'low' : q === 'ultra' ? 'ultra' : q3).catch(e => console.warn('[texture budget]', e)); }   // 자동 품질이 오르내릴 때마다 모든 텍스처를 줄였다 다시 올리며(수백 장 재업로드) 렉이 반복됐다 → 자동 조정은 해상도 · 그림자만
+  renderer.setPixelRatio(Math.min(devicePixelRatio, c.pr) * SET.scale * (IGPU ? dynRes.scale : 1)); renderer.setSize(innerWidth, innerHeight); fx.resize(innerWidth, innerHeight, renderer.getPixelRatio()); fx.setQuality(q3); if (fx.setAO) fx.setAO(q === 'ultra' && SET.quality === 'ultra');   // 최고 품질을 직접 고른 경우에만 주변광 차폐
+  if (MOONFX) MOONFX.setQuality(q); if (texWarm) texWarm.setQuality(q); dynRes.setEnabled(IGPU);   // 달빛 기둥 · 먼지: 높음 이상만
   const sh = c.sh > 0;
   if (sh && flash.shadow.mapSize.x !== c.sh) { flash.shadow.mapSize.set(c.sh, c.sh); if (flash.shadow.map) { flash.shadow.map.dispose(); flash.shadow.map = null; } }
   if (renderer.shadowMap.enabled !== sh || flash.castShadow !== sh) {
@@ -5212,10 +5242,11 @@ function applyQuality(q) {
 let qPending = null; const qRun = () => { const f = qPending; qPending = null; if (f) { perfNote('quality change'); f(); perfAcc = perfN = perfWin = 0; } };
 function perfTick(dt) {
   if (state !== 'playing') return;
+  dynRes.tick(dt);
   perfAcc += dt; perfN++; perfWin += dt;
   if (perfWin >= 2.5) {
     const fps = perfN / perfAcc; fpsShown = fps; perfAcc = 0; perfN = 0; perfWin = 0;
-    $('fps').textContent = `${fps.toFixed(0)} FPS · ${QUAL[qCur].label}`;
+    $('fps').textContent = `${fps.toFixed(0)} FPS · ${IGPU ? QUAL.igpu.label + ' ' + Math.round(dynRes.scale * 100) + '%' : QUAL[qCur].label}`;
     // 품질 전환(해상도 · 그림자 맵 · 후처리 버퍼 다시 만들기)은 한 프레임이 길게 멎는다 → 걷는 도중이 아니라 멈춰 섰을 때 바꾼다 (낮출 때는 최대 4초, 올릴 때는 20초까지 기다림)
     if (SET.quality === 'auto' && fps < 38 && qCur !== 'low') { perfUp = 0; const to = qCur === 'high' ? 'mid' : 'low'; qPending = () => { if (SET.quality !== 'auto' || qCur === to) return; applyQuality(to); toast('그래픽 품질 자동 조정', `${QUAL[qCur].label}(으)로 낮췄습니다`, 'info'); }; whenIdle(qRun, 4000); }
     else if (SET.quality === 'auto' && fps > 56 && qCur !== 'high' && !perfDowned[qCur]) { if (++perfUp >= 3) { perfUp = 0; const from = qCur, to = qCur === 'low' ? 'mid' : 'high'; qPending = () => { if (SET.quality !== 'auto' || qCur !== from) return; applyQuality(to); perfDowned[from] = false; toast('그래픽 품질 자동 조정', `여유가 있어 ${QUAL[qCur].label}(으)로 올렸습니다`, 'info'); }; whenIdle(qRun, 20000); } }
@@ -5321,7 +5352,7 @@ const sqProps = [];
     }
     const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; return t;
   };
-  const bookCoverTex = mkLabelTex('#4e2022', '#d4af37', '1998 학급 출석부', '서문고등학교 제3학년', ['담임 : 정 은 수', '학급 인원 : 36명', '10월 13일 : 윤하늘']);
+  const bookCoverTex = mkLabelTex('#4e2022', '#d4af37', '1998 학급 출석부', '서린고등학교 제3학년', ['담임 : 정 은 수', '학급 인원 : 36명', '10월 13일 : 윤하늘']);
   const docSheetTex = mkLabelTex('#f3ebd8', '#3c4e5c', '1998 방송부 기록서', '창립 30주년 기념방송', ['일시 : 1998. 10. 12', '장소 : 4층 방송실 / B1', '담당 : 3-2 윤하늘']);
   const letterEnvTex = mkLabelTex('#f6efe0', '#8c3b32', '하늘이 어머님께', '3학년 2반 담임 정은수 올림', ['학교의 발표는 사실이', '아닙니다. 하늘이는', '그날 밤 학교에 있었습니다.']);
 
@@ -5672,7 +5703,7 @@ function headEvent(ev, p) {
     setTimeout(() => { sfx.staticNoise && sfx.staticNoise(.4); caption('…녹화 시각이 1998.10.12 23:10으로 찍혀 있다'); }, 2200);
   } else if (ev === 'head') {
     FL.keyhead = true; newItems.add('keyhead'); sfx.key(); setFace('resolve', 3); if (p.keyMeshes) p.keyMeshes.forEach(m => { m.visible = false; });
-    toast('교장 직인 마스터 코어를 확보했습니다!', '소지품(Tab)에서 5대 비밀 증거와 조합하면 『서문고 진상 규명 기록부』가 완성된다', 'opt'); setTimeout(() => talk('headFound', 3200), 400);
+    toast('교장 직인 마스터 코어를 확보했습니다!', '소지품(Tab)에서 5대 비밀 증거와 조합하면 『서린고 진상 규명 기록부』가 완성된다', 'opt'); setTimeout(() => talk('headFound', 3200), 400);
     if (!FL.calm) setTimeout(() => {
       setTimeout(() => { caption('“…그 사람은, 내려오지 않았어.”'); headLure(25); }, 1800);
     }, 3800);
@@ -6649,7 +6680,7 @@ function fzAfter(id) {
   if (id === 'science_acid_craft' && M.scienceAcidCrafted) { newItems.add('acid'); sfx.drip(); }
   if (id === 'rooftop_rusted_door' && M.rooftopDoorMelted) { sfx.spark(); for (let k = 0; k < 24; k++) fx.emit(16.5, ROOF_Y + 1.0, 4.7, (Math.random() - .5) * .4, Math.random() * .8, (Math.random() - .5) * .4, 1.6, [.5, .9, .4], .45, .35, -.2, .6, 1.2); }
   if (id === 'rooftop_generator' && M.rooftopGeneratorOn) { sfx.genChug(1.2); shake = .3; }
-  if (id === 'rooftop_antenna_signal' && M.rooftopSignalSent) { FL.sos = true; sfx.phone(); setTimeout(() => toast('📱 문자 전송됨 — 119', '“서문고 본관 옥상. 갇혀 있음. 살려 주세요.” · 진 엔딩 조건', 'opt'), 1600); }
+  if (id === 'rooftop_antenna_signal' && M.rooftopSignalSent) { FL.sos = true; sfx.phone(); setTimeout(() => toast('📱 문자 전송됨 — 119', '“서린고 본관 옥상. 갇혀 있음. 살려 주세요.” · 진 엔딩 조건', 'opt'), 1600); }
   if (id === 'cafeteria_frozen_key' && M.frozenKeyObtained) newItems.add('frozenkey');
   if (id === 'cafeteria_gas_stove' && M.frozenKeyMelted) FZ.flameT = 3.5;
   if (id === 'cafeteria_gas_stove' && !M.frozenKeyObtained) FZ.flameT = 1.5;
@@ -6704,7 +6735,7 @@ function zoneLabel() {
       if (Math.abs(x - zc.x) <= zc.w / 2 + 2.5 && Math.abs(z - zc.z) <= zc.d / 2 + 2.5) return zc.name;
     }
     if (x > 53 && x < 67 && z > -54 && z < -46) return '생물부 생태온실 · 기상관측소';
-    if (x > 58 && x < 69 && z > 14 && z < 26) return '서문 학교 매점';
+    if (x > 58 && x < 69 && z > 14 && z < 26) return '서린 학교 매점';
     if (x > 29 && x < 41 && z > -54 && z < -39) return '해교 야외 음악당';
     if (Math.abs(x - FAC_ZONES.aud.cx) < 10 && Math.abs(z - FAC_ZONES.aud.cz) < 14) return '대강당';
     if (Math.abs(x - MEGA.court.x) < 9 && Math.abs(z - MEGA.court.z) < 9) return '중앙 중정';
@@ -7385,15 +7416,15 @@ function installBcastDetail() {
   // 큐시트 흩어짐 (콘솔 앞 바닥)
   for (let k = 0; k < 6; k++) box(PAPER, X1 + 2.2 + (k % 3) * .35, .035 + k * .001, Z1 + 2.4 + (k * 1.7 % 2.2), .21, .002, .297, k * .9);
   // 콘솔 끝 테이프 케이스 더미 · 종이컵 2
-  for (let k = 0; k < 7; k++) { box(CASE, X1 + 1.2, .9 + k * .026, Z1 + 6.85, .14, .024, .1, (k % 3) * .08); box(LBL, X1 + 1.2, .9 + k * .026, Z1 + 6.85 + .051, .1, .012, .002, (k % 3) * .08); }
-  [[X1 + 1.3, Z1 + 1.0], [X1 + 1.25, Z1 + 1.15]].forEach(([x, z]) => { const c = new THREE.Mesh(new THREE.CylinderGeometry(.04, .03, .09, 12), CUP); c.position.set(x, Y + .95, z); g.add(c); });
+  for (let k = 0; k < 7; k++) { box(CASE, X1 + 1.15, .732 + k * .026, Z1 + 9.05, .14, .024, .1, (k % 3) * .08); box(LBL, X1 + 1.15, .732 + k * .026, Z1 + 9.05 + .051, .1, .012, .002, (k % 3) * .08); }   // CCTV 녹화기 받침 위 (예전: 서쪽 벽 앞 허공 0.9m)
+  [[X1 + 3.22, Z1 + 8.98], [X1 + 3.23, Z1 + 9.5]].forEach(([x, z]) => { const c = new THREE.Mesh(new THREE.CylinderGeometry(.04, .03, .09, 12), CUP); c.position.set(x, Y + .785, z); g.add(c); });   // 영상 편집석 책상 위 (예전: 허공)
   // 걸어 둔 헤드폰 (랙 옆면 고리)
   { const h = new THREE.Mesh(new THREE.TorusGeometry(.09, .012, 6, 16, Math.PI), BLK); h.position.set(X1 + 2.25, Y + 1.55, Z1 + .78); g.add(h); [-1, 1].forEach(s => { const e = new THREE.Mesh(new THREE.CylinderGeometry(.045, .045, .035, 12), BLK); e.rotation.x = Math.PI / 2; e.position.set(X1 + 2.25 + s * .09, Y + 1.5, Z1 + .78); g.add(e); }); }
   // ── 고증 보강 2 ── XP = 유리벽, 녹음실 = XP 동쪽
   { const XP = X1 + 9, WOOD = mk(0x6a4a30, .7), STEEL = mk(0x8a9094, .45, .6), CRT = mk(0x2a2c2e, .5), SCR = new THREE.MeshStandardMaterial({ color: 0x1a2a3a, emissive: 0x30506a, emissiveIntensity: .35, roughness: .2 }), TAPE = mk(0xe8d020, .8), WHITE = mk(0xf0eee8, .8), RED = mk(0xb02020, .6);
     // 콘솔 위: 원고 묶음 · 카세트 3 · 볼펜 (운영자 쪽 가장자리)
-    box(PAPER, XP - 2.15, .9, Z1 + 2.2, .21, .012, .3, .2); box(PAPER, XP - 2.15, .913, Z1 + 2.22, .21, .002, .297, .05);
-    for (let k = 0; k < 3; k++) { box(CASE, XP - 2.1, .9, Z1 + 5.3 + k * .13, .1, .016, .066, .3 * k); box(LBL, XP - 2.1, .909, Z1 + 5.3 + k * .13, .07, .002, .04, .3 * k); }
+    box(PAPER, XP - 1.86, .815, Z1 + 2.2, .21, .012, .3, .2).rotation.z = .16; box(PAPER, XP - 1.86, .828, Z1 + 2.22, .21, .002, .297, .05).rotation.z = .16;   // 콘솔 운영자 쪽 가장자리 (경사면 위)
+    for (let k = 0; k < 3; k++) { box(CASE, XP - 1.86, .822, Z1 + 5.3 + k * .13, .1, .016, .066, .3 * k); box(LBL, XP - 1.86, .831, Z1 + 5.3 + k * .13, .07, .002, .04, .3 * k); }
     // 녹음실 앵커 데스크(X1+15.2~15.9 · z 1.7~4.5): 대본 2부 · 물병 2 · 이름표 「진행 · 하늘」
     [[2.5], [3.8]].forEach(([z]) => { box(PAPER, X1 + 15.6, .81, Z1 + z, .21, .006, .297, .1); const bt = new THREE.Mesh(new THREE.CylinderGeometry(.033, .033, .22, 12), mk(0xc8e0f0, .1, 0)); bt.material.transparent = true; bt.material.opacity = .55; bt.position.set(X1 + 15.35, Y + .91, Z1 + z + .3); g.add(bt); });
     { const c = document.createElement('canvas'); c.width = 256; c.height = 64; const q = c.getContext('2d'); q.fillStyle = '#f4f0e4'; q.fillRect(0, 0, 256, 64); q.fillStyle = '#1c2a48'; q.font = 'bold 34px sans-serif'; q.textAlign = 'center'; q.textBaseline = 'middle'; q.fillText('진행 · 윤하늘', 128, 34);
@@ -7441,6 +7472,10 @@ function installBcastDetail() {
   const add = (x, z, y, label, fn) => world.props.push({ kind: 'look', floor: 0, rbY: Y, x, z, y: Y + y, r: 1.4, label, fn, n: 0, _rb: true });
   add(X1 + 2.5, Z1 + 2.8, .3, '바닥의 큐시트 주워 보기', p => { sfx.paper(); return p.n++ % 2 ? '“23:40 — 하교 방송 (윤하늘) / 끝곡: 학교종” 그 줄에만 빨간 펜으로 동그라미가 쳐져 있다.' : '1998.10.12 리허설 큐시트. “22:00 마이크 체크 · 22:30 담력 체험(?) · 23:40 본방” — 누군가 물음표를 꾹꾹 눌러 썼다.'; });
   add(X1 + 2.25, Z1 + 1.1, 1.4, '걸어 둔 헤드폰 써 보기', () => { sfx.staticNoise(.6); P.fear = Math.min(1, (P.fear || 0) + .06); return pk(['지직거리는 잡음 사이로 숨소리가 들린다. 아주 가까이서.', '“…들려? 수아야, 다은아…” 헤드폰을 벗자 방 안이 너무 조용하다.', '아무 소리도 나지 않는다. 그런데 오른쪽 귀만 차갑다.']); });
+  // 방송실 안에서 허공에 뜬 소비 아이템을 받침 위로 (감사: 건전지 1.11m · 응급 밴드 0.39m 가 아무것도 없는 자리에 떠 있었다)
+  for (const it of world.items) { if (it.taken || !it.pos || !it.mesh || Math.abs(it.pos.y - Y - .8) > 1.2 || it.pos.x < X1 || it.pos.x > X1 + 17.8 || it.pos.z < Z1 || it.pos.z > Z1 + 10) continue;
+    const to = it.kind === 'battery' ? [X1 + 12.1, .8, Z1 + 7.0] : it.kind === 'medkit' ? [X1 + 12.55, .78, Z1 + 7.65] : null; if (!to) continue;   // 둘 다 라디오 토크 원탁 위 (마이크 붐 사이)
+    const dy = Y + to[1] + .1 - it.pos.y; it.pos.set(to[0], it.pos.y + dy, to[2]); it.mesh.position.x += to[0] - it.mesh.position.x; it.mesh.position.y += dy; it.mesh.position.z = to[2]; if (it.baseY != null) it.baseY += dy; }
   try { upgradePlainMaterials(g); } catch (e) {}
   return g.children.length;
 }
@@ -7472,7 +7507,7 @@ function useEqKeyBox(p) {
   if (FL.eqKeyGot) { say('「방송실-장비실 (예비)」 고리는 비어 있다. 다른 고리엔 녹슨 열쇠들뿐.', 2600); return; }
   FL.eqKeyGot = true; giveItem('eqKey', 1); setTimeout(() => talk('eqKeyGot', 5600), 2600); say('「방송실-장비실 (예비)」 — 먼지 쌓인 고리에서 열쇠를 뺐다. 경비 일지 옆에 연필 메모: “10.12 밤 이 열쇠 쓴 사람 없음.”', 4000); save(true);
 }
-const BC_SCRIPT = '<b>[서문고 방송부 · 하교 방송 원고]</b><br><br>“오늘 하루도 수고 많았습니다. 지금은 오후 11시 40분 —<br>10년 전 오늘 밤, 이 방송을 끝까지 하지 못한 친구가 있었습니다.<br>3학년 2반 윤하늘. 이 학교는 그 이름을 지웠지만, 우리는 기억합니다.<br>…모두, 집으로 돌아가세요.”';
+const BC_SCRIPT = '<b>[서린고 방송부 · 하교 방송 원고]</b><br><br>“오늘 하루도 수고 많았습니다. 지금은 오후 11시 40분 —<br>10년 전 오늘 밤, 이 방송을 끝까지 하지 못한 친구가 있었습니다.<br>3학년 2반 윤하늘. 이 학교는 그 이름을 지웠지만, 우리는 기억합니다.<br>…모두, 집으로 돌아가세요.”';
 async function useBcRead() {
   if (FL.calm) { showNote({ title: '하교 방송 원고 (낭독 완료)', text: BC_SCRIPT }); return; }
   if (!(FL.tag && power)) { showNote({ title: '앵커석 위의 하교 방송 원고', text: BC_SCRIPT + '<br><br><span style="color:#9a9488">(아직 읽을 때가 아니다 — ' + (power ? '그 아이의 이름을 증명할 무언가가 필요하다' : '먼저 전력을 복구하고 조정실 콘솔을 켜야 한다') + ')</span>' }); return; }
@@ -7683,9 +7718,9 @@ registerLines({
   call_unk1: { spk: 'junho', text: '……누군지는 묻지 마. 해마다 23시 40분에 나오는 그 방송, 귀신 같은 거 아니야. 방송실 장비실 선반 위를 봐. 타이머가 있을 거야.' },
   call_unk2: { spk: 'guard', text: '학생, 지금 3-2 교실 의자에 앉아 있지? 경비실 CCTV에 다 보여. 그 자리… 하늘이 자리여. 십 년째 아무도 못 치웠어.' },
   call_guard: { spk: 'guard', text: '어이, 학생! 나 경비실이여. 아직도 본관 안에 있는 겨? 해가 다 떨어졌는디 거기 혼자 돌아댕기믄 큰일 나유! 복도에서 무슨 소리가 나도 절대 대답허지 말고, 어서 정문 쪽으로 나와유!' },
-  call_home: { spk: 'mom', text: '여보세요? 얘, 너 지금 어디야! 왜 이렇게 전화가 끊겨…… 서문고 앞이라고? 거기 위험하니까 꼼짝 말고 정문 쪽에 나와 있어, 엄마가 지금 바로 갈게!' },
+  call_home: { spk: 'mom', text: '여보세요? 얘, 너 지금 어디야! 왜 이렇게 전화가 끊겨…… 서린고 앞이라고? 거기 위험하니까 꼼짝 말고 정문 쪽에 나와 있어, 엄마가 지금 바로 갈게!' },
   // 4단계: 은폐를 밝히는 사람들 — 문서에서 번호를 찾으면 연락처가 생긴다 (외부 번호라 신호 필요)
-  call_rep_a1: { spk: 'reporter', text: '서문일보 사회부입니다. …서문고요? 그 사건이라면, 십 년 전에 제가 쓴 기사가 하루 만에 내려갔습니다.' },
+  call_rep_a1: { spk: 'reporter', text: '서린일보 사회부입니다. …서린고요? 그 사건이라면, 십 년 전에 제가 쓴 기사가 하루 만에 내려갔습니다.' },
   call_rep_a2: { spk: 'reporter', text: '증거 없이는 한 줄도 못 씁니다. 학교가 뭘 숨겼는지, 손에 잡히는 걸 가져오세요. 기록이든, 녹화든.' },
   call_rep_a3: { spk: 'reporter', text: '그리고 학생, 거기 오래 있지 말아요. 그 학교는… 아직 그날 밤을 안 끝냈습니다.' },
   call_rep_b1: { spk: 'reporter', text: 'CCTV 캡처라고요? 열쇠를 쥔 교무부장이 문을 안 열었다… 십 년 동안 바로 그 한 장면이 없었어요.' },
@@ -7694,7 +7729,7 @@ registerLines({
   call_rep_c1: { spk: 'reporter', text: '들었습니다. 방송이요. 우리 신문사 라디오에서도 잡혔어요. 데스크가 1면을 통째로 비워 두라네요.' },
   call_rep_c2: { spk: 'reporter', text: '십 년 만에 기사 제목을 다시 씁니다. 실종이 아니라, 은폐라고.' },
   call_rep_c3: { spk: 'reporter', text: '고마워요. 그리고… 윤하늘 학생에게도. 이제 집에 갈 수 있겠네요.' },
-  call_og1: { spk: 'guard', text: '여보세유? …서문고? 아이고, 이 밤에 그 학교 얘기를 누가 묻는댜.' },
+  call_og1: { spk: 'guard', text: '여보세유? …서린고? 아이고, 이 밤에 그 학교 얘기를 누가 묻는댜.' },
   call_og2: { spk: 'guard', text: '경비실 열쇠함 말이여? 그거 번호는 경비장이 바꾸랬어. 마지막으로 나간 열쇠 시각으로. 장부 보면 나와유.' },
   call_og3: { spk: 'guard', text: '그날 밤 마지막으로 나간 게… 펌프실 열쇠여. 교무부장이 가져가서, 끝내 안 돌려줬지.' },
   call_og4: { spk: 'guard', text: '학생, 그 함 안에 지하실 열쇠도 있을 거여. 내가 못 한 거… 학생이 대신 좀 해 줘유.' },
@@ -7709,31 +7744,31 @@ registerLines({
   call_hn2: { spk: 'mother', text: '십 년 동안 아무도 대답해 주지 않았어요. 고마워요. 이제 그 애를… 제대로 보내 줄 수 있겠어요.' },
   // 엄마와의 통화 — 진행에 따라 세 번 (처음 · 증거를 모은 뒤 · 폭로 방송 뒤)
   call_home_a1: { spk: 'mom', text: '여보세요? 얘, 너 지금 어디야! 왜 이렇게 전화가 자꾸 끊겨……' },
-  call_home_a2: { spk: 'mom', text: '서문고? 이 밤에 거길 왜 들어가. 거기서 십 년 전에 애 하나 없어졌던 거, 너도 알잖아.' },
+  call_home_a2: { spk: 'mom', text: '서린고? 이 밤에 거길 왜 들어가. 거기서 십 년 전에 애 하나 없어졌던 거, 너도 알잖아.' },
   call_home_a3: { spk: 'mom', text: '민아가 거길 왜 들어가…… 알았어. 엄마가 지금 바로 차 끌고 갈게. 정문 쪽에서 절대 움직이지 마.' },
   call_home_a4: { spk: 'mom', text: '그리고 얘…… 누가 이름 불러도 대답하지 마. 그 학교 얘긴…… 아니다. 그냥, 조심해. 알았지?' },
   call_home_b1: { spk: 'mom', text: '또 너구나…… 엄마 지금 고가도로 위야. 비가 와서 차가 꼼짝도 안 해.' },
   call_home_b2: { spk: 'mom', text: '뭐? 그 애가 실종된 게 아니라고? 그때 교장이 뉴스에 나와서 그랬어. 아이가 하교하다가 사라졌다고…… 다들 그 말을 믿었어.' },
   call_home_b3: { spk: 'mom', text: '그게 정말 증거면…… 사진 찍어 둬, 전부. 엄마 친구가 신문사에 있어. 근데 너부터 살아서 나와야 해. 약속해.' },
-  call_home_c1: { spk: 'mom', text: '방금 라디오에서…… 네 목소리가 나왔어. 서문고등학교 방송실이라고.' },
+  call_home_c1: { spk: 'mom', text: '방금 라디오에서…… 네 목소리가 나왔어. 서린고등학교 방송실이라고.' },
   call_home_c2: { spk: 'mom', text: '그 애 엄마도 지금 이 방송을 듣고 있겠지…… 십 년 동안, 얼마나 기다렸을까.' },
   call_home_c3: { spk: 'mom', text: '정문 앞에 경찰차가 와 있어. 천천히, 침착하게 나와. 엄마 여기 있어. 장하다, 우리 애.' },
   // 119 종합상황실 — 처음 신고 · 지하 펌프실 기록을 찾은 뒤
   call_119_a1: { spk: 'dispatcher', text: '네, 119 종합상황실입니다. 신고자분, 천천히 말씀해 주세요.' },
-  call_119_a2: { spk: 'dispatcher', text: '이 시간에 서문고등학교 안이요? 전파가 많이 끊깁니다. 지금 다치신 데는 없으십니까?' },
-  call_119_a3: { spk: 'dispatcher', text: '위치 추적 들어갑니다. 잠시만요…… 확인됐습니다. 본관 쪽이네요. 서문소방서 구조대에 출동 지시했습니다.' },
+  call_119_a2: { spk: 'dispatcher', text: '이 시간에 서린고등학교 안이요? 전파가 많이 끊깁니다. 지금 다치신 데는 없으십니까?' },
+  call_119_a3: { spk: 'dispatcher', text: '위치 추적 들어갑니다. 잠시만요…… 확인됐습니다. 본관 쪽이네요. 서린소방서 구조대에 출동 지시했습니다.' },
   call_119_a4: { spk: 'dispatcher', text: '도착까지 이십 분 정도 걸립니다. 잠긴 공간에는 들어가지 마시고, 휴대폰 배터리를 아끼세요.' },
   call_119_a5: { spk: 'dispatcher', text: '혹시 거기 다른 분도 계십니까? …… 여보세요? 신고자분? 방금 뒤에서 들린 목소리는…… 누구죠?' },
   // 112 경찰 상황실 — 위치 확인 · 1998년 사건 기록 조회 (상황에 따라 대사가 달라진다)
   call_112_a1: { spk: 'police', text: '네, 112 경찰입니다. 무슨 일이십니까? …… 여보세요? 목소리가 작게 들리세요. 크게 말씀하실 수 없는 상황이면 숫자 버튼을 눌러 주세요.' },
-  call_112_a2: { spk: 'police', text: '서문고등학교 안이라고요? 지금 혼자 계십니까? …… 알겠습니다. 침착하세요. 휴대폰 위치 확인하고 있습니다.' },
-  call_112_a3: { spk: 'police', text: '위치 잡혔습니다. 서문지구대 순찰차 바로 보내겠습니다. 정문 쪽으로 나올 수 있으면 불 켜진 곳으로 이동하시고, 전화는 끊지 말고 계세요.' },
-  call_112_b1: { spk: 'police', text: '112입니다. 아까 서문고 신고하신 분 맞으시죠? 순찰차가 정문에 도착했는데 문이 안에서 잠겨 있답니다.' },
+  call_112_a2: { spk: 'police', text: '서린고등학교 안이라고요? 지금 혼자 계십니까? …… 알겠습니다. 침착하세요. 휴대폰 위치 확인하고 있습니다.' },
+  call_112_a3: { spk: 'police', text: '위치 잡혔습니다. 서린지구대 순찰차 바로 보내겠습니다. 정문 쪽으로 나올 수 있으면 불 켜진 곳으로 이동하시고, 전화는 끊지 말고 계세요.' },
+  call_112_b1: { spk: 'police', text: '112입니다. 아까 서린고 신고하신 분 맞으시죠? 순찰차가 정문에 도착했는데 문이 안에서 잠겨 있답니다.' },
   call_112_b2: { spk: 'police', text: '1998년 10월 실종 사건이요? …… 잠시만요. 조회해 보니 당시 단순 사고로 종결 처리돼 있네요. 증거가 있으시면 절대 훼손하지 마시고 사진부터 찍어 두세요.' },
-  call_119_b1: { spk: 'dispatcher', text: '네, 상황실입니다. 아까 서문고에서 신고하신 분 맞으시죠? 구조대가 정문 쇠사슬을 끊고 있습니다.' },
+  call_119_b1: { spk: 'dispatcher', text: '네, 상황실입니다. 아까 서린고에서 신고하신 분 맞으시죠? 구조대가 정문 쇠사슬을 끊고 있습니다.' },
   call_119_b2: { spk: 'dispatcher', text: '지하 펌프실이요? 잠시만요…… 1998년 10월 13일 새벽, 같은 학교 같은 장소로 구급 출동 기록이 있네요. 신고는 사고 일곱 시간 뒤에 들어왔습니다.' },
   call_119_b3: { spk: 'dispatcher', text: '그 기록, 저희 쪽에도 남아 있습니다. 경찰에 같이 넘기겠습니다. 지금은 신고자분 안전이 먼저입니다. 정문으로 오세요.' },
-  call_119: { spk: 'narrator', text: '119 종합상황실입니다. 전파 상태가 매우 불안정합니다. 이 시간에 서문고등학교 내부라고요? 위치 추적 완료했습니다. 구조대가 정문으로 출동 중이니 즉시 정문 쪽으로 대피하십시오.' },
+  call_119: { spk: 'narrator', text: '119 종합상황실입니다. 전파 상태가 매우 불안정합니다. 이 시간에 서린고등학교 내부라고요? 위치 추적 완료했습니다. 구조대가 정문으로 출동 중이니 즉시 정문 쪽으로 대피하십시오.' },
   call_fail: { spk: 'narrator', text: '지금 거신 전화는 전파 음영 지역이거나 연결할 수 없습니다. 옥상 중계기를 점검하거나 내선 번호를 이용해 주십시오.' },
 });
 const CONTACTS = [
@@ -7745,7 +7780,7 @@ const CONTACTS = [
   { id: 'ext201', name: '4층 방송실 부스', num: '내선 201', icon: '📻', role: '교내 방송국 내선' },
   { id: 'unk', name: '발신번호 표시제한', num: '000-0000-1012', icon: '❓', role: '추적 불가 주파수', hidden: true },
   // 문서에서 번호를 찾으면 생긴다
-  { id: 'reporter', name: '서문일보 한진우 기자', num: '02-735-1998', icon: '📰', role: '1998년 기사를 쓴 기자 (신호 필요)', show: () => docs.some(d => ['ts_reporter2', 'n_seomun_ilbo', 'news_rep'].includes(d.id)) || !!FL.newsRead },
+  { id: 'reporter', name: '서린일보 한진우 기자', num: '02-735-1998', icon: '📰', role: '1998년 기사를 쓴 기자 (신호 필요)', show: () => docs.some(d => ['ts_reporter2', 'n_seomun_ilbo', 'news_rep'].includes(d.id)) || !!FL.newsRead },
   { id: 'oldguard', name: '전 경비원 박종철 (자택)', num: '031-562-0915', icon: '🔦', role: '1998년 당직 경비원 (신호 필요)', show: () => docs.some(d => d.id === 'n_key_ledger') },
   { id: 'homeroom', name: '3-2 담임 정은수 선생님', num: '010-7331-0313', icon: '📚', role: '하늘이의 담임 · 전근 (신호 필요)', show: () => docs.some(d => /^(nv_q5|vo_homeroom_tape|nv_n7)/.test(d.id)) },
   { id: 'junho', name: '이준호 (전 방송부)', num: '010-4120-2250', icon: '🎚', role: '그날 밤 문을 잠근 학생 (신호 필요)', show: () => docs.some(d => /^(nv_q4|ts_junho)/.test(d.id)) },
@@ -7925,12 +7960,12 @@ function callOut(id) {
     setTimeout(() => { sfx.pickupClick && sfx.pickupClick(); CALL.talking = null; callOut(id); }, 6900); return; }
   if (id === '112' && sig) {
     const late = FL.call112 && (P.keys >= 2 || FL.call119), lines = late ? ['call_112_b1', 'call_112_b2'] : ['call_112_a1', 'call_112_a2', 'call_112_a3'];
-    CALL.log.push({ who: '112 경찰 상황실', t: clockText(), kind: '발신', lines, summary: late ? '정문 도착 순찰차 · 1998년 사건 단순 사고 종결 기록' : '서문고 위치 확인 · 순찰차 출동' });
+    CALL.log.push({ who: '112 경찰 상황실', t: clockText(), kind: '발신', lines, summary: late ? '정문 도착 순찰차 · 1998년 사건 단순 사고 종결 기록' : '서린고 위치 확인 · 순찰차 출동' });
     callTalk('112 경찰 상황실', lines, false, '112'); FL.call112 = true; return;
   }
   if (id === '119' && sig) {
     const late = FL.call119 && (P.keys >= 3 || FL.tag), lines = late ? ['call_119_b1', 'call_119_b2', 'call_119_b3'] : ['call_119_a1', 'call_119_a2', 'call_119_a3', 'call_119_a4', 'call_119_a5'];
-    CALL.log.push({ who: '119 종합상황실', t: clockText(), kind: '발신', lines, summary: late ? '1998년 펌프실 구급 출동 기록 확인 · 경찰 이관' : '서문고 위치 추적 및 정문 구조대 출동 확인' });
+    CALL.log.push({ who: '119 종합상황실', t: clockText(), kind: '발신', lines, summary: late ? '1998년 펌프실 구급 출동 기록 확인 · 경찰 이관' : '서린고 위치 추적 및 정문 구조대 출동 확인' });
     callTalk('119 종합상황실', lines, false, '119'); FL.call119 = true; return;
   }
   if (id === 'home' && sig) {
@@ -8579,7 +8614,7 @@ function megaNotify(m) { const t = String(m).split('\n'); say(t[0].replace(/^\S+
       pbox(3.3, .18, .85, roofDark, bxB, 2.60, bzB, O);
       pbox(2.9, 1.35, .12, woodP, bxB, 1.65, bzB, O);
       pbox(2.74, 1.18, .04, PM(0x8c6d46, .9), bxB, 1.65, bzB + .05, O);
-      pmesh(new THREE.PlaneGeometry(2.65, .28), new THREE.MeshBasicMaterial({ map: makeSign('서문고 학사 공지 · 제32회 학예제 & 체육대회 안내', '#1b3228', '#f2ead2', 22) }), bxB, 2.12, bzB + .08, O, { cast: false });
+      pmesh(new THREE.PlaneGeometry(2.65, .28), new THREE.MeshBasicMaterial({ map: makeSign('서린고 학사 공지 · 제32회 학예제 & 체육대회 안내', '#1b3228', '#f2ead2', 22) }), bxB, 2.12, bzB + .08, O, { cast: false });
       [[-0.90, 1.62, '합창제 리허설 안내', '#f4eed8', '#222'], [-0.28, 1.66, '야간 자율학습 수칙', '#dcecf4', '#182838'], [0.32, 1.60, '방송부원 모집 공고', '#f8e0dc', '#481818'], [0.92, 1.64, '수영장 휴장 안내', '#e2f2e4', '#183820']].forEach(([ox, oy, txt, bg, fg]) => {
         pmesh(new THREE.PlaneGeometry(.52, .68), new THREE.MeshBasicMaterial({ map: makeSign(txt, bg, fg, 18) }), bxB + ox, oy, bzB + .085, O, { cast: false });
       });
@@ -8855,7 +8890,7 @@ function megaNotify(m) { const t = String(m).split('\n'); say(t[0].replace(/^\S+
         // 정문 진입로 서편 대형 「캠퍼스 종합 안내도」 입간판 (x = -5.8, z = 62.2)
         pbox(.14, 2.3, .14, darkF, -6.8, 1.15, 62.2, O); pbox(.14, 2.3, .14, darkF, -4.4, 1.15, 62.2, O);
         pbox(2.6, 1.35, .12, woodM, -5.6, 1.65, 62.2, O);
-        pmesh(new THREE.PlaneGeometry(2.42, 1.18), new THREE.MeshBasicMaterial({ map: makeSign('서문고 캠퍼스 종합 안내도 — 본관·별관(2F구름다리)·대강당·체육관·수영장·온실·매점·음악당', '#162834', '#f0ead6', 18) }), -5.6, 1.65, 62.13, O, { ry: Math.PI, cast: false });
+        pmesh(new THREE.PlaneGeometry(2.42, 1.18), new THREE.MeshBasicMaterial({ map: makeSign('서린고 캠퍼스 종합 안내도 — 본관·별관(2F구름다리)·대강당·체육관·수영장·온실·매점·음악당', '#162834', '#f0ead6', 18) }), -5.6, 1.65, 62.13, O, { ry: Math.PI, cast: false });
         F0.col.push({ x1: -6.9, x2: -4.3, z1: 62.0, z2: 62.4 });
         world.props.push({ kind: 'robj', k: 'campus_map_board', t: 'campus', floor: 0, x: -5.6, z: 61.3, y: 1.5, r: 2.0, label: '캠퍼스 종합 안내도 살펴보기' });
       }
@@ -8919,7 +8954,7 @@ function megaNotify(m) { const t = String(m).split('\n'); say(t[0].replace(/^\S+
     [[-1.4, -1.4], [1.4, -1.4], [-1.4, 1.4], [1.4, 1.4]].forEach(([a, b]) => F0.col.push({ x1: px + a - .1, x2: px + a + .1, z1: pz + b - .1, z2: pz + b + .1 }));
     F0.col.push({ x1: px - .9, x2: px + .9, z1: pz + sz * .9 - .3, z2: pz + sz * .9 + .3, h: .5 }); });
   // ③ 지하 방공호(보존서고) 대폭 리모델링 (강화 콘크리트 늑골 아치 · 헤비 스틸 방폭문 · 수동 환기 송풍기 · 기밀 서류함 · 군용 보급상자 · 상황판)
-  //    + 지하 펌프실(cx = 24) 폴리스라인 & 1998 서문일보 지역신문 호외 GLB 배치!
+  //    + 지하 펌프실(cx = 24) 폴리스라인 & 1998 서린일보 지역신문 호외 GLB 배치!
   { const F4 = floors[4], bx = 18, bz = -24; scene.remove(bunkerC.group); FLR(4).add(bunkerC.group); bunkerC.group.position.set(bx, 0, bz); bunkerC.centerPos.set(bx, F4.y0, bz); bunkerC.floorY = F4.y0;
     bunkerC.group.traverse(o => { o.userData.dynamic = true; });
     const R = FLR(4), bw = PM(0x363a38, .92), ribM = PM(0x282c2e, .78, .35), rustPipeM = PM(0x5a3424, .65, .55), H = 3.4, x0 = bx - 6, x1 = bx + 6, z0 = bz - 10, z1 = bz + 10, t = .32;
@@ -8987,13 +9022,13 @@ function megaNotify(m) { const t = String(m).split('\n'); say(t[0].replace(/^\S+
     world.props.push({ kind: 'robj', k: 'bunker_light', t: 'bunker', floor: 4, x: bx + 1.15, z: z1 - .85, y: 1.35, r: 2.0, label: '방공호 주 전등 스위치 조작하기', bkLightGroup });
     {
       const bLoader = new GLTFLoader();
-      bLoader.load('assets/models/sf/sf_bunker_props_pack.glb?v=432', gltf => {
+      bLoader.load('assets/models/sf/sf_bunker_props_pack.glb?v=433', gltf => {
         const bm = gltf.scene; bm.position.set(bx, 0, z0 + .45);
         if (window.__upgradePure3DScene) window.__upgradePure3DScene(bm); else bm.traverse(o => { o.userData.dynamic = true; });
         R.add(bm);
         if (gltf.animations && gltf.animations.length) { const mx = new THREE.AnimationMixer(bm); mx.userData = { floor: 4, x: bx, z: z0 + .45 }; gltf.animations.forEach(c => mx.clipAction(c).play()); (window.__campusAnimMixers ||= []).push(mx); }
       }, undefined, () => {});
-      bLoader.load('assets/models/sf/sf_pump_policeline_scene.glb?v=432', gltf => {
+      bLoader.load('assets/models/sf/sf_pump_policeline_scene.glb?v=433', gltf => {
         const pm = gltf.scene; pm.position.set(32.0, 0, -3.65);
         pm.traverse(o => { o.userData.dynamic = true; if (o.isMesh) { o.castShadow = false; o.receiveShadow = true; if (o.material?.map) o.material.map.colorSpace = THREE.SRGBColorSpace; } });
         R.add(pm);
@@ -9028,7 +9063,7 @@ function megaNotify(m) { const t = String(m).split('\n'); say(t[0].replace(/^\S+
       pbox(.7, 1.8, .6, PM(0xe0ddd4, .5, .1), x0 + 1.4, .9, z1 - .4, R); F4.col.push({ x1: x0 + 1.05, x2: x0 + 1.75, z1: z1 - .7, z2: z1 - .1 });
       pbox(.7, 1.0, .25, PM(0xb81e1e, .5, .2), x1 - 1.4, 1.0, z1 - .14, R); }
     world.props.push({ kind: 'robj', k: 'bunker_audit', t: 'bunker', floor: 4, x: bx - 1.6, z: z0 + 1.4, y: 1.1, r: 2.4, label: '방공호 기밀 철제 서류함 & 수동 환기 송풍기 조사하기' });
-    world.props.push({ kind: 'robj', k: 'pump_newspaper', t: 'pump', floor: 4, x: 32.0, z: -3.45, y: .8, r: 2.5, label: '폴리스라인 안쪽 1998년 『서문일보』 지역신문 호외 읽기' });
+    world.props.push({ kind: 'robj', k: 'pump_newspaper', t: 'pump', floor: 4, x: 32.0, z: -3.45, y: .8, r: 2.5, label: '폴리스라인 안쪽 1998년 『서린일보』 지역신문 호외 읽기' });
     world.doors.push({ floor: 4, x: 13.5, z: -1.1, r: 1.6, label: '방공호 방폭문 열기 (제1특수보존서고 진입)', to: { floor: 4, x: bx, z: z1 - 1.35, yaw: 0 }, blastDoor: bdCorr });
     world.doors.push({ floor: 4, x: bx, z: z1 - .55, r: 1.6, label: '방공호 방폭문 열기 (B1 복도로 나가기)', to: { floor: 4, x: 13.5, z: -.6, yaw: Math.PI }, blastDoor: bdIn });
     pmesh(new THREE.PlaneGeometry(1.6, .34), new THREE.MeshBasicMaterial({ map: makeSign('◀ 지하 방공호 · 특수보존서고', '#1a2420', '#98ffb8', 22) }), 13.5, 2.3, -1.43, R, { cast: false }); }
@@ -9137,8 +9172,8 @@ setupAnnex(); setupCase5();
 //   유령 · 초자연 현상은 폐기. 사건의 단서는 사람이 남긴 기록(공문 · 일지 · 신문 · 명단)으로만 이어진다.
 const INV_BOARDS = [
   { b: '본관', f: 0, room: '교무실 · 행정실', id: 'inv_office', head: '교무부 공람 — 1998.10.13', title: '교무부 내부 공람 (1998.10.13 · 대외비)', text: '<b>[대외비] 10월 12일 야간 사고 관련 대응 지침</b><br>1. 외부(언론·학부모) 문의는 교무부장 단일 창구로 응대한다.<br>2. 당일 야간 자율학습 출석부는 <b>“전원 정상 하교”</b>로 정리한다.<br>3. 지하 배수실 출입 기록은 시설 점검 일지로 대체한다.<br>4. 방송실 23:40 송출분 테이프는 회수 후 교장실에 보관.<br><br><span style="color:#8a2a1a">— 결재란: 교무부장 (서명) · 교감 (서명) · 교장 (직인 누락)</span>' },
-  { b: '본관', f: 1, room: ['교장실', '회의실'], id: 'inv_principal', head: '감사 지적 사항', title: '교육청 감사 지적 사항 (1999.03 · 게시판 사본)', text: '<b>서문고 1998학년도 종합감사 지적 사항</b><br>· 10.12 야간 자율학습 감독 교사 배치 기록 <b>없음</b><br>· 지하 배수실 철문 외부 시정 장치 설치 경위 <b>소명 불충분</b><br>· 당일 출석부 정정 흔적(수정액) 확인 — <b>원본 미제출</b><br><br>조치: “기관 경고”. 관련자 징계 요구는 <b>철회됨</b> (사유란 공란).' },
-  { b: '별관', f: 1, room: '도서실', id: 'inv_library', head: '서문일보 스크랩', title: '게시판 스크랩 — 서문일보 1998.10~11', text: '<b>10.13</b> 「서문고 3학년 여학생 심야 실종… 지하 펌프실 폴리스라인」<br><b>10.15</b> 「학교 측 “자율학습은 정상 종료, 사고는 개인 일탈”」<br><b>10.21</b> 「유족 “문이 밖에서 잠겨 있었다” 진상 요구」<br><b>11.02</b> 「경찰, 단순 사고로 내사 종결」 — 기사 아래 누군가 연필로: <b>“그날 밤 열쇠는 누가 갖고 있었나?”</b>' },
+  { b: '본관', f: 1, room: ['교장실', '회의실'], id: 'inv_principal', head: '감사 지적 사항', title: '교육청 감사 지적 사항 (1999.03 · 게시판 사본)', text: '<b>서린고 1998학년도 종합감사 지적 사항</b><br>· 10.12 야간 자율학습 감독 교사 배치 기록 <b>없음</b><br>· 지하 배수실 철문 외부 시정 장치 설치 경위 <b>소명 불충분</b><br>· 당일 출석부 정정 흔적(수정액) 확인 — <b>원본 미제출</b><br><br>조치: “기관 경고”. 관련자 징계 요구는 <b>철회됨</b> (사유란 공란).' },
+  { b: '별관', f: 1, room: '도서실', id: 'inv_library', head: '서린일보 스크랩', title: '게시판 스크랩 — 서린일보 1998.10~11', text: '<b>10.13</b> 「서린고 3학년 여학생 심야 실종… 지하 펌프실 폴리스라인」<br><b>10.15</b> 「학교 측 “자율학습은 정상 종료, 사고는 개인 일탈”」<br><b>10.21</b> 「유족 “문이 밖에서 잠겨 있었다” 진상 요구」<br><b>11.02</b> 「경찰, 단순 사고로 내사 종결」 — 기사 아래 누군가 연필로: <b>“그날 밤 열쇠는 누가 갖고 있었나?”</b>' },
   { b: '본관', f: 3, room: ['창고'], id: 'inv_broadcast', head: '송출 기록표 1998.10', title: '방송 송출 기록표 (1998년 10월분)', text: '<b>10.12 (월)</b><br>· 18:30 석식 안내 — 담당 윤하늘 ✔<br>· 21:00 자율학습 2부 안내 — 담당 윤하늘 ✔<br>· <b>23:40 하교 방송 — 담당 윤하늘 (미송출)</b><br>· 23:52 <b>“긴급 하교”</b> — 담당란 공란, 필체 다름<br><br>비고란: <span style="color:#8a2a1a">“23:40 테이프 원본 교장실 회수 — 10.13”</span>' },
   { b: '본관', f: 0, room: '보건실', id: 'inv_nurse', head: '보건일지 1998.10.12', title: '보건일지 사본 (1998.10.12 · 뒷장이 찢겨 있음)', text: '<b>10.12 (월) 야간</b><br>· 23:05 3-2 학생 2명 — 과호흡, 안정 후 귀가<br>· 23:30 <b>지하에서 올라온 학생 3명 — 손바닥 찰과상, “문이 안 열린다”고 진술</b><br>· 23:48 교무부장 내방 — “일지 정리는 내일 하라”<br><br>이후 쪽은 찢겨 나갔다. 찢긴 자국 아래에 볼펜 자국만 남았다: <b>「…하늘이는 아직 아래에…」</b>' },
 ];
@@ -9280,7 +9315,9 @@ function declutterInteractables() {
     if (!best) continue; shift(e, best.x - x0, v ? best.s + .004 - h0 : (best.s - (s0 ?? best.s)), best.z - z0); n++; }
   return n;
 }
-{ RBG = installRebuild({ THREE, scene, floors, world }); window.__rbg = RBG; try { MOONFX = installMoonShafts({ scene, blds: [RBG.MAIN, RBG.ANX], moonPos: MOON_POS }); MOONFX.setQuality(qCur); window.__moon = MOONFX; } catch (e) { console.warn('[moon shafts]', e); } idleTimeout(() => { try { refinishB1(); } catch (e) { console.warn('[B1 refinish]', e); } }, 12000); setTimeout(() => { for (const [nm, fn] of [['수영장 디테일', installPoolDetail], ['방송실 디테일', installBcastDetail], ['장비실 철문', installEqDoor]]) { try { const n = fn(); if (n) console.info('[' + nm + ']', n); } catch (e) { console.warn('[' + nm + ']', e); } } try { } catch (e) { console.warn('[pool detail]', e); } }, 13000); setTimeout(() => { try { (RBG.beds ? RBG.beds() : []).forEach((b, i) => world.props.push({ kind: 'bed', floor: 0, rbY: b.y, x: b.x, z: b.z, y: b.y + .7, r: 1.4, label: '침대에 눕기 — 잠시 숨 고르기', bed: b, _rb: true })); nurseChairFix(); } catch (e) { console.warn('[bed]', e); } }, 3500); try { RBG.allOff(); } catch (e) { console.warn('[all off]', e); } renderer.localClippingEnabled = true; setTimeout(() => { installInvestigationBoards().catch(e => console.warn('[조사 게시물]', e)); }, 2500); setTimeout(() => { furnishRooms({ scene, RBG, world, getP: () => P }).then(n => n && console.info('[가구 보강]', n)).catch(e => console.warn('[furnish v2]', e)); }, 4000); [20000, 45000].forEach(t => idleTimeout(() => { try { if (RBG && RBG.deskGraffiti && !RBG._graf) { const n = RBG.deskGraffiti(); if (n) console.info('[책상 낙서]', n); } } catch (e) { console.warn('[graffiti]', e); } }, t)); [6000, 16000, 32000].forEach(t => idleTimeout(() => { try { const n = repairStrayInteractables(); if (n) console.info('[상호작용 위치 보정]', n); } catch (e) { console.warn('[stray fix]', e); } }, t)); try { installRoomUI({ P, world, getRBG: () => RBG, getState: () => state, getTarget: () => target, keyInteract: () => (K().interact || 'KeyE') }); } catch (e) { console.warn('[room ui]', e); }
+{ RBG = installRebuild({ THREE, scene, floors, world }); window.__rbg = RBG; try { MOONFX = installMoonShafts({ scene, blds: [RBG.MAIN, RBG.ANX], moonPos: MOON_POS }); MOONFX.setQuality(qCur); window.__moon = MOONFX; } catch (e) { console.warn('[moon shafts]', e); } idleTimeout(() => { try { refinishB1(); } catch (e) { console.warn('[B1 refinish]', e); } }, 12000); setTimeout(() => { for (const [nm, fn] of [['수영장 디테일', installPoolDetail], ['방송실 디테일', installBcastDetail], ['장비실 철문', installEqDoor]]) { try { const n = fn(); if (n) console.info('[' + nm + ']', n); } catch (e) { console.warn('[' + nm + ']', e); } } try { } catch (e) { console.warn('[pool detail]', e); } }, 13000); setTimeout(() => { try { (RBG.beds ? RBG.beds() : []).forEach((b, i) => world.props.push({ kind: 'bed', floor: 0, rbY: b.y, x: b.x, z: b.z, y: b.y + .7, r: 1.4, label: '침대에 눕기 — 잠시 숨 고르기', bed: b, _rb: true })); nurseChairFix(); } catch (e) { console.warn('[bed]', e); } }, 3500); try { RBG.allOff(); } catch (e) { console.warn('[all off]', e); } try { ELEC = installElectrical({ THREE, scene, world, floors, mergeGeometries, RBG, FL, audit: {}, blackout: () => blackout, tNow: () => tNow, genGain: () => GEN.gain, power: () => power, dayK: () => DAY.k, sfx, at, say: (t, ms) => say(t, ms), noise: v => { P.noiseT = Math.max(P.noiseT || 0, v); },
+    enterUI: () => { state = 'ui'; for (const k in keys) keys[k] = false; document.exitPointerLock?.(); $('prompt').style.display = 'none'; }, exitUI: () => { if (state === 'ui') { state = 'playing'; refreshHud(); lock(); } } }); window.__elec = ELEC; } catch (e) { console.warn('[electrical]', e); } renderer.localClippingEnabled = true; setTimeout(() => { installInvestigationBoards().catch(e => console.warn('[조사 게시물]', e)); }, 2500); setTimeout(() => { furnishRooms({ scene, RBG, world, getP: () => P }).then(n => n && console.info('[가구 보강]', n)).catch(e => console.warn('[furnish v2]', e)); }, 4000); [20000, 45000].forEach(t => idleTimeout(() => { try { if (RBG && RBG.deskGraffiti && !RBG._graf) { const n = RBG.deskGraffiti(); if (n) console.info('[책상 낙서]', n); } } catch (e) { console.warn('[graffiti]', e); } }, t)); [6000, 16000, 32000].forEach(t => idleTimeout(() => { try { const n = repairStrayInteractables(); if (n) console.info('[상호작용 위치 보정]', n); } catch (e) { console.warn('[stray fix]', e); } }, t)); try { installRoomUI({ P, world, getRBG: () => RBG, getState: () => state, getTarget: () => target, keyInteract: () => (K().interact || 'KeyE') }); } catch (e) { console.warn('[room ui]', e); }
+if (RBG) setTimeout(() => { try { const n = installInteractionsPlus({ THREE, scene, world, RBG, sfx, showNote, P }); if (n) console.info('[생활 상호작용]', n); } catch (e) { console.warn('[interactions+]', e); } }, 5000);
   // 2단계: 예전 건물의 열쇠 · 쪽지 · 조사 지점을 새 방으로 (나중에 생기는 조사 지점도 몇 번 더 옮긴다)
   const sz4 = floors[4] && floors[4].stairZone, b1 = sz4 ? sz4.spawn : { x: ((floors[4] && floors[4].stairCx) || 0) + .8, z: -5.2 };
   const rel = () => { const r = RBG.relocate({ world, floors, stairSpawnB1: b1 }); if (r.moved || r.dropped) console.info('[rebuild] 옮김', r); const f = RBG.fixRoomRefs(world); if (f.moved || f.relabeled || f.dup) console.info('[rebuild] 방 이름 맞춤', f); const g2 = RBG.relinkGeneric(world); if (g2.n || g2.drop) console.info('[rebuild] 공용 조사 지점 다시 잇기', g2); const s3 = RBG.settleMoved(world); if (s3.n) console.info('[rebuild] 허공 물건 내려놓기', s3); nurseChairFix(); const fv = RBG.fixVisible(world); if (fv.re || fv.up) console.info('[rebuild] 안 보이던 · 묻힌 물건 바로잡기', fv); };
@@ -9352,7 +9389,7 @@ const setS = (k, v) => { SET[k] = v; saveSET(); applySettings(); vals(); };
 $('setScreen').onchange = e => { try { if (e.target.value === 'full') document.documentElement.requestFullscreen(); else if (document.fullscreenElement) document.exitFullscreen(); } catch (err) { /* ignore */ } };
 $('quality2').onchange = e => { setS('quality', e.target.value); applyQuality(SET.quality === 'auto' ? 'mid' : SET.quality); };
 $('setScale').oninput = e => { setS('scale', e.target.value / 100); };
-$('setScale').onchange = () => applyQuality(qCur);
+$('setScale').onchange = () => applyQuality(IGPU ? 'igpu' : qCur);
 $('setBright').oninput = e => setS('bright', e.target.value / 100);
 $('setFov').oninput = e => setS('fov', +e.target.value);
 $('setNoFlicker').onchange = e => setS('noFlicker', e.target.checked); $('setObjArrow').onchange = e => setS('objArrow', e.target.checked); $('setBgm').onchange = e => setS('bgm', e.target.checked); $('setBgmVol').oninput = e => setS('bgmVol', e.target.value / 100);

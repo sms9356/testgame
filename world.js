@@ -1,17 +1,17 @@
 // 폐교 월드 빌더 — 레퍼런스(배치도/정문/교실/소품 시트)를 기반으로 학교 전체를 절차적으로 생성한다.
 import * as THREE from './vendor/three.module.js';
 import * as T from './tex.js';
-import * as PT from './rebuild/periodTex.js?v=432';
+import * as PT from './rebuild/periodTex.js?v=433';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { buildGuardAnnex, buildDutyRoom, ANNEX as GANX } from './guardAnnex.js?v=432';
-import { NOTES } from './story.js?v=432';
+import { buildGuardAnnex, buildDutyRoom, ANNEX as GANX } from './guardAnnex.js?v=433';
+import { NOTES } from './story.js?v=433';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { buildSafe } from './safeModel.js?v=432';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=432';
+import { buildSafe } from './safeModel.js?v=433';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=433';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -684,7 +684,7 @@ export function buildWorld(scene) {
     ts_music: { title: '증언 카세트 — 음악교사 윤서경', spk: '음악교사 윤서경', fx: 'radio', minSh: 0 },
     ts_art: { title: '증언 카세트 — 미술교사 박정우', spk: '미술교사 박정우', fx: 'radio', minSh: 0 },
     ts_janitor: { title: '증언 카세트 — 청소 담당 김순례', spk: '환경미화원 김순례', fx: 'radio', minSh: 0 },
-    ts_paramedic: { title: '증언 카세트 — 서문소방서 구급대 출동 기록', spk: '구급대원 오석진', fx: 'radio', minSh: 0 },
+    ts_paramedic: { title: '증언 카세트 — 서린소방서 구급대 출동 기록', spk: '구급대원 오석진', fx: 'radio', minSh: 0 },
     ts_mother: { title: '증언 카세트 — 윤하늘 어머니', spk: '윤하늘 어머니', fx: 'radio', minSh: 0 },
     ts_vice: { title: '증언 카세트 — 교감 노태수 (취재 녹취)', spk: '교감 노태수', fx: 'radio', minSh: 0 },
     cr_1_1: { title: '반장 녹음 — 1학년 1반 반장 김민수', spk: '1학년 1반 반장 김민수', fx: 'radio', minSh: 0 },
@@ -701,7 +701,7 @@ export function buildWorld(scene) {
     ts_lib2: { title: '증언 카세트 — 중앙학술정보관 사서 (2008)', spk: '대도서관 사서 정미란', fx: 'radio', minSh: 0 },
     ts_astro: { title: '증언 카세트 — 과학천문관 지도교사', spk: '천문부 지도교사 서재훈', fx: 'radio', minSh: 0 },
     ts_history: { title: '증언 카세트 — 역사관 전시 관리인', spk: '역사관 관리인 최만석', fx: 'radio', minSh: 0 },
-    ts_union: { title: '증언 카세트 — 2008 서현고 학생회장 인터뷰 (민아 취재)', spk: '서현고 학생회장 한유리 (2008 · 옛 서문고 학생회 승계)', fx: 'radio', minSh: 0 },
+    ts_union: { title: '증언 카세트 — 2008 서현고 학생회장 인터뷰 (민아 취재)', spk: '서현고 학생회장 한유리 (2008 · 옛 서린고 학생회 승계)', fx: 'radio', minSh: 0 },
     ts_auditor: { title: '증언 카세트 — 대강당 음향 담당 (1998)', spk: '방송부 음향 담당 이준호', fx: 'radio', minSh: 0 },
     ts_lake: { title: '증언 카세트 — 호심정 산책하던 주민', spk: '인근 주민 송경자', fx: 'radio', minSh: 0 },
     ts_pool2: { title: '증언 카세트 — 수영부 코치 (기계실 기록)', spk: '수영부 코치 강태식', fx: 'radio', minSh: 0 },
@@ -710,7 +710,7 @@ export function buildWorld(scene) {
     ts_green: { title: '증언 카세트 — 생물부 후배의 고백', spk: '생물부 1학년 오세린', fx: 'radio', minSh: 0 },
     ts_electric: { title: '증언 카세트 — 학교 전기 기사', spk: '전기 기사 배만수', fx: 'radio', minSh: 0 },
     ts_pe2: { title: '증언 카세트 — 체육부장 강태식 (두 번째 테이프)', spk: '체육부장 강태식', fx: 'radio', minSh: 0 },
-    ts_reporter2: { title: '증언 카세트 — 서문일보 한진우 기자', spk: '서문일보 기자 한진우', fx: 'radio', minSh: 0 },
+    ts_reporter2: { title: '증언 카세트 — 서린일보 한진우 기자', spk: '서린일보 기자 한진우', fx: 'radio', minSh: 0 },
     gd_radio1: { title: '경비 무전 교신 ① 22:45 — 펌프실 쪽 철문 두드리는 소리', spk: '당직 경비원 박종철', fx: 'radio' },
     gd_radio2: { title: '경비 무전 교신 ② 23:05 — “아침에 열라고유?”', spk: '당직 경비원 박종철', fx: 'radio' },
     gd_radio3: { title: '경비 무전 교신 ③ 23:20 — 정전, 지하의 소리가 멎다', spk: '당직 경비원 박종철', fx: 'radio' },
@@ -2684,7 +2684,7 @@ export function buildWorld(scene) {
         bx(.05, .72, .72,  .98, .36, 0)
       ]), mWood, mx, 0, mz);
       add(mAcousticCharcoal, 1.86, .52, .02, mx, .12, mz + .385);
-      plane(cur.interior, new THREE.MeshBasicMaterial({ map: T.makeSign('MBS 서문고 교육방송국 · ON AIR', '#102034', '#e8f4ff', 22) }), 1.24, .32, mx, .42, mz + .40);
+      plane(cur.interior, new THREE.MeshBasicMaterial({ map: T.makeSign('MBS 서린고 교육방송국 · ON AIR', '#102034', '#e8f4ff', 22) }), 1.24, .32, mx, .42, mz + .40);
       col(mx - 1.05, mx + 1.05, mz - .40, mz + .40, false, .76);
       // 앵커석 유선 다이내믹 마이크 2기(BRO-003) & 헤드폰(BRO-007) & 대본 & 민아 녹음기(tape2) & 쪽지(n8)
       model('h133/BRO-003', mx - .48, .76, mz + .05, 0, { s: .52 });
@@ -2765,7 +2765,7 @@ export function buildWorld(scene) {
     addBattery(-34.6, .76, -4.35);
     extinguisher(-27.55, -1.95);
     plane(cur.interior, B.poster, .55, .78, -26.6, 1.65, -1.79, Math.PI);
-    plane(cur.interior, new THREE.MeshBasicMaterial({ map: T.makeSign('서문고등학교 교육방송국 (MBS) · 2008 방송편집실 & 레코딩 스튜디오', '#101c2e', '#f8e4a8', 21) }), 3.2, .52, -25.4, 2.38, -1.80, Math.PI);
+    plane(cur.interior, new THREE.MeshBasicMaterial({ map: T.makeSign('서린고등학교 교육방송국 (MBS) · 2008 방송편집실 & 레코딩 스튜디오', '#101c2e', '#f8e4a8', 21) }), 3.2, .52, -25.4, 2.38, -1.80, Math.PI);
     cctv(W_EXT + .12, CH, -2.0, Math.PI * .75, { label: '3F · 방송실' });
 
 
@@ -3079,8 +3079,8 @@ export function buildWorld(scene) {
     { const x = cx + 2.2, z = -2.8; add(mDarkMetal, 1.0, .05, .8, x, 0, z); for (let k = 0; k < 4; k++) add(mRust, .9, .012, .03, x, .052, z - .3 + k * .2);
       meshAt(new THREE.TorusGeometry(.06, .012, 6, 12).rotateX(Math.PI / 2), mChrome, x + .35, .06, z);
       doors.push({ floor: cur.f, x, z, r: 1.1, needPower: true, label: '철제 덮개 들어 올리기 (좁은 통로)', to: { floor: cur.f, x: cx - 2.2, z: 3.1, yaw: Math.PI } }); }
-    // 6 폴리스라인 (3D 씬은 game.js 가 이 방 중앙에 놓는다) · 1998 『서문일보』 호외 + 실제 획득 문서
-    { const mPaper = new THREE.MeshBasicMaterial({ map: T.makeSign('서 문 일 보 (호외) | 1998.10.13 — 서문고 심야 실종 사건, 지하 펌프실 통제', '#e8dfc8', '#181614', 20), side: THREE.DoubleSide });
+    // 6 폴리스라인 (3D 씬은 game.js 가 이 방 중앙에 놓는다) · 1998 『서린일보』 호외 + 실제 획득 문서
+    { const mPaper = new THREE.MeshBasicMaterial({ map: T.makeSign('서 린 일 보 (호외) | 1998.10.13 — 서린고 심야 실종 사건, 지하 펌프실 통제', '#e8dfc8', '#181614', 20), side: THREE.DoubleSide });
       plane(cur.interior, mPaper, .82, .54, cx - .15, .022, -3.85, -Math.PI / 2); addNote('n_seomun_ilbo', cx + .35, .03, -3.75); }
     add(b1m('fireBox', 0xb81e1e, .5, .2), .7, 1.2, .25, E - .5, .3, -1.9);
     wetSpot(cx - .4, -5.0, .9); papers(cx, -8, -2.4, 4);
@@ -3230,7 +3230,7 @@ export function buildWorld(scene) {
     for (let k = 0; k < 14; k++) add(S(null, { color: pick([0xe8e6e0, 0x2a2a30, 0x3a5aa0, 0x8a2a2a]) }), .26, .08, .1, cx + (k % 2 ? 3.55 : -3.55), .07 + ((k / 4) | 0) * .38, -8.8 + (k % 4) * 1.05 + rr(-.1, .1), { ry: Math.PI / 2 + rr(-.3, .3) });
     // 복도 쪽은 6m 개구부(벽 없음)라 진열장 · 게시판은 옆벽에 붙인다 (예전엔 개구부 한가운데 떠 있었다)
     trophyCase(cx - 3.62, -3.15, Math.PI / 2, 1.8); noticeBoard(cx + 3.83, 1.6, -3.15, -Math.PI / 2, 1.8);
-    plane(cur.interior, new THREE.MeshStandardMaterial({ map: T.makeSign('환영합니다 · 서문고등학교', '#20302a', '#d8e8d0', 22), roughness: .8 }), 3.0, .45, cx, 3.1, -1.77, Math.PI);   // 개구부 위 인방(2.7~3.6m)에 붙임
+    plane(cur.interior, new THREE.MeshStandardMaterial({ map: T.makeSign('환영합니다 · 서린고등학교', '#20302a', '#d8e8d0', 22), roughness: .8 }), 3.0, .45, cx, 3.1, -1.77, Math.PI);   // 개구부 위 인방(2.7~3.6m)에 붙임
     cyl(mBlue, .18, .5, cx + 2.2, 0, -8.9, 12); for (let k = 0; k < 3; k++) { const u = meshAt(new THREE.CylinderGeometry(.012, .012, .9, 6).translate(0, .45, 0), mBlack, cx + 2.2 + rr(-.08, .08), 0, -8.9 + rr(-.08, .08)); u.rotation.z = rr(-.2, .2); }
     potPlant(cx - 2.4, 0, -9.1, true); potPlant(cx + 2.9, 0, -9.1, true);
     add(mStep, 3.4, .02, 1.2, cx, 0, -9.0);   // 현관 매트 자리
@@ -3329,7 +3329,7 @@ export function buildWorld(scene) {
     const zN = -9.6;
     cyl(mWood, .9, .05, cx, .72, -6.0, 24); cyl(mMetal, .08, .72, cx, 0, -6.0, 8); col(cx - .9, cx + .9, -6.9, -5.1);
     for (let k = 0; k < 6; k++) { const a = k / 6 * Math.PI * 2; deskChair(cx + Math.sin(a) * 1.35, -6.0 + Math.cos(a) * 1.35, a); }
-    plane(cur.interior, new THREE.MeshStandardMaterial({ map: T.makeSign('제 32회 서문제 — 방송부 기념 방송', '#7a1a1a', '#f0e0c0', 20), roughness: .9, side: THREE.DoubleSide }), 3.4, .7, cx, 2.8, zN + .05);
+    plane(cur.interior, new THREE.MeshStandardMaterial({ map: T.makeSign('제 32회 서린제 — 방송부 기념 방송', '#7a1a1a', '#f0e0c0', 20), roughness: .9, side: THREE.DoubleSide }), 3.4, .7, cx, 2.8, zN + .05);
     trophyCase(cx + 3.55, -7.6, -Math.PI / 2, 1.4); for (let k = 0; k < 4; k++) add(mCardboard, .5, .4, .4, cx - 3.2 + rr(-.2, .2), k % 2 ? .4 : 0, -8.6 + ((k / 2) | 0) * .6, { ry: rr(-.3, .3) });
     noticeBoard(cx - 3.84, 1.6, -5.0, Math.PI / 2, 1.8); papers(cx, -8, -2.4, 10);
   }
@@ -3414,7 +3414,7 @@ export function buildWorld(scene) {
     [-5.0, -6.8].forEach((z, k) => { const fr = new THREE.Mesh(new THREE.BoxGeometry(.04, .9, .7), mWoodDark); fr.position.set(cx + 3.84, 1.6, z); cur.interior.add(fr); const pic = new THREE.Mesh(new THREE.PlaneGeometry(.62, .82), mPaints[k * 3 % 4]); pic.position.set(cx + 3.81, 1.6, z); pic.rotation.y = -Math.PI / 2; cur.interior.add(pic); });
     [-1.6, 1.6].forEach(dx => { add(mWhite, .5, 1.0, .5, cx + dx, 0, -5.6, { col: true }); meshAt(new THREE.IcosahedronGeometry(.18, 0), mPorc, cx + dx, 1.2, -5.6, rnd()); });
     for (let k = 0; k < 4; k++) { const pp = new THREE.Mesh(new THREE.PlaneGeometry(.42, .6), mPaperN); pp.rotation.set(-Math.PI / 2, 0, rnd() * 6); pp.position.set(cx + rr(-3, 3), .015, rr(-8, -3)); pp.scale.y = rr(.6, 1); cur.interior.add(pp); }
-    plane(cur.interior, new THREE.MeshStandardMaterial({ map: T.makeSign('제 20회 서문 미술 · 공예 전시', '#2a2016', '#d8c8a0', 22), roughness: .8 }), 3.0, .45, cx, 2.9, zN + .04);
+    plane(cur.interior, new THREE.MeshStandardMaterial({ map: T.makeSign('제 20회 서린 미술 · 공예 전시', '#2a2016', '#d8c8a0', 22), roughness: .8 }), 3.0, .45, cx, 2.9, zN + .04);
     papers(cx, -8, -2.4, 4);
   }
   // 분실물 상자 (캠퍼스 PBR 모델의 lost_box 위치): 열린 상자 + 안에 든 보급품
@@ -3859,7 +3859,7 @@ export function buildWorld(scene) {
     const kz = z0 + 4.3;   // 조리실 깊이 4.3m (예전 3.3m → 1m 확장: 저장 선반 · 조리 동선)   // 조리실 깊이 3.3m (냉동고 · 가스 화구 · 국솥 미션이 그 안에 있다) · 서쪽 5.7m 는 관계자 통로로 열어 둔다
     // 가벽: 조리공간 | 식사공간 — 예전엔 서쪽 5.7m 가 통째로 뚫려 식당에서 조리실이 그대로 보였다 → 벽 + 조리원 전용 출입문(폭 1.1m)
     awall(x0 + t, -46.15, kz - .1, kz + .1, H); awall(-45.05, -41.4, kz - .1, kz + .1, H); awall(-46.15, -45.05, kz - .1, kz + .1, H, 2.15); awall(-34.2, x1 - t, kz - .1, kz + .1, H); awall(-41.4, -34.2, kz - .1, kz + .1, H, 2.4);   // 배식 창 위 상부벽
-    plane(F.interior, new THREE.MeshBasicMaterial({ map: T.makeSign('서문고등학교 급식실', '#3a2416', '#f0e4c8', 30), color: 0xc8c0b0 }), 4.2, .55, -37.8, 3.3, kz + .11);
+    plane(F.interior, new THREE.MeshBasicMaterial({ map: T.makeSign('서린고등학교 급식실', '#3a2416', '#f0e4c8', 30), color: 0xc8c0b0 }), 4.2, .55, -37.8, 3.3, kz + .11);
     plane(F.interior, new THREE.MeshBasicMaterial({ map: T.makeSign('오늘의 메뉴 — 잡곡밥 · 김치찌개 · 제육볶음 · 콩나물무침 · 우유', '#f2ece0', '#2a2a2a', 18), color: 0xd8d4c8 }), 5.8, .45, -37.8, 2.65, kz + .11);
     // 배식대 (W7200 D900 H900): 스테인리스 하부장 · 배식 웰 6 · 유리 가림막 · 위 선반
     add(mSS, 7.2, .9, .9, -37.8, 0, kz + .55, { col: true }); for (let k = 0; k < 6; k++) { add(mSSd, 1.0, .02, .55, -40.8 + k * 1.2, .9, kz + .5); add(mSS, .06, .06, .06, -40.8 + k * 1.2, .93, kz + .82); }
@@ -4252,7 +4252,7 @@ export function buildWorld(scene) {
     add(mWoodDark, .12, 3.3, .4, 36.5, 0, z1 - .15); add(mWoodDark, .12, 3.3, .4, 39.5, 0, z1 - .15); add(mWoodDark, 3.12, .12, .4, 38, 3.24, z1 - .15);
     plane(F.interior, new THREE.MeshBasicMaterial({ map: T.makeSign('비상구', '#0a3a1a', '#7dffa0', 30) }), 1.4, .35, 38, 3.7, z1 - t - .02, Math.PI);
     plane(F.interior, mClockM, .9, .9, 43, 5.4, z1 - t - .02, Math.PI);
-    plane(F.interior, new THREE.MeshStandardMaterial({ map: T.makeSign('제 32회 서문 체육대회 · 학예제', '#1b2c46', '#f0e4b8', 22), roughness: .85 }), 3.8, .85, 33, 3.6, z1 - t - .03, Math.PI);
+    plane(F.interior, new THREE.MeshStandardMaterial({ map: T.makeSign('제 32회 서린 체육대회 · 학예제', '#1b2c46', '#f0e4b8', 22), roughness: .85 }), 3.8, .85, 33, 3.6, z1 - t - .03, Math.PI);
     // 벽면 충격방지 안전 쿠션 매트 (코트 남벽·서벽 하단)
     for (let x = 29.2; x <= 35.4; x += 1.55) add(mPadBlue, 1.42, 1.65, .08, x, .15, z1 - t - .05);
     for (let x = 40.6; x <= 42.4; x += 1.55) add(mPadBlue, 1.42, 1.65, .08, x, .15, z1 - t - .05);
@@ -4789,7 +4789,7 @@ export function buildWorld(scene) {
     // 스탠드 계단 앞면 낙서 (매직 · 분필 — 졸업생들이 남긴 것) · 동쪽 끝 쓰레기통 2 (일반 / 재활용)
     { const tag = (txt, col2, w, x, y, z, rz) => { const cv = document.createElement('canvas'); cv.width = 512; cv.height = 96; const g2 = cv.getContext('2d'); g2.fillStyle = col2; g2.font = 'italic bold 54px "Nanum Pen Script", "Noto Sans KR", sans-serif'; g2.textBaseline = 'middle'; g2.fillText(txt, 12, 50);
         const t2 = new THREE.CanvasTexture(cv); t2.colorSpace = THREE.SRGBColorSpace; const m = new THREE.Mesh(new THREE.PlaneGeometry(w, w * 96 / 512), new THREE.MeshStandardMaterial({ map: t2, transparent: true, depthWrite: false, roughness: .95, polygonOffset: true, polygonOffsetFactor: -2 })); m.position.set(x, y, z); m.rotation.z = rz; OUT.add(m); };
-      tag('98 졸업 3-7 영원히!', 'rgba(30,40,90,.8)', 1.1, 8.2, .55, z0 + 1.6 + .003, .03); tag('민수 ♥ 지영', 'rgba(150,30,40,.75)', .85, 14.6, .33, z0 + 2.4 + .003, -.05); tag('서문FC 우승', 'rgba(235,235,225,.6)', 1.0, 19.4, .12, z0 + 3.2 + .003, .02); }
+      tag('98 졸업 3-7 영원히!', 'rgba(30,40,90,.8)', 1.1, 8.2, .55, z0 + 1.6 + .003, .03); tag('민수 ♥ 지영', 'rgba(150,30,40,.75)', .85, 14.6, .33, z0 + 2.4 + .003, -.05); tag('서린FC 우승', 'rgba(235,235,225,.6)', 1.0, 19.4, .12, z0 + 3.2 + .003, .02); }
     [['일반', 0x2d5568, 14.1], ['재활용', 0x2e7a4a, 14.75]].forEach(([n, c, z]) => { meshAt(merge([new THREE.CylinderGeometry(.24, .2, .7, 14, 1, true).translate(0, .35, 0), new THREE.TorusGeometry(.24, .02, 6, 16).rotateX(Math.PI / 2).translate(0, .7, 0), new THREE.CircleGeometry(.2, 14).rotateX(-Math.PI / 2).translate(0, .02, 0)]), S(null, { color: c, roughness: .55, side: THREE.DoubleSide }), x2 + .5, 0, z, 0, OUT);
       plane(OUT, new THREE.MeshStandardMaterial({ map: T.makeSign(n, '#f0f0e8', '#1a1a1a', 30), roughness: .8 }), .26, .1, x2 + .5, .5, z + .245); col(x2 + .26, x2 + .74, z - .24, z + .24); });
   }
@@ -4840,7 +4840,7 @@ export function buildWorld(scene) {
       col(Math.min(ax, bx2) - .05, Math.max(ax, bx2) + .05, Math.min(az, bz) - .05, Math.max(az, bz) + .05, true); };
     fenceSeg(x0, z1, x1, z1); fenceSeg(x0, z0, x0, z1); fenceSeg(x1, z0, x1, z1); fenceSeg(x0, z0, x0 + 1.0, z0); fenceSeg(x0 + 4.0, z0, x1, z0);
     [x0 + 1.0, x0 + 4.0].forEach((hx, i) => { const lf = new THREE.Group(); lf.position.set(hx, 0, z0); lf.rotation.y = i ? -1.3 : 1.3; OUT.add(lf); const pl = new THREE.Mesh(new THREE.PlaneGeometry(1.45, 2.2), fenceM); pl.position.set(i ? -.75 : .75, 1.1, 0); lf.add(pl); lf.add(new THREE.Mesh(merge([tube(.03, 0, 0, 0, 0, 2.2, 0), tube(.03, i ? -1.5 : 1.5, 0, 0, i ? -1.5 : 1.5, 2.2, 0), tube(.03, 0, 2.2, 0, i ? -1.5 : 1.5, 2.2, 0)]), postM)); });
-    plane(OUT, new THREE.MeshStandardMaterial({ map: T.makeSign('서문고 야외농구장 · 방과 후 개방', '#1e3a2a', '#f0f0e0', 22), roughness: .8 }), 2.4, .5, x0 + 6.5, 2.2, z0 - .06, Math.PI);
+    plane(OUT, new THREE.MeshStandardMaterial({ map: T.makeSign('서린고 야외농구장 · 방과 후 개방', '#1e3a2a', '#f0f0e0', 22), roughness: .8 }), 2.4, .5, x0 + 6.5, 2.2, z0 - .06, Math.PI);
     // 관람 벤치 4 (동 · 서 적색 띠 위) · 공 보관함 · 쓰레기통 · 조명 폴 4
     [[x0 + .5, cz - 3.2, Math.PI / 2], [x0 + .5, cz + 3.2, Math.PI / 2], [x1 - .5, cz - 3.2, -Math.PI / 2], [x1 - .5, cz + 3.2, -Math.PI / 2]].forEach(([x, z, ry]) => model('sf_park_bench', x, 0, z, ry, { out: true, col: [1.85, .64] }));
     { const bx2 = x1 - .7, bz2 = z0 + .6; meshAt(merge([bx(1.0, .06, .6, 0, .03, 0), bx(1.0, .06, .6, 0, 1.0, 0), ...[[-.48, -.28], [.48, -.28], [-.48, .28], [.48, .28]].map(([a, b]) => bx(.04, 1.0, .04, a, .5, b))]), postM, bx2, 0, bz2, 0, OUT);
@@ -4866,14 +4866,14 @@ export function buildWorld(scene) {
     // 예전 수영장 · 식당 서쪽 벽에 붙어 있던 담쟁이: 새 건물 벽(x −48)과 1.7m 떨어져 허공에 떠 있어 제거
   }
 
-  // 외곽 담장 & 서쪽 끝 외곽 경계(x = -114.0, z = 55.6 — 2번 사진 위치!)로 이전된 『서문고등학교 서문 (西門)』
+  // 외곽 담장 & 서쪽 끝 외곽 경계(x = -114.0, z = 55.6 — 2번 사진 위치!)로 이전된 『서린고등학교 서문 (西門)』
   const fenceH = 2.8;
   const brick = mBrick;
   // 남쪽 정문 좌·우 외곽 담장 (정문 x: -4.5 ~ +4.5 개방, x: -114.5 ~ +114.5 전체 연결)
   outWall(-114.5, -4.5, GATE_Z - .25, GATE_Z + .25, fenceH, mFence);
   outWall(4.5, 114.5, GATE_Z - .25, GATE_Z + .25, fenceH, mFence);
 
-  // 『서문고등학교 서문 (西門)』 — 2번 사진 위치(서쪽 끝 외곽 경계 x = -114.0, z = 55.6)에 아치 기둥·상인방·쇠사슬 철문 설치!
+  // 『서린고등학교 서문 (西門)』 — 2번 사진 위치(서쪽 끝 외곽 경계 x = -114.0, z = 55.6)에 아치 기둥·상인방·쇠사슬 철문 설치!
   OUT.add(
     boxMesh(-114.6, -113.4, 0, 4.0, 51.4, 52.5, brick),
     boxMesh(-114.6, -113.4, 0, 4.0, 58.7, 59.8, brick),
@@ -4886,7 +4886,7 @@ export function buildWorld(scene) {
     b.position.set(-114.0, 1.35, 52.8 + k * .4);
     OUT.add(b);
   }
-  plane(OUT, new THREE.MeshBasicMaterial({ map: T.makeSign('서 문 고 등 학 교  서 문 (西 門)', '#1c1812', '#e8dfc0', 26), color: 0xb0aa98 }), 4.2, .58, -113.25, 3.92, 55.6, Math.PI / 2);
+  plane(OUT, new THREE.MeshBasicMaterial({ map: T.makeSign('서 린 고 등 학 교  서 문 (西 門)', '#1c1812', '#e8dfc0', 26), color: 0xb0aa98 }), 4.2, .58, -113.25, 3.92, 55.6, Math.PI / 2);
   doors.push({ floor: 0, x: -112.4, z: 55.6, r: 2.8, label: '서문 (쇠사슬)', win: true, locked: '녹슨 쇠사슬로 단단히 묶여 있다. 열쇠 조각을 모두 모으면 풀릴지도 모른다.' });
 
   // 서문 바깥쪽 서쪽 외곽 대로(x: -126 ~ -114.8) / 횡단보도 / 가로등 & 제2주차장 내 통학버스 배치
@@ -5047,7 +5047,7 @@ export function buildWorld(scene) {
     tileRoad(-72.2, -69.4, -45.0, 57.2, true, false);    // 서편 남북 종단 대로 (청운학사 기숙사 ↔ 테니스장 ↔ 야구장 ↔ 학생회관 ↔ 서문 대보행로 직결!)
     tileRoad(-75.0, -72.2, -43.5, -40.5, false, true);   // 청운학사(2층 기숙사) 정문 진입 지선
     tileRoad(-78.0, -72.2, -17.5, -14.5, false, true);   // 테니스·양궁 훈련장 진입 지선
-    tileRoad(-76.0, -72.2, 12.5, 15.5, false, true);     // 서문고 야구 스타디움 진입 지선
+    tileRoad(-76.0, -72.2, 12.5, 15.5, false, true);     // 서린고 야구 스타디움 진입 지선
     tileRoad(-77.0, -72.2, 40.5, 43.5, false, true);     // 학생회관·동아리관 정문 진입 지선
     // 6) 북부 캠퍼스 동서 관통 대보행로 (서편 대로 x=-69.4 ↔ 대강당 ↔ 북문/청운호 ↔ 중앙중정 ↔ 야외음악당 ↔ 동편 대로 x=69.4 일직선 관통!)
     tileRoad(-69.4, 69.4, -35.2, -32.4, false, true);    // 별관 북벽(z=-32.0) 북쪽을 따라 캠퍼스 동서를 하나로 잇는 북부 메인 인도
@@ -5223,14 +5223,14 @@ export function buildWorld(scene) {
     [[-26, 61.2, Math.PI], [27, 60.6, Math.PI]].forEach(([x, z, r]) => model('sf_park_bench', x, 0, z, r, { out: true, col: [1.85, .64] }));
   }
   // 정문 기둥
-  const pillarM = S(T.makeFence()); const plaque = new THREE.MeshStandardMaterial({ map: T.makeGatePlaque('서문고등학교'), roughness: .9 });
+  const pillarM = S(T.makeFence()); const plaque = new THREE.MeshStandardMaterial({ map: T.makeGatePlaque('서린고등학교'), roughness: .9 });
   [[-4.5], [4.5]].forEach(([px]) => {
     const p = boxMesh(px - .65, px + .65, 0, 3.4, GATE_Z - .65, GATE_Z + .65, pillarM); OUT.add(p); col(px - .65, px + .65, GATE_Z - .65, GATE_Z + .65, true);
     const cap = boxMesh(px - .8, px + .8, 3.4, 3.65, GATE_Z - .8, GATE_Z + .8, pillarM); OUT.add(cap);
     plane(OUT, plaque, .55, 2.2, px, 1.75, GATE_Z + .66);
   });
   { const bg = new THREE.PlaneGeometry(3.4, 1.1, 12, 4), bp = bg.attributes.position; for (let i = 0; i < bp.count; i++) bp.setZ(i, Math.sin(bp.getX(i) * 2.2) * .06 + (bp.getY(i) < -.4 ? Math.sin(bp.getX(i) * 9) * .04 : 0)); bg.computeVertexNormals();
-    const bm = new THREE.MeshStandardMaterial({ map: T.makeSign('서문고등학교', '#d6cfba', '#6a1c1c', 46), roughness: 1, side: THREE.DoubleSide });
+    const bm = new THREE.MeshStandardMaterial({ map: T.makeSign('서린고등학교', '#d6cfba', '#6a1c1c', 46), roughness: 1, side: THREE.DoubleSide });
     const ban = new THREE.Mesh(bg, bm); ban.position.set(11.5, 1.75, GATE_Z + .3); ban.rotation.z = .03; OUT.add(ban); }
   const warn = new THREE.MeshStandardMaterial({ map: T.makeWarning(), roughness: .8 });
   plane(OUT, warn, 1.1, .7, -7.5, 1.7, GATE_Z + .27); plane(OUT, warn, 1.1, .7, 12, 1.7, GATE_Z - .27, Math.PI);

@@ -12,7 +12,7 @@ const srv = http.createServer((q, s) => { const u = decodeURIComponent(q.url.spl
 await new Promise(r => srv.listen(0, r));
 const b = await pw.chromium.launch({ executablePath: process.env.CHROME || '/opt/pw-browsers/chromium', args: ['--no-sandbox'] });
 const p = await b.newPage(); await p.goto(`http://127.0.0.1:${srv.address().port}/`);
-await p.evaluate(async () => { const T = '성실정직봉사배우고익히다무자년가을서문고개교주년상장표창최우수대은동금려합창제방송부다같이환경가꾸기학교교육감한방울의물도소중하게쓰지않는불은끄고다녀요책속에길이있어요친구야먼저손내밀게제대회졸업기념ON AIR 0123456789'; for (const f of ['East Sea Dokdo', 'Nanum Myeongjo', 'Nanum Pen Script', 'Noto Sans KR', 'Noto Serif KR', 'Nanum Gothic Coding']) for (const w of ['400', '700']) await document.fonts.load(`${w} 20px "${f}"`, T); });
+await p.evaluate(async () => { const T = '성실정직봉사배우고익히다무자년가을서린고개교주년상장표창최우수대은동금려합창제방송부다같이환경가꾸기학교교육감한방울의물도소중하게쓰지않는불은끄고다녀요책속에길이있어요친구야먼저손내밀게제대회졸업기념ON AIR 0123456789'; for (const f of ['East Sea Dokdo', 'Nanum Myeongjo', 'Nanum Pen Script', 'Noto Sans KR', 'Noto Serif KR', 'Nanum Gothic Coding']) for (const w of ['400', '700']) await document.fonts.load(`${w} 20px "${f}"`, T); });
 fs.mkdirSync(OUT, { recursive: true });
 const names = await p.evaluate(() => window.ART_LIST); let q = .8, res;
 for (;;) { res = []; let tot = 0;

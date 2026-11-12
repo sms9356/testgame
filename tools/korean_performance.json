@@ -76,9 +76,9 @@
   },
   "lines": {
     "intro1": {
-      "source_sha256": "3fd60396c3d6c9a907bdc06bb3bc269f91cb973232a858e7a6072cf8cace489b",
+      "source_sha256": "bff609e4e906baa914f1ebf8533c77bd2f8f1cdc954f0a8a483873054a99c77e",
       "delivery": "normal",
-      "input": "[calmly] [serious] 10월 12일, 목요일. 오후 다섯 시 오십 분. 서문고등학교 너머로 검붉은 해가 기울기 시작했다."
+      "input": "[calmly] [serious] 10월 12일, 목요일. 오후 다섯 시 오십 분. 서린고등학교 너머로 검붉은 해가 기울기 시작했다."
     },
     "intro2": {
       "source_sha256": "c1b4e1b93546d4b0ca0b419369db52c7f4e134c04ca2c703e982fdf0da28bd31",
@@ -166,9 +166,9 @@
       "input": "[warmly] 아, 아, 마이크 테스트. 하나, 둘, 셋. ……기념 방송 날엔 꼭 내 목소리로 마지막 하교 방송을 할 거야. 여러분, 오늘 하루도 정말 수고 많았습니다. 이제 안심하고, 집으로 돌아가세요."
     },
     "endTrue": {
-      "source_sha256": "9cd2a4d06da96435a17eef5a0d02681728d0b02858738f94f0ee2c2169db63b0",
+      "source_sha256": "3cc0da07582ee52adf125763f146ddb834833f2dabb8ef259ba711dbe5c2f2ca",
       "delivery": "relief",
-      "input": "[low voice] [slowly] 그날 밤, 서문고 스피커에서 학교가 십 년 동안 숨겨 온 진실이 흘러나갔다. 민아를 부축해 정문을 나서는 두 사람의 등 뒤, 방송실 창가에서 이준호가 낡은 카세트 타이머의 전원을 껐다."
+      "input": "[low voice] [slowly] 그날 밤, 서린고 스피커에서 학교가 십 년 동안 숨겨 온 진실이 흘러나갔다. 민아를 부축해 정문을 나서는 두 사람의 등 뒤, 방송실 창가에서 이준호가 낡은 카세트 타이머의 전원을 껐다."
     },
     "endNormal": {
       "source_sha256": "a629afe2c5fb6f8d61051d984c7873c65412173f9feb80070f672709c12948a9",
@@ -281,12 +281,12 @@
       "input": "[confident] 마지막 조각이야. 가방에서 열쇠를 맞춰 보자."
     },
     "l_keyMade_j": {
-      "source_sha256": "9c4f1a91c6f65d6a1004d9f6ed23de5ef744d5db9618aab46fd2f42907d7dedb",
+      "source_sha256": "f1fb74145334185d6c6f0e59038d3716979e96627e329975aaf824356fe1dd27",
       "delivery": "normal",
       "input": "[determined] 열쇠가 완전히 맞춰졌어. 이제 정문 자물쇠를 열 수 있다."
     },
     "l_keyMade_s": {
-      "source_sha256": "dc0638561b102ad755f70517d7be140353867e232d1b0e0e4738e13bacc63482",
+      "source_sha256": "13947ab2378fdbfe44888dd2d8072013412c16cf0178f087b6ac8cd125e77c6e",
       "delivery": "normal",
       "input": "[determined] 드디어 정문 열쇠가 완성됐어! 이제 밖으로 나갈 수 있어."
     },
@@ -581,12 +581,12 @@
       "input": "[nervous] [cautiously] 잠겨 있어…"
     },
     "bc_j": {
-      "source_sha256": "4bbb7028751298fcd1e6d8e802353055c102ebf140a61272b96b7d3d0771ab0f",
+      "source_sha256": "cf59fe397d3d5a1f8926d49bf47b237da8ccc9ae2057c8572be59004cd71012a",
       "delivery": "normal",
       "input": "[calmly] [warmly] 삼학년 이반 윤하늘. 십 년 동안 기다리던 오늘 수업은 이제 다 끝났어. 그러니까…… 이젠 안심하고 집에 가도 돼."
     },
     "bc_s": {
-      "source_sha256": "7dfdd18fce17afa71857c706ad389c34afe7a6a48774657628bcf8a01ef45102",
+      "source_sha256": "4010c29f36078eed1d505599a6f8a5f7ae381c61436e842b6154e8e240cd11c2",
       "delivery": "normal",
       "input": "[calmly] [warmly] 삼학년 이반 윤하늘 선배. 못다 한 마지막 하교 방송은 후배인 제가 대신 마칠게요. 오늘 하루도 수고 많으셨습니다. 이제, 집으로 돌아가세요."
     },
@@ -841,9 +841,9 @@
       "input": "수영장 관리 메모. 배수구 철망 아래로 열쇠 가 빠졌다. 손이 닿지 않는다. 긴 자루에 철사를 감아 갈고리를 만들면 꺼낼 수 있을 듯. 자루는 지하 청소도구실, 철사는 별관 기술·가정실에."
     },
     "note_n21": {
-      "source_sha256": "7fc05d931afdbcc28ea8bd825f12df6170347c1c2da8194e89765c95fb564c7d",
+      "source_sha256": "232cc712954d14ae3ea934815aba2d51b528ebaec0d4dd5bda14786a4b7792f8",
       "delivery": "normal",
-      "input": "학교 행사 안내문. [가정통신문] 10월 12일(목) 방송부 창립 30주년 기념 특별 하교 방송 . 방송부원은 밤 10시까지 방송실에서 리허설을 진행합니다. — 서문고등학교장"
+      "input": "학교 행사 안내문. [가정통신문] 10월 12일(목) 방송부 창립 30주년 기념 특별 하교 방송 . 방송부원은 밤 10시까지 방송실에서 리허설을 진행합니다. — 서린고등학교장"
     },
     "note_n22": {
       "source_sha256": "1f84eb35c59cb2314a57af478cf1689d051264d7aec4947de08625a9e7fb9f5f",
@@ -1026,9 +1026,9 @@
       "input": "과학부장의 점검 메모. 펌프실 비상등 배터리 교체 요청 — 3회째. 교무부장 회신: “예산 없음, 다음 학기” . 예비 배터리팩은 과학실 공구함에 둔다. 누구든 먼저 가는 사람이 갈아 끼울 것. …그날 밤, 아무도 가지 않았다."
     },
     "note_h2": {
-      "source_sha256": "f4d1996c8fb5d7a66b72a3735b4bee2289d3ad918d0c491cde659759e6ae3138",
+      "source_sha256": "1784ddea43cc8849bc07c75c6591de584659ef5c5e226cf9b919e5418c98548b",
       "delivery": "normal",
-      "input": "별관 머릿돌. 서문고등학교 1974년 3월 2일 개교 「배움은 집으로 가는 길을 밝힌다」 동판 아래 누군가 못으로 긁어 놓았다: “집에 못 간 애도 있어요”"
+      "input": "별관 머릿돌. 서린고등학교 1974년 3월 2일 개교 「배움은 집으로 가는 길을 밝힌다」 동판 아래 누군가 못으로 긁어 놓았다: “집에 못 간 애도 있어요”"
     },
     "note_q6a": {
       "source_sha256": "825bfc8579e4ec87e8352de7ae9bb9c9f27492b7debef7f90ad06736e1386325",
@@ -1081,9 +1081,9 @@
       "input": "학생, 지금 3-2 교실 의자에 앉아 있지? 경비실 CCTV에 다 보여. 그 자리… 하늘이 자리여. 십 년째 아무도 못 치웠어."
     },
     "call_home": {
-      "source_sha256": "2fe40b9cdfd75e4045ea235c86e7e37a4ef79078f0649be07f23da19fc683de0",
+      "source_sha256": "2db10c415ff30fbba9c0a58f5fef44d3861154586248e47e2dda821bd465ff17",
       "delivery": "fear",
-      "input": "[urgent] [worried] 여보세요? 얘, 너 지금 어디야! 왜 이렇게 전화가 끊겨…… 서문고 앞이라고? 거기 위험하니까 꼼짝 말고 정문 쪽에 나와 있어, 엄마가 지금 바로 갈게!"
+      "input": "[urgent] [worried] 여보세요? 얘, 너 지금 어디야! 왜 이렇게 전화가 끊겨…… 서린고 앞이라고? 거기 위험하니까 꼼짝 말고 정문 쪽에 나와 있어, 엄마가 지금 바로 갈게!"
     },
     "call_guard": {
       "source_sha256": "4f77da86a7ef32f52f506d9dd2f6cebccb11c00b13ab1c43bf8a77a2b4c02f4e",
@@ -1136,9 +1136,9 @@
       "input": "[whispers] 피아노... 같이 칠래...?"
     },
     "call_119": {
-      "source_sha256": "bfa6e71cab3551dec83691f36a0c94ca9a6dd6fbaf582a4afe4d6c118bdb419e",
+      "source_sha256": "495f0e14ab3510745478c94d6bc615e3b47c4471a4289fd728aa09cde5bbc765",
       "delivery": "normal",
-      "input": "[serious] 일일구 종합상황실입니다. 전파 상태가 매우 불안정합니다. ……폐교된 서문고등학교 내부라고요? 위치 추적 완료했습니다. 구조대가 정문으로 출동 중이니 즉시 정문 쪽으로 대피하십시오."
+      "input": "[serious] 일일구 종합상황실입니다. 전파 상태가 매우 불안정합니다. ……폐교된 서린고등학교 내부라고요? 위치 추적 완료했습니다. 구조대가 정문으로 출동 중이니 즉시 정문 쪽으로 대피하십시오."
     },
     "sg_sg_roof": {
       "source_sha256": "81c9b91ef250fcb33509e4836e3aab6afe0b20af64cf4833c9ff30ec6cb54097",

@@ -708,7 +708,7 @@ function memory({ title = '짝 맞추기', icons = ['📻', '🎹', '📼', '�
     sc.add(new THREE.HemisphereLight(0xfff0dc, 0x140c06, .5)); const L = new THREE.SpotLight(0xfff0dc, 16, 7, .7, .5, 1.4); L.position.set(.5, 2.4, 1); sc.add(L, L.target);
     const desk = new THREE.Mesh(new THREE.PlaneGeometry(6, 4), new THREE.MeshStandardMaterial({ color: 0x5a3a20, roughness: .55 })); desk.rotation.x = -Math.PI / 2; sc.add(desk);
     const tex = draw => { const c2 = document.createElement('canvas'); c2.width = 128; c2.height = 176; const g2 = c2.getContext('2d'); draw(g2); const t = new THREE.CanvasTexture(c2); t.colorSpace = THREE.SRGBColorSpace; return t; };
-    const backT = tex(g2 => { g2.fillStyle = '#2a3a5a'; g2.fillRect(0, 0, 128, 176); g2.strokeStyle = '#c8a860'; g2.lineWidth = 6; g2.strokeRect(8, 8, 112, 160); g2.fillStyle = '#c8a860'; g2.font = 'bold 30px serif'; g2.textAlign = 'center'; g2.textBaseline = 'middle'; g2.fillText('서문', 64, 76); g2.font = '16px serif'; g2.fillText('1987', 64, 108); }); backT.center.set(.5, .5); backT.rotation = Math.PI;
+    const backT = tex(g2 => { g2.fillStyle = '#2a3a5a'; g2.fillRect(0, 0, 128, 176); g2.strokeStyle = '#c8a860'; g2.lineWidth = 6; g2.strokeRect(8, 8, 112, 160); g2.fillStyle = '#c8a860'; g2.font = 'bold 30px serif'; g2.textAlign = 'center'; g2.textBaseline = 'middle'; g2.fillText('서린', 64, 76); g2.font = '16px serif'; g2.fillText('1987', 64, 108); }); backT.center.set(.5, .5); backT.rotation = Math.PI;
     const cols = deck.length > 12 ? 5 : 4, rows = Math.ceil(deck.length / cols), CW = .34, CH = .46, gap = .08;
     const cards = deck.map((d, i) => { const front = tex(g2 => cardArt(g2, d.ic));
       const m = [new THREE.MeshStandardMaterial({ color: 0xe8e0cc }), new THREE.MeshStandardMaterial({ color: 0xe8e0cc }), new THREE.MeshStandardMaterial({ map: front, roughness: .5 }), new THREE.MeshStandardMaterial({ map: backT, roughness: .5 }), new THREE.MeshStandardMaterial({ color: 0xe8e0cc }), new THREE.MeshStandardMaterial({ color: 0xe8e0cc })];
@@ -1176,7 +1176,7 @@ function stampApprove({ title = '학생회실 — 1998 해교제 야간 잔류 �
   const c = canvas(540, 350), g = c.getContext('2d');
   screen3D(c, { kind: 'paper', prop: 'stamp' });
   const items = [
-    { txt: '문서번호: 서문학생 제1998-1012호 (기안일: 1998. 10. 12)', bad: false },
+    { txt: '문서번호: 서린학생 제1998-1012호 (기안일: 1998. 10. 12)', bad: false },
     { txt: '1. 행 사 명: 제30회 해교제 전야제 합동 리허설 및 방송 점검', bad: false },
     { txt: '2. 잔류시간: 22:00 이후 전교생 강제 심야 잔류 (귀가 금지)', bad: true, fix: '2. 잔류시간: 21:30 이전 전원 하교 완료 (심야 잔류 엄금)' },
     { txt: '3. 사용구역: 본관 3층 방송실 · 별관 음악실 · 대강당 무대', bad: false },
@@ -1269,7 +1269,7 @@ function stampApprove({ title = '학생회실 — 1998 해교제 야간 잔류 �
         g.strokeStyle = 'rgba(195, 32, 24, 0.88)'; g.lineWidth = 2.2;
         g.beginPath(); g.arc(0, 0, 12, 0, Math.PI * 2); g.stroke();
         g.fillStyle = 'rgba(195, 32, 24, 0.88)'; g.font = 'bold 9px serif';
-        g.fillText(i === 2 ? '서문고인' : '학우회인', -16, 3); g.restore();
+        g.fillText(i === 2 ? '서린고인' : '학우회인', -16, 3); g.restore();
       } else {
         g.fillStyle = 'rgba(180,40,30,0.35)'; g.font = '10px sans-serif'; g.fillText('날인대기', bx + i * bw + 3, by + 36);
       }
@@ -1285,7 +1285,7 @@ function stampApprove({ title = '학생회실 — 1998 해교제 야간 잔류 �
       g.fillText(isFixed ? ln.fix : ln.txt, 36, y + 2);
       if (isFixed) { g.fillStyle = '#c62828'; g.font = 'bold 9.5px sans-serif'; g.fillText('✓ 교정됨', 312, y + 2); }
     });
-    g.fillStyle = '#2c241b'; g.font = 'bold 13px serif'; g.fillText('서 문 고 등 학 교 장  ·  학 생 회 장', 82, 316);
+    g.fillStyle = '#2c241b'; g.font = 'bold 13px serif'; g.fillText('서 린 고 등 학 교 장  ·  학 생 회 장', 82, 316);
 
     // 우측 관인 조작 패널
     g.fillStyle = '#182026'; g.fillRect(382, 12, 146, 324); g.strokeStyle = '#485866'; g.lineWidth = 1.5; g.strokeRect(382, 12, 146, 324);
@@ -1407,7 +1407,7 @@ function omrGrade({ title = '교무실 — 1998학년도 기말고사 OMR 답안
     g.strokeStyle = '#d46a7e'; g.lineWidth = 2; g.strokeRect(28, 18, 464, 262);
     g.fillStyle = '#181818'; for (let k = 0; k < 13; k++) g.fillRect(32, 30 + k * 19, 10, 8);
     g.fillStyle = '#c84b62'; g.fillRect(50, 22, 432, 26);
-    g.fillStyle = '#ffffff'; g.font = 'bold 13.5px sans-serif'; g.fillText('1998학년도 제2학기 기말고사 OMR 답안지 (서문고등학교)', 64, 40);
+    g.fillStyle = '#ffffff'; g.font = 'bold 13.5px sans-serif'; g.fillText('1998학년도 제2학기 기말고사 OMR 답안지 (서린고등학교)', 64, 40);
 
     // 필름 기준점 정렬 바
     const filmAligned = Math.abs(filmOff) <= 7;
@@ -1574,7 +1574,7 @@ function libraryCatalog({ title = '도서실 — KDC 청구기호 도서 대출 
   const books = [
     { code: 400, label: '400 자연과학', sub: '화학실험 편람', col: '#244a38', tagLv: 1 },
     { code: 100, label: '100 철학·심리', sub: '융의 그림자 원형', col: '#4a2c38', tagLv: 0 },
-    { code: 900, label: '900 역사·교사', sub: '서문고 30년사', col: '#5a3a22', tagLv: 2 },
+    { code: 900, label: '900 역사·교사', sub: '서린고 30년사', col: '#5a3a22', tagLv: 2 },
     { code: 300, label: '300 사회·교육', sub: '1998 학생생활규정', col: '#243c58', tagLv: 1 },
     { code: 800, label: '800 문학·희곡', sub: '제30회 해교제 대본', col: '#544626', tagLv: 0 },
   ];

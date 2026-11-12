@@ -40,15 +40,14 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
   };
 
   // 형광등 스위치 (출입문 옆 안쪽 벽) + 노출 전선관(스위치 → 천장 정션박스 → 벽 상단을 따라 등기구까지)
-  const swPlateM = PM(0xece8dc, .5), swKeyM = PM(0x2c2c2a, .5), conduitM = PM(0x9a9c98, .5, .35);
+  const conduitM = PM(0x9a9c98, .5, .35);
   const addSwitch = (grp, x, z, ry, rect, top = 3.7, y0 = 0, label = '형광등 스위치') => {
     const nx = Math.sin(ry), nz = Math.cos(ry);
-    pbox(.09, .13, .02, swPlateM, x, y0 + 1.3, z, grp, { ry, cast: false });
-    pbox(.028, .05, .012, swKeyM, x + nx * .014, y0 + 1.31, z + nz * .014, grp, { ry, cast: false });
-    pcyl(.013, .013, top - 1.37, conduitM, x + nx * .016, y0 + (1.37 + top) / 2, z + nz * .016, grp, { cast: false, seg: 8 });
+    // 스위치 판 · 로커 키는 electrical.js 가 그린다
+    pcyl(.013, .013, top - 1.27, conduitM, x + nx * .016, y0 + (1.27 + top) / 2, z + nz * .016, grp, { cast: false, seg: 8 });
     pbox(.1, .1, .05, conduitM, x + nx * .03, y0 + top - .12, z + nz * .03, grp, { ry, cast: false });
     pbox(Math.min(8, Math.max(rect.x2 - rect.x1, rect.z2 - rect.z1) - .6), .026, .026, conduitM, x + nx * .02, y0 + top - .12, z + nz * .02, grp, { ry, cast: false });
-    world.props.push({ kind: 'robj', k: 'light_switch', t: 'mega15k', floor: 0, x: x + nx * .45, z: z + nz * .45, y: y0 + 1.3, r: 1.5, label: label + ' 끄기', sw: { grp, rect, on: true, base: label } });
+    world.props.push({ kind: 'robj', k: 'light_switch', t: 'mega15k', floor: 0, x: x + nx * .45, z: z + nz * .45, y: y0 + 1.2, r: 1.5, label: label + ' 끄기', sw: { grp, rect, on: true, base: label, bName: grp.name || '캠퍼스 건물', bid: 'mega:' + Math.round(x) + ':' + Math.round(z), lvl: y0 > 1 ? 1 : 0, lampY: y0 + 3.74, pose: { x, y: y0 + 1.2, z, nx, nz } } });
   };
   // 화장실 (지하 · 옥상 제외 모든 층 필수): 모서리에 2.6 × 2.2m 칸 — 칸막이벽 2면(문 구멍) · 타일 바닥 · 양변기 · 세면대 · 거울 · 표지
   const wcTileM = PM(0xd8dcd8, .35), wcPorcM = PM(0xf2f2ee, .25), wcMirM = PM(0x9fb4bc, .1, .6), wcWallM = PM(0xe8e6de, .8);

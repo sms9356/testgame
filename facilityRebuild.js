@@ -180,14 +180,15 @@ class Fac {
     const yy = y ?? (lvl * FH + CEIL - .04);
     this.box(rot ? .32 : 1.26, .07, rot ? 1.26 : .32, 'HOUSING', x, yy, z);
     const g = new THREE.BoxGeometry(rot ? .22 : 1.18, .02, rot ? 1.18 : .22); g.translate(this.wx(x), yy - .045, this.wz(z)); (this.lamps[lvl] ||= []).push(g);
+    (this.g.userData.lampPts ||= []).push({ x: this.wx(x), y: yy - .1, z: this.wz(z), lvl });   // 전기 배선(electrical.js): 등기구 자리 → 조명 풀 점조명
   }
   prop(p, x, z, y, lvl = 0) { p.floor = 0; p.x = this.wx(x); p.z = this.wz(z); p.y = lvl * FH + y; if (lvl > 0) p.minSh = undefined; return p; }
   // 형광등 스위치: 같은 층 형광등(emissive) 을 끄고 켠다 (game.js light_switch 처리와 같은 sw 구조)
   addSwitch(x, z, ry, lvl, label) {
     const nx = Math.sin(ry), nz = Math.cos(ry), y0 = lvl * FH;
-    this.box(.09, .13, .02, 'WHITE', x, y0 + 1.3, z, { ry }); this.box(.028, .05, .012, 'BLACK', x + nx * .014, y0 + 1.31, z + nz * .014, { ry });
+    // 스위치 판 · 로커 키는 electrical.js 가 그린다 (1.2m · 출입문 옆)
     const rect = { x1: this.x0, x2: this.x1, z1: this.z0, z2: this.z1, y1: y0, y2: y0 + FH - .2 };
-    this.ctx.world.props.push({ kind: 'robj', k: 'light_switch', t: 'fac', floor: 0, x: this.wx(x + nx * .45), z: this.wz(z + nz * .45), y: y0 + 1.3, r: 1.5, label: label + ' 끄기', sw: { grp: this.g, rect, on: true, base: label } });
+    this.ctx.world.props.push({ kind: 'robj', k: 'light_switch', t: 'fac', floor: 0, x: this.wx(x + nx * .45), z: this.wz(z + nz * .45), y: y0 + 1.2, r: 1.5, label: label + ' 끄기', sw: { grp: this.g, rect, on: true, base: label, bName: this.o.name || this.o.id, bid: this.o.id, lvl, pose: { x: this.wx(x), y: y0 + 1.2, z: this.wz(z), nx, nz } } });
   }
   finish() {
     const mats = this.L;

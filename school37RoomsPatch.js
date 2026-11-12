@@ -7,7 +7,7 @@ let _s37SofaProto = null, _s37SofaLoad = null;
 function getS37Sofa() { if (typeof document === 'undefined') return Promise.resolve(null); if (_s37SofaProto) return Promise.resolve(_s37SofaProto); if (_s37SofaLoad) return _s37SofaLoad; const imp = new Function('u', 'return im' + 'port(u)'); _s37SofaLoad = imp('./vendor/addons/loaders/GLTFLoader.js').then(({ GLTFLoader }) => new GLTFLoader().loadAsync('assets/models/sf/sf_sofa.glb')).then(g => (_s37SofaProto = g.scene)).catch(() => null); return _s37SofaLoad; }
 /**
  * ============================================================================
- * 〈폐교: 잊혀진 시간〉 본관(18실) & 별관(19실) 37개 구역 3D 가구·텍스처·동선 마스터 패치
+ * 〈서린고 : 잊혀진 시간〉 본관(18실) & 별관(19실) 37개 구역 3D 가구·텍스처·동선 마스터 패치
  * - 1) 겹침 방지 AABB 점유 스캐너 (기존 가구/문 앞 1.6m 자동 회피)
  * - 2) 최소 1.5m 폭의 플레이어 & 괴물 이동 동선(Walkable Nav-Corridor) 보장
  * - 3) 37개 실별 맞춤형 3D 리얼 가구/오브젝트 프리팹 & PBR 텍스처 자동 생성

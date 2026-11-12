@@ -1,4 +1,4 @@
-// 서린고 — 잊혀진 시간 : 1인칭 학교 공포 게임 (Three.js)
+// 서린고 : 잊혀진 시간 : 1인칭 학교 공포 게임 (Three.js)
 import * as THREE from './vendor/three.module.js';
 import { MeshBVH } from './vendor/addons/bvh/three-mesh-bvh.module.js';
 import { createRenderer, ENGINE } from './engine.js?v=434';

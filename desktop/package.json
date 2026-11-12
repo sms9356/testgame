@@ -2,7 +2,7 @@
   "name": "haegyo-desktop",
   "productName": "서린고 - 잊혀진 시간",
   "version": "1.1.0",
-  "description": "서린고 — 잊혀진 시간 (데스크톱 / Steam 판)",
+  "description": "서린고 : 잊혀진 시간 (데스크톱 / Steam 판)",
   "main": "main.cjs",
   "author": "sms9356",
   "license": "MIT",

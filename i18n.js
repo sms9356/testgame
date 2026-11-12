@@ -44,12 +44,14 @@ function build(obj) {
   }
   tpls.sort((a, b) => b.w - a.w);   // 글자가 많이 고정된 틀부터
 }
+const GAME_TITLE = '서린고 : 잊혀진 시간';
 export async function loadLang(code = lang()) {
   document.documentElement.lang = code;
-  if (code === 'ko') { dict = null; tpls = []; cache = new Map(); return; }
+  if (code === 'ko') { dict = null; tpls = []; cache = new Map(); document.title = GAME_TITLE; return; }
   fetch(`voice/${code}/manifest.json`).then(r => r.ok ? r.json() : null).then(m => { vpack = m; }).catch(() => { vpack = null; });   // 신경망 음성 팩
   try { build(await (await fetch(`lang/${code}.json`, { cache: 'no-cache' })).json()); }
   catch (e) { console.warn('[i18n] 사전을 불러오지 못했다:', code, e && e.message); dict = null; }
+  document.title = tr(GAME_TITLE);   // 탭 · 창 제목도 언어에 맞게
 }
 // 한 문장 번역 (없으면 원문)
 export function tr(s) {

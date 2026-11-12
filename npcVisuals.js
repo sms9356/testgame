@@ -1,4 +1,4 @@
-// 폐교: 잊혀진 시간 — 초실사 캐릭터 피부 모공·홍채·직물 탄젠트 노멀맵(NormalMap) + 생체역학 본 IK 엔진 (v144)
+// 서린고 : 잊혀진 시간 — 초실사 캐릭터 피부 모공·홍채·직물 탄젠트 노멀맵(NormalMap) + 생체역학 본 IK 엔진 (v144)
 export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
   const loader = new GLTFLoader();
   const mixers = new Map();

@@ -4,7 +4,7 @@ let _n37VendProto = null, _n37VendLoad = null;
 function getN37Vend() { if (typeof document === 'undefined') return Promise.resolve(null); if (_n37VendProto) return Promise.resolve(_n37VendProto); if (_n37VendLoad) return _n37VendLoad; const imp = new Function('u', 'return im' + 'port(u)'); _n37VendLoad = imp('./vendor/addons/loaders/GLTFLoader.js').then(({ GLTFLoader }) => new GLTFLoader().loadAsync('assets/models/sf/sf_vending.glb')).then(g => (_n37VendProto = g.scene)).catch(() => null); return _n37VendLoad; }
 /**
  * ============================================================================
- * 〈폐교: 잊혀진 시간〉 37개 구역 [완전 신규 오브젝트 & 벽면 레일 동선 보장] 패치
+ * 〈서린고 : 잊혀진 시간〉 37개 구역 [완전 신규 오브젝트 & 벽면 레일 동선 보장] 패치
  * - 기존 책상/소파/선반 배제 -> 37개 방 고유의 신규 특수 설비 & 기믹 100% 새로 구현
  * - 방 중앙을 완전히 비우는 '벽면 레일 슬롯(Perimeter Rail Slot)' 방식으로 동선 막힘 원천 해결
  * ============================================================================

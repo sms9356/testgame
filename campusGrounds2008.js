@@ -202,8 +202,39 @@ export function installCampusGrounds({ scene, world, floors, footprints = [] }) 
     // (c) 체육관 앞마당 퍼걸러 (현관 캐노피와 테니스장 사이 · 길 동쪽 가장자리): 각관 기둥 4 + 목재 살대
     { const x0 = 87.0, x1 = 92.0, z0 = -25.2, z1 = -23.8; [[x0, z0], [x1, z0], [x0, z1], [x1, z1]].forEach(([x, z]) => { bx('steel', .12, 2.6, .12, x, 1.3, z); col(x - .08, x + .08, z - .08, z + .08); });
       [z0, z1].forEach(z => bx('plate', x1 - x0 + .4, .14, .1, (x0 + x1) / 2, 2.62, z)); for (let x = x0; x <= x1 + .01; x += .5) bx('plate', .08, .1, z1 - z0 + .6, x, 2.74, (z0 + z1) / 2); info.pergola = 1; }
+    B.conc = []; B.alu = []; B.brick2 = [];
+    // 표지판 (캔버스 한 장 · 여러 판이 같은 재질)
+    const plate = (txt, sub, x, y, z, ry = 0) => { const c = document.createElement('canvas'); c.width = 128; c.height = 48; const g2 = c.getContext('2d'); g2.fillStyle = '#c8c0a8'; g2.fillRect(0, 0, 128, 48); g2.fillStyle = '#3a3228'; g2.font = 'bold 18px sans-serif'; g2.textAlign = 'center'; g2.fillText(txt, 64, 22); g2.font = '11px sans-serif'; g2.fillText(sub, 64, 40);
+      const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; const pl = new THREE.Mesh(new THREE.PlaneGeometry(.6, .22), new THREE.MeshBasicMaterial({ map: t })); pl.position.set(x, y, z); pl.rotation.y = ry; root.add(pl); };
+    scene.updateMatrixWorld(true);
+    const RBM = scene.getObjectByName('REBUILD_MAIN'); const rc = new THREE.Raycaster(); const rbl = []; if (RBM) RBM.traverse(o => { if (o.isMesh && !o.isInstancedMesh && !o.isSkinnedMesh) rbl.push(o); });
+    const faceZ = (x, y, fromZ, dir) => { if (!RBM) return null; rc.set(new THREE.Vector3(x, y, fromZ), new THREE.Vector3(0, 0, dir)); rc.far = 12; const h = rc.intersectObjects(rbl, false).find(h => h.object.visible && !h.object.isInstancedMesh); return h ? h.point.z : null; };
+    // (d) 본관 앞 회랑 (지붕 있는 통로 · 필로티식): 본관 남쪽 앞 광장 인도(z 10.5~13.6) 위 — 급식실 현관 ~ 본관 중앙 현관 서쪽까지
+    //     기둥은 인도 남쪽 가장자리 밖(z 14.0) 한 줄 · 지붕은 본관 벽에서 기둥까지 (높이 3.0, 2층 띠 아래) · 다른 길 · 시설 · 조사 지점과 겹치는 칸은 건너뛴다
+    { const zp = 14.0, yR = 3.0; let n = 0, xa = null; const span = [];
+      const okP = x => !NET.some(r => x > r[0] - .4 && x < r[1] + .4 && zp > r[2] - .3 && zp < r[3] + .3) && !hitCol(x, zp, .4) && !nearSpot(x, zp, 1.2);
+      for (let x = -49.0; x <= -8.0; x += 4.1) { const dx = [0, .7, -.7, 1.3, -1.3].find(d => okP(x + d)); span.push(dx == null ? null : x + dx); }
+      // 이어진 칸끼리만 지붕을 잇는다 (빠진 기둥 자리에서 끊음)
+      let run = []; const flush = () => { if (run.length >= 2) { const x0 = run[0], x1 = run[run.length - 1], wz = (faceZ((x0 + x1) / 2, 2.6, 20, -1) ?? 10.35) + .02;
+          run.forEach(x => { bx('steel', .14, yR, .14, x, yR / 2, zp); col(x - .09, x + .09, zp - .09, zp + .09); n++; });
+          bx('steel', x1 - x0 + .2, .16, .12, (x0 + x1) / 2, yR - .08, zp); bx('alu', x1 - x0 + .4, .06, zp - wz + .35, (x0 + x1) / 2, yR + .03, (zp + wz + .35) / 2, 0, 0);
+          bx('alu', x1 - x0 + .4, .16, .04, (x0 + x1) / 2, yR + .02, zp + .35); for (const x of run) bx('steel', .08, .1, zp - wz, x, yR - .05, (zp + wz) / 2); } run = []; };
+      span.forEach(x => { if (x == null) return; if (run.length && x - run[run.length - 1] > 6.6) flush(); run.push(x); }); flush(); info.walkwayPosts = n; }
+    // (e) 옥탑 계단실: 평지붕 시설(청운학사 · 학생회관 · 역사관 · 급식실 · 수영장 · 체육관)에 옥상 출입 계단실 (도장 콘크리트 + 철문 + 환기창)
+    { let n = 0; const bb = new THREE.Box3();
+      for (const id of ['dorm', 'union', 'hist', 'cafe', 'pool', 'gym']) { const G = scene.getObjectByName('FAC_' + id), S = G && G.getObjectByName(id + '_SLAB'); if (!S) continue; bb.setFromObject(S); const top = bb.max.y; if (!(top > 4 && top < 12)) continue;
+        const w = 3.0, d = 2.6, h = 2.5, cx = bb.max.x - w / 2 - 1.6, cz = bb.min.z + d / 2 + 1.6;
+        bx('conc', w, h, d, cx, top + h / 2, cz); bx('conc', w + .3, .14, d + .3, cx, top + h + .07, cz); bx('steel', .9, 2.0, .05, cx - .5, top + 1.0, cz + d / 2 + .03); bx('alu', .8, .3, .04, cx + .7, top + 1.9, cz + d / 2 + .02); n++; }
+      info.rooftopStairs = n; }
+    // (f) 본관 동쪽 증축 날개 (2004): x = 30 신축 이음 — 외벽 앞뒤에 신축 줄눈 덮개(알루미늄 · 전체 높이) · 증축부 하단 벽돌 띠 다른 색 · 이음 옆 '증축 2004' 머릿돌
+    { const xj = 30.2; let ok = 0;
+      for (const [from, dir] of [[20, -1], [-14, 1]]) { const z = faceZ(xj + 1.5, 1.6, from, dir); if (z == null) continue; const o = -dir * .025;   // 벽 바깥으로 2.5cm
+        bx('alu', .18, 14.3, .05, xj, 7.15, z + o); bx('brick2', 49.6 - xj - .3, .78, .04, (xj + .15 + 49.6) / 2, .47, z + o * .8);
+        plate('증축 2004', '본관 동관 · 서린고', xj + .75, 1.55, z + o * 2, dir > 0 ? Math.PI : 0); ok++; }
+      info.wingJoint = ok; }
     const M = { steel: new THREE.MeshStandardMaterial({ color: 0x6a7076, roughness: .5, metalness: .6 }), roof: new THREE.MeshStandardMaterial({ color: 0x3a6a9a, roughness: .45, transparent: true, opacity: .85, side: THREE.DoubleSide }),
-      brick: new THREE.MeshStandardMaterial({ color: 0x9a5a44, roughness: .9 }), plate: new THREE.MeshStandardMaterial({ color: 0x8a6a48, roughness: .8 }) };
+      brick: new THREE.MeshStandardMaterial({ color: 0x9a5a44, roughness: .9 }), plate: new THREE.MeshStandardMaterial({ color: 0x8a6a48, roughness: .8 }),
+      conc: new THREE.MeshStandardMaterial({ color: 0xd8d4c8, roughness: .9 }), alu: new THREE.MeshStandardMaterial({ color: 0xb8bcc0, roughness: .4, metalness: .5 }), brick2: new THREE.MeshStandardMaterial({ color: 0x7a4436, roughness: .9 }) };
     for (const k in B) if (B[k].length) { const m = add(mergeGeometries(B[k]), M[k]); m.name = 'grounds08_ext_' + k; B[k].forEach(g => g.dispose()); } }
 
   OUT.add(root); window.__grounds = info; return info;

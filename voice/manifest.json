@@ -7637,301 +7637,361 @@
  "pr_inside_s_1": {
   "spk": "jihun",
   "text": "천천히 가. 발소리 줄이고. 이상한 소리 들리면 바로 말해.",
-  "dur": 4.4,
+  "dur": 4.598,
   "baked": true,
-  "eleven": "[over a walkie-talkie] 천천히 가. 발소리 줄이고. 이상한 소리 들리면 바로 말해.",
+  "eleven": "[nervous] 천천히 가. 발소리 줄이고. 이상한 소리 들리면 바로 말해.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "input_sha256": "a1f08528230face987161be05ec8eab25076c15141e3e18ed98cae180056b087",
-   "audio_sha256": "7ee0da0e8acb9475e13007f5b789e1d0f294d9d9023a5d76383e47181eb917d3",
-   "review_status": "generated"
+   "delivery": "[nervous]",
+   "input_sha256": "f7d36a6f1e436119cdde76822ed4e5334f823fb0020dec8088e075203e1d3fa7",
+   "audio_sha256": "87b2801481543d188efa9ae415ab8b9b186473ff238696212b547452ba251eca",
+   "generation_id": "9gEBkoWXUfGiXJiTwcOQ",
+   "flow_session_id": "IMVl8al806K6t8MUY3Ai",
+   "review_status": "listening_required"
   }
  },
  "pr_inside_j_0": {
   "spk": "jihun",
   "text": "서연아, 본관 들어왔어. 안이 완전히 깜깜해. 숨소리까지 울려.",
-  "dur": 5.04,
+  "dur": 5.721,
   "baked": true,
-  "eleven": "[hushed, nervous] 서연아, 본관 들어왔어. 안이 완전히 깜깜해. 숨소리까지 울려.",
+  "eleven": "[nervous] 서연아, 본관 들어왔어. 안이 완전히 깜깜해. 숨소리까지 울려.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "input_sha256": "d6fe6a4cab4cc76c23bb5b22bcc5b0639a900bc28863b6d6d09ea80f220fa8e6",
-   "audio_sha256": "6bf487e8a0f2246d1450b72ef489eb8c6f3fc288694fdd5ef0eb75fcb157b992",
-   "review_status": "generated"
+   "delivery": "[nervous]",
+   "input_sha256": "3df535d018336a9a83e7488c1f1051a68b7f93d1ad024610aedf9a210571d8e4",
+   "audio_sha256": "4e42179ab9080701c35d8e183d0f0b9bb14371a0580fdde4e457b618891eae8e",
+   "generation_id": "Dt4yqCh7NbSgG8Ur31dw",
+   "flow_session_id": "NWJtk7wht5YASMlAr514",
+   "review_status": "listening_required"
   }
  },
  "pr_inside_j_1": {
   "spk": "seoyeon",
   "text": "조심해… 민아 선배 마지막 메시지에 1학년 1반 얘기가 있었어. 거기부터 봐.",
-  "dur": 6.88,
+  "dur": 7.079,
   "baked": true,
-  "eleven": "[over a walkie-talkie] 조심해… 민아 선배 마지막 메시지에 1학년 1반 얘기가 있었어. 거기부터 봐.",
+  "eleven": "[nervous] 조심해… 민아 선배 마지막 메시지에 1학년 1반 얘기가 있었어. 거기부터 봐.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "input_sha256": "2f30b840ad1d39f331a0631c9f9e9caab64d37b8a32f7887091e4575cb0fa26a",
-   "audio_sha256": "12d41cb75de4a47456c7fda3ea76eace3e3fb827c7e6ca562b9997273f4f03d5",
-   "review_status": "generated"
+   "delivery": "[nervous]",
+   "input_sha256": "2412ad2d6c52b9e07e7d42a5a692074983c2f245c882439d968a97843f2a7709",
+   "audio_sha256": "e1de40594eb0c9e7ebab777c1a5f1fe156cad456fc9e5e3dfec0a881643ea157",
+   "generation_id": "05Y0FrNsDPouUKr2tc6w",
+   "flow_session_id": "eyV6dKzwjX86YprtbFRr",
+   "review_status": "listening_required"
   }
  },
  "pr_cam_s_0": {
   "spk": "seoyeon",
   "text": "지훈아! 민아 선배 캠코더 찾았어. 1학년 1반 책상 밑에 떨어져 있었어.",
-  "dur": 5.44,
+  "dur": 5.956,
   "baked": true,
-  "eleven": "[hushed, nervous] 지훈아! 민아 선배 캠코더 찾았어. 1학년 1반 책상 밑에 떨어져 있었어.",
+  "eleven": "[nervous] 지훈아! 민아 선배 캠코더 찾았어. 1학년 1반 책상 밑에 떨어져 있었어.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "input_sha256": "026d15b002843c6ff6719bfab024ec9cbe5263f2e2b16ba0ac7b8eac84efb539",
-   "audio_sha256": "3c58cdfa2ebb0e08a3e59e85cc2f1b8032c837ae17068bcbd708d09519f7240e",
-   "review_status": "generated"
+   "delivery": "[nervous]",
+   "input_sha256": "77ff3f03809b61805b4dae93e2ff56ea58589939fdd39ea2939b21722fe9fea4",
+   "audio_sha256": "5bde89c40dfcea86ffa5e5cd9027ebfb69a56b17f01299106eadb2c3e5066b0a",
+   "generation_id": "p9bD2aP0ufAYCVxY6nAB",
+   "flow_session_id": "OCrrU7UeX2bIQhoMQ0eU",
+   "review_status": "listening_required"
   }
  },
  "pr_cam_s_1": {
   "spk": "jihun",
   "text": "영상 남아 있어? …선배가 마지막으로 뭘 찍었는지 봐야 해.",
-  "dur": 4.16,
+  "dur": 5.146,
   "baked": true,
-  "eleven": "[over a walkie-talkie] 영상 남아 있어? …선배가 마지막으로 뭘 찍었는지 봐야 해.",
+  "eleven": "[nervous] 영상 남아 있어? …선배가 마지막으로 뭘 찍었는지 봐야 해.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "input_sha256": "30e7d769af94496961861864418f8015487854031091b89292258e355292fb3d",
-   "audio_sha256": "bbbc0fb1fc169978fe871677e3a4e4ecff15412a7a6107845cd9b16e62816314",
-   "review_status": "generated"
+   "delivery": "[nervous]",
+   "input_sha256": "3c62dc06d9562468bd80a4e690a7bc5a33531c83057d7dcce51e0b3b415ae55d",
+   "audio_sha256": "6dea7fcdda033054a17249888401015862a7dd90822c8ef32119ac991e88f73b",
+   "generation_id": "N6gUJqVODULL3O2nLrMV",
+   "flow_session_id": "7DkUfedPoC3qzQWH33u0",
+   "review_status": "listening_required"
   }
  },
  "pr_cam_s_2": {
   "spk": "seoyeon",
   "text": "응… 화면이 흔들려. 선배가 누군가랑 얘기하고 있어.",
-  "dur": 4.8,
+  "dur": 5.068,
   "baked": true,
-  "eleven": "[hushed, nervous] 응… 화면이 흔들려. 선배가 누군가랑 얘기하고 있어.",
+  "eleven": "[nervous] 응… 화면이 흔들려. 선배가 누군가랑 얘기하고 있어.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "input_sha256": "14e83475ccafc69ab25525cfaa3301729366d4cc5cbf67ac51db451c8b2a5479",
-   "audio_sha256": "88a0629cc5347e0bbe903e6b42a255d496152231e2626c4abf7e19e340a56128",
-   "review_status": "generated"
+   "delivery": "[nervous]",
+   "input_sha256": "af4b7e134ed4495734ac923105d7a73be71f44361bc10f1e07705f3512b849d2",
+   "audio_sha256": "a37613592020d3f3fcc768732c3ce2f37805bd4a6e350693c2609ee63bcf415c",
+   "generation_id": "PAGsYSD4F9L1kXLku25I",
+   "flow_session_id": "Ml0ywcD2huX51jlpD4c3",
+   "review_status": "listening_required"
   }
  },
  "pr_cam_j_0": {
   "spk": "jihun",
   "text": "서연아, 민아 캠코더야. 1학년 1반에 떨어져 있었어.",
-  "dur": 4,
+  "dur": 4.833,
   "baked": true,
-  "eleven": "[hushed, nervous] 서연아, 민아 캠코더야. 1학년 1반에 떨어져 있었어.",
+  "eleven": "[nervous] 서연아, 민아 캠코더야. 1학년 1반에 떨어져 있었어.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "input_sha256": "87012f7b84caca0272e8baec45210ad2470e31252f204c1d29a2bd0d9595d79e",
-   "audio_sha256": "3f362cd3c13234a2ae95f6fbd5fb2c6c11f4d8565f79e148f9c5b80c9ed14530",
-   "review_status": "generated"
+   "delivery": "[nervous]",
+   "input_sha256": "9db974a9ae87a48429d98cc70a5176bf472c331e53487620ba7fc6ebe5da8b4f",
+   "audio_sha256": "f387c2fc6d446ab46cc3dab35ad054eeb355d7ba4db5a79a1e311e0e4acecd05",
+   "generation_id": "X2VXb6XSquiRREerEqt0",
+   "flow_session_id": "xfS51qCOdE86NJI1GaxE",
+   "review_status": "listening_required"
   }
  },
  "pr_cam_j_1": {
   "spk": "seoyeon",
   "text": "선배가 그걸 두고 갔을 리가 없어… 영상 확인해 봐, 지훈아.",
-  "dur": 4.32,
+  "dur": 5.146,
   "baked": true,
-  "eleven": "[over a walkie-talkie] 선배가 그걸 두고 갔을 리가 없어… 영상 확인해 봐, 지훈아.",
+  "eleven": "[nervous] 선배가 그걸 두고 갔을 리가 없어… 영상 확인해 봐, 지훈아.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "input_sha256": "62e620692dc87c68b39e7fa194db87d623ce0a720546042095db49111d5c6cdf",
-   "audio_sha256": "2897a1843cf71f71fbfe8eaf2b76c7c2b62555ea714095c70df15c4eda8bb072",
-   "review_status": "generated"
+   "delivery": "[nervous]",
+   "input_sha256": "d2a5fa9435bf78c5426193c264e779297b0a3f41f50714a01485a991862dc66d",
+   "audio_sha256": "69111c5e33ba21c58c6ca3cfadd5b82eecb3e9fec1a2b2671577eb7bcc3a5be1",
+   "generation_id": "PrvxwprDCOq6l1LLPBY9",
+   "flow_session_id": "8eysTjnECqWUEpZqCqDv",
+   "review_status": "listening_required"
   }
  },
  "pr_cam_j_2": {
   "spk": "jihun",
   "text": "배터리가 아직 남아 있어. 민아 목소리가… 들려.",
-  "dur": 4.08,
+  "dur": 4.989,
   "baked": true,
-  "eleven": "[hushed, nervous] 배터리가 아직 남아 있어. 민아 목소리가… 들려.",
+  "eleven": "[nervous] 배터리가 아직 남아 있어. 민아 목소리가… 들려.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "input_sha256": "72e63b7d270e76a3ee75e62eb1df5a115765ea20ba8fd4a1e98654be129d60e5",
-   "audio_sha256": "e07647dec4c2701a5c2109df77600f6538c6b617dad024b1344cf5621e5b29c6",
-   "review_status": "generated"
+   "delivery": "[nervous]",
+   "input_sha256": "16aac0c42a26568c0485d30d692923ab6aa766544aee894b7a52de805dcb2d46",
+   "audio_sha256": "8b696f43005b0b4fb4d1ebdc71871a0592cc1d75b450b31df839b892978ee669",
+   "generation_id": "p53nLIY3eI7TFukAQWvs",
+   "flow_session_id": "Dx6RtRufld4BNxorHTYR",
+   "review_status": "listening_required"
   }
  },
  "pr_ch2_s_0": {
   "spk": "jihun",
   "text": "서연아, 경비실 일지 봤어. 1998년 10월 12일 밤 기록만 찢겨 나가 있어.",
-  "dur": 6.64,
+  "dur": 6.766,
   "baked": true,
-  "eleven": "[over a walkie-talkie] 서연아, 경비실 일지 봤어. 1998년 10월 12일 밤 기록만 찢겨 나가 있어.",
+  "eleven": "[nervous] 서연아, 경비실 일지 봤어. 1998년 10월 12일 밤 기록만 찢겨 나가 있어.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "input_sha256": "3c7629d931ca1c61d45c1a6b1f9460df129b8f5dd0a79c8bd8801f75196f187f",
-   "audio_sha256": "e965b360fb5f8f93904e3c04147e5f90cc32f5198862d71b9eb20d223f433da7",
-   "review_status": "generated"
+   "delivery": "[nervous]",
+   "input_sha256": "39fff28121c29434a1fee0096788c1924ef464d587b5dee5ef7e8a03e9e4cd31",
+   "audio_sha256": "546095992aef3823dc076e5c5df504cdaad5991f5f40de3e66a5bd901453f061",
+   "generation_id": "UBeRj83eQS4EJkSqNyBU",
+   "flow_session_id": "UNcv5zRZ4KtTcUXLeAMV",
+   "review_status": "listening_required"
   }
  },
  "pr_ch2_s_1": {
   "spk": "seoyeon",
   "text": "누가 일부러 지운 거야. 학교가 그날 밤을 숨기고 있는 거지.",
-  "dur": 4.64,
+  "dur": 5.564,
   "baked": true,
-  "eleven": "[hushed, nervous] 누가 일부러 지운 거야. 학교가 그날 밤을 숨기고 있는 거지.",
+  "eleven": "[nervous] 누가 일부러 지운 거야. 학교가 그날 밤을 숨기고 있는 거지.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "input_sha256": "53c49416be8ee1d6b53325e41c1c31c5a8c5680ba7571f5d7ddd0d4a97432c95",
-   "audio_sha256": "ba9ce116b19daab8fc70aadb64f4bdc32e59357c98f5022216bffae4bcffc3f0",
-   "review_status": "generated"
+   "delivery": "[nervous]",
+   "input_sha256": "f2f24e90018c06f73c7f004e0ea2706d2ebcb45e813deaa0e5da45fe5bcffe30",
+   "audio_sha256": "362e9722a1521988ebe0cf4a543121c0cd4e3cb548728a8ee6dadab27f6995b7",
+   "generation_id": "pTPatmzuWS0i481clHUP",
+   "flow_session_id": "eEnPH1CGhQ236I1kHjMJ",
+   "review_status": "listening_required"
   }
  },
  "pr_ch2_j_0": {
   "spk": "seoyeon",
   "text": "지훈아, 경비실 일지에 그날 밤 기록만 없어. 누가 찢어 갔어.",
-  "dur": 5.36,
+  "dur": 6.113,
   "baked": true,
-  "eleven": "[over a walkie-talkie] 지훈아, 경비실 일지에 그날 밤 기록만 없어. 누가 찢어 갔어.",
+  "eleven": "[nervous] 지훈아, 경비실 일지에 그날 밤 기록만 없어. 누가 찢어 갔어.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "input_sha256": "f312313b47a2d0153e6e7ba10ae2a489d282c47a11a7f79d67987030663d7f8b",
-   "audio_sha256": "5d946c5bc9cd94235a6e62892118b0ebc3035a0246a5989804fddd105e680ab3",
-   "review_status": "generated"
+   "delivery": "[nervous]",
+   "input_sha256": "35af23b47095cc5b4b7a1309157515a38e68e41dfc1fa4776a2168f34b23d1a2",
+   "audio_sha256": "2f41c24e3156086497d5283e3cbf3b1b7b66a14ed29d9064da7bfbea23fde35b",
+   "generation_id": "ibNGbkZm8K8MMztrQCLu",
+   "flow_session_id": "ajvPHZ6yODTglVquzxFI",
+   "review_status": "listening_required"
   }
  },
  "pr_ch2_j_1": {
   "spk": "jihun",
   "text": "십 년 동안 아무도 몰랐던 게 아니야. 다들 알고 입을 다문 거야.",
-  "dur": 5.12,
+  "dur": 5.642,
   "baked": true,
-  "eleven": "[hushed, nervous] 십 년 동안 아무도 몰랐던 게 아니야. 다들 알고 입을 다문 거야.",
+  "eleven": "[nervous] 십 년 동안 아무도 몰랐던 게 아니야. 다들 알고 입을 다문 거야.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "input_sha256": "60b038592c475c5fa738d828e041b8782ae301fc0b9da8c4ff4f69cc47eb1383",
-   "audio_sha256": "8f10eaf2a0f866e20aae3e8cf0665c95d42c1fec8d1fc652fac6c2da367aa3d2",
-   "review_status": "generated"
+   "delivery": "[nervous]",
+   "input_sha256": "59fca7ba8fa4c97af86138aa711082cd2c1c1e44e604c266350cec93642426f4",
+   "audio_sha256": "54f3b00beb0cf73130ebb3f4a5273f5f4b83d4b804770643a1555584e105b602",
+   "generation_id": "vAAXOnJCmDflxEP2GUP8",
+   "flow_session_id": "DCMiFv96gJZtOBbzUZuT",
+   "review_status": "listening_required"
   }
  },
  "pr_ch3_s_0": {
   "spk": "seoyeon",
   "text": "지훈아, 교직원 다섯 명이 다 뭔가 하나씩 숨기고 있었어.",
-  "dur": 4.64,
+  "dur": 4.989,
   "baked": true,
-  "eleven": "[hushed, nervous] 지훈아, 교직원 다섯 명이 다 뭔가 하나씩 숨기고 있었어.",
+  "eleven": "[nervous] 지훈아, 교직원 다섯 명이 다 뭔가 하나씩 숨기고 있었어.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "input_sha256": "8f0c0c5cf55ab90171e0e403129cdae9dec86886c005d219922a8f59304f7beb",
-   "audio_sha256": "9b1597f3e2134421e67e0846749ea025fbca02270292dcfc979437118b434309",
-   "review_status": "generated"
+   "delivery": "[nervous]",
+   "input_sha256": "180bc73be139710e2061e9e9f633ffbd300429c674f4449130f37107dd38e581",
+   "audio_sha256": "450be6b8bdd69a1351713f59c50ef333eb2d49e4f92ac4a9097171d7a66338c9",
+   "generation_id": "Kakzz8DxiTu1eRRiONUa",
+   "flow_session_id": "tiJQfnmLmDxKDiMVP6NZ",
+   "review_status": "listening_required"
   }
  },
  "pr_ch3_s_1": {
   "spk": "jihun",
   "text": "하나씩 증거를 모으자. 하나라도 빠지면 또 덮일 거야.",
-  "dur": 3.92,
+  "dur": 4.519,
   "baked": true,
-  "eleven": "[over a walkie-talkie] 하나씩 증거를 모으자. 하나라도 빠지면 또 덮일 거야.",
+  "eleven": "[nervous] 하나씩 증거를 모으자. 하나라도 빠지면 또 덮일 거야.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "input_sha256": "b1ee004134a5bd49e896b714523274188d2505d9b25b8564308ecd8eaa27e7e9",
-   "audio_sha256": "d02645e6cf9eb5d57ce26074cd6a71391574c44ed91dc1e4a9d2d6ffcd7ca3b1",
-   "review_status": "generated"
+   "delivery": "[nervous]",
+   "input_sha256": "bfb5aac90f01f4fc77750c4f8fa5faafde6f28c92d6d0cf07ed25d6c0b6485b9",
+   "audio_sha256": "e19417aa502e0573324f052405508a8af740254a57c37e9c5acdf20f991ebd1b",
+   "generation_id": "ifY1rtPsgGgU4xCbiaAV",
+   "flow_session_id": "gKY8l6MEeIzzDDkyXeji",
+   "review_status": "listening_required"
   }
  },
  "pr_ch3_j_0": {
   "spk": "jihun",
   "text": "서연아, 교직원 다섯 명. 다 뭔가 숨기고 있어.",
-  "dur": 4.16,
+  "dur": 4.284,
   "baked": true,
-  "eleven": "[hushed, nervous] 서연아, 교직원 다섯 명. 다 뭔가 숨기고 있어.",
+  "eleven": "[nervous] 서연아, 교직원 다섯 명. 다 뭔가 숨기고 있어.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "input_sha256": "735b246a938d4cfe40a6b5f60fb4ee67d9290fff6aa8ff583be4f1210052f92a",
-   "audio_sha256": "732d8b71a39fc91e8b06b465b57c5b4fdb41f1985a0ec6d41d767007d291a25b",
-   "review_status": "generated"
+   "delivery": "[nervous]",
+   "input_sha256": "c8f5bd8ba52fdc52f9d4d64de06af187712e1d972c782709ecd64fe884ec7b2a",
+   "audio_sha256": "554072f839ca9e9a4b190350c98c94fd0169119cea558527e9717702e338a34e",
+   "generation_id": "V2HZUe6F9tieFwjt4AsK",
+   "flow_session_id": "a5KhBOfTuBmQYtMiLYoR",
+   "review_status": "listening_required"
   }
  },
  "pr_ch3_j_1": {
   "spk": "seoyeon",
   "text": "그럼 하나씩 다 찾아내자. 이번엔 아무것도 묻히게 두지 않을 거야.",
-  "dur": 4.8,
+  "dur": 5.486,
   "baked": true,
-  "eleven": "[over a walkie-talkie] 그럼 하나씩 다 찾아내자. 이번엔 아무것도 묻히게 두지 않을 거야.",
+  "eleven": "[nervous] 그럼 하나씩 다 찾아내자. 이번엔 아무것도 묻히게 두지 않을 거야.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "input_sha256": "31354eb7f475bbdfdd7349ca99dc532f4166f70c75e37b5b99c89fbe0cc897c1",
-   "audio_sha256": "47d854b9963c7d04e6f1fff3f6c6f6ba7328827ea0fbd213c342a01ccd532d9a",
-   "review_status": "generated"
+   "delivery": "[nervous]",
+   "input_sha256": "8c3f03474fc83316dceba41c50a6712da03d976e99808d9987107805f8a54313",
+   "audio_sha256": "9c76d72614b1c305e51c0661ebabb88f69d0df5a7668bbe066a96c0d3cf8f72d",
+   "generation_id": "Vjw1NMNzCeCUzYZGqlOr",
+   "flow_session_id": "GCTtY5kLoyARDaC1b5cq",
+   "review_status": "listening_required"
   }
  },
  "pr_ch4_s_0": {
   "spk": "jihun",
   "text": "서연아, 별관 쪽 창 하나가 열려 있어. 교장 서고 얘기, 거기서 확인할 수 있을 것 같아.",
-  "dur": 6,
+  "dur": 6.113,
   "baked": true,
-  "eleven": "[over a walkie-talkie] 서연아, 별관 쪽 창 하나가 열려 있어. 교장 서고 얘기, 거기서 확인할 수 있을 것 같아.",
+  "eleven": "[nervous] 서연아, 별관 쪽 창 하나가 열려 있어. 교장 서고 얘기, 거기서 확인할 수 있을 것 같아.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "input_sha256": "24d596edc603f152baf0370dab5e0133bc8bfa08bf4232b8f37083b12d45a6fd",
-   "audio_sha256": "f6a66bb02469c83da4789adf37b82a452be0a8c64dfe72073c0e5a9b85a133c2",
-   "review_status": "generated"
+   "delivery": "[nervous]",
+   "input_sha256": "83f1fb0de2316f46539a564ff0a74fd0c57d9c46e2267cce46103041fd62cf32",
+   "audio_sha256": "48d2563519f75a3a6e00aa6ab9d1a3b4b8d01c8bd9d9dc10fd97abc50ced307d",
+   "generation_id": "qgDCjJRSxPB3CZuKWXdo",
+   "flow_session_id": "4Fnl6VGF26Lrbj0zcR6n",
+   "review_status": "listening_required"
   }
  },
  "pr_ch4_s_1": {
   "spk": "seoyeon",
   "text": "알았어, 그쪽으로 갈게. 지훈아, 넌 바깥에서 망 좀 봐 줘.",
-  "dur": 4.72,
+  "dur": 5.329,
   "baked": true,
-  "eleven": "[hushed, nervous] 알았어, 그쪽으로 갈게. 지훈아, 넌 바깥에서 망 좀 봐 줘.",
+  "eleven": "[nervous] 알았어, 그쪽으로 갈게. 지훈아, 넌 바깥에서 망 좀 봐 줘.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "input_sha256": "4c8f4fad20fdcc9c7602378d8c68c2a1e6a08fc97905481f090d86525065ed9a",
-   "audio_sha256": "cee011491de771700bda64fc35bfc1f6a24339e030805827d4b88ebf2a22be7f",
-   "review_status": "generated"
+   "delivery": "[nervous]",
+   "input_sha256": "1dbff6568052ccf4f37359f92a55683dd7ea70be189d178a35701dc47723cf43",
+   "audio_sha256": "a317957a014006eb035d187646e0acd5c2e3b803ac162a2555a4a0c0e4cc4ea3",
+   "generation_id": "CSG2a6ZubY4teqnvGGNp",
+   "flow_session_id": "hJOFWapp8Pw2aSdBFZOr",
+   "review_status": "listening_required"
   }
  },
  "pr_ch4_j_0": {
   "spk": "seoyeon",
   "text": "지훈아, 별관 2층에 불빛이 한 번 깜빡였어. 교장 서고가 그쪽이야.",
-  "dur": 5.44,
+  "dur": 6.113,
   "baked": true,
-  "eleven": "[over a walkie-talkie] 지훈아, 별관 2층에 불빛이 한 번 깜빡였어. 교장 서고가 그쪽이야.",
+  "eleven": "[nervous] 지훈아, 별관 2층에 불빛이 한 번 깜빡였어. 교장 서고가 그쪽이야.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "input_sha256": "58c0b7aeb468e20d628ccc6cecd49952e970a6679254c2e66cb7ea8f0efc0c32",
-   "audio_sha256": "3c07a4e6b9f43948894b0ce5b91fc5adf19a570019ba0288f52a0fed8d772064",
-   "review_status": "generated"
+   "delivery": "[nervous]",
+   "input_sha256": "87368277f843c2474f23c15508e4fbf7799354d563570dbaf09283ee2053800b",
+   "audio_sha256": "55dd0bcf1e5ca9817311c86be4704335e5b233502e2337e19e6b23d418d65723",
+   "generation_id": "ilwSO3jkjUnRt4vCLEKB",
+   "flow_session_id": "FMFwfrzTCzKR85n5Idfr",
+   "review_status": "listening_required"
   }
  },
  "pr_ch4_j_1": {

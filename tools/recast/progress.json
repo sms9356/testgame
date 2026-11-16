@@ -1218,5 +1218,105 @@
   "status": "applied",
   "credits": 26.0,
   "generation_id": "dA7KEbL9l9L8Hs5YIiIC"
+ },
+ "l_m_night_s": {
+  "status": "applied",
+  "credits": 30.0,
+  "generation_id": "Mm1yjztqCgaZuSIouDB6"
+ },
+ "l_m_elev_s": {
+  "status": "applied",
+  "credits": 25.0,
+  "generation_id": "PuYL75mdUsgc8inW0KzB"
+ },
+ "l_m_hurt_s": {
+  "status": "applied",
+  "credits": 28.0,
+  "generation_id": "Ms6JzhLgNGgFvI58V3CH"
+ },
+ "l_eqLocked_j": {
+  "status": "applied",
+  "credits": 63.0,
+  "generation_id": "EfaegPcH4YPelzK2RNDA"
+ },
+ "l_eqKeyGot_j": {
+  "status": "applied",
+  "credits": 43.0,
+  "generation_id": "Kb4Vunj9Gbvwl3zH9YQU"
+ },
+ "l_eqOpen_j": {
+  "status": "applied",
+  "credits": 26.0,
+  "generation_id": "Tho5Jlp6jXRU1GPF1cEL"
+ },
+ "l_bcRead_j": {
+  "status": "applied",
+  "credits": 39.0,
+  "generation_id": "FdNdXYNb0PAUEpGiSikV"
+ },
+ "l_eqLocked_s": {
+  "status": "applied",
+  "credits": 52.0,
+  "generation_id": "70lmslAAUjosLDGtKr7E"
+ },
+ "l_eqKeyGot_s": {
+  "status": "applied",
+  "credits": 39.0,
+  "generation_id": "h9qDi1nq5aRt4FNiMGo7"
+ },
+ "l_eqOpen_s": {
+  "status": "applied",
+  "credits": 30.0,
+  "generation_id": "7X00VNxQZyF5OUGZNgIL"
+ },
+ "l_bcRead_s": {
+  "status": "applied",
+  "credits": 40.0,
+  "generation_id": "NhQKnUV8dnxw9Jp3YSKC"
+ },
+ "mc_start_m": {
+  "status": "applied",
+  "credits": 43.0,
+  "generation_id": "RflPMtSyGorUh7KdDjT8"
+ },
+ "mc_stairs_m": {
+  "status": "applied",
+  "credits": 43.0,
+  "generation_id": "bYDnu23xe9bbl9o7bIUc"
+ },
+ "mc_eqroom_m": {
+  "status": "applied",
+  "credits": 43.0,
+  "generation_id": "OXQFUO3GWLVBTckt5RVB"
+ },
+ "mc_ghost_m": {
+  "status": "applied",
+  "credits": 28.0,
+  "generation_id": "rhDJKmvUo89myUr2q6oC"
+ },
+ "mc_idle_m": {
+  "status": "applied",
+  "credits": 28.0,
+  "generation_id": "Q54Fh3AibZGcozPsRzLz"
+ },
+ "mc_bcast_m": {
+  "status": "applied",
+  "credits": 44.0,
+  "generation_id": "aONQ0ZxS660MAfLCKfAA"
+ },
+ "mc_outdoor_m": {
+  "status": "applied",
+  "credits": 47.0,
+  "generation_id": "IstGQemJljlsl4hWT11r"
+ },
+ "mc_gate_m": {
+  "status": "applied",
+  "credits": 40.0,
+  "generation_id": "qY6o2FOmLCV2jMKNGwhJ"
+ },
+ "mc_start_j": {
+  "status": "applied",
+  "credits": 28.0,
+  "generation_id": "PUOZQJRQ3Wc4zfLI6J9z"
  }
 }

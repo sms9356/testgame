@@ -2218,5 +2218,105 @@
   "status": "applied",
   "credits": 102.0,
   "generation_id": "u0g1KNszryEFvaNEZ1bA"
+ },
+ "r_home_a3_j": {
+  "status": "applied",
+  "credits": 29.0,
+  "generation_id": "bX4S2Eu0QY1jU8HGgbfY"
+ },
+ "r_home_a3_s": {
+  "status": "applied",
+  "credits": 33.0,
+  "generation_id": "xXs5k6QCk9osKHKod0cf"
+ },
+ "r_home_b1_j": {
+  "status": "applied",
+  "credits": 42.0,
+  "generation_id": "5y36YcTVsxB4VgsusZqs"
+ },
+ "r_home_b1_s": {
+  "status": "applied",
+  "credits": 48.0,
+  "generation_id": "JIf90WrN9uWE0EbCVv9h"
+ },
+ "r_home_b2_j": {
+  "status": "applied",
+  "credits": 32.0,
+  "generation_id": "cE9xM4JVk1kxWUyLAoqH"
+ },
+ "r_home_b2_s": {
+  "status": "applied",
+  "credits": 33.0,
+  "generation_id": "ok6yCakpSAU77jDAjX4N"
+ },
+ "r_home_c1_j": {
+  "status": "applied",
+  "credits": 36.0,
+  "generation_id": "n2OxRwsPkUEPYadRwTR4"
+ },
+ "r_home_c1_s": {
+  "status": "applied",
+  "credits": 35.0,
+  "generation_id": "LKyTV8bcqXzhFyMbLdMW"
+ },
+ "r_home_c2_j": {
+  "status": "applied",
+  "credits": 24.0,
+  "generation_id": "HqQsZ6ksFHGcPw8mTItc"
+ },
+ "r_home_c2_s": {
+  "status": "applied",
+  "credits": 23.0,
+  "generation_id": "ow7TawVQOmqcP5YxpNAp"
+ },
+ "r_112_a1_j": {
+  "status": "applied",
+  "credits": 33.0,
+  "generation_id": "2Ja1red9pJpYVXp8j6Kh"
+ },
+ "r_112_a1_s": {
+  "status": "applied",
+  "credits": 36.0,
+  "generation_id": "xNVHDPhVVM0bUqS2U5rT"
+ },
+ "r_112_a2_j": {
+  "status": "applied",
+  "credits": 36.0,
+  "generation_id": "RbSPmkS8ZPajXs7vSli6"
+ },
+ "r_112_a2_s": {
+  "status": "applied",
+  "credits": 36.0,
+  "generation_id": "nYtfMiv91DXTSzFqCO4H"
+ },
+ "r_112_b1_j": {
+  "status": "applied",
+  "credits": 52.0,
+  "generation_id": "o6TTsvLKor5GdAR1IdzE"
+ },
+ "r_112_b1_s": {
+  "status": "applied",
+  "credits": 55.0,
+  "generation_id": "8AS22WmGcNd2Fq1fWTTH"
+ },
+ "r_119_a1_j": {
+  "status": "applied",
+  "credits": 28.0,
+  "generation_id": "scNLbpKFsz52KA7rF07J"
+ },
+ "r_119_a1_s": {
+  "status": "applied",
+  "credits": 30.0,
+  "generation_id": "vaxZpynGXWlpcMJfmaJr"
+ },
+ "r_119_a2_j": {
+  "status": "applied",
+  "credits": 34.0,
+  "generation_id": "2pr1sKYsK83N69mssJ0f"
+ },
+ "r_119_a2_s": {
+  "status": "applied",
+  "credits": 38.0,
+  "generation_id": "IIhoeN2JWkLTV9ZRpfbL"
  }
 }

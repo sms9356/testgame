@@ -1619,6 +1619,106 @@
   "credits": 114.0,
   "generation_id": "hooqeaqOOltbKRdnVUBg"
  },
+ "phone2": {
+  "status": "applied",
+  "credits": 99.0,
+  "generation_id": "yoM3WxJYucVVLQghfkZY"
+ },
+ "phone3": {
+  "status": "applied",
+  "credits": 121.0,
+  "generation_id": "ug1hMha9EtpClVPdSiya"
+ },
+ "phone0": {
+  "status": "applied",
+  "credits": 147.0,
+  "generation_id": "hKQpR5LA4A4X6ZNoEXvM"
+ },
+ "call_mina1": {
+  "status": "applied",
+  "credits": 121.0,
+  "generation_id": "L8TFv7W0fxTn3kuPHSU2"
+ },
+ "call_unk1": {
+  "status": "applied",
+  "credits": 117.0,
+  "generation_id": "eF0wLdXHL7wiG8tKmJ2H"
+ },
+ "call_mina2": {
+  "status": "applied",
+  "credits": 133.0,
+  "generation_id": "sFbOpGOZVRjTaRGgSjJV"
+ },
+ "call_unk2": {
+  "status": "applied",
+  "credits": 104.0,
+  "generation_id": "eLft6TFfDEhExCtZjd2k"
+ },
+ "call_home": {
+  "status": "applied",
+  "credits": 112.0,
+  "generation_id": "ZsDn1GWUf6EGsTDTmGR1"
+ },
+ "call_guard": {
+  "status": "applied",
+  "credits": 137.0,
+  "generation_id": "1m2sSUWyT4B1ramOx2Ef"
+ },
+ "call_fail": {
+  "status": "applied",
+  "credits": 93.0,
+  "generation_id": "ZvtxU3YMHzlFPxBzEV1w"
+ },
+ "call_119": {
+  "status": "applied",
+  "credits": 129.0,
+  "generation_id": "30rkIKP0ExheATpmxRBi"
+ },
+ "call_119_a1": {
+  "status": "applied",
+  "credits": 59.0,
+  "generation_id": "jbCKiVaVOIMsNuPcV6Yi"
+ },
+ "call_119_a2": {
+  "status": "applied",
+  "credits": 71.0,
+  "generation_id": "OSfipJYbfF0qqyRmxSfN"
+ },
+ "call_119_a3": {
+  "status": "applied",
+  "credits": 82.0,
+  "generation_id": "UIIkKwrb1jrwlF4AfF8w"
+ },
+ "call_119_a4": {
+  "status": "applied",
+  "credits": 75.0,
+  "generation_id": "8FoemAzaWq1fAuoJNknX"
+ },
+ "call_119_a5": {
+  "status": "applied",
+  "credits": 78.0,
+  "generation_id": "G1HFedyFqpM08MmWZpB3"
+ },
+ "call_119_b1": {
+  "status": "applied",
+  "credits": 78.0,
+  "generation_id": "rcaON8XNMnOgIC3fGoKO"
+ },
+ "call_119_b2": {
+  "status": "applied",
+  "credits": 110.0,
+  "generation_id": "D4U5ktfxyQEtCHifzOyS"
+ },
+ "call_119_b3": {
+  "status": "applied",
+  "credits": 90.0,
+  "generation_id": "dRFwJynrpen1deK0oXu9"
+ },
+ "call_home_a1": {
+  "status": "applied",
+  "credits": 63.0,
+  "generation_id": "Q6XxC5wZfTXzMY3uGKMB"
+ },
  "nd_n24": {
   "status": "applied",
   "credits": 110.0,

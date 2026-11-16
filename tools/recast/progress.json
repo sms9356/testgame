@@ -1018,5 +1018,105 @@
   "status": "applied",
   "credits": 40.0,
   "generation_id": "pBes4YuqSCA49dIkKFP7"
+ },
+ "l_m_roof_j": {
+  "status": "applied",
+  "credits": 34.0,
+  "generation_id": "xOGUtGW6Lh7EbDb0jqbm"
+ },
+ "l_m_gym_j": {
+  "status": "applied",
+  "credits": 32.0,
+  "generation_id": "AmFhg07QpFNHUre4M4hP"
+ },
+ "l_m_pool_j": {
+  "status": "applied",
+  "credits": 37.0,
+  "generation_id": "TrPJPyuzoac47rMBn4Fw"
+ },
+ "l_m_cafe_j": {
+  "status": "applied",
+  "credits": 33.0,
+  "generation_id": "TC0Wf7lLlEvEKWTj9AL9"
+ },
+ "l_m_class_j": {
+  "status": "applied",
+  "credits": 34.0,
+  "generation_id": "2RPoAnF453fSA7z8QJXD"
+ },
+ "l_m_staff_j": {
+  "status": "applied",
+  "credits": 32.0,
+  "generation_id": "GNVpp6gxQMa1S6mp2kQN"
+ },
+ "l_m_bcast_j": {
+  "status": "applied",
+  "credits": 34.0,
+  "generation_id": "j5brLNkDJ5XedzINODBx"
+ },
+ "l_m_battery_j": {
+  "status": "applied",
+  "credits": 32.0,
+  "generation_id": "OiAbmRsK3IxXmvpCbCuZ"
+ },
+ "l_m_medkit_j": {
+  "status": "applied",
+  "credits": 30.0,
+  "generation_id": "a6cOI12aOV3rILWF54bE"
+ },
+ "l_m_note_j": {
+  "status": "applied",
+  "credits": 31.0,
+  "generation_id": "NfONXFUbDtv8HyWu58LT"
+ },
+ "l_m_photo_j": {
+  "status": "applied",
+  "credits": 25.0,
+  "generation_id": "3hiHBg8YQ7T9Lz3NRRUD"
+ },
+ "l_m_evidence_j": {
+  "status": "applied",
+  "credits": 25.0,
+  "generation_id": "G0G41SYioqYn4UQalm1T"
+ },
+ "l_m_lowbat_j": {
+  "status": "applied",
+  "credits": 30.0,
+  "generation_id": "DOjqsMta661XQVT3sg28"
+ },
+ "l_m_dark_j": {
+  "status": "applied",
+  "credits": 28.0,
+  "generation_id": "sSlhzhf3KeuBXB5FaHDM"
+ },
+ "l_m_locked_j": {
+  "status": "applied",
+  "credits": 26.0,
+  "generation_id": "icPgdu3zJmcG9CWjq5Pm"
+ },
+ "l_m_tired_j": {
+  "status": "applied",
+  "credits": 27.0,
+  "generation_id": "2l9sc9c96M2HF726QzA3"
+ },
+ "l_m_hide_j": {
+  "status": "applied",
+  "credits": 22.0,
+  "generation_id": "9oC3qeepDB0MUezG9G6V"
+ },
+ "l_m_night_j": {
+  "status": "applied",
+  "credits": 35.0,
+  "generation_id": "uApQTBofj5aK5KMXv4V2"
+ },
+ "l_m_elev_j": {
+  "status": "applied",
+  "credits": 30.0,
+  "generation_id": "pTQl8oVGkAB7K1N1GZts"
+ },
+ "l_m_hurt_j": {
+  "status": "applied",
+  "credits": 30.0,
+  "generation_id": "1kWIMOmQTZa1Dz4nhRuv"
  }
 }

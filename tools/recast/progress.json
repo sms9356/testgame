@@ -718,5 +718,105 @@
   "status": "applied",
   "credits": 76.0,
   "generation_id": "bPsmoyp4wFcCikgrzVka"
+ },
+ "l_dorm2fClimb_s": {
+  "status": "applied",
+  "credits": 66.0,
+  "generation_id": "L5aTSjxebFmhctrf4drr"
+ },
+ "l_headFound_j": {
+  "status": "applied",
+  "credits": 74.0,
+  "generation_id": "LTjDy0kCmkgHY6ybtpzM"
+ },
+ "l_headFound_s": {
+  "status": "applied",
+  "credits": 68.0,
+  "generation_id": "ak3rK53tUiF8KV7wc2mH"
+ },
+ "l_headMissing_j": {
+  "status": "applied",
+  "credits": 87.0,
+  "generation_id": "h6zMm2cMEAoR06X34A80"
+ },
+ "l_headMissing_s": {
+  "status": "applied",
+  "credits": 85.0,
+  "generation_id": "4IiPvYWEogTZikoMSYHh"
+ },
+ "l_pumpPolice_j": {
+  "status": "applied",
+  "credits": 70.0,
+  "generation_id": "mtWE7jT0zyUelhLr8QsX"
+ },
+ "l_pumpPolice_s": {
+  "status": "applied",
+  "credits": 69.0,
+  "generation_id": "jJRWfyNKHVVsCJm1BGms"
+ },
+ "l_seomunPaper_j": {
+  "status": "applied",
+  "credits": 91.0,
+  "generation_id": "m3QIlf7lKD4RFxkDlMlJ"
+ },
+ "l_seomunPaper_s": {
+  "status": "applied",
+  "credits": 77.0,
+  "generation_id": "yh0cJBBhae92vlzTtolL"
+ },
+ "l_westGateReloc_j": {
+  "status": "applied",
+  "credits": 82.0,
+  "generation_id": "MZDyO4deW5hsZKInXChy"
+ },
+ "l_westGateReloc_s": {
+  "status": "applied",
+  "credits": 83.0,
+  "generation_id": "Nfb92gAxuC1ctKVLUciJ"
+ },
+ "l_wingExplore_j": {
+  "status": "applied",
+  "credits": 60.0,
+  "generation_id": "WGazVIhDF2arfAv81o6W"
+ },
+ "l_wingExplore_s": {
+  "status": "applied",
+  "credits": 70.0,
+  "generation_id": "7ljH1L4ywl6jRd1iXg6W"
+ },
+ "pr_start_s_0": {
+  "status": "applied",
+  "credits": 56.0,
+  "generation_id": "yWwQ4irFNVxvhF5BDuI1"
+ },
+ "pr_start_s_1": {
+  "status": "applied",
+  "credits": 37.0,
+  "generation_id": "7Fpk6ccovNKn6puvVyzG"
+ },
+ "pr_start_s_2": {
+  "status": "applied",
+  "credits": 35.0,
+  "generation_id": "wS5pmIIw4UBlIvV2Trsk"
+ },
+ "pr_start_j_0": {
+  "status": "applied",
+  "credits": 48.0,
+  "generation_id": "0diL58vdRjCrBWPvx42f"
+ },
+ "pr_start_j_1": {
+  "status": "applied",
+  "credits": 42.0,
+  "generation_id": "XURj1LqC3I5HtskP1GBk"
+ },
+ "pr_start_j_2": {
+  "status": "applied",
+  "credits": 36.0,
+  "generation_id": "HxDeK8rxo7FireE6T6Gi"
+ },
+ "pr_inside_s_0": {
+  "status": "applied",
+  "credits": 53.0,
+  "generation_id": "KNwYaAuTEph94OVMMCzP"
  }
 }

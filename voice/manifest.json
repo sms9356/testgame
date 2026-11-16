@@ -5989,209 +5989,235 @@
  "l_dorm2fClimb_s": {
   "spk": "seoyeon",
   "text": "기숙사 2층 침실과 심야 정독실이야… 창문 너머로 본관 쪽에서 비명이 들렸다는 사생들의 일지가 있어.",
-  "dur": 8.28,
+  "dur": 8.829,
   "baked": true,
   "eleven": "[nervous] 기숙사 2층 침실과 심야 정독실이야… 창문 너머로 본관 쪽에서 비명이 들렸다는 사생들의 일지가 있어.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
    "delivery": "[nervous]",
    "input_sha256": "73ba8ed78eafff08873c4ab02cc9b32429806b71e18658971f57c90282481b57",
-   "audio_sha256": "86d1a31b4a4beaf4284382bca70eef505c73700f074bc1c2b59c3c8656b93a30",
-   "review_status": "generated"
+   "audio_sha256": "06de7945a1425abdec56593ee325f359cda73c2757c37afbddc0c7a4b3e36f6a",
+   "generation_id": "L5aTSjxebFmhctrf4drr",
+   "flow_session_id": "SVWNhp65WHU0Ef0uL99M",
+   "review_status": "listening_required"
   }
  },
  "l_headFound_j": {
   "spk": "jihun",
   "text": "찾았다… 개교 기념 인장으로 위장해 진실을 덮으려고 십 년 동안 별관 진열장에 숨겨 둔 교장 직인 마스터 코어였어!",
-  "dur": 7.97,
+  "dur": 8.673,
   "baked": true,
-  "eleven": "[urgently] 찾았다… 개교 기념 인장으로 위장해 진실을 덮으려고 십 년 동안 별관 진열장에 숨겨 둔 교장 직인 마스터 코어였어!",
+  "eleven": "[nervous] 찾았다… 개교 기념 인장으로 위장해 진실을 덮으려고 십 년 동안 별관 진열장에 숨겨 둔 교장 직인 마스터 코어였어!",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[urgently]",
-   "input_sha256": "94bc6a4bfd3a630a0b2073b87bd56dbf3f7bce99e326dfe08d895303a315e9bc",
-   "audio_sha256": "8c23dfcb1f3174a519556c1ba68ee7c27f6dc9576bd06ce84184a870a006fc1c",
-   "review_status": "generated"
+   "delivery": "[nervous]",
+   "input_sha256": "da8c5a2b93c5e6318543fd3a314f6c9f7ffcab14ca59d5cf0f73ddcc4037c4c4",
+   "audio_sha256": "81950d1fbb6506785db432667d0f86b0f10c82721ac056dcc013b516d033dac4",
+   "generation_id": "LTjDy0kCmkgHY6ybtpzM",
+   "flow_session_id": "cisOkqg465j5lR8o8614",
+   "review_status": "listening_required"
   }
  },
  "l_headFound_s": {
   "spk": "seoyeon",
   "text": "개교 기념품이라니… 아무도 의심하지 못하게 교장 직인 마스터 코어를 십 년 동안 여기 전시해 둔 거였어!",
-  "dur": 7.24,
+  "dur": 8.046,
   "baked": true,
-  "eleven": "[urgently] 개교 기념품이라니… 아무도 의심하지 못하게 교장 직인 마스터 코어를 십 년 동안 여기 전시해 둔 거였어!",
+  "eleven": "[nervous] 개교 기념품이라니… 아무도 의심하지 못하게 교장 직인 마스터 코어를 십 년 동안 여기 전시해 둔 거였어!",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[urgently]",
-   "input_sha256": "c55644e9d275aa84582e28560a6e16b02f6f71df3d9bb7f976a31a968aa58931",
-   "audio_sha256": "450fbaef76eed6f1eba3e7894052e530189587a07755d470b78e07201b60c4d9",
-   "review_status": "generated"
+   "delivery": "[nervous]",
+   "input_sha256": "5d3898e3277f354667b7ed440a3e863d110096203901ddae886771acc4222b19",
+   "audio_sha256": "376090ce8c553756a650fb6515d76e99e23503b92e2184e6f0ab63280effda0b",
+   "generation_id": "ak3rK53tUiF8KV7wc2mH",
+   "flow_session_id": "dtcstTaJtnOoPBoCjzsD",
+   "review_status": "listening_required"
   }
  },
  "l_headMissing_j": {
   "spk": "jihun",
   "text": "잠깐… 다섯 교직원의 비밀 증거는 다 맞췄는데, 이걸 최종 승인·해제할 교장의 직인 마스터 코어가 빠져 있어. 교장실부터 조사해 봐야겠어.",
-  "dur": 10.03,
+  "dur": 10.371,
   "baked": true,
-  "eleven": "[tense] 잠깐… 다섯 교직원의 비밀 증거는 다 맞췄는데, 이걸 최종 승인·해제할 교장의 직인 마스터 코어가 빠져 있어. 교장실부터 조사해 봐야겠어.",
+  "eleven": "[nervous] 잠깐… 다섯 교직원의 비밀 증거는 다 맞췄는데, 이걸 최종 승인·해제할 교장의 직인 마스터 코어가 빠져 있어. 교장실부터 조사해 봐야겠어.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[tense]",
-   "input_sha256": "c4474ee38459948411feb2488e773c52f0e457e5aa103dd10d6e504b0eb369ed",
-   "audio_sha256": "a4a956c06a1379422b03aa89f3bad3c813818ea36332ab127aadc46b1d276895",
-   "review_status": "generated"
+   "delivery": "[nervous]",
+   "input_sha256": "4b921cd4a50ac34e48ddcdc256281bcfd9d1ca6d3664ee05c257761fa0ea244c",
+   "audio_sha256": "7865aaa8b3303fa06dbea91fd41d2a2a8a3e1b84938dfef0e964772149767454",
+   "generation_id": "h6zMm2cMEAoR06X34A80",
+   "flow_session_id": "1t3GokcWVKnC7HsMff3X",
+   "review_status": "listening_required"
   }
  },
  "l_headMissing_s": {
   "spk": "seoyeon",
   "text": "다섯 개의 비밀 증거는 모았는데 중심을 묶어 줄 교장 직인 마스터 코어가 없어… 교장 선생님이 별관 어딘가에 따로 숨겨 둔 게 분명해.",
-  "dur": 9.95,
+  "dur": 10.109,
   "baked": true,
   "eleven": "[nervous] 다섯 개의 비밀 증거는 모았는데 중심을 묶어 줄 교장 직인 마스터 코어가 없어… 교장 선생님이 별관 어딘가에 따로 숨겨 둔 게 분명해.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
    "delivery": "[nervous]",
    "input_sha256": "087642f8c5e944ae29b2a8ffdcb69b216b0137081df97317f5d19e2055363be4",
-   "audio_sha256": "ca59a1f37c83ba0c95a67f8c7e6ddd397e5bc0f8198b7f94781f71ea8607dd31",
-   "review_status": "generated"
+   "audio_sha256": "81b87494203e63ef3b9faee016f8b726ce92d453351967d6fc49a0b869198835",
+   "generation_id": "4IiPvYWEogTZikoMSYHh",
+   "flow_session_id": "JKUABoyB8z7MfOTXMWWu",
+   "review_status": "listening_required"
   }
  },
  "l_pumpPolice_j": {
   "spk": "jihun",
   "text": "지하 펌프실 한복판에 경찰 폴리스라인이 쳐져 있어… 바닥에 1998년 서린일보 지역신문 호외가 떨어져 있네.",
-  "dur": 8.75,
+  "dur": 9.247,
   "baked": true,
-  "eleven": "[tense] 지하 펌프실 한복판에 경찰 폴리스라인이 쳐져 있어… 바닥에 1998년 서린일보 지역신문 호외가 떨어져 있네.",
+  "eleven": "[nervous] 지하 펌프실 한복판에 경찰 폴리스라인이 쳐져 있어… 바닥에 1998년 서린일보 지역신문 호외가 떨어져 있네.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[tense]",
-   "input_sha256": "38e748ac973d0ed77ef663ffc1885bacaca1b0354d08271a4a21c52004b49eee",
-   "audio_sha256": "600e27e8f6e685d2157e797b9b972c6121a86c1b45144a8874b587e3a0bb3561",
-   "review_status": "unreviewed"
+   "delivery": "[nervous]",
+   "input_sha256": "910a58281900586b9fa2ceb4737831751d7c1cc45be730ada26c47f4eb406200",
+   "audio_sha256": "de0fb03a9e593a430416a7a0f885491985b81b0a3b69b06bc1b50c8750423a71",
+   "generation_id": "mtWE7jT0zyUelhLr8QsX",
+   "flow_session_id": "au1VLNHfw8H4GUQCTU0z",
+   "review_status": "listening_required"
   }
  },
  "l_pumpPolice_s": {
   "spk": "seoyeon",
   "text": "폴리스라인이야… 경찰이 지하 펌프실을 사건 현장으로 통제했었어. 바닥에 떨어진 지역신문 호외를 읽어 보자.",
-  "dur": 8.59,
+  "dur": 8.673,
   "baked": true,
   "eleven": "[nervous] 폴리스라인이야… 경찰이 지하 펌프실을 사건 현장으로 통제했었어. 바닥에 떨어진 지역신문 호외를 읽어 보자.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
    "delivery": "[nervous]",
    "input_sha256": "8974dfbc891ae8318c87d974b5b8cfa457e2a392b0d4604cc31b5915517cd02d",
-   "audio_sha256": "a16b65225348f9bfd5f71560081ac2240c55a2bf47f6a3d64841513e676fc378",
-   "review_status": "generated"
+   "audio_sha256": "91e4c2b772e1b041378b0557efea124cf471754f8220980ee18141d72dd6490f",
+   "generation_id": "jJRWfyNKHVVsCJm1BGms",
+   "flow_session_id": "4F6MjIdtmfeX6mqA8C0J",
+   "review_status": "listening_required"
   }
  },
  "l_seomunPaper_j": {
   "spk": "jihun",
   "text": "1998년 10월 13일자 서린일보 호외… \"서린고 3학년 윤하늘 양 심야 실종, 지하 배수 펌프실 안쪽에서 마지막 흔적 발견\"이라고 적혀 있어.",
-  "dur": 11.08,
+  "dur": 11.389,
   "baked": true,
-  "eleven": "[tense] 1998년 10월 13일자 서린일보 호외… \"서린고 3학년 윤하늘 양 심야 실종, 지하 배수 펌프실 안쪽에서 마지막 흔적 발견\"이라고 적혀 있어.",
+  "eleven": "[nervous] 1998년 10월 13일자 서린일보 호외… \"서린고 3학년 윤하늘 양 심야 실종, 지하 배수 펌프실 안쪽에서 마지막 흔적 발견\"이라고 적혀 있어.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[tense]",
-   "input_sha256": "fc34be4a1378aa31a6c9b94de8f1e0e25c95911a014ae9da35795a62a96896af",
-   "audio_sha256": "d397ce69d2dfbc1a39f42bf969ca47e7a0cce617b45090db726f4307385b6ad9",
-   "review_status": "unreviewed"
+   "delivery": "[nervous]",
+   "input_sha256": "5be48ed3017a1a5deb407a648aa137b576f7fd5c932e1488ea24e82c3497bf84",
+   "audio_sha256": "3854a682a8b9f0a408f088127d8191cef83b4fc74cfab9e4337cacbfd8d245de",
+   "generation_id": "m3QIlf7lKD4RFxkDlMlJ",
+   "flow_session_id": "nwliD3rHtmJjMMFgsfvo",
+   "review_status": "listening_required"
   }
  },
  "l_seomunPaper_s": {
   "spk": "seoyeon",
   "text": "서린일보 특별 호외야… 학교 측은 단순 가출이라고 주장했지만, 경찰 감식반은 펌프실 문이 밖에서 잠겨 있었다고 기록했어.",
-  "dur": 9.8,
+  "dur": 9.953,
   "baked": true,
   "eleven": "[nervous] 서린일보 특별 호외야… 학교 측은 단순 가출이라고 주장했지만, 경찰 감식반은 펌프실 문이 밖에서 잠겨 있었다고 기록했어.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
    "delivery": "[nervous]",
    "input_sha256": "2b327d8876382e5733159078583a781af1b85dd432158656cec7283920fe742a",
-   "audio_sha256": "3a0b1d1bf2923cf2b77be471d38a6c7a598993152ff6a674371a2c074a653b0a",
-   "review_status": "unreviewed"
+   "audio_sha256": "d1845fad26ab99ad0846c24810d8e02ea41e9a636a9cf4c86bf76c7e2971c280",
+   "generation_id": "yh0cJBBhae92vlzTtolL",
+   "flow_session_id": "Qo2eUxzUAY5N3bWoIV91",
+   "review_status": "listening_required"
   }
  },
  "l_westGateReloc_j": {
   "spk": "jihun",
   "text": "서문 대로 끝 외곽 아치 게이트도 봉인되어 있어. 학교가 은폐한 5대 비밀 증거를 모두 모아 진상 기록부를 완성해야 봉인이 풀려!",
-  "dur": 8.2,
+  "dur": 8.751,
   "baked": true,
-  "eleven": "[urgently] 서문 대로 끝 외곽 아치 게이트도 봉인되어 있어. 학교가 은폐한 5대 비밀 증거를 모두 모아 진상 기록부를 완성해야 봉인이 풀려!",
+  "eleven": "[nervous] 서문 대로 끝 외곽 아치 게이트도 봉인되어 있어. 학교가 은폐한 5대 비밀 증거를 모두 모아 진상 기록부를 완성해야 봉인이 풀려!",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[urgently]",
-   "input_sha256": "707f864c0ed984505c97c34c3965a0d4c27d9079fac1956c4f98fde4b4b6ac01",
-   "audio_sha256": "397f7072439bc8dd8ac5c3e5159cb2f4a5d0edfa438d1742898e7edd16fe099f",
-   "review_status": "generated"
+   "delivery": "[nervous]",
+   "input_sha256": "1c6a1bc589bcb970a63480373a2e3623ec779326ba372e0014e154b329e52c3c",
+   "audio_sha256": "b8b6e4b49a685d987b50634c53e8f513dcaf7ab957516e4e1f8883f393c7726e",
+   "generation_id": "MZDyO4deW5hsZKInXChy",
+   "flow_session_id": "WOYfp2fvhZAYuNmBO5SC",
+   "review_status": "listening_required"
   }
  },
  "l_westGateReloc_s": {
   "spk": "seoyeon",
   "text": "저기 서쪽 대로 끝에 봉인된 외곽 서문이 보여! 다섯 교직원이 숨긴 비밀 증거를 모두 밝혀내면 세상으로 나가 진실을 알릴 수 있어.",
-  "dur": 9.09,
+  "dur": 9.953,
   "baked": true,
-  "eleven": "[urgently] 저기 서쪽 대로 끝에 봉인된 외곽 서문이 보여! 다섯 교직원이 숨긴 비밀 증거를 모두 밝혀내면 세상으로 나가 진실을 알릴 수 있어.",
+  "eleven": "[nervous] 저기 서쪽 대로 끝에 봉인된 외곽 서문이 보여! 다섯 교직원이 숨긴 비밀 증거를 모두 밝혀내면 세상으로 나가 진실을 알릴 수 있어.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[urgently]",
-   "input_sha256": "e8ad4ab3616d4034be7951beb806186f018974c6fa8358c3472537bea346f3bc",
-   "audio_sha256": "6ef70928f6efba2f56d3d6e31b637d57f02693da5cc6a4f5025cf11bc0b3a5f7",
-   "review_status": "generated"
+   "delivery": "[nervous]",
+   "input_sha256": "9db998d8cce1a1cf2ddd6f58b6886d837628dbfd3b0c81d67d7e205f5bd1781a",
+   "audio_sha256": "23678ad4ca19303457b7c5f696ef765871eb8dd9002c85b2731593be10affddf",
+   "generation_id": "Nfb92gAxuC1ctKVLUciJ",
+   "flow_session_id": "ad76QvlMqXyOHS1ceHKI",
+   "review_status": "listening_required"
   }
  },
  "l_wingExplore_j": {
   "spk": "jihun",
   "text": "본관과 별관 양옆으로 확장된 연구동 날개까지 이어져 있어. 캠퍼스가 생각보다 훨씬 거대해.",
-  "dur": 7.16,
+  "dur": 7.628,
   "baked": true,
-  "eleven": "[tense] 본관과 별관 양옆으로 확장된 연구동 날개까지 이어져 있어. 캠퍼스가 생각보다 훨씬 거대해.",
+  "eleven": "[nervous] 본관과 별관 양옆으로 확장된 연구동 날개까지 이어져 있어. 캠퍼스가 생각보다 훨씬 거대해.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[tense]",
-   "input_sha256": "c264f806fff857f43f6bfa3fee37f424c07f82a2d84a5cc4d1ae1c63c78078c9",
-   "audio_sha256": "85e436cb43fe3d1b0028684f19205ce5669fcfc5d7fdc83a0180498671f20b54",
-   "review_status": "generated"
+   "delivery": "[nervous]",
+   "input_sha256": "b647f58ebcc5cf08c147a0d7c4391be580bad22cef56e8dd01aef6181cc1a751",
+   "audio_sha256": "58cf39542b066105ba9297c6a438d349ff1a0a3c0630b20f601c49d563b72d7c",
+   "generation_id": "WGazVIhDF2arfAv81o6W",
+   "flow_session_id": "If81369Oze3fsvPSgu55",
+   "review_status": "listening_required"
   }
  },
  "l_wingExplore_s": {
   "spk": "seoyeon",
   "text": "본관 동서 연구 윙이랑 별관 확장 구역까지… 이 넓은 학교 어딘가에 선배가 분명 남긴 단서가 더 있을 거야.",
-  "dur": 8.67,
+  "dur": 8.829,
   "baked": true,
   "eleven": "[nervous] 본관 동서 연구 윙이랑 별관 확장 구역까지… 이 넓은 학교 어딘가에 선배가 분명 남긴 단서가 더 있을 거야.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
    "delivery": "[nervous]",
    "input_sha256": "f98afd8edb6dbd0d0f7cd2ed5741e612d1d72b0b69d45fbedf9d37dc891e0d65",
-   "audio_sha256": "b98452a6d72a0d5729fe0e1cd00929dfd19f272655bcc9d554ece56798936523",
-   "review_status": "generated"
+   "audio_sha256": "0ce82f091a98295ecd06d725e92544e3733c4d0761a172ee8fa7f3dea697ca72",
+   "generation_id": "7ljH1L4ywl6jRd1iXg6W",
+   "flow_session_id": "EwoGxq4gC9k8NkY1LQIw",
+   "review_status": "listening_required"
   }
  },
  "call_rep_a1": {
@@ -7485,106 +7511,127 @@
  "pr_start_s_0": {
   "spk": "jihun",
   "text": "서연아, 들려? 정문 쪽은 내가 볼게. 넌 본관부터 가 봐. 무전기 절대 끄지 마.",
-  "dur": 5.84,
+  "dur": 6.034,
   "baked": true,
-  "eleven": "[over a walkie-talkie] 서연아, 들려? 정문 쪽은 내가 볼게. 넌 본관부터 가 봐. 무전기 절대 끄지 마.",
+  "eleven": "[nervous] 서연아, 들려? 정문 쪽은 내가 볼게. 넌 본관부터 가 봐. 무전기 절대 끄지 마.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "input_sha256": "57ae83a1467c741e5cfea905fcaf7cd07902aa380a3439022a3022b27310d0f0",
-   "audio_sha256": "c374910ce550c5589407497eb8b492817b4d5f03fd45dfda3640db2952088087",
-   "review_status": "generated"
+   "delivery": "[nervous]",
+   "input_sha256": "f064fc6b52bd61d5db95f3b7b83eb85e7f6b8e910c7553446a72003881e92090",
+   "audio_sha256": "fecc08c35a239e159be3954d6270f4d45383d269c96810d44a500876f7fe75ce",
+   "generation_id": "yWwQ4irFNVxvhF5BDuI1",
+   "flow_session_id": "4EG2EJjZgTHhNkufWIbc",
+   "review_status": "listening_required"
   }
  },
  "pr_start_s_1": {
   "spk": "seoyeon",
   "text": "응, 잘 들려. 지훈아… 너도 혼자 무리하지 마.",
-  "dur": 4.88,
+  "dur": 5.068,
   "baked": true,
-  "eleven": "[hushed, nervous] 응, 잘 들려. 지훈아… 너도 혼자 무리하지 마.",
+  "eleven": "[nervous] 응, 잘 들려. 지훈아… 너도 혼자 무리하지 마.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "input_sha256": "f9108f8f7398ab318351733db7f05871788130cfc225ef34b235239dd7abf58a",
-   "audio_sha256": "4e298780bcbd3e4702233a685fc352019b91c5b4f919c48899be04c49121862d",
-   "review_status": "generated"
+   "delivery": "[nervous]",
+   "input_sha256": "4f456a9b66937b1b018e8c1567c0024bc914abea1d91273846ef0e5ce7749b7b",
+   "audio_sha256": "7fe5debfb4348d45067ffc1c9dc0586f1ed8e321701761a102203e44f9e9d0be",
+   "generation_id": "7Fpk6ccovNKn6puvVyzG",
+   "flow_session_id": "RZf5ovDPHvEva5DBiBsr",
+   "review_status": "listening_required"
   }
  },
  "pr_start_s_2": {
   "spk": "jihun",
   "text": "십 분마다 연락하자. 대답 없으면 바로 갈게.",
-  "dur": 3.28,
+  "dur": 3.631,
   "baked": true,
-  "eleven": "[over a walkie-talkie] 십 분마다 연락하자. 대답 없으면 바로 갈게.",
+  "eleven": "[nervous] 십 분마다 연락하자. 대답 없으면 바로 갈게.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "input_sha256": "8a234a7a7b702c748d610f144f91a69764b6ca99faa41713414aee7d4a530a0d",
-   "audio_sha256": "ba57fc7e84d81c30c0d8bef0cfdc29e742a31f4973a06369efc70c78fdf5a1b6",
-   "review_status": "generated"
+   "delivery": "[nervous]",
+   "input_sha256": "093ea539e197b9425ca35fa26e7d4910497a6efda9381853501d2a7e3733d7dd",
+   "audio_sha256": "7dd46ca5a537d5c849af06e63af6a52c5ca4af33ac4fd7638bd0c433d3fc326e",
+   "generation_id": "wS5pmIIw4UBlIvV2Trsk",
+   "flow_session_id": "99s5G2MnWcuzMHMctjTM",
+   "review_status": "listening_required"
   }
  },
  "pr_start_j_0": {
   "spk": "seoyeon",
   "text": "지훈아, 들려? 난 별관 쪽 창문부터 확인할게. 넌 본관으로 들어가.",
-  "dur": 5.04,
+  "dur": 6.034,
   "baked": true,
-  "eleven": "[over a walkie-talkie] 지훈아, 들려? 난 별관 쪽 창문부터 확인할게. 넌 본관으로 들어가.",
+  "eleven": "[nervous] 지훈아, 들려? 난 별관 쪽 창문부터 확인할게. 넌 본관으로 들어가.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "input_sha256": "7d0e69da11899b35cb217ba51ceebb2a1acc86e325e0c46a14809e04c4181ba7",
-   "audio_sha256": "d455750d412552189cea45ba5e82584e881e77a32271c4ae9e4c1f029a5339f0",
-   "review_status": "generated"
+   "delivery": "[nervous]",
+   "input_sha256": "d7df62a0de7403e2cb781e8c2b12a1a39461163e210a7868ddecc67eb926cf57",
+   "audio_sha256": "350edcc3889b6f7d9181a27c7156930e407378907bbe531c0eb321df50b0b0e9",
+   "generation_id": "0diL58vdRjCrBWPvx42f",
+   "flow_session_id": "OdJzTMeNecdYgP2v2vpT",
+   "review_status": "listening_required"
   }
  },
  "pr_start_j_1": {
   "spk": "jihun",
   "text": "알았어. 서연아, 무서우면 바로 불러. 혼자 버티지 말고.",
-  "dur": 4.56,
+  "dur": 4.989,
   "baked": true,
-  "eleven": "[hushed, nervous] 알았어. 서연아, 무서우면 바로 불러. 혼자 버티지 말고.",
+  "eleven": "[nervous] 알았어. 서연아, 무서우면 바로 불러. 혼자 버티지 말고.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "input_sha256": "52cea32111181ee038023ec95869feb0f20910e512adaaa32e47b00e55810ff3",
-   "audio_sha256": "c303e10698c171636f28b7b34f5922e46096333010b9be094a28c61b04278729",
-   "review_status": "generated"
+   "delivery": "[nervous]",
+   "input_sha256": "a5739e8f5c0e249a7b4e18871112bf1782deaef164a80a78f758f2af82b1da58",
+   "audio_sha256": "c0c9041fcd57eccc461f36fe3b2275a539d9d32994c8f01ef88853bbdec665a6",
+   "generation_id": "XURj1LqC3I5HtskP1GBk",
+   "flow_session_id": "YbLJQpYlBMIKqCxlZ6Bg",
+   "review_status": "listening_required"
   }
  },
  "pr_start_j_2": {
   "spk": "seoyeon",
   "text": "그 말, 그대로 돌려줄게. 민아 선배 꼭 찾자.",
-  "dur": 3.92,
+  "dur": 4.598,
   "baked": true,
-  "eleven": "[over a walkie-talkie] 그 말, 그대로 돌려줄게. 민아 선배 꼭 찾자.",
+  "eleven": "[nervous] 그 말, 그대로 돌려줄게. 민아 선배 꼭 찾자.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "input_sha256": "fddef3fa88ba90a16f60d063184db4b1be82040e69cfccae6c0eb3532e7a99bb",
-   "audio_sha256": "c776bd8670f12e89b8bed0d4f2b002ec8a68b21fc6879842a1e9c8ac91bbc4cb",
-   "review_status": "generated"
+   "delivery": "[nervous]",
+   "input_sha256": "5022b496d8981781c69d75d4a3614b9ae971cf4004f36f8d5395580fa0704a35",
+   "audio_sha256": "ef16e92adb222e91ea7eb8d5e92035717cfc7695f60fa38dcee561ba2ba26144",
+   "generation_id": "HxDeK8rxo7FireE6T6Gi",
+   "flow_session_id": "upL4JCf4BDHH8P1ft3ZF",
+   "review_status": "listening_required"
   }
  },
  "pr_inside_s_0": {
   "spk": "seoyeon",
   "text": "지훈아, 본관 안이야. 불이 하나도 안 켜져 있어… 손전등 하나로 버텨야겠어.",
-  "dur": 6.08,
+  "dur": 6.348,
   "baked": true,
-  "eleven": "[hushed, nervous] 지훈아, 본관 안이야. 불이 하나도 안 켜져 있어… 손전등 하나로 버텨야겠어.",
+  "eleven": "[nervous] 지훈아, 본관 안이야. 불이 하나도 안 켜져 있어… 손전등 하나로 버텨야겠어.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "input_sha256": "28bbef64b57a85b6e154a2f80a0fa01bb163d64ed5324f4acc8bad88a9b5490d",
-   "audio_sha256": "683c18e39efc749cfa0cec7179a04a8d924ebfb9739ddc4e7ad2af93fd48b820",
-   "review_status": "generated"
+   "delivery": "[nervous]",
+   "input_sha256": "69ac9ade5f50fdad7ab3c5fead0748322587691803a6717d41e45d9d93dd2877",
+   "audio_sha256": "d86e719446b57144e560f79fa2ff514df1d1e2cebb49b36c6c524fdc3041a1c2",
+   "generation_id": "KNwYaAuTEph94OVMMCzP",
+   "flow_session_id": "D2MWMKnJk3dgsYrI0OIY",
+   "review_status": "listening_required"
   }
  },
  "pr_inside_s_1": {

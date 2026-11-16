@@ -5522,81 +5522,91 @@
  "ts_mina": {
   "spk": "mina",
   "text": "민아의 취재 녹음, 셋째 날. 증언이 서로 엇갈려. 문은 열려 있었다, 잠겨 있었다. 근데 둘 다 맞을 수 있어. 문이 두 개라면. 가설은 하나씩 지워 가는 거야. 남는 게 진실이야.",
-  "dur": 14.6,
+  "dur": 15.386,
   "baked": true,
-  "eleven": "[frightened] [softly] 민아의 취재 녹음, 셋째 날. 증언이 서로 엇갈려. 문은 열려 있었다, 잠겨 있었다. 근데 둘 다 맞을 수 있어. 문이 두 개라면. 가설은 하나씩 지워 가는 거야. 남는 게 진실이야.",
+  "eleven": "[worried] [slowly] 민아의 취재 녹음, 셋째 날. 증언이 서로 엇갈려. 문은 열려 있었다, 잠겨 있었다. 근데 둘 다 맞을 수 있어. 문이 두 개라면. 가설은 하나씩 지워 가는 거야. 남는 게 진실이야.",
   "generation": {
-   "voice_id": "oGV8pbtfEm7fbDPdSfrx",
+   "voice_id": "5I7B1di44aCL15NkP0jn",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[frightened] [softly]",
-   "input_sha256": "ca9e55993446d1716ed1d8e6ca1cdb1a1b856fab2b64410ae2d6997268d99a1a",
-   "audio_sha256": "1963982ef87fea72889cbbd51a9b6cae44aca270b430e88ae8fa91407a3f4653",
-   "review_status": "generated"
+   "delivery": "[worried] [slowly]",
+   "input_sha256": "e7647e78e1c0bf3fc5af739e3f9acd85521507006bc6c8619fca4a54aa3fa064",
+   "audio_sha256": "1f6a06d7791cd8a682b42d4973fffd4897966cac39673a34d080b890be4c854f",
+   "generation_id": "NCa9NdqoHIMWdIK3aiI7",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "gd_radio1": {
   "spk": "guard",
   "text": "본부, 본부, 여기 정문 초소. 밤 열 시 사십오 분. 지하 펌프실 환기구 쪽에서… 쿵, 쿵… 철문 두드리는 소리가 나유. 누가 갇힌 것 같은디, 열쇠가 어디 있는지 확인 바란다. 오버.",
-  "dur": 13.44,
+  "dur": 14.367,
   "baked": true,
-  "eleven": "[elderly voice] [rough] 본부, 본부, 여기 정문 초소. 밤 열 시 사십오 분. 지하 펌프실 환기구 쪽에서… 쿵, 쿵… 철문 두드리는 소리가 나유. 누가 갇힌 것 같은디, 열쇠가 어디 있는지 확인 바란다. 오버.",
+  "eleven": "[over a walkie-talkie] [elderly voice] 본부, 본부, 여기 정문 초소. 밤 열 시 사십오 분. 지하 펌프실 환기구 쪽에서… 쿵, 쿵… 철문 두드리는 소리가 나유. 누가 갇힌 것 같은디, 열쇠가 어디 있는지 확인 바란다. 오버.",
   "generation": {
-   "voice_id": "lZLh6IYERWP1xQ7NnDOg",
+   "voice_id": "UmYoqGlufKxhJ6NCx5Mv",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[elderly voice] [rough]",
-   "input_sha256": "9d73c56544901d8cc99e4e3046676a12e2c1e697a47da8538b274fab6a83048f",
-   "audio_sha256": "91d9177ff3fc32ac7eaef8c44f511b1eba5327caa7cae67797c3c5779ae2bf3a",
-   "review_status": "generated"
+   "delivery": "[over a walkie-talkie] [elderly voice]",
+   "input_sha256": "02c471fc0e9a111544cc60cbf421591e1a625bb81410bc27bfd586bcbc32e452",
+   "audio_sha256": "7d8042c44e8b9b8b493f2b5fc40d6f433f44c0e21b33f23772b4a84f452234a6",
+   "generation_id": "KRnONsFTdRZ5Px6IVYKq",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "gd_radio2": {
   "spk": "guard",
   "text": "교무실, 교무실, 응답 좀 해 봐유! 아니, 장난이라 해도 애가 안에 있잖여… 지금 꺼내야 혀유. 뭐라고유? 아침에 열라고유? …알았슈. 오버.",
-  "dur": 13.64,
+  "dur": 12.278,
   "baked": true,
-  "eleven": "[elderly voice] [rough] 교무실, 교무실, 응답 좀 해 봐유! 아니, 장난이라 해도 애가 안에 있잖여… 지금 꺼내야 혀유. 뭐라고유? 아침에 열라고유? …알았슈. 오버.",
+  "eleven": "[over a walkie-talkie] [elderly voice] 교무실, 교무실, 응답 좀 해 봐유! 아니, 장난이라 해도 애가 안에 있잖여… 지금 꺼내야 혀유. 뭐라고유? 아침에 열라고유? …알았슈. 오버.",
   "generation": {
-   "voice_id": "lZLh6IYERWP1xQ7NnDOg",
+   "voice_id": "UmYoqGlufKxhJ6NCx5Mv",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[elderly voice] [rough]",
-   "input_sha256": "8cfc0f1f890912031c78e07f4aa2232459e7baf6da0d7f4cb1195c9fa455f014",
-   "audio_sha256": "0c74ff1340df92afb0c756f464fe7120d942b64bada78fb0f7de0b431f2226f6",
-   "review_status": "generated"
+   "delivery": "[over a walkie-talkie] [elderly voice]",
+   "input_sha256": "3b2f188d41c199458002b98b808c8cec4ddc0f0467c7303115867835cce47488",
+   "audio_sha256": "47985791b9a713d041e978617cbbb3cbec31e082addd2d78875f7fcac74d7cf2",
+   "generation_id": "FrRI8wo0fS3LpClZrq1Z",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "gd_radio3": {
   "spk": "guard",
   "text": "정전이여, 정전! 본관 불이 싹 다 나갔슈! 비상등도 안 들어와유! 지하 쪽 소리가… 소리가 멈췄어유. 아무도 대답을 안 혀… 누구라도 들리면 응답해유! 오버!",
-  "dur": 12.36,
+  "dur": 12.434,
   "baked": true,
-  "eleven": "[elderly voice] [rough] 정전이여, 정전! 본관 불이 싹 다 나갔슈! 비상등도 안 들어와유! 지하 쪽 소리가… 소리가 멈췄어유. 아무도 대답을 안 혀… 누구라도 들리면 응답해유! 오버!",
+  "eleven": "[over a walkie-talkie] [elderly voice] 정전이여, 정전! 본관 불이 싹 다 나갔슈! 비상등도 안 들어와유! 지하 쪽 소리가… 소리가 멈췄어유. 아무도 대답을 안 혀… 누구라도 들리면 응답해유! 오버!",
   "generation": {
-   "voice_id": "lZLh6IYERWP1xQ7NnDOg",
+   "voice_id": "UmYoqGlufKxhJ6NCx5Mv",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[elderly voice] [rough]",
-   "input_sha256": "2d1788af1ede93992ebbbac016f0a9d1584afd7cd8f258951804b1a7f3ebaf5a",
-   "audio_sha256": "4e148c9acbf488f0678ca943cdd1f7fc359bb9442fb5aa24d4ff429ea820e7dd",
-   "review_status": "generated"
+   "delivery": "[over a walkie-talkie] [elderly voice]",
+   "input_sha256": "66da5ab82dafac17f8f0a02bb56a3819898b11ebc17fdbd60dfbaa89871c7642",
+   "audio_sha256": "488093a7ba12e360eb2e2ac6da8f7c658f39741b7d5ad3c355f1f6ec021f08c8",
+   "generation_id": "gnT8tBXbc0IdDb2SoZBC",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "gd_log1": {
   "spk": "guard",
   "text": "근무 일지. 10월 12일 월요일. 오후 여섯 시 교대. 방송부 애들 기념 방송 땜시 본관 개방, 리허설은 밤 열 시, 하교 방송은 열한 시 사십 분. 교무부장 지시, 지하 펌프실 열쇠는 경비실에 두지 말 것. 이상 무… 라고 적었는디.",
-  "dur": 19.2,
+  "dur": 18.599,
   "baked": true,
-  "eleven": "[elderly voice] [rough] 근무 일지. 10월 12일 월요일. 오후 여섯 시 교대. 방송부 애들 기념 방송 땜시 본관 개방, 리허설은 밤 열 시, 하교 방송은 열한 시 사십 분. 교무부장 지시, 지하 펌프실 열쇠는 경비실에 두지 말 것. 이상 무… 라고 적었는디.",
+  "eleven": "[over a walkie-talkie] [elderly voice] 근무 일지. 10월 12일 월요일. 오후 여섯 시 교대. 방송부 애들 기념 방송 땜시 본관 개방, 리허설은 밤 열 시, 하교 방송은 열한 시 사십 분. 교무부장 지시, 지하 펌프실 열쇠는 경비실에 두지 말 것. 이상 무… 라고 적었는디.",
   "generation": {
-   "voice_id": "lZLh6IYERWP1xQ7NnDOg",
+   "voice_id": "UmYoqGlufKxhJ6NCx5Mv",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[elderly voice] [rough]",
-   "input_sha256": "95f0e64a83db589b4b4af5bd53f0ffb34461b337c780e23efc51f34a15e2e242",
-   "audio_sha256": "19ed4f5c12a47987a72d4f1dcaa509218efc0933f529e21e8ef1483a420c0019",
-   "review_status": "generated"
+   "delivery": "[over a walkie-talkie] [elderly voice]",
+   "input_sha256": "8b3b7031116d30409569250905ddffc5f848ba6352484660ef3e12e04b50d6fa",
+   "audio_sha256": "cf3eb5d8e61c1732d921d670e37f53a43947c2c036ff221522153c4f6a6300c6",
+   "generation_id": "ub00CiEzs5BDHWoA4RZs",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "gd_log2": {
@@ -5618,65 +5628,73 @@
  "gd_log3": {
   "spk": "guard",
   "text": "1999년 2월, 내 마지막 근무. 나도 이 학교를 떠나는댜. 열쇠 꾸러미 반납허고… 정문에 쇠사슬 감았슈. 근디 해마다 10월 12일 밤이면, 꺼진 스피커에서 하교 방송이 들린다는 소문이 돌더라고. 나는… 안 믿어유. 안 믿고 싶어유.",
-  "dur": 21.44,
+  "dur": 21.394,
   "baked": true,
-  "eleven": "[elderly voice] [rough] 1999년 2월, 내 마지막 근무. 나도 이 학교를 떠나는댜. 열쇠 꾸러미 반납허고… 정문에 쇠사슬 감았슈. 근디 해마다 10월 12일 밤이면, 꺼진 스피커에서 하교 방송이 들린다는 소문이 돌더라고. 나는… 안 믿어유. 안 믿고 싶어유.",
+  "eleven": "[over a walkie-talkie] [elderly voice] 1999년 2월, 내 마지막 근무. 나도 이 학교를 떠나는댜. 열쇠 꾸러미 반납허고… 정문에 쇠사슬 감았슈. 근디 해마다 10월 12일 밤이면, 꺼진 스피커에서 하교 방송이 들린다는 소문이 돌더라고. 나는… 안 믿어유. 안 믿고 싶어유.",
   "generation": {
-   "voice_id": "lZLh6IYERWP1xQ7NnDOg",
+   "voice_id": "UmYoqGlufKxhJ6NCx5Mv",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[elderly voice] [rough]",
-   "input_sha256": "24d1aee3169bafea42af808cb6f8bf999a3838899c976dc6e3a05d962ec8c40d",
-   "audio_sha256": "6c19cb68c0d4604cb01508bfd15e51924e9dc0e27979d5134cc3e4b522eaf4ae",
-   "review_status": "generated"
+   "delivery": "[over a walkie-talkie] [elderly voice]",
+   "input_sha256": "e4412216fc4849f1e21cadac54027a734df799332d6ed77591fc1eec7ef9ee0d",
+   "audio_sha256": "c699d153a354c89b7c7528a7790fcb8c8eb5ee0d49f47eca94b0f40f53ee5cdc",
+   "generation_id": "UCWF0nRJkg3A51FLNR4L",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "ts_guard": {
   "spk": "guard",
   "text": "민아 학생이라고 혔지? 이 늙은이 얘기 녹음허는 거 맞쥬. 그날 밤 나는 다 들었어. 쿵쿵 소리도, 교무실 무전도. 내가 열쇠를 뺏어서라도 내려갔어야 혔는디… 십 년을 그 소리 듣고 살았슈. 무전기는 경비실 서랍에 그대로 있을 거여. 그날 밤 교신, 다 거기 남아 있슈.",
-  "dur": 22.28,
+  "dur": 23.562,
   "baked": true,
-  "eleven": "[elderly voice] [rough] 민아 학생이라고 혔지? 이 늙은이 얘기 녹음허는 거 맞쥬. 그날 밤 나는 다 들었어. 쿵쿵 소리도, 교무실 무전도. 내가 열쇠를 뺏어서라도 내려갔어야 혔는디… 십 년을 그 소리 듣고 살았슈. 무전기는 경비실 서랍에 그대로 있을 거여. 그날 밤 교신, 다 거기 남아 있슈.",
+  "eleven": "[elderly voice] [slowly] 민아 학생이라고 혔지? 이 늙은이 얘기 녹음허는 거 맞쥬. 그날 밤 나는 다 들었어. 쿵쿵 소리도, 교무실 무전도. 내가 열쇠를 뺏어서라도 내려갔어야 혔는디… 십 년을 그 소리 듣고 살았슈. 무전기는 경비실 서랍에 그대로 있을 거여. 그날 밤 교신, 다 거기 남아 있슈.",
   "generation": {
-   "voice_id": "lZLh6IYERWP1xQ7NnDOg",
+   "voice_id": "UmYoqGlufKxhJ6NCx5Mv",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[elderly voice] [rough]",
-   "input_sha256": "dc9bbac029ed93dc5c8b0e19998f561f337b7fe16244cb8dfa66eab5cc47c51d",
-   "audio_sha256": "cba74a06be5138973ee79de08e49d808f533e23e42f0a8a530dd8a72c9f90d59",
-   "review_status": "generated"
+   "delivery": "[elderly voice] [slowly]",
+   "input_sha256": "2c036b5aadef322f397fb374cbf60e79e18aa76f41177503faed2fea5fe79a27",
+   "audio_sha256": "a493f1d2962891ca137220989e98139f06f85cc1661d8867d253079de9fe4360",
+   "generation_id": "vOS7VIyk0WRk35euvxWi",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "gd_call": {
   "spk": "guard",
   "text": "서린고등학교 정문 경비실입니다. 지금은 근무자가 자리에 없슈. 용건 남기시믄… 밤에는 본관 출입 금지여유. 지하는 물이 차서 위험허니께, 절대 내려가지 마유.",
-  "dur": 12.67,
+  "dur": 12.931,
   "baked": true,
-  "eleven": "[elderly voice] [rough] 서린고등학교 정문 경비실입니다. 지금은 근무자가 자리에 없슈. 용건 남기시믄… 밤에는 본관 출입 금지여유. 지하는 물이 차서 위험허니께, 절대 내려가지 마유.",
+  "eleven": "[over a walkie-talkie] [elderly voice] 서린고등학교 정문 경비실입니다. 지금은 근무자가 자리에 없슈. 용건 남기시믄… 밤에는 본관 출입 금지여유. 지하는 물이 차서 위험허니께, 절대 내려가지 마유.",
   "generation": {
-   "voice_id": "lZLh6IYERWP1xQ7NnDOg",
+   "voice_id": "UmYoqGlufKxhJ6NCx5Mv",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[elderly voice] [rough]",
-   "input_sha256": "37a393c726c0599262efea77c27d0782e7a95fc615e3abed61f8b2c753d44445",
-   "audio_sha256": "a487e042bbe1c70ca54bec89a0702eecd9398e4cd9cf8cb2a0598b09f8627ce2",
-   "review_status": "unreviewed"
+   "delivery": "[over a walkie-talkie] [elderly voice]",
+   "input_sha256": "d020100edde1690c202d587715175a8ec9afec7fd301f834660252db6286b67f",
+   "audio_sha256": "405e0117c5eaf23945add90006778b752f9ffc8bcf000d859be0628be55f5376",
+   "generation_id": "yDDvwyw1mtL4laNzasUY",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "ts_cook": {
   "spk": "cook",
   "text": "급식실 조리실장이에요. 그날 저녁에 방송부 애들 먹으라고 주먹밥을 남겨 놨거든요. 하늘이가 와서 그랬어요. 아줌마, 리허설 끝나면 하나 더 먹으러 올게요. 그 주먹밥… 다음 날 아침까지 그대로 있었어요. 그 뒤로 십 년을, 저는 매일 한 명분을 더 차려 놨어요.",
-  "dur": 21.32,
+  "dur": 21.159,
   "baked": true,
-  "eleven": "[warmly] 급식실 조리실장이에요. 그날 저녁에 방송부 애들 먹으라고 주먹밥을 남겨 놨거든요. 하늘이가 와서 그랬어요. 아줌마, 리허설 끝나면 하나 더 먹으러 올게요. 그 주먹밥… 다음 날 아침까지 그대로 있었어요. 그 뒤로 십 년을, 저는 매일 한 명분을 더 차려 놨어요.",
+  "eleven": "[warmly] [slowly] 급식실 조리실장이에요. 그날 저녁에 방송부 애들 먹으라고 주먹밥을 남겨 놨거든요. 하늘이가 와서 그랬어요. 아줌마, 리허설 끝나면 하나 더 먹으러 올게요. 그 주먹밥… 다음 날 아침까지 그대로 있었어요. 그 뒤로 십 년을, 저는 매일 한 명분을 더 차려 놨어요.",
   "generation": {
-   "voice_id": "tbMC7ogaglVnkFQgUOta",
+   "voice_id": "0oqpliV6dVSr9XomngOW",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[warmly]",
-   "input_sha256": "c6eca90bba8d3cd3b8ffb2495e1fb08a998c0a8bb1101f3343008de730c012b0",
-   "audio_sha256": "255656b25c9d7e9784d20fc4b5c44ef0f4f0042ccd7e3e1b5941c414ecfa81b6",
-   "review_status": "generated"
+   "delivery": "[warmly] [slowly]",
+   "input_sha256": "f14fae6e0fed9464718b8e71dffd96969e418a94d65f59dd4b7527b222114adc",
+   "audio_sha256": "eaef0bd04dcc4782e05437f00ecf6a806ac0ee7a9a83b3c75dcc73d05dc4b035",
+   "generation_id": "aK9WHUzPUwbDc8VetHCW",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "ts_music": {

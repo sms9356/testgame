@@ -24,13 +24,13 @@ teen roles are cast from the Korean voice library instead.
 | mom (주인공 엄마) | 9cino9hfS3ougiPeFvp1 | 수진 – 밝고 친근한 여성 | late-30s natural mother voice |
 | reporter, pa, peTeacher, homeroom, nurse, librarian, counselor, friend, friend2, snackLady, paramedic, vicePrincipal, electrician, musicTeacher, artTeacher, janitor, dispatcher, police, classRep | (unchanged) | current library voices | already age/role-appropriate; re-performed with new per-line tags only |
 
-## Status (2026-11-12)
+## Status (2026-11-16)
 
-The ElevenLabs workspace hit its quota (150,065 credits; ~14 left) after the first batch.
-
-* Applied (new take in `voice/`): `intro1`, `intro2`, `intro4`, `intro1n`, `intro2n` (narrator, Kang).
-* Generated but **not applied** (would mix old and new voices for the same character until the rest is re-dubbed):
-  `intro3`, `intro3n` (mina), `intro4n_s` (seoyeon), `intro4n_j` (jihun), `news_s` (seoyeon), `ghThanks` (mother).
-* Remaining: 637 lines, ≈48,000 characters ≈ 60,000 credits at the observed ~1.25 credits/char.
-  Order: intro → main story (`l_`, `cam`, `bc`, `mw`, `news`, `pr_`, `mc_`, `cue_`, guard talk) → endings →
-  calls/phone/radio → tapes/testimonies → notes → incidental (`elv_`).
+* Applied with the new cast: 83 / 648 lines — all intro lines, cam1, pa1, ghThanks, news_s and the first
+  70 main-story `l_*` lines (jihun/seoyeon, through `l_findMina_*`).
+* Remaining: 565 lines (≈ 44,000 chars ≈ 55,000 credits at ~1.25 credits/char), including the 10 lines that
+  failed on quota last time (`bc_*`, `mw_*`, `news_rep`, `news_j`, `news_quote`, `endTrue/Normal/Bad`).
+* Until the rest is done, jihun/seoyeon/mina switch between new and old voices mid-game.
+* Resume: progress lives in the scratchpad `recast/progress.json`; `rc.py next N` lists the next pending lines in
+  priority order, `rc.py start id=session…` records started generations, and `ap.sh` applies finished takes
+  (`tools/recast_apply.py`) — applied lines are never regenerated.

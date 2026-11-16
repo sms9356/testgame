@@ -1918,5 +1918,105 @@
   "status": "applied",
   "credits": 92.0,
   "generation_id": "fArURLulIZ8z6plne8ys"
+ },
+ "nd_n_dorm2f_diary": {
+  "status": "applied",
+  "credits": 137.0,
+  "generation_id": "aejO6sJa1f8nOH1BPHTi"
+ },
+ "nd_n_bunker_audit": {
+  "status": "applied",
+  "credits": 142.0,
+  "generation_id": "a5iLAsTT55BRi0sqQgks"
+ },
+ "nd_n_principal_tape": {
+  "status": "applied",
+  "credits": 275.0,
+  "generation_id": "yOrXe2SlfaThT6ldRYow"
+ },
+ "nd_n_guard_diary": {
+  "status": "applied",
+  "credits": 274.0,
+  "generation_id": "go52Lsx9yNlzytkOg4Sj"
+ },
+ "nv_nC_j": {
+  "status": "applied",
+  "credits": 62.0,
+  "generation_id": "GNQ6G6vcindQjfjh3T4N"
+ },
+ "nv_n13": {
+  "status": "applied",
+  "credits": 66.0,
+  "generation_id": "AOyjyykVOobiL8gw40dy"
+ },
+ "nv_q1a": {
+  "status": "applied",
+  "credits": 88.0,
+  "generation_id": "C5vDlvErWmTHANtfSMPX"
+ },
+ "nv_n12": {
+  "status": "applied",
+  "credits": 84.0,
+  "generation_id": "vs8SGRUxqj0Id5mp8HEt"
+ },
+ "nv_nC_s": {
+  "status": "applied",
+  "credits": 93.0,
+  "generation_id": "dFHJdAInZp252vV2MCC7"
+ },
+ "nv_n19": {
+  "status": "applied",
+  "credits": 102.0,
+  "generation_id": "1VFRiZ8EUDaZqYx30Wni"
+ },
+ "nv_q7b": {
+  "status": "applied",
+  "credits": 85.0,
+  "generation_id": "eBIkCIoogF2NtopZaXYD"
+ },
+ "nv_n11": {
+  "status": "applied",
+  "credits": 94.0,
+  "generation_id": "uYWeBRfhXMShnmGJDSsl"
+ },
+ "nv_q3b": {
+  "status": "applied",
+  "credits": 93.0,
+  "generation_id": "zaIKsMamriUsvmKAhm9x"
+ },
+ "nv_h2": {
+  "status": "applied",
+  "credits": 92.0,
+  "generation_id": "lE4Qc5f2Fu3QQ5mBtWlN"
+ },
+ "nv_n16": {
+  "status": "applied",
+  "credits": 60.0,
+  "generation_id": "0ZCkFHcxKwAE0laQTnFG"
+ },
+ "nv_q6c": {
+  "status": "applied",
+  "credits": 67.0,
+  "generation_id": "mHW0DeneoeSxBmi9mGi0"
+ },
+ "nv_q6b": {
+  "status": "applied",
+  "credits": 77.0,
+  "generation_id": "VbjoPPGz52OoMNwhpRju"
+ },
+ "nv_q6a": {
+  "status": "applied",
+  "credits": 84.0,
+  "generation_id": "tXqrXzqg0CryGgwbH8f8"
+ },
+ "nv_n15": {
+  "status": "applied",
+  "credits": 95.0,
+  "generation_id": "yXbQcwxmKqwFBUR1kgWk"
+ },
+ "nv_n6": {
+  "status": "applied",
+  "credits": 109.0,
+  "generation_id": "gji5v7yVcqa4peESJb32"
  }
 }

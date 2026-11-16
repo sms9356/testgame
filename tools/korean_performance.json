@@ -38,8 +38,8 @@
       "direction": "현재 게임 캐스팅의 충청도 중년 남성 유지. 경고는 걱정으로, 사투리 과장 금지. konan의 60대 표기와 차이가 있음."
     },
     "pa": {
-      "voice_id": "6wIijutElRjsgwLbECzl",
-      "name": "Joey Kim",
+      "voice_id": "kiVK4omWhBQ9AzwcaRq7",
+      "name": "Hyeonwoo",
       "direction": "남성 교내 방송. 일정한 공식 발성, 반복 구절의 압박."
     },
     "ghost": {
@@ -66,8 +66,8 @@
       "name": "MJ – Calm, Clear, Versatile"
     },
     "witness_principal": {
-      "voice_id": "6wIijutElRjsgwLbECzl",
-      "name": "Joey Kim"
+      "voice_id": "kiVK4omWhBQ9AzwcaRq7",
+      "name": "Hyeonwoo"
     },
     "witness_nurse": {
       "voice_id": "UvgKIGQwdeBJcpRJvb3P",

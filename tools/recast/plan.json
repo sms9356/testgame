@@ -1,0 +1,5186 @@
+[
+ {
+  "id": "intro1",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[low voice] 2008년 10월 12일, 오후 다섯 시 오십 분. 십 년 전 그 참사를 조용히 덮어 버린 서린고등학교 너머로 검붉은 해가 기울기 시작했다.",
+  "chars": 90,
+  "pri": 0
+ },
+ {
+  "id": "intro2",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[low voice] 어젯밤, 방송부 선배 민아가 담력체험을 하겠다며 밤의 학교에 몰래 숨어 들어간 뒤 연락이 끊겼다. 함께 갔던 아이들은 모두 도망쳐 나왔지만, 민아만 돌아오지 못했다.",
+  "chars": 104,
+  "pri": 0
+ },
+ {
+  "id": "intro3",
+  "spk": "mina",
+  "voice_id": "5I7B1di44aCL15NkP0jn",
+  "prompt": "[frightened] 걱정 마, 촬영만 끝내고 바로 나갈게. 그런데 좀 이상해. 전기도 다 끊긴 학교인데, 복도 끝 스피커에서 자꾸 지직거리는 소리가 나. 누가 방송 장비를 만지고 있나 봐.",
+  "chars": 107,
+  "pri": 0
+ },
+ {
+  "id": "intro4",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[low voice] 십 년 전 오늘 밤, 이 학교에서 한 아이가 사라졌다. 그리고 해마다 10월 12일 밤 열한 시 사십 분이면, 학교 스피커에서 그 아이의 목소리가 흘러나온다는 소문이 돈다.",
+  "chars": 108,
+  "pri": 0
+ },
+ {
+  "id": "intro1n",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[low voice] 2008년 10월 12일, 일요일. 저녁 다섯 시 오십 분. 십 년 전 그 사고를 덮어 버린 서린고등학교 너머로… 검붉은 해가 기울고 있다.",
+  "chars": 90,
+  "pri": 0
+ },
+ {
+  "id": "intro2n",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[low voice] 사흘 전, 방송부 선배 민아는 1998년 그날 밤 학교가 숨긴 진실을 파헤치겠다며 혼자 밤의 학교로 숨어 들어갔다. 그 뒤로 전화는 한 번도 연결되지 않았다. 대신… 신호가 약한 곳에서 보낸 음성 메시지만, 며칠씩 늦게 하나씩 도착하고 있다.",
+  "chars": 147,
+  "pri": 0
+ },
+ {
+  "id": "intro3n",
+  "spk": "mina",
+  "voice_id": "5I7B1di44aCL15NkP0jn",
+  "prompt": "[worried] 나야, 민아. 이 메시지가 언제 들어갈지 모르겠어… 여기 신호가 이상해. 십 년 전 그날 밤, 학교는 사고를 그냥 실종으로 덮었어. 선생님 다섯 명이 증거를 나눠서 숨긴 것 같아. 혹시 내가 계속 연락이 안 되면… 서린일보 호외부터 봐. 거기서부터 시작하면 돼.",
+  "chars": 156,
+  "pri": 0
+ },
+ {
+  "id": "intro4n_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 선배… 사흘 동안 문자 하나 없더니, 이런 메시지만 남기면 어떡해요. 선배가 찾던 거, 제가 끝까지 찾아낼게요. 그리고 선배도요.",
+  "chars": 82,
+  "pri": 0
+ },
+ {
+  "id": "intro4n_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 사흘째 연락 두절에… 음성 메시지 하나. 민아 너, 진짜 혼자서 이 학교를 파헤치러 들어간 거야? 기다려. 네가 찾던 진실, 내가 이어서 찾을게.",
+  "chars": 91,
+  "pri": 0
+ },
+ {
+  "id": "cam1",
+  "spk": "mina",
+  "voice_id": "5I7B1di44aCL15NkP0jn",
+  "prompt": "[worried] [hesitant] ……녹화 돌아가지? 여긴 본관 1층, 1학년 1반 교실이야. 같이 온 애들은 무섭다고 먼저 복도로 나갔는데, 칠판에 다시 여기서라고 적혀 있어. 분필 가루가 아직 안 날렸어. 방금 누가 쓴 거야. 이 학교에 우리 말고 누가 또 있어. 복도 끝 교무실 쪽에서 소리가 났어. 가 봐야겠어.",
+  "chars": 180,
+  "pri": 1
+ },
+ {
+  "id": "pa1",
+  "spk": "pa",
+  "voice_id": "6wIijutElRjsgwLbECzl",
+  "prompt": "[calm] 교내 방송입니다. 모두 교실로 돌아가세요. 다시 한 번 알립니다. 모두, 교실로, 돌아가세요.",
+  "chars": 59,
+  "pri": 1
+ },
+ {
+  "id": "ghThanks",
+  "spk": "mother",
+  "voice_id": "tbMC7ogaglVnkFQgUOta",
+  "prompt": "[relieved] [hesitant] ……방송, 들었어요. 십 년 동안 우리 하늘이 이름을 제대로 불러 준 사람이 아무도 없었어요. 고마워요. 정말, 고마워요.",
+  "chars": 90,
+  "pri": 1
+ },
+ {
+  "id": "l_arrive_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[frightened] 민아야… 정말 이 밤에 학교 안으로 숨어 들어간 거야? 조금만 기다려, 내가 꼭 찾아낼게.",
+  "chars": 63,
+  "pri": 1
+ },
+ {
+  "id": "l_arrive_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[frightened] 민아 선배… 아직 이 안에 있는 거죠? 무섭지만, 내가 꼭 데리고 나올게요.",
+  "chars": 55,
+  "pri": 1
+ },
+ {
+  "id": "l_gate_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[determined] 정문 철문이 저절로 닫히면서 잠겨 버렸어… 야간 자동 잠금인가 봐. 민아를 찾고 이 학교가 숨긴 5대 비밀 증거를 다 밝혀내기 전엔 나갈 수 없어.",
+  "chars": 95,
+  "pri": 1
+ },
+ {
+  "id": "l_gate_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[determined] 정문이 저절로 닫히면서 잠겨 버렸어… 야간 자동 잠금이야. 이제 선배를 찾고 이 학교가 은폐한 비밀 증거들을 모으는 수밖에 없어.",
+  "chars": 85,
+  "pri": 1
+ },
+ {
+  "id": "l_inside_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[frightened] 공기가 얼음장처럼 차가워… 내 숨소리까지 복도에 울릴 것 같아.",
+  "chars": 48,
+  "pri": 1
+ },
+ {
+  "id": "l_inside_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[frightened] 안은 숨소리까지 들릴 만큼 고요해… 먼저 1학년 1반 교실부터 찾아보자.",
+  "chars": 53,
+  "pri": 1
+ },
+ {
+  "id": "l_camFound_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 민아 캠코더다! 바닥에 떨어져 있었어… 아직 마지막 녹화 파일이 남아 있어.",
+  "chars": 52,
+  "pri": 1
+ },
+ {
+  "id": "l_camFound_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 선배 캠코더야! 다행이다, 배터리가 남아서 마지막 녹화 파일을 볼 수 있어.",
+  "chars": 52,
+  "pri": 1
+ },
+ {
+  "id": "l_afterCam_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[determined] 민아가 마지막으로 향한 곳은 복도 끝 교무실이야. 거기부터 확인해 보자.",
+  "chars": 53,
+  "pri": 1
+ },
+ {
+  "id": "l_afterCam_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[determined] 교무실… 선배가 마지막으로 들어간 곳이야. 거기에 분명 단서가 있을 거야.",
+  "chars": 54,
+  "pri": 1
+ },
+ {
+  "id": "l_office_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 교무회의록… 그날 밤 참사를 단순 실종으로 덮으려고 다섯 교직원이 핵심 증거와 봉인 인장을 다섯 조각으로 나눠 숨겼다고?",
+  "chars": 77,
+  "pri": 1
+ },
+ {
+  "id": "l_office_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 학교가 그날 밤의 진실을 다섯 조각으로 쪼개 숨겼다니… 첫 번째 비밀 증거는 바로 이 교무실 금고 안에 있대!",
+  "chars": 71,
+  "pri": 1
+ },
+ {
+  "id": "l_safeHint_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 금고 비밀번호는 그날의 날짜 네 자리… 벽에 걸린 달력이랑 기록을 확인해 보자.",
+  "chars": 54,
+  "pri": 1
+ },
+ {
+  "id": "l_safeHint_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 비밀번호가 그날의 날짜라고 했어… 교무실 달력에 표시된 날을 찾아보자.",
+  "chars": 49,
+  "pri": 1
+ },
+ {
+  "id": "l_safeOpen_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[relieved] 10월 12일… 방송부 창립 기념 방송이 있던 그날 밤이구나.",
+  "chars": 45,
+  "pri": 1
+ },
+ {
+  "id": "l_safeOpen_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[relieved] 10월 12일… 십 년 전 그날 밤도 바로 오늘 같은 날이었어.",
+  "chars": 46,
+  "pri": 1
+ },
+ {
+  "id": "l_key_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[determined] 학교가 숨긴 비밀 증거 조각을 찾았어. 그날 밤의 추악한 진실이 조금씩 드러나고 있어.",
+  "chars": 61,
+  "pri": 1
+ },
+ {
+  "id": "l_key_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[determined] 은폐된 비밀 증거 조각이야… 이 학교가 그날 밤 무슨 짓을 했는지 끝까지 밝혀낼 거야.",
+  "chars": 61,
+  "pri": 1
+ },
+ {
+  "id": "l_keyLast_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[determined] 다섯 번째 학교 비밀 증거 조각까지 모두 모았어! 이제 소지품에서 교장 직인 코어와 맞춰 보자.",
+  "chars": 66,
+  "pri": 1
+ },
+ {
+  "id": "l_keyLast_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[determined] 마지막 다섯 번째 비밀 증거 조각이야! 이제 소지품에서 진상 규명 기록부를 완성해 보자.",
+  "chars": 62,
+  "pri": 1
+ },
+ {
+  "id": "l_keyMade_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[determined] 1998 서린고 진상 규명 마스터 기록부가 완성됐어! 이제 방송실에서 윤하늘 선배의 진실을 송출하고 세상에 폭로할 수 있어!",
+  "chars": 82,
+  "pri": 1
+ },
+ {
+  "id": "l_keyMade_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[determined] 드디어 서린고 진상 규명 기록부와 마스터 인장이 하나로 맞춰졌어! 이제 하늘 언니의 억울한 진실을 세상에 알릴 수 있어!",
+  "chars": 80,
+  "pri": 1
+ },
+ {
+  "id": "l_wake_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[surprised] 위층에서… 뭔가 끌리는 소리가 났어.",
+  "chars": 32,
+  "pri": 1
+ },
+ {
+  "id": "l_wake_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[surprised] 방금… 위층에서 소리가 났어.",
+  "chars": 28,
+  "pri": 1
+ },
+ {
+  "id": "l_spotted_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[urgently] 누가 이쪽을 봤어. 일단 몸을 숨기자.",
+  "chars": 32,
+  "pri": 1
+ },
+ {
+  "id": "l_spotted_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[urgently] 누가 봤어…! 일단 숨자.",
+  "chars": 25,
+  "pri": 1
+ },
+ {
+  "id": "l_hit_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[urgently] 크윽…! 여기서 멈추면 안 돼.",
+  "chars": 28,
+  "pri": 1
+ },
+ {
+  "id": "l_hit_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[urgently] 윽…! 도망쳐야 해!",
+  "chars": 22,
+  "pri": 1
+ },
+ {
+  "id": "l_heal_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[relieved] 괜찮아. 아직 움직일 수 있어.",
+  "chars": 28,
+  "pri": 1
+ },
+ {
+  "id": "l_heal_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[relieved] 조금 낫네… 계속 가자.",
+  "chars": 24,
+  "pri": 1
+ },
+ {
+  "id": "l_enrage_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[urgently] 기록부가 완성됐어. 이제 정문으로 가자!",
+  "chars": 33,
+  "pri": 1
+ },
+ {
+  "id": "l_enrage_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[urgently] 다 맞췄어… 이제 정문으로 가자!",
+  "chars": 29,
+  "pri": 1
+ },
+ {
+  "id": "l_roof_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[frightened] 바람 소리뿐이야. 난간에 누가 꽃을 묶어 뒀어.",
+  "chars": 39,
+  "pri": 1
+ },
+ {
+  "id": "l_roof_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[frightened] 바람 소리뿐이야… 난간에 누가 꽃을 묶어 뒀네.",
+  "chars": 39,
+  "pri": 1
+ },
+ {
+  "id": "l_b1_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[frightened] 지하… 이런 곳이 있었다니.",
+  "chars": 28,
+  "pri": 1
+ },
+ {
+  "id": "l_b1_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[frightened] 지하…? 이런 곳이 있었다니.",
+  "chars": 29,
+  "pri": 1
+ },
+ {
+  "id": "l_gym_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[frightened] 불 꺼진 체육관… 바닥에 농구공 하나가 굴러다녀.",
+  "chars": 40,
+  "pri": 1
+ },
+ {
+  "id": "l_gym_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[frightened] 불 꺼진 체육관이야… 소리가 엄청 울려.",
+  "chars": 35,
+  "pri": 1
+ },
+ {
+  "id": "l_pool_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[frightened] 물을 뺀 수영장인데… 배관에서 물 새는 소리가 나.",
+  "chars": 41,
+  "pri": 1
+ },
+ {
+  "id": "l_pool_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[frightened] 물은 다 뺐는데… 배관에서 물이 새고 있어.",
+  "chars": 37,
+  "pri": 1
+ },
+ {
+  "id": "l_cafe_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[frightened] 식판이 그대로다. 방금까지 누가 있었던 것처럼.",
+  "chars": 39,
+  "pri": 1
+ },
+ {
+  "id": "l_cafe_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[frightened] 식판이 그대로야… 방금까지 누가 있었던 것처럼.",
+  "chars": 39,
+  "pri": 1
+ },
+ {
+  "id": "l_piano_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[surprised] 피아노 위에 악보가 펼쳐져 있어. 누가 최근에 쳤나 봐.",
+  "chars": 43,
+  "pri": 1
+ },
+ {
+  "id": "l_piano_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[surprised] 피아노 뚜껑이 열려 있어… 누가 최근에 쳤나 봐.",
+  "chars": 39,
+  "pri": 1
+ },
+ {
+  "id": "l_doorSlam_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[surprised] 바람에 문이 닫혔어. 창문이 열려 있나 봐.",
+  "chars": 36,
+  "pri": 1
+ },
+ {
+  "id": "l_doorSlam_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[surprised] 바람 때문에 문이 닫혔어…",
+  "chars": 26,
+  "pri": 1
+ },
+ {
+  "id": "l_stall_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[frightened] …누구 있어?",
+  "chars": 20,
+  "pri": 1
+ },
+ {
+  "id": "l_stall_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[frightened] …누구 있어요?",
+  "chars": 21,
+  "pri": 1
+ },
+ {
+  "id": "l_steps_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[surprised] 방금 그거, 발소리였어. 우리 말고 누가 있어.",
+  "chars": 38,
+  "pri": 1
+ },
+ {
+  "id": "l_steps_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[surprised] …방금 발소리였어. 우리 말고 누가 있어.",
+  "chars": 35,
+  "pri": 1
+ },
+ {
+  "id": "l_ball_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[surprised] 공이 굴러왔어. 바닥이 기울어 있나 봐.",
+  "chars": 34,
+  "pri": 1
+ },
+ {
+  "id": "l_ball_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[surprised] 공이 굴러왔네… 바닥이 기울었나.",
+  "chars": 30,
+  "pri": 1
+ },
+ {
+  "id": "l_speakers_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[surprised] 스피커에서 잡음이 나. 어딘가에서 아직 전원이 들어오고 있어.",
+  "chars": 46,
+  "pri": 1
+ },
+ {
+  "id": "l_speakers_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[surprised] 스피커가 지직거려… 방송 장비 어딘가에 전원이 살아 있어.",
+  "chars": 44,
+  "pri": 1
+ },
+ {
+  "id": "l_breaker_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[surprised] 불이 들어왔다. 근데 소리가 너무 컸어.",
+  "chars": 34,
+  "pri": 1
+ },
+ {
+  "id": "l_breaker_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[surprised] 불이… 들어왔어. 근데 소리가 너무 컸어.",
+  "chars": 35,
+  "pri": 1
+ },
+ {
+  "id": "l_lure_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[urgently] 지금이야. 여기서 빨리 벗어나자.",
+  "chars": 29,
+  "pri": 1
+ },
+ {
+  "id": "l_lure_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[urgently] 지금이야… 여기서 빨리 벗어나야 해.",
+  "chars": 31,
+  "pri": 1
+ },
+ {
+  "id": "l_phone_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[surprised] 메시지야. 신호가 약해서 이제야 들어왔나 봐.",
+  "chars": 37,
+  "pri": 1
+ },
+ {
+  "id": "l_phone_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[surprised] 메시지…? 신호가 약해서 늦게 들어왔나 봐.",
+  "chars": 36,
+  "pri": 1
+ },
+ {
+  "id": "l_tagFound_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[sad] 3학년 2반 윤하늘… 이 명찰, 십 년 동안 배수구 철망에 걸려 있었어. 아무도 찾으려 하지 않은 거야.",
+  "chars": 64,
+  "pri": 1
+ },
+ {
+  "id": "l_tagFound_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[sad] 윤하늘 선배의 명찰… 펌프실 배수구에 십 년 동안 걸려 있었어. 아무도 찾지 않았던 거야.",
+  "chars": 56,
+  "pri": 1
+ },
+ {
+  "id": "l_needPower_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[determined] 방송을 하려면 먼저 전기를 살려야 해.",
+  "chars": 34,
+  "pri": 1
+ },
+ {
+  "id": "l_needPower_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[determined] 전원이 없어… 지하 전기실 차단기부터 올려야 해.",
+  "chars": 40,
+  "pri": 1
+ },
+ {
+  "id": "l_needTag_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 방송을 해도… 누구 이름을 불러야 하지?",
+  "chars": 32,
+  "pri": 1
+ },
+ {
+  "id": "l_needTag_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 누구에게 하는 방송인지… 아직 모르겠어.",
+  "chars": 32,
+  "pri": 1
+ },
+ {
+  "id": "l_calm_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[relieved] …끝났어. 이제 다 알려졌어.",
+  "chars": 27,
+  "pri": 1
+ },
+ {
+  "id": "l_calm_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[relieved] …끝났어. 이제 모두가 알게 됐어.",
+  "chars": 30,
+  "pri": 1
+ },
+ {
+  "id": "l_findMina_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[determined] 민아는 3층 방송실 안쪽 장비실에 갇혀 있을 거야. 어서 가 보자.",
+  "chars": 50,
+  "pri": 1
+ },
+ {
+  "id": "l_findMina_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[determined] 민아 선배는 3층 방송실 장비실에 있어… 이제 선배를 데리러 가야 해!",
+  "chars": 52,
+  "pri": 1
+ },
+ {
+  "id": "l_minaFound_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[urgently] 민아야! 정신 차려 봐, 나야, 지훈이! 괜찮아, 이제 내가 왔어.",
+  "chars": 48,
+  "pri": 1
+ },
+ {
+  "id": "l_minaFound_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[urgently] 민아 선배! 정신 차려 보세요, 저 서연이에요! 다행이다, 아직 숨을 쉬고 있어…",
+  "chars": 56,
+  "pri": 1
+ },
+ {
+  "id": "l_sprint_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[frightened] 숨이 차… 조금만 쉬자.",
+  "chars": 26,
+  "pri": 1
+ },
+ {
+  "id": "l_sprint_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[frightened] 하아… 숨이…",
+  "chars": 20,
+  "pri": 1
+ },
+ {
+  "id": "l_hide_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[whispers] 숨죽여. 누군지 확인하기 전엔 들키면 안 돼.",
+  "chars": 36,
+  "pri": 1
+ },
+ {
+  "id": "l_hide_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[whispers] 숨을 죽여… 누군지 먼저 봐야 해.",
+  "chars": 30,
+  "pri": 1
+ },
+ {
+  "id": "l_combineFail_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 이건 서로 안 맞아.",
+  "chars": 21,
+  "pri": 1
+ },
+ {
+  "id": "l_combineFail_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 이건 같이 쓸 수 없어.",
+  "chars": 23,
+  "pri": 1
+ },
+ {
+  "id": "l_locked_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[frightened] 잠겨 있다.",
+  "chars": 19,
+  "pri": 1
+ },
+ {
+  "id": "l_locked_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[frightened] 잠겨 있어…",
+  "chars": 19,
+  "pri": 1
+ },
+ {
+  "id": "bc_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 여기는 서린고등학교 방송실입니다. 1998년 10월 12일 밤, 3학년 2반 윤하늘은 실종된 게 아닙니다. 지하 펌프실 철문 안에 갇혀 있었고, 열쇠를 쥔 어른들은 끝내 내려가지 않았습니다. 학교는 그 밤을 단순 실종으로 덮었습니다. 지금부터, 그 증거를 하나씩 공개하겠습니다.",
+  "chars": 165,
+  "pri": 1
+ },
+ {
+  "id": "bc_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 여기는 서린고등학교 방송실입니다. 1998년 10월 12일 밤, 윤하늘 선배는 사라진 게 아니에요. 지하 펌프실에 갇혀서, 문을 두드리고 있었어요. 열쇠를 가진 어른들은 아무도 내려가지 않았고, 학교는 그걸 실종이라고 적었어요. 이제, 그 기록을 전부 공개할게요.",
+  "chars": 157,
+  "pri": 1
+ },
+ {
+  "id": "mw_j",
+  "spk": "mina",
+  "voice_id": "5I7B1di44aCL15NkP0jn",
+  "prompt": "[worried] [hesitant] ……지훈아? 정말 너구나…… 장비실 문이 뒤에서 철컥 잠겨 버렸어. 선반에 올라가다 떨어져서 발목을 다쳤고, 휴대폰도 다 꺼져 가고…… 사흘을 여기서 버텼어.",
+  "chars": 109,
+  "pri": 1
+ },
+ {
+  "id": "mw_s",
+  "spk": "mina",
+  "voice_id": "5I7B1di44aCL15NkP0jn",
+  "prompt": "[worried] [hesitant] ……서연아? 정말 네가 왔구나…… 장비실 문이 뒤에서 철컥 잠겨 버렸어. 선반에 올라가다 떨어져서 발목을 다쳤고, 휴대폰도 다 꺼져 가고…… 사흘을 여기서 버텼어.",
+  "chars": 112,
+  "pri": 1
+ },
+ {
+  "id": "l_needCombine_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 개별 증거 조각만으론 안 돼. 먼저 소지품(Tab)에서 5대 비밀 증거와 교장 직인 코어를 합쳐 진상 규명 기록부를 완성해야 해.",
+  "chars": 82,
+  "pri": 1
+ },
+ {
+  "id": "l_needCombine_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 먼저 소지품(Tab)에서 다섯 개의 비밀 증거와 교장 직인 코어를 하나로 맞춰야 해.",
+  "chars": 57,
+  "pri": 1
+ },
+ {
+  "id": "l_minaAsleep_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[frightened] 숨은 쉬고 있어. 그런데 아무리 불러도…",
+  "chars": 35,
+  "pri": 1
+ },
+ {
+  "id": "l_minaAsleep_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[frightened] 숨은 쉬어… 그런데 깨어나질 않아.",
+  "chars": 32,
+  "pri": 1
+ },
+ {
+  "id": "l_withMina_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[determined] 내 어깨 잡아, 민아야. 발목 조심하고. 이번엔 다 같이 나가는 거야.",
+  "chars": 52,
+  "pri": 1
+ },
+ {
+  "id": "l_withMina_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[determined] 제 어깨 잡아요, 선배. 발목 조심하고요. 이제 다 같이 집으로 돌아가요.",
+  "chars": 54,
+  "pri": 1
+ },
+ {
+  "id": "l_needPin_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[frightened] 잠겨 있다. 가는 철사나 핀이라도 있으면…",
+  "chars": 36,
+  "pri": 1
+ },
+ {
+  "id": "l_needPin_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[frightened] 잠겼어… 머리핀 같은 게 있으면 딸 수 있을 텐데.",
+  "chars": 41,
+  "pri": 1
+ },
+ {
+  "id": "l_pinBroken_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[surprised] 핀이 부러졌다. 침착하게.",
+  "chars": 26,
+  "pri": 1
+ },
+ {
+  "id": "l_pinBroken_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[surprised] 아, 부러졌어…",
+  "chars": 20,
+  "pri": 1
+ },
+ {
+  "id": "l_unlocked_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[relieved] 열렸다.",
+  "chars": 15,
+  "pri": 1
+ },
+ {
+  "id": "l_unlocked_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[relieved] 열렸다!",
+  "chars": 15,
+  "pri": 1
+ },
+ {
+  "id": "l_dialWrong_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 아니야. 다른 숫자다.",
+  "chars": 22,
+  "pri": 1
+ },
+ {
+  "id": "l_dialWrong_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 아니야… 다른 번호인가 봐.",
+  "chars": 25,
+  "pri": 1
+ },
+ {
+  "id": "l_needHook_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 저 아래 뭔가 반짝인다. 손이 닿지 않아… 갈고리가 필요해.",
+  "chars": 43,
+  "pri": 1
+ },
+ {
+  "id": "l_needHook_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 배수구 안에 뭔가 있어… 손이 안 닿아. 갈고리를 만들어야 해.",
+  "chars": 45,
+  "pri": 1
+ },
+ {
+  "id": "l_hookMade_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[relieved] 자루에 철사를 감았다. 이거면 걸 수 있겠다.",
+  "chars": 36,
+  "pri": 1
+ },
+ {
+  "id": "l_hookMade_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[relieved] 자루에 철사를 묶었어. 이걸로 낚을 수 있을 거야.",
+  "chars": 39,
+  "pri": 1
+ },
+ {
+  "id": "l_needFuse_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 퓨즈가 빠져 있다. 예비 퓨즈를 찾아야 해.",
+  "chars": 34,
+  "pri": 1
+ },
+ {
+  "id": "l_needFuse_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 퓨즈가 없어… 어딘가에 예비 퓨즈가 있을 거야.",
+  "chars": 36,
+  "pri": 1
+ },
+ {
+  "id": "l_pianoOk_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[surprised] 피아노 아래에서 뭔가 떨어졌다.",
+  "chars": 29,
+  "pri": 1
+ },
+ {
+  "id": "l_pianoOk_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[surprised] 피아노 밑에서… 뭔가 떨어졌어.",
+  "chars": 29,
+  "pri": 1
+ },
+ {
+  "id": "l_slideOk_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[surprised] 그림 뒤에 뭔가 붙어 있다.",
+  "chars": 27,
+  "pri": 1
+ },
+ {
+  "id": "l_slideOk_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[surprised] 그림 뒤에… 사진이 붙어 있었어.",
+  "chars": 30,
+  "pri": 1
+ },
+ {
+  "id": "l_breath_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[whispers] …숨 참아.",
+  "chars": 17,
+  "pri": 1
+ },
+ {
+  "id": "l_breath_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[whispers] …숨 참아, 제발.",
+  "chars": 21,
+  "pri": 1
+ },
+ {
+  "id": "l_repel_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[urgently] 고양이였어. 놀라서 도망갔네.",
+  "chars": 27,
+  "pri": 1
+ },
+ {
+  "id": "l_repel_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[urgently] 고양이였구나… 깜짝 놀랐네.",
+  "chars": 26,
+  "pri": 1
+ },
+ {
+  "id": "guard1",
+  "spk": "guard",
+  "voice_id": "UmYoqGlufKxhJ6NCx5Mv",
+  "prompt": "[sad] 어이, 거기 학생! 이 시간에 학교엔 왜 자꾸 기어들어 오는 겨. 해 지믄 여긴 위험혀. 올핸 또 누구 찾으러 온 모양인디, 내 말 듣고 얼른 집으로 가유.",
+  "chars": 93,
+  "pri": 1
+ },
+ {
+  "id": "echo1",
+  "spk": "friend",
+  "voice_id": "CZ86sooijZ9CfwhGGEY5",
+  "prompt": "[casual] 하늘아, 리허설 끝나면 떡볶이 먹으러 가자. 우리가 맨 앞에서 들을게.",
+  "chars": 48,
+  "pri": 1
+ },
+ {
+  "id": "echo2",
+  "spk": "friend2",
+  "voice_id": "j3SYRikKBpDmPJsvd1rf",
+  "prompt": "[casual] 내일 방송, 꼭 네 목소리로 해. 약속.",
+  "chars": 31,
+  "pri": 1
+ },
+ {
+  "id": "teacher2",
+  "spk": "homeroom",
+  "voice_id": "UqW1DivwFt1NwUMSGnTn",
+  "prompt": "[sad] 교감은 출석부에 결석이라고 적으라더군요. 저는 끝까지 쓰지 않았어요. 삼 년 내내, 아침마다 제일 먼저 등교하던 아이였으니까요.",
+  "chars": 77,
+  "pri": 1
+ },
+ {
+  "id": "guardHi",
+  "spk": "guard",
+  "voice_id": "UmYoqGlufKxhJ6NCx5Mv",
+  "prompt": "[determined] 아직도 안 가고 뭐 허는 겨. 해 떨어지기 전에 얼른 나가유. 오늘이 무슨 날인지 알고 이러는 거여?",
+  "chars": 69,
+  "pri": 1
+ },
+ {
+  "id": "guardMina",
+  "spk": "guard",
+  "voice_id": "UmYoqGlufKxhJ6NCx5Mv",
+  "prompt": "[elderly voice] 방송부 조끼 입은 여학생 말여? 아까 해 질 무렵에 정문으로 쑥 들어가더구먼. 내가 뒤에서 암만 불러도 못 들은 척 앞만 보고 뛰어들어가더라고.",
+  "chars": 96,
+  "pri": 1
+ },
+ {
+  "id": "guardPast",
+  "spk": "guard",
+  "voice_id": "UmYoqGlufKxhJ6NCx5Mv",
+  "prompt": "[sad] 십 년 전 오늘 밤이여. 3학년 여자애 하나가 지하 펌프실에 갇혀서 끝내 못 나왔지. 학교에선 쉬쉬허고 덮어 버렸는디, 그 뒤로 해마다 이날 밤만 되믄 스피커에서 그 애 목소리가 들린다는 소문이 돌아유. 누가 장난을 치는 건지, 원.",
+  "chars": 136,
+  "pri": 1
+ },
+ {
+  "id": "guardGift",
+  "spk": "guard",
+  "voice_id": "UmYoqGlufKxhJ6NCx5Mv",
+  "prompt": "[determined] 에잉, 기어이 들어가야 쓰겄어? 자, 이거 손전등 건전지 두 개 챙겨 가유. 대신 밤 열한 시 사십 분 전엔 기필코 정문 밖으로 나와야 혀. 알겄지?",
+  "chars": 96,
+  "pri": 1
+ },
+ {
+  "id": "guardBye",
+  "spk": "guard",
+  "voice_id": "UmYoqGlufKxhJ6NCx5Mv",
+  "prompt": "[frightened] 어이쿠, 벌써 저녁 일곱 시 퇴근 시간이네. 난 이제 정문 철문 걸어 잠그고 퇴근혀야 쓰겄어! 학생도 깜깜한 데서 넘어지지 말고 조심혀유!",
+  "chars": 90,
+  "pri": 1
+ },
+ {
+  "id": "news_rep",
+  "spk": "reporter",
+  "voice_id": "J3IV02ZzZmojOIQbmpu0",
+  "prompt": "[serious] 서린일보 사회부 한진우입니다. 어젯밤 열한 시 이십 분경, 서린고 본관 정전 직후 3학년 윤하늘 양이 실종됐습니다. 학교 측은 귀가 중 실종이라 밝혔지만, 감식반은 지하 펌프실 철문이 밖에서 잠겨 있던 흔적을 확보했습니다. 학교는 오늘 아침, 추가 취재를 일절 거부했습니다.",
+  "chars": 163,
+  "pri": 1
+ },
+ {
+  "id": "news_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 귀가 중 실종인데… 펌프실 문은 밖에서 잠겨 있었다고? 말이 안 맞아. 선배도 여기서부터 의심했던 거야. 가설부터 세워 보자. 누가 문을 잠갔고, 누가 그걸 덮었는지.",
+  "chars": 103,
+  "pri": 1
+ },
+ {
+  "id": "news_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 집에 가다 사라졌다면서, 펌프실 철문은 밖에서 잠겨 있었다… 이건 사고가 아니라 은폐야. 좋아, 가설을 세워 보자. 하나씩 증거로 확인하는 거야.",
+  "chars": 91,
+  "pri": 1
+ },
+ {
+  "id": "l_bunkerEnter_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 지하 방공호 보존서고… 철제 방폭문 안쪽에 학교 재단이 숨겨 둔 1998년 비공개 감사 서류함과 수동 송풍기가 있어.",
+  "chars": 75,
+  "pri": 1
+ },
+ {
+  "id": "l_bunkerEnter_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 여기가 방공호 보존서고구나… 방폭문과 기밀 캐비닛 안에 그날 밤 정전 사고의 진짜 원인이 적혀 있어.",
+  "chars": 66,
+  "pri": 1
+ },
+ {
+  "id": "l_dorm2fClimb_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 청운학사 2층으로 올라왔어. 2층 침실 복도랑 심야 정독실 책상 위에 그날 밤 사생들이 남긴 기록이 그대로 남아 있어.",
+  "chars": 76,
+  "pri": 1
+ },
+ {
+  "id": "l_dorm2fClimb_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 기숙사 2층 침실과 심야 정독실이야… 창문 너머로 본관 쪽에서 비명이 들렸다는 사생들의 일지가 있어.",
+  "chars": 66,
+  "pri": 1
+ },
+ {
+  "id": "l_headFound_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 찾았다… 개교 기념 인장으로 위장해 진실을 덮으려고 십 년 동안 별관 진열장에 숨겨 둔 교장 직인 마스터 코어였어!",
+  "chars": 74,
+  "pri": 1
+ },
+ {
+  "id": "l_headFound_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 개교 기념품이라니… 아무도 의심하지 못하게 교장 직인 마스터 코어를 십 년 동안 여기 전시해 둔 거였어!",
+  "chars": 68,
+  "pri": 1
+ },
+ {
+  "id": "l_headMissing_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 잠깐… 다섯 교직원의 비밀 증거는 다 맞췄는데, 이걸 최종 승인·해제할 교장의 직인 마스터 코어가 빠져 있어. 교장실부터 조사해 봐야겠어.",
+  "chars": 87,
+  "pri": 1
+ },
+ {
+  "id": "l_headMissing_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 다섯 개의 비밀 증거는 모았는데 중심을 묶어 줄 교장 직인 마스터 코어가 없어… 교장 선생님이 별관 어딘가에 따로 숨겨 둔 게 분명해.",
+  "chars": 85,
+  "pri": 1
+ },
+ {
+  "id": "l_pumpPolice_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 지하 펌프실 한복판에 경찰 폴리스라인이 쳐져 있어… 바닥에 1998년 서린일보 지역신문 호외가 떨어져 있네.",
+  "chars": 70,
+  "pri": 1
+ },
+ {
+  "id": "l_pumpPolice_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 폴리스라인이야… 경찰이 지하 펌프실을 사건 현장으로 통제했었어. 바닥에 떨어진 지역신문 호외를 읽어 보자.",
+  "chars": 69,
+  "pri": 1
+ },
+ {
+  "id": "l_seomunPaper_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 1998년 10월 13일자 서린일보 호외… \"서린고 3학년 윤하늘 양 심야 실종, 지하 배수 펌프실 안쪽에서 마지막 흔적 발견\"이라고 적혀 있어.",
+  "chars": 91,
+  "pri": 1
+ },
+ {
+  "id": "l_seomunPaper_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 서린일보 특별 호외야… 학교 측은 단순 가출이라고 주장했지만, 경찰 감식반은 펌프실 문이 밖에서 잠겨 있었다고 기록했어.",
+  "chars": 77,
+  "pri": 1
+ },
+ {
+  "id": "l_westGateReloc_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 서문 대로 끝 외곽 아치 게이트도 봉인되어 있어. 학교가 은폐한 5대 비밀 증거를 모두 모아 진상 기록부를 완성해야 봉인이 풀려!",
+  "chars": 82,
+  "pri": 1
+ },
+ {
+  "id": "l_westGateReloc_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 저기 서쪽 대로 끝에 봉인된 외곽 서문이 보여! 다섯 교직원이 숨긴 비밀 증거를 모두 밝혀내면 세상으로 나가 진실을 알릴 수 있어.",
+  "chars": 83,
+  "pri": 1
+ },
+ {
+  "id": "l_wingExplore_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 본관과 별관 양옆으로 확장된 연구동 날개까지 이어져 있어. 캠퍼스가 생각보다 훨씬 거대해.",
+  "chars": 60,
+  "pri": 1
+ },
+ {
+  "id": "l_wingExplore_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 본관 동서 연구 윙이랑 별관 확장 구역까지… 이 넓은 학교 어딘가에 선배가 분명 남긴 단서가 더 있을 거야.",
+  "chars": 70,
+  "pri": 1
+ },
+ {
+  "id": "pr_start_s_0",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 서연아, 들려? 정문 쪽은 내가 볼게. 넌 본관부터 가 봐. 무전기 절대 끄지 마.",
+  "chars": 56,
+  "pri": 1
+ },
+ {
+  "id": "pr_start_s_1",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 응, 잘 들려. 지훈아… 너도 혼자 무리하지 마.",
+  "chars": 37,
+  "pri": 1
+ },
+ {
+  "id": "pr_start_s_2",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 십 분마다 연락하자. 대답 없으면 바로 갈게.",
+  "chars": 35,
+  "pri": 1
+ },
+ {
+  "id": "pr_start_j_0",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 지훈아, 들려? 난 별관 쪽 창문부터 확인할게. 넌 본관으로 들어가.",
+  "chars": 48,
+  "pri": 1
+ },
+ {
+  "id": "pr_start_j_1",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 알았어. 서연아, 무서우면 바로 불러. 혼자 버티지 말고.",
+  "chars": 42,
+  "pri": 1
+ },
+ {
+  "id": "pr_start_j_2",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 그 말, 그대로 돌려줄게. 민아 선배 꼭 찾자.",
+  "chars": 36,
+  "pri": 1
+ },
+ {
+  "id": "pr_inside_s_0",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 지훈아, 본관 안이야. 불이 하나도 안 켜져 있어… 손전등 하나로 버텨야겠어.",
+  "chars": 53,
+  "pri": 1
+ },
+ {
+  "id": "pr_inside_s_1",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 천천히 가. 발소리 줄이고. 이상한 소리 들리면 바로 말해.",
+  "chars": 43,
+  "pri": 1
+ },
+ {
+  "id": "pr_inside_j_0",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 서연아, 본관 들어왔어. 안이 완전히 깜깜해. 숨소리까지 울려.",
+  "chars": 45,
+  "pri": 1
+ },
+ {
+  "id": "pr_inside_j_1",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 조심해… 민아 선배 마지막 메시지에 1학년 1반 얘기가 있었어. 거기부터 봐.",
+  "chars": 53,
+  "pri": 1
+ },
+ {
+  "id": "pr_cam_s_0",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 지훈아! 민아 선배 캠코더 찾았어. 1학년 1반 책상 밑에 떨어져 있었어.",
+  "chars": 51,
+  "pri": 1
+ },
+ {
+  "id": "pr_cam_s_1",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 영상 남아 있어? …선배가 마지막으로 뭘 찍었는지 봐야 해.",
+  "chars": 43,
+  "pri": 1
+ },
+ {
+  "id": "pr_cam_s_2",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 응… 화면이 흔들려. 선배가 누군가랑 얘기하고 있어.",
+  "chars": 39,
+  "pri": 1
+ },
+ {
+  "id": "pr_cam_j_0",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 서연아, 민아 캠코더야. 1학년 1반에 떨어져 있었어.",
+  "chars": 40,
+  "pri": 1
+ },
+ {
+  "id": "pr_cam_j_1",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 선배가 그걸 두고 갔을 리가 없어… 영상 확인해 봐, 지훈아.",
+  "chars": 44,
+  "pri": 1
+ },
+ {
+  "id": "pr_cam_j_2",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 배터리가 아직 남아 있어. 민아 목소리가… 들려.",
+  "chars": 37,
+  "pri": 1
+ },
+ {
+  "id": "pr_ch2_s_0",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 서연아, 경비실 일지 봤어. 1998년 10월 12일 밤 기록만 찢겨 나가 있어.",
+  "chars": 55,
+  "pri": 1
+ },
+ {
+  "id": "pr_ch2_s_1",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 누가 일부러 지운 거야. 학교가 그날 밤을 숨기고 있는 거지.",
+  "chars": 44,
+  "pri": 1
+ },
+ {
+  "id": "pr_ch2_j_0",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 지훈아, 경비실 일지에 그날 밤 기록만 없어. 누가 찢어 갔어.",
+  "chars": 45,
+  "pri": 1
+ },
+ {
+  "id": "pr_ch2_j_1",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 십 년 동안 아무도 몰랐던 게 아니야. 다들 알고 입을 다문 거야.",
+  "chars": 47,
+  "pri": 1
+ },
+ {
+  "id": "pr_ch3_s_0",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 지훈아, 교직원 다섯 명이 다 뭔가 하나씩 숨기고 있었어.",
+  "chars": 42,
+  "pri": 1
+ },
+ {
+  "id": "pr_ch3_s_1",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 하나씩 증거를 모으자. 하나라도 빠지면 또 덮일 거야.",
+  "chars": 40,
+  "pri": 1
+ },
+ {
+  "id": "pr_ch3_j_0",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 서연아, 교직원 다섯 명. 다 뭔가 숨기고 있어.",
+  "chars": 37,
+  "pri": 1
+ },
+ {
+  "id": "pr_ch3_j_1",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 그럼 하나씩 다 찾아내자. 이번엔 아무것도 묻히게 두지 않을 거야.",
+  "chars": 47,
+  "pri": 1
+ },
+ {
+  "id": "pr_ch4_s_0",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 서연아, 별관 쪽 창 하나가 열려 있어. 교장 서고 얘기, 거기서 확인할 수 있을 것 같아.",
+  "chars": 61,
+  "pri": 1
+ },
+ {
+  "id": "pr_ch4_s_1",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 알았어, 그쪽으로 갈게. 지훈아, 넌 바깥에서 망 좀 봐 줘.",
+  "chars": 44,
+  "pri": 1
+ },
+ {
+  "id": "pr_ch4_j_0",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 지훈아, 별관 2층에 불빛이 한 번 깜빡였어. 교장 서고가 그쪽이야.",
+  "chars": 48,
+  "pri": 1
+ },
+ {
+  "id": "pr_ch4_j_1",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 내가 갈게. 서연아, 넌 무전 계속 붙들고 있어.",
+  "chars": 37,
+  "pri": 1
+ },
+ {
+  "id": "pr_ch5_s_0",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 지훈아… 증거가 거의 다 모였어. 이거면 그날 밤 무슨 일이 있었는지 다 말할 수 있어.",
+  "chars": 59,
+  "pri": 1
+ },
+ {
+  "id": "pr_ch5_s_1",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 끝까지 가자. 하늘이라는 애… 이제 이름이라도 제대로 불러 줘야지.",
+  "chars": 47,
+  "pri": 1
+ },
+ {
+  "id": "pr_ch5_j_0",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 서연아, 거의 다 모았어. 진상 기록부 마지막 칸만 남았어.",
+  "chars": 43,
+  "pri": 1
+ },
+ {
+  "id": "pr_ch5_j_1",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 하늘 선배 이름, 이번엔 꼭 방송으로 불러 주자.",
+  "chars": 37,
+  "pri": 1
+ },
+ {
+  "id": "pr_ch6_s_0",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 서연아, 방송실 전원 살아 있어. 네 목소리로 해. 방송부잖아.",
+  "chars": 45,
+  "pri": 1
+ },
+ {
+  "id": "pr_ch6_s_1",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] …응. 떨리지만, 내가 할게. 지훈아, 끝까지 들어 줘.",
+  "chars": 41,
+  "pri": 1
+ },
+ {
+  "id": "pr_ch6_j_0",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 지훈아, 방송실 전원 들어왔어. 원고는 내가 무전으로 불러 줄게.",
+  "chars": 46,
+  "pri": 1
+ },
+ {
+  "id": "pr_ch6_j_1",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 좋아. 이번엔 아무도 이 방송 못 끊어.",
+  "chars": 32,
+  "pri": 1
+ },
+ {
+  "id": "pr_mina_s_0",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 지훈아! 민아 선배 찾았어… 숨은 쉬어. 살아 있어.",
+  "chars": 39,
+  "pri": 1
+ },
+ {
+  "id": "pr_mina_s_1",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 다행이다… 정말 다행이다. 선배 옆에 꼭 붙어 있어. 금방 갈게.",
+  "chars": 46,
+  "pri": 1
+ },
+ {
+  "id": "pr_mina_j_0",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 서연아… 민아 찾았어. 의식은 없는데, 숨은 쉬어.",
+  "chars": 38,
+  "pri": 1
+ },
+ {
+  "id": "pr_mina_j_1",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 정말…? 다행이다. 지훈아, 민아 선배 절대 혼자 두지 마.",
+  "chars": 43,
+  "pri": 1
+ },
+ {
+  "id": "pr_battery_s_0",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 지훈아, 손전등이 깜빡거려… 배터리가 얼마 안 남았어.",
+  "chars": 40,
+  "pri": 1
+ },
+ {
+  "id": "pr_battery_s_1",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 교실 사물함이나 교무실 서랍 뒤져 봐. 건전지 하나쯤은 있을 거야.",
+  "chars": 47,
+  "pri": 1
+ },
+ {
+  "id": "pr_battery_j_0",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 서연아, 손전등 배터리가 거의 바닥이야.",
+  "chars": 32,
+  "pri": 1
+ },
+ {
+  "id": "pr_battery_j_1",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 사물함이랑 서랍부터 찾아봐. 어둠 속에선 절대 오래 있지 마.",
+  "chars": 44,
+  "pri": 1
+ },
+ {
+  "id": "news_quote",
+  "spk": "reporter",
+  "voice_id": "J3IV02ZzZmojOIQbmpu0",
+  "prompt": "[serious] 기사에 인용된 녹취를 그대로 옮깁니다. \"정전은 단순 사고, 학생은 귀가 중 실종이다. 펌프실 얘기는 이 방을 나가는 순간 없던 일로 한다.\" 그날 밤 회의에 있던 다섯 명 중, 이 발언을 부인한 사람은 아무도 없었습니다.",
+  "chars": 134,
+  "pri": 1
+ },
+ {
+  "id": "l_m_main_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 본관… 불이 다 꺼져 있네. 민아, 여기 어딘가에 있는 거지?",
+  "chars": 44,
+  "pri": 1
+ },
+ {
+  "id": "l_m_annex_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 별관은 더 오래된 냄새가 나… 발소리 줄이자.",
+  "chars": 35,
+  "pri": 1
+ },
+ {
+  "id": "l_m_b1_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 지하… 물 냄새. 그날 밤 하늘이가 여기 있었던 거야.",
+  "chars": 40,
+  "pri": 1
+ },
+ {
+  "id": "l_m_roof_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 옥상이다. 바람 때문에 소리가 잘 안 들려.",
+  "chars": 34,
+  "pri": 1
+ },
+ {
+  "id": "l_m_gym_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 체육관… 너무 넓어서 내 숨소리가 울려.",
+  "chars": 32,
+  "pri": 1
+ },
+ {
+  "id": "l_m_pool_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 수영장 물 냄새… 바닥이 미끄러워, 조심해야 돼.",
+  "chars": 37,
+  "pri": 1
+ },
+ {
+  "id": "l_m_cafe_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 급식실… 의자들이 그날 그대로 놓여 있어.",
+  "chars": 33,
+  "pri": 1
+ },
+ {
+  "id": "l_m_class_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 교실… 칠판에 그날 날짜가 아직 남아 있어.",
+  "chars": 34,
+  "pri": 1
+ },
+ {
+  "id": "l_m_staff_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 교무실이다. 여기서부터 기록을 찾아보자.",
+  "chars": 32,
+  "pri": 1
+ },
+ {
+  "id": "l_m_bcast_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 방송실… 하늘이가 마지막으로 서려던 곳이야.",
+  "chars": 34,
+  "pri": 1
+ },
+ {
+  "id": "l_m_battery_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 건전지다. 손전등 아직 버틸 수 있겠어.",
+  "chars": 32,
+  "pri": 1
+ },
+ {
+  "id": "l_m_medkit_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 구급상자… 혹시 모르니까 챙겨 두자.",
+  "chars": 30,
+  "pri": 1
+ },
+ {
+  "id": "l_m_note_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 누가 남긴 쪽지야… 글씨가 떨려 있어.",
+  "chars": 31,
+  "pri": 1
+ },
+ {
+  "id": "l_m_photo_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 사진이다… 그날 찍은 거야.",
+  "chars": 25,
+  "pri": 1
+ },
+ {
+  "id": "l_m_evidence_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 이거야. 학교가 숨긴 증거.",
+  "chars": 25,
+  "pri": 1
+ },
+ {
+  "id": "l_m_lowbat_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 손전등이 깜빡여… 건전지 찾아야 해.",
+  "chars": 30,
+  "pri": 1
+ },
+ {
+  "id": "l_m_dark_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 불이 꺼졌어… 아무것도 안 보여.",
+  "chars": 28,
+  "pri": 1
+ },
+ {
+  "id": "l_m_locked_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 잠겨 있어. 다른 길을 찾자.",
+  "chars": 26,
+  "pri": 1
+ },
+ {
+  "id": "l_m_tired_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 하아… 숨이 차. 잠깐만 쉬자.",
+  "chars": 27,
+  "pri": 1
+ },
+ {
+  "id": "l_m_hide_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 쉿… 여기 숨어 있자.",
+  "chars": 22,
+  "pri": 1
+ },
+ {
+  "id": "l_m_night_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 완전히 어두워졌어. 이제부터 더 조심해야 돼.",
+  "chars": 35,
+  "pri": 1
+ },
+ {
+  "id": "l_m_elev_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 엘리베이터가 아직 움직여? 이상하네.",
+  "chars": 30,
+  "pri": 1
+ },
+ {
+  "id": "l_m_hurt_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 윽… 괜찮아, 아직 움직일 수 있어.",
+  "chars": 30,
+  "pri": 1
+ },
+ {
+  "id": "l_m_main_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 본관 안이야… 너무 조용해. 선배, 여기 어딘가 있는 거죠?",
+  "chars": 43,
+  "pri": 1
+ },
+ {
+  "id": "l_m_annex_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 별관이다… 여긴 공기가 더 차가워. 조용히 가자.",
+  "chars": 37,
+  "pri": 1
+ },
+ {
+  "id": "l_m_b1_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 지하야… 축축하고 숨이 막혀. 하늘 선배가… 여기 갇혀 있었던 거구나.",
+  "chars": 49,
+  "pri": 1
+ },
+ {
+  "id": "l_m_roof_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 옥상… 바람이 세다. 여기선 학교가 다 보이네.",
+  "chars": 36,
+  "pri": 1
+ },
+ {
+  "id": "l_m_gym_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 체육관 안은 소리가 다 울려… 천천히 걷자.",
+  "chars": 34,
+  "pri": 1
+ },
+ {
+  "id": "l_m_pool_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 수영장이다. 바닥 미끄러우니까 조심…",
+  "chars": 30,
+  "pri": 1
+ },
+ {
+  "id": "l_m_cafe_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 급식실… 식판이 아직도 쌓여 있어. 시간이 멈춘 것 같아.",
+  "chars": 42,
+  "pri": 1
+ },
+ {
+  "id": "l_m_class_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 교실이다… 책상마다 이름표가 그대로야.",
+  "chars": 31,
+  "pri": 1
+ },
+ {
+  "id": "l_m_staff_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 교무실… 선생님들이 숨긴 게 여기 있을 거야.",
+  "chars": 35,
+  "pri": 1
+ },
+ {
+  "id": "l_m_bcast_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 방송실이야… 하늘 선배가 그날 방송하려던 곳.",
+  "chars": 35,
+  "pri": 1
+ },
+ {
+  "id": "l_m_battery_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 건전지! 다행이다, 손전등 좀 더 쓸 수 있겠다.",
+  "chars": 37,
+  "pri": 1
+ },
+ {
+  "id": "l_m_medkit_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 구급상자다. 이건 꼭 챙겨야지.",
+  "chars": 27,
+  "pri": 1
+ },
+ {
+  "id": "l_m_note_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 쪽지다… 급하게 쓴 글씨 같아.",
+  "chars": 27,
+  "pri": 1
+ },
+ {
+  "id": "l_m_photo_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 이 사진… 그날 밤 찍힌 거야.",
+  "chars": 27,
+  "pri": 1
+ },
+ {
+  "id": "l_m_evidence_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 찾았다… 이게 학교가 숨긴 증거야.",
+  "chars": 29,
+  "pri": 1
+ },
+ {
+  "id": "l_m_lowbat_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 손전등이 약해지고 있어… 건전지 어디 없나.",
+  "chars": 34,
+  "pri": 1
+ },
+ {
+  "id": "l_m_dark_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 꺼졌어… 아무것도 안 보여, 침착하자.",
+  "chars": 31,
+  "pri": 1
+ },
+ {
+  "id": "l_m_locked_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 잠겼네… 열쇠가 필요해.",
+  "chars": 23,
+  "pri": 1
+ },
+ {
+  "id": "l_m_tired_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 하아, 하아… 숨 좀 고르자.",
+  "chars": 26,
+  "pri": 1
+ },
+ {
+  "id": "l_m_hide_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 조용히… 여기서 잠깐만 숨자.",
+  "chars": 26,
+  "pri": 1
+ },
+ {
+  "id": "l_m_night_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 밤이 됐어… 이제 진짜 조심해야 해.",
+  "chars": 30,
+  "pri": 1
+ },
+ {
+  "id": "l_m_elev_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 엘리베이터가 아직 작동해…?",
+  "chars": 25,
+  "pri": 1
+ },
+ {
+  "id": "l_m_hurt_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 아… 아파. 그래도 아직 괜찮아.",
+  "chars": 28,
+  "pri": 1
+ },
+ {
+  "id": "l_eqLocked_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 안 열려… 안에서 뭔가 쓰러지는 소리가 났어. 꼬리표엔 예비 열쇠가 경비실에 있다고 적혀 있어.",
+  "chars": 63,
+  "pri": 1
+ },
+ {
+  "id": "l_eqKeyGot_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 방송실 장비실 예비 열쇠… 이거다. 빨리 4층으로 돌아가자.",
+  "chars": 43,
+  "pri": 1
+ },
+ {
+  "id": "l_eqOpen_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 열렸다… 민아야, 거기 있어?",
+  "chars": 26,
+  "pri": 1
+ },
+ {
+  "id": "l_bcRead_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 하늘아, 네가 못 한 방송… 이제 내가 대신 읽을게.",
+  "chars": 39,
+  "pri": 1
+ },
+ {
+  "id": "l_eqLocked_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 문이 잠겼어… 안에 누가 있는 것 같아. 예비 열쇠는 경비실 열쇠함에 있대.",
+  "chars": 52,
+  "pri": 1
+ },
+ {
+  "id": "l_eqKeyGot_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 찾았다, 장비실 예비 열쇠. 선배, 조금만 기다려요.",
+  "chars": 39,
+  "pri": 1
+ },
+ {
+  "id": "l_eqOpen_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 열렸어… 선배! 민아 선배, 들려요?",
+  "chars": 30,
+  "pri": 1
+ },
+ {
+  "id": "l_bcRead_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 하늘 선배… 선배가 끝내지 못한 방송, 제가 읽을게요.",
+  "chars": 40,
+  "pri": 1
+ },
+ {
+  "id": "mc_start_m",
+  "spk": "mina",
+  "voice_id": "5I7B1di44aCL15NkP0jn",
+  "prompt": "[worried] 응… 너희가 와 줘서 다행이야. 혼자였으면 못 나갔을 거야.",
+  "chars": 43,
+  "pri": 1
+ },
+ {
+  "id": "mc_stairs_m",
+  "spk": "mina",
+  "voice_id": "5I7B1di44aCL15NkP0jn",
+  "prompt": "[worried] 고마워… 사흘 동안 이 계단을 몇 번이나 오르내렸는지 몰라.",
+  "chars": 43,
+  "pri": 1
+ },
+ {
+  "id": "mc_eqroom_m",
+  "spk": "mina",
+  "voice_id": "5I7B1di44aCL15NkP0jn",
+  "prompt": "[worried] 장비실 문이 뒤에서 철컥 잠겼을 때… 진짜 끝인 줄 알았어.",
+  "chars": 43,
+  "pri": 1
+ },
+ {
+  "id": "mc_ghost_m",
+  "spk": "mina",
+  "voice_id": "5I7B1di44aCL15NkP0jn",
+  "prompt": "[worried] 뒤돌아보지 마. 그냥 계속 걸어.",
+  "chars": 28,
+  "pri": 1
+ },
+ {
+  "id": "mc_idle_m",
+  "spk": "mina",
+  "voice_id": "5I7B1di44aCL15NkP0jn",
+  "prompt": "[worried] …방금 무슨 소리 들리지 않았어?",
+  "chars": 28,
+  "pri": 1
+ },
+ {
+  "id": "mc_bcast_m",
+  "spk": "mina",
+  "voice_id": "5I7B1di44aCL15NkP0jn",
+  "prompt": "[worried] 아까 그 방송… 하늘 언니 목소리, 언니가 말하던 그대로였어.",
+  "chars": 44,
+  "pri": 1
+ },
+ {
+  "id": "mc_outdoor_m",
+  "spk": "mina",
+  "voice_id": "5I7B1di44aCL15NkP0jn",
+  "prompt": "[worried] 십 년 동안 언니는 이 문을 못 나갔어. 우리가 대신 나가는 거야.",
+  "chars": 47,
+  "pri": 1
+ },
+ {
+  "id": "mc_gate_m",
+  "spk": "mina",
+  "voice_id": "5I7B1di44aCL15NkP0jn",
+  "prompt": "[worried] 나가면 제일 먼저 언니한테 전화할 거야. 다 끝났다고.",
+  "chars": 40,
+  "pri": 1
+ },
+ {
+  "id": "mc_start_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 발목은 괜찮아? 천천히 가도 돼.",
+  "chars": 28,
+  "pri": 1
+ },
+ {
+  "id": "mc_stairs_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 계단이야. 내 어깨 잡아.",
+  "chars": 24,
+  "pri": 1
+ },
+ {
+  "id": "mc_eqroom_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 이제 괜찮아. 내가 열쇠 찾아왔잖아.",
+  "chars": 30,
+  "pri": 1
+ },
+ {
+  "id": "mc_ghost_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 알았어… 손 놓지 마.",
+  "chars": 22,
+  "pri": 1
+ },
+ {
+  "id": "mc_idle_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 아니… 바람 소리일 거야. 가자.",
+  "chars": 28,
+  "pri": 1
+ },
+ {
+  "id": "mc_bcast_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 응. 이번엔 끝까지 나갔어.",
+  "chars": 25,
+  "pri": 1
+ },
+ {
+  "id": "mc_outdoor_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 밖이다. 공기가 다르네.",
+  "chars": 23,
+  "pri": 1
+ },
+ {
+  "id": "mc_gate_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 정문까지 조금만 더.",
+  "chars": 21,
+  "pri": 1
+ },
+ {
+  "id": "mc_start_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 선배, 발목 괜찮아요? 천천히 가요.",
+  "chars": 30,
+  "pri": 1
+ },
+ {
+  "id": "mc_stairs_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 계단이에요. 제 어깨 잡으세요.",
+  "chars": 27,
+  "pri": 1
+ },
+ {
+  "id": "mc_eqroom_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 이제 괜찮아요. 제가 열쇠 찾아왔잖아요.",
+  "chars": 32,
+  "pri": 1
+ },
+ {
+  "id": "mc_ghost_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 네… 선배, 손 놓지 마세요.",
+  "chars": 26,
+  "pri": 1
+ },
+ {
+  "id": "mc_idle_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 아무것도요… 바람 소리일 거예요. 가요.",
+  "chars": 32,
+  "pri": 1
+ },
+ {
+  "id": "mc_bcast_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 네. 이번엔 끝까지 나갔어요.",
+  "chars": 26,
+  "pri": 1
+ },
+ {
+  "id": "mc_outdoor_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 밖이에요… 공기가 달라요.",
+  "chars": 24,
+  "pri": 1
+ },
+ {
+  "id": "mc_gate_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 정문까지 조금만 더요.",
+  "chars": 22,
+  "pri": 1
+ },
+ {
+  "id": "cue_check",
+  "spk": "mina",
+  "voice_id": "5I7B1di44aCL15NkP0jn",
+  "prompt": "[worried] 마이크 체크… 들려? 내가 손 들면 시작이야.",
+  "chars": 35,
+  "pri": 1
+ },
+ {
+  "id": "cue_count",
+  "spk": "mina",
+  "voice_id": "5I7B1di44aCL15NkP0jn",
+  "prompt": "[worried] 스탠바이… 다섯, 넷, 셋…",
+  "chars": 25,
+  "pri": 1
+ },
+ {
+  "id": "cue_go",
+  "spk": "mina",
+  "voice_id": "5I7B1di44aCL15NkP0jn",
+  "prompt": "[worried] 큐!",
+  "chars": 12,
+  "pri": 1
+ },
+ {
+  "id": "cue_done",
+  "spk": "mina",
+  "voice_id": "5I7B1di44aCL15NkP0jn",
+  "prompt": "[worried] 잘했어… 끝까지 나갔어. 언니가 들었을 거야.",
+  "chars": 35,
+  "pri": 1
+ },
+ {
+  "id": "endTrue",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[low voice] 그날 밤, 서린고 스피커에서 학교가 십 년 동안 숨겨 온 진실이 흘러나갔다. 민아를 부축해 정문을 나서는 두 사람의 등 뒤, 방송실 창가에서 이준호가 낡은 카세트 타이머의 전원을 껐다.",
+  "chars": 115,
+  "pri": 2
+ },
+ {
+  "id": "endNormal",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[low voice] 무거운 철문이 등 뒤에서 다시 닫혔다. 진실은 이번에도 서랍 속에 남았고, 이듬해 10월 12일 밤에도 스피커에서는 같은 방송이 흘러나왔다.",
+  "chars": 90,
+  "pri": 2
+ },
+ {
+  "id": "endBad",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[sad] 아무도 그 밤의 기록을 꺼내지 못했다. 십 년 전과 똑같이, 아침이 되어서야 구급차가 학교에 도착했다.",
+  "chars": 63,
+  "pri": 2
+ },
+ {
+  "id": "phone1",
+  "spk": "mina",
+  "voice_id": "5I7B1di44aCL15NkP0jn",
+  "prompt": "[over the phone] [frightened] [hesitant] ……들려? 나 지금 3층 방송실 근처야. 방금 스피커에서 그 방송이 또 나왔어. 누가 방송실 장비를 쓰고 있는 거야. 확인해 볼게.",
+  "chars": 114,
+  "pri": 3
+ },
+ {
+  "id": "phone2",
+  "spk": "mina",
+  "voice_id": "5I7B1di44aCL15NkP0jn",
+  "prompt": "[over the phone] [frightened] 지하, 지하 펌프실이야. 십 년 전에 하늘 선배가 갇혔던 곳. 거기 그날 밤 증거가 아직 남아 있어. 폴리스라인 안쪽을 봐.",
+  "chars": 99,
+  "pri": 3
+ },
+ {
+  "id": "phone3",
+  "spk": "mina",
+  "voice_id": "5I7B1di44aCL15NkP0jn",
+  "prompt": "[over the phone] [whispers] [hesitant] ……배터리가 얼마 안 남았어. 열한 시 사십 분이 되면 그 방송이 또 나올 거야. 그 전에 방송실로 와 줘. 누가 트는 건지, 거기서 알 수 있어.",
+  "chars": 121,
+  "pri": 3
+ },
+ {
+  "id": "phone0",
+  "spk": "mina",
+  "voice_id": "5I7B1di44aCL15NkP0jn",
+  "prompt": "[over the phone] [worried] [hesitant] ……여보세요? 내 메시지 들려? 나 민아야. 아직 정문 앞이지? 경비실엔 아무도 없어. 지금이야, 조용히 본관으로 들어와 줘. 나 1학년 1반 교실에 캠코더를 떨어뜨렸어. 제발 그거부터 찾아 줘.",
+  "chars": 147,
+  "pri": 3
+ },
+ {
+  "id": "call_mina1",
+  "spk": "mina",
+  "voice_id": "5I7B1di44aCL15NkP0jn",
+  "prompt": "[over the phone] [worried] [hesitant] ……여보세요? 들려? 나야, 민아! 아직 학교 안이지? 복도에서 계속 누가 발소리를 내며 걸어 다녀. 내가 나올 때까지 4층 복도 끝은 조심해야 해.",
+  "chars": 121,
+  "pri": 3
+ },
+ {
+  "id": "call_unk1",
+  "spk": "junho",
+  "voice_id": "Ir7oQcBXWiq4oFGROCfj",
+  "prompt": "[over the phone] [regretful] [hesitant] ……누군지는 묻지 마. 해마다 23시 40분에 나오는 그 방송, 귀신 같은 거 아니야. 방송실 장비실 선반 위를 봐. 타이머가 있을 거야.",
+  "chars": 117,
+  "pri": 3
+ },
+ {
+  "id": "call_mina2",
+  "spk": "mina",
+  "voice_id": "5I7B1di44aCL15NkP0jn",
+  "prompt": "[over the phone] [worried] [hesitant] ……여보세요? 아직 거기 있어? 방금 본관 뒤쪽 별관 건물에 불이 켜졌어. 아무도 없는 곳인데 누가 켠 거야…… 제발 끊지 마, 나 지금 방송실 장비실 안에 숨어 있어……",
+  "chars": 133,
+  "pri": 3
+ },
+ {
+  "id": "call_unk2",
+  "spk": "guard",
+  "voice_id": "UmYoqGlufKxhJ6NCx5Mv",
+  "prompt": "[over the phone] [elderly voice] 학생, 지금 3-2 교실 의자에 앉아 있지? 경비실 CCTV에 다 보여. 그 자리… 하늘이 자리여. 십 년째 아무도 못 치웠어.",
+  "chars": 104,
+  "pri": 3
+ },
+ {
+  "id": "call_home",
+  "spk": "mom",
+  "voice_id": "9cino9hfS3ougiPeFvp1",
+  "prompt": "[over the phone] [worried] 여보세요? 얘, 너 지금 어디야! 왜 이렇게 전화가 끊겨…… 서린고 앞이라고? 거기 위험하니까 꼼짝 말고 정문 쪽에 나와 있어, 엄마가 지금 바로 갈게!",
+  "chars": 112,
+  "pri": 3
+ },
+ {
+  "id": "call_guard",
+  "spk": "guard",
+  "voice_id": "UmYoqGlufKxhJ6NCx5Mv",
+  "prompt": "[over the phone] [elderly voice] 어이, 학생! 나 경비실이여. 아직도 본관 안에 있는 겨? 해가 다 떨어졌는디 거기 혼자 돌아댕기믄 큰일 나유! 복도에서 무슨 소리가 나도 절대 대답허지 말고, 어서 정문 쪽으로 나와유!",
+  "chars": 137,
+  "pri": 3
+ },
+ {
+  "id": "call_fail",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[over the phone] [low voice] 지금 거신 전화는 전파 음영 지역이거나 연결할 수 없습니다. 옥상 중계기를 점검하거나 내선 번호를 이용해 주십시오.",
+  "chars": 93,
+  "pri": 3
+ },
+ {
+  "id": "call_119",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[over the phone] [low voice] 119 종합상황실입니다. 전파 상태가 매우 불안정합니다. 이 시간에 서린고등학교 내부라고요? 위치 추적 완료했습니다. 구조대가 정문으로 출동 중이니 즉시 정문 쪽으로 대피하십시오.",
+  "chars": 129,
+  "pri": 3
+ },
+ {
+  "id": "call_119_a1",
+  "spk": "dispatcher",
+  "voice_id": "nNTkFJj9NHSRZIngrG19",
+  "prompt": "[over the phone] [calm] 네, 119 종합상황실입니다. 신고자분, 천천히 말씀해 주세요.",
+  "chars": 59,
+  "pri": 3
+ },
+ {
+  "id": "call_119_a2",
+  "spk": "dispatcher",
+  "voice_id": "nNTkFJj9NHSRZIngrG19",
+  "prompt": "[over the phone] [calm] 이 시간에 서린고등학교 안이요? 전파가 많이 끊깁니다. 지금 다치신 데는 없으십니까?",
+  "chars": 71,
+  "pri": 3
+ },
+ {
+  "id": "call_119_a3",
+  "spk": "dispatcher",
+  "voice_id": "nNTkFJj9NHSRZIngrG19",
+  "prompt": "[over the phone] [calm] 위치 추적 들어갑니다. 잠시만요…… 확인됐습니다. 본관 쪽이네요. 서린소방서 구조대에 출동 지시했습니다.",
+  "chars": 82,
+  "pri": 3
+ },
+ {
+  "id": "call_119_a4",
+  "spk": "dispatcher",
+  "voice_id": "nNTkFJj9NHSRZIngrG19",
+  "prompt": "[over the phone] [calm] 도착까지 이십 분 정도 걸립니다. 잠긴 공간에는 들어가지 마시고, 휴대폰 배터리를 아끼세요.",
+  "chars": 75,
+  "pri": 3
+ },
+ {
+  "id": "call_119_a5",
+  "spk": "dispatcher",
+  "voice_id": "nNTkFJj9NHSRZIngrG19",
+  "prompt": "[over the phone] [calm] 혹시 거기 다른 분도 계십니까? …… 여보세요? 신고자분? 방금 뒤에서 들린 목소리는…… 누구죠?",
+  "chars": 78,
+  "pri": 3
+ },
+ {
+  "id": "call_119_b1",
+  "spk": "dispatcher",
+  "voice_id": "nNTkFJj9NHSRZIngrG19",
+  "prompt": "[over the phone] [calm] 네, 상황실입니다. 아까 서린고에서 신고하신 분 맞으시죠? 구조대가 정문 쇠사슬을 끊고 있습니다.",
+  "chars": 78,
+  "pri": 3
+ },
+ {
+  "id": "call_119_b2",
+  "spk": "dispatcher",
+  "voice_id": "nNTkFJj9NHSRZIngrG19",
+  "prompt": "[over the phone] [calm] 지하 펌프실이요? 잠시만요…… 1998년 10월 13일 새벽, 같은 학교 같은 장소로 구급 출동 기록이 있네요. 신고는 사고 일곱 시간 뒤에 들어왔습니다.",
+  "chars": 110,
+  "pri": 3
+ },
+ {
+  "id": "call_119_b3",
+  "spk": "dispatcher",
+  "voice_id": "nNTkFJj9NHSRZIngrG19",
+  "prompt": "[over the phone] [calm] 그 기록, 저희 쪽에도 남아 있습니다. 경찰에 같이 넘기겠습니다. 지금은 신고자분 안전이 먼저입니다. 정문으로 오세요.",
+  "chars": 90,
+  "pri": 3
+ },
+ {
+  "id": "call_home_a1",
+  "spk": "mom",
+  "voice_id": "9cino9hfS3ougiPeFvp1",
+  "prompt": "[over the phone] [worried] 여보세요? 얘, 너 지금 어디야! 왜 이렇게 전화가 자꾸 끊겨……",
+  "chars": 63,
+  "pri": 3
+ },
+ {
+  "id": "call_home_a2",
+  "spk": "mom",
+  "voice_id": "9cino9hfS3ougiPeFvp1",
+  "prompt": "[over the phone] [worried] 서린고? 이 밤에 거길 왜 들어가. 거기서 십 년 전에 애 하나 없어졌던 거, 너도 알잖아.",
+  "chars": 78,
+  "pri": 3
+ },
+ {
+  "id": "call_home_a3",
+  "spk": "mom",
+  "voice_id": "9cino9hfS3ougiPeFvp1",
+  "prompt": "[over the phone] [worried] 민아가 거길 왜 들어가…… 알았어. 엄마가 지금 바로 차 끌고 갈게. 정문 쪽에서 절대 움직이지 마.",
+  "chars": 83,
+  "pri": 3
+ },
+ {
+  "id": "call_home_a4",
+  "spk": "mom",
+  "voice_id": "9cino9hfS3ougiPeFvp1",
+  "prompt": "[over the phone] [worried] 그리고 얘…… 누가 이름 불러도 대답하지 마. 그 학교 얘긴…… 아니다. 그냥, 조심해. 알았지?",
+  "chars": 81,
+  "pri": 3
+ },
+ {
+  "id": "call_home_b1",
+  "spk": "mom",
+  "voice_id": "9cino9hfS3ougiPeFvp1",
+  "prompt": "[over the phone] [worried] 또 너구나…… 엄마 지금 고가도로 위야. 비가 와서 차가 꼼짝도 안 해.",
+  "chars": 67,
+  "pri": 3
+ },
+ {
+  "id": "call_home_b2",
+  "spk": "mom",
+  "voice_id": "9cino9hfS3ougiPeFvp1",
+  "prompt": "[over the phone] [worried] 뭐? 그 애가 실종된 게 아니라고? 그때 교장이 뉴스에 나와서 그랬어. 아이가 하교하다가 사라졌다고…… 다들 그 말을 믿었어.",
+  "chars": 97,
+  "pri": 3
+ },
+ {
+  "id": "call_home_b3",
+  "spk": "mom",
+  "voice_id": "9cino9hfS3ougiPeFvp1",
+  "prompt": "[over the phone] [worried] 그게 정말 증거면…… 사진 찍어 둬, 전부. 엄마 친구가 신문사에 있어. 근데 너부터 살아서 나와야 해. 약속해.",
+  "chars": 90,
+  "pri": 3
+ },
+ {
+  "id": "call_home_c1",
+  "spk": "mom",
+  "voice_id": "9cino9hfS3ougiPeFvp1",
+  "prompt": "[over the phone] [worried] 방금 라디오에서…… 네 목소리가 나왔어. 서린고등학교 방송실이라고.",
+  "chars": 64,
+  "pri": 3
+ },
+ {
+  "id": "call_home_c2",
+  "spk": "mom",
+  "voice_id": "9cino9hfS3ougiPeFvp1",
+  "prompt": "[over the phone] [worried] 그 애 엄마도 지금 이 방송을 듣고 있겠지…… 십 년 동안, 얼마나 기다렸을까.",
+  "chars": 71,
+  "pri": 3
+ },
+ {
+  "id": "call_home_c3",
+  "spk": "mom",
+  "voice_id": "9cino9hfS3ougiPeFvp1",
+  "prompt": "[over the phone] [worried] 정문 앞에 경찰차가 와 있어. 천천히, 침착하게 나와. 엄마 여기 있어. 장하다, 우리 애.",
+  "chars": 78,
+  "pri": 3
+ },
+ {
+  "id": "call_rep_a1",
+  "spk": "reporter",
+  "voice_id": "J3IV02ZzZmojOIQbmpu0",
+  "prompt": "[over the phone] [serious] 서린일보 사회부입니다. …서린고요? 그 사건이라면, 십 년 전에 제가 쓴 기사가 하루 만에 내려갔습니다.",
+  "chars": 85,
+  "pri": 3
+ },
+ {
+  "id": "call_rep_a2",
+  "spk": "reporter",
+  "voice_id": "J3IV02ZzZmojOIQbmpu0",
+  "prompt": "[over the phone] [serious] 증거 없이는 한 줄도 못 씁니다. 학교가 뭘 숨겼는지, 손에 잡히는 걸 가져오세요. 기록이든, 녹화든.",
+  "chars": 84,
+  "pri": 3
+ },
+ {
+  "id": "call_rep_a3",
+  "spk": "reporter",
+  "voice_id": "J3IV02ZzZmojOIQbmpu0",
+  "prompt": "[over the phone] [serious] 그리고 학생, 거기 오래 있지 말아요. 그 학교는… 아직 그날 밤을 안 끝냈습니다.",
+  "chars": 73,
+  "pri": 3
+ },
+ {
+  "id": "call_rep_b1",
+  "spk": "reporter",
+  "voice_id": "J3IV02ZzZmojOIQbmpu0",
+  "prompt": "[over the phone] [serious] CCTV 캡처라고요? 열쇠를 쥔 교무부장이 문을 안 열었다… 십 년 동안 바로 그 한 장면이 없었어요.",
+  "chars": 84,
+  "pri": 3
+ },
+ {
+  "id": "call_rep_b2",
+  "spk": "reporter",
+  "voice_id": "J3IV02ZzZmojOIQbmpu0",
+  "prompt": "[over the phone] [serious] 숙직 일지, 장비 수령부, 펌프실 자물쇠까지 모이면 재단도 더는 못 덮습니다.",
+  "chars": 70,
+  "pri": 3
+ },
+ {
+  "id": "call_rep_b3",
+  "spk": "reporter",
+  "voice_id": "J3IV02ZzZmojOIQbmpu0",
+  "prompt": "[over the phone] [serious] 학생 목소리로, 지금 본 걸 그대로 남겨 두세요. 그게 제일 강한 증언이 됩니다.",
+  "chars": 72,
+  "pri": 3
+ },
+ {
+  "id": "call_rep_c1",
+  "spk": "reporter",
+  "voice_id": "J3IV02ZzZmojOIQbmpu0",
+  "prompt": "[over the phone] [serious] 들었습니다. 방송이요. 우리 신문사 라디오에서도 잡혔어요. 데스크가 1면을 통째로 비워 두라네요.",
+  "chars": 81,
+  "pri": 3
+ },
+ {
+  "id": "call_rep_c2",
+  "spk": "reporter",
+  "voice_id": "J3IV02ZzZmojOIQbmpu0",
+  "prompt": "[over the phone] [serious] 십 년 만에 기사 제목을 다시 씁니다. 실종이 아니라, 은폐라고.",
+  "chars": 63,
+  "pri": 3
+ },
+ {
+  "id": "call_rep_c3",
+  "spk": "reporter",
+  "voice_id": "J3IV02ZzZmojOIQbmpu0",
+  "prompt": "[over the phone] [serious] 고마워요. 그리고… 윤하늘 학생에게도. 이제 집에 갈 수 있겠네요.",
+  "chars": 64,
+  "pri": 3
+ },
+ {
+  "id": "call_og1",
+  "spk": "guard",
+  "voice_id": "UmYoqGlufKxhJ6NCx5Mv",
+  "prompt": "[over the phone] [elderly voice] 여보세유? …서린고? 아이고, 이 밤에 그 학교 얘기를 누가 묻는댜.",
+  "chars": 71,
+  "pri": 3
+ },
+ {
+  "id": "call_og2",
+  "spk": "guard",
+  "voice_id": "UmYoqGlufKxhJ6NCx5Mv",
+  "prompt": "[over the phone] [elderly voice] 경비실 열쇠함 말이여? 그거 번호는 경비장이 바꾸랬어. 마지막으로 나간 열쇠 시각으로. 장부 보면 나와유.",
+  "chars": 92,
+  "pri": 3
+ },
+ {
+  "id": "call_og3",
+  "spk": "guard",
+  "voice_id": "UmYoqGlufKxhJ6NCx5Mv",
+  "prompt": "[over the phone] [elderly voice] 그날 밤 마지막으로 나간 게… 펌프실 열쇠여. 교무부장이 가져가서, 끝내 안 돌려줬지.",
+  "chars": 81,
+  "pri": 3
+ },
+ {
+  "id": "call_og4",
+  "spk": "guard",
+  "voice_id": "UmYoqGlufKxhJ6NCx5Mv",
+  "prompt": "[over the phone] [elderly voice] 학생, 그 함 안에 지하실 열쇠도 있을 거여. 내가 못 한 거… 학생이 대신 좀 해 줘유.",
+  "chars": 83,
+  "pri": 3
+ },
+ {
+  "id": "call_hr1",
+  "spk": "homeroom",
+  "voice_id": "UqW1DivwFt1NwUMSGnTn",
+  "prompt": "[over the phone] [tearful] …네, 하늘이 담임이었던 사람입니다. 이 번호는 어떻게 아셨어요?",
+  "chars": 63,
+  "pri": 3
+ },
+ {
+  "id": "call_hr2",
+  "spk": "homeroom",
+  "voice_id": "UqW1DivwFt1NwUMSGnTn",
+  "prompt": "[over the phone] [tearful] 그 편지요. 끝내 못 부쳤어요. 학교가 결석으로 적으라고 했을 때, 저는 그 칸을 비워 뒀습니다.",
+  "chars": 81,
+  "pri": 3
+ },
+ {
+  "id": "call_hr3",
+  "spk": "homeroom",
+  "voice_id": "UqW1DivwFt1NwUMSGnTn",
+  "prompt": "[over the phone] [tearful] 부탁 하나만 할게요. 출석부 마지막 칸, 하늘이 이름 옆에… 출석이라고 적어 주세요. 저 대신.",
+  "chars": 80,
+  "pri": 3
+ },
+ {
+  "id": "call_jh1",
+  "spk": "junho",
+  "voice_id": "Ir7oQcBXWiq4oFGROCfj",
+  "prompt": "[over the phone] [regretful] …이준호입니다. 이 번호로 전화가 올 줄은 몰랐어요.",
+  "chars": 58,
+  "pri": 3
+ },
+ {
+  "id": "call_jh2",
+  "spk": "junho",
+  "voice_id": "Ir7oQcBXWiq4oFGROCfj",
+  "prompt": "[over the phone] [regretful] 잠근 건 저예요. 열쇠는 교무부장님께 드렸고요. 꺼내 주신다고 했어요. 그 말을 믿었어요.",
+  "chars": 79,
+  "pri": 3
+ },
+ {
+  "id": "call_jh3",
+  "spk": "junho",
+  "voice_id": "Ir7oQcBXWiq4oFGROCfj",
+  "prompt": "[over the phone] [regretful] 증언이 필요하면 할게요. 제 이름 걸고요. 십 년 동안, 하고 싶었던 말이에요.",
+  "chars": 73,
+  "pri": 3
+ },
+ {
+  "id": "call_jh4",
+  "spk": "junho",
+  "voice_id": "Ir7oQcBXWiq4oFGROCfj",
+  "prompt": "[over the phone] [regretful] 하늘이한테… 미안하다고 전해 줄 수 있어요? 저는 아직, 그 이름을 소리 내서 못 부르겠어요.",
+  "chars": 81,
+  "pri": 3
+ },
+ {
+  "id": "call_hn1",
+  "spk": "mother",
+  "voice_id": "tbMC7ogaglVnkFQgUOta",
+  "prompt": "[over the phone] [sad] [hesitant] ……방송 들었어요. 우리 하늘이 이름, 끝까지 불러 줬지요.",
+  "chars": 67,
+  "pri": 3
+ },
+ {
+  "id": "call_hn2",
+  "spk": "mother",
+  "voice_id": "tbMC7ogaglVnkFQgUOta",
+  "prompt": "[over the phone] [sad] 십 년 동안 아무도 대답해 주지 않았어요. 고마워요. 이제 그 애를… 제대로 보내 줄 수 있겠어요.",
+  "chars": 78,
+  "pri": 3
+ },
+ {
+  "id": "call_112_a1",
+  "spk": "police",
+  "voice_id": "M7AHsCtFdpWTIL58I3ap",
+  "prompt": "[over the phone] [calm] 네, 112 경찰입니다. 무슨 일이십니까? …… 여보세요? 목소리가 작게 들리세요. 크게 말씀하실 수 없는 상황이면 숫자 버튼을 눌러 주세요.",
+  "chars": 103,
+  "pri": 3
+ },
+ {
+  "id": "call_112_a2",
+  "spk": "police",
+  "voice_id": "M7AHsCtFdpWTIL58I3ap",
+  "prompt": "[over the phone] [calm] 서린고등학교 안이라고요? 지금 혼자 계십니까? …… 알겠습니다. 침착하세요. 휴대폰 위치 확인하고 있습니다.",
+  "chars": 84,
+  "pri": 3
+ },
+ {
+  "id": "call_112_a3",
+  "spk": "police",
+  "voice_id": "M7AHsCtFdpWTIL58I3ap",
+  "prompt": "[over the phone] [calm] 위치 잡혔습니다. 서린지구대 순찰차 바로 보내겠습니다. 정문 쪽으로 나올 수 있으면 불 켜진 곳으로 이동하시고, 전화는 끊지 말고 계세요.",
+  "chars": 101,
+  "pri": 3
+ },
+ {
+  "id": "call_112_b1",
+  "spk": "police",
+  "voice_id": "M7AHsCtFdpWTIL58I3ap",
+  "prompt": "[over the phone] [calm] 112입니다. 아까 서린고 신고하신 분 맞으시죠? 순찰차가 정문에 도착했는데 문이 안에서 잠겨 있답니다.",
+  "chars": 82,
+  "pri": 3
+ },
+ {
+  "id": "call_112_b2",
+  "spk": "police",
+  "voice_id": "M7AHsCtFdpWTIL58I3ap",
+  "prompt": "[over the phone] [calm] 1998년 10월 실종 사건이요? …… 잠시만요. 조회해 보니 당시 단순 사고로 종결 처리돼 있네요. 증거가 있으시면 절대 훼손하지 마시고 사진부터 찍어 두세요.",
+  "chars": 114,
+  "pri": 3
+ },
+ {
+  "id": "r_home_a1_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 엄마, 나 괜찮아. 서린고 안이야… 민아가 여기 들어갔대서.",
+  "chars": 43,
+  "pri": 3
+ },
+ {
+  "id": "r_home_a1_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 엄마, 나 괜찮아. 서린고 안이야… 민아 선배가 여기 들어갔다고 해서.",
+  "chars": 49,
+  "pri": 3
+ },
+ {
+  "id": "r_home_a2_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 알아. 그래도 민아를 두고 그냥 나갈 순 없어.",
+  "chars": 36,
+  "pri": 3
+ },
+ {
+  "id": "r_home_a2_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 알아요… 그래도 선배를 두고 혼자 나갈 순 없어.",
+  "chars": 37,
+  "pri": 3
+ },
+ {
+  "id": "r_home_a3_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 응, 정문 쪽에 있을게. 빨리 와.",
+  "chars": 29,
+  "pri": 3
+ },
+ {
+  "id": "r_home_a3_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 응, 정문 쪽에 있을게. 엄마, 빨리 와.",
+  "chars": 33,
+  "pri": 3
+ },
+ {
+  "id": "r_home_b1_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 엄마, 그 애… 실종된 게 아니었어. 지하에 갇혔던 거야.",
+  "chars": 42,
+  "pri": 3
+ },
+ {
+  "id": "r_home_b1_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 엄마, 그 애 실종된 게 아니었어. 지하 펌프실에 갇혀 있었던 거야.",
+  "chars": 48,
+  "pri": 3
+ },
+ {
+  "id": "r_home_b2_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 증거가 있어. 학교가 일부러 덮은 거야.",
+  "chars": 32,
+  "pri": 3
+ },
+ {
+  "id": "r_home_b2_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 증거 찾았어. 학교가 일부러 덮은 거라고.",
+  "chars": 33,
+  "pri": 3
+ },
+ {
+  "id": "r_home_c1_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 응… 내가 했어. 하늘이 이름, 끝까지 불렀어.",
+  "chars": 36,
+  "pri": 3
+ },
+ {
+  "id": "r_home_c1_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 응, 나야. 하늘 선배 이름… 끝까지 불렀어.",
+  "chars": 35,
+  "pri": 3
+ },
+ {
+  "id": "r_home_c2_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] …나 이제 나갈게, 엄마.",
+  "chars": 24,
+  "pri": 3
+ },
+ {
+  "id": "r_home_c2_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 엄마… 나 이제 나갈게.",
+  "chars": 23,
+  "pri": 3
+ },
+ {
+  "id": "r_112_a1_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 서린고등학교 안이에요… 크게 말 못 해요.",
+  "chars": 33,
+  "pri": 3
+ },
+ {
+  "id": "r_112_a1_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 서린고등학교 안이에요… 크게 말을 못 하겠어요.",
+  "chars": 36,
+  "pri": 3
+ },
+ {
+  "id": "r_112_a2_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 네, 혼자예요. 친구가 안에서 연락이 끊겼어요.",
+  "chars": 36,
+  "pri": 3
+ },
+ {
+  "id": "r_112_a2_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 네… 혼자예요. 선배가 여기서 연락이 끊겼어요.",
+  "chars": 36,
+  "pri": 3
+ },
+ {
+  "id": "r_112_b1_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 네, 저예요. 그리고… 1998년 10월 실종 사건 기록 좀 확인해 주세요.",
+  "chars": 52,
+  "pri": 3
+ },
+ {
+  "id": "r_112_b1_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 네, 저예요. 혹시… 1998년 10월 실종 사건 기록 좀 찾아 주실 수 있어요?",
+  "chars": 55,
+  "pri": 3
+ },
+ {
+  "id": "r_119_a1_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 학교에 갇혔어요. 서린고등학교요.",
+  "chars": 28,
+  "pri": 3
+ },
+ {
+  "id": "r_119_a1_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 학교 안에 갇혔어요. 서린고등학교요.",
+  "chars": 30,
+  "pri": 3
+ },
+ {
+  "id": "r_119_a2_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 다친 데는 없어요. 정문이 안에서 잠겼어요.",
+  "chars": 34,
+  "pri": 3
+ },
+ {
+  "id": "r_119_a2_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 다친 데는 없어요. 근데 정문이 잠겨서 못 나가요.",
+  "chars": 38,
+  "pri": 3
+ },
+ {
+  "id": "r_119_a4_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 네… 배터리 아낄게요.",
+  "chars": 22,
+  "pri": 3
+ },
+ {
+  "id": "r_119_a4_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 네, 알겠어요. 배터리 아낄게요.",
+  "chars": 28,
+  "pri": 3
+ },
+ {
+  "id": "r_119_b1_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 지하 펌프실에… 십 년 전 그날 기록 없어요?",
+  "chars": 35,
+  "pri": 3
+ },
+ {
+  "id": "r_119_b1_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 혹시 지하 펌프실… 십 년 전 출동 기록 있어요?",
+  "chars": 37,
+  "pri": 3
+ },
+ {
+  "id": "r_119_b2_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 일곱 시간이요…? 그동안 아무도 신고 안 한 거네요.",
+  "chars": 39,
+  "pri": 3
+ },
+ {
+  "id": "r_119_b2_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 일곱 시간 뒤라고요…? 그동안 아무도 안 불렀던 거예요.",
+  "chars": 41,
+  "pri": 3
+ },
+ {
+  "id": "r_rep_a1_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 그 사건 기사요. 지금 그 학교 안에 있어요.",
+  "chars": 35,
+  "pri": 3
+ },
+ {
+  "id": "r_rep_a1_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 그 사건이요. 저 지금 그 학교 안에 있어요.",
+  "chars": 35,
+  "pri": 3
+ },
+ {
+  "id": "r_rep_a2_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 알겠어요. 찾아서 다시 연락할게요.",
+  "chars": 29,
+  "pri": 3
+ },
+ {
+  "id": "r_rep_a2_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 알겠어요. 증거 찾아서 꼭 다시 전화할게요.",
+  "chars": 34,
+  "pri": 3
+ },
+ {
+  "id": "r_rep_b1_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] CCTV 캡처 찾았어요. 교무부장이 열쇠를 쥐고 있었어요.",
+  "chars": 42,
+  "pri": 3
+ },
+ {
+  "id": "r_rep_b1_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] CCTV 캡처를 찾았어요. 열쇠는 교무부장이 갖고 있었어요.",
+  "chars": 43,
+  "pri": 3
+ },
+ {
+  "id": "r_rep_b2_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 다 모아 볼게요.",
+  "chars": 19,
+  "pri": 3
+ },
+ {
+  "id": "r_rep_b2_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 남은 것도 다 모아 볼게요.",
+  "chars": 25,
+  "pri": 3
+ },
+ {
+  "id": "r_rep_c1_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] …들으셨어요? 다행이다.",
+  "chars": 23,
+  "pri": 3
+ },
+ {
+  "id": "r_rep_c1_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 들으셨어요…? 다행이에요.",
+  "chars": 24,
+  "pri": 3
+ },
+ {
+  "id": "r_rep_c2_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 꼭 그렇게 써 주세요.",
+  "chars": 22,
+  "pri": 3
+ },
+ {
+  "id": "r_rep_c2_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 꼭… 그렇게 써 주세요.",
+  "chars": 23,
+  "pri": 3
+ },
+ {
+  "id": "r_og1_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 아저씨, 1998년에 서린고 당직이셨죠? 꼭 여쭤볼 게 있어요.",
+  "chars": 45,
+  "pri": 3
+ },
+ {
+  "id": "r_og1_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 아저씨, 1998년에 서린고 당직 서셨죠? 하나만 여쭤볼게요.",
+  "chars": 44,
+  "pri": 3
+ },
+ {
+  "id": "r_og2_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 마지막으로 나간 열쇠가 뭐였는데요?",
+  "chars": 29,
+  "pri": 3
+ },
+ {
+  "id": "r_og2_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 그날 마지막으로 나간 열쇠가 뭐였어요?",
+  "chars": 31,
+  "pri": 3
+ },
+ {
+  "id": "r_og3_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] …교무부장이요.",
+  "chars": 18,
+  "pri": 3
+ },
+ {
+  "id": "r_og3_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 교무부장 선생님이…",
+  "chars": 20,
+  "pri": 3
+ },
+ {
+  "id": "r_hr1_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 하늘이 담임 선생님이 쓰신 편지를 봤어요.",
+  "chars": 33,
+  "pri": 3
+ },
+ {
+  "id": "r_hr1_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 선생님이 하늘 선배한테 쓰신 편지를 봤어요.",
+  "chars": 34,
+  "pri": 3
+ },
+ {
+  "id": "r_hr2_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 왜 그 칸을 비워 두셨어요?",
+  "chars": 25,
+  "pri": 3
+ },
+ {
+  "id": "r_hr2_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 그 칸… 왜 비워 두셨어요?",
+  "chars": 25,
+  "pri": 3
+ },
+ {
+  "id": "r_jh1_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 그날 밤, 펌프실 문… 당신이 잠갔죠?",
+  "chars": 31,
+  "pri": 3
+ },
+ {
+  "id": "r_jh1_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 그날 밤 펌프실 문, 선배가 잠근 거죠?",
+  "chars": 32,
+  "pri": 3
+ },
+ {
+  "id": "r_jh2_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 그걸 왜 십 년 동안 말 안 했어요?",
+  "chars": 30,
+  "pri": 3
+ },
+ {
+  "id": "r_jh2_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 왜 십 년 동안… 아무 말도 안 했어요?",
+  "chars": 32,
+  "pri": 3
+ },
+ {
+  "id": "r_jh3_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] …전할게요. 꼭.",
+  "chars": 19,
+  "pri": 3
+ },
+ {
+  "id": "r_jh3_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] …꼭 전할게요.",
+  "chars": 18,
+  "pri": 3
+ },
+ {
+  "id": "r_hn1_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 제가… 할 수 있는 건 그것뿐이었어요.",
+  "chars": 31,
+  "pri": 3
+ },
+ {
+  "id": "r_hn1_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 제가 할 수 있는 게… 그것밖에 없었어요.",
+  "chars": 33,
+  "pri": 3
+ },
+ {
+  "id": "r_vm1_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 민아… 세 시간 전 메시지야. 4층 복도 끝이라고 했지.",
+  "chars": 41,
+  "pri": 3
+ },
+ {
+  "id": "r_vm1_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 선배… 세 시간 전에 남긴 메시지야. 4층 복도 끝이라고 했어.",
+  "chars": 45,
+  "pri": 3
+ },
+ {
+  "id": "r_vm2_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 방송실 장비실… 거기 숨어 있었구나. 기다려, 민아.",
+  "chars": 39,
+  "pri": 3
+ },
+ {
+  "id": "r_vm2_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 방송실 장비실에 숨어 있었구나… 선배, 조금만 기다려.",
+  "chars": 40,
+  "pri": 3
+ },
+ {
+  "id": "tape1",
+  "spk": "witness_nurse",
+  "voice_id": "UvgKIGQwdeBJcpRJvb3P",
+  "prompt": "[softly] [slowly] 열한 시 이십 분, 갑자기 본관 전체가 정전됐다. 지하 배수 펌프까지 멈췄다고 하는데, 방송부 애들 말로는 아직 3학년 윤하늘 학생이 지하에 남아 있다고 한다. 어떡하지, 철문이 잠겨 있어서 내려갈 수가 없어.",
+  "chars": 135,
+  "pri": 4
+ },
+ {
+  "id": "tape2",
+  "spk": "mina",
+  "voice_id": "5I7B1di44aCL15NkP0jn",
+  "prompt": "[frightened] [slowly] [hesitant] ……누구든 이 테이프를 들으면 제발 도와줘. 지금 3층 방송실이야. 장비실 문이 뒤에서 잠겨서 안 열려. 발목을 다쳐서 움직이기도 힘들어. 아까 복도에서 발소리가 났는데, 누군지 몰라서 소리를 못 냈어. 제발, 빨리 와 줘.",
+  "chars": 158,
+  "pri": 4
+ },
+ {
+  "id": "tape3",
+  "spk": "headTeacher",
+  "voice_id": "4JJwo477JUAx3HV0T7n7",
+  "prompt": "[serious] [slowly] 오늘 밤 지하 펌프실 건은 단순 실종 사고로 정리한다. 경찰이나 교육청에 새어 나가선 안 돼. 오늘 밤 학교에 남아 있던 우리 다섯 사람이 정문 열쇠를 한 조각씩 나눠 맡기로 했다. 교무실 금고, 도서실, 과학실, 체육관, 그리고 수영장. 다섯 명이 모두 모이기 전엔, 그 누구도 오늘 밤을 다시 열 수 없다.",
+  "chars": 192,
+  "pri": 4
+ },
+ {
+  "id": "tape4",
+  "spk": "haneul",
+  "voice_id": "1BZBO072RKJTzZcDjRox",
+  "prompt": "[softly] [slowly] 아, 아, 마이크 테스트. 하나, 둘, 셋. 기념 방송 날엔 꼭 내 목소리로 마지막 하교 방송을 할 거야. 여러분, 오늘 하루도 정말 수고 많았습니다. 이제 안심하고, 집으로 돌아가세요.",
+  "chars": 122,
+  "pri": 4
+ },
+ {
+  "id": "tape5",
+  "spk": "headTeacher",
+  "voice_id": "4JJwo477JUAx3HV0T7n7",
+  "prompt": "[sad] [slowly] 사실 그날 밤, 지하 펌프실 철문 열쇠는 내 주머니 속에 있었다. 준호 녀석이 장난이라며 가져온 열쇠를, 버릇 좀 고쳐 주겠다며 내가 쥐고 있었어. 정전이 났을 때 바로 내려가 문만 열어 줬어도, 그 아이는 살아서 마이크 앞에 섰을 거다. 학교 명예를 지킨다는 핑계로 내가 그 아이를 죽였다. 누군가 이 녹음을 듣는다면, 부디 내 대신 그 아이의 이름을 불러 다오.",
+  "chars": 219,
+  "pri": 4
+ },
+ {
+  "id": "mtape_4",
+  "spk": "friend2",
+  "voice_id": "j3SYRikKBpDmPJsvd1rf",
+  "prompt": "[casual] [slowly] 담력 체험이라고, 잠깐만 문을 잠그자고 했어요. 하늘 선배가 안에서 그만하라고 했는데도 우린 웃었어요. 정전이 나자 다 도망쳤고요. 누구라도 듣고 있다면 옥상 안테나로 가 주세요. 교내에선 신호가 막혀요. 이번엔 제발 그 목소리를 밖으로 보내 주세요.",
+  "chars": 158,
+  "pri": 4
+ },
+ {
+  "id": "mtape_2",
+  "spk": "guard",
+  "voice_id": "UmYoqGlufKxhJ6NCx5Mv",
+  "prompt": "[elderly voice] [slowly] 순찰 일지, 밤 열한 시 사십 분. 정전 직전에 펌프실 쪽에서 문 두드리는 소리가 났어유. 열쇠는 교무부장이 가져갔다고 혔고요. 본관과 별관 연결통로 방화문은 닫아 둬요.",
+  "chars": 120,
+  "pri": 4
+ },
+ {
+  "id": "mtape_6",
+  "spk": "mina",
+  "voice_id": "5I7B1di44aCL15NkP0jn",
+  "prompt": "[worried] [slowly] 민아의 취재 녹음. 열두 개의 명찰이 있어. 그날 밤 학교에 남아 있던 열두 명 거야. 명찰 주인들의 증언을 다 모으면, 학교가 지운 그 밤을 처음부터 끝까지 다시 맞출 수 있어. 하늘 선배도, 그날 남겨진 사람들도 잊히지 않게.",
+  "chars": 147,
+  "pri": 4
+ },
+ {
+  "id": "mtape_3",
+  "spk": "witness_science",
+  "voice_id": "l6fNdLYgoqjfTIPUeFc9",
+  "prompt": "[serious] [slowly] 과학 준비실에서 예비 퓨즈를 찾고 있었습니다. 불이 나간 뒤 지하 펌프 소리도 끊겼어요. 아이가 아직 아래에 있다는 말을 듣고도 전기부터 복구하려 했죠. 그날 방송을 잡으려면 수신기를 구십팔 점 사 메가헤르츠에 맞추세요. 그 주파수만은 아직 살아 있습니다.",
+  "chars": 162,
+  "pri": 4
+ },
+ {
+  "id": "mtape_1",
+  "spk": "witness_counselor",
+  "voice_id": "CZ86sooijZ9CfwhGGEY5",
+  "prompt": "[gently] [slowly] 그날 상담을 마치고 나오는데, 하늘이가 방송 원고를 보여 줬어요. 기념 방송은 자기가 꼭 하겠다고요. 아이가 사라진 뒤에도 교장 선생님은 결석으로 적으라고 했어요. 지하에서 들리던 소리를 저는 들었습니다. 못 들은 척했을 뿐이에요.",
+  "chars": 147,
+  "pri": 4
+ },
+ {
+  "id": "mtape_5",
+  "spk": "witness_principal",
+  "voice_id": "kiVK4omWhBQ9AzwcaRq7",
+  "prompt": "[regretful] [slowly] 보고서에는 실종이라고 썼네. 학교 이름이 신문에 나는 게 두려웠어. 그 아이 부모에게조차 정전 얘기는 하지 말라고 했지. 교장실 괘종시계를 자정에 맞추면 서고 금고가 열리네. 정문 열쇠 다섯 조각과 함께, 우리가 감춘 기록도 찾아 주게.",
+  "chars": 153,
+  "pri": 4
+ },
+ {
+  "id": "vo_pe_tape",
+  "spk": "peTeacher",
+  "voice_id": "4tLzQecqf3Jg3zct76Fm",
+  "prompt": "[gruff] [slowly] 체육관 기록석, 강태식이다. 그날 밤 나는 관람석 불을 끄고 있었다. 지하에서 쿵쿵거리는 소리를 들었지. 배관 소리인 줄 알았어. 아니, 그렇게 믿고 싶었던 거겠지.",
+  "chars": 109,
+  "pri": 4
+ },
+ {
+  "id": "vo_guard_log",
+  "spk": "guard",
+  "voice_id": "UmYoqGlufKxhJ6NCx5Mv",
+  "prompt": "[elderly voice] [slowly] 경비 일지를 넘길 때마다 그날이 생각나. 교무부장은 열쇠를 쥐고 정문만 잠그라 혔고, 나는 시키는 대로 혔지. 그게 평생 걸려유.",
+  "chars": 97,
+  "pri": 4
+ },
+ {
+  "id": "vo_principal_nb",
+  "spk": "principal",
+  "voice_id": "kiVK4omWhBQ9AzwcaRq7",
+  "prompt": "[regretful] [slowly] 만년필을 내려놓네. 학교 이름이 신문에 나는 게 두려웠어. 그 아이 부모에게조차 정전 얘기는 하지 말라고 했지. 그게 내가 한 일이네.",
+  "chars": 96,
+  "pri": 4
+ },
+ {
+  "id": "vo_bunker_tape",
+  "spk": "headTeacher",
+  "voice_id": "4JJwo477JUAx3HV0T7n7",
+  "prompt": "[serious] [slowly] 경찰이고 교육청이고 새어 나가면 안 돼! 우리 다섯이 한 조각씩 맡는다. 다섯이 다 모이기 전엔, 아무도 오늘 밤을 열 수 없어.",
+  "chars": 91,
+  "pri": 4
+ },
+ {
+  "id": "vo_dorm_student",
+  "spk": "friend2",
+  "voice_id": "j3SYRikKBpDmPJsvd1rf",
+  "prompt": "[casual] [slowly] 하늘이가 안에서 그만하라고 했는데도… 우린 웃었어요. 정전이 나니까 다 도망쳤고요. 누구라도 이걸 들으면, 그 목소리를 밖으로 꺼내 주세요.",
+  "chars": 96,
+  "pri": 4
+ },
+ {
+  "id": "vo_astro_log",
+  "spk": "scienceTeacher",
+  "voice_id": "l6fNdLYgoqjfTIPUeFc9",
+  "prompt": "[serious] [slowly] 예비 퓨즈를 찾느라 과학 준비실에 있었습니다. 펌프 소리가 끊기는 걸 들었어요. 아이가 아래 있다는 말을 듣고도, 전기부터 고치려 했습니다. 그날 방송은 구십팔 점 사 메가헤르츠에서 잡힙니다.",
+  "chars": 126,
+  "pri": 4
+ },
+ {
+  "id": "vo_lib_confess",
+  "spk": "counselor",
+  "voice_id": "oxjV6KVVajggAI4msV3d",
+  "prompt": "[gently] [slowly] 상담을 마치고 나오는데, 하늘이가 방송 원고를 보여 줬어요. 자기가 꼭 하겠다고. 지하에서 두드리는 소리, 저도 들었어요. 못 들은 척했을 뿐이에요.",
+  "chars": 101,
+  "pri": 4
+ },
+ {
+  "id": "vo_union_stage",
+  "spk": "haneul",
+  "voice_id": "1BZBO072RKJTzZcDjRox",
+  "prompt": "[softly] [slowly] 아, 아, 마이크 테스트. 하나, 둘, 셋! 수아야, 다은아, 들려? 기념 방송 날엔 우리 셋이 같이 하는 거다?",
+  "chars": 81,
+  "pri": 4
+ },
+ {
+  "id": "vo_pump_forensic",
+  "spk": "headTeacher",
+  "voice_id": "4JJwo477JUAx3HV0T7n7",
+  "prompt": "[serious] [slowly] 열쇠는 내 주머니에 있었다. 버릇 좀 고쳐 주겠다고… 내가 쥐고 있었어. 정전이 났을 때 바로 내려가서 문만 열었어도… 그 아이는 마이크 앞에 섰을 거다.",
+  "chars": 105,
+  "pri": 4
+ },
+ {
+  "id": "vo_homeroom_tape",
+  "spk": "homeroom",
+  "voice_id": "UqW1DivwFt1NwUMSGnTn",
+  "prompt": "[tearful] [slowly] 교감은 출석부에 결석이라고 적으라더군요. 저는 끝까지 쓰지 않았어요. 삼 년 내내, 아침마다 제일 먼저 등교하던 아이였으니까요.",
+  "chars": 90,
+  "pri": 4
+ },
+ {
+  "id": "ts_junho",
+  "spk": "junho",
+  "voice_id": "Ir7oQcBXWiq4oFGROCfj",
+  "prompt": "[regretful] [slowly] 이준호입니다. 2008년, 십 년 만에 처음 말해요. 열 시 오십 분에 교무부장님한테 펌프실 열쇠를 드렸어요. 그리고 열한 시 십 분에 다시 갔을 때, 부장님은 교장실에 계셨어요. 열쇠는 그때도 부장님 주머니에 있었어요.",
+  "chars": 144,
+  "pri": 4
+ },
+ {
+  "id": "ts_snack",
+  "spk": "snackLady",
+  "voice_id": "VFNaRkx6q2IQZn2mmwwg",
+  "prompt": "[warmly] [slowly] 매점 아줌마예요. 그날 밤 열한 시쯤 셔터를 내리는데, 교무부장 선생이 매점 공중전화를 쓰더라고. 누구랑 통화하면서 그랬어. 아침까지만 버티면 된다고. 그 말이 아직도 귀에 남아.",
+  "chars": 118,
+  "pri": 4
+ },
+ {
+  "id": "ts_paramedic",
+  "spk": "paramedic",
+  "voice_id": "M7AHsCtFdpWTIL58I3ap",
+  "prompt": "[urgently] [slowly] 서린소방서 구급대 기록입니다. 서린고 출동 요청 접수 시각은 10월 13일 오전 여섯 시 십 분. 사고 시각으로부터 약 일곱 시간 뒤입니다. 그날 밤엔, 신고가 한 건도 없었습니다.",
+  "chars": 121,
+  "pri": 4
+ },
+ {
+  "id": "ts_mother",
+  "spk": "mother",
+  "voice_id": "tbMC7ogaglVnkFQgUOta",
+  "prompt": "[sad] [slowly] 하늘이 엄마예요. 그날 밤 아홉 시에 전화가 왔어요. 엄마, 방송 꼭 들어, 끝나면 바로 갈게. 학교는 애가 집에 오다가 없어졌대요. 우리 하늘이는 집에 오는 길을, 한 번도 헤맨 적이 없어요.",
+  "chars": 123,
+  "pri": 4
+ },
+ {
+  "id": "ts_vice",
+  "spk": "vicePrincipal",
+  "voice_id": "sQ3a15DhENXU8pKTHlcc",
+  "prompt": "[serious] [slowly] 교감입니다. 출석부 처리는 규정대로 했을 뿐이오. 결석은 결석이니까. 담임 전근이요? 그건, 인사 발령이지. 내가 결정한 게 아니오. 교장 선생님 결재였소.",
+  "chars": 106,
+  "pri": 4
+ },
+ {
+  "id": "ts_dorm",
+  "spk": "dormMother",
+  "voice_id": "0oqpliV6dVSr9XomngOW",
+  "prompt": "[quietly] [slowly] 청운학사 사감이에요. 그날 밤 열한 시 오십 분 점호 때, 204호 다은이가 울면서 들어왔어요. 문 잠근 게 우리 때문이냐고, 계속 그것만 물었어요. 저는 대답을 못 했어요.",
+  "chars": 116,
+  "pri": 4
+ },
+ {
+  "id": "ts_electric",
+  "spk": "electrician",
+  "voice_id": "TRO4gatqxbbwLXHLDLSk",
+  "prompt": "[rough] [slowly] 전기 기사입니다. 본관 지하 배전반, 그 전 달부터 합선 위험 보고서를 세 번 올렸어요. 다 반려됐습니다. 그날 밤 정전은 사고가 아니에요. 예고된 거였죠.",
+  "chars": 104,
+  "pri": 4
+ },
+ {
+  "id": "ts_pe2",
+  "spk": "peTeacher",
+  "voice_id": "4tLzQecqf3Jg3zct76Fm",
+  "prompt": "[gruff] [slowly] 체육관 기구함에 숨긴 건 당직 일지다. 열한 시 반에 교무부장이 나를 불러서 그러더군. 오늘 밤 아무것도 못 본 거라고. 나는 고개를 끄덕였다. 그게 내 죄다.",
+  "chars": 106,
+  "pri": 4
+ },
+ {
+  "id": "ts_reporter2",
+  "spk": "reporter",
+  "voice_id": "J3IV02ZzZmojOIQbmpu0",
+  "prompt": "[serious] 한진우 기자입니다. 기사는 하루 만에 내려갔습니다. 재단에서 신문사로 전화가 왔다더군요. 이 테이프를 들은 분은, 제 취재 노트를 이어 주십시오. 진실은 아직 이 학교 안에 있습니다.",
+  "chars": 112,
+  "pri": 4
+ },
+ {
+  "id": "ts_mina",
+  "spk": "mina",
+  "voice_id": "5I7B1di44aCL15NkP0jn",
+  "prompt": "[worried] [slowly] 민아의 취재 녹음, 셋째 날. 증언이 서로 엇갈려. 문은 열려 있었다, 잠겨 있었다. 근데 둘 다 맞을 수 있어. 문이 두 개라면. 가설은 하나씩 지워 가는 거야. 남는 게 진실이야.",
+  "chars": 121,
+  "pri": 4
+ },
+ {
+  "id": "gd_radio1",
+  "spk": "guard",
+  "voice_id": "UmYoqGlufKxhJ6NCx5Mv",
+  "prompt": "[over a walkie-talkie] [elderly voice] 본부, 본부, 여기 정문 초소. 밤 열 시 사십오 분. 지하 펌프실 환기구 쪽에서… 쿵, 쿵… 철문 두드리는 소리가 나유. 누가 갇힌 것 같은디, 열쇠가 어디 있는지 확인 바란다. 오버.",
+  "chars": 143,
+  "pri": 4
+ },
+ {
+  "id": "gd_radio2",
+  "spk": "guard",
+  "voice_id": "UmYoqGlufKxhJ6NCx5Mv",
+  "prompt": "[over a walkie-talkie] [elderly voice] 교무실, 교무실, 응답 좀 해 봐유! 아니, 장난이라 해도 애가 안에 있잖여… 지금 꺼내야 혀유. 뭐라고유? 아침에 열라고유? …알았슈. 오버.",
+  "chars": 119,
+  "pri": 4
+ },
+ {
+  "id": "gd_radio3",
+  "spk": "guard",
+  "voice_id": "UmYoqGlufKxhJ6NCx5Mv",
+  "prompt": "[over a walkie-talkie] [elderly voice] 정전이여, 정전! 본관 불이 싹 다 나갔슈! 비상등도 안 들어와유! 지하 쪽 소리가… 소리가 멈췄어유. 아무도 대답을 안 혀… 누구라도 들리면 응답해유! 오버!",
+  "chars": 128,
+  "pri": 4
+ },
+ {
+  "id": "gd_log1",
+  "spk": "guard",
+  "voice_id": "UmYoqGlufKxhJ6NCx5Mv",
+  "prompt": "[over a walkie-talkie] [elderly voice] 근무 일지. 10월 12일 월요일. 오후 여섯 시 교대. 방송부 애들 기념 방송 땜시 본관 개방, 리허설은 밤 열 시, 하교 방송은 열한 시 사십 분. 교무부장 지시, 지하 펌프실 열쇠는 경비실에 두지 말 것. 이상 무… 라고 적었는디.",
+  "chars": 171,
+  "pri": 4
+ },
+ {
+  "id": "gd_log2",
+  "spk": "guard",
+  "voice_id": "UmYoqGlufKxhJ6NCx5Mv",
+  "prompt": "[over a walkie-talkie] [elderly voice] 10월 13일 새벽 다섯 시 오십 분. 교무부장이 펌프실 열쇠를 들고 내려갔슈. 한참을 안 올라오더니, 얼굴이 하얘가지고… 이 일지 어젯밤 장을 찢으라고 혔어유. 나는 찢는 척만 허고, 여기 숨겨 놨슈.",
+  "chars": 152,
+  "pri": 4
+ },
+ {
+  "id": "gd_log3",
+  "spk": "guard",
+  "voice_id": "UmYoqGlufKxhJ6NCx5Mv",
+  "prompt": "[over a walkie-talkie] [elderly voice] 1999년 2월, 내 마지막 근무. 나도 이 학교를 떠나는댜. 열쇠 꾸러미 반납허고… 정문에 쇠사슬 감았슈. 근디 해마다 10월 12일 밤이면, 꺼진 스피커에서 하교 방송이 들린다는 소문이 돌더라고. 나는… 안 믿어유. 안 믿고 싶어유.",
+  "chars": 171,
+  "pri": 4
+ },
+ {
+  "id": "ts_guard",
+  "spk": "guard",
+  "voice_id": "UmYoqGlufKxhJ6NCx5Mv",
+  "prompt": "[elderly voice] [slowly] 민아 학생이라고 혔지? 이 늙은이 얘기 녹음허는 거 맞쥬. 그날 밤 나는 다 들었어. 쿵쿵 소리도, 교무실 무전도. 내가 열쇠를 뺏어서라도 내려갔어야 혔는디… 십 년을 그 소리 듣고 살았슈. 무전기는 경비실 서랍에 그대로 있을 거여. 그날 밤 교신, 다 거기 남아 있슈.",
+  "chars": 176,
+  "pri": 4
+ },
+ {
+  "id": "gd_call",
+  "spk": "guard",
+  "voice_id": "UmYoqGlufKxhJ6NCx5Mv",
+  "prompt": "[over a walkie-talkie] [elderly voice] 서린고등학교 정문 경비실입니다. 지금은 근무자가 자리에 없슈. 용건 남기시믄… 밤에는 본관 출입 금지여유. 지하는 물이 차서 위험허니께, 절대 내려가지 마유.",
+  "chars": 127,
+  "pri": 4
+ },
+ {
+  "id": "ts_cook",
+  "spk": "cook",
+  "voice_id": "0oqpliV6dVSr9XomngOW",
+  "prompt": "[warmly] [slowly] 급식실 조리실장이에요. 그날 저녁에 방송부 애들 먹으라고 주먹밥을 남겨 놨거든요. 하늘이가 와서 그랬어요. 아줌마, 리허설 끝나면 하나 더 먹으러 올게요. 그 주먹밥… 다음 날 아침까지 그대로 있었어요. 그 뒤로 십 년을, 저는 매일 한 명분을 더 차려 놨어요.",
+  "chars": 164,
+  "pri": 4
+ },
+ {
+  "id": "ts_music",
+  "spk": "musicTeacher",
+  "voice_id": "ETPP7D0aZVdEj12Aa7ho",
+  "prompt": "[softly] [slowly] 음악실 열쇠는 제가 갖고 있었어요. 그날 밤 아홉 시 반, 하늘이가 피아노로 학교종을 열 번도 넘게 쳤어요. 틀릴 때마다 웃으면서요. 열 시에 문을 잠그고 나왔어요. 그 뒤로 저는 해마다 10월 12일 밤이면 여기 와서 학교종을 쳐요. 하늘이가 늘 멈추던, 솔 솔 라 라까지만요.",
+  "chars": 174,
+  "pri": 4
+ },
+ {
+  "id": "ts_art",
+  "spk": "artTeacher",
+  "voice_id": "ZJCNdZEjYwkOElxugmW2",
+  "prompt": "[quietly] [slowly] 미술실 박 선생입니다. 기념 방송 포스터, 하늘이가 그렸어요. 마이크 든 여자애 하나, 그 옆에 친구 둘. 사고 다음 날 교무부장님이 포스터를 전부 떼라고 했죠. 저는 한 장만… 이젤 뒤에 숨겼습니다. 창가에 둔 탓에, 그림 속 하늘이 얼굴부터 볕에 바래 가네요.",
+  "chars": 166,
+  "pri": 4
+ },
+ {
+  "id": "ts_janitor",
+  "spk": "janitor",
+  "voice_id": "tULcEaBAIILEj8JcgzPa",
+  "prompt": "[quietly] [slowly] 청소하는 김 씨여라. 13일 새벽 다섯 시에 지하 청소하러 내려갔는디, 펌프실 앞 바닥이 물바다였어라. 철문 안쪽에서 작은 손자국이… 문 아래까지 쭉 나 있더라고. 교무부장이 그 바닥, 날 밝기 전에 싹 닦으라고 혔어. 나는… 시키는 대로 닦았지라.",
+  "chars": 158,
+  "pri": 4
+ },
+ {
+  "id": "ts_snack2",
+  "spk": "snackLady",
+  "voice_id": "VFNaRkx6q2IQZn2mmwwg",
+  "prompt": "[warmly] [slowly] 매점 장부 봤어? 10월 12일 밤 아홉 시 사십 분, 바나나우유 하나, 윤하늘. 외상이야. 내일 갚을게요, 그러더라고. 그 외상… 아직도 장부에 그대로 있어. 나는 못 지우겠더라.",
+  "chars": 119,
+  "pri": 4
+ },
+ {
+  "id": "ts_lib2",
+  "spk": "librarian",
+  "voice_id": "sf8Bpb1IU97NI9BHSMRf",
+  "prompt": "[hushed, nervous] [slowly] 그해 시월 열사흘 아침에 교감 선생님이 오셔서, 윤하늘 학생 대출 카드를 새로 써 달라고 하셨어요. 전날 저녁 여섯 시에 책을 반납하고 하교한 걸로요. 저는 그 시간에 도서관 문을 닫고 있었는데, 하늘이는 오지 않았어요. 마이크로필름 판독기에 그날 신문이 있어요. 거기엔 정전 얘기가 한 줄도 없어요.",
+  "chars": 195,
+  "pri": 4
+ },
+ {
+  "id": "ts_astro",
+  "spk": "witness_science",
+  "voice_id": "l6fNdLYgoqjfTIPUeFc9",
+  "prompt": "[serious] [slowly] 그날 밤 천문부 애들이랑 옥상 돔에서 페가수스자리를 보고 있었어요. 열한 시 이십 분에 본관 불이 한 번에 나갔는데, 이상한 건 천문관 전기는 멀쩡했다는 거예요. 같은 변전 계통인데요. 누가 본관 분전반만 내린 거죠. 관측 기록지에 시각을 적어 뒀는데, 다음 날 그 장이 찢겨 있었습니다.",
+  "chars": 180,
+  "pri": 4
+ },
+ {
+  "id": "ts_history",
+  "spk": "janitor",
+  "voice_id": "tULcEaBAIILEj8JcgzPa",
+  "prompt": "[quietly] [slowly] 개교 삼십 주년 타임캡슐 말이에요. 원래 그해 졸업생 편지를 넣는 거였는데, 행사 다음 날 교장실에서 봉투를 하나 더 넣으라고 가져왔어요. 겉에 이십 년 뒤 개봉이라고 써 있었죠. 저는 그게 무서워서 손도 안 댔어요. 아직 그 좌대 밑에 있을 겁니다.",
+  "chars": 159,
+  "pri": 4
+ },
+ {
+  "id": "ts_union",
+  "spk": "friend2",
+  "voice_id": "j3SYRikKBpDmPJsvd1rf",
+  "prompt": "[casual] [slowly] 선배들한테 들은 얘기예요. 그날 방송부 담력 체험은 딱 십 분만 하기로 했대요. 근데 열쇠를 가지러 간 이준호 선배가 교무실에서 쫓겨났대요. 열쇠 받으러 왔다고 하니까, 교무부장 선생님이 내일 아침에 열면 된다고 했다고요. 학생회 회의록에 그 얘기를 적었다가, 그 장만 사라졌어요.",
+  "chars": 175,
+  "pri": 4
+ },
+ {
+  "id": "ts_auditor",
+  "spk": "junho",
+  "voice_id": "Ir7oQcBXWiq4oFGROCfj",
+  "prompt": "[regretful] [slowly] 리허설 끝나고 대강당 음향 조정실에서 장비를 정리하고 있었어. 열 시 반쯤 하늘이가 지하에 있는 걸 알고 경비실로 뛰어갔지. 박 아저씨가 무전으로 몇 번이나 보고했는데, 위에서 그냥 기다리라고만 했어. 정전이 나고 나서야 모두 조용해졌어. 나는 그 조용함을 아직도 못 잊어.",
+  "chars": 174,
+  "pri": 4
+ },
+ {
+  "id": "ts_lake",
+  "spk": "dormMother",
+  "voice_id": "0oqpliV6dVSr9XomngOW",
+  "prompt": "[quietly] [slowly] 그 밤에 호수 정자 쪽으로 산책을 나왔는데, 학교 쪽에서 쿵, 쿵 하고 철문 두드리는 소리가 났어요. 밤 열한 시가 넘어서요. 경찰에 말했더니 학교에서 아무 일도 없다고 했대요. 그 소리가 아이 손으로 두드리는 소리였다는 걸, 나중에야 알았어요.",
+  "chars": 156,
+  "pri": 4
+ },
+ {
+  "id": "ts_pool2",
+  "spk": "peTeacher",
+  "voice_id": "4tLzQecqf3Jg3zct76Fm",
+  "prompt": "[gruff] [slowly] 수영장 기계실 펌프랑 본관 지하 배수 펌프가 같은 배관으로 이어져 있었어요. 정전되면 지하에 물이 차기 시작하죠. 저는 그날 밤 열한 시 반에 배수 경보가 울리는 걸 들었어요. 교무부장한테 전화했더니, 펌프실 열쇠는 자기가 갖고 있으니 걱정 말라고 하더군요. 그게 마지막 통화였어요.",
+  "chars": 175,
+  "pri": 4
+ },
+ {
+  "id": "ts_bunker",
+  "spk": "headTeacher",
+  "voice_id": "4JJwo477JUAx3HV0T7n7",
+  "prompt": "[serious] [slowly] 원본은 태우지 않았다. 교장은 소각하라고 했지만, 나는 감사 보고서와 경비 일지 원본을 방공호 서고 철제 캐비닛에 넣고 잠갔다. 언젠가 누군가 이 문을 열 거라고 생각했다. 그게 내가 할 수 있는 유일한 속죄였다.",
+  "chars": 138,
+  "pri": 4
+ },
+ {
+  "id": "ts_incin",
+  "spk": "janitor",
+  "voice_id": "tULcEaBAIILEj8JcgzPa",
+  "prompt": "[quietly] [slowly] 시월 열사흘 새벽 다섯 시에 행정실에서 서류 상자 세 개를 가져왔어요. 다 태우라고요. 근데 맨 아래 상자는 비어 있었어요. 누가 먼저 빼 간 거죠. 저는 그냥 빈 상자를 태웠다고 장부에 적었습니다. 소각로 투입구 옆에 타다 남은 원고 조각이 아직 있을 거예요.",
+  "chars": 165,
+  "pri": 4
+ },
+ {
+  "id": "ts_green",
+  "spk": "friend",
+  "voice_id": "CZ86sooijZ9CfwhGGEY5",
+  "prompt": "[casual] [slowly] 하늘 언니는 온실에서 방송 원고를 연습하곤 했어요. 그날 오후에도 여기서 마지막 하교 방송 문장을 몇 번이나 읽었어요. 이제 안심하고 집으로 돌아가세요. 저는 그 문장을 아직 외우고 있어요. 언니가 그 방송을 못 했다는 게, 아직도 믿기지 않아요.",
+  "chars": 156,
+  "pri": 4
+ },
+ {
+  "id": "cr_1_1",
+  "spk": "classRep",
+  "voice_id": "m3gJBS8OofDJfycyA2Ip",
+  "prompt": "[nervous] [slowly] 1학년 1반 반장 김민수예요. 열 시 반쯤이었어요. 매점 앞에서... 3학년 형들 다섯 명이 손전등 들고 본관 지하로 내려가는 걸 봤어요. 그중 한 명이 웃으면서 그랬어요. \"십 분만 겁주면 돼.\" 그 웃음소리가... 아직도 귀에 남아 있어요.",
+  "chars": 155,
+  "pri": 4
+ },
+ {
+  "id": "cr_1_2",
+  "spk": "classRep",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] [slowly] 1학년 2반 반장 이서연이에요. 하늘 언니는요, 그날 밤 아홉 시에 정문으로 나갔어요. 제가 직접 봤어요. 빨간 우산 쓰고... 아, 근데... 그날 비가 왔었나요? 아, 아니에요. 확실해요. 집에 간 거예요. 선생님들도 그렇게 말씀하셨고요.",
+  "chars": 154,
+  "pri": 4
+ },
+ {
+  "id": "cr_1_3",
+  "spk": "classRep",
+  "voice_id": "u5V9D9qTP25lmjepYOSC",
+  "prompt": "[nervous] [slowly] 1학년 3반 반장 박지훈입니다. 정전 난 시각은 정확히 기억해요. 열한 시 이십 분. 기숙사 벽시계가 그 자리에서 멈췄거든요. 근데 이상한 게 하나 있어요. 비상등이요. 원래 정전되면 초록불이 들어오잖아요. 그날은... 하나도 안 켜졌어요. 학교 전체가요.",
+  "chars": 162,
+  "pri": 4
+ },
+ {
+  "id": "cr_1_4",
+  "spk": "classRep",
+  "voice_id": "QPFsEL6IBxlT15xfiD6C",
+  "prompt": "[nervous] [slowly] 1학년 4반 반장 최유진이요. 펌프실 열쇠요? 그건 경비 아저씨가 처음부터 끝까지 갖고 계셨어요. 교무부장 선생님은 아무 상관 없어요. 그분이 얼마나 좋은 분인데요. 왜 자꾸 그걸 물어보세요? 우리 아빠가 그러는데요, 쓸데없는 소문 퍼뜨리면 안 된대요.",
+  "chars": 160,
+  "pri": 4
+ },
+ {
+  "id": "cr_1_5",
+  "spk": "classRep",
+  "voice_id": "T6CkalnggsFZDOXwglLf",
+  "prompt": "[nervous] [slowly] 1학년 5반 반장 강도윤이에요. 열한 시 사십 분쯤에 운동장 옆 지하 환기구에서 목소리가 들렸어요. 여자애가 방송 연습하듯이 또박또박... \"오늘 하루도 수고 많—\" 거기서 뚝 끊겼어요. 다들 장난인 줄 알았는데... 그 목소리, 3학년 2반 윤하늘 선배였어요.",
+  "chars": 165,
+  "pri": 4
+ },
+ {
+  "id": "cr_2_1",
+  "spk": "classRep",
+  "voice_id": "5n5gqmaQi9Ewevrz7bOS",
+  "prompt": "[nervous] [slowly] 2학년 1반 반장 조수아예요. 다은 언니가요, 열두 시 다 돼서 기숙사로 들어왔어요. 신발도 한 짝만 신고... 계속 같은 말만 했어요. \"문 잠근 게 우리 때문이야? 우리 때문이야?\" 저는 그때 무슨 뜻인지 몰랐어요. 지금은... 알 것 같아요.",
+  "chars": 157,
+  "pri": 4
+ },
+ {
+  "id": "cr_2_2",
+  "spk": "classRep",
+  "voice_id": "C0l1SX0ePHQUHLr8V8dF",
+  "prompt": "[nervous] [slowly] 2학년 2반 반장 윤재현. 아 진짜, 지하에서 소리 났다는 거 다 지어낸 얘기야. 그날 밤엔 아무 일도 없었어. 정전? 그런 것도 없었고. 선생님들이 다 그러셨거든. ...그러니까 너도 그만 파고들어. 괜히 너만 이상한 애 된다.",
+  "chars": 147,
+  "pri": 4
+ },
+ {
+  "id": "cr_2_3",
+  "spk": "classRep",
+  "voice_id": "ajfBUI2mmJMjvf2H6Yw7",
+  "prompt": "[nervous] [slowly] 2학년 3반 반장 장예린이에요. 이거 아무한테도 말 안 했는데요... 다음 날 아침 조회 때, 교무부장 선생님 바짓단이 무릎까지 다 젖어 있었어요. 그날 비 안 왔거든요. 그리고 손바닥에... 녹 같은 게 묻어 있었어요. 쇠 냄새 나는 거요.",
+  "chars": 154,
+  "pri": 4
+ },
+ {
+  "id": "cr_2_4",
+  "spk": "classRep",
+  "voice_id": "wf0zZlKrRqrI37otTqRS",
+  "prompt": "[nervous] [slowly] 2학년 4반 반장 임태호. 열쇠? 그거 교장실 금고에 다 있어. 내가 봤어, 다섯 개 다. 꾸러미째로 고스란히. 그러니까 쪼개서 숨겼다느니 하는 건 다 헛소리야. 어... 금고 비밀번호? 그건 나도 몰라.",
+  "chars": 133,
+  "pri": 4
+ },
+ {
+  "id": "cr_2_5",
+  "spk": "classRep",
+  "voice_id": "zgDzx5jLLCqEp6Fl7Kl7",
+  "prompt": "[nervous] [slowly] 2학년 5반 반장 한소영입니다. 하늘 선배 사물함 정리할 때, 맨 안쪽에서 쪽지가 하나 나왔어요. 연필로 딱 한 줄. \"문은 두 개야.\" 누가 쓴 건지 몰라요. 선배 글씨는 아니었어요. 근데 그 쪽지... 다음 날 아침에 없어졌어요.",
+  "chars": 149,
+  "pri": 4
+ },
+ {
+  "id": "vo_dorm_lookout",
+  "spk": "friend2",
+  "voice_id": "j3SYRikKBpDmPJsvd1rf",
+  "prompt": "[casual] [slowly] 정독실 불 끄고 몰래 빠져나왔어요. 수아 언니가… 하늘 언니 펌프실에 잠깐만 가둬서 겁만 주자고 했어요. 저는 계단에서 망만 봤어요. 그런데, 그 열쇠… 교무부장 선생님이 가져가시는 걸, 제가 봤어요.",
+  "chars": 130,
+  "pri": 4
+ },
+ {
+  "id": "vo_astro_tune",
+  "spk": "scienceTeacher",
+  "voice_id": "l6fNdLYgoqjfTIPUeFc9",
+  "prompt": "[serious] [slowly] 동조 기록, 밤 열한 시 오십이 분. 구십팔 점 사 메가헤르츠에 방송부 송신기 반송파가 아직 살아 있다. 누군가 원고를 끝까지 읽으려 했던 거야. 신호는… 위가 아니라, 지하에서 올라오고 있다.",
+  "chars": 127,
+  "pri": 4
+ },
+ {
+  "id": "vo_lib_lastseen",
+  "spk": "counselor",
+  "voice_id": "oxjV6KVVajggAI4msV3d",
+  "prompt": "[gently] [slowly] 열 시 반쯤이었어요. 하늘이가 도서실 창가에서 원고를 소리 내서 읽고 있더라고요. \"선생님, 내일 이거 꼭 들어 주세요.\" 그렇게 웃었어요. 그게… 제가 본 하늘이의 마지막 얼굴이에요.",
+  "chars": 121,
+  "pri": 4
+ },
+ {
+  "id": "vo_principal_dawn",
+  "spk": "principal",
+  "voice_id": "kiVK4omWhBQ9AzwcaRq7",
+  "prompt": "[regretful] [slowly] 새벽 네 시. 교육청에 올릴 보고서를 세 번 고쳐 썼네. 정전도, 펌프실도, 전부 지워 버렸지. 마지막 장에 그 아이 이름을 쓰려다가… 끝내 펜을 놓았어.",
+  "chars": 107,
+  "pri": 4
+ },
+ {
+  "id": "note_n1",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[quietly] [slowly] 누군가의 일기. 10월 11일. 내일 밤은  방송부 창립 30주년 기념 방송  리허설. 하늘이는 방송 원고를 몇 번이나 고쳐 썼다.  “기념 방송 날엔 꼭 내 목소리로 하교 방송을 할 거야.”",
+  "chars": 126,
+  "pri": 5
+ },
+ {
+  "id": "note_n2",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[quietly] [slowly] 보건 일지. 10월 12일 밤 11시 20분, 정전. 비상등도 켜지지 않았다. 지하에서 물 빼는 펌프가 멈췄다는 연락. 아이 하나가 아직 학교에 있다고 했는데, 아무도 이름을 대지 못했다.",
+  "chars": 124,
+  "pri": 5
+ },
+ {
+  "id": "note_n3",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[quietly] [slowly] 교무회의록. 사고 경위는  “실종” 으로 정리한다. 펌프실은 폐쇄. 그날 밤 학교에 남아 있던  다섯 명 이 정문 열쇠를 한 조각씩 나눠 맡는다 — 다섯이 모두 동의하기 전엔 누구도 그날을 다시 열 수 없도록. 조각은 각자의 자리에: 교무실 금고, 도서실, 과학실, 체육관, 수영장. 금고 비밀번호는  그날의 날짜 (월일 4자리).",
+  "chars": 204,
+  "pri": 5
+ },
+ {
+  "id": "note_n4",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[quietly] [slowly] 도서 대출 카드. 같은 이름이 수백 번 적혀 있다.  윤하늘 . 마지막 대출일 10월 12일. 『집으로 가는 길』. 반납란은 비어 있다.",
+  "chars": 95,
+  "pri": 5
+ },
+ {
+  "id": "note_n5",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[quietly] [slowly] 방송 장비 점검 기록 (2007). 10월 12일 23:40 — 학교 전원이 내려가 있는데 방송실 앰프 한 대에  축전지 배선 이 물려 있다. 장비실 선반 위 카세트 데크에  시각 예약 타이머 . 테이프 라벨: 「1998 리허설 — 3-2」. 누군가 해마다 이 시각에 맞춰 둔다. — 시설 기사",
+  "chars": 183,
+  "pri": 5
+ },
+ {
+  "id": "note_n6",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[quietly] [slowly] 찢어진 쪽지. 뒤따라오는 사람은 보이지 않았다. 내가 멈춰도 발소리는 한 걸음 더 이어졌다 —  이 학교에 나 말고 누가 있다.  기억을 믿기 전에, 사진과 녹음의 시간을 서로 맞춰 봐. — 민아",
+  "chars": 128,
+  "pri": 5
+ },
+ {
+  "id": "note_n7",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[quietly] [slowly] 옥상 일지. 방송부 아이들이 담력 체험이라며 하늘이를  지하 펌프실 에 넣고 문을 잠갔다고 했다. 십 분이면 꺼내 줄 장난이었다고. 그때, 정전이 났다.",
+  "chars": 104,
+  "pri": 5
+ },
+ {
+  "id": "note_n8",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[quietly] [slowly] 하교 방송 원고. 원고 — 3학년 2반 윤하늘, “오늘 하루도 수고 많았습니다. 모두, 집으로 돌아가세요.” ※ 기념 방송 날 내가 읽을 거야!  — 이 방송은 끝내 나가지 못했다.",
+  "chars": 120,
+  "pri": 5
+ },
+ {
+  "id": "note_n9",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[quietly] [slowly] 체육 일지. 10월 12일, 기념 방송 리허설 날 밤. 관람석 불을 끄고 나왔다. 그날 이후 체육관 야간 조명 배선은 철거되었다. ※ 기록석 기구함 다이얼은  전광판의 마지막 경기 점수 로 맞춰 둠.",
+  "chars": 130,
+  "pri": 5
+ },
+ {
+  "id": "note_n10",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[quietly] [slowly] 수영장 안전 일지. 배수 밸브 누수 — 물을 뺀 뒤에도 배관에서 물소리가 난다.  펌프실 문은 지하 B1로 이어진다.  그날 밤 펌프실 바닥은 물에 잠겨 있었다.",
+  "chars": 109,
+  "pri": 5
+ },
+ {
+  "id": "note_n11",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[quietly] [slowly] 보일러실 점검표. 지하 B1 점검 완료. 비상 통로는 폐쇄. 단,  정문 열쇠가 완성되면  비상 통로 자물쇠가 풀린다. 그 길은 정문 쪽 담장으로 이어진다.",
+  "chars": 106,
+  "pri": 5
+ },
+ {
+  "id": "note_n12",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[quietly] [slowly] 낡은 명부. 졸업생 명부. 3학년 2반  윤하늘  — 이름이 붉게 지워져 있다. 이름 옆에 누군가 연필로 적어 두었다:  “아직 집에 못 갔어요.”",
+  "chars": 101,
+  "pri": 5
+ },
+ {
+  "id": "note_n13",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[quietly] [slowly] 급식 일지. 오늘의 급식: 아무도 먹지 않았다. 식판은 매일 같은 자리에 놓여 있다. 한 명분이 모자란 채로.",
+  "chars": 80,
+  "pri": 5
+ },
+ {
+  "id": "note_n14",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[quietly] [slowly] 방송부 회의록. 10월 12일 담력 체험 계획. 참가 4명. 장소: 지하 펌프실. 문 잠그는 사람: ___ …아무도 그 다음 줄을 쓰지 않았다.",
+  "chars": 99,
+  "pri": 5
+ },
+ {
+  "id": "note_n15",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[quietly] [slowly] 멀티미디어실 로그. 전자칠판 예약 기록 — 매년  10월 12일 23:30 , 같은 교실 사진을 띄우도록 예약돼 있다. 예약 계정:  JUNHO98 . 메모란:  “다시, 여기서.”",
+  "chars": 120,
+  "pri": 5
+ },
+ {
+  "id": "note_n16",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[quietly] [slowly] 가정 실습 노트. 실밥이 풀린 교복 한 벌이 의자에 걸려 있다. 이름표에는  “윤” 이라는 글자만 남아 있다.",
+  "chars": 80,
+  "pri": 5
+ },
+ {
+  "id": "note_n17",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[quietly] [slowly] 과학실 칠판 메모. 약품장 자물쇠 번호 바꿈 —  원주율 앞 세 자리 . 잊어버리는 사람은 수학 선생님께 혼남. — 과학부",
+  "chars": 87,
+  "pri": 5
+ },
+ {
+  "id": "note_n18",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[quietly] [slowly] 빛바랜 악보. 하교 음악 — 학교종,  솔 솔 라 라 솔 솔 미  “기념 방송 날, 피아노 반주는 내가!” — 3-2 하늘",
+  "chars": 87,
+  "pri": 5
+ },
+ {
+  "id": "note_n19",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[quietly] [slowly] 도서실 대출 데스크 메모. 반납 안 된 열쇠는 데스크  서랍 에 넣고 잠갔음. 서랍 열쇠는 분실. 급하면 머리핀으로라도… 보건실 침대 쪽에 누가 핀을 떨어뜨리고 다님.",
+  "chars": 112,
+  "pri": 5
+ },
+ {
+  "id": "note_n20",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[quietly] [slowly] 수영장 관리 메모. 배수구 철망 아래로  열쇠 가 빠졌다. 손이 닿지 않는다. 긴 자루에 철사를 감아 갈고리를 만들면 꺼낼 수 있을 듯. 자루는 지하 청소도구실, 철사는 별관 기술·가정실에.",
+  "chars": 125,
+  "pri": 5
+ },
+ {
+  "id": "note_n21",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[quietly] [slowly] 학교 행사 안내문. 가정통신문, 10월 12일(목)  방송부 창립 30주년 기념 특별 하교 방송 . 방송부원은 밤 10시까지 방송실에서 리허설을 진행합니다. — 서린고등학교장",
+  "chars": 116,
+  "pri": 5
+ },
+ {
+  "id": "note_n22",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[quietly] [slowly] 봉인 서약서. 우리 다섯은 10월 12일 밤의 일을 각자의 자리에 묻는다. 교무부장 · 보건교사 · 사서 · 과학부장 · 체육부장. 열쇠 한 조각씩.  다섯 조각이 다시 모이는 날, 그날 밤도 다시 열린다.  (아래에 다섯 개의 서명 — 하나는 번져 있다)",
+  "chars": 162,
+  "pri": 5
+ },
+ {
+  "id": "note_n23",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[quietly] [slowly] 방송부원 진술서. “우리는 10분 만에 돌아왔어요. 그런데 펌프실 문은  이미 열려 있었고 , 하늘이는 없었어요. 그래서 먼저 집에 간 줄 알았어요.” — 방송부 2학년 (진술 일시: 10.13)",
+  "chars": 128,
+  "pri": 5
+ },
+ {
+  "id": "note_n24",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[quietly] [slowly] 경비 일지. 10.12 23:30 순찰. 지하 펌프실 문이  밖에서 잠겨 있음 . 안에서 노랫소리 같은 것이 들림. 열쇠를 찾으러 교무실에 갔더니 교무부장이 “내가 처리한다”며 가져감. ※ 이 일지는 다음 날 회수됨",
+  "chars": 139,
+  "pri": 5
+ },
+ {
+  "id": "note_n25",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[quietly] [slowly] 사서의 메모. 하늘이가 그날 밤 『집으로 가는 길』을 빌려 갔다는 대출 기록은  내가 나중에 적었다 . 시키는 대로. 집에 가는 길에 사라진 걸로 보이게. …미안해.",
+  "chars": 111,
+  "pri": 5
+ },
+ {
+  "id": "note_n26",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[quietly] [slowly] 대출 카드 (오늘). 『집으로 가는 길』 — 반납일:  10월 12일 (오늘) . 반납 도장이  오늘 날짜 로 찍혀 있다 — 누군가 오늘 이 카드를 만졌다. 대출자 이름 칸: 윤하늘.",
+  "chars": 121,
+  "pri": 5
+ },
+ {
+  "id": "note_n27",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[quietly] [slowly] 담임 수첩 (3학년 2반). 10월 13일. 조회 시간, 하늘이 자리가 비어 있다. 교감은 출석부에  “결석” 이라 적으라 했다. 나는 끝까지 쓰지 않았다. 그 아이는 3년 동안 한 번도 결석한 적이 없다. 펌프실 이야기를 꺼냈더니, 다음 주에 전근 발령이 났다. — 담임 정은수",
+  "chars": 175,
+  "pri": 5
+ },
+ {
+  "id": "note_n28",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[quietly] [slowly] 교환일기. 수아, 하늘아, 리허설 끝나면 떡볶이! 우리가 맨 앞에서 들을게 ♡ 다은, 내일 방송 꼭 네 목소리로 해. 약속. …마지막 장, 다른 글씨:  “하늘이 없이 졸업했다. 기념 방송은 셋이 하기로 했는데.”",
+  "chars": 138,
+  "pri": 5
+ },
+ {
+  "id": "note_n29",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[quietly] [slowly] 첫 번째 메모. 「3층 방송실, 밤 10시. 리허설 시작 — 늦으면 하교 방송 못 해!」 하늘의 동글동글한 글씨. 뒷면에 다른 사람의 글씨가 덧붙어 있다:  「10시 반, 지하 펌프실. 담력 체험 ㅋㅋ」",
+  "chars": 132,
+  "pri": 5
+ },
+ {
+  "id": "note_nC",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[quietly] [slowly] 개인 기록.",
+  "chars": 25,
+  "pri": 5
+ },
+ {
+  "id": "note_q1b",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[quietly] [slowly] 고쳐 쓴 출석부. 10월 13일 3학년 2반 —  윤하늘: 출석 . 10년 동안 비어 있던 칸에 처음으로 바른 글씨가 들어갔다.",
+  "chars": 90,
+  "pri": 5
+ },
+ {
+  "id": "note_q1a",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[quietly] [slowly] 개근 스티커판 (1-1). 「윤하늘 — 3년 개근에 도전!」 칸마다 별 스티커가 빼곡하다. 마지막 칸  10월 13일 만 비어 있다. 귀퉁이에 연필로: 「내일도 1등으로 와야지」",
+  "chars": 118,
+  "pri": 5
+ },
+ {
+  "id": "note_q3b",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[quietly] [slowly] 물길 앞에서. 조각을 쥐고 배수구 앞에 잠시 서 있었다. 펌프실로 이어진 물길을 오래 바라보았다. 보건교사가 이 앞에서 무엇을 빌었을지, 조금은 알 것 같았다.",
+  "chars": 108,
+  "pri": 5
+ },
+ {
+  "id": "note_q2b",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[quietly] [slowly] 세 사람의 방송. 반주 테이프 B면에는 그날 오후의 리허설 녹음이 남아 있었다. 스피커에서 세 사람의 목소리가 겹쳐 흘러나왔다. “…모두, 수고 많았습니다. 집으로 돌아가세요.”  10년 만에, 처음으로 끝까지 나간 방송.",
+  "chars": 143,
+  "pri": 5
+ },
+ {
+  "id": "note_q2a",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[quietly] [slowly] 교환일기 마지막 장. 하늘, 기념 방송 끝 곡은  학교종 ! 수아가 1절, 다은이가 2절, 나는 마지막에 하교 인사. 수아, 반주 테이프는 음악실 카세트 서랍에 넣어 놨어 ♪ 다은, 리허설 끝나면 진짜로 떡볶이다?",
+  "chars": 138,
+  "pri": 5
+ },
+ {
+  "id": "note_q3a",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[quietly] [slowly] 보건교사 임소연의 편지. 봉인 서약서에 서명한 날, 나는 내 몫의 열쇠 조각을 지키지 못했다. 그날 밤 펌프실로 달려갔을 땐 이미 물이 차 있었다. 나는 아무것도 하지 못했다. 그래서 조각을  수영장 배수구 에 던졌다. 펌프실로 이어진 그 물길이 그 아이에게 데려다주기를. — 정문 열쇠의 다섯 번째 조각이 왜 물속에 있는지, 이제 안다.",
+  "chars": 208,
+  "pri": 5
+ },
+ {
+  "id": "note_q4b",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[quietly] [slowly] 봉인된 진술서 4장. 세진 · 유리 · 동민, “문은 준호 선배가 잠갔어요. 10분 뒤에 가 보니 문이 열려 있었어요.” 준호, “잠근 건 저예요. 그런데 열쇠는 바로  교무부장님께 드렸어요 . ‘버릇 좀 고쳐 주마, 이따 내가 꺼내마’ 하셔서.” — 진술서 위에 붉은 도장:  외부 유출 금지",
+  "chars": 183,
+  "pri": 5
+ },
+ {
+  "id": "note_q4a",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[quietly] [slowly] 방송부 담력 체험 명단. 10.12 담력 체험 — 3학년  이준호 (부장) · 2학년  박세진  ·  최유리  · 1학년  한동민 . 장소: 지하 펌프실. 대상: 윤하늘 (기념 방송 진행자 — “긴장 풀어 주기”) 문 잠그는 사람: ___ (빈칸)",
+  "chars": 157,
+  "pri": 5
+ },
+ {
+  "id": "note_q4c",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[quietly] [slowly] 두 개의 문. 큐시트 뒷면의 펌프실 도면 — 펌프실 문은  두 개 다. 아이들이 10분 뒤 확인한 건  수영장 쪽 점검문 (늘 열려 있다). 하늘이 갇힌 건  B1 복도 쪽 철문 , 그 열쇠는 교무부장의 주머니에 있었다. “문은 열려 있었다”와 “밖에서 잠겨 있었다” — 둘 다 사실이었다.",
+  "chars": 181,
+  "pri": 5
+ },
+ {
+  "id": "note_q5a",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[quietly] [slowly] 부치지 못한 편지 (3-2). 하늘이 어머님께. 학교는 하늘이가 그날 밤 집에 가다 사라졌다고 말할 것입니다. 사실이 아닙니다. 하늘이는 3년 동안 단 하루도 결석하지 않았고, 그날 밤에도 학교에 있었습니다. 저는 이 편지를 부칠 용기가 아직 없습니다. — 3학년 2반 담임  정은수",
+  "chars": 177,
+  "pri": 5
+ },
+ {
+  "id": "note_q5b",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[quietly] [slowly] 우표 한 장. 교사 휴게실 우편함에 정은수 선생님 앞으로 온 반송 우편. 주소가 적힌 봉투와 쓰지 않은 우표 한 장. 받는 사람:  윤하늘 어머님  — 주소는 10년 전 그대로다.",
+  "chars": 119,
+  "pri": 5
+ },
+ {
+  "id": "note_q6b",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[quietly] [slowly] 셋, 그리고 한 명. 방송실 앞에서 찍은 사진. 하늘 · 수아 · 다은이 마이크를 들고 웃는다. 그 옆에 다은의 손을 잡은 꼬마 — 뒷면: 「동생  민아 , 처음으로 방송실 구경 온 날」",
+  "chars": 123,
+  "pri": 5
+ },
+ {
+  "id": "note_q5c",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[quietly] [slowly] 10년 늦은 편지. 정문 경비실 우편함에 편지를 넣었다. 소인 날짜 칸에 누군가 미리 적어 둔 날짜:  10월 13일 . …그날 아침 부쳐졌어야 할 편지였다.",
+  "chars": 107,
+  "pri": 5
+ },
+ {
+  "id": "note_q6c",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[quietly] [slowly] 민아의 녹음 — 언니에게. “언니. 하늘 언니 방송, 내가 끝까지 들었어. 이번엔 아무도 혼자 두지 않았어. …이제 라디오 꺼도 돼.”",
+  "chars": 94,
+  "pri": 5
+ },
+ {
+  "id": "note_q7b",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[quietly] [slowly] 10년 늦은 불빛. 배터리팩을 끼우자 펌프실 비상등이 깜빡이다 켜졌다. 그날 밤 이 불이 켜져 있었다면, 하늘은 어둠 속에서 혼자가 아니었을 것이다.",
+  "chars": 102,
+  "pri": 5
+ },
+ {
+  "id": "note_q7a",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[quietly] [slowly] 과학부장의 점검 메모. 펌프실 비상등 배터리 교체 요청 — 3회째. 교무부장 회신:  “예산 없음, 다음 학기” . 예비 배터리팩은 과학실 공구함에 둔다. 누구든 먼저 가는 사람이 갈아 끼울 것. …그날 밤, 아무도 가지 않았다.",
+  "chars": 147,
+  "pri": 5
+ },
+ {
+  "id": "note_h2",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[quietly] [slowly] 별관 머릿돌.  서린고등학교  1974년  3월 2일  개교 「배움은 집으로 가는 길을 밝힌다」  동판 아래 누군가 못으로 긁어 놓았다:  “집에 못 간 애도 있어요”",
+  "chars": 112,
+  "pri": 5
+ },
+ {
+  "id": "note_q6a",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[quietly] [slowly] 민아의 임시저장 글. 비공개, 언니는 10년째 10월 12일 밤이면 라디오를 켜 둔 채 잠든다. 하늘 언니의 방송을 기다린다고. 언니( 서다은 )는 그날 밤 리허설이 끝나고 떡볶이집에서 하늘 언니를 한 시간이나 기다렸다고 했다. 그래서 내가 간다. 그 학교에. 언니 대신.",
+  "chars": 171,
+  "pri": 5
+ },
+ {
+  "id": "note_q8a",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[quietly] [slowly] 『집으로 가는 길』. 도서실 바코드가 붙은 낡은 소설책. 마지막 장 여백에 동글동글한 글씨: 「엄마, 오늘 방송 꼭 들어. 끝나면  바로 집에 갈게 . — 하늘」 반납 기한: 10월 12일.",
+  "chars": 125,
+  "pri": 5
+ },
+ {
+  "id": "note_h1",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[quietly] [slowly] 교장 수첩 — 10월 13일 새벽. 다섯이 조각을 나누기로 했다. 나는  그 자리에 없었던 사람 으로 남는다. 다만 열쇠의  머리 는 내가 갖는다 — 다섯이 다 모여도, 머리 없이는 문이 돌아가지 않도록. 머리는  별관 3층 전시 공간 의 개교 기념 진열장에 둔다. 이름표는 “개교 기념 열쇠”. 아무도 진열품을 의심하지 않는다. 진열장 잠금 번호는  이 학교가 태어난 날 . 별관 전원은 폐쇄와 함께 공구실 분전반에서 내린다.",
+  "chars": 258,
+  "pri": 5
+ },
+ {
+  "id": "note_h3",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[quietly] [slowly] 별관 분전반 점검표. 별관은 본관과  다른 계통 . 10.12 23:20 본관 정전 때도 별관 조명은 정상. 10.13 06:10 별관 전원 차단 — 지시: 교장 · 사유: 별관 폐쇄. 비고: 3층 전시 공간 진열장(전자식)은 전원이 있어야 열림.",
+  "chars": 157,
+  "pri": 5
+ },
+ {
+  "id": "note_h4",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[quietly] [slowly] 보안 PC — 전시 공간 CCTV 기록. 10.12 23:31 전시 공간 — 교장, 개교 기념 전시 준비. 23:33 창가로 가서  불이 꺼진 본관  쪽을 오래 바라봄. 23:34 통화 (음성 기록 일부):  “…펌프실 열쇠는 자네가 갖고 있게. 내일 아침에 얘기하지.”  23:40 다시 진열장 정리. 23:52 퇴근.",
+  "chars": 198,
+  "pri": 5
+ },
+ {
+  "id": "note_q8b",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[quietly] [slowly] 반납 완료. 반납함에 책을 넣고 10년 늦은 반납 도장을 찍었다. 대출 카드 뒷면에 하늘의 동글동글한 글씨: “다녀오겠습니다.”",
+  "chars": 90,
+  "pri": 5
+ },
+ {
+  "id": "note_h5",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[quietly] [slowly] 진열장 속 쪽지. 「개교 기념 열쇠 — 기증: 제9대 교장」 이름표 뒤에 접힌 쪽지.  “이 문을 다시 여는 사람에게. 그날 밤 나는  불 켜진 곳 에 있었다. 내려가지 않았다. 다섯 조각은 그들의 몫이고, 이 머리는 내 몫이다. 무거워서 아무 데도 두지 못했다.”",
+  "chars": 167,
+  "pri": 5
+ },
+ {
+  "id": "nv_n_guard_diary",
+  "spk": "guard",
+  "voice_id": "UmYoqGlufKxhJ6NCx5Mv",
+  "prompt": "[elderly voice] 밤 열 시 사십오 분이었어유. 펌프실 환기구에서 쿵, 쿵… 철문 두드리는 소리가 났어. 교무실로 뛰어갔더니 교무부장이 그러더라고. 열쇠는 내가 챙겼으니께, 지하엔 절대 내려가지 말라고.",
+  "chars": 119,
+  "pri": 5
+ },
+ {
+  "id": "nv_n24",
+  "spk": "guard",
+  "voice_id": "UmYoqGlufKxhJ6NCx5Mv",
+  "prompt": "[elderly voice] 열한 시 반 순찰 때도 펌프실 문은 밖에서 잠겨 있었어유. 안에서 노랫소리 같은 게 들렸는디… 다음 날 아침에 이 일지를 회수해 가더구먼. 누가 시켰는지는, 다 알잖어.",
+  "chars": 110,
+  "pri": 5
+ },
+ {
+  "id": "nv_n2",
+  "spk": "nurse",
+  "voice_id": "fO7cRyAPqxprQ3ZaVbnt",
+  "prompt": "[softly] 열한 시 이십 분, 정전이요. 비상등도 안 켜졌어요. 지하 펌프가 멈췄다는 연락을 받았는데… 아직 학교에 아이가 하나 남아 있다고요. 그런데 아무도, 그 아이 이름을 말해 주지 않았어요.",
+  "chars": 113,
+  "pri": 5
+ },
+ {
+  "id": "nv_q3a",
+  "spk": "nurse",
+  "voice_id": "fO7cRyAPqxprQ3ZaVbnt",
+  "prompt": "[softly] 서약서에 이름을 쓴 날, 제 몫의 증거는 도저히 집에 가져갈 수가 없었어요. 펌프실에 달려갔을 땐 이미 물이 차 있었고요. 그래서 수영장 배수구에 던졌어요. 그 물길이… 하늘이한테 닿기를 바라면서.",
+  "chars": 119,
+  "pri": 5
+ },
+ {
+  "id": "nv_n27",
+  "spk": "homeroom",
+  "voice_id": "UqW1DivwFt1NwUMSGnTn",
+  "prompt": "[tearful] 10월 13일 조회 시간. 하늘이 자리가 비어 있었어요. 교감 선생님은 결석이라고 적으라고 했죠. 저는 끝까지 안 썼습니다. 3년 동안 단 하루도 빠지지 않은 아이였으니까. 그 얘기를 꺼낸 다음 주에, 전근 발령이 났어요.",
+  "chars": 134,
+  "pri": 5
+ },
+ {
+  "id": "nv_q5a",
+  "spk": "homeroom",
+  "voice_id": "UqW1DivwFt1NwUMSGnTn",
+  "prompt": "[tearful] 하늘이 어머님께. 학교는 하늘이가 집에 가다 사라졌다고 말할 거예요. 사실이 아닙니다. 그날 밤에도 하늘이는 학교에 있었어요. 저는… 이 편지를 부칠 용기가 아직 없습니다.",
+  "chars": 106,
+  "pri": 5
+ },
+ {
+  "id": "nv_q5b",
+  "spk": "homeroom",
+  "voice_id": "UqW1DivwFt1NwUMSGnTn",
+  "prompt": "[tearful] 반송된 봉투가 돌아왔어요. 주소는 맞는데, 제가 우표를 안 붙였더라고요. 붙일 수가 없었어요. 붙이는 순간, 정말로 끝나 버릴 것 같아서.",
+  "chars": 87,
+  "pri": 5
+ },
+ {
+  "id": "nv_n_principal_tape",
+  "spk": "principal",
+  "voice_id": "kiVK4omWhBQ9AzwcaRq7",
+  "prompt": "[regretful] 이게 기자들 귀에 들어가면 재단도 학교도 끝일세. 보고서엔 하교 후 단순 실종. 오늘 밤 남아 있던 다섯이 증거를 한 조각씩 나눠 봉인하게. 아무도 그날을 다시 열 수 없도록.",
+  "chars": 110,
+  "pri": 5
+ },
+ {
+  "id": "nv_h1",
+  "spk": "principal",
+  "voice_id": "kiVK4omWhBQ9AzwcaRq7",
+  "prompt": "[regretful] 새벽 네 시. 다섯이 증거를 나눠 갖기로 했네. 나는 그 자리에 없었던 사람으로 남겠지. 대신 직인 코어는 내가 갖는다. 별관 3층 진열장, 개교 기념 인장이라는 이름표를 붙여서.",
+  "chars": 112,
+  "pri": 5
+ },
+ {
+  "id": "nv_h3",
+  "spk": "electrician",
+  "voice_id": "TRO4gatqxbbwLXHLDLSk",
+  "prompt": "[rough] 별관은 본관하고 계통이 달라요. 그날 밤 본관이 나갔을 때도 별관 불은 멀쩡했어요. 그런데 다음 날 새벽 여섯 시 십 분에 교장 지시로 별관 전원을 내렸죠. 그때 이상하다고 생각했어요. 진열장은 전원이 있어야 열리거든요.",
+  "chars": 131,
+  "pri": 5
+ },
+ {
+  "id": "nv_h4",
+  "spk": "principal",
+  "voice_id": "kiVK4omWhBQ9AzwcaRq7",
+  "prompt": "[regretful] 펌프실 열쇠는… 자네가 갖고 있게. 지금 내려가면 일이 더 커져. 내일 아침에 얘기하지. 창밖으로 꺼진 본관이 보였네. 아주 오래 보고 있었지.",
+  "chars": 92,
+  "pri": 5
+ },
+ {
+  "id": "nv_h5",
+  "spk": "principal",
+  "voice_id": "kiVK4omWhBQ9AzwcaRq7",
+  "prompt": "[regretful] 이 문을 다시 여는 사람에게. 그날 밤 나는 불 켜진 곳에 있었네. 내려가지 않았어. 다섯 조각은 그들의 몫이고, 이 직인은 내 몫이야. 너무 무거워서, 아무 데도 둘 수가 없었네.",
+  "chars": 113,
+  "pri": 5
+ },
+ {
+  "id": "nv_n21",
+  "spk": "principal",
+  "voice_id": "kiVK4omWhBQ9AzwcaRq7",
+  "prompt": "[regretful] 학부모님께 알립니다. 10월 12일 목요일, 방송부 창립 30주년 기념 특별 하교 방송이 있습니다. 방송부원은 밤 열 시까지 방송실에서 리허설을 진행합니다.",
+  "chars": 99,
+  "pri": 5
+ },
+ {
+  "id": "nv_n3",
+  "spk": "headTeacher",
+  "voice_id": "4JJwo477JUAx3HV0T7n7",
+  "prompt": "[serious] 대외비. 이번 지하 펌프실 사고는 하교 후 단순 실종으로 정리한다. 펌프실은 즉시 폐쇄. 남아 있던 다섯 명이 원본 기록과 봉인 인장을 다섯 조각으로 나눠 숨긴다. 금고 번호는… 그날의 날짜로.",
+  "chars": 118,
+  "pri": 5
+ },
+ {
+  "id": "nv_n22",
+  "spk": "headTeacher",
+  "voice_id": "4JJwo477JUAx3HV0T7n7",
+  "prompt": "[serious] 우리 다섯은 1998년 10월 12일 밤을, 각자의 구역에 영원히 묻는다. 교무부장, 보건교사, 사서, 과학부장, 체육부장. 다섯 조각이 다시 모이는 날… 그날 밤도 다시 열린다.",
+  "chars": 110,
+  "pri": 5
+ },
+ {
+  "id": "nv_n_bunker_audit",
+  "spk": "headTeacher",
+  "voice_id": "4JJwo477JUAx3HV0T7n7",
+  "prompt": "[serious] 재단 감사단이 온다는 연락이 왔다. 수사 기록하고 현장 사진은 전부 방공호 서류함으로 옮겨. 방폭문은 오늘 밤 안에 닫는다. 열쇠는… 아무한테도 주지 마.",
+  "chars": 96,
+  "pri": 5
+ },
+ {
+  "id": "nv_n5",
+  "spk": "scienceTeacher",
+  "voice_id": "l6fNdLYgoqjfTIPUeFc9",
+  "prompt": "[serious] 10월 12일 23:40 — 학교 전원이 내려가 있는데 방송실 앰프 한 대에 축전지 배선 이 물려 있다. 장비실 선반 위 카세트 데크에 시각 예약 타이머. 테이프 라벨: 「1998 리허설 — 3-2」. 누군가 해마다 이 시각에 맞춰 둔다. — 시설 기사",
+  "chars": 151,
+  "pri": 5
+ },
+ {
+  "id": "nv_n17",
+  "spk": "scienceTeacher",
+  "voice_id": "l6fNdLYgoqjfTIPUeFc9",
+  "prompt": "[serious] 약품장 번호 바꿨습니다. 원주율 앞 세 자리. 까먹는 사람은 수학 선생님한테 혼나는 겁니다. 그날 밤 이후로는, 아무도 안 열어 봤지만요.",
+  "chars": 87,
+  "pri": 5
+ },
+ {
+  "id": "nv_q7a",
+  "spk": "scienceTeacher",
+  "voice_id": "l6fNdLYgoqjfTIPUeFc9",
+  "prompt": "[serious] 펌프실 비상등 배터리 교체 요청, 이번이 세 번째입니다. 교무부장 회신은 예산 없음, 다음 학기. 예비 배터리는 과학실 공구함에 둡니다. 누구든 먼저 가는 사람이 갈아 끼우세요. 그날 밤엔… 아무도 안 갔습니다.",
+  "chars": 128,
+  "pri": 5
+ },
+ {
+  "id": "nv_n9",
+  "spk": "peTeacher",
+  "voice_id": "4tLzQecqf3Jg3zct76Fm",
+  "prompt": "[gruff] 10월 12일, 기념 방송 리허설 날 밤. 관람석 불을 끄고 나왔다. 그날 이후 체육관 야간 조명 배선은 철거되었다. ※ 기록석 기구함 다이얼은 전광판의 마지막 경기 점수 로 맞춰 둠.",
+  "chars": 111,
+  "pri": 5
+ },
+ {
+  "id": "nv_n10",
+  "spk": "peTeacher",
+  "voice_id": "4tLzQecqf3Jg3zct76Fm",
+  "prompt": "[gruff] 배수 밸브 누수 — 물을 뺀 뒤에도 배관에서 물소리가 난다. 펌프실 문은 지하 B1로 이어진다. 그날 밤 펌프실 바닥은 물에 잠겨 있었다.",
+  "chars": 85,
+  "pri": 5
+ },
+ {
+  "id": "nv_n20",
+  "spk": "peTeacher",
+  "voice_id": "4tLzQecqf3Jg3zct76Fm",
+  "prompt": "[gruff] 배수구 철망 밑으로 뭔가 빠져 있다. 보건 선생이 던진 거다. 손은 안 닿아. 긴 자루에 철사를 감아서 갈고리를 만들면 건질 수 있을 거야. 자루는 지하 청소도구실, 철사는 별관 기술실.",
+  "chars": 112,
+  "pri": 5
+ },
+ {
+  "id": "nv_n4",
+  "spk": "librarian",
+  "voice_id": "sf8Bpb1IU97NI9BHSMRf",
+  "prompt": "[hushed, nervous] 대출 카드에 같은 이름이 수백 번 적혀 있어요. 윤하늘. 마지막 대출일은 10월 12일. 집으로 가는 길. 반납란은… 아직 비어 있어요.",
+  "chars": 94,
+  "pri": 5
+ },
+ {
+  "id": "nv_n25",
+  "spk": "librarian",
+  "voice_id": "sf8Bpb1IU97NI9BHSMRf",
+  "prompt": "[hushed, nervous] 하늘이가 그날 밤 그 책을 빌려 갔다는 기록, 사실 제가 나중에 적은 거예요. 시키는 대로요. 집에 가는 길에 사라진 것처럼 보이게. 미안해, 하늘아.",
+  "chars": 102,
+  "pri": 5
+ },
+ {
+  "id": "nv_n26",
+  "spk": "librarian",
+  "voice_id": "sf8Bpb1IU97NI9BHSMRf",
+  "prompt": "[hushed, nervous] 『집으로 가는 길』 — 반납일: 10월 12일 (오늘). 반납 도장이 오늘 날짜 로 찍혀 있다 — 누군가 오늘 이 카드를 만졌다. 대출자 이름 칸: 윤하늘.",
+  "chars": 105,
+  "pri": 5
+ },
+ {
+  "id": "nv_q4b",
+  "spk": "junho",
+  "voice_id": "Ir7oQcBXWiq4oFGROCfj",
+  "prompt": "[regretful] 잠근 건 저예요. 이준호. 근데 열쇠는 바로 교무부장님께 드렸어요. 버릇 좀 고쳐 주마, 이따 내가 꺼내 주마, 그러셨어요. 그 말을 믿었어요. 십 년 동안… 그 말만 생각했어요.",
+  "chars": 112,
+  "pri": 5
+ },
+ {
+  "id": "nv_q8a",
+  "spk": "haneul",
+  "voice_id": "1BZBO072RKJTzZcDjRox",
+  "prompt": "[softly] 엄마, 오늘 방송 꼭 들어. 끝나면 바로 집에 갈게. 약속.",
+  "chars": 42,
+  "pri": 5
+ },
+ {
+  "id": "nv_q8b",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[low voice] 반납함에 책을 넣고 10년 늦은 반납 도장을 찍었다. 대출 카드 뒷면에 하늘의 동글동글한 글씨: “다녀오겠습니다.”",
+  "chars": 76,
+  "pri": 5
+ },
+ {
+  "id": "nv_n8",
+  "spk": "haneul",
+  "voice_id": "1BZBO072RKJTzZcDjRox",
+  "prompt": "[softly] 3학년 2반 윤하늘입니다. 오늘 하루도 수고 많았습니다. 모두, 집으로 돌아가세요. 기념 방송 날엔 꼭 내가 읽을 거야!",
+  "chars": 76,
+  "pri": 5
+ },
+ {
+  "id": "nv_n1",
+  "spk": "friend",
+  "voice_id": "CZ86sooijZ9CfwhGGEY5",
+  "prompt": "[casual] 10월 11일. 하늘이가 원고를 또 고쳤어. 벌써 열 번째야. 기념 방송 날엔 꼭 자기 목소리로 하교 방송을 하겠대.",
+  "chars": 74,
+  "pri": 5
+ },
+ {
+  "id": "nv_n18",
+  "spk": "haneul",
+  "voice_id": "1BZBO072RKJTzZcDjRox",
+  "prompt": "[softly] 솔, 솔, 라, 라, 솔, 솔, 미… 기념 방송 날, 피아노 반주는 내가 할 거야!",
+  "chars": 55,
+  "pri": 5
+ },
+ {
+  "id": "nv_q2b",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[low voice] 반주 테이프 B면에는 그날 오후의 리허설 녹음이 남아 있었다. 스피커에서 세 사람의 목소리가 겹쳐 흘러나왔다. “…모두, 수고 많았습니다. 집으로 돌아가세요.” 10년 만에, 처음으로 끝까지 나간 방송.",
+  "chars": 125,
+  "pri": 5
+ },
+ {
+  "id": "nv_q1b",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[low voice] 10월 13일 3학년 2반 — 윤하늘: 출석. 10년 동안 비어 있던 칸에 처음으로 바른 글씨가 들어갔다.",
+  "chars": 71,
+  "pri": 5
+ },
+ {
+  "id": "nv_q5c",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[low voice] 경비실 우편함에 편지를 넣었다. 소인 날짜 칸에 누군가 미리 적어 둔 날짜, 10월 13일. 그날 아침 부쳐졌어야 할 편지였다.",
+  "chars": 83,
+  "pri": 5
+ },
+ {
+  "id": "nv_n28",
+  "spk": "friend",
+  "voice_id": "CZ86sooijZ9CfwhGGEY5",
+  "prompt": "[casual] 하늘아, 리허설 끝나면 떡볶이! 우리가 맨 앞에서 들을게. 하늘이 없이 졸업했어. 기념 방송은… 셋이 하기로 했었는데.",
+  "chars": 75,
+  "pri": 5
+ },
+ {
+  "id": "nv_q2a",
+  "spk": "friend2",
+  "voice_id": "j3SYRikKBpDmPJsvd1rf",
+  "prompt": "[casual] 끝 곡은 학교종이야. 수아가 1절, 내가 2절, 하늘이가 마지막 하교 인사. 반주 테이프는 음악실 카세트 서랍에 넣어 놨어. 리허설 끝나면 진짜 떡볶이다?",
+  "chars": 95,
+  "pri": 5
+ },
+ {
+  "id": "nv_n23",
+  "spk": "friend2",
+  "voice_id": "j3SYRikKBpDmPJsvd1rf",
+  "prompt": "[casual] 저희는 십 분 만에 돌아왔어요. 근데 펌프실 문은 이미 열려 있었고, 하늘이는 없었어요. 그래서… 먼저 집에 간 줄 알았어요. 정말이에요.",
+  "chars": 86,
+  "pri": 5
+ },
+ {
+  "id": "nv_n7",
+  "spk": "friend2",
+  "voice_id": "j3SYRikKBpDmPJsvd1rf",
+  "prompt": "[casual] 담력 체험이라면서, 하늘이를 펌프실에 넣고 문을 잠갔대요. 십 분이면 꺼내 줄 장난이었다고. 그때 정전이 났어요.",
+  "chars": 72,
+  "pri": 5
+ },
+ {
+  "id": "nv_n14",
+  "spk": "junho",
+  "voice_id": "Ir7oQcBXWiq4oFGROCfj",
+  "prompt": "[regretful] 방송부 회의록이요. 10월 12일 담력 체험, 참가 네 명, 장소 지하 펌프실. 문 잠그는 사람 칸은… 아무도 안 적었어요. 다들 알면서도요.",
+  "chars": 91,
+  "pri": 5
+ },
+ {
+  "id": "nv_n29",
+  "spk": "haneul",
+  "voice_id": "1BZBO072RKJTzZcDjRox",
+  "prompt": "[softly] 3층 방송실, 밤 열 시 리허설 시작! 늦으면 하교 방송 못 해! 어? 뒤에 누가 적었지… 열 시 반, 지하 펌프실, 담력 체험?",
+  "chars": 81,
+  "pri": 5
+ },
+ {
+  "id": "nv_n_dorm2f_diary",
+  "spk": "dormMother",
+  "voice_id": "0oqpliV6dVSr9XomngOW",
+  "prompt": "[quietly] 청운학사 2층 204호 사생 일기 — 1998. 10. 12, 2층 심야 정독실 창문 너머로 본관 전체가 꺼지는 걸 봤다. 그런데 밤 11시 40분, 운동장 옆 지하 환기구에서 하늘이가 방송 원고를 읽는 목소리가 희미하게 들렸다.",
+  "chars": 138,
+  "pri": 5
+ },
+ {
+  "id": "nv_q4a",
+  "spk": "junho",
+  "voice_id": "Ir7oQcBXWiq4oFGROCfj",
+  "prompt": "[regretful] 담력 체험 명단은 제가 썼어요. 이준호, 박세진, 최유리, 한동민. 대상은 윤하늘. 긴장 풀어 주자는 거였어요. 진짜 그것뿐이었어요.",
+  "chars": 86,
+  "pri": 5
+ },
+ {
+  "id": "nv_q4c",
+  "spk": "reporter",
+  "voice_id": "J3IV02ZzZmojOIQbmpu0",
+  "prompt": "[serious] 큐시트 뒷면 도면을 보면 펌프실 문은 두 개입니다. 아이들이 십 분 뒤 확인한 건 늘 열려 있는 수영장 쪽 점검문. 하늘 양이 갇힌 건 B1 복도 쪽 철문이었죠. 문은 열려 있었다, 밖에서 잠겨 있었다. 둘 다 사실이었습니다.",
+  "chars": 136,
+  "pri": 5
+ },
+ {
+  "id": "nv_n6",
+  "spk": "mina",
+  "voice_id": "5I7B1di44aCL15NkP0jn",
+  "prompt": "[worried] 뒤따라오는 사람은 보이지 않았다. 내가 멈춰도 발소리는 한 걸음 더 이어졌다 — 이 학교에 나 말고 누가 있다. 기억을 믿기 전에, 사진과 녹음의 시간을 서로 맞춰 봐. — 민아",
+  "chars": 109,
+  "pri": 5
+ },
+ {
+  "id": "nv_n15",
+  "spk": "mina",
+  "voice_id": "5I7B1di44aCL15NkP0jn",
+  "prompt": "[worried] 전자칠판 예약 기록 — 매년 10월 12일 23:30, 같은 교실 사진을 띄우도록 예약돼 있다. 예약 계정: JUNHO98. 메모란: “다시, 여기서.”",
+  "chars": 95,
+  "pri": 5
+ },
+ {
+  "id": "nv_q6a",
+  "spk": "mina",
+  "voice_id": "5I7B1di44aCL15NkP0jn",
+  "prompt": "[worried] 언니는 십 년째, 10월 12일 밤이면 라디오를 켜 놓고 자. 하늘 언니 방송을 기다린대. 그래서 내가 가. 그 학교에. 언니 대신.",
+  "chars": 84,
+  "pri": 5
+ },
+ {
+  "id": "nv_q6b",
+  "spk": "friend2",
+  "voice_id": "j3SYRikKBpDmPJsvd1rf",
+  "prompt": "[casual] 방송실 앞에서 찍은 사진이에요. 하늘이, 수아, 나. 내 손 꼭 잡고 있는 꼬마가 민아예요. 처음으로 방송실 구경 온 날.",
+  "chars": 77,
+  "pri": 5
+ },
+ {
+  "id": "nv_q6c",
+  "spk": "mina",
+  "voice_id": "5I7B1di44aCL15NkP0jn",
+  "prompt": "[worried] 언니. 하늘 언니 방송, 내가 끝까지 들었어. 이번엔 아무도 혼자 두지 않았어. 이제 라디오 꺼도 돼.",
+  "chars": 67,
+  "pri": 5
+ },
+ {
+  "id": "nv_n16",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[low voice] 실밥이 풀린 교복 한 벌이 의자에 걸려 있다. 이름표에는, 윤이라는 글자만 남아 있다.",
+  "chars": 60,
+  "pri": 5
+ },
+ {
+  "id": "nv_h2",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[low voice] 서린고등학교, 1974년 3월 2일 개교. 배움은 집으로 가는 길을 밝힌다. 동판 아래, 누군가 못으로 긁어 놓았다. 집에 못 간 애도 있어요.",
+  "chars": 92,
+  "pri": 5
+ },
+ {
+  "id": "nv_q3b",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[low voice] 조각을 쥐고 배수구 앞에 잠시 서 있었다. 펌프실로 이어진 물길을 오래 바라보았다. 보건교사가 이 앞에서 무엇을 빌었을지, 조금은 알 것 같았다.",
+  "chars": 93,
+  "pri": 5
+ },
+ {
+  "id": "nv_n11",
+  "spk": "guard",
+  "voice_id": "UmYoqGlufKxhJ6NCx5Mv",
+  "prompt": "[elderly voice] 보일러실 점검표여. 지하 B1 점검 끝났고, 비상 통로는 봉인혔어. 근디 다섯 증거하고 교장 직인이 하나로 모이믄, 그 봉인도 풀린다더구먼.",
+  "chars": 94,
+  "pri": 5
+ },
+ {
+  "id": "nv_q7b",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[low voice] 배터리팩을 끼우자, 펌프실 비상등이 깜빡이다 켜졌다. 그날 밤 이 불이 켜져 있었다면, 하늘은 어둠 속에서 혼자가 아니었을 것이다.",
+  "chars": 85,
+  "pri": 5
+ },
+ {
+  "id": "nv_n12",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[low voice] 졸업생 명부. 3학년 2반 윤하늘 — 이름이 붉게 지워져 있다. 이름 옆에 누군가 연필로 적어 두었다: “아직 집에 못 갔어요.”",
+  "chars": 84,
+  "pri": 5
+ },
+ {
+  "id": "nv_q1a",
+  "spk": "homeroom",
+  "voice_id": "UqW1DivwFt1NwUMSGnTn",
+  "prompt": "[tearful] 3년 개근에 도전. 하늘이가 직접 붙인 별 스티커예요. 마지막 칸, 10월 13일만 비어 있어요. 귀퉁이에 연필로… 내일도 1등으로 와야지.",
+  "chars": 88,
+  "pri": 5
+ },
+ {
+  "id": "nv_n13",
+  "spk": "snackLady",
+  "voice_id": "VFNaRkx6q2IQZn2mmwwg",
+  "prompt": "[warmly] 그날 이후로도 급식실 식판은 매일 같은 자리에 놓였어. 아무도 안 먹는데. 꼭 한 명분이 모자란 채로.",
+  "chars": 66,
+  "pri": 5
+ },
+ {
+  "id": "nv_n19",
+  "spk": "librarian",
+  "voice_id": "sf8Bpb1IU97NI9BHSMRf",
+  "prompt": "[hushed, nervous] 대출 기록 원본은 데스크 서랍에 넣고 잠갔어요. 열쇠는 잃어버렸고요. 급하면 머리핀으로라도 딸 수 있어요. 보건실 침대 쪽에 하나 떨어져 있을 거예요.",
+  "chars": 102,
+  "pri": 5
+ },
+ {
+  "id": "nv_nC_s",
+  "spk": "seoyeon",
+  "voice_id": "O2KReOFLpoR65nz6C9Se",
+  "prompt": "[nervous] 송출 로그. 23시 40분, 송출자 3학년 2반 윤하늘, 상태 미송출. 마이크도 꺼져 있고 메인 전원도 차단. 버튼은 눌렸는데, 전기가 없었던 거야.",
+  "chars": 93,
+  "pri": 5
+ },
+ {
+  "id": "nv_nC_j",
+  "spk": "jihun",
+  "voice_id": "HrAPO433QYkPmU4F4CHw",
+  "prompt": "[nervous] 민아 쪽지야. 우리 숨바꼭질할 때 내가 항상 제일 먼저 찾아냈다고. 그래. 이번에도 찾아낼게.",
+  "chars": 62,
+  "pri": 5
+ },
+ {
+  "id": "nd_n_guard_diary",
+  "spk": "guard",
+  "voice_id": "UmYoqGlufKxhJ6NCx5Mv",
+  "prompt": "[elderly voice] [1998년 10월 12일 당직 경비원 박종철 순찰 일지] 22:45 — 본관 지하 B1 배수 펌프실 환기구 쪽에서 둔탁하게 철문을 두드리는 소리와 살려달라는 외침이 들림. 23:20 — 본관 전체 대정전 발생. 펌프실 열쇠를 찾으러 교무실로 뛰어들어갔으나, 교무부장이 “열쇠는 내가 챙겼으니 절대 지하로 내려가지 말고 정문만 잠가 두라”고 엄명함. 23:40 — 전원이 완전히 끊긴 학교 스피커에서 3학년 윤하늘 학생의 하교 방송 목소리가 울려 퍼지기 시작함.",
+  "chars": 274,
+  "pri": 5
+ },
+ {
+  "id": "nd_n_principal_tape",
+  "spk": "principal",
+  "voice_id": "kiVK4omWhBQ9AzwcaRq7",
+  "prompt": "[regretful] [1998년 10월 12일 23:10 교장실 극비 녹취록 — 제9대 교장] “지하 배전반 노후 합선과 펌프실 감금 사고가 경찰이나 서린일보 기자들에게 새어 나가면 재단과 학교는 끝장일세. 보고서에는 무조건 하교 후 단순 실종으로 적게. 오늘 밤 학교에 남아 있던 우리 다섯(교무실·도서실·과학실·체육관·수영장)이 비상 정문 열쇠를 한 조각씩 나누어 봉인하고, 열쇠의 머리는 내 금고와 별관에 숨기겠네. 교장실 괘종시계를 자정(12:00)에 맞추면 서고 금고가 열린다네.”",
+  "chars": 275,
+  "pri": 5
+ },
+ {
+  "id": "nd_n_bunker_audit",
+  "spk": "headTeacher",
+  "voice_id": "4JJwo477JUAx3HV0T7n7",
+  "prompt": "[serious] [1998 재단 특별감사 기밀문서 — 지하 방공호 보존서고] 1. 지하 펌프실 배전반 노후 및 외부 잠금 방치로 인한 안전사고 은폐 건. 2. 관련 수사 기록 및 현장 사진 일체를 본 지하 방공호 철제 서류함에 이관하고 방폭문을 폐쇄함.",
+  "chars": 142,
+  "pri": 5
+ },
+ {
+  "id": "nd_n_dorm2f_diary",
+  "spk": "friend2",
+  "voice_id": "j3SYRikKBpDmPJsvd1rf",
+  "prompt": "[casual] 청운학사 2층 204호 사생 일기 — 1998. 10. 12, 2층 심야 정독실 창문 너머로 본관 전체가 꺼지는 걸 봤다. 그런데 밤 11시 40분, 운동장 옆 지하 환기구에서 하늘이가 방송 원고를 읽는 목소리가 희미하게 들렸다.",
+  "chars": 137,
+  "pri": 5
+ },
+ {
+  "id": "nd_n1",
+  "spk": "haneul",
+  "voice_id": "1BZBO072RKJTzZcDjRox",
+  "prompt": "[softly] 10월 11일. 내일 밤은 방송부 창립 30주년 기념 방송 리허설. 하늘이는 방송 원고를 몇 번이나 고쳐 썼다. “기념 방송 날엔 꼭 내 목소리로 하교 방송을 할 거야.”",
+  "chars": 104,
+  "pri": 5
+ },
+ {
+  "id": "nd_n2",
+  "spk": "nurse",
+  "voice_id": "fO7cRyAPqxprQ3ZaVbnt",
+  "prompt": "[softly] 10월 12일 밤 11시 20분, 정전. 비상등도 켜지지 않았다. 지하에서 물 빼는 펌프가 멈췄다는 연락. 아이 하나가 아직 학교에 있다고 했는데, 아무도 이름을 대지 못했다.",
+  "chars": 107,
+  "pri": 5
+ },
+ {
+  "id": "nd_n3",
+  "spk": "headTeacher",
+  "voice_id": "4JJwo477JUAx3HV0T7n7",
+  "prompt": "[serious] 1998년 10월 12일 밤 지하 펌프실 사고 경위는 대외적으로 “하교 후 단순 실종”으로 정리한다. 펌프실은 즉시 폐쇄. 그날 밤 학교에 남아 있던 다섯 명의 책임자가 사건 원본 기록과 마스터 봉인 인장을 5개의 비밀 증거 조각으로 나누어 은닉한다 — 다섯이 모두 모이기 전엔 누구도 그날 밤의 진실을 세상에 폭로할 수 없도록. 은닉 장소: 교무실 금고 · 도서실 · 과학실 · 체육관 · 수영장. 교무실 금고 비밀번호는 그날의 날짜(월일 4자리: 1012).",
+  "chars": 268,
+  "pri": 5
+ },
+ {
+  "id": "nd_n4",
+  "spk": "librarian",
+  "voice_id": "sf8Bpb1IU97NI9BHSMRf",
+  "prompt": "[hushed, nervous] 같은 이름이 수백 번 적혀 있다. 윤하늘. 마지막 대출일 10월 12일. 집으로 가는 길. 반납란은 비어 있다.",
+  "chars": 80,
+  "pri": 5
+ },
+ {
+  "id": "nd_n6",
+  "spk": "mina",
+  "voice_id": "5I7B1di44aCL15NkP0jn",
+  "prompt": "[worried] 뒤따라오는 사람은 보이지 않았다. 내가 멈춰도 발소리는 한 걸음 더 이어졌다 — 이 학교에 나 말고 누가 있다. 기억을 믿기 전에, 사진과 녹음의 시간을 서로 맞춰 봐. — 민아",
+  "chars": 109,
+  "pri": 5
+ },
+ {
+  "id": "nd_n7",
+  "spk": "guard",
+  "voice_id": "UmYoqGlufKxhJ6NCx5Mv",
+  "prompt": "[elderly voice] 방송부 아이들이 담력 체험이라며 하늘이를 지하 펌프실에 넣고 문을 잠갔다고 했다. 십 분이면 꺼내 줄 장난이었다고. 그때, 정전이 났다.",
+  "chars": 92,
+  "pri": 5
+ },
+ {
+  "id": "nd_n8",
+  "spk": "haneul",
+  "voice_id": "1BZBO072RKJTzZcDjRox",
+  "prompt": "[softly] 원고 — 3학년 2반 윤하늘, “오늘 하루도 수고 많았습니다. 모두, 집으로 돌아가세요.”",
+  "chars": 59,
+  "pri": 5
+ },
+ {
+  "id": "nd_n9",
+  "spk": "peTeacher",
+  "voice_id": "4tLzQecqf3Jg3zct76Fm",
+  "prompt": "[gruff] 10월 12일, 기념 방송 리허설 날 밤. 관람석 불을 끄고 나왔다. 그날 이후 체육관 야간 조명 배선은 철거되었다. ※ 기록석 기구함 다이얼은 전광판의 마지막 경기 점수 로 맞춰 둠.",
+  "chars": 111,
+  "pri": 5
+ },
+ {
+  "id": "nd_n10",
+  "spk": "peTeacher",
+  "voice_id": "4tLzQecqf3Jg3zct76Fm",
+  "prompt": "[gruff] 배수 밸브 누수 — 물을 뺀 뒤에도 배관에서 물소리가 난다. 펌프실 문은 지하 B1로 이어진다. 그날 밤 펌프실 바닥은 물에 잠겨 있었다.",
+  "chars": 85,
+  "pri": 5
+ },
+ {
+  "id": "nd_n11",
+  "spk": "headTeacher",
+  "voice_id": "4JJwo477JUAx3HV0T7n7",
+  "prompt": "[serious] 지하 B1 점검 완료. 비상 통로는 봉인. 단, 5대 비밀 증거와 교장 직인 코어를 결합해 서린고 진상 규명 기록부(마스터 인장)가 완성되면 비상 통로와 교문의 봉인이 풀린다.",
+  "chars": 108,
+  "pri": 5
+ },
+ {
+  "id": "nd_n12",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[quietly] [slowly] 졸업생 명부. 3학년 2반 윤하늘 — 이름이 붉게 지워져 있다. 이름 옆에 누군가 연필로 적어 두었다: “아직 집에 못 갔어요.”",
+  "chars": 91,
+  "pri": 5
+ },
+ {
+  "id": "nd_n13",
+  "spk": "cook",
+  "voice_id": "0oqpliV6dVSr9XomngOW",
+  "prompt": "[warmly] 오늘의 급식: 아무도 먹지 않았다. 식판은 매일 같은 자리에 놓여 있다. 한 명분이 모자란 채로.",
+  "chars": 63,
+  "pri": 5
+ },
+ {
+  "id": "nd_n17",
+  "spk": "scienceTeacher",
+  "voice_id": "l6fNdLYgoqjfTIPUeFc9",
+  "prompt": "[serious] 약품장 자물쇠 번호 바꿈 — 원주율 앞 세 자리. 잊어버리는 사람은 수학 선생님께 혼남. — 과학부",
+  "chars": 65,
+  "pri": 5
+ },
+ {
+  "id": "nd_n18",
+  "spk": "haneul",
+  "voice_id": "1BZBO072RKJTzZcDjRox",
+  "prompt": "[softly] 하교 음악 — 학교종, 솔 솔 라 라 솔 솔 미 “기념 방송 날, 피아노 반주는 내가!” — 3-2 하늘",
+  "chars": 67,
+  "pri": 5
+ },
+ {
+  "id": "nd_n19",
+  "spk": "librarian",
+  "voice_id": "sf8Bpb1IU97NI9BHSMRf",
+  "prompt": "[hushed, nervous] 사서가 조작한 대출 기록 원본(제2비밀 증거 조각)은 데스크 잠긴 서랍에 넣고 봉인했음. 서랍 열쇠는 분실. 급하면 머리핀으로라도 딸 수 있음. 보건실 침대 쪽에 머리핀이 떨어져 있음.",
+  "chars": 121,
+  "pri": 5
+ },
+ {
+  "id": "nd_n20",
+  "spk": "peTeacher",
+  "voice_id": "4tLzQecqf3Jg3zct76Fm",
+  "prompt": "[gruff] 배수구 철망 아래로 보건교사가 던진 다섯 번째 비밀 증거 조각이 빠져 있다. 손이 닿지 않는다. 긴 자루에 철사를 감아 갈고리 장대를 만들면 건져 올릴 수 있을 듯. 자루는 지하 청소도구실, 철사는 별관 1층 기술·가정실에.",
+  "chars": 133,
+  "pri": 5
+ },
+ {
+  "id": "nd_n21",
+  "spk": "principal",
+  "voice_id": "kiVK4omWhBQ9AzwcaRq7",
+  "prompt": "[regretful] 가정통신문, 10월 12일(목) 방송부 창립 30주년 기념 특별 하교 방송. 방송부원은 밤 10시까지 방송실에서 리허설을 진행합니다. — 서린고등학교장",
+  "chars": 96,
+  "pri": 5
+ },
+ {
+  "id": "nd_n22",
+  "spk": "headTeacher",
+  "voice_id": "4JJwo477JUAx3HV0T7n7",
+  "prompt": "[serious] 우리 다섯은 1998년 10월 12일 밤의 참사를 각자의 구역에 영구히 묻는다. 교무부장 · 보건교사 · 사서 · 과학부장 · 체육부장. 비밀 증거와 인장 한 조각씩. 다섯 개의 비밀 증거가 다시 하나로 모이는 날, 그날 밤의 진실도 다시 열린다. (아래에 다섯 개의 서명 — 하나는 눈물에 번져 있다)",
+  "chars": 179,
+  "pri": 5
+ },
+ {
+  "id": "nd_n23",
+  "spk": "junho",
+  "voice_id": "Ir7oQcBXWiq4oFGROCfj",
+  "prompt": "[regretful] “우리는 10분 만에 돌아왔어요. 그런데 펌프실 문은 이미 열려 있었고, 하늘이는 없었어요. 그래서 먼저 집에 간 줄 알았어요.” — 방송부 2학년 (진술 일시: 10.13)",
+  "chars": 109,
+  "pri": 5
+ },
+ {
+  "id": "nd_n24",
+  "spk": "guard",
+  "voice_id": "UmYoqGlufKxhJ6NCx5Mv",
+  "prompt": "[elderly voice] 10.12 23:30 순찰. 지하 펌프실 문이 밖에서 잠겨 있음. 안에서 노랫소리 같은 것이 들림. 열쇠를 찾으러 교무실에 갔더니 교무부장이 “내가 처리한다”며 가져감.",
+  "chars": 110,
+  "pri": 5
+ },
+ {
+  "id": "nd_n25",
+  "spk": "librarian",
+  "voice_id": "sf8Bpb1IU97NI9BHSMRf",
+  "prompt": "[hushed, nervous] 하늘이가 그날 밤 집으로 가는 길을 빌려 갔다는 대출 기록은 내가 나중에 적었다. 시키는 대로. 집에 가는 길에 사라진 걸로 보이게. …미안해.",
+  "chars": 98,
+  "pri": 5
+ },
+ {
+  "id": "nd_n26",
+  "spk": "librarian",
+  "voice_id": "sf8Bpb1IU97NI9BHSMRf",
+  "prompt": "[hushed, nervous] 『집으로 가는 길』 — 반납일: 10월 12일 (오늘). 반납 도장이 오늘 날짜 로 찍혀 있다 — 누군가 오늘 이 카드를 만졌다. 대출자 이름 칸: 윤하늘.",
+  "chars": 105,
+  "pri": 5
+ },
+ {
+  "id": "nd_n27",
+  "spk": "homeroom",
+  "voice_id": "UqW1DivwFt1NwUMSGnTn",
+  "prompt": "[tearful] 10월 13일. 조회 시간, 하늘이 자리가 비어 있다. 교감은 출석부에 “결석”이라 적으라 했다. 나는 끝까지 쓰지 않았다. 그 아이는 3년 동안 한 번도 결석한 적이 없다. 펌프실 이야기를 꺼냈더니, 다음 주에 전근 발령이 났다. — 담임 정은수",
+  "chars": 148,
+  "pri": 5
+ },
+ {
+  "id": "nd_n28",
+  "spk": "friend",
+  "voice_id": "CZ86sooijZ9CfwhGGEY5",
+  "prompt": "[casual] 수아, 하늘아, 리허설 끝나면 떡볶이! 우리가 맨 앞에서 들을게 ♡ 다은, 내일 방송 꼭 네 목소리로 해. 약속. …마지막 장, 다른 글씨: “하늘이 없이 졸업했다. 기념 방송은 셋이 하기로 했는데.”",
+  "chars": 121,
+  "pri": 5
+ },
+ {
+  "id": "nd_n29",
+  "spk": "haneul",
+  "voice_id": "1BZBO072RKJTzZcDjRox",
+  "prompt": "[softly] 「3층 방송실, 밤 10시. 리허설 시작 — 늦으면 하교 방송 못 해!」 하늘의 동글동글한 글씨. 뒷면에 다른 사람의 글씨가 덧붙어 있다: 「10시 반, 지하 펌프실. 담력 체험 ㅋㅋ」",
+  "chars": 112,
+  "pri": 5
+ },
+ {
+  "id": "nd_q1a",
+  "spk": "homeroom",
+  "voice_id": "UqW1DivwFt1NwUMSGnTn",
+  "prompt": "[tearful] 「윤하늘 — 3년 개근에 도전!」 칸마다 별 스티커가 빼곡하다. 마지막 칸 10월 13일만 비어 있다. 귀퉁이에 연필로: 「내일도 1등으로 와야지」",
+  "chars": 92,
+  "pri": 5
+ },
+ {
+  "id": "nd_q1b",
+  "spk": "homeroom",
+  "voice_id": "UqW1DivwFt1NwUMSGnTn",
+  "prompt": "[tearful] 10월 13일 3학년 2반 — 윤하늘: 출석. 10년 동안 비어 있던 칸에 처음으로 바른 글씨가 들어갔다.",
+  "chars": 69,
+  "pri": 5
+ },
+ {
+  "id": "nd_q2a",
+  "spk": "friend",
+  "voice_id": "CZ86sooijZ9CfwhGGEY5",
+  "prompt": "[casual] 하늘, 기념 방송 끝 곡은 학교종! 수아가 1절, 다은이가 2절, 나는 마지막에 하교 인사. 수아, 반주 테이프는 음악실 카세트 서랍에 넣어 놨어 ♪ 다은, 리허설 끝나면 진짜로 떡볶이다?",
+  "chars": 114,
+  "pri": 5
+ },
+ {
+  "id": "nd_q2b",
+  "spk": "narrator",
+  "voice_id": "8G6jifm9f1BhHXadvwOt",
+  "prompt": "[quietly] [slowly] 반주 테이프 B면에는 그날 오후의 리허설 녹음이 남아 있었다. 스피커에서 세 사람의 목소리가 겹쳐 흘러나왔다. “…모두, 수고 많았습니다. 집으로 돌아가세요.” 10년 만에, 처음으로 끝까지 나간 방송.",
+  "chars": 132,
+  "pri": 5
+ },
+ {
+  "id": "nd_q3a",
+  "spk": "nurse",
+  "voice_id": "fO7cRyAPqxprQ3ZaVbnt",
+  "prompt": "[softly] 봉인 서약서에 서명한 날, 나는 내 몫의 은폐 증거 조각을 차마 보관할 수 없었다. 그날 밤 펌프실로 달려갔을 땐 이미 물이 차 있었다. 나는 아무것도 하지 못했다. 그래서 내 몫의 비밀 증거 조각을 수영장 배수구에 던졌다. 펌프실로 이어진 그 물길이 하늘이에게 닿기를. — 다섯 번째 학교 비밀 증거가 왜 물속에 있는지, 이제 안다.",
+  "chars": 196,
+  "pri": 5
+ },
+ {
+  "id": "nd_q3b",
+  "spk": "nurse",
+  "voice_id": "fO7cRyAPqxprQ3ZaVbnt",
+  "prompt": "[softly] 조각을 쥐고 배수구 앞에 잠시 서 있었다. 펌프실로 이어진 물길을 오래 바라보았다. 보건교사가 이 앞에서 무엇을 빌었을지, 조금은 알 것 같았다.",
+  "chars": 90,
+  "pri": 5
+ },
+ {
+  "id": "nd_q4a",
+  "spk": "junho",
+  "voice_id": "Ir7oQcBXWiq4oFGROCfj",
+  "prompt": "[regretful] 10.12 담력 체험 — 3학년 이준호(부장) · 2학년 박세진 · 최유리 · 1학년 한동민. 장소: 지하 펌프실. 대상: 윤하늘 (기념 방송 진행자 — “긴장 풀어 주기”) 문 잠그는 사람: ___ (빈칸)",
+  "chars": 128,
+  "pri": 5
+ },
+ {
+  "id": "nd_q4b",
+  "spk": "headTeacher",
+  "voice_id": "4JJwo477JUAx3HV0T7n7",
+  "prompt": "[serious] 세진 · 유리 · 동민, “문은 준호 선배가 잠갔어요. 10분 뒤에 가 보니 문이 열려 있었어요.” 준호, “잠근 건 저예요. 그런데 열쇠는 바로 교무부장님께 드렸어요. ‘버릇 좀 고쳐 주마, 이따 내가 꺼내마’ 하셔서.” — 진술서 위에 붉은 도장: 외부 유출 금지",
+  "chars": 159,
+  "pri": 5
+ },
+ {
+  "id": "nd_q4c",
+  "spk": "headTeacher",
+  "voice_id": "4JJwo477JUAx3HV0T7n7",
+  "prompt": "[serious] 큐시트 뒷면의 펌프실 도면 — 펌프실 문은 두 개다. 아이들이 10분 뒤 확인한 건 수영장 쪽 점검문(늘 열려 있다). 하늘이 갇힌 건 B1 복도 쪽 철문, 그 열쇠는 교무부장의 주머니에 있었다. “문은 열려 있었다”와 “밖에서 잠겨 있었다” — 둘 다 사실이었다.",
+  "chars": 158,
+  "pri": 5
+ },
+ {
+  "id": "nd_q5a",
+  "spk": "homeroom",
+  "voice_id": "UqW1DivwFt1NwUMSGnTn",
+  "prompt": "[tearful] 하늘이 어머님께. 학교는 하늘이가 그날 밤 집에 가다 사라졌다고 말할 것입니다. 사실이 아닙니다. 하늘이는 3년 동안 단 하루도 결석하지 않았고, 그날 밤에도 학교에 있었습니다. 저는 이 편지를 부칠 용기가 아직 없습니다. — 3학년 2반 담임 정은수",
+  "chars": 150,
+  "pri": 5
+ },
+ {
+  "id": "nd_q5b",
+  "spk": "homeroom",
+  "voice_id": "UqW1DivwFt1NwUMSGnTn",
+  "prompt": "[tearful] 교사 휴게실 우편함에 정은수 선생님 앞으로 온 반송 우편. 주소가 적힌 봉투와 쓰지 않은 우표 한 장. 받는 사람: 윤하늘 어머님 — 주소는 10년 전 그대로다.",
+  "chars": 100,
+  "pri": 5
+ },
+ {
+  "id": "nd_q5c",
+  "spk": "homeroom",
+  "voice_id": "UqW1DivwFt1NwUMSGnTn",
+  "prompt": "[tearful] 정문 경비실 우편함에 편지를 넣었다. 소인 날짜 칸에 누군가 미리 적어 둔 날짜: 10월 13일. …그날 아침 부쳐졌어야 할 편지였다.",
+  "chars": 85,
+  "pri": 5
+ },
+ {
+  "id": "nd_q7a",
+  "spk": "scienceTeacher",
+  "voice_id": "l6fNdLYgoqjfTIPUeFc9",
+  "prompt": "[serious] 펌프실 비상등 배터리 교체 요청 — 3회째. 교무부장 회신: “예산 없음, 다음 학기”. 예비 배터리팩은 과학실 공구함에 둔다. 누구든 먼저 가는 사람이 갈아 끼울 것. …그날 밤, 아무도 가지 않았다.",
+  "chars": 123,
+  "pri": 5
+ },
+ {
+  "id": "nd_q7b",
+  "spk": "scienceTeacher",
+  "voice_id": "l6fNdLYgoqjfTIPUeFc9",
+  "prompt": "[serious] 배터리팩을 끼우자 펌프실 비상등이 깜빡이다 켜졌다. 그날 밤 이 불이 켜져 있었다면, 하늘은 어둠 속에서 혼자가 아니었을 것이다.",
+  "chars": 82,
+  "pri": 5
+ },
+ {
+  "id": "nd_q8a",
+  "spk": "haneul",
+  "voice_id": "1BZBO072RKJTzZcDjRox",
+  "prompt": "[softly] 도서실 바코드가 붙은 낡은 소설책. 마지막 장 여백에 동글동글한 글씨: 「엄마, 오늘 방송 꼭 들어. 끝나면 바로 집에 갈게. — 하늘」 반납 기한: 10월 12일.",
+  "chars": 101,
+  "pri": 5
+ },
+ {
+  "id": "nd_h1",
+  "spk": "principal",
+  "voice_id": "kiVK4omWhBQ9AzwcaRq7",
+  "prompt": "[regretful] 다섯 교직원이 비밀 증거 조각을 나누어 숨기기로 했다. 나는 그 자리에 없었던 사람으로 남는다. 다만 다섯 증거를 하나로 결속하는 교장 직인 마스터 코어는 내가 갖는다 — 다섯 조각이 다 모여도, 내 직인 코어 없이는 진상 기록부도 교문 봉인도 완성되지 않도록. 코어는 별관 3층 전시 공간의 개교 기념 진열장에 둔다. 이름표는 “개교 기념 인장”. 아무도 진열품을 의심하지 않는다. 진열장 잠금 번호는 이 학교가 태어난 날(0302). 별관 전원은 폐쇄와 함께 1층 공구실 분전반에서 내린다.",
+  "chars": 288,
+  "pri": 5
+ },
+ {
+  "id": "nd_h3",
+  "spk": "scienceTeacher",
+  "voice_id": "l6fNdLYgoqjfTIPUeFc9",
+  "prompt": "[serious] 별관은 본관과 다른 계통. 10.12 23:20 본관 정전 때도 별관 조명은 정상. 10.13 06:10 별관 전원 차단 — 지시: 교장 · 사유: 별관 폐쇄. 비고: 3층 전시 공간 진열장(전자식)은 전원이 있어야 열림.",
+  "chars": 134,
+  "pri": 5
+ },
+ {
+  "id": "nd_h4",
+  "spk": "reporter",
+  "voice_id": "J3IV02ZzZmojOIQbmpu0",
+  "prompt": "[serious] 10.12 23:31 전시 공간 — 교장, 개교 기념 전시 준비. 23:33 창가로 가서 불이 꺼진 본관 쪽을 오래 바라봄. 23:34 통화 (음성 기록 일부): “…펌프실 열쇠는 자네가 갖고 있게. 내일 아침에 얘기하지.” 23:40 다시 진열장 정리. 23:52 퇴근.",
+  "chars": 162,
+  "pri": 5
+ },
+ {
+  "id": "nd_h5",
+  "spk": "principal",
+  "voice_id": "kiVK4omWhBQ9AzwcaRq7",
+  "prompt": "[regretful] 「개교 기념 열쇠 — 기증: 제9대 교장」 이름표 뒤에 접힌 쪽지. “이 문을 다시 여는 사람에게. 그날 밤 나는 불 켜진 곳에 있었다. 내려가지 않았다. 다섯 조각은 그들의 몫이고, 이 머리는 내 몫이다. 무거워서 아무 데도 두지 못했다.”",
+  "chars": 147,
+  "pri": 5
+ },
+ {
+  "id": "nd_q8b",
+  "spk": "librarian",
+  "voice_id": "sf8Bpb1IU97NI9BHSMRf",
+  "prompt": "[hushed, nervous] 반납함에 책을 넣고 10년 늦은 반납 도장을 찍었다. 대출 카드 뒷면에 하늘의 동글동글한 글씨: “다녀오겠습니다.”",
+  "chars": 82,
+  "pri": 5
+ },
+ {
+  "id": "nd_n14",
+  "spk": "junho",
+  "voice_id": "Ir7oQcBXWiq4oFGROCfj",
+  "prompt": "[regretful] 10월 12일 담력 체험 계획. 참가 4명. 장소: 지하 펌프실. 문 잠그는 사람: ___ …아무도 그 다음 줄을 쓰지 않았다.",
+  "chars": 83,
+  "pri": 5
+ },
+ {
+  "id": "nd_n15",
+  "spk": "electrician",
+  "voice_id": "TRO4gatqxbbwLXHLDLSk",
+  "prompt": "[rough] 전자칠판 예약 기록 — 매년 10월 12일 23:30, 같은 교실 사진을 띄우도록 예약돼 있다. 예약 계정: JUNHO98. 메모란: “다시, 여기서.”",
+  "chars": 93,
+  "pri": 5
+ },
+ {
+  "id": "nd_n16",
+  "spk": "friend2",
+  "voice_id": "j3SYRikKBpDmPJsvd1rf",
+  "prompt": "[casual] 실밥이 풀린 교복 한 벌이 의자에 걸려 있다. 이름표에는 “윤”이라는 글자만 남아 있다.",
+  "chars": 58,
+  "pri": 5
+ },
+ {
+  "id": "elv_open",
+  "spk": "pa",
+  "voice_id": "6wIijutElRjsgwLbECzl",
+  "prompt": "[calm] 문이 열립니다.",
+  "chars": 15,
+  "pri": 6
+ },
+ {
+  "id": "elv_close",
+  "spk": "pa",
+  "voice_id": "6wIijutElRjsgwLbECzl",
+  "prompt": "[calm] 문이 닫힙니다.",
+  "chars": 15,
+  "pri": 6
+ },
+ {
+  "id": "elv_up",
+  "spk": "pa",
+  "voice_id": "6wIijutElRjsgwLbECzl",
+  "prompt": "[calm] 올라갑니다.",
+  "chars": 13,
+  "pri": 6
+ },
+ {
+  "id": "elv_down",
+  "spk": "pa",
+  "voice_id": "6wIijutElRjsgwLbECzl",
+  "prompt": "[calm] 내려갑니다.",
+  "chars": 13,
+  "pri": 6
+ },
+ {
+  "id": "elv_floor_B1",
+  "spk": "pa",
+  "voice_id": "6wIijutElRjsgwLbECzl",
+  "prompt": "[calm] 지하 일 층입니다.",
+  "chars": 17,
+  "pri": 6
+ },
+ {
+  "id": "elv_floor_1",
+  "spk": "pa",
+  "voice_id": "6wIijutElRjsgwLbECzl",
+  "prompt": "[calm] 일 층입니다.",
+  "chars": 14,
+  "pri": 6
+ },
+ {
+  "id": "elv_floor_2",
+  "spk": "pa",
+  "voice_id": "6wIijutElRjsgwLbECzl",
+  "prompt": "[calm] 이 층입니다.",
+  "chars": 14,
+  "pri": 6
+ },
+ {
+  "id": "elv_floor_3",
+  "spk": "pa",
+  "voice_id": "6wIijutElRjsgwLbECzl",
+  "prompt": "[calm] 삼 층입니다.",
+  "chars": 14,
+  "pri": 6
+ },
+ {
+  "id": "elv_select_B1",
+  "spk": "pa",
+  "voice_id": "6wIijutElRjsgwLbECzl",
+  "prompt": "[calm] 지하 일 층이 선택되었습니다.",
+  "chars": 23,
+  "pri": 6
+ },
+ {
+  "id": "elv_select_1",
+  "spk": "pa",
+  "voice_id": "6wIijutElRjsgwLbECzl",
+  "prompt": "[calm] 일 층이 선택되었습니다.",
+  "chars": 20,
+  "pri": 6
+ },
+ {
+  "id": "elv_select_2",
+  "spk": "pa",
+  "voice_id": "6wIijutElRjsgwLbECzl",
+  "prompt": "[calm] 이 층이 선택되었습니다.",
+  "chars": 20,
+  "pri": 6
+ },
+ {
+  "id": "elv_select_3",
+  "spk": "pa",
+  "voice_id": "6wIijutElRjsgwLbECzl",
+  "prompt": "[calm] 삼 층이 선택되었습니다.",
+  "chars": 20,
+  "pri": 6
+ }
+]

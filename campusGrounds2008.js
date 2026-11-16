@@ -3,7 +3,7 @@
 //   ── 모두 InstancedMesh / 합친 메시 · 공용 재질 · 그림자 드리우는 조명 없음. 인도(window.__pathNET) · 금지 구역 · 충돌 상자 · 조사 지점은 피한다.
 import * as THREE from './vendor/three.module.js';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import * as PT from './rebuild/periodTex.js?v=435';   // 소품 사실감: 은행잎 · 나무껍질 · 향나무 · 차 도장 텍스처 (모듈 캐시 한 벌)
+import * as PT from './rebuild/periodTex.js?v=437';   // 소품 사실감: 은행잎 · 나무껍질 · 향나무 · 차 도장 텍스처 (모듈 캐시 한 벌)
 
 const S = (c, r = .7, m = 0, e) => new THREE.MeshStandardMaterial({ color: c, roughness: r, metalness: m, ...(e || {}) });
 const canvasTex = (w, h, draw) => { const c = document.createElement('canvas'); c.width = w; c.height = h; draw(c.getContext('2d'), w, h); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; return t; };
@@ -51,7 +51,7 @@ export function installCampusGrounds({ scene, world, floors, footprints = [] }) 
   { let n = 0; const bb = new THREE.Box3(); let dirt = null;
     scene.traverse(o => { if (!o.isMesh || !o.material || o.material.polygonOffsetFactor !== -1 || !o.material.map || o.material.name === 'school-turf') return;
       bb.setFromObject(o); if (bb.min.x < -25 || bb.max.x > 25 || bb.min.z < 26 || bb.max.z > 54.5 || bb.max.y > .06) return;
-      if (!dirt) { dirt = o.material.clone(); dirt.map = OUT.userData.dirtMap || findTurfMap(scene) || o.material.map; dirt.normalMap = null; dirt.roughnessMap = null; dirt.color.set(0xb4a284); dirt.roughness = 1; dirt.name = 'track-dirt-2008'; }
+      if (!dirt) { dirt = o.material.clone(); dirt.map = OUT.userData.dirtMap || findTurfMap(scene) || o.material.map; dirt.normalMap = null; dirt.roughnessMap = null; dirt.color.set(0xb4a284); dirt.roughness = 1; dirt.name = 'track-dirt-2008'; dirt.userData = { surface: 'track' }; }
       o.material = dirt; n++; }); info.track = n; }
 
   // ── 2) 외곽 담장: 붉은 벽돌 + 위에 철망 (정문 좌우 남쪽 담) ──
@@ -109,7 +109,7 @@ export function installCampusGrounds({ scene, world, floors, footprints = [] }) 
       const sx = w / (X2 - X1), sz = h / (Z2 - Z1); g.fillStyle = 'rgba(232,228,214,.85)'; for (let x = X1 + .5; x <= X2 - .4; x += SL) g.fillRect((x - X1) * sx - 3, (ZS - Z1) * sz, 6, (Z2 - .2 - ZS) * sz); g.fillRect(4, (ZS - Z1) * sz, w - 8, 6);
       g.fillStyle = 'rgba(30,30,30,.35)'; for (let i = 0; i < 14; i++) { const x = rnd() * w, y = (ZS - Z1) * sz + rnd() * 120; g.beginPath(); g.ellipse(x, y, 30 + rnd() * 30, 14, 0, 0, 7); g.fill(); } });   // 기름 얼룩
     const lot = new THREE.PlaneGeometry(X2 - X1, Z2 - Z1); lot.rotateX(-Math.PI / 2); lot.translate((X1 + X2) / 2, .016, (Z1 + Z2) / 2);
-    add(lot, new THREE.MeshStandardMaterial({ map: asp, roughness: .92, polygonOffset: true, polygonOffsetFactor: -1 }));
+    add(lot, new THREE.MeshStandardMaterial({ map: asp, roughness: .92, polygonOffset: true, polygonOffsetFactor: -1, userData: { surface: 'asphalt' } }));
     // 차량: 박스형 중형 세단 · 경차 · 승합차 실루엣 (로고 · 상표 없음) — 차체(인스턴스 색) · 유리 · 바퀴/범퍼
     const body = { sedan: [[4.6, .62, 1.76, 0, .55, 0], [2.5, .55, 1.6, -.15, 1.14, 0]], mini: [[3.5, .7, 1.5, 0, .55, 0], [2.1, .58, 1.4, -.1, 1.18, 0]], van: [[4.9, 1.45, 1.86, 0, .97, 0]] };
     const glass = { sedan: [[2.3, .42, 1.62, -.15, 1.16, 0]], mini: [[1.95, .44, 1.42, -.1, 1.2, 0]], van: [[3.6, .5, 1.88, -.45, 1.4, 0], [.06, .55, 1.6, 2.42, 1.35, 0]] };
@@ -184,6 +184,27 @@ export function installCampusGrounds({ scene, world, floors, footprints = [] }) 
         o.instanceColor.needsUpdate = true; if (o.material.emissive) { o.material.emissive.set(0x3a2208); o.material.emissiveIntensity = .22; } n++; });
       info.autumnCrowns = n; }
     info.ginkgo = ginkgo.length; info.juniper = jun.length; info.leaves = leaves.length; }
+
+  // ── 9) 증축 (2008년 공립 고교답게): 철거된 자전거 보관소 자리에 지붕 있는 자전거 보관대 + 체육 창고 별동, 체육관 앞마당 퍼걸러 ──
+  //   재질 4종 공유 · 타입별 지오메트리 병합 (메시 4개) · 새 조명/그림자 없음 · 충돌 상자는 기둥 · 창고 벽만
+  { const B = { steel: [], roof: [], brick: [], plate: [] }; const bx = (k, w, h, d, x, y, z, ry = 0, rx = 0) => { const g = new THREE.BoxGeometry(w, h, d); if (rx) g.rotateX(rx); if (ry) g.rotateY(ry); g.translate(x, y, z); B[k].push(g); };
+    // (a) 자전거 보관대 9.0 × 3.0 (x 53~62, z -6.6~-3.6): 외팔 각관 기둥 + 파란 FRP 골판 경사지붕 + 바닥 거치대 레일
+    { const x0 = 53, x1 = 62, z0 = -6.6, z1 = -3.6; for (let x = x0 + .2; x <= x1 - .1; x += 2.2) { bx('steel', .1, 2.35, .1, x, 1.175, z0 + .25); col(x - .08, x + .08, z0 + .17, z0 + .33); bx('steel', .08, .08, 3.0, x, 2.3, (z0 + z1) / 2, 0, -.08); }
+      bx('roof', x1 - x0 + .4, .04, 3.3, (x0 + x1) / 2, 2.42, (z0 + z1) / 2, 0, -.08); bx('steel', x1 - x0, .06, .06, (x0 + x1) / 2, 2.35, z0 + .25);
+      for (let x = x0 + .5; x < x1 - .3; x += .6) bx('steel', .03, .35, .5, x, .18, (z0 + z1) / 2 + .3);
+      bx('steel', x1 - x0 - .6, .04, .04, (x0 + x1) / 2, .34, (z0 + z1) / 2 + .3); info.bikeShed = 1; }
+    // (b) 체육 창고 별동 3.2 × 2.4 (보관대 서쪽 끝 · 벽돌 + 철문 + 날짜판 '증축 2004'): 벽에 충돌
+    { const cx = 51.1, cz = -5.1, w = 3.2, d = 2.4, h = 2.6; bx('brick', w, h, .2, cx, h / 2, cz - d / 2); bx('brick', .2, h, d, cx - w / 2, h / 2, cz); bx('brick', .2, h, d, cx + w / 2, h / 2, cz);
+      bx('brick', w - 1.4, h, .2, cx - .7 - .0, h / 2, cz + d / 2); bx('steel', 1.2, 2.1, .06, cx + .8, 1.05, cz + d / 2 + .02); bx('plate', w + .3, .12, d + .3, cx, h + .06, cz);
+      col(cx - w / 2 - .1, cx + w / 2 + .1, cz - d / 2 - .1, cz + d / 2 + .1); info.storeAnnex = 1;
+      const c = document.createElement('canvas'); c.width = 128; c.height = 48; const g2 = c.getContext('2d'); g2.fillStyle = '#c8c0a8'; g2.fillRect(0, 0, 128, 48); g2.fillStyle = '#3a3228'; g2.font = 'bold 18px sans-serif'; g2.textAlign = 'center'; g2.fillText('증축 2004', 64, 22); g2.font = '11px sans-serif'; g2.fillText('체육 창고 · 서린고', 64, 40);
+      const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; const pl = new THREE.Mesh(new THREE.PlaneGeometry(.6, .22), new THREE.MeshBasicMaterial({ map: t })); pl.position.set(cx - .9, 1.7, cz + d / 2 + .11); root.add(pl); }
+    // (c) 체육관 앞마당 퍼걸러 (현관 캐노피와 테니스장 사이 · 길 동쪽 가장자리): 각관 기둥 4 + 목재 살대
+    { const x0 = 87.0, x1 = 92.0, z0 = -25.2, z1 = -23.8; [[x0, z0], [x1, z0], [x0, z1], [x1, z1]].forEach(([x, z]) => { bx('steel', .12, 2.6, .12, x, 1.3, z); col(x - .08, x + .08, z - .08, z + .08); });
+      [z0, z1].forEach(z => bx('plate', x1 - x0 + .4, .14, .1, (x0 + x1) / 2, 2.62, z)); for (let x = x0; x <= x1 + .01; x += .5) bx('plate', .08, .1, z1 - z0 + .6, x, 2.74, (z0 + z1) / 2); info.pergola = 1; }
+    const M = { steel: new THREE.MeshStandardMaterial({ color: 0x6a7076, roughness: .5, metalness: .6 }), roof: new THREE.MeshStandardMaterial({ color: 0x3a6a9a, roughness: .45, transparent: true, opacity: .85, side: THREE.DoubleSide }),
+      brick: new THREE.MeshStandardMaterial({ color: 0x9a5a44, roughness: .9 }), plate: new THREE.MeshStandardMaterial({ color: 0x8a6a48, roughness: .8 }) };
+    for (const k in B) if (B[k].length) { const m = add(mergeGeometries(B[k]), M[k]); m.name = 'grounds08_ext_' + k; B[k].forEach(g => g.dispose()); } }
 
   OUT.add(root); window.__grounds = info; return info;
 }

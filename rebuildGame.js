@@ -2,14 +2,14 @@
 //   항상 켜진다 (예전 건물 모드는 폐지).
 //   예전 본관(1~3층 · 옥상) · 별관(8~10층) 건물은 감추고, 그 자리 땅(0층)에서 새 건물을 걷는다.
 //   높이는 P.sh(계단 높이 보정값)로 넘긴다 → 카메라 · 점프 · 가구 오르기 코드는 손대지 않아도 된다.
-import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN, grafMaterial } from './rebuild/mainBuilding.js?v=435';
-import { placeModels } from './rebuild/models.js?v=435';
-import { installArtFrames } from './rebuild/artFrames.js?v=435';
-import { carve, subdivide } from './rebuild/transplant.js?v=435';
+import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN, grafMaterial } from './rebuild/mainBuilding.js?v=437';
+import { placeModels } from './rebuild/models.js?v=437';
+import { installArtFrames } from './rebuild/artFrames.js?v=437';
+import { carve, subdivide } from './rebuild/transplant.js?v=437';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { turfMaterial } from './campusVisuals.js?v=435';
-import { ENGINE } from './engine.js?v=435';
-import { whenIdle, idleTimeout, idleInterval, setIdleProbe } from './idleTasks.js?v=435';
+import { turfMaterial } from './campusVisuals.js?v=437';
+import { ENGINE } from './engine.js?v=437';
+import { whenIdle, idleTimeout, idleInterval, setIdleProbe } from './idleTasks.js?v=437';
 
 // 예전 건물이 차지하던 땅 (이 안의 예전 메시 · 충돌 상자를 걷어 낸다)
 const OLD_MAIN = { x1: -51, x2: 51, z1: -10.6, z2: 10.9 };
@@ -390,6 +390,11 @@ export function installRebuild({ THREE, scene, floors, world }) {
         for (const k of Object.keys(p)) if (p[k] && p[k].isObject3D && k !== 'parent') moveObj(p[k], s.x, s.h, s.z);
         p.floor = 0; p.rbY = s.h; p.x = s.x; p.z = s.z; moved++; continue;
       }
+      const sSpot = p.kind === 'safe' && (MAIN.props || []).find(q => q.kind === 'safeSpot');   // 교무실 금고: 정해 둔 벽 자리 (몸체 = 조사 지점 - 0.9m, 문은 +x)
+      if (sSpot) { const [wx, wz] = MAIN.toWorld(sSpot.x + .9, sSpot.z), sh = sSpot.y ?? 0, dx = wx - p.x, dz = wz - p.z, oldY0 = FL_[p.floor]?.y0 || 0;
+        for (const o of objsOf(p)) { const w = o.getWorldPosition(new THREE.Vector3()); group.attach(o); o.position.set(w.x + dx, sh + (w.y - oldY0), w.z + dz); o.visible = true; }
+        if (p.key && p.key.pos) { const kx = wx - .9, ky = sh + .38; p.key.pos.set(kx, ky, wz); if (p.key.baseY != null) p.key.baseY = ky; p.key.floor = 0; p.key.rbY = sh; p.key._rb = true; if (p.key.mesh) { group.attach(p.key.mesh); p.key.mesh.position.set(kx, ky, wz); } }
+        p.floor = 0; p.rbY = sh; p.x = wx; p.z = wz; p.y = Math.max(.05, p.y ?? 1); moved++; continue; }
       const tgt = pickRoom(p.floor, p.x, roomForLabel(p.label)); if (!tgt) { p.floor = park(p.floor); dropped++; continue; }
       const small = ['tape', 'clue', 'pick', 'case5', 'phone'].includes(p.kind);   // 탁자 위에 놓이는 작은 소품: 증언 녹음기 · 쪽지/단서 · 줍는 물건 · 녹음기 · 전화
       const su = small && tgt.room ? surfaceIn(tgt.b, tgt.room, tgt.f) : null, s = su || spotAny(tgt.b, tgt.room, tgt.f);

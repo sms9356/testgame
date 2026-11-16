@@ -4,13 +4,13 @@
 //   시설 재건축(facilityRebuild)이 짓는 건물은 ZONES 좌표만 바꾸면 새 자리에 지어지므로, 여기서는 그 안의 조사 지점 · 문 같은 데이터만 옮긴다.
 //   나머지(체육관 외관 · 코트 · 경기장 묶음)는 메시째로 옮긴다: 묶음이 구역 안에 다 들어가면 통째로, 합쳐진(bake) 메시는 삼각형 단위로 나눠서.
 import * as THREE from './vendor/three.module.js';
-import { whenIdle, idleTimeout, idleInterval, setIdleProbe } from './idleTasks.js?v=435';
+import { whenIdle, idleTimeout, idleInterval, setIdleProbe } from './idleTasks.js?v=437';
 
 // [이름, 원래 구역 x1, x2, z1, z2, 새 중심으로의 이동 dx, dz, 회전(0 | π: 구역 중심 기준 반 바퀴 — 출입구 방향을 동편 대로 쪽으로)]
 export const MOVES = [
   ['체육관', 27.4, 48.6, 11.8, 37.2, 46, -62.5, 0],
-  ['야외농구장', 28.2, 44.2, 37.6, 54.2, 22, -39, 0],
-  ['테니스 · 양궁장', -99.5, -76.5, -25.5, -6.5, 172, -1, Math.PI],
+  ['야외농구장', 28.2, 44.2, 37.6, 54.2, 22, -40, 0],   // dz -39 → -40: 남측 펜스(z 14.5)가 학우매점 북벽(14.56)에 붙어 겹치던 것 → 1m 띄움
+  ['테니스 · 양궁장', -99.5, -76.5, -25.5, -6.5, 172, 1, Math.PI],   // dz -1 → +1: 북측 펜스(z -25)가 체육관 현관 캐노피(-25.4)를 찌르던 것 → 2.4m 앞마당
   ['야구 스타디움', -101.5, -74.5, -0.5, 28.5, 172, -6, Math.PI],
 ];
 // 시설 재건축 건물: 옛 자리 → 새 자리 (facilityRebuild ZONES 와 같은 값)

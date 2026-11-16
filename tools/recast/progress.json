@@ -2918,5 +2918,105 @@
   "status": "applied",
   "credits": 147.0,
   "generation_id": "HibnJOqWhigjHH0MTbSF"
+ },
+ "note_n1": {
+  "status": "applied",
+  "credits": 126.0,
+  "generation_id": "qChnbrRkpInW4gIOvkbr"
+ },
+ "vo_astro_tune": {
+  "status": "applied",
+  "credits": 127.0,
+  "generation_id": "4WhGDNkVUWLtjPlAIJIj"
+ },
+ "note_n7": {
+  "status": "applied",
+  "credits": 104.0,
+  "generation_id": "rI2UfxhZ3X7swu2kQQWO"
+ },
+ "note_n6": {
+  "status": "applied",
+  "credits": 128.0,
+  "generation_id": "Jdme34LMM63xKzaMCcYQ"
+ },
+ "note_n5": {
+  "status": "applied",
+  "credits": 183.0,
+  "generation_id": "8tgsQWYNuldznLQqJhDv"
+ },
+ "note_n4": {
+  "status": "applied",
+  "credits": 95.0,
+  "generation_id": "ZkRbNWvaQTr98UfUh3qO"
+ },
+ "note_n3": {
+  "status": "applied",
+  "credits": 204.0,
+  "generation_id": "mmvw1pAIVLB6Z3CeZVFR"
+ },
+ "note_n2": {
+  "status": "applied",
+  "credits": 124.0,
+  "generation_id": "SSJjLaedI5G98W1OjrLV"
+ },
+ "vo_principal_dawn": {
+  "status": "applied",
+  "credits": 107.0,
+  "generation_id": "GlHrONcZB2vDQgCuDjxi"
+ },
+ "vo_lib_lastseen": {
+  "status": "applied",
+  "credits": 121.0,
+  "generation_id": "XdUrW2dY3wvYkFsXMNKu"
+ },
+ "cr_2_3": {
+  "status": "applied",
+  "credits": 154.0,
+  "generation_id": "aaPkdfE5nKuE3Kms5iHS"
+ },
+ "cr_2_2": {
+  "status": "applied",
+  "credits": 147.0,
+  "generation_id": "5PT76WYVC1anmsszufUG"
+ },
+ "cr_2_1": {
+  "status": "applied",
+  "credits": 157.0,
+  "generation_id": "cl93sauzcd5urbWX8DHc"
+ },
+ "cr_1_5": {
+  "status": "applied",
+  "credits": 165.0,
+  "generation_id": "WjrnbvHQEUc9E9EVwz13"
+ },
+ "cr_1_4": {
+  "status": "applied",
+  "credits": 160.0,
+  "generation_id": "4Up4AQFiIN6hI2EAoIqX"
+ },
+ "vo_dorm_lookout": {
+  "status": "applied",
+  "credits": 130.0,
+  "generation_id": "Khhf4zbhh6qJXfROqZ4u"
+ },
+ "cr_2_5": {
+  "status": "applied",
+  "credits": 149.0,
+  "generation_id": "BeA2hzSxy0TKHdguVaEP"
+ },
+ "cr_2_4": {
+  "status": "applied",
+  "credits": 133.0,
+  "generation_id": "12U7vQGcJjMGH1Wx1A5Q"
+ },
+ "cr_1_3": {
+  "status": "applied",
+  "credits": 162.0,
+  "generation_id": "FFRWQT48MaIegJaqp3cK"
+ },
+ "cr_1_2": {
+  "status": "applied",
+  "credits": 154.0,
+  "generation_id": "SrfCWSBHF7RBajDw9sFu"
  }
 }

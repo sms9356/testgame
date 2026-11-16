@@ -2324,280 +2324,252 @@
  "l_unlocked_j": {
   "spk": "jihun",
   "text": "열렸다.",
-  "dur": 2.351,
+  "dur": 1.802,
   "baked": true,
-  "eleven": "열렸다.",
+  "eleven": "[relieved] 열렸다.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "relief",
-   "input_sha256": "b9c784c4602a67964a22859bb1942664b3259289894edf55c25d50a91985ed91",
-   "audio_sha256": "9bc6a90e09092402698a80cbe9a9ee28e64bf7e08a0aa5ccfb10d9a6f71349e4",
-   "request_id": "rhsFl5qadEJ4aVWMULoA",
+   "delivery": "[relieved]",
+   "input_sha256": "29a703608514362bd598d2daaf70572a0d16c4df39e03206550417e93170147b",
+   "audio_sha256": "b907232224b5a779f46a171dc8d8d4fc57ac900c0193582c00d9701fe7ae4ae6",
+   "generation_id": "2lTxbAVHZeNKGcZrTKJE",
+   "flow_session_id": null,
    "review_status": "listening_required"
   }
  },
  "l_unlocked_s": {
   "spk": "seoyeon",
   "text": "열렸다!",
-  "dur": 2.351,
+  "dur": 1.306,
   "baked": true,
-  "eleven": "열렸다!",
+  "eleven": "[relieved] 열렸다!",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "relief",
-   "input_sha256": "d66d4ae4e200e7b253341d1932f991a974a881d97a0d756b9c8785c475782a99",
-   "audio_sha256": "6c0f4e0db7b69849f557ce7276b950449384905d78b3a27a9f6eb9525bc4e902",
-   "request_id": "CaccGIPH8QHNzC3GPZxN",
+   "delivery": "[relieved]",
+   "input_sha256": "e287f2f2db00e8c311027d0641ec5544ae35e2b0105937489b73eb9bcf3a0815",
+   "audio_sha256": "f73f39515aca2fb8168e6d93396629f817be439c192e66f7a855fbc449ad3010",
+   "generation_id": "br5yM2MXliJjiICFSuTD",
+   "flow_session_id": null,
    "review_status": "listening_required"
   }
  },
  "l_dialWrong_j": {
   "spk": "jihun",
   "text": "아니야. 다른 숫자다.",
-  "dur": 1.802,
+  "dur": 2.429,
   "baked": true,
-  "eleven": "아니야. 다른 숫자다.",
+  "eleven": "[nervous] 아니야. 다른 숫자다.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "normal",
-   "input_sha256": "32690dc3ccc3cac1c4964e2bdf5c5158550279f32d7b6811423dd81f1c861968",
-   "audio_sha256": "5542d1aa6396b5e29eddd8fd0154bb03e48d5b49f70b0fcc4e400993e793dea7",
-   "request_id": "O3av5IcDUHkkLZCu2WJc",
+   "delivery": "[nervous]",
+   "input_sha256": "b892b690ead04f2cd40ead017f6b220e66af9dfe1d3fa31a24f2907c3c4fd2d8",
+   "audio_sha256": "f77ad085782a03d44a95dd8ab2a77debb9bfeb658af9f4ba0fc859fb1d72495d",
+   "generation_id": "xNmKgJNMYV0W7pmZCqS3",
+   "flow_session_id": null,
    "review_status": "listening_required"
   }
  },
  "l_dialWrong_s": {
   "spk": "seoyeon",
   "text": "아니야… 다른 번호인가 봐.",
-  "dur": 2.508,
+  "dur": 2.926,
   "baked": true,
-  "eleven": "아니야… 다른 번호인가 봐.",
+  "eleven": "[nervous] 아니야… 다른 번호인가 봐.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "normal",
-   "input_sha256": "7827dc20ab43bd802565445c1eabb05e255890ff282c971df5c1d0e8e55e89ed",
-   "audio_sha256": "021d4e0201103cd99be09250511a9960af4fb9938a67d73312b9d717e5a1c1ad",
-   "request_id": "0rvxuyvYaS5e70yHfpxy",
+   "delivery": "[nervous]",
+   "input_sha256": "8133893d91d19f8c06ab4f03c059bcb6e50f7f514b3f5d8d438d314d7c3598b6",
+   "audio_sha256": "2255d9e3b9b15981f3b74a4814594061951cba768a2b2ea68e12f990d2a7a378",
+   "generation_id": "jj39moAtKv8wTu7lQUSH",
+   "flow_session_id": null,
    "review_status": "listening_required"
   }
  },
  "l_needHook_j": {
   "spk": "jihun",
   "text": "저 아래 뭔가 반짝인다. 손이 닿지 않아… 갈고리가 필요해.",
-  "dur": 4.989,
+  "dur": 5.407,
   "baked": true,
-  "eleven": "저 아래 뭔가 반짝인다. 손이 닿지 않아… 갈고리가 필요해.",
+  "eleven": "[nervous] 저 아래 뭔가 반짝인다. 손이 닿지 않아… 갈고리가 필요해.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "normal",
-   "input_sha256": "134a1f26afb95dbc9b45609cf057ec69f7670c822a7b355596e6cc55cd1c8dc7",
-   "audio_sha256": "ce9f0d535a47d8533df09ce66146f315857fe8d719b64ba4f6e9b2c537d13fb2",
-   "request_id": "94nEWebPlCcXk1tRekbW",
+   "delivery": "[nervous]",
+   "input_sha256": "b373ce412de16123977ae1f952bd60f1d058ecfca64843cf31bdf09cad15dd78",
+   "audio_sha256": "71438ed2c78f7b7b1706c53fea5c7cd698efdebd310096498d1b064dc39b4237",
+   "generation_id": "MTwxaT1OCZ8jeud0jfFf",
+   "flow_session_id": null,
    "review_status": "listening_required"
   }
  },
  "l_needHook_s": {
   "spk": "seoyeon",
   "text": "배수구 안에 뭔가 있어… 손이 안 닿아. 갈고리를 만들어야 해.",
-  "dur": 4.911,
+  "dur": 5.329,
   "baked": true,
-  "eleven": "배수구 안에 뭔가 있어… 손이 안 닿아. 갈고리를 만들어야 해.",
+  "eleven": "[nervous] 배수구 안에 뭔가 있어… 손이 안 닿아. 갈고리를 만들어야 해.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "normal",
-   "input_sha256": "bcf8db3b810ccc4f075261a74f9612286cd9a65eff0f5ddb7c02d9203d6944b5",
-   "audio_sha256": "f0abbdf3f03d2cb95c72bcb7321f0fc1fcd743aa9bdada0f72db7865bbabf660",
-   "request_id": "mJsSxpi7J3ns5MOdBx6B",
+   "delivery": "[nervous]",
+   "input_sha256": "b1d44a440ae7120b52f2627f68ae24d06d5ad816e1f0aeb8a14084d56e12aa6c",
+   "audio_sha256": "ae0f54f5c287d21b08cae464b85a97d263ef1fcf47453dec6c2ee8a711f68d82",
+   "generation_id": "sSTdOJEIHFiOk0FAdHKA",
+   "flow_session_id": null,
    "review_status": "listening_required"
   }
  },
  "l_hookMade_j": {
   "spk": "jihun",
   "text": "자루에 철사를 감았다. 이거면 걸 수 있겠다.",
-  "dur": 5.146,
+  "dur": 3.318,
   "baked": true,
-  "eleven": "자루에 철사를 감았다. 이거면 걸 수 있겠다.",
+  "eleven": "[relieved] 자루에 철사를 감았다. 이거면 걸 수 있겠다.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "relief",
-   "input_sha256": "47c1c9056bb0d28f0e6c6de62c2088654a7e6f9c34e0dcf00da3c6bd7d770dab",
-   "audio_sha256": "ac5b1fc2a3be07b27970589e578b38a6f9c03f6f05cc602d2ecf2f8b2b564078",
-   "request_id": "zRkVTkxTUMLNf3DgztQW",
+   "delivery": "[relieved]",
+   "input_sha256": "a0f3af6be09346c2c3871f582f4ae3a7545623ce67300ed9bce22f381594c446",
+   "audio_sha256": "227c501edf54e678ffb2d3210ada476540cd1a114dcb1fa7bcf6bfbef7fcdb93",
+   "generation_id": "LJ0vzMB0CS5zJ8BKA3nJ",
+   "flow_session_id": null,
    "review_status": "listening_required"
   }
  },
  "l_hookMade_s": {
   "spk": "seoyeon",
   "text": "자루에 철사를 묶었어. 이걸로 낚을 수 있을 거야.",
-  "dur": 4.989,
+  "dur": 3.631,
   "baked": true,
-  "eleven": "자루에 철사를 묶었어. 이걸로 낚을 수 있을 거야.",
+  "eleven": "[relieved] 자루에 철사를 묶었어. 이걸로 낚을 수 있을 거야.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "relief",
-   "input_sha256": "b28a56905ef4ccbf1996ac3a5a2ce12262e2989c4370ec655cc63ab1721405e4",
-   "audio_sha256": "03d3987e93201524a4e11bc180613fc9388d803c1f776ed8b471b58f878d5afa",
-   "request_id": "zeCs4qu8GmYrJHHZIhnW",
+   "delivery": "[relieved]",
+   "input_sha256": "06d78d631250ed2c275d3ae0c076be2e7582a884d44301e616ee42fd9144e228",
+   "audio_sha256": "aebe0f3fcdba4b3244b1e94946d097fae74b34c45f5e777773633d64459c73ea",
+   "generation_id": "MEuFToHs7QOdZopQ1a6E",
+   "flow_session_id": null,
    "review_status": "listening_required"
   }
  },
  "l_needFuse_j": {
   "spk": "jihun",
   "text": "퓨즈가 빠져 있다. 예비 퓨즈를 찾아야 해.",
-  "dur": 3.161,
+  "dur": 3.631,
   "baked": true,
-  "eleven": "퓨즈가 빠져 있다. 예비 퓨즈를 찾아야 해.",
+  "eleven": "[nervous] 퓨즈가 빠져 있다. 예비 퓨즈를 찾아야 해.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "normal",
-   "input_sha256": "40e3423db7571261347527f6140436fdfd90ef8fc979dfe53f3e7fb2e693ed4a",
-   "audio_sha256": "bac3cd335fa1c59134ae5b7ae743a8cab4f948e72388485168b1e96b1576b7e8",
-   "request_id": "JTpAFQI3m3gTzeiFQxL7",
+   "delivery": "[nervous]",
+   "input_sha256": "c46ca04f6ca57ed6afdc106d9bb13e96885eadf49303ed844ace2c1eb44fb543",
+   "audio_sha256": "a5202331e6363d1e66e81efd063a6f63495cbd37236dc4ee80c97265f7938130",
+   "generation_id": "iaA4mh8Pu5Idzg7PEx0Z",
+   "flow_session_id": null,
    "review_status": "listening_required"
   }
  },
  "l_needFuse_s": {
   "spk": "seoyeon",
   "text": "퓨즈가 없어… 어딘가에 예비 퓨즈가 있을 거야.",
-  "dur": 4.049,
+  "dur": 4.598,
   "baked": true,
-  "eleven": "퓨즈가 없어… 어딘가에 예비 퓨즈가 있을 거야.",
+  "eleven": "[nervous] 퓨즈가 없어… 어딘가에 예비 퓨즈가 있을 거야.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "normal",
-   "input_sha256": "56c4a777d0762521eb8bbf3837f699a0f96b702a37a737805ae3fc9caac261d4",
-   "audio_sha256": "bc3c2450ab05b011f74da7bfbbed18ee404925e10f84a96e241b8558d469e351",
-   "request_id": "wg0WmgltySpkPbEbUVDk",
+   "delivery": "[nervous]",
+   "input_sha256": "5744e392b9ed4a0f5148f0a3a4ecd729349deed6edc35e5c8226eac71d9cf2f4",
+   "audio_sha256": "b8d564b123488c67ac86662e9cc6dffe6bc27c25b5f8c5cdefc68886c0413ef9",
+   "generation_id": "TYshp0tfU8OcK50lWlkW",
+   "flow_session_id": null,
    "review_status": "listening_required"
   }
  },
  "l_pianoOk_j": {
   "spk": "jihun",
   "text": "피아노 아래에서 뭔가 떨어졌다.",
-  "dur": 2.351,
+  "dur": 2.429,
   "baked": true,
-  "eleven": "피아노 아래에서 뭔가 떨어졌다.",
+  "eleven": "[surprised] 피아노 아래에서 뭔가 떨어졌다.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "surprise",
-   "input_sha256": "4bff8899775218ad62614e3f4b6783d594b96ab9d5a840092681d8eff25afa1e",
-   "audio_sha256": "01e406e2ba070542abf4793b0a4dca3567eb51b710543dbe8ee5bd87cbb7bbef",
-   "request_id": "qLkxITWa5ZhTICmAj8qy",
+   "delivery": "[surprised]",
+   "input_sha256": "42c0e77ffc36960189cfcbd7f614704d1240d4b6e8aab3ccd8ae337aac38cd37",
+   "audio_sha256": "f985a8a8d874756cad36d7c0f5b1dec1c5691b90736cb2fdcc547912595e8e21",
+   "generation_id": "KBDY7Qf698Gtt2V6aZM6",
+   "flow_session_id": null,
    "review_status": "listening_required"
   }
  },
  "l_pianoOk_s": {
   "spk": "seoyeon",
   "text": "피아노 밑에서… 뭔가 떨어졌어.",
-  "dur": 2.847,
+  "dur": 3.004,
   "baked": true,
-  "eleven": "피아노 밑에서… 뭔가 떨어졌어.",
+  "eleven": "[surprised] 피아노 밑에서… 뭔가 떨어졌어.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "surprise",
-   "input_sha256": "508eaea77733d6b1772e2f8c78a90d008fedbbd49447a5e3d4475fc95fa98e0f",
-   "audio_sha256": "1c52989666e51ff36afb75ff7ea16198da072148427761fb595ec60f2349cf26",
-   "request_id": "NSQhpghYlLy5YPTlvn0A",
+   "delivery": "[surprised]",
+   "input_sha256": "e54fbb4bfa43cb92dfcd6cfb5b5d20833d7732b3da9d0b01212c51cd22377098",
+   "audio_sha256": "8f7aa4919272186b8f7907e3b7830ff79d552ede01fd38d824287678715101a5",
+   "generation_id": "sj82HJN1hhuRLRAMAee2",
+   "flow_session_id": null,
    "review_status": "listening_required"
   }
  },
  "l_slideOk_j": {
   "spk": "jihun",
   "text": "그림 뒤에 뭔가 붙어 있다.",
-  "dur": 2.194,
+  "dur": 2.351,
   "baked": true,
-  "eleven": "그림 뒤에 뭔가 붙어 있다.",
+  "eleven": "[surprised] 그림 뒤에 뭔가 붙어 있다.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "surprise",
-   "input_sha256": "cddfd228f18d852fed3c1fcb5d330a458770014efd871a5a199d9b1eee86f891",
-   "audio_sha256": "501019cafff157dcdf9bfad36d9808a95066e7d18813bc44fe3af93450a1c6dc",
-   "request_id": "ZYIAx3THNBuCnQmmW3oH",
+   "delivery": "[surprised]",
+   "input_sha256": "e8c6d84e80f835cb6322e19f96a8402fc4ce790cfda7b8d97f7519746198186a",
+   "audio_sha256": "f3119363023a09be884d722b870944df5f9a4f6538251385384c696f32c40ba7",
+   "generation_id": "SkClVFoZwrIenmKBU6TH",
+   "flow_session_id": null,
    "review_status": "listening_required"
   }
  },
  "l_slideOk_s": {
   "spk": "seoyeon",
   "text": "그림 뒤에… 사진이 붙어 있었어.",
-  "dur": 3.082,
+  "dur": 3.239,
   "baked": true,
-  "eleven": "그림 뒤에… 사진이 붙어 있었어.",
+  "eleven": "[surprised] 그림 뒤에… 사진이 붙어 있었어.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "surprise",
-   "input_sha256": "6a4779a5d0ac29527c1c97e2911891d0e21a6f28fd98a4a1dd16ee5d8e385cec",
-   "audio_sha256": "9cf3fe05ce3db6b24b98c71bab6b9830e060fdf38908e7e9e692f400037ee4a6",
-   "request_id": "tCd1F15rCp7f5S172UQM",
+   "delivery": "[surprised]",
+   "input_sha256": "385d63c3983bc05ea0f07c641558fd143b4bbe7bd5ef0a6bb6a1378bc417f270",
+   "audio_sha256": "c05707e7de057924765187ad9ea31e47f474da5db44baa25f5a9a512100f67ad",
+   "generation_id": "5lCk6aE8G0459ehUSOEv",
+   "flow_session_id": null,
    "review_status": "listening_required"
   }
  },
@@ -2606,77 +2578,71 @@
   "text": "…숨 참아.",
   "dur": 1.306,
   "baked": true,
-  "eleven": "…숨 참아.",
+  "eleven": "[whispers] …숨 참아.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "whisper",
-   "input_sha256": "dae6b858da6d2c72d9a435faaf4e2b8e40256a359c7a4cd19c78c4a0e09cea3d",
-   "audio_sha256": "0599255b80a22cf523f8d6086d6cca4cf0212b4f6814f61b08f8a032ff2fbda5",
-   "request_id": "ALedJXgzRq4wPPNxwAsB",
+   "delivery": "[whispers]",
+   "input_sha256": "1abe3dc8a53c9bf4b304052531bf96156dc72423609c1b448cae1318896cbbd8",
+   "audio_sha256": "eea03044c654e9be086e11d522cd36a07e0369797cf8217cddb6d360a1dc084a",
+   "generation_id": "UOj5s0ZxRVanOD3WLNML",
+   "flow_session_id": null,
    "review_status": "listening_required"
   }
  },
  "l_breath_s": {
   "spk": "seoyeon",
   "text": "…숨 참아, 제발.",
-  "dur": 2.194,
+  "dur": 2.116,
   "baked": true,
-  "eleven": "…숨 참아, 제발.",
+  "eleven": "[whispers] …숨 참아, 제발.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "whisper",
-   "input_sha256": "d5988dbf1a0dba303fe69f85700818168857f522b597cdafe79b4b8051ea004f",
-   "audio_sha256": "7b1a4daab7a201380eb7ebc739ed6e30d5bf5a409a7fdd16f14568a9e66634f1",
-   "request_id": "MZ9D2aohZrno2RejivdL",
+   "delivery": "[whispers]",
+   "input_sha256": "43d32a1087c696345e7f517339fc7ca2c7df3600dc6761b1aa5e2ceede376731",
+   "audio_sha256": "2a4639a149643f86ddef8d417d73ae729e611c3cbd6f5c6f7a5c5ec26f5b775a",
+   "generation_id": "o03fxchAGsRVudgn5znB",
+   "flow_session_id": null,
    "review_status": "listening_required"
   }
  },
  "l_repel_j": {
   "spk": "jihun",
   "text": "고양이였어. 놀라서 도망갔네.",
-  "dur": 3.79,
+  "dur": 2.769,
   "baked": true,
-  "eleven": "고양이였어. 놀라서 도망갔네.",
+  "eleven": "[urgently] 고양이였어. 놀라서 도망갔네.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "urgent",
-   "input_sha256": "c66a5c2514c80fbb8683adead552603e54f2c6009747538b008435f0bddd5ef9",
-   "audio_sha256": "f9fc14d7b06054d58c602218516dd97e89245beaaacc83d7d340a5dcfeb67b40",
-   "review_status": "unreviewed"
+   "delivery": "[urgently]",
+   "input_sha256": "a9faa0ffd0aa7efd422b3c57eed49fb99f18e03ff26e012124e6b448f64e5047",
+   "audio_sha256": "b6bc329bbc0e53950445008cb07d66313b8a015798542915380396afb09a770e",
+   "generation_id": "JqS55No7j9FwHUy0EAGH",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "l_repel_s": {
   "spk": "seoyeon",
   "text": "고양이였구나… 깜짝 놀랐네.",
-  "dur": 3.87,
+  "dur": 2.769,
   "baked": true,
-  "eleven": "고양이였구나… 깜짝 놀랐네.",
+  "eleven": "[urgently] 고양이였구나… 깜짝 놀랐네.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "urgent",
-   "input_sha256": "c31c69c6756ca80ddff1a40bc6ece330b8b35dfbb66ec3242e2f861d92156e37",
-   "audio_sha256": "09bce35cada2b47e8c3876f3400c985642f829a0128d102d547f3917d90fd1e1",
-   "review_status": "unreviewed"
+   "delivery": "[urgently]",
+   "input_sha256": "49e59505a68ffffbc5e4cba510b12484ef1ce299986e8e88fed5d3833af41a05",
+   "audio_sha256": "86af5b01e0f9044c733a6a56e0b44f03ac1615c7f18d037ba57b96d2fc3671df",
+   "generation_id": "VTSIli2SPnPKjcj70NWX",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "note_n17": {
@@ -2880,21 +2846,19 @@
  "guard1": {
   "spk": "guard",
   "text": "어이, 거기 학생! 이 시간에 학교엔 왜 자꾸 기어들어 오는 겨. 해 지믄 여긴 위험혀. 올핸 또 누구 찾으러 온 모양인디, 내 말 듣고 얼른 집으로 가유.",
-  "dur": 11.52,
+  "dur": 11.233,
   "baked": true,
-  "eleven": "어이, 거기 학생! 이 시간에 학교엔 왜 자꾸 기어들어 오는 겨. 해 지믄 여긴 위험혀. 올핸 또 누구 찾으러 온 모양인디, 내 말 듣고 얼른 집으로 가유.",
+  "eleven": "[sad] 어이, 거기 학생! 이 시간에 학교엔 왜 자꾸 기어들어 오는 겨. 해 지믄 여긴 위험혀. 올핸 또 누구 찾으러 온 모양인디, 내 말 듣고 얼른 집으로 가유.",
   "generation": {
-   "voice_id": "lZLh6IYERWP1xQ7NnDOg",
+   "voice_id": "UmYoqGlufKxhJ6NCx5Mv",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.36
-   },
-   "delivery": "normal",
-   "input_sha256": "37e475690a1d8e16085a0dfa725c8a512efa0d052c7db82cc6437a9a17689fb0",
-   "audio_sha256": "7e12dd4751a8c0dfbd521fb7a48bc97248d917f1f5fbeb3383c714d0ddcd3cf2",
-   "request_id": "McCgt7dszK1qomNZsMHx",
-   "review_status": "generated"
+   "delivery": "[sad]",
+   "input_sha256": "f9e38b4c6bc3c5c2a48d95e12b4391853f9718c30ae3f89e7b8c42db99de3d04",
+   "audio_sha256": "2fff66cc590f1067723181217699406176168736f8c358c4fcf4ec7b4dfd218f",
+   "generation_id": "VzpoaGrN4y9f6VTHmpr3",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "tape5": {
@@ -2920,20 +2884,18 @@
  "echo1": {
   "spk": "friend",
   "text": "하늘아, 리허설 끝나면 떡볶이 먹으러 가자. 우리가 맨 앞에서 들을게.",
-  "dur": 5.329,
+  "dur": 5.407,
   "baked": true,
-  "eleven": "하늘아, 리허설 끝나면 떡볶이 먹으러 가자. 우리가 맨 앞에서 들을게.",
+  "eleven": "[casual] 하늘아, 리허설 끝나면 떡볶이 먹으러 가자. 우리가 맨 앞에서 들을게.",
   "generation": {
    "voice_id": "CZ86sooijZ9CfwhGGEY5",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "normal",
-   "input_sha256": "79fd66cbcbb9e78385e0d9981f09adeda14a740089810ce449b9b317fee19b36",
-   "audio_sha256": "0cf57301df698e01121c84a9bed71519a1323f7fddd29b640c5995ace8f45a21",
-   "request_id": "wPAvfzlxZ3eVknaFW7dp",
+   "delivery": "[casual]",
+   "input_sha256": "cb0282990eb597395252fc05547ddac4bf83b623e186f874bca471f2bc6568c8",
+   "audio_sha256": "269e7287d1773c66cffaa53e64811b8ba8c6f52cb8c8eee8831b518fe2c8f812",
+   "generation_id": "HSbUnbFQK1Bm4rIXJn7f",
+   "flow_session_id": null,
    "review_status": "listening_required"
   }
  },

@@ -568,5 +568,105 @@
   "status": "applied",
   "credits": 20.0,
   "generation_id": "aiWD91o42mcFBximeJ99"
+ },
+ "l_unlocked_j": {
+  "status": "applied",
+  "credits": 15.0,
+  "generation_id": "2lTxbAVHZeNKGcZrTKJE"
+ },
+ "l_unlocked_s": {
+  "status": "applied",
+  "credits": 15.0,
+  "generation_id": "br5yM2MXliJjiICFSuTD"
+ },
+ "l_dialWrong_j": {
+  "status": "applied",
+  "credits": 22.0,
+  "generation_id": "xNmKgJNMYV0W7pmZCqS3"
+ },
+ "l_dialWrong_s": {
+  "status": "applied",
+  "credits": 25.0,
+  "generation_id": "jj39moAtKv8wTu7lQUSH"
+ },
+ "l_needHook_j": {
+  "status": "applied",
+  "credits": 43.0,
+  "generation_id": "MTwxaT1OCZ8jeud0jfFf"
+ },
+ "l_needHook_s": {
+  "status": "applied",
+  "credits": 45.0,
+  "generation_id": "sSTdOJEIHFiOk0FAdHKA"
+ },
+ "l_hookMade_j": {
+  "status": "applied",
+  "credits": 36.0,
+  "generation_id": "LJ0vzMB0CS5zJ8BKA3nJ"
+ },
+ "l_hookMade_s": {
+  "status": "applied",
+  "credits": 39.0,
+  "generation_id": "MEuFToHs7QOdZopQ1a6E"
+ },
+ "l_needFuse_j": {
+  "status": "applied",
+  "credits": 34.0,
+  "generation_id": "iaA4mh8Pu5Idzg7PEx0Z"
+ },
+ "l_needFuse_s": {
+  "status": "applied",
+  "credits": 36.0,
+  "generation_id": "TYshp0tfU8OcK50lWlkW"
+ },
+ "l_pianoOk_j": {
+  "status": "applied",
+  "credits": 29.0,
+  "generation_id": "KBDY7Qf698Gtt2V6aZM6"
+ },
+ "l_pianoOk_s": {
+  "status": "applied",
+  "credits": 29.0,
+  "generation_id": "sj82HJN1hhuRLRAMAee2"
+ },
+ "l_slideOk_j": {
+  "status": "applied",
+  "credits": 27.0,
+  "generation_id": "SkClVFoZwrIenmKBU6TH"
+ },
+ "l_slideOk_s": {
+  "status": "applied",
+  "credits": 30.0,
+  "generation_id": "5lCk6aE8G0459ehUSOEv"
+ },
+ "l_breath_j": {
+  "status": "applied",
+  "credits": 17.0,
+  "generation_id": "UOj5s0ZxRVanOD3WLNML"
+ },
+ "l_breath_s": {
+  "status": "applied",
+  "credits": 21.0,
+  "generation_id": "o03fxchAGsRVudgn5znB"
+ },
+ "l_repel_j": {
+  "status": "applied",
+  "credits": 27.0,
+  "generation_id": "JqS55No7j9FwHUy0EAGH"
+ },
+ "l_repel_s": {
+  "status": "applied",
+  "credits": 26.0,
+  "generation_id": "VTSIli2SPnPKjcj70NWX"
+ },
+ "guard1": {
+  "status": "applied",
+  "credits": 93.0,
+  "generation_id": "VzpoaGrN4y9f6VTHmpr3"
+ },
+ "echo1": {
+  "status": "applied",
+  "credits": 48.0,
+  "generation_id": "HSbUnbFQK1Bm4rIXJn7f"
  }
 }

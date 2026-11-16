@@ -10086,244 +10086,361 @@
  "l_m_night_s": {
   "spk": "seoyeon",
   "text": "밤이 됐어… 이제 진짜 조심해야 해.",
-  "dur": 2.43,
+  "dur": 3.866,
   "baked": true,
-  "eleven": "[tense] 밤이 됐어… 이제 진짜 조심해야 해.",
+  "eleven": "[nervous] 밤이 됐어… 이제 진짜 조심해야 해.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[tense]"
+   "delivery": "[nervous]",
+   "input_sha256": "173eea1626a0017753647e4bfe370f4495b321e95da159c708681e2bacdd1c41",
+   "audio_sha256": "96966e8931b28b2e87e26091483e3845ae4efcdfe6fe805f1c37ebed29c9b56c",
+   "generation_id": "Mm1yjztqCgaZuSIouDB6",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "l_m_elev_s": {
   "spk": "seoyeon",
   "text": "엘리베이터가 아직 작동해…?",
-  "dur": 2.93,
+  "dur": 2.769,
   "baked": true,
-  "eleven": "[puzzled] 엘리베이터가 아직 작동해…?",
+  "eleven": "[nervous] 엘리베이터가 아직 작동해…?",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[puzzled]"
+   "delivery": "[nervous]",
+   "input_sha256": "7ee6bdf787acb04e090a2bfc35197547559541d3483dbc1d6db4cac0cf67d2ba",
+   "audio_sha256": "347559b2cc671d0d2015ec2ac79e97496fe4ecf0ebcf4891a39dd2237497290f",
+   "generation_id": "PuYL75mdUsgc8inW0KzB",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "l_m_hurt_s": {
   "spk": "seoyeon",
   "text": "아… 아파. 그래도 아직 괜찮아.",
-  "dur": 2.87,
+  "dur": 4.127,
   "baked": true,
-  "eleven": "[pained] 아… 아파. 그래도 아직 괜찮아.",
+  "eleven": "[nervous] 아… 아파. 그래도 아직 괜찮아.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[pained]"
+   "delivery": "[nervous]",
+   "input_sha256": "73e3f905f9a6ac84b9e7a592cbe14495ac43cfa5e269d61d7f18325c64aebd87",
+   "audio_sha256": "2f0c3b8139e9bcac7078f661530643c39ed9bd8ddeead6026cc3b0922aa15629",
+   "generation_id": "Ms6JzhLgNGgFvI58V3CH",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "l_eqLocked_j": {
   "spk": "jihun",
   "text": "안 열려… 안에서 뭔가 쓰러지는 소리가 났어. 꼬리표엔 예비 열쇠가 경비실에 있다고 적혀 있어.",
-  "dur": 7.26,
+  "dur": 7.471,
   "baked": true,
-  "eleven": true,
+  "eleven": "[nervous] 안 열려… 안에서 뭔가 쓰러지는 소리가 났어. 꼬리표엔 예비 열쇠가 경비실에 있다고 적혀 있어.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
-   "language_code": "ko"
+   "language_code": "ko",
+   "delivery": "[nervous]",
+   "input_sha256": "cd2e106d061408b64d326b4438492b371e2d3c72b4c0a6b474027b474425d98b",
+   "audio_sha256": "946f6e618f4aa838aa0b5adb11aeee9c412bed1a56f4beba187940d6b88df03d",
+   "generation_id": "EfaegPcH4YPelzK2RNDA",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "l_eqKeyGot_j": {
   "spk": "jihun",
   "text": "방송실 장비실 예비 열쇠… 이거다. 빨리 4층으로 돌아가자.",
-  "dur": 5.46,
+  "dur": 4.989,
   "baked": true,
-  "eleven": true,
+  "eleven": "[nervous] 방송실 장비실 예비 열쇠… 이거다. 빨리 4층으로 돌아가자.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
-   "language_code": "ko"
+   "language_code": "ko",
+   "delivery": "[nervous]",
+   "input_sha256": "30b85d9490ae432eb209b686651a91a4b106ff344311335997763a45c83ce9b5",
+   "audio_sha256": "167f623a8920c0726306bb29d08dab418460d32f2ce5d88303115581c42e1429",
+   "generation_id": "Kb4Vunj9Gbvwl3zH9YQU",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "l_eqOpen_j": {
   "spk": "jihun",
   "text": "열렸다… 민아야, 거기 있어?",
-  "dur": 4.6,
+  "dur": 3.631,
   "baked": true,
-  "eleven": true,
+  "eleven": "[nervous] 열렸다… 민아야, 거기 있어?",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
-   "language_code": "ko"
+   "language_code": "ko",
+   "delivery": "[nervous]",
+   "input_sha256": "f2ad95ae53271d57c97c6156b2b651e1d743daed6c8e3ec5b6085c0e271d5e3c",
+   "audio_sha256": "9c14cf2044f417dcd93aa292a43bc4f79f73bc867314b7a2c731529ec9ebe6b3",
+   "generation_id": "Tho5Jlp6jXRU1GPF1cEL",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "l_bcRead_j": {
   "spk": "jihun",
   "text": "하늘아, 네가 못 한 방송… 이제 내가 대신 읽을게.",
-  "dur": 5.64,
+  "dur": 5.146,
   "baked": true,
-  "eleven": true,
+  "eleven": "[nervous] 하늘아, 네가 못 한 방송… 이제 내가 대신 읽을게.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
-   "language_code": "ko"
+   "language_code": "ko",
+   "delivery": "[nervous]",
+   "input_sha256": "0d07bd13c15ef139d9f1aa654055e673b68750c9e568418a364982b5fb066bb2",
+   "audio_sha256": "c9fe339a20ac257ec08ec22c1dc2f1390240e97ca991ffcbc7feb751dd448b32",
+   "generation_id": "FdNdXYNb0PAUEpGiSikV",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "l_eqLocked_s": {
   "spk": "seoyeon",
   "text": "문이 잠겼어… 안에 누가 있는 것 같아. 예비 열쇠는 경비실 열쇠함에 있대.",
-  "dur": 6.09,
+  "dur": 6.687,
   "baked": true,
-  "eleven": true,
+  "eleven": "[nervous] 문이 잠겼어… 안에 누가 있는 것 같아. 예비 열쇠는 경비실 열쇠함에 있대.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
-   "language_code": "ko"
+   "language_code": "ko",
+   "delivery": "[nervous]",
+   "input_sha256": "fe9394446816e2e4fe17c4aeeb158c050ed135163c85a57793a7280584f07833",
+   "audio_sha256": "d377a78eebe1d831f023e102cd207067ed335173335cf17727aedc89cddef8cb",
+   "generation_id": "70lmslAAUjosLDGtKr7E",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "l_eqKeyGot_s": {
   "spk": "seoyeon",
   "text": "찾았다, 장비실 예비 열쇠. 선배, 조금만 기다려요.",
-  "dur": 4.68,
+  "dur": 4.676,
   "baked": true,
-  "eleven": true,
+  "eleven": "[nervous] 찾았다, 장비실 예비 열쇠. 선배, 조금만 기다려요.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
-   "language_code": "ko"
+   "language_code": "ko",
+   "delivery": "[nervous]",
+   "input_sha256": "2d0abe18e78be01b85081aa4f944e9bf5181e43ec78cee7ea143f714ad5133ae",
+   "audio_sha256": "dba98787dd859ee0700e8f25d5442798ea57ac0851d41106066e90184186e7d3",
+   "generation_id": "h9qDi1nq5aRt4FNiMGo7",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "l_eqOpen_s": {
   "spk": "seoyeon",
   "text": "열렸어… 선배! 민아 선배, 들려요?",
-  "dur": 4.23,
+  "dur": 4.362,
   "baked": true,
-  "eleven": true,
+  "eleven": "[nervous] 열렸어… 선배! 민아 선배, 들려요?",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
-   "language_code": "ko"
+   "language_code": "ko",
+   "delivery": "[nervous]",
+   "input_sha256": "0010555828f53a83a4b38bfa1f2c4690b1841c7249a5e7f9eb942693672b18a6",
+   "audio_sha256": "7add41b0141f0f4ec931c6d0571deddeae8b575c6ec9256985f7e730f8e8a734",
+   "generation_id": "7X00VNxQZyF5OUGZNgIL",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "l_bcRead_s": {
   "spk": "seoyeon",
   "text": "하늘 선배… 선배가 끝내지 못한 방송, 제가 읽을게요.",
-  "dur": 5.38,
+  "dur": 5.407,
   "baked": true,
-  "eleven": true,
+  "eleven": "[nervous] 하늘 선배… 선배가 끝내지 못한 방송, 제가 읽을게요.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
-   "language_code": "ko"
+   "language_code": "ko",
+   "delivery": "[nervous]",
+   "input_sha256": "907e6950ab5d26253956f3be4b76d0258632c37c4148716a3a72a797dc609411",
+   "audio_sha256": "5d2b5d02e7da7d67cf784a4bfc41c7d4575192029aa1b06585e55d870e66276e",
+   "generation_id": "NhQKnUV8dnxw9Jp3YSKC",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "mc_start_m": {
   "spk": "mina",
   "text": "응… 너희가 와 줘서 다행이야. 혼자였으면 못 나갔을 거야.",
-  "dur": 6.32,
+  "dur": 5.486,
   "baked": true,
-  "eleven": true,
+  "eleven": "[worried] 응… 너희가 와 줘서 다행이야. 혼자였으면 못 나갔을 거야.",
   "generation": {
-   "voice_id": "oGV8pbtfEm7fbDPdSfrx",
+   "voice_id": "5I7B1di44aCL15NkP0jn",
    "model_id": "eleven_v4",
-   "language_code": "ko"
+   "language_code": "ko",
+   "delivery": "[worried]",
+   "input_sha256": "c03af12cbd816386c81b147ca63d51d80900ce3ce4a2b4748bd37d38a0a44126",
+   "audio_sha256": "4e2c1038586245e1e089f63c66b9b6c15e514a277b2ea727467f38185940a4a9",
+   "generation_id": "RflPMtSyGorUh7KdDjT8",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "mc_stairs_m": {
   "spk": "mina",
   "text": "고마워… 사흘 동안 이 계단을 몇 번이나 오르내렸는지 몰라.",
-  "dur": 6.53,
+  "dur": 5.146,
   "baked": true,
-  "eleven": true,
+  "eleven": "[worried] 고마워… 사흘 동안 이 계단을 몇 번이나 오르내렸는지 몰라.",
   "generation": {
-   "voice_id": "oGV8pbtfEm7fbDPdSfrx",
+   "voice_id": "5I7B1di44aCL15NkP0jn",
    "model_id": "eleven_v4",
-   "language_code": "ko"
+   "language_code": "ko",
+   "delivery": "[worried]",
+   "input_sha256": "a5b7439e9229825c5ad36d9ca73f8caff2872fa910624be0df39154fe3b5ae04",
+   "audio_sha256": "65c0e51254102c65c3957cd359dac3e2a5eb703edb56dafc0570d6930a755392",
+   "generation_id": "bYDnu23xe9bbl9o7bIUc",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "mc_eqroom_m": {
   "spk": "mina",
   "text": "장비실 문이 뒤에서 철컥 잠겼을 때… 진짜 끝인 줄 알았어.",
-  "dur": 6.01,
+  "dur": 5.407,
   "baked": true,
-  "eleven": true,
+  "eleven": "[worried] 장비실 문이 뒤에서 철컥 잠겼을 때… 진짜 끝인 줄 알았어.",
   "generation": {
-   "voice_id": "oGV8pbtfEm7fbDPdSfrx",
+   "voice_id": "5I7B1di44aCL15NkP0jn",
    "model_id": "eleven_v4",
-   "language_code": "ko"
+   "language_code": "ko",
+   "delivery": "[worried]",
+   "input_sha256": "e7a072435d9a81f749b1b534275c96753e8b331b12b20e72077e1464e0815396",
+   "audio_sha256": "5708911d04c42d1c2d2a7440015c92fc50ec1ecbabb203a7694dcb4c8444eca7",
+   "generation_id": "OXQFUO3GWLVBTckt5RVB",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "mc_ghost_m": {
   "spk": "mina",
   "text": "뒤돌아보지 마. 그냥 계속 걸어.",
-  "dur": 3.34,
+  "dur": 2.847,
   "baked": true,
-  "eleven": true,
+  "eleven": "[worried] 뒤돌아보지 마. 그냥 계속 걸어.",
   "generation": {
-   "voice_id": "oGV8pbtfEm7fbDPdSfrx",
+   "voice_id": "5I7B1di44aCL15NkP0jn",
    "model_id": "eleven_v4",
-   "language_code": "ko"
+   "language_code": "ko",
+   "delivery": "[worried]",
+   "input_sha256": "5586bb6ef63dedb5c08f988ac3cf8f249e0e0578ca7c76e3467d5ff191791e42",
+   "audio_sha256": "1101970c8ad9d42b5881a6f765b1b53907a04e608929c1609379ee3e24640264",
+   "generation_id": "rhDJKmvUo89myUr2q6oC",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "mc_idle_m": {
   "spk": "mina",
   "text": "…방금 무슨 소리 들리지 않았어?",
-  "dur": 3.24,
+  "dur": 3.004,
   "baked": true,
-  "eleven": true,
+  "eleven": "[worried] …방금 무슨 소리 들리지 않았어?",
   "generation": {
-   "voice_id": "oGV8pbtfEm7fbDPdSfrx",
+   "voice_id": "5I7B1di44aCL15NkP0jn",
    "model_id": "eleven_v4",
-   "language_code": "ko"
+   "language_code": "ko",
+   "delivery": "[worried]",
+   "input_sha256": "d9ff5b98addc9761e10e9dd097bcc6e97cff892fe20505e0f8d1de9209ad5b86",
+   "audio_sha256": "d349a6873477694d510a3aa48a645a375f69a3965fb9bb14a23f920756cb32be",
+   "generation_id": "Q54Fh3AibZGcozPsRzLz",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "mc_bcast_m": {
   "spk": "mina",
   "text": "아까 그 방송… 하늘 언니 목소리, 언니가 말하던 그대로였어.",
-  "dur": 6.43,
+  "dur": 5.486,
   "baked": true,
-  "eleven": true,
+  "eleven": "[worried] 아까 그 방송… 하늘 언니 목소리, 언니가 말하던 그대로였어.",
   "generation": {
-   "voice_id": "oGV8pbtfEm7fbDPdSfrx",
+   "voice_id": "5I7B1di44aCL15NkP0jn",
    "model_id": "eleven_v4",
-   "language_code": "ko"
+   "language_code": "ko",
+   "delivery": "[worried]",
+   "input_sha256": "93258aca76239107b7d279badc91b43518a14fcc86f4ceb9d29849b9cc970a78",
+   "audio_sha256": "3f56d69b2bef7e0e3a041ca9f06419fed42b360f36d52c3454885f1e55e8cc30",
+   "generation_id": "aONQ0ZxS660MAfLCKfAA",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "mc_outdoor_m": {
   "spk": "mina",
   "text": "십 년 동안 언니는 이 문을 못 나갔어. 우리가 대신 나가는 거야.",
-  "dur": 6.16,
+  "dur": 5.329,
   "baked": true,
-  "eleven": true,
+  "eleven": "[worried] 십 년 동안 언니는 이 문을 못 나갔어. 우리가 대신 나가는 거야.",
   "generation": {
-   "voice_id": "oGV8pbtfEm7fbDPdSfrx",
+   "voice_id": "5I7B1di44aCL15NkP0jn",
    "model_id": "eleven_v4",
-   "language_code": "ko"
+   "language_code": "ko",
+   "delivery": "[worried]",
+   "input_sha256": "54c7284ca0c72aabf1a8a2e0eaa31f426359260ecd0bca6dba9fee993afb1857",
+   "audio_sha256": "e8474294ccbf98564cb79140ec62a02adafbeb9793705aeb1e62cfef1fcc3d52",
+   "generation_id": "IstGQemJljlsl4hWT11r",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "mc_gate_m": {
   "spk": "mina",
   "text": "나가면 제일 먼저 언니한테 전화할 거야. 다 끝났다고.",
-  "dur": 4.57,
+  "dur": 4.911,
   "baked": true,
-  "eleven": true,
+  "eleven": "[worried] 나가면 제일 먼저 언니한테 전화할 거야. 다 끝났다고.",
   "generation": {
-   "voice_id": "oGV8pbtfEm7fbDPdSfrx",
+   "voice_id": "5I7B1di44aCL15NkP0jn",
    "model_id": "eleven_v4",
-   "language_code": "ko"
+   "language_code": "ko",
+   "delivery": "[worried]",
+   "input_sha256": "9b7a3707e1878bcb5526593a435cae946bb94eef35e624da5078ff3f00d619fb",
+   "audio_sha256": "94622f3ae9b778fe597840878c354c06cbbf6316946bd605db472670247417a2",
+   "generation_id": "qY6o2FOmLCV2jMKNGwhJ",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "mc_start_j": {
   "spk": "jihun",
   "text": "발목은 괜찮아? 천천히 가도 돼.",
-  "dur": 3.4,
+  "dur": 3.318,
   "baked": true,
-  "eleven": true,
+  "eleven": "[nervous] 발목은 괜찮아? 천천히 가도 돼.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
-   "language_code": "ko"
+   "language_code": "ko",
+   "delivery": "[nervous]",
+   "input_sha256": "bcdd18d2031e74f4cab50cb7919f88c6360d21b1a15fd54dbc6ac9560a9e9fea",
+   "audio_sha256": "855f0ce353cce881d5cb0edcff426b11aa69ebef87713e5e7f5082cb21396b2d",
+   "generation_id": "PUOZQJRQ3Wc4zfLI6J9z",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "mc_stairs_j": {

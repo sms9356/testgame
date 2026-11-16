@@ -668,5 +668,55 @@
   "status": "applied",
   "credits": 48.0,
   "generation_id": "HSbUnbFQK1Bm4rIXJn7f"
+ },
+ "echo2": {
+  "status": "applied",
+  "credits": 31.0,
+  "generation_id": "4zTIvZzNxF2iAlJ1XcaX"
+ },
+ "teacher2": {
+  "status": "applied",
+  "credits": 77.0,
+  "generation_id": "SbdwLn7nLDaqbVPkHMF0"
+ },
+ "guardHi": {
+  "status": "applied",
+  "credits": 69.0,
+  "generation_id": "kXP1lbI622wVfbuMiV8C"
+ },
+ "guardMina": {
+  "status": "applied",
+  "credits": 96.0,
+  "generation_id": "kJQj1Vhgayr8cC7uxo8w"
+ },
+ "guardPast": {
+  "status": "applied",
+  "credits": 136.0,
+  "generation_id": "h1z73bKYkIKzoBrb5u2B"
+ },
+ "guardGift": {
+  "status": "applied",
+  "credits": 96.0,
+  "generation_id": "SoQQCUoKSdeI1KXUXmnO"
+ },
+ "guardBye": {
+  "status": "applied",
+  "credits": 90.0,
+  "generation_id": "DAy2l2okN2zZqfUhpxXx"
+ },
+ "l_bunkerEnter_j": {
+  "status": "applied",
+  "credits": 75.0,
+  "generation_id": "8uFB9pP6D2NIGreKKint"
+ },
+ "l_bunkerEnter_s": {
+  "status": "applied",
+  "credits": 66.0,
+  "generation_id": "yaYciD8rRxVmJ9z6vGkC"
+ },
+ "l_dorm2fClimb_j": {
+  "status": "applied",
+  "credits": 76.0,
+  "generation_id": "bPsmoyp4wFcCikgrzVka"
  }
 }

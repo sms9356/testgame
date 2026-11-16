@@ -2902,37 +2902,37 @@
  "echo2": {
   "spk": "friend2",
   "text": "내일 방송, 꼭 네 목소리로 해. 약속.",
-  "dur": 3.631,
+  "dur": 3.474,
   "baked": true,
-  "eleven": "내일 방송, 꼭 네 목소리로 해. 약속.",
+  "eleven": "[casual] 내일 방송, 꼭 네 목소리로 해. 약속.",
   "generation": {
    "voice_id": "j3SYRikKBpDmPJsvd1rf",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "normal",
-   "input_sha256": "262f4726df1b3a367e1ece92c58d572e4410f3788ff36015d826d80885f92f5e",
-   "audio_sha256": "eb0d0beeb987daeb39581ad72850abce047844dee3419fbf4f0fc63057d2e500",
-   "request_id": "r29VDzs6xs3m4edC4Nby",
+   "delivery": "[casual]",
+   "input_sha256": "bf6933fb1bbdd8f9b8c83c944b21cdb11d615992f38bc7725dc94af1d2acbf43",
+   "audio_sha256": "43f6f1a4bb632e85eb7a4f2e97b65da0305d09e504424e8b01181cf6ee8d35a2",
+   "generation_id": "4zTIvZzNxF2iAlJ1XcaX",
+   "flow_session_id": null,
    "review_status": "listening_required"
   }
  },
  "teacher2": {
   "spk": "homeroom",
   "text": "교감은 출석부에 결석이라고 적으라더군요. 저는 끝까지 쓰지 않았어요. 삼 년 내내, 아침마다 제일 먼저 등교하던 아이였으니까요.",
-  "dur": 12.36,
+  "dur": 11.651,
   "baked": true,
-  "eleven": "교감은 출석부의 윤하늘 이름 옆에 결석이라고 적으라더군. 나는 끝까지 쓰지 않았다. 삼 년 내내 아침마다 제일 먼저 등교하던 아이였으니까.",
+  "eleven": "[sad] 교감은 출석부에 결석이라고 적으라더군요. 저는 끝까지 쓰지 않았어요. 삼 년 내내, 아침마다 제일 먼저 등교하던 아이였으니까요.",
   "generation": {
    "voice_id": "UqW1DivwFt1NwUMSGnTn",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[sad] [softly]",
-   "input_sha256": "557ac96b8290f668f4a4acd1bd6bcbe7089f49f3e3b453e93f450b18c043d0e4",
-   "audio_sha256": "c475f95c855d248f80bc01fce851c804f48f4ba709d1e49de909edc770253723",
-   "review_status": "generated"
+   "delivery": "[sad]",
+   "input_sha256": "f9c91d205ecc81bfcfd8853876b8343b770d90bcc878a8d08af9f533c22d33b5",
+   "audio_sha256": "e864b40a32dd6947ada4e773452dcfee9c846aed094e6cea37cac21cf5f7f13f",
+   "generation_id": "SbdwLn7nLDaqbVPkHMF0",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "note_n27": {
@@ -3018,96 +3018,91 @@
  "guardHi": {
   "spk": "guard",
   "text": "아직도 안 가고 뭐 허는 겨. 해 떨어지기 전에 얼른 나가유. 오늘이 무슨 날인지 알고 이러는 거여?",
-  "dur": 7.28,
+  "dur": 7.001,
   "baked": true,
-  "eleven": "아직도 안 가고 뭐 허는 겨. 해 떨어지기 전에 얼른 나가유. 오늘이 무슨 날인지 알고 이러는 거여?",
+  "eleven": "[determined] 아직도 안 가고 뭐 허는 겨. 해 떨어지기 전에 얼른 나가유. 오늘이 무슨 날인지 알고 이러는 거여?",
   "generation": {
-   "voice_id": "lZLh6IYERWP1xQ7NnDOg",
+   "voice_id": "UmYoqGlufKxhJ6NCx5Mv",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.36
-   },
-   "delivery": "normal",
-   "input_sha256": "a4e07da182d3b6dc4f6f5367e0dc0668895d5733c819b4ce4b5acf86cc624a98",
-   "audio_sha256": "098538a30f9d225f7d49f07994ff28b661740a4de0c487e1d6346adc4e012cc0",
-   "request_id": "q10bQr15BFO7dLQQsj3w",
-   "review_status": "verified"
+   "delivery": "[determined]",
+   "input_sha256": "429e6efdf4445b47dd50a51e08d969be470b70c8288f9930362453670c3653eb",
+   "audio_sha256": "58a1479f112a575cac5b670743c9948677344943a2a4a5563b844fcfd32b97ef",
+   "generation_id": "kXP1lbI622wVfbuMiV8C",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "guardMina": {
   "spk": "guard",
   "text": "방송부 조끼 입은 여학생 말여? 아까 해 질 무렵에 정문으로 쑥 들어가더구먼. 내가 뒤에서 암만 불러도 못 들은 척 앞만 보고 뛰어들어가더라고.",
-  "dur": 10.64,
+  "dur": 10.841,
   "baked": true,
-  "eleven": "방송부 조끼 입은 여학생 말여? 아까 해 질 무렵에 정문으로 쑥 들어가더구먼. 내가 뒤에서 암만 불러도 못 들은 척 앞만 보고 뛰어들어가더라고.",
+  "eleven": "[elderly voice] 방송부 조끼 입은 여학생 말여? 아까 해 질 무렵에 정문으로 쑥 들어가더구먼. 내가 뒤에서 암만 불러도 못 들은 척 앞만 보고 뛰어들어가더라고.",
   "generation": {
-   "voice_id": "lZLh6IYERWP1xQ7NnDOg",
+   "voice_id": "UmYoqGlufKxhJ6NCx5Mv",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.36
-   },
-   "delivery": "normal",
-   "input_sha256": "ca878fb30f75dea23412f77c80e9f8191e44024922468deac1128615f0d11681",
-   "audio_sha256": "d13063fcfb1db183007ec81c135a57a49d2a6316c22b91a7153cdacd9a8dbced",
-   "request_id": "ETtslEbzdD76q1DcpB3L",
-   "review_status": "verified"
+   "delivery": "[elderly voice]",
+   "input_sha256": "1e2c667e5fc2df584004f32c41061153fca73fc7c764126c2a193896f341cbf0",
+   "audio_sha256": "14a4e63448863e2db2783ed6a49659ff15119785ee661ae834a74048ca7942c3",
+   "generation_id": "kJQj1Vhgayr8cC7uxo8w",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "guardPast": {
   "spk": "guard",
   "text": "십 년 전 오늘 밤이여. 3학년 여자애 하나가 지하 펌프실에 갇혀서 끝내 못 나왔지. 학교에선 쉬쉬허고 덮어 버렸는디, 그 뒤로 해마다 이날 밤만 되믄 스피커에서 그 애 목소리가 들린다는 소문이 돌아유. 누가 장난을 치는 건지, 원.",
-  "dur": 19.72,
+  "dur": 18.834,
   "baked": true,
-  "eleven": "십 년 전 오늘 밤이여. 3학년 여자애 하나가 지하 펌프실에 갇혀서 끝내 못 나왔지. 학교에선 쉬쉬허고 덮어 버렸는디, 그 뒤로 해마다 이날 밤만 되믄 스피커에서 그 애 목소리가 들린다는 소문이 돌아유. 누가 장난을 치는 건지, 원.",
+  "eleven": "[sad] 십 년 전 오늘 밤이여. 3학년 여자애 하나가 지하 펌프실에 갇혀서 끝내 못 나왔지. 학교에선 쉬쉬허고 덮어 버렸는디, 그 뒤로 해마다 이날 밤만 되믄 스피커에서 그 애 목소리가 들린다는 소문이 돌아유. 누가 장난을 치는 건지, 원.",
   "generation": {
-   "voice_id": "lZLh6IYERWP1xQ7NnDOg",
+   "voice_id": "UmYoqGlufKxhJ6NCx5Mv",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.36
-   },
-   "delivery": "normal",
-   "input_sha256": "f7baad9245251b79cb1853983111b3fac682d35659d6bd5e655df6d465ff02db",
-   "audio_sha256": "76388e40eee53dba221cf4d8d083ccef3ee885009dea56cd9ce769b313f0706c",
-   "review_status": "unreviewed"
+   "delivery": "[sad]",
+   "input_sha256": "2daf10cb7ae84f05c16ccd69291d25ee370b998fd52b375aa105c79526fd66f1",
+   "audio_sha256": "481614bcbc4290ad0ec29dfd6f83371f36d8508f3085390c383492ee1183a153",
+   "generation_id": "h1z73bKYkIKzoBrb5u2B",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "guardGift": {
   "spk": "guard",
   "text": "에잉, 기어이 들어가야 쓰겄어? 자, 이거 손전등 건전지 두 개 챙겨 가유. 대신 밤 열한 시 사십 분 전엔 기필코 정문 밖으로 나와야 혀. 알겄지?",
-  "dur": 13.28,
+  "dur": 11.389,
   "baked": true,
-  "eleven": "에잉, 기어이 들어가야 쓰겄어? 자, 이거 손전등 건전지 두 개 챙겨 가유. 대신 밤 열한 시 사십 분 전엔 기필코 정문 밖으로 나와야 혀. 알겄지?",
+  "eleven": "[determined] 에잉, 기어이 들어가야 쓰겄어? 자, 이거 손전등 건전지 두 개 챙겨 가유. 대신 밤 열한 시 사십 분 전엔 기필코 정문 밖으로 나와야 혀. 알겄지?",
   "generation": {
-   "voice_id": "lZLh6IYERWP1xQ7NnDOg",
+   "voice_id": "UmYoqGlufKxhJ6NCx5Mv",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.36
-   },
-   "delivery": "normal",
-   "input_sha256": "4b31435f452217aecf99020e10ce0545871d2f4acd8998d0fe2d59658487acf7",
-   "audio_sha256": "1f30fd1f117ab5393bb879d21e7868786f5aed755b8d2b964f3c8d94eb6140fe",
-   "request_id": "MCiffmlHjJAC9iQAbqhM",
-   "review_status": "verified"
+   "delivery": "[determined]",
+   "input_sha256": "6b7d5b959aa34211e7b12774462e1b949448efa4fa69b273e0683eb92d7b7205",
+   "audio_sha256": "b911ba22afdf39158dbd366e5f6e1b555456643e75bcc8f46f64ecfaa7a492ab",
+   "generation_id": "SoQQCUoKSdeI1KXUXmnO",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "guardBye": {
   "spk": "guard",
   "text": "어이쿠, 벌써 저녁 일곱 시 퇴근 시간이네. 난 이제 정문 철문 걸어 잠그고 퇴근혀야 쓰겄어! 학생도 깜깜한 데서 넘어지지 말고 조심혀유!",
-  "dur": 11,
+  "dur": 10.371,
   "baked": true,
-  "eleven": "[elderly voice] [rough] 어이쿠, 벌써 저녁 일곱 시 퇴근 시간이네. 난 이제 정문 철문 걸어 잠그고 퇴근혀야 쓰겄어! 학생도 깜깜한 데서 넘어지지 말고 조심혀유!",
+  "eleven": "[frightened] 어이쿠, 벌써 저녁 일곱 시 퇴근 시간이네. 난 이제 정문 철문 걸어 잠그고 퇴근혀야 쓰겄어! 학생도 깜깜한 데서 넘어지지 말고 조심혀유!",
   "generation": {
-   "voice_id": "lZLh6IYERWP1xQ7NnDOg",
+   "voice_id": "UmYoqGlufKxhJ6NCx5Mv",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[elderly voice] [rough]",
-   "input_sha256": "60cc759cdf976345ae3b41d5438b7c5432d8bbd587f473a2f1dd15b10c0ca9a2",
-   "audio_sha256": "7c78d646c8c017493fa2c2dfec3da53b5221d477d643a3a5fa44a24f6a5b8c60",
-   "review_status": "unreviewed"
+   "delivery": "[frightened]",
+   "input_sha256": "64d637f00af7627056d4495f9eb561b69d7ac09b9ecd9126cd703ec400ea7e71",
+   "audio_sha256": "3079efd14f0b2e0e03c285e9e5aef26e6df8977c4c698844dff971a3ed473823",
+   "generation_id": "DAy2l2okN2zZqfUhpxXx",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "phone0": {
@@ -5940,49 +5935,55 @@
  "l_bunkerEnter_j": {
   "spk": "jihun",
   "text": "지하 방공호 보존서고… 철제 방폭문 안쪽에 학교 재단이 숨겨 둔 1998년 비공개 감사 서류함과 수동 송풍기가 있어.",
-  "dur": 9.17,
+  "dur": 9.404,
   "baked": true,
-  "eleven": "[tense] 지하 방공호 보존서고… 철제 방폭문 안쪽에 학교 재단이 숨겨 둔 1998년 비공개 감사 서류함과 수동 송풍기가 있어.",
+  "eleven": "[nervous] 지하 방공호 보존서고… 철제 방폭문 안쪽에 학교 재단이 숨겨 둔 1998년 비공개 감사 서류함과 수동 송풍기가 있어.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[tense]",
-   "input_sha256": "ef2b0a66fb38e22065e58a050ac3805d0a59468122325e8af3b1c8d13fa12518",
-   "audio_sha256": "605e95a2f1d0f1b0bfd7a69629e47a845addba8c35f713220ef42e10ca6b3a61",
-   "review_status": "generated"
+   "delivery": "[nervous]",
+   "input_sha256": "054528bc5d8618d35198bbe97c32f8916c0d6d77346cab1dcbf07c23aa8734e1",
+   "audio_sha256": "6e366c01112519b5d457254b2780193e4ecbe74e54e8390375a97e68c8ea9cea",
+   "generation_id": "8uFB9pP6D2NIGreKKint",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "l_bunkerEnter_s": {
   "spk": "seoyeon",
   "text": "여기가 방공호 보존서고구나… 방폭문과 기밀 캐비닛 안에 그날 밤 정전 사고의 진짜 원인이 적혀 있어.",
-  "dur": 8.52,
+  "dur": 8.594,
   "baked": true,
   "eleven": "[nervous] 여기가 방공호 보존서고구나… 방폭문과 기밀 캐비닛 안에 그날 밤 정전 사고의 진짜 원인이 적혀 있어.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
    "delivery": "[nervous]",
    "input_sha256": "665b876be27fed80965debdbe5643d42a71c21d97772af9614454ddb818a01a6",
-   "audio_sha256": "4add13726da5b68007885a23de7d18418ba83f0c9ced52f525d4cec83896b02d",
-   "review_status": "generated"
+   "audio_sha256": "3e217703e8ba30673f4b31d2f1f5ad31966332be1bd1d7a36440b98dd16fd73e",
+   "generation_id": "yaYciD8rRxVmJ9z6vGkC",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "l_dorm2fClimb_j": {
   "spk": "jihun",
   "text": "청운학사 2층으로 올라왔어. 2층 침실 복도랑 심야 정독실 책상 위에 그날 밤 사생들이 남긴 기록이 그대로 남아 있어.",
-  "dur": 8.59,
+  "dur": 8.908,
   "baked": true,
-  "eleven": "[tense] 청운학사 2층으로 올라왔어. 2층 침실 복도랑 심야 정독실 책상 위에 그날 밤 사생들이 남긴 기록이 그대로 남아 있어.",
+  "eleven": "[nervous] 청운학사 2층으로 올라왔어. 2층 침실 복도랑 심야 정독실 책상 위에 그날 밤 사생들이 남긴 기록이 그대로 남아 있어.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[tense]",
-   "input_sha256": "4b301a0676a32aec75d0973ff27037ecf7f19bf5f060f6cf761e899d256ab45e",
-   "audio_sha256": "27be2225aba7d713ddf1b53eb534dfcdfa8d0ece6024735264e5e43966ea2772",
-   "review_status": "generated"
+   "delivery": "[nervous]",
+   "input_sha256": "88dd598c3830a36c65b6a808b9361e7a4ab70992bced6afc5320d8059d5e3959",
+   "audio_sha256": "1fab2ef636cc670a51183b859684d59e1841b4b6b2bcaa1c567ee8df89c6c6d7",
+   "generation_id": "bPsmoyp4wFcCikgrzVka",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "l_dorm2fClimb_s": {

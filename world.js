@@ -379,8 +379,8 @@ export function buildWorld(scene) {
     const capG = new THREE.Mesh(new THREE.CylinderGeometry(.0365, .0365, .05, 14), mGld); capG.rotation.z = Math.PI / 2; capG.position.x = .055; g.add(capG);
     const ring = new THREE.Mesh(new THREE.CylinderGeometry(.034, .034, .012, 12), mChrome); ring.rotation.z = Math.PI / 2; ring.position.x = -.078; g.add(ring);
     const tip = new THREE.Mesh(new THREE.CylinderGeometry(.014, .014, .024, 10), mChrome); tip.rotation.z = Math.PI / 2; tip.position.x = .09; g.add(tip);
-    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTexG, blending: THREE.AdditiveBlending, depthWrite: false, fog: true }));
-    sp.scale.set(.68, .68, .68); g.add(sp);
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTexG, blending: THREE.AdditiveBlending, depthWrite: false, fog: true, opacity: .5 }));
+    sp.scale.set(.24, .24, .24); g.add(sp);   // 건전지 표시 빛: 예전 0.68m 초록 구름이 복도 · 교실 바닥에 떠 보였다 → 건전지 둘레만 은은하게
     g.position.set(x, y + .1, z); g.userData.dynamic = true; cur.interior.add(g);
     items.push({ kind: 'battery', floor: cur.f, pos: new THREE.Vector3(x, cur.y0 + y + .1, z), mesh: g, taken: false, label: '건전지 줍기', baseY: y + .1 });
   }

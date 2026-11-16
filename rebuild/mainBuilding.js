@@ -178,7 +178,7 @@ export function buildMainBuilding(opt = {}) {
   const mat = {
     wood: M('wood', () => pbr('wood', { rough: .9 })),                                   // 노후 참나무 마루 (실사)
     terr: M('terr', () => { const m = pbr('tile', { own: false, map: PT.terrazzo(), nScale: .45, rough: .55 }); m.roughnessMap = PT.terrazzoRough(); return m; }),   // 인조석 물갈기(도끼다시): 회백 바탕 + 백 · 흑 · 담녹 쇄석 + 1.2m 황동 줄눈 + 왁스 광택 얼룩 (진흙처럼 보이던 실사 타일 색 맵 대신)   // 왁스 칠한 인조석 바닥: 손전등 빛이 은은하게 번지도록 거칠기를 낮춤                                   // 인조석 물갈기 · 모자이크 (실사)
-    ceil: M('ceil', () => pbr('ceil', { own: false, map: TEX.ceiling(), nScale: .3 })),  // 텍스 천장: 색은 밝게, 요철은 실사
+    ceil: M('ceil', () => { const m = pbr('ceil', { own: false, map: TEX.ceiling(), nScale: MAINB ? .08 : .3 }); if (MAINB) { m.roughness = .95; m.roughnessMap = null; } return m; }),   // 본관: 요철을 약하게 — 밤에 손전등 빛을 받으면 텍스 천장이 구겨진 은박처럼 반짝이며 검은 바탕에 흰 반점으로 보였다  // 텍스 천장: 색은 밝게, 요철은 실사
     wall: M('wall', () => pbr('paint', { own: false, map: TEX.wall(), nScale: .85, rough: 1 })),       // 아이보리 수성 페인트 + 실사 요철
     wain: M('wain', () => pbr('d2_tex_paint', { own: false, map: TEX.wainscot(), nScale: 1, rough: .7 })),   // 녹색 유성 페인트 (벗겨진 요철)
     conc: MAINB ? M('conc', () => new THREE.MeshStandardMaterial({ color: 0xdedad0, roughness: .95, map: TEX.wall() }))   // 본관: 구조 콘크리트(계단 코어 · 계단 밑면 · 보 · 옥탑)도 미색 수성 도장 — 돌 무늬 스캔이 대리석 기둥처럼 보이던 것

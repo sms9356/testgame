@@ -202,7 +202,7 @@ export const baseGrime = () => cv(512, 256, (g, w, h) => {
 // 공용 재질 (투명 덧칠 · 데코타일 · 걸레받이)
 const decal = map => new THREE.MeshStandardMaterial({ map, transparent: true, depthWrite: false, roughness: .95, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
 export const MAT = {
-  deco: () => shared('m_deco', () => new THREE.MeshStandardMaterial({ map: decoTile(), roughnessMap: decoRough(), roughness: .62, metalness: 0 })),
+  deco: () => shared('m_deco', () => new THREE.MeshStandardMaterial({ map: decoTile(), roughnessMap: decoRough(), roughness: .62, metalness: 0, userData: { surface: 'pvc' } })),
   skirt: () => shared('m_skirt', () => new THREE.MeshStandardMaterial({ color: 0x34403a, roughness: .5, metalness: .05 })),   // 진회녹색 PVC 걸레받이 (반광)
   streak: () => shared('m_streak', () => decal(rainStreak())),
   grime: () => shared('m_grime', () => decal(baseGrime())),

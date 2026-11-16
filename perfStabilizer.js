@@ -4,8 +4,8 @@
 // 2) 거리 컬링: 안개 너머(실내 ~24m)의 소품 · 가구는 그리지 않는다 (visible 은 건드리지 않고 레이어만 바꾼다 — 게임 로직과 충돌 없음).
 //    인스턴스 가구는 가까운 인스턴스만 앞으로 모아 count 를 줄인다.
 // 3) 적응형: 프레임이 무거우면 컬링 거리를 줄이고, 여유가 생기면 다시 늘린다.
-import { perfMark } from './perfProfiler.js?v=435';
-import { whenIdle } from './idleTasks.js?v=435';
+import { perfMark } from './perfProfiler.js?v=436';
+import { whenIdle } from './idleTasks.js?v=436';
 const POOL = 6, HIDE = 7;
 let C = null;
 

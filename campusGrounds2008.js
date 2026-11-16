@@ -3,7 +3,7 @@
 //   ── 모두 InstancedMesh / 합친 메시 · 공용 재질 · 그림자 드리우는 조명 없음. 인도(window.__pathNET) · 금지 구역 · 충돌 상자 · 조사 지점은 피한다.
 import * as THREE from './vendor/three.module.js';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import * as PT from './rebuild/periodTex.js?v=435';   // 소품 사실감: 은행잎 · 나무껍질 · 향나무 · 차 도장 텍스처 (모듈 캐시 한 벌)
+import * as PT from './rebuild/periodTex.js?v=436';   // 소품 사실감: 은행잎 · 나무껍질 · 향나무 · 차 도장 텍스처 (모듈 캐시 한 벌)
 
 const S = (c, r = .7, m = 0, e) => new THREE.MeshStandardMaterial({ color: c, roughness: r, metalness: m, ...(e || {}) });
 const canvasTex = (w, h, draw) => { const c = document.createElement('canvas'); c.width = w; c.height = h; draw(c.getContext('2d'), w, h); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; return t; };
@@ -51,7 +51,7 @@ export function installCampusGrounds({ scene, world, floors, footprints = [] }) 
   { let n = 0; const bb = new THREE.Box3(); let dirt = null;
     scene.traverse(o => { if (!o.isMesh || !o.material || o.material.polygonOffsetFactor !== -1 || !o.material.map || o.material.name === 'school-turf') return;
       bb.setFromObject(o); if (bb.min.x < -25 || bb.max.x > 25 || bb.min.z < 26 || bb.max.z > 54.5 || bb.max.y > .06) return;
-      if (!dirt) { dirt = o.material.clone(); dirt.map = OUT.userData.dirtMap || findTurfMap(scene) || o.material.map; dirt.normalMap = null; dirt.roughnessMap = null; dirt.color.set(0xb4a284); dirt.roughness = 1; dirt.name = 'track-dirt-2008'; }
+      if (!dirt) { dirt = o.material.clone(); dirt.map = OUT.userData.dirtMap || findTurfMap(scene) || o.material.map; dirt.normalMap = null; dirt.roughnessMap = null; dirt.color.set(0xb4a284); dirt.roughness = 1; dirt.name = 'track-dirt-2008'; dirt.userData = { surface: 'track' }; }
       o.material = dirt; n++; }); info.track = n; }
 
   // ── 2) 외곽 담장: 붉은 벽돌 + 위에 철망 (정문 좌우 남쪽 담) ──
@@ -109,7 +109,7 @@ export function installCampusGrounds({ scene, world, floors, footprints = [] }) 
       const sx = w / (X2 - X1), sz = h / (Z2 - Z1); g.fillStyle = 'rgba(232,228,214,.85)'; for (let x = X1 + .5; x <= X2 - .4; x += SL) g.fillRect((x - X1) * sx - 3, (ZS - Z1) * sz, 6, (Z2 - .2 - ZS) * sz); g.fillRect(4, (ZS - Z1) * sz, w - 8, 6);
       g.fillStyle = 'rgba(30,30,30,.35)'; for (let i = 0; i < 14; i++) { const x = rnd() * w, y = (ZS - Z1) * sz + rnd() * 120; g.beginPath(); g.ellipse(x, y, 30 + rnd() * 30, 14, 0, 0, 7); g.fill(); } });   // 기름 얼룩
     const lot = new THREE.PlaneGeometry(X2 - X1, Z2 - Z1); lot.rotateX(-Math.PI / 2); lot.translate((X1 + X2) / 2, .016, (Z1 + Z2) / 2);
-    add(lot, new THREE.MeshStandardMaterial({ map: asp, roughness: .92, polygonOffset: true, polygonOffsetFactor: -1 }));
+    add(lot, new THREE.MeshStandardMaterial({ map: asp, roughness: .92, polygonOffset: true, polygonOffsetFactor: -1, userData: { surface: 'asphalt' } }));
     // 차량: 박스형 중형 세단 · 경차 · 승합차 실루엣 (로고 · 상표 없음) — 차체(인스턴스 색) · 유리 · 바퀴/범퍼
     const body = { sedan: [[4.6, .62, 1.76, 0, .55, 0], [2.5, .55, 1.6, -.15, 1.14, 0]], mini: [[3.5, .7, 1.5, 0, .55, 0], [2.1, .58, 1.4, -.1, 1.18, 0]], van: [[4.9, 1.45, 1.86, 0, .97, 0]] };
     const glass = { sedan: [[2.3, .42, 1.62, -.15, 1.16, 0]], mini: [[1.95, .44, 1.42, -.1, 1.2, 0]], van: [[3.6, .5, 1.88, -.45, 1.4, 0], [.06, .55, 1.6, 2.42, 1.35, 0]] };

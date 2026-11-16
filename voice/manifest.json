@@ -6819,269 +6819,361 @@
  "nd_n25": {
   "spk": "librarian",
   "text": "하늘이가 그날 밤 집으로 가는 길을 빌려 갔다는 대출 기록은 내가 나중에 적었다. 시키는 대로. 집에 가는 길에 사라진 걸로 보이게. …미안해.",
-  "dur": 12.04,
+  "dur": 11.651,
   "baked": true,
-  "eleven": "하늘이가 그날 밤 집으로 가는 길을 빌려 갔다는 대출 기록은 내가 나중에 적었다. 시키는 대로. 집에 가는 길에 사라진 걸로 보이게. …미안해.",
+  "eleven": "[hushed, nervous] 하늘이가 그날 밤 집으로 가는 길을 빌려 갔다는 대출 기록은 내가 나중에 적었다. 시키는 대로. 집에 가는 길에 사라진 걸로 보이게. …미안해.",
   "generation": {
    "voice_id": "sf8Bpb1IU97NI9BHSMRf",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "review_status": "generated"
+   "delivery": "[hushed, nervous]",
+   "input_sha256": "310af50cac8b67368c4f3f839c4c486712017fe86b4a34daff683d974e1a456f",
+   "audio_sha256": "8ee20632ba1991a7767a026725e462bf90bd415737c067926f12b68bf91e93c2",
+   "generation_id": "s0no2VzCNnHHPvJAB0c6",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "nd_n26": {
   "spk": "librarian",
   "text": "『집으로 가는 길』 — 반납일: 10월 12일 (오늘). 반납 도장이 오늘 날짜 로 찍혀 있다 — 누군가 오늘 이 카드를 만졌다. 대출자 이름 칸: 윤하늘.",
-  "dur": 14.21,
+  "dur": 14.289,
   "baked": true,
-  "eleven": "『집으로 가는 길』 — 반납일: 10월 12일 (오늘). 반납 도장이 오늘 날짜 로 찍혀 있다 — 누군가 오늘 이 카드를 만졌다. 대출자 이름 칸: 윤하늘.",
+  "eleven": "[hushed, nervous] 『집으로 가는 길』 — 반납일: 10월 12일 (오늘). 반납 도장이 오늘 날짜 로 찍혀 있다 — 누군가 오늘 이 카드를 만졌다. 대출자 이름 칸: 윤하늘.",
   "generation": {
    "voice_id": "sf8Bpb1IU97NI9BHSMRf",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "review_status": "unreviewed",
-   "input_sha256": "18fcfaaa48aa89d03ba524744f2b033038084385cd303f55e500f932380e0abc",
-   "audio_sha256": "6ac97cc0f7e26d2e0ee6ba49e0ca36eb80e174a431e4d4dd07af3ad17a9caac7"
+   "delivery": "[hushed, nervous]",
+   "input_sha256": "4c24f5b7d0e018d092457874305afd642bc62cb0e994d15375ee9add40fcdf82",
+   "audio_sha256": "395958bc49d3f7ad3988c7836eccb08a76c73e80eefce3a0d934f4c5f5f46673",
+   "generation_id": "5s1t7z42qIeh3zTgi8e8",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "nd_n27": {
   "spk": "homeroom",
   "text": "10월 13일. 조회 시간, 하늘이 자리가 비어 있다. 교감은 출석부에 “결석”이라 적으라 했다. 나는 끝까지 쓰지 않았다. 그 아이는 3년 동안 한 번도 결석한 적이 없다. 펌프실 이야기를 꺼냈더니, 다음 주에 전근 발령이 났다. — 담임 정은수",
-  "dur": 19.8,
+  "dur": 21.629,
   "baked": true,
-  "eleven": "10월 13일. 조회 시간, 하늘이 자리가 비어 있다. 교감은 출석부에 “결석”이라 적으라 했다. 나는 끝까지 쓰지 않았다. 그 아이는 3년 동안 한 번도 결석한 적이 없다. 펌프실 이야기를 꺼냈더니, 다음 주에 전근 발령이 났다. — 담임 정은수",
+  "eleven": "[tearful] 10월 13일. 조회 시간, 하늘이 자리가 비어 있다. 교감은 출석부에 “결석”이라 적으라 했다. 나는 끝까지 쓰지 않았다. 그 아이는 3년 동안 한 번도 결석한 적이 없다. 펌프실 이야기를 꺼냈더니, 다음 주에 전근 발령이 났다. — 담임 정은수",
   "generation": {
    "voice_id": "UqW1DivwFt1NwUMSGnTn",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "review_status": "generated"
+   "delivery": "[tearful]",
+   "input_sha256": "5821d9f7c7c92e17f18cb4d73768932af6a9dd86cd71c59d268e2f056b728b87",
+   "audio_sha256": "c7ccd4630019798f80e8daf21328a14b5b2ddb1e024cf3748a4096082d712585",
+   "generation_id": "XTBLlo4pXvafuWL4EIQB",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "nd_n28": {
   "spk": "friend",
   "text": "[수아] 하늘아, 리허설 끝나면 떡볶이! 우리가 맨 앞에서 들을게 ♡ [다은] 내일 방송 꼭 네 목소리로 해. 약속. …마지막 장, 다른 글씨: “하늘이 없이 졸업했다. 기념 방송은 셋이 하기로 했는데.”",
-  "dur": 15.83,
+  "dur": 17.241,
   "baked": true,
-  "eleven": "[수아] 하늘아, 리허설 끝나면 떡볶이! 우리가 맨 앞에서 들을게 ♡ [다은] 내일 방송 꼭 네 목소리로 해. 약속. …마지막 장, 다른 글씨: “하늘이 없이 졸업했다. 기념 방송은 셋이 하기로 했는데.”",
+  "eleven": "[casual] 수아, 하늘아, 리허설 끝나면 떡볶이! 우리가 맨 앞에서 들을게 ♡ 다은, 내일 방송 꼭 네 목소리로 해. 약속. …마지막 장, 다른 글씨: “하늘이 없이 졸업했다. 기념 방송은 셋이 하기로 했는데.”",
   "generation": {
    "voice_id": "CZ86sooijZ9CfwhGGEY5",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "review_status": "generated"
+   "delivery": "[casual]",
+   "input_sha256": "59040a61fccee04136c81303487695beffd04bf5e47ab1a0fd10d17dec8f35ae",
+   "audio_sha256": "407794d71d08ac18670b2fbb7d3d3e04a2bac1de262abeb2d66ade4756bff856",
+   "generation_id": "qbZR2HodORClhzEX8vul",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "nd_n29": {
   "spk": "haneul",
   "text": "「3층 방송실, 밤 10시. 리허설 시작 — 늦으면 하교 방송 못 해!」 하늘의 동글동글한 글씨. 뒷면에 다른 사람의 글씨가 덧붙어 있다: 「10시 반, 지하 펌프실. 담력 체험 ㅋㅋ」",
-  "dur": 10.84,
+  "dur": 17.006,
   "baked": true,
-  "eleven": "「3층 방송실, 밤 10시. 리허설 시작 — 늦으면 하교 방송 못 해!」 하늘의 동글동글한 글씨. 뒷면에 다른 사람의 글씨가 덧붙어 있다: 「10시 반, 지하 펌프실. 담력 체험 ㅋㅋ」",
+  "eleven": "[softly] 「3층 방송실, 밤 10시. 리허설 시작 — 늦으면 하교 방송 못 해!」 하늘의 동글동글한 글씨. 뒷면에 다른 사람의 글씨가 덧붙어 있다: 「10시 반, 지하 펌프실. 담력 체험 ㅋㅋ」",
   "generation": {
-   "voice_id": "vJ170fCwESgE1tjW39So",
+   "voice_id": "1BZBO072RKJTzZcDjRox",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "review_status": "generated"
+   "delivery": "[softly]",
+   "input_sha256": "8aa01951bc8b1bf2a822743229b6c95699316c9d20a30cfdde0b769aae18d9a7",
+   "audio_sha256": "14ebc0afcd1a1fd280dfed0ab74845a54ea1e3b173d16f90c1c068b7a9e4253c",
+   "generation_id": "2sX53UG0ZknbNzrAiDcR",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "nd_q1a": {
   "spk": "homeroom",
   "text": "「윤하늘 — 3년 개근에 도전!」 칸마다 별 스티커가 빼곡하다. 마지막 칸 10월 13일만 비어 있다. 귀퉁이에 연필로: 「내일도 1등으로 와야지」",
-  "dur": 13.32,
+  "dur": 14.028,
   "baked": true,
-  "eleven": "「윤하늘 — 3년 개근에 도전!」 칸마다 별 스티커가 빼곡하다. 마지막 칸 10월 13일만 비어 있다. 귀퉁이에 연필로: 「내일도 1등으로 와야지」",
+  "eleven": "[tearful] 「윤하늘 — 3년 개근에 도전!」 칸마다 별 스티커가 빼곡하다. 마지막 칸 10월 13일만 비어 있다. 귀퉁이에 연필로: 「내일도 1등으로 와야지」",
   "generation": {
    "voice_id": "UqW1DivwFt1NwUMSGnTn",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "review_status": "generated"
+   "delivery": "[tearful]",
+   "input_sha256": "b53bfa5b0712f33e825019be55101faafe965d93e8b2dd9eba21f99b4a532e28",
+   "audio_sha256": "357b2163ece9d79126969ab93dcc5461edcc4a91c22dba459806a8f2291a526e",
+   "generation_id": "Xwoh1TjFENADOPTnmOl5",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "nd_q1b": {
   "spk": "homeroom",
   "text": "10월 13일 3학년 2반 — 윤하늘: 출석. 10년 동안 비어 있던 칸에 처음으로 바른 글씨가 들어갔다.",
-  "dur": 9.33,
+  "dur": 9.169,
   "baked": true,
-  "eleven": "10월 13일 3학년 2반 — 윤하늘: 출석. 10년 동안 비어 있던 칸에 처음으로 바른 글씨가 들어갔다.",
+  "eleven": "[tearful] 10월 13일 3학년 2반 — 윤하늘: 출석. 10년 동안 비어 있던 칸에 처음으로 바른 글씨가 들어갔다.",
   "generation": {
    "voice_id": "UqW1DivwFt1NwUMSGnTn",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "review_status": "unreviewed",
-   "input_sha256": "d536d402ab1181f867450131b5528dbcb0be9cb819e40d7d08d15794250e73a9",
-   "audio_sha256": "e03a34b0c62040cbc91d8a66c309e65faaec04cdc77b881e3b3617676405c4e5"
+   "delivery": "[tearful]",
+   "input_sha256": "9e31cd63865ccd6a391306638c92911d81c01242c9d5445314c791ec68bd1454",
+   "audio_sha256": "7c7b0946b93836369f56c8dac0415d2aabdc9e59ca1a3cd5e48bb54027ab984a",
+   "generation_id": "SK5pZEzhxIuWmhLj0qAS",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "nd_q2a": {
   "spk": "friend",
   "text": "[하늘] 기념 방송 끝 곡은 학교종! 수아가 1절, 다은이가 2절, 나는 마지막에 하교 인사. [수아] 반주 테이프는 음악실 카세트 서랍에 넣어 놨어 ♪ [다은] 리허설 끝나면 진짜로 떡볶이다?",
-  "dur": 15.28,
+  "dur": 16.039,
   "baked": true,
-  "eleven": "[하늘] 기념 방송 끝 곡은 학교종! 수아가 1절, 다은이가 2절, 나는 마지막에 하교 인사. [수아] 반주 테이프는 음악실 카세트 서랍에 넣어 놨어 ♪ [다은] 리허설 끝나면 진짜로 떡볶이다?",
+  "eleven": "[casual] 하늘, 기념 방송 끝 곡은 학교종! 수아가 1절, 다은이가 2절, 나는 마지막에 하교 인사. 수아, 반주 테이프는 음악실 카세트 서랍에 넣어 놨어 ♪ 다은, 리허설 끝나면 진짜로 떡볶이다?",
   "generation": {
    "voice_id": "CZ86sooijZ9CfwhGGEY5",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "review_status": "generated"
+   "delivery": "[casual]",
+   "input_sha256": "7c4f0c77712b203b53027b5df98753aa88507bbe5a2c904209843de2b14898e8",
+   "audio_sha256": "f0b6a305a434e0d5790fd04eeb566954086e699abcdbd34026058121859ff9cf",
+   "generation_id": "X9CKUrMKOnnJ3Ez2lk9T",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "nd_q2b": {
   "spk": "narrator",
   "text": "반주 테이프 B면에는 그날 오후의 리허설 녹음이 남아 있었다. 스피커에서 세 사람의 목소리가 겹쳐 흘러나왔다. “…모두, 수고 많았습니다. 집으로 돌아가세요.” 10년 만에, 처음으로 끝까지 나간 방송.",
-  "dur": 15.96,
+  "dur": 16.771,
   "baked": true,
-  "eleven": "반주 테이프 B면에는 그날 오후의 리허설 녹음이 남아 있었다. 스피커에서 세 사람의 목소리가 겹쳐 흘러나왔다. “…모두, 수고 많았습니다. 집으로 돌아가세요.” 10년 만에, 처음으로 끝까지 나간 방송.",
+  "eleven": "[quietly] [slowly] 반주 테이프 B면에는 그날 오후의 리허설 녹음이 남아 있었다. 스피커에서 세 사람의 목소리가 겹쳐 흘러나왔다. “…모두, 수고 많았습니다. 집으로 돌아가세요.” 10년 만에, 처음으로 끝까지 나간 방송.",
   "generation": {
    "voice_id": "8G6jifm9f1BhHXadvwOt",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "review_status": "unreviewed",
-   "input_sha256": "d403b887fdb9a300451adab3f05fbb4046acb530ce98f98ce15f9fdccb09b54e",
-   "audio_sha256": "a5f3ab27ce76434d887f0af55cfecebbd616d99e9a7f16ea4b970bb50c0a3859"
+   "delivery": "[quietly] [slowly]",
+   "input_sha256": "5d0c3c9e4cc0ea455e9cb6e1549b102e41dcd7bd50bcbbb19b3dc99d2327c76f",
+   "audio_sha256": "149c9e2ed006a6848260c53cb525b17684f067334c396df69cb4533aa136fb73",
+   "generation_id": "oHe3QSgINfrZyYc6NfUm",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "nd_q3a": {
   "spk": "nurse",
   "text": "봉인 서약서에 서명한 날, 나는 내 몫의 은폐 증거 조각을 차마 보관할 수 없었다. 그날 밤 펌프실로 달려갔을 땐 이미 물이 차 있었다. 나는 아무것도 하지 못했다. 그래서 내 몫의 비밀 증거 조각을 수영장 배수구에 던졌다. 펌프실로 이어진 그 물길이 하늘이에게 닿기를. — 다섯 번째 학교 비밀 증거가 왜 물속에 있는지, 이제 안다.",
-  "dur": 21.08,
+  "dur": 27.011,
   "baked": true,
-  "eleven": "봉인 서약서에 서명한 날, 나는 내 몫의 은폐 증거 조각을 차마 보관할 수 없었다. 그날 밤 펌프실로 달려갔을 땐 이미 물이 차 있었다. 나는 아무것도 하지 못했다. 그래서 내 몫의 비밀 증거 조각을 수영장 배수구에 던졌다. 펌프실로 이어진 그 물길이 하늘이에게 닿기를. — 다섯 번째 학교 비밀 증거가 왜 물속에 있는지, 이제 안다.",
+  "eleven": "[softly] 봉인 서약서에 서명한 날, 나는 내 몫의 은폐 증거 조각을 차마 보관할 수 없었다. 그날 밤 펌프실로 달려갔을 땐 이미 물이 차 있었다. 나는 아무것도 하지 못했다. 그래서 내 몫의 비밀 증거 조각을 수영장 배수구에 던졌다. 펌프실로 이어진 그 물길이 하늘이에게 닿기를. — 다섯 번째 학교 비밀 증거가 왜 물속에 있는지, 이제 안다.",
   "generation": {
    "voice_id": "fO7cRyAPqxprQ3ZaVbnt",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "review_status": "generated"
+   "delivery": "[softly]",
+   "input_sha256": "1a50453a6e64dbe88d141a87c535cb6560217dae17f26cef7f51190da0314bd9",
+   "audio_sha256": "d39f4575bd197b097b54a1d01c5c6e1c731226a53442b369d8f507af38fb36ca",
+   "generation_id": "qj65jhgwZWipkkYje82E",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "nd_q3b": {
   "spk": "nurse",
   "text": "조각을 쥐고 배수구 앞에 잠시 서 있었다. 펌프실로 이어진 물길을 오래 바라보았다. 보건교사가 이 앞에서 무엇을 빌었을지, 조금은 알 것 같았다.",
-  "dur": 12.2,
+  "dur": 12.591,
   "baked": true,
-  "eleven": "조각을 쥐고 배수구 앞에 잠시 서 있었다. 펌프실로 이어진 물길을 오래 바라보았다. 보건교사가 이 앞에서 무엇을 빌었을지, 조금은 알 것 같았다.",
+  "eleven": "[softly] 조각을 쥐고 배수구 앞에 잠시 서 있었다. 펌프실로 이어진 물길을 오래 바라보았다. 보건교사가 이 앞에서 무엇을 빌었을지, 조금은 알 것 같았다.",
   "generation": {
    "voice_id": "fO7cRyAPqxprQ3ZaVbnt",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "review_status": "unreviewed",
-   "input_sha256": "9f211d2e2475221a839b93aec511d80f0d40cc3512aadc048ac086fd471b3295",
-   "audio_sha256": "f1b67c3a3db46d756b16a1a5cc99f80f2ebc496689fd3b5dc98a0384e9cb31d1"
+   "delivery": "[softly]",
+   "input_sha256": "5f4d818bf31ef6c39f732bdef4c46c06144d359f74f4724ba9e6e92a5f80b3c1",
+   "audio_sha256": "1bb3598814a28d3ad50183b820dc6f3997e0060a319ef4e6f8fbfda12d5dc1fd",
+   "generation_id": "DZzTYFZCv4egwxY3bRzO",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "nd_q4a": {
   "spk": "junho",
   "text": "10.12 담력 체험 — 3학년 이준호(부장) · 2학년 박세진 · 최유리 · 1학년 한동민. 장소: 지하 펌프실. 대상: 윤하늘 (기념 방송 진행자 — “긴장 풀어 주기”) 문 잠그는 사람: ___ (빈칸)",
-  "dur": 14.45,
+  "dur": 17.711,
   "baked": true,
-  "eleven": "10.12 담력 체험 — 3학년 이준호(부장) · 2학년 박세진 · 최유리 · 1학년 한동민. 장소: 지하 펌프실. 대상: 윤하늘 (기념 방송 진행자 — “긴장 풀어 주기”) 문 잠그는 사람: ___ (빈칸)",
+  "eleven": "[regretful] 10.12 담력 체험 — 3학년 이준호(부장) · 2학년 박세진 · 최유리 · 1학년 한동민. 장소: 지하 펌프실. 대상: 윤하늘 (기념 방송 진행자 — “긴장 풀어 주기”) 문 잠그는 사람: ___ (빈칸)",
   "generation": {
-   "voice_id": "HrAPO433QYkPmU4F4CHw",
+   "voice_id": "Ir7oQcBXWiq4oFGROCfj",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "review_status": "generated"
+   "delivery": "[regretful]",
+   "input_sha256": "81bd373073a3b0b9bdbcd1b9baa569425169fd7df7e145ff50524a6b5c4162a5",
+   "audio_sha256": "e36104f494c3b6c28a59deae97ba2c774745b3c6c396da62a5da311524723c7b",
+   "generation_id": "wDVbKE42mVICrYhcySDh",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "nd_q4b": {
   "spk": "headTeacher",
   "text": "[세진 · 유리 · 동민] “문은 준호 선배가 잠갔어요. 10분 뒤에 가 보니 문이 열려 있었어요.” [준호] “잠근 건 저예요. 그런데 열쇠는 바로 교무부장님께 드렸어요. ‘버릇 좀 고쳐 주마, 이따 내가 꺼내마’ 하셔서.” — 진술서 위에 붉은 도장: 외부 유출 금지",
-  "dur": 22.99,
+  "dur": 19.644,
   "baked": true,
-  "eleven": "[세진 · 유리 · 동민] “문은 준호 선배가 잠갔어요. 10분 뒤에 가 보니 문이 열려 있었어요.” [준호] “잠근 건 저예요. 그런데 열쇠는 바로 교무부장님께 드렸어요. ‘버릇 좀 고쳐 주마, 이따 내가 꺼내마’ 하셔서.” — 진술서 위에 붉은 도장: 외부 유출 금지",
+  "eleven": "[serious] 세진 · 유리 · 동민, “문은 준호 선배가 잠갔어요. 10분 뒤에 가 보니 문이 열려 있었어요.” 준호, “잠근 건 저예요. 그런데 열쇠는 바로 교무부장님께 드렸어요. ‘버릇 좀 고쳐 주마, 이따 내가 꺼내마’ 하셔서.” — 진술서 위에 붉은 도장: 외부 유출 금지",
   "generation": {
-   "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+   "voice_id": "4JJwo477JUAx3HV0T7n7",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "review_status": "generated"
+   "delivery": "[serious]",
+   "input_sha256": "c2239de9acdd2ada06faedd37e187d0b4ad4f4a5c66ab4504efc1b01f2e524d5",
+   "audio_sha256": "98cac70ccd02decf377a1f3e2019873d0c89783691ba5e59842e2bf6f07457ee",
+   "generation_id": "lFcaZ7idO8PF5NNDct5A",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "nd_q4c": {
   "spk": "headTeacher",
   "text": "큐시트 뒷면의 펌프실 도면 — 펌프실 문은 두 개다. 아이들이 10분 뒤 확인한 건 수영장 쪽 점검문(늘 열려 있다). 하늘이 갇힌 건 B1 복도 쪽 철문, 그 열쇠는 교무부장의 주머니에 있었다. “문은 열려 있었다”와 “밖에서 잠겨 있었다” — 둘 다 사실이었다.",
-  "dur": 19.57,
+  "dur": 19.069,
   "baked": true,
-  "eleven": "큐시트 뒷면의 펌프실 도면 — 펌프실 문은 두 개다. 아이들이 10분 뒤 확인한 건 수영장 쪽 점검문(늘 열려 있다). 하늘이 갇힌 건 B1 복도 쪽 철문, 그 열쇠는 교무부장의 주머니에 있었다. “문은 열려 있었다”와 “밖에서 잠겨 있었다” — 둘 다 사실이었다.",
+  "eleven": "[serious] 큐시트 뒷면의 펌프실 도면 — 펌프실 문은 두 개다. 아이들이 10분 뒤 확인한 건 수영장 쪽 점검문(늘 열려 있다). 하늘이 갇힌 건 B1 복도 쪽 철문, 그 열쇠는 교무부장의 주머니에 있었다. “문은 열려 있었다”와 “밖에서 잠겨 있었다” — 둘 다 사실이었다.",
   "generation": {
-   "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+   "voice_id": "4JJwo477JUAx3HV0T7n7",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "review_status": "generated"
+   "delivery": "[serious]",
+   "input_sha256": "fb3db61b0888f27108374fee2fcc8660e585ba51eddf57b57f2ae9f9c90a8ac4",
+   "audio_sha256": "c78ae8be76ad61d2e0351671e26cb4e7b43d7d90c29e63f4efe0d61773d54ebc",
+   "generation_id": "rla2EqoKuaGPVnBL7bms",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "nd_q5a": {
   "spk": "homeroom",
   "text": "하늘이 어머님께. 학교는 하늘이가 그날 밤 집에 가다 사라졌다고 말할 것입니다. 사실이 아닙니다. 하늘이는 3년 동안 단 하루도 결석하지 않았고, 그날 밤에도 학교에 있었습니다. 저는 이 편지를 부칠 용기가 아직 없습니다. — 3학년 2반 담임 정은수",
-  "dur": 18.91,
+  "dur": 21.786,
   "baked": true,
-  "eleven": "하늘이 어머님께. 학교는 하늘이가 그날 밤 집에 가다 사라졌다고 말할 것입니다. 사실이 아닙니다. 하늘이는 3년 동안 단 하루도 결석하지 않았고, 그날 밤에도 학교에 있었습니다. 저는 이 편지를 부칠 용기가 아직 없습니다. — 3학년 2반 담임 정은수",
+  "eleven": "[tearful] 하늘이 어머님께. 학교는 하늘이가 그날 밤 집에 가다 사라졌다고 말할 것입니다. 사실이 아닙니다. 하늘이는 3년 동안 단 하루도 결석하지 않았고, 그날 밤에도 학교에 있었습니다. 저는 이 편지를 부칠 용기가 아직 없습니다. — 3학년 2반 담임 정은수",
   "generation": {
    "voice_id": "UqW1DivwFt1NwUMSGnTn",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "review_status": "generated"
+   "delivery": "[tearful]",
+   "input_sha256": "281d0a45a17a3a7e508c11b4921b0cdf9b1b190c4a78efb1ced417a6c6cac935",
+   "audio_sha256": "8ff211a7db21275a474d1f63ef00914249eb08f0a56670f9107879d0b3b39052",
+   "generation_id": "Nw8IhcgkjQliIKlC9kvJ",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "nd_q5b": {
   "spk": "homeroom",
   "text": "교사 휴게실 우편함에 정은수 선생님 앞으로 온 반송 우편. 주소가 적힌 봉투와 쓰지 않은 우표 한 장. 받는 사람: 윤하늘 어머님 — 주소는 10년 전 그대로다.",
-  "dur": 11.47,
+  "dur": 14.289,
   "baked": true,
-  "eleven": "교사 휴게실 우편함에 정은수 선생님 앞으로 온 반송 우편. 주소가 적힌 봉투와 쓰지 않은 우표 한 장. 받는 사람: 윤하늘 어머님 — 주소는 10년 전 그대로다.",
+  "eleven": "[tearful] 교사 휴게실 우편함에 정은수 선생님 앞으로 온 반송 우편. 주소가 적힌 봉투와 쓰지 않은 우표 한 장. 받는 사람: 윤하늘 어머님 — 주소는 10년 전 그대로다.",
   "generation": {
    "voice_id": "UqW1DivwFt1NwUMSGnTn",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "review_status": "generated"
+   "delivery": "[tearful]",
+   "input_sha256": "5e3e8ee729145fc9f709e81233c42634af61155fbcf2a19c72af57f06852be95",
+   "audio_sha256": "d4ee935f0b646e14d0a6471838b582f17fe31f73abc8e78d58068b61c380ba61",
+   "generation_id": "DdlVtmUoj9GL3uZI6dic",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "nd_q5c": {
   "spk": "homeroom",
   "text": "정문 경비실 우편함에 편지를 넣었다. 소인 날짜 칸에 누군가 미리 적어 둔 날짜: 10월 13일. …그날 아침 부쳐졌어야 할 편지였다.",
-  "dur": 12.04,
+  "dur": 12.434,
   "baked": true,
-  "eleven": "정문 경비실 우편함에 편지를 넣었다. 소인 날짜 칸에 누군가 미리 적어 둔 날짜: 10월 13일. …그날 아침 부쳐졌어야 할 편지였다.",
+  "eleven": "[tearful] 정문 경비실 우편함에 편지를 넣었다. 소인 날짜 칸에 누군가 미리 적어 둔 날짜: 10월 13일. …그날 아침 부쳐졌어야 할 편지였다.",
   "generation": {
    "voice_id": "UqW1DivwFt1NwUMSGnTn",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "review_status": "generated"
+   "delivery": "[tearful]",
+   "input_sha256": "ae8e1f9ed8f20856b20d25bf827abdc333dc07d278ec8e74a64648b57e0cba3b",
+   "audio_sha256": "5aa8bb430c7265bcdf88fbd6e7ba40a3ec8256bad3a81dd1d466872d3de5a5cb",
+   "generation_id": "Y1hLWxvul3tKfqRKldyr",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "nd_q7a": {
   "spk": "scienceTeacher",
   "text": "펌프실 비상등 배터리 교체 요청 — 3회째. 교무부장 회신: “예산 없음, 다음 학기”. 예비 배터리팩은 과학실 공구함에 둔다. 누구든 먼저 가는 사람이 갈아 끼울 것. …그날 밤, 아무도 가지 않았다.",
-  "dur": 16.2,
+  "dur": 16.039,
   "baked": true,
-  "eleven": "펌프실 비상등 배터리 교체 요청 — 3회째. 교무부장 회신: “예산 없음, 다음 학기”. 예비 배터리팩은 과학실 공구함에 둔다. 누구든 먼저 가는 사람이 갈아 끼울 것. …그날 밤, 아무도 가지 않았다.",
+  "eleven": "[serious] 펌프실 비상등 배터리 교체 요청 — 3회째. 교무부장 회신: “예산 없음, 다음 학기”. 예비 배터리팩은 과학실 공구함에 둔다. 누구든 먼저 가는 사람이 갈아 끼울 것. …그날 밤, 아무도 가지 않았다.",
   "generation": {
-   "voice_id": "4JJwo477JUAx3HV0T7n7",
+   "voice_id": "l6fNdLYgoqjfTIPUeFc9",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "review_status": "generated"
+   "delivery": "[serious]",
+   "input_sha256": "2b29d67f7b36844c313f262f5363ada5983f9dd3575813d47efee274df4347f9",
+   "audio_sha256": "b65855c7885fd378650ec3199275babe13c8782f9855454b928c52dfd4e96bfc",
+   "generation_id": "o2h7C9tSKxSGLTZQidAo",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "nd_q7b": {
   "spk": "scienceTeacher",
   "text": "배터리팩을 끼우자 펌프실 비상등이 깜빡이다 켜졌다. 그날 밤 이 불이 켜져 있었다면, 하늘은 어둠 속에서 혼자가 아니었을 것이다.",
-  "dur": 10.37,
+  "dur": 9.874,
   "baked": true,
-  "eleven": "배터리팩을 끼우자 펌프실 비상등이 깜빡이다 켜졌다. 그날 밤 이 불이 켜져 있었다면, 하늘은 어둠 속에서 혼자가 아니었을 것이다.",
+  "eleven": "[serious] 배터리팩을 끼우자 펌프실 비상등이 깜빡이다 켜졌다. 그날 밤 이 불이 켜져 있었다면, 하늘은 어둠 속에서 혼자가 아니었을 것이다.",
   "generation": {
-   "voice_id": "4JJwo477JUAx3HV0T7n7",
+   "voice_id": "l6fNdLYgoqjfTIPUeFc9",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "review_status": "generated"
+   "delivery": "[serious]",
+   "input_sha256": "191d0f3c6a935927abab35be0667fc11e3a28bd04bb0afed5870d5a14e98b212",
+   "audio_sha256": "7615688989f299718764e270bcdf6d5bd021da5c291547bd41d644f37729eb0a",
+   "generation_id": "V9XEPxeXsNkVUvQiiOJI",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "nd_q8a": {
   "spk": "haneul",
   "text": "도서실 바코드가 붙은 낡은 소설책. 마지막 장 여백에 동글동글한 글씨: 「엄마, 오늘 방송 꼭 들어. 끝나면 바로 집에 갈게. — 하늘」 반납 기한: 10월 12일.",
-  "dur": 15.8,
+  "dur": 15.882,
   "baked": true,
-  "eleven": "도서실 바코드가 붙은 낡은 소설책. 마지막 장 여백에 동글동글한 글씨: 「엄마, 오늘 방송 꼭 들어. 끝나면 바로 집에 갈게. — 하늘」 반납 기한: 10월 12일.",
+  "eleven": "[softly] 도서실 바코드가 붙은 낡은 소설책. 마지막 장 여백에 동글동글한 글씨: 「엄마, 오늘 방송 꼭 들어. 끝나면 바로 집에 갈게. — 하늘」 반납 기한: 10월 12일.",
   "generation": {
-   "voice_id": "vJ170fCwESgE1tjW39So",
+   "voice_id": "1BZBO072RKJTzZcDjRox",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "review_status": "generated"
+   "delivery": "[softly]",
+   "input_sha256": "c7eb03b38d5748dabf98830844de97121e942500bc2fbb5b6ecc715818247bad",
+   "audio_sha256": "83f372a07a8120923e0c4f82070313f8b5e87ac38f7f70735c5daf0d62fa63e2",
+   "generation_id": "SqskqJJ5kUpE9swzh3L0",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "nd_h1": {

@@ -1318,5 +1318,105 @@
   "status": "applied",
   "credits": 288.0,
   "generation_id": "w0hTt53pG3hWLtc34NZ2"
+ },
+ "nd_q8a": {
+  "status": "applied",
+  "credits": 101.0,
+  "generation_id": "SqskqJJ5kUpE9swzh3L0"
+ },
+ "nd_q7b": {
+  "status": "applied",
+  "credits": 82.0,
+  "generation_id": "V9XEPxeXsNkVUvQiiOJI"
+ },
+ "nd_q7a": {
+  "status": "applied",
+  "credits": 123.0,
+  "generation_id": "o2h7C9tSKxSGLTZQidAo"
+ },
+ "nd_q5c": {
+  "status": "applied",
+  "credits": 85.0,
+  "generation_id": "Y1hLWxvul3tKfqRKldyr"
+ },
+ "nd_q5b": {
+  "status": "applied",
+  "credits": 100.0,
+  "generation_id": "DdlVtmUoj9GL3uZI6dic"
+ },
+ "nd_q5a": {
+  "status": "applied",
+  "credits": 150.0,
+  "generation_id": "Nw8IhcgkjQliIKlC9kvJ"
+ },
+ "nd_q4c": {
+  "status": "applied",
+  "credits": 158.0,
+  "generation_id": "rla2EqoKuaGPVnBL7bms"
+ },
+ "nd_q4b": {
+  "status": "applied",
+  "credits": 159.0,
+  "generation_id": "lFcaZ7idO8PF5NNDct5A"
+ },
+ "nd_q4a": {
+  "status": "applied",
+  "credits": 128.0,
+  "generation_id": "wDVbKE42mVICrYhcySDh"
+ },
+ "nd_q3b": {
+  "status": "applied",
+  "credits": 90.0,
+  "generation_id": "DZzTYFZCv4egwxY3bRzO"
+ },
+ "nd_q3a": {
+  "status": "applied",
+  "credits": 196.0,
+  "generation_id": "qj65jhgwZWipkkYje82E"
+ },
+ "nd_q2b": {
+  "status": "applied",
+  "credits": 132.0,
+  "generation_id": "oHe3QSgINfrZyYc6NfUm"
+ },
+ "nd_q2a": {
+  "status": "applied",
+  "credits": 114.0,
+  "generation_id": "X9CKUrMKOnnJ3Ez2lk9T"
+ },
+ "nd_q1b": {
+  "status": "applied",
+  "credits": 69.0,
+  "generation_id": "SK5pZEzhxIuWmhLj0qAS"
+ },
+ "nd_q1a": {
+  "status": "applied",
+  "credits": 92.0,
+  "generation_id": "Xwoh1TjFENADOPTnmOl5"
+ },
+ "nd_n29": {
+  "status": "applied",
+  "credits": 112.0,
+  "generation_id": "2sX53UG0ZknbNzrAiDcR"
+ },
+ "nd_n28": {
+  "status": "applied",
+  "credits": 121.0,
+  "generation_id": "qbZR2HodORClhzEX8vul"
+ },
+ "nd_n27": {
+  "status": "applied",
+  "credits": 148.0,
+  "generation_id": "XTBLlo4pXvafuWL4EIQB"
+ },
+ "nd_n26": {
+  "status": "applied",
+  "credits": 105.0,
+  "generation_id": "5s1t7z42qIeh3zTgi8e8"
+ },
+ "nd_n25": {
+  "status": "applied",
+  "credits": 98.0,
+  "generation_id": "s0no2VzCNnHHPvJAB0c6"
  }
 }

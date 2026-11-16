@@ -207,6 +207,7 @@ export function buildMainBuilding(opt = {}) {
     steelTop: M('steelTop', () => pbr('d2_tex_paint', { own: false, color: 0x8e9496, rough: .5, metal: .4, nScale: .5 })),   // 교무실 철제 책상 상판 (회색 소부)
     deskMat: M('deskMat', () => new THREE.MeshStandardMaterial({ map: PT.deskMat(), roughness: .2, metalness: .05 })),   // 녹색 고무 매트 + 덮은 유리 (아래 끼운 시간표 · 메모 · 사진)
     alu: M('alu', () => new THREE.MeshStandardMaterial({ color: 0xb8bcc0, roughness: .35, metalness: .7 })),
+    jamb: M('jamb', () => new THREE.MeshStandardMaterial({ color: 0xc4c8cb, roughness: .42, metalness: .45, map: canvasTex(4, 4, (g, w, h) => { g.fillStyle = '#ffffff'; g.fillRect(0, 0, w, h); }) })),   // 본관 교실 문틀: 무늬 없는 은회색 알루미늄 — 맵이 없으면 공용 질감 보강(plainUpgrade)이 헤어라인 노멀을 가는 문틀에 늘여 줄무늬가 졌다
     glass: M('glass', () => new THREE.MeshStandardMaterial({ color: 0xbfd6dc, roughness: .08, metalness: .1, transparent: true, opacity: .16, depthWrite: false, side: THREE.DoubleSide })),
     frost: M('frost', () => new THREE.MeshStandardMaterial({ color: 0xe6eef0, roughness: .45, metalness: .05, transparent: true, opacity: .62, depthWrite: false, side: THREE.DoubleSide })),   // 화장실 문: 불투명에 가까운 반투명(간유리)   // 투과(transmission) 굴절은 장면을 한 번 더 그리고 흐릿한 바닥 번짐을 만든다 → 반투명 유리
     steelG: M('steelG', () => pbr('d2_tex_paint', { color: 0xa8b8ac, rough: .7, metal: .35 })),   // 도장 철판 (분전반 · 방화문 · 캐비닛)
@@ -564,7 +565,7 @@ export function buildMainBuilding(opt = {}) {
         const ops = [...dops, { a: r.x1 + 2.4, b: r.x2 - 2.4, y1: 1.6, y2: 2.4 }];
         wallX('wall', r.x1, r.x2, -S.wall / 2, S.wall / 2, y0, ops);
         finishX(r.x1, r.x2, S.wall / 2, 1, y0, ops); finishX(r.x1, r.x2, -S.wall / 2, -1, y0, ops);
-        dops.forEach(o => { const k = o.k; box('alu', o.a - .05, o.a + .012, y0, y0 + 2.15, -.12, .12); box('alu', o.b - .012, o.b + .05, y0, y0 + 2.15, -.12, .12); box('alu', o.a, o.b, y0 + 2.088, y0 + 2.15, -.12, .12);
+        dops.forEach(o => { const k = o.k, JK = MAINB ? 'jamb' : 'alu'; box(JK, o.a - .05, o.a + .012, y0, y0 + 2.15, -.12, .12); box(JK, o.b - .012, o.b + .05, y0, y0 + 2.15, -.12, .12); box(JK, o.a, o.b, y0 + 2.088, y0 + 2.15, -.12, .12);
           // 미서기 나무문 (복도 쪽 레일, 벽 안쪽으로 밀려 들어간다) + 문 위 실명판
           const w = o.b - o.a; doors.push({ kind: 'slide', mat: type === 'bcast' ? 'steelG' : 'lockerM', win: true, w, h: 2.08, t: .04, px: (o.a + o.b) / 2, py: y0, pz: -.14, ox: 0, oz: 0, dir: k ? -1 : 1, open: (f + idx + k) % 3 === 0,
             cx1: o.a, cx2: o.b, cz1: -.18, cz2: -.1, mx: (o.a + o.b) / 2, mz: -.5, label: `${name} ${k ? '뒷문' : '앞문'}`, floor: f });

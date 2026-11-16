@@ -548,13 +548,14 @@ export function installRebuild({ THREE, scene, floors, world }) {
     // 모형 없는 조사 지점에 모형을 붙인다: 녹음기(반장 · 교사 증언) · 배전반 · 비상벨 — 빈 허공에 [E] 만 뜨던 것
     for (const p of W.props) { if (p._vis || !(inNew(p) || (p.kind === 'tape' && p.floor === 0)) || objsOf(p).length) continue;   // 바깥 증언 녹음기도 모형이 없으면 붙인다
       const mk = p.kind === 'tape' ? 'tape' : p.kind === 'cbreaker' ? 'panel' : p.kind === 'bell' ? 'bell' : null; if (!mk) continue; p._vis = true;
+      if (mk === 'panel' && !p._relink) { const s = take(panelSpots, p) || panelSpots.slice().sort((a, c) => (Math.abs(a.h - (p.rbY ?? 0)) * 10 + Math.hypot(a.x - p.x, a.z - p.z)) - (Math.abs(c.h - (p.rbY ?? 0)) * 10 + Math.hypot(c.x - p.x, c.z - p.z)))[0]; if (s) put(p, s, 1.4); }   // 방 한가운데(교무실 책상 섬 위 1.4m)에 떠 있던 배전반 → 복도 벽 배전반 자리로 먼저 옮긴다
       const g = new THREE.Group(), y = p.rbY ?? 0;
       if (mk === 'tape') { const su = R.groundAt(p.x, p.z, y + 1.3), top = su != null && su - y > .4 && su - y < 1.3 ? su : y; { const bm = new THREE.Mesh(new THREE.BoxGeometry(.26, .08, .15), VIS.body); bm.position.y = .04; g.add(bm); }
         for (const sx of [-.055, .055]) { const r = new THREE.Mesh(new THREE.CylinderGeometry(.03, .03, .012, 14), VIS.reel); r.position.set(sx, .085, -.01); g.add(r); }
         const led = new THREE.Mesh(new THREE.BoxGeometry(.012, .008, .012), VIS.led); led.position.set(.1, .084, .05); g.add(led); g.position.set(p.x, top + .005, p.z); g.rotation.y = (p.x * 7 + p.z * 3) % 6.28; }
       else if (mk === 'panel') { g.add(new THREE.Mesh(new THREE.BoxGeometry(.5, .7, .12), VIS.panel)); const lab = new THREE.Mesh(new THREE.BoxGeometry(.18, .06, .01), VIS.warn); lab.position.set(0, .26, .065); g.add(lab); g.position.set(p.x, y + 1.4, p.z); }
       else { const bx = new THREE.Mesh(new THREE.BoxGeometry(.22, .3, .08), VIS.red); g.add(bx); const btn = new THREE.Mesh(new THREE.CylinderGeometry(.045, .045, .03, 16), VIS.btn); btn.rotation.x = Math.PI / 2; btn.position.set(0, -.03, .05); g.add(btn); g.position.set(p.x, y + 1.45, p.z); }
-      if (mk !== 'tape') { let best = null, bd = 9; for (const B of [MAIN, ANX]) { const [lx, lz] = B.toLocal(p.x, p.z); if (Math.abs(lz - B.layout.zN) < bd) { bd = Math.abs(lz - B.layout.zN); best = B; } }   // 복도 외벽에 붙여 단다 (벽을 등지게)
+      if (mk !== 'tape') { let best = null, bd = 1e9; for (const B of [MAIN, ANX]) { const [lx, lz] = B.toLocal(p.x, p.z); if (Math.abs(lz - B.layout.zN) < bd) { bd = Math.abs(lz - B.layout.zN); best = B; } }   // 복도 외벽에 붙여 단다 (벽을 등지게)
         if (best) { const [lx] = best.toLocal(p.x, p.z), [wx, wz] = best.toWorld(lx, best.layout.zN + .07), [ox, oz] = best.toWorld(lx, best.layout.zN + 1); g.position.x = wx; g.position.z = wz; g.rotation.y = Math.atan2(ox - wx, oz - wz); } }
       group.add(g); p.visMesh = g; }
     return { n, drop };

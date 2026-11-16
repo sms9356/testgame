@@ -2768,5 +2768,155 @@
   "status": "applied",
   "credits": 120.0,
   "generation_id": "c1VhRRd8zfFGbLzMd5r3"
+ },
+ "r_og2_j": {
+  "status": "applied",
+  "credits": 29.0,
+  "generation_id": "uo9ozVFy1i73YdUXRn6c"
+ },
+ "r_og2_s": {
+  "status": "applied",
+  "credits": 31.0,
+  "generation_id": "recIgJLRf9WzAKYIx985"
+ },
+ "r_og3_j": {
+  "status": "applied",
+  "credits": 18.0,
+  "generation_id": "jSmZbm3fctowsJHkFx8x"
+ },
+ "r_og3_s": {
+  "status": "applied",
+  "credits": 20.0,
+  "generation_id": "rKb7vpfRFhnD9yWkoDH8"
+ },
+ "r_hr1_j": {
+  "status": "applied",
+  "credits": 33.0,
+  "generation_id": "LTt4KfL9DHoDPvnu2wed"
+ },
+ "r_hr1_s": {
+  "status": "applied",
+  "credits": 34.0,
+  "generation_id": "ImoRbZwyoukpIHGjyPdO"
+ },
+ "r_hr2_j": {
+  "status": "applied",
+  "credits": 25.0,
+  "generation_id": "THlFFDH6NLDFJicfrDfI"
+ },
+ "r_hr2_s": {
+  "status": "applied",
+  "credits": 25.0,
+  "generation_id": "3hjrHuslIyRFWH5RRKyH"
+ },
+ "r_jh1_j": {
+  "status": "applied",
+  "credits": 31.0,
+  "generation_id": "yH7mjOFjVgaAuBhd5qII"
+ },
+ "r_jh1_s": {
+  "status": "applied",
+  "credits": 32.0,
+  "generation_id": "FyyMZNVtn1YqQ0A0qyvP"
+ },
+ "r_jh2_j": {
+  "status": "applied",
+  "credits": 30.0,
+  "generation_id": "rNX2ldSYWCpH8mEuV2d0"
+ },
+ "r_jh2_s": {
+  "status": "applied",
+  "credits": 32.0,
+  "generation_id": "5AmDEnPzEd8hX5pDRm0S"
+ },
+ "r_jh3_j": {
+  "status": "applied",
+  "credits": 19.0,
+  "generation_id": "MHqTPUOilYMm8571P3kI"
+ },
+ "r_jh3_s": {
+  "status": "applied",
+  "credits": 18.0,
+  "generation_id": "B9HxdhKG12jTXyC2Ckai"
+ },
+ "r_hn1_j": {
+  "status": "applied",
+  "credits": 31.0,
+  "generation_id": "oerQlduOdwmZIMVXGs10"
+ },
+ "r_hn1_s": {
+  "status": "applied",
+  "credits": 33.0,
+  "generation_id": "tYffnYuOvj7j1H7nCkLB"
+ },
+ "r_vm1_j": {
+  "status": "applied",
+  "credits": 41.0,
+  "generation_id": "eY1PvTS1rf11S92UfQGS"
+ },
+ "r_vm1_s": {
+  "status": "applied",
+  "credits": 45.0,
+  "generation_id": "UYrjp0kCQIVPAiwWYJ3d"
+ },
+ "r_vm2_j": {
+  "status": "applied",
+  "credits": 39.0,
+  "generation_id": "l2YENV5PBV8G2tOTGPpW"
+ },
+ "r_vm2_s": {
+  "status": "applied",
+  "credits": 40.0,
+  "generation_id": "GXPq7LIyTIAmevTHPVLO"
+ },
+ "tape1": {
+  "status": "applied",
+  "credits": 135.0,
+  "generation_id": "lpQoh7Mn17XC9KhKqE8w"
+ },
+ "tape2": {
+  "status": "applied",
+  "credits": 158.0,
+  "generation_id": "f5N1pTI5BFy519I3MZNu"
+ },
+ "tape3": {
+  "status": "applied",
+  "credits": 192.0,
+  "generation_id": "zCvfaRCt4QYO9GlFszJG"
+ },
+ "tape4": {
+  "status": "applied",
+  "credits": 122.0,
+  "generation_id": "ukapajxJqGmoMxi5oQ1A"
+ },
+ "tape5": {
+  "status": "applied",
+  "credits": 219.0,
+  "generation_id": "sz986OZe0Gt01MrFb6l4"
+ },
+ "mtape_4": {
+  "status": "applied",
+  "credits": 158.0,
+  "generation_id": "vcKkW4hyQgGiEVdbG55Z"
+ },
+ "mtape_2": {
+  "status": "applied",
+  "credits": 120.0,
+  "generation_id": "SdNZMLliz9cUivdUU6VB"
+ },
+ "mtape_6": {
+  "status": "applied",
+  "credits": 147.0,
+  "generation_id": "oPE37aRGthpQtt5bhv1s"
+ },
+ "mtape_3": {
+  "status": "applied",
+  "credits": 162.0,
+  "generation_id": "WIgU6wkMQflIJgkuTErN"
+ },
+ "mtape_1": {
+  "status": "applied",
+  "credits": 147.0,
+  "generation_id": "HibnJOqWhigjHH0MTbSF"
  }
 }

@@ -750,620 +750,576 @@
  "l_spotted_j": {
   "spk": "jihun",
   "text": "누가 이쪽을 봤어. 일단 몸을 숨기자.",
-  "dur": 3.47,
+  "dur": 2.847,
   "baked": true,
-  "eleven": "누가 이쪽을 봤어. 일단 몸을 숨기자.",
+  "eleven": "[urgently] 누가 이쪽을 봤어. 일단 몸을 숨기자.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "urgent",
-   "input_sha256": "56a03841a71e462e6be1ddd707fccb80bb5101f36bcd55a812129ff7d7d33a71",
-   "audio_sha256": "c8d6ab271ba62b1853bde6d757e795e9bf501f65a834854d6aea7bc5fb359ca7",
-   "review_status": "unreviewed"
+   "delivery": "[urgently]",
+   "input_sha256": "c18f6eaecef2260c7a0278e509cd7344d4245b4d8dc69abab9d8e97f8aed9ed0",
+   "audio_sha256": "c7037a28c3ba374ce510416ee4aac0a7969a1229207ea6612dfdc06d41af35f1",
+   "generation_id": "sB247IGsWU1v4uqglXzp",
+   "flow_session_id": "f8aeoTGj6nVFL3bKdKEc",
+   "review_status": "listening_required"
   }
  },
  "l_spotted_s": {
   "spk": "seoyeon",
   "text": "누가 봤어…! 일단 숨자.",
-  "dur": 2.59,
+  "dur": 2.429,
   "baked": true,
-  "eleven": "누가 봤어…! 일단 숨자.",
+  "eleven": "[urgently] 누가 봤어…! 일단 숨자.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "urgent",
-   "input_sha256": "2cdb30d2270997756f9298804de590ea74200438a068ef24c1f1c97009e5ae75",
-   "audio_sha256": "385427c4e99357850556cdfaddfcae2e967f6ca9e898ecf05b8cc7cb8af067f4",
-   "review_status": "unreviewed"
+   "delivery": "[urgently]",
+   "input_sha256": "152714bc65466e3aba997ec8d0f7cc5a29e255574177ecc675a330a1ac01bfc7",
+   "audio_sha256": "f6ac5d6bbcafe7b525af695f3f38956f80794e8692fd21dfd0e4d1a45e65e04b",
+   "generation_id": "Ji4urzlJWBMMg0Evbcg3",
+   "flow_session_id": "oI1ovk3phezLP9kUQUEp",
+   "review_status": "listening_required"
   }
  },
  "l_hit_j": {
   "spk": "jihun",
   "text": "크윽…! 여기서 멈추면 안 돼.",
-  "dur": 2.429,
+  "dur": 2.586,
   "baked": true,
-  "eleven": "크윽…! 여기서 멈추면 안 돼.",
+  "eleven": "[urgently] 크윽…! 여기서 멈추면 안 돼.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "urgent",
-   "input_sha256": "ab6b291b350d626e7b1297b920233ee8bb5af394023618ce7be7c0717e296b28",
-   "audio_sha256": "52ce840abb848bd2f0d081b64121af6b40dad490768fa48a55f634a2d59d63d8",
-   "request_id": "vI2VC5GBrKUXEypvXdbW",
+   "delivery": "[urgently]",
+   "input_sha256": "6962b7f993f8dda9fbd41877fcb34d0626d1bc2a62f7603acc6a596cbf31063a",
+   "audio_sha256": "b4828c49779675931d37576f822bbb59d73f81c0c993180680988d6534d41531",
+   "generation_id": "QEd3Nkwh3VOCOXwHESji",
+   "flow_session_id": "RYgaqhdItcmuZ8zrs0kD",
    "review_status": "listening_required"
   }
  },
  "l_hit_s": {
   "spk": "seoyeon",
   "text": "윽…! 도망쳐야 해!",
-  "dur": 2.194,
+  "dur": 2.038,
   "baked": true,
-  "eleven": "윽…! 도망쳐야 해!",
+  "eleven": "[urgently] 윽…! 도망쳐야 해!",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "urgent",
-   "input_sha256": "0d472fdce126e5cec3167a046d92fc448594df3ce0d764ede05ebdc971ea9c3c",
-   "audio_sha256": "d9b46d7ad9382f8c92f2c3448bfc2bfd591988dcd2bc048dc7b128570ce97973",
-   "request_id": "wDNbw2R1MFCsBbmCvAOy",
+   "delivery": "[urgently]",
+   "input_sha256": "2ded467d36ac02bc2724010e8b7b543971fe4b47c124eb4e3820589bb4917c52",
+   "audio_sha256": "f79ccb492536882039472805b773576e5dd7d6f7cd2256ca3cf06b8daa6e69aa",
+   "generation_id": "qhjCIRlUMGFVKSJ2sMQf",
+   "flow_session_id": "WUG1NG2Qg53MM8qA1gnr",
    "review_status": "listening_required"
   }
  },
  "l_heal_j": {
   "spk": "jihun",
   "text": "괜찮아. 아직 움직일 수 있어.",
-  "dur": 3.788,
+  "dur": 2.508,
   "baked": true,
-  "eleven": "괜찮아. 아직 움직일 수 있어.",
+  "eleven": "[relieved] 괜찮아. 아직 움직일 수 있어.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "relief",
-   "input_sha256": "c368447cb3b813e3d87733e1ac6c4c9c1510648a0c5af4a5aa62b9f59394e253",
-   "audio_sha256": "6e4c10c775516bafd0b5f1004714bba613bbe348563f528ca1dc797b760c039b",
-   "request_id": "7hCooxnq7Rb7LYdvW46u",
+   "delivery": "[relieved]",
+   "input_sha256": "29255b9f80658370dc3483c3def6d473674372acecc7ce328efe39ad2326016c",
+   "audio_sha256": "f0d0dfd0f1d2dae0c6642d23bb537e11a3fc15d88fbd90e8807d9142de39da11",
+   "generation_id": "Cvigp5tsINsacAQmBJcN",
+   "flow_session_id": "yRElUTrVt6821jy6gdzf",
    "review_status": "listening_required"
   }
  },
  "l_heal_s": {
   "spk": "seoyeon",
   "text": "조금 낫네… 계속 가자.",
-  "dur": 3.553,
+  "dur": 2.586,
   "baked": true,
-  "eleven": "조금 낫네… 계속 가자.",
+  "eleven": "[relieved] 조금 낫네… 계속 가자.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "relief",
-   "input_sha256": "8044088ecd97869a7c3fab73ee9b73346fab57347a324d7f7f9e0f1398e9d2fe",
-   "audio_sha256": "a7db7afa73fc8990ba09addeb699c2d320a9b62a8b69aba3e4d6443a933d55a2",
-   "request_id": "0l4RbFuyBKITqt3JI8bb",
+   "delivery": "[relieved]",
+   "input_sha256": "9a2b18a810bf9277888d2f16c557b6939a7e6673d24957467c17dbf6c74798a4",
+   "audio_sha256": "598f8008a7e1e2726d228c350250d18aa30a62687ae04947c4e2b076cd5d67f8",
+   "generation_id": "BYdbmMJW7Ye3IsrZHqmD",
+   "flow_session_id": "nmpKZvj7Kgxg1sGwXUtD",
    "review_status": "listening_required"
   }
  },
  "l_enrage_j": {
   "spk": "jihun",
   "text": "기록부가 완성됐어. 이제 정문으로 가자!",
-  "dur": 3.16,
+  "dur": 2.926,
   "baked": true,
-  "eleven": "기록부가 완성됐어. 이제 정문으로 가자!",
+  "eleven": "[urgently] 기록부가 완성됐어. 이제 정문으로 가자!",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "urgent",
-   "input_sha256": "9cbdc5bc3334e84b44e27606e2a31f167c10f1b14126df39137321c07db04e0d",
-   "audio_sha256": "2de5d1d518d24045feb71a94bfd6d465bc47cfa836c637225d87449e9391b642",
-   "review_status": "unreviewed"
+   "delivery": "[urgently]",
+   "input_sha256": "fca875aa838b8bfd0e8065f3096be62c5065c2fd057a31a5f47088e3f67837d3",
+   "audio_sha256": "78d66efe69b0d513f1ee7326cc9d2a3b46b00556b5033ff12398e62d6df0049c",
+   "generation_id": "Sc6xP4ZM96Gc8X69H0iN",
+   "flow_session_id": "ikZcZ60nf5m72XdncRom",
+   "review_status": "listening_required"
   }
  },
  "l_enrage_s": {
   "spk": "seoyeon",
   "text": "다 맞췄어… 이제 정문으로 가자!",
-  "dur": 2.93,
+  "dur": 2.769,
   "baked": true,
-  "eleven": "다 맞췄어… 이제 정문으로 가자!",
+  "eleven": "[urgently] 다 맞췄어… 이제 정문으로 가자!",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "urgent",
-   "input_sha256": "9d6e7f6f9434a8fff7d64d0c0b8ad00bed8eaf2c31fe5deeba86b168cacecc06",
-   "audio_sha256": "84997685291d727836f0c096667e63d05766394832970a2789d8359676429806",
-   "review_status": "unreviewed"
+   "delivery": "[urgently]",
+   "input_sha256": "5052e3e49b9110c70a7f4852ffd5a517de55600448adc0ec0632c831f7ec3a7d",
+   "audio_sha256": "f0ebe22399fe1c936daae876a5d8ca9df60028de85a55b9c9056e8d6be8c8f61",
+   "generation_id": "QJFF3OTWL93TDYk3ZLbi",
+   "flow_session_id": "rUwBovetkRehgmZpIevl",
+   "review_status": "listening_required"
   }
  },
  "l_roof_j": {
   "spk": "jihun",
   "text": "바람 소리뿐이야. 난간에 누가 꽃을 묶어 뒀어.",
-  "dur": 4.21,
+  "dur": 4.049,
   "baked": true,
-  "eleven": "바람 소리뿐이야. 난간에 누가 꽃을 묶어 뒀어.",
+  "eleven": "[frightened] 바람 소리뿐이야. 난간에 누가 꽃을 묶어 뒀어.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "fear",
-   "input_sha256": "4deb68666c87e80db0cdf759c285f70cde6e021534001beb285be0b32ec579e7",
-   "audio_sha256": "7090a9272b1c029051060c3ac6cd3e4b7934c03a8b48ec7f1c47d5497a7fb864",
-   "review_status": "unreviewed"
+   "delivery": "[frightened]",
+   "input_sha256": "92ff19d0c75843b9656a1d14a6ea65ef6017b5103980b8abe00672dac4f8b20d",
+   "audio_sha256": "1bfa8e058c4008658763fb9122a890ae3e99fd25c4a89e31f90a36c178a41207",
+   "generation_id": "CgfKu7qM4cUfKjelEyeM",
+   "flow_session_id": "ujz7lJvc6q64IcBzP3He",
+   "review_status": "listening_required"
   }
  },
  "l_roof_s": {
   "spk": "seoyeon",
   "text": "바람 소리뿐이야… 난간에 누가 꽃을 묶어 뒀네.",
-  "dur": 4.52,
+  "dur": 4.676,
   "baked": true,
-  "eleven": "바람 소리뿐이야… 난간에 누가 꽃을 묶어 뒀네.",
+  "eleven": "[frightened] 바람 소리뿐이야… 난간에 누가 꽃을 묶어 뒀네.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "fear",
-   "input_sha256": "ecf3d018276a2cff89399162e7412599124749dba1eac2076ce96df4c38f1a91",
-   "audio_sha256": "498668e605d343e2331a0ccafb24db176fab8031a8448a2bf04e76a422a194a0",
-   "review_status": "unreviewed"
+   "delivery": "[frightened]",
+   "input_sha256": "b827f3acd6b104256d6ecd0abe4afd44910d2bbfbdb877b33d632f7b2bd473c0",
+   "audio_sha256": "52b1c96f61433cfec3237ad62c0240ae42a2c07c2b6498c3b9157b22554c8f5f",
+   "generation_id": "o1rc2Mh5kbb9PVeW8aOs",
+   "flow_session_id": "qkjJJFAyWGFg5qNwZnGJ",
+   "review_status": "listening_required"
   }
  },
  "l_b1_j": {
   "spk": "jihun",
   "text": "지하… 이런 곳이 있었다니.",
-  "dur": 3.082,
+  "dur": 2.847,
   "baked": true,
-  "eleven": "지하… 이런 곳이 있었다니.",
+  "eleven": "[frightened] 지하… 이런 곳이 있었다니.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "fear",
-   "input_sha256": "48064f1d74f8a023580d691b6cf17c3f9b1d35cf303b31f1d4f261705c15b3c5",
-   "audio_sha256": "23446b4731696e88d7b8fbdb5bb849f761c10f8d52df93a8afed69925ee95cef",
-   "request_id": "Fm466WTZBRj5NirFLO2g",
+   "delivery": "[frightened]",
+   "input_sha256": "4e8c31fc85761babd78d1bb16d89e4f620a021a59d7e3cca376f421e6e3be342",
+   "audio_sha256": "334575b04635ea0d5f47f941b3c01c50f18d2ec1cd46b43b00c4a92ed0333ba5",
+   "generation_id": "0JGaiINatL5ZxXF2IbDF",
+   "flow_session_id": "2LB6IlOpYBlRKT43s40i",
    "review_status": "listening_required"
   }
  },
  "l_b1_s": {
   "spk": "seoyeon",
   "text": "지하…? 이런 곳이 있었다니.",
-  "dur": 3.161,
+  "dur": 3.004,
   "baked": true,
-  "eleven": "지하…? 이런 곳이 있었다니.",
+  "eleven": "[frightened] 지하…? 이런 곳이 있었다니.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "fear",
-   "input_sha256": "d99b16924576e403811fa154e98e27b3e64f03fabfefbe863ef3370a511d22e4",
-   "audio_sha256": "a4b94a82435185103bac33ab8726d48f30bb4abda9f1952dbf3954e11598f234",
-   "request_id": "knuqalftVrWE7QlNC28z",
+   "delivery": "[frightened]",
+   "input_sha256": "46a89672aff98915b3df2c888879e9bd84be6df80e1f55d2e3d553214ca688c3",
+   "audio_sha256": "69cf0e730b519b338b484890bd3fcc8710a987350763d99b19c3e75e2403fc81",
+   "generation_id": "bIOt0NDRJsBPTuM6GiuG",
+   "flow_session_id": "c8ruINHnMBK5ji5fGvEz",
    "review_status": "listening_required"
   }
  },
  "l_gym_j": {
   "spk": "jihun",
   "text": "불 꺼진 체육관… 바닥에 농구공 하나가 굴러다녀.",
-  "dur": 4.36,
+  "dur": 3.866,
   "baked": true,
-  "eleven": "불 꺼진 체육관… 바닥에 농구공 하나가 굴러다녀.",
+  "eleven": "[frightened] 불 꺼진 체육관… 바닥에 농구공 하나가 굴러다녀.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "fear",
-   "input_sha256": "7b7805590e7d515097f43db7b0963c2564872006ee94d093650419a54fee9347",
-   "audio_sha256": "c11bb16f9499cc4e4f151239ed392bb7bb01669aaa430e1f7a7e69ff77803c96",
-   "review_status": "unreviewed"
+   "delivery": "[frightened]",
+   "input_sha256": "39374d372761e3f194f05483b971ce3399f2b02ba0b5310bcbabcc05440016b3",
+   "audio_sha256": "abf1303a67caf12c23bd179ac8b7e20c0ab0d2bcfeb6d1957d8abf6b8df996e7",
+   "generation_id": "mhYTKE4r06nQ3aVSsfjr",
+   "flow_session_id": "8zef4URv6TsooYni8OBf",
+   "review_status": "listening_required"
   }
  },
  "l_gym_s": {
   "spk": "seoyeon",
   "text": "불 꺼진 체육관이야… 소리가 엄청 울려.",
-  "dur": 3.79,
+  "dur": 3.709,
   "baked": true,
-  "eleven": "불 꺼진 체육관이야… 소리가 엄청 울려.",
+  "eleven": "[frightened] 불 꺼진 체육관이야… 소리가 엄청 울려.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "fear",
-   "input_sha256": "02fc6b62ce8ad7bcc3bd0bdbf190ee5eb26da6f98fa3b1406de8dcb6550b9f09",
-   "audio_sha256": "adb4e58a12871fd4eb626337a6ce0a65d74719dcf3fcca7cd0b83ff73f524e49",
-   "review_status": "unreviewed"
+   "delivery": "[frightened]",
+   "input_sha256": "e037a1fbb2c4dde467fdd427f47b09f39ff9f1af9fd6a8f2ef6dc9d73bd81c1f",
+   "audio_sha256": "63c6ff07b2fda76cb7ef32e03c1a192f114ec333ef7c50a2f14f7f7ca57d52cd",
+   "generation_id": "7E6lZrrFnZHQ2rHtBT60",
+   "flow_session_id": "enEFLl3OeqczKnBeHiig",
+   "review_status": "listening_required"
   }
  },
  "l_pool_j": {
   "spk": "jihun",
   "text": "물을 뺀 수영장인데… 배관에서 물 새는 소리가 나.",
-  "dur": 4.05,
+  "dur": 4.284,
   "baked": true,
-  "eleven": "물을 뺀 수영장인데… 배관에서 물 새는 소리가 나.",
+  "eleven": "[frightened] 물을 뺀 수영장인데… 배관에서 물 새는 소리가 나.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "fear",
-   "input_sha256": "728311b6061bea826c882dea3c3942ae0c85a0cc57c47be4a3b9420ba033f8ee",
-   "audio_sha256": "a6e8428ef5e07ab2e60c377b9011551d78676ddff3115f1bae7dca1d4b9372a0",
-   "review_status": "unreviewed"
+   "delivery": "[frightened]",
+   "input_sha256": "b1893287bfd83f8e90ec0c7007f2e7b41c23513f97656f77bae63c0159b8ca34",
+   "audio_sha256": "a4d4cb10661a0daae69c40f8959514d4d3111f0846a2a5ae9564f99cb1d8bab8",
+   "generation_id": "LLPldjsAkeB5AXl9Q3B4",
+   "flow_session_id": "DUERWwgBT7kjIAmolPXI",
+   "review_status": "listening_required"
   }
  },
  "l_pool_s": {
   "spk": "seoyeon",
   "text": "물은 다 뺐는데… 배관에서 물이 새고 있어.",
-  "dur": 3.79,
+  "dur": 3.631,
   "baked": true,
-  "eleven": "물은 다 뺐는데… 배관에서 물이 새고 있어.",
+  "eleven": "[frightened] 물은 다 뺐는데… 배관에서 물이 새고 있어.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "fear",
-   "input_sha256": "838a18ff4fa8019f7162c322101763fc1df25363d8f6327f67404246d4b533a5",
-   "audio_sha256": "ef260a0f8e003ad148cd70194daf6a4669fe1fbad10aca64c49f0ae3b602233d",
-   "review_status": "unreviewed"
+   "delivery": "[frightened]",
+   "input_sha256": "4633193b29997b0ecbf7fbb5582802eae192e04b83f2ba2967841c34264a9f73",
+   "audio_sha256": "8fe7da64b032edfda6f464c7c07056addebb529975982ea1c0577e55fd346d1f",
+   "generation_id": "lgmQMUlcrTBgB1jmkDq0",
+   "flow_session_id": "wo8Tk6IdF8k2hmuGpozh",
+   "review_status": "listening_required"
   }
  },
  "l_cafe_j": {
   "spk": "jihun",
   "text": "식판이 그대로다. 방금까지 누가 있었던 것처럼.",
-  "dur": 4.362,
+  "dur": 3.971,
   "baked": true,
-  "eleven": "식판이 그대로다. 방금까지 누가 있었던 것처럼.",
+  "eleven": "[frightened] 식판이 그대로다. 방금까지 누가 있었던 것처럼.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "fear",
-   "input_sha256": "ebf7ace4bec45dc7c8d11395c51a480dcd5450566625f3d9e197da419e24b23d",
-   "audio_sha256": "75c267937a44c4e7d29a879e047f3da52fe31fc792013b936dc66907d3b9799f",
-   "request_id": "UjDfcbyy0IZzDCo9qv6x",
+   "delivery": "[frightened]",
+   "input_sha256": "d744475bea0ab73f229857114b13ff0dc5789109860375b3b5723b3a010fedc8",
+   "audio_sha256": "b2503a0536aa52edc33fb2777b678d8fc8a413a76741d973583e273e45a3e7f9",
+   "generation_id": "BNuLeBF3QyRyD0AejR0a",
+   "flow_session_id": "JCQXxSGtDs5vKgij8O6G",
    "review_status": "listening_required"
   }
  },
  "l_cafe_s": {
   "spk": "seoyeon",
   "text": "식판이 그대로야… 방금까지 누가 있었던 것처럼.",
-  "dur": 4.519,
+  "dur": 4.362,
   "baked": true,
-  "eleven": "식판이 그대로야… 방금까지 누가 있었던 것처럼.",
+  "eleven": "[frightened] 식판이 그대로야… 방금까지 누가 있었던 것처럼.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "fear",
-   "input_sha256": "30b477845d6f2aab7fe747273a64b83173183f0ad119d0abad175bce3dcd6303",
-   "audio_sha256": "08907ad7c63c31c9948c864bfcaaac7fa9b07e7fb46c7d77304d17a377788aa6",
-   "request_id": "fxkT5mL2dopo8mgVLdlR",
+   "delivery": "[frightened]",
+   "input_sha256": "9f2ab2d6f683b66c81ec05cc919dfa4fa9c38f4775bb4caaa8398a035fa6440b",
+   "audio_sha256": "69b2fcb6705b283754a1ccb9d045f74815639a98139e6eff1bc9780cc25f9cd6",
+   "generation_id": "okllX4QnARSNNbBgWZBA",
+   "flow_session_id": "rlfC41Uucy2fmMOpVTuW",
    "review_status": "listening_required"
   }
  },
  "l_piano_j": {
   "spk": "jihun",
   "text": "피아노 위에 악보가 펼쳐져 있어. 누가 최근에 쳤나 봐.",
-  "dur": 4.05,
+  "dur": 4.049,
   "baked": true,
-  "eleven": "피아노 위에 악보가 펼쳐져 있어. 누가 최근에 쳤나 봐.",
+  "eleven": "[surprised] 피아노 위에 악보가 펼쳐져 있어. 누가 최근에 쳤나 봐.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "surprise",
-   "input_sha256": "176e96a266e1668931cfcabd8d8f31054a948a3ff58dc151ee1e1ab753c395d2",
-   "audio_sha256": "645821a8b6dfd5366bb6acfe4abf3c8e130e98dc724c2553b792fca47ca50578",
-   "review_status": "unreviewed"
+   "delivery": "[surprised]",
+   "input_sha256": "d1bc6d9e3daa9db6b1d91308b9455c7c31aded2c2b08d5623c0a9f111f2d91f9",
+   "audio_sha256": "c0fc019cbde4a4b7233abe93fcbc891ea7c57eb3e8538b376b4bf7d65e898519",
+   "generation_id": "XABmWbzmkz4DoVYSJWkL",
+   "flow_session_id": "S6F1QfaP7jN3lM87qLDw",
+   "review_status": "listening_required"
   }
  },
  "l_piano_s": {
   "spk": "seoyeon",
   "text": "피아노 뚜껑이 열려 있어… 누가 최근에 쳤나 봐.",
-  "dur": 4.05,
+  "dur": 4.127,
   "baked": true,
-  "eleven": "피아노 뚜껑이 열려 있어… 누가 최근에 쳤나 봐.",
+  "eleven": "[surprised] 피아노 뚜껑이 열려 있어… 누가 최근에 쳤나 봐.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "surprise",
-   "input_sha256": "51748ec699c1c5b51fae9c9ac21dbe5fe32a3ed87c1c43fa4540675b226e0d71",
-   "audio_sha256": "996c345d11b1224d68be220ac916a7985c6e41c4bc8dbd8091c639377a2dd8d0",
-   "review_status": "unreviewed"
+   "delivery": "[surprised]",
+   "input_sha256": "993cadd1ef7d824b4f5bf1082d8997fc0a8a2692b5f3af165e267aacaef9215a",
+   "audio_sha256": "008adff86b3822ee643a7b043948456c95b5f240b35d0930c5cc9faf5fee074c",
+   "generation_id": "enzzBxWsmYECmLBvNv2W",
+   "flow_session_id": "hmYsew0YY3jPSjCSinbo",
+   "review_status": "listening_required"
   }
  },
  "l_doorSlam_j": {
   "spk": "jihun",
   "text": "바람에 문이 닫혔어. 창문이 열려 있나 봐.",
-  "dur": 3.24,
+  "dur": 3.631,
   "baked": true,
-  "eleven": "바람에 문이 닫혔어. 창문이 열려 있나 봐.",
+  "eleven": "[surprised] 바람에 문이 닫혔어. 창문이 열려 있나 봐.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "surprise",
-   "input_sha256": "411241176adecf1b66355f689a6b5b9637c98b0371ca4a09787e18e65eb5b974",
-   "audio_sha256": "0a8bc49a2eccd2b6b770bc9bd7f5252cb258c19b998deacc6bc7e65b925b42ea",
-   "review_status": "unreviewed"
+   "delivery": "[surprised]",
+   "input_sha256": "342a21bc3824861c72fcc062dda4bf5954e21ad3279a7081a706b946b24d190c",
+   "audio_sha256": "2206fb900d461cd5eb747687fa959cb7e6fefa03bf2acdc75ac2c53f159814d0",
+   "generation_id": "zPJP6r7Jsn7WXwSI16jA",
+   "flow_session_id": "b7gfqNBqlMuS1btPsuHM",
+   "review_status": "listening_required"
   }
  },
  "l_doorSlam_s": {
   "spk": "seoyeon",
   "text": "바람 때문에 문이 닫혔어…",
-  "dur": 2.59,
+  "dur": 2.351,
   "baked": true,
-  "eleven": "바람 때문에 문이 닫혔어…",
+  "eleven": "[surprised] 바람 때문에 문이 닫혔어…",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "surprise",
-   "input_sha256": "6352fdd4ebf98b1791af436632ed39d9c8de1bed9fb5c1264d1749eb641dd42f",
-   "audio_sha256": "068698fa87f5fb3386176325074172cab5fb84aae1d5dea0e37ab51f76374808",
-   "review_status": "unreviewed"
+   "delivery": "[surprised]",
+   "input_sha256": "bbb71cf8094f2d031098660cf78d8a73672afc93f166fa4e06549a2c7eda61f5",
+   "audio_sha256": "5ad765e794abf9e662abf7a5bf7844035a4a9f8c44833cac92e20a74370b9a36",
+   "generation_id": "zvLqZl2S67hAitbWZWGQ",
+   "flow_session_id": "QxgOHvbCZTzD1AmTZ2LQ",
+   "review_status": "listening_required"
   }
  },
  "l_stall_j": {
   "spk": "jihun",
   "text": "…누구 있어?",
-  "dur": 2.038,
+  "dur": 1.881,
   "baked": true,
-  "eleven": "…누구 있어?",
+  "eleven": "[frightened] …누구 있어?",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "fear",
-   "input_sha256": "a7329cd576971a7a85dfc21c0842be17d9c0f22d9031acf562e2d2ca94ee118f",
-   "audio_sha256": "ccc296788fcc1cb899b5cf055e2e251efef2a9e98b6fbfacb00c75b263ce2434",
-   "request_id": "ExooSrUFqadkYacAb8MG",
+   "delivery": "[frightened]",
+   "input_sha256": "333e92b6899f10e60b052bc5b7ada36b6a4feccf627afb6d71083568ca6453d1",
+   "audio_sha256": "33e4e985dc11698616cf4cdefd02cb1f20f3b2ee0ab6f97ae9bbddade8080b4a",
+   "generation_id": "8JfhiLw37uadfTn2AS3I",
+   "flow_session_id": "SfeO4ORfR24eP2x1msQc",
    "review_status": "listening_required"
   }
  },
  "l_stall_s": {
   "spk": "seoyeon",
   "text": "…누구 있어요?",
-  "dur": 2.116,
+  "dur": 1.567,
   "baked": true,
-  "eleven": "…누구 있어요?",
+  "eleven": "[frightened] …누구 있어요?",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "fear",
-   "input_sha256": "ac4354ce804311e6b1f49d3f6ba79cf708dd6cd1ec47ee4fb0a92f364041137c",
-   "audio_sha256": "bfee1ed20567912e27b63fdaa05cf5e57c8fdac377d7c7b00e861a480020e2e7",
-   "request_id": "74xianJDz6hLaFkGysPO",
+   "delivery": "[frightened]",
+   "input_sha256": "5a100835d649a668fabbb0e0d62346cb28ec9468f1a4fdec5060dcbc5f58ce09",
+   "audio_sha256": "d7d3b6e6dfd209fbc1df0d0a8db61dab18cfda8bacb1de09d39a9035b84528e5",
+   "generation_id": "8osTcIZgtqTEFkrNJ4Su",
+   "flow_session_id": "AbNbFngH1pT6yubuj7pG",
    "review_status": "listening_required"
   }
  },
  "l_steps_j": {
   "spk": "jihun",
   "text": "방금 그거, 발소리였어. 우리 말고 누가 있어.",
-  "dur": 4.52,
+  "dur": 3.971,
   "baked": true,
-  "eleven": "방금 그거, 발소리였어. 우리 말고 누가 있어.",
+  "eleven": "[surprised] 방금 그거, 발소리였어. 우리 말고 누가 있어.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "surprise",
-   "input_sha256": "af9f25d8f51aec6ad60cd5d64d9bdc1fb9c849eede8cd2fd12dfa059deef3ded",
-   "audio_sha256": "5da0c3ba164b1f6ec7e8ab4bd5208c962266e5a021afa084a8ca34a867393006",
-   "review_status": "unreviewed"
+   "delivery": "[surprised]",
+   "input_sha256": "a976837572cc1cdcab3c3e6a5f01f85e5ce76cf436ae96604ef3b26cc829d401",
+   "audio_sha256": "36546ab9c25e8b62e5218e08f60293410cb7274d442cc3e295ad501e7cc392fe",
+   "generation_id": "njbWE52czKwAUdTDu4iw",
+   "flow_session_id": "QIqwiGkfSamS6ov1UUUq",
+   "review_status": "listening_required"
   }
  },
  "l_steps_s": {
   "spk": "seoyeon",
   "text": "…방금 발소리였어. 우리 말고 누가 있어.",
-  "dur": 3.79,
+  "dur": 3.474,
   "baked": true,
-  "eleven": "…방금 발소리였어. 우리 말고 누가 있어.",
+  "eleven": "[surprised] …방금 발소리였어. 우리 말고 누가 있어.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "surprise",
-   "input_sha256": "7c08f3ff4a3e26ea4b26014c7add523e1a6cb5a1f5f7b8cb07d9d7605e9a0f74",
-   "audio_sha256": "6639e105b22cf9e5b97094baac595b5368ae4d71f3828997a01f88b00b762cc0",
-   "review_status": "unreviewed"
+   "delivery": "[surprised]",
+   "input_sha256": "af0435d8106c480a65037e3577b0f567e85bb8aec85d6cef5e83cbfba33ba13a",
+   "audio_sha256": "dccdd41ed13b7e349c32ba73edcbffe2a3d454880b5124ef4512108bee1bacf1",
+   "generation_id": "FR5oW0Td7VWZ0mxX6Sgo",
+   "flow_session_id": "FNTc7XUdnBtNRgA7XqE2",
+   "review_status": "listening_required"
   }
  },
  "l_ball_j": {
   "spk": "jihun",
   "text": "공이 굴러왔어. 바닥이 기울어 있나 봐.",
-  "dur": 2.93,
+  "dur": 3.318,
   "baked": true,
-  "eleven": "공이 굴러왔어. 바닥이 기울어 있나 봐.",
+  "eleven": "[surprised] 공이 굴러왔어. 바닥이 기울어 있나 봐.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "surprise",
-   "input_sha256": "d929934c79e6e84c0bca5cce1995dba1137f1a87c5fcc3042f6e853cdb33c08c",
-   "audio_sha256": "bfc3c49629abbd52ceceb7d2ba33be5dd2a3bef2820261f774c55b0735a47ed0",
-   "review_status": "unreviewed"
+   "delivery": "[surprised]",
+   "input_sha256": "0e52c2b3cfd1102c365ad994b580e23a32ff7d8fea76fa8fefb06deef56ce349",
+   "audio_sha256": "5ed519c084b7e7e5536696cbf3c32c2ad71ef8357708e619155d2c7b97571982",
+   "generation_id": "wnKPQCifkvrPZnlpFlV3",
+   "flow_session_id": "DPOnD0SZF1o8fnIGYsfW",
+   "review_status": "listening_required"
   }
  },
  "l_ball_s": {
   "spk": "seoyeon",
   "text": "공이 굴러왔네… 바닥이 기울었나.",
-  "dur": 3.24,
+  "dur": 3.239,
   "baked": true,
-  "eleven": "공이 굴러왔네… 바닥이 기울었나.",
+  "eleven": "[surprised] 공이 굴러왔네… 바닥이 기울었나.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "surprise",
-   "input_sha256": "8a78f2286f51c72b371c1b92df41d060c7c28f4bfe15ea4ad66a772cb2220700",
-   "audio_sha256": "1d91de946704d2347e14d983374bca32f779d6d983b95c538132d411235e9802",
-   "review_status": "unreviewed"
+   "delivery": "[surprised]",
+   "input_sha256": "ab74f927b7472af975560fbacc9aa92581d680fa90e021c0fa0a98a9d3d10478",
+   "audio_sha256": "a375690090f73a925974b2e149dbb90c1aa4d81ae0ca60bf0e0217a32491ee20",
+   "generation_id": "drGVOvNJM9M37VbM4h5M",
+   "flow_session_id": "OcgchRXTuIuRYROyR2nK",
+   "review_status": "listening_required"
   }
  },
  "l_speakers_j": {
   "spk": "jihun",
   "text": "스피커에서 잡음이 나. 어딘가에서 아직 전원이 들어오고 있어.",
-  "dur": 4.6,
+  "dur": 4.676,
   "baked": true,
-  "eleven": "스피커에서 잡음이 나. 어딘가에서 아직 전원이 들어오고 있어.",
+  "eleven": "[surprised] 스피커에서 잡음이 나. 어딘가에서 아직 전원이 들어오고 있어.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "surprise",
-   "input_sha256": "28699da8a28dca87fbee1a15064484275e0b9ae1909db713553d86867f8b749d",
-   "audio_sha256": "4185eb85d0306fcd368586bc37b671d088e2b70cd2f85cee7a9a6db5c27d207b",
-   "review_status": "unreviewed"
+   "delivery": "[surprised]",
+   "input_sha256": "1fe204d2233d47345f18af7d74f8a43a42825780e7e23ef8941a7b90243eedae",
+   "audio_sha256": "8b2e4330921dec71a262b6d631838de670bd4593f5418802dd210e5bdbe0cd0e",
+   "generation_id": "1kaYQn0ql4yOareXR2k9",
+   "flow_session_id": "FUzObzq9JeeOrehVkMaU",
+   "review_status": "listening_required"
   }
  },
  "l_speakers_s": {
   "spk": "seoyeon",
   "text": "스피커가 지직거려… 방송 장비 어딘가에 전원이 살아 있어.",
-  "dur": 5.07,
+  "dur": 4.833,
   "baked": true,
-  "eleven": "스피커가 지직거려… 방송 장비 어딘가에 전원이 살아 있어.",
+  "eleven": "[surprised] 스피커가 지직거려… 방송 장비 어딘가에 전원이 살아 있어.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "surprise",
-   "input_sha256": "2419ea952afe0edfba027e1d7246c3ce6ecfb7bd82c70fb490fe3b481629d60c",
-   "audio_sha256": "d2f6724003f228e2bd9e4a173441606acff8bb7afaaa82d9887491f55973279c",
-   "review_status": "unreviewed"
+   "delivery": "[surprised]",
+   "input_sha256": "abe198625dde42b9006f4b9add37cfa6162ba037f76879f3f6aaac8f36bf89b4",
+   "audio_sha256": "6955410798e9294b23787d2c0adeb877ac1dd935a09caa00725e86e8997002e2",
+   "generation_id": "Lig6qmxNKV4N9MZHDQoj",
+   "flow_session_id": "3cg3GKvJNe0SJp64dSLD",
+   "review_status": "listening_required"
   }
  },
  "l_breaker_j": {
   "spk": "jihun",
   "text": "불이 들어왔다. 근데 소리가 너무 컸어.",
-  "dur": 3.239,
+  "dur": 3.631,
   "baked": true,
-  "eleven": "불이 들어왔다. 근데 소리가 너무 컸어.",
+  "eleven": "[surprised] 불이 들어왔다. 근데 소리가 너무 컸어.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "surprise",
-   "input_sha256": "3b834f7e0fa6a3ebb202ca2b174e3415e96ab82af8b5e7d681e38ddc6b4e7e35",
-   "audio_sha256": "60ce575599fa92b2e83b0800ad17af7932ad7c0d445cd3ceac7bb6395f55ce83",
-   "request_id": "Ftjd5exRi1bvnAwSsPKg",
+   "delivery": "[surprised]",
+   "input_sha256": "fda0cbd2c5e30e302c0847b9b4b6cc90bd4b8850b6becd540cd67156eb552b7d",
+   "audio_sha256": "2613c881dc89a0951542bcf2daa44935deacb6506237fc7f8af50aba507a0be5",
+   "generation_id": "2Z25jrtrzIVAu3cilrmD",
+   "flow_session_id": "pprELV1Opt2TWSTltKOi",
    "review_status": "listening_required"
   }
  },
  "l_breaker_s": {
   "spk": "seoyeon",
   "text": "불이… 들어왔어. 근데 소리가 너무 컸어.",
-  "dur": 4.049,
+  "dur": 4.519,
   "baked": true,
-  "eleven": "불이… 들어왔어. 근데 소리가 너무 컸어.",
+  "eleven": "[surprised] 불이… 들어왔어. 근데 소리가 너무 컸어.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "surprise",
-   "input_sha256": "f6015c9d735d0696171c99f2857ddebe73c12d03766820a6f781dbb0fc6ccdd8",
-   "audio_sha256": "222559c1d6bf1656f109327ef131c37c8dbea6c0824e84b4b4d1196d8bf5b331",
-   "request_id": "o3tyeahjnjLU42eyN9pb",
+   "delivery": "[surprised]",
+   "input_sha256": "7d5d5503b1f78397acd2be67a273568141b4ee4c5c907ffbbeeeb6fa5672c559",
+   "audio_sha256": "27c96b93274d577ecd5e965cefc526168758ce12b9d19760dc23fac5e4719017",
+   "generation_id": "YV7Yw8Ey3AKRJvaYLJYd",
+   "flow_session_id": "XiC7TRDt85h2e1MgTtZZ",
    "review_status": "listening_required"
   }
  },
@@ -1372,134 +1328,124 @@
   "text": "지금이야. 여기서 빨리 벗어나자.",
   "dur": 2.429,
   "baked": true,
-  "eleven": "지금이야. 여기서 빨리 벗어나자.",
+  "eleven": "[urgently] 지금이야. 여기서 빨리 벗어나자.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "urgent",
-   "input_sha256": "d113a966cb3df9558505acc84f952337bab9ec1c2ec52381161ccad515dc59e0",
-   "audio_sha256": "034abc6d2c056ac264a4c2b5000045ec1d7d98ce4f9ff3d090f07af021daf6aa",
-   "request_id": "y3OkAbxhMBHGcgCxvNIO",
+   "delivery": "[urgently]",
+   "input_sha256": "fca4a453c53a8893fd06daefad661c132aac6bbf8f67c52b3bd7bfe28487e462",
+   "audio_sha256": "c5a00213e1e53a103e6318c6206d9d7f7ccf29f076ea0b4053d216f70c236481",
+   "generation_id": "k08Q9n44LAZFAXs5izSj",
+   "flow_session_id": "DffSY4MDYghRQokQNf5Y",
    "review_status": "listening_required"
   }
  },
  "l_lure_s": {
   "spk": "seoyeon",
   "text": "지금이야… 여기서 빨리 벗어나야 해.",
-  "dur": 2.769,
+  "dur": 2.926,
   "baked": true,
-  "eleven": "지금이야… 여기서 빨리 벗어나야 해.",
+  "eleven": "[urgently] 지금이야… 여기서 빨리 벗어나야 해.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "urgent",
-   "input_sha256": "9b5133a3c4ab634202fb08f8c87f262b4a02142b1e4b8e4c20716e8db702fba5",
-   "audio_sha256": "bdf45cd1f4d6e25825a94607b0424aff8f05c136b413c2f9a1987268e6270f43",
-   "request_id": "5ik9oSkVy3ru4kLm9433",
+   "delivery": "[urgently]",
+   "input_sha256": "fb9b4aae2f0ab13890e0a267dc08988ed30dd60e5ca5608bff1e52fa556d71ff",
+   "audio_sha256": "ed50078b81be1fd4fc3246da936ae5f39b8c5a30a5784bf7d82eab3053688732",
+   "generation_id": "NRbOiDNCuIsTqJQU0zyh",
+   "flow_session_id": "NhLEyObgzpbzqs74izp6",
    "review_status": "listening_required"
   }
  },
  "l_phone_j": {
   "spk": "jihun",
   "text": "메시지야. 신호가 약해서 이제야 들어왔나 봐.",
-  "dur": 3.47,
+  "dur": 3.788,
   "baked": true,
-  "eleven": "메시지야. 신호가 약해서 이제야 들어왔나 봐.",
+  "eleven": "[surprised] 메시지야. 신호가 약해서 이제야 들어왔나 봐.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "surprise",
-   "input_sha256": "55868951f4f18375a98533fe7fe0b8b9ce38532aecd3cde5dd8c3243a3c7c597",
-   "audio_sha256": "69c0e3eb82bf5dabbb4a80b56abdbf5e43adb6bcc86b564318610175b0674932",
-   "review_status": "unreviewed"
+   "delivery": "[surprised]",
+   "input_sha256": "46ac3252e852561f9a3fac901eb0feb01fa9477f549b9e0461de764e30f14d6c",
+   "audio_sha256": "7dbac313f07ed6ba211898a98f02118590d48ddf010d7750a8bd9d49ad7d3ba4",
+   "generation_id": "QPSRWJgXA1FvNjW80GNW",
+   "flow_session_id": "i61NXLryAKs0lslrNYNw",
+   "review_status": "listening_required"
   }
  },
  "l_phone_s": {
   "spk": "seoyeon",
   "text": "메시지…? 신호가 약해서 늦게 들어왔나 봐.",
-  "dur": 4.05,
+  "dur": 3.971,
   "baked": true,
-  "eleven": "메시지…? 신호가 약해서 늦게 들어왔나 봐.",
+  "eleven": "[surprised] 메시지…? 신호가 약해서 늦게 들어왔나 봐.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "surprise",
-   "input_sha256": "1d6010beb985562d075e95d3b7216630d71ae2fcb72b10b973e8b0e4bf82dccd",
-   "audio_sha256": "7907335971fd09906f5cda1f6ffcc9cb9f8553e740a9d55ef4ba44ca6a7edbb9",
-   "review_status": "unreviewed"
+   "delivery": "[surprised]",
+   "input_sha256": "9939795c6244ee97f672784761951e89b247fac275050f5ffa6143956043cbae",
+   "audio_sha256": "3f799f0c2c1d99e06d1b02393abda8fe3977c088f0c38a56e41a70f0b9eeef69",
+   "generation_id": "YbKiFx26hEOwP0DS1mqf",
+   "flow_session_id": "lRT1atj4Brfza9MNRNUj",
+   "review_status": "listening_required"
   }
  },
  "l_tagFound_j": {
   "spk": "jihun",
   "text": "3학년 2반 윤하늘… 이 명찰, 십 년 동안 배수구 철망에 걸려 있었어. 아무도 찾으려 하지 않은 거야.",
-  "dur": 8.99,
+  "dur": 8.751,
   "baked": true,
-  "eleven": "3학년 2반 윤하늘… 이 명찰, 십 년 동안 배수구 철망에 걸려 있었어. 아무도 찾으려 하지 않은 거야.",
+  "eleven": "[sad] 3학년 2반 윤하늘… 이 명찰, 십 년 동안 배수구 철망에 걸려 있었어. 아무도 찾으려 하지 않은 거야.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.35
-   },
-   "delivery": "normal",
-   "input_sha256": "ce9d20f7e5f365638fee9a774d00b3ff3c4abefe88156f7b6cd09fe939769a95",
-   "audio_sha256": "305a84bd462c6183178245899c9dbfdbf681d6dfaeb9c918d7c2432e9b6191a4",
-   "review_status": "unreviewed"
+   "delivery": "[sad]",
+   "input_sha256": "acfe0e48b305486aaab69596960cc4820f7682f3ce762d31ac3fa778128d79d6",
+   "audio_sha256": "78c457ee9d18a551763b9d1aa76a60eacc4ae50481d2c3640117d4c302438202",
+   "generation_id": "PezKXOh4iUOIQeezRaCp",
+   "flow_session_id": "i16HubZGhRREIh3G3yry",
+   "review_status": "listening_required"
   }
  },
  "l_tagFound_s": {
   "spk": "seoyeon",
   "text": "윤하늘 선배의 명찰… 펌프실 배수구에 십 년 동안 걸려 있었어. 아무도 찾지 않았던 거야.",
-  "dur": 7.55,
+  "dur": 8.281,
   "baked": true,
-  "eleven": "윤하늘 선배의 명찰… 펌프실 배수구에 십 년 동안 걸려 있었어. 아무도 찾지 않았던 거야.",
+  "eleven": "[sad] 윤하늘 선배의 명찰… 펌프실 배수구에 십 년 동안 걸려 있었어. 아무도 찾지 않았던 거야.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.35
-   },
-   "delivery": "normal",
-   "input_sha256": "fcc3b3e68ab1c06abb32d36a1e3f893acc244de99c581fdc5bc0c256fe61d038",
-   "audio_sha256": "2612da6e58d0d5dd44884f3f12d1441f8c336fe5e0c5a0449afee1edbf26dc95",
-   "review_status": "unreviewed"
+   "delivery": "[sad]",
+   "input_sha256": "502e6002f8a43909e7ebcd2aa74f09061df31148d4a4419ab07ca61e97c32178",
+   "audio_sha256": "45c1e54ec1be7710126f068c95ca35bd9057ccb77fd38bdd3b770c4fd10f71c3",
+   "generation_id": "UKbPDYnF9Gq92zm30eEH",
+   "flow_session_id": "1xJQnb8orw3EsC3p3YQJ",
+   "review_status": "listening_required"
   }
  },
  "l_needPower_j": {
   "spk": "jihun",
   "text": "방송을 하려면 먼저 전기를 살려야 해.",
-  "dur": 3.318,
+  "dur": 3.161,
   "baked": true,
-  "eleven": "방송을 하려면 먼저 전기를 살려야 해.",
+  "eleven": "[determined] 방송을 하려면 먼저 전기를 살려야 해.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "resolve",
-   "input_sha256": "87accd7123625bd6366324a90f684980033ce0dd15bedccbdf81607fd6295662",
-   "audio_sha256": "56166af4e47822dbc79de4686b4b34246adb800bdfca30e96677b08d8cec955f",
-   "request_id": "5FySB2ybRvhOHhacNR8O",
+   "delivery": "[determined]",
+   "input_sha256": "b1dcc76d48b0c58415deeb44c3ffa698405a0ee1622bf761546ee022ba8b8b0d",
+   "audio_sha256": "cd5b4f5555353afcb95a48995c4778abc94b738c962a33f38d34ac147ddec13f",
+   "generation_id": "SmXwglRpmPMODgPpl418",
+   "flow_session_id": "Et3Ezjv3F4RP35kvoETF",
    "review_status": "listening_required"
   }
  },
@@ -1508,136 +1454,125 @@
   "text": "전원이 없어… 지하 전기실 차단기부터 올려야 해.",
   "dur": 3.971,
   "baked": true,
-  "eleven": "전원이 없어… 지하 전기실 차단기부터 올려야 해.",
+  "eleven": "[determined] 전원이 없어… 지하 전기실 차단기부터 올려야 해.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "resolve",
-   "input_sha256": "3b6755872a03268fa479f4d3beb53f9097ade563c232ec5256a970170b6e90a9",
-   "audio_sha256": "72b89413b831ad4819e77ee973a3bc61ca042d1af9327f5b8d93ef4af4e0e5cd",
-   "request_id": "hNIVkAIgxBuElRQ12rpn",
+   "delivery": "[determined]",
+   "input_sha256": "97d92a4df4e40642f0102991838d4b71dd15f9602bd922b85447e5b3038e8612",
+   "audio_sha256": "8a5f81c8aaf9927529a02428e5cc372bc6fdb39144c261d038b04ce00d15bba0",
+   "generation_id": "WHIcKU0ReKQjDcv59vJ7",
+   "flow_session_id": "HT8cVqc1OA5pZWbnBIsJ",
    "review_status": "listening_required"
   }
  },
  "l_needTag_j": {
   "spk": "jihun",
   "text": "방송을 해도… 누구 이름을 불러야 하지?",
-  "dur": 3.318,
+  "dur": 3.709,
   "baked": true,
-  "eleven": "방송을 해도… 누구 이름을 불러야 하지?",
+  "eleven": "[nervous] 방송을 해도… 누구 이름을 불러야 하지?",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "normal",
-   "input_sha256": "c461c059ae9e511ce53f5280c96309160a75c3bb5a7df75cdc4bbc2326d8d7a3",
-   "audio_sha256": "5c1708ccd79225d71f47bfe6998fb48ab0ae7ec3044e0d06a45eb80875c84cca",
-   "request_id": "TgtBC55PXvkFfkqHjoek",
+   "delivery": "[nervous]",
+   "input_sha256": "15263917c8aea89b8f9f06bb42eab69df17a2fec49b91ae0971656e0fd15aa6c",
+   "audio_sha256": "f909896103e5a59794ab2cd5f6db8d1553d17556200a9b04a19a1dfdcabeb43c",
+   "generation_id": "rDMQ4CdeFvzVOjnkc7N8",
+   "flow_session_id": "A3sebgcsmlGXw1hSxBzE",
    "review_status": "listening_required"
   }
  },
  "l_needTag_s": {
   "spk": "seoyeon",
   "text": "누구에게 하는 방송인지… 아직 모르겠어.",
-  "dur": 3.971,
+  "dur": 4.127,
   "baked": true,
-  "eleven": "누구에게 하는 방송인지… 아직 모르겠어.",
+  "eleven": "[nervous] 누구에게 하는 방송인지… 아직 모르겠어.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "normal",
-   "input_sha256": "99a3b3b43e642f82e53eff7ad2d29b1f32aa131ef8dcb95ebc256fb5fb351cdb",
-   "audio_sha256": "3616e2006befe2b5fcf5256a182afea73046519c7a1ba5d25241da8ffa31e6c9",
-   "request_id": "tuo4KQCRWcjy9mvBF0ho",
+   "delivery": "[nervous]",
+   "input_sha256": "622637e228f07bea76df9dcb83f9e6878813698208b5d0fd8ce832305fa898dd",
+   "audio_sha256": "cf37770b71972754691c578d628f6bb67244219c5a8beccdd4594b0dc352b005",
+   "generation_id": "vJCa3Kv7uAduZCU9ksYj",
+   "flow_session_id": "nxYRyqb9yXWvv69Frs4j",
    "review_status": "listening_required"
   }
  },
  "l_calm_j": {
   "spk": "jihun",
   "text": "…끝났어. 이제 다 알려졌어.",
-  "dur": 2.93,
+  "dur": 3.161,
   "baked": true,
-  "eleven": "…끝났어. 이제 다 알려졌어.",
+  "eleven": "[relieved] …끝났어. 이제 다 알려졌어.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "relief",
-   "input_sha256": "adad5f7b5504ffaa9296ecf9bf82567f72ff4748545eb4ab2ab95c12fb888abf",
-   "audio_sha256": "28473f07e589bc6ae390bdd59afdf42e683c79ed9ce75af93b36e2e0d957d178",
-   "review_status": "unreviewed"
+   "delivery": "[relieved]",
+   "input_sha256": "fe2f9171289cbaea12f674105031760f3c2ded6de96e5a67e60e3cfc37694686",
+   "audio_sha256": "5961d2f6d87f064c877678a137c205c2487d5c6e42470465dd87eedba7453736",
+   "generation_id": "6oXVghfATuNayVa5eArL",
+   "flow_session_id": "85rdcRqibqhQqzDCW60i",
+   "review_status": "listening_required"
   }
  },
  "l_calm_s": {
   "spk": "seoyeon",
   "text": "…끝났어. 이제 모두가 알게 됐어.",
-  "dur": 3,
+  "dur": 3.553,
   "baked": true,
-  "eleven": "…끝났어. 이제 모두가 알게 됐어.",
+  "eleven": "[relieved] …끝났어. 이제 모두가 알게 됐어.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "relief",
-   "input_sha256": "45130e4a97e18f309d0737033f7fe0fd52946605500bfaee5b6575c0b00dd7c8",
-   "audio_sha256": "42e8004a927978245d6670427db6b75ed13d2b6c7d2b1b1c8ce85dc83ada5e33",
-   "review_status": "unreviewed"
+   "delivery": "[relieved]",
+   "input_sha256": "7857b7d97a74afaac2d2ac3a6cdc18bc8637c231f9f65507afbfd34873a3e419",
+   "audio_sha256": "9e8e8cb6b64f7d2f06ee8f2a84f7c7e9a520e35a12f2535d8120f1a7f7f86710",
+   "generation_id": "1Pacfis8BlGPURVebWDG",
+   "flow_session_id": "6QS2v9YwDD49nUKow1Vz",
+   "review_status": "listening_required"
   }
  },
  "l_findMina_j": {
   "spk": "jihun",
   "text": "민아는 3층 방송실 안쪽 장비실에 갇혀 있을 거야. 어서 가 보자.",
-  "dur": 4.52,
+  "dur": 4.519,
   "baked": true,
-  "eleven": "민아는 3층 방송실 안쪽 장비실에 갇혀 있을 거야. 어서 가 보자.",
+  "eleven": "[determined] 민아는 3층 방송실 안쪽 장비실에 갇혀 있을 거야. 어서 가 보자.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.35
-   },
-   "delivery": "normal",
-   "input_sha256": "b446448b4dd5d9da3f60bc40e1a83b7a4ed8f99ad66182f1cbd9377bedf9eb8e",
-   "audio_sha256": "e741a1b431cabf03521a54afd630893f5e80c96991499ac75e46c6db0b28ad8c",
-   "review_status": "unreviewed"
+   "delivery": "[determined]",
+   "input_sha256": "be3521b0a168ea0a3c4cf542cb7edd57e14738f8214e9d3f4a74d4bb67731e8c",
+   "audio_sha256": "17b0a28515c68255f8c47ba00fc4eb699313ccff238bbcb7599563c0ccd859fe",
+   "generation_id": "RGD8tQ96lhU3xXcVqkJF",
+   "flow_session_id": "SrpQGcgURokrgWwt5R8o",
+   "review_status": "listening_required"
   }
  },
  "l_findMina_s": {
   "spk": "seoyeon",
   "text": "민아 선배는 3층 방송실 장비실에 있어… 이제 선배를 데리러 가야 해!",
-  "dur": 4.8,
+  "dur": 5.251,
   "baked": true,
-  "eleven": "민아 선배는 3층 방송실 장비실에 있어… 이제 선배를 데리러 가야 해!",
+  "eleven": "[determined] 민아 선배는 3층 방송실 장비실에 있어… 이제 선배를 데리러 가야 해!",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.35
-   },
-   "delivery": "normal",
-   "input_sha256": "86de0b3eafb4975cc815b6234ba1a93bc106f261240c9ae0f3aaf62d8f7fb2d3",
-   "audio_sha256": "4b8bb0eea913d253f50e5907d6539b23418c97795d9a56f47324c79ff628f32d",
-   "request_id": "V585Z8ukhE4C5O5ofLPu",
-   "review_status": "verified"
+   "delivery": "[determined]",
+   "input_sha256": "a49436a64afa29513d782b91f2538a73904152f321314103de91a43435dbe039",
+   "audio_sha256": "2e7c623515b04a60c31221e54bf52146d391c8dd41e1b09dae0c1f1e6482ea00",
+   "generation_id": "9ytisT0eZLGrIqKyipYg",
+   "flow_session_id": "yQ2wx1shqs8Dj7mtJWxy",
+   "review_status": "listening_required"
   }
  },
  "l_minaFound_j": {

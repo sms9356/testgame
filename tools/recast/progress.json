@@ -518,5 +518,55 @@
   "status": "applied",
   "credits": 19.0,
   "generation_id": "z8wUGQeHaLKb9raBJsgZ"
+ },
+ "l_needCombine_j": {
+  "status": "applied",
+  "credits": 82.0,
+  "generation_id": "Sr8FxftDZ4P4SMyAWZ5Y"
+ },
+ "l_needCombine_s": {
+  "status": "applied",
+  "credits": 57.0,
+  "generation_id": "5oS92XjEx5pQggj7S9BL"
+ },
+ "l_minaAsleep_j": {
+  "status": "applied",
+  "credits": 35.0,
+  "generation_id": "AvfZrD8MCsODZO8ojUI2"
+ },
+ "l_minaAsleep_s": {
+  "status": "applied",
+  "credits": 32.0,
+  "generation_id": "r318P8ioQHce1U4wBV3X"
+ },
+ "l_withMina_j": {
+  "status": "applied",
+  "credits": 52.0,
+  "generation_id": "wH0FNAAiXj1pRP6fRnz4"
+ },
+ "l_withMina_s": {
+  "status": "applied",
+  "credits": 54.0,
+  "generation_id": "Xc7IsbESN6p7ypp4JRTg"
+ },
+ "l_needPin_j": {
+  "status": "applied",
+  "credits": 36.0,
+  "generation_id": "WbhKqwHCskkGpPOenf2L"
+ },
+ "l_needPin_s": {
+  "status": "applied",
+  "credits": 41.0,
+  "generation_id": "LAr7mGaWTwHYaDk2UKZ6"
+ },
+ "l_pinBroken_j": {
+  "status": "applied",
+  "credits": 26.0,
+  "generation_id": "rMC8PBtwA1yF30ZSGbWs"
+ },
+ "l_pinBroken_s": {
+  "status": "applied",
+  "credits": 20.0,
+  "generation_id": "aiWD91o42mcFBximeJ99"
  }
 }

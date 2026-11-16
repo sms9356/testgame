@@ -2144,130 +2144,126 @@
  "l_needCombine_j": {
   "spk": "jihun",
   "text": "개별 증거 조각만으론 안 돼. 먼저 소지품(Tab)에서 5대 비밀 증거와 교장 직인 코어를 합쳐 진상 규명 기록부를 완성해야 해.",
-  "dur": 8.59,
+  "dur": 9.247,
   "baked": true,
-  "eleven": "[tense] 개별 증거 조각만으론 안 돼. 먼저 소지품(Tab)에서 5대 비밀 증거와 교장 직인 코어를 합쳐 진상 규명 기록부를 완성해야 해.",
+  "eleven": "[nervous] 개별 증거 조각만으론 안 돼. 먼저 소지품(Tab)에서 5대 비밀 증거와 교장 직인 코어를 합쳐 진상 규명 기록부를 완성해야 해.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[tense]",
-   "input_sha256": "ed52a7b9e8fa6d5855f1af8ecad2f482862be150cbcd0169abde860afe195720",
-   "audio_sha256": "f0722f07f7c106d3abc6384367f7801b7fae3ff38d0374fbaa936123279d397a",
-   "review_status": "generated"
+   "delivery": "[nervous]",
+   "input_sha256": "a58dad7ffd0a560317678e813e57301a9f738cb8ade426227aaee5397e742bcb",
+   "audio_sha256": "695803cd2f8dd74ca985181d0c5ab4e33c54e1915c1542ea236912431cb94918",
+   "generation_id": "Sr8FxftDZ4P4SMyAWZ5Y",
+   "flow_session_id": "ed7UbyxuZNm9CcbYBFSl",
+   "review_status": "listening_required"
   }
  },
  "l_needCombine_s": {
   "spk": "seoyeon",
   "text": "먼저 소지품(Tab)에서 다섯 개의 비밀 증거와 교장 직인 코어를 하나로 맞춰야 해.",
-  "dur": 6.19,
+  "dur": 6.609,
   "baked": true,
   "eleven": "[nervous] 먼저 소지품(Tab)에서 다섯 개의 비밀 증거와 교장 직인 코어를 하나로 맞춰야 해.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
    "delivery": "[nervous]",
    "input_sha256": "8988180d34df6fa5c9e8163f4bce0d0d8da18e2ab52b1085c68cd796c854696c",
-   "audio_sha256": "6239b18104ebd4adaf452d570aa23462a51469a97fa5a72560d8a470feab527b",
-   "review_status": "generated"
+   "audio_sha256": "897c323de2f1da98a838880eebb81b5ce8bc969529667c0a4be5b2b3059b17d2",
+   "generation_id": "5oS92XjEx5pQggj7S9BL",
+   "flow_session_id": "2CmHF7PXo8s5AyoeBs4b",
+   "review_status": "listening_required"
   }
  },
  "l_minaAsleep_j": {
   "spk": "jihun",
   "text": "숨은 쉬고 있어. 그런데 아무리 불러도…",
-  "dur": 4.206,
+  "dur": 3.788,
   "baked": true,
-  "eleven": "숨은 쉬고 있어. 그런데 아무리 불러도…",
+  "eleven": "[frightened] 숨은 쉬고 있어. 그런데 아무리 불러도…",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "fear",
-   "input_sha256": "d853e7d60d4b0d73ab4bcebdbd90a6ee99a05b5b17eb62533b16eee59a7fa2a2",
-   "audio_sha256": "9a11537789b6a18bea12659ae6b55ece5ed4f66f2b4c9109604f24de22fa497d",
-   "request_id": "WL6uTi0REp1SkTkEXnyP",
+   "delivery": "[frightened]",
+   "input_sha256": "9d4dce63b00dac134fdb224d5e745b5cad17c227723b061b6ad4b4f7a8d225ef",
+   "audio_sha256": "d6f929fa911a9777ae3902a343fde557a55283dd3d80f78d3f1fcb225318f761",
+   "generation_id": "AvfZrD8MCsODZO8ojUI2",
+   "flow_session_id": "m6rQ0jmVR9OKSKPrF3jK",
    "review_status": "listening_required"
   }
  },
  "l_minaAsleep_s": {
   "spk": "seoyeon",
   "text": "숨은 쉬어… 그런데 깨어나질 않아.",
-  "dur": 3.971,
+  "dur": 3.709,
   "baked": true,
-  "eleven": "숨은 쉬어… 그런데 깨어나질 않아.",
+  "eleven": "[frightened] 숨은 쉬어… 그런데 깨어나질 않아.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "fear",
-   "input_sha256": "2213dd465742605cb26e54a3ed4507391e3e22b68e75446e1f7bda78230a03db",
-   "audio_sha256": "54bd310e36520466a2cdf86d7bfc83b7eec2eb91d834e35ced2d4c3c7d15d804",
-   "request_id": "egqQMyELFofoigNyVyCw",
+   "delivery": "[frightened]",
+   "input_sha256": "63e653eb2d28aa5f257361f9ed1ab23326a7e67d54274d535c0e2bd7734e4232",
+   "audio_sha256": "551ab94bb5fc7c7a9bc12dab441872b34714672699faeed13feb1745949ed6b2",
+   "generation_id": "r318P8ioQHce1U4wBV3X",
+   "flow_session_id": "fiuKto15LVq5LGI90gP0",
    "review_status": "listening_required"
   }
  },
  "l_withMina_j": {
   "spk": "jihun",
   "text": "내 어깨 잡아, 민아야. 발목 조심하고. 이번엔 다 같이 나가는 거야.",
-  "dur": 4.83,
+  "dur": 4.833,
   "baked": true,
-  "eleven": "내 어깨 잡아, 민아야. 발목 조심하고. 이번엔 다 같이 나가는 거야.",
+  "eleven": "[determined] 내 어깨 잡아, 민아야. 발목 조심하고. 이번엔 다 같이 나가는 거야.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.36
-   },
-   "delivery": "relief",
-   "input_sha256": "700e82e5bfb41791dc443150bebaa9e9bce69c851a6ab022a15343180fc51171",
-   "audio_sha256": "5e81b78ac97950585c9b0e3c84bc12f8b292854d008f8788ad1c7c73f0730794",
-   "review_status": "unreviewed"
+   "delivery": "[determined]",
+   "input_sha256": "0621202b72e1b1e3959a2b00546177aad952bbf42607a74bb5ebf1e8a170689c",
+   "audio_sha256": "bf7df486fd01fcd6141140f97e306896772de0e577b3859f1779a7833c6cf9f2",
+   "generation_id": "wH0FNAAiXj1pRP6fRnz4",
+   "flow_session_id": "JLEB10D1nsHyGXVATJ5x",
+   "review_status": "listening_required"
   }
  },
  "l_withMina_s": {
   "spk": "seoyeon",
   "text": "제 어깨 잡아요, 선배. 발목 조심하고요. 이제 다 같이 집으로 돌아가요.",
-  "dur": 5.64,
+  "dur": 5.251,
   "baked": true,
-  "eleven": "제 어깨 잡아요, 선배. 발목 조심하고요. 이제 다 같이 집으로 돌아가요.",
+  "eleven": "[determined] 제 어깨 잡아요, 선배. 발목 조심하고요. 이제 다 같이 집으로 돌아가요.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.36
-   },
-   "delivery": "relief",
-   "input_sha256": "6a0433bdedcae6b5bb33dba3597cabc58df85e6384496dc65900c866cbc67c05",
-   "audio_sha256": "a70b79b58348bdc396e8ad94a472001b6b1fe5c7a26be7d733ff812557a3d338",
-   "review_status": "unreviewed"
+   "delivery": "[determined]",
+   "input_sha256": "30ac020442d4051ace572190882b6b0401822328e5926370a3ea23f5102e19c9",
+   "audio_sha256": "42c842e7e30cca72520d97b697820fe7799d846d72974f2e606e442a53228b24",
+   "generation_id": "Xc7IsbESN6p7ypp4JRTg",
+   "flow_session_id": "HAWHlKynlbSXjqXkSk4H",
+   "review_status": "listening_required"
   }
  },
  "l_needPin_j": {
   "spk": "jihun",
   "text": "잠겨 있다. 가는 철사나 핀이라도 있으면…",
-  "dur": 4.206,
+  "dur": 3.709,
   "baked": true,
-  "eleven": "잠겨 있다. 가는 철사나 핀이라도 있으면…",
+  "eleven": "[frightened] 잠겨 있다. 가는 철사나 핀이라도 있으면…",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "fear",
-   "input_sha256": "a3e80020f556551e2ce94b8dc257fc1bdc1a15b7ff5ceaea79a3220c056ea70d",
-   "audio_sha256": "417f1fb4f6fb3e4ad4617169e4a021097413f5912cf7b2c42faebf2c3cb13f01",
-   "request_id": "hodpSNlghFqTTsxL6091",
+   "delivery": "[frightened]",
+   "input_sha256": "834b3dd5ff3f5a0b1c871fffadefb02a114ccd9f00a6066ba211e320453193db",
+   "audio_sha256": "1b3c185a6fbcc9d5da0b6b5d3c1b742b6560505fa2b5296e818d8f2ee1ba5d82",
+   "generation_id": "WbhKqwHCskkGpPOenf2L",
+   "flow_session_id": "lOmHCbQSPg6u9kp7d6C4",
    "review_status": "listening_required"
   }
  },
@@ -2276,58 +2272,52 @@
   "text": "잠겼어… 머리핀 같은 게 있으면 딸 수 있을 텐데.",
   "dur": 4.441,
   "baked": true,
-  "eleven": "잠겼어… 머리핀 같은 게 있으면 딸 수 있을 텐데.",
+  "eleven": "[frightened] 잠겼어… 머리핀 같은 게 있으면 딸 수 있을 텐데.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "fear",
-   "input_sha256": "f3f87ffc002ec1b1d4c8acd7466479bf8efce23c8daa998d3fef8af9cea2c1a6",
-   "audio_sha256": "a9ae3f9479c99fea32ae981294c8b3e855303eef39b45609979a55e9309a5a4f",
-   "request_id": "uePxFyFuju9XcsKu0C4g",
+   "delivery": "[frightened]",
+   "input_sha256": "9d48c54ca0b508f501ec3c497b8e6b67a0e2e1d3985eab8fd616cd8856953a5e",
+   "audio_sha256": "c0f40918c2ae753044b2d03638d1cb2344e09b7be1e75ff80778f8fbfe229b0d",
+   "generation_id": "LAr7mGaWTwHYaDk2UKZ6",
+   "flow_session_id": "QkL63GwLkyJpgKctJQI5",
    "review_status": "listening_required"
   }
  },
  "l_pinBroken_j": {
   "spk": "jihun",
   "text": "핀이 부러졌다. 침착하게.",
-  "dur": 2.769,
+  "dur": 2.691,
   "baked": true,
-  "eleven": "핀이 부러졌다. 침착하게.",
+  "eleven": "[surprised] 핀이 부러졌다. 침착하게.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "surprise",
-   "input_sha256": "77ced903c3740f2e4f6e5de86d82dbea6be3034524e5027cb39a5d84c3875ac4",
-   "audio_sha256": "47015ae4f049c27565d715453eecbe0758bd327352825bb511544cb412fbc38d",
-   "request_id": "LabmFYSIirjLsU9xZ9h2",
+   "delivery": "[surprised]",
+   "input_sha256": "48befa20f25ffc6c1ab126e558d7e705a8c24df2bf3616fdd0c8d4815cd35b19",
+   "audio_sha256": "877a05b804d2f40563c71945a1fe3ecc98fc5ee0439aeeddeceab4fff7b50f18",
+   "generation_id": "rMC8PBtwA1yF30ZSGbWs",
+   "flow_session_id": "37j1uikJhBykzS59NeZw",
    "review_status": "listening_required"
   }
  },
  "l_pinBroken_s": {
   "spk": "seoyeon",
   "text": "아, 부러졌어…",
-  "dur": 1.959,
+  "dur": 2.038,
   "baked": true,
-  "eleven": "아, 부러졌어…",
+  "eleven": "[surprised] 아, 부러졌어…",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "surprise",
-   "input_sha256": "2d37800c864ce76f725b1f653cabd2d09aaa060a59bda5694d8b43d32ef1870a",
-   "audio_sha256": "d67c994ab3ac30f4b8d4e8baa8c02faf3852286dfa27b64b82f5db6f04ab9b97",
-   "request_id": "qEE7L3uTzEMkdImODbSW",
+   "delivery": "[surprised]",
+   "input_sha256": "a2cd3fde421371e9b1e4e52c4b75fac28b560213a46bbcd1df4522f78e6c36d3",
+   "audio_sha256": "69517cbd85783a7215e5f488ca4a54ecd4d9f31c25a4854d417553280148d16d",
+   "generation_id": "aiWD91o42mcFBximeJ99",
+   "flow_session_id": "30UE4iifny0rWNzvczIr",
    "review_status": "listening_required"
   }
  },

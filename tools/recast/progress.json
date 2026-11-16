@@ -2418,5 +2418,105 @@
   "status": "applied",
   "credits": 110.0,
   "generation_id": "8WPkP7uutfFOn1AXCBu5"
+ },
+ "r_119_a4_j": {
+  "status": "applied",
+  "credits": 22.0,
+  "generation_id": "qd3u61gat8bNuzeTkSHL"
+ },
+ "r_119_a4_s": {
+  "status": "applied",
+  "credits": 28.0,
+  "generation_id": "bEkUTwtCcoHf9FjRtHbq"
+ },
+ "r_119_b1_j": {
+  "status": "applied",
+  "credits": 35.0,
+  "generation_id": "jXUzjORsmgEihWgKFN9g"
+ },
+ "r_119_b1_s": {
+  "status": "applied",
+  "credits": 37.0,
+  "generation_id": "fMoOI0mP1pvB7EpUI5Ln"
+ },
+ "r_119_b2_j": {
+  "status": "applied",
+  "credits": 39.0,
+  "generation_id": "krG2qER0k3WH34xQGCvE"
+ },
+ "r_119_b2_s": {
+  "status": "applied",
+  "credits": 41.0,
+  "generation_id": "wXMAMKlolXzFLKkeJyAb"
+ },
+ "r_rep_a1_j": {
+  "status": "applied",
+  "credits": 35.0,
+  "generation_id": "aIFR9bBy44pkQnnOcYVn"
+ },
+ "r_rep_a1_s": {
+  "status": "applied",
+  "credits": 35.0,
+  "generation_id": "jqsvaDDQ3WARS3HogEhk"
+ },
+ "r_rep_a2_j": {
+  "status": "applied",
+  "credits": 29.0,
+  "generation_id": "NkpglPS1Qt4554FAHT4M"
+ },
+ "r_rep_a2_s": {
+  "status": "applied",
+  "credits": 34.0,
+  "generation_id": "I9vwT6SzzyoCazwERZ5d"
+ },
+ "r_rep_b1_j": {
+  "status": "applied",
+  "credits": 42.0,
+  "generation_id": "X7gnoZxC2FGSHvj7sfgr"
+ },
+ "r_rep_b1_s": {
+  "status": "applied",
+  "credits": 43.0,
+  "generation_id": "noeAUpNtCqZY9d6bKU17"
+ },
+ "r_rep_b2_j": {
+  "status": "applied",
+  "credits": 19.0,
+  "generation_id": "iJdeg22piPs4USh9mbBU"
+ },
+ "r_rep_b2_s": {
+  "status": "applied",
+  "credits": 25.0,
+  "generation_id": "qLMaCArnBMVeUlIaEbY5"
+ },
+ "r_rep_c1_j": {
+  "status": "applied",
+  "credits": 23.0,
+  "generation_id": "5IcEYEeLIVxFbepA2hFW"
+ },
+ "r_rep_c1_s": {
+  "status": "applied",
+  "credits": 24.0,
+  "generation_id": "jKuyaPfzRWZR8hsWdVat"
+ },
+ "r_rep_c2_j": {
+  "status": "applied",
+  "credits": 22.0,
+  "generation_id": "lgVDVgadlg1Dv6JhaPJU"
+ },
+ "r_rep_c2_s": {
+  "status": "applied",
+  "credits": 23.0,
+  "generation_id": "QFNqv6THxdT5mKZ2VACF"
+ },
+ "r_og1_j": {
+  "status": "applied",
+  "credits": 45.0,
+  "generation_id": "XHVQWmegwItK7j11PylD"
+ },
+ "r_og1_s": {
+  "status": "applied",
+  "credits": 44.0,
+  "generation_id": "BFcwe7p4OZQlKz4ZL9jb"
  }
 }

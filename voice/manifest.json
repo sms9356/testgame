@@ -9424,267 +9424,361 @@
  "r_119_a4_j": {
   "spk": "jihun",
   "text": "네… 배터리 아낄게요.",
-  "dur": 1.57,
+  "dur": 2.586,
   "baked": true,
-  "eleven": "[quietly] 네… 배터리 아낄게요.",
+  "eleven": "[nervous] 네… 배터리 아낄게요.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[quietly]"
+   "delivery": "[nervous]",
+   "input_sha256": "eca577d6cc21276104efb17291439a97392c79cc9d1985159eb81cc6f7ddf631",
+   "audio_sha256": "164a7f576589ccf313965a51eb8ed3a375f92a2bc9d495097264878239d36141",
+   "generation_id": "qd3u61gat8bNuzeTkSHL",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "r_119_a4_s": {
   "spk": "seoyeon",
   "text": "네, 알겠어요. 배터리 아낄게요.",
-  "dur": 2.35,
+  "dur": 3.396,
   "baked": true,
-  "eleven": "[quietly] 네, 알겠어요. 배터리 아낄게요.",
+  "eleven": "[nervous] 네, 알겠어요. 배터리 아낄게요.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[quietly]"
+   "delivery": "[nervous]",
+   "input_sha256": "14f008c0da990e050b45ada4c2e5c684de56a650367a97787d77be516a6738f9",
+   "audio_sha256": "1e61b77c407f5842420dfdf7cb690e1b51bf2c551097db2e999e0f2f5c2e40f4",
+   "generation_id": "bEkUTwtCcoHf9FjRtHbq",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "r_119_b1_j": {
   "spk": "jihun",
   "text": "지하 펌프실에… 십 년 전 그날 기록 없어요?",
-  "dur": 2.95,
+  "dur": 4.049,
   "baked": true,
-  "eleven": "[serious] 지하 펌프실에… 십 년 전 그날 기록 없어요?",
+  "eleven": "[nervous] 지하 펌프실에… 십 년 전 그날 기록 없어요?",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[serious]"
+   "delivery": "[nervous]",
+   "input_sha256": "a119f44adb9a5e97c938a58c34ad1a5da1c4d11a644c63f7c4ce2596c14127ea",
+   "audio_sha256": "f20398aaad730fadd8260ecb9d0339ed586b89f3a7f2accfbefaa5b454973147",
+   "generation_id": "jXUzjORsmgEihWgKFN9g",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "r_119_b1_s": {
   "spk": "seoyeon",
   "text": "혹시 지하 펌프실… 십 년 전 출동 기록 있어요?",
-  "dur": 3.58,
+  "dur": 4.754,
   "baked": true,
-  "eleven": "[serious] 혹시 지하 펌프실… 십 년 전 출동 기록 있어요?",
+  "eleven": "[nervous] 혹시 지하 펌프실… 십 년 전 출동 기록 있어요?",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[serious]"
+   "delivery": "[nervous]",
+   "input_sha256": "ada6dd4654b097fbe233b663bb7a49acb2709dcaeb9d2a1dc1ed1200388bcf61",
+   "audio_sha256": "c77ac7c7ddd8d51ed38296d7056f023657f48c653c7254e5e92347b7d5cf304f",
+   "generation_id": "fMoOI0mP1pvB7EpUI5Ln",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "r_119_b2_j": {
   "spk": "jihun",
   "text": "일곱 시간이요…? 그동안 아무도 신고 안 한 거네요.",
-  "dur": 3.03,
+  "dur": 4.362,
   "baked": true,
-  "eleven": "[shocked] 일곱 시간이요…? 그동안 아무도 신고 안 한 거네요.",
+  "eleven": "[nervous] 일곱 시간이요…? 그동안 아무도 신고 안 한 거네요.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[shocked]"
+   "delivery": "[nervous]",
+   "input_sha256": "61df570c6e504d1a40cb8ca50ac777e4a79e97e4adcff8d95f371670dc00148d",
+   "audio_sha256": "117d946e7aec8b5bb00d76997d17f88c6ba63bdf0e51876db199fdb8ff81798e",
+   "generation_id": "krG2qER0k3WH34xQGCvE",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "r_119_b2_s": {
   "spk": "seoyeon",
   "text": "일곱 시간 뒤라고요…? 그동안 아무도 안 불렀던 거예요.",
-  "dur": 3.55,
+  "dur": 4.911,
   "baked": true,
-  "eleven": "[shocked] 일곱 시간 뒤라고요…? 그동안 아무도 안 불렀던 거예요.",
+  "eleven": "[nervous] 일곱 시간 뒤라고요…? 그동안 아무도 안 불렀던 거예요.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[shocked]"
+   "delivery": "[nervous]",
+   "input_sha256": "bfd0ddad3d56c60b87f96a5f577e7cee335486e4edfadf7dab1d49d22c2a3a2e",
+   "audio_sha256": "a1771f25a51de8e168bd3a9262edea23e2eb797bf3fa1ddd1dc74ae5484be65e",
+   "generation_id": "wXMAMKlolXzFLKkeJyAb",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "r_rep_a1_j": {
   "spk": "jihun",
   "text": "그 사건 기사요. 지금 그 학교 안에 있어요.",
-  "dur": 2.48,
+  "dur": 3.866,
   "baked": true,
-  "eleven": "[determined] 그 사건 기사요. 지금 그 학교 안에 있어요.",
+  "eleven": "[nervous] 그 사건 기사요. 지금 그 학교 안에 있어요.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[determined]"
+   "delivery": "[nervous]",
+   "input_sha256": "2a546b408aa4aedfbae31c1fd213b7d93ff3ceb70315ac7a521d5a6afa7f38ff",
+   "audio_sha256": "ee65badca20f66c358eccfa1dce2675551c7a09b2a02db0ab54adaabcf041324",
+   "generation_id": "aIFR9bBy44pkQnnOcYVn",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "r_rep_a1_s": {
   "spk": "seoyeon",
   "text": "그 사건이요. 저 지금 그 학교 안에 있어요.",
-  "dur": 2.61,
+  "dur": 4.598,
   "baked": true,
-  "eleven": "[determined] 그 사건이요. 저 지금 그 학교 안에 있어요.",
+  "eleven": "[nervous] 그 사건이요. 저 지금 그 학교 안에 있어요.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[determined]"
+   "delivery": "[nervous]",
+   "input_sha256": "7c9d756b4b3d0b42d976c4a725c23ce21b9e70ee44c0565c35a32369f69b02da",
+   "audio_sha256": "9a18fd5829a53c465ae86a76e00e1c38c0cacb87ccd4d6bd1b6074a16bdcbc19",
+   "generation_id": "jqsvaDDQ3WARS3HogEhk",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "r_rep_a2_j": {
   "spk": "jihun",
   "text": "알겠어요. 찾아서 다시 연락할게요.",
-  "dur": 2.14,
+  "dur": 3.318,
   "baked": true,
-  "eleven": "[firm] 알겠어요. 찾아서 다시 연락할게요.",
+  "eleven": "[nervous] 알겠어요. 찾아서 다시 연락할게요.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[firm]"
+   "delivery": "[nervous]",
+   "input_sha256": "4013afeccffe0e477d432437bb95387ac74daa9ae9c7f865a67652dce91655e6",
+   "audio_sha256": "c39f2b2a7790268e22cc0e6bf0c191b56a1a70b63d5a6b77d74ab1d2f5174d59",
+   "generation_id": "NkpglPS1Qt4554FAHT4M",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "r_rep_a2_s": {
   "spk": "seoyeon",
   "text": "알겠어요. 증거 찾아서 꼭 다시 전화할게요.",
-  "dur": 2.9,
+  "dur": 4.362,
   "baked": true,
-  "eleven": "[firm] 알겠어요. 증거 찾아서 꼭 다시 전화할게요.",
+  "eleven": "[nervous] 알겠어요. 증거 찾아서 꼭 다시 전화할게요.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[firm]"
+   "delivery": "[nervous]",
+   "input_sha256": "ccb27b2f54018904c7112180eb32c198ea801960382f2e1c150578d6b313683c",
+   "audio_sha256": "d6d16bba4d51010768132cc4654a28068cc9e77c74d95c3bf50d241b4ed88435",
+   "generation_id": "I9vwT6SzzyoCazwERZ5d",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "r_rep_b1_j": {
   "spk": "jihun",
   "text": "CCTV 캡처 찾았어요. 교무부장이 열쇠를 쥐고 있었어요.",
-  "dur": 3.55,
+  "dur": 5.146,
   "baked": true,
-  "eleven": "[excited] CCTV 캡처 찾았어요. 교무부장이 열쇠를 쥐고 있었어요.",
+  "eleven": "[nervous] CCTV 캡처 찾았어요. 교무부장이 열쇠를 쥐고 있었어요.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[excited]"
+   "delivery": "[nervous]",
+   "input_sha256": "df5756f1a01da62ef1d0f77a864689b90023e50bcdba04150f7678b7a9d06ce6",
+   "audio_sha256": "1c9f2c922f4ecba73f702e9973e2d4b44be6f4eae61116320a2c82b46da4c25d",
+   "generation_id": "X7gnoZxC2FGSHvj7sfgr",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "r_rep_b1_s": {
   "spk": "seoyeon",
   "text": "CCTV 캡처를 찾았어요. 열쇠는 교무부장이 갖고 있었어요.",
-  "dur": 3.92,
+  "dur": 5.956,
   "baked": true,
-  "eleven": "[excited] CCTV 캡처를 찾았어요. 열쇠는 교무부장이 갖고 있었어요.",
+  "eleven": "[nervous] CCTV 캡처를 찾았어요. 열쇠는 교무부장이 갖고 있었어요.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[excited]"
+   "delivery": "[nervous]",
+   "input_sha256": "6932512eaaf86f226281ee31e259fe6025cd4aa156c4db48acee05b1154d0631",
+   "audio_sha256": "1f5e6d1423bfc16079943888eebe05db1ac425faaa05cef982a8e8099b66a133",
+   "generation_id": "noeAUpNtCqZY9d6bKU17",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "r_rep_b2_j": {
   "spk": "jihun",
   "text": "다 모아 볼게요.",
-  "dur": 0.78,
+  "dur": 2.429,
   "baked": true,
-  "eleven": "[determined] 다 모아 볼게요.",
+  "eleven": "[nervous] 다 모아 볼게요.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[determined]"
+   "delivery": "[nervous]",
+   "input_sha256": "6a67591ef0c32937ca55b7f52a038093dc0bac444f291b391dc7d6ee4d84c492",
+   "audio_sha256": "132ff0e820c2cdbf9ecac9355b5c6dd4f031e2f4ae2e0b2858eb4dce33d918c0",
+   "generation_id": "iJdeg22piPs4USh9mbBU",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "r_rep_b2_s": {
   "spk": "seoyeon",
   "text": "남은 것도 다 모아 볼게요.",
-  "dur": 1.52,
+  "dur": 2.926,
   "baked": true,
-  "eleven": "[determined] 남은 것도 다 모아 볼게요.",
+  "eleven": "[nervous] 남은 것도 다 모아 볼게요.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[determined]"
+   "delivery": "[nervous]",
+   "input_sha256": "92d97499df9ca3573218d9e47bd7c8ce5e20eef77d80243e961bf5e062024e6d",
+   "audio_sha256": "c97b05f6ebfab77609baf9592fc60638ab00a1a8a975853233d9ee3a34f0938f",
+   "generation_id": "qLMaCArnBMVeUlIaEbY5",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "r_rep_c1_j": {
   "spk": "jihun",
   "text": "…들으셨어요? 다행이다.",
-  "dur": 1.59,
+  "dur": 2.926,
   "baked": true,
-  "eleven": "[relieved] …들으셨어요? 다행이다.",
+  "eleven": "[nervous] …들으셨어요? 다행이다.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[relieved]"
+   "delivery": "[nervous]",
+   "input_sha256": "8e9e832228525b04a95d9c3319898e4117345635f20514ff23a5c04c1988877f",
+   "audio_sha256": "f1bc9d2a15fb53d98a1c91befc16f3b1286047f7d9fd92251297fe3192146465",
+   "generation_id": "5IcEYEeLIVxFbepA2hFW",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "r_rep_c1_s": {
   "spk": "seoyeon",
   "text": "들으셨어요…? 다행이에요.",
-  "dur": 1.75,
+  "dur": 2.926,
   "baked": true,
-  "eleven": "[relieved] 들으셨어요…? 다행이에요.",
+  "eleven": "[nervous] 들으셨어요…? 다행이에요.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[relieved]"
+   "delivery": "[nervous]",
+   "input_sha256": "178820116c7d06bd9796849c62b5a0ff2ae800f1bd0de5ec3ec6287bd262dd3c",
+   "audio_sha256": "dbb2ea2615242284517147a318d2f42416aa0405da7f37be4591e350bc0aee43",
+   "generation_id": "jKuyaPfzRWZR8hsWdVat",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "r_rep_c2_j": {
   "spk": "jihun",
   "text": "꼭 그렇게 써 주세요.",
-  "dur": 1.1,
+  "dur": 2.116,
   "baked": true,
-  "eleven": "[softly] 꼭 그렇게 써 주세요.",
+  "eleven": "[nervous] 꼭 그렇게 써 주세요.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[softly]"
+   "delivery": "[nervous]",
+   "input_sha256": "7b050b772565441f4719ca46cde760c3742d448e1efbccb645173c25d9197a26",
+   "audio_sha256": "626c2d6d3c121b647b0fb63bd9afde18dad84b7d08bc6a1d7b76f8b8c53fb750",
+   "generation_id": "lgVDVgadlg1Dv6JhaPJU",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "r_rep_c2_s": {
   "spk": "seoyeon",
   "text": "꼭… 그렇게 써 주세요.",
-  "dur": 1.49,
+  "dur": 2.769,
   "baked": true,
-  "eleven": "[softly] 꼭… 그렇게 써 주세요.",
+  "eleven": "[nervous] 꼭… 그렇게 써 주세요.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[softly]"
+   "delivery": "[nervous]",
+   "input_sha256": "bdb2ba8a5a2d4418c94c19f8977c67223aee5eb64bb1c47822b16b76ae2453a2",
+   "audio_sha256": "28d1252bb474d49a0754c8afd9afcbfd2c1ceed27c9bfd2f99572d073c637f21",
+   "generation_id": "QFNqv6THxdT5mKZ2VACF",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "r_og1_j": {
   "spk": "jihun",
   "text": "아저씨, 1998년에 서린고 당직이셨죠? 꼭 여쭤볼 게 있어요.",
-  "dur": 5.56,
+  "dur": 5.721,
   "baked": true,
-  "eleven": "[polite] 아저씨, 1998년에 서린고 당직이셨죠? 꼭 여쭤볼 게 있어요.",
+  "eleven": "[nervous] 아저씨, 1998년에 서린고 당직이셨죠? 꼭 여쭤볼 게 있어요.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[polite]",
-   "input_sha256": "5593b76108d3499ce6c6c81a790969007cefac8210cdc47c952f3fa038703dc4",
-   "audio_sha256": "e8e692190ad43afa60d872ea8690553b0eb8a29256976f1103477eb12c3efbdb",
-   "review_status": "unreviewed"
+   "delivery": "[nervous]",
+   "input_sha256": "4b96d9bc1a5538e7dd3a9352844d8503f75d7a27abd1c54e80f3dedb03f1266b",
+   "audio_sha256": "4500ec047d06e513063f19b8a55a18b877aff862e3c0bb1d7c3c5418d9a0a59f",
+   "generation_id": "XHVQWmegwItK7j11PylD",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "r_og1_s": {
   "spk": "seoyeon",
   "text": "아저씨, 1998년에 서린고 당직 서셨죠? 하나만 여쭤볼게요.",
-  "dur": 5.96,
+  "dur": 6.348,
   "baked": true,
-  "eleven": "[polite] 아저씨, 1998년에 서린고 당직 서셨죠? 하나만 여쭤볼게요.",
+  "eleven": "[nervous] 아저씨, 1998년에 서린고 당직 서셨죠? 하나만 여쭤볼게요.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[polite]",
-   "input_sha256": "4ef72ae07d92cc39a34ac1fe981544ccdf44cc3f20ec16dde4f8911aa66a7c31",
-   "audio_sha256": "0c40628d6dd07c72ce7ef3563dbdbc87caa43a65475e43b3e6e00b287afd1ed1",
-   "review_status": "unreviewed"
+   "delivery": "[nervous]",
+   "input_sha256": "5ed88ded14730a0a02b33ae4dc705979b91ec97ab918c8f02d72335cace8e760",
+   "audio_sha256": "c6366f0ce8b33bde1e12ca883a72ee1419d239a6688a39cab45ae9f112f3a1d8",
+   "generation_id": "BFcwe7p4OZQlKz4ZL9jb",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "r_og2_j": {

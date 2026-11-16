@@ -4268,263 +4268,295 @@
  "nv_q3a": {
   "spk": "nurse",
   "text": "서약서에 이름을 쓴 날, 제 몫의 증거는 도저히 집에 가져갈 수가 없었어요. 펌프실에 달려갔을 땐 이미 물이 차 있었고요. 그래서 수영장 배수구에 던졌어요. 그 물길이… 하늘이한테 닿기를 바라면서.",
-  "dur": 17.48,
+  "dur": 16.353,
   "baked": true,
-  "eleven": "[sad] [trembling voice] 서약서에 이름을 쓴 날, 제 몫의 증거는 도저히 집에 가져갈 수가 없었어요. 펌프실에 달려갔을 땐 이미 물이 차 있었고요. 그래서 수영장 배수구에 던졌어요. 그 물길이… 하늘이한테 닿기를 바라면서.",
+  "eleven": "[softly] 서약서에 이름을 쓴 날, 제 몫의 증거는 도저히 집에 가져갈 수가 없었어요. 펌프실에 달려갔을 땐 이미 물이 차 있었고요. 그래서 수영장 배수구에 던졌어요. 그 물길이… 하늘이한테 닿기를 바라면서.",
   "generation": {
    "voice_id": "fO7cRyAPqxprQ3ZaVbnt",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[sad] [trembling voice]",
-   "input_sha256": "976dadacb6cc4af5999bceefc23c7cbe39390336aea4d632790aa1e4f83a8534",
-   "audio_sha256": "ee8fe11b313f6cdc93646392c6e38149f183246d30413b8474388ced16df529c",
-   "review_status": "generated"
+   "delivery": "[softly]",
+   "input_sha256": "898eecb0c1996f325f815dde99aeeba110340367a21df0651da9aa64f26b92a9",
+   "audio_sha256": "5ee00b765c559c180887daaea8981ecf36d410651c8434cc1a9954843a7b0378",
+   "generation_id": "MDBljZNiixcMbh9llFF1",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "nv_n27": {
   "spk": "homeroom",
   "text": "10월 13일 조회 시간. 하늘이 자리가 비어 있었어요. 교감 선생님은 결석이라고 적으라고 했죠. 저는 끝까지 안 썼습니다. 3년 동안 단 하루도 빠지지 않은 아이였으니까. 그 얘기를 꺼낸 다음 주에, 전근 발령이 났어요.",
-  "dur": 20.43,
+  "dur": 18.129,
   "baked": true,
-  "eleven": "[sad] [softly] 10월 13일 조회 시간. 하늘이 자리가 비어 있었어요. 교감 선생님은 결석이라고 적으라고 했죠. 저는 끝까지 안 썼습니다. 3년 동안 단 하루도 빠지지 않은 아이였으니까. 그 얘기를 꺼낸 다음 주에, 전근 발령이 났어요.",
+  "eleven": "[tearful] 10월 13일 조회 시간. 하늘이 자리가 비어 있었어요. 교감 선생님은 결석이라고 적으라고 했죠. 저는 끝까지 안 썼습니다. 3년 동안 단 하루도 빠지지 않은 아이였으니까. 그 얘기를 꺼낸 다음 주에, 전근 발령이 났어요.",
   "generation": {
    "voice_id": "UqW1DivwFt1NwUMSGnTn",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[sad] [softly]",
-   "input_sha256": "297cb76bf165057377df1d9dc2fd1fd6e7e9c0e21f268e8cc67cac120ecef340",
-   "audio_sha256": "c4c728f0e0f1512e5f4148d73222df714c9c6819d8a7fd07b6b742cd8af48a98",
-   "review_status": "generated"
+   "delivery": "[tearful]",
+   "input_sha256": "2b271cabeae04797dfaf10bb79bde0dda1e398fd9859c17c8136962f7271a285",
+   "audio_sha256": "52f48d9d2c066171c70f1ce4f0e81088bd800a13c85165da378d2ec70daed79a",
+   "generation_id": "CfPbf7kSr5LujaeMs7TI",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "nv_q5a": {
   "spk": "homeroom",
   "text": "하늘이 어머님께. 학교는 하늘이가 집에 가다 사라졌다고 말할 거예요. 사실이 아닙니다. 그날 밤에도 하늘이는 학교에 있었어요. 저는… 이 편지를 부칠 용기가 아직 없습니다.",
-  "dur": 16.51,
+  "dur": 16.039,
   "baked": true,
-  "eleven": "[sad] [softly] 하늘이 어머님께. 학교는 하늘이가 집에 가다 사라졌다고 말할 거예요. 사실이 아닙니다. 그날 밤에도 하늘이는 학교에 있었어요. 저는… 이 편지를 부칠 용기가 아직 없습니다.",
+  "eleven": "[tearful] 하늘이 어머님께. 학교는 하늘이가 집에 가다 사라졌다고 말할 거예요. 사실이 아닙니다. 그날 밤에도 하늘이는 학교에 있었어요. 저는… 이 편지를 부칠 용기가 아직 없습니다.",
   "generation": {
    "voice_id": "UqW1DivwFt1NwUMSGnTn",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[sad] [softly]",
-   "input_sha256": "ed937eee6c2e6979f694cbe0a2b4c3c24214f1d3b6427b727b1b2471e7ef0b73",
-   "audio_sha256": "6fdb9f8addcb1632164a69936f85d3a453f2e2dfb81994d9d7abff0ac5fc6157",
-   "review_status": "generated"
+   "delivery": "[tearful]",
+   "input_sha256": "a31a7f596ab68ccccf2f848bc571c5070edb5f1f3ce0818535e246cdf446e0c6",
+   "audio_sha256": "e77370fe972bbe30057b0a5af09a2e9c566b7c103db799dcb16836c446dd9397",
+   "generation_id": "FWsyNbSXyR73t4cvcCp3",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "nv_q5b": {
   "spk": "homeroom",
   "text": "반송된 봉투가 돌아왔어요. 주소는 맞는데, 제가 우표를 안 붙였더라고요. 붙일 수가 없었어요. 붙이는 순간, 정말로 끝나 버릴 것 같아서.",
-  "dur": 12.93,
+  "dur": 11.886,
   "baked": true,
-  "eleven": "[sad] [softly] 반송된 봉투가 돌아왔어요. 주소는 맞는데, 제가 우표를 안 붙였더라고요. 붙일 수가 없었어요. 붙이는 순간, 정말로 끝나 버릴 것 같아서.",
+  "eleven": "[tearful] 반송된 봉투가 돌아왔어요. 주소는 맞는데, 제가 우표를 안 붙였더라고요. 붙일 수가 없었어요. 붙이는 순간, 정말로 끝나 버릴 것 같아서.",
   "generation": {
    "voice_id": "UqW1DivwFt1NwUMSGnTn",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[sad] [softly]",
-   "input_sha256": "cfedfa1bd915e17ccc8fd87ebb2409d03aa2173e209219461e7bf7ae3dc409b3",
-   "audio_sha256": "5e1b26651ac4dfab16dce7adb5af5a5864abfca782efa60a927b7685f2526c25",
-   "review_status": "generated"
+   "delivery": "[tearful]",
+   "input_sha256": "d99562f6210bf29f3c9a59471bb5b312f71501803b46f01f152919c7e0e1d113",
+   "audio_sha256": "c8c0239273a28b57266ec3179b1d003f9dfaed839cfea487cd3ef545d4736b33",
+   "generation_id": "xpOVkvgITbD4JFtu9i6Q",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "nv_n_principal_tape": {
   "spk": "principal",
   "text": "이게 기자들 귀에 들어가면 재단도 학교도 끝일세. 보고서엔 하교 후 단순 실종. 오늘 밤 남아 있던 다섯이 증거를 한 조각씩 나눠 봉인하게. 아무도 그날을 다시 열 수 없도록.",
-  "dur": 13.79,
+  "dur": 12.931,
   "baked": true,
-  "eleven": "[slowly] [regretful] 이게 기자들 귀에 들어가면 재단도 학교도 끝일세. 보고서엔 하교 후 단순 실종. 오늘 밤 남아 있던 다섯이 증거를 한 조각씩 나눠 봉인하게. 아무도 그날을 다시 열 수 없도록.",
+  "eleven": "[regretful] 이게 기자들 귀에 들어가면 재단도 학교도 끝일세. 보고서엔 하교 후 단순 실종. 오늘 밤 남아 있던 다섯이 증거를 한 조각씩 나눠 봉인하게. 아무도 그날을 다시 열 수 없도록.",
   "generation": {
    "voice_id": "kiVK4omWhBQ9AzwcaRq7",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[slowly] [regretful]",
-   "input_sha256": "6e06940ff755fb2d7af12108f677f7e0822fd8ef1bd9bbb30d470c19a767c293",
-   "audio_sha256": "67a9956ddfc03639e7e9d85ad4dbc6022f5b329c7d68188236dee3de81bb77f7",
-   "review_status": "generated"
+   "delivery": "[regretful]",
+   "input_sha256": "6076ef9f42df98cf958494468f897802313a35a82694a53e1aa7e0dd478a2cce",
+   "audio_sha256": "c1f91fd16e49e60a10443086709f04190685d772604e6fd6a6bcfa5a5a96a36c",
+   "generation_id": "8WPkP7uutfFOn1AXCBu5",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "nv_h1": {
   "spk": "principal",
   "text": "새벽 네 시. 다섯이 증거를 나눠 갖기로 했네. 나는 그 자리에 없었던 사람으로 남겠지. 대신 직인 코어는 내가 갖는다. 별관 3층 진열장, 개교 기념 인장이라는 이름표를 붙여서.",
-  "dur": 14.11,
+  "dur": 13.087,
   "baked": true,
-  "eleven": "[slowly] [regretful] 새벽 네 시. 다섯이 증거를 나눠 갖기로 했네. 나는 그 자리에 없었던 사람으로 남겠지. 대신 직인 코어는 내가 갖는다. 별관 3층 진열장, 개교 기념 인장이라는 이름표를 붙여서.",
+  "eleven": "[regretful] 새벽 네 시. 다섯이 증거를 나눠 갖기로 했네. 나는 그 자리에 없었던 사람으로 남겠지. 대신 직인 코어는 내가 갖는다. 별관 3층 진열장, 개교 기념 인장이라는 이름표를 붙여서.",
   "generation": {
    "voice_id": "kiVK4omWhBQ9AzwcaRq7",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[slowly] [regretful]",
-   "input_sha256": "e5dc86a900836eb4abe85a9529677e94848b9f67ce1ea545dbb4392db0a8ed1d",
-   "audio_sha256": "a63600a510a8c5bb362e501506a690948bcc95113e7628f977383e6aabf719fa",
-   "review_status": "generated"
+   "delivery": "[regretful]",
+   "input_sha256": "227f9a9a49d516052bb746dbbe0d3f763465bca8c5e366d1ade1d4d9bd83ceb3",
+   "audio_sha256": "a9e4779c699bd8dbb153aa20acbda67282d676a9950b5b48e3e2ef7c2b56feba",
+   "generation_id": "isJ4aNRrVZsy3FukFNI0",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "nv_h3": {
   "spk": "electrician",
   "text": "별관은 본관하고 계통이 달라요. 그날 밤 본관이 나갔을 때도 별관 불은 멀쩡했어요. 그런데 다음 날 새벽 여섯 시 십 분에 교장 지시로 별관 전원을 내렸죠. 그때 이상하다고 생각했어요. 진열장은 전원이 있어야 열리거든요.",
-  "dur": 17.48,
+  "dur": 17.162,
   "baked": true,
-  "eleven": "[casual] 별관은 본관하고 계통이 달라요. 그날 밤 본관이 나갔을 때도 별관 불은 멀쩡했어요. 그런데 다음 날 새벽 여섯 시 십 분에 교장 지시로 별관 전원을 내렸죠. 그때 이상하다고 생각했어요. 진열장은 전원이 있어야 열리거든요.",
+  "eleven": "[rough] 별관은 본관하고 계통이 달라요. 그날 밤 본관이 나갔을 때도 별관 불은 멀쩡했어요. 그런데 다음 날 새벽 여섯 시 십 분에 교장 지시로 별관 전원을 내렸죠. 그때 이상하다고 생각했어요. 진열장은 전원이 있어야 열리거든요.",
   "generation": {
    "voice_id": "TRO4gatqxbbwLXHLDLSk",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[casual]",
-   "input_sha256": "812e74db54fd2b281128c5a73fa09d4ae5d42bb99ec6728734f40511e168ee45",
-   "audio_sha256": "04d563c5181433ea6e08df18c8e800cbe5f765a2e76d9fe2b74ddca486ded92a",
-   "review_status": "generated"
+   "delivery": "[rough]",
+   "input_sha256": "58b2b9ee341e48e180616fec46fe92e388f78b179e3fd6105e7f1ce2e7ac93ba",
+   "audio_sha256": "c647d39bd6e56db32f798335a3f0b04614631c1fedaaa45e09ef003f24667567",
+   "generation_id": "drmRYbbjSSbtbv47LB2i",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "nv_h4": {
   "spk": "principal",
   "text": "펌프실 열쇠는… 자네가 갖고 있게. 지금 내려가면 일이 더 커져. 내일 아침에 얘기하지. 창밖으로 꺼진 본관이 보였네. 아주 오래 보고 있었지.",
-  "dur": 11.65,
+  "dur": 10.684,
   "baked": true,
-  "eleven": "[slowly] [regretful] 펌프실 열쇠는… 자네가 갖고 있게. 지금 내려가면 일이 더 커져. 내일 아침에 얘기하지. 창밖으로 꺼진 본관이 보였네. 아주 오래 보고 있었지.",
+  "eleven": "[regretful] 펌프실 열쇠는… 자네가 갖고 있게. 지금 내려가면 일이 더 커져. 내일 아침에 얘기하지. 창밖으로 꺼진 본관이 보였네. 아주 오래 보고 있었지.",
   "generation": {
    "voice_id": "kiVK4omWhBQ9AzwcaRq7",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[slowly] [regretful]",
-   "input_sha256": "2902aa9fc37c7682ce5300f41e6fd05733f62b7e44cdf791a7b855ebae0e51d5",
-   "audio_sha256": "8706300647172def6a8df7e4ca289fe0ab17cf9422d556155136c459929d8b8e",
-   "review_status": "generated"
+   "delivery": "[regretful]",
+   "input_sha256": "05d763210d5547b335a79a5d90d70806d65b6bffd92d31713d847806fc2fe6d1",
+   "audio_sha256": "0390d4f92b8bf0a9e26e956e8ac9f39c5c756d752d0c0759a68c9175629f473f",
+   "generation_id": "uZVwRIKUZBcUb7AV8pIz",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "nv_h5": {
   "spk": "principal",
   "text": "이 문을 다시 여는 사람에게. 그날 밤 나는 불 켜진 곳에 있었네. 내려가지 않았어. 다섯 조각은 그들의 몫이고, 이 직인은 내 몫이야. 너무 무거워서, 아무 데도 둘 수가 없었네.",
-  "dur": 14.76,
+  "dur": 13.636,
   "baked": true,
-  "eleven": "[slowly] [regretful] 이 문을 다시 여는 사람에게. 그날 밤 나는 불 켜진 곳에 있었네. 내려가지 않았어. 다섯 조각은 그들의 몫이고, 이 직인은 내 몫이야. 너무 무거워서, 아무 데도 둘 수가 없었네.",
+  "eleven": "[regretful] 이 문을 다시 여는 사람에게. 그날 밤 나는 불 켜진 곳에 있었네. 내려가지 않았어. 다섯 조각은 그들의 몫이고, 이 직인은 내 몫이야. 너무 무거워서, 아무 데도 둘 수가 없었네.",
   "generation": {
    "voice_id": "kiVK4omWhBQ9AzwcaRq7",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[slowly] [regretful]",
-   "input_sha256": "ec4ee9a19053137804c8ebb9fc7f6477f20cd446bdc35c1aad09b5d48b000226",
-   "audio_sha256": "7b03edb69b4614f70ad41f53ab54173dcb886874d97a07c75b9692c265f2726f",
-   "review_status": "generated"
+   "delivery": "[regretful]",
+   "input_sha256": "a2c5fac34b2c58b6556966b6024ea466dc7764c73606297a8678328a091fa97e",
+   "audio_sha256": "d0885b3a3f9e2153baac73fedeb57cf9f817263a65a1cbdfb9e7b9d009112c70",
+   "generation_id": "1WBk0ZNaw789EBqJMjtK",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "nv_n21": {
   "spk": "principal",
   "text": "학부모님께 알립니다. 10월 12일 목요일, 방송부 창립 30주년 기념 특별 하교 방송이 있습니다. 방송부원은 밤 열 시까지 방송실에서 리허설을 진행합니다.",
-  "dur": 12.28,
+  "dur": 11.964,
   "baked": true,
-  "eleven": "[slowly] [regretful] 학부모님께 알립니다. 10월 12일 목요일, 방송부 창립 30주년 기념 특별 하교 방송이 있습니다. 방송부원은 밤 열 시까지 방송실에서 리허설을 진행합니다.",
+  "eleven": "[regretful] 학부모님께 알립니다. 10월 12일 목요일, 방송부 창립 30주년 기념 특별 하교 방송이 있습니다. 방송부원은 밤 열 시까지 방송실에서 리허설을 진행합니다.",
   "generation": {
    "voice_id": "kiVK4omWhBQ9AzwcaRq7",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[slowly] [regretful]",
-   "input_sha256": "7b7030df04045c9a7ba44e18a7247b7ad2d2d80b2ac0365222707bed8d6eda5e",
-   "audio_sha256": "8c4056c142c97142a50c2e8e093fb69618b8247a71ca1c7905d02259c86b8d47",
-   "review_status": "generated"
+   "delivery": "[regretful]",
+   "input_sha256": "3f7e05c7df9497604a6c71ad27e4178a4e7af30590697582886ca37e85f6acee",
+   "audio_sha256": "eb73e2dafb45c2e20af54d94beb5c218760621b2c049327f0ca32134c46a7420",
+   "generation_id": "kdvhbUE1NCu8c2TQ4V4A",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "nv_n3": {
   "spk": "headTeacher",
   "text": "대외비. 이번 지하 펌프실 사고는 하교 후 단순 실종으로 정리한다. 펌프실은 즉시 폐쇄. 남아 있던 다섯 명이 원본 기록과 봉인 인장을 다섯 조각으로 나눠 숨긴다. 금고 번호는… 그날의 날짜로.",
-  "dur": 15.07,
+  "dur": 13.636,
   "baked": true,
-  "eleven": "[regretful] [heavy] 대외비. 이번 지하 펌프실 사고는 하교 후 단순 실종으로 정리한다. 펌프실은 즉시 폐쇄. 남아 있던 다섯 명이 원본 기록과 봉인 인장을 다섯 조각으로 나눠 숨긴다. 금고 번호는… 그날의 날짜로.",
+  "eleven": "[serious] 대외비. 이번 지하 펌프실 사고는 하교 후 단순 실종으로 정리한다. 펌프실은 즉시 폐쇄. 남아 있던 다섯 명이 원본 기록과 봉인 인장을 다섯 조각으로 나눠 숨긴다. 금고 번호는… 그날의 날짜로.",
   "generation": {
-   "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+   "voice_id": "4JJwo477JUAx3HV0T7n7",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[regretful] [heavy]",
-   "input_sha256": "a9fd7b0255e2c0980a46203c0a83cb2b8f062af7787ca5c34039c0cfd8716ef4",
-   "audio_sha256": "922b5eeabd090fb7108653f313b1e22264ac0b2b11fb2fdd83e39e46f0981cb4",
-   "review_status": "generated"
+   "delivery": "[serious]",
+   "input_sha256": "82f6fd358511fe58e8ad7fdd1e5687f5844b4884ce177409c0d8acb366653d9a",
+   "audio_sha256": "243eb7cd71dac79e18f3864662efa372a3441177ae67c64c589ccaf8647e7416",
+   "generation_id": "WrP3fjAFvLJ3V80wgRGZ",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "nv_n22": {
   "spk": "headTeacher",
   "text": "우리 다섯은 1998년 10월 12일 밤을, 각자의 구역에 영원히 묻는다. 교무부장, 보건교사, 사서, 과학부장, 체육부장. 다섯 조각이 다시 모이는 날… 그날 밤도 다시 열린다.",
-  "dur": 17.32,
+  "dur": 15.308,
   "baked": true,
-  "eleven": "[regretful] [heavy] 우리 다섯은 1998년 10월 12일 밤을, 각자의 구역에 영원히 묻는다. 교무부장, 보건교사, 사서, 과학부장, 체육부장. 다섯 조각이 다시 모이는 날… 그날 밤도 다시 열린다.",
+  "eleven": "[serious] 우리 다섯은 1998년 10월 12일 밤을, 각자의 구역에 영원히 묻는다. 교무부장, 보건교사, 사서, 과학부장, 체육부장. 다섯 조각이 다시 모이는 날… 그날 밤도 다시 열린다.",
   "generation": {
-   "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+   "voice_id": "4JJwo477JUAx3HV0T7n7",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[regretful] [heavy]",
-   "input_sha256": "3d66de42bd12583122feade28ca752b99c10a965919fa8e948b8fbc2d88e67bd",
-   "audio_sha256": "fbf34b2e518652b2522094c0e9659506355fc813fc22ba0f4443d7a7ee24d9ca",
-   "review_status": "generated"
+   "delivery": "[serious]",
+   "input_sha256": "b9d3750519438e962cd7d62af5fb782420336412ce51fc85880b23aaa47a2ac5",
+   "audio_sha256": "a0eb79dd7a324953121709770b2ed664c9734937cb0b7fb376020e4170c7ff66",
+   "generation_id": "6DdAX4uhmse56iJohmc6",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "nv_n_bunker_audit": {
   "spk": "headTeacher",
   "text": "재단 감사단이 온다는 연락이 왔다. 수사 기록하고 현장 사진은 전부 방공호 서류함으로 옮겨. 방폭문은 오늘 밤 안에 닫는다. 열쇠는… 아무한테도 주지 마.",
-  "dur": 11.73,
+  "dur": 11.233,
   "baked": true,
-  "eleven": "[regretful] [heavy] 재단 감사단이 온다는 연락이 왔다. 수사 기록하고 현장 사진은 전부 방공호 서류함으로 옮겨. 방폭문은 오늘 밤 안에 닫는다. 열쇠는… 아무한테도 주지 마.",
+  "eleven": "[serious] 재단 감사단이 온다는 연락이 왔다. 수사 기록하고 현장 사진은 전부 방공호 서류함으로 옮겨. 방폭문은 오늘 밤 안에 닫는다. 열쇠는… 아무한테도 주지 마.",
   "generation": {
-   "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+   "voice_id": "4JJwo477JUAx3HV0T7n7",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[regretful] [heavy]",
-   "input_sha256": "0740a2b22d9f6f3c52819fbbca83432948944d7f82f35f5e9f990d602ed0465d",
-   "audio_sha256": "91b3886b7e9879d9180e04dedb8a3cfff8922de0c91c42ab200edf44cf13e47b",
-   "review_status": "generated"
+   "delivery": "[serious]",
+   "input_sha256": "ec1cabde8e3793cd9f3ff03496885cd9da16ed8659a1a2a91291dc806b433c70",
+   "audio_sha256": "695a1af0aad9e247b1967d11d6fee9caa8f26ae29d0be0e19e4321ee9dd76845",
+   "generation_id": "WqPsSRKxeZhb48RSMGWm",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "nv_n5": {
   "spk": "scienceTeacher",
   "text": "10월 12일 23:40 — 학교 전원이 내려가 있는데 방송실 앰프 한 대에 축전지 배선 이 물려 있다. 장비실 선반 위 카세트 데크에 시각 예약 타이머. 테이프 라벨: 「1998 리허설 — 3-2」. 누군가 해마다 이 시각에 맞춰 둔다. — 시설 기사",
-  "dur": 17.79,
+  "dur": 20.271,
   "baked": true,
   "eleven": "[serious] 10월 12일 23:40 — 학교 전원이 내려가 있는데 방송실 앰프 한 대에 축전지 배선 이 물려 있다. 장비실 선반 위 카세트 데크에 시각 예약 타이머. 테이프 라벨: 「1998 리허설 — 3-2」. 누군가 해마다 이 시각에 맞춰 둔다. — 시설 기사",
   "generation": {
-   "voice_id": "4JJwo477JUAx3HV0T7n7",
+   "voice_id": "l6fNdLYgoqjfTIPUeFc9",
    "model_id": "eleven_v4",
    "language_code": "ko",
    "delivery": "[serious]",
    "input_sha256": "c8774eec9bb30f44e88bdf2d60d9c34fb50fca016ca869a46cc2dce7a70365a7",
-   "audio_sha256": "6469edee24433c64629d577d762580920801dd20b69b8c90777bda43bdc17041",
-   "review_status": "unreviewed"
+   "audio_sha256": "c6d04f160b40d736f6a25baa31405a7a9bf5a4261176c8acfa6d8da8bd9f697b",
+   "generation_id": "ogWoHFneOf16nHSxnbSf",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "nv_n17": {
   "spk": "scienceTeacher",
   "text": "약품장 번호 바꿨습니다. 원주율 앞 세 자리. 까먹는 사람은 수학 선생님한테 혼나는 겁니다. 그날 밤 이후로는, 아무도 안 열어 봤지만요.",
-  "dur": 10.03,
+  "dur": 10.031,
   "baked": true,
   "eleven": "[serious] 약품장 번호 바꿨습니다. 원주율 앞 세 자리. 까먹는 사람은 수학 선생님한테 혼나는 겁니다. 그날 밤 이후로는, 아무도 안 열어 봤지만요.",
   "generation": {
-   "voice_id": "4JJwo477JUAx3HV0T7n7",
+   "voice_id": "l6fNdLYgoqjfTIPUeFc9",
    "model_id": "eleven_v4",
    "language_code": "ko",
    "delivery": "[serious]",
    "input_sha256": "4eb7a527941a4f2ed22de72113de3f048fc2f567cbb9ead1b8b9d28f416dfe77",
-   "audio_sha256": "042f892dfba5b53ab2322fd53438300314389760f248067e2af781bdebcd08ee",
-   "review_status": "generated"
+   "audio_sha256": "6d2d67fcc543de55ddb2b561e165ef0e586e24ac7cf3c9f3fd921c531db44c53",
+   "generation_id": "FhAEoR9UEY3Sga6IcCxR",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "nv_q7a": {
   "spk": "scienceTeacher",
   "text": "펌프실 비상등 배터리 교체 요청, 이번이 세 번째입니다. 교무부장 회신은 예산 없음, 다음 학기. 예비 배터리는 과학실 공구함에 둡니다. 누구든 먼저 가는 사람이 갈아 끼우세요. 그날 밤엔… 아무도 안 갔습니다.",
-  "dur": 15.65,
+  "dur": 15.647,
   "baked": true,
   "eleven": "[serious] 펌프실 비상등 배터리 교체 요청, 이번이 세 번째입니다. 교무부장 회신은 예산 없음, 다음 학기. 예비 배터리는 과학실 공구함에 둡니다. 누구든 먼저 가는 사람이 갈아 끼우세요. 그날 밤엔… 아무도 안 갔습니다.",
   "generation": {
-   "voice_id": "4JJwo477JUAx3HV0T7n7",
+   "voice_id": "l6fNdLYgoqjfTIPUeFc9",
    "model_id": "eleven_v4",
    "language_code": "ko",
    "delivery": "[serious]",
    "input_sha256": "494e716fbfdc22d0019e6af5cadb446e8bb5d0e728af7bd643f233ad13d44c26",
-   "audio_sha256": "5df12a881e9f145427a59be7ec594b356cfec552a6872a9fd671d491a60ad37c",
-   "review_status": "generated"
+   "audio_sha256": "9c6dfe0825158464d2f1bd82cef798b114050c9dd7860142a33f9326457df224",
+   "generation_id": "ztnP0vGF84LtpwPi8TNR",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "nv_n9": {
   "spk": "peTeacher",
   "text": "10월 12일, 기념 방송 리허설 날 밤. 관람석 불을 끄고 나왔다. 그날 이후 체육관 야간 조명 배선은 철거되었다. ※ 기록석 기구함 다이얼은 전광판의 마지막 경기 점수 로 맞춰 둠.",
-  "dur": 14.21,
+  "dur": 14.602,
   "baked": true,
   "eleven": "[gruff] 10월 12일, 기념 방송 리허설 날 밤. 관람석 불을 끄고 나왔다. 그날 이후 체육관 야간 조명 배선은 철거되었다. ※ 기록석 기구함 다이얼은 전광판의 마지막 경기 점수 로 맞춰 둠.",
   "generation": {
@@ -4533,14 +4565,16 @@
    "language_code": "ko",
    "delivery": "[gruff]",
    "input_sha256": "ae303fe552e2faa461acb438f4028b5a7fb576876181566dd9e745c2c3e8baa7",
-   "audio_sha256": "6fc7ad7382d7e964cf12cbc4b88edb26035857e7193b3beed133edc6c14c92f3",
-   "review_status": "unreviewed"
+   "audio_sha256": "2c6787918213ec784f942b40b9252c67cc1acc54d326d665977aac648ce75e36",
+   "generation_id": "XioPBK0yCA9gnONR0IZo",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "nv_n10": {
   "spk": "peTeacher",
   "text": "배수 밸브 누수 — 물을 뺀 뒤에도 배관에서 물소리가 난다. 펌프실 문은 지하 B1로 이어진다. 그날 밤 펌프실 바닥은 물에 잠겨 있었다.",
-  "dur": 11.89,
+  "dur": 11.964,
   "baked": true,
   "eleven": "[gruff] 배수 밸브 누수 — 물을 뺀 뒤에도 배관에서 물소리가 난다. 펌프실 문은 지하 B1로 이어진다. 그날 밤 펌프실 바닥은 물에 잠겨 있었다.",
   "generation": {
@@ -4549,14 +4583,16 @@
    "language_code": "ko",
    "delivery": "[gruff]",
    "input_sha256": "b5945115a35edfc7a36f69a6ba85011a2200a44206b8db0d654e25f9b3965c16",
-   "audio_sha256": "56366638491fc09764e3576b495408adecdcd95b92942d212fd8ee9eab788dc1",
-   "review_status": "unreviewed"
+   "audio_sha256": "790057bbedb8aef9f6381a53683d728a6b8d9d31d85d7278a76bb89ce9614382",
+   "generation_id": "GkJPeBXvvMV0EDPIKxAk",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "nv_n20": {
   "spk": "peTeacher",
   "text": "배수구 철망 밑으로 뭔가 빠져 있다. 보건 선생이 던진 거다. 손은 안 닿아. 긴 자루에 철사를 감아서 갈고리를 만들면 건질 수 있을 거야. 자루는 지하 청소도구실, 철사는 별관 기술실.",
-  "dur": 13.87,
+  "dur": 14.211,
   "baked": true,
   "eleven": "[gruff] 배수구 철망 밑으로 뭔가 빠져 있다. 보건 선생이 던진 거다. 손은 안 닿아. 긴 자루에 철사를 감아서 갈고리를 만들면 건질 수 있을 거야. 자루는 지하 청소도구실, 철사는 별관 기술실.",
   "generation": {
@@ -4565,24 +4601,28 @@
    "language_code": "ko",
    "delivery": "[gruff]",
    "input_sha256": "49e055a16ef8fff6e78ca188e51740bbf63c15c17f7c51471479b7d7a1681458",
-   "audio_sha256": "37017d9a310a7e72177d05f863fd5e9d4cb6e3b24651abd03962e42c81d3f7ce",
-   "review_status": "generated"
+   "audio_sha256": "4da7c29eb0d12decb7d239743c42851d036fcdf66102bd2b5cca0b3b9ace17e5",
+   "generation_id": "lovxWeRpIbmC7z1NNc43",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "nv_n4": {
   "spk": "librarian",
   "text": "대출 카드에 같은 이름이 수백 번 적혀 있어요. 윤하늘. 마지막 대출일은 10월 12일. 집으로 가는 길. 반납란은… 아직 비어 있어요.",
-  "dur": 12.75,
+  "dur": 12.356,
   "baked": true,
-  "eleven": "[softly] 대출 카드에 같은 이름이 수백 번 적혀 있어요. 윤하늘. 마지막 대출일은 10월 12일. 집으로 가는 길. 반납란은… 아직 비어 있어요.",
+  "eleven": "[hushed, nervous] 대출 카드에 같은 이름이 수백 번 적혀 있어요. 윤하늘. 마지막 대출일은 10월 12일. 집으로 가는 길. 반납란은… 아직 비어 있어요.",
   "generation": {
    "voice_id": "sf8Bpb1IU97NI9BHSMRf",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[softly]",
-   "input_sha256": "3587b265d751567102548bf2f35d17124858be95c59c653cc7c10258e7da60e4",
-   "audio_sha256": "e2f30e4631dc24388b046aed4b3d59efcda2403e4f660d068c2822d7fd3d34ec",
-   "review_status": "generated"
+   "delivery": "[hushed, nervous]",
+   "input_sha256": "ea00ebf75ef2fc4d4c02c30d0118d7e9fefdf4fc058d94e2e2f03a4020b07f49",
+   "audio_sha256": "262f603d98eff83931838c77d4755265ce046980b43fd577f1d050a1d6eaf732",
+   "generation_id": "1JVO5y7mcdUGb1bFTHtn",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "nv_n25": {

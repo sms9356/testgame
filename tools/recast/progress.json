@@ -50,24 +50,29 @@
   "generation_id": "noGYA0QH9qL16CLpJcxt"
  },
  "bc_j": {
-  "status": "failed_quota",
-  "session_id": "PfWMd28DnulL0fUJjhkj"
+  "status": "applied",
+  "credits": 165.0,
+  "generation_id": "XAiFXWNOTIXvq0pavowZ"
  },
  "bc_s": {
-  "status": "failed_quota",
-  "session_id": "fLiPwhPgeYlnD2l5DAT1"
+  "status": "applied",
+  "credits": 157.0,
+  "generation_id": "PTuj2pe4IAm8fXlr0KzX"
  },
  "mw_j": {
-  "status": "failed_quota",
-  "session_id": "rc4WBIkzg3sqqAbxMHRQ"
+  "status": "applied",
+  "credits": 109.0,
+  "generation_id": "6Zn0dzTeKFZyhBeo0jLl"
  },
  "mw_s": {
-  "status": "failed_quota",
-  "session_id": "I2F32N3ZGsciD1bb3OP9"
+  "status": "applied",
+  "credits": 112.0,
+  "generation_id": "4DtjhIdV2CtaDbAWqHb4"
  },
  "news_rep": {
-  "status": "failed_quota",
-  "session_id": "Bsp9uOf5QdzdQN9YRM2c"
+  "status": "applied",
+  "credits": 163.0,
+  "generation_id": "DeCXCpmPc4akZCIebC1o"
  },
  "news_s": {
   "status": "applied",
@@ -75,24 +80,29 @@
   "generation_id": "yR2X7sghagyQDT49Q2rM"
  },
  "news_j": {
-  "status": "failed_quota",
-  "session_id": "iUIf11kZQKmptYlLLUwr"
+  "status": "applied",
+  "credits": 91.0,
+  "generation_id": "R5QX645hL1pTNSH9v3sQ"
  },
  "news_quote": {
-  "status": "failed_quota",
-  "session_id": "zTwlCBXYAsGdeNOpfcFr"
+  "status": "applied",
+  "credits": 134.0,
+  "generation_id": "DdYv8pYwC0UCaYljqRsx"
  },
  "endTrue": {
-  "status": "failed_quota",
-  "session_id": "j3mgXtOy29rQlNzDCeuG"
+  "status": "applied",
+  "credits": 115.0,
+  "generation_id": "jyXhTZ7ChfeXAD0Ss2i8"
  },
  "endNormal": {
-  "status": "failed_quota",
-  "session_id": "dkmSV8QAMMUbNz3jNLmy"
+  "status": "applied",
+  "credits": 90.0,
+  "generation_id": "UQw7pvWnNTBjX4mqOtb1"
  },
  "endBad": {
-  "status": "failed_quota",
-  "session_id": "5kP7XlXfn1Bi7GnKxrJE"
+  "status": "applied",
+  "credits": 63.0,
+  "generation_id": "Yrrqcxrjij6eKa69sxMf"
  },
  "cam1": {
   "status": "applied",
@@ -458,5 +468,55 @@
   "status": "applied",
   "credits": 52.0,
   "generation_id": "9ytisT0eZLGrIqKyipYg"
+ },
+ "l_minaFound_j": {
+  "status": "applied",
+  "credits": 48.0,
+  "generation_id": "mUbt0YeALhBEuQVT8YDm"
+ },
+ "l_minaFound_s": {
+  "status": "applied",
+  "credits": 56.0,
+  "generation_id": "OWuHiduAHQiTRcjHQl80"
+ },
+ "l_sprint_j": {
+  "status": "applied",
+  "credits": 26.0,
+  "generation_id": "ConvCoRshJbazt7xiAjv"
+ },
+ "l_sprint_s": {
+  "status": "applied",
+  "credits": 20.0,
+  "generation_id": "EAbUxaZPyX7su6QW4R3D"
+ },
+ "l_hide_j": {
+  "status": "applied",
+  "credits": 36.0,
+  "generation_id": "PB7McPQ1kaVVxUPlcadp"
+ },
+ "l_hide_s": {
+  "status": "applied",
+  "credits": 30.0,
+  "generation_id": "FAb30Rxo6L7renq4GWos"
+ },
+ "l_combineFail_j": {
+  "status": "applied",
+  "credits": 21.0,
+  "generation_id": "IOrefUjoMgMpzAmsaaz9"
+ },
+ "l_combineFail_s": {
+  "status": "applied",
+  "credits": 23.0,
+  "generation_id": "qIMMcqrmaXW4sI8ezgbs"
+ },
+ "l_locked_j": {
+  "status": "applied",
+  "credits": 19.0,
+  "generation_id": "bVj2E5yE8Bk2Hpfdrogu"
+ },
+ "l_locked_s": {
+  "status": "applied",
+  "credits": 19.0,
+  "generation_id": "z8wUGQeHaLKb9raBJsgZ"
  }
 }

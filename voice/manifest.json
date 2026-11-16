@@ -264,55 +264,55 @@
  "endTrue": {
   "spk": "narrator",
   "text": "그날 밤, 서린고 스피커에서 학교가 십 년 동안 숨겨 온 진실이 흘러나갔다. 민아를 부축해 정문을 나서는 두 사람의 등 뒤, 방송실 창가에서 이준호가 낡은 카세트 타이머의 전원을 껐다.",
-  "dur": 14.76,
+  "dur": 14.367,
   "baked": true,
-  "eleven": "[low voice] [slowly] 그날 밤, 서린고 스피커에서 학교가 십 년 동안 숨겨 온 진실이 흘러나갔다. 민아를 부축해 정문을 나서는 두 사람의 등 뒤, 방송실 창가에서 이준호가 낡은 카세트 타이머의 전원을 껐다.",
+  "eleven": "[low voice] 그날 밤, 서린고 스피커에서 학교가 십 년 동안 숨겨 온 진실이 흘러나갔다. 민아를 부축해 정문을 나서는 두 사람의 등 뒤, 방송실 창가에서 이준호가 낡은 카세트 타이머의 전원을 껐다.",
   "generation": {
    "voice_id": "8G6jifm9f1BhHXadvwOt",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[low voice] [slowly] [pause] [softly]",
-   "input_sha256": "aa82bbc6d9e430ac0990f9204df94dbce0fcc1b18b4dae2cbf9ac14affa64a08",
-   "audio_sha256": "9a7d74b19941b1df1a2a3b6890ef2edba4515023e8e5414c28b949ac22133ac6",
-   "review_status": "unreviewed"
+   "delivery": "[low voice]",
+   "input_sha256": "296a2185019408934886163273207622beb2e1f4b818e0dae3feb2395720ea64",
+   "audio_sha256": "8fe49ebcfa4bbab5ea84c48431f82c5de13dbaa462677de7ca603ec1a5ab0c91",
+   "generation_id": "jyXhTZ7ChfeXAD0Ss2i8",
+   "flow_session_id": "q1MTEmR5pVOsksWFdRmu",
+   "review_status": "listening_required"
   }
  },
  "endNormal": {
   "spk": "narrator",
   "text": "무거운 철문이 등 뒤에서 다시 닫혔다. 진실은 이번에도 서랍 속에 남았고, 이듬해 10월 12일 밤에도 스피커에서는 같은 방송이 흘러나왔다.",
-  "dur": 11.39,
+  "dur": 11.468,
   "baked": true,
-  "eleven": "무거운 철문이 등 뒤에서 다시 닫혔다. 진실은 이번에도 서랍 속에 남았고, 이듬해 10월 12일 밤에도 스피커에서는 같은 방송이 흘러나왔다.",
+  "eleven": "[low voice] 무거운 철문이 등 뒤에서 다시 닫혔다. 진실은 이번에도 서랍 속에 남았고, 이듬해 10월 12일 밤에도 스피커에서는 같은 방송이 흘러나왔다.",
   "generation": {
    "voice_id": "8G6jifm9f1BhHXadvwOt",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.4
-   },
-   "delivery": "normal",
-   "input_sha256": "c4024ecc6de1ecc7a192d3229ab83cdda3304d377779c997d0715bb0839d354a",
-   "audio_sha256": "6c5578fdd944648ed4601750308a4e39d4c32dc4ba7a2ae0edcfc1063d386063",
-   "review_status": "unreviewed"
+   "delivery": "[low voice]",
+   "input_sha256": "df94d0aac593d749fccf2b834362518bd1fd7478eb3b89f07cb69d07e3d15211",
+   "audio_sha256": "661541564c9341e912f3384f05ef5e95187e10153b733db8be563ddb2e67b295",
+   "generation_id": "UQw7pvWnNTBjX4mqOtb1",
+   "flow_session_id": "M3GIKWQhg8Nv5cjsFv8b",
+   "review_status": "listening_required"
   }
  },
  "endBad": {
   "spk": "narrator",
   "text": "아무도 그 밤의 기록을 꺼내지 못했다. 십 년 전과 똑같이, 아침이 되어서야 구급차가 학교에 도착했다.",
-  "dur": 9.33,
+  "dur": 8.673,
   "baked": true,
-  "eleven": "아무도 그 밤의 기록을 꺼내지 못했다. 십 년 전과 똑같이, 아침이 되어서야 구급차가 학교에 도착했다.",
+  "eleven": "[sad] 아무도 그 밤의 기록을 꺼내지 못했다. 십 년 전과 똑같이, 아침이 되어서야 구급차가 학교에 도착했다.",
   "generation": {
    "voice_id": "8G6jifm9f1BhHXadvwOt",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.35
-   },
-   "delivery": "whisper",
-   "input_sha256": "69dbfdbf059e6c25ea748807712fb36898941937bddfff347aae630e78f9a247",
-   "audio_sha256": "a02cc27a172043b911f4c29dfc002825d4b8084dc08e1256e23daf3675a0c440",
-   "review_status": "unreviewed"
+   "delivery": "[sad]",
+   "input_sha256": "d2e55810de3f46a383af6d81a64bbcee912649a80a2c95c727ca72670362e69a",
+   "audio_sha256": "4466f8259b700f7a0465c4f676301fdc7158a715f9f1b6aa2a356d002c785d20",
+   "generation_id": "Yrrqcxrjij6eKa69sxMf",
+   "flow_session_id": "VKcj7j8JVLLg6heiywJM",
+   "review_status": "listening_required"
   }
  },
  "l_arrive_j": {
@@ -1578,269 +1578,253 @@
  "l_minaFound_j": {
   "spk": "jihun",
   "text": "민아야! 정신 차려 봐, 나야, 지훈이! 괜찮아, 이제 내가 왔어.",
-  "dur": 4.72,
+  "dur": 4.911,
   "baked": true,
-  "eleven": "민아야! 정신 차려 봐, 나야, 지훈이! 괜찮아, 이제 내가 왔어.",
+  "eleven": "[urgently] 민아야! 정신 차려 봐, 나야, 지훈이! 괜찮아, 이제 내가 왔어.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.34
-   },
-   "delivery": "normal",
-   "input_sha256": "10213280149672361f754fe2e229b715a8f1aca991de572f87ba5d85ae4fd103",
-   "audio_sha256": "0a64d97dc7c72fb333c44d74326376f0c62357f7dc7bd905144d23dcf919e769",
-   "request_id": "9Fpkblx18Kuek2C9CFSB",
-   "review_status": "verified"
+   "delivery": "[urgently]",
+   "input_sha256": "2ffa73b2e920e9cc79c2f452dd0c6dab7e4fd5713905d9ed5ff4e888716e97f2",
+   "audio_sha256": "3fa490695eb938f59fa4ff7300df8d1a2785bbe65f4138a27561965e16a022ae",
+   "generation_id": "mUbt0YeALhBEuQVT8YDm",
+   "flow_session_id": "QPB1bOlE8YecWk4THGw9",
+   "review_status": "listening_required"
   }
  },
  "l_minaFound_s": {
   "spk": "seoyeon",
   "text": "민아 선배! 정신 차려 보세요, 저 서연이에요! 다행이다, 아직 숨을 쉬고 있어…",
-  "dur": 6,
+  "dur": 6.269,
   "baked": true,
-  "eleven": "민아 선배! 정신 차려 보세요, 저 서연이에요! 다행이다, 아직 숨을 쉬고 있어…",
+  "eleven": "[urgently] 민아 선배! 정신 차려 보세요, 저 서연이에요! 다행이다, 아직 숨을 쉬고 있어…",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.34
-   },
-   "delivery": "normal",
-   "input_sha256": "f9706f2a7459463ed517e8cda8ddc717e824e4281fd03a2376ead12266ffdcb1",
-   "audio_sha256": "9b973dcb440ef0b872fff8ed5125de66ae54cd65efdd58e4d2853f5e9fef16a7",
-   "request_id": "SiQJcZqIksDr19Hnacbe",
-   "review_status": "verified"
+   "delivery": "[urgently]",
+   "input_sha256": "e0be7ed0aca7b6d7f154b0cfb5129b8040ba5e53f06ca90a8b2ac2b7a4b6df03",
+   "audio_sha256": "63521d63c619c5bd8e3391b607ea44777ac57dfa2f22a6f338fc98d51ac5b887",
+   "generation_id": "OWuHiduAHQiTRcjHQl80",
+   "flow_session_id": "cK3gGvhn5NYhPGctHpJO",
+   "review_status": "listening_required"
   }
  },
  "l_sprint_j": {
   "spk": "jihun",
   "text": "숨이 차… 조금만 쉬자.",
-  "dur": 2.769,
+  "dur": 2.691,
   "baked": true,
-  "eleven": "숨이 차… 조금만 쉬자.",
+  "eleven": "[frightened] 숨이 차… 조금만 쉬자.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "fear",
-   "input_sha256": "4bf0f5abb6efa72194088ced504389160bdf1393b82cb047dddb1a924bf656ad",
-   "audio_sha256": "4409e9d829df8be40a07768e88b8c9fe90cecefe04e0ab49a90641a215b35edb",
-   "request_id": "HqTEYOFmPYscjMgoBwtu",
+   "delivery": "[frightened]",
+   "input_sha256": "ff21aade225bbc1b22f4194a17fb016bf78c9c42ce9e431899da369e9800a60e",
+   "audio_sha256": "6ce77e798288fa272155130c84054b4fb3f6b92f8d2c132be58dbe7f95b0c3ae",
+   "generation_id": "ConvCoRshJbazt7xiAjv",
+   "flow_session_id": "mQK7wW7AQUEI0ozcjF7H",
    "review_status": "listening_required"
   }
  },
  "l_sprint_s": {
   "spk": "seoyeon",
   "text": "하아… 숨이…",
-  "dur": 1.959,
+  "dur": 2.429,
   "baked": true,
-  "eleven": "하아… 숨이…",
+  "eleven": "[frightened] 하아… 숨이…",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "fear",
-   "input_sha256": "0c06dfab77eaae71da8c98b90abba921e5990593a1e7e81e335e22919b002a78",
-   "audio_sha256": "b7558e5a30b337c61b5bc92478a8c3b5522491dcd79c1115931adb086e18eae4",
-   "request_id": "rHqbvBw8PhC8yGbsq41t",
+   "delivery": "[frightened]",
+   "input_sha256": "b14963c3922b5b262075bbcd928086d0181f4d9c5b2cf0d12b3e99726b0b40d8",
+   "audio_sha256": "136d3ef2ff220576d2ca9c908856eec751c1a83b4dca99fa37cb44f6b6fb89b8",
+   "generation_id": "EAbUxaZPyX7su6QW4R3D",
+   "flow_session_id": "ErvE88ad1GO3pnL6yJuC",
    "review_status": "listening_required"
   }
  },
  "l_hide_j": {
   "spk": "jihun",
   "text": "숨죽여. 누군지 확인하기 전엔 들키면 안 돼.",
-  "dur": 3.87,
+  "dur": 3.866,
   "baked": true,
-  "eleven": "숨죽여. 누군지 확인하기 전엔 들키면 안 돼.",
+  "eleven": "[whispers] 숨죽여. 누군지 확인하기 전엔 들키면 안 돼.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "whisper",
-   "input_sha256": "f18ade3c0aeacb5ce645096eae17e2549b056f038ef29b77fce7151a2a870b85",
-   "audio_sha256": "ecf1c4115f6f4984f13dbb4eb65d58792e9fbaf373c0ed65cad64b28c8ad9114",
-   "review_status": "unreviewed"
+   "delivery": "[whispers]",
+   "input_sha256": "162f5e7fc11e5af379e4a2aa6eeb789c11d3932726005182a6ad3dd5a2c0389a",
+   "audio_sha256": "373ddcd34216df0545637f56bef9a9a0340a53ebb4913e93e2eccae0bfd1d18c",
+   "generation_id": "PB7McPQ1kaVVxUPlcadp",
+   "flow_session_id": "lCaQlIWq8wFqyCw2mqQ4",
+   "review_status": "listening_required"
   }
  },
  "l_hide_s": {
   "spk": "seoyeon",
   "text": "숨을 죽여… 누군지 먼저 봐야 해.",
-  "dur": 3.32,
+  "dur": 3.788,
   "baked": true,
-  "eleven": "숨을 죽여… 누군지 먼저 봐야 해.",
+  "eleven": "[whispers] 숨을 죽여… 누군지 먼저 봐야 해.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "whisper",
-   "input_sha256": "d379c52ca7321dc71a0bce3c4f149212ded24b6fd07b324ff43d5e85c004df80",
-   "audio_sha256": "ca396b28ee7831d4e077f2ea46f56b6ab18d975aef79ce011f4225fed75d027e",
-   "review_status": "unreviewed"
+   "delivery": "[whispers]",
+   "input_sha256": "4d6eeb53bebd5998f959176cbc84f0f013036e524a96b7ee0a6136c6b6f50027",
+   "audio_sha256": "7d134b37b084ac37a2b683faa6f3d9601d18e09b872a34642e6c9c28562c1ade",
+   "generation_id": "FAb30Rxo6L7renq4GWos",
+   "flow_session_id": "sO8l50QwguORvIrzSQOv",
+   "review_status": "listening_required"
   }
  },
  "l_combineFail_j": {
   "spk": "jihun",
   "text": "이건 서로 안 맞아.",
-  "dur": 1.724,
+  "dur": 2.273,
   "baked": true,
-  "eleven": "이건 서로 안 맞아.",
+  "eleven": "[nervous] 이건 서로 안 맞아.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "normal",
-   "input_sha256": "a83dd4e2d5030791cb12f1c19cc41743c573522986e29c4ad781209470386e0e",
-   "audio_sha256": "445b44f22ea2be114f5ab82d7f47f29515b2873f64e0977a14aa9596ee8c6de4",
-   "request_id": "sOuENW1RwdUFD2YW9IaF",
+   "delivery": "[nervous]",
+   "input_sha256": "d504dd012f264bc085282d8a6513723580efdda07ad73a4df1ed286f5bde64c1",
+   "audio_sha256": "9f2c8eb4c9885c2ed2efc7660518e2029d14c31f4f28100c4d0d962d961ec56a",
+   "generation_id": "IOrefUjoMgMpzAmsaaz9",
+   "flow_session_id": "wVxD60HchyKtNshZggVH",
    "review_status": "listening_required"
   }
  },
  "l_combineFail_s": {
   "spk": "seoyeon",
   "text": "이건 같이 쓸 수 없어.",
-  "dur": 2.116,
+  "dur": 2.769,
   "baked": true,
-  "eleven": "이건 같이 쓸 수 없어.",
+  "eleven": "[nervous] 이건 같이 쓸 수 없어.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "normal",
-   "input_sha256": "c712183e598a28a2091bf5f4fece371c518a9e932e91e9266614f185f67a630d",
-   "audio_sha256": "a632c5328068fc592d1bd4f11dfa0d9b099492ab4af3b5a0323fa59af4052bfe",
-   "request_id": "ZuelLTKXuCWypkzRKJxr",
+   "delivery": "[nervous]",
+   "input_sha256": "d5c0696ca05868113813f928bb672cf0b105e21f16d6b3739c455a777a76c2bb",
+   "audio_sha256": "d599057d3dccf268dcfc555dc05397123dfd8f735833a060fa33059be4095765",
+   "generation_id": "qIMMcqrmaXW4sI8ezgbs",
+   "flow_session_id": "CEkwqr7c2f6cCAPHUjsv",
    "review_status": "listening_required"
   }
  },
  "l_locked_j": {
   "spk": "jihun",
   "text": "잠겨 있다.",
-  "dur": 1.802,
+  "dur": 1.489,
   "baked": true,
-  "eleven": "잠겨 있다.",
+  "eleven": "[frightened] 잠겨 있다.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "fear",
-   "input_sha256": "7b1555d1cf1f6e4438856a0033900029b743f3e475352aa18329469a04130273",
-   "audio_sha256": "00d8e02e8d8413c99e8bbb14c64e1f262831169ac58f1aa14450b8d7906c364e",
-   "request_id": "1fQp6nQ6XARYPFuNAPAt",
+   "delivery": "[frightened]",
+   "input_sha256": "209451036ffb92c6e1205d02f551069479a2b0744cd813302012ed5ad0244d56",
+   "audio_sha256": "05e0dd22da6af1a38532b8b14c3c1a4c25754eae9516bb3045e34d6d7d3e615b",
+   "generation_id": "bVj2E5yE8Bk2Hpfdrogu",
+   "flow_session_id": "sgbwxwhZ6lQ26zeFsqiO",
    "review_status": "listening_required"
   }
  },
  "l_locked_s": {
   "spk": "seoyeon",
   "text": "잠겨 있어…",
-  "dur": 1.802,
+  "dur": 1.646,
   "baked": true,
-  "eleven": "잠겨 있어…",
+  "eleven": "[frightened] 잠겨 있어…",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "fear",
-   "input_sha256": "4eb7e5eeca5bd06d3c964152698c1d09ba368ca26f69d8486830b98f03753881",
-   "audio_sha256": "f6687dd741cf60d91138fd2a6a99a9fceca0d1c60b8481bd2a535979696df7f3",
-   "request_id": "Rq6MlqMkSHxG1xK3aXgl",
+   "delivery": "[frightened]",
+   "input_sha256": "353931e67711240e20596752e9f7100ef16d8f86892c1dc5c0ad7ae4136a9470",
+   "audio_sha256": "b56df8f57cb51e647e0cca995f831ce8751592b56c74f2341633a0e30d11b0c7",
+   "generation_id": "z8wUGQeHaLKb9raBJsgZ",
+   "flow_session_id": "UQKDld9Sz030iIeO7kfr",
    "review_status": "listening_required"
   }
  },
  "bc_j": {
   "spk": "jihun",
   "text": "여기는 서린고등학교 방송실입니다. 1998년 10월 12일 밤, 3학년 2반 윤하늘은 실종된 게 아닙니다. 지하 펌프실 철문 안에 갇혀 있었고, 열쇠를 쥔 어른들은 끝내 내려가지 않았습니다. 학교는 그 밤을 단순 실종으로 덮었습니다. 지금부터, 그 증거를 하나씩 공개하겠습니다.",
-  "dur": 21.16,
+  "dur": 21.002,
   "baked": true,
-  "eleven": "[determined] [steady voice] 여기는 서린고등학교 방송실입니다. [pause] 1998년 10월 12일 밤, 3학년 2반 윤하늘은 실종된 게 아닙니다. [voice breaking] 지하 펌프실 철문 안에 갇혀 있었고, 열쇠를 쥔 어른들은 끝내 내려가지 않았습니다. [angry] 학교는 그 밤을 단순 실종으로 덮었습니다. [determined] 지금부터, 그 증거를 하나씩 공개하겠습니다.",
+  "eleven": "[nervous] 여기는 서린고등학교 방송실입니다. 1998년 10월 12일 밤, 3학년 2반 윤하늘은 실종된 게 아닙니다. 지하 펌프실 철문 안에 갇혀 있었고, 열쇠를 쥔 어른들은 끝내 내려가지 않았습니다. 학교는 그 밤을 단순 실종으로 덮었습니다. 지금부터, 그 증거를 하나씩 공개하겠습니다.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[determined] [steady voice] [pause] [voice breaking] [angry] [determined]",
-   "input_sha256": "2844a729bbc9af6919a6a284a8a078f4a1236ec2e21933f3b212de83d282a21e",
-   "audio_sha256": "656497f940c52f9f9de9dc364235051f7b8f61c0e18e9b101802dbbbd69c87c3",
-   "review_status": "unreviewed"
+   "delivery": "[nervous]",
+   "input_sha256": "fc28d7addce19510d1afffd9bc5bb33c910795244866dc399fff94e3b900e158",
+   "audio_sha256": "16c66102b1f8933ba599778abacad842151c1c4835f6f28222f8d4f217bb510c",
+   "generation_id": "XAiFXWNOTIXvq0pavowZ",
+   "flow_session_id": "wQgMahmEWXWGNBzYpeyS",
+   "review_status": "listening_required"
   }
  },
  "bc_s": {
   "spk": "seoyeon",
   "text": "여기는 서린고등학교 방송실입니다. 1998년 10월 12일 밤, 윤하늘 선배는 사라진 게 아니에요. 지하 펌프실에 갇혀서, 문을 두드리고 있었어요. 열쇠를 가진 어른들은 아무도 내려가지 않았고, 학교는 그걸 실종이라고 적었어요. 이제, 그 기록을 전부 공개할게요.",
-  "dur": 22.05,
+  "dur": 21.159,
   "baked": true,
-  "eleven": "[trembling voice] 여기는 서린고등학교 방송실입니다. [pause] 1998년 10월 12일 밤, 윤하늘 선배는 사라진 게 아니에요. [crying] 지하 펌프실에 갇혀서, 문을 두드리고 있었어요. [angry] 열쇠를 가진 어른들은 아무도 내려가지 않았고, 학교는 그걸 실종이라고 적었어요. [determined] 이제, 그 기록을 전부 공개할게요.",
+  "eleven": "[nervous] 여기는 서린고등학교 방송실입니다. 1998년 10월 12일 밤, 윤하늘 선배는 사라진 게 아니에요. 지하 펌프실에 갇혀서, 문을 두드리고 있었어요. 열쇠를 가진 어른들은 아무도 내려가지 않았고, 학교는 그걸 실종이라고 적었어요. 이제, 그 기록을 전부 공개할게요.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[trembling voice] [pause] [crying] [angry] [determined]",
-   "input_sha256": "a27fb17fc74f35564666f61acf46de60b3507fbfcc75931d6ff8318522cffbd1",
-   "audio_sha256": "06884367f2570ed405e7e3123a7aad99a424c44c50d7ff1e9c656f77d08606e6",
-   "review_status": "unreviewed"
+   "delivery": "[nervous]",
+   "input_sha256": "d8a29c9ec73daf1285f20107e7126087cfe176eaf7265725c999ddcfd414dcc1",
+   "audio_sha256": "cb885eeff4f6e8fc777044e80e15ea85dc0561a3e265fd0fc47e01362fb02a5c",
+   "generation_id": "PTuj2pe4IAm8fXlr0KzX",
+   "flow_session_id": "zLXyhuHNqJBm6JmDUfD3",
+   "review_status": "listening_required"
   }
  },
  "mw_j": {
   "spk": "mina",
   "text": "……지훈아? 정말 너구나…… 장비실 문이 뒤에서 철컥 잠겨 버렸어. 선반에 올라가다 떨어져서 발목을 다쳤고, 휴대폰도 다 꺼져 가고…… 사흘을 여기서 버텼어.",
-  "dur": 14.03,
+  "dur": 13.166,
   "baked": true,
-  "eleven": "……지훈아? 정말 너구나…… 장비실 문이 뒤에서 철컥 잠겨 버렸어. 선반에 올라가다 떨어져서 발목을 다쳤고, 휴대폰도 다 꺼져 가고…… 사흘을 여기서 버텼어.",
+  "eleven": "[worried] [hesitant] ……지훈아? 정말 너구나…… 장비실 문이 뒤에서 철컥 잠겨 버렸어. 선반에 올라가다 떨어져서 발목을 다쳤고, 휴대폰도 다 꺼져 가고…… 사흘을 여기서 버텼어.",
   "generation": {
-   "voice_id": "oGV8pbtfEm7fbDPdSfrx",
+   "voice_id": "5I7B1di44aCL15NkP0jn",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.34
-   },
-   "delivery": "relief",
-   "input_sha256": "9a33ed2abe8092df427c462c83491fa5f95152c476e34e1380c514f3eb8105a2",
-   "audio_sha256": "235723801e3d43f34990c99e4362c42dadf004e5be182040b8332875a3bed6bc",
-   "review_status": "unreviewed"
+   "delivery": "[worried] [hesitant]",
+   "input_sha256": "16670120bd5d208ffadb4b693babb4d074852c228c3a15e871bdcdeb562c906a",
+   "audio_sha256": "141e0d82ba9b6efa9aa2fe49e6480ac11cfa06eb59bba12ca05ab018f31a04bd",
+   "generation_id": "6Zn0dzTeKFZyhBeo0jLl",
+   "flow_session_id": "K3SKZ2yoUxlExuQMvxcJ",
+   "review_status": "listening_required"
   }
  },
  "mw_s": {
   "spk": "mina",
   "text": "……서연아? 정말 네가 왔구나…… 장비실 문이 뒤에서 철컥 잠겨 버렸어. 선반에 올라가다 떨어져서 발목을 다쳤고, 휴대폰도 다 꺼져 가고…… 사흘을 여기서 버텼어.",
-  "dur": 13.79,
+  "dur": 13.322,
   "baked": true,
-  "eleven": "……서연아? 정말 네가 왔구나…… 장비실 문이 뒤에서 철컥 잠겨 버렸어. 선반에 올라가다 떨어져서 발목을 다쳤고, 휴대폰도 다 꺼져 가고…… 사흘을 여기서 버텼어.",
+  "eleven": "[worried] [hesitant] ……서연아? 정말 네가 왔구나…… 장비실 문이 뒤에서 철컥 잠겨 버렸어. 선반에 올라가다 떨어져서 발목을 다쳤고, 휴대폰도 다 꺼져 가고…… 사흘을 여기서 버텼어.",
   "generation": {
-   "voice_id": "oGV8pbtfEm7fbDPdSfrx",
+   "voice_id": "5I7B1di44aCL15NkP0jn",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.34
-   },
-   "delivery": "relief",
-   "input_sha256": "27fae92e4bb1c1e6cd4d024dbb99510d58599f72ece1e88ef22d1d32091c44ab",
-   "audio_sha256": "a31a38c478a348c30b9dcc8bb4c527dca7583d7064437b7cd3399736760b85c1",
-   "review_status": "unreviewed"
+   "delivery": "[worried] [hesitant]",
+   "input_sha256": "76b46e2b3c35f89250a0f3e7ac778cd90350b047d1fb7c13a91812fa6a3047f1",
+   "audio_sha256": "0d1e50778432f7846615fa457e584a3db1aacd763ace7ebf808e558268f69a93",
+   "generation_id": "4DtjhIdV2CtaDbAWqHb4",
+   "flow_session_id": "l6CTpRhr53lWV6qXVwTg",
+   "review_status": "listening_required"
   }
  },
  "note_n1": {
@@ -4234,17 +4218,19 @@
  "news_rep": {
   "spk": "reporter",
   "text": "서린일보 사회부 한진우입니다. 어젯밤 열한 시 이십 분경, 서린고 본관 정전 직후 3학년 윤하늘 양이 실종됐습니다. 학교 측은 귀가 중 실종이라 밝혔지만, 감식반은 지하 펌프실 철문이 밖에서 잠겨 있던 흔적을 확보했습니다. 학교는 오늘 아침, 추가 취재를 일절 거부했습니다.",
-  "dur": 17.71,
+  "dur": 19.226,
   "baked": true,
-  "eleven": "[professional] [urgent] 서린일보 사회부 한진우입니다. 어젯밤 열한 시 이십 분경, 서린고 본관 정전 직후 3학년 윤하늘 양이 실종됐습니다. 학교 측은 귀가 중 실종이라 밝혔지만, 감식반은 지하 펌프실 철문이 밖에서 잠겨 있던 흔적을 확보했습니다. 학교는 오늘 아침, 추가 취재를 일절 거부했습니다.",
+  "eleven": "[serious] 서린일보 사회부 한진우입니다. 어젯밤 열한 시 이십 분경, 서린고 본관 정전 직후 3학년 윤하늘 양이 실종됐습니다. 학교 측은 귀가 중 실종이라 밝혔지만, 감식반은 지하 펌프실 철문이 밖에서 잠겨 있던 흔적을 확보했습니다. 학교는 오늘 아침, 추가 취재를 일절 거부했습니다.",
   "generation": {
    "voice_id": "J3IV02ZzZmojOIQbmpu0",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[professional] [urgent]",
-   "input_sha256": "e8ec2521bfc6d590211d7e88813c308d7af2ca15c31b7fad0055583a2ff89346",
-   "audio_sha256": "75b2f10d03660c3443428b9625b5008820e8f2469b226d98e43a32f897f2a985",
-   "review_status": "unreviewed"
+   "delivery": "[serious]",
+   "input_sha256": "3e4634b06c129ec51148b0cc03b08f6178ca51a6c191e2597e8412b6cc16c28d",
+   "audio_sha256": "d6e38b98ded806f46a916a48e9d1c50ff7f76a93633eb2a6a62c94f75e8dbc80",
+   "generation_id": "DeCXCpmPc4akZCIebC1o",
+   "flow_session_id": "NLxeWIvCzCePK2nEbuL6",
+   "review_status": "listening_required"
   }
  },
  "news_s": {
@@ -4268,17 +4254,19 @@
  "news_j": {
   "spk": "jihun",
   "text": "집에 가다 사라졌다면서, 펌프실 철문은 밖에서 잠겨 있었다… 이건 사고가 아니라 은폐야. 좋아, 가설을 세워 보자. 하나씩 증거로 확인하는 거야.",
-  "dur": 10.76,
+  "dur": 10.998,
   "baked": true,
-  "eleven": "[tense] 집에 가다 사라졌다면서, 펌프실 철문은 밖에서 잠겨 있었다… 이건 사고가 아니라 은폐야. 좋아, 가설을 세워 보자. 하나씩 증거로 확인하는 거야.",
+  "eleven": "[nervous] 집에 가다 사라졌다면서, 펌프실 철문은 밖에서 잠겨 있었다… 이건 사고가 아니라 은폐야. 좋아, 가설을 세워 보자. 하나씩 증거로 확인하는 거야.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[tense]",
-   "input_sha256": "a640069d41475c6267106c16ebd1bd39ec35b53d49fc43f4ac4cf7baa2eb1043",
-   "audio_sha256": "7fc867b982406a6bd05eca8c6ff9b4f9f606ae2502a3ea12f83933612be9f669",
-   "review_status": "generated"
+   "delivery": "[nervous]",
+   "input_sha256": "145804fbf572a1917942ce80556279761596f3dc86e63950b9c237bcbb839cb4",
+   "audio_sha256": "3deec1b76566e831072f4f1bb1e3004042ef7494553fe18df34e65917ad31233",
+   "generation_id": "R5QX645hL1pTNSH9v3sQ",
+   "flow_session_id": "iqeo6YGHHw8KVaUQjPGA",
+   "review_status": "listening_required"
   }
  },
  "nv_n_guard_diary": {
@@ -8275,14 +8263,19 @@
  "news_quote": {
   "spk": "reporter",
   "text": "기사에 인용된 녹취를 그대로 옮깁니다. \"정전은 단순 사고, 학생은 귀가 중 실종이다. 펌프실 얘기는 이 방을 나가는 순간 없던 일로 한다.\" 그날 밤 회의에 있던 다섯 명 중, 이 발언을 부인한 사람은 아무도 없었습니다.",
-  "dur": 15.04,
+  "dur": 15.073,
   "baked": true,
-  "eleven": "[professional] [grave] 기사에 인용된 녹취를 그대로 옮깁니다. \"정전은 단순 사고, 학생은 귀가 중 실종이다. 펌프실 얘기는 이 방을 나가는 순간 없던 일로 한다.\" 그날 밤 회의에 있던 다섯 명 중, 이 발언을 부인한 사람은 아무도 없었습니다.",
+  "eleven": "[serious] 기사에 인용된 녹취를 그대로 옮깁니다. \"정전은 단순 사고, 학생은 귀가 중 실종이다. 펌프실 얘기는 이 방을 나가는 순간 없던 일로 한다.\" 그날 밤 회의에 있던 다섯 명 중, 이 발언을 부인한 사람은 아무도 없었습니다.",
   "generation": {
    "voice_id": "J3IV02ZzZmojOIQbmpu0",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[professional] [grave]"
+   "delivery": "[serious]",
+   "input_sha256": "5cd565c51bed920e09ab831d1b1c2b620999eb900df8b556cd72227a5649ee94",
+   "audio_sha256": "f12104dcfe1f52e97735887f212f1e90dbef8c47d484344b58290fee11f81eaf",
+   "generation_id": "DdYv8pYwC0UCaYljqRsx",
+   "flow_session_id": "pOzDwPXBeeKRipvoN3xx",
+   "review_status": "listening_required"
   }
  },
  "vo_dorm_lookout": {

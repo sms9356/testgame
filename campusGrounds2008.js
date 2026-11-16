@@ -185,6 +185,27 @@ export function installCampusGrounds({ scene, world, floors, footprints = [] }) 
       info.autumnCrowns = n; }
     info.ginkgo = ginkgo.length; info.juniper = jun.length; info.leaves = leaves.length; }
 
+  // ── 9) 증축 (2008년 공립 고교답게): 철거된 자전거 보관소 자리에 지붕 있는 자전거 보관대 + 체육 창고 별동, 체육관 앞마당 퍼걸러 ──
+  //   재질 4종 공유 · 타입별 지오메트리 병합 (메시 4개) · 새 조명/그림자 없음 · 충돌 상자는 기둥 · 창고 벽만
+  { const B = { steel: [], roof: [], brick: [], plate: [] }; const bx = (k, w, h, d, x, y, z, ry = 0, rx = 0) => { const g = new THREE.BoxGeometry(w, h, d); if (rx) g.rotateX(rx); if (ry) g.rotateY(ry); g.translate(x, y, z); B[k].push(g); };
+    // (a) 자전거 보관대 9.0 × 3.0 (x 53~62, z -6.6~-3.6): 외팔 각관 기둥 + 파란 FRP 골판 경사지붕 + 바닥 거치대 레일
+    { const x0 = 53, x1 = 62, z0 = -6.6, z1 = -3.6; for (let x = x0 + .2; x <= x1 - .1; x += 2.2) { bx('steel', .1, 2.35, .1, x, 1.175, z0 + .25); col(x - .08, x + .08, z0 + .17, z0 + .33); bx('steel', .08, .08, 3.0, x, 2.3, (z0 + z1) / 2, 0, -.08); }
+      bx('roof', x1 - x0 + .4, .04, 3.3, (x0 + x1) / 2, 2.42, (z0 + z1) / 2, 0, -.08); bx('steel', x1 - x0, .06, .06, (x0 + x1) / 2, 2.35, z0 + .25);
+      for (let x = x0 + .5; x < x1 - .3; x += .6) bx('steel', .03, .35, .5, x, .18, (z0 + z1) / 2 + .3);
+      bx('steel', x1 - x0 - .6, .04, .04, (x0 + x1) / 2, .34, (z0 + z1) / 2 + .3); info.bikeShed = 1; }
+    // (b) 체육 창고 별동 3.2 × 2.4 (보관대 서쪽 끝 · 벽돌 + 철문 + 날짜판 '증축 2004'): 벽에 충돌
+    { const cx = 51.1, cz = -5.1, w = 3.2, d = 2.4, h = 2.6; bx('brick', w, h, .2, cx, h / 2, cz - d / 2); bx('brick', .2, h, d, cx - w / 2, h / 2, cz); bx('brick', .2, h, d, cx + w / 2, h / 2, cz);
+      bx('brick', w - 1.4, h, .2, cx - .7 - .0, h / 2, cz + d / 2); bx('steel', 1.2, 2.1, .06, cx + .8, 1.05, cz + d / 2 + .02); bx('plate', w + .3, .12, d + .3, cx, h + .06, cz);
+      col(cx - w / 2 - .1, cx + w / 2 + .1, cz - d / 2 - .1, cz + d / 2 + .1); info.storeAnnex = 1;
+      const c = document.createElement('canvas'); c.width = 128; c.height = 48; const g2 = c.getContext('2d'); g2.fillStyle = '#c8c0a8'; g2.fillRect(0, 0, 128, 48); g2.fillStyle = '#3a3228'; g2.font = 'bold 18px sans-serif'; g2.textAlign = 'center'; g2.fillText('증축 2004', 64, 22); g2.font = '11px sans-serif'; g2.fillText('체육 창고 · 서린고', 64, 40);
+      const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; const pl = new THREE.Mesh(new THREE.PlaneGeometry(.6, .22), new THREE.MeshBasicMaterial({ map: t })); pl.position.set(cx - .9, 1.7, cz + d / 2 + .11); root.add(pl); }
+    // (c) 체육관 앞마당 퍼걸러 (현관 캐노피와 테니스장 사이 · 길 동쪽 가장자리): 각관 기둥 4 + 목재 살대
+    { const x0 = 87.0, x1 = 92.0, z0 = -25.2, z1 = -23.8; [[x0, z0], [x1, z0], [x0, z1], [x1, z1]].forEach(([x, z]) => { bx('steel', .12, 2.6, .12, x, 1.3, z); col(x - .08, x + .08, z - .08, z + .08); });
+      [z0, z1].forEach(z => bx('plate', x1 - x0 + .4, .14, .1, (x0 + x1) / 2, 2.62, z)); for (let x = x0; x <= x1 + .01; x += .5) bx('plate', .08, .1, z1 - z0 + .6, x, 2.74, (z0 + z1) / 2); info.pergola = 1; }
+    const M = { steel: new THREE.MeshStandardMaterial({ color: 0x6a7076, roughness: .5, metalness: .6 }), roof: new THREE.MeshStandardMaterial({ color: 0x3a6a9a, roughness: .45, transparent: true, opacity: .85, side: THREE.DoubleSide }),
+      brick: new THREE.MeshStandardMaterial({ color: 0x9a5a44, roughness: .9 }), plate: new THREE.MeshStandardMaterial({ color: 0x8a6a48, roughness: .8 }) };
+    for (const k in B) if (B[k].length) { const m = add(mergeGeometries(B[k]), M[k]); m.name = 'grounds08_ext_' + k; B[k].forEach(g => g.dispose()); } }
+
   OUT.add(root); window.__grounds = info; return info;
 }
 function findTurfMap(scene) { let m = null; scene.traverse(o => { if (!m && o.isMesh && o.material && o.material.name === 'school-turf') m = o.material.map; }); return m; }

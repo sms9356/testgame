@@ -12,9 +12,9 @@ export const MEGA_CAMPUS_ZONES = [   // 위치 이름표 (캠퍼스 재배치 �
   { id: 'fountain', name: '야외수돗가 · 씨름장', x: 56, z: -16, w: 12, d: 16, color: '#2e4a44' },
   { id: 'library', name: '중앙학술정보관 (대도서관)', x: 84, z: 39, w: 22, d: 18, color: '#4a3628' },
   { id: 'gym', name: '체육관', x: 84, z: -39, w: 20, d: 22, color: '#3a2a2a' },
-  { id: 'tennis', name: '테니스 · 양궁 훈련장', x: 84, z: -17, w: 20, d: 16, color: '#224868' },
+  { id: 'tennis', name: '테니스 · 양궁 훈련장', x: 84, z: -15, w: 20, d: 16, color: '#224868' },
   { id: 'sports', name: '서린고 야구 스타디움', x: 84, z: 8, w: 24, d: 26, color: '#284a3a' },
-  { id: 'bball', name: '야외농구장', x: 58, z: 7, w: 14, d: 15, color: '#3a2a22' },
+  { id: 'bball', name: '야외농구장', x: 58, z: 6, w: 14, d: 15, color: '#3a2a22' },
   { id: 'pool', name: '실내 수영장', x: 58, z: 35, w: 14, d: 20, color: '#2a3a46' },
   { id: 'union', name: '학생회관 · 동아리관', x: -88, z: 42, w: 22, d: 14, color: '#48382e' },
 ];
@@ -827,7 +827,7 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
 
     // ── (5) 동편 중앙 교차로(x: 74.8, z: 3.2): 서린 백주년 학술 시계탑 & 동편 대로 가로등 17기 ──
     {
-      const cx = 74.8, cz = 3.2;
+      const cx = 67.0, cz = -1.6;   // 옛 자리(74.8, 3.2)는 재배치된 야구장 1루 덕아웃과 겹쳤다 → 동편 대로 서쪽 농구장 북동 모서리 앞
       pbox(2.4, .42, 2.4, stoneM, cx, .21, cz, g);
       pbox(1.12, 4.5, 1.12, brickM, cx, 2.65, cz, g);
       pbox(1.42, .30, 1.42, stoneM, cx, 5.05, cz, g);
@@ -836,7 +836,7 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
         pmesh(new THREE.CircleGeometry(.40, 18), lampEm, cx + ox, 4.25, cz + oz, g, { ry, cast: false });
       });
       pmesh(new THREE.SphereGeometry(.38, 16, 12), goldM, cx, 6.32, cz, g);
-      pmesh(new THREE.PlaneGeometry(2.1, .34), new THREE.MeshBasicMaterial({ map: makeSign('서린 백주년 시계탑 · 동편 캠퍼스 광장', '#18242c', '#f4e8c8', 20) }), cx - .58, 2.05, cz, g, { ry: -Math.PI / 2, cast: false });
+      pmesh(new THREE.PlaneGeometry(2.1, .34), new THREE.MeshBasicMaterial({ map: makeSign('서린 백주년 시계탑 · 동편 캠퍼스 광장', '#18242c', '#f4e8c8', 20) }), cx + .58, 2.05, cz, g, { ry: Math.PI / 2, cast: false });
       addCol(cx - 1.2, cx + 1.2, cz - 1.2, cz + 1.2);
 
       // 동편 남북 종단 대로(x = 68.8 / 72.8) 및 동서 보행로(z = 3.0) 가로등
@@ -847,13 +847,12 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
         const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: makeGlowTex('255,235,185'), blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, opacity: .55 }));
         sp.scale.setScalar(5.2); sp.position.set(lx, 4.35, lz); g.add(sp);
       };
+      // 재배치 뒤 야구장(x≥72 · z -5~21) · 도서관(x≥73 · z 30~48) 안에 박히던 동측 열, 학우매점 벽(x 68.3)에 팔이 닿던 등, 농구장 펜스 안 등은 뺀다
       for (const lz of [-42, -26, -12, 2, 16, 30, 42]) {
-        addStreetLamp(68.8, lz);
-        addStreetLamp(72.8, lz);
+        addStreetLamp(68.8, lz === 16 ? 11 : lz);
+        if (lz < -5) addStreetLamp(72.8, lz);
       }
-      for (const lx of [46, 54, 62]) {
-        addStreetLamp(lx, 3.0);
-      }
+      addStreetLamp(46, 3.0);
     }
   }
 

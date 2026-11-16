@@ -9714,261 +9714,361 @@
  "l_m_main_s": {
   "spk": "seoyeon",
   "text": "본관 안이야… 너무 조용해. 선배, 여기 어딘가 있는 거죠?",
-  "dur": 4.91,
+  "dur": 6.113,
   "baked": true,
-  "eleven": "[whispering] 본관 안이야… 너무 조용해. 선배, 여기 어딘가 있는 거죠?",
+  "eleven": "[nervous] 본관 안이야… 너무 조용해. 선배, 여기 어딘가 있는 거죠?",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[whispering]"
+   "delivery": "[nervous]",
+   "input_sha256": "973b26f758d5c9fdd9a3013c202fa44c1fce42574fec0a37e834b49b505cda48",
+   "audio_sha256": "36f2048cecf0343c01bdaf48410429f01e206dbc0de96a741d0fef85afce4d51",
+   "generation_id": "pxgJg5ShyFXiLjubUQtW",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "l_m_annex_s": {
   "spk": "seoyeon",
   "text": "별관이다… 여긴 공기가 더 차가워. 조용히 가자.",
-  "dur": 3.6,
+  "dur": 4.989,
   "baked": true,
-  "eleven": "[quietly] 별관이다… 여긴 공기가 더 차가워. 조용히 가자.",
+  "eleven": "[nervous] 별관이다… 여긴 공기가 더 차가워. 조용히 가자.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[quietly]"
+   "delivery": "[nervous]",
+   "input_sha256": "961c764279ef31e1493b85ffc62c43b14d3530ee758a9994eb325087eba4c1ae",
+   "audio_sha256": "eff346cf028f95eb0f89b7963cd467e0ce5ee32ab6c22438c087945c738943c2",
+   "generation_id": "YL5SHcZsZrurmgoygWmU",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "l_m_b1_s": {
   "spk": "seoyeon",
   "text": "지하야… 축축하고 숨이 막혀. 하늘 선배가… 여기 갇혀 있었던 거구나.",
-  "dur": 5.15,
+  "dur": 7.236,
   "baked": true,
-  "eleven": "[tense] 지하야… 축축하고 숨이 막혀. 하늘 선배가… 여기 갇혀 있었던 거구나.",
+  "eleven": "[nervous] 지하야… 축축하고 숨이 막혀. 하늘 선배가… 여기 갇혀 있었던 거구나.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[tense]"
+   "delivery": "[nervous]",
+   "input_sha256": "06d1ee1a4af7646bd94d220a366d0d82e34788d892c0fef8f66b11e576d7bba8",
+   "audio_sha256": "7d08f5e2454390ed5735aa451edec3f29505b4666d1b380129099e08b67210e8",
+   "generation_id": "YjWgxm8dn3Wjj5cgXHXN",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "l_m_roof_s": {
   "spk": "seoyeon",
   "text": "옥상… 바람이 세다. 여기선 학교가 다 보이네.",
-  "dur": 3.5,
+  "dur": 5.642,
   "baked": true,
-  "eleven": "[calm] 옥상… 바람이 세다. 여기선 학교가 다 보이네.",
+  "eleven": "[nervous] 옥상… 바람이 세다. 여기선 학교가 다 보이네.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[calm]"
+   "delivery": "[nervous]",
+   "input_sha256": "8e0a7e36a34b7a89beb0e75b0ffdb7b59bf74703888315376aebd1fc85bca1c1",
+   "audio_sha256": "a72fefcd06e944abdedf30fd098d7cf1af2649095f4a5b5f2668f1af18c2167b",
+   "generation_id": "0D9SR3KwENn5JFJlOGpO",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "l_m_gym_s": {
   "spk": "seoyeon",
   "text": "체육관 안은 소리가 다 울려… 천천히 걷자.",
-  "dur": 3.21,
+  "dur": 4.362,
   "baked": true,
-  "eleven": "[quietly] 체육관 안은 소리가 다 울려… 천천히 걷자.",
+  "eleven": "[nervous] 체육관 안은 소리가 다 울려… 천천히 걷자.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[quietly]"
+   "delivery": "[nervous]",
+   "input_sha256": "e4b41645b624dbc3fb1b3e66871c58da50833ec0debbbed3161b89db2a78c4d6",
+   "audio_sha256": "3d1fb85b966b8a0e299f722bb5f9e5580ca815c40d7c7ab07436576b9945b992",
+   "generation_id": "VorcgaQbgYMnVTmoOFmj",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "l_m_pool_s": {
   "spk": "seoyeon",
   "text": "수영장이다. 바닥 미끄러우니까 조심…",
-  "dur": 2.59,
+  "dur": 3.971,
   "baked": true,
-  "eleven": "[cautious] 수영장이다. 바닥 미끄러우니까 조심…",
+  "eleven": "[nervous] 수영장이다. 바닥 미끄러우니까 조심…",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[cautious]"
+   "delivery": "[nervous]",
+   "input_sha256": "f74faf9d656ad913321ee41aaacc212effe5680c4755d9652a88e48d940a3dc7",
+   "audio_sha256": "0a45b87db84bd1b6fd0dace7198ebfca865e54d064de77428c9482132a1b08f0",
+   "generation_id": "VaZTLESG8yUr0EiuTB31",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "l_m_cafe_s": {
   "spk": "seoyeon",
   "text": "급식실… 식판이 아직도 쌓여 있어. 시간이 멈춘 것 같아.",
-  "dur": 4.34,
+  "dur": 5.486,
   "baked": true,
-  "eleven": "[softly] 급식실… 식판이 아직도 쌓여 있어. 시간이 멈춘 것 같아.",
+  "eleven": "[nervous] 급식실… 식판이 아직도 쌓여 있어. 시간이 멈춘 것 같아.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[softly]"
+   "delivery": "[nervous]",
+   "input_sha256": "7717de31498a7f9053c780464084b7892b13760f6ba0c040c72bad695d2b479f",
+   "audio_sha256": "2fe7a35216f8b1fc98c50c8de677a8ce6a1aa3882277652e7e605fcca187577f",
+   "generation_id": "9heBk5O5uWQzWmQocwv2",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "l_m_class_s": {
   "spk": "seoyeon",
   "text": "교실이다… 책상마다 이름표가 그대로야.",
-  "dur": 3.0,
+  "dur": 4.127,
   "baked": true,
-  "eleven": "[softly] 교실이다… 책상마다 이름표가 그대로야.",
+  "eleven": "[nervous] 교실이다… 책상마다 이름표가 그대로야.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[softly]"
+   "delivery": "[nervous]",
+   "input_sha256": "ea2d8b54c574873f48aecec2528b8c737a2fd48f73393fc304961eab65a6bf17",
+   "audio_sha256": "40875cec09fc70cceb18e6dbc4de4e19da788688ef16305bc6e02dfb63de6887",
+   "generation_id": "vKfJp08OYaMYS2ubVUFN",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "l_m_staff_s": {
   "spk": "seoyeon",
   "text": "교무실… 선생님들이 숨긴 게 여기 있을 거야.",
-  "dur": 2.87,
+  "dur": 4.441,
   "baked": true,
-  "eleven": "[determined] 교무실… 선생님들이 숨긴 게 여기 있을 거야.",
+  "eleven": "[nervous] 교무실… 선생님들이 숨긴 게 여기 있을 거야.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[determined]"
+   "delivery": "[nervous]",
+   "input_sha256": "f70593e04364ec60611b0939c0684107d2050d96ba6b1542640ae112abd0796b",
+   "audio_sha256": "134ca2e54331e53308bbd2f4de6ade6113cc8adcb564bf345ee1a1a907d876e4",
+   "generation_id": "LF7UZtzVXg2M6R9fZNu4",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "l_m_bcast_s": {
   "spk": "seoyeon",
   "text": "방송실이야… 하늘 선배가 그날 방송하려던 곳.",
-  "dur": 3.13,
+  "dur": 4.833,
   "baked": true,
-  "eleven": "[emotional] 방송실이야… 하늘 선배가 그날 방송하려던 곳.",
+  "eleven": "[nervous] 방송실이야… 하늘 선배가 그날 방송하려던 곳.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[emotional]"
+   "delivery": "[nervous]",
+   "input_sha256": "72f18e0e64abeb514871dc86a910d5fee7742c7a7479a54147b3e0c31f2af352",
+   "audio_sha256": "6ae76eab21e3ab82c24ff6f88472a2a4ba451804f38912da2277f919213e1c80",
+   "generation_id": "qHfGICrHmfOA4H5RMYm4",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "l_m_battery_s": {
   "spk": "seoyeon",
   "text": "건전지! 다행이다, 손전등 좀 더 쓸 수 있겠다.",
-  "dur": 3.11,
+  "dur": 4.519,
   "baked": true,
-  "eleven": "[relieved] 건전지! 다행이다, 손전등 좀 더 쓸 수 있겠다.",
+  "eleven": "[nervous] 건전지! 다행이다, 손전등 좀 더 쓸 수 있겠다.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[relieved]"
+   "delivery": "[nervous]",
+   "input_sha256": "0b99ab6044358a63d5d751fb130e35b0969e2710331ed6f4f8554eb091d97555",
+   "audio_sha256": "6415b9cbbc82395fbd77286c056762d48bea928f8bd29c8e7ebc0e343250f673",
+   "generation_id": "TSZVmTS5QDyw7VL8rll0",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "l_m_medkit_s": {
   "spk": "seoyeon",
   "text": "구급상자다. 이건 꼭 챙겨야지.",
-  "dur": 2.09,
+  "dur": 3.082,
   "baked": true,
-  "eleven": "[calm] 구급상자다. 이건 꼭 챙겨야지.",
+  "eleven": "[nervous] 구급상자다. 이건 꼭 챙겨야지.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[calm]"
+   "delivery": "[nervous]",
+   "input_sha256": "a024683b28bbb8aabee8eac988760e43b6a74b55856441c0d1f20e5f181865a8",
+   "audio_sha256": "3d48d5a3d04dc0ff3a4133cd44d0c41d2220eaf6ea6c2c26345d23c121fa57a0",
+   "generation_id": "n83Fl1N3A9h5gUi3JkMq",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "l_m_note_s": {
   "spk": "seoyeon",
   "text": "쪽지다… 급하게 쓴 글씨 같아.",
-  "dur": 2.04,
+  "dur": 3.474,
   "baked": true,
-  "eleven": "[curious] 쪽지다… 급하게 쓴 글씨 같아.",
+  "eleven": "[nervous] 쪽지다… 급하게 쓴 글씨 같아.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[curious]"
+   "delivery": "[nervous]",
+   "input_sha256": "3015750d98825c92a815f270a86f0c8dd5d6873e412953201ffd7b8c39e1ac32",
+   "audio_sha256": "8cf2c43bfd7beaf8e021262616dd6fb0a745632f07b2aaaf695f183194bba178",
+   "generation_id": "PiiyViSVqyzqEoK5n1QG",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "l_m_photo_s": {
   "spk": "seoyeon",
   "text": "이 사진… 그날 밤 찍힌 거야.",
-  "dur": 2.12,
+  "dur": 3.474,
   "baked": true,
-  "eleven": "[softly] 이 사진… 그날 밤 찍힌 거야.",
+  "eleven": "[nervous] 이 사진… 그날 밤 찍힌 거야.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[softly]"
+   "delivery": "[nervous]",
+   "input_sha256": "18880aebc64761b201599c9637ce2b9d1383d48a2792821b0fe3aed9bb639978",
+   "audio_sha256": "144fe54eaf9f8d395b7ada70b91b891b908964c9a209ebd1fdb6fc029847138d",
+   "generation_id": "MaIhHNU7M7xv1bzwMD6U",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "l_m_evidence_s": {
   "spk": "seoyeon",
   "text": "찾았다… 이게 학교가 숨긴 증거야.",
-  "dur": 2.43,
+  "dur": 3.709,
   "baked": true,
-  "eleven": "[determined] 찾았다… 이게 학교가 숨긴 증거야.",
+  "eleven": "[nervous] 찾았다… 이게 학교가 숨긴 증거야.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[determined]"
+   "delivery": "[nervous]",
+   "input_sha256": "343edd8a38ba98f8e245f7a99667a93541d61589b8df919658ff498c510cc28b",
+   "audio_sha256": "8e99827ee1c19b93e42a8df2bd7b887a5d594dbd42436f20defd25ab0b9f8bab",
+   "generation_id": "OGXnfOVqCU7bQ0Lc37DX",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "l_m_lowbat_s": {
   "spk": "seoyeon",
   "text": "손전등이 약해지고 있어… 건전지 어디 없나.",
-  "dur": 2.87,
+  "dur": 4.519,
   "baked": true,
-  "eleven": "[worried] 손전등이 약해지고 있어… 건전지 어디 없나.",
+  "eleven": "[nervous] 손전등이 약해지고 있어… 건전지 어디 없나.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[worried]"
+   "delivery": "[nervous]",
+   "input_sha256": "7655be57887794cebf1af40ea916ce9a90a7029c8a5e5f80997743f70068d4b4",
+   "audio_sha256": "7a46b8b34ec1f5e097f7235053e97ee845631c3eb97fad873a9b59bf25a50e06",
+   "generation_id": "jrXtooOV1uyQ3knD8Z1g",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "l_m_dark_s": {
   "spk": "seoyeon",
   "text": "꺼졌어… 아무것도 안 보여, 침착하자.",
-  "dur": 2.53,
+  "dur": 4.127,
   "baked": true,
-  "eleven": "[scared] 꺼졌어… 아무것도 안 보여, 침착하자.",
+  "eleven": "[nervous] 꺼졌어… 아무것도 안 보여, 침착하자.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[scared]"
+   "delivery": "[nervous]",
+   "input_sha256": "1b495d771f7a854daa3042e5e1abdb21a324c0ddfdff06938aa5b5025cc897c2",
+   "audio_sha256": "0287e58e4f718f499fe41724ba3e8349a98132dee382e3f74538dc880ac92fb5",
+   "generation_id": "ceWlRNRcTWtKgHMxYpnK",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "l_m_locked_s": {
   "spk": "seoyeon",
   "text": "잠겼네… 열쇠가 필요해.",
-  "dur": 1.93,
+  "dur": 3.161,
   "baked": true,
-  "eleven": "[frustrated] 잠겼네… 열쇠가 필요해.",
+  "eleven": "[nervous] 잠겼네… 열쇠가 필요해.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[frustrated]"
+   "delivery": "[nervous]",
+   "input_sha256": "10097bbf917baaef7b0b58252c72ce481ac168779970dc4808655241caf215cf",
+   "audio_sha256": "8d715f30cba706400e5b46ea3563c20dd68c63fe564833bb8b71e642e47d0bd9",
+   "generation_id": "1tO4SXCjCkxWqevL3E6S",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "l_m_tired_s": {
   "spk": "seoyeon",
   "text": "하아, 하아… 숨 좀 고르자.",
-  "dur": 2.46,
+  "dur": 3.553,
   "baked": true,
-  "eleven": "[out of breath] 하아, 하아… 숨 좀 고르자.",
+  "eleven": "[nervous] 하아, 하아… 숨 좀 고르자.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[out of breath]"
+   "delivery": "[nervous]",
+   "input_sha256": "eb1cba591f475d28d25156027084fe6a6e26e09962bfd8e350644ba92b1cf540",
+   "audio_sha256": "6a77859d564e3360bf46faac79c2f4f24c035e0f5d79f7ea5b8e14bf062ddeaa",
+   "generation_id": "65Vuj8d7diVHX2tpRJw4",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "l_m_hide_s": {
   "spk": "seoyeon",
   "text": "조용히… 여기서 잠깐만 숨자.",
-  "dur": 2.27,
+  "dur": 3.553,
   "baked": true,
-  "eleven": "[whispering] 조용히… 여기서 잠깐만 숨자.",
+  "eleven": "[nervous] 조용히… 여기서 잠깐만 숨자.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[whispering]"
+   "delivery": "[nervous]",
+   "input_sha256": "9efe49729cbec2798019672dc5a647be1ed6a45b01be1393f6a42fb8f5281bfc",
+   "audio_sha256": "d2e65f0baeefe2d298d939ff0ec31d53e3385955c64ca019a3b768fb8a772099",
+   "generation_id": "dA7KEbL9l9L8Hs5YIiIC",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "l_m_night_s": {

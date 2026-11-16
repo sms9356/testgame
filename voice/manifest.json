@@ -5042,97 +5042,109 @@
  "nv_n12": {
   "spk": "narrator",
   "text": "졸업생 명부. 3학년 2반 윤하늘 — 이름이 붉게 지워져 있다. 이름 옆에 누군가 연필로 적어 두었다: “아직 집에 못 갔어요.”",
-  "dur": 12.59,
+  "dur": 12.199,
   "baked": true,
-  "eleven": "[low voice] [slowly] 졸업생 명부. 3학년 2반 윤하늘 — 이름이 붉게 지워져 있다. 이름 옆에 누군가 연필로 적어 두었다: “아직 집에 못 갔어요.”",
+  "eleven": "[low voice] 졸업생 명부. 3학년 2반 윤하늘 — 이름이 붉게 지워져 있다. 이름 옆에 누군가 연필로 적어 두었다: “아직 집에 못 갔어요.”",
   "generation": {
    "voice_id": "8G6jifm9f1BhHXadvwOt",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[low voice] [slowly]",
-   "input_sha256": "49fcec60efd31bf9dae1ca47c2f82ba25c11ed6eae2f3968c05287c5b138fa78",
-   "audio_sha256": "e063d92cd6972fa771eb2e655294e4a23c1db2dfb17606b2cbfc1595efddd74d",
-   "review_status": "unreviewed"
+   "delivery": "[low voice]",
+   "input_sha256": "79ba8cb57de2a32d459d078781f345fa9c396602d7e1c9d9ad287aa8360480b2",
+   "audio_sha256": "0d756bb4b5bf6122b3e5d91092e5aa30ea836bf74ba22b1ac905e510715efb13",
+   "generation_id": "vs8SGRUxqj0Id5mp8HEt",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "nv_q1a": {
   "spk": "homeroom",
   "text": "3년 개근에 도전. 하늘이가 직접 붙인 별 스티커예요. 마지막 칸, 10월 13일만 비어 있어요. 귀퉁이에 연필로… 내일도 1등으로 와야지.",
-  "dur": 14.11,
+  "dur": 12.931,
   "baked": true,
-  "eleven": "[sad] [softly] 3년 개근에 도전. 하늘이가 직접 붙인 별 스티커예요. 마지막 칸, 10월 13일만 비어 있어요. 귀퉁이에 연필로… 내일도 1등으로 와야지.",
+  "eleven": "[tearful] 3년 개근에 도전. 하늘이가 직접 붙인 별 스티커예요. 마지막 칸, 10월 13일만 비어 있어요. 귀퉁이에 연필로… 내일도 1등으로 와야지.",
   "generation": {
    "voice_id": "UqW1DivwFt1NwUMSGnTn",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[sad] [softly]",
-   "input_sha256": "b176ec64c0af11be21f8af051e6f27d2052d3fe76677f17a6047eb376e963009",
-   "audio_sha256": "6272c83a25dbc26d803f1cffc24c7262b9b66817a2a0ee284e57feb07ffcd116",
-   "review_status": "generated"
+   "delivery": "[tearful]",
+   "input_sha256": "2d6d3813cc9608a651e1537f62be2180d7dfb26a051baf962c3fa747bab34a7b",
+   "audio_sha256": "4382327f99a52debaf964019fc274b860bf7c9803bb3db46c6697668701ea79d",
+   "generation_id": "C5vDlvErWmTHANtfSMPX",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "nv_n13": {
   "spk": "snackLady",
   "text": "그날 이후로도 급식실 식판은 매일 같은 자리에 놓였어. 아무도 안 먹는데. 꼭 한 명분이 모자란 채로.",
-  "dur": 7.89,
+  "dur": 7.706,
   "baked": true,
-  "eleven": "[casual] [warmly] 그날 이후로도 급식실 식판은 매일 같은 자리에 놓였어. 아무도 안 먹는데. 꼭 한 명분이 모자란 채로.",
+  "eleven": "[warmly] 그날 이후로도 급식실 식판은 매일 같은 자리에 놓였어. 아무도 안 먹는데. 꼭 한 명분이 모자란 채로.",
   "generation": {
    "voice_id": "VFNaRkx6q2IQZn2mmwwg",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[casual] [warmly]",
-   "input_sha256": "de278371109129ef2115b65151253fcfc5fa26829f64091357c60ec5e43628b2",
-   "audio_sha256": "3ca2a5602c3da6754a3c3daa5b7fb0350b5d57d9f507a0057e104cc54bd4f931",
-   "review_status": "generated"
+   "delivery": "[warmly]",
+   "input_sha256": "5f97152a3fb8ed890ae61946709e726ab6870ccd9f57a0e1b6e81a211d152e47",
+   "audio_sha256": "622d044b95b47137f51464c77a20f6d5ba18e4d7cea22347fcc0c4b1f3f32fc6",
+   "generation_id": "AOyjyykVOobiL8gw40dy",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "nv_n19": {
   "spk": "librarian",
   "text": "대출 기록 원본은 데스크 서랍에 넣고 잠갔어요. 열쇠는 잃어버렸고요. 급하면 머리핀으로라도 딸 수 있어요. 보건실 침대 쪽에 하나 떨어져 있을 거예요.",
-  "dur": 11.73,
+  "dur": 11.233,
   "baked": true,
-  "eleven": "[softly] 대출 기록 원본은 데스크 서랍에 넣고 잠갔어요. 열쇠는 잃어버렸고요. 급하면 머리핀으로라도 딸 수 있어요. 보건실 침대 쪽에 하나 떨어져 있을 거예요.",
+  "eleven": "[hushed, nervous] 대출 기록 원본은 데스크 서랍에 넣고 잠갔어요. 열쇠는 잃어버렸고요. 급하면 머리핀으로라도 딸 수 있어요. 보건실 침대 쪽에 하나 떨어져 있을 거예요.",
   "generation": {
    "voice_id": "sf8Bpb1IU97NI9BHSMRf",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[softly]",
-   "input_sha256": "3e1ae317049414a8721cd5f41af8708362347830dc4b81acd0d61accd03345ab",
-   "audio_sha256": "916f313c73f9715284fe53af2b3432ee4111e420ef38ef9589644dbe3e89ea77",
-   "review_status": "generated"
+   "delivery": "[hushed, nervous]",
+   "input_sha256": "3088a568c0fc68dfc44434e8b511c986e09235de6183d137696e1910741439ac",
+   "audio_sha256": "34aae542ccd8cb7250bb4e2b2cd04288c73c2dea6f9e97391c4f176f941eac7f",
+   "generation_id": "1VFRiZ8EUDaZqYx30Wni",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "nv_nC_s": {
   "spk": "seoyeon",
   "text": "송출 로그. 23시 40분, 송출자 3학년 2반 윤하늘, 상태 미송출. 마이크도 꺼져 있고 메인 전원도 차단. 버튼은 눌렸는데, 전기가 없었던 거야.",
-  "dur": 13.48,
+  "dur": 13.558,
   "baked": true,
   "eleven": "[nervous] 송출 로그. 23시 40분, 송출자 3학년 2반 윤하늘, 상태 미송출. 마이크도 꺼져 있고 메인 전원도 차단. 버튼은 눌렸는데, 전기가 없었던 거야.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
    "delivery": "[nervous]",
    "input_sha256": "20578f51af27c2af0f0e94ae8f0f945c435f22eadf206337146860e603327d60",
-   "audio_sha256": "c4522473358024044a83041ee0385240ea09883d3cdae2c30c75b5b61cc71e1c",
-   "review_status": "generated"
+   "audio_sha256": "3819d314ae948da53d367ed2550bab195547edb06a5a91efcf5061a3a540bcfb",
+   "generation_id": "dFHJdAInZp252vV2MCC7",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "nv_nC_j": {
   "spk": "jihun",
   "text": "민아 쪽지야. 우리 숨바꼭질할 때 내가 항상 제일 먼저 찾아냈다고. 그래. 이번에도 찾아낼게.",
-  "dur": 7.47,
+  "dur": 7.889,
   "baked": true,
-  "eleven": "[tense] 민아 쪽지야. 우리 숨바꼭질할 때 내가 항상 제일 먼저 찾아냈다고. 그래. 이번에도 찾아낼게.",
+  "eleven": "[nervous] 민아 쪽지야. 우리 숨바꼭질할 때 내가 항상 제일 먼저 찾아냈다고. 그래. 이번에도 찾아낼게.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[tense]",
-   "input_sha256": "d33a0b81ca7d6fca212655b2d5cbc4cee5398a3dfbf9b1812bf9247efb05a5e8",
-   "audio_sha256": "3a6066e5c635e89c082f95a7bf0cdb488f426438a458af5f670ba8a1be5d804a",
-   "review_status": "generated"
+   "delivery": "[nervous]",
+   "input_sha256": "e7d9c563336dcf8a67955b59747fa84324b7d39199da7577600c2aa3f2321a6f",
+   "audio_sha256": "4a2189f29ec7eeb5c457203bcbd3dac64991d14b68652923b4165cbd7952ae1d",
+   "generation_id": "GNQ6G6vcindQjfjh3T4N",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "vo_pe_tape": {
@@ -6488,59 +6500,73 @@
  "nd_n_guard_diary": {
   "spk": "guard",
   "text": "[1998년 10월 12일 당직 경비원 박종철 순찰 일지] 22:45 — 본관 지하 B1 배수 펌프실 환기구 쪽에서 둔탁하게 철문을 두드리는 소리와 살려달라는 외침이 들림. 23:20 — 본관 전체 대정전 발생. 펌프실 열쇠를 찾으러 교무실로 뛰어들어갔으나, 교무부장이 “열쇠는 내가 챙겼으니 절대 지하로 내려가지 말고 정문만 잠가 두라”고 엄명함. 23:40 — 전원이 완전히 끊긴 학교 스피커에서 3학년 윤하늘 학생의 하교 방송 목소리가 울려 퍼지기 시작함.",
-  "dur": 38.64,
+  "dur": 38.034,
   "baked": true,
-  "eleven": "[1998년 10월 12일 당직 경비원 박종철 순찰 일지] 22:45 — 본관 지하 B1 배수 펌프실 환기구 쪽에서 둔탁하게 철문을 두드리는 소리와 살려달라는 외침이 들림. 23:20 — 본관 전체 대정전 발생. 펌프실 열쇠를 찾으러 교무실로 뛰어들어갔으나, 교무부장이 “열쇠는 내가 챙겼으니 절대 지하로 내려가지 말고 정문만 잠가 두라”고 엄명함. 23:40 — 전원이 완전히 끊긴 학교 스피커에서 3학년 윤하늘 학생의 하교 방송 목소리가 울려 퍼지기 시작함.",
+  "eleven": "[elderly voice] [1998년 10월 12일 당직 경비원 박종철 순찰 일지] 22:45 — 본관 지하 B1 배수 펌프실 환기구 쪽에서 둔탁하게 철문을 두드리는 소리와 살려달라는 외침이 들림. 23:20 — 본관 전체 대정전 발생. 펌프실 열쇠를 찾으러 교무실로 뛰어들어갔으나, 교무부장이 “열쇠는 내가 챙겼으니 절대 지하로 내려가지 말고 정문만 잠가 두라”고 엄명함. 23:40 — 전원이 완전히 끊긴 학교 스피커에서 3학년 윤하늘 학생의 하교 방송 목소리가 울려 퍼지기 시작함.",
   "generation": {
-   "voice_id": "lZLh6IYERWP1xQ7NnDOg",
+   "voice_id": "UmYoqGlufKxhJ6NCx5Mv",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "review_status": "generated",
-   "input_sha256": "0a43e160c729058cb1b32409fdca323443f701ed65ff5fc9d71db39ce5d62c19",
-   "audio_sha256": "2ad9514420315a6c2d144bafa304cd6003e3a0b9fb3178418f8efee03525cb3e"
+   "delivery": "[elderly voice] [",
+   "input_sha256": "9b8da8840780ca3fa9a9d855857793010cdaa09a104fbd6a117998364bf14efe",
+   "audio_sha256": "3acb8fb882baad355a0b6029669ed95d8d6b4a05ad9103af04acf6fa3e4483bf",
+   "generation_id": "go52Lsx9yNlzytkOg4Sj",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "nd_n_principal_tape": {
   "spk": "principal",
   "text": "[1998년 10월 12일 23:10 교장실 극비 녹취록 — 제9대 교장] “지하 배전반 노후 합선과 펌프실 감금 사고가 경찰이나 서린일보 기자들에게 새어 나가면 재단과 학교는 끝장일세. 보고서에는 무조건 하교 후 단순 실종으로 적게. 오늘 밤 학교에 남아 있던 우리 다섯(교무실·도서실·과학실·체육관·수영장)이 비상 정문 열쇠를 한 조각씩 나누어 봉인하고, 열쇠의 머리는 내 금고와 별관에 숨기겠네. 교장실 괘종시계를 자정(12:00)에 맞추면 서고 금고가 열린다네.”",
-  "dur": 34.04,
+  "dur": 41.874,
   "baked": true,
-  "eleven": "[1998년 10월 12일 23:10 교장실 극비 녹취록 — 제9대 교장] “지하 배전반 노후 합선과 펌프실 감금 사고가 경찰이나 서린일보 기자들에게 새어 나가면 재단과 학교는 끝장일세. 보고서에는 무조건 하교 후 단순 실종으로 적게. 오늘 밤 학교에 남아 있던 우리 다섯(교무실·도서실·과학실·체육관·수영장)이 비상 정문 열쇠를 한 조각씩 나누어 봉인하고, 열쇠의 머리는 내 금고와 별관에 숨기겠네. 교장실 괘종시계를 자정(12:00)에 맞추면 서고 금고가 열린다네.”",
+  "eleven": "[regretful] [1998년 10월 12일 23:10 교장실 극비 녹취록 — 제9대 교장] “지하 배전반 노후 합선과 펌프실 감금 사고가 경찰이나 서린일보 기자들에게 새어 나가면 재단과 학교는 끝장일세. 보고서에는 무조건 하교 후 단순 실종으로 적게. 오늘 밤 학교에 남아 있던 우리 다섯(교무실·도서실·과학실·체육관·수영장)이 비상 정문 열쇠를 한 조각씩 나누어 봉인하고, 열쇠의 머리는 내 금고와 별관에 숨기겠네. 교장실 괘종시계를 자정(12:00)에 맞추면 서고 금고가 열린다네.”",
   "generation": {
    "voice_id": "kiVK4omWhBQ9AzwcaRq7",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "review_status": "unreviewed",
-   "input_sha256": "b27b1c40d7347b80b2ab6b64193cfaeab756e3a57ecabb22639872b019152fdf",
-   "audio_sha256": "8385b38e98a3359f155b3b3265e09289a3ef3b9e8557915d654a03f55a947780"
+   "delivery": "[regretful] [",
+   "input_sha256": "10954505d4e8683bd026e6bc869df993da107ab8d9f85157bae3f4554c61a774",
+   "audio_sha256": "a788409618f896ca0aa34698db1fc379af9e8f88e204b3edfd152fe53e459860",
+   "generation_id": "yOrXe2SlfaThT6ldRYow",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "nd_n_bunker_audit": {
   "spk": "headTeacher",
   "text": "[1998 재단 특별감사 기밀문서 — 지하 방공호 보존서고] 1. 지하 펌프실 배전반 노후 및 외부 잠금 방치로 인한 안전사고 은폐 건. 2. 관련 수사 기록 및 현장 사진 일체를 본 지하 방공호 철제 서류함에 이관하고 방폭문을 폐쇄함.",
-  "dur": 18.99,
+  "dur": 17.711,
   "baked": true,
-  "eleven": "[1998 재단 특별감사 기밀문서 — 지하 방공호 보존서고] 1. 지하 펌프실 배전반 노후 및 외부 잠금 방치로 인한 안전사고 은폐 건. 2. 관련 수사 기록 및 현장 사진 일체를 본 지하 방공호 철제 서류함에 이관하고 방폭문을 폐쇄함.",
+  "eleven": "[serious] [1998 재단 특별감사 기밀문서 — 지하 방공호 보존서고] 1. 지하 펌프실 배전반 노후 및 외부 잠금 방치로 인한 안전사고 은폐 건. 2. 관련 수사 기록 및 현장 사진 일체를 본 지하 방공호 철제 서류함에 이관하고 방폭문을 폐쇄함.",
   "generation": {
-   "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+   "voice_id": "4JJwo477JUAx3HV0T7n7",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "review_status": "generated"
+   "delivery": "[serious] [",
+   "input_sha256": "cf2ef6c72c35d92c4161cda95d55e4ee6068a88b7461fda32ec613f088883c1e",
+   "audio_sha256": "23b7f8322e2666623af17531659c0597af7927f5d811cf736a29043d088ae2ad",
+   "generation_id": "a5iLAsTT55BRi0sqQgks",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "nd_n_dorm2f_diary": {
   "spk": "friend2",
   "text": "[청운학사 2층 204호 사생 일기 — 1998. 10. 12] 2층 심야 정독실 창문 너머로 본관 전체가 꺼지는 걸 봤다. 그런데 밤 11시 40분, 운동장 옆 지하 환기구에서 하늘이가 방송 원고를 읽는 목소리가 희미하게 들렸다.",
-  "dur": 15.07,
+  "dur": 21.159,
   "baked": true,
-  "eleven": "2층 심야 정독실 창문 너머로 본관 전체가 꺼지는 걸 봤다. 그런데 밤 11시 40분, 운동장 옆 지하 환기구에서 하늘이가 방송 원고를 읽는 목소리가 희미하게 들렸다.",
+  "eleven": "[casual] 청운학사 2층 204호 사생 일기 — 1998. 10. 12, 2층 심야 정독실 창문 너머로 본관 전체가 꺼지는 걸 봤다. 그런데 밤 11시 40분, 운동장 옆 지하 환기구에서 하늘이가 방송 원고를 읽는 목소리가 희미하게 들렸다.",
   "generation": {
    "voice_id": "j3SYRikKBpDmPJsvd1rf",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "review_status": "unreviewed",
-   "input_sha256": "d150407f88faf76416445544cdae9da1efbd84b1f1a54898bbb152a6c7c9cd55",
-   "audio_sha256": "ea1401416830256ffd8020d57d43a7b5679f8afc83e08fa26fbab7178b45b86d"
+   "delivery": "[casual]",
+   "input_sha256": "2c1be28dcbeff4a2c70b50ea15f79ee7f05908b70d1a2cb7e5a1ea13f672ca89",
+   "audio_sha256": "2912a9a26dc0f7e272b71e1914f7abe99789490783adae212e544c1b50ac0c7d",
+   "generation_id": "aejO6sJa1f8nOH1BPHTi",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "nd_n1": {

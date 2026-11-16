@@ -178,7 +178,7 @@ export function buildMainBuilding(opt = {}) {
   const mat = {
     wood: M('wood', () => pbr('wood', { rough: .9 })),                                   // 노후 참나무 마루 (실사)
     terr: M('terr', () => { const m = pbr('tile', { own: false, map: PT.terrazzo(), nScale: .45, rough: .55 }); m.roughnessMap = PT.terrazzoRough(); return m; }),   // 인조석 물갈기(도끼다시): 회백 바탕 + 백 · 흑 · 담녹 쇄석 + 1.2m 황동 줄눈 + 왁스 광택 얼룩 (진흙처럼 보이던 실사 타일 색 맵 대신)   // 왁스 칠한 인조석 바닥: 손전등 빛이 은은하게 번지도록 거칠기를 낮춤                                   // 인조석 물갈기 · 모자이크 (실사)
-    ceil: M('ceil', () => pbr('ceil', { own: false, map: TEX.ceiling(), nScale: .3 })),  // 텍스 천장: 색은 밝게, 요철은 실사
+    ceil: M('ceil', () => { const m = pbr('ceil', { own: false, map: TEX.ceiling(), nScale: MAINB ? .08 : .3 }); if (MAINB) { m.roughness = .95; m.roughnessMap = null; } return m; }),   // 본관: 요철을 약하게 — 밤에 손전등 빛을 받으면 텍스 천장이 구겨진 은박처럼 반짝이며 검은 바탕에 흰 반점으로 보였다  // 텍스 천장: 색은 밝게, 요철은 실사
     wall: M('wall', () => pbr('paint', { own: false, map: TEX.wall(), nScale: .85, rough: 1 })),       // 아이보리 수성 페인트 + 실사 요철
     wain: M('wain', () => pbr('d2_tex_paint', { own: false, map: TEX.wainscot(), nScale: 1, rough: .7 })),   // 녹색 유성 페인트 (벗겨진 요철)
     conc: MAINB ? M('conc', () => new THREE.MeshStandardMaterial({ color: 0xdedad0, roughness: .95, map: TEX.wall() }))   // 본관: 구조 콘크리트(계단 코어 · 계단 밑면 · 보 · 옥탑)도 미색 수성 도장 — 돌 무늬 스캔이 대리석 기둥처럼 보이던 것
@@ -1119,7 +1119,9 @@ export function buildMainBuilding(opt = {}) {
       // 행정실 코너 (서쪽 창가): ㄱ자 관리자 책상 · 서가 · 금고
       desk(x1 + 1.2, z2 - .85, 1.6, .8, .76, 'lockerM'); desk(x1 + .55, z2 - 1.85, .7, 1.2, .76, 'lockerM'); officeChair(x1 + 1.3, z2 - 1.55, y0, -1);
       cabinet(x1 + .05, x1 + .5, z1 + .9, z1 + 3.6, 1.9, 'lockerM', true); mdl('drawer_cabinet', x1 + .32, y0, z2 - 3.6, Math.PI / 2); col.push({ x1: x1 + .05, x2: x1 + .6, z1: z2 - 4.2, z2: z2 - 3.0, y1: y0, y2: y0 + 1.9 });
-      mdl('h133/OFF-010', x1 + 2.6, y0, z2 - .3, Math.PI); col.push({ x1: x1 + 2.3, x2: x1 + 2.9, z1: z2 - .5, z2: z2 - .1, y1: y0, y2: y0 + 1.1 });   // 금고 (실사 모델, 예전: 회색 상자)
+      // 금고 자리: 서쪽 칸막이벽(교실 쪽 통벽)에 등을 대고 동쪽(사무실 안)을 본다 — 캐비닛 벽과 서랍장 사이 빈 벽, 앞은 두 칸막이 묶음 사이 통로라 문이 활짝 열리고 앞에서 바로 손이 닿는다
+      //   (이야기 금고 = world.js buildSafe 를 rebuildGame 이 이 자리로 옮긴다. 예전엔 빈자리 무작위 → 서가에 끼고 의자가 앞을 막았다 · 장식용 두 번째 금고 모델은 뺐다)
+      { const sz = z1 + 4.65, bx = x1 + .36; props.push({ kind: 'safeSpot', label: '교무실 금고 자리', x: bx, z: sz, y: y0, floor: f }); col.push({ x1: x1 + .02, x2: bx + .38, z1: sz - .37, z2: sz + .37, y1: y0, y2: y0 + .95 }); }
       // 탕비 코너 (동쪽 · 현관 칸막이 옆): 싱크 하부장 · 정수기 · 냉장고 · 복사기
       cabinetD(x2 - .6, x2 - .05, z1 + .9, z1 + 2.7, y0, .86, 'white', 'x-'); box('rubber', x2 - .62, x2 - .04, y0 + .86, y0 + .89, z1 + .88, z1 + 2.72); sinkPedX(x2 - .35, z1 + 1.6, y0, x2 - .02);   // 동쪽 벽 (예전: x 좌표를 벽 z 로 넘겨 도기 판 · 충돌이 복도를 가로질렀다)
       fridgeX(x2 - .1, x2 - .7, z1 + 3.0, z1 + 3.6, y0);   // 냉장고 (2도어)

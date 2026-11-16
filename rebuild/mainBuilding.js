@@ -1118,7 +1118,9 @@ export function buildMainBuilding(opt = {}) {
       // 행정실 코너 (서쪽 창가): ㄱ자 관리자 책상 · 서가 · 금고
       desk(x1 + 1.2, z2 - .85, 1.6, .8, .76, 'lockerM'); desk(x1 + .55, z2 - 1.85, .7, 1.2, .76, 'lockerM'); officeChair(x1 + 1.3, z2 - 1.55, y0, -1);
       cabinet(x1 + .05, x1 + .5, z1 + .9, z1 + 3.6, 1.9, 'lockerM', true); mdl('drawer_cabinet', x1 + .32, y0, z2 - 3.6, Math.PI / 2); col.push({ x1: x1 + .05, x2: x1 + .6, z1: z2 - 4.2, z2: z2 - 3.0, y1: y0, y2: y0 + 1.9 });
-      mdl('h133/OFF-010', x1 + 2.6, y0, z2 - .3, Math.PI); col.push({ x1: x1 + 2.3, x2: x1 + 2.9, z1: z2 - .5, z2: z2 - .1, y1: y0, y2: y0 + 1.1 });   // 금고 (실사 모델, 예전: 회색 상자)
+      // 금고 자리: 서쪽 칸막이벽(교실 쪽 통벽)에 등을 대고 동쪽(사무실 안)을 본다 — 캐비닛 벽과 서랍장 사이 빈 벽, 앞은 두 칸막이 묶음 사이 통로라 문이 활짝 열리고 앞에서 바로 손이 닿는다
+      //   (이야기 금고 = world.js buildSafe 를 rebuildGame 이 이 자리로 옮긴다. 예전엔 빈자리 무작위 → 서가에 끼고 의자가 앞을 막았다 · 장식용 두 번째 금고 모델은 뺐다)
+      { const sz = z1 + 4.65, bx = x1 + .36; props.push({ kind: 'safeSpot', label: '교무실 금고 자리', x: bx, z: sz, y: y0, floor: f }); col.push({ x1: x1 + .02, x2: bx + .38, z1: sz - .37, z2: sz + .37, y1: y0, y2: y0 + .95 }); }
       // 탕비 코너 (동쪽 · 현관 칸막이 옆): 싱크 하부장 · 정수기 · 냉장고 · 복사기
       cabinetD(x2 - .6, x2 - .05, z1 + .9, z1 + 2.7, y0, .86, 'white', 'x-'); box('rubber', x2 - .62, x2 - .04, y0 + .86, y0 + .89, z1 + .88, z1 + 2.72); sinkPedX(x2 - .35, z1 + 1.6, y0, x2 - .02);   // 동쪽 벽 (예전: x 좌표를 벽 z 로 넘겨 도기 판 · 충돌이 복도를 가로질렀다)
       fridgeX(x2 - .1, x2 - .7, z1 + 3.0, z1 + 3.6, y0);   // 냉장고 (2도어)

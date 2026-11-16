@@ -157,10 +157,10 @@ import { playVoice } from './audio.js?v=436';
 export const voiceText = info => (info.parts ? info.parts.map(p => tr(p)).join('. ') : tr(info.text.replace(/<[^>]+>/g, ' '))).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
 VHOOK.speak = (id, info, fx) => {
   const code = lang(); if (code === 'ko' || !dict) return null;
-  const pk = vpack && vpack[id];
+  const pid = vpack && (vpack[id] ? id : info.audioFile && vpack[info.audioFile] ? info.audioFile : id), pk = vpack && vpack[pid];   // intro1_j 처럼 audioId 로 같은 녹음을 쓰는 대사는 원본 id 의 팩을 쓴다
   if (pk && pk.src === info.text) {   // 원문이 바뀐 대사는 팩을 쓰지 않는다 (다시 만들 때까지 브라우저 음성)
     const e = emoFor(id);
-    return playVoice(`voice/${code}/${id}.mp3`, fx, { ...e, rate: 1, pitch: 1, trem: 0, airy: 0, dry: true }).then(r => r ? r.duration : pk.dur);
+    return playVoice(`voice/${code}/${pid}.mp3`, fx, { ...e, rate: 1, pitch: 1, trem: 0, airy: 0, dry: true }).then(r => r ? r.duration : pk.dur);
   }
   const v = voiceFor(code); if (!v) return null;
   const text = voiceText(info).replace(/…+/g, ', ');
@@ -171,5 +171,5 @@ VHOOK.speak = (id, info, fx) => {
   const per = code === 'en' ? .065 : .14;   // 글자 수로 길이 추정
   return Math.max(1.2, text.length * per / u.rate);
 };
-VHOOK.file = (id, info) => { const code = lang(); if (code === 'ko' || !dict) return undefined; const pk = vpack && vpack[id]; return pk && pk.src === info.text ? `voice/${code}/${id}.mp3` : null; };
+VHOOK.file = (id, info) => { const code = lang(); if (code === 'ko' || !dict) return undefined; const pid = vpack && (vpack[id] ? id : info.audioFile && vpack[info.audioFile] ? info.audioFile : id), pk = vpack && vpack[pid]; return pk && pk.src === info.text ? `voice/${code}/${pid}.mp3` : null; };
 window.__i18n.voiceText = voiceText;

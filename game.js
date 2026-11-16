@@ -2625,27 +2625,39 @@ function start(skipIntro = false) {
     p.dataset.from = labelFor(i);
     p.textContent = (VO[ids[i]] || VO['intro' + (i + 1)]).text;
   });
-  preload(ids);
+  preload([ids[2], ids[0], ids[1], ids[3]]);
   const W = s => new Promise(r => setTimeout(r, s * 1000 / (DEBUG && window.__introJump ? 6 : 1)));
-  introPhone('idle'); introLoc('');
+  const live = () => epoch === storySession && state === 'intro';
+  const durOf = i => { const d = lineInfo(ids[i]); return d && d.dur ? d.dur : 10; };
+  introPhone('idle'); introLoc(''); introRate = 1; introVoDone = false;
+  // 콜드 오픈 재구성 — ① 검은 화면 · 빗소리 · 진동하는 폴더폰 → 민아의 잡음 섞인 음성 사서함(intro3)
+  //   ② 녹음이 '뚝' 끊기는 순간 번개와 함께 서린동 공중 전경으로 매치컷 → 내레이션 1 · 2 가 흐르는 동안 카메라가 서린고 정문으로 내려간다(속도는 더빙 길이에 맞춤)
+  //   ③ 정문 앞에서 주인공 독백(intro4) → 플레이 시작.  예전엔 셰이더 예열을 최대 20초 소리 없이 기다렸다가(검은 화면) 네 줄을 모두 검은 화면에서 읽어 '더빙이 안 나온다'는 제보가 있었다
   (async () => {
-    await Promise.race([introWarm, new Promise(r => setTimeout(r, 20000))]); introStartMs = performance.now();
-    await W(.9);
-    for (let i = 0; i < 4; i++) {
-      if (epoch!==storySession || state !== 'intro') return;
-      if (i === 2) { introPhone('ring'); sfx.vibrate(); await W(1.2); if (epoch!==storySession || state !== 'intro') return; introPhone('play'); }
-      if (i === 3) introPhone('end');
-      ps[i].classList.add('on');
-      const vEntry = VO[ids[i]] || VO['intro' + (i + 1)];
-      const whoBadge = labelFor(i);
-      const sec = await speak(ids[i], i === 2 ? 'phone' : 'none', true);
-      subtitle(whoBadge, vEntry.text, Math.max(sec, 2.2), vEntry.spk, vEntry.stage || '');
-      await W(Math.max(sec, 1.8) + .45);
+    sfx.rainGust(); setTimeout(() => { if (live()) sfx.wind(); }, 1800);   // 기다리는 동안에도 빗소리 — 무음 검은 화면 없음
+    await Promise.race([introWarm, new Promise(r => setTimeout(r, 6000))]); if (!live()) return; introStartMs = performance.now();
+    await W(.6); if (!live()) return;
+    // ① 음성 사서함
+    introPhone('ring'); sfx.vibrate(); await W(1.4); if (!live()) return; sfx.vibrate(); await W(1.1); if (!live()) return;
+    introPhone('play'); sfx.staticNoise(.5); ps[2].classList.add('on');
+    { const v = VO[ids[2]]; const sec = await speak(ids[2], 'phone', true); if (!live()) return; subtitle(labelFor(2), v.text, Math.max(sec, 2.2), v.spk, v.stage || ''); await W(Math.max(sec, 1.8) + .3); }
+    if (!live()) return;
+    introPhone('end'); sfx.staticNoise(.35); await W(.5); if (!live()) return;
+    // ② 매치컷 — 공중 전경 · 하강. 내레이션 두 줄이 끝날 무렵 정문 앞에 닿도록 카메라 속도를 맞춘다 (T 6 → 17.2)
+    introRate = clamp(11.4 / (durOf(0) + durOf(1) + 1.6), .22, 1); introText = false; introT = 6;
+    for (const i of [0, 1]) {
+      await W(i ? .5 : 1.1); if (!live()) return;
+      const v = VO[ids[i]]; const sec = await speak(ids[i], 'none', true); if (!live()) return;
+      subtitle(labelFor(i), v.text, Math.max(sec, 2.2), v.spk, v.stage || ''); await W(Math.max(sec, 1.8));
     }
-    if (epoch===storySession && state === 'intro') { sfx.swell(1.6, .35); await W(1.5); if(epoch!==storySession||state!=='intro')return;introText = false; introT = 6; }
+    if (!live()) return;
+    // ③ 정문 앞 독백
+    introRate = 1; await W(.6); if (!live()) return;
+    { const v = VO[ids[3]]; const sec = await speak(ids[3], 'none', true); if (!live()) return; subtitle(labelFor(3), v.text, Math.max(sec, 2.2), v.spk, v.stage || ''); await W(Math.max(sec, 1.8) + .4); }
+    if (live()) { sfx.swell(1.6, .35); introVoDone = true; }
   })();
 }
-let introCue = 0, introEndT = 0;
+let introCue = 0, introEndT = 0, introRate = 1, introVoDone = true;
 // 콜드 오픈 폴더폰 화면 (2008) — 날짜 · 시각 · 부재중 · 음성 사서함 상태. 글자는 INTRO_COLD (번역 사전에 있음)
 function introPhone(mode) {
   const el = $('introPhone'); if (!el) return;
@@ -2722,8 +2734,9 @@ function finishIntro() {
 let guardGift = false;
 // 인트로: 검은 화면 텍스트 → 공중 전경(번개 · 타이틀) → 정문으로 하강(불 꺼진 빈 경비실) → 플레이 시작
 function updateIntro(dt) {
-  introT += dt * (DEBUG && window.__introJump ? 6 : 1);
+  introT += dt * introRate * (DEBUG && window.__introJump ? 6 : 1);
   if (introText) introT = Math.min(introT, 5.99);
+  if (!introVoDone) introT = Math.min(introT, 18.9);   // 정문 앞 독백이 끝날 때까지 정문 앞에서 기다린다
   const ease = t => t * t * (3 - 2 * t), T = introT;
   if (T < 6) { camera.position.set(0, 10, 106); camera.rotation.set(-.1, 0, 0, 'YXZ'); }
   else {
@@ -2732,7 +2745,7 @@ function updateIntro(dt) {
     cue(1, () => { fx.lightning(); sfx.thunder(.6); introLoc(INTRO_COLD.locBus); });
     cue(2, () => { sfx.swell(1.2, .4); });
     cue(3, () => { fx.lightning(); sfx.boom(); introLoc(INTRO_COLD.locSchool); $('introTitle').classList.add('show'); sfx.musicBox(7, .6); });
-    cue(4, () => { $('introTitle').classList.remove('show'); sfx.flashlightClick(); introLoc(INTRO_COLD.locGate); });
+    cue(4, () => { $('introTitle').classList.remove('show'); sfx.flashlightClick(); sfx.buzz(); introLoc(INTRO_COLD.locGate); });   // 깜빡이는 외등 웅웅거림
     cue(5, () => { introEndT = T + 1.6; sfx.gateClang(); caption('녹슨 정문이 바람에 삐걱인다. 불 꺼진 경비실 창문 너머엔 아무도 없다.'); });
     // 공중 전경 → 정문 앞으로 하강
     const k1 = ease(clamp((T - 6) / 6.2, 0, 1)), k2 = ease(clamp((T - 12.2) / 5.4, 0, 1));

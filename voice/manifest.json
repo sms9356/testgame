@@ -5554,65 +5554,73 @@
  "gd_log2": {
   "spk": "guard",
   "text": "10월 13일 새벽 다섯 시 오십 분. 교무부장이 펌프실 열쇠를 들고 내려갔슈. 한참을 안 올라오더니, 얼굴이 하얘가지고… 이 일지 어젯밤 장을 찢으라고 혔어유. 나는 찢는 척만 허고, 여기 숨겨 놨슈.",
-  "dur": 17.32,
+  "dur": 15.882,
   "baked": true,
-  "eleven": "[elderly voice] [rough] 10월 13일 새벽 다섯 시 오십 분. 교무부장이 펌프실 열쇠를 들고 내려갔슈. 한참을 안 올라오더니, 얼굴이 하얘가지고… 이 일지 어젯밤 장을 찢으라고 혔어유. 나는 찢는 척만 허고, 여기 숨겨 놨슈.",
+  "eleven": "[over a walkie-talkie] [elderly voice] 10월 13일 새벽 다섯 시 오십 분. 교무부장이 펌프실 열쇠를 들고 내려갔슈. 한참을 안 올라오더니, 얼굴이 하얘가지고… 이 일지 어젯밤 장을 찢으라고 혔어유. 나는 찢는 척만 허고, 여기 숨겨 놨슈.",
   "generation": {
-   "voice_id": "lZLh6IYERWP1xQ7NnDOg",
+   "voice_id": "UmYoqGlufKxhJ6NCx5Mv",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[elderly voice] [rough]",
-   "input_sha256": "9f431dd94c6c880b402ebbd35947cad4d01537b60194dffe0acf81db6d71751e",
-   "audio_sha256": "d490e8bc021d7d6f1284221d491310e7a241ee42ad5a8f56aee72bf0ad2d57ce",
-   "review_status": "generated"
+   "delivery": "[over a walkie-talkie] [elderly voice]",
+   "input_sha256": "35b9377c5c4ce74fef2167e2b795e9dee6ff8966a5b8c34f7c3ca28c740b377c",
+   "audio_sha256": "c4ba4795c0aeb3424e931bedb283d774d4e721032274c907a7c989e380d5558a",
+   "generation_id": "HDKKLiYdq9aqAXB9bSsI",
+   "flow_session_id": "AtbLL97hMVdKyoRbaLmf",
+   "review_status": "listening_required"
   }
  },
  "gd_log3": {
   "spk": "guard",
   "text": "1999년 2월, 내 마지막 근무. 나도 이 학교를 떠나는댜. 열쇠 꾸러미 반납허고… 정문에 쇠사슬 감았슈. 근디 해마다 10월 12일 밤이면, 꺼진 스피커에서 하교 방송이 들린다는 소문이 돌더라고. 나는… 안 믿어유. 안 믿고 싶어유.",
-  "dur": 21.44,
+  "dur": 20.767,
   "baked": true,
-  "eleven": "[elderly voice] [rough] 1999년 2월, 내 마지막 근무. 나도 이 학교를 떠나는댜. 열쇠 꾸러미 반납허고… 정문에 쇠사슬 감았슈. 근디 해마다 10월 12일 밤이면, 꺼진 스피커에서 하교 방송이 들린다는 소문이 돌더라고. 나는… 안 믿어유. 안 믿고 싶어유.",
+  "eleven": "[over a walkie-talkie] [elderly voice] 1999년 2월, 내 마지막 근무. 나도 이 학교를 떠나는댜. 열쇠 꾸러미 반납허고… 정문에 쇠사슬 감았슈. 근디 해마다 10월 12일 밤이면, 꺼진 스피커에서 하교 방송이 들린다는 소문이 돌더라고. 나는… 안 믿어유. 안 믿고 싶어유.",
   "generation": {
-   "voice_id": "lZLh6IYERWP1xQ7NnDOg",
+   "voice_id": "UmYoqGlufKxhJ6NCx5Mv",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[elderly voice] [rough]",
-   "input_sha256": "24d1aee3169bafea42af808cb6f8bf999a3838899c976dc6e3a05d962ec8c40d",
-   "audio_sha256": "6c19cb68c0d4604cb01508bfd15e51924e9dc0e27979d5134cc3e4b522eaf4ae",
-   "review_status": "generated"
+   "delivery": "[over a walkie-talkie] [elderly voice]",
+   "input_sha256": "e4412216fc4849f1e21cadac54027a734df799332d6ed77591fc1eec7ef9ee0d",
+   "audio_sha256": "cb0138cbcda1dd2dac0319807f7fddb993a9d37e8f2205f92724103d4528640b",
+   "generation_id": "cDlV5qQ7mDZ2BVYA3gSZ",
+   "flow_session_id": "fH2jLnhaBMZspR3nYGOU",
+   "review_status": "listening_required"
   }
  },
  "ts_guard": {
   "spk": "guard",
   "text": "민아 학생이라고 혔지? 이 늙은이 얘기 녹음허는 거 맞쥬. 그날 밤 나는 다 들었어. 쿵쿵 소리도, 교무실 무전도. 내가 열쇠를 뺏어서라도 내려갔어야 혔는디… 십 년을 그 소리 듣고 살았슈. 무전기는 경비실 서랍에 그대로 있을 거여. 그날 밤 교신, 다 거기 남아 있슈.",
-  "dur": 22.28,
+  "dur": 23.484,
   "baked": true,
-  "eleven": "[elderly voice] [rough] 민아 학생이라고 혔지? 이 늙은이 얘기 녹음허는 거 맞쥬. 그날 밤 나는 다 들었어. 쿵쿵 소리도, 교무실 무전도. 내가 열쇠를 뺏어서라도 내려갔어야 혔는디… 십 년을 그 소리 듣고 살았슈. 무전기는 경비실 서랍에 그대로 있을 거여. 그날 밤 교신, 다 거기 남아 있슈.",
+  "eleven": "[elderly voice] [slowly] 민아 학생이라고 혔지? 이 늙은이 얘기 녹음허는 거 맞쥬. 그날 밤 나는 다 들었어. 쿵쿵 소리도, 교무실 무전도. 내가 열쇠를 뺏어서라도 내려갔어야 혔는디… 십 년을 그 소리 듣고 살았슈. 무전기는 경비실 서랍에 그대로 있을 거여. 그날 밤 교신, 다 거기 남아 있슈.",
   "generation": {
-   "voice_id": "lZLh6IYERWP1xQ7NnDOg",
+   "voice_id": "UmYoqGlufKxhJ6NCx5Mv",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[elderly voice] [rough]",
-   "input_sha256": "dc9bbac029ed93dc5c8b0e19998f561f337b7fe16244cb8dfa66eab5cc47c51d",
-   "audio_sha256": "cba74a06be5138973ee79de08e49d808f533e23e42f0a8a530dd8a72c9f90d59",
-   "review_status": "generated"
+   "delivery": "[elderly voice] [slowly]",
+   "input_sha256": "2c036b5aadef322f397fb374cbf60e79e18aa76f41177503faed2fea5fe79a27",
+   "audio_sha256": "19e7e7622660f7c6e5202b3a3e7471a5666627c5b9e43849ad96e401f6094b77",
+   "generation_id": "y2c7lYI5MEoXEHntynPZ",
+   "flow_session_id": "ysc7iJVxC4DhP1u7uAa3",
+   "review_status": "listening_required"
   }
  },
  "gd_call": {
   "spk": "guard",
   "text": "서린고등학교 정문 경비실입니다. 지금은 근무자가 자리에 없슈. 용건 남기시믄… 밤에는 본관 출입 금지여유. 지하는 물이 차서 위험허니께, 절대 내려가지 마유.",
-  "dur": 12.67,
+  "dur": 12.826,
   "baked": true,
-  "eleven": "[elderly voice] [rough] 서린고등학교 정문 경비실입니다. 지금은 근무자가 자리에 없슈. 용건 남기시믄… 밤에는 본관 출입 금지여유. 지하는 물이 차서 위험허니께, 절대 내려가지 마유.",
+  "eleven": "[over a walkie-talkie] [elderly voice] 서린고등학교 정문 경비실입니다. 지금은 근무자가 자리에 없슈. 용건 남기시믄… 밤에는 본관 출입 금지여유. 지하는 물이 차서 위험허니께, 절대 내려가지 마유.",
   "generation": {
-   "voice_id": "lZLh6IYERWP1xQ7NnDOg",
+   "voice_id": "UmYoqGlufKxhJ6NCx5Mv",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[elderly voice] [rough]",
-   "input_sha256": "37a393c726c0599262efea77c27d0782e7a95fc615e3abed61f8b2c753d44445",
-   "audio_sha256": "a487e042bbe1c70ca54bec89a0702eecd9398e4cd9cf8cb2a0598b09f8627ce2",
-   "review_status": "unreviewed"
+   "delivery": "[over a walkie-talkie] [elderly voice]",
+   "input_sha256": "d020100edde1690c202d587715175a8ec9afec7fd301f834660252db6286b67f",
+   "audio_sha256": "8b2337f73f16576d700d824de2eaa90d5c98e652904f7835e5aec364d7e39a93",
+   "generation_id": "x7RwIP3cQ1uiUovBQSAy",
+   "flow_session_id": "AD5DFP8yWRhOkV9D01uv",
+   "review_status": "listening_required"
   }
  },
  "ts_cook": {
@@ -5634,65 +5642,73 @@
  "ts_music": {
   "spk": "musicTeacher",
   "text": "음악실 열쇠는 제가 갖고 있었어요. 그날 밤 아홉 시 반, 하늘이가 피아노로 학교종을 열 번도 넘게 쳤어요. 틀릴 때마다 웃으면서요. 열 시에 문을 잠그고 나왔어요. 그 뒤로 저는 해마다 10월 12일 밤이면 여기 와서 학교종을 쳐요. 하늘이가 늘 멈추던, 솔 솔 라 라까지만요.",
-  "dur": 24.11,
+  "dur": 23.954,
   "baked": true,
-  "eleven": "[softly] [sad] 음악실 열쇠는 제가 갖고 있었어요. 그날 밤 아홉 시 반, 하늘이가 피아노로 학교종을 열 번도 넘게 쳤어요. 틀릴 때마다 웃으면서요. 열 시에 문을 잠그고 나왔어요. 그 뒤로 저는 해마다 10월 12일 밤이면 여기 와서 학교종을 쳐요. 하늘이가 늘 멈추던, 솔 솔 라 라까지만요.",
+  "eleven": "[softly] [slowly] 음악실 열쇠는 제가 갖고 있었어요. 그날 밤 아홉 시 반, 하늘이가 피아노로 학교종을 열 번도 넘게 쳤어요. 틀릴 때마다 웃으면서요. 열 시에 문을 잠그고 나왔어요. 그 뒤로 저는 해마다 10월 12일 밤이면 여기 와서 학교종을 쳐요. 하늘이가 늘 멈추던, 솔 솔 라 라까지만요.",
   "generation": {
    "voice_id": "ETPP7D0aZVdEj12Aa7ho",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[softly] [sad]",
-   "input_sha256": "f1032a6987f3e521183b6ec1db1eb4f69a9730c33ecec7960d3e19f44f5f8de5",
-   "audio_sha256": "e6115a199bf62204f4d4bc2f60b89696b0dca516db77434517eb404097ce550f",
-   "review_status": "unreviewed"
+   "delivery": "[softly] [slowly]",
+   "input_sha256": "2391b3e40b3c65ac6df6aa558111fc574f0f31068bd6411aa81a548ce6250dc4",
+   "audio_sha256": "490c011750823aca5a603783a63a0755c37bbe65e9869c8133f0d673f23703dc",
+   "generation_id": "e6dk3uzERbFVIrtGWsi4",
+   "flow_session_id": "3BwPx6DLHQpd6Nva9u3P",
+   "review_status": "listening_required"
   }
  },
  "ts_art": {
   "spk": "artTeacher",
   "text": "미술실 박 선생입니다. 기념 방송 포스터, 하늘이가 그렸어요. 마이크 든 여자애 하나, 그 옆에 친구 둘. 사고 다음 날 교무부장님이 포스터를 전부 떼라고 했죠. 저는 한 장만… 이젤 뒤에 숨겼습니다. 창가에 둔 탓에, 그림 속 하늘이 얼굴부터 볕에 바래 가네요.",
-  "dur": 20.69,
+  "dur": 23.171,
   "baked": true,
-  "eleven": "[quietly] 미술실 박 선생입니다. 기념 방송 포스터, 하늘이가 그렸어요. 마이크 든 여자애 하나, 그 옆에 친구 둘. 사고 다음 날 교무부장님이 포스터를 전부 떼라고 했죠. 저는 한 장만… 이젤 뒤에 숨겼습니다. 창가에 둔 탓에, 그림 속 하늘이 얼굴부터 볕에 바래 가네요.",
+  "eleven": "[quietly] [slowly] 미술실 박 선생입니다. 기념 방송 포스터, 하늘이가 그렸어요. 마이크 든 여자애 하나, 그 옆에 친구 둘. 사고 다음 날 교무부장님이 포스터를 전부 떼라고 했죠. 저는 한 장만… 이젤 뒤에 숨겼습니다. 창가에 둔 탓에, 그림 속 하늘이 얼굴부터 볕에 바래 가네요.",
   "generation": {
    "voice_id": "ZJCNdZEjYwkOElxugmW2",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[quietly]",
-   "input_sha256": "575a24a104a395c7c3db1ca14379d12d3a6bf9bded2c2d874a17ffc6326282e8",
-   "audio_sha256": "9dfd375c3261d808d1b24ffc9456e77bca8467b29705ff592555daa564f129fa",
-   "review_status": "unreviewed"
+   "delivery": "[quietly] [slowly]",
+   "input_sha256": "829dacc4ae4d44d4cba71448573b1670d3a1e623a37b9d5d20415df0d5a0b6da",
+   "audio_sha256": "055b78effac25f199756d1cb3314daec31bac8bd2278dd456231e13bcda42d8f",
+   "generation_id": "BZ7NmUVlUo532Q9ZYKRK",
+   "flow_session_id": "zyw5Mlgnr8YrEhAU2CCA",
+   "review_status": "listening_required"
   }
  },
  "ts_janitor": {
   "spk": "janitor",
   "text": "청소하는 김 씨여라. 13일 새벽 다섯 시에 지하 청소하러 내려갔는디, 펌프실 앞 바닥이 물바다였어라. 철문 안쪽에서 작은 손자국이… 문 아래까지 쭉 나 있더라고. 교무부장이 그 바닥, 날 밝기 전에 싹 닦으라고 혔어. 나는… 시키는 대로 닦았지라.",
-  "dur": 21.97,
+  "dur": 21.969,
   "baked": true,
-  "eleven": "[elderly voice] [softly] 청소하는 김 씨여라. 13일 새벽 다섯 시에 지하 청소하러 내려갔는디, 펌프실 앞 바닥이 물바다였어라. 철문 안쪽에서 작은 손자국이… 문 아래까지 쭉 나 있더라고. 교무부장이 그 바닥, 날 밝기 전에 싹 닦으라고 혔어. 나는… 시키는 대로 닦았지라.",
+  "eleven": "[quietly] [slowly] 청소하는 김 씨여라. 13일 새벽 다섯 시에 지하 청소하러 내려갔는디, 펌프실 앞 바닥이 물바다였어라. 철문 안쪽에서 작은 손자국이… 문 아래까지 쭉 나 있더라고. 교무부장이 그 바닥, 날 밝기 전에 싹 닦으라고 혔어. 나는… 시키는 대로 닦았지라.",
   "generation": {
    "voice_id": "tULcEaBAIILEj8JcgzPa",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[elderly voice] [softly]",
-   "input_sha256": "7d29c617341fb9f27edfaed9e32b7a11a9abca4a3df561b1b4fdf7be42fd6bc7",
-   "audio_sha256": "8da6d359bef97695bf324d76db37c784ebe376c283b8242e8c9a9648e3843f02",
-   "review_status": "generated"
+   "delivery": "[quietly] [slowly]",
+   "input_sha256": "3940e6b1221af20712bcde8b89b61d08f9083f1a919b9cd91bf151e3ec8a8f38",
+   "audio_sha256": "0f14a2417114241b6ddc2db8b10094199b5959748b86402ed339d9aab1b454f6",
+   "generation_id": "ZyXY34VS0YJKNh0b4whR",
+   "flow_session_id": "TJHNc3ctskriQX8165MV",
+   "review_status": "listening_required"
   }
  },
  "ts_snack2": {
   "spk": "snackLady",
   "text": "매점 장부 봤어? 10월 12일 밤 아홉 시 사십 분, 바나나우유 하나, 윤하늘. 외상이야. 내일 갚을게요, 그러더라고. 그 외상… 아직도 장부에 그대로 있어. 나는 못 지우겠더라.",
-  "dur": 14.6,
+  "dur": 16.118,
   "baked": true,
-  "eleven": "[casual] [warmly] 매점 장부 봤어? 10월 12일 밤 아홉 시 사십 분, 바나나우유 하나, 윤하늘. 외상이야. 내일 갚을게요, 그러더라고. 그 외상… 아직도 장부에 그대로 있어. 나는 못 지우겠더라.",
+  "eleven": "[warmly] [slowly] 매점 장부 봤어? 10월 12일 밤 아홉 시 사십 분, 바나나우유 하나, 윤하늘. 외상이야. 내일 갚을게요, 그러더라고. 그 외상… 아직도 장부에 그대로 있어. 나는 못 지우겠더라.",
   "generation": {
    "voice_id": "VFNaRkx6q2IQZn2mmwwg",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[casual] [warmly]",
-   "input_sha256": "0feab9dd8cbe942a7bd78730a6391031135c89ff703c5ebb124b8ab7bd3c1886",
-   "audio_sha256": "742592550e00eda5179ad8f7548407e859da83835b90193a30453e9d320793c2",
-   "review_status": "generated"
+   "delivery": "[warmly] [slowly]",
+   "input_sha256": "91063d9ddd2fe1c29e3180aa44eef43dffd5f06fbd1c631b3edb48b5a4beb2c7",
+   "audio_sha256": "54c898fb19faaa92b0a939e3bc87dc4866c73d9abcbde77fc8f43ffc57fa957a",
+   "generation_id": "6MSw6uHNH7poj1NKvN89",
+   "flow_session_id": "nFHV5Z2g3GSIIOwSXPSg",
+   "review_status": "listening_required"
   }
  },
  "call_119_a1": {
@@ -7642,149 +7658,199 @@
  "ts_lib2": {
   "spk": "librarian",
   "text": "그해 시월 열사흘 아침에 교감 선생님이 오셔서, 윤하늘 학생 대출 카드를 새로 써 달라고 하셨어요. 전날 저녁 여섯 시에 책을 반납하고 하교한 걸로요. 저는 그 시간에 도서관 문을 닫고 있었는데, 하늘이는 오지 않았어요. 마이크로필름 판독기에 그날 신문이 있어요. 거기엔 정전 얘기가 한 줄도 없어요.",
-  "dur": 24.03,
+  "dur": 24.764,
   "baked": true,
-  "eleven": "그해 시월 열사흘 아침에 교감 선생님이 오셔서, 윤하늘 학생 대출 카드를 새로 써 달라고 하셨어요. 전날 저녁 여섯 시에 책을 반납하고 하교한 걸로요. 저는 그 시간에 도서관 문을 닫고 있었는데, 하늘이는 오지 않았어요. 마이크로필름 판독기에 그날 신문이 있어요. 거기엔 정전 얘기가 한 줄도 없어요.",
+  "eleven": "[hushed, nervous] [slowly] 그해 시월 열사흘 아침에 교감 선생님이 오셔서, 윤하늘 학생 대출 카드를 새로 써 달라고 하셨어요. 전날 저녁 여섯 시에 책을 반납하고 하교한 걸로요. 저는 그 시간에 도서관 문을 닫고 있었는데, 하늘이는 오지 않았어요. 마이크로필름 판독기에 그날 신문이 있어요. 거기엔 정전 얘기가 한 줄도 없어요.",
   "generation": {
    "voice_id": "sf8Bpb1IU97NI9BHSMRf",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "review_status": "generated"
+   "delivery": "[hushed, nervous] [slowly]",
+   "input_sha256": "34f745f836467bea2b592cc7089dea5c9e32fcc4d1d7201be367aca909bfcd3f",
+   "audio_sha256": "7fa47363a8420eacfc7596c76e042fd096453f76dba02058c598891bf212cd44",
+   "generation_id": "gRZe94UOeiTn6ucFhp7g",
+   "flow_session_id": "NCIjPGWyINC3yojukBGM",
+   "review_status": "listening_required"
   }
  },
  "ts_astro": {
   "spk": "witness_science",
   "text": "그날 밤 천문부 애들이랑 옥상 돔에서 페가수스자리를 보고 있었어요. 열한 시 이십 분에 본관 불이 한 번에 나갔는데, 이상한 건 천문관 전기는 멀쩡했다는 거예요. 같은 변전 계통인데요. 누가 본관 분전반만 내린 거죠. 관측 기록지에 시각을 적어 뒀는데, 다음 날 그 장이 찢겨 있었습니다.",
-  "dur": 21.71,
+  "dur": 22.047,
   "baked": true,
-  "eleven": "그날 밤 천문부 애들이랑 옥상 돔에서 페가수스자리를 보고 있었어요. 열한 시 이십 분에 본관 불이 한 번에 나갔는데, 이상한 건 천문관 전기는 멀쩡했다는 거예요. 같은 변전 계통인데요. 누가 본관 분전반만 내린 거죠. 관측 기록지에 시각을 적어 뒀는데, 다음 날 그 장이 찢겨 있었습니다.",
+  "eleven": "[serious] [slowly] 그날 밤 천문부 애들이랑 옥상 돔에서 페가수스자리를 보고 있었어요. 열한 시 이십 분에 본관 불이 한 번에 나갔는데, 이상한 건 천문관 전기는 멀쩡했다는 거예요. 같은 변전 계통인데요. 누가 본관 분전반만 내린 거죠. 관측 기록지에 시각을 적어 뒀는데, 다음 날 그 장이 찢겨 있었습니다.",
   "generation": {
-   "voice_id": "8G6jifm9f1BhHXadvwOt",
+   "voice_id": "l6fNdLYgoqjfTIPUeFc9",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "review_status": "generated"
+   "delivery": "[serious] [slowly]",
+   "input_sha256": "d00ed7662495db02528bca2d62b0e0c8f13aa6ffd00b536636e995ecb2cbc993",
+   "audio_sha256": "641b00caa9a4f7e171f771d0887c706b1c6cea30a8d44c4897658fda91cea4b3",
+   "generation_id": "RiPhdNHYpXyefbArpPji",
+   "flow_session_id": "VMhEuWv5hf7USNGr6fEb",
+   "review_status": "listening_required"
   }
  },
  "ts_history": {
   "spk": "janitor",
   "text": "개교 삼십 주년 타임캡슐 말이에요. 원래 그해 졸업생 편지를 넣는 거였는데, 행사 다음 날 교장실에서 봉투를 하나 더 넣으라고 가져왔어요. 겉에 이십 년 뒤 개봉이라고 써 있었죠. 저는 그게 무서워서 손도 안 댔어요. 아직 그 좌대 밑에 있을 겁니다.",
-  "dur": 19.64,
+  "dur": 19.331,
   "baked": true,
-  "eleven": "개교 삼십 주년 타임캡슐 말이에요. 원래 그해 졸업생 편지를 넣는 거였는데, 행사 다음 날 교장실에서 봉투를 하나 더 넣으라고 가져왔어요. 겉에 이십 년 뒤 개봉이라고 써 있었죠. 저는 그게 무서워서 손도 안 댔어요. 아직 그 좌대 밑에 있을 겁니다.",
+  "eleven": "[quietly] [slowly] 개교 삼십 주년 타임캡슐 말이에요. 원래 그해 졸업생 편지를 넣는 거였는데, 행사 다음 날 교장실에서 봉투를 하나 더 넣으라고 가져왔어요. 겉에 이십 년 뒤 개봉이라고 써 있었죠. 저는 그게 무서워서 손도 안 댔어요. 아직 그 좌대 밑에 있을 겁니다.",
   "generation": {
    "voice_id": "tULcEaBAIILEj8JcgzPa",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "review_status": "generated"
+   "delivery": "[quietly] [slowly]",
+   "input_sha256": "283c4ff5c10d330eab67812debe045deff1c8e811a91968de29f5c84e4e013c6",
+   "audio_sha256": "df88d3385130eb02e230eb2460b6d789925dd1d5e4dca7cdb3625887317232d4",
+   "generation_id": "kGNLkwZwYm3DvjTPabfF",
+   "flow_session_id": "WH2AW8cKt54MXH9vYfr6",
+   "review_status": "listening_required"
   }
  },
  "ts_union": {
   "spk": "friend2",
   "text": "선배들한테 들은 얘기예요. 그날 방송부 담력 체험은 딱 십 분만 하기로 했대요. 근데 열쇠를 가지러 간 이준호 선배가 교무실에서 쫓겨났대요. 열쇠 받으러 왔다고 하니까, 교무부장 선생님이 내일 아침에 열면 된다고 했다고요. 학생회 회의록에 그 얘기를 적었다가, 그 장만 사라졌어요.",
-  "dur": 19.49,
+  "dur": 22.674,
   "baked": true,
-  "eleven": "선배들한테 들은 얘기예요. 그날 방송부 담력 체험은 딱 십 분만 하기로 했대요. 근데 열쇠를 가지러 간 이준호 선배가 교무실에서 쫓겨났대요. 열쇠 받으러 왔다고 하니까, 교무부장 선생님이 내일 아침에 열면 된다고 했다고요. 학생회 회의록에 그 얘기를 적었다가, 그 장만 사라졌어요.",
+  "eleven": "[casual] [slowly] 선배들한테 들은 얘기예요. 그날 방송부 담력 체험은 딱 십 분만 하기로 했대요. 근데 열쇠를 가지러 간 이준호 선배가 교무실에서 쫓겨났대요. 열쇠 받으러 왔다고 하니까, 교무부장 선생님이 내일 아침에 열면 된다고 했다고요. 학생회 회의록에 그 얘기를 적었다가, 그 장만 사라졌어요.",
   "generation": {
    "voice_id": "j3SYRikKBpDmPJsvd1rf",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "review_status": "generated"
+   "delivery": "[casual] [slowly]",
+   "input_sha256": "77337570bd5f28f9292d92f210fab9d035f2668f8201846f5dd9a5cd56c6b965",
+   "audio_sha256": "4b16a8984820691e466adfd6a72cecc7f396e4f3be9065f4383b961d3f058b18",
+   "generation_id": "voxf603UTeY1VJNymyOP",
+   "flow_session_id": "JGU3JImDMrWMoryw7XcS",
+   "review_status": "listening_required"
   }
  },
  "ts_auditor": {
   "spk": "junho",
   "text": "리허설 끝나고 대강당 음향 조정실에서 장비를 정리하고 있었어. 열 시 반쯤 하늘이가 지하에 있는 걸 알고 경비실로 뛰어갔지. 박 아저씨가 무전으로 몇 번이나 보고했는데, 위에서 그냥 기다리라고만 했어. 정전이 나고 나서야 모두 조용해졌어. 나는 그 조용함을 아직도 못 잊어.",
-  "dur": 19.68,
+  "dur": 22.047,
   "baked": true,
-  "eleven": "리허설 끝나고 대강당 음향 조정실에서 장비를 정리하고 있었어. 열 시 반쯤 하늘이가 지하에 있는 걸 알고 경비실로 뛰어갔지. 박 아저씨가 무전으로 몇 번이나 보고했는데, 위에서 그냥 기다리라고만 했어. 정전이 나고 나서야 모두 조용해졌어. 나는 그 조용함을 아직도 못 잊어.",
+  "eleven": "[regretful] [slowly] 리허설 끝나고 대강당 음향 조정실에서 장비를 정리하고 있었어. 열 시 반쯤 하늘이가 지하에 있는 걸 알고 경비실로 뛰어갔지. 박 아저씨가 무전으로 몇 번이나 보고했는데, 위에서 그냥 기다리라고만 했어. 정전이 나고 나서야 모두 조용해졌어. 나는 그 조용함을 아직도 못 잊어.",
   "generation": {
-   "voice_id": "HrAPO433QYkPmU4F4CHw",
+   "voice_id": "Ir7oQcBXWiq4oFGROCfj",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "review_status": "generated",
-   "input_sha256": "0dbb58b9a8e9751e6318511878489029ceba26a36762578163e2e7b79da9b5f3",
-   "audio_sha256": "2290f39aee88c58cceed47933ef825857c5ba972462bf8a3afd280f00d12b5ab"
+   "delivery": "[regretful] [slowly]",
+   "input_sha256": "3ea40f25ccfdbf257459eb605360cfd435c48d9631b4a36820b2c7e3f0bdee57",
+   "audio_sha256": "db648ee4af276994306224f18d4eae5dacc7fc05b3e34c806fc2d15d313c9897",
+   "generation_id": "WjhZKzr8qeZ2TL9UALhu",
+   "flow_session_id": "UrHNnabSA6ayR4BZrhkm",
+   "review_status": "listening_required"
   }
  },
  "ts_lake": {
   "spk": "dormMother",
   "text": "그 밤에 호수 정자 쪽으로 산책을 나왔는데, 학교 쪽에서 쿵, 쿵 하고 철문 두드리는 소리가 났어요. 밤 열한 시가 넘어서요. 경찰에 말했더니 학교에서 아무 일도 없다고 했대요. 그 소리가 아이 손으로 두드리는 소리였다는 걸, 나중에야 알았어요.",
-  "dur": 19.23,
+  "dur": 19.226,
   "baked": true,
-  "eleven": "그 밤에 호수 정자 쪽으로 산책을 나왔는데, 학교 쪽에서 쿵, 쿵 하고 철문 두드리는 소리가 났어요. 밤 열한 시가 넘어서요. 경찰에 말했더니 학교에서 아무 일도 없다고 했대요. 그 소리가 아이 손으로 두드리는 소리였다는 걸, 나중에야 알았어요.",
+  "eleven": "[quietly] [slowly] 그 밤에 호수 정자 쪽으로 산책을 나왔는데, 학교 쪽에서 쿵, 쿵 하고 철문 두드리는 소리가 났어요. 밤 열한 시가 넘어서요. 경찰에 말했더니 학교에서 아무 일도 없다고 했대요. 그 소리가 아이 손으로 두드리는 소리였다는 걸, 나중에야 알았어요.",
   "generation": {
    "voice_id": "0oqpliV6dVSr9XomngOW",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "review_status": "generated"
+   "delivery": "[quietly] [slowly]",
+   "input_sha256": "adcc02728de98896ed1c2a8126c8451f03066a30c507e0559cd93fd280d1d845",
+   "audio_sha256": "e4b52de0765eb5b50ad5b1da9f0e420d89798622b669c9c546d181237b337d39",
+   "generation_id": "GVnue8x12VvI1NEtGfRZ",
+   "flow_session_id": "RzKYTcM4IJuphNOEv5tS",
+   "review_status": "listening_required"
   }
  },
  "ts_pool2": {
   "spk": "peTeacher",
   "text": "수영장 기계실 펌프랑 본관 지하 배수 펌프가 같은 배관으로 이어져 있었어요. 정전되면 지하에 물이 차기 시작하죠. 저는 그날 밤 열한 시 반에 배수 경보가 울리는 걸 들었어요. 교무부장한테 전화했더니, 펌프실 열쇠는 자기가 갖고 있으니 걱정 말라고 하더군요. 그게 마지막 통화였어요.",
-  "dur": 22.05,
+  "dur": 23.406,
   "baked": true,
-  "eleven": "수영장 기계실 펌프랑 본관 지하 배수 펌프가 같은 배관으로 이어져 있었어요. 정전되면 지하에 물이 차기 시작하죠. 저는 그날 밤 열한 시 반에 배수 경보가 울리는 걸 들었어요. 교무부장한테 전화했더니, 펌프실 열쇠는 자기가 갖고 있으니 걱정 말라고 하더군요. 그게 마지막 통화였어요.",
+  "eleven": "[gruff] [slowly] 수영장 기계실 펌프랑 본관 지하 배수 펌프가 같은 배관으로 이어져 있었어요. 정전되면 지하에 물이 차기 시작하죠. 저는 그날 밤 열한 시 반에 배수 경보가 울리는 걸 들었어요. 교무부장한테 전화했더니, 펌프실 열쇠는 자기가 갖고 있으니 걱정 말라고 하더군요. 그게 마지막 통화였어요.",
   "generation": {
    "voice_id": "4tLzQecqf3Jg3zct76Fm",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "review_status": "generated"
+   "delivery": "[gruff] [slowly]",
+   "input_sha256": "867d0ebeddd88aa7bec53baa7b37414fca8378ad8e2b6abb7a7c0bfbf43d3f15",
+   "audio_sha256": "cd16af565fba45c513ee2273cbc1b7e8b755748904f715441576a7e8eb182ab3",
+   "generation_id": "l1BxH6HMwDgxKRgRKjtG",
+   "flow_session_id": "c3E3255Ln44V3yrysM52",
+   "review_status": "listening_required"
   }
  },
  "ts_bunker": {
   "spk": "headTeacher",
   "text": "원본은 태우지 않았다. 교장은 소각하라고 했지만, 나는 감사 보고서와 경비 일지 원본을 방공호 서고 철제 캐비닛에 넣고 잠갔다. 언젠가 누군가 이 문을 열 거라고 생각했다. 그게 내가 할 수 있는 유일한 속죄였다.",
-  "dur": 17.24,
+  "dur": 18.051,
   "baked": true,
-  "eleven": "원본은 태우지 않았다. 교장은 소각하라고 했지만, 나는 감사 보고서와 경비 일지 원본을 방공호 서고 철제 캐비닛에 넣고 잠갔다. 언젠가 누군가 이 문을 열 거라고 생각했다. 그게 내가 할 수 있는 유일한 속죄였다.",
+  "eleven": "[serious] [slowly] 원본은 태우지 않았다. 교장은 소각하라고 했지만, 나는 감사 보고서와 경비 일지 원본을 방공호 서고 철제 캐비닛에 넣고 잠갔다. 언젠가 누군가 이 문을 열 거라고 생각했다. 그게 내가 할 수 있는 유일한 속죄였다.",
   "generation": {
-   "voice_id": "jMTyLC5x4sqQhTtzmvDJ",
+   "voice_id": "4JJwo477JUAx3HV0T7n7",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "review_status": "generated"
+   "delivery": "[serious] [slowly]",
+   "input_sha256": "3f1de97e1d78da6439b6682b47c0ad0f99046e5e5c9adbe9bbfafaff68944d55",
+   "audio_sha256": "0188ea710317db38ac4e56a3f73b87c32176e95bfae159b5d8a4445e458be218",
+   "generation_id": "Et6XnfVJEgq9yqFfmh1a",
+   "flow_session_id": "xNIYg7cBWG3jJ7wnO5Sg",
+   "review_status": "listening_required"
   }
  },
  "ts_incin": {
   "spk": "janitor",
   "text": "시월 열사흘 새벽 다섯 시에 행정실에서 서류 상자 세 개를 가져왔어요. 다 태우라고요. 근데 맨 아래 상자는 비어 있었어요. 누가 먼저 빼 간 거죠. 저는 그냥 빈 상자를 태웠다고 장부에 적었습니다. 소각로 투입구 옆에 타다 남은 원고 조각이 아직 있을 거예요.",
-  "dur": 20.43,
+  "dur": 21.081,
   "baked": true,
-  "eleven": "시월 열사흘 새벽 다섯 시에 행정실에서 서류 상자 세 개를 가져왔어요. 다 태우라고요. 근데 맨 아래 상자는 비어 있었어요. 누가 먼저 빼 간 거죠. 저는 그냥 빈 상자를 태웠다고 장부에 적었습니다. 소각로 투입구 옆에 타다 남은 원고 조각이 아직 있을 거예요.",
+  "eleven": "[quietly] [slowly] 시월 열사흘 새벽 다섯 시에 행정실에서 서류 상자 세 개를 가져왔어요. 다 태우라고요. 근데 맨 아래 상자는 비어 있었어요. 누가 먼저 빼 간 거죠. 저는 그냥 빈 상자를 태웠다고 장부에 적었습니다. 소각로 투입구 옆에 타다 남은 원고 조각이 아직 있을 거예요.",
   "generation": {
    "voice_id": "tULcEaBAIILEj8JcgzPa",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "review_status": "generated"
+   "delivery": "[quietly] [slowly]",
+   "input_sha256": "7644d4875f2aee8bcfaa81b03a969c1295fedff48ccb295e2de72064aa4910f1",
+   "audio_sha256": "8378a4ec85c127f18e7be4236a71446c2959932f97b07862eb5d2823d274e1df",
+   "generation_id": "TAWtpNh8YLOIf67yRmzi",
+   "flow_session_id": "2orkR25fQ6iM5x6i2cEt",
+   "review_status": "listening_required"
   }
  },
  "ts_green": {
   "spk": "friend",
   "text": "하늘 언니는 온실에서 방송 원고를 연습하곤 했어요. 그날 오후에도 여기서 마지막 하교 방송 문장을 몇 번이나 읽었어요. 이제 안심하고 집으로 돌아가세요. 저는 그 문장을 아직 외우고 있어요. 언니가 그 방송을 못 했다는 게, 아직도 믿기지 않아요.",
-  "dur": 21.89,
+  "dur": 20.767,
   "baked": true,
-  "eleven": "하늘 언니는 온실에서 방송 원고를 연습하곤 했어요. 그날 오후에도 여기서 마지막 하교 방송 문장을 몇 번이나 읽었어요. 이제 안심하고 집으로 돌아가세요. 저는 그 문장을 아직 외우고 있어요. 언니가 그 방송을 못 했다는 게, 아직도 믿기지 않아요.",
+  "eleven": "[casual] [slowly] 하늘 언니는 온실에서 방송 원고를 연습하곤 했어요. 그날 오후에도 여기서 마지막 하교 방송 문장을 몇 번이나 읽었어요. 이제 안심하고 집으로 돌아가세요. 저는 그 문장을 아직 외우고 있어요. 언니가 그 방송을 못 했다는 게, 아직도 믿기지 않아요.",
   "generation": {
    "voice_id": "CZ86sooijZ9CfwhGGEY5",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "review_status": "generated"
+   "delivery": "[casual] [slowly]",
+   "input_sha256": "da6709908fceb994cea0831e391abb3a729b4876a8caace2643caaf1539c29bc",
+   "audio_sha256": "ef0db01ef5b6cd315af9adeb29513151bc3c5b885cc92ce3777313bacd9e38c7",
+   "generation_id": "2IU0qLzqSuQF12kd3RAK",
+   "flow_session_id": "q5cwXdda2aPmBfGjAoWX",
+   "review_status": "listening_required"
   }
  },
  "cr_1_1": {
   "spk": "classRep",
   "text": "1학년 1반 반장 김민수예요. 열 시 반쯤이었어요. 매점 앞에서... 3학년 형들 다섯 명이 손전등 들고 본관 지하로 내려가는 걸 봤어요. 그중 한 명이 웃으면서 그랬어요. \"십 분만 겁주면 돼.\" 그 웃음소리가... 아직도 귀에 남아 있어요.",
-  "dur": 18.64,
+  "dur": 19.331,
   "baked": true,
-  "eleven": "[nervous, hushed] 1학년 1반 반장 김민수예요. 열 시 반쯤이었어요. 매점 앞에서... 3학년 형들 다섯 명이 손전등 들고 본관 지하로 내려가는 걸 봤어요. 그중 한 명이 웃으면서 그랬어요. \"십 분만 겁주면 돼.\" 그 웃음소리가... 아직도 귀에 남아 있어요.",
+  "eleven": "[nervous] [slowly] 1학년 1반 반장 김민수예요. 열 시 반쯤이었어요. 매점 앞에서... 3학년 형들 다섯 명이 손전등 들고 본관 지하로 내려가는 걸 봤어요. 그중 한 명이 웃으면서 그랬어요. \"십 분만 겁주면 돼.\" 그 웃음소리가... 아직도 귀에 남아 있어요.",
   "generation": {
    "voice_id": "m3gJBS8OofDJfycyA2Ip",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[nervous, hushed]",
-   "input_sha256": "69ec849663824083ba648fddcd555c738053e3f0b3f5787af82b7b47a3415785",
-   "audio_sha256": "9990fb380a51a39b9ec83d59852f665603a06d87e461721723bc70c056e0071f",
-   "review_status": "generated"
+   "delivery": "[nervous] [slowly]",
+   "input_sha256": "6b66b526e353d962152a350ba8fcb4c86b30e3344e30f494939a5b43b090afe5",
+   "audio_sha256": "1e27b5daba327649246bc20b744233dad6e717b313da868af7b82c4efc82c9a0",
+   "generation_id": "TNsSlxyNpOXcwabAN3M3",
+   "flow_session_id": "uErUijXJUecEsMvEZYUg",
+   "review_status": "listening_required"
   }
  },
  "cr_1_2": {

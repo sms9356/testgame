@@ -8,7 +8,8 @@ import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
 import { whenIdle, idleTimeout, idleInterval, setIdleProbe } from './idleTasks.js?v=436';
 import { pbr } from './tex.js?v=436';
 import { placeModels } from './rebuild/models.js?v=436';
-import * as PT from './rebuild/periodTex.js?v=436';   // 본관 · 별관과 같은 시대 재질 (데코타일 · 인조석 · 걸레받이 · 외벽 풍화) — 모듈 캐시로 한 벌만 만든다
+import * as PT from './rebuild/periodTex.js?v=436';
+import { installFacilityDetail2 } from './facilityDetail2.js?v=436';   // 본관 · 별관과 같은 시대 재질 (데코타일 · 인조석 · 걸레받이 · 외벽 풍화) — 모듈 캐시로 한 벌만 만든다
 
 const FH = 3.6, CEIL = 2.9, WALL_T = .24, LIN = .06;
 const TL = new THREE.TextureLoader(), TEX = {};
@@ -892,6 +893,15 @@ function buildAuditorium(ctx, Z) {   // 대강당 18 × 26m · 1층 (공연 · �
   [-2.6, 2.6].forEach(x => { const m = B.box(.55, .3, .4, 'BLACK', x, stageH + .15, zStage - .35, { rx: .5 }); });
   for (let k = 0; k < 14; k++) { const x = (Math.sin(k * 7.3) * .5) * 2 * hx * .7, z = zStage + 2.6 + ((k * 3.7) % 11); B.box(.21, .004, .3, 'WHITE', x, .035, z, { ry: k * 1.3 }); }
   [-1, 1].forEach(s => extTagged(B, s * (hx - .25), zLobby - .6, -s * Math.PI / 2));   // 분말 소화기 (실사)
+  // 2차 디테일: 무대 앞 단 황동 노싱 · 풋라이트 갓 9 (형광등 묶음에 넣어 스위치로 같이 꺼진다 · 새 광원 없음) · 앞 바닥 검정 에이프런 띠
+  B.box(sx2 - sx1 - .3, .025, .05, 'BRASS', 0, stageH + .005, zStage + .05); B.box(sx2 - sx1, .01, .5, 'BLACK', 0, .012, zStage + .3);
+  for (let k = -4; k <= 4; k++) { const x = k * 1.15; B.box(.42, .08, .12, 'BLACK', x, stageH + .045, zStage - .1, { rx: -.35 }); const g = new THREE.BoxGeometry(.36, .02, .05); g.rotateX(-.35); g.translate(B.wx(x), stageH + .07, B.wz(zStage - .06)); (B.lamps[0] ||= []).push(g); }
+  // 객석 닳은 자리: 해진 좌판 덧천 · 테이프 보수 (열 · 자리별 고정 난수)
+  { const seatZ0 = zStage + 2.4; for (let k = 0; k < 26; k++) { const rI = (k * 5) % 12, c = (k * 7) % 16, x = c < 8 ? -.7 - 8 * .55 + .55 * (c + .5) : .7 + .55 * (c - 8 + .5), z = seatZ0 + rI * .95;
+    B.box(.26 + (k % 3) * .06, .006, .2, k % 4 ? 'SOOT' : 'GREYSTEEL', x + ((k % 5) - 2) * .03, .503, z - .02, { ry: (k % 7) * .2 }); if (k % 6 === 0) B.box(.04, .02, .3, 'TRIM', x, .78, z + .222); } }
+  // 조정실 관람창: 가운데 멀리언 · 창대 · 위 '조정실' 표지 · 창 안쪽 블라인드 반쯤
+  B.box(.05, 1.0, .1, 'FRAME', -hx + 3.0, 1.7, zLobby); B.box(2.8, .04, .3, 'TRIM', -hx + 3.0, 1.18, zLobby - .05); B.sign('음향 · 조명 조정실', '', 1.2, .16, -hx + 3.0, 2.4, zLobby - .13, Math.PI, ['#1c2a34', '#f4eedc']);
+  for (let k = 0; k < 6; k++) B.box(2.55, .012, .04, 'WHITE', -hx + 3.0, 2.15 - k * .05, zLobby + .07, { rx: .9 });
   B.addSwitch(1.9, B.Z.D / 2 - WALL_T - LIN - .01, Math.PI, 0, '대강당 형광등 스위치');
   // 외관 보강 (남측 현관 앞): 공연 포스터 게시함 2 · 세로 현수막 2 · 화분 4 · 벤치 2 · 바닥 안내판
   { const zf = B.Z.D / 2 + .02;
@@ -967,6 +977,7 @@ export function installFacilityRebuild(ctx) {
   buildShellOnly(ctx, ZONES.pool, 'pool', '실내 수영장', 'INDOOR POOL · 학교 수영 교육', 6.4, 'E');
   buildShellOnly(ctx, ZONES.gym, 'gym', '체 육 관', 'GYMNASIUM · 실내 체육관', 9.0, 'S');
   const rt = retexture(floors[7], { F: 'F01', W: 'W05', C: 'C01' }) + retexture(floors[6], { F: 'F04', W: 'W05', C: 'C03' }) + retexture(floors[4], { F: 'F05', W: 'W04', C: 'C04' });   // 지하 B1: 새 건물 설비층 마감 (에폭시 콘크리트 바닥 · 도장 블록벽 · 노출 설비 천장)
+  try { installFacilityDetail2(ctx); } catch (e) { console.warn('[facility detail2]', e); }
   window.__facilityRebuild = { removed: res.removed, ext, retextured: rt, ms: Math.round(performance.now() - t0) };
   // 나중에 불러오는 모델(GLB)이 옛 터에 다시 나타나면 걷어 낸다
   //   씬 전체 판정을 다시 돌리면 수 초씩 멈췄다 → 설치 뒤 새로 생긴 메시(기존 묶음 안에 비동기로 붙은 GLB 포함)만 골라 본다

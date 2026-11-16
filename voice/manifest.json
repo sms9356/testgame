@@ -3835,240 +3835,216 @@
  "elv_open": {
   "spk": "pa",
   "text": "문이 열립니다.",
-  "dur": 1.411,
+  "dur": 1.724,
   "baked": true,
-  "eleven": "문이 열립니다.",
+  "eleven": "[calm] 문이 열립니다.",
   "generation": {
    "voice_id": "6wIijutElRjsgwLbECzl",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "normal",
-   "input_sha256": "67a30dbbda936996368ab40367f6bc97bf41cc16d8b36f8ecfed386c742174bb",
-   "audio_sha256": "c3f7b85e6ee5d3bb06ed6baf8b4c41bbef11dd9c91493185ecb761889afef1bb",
-   "request_id": "CJTq989Bf8iYxVjO9i7n",
+   "delivery": "[calm]",
+   "input_sha256": "cdce7e0740e8c0242a03eb6118f2159ad78403ac42fbc7f321a6bddac9a53bf8",
+   "audio_sha256": "aa151b8a087ac299a48ecc37b4bf32beb67673c10d48f1a2f0e02934b9ada108",
+   "generation_id": "xHMHeirLgg1rIhayJnKR",
+   "flow_session_id": "IfipJ2aCtzLarW3WNgEk",
    "review_status": "listening_required"
   }
  },
  "elv_close": {
   "spk": "pa",
   "text": "문이 닫힙니다.",
-  "dur": 1.489,
+  "dur": 1.646,
   "baked": true,
-  "eleven": "문이 닫힙니다.",
+  "eleven": "[calm] 문이 닫힙니다.",
   "generation": {
    "voice_id": "6wIijutElRjsgwLbECzl",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "normal",
-   "input_sha256": "c7e2571490a4eb3fba6c732b4f34034cb8e92883c5d635450fdb377055199270",
-   "audio_sha256": "e8b034243e65877e942768d028e748d8e7a6dec47ead068ba22ceee82389cae5",
-   "request_id": "p67SfUXr0uIwO7Tj5tl6",
+   "delivery": "[calm]",
+   "input_sha256": "9e4d09dd0b56b67488ed7f5908bf67ea61ba97835476d86eda87daa8b8eef848",
+   "audio_sha256": "3da650db798f2f14ed49d4ce1515c4058a353506c2131f6b4e56bd814fb797b6",
+   "generation_id": "4ZoFDD9CHZLLOWTSvQpl",
+   "flow_session_id": "pisVwvNnqK8inVkC32zY",
    "review_status": "listening_required"
   }
  },
  "elv_up": {
   "spk": "pa",
   "text": "올라갑니다.",
-  "dur": 1.149,
+  "dur": 1.306,
   "baked": true,
-  "eleven": "올라갑니다.",
+  "eleven": "[calm] 올라갑니다.",
   "generation": {
    "voice_id": "6wIijutElRjsgwLbECzl",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "normal",
-   "input_sha256": "6fee618c31e70d6f521ee6a571c96b6c8f19c8071b29960a92dd86419e7dcfbb",
-   "audio_sha256": "73cfa4af2d3ffb228946baeb2abf72651edadb3327bc7d4d010e0c7953068015",
-   "request_id": "Nk0415mSHnEpc844B8yJ",
+   "delivery": "[calm]",
+   "input_sha256": "b8973d0711e9e189e0ae77c5ac680fada7edb0f0bfcc9b941a8c889fdf552572",
+   "audio_sha256": "c7eefdada59e3f546ea6b80449de113bd28ae31c685b6d561137652a513343f2",
+   "generation_id": "J9AjlX7enX9N1iSukYrg",
+   "flow_session_id": "q6aJk4VumKgNWKErzyqM",
    "review_status": "listening_required"
   }
  },
  "elv_down": {
   "spk": "pa",
   "text": "내려갑니다.",
-  "dur": 1.149,
+  "dur": 1.411,
   "baked": true,
-  "eleven": "내려갑니다.",
+  "eleven": "[calm] 내려갑니다.",
   "generation": {
    "voice_id": "6wIijutElRjsgwLbECzl",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "normal",
-   "input_sha256": "092c4dcdc2fd5f15abcb6288072adb77b6945086370d9377b7fb7914c7247fd0",
-   "audio_sha256": "4089a66bf034b36621ec431a5c9dbd7637b0f3ab2665ecb1686481a17dcf5bc5",
-   "request_id": "YdoF1N8mhl1TBsr4b31j",
+   "delivery": "[calm]",
+   "input_sha256": "aa470f9a0c456fad70982cf4af41dd77a18c4283b4c9c654cb9d071c8a523c98",
+   "audio_sha256": "ef6df0d39ab6cc890c3221cd747d349ac216b37353db03ccc71ce5a9e524e060",
+   "generation_id": "Xsc2KcgXkScWggN1D46d",
+   "flow_session_id": "MfWsyO9CkUHPK1HewsPw",
    "review_status": "listening_required"
   }
  },
  "elv_floor_B1": {
   "spk": "pa",
   "text": "지하 일 층입니다.",
-  "dur": 1.567,
+  "dur": 1.881,
   "baked": true,
-  "eleven": "지하 일 층입니다.",
+  "eleven": "[calm] 지하 일 층입니다.",
   "generation": {
    "voice_id": "6wIijutElRjsgwLbECzl",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "normal",
-   "input_sha256": "8c04bd358e4fcb8168f76c16e0d987cc2fa615bb242c49cd96eb788505f199e7",
-   "audio_sha256": "f9e7d4f4748cb0f0bd0197c5a07ca391da77f33ea3cf3bc8af3e733c47d0ed68",
-   "request_id": "NO5Tphe6ZoP0JyoTv9mP",
+   "delivery": "[calm]",
+   "input_sha256": "913d7940ea32a9bc8c5adb158d27431f7b506d9acde4d055fa41c633abbc600e",
+   "audio_sha256": "08eab40de387c7b4b2cbf52ae307f36fcf3086fdaa387bdb251e396015e6518b",
+   "generation_id": "V3Dd9MstVmADitU7hhqM",
+   "flow_session_id": "RWJv1ag6UbGQBK9aiy0g",
    "review_status": "listening_required"
   }
  },
  "elv_floor_1": {
   "spk": "pa",
   "text": "일 층입니다.",
-  "dur": 1.149,
+  "dur": 1.228,
   "baked": true,
-  "eleven": "일 층입니다.",
+  "eleven": "[calm] 일 층입니다.",
   "generation": {
    "voice_id": "6wIijutElRjsgwLbECzl",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "normal",
-   "input_sha256": "e24645a0f04ca4274b79531eb9d7d31b0d03df724a65f19336f50e5bd38c45ad",
-   "audio_sha256": "739b5beed8536c69f731163e4847e3f409108d0fb0c68908ee2cd6c917389393",
-   "request_id": "dZTPFd34G5uiBQ1OBTuu",
+   "delivery": "[calm]",
+   "input_sha256": "7c8403f983ad424d11f7b83da89ab8e0b3c7abda1a1c4d99cda29a68c1d6fa1d",
+   "audio_sha256": "bde451b1ce47ab21afec9c107fae0b70c584c8b2e815d0ef74bbcfa6efc2b877",
+   "generation_id": "yqfl7CuvZEWG1j0uZxcH",
+   "flow_session_id": "b98dQIADT2o6Gj3lYvvL",
    "review_status": "listening_required"
   }
  },
  "elv_floor_2": {
   "spk": "pa",
   "text": "이 층입니다.",
-  "dur": 1.149,
+  "dur": 1.228,
   "baked": true,
-  "eleven": "이 층입니다.",
+  "eleven": "[calm] 이 층입니다.",
   "generation": {
    "voice_id": "6wIijutElRjsgwLbECzl",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "normal",
-   "input_sha256": "6201e6aac70cbf1314667ea29f157679cb9bbe4c7b0de8bfa900c66e967afd1a",
-   "audio_sha256": "9bbf528357f574fe3d3ac415a14c01d71fb7fd6c98e71cce37f50c279bac09e2",
-   "request_id": "PD9bHT888lGDYbzHfzpC",
+   "delivery": "[calm]",
+   "input_sha256": "086d44277a950b68cbdbbd3b6faddc54e305f1e8d527ba5bda6f1081f95603a9",
+   "audio_sha256": "5c0b966419ad417017404e6dc4b64a4dbbc5ec2d34ef10d47ea6852c8354eb96",
+   "generation_id": "zTkSSBtVNvRoPeakSs50",
+   "flow_session_id": "nP0PpwASfErOzC5TXsJ9",
    "review_status": "listening_required"
   }
  },
  "elv_floor_3": {
   "spk": "pa",
   "text": "삼 층입니다.",
-  "dur": 1.228,
+  "dur": 1.306,
   "baked": true,
-  "eleven": "삼 층입니다.",
+  "eleven": "[calm] 삼 층입니다.",
   "generation": {
    "voice_id": "6wIijutElRjsgwLbECzl",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "normal",
-   "input_sha256": "711a1c7c9813bd163d7c73e2b3a84fa3db46de3fca6f6c8d1356bc057cda063c",
-   "audio_sha256": "49115418506e2ac17e356bb9e64d4b31afe1ed4f2254b391c06abf9214863b43",
-   "request_id": "TPDKwPy0oh5q521ywWXH",
+   "delivery": "[calm]",
+   "input_sha256": "d6da9fa8aca77dbb5bb2d38f340f30ae34a4fbda31ac8e085b7b4966a185d8ed",
+   "audio_sha256": "5be3228f8f01e78f154983b5d839b3c52337a0be805674a087e08d3d9f941ead",
+   "generation_id": "rFeSGSWGA0K3lHKzzERD",
+   "flow_session_id": "Vh0KRj6XzKWTIlPPH0Rk",
    "review_status": "listening_required"
   }
  },
  "elv_select_B1": {
   "spk": "pa",
   "text": "지하 일 층이 선택되었습니다.",
-  "dur": 2.194,
+  "dur": 2.586,
   "baked": true,
-  "eleven": "지하 일 층이 선택되었습니다.",
+  "eleven": "[calm] 지하 일 층이 선택되었습니다.",
   "generation": {
    "voice_id": "6wIijutElRjsgwLbECzl",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "normal",
-   "input_sha256": "a46088eed6b71a564fdf00a183534b2be915c5928e41850ef4c775314ed128b4",
-   "audio_sha256": "e0245eab36333713281abbfec9f523ab78a74ab725576e79c933824ad19467da",
-   "request_id": "mzXzZBNG82sIkq1ZBhwj",
+   "delivery": "[calm]",
+   "input_sha256": "bd3ea696da384216cfebe55a5ddcf9fd3eab798cb171c357ec66983903c400bd",
+   "audio_sha256": "28c14a2cab40c231deaf3680a7b0983eb67439bd98e826c1df8ed0d796809a16",
+   "generation_id": "syPx9lEBZJmiiDOcnFKe",
+   "flow_session_id": "18PEaYx7sXQuoaYvFwoY",
    "review_status": "listening_required"
   }
  },
  "elv_select_1": {
   "spk": "pa",
   "text": "일 층이 선택되었습니다.",
-  "dur": 1.959,
+  "dur": 2.194,
   "baked": true,
-  "eleven": "일 층이 선택되었습니다.",
+  "eleven": "[calm] 일 층이 선택되었습니다.",
   "generation": {
    "voice_id": "6wIijutElRjsgwLbECzl",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "normal",
-   "input_sha256": "d5553512817b84b2594ed815ec34a0fcdfce2ee8401f0776f223df139900d55e",
-   "audio_sha256": "1995d85971d649b641a9e985c4a00f895da908f8b91153cba7cfe4d127f99907",
-   "request_id": "vKOOOafs4bF3ieEvxRNC",
+   "delivery": "[calm]",
+   "input_sha256": "19b77925f4996453534f80fd8a85944abe5f2636b0a063e00e7deb7e87c2752f",
+   "audio_sha256": "c234ebe52e613d0dfd54f7e9555ddd7b022c92ff67cd50242d29ad5a7e8f915f",
+   "generation_id": "7lvQsvP6fR4Y8ErdTnKl",
+   "flow_session_id": "2Hvbddbehlm4s5F4V2U4",
    "review_status": "listening_required"
   }
  },
  "elv_select_2": {
   "spk": "pa",
   "text": "이 층이 선택되었습니다.",
-  "dur": 1.881,
+  "dur": 2.194,
   "baked": true,
-  "eleven": "이 층이 선택되었습니다.",
+  "eleven": "[calm] 이 층이 선택되었습니다.",
   "generation": {
    "voice_id": "6wIijutElRjsgwLbECzl",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "normal",
-   "input_sha256": "9ab422e9a6853457a503468a58db31973bd3bf24c3ce7b97d4677bce8a71fc52",
-   "audio_sha256": "4b1179b0e9da421dd3297f9feb12f7e8f42a3283d371351d2a721de735253373",
-   "request_id": "8L1HrhMYourLwsEYsJGS",
+   "delivery": "[calm]",
+   "input_sha256": "f3d8abfd55559c313840ed426f104ec92a0ba31745e0621c00252162f9200bae",
+   "audio_sha256": "4b74368f75f0f1ab5a660825e56292d0d250bfc5701ee0f5d8e58a2f221c6d3a",
+   "generation_id": "24vorjXryIIKUNCP72Qh",
+   "flow_session_id": "gugCzFSS9iS37CiJSCLb",
    "review_status": "listening_required"
   }
  },
  "elv_select_3": {
   "spk": "pa",
   "text": "삼 층이 선택되었습니다.",
-  "dur": 2.038,
+  "dur": 2.273,
   "baked": true,
-  "eleven": "삼 층이 선택되었습니다.",
+  "eleven": "[calm] 삼 층이 선택되었습니다.",
   "generation": {
    "voice_id": "6wIijutElRjsgwLbECzl",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "voice_settings": {
-    "stability": 0.5
-   },
-   "delivery": "normal",
-   "input_sha256": "d9ec051c3deb006cd9bd96d713fb9abf222b9af4a355311bbe870592631c6013",
-   "audio_sha256": "59c2c57055387d1204e822008e9a27947188f7a98705969c56c2a3a9da8b5b7c",
-   "request_id": "0CqHjvAIBFk9ZOkkd87y",
+   "delivery": "[calm]",
+   "input_sha256": "1e5e651e970c5dd97752d1a53166d32a8be51c6a4f6e0a47aeddb7af5e8ddf05",
+   "audio_sha256": "54d140125533d3013d469d5fd284675c090cf99df92ba7525db86c53fab3113d",
+   "generation_id": "P1h8WMW2e3jeHrAaSbVW",
+   "flow_session_id": "OxkNQzqQtaM0naAcxbj5",
    "review_status": "listening_required"
   }
  },
@@ -7111,109 +7087,145 @@
  "nd_h1": {
   "spk": "principal",
   "text": "다섯 교직원이 비밀 증거 조각을 나누어 숨기기로 했다. 나는 그 자리에 없었던 사람으로 남는다. 다만 다섯 증거를 하나로 결속하는 교장 직인 마스터 코어는 내가 갖는다 — 다섯 조각이 다 모여도, 내 직인 코어 없이는 진상 기록부도 교문 봉인도 완성되지 않도록. 코어는 별관 3층 전시 공간의 개교 기념 진열장에 둔다. 이름표는 “개교 기념 인장”. 아무도 진열품을 의심하지 않는다. 진열장 잠금 번호는 이 학교가 태어난 날(0302). 별관 전원은 폐쇄와 함께 1층 공구실 분전반에서 내린다.",
-  "dur": 28.76,
+  "dur": 36.127,
   "baked": true,
-  "eleven": "다섯 교직원이 비밀 증거 조각을 나누어 숨기기로 했다. 나는 그 자리에 없었던 사람으로 남는다. 다만 다섯 증거를 하나로 결속하는 교장 직인 마스터 코어는 내가 갖는다 — 다섯 조각이 다 모여도, 내 직인 코어 없이는 진상 기록부도 교문 봉인도 완성되지 않도록. 코어는 별관 3층 전시 공간의 개교 기념 진열장에 둔다. 이름표는 “개교 기념 인장”. 아무도 진열품을 의심하지 않는다. 진열장 잠금 번호는 이 학교가 태어난 날(0302). 별관 전원은 폐쇄와 함께 1층 공구실 분전반에서 내린다.",
+  "eleven": "[regretful] 다섯 교직원이 비밀 증거 조각을 나누어 숨기기로 했다. 나는 그 자리에 없었던 사람으로 남는다. 다만 다섯 증거를 하나로 결속하는 교장 직인 마스터 코어는 내가 갖는다 — 다섯 조각이 다 모여도, 내 직인 코어 없이는 진상 기록부도 교문 봉인도 완성되지 않도록. 코어는 별관 3층 전시 공간의 개교 기념 진열장에 둔다. 이름표는 “개교 기념 인장”. 아무도 진열품을 의심하지 않는다. 진열장 잠금 번호는 이 학교가 태어난 날(0302). 별관 전원은 폐쇄와 함께 1층 공구실 분전반에서 내린다.",
   "generation": {
    "voice_id": "kiVK4omWhBQ9AzwcaRq7",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "review_status": "generated"
+   "delivery": "[regretful]",
+   "input_sha256": "959de39ed1f954ed3559a6bcb9c002df8048dde37f5c1a11209ea3813fe8cc07",
+   "audio_sha256": "83963f4225c54e79b7600ca8608847bef08d4f6281b0ee49ddbddf436f06ac7f",
+   "generation_id": "w0hTt53pG3hWLtc34NZ2",
+   "flow_session_id": "aFwesjNArS1sMI9vWybB",
+   "review_status": "listening_required"
   }
  },
  "nd_h3": {
   "spk": "scienceTeacher",
   "text": "별관은 본관과 다른 계통. 10.12 23:20 본관 정전 때도 별관 조명은 정상. 10.13 06:10 별관 전원 차단 — 지시: 교장 · 사유: 별관 폐쇄. 비고: 3층 전시 공간 진열장(전자식)은 전원이 있어야 열림.",
-  "dur": 18.83,
+  "dur": 20.767,
   "baked": true,
-  "eleven": "별관은 본관과 다른 계통. 10.12 23:20 본관 정전 때도 별관 조명은 정상. 10.13 06:10 별관 전원 차단 — 지시: 교장 · 사유: 별관 폐쇄. 비고: 3층 전시 공간 진열장(전자식)은 전원이 있어야 열림.",
+  "eleven": "[serious] 별관은 본관과 다른 계통. 10.12 23:20 본관 정전 때도 별관 조명은 정상. 10.13 06:10 별관 전원 차단 — 지시: 교장 · 사유: 별관 폐쇄. 비고: 3층 전시 공간 진열장(전자식)은 전원이 있어야 열림.",
   "generation": {
-   "voice_id": "4JJwo477JUAx3HV0T7n7",
+   "voice_id": "l6fNdLYgoqjfTIPUeFc9",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "review_status": "generated"
+   "delivery": "[serious]",
+   "input_sha256": "0a740cc51b216743a7b39d86318ceda89f556b6f5f45ee2acee6bda058d06304",
+   "audio_sha256": "291966ee68a5de78bc8faa96c5b531082dd6b8594f4855d78e04d3d549cf26da",
+   "generation_id": "Eqy6F9j0gUb8hVjMLrhQ",
+   "flow_session_id": "pZJjj2qUNXZZA2qBlUQK",
+   "review_status": "listening_required"
   }
  },
  "nd_h4": {
   "spk": "reporter",
   "text": "10.12 23:31 전시 공간 — 교장, 개교 기념 전시 준비. 23:33 창가로 가서 불이 꺼진 본관 쪽을 오래 바라봄. 23:34 통화 (음성 기록 일부): “…펌프실 열쇠는 자네가 갖고 있게. 내일 아침에 얘기하지.” 23:40 다시 진열장 정리. 23:52 퇴근.",
-  "dur": 26.04,
+  "dur": 25.313,
   "baked": true,
-  "eleven": "10.12 23:31 전시 공간 — 교장, 개교 기념 전시 준비. 23:33 창가로 가서 불이 꺼진 본관 쪽을 오래 바라봄. 23:34 통화 (음성 기록 일부): “…펌프실 열쇠는 자네가 갖고 있게. 내일 아침에 얘기하지.” 23:40 다시 진열장 정리. 23:52 퇴근.",
+  "eleven": "[serious] 10.12 23:31 전시 공간 — 교장, 개교 기념 전시 준비. 23:33 창가로 가서 불이 꺼진 본관 쪽을 오래 바라봄. 23:34 통화 (음성 기록 일부): “…펌프실 열쇠는 자네가 갖고 있게. 내일 아침에 얘기하지.” 23:40 다시 진열장 정리. 23:52 퇴근.",
   "generation": {
    "voice_id": "J3IV02ZzZmojOIQbmpu0",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "review_status": "generated"
+   "delivery": "[serious]",
+   "input_sha256": "a2080391bdfb5f58b49f2f29c14844fe725dbf5d8bf33d0814db4b6fe6dcf648",
+   "audio_sha256": "d3b7c7bf6ea71fcaaaaeb024628f3dde147bc2c3cbdd83fb2f6ec140de64b3fa",
+   "generation_id": "Sv0BMaAI1NjZrbpPjiLB",
+   "flow_session_id": "q1jp9k1ksclndn8eKEEM",
+   "review_status": "listening_required"
   }
  },
  "nd_h5": {
   "spk": "principal",
   "text": "「개교 기념 열쇠 — 기증: 제9대 교장」 이름표 뒤에 접힌 쪽지. “이 문을 다시 여는 사람에게. 그날 밤 나는 불 켜진 곳에 있었다. 내려가지 않았다. 다섯 조각은 그들의 몫이고, 이 머리는 내 몫이다. 무거워서 아무 데도 두지 못했다.”",
-  "dur": 13.32,
+  "dur": 19.148,
   "baked": true,
-  "eleven": "「개교 기념 열쇠 — 기증: 제9대 교장」 이름표 뒤에 접힌 쪽지. “이 문을 다시 여는 사람에게. 그날 밤 나는 불 켜진 곳에 있었다. 내려가지 않았다. 다섯 조각은 그들의 몫이고, 이 머리는 내 몫이다. 무거워서 아무 데도 두지 못했다.”",
+  "eleven": "[regretful] 「개교 기념 열쇠 — 기증: 제9대 교장」 이름표 뒤에 접힌 쪽지. “이 문을 다시 여는 사람에게. 그날 밤 나는 불 켜진 곳에 있었다. 내려가지 않았다. 다섯 조각은 그들의 몫이고, 이 머리는 내 몫이다. 무거워서 아무 데도 두지 못했다.”",
   "generation": {
    "voice_id": "kiVK4omWhBQ9AzwcaRq7",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "review_status": "generated"
+   "delivery": "[regretful]",
+   "input_sha256": "69778aa3f15426dc260608b220777af6853122c2cc5df00df5eebfc75bb7e61b",
+   "audio_sha256": "69ef7b6c5d81a2569aee1ca45a0c941783521651d00a2221495e5e968ae576b4",
+   "generation_id": "xI1SivUjRvhJi6bz8XNC",
+   "flow_session_id": "LQZmqKyzEnssmbbWACxw",
+   "review_status": "listening_required"
   }
  },
  "nd_q8b": {
   "spk": "librarian",
   "text": "반납함에 책을 넣고 10년 늦은 반납 도장을 찍었다. 대출 카드 뒷면에 하늘의 동글동글한 글씨: “다녀오겠습니다.”",
-  "dur": 9.95,
+  "dur": 9.796,
   "baked": true,
-  "eleven": "반납함에 책을 넣고 10년 늦은 반납 도장을 찍었다. 대출 카드 뒷면에 하늘의 동글동글한 글씨: “다녀오겠습니다.”",
+  "eleven": "[hushed, nervous] 반납함에 책을 넣고 10년 늦은 반납 도장을 찍었다. 대출 카드 뒷면에 하늘의 동글동글한 글씨: “다녀오겠습니다.”",
   "generation": {
    "voice_id": "sf8Bpb1IU97NI9BHSMRf",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "review_status": "unreviewed",
-   "input_sha256": "0ebe46fc7e302a669384b6720fefe9b165a50ba1d5d465c0089ed01b7cdb10eb",
-   "audio_sha256": "0dd6647c796d522fae81fdf77ff90163d1dc7d93fd2c4cf7dc5cef96d671a07b"
+   "delivery": "[hushed, nervous]",
+   "input_sha256": "b4018d1aa75a579c42b81e961a7eab149545e3059bc9d8613fc0fb14b08753cf",
+   "audio_sha256": "7e37bc28948c643759e698caf06e96a4b08152be60ea2dfd9d7635d28b00af53",
+   "generation_id": "7CDlSI2KcQfHE7nnNw8Y",
+   "flow_session_id": "ulZKxH2znyvHcJ5cT6LE",
+   "review_status": "listening_required"
   }
  },
  "nd_n14": {
   "spk": "junho",
   "text": "10월 12일 담력 체험 계획. 참가 4명. 장소: 지하 펌프실. 문 잠그는 사람: ___ …아무도 그 다음 줄을 쓰지 않았다.",
-  "dur": 10.92,
+  "dur": 12.434,
   "baked": true,
-  "eleven": "10월 12일 담력 체험 계획. 참가 4명. 장소: 지하 펌프실. 문 잠그는 사람: ___ …아무도 그 다음 줄을 쓰지 않았다.",
+  "eleven": "[regretful] 10월 12일 담력 체험 계획. 참가 4명. 장소: 지하 펌프실. 문 잠그는 사람: ___ …아무도 그 다음 줄을 쓰지 않았다.",
   "generation": {
-   "voice_id": "HrAPO433QYkPmU4F4CHw",
+   "voice_id": "Ir7oQcBXWiq4oFGROCfj",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "review_status": "generated"
+   "delivery": "[regretful]",
+   "input_sha256": "310dc3f993577f1a3214478022105357f1130dd68891dc247f592e152afec4fa",
+   "audio_sha256": "e464e18da222df2a42bb3acdec93c0ee46177c7e5ec1ce0d6f90e9e463ead4b2",
+   "generation_id": "zh3CtlTeKcyHn2Ugj1MU",
+   "flow_session_id": "gAd3Wv1nRU2DOgwHgitY",
+   "review_status": "listening_required"
   }
  },
  "nd_n15": {
   "spk": "electrician",
   "text": "전자칠판 예약 기록 — 매년 10월 12일 23:30, 같은 교실 사진을 띄우도록 예약돼 있다. 예약 계정: JUNHO98. 메모란: “다시, 여기서.”",
-  "dur": 13.48,
+  "dur": 13.009,
   "baked": true,
-  "eleven": "전자칠판 예약 기록 — 매년 10월 12일 23:30, 같은 교실 사진을 띄우도록 예약돼 있다. 예약 계정: JUNHO98. 메모란: “다시, 여기서.”",
+  "eleven": "[rough] 전자칠판 예약 기록 — 매년 10월 12일 23:30, 같은 교실 사진을 띄우도록 예약돼 있다. 예약 계정: JUNHO98. 메모란: “다시, 여기서.”",
   "generation": {
    "voice_id": "TRO4gatqxbbwLXHLDLSk",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "review_status": "unreviewed",
-   "input_sha256": "7cd577466465f287e5b24c738c2fc609d98947919982183ad3812bbdf3d1877e",
-   "audio_sha256": "ff76ca38226d8a9faa0b74fcdac2943d524753e8f9258becb12817dffaae86e8"
+   "delivery": "[rough]",
+   "input_sha256": "c4bba54abbefe2898eb188395f1c104b0a7a7e7e8d896e8252da7e326b4b606a",
+   "audio_sha256": "79f3dd87e4d789e38a7cfb249f439ef3511dc7687f7ad4aed4ab756f6776175a",
+   "generation_id": "WtLLXSqzbSZltotNwdq7",
+   "flow_session_id": "xUAbjjyo9LB9t30uKlqL",
+   "review_status": "listening_required"
   }
  },
  "nd_n16": {
   "spk": "friend2",
   "text": "실밥이 풀린 교복 한 벌이 의자에 걸려 있다. 이름표에는 “윤”이라는 글자만 남아 있다.",
-  "dur": 7.55,
+  "dur": 7.471,
   "baked": true,
-  "eleven": "실밥이 풀린 교복 한 벌이 의자에 걸려 있다. 이름표에는 “윤”이라는 글자만 남아 있다.",
+  "eleven": "[casual] 실밥이 풀린 교복 한 벌이 의자에 걸려 있다. 이름표에는 “윤”이라는 글자만 남아 있다.",
   "generation": {
    "voice_id": "j3SYRikKBpDmPJsvd1rf",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "review_status": "generated"
+   "delivery": "[casual]",
+   "input_sha256": "15ab1a16b72acc578d379593c8ed4eec76272e6f27d77d9b7b7544d702ac634c",
+   "audio_sha256": "b19cb908c86df8f45a55a9ec5872cb36804cc0dcf0cb1cb9ee1c14479d208fd2",
+   "generation_id": "zUZRY1FYWD4npHUylhsf",
+   "flow_session_id": "glPScAG8uG3dwTYwCGAZ",
+   "review_status": "listening_required"
   }
  },
  "ts_lib2": {

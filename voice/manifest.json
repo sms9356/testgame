@@ -9038,273 +9038,361 @@
  "r_home_a3_j": {
   "spk": "jihun",
   "text": "응, 정문 쪽에 있을게. 빨리 와.",
-  "dur": 2.27,
+  "dur": 3.004,
   "baked": true,
-  "eleven": "[relieved] 응, 정문 쪽에 있을게. 빨리 와.",
+  "eleven": "[nervous] 응, 정문 쪽에 있을게. 빨리 와.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[relieved]"
+   "delivery": "[nervous]",
+   "input_sha256": "85c3c62d978620a8e95b62a3cb88dc10d98afaeb123adf7a5e99eeef7f3a8945",
+   "audio_sha256": "ed43c905cd6f2483afb4e90233d0d0cf807033487e5373eb06c7737f29188c66",
+   "generation_id": "bX4S2Eu0QY1jU8HGgbfY",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "r_home_a3_s": {
   "spk": "seoyeon",
   "text": "응, 정문 쪽에 있을게. 엄마, 빨리 와.",
-  "dur": 3.0,
+  "dur": 4.206,
   "baked": true,
-  "eleven": "[relieved] 응, 정문 쪽에 있을게. 엄마, 빨리 와.",
+  "eleven": "[nervous] 응, 정문 쪽에 있을게. 엄마, 빨리 와.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[relieved]"
+   "delivery": "[nervous]",
+   "input_sha256": "4e3ac46e3f05517cbc15d46a2b5d474e520ccdceaf95f247c13a94a8f8c38af8",
+   "audio_sha256": "c332659b70b8b02fccfed781ae678c97a7ed796c25e05f85310c93912194b026",
+   "generation_id": "xXs5k6QCk9osKHKod0cf",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "r_home_b1_j": {
   "spk": "jihun",
   "text": "엄마, 그 애… 실종된 게 아니었어. 지하에 갇혔던 거야.",
-  "dur": 4.05,
+  "dur": 5.329,
   "baked": true,
-  "eleven": "[urgent] 엄마, 그 애… 실종된 게 아니었어. 지하에 갇혔던 거야.",
+  "eleven": "[nervous] 엄마, 그 애… 실종된 게 아니었어. 지하에 갇혔던 거야.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[urgent]"
+   "delivery": "[nervous]",
+   "input_sha256": "1fe6153a5384d87f152cf03c0640304db8ab2a3b4fbdf8f8af3386dce10d8230",
+   "audio_sha256": "04fdf04647e21d091a23acc0d73a6a90402d2600850db9e03c535093176d16a2",
+   "generation_id": "5y36YcTVsxB4VgsusZqs",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "r_home_b1_s": {
   "spk": "seoyeon",
   "text": "엄마, 그 애 실종된 게 아니었어. 지하 펌프실에 갇혀 있었던 거야.",
-  "dur": 4.31,
+  "dur": 5.956,
   "baked": true,
-  "eleven": "[urgent] 엄마, 그 애 실종된 게 아니었어. 지하 펌프실에 갇혀 있었던 거야.",
+  "eleven": "[nervous] 엄마, 그 애 실종된 게 아니었어. 지하 펌프실에 갇혀 있었던 거야.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[urgent]"
+   "delivery": "[nervous]",
+   "input_sha256": "c33af10638f459c02ef3d4875622198d5ddd27cd4f216f878635f2fed57879cf",
+   "audio_sha256": "0448861adfe079f7f7a7c9d39675c64e32a65eb24239914b9ba2e14b3f57f15e",
+   "generation_id": "JIf90WrN9uWE0EbCVv9h",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "r_home_b2_j": {
   "spk": "jihun",
   "text": "증거가 있어. 학교가 일부러 덮은 거야.",
-  "dur": 2.53,
+  "dur": 3.474,
   "baked": true,
-  "eleven": "[serious] 증거가 있어. 학교가 일부러 덮은 거야.",
+  "eleven": "[nervous] 증거가 있어. 학교가 일부러 덮은 거야.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[serious]"
+   "delivery": "[nervous]",
+   "input_sha256": "509da380a5dab5bbc37594e34390b47072155ffefd15cc24a54b347751355427",
+   "audio_sha256": "bb96e078c16f0683909d9de70defe34438870bbfdd7822373173529e8c325faa",
+   "generation_id": "cE9xM4JVk1kxWUyLAoqH",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "r_home_b2_s": {
   "spk": "seoyeon",
   "text": "증거 찾았어. 학교가 일부러 덮은 거라고.",
-  "dur": 2.9,
+  "dur": 4.049,
   "baked": true,
-  "eleven": "[serious] 증거 찾았어. 학교가 일부러 덮은 거라고.",
+  "eleven": "[nervous] 증거 찾았어. 학교가 일부러 덮은 거라고.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[serious]"
+   "delivery": "[nervous]",
+   "input_sha256": "1a79b5f4d122ba3a10a48d183232fa28e49eca22f453c69af99931353d5d5522",
+   "audio_sha256": "9e7de0e7a8d704b05e589348d1290646e4a045dcf34bb744acccec23260acfe5",
+   "generation_id": "ok6yCakpSAU77jDAjX4N",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "r_home_c1_j": {
   "spk": "jihun",
   "text": "응… 내가 했어. 하늘이 이름, 끝까지 불렀어.",
-  "dur": 4.18,
+  "dur": 4.519,
   "baked": true,
-  "eleven": "[softly] 응… 내가 했어. 하늘이 이름, 끝까지 불렀어.",
+  "eleven": "[nervous] 응… 내가 했어. 하늘이 이름, 끝까지 불렀어.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[softly]"
+   "delivery": "[nervous]",
+   "input_sha256": "63b9522750792951b5244ffca05b74c69135c04ff22f481209a0d0bdbf2514d4",
+   "audio_sha256": "c2df46b788495a098857df3179a0f6915ed7cb757eb9a4d16e7f27aa5e8236be",
+   "generation_id": "n2OxRwsPkUEPYadRwTR4",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "r_home_c1_s": {
   "spk": "seoyeon",
   "text": "응, 나야. 하늘 선배 이름… 끝까지 불렀어.",
-  "dur": 3.94,
+  "dur": 4.754,
   "baked": true,
-  "eleven": "[softly] 응, 나야. 하늘 선배 이름… 끝까지 불렀어.",
+  "eleven": "[nervous] 응, 나야. 하늘 선배 이름… 끝까지 불렀어.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[softly]"
+   "delivery": "[nervous]",
+   "input_sha256": "ea0be9e950d9e810694f36af794e8b467a4661a22163e28e898caf3842c42311",
+   "audio_sha256": "5ce8bef735e9ab8256f84bbd3e2d6a6872eaf4cb608757cb3b9bbd48abd1738c",
+   "generation_id": "LKyTV8bcqXzhFyMbLdMW",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "r_home_c2_j": {
   "spk": "jihun",
   "text": "…나 이제 나갈게, 엄마.",
-  "dur": 1.57,
+  "dur": 2.691,
   "baked": true,
-  "eleven": "[tearful] …나 이제 나갈게, 엄마.",
+  "eleven": "[nervous] …나 이제 나갈게, 엄마.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[tearful]"
+   "delivery": "[nervous]",
+   "input_sha256": "4a4e47660d9d915490dfa32d870b41a934c17ef2eca9ddc85faa768ec9bbe45c",
+   "audio_sha256": "8dce87a8411a093052bb89af218db52f9b9099c50cfbcdb9d87697fc3a509769",
+   "generation_id": "HqQsZ6ksFHGcPw8mTItc",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "r_home_c2_s": {
   "spk": "seoyeon",
   "text": "엄마… 나 이제 나갈게.",
-  "dur": 1.88,
+  "dur": 3.239,
   "baked": true,
-  "eleven": "[tearful] 엄마… 나 이제 나갈게.",
+  "eleven": "[nervous] 엄마… 나 이제 나갈게.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[tearful]"
+   "delivery": "[nervous]",
+   "input_sha256": "67cac5890c23fb212e65c7b858c626e4e0d0952fa4421d397ffbe41926e86b8e",
+   "audio_sha256": "7ba406374d27e0ce466b5ebe6eb514177e886e0c5e8093a8b6ea499d033fd046",
+   "generation_id": "ow7TawVQOmqcP5YxpNAp",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "r_112_a1_j": {
   "spk": "jihun",
   "text": "서린고등학교 안이에요… 크게 말 못 해요.",
-  "dur": 3.47,
+  "dur": 3.474,
   "baked": true,
-  "eleven": "[whispering] 서린고등학교 안이에요… 크게 말 못 해요.",
+  "eleven": "[nervous] 서린고등학교 안이에요… 크게 말 못 해요.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[whispering]",
-   "input_sha256": "78d4078e4c9af7523a1cbcb58a1a6926c73671d9d17ff8b08cbae0af7b322779",
-   "audio_sha256": "85fd4ca40bd00dd3810879b000b5dd9fb38bace643f45efa2b24e90abd5a2f6d",
-   "review_status": "unreviewed"
+   "delivery": "[nervous]",
+   "input_sha256": "952c3d0d5a845507b9d75fd8280a37d9200377cb4c38575a9b731a08a0e9f65e",
+   "audio_sha256": "ce940a1d35ceebd748a0250d631122de04701939dbb48f662c506c98335df62a",
+   "generation_id": "2Ja1red9pJpYVXp8j6Kh",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "r_112_a1_s": {
   "spk": "seoyeon",
   "text": "서린고등학교 안이에요… 크게 말을 못 하겠어요.",
-  "dur": 4.28,
+  "dur": 4.754,
   "baked": true,
-  "eleven": "[whispering] 서린고등학교 안이에요… 크게 말을 못 하겠어요.",
+  "eleven": "[nervous] 서린고등학교 안이에요… 크게 말을 못 하겠어요.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[whispering]",
-   "input_sha256": "6ef1cafa8dbe36b3e711b0f4954fb1f57a59319d54732576af8842a5fe0fd8aa",
-   "audio_sha256": "61f77785b1a7c836cf7a7805b8108f8ff83827a2b199389818cb454855537a1e",
-   "review_status": "unreviewed"
+   "delivery": "[nervous]",
+   "input_sha256": "2b180f963204c09e37a4acef6e5ffb391f6b7340fa41de2f40cd1424444245c8",
+   "audio_sha256": "6ff12a92bde1136136f1043f60ca2adc1d947938f2ac7abc757273d6c5b5986b",
+   "generation_id": "xNVHDPhVVM0bUqS2U5rT",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "r_112_a2_j": {
   "spk": "jihun",
   "text": "네, 혼자예요. 친구가 안에서 연락이 끊겼어요.",
-  "dur": 3.4,
+  "dur": 4.754,
   "baked": true,
-  "eleven": "[whispering] 네, 혼자예요. 친구가 안에서 연락이 끊겼어요.",
+  "eleven": "[nervous] 네, 혼자예요. 친구가 안에서 연락이 끊겼어요.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[whispering]"
+   "delivery": "[nervous]",
+   "input_sha256": "7a7e008c285185a0b6fa835d7ab1ec6f25f457c145b67fb15fce03a0d34a61ea",
+   "audio_sha256": "9361ace4f226ca837d39ab6024824983fd0dfec2550dd2657d47dbde8eca7183",
+   "generation_id": "RbSPmkS8ZPajXs7vSli6",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "r_112_a2_s": {
   "spk": "seoyeon",
   "text": "네… 혼자예요. 선배가 여기서 연락이 끊겼어요.",
-  "dur": 3.68,
+  "dur": 4.989,
   "baked": true,
-  "eleven": "[whispering] 네… 혼자예요. 선배가 여기서 연락이 끊겼어요.",
+  "eleven": "[nervous] 네… 혼자예요. 선배가 여기서 연락이 끊겼어요.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[whispering]"
+   "delivery": "[nervous]",
+   "input_sha256": "8a3b1db470ecf51a61724adc0eb2273542dc8c517ec63e6c959f4a6efaef6656",
+   "audio_sha256": "1f571d61fe8462552835f15d4d38300a9b59113bb35a92f519c59f40002aed0f",
+   "generation_id": "nYtfMiv91DXTSzFqCO4H",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "r_112_b1_j": {
   "spk": "jihun",
   "text": "네, 저예요. 그리고… 1998년 10월 실종 사건 기록 좀 확인해 주세요.",
-  "dur": 5.25,
+  "dur": 7.314,
   "baked": true,
-  "eleven": "[serious] 네, 저예요. 그리고… 1998년 10월 실종 사건 기록 좀 확인해 주세요.",
+  "eleven": "[nervous] 네, 저예요. 그리고… 1998년 10월 실종 사건 기록 좀 확인해 주세요.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[serious]"
+   "delivery": "[nervous]",
+   "input_sha256": "82247c81ba4de172b9d09c5ff098c0906611217a226a5e2fa22e66ca0d62f0e2",
+   "audio_sha256": "bf291482facf9dbc77ba1ea20c667eb9e063ebacd908bb759d59e0ce9b4126ff",
+   "generation_id": "o6TTsvLKor5GdAR1IdzE",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "r_112_b1_s": {
   "spk": "seoyeon",
   "text": "네, 저예요. 혹시… 1998년 10월 실종 사건 기록 좀 찾아 주실 수 있어요?",
-  "dur": 6.06,
+  "dur": 7.967,
   "baked": true,
-  "eleven": "[serious] 네, 저예요. 혹시… 1998년 10월 실종 사건 기록 좀 찾아 주실 수 있어요?",
+  "eleven": "[nervous] 네, 저예요. 혹시… 1998년 10월 실종 사건 기록 좀 찾아 주실 수 있어요?",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[serious]"
+   "delivery": "[nervous]",
+   "input_sha256": "d2613c60eca2d19727012f5d4a19811b148d55271879145c89ff301942093e90",
+   "audio_sha256": "b09e9c0b14d102fcd56665a5336d31270c6b1cf9110515e904db540ec353f267",
+   "generation_id": "8AS22WmGcNd2Fq1fWTTH",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "r_119_a1_j": {
   "spk": "jihun",
   "text": "학교에 갇혔어요. 서린고등학교요.",
-  "dur": 3.32,
+  "dur": 3.474,
   "baked": true,
   "eleven": "[nervous] 학교에 갇혔어요. 서린고등학교요.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
    "delivery": "[nervous]",
    "input_sha256": "cd0d4a43aaa15174983fc8457954bae5ddd152d0408e4c9d39c2be061e3ee9d1",
-   "audio_sha256": "fd49a0742eef1de434384c80d4aaeef9d959996af35f46432ce6e9ea6ab3cec8",
-   "review_status": "unreviewed"
+   "audio_sha256": "b5d11596b6f9c573a52033847e6aba4cd48e0d4a62ba00715de6515d16388c0d",
+   "generation_id": "scNLbpKFsz52KA7rF07J",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "r_119_a1_s": {
   "spk": "seoyeon",
   "text": "학교 안에 갇혔어요. 서린고등학교요.",
-  "dur": 3.55,
+  "dur": 3.709,
   "baked": true,
   "eleven": "[nervous] 학교 안에 갇혔어요. 서린고등학교요.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
    "delivery": "[nervous]",
    "input_sha256": "34d53edf494ca93836163cd4352ee49c86bfb801e83e9b3b6c2547f709c1ed9e",
-   "audio_sha256": "5abdeb528ca14a78b8231df5a628c945c094eb8abc424492a98d9f230d442cb3",
-   "review_status": "unreviewed"
+   "audio_sha256": "d79cca91fbd22444caaa06be97e2ce8d79f7399644f0a4c584c70eda0b7df36a",
+   "generation_id": "vaxZpynGXWlpcMJfmaJr",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "r_119_a2_j": {
   "spk": "jihun",
   "text": "다친 데는 없어요. 정문이 안에서 잠겼어요.",
-  "dur": 2.69,
+  "dur": 3.866,
   "baked": true,
   "eleven": "[nervous] 다친 데는 없어요. 정문이 안에서 잠겼어요.",
   "generation": {
-   "voice_id": "zBfkllpYmUyxwRyQt8Zw",
+   "voice_id": "HrAPO433QYkPmU4F4CHw",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[nervous]"
+   "delivery": "[nervous]",
+   "input_sha256": "a55b1f97996311a2b70914ca77c6cdd7d762c08d230f520a087c97ebb7e89ad8",
+   "audio_sha256": "4b881bde36f39de08ea8ac7ab77f04cfbe31830f82a037535dfc3ac3929112fc",
+   "generation_id": "2pr1sKYsK83N69mssJ0f",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "r_119_a2_s": {
   "spk": "seoyeon",
   "text": "다친 데는 없어요. 근데 정문이 잠겨서 못 나가요.",
-  "dur": 3.53,
+  "dur": 4.833,
   "baked": true,
   "eleven": "[nervous] 다친 데는 없어요. 근데 정문이 잠겨서 못 나가요.",
   "generation": {
-   "voice_id": "Mwr1G7n3SF7eQxbSp4At",
+   "voice_id": "O2KReOFLpoR65nz6C9Se",
    "model_id": "eleven_v4",
    "language_code": "ko",
-   "delivery": "[nervous]"
+   "delivery": "[nervous]",
+   "input_sha256": "578959b5bd727db09938052a5bb042c3029abee045a4a9ff64d9740ed1531df3",
+   "audio_sha256": "46112d52b1536c1deb988cb6ed51cc3036f34043b9862174c83fe645cf3c33e3",
+   "generation_id": "IIhoeN2JWkLTV9ZRpfbL",
+   "flow_session_id": null,
+   "review_status": "listening_required"
   }
  },
  "r_119_a4_j": {

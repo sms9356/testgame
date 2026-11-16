@@ -3018,5 +3018,150 @@
   "status": "applied",
   "credits": 154.0,
   "generation_id": "SrfCWSBHF7RBajDw9sFu"
+ },
+ "mtape_5": {
+  "status": "applied",
+  "credits": 153.0,
+  "generation_id": "DIPYkPpmVI8Qe8M55Gj5"
+ },
+ "vo_pe_tape": {
+  "status": "applied",
+  "credits": 109.0,
+  "generation_id": "Ox0g3hO9Ps8dq5H4V0Mw"
+ },
+ "vo_guard_log": {
+  "status": "applied",
+  "credits": 97.0,
+  "generation_id": "0fQvtK6mIP2gbTJtnN3n"
+ },
+ "vo_principal_nb": {
+  "status": "applied",
+  "credits": 96.0,
+  "generation_id": "fzXXzUsTI2gth8v3xU1l"
+ },
+ "vo_astro_log": {
+  "status": "applied",
+  "credits": 126.0,
+  "generation_id": "qdm30R5sDbLH5L19DNXk"
+ },
+ "vo_lib_confess": {
+  "status": "applied",
+  "credits": 101.0,
+  "generation_id": "pHcw11N6Wd7y7lCPkO9B"
+ },
+ "vo_union_stage": {
+  "status": "applied",
+  "credits": 81.0,
+  "generation_id": "fmlYMbExLsyPj76Z9Od4"
+ },
+ "vo_pump_forensic": {
+  "status": "applied",
+  "credits": 105.0,
+  "generation_id": "ua9gZZAa2ds7npB3R2in"
+ },
+ "vo_bunker_tape": {
+  "status": "applied",
+  "credits": 91.0,
+  "generation_id": "ThIGn2cdrq1Psr8IGHIY"
+ },
+ "vo_dorm_student": {
+  "status": "applied",
+  "credits": 96.0,
+  "generation_id": "ddjkz2lz2vLycxhmMjGS"
+ },
+ "vo_homeroom_tape": {
+  "status": "applied",
+  "credits": 90.0,
+  "generation_id": "5dsVzJ9Hg6UFAIQvtf68"
+ },
+ "ts_junho": {
+  "status": "applied",
+  "credits": 144.0,
+  "generation_id": "JUK3E6Puvl5jbqPakOqm"
+ },
+ "ts_snack": {
+  "status": "applied",
+  "credits": 118.0,
+  "generation_id": "izG7g5KMN8GjcA0VuB93"
+ },
+ "ts_paramedic": {
+  "status": "applied",
+  "credits": 121.0,
+  "generation_id": "UPoIZrBkQIT7R5RGiMZv"
+ },
+ "ts_mother": {
+  "status": "applied",
+  "credits": 123.0,
+  "generation_id": "IFkArIqJ6lE8Q1D37d5A"
+ },
+ "ts_vice": {
+  "status": "applied",
+  "credits": 106.0,
+  "generation_id": "kbmIOdauBkSAcAhabZRO"
+ },
+ "ts_dorm": {
+  "status": "applied",
+  "credits": 116.0,
+  "generation_id": "DGGR2IR5gWY4jqsDU67x"
+ },
+ "ts_electric": {
+  "status": "applied",
+  "credits": 104.0,
+  "generation_id": "OyH4TQJp9Rt1V9CmoRQn"
+ },
+ "ts_pe2": {
+  "status": "applied",
+  "credits": 106.0,
+  "generation_id": "sEZU8Fu8xDvOiSMWTLbI"
+ },
+ "ts_reporter2": {
+  "status": "applied",
+  "credits": 112.0,
+  "generation_id": "5f0sUGOd6ZsfamRAqdqB"
+ },
+ "ts_mina": {
+  "status": "applied",
+  "credits": 121.0,
+  "generation_id": "NCa9NdqoHIMWdIK3aiI7"
+ },
+ "gd_radio1": {
+  "status": "applied",
+  "credits": 143.0,
+  "generation_id": "KRnONsFTdRZ5Px6IVYKq"
+ },
+ "gd_radio2": {
+  "status": "applied",
+  "credits": 119.0,
+  "generation_id": "FrRI8wo0fS3LpClZrq1Z"
+ },
+ "gd_radio3": {
+  "status": "applied",
+  "credits": 128.0,
+  "generation_id": "gnT8tBXbc0IdDb2SoZBC"
+ },
+ "gd_log1": {
+  "status": "applied",
+  "credits": 171.0,
+  "generation_id": "ub00CiEzs5BDHWoA4RZs"
+ },
+ "gd_call": {
+  "status": "applied",
+  "credits": 127.0,
+  "generation_id": "yDDvwyw1mtL4laNzasUY"
+ },
+ "gd_log3": {
+  "status": "applied",
+  "credits": 171.0,
+  "generation_id": "UCWF0nRJkg3A51FLNR4L"
+ },
+ "ts_guard": {
+  "status": "applied",
+  "credits": 176.0,
+  "generation_id": "vOS7VIyk0WRk35euvxWi"
+ },
+ "ts_cook": {
+  "status": "applied",
+  "credits": 164.0,
+  "generation_id": "aK9WHUzPUwbDc8VetHCW"
  }
 }

@@ -1518,5 +1518,105 @@
   "status": "applied",
   "credits": 28.0,
   "generation_id": "PUOZQJRQ3Wc4zfLI6J9z"
+ },
+ "mc_stairs_j": {
+  "status": "applied",
+  "credits": 24.0,
+  "generation_id": "LK3k9FAvehIS6qBW7JTb"
+ },
+ "mc_eqroom_j": {
+  "status": "applied",
+  "credits": 30.0,
+  "generation_id": "Go0rJOzzTLBLir5aX3Qr"
+ },
+ "mc_ghost_j": {
+  "status": "applied",
+  "credits": 22.0,
+  "generation_id": "jhzTTdvhodW0mmaLKrgc"
+ },
+ "mc_idle_j": {
+  "status": "applied",
+  "credits": 28.0,
+  "generation_id": "zHqZ4eFCp2hXrVfpBXPf"
+ },
+ "mc_bcast_j": {
+  "status": "applied",
+  "credits": 25.0,
+  "generation_id": "gt8uN44vtGMr9JrdxzzG"
+ },
+ "mc_outdoor_j": {
+  "status": "applied",
+  "credits": 23.0,
+  "generation_id": "0AqyvcUvtyiuyE4qFmhN"
+ },
+ "mc_gate_j": {
+  "status": "applied",
+  "credits": 21.0,
+  "generation_id": "KTlzNEDqkrg0nEiYCtqa"
+ },
+ "mc_start_s": {
+  "status": "applied",
+  "credits": 30.0,
+  "generation_id": "RCv6vU5OZPt07adfV8DB"
+ },
+ "mc_stairs_s": {
+  "status": "applied",
+  "credits": 27.0,
+  "generation_id": "s5EzdEAzTOa81gq7royX"
+ },
+ "mc_eqroom_s": {
+  "status": "applied",
+  "credits": 32.0,
+  "generation_id": "1L65QV6G3WB3a8LHyAqc"
+ },
+ "mc_ghost_s": {
+  "status": "applied",
+  "credits": 26.0,
+  "generation_id": "bgx2QrAQUGUwU7KPIS2f"
+ },
+ "mc_idle_s": {
+  "status": "applied",
+  "credits": 32.0,
+  "generation_id": "eTR3ycOO48Cf4pU88Re6"
+ },
+ "mc_bcast_s": {
+  "status": "applied",
+  "credits": 26.0,
+  "generation_id": "kVcLapKaLmNyv3ZRdl8j"
+ },
+ "mc_outdoor_s": {
+  "status": "applied",
+  "credits": 24.0,
+  "generation_id": "aYoyJ9V6pZCtZISHglVM"
+ },
+ "mc_gate_s": {
+  "status": "applied",
+  "credits": 22.0,
+  "generation_id": "Ub505WSnW1S8lzMq34uU"
+ },
+ "cue_check": {
+  "status": "applied",
+  "credits": 35.0,
+  "generation_id": "sjdSKNrHE5LoKL6x032U"
+ },
+ "cue_count": {
+  "status": "applied",
+  "credits": 25.0,
+  "generation_id": "vJv4PIS1xSSbERxMliVp"
+ },
+ "cue_go": {
+  "status": "applied",
+  "credits": 12.0,
+  "generation_id": "zi7IIa6RXUECLbe5AxbN"
+ },
+ "cue_done": {
+  "status": "applied",
+  "credits": 35.0,
+  "generation_id": "EdCeV4v8mhgXvo8Rz8lK"
+ },
+ "phone1": {
+  "status": "applied",
+  "credits": 114.0,
+  "generation_id": "hooqeaqOOltbKRdnVUBg"
  }
 }

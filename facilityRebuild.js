@@ -5,11 +5,11 @@
 //   재질: F-01 ~ F-05 바닥 · W-01 ~ W-05 벽 · C-01 ~ C-04 천장 (Poly Haven CC0 실사 스캔 텍스처, assets/tex/fac_* · 미터 단위 UV)
 import * as THREE from './vendor/three.module.js';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { whenIdle, idleTimeout, idleInterval, setIdleProbe } from './idleTasks.js?v=438';
-import { pbr } from './tex.js?v=438';
-import { placeModels } from './rebuild/models.js?v=438';
-import * as PT from './rebuild/periodTex.js?v=438';
-import { installFacilityDetail2 } from './facilityDetail2.js?v=438';   // 본관 · 별관과 같은 시대 재질 (데코타일 · 인조석 · 걸레받이 · 외벽 풍화) — 모듈 캐시로 한 벌만 만든다
+import { whenIdle, idleTimeout, idleInterval, setIdleProbe } from './idleTasks.js?v=439';
+import { pbr } from './tex.js?v=439';
+import { placeModels } from './rebuild/models.js?v=439';
+import * as PT from './rebuild/periodTex.js?v=439';
+import { installFacilityDetail2 } from './facilityDetail2.js?v=439';   // 본관 · 별관과 같은 시대 재질 (데코타일 · 인조석 · 걸레받이 · 외벽 풍화) — 모듈 캐시로 한 벌만 만든다
 
 const FH = 3.6, CEIL = 2.9, WALL_T = .24, LIN = .06;
 const TL = new THREE.TextureLoader(), TEX = {};

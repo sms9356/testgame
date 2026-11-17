@@ -35,7 +35,6 @@ export const chalkTray = () => cv(256, 32, (g, w, h) => {
 });
 
 // 철제 사물함 문 8 × 2 변형 (1024 × 512, 한 칸 = 128 × 256px): 회색 소부 도장 · 문 틈 · 환기 갤러리 · 명찰 꽂이(이름표) · 잠금 고리 · 찌그러짐 · 긁힘 · 녹 · 아래 신발 자국
-const NAMES = ['김민수', '이지은', '박준혁', '최유진', '정현우', '강서연', '조성민', '윤하늘', '장동건', '임수빈', '한지민', '오세훈', '서지호', '신예린', '권나연', '황태민'];
 export const lockerDoors = () => cv(1024, 512, (g, W, H) => {
   const r = rng(9001), cw = 128, ch = 256;
   for (let row = 0; row < 2; row++) for (let col = 0; col < 8; col++) {
@@ -48,7 +47,7 @@ export const lockerDoors = () => cv(1024, 512, (g, W, H) => {
     g.strokeStyle = 'rgba(40,44,42,.35)'; g.lineWidth = 1.5; g.strokeRect(x0 + 8, y0 + 8, cw - 19, ch - 19);   // 프레스 테두리
     for (let k = 0; k < 4; k++) { g.fillStyle = 'rgba(18,20,20,.85)'; g.fillRect(x0 + 34, y0 + 20 + k * 9, 52, 3); g.fillStyle = 'rgba(255,255,255,.15)'; g.fillRect(x0 + 34, y0 + 23 + k * 9, 52, 1); }   // 환기 갤러리
     const lx = x0 + 28, ly = y0 + 70; g.fillStyle = '#b8bcbe'; g.fillRect(lx - 3, ly - 3, 66, 30); g.fillStyle = '#f0ead6'; g.fillRect(lx, ly, 60, 24);   // 명찰 꽂이 + 종이
-    if (r() > .18) { g.fillStyle = r() < .6 ? '#1a2a6a' : '#222'; g.font = `${13 + (r() * 3 | 0)}px sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(`${1 + (r() * 36 | 0)}. ${NAMES[(row * 8 + col) % NAMES.length]}`, lx + 30, ly + 13); }
+    r(); r(); r(); r();   // 명찰 글씨는 반마다 다른 명렬로 mainBuilding.js classLabels 가 덧붙인다 (난수 순서 유지)
     g.fillStyle = 'rgba(255,255,255,.25)'; g.fillRect(lx, ly, 60, 3);   // 비닐 덮개 반사
     const hx = x0 + cw - 26, hy = y0 + 128; g.fillStyle = '#5a5e60'; g.fillRect(hx, hy - 16, 12, 32); g.fillStyle = '#25282a'; g.fillRect(hx + 3, hy - 4, 6, 8);   // 잠금 고리 · 열쇠 구멍
     for (let i = 0; i < 2 + (r() * 3 | 0); i++) { const dx = x0 + 15 + r() * (cw - 30), dy = y0 + 40 + r() * (ch - 60), rr = 6 + r() * 16;   // 찌그러짐: 한쪽 밝고 한쪽 어두운 둥근 그늘

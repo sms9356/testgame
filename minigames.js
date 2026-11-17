@@ -762,8 +762,8 @@ function order({ title, frags, showTimes, onFail }) {
     render();
   };
   keys(e => { if (e.type !== 'keydown') return; const n = cur.length;
-    if (e.code === 'ArrowUp' || e.code === 'KeyW' || e.code === 'ArrowLeft') { kc = (kc + n - 1) % n; sfx.dial(); render(); }
-    else if (e.code === 'ArrowDown' || e.code === 'KeyS' || e.code === 'ArrowRight') { kc = (kc + 1) % n; sfx.dial(); render(); }
+    if (e.code === 'ArrowUp' || e.code === 'KeyW' || e.code === 'ArrowLeft') { kc = Math.max(0, kc - 1); sfx.dial(); render(); }
+    else if (e.code === 'ArrowDown' || e.code === 'KeyS' || e.code === 'ArrowRight') { kc = Math.min(n - 1, kc + 1); sfx.dial(); render(); }
     else if (e.code === 'Space') { if (pick < 0) { pick = kc; sfx.dial(); } else { [cur[pick], cur[kc]] = [cur[kc], cur[pick]]; pick = -1; sfx.slide(); } render(); }
     else if (e.code === 'KeyP') { sfx.tape(); sfx.staticNoise(.6); status(frags[cur[kc]].text); }
     else if (e.code === 'Enter') btn.onclick(); });

@@ -718,7 +718,7 @@ export function buildMainBuilding(opt = {}) {
         const gr = g.createLinearGradient(0, 0, 0, h); gr.addColorStop(0, '#f4f2ea'); gr.addColorStop(.48, '#bfc3c6'); gr.addColorStop(.52, '#d8dadc'); gr.addColorStop(1, '#8a8e92'); g.fillStyle = gr; g.fillText(txt, w / 2, h / 2, w - 40);
         g.lineWidth = 2; g.strokeStyle = 'rgba(70,72,76,.8)'; g.strokeText(txt, w / 2, h / 2, w - 40); };
       const sh = canvasPlane(PW - .2, PH - .16, 1024, 160, draw(true), 'facadeLtrS', true), lt = canvasPlane(PW - .2, PH - .16, 1024, 160, draw(false), 'facadeLtr', true);
-      lt.material.metalness = .7; lt.material.roughness = .28; lt.material.alphaTest = .3; sh.material.depthWrite = false;
+      lt.material.metalness = .35; lt.material.roughness = .3; lt.material.emissive = new THREE.Color(0x2a2a2a); lt.material.alphaTest = .3; sh.material.depthWrite = false;
       sh.position.set(cx, py, zw + .074); lt.position.set(cx, py, zw + .1); sh.name = 'RB_facadeSignS'; lt.name = 'RB_facadeSign'; sh.userData.noCull = lt.userData.noCull = true; root.add(sh); root.add(lt);
       // 벽시계 (지름 1.1m · 알루미늄 테 · 흰 문자판 · 검은 바늘) — 3층 높이 가운데, 캐노피 · 현관 교명판 위
       const R = .55, cy = yf(Math.max(1, N - 2)) + 1.8, rim = new THREE.CylinderGeometry(R, R, .09, 40); rim.rotateX(Math.PI / 2); rim.translate(cx, cy, zw + .045); G('aluW', rim);

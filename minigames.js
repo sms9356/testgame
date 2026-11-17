@@ -250,15 +250,21 @@ function lock3D(host, N, PX) {
   const hook = new THREE.Mesh(new THREE.CylinderGeometry(.02, .02, .14, 10), pinM); hook.position.set(0, .06, 0); hp.add(hook);
   const wr = new THREE.Mesh(new THREE.BoxGeometry(.06, .4, .05), steel); wr.position.set(X(112), Y(195), .15); sc.add(wr);
   const wr2 = new THREE.Mesh(new THREE.BoxGeometry(.6, .06, .05), steel); wr2.position.set(X(85), Y(208), .15); sc.add(wr2);
+  const v3 = new THREE.Vector3();
   return {
     dom: r.domElement,
+    // 마우스 x(0..1) → 2D 핀 좌표 px: 원근 때문에 화면의 핀 위치가 2D 좌표와 선형이 아니므로, 각 핀을 화면에 투영해 그 사이를 보간한다
+    mouseToPx(fx) { const sx = PX.map(x => { v3.set(X(x), Y(120), 0).project(cam); return (v3.x + 1) / 2; });
+      if (fx <= sx[0]) return PX[0] - (sx[0] - fx) / Math.max(.01, sx[1] - sx[0]) * (PX[1] - PX[0]);
+      for (let k = 0; k < PX.length - 1; k++) if (fx <= sx[k + 1]) return PX[k] + (fx - sx[k]) / Math.max(.01, sx[k + 1] - sx[k]) * (PX[k + 1] - PX[k]);
+      const n = PX.length - 1; return PX[n] + (fx - sx[n]) / Math.max(.01, sx[n] - sx[n - 1]) * (PX[n] - PX[n - 1]); },
     render(st) {   // st: { lift, need, set, jam, binding, px, tip, ten, turn, feel }
       const sh = st.feel > 0 ? (Math.random() - .5) * .012 : 0;
-      plug.rotation.x = -st.turn * 1.2; wr.rotation.z = -st.ten * .25;
+      plug.rotation.x = -(st.turn * 1.2 + st.set.filter(Boolean).length * .012 + st.ten * .01); wr.rotation.z = -st.ten * .25;
       pins.forEach((P, k) => { const kpLen = (178 - 120 - st.need[k]) / 100, base = st.lift[k] / 100, rot = k < 0 ? 0 : 0;
         P.k.scale.y = Math.max(.02, kpLen); P.k.position.y = base; P.tipC.position.y = base - .02;
         const top = base + kpLen; P.d.position.y = top; const sTop = 1.5; P.sp.position.y = top + .34; P.sp.scale.y = Math.max(.05, sTop - top - .34);
-        P.k.material.color.setHex(st.set[k] ? 0x70d090 : st.binding === k && st.feel > 0 ? 0xf0d070 : 0xd0a850); P.k.material.emissive.setHex(st.set[k] ? 0x0a3018 : 0);
+        P.k.material.color.setHex(st.set[k] ? 0x70d090 : st.binding === k && st.feel > 0 ? 0xf0d070 : 0xd0a850); P.k.material.emissive.setHex(st.set[k] ? 0x0a3018 : Math.abs(PX[k] - st.px) < 22 ? 0x2a1c06 : 0);   // 머리핀이 닿은 핀은 은은하게 밝다
         P.d.material.color.setHex(st.jam[k] ? 0xc05040 : 0xb8bcc4);
         if (st.turn > 0 && st.set[k]) { P.k.position.y = base; } });
       hp.position.set(X(st.px), Y(178) + .02 + Math.min(st.tip, 8) / 100 + sh, .12); hp.rotation.z = -.08 - Math.min(st.tip, 8) / 120;
@@ -269,63 +275,74 @@ function lock3D(host, N, PX) {
   };
 }
 function lockpick({ pins, usePin, tol = 9 }) {
-  const p = open('자물쇠 따기 — 핀 텀블러', '<b>Q · E / 휠</b> 텐션 · <b>A · D / 마우스</b> 핀 위치 · <b>W · Space / 클릭 유지</b> 밀어 올리기<br>걸린 핀만 뻑뻑하다 — 전단선(점선)에 맞으면 딸깍. 너무 밀면 끼니 텐션을 풀었다 다시');
+  const p = open('자물쇠 따기 — 핀 텀블러', '<b>Q · E / 휠</b> 텐션 · <b>A · D / 마우스</b> 핀 고르기 · <b>W · Space / 클릭 유지</b> 밀어 올리기<br>텐션을 걸면 핀 하나만 뻑뻑하게 걸린다(노랗게 떨림) — 그 핀을 밀면 딸깍. 헐렁한 핀은 아직 차례가 아니다<br>텐션이 너무 세면 핀이 전단선을 지나 끼고 머리핀이 부러질 수 있다 — 끼면 Q 로 텐션을 살짝 풀어라');
   const c = canvas(460, 300), g = c.getContext('2d');
   const info = document.createElement('div'); info.className = 'mgInfo'; $('mgBody').appendChild(info);
-  const N = 5, PX = [150, 205, 260, 315, 370], SL = 120, BASE = 178, TP = 2.5 + tol / 4;   // 전단선 y · 핀 바닥 y · 허용 오차(px)
+  const N = 5, PX = [150, 205, 260, 315, 370], SL = 120, BASE = 178, TP = Math.max(4, 2.5 + tol / 3);   // 전단선 y · 핀 바닥 y · 허용 오차(px)
   const need = PX.map(() => 10 + Math.random() * 26), order = [...Array(N).keys()].sort(() => Math.random() - .5);
   const lift = Array(N).fill(0), set = Array(N).fill(false), jam = Array(N).fill(false);
-  let px = 100, up = false, tip = 0, ten = 0, strain = 0, left = pins(), turn = 0, opened = false, lastT = performance.now(), feel = 0, lastI = -1;
-  MG.lp = { need, order, PX, set, lift, get ten() { return ten; }, get tip() { return tip; } };   // 테스트용 상태
-  // 3D 단면 뷰: 2D 캔버스는 텐션 게이지 띠만 남기고(높이 40) 위에 3D 장면을 얹는다. 마우스 조작은 3D 화면에서도 같게
+  // 텐션은 적당한 값(0.35)에서 시작 — 예전엔 0 에서 시작해 E 를 세 번 눌러야 핀이 하나라도 걸렸다(모르면 영원히 진행 없음)
+  let px = PX[0], up = false, tip = 0, ten = .35, left = pins(), turn = 0, opened = false, lastT = performance.now(), feel = 0, lastI = -1, msgT = 0;
+  MG.lp = { need, order, PX, set, lift, jam, get ten() { return ten; }, get tip() { return tip; } };   // 테스트용 상태
   const L3 = lock3D($('mgBody'), N, PX); if (L3) { $('mgBody').insertBefore(L3.dom, c); c.height = 40; c.style.height = 'auto'; cleanups.push(() => L3.dispose());
-    L3.dom.addEventListener('mousemove', e => { const r = L3.dom.getBoundingClientRect(); px = clamp(((e.clientX - r.left) / r.width) * 460, 80, 400); });
-    L3.dom.addEventListener('mousedown', () => { up = true; }); L3.dom.addEventListener('wheel', e => { e.preventDefault(); setTen(ten + (e.deltaY < 0 ? .06 : -.06)); }, { passive: false }); }
-  const upd = () => { info.innerHTML = `남은 머리핀 <b>${left}</b>개 · 고정된 핀 <b>${set.filter(Boolean).length}</b> / ${N}`; }; upd();
+    // 3D 화면은 원근이 있어 화면 x 와 핀 좌표가 선형이 아니다 → 핀을 투영해 맞춘다 (예전엔 보이는 핀 위에 마우스를 올려도 옆 핀이 골라졌다)
+    L3.dom.addEventListener('mousemove', e => { const r = L3.dom.getBoundingClientRect(); px = clamp(L3.mouseToPx((e.clientX - r.left) / r.width), 80, 400); });
+    L3.dom.addEventListener('mousedown', e => { e.preventDefault(); up = true; }); L3.dom.addEventListener('wheel', e => { e.preventDefault(); setTen(ten + (e.deltaY < 0 ? .06 : -.06)); }, { passive: false }); }
+  const upd = () => { info.innerHTML = `남은 머리핀 <b>${left}</b>개 · 고정된 핀 <b>${set.filter(Boolean).length}</b> / ${N}` + (jam.some(Boolean) ? ' · <b style="color:#e07060">핀이 끼었다 — Q</b>' : ''); }; upd();
   const binding = () => order.find(i => !set[i]);
-  const under = () => { let best = -1, bd = 14; PX.forEach((x, i) => { const d = Math.abs(x - px); if (d < bd) { bd = d; best = i; } }); return best; };
-  const setTen = v => { const n = clamp(v, 0, 1); if (Math.abs(n - ten) > .04) sfx.tension(n); ten = n; };
-  const reset = why => { for (let i = 0; i < N; i++) { set[i] = false; jam[i] = false; } if (why) status(why, 'err'); upd(); };
-  c.addEventListener('mousemove', e => { const r = c.getBoundingClientRect(); px = clamp(((e.clientX - r.left) / r.width) * 460, 80, 400); });
-  c.addEventListener('mousedown', () => { up = true; }); const mu = () => { up = false; }; addEventListener('mouseup', mu); cleanups.push(() => removeEventListener('mouseup', mu));
+  const under = () => { let best = -1, bd = 22; PX.forEach((x, i) => { const d = Math.abs(x - px); if (d < bd) { bd = d; best = i; } }); return best; };
+  const setTen = v => { const n = clamp(v, 0, 1), was = ten; if (Math.abs(n - ten) > .04) sfx.tension(n); ten = n;
+    if (n < was && jam.some(Boolean)) { for (let k = 0; k < N; k++) if (jam[k]) { jam[k] = false; lift[k] = 0; } sfx.pick(); status('텐션을 살짝 풀자 끼었던 핀이 내려왔다 — 고정된 핀은 그대로', 'ok'); upd(); } };
+  const pinAt = d => { const i = under(), k = clamp((i < 0 ? (d > 0 ? -1 : N) : i) + d, 0, N - 1); px = PX[k]; };
+  c.addEventListener('mousemove', e => { if (L3) return; const r = c.getBoundingClientRect(); px = clamp(((e.clientX - r.left) / r.width) * 460, 80, 400); });
+  c.addEventListener('mousedown', () => { if (!L3) up = true; }); const mu = () => { up = false; }; addEventListener('mouseup', mu); cleanups.push(() => removeEventListener('mouseup', mu));
   c.addEventListener('wheel', e => { e.preventDefault(); setTen(ten + (e.deltaY < 0 ? .06 : -.06)); }, { passive: false });
   keys(e => {
     const dn = e.type === 'keydown';
-    if (e.code === 'Space' || e.code === 'KeyW' || e.code === 'ArrowUp') up = dn;
-    if (dn && (e.code === 'KeyA' || e.code === 'ArrowLeft')) px = clamp(px - 9, 80, 400);
-    if (dn && (e.code === 'KeyD' || e.code === 'ArrowRight')) px = clamp(px + 9, 80, 400);
+    if (e.code === 'Space' || e.code === 'KeyW' || e.code === 'ArrowUp' || e.code === 'Enter') up = dn;
+    if (dn && !e.repeat && (e.code === 'KeyA' || e.code === 'ArrowLeft')) pinAt(-1);   // 핀 단위로 이동 (예전: 9px 씩 — 핀 하나 옮기는 데 6번)
+    if (dn && !e.repeat && (e.code === 'KeyD' || e.code === 'ArrowRight')) pinAt(1);
     if (dn && e.code === 'KeyE') setTen(ten + .08);
     if (dn && (e.code === 'KeyQ' || e.code === 'ArrowDown')) setTen(ten - .08);
   });
+  // 게임패드: 십자키/스틱 좌우 = 핀, A/RT = 밀기, LB/RB = 텐션, B = 그만두기
+  let gpPrev = {}; const gpPoll = () => { const gp = navigator.getGamepads ? [...navigator.getGamepads()].find(Boolean) : null; if (!gp) return; const b = i => !!(gp.buttons[i] && gp.buttons[i].pressed), ax = gp.axes[0] || 0;
+    const s = { l: b(14) || ax < -.6, r: b(15) || ax > .6, a: b(0) || b(7), lb: b(4), rb: b(5), b: b(1) };
+    if (s.l && !gpPrev.l) pinAt(-1); if (s.r && !gpPrev.r) pinAt(1); if (s.rb && !gpPrev.rb) setTen(ten + .08); if (s.lb && !gpPrev.lb) setTen(ten - .08);
+    if (s.a !== !!gpPrev.a) up = s.a; const back = s.b && !gpPrev.b; gpPrev = s; if (back) close(false); };
   const loop = now => {
-    const dt = Math.min(.1, (now - lastT) / 1000); lastT = now;
+    if (!MG.active) return;
+    const dt = Math.min(.2, (now - lastT) / 1000); lastT = now; gpPoll(); if (!MG.active) return;
     if (opened) { turn = Math.min(1, turn + dt * 2.4); draw(); if (turn >= 1) return close(true); raf = requestAnimationFrame(loop); return; }
-    const i = under(), bi = binding(), hard = ten > .78, weak = ten < .18; if (i !== lastI) { tip = 0; lastI = i; }   // 다른 핀으로 옮기면 머리핀 끝이 내려간다
-    if (weak && set.some(Boolean) && Math.random() < dt * 2.5) { const k = set.lastIndexOf(true); if (k >= 0) { set[k] = false; jam[k] = false; sfx.pick(); upd(); } }
-    if (weak && jam.some(Boolean)) reset();
-    // 머리핀 끝 높이: 걸린 핀은 뻑뻑하고, 텐션이 세면 거의 안 올라간다
-    const maxTip = i < 0 ? 4 : set[i] || jam[i] ? need[i] : 48, rate = i === bi ? (hard ? 9 : 34) : 70;
+    const i = under(), bi = binding(), hard = ten > .78, weak = ten < .12; if (i !== lastI) { tip = 0; lastI = i; }
+    msgT -= dt;
+    // 텐션을 완전히 풀면(거의 0) 고정된 핀이 하나씩 떨어진다 — 조금 약한 정도로는 떨어지지 않는다
+    if (ten < .06 && set.some(Boolean) && Math.random() < dt * 2) { const k = set.lastIndexOf(true); if (k >= 0) { set[k] = false; lift[k] = 0; sfx.pick(); status('텐션이 풀려 핀이 떨어졌다', 'err'); upd(); } }
+    // 머리핀 끝 높이: 걸린(바인딩) 핀은 뻑뻑해서 천천히, 차례가 아닌 핀은 스프링만 눌려 헐렁하게 끝까지 올라간다
+    const maxTip = i < 0 ? 4 : set[i] ? need[i] : jam[i] ? need[i] + TP + 8 : 48, rate = i === bi && !weak ? 22 : 70;
     tip = up ? Math.min(maxTip, tip + rate * dt) : Math.max(0, tip - 120 * dt);
     feel = Math.max(0, feel - dt * 3);
-    for (let k = 0; k < N; k++) if (!set[k] && !jam[k]) lift[k] = k === i ? tip : Math.max(0, lift[k] - 140 * dt); else if (set[k]) lift[k] = Math.min(lift[k], need[k]);
+    for (let k = 0; k < N; k++) if (!set[k] && !jam[k]) lift[k] = k === i ? tip : Math.max(0, lift[k] - 140 * dt); else if (set[k]) lift[k] = need[k];
     if (i >= 0 && !set[i] && !jam[i] && up) {
-      if (i === bi && ten >= .18) {
-        if (Math.random() < dt * 8) { sfx.tension(ten * .5); feel = 1; }
-        if (Math.abs(lift[i] - need[i]) < TP && !hard) { set[i] = true; lift[i] = need[i]; sfx.pick(); setTimeout(() => sfx.pick(), 40); status('딸깍 — 핀 하나가 걸렸다', 'ok'); upd();
+      if (i === bi && !weak) {
+        feel = 1; if (Math.random() < dt * 6) sfx.tension(ten * .5);   // 걸린 핀: 손끝에 뻑뻑함 · 노랗게 떨림
+        if (!hard && Math.abs(lift[i] - need[i]) < TP) { set[i] = true; lift[i] = need[i]; tip = need[i]; sfx.pick(); setTimeout(() => sfx.pick(), 40); status(`딸깍 — ${i + 1}번 핀이 전단선에 걸렸다. 플러그가 살짝 돈다`, 'ok'); upd();
           if (set.every(Boolean)) { opened = true; sfx.tumbler(); status('실린더가 돌아간다 — 열렸다', 'ok'); } }
-        else if (lift[i] > need[i] + TP + 3) { jam[i] = true; sfx.buzz(); reset('너무 밀었다 — 핀이 끼었다. 텐션을 풀었다(Q) 다시'); }
-      } else if (ten < .18 && lift[i] > 30 && Math.random() < dt * 2) status('텐션이 너무 약하다 — E 로 살짝 걸어라');
+        else if (lift[i] > need[i] + TP) {   // 과셋: 텐션이 세서 전단선을 지나쳤다 → 그 핀만 낀다. 일정 확률로 머리핀이 부러진다
+          jam[i] = true; up = false; sfx.buzz(); upd();
+          if (Math.random() < .3) { sfx.pinBreak(); left--; usePin(); tip = 0; for (let k = 0; k < N; k++) { set[k] = false; jam[k] = false; lift[k] = 0; } setTen(.35); status('과하게 밀었다 — 머리핀이 부러졌다! 처음부터', 'err'); upd();
+            if (left <= 0) { status('머리핀이 다 떨어졌다', 'err'); draw(); setTimeout(() => close(false), 900); return; } }
+          else status('너무 밀었다 — 핀이 전단선 위로 끼었다. Q 로 텐션을 살짝 풀어라 (고정된 핀은 유지)', 'err'); }
+        else if (hard && msgT <= 0) { status('텐션이 너무 세다 — 핀이 멈추지 않는다. Q 로 조금 풀어라'); msgT = 2; }
+      } else if (weak && lift[i] > 20 && msgT <= 0) { status('텐션이 너무 약하다 — E 로 살짝 걸어라'); msgT = 2; }
+      else if (i !== bi && lift[i] > 40 && msgT <= 0) { status(`${i + 1}번 핀은 헐렁하다 — 아직 걸린 핀이 아니다`); msgT = 1.6; }
     }
-    if (hard && up && i === bi) { strain += dt * .9; if (Math.random() < .25) sfx.tension(strain); if (strain > 1) {
-      sfx.pinBreak(); left--; usePin(); strain = 0; tip = 0; up = false; reset('텐션이 너무 셌다 — 머리핀이 부러졌다!'); setTen(.3);
-      if (left <= 0) { status('머리핀이 다 떨어졌다', 'err'); draw(); setTimeout(() => close(false), 900); return; } } }
-    else strain = Math.max(0, strain - dt);
     draw(); raf = requestAnimationFrame(loop);
   };
   function draw() {
     if (L3) { L3.render({ lift, need, set, jam, binding: binding(), px, tip, ten, turn, feel });   // 3D 뷰 + 아래 텐션 게이지
-      g.fillStyle = '#0d0b09'; g.fillRect(0, 0, 460, 40); g.fillStyle = 'rgba(255,255,255,.08)'; g.fillRect(20, 20, 420, 12); g.fillStyle = 'rgba(96,224,160,.25)'; g.fillRect(20 + 420 * .18, 20, 420 * .6, 12);
-      g.fillStyle = ten > .78 ? '#e05040' : ten < .18 ? '#8a8a8a' : '#60e0a0'; g.fillRect(20, 20, 420 * ten, 12); g.fillStyle = '#d8d0b8'; g.font = '11px sans-serif'; g.fillText('텐션', 22, 14); if (strain > .05) { g.fillStyle = '#e05040'; g.fillText('머리핀이 휜다!', 360, 14); } return; }
+      g.fillStyle = '#0d0b09'; g.fillRect(0, 0, 460, 40); g.fillStyle = 'rgba(255,255,255,.08)'; g.fillRect(20, 20, 420, 12); g.fillStyle = 'rgba(96,224,160,.25)'; g.fillRect(20 + 420 * .12, 20, 420 * .66, 12);
+      g.fillStyle = ten > .78 ? '#e05040' : ten < .12 ? '#8a8a8a' : '#60e0a0'; g.fillRect(20, 20, 420 * ten, 12); g.fillStyle = '#d8d0b8'; g.font = '11px sans-serif'; g.fillText('텐션', 22, 14); if (ten > .78) { g.fillStyle = '#e05040'; g.fillText('텐션 과다!', 380, 14); } return; }
     const sh = feel > 0 ? (Math.random() - .5) * 1.5 : 0;
     g.fillStyle = '#0d0b09'; g.fillRect(0, 0, 460, 300);
     g.fillStyle = '#7d6a3e'; g.fillRect(110, 20, 300, 100);   // 몸통(하우징)
@@ -348,9 +365,9 @@ function lockpick({ pins, usePin, tol = 9 }) {
     // 텐션 렌치 + 게이지
     g.fillStyle = '#4a4a50'; g.fillRect(60, BASE + 26, 54, 6); g.fillRect(108, BASE + 8, 6, 24);
     g.fillStyle = 'rgba(255,255,255,.08)'; g.fillRect(20, 268, 420, 12);
-    g.fillStyle = 'rgba(96,224,160,.25)'; g.fillRect(20 + 420 * .18, 268, 420 * .6, 12);
-    g.fillStyle = ten > .78 ? '#e05040' : ten < .18 ? '#8a8a8a' : '#60e0a0'; g.fillRect(20, 268, 420 * ten, 12);
-    g.fillStyle = '#d8d0b8'; g.font = '11px sans-serif'; g.fillText('텐션', 22, 262); if (strain > .05) { g.fillStyle = '#e05040'; g.fillText('머리핀이 휜다!', 360, 262); }
+    g.fillStyle = 'rgba(96,224,160,.25)'; g.fillRect(20 + 420 * .12, 268, 420 * .66, 12);
+    g.fillStyle = ten > .78 ? '#e05040' : ten < .12 ? '#8a8a8a' : '#60e0a0'; g.fillRect(20, 268, 420 * ten, 12);
+    g.fillStyle = '#d8d0b8'; g.font = '11px sans-serif'; g.fillText('텐션', 22, 262); if (ten > .78) { g.fillStyle = '#e05040'; g.fillText('텐션 과다!', 380, 262); }
   }
   raf = requestAnimationFrame(loop);
   return p;
@@ -1910,14 +1927,14 @@ function fuse({ title = '퓨즈판 — 모든 회로를 켜라', N = Math.random
   const flip = (y, x) => [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]].forEach(([dy, dx]) => { const a = y + dy, b = x + dx; if (a >= 0 && a < N && b >= 0 && b < N) on[a][b] = !on[a][b]; });
   const par = 5 + ((Math.random() * 3) | 0); for (let k = 0; k < par; k++) flip((Math.random() * N) | 0, (Math.random() * N) | 0);
   if (on.flat().every(Boolean)) flip(1, 1);
-  const max = par + extra; let used = 0, won = false;
-  const p = open(title, `퓨즈를 클릭하면 <b>자기와 상하좌우</b>가 함께 뒤집힌다 — <b>${max}</b>번 안에 ${N * N}개를 모두 켜라`);
+  const max = par + extra; let used = 0, won = false; const cur = { y: 0, x: 0 };
+  const p = open(title, `퓨즈를 클릭하면 <b>자기와 상하좌우</b>가 함께 뒤집힌다 — <b>${max}</b>번 안에 ${N * N}개를 모두 켜라 · 방향키 + Space 로도 조작`);
   const S = 70, c = canvas(N * S + 40, N * S + 50), g = c.getContext('2d');
   const draw = () => {
     g.fillStyle = '#121416'; g.fillRect(0, 0, c.width, c.height);
     for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) { const px = 20 + x * S, py = 20 + y * S;
       g.fillStyle = '#23272b'; g.fillRect(px + 4, py + 4, S - 8, S - 8); g.fillStyle = on[y][x] ? '#7aff9a' : '#3a1414'; g.shadowColor = on[y][x] ? '#7aff9a' : 'transparent'; g.shadowBlur = on[y][x] ? 14 : 0;
-      g.fillRect(px + 18, py + 14, S - 36, S - 28); g.shadowBlur = 0; g.fillStyle = '#b8b0a0'; g.fillRect(px + 26, py + 8, S - 52, 6); g.fillRect(px + 26, py + S - 14, S - 52, 6); }
+      g.fillRect(px + 18, py + 14, S - 36, S - 28); g.shadowBlur = 0; if (cur.y === y && cur.x === x) { g.strokeStyle = '#f0d070'; g.lineWidth = 2; g.strokeRect(px + 2, py + 2, S - 4, S - 4); } g.fillStyle = '#b8b0a0'; g.fillRect(px + 26, py + 8, S - 52, 6); g.fillRect(px + 26, py + S - 14, S - 52, 6); }
     g.fillStyle = '#c8c0a8'; g.font = '12px sans-serif'; g.fillText(`남은 조작 ${max - used}`, 20, N * S + 40);
   };
   const doFlip = (y, x) => { if (won || !finish) return;
@@ -1934,16 +1951,21 @@ function fuse({ title = '퓨즈판 — 모든 회로를 켜라', N = Math.random
     const span = 1.3, cs = span / N; const pnl = new THREE.Mesh(new THREE.BoxGeometry(span + .25, span + .25, .06), steel); pnl.position.z = -.05; sc.add(pnl);
     const cells = [];
     for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) { const gx = -span / 2 + (x + .5) * cs, gy = span / 2 - (y + .5) * cs, grp = new THREE.Group(); grp.position.set(gx, gy, 0); sc.add(grp);
-      const hold = new THREE.Mesh(new THREE.BoxGeometry(cs * .78, cs * .78, .05), cer); grp.add(hold);
+      const lc = document.createElement('canvas'); lc.width = 128; lc.height = 128; const lg = lc.getContext('2d'); lg.fillStyle = '#e8e2d4'; lg.fillRect(0, 0, 128, 128); lg.fillStyle = 'rgba(0,0,0,.08)'; for (let q = 0; q < 60; q++) lg.fillRect(Math.random() * 128, Math.random() * 128, 2, 2);
+      lg.fillStyle = '#2a2420'; lg.font = 'bold 15px sans-serif'; lg.textAlign = 'center'; lg.fillText(`${String.fromCharCode(65 + y)}-${x + 1}  15A`, 64, 20); lg.font = '12px sans-serif'; lg.fillText(['교실', '복도등', '전열', '방송', '비상등'][(x + y) % 5], 64, 120);   // 회로 이름표 (손글씨 라벨)
+      const lt = new THREE.CanvasTexture(lc); lt.colorSpace = THREE.SRGBColorSpace; const holdM = new THREE.MeshStandardMaterial({ map: lt, roughness: .4 });
+      const hold = new THREE.Mesh(new THREE.BoxGeometry(cs * .78, cs * .78, .05), [cer, cer, cer, cer, holdM, cer]); grp.add(hold);
       const glassM = new THREE.MeshStandardMaterial({ color: 0x9ad8a8, emissive: 0x30ff60, emissiveIntensity: 1, transparent: true, opacity: .85, roughness: .1 });
       const tube = new THREE.Mesh(new THREE.CylinderGeometry(cs * .13, cs * .13, cs * .5, 16), glassM); tube.rotation.z = Math.PI / 2; tube.position.z = .05; grp.add(tube);
       [-1, 1].forEach(sd => { const cp = new THREE.Mesh(new THREE.CylinderGeometry(cs * .15, cs * .15, cs * .08, 16), cap); cp.rotation.z = Math.PI / 2; cp.position.set(sd * cs * .27, 0, .05); grp.add(cp); });
-      hold.userData = tube.userData = { y, x }; cells.push({ grp, tube, glassM, y, x, push: 0 }); }
+      hold.userData = tube.userData = { y, x }; cells.push({ grp, tube, glassM, holdM, y, x, push: 0 }); }
     const rc = new THREE.Raycaster(), mv = new THREE.Vector2();
     r.domElement.addEventListener('mousedown', e => { const b = r.domElement.getBoundingClientRect(); mv.set((e.clientX - b.left) / b.width * 2 - 1, -((e.clientY - b.top) / b.height) * 2 + 1); rc.setFromCamera(mv, cam); const h = rc.intersectObjects(cells.map(o => o.grp), true)[0]; if (!h) return; const u = h.object.userData; cells.find(o => o.y === u.y && o.x === u.x).push = 1; doFlip(u.y, u.x); });
-    const lp = () => { if (!MG.active) { r.dispose(); r.forceContextLoss && r.forceContextLoss(); return; } cells.forEach(o => { const lit = on[o.y][o.x]; o.glassM.color.setHex(lit ? 0x9ad8a8 : 0x3a1a14); o.glassM.emissive.setHex(lit ? 0x30ff60 : 0x200400); o.glassM.emissiveIntensity = lit ? .9 + Math.sin(performance.now() / 200 + o.x) * .1 : .4; o.push = Math.max(0, o.push - .08); o.grp.position.z = -o.push * .04; });
+    const lp = () => { if (!MG.active) { r.dispose(); r.forceContextLoss && r.forceContextLoss(); return; } cells.forEach(o => { const lit = on[o.y][o.x]; o.glassM.color.setHex(lit ? 0x9ad8a8 : 0x3a1a14); o.glassM.emissive.setHex(lit ? 0x30ff60 : 0x200400); o.glassM.emissiveIntensity = lit ? .9 + Math.sin(performance.now() / 200 + o.x) * .1 : .4; o.holdM.emissive.setHex(cur.y === o.y && cur.x === o.x ? 0x3a3010 : 0); o.push = Math.max(0, o.push - .08); o.grp.position.z = -o.push * .04; });
       r.render(sc, cam); requestAnimationFrame(lp); }; requestAnimationFrame(lp); })();
-  keys(() => {}); draw();
+  // 키보드 · 패드: 방향키/WASD 로 칸 이동(노란 테두리), Space/Enter 로 퓨즈 뒤집기 (예전엔 키보드로 풀 수 없었다)
+  keys(e => { if (e.type !== 'keydown') return; const d = { ArrowUp: [-1, 0], KeyW: [-1, 0], ArrowDown: [1, 0], KeyS: [1, 0], ArrowLeft: [0, -1], KeyA: [0, -1], ArrowRight: [0, 1], KeyD: [0, 1] }[e.code];
+    if (d) { cur.y = clamp(cur.y + d[0], 0, N - 1); cur.x = clamp(cur.x + d[1], 0, N - 1); sfx.dial(); draw(); } else if (e.code === 'Space' || e.code === 'Enter') doFlip(cur.y, cur.x); }); draw();
   return p;
 }
 

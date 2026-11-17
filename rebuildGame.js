@@ -2,14 +2,14 @@
 //   항상 켜진다 (예전 건물 모드는 폐지).
 //   예전 본관(1~3층 · 옥상) · 별관(8~10층) 건물은 감추고, 그 자리 땅(0층)에서 새 건물을 걷는다.
 //   높이는 P.sh(계단 높이 보정값)로 넘긴다 → 카메라 · 점프 · 가구 오르기 코드는 손대지 않아도 된다.
-import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN, grafMaterial } from './rebuild/mainBuilding.js?v=438';
-import { placeModels } from './rebuild/models.js?v=438';
-import { installArtFrames } from './rebuild/artFrames.js?v=438';
-import { carve, subdivide } from './rebuild/transplant.js?v=438';
+import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN, grafMaterial } from './rebuild/mainBuilding.js?v=439';
+import { placeModels } from './rebuild/models.js?v=439';
+import { installArtFrames } from './rebuild/artFrames.js?v=439';
+import { carve, subdivide } from './rebuild/transplant.js?v=439';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { turfMaterial } from './campusVisuals.js?v=438';
-import { ENGINE } from './engine.js?v=438';
-import { whenIdle, idleTimeout, idleInterval, setIdleProbe } from './idleTasks.js?v=438';
+import { turfMaterial } from './campusVisuals.js?v=439';
+import { ENGINE } from './engine.js?v=439';
+import { whenIdle, idleTimeout, idleInterval, setIdleProbe } from './idleTasks.js?v=439';
 
 // 예전 건물이 차지하던 땅 (이 안의 예전 메시 · 충돌 상자를 걷어 낸다)
 const OLD_MAIN = { x1: -51, x2: 51, z1: -10.6, z2: 10.9 };
@@ -530,7 +530,7 @@ export function installRebuild({ THREE, scene, floors, world }) {
     const classes = [MAIN, ANX].flatMap(b => (b.props || []).filter(q => q.kind === 'room' && q.type === 'class').map(r => ({ b, r })));
     const lockerSpots = classes.flatMap(({ b, r }) => [.3, .55, .8].map(t => { const lz = r.z1 + .3 + (r.z2 - r.z1 - .6) * t, [x, z] = b.toWorld(r.x2 - .95, lz), [fx, fz] = b.toWorld(r.x2, lz); return { x, z, h: r.floor * FH, face: [fx, fz], room: r.label }; }));
     const alarmSpots = [MAIN, ANX].flatMap(b => { const zN = b.layout.zN; return [...Array(b.spec.floors).keys()].flatMap(f => lay(b, f).filter(q => q.type === 'class').filter((_, i) => i % 2 === 0).map(r => { const [x, z] = b.toWorld(r.x2 + .75, zN + .6); return { x, z, h: f * FH }; })); });
-    const panelSpots = [MAIN, ANX].flatMap(b => { const zN = b.layout.zN; return [...Array(b.spec.floors).keys()].flatMap(f => lay(b, f).filter(q => q.type === 'class').filter((_, i) => i % 2 === 1).map(r => { const [x, z] = b.toWorld(r.x1 + .9, zN + .6); return { x, z, h: f * FH }; })); });
+    const panelSpots = [MAIN, ANX].flatMap(b => { const zN = b.layout.zN; return [...Array(b.spec.floors).keys()].flatMap(f => lay(b, f).filter(q => q.type === 'class').filter((_, i) => i % 2 === 1).map(r => { const [x, z] = b.toWorld(r.x1 + (b === MAIN ? 2.2 : .9), zN + .6); return { x, z, h: f * FH }; })); });   // 본관: 옆 교실 비상벨 자리(x2 + 0.75)와 겹쳐 [E] 가 비상벨에 먹히던 것 → 1.3m 띄운다
     const take = (list, p) => { list = list.filter(s => !W.props.some(q => q !== p && q._relink && q.kind === p.kind && Math.abs((q.rbY ?? 0) - s.h) < 1 && Math.hypot(q.x - s.x, q.z - s.z) < .5)); if (!list.length) return null; const y = p.rbY ?? 0; list.sort((a, c) => (Math.abs(a.h - y) * 10 + Math.hypot(a.x - p.x, a.z - p.z)) - (Math.abs(c.h - y) * 10 + Math.hypot(c.x - p.x, c.z - p.z))); return list.shift(); };
     const put = (p, s, y) => { const dx = s.x - p.x, dz = s.z - p.z, dy = s.h - (p.rbY ?? 0); for (const o of objsOf(p)) { const w = o.getWorldPosition(new THREE.Vector3()); group.attach(o); o.position.set(w.x + dx, w.y + dy, w.z + dz); }
       p.x = s.x; p.z = s.z; p.rbY = s.h; if (y != null) p.y = y; if (p.px != null) { p.px += dx; p.pz += dz; } p._relink = true; n++; };
@@ -548,13 +548,15 @@ export function installRebuild({ THREE, scene, floors, world }) {
     // 모형 없는 조사 지점에 모형을 붙인다: 녹음기(반장 · 교사 증언) · 배전반 · 비상벨 — 빈 허공에 [E] 만 뜨던 것
     for (const p of W.props) { if (p._vis || !(inNew(p) || (p.kind === 'tape' && p.floor === 0)) || objsOf(p).length) continue;   // 바깥 증언 녹음기도 모형이 없으면 붙인다
       const mk = p.kind === 'tape' ? 'tape' : p.kind === 'cbreaker' ? 'panel' : p.kind === 'bell' ? 'bell' : null; if (!mk) continue; p._vis = true;
+      if (mk === 'panel' && !p._relink) { const y0 = p.rbY ?? 0, used = sp => W.props.some(q => q !== p && q.kind === 'cbreaker' && Math.abs((q.rbY ?? 0) - sp.h) < 1 && Math.hypot(q.x - sp.x, q.z - sp.z) < 1.2);   // 방 한가운데(교무실 책상 섬 위 1.4m)에 떠 있던 배전반 → 같은 층 빈 복도 벽 배전반 자리로
+        const s = panelSpots.filter(sp => !used(sp)).sort((a, c) => (Math.abs(a.h - y0) * 10 + Math.hypot(a.x - p.x, a.z - p.z)) - (Math.abs(c.h - y0) * 10 + Math.hypot(c.x - p.x, c.z - p.z)))[0]; if (s) put(p, s, 1.4); }
       const g = new THREE.Group(), y = p.rbY ?? 0;
       if (mk === 'tape') { const su = R.groundAt(p.x, p.z, y + 1.3), top = su != null && su - y > .4 && su - y < 1.3 ? su : y; { const bm = new THREE.Mesh(new THREE.BoxGeometry(.26, .08, .15), VIS.body); bm.position.y = .04; g.add(bm); }
         for (const sx of [-.055, .055]) { const r = new THREE.Mesh(new THREE.CylinderGeometry(.03, .03, .012, 14), VIS.reel); r.position.set(sx, .085, -.01); g.add(r); }
         const led = new THREE.Mesh(new THREE.BoxGeometry(.012, .008, .012), VIS.led); led.position.set(.1, .084, .05); g.add(led); g.position.set(p.x, top + .005, p.z); g.rotation.y = (p.x * 7 + p.z * 3) % 6.28; }
       else if (mk === 'panel') { g.add(new THREE.Mesh(new THREE.BoxGeometry(.5, .7, .12), VIS.panel)); const lab = new THREE.Mesh(new THREE.BoxGeometry(.18, .06, .01), VIS.warn); lab.position.set(0, .26, .065); g.add(lab); g.position.set(p.x, y + 1.4, p.z); }
       else { const bx = new THREE.Mesh(new THREE.BoxGeometry(.22, .3, .08), VIS.red); g.add(bx); const btn = new THREE.Mesh(new THREE.CylinderGeometry(.045, .045, .03, 16), VIS.btn); btn.rotation.x = Math.PI / 2; btn.position.set(0, -.03, .05); g.add(btn); g.position.set(p.x, y + 1.45, p.z); }
-      if (mk !== 'tape') { let best = null, bd = 9; for (const B of [MAIN, ANX]) { const [lx, lz] = B.toLocal(p.x, p.z); if (Math.abs(lz - B.layout.zN) < bd) { bd = Math.abs(lz - B.layout.zN); best = B; } }   // 복도 외벽에 붙여 단다 (벽을 등지게)
+      if (mk !== 'tape') { let best = null, bd = 1e9; for (const B of [MAIN, ANX]) { const [lx, lz] = B.toLocal(p.x, p.z); if (Math.abs(lz - B.layout.zN) < bd) { bd = Math.abs(lz - B.layout.zN); best = B; } }   // 복도 외벽에 붙여 단다 (벽을 등지게)
         if (best) { const [lx] = best.toLocal(p.x, p.z), [wx, wz] = best.toWorld(lx, best.layout.zN + .07), [ox, oz] = best.toWorld(lx, best.layout.zN + 1); g.position.x = wx; g.position.z = wz; g.rotation.y = Math.atan2(ox - wx, oz - wz); } }
       group.add(g); p.visMesh = g; }
     return { n, drop };

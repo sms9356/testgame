@@ -2821,7 +2821,7 @@ function gacha3D({ title = '급식실 캡슐 뽑기 기계' } = {}) {
   const mu = () => { last = null; }; addEventListener('mousemove', mm); addEventListener('mouseup', mu); cleanups.push(() => { removeEventListener('mousemove', mm); removeEventListener('mouseup', mu); r.dispose(); r.forceContextLoss && r.forceContextLoss(); });
   keys(e => { if (e.type !== 'keydown') return; if (e.code === 'KeyC') insert(); if (e.code === 'KeyD' || e.code === 'Space') turn(Math.PI / 6); if (e.code === 'Enter' && drop && dropT > 1.1 && !opened) { opened = true; openT = 0; sfx.pickup && sfx.pickup(); } });
   let lt = performance.now();
-  const loop = now => { const dt = Math.min(.05, (now - lt) / 1000); lt = now;
+  const loop = now => { const dt = Math.min(.2, (now - lt) / 1000); lt = now;   // 느린 프레임에서도 동전 · 캡슐 연출이 실제 시간대로 끝나게
     if (coinT >= 0) { coinT += dt; coin.position.set(.2, .55 - Math.min(1, coinT / .5) * .17, .5 - Math.min(1, coinT / .5) * .15); if (coinT > .55) { coin.visible = false; coinT = -1; coinIn = true; sfx.clank ? sfx.clank(.6) : sfx.click(); status('동전이 떨어졌다 — 크랭크를 돌리세요', 'ok'); } }
     crank.rotation.z = -ang; shake = Math.max(0, shake - dt * 2);
     caps.forEach((c, i) => { const b = c.userData.base; c.position.set(b.x + Math.sin(now / 60 + i) * .006 * shake * 4, b.y + Math.abs(Math.sin(now / 45 + i * 1.7)) * .012 * shake * 4, b.z + Math.cos(now / 55 + i) * .006 * shake * 4); c.rotation.y += shake * dt * 3; });

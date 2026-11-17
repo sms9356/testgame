@@ -644,8 +644,10 @@ export function installRebuild({ THREE, scene, floors, world }) {
     bx(mSteel, P.x1, P.x1 + .012, WL - .02, WL + .02, P.zt, P.zw); bx(mSteel, P.x2 - .012, P.x2, WL - .02, WL + .02, P.zt, P.zw);
     // 양쪽 벽 손스침: 디딤판 앞끝 선 위 0.85m, 원목 봉 + 강철 받침
     { const len = Math.hypot(P.d, P.zb - P.zt), th = Math.atan2(P.d, P.zb - P.zt);
-      [P.x1 + .07, P.x2 - .07].forEach(x => { const g = new THREE.CylinderGeometry(.024, .024, len + .3, 10); g.rotateX(Math.PI / 2); const m = new THREE.Mesh(g, mRail); m.rotation.x = th; m.position.set(x, -P.d / 2 + .85, (P.zt + P.zb) / 2); group.add(m);
-        for (let k = 1; k < n; k += 3) { const z = P.zt + k * run, y = -k * rise + .85; bx(mSteel, Math.min(x, x + (x < (P.x1 + P.x2) / 2 ? -.07 : .07)), Math.max(x, x + (x < (P.x1 + P.x2) / 2 ? -.07 : .07)), y - .035, y - .02, z - .012, z + .012); } }); }
+      // 위 끝은 1층 바닥 난간 아래(0.65m)에서 끝낸다 — 예전엔 0.3m 늘인 봉이 구덩이 위로 삐져나왔다
+      const za = P.zt + .25, zb = P.zb + .15, ya = -(za - P.zt) / (P.zb - P.zt) * P.d + .85, yb = -(zb - P.zt) / (P.zb - P.zt) * P.d + .85, ln = Math.hypot(zb - za, yb - ya);
+      [P.x1 + .07, P.x2 - .07].forEach(x => { const g = new THREE.CylinderGeometry(.024, .024, ln, 10); g.rotateX(Math.PI / 2); const m = new THREE.Mesh(g, mRail); m.rotation.x = th; m.position.set(x, (ya + yb) / 2, (za + zb) / 2); group.add(m);
+        for (let k = 2; k < n; k += 3) { const z = P.zt + k * run, y = -k * rise + .85; bx(mSteel, Math.min(x, x + (x < (P.x1 + P.x2) / 2 ? -.07 : .07)), Math.max(x, x + (x < (P.x1 + P.x2) / 2 ? -.07 : .07)), y - .035, y - .02, z - .012, z + .012); } }); }
     // 1층 바닥 둘레 (동쪽 · 남쪽) 안전 난간: 강관 동자 0.12m 간격 + 원목 손스침 1.0m + 아래 띠장
     { const H1 = 1.0; for (let z = P.zt + .06; z < P.zw - .02; z += .12) bx(mSteel, P.x2 + .035, P.x2 + .055, 0, H1, z - .01, z + .01);
       bx(mRail, P.x2 + .02, P.x2 + .07, H1, H1 + .045, P.zt, P.zw);

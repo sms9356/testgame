@@ -638,7 +638,11 @@ export function buildMainBuilding(opt = {}) {
     for (let x = X1 + 1; x < X2; x += 2.4) [zN + .12, zS - .12].forEach(z => box('deskLeg', x - .02, x + .02, yr + 1.18, yr + 1.75, z - .02, z + .02));   // 파라펫 위 안전 난간
     [zN + .12, zS - .12].forEach(z => box('deskLeg', X1, X2, yr + 1.72, yr + 1.77, z - .025, z + .025));
     // 노란 보행 안내선 (옥탑 출입문 → 서쪽)
-    box('roofLine', X1 + 2, eSt.x1 - .3, yr + P, yr + P + .005, 1.95, 2.05); box('roofLine', X1 + 2, eSt.x1 - .3, yr + P, yr + P + .005, 3.95, 4.05);
+    //   옥상 바닥이 있는 곳만: 중앙 계단 옥탑(바닥이 zL+.2 부터) 위를 지나던 선이 4층→옥상 계단실 벽 · 참 위에 노란 막대로 떠 있던 것
+    { let a = X1 + 2; const segs = [];
+      for (const u of ups) { if (u === eSt) break; if (u.x1 - .2 > a) segs.push([a, u.x1 - .2]); a = u.x2 + .2; }
+      if (eSt.x1 - .3 > a) segs.push([a, eSt.x1 - .3]);
+      for (const [p, q] of segs) { box('roofLine', p, q, yr + P, yr + P + .005, 1.95, 2.05); box('roofLine', p, q, yr + P, yr + P + .005, 3.95, 4.05); } }
     // 루프 드레인
     for (let x = X1 + 4; x < X2 - 8; x += 12) { box('rubber', x - .15, x + .15, yr + P, yr + P + .03, zS - .55, zS - .25); box('rubber', x - .15, x + .15, yr + P, yr + P + .03, zN + .25, zN + .55); }
     // 에어컨 실외기 8대 (팬 격자 + 받침) — 남쪽 파라펫 따라
@@ -715,7 +719,7 @@ export function buildMainBuilding(opt = {}) {
         g.lineWidth = 2; g.strokeStyle = 'rgba(70,72,76,.8)'; g.strokeText(txt, w / 2, h / 2, w - 40); };
       const sh = canvasPlane(PW - .2, PH - .16, 1024, 160, draw(true), 'facadeLtrS', true), lt = canvasPlane(PW - .2, PH - .16, 1024, 160, draw(false), 'facadeLtr', true);
       lt.material.metalness = .7; lt.material.roughness = .28; lt.material.alphaTest = .3; sh.material.depthWrite = false;
-      sh.position.set(cx, py, zw + .074); lt.position.set(cx, py, zw + .1); sh.name = 'RB_facadeSignS'; lt.name = 'RB_facadeSign'; root.add(sh); root.add(lt);
+      sh.position.set(cx, py, zw + .074); lt.position.set(cx, py, zw + .1); sh.name = 'RB_facadeSignS'; lt.name = 'RB_facadeSign'; sh.userData.noCull = lt.userData.noCull = true; root.add(sh); root.add(lt);
       // 벽시계 (지름 1.1m · 알루미늄 테 · 흰 문자판 · 검은 바늘) — 3층 높이 가운데, 캐노피 · 현관 교명판 위
       const R = .55, cy = yf(Math.max(1, N - 2)) + 1.8, rim = new THREE.CylinderGeometry(R, R, .09, 40); rim.rotateX(Math.PI / 2); rim.translate(cx, cy, zw + .045); G('aluW', rim);
       const back = new THREE.CylinderGeometry(R - .07, R - .07, .02, 40); back.rotateX(Math.PI / 2); back.translate(cx, cy, zw + .1); G('aluW', back);   // 안쪽 턱 (문자판 받침)
@@ -726,7 +730,7 @@ export function buildMainBuilding(opt = {}) {
         const hand = (a, len, wd, col) => { g.save(); g.translate(c, c); g.rotate(a); g.fillStyle = col; g.fillRect(-wd / 2, -len, wd, len + c * .1); g.restore(); };
         hand((10 + 12 / 60) / 12 * Math.PI * 2, c * .48, 16, '#151515'); hand(12 / 60 * Math.PI * 2, c * .74, 10, '#151515'); hand(38 / 60 * Math.PI * 2, c * .8, 3, '#b01818');   // 멈춘 듯한 10:12
         g.fillStyle = '#151515'; g.beginPath(); g.arc(c, c, 14, 0, 7); g.fill(); }, 'facadeClock', true);
-      face.material.alphaTest = .5; face.position.set(cx, cy, zw + .112); face.name = 'RB_facadeClock'; root.add(face);
+      face.material.alphaTest = .5; face.position.set(cx, cy, zw + .112); face.name = 'RB_facadeClock'; face.userData.noCull = true; root.add(face);
       const glass = new THREE.CylinderGeometry(R - .05, R - .05, .004, 40); glass.rotateX(Math.PI / 2); glass.translate(cx, cy, zw + .13); G('glass', glass); }
     const LTR = opt.letters ?? null;   // (예전: 남쪽 파라펫 금속 글자 — 맨 위층 현판으로 옮겼다)
     if (LTR) { const txt = LTR, W = Math.min(coreR.x2 - coreR.x1 - 1.2, txt.length * 1.05), H = .78, cx = (coreR.x1 + coreR.x2) / 2;
@@ -1601,9 +1605,14 @@ export function buildMainBuilding(opt = {}) {
     const rail = (x, za, zb, ya, yb) => { const len = Math.hypot(zb - za, yb - ya), m = new THREE.Mesh(new THREE.CylinderGeometry(.025, .025, len, 8), mats.deskLeg); m.position.set(x, (ya + yb) / 2 + .9, (za + zb) / 2); m.rotation.x = Math.atan2(zb - za, yb - ya); root.add(m);
       for (let k = 0; k <= 3; k++) { const t = k / 3; box('deskLeg', x - .015, x + .015, ya + (yb - ya) * t + .05, ya + (yb - ya) * t + .9, za + (zb - za) * t - .015, za + (zb - za) * t + .015); } };
     if (f < S.floors - 1 || roofUp) { rail(r.x1 + .2, zA, zB, y0, y0 + H / 2); rail(r.x2 - .2, zB, zA, y0 + H / 2, y0 + H); }
+    // 수평 안전 난간 (층 참 끝 · 계단 구멍 쪽): 강관 동자 0.11m 간격 + 원목 손스침 1.1m + 아래 띠장 — 충돌은 한 판
+    const railRun = (x1, x2, y, z) => { const RH = 1.1;
+      for (let x = x1 + .06; x < x2 - .03; x += .11) box('deskLeg', x - .011, x + .011, y, y + RH - .02, z - .011, z + .011);
+      box('deskLeg', x1, x1 + .05, y, y + RH + .03, z - .025, z + .025); box('deskLeg', x2 - .05, x2, y, y + RH + .03, z - .025, z + .025);   // 엄지기둥
+      box('hrail', x1, x2, y + RH - .02, y + RH + .03, z - .03, z + .03); box('deskLeg', x1, x2, y + .1, y + .13, z - .012, z + .012);
+      col.push({ x1, x2, z1: z - .05, z2: z + .05, y1: y, y2: y + RH + .05 }); };
     if (f === S.floors - 1 && !roofUp) {   // 맨 위층: 아래층 1비행 위로 뚫린 곳에 안전 난간
-      box('steelG', xa, xa + w, y0, y0 + 1.05, zA - .03, zA + .03, { solid: true }); box('deskLeg', xa, xa + w, y0 + 1.05, y0 + 1.1, zA - .04, zA + .04);
-      for (let k = 0; k <= 4; k++) box('deskLeg', xa + k * w / 4 - .02, xa + k * w / 4 + .02, y0, y0 + 1.05, zA - .02, zA + .02); }
+      railRun(xa, xa + w, y0, zA); }
     if (roofUp) {   // 옥탑: 옥상 높이 층 참 + 벽 + 지붕 (옥상 출입문은 북쪽 벽)
       const yr = y0 + H, ph = 2.8;
       box('terr', r.x1, r.x2, yr - .25, yr, zN, zA); walk.push({ x1: r.x1, x2: r.x2, z1: zN, z2: zA, h: () => yr, f: f + 1 });
@@ -1617,16 +1626,21 @@ export function buildMainBuilding(opt = {}) {
 
       box('lamp', (r.x1 + r.x2) / 2 - .3, (r.x1 + r.x2) / 2 + .3, yr + 2.4, yr + 2.45, zN + .05, zN + .2); lights.push({ x: (r.x1 + r.x2) / 2, y: yr + 2.3, z: zN + .8 });
       box('lamp', r.x1 - .45, r.x1 - .25, yr + 2.25, yr + 2.32, zN + .7, zN + 1.0);   // 출입문 바깥 벽등
-      box('steelG', xa, xa + w, yr, yr + 1.05, zA - .03, zA + .03, { solid: true });   // 옥상 층 참: 2비행 쪽만 열려 있게 1비행 위 난간
+      railRun(xa, xa + w, yr, zA);   // 옥상 층 참: 2비행 쪽만 열려 있게 1비행 위 난간
     }
     if (f < S.floors - 1 || roofUp) {
       // 1비행: 서측 반, 남쪽으로 올라감 / 중간참: 남쪽 끝 / 2비행: 동측 반, 북쪽으로 올라감
-      for (let i = 0; i < n; i++) { box('terr', xa, xa + w, Math.max(y0, y0 + rise * (i + 1) - .3), y0 + rise * (i + 1), zA + i * tr, zA + (i + 1) * tr); box('nonslip', xa + .06, xa + w - .06, y0 + rise * (i + 1), y0 + rise * (i + 1) + .004, zA + i * tr, zA + i * tr + .05); }
+      // 디딤판: 단 높이만큼 (예전엔 0.3m 상자가 서로 겹쳐 옆면이 깜빡이고 밑면이 톱니 모양) + 아래 경사 슬래브(계단 밑면) 한 판 — 1층 1비행은 바닥까지 채운다
+      const soffit = (x1, x2, ylo, yhi, z1, z2) => { const len = Math.hypot(yhi - ylo, z2 - z1), th = Math.atan2(yhi - ylo, Math.abs(z2 - z1)) * Math.sign(z2 - z1), tk = .16, g = new THREE.BoxGeometry(x2 - x1 - .01, tk, len);
+        g.translate(0, -tk / 2 - .002, 0); g.rotateX(-th); g.translate((x1 + x2) / 2, (ylo + yhi) / 2, (z1 + z2) / 2); G('conc', g); };
+      if (f > 0) soffit(xa, xa + w, y0, y0 + H / 2, zA, zB);
+      soffit(xb, xb + w, y0 + H / 2, y0 + H, zB, zA);
+      for (let i = 0; i < n; i++) { box('terr', xa, xa + w, f > 0 ? y0 + rise * i : y0, y0 + rise * (i + 1), zA + i * tr, zA + (i + 1) * tr); box('nonslip', xa + .06, xa + w - .06, y0 + rise * (i + 1), y0 + rise * (i + 1) + .004, zA + i * tr, zA + i * tr + .05); }
       walk.push({ x1: xa, x2: xa + w, z1: zA, z2: zB, h: (x, z) => y0 + Math.min(n, Math.max(0, Math.ceil((z - zA) / tr))) * rise, f, stair: true });
       box('terr', r.x1, r.x2, y0 + H / 2 - .25, y0 + H / 2, zB, zL);
       walk.push({ x1: r.x1, x2: r.x2, z1: zB, z2: zL, h: () => y0 + H / 2, f });
       {
-        for (let i = 0; i < n; i++) { box('terr', xb, xb + w, y0 + H / 2 + rise * (i + 1) - .3, y0 + H / 2 + rise * (i + 1), zB - (i + 1) * tr, zB - i * tr); box('nonslip', xb + .06, xb + w - .06, y0 + H / 2 + rise * (i + 1), y0 + H / 2 + rise * (i + 1) + .004, zB - i * tr - .05, zB - i * tr); }
+        for (let i = 0; i < n; i++) { box('terr', xb, xb + w, y0 + H / 2 + rise * i, y0 + H / 2 + rise * (i + 1), zB - (i + 1) * tr, zB - i * tr); box('nonslip', xb + .06, xb + w - .06, y0 + H / 2 + rise * (i + 1), y0 + H / 2 + rise * (i + 1) + .004, zB - i * tr - .05, zB - i * tr); }
         walk.push({ x1: xb, x2: xb + w, z1: zA, z2: zB, h: (x, z) => y0 + H / 2 + Math.min(n, Math.max(0, Math.ceil((zB - z) / tr))) * rise, f, stair: true });
       }
       // 계단 난간: 중앙 칸막이벽(1.1m) + 핸드레일
@@ -1908,7 +1922,7 @@ export function buildMainBuilding(opt = {}) {
 
   // 계단실 위 슬래브 · 반자 구멍: 해당 층 위 슬래브에서 계단실 영역을 뺀다 — 단순화: 계단실 영역 위 반자 제거용 표시만 남긴다
   // 병합
-  for (const [key, list] of geo) { const g = mergeGeometries(list, false); const m = new THREE.Mesh(g, mat[key]); m.castShadow = !['glass', 'lamp', 'wear', 'streak', 'grime', 'exitHalo'].includes(key); m.receiveShadow = true; m.name = 'RB_' + key; root.add(m); }
+  for (const [key, list] of geo) { const g = mergeGeometries(list, false); const m = new THREE.Mesh(g, mat[key]); m.castShadow = !['glass', 'lamp', 'wear', 'streak', 'grime', 'exitHalo'].includes(key); m.receiveShadow = true; m.name = 'RB_' + key; if (key === 'signBd') m.userData.noCull = true; root.add(m); }   // 교명 현판: 운동장(먼 곳)에서 보라고 단 것 — perfStabilizer 거리 컬링 제외
   // 바닥 높이 조회 (계단 포함): 발 높이 기준으로 올라설 수 있는 가장 높은 면
   const groundAt = (x, z, feet) => { let best = null; for (const w of walk) { if (x < w.x1 || x > w.x2 || z < w.z1 || z > w.z2) continue; const h = w.h(x, z); if (h <= feet + .45 && (best == null || h > best)) best = h; } return best; };
   // 문짝: 병합하지 않은 개별 메시 (열고 닫는 애니메이션 · 닫혔을 때만 충돌)

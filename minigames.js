@@ -1737,7 +1737,7 @@ function cassetteSplice({ title = '방송실 — 1998년 하교 방송 카세트
     [[38, 26], [336, 26], [38, 196], [336, 196], [187, 196]].forEach(([x, y]) => { g.fillStyle = '#8a8e92'; g.beginPath(); g.arc(x, y, 4, 0, 7); g.fill(); g.strokeStyle = '#2a2c30'; g.lineWidth = 1.2; g.beginPath(); g.moveTo(x - 2.5, y); g.lineTo(x + 2.5, y); g.moveTo(x, y - 2.5); g.lineTo(x, y + 2.5); g.stroke(); });
     mgPaper(g, 46, 26, 282, 126, '#efe6cc', 'tdk');
     g.fillStyle = '#1e3c8a'; g.fillRect(46, 26, 282, 20); g.fillStyle = '#c8202a'; g.fillRect(46, 46, 282, 3);
-    g.fillStyle = '#fff'; g.font = 'bold 12px sans-serif'; g.fillText('TDK SA-60', 54, 41); g.font = 'bold 9px sans-serif'; g.fillText('HIGH POSITION · TYPE II', 200, 41);
+    g.fillStyle = '#fff'; g.font = 'bold 12px sans-serif'; g.fillText('C-60 NORMAL', 54, 41); g.font = 'bold 9px sans-serif'; g.fillText('HIGH POSITION · TYPE II', 200, 41);
     g.fillStyle = '#1a2a6a'; g.font = '16px "East Sea Dokdo", cursive, sans-serif'; g.fillText('1998.10.12 방송부 원본 (SIDE A)', 56, 66);
     g.strokeStyle = 'rgba(30,40,90,.25)'; g.lineWidth = .6; for (let k = 0; k < 2; k++) { g.beginPath(); g.moveTo(54, 70 + k * 6); g.lineTo(320, 70 + k * 6); g.stroke(); }
     // 창 (투명 플라스틱 너머 테이프 팩)
@@ -2189,7 +2189,7 @@ function chemMix({ title = '실험대 — 시약 중화 적정 (목표 pH 7.2)' 
       const hit = new THREE.Mesh(new THREE.CylinderGeometry(.07, .07, .8, 8), new THREE.MeshBasicMaterial({ visible: false })); hit.position.y = .15; hit.userData.k = k + 1; g2.add(hit);
       sc.add(g2); return { g2, liq, cock, hit }; });
     const bk = new THREE.Mesh(new THREE.CylinderGeometry(.24, .22, .36, 32, 1, true), glass); bk.position.set(0, .18, 0); sc.add(bk);
-    const bkTex = gradTex(512, 256, q => { q.fillStyle = '#ffffff'; q.strokeStyle = '#ffffff'; q.font = 'bold 26px sans-serif'; for (let k = 1; k <= 5; k++) { const y = 236 - k * 40; q.lineWidth = 4; q.beginPath(); q.moveTo(196, y); q.lineTo(250, y); q.stroke(); q.fillText(k * 100 + '', 256, y + 9); q.lineWidth = 2; q.beginPath(); q.moveTo(196, y + 20); q.lineTo(224, y + 20); q.stroke(); } q.font = 'bold 30px serif'; q.fillText('PYREX', 330, 60); q.font = '22px sans-serif'; q.fillText('600 mL', 334, 92); });
+    const bkTex = gradTex(512, 256, q => { q.fillStyle = '#ffffff'; q.strokeStyle = '#ffffff'; q.font = 'bold 26px sans-serif'; for (let k = 1; k <= 5; k++) { const y = 236 - k * 40; q.lineWidth = 4; q.beginPath(); q.moveTo(196, y); q.lineTo(250, y); q.stroke(); q.fillText(k * 100 + '', 256, y + 9); q.lineWidth = 2; q.beginPath(); q.moveTo(196, y + 20); q.lineTo(224, y + 20); q.stroke(); } q.font = 'bold 30px serif'; q.fillText('600 mL', 330, 60); q.font = '22px sans-serif'; q.fillText('600 mL', 334, 92); });
     const bkScale = new THREE.Mesh(new THREE.CylinderGeometry(.242, .222, .36, 32, 1, true, -1.2, 2.4), new THREE.MeshBasicMaterial({ map: bkTex, transparent: true, alphaTest: .05, depthWrite: false, opacity: .85 })); bkScale.position.copy(bk.position); sc.add(bkScale);
     const lip = new THREE.Mesh(new THREE.TorusGeometry(.24, .006, 6, 40), glass); lip.rotation.x = Math.PI / 2; lip.position.set(0, .36, 0); sc.add(lip);
     const btbB = new THREE.Mesh(new THREE.CylinderGeometry(.05, .055, .16, 18), new THREE.MeshStandardMaterial({ color: 0x5a3010, transparent: true, opacity: .85, roughness: .15 })); btbB.position.set(.55, .08, .28); sc.add(btbB); const btbC = new THREE.Mesh(new THREE.CylinderGeometry(.018, .03, .07, 12), M(0x1a1a1a)); btbC.position.set(.55, .2, .28); sc.add(btbC);

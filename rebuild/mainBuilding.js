@@ -257,6 +257,7 @@ export function buildMainBuilding(opt = {}) {
     lockerM: M('lockerM', () => pbr('varnish', { rough: .8 })),                          // 니스 칠 나무 (사물함 · 문 · 서가)
   };
   for (const [k, sf] of Object.entries({ terr: 'terrazzo', deco: 'pvc', wear: 'pvc', tile: 'ceramic', wood: 'wood', dkwood: 'wood', conc: 'concrete', roofCoat: 'roofpaint', nonslip: 'stairs', rubber: 'rubber' })) if (mat[k] && !mat[k].userData.surface) mat[k].userData.surface = sf;   // 발소리 재질 태그 (footSurface.js)
+  mat.hrail = M('hrail', () => new THREE.MeshStandardMaterial({ color: 0x6b4527, roughness: .5, metalness: .05 }));   // 계단 난간 원목 손스침 (니스 칠)
   mat.nonslip = M('nonslip', () => new THREE.MeshStandardMaterial({ map: PT.nonSlip(), roughness: .85, metalness: .1 }));   // 계단 논슬립
   // 2008 교실 바닥 PVC 데코타일 · 진회녹색 걸레받이 · 외벽 빗물 자국 · 밑동 때(백화) — 본관 · 별관 · 시설이 한 재질을 함께 쓴다 (periodTex 모듈 캐시)
   mat.roofCoat = M('roofCoat', () => new THREE.MeshStandardMaterial({ map: PT.roofCoat(), roughnessMap: PT.roofRough(), roughness: 1, metalness: .02 }));   // 옥상 녹색 방수 페인트 (본관 · 별관 한 정의 — 예전엔 두 곳에 같은 정의)
@@ -701,7 +702,33 @@ export function buildMainBuilding(opt = {}) {
       const pg = new THREE.CylinderGeometry(.025, .025, .9, 8); pg.translate(xw + sx * .07, y + .9, z + .3); G('acUnit', pg); };
     [-1, 1].forEach(sx => { const xw = sx * (L2 + T); for (let f = 1; f < N; f++) [2.6, 6.8].forEach(z => ac(xw, sx, yf(f) + .5, z)); });
     // 교명 금속 글자 (남쪽 파라펫, 정문 · 운동장을 본다): 스테인리스 채널 글자 + 벽에 지는 그림자
-    const LTR = opt.letters ?? (opt.southEntry ? '서린고등학교' : null);
+    // 정면(운동장 쪽) 가운데 칸(코어): 맨 위층 벽에 교명 현판(검은 화강석 판 + 스테인리스 돋을 글자) · 그 아래 층 벽에 둥근 벽시계
+    //   코어 남쪽 벽은 창이 없는 벽돌 면 — 판은 벽 면(zS + T)에 바로 붙이고, 글자 · 시계 문자판은 판 앞면에서 띄워 겹침 깜빡임이 없게
+    if (opt.southEntry) { const cx = (coreR.x1 + coreR.x2) / 2, zw = zS + T, PW = Math.min(coreR.x2 - coreR.x1 - 1.4, 7.0), PH = 1.15, py = yf(N - 1) + 1.75;
+      mat.signBd = mat.signBd || M('signBd', () => new THREE.MeshStandardMaterial({ color: 0x24221f, roughness: .35, metalness: .25 }));
+      box('signBd', cx - PW / 2, cx + PW / 2, py - PH / 2, py + PH / 2, zw, zw + .07);   // 현판 (벽에 밀착, 두께 7cm)
+      box('aluW', cx - PW / 2 - .04, cx + PW / 2 + .04, py + PH / 2, py + PH / 2 + .04, zw, zw + .085); box('aluW', cx - PW / 2 - .04, cx + PW / 2 + .04, py - PH / 2 - .04, py - PH / 2, zw, zw + .085);   // 위 · 아래 테
+      box('aluW', cx - PW / 2 - .04, cx - PW / 2, py - PH / 2, py + PH / 2, zw, zw + .085); box('aluW', cx + PW / 2, cx + PW / 2 + .04, py - PH / 2, py + PH / 2, zw, zw + .085);   // 좌 · 우 테
+      const txt = '서린고등학교', draw = shadow => (g, w, h) => { g.clearRect(0, 0, w, h); g.font = `bold ${h * .74 | 0}px "Noto Serif KR", "Batang", serif`; g.textAlign = 'center'; g.textBaseline = 'middle';
+        if (shadow) { g.fillStyle = 'rgba(0,0,0,.75)'; g.fillText(txt, w / 2 + 5, h / 2 + 6, w - 40); return; }
+        const gr = g.createLinearGradient(0, 0, 0, h); gr.addColorStop(0, '#f4f2ea'); gr.addColorStop(.48, '#bfc3c6'); gr.addColorStop(.52, '#d8dadc'); gr.addColorStop(1, '#8a8e92'); g.fillStyle = gr; g.fillText(txt, w / 2, h / 2, w - 40);
+        g.lineWidth = 2; g.strokeStyle = 'rgba(70,72,76,.8)'; g.strokeText(txt, w / 2, h / 2, w - 40); };
+      const sh = canvasPlane(PW - .2, PH - .16, 1024, 160, draw(true), 'facadeLtrS', true), lt = canvasPlane(PW - .2, PH - .16, 1024, 160, draw(false), 'facadeLtr', true);
+      lt.material.metalness = .7; lt.material.roughness = .28; lt.material.alphaTest = .3; sh.material.depthWrite = false;
+      sh.position.set(cx, py, zw + .074); lt.position.set(cx, py, zw + .1); sh.name = 'RB_facadeSignS'; lt.name = 'RB_facadeSign'; root.add(sh); root.add(lt);
+      // 벽시계 (지름 1.1m · 알루미늄 테 · 흰 문자판 · 검은 바늘) — 3층 높이 가운데, 캐노피 · 현관 교명판 위
+      const R = .55, cy = yf(Math.max(1, N - 2)) + 1.8, rim = new THREE.CylinderGeometry(R, R, .09, 40); rim.rotateX(Math.PI / 2); rim.translate(cx, cy, zw + .045); G('aluW', rim);
+      const back = new THREE.CylinderGeometry(R - .07, R - .07, .02, 40); back.rotateX(Math.PI / 2); back.translate(cx, cy, zw + .1); G('aluW', back);   // 안쪽 턱 (문자판 받침)
+      const face = canvasPlane(2 * (R - .06), 2 * (R - .06), 512, 512, (g, w) => { const c = w / 2; g.fillStyle = '#f3f1ea'; g.beginPath(); g.arc(c, c, c, 0, 7); g.fill();
+        g.fillStyle = '#1a1a1a'; for (let i = 0; i < 60; i++) { const a = i / 60 * Math.PI * 2, r1 = c * (i % 5 ? .9 : .82); g.save(); g.translate(c, c); g.rotate(a); g.fillRect(i % 5 ? -2 : -6, -c * .96, i % 5 ? 4 : 12, c * .96 - r1); g.restore(); }
+        g.font = `bold ${w * .1 | 0}px sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle'; for (let h = 1; h <= 12; h++) { const a = h / 12 * Math.PI * 2; g.fillText(String(h), c + Math.sin(a) * c * .68, c - Math.cos(a) * c * .68); }
+        g.font = `${w * .04 | 0}px sans-serif`; g.fillText('서린고등학교', c, c * 1.38);
+        const hand = (a, len, wd, col) => { g.save(); g.translate(c, c); g.rotate(a); g.fillStyle = col; g.fillRect(-wd / 2, -len, wd, len + c * .1); g.restore(); };
+        hand((10 + 12 / 60) / 12 * Math.PI * 2, c * .48, 16, '#151515'); hand(12 / 60 * Math.PI * 2, c * .74, 10, '#151515'); hand(38 / 60 * Math.PI * 2, c * .8, 3, '#b01818');   // 멈춘 듯한 10:12
+        g.fillStyle = '#151515'; g.beginPath(); g.arc(c, c, 14, 0, 7); g.fill(); }, 'facadeClock', true);
+      face.material.alphaTest = .5; face.position.set(cx, cy, zw + .112); face.name = 'RB_facadeClock'; root.add(face);
+      const glass = new THREE.CylinderGeometry(R - .05, R - .05, .004, 40); glass.rotateX(Math.PI / 2); glass.translate(cx, cy, zw + .13); G('glass', glass); }
+    const LTR = opt.letters ?? null;   // (예전: 남쪽 파라펫 금속 글자 — 맨 위층 현판으로 옮겼다)
     if (LTR) { const txt = LTR, W = Math.min(coreR.x2 - coreR.x1 - 1.2, txt.length * 1.05), H = .78, cx = (coreR.x1 + coreR.x2) / 2;
       const draw = shadow => (g, w, h) => { g.clearRect(0, 0, w, h); g.font = `bold ${h * .8 | 0}px "Noto Sans KR", "Malgun Gothic", sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle';
         if (shadow) { g.fillStyle = 'rgba(40,36,30,.55)'; g.fillText(txt, w / 2, h / 2 + 4, w - 8); return; }
@@ -1552,14 +1579,7 @@ export function buildMainBuilding(opt = {}) {
       const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; const m = new THREE.Mesh(new THREE.PlaneGeometry(1.2, .3), new THREE.MeshBasicMaterial({ map: t })); m.position.set((r.x1 + r.x2) / 2, y0 + 2.62, -.12); m.rotation.y = Math.PI; root.add(m); }
     if (f > 0) box('terr', r.x1, r.x2, y0 - S.slab - .004, y0 + .018, .42, .46);
     roomSign('중앙계단', r.x1 + .25, y0 + 2.3, -.1);
-    { const N = S.floors, up = f < N - 1 ? `${f + 2}층` : (opt.roofStair && r.x1 > 0 ? '옥상' : ''), dn = f > 0 ? `${f}층` : (opt.b1 !== false && r.x1 > 0 ? '' : '');   // 층 안내판: 지금 층 크게 + 위 · 아래 층 (각 층 중앙계단 입구 옆)
-      const c = document.createElement('canvas'); c.width = 256; c.height = 320; const g = c.getContext('2d');
-      g.fillStyle = '#f4f2ec'; g.fillRect(0, 0, 256, 320); g.fillStyle = '#1f5a3a'; g.fillRect(0, 0, 256, 150);
-      g.fillStyle = '#ffffff'; g.font = 'bold 110px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(`${f + 1}F`, 128, 80);
-      g.fillStyle = '#1f2a24'; g.font = 'bold 40px sans-serif'; if (up) g.fillText(`▲ ${up}`, 128, 196); if (dn) g.fillText(`▼ ${dn}`, 128, 264);
-      g.strokeStyle = '#1f5a3a'; g.lineWidth = 8; g.strokeRect(4, 4, 248, 312);
-      const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; const m = new THREE.Mesh(new THREE.PlaneGeometry(.48, .6), new THREE.MeshBasicMaterial({ map: t, toneMapped: false }));
-      m.position.set(r.x1 - .45 < (LY.rooms.find(q => q.kind === 'core') || r).x2 ? r.x2 + .5 : r.x1 - .5, y0 + 1.55, -.135); m.rotation.y = Math.PI; root.add(m); }
+    // (예전: 입구 옆 초록 '1F ▲2층' 층 안내판 — 철거. 계단참 방향 안내판만 남긴다)
     exitSign((r.x1 + r.x2) / 2, y0 + 2.36, -.32);   // 중앙계단 입구 위 비상구 유도등
     stair(r, f, y0);
     props.push({ kind: 'room', label: '중앙 계단', x1: r.x1, x2: r.x2, z1: 0, z2: zS, floor: f });
@@ -1612,6 +1632,16 @@ export function buildMainBuilding(opt = {}) {
       // 계단 난간: 중앙 칸막이벽(1.1m) + 핸드레일
       box('wain', xa + w, xb, y0, y0 + H / 2 + 1.1, zA, zB, { solid: true });
       box('deskLeg', xa + w - .02, xb + .02, y0 + H / 2 + 1.1, y0 + H / 2 + 1.15, zA, zB);
+      // 계단 구멍 쪽 난간: 2비행은 올라갈수록 칸막이벽(1.1m) 위로 드러난다 → 강관 동자(디딤판마다) + 원목 손스침 (2008 학교 계단 표준, 높이 0.9m)
+      { const xr = xb + .045, th = Math.atan2(H / 2, run), len = Math.hypot(H / 2, run), RH = .9;
+        const railY = z => y0 + H / 2 + RH + (zB - z) / run * (H / 2);
+        for (let i = 0; i < n; i++) { const t = y0 + H / 2 + rise * (i + 1), zc = zB - (i + .5) * tr;
+          box('deskLeg', xr - .011, xr + .011, t, railY(zc) - .02, zc - .011, zc + .011);
+          col.push({ x1: xb, x2: xb + .08, z1: zB - (i + 1) * tr, z2: zB - i * tr, y1: t + .05, y2: t + 1.1 }); }
+        box('deskLeg', xr - .03, xr + .03, y0 + H / 2, railY(zB - .02) + .05, zB - .05, zB + .01);   // 아래 · 위 엄지기둥 (계단참 · 층 참 끝)
+        box('deskLeg', xr - .03, xr + .03, y0 + H, railY(zA + .02) + .05, zA - .01, zA + .05);
+        const hr = new THREE.BoxGeometry(.055, .045, len + .06); hr.rotateX(th); hr.translate(xr, y0 + 3 * H / 4 + RH + .02, (zA + zB) / 2); G('hrail', hr);   // 손스침
+        const sb = new THREE.BoxGeometry(.018, .03, len); sb.rotateX(th); sb.translate(xr, y0 + 3 * H / 4 + .24, (zA + zB) / 2); G('deskLeg', sb); }   // 아래 띠장
       // 계단 밑면(경사 슬래브)은 아래층 천장에서 보이지 않게 계단실 반자 제거
     }
     // 계단실은 반자 없음: 위층 슬래브에 2비행 구멍 (구멍은 슬래브를 다시 쪼개는 대신 계단실 위 슬래브를 생략)
@@ -1709,7 +1739,10 @@ export function buildMainBuilding(opt = {}) {
       g.fillStyle = '#fff'; g.beginPath(); g.arc(32, 18, 8, 0, 7); g.fill(); if (k) { g.beginPath(); g.moveTo(32, 26); g.lineTo(46, 56); g.lineTo(18, 56); g.closePath(); g.fill(); } else g.fillRect(24, 28, 16, 28);
       g.fillStyle = '#1a1a1a'; g.font = 'bold 28px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(k ? '여자화장실' : '남자화장실', 160, 34);
       const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; const m = new THREE.Mesh(new THREE.PlaneGeometry(.9, .225), new THREE.MeshStandardMaterial({ map: t, roughness: .5 })); m.position.set((o.a + o.b) / 2, y0 + 2.36, -.13); m.rotation.y = Math.PI; root.add(m); });
-    [[r.x1, xm, '남'], [xm, r.x2, '여']].forEach(([a, b, g]) => toiletRoom(a, b, g, f, y0));
+    [[r.x1, xm, '남'], [xm, r.x2, '여']].forEach(([a, b, g]) => { toiletRoom(a, b, g, f, y0);
+      // 천장 형광등 (2등용 1200 × 300, 칸 위 · 세면대 위 3열) — 방 스위치(문 옆 벽, rebuildGame)가 이 회로를 끄고 켠다
+      [1.7, 4.0, 6.3].forEach(z => fluor((a + b) / 2, y0 + S.CEIL - .05, z, false));
+      const rp = props[props.length - 1]; if (rp && rp.type === 'toilet') rp.swX = g === '남' ? a + .55 : b - .55; });   // 스위치: 출입문 옆 (문 개구부 바깥쪽)
     // 복도측 세면대 (수도 · 배관)
     // 세면대는 화장실 벽(복도 남쪽) 두 문 사이에 — 1층 현관 앞(북쪽 벽)을 막지 않게
     if (opt.bridge && f === 1) {   // 구름다리 출입구 맞은편: 세면대 대신 학교 안내도 · 게시판 · 벤치

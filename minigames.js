@@ -1927,14 +1927,14 @@ function fuse({ title = '퓨즈판 — 모든 회로를 켜라', N = Math.random
   const flip = (y, x) => [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]].forEach(([dy, dx]) => { const a = y + dy, b = x + dx; if (a >= 0 && a < N && b >= 0 && b < N) on[a][b] = !on[a][b]; });
   const par = 5 + ((Math.random() * 3) | 0); for (let k = 0; k < par; k++) flip((Math.random() * N) | 0, (Math.random() * N) | 0);
   if (on.flat().every(Boolean)) flip(1, 1);
-  const max = par + extra; let used = 0, won = false;
-  const p = open(title, `퓨즈를 클릭하면 <b>자기와 상하좌우</b>가 함께 뒤집힌다 — <b>${max}</b>번 안에 ${N * N}개를 모두 켜라`);
+  const max = par + extra; let used = 0, won = false; const cur = { y: 0, x: 0 };
+  const p = open(title, `퓨즈를 클릭하면 <b>자기와 상하좌우</b>가 함께 뒤집힌다 — <b>${max}</b>번 안에 ${N * N}개를 모두 켜라 · 방향키 + Space 로도 조작`);
   const S = 70, c = canvas(N * S + 40, N * S + 50), g = c.getContext('2d');
   const draw = () => {
     g.fillStyle = '#121416'; g.fillRect(0, 0, c.width, c.height);
     for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) { const px = 20 + x * S, py = 20 + y * S;
       g.fillStyle = '#23272b'; g.fillRect(px + 4, py + 4, S - 8, S - 8); g.fillStyle = on[y][x] ? '#7aff9a' : '#3a1414'; g.shadowColor = on[y][x] ? '#7aff9a' : 'transparent'; g.shadowBlur = on[y][x] ? 14 : 0;
-      g.fillRect(px + 18, py + 14, S - 36, S - 28); g.shadowBlur = 0; g.fillStyle = '#b8b0a0'; g.fillRect(px + 26, py + 8, S - 52, 6); g.fillRect(px + 26, py + S - 14, S - 52, 6); }
+      g.fillRect(px + 18, py + 14, S - 36, S - 28); g.shadowBlur = 0; if (cur.y === y && cur.x === x) { g.strokeStyle = '#f0d070'; g.lineWidth = 2; g.strokeRect(px + 2, py + 2, S - 4, S - 4); } g.fillStyle = '#b8b0a0'; g.fillRect(px + 26, py + 8, S - 52, 6); g.fillRect(px + 26, py + S - 14, S - 52, 6); }
     g.fillStyle = '#c8c0a8'; g.font = '12px sans-serif'; g.fillText(`남은 조작 ${max - used}`, 20, N * S + 40);
   };
   const doFlip = (y, x) => { if (won || !finish) return;
@@ -1951,16 +1951,21 @@ function fuse({ title = '퓨즈판 — 모든 회로를 켜라', N = Math.random
     const span = 1.3, cs = span / N; const pnl = new THREE.Mesh(new THREE.BoxGeometry(span + .25, span + .25, .06), steel); pnl.position.z = -.05; sc.add(pnl);
     const cells = [];
     for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) { const gx = -span / 2 + (x + .5) * cs, gy = span / 2 - (y + .5) * cs, grp = new THREE.Group(); grp.position.set(gx, gy, 0); sc.add(grp);
-      const hold = new THREE.Mesh(new THREE.BoxGeometry(cs * .78, cs * .78, .05), cer); grp.add(hold);
+      const lc = document.createElement('canvas'); lc.width = 128; lc.height = 128; const lg = lc.getContext('2d'); lg.fillStyle = '#e8e2d4'; lg.fillRect(0, 0, 128, 128); lg.fillStyle = 'rgba(0,0,0,.08)'; for (let q = 0; q < 60; q++) lg.fillRect(Math.random() * 128, Math.random() * 128, 2, 2);
+      lg.fillStyle = '#2a2420'; lg.font = 'bold 15px sans-serif'; lg.textAlign = 'center'; lg.fillText(`${String.fromCharCode(65 + y)}-${x + 1}  15A`, 64, 20); lg.font = '12px sans-serif'; lg.fillText(['교실', '복도등', '전열', '방송', '비상등'][(x + y) % 5], 64, 120);   // 회로 이름표 (손글씨 라벨)
+      const lt = new THREE.CanvasTexture(lc); lt.colorSpace = THREE.SRGBColorSpace; const holdM = new THREE.MeshStandardMaterial({ map: lt, roughness: .4 });
+      const hold = new THREE.Mesh(new THREE.BoxGeometry(cs * .78, cs * .78, .05), [cer, cer, cer, cer, holdM, cer]); grp.add(hold);
       const glassM = new THREE.MeshStandardMaterial({ color: 0x9ad8a8, emissive: 0x30ff60, emissiveIntensity: 1, transparent: true, opacity: .85, roughness: .1 });
       const tube = new THREE.Mesh(new THREE.CylinderGeometry(cs * .13, cs * .13, cs * .5, 16), glassM); tube.rotation.z = Math.PI / 2; tube.position.z = .05; grp.add(tube);
       [-1, 1].forEach(sd => { const cp = new THREE.Mesh(new THREE.CylinderGeometry(cs * .15, cs * .15, cs * .08, 16), cap); cp.rotation.z = Math.PI / 2; cp.position.set(sd * cs * .27, 0, .05); grp.add(cp); });
-      hold.userData = tube.userData = { y, x }; cells.push({ grp, tube, glassM, y, x, push: 0 }); }
+      hold.userData = tube.userData = { y, x }; cells.push({ grp, tube, glassM, holdM, y, x, push: 0 }); }
     const rc = new THREE.Raycaster(), mv = new THREE.Vector2();
     r.domElement.addEventListener('mousedown', e => { const b = r.domElement.getBoundingClientRect(); mv.set((e.clientX - b.left) / b.width * 2 - 1, -((e.clientY - b.top) / b.height) * 2 + 1); rc.setFromCamera(mv, cam); const h = rc.intersectObjects(cells.map(o => o.grp), true)[0]; if (!h) return; const u = h.object.userData; cells.find(o => o.y === u.y && o.x === u.x).push = 1; doFlip(u.y, u.x); });
-    const lp = () => { if (!MG.active) { r.dispose(); r.forceContextLoss && r.forceContextLoss(); return; } cells.forEach(o => { const lit = on[o.y][o.x]; o.glassM.color.setHex(lit ? 0x9ad8a8 : 0x3a1a14); o.glassM.emissive.setHex(lit ? 0x30ff60 : 0x200400); o.glassM.emissiveIntensity = lit ? .9 + Math.sin(performance.now() / 200 + o.x) * .1 : .4; o.push = Math.max(0, o.push - .08); o.grp.position.z = -o.push * .04; });
+    const lp = () => { if (!MG.active) { r.dispose(); r.forceContextLoss && r.forceContextLoss(); return; } cells.forEach(o => { const lit = on[o.y][o.x]; o.glassM.color.setHex(lit ? 0x9ad8a8 : 0x3a1a14); o.glassM.emissive.setHex(lit ? 0x30ff60 : 0x200400); o.glassM.emissiveIntensity = lit ? .9 + Math.sin(performance.now() / 200 + o.x) * .1 : .4; o.holdM.emissive.setHex(cur.y === o.y && cur.x === o.x ? 0x3a3010 : 0); o.push = Math.max(0, o.push - .08); o.grp.position.z = -o.push * .04; });
       r.render(sc, cam); requestAnimationFrame(lp); }; requestAnimationFrame(lp); })();
-  keys(() => {}); draw();
+  // 키보드 · 패드: 방향키/WASD 로 칸 이동(노란 테두리), Space/Enter 로 퓨즈 뒤집기 (예전엔 키보드로 풀 수 없었다)
+  keys(e => { if (e.type !== 'keydown') return; const d = { ArrowUp: [-1, 0], KeyW: [-1, 0], ArrowDown: [1, 0], KeyS: [1, 0], ArrowLeft: [0, -1], KeyA: [0, -1], ArrowRight: [0, 1], KeyD: [0, 1] }[e.code];
+    if (d) { cur.y = clamp(cur.y + d[0], 0, N - 1); cur.x = clamp(cur.x + d[1], 0, N - 1); sfx.dial(); draw(); } else if (e.code === 'Space' || e.code === 'Enter') doFlip(cur.y, cur.x); }); draw();
   return p;
 }
 

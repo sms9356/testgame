@@ -857,6 +857,7 @@ function tune({ title = '라디오 주파수 맞추기', label = '…이 방송�
   const c = canvas(480, 250), g = c.getContext('2d');
   screen3D(c, { kind: 'wood', prop: 'antenna' });
   const targetF = .22 + Math.random() * .58, targetG = .25 + Math.random() * .55;
+  MG.tn = { get s() { return { f, gain, targetF, targetG }; } };   // 테스트 훅
   let f = .08, gain = .85, hold = 0, lastT = performance.now(), t = 0, dn = {}, dragMode = null, lastTick = 0, tuneBg = null;
   // 실제 조작(키·마우스) 전에는 절대 성공 처리하지 않는다 — 조작 없이 "성공!"으로 닫히던 현상 방지
   let touched = false; const touch = () => { touched = true; }; ['keydown', 'mousedown', 'wheel', 'pointerdown'].forEach(ev => addEventListener(ev, touch, true)); cleanups.push(() => ['keydown', 'mousedown', 'wheel', 'pointerdown'].forEach(ev => removeEventListener(ev, touch, true)));
@@ -991,6 +992,7 @@ function simon({ title = '순서 따라 하기', pads = ['도', '레', '미', '�
   };
   el.forEach((b, i) => { b.onclick = () => press(i); });
   keys(e => { if (e.type === 'keydown' && /^(Digit|Numpad)[1-4]$/.test(e.code)) press(+e.code.slice(-1) - 1); });
+  MG.sm = { get seq() { return seq.slice(); }, get busy() { return busy; } };   // 테스트 훅
   play();
   // 3D 실로폰: 나무 틀 위 색깔 음판 4개 (길이가 음높이대로 짧아진다) — 소리가 나면 음판이 빛나며 떨리고, 클릭한 음판을 채가 친다
   (() => { let rr; try { rr = new THREE.WebGLRenderer({ antialias: true }); } catch (e) { return; }
@@ -1016,6 +1018,7 @@ function timing({ title = '타이밍', hint = '바늘이 <b style="color:#60e0a0
   const p = open(title, hint + ` — <b>${tries}</b>번 중 <b>${need}</b>번`);
   const c = canvas(440, 140), g = c.getContext('2d');
   let t = 0, sp = 1.1, hits = 0, used = 0, zone = .3 + Math.random() * .4, w = .18, lastT = performance.now(), flash = 0, fc = '#60e0a0';
+  MG.tm = { get pos() { return (Math.sin(t * sp * 2.4) + 1) / 2; }, get zone() { return zone; }, get w() { return w; } };   // 테스트 훅
   const act = () => {
     if (!finish) return; const pos = (Math.sin(t * sp * 2.4) + 1) / 2; used++;
     if (Math.abs(pos - zone) < w / 2) { hits++; flash = 1; fc = '#60e0a0'; sfx.ball ? sfx.ball() : sfx.click(); status(`${okText} (${hits}/${need})`, 'ok'); zone = .15 + Math.random() * .7; w *= .88; sp *= 1.12; }
@@ -1123,7 +1126,7 @@ function ouija({ title = '테이프 판독', qs = [] }) {
 // 배관 타일을 돌려 밸브(왼쪽)에서 배출구(오른쪽 위 · 아래 두 곳)까지 증기를 보낸다. 압력계가 계속 오르고, 틀린 방향으로 새는 증기가 많을수록 더 빨리 오른다
 function pipes({ title = '증기 배관 — 압력을 빼라', time = 70 } = {}) {
   const R = 5, C = 6, S = 62, ox = 46, oy = 34;
-  const p = open(title, `타일을 클릭해 돌려 <b style="color:#ffb070">밸브</b>의 증기를 <b style="color:#70d8ff">배출구 두 곳</b>으로 모두 보내라 (우클릭: 반대로)<br>열린 관 끝으로 증기가 새면 <b>압력이 더 빨리</b> 오른다 — 계기판이 빨간 칸에 닿으면 터진다`);
+  const p = open(title, `타일을 클릭해 돌려 <b style="color:#ffb070">밸브</b>의 증기를 <b style="color:#70d8ff">배출구 두 곳</b>으로 모두 보내라 (우클릭: 반대로 · 키보드: <b>방향키</b> 이동 · <b>Space</b> 돌리기 · <b>Q</b> 반대로)<br>열린 관 끝으로 증기가 새면 <b>압력이 더 빨리</b> 오른다 — 계기판이 빨간 칸에 닿으면 터진다`);
   const c = canvas(C * S + ox * 2, R * S + oy + 30), g = c.getContext('2d');
   screen3D(c, { kind: 'metal', prop: 'pipe' });
   const rot = m => ((m << 1) | (m >> 3)) & 15, conn = (a, b) => (b[0] < a[0] ? 1 : b[1] > a[1] ? 2 : b[0] > a[0] ? 4 : 8);
@@ -1134,8 +1137,11 @@ function pipes({ title = '증기 배관 — 압력을 빼라', time = 70 } = {})
     for (let col = 0; col < C; col++) { const tgt = col === C - 1 ? tr : col < 2 ? src : (Math.random() * R) | 0; path.push([r, col]); while (r !== tgt) { r += Math.sign(tgt - r); path.push([r, col]); } }
     path.forEach((cell, i) => { let m = grid[cell[0]][cell[1]]; m |= i === 0 ? 8 : conn(cell, path[i - 1]); m |= i === path.length - 1 ? 2 : conn(cell, path[i + 1]); grid[cell[0]][cell[1]] = m; }); });
   const filler = [5, 3, 6, 7, 11];
-  for (let y = 0; y < R; y++) for (let x = 0; x < C; x++) { if (!grid[y][x]) grid[y][x] = filler[(Math.random() * filler.length) | 0]; const k = 1 + ((Math.random() * 3) | 0); for (let i = 0; i < k; i++) grid[y][x] = rot(grid[y][x]); }
+  for (let y = 0; y < R; y++) for (let x = 0; x < C; x++) if (!grid[y][x]) grid[y][x] = filler[(Math.random() * filler.length) | 0];
+  const sol = grid.map(r => r.slice());   // 테스트 훅용 정답 배치
+  for (let y = 0; y < R; y++) for (let x = 0; x < C; x++) { const k = 1 + ((Math.random() * 3) | 0); for (let i = 0; i < k; i++) grid[y][x] = rot(grid[y][x]); }
   let press = 0, leak = 0, won = false, lastT = performance.now(), puffs = [];
+  const cur = { y: src, x: 0 }; MG.pp = { grid, sol, R, C, cur };
   const flow = () => {
     const on = Array.from({ length: R }, () => Array(C).fill(false)), q = []; let lk = 0;
     if (grid[src][0] & 8) { on[src][0] = true; q.push([src, 0]); }
@@ -1148,9 +1154,11 @@ function pipes({ title = '증기 배관 — 압력을 빼라', time = 70 } = {})
     return { on, lk, ok: outs.every(y => on[y][C - 1] && (grid[y][C - 1] & 2)) };
   };
   const click = (e, dir) => { if (won || !finish) return; const rc = c.getBoundingClientRect(), x = ((e.clientX - rc.left) * c.width / rc.width - ox) / S | 0, y = ((e.clientY - rc.top) * c.height / rc.height - oy) / S | 0;
-    if (x < 0 || x >= C || y < 0 || y >= R) return; grid[y][x] = dir > 0 ? rot(grid[y][x]) : rot(rot(rot(grid[y][x]))); sfx.dial(); };
+    turnAt(y, x, dir); };
+  const turnAt = (y, x, dir) => { if (won || !finish || x < 0 || x >= C || y < 0 || y >= R) return; grid[y][x] = dir > 0 ? rot(grid[y][x]) : rot(rot(rot(grid[y][x]))); sfx.dial(); };
   c.addEventListener('click', e => click(e, 1)); c.addEventListener('contextmenu', e => { e.preventDefault(); click(e, -1); });
-  keys(() => {});
+  keys(e => { if (e.type !== 'keydown') return; const d = { ArrowUp: [-1, 0], KeyW: [-1, 0], ArrowDown: [1, 0], KeyS: [1, 0], ArrowLeft: [0, -1], KeyA: [0, -1], ArrowRight: [0, 1], KeyD: [0, 1] }[e.code];
+    if (d) { cur.y = clamp(cur.y + d[0], 0, R - 1); cur.x = clamp(cur.x + d[1], 0, C - 1); } else if (e.code === 'Space' || e.code === 'Enter' || e.code === 'KeyE') turnAt(cur.y, cur.x, 1); else if (e.code === 'KeyQ') turnAt(cur.y, cur.x, -1); });
   const loop = now => {
     const dt = Math.min(.1, (now - lastT) / 1000); lastT = now; const F = flow(); leak = F.lk;
     if (!won) press += dt * (1 / time) * (1 + leak * .22);
@@ -1165,12 +1173,16 @@ function pipes({ title = '증기 배관 — 압력을 빼라', time = 70 } = {})
     outs.forEach(y => { g.fillStyle = F.on[y][C - 1] && (grid[y][C - 1] & 2) ? '#80ffb0' : '#70d8ff'; g.fillRect(ox + C * S + 6, oy + y * S + S / 2 - 14, 34, 28); });
     for (let y = 0; y < R; y++) for (let x = 0; x < C; x++) {
       const px = ox + x * S, py = oy + y * S, m = grid[y][x], cx = px + S / 2, cy = py + S / 2;
-      g.fillStyle = '#161c20'; g.fillRect(px + 2, py + 2, S - 4, S - 4);
-      g.lineCap = 'butt'; g.lineWidth = 14; g.strokeStyle = '#3a3026';
-      [[1, 0, -1], [2, 1, 0], [4, 0, 1], [8, -1, 0]].forEach(([b, dx, dy]) => { if (m & b) { g.beginPath(); g.moveTo(cx, cy); g.lineTo(cx + dx * S / 2, cy + dy * S / 2); g.stroke(); } });
-      g.lineWidth = 6; g.strokeStyle = F.on[y][x] ? (won ? '#9affc8' : '#f0d8b0') : '#6a5a48';
-      [[1, 0, -1], [2, 1, 0], [4, 0, 1], [8, -1, 0]].forEach(([b, dx, dy]) => { if (m & b) { g.beginPath(); g.moveTo(cx, cy); g.lineTo(cx + dx * S / 2, cy + dy * S / 2); g.stroke(); } });
-      g.fillStyle = '#7a6a58'; g.beginPath(); g.arc(cx, cy, 8, 0, 7); g.fill();
+      // 실제 주철 증기관: 콘크리트 벽 위 관(원통 음영) · 끝마다 볼트 플랜지 · 가운데 엘보/티 이음쇠 — 증기가 차면 달궈진 구릿빛, 다 빠지면 초록 페인트 표식
+      const hot = F.on[y][x], tone = hot ? (won ? ['#1e4a2c', '#7ad89a', '#2a5a38'] : ['#4a2614', '#d89a60', '#5a3018']) : ['#1c1a18', '#7a7068', '#2a2622'];
+      g.fillStyle = (x + y) % 2 ? '#2a2826' : '#2e2c29'; g.fillRect(px + 1, py + 1, S - 2, S - 2); g.fillStyle = 'rgba(0,0,0,.25)'; g.fillRect(px + 1, py + S - 3, S - 2, 2);
+      [[1, 0, -1], [2, 1, 0], [4, 0, 1], [8, -1, 0]].forEach(([b, dx, dy]) => { if (!(m & b)) return; const L = S / 2, wdt = 16;
+        const gr = dx ? g.createLinearGradient(0, cy - wdt / 2, 0, cy + wdt / 2) : g.createLinearGradient(cx - wdt / 2, 0, cx + wdt / 2, 0); gr.addColorStop(0, tone[0]); gr.addColorStop(.35, tone[1]); gr.addColorStop(1, tone[2]); g.fillStyle = gr;
+        if (dx) g.fillRect(dx > 0 ? cx : cx - L, cy - wdt / 2, L, wdt); else g.fillRect(cx - wdt / 2, dy > 0 ? cy : cy - L, wdt, L);
+        const fx = cx + dx * (L - 4), fy = cy + dy * (L - 4); g.fillStyle = gr; if (dx) g.fillRect(fx - 3, cy - 13, 6, 26); else g.fillRect(cx - 13, fy - 3, 26, 6);   // 플랜지
+        g.fillStyle = '#c8c0b0'; [-9, 9].forEach(o => { g.beginPath(); g.arc(dx ? fx : cx + o, dx ? cy + o : fy, 1.6, 0, 7); g.fill(); }); });
+      const fg2 = g.createRadialGradient(cx - 3, cy - 3, 1, cx, cy, 12); fg2.addColorStop(0, tone[1]); fg2.addColorStop(1, tone[0]); g.fillStyle = fg2; g.beginPath(); g.arc(cx, cy, 11, 0, 7); g.fill();
+      if (cur.y === y && cur.x === x) { g.strokeStyle = '#f0d070'; g.lineWidth = 2; g.strokeRect(px + 3, py + 3, S - 6, S - 6); }
       if (F.on[y][x] && Math.random() < .04) puffs.push({ x: cx + (Math.random() - .5) * 20, y: cy, a: 1 });
     }
     puffs = puffs.filter(q => (q.a -= dt * 1.2) > 0); puffs.forEach(q => { q.y -= dt * 30; g.fillStyle = `rgba(230,230,230,${q.a * .25})`; g.beginPath(); g.arc(q.x, q.y, 10 * (2 - q.a), 0, 7); g.fill(); });
@@ -1195,8 +1207,9 @@ function maze({ title = '어둠 속 — 선반 사이를 더듬어라', item = '
   const pl = { x: 1.5, y: 1.5 }, key = far([1, 1]), exit = [1, H - 2];
   const gs0 = free.filter(q => Math.hypot(q[0] - 1, q[1] - 1) > 6 && Math.hypot(q[0] - exit[0], q[1] - exit[1]) > 4); const g0 = gs0[(Math.random() * gs0.length) | 0] || far([1, 1]);
   const gh = { x: g0[0] + .5, y: g0[1] + .5, tx: 0, ty: 0, chase: 0, wake: 3 };   // 그것은 플레이어에게서 멀리 · 3초 뒤부터 움직인다
-  let has = false, dark = false, lastT = performance.now(), held = {}, dead = false;
+  let has = false, dark = false, lastT = performance.now(), held = {}, dead = false, mzBg = null;
   keys(e => { held[e.code] = e.type === 'keydown'; });
+  MG.mz = { wall, pl, key, exit, gh, get has() { return has; } };
   const solid = (x, y) => { const cx = x | 0, cy = y | 0; return cy < 0 || cy >= H || cx < 0 || cx >= W || wall[cy][cx]; };
   const move = (o, dx, dy, r = .28) => { if (!solid(o.x + dx + Math.sign(dx) * r, o.y) && !solid(o.x + dx + Math.sign(dx) * r, o.y + r * .9) && !solid(o.x + dx + Math.sign(dx) * r, o.y - r * .9)) o.x += dx; if (!solid(o.x, o.y + dy + Math.sign(dy) * r) && !solid(o.x + r * .9, o.y + dy + Math.sign(dy) * r) && !solid(o.x - r * .9, o.y + dy + Math.sign(dy) * r)) o.y += dy; };
   const los = (a, b) => { const d = Math.hypot(b.x - a.x, b.y - a.y), n = Math.ceil(d * 4); for (let i = 1; i < n; i++) if (solid(a.x + (b.x - a.x) * i / n, a.y + (b.y - a.y) * i / n)) return false; return true; };
@@ -1218,7 +1231,14 @@ function maze({ title = '어둠 속 — 선반 사이를 더듬어라', item = '
       if (Math.random() < dt * .6) sfx.step ? sfx.step() : 0;
     }
     g.fillStyle = '#000'; g.fillRect(0, 0, c.width, c.height);
-    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) { g.fillStyle = wall[y][x] ? '#2a2620' : '#11100e'; g.fillRect(x * S, y * S, S, S); if (wall[y][x]) { g.fillStyle = '#3a342a'; g.fillRect(x * S + 3, y * S + 3, S - 6, 4); } }
+    // 위에서 본 창고: 낡은 데코타일 바닥(줄눈 · 얼룩) · 회색 철제 선반 위 책과 상자(칸마다 다른 책등 색) — 한 번만 그려 둔다
+    if (!mzBg) { mzBg = document.createElement('canvas'); mzBg.width = c.width; mzBg.height = c.height; const q = mzBg.getContext('2d'), rnd = (a, b) => { const v = Math.sin(a * 127.1 + b * 311.7) * 43758.5453; return v - Math.floor(v); };
+      for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) { const X0 = x * S, Y0 = y * S;
+        if (!wall[y][x]) { q.fillStyle = (x + y) % 2 ? '#2a2c26' : '#25271f'; q.fillRect(X0, Y0, S, S); q.strokeStyle = 'rgba(0,0,0,.45)'; q.strokeRect(X0 + .5, Y0 + .5, S - 1, S - 1); if (rnd(x, y) < .3) { q.fillStyle = 'rgba(60,40,20,.25)'; q.beginPath(); q.arc(X0 + rnd(y, x) * S, Y0 + rnd(x + 1, y) * S, 4 + rnd(x, y + 3) * 8, 0, 7); q.fill(); } continue; }
+        q.fillStyle = '#4a4e52'; q.fillRect(X0, Y0, S, S); q.fillStyle = '#6a6e72'; q.fillRect(X0, Y0, S, 3); q.fillRect(X0, Y0, 3, S); q.fillStyle = '#2a2c2e'; q.fillRect(X0 + S - 3, Y0, 3, S); q.fillRect(X0, Y0 + S - 3, S, 3);
+        if (rnd(x, y) < .25) { q.fillStyle = '#8a6a40'; q.fillRect(X0 + 5, Y0 + 5, S - 10, S - 10); q.strokeStyle = '#5a4428'; q.beginPath(); q.moveTo(X0 + 5, Y0 + S / 2); q.lineTo(X0 + S - 5, Y0 + S / 2); q.stroke(); continue; }   // 골판지 상자
+        const cols = ['#6a1e1a', '#1e3a6a', '#2a5a2a', '#8a7a4a', '#4a2a4a', '#2a2a2a', '#a8a090']; let bx = X0 + 4; while (bx < X0 + S - 6) { const w = 3 + ((rnd(bx, y) * 4) | 0); q.fillStyle = cols[(rnd(bx, y + 9) * cols.length) | 0]; q.fillRect(bx, Y0 + 5, w, S - 10); q.fillStyle = 'rgba(255,255,255,.12)'; q.fillRect(bx, Y0 + 5, 1, S - 10); bx += w + 1; } } }
+    g.drawImage(mzBg, 0, 0);
     if (!has) { g.font = '20px sans-serif'; g.textAlign = 'center'; g.fillText('🗝', key[0] * S + S / 2, key[1] * S + S / 2 + 7); }
     g.fillStyle = has ? '#60ffa0' : '#2a5a3a'; g.fillRect(exit[0] * S + 6, exit[1] * S + 6, S - 12, S - 12);
     { const ga = Math.atan2(gh.ty - gh.y, gh.tx - gh.x) || 0; g.fillStyle = 'rgba(255,240,180,.16)'; g.beginPath(); g.moveTo(gh.x * S, gh.y * S); g.arc(gh.x * S, gh.y * S, S * 2.2, ga - .45, ga + .45); g.closePath(); g.fill(); g.fillStyle = '#2c3e66'; g.beginPath(); g.arc(gh.x * S, gh.y * S, 9, 0, 7); g.fill(); g.fillStyle = '#d8c070'; g.fillRect(gh.x * S - 3, gh.y * S - 9, 6, 3); }
@@ -1243,7 +1263,7 @@ function rings({ title = '단말기 잠금 — 고리 암호', clue = null, maxM
   const turn = (i, d) => { off[i] = (off[i] + d + N) % N; if (i === 2) off[1] = (off[1] + d + N) % N; if (i === 0) off[2] = (off[2] - d + N) % N; };
   target.forEach((t, i) => { off[i] = t; }); for (let k = 0; k < 14; k++) turn((Math.random() * 3) | 0, Math.random() < .5 ? 1 : -1);
   if ([0, 1, 2].every(i => off[i] === target[i])) turn(1, 1);
-  const p = open(title, `고리를 <b>클릭</b>(왼쪽 / 오른쪽 클릭 = 반대 방향)해서 <b style="color:#ffd070">읽는 선</b>에 단서의 기호 세 개를 맞춰라<br>안쪽 고리 → 바깥 고리가 반대로 · 바깥 고리 → 가운데 고리가 같은 방향으로 함께 돈다 — 남은 회전 <b id="rgLeft">${maxMoves}</b>`);
+  const p = open(title, `고리를 <b>클릭</b>(왼쪽 / 오른쪽 클릭 = 반대 방향)해서 <b style="color:#ffd070">읽는 선</b>에 단서의 기호 세 개를 맞춰라<br>안쪽 고리 → 바깥 고리가 반대로 · 바깥 고리 → 가운데 고리가 같은 방향으로 함께 돈다 — 남은 회전 <b id="rgLeft">${maxMoves}</b><br>키보드: <b>1 · 2 · 3</b> (안쪽→바깥) 고리 고르기 · <b>← →</b> 돌리기`);
   const c = canvas(420, 340), g = c.getContext('2d'); let moves = 0, won = false;
   const draw = () => {
     g.fillStyle = '#0b0d10'; g.fillRect(0, 0, 420, 340);
@@ -1273,7 +1293,7 @@ function rings({ title = '단말기 잠금 — 고리 암호', clue = null, maxM
       const hole = new THREE.Mesh(new THREE.CylinderGeometry(a0, a0, .2, 48), M(0x111111, { metalness: .2 })); hole.rotation.x = Math.PI / 2; if (i === 0) hole.visible = false;
       
       const rs = (a0 + a1) / 2; for (let k = 0; k < N; k++) { const ang = Math.PI / 2 - k / N * Math.PI * 2; const sp = new THREE.Mesh(new THREE.PlaneGeometry(.17, .17), new THREE.MeshBasicMaterial({ map: symTex(SYM[k], '#1a1208'), transparent: true })); sp.position.set(Math.cos(ang) * rs, Math.sin(ang) * rs, .04); sp.rotation.z = ang - Math.PI / 2; gr.add(sp); }
-      gr.position.z = i * .001; sc.add(gr); ringsG.push({ gr, a: 0, z: .036 + i * .011 }); });
+      gr.position.z = i * .001; sc.add(gr); ringsG.push({ gr, a: 0, z: .036 + i * .011, m: ring.material }); });
     const cap = new THREE.Mesh(new THREE.CylinderGeometry(.11, .11, .12, 32), M(0x303030)); cap.rotation.x = Math.PI / 2; sc.add(cap);
     const arrow = new THREE.Mesh(new THREE.ConeGeometry(.05, .1, 3), new THREE.MeshStandardMaterial({ color: 0xffd070, emissive: 0x806020 })); arrow.rotation.z = Math.PI; arrow.position.set(0, .9, .06); sc.add(arrow);
     const clueP = new THREE.Mesh(new THREE.BoxGeometry(.42, 1.1, .03), M(0xb08a40, { roughness: .4 })); clueP.position.set(1.3, 0, -.03); sc.add(clueP);
@@ -1282,8 +1302,12 @@ function rings({ title = '단말기 잠금 — 고리 암호', clue = null, maxM
     const pick = (e, d) => { const b = r.domElement.getBoundingClientRect(); mv.set((e.clientX - b.left) / b.width * 2 - 1, -((e.clientY - b.top) / b.height) * 2 + 1); rc.setFromCamera(mv, cam); if (!rc.ray.intersectPlane(pl, hp)) return; const rr = Math.hypot(hp.x, hp.y); const i = rr < .35 ? 0 : rr < .59 ? 1 : rr < .84 ? 2 : -1; doTurn(i, d); };
     r.domElement.addEventListener('click', e => pick(e, 1)); r.domElement.addEventListener('contextmenu', e => { e.preventDefault(); pick(e, -1); });
     const lp = () => { if (!MG.active) { r.dispose(); r.forceContextLoss && r.forceContextLoss(); return; } ringsG.forEach((o, i) => { const tgt = off[i] / N * Math.PI * 2; let d = tgt - o.a; d = ((d + Math.PI) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2) - Math.PI; o.a += d * .18; o.gr.rotation.z = o.a; });
-      arrow.material.emissiveIntensity = won ? 2 : 1; r.render(sc, cam); requestAnimationFrame(lp); }; requestAnimationFrame(lp); })();
-  keys(() => {}); draw();
+      arrow.material.emissiveIntensity = won ? 2 : 1; ringsG.forEach((o, i) => o.m.emissive.setHex(i === rsel ? 0x3a2a08 : 0)); r.render(sc, cam); requestAnimationFrame(lp); }; requestAnimationFrame(lp); })();
+  let rsel = 2;   // 키보드: 1·2·3 또는 ↑↓ 로 고리 고르기(안쪽=1) · ←→ / A·D 로 돌리기
+  keys(e => { if (e.type !== 'keydown') return; if (/^(Digit|Numpad)[1-3]$/.test(e.code)) rsel = +e.code.slice(-1) - 1; else if (e.code === 'ArrowUp' || e.code === 'KeyW') rsel = Math.min(2, rsel + 1); else if (e.code === 'ArrowDown' || e.code === 'KeyS') rsel = Math.max(0, rsel - 1);
+    else if (e.code === 'ArrowRight' || e.code === 'KeyD' || e.code === 'Space') doTurn(rsel, 1); else if (e.code === 'ArrowLeft' || e.code === 'KeyA') doTurn(rsel, -1); });
+  MG.rg = { get off() { return off.slice(); }, target, N };
+  draw();
   return p;
 }
 
@@ -2085,6 +2109,7 @@ function oscilloscope({ title = '오실로스코프 — 주파수·진폭·위�
   const c = canvas(480, 310), g = c.getContext('2d');
   const tf = 1.6 + Math.random() * 2.2, ta = 42 + Math.random() * 44, tp = Math.random() * 5.2;
   let uf = 2.5, ua = 60, up = 0, hold = 0, lastT = performance.now(), dn = {}, dragDial = -1;
+  MG.os = { get s() { return { uf, ua, up, tf, ta, tp }; } };   // 테스트 훅
   screen3D(c, { kind: 'scope', knobs: () => [(uf - .8) / 4, (ua - 18) / 80, up / (Math.PI * 2)] });
 
   c.addEventListener('mousedown', e => {
@@ -2137,50 +2162,38 @@ function oscilloscope({ title = '오실로스코프 — 주파수·진폭·위�
       if ((hold >= 1.0 || dn.Space) && finish) { sfx.unlock(); close(true); return; }
     } else hold = Math.max(0, hold - dt * .5);
 
-    g.fillStyle = '#07110d'; g.fillRect(0, 0, c.width, c.height);
-    g.strokeStyle = 'rgba(60,140,95,.22)'; g.lineWidth = 1;
-    for (let x = 0; x <= 480; x += 30) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x, 200); g.stroke(); }
-    for (let y = 0; y <= 200; y += 25) { g.beginPath(); g.moveTo(0, y); g.lineTo(480, y); g.stroke(); }
-
-    const cy = 100, phShift = now * .004;
-    g.save(); g.setLineDash([6, 5]); g.strokeStyle = 'rgba(90,255,150,.65)'; g.lineWidth = 2.4;
-    g.beginPath();
-    for (let x = 0; x <= 480; x += 3) {
-      const y = cy + Math.sin((x / 480) * Math.PI * 2 * tf + tp + phShift) * ta * .88;
-      x === 0 ? g.moveTo(x, y) : g.lineTo(x, y);
-    }
-    g.stroke(); g.restore();
-
-    g.strokeStyle = sync >= .86 ? '#70ffaa' : '#ffd060'; g.lineWidth = 2.8;
-    g.shadowColor = g.strokeStyle; g.shadowBlur = sync >= .86 ? 12 : 4;
-    g.beginPath();
-    for (let x = 0; x <= 480; x += 3) {
-      const y = cy + Math.sin((x / 480) * Math.PI * 2 * uf + up + phShift) * ua * .88;
-      x === 0 ? g.moveTo(x, y) : g.lineTo(x, y);
-    }
-    g.stroke(); g.shadowBlur = 0;
-
-    // 하단 3노브 계기판 패널
-    g.fillStyle = '#12181a'; g.fillRect(0, 202, 480, 108);
+    // 녹색 형광체 브라운관: 잔광(앞 프레임이 서서히 사라짐) · 10×8 눈금(가운데 축에 잔눈금) · 휘선 번짐(블룸) · 화면 가장자리 비네팅
+    g.fillStyle = 'rgba(4,14,8,.42)'; g.fillRect(0, 0, 480, 202);
+    const cy = 100, phShift = now * .004, sc2 = 480 / 10;
+    g.save(); g.beginPath(); g.rect(0, 0, 480, 202); g.clip();
+    const tr = (fq, am, ph, col, w, dash) => { g.setLineDash(dash || []); g.strokeStyle = col; g.lineWidth = w; g.beginPath(); for (let x = 0; x <= 480; x += 3) { const y = cy + Math.sin((x / 480) * Math.PI * 2 * fq + ph + phShift) * am * .88; x === 0 ? g.moveTo(x, y) : g.lineTo(x, y); } g.stroke(); g.setLineDash([]); };
+    tr(tf, ta, tp, 'rgba(120,255,160,.10)', 6, [6, 5]); tr(tf, ta, tp, 'rgba(150,255,180,.45)', 1.4, [6, 5]);   // 기준 신호(CH2, 점선)
+    const ok = sync >= .86; g.globalCompositeOperation = 'lighter';
+    tr(uf, ua, up, `rgba(60,255,120,${ok ? .16 : .10})`, 12); tr(uf, ua, up, 'rgba(90,255,140,.35)', 5); tr(uf, ua, up, ok ? '#d8ffe0' : '#a8ffc0', 1.6);   // 내 신호(CH1): 번짐 3겹
+    g.globalCompositeOperation = 'source-over';
+    g.strokeStyle = 'rgba(140,200,150,.28)'; g.lineWidth = 1; for (let k = 0; k <= 10; k++) { g.beginPath(); g.moveTo(k * sc2, 0); g.lineTo(k * sc2, 200); g.stroke(); } for (let k = 0; k <= 8; k++) { g.beginPath(); g.moveTo(0, k * 25); g.lineTo(480, k * 25); g.stroke(); }
+    g.strokeStyle = 'rgba(160,220,170,.4)'; for (let x = 0; x < 480; x += sc2 / 5) { g.beginPath(); g.moveTo(x, cy - 3); g.lineTo(x, cy + 3); g.stroke(); } for (let y = 0; y < 200; y += 5) { g.beginPath(); g.moveTo(240 - 3, y); g.lineTo(240 + 3, y); g.stroke(); }
+    const vg = g.createRadialGradient(240, 100, 120, 240, 100, 300); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.18)'); g.fillStyle = vg; g.fillRect(0, 0, 480, 202);
+    g.fillStyle = 'rgba(170,255,190,.75)'; g.font = '10px monospace'; g.fillText(`CH1 ${(ua / 20).toFixed(1)}V/div  CH2 REF  ${(uf * 24.5).toFixed(1)}Hz`, 8, 14); g.fillText('TRIG ▲ AUTO', 400, 194);
+    g.restore();
+    // 계측기 앞판: 연회색 도장 · 알루미늄 스커트 노브(톱니 테 · 지시선) · 각인 글씨
+    const pg = g.createLinearGradient(0, 202, 0, 310); pg.addColorStop(0, '#b8bab4'); pg.addColorStop(1, '#8a8c86'); g.fillStyle = pg; g.fillRect(0, 202, 480, 108); g.fillStyle = 'rgba(0,0,0,.35)'; g.fillRect(0, 202, 480, 2);
     const dials = [
       [80, (uf - .8) / 4.0, df < .08, `FREQ: ${(uf * 24.5).toFixed(1)}Hz [A/D]`],
       [240, (ua - 18) / 80, da < .08, `AMP: ${ua.toFixed(0)}mV [W/S]`],
       [400, up / (Math.PI * 2), dp < .10, `PHASE: ${((up * 180 / Math.PI) | 0)}° [Q/E]`]
     ];
-    dials.forEach(([cx, norm, ok, lbl]) => {
-      g.fillStyle = '#1c262a'; g.beginPath(); g.arc(cx, 236, 22, 0, 7); g.fill();
-      g.strokeStyle = ok ? '#58ff9a' : '#687c84'; g.lineWidth = 2.5; g.stroke();
-      const a = -Math.PI * .75 + norm * Math.PI * 1.5;
-      g.strokeStyle = '#ffffff'; g.lineWidth = 2.5;
-      g.beginPath(); g.moveTo(cx, 236); g.lineTo(cx + Math.cos(a) * 18, 236 + Math.sin(a) * 18); g.stroke();
-      g.fillStyle = ok ? '#68ffa8' : '#d8e4dc'; g.font = 'bold 11.5px monospace'; g.textAlign = 'center';
-      g.fillText(lbl, cx, 274); g.textAlign = 'left';
+    dials.forEach(([cx, norm, ok2, lbl]) => {
+      g.strokeStyle = '#2a2c2a'; g.lineWidth = 1; for (let k = 0; k <= 10; k++) { const a = -Math.PI * 1.25 + k / 10 * Math.PI * 1.5; g.beginPath(); g.moveTo(cx + Math.cos(a) * 26, 236 + Math.sin(a) * 26); g.lineTo(cx + Math.cos(a) * 30, 236 + Math.sin(a) * 30); g.stroke(); }
+      g.fillStyle = 'rgba(0,0,0,.35)'; g.beginPath(); g.arc(cx + 2, 239, 23, 0, 7); g.fill();
+      const kg = g.createRadialGradient(cx - 7, 229, 2, cx, 236, 23); kg.addColorStop(0, '#f0f2f4'); kg.addColorStop(.7, '#a0a4a8'); kg.addColorStop(1, '#5a5e62'); g.fillStyle = kg; g.beginPath(); g.arc(cx, 236, 22, 0, 7); g.fill();
+      for (let k = 0; k < 30; k++) { const a = k / 30 * Math.PI * 2 + norm * 5; g.strokeStyle = 'rgba(40,40,40,.5)'; g.beginPath(); g.moveTo(cx + Math.cos(a) * 19, 236 + Math.sin(a) * 19); g.lineTo(cx + Math.cos(a) * 22, 236 + Math.sin(a) * 22); g.stroke(); }
+      g.fillStyle = '#1a1a1a'; g.beginPath(); g.arc(cx, 236, 13, 0, 7); g.fill();
+      const a = -Math.PI * 1.25 + norm * Math.PI * 1.5; g.strokeStyle = '#f0f0f0'; g.lineWidth = 2.5; g.beginPath(); g.moveTo(cx + Math.cos(a) * 4, 236 + Math.sin(a) * 4); g.lineTo(cx + Math.cos(a) * 18, 236 + Math.sin(a) * 18); g.stroke();
+      g.fillStyle = ok2 ? '#0a6a2a' : '#1a1c1a'; g.font = 'bold 11.5px monospace'; g.textAlign = 'center'; g.fillText(lbl, cx, 276); g.textAlign = 'left';
     });
-
-    g.fillStyle = '#22302a'; g.fillRect(14, 284, 310, 18);
-    g.fillStyle = sync >= .86 ? '#48ff90' : '#e0a838';
-    g.fillRect(14, 284, 310 * clamp(sync, 0, 1), 18);
-    g.fillStyle = '#ffffff'; g.font = '12px sans-serif';
+    g.fillStyle = '#2a2c28'; g.fillRect(14, 284, 310, 18); g.fillStyle = sync >= .86 ? '#30d070' : '#d09028'; g.fillRect(14, 284, 310 * clamp(sync, 0, 1), 18);
+    g.fillStyle = '#1a1a18'; g.font = '12px sans-serif';
     g.fillText(`파형 동조율 ${(sync * 100).toFixed(0)}% · 잠금 ${Math.min(100, (hold * 100)) | 0}%`, 334, 297);
     status(sync >= .86 ? '공명 주파수 포착! 그대로 유지하세요…' : '노브를 드래그(또는 A/D, W/S, Q/E)해 두 파형을 겹치세요');
     raf = requestAnimationFrame(loop);

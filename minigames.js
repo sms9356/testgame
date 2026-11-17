@@ -994,21 +994,29 @@ function simon({ title = '순서 따라 하기', pads = ['도', '레', '미', '�
   keys(e => { if (e.type === 'keydown' && /^(Digit|Numpad)[1-4]$/.test(e.code)) press(+e.code.slice(-1) - 1); });
   MG.sm = { get seq() { return seq.slice(); }, get busy() { return busy; } };   // 테스트 훅
   play();
-  // 3D 실로폰: 나무 틀 위 색깔 음판 4개 (길이가 음높이대로 짧아진다) — 소리가 나면 음판이 빛나며 떨리고, 클릭한 음판을 채가 친다
+  // 3D 방송실 차임 조작반: 철판 위 조명 누름 버튼 4개 — 소리가 나면 버튼이 켜지며 들어가고 위 램프가 깜박인다 (클릭 또는 1~4 키)
   (() => { let rr; try { rr = new THREE.WebGLRenderer({ antialias: true }); } catch (e) { return; }
     rr.setPixelRatio(Math.min(2, devicePixelRatio || 1)); rr.setSize(440, 280); rr.outputColorSpace = THREE.SRGBColorSpace; rr.toneMapping = THREE.ACESFilmicToneMapping; rr.domElement.className = 'mgCanvas'; rr.domElement.dataset.own3d = '1'; $('mgBody').insertBefore(rr.domElement, box); box.style.display = 'none';
     const sc = new THREE.Scene(); sc.background = new THREE.Color(0x0c0a08); const cam = new THREE.PerspectiveCamera(34, 440 / 280, .05, 20); cam.position.set(0, 1.5, 1.4); cam.lookAt(0, 0, 0);
     sc.add(new THREE.HemisphereLight(0xfff0dc, 0x140c06, .5)); const L = new THREE.SpotLight(0xfff0dc, 14, 6, .7, .5, 1.4); L.position.set(.4, 2, 1); sc.add(L, L.target);
-    const wood = new THREE.MeshStandardMaterial({ color: 0x6a4424, roughness: .6 }); [-1, 1].forEach(sd => { const rail = new THREE.Mesh(new THREE.BoxGeometry(.05, .06, 1.1), wood); rail.position.set(sd * .2 * 0 + 0, -.03, 0); rail.position.z = 0; rail.rotation.y = 0; rail.position.x = sd * .55; sc.add(rail); });
-    const rail2 = new THREE.Mesh(new THREE.BoxGeometry(1.2, .05, .05), wood); rail2.position.set(0, -.03, -.25); sc.add(rail2); const rail3 = rail2.clone(); rail3.position.z = .25; sc.add(rail3);
-    const bars = cols.map((c3, i) => { const len = .8 - i * .1, m = new THREE.MeshStandardMaterial({ color: c3, roughness: .35, emissive: c3, emissiveIntensity: 0 }); const b = new THREE.Mesh(new THREE.BoxGeometry(.2, .04, len), m); b.position.set(-.39 + i * .26, .02, 0); b.userData.i = i; sc.add(b);
-      const lab = document.createElement('canvas'); lab.width = 64; lab.height = 64; const g2 = lab.getContext('2d'); g2.fillStyle = '#fff'; g2.font = 'bold 34px sans-serif'; g2.textAlign = 'center'; g2.textBaseline = 'middle'; g2.fillText(String(i + 1), 32, 34); const t = new THREE.CanvasTexture(lab);
-      const lp = new THREE.Mesh(new THREE.PlaneGeometry(.1, .1), new THREE.MeshBasicMaterial({ map: t, transparent: true })); lp.rotation.x = -Math.PI / 2; lp.position.set(b.position.x, .042, len / 2 - .08); sc.add(lp); return { b, m, sh: 0 }; });
-    const mallet = new THREE.Group(); const stick = new THREE.Mesh(new THREE.CylinderGeometry(.008, .008, .5, 8), wood); stick.rotation.z = Math.PI / 2.4; mallet.add(stick); const head = new THREE.Mesh(new THREE.SphereGeometry(.035, 14, 10), new THREE.MeshStandardMaterial({ color: 0xe8e0d0, roughness: .8 })); head.position.set(-.2, -.1, 0); mallet.add(head); sc.add(mallet);
+    // 학교 방송실 차임벨 · 구내방송 조작반: 연회색 철판 · 나사 · 각인 명판 · 사각 조명 누름 버튼 4개(누르면 쑥 들어가고 안쪽 램프가 켜진다) · 위쪽 VU 램프
+    const M = (c3, o = {}) => new THREE.MeshStandardMaterial(Object.assign({ color: c3, roughness: .45 }, o));
+    const plate = (() => { const o = document.createElement('canvas'); o.width = 512; o.height = 384; const q = o.getContext('2d'); q.fillStyle = '#b4b6ae'; q.fillRect(0, 0, 512, 384); for (let i = 0; i < 3000; i++) { q.fillStyle = `rgba(60,60,50,${Math.random() * .05})`; q.fillRect(Math.random() * 512, Math.random() * 384, 2, 2); }
+      q.fillStyle = '#222'; q.font = 'bold 22px sans-serif'; q.textAlign = 'center'; q.fillText('구내방송 · 차임 조작반', 256, 42); q.font = '14px sans-serif'; q.fillText('CHIME / PAGING  —  1 · 2 · 3 · 4', 256, 66);
+      q.font = 'bold 15px sans-serif'; pads.forEach((n, i) => q.fillText(`${i + 1}  ${n}`, 64 + i * 128, 344)); q.font = '11px monospace'; q.fillText('사용 후 반드시 전원을 끌 것 — 방송부', 256, 372);
+      [[16, 16], [496, 16], [16, 368], [496, 368]].forEach(([x, y]) => { q.fillStyle = '#7a7c76'; q.beginPath(); q.arc(x, y, 7, 0, 7); q.fill(); q.strokeStyle = '#333'; q.beginPath(); q.moveTo(x - 5, y); q.lineTo(x + 5, y); q.stroke(); });
+      const t = new THREE.CanvasTexture(o); t.colorSpace = THREE.SRGBColorSpace; return t; })();
+    const pnl = new THREE.Mesh(new THREE.BoxGeometry(1.3, .04, .98), [M(0x9a9c96), M(0x9a9c96), M(0xb4b6ae, { map: plate, roughness: .6, metalness: .3 }), M(0x9a9c96), M(0x9a9c96), M(0x9a9c96)]); pnl.position.y = -.03; sc.add(pnl);
+    const bars = cols.map((c3, i) => { const m = new THREE.MeshStandardMaterial({ color: c3, roughness: .25, emissive: c3, emissiveIntensity: 0, transparent: true, opacity: .92 });
+      const x = -.4875 + i * .325, bez = new THREE.Mesh(new THREE.BoxGeometry(.24, .03, .24), M(0x2a2a2a, { metalness: .5 })); bez.position.set(x, -.005, .06); sc.add(bez);
+      const b = new THREE.Mesh(new THREE.BoxGeometry(.19, .06, .19), m); b.position.set(x, .02, .06); b.userData.i = i; sc.add(b);
+      const lab = document.createElement('canvas'); lab.width = 64; lab.height = 64; const g2 = lab.getContext('2d'); g2.fillStyle = 'rgba(255,255,255,.85)'; g2.font = 'bold 34px sans-serif'; g2.textAlign = 'center'; g2.textBaseline = 'middle'; g2.fillText(String(i + 1), 32, 34); const t = new THREE.CanvasTexture(lab);
+      const lp = new THREE.Mesh(new THREE.PlaneGeometry(.1, .1), new THREE.MeshBasicMaterial({ map: t, transparent: true })); lp.rotation.x = -Math.PI / 2; lp.position.set(0, .031, 0); b.add(lp);
+      const vu = new THREE.Mesh(new THREE.SphereGeometry(.025, 12, 8), M(0x301010, { emissive: 0xff3020, emissiveIntensity: 0 })); vu.position.set(x, .0, -.24); sc.add(vu); return { b, m, sh: 0, vu }; });
     let hitT = 0, hitI = 0; const rc = new THREE.Raycaster(), mv = new THREE.Vector2();
     rr.domElement.addEventListener('mousedown', e => { const bb = rr.domElement.getBoundingClientRect(); mv.set((e.clientX - bb.left) / bb.width * 2 - 1, -((e.clientY - bb.top) / bb.height) * 2 + 1); rc.setFromCamera(mv, cam); const h = rc.intersectObjects(bars.map(o => o.b))[0]; if (h) { hitI = h.object.userData.i; hitT = 1; press(hitI); } });
-    const loop = () => { if (!MG.active) { rr.dispose(); rr.forceContextLoss && rr.forceContextLoss(); return; } bars.forEach((o, i) => { const on = el[i].classList.contains('on'); if (on) o.sh = 1; o.m.emissiveIntensity = on ? .9 : 0; o.sh *= .88; o.b.position.y = .02 + Math.sin(performance.now() / 18 + i) * .004 * o.sh; });
-      hitT = Math.max(0, hitT - .08); const bx = bars[hitI].b.position.x; mallet.position.set(bx + .22, .12 + (1 - Math.sin(hitT * Math.PI)) * .08, .1); rr.render(sc, cam); requestAnimationFrame(loop); }; requestAnimationFrame(loop); })();
+    const loop = () => { if (!MG.active) { rr.dispose(); rr.forceContextLoss && rr.forceContextLoss(); return; } bars.forEach((o, i) => { const on = el[i].classList.contains('on'); if (on) o.sh = 1; o.m.emissiveIntensity = on ? 1.1 : .05; o.sh *= .85; o.b.position.y = .02 - o.sh * .022; o.vu.material.emissiveIntensity = on ? 2 : 0; });
+      hitT = Math.max(0, hitT - .08); rr.render(sc, cam); requestAnimationFrame(loop); }; requestAnimationFrame(loop); })();
   return p;
 }
 
@@ -1091,7 +1099,7 @@ function ouija({ title = '테이프 판독', qs = [] }) {
   c.addEventListener('mousedown', down); addEventListener('mouseup', up); cleanups.push(() => removeEventListener('mouseup', up));
   let board = null;
   keys(e => { if (e.code === 'Space') hold = e.type === 'keydown'; if (e.type === 'keydown' && !ans && /^(Digit|Numpad)[1-9]$/.test(e.code)) { const b = qbox.querySelector(`button[data-i="${+e.code.slice(-1) - 1}"]`); if (b) b.onclick(); } });   // 숫자 키로 질문 고르기
-  qbox.querySelectorAll('button').forEach((b, i) => { b.textContent = `${i + 1}. ${b.textContent}`; }); qbox.querySelectorAll('button').forEach(b => { b.onclick = () => { if (ans) return; ans = qs[+b.dataset.i]; qbox.innerHTML = `<div class="mgInfo">“${ans.q}”</div>`; sfx.click && sfx.click(); started = true; }; });
+  qbox.querySelectorAll("button").forEach((b, i) => b.insertAdjacentHTML("afterbegin", `<small style="opacity:.7">${i + 1}</small> `)); qbox.querySelectorAll('button').forEach(b => { b.onclick = () => { if (ans) return; ans = qs[+b.dataset.i]; qbox.innerHTML = `<div class="mgInfo">“${ans.q}”</div>`; sfx.click && sfx.click(); started = true; }; });
   const loop = now => {
     const dt = Math.min(.12, (now - lastT) / 1000); lastT = now; t += dt;
     // 낡은 나무 분신사바 판: 결 · 얼룩 · 모서리 닳음 · 인두로 지진 자모 (판 자체는 한 번만 그려 둔다)

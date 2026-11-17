@@ -4923,7 +4923,13 @@ async function placeClassReps() {
     const m = /^(\d)학년 (\d+)반$/.exec(room.label); if (!m) continue; const id = `cr_${m[1]}_${m[2]}`;
     if (!world.TAPES[id] || world.props.some(q => q.kind === 'tape' && q.id === id)) continue;
     // 책상 높이 띠(바닥 +0.6~0.9)에 걸치는 메시만 — 건물 통짜 메시까지 광선을 쏘면 수십 초 멈춘다
-    const bx = new THREE.Box3(), loc = near(room.fx, room.y0 + 1, room.fz, 4).map(o => [o, bx.setFromObject(o).clone()]).filter(([, b]) => b.max.y > room.y0 + .6 && b.max.y < room.y0 + 1.4 && b.max.x - b.min.x < 4 && b.max.z - b.min.z < 4); let spot = null;
+    let spot = null;
+    // 앞줄 책상 충돌 상자 윗면을 먼저 쓴다 — 광선 검사는 합쳐진(배치) 메시를 못 맞혀 '책상 앞 허공'(앞 칸 +2.6m)으로 떨어지고, 이후 정리 루틴이 바닥 · 책상 속으로 내려 녹음기가 안 보였다
+    { let bd = 3; const busy = (x, z) => world.props.some(q => q.rbY != null && Math.abs(q.rbY - room.y0) < 1 && Math.hypot(q.x - x, q.z - z) < .6) || world.items.some(i => !i.taken && i.rbY != null && Math.abs(i.rbY - room.y0) < 1 && Math.hypot(i.pos.x - x, i.pos.z - z) < .6);
+      for (const B of [RBG.MAIN, RBG.ANX]) { if (!B || !B.col) continue; const [fx, fz] = B.toLocal(room.fx, room.fz);
+        for (const c of B.col) { if (c.y2 == null || c.noSurf || c.off || c.door) continue; const t = c.y2 - room.y0, y1 = c.y1 ?? room.y0; if (t < .6 || t > .9 || Math.abs(y1 - room.y0) > .1 || c.x2 - c.x1 > 1.2 || c.z2 - c.z1 > 1.2 || c.x2 - c.x1 < .4 || c.z2 - c.z1 < .4) continue;
+          const cx = (c.x1 + c.x2) / 2, cz = (c.z1 + c.z2) / 2, d = Math.hypot(cx - fx, cz - fz); if (d >= bd) continue; const [wx, wz] = B.toWorld(cx, cz); if (busy(wx, wz)) continue; bd = d; spot = [wx, c.y2, wz]; } } }
+    const bx = new THREE.Box3(), loc = spot ? [] : near(room.fx, room.y0 + 1, room.fz, 4).map(o => [o, bx.setFromObject(o).clone()]).filter(([, b]) => b.max.y > room.y0 + .6 && b.max.y < room.y0 + 1.4 && b.max.x - b.min.x < 4 && b.max.z - b.min.z < 4);
     for (let rr = 0; rr <= 2.4 && !spot; rr += .4) for (let a = 0; a < 8 && !spot; a++) { if (!a) await sliceYield(st); const an = a / 8 * Math.PI * 2, x = room.fx + Math.cos(an) * rr, z = room.fz + Math.sin(an) * rr;
       const col = loc.filter(([, b]) => x > b.min.x && x < b.max.x && z > b.min.z && z < b.max.z).map(([o]) => o); if (!col.length) continue;
       rc.set(new V(x, room.y0 + 1.4, z), new V(0, -1, 0)); rc.far = 1.2; const h = rc.intersectObjects(col, false)[0]; if (h && h.point.y > room.y0 + .6 && h.point.y < room.y0 + .9) spot = [x, h.point.y, z]; }
@@ -9364,6 +9370,9 @@ function declutterInteractables() {
   const vis = e => { bb.makeEmpty(); for (const o of objs(e.o)) bb.expandByObject(o); return bb.isEmpty() || bb.max.y - bb.min.y > 1.2 ? null : bb.clone(); };
   const room = (x, z, b0) => RBG.where ? RBG.where(x, z, b0 + .5) : null;
   for (const e of E) { if (!MOV.has(e.kind)) continue; const b0 = base(e), v = vis(e); if (!v) continue; const own = new Set(); objs(e.o).forEach(o => o.traverse(q => own.add(q))); const cx = (v.min.x + v.max.x) / 2, cz = (v.min.z + v.max.z) / 2;
+    if (!e.item && Math.hypot(cx - e.o.x, cz - e.o.z) > .8 && Math.hypot(cx - e.o.x, cz - e.o.z) < 15) { const dx = cx - e.o.x, dz = cz - e.o.z; e.o.x = cx; e.o.z = cz; if (e.o.px != null) { e.o.px += dx; e.o.pz += dz; } n++; }   // [E] 지점이 모형과 0.8m 넘게 떨어짐(옮기며 부품 상대 위치가 어긋난 녹음기 등) → 모형 자리로
+    { const dk = e.item && cols(cx, cz).find(c => c.y2 != null && !c.noSurf && c.y2 - b0 > .55 && c.y2 - b0 < .95 && Math.abs((c.y1 ?? b0) - b0) < .1 && c.x2 - c.x1 < 1.6 && c.z2 - c.z1 < 1.6 && v.max.y < c.y2 - .01 && v.min.y < c.y2 - .1);   // 줍는 물건이 책상 · 탁자 상판 밑(바닥 · 서랍 속)에 끼어 안 보임 → 상판 위로
+      if (dk) { shift(e, 0, dk.y2 + .004 - v.min.y, 0); n++; continue; } }
     const emb = cols(cx, cz).find(c => c.y1 != null && c.y1 < v.min.y - .02 && c.y2 > v.max.y + .05 && c.y2 - b0 < 1.3);   // 가구 속에 묻힘 → 그 가구 윗면으로
     if (emb && v.min.y - emb.y1 > .06) { rc.set(new THREE.Vector3(cx, v.min.y + .05, cz), dn); rc.far = .12; if (!rc.intersectObjects(nearMs(cx, cz), false).some(h => !own.has(h.object))) { shift(e, 0, emb.y2 + .004 - v.min.y, 0); n++; continue; } }   // 책상 밑 바닥 · 열린 선반 위(바로 아래 면이 있음)는 그대로
     const s = surf(cx, cz, b0, own); if (s != null && v.min.y - s > .25) { shift(e, 0, s + .004 - v.min.y, 0); n++; } }   // 허공에 뜸 → 아래 표면으로

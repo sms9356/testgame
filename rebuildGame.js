@@ -342,13 +342,14 @@ export function installRebuild({ THREE, scene, floors, world }) {
   const surfaceIn = (b, room, f) => {
     const h = f * FH, cands = [];
     for (const c of b.col) { if (c.y1 == null || c.y2 == null) continue; const top = c.y2 - h; if (top < .55 || top > 1.25 || c.y1 > h + .3) continue;
-      if (c.x1 < room.x1 - .05 || c.x2 > room.x2 + .05 || c.z1 < room.z1 - .05 || c.z2 > room.z2 + .05) continue; if ((c.x2 - c.x1) * (c.z2 - c.z1) < .12) continue; cands.push(c); }
+      if (c.noSurf || c.x1 < room.x1 - .05 || c.x2 > room.x2 + .05 || c.z1 < room.z1 - .05 || c.z2 > room.z2 + .05) continue; if ((c.x2 - c.x1) * (c.z2 - c.z1) < .12) continue; cands.push(c); }
+    const covered = (c, lx, lz) => b.col.some(k => k !== c && k.y2 != null && k.y2 > c.y2 + .05 && (k.y1 ?? -99) < c.y2 + .45 && lx > k.x1 && lx < k.x2 && lz > k.z1 && lz < k.z2);   // 위에 다른 가구(책상 상판 · 칸막이)가 덮인 면 — 놓으면 상판 밑에 숨는다
     if (!cands.length) return null;
     cands.sort((a, b2) => (surfUse.get(a) || 0) - (surfUse.get(b2) || 0) || rnd() - .5);
     const W = R._relocWorld, near = (x, z) => W && [...W.props.map(q => [q.x, q.z, q.rbY ?? (q.floor === 0 ? 0 : -99)]), ...W.items.filter(i => !i.taken).map(i => [i.pos.x, i.pos.z, i.rbY ?? -99])].some(([qx, qz, qh]) => Math.abs(qh - h) < 1 && Math.hypot(qx - x, qz - z) < 1.0);   // 다른 조사 대상과 1m 안이면 서로 가려 고를 수 없다
     for (const c of cands) for (let t = 0; t < 6; t++) {
       const lx = c.x1 + (c.x2 - c.x1) * (.2 + .6 * rnd()), lz = c.z1 + (c.z2 - c.z1) * (.2 + .6 * rnd()), [x, z] = b.toWorld(lx, lz);
-      if (near(x, z)) continue; surfUse.set(c, (surfUse.get(c) || 0) + 1); return { x, z, h, top: c.y2 };
+      if (near(x, z) || covered(c, lx, lz)) continue; surfUse.set(c, (surfUse.get(c) || 0) + 1); return { x, z, h, top: c.y2 };
     }
     return null;
   };
@@ -557,7 +558,8 @@ export function installRebuild({ THREE, scene, floors, world }) {
       else if (mk === 'panel') { g.add(new THREE.Mesh(new THREE.BoxGeometry(.5, .7, .12), VIS.panel)); const lab = new THREE.Mesh(new THREE.BoxGeometry(.18, .06, .01), VIS.warn); lab.position.set(0, .26, .065); g.add(lab); g.position.set(p.x, y + 1.4, p.z); }
       else { const bx = new THREE.Mesh(new THREE.BoxGeometry(.22, .3, .08), VIS.red); g.add(bx); const btn = new THREE.Mesh(new THREE.CylinderGeometry(.045, .045, .03, 16), VIS.btn); btn.rotation.x = Math.PI / 2; btn.position.set(0, -.03, .05); g.add(btn); g.position.set(p.x, y + 1.45, p.z); }
       if (mk !== 'tape') { let best = null, bd = 1e9; for (const B of [MAIN, ANX]) { const [lx, lz] = B.toLocal(p.x, p.z); if (Math.abs(lz - B.layout.zN) < bd) { bd = Math.abs(lz - B.layout.zN); best = B; } }   // 복도 외벽에 붙여 단다 (벽을 등지게)
-        if (best) { const [lx] = best.toLocal(p.x, p.z), [wx, wz] = best.toWorld(lx, best.layout.zN + .07), [ox, oz] = best.toWorld(lx, best.layout.zN + 1); g.position.x = wx; g.position.z = wz; g.rotation.y = Math.atan2(ox - wx, oz - wz); } }
+        if (best) { const [lx] = best.toLocal(p.x, p.z), [wx, wz] = best.toWorld(lx, best.layout.zN + .07), [ox, oz] = best.toWorld(lx, best.layout.zN + 1); g.position.x = wx; g.position.z = wz; g.rotation.y = Math.atan2(ox - wx, oz - wz);
+          if (Math.hypot(p.x - wx, p.z - wz) > 1.2) { const [px, pz] = best.toWorld(lx, best.layout.zN + .7), dx = px - p.x, dz = pz - p.z; p.x = px; p.z = pz; if (p.px != null) { p.px += dx; p.pz += dz; } } } }   // 모형을 복도 벽에 붙였으면 [E] 지점도 그 앞으로 (교무실 한가운데 프롬프트 · 12m 떨어진 벽에 배전반이 따로 놀던 것)
       group.add(g); p.visMesh = g; }
     return { n, drop };
   };
@@ -876,7 +878,7 @@ export function installRebuild({ THREE, scene, floors, world }) {
       if (flat && bb.max.y < rb + .6 && bb.min.y < rb + .05 && (bb.max.y - bb.min.y < .06 || bb.max.y - bb.min.y < .5)) {   // 바닥에 납작하게 깔린 쪽지 · 사진 · 명찰 → 가까운 책상 · 탁자 위로 (같은 방, 2.5m 안)
         { const c0 = bb.getCenter(V), s1 = R._sup(c0.x, c0.z, rb + 1.25); if (s1 != null && s1 > rb + .5 && s1 < rb + 1.2) { const dy = s1 + .004 - bb.min.y; for (const o of objs) { if (o.parent !== group) group.attach(o); o.position.y += dy; } onMove && onMove(dy); up++; return; } }   // 바로 위가 책상 · 탁자면 그 위로
         let best = null, bd = 2.5; for (const B of [MAIN, ANX]) { const [lx, lz] = B.toLocal(x, z); if (lx < -B.layout.L / 2 || lx > B.layout.L / 2 || lz < B.layout.zN || lz > B.layout.zS) continue; const rm = R.roomAt(x, z, rb + .1);
-          for (const c of B.col) { if (c.y2 == null || c.y2 < rb + .6 || c.y2 > rb + 1.15 || (c.y1 != null && (c.y1 > rb + .1 || c.y1 < rb - .5)) || c.x2 - c.x1 > 2.6 || c.z2 - c.z1 > 2.6 || c.x2 - c.x1 < .35 || c.z2 - c.z1 < .3) continue;
+          for (const c of B.col) { if (c.y2 == null || c.noSurf || c.y2 < rb + .6 || c.y2 > rb + 1.15 || (c.y1 != null && (c.y1 > rb + .1 || c.y1 < rb - .5)) || c.x2 - c.x1 > 2.6 || c.z2 - c.z1 > 2.6 || c.x2 - c.x1 < .35 || c.z2 - c.z1 < .3) continue;
             const cx = (c.x1 + c.x2) / 2, cz = (c.z1 + c.z2) / 2, d = Math.hypot(cx - lx, cz - lz); if (d >= bd) continue; const [wx, wz] = B.toWorld(cx, cz); if (rm && (R.roomAt(wx, wz, rb + .1) || {}).id !== rm.id) continue; if (self && occ(wx, wz, rb, self)) continue; bd = d; best = { x: wx, z: wz, y: c.y2 }; } }
         if (best) { const c0 = bb.getCenter(V), dx = best.x - c0.x, dz = best.z - c0.z, dy = best.y + .004 - bb.min.y; for (const o of objs) { if (o.parent !== group) group.attach(o); o.position.x += dx; o.position.y += dy; o.position.z += dz; } onMove && onMove(dy, dx, dz); up++; return; } }
       if (bb.max.y > rb + .015 && bb.min.y > rb - .12) return;   // 바닥 위에 제대로 있다

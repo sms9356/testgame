@@ -2415,7 +2415,7 @@ function filmFocus({ title = '영사기 — 듀얼 렌즈 초점 & 필름 트래
     const flick = .9 + Math.random() * .1, fx0 = 54, fy0 = 26, fw = 352, fh = 190;
     g.save(); g.beginPath(); g.moveTo(fx0 + 4, fy0); g.lineTo(fx0 + fw - 4, fy0); g.lineTo(fx0 + fw, fy0 + fh); g.lineTo(fx0, fy0 + fh); g.closePath(); g.clip();
     const lamp = g.createRadialGradient(230, 118, 20, 230, 121, 230); lamp.addColorStop(0, `rgba(255,244,214,${flick})`); lamp.addColorStop(1, `rgba(150,128,90,${flick * .9})`); g.fillStyle = lamp; g.fillRect(fx0, fy0, fw, fh);
-    const oy = ((roll % 200) + 200) % 200 - 100, blur = clamp(df * 16, 0, 10);
+    const oy = (((roll + 100) % 200) + 200) % 200 - 100, blur = clamp(df * 16, 0, 10);
     g.filter = blur > .3 ? `blur(${blur.toFixed(1)}px)` : 'none';
     [-1, 0, 1].forEach(fi => {   // 위아래로 이어진 필름 프레임 (트래킹이 어긋나면 프레임 경계 검은 띠가 화면을 지나간다)
       const yy = oy + fi * 200;
@@ -2426,7 +2426,7 @@ function filmFocus({ title = '영사기 — 듀얼 렌즈 초점 & 필름 트래
         g.strokeRect(80, 44, 300, 150); g.font = 'bold 18px "Noto Serif KR", serif'; g.fillText('1998. 10. 12 — 제30주년 리허설 기록', 92, 82);
         g.font = '14px sans-serif'; g.fillText('3학년 2반 방송반: 윤하늘 · 강민아 · 이수아', 96, 118); g.fillText('“마지막 하교 방송 테이프는 방송부스에…”', 96, 148); g.restore();
       });
-      g.fillStyle = 'rgba(10,8,6,.92)'; g.fillRect(fx0, 210, fw, 16);   // 프레임 사이 검은 띠
+      g.fillStyle = 'rgba(10,8,6,.92)'; g.fillRect(fx0, 216, fw, 10);   // 프레임 사이 검은 띠
       g.restore();
     });
     g.filter = 'none';
@@ -2447,78 +2447,82 @@ function filmFocus({ title = '영사기 — 듀얼 렌즈 초점 & 필름 트래
 
 /* ---------- 22. 3연동 수압 밸브 평형 퍼즐 (수영장 수질관리실 / 기계실) ---------- */
 function valveBalance({ title = '수질관리실 — 3연동 배수 수압 밸브 동조' } = {}) {
-  const p = open(title, '밸브 1 · 2 · 3을 클릭(또는 <b>1 · 2 · 3 키</b>)해 회전시켜 세 배관의 수압을 모두 <b style="color:#60ffa0">안전 구역(42 ~ 58 PSI)</b>에 맞춘 뒤 <b>배수 레버(Space)</b>를 당겨라');
+  const p = open(title, '밸브 1 · 2 · 3을 클릭(또는 <b>1 · 2 · 3 키</b>)해 회전시켜 세 배관의 수압을 모두 <b style="color:#60ffa0">안전 구역(42 ~ 58 PSI)</b>에 맞춘 뒤 <b>배수 레버(Space)</b>를 당겨라<br>반대로 잠그기: <b>우클릭</b> 또는 <b>Q · W · E</b>');
   const c = canvas(460, 290), g = c.getContext('2d');
-  let psi = [24, 72, 30], angs = [0, 0, 0];
-  screen3D(c, { kind: 'metal', prop: 'valves', anim: () => ({ psi, angs }), pick: i => turnValve(i) });
-  const turnValve = i => {
+  let psi = [24, 72, 30], angs = [0, 0, 0], shown = [24, 72, 30], lastT = performance.now(), lever = 0;
+  screen3D(c, { kind: 'metal', prop: 'valves', anim: () => ({ psi: shown, angs }), pick: (i, d) => turnValve(i, d) });
+  const turnValve = (i, dir = 1) => {
     if (!finish) return;
     sfx.clank ? sfx.clank(.6) : sfx.click();
-    angs[i] += Math.PI / 3;
-    if (i === 0) { psi[0] = clamp(psi[0] + 12, 10, 90); psi[1] = clamp(psi[1] - 7, 10, 90); }
-    else if (i === 1) { psi[1] = clamp(psi[1] + 11, 10, 90); psi[2] = clamp(psi[2] - 8, 10, 90); psi[0] = clamp(psi[0] - 4, 10, 90); }
-    else if (i === 2) { psi[2] = clamp(psi[2] + 13, 10, 90); psi[0] = clamp(psi[0] - 6, 10, 90); }
-    draw();
+    angs[i] += dir * Math.PI / 3;
+    const d = dir;
+    if (i === 0) { psi[0] = clamp(psi[0] + 12 * d, 10, 90); psi[1] = clamp(psi[1] - 7 * d, 10, 90); }
+    else if (i === 1) { psi[1] = clamp(psi[1] + 11 * d, 10, 90); psi[2] = clamp(psi[2] - 8 * d, 10, 90); psi[0] = clamp(psi[0] - 4 * d, 10, 90); }
+    else if (i === 2) { psi[2] = clamp(psi[2] + 13 * d, 10, 90); psi[0] = clamp(psi[0] - 6 * d, 10, 90); }
   };
   const pullLever = () => {
     if (!finish) return;
-    if (psi.every(v => v >= 42 && v <= 58)) {
-      sfx.unlock(); status('3연동 수압 평형 달성! 다이빙 풀 배수 밸브가 개방됩니다!', 'ok');
-      setTimeout(() => close(true), 450);
-    } else {
-      sfx.buzz(); status('수압 불균형! 세 게이지 모두 42~58 PSI 초록 구간에 들어와야 합니다.', 'err');
-    }
+    if (psi.every(v => v >= 42 && v <= 58)) { lever = 1; sfx.unlock(); sfx.splash && setTimeout(() => sfx.splash(), 200); status('3연동 수압 평형 달성! 다이빙 풀 배수 밸브가 개방됩니다!', 'ok'); setTimeout(() => close(true), 650); }
+    else { lever = .4; sfx.buzz(); status('수압 불균형! 세 게이지 모두 42~58 PSI 초록 구간에 들어와야 합니다.', 'err'); }
   };
-  c.addEventListener('click', e => {
-    const r = c.getBoundingClientRect(), x = (e.clientX - r.left) * c.width / r.width, y = (e.clientY - r.top) * c.height / r.height;
-    if (y > 232) { pullLever(); return; }
-    if (x < 160) turnValve(0);
-    else if (x < 305) turnValve(1);
-    else turnValve(2);
-  });
+  const pickAt = e => { const r = c.getBoundingClientRect(), x = (e.clientX - r.left) * c.width / r.width, y = (e.clientY - r.top) * c.height / r.height; return { x, y, i: x < 160 ? 0 : x < 305 ? 1 : 2 }; };
+  c.addEventListener('click', e => { const { y, i } = pickAt(e); if (y > 232) { pullLever(); return; } turnValve(i, e.shiftKey ? -1 : 1); });
+  c.addEventListener('contextmenu', e => { e.preventDefault(); const { y, i } = pickAt(e); if (y <= 232) turnValve(i, -1); });
   keys(e => {
     if (e.type !== 'keydown') return;
-    if (e.code === 'Digit1' || e.code === 'KeyA') turnValve(0);
-    else if (e.code === 'Digit2' || e.code === 'KeyS') turnValve(1);
-    else if (e.code === 'Digit3' || e.code === 'KeyD') turnValve(2);
+    const rev = e.shiftKey ? -1 : 1;
+    if (e.code === 'Digit1' || e.code === 'KeyA') turnValve(0, rev);
+    else if (e.code === 'Digit2' || e.code === 'KeyS') turnValve(1, rev);
+    else if (e.code === 'Digit3' || e.code === 'KeyD') turnValve(2, rev);
+    else if (e.code === 'KeyQ') turnValve(0, -1);
+    else if (e.code === 'KeyW') turnValve(1, -1);
+    else if (e.code === 'KeyE') turnValve(2, -1);
     else if (e.code === 'Space' || e.code === 'Enter') pullLever();
   });
-  function draw() {
-    g.fillStyle = '#0d1316'; g.fillRect(0, 0, c.width, c.height);
-    const xs = [88, 230, 372];
-    xs.forEach((cx, i) => {
-      const v = psi[i], ok = v >= 42 && v <= 58;
-      // 압력 게이지 원판
-      g.fillStyle = '#1d262b'; g.beginPath(); g.arc(cx, 82, 52, 0, 7); g.fill();
-      g.strokeStyle = ok ? '#58ff9a' : '#687880'; g.lineWidth = 3.5; g.stroke();
-      // 초록 안전 구간 호
-      g.strokeStyle = 'rgba(88,255,154,.45)'; g.lineWidth = 7;
-      g.beginPath(); g.arc(cx, 82, 42, -Math.PI * .65, -Math.PI * .35); g.stroke();
-      // 게이지 바늘
-      const na = -Math.PI + (v / 100) * Math.PI;
-      g.strokeStyle = ok ? '#60ffa0' : '#ff6850'; g.lineWidth = 3;
-      g.beginPath(); g.moveTo(cx, 82); g.lineTo(cx + Math.cos(na) * 40, 82 + Math.sin(na) * 40); g.stroke();
-      g.fillStyle = '#e8f0f2'; g.font = 'bold 14px monospace';
-      g.fillText(`${v.toFixed(0)} PSI`, cx - 26, 118);
-
-      // 붉은 주철 밸브 핸들
-      g.save(); g.translate(cx, 184); g.rotate(angs[i]);
-      g.strokeStyle = '#c83228'; g.lineWidth = 6;
-      g.beginPath(); g.arc(0, 0, 28, 0, 7); g.stroke();
-      for (let k = 0; k < 3; k++) {
-        const a = k * Math.PI / 1.5;
-        g.beginPath(); g.moveTo(Math.cos(a) * -28, Math.sin(a) * -28); g.lineTo(Math.cos(a) * 28, Math.sin(a) * 28); g.stroke();
-      }
-      g.restore();
-      g.fillStyle = '#b8c4c8'; g.font = '12px sans-serif'; g.fillText(`[${i + 1}] 밸브 ${i + 1} 돌리기`, cx - 42, 226);
+  const brass = (x0, y0, r) => { const b = g.createRadialGradient(x0 - r * .35, y0 - r * .35, r * .1, x0, y0, r); b.addColorStop(0, '#fff2b8'); b.addColorStop(.45, '#c89a3a'); b.addColorStop(1, '#5a3c10'); return b; };
+  const A0 = Math.PI * .75, SW = Math.PI * 1.5, vA = v => A0 + v / 100 * SW;   // 게이지 눈금: 0~100 PSI 를 270° 에
+  function draw(now) {
+    // 페인트 벗겨진 콘크리트 벽 + 가로 주관(아연도 강관)
+    g.fillStyle = '#4c524c'; g.fillRect(0, 0, c.width, c.height);
+    for (let k = 0; k < 60; k++) { g.fillStyle = `rgba(${k % 2 ? 30 : 120},${k % 2 ? 34 : 120},${k % 2 ? 30 : 110},.06)`; g.fillRect((k * 97) % 460, (k * 53) % 290, 30 + k % 20, 12 + k % 9); }
+    const pipe = g.createLinearGradient(0, 140, 0, 162); pipe.addColorStop(0, '#9aa0a2'); pipe.addColorStop(.4, '#e0e4e4'); pipe.addColorStop(1, '#4a5052'); g.fillStyle = pipe; g.fillRect(0, 141, 460, 20);
+    g.fillStyle = 'rgba(120,70,30,.35)'; for (let k = 0; k < 9; k++) g.fillRect(20 + k * 50, 156, 14, 5);   // 녹물 자국
+    [88, 230, 372].forEach((cx, i) => {
+      const v = shown[i], ok = psi[i] >= 42 && psi[i] <= 58;
+      // 게이지 연결관 · 황동 압력계
+      g.fillStyle = '#8a7a4a'; g.fillRect(cx - 5, 132, 10, 12);
+      g.save(); g.shadowColor = 'rgba(0,0,0,.6)'; g.shadowBlur = 8; g.shadowOffsetY = 3; g.fillStyle = brass(cx, 74, 54); g.beginPath(); g.arc(cx, 74, 54, 0, 7); g.fill(); g.restore();
+      g.fillStyle = '#f2efe4'; g.beginPath(); g.arc(cx, 74, 46, 0, 7); g.fill();
+      g.lineWidth = 6; g.strokeStyle = 'rgba(40,180,90,.8)'; g.beginPath(); g.arc(cx, 74, 38, vA(42), vA(58)); g.stroke();
+      g.strokeStyle = 'rgba(210,40,30,.8)'; g.beginPath(); g.arc(cx, 74, 38, vA(80), vA(100)); g.stroke();
+      g.strokeStyle = '#1a1a1a'; for (let t = 0; t <= 100; t += 2) { const a = vA(t), r1 = t % 10 ? 40 : 36; g.lineWidth = t % 10 ? .8 : 1.6; g.beginPath(); g.moveTo(cx + Math.cos(a) * r1, 74 + Math.sin(a) * r1); g.lineTo(cx + Math.cos(a) * 44, 74 + Math.sin(a) * 44); g.stroke(); }
+      g.fillStyle = '#1a1a1a'; g.font = '7.5px sans-serif'; g.textAlign = 'center'; for (let t = 0; t <= 100; t += 20) { const a = vA(t); g.fillText(String(t), cx + Math.cos(a) * 28, 74 + Math.sin(a) * 28 + 3); }
+      g.font = 'bold 8px sans-serif'; g.fillText('PSI', cx, 98); g.font = '6.5px sans-serif'; g.fillStyle = '#555'; g.fillText('SEOIL GAUGE', cx, 60); g.textAlign = 'left';
+      const na = vA(v) + Math.sin(now / 90 + i) * .006 * (v > 75 ? 3 : 1);
+      g.strokeStyle = '#111'; g.lineWidth = 2; g.beginPath(); g.moveTo(cx - Math.cos(na) * 8, 74 - Math.sin(na) * 8); g.lineTo(cx + Math.cos(na) * 40, 74 + Math.sin(na) * 40); g.stroke();
+      g.strokeStyle = '#c01818'; g.lineWidth = 2; g.beginPath(); g.moveTo(cx + Math.cos(na) * 30, 74 + Math.sin(na) * 30); g.lineTo(cx + Math.cos(na) * 41, 74 + Math.sin(na) * 41); g.stroke();
+      g.fillStyle = brass(cx, 74, 5); g.beginPath(); g.arc(cx, 74, 4.5, 0, 7); g.fill();
+      g.fillStyle = 'rgba(255,255,255,.22)'; g.beginPath(); g.ellipse(cx - 14, 56, 22, 10, -.6, 0, 7); g.fill();   // 유리 반사
+      g.fillStyle = ok ? '#b8ffcc' : '#ffd8c8'; g.font = 'bold 12px monospace'; g.fillText(`${psi[i].toFixed(0)} PSI`, cx - 24, 138 - 6 + 0);
+      // 황동 게이트 밸브 몸체 + 핸들 휠 (돌린 만큼 회전)
+      g.fillStyle = brass(cx, 182, 22); g.beginPath(); for (let k = 0; k < 6; k++) { const a = k * Math.PI / 3 + Math.PI / 6; g[k ? 'lineTo' : 'moveTo'](cx + Math.cos(a) * 20, 162 + Math.sin(a) * 14); } g.fill();
+      g.fillStyle = '#8a6a2a'; g.fillRect(cx - 3, 162, 6, 22);
+      g.save(); g.translate(cx, 192); g.rotate(angs[i]);
+      g.strokeStyle = '#3a2408'; g.lineWidth = 9; g.beginPath(); g.arc(0, 0, 28, 0, 7); g.stroke();
+      g.strokeStyle = brass(-6, -6, 30); g.lineWidth = 7; g.beginPath(); g.arc(0, 0, 28, 0, 7); g.stroke();
+      for (let k = 0; k < 5; k++) { const a = k * Math.PI * 2 / 5; g.strokeStyle = '#a07a2a'; g.lineWidth = 4; g.beginPath(); g.moveTo(0, 0); g.lineTo(Math.cos(a) * 27, Math.sin(a) * 27); g.stroke(); }
+      for (let k = 0; k < 10; k++) { const a = k * Math.PI / 5; g.fillStyle = '#6a4a14'; g.beginPath(); g.arc(Math.cos(a) * 28, Math.sin(a) * 28, 2, 0, 7); g.fill(); }
+      g.fillStyle = brass(-2, -2, 9); g.beginPath(); g.arc(0, 0, 8, 0, 7); g.fill(); g.restore();
+      g.fillStyle = '#e4e8e0'; g.font = '11px sans-serif'; g.fillText(`[${i + 1}] 밸브 ${i + 1} 돌리기`, cx - 42, 234);
     });
     const allOk = psi.every(v => v >= 42 && v <= 58);
-    g.fillStyle = allOk ? '#288854' : '#28343c'; g.fillRect(60, 238, 340, 42);
-    g.strokeStyle = allOk ? '#70ffb0' : '#586870'; g.lineWidth = 2; g.strokeRect(60, 238, 340, 42);
-    g.fillStyle = '#ffffff'; g.font = 'bold 14px sans-serif';
-    g.fillText(allOk ? '✦ 수압 동조 완료 — [Space / 클릭] 배수 개방!' : '[Space / 클릭] 메인 배수 레버 (모두 42~58 PSI 필요)', 88, 264);
+    g.fillStyle = allOk ? '#2a7a4c' : '#2c3236'; g.fillRect(60, 242, 340, 40); g.strokeStyle = allOk ? '#70ffb0' : '#5a6468'; g.lineWidth = 2; g.strokeRect(60, 242, 340, 40);
+    g.save(); g.translate(82, 262); g.rotate(-.6 + lever * 1.1); g.fillStyle = '#c8202a'; g.fillRect(-3, -18, 6, 18); g.fillStyle = '#111'; g.beginPath(); g.arc(0, -18, 5, 0, 7); g.fill(); g.restore();
+    g.fillStyle = '#ffffff'; g.font = 'bold 13px sans-serif';
+    g.fillText(allOk ? '✦ 수압 동조 완료 — [Space / 클릭] 배수 개방!' : '[Space / 클릭] 메인 배수 레버 (모두 42~58 PSI 필요)', 98, 267);
   }
-  draw();
+  const loop = now => { const dt = Math.min(.08, (now - lastT) / 1000); lastT = now; shown = shown.map((v, i) => v + (psi[i] - v) * Math.min(1, dt * 6)); lever = Math.max(0, lever - dt * .8); draw(now); raf = requestAnimationFrame(loop); };
+  raf = requestAnimationFrame(loop);
   return p;
 }
 
@@ -2575,10 +2579,12 @@ function mountSketchLineCanvas(title) {
       draw();
     }
   };
+  let hover = false;
+  c.onpointerleave = () => { hover = false; draw(); };
   c.onpointermove = e => {
-    if (!dragging) return;
     const p = toLocal(e);
-    mx = p.x; my = p.y;
+    mx = p.x; my = p.y; hover = true;
+    if (!dragging) { draw(); return; }
     if (userStrokes.length) userStrokes[userStrokes.length - 1].push({ x: p.x, y: p.y });
     const nextPt = pts[Math.min(pts.length - 1, curIdx + 1)];
     if (Math.hypot(p.x - nextPt.x, p.y - nextPt.y) < 34) {
@@ -2595,59 +2601,56 @@ function mountSketchLineCanvas(title) {
     if (e.code === 'Space' || e.code === 'Enter' || /^Digit[1-6]$/.test(e.code)) advancePoint();
   });
 
+  // 흑연 선: 여러 겹의 가는 선을 살짝 어긋나게 겹쳐 연필 결을 낸다
+  const graphite = (pts2, alpha, width, close = false) => {
+    if (pts2.length < 2) return;
+    g.lineCap = 'round'; g.lineJoin = 'round';
+    for (let k = 0; k < 4; k++) {
+      g.strokeStyle = `rgba(48,46,52,${alpha * (k ? .45 : 1)})`; g.lineWidth = k ? width * .45 : width;
+      g.beginPath(); pts2.forEach((p2, i) => { const j1 = Math.sin(i * 12.9 + k * 3.1) * (k ? .9 : .3), j2 = Math.cos(i * 7.3 + k * 1.7) * (k ? .9 : .3); i ? g.lineTo(p2.x + j1, p2.y + j2) : g.moveTo(p2.x + j1, p2.y + j2); }); if (close) g.closePath(); g.stroke();
+    }
+  };
   function draw() {
-    // 빈티지 화실 스케치북 종이 질감 배경
-    g.fillStyle = '#ece3ce'; g.fillRect(0, 0, c.width, c.height);
-    g.strokeStyle = 'rgba(110,92,68,0.14)'; g.lineWidth = 1;
-    for (let y = 18; y < c.height; y += 22) { g.beginPath(); g.moveTo(0, y); g.lineTo(c.width, y); g.stroke(); }
-    // 액자 테두리
-    g.strokeStyle = '#4a3b2a'; g.lineWidth = 4; g.strokeRect(8, 8, c.width - 16, c.height - 16);
-    // 배경 연필 밑그림 가이드 (전체 점선 루프)
-    g.save();
-    g.setLineDash([6, 6]); g.strokeStyle = '#9a8c76'; g.lineWidth = 2.2;
-    g.beginPath();
-    pts.forEach((pt, i) => { if (i === 0) g.moveTo(pt.x, pt.y); else g.lineTo(pt.x, pt.y); });
-    g.closePath(); g.stroke();
-    g.restore();
-
-    // 사용자가 자유 드래그한 목탄 터치 흔적
-    g.strokeStyle = 'rgba(45,38,32,0.45)'; g.lineWidth = 3.5; g.lineCap = 'round';
-    userStrokes.forEach(st => {
-      if (st.length < 2) return;
-      g.beginPath(); st.forEach((p, i) => i ? g.lineTo(p.x, p.y) : g.moveTo(p.x, p.y)); g.stroke();
-    });
-
-    // 확정된 목탄 데생 굵은 선 (0 .. curIdx)
+    // 화실 스케치북: 종이 결 + 위쪽 스프링 제본
+    mgPaper(g, 0, 0, c.width, c.height, '#efe9da', 'sketch');
+    g.fillStyle = '#c8c0ae'; g.fillRect(0, 0, c.width, 14);
+    for (let x = 18; x < c.width; x += 20) { g.fillStyle = '#2a2622'; g.beginPath(); g.arc(x, 8, 3, 0, 7); g.fill(); g.strokeStyle = '#9aa0a6'; g.lineWidth = 2; g.beginPath(); g.arc(x, 4, 5, Math.PI * .1, Math.PI * .9, true); g.stroke(); }
+    // 연한 밑그림 가이드 (HB 로 가볍게)
+    g.save(); g.setLineDash([5, 7]); graphite([...pts, pts[0]], .16, 1.3); g.restore();
+    // 사용자가 자유롭게 그은 연필 자국
+    userStrokes.forEach(st => graphite(st, .28, 1.6));
+    // 확정된 4B 윤곽선 (0 .. curIdx) + 끝나면 사선 해칭 음영
     if (curIdx > 0) {
-      g.strokeStyle = '#1e1915'; g.lineWidth = 4.5; g.lineCap = 'round'; g.lineJoin = 'round';
-      g.beginPath();
-      for (let i = 0; i <= curIdx; i++) {
-        if (i === 0) g.moveTo(pts[i].x, pts[i].y); else g.lineTo(pts[i].x, pts[i].y);
+      graphite(pts.slice(0, curIdx + 1), .85, 2.6, curIdx >= pts.length - 1);
+      if (curIdx >= pts.length - 1) {
+        g.save(); g.beginPath(); pts.forEach((pt, i) => i ? g.lineTo(pt.x, pt.y) : g.moveTo(pt.x, pt.y)); g.closePath(); g.clip();
+        g.strokeStyle = 'rgba(50,48,54,.18)'; g.lineWidth = 1; for (let k = -300; k < 500; k += 7) { g.beginPath(); g.moveTo(k, 0); g.lineTo(k + 220, 290); g.stroke(); } g.restore();
       }
-      if (curIdx >= pts.length - 1) g.closePath();
-      g.stroke();
-      // 목탄 해칭 음영 효과
-      g.fillStyle = 'rgba(40,32,24,0.10)';
-      g.fill();
     }
-
-    // 드래그 중일 때 현재 포인트에서 마우스까지 고무줄 가이드라인
-    if (dragging && curIdx < pts.length - 1) {
-      g.strokeStyle = '#b84a28'; g.lineWidth = 2.5;
-      g.beginPath(); g.moveTo(pts[curIdx].x, pts[curIdx].y); g.lineTo(mx, my); g.stroke();
-    }
-
-    // 각 포인트 원형 마커 및 라벨
+    // 드래그 중: 현재 점에서 연필 끝까지 이어지는 선
+    if (dragging && curIdx < pts.length - 1) graphite([pts[curIdx], { x: mx, y: my }], .5, 1.8);
+    // 번호 점: 연필로 그린 동그라미 · 다음 점은 붉은 색연필
     pts.forEach((pt, i) => {
       const done = i <= curIdx, isNext = i === curIdx + 1;
-      g.fillStyle = done ? '#287a48' : isNext ? '#d44820' : '#7a6c58';
-      g.beginPath(); g.arc(pt.x, pt.y, isNext ? 14 : 11, 0, Math.PI * 2); g.fill();
-      g.strokeStyle = '#fff8e8'; g.lineWidth = 2; g.stroke();
-      g.fillStyle = '#ffffff'; g.font = 'bold 12px sans-serif';
-      g.fillText(String(i + 1), pt.x - 4, pt.y + 4);
-      g.fillStyle = isNext ? '#9e2812' : '#3a3024'; g.font = (isNext ? 'bold ' : '') + '11.5px sans-serif';
+      g.strokeStyle = isNext ? 'rgba(190,50,30,.9)' : done ? 'rgba(40,40,46,.85)' : 'rgba(80,76,70,.55)'; g.lineWidth = isNext ? 2 : 1.3;
+      g.beginPath(); g.ellipse(pt.x, pt.y, isNext ? 13 : 10, isNext ? 12 : 9.5, .3, 0, Math.PI * 1.92); g.stroke();
+      if (done) { g.fillStyle = 'rgba(40,40,46,.75)'; g.beginPath(); g.arc(pt.x, pt.y, 3, 0, 7); g.fill(); }
+      g.fillStyle = isNext ? '#a8301a' : '#3a3630'; g.font = '16px "East Sea Dokdo", cursive, sans-serif';
+      g.fillText(String(i + 1), pt.x + 9, pt.y - 9);
+      g.font = (isNext ? 'bold ' : '') + '11px sans-serif'; g.fillStyle = isNext ? '#9e2812' : 'rgba(58,48,36,.8)';
       g.fillText(pt.label, pt.x - 34, pt.y + (pt.y < 120 ? -18 : 26));
     });
+    g.strokeStyle = '#4a3b2a'; g.lineWidth = 3; g.strokeRect(1.5, 1.5, c.width - 3, c.height - 3);
+    // 연필 커서 (노란 육각 연필 · 깎은 나무 · 흑연 심)
+    if (hover || dragging) {
+      g.save(); g.translate(mx, my); g.rotate(-.75);
+      g.fillStyle = 'rgba(0,0,0,.18)'; g.fillRect(6, 4, 70, 9);
+      g.fillStyle = '#2a2a2e'; g.beginPath(); g.moveTo(0, 0); g.lineTo(5, -2); g.lineTo(5, 2); g.fill();
+      g.fillStyle = '#e2c49a'; g.beginPath(); g.moveTo(5, -2); g.lineTo(16, -5); g.lineTo(16, 5); g.lineTo(5, 2); g.fill();
+      g.fillStyle = '#e8b818'; g.fillRect(16, -5, 52, 10); g.fillStyle = '#c89a10'; g.fillRect(16, 1.5, 52, 3.5); g.fillStyle = '#f8d850'; g.fillRect(16, -5, 52, 2);
+      g.fillStyle = '#b0b4b8'; g.fillRect(68, -5, 7, 10); g.fillStyle = '#e88a9a'; g.fillRect(75, -5, 8, 10);
+      g.fillStyle = '#1a1a1a'; g.font = 'bold 5px sans-serif'; g.fillText('4B', 50, 1); g.restore();
+    }
   }
   draw();
 }
@@ -2709,51 +2712,54 @@ function voltageSync({ title = '⚡ 노후 배전반 — 3상(R·S·T) 전압 �
     else if (e.code === 'Space' || e.code === 'Enter') tripBreaker();
   });
 
+  const nv = volts.slice(), nvv = [0, 0, 0];   // 바늘: 스프링-댐퍼로 따라가며 살짝 넘쳤다 돌아온다
+  const rivet = (x, y) => { const rg = g.createRadialGradient(x - 1, y - 1, .5, x, y, 3.5); rg.addColorStop(0, '#e8ece8'); rg.addColorStop(1, '#4a524c'); g.fillStyle = rg; g.beginPath(); g.arc(x, y, 3.2, 0, 7); g.fill(); };
   const loop = now => {
     const dt = Math.min(.08, (now - lastT) / 1000); lastT = now;
     syncAng = (syncAng + dt * 2.8) % (Math.PI * 2);
-
-    g.fillStyle = '#0d1216'; g.fillRect(0, 0, c.width, c.height);
+    for (let k = 0; k < 3; k++) { nvv[k] += ((volts[k] - nv[k]) * 60 - nvv[k] * 7) * dt; nv[k] += nvv[k] * dt; }
+    // 배전반 철판 (회녹색 도장 · 리벳)
+    const pn = g.createLinearGradient(0, 0, 0, 310); pn.addColorStop(0, '#5e6e64'); pn.addColorStop(1, '#46544c'); g.fillStyle = pn; g.fillRect(0, 0, c.width, c.height);
+    g.fillStyle = 'rgba(255,255,255,.03)'; for (let k = 0; k < 30; k++) g.fillRect((k * 71) % 500, (k * 37) % 310, 40, 1);
+    [[8, 8], [492, 8], [8, 302], [492, 302], [334, 8], [334, 302]].forEach(([x, y]) => rivet(x, y));
     ['R상 (L1)', 'S상 (L2)', 'T상 (L3)'].forEach((lb, i) => {
-      const cx = 66 + i * 104, v = volts[i], ok = v >= 215 && v <= 225;
-      g.fillStyle = '#182026'; g.fillRect(cx - 46, 18, 92, 268);
-      g.strokeStyle = ok ? '#58ff9a' : '#465662'; g.lineWidth = 2; g.strokeRect(cx - 46, 18, 92, 268);
-      g.fillStyle = '#d8e4ec'; g.font = 'bold 12px sans-serif'; g.fillText(lb, cx - 26, 40);
-
-      // 아날로그 전압계
-      g.fillStyle = '#10161a'; g.beginPath(); g.arc(cx, 102, 38, 0, 7); g.fill();
-      g.strokeStyle = ok ? '#58ff9a' : '#687882'; g.lineWidth = 2.5; g.stroke();
-      const na = -Math.PI + ((v - 170) / 90) * Math.PI;
-      g.strokeStyle = ok ? '#60ffa0' : '#ff6850'; g.lineWidth = 2.5;
-      g.beginPath(); g.moveTo(cx, 102); g.lineTo(cx + Math.cos(na) * 32, 102 + Math.sin(na) * 32); g.stroke();
-      g.fillStyle = ok ? '#68ffa8' : '#ffd068'; g.font = 'bold 14px monospace';
-      g.fillText(`${v}V`, cx - 18, 132);
-
-      // -5V / +5V 트림 버튼
-      g.fillStyle = '#26323c'; g.fillRect(cx - 40, 176, 38, 36); g.fillRect(cx + 2, 176, 38, 36);
-      g.strokeStyle = '#5c7080'; g.strokeRect(cx - 40, 176, 38, 36); g.strokeRect(cx + 2, 176, 36, 36);
-      g.fillStyle = '#ffffff'; g.font = 'bold 12px monospace';
-      g.fillText('-5V', cx - 32, 199); g.fillText('+5V', cx + 8, 199);
-      g.fillStyle = '#9ab0bc'; g.font = '11px sans-serif'; g.fillText(`[${i + 1}키] 자동보정`, cx - 36, 242);
+      const cx = 66 + i * 104, v = volts[i], ok = v >= 215 && v <= 225, PC = ['#c83030', '#d8b020', '#2a5ab0'][i];
+      // 상 표시 명판
+      g.fillStyle = '#1a1c1a'; g.fillRect(cx - 40, 18, 80, 18); g.fillStyle = PC; g.fillRect(cx - 40, 18, 6, 18); g.fillStyle = '#f0f0e8'; g.font = 'bold 11px sans-serif'; g.fillText(lb, cx - 28, 31);
+      // 사각 베이클라이트 계기 + 크림색 눈금판
+      g.save(); g.shadowColor = 'rgba(0,0,0,.6)'; g.shadowBlur = 6; g.shadowOffsetY = 3; g.fillStyle = '#141414'; g.fillRect(cx - 46, 42, 92, 104); g.restore();
+      g.fillStyle = '#efe8d4'; g.fillRect(cx - 40, 48, 80, 74);
+      const mx = cx, my = 120, R = 56, a0 = -Math.PI / 2 - .78, a1 = -Math.PI / 2 + .78, va = x => a0 + clamp((x - 170) / 90, -.03, 1.03) * (a1 - a0);
+      g.lineWidth = 5; g.strokeStyle = 'rgba(40,170,80,.75)'; g.beginPath(); g.arc(mx, my, R - 6, va(215), va(225)); g.stroke();
+      g.strokeStyle = '#1a1a1a'; for (let t = 170; t <= 260; t += 5) { const a = va(t), l = t % 20 === 0 ? 9 : 5; g.lineWidth = t % 20 === 0 ? 1.4 : .8; g.beginPath(); g.moveTo(mx + Math.cos(a) * (R - l), my + Math.sin(a) * (R - l)); g.lineTo(mx + Math.cos(a) * R, my + Math.sin(a) * R); g.stroke(); }
+      g.fillStyle = '#1a1a1a'; g.font = '7px sans-serif'; g.textAlign = 'center'; [180, 200, 220, 240, 260].forEach(t => { const a = va(t); g.fillText(String(t), mx + Math.cos(a) * (R - 15), my + Math.sin(a) * (R - 15) + 2); });
+      g.strokeStyle = '#c01818'; g.lineWidth = 1.2; const ar = va(220); g.beginPath(); g.moveTo(mx + Math.cos(ar) * (R - 2), my + Math.sin(ar) * (R - 2)); g.lineTo(mx + Math.cos(ar) * (R + 4), my + Math.sin(ar) * (R + 4)); g.stroke();
+      g.fillStyle = '#2a2a2a'; g.font = 'bold 12px serif'; g.fillText('V', mx, 98); g.font = '6px sans-serif'; g.fillText('AC  CLASS 1.5', mx, 108); g.textAlign = 'left';
+      g.fillStyle = 'rgba(180,190,200,.35)'; g.fillRect(cx - 34, 62, 68, 2);   // 시차 방지 거울띠
+      const na = va(nv[i]); g.strokeStyle = '#111'; g.lineWidth = 1.4; g.beginPath(); g.moveTo(mx, my); g.lineTo(mx + Math.cos(na) * (R - 1), my + Math.sin(na) * (R - 1)); g.stroke();
+      g.fillStyle = '#141414'; g.fillRect(cx - 40, 122, 80, 18); g.fillStyle = 'rgba(255,255,255,.1)'; g.beginPath(); g.moveTo(cx - 40, 48); g.lineTo(cx + 10, 48); g.lineTo(cx - 40, 100); g.fill();   // 유리 반사
+      g.fillStyle = ok ? '#7dffb0' : '#ffd890'; g.font = 'bold 12px monospace'; g.fillText(`${v}V`, cx - 16, 136);
+      // -5V / +5V 베이클라이트 누름 단추
+      [[cx - 40, '-5V'], [cx + 2, '+5V']].forEach(([x0, t]) => { const bg = g.createRadialGradient(x0 + 12, 186, 2, x0 + 19, 194, 22); bg.addColorStop(0, '#4a4a4a'); bg.addColorStop(1, '#0e0e0e'); g.fillStyle = bg; g.fillRect(x0, 176, 38, 36); g.strokeStyle = '#7a847e'; g.lineWidth = 1; g.strokeRect(x0, 176, 38, 36); g.fillStyle = '#f0f0e8'; g.font = 'bold 12px monospace'; g.fillText(t, x0 + 7, 199); });
+      g.fillStyle = '#d8e0d8'; g.font = '11px sans-serif'; g.fillText(`[${i + 1}키] 자동보정`, cx - 36, 232);
+      g.fillStyle = ok ? '#40ff70' : '#3a1a14'; g.beginPath(); g.arc(cx, 254, 6, 0, 7); g.fill(); if (ok) { g.fillStyle = 'rgba(80,255,120,.25)'; g.beginPath(); g.arc(cx, 254, 12, 0, 7); g.fill(); }   // 정격 표시등
     });
-
-    // 우측 위상 동기경(Synchroscope) & 주 차단기 스위치
-    g.fillStyle = '#161e24'; g.fillRect(338, 18, 146, 268); g.strokeStyle = '#485866'; g.strokeRect(338, 18, 146, 268);
-    g.fillStyle = '#d8e6ee'; g.font = 'bold 12px sans-serif'; g.fillText('위상 동기경 (SYNC)', 356, 40);
-    g.fillStyle = '#0e1418'; g.beginPath(); g.arc(411, 112, 48, 0, 7); g.fill();
-    g.strokeStyle = '#485c68'; g.lineWidth = 3; g.stroke();
-    g.strokeStyle = '#58ff9a'; g.lineWidth = 6;
-    g.beginPath(); g.arc(411, 112, 42, -Math.PI * .5 - .45, -Math.PI * .5 + .45); g.stroke();
-    g.strokeStyle = '#ff5840'; g.lineWidth = 3;
-    g.beginPath(); g.moveTo(411, 112); g.lineTo(411 + Math.cos(syncAng) * 40, 112 + Math.sin(syncAng) * 40); g.stroke();
-
+    // 동기경 (SYNCHROSCOPE) — 바늘이 12시 초록 구간을 지날 때 투입
+    g.fillStyle = '#1a1c1a'; g.fillRect(346, 18, 136, 18); g.fillStyle = '#f0f0e8'; g.font = 'bold 11px sans-serif'; g.fillText('위상 동기경 (SYNC)', 356, 31);
+    g.save(); g.shadowColor = 'rgba(0,0,0,.6)'; g.shadowBlur = 6; g.fillStyle = '#141414'; g.beginPath(); g.arc(411, 106, 56, 0, 7); g.fill(); g.restore();
+    g.fillStyle = '#efe8d4'; g.beginPath(); g.arc(411, 106, 48, 0, 7); g.fill();
+    g.strokeStyle = 'rgba(40,170,80,.85)'; g.lineWidth = 7; g.beginPath(); g.arc(411, 106, 40, -Math.PI * .5 - .45, -Math.PI * .5 + .45); g.stroke();
+    g.strokeStyle = '#1a1a1a'; for (let k = 0; k < 24; k++) { const a = k * Math.PI / 12; g.lineWidth = k % 6 ? .8 : 1.6; g.beginPath(); g.moveTo(411 + Math.cos(a) * 44, 106 + Math.sin(a) * 44); g.lineTo(411 + Math.cos(a) * 48, 106 + Math.sin(a) * 48); g.stroke(); }
+    g.fillStyle = '#1a1a1a'; g.font = 'bold 7px sans-serif'; g.fillText('SLOW', 368, 140); g.fillText('FAST', 432, 140);
+    g.strokeStyle = '#111'; g.lineWidth = 2.5; g.beginPath(); g.moveTo(411 - Math.cos(syncAng) * 10, 106 - Math.sin(syncAng) * 10); g.lineTo(411 + Math.cos(syncAng) * 42, 106 + Math.sin(syncAng) * 42); g.stroke();
+    g.fillStyle = '#333'; g.beginPath(); g.arc(411, 106, 4, 0, 7); g.fill();
+    const normA = ((syncAng % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2), inSync = Math.abs(normA - Math.PI * 1.5) <= .48;
+    [[372, 172], [450, 172]].forEach(([x, y]) => { g.fillStyle = inSync ? '#fff4b0' : '#5a4a20'; g.beginPath(); g.arc(x, y, 7, 0, 7); g.fill(); if (inSync) { g.fillStyle = 'rgba(255,240,150,.3)'; g.beginPath(); g.arc(x, y, 14, 0, 7); g.fill(); } });   // 동기 램프
+    // 주 차단기 (검은 손잡이 레버)
     const vOk = volts.every(v => v >= 215 && v <= 225);
-    g.fillStyle = vOk ? '#247e4c' : '#28323a'; g.fillRect(348, 198, 126, 74);
-    g.strokeStyle = vOk ? '#70ffb0' : '#52606c'; g.lineWidth = 2; g.strokeRect(348, 198, 126, 74);
-    g.fillStyle = '#ffffff'; g.font = 'bold 12.5px sans-serif';
-    g.fillText(vOk ? '⚡ [Space / 클릭]' : '3상 220V 맞춘 후', 360, 228);
-    g.fillText(vOk ? '12시 방향에 투입!' : '차단기 투입 가능', 360, 250);
-
+    g.fillStyle = vOk ? '#2a6a44' : '#2a302c'; g.fillRect(348, 198, 126, 78); g.strokeStyle = vOk ? '#80ffb8' : '#5a6660'; g.lineWidth = 2; g.strokeRect(348, 198, 126, 78);
+    g.fillStyle = '#121212'; g.fillRect(360, 208, 30, 58); g.fillStyle = '#2a2a2a'; g.fillRect(366, 212 + (finish ? 26 : 0), 18, 24); g.fillStyle = '#e8e8e0'; g.font = 'bold 7px sans-serif'; g.fillText('ON', 368, 206 + 0); g.fillText('OFF', 366, 274);
+    g.fillStyle = '#ffffff'; g.font = 'bold 11px sans-serif'; g.fillText(vOk ? '⚡ [Space / 클릭]' : '3상 220V 맞춘 후', 396, 230); g.fillText(vOk ? '12시 방향에 투입!' : '차단기 투입 가능', 396, 250);
     raf = requestAnimationFrame(loop);
   };
   raf = requestAnimationFrame(loop); return p;
@@ -2775,9 +2781,18 @@ function gacha3D({ title = '급식실 캡슐 뽑기 기계' } = {}) {
   const M = (g, m, x, y, z) => { const o = new THREE.Mesh(g, m); o.position.set(x, y, z); o.castShadow = true; o.receiveShadow = true; sc.add(o); return o; };
   M(new THREE.CylinderGeometry(.42, .46, .06, 40), chrome, 0, .03, 0);   // 받침
   const body = M(new THREE.BoxGeometry(.72, .62, .66), red, 0, .37, 0);   // 본체
-  M(new THREE.CylinderGeometry(.36, .36, .05, 40), chrome, 0, .705, 0);   // 돔 받침 링
-  const dome = M(new THREE.SphereGeometry(.34, 40, 28), new THREE.MeshStandardMaterial({ color: 0xdfefff, roughness: .05, metalness: .1, transparent: true, opacity: .16, depthWrite: false }), 0, 1.02, 0); dome.castShadow = false;
-  M(new THREE.CylinderGeometry(.09, .12, .07, 24), red, 0, 1.37, 0);   // 뚜껑
+  // 2008 문방구 앞 뽑기 기계: 네모난 투명 아크릴 창(캡슐이 쌓여 있음) · 위 광고판 · 옆에 한 대 더
+  const win = M(new THREE.BoxGeometry(.66, .5, .6), new THREE.MeshPhysicalMaterial({ color: 0xe8f4ff, roughness: .04, transparent: true, opacity: .14, depthWrite: false }), 0, .93, 0); win.castShadow = false;
+  [[-.33, -.3], [.33, -.3], [-.33, .3], [.33, .3]].forEach(([x, z]) => M(new THREE.BoxGeometry(.03, .5, .03), red, x, .93, z));   // 창틀 기둥
+  M(new THREE.BoxGeometry(.74, .04, .68), red, 0, 1.2, 0);
+  { const c = document.createElement('canvas'); c.width = 512; c.height = 160; const g = c.getContext('2d'); const gr = g.createLinearGradient(0, 0, 0, 160); gr.addColorStop(0, '#ffe048'); gr.addColorStop(1, '#ff9a20'); g.fillStyle = gr; g.fillRect(0, 0, 512, 160);
+    for (let k = 0; k < 14; k++) { g.fillStyle = ['#ff4060', '#40a0ff', '#50d080', '#c060ff'][k % 4]; g.beginPath(); const x = 20 + k * 36, y = 18 + (k % 2) * 120; for (let q = 0; q < 10; q++) { const a = q * Math.PI / 5, r = q % 2 ? 6 : 14; g.lineTo(x + Math.cos(a) * r, y + Math.sin(a) * r); } g.fill(); }
+    g.fillStyle = '#c8101a'; g.font = 'bold 76px sans-serif'; g.textAlign = 'center'; g.lineWidth = 10; g.strokeStyle = '#fff'; g.strokeText('행운뽑기', 256, 100); g.fillText('행운뽑기', 256, 100); g.fillStyle = '#1a3aa0'; g.font = 'bold 30px sans-serif'; g.fillText('★ 신상 입고! 꽝 없음 ★', 256, 146);
+    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; M(new THREE.BoxGeometry(.74, .23, .04), [red, red, red, red, new THREE.MeshStandardMaterial({ map: t, roughness: .4 }), red], 0, 1.34, .3); }
+  { const tw = M(new THREE.BoxGeometry(.6, 1.3, .6), new THREE.MeshStandardMaterial({ color: 0x2a6ad0, roughness: .35 }), -.9, .65, -.25); const tw2 = M(new THREE.BoxGeometry(.5, .4, .5), new THREE.MeshPhysicalMaterial({ color: 0xe8f4ff, transparent: true, opacity: .2, depthWrite: false }), -.9, 1.05, -.2); tw2.castShadow = false;
+    const wc = document.createElement('canvas'); wc.width = 256; wc.height = 256; const wg = wc.getContext('2d'); wg.fillStyle = '#d8d0c0'; wg.fillRect(0, 0, 256, 256); wg.fillStyle = '#b8b0a0'; for (let y = 0; y < 256; y += 16) for (let x = (y / 16 % 2) * 8; x < 256; x += 16) wg.fillRect(x, y, 3, 3);   // 문방구 유공보드 벽
+    const wt = new THREE.CanvasTexture(wc); wt.wrapS = wt.wrapT = THREE.RepeatWrapping; wt.repeat.set(4, 2); const wall = new THREE.Mesh(new THREE.PlaneGeometry(8, 4), new THREE.MeshStandardMaterial({ map: wt, roughness: .9 })); wall.position.set(0, 2, -1.2); sc.add(wall);
+    [[-1.6, 1.5, 0xff6080], [-1.3, 1.7, 0x60b0ff], [1.4, 1.6, 0xffd040], [1.7, 1.35, 0x60d080]].forEach(([x, y, col]) => { const tg = new THREE.Mesh(new THREE.BoxGeometry(.22, .3, .03), new THREE.MeshStandardMaterial({ color: col, roughness: .5 })); tg.position.set(x, y, -1.17); sc.add(tg); }); }
   // 라벨판 (가격 · 이름)
   { const c = document.createElement('canvas'); c.width = 256; c.height = 128; const g = c.getContext('2d'); g.fillStyle = '#f4e8c8'; g.fillRect(0, 0, 256, 128); g.fillStyle = '#c8202a'; g.font = 'bold 40px sans-serif'; g.textAlign = 'center'; g.fillText('행운 캡슐', 128, 52); g.fillStyle = '#222'; g.font = 'bold 34px sans-serif'; g.fillText('₩100', 128, 104);
     const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; M(new THREE.PlaneGeometry(.38, .19), new THREE.MeshStandardMaterial({ map: t, roughness: .5 }), 0, .55, .331); }
@@ -2791,7 +2806,7 @@ function gacha3D({ title = '급식실 캡슐 뽑기 기계' } = {}) {
   // 돔 속 캡슐 (반반 색 · 위아래 반구)
   const COL = [0xff4060, 0x40a0ff, 0xffd030, 0x50d080, 0xc060ff, 0xff8030], caps = [];
   const capsule = col => { const g = new THREE.Group(), top = new THREE.Mesh(new THREE.SphereGeometry(.05, 18, 10, 0, Math.PI * 2, 0, Math.PI / 2), new THREE.MeshStandardMaterial({ color: col, roughness: .18, metalness: .05 })), bot = new THREE.Mesh(new THREE.SphereGeometry(.05, 18, 10, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2), new THREE.MeshStandardMaterial({ color: 0xf4f4f0, roughness: .3 })); top.castShadow = bot.castShadow = true; g.add(top, bot); g.userData = { top, bot }; return g; };
-  for (let i = 0; i < 38; i++) { const c = capsule(COL[i % COL.length]), a = Math.random() * Math.PI * 2, rr = Math.sqrt(Math.random()) * .27, y = .78 + Math.random() * .3 * (1 - rr / .34); c.position.set(Math.cos(a) * rr, y, Math.sin(a) * rr); c.rotation.set(Math.random() * 3, Math.random() * 3, Math.random() * 3); c.userData.base = c.position.clone(); sc.add(c); caps.push(c); }
+  for (let i = 0; i < 46; i++) { const c = capsule(COL[i % COL.length]), y = .73 + Math.pow(Math.random(), 1.6) * .32; c.position.set((Math.random() - .5) * .54, y, (Math.random() - .5) * .48); c.rotation.set(Math.random() * 3, Math.random() * 3, Math.random() * 3); c.userData.base = c.position.clone(); sc.add(c); caps.push(c); }
   const coin = M(new THREE.CylinderGeometry(.025, .025, .005, 24), new THREE.MeshStandardMaterial({ color: 0xd8c070, metalness: 1, roughness: .3 }), .2, .55, .5); coin.rotation.x = Math.PI / 2; coin.visible = false;
   let coinIn = false, coinT = -1, ang = 0, last = null, drop = null, dropT = 0, opened = false, openT = 0, shake = 0;
   const insert = () => { if (coinIn || coinT >= 0) return; coinT = 0; coin.visible = true; sfx.click(); btn.disabled = true; };
@@ -2810,7 +2825,7 @@ function gacha3D({ title = '급식실 캡슐 뽑기 기계' } = {}) {
     if (coinT >= 0) { coinT += dt; coin.position.set(.2, .55 - Math.min(1, coinT / .5) * .17, .5 - Math.min(1, coinT / .5) * .15); if (coinT > .55) { coin.visible = false; coinT = -1; coinIn = true; sfx.clank ? sfx.clank(.6) : sfx.click(); status('동전이 떨어졌다 — 크랭크를 돌리세요', 'ok'); } }
     crank.rotation.z = -ang; shake = Math.max(0, shake - dt * 2);
     caps.forEach((c, i) => { const b = c.userData.base; c.position.set(b.x + Math.sin(now / 60 + i) * .006 * shake * 4, b.y + Math.abs(Math.sin(now / 45 + i * 1.7)) * .012 * shake * 4, b.z + Math.cos(now / 55 + i) * .006 * shake * 4); c.rotation.y += shake * dt * 3; });
-    if (drop && !opened) { dropT += dt; const f = drop.userData.from; if (dropT < .5) drop.position.lerpVectors(f, new THREE.Vector3(0, .72, 0), dropT / .5); else if (dropT < 1.1) { const k = (dropT - .5) / .6; drop.position.set(0, .26 - k * .14 + Math.abs(Math.sin(k * 9)) * .04 * (1 - k), .3 + k * .22); drop.rotation.x += dt * 9; flap.rotation.x = -Math.sin(Math.min(1, k * 2) * Math.PI) * .9; } else { drop.position.y = .12 + Math.sin(now / 300) * .004; flap.rotation.x = 0; } }
+    if (drop && !opened) { dropT += dt; const f = drop.userData.from; if (dropT < .5) drop.position.lerpVectors(f, new THREE.Vector3(0, .66, 0), dropT / .5); else if (dropT < 1.1) { const k = (dropT - .5) / .6; drop.position.set(0, .26 - k * .14 + Math.abs(Math.sin(k * 9)) * .04 * (1 - k), .3 + k * .22); drop.rotation.x += dt * 9; flap.rotation.x = -Math.sin(Math.min(1, k * 2) * Math.PI) * .9; } else { drop.position.y = .12 + Math.sin(now / 300) * .004; flap.rotation.x = 0; } }
     if (opened) { openT += dt; const k = Math.min(1, openT / .6); drop.userData.top.position.y = k * .09; drop.userData.top.rotation.x = -k * 1.2; drop.userData.bot.position.y = -k * .02; drop.rotation.x = 0; cam.position.lerp(new THREE.Vector3(.1, .5, 1.1), dt * 2); cam.lookAt(drop.position); if (openT > 1.1) { r.render(sc, cam); return close(true); } }
     else { cam.position.x = .55 + Math.sin(now / 2400) * .05; cam.lookAt(0, .78, 0); }
     r.render(sc, cam); raf = requestAnimationFrame(loop); };
@@ -2861,38 +2876,34 @@ function gachaCrank({ title = '급식실 캡슐 뽑기 기계 — 동전 투입 
     if (e.code === 'Space' || e.code === 'KeyD' || e.code === 'ArrowRight' || e.code === 'Enter') advanceCrank(Math.PI / 2);
   });
 
+  const CAPS = Array.from({ length: 26 }, (_, k) => ({ x: 84 + (k * 47) % 272, y: 132 - Math.floor(k / 6) * 17 - (k % 3) * 3, c: ['#ffcc38', '#48a8ff', '#ff5888', '#58e890', '#b868ff', '#ff8a30'][k % 6], r: (k * 1.7) % 6 }));
   function draw() {
-    g.fillStyle = '#101418'; g.fillRect(0, 0, c.width, c.height);
-    // 뽑기 기계 상단 투명 돔 & 캡슐들
-    g.fillStyle = '#b82828'; g.fillRect(40, 120, 360, 175);
-    g.strokeStyle = '#ff9888'; g.lineWidth = 2; g.strokeRect(40, 120, 360, 175);
-    g.fillStyle = 'rgba(210, 235, 248, 0.22)'; g.beginPath(); g.arc(220, 115, 96, Math.PI, 0); g.fill();
-    g.strokeStyle = '#b8d0dc'; g.lineWidth = 3; g.stroke();
-    const cols = ['#ffcc38', '#48a8ff', '#ff5888', '#58e890', '#b868ff'];
-    for (let i = 0; i < 9; i++) {
-      const a = i * .7 + ang * .6, cx = 220 + Math.cos(a) * (25 + (i % 3) * 20), cy = 88 + Math.sin(a) * 18;
-      g.fillStyle = cols[i % cols.length]; g.beginPath(); g.arc(cx, cy, 15, 0, 7); g.fill();
-      g.strokeStyle = '#ffffff'; g.lineWidth = 1.5; g.stroke();
-    }
-
-    // 좌측 100원 주화 투입구
-    g.fillStyle = coinIn ? '#246844' : '#28323a'; g.fillRect(62, 154, 112, 82);
-    g.strokeStyle = coinIn ? '#68ffa8' : '#ffd068'; g.lineWidth = 2; g.strokeRect(62, 154, 112, 82);
-    g.fillStyle = '#ffffff'; g.font = 'bold 12px sans-serif';
-    g.fillText(coinIn ? '✓ 100원 투입됨' : '1. 100원 동전', 74, 186);
-    g.fillText(coinIn ? '핸들을 돌리세요!' : '투입구 [클릭]', 74, 208);
-
-    // 우측 크롬 크랭크 회전 핸들
+    // 문방구 앞: 유공보드 벽 · 시멘트 바닥
+    g.fillStyle = '#d4ccbc'; g.fillRect(0, 0, c.width, c.height); g.fillStyle = '#b4ac9c'; for (let y = 6; y < 250; y += 14) for (let x = (y / 14 % 2) * 7 + 4; x < 440; x += 14) g.fillRect(x, y, 3, 3);
+    g.fillStyle = '#7a766e'; g.fillRect(0, 290, 440, 20);
+    // 빨간 철제 함 + 노란 광고판
+    g.save(); g.shadowColor = 'rgba(0,0,0,.5)'; g.shadowBlur = 12; g.shadowOffsetX = 6; const bd = g.createLinearGradient(56, 0, 384, 0); bd.addColorStop(0, '#9a1418'); bd.addColorStop(.5, '#d8262c'); bd.addColorStop(1, '#8a1216'); g.fillStyle = bd; g.fillRect(56, 26, 328, 270); g.restore();
+    const hd = g.createLinearGradient(0, 30, 0, 60); hd.addColorStop(0, '#ffe048'); hd.addColorStop(1, '#ff9a20'); g.fillStyle = hd; g.fillRect(64, 32, 312, 30);
+    g.fillStyle = '#c8101a'; g.font = 'bold 20px sans-serif'; g.fillText('행운뽑기  ₩100', 150, 55);
+    // 투명 아크릴 창 속 캡슐 더미 (크랭크를 돌리면 들썩인다)
+    g.fillStyle = 'rgba(200,225,240,.25)'; g.fillRect(70, 66, 300, 84); g.strokeStyle = '#f0f4f8'; g.lineWidth = 2; g.strokeRect(70, 66, 300, 84);
+    g.save(); g.beginPath(); g.rect(70, 66, 300, 84); g.clip();
+    CAPS.forEach((k, n) => { const jy = Math.sin(ang * 3 + n) * 3 * Math.min(1, ang), x = k.x, y = k.y + jy; g.save(); g.translate(x, y); g.rotate(k.r);
+      g.fillStyle = '#f4f4f0'; g.beginPath(); g.arc(0, 0, 11, 0, Math.PI); g.fill(); g.fillStyle = k.c; g.beginPath(); g.arc(0, 0, 11, Math.PI, 0); g.fill();
+      g.strokeStyle = 'rgba(0,0,0,.25)'; g.lineWidth = 1; g.beginPath(); g.arc(0, 0, 11, 0, 7); g.stroke(); g.fillStyle = 'rgba(255,255,255,.6)'; g.beginPath(); g.arc(-4, -5, 3, 0, 7); g.fill(); g.restore(); });
+    g.restore(); g.fillStyle = 'rgba(255,255,255,.18)'; g.fillRect(76, 70, 40, 76);
+    // 동전 투입구 (크롬 판)
+    const cp = g.createLinearGradient(66, 156, 176, 236); cp.addColorStop(0, '#f4f6f8'); cp.addColorStop(1, '#8a9096'); g.fillStyle = cp; g.fillRect(66, 156, 108, 80); g.strokeStyle = coinIn ? '#58ff9a' : '#ffd068'; g.lineWidth = 2.5; g.strokeRect(66, 156, 108, 80);
+    g.fillStyle = '#1a1a1a'; g.fillRect(114, 166, 6, 30); g.fillStyle = '#3a3a3a'; g.font = 'bold 9px sans-serif'; g.fillText('100', 108, 210);
+    g.fillStyle = '#1a1a1a'; g.font = 'bold 11px sans-serif'; g.fillText(coinIn ? '✓ 100원 투입됨' : '1. 100원 동전', 74, 224 - 0); g.font = '10px sans-serif'; g.fillText(coinIn ? '핸들을 돌리세요!' : '투입구 [클릭]', 74, 232 + 0);
+    // 크롬 손잡이 (T자 그립)
     const cx = 295, cy = 195;
-    g.fillStyle = '#d4dade'; g.beginPath(); g.arc(cx, cy, 52, 0, 7); g.fill();
-    g.strokeStyle = '#58646c'; g.lineWidth = 4; g.stroke();
-    g.save(); g.translate(cx, cy); g.rotate(ang);
-    g.fillStyle = '#384048'; g.fillRect(-42, -10, 84, 20);
-    g.fillStyle = '#ff4838'; g.beginPath(); g.arc(32, 0, 12, 0, 7); g.fill();
-    g.restore();
-
-    g.fillStyle = '#fff4e0'; g.font = 'bold 13px monospace';
-    g.fillText(`2. 크랭크 회전: ${Math.round((ang / (Math.PI * 2)) * 360)}° / 360° [드래그 / Space]`, 88, 276);
+    const kb = g.createRadialGradient(cx - 14, cy - 14, 4, cx, cy, 52); kb.addColorStop(0, '#ffffff'); kb.addColorStop(.6, '#b8c0c6'); kb.addColorStop(1, '#5a6268'); g.fillStyle = kb; g.beginPath(); g.arc(cx, cy, 46, 0, 7); g.fill(); g.strokeStyle = '#3a4046'; g.lineWidth = 3; g.stroke();
+    g.save(); g.translate(cx, cy); g.rotate(ang); const tg = g.createLinearGradient(0, -12, 0, 12); tg.addColorStop(0, '#f0f2f4'); tg.addColorStop(1, '#6a7076'); g.fillStyle = tg; g.fillRect(-40, -11, 80, 22); g.strokeStyle = '#2a2e32'; g.lineWidth = 1; g.strokeRect(-40, -11, 80, 22); g.fillStyle = '#ff4838'; g.beginPath(); g.arc(34, 0, 5, 0, 7); g.fill(); g.restore();
+    // 배출구 (반투명 덮개)
+    g.fillStyle = '#1a1a1a'; g.fillRect(180, 252, 80, 34); g.fillStyle = 'rgba(220,235,245,.3)'; g.fillRect(182, 254, 76, 30);
+    if (ang >= Math.PI * 2 - .08) { g.fillStyle = '#ff5888'; g.beginPath(); g.arc(220, 272, 11, Math.PI, 0); g.fill(); g.fillStyle = '#f4f4f0'; g.beginPath(); g.arc(220, 272, 11, 0, Math.PI); g.fill(); }
+    g.fillStyle = '#1a1208'; g.font = 'bold 12px monospace'; g.fillText(`2. 크랭크 회전: ${Math.round((ang / (Math.PI * 2)) * 360)}° / 360° [드래그 / Space]`, 40, 306);
   }
   draw(); return p;
 }

@@ -1188,157 +1188,197 @@ function rings({ title = '단말기 잠금 — 고리 암호', clue = null, maxM
    - 6) microscopeSlide: 과학실·준비실·보건실 [광학 현미경 프레파라트 배율 전환 & 표본 코드 판독]
    ========================================================================= */
 
+/* 사실감 도우미 (종이 섬유 · 나무 책상 · 붉은 인영) — 오프스크린 캔버스라 번역(tr)을 거치지 않는다 */
+const mgTexC = {};
+function mgPaper(g, x, y, w, h, base = '#f2eee2', key = '') {
+  const k = 'p' + base + w + 'x' + h + key; let cv = mgTexC[k];
+  if (!cv) {
+    cv = mgTexC[k] = document.createElement('canvas'); cv.width = w; cv.height = h; const q = cv.getContext('2d'); q.fillStyle = base; q.fillRect(0, 0, w, h);
+    const id = q.getImageData(0, 0, w, h), d = id.data; for (let i = 0; i < d.length; i += 4) { const n = (Math.random() - .5) * 12; d[i] += n; d[i + 1] += n; d[i + 2] += n * 1.15; } q.putImageData(id, 0, 0);
+    for (let i = 0; i < w * h / 260; i++) { q.strokeStyle = `rgba(120,98,66,${Math.random() * .07})`; q.lineWidth = .6; q.beginPath(); const a = Math.random() * w, b = Math.random() * h; q.moveTo(a, b); q.quadraticCurveTo(a + Math.random() * 8 - 4, b + Math.random() * 8 - 4, a + Math.random() * 14 - 7, b + Math.random() * 14 - 7); q.stroke(); }
+    const gr = q.createRadialGradient(w * .45, h * .4, Math.min(w, h) * .25, w / 2, h / 2, Math.max(w, h) * .75); gr.addColorStop(0, 'rgba(0,0,0,0)'); gr.addColorStop(1, 'rgba(110,84,40,.2)'); q.fillStyle = gr; q.fillRect(0, 0, w, h);
+  }
+  g.save(); g.shadowColor = 'rgba(0,0,0,.55)'; g.shadowBlur = 10; g.shadowOffsetY = 4; g.drawImage(cv, x, y); g.restore();
+}
+function mgWood(g, x, y, w, h, base = '#4a2f1a') {
+  const k = 'w' + base + w + 'x' + h; let cv = mgTexC[k];
+  if (!cv) {
+    cv = mgTexC[k] = document.createElement('canvas'); cv.width = w; cv.height = h; const q = cv.getContext('2d'); q.fillStyle = base; q.fillRect(0, 0, w, h);
+    for (let yy = 0; yy < h; yy += 1) { const v = Math.sin(yy * .07 + Math.sin(yy * .011) * 5) * .5 + .5; q.fillStyle = `rgba(${20 + v * 30},${10 + v * 14},0,${.12 + v * .14})`; q.fillRect(0, yy, w, 1); }
+    for (let i = 0; i < 26; i++) { q.strokeStyle = `rgba(15,8,2,${.08 + Math.random() * .12})`; q.beginPath(); const yy = Math.random() * h; q.moveTo(0, yy); q.bezierCurveTo(w * .3, yy + Math.random() * 10 - 5, w * .6, yy + Math.random() * 10 - 5, w, yy + Math.random() * 8 - 4); q.stroke(); }
+  }
+  g.drawImage(cv, x, y);
+}
+// 붉은 인영(도장 자국): 글자는 오른쪽 열부터 위→아래. pwr 이 낮으면 인주가 군데군데 빠지고, spread 가 크면 번진다
+function mgSeal(txt, round, pwr = .85, sz = 64) {
+  const c = document.createElement('canvas'); c.width = c.height = sz; const q = c.getContext('2d');
+  q.strokeStyle = q.fillStyle = '#c4121c'; q.lineWidth = sz * .07;
+  if (round) { q.beginPath(); q.arc(sz / 2, sz / 2, sz * .43, 0, 7); q.stroke(); } else { q.strokeRect(sz * .08, sz * .08, sz * .84, sz * .84); q.lineWidth = sz * .02; q.strokeRect(sz * .15, sz * .15, sz * .7, sz * .7); }
+  const n = txt.length, cols = round ? 1 : Math.ceil(Math.sqrt(n)), rows = Math.ceil(n / cols), cell = (round ? .62 : .66) * sz / Math.max(rows, cols);
+  q.font = `bold ${Math.floor(cell * .98)}px serif`; q.textAlign = 'center'; q.textBaseline = 'middle';
+  for (let i = 0; i < n; i++) { const cl = cols - 1 - Math.floor(i / rows), rw = i % rows; q.save(); q.translate(sz / 2 + (cl - (cols - 1) / 2) * cell, sz / 2 + (rw - (rows - 1) / 2) * cell); q.scale(round ? 1.25 : 1, 1); q.fillText(txt[i], 0, 0); q.restore(); }
+  q.globalCompositeOperation = 'destination-out'; const miss = clamp(1 - pwr, 0, 1);
+  for (let i = 0; i < 50 + miss * 700; i++) { q.globalAlpha = Math.random() * (.25 + miss * .9); q.beginPath(); q.arc(Math.random() * sz, Math.random() * sz, Math.random() * sz * .035 + .4, 0, 7); q.fill(); }
+  q.globalCompositeOperation = 'source-over'; q.globalAlpha = 1; return c;
+}
+function mgDrawSeal(g, sc, x, y, ang = 0, spread = 0, alpha = .92) {
+  g.save(); g.translate(x, y); g.rotate(ang); g.globalAlpha = alpha; g.globalCompositeOperation = 'multiply';
+  if (spread > 0) { g.shadowColor = 'rgba(200,20,30,.75)'; g.shadowBlur = spread; g.drawImage(sc, -sc.width / 2, -sc.height / 2); }
+  g.drawImage(sc, -sc.width / 2, -sc.height / 2); g.restore();
+}
+
 function stampApprove({ title = '학생회실 — 1998 해교제 야간 잔류 승인원 검수 및 직인 날인' } = {}) {
-  const p = open(title, '<b>1단계:</b> 기안문에서 <b style="color:#ff8a70">조작된 위조 조항 3줄(2·4·5번)</b>을 클릭해 적색 교정펜으로 정정하라<br><b>2단계:</b> 우측 <b>[관인 수직 각도(A·D)]</b>를 0°에 맞추고 <b>[인주 묻히기]</b> 후, <b>[결재란을 꾹 눌러(Hold)]</b> 압력 70~95%에서 떼어 날인하라!');
+  const p = open(title, '<b>1단계:</b> 기안문에서 <b style="color:#ff8a70">조작된 위조 조항 3줄(2·4·5번)</b>을 클릭(또는 <b>W·S로 고르고 F</b>)해 적색 교정펜으로 정정하라<br><b>2단계:</b> 직인 각도<b>(A·D / 휠)</b>를 0°에 맞추고 <b>인주</b>(클릭 / E)를 묻힌 뒤, <b>교장 결재란을 꾹 눌러(마우스 · Space 홀드)</b> 압력 70~95%에서 떼어 날인하라!');
   const c = canvas(540, 350), g = c.getContext('2d');
   screen3D(c, { kind: 'paper', prop: 'stamp' });
   const items = [
-    { txt: '문서번호: 서린학생 제1998-1012호 (기안일: 1998. 10. 12)', bad: false },
     { txt: '1. 행 사 명: 제30회 해교제 전야제 합동 리허설 및 방송 점검', bad: false },
     { txt: '2. 잔류시간: 22:00 이후 전교생 강제 심야 잔류 (귀가 금지)', bad: true, fix: '2. 잔류시간: 21:30 이전 전원 하교 완료 (심야 잔류 엄금)' },
     { txt: '3. 사용구역: 본관 3층 방송실 · 별관 음악실 · 대강당 무대', bad: false },
     { txt: '4. 안전수칙: 구름다리 방화문 및 서문 출입구를 쇠사슬로 영구 봉쇄함', bad: true, fix: '4. 안전수칙: 비상시 구름다리 방화문 및 전 출입구 상시 개방 유지' },
     { txt: '5. 담당명단: 3-2 윤하늘 (※ 명부에서 영구 말소 처리할 것)', bad: true, fix: '5. 담당명단: 3-2 윤하늘 · 강민아 · 이수아 (방송반 정원 3명)' },
+    { txt: '6. 첨    부: 참가자 명단 1부 · 안전계획서 1부.  끝.', bad: false },
   ];
-  let fixed = [false, false, false, false, false, false], inked = false, stamped = false;
-  let sealAng = -24, pressing = false, pressPwr = 0, lastT = performance.now();
+  const LY = i => 122 + i * 33;   // 본문 줄 위치 (줄 상단)
+  let fixed = items.map(() => false), inked = false, stamped = false, cur = 1, fixAnim = items.map(() => 0);
+  let sealAng = -24, pressing = false, pressPwr = 0, pressT0 = 0, lastT = performance.now(), mark = null, smudge = null, slam = 0;
+  const S1 = mgSeal('김정호', true, .95, 34), S2 = mgSeal('박상철', true, .9, 34);
+  const fixedN = () => fixed.filter(Boolean).length;
 
   const releaseStamp = () => {
     if (!pressing || stamped || !finish) return;
-    pressing = false;
-    const fixedCount = fixed.filter(Boolean).length;
-    if (fixedCount < 3) { pressPwr = 0; sfx.buzz(); status('먼저 문서 본문의 위조 조항 3곳(2·4·5번)을 모두 클릭해 정정하세요!', 'err'); return; }
+    pressing = false; pressPwr = .08 + (performance.now() - pressT0) / 1000 * .95;
+    if (fixedN() < 3) { pressPwr = 0; sfx.buzz(); status('먼저 문서 본문의 위조 조항 3곳(2·4·5번)을 모두 클릭해 정정하세요!', 'err'); return; }
     if (!inked) { pressPwr = 0; sfx.buzz(); status('관인에 붉은 인주가 묻어 있지 않습니다! [인주 패드]를 먼저 누르세요.', 'err'); return; }
     if (Math.abs(sealAng) > 8) { pressPwr = 0; sfx.buzz(); status(`관인이 기울어져 있습니다(현재 ${sealAng}°)! [A/D] 또는 각도 버튼으로 0° 수직으로 맞추세요.`, 'err'); return; }
+    slam = 1; sfx.knock ? sfx.knock() : sfx.click();
     if (pressPwr >= .65 && pressPwr <= .96) {
-      stamped = true; sfx.unlock();
+      stamped = true; mark = { sc: mgSeal('서린고등학교장', false, .72 + pressPwr * .25, 50), ang: sealAng * Math.PI / 180, spread: Math.max(0, (pressPwr - .8) * 18) };
+      setTimeout(() => sfx.unlock(), 220);
       status('쾅! — 수직 정밀 날인 성공! 1998 해교제 승인원의 위조 조항이 바로잡혔다!', 'ok');
-      setTimeout(() => close(true), 500);
+      setTimeout(() => close(true), 900);
     } else {
-      sfx.buzz();
+      sfx.buzz(); inked = pressPwr < .65 ? inked : false;
+      smudge = { sc: mgSeal('서린고등학교장', false, pressPwr < .65 ? pressPwr * .5 : .9, 50), spread: pressPwr < .65 ? 0 : 14, t: 1.6, x: 470 - 90 * Math.random(), ang: sealAng * Math.PI / 180 };
       status(pressPwr < .65 ? '누르는 힘이 부족해 인영이 흐릿합니다! 초록 구간(70~95%)까지 꾹 누르세요.' : '너무 세게 눌러 인주가 번졌습니다! 초록 구간에서 떼세요.', 'err');
       pressPwr = 0;
     }
   };
+  const toggleFix = idx => {
+    if (stamped) return;
+    if (items[idx].bad) {
+      fixed[idx] = !fixed[idx]; fixAnim[idx] = 0; sfx.paper ? sfx.paper() : sfx.click();
+      const cnt = fixedN();
+      status(cnt === 3 ? '위조 조항 3곳 정정 완료! 우측 관인 각도를 0°로 맞추고 인주를 찍어 날인하세요.' : `위조 조항 정정 (${cnt}/3)`);
+    } else { sfx.buzz(); status('이 조항은 정상적인 공식 기록입니다. 조작된 조항(2·4·5번)을 찾으세요.', 'err'); }
+  };
+  const ink = () => { if (stamped) return; inked = true; sfx.click(); status('관인에 붉은 인주를 골고루 묻혔다! 이제 하단 [결재란 날인]을 꾹 누르세요.'); };
+  const turn = d => { sealAng = clamp(sealAng + d, -36, 36); sfx.dial(); };
 
   c.addEventListener('mousedown', e => {
     if (!finish || stamped) return;
     const rc = c.getBoundingClientRect(), x = (e.clientX - rc.left) * c.width / rc.width, y = (e.clientY - rc.top) * c.height / rc.height;
-    if (x >= 30 && x <= 362 && y >= 76 && y <= 288) {
-      const idx = Math.floor((y - 78) / 34);
-      if (idx >= 0 && idx < items.length) {
-        if (items[idx].bad) {
-          fixed[idx] = !fixed[idx]; sfx.click();
-          const cnt = fixed.filter(Boolean).length;
-          status(cnt === 3 ? '위조 조항 3곳 정정 완료! 우측 관인 각도를 0°로 맞추고 인주를 찍어 날인하세요.' : `위조 조항 정정 (${cnt}/3)`);
-        } else { sfx.buzz(); status('이 조항은 정상적인 공식 기록입니다. 조작된 조항(2·4·5번)을 찾으세요.', 'err'); }
-      }
-      return;
-    }
-    // 관인 각도 조절 버튼 (- / +)
-    if (y >= 62 && y <= 98 && x >= 390 && x <= 455) { sealAng = clamp(sealAng - 6, -36, 36); sfx.dial(); return; }
-    if (y >= 62 && y <= 98 && x >= 460 && x <= 525) { sealAng = clamp(sealAng + 6, -36, 36); sfx.dial(); return; }
-    // 인주 패드 클릭
-    if (Math.hypot(x - 456, y - 148) <= 34) {
-      inked = true; sfx.click(); status('관인에 붉은 인주를 골고루 묻혔다! 이제 하단 [결재란 날인]을 꾹 누르세요.'); return;
-    }
-    // 결재란 또는 날인 버튼 홀드
-    if ((x >= 300 && x <= 366 && y >= 24 && y <= 78) || (x >= 392 && x <= 522 && y >= 210 && y <= 325)) {
-      pressing = true; pressPwr = .08;
-    }
+    if (x >= 26 && x <= 364 && y >= LY(0) && y < LY(items.length)) { const idx = Math.floor((y - LY(0)) / 33); cur = idx; toggleFix(idx); return; }
+    if (y >= 62 && y <= 98 && x >= 390 && x <= 455) { turn(-6); return; }
+    if (y >= 62 && y <= 98 && x >= 460 && x <= 525) { turn(6); return; }
+    if (Math.hypot(x - 456, y - 150) <= 36) { ink(); return; }
+    if ((x >= 290 && x <= 366 && y >= 16 && y <= 84) || (x >= 392 && x <= 522 && y >= 200 && y <= 330)) { pressing = true; pressPwr = .08; pressT0 = performance.now(); }
   });
   const mu = () => { if (pressing) releaseStamp(); };
   addEventListener('mouseup', mu); cleanups.push(() => removeEventListener('mouseup', mu));
-  c.addEventListener('wheel', e => { e.preventDefault(); sealAng = clamp(sealAng + (e.deltaY < 0 ? 6 : -6), -36, 36); sfx.dial(); }, { passive: false });
+  c.addEventListener('wheel', e => { e.preventDefault(); turn(e.deltaY < 0 ? 6 : -6); }, { passive: false });
 
   keys(e => {
     const dn = e.type === 'keydown';
-    if (dn && (e.code === 'KeyA' || e.code === 'ArrowLeft')) { sealAng = clamp(sealAng - 6, -36, 36); sfx.dial(); }
-    if (dn && (e.code === 'KeyD' || e.code === 'ArrowRight')) { sealAng = clamp(sealAng + 6, -36, 36); sfx.dial(); }
-    if (dn && e.code === 'KeyE') { inked = true; sfx.click(); }
+    if (dn && (e.code === 'KeyA' || e.code === 'ArrowLeft')) turn(-6);
+    if (dn && (e.code === 'KeyD' || e.code === 'ArrowRight')) turn(6);
+    if (dn && (e.code === 'KeyW' || e.code === 'ArrowUp')) { cur = (cur + items.length - 1) % items.length; sfx.click(); }
+    if (dn && (e.code === 'KeyS' || e.code === 'ArrowDown')) { cur = (cur + 1) % items.length; sfx.click(); }
+    if (dn && e.code === 'KeyF' && !e.repeat) toggleFix(cur);
+    if (dn && e.code === 'KeyE') ink();
     if (e.code === 'Space' || e.code === 'Enter') {
-      if (dn && !pressing) { pressing = true; pressPwr = .08; }
+      if (dn && !pressing && !e.repeat && !stamped) { pressing = true; pressPwr = .08; pressT0 = performance.now(); }
       else if (!dn && pressing) releaseStamp();
     }
   });
 
   const loop = now => {
     const dt = Math.min(.08, (now - lastT) / 1000); lastT = now;
-    if (pressing && !stamped) {
-      pressPwr += dt * .95;
-      if (pressPwr > 1.05) releaseStamp();
-    }
-    g.fillStyle = '#111518'; g.fillRect(0, 0, c.width, c.height);
-    const grd = g.createLinearGradient(16, 12, 370, 330);
-    grd.addColorStop(0, '#efe8d5'); grd.addColorStop(.5, '#e5dcc4'); grd.addColorStop(1, '#d8ceb2');
-    g.fillStyle = grd; g.fillRect(16, 12, 356, 324);
-    g.strokeStyle = '#4a3e2e'; g.lineWidth = 2; g.strokeRect(24, 20, 340, 308);
-    g.fillStyle = '#1e1a14'; g.font = 'bold 14px serif'; g.fillText('1998 야간 잔류 승인 기안서', 32, 44);
-    g.font = '10px serif'; g.fillStyle = '#4a3e2e'; g.fillText('(제30회 해교제 전야제 · 방송부)', 32, 62);
-
-    const bx = 226, by = 26, bw = 42, bh = 48;
-    ['담 당', '지도교사', '최종결재'].forEach((lb, i) => {
-      g.strokeStyle = '#5a4e3c'; g.lineWidth = 1.2;
-      g.strokeRect(bx + i * bw, by, bw, 16); g.strokeRect(bx + i * bw, by + 16, bw, bh - 16);
-      g.fillStyle = '#2a241c'; g.font = '10px sans-serif'; g.fillText(lb, bx + i * bw + 6, by + 12);
-      if (i < 2 || stamped) {
-        g.save(); g.translate(bx + i * bw + 21, by + 32); g.rotate(i === 2 ? (sealAng * Math.PI / 180) : 0.1 * (i ? -1 : 1));
-        g.strokeStyle = 'rgba(195, 32, 24, 0.88)'; g.lineWidth = 2.2;
-        g.beginPath(); g.arc(0, 0, 12, 0, Math.PI * 2); g.stroke();
-        g.fillStyle = 'rgba(195, 32, 24, 0.88)'; g.font = 'bold 9px serif';
-        g.fillText(i === 2 ? '서린고인' : '학우회인', -16, 3); g.restore();
-      } else {
-        g.fillStyle = 'rgba(180,40,30,0.35)'; g.font = '10px sans-serif'; g.fillText('날인대기', bx + i * bw + 3, by + 36);
-      }
+    if (pressing && !stamped) { pressPwr = .08 + (now - pressT0) / 1000 * .95; if (pressPwr > 1.05) releaseStamp(); }
+    slam = Math.max(0, slam - dt * 4); fixAnim = fixAnim.map(v => Math.min(1, v + dt * 3));
+    const jx = slam * (Math.random() - .5) * 4, jy = slam * (Math.random() - .5) * 3;
+    mgWood(g, 0, 0, c.width, c.height, '#3b2414');
+    g.save(); g.translate(jx, jy);
+    mgPaper(g, 14, 8, 360, 334, '#f4f1e8', 'gian');
+    // 머리: 기관명 · 문서 제목 (타자된 공문서)
+    g.fillStyle = '#1c1a18'; g.font = 'bold 15px "Noto Serif KR", Batang, serif'; g.fillText('기   안   용   지', 40, 40);
+    g.font = '9.5px "Noto Serif KR", Batang, serif'; g.fillStyle = '#34302a';
+    g.fillText('문서번호  서린학생 제1998-1012호', 32, 62); g.fillText('기안일자  1998. 10. 12.', 32, 75); g.fillText('수    신  학교장', 32, 88);
+    g.strokeStyle = '#2a2622'; g.lineWidth = 1.4; g.beginPath(); g.moveTo(28, 96); g.lineTo(362, 96); g.stroke();
+    g.font = 'bold 11px "Noto Serif KR", Batang, serif'; g.fillStyle = '#1c1a18'; g.fillText('제  목  1998 야간 잔류 승인 기안서', 32, 112);
+    // 결재란: [결재] 담당 · 교감 · 교장
+    const bx = 228, by = 16;
+    g.fillStyle = 'rgba(255,255,255,.35)'; g.fillRect(bx, by, 136, 66);
+    g.strokeStyle = '#2a2622'; g.lineWidth = 1.1; g.strokeRect(bx, by, 136, 66); g.strokeRect(bx, by, 16, 66);
+    g.fillStyle = '#1c1a18'; g.font = '10px "Noto Serif KR", Batang, serif'; g.fillText('결', bx + 3, by + 28); g.fillText('재', bx + 3, by + 44);
+    ['담당', '교감', '교장'].forEach((lb, i) => {
+      const x0 = bx + 16 + i * 40; g.strokeRect(x0, by, 40, 16); g.strokeRect(x0, by + 16, 40, 50);
+      g.fillStyle = '#1c1a18'; g.font = '10px "Noto Serif KR", Batang, serif'; g.fillText(lb, x0 + 9, by + 12);
     });
-
+    mgDrawSeal(g, S1, bx + 36, by + 41, .12); mgDrawSeal(g, S2, bx + 76, by + 42, -.08, 0, .85);
+    g.fillStyle = '#5a544a'; g.font = '7.5px sans-serif'; g.fillText('10/12', bx + 25, by + 63); g.fillText('10/12', bx + 65, by + 63);
+    if (mark) mgDrawSeal(g, mark.sc, bx + 116, by + 41, mark.ang, mark.spread, .95);
+    else if (!pressing) { g.strokeStyle = 'rgba(200,40,30,.35)'; g.setLineDash([3, 3]); g.strokeRect(bx + 99, by + 19, 34, 44); g.setLineDash([]); }
+    // 본문: 타자 글씨 / 위조 줄은 적색 교정펜 두 줄 긋기 + 정정 문구
     items.forEach((ln, idx) => {
-      const y = 94 + idx * 35, isFixed = fixed[idx];
-      g.fillStyle = isFixed ? 'rgba(40, 130, 75, 0.16)' : 'rgba(0,0,0,0.03)';
-      g.fillRect(32, y - 16, 324, 29);
-      g.strokeStyle = isFixed ? '#2e7d4c' : '#b8ae96'; g.lineWidth = 1; g.strokeRect(32, y - 16, 324, 29);
-      g.fillStyle = isFixed ? '#184d2c' : '#241e18';
-      g.font = isFixed ? 'bold 10.4px sans-serif' : '10.6px serif';
-      g.fillText(isFixed ? ln.fix : ln.txt, 36, y + 2);
-      if (isFixed) { g.fillStyle = '#c62828'; g.font = 'bold 9.5px sans-serif'; g.fillText('✓ 교정됨', 312, y + 2); }
+      const y = LY(idx), sel = idx === cur && !stamped;
+      if (sel) { g.fillStyle = 'rgba(255,214,90,.22)'; g.fillRect(26, y, 338, 31); g.strokeStyle = 'rgba(190,130,20,.6)'; g.lineWidth = 1; g.strokeRect(26, y, 338, 31); }
+      if (fixed[idx]) {
+        g.fillStyle = '#6a645a'; g.font = '9.5px "Noto Serif KR", Batang, serif'; g.fillText(ln.txt, 32, y + 11);
+        const w = Math.min(326, g.measureText(ln.txt).width) * fixAnim[idx];
+        g.strokeStyle = '#d0141c'; g.lineWidth = 1.2; g.beginPath(); g.moveTo(31, y + 7); g.lineTo(31 + w, y + 6); g.moveTo(31, y + 10); g.lineTo(31 + w, y + 9.5); g.stroke();
+        g.save(); g.globalAlpha = fixAnim[idx]; g.fillStyle = '#c8141c'; g.font = '14px "East Sea Dokdo", cursive, sans-serif'; g.fillText(ln.fix, 34, y + 25); g.restore();
+        g.strokeStyle = '#c8141c'; g.lineWidth = 1; g.beginPath(); g.arc(352, y + 16, 7, 0, 7); g.stroke(); g.fillStyle = '#c8141c'; g.font = 'bold 8px serif'; g.fillText('정', 348, y + 19);
+      } else {
+        g.fillStyle = '#1e1c19'; g.font = '10.4px "Noto Serif KR", Batang, serif'; g.fillText(ln.txt, 32, y + 19);
+      }
+      g.strokeStyle = 'rgba(80,70,60,.18)'; g.lineWidth = .6; g.beginPath(); g.moveTo(28, y + 31); g.lineTo(362, y + 31); g.stroke();
     });
-    g.fillStyle = '#2c241b'; g.font = 'bold 13px serif'; g.fillText('서 린 고 등 학 교 장  ·  학 생 회 장', 82, 316);
-
-    // 우측 관인 조작 패널
-    g.fillStyle = '#182026'; g.fillRect(382, 12, 146, 324); g.strokeStyle = '#485866'; g.lineWidth = 1.5; g.strokeRect(382, 12, 146, 324);
-    const fixedCount = fixed.filter(Boolean).length, angOk = Math.abs(sealAng) <= 8;
-    g.fillStyle = fixedCount === 3 ? '#68ffa8' : '#ffd068'; g.font = 'bold 11.5px sans-serif';
-    g.fillText(`1. 위조 정정: ${fixedCount} / 3`, 392, 32);
-    g.fillStyle = angOk ? '#68ffa8' : '#ff9870';
-    g.fillText(`2. 관인 각도: ${sealAng}° ${angOk ? '(수직)' : ''}`, 392, 52);
-    g.fillStyle = '#26323a'; g.fillRect(392, 62, 60, 28); g.fillRect(458, 62, 60, 28);
-    g.strokeStyle = '#586c78'; g.strokeRect(392, 62, 60, 28); g.strokeRect(458, 62, 60, 28);
-    g.fillStyle = '#ffffff'; g.font = 'bold 11px sans-serif';
-    g.fillText('◀ 좌회전[A]', 396, 80); g.fillText('우회전[D] ▶', 462, 80);
-
-    // 인주 패드 & 회전하는 관인 미리보기
-    g.fillStyle = '#2d343a'; g.beginPath(); g.arc(455, 148, 34, 0, Math.PI * 2); g.fill();
-    g.fillStyle = inked ? '#ff3828' : '#982018'; g.beginPath(); g.arc(455, 148, 26, 0, Math.PI * 2); g.fill();
-    g.save(); g.translate(455, 148); g.rotate(sealAng * Math.PI / 180);
-    g.strokeStyle = '#ffd890'; g.lineWidth = 2; g.strokeRect(-16, -16, 32, 32);
-    g.fillStyle = '#ffffff'; g.font = 'bold 9.5px sans-serif'; g.fillText(inked ? '인주충전됨' : '3.인주클릭', -22, 4);
+    g.fillStyle = '#1c1a18'; g.font = 'bold 14px "Noto Serif KR", Batang, serif'; g.fillText('서 린 고 등 학 교 장', 120, 334);
+    if (smudge) { smudge.t -= dt; mgDrawSeal(g, smudge.sc, smudge.x - 150, 292, smudge.ang, smudge.spread, clamp(smudge.t, 0, 1) * .8); if (smudge.t <= 0) smudge = null; }
+    // 내려찍는 직인 그림자 (누르는 동안)
+    if (pressing && !stamped) {
+      const h = 1 - clamp(pressPwr, 0, 1);
+      g.save(); g.translate(bx + 116, by + 41); g.rotate(sealAng * Math.PI / 180);
+      g.fillStyle = `rgba(0,0,0,${.18 + (1 - h) * .3})`; g.fillRect(-25 - h * 8 + 6, -25 - h * 8 + 8 + h * 10, 50 + h * 16, 50 + h * 16);
+      g.fillStyle = '#7a4a26'; g.globalAlpha = .55 + h * .3; g.fillRect(-20 - h * 10, -20 - h * 10 - h * 14, 40 + h * 20, 40 + h * 20); g.restore();
+    }
     g.restore();
 
-    // 압착 날인 게이지 & 홀드 버튼
-    g.fillStyle = '#10161a'; g.fillRect(392, 202, 126, 18); g.strokeStyle = '#485866'; g.strokeRect(392, 202, 126, 18);
-    g.fillStyle = 'rgba(80,255,150,0.35)'; g.fillRect(392 + 126 * .65, 202, 126 * .30, 18);
-    g.fillStyle = pressPwr >= .65 && pressPwr <= .96 ? '#58ff9a' : '#ff6848';
-    g.fillRect(392, 202, 126 * clamp(pressPwr, 0, 1), 18);
-
-    const ready = fixedCount === 3 && inked && angOk;
-    g.fillStyle = ready ? '#8e241c' : '#263036'; g.fillRect(392, 228, 126, 94);
-    g.strokeStyle = ready ? '#ff9880' : '#505c66'; g.lineWidth = 2; g.strokeRect(392, 228, 126, 94);
-    g.fillStyle = '#f4ece0'; g.font = 'bold 12px sans-serif';
-    g.fillText('4. 결재란 날인', 414, 256);
-    g.font = '11px sans-serif'; g.fillStyle = '#ffd8a8';
-    g.fillText('[마우스/Space 홀드]', 404, 278);
-    g.fillText('초록 구간에서 떼기!', 404, 298);
-
+    // 우측: 책상 위 도구 — 각도 버튼 · 인주함 · 직인 · 압력계
+    const fc = fixedN(), angOk = Math.abs(sealAng) <= 8;
+    g.fillStyle = 'rgba(20,14,8,.55)'; g.fillRect(382, 12, 146, 324);
+    g.fillStyle = fc === 3 ? '#8cffb8' : '#ffd890'; g.font = 'bold 11.5px sans-serif'; g.fillText(`1. 위조 정정: ${fc} / 3`, 392, 32);
+    g.fillStyle = angOk ? '#8cffb8' : '#ffb090'; g.fillText(angOk ? `2. 관인 각도: ${sealAng}° (수직)` : `2. 관인 각도: ${sealAng}°`, 392, 52);
+    [[392, '◀ 좌회전[A]'], [458, '우회전[D] ▶']].forEach(([x0, t]) => { const gr = g.createLinearGradient(0, 62, 0, 90); gr.addColorStop(0, '#d8b878'); gr.addColorStop(1, '#8a6a30'); g.fillStyle = gr; g.fillRect(x0, 62, 60, 28); g.strokeStyle = '#4a3410'; g.lineWidth = 1; g.strokeRect(x0, 62, 60, 28); g.fillStyle = '#20160a'; g.font = 'bold 10.5px sans-serif'; g.fillText(t, x0 + 4, 80); });
+    // 인주함: 둥근 양철 케이스 + 붉은 스펀지
+    g.save(); g.shadowColor = 'rgba(0,0,0,.6)'; g.shadowBlur = 8; g.shadowOffsetY = 3;
+    const tin = g.createRadialGradient(448, 140, 6, 456, 150, 38); tin.addColorStop(0, '#e8e8e8'); tin.addColorStop(.7, '#8a8e92'); tin.addColorStop(1, '#3a3e42'); g.fillStyle = tin; g.beginPath(); g.arc(456, 150, 36, 0, 7); g.fill(); g.restore();
+    const sp = g.createRadialGradient(450, 144, 3, 456, 150, 28); sp.addColorStop(0, inked ? '#e8343a' : '#b8282a'); sp.addColorStop(1, '#6a0a10'); g.fillStyle = sp; g.beginPath(); g.arc(456, 150, 28, 0, 7); g.fill();
+    for (let i = 0; i < 40; i++) { const a = i * 2.4, rr = (i * 7 % 26); g.fillStyle = 'rgba(40,0,0,.25)'; g.fillRect(456 + Math.cos(a) * rr, 150 + Math.sin(a) * rr, 1.4, 1.4); }
+    g.fillStyle = '#fff2e0'; g.font = 'bold 9.5px sans-serif'; g.fillText(inked ? '인주 묻음 ✓' : '3. 인주 [E]', 428, 194);
+    // 직인(나무 손잡이 · 위에서 본 모습) — 각도대로 돈다
+    g.save(); g.translate(456, 262); g.rotate(sealAng * Math.PI / 180);
+    g.fillStyle = 'rgba(0,0,0,.45)'; g.fillRect(-21, -17, 44, 44);
+    const wd = g.createLinearGradient(-20, -20, 20, 20); wd.addColorStop(0, '#b07a44'); wd.addColorStop(1, '#5a3418'); g.fillStyle = wd; g.fillRect(-20, -20, 40, 40);
+    g.strokeStyle = inked ? '#c4121c' : '#3a200c'; g.lineWidth = 3; g.strokeRect(-20, -20, 40, 40);
+    const kn = g.createRadialGradient(-4, -4, 2, 0, 0, 13); kn.addColorStop(0, '#d8a060'); kn.addColorStop(1, '#6a3c18'); g.fillStyle = kn; g.beginPath(); g.arc(0, 0, 13, 0, 7); g.fill();
+    g.fillStyle = '#fff'; g.beginPath(); g.arc(0, -17, 2.2, 0, 7); g.fill();   // 위쪽 표시 홈
+    g.restore();
+    // 압력 게이지
+    g.fillStyle = '#10161a'; g.fillRect(392, 206, 126, 16); g.fillStyle = 'rgba(80,255,150,0.35)'; g.fillRect(392 + 126 * .65, 206, 126 * .30, 16);
+    g.fillStyle = pressPwr >= .65 && pressPwr <= .96 ? '#58ff9a' : '#ff6848'; g.fillRect(392, 206, 126 * clamp(pressPwr, 0, 1), 16); g.strokeStyle = '#c8b890'; g.lineWidth = 1; g.strokeRect(392, 206, 126, 16);
+    g.fillStyle = '#ffe8c8'; g.font = 'bold 10.5px sans-serif'; g.fillText('4. 결재란 날인', 392, 304); g.font = '10px sans-serif'; g.fillText('[마우스/Space 홀드]', 392, 318); g.fillText('초록 구간에서 떼기!', 392, 331);
     raf = requestAnimationFrame(loop);
   };
   raf = requestAnimationFrame(loop);
@@ -1346,135 +1386,108 @@ function stampApprove({ title = '학생회실 — 1998 해교제 야간 잔류 �
 }
 
 function omrGrade({ title = '교무실 — 1998학년도 기말고사 OMR 답안지 판독 및 복원' } = {}) {
-  const p = open(title, '<b>1) 적색 채점 필름(상단 슬라이더 또는 A·D)</b>을 움직여 좌우 기준점(⊕)에 정렬한 뒤,<br><b>2) [1번 수정테이프]</b>로 오답 마킹을 지우고 <b>[2번 컴퓨터용 사인펜]</b>으로 붉은 정답 구멍에 마킹하여 <b>[Space / 광학 판독]</b>을 실행하라!');
+  const p = open(title, '<b>1) 적색 채점 필름(상단 슬라이더 또는 A·D)</b>을 움직여 좌우 기준점(⊕)에 정렬한 뒤,<br><b>2) [1번 수정테이프]</b>로 오답 마킹을 지우고 <b>[2번 컴퓨터용 사인펜]</b>으로 붉은 정답 구멍에 마킹하여 <b>[Space / 광학 판독]</b>을 실행하라!<br>키보드: <b>방향키</b>로 칸 이동 · <b>F</b>로 선택한 도구 사용');
   const c = canvas(520, 350), g = c.getContext('2d');
   screen3D(c, { kind: 'paper', prop: 'omr' });
   const ans = [3, 1, 5, 2, 4];
-  // 각 문항의 마킹 배열 (복수 마킹이나 오답이 있으면 수정테이프로 먼저 지워야 함!)
-  const marks = [[2], [1], [4], [5], [4]];
-  let filmOff = -38, tool = 1, scanY = -1, lastT = performance.now();
-
+  const marks = [[2], [1], [4], [5], [4]];   // 복수 마킹이나 오답이 있으면 수정테이프로 먼저 지워야 함
+  const taped = new Set(), inkSeed = {};
+  let filmOff = -38, tool = 1, scanY = -1, lastT = performance.now(), cq = 0, cc = 2, penT = 0;
+  const RY = q => 128 + q * 32, CX = ch => 150 + (ch - 1) * 46;
   const tryScan = () => {
     if (!finish || scanY >= 0) return;
     if (Math.abs(filmOff) > 7) { sfx.buzz(); status('먼저 투명 적색 채점 필름을 좌우 기준점(⊕ 0mm)에 정확히 정렬하세요!', 'err'); return; }
     const allOk = ans.every((a, q) => marks[q].length === 1 && marks[q][0] === a);
-    if (!allOk) {
-      sfx.buzz();
-      status('오답 마킹이 남아 있거나 정답 칸이 비어 있습니다! [1: 수정테이프]로 오답을 지우고 [2: 사인펜]으로 마킹하세요.', 'err');
-      return;
-    }
-    sfx.unlock(); scanY = 90;
+    if (!allOk) { sfx.buzz(); status('오답 마킹이 남아 있거나 정답 칸이 비어 있습니다! [1: 수정테이프]로 오답을 지우고 [2: 사인펜]으로 마킹하세요.', 'err'); return; }
+    sfx.unlock(); scanY = 100;
   };
+  const useTool = (q, choice) => {
+    cq = q; cc = choice; const has = marks[q].includes(choice), k = q + '-' + choice;
+    if (tool === 1) {
+      if (has) { marks[q] = marks[q].filter(v => v !== choice); taped.add(k); sfx.paper ? sfx.paper() : sfx.click(); }
+      else { sfx.buzz(); status('수정테이프는 이미 칠해진 검은 마킹을 지울 때 사용합니다. 마킹하려면 [2번 사인펜]으로 바꾸세요!', 'err'); }
+    } else if (!has) { marks[q].push(choice); inkSeed[k] = Math.random() * 1000; penT = 1; sfx.click(); }
+  };
+  const setTool = t => { tool = t; sfx.click(); status(t === 1 ? '도구 선택: [1] 수정테이프 — 잘못 칠해진 검은 마킹을 클릭해 지우세요.' : '도구 선택: [2] 컴퓨터용 수성사인펜 — 붉은 채점 구멍 위치에 마킹하세요.'); };
 
   c.addEventListener('mousedown', e => {
     if (!finish || scanY >= 0) return;
     const rc = c.getBoundingClientRect(), x = (e.clientX - rc.left) * c.width / rc.width, y = (e.clientY - rc.top) * c.height / rc.height;
-    // 필름 정렬 슬라이더 클릭/조절
-    if (y >= 62 && y <= 92 && x >= 195 && x <= 450) {
-      filmOff = Math.round(clamp(((x - 322) / 110) * 48, -48, 48)); sfx.dial(); return;
-    }
-    // 하단 도구 버튼 (1: 수정테이프, 2: 컴퓨터용 사인펜, 3: OMR 광학 판독)
-    if (y >= 292) {
-      if (x < 175) { tool = 1; sfx.click(); status('도구 선택: [1] 수정테이프 — 잘못 칠해진 검은 마킹을 클릭해 지우세요.'); }
-      else if (x < 350) { tool = 2; sfx.click(); status('도구 선택: [2] 컴퓨터용 수성사인펜 — 붉은 채점 구멍 위치에 마킹하세요.'); }
-      else tryScan();
-      return;
-    }
-    // 문항 1~5 버블 클릭
-    for (let q = 0; q < 5; q++) {
-      const ry = 122 + q * 34;
-      if (Math.abs(y - ry) <= 15) {
-        for (let choice = 1; choice <= 5; choice++) {
-          const cx = 155 + (choice - 1) * 52;
-          if (Math.abs(x - cx) <= 18) {
-            const has = marks[q].includes(choice);
-            if (tool === 1) {
-              if (has) { marks[q] = marks[q].filter(v => v !== choice); sfx.paper ? sfx.paper() : sfx.click(); }
-              else { sfx.buzz(); status('수정테이프는 이미 칠해진 검은 마킹을 지울 때 사용합니다. 마킹하려면 [2번 사인펜]으로 바꾸세요!', 'err'); }
-            } else {
-              if (!has) { marks[q].push(choice); sfx.click(); }
-            }
-            return;
-          }
-        }
-      }
-    }
+    if (y >= 62 && y <= 92 && x >= 220 && x <= 460) { filmOff = Math.round(clamp(((x - 340) / 110) * 48, -48, 48)); sfx.dial(); return; }
+    if (y >= 292) { if (x < 175) setTool(1); else if (x < 350) setTool(2); else tryScan(); return; }
+    for (let q = 0; q < 5; q++) if (Math.abs(y - RY(q)) <= 14) for (let ch = 1; ch <= 5; ch++) if (Math.abs(x - CX(ch)) <= 18) { useTool(q, ch); return; }
   });
-
   keys(e => {
     if (e.type !== 'keydown' || scanY >= 0) return;
-    if (e.code === 'KeyA' || e.code === 'ArrowLeft') { filmOff = clamp(filmOff - 6, -48, 48); sfx.dial(); }
-    else if (e.code === 'KeyD' || e.code === 'ArrowRight') { filmOff = clamp(filmOff + 6, -48, 48); sfx.dial(); }
-    else if (e.code === 'Digit1') { tool = 1; sfx.click(); }
-    else if (e.code === 'Digit2') { tool = 2; sfx.click(); }
+    if (e.code === 'KeyA') { filmOff = clamp(filmOff - 6, -48, 48); sfx.dial(); }
+    else if (e.code === 'KeyD') { filmOff = clamp(filmOff + 6, -48, 48); sfx.dial(); }
+    else if (e.code === 'ArrowLeft') cc = Math.max(1, cc - 1);
+    else if (e.code === 'ArrowRight') cc = Math.min(5, cc + 1);
+    else if (e.code === 'ArrowUp' || e.code === 'KeyW') cq = Math.max(0, cq - 1);
+    else if (e.code === 'ArrowDown' || e.code === 'KeyS') cq = Math.min(4, cq + 1);
+    else if (e.code === 'KeyF' && !e.repeat) useTool(cq, cc);
+    else if (e.code === 'Digit1') setTool(1);
+    else if (e.code === 'Digit2') setTool(2);
     else if (e.code === 'Space' || e.code === 'Enter') tryScan();
   });
-
+  // 컴퓨터용 사인펜 자국: 타원 안을 결 따라 여러 번 칠한 검은 잉크 (가장자리가 살짝 삐져나옴)
+  const penMark = (cx, cy, seed) => {
+    let r = seed; const rnd = () => (r = (r * 9301 + 49297) % 233280) / 233280;
+    g.save(); g.fillStyle = '#16151a'; g.beginPath(); g.ellipse(cx, cy, 8.6 + rnd(), 12 + rnd() * 1.2, 0, 0, 7); g.fill();
+    g.strokeStyle = 'rgba(20,20,26,.85)'; g.lineCap = 'round'; g.lineWidth = 2.2;
+    for (let k = 0; k < 5; k++) { g.beginPath(); g.moveTo(cx - 8 + rnd() * 3, cy - 9 + k * 4.5); g.lineTo(cx + 7 + rnd() * 3, cy - 10 + k * 4.5 + rnd() * 2); g.stroke(); }
+    g.strokeStyle = 'rgba(255,255,255,.12)'; g.lineWidth = 1; g.beginPath(); g.ellipse(cx - 2, cy - 4, 4, 5, -.3, 3.6, 4.6); g.stroke(); g.restore();
+  };
   const loop = now => {
-    const dt = Math.min(.08, (now - lastT) / 1000); lastT = now;
-    if (scanY >= 0) {
-      scanY += dt * 260;
-      if (scanY > 285 && finish) {
-        status('삐빅— OMR 광학 판독 100% 일치! 답안지 뒷면의 비밀 시간 기록이 드러난다!', 'ok');
-        close(true); return;
-      }
-    }
-    g.fillStyle = '#12161a'; g.fillRect(0, 0, c.width, c.height);
-    g.fillStyle = '#f5f2ea'; g.fillRect(20, 12, 480, 274);
-    g.strokeStyle = '#d46a7e'; g.lineWidth = 2; g.strokeRect(28, 18, 464, 262);
-    g.fillStyle = '#181818'; for (let k = 0; k < 13; k++) g.fillRect(32, 30 + k * 19, 10, 8);
-    g.fillStyle = '#c84b62'; g.fillRect(50, 22, 432, 26);
-    g.fillStyle = '#ffffff'; g.font = 'bold 13.5px sans-serif'; g.fillText('1998학년도 제2학기 기말고사 OMR 답안지 (서린고등학교)', 64, 40);
-
-    // 필름 기준점 정렬 바
+    const dt = Math.min(.08, (now - lastT) / 1000); lastT = now; penT = Math.max(0, penT - dt * 3);
+    if (scanY >= 0) { scanY += dt * 260; if (scanY > 285 && finish) { status('삐빅— OMR 광학 판독 100% 일치! 답안지 뒷면의 비밀 시간 기록이 드러난다!', 'ok'); close(true); return; } }
+    mgWood(g, 0, 0, c.width, c.height, '#3a2616');
+    mgPaper(g, 12, 6, 496, 282, '#fbf3f1', 'omr');
+    const PK = '#d9506e', PKL = '#e98aa0';
+    // 타이밍 마크 (판독기가 줄을 세는 검은 막대)
+    g.fillStyle = '#121214'; for (let q = 0; q < 5; q++) g.fillRect(18, RY(q) - 4, 14, 8); for (let k = 0; k < 18; k++) g.fillRect(44 + k * 25, 276, 9, 7);
+    // 머리: 붉은 인쇄 (교과 · 학번 · 주의사항)
+    g.strokeStyle = PK; g.lineWidth = 2; g.strokeRect(40, 14, 460, 256); g.lineWidth = .8; g.strokeRect(43, 17, 454, 250);
+    g.fillStyle = PK; g.fillRect(46, 20, 448, 26); g.fillStyle = '#fff6f8'; g.font = 'bold 13px "Noto Serif KR", serif'; g.fillText('1998학년도 제2학기 기말고사 OMR 답안지 (서린고등학교)', 62, 38);
+    g.fillStyle = PK; g.font = '9px sans-serif'; g.fillText('※ 컴퓨터용 사인펜만 사용 · 수정은 수정테이프로', 50, 58);
+    // 채점 필름 정렬 슬라이더 (⊕ 기준점)
     const filmAligned = Math.abs(filmOff) <= 7;
-    g.fillStyle = '#222830'; g.fillRect(50, 54, 432, 32);
-    g.fillStyle = filmAligned ? '#60ffa8' : '#ffd068'; g.font = 'bold 11.5px sans-serif';
-    g.fillText(`채점 필름 정렬[A/D]: ${filmOff > 0 ? '+' : ''}${filmOff}mm ${filmAligned ? '(⊕ 기준점 일치!)' : '(슬라이더를 중앙 ⊕에 맞추세요)'}`, 58, 74);
-    g.fillStyle = '#38424c'; g.fillRect(310, 62, 160, 16);
-    g.fillStyle = '#ffffff'; g.fillRect(390 - 2, 59, 4, 22);
-    g.fillStyle = filmAligned ? '#58ff9a' : '#ff5848'; g.fillRect(390 + (filmOff / 48) * 72 - 5, 60, 10, 20);
-
+    g.strokeStyle = PK; g.lineWidth = 1; g.strokeRect(230, 66, 220, 14); g.beginPath(); g.moveTo(340, 60); g.lineTo(340, 86); g.moveTo(330, 73); g.lineTo(350, 73); g.stroke(); g.beginPath(); g.arc(340, 73, 5, 0, 7); g.stroke();
+    g.fillStyle = filmAligned ? '#1f8a50' : '#9a3a20'; g.font = 'bold 10.5px sans-serif'; g.fillText(`채점 필름[A/D] ${filmOff > 0 ? '+' : ''}${filmOff}mm`, 50, 77);
+    // 문번 · 답란 머리줄
+    g.fillStyle = PK; g.font = 'bold 10px sans-serif'; g.fillText('문번', 54, 104); g.fillText('답      란', 230, 104);
+    g.strokeStyle = PKL; g.lineWidth = .8; g.beginPath(); g.moveTo(46, 108); g.lineTo(494, 108); g.moveTo(98, 92); g.lineTo(98, 268); g.moveTo(386, 92); g.lineTo(386, 268); g.stroke();
     for (let q = 0; q < 5; q++) {
-      const y = 122 + q * 34;
-      const isOk = marks[q].length === 1 && marks[q][0] === ans[q];
-      const isMulti = marks[q].length > 1;
-      g.fillStyle = isOk ? 'rgba(60, 180, 110, 0.14)' : 'rgba(212, 106, 126, 0.08)';
-      g.fillRect(50, y - 15, 432, 28);
-      g.strokeStyle = '#e09aa8'; g.strokeRect(50, y - 15, 432, 28);
-      g.fillStyle = '#8a283c'; g.font = 'bold 12.5px sans-serif'; g.fillText('문항 0' + (q + 1), 62, y + 4);
-      for (let choice = 1; choice <= 5; choice++) {
-        const cx = 155 + (choice - 1) * 52;
-        g.strokeStyle = '#c85a70'; g.lineWidth = 1.3; g.beginPath(); g.ellipse(cx, y - 1, 12, 8, 0, 0, Math.PI * 2); g.stroke();
-        g.fillStyle = '#b85066'; g.font = '11px sans-serif'; g.fillText(String(choice), cx - 3.5, y + 3);
-        if (marks[q].includes(choice)) {
-          g.fillStyle = '#141618'; g.beginPath(); g.ellipse(cx, y - 1, 10.5, 6.8, 0, 0, Math.PI * 2); g.fill();
-        }
-        // 투명 적색 채점 필름 오버레이 (filmOff 만큼 오프셋되어 표시!)
-        if (ans[q] === choice) {
-          g.strokeStyle = filmAligned ? 'rgba(230, 30, 30, 0.92)' : 'rgba(230, 80, 40, 0.55)';
-          g.lineWidth = 2.4; g.beginPath(); g.arc(cx + filmOff, y - 1, 13.5, 0, Math.PI * 2); g.stroke();
-        }
+      const y = RY(q), isOk = marks[q].length === 1 && marks[q][0] === ans[q], isMulti = marks[q].length > 1;
+      if (q % 2) { g.fillStyle = 'rgba(233,138,160,.10)'; g.fillRect(46, y - 15, 448, 30); }
+      g.fillStyle = PK; g.font = 'bold 13px "Noto Serif KR", serif'; g.fillText(String(q + 1), 66, y + 5);
+      for (let ch = 1; ch <= 5; ch++) {
+        const cx = CX(ch), k = q + '-' + ch;
+        g.strokeStyle = PK; g.lineWidth = 1.2; g.beginPath(); g.ellipse(cx, y, 9, 12.5, 0, 0, 7); g.stroke();
+        g.fillStyle = PK; g.font = '10px sans-serif'; g.fillText(String(ch), cx - 3, y + 4);
+        if (taped.has(k)) { g.save(); g.translate(cx, y); g.rotate(.06 * (ch - 3)); g.fillStyle = 'rgba(252,252,250,.97)'; g.shadowColor = 'rgba(0,0,0,.25)'; g.shadowBlur = 2; g.fillRect(-12, -15, 24, 30); g.restore(); g.strokeStyle = 'rgba(160,160,170,.35)'; g.lineWidth = .6; g.beginPath(); g.ellipse(cx, y, 9, 12.5, 0, 0, 7); g.stroke(); }
+        if (marks[q].includes(ch)) penMark(cx, y, inkSeed[k] || (q * 7 + ch * 13));
+        if (q === cq && ch === cc && scanY < 0) { g.strokeStyle = tool === 1 ? '#2a72c8' : '#111'; g.lineWidth = 1.5; g.setLineDash([3, 2]); g.strokeRect(cx - 15, y - 16, 30, 32); g.setLineDash([]); }
       }
-      g.fillStyle = isOk ? '#1e7e46' : isMulti ? '#d86818' : '#c62828';
-      g.font = 'bold 11px sans-serif';
-      g.fillText(isOk ? '● 정답일치' : isMulti ? '▲ 복수마킹(지우기!)' : marks[q].length === 0 ? '○ 미기입(마킹!)' : '× 오답(지우기!)', 390, y + 4);
+      g.fillStyle = isOk ? '#1e7e46' : isMulti ? '#c86010' : '#c62828'; g.font = 'bold 10.5px sans-serif';
+      g.fillText(isOk ? '● 정답일치' : isMulti ? '▲ 복수마킹(지우기!)' : marks[q].length === 0 ? '○ 미기입(마킹!)' : '× 오답(지우기!)', 392, y + 4);
     }
-
-    if (scanY >= 0) {
-      g.fillStyle = 'rgba(80, 255, 140, 0.45)'; g.fillRect(28, scanY - 6, 464, 12);
-    }
-
-    // 하단 3버튼 바
+    // 투명 적색 채점 필름: 정답 자리에 구멍이 뚫린 붉은 셀로판 (filmOff 만큼 밀려 있다)
+    g.save(); g.beginPath(); g.rect(100 + filmOff, 112, 282, 152); ans.forEach((a, q) => { g.moveTo(CX(a) + filmOff + 11, RY(q)); g.arc(CX(a) + filmOff, RY(q), 11, 0, Math.PI * 2, true); });
+    g.fillStyle = 'rgba(225,20,40,.2)'; g.fill('evenodd'); g.strokeStyle = 'rgba(200,20,30,.5)'; g.lineWidth = 1; g.strokeRect(100 + filmOff, 112, 282, 152);
+    ans.forEach((a, q) => { g.strokeStyle = filmAligned ? 'rgba(230,20,30,.95)' : 'rgba(230,80,40,.6)'; g.lineWidth = 1.6; g.beginPath(); g.arc(CX(a) + filmOff, RY(q), 11, 0, 7); g.stroke(); });
+    g.fillStyle = 'rgba(255,255,255,.18)'; g.fillRect(100 + filmOff, 112, 282, 6); g.restore();
+    g.fillStyle = filmAligned ? '#1f8a50' : '#d03020'; g.beginPath(); g.moveTo(340 + (filmOff / 48) * 110, 64); g.lineTo(334 + (filmOff / 48) * 110, 56); g.lineTo(346 + (filmOff / 48) * 110, 56); g.fill();
+    g.fillRect(340 + (filmOff / 48) * 110 - 1, 64, 2, 20);
+    if (scanY >= 0) { const gr = g.createLinearGradient(0, scanY - 14, 0, scanY + 6); gr.addColorStop(0, 'rgba(80,255,140,0)'); gr.addColorStop(1, 'rgba(80,255,140,.6)'); g.fillStyle = gr; g.fillRect(40, scanY - 14, 460, 20); }
+    // 하단 도구: 수정테이프 · 컴퓨터용 사인펜 · 판독
     const allOk = filmAligned && ans.every((a, q) => marks[q].length === 1 && marks[q][0] === a);
-    [
-      [20, 152, tool === 1 ? '#2a628f' : '#222a32', '1. 수정테이프 (오답지우기)'],
-      [180, 162, tool === 2 ? '#6e2842' : '#222a32', '2. 컴퓨터용 사인펜 (마킹)'],
-      [350, 150, allOk ? '#24824c' : '#28323a', '3. OMR 광학 판독 [Space]']
-    ].forEach(([bx, bw, bg, lbl]) => {
-      g.fillStyle = bg; g.fillRect(bx, 294, bw, 44);
-      g.strokeStyle = '#687c8c'; g.lineWidth = 1.5; g.strokeRect(bx, 294, bw, 44);
-      g.fillStyle = '#ffffff'; g.font = 'bold 11.5px sans-serif'; g.fillText(lbl, bx + 10, 320);
+    [[20, 152, tool === 1, '1. 수정테이프 (오답지우기)'], [180, 162, tool === 2, '2. 컴퓨터용 사인펜 (마킹)'], [350, 150, allOk, '3. OMR 광학 판독 [Space]']].forEach(([bx, bw, on, lbl], i) => {
+      g.fillStyle = on ? (i === 2 ? '#24824c' : '#3a2a1c') : 'rgba(18,14,10,.75)'; g.fillRect(bx, 294, bw, 46);
+      g.strokeStyle = on ? '#ffd890' : '#6a5a48'; g.lineWidth = on ? 2 : 1; g.strokeRect(bx, 294, bw, 46);
+      if (i === 0) { g.fillStyle = '#2a6ad0'; g.fillRect(bx + 8, 300, 26, 13); g.fillStyle = '#f8f8f4'; g.beginPath(); g.arc(bx + 26, 306, 4.5, 0, 7); g.fill(); }
+      if (i === 1) { g.save(); g.translate(bx + 24, 307); g.rotate(-.5 - penT * .3); g.fillStyle = '#121212'; g.fillRect(-14, -3, 24, 6); g.fillStyle = '#e8e8e8'; g.fillRect(-18, -3, 5, 6); g.fillStyle = '#000'; g.beginPath(); g.moveTo(10, -3); g.lineTo(15, 0); g.lineTo(10, 3); g.fill(); g.restore(); }
+      g.fillStyle = '#fff4e4'; g.font = 'bold 10.5px sans-serif'; g.fillText(lbl, bx + 8, 334);
     });
     raf = requestAnimationFrame(loop);
   };
@@ -1483,7 +1496,7 @@ function omrGrade({ title = '교무실 — 1998학년도 기말고사 OMR 답안
 }
 
 function timetableRestore({ title = '교실 게시판 — 1998년 10월 12일 학급 시간표 & 당번 자석 복원' } = {}) {
-  const p = open(title, '<b>1) 하단 자석 명패(1~5번 클릭 또는 숫자키)</b> 중 단서에 맞는 과목/당번 자석을 먼저 선택한 뒤,<br><b>2) 위쪽 시간표의 알맞은 교시 칸</b>을 클릭해 부착하고, 4칸을 모두 올바르게 채운 뒤 <b>[Space / 황동 압정 잠금]</b>을 눌러라!');
+  const p = open(title, '<b>1) 하단 자석 명패(1~5번 클릭 또는 숫자키)</b> 중 단서에 맞는 과목/당번 자석을 먼저 선택한 뒤,<br><b>2) 위쪽 시간표의 알맞은 교시 칸</b>을 클릭(또는 <b>W·S로 칸을 고르고 F</b>)해 부착하고, 4칸을 모두 올바르게 채운 뒤 <b>[Space / 황동 압정 잠금]</b>을 눌러라!');
   const c = canvas(520, 350), g = c.getContext('2d');
   screen3D(c, { kind: 'paper', prop: 'magnets' });
   const slots = [
@@ -1494,418 +1507,402 @@ function timetableRestore({ title = '교실 게시판 — 1998년 10월 12일 �
     { period: '야간 (21:00)', hint: '심야 교실 소등 및 마지막 하교 방송 당번', want: '주번: 윤하늘', placed: null, locked: false },
   ];
   const magnets = ['국 어 II', '음 악', '방송반 점검', '주번: 윤하늘', '수 학 I (휴강)'];
-  let selMag = 0;
-
+  const MC = { '화 학 I': ['#e07a22', '#fff'], '국 어 II': ['#c8323a', '#fff'], '음 악': ['#f0c428', '#2a2008'], '방송반 점검': ['#2e66c0', '#fff'], '주번: 윤하늘': ['#2c8a52', '#fff'], '수 학 I (휴강)': ['#7a4aa8', '#fff'] };
+  let selMag = 0, curSlot = 1, snap = -1, snapT = 0, lastT = performance.now();
+  const strip = (x, y, w, h, name, lift = 0, tilt = 0) => {   // 고무 자석 띠: 광택 · 두께 · 그림자
+    const [col, tc] = MC[name] || ['#888', '#fff'];
+    g.save(); g.translate(x + w / 2, y + h / 2 - lift); g.rotate(tilt);
+    g.shadowColor = 'rgba(0,0,0,.45)'; g.shadowBlur = 3 + lift * 2; g.shadowOffsetY = 2 + lift * 1.5;
+    g.fillStyle = col; g.beginPath(); g.roundRect(-w / 2, -h / 2, w, h, 4); g.fill(); g.shadowColor = 'transparent';
+    const gl = g.createLinearGradient(0, -h / 2, 0, h / 2); gl.addColorStop(0, 'rgba(255,255,255,.38)'); gl.addColorStop(.45, 'rgba(255,255,255,.06)'); gl.addColorStop(1, 'rgba(0,0,0,.22)');
+    g.fillStyle = gl; g.beginPath(); g.roundRect(-w / 2, -h / 2, w, h, 4); g.fill();
+    g.strokeStyle = 'rgba(0,0,0,.35)'; g.lineWidth = 1; g.stroke();
+    g.fillStyle = tc; g.font = 'bold 11px sans-serif'; g.textAlign = 'center'; g.fillText(name, 0, 4); g.restore();
+  };
   function draw() {
-    g.fillStyle = '#0f1714'; g.fillRect(0, 0, c.width, c.height);
-    g.fillStyle = '#5a3d24'; g.fillRect(14, 10, 492, 328);
-    g.fillStyle = '#1b3b2b'; g.fillRect(22, 18, 476, 312);
-    g.strokeStyle = 'rgba(255,255,255,0.22)'; g.lineWidth = 1.5; g.strokeRect(28, 24, 464, 300);
-    g.fillStyle = '#f0ead8'; g.font = 'bold 14.5px serif'; g.fillText('1998. 10. 12 (월) — 학급 일일 시간표 및 야간 당번 자석 보드', 38, 46);
-
+    mgWood(g, 0, 0, c.width, c.height, '#6a6250');
+    // 알루미늄 테두리 + 하얀 법랑 자석 보드
+    const fr = g.createLinearGradient(0, 8, 0, 330); fr.addColorStop(0, '#dfe3e6'); fr.addColorStop(.5, '#9aa2a8'); fr.addColorStop(1, '#c8ccd0');
+    g.fillStyle = fr; g.fillRect(10, 8, 500, 236);
+    const wb = g.createLinearGradient(18, 16, 500, 236); wb.addColorStop(0, '#f6f8f6'); wb.addColorStop(.6, '#e8ece8'); wb.addColorStop(1, '#dde2de');
+    g.fillStyle = wb; g.fillRect(18, 16, 484, 220);
+    g.fillStyle = 'rgba(120,130,150,.06)'; for (let i = 0; i < 7; i++) g.fillRect(40 + i * 70, 16, 18, 220);   // 지워지다 만 마커 얼룩
+    g.fillStyle = '#1c2a40'; g.font = 'bold 14px "Noto Serif KR", serif'; g.fillText('3학년 2반 시간표 — 1998. 10. 12 (월)', 30, 40);
+    g.strokeStyle = '#2a3a58'; g.lineWidth = 1.4; g.strokeRect(28, 50, 464, 178);
+    g.beginPath(); g.moveTo(124, 50); g.lineTo(124, 228); g.moveTo(356, 50); g.lineTo(356, 228); g.stroke();
     slots.forEach((s, i) => {
       const y = 72 + i * 35, ok = s.placed === s.want;
-      g.fillStyle = ok ? 'rgba(30, 95, 58, 0.55)' : 'rgba(12, 26, 20, 0.55)';
-      g.fillRect(36, y - 14, 448, 29);
-      g.strokeStyle = ok ? '#68ffa8' : 'rgba(180, 220, 195, 0.35)'; g.strokeRect(36, y - 14, 448, 29);
-      g.fillStyle = '#b8d8c4'; g.font = 'bold 11.5px sans-serif'; g.fillText(s.period, 44, y + 5);
-      g.fillStyle = '#d8d2b8'; g.font = '11px sans-serif'; g.fillText(s.hint, 134, y + 5);
-      if (s.placed) {
-        g.fillStyle = ok ? '#e8dec0' : '#f4b8b0'; g.fillRect(362, y - 11, 114, 23);
-        g.fillStyle = ok ? '#247a48' : '#c82828'; g.beginPath(); g.arc(372, y + 1, 4, 0, 7); g.fill();
-        g.fillStyle = '#1c2420'; g.font = 'bold 11.5px sans-serif'; g.fillText(s.placed, 380, y + 5);
-      } else {
-        g.strokeStyle = '#ffd068'; g.setLineDash([4, 3]); g.strokeRect(362, y - 11, 114, 23); g.setLineDash([]);
-        g.fillStyle = '#ffd068'; g.font = '11px sans-serif'; g.fillText(`[클릭: ${magnets[selMag]}]`, 366, y + 5);
-      }
+      if (i) { g.strokeStyle = 'rgba(42,58,88,.55)'; g.lineWidth = .8; g.beginPath(); g.moveTo(28, y - 17); g.lineTo(492, y - 17); g.stroke(); }
+      if (i === curSlot) { g.fillStyle = 'rgba(255,210,80,.25)'; g.fillRect(29, y - 16, 462, 34); }
+      g.fillStyle = '#1c2a40'; g.font = 'bold 11px sans-serif'; g.fillText(s.period, 34, y + 5);
+      g.fillStyle = '#1d3f8a'; g.font = '15px "East Sea Dokdo", cursive, sans-serif'; g.fillText(s.hint, 130, y + 6);   // 보드마커 손글씨 단서
+      if (s.placed) strip(362, y - 11, 116, 23, s.placed, 0, ok ? (i % 2 ? .01 : -.012) : .08);
+      else { g.strokeStyle = 'rgba(42,58,88,.4)'; g.setLineDash([4, 3]); g.strokeRect(362, y - 11, 116, 23); g.setLineDash([]); g.fillStyle = 'rgba(40,50,70,.55)'; g.font = '10px sans-serif'; g.fillText(`[클릭: ${magnets[selMag]}]`, 366, y + 4); }
+      if (s.placed && !ok) { g.strokeStyle = '#d02020'; g.lineWidth = 2; g.beginPath(); g.moveTo(482, y - 8); g.lineTo(490, y + 6); g.moveTo(490, y - 8); g.lineTo(482, y + 6); g.stroke(); }
+      if (snap === i && snapT > 0) { g.strokeStyle = `rgba(255,255,255,${snapT})`; g.lineWidth = 2; g.strokeRect(360 - (1 - snapT) * 6, y - 13 - (1 - snapT) * 6, 120 + (1 - snapT) * 12, 27 + (1 - snapT) * 12); }
     });
-
-    // 하단 자석 트레이 & 우측 확정 버튼
-    g.fillStyle = '#12261c'; g.fillRect(36, 248, 448, 68);
-    g.fillStyle = '#9ec4b0'; g.font = 'bold 11px sans-serif'; g.fillText('1단계 — 부착할 자석 명패 선택 (클릭 또는 1~5 키):', 44, 265);
+    // 보드 아래 알루미늄 분필받이(자석 트레이)
+    const tr = g.createLinearGradient(0, 248, 0, 320); tr.addColorStop(0, '#cdd2d6'); tr.addColorStop(.3, '#8e969c'); tr.addColorStop(1, '#5a6066');
+    g.fillStyle = tr; g.fillRect(14, 250, 492, 70); g.fillStyle = 'rgba(0,0,0,.3)'; g.fillRect(14, 250, 492, 3);
+    g.fillStyle = '#1c2228'; g.font = 'bold 10.5px sans-serif'; g.fillText('1단계 — 부착할 자석 명패 선택 (클릭 또는 1~5 키):', 24, 266);
     magnets.forEach((m, idx) => {
-      const mx = 44 + idx * 72, isSel = selMag === idx;
-      const usedOk = slots.some(s => s.placed === m && s.want === m);
-      g.fillStyle = isSel ? '#ffd870' : usedOk ? '#385848' : '#e6dcc2';
-      g.fillRect(mx, 274, 66, 32);
-      g.strokeStyle = isSel ? '#ff5828' : '#24342c'; g.lineWidth = isSel ? 2.5 : 1; g.strokeRect(mx, 274, 66, 32);
-      g.fillStyle = usedOk && !isSel ? '#90a898' : '#18201c'; g.font = 'bold 10px sans-serif';
-      g.fillText(`[${idx + 1}] ${m.slice(0, 6)}`, mx + 4, 294);
+      const mx = 44 + idx * 72, isSel = selMag === idx, usedOk = slots.some(s => s.placed === m && s.want === m);
+      if (usedOk && !isSel) { g.strokeStyle = 'rgba(0,0,0,.3)'; g.setLineDash([3, 3]); g.strokeRect(mx, 278, 66, 26); g.setLineDash([]); return; }
+      strip(mx, 278, 66, 26, m, isSel ? 5 : 0); g.fillStyle = '#10161c'; g.font = 'bold 9px sans-serif'; g.fillText(`[${idx + 1}]`, mx + 2, 314);
+      if (isSel) { g.strokeStyle = '#ffd040'; g.lineWidth = 2; g.strokeRect(mx - 2, 271, 70, 30); }
     });
-
+    // 황동 압정 잠금 버튼
     const allOk = slots.every(s => s.placed === s.want);
-    g.fillStyle = allOk ? '#288450' : '#283832'; g.fillRect(406, 270, 72, 38);
-    g.strokeStyle = allOk ? '#70ffb0' : '#586c64'; g.lineWidth = 2; g.strokeRect(406, 270, 72, 38);
-    g.fillStyle = '#ffffff'; g.font = 'bold 11px sans-serif';
-    g.fillText(allOk ? '✦ 확정[Space]' : '압정 잠금', 410, 293);
+    g.fillStyle = allOk ? '#2a7a48' : 'rgba(30,36,42,.85)'; g.fillRect(406, 270, 92, 40); g.strokeStyle = allOk ? '#90ffc0' : '#3a444c'; g.lineWidth = 2; g.strokeRect(406, 270, 92, 40);
+    const br = g.createRadialGradient(420, 286, 1, 422, 290, 9); br.addColorStop(0, '#fff2b0'); br.addColorStop(.5, '#d0a030'); br.addColorStop(1, '#6a4a10'); g.fillStyle = br; g.beginPath(); g.arc(422, 290, 8, 0, 7); g.fill();
+    g.fillStyle = '#ffffff'; g.font = 'bold 10.5px sans-serif'; g.fillText(allOk ? '확정[Space]' : '압정 잠금', 434, 294);
   }
-
   const tryConfirm = () => {
-    if (slots.every(s => s.placed === s.want)) {
-      sfx.unlock(); status('찰칵! — 10월 12일 시간표와 야간 주번 자석이 황동 압정으로 고정되었다!', 'ok');
-      setTimeout(() => close(true), 450);
-    } else {
-      sfx.buzz(); status('아직 비어 있거나 잘못 배정된 교시가 있습니다! 각 교시 힌트에 맞는 자석을 골라 넣으세요.', 'err');
-    }
+    if (slots.every(s => s.placed === s.want)) { sfx.unlock(); status('찰칵! — 10월 12일 시간표와 야간 주번 자석이 황동 압정으로 고정되었다!', 'ok'); setTimeout(() => close(true), 450); }
+    else { sfx.buzz(); status('아직 비어 있거나 잘못 배정된 교시가 있습니다! 각 교시 힌트에 맞는 자석을 골라 넣으세요.', 'err'); }
   };
-
+  const place = i => {
+    const chosen = magnets[selMag]; curSlot = i;
+    slots.forEach((s, si) => { if (!s.locked && si !== i && s.placed === chosen) s.placed = null; });   // 다른 칸에 붙어 있으면 떼어 온다
+    slots[i].placed = chosen; snap = i; snapT = 1;
+    if (chosen === slots[i].want) { sfx.click(); status(`${slots[i].period}에 [${chosen}] 자석이 정확히 장착되었습니다!`, 'ok'); }
+    else { sfx.buzz(); status(`[${chosen}] 자석은 ${slots[i].period} 힌트와 맞지 않습니다! 다른 자석을 선택해 교체하세요.`, 'err'); }
+  };
   c.addEventListener('click', e => {
     if (!finish) return;
     const rc = c.getBoundingClientRect(), x = (e.clientX - rc.left) * c.width / rc.width, y = (e.clientY - rc.top) * c.height / rc.height;
     if (y >= 265 && y <= 315) {
       if (x >= 404) { tryConfirm(); return; }
       const mIdx = Math.floor((x - 44) / 72);
-      if (mIdx >= 0 && mIdx < magnets.length) { selMag = mIdx; sfx.click(); draw(); }
+      if (mIdx >= 0 && mIdx < magnets.length) { selMag = mIdx; sfx.click(); }
       return;
     }
-    for (let i = 1; i < slots.length; i++) {
-      const sy = 72 + i * 35;
-      if (Math.abs(y - sy) <= 15) {
-        const chosen = magnets[selMag];
-        // 다른 칸에 이미 붙어 있으면 떼어 옴
-        slots.forEach((s, si) => { if (!s.locked && si !== i && s.placed === chosen) s.placed = null; });
-        slots[i].placed = chosen;
-        if (chosen === slots[i].want) { sfx.click(); status(`${slots[i].period}에 [${chosen}] 자석이 정확히 장착되었습니다!`, 'ok'); }
-        else { sfx.buzz(); status(`[${chosen}] 자석은 ${slots[i].period} 힌트와 맞지 않습니다! 다른 자석을 선택해 교체하세요.`, 'err'); }
-        draw();
-        return;
-      }
-    }
+    for (let i = 1; i < slots.length; i++) if (Math.abs(y - (72 + i * 35)) <= 15) { place(i); return; }
   });
-
   keys(e => {
     if (e.type !== 'keydown') return;
-    if (/^(Digit|Numpad)[1-5]$/.test(e.code)) { selMag = +e.code.slice(-1) - 1; sfx.click(); draw(); }
-    else if (e.code === 'ArrowLeft' || e.code === 'KeyA') { selMag = (selMag + magnets.length - 1) % magnets.length; sfx.click(); draw(); }
-    else if (e.code === 'ArrowRight' || e.code === 'KeyD') { selMag = (selMag + 1) % magnets.length; sfx.click(); draw(); }
+    if (/^(Digit|Numpad)[1-5]$/.test(e.code)) { selMag = +e.code.slice(-1) - 1; sfx.click(); }
+    else if (e.code === 'ArrowLeft' || e.code === 'KeyA') { selMag = (selMag + magnets.length - 1) % magnets.length; sfx.click(); }
+    else if (e.code === 'ArrowRight' || e.code === 'KeyD') { selMag = (selMag + 1) % magnets.length; sfx.click(); }
+    else if (e.code === 'ArrowUp' || e.code === 'KeyW') { curSlot = Math.max(1, curSlot - 1); sfx.click(); }
+    else if (e.code === 'ArrowDown' || e.code === 'KeyS') { curSlot = Math.min(slots.length - 1, curSlot + 1); sfx.click(); }
+    else if (e.code === 'KeyF' && !e.repeat) place(curSlot);
     else if (e.code === 'Space' || e.code === 'Enter') tryConfirm();
   });
-
-  draw(); return p;
+  const loop = now => { const dt = Math.min(.08, (now - lastT) / 1000); lastT = now; snapT = Math.max(0, snapT - dt * 3); draw(); raf = requestAnimationFrame(loop); };
+  raf = requestAnimationFrame(loop); return p;
 }
 
 function libraryCatalog({ title = '도서실 — KDC 청구기호 도서 대출 카드 & 금서 서가 배열' } = {}) {
-  const p = open(title, '<b>1단계:</b> 책 표지 상단을 클릭해 두 권씩 자리를 바꿔 <b>KDC 청구기호 오름차순(100→300→400→800→900)</b>으로 배열하라<br><b>2단계:</b> 각 책 하단의 <b>[▲ / ▼ 라벨 슬라이더]</b>를 눌러 붉은 청구기호 라벨 높이를 <b>점선 기준선</b>에 맞춘 뒤 <b>[Space / 서가 잠금 해제]</b>를 눌러라!');
+  const p = open(title, '<b>1단계:</b> 목록 카드 윗부분을 클릭해 두 장씩 자리를 바꿔 <b>KDC 청구기호 오름차순(100→300→400→800→900)</b>으로 배열하라<br><b>2단계:</b> 각 카드 아래 <b>[▲ / ▼]</b>로 카드 높이를 바꿔 <b>아래 구멍을 황동 고정봉</b>에 맞춘 뒤 <b>[Space / 서가 잠금 해제]</b>를 눌러라!<br>키보드: <b>A·D</b> 카드 고르기 · <b>F</b> 집기/바꾸기 · <b>W·S</b> 높이');
   const c = canvas(520, 340), g = c.getContext('2d');
   screen3D(c, { kind: 'paper', prop: 'cards' });
   const books = [
-    { code: 400, label: '400 자연과학', sub: '화학실험 편람', col: '#244a38', tagLv: 1 },
-    { code: 100, label: '100 철학·심리', sub: '융의 그림자 원형', col: '#4a2c38', tagLv: 0 },
-    { code: 900, label: '900 역사·교사', sub: '서린고 30년사', col: '#5a3a22', tagLv: 2 },
-    { code: 300, label: '300 사회·교육', sub: '1998 학생생활규정', col: '#243c58', tagLv: 1 },
-    { code: 800, label: '800 문학·희곡', sub: '제30회 해교제 대본', col: '#544626', tagLv: 0 },
+    { code: 400, label: '400 자연과학', sub: '화학실험 편람', col: '#244a38', tagLv: 1, au: '이상훈', yr: '1994' },
+    { code: 100, label: '100 철학·심리', sub: '융의 그림자 원형', col: '#4a2c38', tagLv: 0, au: '정민수', yr: '1991' },
+    { code: 900, label: '900 역사·교사', sub: '서린고 30년사', col: '#5a3a22', tagLv: 2, au: '서린고', yr: '1998' },
+    { code: 300, label: '300 사회·교육', sub: '1998 학생생활규정', col: '#243c58', tagLv: 1, au: '교무부', yr: '1998' },
+    { code: 800, label: '800 문학·희곡', sub: '제30회 해교제 대본', col: '#544626', tagLv: 0, au: '방송부', yr: '1998' },
   ];
-  let sel = -1;
-
-  function draw() {
-    g.fillStyle = '#120e0b'; g.fillRect(0, 0, c.width, c.height);
-    g.fillStyle = '#3d2716'; g.fillRect(20, 16, 480, 258);
-    g.fillStyle = '#24160c'; g.fillRect(32, 28, 456, 224);
-    g.fillStyle = '#5a3b22'; g.fillRect(20, 252, 480, 22);
-
-    // 라벨 수평 정렬 기준선 (tagLv === 1 위치: y = 162)
-    g.strokeStyle = 'rgba(255, 90, 70, 0.75)'; g.lineWidth = 2; g.setLineDash([6, 4]);
-    g.beginPath(); g.moveTo(36, 166); g.lineTo(484, 166); g.stroke(); g.setLineDash([]);
-
+  const ORD = [100, 300, 400, 800, 900], ROD = 166;
+  let sel = -1, cur = 0, lastT = performance.now();
+  const shown = books.map((b, i) => ({ x: 46 + i * 88, y: 34 + b.tagLv * 13 }));   // 애니메이션용 위치
+  function draw(dt) {
+    mgWood(g, 0, 0, c.width, c.height, '#2a1a0e');
+    // 서랍 속 (어두운 내부 · 옆판)
+    g.fillStyle = '#1a0f07'; g.fillRect(20, 14, 480, 196);
+    const side = g.createLinearGradient(20, 0, 60, 0); side.addColorStop(0, '#6a4424'); side.addColorStop(1, '#3a2412'); g.fillStyle = side; g.fillRect(20, 14, 18, 196); g.save(); g.scale(-1, 1); g.fillStyle = side; g.fillRect(-500, 14, 18, 196); g.restore();
+    // 황동 고정봉 (카드 아래 구멍을 꿰는 막대)
+    const rodG = () => { const rg = g.createLinearGradient(0, ROD - 4, 0, ROD + 4); rg.addColorStop(0, '#fff0b0'); rg.addColorStop(.5, '#c09030'); rg.addColorStop(1, '#5a3c10'); g.fillStyle = rg; g.fillRect(30, ROD - 3.5, 460, 7); };
+    rodG();
     books.forEach((b, i) => {
-      const bx = 46 + i * 88, by = 40, bw = 72, bh = 210;
-      const orderOk = [100, 300, 400, 800, 900][i] === b.code;
-      const tagOk = b.tagLv === 1;
-      const dy = sel === i ? -10 : 0;
-      g.fillStyle = b.col; g.fillRect(bx, by + dy, bw, bh);
-      g.strokeStyle = sel === i ? '#ffd868' : (orderOk && tagOk ? '#68ffa8' : '#8a7a60');
-      g.lineWidth = sel === i ? 3 : 1.5; g.strokeRect(bx, by + dy, bw, bh);
-
-      g.fillStyle = '#f0e6d2'; g.font = 'bold 11px serif';
-      g.fillText(b.sub.slice(0, 6), bx + 8, by + 36 + dy);
-      if (b.sub.length > 6) g.fillText(b.sub.slice(6), bx + 8, by + 52 + dy);
-
-      // 슬라이딩 청구기호 라벨 (tagLv: 0=상, 1=중(정렬), 2=하)
-      const ly = by + 88 + b.tagLv * 26 + dy;
-      g.fillStyle = '#f2ece0'; g.fillRect(bx + 6, ly, bw - 12, 42);
-      g.strokeStyle = tagOk ? '#288a48' : '#c84030'; g.lineWidth = 2; g.strokeRect(bx + 8, ly + 2, bw - 16, 38);
-      g.fillStyle = '#1a1612'; g.font = 'bold 13px monospace'; g.fillText('KDC ' + b.code, bx + 11, ly + 19);
-      g.font = '10px sans-serif'; g.fillText(b.label.split(' ')[1], bx + 12, ly + 34);
-
-      // 하단 라벨 높이 조절 버튼 (▲ / ▼)
-      g.fillStyle = '#1c2428'; g.fillRect(bx + 6, by + 178 + dy, 28, 24); g.fillRect(bx + 38, by + 178 + dy, 28, 24);
-      g.strokeStyle = '#687880'; g.strokeRect(bx + 6, by + 178 + dy, 28, 24); g.strokeRect(bx + 38, by + 178 + dy, 28, 24);
-      g.fillStyle = '#e8f0f4'; g.font = 'bold 11px sans-serif';
-      g.fillText('▲', bx + 14, by + 194 + dy); g.fillText('▼', bx + 46, by + 194 + dy);
+      const t = shown[i], tx = 46 + i * 88, ty = 34 + b.tagLv * 13 - (sel === i ? 12 : 0);
+      t.x += (tx - t.x) * Math.min(1, dt * 12); t.y += (ty - t.y) * Math.min(1, dt * 12);
+      const bx = t.x, by = t.y, bw = 72, bh = 150, orderOk = ORD[i] === b.code, tagOk = b.tagLv === 1;
+      g.save(); g.shadowColor = 'rgba(0,0,0,.6)'; g.shadowBlur = 6; g.shadowOffsetY = 3; mgPaper(g, bx, by, bw, bh, '#f1e9d2', 'card'); g.restore();
+      g.strokeStyle = '#c03030'; g.lineWidth = 1.2; g.beginPath(); g.moveTo(bx + 3, by + 26); g.lineTo(bx + bw - 3, by + 26); g.stroke();   // 붉은 머리줄
+      g.strokeStyle = 'rgba(70,110,170,.35)'; g.lineWidth = .6; for (let k = 0; k < 7; k++) { g.beginPath(); g.moveTo(bx + 3, by + 40 + k * 13); g.lineTo(bx + bw - 3, by + 40 + k * 13); g.stroke(); }
+      g.strokeStyle = 'rgba(192,48,48,.4)'; g.beginPath(); g.moveTo(bx + 18, by + 28); g.lineTo(bx + 18, by + 132); g.stroke();
+      g.fillStyle = '#16120e'; g.font = 'bold 12px "Courier New", monospace'; g.fillText(String(b.code), bx + 4, by + 20); g.font = '9px "Courier New", monospace'; g.fillText('c.' + (b.code / 100), bx + 46, by + 20);
+      const T = s2 => (window.__i18n ? window.__i18n.tr(s2) : s2), words = T(b.sub).split(/(?<=\S)(?=\s)|(?<=[가-힣]{4})/), lines = ['']; g.font = '9.5px "Noto Serif KR", serif';
+      words.forEach(w => { const t2 = lines[lines.length - 1] + w; if (g.measureText(t2).width > bw - 24 && lines[lines.length - 1]) lines.push(w.trim()); else lines[lines.length - 1] = t2; });
+      lines.slice(0, 3).forEach((ln, k) => g.fillText(ln.trim(), bx + 21, by + 38 + k * 13));
+      g.font = '8.5px "Noto Serif KR", serif'; g.fillStyle = '#3a342c'; g.fillText(T(b.au + ' 저'), bx + 21, by + 77); g.fillText(b.yr + '.', bx + 21, by + 90); g.fillText(T(b.label.split(' ')[1]), bx + 21, by + 103);
+      // 아래 구멍: 고정봉에 맞으면 봉이 구멍을 지나간다
+      const hy = by + 119; g.fillStyle = '#1a0f07'; g.beginPath(); g.arc(bx + bw / 2, hy, 5, 0, 7); g.fill();
+      if (tagOk && Math.abs(hy - ROD) < 2) { g.save(); g.beginPath(); g.arc(bx + bw / 2, hy, 5, 0, 7); g.clip(); rodG(); g.restore(); }
+      g.strokeStyle = sel === i ? '#ffd040' : i === cur ? 'rgba(255,220,120,.8)' : orderOk && tagOk ? 'rgba(60,160,90,.8)' : 'rgba(80,60,40,.6)'; g.lineWidth = sel === i ? 3 : i === cur ? 2 : 1; g.strokeRect(bx, by, bw, bh);
     });
-
-    const allOk = books.every((b, i) => b.code === [100, 300, 400, 800, 900][i] && b.tagLv === 1);
-    g.fillStyle = allOk ? '#247e4c' : '#263038'; g.fillRect(20, 284, 480, 42);
-    g.strokeStyle = allOk ? '#70ffb0' : '#586874'; g.lineWidth = 2; g.strokeRect(20, 284, 480, 42);
-    g.fillStyle = '#ffffff'; g.font = 'bold 13px sans-serif';
-    g.fillText(allOk ? '✦ KDC 오름차순 & 라벨 기준선 정렬 완료 — [Space / 클릭] 비밀 서가 개방!' : '100→300→400→800→900 배열 + 모든 라벨을 붉은 점선(중앙)에 맞추세요', 42, 310);
+    // 서랍 앞판 (참나무 · 황동 손잡이 · 색인 꽂이)
+    const fg = g.createLinearGradient(0, 200, 0, 276); fg.addColorStop(0, '#8a5a30'); fg.addColorStop(1, '#4a2c14'); g.fillStyle = fg; g.fillRect(14, 200, 492, 76);
+    g.fillStyle = 'rgba(0,0,0,.25)'; for (let k = 0; k < 9; k++) g.fillRect(14, 206 + k * 8, 492, 1);
+    books.forEach((b, i) => { const bx = 46 + i * 88; [[bx + 6, '▲'], [bx + 38, '▼']].forEach(([x0, t]) => { const br = g.createLinearGradient(0, 214, 0, 240); br.addColorStop(0, '#f0d890'); br.addColorStop(1, '#8a6420'); g.fillStyle = br; g.fillRect(x0, 216, 28, 24); g.strokeStyle = '#3a2408'; g.lineWidth = 1; g.strokeRect(x0, 216, 28, 24); g.fillStyle = '#2a1a06'; g.font = 'bold 11px sans-serif'; g.fillText(t, x0 + 8, 232); }); });
+    g.fillStyle = '#d8c690'; g.fillRect(212, 246, 96, 22); g.strokeStyle = '#7a5a1c'; g.lineWidth = 2; g.strokeRect(212, 246, 96, 22); g.fillStyle = '#2a1a0a'; g.font = 'bold 11px "Courier New", monospace'; g.fillText('KDC 100-999', 222, 261);
+    const allOk = books.every((b, i) => b.code === ORD[i] && b.tagLv === 1);
+    g.fillStyle = allOk ? '#247e4c' : 'rgba(20,14,8,.85)'; g.fillRect(20, 284, 480, 42); g.strokeStyle = allOk ? '#70ffb0' : '#6a5038'; g.lineWidth = 2; g.strokeRect(20, 284, 480, 42);
+    g.fillStyle = '#ffffff'; g.font = 'bold 12.5px sans-serif';
+    g.fillText(allOk ? '✦ KDC 오름차순 & 고정봉 정렬 완료 — [Space / 클릭] 비밀 서가 개방!' : '100→300→400→800→900 배열 + 모든 카드 구멍을 황동 고정봉에 맞추세요', 34, 310);
   }
-
   const tryUnlock = () => {
-    if (books.every((b, i) => b.code === [100, 300, 400, 800, 900][i] && b.tagLv === 1)) {
-      sfx.unlock(); status('달칵— KDC 청구기호와 라벨 자석 핀이 맞물리며 비밀 서가가 열렸다!', 'ok');
-      setTimeout(() => close(true), 450);
-    } else {
-      sfx.buzz(); status('책 순서(100→300→400→800→900)와 등표지 라벨 높이(붉은 점선)를 모두 맞추세요!', 'err');
-    }
+    if (books.every((b, i) => b.code === ORD[i] && b.tagLv === 1)) { sfx.unlock(); status('달칵— KDC 청구기호와 라벨 자석 핀이 맞물리며 비밀 서가가 열렸다!', 'ok'); setTimeout(() => close(true), 450); }
+    else { sfx.buzz(); status('카드 순서(100→300→400→800→900)와 카드 구멍 높이(황동 고정봉)를 모두 맞추세요!', 'err'); }
   };
-
+  const pick = idx => {
+    cur = idx;
+    if (sel === -1) { sel = idx; sfx.paper ? sfx.paper() : sfx.click(); }
+    else if (sel === idx) { sel = -1; sfx.click(); }
+    else { const tmp = books[sel]; books[sel] = books[idx]; books[idx] = tmp; const ts = shown[sel]; shown[sel] = shown[idx]; shown[idx] = ts; sel = -1; sfx.slide ? sfx.slide() : sfx.click(); }
+  };
+  const lift = (idx, d) => { books[idx].tagLv = clamp(books[idx].tagLv + d, 0, 2); sfx.dial(); };
   c.addEventListener('click', e => {
     if (!finish) return;
     const rc = c.getBoundingClientRect(), x = (e.clientX - rc.left) * c.width / rc.width, y = (e.clientY - rc.top) * c.height / rc.height;
     if (y >= 280) { tryUnlock(); return; }
-    const idx = Math.floor((x - 46) / 88);
-    if (idx < 0 || idx >= 5) return;
+    const idx = Math.floor((x - 46) / 88); if (idx < 0 || idx >= 5) return;
     const bx = 46 + idx * 88;
-    // 하단 ▲ / ▼ 버튼 클릭 시 라벨 높이 변경
-    if (y >= 210 && y <= 252) {
-      if (x - bx < 36) books[idx].tagLv = Math.max(0, books[idx].tagLv - 1);
-      else books[idx].tagLv = Math.min(2, books[idx].tagLv + 1);
-      sfx.dial(); draw(); return;
-    }
-    // 책 상단 클릭 시 두 권 위치 교환
-    if (sel === -1) { sel = idx; sfx.click(); draw(); }
-    else if (sel === idx) { sel = -1; sfx.click(); draw(); }
-    else {
-      const tmp = books[sel]; books[sel] = books[idx]; books[idx] = tmp; sel = -1; sfx.slide ? sfx.slide() : sfx.click(); draw();
-    }
+    if (y >= 210 && y <= 252) { cur = idx; lift(idx, x - bx < 36 ? -1 : 1); return; }
+    if (y < 210) pick(idx);
   });
-
   keys(e => {
     if (e.type !== 'keydown') return;
-    if (e.code === 'Space' || e.code === 'Enter') tryUnlock();
+    if (e.code === 'ArrowLeft' || e.code === 'KeyA') cur = (cur + 4) % 5;
+    else if (e.code === 'ArrowRight' || e.code === 'KeyD') cur = (cur + 1) % 5;
+    else if (e.code === 'ArrowUp' || e.code === 'KeyW') lift(cur, -1);
+    else if (e.code === 'ArrowDown' || e.code === 'KeyS') lift(cur, 1);
+    else if (e.code === 'KeyF' && !e.repeat) pick(cur);
+    else if (e.code === 'Space' || e.code === 'Enter') tryUnlock();
   });
-
-  draw(); return p;
+  const loop = now => { const dt = Math.min(.08, (now - lastT) / 1000); lastT = now; draw(dt); raf = requestAnimationFrame(loop); };
+  raf = requestAnimationFrame(loop); return p;
 }
 
 function cassetteSplice({ title = '방송실 — 1998년 하교 방송 카세트테이프 마그네틱 필름 접합' } = {}) {
-  const p = open(title, '<b>1단계:</b> 끊어진 <b>마그네틱 테이프 파단부 3곳</b>을 클릭해 스플라이싱 테이프로 접합하라<br><b>2단계:</b> 우측 <b>[헤드 방위각(Azimuth) 드라이버 나사(A·D / 노브)]</b>를 돌려 L/R 위상 동조율을 88% 이상 맞춘 뒤 <b>[Space / 재생 검증]</b>을 눌러라!');
+  const p = open(title, '<b>1단계:</b> 끊어진 <b>마그네틱 테이프 파단부 3곳</b>을 클릭(또는 <b>F</b>)해 가위로 다듬고 스플라이싱 테이프로 접합하라<br><b>2단계:</b> 우측 <b>[헤드 방위각(Azimuth) 드라이버 나사(A·D / 노브)]</b>를 돌려 L/R 위상 동조율을 88% 이상 맞춘 뒤 <b>[Space / 재생 검증]</b>을 눌러라!');
   const c = canvas(520, 340), g = c.getContext('2d');
   screen3D(c, { kind: 'metal', prop: 'tape' });
-  const breaks = [
-    { x: 118, y: 218, fixed: false },
-    { x: 205, y: 232, fixed: false },
-    { x: 292, y: 218, fixed: false },
-  ];
+  const breaks = [{ x: 118, y: 228, fixed: false, t: 0 }, { x: 205, y: 240, fixed: false, t: 0 }, { x: 292, y: 228, fixed: false, t: 0 }];
   const targetAz = .25 + Math.random() * .55;
-  let az = .08, playing = false, reelAng = 0, lastT = performance.now(), dn = {};
-
+  let az = .08, playing = false, reelAng = 0, lastT = performance.now(), dn = {}, vu = [0, 0];
   const triggerPlay = () => {
     if (!breaks.every(b => b.fixed)) { sfx.buzz(); status('먼저 끊어진 마그네틱 필름 3곳을 모두 클릭해 스플라이싱 테이프로 접합하세요!', 'err'); return; }
     const sync = clamp(1 - Math.abs(az - targetAz) / .14, 0, 1);
     if (sync < .86) { sfx.buzz(); status('자기 헤드 방위각(Azimuth)이 어긋나 음성이 뭉개집니다! [A/D]로 위상 동조율을 88% 이상 맞추세요.', 'err'); return; }
     if (playing) return;
-    playing = true; sfx.unlock();
+    playing = true; sfx.tape ? sfx.tape() : sfx.unlock(); setTimeout(() => sfx.unlock(), 250);
     status('철컥, 지이잉— 방위각이 완벽히 맞물리며 1998년 10월 12일의 원본 음성이 선명히 재생된다!', 'ok');
-    setTimeout(() => close(true), 600);
+    setTimeout(() => close(true), 900);
   };
-
+  const splice = b => { if (!b || b.fixed) return; b.fixed = true; b.t = 1; sfx.paper ? sfx.paper() : sfx.click(); setTimeout(() => sfx.click(), 180); if (breaks.every(k => k.fixed)) status('필름 3곳 접합 완료! 이제 우측 헤드 방위각(Azimuth) 나사를 조절하세요.'); };
   c.addEventListener('mousedown', e => {
     if (!finish || playing) return;
     const rc = c.getBoundingClientRect(), x = (e.clientX - rc.left) * c.width / rc.width, y = (e.clientY - rc.top) * c.height / rc.height;
     const hit = breaks.find(b => !b.fixed && Math.hypot(b.x - x, b.y - y) < 28);
-    if (hit) { hit.fixed = true; sfx.click(); if (breaks.every(b => b.fixed)) status('필름 3곳 접합 완료! 이제 우측 헤드 방위각(Azimuth) 나사를 조절하세요.'); return; }
-    if (x >= 365 && y >= 115 && y <= 195) {
-      az = clamp((x - 375) / 120, 0, 1); sfx.dial(); return;
-    }
+    if (hit) { splice(hit); return; }
+    if (x >= 365 && y >= 115 && y <= 195) { az = clamp((x - 375) / 120, 0, 1); sfx.dial(); return; }
     if (y >= 272) triggerPlay();
   });
   c.addEventListener('wheel', e => { e.preventDefault(); az = clamp(az + (e.deltaY < 0 ? .03 : -.03), 0, 1); sfx.dial(); }, { passive: false });
-
   keys(e => {
     dn[e.code] = e.type === 'keydown';
-    if (e.type === 'keydown' && (e.code === 'Space' || e.code === 'Enter')) triggerPlay();
+    if (e.type !== 'keydown' || e.repeat) return;
+    if (e.code === 'Space' || e.code === 'Enter') triggerPlay();
+    else if (e.code === 'KeyF') splice(breaks.find(b => !b.fixed));
+    else if (/^Digit[1-3]$/.test(e.code)) splice(breaks[+e.code.slice(-1) - 1]);
   });
-
+  const hub = (x, y, packR) => {   // 테이프 감긴 릴(갈색 산화철 층) + 흰 허브 6톱니
+    const pk = g.createRadialGradient(x, y, 12, x, y, packR); pk.addColorStop(0, '#3a2414'); pk.addColorStop(.7, '#5a3820'); pk.addColorStop(1, '#4a2c18');
+    g.fillStyle = pk; g.beginPath(); g.arc(x, y, packR, 0, 7); g.fill();
+    g.strokeStyle = 'rgba(255,220,180,.08)'; for (let r = 16; r < packR; r += 3) { g.beginPath(); g.arc(x, y, r, 0, 7); g.stroke(); }
+    g.save(); g.translate(x, y); g.rotate(reelAng); g.fillStyle = '#f0ece2'; g.beginPath(); g.arc(0, 0, 13, 0, 7); g.fill();
+    g.fillStyle = '#1a1612'; g.beginPath(); g.arc(0, 0, 7, 0, 7); g.fill(); g.fillStyle = '#f0ece2'; for (let k = 0; k < 6; k++) { g.save(); g.rotate(k * Math.PI / 3); g.fillRect(-1.5, -7, 3, 3.5); g.restore(); } g.restore();
+  };
+  const scissors = (x, y, k) => {   // 가위: 날이 닫히며 테이프 끝을 비스듬히 자른다
+    g.save(); g.translate(x, y - 20); g.rotate(-.5); const o = (1 - k) * .45;
+    [o, -o].forEach((a, i) => { g.save(); g.rotate(a); g.fillStyle = '#d8dce0'; g.beginPath(); g.moveTo(0, 0); g.lineTo(22, i ? 2 : -2); g.lineTo(0, i ? 4 : -4); g.fill(); g.strokeStyle = '#c03030'; g.lineWidth = 3; g.beginPath(); g.arc(-12, i ? 6 : -6, 6, 0, 7); g.stroke(); g.restore(); });
+    g.fillStyle = '#555'; g.beginPath(); g.arc(0, 0, 2, 0, 7); g.fill(); g.restore();
+  };
   const loop = now => {
     const dt = Math.min(.08, (now - lastT) / 1000); lastT = now;
     if (dn.KeyA || dn.ArrowLeft) az = clamp(az - dt * .38, 0, 1);
     if (dn.KeyD || dn.ArrowRight) az = clamp(az + dt * .38, 0, 1);
     if (playing) reelAng += dt * 4.5;
-
-    const allFixed = breaks.every(b => b.fixed);
-    const sync = allFixed ? clamp(1 - Math.abs(az - targetAz) / .14, 0, 1) : 0;
-
-    g.fillStyle = '#0e1114'; g.fillRect(0, 0, c.width, c.height);
-    // 좌측 카세트 본체
-    g.fillStyle = '#23282e'; g.fillRect(22, 16, 330, 240); g.strokeStyle = '#586470'; g.lineWidth = 2.5; g.strokeRect(22, 16, 330, 240);
-    g.fillStyle = '#e8dfc8'; g.fillRect(40, 32, 294, 134); g.fillStyle = '#b83228'; g.fillRect(40, 32, 294, 24);
-    g.fillStyle = '#ffffff'; g.font = 'bold 12px sans-serif'; g.fillText('TDK SA-60  |  1998.10.12 방송부 원본 (SIDE A)', 52, 48);
-    g.fillStyle = '#14181c'; g.fillRect(72, 70, 230, 80);
-    [125, 248].forEach(rx => {
-      g.save(); g.translate(rx, 110); g.rotate(reelAng);
-      g.fillStyle = '#3d2418'; g.beginPath(); g.arc(0, 0, 32, 0, 7); g.fill();
-      g.fillStyle = '#ece6d8'; g.beginPath(); g.arc(0, 0, 16, 0, 7); g.fill();
-      g.restore();
-    });
-
-    g.strokeStyle = '#6e4228'; g.lineWidth = 4; g.beginPath(); g.moveTo(52, 192);
-    breaks.forEach(b => { if (b.fixed) g.lineTo(b.x, b.y); else { g.lineTo(b.x - 14, b.y - 8); g.moveTo(b.x + 14, b.y + 8); } });
-    g.lineTo(322, 192); g.stroke();
+    breaks.forEach(b => b.t = Math.max(0, b.t - dt * 2.2));
+    const allFixed = breaks.every(b => b.fixed), sync = allFixed ? clamp(1 - Math.abs(az - targetAz) / .14, 0, 1) : 0;
+    // 편집대: 검은 고무 매트
+    g.fillStyle = '#16181a'; g.fillRect(0, 0, c.width, c.height); g.fillStyle = 'rgba(255,255,255,.025)'; for (let i = 0; i < 40; i++) g.fillRect(0, i * 9, c.width, 1);
+    // 카세트 하우징: 반투명 스모크 플라스틱, 나사 5개, 라벨, 창
+    g.save(); g.shadowColor = 'rgba(0,0,0,.7)'; g.shadowBlur = 12; g.shadowOffsetY = 5;
+    const sh = g.createLinearGradient(0, 14, 0, 206); sh.addColorStop(0, '#4a4e54'); sh.addColorStop(1, '#25282c'); g.fillStyle = sh; g.beginPath(); g.roundRect(26, 14, 322, 196, 10); g.fill(); g.restore();
+    g.strokeStyle = 'rgba(255,255,255,.18)'; g.lineWidth = 1; g.beginPath(); g.roundRect(27, 15, 320, 194, 10); g.stroke();
+    [[38, 26], [336, 26], [38, 196], [336, 196], [187, 196]].forEach(([x, y]) => { g.fillStyle = '#8a8e92'; g.beginPath(); g.arc(x, y, 4, 0, 7); g.fill(); g.strokeStyle = '#2a2c30'; g.lineWidth = 1.2; g.beginPath(); g.moveTo(x - 2.5, y); g.lineTo(x + 2.5, y); g.moveTo(x, y - 2.5); g.lineTo(x, y + 2.5); g.stroke(); });
+    mgPaper(g, 46, 26, 282, 126, '#efe6cc', 'tdk');
+    g.fillStyle = '#1e3c8a'; g.fillRect(46, 26, 282, 20); g.fillStyle = '#c8202a'; g.fillRect(46, 46, 282, 3);
+    g.fillStyle = '#fff'; g.font = 'bold 12px sans-serif'; g.fillText('TDK SA-60', 54, 41); g.font = 'bold 9px sans-serif'; g.fillText('HIGH POSITION · TYPE II', 200, 41);
+    g.fillStyle = '#1a2a6a'; g.font = '16px "East Sea Dokdo", cursive, sans-serif'; g.fillText('1998.10.12 방송부 원본 (SIDE A)', 56, 66);
+    g.strokeStyle = 'rgba(30,40,90,.25)'; g.lineWidth = .6; for (let k = 0; k < 2; k++) { g.beginPath(); g.moveTo(54, 70 + k * 6); g.lineTo(320, 70 + k * 6); g.stroke(); }
+    // 창 (투명 플라스틱 너머 테이프 팩)
+    g.fillStyle = '#0e0c0a'; g.beginPath(); g.roundRect(78, 80, 218, 66, 30); g.fill();
+    hub(125, 113, 31); hub(248, 113, 22);
+    g.fillStyle = 'rgba(200,220,240,.08)'; g.beginPath(); g.roundRect(78, 80, 218, 66, 30); g.fill(); g.fillStyle = 'rgba(255,255,255,.12)'; g.fillRect(90, 84, 190, 5);
+    // 아래 헤드 창(사다리꼴) — 테이프가 여기서 빠져나와 편집대로 늘어져 있다
+    g.fillStyle = '#1c1e20'; g.beginPath(); g.moveTo(92, 210); g.lineTo(112, 172); g.lineTo(262, 172); g.lineTo(282, 210); g.fill();
+    [130, 244].forEach(x => { g.fillStyle = '#0a0a0a'; g.beginPath(); g.arc(x, 192, 6, 0, 7); g.fill(); });
+    // 늘어진 마그네틱 테이프 (갈색 리본) + 파단부
+    const path = [[100, 206], [118, 228], [205, 240], [292, 228], [274, 206]];
+    const ribbon = (x1, y1, x2, y2) => { g.strokeStyle = '#5a3418'; g.lineWidth = 7; g.lineCap = 'butt'; g.beginPath(); g.moveTo(x1, y1); g.lineTo(x2, y2); g.stroke(); g.strokeStyle = 'rgba(255,200,150,.18)'; g.lineWidth = 1; g.beginPath(); g.moveTo(x1, y1 - 2.5); g.lineTo(x2, y2 - 2.5); g.stroke(); };
+    for (let k = 0; k < path.length - 1; k++) {
+      const [x1, y1] = path[k], [x2, y2] = path[k + 1], b1 = breaks.find(b => b.x === x1), b2 = breaks.find(b => b.x === x2);
+      const sx = b1 && !b1.fixed ? x1 + (x2 - x1) * .1 : x1, sy = b1 && !b1.fixed ? y1 + (y2 - y1) * .1 : y1, ex = b2 && !b2.fixed ? x2 - (x2 - x1) * .1 : x2, ey = b2 && !b2.fixed ? y2 - (y2 - y1) * .1 + 4 : y2;
+      ribbon(sx, sy, ex, ey);
+    }
     breaks.forEach((b, bi) => {
-      g.fillStyle = b.fixed ? 'rgba(72, 255, 152, 0.25)' : 'rgba(255, 80, 60, 0.28)'; g.beginPath(); g.arc(b.x, b.y, 19, 0, 7); g.fill();
-      g.strokeStyle = b.fixed ? '#58ff9a' : '#ff6850'; g.lineWidth = 2; g.stroke();
-      g.fillStyle = '#f0ece4'; g.font = 'bold 10px sans-serif'; g.fillText(b.fixed ? '접합됨' : `파단#${bi + 1}`, b.x - 18, b.y + 32);
+      if (b.fixed) {   // 스플라이싱 테이프 (반투명 흰 조각 · 45° 이음매)
+        g.save(); g.translate(b.x, b.y); g.fillStyle = 'rgba(235,240,245,.72)'; g.fillRect(-9, -6, 18, 12); g.strokeStyle = 'rgba(255,255,255,.9)'; g.lineWidth = .7; g.strokeRect(-9, -6, 18, 12); g.strokeStyle = 'rgba(20,10,4,.7)'; g.beginPath(); g.moveTo(-3, 4); g.lineTo(3, -4); g.stroke(); g.restore();
+        if (b.t > 0) scissors(b.x, b.y, 1 - b.t);
+      } else {
+        g.strokeStyle = 'rgba(255,100,80,.6)'; g.setLineDash([3, 3]); g.lineWidth = 1.2; g.beginPath(); g.arc(b.x, b.y, 18, 0, 7); g.stroke(); g.setLineDash([]);
+        g.fillStyle = '#ffb8a8'; g.font = 'bold 10px sans-serif'; g.fillText(`파단#${bi + 1}`, b.x - 16, b.y + 30);
+      }
     });
-
-    // 우측 자기 헤드 방위각(Azimuth) 교정 패널
-    g.fillStyle = '#161e24'; g.fillRect(364, 16, 138, 240); g.strokeStyle = '#485866'; g.strokeRect(364, 16, 138, 240);
-    g.fillStyle = '#d8e6ee'; g.font = 'bold 12px sans-serif'; g.fillText('헤드 방위각(Azimuth)', 374, 38);
-    g.fillStyle = '#9ab0bc'; g.font = '10.5px sans-serif'; g.fillText('나사 조절: [A/D] · 휠', 374, 56);
-
-    // 방위각 황동 드라이버 나사 노브
-    g.save(); g.translate(433, 128); g.rotate((az - .5) * Math.PI * 1.6);
-    g.fillStyle = '#c89a38'; g.beginPath(); g.arc(0, 0, 32, 0, 7); g.fill();
-    g.strokeStyle = sync >= .86 ? '#58ff9a' : '#785818'; g.lineWidth = 3; g.stroke();
-    g.fillStyle = '#241c0c'; g.fillRect(-24, -3, 48, 6);
-    g.restore();
-
-    // L/R 듀얼 위상 동조 레벨 바
-    g.fillStyle = '#10161a'; g.fillRect(376, 182, 114, 14); g.fillRect(376, 202, 114, 14);
-    g.fillStyle = sync >= .86 ? '#58ff9a' : '#ffaa40';
-    g.fillRect(376, 182, 114 * sync, 14);
-    g.fillRect(376, 202, 114 * clamp(sync * (.92 + Math.sin(now * .01) * .08), 0, 1), 14);
-    g.fillStyle = '#e8f2f8'; g.font = 'bold 11.5px monospace';
-    g.fillText(`위상 동조율: ${Math.round(sync * 100)}%`, 378, 238);
-
+    // 우측: 재생 헤드 · 방위각 나사 · L/R VU 미터
+    g.fillStyle = '#202428'; g.fillRect(362, 14, 142, 246); g.strokeStyle = '#4a5560'; g.lineWidth = 1; g.strokeRect(362, 14, 142, 246);
+    g.fillStyle = '#d8e6ee'; g.font = 'bold 11.5px sans-serif'; g.fillText('헤드 방위각(Azimuth)', 370, 32); g.fillStyle = '#9ab0bc'; g.font = '10px sans-serif'; g.fillText('나사 조절: [A/D] · 휠', 370, 47);
+    g.save(); g.translate(433, 92); g.rotate((az - targetAz) * .5);   // 크롬 헤드 (방위각만큼 기운다)
+    const hd = g.createLinearGradient(-24, 0, 24, 0); hd.addColorStop(0, '#8a9096'); hd.addColorStop(.5, '#f4f6f8'); hd.addColorStop(1, '#6a7076'); g.fillStyle = hd; g.beginPath(); g.roundRect(-24, -16, 48, 32, 6); g.fill();
+    g.fillStyle = '#1a1a1a'; g.fillRect(-.8, -14, 1.6, 28); g.restore();
+    g.save(); g.translate(433, 150); g.rotate(az * Math.PI * 4);   // 방위각 나사 (십자 머리)
+    const sc2 = g.createRadialGradient(-4, -4, 1, 0, 0, 16); sc2.addColorStop(0, '#fff4c0'); sc2.addColorStop(.6, '#c89a38'); sc2.addColorStop(1, '#6a4a14'); g.fillStyle = sc2; g.beginPath(); g.arc(0, 0, 16, 0, 7); g.fill();
+    g.strokeStyle = sync >= .86 ? '#58ff9a' : '#3a2808'; g.lineWidth = 2; g.stroke(); g.fillStyle = '#241c0c'; g.fillRect(-11, -2, 22, 4); g.fillRect(-2, -11, 4, 22); g.restore();
+    g.fillStyle = '#8a9aa6'; g.font = '9px sans-serif'; g.fillText('◀ 0', 372, 176); g.fillText('1 ▶', 482, 176); g.fillStyle = '#3a4650'; g.fillRect(375, 180, 120, 4); g.fillStyle = '#ffd040'; g.fillRect(375 + az * 120 - 2, 177, 4, 10);
+    // VU 미터 2개 (크림색 판 · 바늘 · 붉은 +구간)
+    const tgtVu = playing || allFixed ? [sync * (.75 + Math.sin(now * .013) * .12), sync * (.72 + Math.sin(now * .017 + 1) * .12)] : [0, 0];
+    vu = vu.map((v, i) => v + (tgtVu[i] - v) * Math.min(1, dt * 8));
+    [['L', 397], ['R', 469]].forEach(([lb, cx], i) => {
+      g.fillStyle = '#efe4c4'; g.fillRect(cx - 32, 194, 64, 40); g.strokeStyle = '#111'; g.strokeRect(cx - 32, 194, 64, 40);
+      g.strokeStyle = '#222'; g.lineWidth = 1; g.beginPath(); g.arc(cx, 236, 30, Math.PI * 1.2, Math.PI * 1.65); g.stroke(); g.strokeStyle = '#c82020'; g.lineWidth = 2.5; g.beginPath(); g.arc(cx, 236, 30, Math.PI * 1.65, Math.PI * 1.8); g.stroke();
+      const a = Math.PI * (1.22 + vu[i] * .56); g.strokeStyle = '#111'; g.lineWidth = 1.2; g.beginPath(); g.moveTo(cx, 234); g.lineTo(cx + Math.cos(a) * 32, 234 + Math.sin(a) * 32); g.stroke();
+      g.fillStyle = '#111'; g.font = 'bold 9px sans-serif'; g.fillText(lb, cx - 28, 205); g.fillText('VU', cx + 14, 205);
+    });
+    g.fillStyle = sync >= .86 ? '#68ffa8' : '#e8f2f8'; g.font = 'bold 11px monospace'; g.fillText(`위상 동조율: ${Math.round(sync * 100)}%`, 370, 252);
     const ready = allFixed && sync >= .86;
-    g.fillStyle = ready ? '#247a48' : '#263038'; g.fillRect(22, 272, 480, 48);
-    g.strokeStyle = ready ? '#68ffa8' : '#586874'; g.lineWidth = 2; g.strokeRect(22, 272, 480, 48);
-    g.fillStyle = '#ffffff'; g.font = 'bold 13.5px sans-serif';
-    g.fillText(ready ? '▶ [Space / 클릭] 방위각 교정 완료 — 마스터 테이프 재생!' : `1) 필름 접합(${breaks.filter(b => b.fixed).length}/3)  +  2) 헤드 방위각 88% 이상(현재 ${Math.round(sync * 100)}%) 필요`, 52, 301);
-
+    g.fillStyle = ready ? '#247a48' : '#263038'; g.fillRect(22, 272, 480, 48); g.strokeStyle = ready ? '#68ffa8' : '#586874'; g.lineWidth = 2; g.strokeRect(22, 272, 480, 48);
+    g.fillStyle = '#ffffff'; g.font = 'bold 13px sans-serif';
+    g.fillText(ready ? '▶ [Space / 클릭] 방위각 교정 완료 — 마스터 테이프 재생!' : `1) 필름 접합(${breaks.filter(b => b.fixed).length}/3)  +  2) 헤드 방위각 88% 이상(현재 ${Math.round(sync * 100)}%) 필요`, 40, 301);
     raf = requestAnimationFrame(loop);
   };
   raf = requestAnimationFrame(loop); return p;
 }
 
 function microscopeSlide({ title = '과학준비실 — 광학 현미경 프레파라트 표본 초점·배율 판독' } = {}) {
-  const p = open(title, '<b>1) 대물렌즈[400x]</b> 전환 → <b>2) 프레파라트 스테이지[WASD / 뷰포트 드래그]</b>로 표본을 십자선 중앙에 이동 →<br><b>3) 미동 초점 나사[Q·E]</b>와 <b>4) 조리개 광량[Z·C]</b>을 맞춘 뒤 <b>[Space / 표본 판독 확정]</b>을 눌러라!');
+  const p = open(title, '<b>1) 대물렌즈[400x / 1·2·3]</b> 전환 → <b>2) 프레파라트 스테이지[WASD / 시야 드래그]</b>로 표본을 십자선 중앙에 이동 →<br><b>3) 조동 나사[Q·E] · 미동 나사[R·F / 휠]</b>로 초점을, <b>4) 조리개 광량[Z·C]</b>을 맞춘 뒤 <b>[Space / 표본 판독 확정]</b>을 눌러라!');
   const c = canvas(520, 340), g = c.getContext('2d');
   let mag = 100, focus = 0.18, targetFocus = 0.68, iris = 0.25, targetIris = 0.62;
-  let sx = 46, sy = -38, dragStage = false, lastMouse = [0, 0];
+  let sx = 46, sy = -38, dragStage = false, lastMouse = [0, 0], knobA = [0, 0];
   screen3D(c, { kind: 'metal', prop: 'microscope', anim: () => ({ mag, sx, sy, focus, iris }) });
-
-  function draw() {
-    g.fillStyle = '#090c10'; g.fillRect(0, 0, c.width, c.height);
-    const cx = 160, cy = 165, r = 126;
-    const fErr = Math.abs(focus - targetFocus) + (mag === 400 ? 0 : 0.35);
-    const iErr = Math.abs(iris - targetIris);
-    const posErr = Math.hypot(sx, sy);
-
-    g.save(); g.beginPath(); g.arc(cx, cy, r, 0, Math.PI * 2); g.clip();
-    const bright = Math.round(180 + (iris - .5) * 110);
-    const bg = g.createRadialGradient(cx, cy, 10, cx, cy, r);
-    bg.addColorStop(0, `rgb(${bright},${Math.min(255, bright + 24)},${Math.min(255, bright + 12)})`);
-    bg.addColorStop(0.78, '#689888'); bg.addColorStop(1, '#14221e');
-    g.fillStyle = bg; g.fillRect(cx - r, cy - r, r * 2, r * 2);
-
-    const scale = mag / 200;
-    const tx = cx + sx, ty = cy + sy;
-    for (let i = 0; i < 9; i++) {
-      const ax = tx + Math.cos(i * 1.1) * 34 * scale, ay = ty + Math.sin(i * 1.4) * 28 * scale;
-      g.fillStyle = `rgba(40, 105, 90, ${clamp(0.78 - fErr * 0.85 - iErr * 0.5, 0.12, 0.78)})`;
-      g.beginPath(); g.ellipse(ax, ay, (16 + fErr * 22) * scale * 0.6, (11 + fErr * 18) * scale * 0.6, i * 0.4, 0, Math.PI * 2); g.fill();
-    }
-    g.fillStyle = `rgba(15, 30, 25, ${clamp(1 - fErr * 1.5 - iErr * 0.8, 0.10, 0.96)})`;
-    g.font = 'bold ' + Math.round(14.5 * (mag === 400 ? 1 : 0.7)) + 'px monospace';
-    g.fillText('SAMPLE #98-1012-HN', tx - 76, ty + 5);
-
-    // 십자선 & 중앙 타겟 링
-    g.strokeStyle = 'rgba(20,30,28,0.45)'; g.lineWidth = 1;
-    g.beginPath(); g.moveTo(cx - r, cy); g.lineTo(cx + r, cy); g.moveTo(cx, cy - r); g.lineTo(cx, cy + r); g.stroke();
-    g.strokeStyle = posErr < 18 ? 'rgba(40,200,100,0.85)' : 'rgba(220,60,40,0.65)';
-    g.lineWidth = 2; g.beginPath(); g.arc(cx, cy, 28, 0, Math.PI * 2); g.stroke();
-    g.restore();
-    g.strokeStyle = '#38444c'; g.lineWidth = 8; g.beginPath(); g.arc(cx, cy, r, 0, Math.PI * 2); g.stroke();
-
-    // 우측 4단 제어 패널
-    g.fillStyle = '#151c22'; g.fillRect(304, 16, 200, 308); g.strokeStyle = '#3a4a56'; g.lineWidth = 1.5; g.strokeRect(304, 16, 200, 308);
-    g.fillStyle = '#d8e6ee'; g.font = 'bold 11.5px sans-serif'; g.fillText('1. 리볼버 대물렌즈 배율', 316, 38);
-    [40, 100, 400].forEach((m, idx) => {
-      const bx = 316 + idx * 58, by = 46;
-      g.fillStyle = mag === m ? '#2a7a56' : '#242e36'; g.fillRect(bx, by, 52, 26);
-      g.strokeStyle = mag === m ? '#68ffa8' : '#50606c'; g.strokeRect(bx, by, 52, 26);
-      g.fillStyle = '#ffffff'; g.font = 'bold 11px monospace'; g.fillText(m + 'x', bx + 12, by + 17);
-    });
-
-    const stageOk = posErr < 18, focusOk = Math.abs(focus - targetFocus) < 0.11, irisOk = Math.abs(iris - targetIris) < 0.14;
-    g.fillStyle = stageOk ? '#68ffa8' : '#ffd068'; g.font = 'bold 11.5px sans-serif';
-    g.fillText(`2. 스테이지 중앙 정렬 [WASD]: ${stageOk ? 'OK' : '조절필요'}`, 316, 94);
-    g.fillStyle = '#242e36';
-    [['◀X', 316], ['X▶', 360], ['▲Y', 404], ['Y▼', 448]].forEach(([lb, bx]) => {
-      g.fillStyle = '#242e36'; g.fillRect(bx, 102, 40, 24); g.strokeStyle = '#50606c'; g.strokeRect(bx, 102, 40, 24);
-      g.fillStyle = '#ffffff'; g.font = '10.5px sans-serif'; g.fillText(lb, bx + 10, 118);
-    });
-
-    g.fillStyle = focusOk ? '#68ffa8' : '#d8e6ee'; g.font = 'bold 11.5px sans-serif';
-    g.fillText('3. 미동 초점 나사 [Q / E]', 316, 148);
-    g.fillStyle = '#242e36'; g.fillRect(316, 156, 174, 16);
-    g.fillStyle = focusOk ? '#58ff9a' : '#e0a838'; g.fillRect(316, 156, 174 * focus, 16);
-    g.strokeStyle = '#ffffff'; g.strokeRect(316 + 174 * targetFocus - 3, 153, 6, 22);
-
-    g.fillStyle = irisOk ? '#68ffa8' : '#d8e6ee'; g.font = 'bold 11.5px sans-serif';
-    g.fillText('4. 조리개 광량 조절 [Z / C]', 316, 198);
-    g.fillStyle = '#242e36'; g.fillRect(316, 206, 174, 16);
-    g.fillStyle = irisOk ? '#58ff9a' : '#58b8ff'; g.fillRect(316, 206, 174 * iris, 16);
-    g.strokeStyle = '#ffffff'; g.strokeRect(316 + 174 * targetIris - 3, 203, 6, 22);
-
-    const ready = mag === 400 && stageOk && focusOk && irisOk;
-    g.fillStyle = ready ? '#247e4c' : '#28323a'; g.fillRect(316, 242, 174, 66);
-    g.strokeStyle = ready ? '#70ffb0' : '#52606c'; g.lineWidth = 2; g.strokeRect(316, 242, 174, 66);
-    g.fillStyle = '#ffffff'; g.font = 'bold 12.5px sans-serif';
-    g.fillText(ready ? '✦ [Space / 클릭]' : '4개 항목 동조 후', 346, 270);
-    g.fillText(ready ? '표본 코드 판독 확정!' : '판독 가능', 346, 292);
+  // 표본: 아세트산카민으로 물들인 양파 표피 세포 (벽돌 모양 세포벽 + 붉은 핵) + 슬라이드 글라스에 긁힌 표본 코드
+  const SP = document.createElement('canvas'); SP.width = SP.height = 420; const sq = SP.getContext('2d');
+  for (let row = 0; row < 16; row++) for (let col = 0; col < 7; col++) {
+    const w = 64, h = 27, x = col * w + (row % 2) * w * .45 - 30 + Math.random() * 5, y = row * h + Math.random() * 3;
+    sq.fillStyle = `rgba(${200 + Math.random() * 30},${120 + Math.random() * 30},${150 + Math.random() * 30},.22)`; sq.strokeStyle = 'rgba(120,40,80,.65)'; sq.lineWidth = 2;
+    sq.beginPath(); sq.moveTo(x + 2, y + 1); sq.lineTo(x + w - 1, y + Math.random() * 3); sq.lineTo(x + w + 1, y + h - 1); sq.lineTo(x, y + h + Math.random() * 2); sq.closePath(); sq.fill(); sq.stroke();
+    sq.fillStyle = 'rgba(150,30,70,.8)'; sq.beginPath(); sq.ellipse(x + w * (.3 + Math.random() * .4), y + h / 2, 5, 4, 0, 0, 7); sq.fill(); sq.fillStyle = 'rgba(90,10,40,.9)'; sq.beginPath(); sq.arc(x + w * .5, y + h / 2, 1.3, 0, 7);
   }
-
+  sq.fillStyle = 'rgba(30,20,30,.85)'; sq.font = 'bold 22px monospace'; sq.textAlign = 'center'; sq.fillText('SAMPLE #98-1012-HN', 210, 216);
+  const tint = col => { const t = document.createElement('canvas'); t.width = t.height = 420; const q = t.getContext('2d'); q.drawImage(SP, 0, 0); q.globalCompositeOperation = 'source-in'; q.fillStyle = col; q.fillRect(0, 0, 420, 420); return t; };
+  const SPR = tint('rgba(255,40,40,1)'), SPB = tint('rgba(40,90,255,1)');
+  const knob = (x, y, r, ang, label, key) => {   // 널링(톱니) 손잡이
+    g.save(); g.translate(x, y); g.fillStyle = 'rgba(0,0,0,.5)'; g.beginPath(); g.arc(2, 3, r, 0, 7); g.fill();
+    const kg = g.createRadialGradient(-r * .3, -r * .3, 1, 0, 0, r); kg.addColorStop(0, '#5a6066'); kg.addColorStop(1, '#14181c'); g.fillStyle = kg; g.beginPath(); g.arc(0, 0, r, 0, 7); g.fill();
+    g.rotate(ang); g.strokeStyle = 'rgba(200,210,220,.35)'; g.lineWidth = 1; for (let k = 0; k < 24; k++) { const a = k * Math.PI / 12; g.beginPath(); g.moveTo(Math.cos(a) * r * .72, Math.sin(a) * r * .72); g.lineTo(Math.cos(a) * r, Math.sin(a) * r); g.stroke(); }
+    const cg = g.createRadialGradient(-2, -2, 1, 0, 0, r * .5); cg.addColorStop(0, '#f0f2f4'); cg.addColorStop(1, '#7a8086'); g.fillStyle = cg; g.beginPath(); g.arc(0, 0, r * .45, 0, 7); g.fill();
+    g.fillStyle = '#d02020'; g.fillRect(-1, -r, 2, r * .3); g.restore();
+    g.fillStyle = '#c8d4dc'; g.font = 'bold 10px sans-serif'; g.textAlign = 'center'; g.fillText(label, x, y + r + 13); g.font = '9px sans-serif'; g.fillStyle = '#8a9aa6'; g.fillText(key, x, y + r + 24); g.textAlign = 'left';
+  };
+  function draw() {
+    g.fillStyle = '#07090b'; g.fillRect(0, 0, c.width, c.height);
+    const cx = 160, cy = 165, r = 126;
+    const fErr = Math.abs(focus - targetFocus) + (mag === 400 ? 0 : 0.35), iErr = Math.abs(iris - targetIris), posErr = Math.hypot(sx, sy);
+    // 접안렌즈 시야: 원형 · 가장자리 비네팅 · 밝기는 조리개
+    g.save(); g.beginPath(); g.arc(cx, cy, r, 0, Math.PI * 2); g.clip();
+    const lum = clamp(.35 + iris * .9, .2, 1.2), bg = g.createRadialGradient(cx - 10, cy - 12, 10, cx, cy, r);
+    bg.addColorStop(0, `rgb(${Math.min(255, 235 * lum)},${Math.min(255, 232 * lum)},${Math.min(255, 215 * lum)})`); bg.addColorStop(1, `rgb(${150 * lum},${145 * lum},${130 * lum})`);
+    g.fillStyle = bg; g.fillRect(cx - r, cy - r, r * 2, r * 2);
+    const scale = mag / 200, blur = clamp(fErr * 14, 0, 9), fr = clamp(fErr * 9, 0, 6), dw = 420 * scale;
+    g.save(); g.translate(cx + sx * scale * 1.2, cy + sy * scale * 1.2);
+    g.filter = blur > .4 ? `blur(${blur.toFixed(1)}px)` : 'none'; g.globalAlpha = clamp(1 - iErr * .6, .4, 1);
+    g.drawImage(SP, -dw / 2, -dw / 2, dw, dw);
+    if (fr > .5) { g.globalAlpha = .28; g.globalCompositeOperation = 'multiply'; g.drawImage(SPR, -dw / 2 + fr, -dw / 2, dw, dw); g.drawImage(SPB, -dw / 2 - fr, -dw / 2 + fr * .4, dw, dw); }   // 색수차 (초점이 어긋나면 붉고 푸른 테두리)
+    g.restore(); g.filter = 'none'; g.globalAlpha = 1; g.globalCompositeOperation = 'source-over';
+    if (iris > targetIris + .14) { g.fillStyle = `rgba(255,255,250,${(iris - targetIris - .14) * 1.6})`; g.fillRect(cx - r, cy - r, r * 2, r * 2); }   // 빛이 너무 세면 하얗게 날아간다
+    for (let i = 0; i < 6; i++) { g.fillStyle = 'rgba(60,50,40,.25)'; g.beginPath(); g.arc(cx - 70 + i * 31, cy + 60 - (i * 37) % 90, 1.5 + i % 3, 0, 7); g.fill(); }   // 렌즈 먼지
+    g.strokeStyle = 'rgba(10,10,10,.5)'; g.lineWidth = 1; g.beginPath(); g.moveTo(cx - r, cy); g.lineTo(cx + r, cy); g.moveTo(cx, cy - r); g.lineTo(cx, cy + r); g.stroke();
+    for (let k = -10; k <= 10; k++) { g.beginPath(); g.moveTo(cx + k * 8, cy - (k % 5 ? 3 : 6)); g.lineTo(cx + k * 8, cy + (k % 5 ? 3 : 6)); g.stroke(); }   // 접안 마이크로미터 눈금
+    g.strokeStyle = posErr < 18 ? 'rgba(40,160,80,.8)' : 'rgba(200,50,30,.55)'; g.lineWidth = 1.5; g.beginPath(); g.arc(cx, cy, 28, 0, Math.PI * 2); g.stroke();
+    const vg = g.createRadialGradient(cx, cy, r * .62, cx, cy, r); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.92)'); g.fillStyle = vg; g.fillRect(cx - r, cy - r, r * 2, r * 2);
+    g.restore();
+    g.strokeStyle = '#1a1e22'; g.lineWidth = 10; g.beginPath(); g.arc(cx, cy, r + 4, 0, Math.PI * 2); g.stroke(); g.strokeStyle = 'rgba(160,170,180,.25)'; g.lineWidth = 1; g.beginPath(); g.arc(cx, cy, r + 9, 0, Math.PI * 2); g.stroke();
+    g.fillStyle = '#7a8a96'; g.font = '10px monospace'; g.fillText(`×${mag}  (10× 접안 · ${mag / 10}× 대물)`, 22, 330);
+    // 우측: 리볼버 · 재물대 · 조동/미동 나사 · 조리개
+    g.fillStyle = '#12181e'; g.fillRect(304, 12, 204, 316); g.strokeStyle = '#34424e'; g.lineWidth = 1.5; g.strokeRect(304, 12, 204, 316);
+    g.fillStyle = '#d8e6ee'; g.font = 'bold 11.5px sans-serif'; g.fillText('1. 리볼버 대물렌즈 배율', 316, 32);
+    [[40, '#d0d0d0'], [100, '#e8c840'], [400, '#d83a3a']].forEach(([m, band], idx) => {   // 대물렌즈 색띠 (4× 흰 · 10× 노랑 · 40× 빨강)
+      const bx = 316 + idx * 60, by = 40, on = mag === m; const og = g.createLinearGradient(bx, 0, bx + 52, 0); og.addColorStop(0, '#7a8086'); og.addColorStop(.5, on ? '#ffffff' : '#c8ccd0'); og.addColorStop(1, '#6a7076');
+      g.fillStyle = og; g.fillRect(bx, by, 52, 26); g.fillStyle = band; g.fillRect(bx, by + 18, 52, 4); g.strokeStyle = on ? '#68ffa8' : '#3a4650'; g.lineWidth = on ? 2.5 : 1; g.strokeRect(bx, by, 52, 26);
+      g.fillStyle = '#111'; g.font = 'bold 11px monospace'; g.fillText(m + 'x', bx + 12, by + 15);
+    });
+    const stageOk = posErr < 18, focusOk = Math.abs(focus - targetFocus) < 0.11, irisOk = Math.abs(iris - targetIris) < 0.14;
+    g.fillStyle = stageOk ? '#68ffa8' : '#ffd068'; g.font = 'bold 11px sans-serif'; g.fillText(`2. 스테이지 중앙 정렬 [WASD]: ${stageOk ? 'OK' : '조절필요'}`, 316, 86);
+    [['◀X', 316], ['X▶', 360], ['▲Y', 404], ['Y▼', 448]].forEach(([lb, bx]) => { g.fillStyle = '#242e36'; g.fillRect(bx, 94, 40, 22); g.strokeStyle = '#50606c'; g.lineWidth = 1; g.strokeRect(bx, 94, 40, 22); g.fillStyle = '#ffffff'; g.font = '10.5px sans-serif'; g.fillText(lb, bx + 10, 109); });
+    g.fillStyle = focusOk ? '#68ffa8' : '#d8e6ee'; g.font = 'bold 11px sans-serif'; g.fillText('3. 초점 나사', 316, 136);
+    knob(352, 166, 22, knobA[0], '조동', 'Q·E'); knob(430, 166, 13, knobA[1], '미동', 'R·F / 휠');
+    g.fillStyle = irisOk ? '#68ffa8' : '#d8e6ee'; g.font = 'bold 11px sans-serif'; g.fillText('4. 조리개 광량 조절 [Z / C]', 316, 226);
+    g.fillStyle = '#242e36'; g.fillRect(316, 234, 174, 14); const ig = g.createLinearGradient(316, 0, 490, 0); ig.addColorStop(0, '#2a2a20'); ig.addColorStop(1, '#fff6c8'); g.fillStyle = ig; g.fillRect(316, 236, 174 * iris, 10);
+    g.fillStyle = '#ffd040'; g.fillRect(316 + 174 * iris - 2, 231, 4, 20);
+    const ready = mag === 400 && stageOk && focusOk && irisOk;
+    g.fillStyle = ready ? '#247e4c' : '#28323a'; g.fillRect(316, 262, 174, 56); g.strokeStyle = ready ? '#70ffb0' : '#52606c'; g.lineWidth = 2; g.strokeRect(316, 262, 174, 56);
+    g.fillStyle = '#ffffff'; g.font = 'bold 12px sans-serif'; g.fillText(ready ? '✦ [Space / 클릭]' : '4개 항목 동조 후', 340, 286); g.fillText(ready ? '표본 코드 판독 확정!' : '판독 가능', 340, 306);
+  }
   const confirmSlide = () => {
     const stageOk = Math.hypot(sx, sy) < 18, focusOk = Math.abs(focus - targetFocus) < 0.11, irisOk = Math.abs(iris - targetIris) < 0.14;
-    if (mag !== 400 || !stageOk || !focusOk || !irisOk) {
-      sfx.buzz(); status('배율(400x), 스테이지 중앙 정렬(WASD), 초점(Q/E), 조리개(Z/C) 4가지를 모두 녹색으로 맞추세요!', 'err'); return;
-    }
-    sfx.unlock(); status('표본 판독 완료 — 슬라이드 글라스의 1998.10.12 실험 기록을 확보했다!', 'ok');
-    setTimeout(() => close(true), 450);
+    if (mag !== 400 || !stageOk || !focusOk || !irisOk) { sfx.buzz(); status('배율(400x), 스테이지 중앙 정렬(WASD), 초점(Q/E), 조리개(Z/C) 4가지를 모두 녹색으로 맞추세요!', 'err'); return; }
+    sfx.unlock(); status('표본 판독 완료 — 슬라이드 글라스의 1998.10.12 실험 기록을 확보했다!', 'ok'); setTimeout(() => close(true), 450);
   };
-
+  const turn = (d, fine) => { focus = clamp(focus + d, 0.05, 0.95); knobA[fine ? 1 : 0] += d * 30; sfx.dial(); draw(); };
+  const setMag = m => { mag = m; sfx.click(); draw(); };
   c.addEventListener('mousedown', e => {
     if (!finish) return;
     const rc = c.getBoundingClientRect(), x = (e.clientX - rc.left) * c.width / rc.width, y = (e.clientY - rc.top) * c.height / rc.height;
     if (Math.hypot(x - 160, y - 165) <= 126) { dragStage = true; lastMouse = [x, y]; return; }
-    if (y >= 44 && y <= 76 && x >= 314 && x <= 495) { const idx = Math.floor((x - 316) / 58); if (idx >= 0 && idx < 3) { mag = [40, 100, 400][idx]; sfx.click(); draw(); } return; }
-    if (y >= 100 && y <= 128 && x >= 314 && x <= 495) {
-      const bi = Math.floor((x - 316) / 44);
-      if (bi === 0) sx = clamp(sx - 10, -65, 65);
-      else if (bi === 1) sx = clamp(sx + 10, -65, 65);
-      else if (bi === 2) sy = clamp(sy - 10, -65, 65);
-      else sy = clamp(sy + 10, -65, 65);
-      sfx.dial(); draw(); return;
-    }
-    if (y >= 150 && y <= 180 && x >= 314 && x <= 495) { focus = clamp((x - 316) / 174, 0.05, 0.95); sfx.dial(); draw(); return; }
-    if (y >= 200 && y <= 230 && x >= 314 && x <= 495) { iris = clamp((x - 316) / 174, 0.05, 0.95); sfx.dial(); draw(); return; }
-    if (y >= 240 && x >= 314) confirmSlide();
+    if (y >= 38 && y <= 68 && x >= 314 && x <= 498) { const idx = Math.floor((x - 316) / 60); if (idx >= 0 && idx < 3) setMag([40, 100, 400][idx]); return; }
+    if (y >= 92 && y <= 118 && x >= 314 && x <= 495) { const bi = Math.floor((x - 316) / 44); if (bi === 0) sx = clamp(sx - 10, -65, 65); else if (bi === 1) sx = clamp(sx + 10, -65, 65); else if (bi === 2) sy = clamp(sy - 10, -65, 65); else sy = clamp(sy + 10, -65, 65); sfx.dial(); draw(); return; }
+    if (Math.hypot(x - 352, y - 166) <= 26) { turn(x < 352 ? -0.07 : 0.07, false); return; }
+    if (Math.hypot(x - 430, y - 166) <= 17) { turn(x < 430 ? -0.02 : 0.02, true); return; }
+    if (y >= 228 && y <= 252 && x >= 314 && x <= 495) { iris = clamp((x - 316) / 174, 0.05, 0.95); sfx.dial(); draw(); return; }
+    if (y >= 260 && x >= 314) confirmSlide();
   });
+  c.addEventListener('wheel', e => { e.preventDefault(); turn(e.deltaY < 0 ? 0.02 : -0.02, true); }, { passive: false });
   c.addEventListener('mousemove', e => {
     if (!dragStage) return;
     const rc = c.getBoundingClientRect(), x = (e.clientX - rc.left) * c.width / rc.width, y = (e.clientY - rc.top) * c.height / rc.height;
-    sx = clamp(sx + (x - lastMouse[0]), -65, 65);
-    sy = clamp(sy + (y - lastMouse[1]), -65, 65);
-    lastMouse = [x, y]; draw();
+    sx = clamp(sx + (x - lastMouse[0]), -65, 65); sy = clamp(sy + (y - lastMouse[1]), -65, 65); lastMouse = [x, y]; draw();
   });
   const mu = () => { dragStage = false; };
   addEventListener('mouseup', mu); cleanups.push(() => removeEventListener('mouseup', mu));
-
   keys(e => {
     if (e.type !== 'keydown') return;
     if (e.code === 'KeyA' || e.code === 'ArrowLeft') { sx = clamp(sx - 10, -65, 65); sfx.dial(); draw(); }
     else if (e.code === 'KeyD' || e.code === 'ArrowRight') { sx = clamp(sx + 10, -65, 65); sfx.dial(); draw(); }
     else if (e.code === 'KeyW' || e.code === 'ArrowUp') { sy = clamp(sy - 10, -65, 65); sfx.dial(); draw(); }
     else if (e.code === 'KeyS' || e.code === 'ArrowDown') { sy = clamp(sy + 10, -65, 65); sfx.dial(); draw(); }
-    else if (e.code === 'KeyQ') { focus = clamp(focus - 0.07, 0.05, 0.95); sfx.dial(); draw(); }
-    else if (e.code === 'KeyE') { focus = clamp(focus + 0.07, 0.05, 0.95); sfx.dial(); draw(); }
+    else if (e.code === 'KeyQ') turn(-0.07, false);
+    else if (e.code === 'KeyE') turn(0.07, false);
+    else if (e.code === 'KeyR') turn(0.02, true);
+    else if (e.code === 'KeyF') turn(-0.02, true);
     else if (e.code === 'KeyZ') { iris = clamp(iris - 0.08, 0.05, 0.95); sfx.dial(); draw(); }
     else if (e.code === 'KeyC') { iris = clamp(iris + 0.08, 0.05, 0.95); sfx.dial(); draw(); }
-    else if (e.code === 'Digit3') { mag = 400; sfx.click(); draw(); }
+    else if (e.code === 'Digit1') setMag(40);
+    else if (e.code === 'Digit2') setMag(100);
+    else if (e.code === 'Digit3') setMag(400);
     else if (e.code === 'Space' || e.code === 'Enter') confirmSlide();
   });
   draw(); return p;
@@ -2082,9 +2079,11 @@ function oscilloscope({ title = '오실로스코프 — 주파수·진폭·위�
 
 /* ---------- 19. 화학 시약 적정 & 중화 반응 (과학실 / 수질관리실) ---------- */
 function chemMix({ title = '실험대 — 시약 중화 적정 (목표 pH 7.2)' } = {}) {
-  const p = open(title, '<b>1번(산성 적정액)</b> · <b>2번(염기성 시약)</b> · <b>3번(완충 냉각액)</b> 버튼 클릭 또는 키 입력<br>pH를 <b>7.0 ~ 7.4</b>, 온도를 <b>40°C 이하</b>로 맞춘 뒤 <b>Space(교반 결정화)</b>를 눌러라');
+  const p = open(title, '<b>1번(산성 적정액)</b> · <b>2번(염기성 시약)</b> · <b>3번(완충 냉각액)</b> 버튼 클릭 또는 키 입력<br>pH를 <b>7.0 ~ 7.4</b>, 온도를 <b>40°C 이하</b>로 맞춘 뒤 <b>Space(교반 결정화)</b>를 눌러라<br>BTB 지시약 색: <b style="color:#e8ce28">노랑 = 산성</b> · <b style="color:#40c070">초록 = 중성</b> · <b style="color:#5080ff">파랑 = 염기성</b>');
   const c = canvas(460, 300), g = c.getContext('2d');
   let ph = 4.2 + (Math.random() < .5 ? -.8 : 4.4), temp = 28, stir = 0, drops = [], lastT = performance.now();
+  // BTB(브로모티몰 블루) 지시약: pH 6 이하 노랑 → 7 부근 초록 → 7.6 이상 파랑
+  const btb = v => { const K = [[5.8, [232, 206, 40]], [6.6, [176, 200, 50]], [7.2, [52, 168, 92]], [7.7, [40, 120, 170]], [8.4, [36, 70, 200]]]; if (v <= K[0][0]) return K[0][1]; for (let k = 1; k < K.length; k++) if (v <= K[k][0]) { const t = (v - K[k - 1][0]) / (K[k][0] - K[k - 1][0]); return K[k - 1][1].map((c0, ci) => Math.round(c0 + (K[k][1][ci] - c0) * t)); } return K[K.length - 1][1]; };
   const addReagent = kind => {
     if (!finish) return;
     sfx.drip ? sfx.drip() : sfx.click();
@@ -2136,7 +2135,7 @@ function chemMix({ title = '실험대 — 시약 중화 적정 (목표 pH 7.2)' 
       g.fillStyle = '#b8c4cc'; g.font = '11px sans-serif'; g.fillText(lb, bx - 36, 10);
     });
     // 비커 & 용액 색상 (산성=붉은빛, 중성=에메랄드 초록, 염기=푸른보라)
-    const liqCol = ph < 6.95 ? `rgba(240,${Math.floor(80 + ph * 18)},90,0.78)` : ph <= 7.45 ? 'rgba(75,235,155,0.82)' : `rgba(95,130,250,0.78)`;
+    const bc = btb(ph), liqCol = `rgba(${bc[0]},${bc[1]},${bc[2]},0.8)`;
     g.strokeStyle = '#90a4b0'; g.lineWidth = 3; g.strokeRect(125, 75, 210, 140);
     const wave = Math.sin(now * .008) * (2 + stir * 8);
     g.fillStyle = liqCol; g.fillRect(128, 115 + wave * .3, 204, 97 - wave * .3);
@@ -2176,15 +2175,26 @@ function chemMix({ title = '실험대 — 시약 중화 적정 (목표 pH 7.2)' 
     const top = new THREE.Mesh(new THREE.BoxGeometry(2.4, .06, 1.1), M(0x1c2a24, { roughness: .35 })); top.position.y = -.03; sc.add(top);
     const rod = new THREE.Mesh(new THREE.CylinderGeometry(.012, .012, 1.3, 10), M(0xb0b4b8, { metalness: .9, roughness: .25 })); rod.position.set(0, .65, -.32); sc.add(rod);
     const bar = new THREE.Mesh(new THREE.CylinderGeometry(.01, .01, 1.0, 8), rod.material); bar.rotation.z = Math.PI / 2; bar.position.set(0, 1.12, -.32); sc.add(bar);
+    const gradTex = (w, h, draw) => { const cv2 = document.createElement('canvas'); cv2.width = w; cv2.height = h; const q = cv2.getContext('2d'); draw(q); const t = new THREE.CanvasTexture(cv2); t.colorSpace = THREE.SRGBColorSpace; return t; };
+    const buretteTex = gradTex(64, 512, q => { q.strokeStyle = '#1a1a1a'; q.fillStyle = '#1a1a1a'; q.font = 'bold 22px sans-serif'; for (let k = 0; k <= 50; k++) { const y = 20 + k * 9.4; q.lineWidth = k % 5 ? 1.5 : 3; q.beginPath(); q.moveTo(0, y); q.lineTo(k % 5 ? 18 : 34, y); q.stroke(); if (k % 10 === 0) q.fillText(String(k), 36, y + 8); } });
+    const LBL = ['HCl 0.1M', 'NaOH 0.1M', 'Buffer'], labTex = k => gradTex(128, 64, q => { q.fillStyle = '#f4efe0'; q.fillRect(0, 0, 128, 64); q.strokeStyle = '#a02020'; q.lineWidth = 4; q.strokeRect(3, 3, 122, 58); q.fillStyle = '#1a1a1a'; q.font = 'bold 22px sans-serif'; q.textAlign = 'center'; q.fillText(LBL[k], 64, 40); });
     const cols = [0xff5a5a, 0x5a9eff, 0x60ffb0], XS = [-.34, 0, .34], burs = XS.map((x, k) => { const g2 = new THREE.Group(); g2.position.set(x, .62, -.12);
       const tube = new THREE.Mesh(new THREE.CylinderGeometry(.03, .03, .62, 16, 1, true), glass); tube.position.y = .2; g2.add(tube);
-      const liq = new THREE.Mesh(new THREE.CylinderGeometry(.026, .026, .5, 16), new THREE.MeshStandardMaterial({ color: cols[k], transparent: true, opacity: .8, emissive: cols[k], emissiveIntensity: .25 })); liq.position.y = .16; g2.add(liq);
+      const scale = new THREE.Mesh(new THREE.CylinderGeometry(.0305, .0305, .56, 16, 1, true, -.6, 1.2), new THREE.MeshBasicMaterial({ map: buretteTex, transparent: true, alphaTest: .1, depthWrite: false })); scale.position.y = .2; g2.add(scale);
+      const tag = new THREE.Mesh(new THREE.PlaneGeometry(.11, .055), new THREE.MeshStandardMaterial({ map: labTex(k), roughness: .8 })); tag.position.set(0, .44, .04); g2.add(tag);
+      const liq = new THREE.Mesh(new THREE.CylinderGeometry(.026, .026, .5, 16), new THREE.MeshPhysicalMaterial({ color: 0xe4eef4, transparent: true, opacity: .42, roughness: .05 }));   // 무색 투명 용액 (메니스커스 위까지) liq.position.y = .16; g2.add(liq);
       const tip = new THREE.Mesh(new THREE.ConeGeometry(.018, .09, 12), glass); tip.rotation.x = Math.PI; tip.position.y = -.15; g2.add(tip);
-      const cock = new THREE.Mesh(new THREE.BoxGeometry(.08, .016, .016), M(0x202020)); cock.position.y = -.09; g2.add(cock);
+      const cock = new THREE.Group(); cock.position.y = -.09; g2.add(cock); const ck = new THREE.Mesh(new THREE.BoxGeometry(.09, .014, .018), M(0xf2f2ee, { roughness: .3 })); cock.add(ck); const ckb = new THREE.Mesh(new THREE.CylinderGeometry(.014, .014, .03, 12), glass); ckb.rotation.x = Math.PI / 2; cock.add(ckb);   // 테플론 콕
       const clamp3 = new THREE.Mesh(new THREE.BoxGeometry(.03, .03, .22), rod.material); clamp3.position.set(0, .48, -.1); g2.add(clamp3);
       const hit = new THREE.Mesh(new THREE.CylinderGeometry(.07, .07, .8, 8), new THREE.MeshBasicMaterial({ visible: false })); hit.position.y = .15; hit.userData.k = k + 1; g2.add(hit);
       sc.add(g2); return { g2, liq, cock, hit }; });
     const bk = new THREE.Mesh(new THREE.CylinderGeometry(.24, .22, .36, 32, 1, true), glass); bk.position.set(0, .18, 0); sc.add(bk);
+    const bkTex = gradTex(512, 256, q => { q.fillStyle = '#ffffff'; q.strokeStyle = '#ffffff'; q.font = 'bold 26px sans-serif'; for (let k = 1; k <= 5; k++) { const y = 236 - k * 40; q.lineWidth = 4; q.beginPath(); q.moveTo(196, y); q.lineTo(250, y); q.stroke(); q.fillText(k * 100 + '', 256, y + 9); q.lineWidth = 2; q.beginPath(); q.moveTo(196, y + 20); q.lineTo(224, y + 20); q.stroke(); } q.font = 'bold 30px serif'; q.fillText('PYREX', 330, 60); q.font = '22px sans-serif'; q.fillText('600 mL', 334, 92); });
+    const bkScale = new THREE.Mesh(new THREE.CylinderGeometry(.242, .222, .36, 32, 1, true, -1.2, 2.4), new THREE.MeshBasicMaterial({ map: bkTex, transparent: true, alphaTest: .05, depthWrite: false, opacity: .85 })); bkScale.position.copy(bk.position); sc.add(bkScale);
+    const lip = new THREE.Mesh(new THREE.TorusGeometry(.24, .006, 6, 40), glass); lip.rotation.x = Math.PI / 2; lip.position.set(0, .36, 0); sc.add(lip);
+    const btbB = new THREE.Mesh(new THREE.CylinderGeometry(.05, .055, .16, 18), new THREE.MeshStandardMaterial({ color: 0x5a3010, transparent: true, opacity: .85, roughness: .15 })); btbB.position.set(.55, .08, .28); sc.add(btbB); const btbC = new THREE.Mesh(new THREE.CylinderGeometry(.018, .03, .07, 12), M(0x1a1a1a)); btbC.position.set(.55, .2, .28); sc.add(btbC);
+    const btbL = new THREE.Mesh(new THREE.PlaneGeometry(.08, .05), new THREE.MeshStandardMaterial({ map: gradTex(96, 64, q => { q.fillStyle = '#f2ecd8'; q.fillRect(0, 0, 96, 64); q.fillStyle = '#123'; q.font = 'bold 30px sans-serif'; q.fillText('BTB', 12, 44); }) })); btbL.position.set(.55, .09, .332); sc.add(btbL);
+    let cloud = null;   // 방울이 떨어진 자리에서 퍼지는 시약 색 구름
     const bkBot = new THREE.Mesh(new THREE.CircleGeometry(.22, 32), glass); bkBot.rotation.x = -Math.PI / 2; bkBot.position.set(0, .005, 0); sc.add(bkBot);
     const liqM = new THREE.MeshStandardMaterial({ color: 0xff7060, transparent: true, opacity: .8, roughness: .1 }); const liq = new THREE.Mesh(new THREE.CylinderGeometry(.225, .215, .22, 32), liqM); liq.position.set(0, .115, 0); sc.add(liq);
     const surf = new THREE.Mesh(new THREE.CircleGeometry(.225, 32), liqM); surf.rotation.x = -Math.PI / 2; surf.position.set(0, .226, 0); sc.add(surf);
@@ -2203,11 +2213,12 @@ function chemMix({ title = '실험대 — 시약 중화 적정 (목표 pH 7.2)' 
     r.domElement.addEventListener('mousedown', e => { const b = r.domElement.getBoundingClientRect(); mv.set((e.clientX - b.left) / b.width * 2 - 1, -((e.clientY - b.top) / b.height) * 2 + 1); rc.setFromCamera(mv, cam); const h = rc.intersectObjects([btn, ...burs.map(o => o.hit)])[0]; if (!h) return; if (h.object.userData.stir) tryStir(); else addReagent(h.object.userData.k); });
     let lastTxt = '', sp = 0;
     const lp = () => { if (!MG.active) { r.dispose(); r.forceContextLoss && r.forceContextLoss(); return; }
-      if (drops.length > lastDrops) { const d = drops[drops.length - 1], k = d.x < 190 ? 0 : d.x < 270 ? 1 : 2; const m = new THREE.Mesh(new THREE.SphereGeometry(.014, 8, 6), new THREE.MeshBasicMaterial({ color: cols[k] })); m.position.set(XS[k], .44, -.12); m.userData.v = 0; m.userData.tx = XS[k] * .3; sc.add(m); dropsG.push(m); burs[k].cock.rotation.y = 1.2; burs[k].liq.scale.y = Math.max(.2, burs[k].liq.scale.y - .02); burs[k].liq.position.y = .16 - (1 - burs[k].liq.scale.y) * .25; }
+      if (drops.length > lastDrops) { const d = drops[drops.length - 1], k = d.x < 190 ? 0 : d.x < 270 ? 1 : 2; if (cloud) sc.remove(cloud); const cc = btb(k === 0 ? 4.5 : k === 1 ? 9.5 : 7.2); cloud = new THREE.Mesh(new THREE.CircleGeometry(.05, 24), new THREE.MeshBasicMaterial({ color: new THREE.Color(cc[0] / 255, cc[1] / 255, cc[2] / 255), transparent: true, opacity: .0, depthWrite: false })); cloud.rotation.x = -Math.PI / 2; cloud.position.set(XS[k] * .3, .228, -.04); cloud.userData.t = 0; sc.add(cloud); const m = new THREE.Mesh(new THREE.SphereGeometry(.012, 8, 6), new THREE.MeshPhysicalMaterial({ color: 0xeef6ff, transparent: true, opacity: .7, roughness: 0 })); m.position.set(XS[k], .44, -.12); m.userData.v = 0; m.userData.tx = XS[k] * .3; sc.add(m); dropsG.push(m); burs[k].cock.rotation.y = 1.2; burs[k].liq.scale.y = Math.max(.2, burs[k].liq.scale.y - .02); burs[k].liq.position.y = .16 - (1 - burs[k].liq.scale.y) * .25; }
       lastDrops = drops.length;
-      for (let i = dropsG.length - 1; i >= 0; i--) { const m = dropsG[i]; m.userData.v += .004; m.position.y -= m.userData.v; m.position.z += (0 - m.position.z) * .08; m.position.x += (m.userData.tx - m.position.x) * .08; if (m.position.y < .23) { sc.remove(m); dropsG.splice(i, 1); } }
+      for (let i = dropsG.length - 1; i >= 0; i--) { const m = dropsG[i]; m.userData.v += .004; m.position.y -= m.userData.v; m.position.z += (0 - m.position.z) * .08; m.position.x += (m.userData.tx - m.position.x) * .08; if (m.position.y < .23) { sc.remove(m); dropsG.splice(i, 1); if (cloud) cloud.userData.go = true; } }
+      if (cloud && cloud.userData.go) { const u = cloud.userData; u.t += .016; cloud.scale.setScalar(1 + u.t * 6 * (1 + stir * 3)); cloud.material.opacity = Math.max(0, .75 * (1 - u.t / 1.4)); cloud.rotation.z += .02 + stir * .2; if (u.t > 1.4) { sc.remove(cloud); cloud = null; } }
       burs.forEach(o => { o.cock.rotation.y *= .9; });
-      const okPh = ph >= 6.95 && ph <= 7.45; liqM.color.setHex(ph < 6.95 ? 0xf06048 : okPh ? 0x4beb9b : 0x5f82fa); liqM.emissive = liqM.color.clone().multiplyScalar(.15);
+      const okPh = ph >= 6.95 && ph <= 7.45, bc3 = btb(ph); liqM.color.setRGB(bc3[0] / 255, bc3[1] / 255, bc3[2] / 255, THREE.SRGBColorSpace); liqM.emissive = liqM.color.clone().multiplyScalar(.12);
       sp += .05 + stir * .6; stirB.rotation.y = sp; surf.position.y = .226 + Math.sin(performance.now() / 120) * .004 * (1 + stir * 4);
       const txt = ph.toFixed(2) + '|' + temp.toFixed(0); if (txt !== lastTxt) { lastTxt = txt; mg2.fillStyle = '#0a140e'; mg2.fillRect(0, 0, 256, 160); mg2.font = 'bold 50px monospace'; mg2.fillStyle = okPh ? '#60ffa8' : '#ffd060'; mg2.fillText('pH ' + ph.toFixed(2), 14, 64); mg2.font = 'bold 40px monospace'; mg2.fillStyle = temp <= 42 ? '#80d8ff' : '#ff6060'; mg2.fillText(temp.toFixed(0) + ' °C', 14, 130); mg2.font = '18px sans-serif'; mg2.fillStyle = '#8aa'; mg2.fillText('7.0~7.4 · ≤42°C', 120, 150); mt.needsUpdate = true; }
       btn.material.emissive.setHex(okPh && temp <= 42 ? 0x40ff60 : 0x300000); btn.position.y = .03 - stir * .015; r.render(sc, cam); requestAnimationFrame(lp); }; requestAnimationFrame(lp); })();
@@ -2218,11 +2229,15 @@ function chemMix({ title = '실험대 — 시약 중화 적정 (목표 pH 7.2)' 
 function hoopShot({ title = '체육관 코트 — 물리 궤적 자유투 (3골 성공)' } = {}) {
   const p = open(title, '마우스 위·아래(또는 <b>W · S</b>)로 발사 각도 조준 · <b>마우스 버튼 / Space</b>를 누르고 있다가 떼면 슛!<br>백보드 반동을 이용하거나 클린샷으로 <b>3골</b>을 성공시켜라');
   const c = canvas(480, 300), g = c.getContext('2d');
-  let ang = 54 * Math.PI / 180, pwr = 0, charging = false, dir = 1, goals = 0, shots = 0;
+  let ang = 54 * Math.PI / 180, pwr = 0, charging = false, chargeT0 = 0, goals = 0, shots = 0;
+  // 파워는 누르고 있던 실제 시간으로 정한다 (프레임이 느려도 같은 감각) — 0.1 ↔ 1 왕복
+  const pwrAt = t => { const m = (.05 + t * 1.25) % 1.8; return .1 + (m < .9 ? m : 1.8 - m); };
+  const startCharge = () => { charging = true; chargeT0 = performance.now(); pwr = .15; };
   let ball = null, rimX = 392, rimY = 118, rimR = 22, boardX = 420, lastT = performance.now();
 
   const shoot = () => {
     if (ball || !finish) return;
+    if (charging) pwr = pwrAt((performance.now() - chargeT0) / 1000);
     charging = false;
     const v = 340 + pwr * 280;
     ball = { x: 74, y: 220, vx: Math.cos(ang) * v, vy: -Math.sin(ang) * v, r: 13, scored: false, RimHit: false };
@@ -2233,7 +2248,7 @@ function hoopShot({ title = '체육관 코트 — 물리 궤적 자유투 (3골 
     const r = c.getBoundingClientRect(), ny = (e.clientY - r.top) / r.height;
     ang = clamp((.85 - ny * .65) * Math.PI * .5, 32 * Math.PI / 180, 76 * Math.PI / 180);
   });
-  c.addEventListener('mousedown', () => { if (!ball) { charging = true; pwr = .15; } });
+  c.addEventListener('mousedown', () => { if (!ball && !charging) startCharge(); });
   const mu = () => { if (charging) shoot(); };
   addEventListener('mouseup', mu); cleanups.push(() => removeEventListener('mouseup', mu));
   keys(e => {
@@ -2241,16 +2256,13 @@ function hoopShot({ title = '체육관 코트 — 물리 궤적 자유투 (3골 
     if (dn && (e.code === 'KeyW' || e.code === 'ArrowUp')) ang = clamp(ang + .04, .55, 1.32);
     if (dn && (e.code === 'KeyS' || e.code === 'ArrowDown')) ang = clamp(ang - .04, .55, 1.32);
     if (e.code === 'Space') {
-      if (dn && !ball && !charging) { charging = true; pwr = .15; }
+      if (dn && !ball && !charging && !e.repeat) startCharge();
       else if (!dn && charging) shoot();
     }
   });
   const loop = now => {
     const dt = Math.min(.05, (now - lastT) / 1000); lastT = now;
-    if (charging && !ball) {
-      pwr += dir * dt * 1.25;
-      if (pwr >= 1) { pwr = 1; dir = -1; } else if (pwr <= .1) { pwr = .1; dir = 1; }
-    }
+    if (charging && !ball) pwr = pwrAt((now - chargeT0) / 1000);
     if (ball) {
       const prevY = ball.y;
       ball.vy += 560 * dt;
@@ -2325,14 +2337,25 @@ function hoopShot({ title = '체육관 코트 — 물리 궤적 자유투 (3골 
     const M = (c3, o = {}) => new THREE.MeshStandardMaterial(Object.assign({ color: c3, roughness: .5 }, o));
     const fc = document.createElement('canvas'); fc.width = 512; fc.height = 128; const fg = fc.getContext('2d'); fg.fillStyle = '#b07a44'; fg.fillRect(0, 0, 512, 128); for (let k = 0; k < 32; k++) { fg.fillStyle = `rgba(60,30,10,${.05 + Math.random() * .12})`; fg.fillRect(k * 16, 0, 1, 128); } fg.fillStyle = '#f2f2ee'; fg.fillRect(0, 60, 512, 4); fg.fillRect(330, 0, 4, 128);
     const ft = new THREE.CanvasTexture(fc); ft.colorSpace = THREE.SRGBColorSpace; const floor = new THREE.Mesh(new THREE.PlaneGeometry(8, 3), M(0xffffff, { map: ft, roughness: .35 })); floor.rotation.x = -Math.PI / 2; floor.position.set(0, 0, -.5); sc.add(floor);
-    const wall = new THREE.Mesh(new THREE.PlaneGeometry(8, 4), M(0x5a6470, { roughness: .9 })); wall.position.set(0, 2, -2); sc.add(wall);
+    const wc = document.createElement('canvas'); wc.width = 1024; wc.height = 512; const wg = wc.getContext('2d');   // 체육관 벽: 아래 나무 판벽 · 파란 보호 매트 · 위 연두색 페인트 · 높은 창
+    wg.fillStyle = '#9aa892'; wg.fillRect(0, 0, 1024, 512); for (let k = 0; k < 6; k++) { wg.fillStyle = '#1a2230'; wg.fillRect(60 + k * 170, 40, 120, 90); wg.fillStyle = 'rgba(120,150,190,.35)'; wg.fillRect(64 + k * 170, 44, 112, 82); wg.fillStyle = '#d8d8d0'; wg.fillRect(118 + k * 170, 40, 4, 90); wg.fillRect(60 + k * 170, 84, 120, 3); }
+    wg.fillStyle = '#7a5530'; wg.fillRect(0, 300, 1024, 212); for (let k = 0; k < 64; k++) { wg.fillStyle = `rgba(30,15,5,${.15 + (k % 3) * .05})`; wg.fillRect(k * 16, 300, 2, 212); } wg.fillStyle = '#2a4a8a'; wg.fillRect(0, 380, 1024, 110); for (let k = 0; k < 8; k++) { wg.fillStyle = 'rgba(0,0,0,.25)'; wg.fillRect(k * 128, 380, 3, 110); }
+    wg.fillStyle = '#c8a040'; wg.fillRect(0, 296, 1024, 6);
+    const wt = new THREE.CanvasTexture(wc); wt.colorSpace = THREE.SRGBColorSpace; const wall = new THREE.Mesh(new THREE.PlaneGeometry(8, 4), M(0xffffff, { map: wt, roughness: .9 })); wall.position.set(0, 2, -2); sc.add(wall);
     const bx0 = X(boardX + 4); const pole = new THREE.Mesh(new THREE.CylinderGeometry(.05, .06, 2.4, 14), M(0x30343a, { metalness: .6 })); pole.position.set(bx0 + .45, 1.2, -.15); sc.add(pole);
     const arm = new THREE.Mesh(new THREE.BoxGeometry(.5, .06, .06), M(0x30343a, { metalness: .6 })); arm.position.set(bx0 + .22, Y(93), -.15); sc.add(arm);
-    const board = new THREE.Mesh(new THREE.BoxGeometry(.04, .78, 1.05), new THREE.MeshPhysicalMaterial({ color: 0xe8f4ff, transparent: true, opacity: .45, roughness: .05 })); board.position.set(bx0, Y(93), 0); sc.add(board);
+    const bdc = document.createElement('canvas'); bdc.width = 512; bdc.height = 384; const bdg = bdc.getContext('2d');   // 백보드 앞면: 흰 판 · 검은 테두리 · 붉은 슈팅 사각형
+    bdg.fillStyle = '#f4f4f0'; bdg.fillRect(0, 0, 512, 384); bdg.strokeStyle = '#151515'; bdg.lineWidth = 18; bdg.strokeRect(9, 9, 494, 366); bdg.strokeStyle = '#d02a1a'; bdg.lineWidth = 12; bdg.strokeRect(160, 170, 192, 150); bdg.fillStyle = 'rgba(0,0,0,.05)'; for (let k = 0; k < 40; k++) bdg.fillRect(Math.random() * 512, Math.random() * 384, 30, 2);
+    const bdt = new THREE.CanvasTexture(bdc); bdt.colorSpace = THREE.SRGBColorSpace; const edgeM = M(0xd8d8d4, { roughness: .4 }), faceM = M(0xffffff, { map: bdt, roughness: .35 });
+    const board = new THREE.Mesh(new THREE.BoxGeometry(.04, .78, 1.05), [edgeM, faceM, edgeM, edgeM, edgeM, edgeM]); board.position.set(bx0, Y(93), 0); sc.add(board);
+    const pad = new THREE.Mesh(new THREE.BoxGeometry(.07, .06, 1.07), M(0x1e3e8a, { roughness: .8 })); pad.position.set(bx0, Y(93) - .41, 0); sc.add(pad);
+    const brace = new THREE.Mesh(new THREE.BoxGeometry(.18, .08, .04), M(0x30343a, { metalness: .6 })); brace.position.set(bx0 - .06, Y(rimY) + .02, 0); sc.add(brace);
     const sq = new THREE.Mesh(new THREE.BoxGeometry(.045, .3, .4), M(0xffffff, { transparent: true, opacity: .0 })); sc.add(sq);
-    const sqL = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(.046, .3, .42)), new THREE.LineBasicMaterial({ color: 0xd04020 })); sqL.position.set(bx0 - .005, Y(rimY) + .2, 0); sc.add(sqL);
+    
     const rimM = M(0xe0501c, { metalness: .5, roughness: .35 }); const rim = new THREE.Mesh(new THREE.TorusGeometry(rimR / 100 + .02, .012, 8, 32), rimM); rim.rotation.x = Math.PI / 2; rim.position.set(X(rimX + 4), Y(rimY), 0); sc.add(rim);
-    const netG = new THREE.CylinderGeometry(rimR / 100 + .02, rimR / 100 - .06, .34, 12, 3, true); const net = new THREE.Mesh(netG, new THREE.MeshBasicMaterial({ color: 0xf0f0e8, wireframe: true, transparent: true, opacity: .7 })); net.position.set(rim.position.x, Y(rimY) - .17, 0); sc.add(net);
+    const netP = [], NL = 5, NS = 12;   // 그물: 마름모로 엇갈려 묶인 흰 나일론 끈 (아래로 갈수록 좁아짐)
+    for (let L = 0; L < NL; L++) for (let k = 0; k < NS; k++) { const r0 = (rimR / 100 + .02) * (1 - L * .09), r1 = (rimR / 100 + .02) * (1 - (L + 1) * .09), a0 = (k + (L % 2) * .5) / NS * Math.PI * 2, y0 = -L * .07, y1 = -(L + 1) * .07; [-.5, .5].forEach(o => { const a1 = a0 + o / NS * Math.PI * 2; netP.push(Math.cos(a0) * r0, y0, Math.sin(a0) * r0, Math.cos(a1) * r1, y1, Math.sin(a1) * r1); }); }
+    const netGeo = new THREE.BufferGeometry(); netGeo.setAttribute('position', new THREE.Float32BufferAttribute(netP, 3)); const net = new THREE.LineSegments(netGeo, new THREE.LineBasicMaterial({ color: 0xf4f4ec, transparent: true, opacity: .85 })); net.position.set(rim.position.x, Y(rimY), 0); sc.add(net);
     const bc = document.createElement('canvas'); bc.width = 128; bc.height = 64; const bg2 = bc.getContext('2d'); bg2.fillStyle = '#d86a28'; bg2.fillRect(0, 0, 128, 64); bg2.strokeStyle = '#1a0c04'; bg2.lineWidth = 3; [16, 48, 80, 112].forEach(x => { bg2.beginPath(); bg2.moveTo(x, 0); bg2.lineTo(x, 64); bg2.stroke(); }); bg2.beginPath(); bg2.moveTo(0, 32); bg2.lineTo(128, 32); bg2.stroke();
     const btx = new THREE.CanvasTexture(bc); btx.colorSpace = THREE.SRGBColorSpace; const bm = new THREE.Mesh(new THREE.SphereGeometry(.12, 28, 20), M(0xffffff, { map: btx, roughness: .75 })); sc.add(bm);
     const dots = [...Array(11)].map(() => { const d = new THREE.Mesh(new THREE.SphereGeometry(.018, 8, 6), new THREE.MeshBasicMaterial({ color: 0xffd76e, transparent: true, opacity: .7 })); sc.add(d); return d; });
@@ -2347,7 +2370,7 @@ function hoopShot({ title = '체육관 코트 — 물리 궤적 자유투 (3골 
       const v0 = 340 + (charging ? pwr : .55) * 280; dots.forEach((d, i) => { const tt = (i + 1) * .055; d.visible = !ball; d.position.set(X(74 + Math.cos(ang) * v0 * tt), Y(220 - Math.sin(ang) * v0 * tt + .5 * 560 * tt * tt), 0); });
       gauge.scale.y = Math.max(.001, pwr); gauge.position.set(X(55), 1.0 - .6 + .6 * pwr, .01);
       const sTxt = goals + '/' + shots + '/' + Math.round(ang * 180 / Math.PI); if (sTxt !== lastScore) { lastScore = sTxt; scG.fillStyle = '#0a0a0a'; scG.fillRect(0, 0, 256, 96); scG.fillStyle = '#ff4030'; scG.font = 'bold 44px monospace'; scG.textAlign = 'center'; scG.fillText(`${goals} / 3`, 80, 62); scG.fillStyle = '#ffd050'; scG.font = 'bold 26px monospace'; scG.fillText(`${Math.round(ang * 180 / Math.PI)}°`, 196, 60); scT.needsUpdate = true; }
-      net.scale.y = ball && ball.scored && ball.y < rimY + 60 ? .8 : 1; r.render(sc, cam); requestAnimationFrame(lp); }; requestAnimationFrame(lp); })();
+      net.scale.y = ball && ball.scored && ball.y < rimY + 60 ? 1.25 : 1; net.rotation.y += ball && ball.scored ? .05 : 0; r.render(sc, cam); requestAnimationFrame(lp); }; requestAnimationFrame(lp); })();
   return p;
 }
 
@@ -2385,32 +2408,33 @@ function filmFocus({ title = '영사기 — 듀얼 렌즈 초점 & 필름 트래
     const roll = (ut - tt) * 140 + Math.sin(now * .025) * dt2 * 28;
     const split = df * 36;
 
-    g.fillStyle = '#0e0c0a'; g.fillRect(0, 0, c.width, c.height);
-    // 영사 스크린 프레임
-    g.save();
-    g.beginPath(); g.rect(40, 20, 380, 200); g.clip();
-    g.fillStyle = '#221e18'; g.fillRect(40, 20, 380, 200);
-
-    [-split, 0, split].forEach((ox, idx) => {
-      const oy = ((roll % 200) + 200) % 200 - 100;
-      g.save();
-      g.translate(ox, oy);
-      g.globalAlpha = idx === 1 ? clamp(1 - df * 1.3, .25, 1) : .38;
-      g.fillStyle = idx === 0 ? '#ff6050' : idx === 2 ? '#50a8ff' : '#ece2c8';
-      g.strokeStyle = g.fillStyle; g.lineWidth = 2;
-      g.strokeRect(75, 42, 310, 156);
-      g.font = 'bold 18px serif';
-      g.fillText('1998. 10. 12 — 제30주년 리허설 기록', 92, 82);
-      g.font = '14px sans-serif';
-      g.fillText('3학년 2반 방송반: 윤하늘 · 강민아 · 이수아', 96, 118);
-      g.fillText('“마지막 하교 방송 테이프는 방송부스에…”', 96, 148);
+    // 어두운 시청각실 벽 + 줄로 내린 흰 스크린 (살짝 사다리꼴로 비친다)
+    g.fillStyle = '#0b0a09'; g.fillRect(0, 0, c.width, c.height);
+    g.fillStyle = '#1a1712'; g.fillRect(28, 8, 404, 8); g.fillStyle = '#e8e4da'; g.fillRect(36, 16, 388, 210); g.fillStyle = '#16130f'; g.fillRect(36, 16, 388, 4); g.fillRect(36, 222, 388, 4);
+    g.fillStyle = '#2a2620'; g.fillRect(222, 226, 16, 10);
+    const flick = .9 + Math.random() * .1, fx0 = 54, fy0 = 26, fw = 352, fh = 190;
+    g.save(); g.beginPath(); g.moveTo(fx0 + 4, fy0); g.lineTo(fx0 + fw - 4, fy0); g.lineTo(fx0 + fw, fy0 + fh); g.lineTo(fx0, fy0 + fh); g.closePath(); g.clip();
+    const lamp = g.createRadialGradient(230, 118, 20, 230, 121, 230); lamp.addColorStop(0, `rgba(255,244,214,${flick})`); lamp.addColorStop(1, `rgba(150,128,90,${flick * .9})`); g.fillStyle = lamp; g.fillRect(fx0, fy0, fw, fh);
+    const oy = ((roll % 200) + 200) % 200 - 100, blur = clamp(df * 16, 0, 10);
+    g.filter = blur > .3 ? `blur(${blur.toFixed(1)}px)` : 'none';
+    [-1, 0, 1].forEach(fi => {   // 위아래로 이어진 필름 프레임 (트래킹이 어긋나면 프레임 경계 검은 띠가 화면을 지나간다)
+      const yy = oy + fi * 200;
+      g.save(); g.translate(0, yy);
+      [[split, 'rgba(200,40,30,.35)'], [-split, 'rgba(30,80,200,.35)'], [0, 'rgba(40,30,20,.88)']].forEach(([ox, col]) => {   // 색수차: 초점이 어긋나면 붉고 푸른 겹상
+        if (ox === 0 && col.startsWith('rgba(200') ) return;
+        g.save(); g.translate(ox, 0); g.fillStyle = col; g.strokeStyle = col; g.lineWidth = 2;
+        g.strokeRect(80, 44, 300, 150); g.font = 'bold 18px "Noto Serif KR", serif'; g.fillText('1998. 10. 12 — 제30주년 리허설 기록', 92, 82);
+        g.font = '14px sans-serif'; g.fillText('3학년 2반 방송반: 윤하늘 · 강민아 · 이수아', 96, 118); g.fillText('“마지막 하교 방송 테이프는 방송부스에…”', 96, 148); g.restore();
+      });
+      g.fillStyle = 'rgba(10,8,6,.92)'; g.fillRect(fx0, 210, fw, 16);   // 프레임 사이 검은 띠
       g.restore();
     });
-    // 필름 퍼포레이션 구멍
-    g.fillStyle = '#090807';
-    for (let y = 26; y < 215; y += 24) { g.fillRect(46, y, 10, 14); g.fillRect(404, y, 10, 14); }
+    g.filter = 'none';
+    for (let k = 0; k < 14; k++) { g.fillStyle = `rgba(20,14,8,${Math.random() * .35})`; g.fillRect(fx0 + Math.random() * fw, fy0 + Math.random() * fh, 1 + Math.random() * 2.5, 1 + Math.random() * 2.5); }   // 필름 먼지
+    if (Math.random() < .5) { g.strokeStyle = 'rgba(30,20,10,.25)'; g.lineWidth = 1; const sx2 = fx0 + Math.random() * fw; g.beginPath(); g.moveTo(sx2, fy0); g.lineTo(sx2 + 2, fy0 + fh); g.stroke(); }   // 세로 긁힘
+    const vg = g.createRadialGradient(230, 121, 90, 230, 121, 240); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(20,12,4,.55)'); g.fillStyle = vg; g.fillRect(fx0, fy0, fw, fh);
     g.restore();
-
+    g.fillStyle = 'rgba(255,240,200,.04)'; g.beginPath(); g.moveTo(0, 290); g.lineTo(fx0, fy0); g.lineTo(fx0 + fw, fy0 + fh); g.lineTo(60, 290); g.fill();   // 먼지 낀 빛줄기
     g.fillStyle = err < .13 ? '#60ffa0' : '#d8c8a8'; g.font = 'bold 13px monospace';
     g.fillText(`초점 선명도: ${Math.max(0, (1 - df * 1.8) * 100).toFixed(0)}% [A/D]   |   트래킹 고정: ${Math.max(0, (1 - dt2 * 1.8) * 100).toFixed(0)}% [W/S]`, 42, 246);
     g.fillStyle = '#9aa4a8'; g.font = '12px sans-serif';

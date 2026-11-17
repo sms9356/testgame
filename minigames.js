@@ -375,6 +375,73 @@ function lockpick({ pins, usePin, tol = 9 }) {
 
 /* ---------- 2. 다이얼 자물쇠 ---------- */
 function dial({ code, title = '다이얼 자물쇠', hint = '', onFail }) {
+  // 짝수 자리 번호(예: 0723 → 07-23)는 실제 금고·기구함용 0–99 회전 다이얼로: 널링 베젤 · 상단 인덱스 눈금 · 한 칸마다 딸깍(디텐트)
+  if (/^\d+$/.test(code) && code.length % 2 === 0) {
+    const K = code.length / 2, nums = []; let pos = 0, vis = 0, shake = 0, opened = 0, drag = null, moved = false;
+    const p = open(title, `<b>← → / A · D</b> · 휠 · 다이얼 드래그로 돌려 <b style="color:#e04040">▼ 눈금</b>에 숫자를 맞추고 <b>Space</b>로 확정 (Shift = 10칸씩 · 숫자 키 직접 입력)<br>번호 ${K}개를 모두 확정한 뒤 <b>Enter / 손잡이</b>로 연다 · Backspace 지우기${hint ? '<br>' + hint : ''}`);
+    const c = canvas(460, 320), g = c.getContext('2d'), CX = 170, CY = 160, R = 112;
+    const step = d => { pos = (pos + d + 100) % 100; sfx.dial(); };
+    const setN = () => { if (nums.length >= K) return; nums.push(pos); sfx.click ? sfx.click() : sfx.dial(); status(`${nums.length}번째 번호 ${String(pos).padStart(2, '0')} 확정`); };
+    const tryOpen = () => {
+      if (!finish || opened) return;
+      if (nums.length === K && nums.map(v => String(v).padStart(2, '0')).join('') === code) { opened = .01; sfx.tumbler(); setTimeout(() => close(true), 750); return; }
+      nums.length = 0; shake = 1; sfx.buzz(); status('손잡이가 꿈쩍도 않는다 — 처음부터 다시', 'err'); if (onFail) onFail();
+    };
+    const wood = (() => { const o = document.createElement('canvas'); o.width = 460; o.height = 320; const q = o.getContext('2d'), gr = q.createLinearGradient(0, 0, 460, 320); gr.addColorStop(0, '#6e737a'); gr.addColorStop(.5, '#4c5157'); gr.addColorStop(1, '#3a3e43'); q.fillStyle = gr; q.fillRect(0, 0, 460, 320);
+      for (let y = 0; y < 320; y++) { q.fillStyle = `rgba(255,255,255,${Math.random() * .035})`; q.fillRect(0, y, 460, 1); }   // 헤어라인 가공 강판
+      for (let i = 0; i < 26; i++) { q.fillStyle = `rgba(90,50,20,${Math.random() * .12})`; q.beginPath(); q.arc(Math.random() * 460, Math.random() * 320, 2 + Math.random() * 9, 0, 7); q.fill(); }   // 녹 얼룩
+      [[14, 14], [446, 14], [14, 306], [446, 306]].forEach(([x, y]) => { const s = q.createRadialGradient(x - 1, y - 1, 0, x, y, 6); s.addColorStop(0, '#d8dce0'); s.addColorStop(1, '#3a3e42'); q.fillStyle = s; q.beginPath(); q.arc(x, y, 5, 0, 7); q.fill(); q.strokeStyle = '#222'; q.beginPath(); q.moveTo(x - 4, y); q.lineTo(x + 4, y); q.stroke(); });
+      return o; })();
+    const draw = () => {
+      vis += ((pos - vis + 150) % 100 - 50) * .3; const sx = Math.sin(performance.now() / 18) * 4 * shake; shake = Math.max(0, shake - .04);
+      g.drawImage(wood, 0, 0); g.save(); g.translate(sx, 0);
+      // 고정 링(인덱스 눈금이 새겨진 크롬 테)
+      const rg = g.createRadialGradient(CX - 30, CY - 40, 10, CX, CY, R + 30); rg.addColorStop(0, '#f2f4f6'); rg.addColorStop(.6, '#9aa0a6'); rg.addColorStop(1, '#4a4e52');
+      g.fillStyle = 'rgba(0,0,0,.45)'; g.beginPath(); g.arc(CX + 5, CY + 7, R + 26, 0, 7); g.fill(); g.fillStyle = rg; g.beginPath(); g.arc(CX, CY, R + 24, 0, 7); g.fill();
+      g.fillStyle = '#c01818'; g.beginPath(); g.moveTo(CX - 8, CY - R - 22); g.lineTo(CX + 8, CY - R - 22); g.lineTo(CX, CY - R - 8); g.fill();   // ▼ 인덱스
+      // 다이얼(돌아가는 부분): 널링 베젤 · 검은 눈금판
+      const a0 = -vis / 100 * Math.PI * 2; g.save(); g.translate(CX, CY); g.rotate(a0);
+      for (let k = 0; k < 120; k++) { const a = k / 120 * Math.PI * 2; g.fillStyle = k % 2 ? '#2a2c2e' : '#8a8e92'; g.beginPath(); g.arc(0, 0, R + 6, a, a + Math.PI / 120); g.arc(0, 0, R - 2, a + Math.PI / 120, a, true); g.fill(); }
+      const fg = g.createRadialGradient(-30, -40, 5, 0, 0, R); fg.addColorStop(0, '#2e3236'); fg.addColorStop(1, '#0c0d0e'); g.fillStyle = fg; g.beginPath(); g.arc(0, 0, R - 3, 0, 7); g.fill();
+      g.fillStyle = '#ece6d4'; g.strokeStyle = '#ece6d4'; g.textAlign = 'center'; g.textBaseline = 'middle';
+      for (let k = 0; k < 100; k++) { const a = k / 100 * Math.PI * 2 - Math.PI / 2, L = k % 10 === 0 ? 14 : k % 5 === 0 ? 10 : 6; g.lineWidth = k % 10 === 0 ? 2 : 1; g.beginPath(); g.moveTo(Math.cos(a) * (R - 5), Math.sin(a) * (R - 5)); g.lineTo(Math.cos(a) * (R - 5 - L), Math.sin(a) * (R - 5 - L)); g.stroke();
+        if (k % 10 === 0) { g.save(); g.translate(Math.cos(a) * (R - 32), Math.sin(a) * (R - 32)); g.rotate(a + Math.PI / 2); g.font = 'bold 15px Georgia, serif'; g.fillText(String(k), 0, 0); g.restore(); } }
+      // 가운데 손잡이(그립)
+      const kg = g.createRadialGradient(-12, -14, 3, 0, 0, 46); kg.addColorStop(0, '#4a4e52'); kg.addColorStop(1, '#141516'); g.fillStyle = kg; g.beginPath(); g.arc(0, 0, 44, 0, 7); g.fill();
+      for (let k = 0; k < 24; k++) { const a = k / 24 * Math.PI * 2; g.strokeStyle = 'rgba(255,255,255,.08)'; g.beginPath(); g.moveTo(Math.cos(a) * 30, Math.sin(a) * 30); g.lineTo(Math.cos(a) * 43, Math.sin(a) * 43); g.stroke(); }
+      g.restore(); g.textBaseline = 'alphabetic';
+      g.fillStyle = 'rgba(255,255,255,.10)'; g.beginPath(); g.ellipse(CX - 40, CY - 55, 60, 22, -.6, 0, 7); g.fill();   // 반사광
+      g.restore();
+      // 오른쪽: 손잡이 레버 · 확정한 번호 각인판
+      const hx = 360, hy = 150 + opened * 0; g.fillStyle = '#2a2c2e'; g.beginPath(); g.arc(hx, hy, 26, 0, 7); g.fill(); opened = opened ? Math.min(1, opened + .06) : 0;
+      g.save(); g.translate(hx, hy); g.rotate(opened * Math.PI / 2); const hg = g.createLinearGradient(0, -8, 0, 8); hg.addColorStop(0, '#e6e8ea'); hg.addColorStop(1, '#6a6e72'); g.fillStyle = hg; g.fillRect(-8, -8, 78, 16); g.beginPath(); g.arc(70, 0, 10, 0, 7); g.fill(); g.restore();
+      g.fillStyle = '#b8a070'; g.fillRect(318, 214, 120, 46); g.strokeStyle = '#6a5430'; g.strokeRect(318, 214, 120, 46); g.fillStyle = '#2a1c0c'; g.font = 'bold 22px monospace'; g.textAlign = 'center';
+      g.fillText([...Array(K)].map((_, i) => i < nums.length ? String(nums[i]).padStart(2, '0') : '--').join('-'), 378, 245); g.font = '11px sans-serif'; g.fillStyle = '#ddd'; g.fillText('확정한 번호', 378, 207);
+      g.fillStyle = '#e8e2d0'; g.font = 'bold 13px monospace'; g.fillText(`▼ ${String(pos).padStart(2, '0')}`, CX, 312); g.textAlign = 'left';
+      raf = requestAnimationFrame(draw);
+    };
+    const ang = e => { const r = c.getBoundingClientRect(); return Math.atan2((e.clientY - r.top) * c.height / r.height - CY, (e.clientX - r.left) * c.width / r.width - CX); };
+    c.addEventListener('mousedown', e => { const r = c.getBoundingClientRect(), x = (e.clientX - r.left) * c.width / r.width, y = (e.clientY - r.top) * c.height / r.height;
+      if (Math.hypot(x - 360, y - 150) < 40 || (x > 360 && Math.abs(y - 150) < 14)) { tryOpen(); return; }
+      if (Math.hypot(x - CX, y - CY) < R + 10) { drag = ang(e); moved = false; } });
+    c.addEventListener('mousemove', e => { if (drag == null) return; const a = ang(e); let d = a - drag; d = Math.atan2(Math.sin(d), Math.cos(d)); const st = Math.round(d / (Math.PI * 2) * 100); if (st) { step(-st); drag += st / 100 * Math.PI * 2; moved = true; } });
+    const mu = () => { if (drag != null && !moved) setN(); drag = null; }; addEventListener('mouseup', mu); cleanups.push(() => removeEventListener('mouseup', mu));   // 드래그 없이 다이얼을 누르면 확정
+    c.addEventListener('wheel', e => { e.preventDefault(); step(e.deltaY < 0 ? 1 : -1); }, { passive: false });
+    const btn = document.createElement('button'); btn.className = 'btn pri'; btn.textContent = '손잡이 돌리기'; btn.style.marginTop = '10px'; btn.onclick = tryOpen; $('mgBody').appendChild(btn);
+    keys(e => {
+      if (e.type !== 'keydown') return; const big = e.shiftKey ? 10 : 1;
+      if (e.code === 'ArrowLeft' || e.code === 'KeyA') step(-big);
+      if (e.code === 'ArrowRight' || e.code === 'KeyD') step(big);
+      if (e.code === 'ArrowUp' || e.code === 'KeyW') step(10); if (e.code === 'ArrowDown' || e.code === 'KeyS') step(-10);
+      if (/^(Digit|Numpad)\d$/.test(e.code)) { pos = (pos % 10) * 10 + +e.code.slice(-1); sfx.dial(); }
+      if (e.code === 'Space') setN();
+      if (e.code === 'Backspace') { nums.pop(); sfx.dial(); }
+      if (e.code === 'Enter') { if (nums.length < K) setN(); if (nums.length === K) tryOpen(); }
+    });
+    MG.dl = { get pos() { return pos; }, get nums() { return nums.slice(); } };
+    raf = requestAnimationFrame(draw);
+    return p;
+  }
   const n = code.length, val = Array(n).fill(0); let sel = 0;
   const p = open(title, `←→ 칸 선택 · ↑↓ 또는 휠 · 클릭으로 숫자 돌리기 · Enter 열기${hint ? '<br>' + hint : ''}`);
   const box = document.createElement('div'); box.className = 'dialBox'; $('mgBody').appendChild(box);
@@ -429,7 +496,8 @@ function dial({ code, title = '다이얼 자물쇠', hint = '', onFail }) {
 // 마스크: N=1 E=2 S=4 W=8. 왼쪽 전원에서 오른쪽 출력까지 회로를 잇는다.
 function circuit({ title = '배선 퍼즐', hint = '' } = {}) {
   const R = 4, C = 5, S = 74;
-  const p = open(title, `타일을 클릭해 돌려 왼쪽 <b style="color:#ffd060">전원</b>에서 오른쪽 <b style="color:#60e0ff">차단기</b>까지 전선을 이어라 (우클릭: 반대로)${hint ? '<br>' + hint : ''}`);
+  const p = open(title, `단자 블록을 클릭해 돌려 왼쪽 <b style="color:#ffd060">전원</b>에서 오른쪽 <b style="color:#60e0ff">차단기</b>까지 전선을 이어라 (우클릭: 반대로)<br>키보드: <b>방향키 / WASD</b> 이동 · <b>Space</b> 돌리기 · <b>Q</b> 반대로${hint ? '<br>' + hint : ''}`);
+  const cur = { y: 0, x: 0 };
   const c = canvas(C * S + 80, R * S + 20), g = c.getContext('2d');
   const rot = m => ((m << 1) | (m >> 3)) & 15;
   const grid = Array.from({ length: R }, () => Array(C).fill(0));
@@ -449,6 +517,7 @@ function circuit({ title = '배선 퍼즐', hint = '' } = {}) {
   });
   const pieces = [5, 3, 7, 3, 10];
   for (let y = 0; y < R; y++) for (let x = 0; x < C; x++) if (!grid[y][x]) grid[y][x] = pieces[(Math.random() * pieces.length) | 0];
+  const sol = grid.map(r => r.slice());   // 테스트 훅용 정답 배치
   for (let y = 0; y < R; y++) for (let x = 0; x < C; x++) { const k = 1 + ((Math.random() * 3) | 0); for (let i = 0; i < k; i++) grid[y][x] = rot(grid[y][x]); }
   let won = false;
   const powered = () => {
@@ -476,6 +545,7 @@ function circuit({ title = '배선 퍼즐', hint = '' } = {}) {
       const cx = px + S / 2, cy = py + S / 2;
       [[1, 0, -1], [2, 1, 0], [4, 0, 1], [8, -1, 0]].forEach(([b, dx, dy]) => { if (m & b) { g.beginPath(); g.moveTo(cx, cy); g.lineTo(cx + dx * S / 2, cy + dy * S / 2); g.stroke(); } });
       g.fillStyle = g.strokeStyle; g.beginPath(); g.arc(cx, cy, 7, 0, 7); g.fill();
+      if (cur.y === y && cur.x === x) { g.strokeStyle = '#f0d070'; g.lineWidth = 2; g.strokeRect(px + 3, py + 3, S - 6, S - 6); }
     }
   };
   const turnTile = (y, x, dir) => { if (won || x < 0 || x >= C || y < 0 || y >= R) return; grid[y][x] = dir > 0 ? rot(grid[y][x]) : rot(rot(rot(grid[y][x]))); sfx.dial(); draw(); W3 && W3.spin(y, x, dir); if (won) { sfx.fuse(); setTimeout(() => close(true), 600); } };
@@ -485,25 +555,36 @@ function circuit({ title = '배선 퍼즐', hint = '' } = {}) {
     r.setPixelRatio(Math.min(2, devicePixelRatio || 1)); r.setSize(460, 300); r.outputColorSpace = THREE.SRGBColorSpace; r.toneMapping = THREE.ACESFilmicToneMapping; r.domElement.className = 'mgCanvas'; r.domElement.dataset.own3d = '1'; $('mgBody').insertBefore(r.domElement, c); c.style.display = 'none'; c.dataset.st = '1';
     const sc = new THREE.Scene(); sc.background = new THREE.Color(0x0a0c0e); const cam = new THREE.PerspectiveCamera(34, 460 / 300, .05, 20); cam.position.set(0, -.9, 2.4); cam.lookAt(0, 0, 0);
     sc.add(new THREE.HemisphereLight(0xdde6ff, 0x101010, .5)); const L = new THREE.SpotLight(0xfff0dc, 14, 6, .7, .5, 1.4); L.position.set(.6, .8, 1.8); sc.add(L, L.target);
-    const T = .3, bx0 = -(C - 1) * T / 2, by0 = (R - 1) * T / 2, board = new THREE.Mesh(new THREE.BoxGeometry(C * T + .7, R * T + .2, .05), new THREE.MeshStandardMaterial({ color: 0x2a1c14, roughness: .5 })); board.position.z = -.04; sc.add(board);
+    const bt = (() => { const o = document.createElement('canvas'); o.width = 512; o.height = 320; const q = o.getContext('2d'); q.fillStyle = '#d8ccae'; q.fillRect(0, 0, 512, 320); for (let i = 0; i < 4000; i++) { q.fillStyle = `rgba(120,90,40,${Math.random() * .06})`; q.fillRect(Math.random() * 512, Math.random() * 320, 2, 2); }
+      q.fillStyle = '#5a4a32'; for (let y = 8; y < 320; y += 11) for (let x = 8; x < 512; x += 11) { q.beginPath(); q.arc(x, y, 2, 0, 7); q.fill(); }   // 브레드보드 구멍 격자
+      q.fillStyle = 'rgba(200,40,40,.7)'; q.fillRect(0, 3, 512, 2); q.fillStyle = 'rgba(40,70,200,.7)'; q.fillRect(0, 314, 512, 2); q.fillStyle = 'rgba(90,60,30,.55)'; q.font = 'bold 13px monospace'; q.fillText('PB-104  1998.03  과학실', 330, 300);
+      const t = new THREE.CanvasTexture(o); t.colorSpace = THREE.SRGBColorSpace; return t; })();
+    const T = .3, bx0 = -(C - 1) * T / 2, by0 = (R - 1) * T / 2, board = new THREE.Mesh(new THREE.BoxGeometry(C * T + .7, R * T + .2, .05), new THREE.MeshStandardMaterial({ map: bt, roughness: .75 })); board.position.z = -.04; sc.add(board);
+    const brassM = new THREE.MeshStandardMaterial({ color: 0xc8a050, metalness: .9, roughness: .3 }), slotM = new THREE.MeshBasicMaterial({ color: 0x2a1c08 });
     const src = new THREE.Mesh(new THREE.BoxGeometry(.16, .18, .1), new THREE.MeshStandardMaterial({ color: 0xd8a820, roughness: .4 })); src.position.set(bx0 - .3, by0 - r0 * T, .02); sc.add(src);
     const brk = new THREE.Mesh(new THREE.BoxGeometry(.16, .2, .1), new THREE.MeshStandardMaterial({ color: 0x3a8ab8, roughness: .4, emissive: 0x000000 })); brk.position.set(bx0 + (C - 1) * T + .3, by0 - r1 * T, .02); sc.add(brk);
-    const tiles = []; const cu = c3 => new THREE.MeshStandardMaterial({ color: c3, metalness: .7, roughness: .35, emissive: 0x000000 });
+    const tiles = []; const cu = c3 => new THREE.MeshStandardMaterial({ color: c3, metalness: .05, roughness: .45, emissive: 0x000000 });   // PVC 피복
+    const copper = new THREE.MeshStandardMaterial({ color: 0xd08850, metalness: .9, roughness: .3 }), wireG = new THREE.CylinderGeometry(.018, .018, T / 2 - .05, 10), tipG = new THREE.CylinderGeometry(.009, .009, .05, 8);
     const build = (y, x) => { const t = tiles[y * C + x]; while (t.arms.children.length) t.arms.remove(t.arms.children[0]); const m = grid[y][x];
-      [[1, 0, 1], [2, 1, 0], [4, 0, -1], [8, -1, 0]].forEach(([bit, dx, dy]) => { if (!(m & bit)) return; const arm = new THREE.Mesh(new THREE.BoxGeometry(dx ? T / 2 : .045, dy ? T / 2 : .045, .03), t.mat); arm.position.set(dx * T / 4, dy * T / 4, .03); t.arms.add(arm); });
-      const hub = new THREE.Mesh(new THREE.CylinderGeometry(.035, .035, .04, 14), t.mat); hub.rotation.x = Math.PI / 2; hub.position.z = .03; t.arms.add(hub); };
+      [[1, 0, 1], [2, 1, 0], [4, 0, -1], [8, -1, 0]].forEach(([bit, dx, dy]) => { if (!(m & bit)) return; const arm = new THREE.Mesh(wireG, t.mat); arm.position.set(dx * (T / 4 - .012), dy * (T / 4 - .012), .045); if (dx) arm.rotation.z = Math.PI / 2; t.arms.add(arm);
+        const tip = new THREE.Mesh(tipG, copper); tip.position.set(dx * (T / 2 - .03), dy * (T / 2 - .03), .045); if (dx) tip.rotation.z = Math.PI / 2; t.arms.add(tip); });   // 벗긴 구리선 끝이 단자 나사 밑으로
+      const hub = new THREE.Mesh(new THREE.CylinderGeometry(.04, .04, .045, 6), brassM); hub.rotation.x = Math.PI / 2; hub.position.z = .045; t.arms.add(hub); const sl = new THREE.Mesh(new THREE.BoxGeometry(.05, .008, .002), slotM); sl.position.z = .069; t.arms.add(sl); };
     for (let y = 0; y < R; y++) for (let x = 0; x < C; x++) { const g3 = new THREE.Group(); g3.position.set(bx0 + x * T, by0 - y * T, 0); sc.add(g3);
-      const plate = new THREE.Mesh(new THREE.BoxGeometry(T * .92, T * .92, .03), new THREE.MeshStandardMaterial({ color: 0x3a3430, roughness: .6 })); plate.userData = { y, x }; g3.add(plate);
-      const arms = new THREE.Group(); g3.add(arms); tiles.push({ g3, plate, arms, mat: cu(0x8a6a48), spin: 0 }); build(y, x); }
+      const plate = new THREE.Mesh(new THREE.BoxGeometry(T * .92, T * .92, .03), new THREE.MeshStandardMaterial({ color: 0x2a2624, roughness: .55, emissive: 0 })); plate.userData = { y, x }; g3.add(plate);   // 베이클라이트 단자 블록
+      [[1, 1], [1, -1], [-1, 1], [-1, -1]].forEach(([a, b]) => { const sc2 = new THREE.Mesh(new THREE.CylinderGeometry(.018, .018, .02, 12), brassM); sc2.rotation.x = Math.PI / 2; sc2.position.set(a * T * .36, b * T * .36, .025); g3.add(sc2); });
+      const arms = new THREE.Group(); g3.add(arms); tiles.push({ g3, plate, arms, mat: cu(0x7a1e18), spin: 0 }); build(y, x); }
     const rc = new THREE.Raycaster(), mv = new THREE.Vector2();
     const pick = (e, dir) => { const b = r.domElement.getBoundingClientRect(); mv.set((e.clientX - b.left) / b.width * 2 - 1, -((e.clientY - b.top) / b.height) * 2 + 1); rc.setFromCamera(mv, cam); const h = rc.intersectObjects(tiles.map(t => t.plate))[0]; if (h) turnTile(h.object.userData.y, h.object.userData.x, dir); };
     r.domElement.addEventListener('mousedown', e => { if (e.button === 0) pick(e, 1); }); r.domElement.addEventListener('contextmenu', e => { e.preventDefault(); pick(e, -1); });
     const lp = () => { if (!MG.active) { r.dispose(); r.forceContextLoss && r.forceContextLoss(); return; } const on = powered(); for (let y = 0; y < R; y++) for (let x = 0; x < C; x++) { const t = tiles[y * C + x]; const hot = on[y][x];
-        t.mat.color.setHex(hot ? (won ? 0x60ffa0 : 0xffd060) : 0x8a6a48); t.mat.emissive.setHex(hot ? (won ? 0x20a050 : 0x805010) : 0); t.spin *= .8; t.arms.rotation.z = t.spin; }
+        t.mat.color.setHex(hot ? (won ? 0x40c070 : 0xd8a020) : 0x7a1e18); t.mat.emissive.setHex(hot ? (won ? 0x104a20 : 0x4a3008) : 0); t.spin *= .8; t.arms.rotation.z = t.spin; t.plate.material.emissive.setHex(cur.y === y && cur.x === x ? 0x3a3010 : 0); }
       brk.material.emissive.setHex(won ? 0x20a050 : 0); r.render(sc, cam); requestAnimationFrame(lp); }; requestAnimationFrame(lp);
     return { spin: (y, x, dir) => { const t = tiles[y * C + x]; build(y, x); t.spin = dir * Math.PI / 2; } }; })();
   c.addEventListener('click', e => click(e, 1)); c.addEventListener('contextmenu', e => { e.preventDefault(); click(e, -1); });
-  keys(() => {});
+  keys(e => { if (e.type !== 'keydown') return; const d = { ArrowUp: [-1, 0], KeyW: [-1, 0], ArrowDown: [1, 0], KeyS: [1, 0], ArrowLeft: [0, -1], KeyA: [0, -1], ArrowRight: [0, 1], KeyD: [0, 1] }[e.code];
+    if (d) { cur.y = clamp(cur.y + d[0], 0, R - 1); cur.x = clamp(cur.x + d[1], 0, C - 1); sfx.dial(); draw(); }
+    else if (e.code === 'Space' || e.code === 'Enter' || e.code === 'KeyE') turnTile(cur.y, cur.x, 1); else if (e.code === 'KeyQ') turnTile(cur.y, cur.x, -1); });
+  MG.ci = { grid, sol, R, C, r0, r1, cur, get won() { return won; } };
   draw();
   if (won) { grid[r0][0] = rot(grid[r0][0]); draw(); }
   return p;
@@ -532,10 +613,17 @@ function piano({ melody, sheet, onFail }) {
     r.setPixelRatio(Math.min(2, devicePixelRatio || 1)); r.setSize(460, 280); r.outputColorSpace = THREE.SRGBColorSpace; r.toneMapping = THREE.ACESFilmicToneMapping; r.domElement.className = 'mgCanvas'; r.domElement.dataset.own3d = '1'; $('mgBody').insertBefore(r.domElement, kb); kb.style.display = 'none';
     const sc = new THREE.Scene(); sc.background = new THREE.Color(0x0b0908); const cam = new THREE.PerspectiveCamera(34, 460 / 280, .05, 20); cam.position.set(0, 1.05, 1.25); cam.lookAt(0, .82, 0);
     sc.add(new THREE.HemisphereLight(0xffe8cc, 0x100c08, .45)); const cl = new THREE.PointLight(0xffb060, 3.5, 4); cl.position.set(-.55, 1.25, .1); sc.add(cl); const key = new THREE.SpotLight(0xfff0dc, 10, 5, .6, .5, 1.5); key.position.set(.4, 2, 1.2); sc.add(key, key.target);
-    const lac = new THREE.MeshStandardMaterial({ color: 0x0c0a0a, roughness: .18, metalness: .2 }), ivory = new THREE.MeshStandardMaterial({ color: 0xf0ead8, roughness: .35 }), ebony = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: .3 });
+    const wt = (() => { const o = document.createElement('canvas'); o.width = 256; o.height = 256; const q = o.getContext('2d'); q.fillStyle = '#3a2214'; q.fillRect(0, 0, 256, 256); for (let y = 0; y < 256; y++) { const v = Math.sin(y * .21 + Math.sin(y * .05) * 3) * .5 + .5; q.fillStyle = `rgba(${90 + v * 40},${50 + v * 20},${24},${.25 + Math.random() * .1})`; q.fillRect(0, y, 256, 1); } const t = new THREE.CanvasTexture(o); t.colorSpace = THREE.SRGBColorSpace; return t; })();   // 호두나무 무늬목
+    const lac = new THREE.MeshStandardMaterial({ map: wt, color: 0x6a5448, roughness: .32, metalness: .05 }), ivory = new THREE.MeshStandardMaterial({ color: 0xf0ead8, roughness: .35 }), ebony = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: .3 });
     const add = (g, m, x, y, z) => { const o = new THREE.Mesh(g, m); o.position.set(x, y, z); sc.add(o); return o; };
     add(new THREE.BoxGeometry(1.4, 1.2, .25), lac, 0, 1.1, -.25); add(new THREE.BoxGeometry(1.4, .06, .4), lac, 0, .72, -.05); add(new THREE.BoxGeometry(1.42, .04, .08), lac, 0, .86, -.21);
     const KW = .085, keysM = NOTES.map((_, i) => { const k = add(new THREE.BoxGeometry(KW - .005, .03, .28), ivory.clone(), (i - (NOTES.length - 1) / 2) * KW, .77, .03); k.userData.i = i; return k; });
+    // 건반 양끝 나무 치크 블록 · 건반 뒤 빨간 펠트(키 레일) · 앞쪽 키슬립 · 건반 뚜껑(폴보드)
+    [-1, 1].forEach(sd => add(new THREE.BoxGeometry(.09, .07, .34), lac, sd * (NOTES.length * KW / 2 + .045), .785, .02));
+    add(new THREE.BoxGeometry(NOTES.length * KW, .012, .025), new THREE.MeshStandardMaterial({ color: 0x8a1420, roughness: 1 }), 0, .786, -.125);
+    add(new THREE.BoxGeometry(NOTES.length * KW + .18, .045, .03), lac, 0, .745, .19);
+    const fb = add(new THREE.BoxGeometry(NOTES.length * KW + .18, .1, .02), lac, 0, .86, -.16); fb.rotation.x = -.5;
+    keysM.forEach(k => { k.geometry.translate(0, 0, 0); const front = add(new THREE.BoxGeometry(KW - .005, .006, .01), new THREE.MeshStandardMaterial({ color: 0xe4dcc4, roughness: .5 }), k.position.x, .768, .175); k.userData.f = front; });
     [0, 1, 3, 4, 5].forEach(i => { if (i + 1 < NOTES.length) add(new THREE.BoxGeometry(KW * .55, .035, .17), ebony, (i + .5 - (NOTES.length - 1) / 2) * KW, .8, -.03); });
     const sh = document.createElement('canvas'); sh.width = 256; sh.height = 160; const g2 = sh.getContext('2d'); g2.fillStyle = '#e8dcc0'; g2.fillRect(0, 0, 256, 160); g2.strokeStyle = '#444'; for (let l = 0; l < 2; l++) for (let k = 0; k < 5; k++) { g2.beginPath(); g2.moveTo(10, 40 + l * 60 + k * 7); g2.lineTo(246, 40 + l * 60 + k * 7); g2.stroke(); }
     g2.fillStyle = '#1a1208'; g2.font = 'bold 22px sans-serif'; g2.textAlign = 'center'; g2.fillText((sheet || '악보 없음 …').replace(/<[^>]+>/g, '').slice(0, 30), 128, 26); const st = new THREE.CanvasTexture(sh); st.colorSpace = THREE.SRGBColorSpace;
@@ -553,13 +641,15 @@ function slide({ img, title = '그림 맞추기' }) {
   const N = 3, p = open(title, '빈칸 옆의 조각을 클릭하거나 방향키로 밀어 그림을 완성하라');
   const box = document.createElement('div'); box.className = 'slideBox'; $('mgBody').appendChild(box);
   const info = document.createElement('div'); info.className = 'mgInfo'; $('mgBody').appendChild(info);
-  let t = [...Array(N * N).keys()], e0 = N * N - 1, moves = 0;
+  let t = [...Array(N * N).keys()], e0 = N * N - 1, moves = 0, cur = -1;
   const nb = i => [i - N, i + N, i % N ? i - 1 : -1, (i + 1) % N ? i + 1 : -1].filter(j => j >= 0 && j < N * N);
   const swap = j => { const e = t.indexOf(N * N - 1); t[e] = t[j]; t[j] = N * N - 1; };
   for (let k = 0, last = -1; k < 90; k++) { const e = t.indexOf(N * N - 1), c = nb(e).filter(j => j !== last); const j = c[(Math.random() * c.length) | 0]; last = e; swap(j); }
   if (t.every((v, i) => v === i)) swap(nb(t.indexOf(N * N - 1))[0]);
   const render = () => {
-    box.innerHTML = t.map((v, i) => v === N * N - 1 ? '<div class="sl empty"></div>' : `<div class="sl" data-i="${i}" style="background-image:url(${img});background-position:${(v % N) * 50}% ${((v / N) | 0) * 50}%"></div>`).join('');
+    // 인화지에 뽑아 잘라 낸 사진 조각: 흰 인화지 테두리 · 살짝 바랜 색 · 그림자 · 조각마다 조금씩 비뚤게 — 빈칸은 나무 액자 바닥
+    box.innerHTML = t.map((v, i) => v === N * N - 1 ? '<div class="sl empty" style="background:repeating-linear-gradient(90deg,#3a2414 0 6px,#442a18 6px 9px);box-shadow:inset 0 3px 8px rgba(0,0,0,.8)"></div>' : `<div class="sl" data-i="${i}" style="background-image:linear-gradient(rgba(255,240,210,.10),rgba(60,40,20,.12)),url(${img});background-position:${(v % N) * 50}% ${((v / N) | 0) * 50}%;filter:sepia(.3) saturate(.85) contrast(1.05);border:3px solid #f2ecdc;box-shadow:0 2px 5px rgba(0,0,0,.55),inset 0 0 6px rgba(0,0,0,.25);transform:rotate(${((v * 37) % 7 - 3) * .35}deg);${i === cur ? 'outline:2px solid #f0d070;' : ''}"></div>`).join('');
+    box.style.background = '#5a3a20'; box.style.padding = box.style.padding || '8px'; box.style.boxShadow = 'inset 0 0 0 6px #3a2412, inset 0 0 18px rgba(0,0,0,.7)';
     box.querySelectorAll('.sl[data-i]').forEach(d => { d.onclick = () => move(+d.dataset.i); });
     info.textContent = `이동 ${moves}회`;
   };
@@ -573,6 +663,7 @@ function slide({ img, title = '그림 맞추기' }) {
     const d = { ArrowUp: em + N, KeyW: em + N, ArrowDown: em - N, KeyS: em - N, ArrowLeft: (em + 1) % N ? em + 1 : -1, KeyA: (em + 1) % N ? em + 1 : -1, ArrowRight: em % N ? em - 1 : -1, KeyD: em % N ? em - 1 : -1 }[e.code];
     if (d != null && d >= 0 && d < N * N) move(d);
   });
+  MG.sl = { get t() { return t.slice(); } };
   render();
   return p;
 }
@@ -644,14 +735,24 @@ function fishing({ title = '배수구 — 갈고리 걸기', need = 1 }) {
 /* ---------- 7. 녹음 순서 맞추기 (마지막 방송) ---------- */
 // 카드를 클릭해 두 장씩 자리를 바꾸고, ▶ 로 들어 볼 수 있다. 자막(텍스트)과 파형을 함께 보여 준다
 function order({ title, frags, showTimes, onFail }) {
-  const p = open(title, `그날 밤의 녹음 조각을 <b>일어난 순서대로</b> 놓아라 — 두 카드를 차례로 눌러 자리를 바꾼다 · ▶ 다시 듣기<br>휴대폰의 <b>사건 연표</b>가 도움이 된다`);
+  const p = open(title, `그날 밤의 녹음 조각을 <b>일어난 순서대로</b> 놓아라 — 두 카드를 차례로 눌러 자리를 바꾼다 · ▶ 다시 듣기<br>휴대폰의 <b>사건 연표</b>가 도움이 된다 · 키보드: <b>↑↓</b> 고르기 · <b>Space</b> 집기/바꾸기 · <b>P</b> 듣기 · <b>Enter</b> 송출`);
   let cur = frags.map((f, i) => i); do { cur.sort(() => Math.random() - .5); } while (cur.every((v, i) => v === i));
-  let pick = -1, fails = 0, times = !!showTimes;
+  let pick = -1, fails = 0, times = !!showTimes, kc = 0;
+  // 실제 카세트테이프처럼: 검은 플라스틱 몸체 · 손글씨 종이 라벨(줄) · 가운데 릴 창(파형) · 나사
+  const css = document.createElement('style'); css.textContent = `#mgBody .tapeBox .tape{background:linear-gradient(#2a2a2c,#161618);border:1px solid #000;border-radius:7px;box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 3px 6px rgba(0,0,0,.6);position:relative;padding:8px 14px}
+#mgBody .tapeBox .tape span{background:repeating-linear-gradient(#f2ead2 0 15px,#c8d0e0 15px 16px);color:#1a2a5a;font-family:'Nanum Pen Script','Comic Sans MS',cursive;font-size:15px;padding:2px 8px;border-radius:2px;box-shadow:inset 0 0 0 2px #e8dcb8}
+#mgBody .tapeBox .tape .wv{background:#0c0c0c;border-radius:12px;padding:0 8px;box-shadow:inset 0 2px 4px #000;border:2px solid #3a3a3c}
+#mgBody .tapeBox .tape .wv i{background:#7a5a3a}
+#mgBody .tapeBox .tape em{color:#c8b890;font-weight:bold}
+#mgBody .tapeBox .tape::before,#mgBody .tapeBox .tape::after{content:'';position:absolute;top:4px;width:5px;height:5px;border-radius:50%;background:radial-gradient(#9a9a9a,#333)}
+#mgBody .tapeBox .tape::before{left:4px}#mgBody .tapeBox .tape::after{right:4px}
+#mgBody .tapeBox .tape.kc{outline:2px dashed #f0d070;outline-offset:2px}
+#mgBody .tapeBox .tape.pick{transform:translateX(10px);border-color:#e0b84a}`; $('mgBody').appendChild(css);
   const box = document.createElement('div'); box.className = 'tapeBox'; $('mgBody').appendChild(box);
   const btn = document.createElement('button'); btn.className = 'btn pri'; btn.textContent = '이 순서로 방송 송출'; btn.style.marginTop = '10px'; $('mgBody').appendChild(btn);
   const wave = seed => { let s = seed * 9301 + 49297, out = ''; for (let k = 0; k < 28; k++) { s = (s * 9301 + 49297) % 233280; out += `<i style="height:${4 + (s / 233280) * 22}px"></i>`; } return out; };
   const render = () => {
-    box.innerHTML = cur.map((fi, slot) => { const f = frags[fi]; return `<div class="tape${slot === pick ? ' pick' : ''}" data-s="${slot}"><em>${slot + 1}</em><div class="wv">${wave(fi + 3)}</div><span>${f.text}</span>${times ? `<b>${f.t}</b>` : ''}<button data-play="${fi}">▶</button></div>`; }).join('');
+    box.innerHTML = cur.map((fi, slot) => { const f = frags[fi]; return `<div class="tape${slot === pick ? ' pick' : ''}${slot === kc ? ' kc' : ''}" data-s="${slot}"><em>${slot + 1}</em><div class="wv">${wave(fi + 3)}</div><span>${f.text}</span>${times ? `<b>${f.t}</b>` : ''}<button data-play="${fi}">▶</button></div>`; }).join('');
     box.querySelectorAll('.tape').forEach(el => { el.onclick = e => { if (e.target.dataset.play != null) { sfx.tape(); sfx.staticNoise(.6); status(frags[+e.target.dataset.play].text); return; } const s = +el.dataset.s; if (pick < 0) { pick = s; sfx.dial(); } else { [cur[pick], cur[s]] = [cur[s], cur[pick]]; pick = -1; sfx.slide(); } render(); }; });
   };
   btn.onclick = () => {
@@ -660,7 +761,13 @@ function order({ title, frags, showTimes, onFail }) {
     if (fails >= 2 && !times) { times = true; status('녹음 테이프에 적힌 시각이 보인다', 'err'); }
     render();
   };
-  keys(() => {});
+  keys(e => { if (e.type !== 'keydown') return; const n = cur.length;
+    if (e.code === 'ArrowUp' || e.code === 'KeyW' || e.code === 'ArrowLeft') { kc = (kc + n - 1) % n; sfx.dial(); render(); }
+    else if (e.code === 'ArrowDown' || e.code === 'KeyS' || e.code === 'ArrowRight') { kc = (kc + 1) % n; sfx.dial(); render(); }
+    else if (e.code === 'Space') { if (pick < 0) { pick = kc; sfx.dial(); } else { [cur[pick], cur[kc]] = [cur[kc], cur[pick]]; pick = -1; sfx.slide(); } render(); }
+    else if (e.code === 'KeyP') { sfx.tape(); sfx.staticNoise(.6); status(frags[cur[kc]].text); }
+    else if (e.code === 'Enter') btn.onclick(); });
+  MG.od = { get cur() { return cur.slice(); } };
   render();
   return p;
 }
@@ -700,13 +807,13 @@ function cardArt(g, ic) {
   g.restore();
 }
 function memory({ title = '짝 맞추기', icons = ['📻', '🎹', '📼', '🔔', '📕', '🗝'], maxMiss = 8 }) {
-  const p = open(title, '카드를 클릭해 두 장씩 뒤집고 <b>같은 그림</b>을 모두 찾아라 · 틀린 횟수가 다 차면 실패');
+  const p = open(title, '카드를 클릭해 두 장씩 뒤집고 <b>같은 그림</b>을 모두 찾아라 · 틀린 횟수가 다 차면 실패 · 키보드: <b>방향키</b> + <b>Space</b>');
   const deck = [...icons, ...icons].map((ic, i) => ({ ic, id: i, open: false, done: false })).sort(() => Math.random() - .5);
   const box = document.createElement('div'); box.className = 'memGrid'; box.style.gridTemplateColumns = `repeat(${deck.length > 12 ? 5 : 4}, 64px)`; $('mgBody').appendChild(box);
   const info = document.createElement('div'); info.className = 'mgInfo'; $('mgBody').appendChild(info);
-  let first = null, lock = false, miss = 0, pairs = 0;
+  let first = null, lock = false, miss = 0, pairs = 0, kc = 0;
   const render = () => {
-    box.innerHTML = deck.map((c, i) => `<button class="memCard${c.open || c.done ? ' open' : ''}${c.done ? ' done' : ''}" data-i="${i}">${c.open || c.done ? c.ic : '?'}</button>`).join('');
+    box.innerHTML = deck.map((c, i) => `<button class="memCard${c.open || c.done ? ' open' : ''}${c.done ? ' done' : ''}" data-i="${i}"${i === kc ? ' style="outline:2px solid #f0d070"' : ''}>${c.open || c.done ? c.ic : '?'}</button>`).join('');
     info.innerHTML = `찾은 짝 <b>${pairs}</b> / ${icons.length} · 남은 실수 <b>${maxMiss - miss}</b>`;
     box.querySelectorAll('.memCard').forEach(b => { b.onclick = () => flip(+b.dataset.i); });
   };
@@ -733,9 +840,12 @@ function memory({ title = '짝 맞추기', icons = ['📻', '🎹', '📼', '�
     const rc = new THREE.Raycaster(), mv = new THREE.Vector2();
     r.domElement.addEventListener('mousedown', e => { const b = r.domElement.getBoundingClientRect(); mv.set((e.clientX - b.left) / b.width * 2 - 1, -((e.clientY - b.top) / b.height) * 2 + 1); rc.setFromCamera(mv, cam); const h = rc.intersectObjects(cards.map(c3 => c3.o))[0]; if (h) flip(h.object.userData.i); });
     const lp = () => { if (!MG.active) { r.dispose(); r.forceContextLoss && r.forceContextLoss(); return; } cards.forEach((c3, i) => { const d = deck[i], tgt = d.open || d.done ? 1 : 0; c3.flip += (tgt - c3.flip) * .2; c3.lift += ((d.done ? 1 : 0) - c3.lift) * .1;
-        c3.o.rotation.z = Math.PI * (1 - c3.flip); c3.o.position.y = .01 + Math.sin(c3.flip * Math.PI) * .12 + c3.lift * .03; if (d.done) c3.o.material[2].emissive.setHex(0x302000); });
+        c3.o.rotation.z = Math.PI * (1 - c3.flip); c3.o.position.y = .01 + Math.sin(c3.flip * Math.PI) * .12 + c3.lift * .03; if (d.done) c3.o.material[2].emissive.setHex(0x302000); c3.o.material[3].emissive.setHex(i === kc ? 0x4a3a10 : 0); });
       r.render(sc, cam); requestAnimationFrame(lp); }; requestAnimationFrame(lp); })();
-  keys(() => {});
+  keys(e => { if (e.type !== 'keydown') return; const cols = deck.length > 12 ? 5 : 4, n = deck.length;
+    const d = { ArrowLeft: -1, KeyA: -1, ArrowRight: 1, KeyD: 1, ArrowUp: -cols, KeyW: -cols, ArrowDown: cols, KeyS: cols }[e.code];
+    if (d) { kc = clamp(kc + d, 0, n - 1); sfx.dial(); render(); } else if (e.code === 'Space' || e.code === 'Enter') flip(kc); });
+  MG.mm = { deck };
   render();
   return p;
 }
@@ -747,7 +857,7 @@ function tune({ title = '라디오 주파수 맞추기', label = '…이 방송�
   const c = canvas(480, 250), g = c.getContext('2d');
   screen3D(c, { kind: 'wood', prop: 'antenna' });
   const targetF = .22 + Math.random() * .58, targetG = .25 + Math.random() * .55;
-  let f = .08, gain = .85, hold = 0, lastT = performance.now(), t = 0, dn = {}, dragMode = null, lastTick = 0;
+  let f = .08, gain = .85, hold = 0, lastT = performance.now(), t = 0, dn = {}, dragMode = null, lastTick = 0, tuneBg = null;
   // 실제 조작(키·마우스) 전에는 절대 성공 처리하지 않는다 — 조작 없이 "성공!"으로 닫히던 현상 방지
   let touched = false; const touch = () => { touched = true; }; ['keydown', 'mousedown', 'wheel', 'pointerdown'].forEach(ev => addEventListener(ev, touch, true)); cleanups.push(() => ['keydown', 'mousedown', 'wheel', 'pointerdown'].forEach(ev => removeEventListener(ev, touch, true)));
 
@@ -806,58 +916,47 @@ function tune({ title = '라디오 주파수 맞추기', label = '…이 방송�
     hold = clear >= .88 ? hold + dt : Math.max(0, hold - dt * 1.5);
     if (hold >= 1.25 && finish && touched) { sfx.radio ? sfx.radio() : sfx.unlock(); return close(true); }
 
-    g.fillStyle = '#0a0f0d'; g.fillRect(0, 0, 480, 250);
-    // 상단 오디오 스펙트럼 & S-미터
-    g.fillStyle = '#111a16'; g.fillRect(18, 12, 310, 88); g.strokeStyle = '#365244'; g.strokeRect(18, 12, 310, 88);
-    g.strokeStyle = `rgba(110,245,160,${.35 + clear * .65})`; g.lineWidth = 2; g.beginPath();
-    for (let x = 22; x < 324; x += 4) {
-      const noise = (Math.random() - .5) * 48 * (1 - clear);
-      const wave = Math.sin(x * .06 + t * 7) * 20 * clear + Math.cos(x * .11 - t * 4) * 8 * clear;
-      const y = 62 + noise + wave;
-      x === 22 ? g.moveTo(x, y) : g.lineTo(x, y);
-    }
-    g.stroke();
-    g.fillStyle = clear > .72 ? '#ffe088' : '#7a9284'; g.font = 'bold 12.5px sans-serif'; g.textAlign = 'center';
-    g.fillText(clear > .72 ? label : '지지직… (주파수 및 안테나 게인 동조 필요)', 173, 30); g.textAlign = 'left';
-
-    // 우측 아날로그 S-Meter 게이지
-    g.fillStyle = '#141e1a'; g.fillRect(340, 12, 122, 88); g.strokeStyle = '#365244'; g.strokeRect(340, 12, 122, 88);
-    g.fillStyle = '#98b8a8'; g.font = 'bold 11px monospace'; g.fillText('S-METER (감도)', 355, 28);
-    g.strokeStyle = '#3a5848'; g.lineWidth = 4; g.beginPath(); g.arc(401, 82, 42, Math.PI * 1.15, Math.PI * 1.85); g.stroke();
-    g.strokeStyle = '#58ff9a'; g.lineWidth = 4; g.beginPath(); g.arc(401, 82, 42, Math.PI * 1.70, Math.PI * 1.85); g.stroke();
-    const sAng = Math.PI * (1.15 + clear * .70);
-    g.strokeStyle = clear >= .85 ? '#60ffa0' : '#ff6850'; g.lineWidth = 2.5;
-    g.beginPath(); g.moveTo(401, 82); g.lineTo(401 + Math.cos(sAng) * 38, 82 + Math.sin(sAng) * 38); g.stroke();
-    g.fillStyle = '#e8f4ec'; g.font = 'bold 12px monospace'; g.fillText(`${Math.round(clear * 100)}%`, 388, 95);
-
-    // 중단 주파수 스케일 바 (88.0 ~ 108.0 MHz)
-    g.fillStyle = '#16221c'; g.fillRect(24, 110, 432, 36); g.strokeStyle = '#405e4e'; g.strokeRect(24, 110, 432, 36);
-    g.fillStyle = 'rgba(90,255,150,0.18)'; g.fillRect(24 + (targetF - .035) * 432, 112, .07 * 432, 32);
-    g.fillStyle = '#8aa898'; g.font = '10.5px monospace';
-    for (let k = 0; k <= 20; k++) {
-      const kx = 24 + k * 21.6;
-      g.fillRect(kx, 110, 1, k % 2 === 0 ? 12 : 6);
-      if (k % 4 === 0) g.fillText((88 + k).toFixed(0), kx - 7, 141);
-    }
-    g.fillStyle = '#ff5840'; g.fillRect(24 + f * 432 - 1.5, 106, 3, 44);
-
-    // 하단 듀얼 노브 패널 (1: 주동조 노브, 2: 안테나 게인/미세동조 노브, 3: 주파수 잠금 버튼)
+    // 진짜 라디오 앞면: 호두나무 캐비닛 · 스피커 그릴 천 · 뒤에서 불이 비치는 크림색 주파수 유리판과 빨간 지침 · 아날로그 신호계 · 베이클라이트 노브
+    if (!tuneBg) { tuneBg = document.createElement('canvas'); tuneBg.width = 480; tuneBg.height = 250; const q = tuneBg.getContext('2d'); q.fillStyle = '#4a2c16'; q.fillRect(0, 0, 480, 250);
+      for (let y = 0; y < 250; y++) { const v = Math.sin(y * .17 + Math.sin(y * .031) * 5) * .5 + .5; q.fillStyle = `rgba(${120 + v * 50},${70 + v * 25},${30},${.18 + Math.random() * .08})`; q.fillRect(0, y, 480, 1); }
+      q.fillStyle = '#2a2018'; q.fillRect(18, 12, 310, 88); const wv = q.createPattern((() => { const o = document.createElement('canvas'); o.width = o.height = 4; const w = o.getContext('2d'); w.fillStyle = '#5a4a36'; w.fillRect(0, 0, 4, 4); w.fillStyle = '#3a2e22'; w.fillRect(0, 0, 2, 2); w.fillRect(2, 2, 2, 2); return o; })(), 'repeat'); q.fillStyle = wv; q.fillRect(22, 16, 302, 80);   // 스피커 그릴 천
+      q.strokeStyle = '#c8a860'; q.lineWidth = 2; q.strokeRect(20, 14, 306, 84); q.fillStyle = 'rgba(0,0,0,.25)'; for (let x = 40; x < 320; x += 24) q.fillRect(x, 16, 3, 80);   // 금색 테 · 그릴 살
+      q.fillStyle = '#c8a860'; q.font = 'bold 10px Georgia, serif'; q.fillText('AM / FM  2 BAND RECEIVER', 196, 92); }
+    g.drawImage(tuneBg, 0, 0);
+    g.fillStyle = 'rgba(16,12,8,.78)'; g.fillRect(30, 20, 286, 22); g.fillStyle = clear > .72 ? '#ffe088' : '#9a8a70'; g.font = 'bold 12.5px sans-serif'; g.textAlign = 'center';
+    g.fillText(clear > .72 ? label : '지지직… (주파수 및 안테나 게인 동조 필요)', 173, 36); g.textAlign = 'left';
+    { const sh = (1 - clear) * 3; g.strokeStyle = `rgba(255,200,120,${.15 + clear * .25})`; g.lineWidth = 1; g.beginPath(); for (let x = 30; x < 316; x += 3) { const y = 70 + Math.sin(x * .07 + t * 9) * 10 * clear + (Math.random() - .5) * 18 * (1 - clear) + sh; x === 30 ? g.moveTo(x, y) : g.lineTo(x, y); } g.stroke(); }   // 그릴 뒤로 비치는 스피커 떨림
+    // 아날로그 신호계 (크림 눈금판 · 검은 바늘 · 유리 반사)
+    g.fillStyle = '#1a1410'; g.fillRect(340, 12, 122, 88); const mf = g.createLinearGradient(0, 16, 0, 96); mf.addColorStop(0, '#f6eed6'); mf.addColorStop(1, '#d8c8a0'); g.fillStyle = mf; g.fillRect(344, 16, 114, 80);
+    g.strokeStyle = '#2a2018'; g.lineWidth = 1.5; g.beginPath(); g.arc(401, 92, 50, Math.PI * 1.18, Math.PI * 1.82); g.stroke(); g.strokeStyle = '#c02020'; g.lineWidth = 3; g.beginPath(); g.arc(401, 92, 47, Math.PI * 1.68, Math.PI * 1.82); g.stroke();
+    for (let k = 0; k <= 10; k++) { const a = Math.PI * (1.18 + k * .064); g.strokeStyle = '#2a2018'; g.lineWidth = 1; g.beginPath(); g.moveTo(401 + Math.cos(a) * 50, 92 + Math.sin(a) * 50); g.lineTo(401 + Math.cos(a) * (k % 5 ? 45 : 41), 92 + Math.sin(a) * (k % 5 ? 45 : 41)); g.stroke(); }
+    g.fillStyle = '#2a2018'; g.font = 'bold 9px Georgia, serif'; g.fillText('SIGNAL', 384, 30); g.font = 'bold 11px monospace'; g.fillText(`${Math.round(clear * 100)}%`, 390, 88);
+    const sAng = Math.PI * (1.18 + clear * .64 + Math.sin(t * 13) * .004 * (1 - clear)); g.strokeStyle = '#111'; g.lineWidth = 1.6; g.beginPath(); g.moveTo(401, 92); g.lineTo(401 + Math.cos(sAng) * 48, 92 + Math.sin(sAng) * 48); g.stroke();
+    g.fillStyle = 'rgba(255,255,255,.18)'; g.beginPath(); g.moveTo(344, 16); g.lineTo(410, 16); g.lineTo(370, 96); g.lineTo(344, 96); g.fill();
+    // 주파수 유리판: 뒤에서 전구가 비치는 크림색 · FM / AM 눈금 · 빨간 지침
+    const dgl = g.createLinearGradient(0, 108, 0, 148); dgl.addColorStop(0, '#f8e6b0'); dgl.addColorStop(1, '#e0b868'); g.fillStyle = '#1a1410'; g.fillRect(20, 105, 440, 46); g.fillStyle = dgl; g.fillRect(24, 110, 432, 36);
+    g.fillStyle = 'rgba(255,230,160,.35)'; g.beginPath(); g.ellipse(240, 128, 180, 14, 0, 0, 7); g.fill();
+    g.fillStyle = '#2a1a0a'; g.font = '10.5px Georgia, serif';
+    for (let k = 0; k <= 20; k++) { const kx = 24 + k * 21.6; g.fillRect(kx, 110, 1, k % 2 === 0 ? 10 : 5); if (k % 4 === 0) g.fillText((88 + k).toFixed(0), kx - 7, 131); }
+    g.font = '8px Georgia, serif'; for (let k = 0; k <= 10; k++) { const kx = 24 + k * 43.2; g.fillRect(kx, 140, 1, 6); if (k % 2 === 0) g.fillText(String(530 + k * 107), kx - 7, 139); }
+    g.font = 'bold 9px Georgia, serif'; g.fillText('FM MHz', 418, 122); g.fillText('AM kHz', 418, 144);
+    g.fillStyle = 'rgba(0,0,0,.35)'; g.fillRect(24 + f * 432 + 1, 108, 3, 40); g.fillStyle = '#c81818'; g.fillRect(24 + f * 432 - 1.5, 106, 3, 44);
+    g.fillStyle = 'rgba(255,255,255,.22)'; g.fillRect(24, 110, 432, 5);
+    // 베이클라이트 노브 (가장자리 널링 · 흰 지시선)
     const drawKnob = (cx, cy, val, ok, lbl, sub) => {
-      g.fillStyle = '#182226'; g.beginPath(); g.arc(cx, cy, 24, 0, 7); g.fill();
-      g.strokeStyle = ok ? '#58ff9a' : '#687c84'; g.lineWidth = 2.5; g.stroke();
-      const a = -Math.PI * .75 + val * Math.PI * 1.5;
-      g.strokeStyle = '#ffffff'; g.lineWidth = 2.5;
-      g.beginPath(); g.moveTo(cx, cy); g.lineTo(cx + Math.cos(a) * 19, cy + Math.sin(a) * 19); g.stroke();
-      g.fillStyle = '#d8e6e0'; g.font = 'bold 11.5px sans-serif'; g.fillText(lbl, cx + 32, cy - 4);
-      g.fillStyle = ok ? '#68ffa8' : '#9ab0a8'; g.font = '11px monospace'; g.fillText(sub, cx + 32, cy + 14);
+      g.fillStyle = 'rgba(0,0,0,.45)'; g.beginPath(); g.arc(cx + 3, cy + 4, 26, 0, 7); g.fill();
+      const kg = g.createRadialGradient(cx - 8, cy - 9, 3, cx, cy, 26); kg.addColorStop(0, '#5a4a3a'); kg.addColorStop(1, '#1a120c'); g.fillStyle = kg; g.beginPath(); g.arc(cx, cy, 25, 0, 7); g.fill();
+      for (let k = 0; k < 36; k++) { const a = k / 36 * Math.PI * 2 + val * 4; g.strokeStyle = k % 2 ? 'rgba(0,0,0,.6)' : 'rgba(255,230,200,.18)'; g.lineWidth = 2; g.beginPath(); g.moveTo(cx + Math.cos(a) * 21, cy + Math.sin(a) * 21); g.lineTo(cx + Math.cos(a) * 25, cy + Math.sin(a) * 25); g.stroke(); }
+      const a = -Math.PI * .75 + val * Math.PI * 1.5; g.strokeStyle = '#f0e8d8'; g.lineWidth = 2.5; g.beginPath(); g.moveTo(cx + Math.cos(a) * 6, cy + Math.sin(a) * 6); g.lineTo(cx + Math.cos(a) * 19, cy + Math.sin(a) * 19); g.stroke();
+      g.fillStyle = ok ? '#ffd890' : '#e8d8b8'; g.font = 'bold 11.5px sans-serif'; g.fillText(lbl, cx + 32, cy - 4);
+      g.fillStyle = ok ? '#ffe0a0' : '#c8b898'; g.font = '11px monospace'; g.fillText(sub, cx + 32, cy + 14);
     };
     drawKnob(48, 204, f, fLock > .82, '1. 주 동조 [A/D]', `${(88 + f * 20).toFixed(1)} MHz`);
     drawKnob(198, 204, gain, gLock > .82, '2. 안테나 게인 [W/S]', `동조 ${Math.round(gLock * 100)}%`);
-
     const canLock = clear >= .85;
-    g.fillStyle = canLock ? '#227848' : '#243034'; g.fillRect(340, 176, 122, 54);
-    g.strokeStyle = canLock ? '#70ffb0' : '#4a5c64'; g.lineWidth = 2; g.strokeRect(340, 176, 122, 54);
-    g.fillStyle = '#ffffff'; g.font = 'bold 12.5px sans-serif';
+    const bg2 = g.createLinearGradient(0, 176, 0, 230); bg2.addColorStop(0, canLock ? '#e8e0c8' : '#b8b0a0'); bg2.addColorStop(1, canLock ? '#a89870' : '#6a6458'); g.fillStyle = bg2; g.fillRect(340, 176, 122, 54);
+    g.strokeStyle = '#1a1410'; g.lineWidth = 2; g.strokeRect(340, 176, 122, 54); g.fillStyle = canLock ? '#ff5030' : '#4a2018'; g.beginPath(); g.arc(452, 186, 4, 0, 7); g.fill();   // 잠금 가능 램프
+    g.fillStyle = '#1a1208'; g.font = 'bold 12.5px sans-serif';
     g.fillText(canLock ? '✦ [Space / 클릭]' : '감도 85% 이상 시', 352, 199);
     g.fillText(canLock ? '주파수 고정 완료!' : '주파수 잠금 가능', 352, 218);
 
@@ -987,13 +1086,20 @@ function ouija({ title = '테이프 판독', qs = [] }) {
   let hold = false, ans = null, k = 0, px = 220, py = 120, t = 0, lastT = performance.now(), shown = '', started = false, lost = 0;
   const down = () => { hold = true; }, up = () => { hold = false; };
   c.addEventListener('mousedown', down); addEventListener('mouseup', up); cleanups.push(() => removeEventListener('mouseup', up));
-  keys(e => { if (e.code === 'Space') hold = e.type === 'keydown'; });
-  qbox.querySelectorAll('button').forEach(b => { b.onclick = () => { if (ans) return; ans = qs[+b.dataset.i]; qbox.innerHTML = `<div class="mgInfo">“${ans.q}”</div>`; sfx.click && sfx.click(); started = true; }; });
+  let board = null;
+  keys(e => { if (e.code === 'Space') hold = e.type === 'keydown'; if (e.type === 'keydown' && !ans && /^(Digit|Numpad)[1-9]$/.test(e.code)) { const b = qbox.querySelector(`button[data-i="${+e.code.slice(-1) - 1}"]`); if (b) b.onclick(); } });   // 숫자 키로 질문 고르기
+  qbox.querySelectorAll('button').forEach((b, i) => { b.textContent = `${i + 1}. ${b.textContent}`; }); qbox.querySelectorAll('button').forEach(b => { b.onclick = () => { if (ans) return; ans = qs[+b.dataset.i]; qbox.innerHTML = `<div class="mgInfo">“${ans.q}”</div>`; sfx.click && sfx.click(); started = true; }; });
   const loop = now => {
     const dt = Math.min(.12, (now - lastT) / 1000); lastT = now; t += dt;
-    g.fillStyle = '#10161a'; g.fillRect(0, 0, 440, 220); g.strokeStyle = '#3a4c58'; g.strokeRect(6, 6, 428, 208);   // 판독기 LCD 패널
-    g.fillStyle = 'rgba(120,220,150,.06)'; for (let yy = 10; yy < 214; yy += 4) g.fillRect(8, yy, 424, 1);
-    g.font = '18px monospace'; g.textAlign = 'center'; g.fillStyle = '#8fe0a8'; pos.forEach(o => g.fillText(o.ch, o.x, o.y + 7));
+    // 낡은 나무 분신사바 판: 결 · 얼룩 · 모서리 닳음 · 인두로 지진 자모 (판 자체는 한 번만 그려 둔다)
+    if (!board) { board = document.createElement('canvas'); board.width = 440; board.height = 220; const q = board.getContext('2d'), wg = q.createLinearGradient(0, 0, 440, 220); wg.addColorStop(0, '#8a6038'); wg.addColorStop(.5, '#a07448'); wg.addColorStop(1, '#6a4626'); q.fillStyle = wg; q.fillRect(0, 0, 440, 220);
+      for (let y = 0; y < 220; y++) { const v = Math.sin(y * .23 + Math.sin(y * .04) * 4) * .5 + .5; q.fillStyle = `rgba(${60 + v * 40},${30 + v * 20},10,${.12 + Math.random() * .1})`; q.fillRect(0, y, 440, 1); }
+      for (let i = 0; i < 14; i++) { const x = Math.random() * 440, y = Math.random() * 220, rr = 10 + Math.random() * 40, s2 = q.createRadialGradient(x, y, 0, x, y, rr); s2.addColorStop(0, 'rgba(40,20,6,.25)'); s2.addColorStop(1, 'rgba(40,20,6,0)'); q.fillStyle = s2; q.fillRect(x - rr, y - rr, rr * 2, rr * 2); }   // 물 얼룩 · 손때
+      const vg = q.createRadialGradient(220, 110, 80, 220, 110, 260); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(20,8,0,.6)'); q.fillStyle = vg; q.fillRect(0, 0, 440, 220);
+      q.strokeStyle = 'rgba(30,14,4,.7)'; q.lineWidth = 2; q.strokeRect(8, 8, 424, 204); q.strokeRect(13, 13, 414, 194);
+      q.textAlign = 'center'; pos.forEach(o => { q.font = o.ch.length > 1 ? 'bold 17px "Nanum Myeongjo", serif' : 'bold 24px "Nanum Myeongjo", serif'; q.fillStyle = 'rgba(255,220,170,.18)'; q.fillText(o.ch, o.x + 1, o.y + 9); q.fillStyle = '#2a1206'; q.fillText(o.ch, o.x, o.y + 8); });
+      q.font = '18px serif'; q.fillStyle = '#2a1206'; q.fillText('☾', 30, 200); q.fillText('☀', 410, 200); q.font = 'bold 12px "Nanum Myeongjo", serif'; q.fillText('안녕', 220, 200); }
+    g.drawImage(board, 0, 0); g.textAlign = 'center';
     if (started && ans) {
       if (!hold) { lost += dt; if (lost > .6) { status('버튼을 뗐다 — 테이프가 늘어나 끊겼다', 'err'); sfx.buzz(); started = false; setTimeout(() => close(false), 700); } }
       else lost = 0;
@@ -1001,8 +1107,11 @@ function ouija({ title = '테이프 판독', qs = [] }) {
       px += (tgt.x - px) * Math.min(1, dt * 2.2) + Math.sin(t * 9) * .6; py += (tgt.y - py) * Math.min(1, dt * 2.2) + Math.cos(t * 7) * .6;
       if (Math.hypot(tgt.x - px, tgt.y - py) < 3) { shown += seq[k] === '예' || seq[k] === '아니오' ? `[${seq[k]}] ` : seq[k]; k++; sfx.knock ? sfx.knock() : sfx.click(); if (k >= seq.length) { started = false; status(`…${ans.r || shown}`, 'ok'); setTimeout(() => close(true), 1400); } }
     }
-    g.strokeStyle = 'rgba(255,190,90,.95)'; g.lineWidth = 2; g.strokeRect(px - 16, py - 16, 32, 32); g.beginPath(); g.moveTo(px, 10); g.lineTo(px, 212); g.stroke(); g.lineWidth = 1;   // 판독 커서 (재생 헤드)
-    g.fillStyle = '#e8c870'; g.font = '15px sans-serif'; g.fillText(shown, 220, 205); g.textAlign = 'left';
+    // 하트 모양 나무 말(플랑셰트) · 가운데 유리 창으로 아래 글자가 보인다
+    g.save(); g.translate(px, py + 6); g.rotate(Math.sin(t * 1.7) * .05); g.fillStyle = 'rgba(0,0,0,.4)'; g.beginPath(); g.moveTo(4, 30); g.bezierCurveTo(-40, 6, -26, -30, 4, -16); g.bezierCurveTo(34, -30, 48, 6, 4, 30); g.fill();
+    const pg = g.createLinearGradient(-30, -30, 30, 30); pg.addColorStop(0, '#d8b080'); pg.addColorStop(1, '#8a5a30'); g.fillStyle = pg; g.beginPath(); g.moveTo(0, 26); g.bezierCurveTo(-42, 2, -28, -34, 0, -20); g.bezierCurveTo(28, -34, 42, 2, 0, 26); g.fill(); g.strokeStyle = '#3a1e0a'; g.lineWidth = 1.5; g.stroke();
+    g.fillStyle = 'rgba(220,240,255,.28)'; g.beginPath(); g.arc(0, -6, 11, 0, 7); g.fill(); g.strokeStyle = '#c8a050'; g.lineWidth = 2; g.stroke(); g.fillStyle = 'rgba(255,255,255,.5)'; g.fillRect(-6, -13, 4, 2); g.restore(); g.lineWidth = 1;
+    g.fillStyle = 'rgba(20,10,4,.75)'; g.fillRect(120, 186, 200, 24); g.fillStyle = '#f0d890'; g.font = '15px "Nanum Myeongjo", serif'; g.fillText(shown, 220, 204); g.textAlign = 'left';
     if (started && !hold) { g.fillStyle = 'rgba(200,60,40,.35)'; g.fillRect(0, 0, 440, 220); }
     raf = requestAnimationFrame(loop);
   };

@@ -187,7 +187,7 @@ export function installRebuild({ THREE, scene, floors, world }) {
         if (r.label === '중앙 계단' || r.label === '중앙 현관') continue;
         // 출입문 바로 옆 (교실 칸의 앞문 서쪽 · 칸막이로 나눈 동쪽 방은 뒷문 동쪽) — 방 한가운데나 문 없는 쪽에 붙던 스위치
         const bay = b.layout.rooms.find(q => q.kind === 'class' && (r.x1 + r.x2) / 2 > q.x1 && (r.x1 + r.x2) / 2 < q.x2), front = bay ? bay.x1 + .7 : null;
-        const lx = !bay || (front > r.x1 && front < r.x2) ? (bay ? bay.x1 + .42 : r.x1 + .45) : bay.x2 - .42;
+        const lx = r.swX != null ? r.swX : !bay || (front > r.x1 && front < r.x2) ? (bay ? bay.x1 + .42 : r.x1 + .45) : bay.x2 - .42;
         add(r.floor, Math.min(r.x2 - .15, Math.max(r.x1 + .15, lx)), (b.spec.wall || .2) / 2 + .012, 1, r, `${r.label} 형광등 스위치`);
       }
       const L = b.layout.L, cst = b.layout.rooms.find(q => q.kind === 'cstair');
@@ -629,18 +629,38 @@ export function installRebuild({ THREE, scene, floors, world }) {
   const B1PIT = (() => { const c = MAIN.layout.rooms.find(r => r.kind === 'cstair'), w = (c.x2 - c.x1 - .6) / 2, xb = c.x1 + .15 + w + .3;
     return { x1: xb + .05, x2: xb + 1.45, zt: 1.0, zb: 3.2, zw: 3.95, d: 1.8 }; })();
   {
-    const P = B1PIT, mC = new THREE.MeshStandardMaterial({ color: 0x8a8780, roughness: .92 }), mStep = new THREE.MeshStandardMaterial({ color: 0x9a968c, roughness: .85 }), mRail = new THREE.MeshStandardMaterial({ color: 0x3a3e42, roughness: .4, metalness: .7 });
-    const bx = (m, x1, x2, y1, y2, z1, z2) => { const o = new THREE.Mesh(new THREE.BoxGeometry(x2 - x1, y2 - y1, z2 - z1), m); o.position.set((x1 + x2) / 2, (y1 + y2) / 2, (z1 + z2) / 2); o.receiveShadow = true; group.add(o); };
-    const n = 10, run = (P.zb - P.zt) / n;
-    for (let k = 0; k < n; k++) { const z1 = P.zt + k * run; bx(mStep, P.x1, P.x2, -P.d - .05, -(k + 1) * P.d / n, z1, z1 + run); bx(mRail, P.x1, P.x2, -(k + 1) * P.d / n - .005, -(k + 1) * P.d / n + .001, z1, z1 + .03); }
-    bx(mStep, P.x1, P.x2, -P.d - .05, -P.d, P.zb, P.zw);
-    bx(mC, P.x1 - .1, P.x1, -P.d - .05, 0, P.zt, P.zw); bx(mC, P.x2, P.x2 + .1, -P.d - .05, 0, P.zt, P.zw); bx(mC, P.x1, P.x2, -P.d - .05, 0, P.zw, P.zw + .1);   // 구덩이 벽 3면
-    for (let z = P.zt + .2; z < P.zw; z += .9) bx(mRail, P.x2 + .02, P.x2 + .06, 0, 1.0, z - .02, z + .02);
-    bx(mRail, P.x2 + .01, P.x2 + .07, .98, 1.03, P.zt, P.zw); bx(mRail, P.x1, P.x2 + .07, .98, 1.03, P.zw + .02, P.zw + .08);   // 난간 (동쪽 · 남쪽)
+    // 새 본관 계단과 같은 마감으로 다시 지었다 (예전: 거친 회색 콘크리트 상자 · 잘못 붙은 논슬립 · 철봉 몇 개)
+    //   테라조 디딤판 + 디딤판 앞끝 논슬립 · 하부 녹색 유성 도장 / 상부 미색 벽 · 양쪽 벽 원목 손스침 · 위층 바닥 둘레 강관 동자 난간 · 아래 참 · 벽등
+    //   보행 · 충돌(구덩이 경사 · 벽 · 철문)은 B1PIT 판정 그대로
+    const P = B1PIT, MM = MAIN.mats, mTerr = MM.terr, mNs = MM.nonslip, mWain = MM.wain, mWall = MM.wall || MM.conc, mSteel = MM.deskLeg, mRail = MM.hrail, mLamp = MM.lamp;
+    const bx = (m, x1, x2, y1, y2, z1, z2) => { const o = new THREE.Mesh(new THREE.BoxGeometry(x2 - x1, y2 - y1, z2 - z1), m); o.position.set((x1 + x2) / 2, (y1 + y2) / 2, (z1 + z2) / 2); o.receiveShadow = true; group.add(o); return o; };
+    const n = 10, run = (P.zb - P.zt) / n, rise = P.d / n, WL = -P.d + 1.2;   // 허리 높이 (녹색 도장 경계)
+    for (let k = 0; k < n; k++) { const z1 = P.zt + k * run, top = -(k + 1) * rise;
+      bx(mTerr, P.x1, P.x2, -P.d - .05, top, z1, z1 + run);
+      bx(mNs, P.x1 + .05, P.x2 - .05, top, top + .004, z1 + run - .055, z1 + run - .005); }   // 내려가는 쪽 디딤판 앞끝 (아래 챌판 위)
+    bx(mTerr, P.x1, P.x2, -P.d - .05, -P.d, P.zb, P.zw);   // 아래 참 (철문 앞)
+    bx(mNs, P.x1 + .05, P.x2 - .05, -.004, 0.0005, P.zt, P.zt + .05);   // 맨 윗단 앞끝 (1층 바닥 끝)
+    // 구덩이 벽 3면: 아래 녹색 도장 · 위 미색 + 경계 몰딩
+    const walls = [[P.x1 - .1, P.x1, P.zt, P.zw], [P.x2, P.x2 + .1, P.zt, P.zw], [P.x1 - .1, P.x2 + .1, P.zw, P.zw + .1]];
+    walls.forEach(([x1, x2, z1, z2], i) => { bx(mWain, x1, x2, -P.d - .05, WL, z1, z2); bx(mWall, x1, x2, WL, i === 2 ? 1.5 : 0, z1, z2); });   // 남쪽 벽은 1층 위 중간참 밑(1.5m)까지 — 철문 위 표지 · 벽등이 벽에 붙는다
+    bx(mSteel, P.x1, P.x1 + .012, WL - .02, WL + .02, P.zt, P.zw); bx(mSteel, P.x2 - .012, P.x2, WL - .02, WL + .02, P.zt, P.zw);
+    // 양쪽 벽 손스침: 디딤판 앞끝 선 위 0.85m, 원목 봉 + 강철 받침
+    { const len = Math.hypot(P.d, P.zb - P.zt), th = Math.atan2(P.d, P.zb - P.zt);
+      // 위 끝은 1층 바닥 위 0.45m (난간 동자 안쪽)에서 끝낸다 — 예전엔 0.3m 늘인 봉이 구덩이 위로 삐져나왔다
+      const za = P.zt + .4 / P.d * (P.zb - P.zt), zb = P.zb + .15, ya = -(za - P.zt) / (P.zb - P.zt) * P.d + .85, yb = -(zb - P.zt) / (P.zb - P.zt) * P.d + .85, ln = Math.hypot(zb - za, yb - ya);
+      [P.x1 + .07, P.x2 - .07].forEach(x => { const g = new THREE.CylinderGeometry(.024, .024, ln, 10); g.rotateX(Math.PI / 2); const m = new THREE.Mesh(g, mRail); m.rotation.x = th; m.position.set(x, (ya + yb) / 2, (za + zb) / 2); group.add(m);
+        for (let k = 2; k < n; k += 3) { const z = P.zt + k * run, y = -k * rise + .85; bx(mSteel, Math.min(x, x + (x < (P.x1 + P.x2) / 2 ? -.07 : .07)), Math.max(x, x + (x < (P.x1 + P.x2) / 2 ? -.07 : .07)), y - .035, y - .02, z - .012, z + .012); } }); }
+    // 1층 바닥 둘레 (동쪽 · 남쪽) 안전 난간: 강관 동자 0.12m 간격 + 원목 손스침 1.0m + 아래 띠장
+    { const H1 = 1.0; for (let z = P.zt + .06; z < P.zw - .02; z += .12) bx(mSteel, P.x2 + .035, P.x2 + .055, 0, H1, z - .01, z + .01);
+      bx(mRail, P.x2 + .02, P.x2 + .07, H1, H1 + .045, P.zt, P.zw);
+      bx(mSteel, P.x2 + .03, P.x2 + .06, .1, .13, P.zt, P.zw);
+      bx(mSteel, P.x2 + .02, P.x2 + .07, 0, H1 + .05, P.zt - .025, P.zt + .025); }   // 엄지기둥
+    // 벽등 (철문 위): 반투명 갓 + 알루미늄 몸체
+    bx(MM.alu || mSteel, (P.x1 + P.x2) / 2 - .2, (P.x1 + P.x2) / 2 + .2, -P.d + 2.32, -P.d + 2.44, P.zw - .1, P.zw); bx(mLamp, (P.x1 + P.x2) / 2 - .17, (P.x1 + P.x2) / 2 + .17, -P.d + 2.33, -P.d + 2.35, P.zw - .095, P.zw - .005);
     const leaf = new THREE.Mesh(new THREE.BoxGeometry(1.1, 2.0, .06), new THREE.MeshStandardMaterial({ color: 0x4a5250, roughness: .6, metalness: .55 })); leaf.position.set((P.x1 + P.x2) / 2, -P.d + 1.0, P.zw - .04); group.add(leaf);
     { const c = document.createElement('canvas'); c.width = 256; c.height = 64; const g = c.getContext('2d'); g.fillStyle = '#3a0e0a'; g.fillRect(0, 0, 256, 64); g.fillStyle = '#f0d8c0'; g.font = 'bold 30px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('지하 B1 ↓', 128, 34);
       const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; const m = new THREE.Mesh(new THREE.PlaneGeometry(.9, .22), new THREE.MeshBasicMaterial({ map: t })); m.position.set((P.x1 + P.x2) / 2, -P.d + 2.15, P.zw - .02); m.rotation.y = Math.PI; group.add(m);
-      const m2 = m.clone(); m2.position.set(P.x2 + .1, 1.25, P.zt + .4); m2.rotation.y = Math.PI / 2; group.add(m2); }   // 위에서 보이는 안내판
+      const m2 = m.clone(); m2.position.set(P.x2 + .062, .8, P.zt + .45); m2.rotation.y = Math.PI / 2; group.add(m2); }   // 위에서 보이는 안내판 (동쪽 난간 동자에 매단다)
     const lamp = new THREE.PointLight(0xffd8a0, .7, 4, 2); lamp.position.set((P.x1 + P.x2) / 2, -P.d + 1.9, P.zw - .6); group.add(lamp); lamps.push(lamp);
     // 예전 입구 (서쪽 계단실 1층 북쪽): 철판으로 덮고 폐쇄 표시
     { const L = MAIN.layout, x0 = -L.L / 2 + .3, x1 = -L.L / 2 + 5.0, z0 = L.zN + .1, z1 = L.zN + 1.3;

@@ -1,7 +1,7 @@
 // 전기 설비 배선 (electrical.js) — 스위치 → 회로 → 등기구 를 한 곳에서 관리한다
 //   · 건물마다 분전반(차단기: 층 · 구역별). 회로가 켜지려면 [스위치 ON] · [차단기 ON] · [건물 전원] 이 모두 있어야 한다
 //       본관 · 지하 · 체육관 · 수영장 · 급식실 · 캠퍼스 시설: 늘 전원(발전기 → 본전원, GEN.gain · power 로 밝기)
-//       별관: 별관 1층 가정실 분전반 퍼즐(FL.anPow) 전까지 전원 없음
+//       별관: 본관과 같이 늘 전원 (FL.anPow 는 제4장 장치 전원만)
 //       순간 정전(blackout) 동안은 모든 등이 꺼진다 (게임 쪽 조명 풀 · RBG.setPower 와 같은 규칙)
 //   · 외등(가로등): 경비실 분전반의 외등 회로 — 자동(광센서: 어두우면 점등) · 항상 켜짐 · 꺼짐
 //   · 점조명 개수는 바꾸지 않는다 (셰이더 재컴파일 방지): 세기 · 발광 · 덮개만 바꾼다
@@ -19,7 +19,8 @@ export function installElectrical(ctx) {
   const bld = (id, name, live = () => true) => { let b = BLD.get(id); if (!b) BLD.set(id, b = { id, name, brks: new Map(), live, panels: [] }); return b; };
   const brk = (bid, zone, label) => { const b = BLD.get(bid), id = bid + ':' + zone; let k = b.brks.get(id); if (!k) b.brks.set(id, k = { id, bld: bid, label, def: true }); return k; };
   const brkOn = k => { const v = ST().brk[k.id]; return v == null ? k.def : !!v; };
-  bld('main', '본관'); bld('annex', '별관', () => !!FL().anPow); bld('gym', '체육관'); bld('pool', '수영장'); bld('cafe', '급식실'); bld('ext', '경비실 · 외등');
+  bld('main', '본관'); bld('annex', '별관'); bld('gym', '체육관'); bld('pool', '수영장'); bld('cafe', '급식실'); bld('ext', '경비실 · 외등');
+  // 별관도 본관처럼 늘 전원 (스위치 · 차단기로만). 예전엔 FL.anPow(제4장 분전반 퍼즐) 전까지 전원이 없어 별관 등이 아예 안 켜졌다 — 퍼즐은 보안 PC · 진열장 장치 전원만 맡는다
   brk('main', 'B1', '지하층 전등'); brk('main', 'B1c', '지하층 복도 전등');
 
   // ── 회로 ──

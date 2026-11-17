@@ -263,6 +263,7 @@ export function buildMainBuilding(opt = {}) {
     lockerM: M('lockerM', () => pbr('varnish', { rough: .8 })),                          // 니스 칠 나무 (사물함 · 문 · 서가)
   };
   for (const [k, sf] of Object.entries({ terr: 'terrazzo', deco: 'pvc', wear: 'pvc', tile: 'ceramic', wood: 'wood', dkwood: 'wood', conc: 'concrete', roofCoat: 'roofpaint', nonslip: 'stairs', rubber: 'rubber' })) if (mat[k] && !mat[k].userData.surface) mat[k].userData.surface = sf;   // 발소리 재질 태그 (footSurface.js)
+  mat.hrail = M('hrail', () => new THREE.MeshStandardMaterial({ color: 0x6b4527, roughness: .5, metalness: .05 }));   // 계단 난간 원목 손스침 (니스 칠)
   mat.nonslip = M('nonslip', () => new THREE.MeshStandardMaterial({ map: PT.nonSlip(), roughness: .85, metalness: .1 }));   // 계단 논슬립
   // 2008 교실 바닥 PVC 데코타일 · 진회녹색 걸레받이 · 외벽 빗물 자국 · 밑동 때(백화) — 본관 · 별관 · 시설이 한 재질을 함께 쓴다 (periodTex 모듈 캐시)
   mat.roofCoat = M('roofCoat', () => new THREE.MeshStandardMaterial({ map: PT.roofCoat(), roughnessMap: PT.roofRough(), roughness: 1, metalness: .02 }));   // 옥상 녹색 방수 페인트 (본관 · 별관 한 정의 — 예전엔 두 곳에 같은 정의)
@@ -643,7 +644,11 @@ export function buildMainBuilding(opt = {}) {
     for (let x = X1 + 1; x < X2; x += 2.4) [zN + .12, zS - .12].forEach(z => box('deskLeg', x - .02, x + .02, yr + 1.18, yr + 1.75, z - .02, z + .02));   // 파라펫 위 안전 난간
     [zN + .12, zS - .12].forEach(z => box('deskLeg', X1, X2, yr + 1.72, yr + 1.77, z - .025, z + .025));
     // 노란 보행 안내선 (옥탑 출입문 → 서쪽)
-    box('roofLine', X1 + 2, eSt.x1 - .3, yr + P, yr + P + .005, 1.95, 2.05); box('roofLine', X1 + 2, eSt.x1 - .3, yr + P, yr + P + .005, 3.95, 4.05);
+    //   옥상 바닥이 있는 곳만: 중앙 계단 옥탑(바닥이 zL+.2 부터) 위를 지나던 선이 4층→옥상 계단실 벽 · 참 위에 노란 막대로 떠 있던 것
+    { let a = X1 + 2; const segs = [];
+      for (const u of ups) { if (u === eSt) break; if (u.x1 - .2 > a) segs.push([a, u.x1 - .2]); a = u.x2 + .2; }
+      if (eSt.x1 - .3 > a) segs.push([a, eSt.x1 - .3]);
+      for (const [p, q] of segs) { box('roofLine', p, q, yr + P, yr + P + .005, 1.95, 2.05); box('roofLine', p, q, yr + P, yr + P + .005, 3.95, 4.05); } }
     // 루프 드레인
     for (let x = X1 + 4; x < X2 - 8; x += 12) { box('rubber', x - .15, x + .15, yr + P, yr + P + .03, zS - .55, zS - .25); box('rubber', x - .15, x + .15, yr + P, yr + P + .03, zN + .25, zN + .55); }
     // 에어컨 실외기 8대 (팬 격자 + 받침) — 남쪽 파라펫 따라
@@ -707,7 +712,33 @@ export function buildMainBuilding(opt = {}) {
       const pg = new THREE.CylinderGeometry(.025, .025, .9, 8); pg.translate(xw + sx * .07, y + .9, z + .3); G('acUnit', pg); };
     [-1, 1].forEach(sx => { const xw = sx * (L2 + T); for (let f = 1; f < N; f++) [2.6, 6.8].forEach(z => ac(xw, sx, yf(f) + .5, z)); });
     // 교명 금속 글자 (남쪽 파라펫, 정문 · 운동장을 본다): 스테인리스 채널 글자 + 벽에 지는 그림자
-    const LTR = opt.letters ?? (opt.southEntry ? '서린고등학교' : null);
+    // 정면(운동장 쪽) 가운데 칸(코어): 맨 위층 벽에 교명 현판(검은 화강석 판 + 스테인리스 돋을 글자) · 그 아래 층 벽에 둥근 벽시계
+    //   코어 남쪽 벽은 창이 없는 벽돌 면 — 판은 벽 면(zS + T)에 바로 붙이고, 글자 · 시계 문자판은 판 앞면에서 띄워 겹침 깜빡임이 없게
+    if (opt.southEntry) { const cx = (coreR.x1 + coreR.x2) / 2, zw = zS + T, PW = Math.min(coreR.x2 - coreR.x1 - 1.4, 7.0), PH = 1.15, py = yf(N - 1) + 1.75;
+      mat.signBd = mat.signBd || M('signBd', () => new THREE.MeshStandardMaterial({ color: 0x24221f, roughness: .35, metalness: .25 }));
+      box('signBd', cx - PW / 2, cx + PW / 2, py - PH / 2, py + PH / 2, zw, zw + .07);   // 현판 (벽에 밀착, 두께 7cm)
+      box('aluW', cx - PW / 2 - .04, cx + PW / 2 + .04, py + PH / 2, py + PH / 2 + .04, zw, zw + .085); box('aluW', cx - PW / 2 - .04, cx + PW / 2 + .04, py - PH / 2 - .04, py - PH / 2, zw, zw + .085);   // 위 · 아래 테
+      box('aluW', cx - PW / 2 - .04, cx - PW / 2, py - PH / 2, py + PH / 2, zw, zw + .085); box('aluW', cx + PW / 2, cx + PW / 2 + .04, py - PH / 2, py + PH / 2, zw, zw + .085);   // 좌 · 우 테
+      const txt = '서린고등학교', draw = shadow => (g, w, h) => { g.clearRect(0, 0, w, h); g.font = `bold ${h * .74 | 0}px "Noto Serif KR", "Batang", serif`; g.textAlign = 'center'; g.textBaseline = 'middle';
+        if (shadow) { g.fillStyle = 'rgba(0,0,0,.75)'; g.fillText(txt, w / 2 + 5, h / 2 + 6, w - 40); return; }
+        const gr = g.createLinearGradient(0, 0, 0, h); gr.addColorStop(0, '#f4f2ea'); gr.addColorStop(.48, '#bfc3c6'); gr.addColorStop(.52, '#d8dadc'); gr.addColorStop(1, '#8a8e92'); g.fillStyle = gr; g.fillText(txt, w / 2, h / 2, w - 40);
+        g.lineWidth = 2; g.strokeStyle = 'rgba(70,72,76,.8)'; g.strokeText(txt, w / 2, h / 2, w - 40); };
+      const sh = canvasPlane(PW - .2, PH - .16, 1024, 160, draw(true), 'facadeLtrS', true), lt = canvasPlane(PW - .2, PH - .16, 1024, 160, draw(false), 'facadeLtr', true);
+      lt.material.metalness = .35; lt.material.roughness = .3; lt.material.emissive = new THREE.Color(0x2a2a2a); lt.material.alphaTest = .3; sh.material.depthWrite = false;
+      sh.position.set(cx, py, zw + .074); lt.position.set(cx, py, zw + .1); sh.name = 'RB_facadeSignS'; lt.name = 'RB_facadeSign'; sh.userData.noCull = lt.userData.noCull = true; root.add(sh); root.add(lt);
+      // 벽시계 (지름 1.1m · 알루미늄 테 · 흰 문자판 · 검은 바늘) — 3층 높이 가운데, 캐노피 · 현관 교명판 위
+      const R = .55, cy = yf(Math.max(1, N - 2)) + 1.8, rim = new THREE.CylinderGeometry(R, R, .09, 40); rim.rotateX(Math.PI / 2); rim.translate(cx, cy, zw + .045); G('aluW', rim);
+      const back = new THREE.CylinderGeometry(R - .07, R - .07, .02, 40); back.rotateX(Math.PI / 2); back.translate(cx, cy, zw + .1); G('aluW', back);   // 안쪽 턱 (문자판 받침)
+      const face = canvasPlane(2 * (R - .06), 2 * (R - .06), 512, 512, (g, w) => { const c = w / 2; g.fillStyle = '#f3f1ea'; g.beginPath(); g.arc(c, c, c, 0, 7); g.fill();
+        g.fillStyle = '#1a1a1a'; for (let i = 0; i < 60; i++) { const a = i / 60 * Math.PI * 2, r1 = c * (i % 5 ? .9 : .82); g.save(); g.translate(c, c); g.rotate(a); g.fillRect(i % 5 ? -2 : -6, -c * .96, i % 5 ? 4 : 12, c * .96 - r1); g.restore(); }
+        g.font = `bold ${w * .1 | 0}px sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle'; for (let h = 1; h <= 12; h++) { const a = h / 12 * Math.PI * 2; g.fillText(String(h), c + Math.sin(a) * c * .68, c - Math.cos(a) * c * .68); }
+        g.font = `${w * .04 | 0}px sans-serif`; g.fillText('서린고등학교', c, c * 1.38);
+        const hand = (a, len, wd, col) => { g.save(); g.translate(c, c); g.rotate(a); g.fillStyle = col; g.fillRect(-wd / 2, -len, wd, len + c * .1); g.restore(); };
+        hand((10 + 12 / 60) / 12 * Math.PI * 2, c * .48, 16, '#151515'); hand(12 / 60 * Math.PI * 2, c * .74, 10, '#151515'); hand(38 / 60 * Math.PI * 2, c * .8, 3, '#b01818');   // 멈춘 듯한 10:12
+        g.fillStyle = '#151515'; g.beginPath(); g.arc(c, c, 14, 0, 7); g.fill(); }, 'facadeClock', true);
+      face.material.alphaTest = .5; face.position.set(cx, cy, zw + .112); face.name = 'RB_facadeClock'; face.userData.noCull = true; root.add(face);
+      const glass = new THREE.CylinderGeometry(R - .05, R - .05, .004, 40); glass.rotateX(Math.PI / 2); glass.translate(cx, cy, zw + .13); G('glass', glass); }
+    const LTR = opt.letters ?? null;   // (예전: 남쪽 파라펫 금속 글자 — 맨 위층 현판으로 옮겼다)
     if (LTR) { const txt = LTR, W = Math.min(coreR.x2 - coreR.x1 - 1.2, txt.length * 1.05), H = .78, cx = (coreR.x1 + coreR.x2) / 2;
       const draw = shadow => (g, w, h) => { g.clearRect(0, 0, w, h); g.font = `bold ${h * .8 | 0}px "Noto Sans KR", "Malgun Gothic", sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle';
         if (shadow) { g.fillStyle = 'rgba(40,36,30,.55)'; g.fillText(txt, w / 2, h / 2 + 4, w - 8); return; }
@@ -1607,14 +1638,7 @@ export function buildMainBuilding(opt = {}) {
       const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; const m = new THREE.Mesh(new THREE.PlaneGeometry(1.2, .3), new THREE.MeshBasicMaterial({ map: t })); m.position.set((r.x1 + r.x2) / 2, y0 + 2.62, -.12); m.rotation.y = Math.PI; root.add(m); }
     if (f > 0) box('terr', r.x1, r.x2, y0 - S.slab - .004, y0 + .018, .42, .46);
     roomSign('중앙계단', r.x1 + .25, y0 + 2.3, -.1);
-    { const N = S.floors, up = f < N - 1 ? `${f + 2}층` : (opt.roofStair && r.x1 > 0 ? '옥상' : ''), dn = f > 0 ? `${f}층` : (opt.b1 !== false && r.x1 > 0 ? '' : '');   // 층 안내판: 지금 층 크게 + 위 · 아래 층 (각 층 중앙계단 입구 옆)
-      const c = document.createElement('canvas'); c.width = 256; c.height = 320; const g = c.getContext('2d');
-      g.fillStyle = '#f4f2ec'; g.fillRect(0, 0, 256, 320); g.fillStyle = '#1f5a3a'; g.fillRect(0, 0, 256, 150);
-      g.fillStyle = '#ffffff'; g.font = 'bold 110px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(`${f + 1}F`, 128, 80);
-      g.fillStyle = '#1f2a24'; g.font = 'bold 40px sans-serif'; if (up) g.fillText(`▲ ${up}`, 128, 196); if (dn) g.fillText(`▼ ${dn}`, 128, 264);
-      g.strokeStyle = '#1f5a3a'; g.lineWidth = 8; g.strokeRect(4, 4, 248, 312);
-      const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; const m = new THREE.Mesh(new THREE.PlaneGeometry(.48, .6), new THREE.MeshBasicMaterial({ map: t, toneMapped: false }));
-      m.position.set(r.x1 - .45 < (LY.rooms.find(q => q.kind === 'core') || r).x2 ? r.x2 + .5 : r.x1 - .5, y0 + 1.55, -.135); m.rotation.y = Math.PI; root.add(m); }
+    // (예전: 입구 옆 초록 '1F ▲2층' 층 안내판 — 철거. 계단참 방향 안내판만 남긴다)
     exitSign((r.x1 + r.x2) / 2, y0 + 2.36, -.32);   // 중앙계단 입구 위 비상구 유도등
     stair(r, f, y0);
     props.push({ kind: 'room', label: '중앙 계단', x1: r.x1, x2: r.x2, z1: 0, z2: zS, floor: f });
@@ -1636,9 +1660,14 @@ export function buildMainBuilding(opt = {}) {
     const rail = (x, za, zb, ya, yb) => { const len = Math.hypot(zb - za, yb - ya), m = new THREE.Mesh(new THREE.CylinderGeometry(.025, .025, len, 8), mats.deskLeg); m.position.set(x, (ya + yb) / 2 + .9, (za + zb) / 2); m.rotation.x = Math.atan2(zb - za, yb - ya); root.add(m);
       for (let k = 0; k <= 3; k++) { const t = k / 3; box('deskLeg', x - .015, x + .015, ya + (yb - ya) * t + .05, ya + (yb - ya) * t + .9, za + (zb - za) * t - .015, za + (zb - za) * t + .015); } };
     if (f < S.floors - 1 || roofUp) { rail(r.x1 + .2, zA, zB, y0, y0 + H / 2); rail(r.x2 - .2, zB, zA, y0 + H / 2, y0 + H); }
+    // 수평 안전 난간 (층 참 끝 · 계단 구멍 쪽): 강관 동자 0.11m 간격 + 원목 손스침 1.1m + 아래 띠장 — 충돌은 한 판
+    const railRun = (x1, x2, y, z) => { const RH = 1.1;
+      for (let x = x1 + .06; x < x2 - .03; x += .11) box('deskLeg', x - .011, x + .011, y, y + RH - .02, z - .011, z + .011);
+      box('deskLeg', x1, x1 + .05, y, y + RH + .03, z - .025, z + .025); box('deskLeg', x2 - .05, x2, y, y + RH + .03, z - .025, z + .025);   // 엄지기둥
+      box('hrail', x1, x2, y + RH - .02, y + RH + .03, z - .03, z + .03); box('deskLeg', x1, x2, y + .1, y + .13, z - .012, z + .012);
+      col.push({ x1, x2, z1: z - .05, z2: z + .05, y1: y, y2: y + RH + .05 }); };
     if (f === S.floors - 1 && !roofUp) {   // 맨 위층: 아래층 1비행 위로 뚫린 곳에 안전 난간
-      box('steelG', xa, xa + w, y0, y0 + 1.05, zA - .03, zA + .03, { solid: true }); box('deskLeg', xa, xa + w, y0 + 1.05, y0 + 1.1, zA - .04, zA + .04);
-      for (let k = 0; k <= 4; k++) box('deskLeg', xa + k * w / 4 - .02, xa + k * w / 4 + .02, y0, y0 + 1.05, zA - .02, zA + .02); }
+      railRun(xa, xa + w, y0, zA); }
     if (roofUp) {   // 옥탑: 옥상 높이 층 참 + 벽 + 지붕 (옥상 출입문은 북쪽 벽)
       const yr = y0 + H, ph = 2.8;
       box('terr', r.x1, r.x2, yr - .25, yr, zN, zA); walk.push({ x1: r.x1, x2: r.x2, z1: zN, z2: zA, h: () => yr, f: f + 1 });
@@ -1652,21 +1681,36 @@ export function buildMainBuilding(opt = {}) {
 
       box('lamp', (r.x1 + r.x2) / 2 - .3, (r.x1 + r.x2) / 2 + .3, yr + 2.4, yr + 2.45, zN + .05, zN + .2); lights.push({ x: (r.x1 + r.x2) / 2, y: yr + 2.3, z: zN + .8 });
       box('lamp', r.x1 - .45, r.x1 - .25, yr + 2.25, yr + 2.32, zN + .7, zN + 1.0);   // 출입문 바깥 벽등
-      box('steelG', xa, xa + w, yr, yr + 1.05, zA - .03, zA + .03, { solid: true });   // 옥상 층 참: 2비행 쪽만 열려 있게 1비행 위 난간
+      railRun(xa, xa + w, yr, zA);   // 옥상 층 참: 2비행 쪽만 열려 있게 1비행 위 난간
     }
     if (f < S.floors - 1 || roofUp) {
       // 1비행: 서측 반, 남쪽으로 올라감 / 중간참: 남쪽 끝 / 2비행: 동측 반, 북쪽으로 올라감
-      for (let i = 0; i < n; i++) { box('terr', xa, xa + w, Math.max(y0, y0 + rise * (i + 1) - .3), y0 + rise * (i + 1), zA + i * tr, zA + (i + 1) * tr); box('nonslip', xa + .06, xa + w - .06, y0 + rise * (i + 1), y0 + rise * (i + 1) + .004, zA + i * tr, zA + i * tr + .05); }
+      // 디딤판: 단 높이만큼 (예전엔 0.3m 상자가 서로 겹쳐 옆면이 깜빡이고 밑면이 톱니 모양) + 아래 경사 슬래브(계단 밑면) 한 판 — 1층 1비행은 바닥까지 채운다
+      const soffit = (x1, x2, ylo, yhi, z1, z2) => { const len = Math.hypot(yhi - ylo, z2 - z1), th = Math.atan2(yhi - ylo, Math.abs(z2 - z1)) * Math.sign(z2 - z1), tk = .16, g = new THREE.BoxGeometry(x2 - x1 - .01, tk, len);
+        g.translate(0, -tk / 2 - .002, 0); g.rotateX(-th); g.translate((x1 + x2) / 2, (ylo + yhi) / 2, (z1 + z2) / 2); G('conc', g); };
+      if (f > 0) soffit(xa, xa + w, y0, y0 + H / 2, zA, zB);
+      soffit(xb, xb + w, y0 + H / 2, y0 + H, zB, zA);
+      for (let i = 0; i < n; i++) { box('terr', xa, xa + w, f > 0 ? y0 + rise * i : y0, y0 + rise * (i + 1), zA + i * tr, zA + (i + 1) * tr); box('nonslip', xa + .06, xa + w - .06, y0 + rise * (i + 1), y0 + rise * (i + 1) + .004, zA + i * tr, zA + i * tr + .05); }
       walk.push({ x1: xa, x2: xa + w, z1: zA, z2: zB, h: (x, z) => y0 + Math.min(n, Math.max(0, Math.ceil((z - zA) / tr))) * rise, f, stair: true });
       box('terr', r.x1, r.x2, y0 + H / 2 - .25, y0 + H / 2, zB, zL);
       walk.push({ x1: r.x1, x2: r.x2, z1: zB, z2: zL, h: () => y0 + H / 2, f });
       {
-        for (let i = 0; i < n; i++) { box('terr', xb, xb + w, y0 + H / 2 + rise * (i + 1) - .3, y0 + H / 2 + rise * (i + 1), zB - (i + 1) * tr, zB - i * tr); box('nonslip', xb + .06, xb + w - .06, y0 + H / 2 + rise * (i + 1), y0 + H / 2 + rise * (i + 1) + .004, zB - i * tr - .05, zB - i * tr); }
+        for (let i = 0; i < n; i++) { box('terr', xb, xb + w, y0 + H / 2 + rise * i, y0 + H / 2 + rise * (i + 1), zB - (i + 1) * tr, zB - i * tr); box('nonslip', xb + .06, xb + w - .06, y0 + H / 2 + rise * (i + 1), y0 + H / 2 + rise * (i + 1) + .004, zB - i * tr - .05, zB - i * tr); }
         walk.push({ x1: xb, x2: xb + w, z1: zA, z2: zB, h: (x, z) => y0 + H / 2 + Math.min(n, Math.max(0, Math.ceil((zB - z) / tr))) * rise, f, stair: true });
       }
       // 계단 난간: 중앙 칸막이벽(1.1m) + 핸드레일
       box('wain', xa + w, xb, y0, y0 + H / 2 + 1.1, zA, zB, { solid: true });
       box('deskLeg', xa + w - .02, xb + .02, y0 + H / 2 + 1.1, y0 + H / 2 + 1.15, zA, zB);
+      // 계단 구멍 쪽 난간: 2비행은 올라갈수록 칸막이벽(1.1m) 위로 드러난다 → 강관 동자(디딤판마다) + 원목 손스침 (2008 학교 계단 표준, 높이 0.9m)
+      { const xr = xb + .045, th = Math.atan2(H / 2, run), len = Math.hypot(H / 2, run), RH = .9;
+        const railY = z => y0 + H / 2 + RH + (zB - z) / run * (H / 2);
+        for (let i = 0; i < n; i++) { const t = y0 + H / 2 + rise * (i + 1), zc = zB - (i + .5) * tr;
+          box('deskLeg', xr - .011, xr + .011, t, railY(zc) - .02, zc - .011, zc + .011);
+          col.push({ x1: xb, x2: xb + .08, z1: zB - (i + 1) * tr, z2: zB - i * tr, y1: t + .05, y2: t + 1.1 }); }
+        box('deskLeg', xr - .03, xr + .03, y0 + H / 2, railY(zB - .02) + .05, zB - .05, zB + .01);   // 아래 · 위 엄지기둥 (계단참 · 층 참 끝)
+        box('deskLeg', xr - .03, xr + .03, y0 + H, railY(zA + .02) + .05, zA - .01, zA + .05);
+        const hr = new THREE.BoxGeometry(.055, .045, len + .06); hr.rotateX(th); hr.translate(xr, y0 + 3 * H / 4 + RH + .02, (zA + zB) / 2); G('hrail', hr);   // 손스침
+        const sb = new THREE.BoxGeometry(.018, .03, len); sb.rotateX(th); sb.translate(xr, y0 + 3 * H / 4 + .24, (zA + zB) / 2); G('deskLeg', sb); }   // 아래 띠장
       // 계단 밑면(경사 슬래브)은 아래층 천장에서 보이지 않게 계단실 반자 제거
     }
     // 계단실은 반자 없음: 위층 슬래브에 2비행 구멍 (구멍은 슬래브를 다시 쪼개는 대신 계단실 위 슬래브를 생략)
@@ -1764,7 +1808,10 @@ export function buildMainBuilding(opt = {}) {
       g.fillStyle = '#fff'; g.beginPath(); g.arc(32, 18, 8, 0, 7); g.fill(); if (k) { g.beginPath(); g.moveTo(32, 26); g.lineTo(46, 56); g.lineTo(18, 56); g.closePath(); g.fill(); } else g.fillRect(24, 28, 16, 28);
       g.fillStyle = '#1a1a1a'; g.font = 'bold 28px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(k ? '여자화장실' : '남자화장실', 160, 34);
       const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; const m = new THREE.Mesh(new THREE.PlaneGeometry(.9, .225), new THREE.MeshStandardMaterial({ map: t, roughness: .5 })); m.position.set((o.a + o.b) / 2, y0 + 2.36, -.13); m.rotation.y = Math.PI; root.add(m); });
-    [[r.x1, xm, '남'], [xm, r.x2, '여']].forEach(([a, b, g]) => toiletRoom(a, b, g, f, y0));
+    [[r.x1, xm, '남'], [xm, r.x2, '여']].forEach(([a, b, g]) => { toiletRoom(a, b, g, f, y0);
+      // 천장 형광등 (2등용 1200 × 300, 칸 위 · 세면대 위 3열) — 방 스위치(문 옆 벽, rebuildGame)가 이 회로를 끄고 켠다
+      [1.7, 4.0, 6.3].forEach(z => fluor((a + b) / 2, y0 + S.CEIL - .05, z, false));
+      const rp = props[props.length - 1]; if (rp && rp.type === 'toilet') rp.swX = g === '남' ? a + .55 : b - .55; });   // 스위치: 출입문 옆 (문 개구부 바깥쪽)
     // 복도측 세면대 (수도 · 배관)
     // 세면대는 화장실 벽(복도 남쪽) 두 문 사이에 — 1층 현관 앞(북쪽 벽)을 막지 않게
     if (opt.bridge && f === 1) {   // 구름다리 출입구 맞은편: 세면대 대신 학교 안내도 · 게시판 · 벤치
@@ -1930,7 +1977,7 @@ export function buildMainBuilding(opt = {}) {
 
   // 계단실 위 슬래브 · 반자 구멍: 해당 층 위 슬래브에서 계단실 영역을 뺀다 — 단순화: 계단실 영역 위 반자 제거용 표시만 남긴다
   // 병합
-  for (const [key, list] of geo) { const g = mergeGeometries(list, false); const m = new THREE.Mesh(g, mat[key]); m.castShadow = !['glass', 'lamp', 'wear', 'streak', 'grime', 'exitHalo'].includes(key); m.receiveShadow = true; m.name = 'RB_' + key; root.add(m); }
+  for (const [key, list] of geo) { const g = mergeGeometries(list, false); const m = new THREE.Mesh(g, mat[key]); m.castShadow = !['glass', 'lamp', 'wear', 'streak', 'grime', 'exitHalo'].includes(key); m.receiveShadow = true; m.name = 'RB_' + key; if (key === 'signBd') m.userData.noCull = true; root.add(m); }   // 교명 현판: 운동장(먼 곳)에서 보라고 단 것 — perfStabilizer 거리 컬링 제외
   // 바닥 높이 조회 (계단 포함): 발 높이 기준으로 올라설 수 있는 가장 높은 면
   const groundAt = (x, z, feet) => { let best = null; for (const w of walk) { if (x < w.x1 || x > w.x2 || z < w.z1 || z > w.z2) continue; const h = w.h(x, z); if (h <= feet + .45 && (best == null || h > best)) best = h; } return best; };
   // 문짝: 병합하지 않은 개별 메시 (열고 닫는 애니메이션 · 닫혔을 때만 충돌)

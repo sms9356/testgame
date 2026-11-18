@@ -4,10 +4,10 @@
 //   전기(분전반 · 2등용 형광등 · 콘센트 · 스위치) · 소방(소화전함 · 소화기 · 감지기 · 유도등 · 방화문) · 수도(세면대 · 배관)
 import * as THREE from '../vendor/three.module.js';
 import { mergeGeometries } from '../vendor/addons/utils/BufferGeometryUtils.js';
-import { makeFlag } from '../tex.js?v=441';
-import * as PT from './periodTex.js?v=441';
-import { collectRefs, dedupeMaterials, batchStaticChildren } from './staticBatch.js?v=441';
-import { classInfo, weekDuty, cleaningRota, shortSubj, DAYS, PERIOD_TIME } from './classData.js?v=441';
+import { makeFlag } from '../tex.js?v=442';
+import * as PT from './periodTex.js?v=442';
+import { collectRefs, dedupeMaterials, batchStaticChildren } from './staticBatch.js?v=442';
+import { classInfo, weekDuty, cleaningRota, shortSubj, DAYS, PERIOD_TIME } from './classData.js?v=442';
 // 교실 앞면 꾸밈 공용 (반 이름 · 텍스처 캐시)
 let flagTex = null; const decorTex = new Map();
 // 2008년 10월 복도 게시물 (현재 시점 — 1998 사건 증거물과 구분)
@@ -1178,7 +1178,7 @@ export function buildMainBuilding(opt = {}) {
       desk(x1 + 2, z2 - 1.2); chairAt(x1 + 2, z2 - .6);
       sinkPedX(x1 + .35, z2 - 2.3, y0, x1 + .02);   // 서쪽 벽 세면대 (예전: 벽을 z 로 잘못 넘겨 도기 판이 바닥 위에 길게 떠 있었다)
       props.push({ kind: 'search', label: '보건실 약품장 열기', x: x1 + .8, y: y0 + 1.2, z: z1 + 1.5, floor: f });
-      mdl('medical_box', x1 + 2, y0 + .74, z2 - 1.2, .3); if (!opt.noClues) { clueNote('n2', x1 + 1.7, y0 + .74, z2 - 1.35, f, -.4); clueTape('ts_paramedic', x1 + 2.45, y0 + .74, z2 - 1.05, f); } mdl('wheelchair_01', x1 + 3.6, y0, z2 - .9, 2.4); col.push({ x1: x1 + 3.2, x2: x1 + 4.0, z1: z2 - 1.3, z2: z2 - .5, y1: y0, y2: y0 + 1 });
+      mdl('medical_box', x1 + 2, y0 + .74, z2 - 1.2, .3); if (!opt.noClues) { clueNote('n2', x1 + 1.7, y0 + .74, z2 - 1.35, f, -.4); clueTape('ts_paramedic', x1 + 2.45, y0 + .74, z2 - 1.05, f); } mdl('wheelchair_01', x1 + 3.6, y0, z2 - .9, 2.4); col.push({ x1: x1 + 3.2, x2: x1 + 4.0, z1: z2 - 1.3, z2: z2 - .5, y1: y0, y2: y0 + 1, noSurf: true });   // noSurf: 휠체어 충돌 상자 윗면(1m)은 탁자가 아니다 — 진정제 병이 휠체어 위 허공에 놓였다
     } else if (type === 'office') {   // 교무실 · 행정실 (통합 대형 사무실): 칸막이 워크스테이션 4묶음(2×2) · 가운데 회의 탁자 · 행정실 코너(관리자 책상 · 서가) · 탕비 코너 · 캐비닛 벽
       const W = x2 - x1, pod = (px, pz) => {   // 4인 칸막이 묶음: 책상 2×2 (1.2 × .7) · 가운데 · 사이 녹색 칸막이 1.15m · 모니터 · 의자
         for (const dz of [-1, 1]) for (const dx of [-1, 1]) { const x = px + dx * .62, z = pz + dz * .37; desk(x, z, 1.2, .7, .74, 'steelTop'); officeChair(x, z + dz * .72, y0, dz > 0 ? 1 : -1); const zc = z - dz * .12; retroPC(x - .12, y0 + .74, zc - dz * .06, dz > 0 ? 'z+' : 'z-', { tower: 'desk', scale: .9, lcd: true });

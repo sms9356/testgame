@@ -2361,9 +2361,10 @@ function hoopShot({ title = '체육관 코트 — 물리 궤적 자유투 (3골 
   const c = canvas(480, 300), g = c.getContext('2d');
   let ang = 54 * Math.PI / 180, pwr = 0, charging = false, chargeT0 = 0, goals = 0, shots = 0;
   // 파워는 누르고 있던 실제 시간으로 정한다 (프레임이 느려도 같은 감각) — 0.1 ↔ 1 왕복
-  const pwrAt = t => { const m = (.05 + t * 1.25) % 1.8; return .1 + (m < .9 ? m : 1.8 - m); };
+  //   예전 1.25/초 왕복은 골이 되는 파워 폭(약 0.09)이 72ms 뿐이라 3골은 거의 운이었다 → 0.8/초 (같은 폭이 약 125ms)
+  const pwrAt = t => { const m = (.05 + t * .8) % 1.8; return .1 + (m < .9 ? m : 1.8 - m); };
   const startCharge = () => { charging = true; chargeT0 = performance.now(); pwr = .15; };
-  let ball = null, rimX = 392, rimY = 118, rimR = 22, boardX = 420, lastT = performance.now();
+  let ball = null, rimX = 392, rimY = 118, rimR = 24, boardX = 420, lastT = performance.now();
 
   const shoot = () => {
     if (ball || !finish) return;
@@ -2405,9 +2406,9 @@ function hoopShot({ title = '체육관 코트 — 물리 궤적 자유투 (3골 
       // 앞뒤 림 엣지 탄성 충돌
       for (const rx of [rimX - rimR, rimX + rimR]) {
         const dx = ball.x - rx, dy = ball.y - rimY, d = Math.hypot(dx, dy);
-        if (d < ball.r + 4) {
+        if (d < ball.r + 3) {   // 림 두께 (예전 4 — 깨끗하게 들어갈 틈이 10px 뿐이었다)
           const nx = dx / (d || 1), ny = dy / (d || 1);
-          ball.x = rx + nx * (ball.r + 4.5); ball.y = rimY + ny * (ball.r + 4.5);
+          ball.x = rx + nx * (ball.r + 3.5); ball.y = rimY + ny * (ball.r + 3.5);
           const dot = ball.vx * nx + ball.vy * ny;
           if (dot < 0) { ball.vx = (ball.vx - 1.65 * dot * nx) * .72; ball.vy = (ball.vy - 1.65 * dot * ny) * .72; sfx.ball ? sfx.ball() : sfx.click(); }
         }
@@ -2898,7 +2899,7 @@ function voltageSync({ title = '⚡ 노후 배전반 — 3상(R·S·T) 전압 �
 /* ---------- 24b. 캡슐 뽑기 기계 3D (gacha3D) — 실제 기계: 유리 돔 속 캡슐 · 동전 투입 · 크랭크 360° · 배출구로 굴러 나온 캡슐을 열기 ---------- */
 function gacha3D({ title = '급식실 캡슐 뽑기 기계' } = {}) {
   let r; try { r = new THREE.WebGLRenderer({ antialias: true }); } catch (e) { return gachaCrank({ title }); }
-  const p = open(title, '<b>① 동전 넣기</b> 버튼(또는 C) → <b>② 크랭크를 마우스로 둥글게 끌어</b>(또는 D/Space 연타) 한 바퀴 → <b>③ 굴러 나온 캡슐 클릭</b>(또는 Enter)으로 열기');
+  const p = open(title, '<b>① 동전 넣기</b> 버튼(또는 C) → <b>② 크랭크를 마우스로 시계 방향(↻)으로 둥글게 끌어</b>(또는 D/Space 연타) 한 바퀴 → <b>③ 굴러 나온 캡슐 클릭</b>(또는 Enter)으로 열기');
   const W = 460, H = 330; r.setPixelRatio(Math.min(2, devicePixelRatio || 1)); r.setSize(W, H); r.outputColorSpace = THREE.SRGBColorSpace; r.toneMapping = THREE.ACESFilmicToneMapping; r.shadowMap.enabled = true;
   r.domElement.className = 'mgCanvas'; r.domElement.dataset.own3d = '1'; $('mgBody').appendChild(r.domElement);
   const btn = document.createElement('button'); btn.className = 'btn'; btn.textContent = '🪙 100원 동전 넣기 (C)'; $('mgBody').appendChild(btn);
@@ -2938,10 +2939,10 @@ function gacha3D({ title = '급식실 캡슐 뽑기 기계' } = {}) {
   const capsule = col => { const g = new THREE.Group(), top = new THREE.Mesh(new THREE.SphereGeometry(.05, 18, 10, 0, Math.PI * 2, 0, Math.PI / 2), new THREE.MeshStandardMaterial({ color: col, roughness: .18, metalness: .05 })), bot = new THREE.Mesh(new THREE.SphereGeometry(.05, 18, 10, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2), new THREE.MeshStandardMaterial({ color: 0xf4f4f0, roughness: .3 })); top.castShadow = bot.castShadow = true; g.add(top, bot); g.userData = { top, bot }; return g; };
   for (let i = 0; i < 46; i++) { const c = capsule(COL[i % COL.length]), y = .73 + Math.pow(Math.random(), 1.6) * .32; c.position.set((Math.random() - .5) * .54, y, (Math.random() - .5) * .48); c.rotation.set(Math.random() * 3, Math.random() * 3, Math.random() * 3); c.userData.base = c.position.clone(); sc.add(c); caps.push(c); }
   const coin = M(new THREE.CylinderGeometry(.025, .025, .005, 24), new THREE.MeshStandardMaterial({ color: 0xd8c070, metalness: 1, roughness: .3 }), .2, .55, .5); coin.rotation.x = Math.PI / 2; coin.visible = false;
-  let coinIn = false, coinT = -1, ang = 0, last = null, drop = null, dropT = 0, opened = false, openT = 0, shake = 0;
+  let back = 0, coinIn = false, coinT = -1, ang = 0, last = null, drop = null, dropT = 0, opened = false, openT = 0, shake = 0;
   const insert = () => { if (coinIn || coinT >= 0) return; coinT = 0; coin.visible = true; sfx.click(); btn.disabled = true; };
   btn.onclick = insert;
-  const turn = da => { if (!coinIn) { status('먼저 동전을 넣으세요', 'err'); sfx.buzz(); return; } if (drop) return; if (da <= 0) return; const before = Math.floor(ang / (Math.PI / 4)); ang += da; shake = .25;
+  const turn = da => { if (!coinIn) { status('먼저 동전을 넣으세요', 'err'); sfx.buzz(); return; } if (drop) return; if (da <= 0) { back -= da; if (back > 1.2) { back = 0; status('딸깍… 반대로는 걸려서 안 돈다 — 크랭크는 시계 방향으로 돌리세요 ↻', 'err'); sfx.buzz(); } return; } back = 0; const before = Math.floor(ang / (Math.PI / 4)); ang += da; shake = .25;
     if (Math.floor(ang / (Math.PI / 4)) > before) { sfx.dial && sfx.dial(); sfx.tumbler && Math.random() < .3 && sfx.tumbler(); }
     if (ang >= Math.PI * 2) { ang = Math.PI * 2; const c = caps.splice((Math.random() * caps.length) | 0, 1)[0]; drop = c; dropT = 0; c.userData.from = c.position.clone(); sfx.unlock && sfx.unlock(); status('덜컥 — 캡슐이 굴러 나온다!', 'ok'); } };
   const cv = r.domElement, crankScreen = () => { const v = crank.getWorldPosition(new THREE.Vector3()).project(cam), b = cv.getBoundingClientRect(); return { x: b.left + (v.x + 1) / 2 * b.width, y: b.top + (1 - v.y) / 2 * b.height }; };

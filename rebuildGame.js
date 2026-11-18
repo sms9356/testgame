@@ -397,13 +397,14 @@ export function installRebuild({ THREE, scene, floors, world }) {
         if (p.key && p.key.pos) { const kx = wx - .9, ky = sh + .38; p.key.pos.set(kx, ky, wz); if (p.key.baseY != null) p.key.baseY = ky; p.key.floor = 0; p.key.rbY = sh; p.key._rb = true; if (p.key.mesh) { group.attach(p.key.mesh); p.key.mesh.position.set(kx, ky, wz); } }
         p.floor = 0; p.rbY = sh; p.x = wx; p.z = wz; p.y = Math.max(.05, p.y ?? 1); moved++; continue; }
       const tgt = pickRoom(p.floor, p.x, roomForLabel(p.label)); if (!tgt) { p.floor = park(p.floor); dropped++; continue; }
-      const small = ['tape', 'clue', 'pick', 'case5', 'phone'].includes(p.kind);   // 탁자 위에 놓이는 작은 소품: 증언 녹음기 · 쪽지/단서 · 줍는 물건 · 녹음기 · 전화
+      const small = ['tape', 'clue', 'pick', 'case5', 'phone'].includes(p.kind) || (p.kind === 'robj' && p.k === 'radio');   // 벽걸이 무전기(robj radio)도 탁자 위로 — 바닥에 두면 아래 '초록 불빛 잔재 숨기기'가 화면(초록)째 숨겨 별관 기술실 무전기가 안 보였다   // 탁자 위에 놓이는 작은 소품: 증언 녹음기 · 쪽지/단서 · 줍는 물건 · 녹음기 · 전화
       const su = small && tgt.room ? surfaceIn(tgt.b, tgt.room, tgt.f) : null, s = su || spotAny(tgt.b, tgt.room, tgt.f);
       let oy = Math.max(.05, p.y ?? 1), base = s.h;
       if (su) { base = su.top; oy = su.top - su.h + .08; }
       { const oldY0 = FL_[p.floor]?.y0 || 0, dx = s.x - p.x, dz = s.z - p.z;   // 부품(몸체 · 문 · 녹음기 모형)의 상대 위치를 지키며 함께 옮긴다 — 예전엔 조사 지점만 오고 모형은 숨긴 옛 층에 남았다
         for (const o of objsOf(p)) { const w = o.getWorldPosition(new THREE.Vector3()); group.attach(o); o.position.set(w.x + dx, s.h + (su ? Math.max(0, su.top - s.h - .74) : 0) + (w.y - oldY0), w.z + dz); o.visible = true; }
         if (p.kind === 'safe' && p.key && p.key.pos) { const kx = s.x - .9, ky = s.h + .38, kz = s.z; p.key.pos.set(kx, ky, kz); if (p.key.baseY != null) p.key.baseY = ky; p.key.floor = 0; p.key.rbY = s.h; p.key._rb = true; if (p.key.mesh) { group.attach(p.key.mesh); p.key.mesh.position.set(kx, ky, kz); } } }   // 금고 속 열쇠도 금고 안으로
+      if (p.kind === 'robj' && p.k === 'radio' && p.anim && p.anim.g) { const g = p.anim.g; g.position.y = (su ? su.top : s.h) + .134; g.rotation.set(0, 0, 0); }   // 몸체(높이 .26) 밑면을 받침면에 — 화면 · 안테나가 앞(+z)을 본다
       p.floor = 0; p.rbY = s.h; p.x = s.x; p.z = s.z; p.y = oy; if (p.px != null) { p.px = s.x; p.pz = s.z; } moved++;
     }
     for (const d of world.doors) if (!d._rb && isOld(d.floor, d.x, d.z)) { d._rb = true; d.floor = park(d.floor); dropped++; }
@@ -954,7 +955,7 @@ export function installRebuild({ THREE, scene, floors, world }) {
         if (!best || bd > 6) { p._drop = true; continue; } best.used = true; p.x = best.x; p.z = best.z; if (p.px != null) { p.px = best.x; p.pz = best.z; } p.y = .9; if (p.sinkObj && p.sinkObj.group) p.sinkObj.group.position.set(best.tap.x, best.tap.y - .9, best.tap.z); if (p.ctx) { p.ctx.f = 0; p.ctx.rb = best.h; p.ctx.tap = { x: best.tap.x + (best.x - best.tap.x) * .0, z: best.tap.z }; const ry = Math.atan2(best.x - best.tap.x, best.z - best.tap.z); p.ctx.mirror = { x: best.tap.x - (best.x - best.tap.x) / Math.max(.01, Math.hypot(best.x - best.tap.x, best.z - best.tap.z)) * .2, y: best.h + 1.45, z: best.tap.z - (best.z - best.tap.z) / Math.max(.01, Math.hypot(best.x - best.tap.x, best.z - best.tap.z)) * .2, ry }; } up++; }
       for (let i = W.props.length - 1; i >= 0; i--) if (W.props[i]._drop) W.props.splice(i, 1); }
     // 벽걸이 방 장치(robj: 인터폰 · 복사 카운터 · 단말기 · 약품함 · 감정 카드판 등)가 옛 벽 자리 허공에 떠 있던 것 → 새 방에서 가장 가까운 벽면에 붙이고 방 안쪽을 보게
-    for (const p of W.props) { if (p._wall || p.kind !== 'robj' || p.rbY == null || !p.anim || !p.anim.g || p.k === 'light_switch' || p._drop) continue; p._wall = true;
+    for (const p of W.props) { if (p._wall || p.kind !== 'robj' || p.rbY == null || !p.anim || !p.anim.g || p.k === 'light_switch' || p.k === 'radio' || p._drop) continue; p._wall = true;   // 무전기는 탁자 위에 둔다 (relocate)
       const rr = roomRect(p.x, p.z, p.rbY); if (!rr) continue; const { B, r } = rr, g = p.anim.g, wp = g.getWorldPosition(new THREE.Vector3()), [lx, lz] = B.toLocal(wp.x, wp.z);
       const ed = [[lx - r.x1, 'x1'], [r.x2 - lx, 'x2'], [lz - r.z1, 'z1'], [r.z2 - lz, 'z2']].sort((a, b) => a[0] - b[0])[0][1];
       let nx = ed === 'x1' ? r.x1 + .12 : ed === 'x2' ? r.x2 - .12 : Math.min(r.x2 - .6, Math.max(r.x1 + .6, lx)), nz = ed === 'z1' ? r.z1 + .12 : ed === 'z2' ? r.z2 - .12 : Math.min(r.z2 - .6, Math.max(r.z1 + .6, lz));
@@ -1042,7 +1043,8 @@ export function installRebuild({ THREE, scene, floors, world }) {
         const note = it.kind === 'note', o = it.mesh.getWorldPosition(new THREE.Vector3()).y - b2.min.y, dy = sup <= it.rbY - .05 ? 0 : note ? sup + .004 - b2.min.y : sup + .035 + o - it.pos.y;
         if (dy < -.08) { if (it.mesh.parent !== group) group.attach(it.mesh); it.mesh.position.y += dy; it.pos.y += dy; if (it.baseY != null) it.baseY += dy; up++; } } }
     // 바닥에 떨어진 옛 스위치 LED · 터미널 화면 잔재(초록 불빛) 숨기기: 초록 발광 소품이 그 층 바닥 60cm 안에 있으면 그 묶음째 감춘다
-    if ((W._grn = (W._grn || 0) + 1) <= 8) { const P = new THREE.Vector3(); group.traverse(o => { if (!o.isMesh || !o.visible || !o.material || !o.material.isMeshBasicMaterial) return; const h = o.material.color.getHex(); if (h !== 0x40ff80 && h !== 0x38c070 && h !== 0x1c3326) return;
+    if ((W._grn = (W._grn || 0) + 1) <= 8) { const P = new THREE.Vector3(), live = new Set(W.props.map(q => q.anim && q.anim.g).filter(Boolean)), isLive = o => { for (let a = o; a; a = a.parent) if (live.has(a)) return true; return false; };   // 살아 있는 조사 소품(무전기 화면 등)은 잔재가 아니다
+      group.traverse(o => { if (!o.isMesh || !o.visible || !o.material || !o.material.isMeshBasicMaterial || isLive(o)) return; const h = o.material.color.getHex(); if (h !== 0x40ff80 && h !== 0x38c070 && h !== 0x1c3326) return;
       o.getWorldPosition(P); const fl = Math.floor((P.y + .1) / 3.6) * 3.6; if (P.y - fl > .6) return; const g = o.parent && o.parent !== group ? o.parent : o; g.visible = false; up++; }); }
     // 같은 자리에 겹쳐 놓인 아이템(쪽지 위 캔 등) → 뒤의 것을 옆으로 25cm 비킨다
     for (let i = 0; i < W.items.length; i++) { const a = W.items[i]; if (a.taken || !a.mesh || a.rbY == null) continue;

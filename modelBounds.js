@@ -1233,11 +1233,11 @@ export const MODEL_BOUNDS = {
     0.2097
   ],
   "metal_trash_can": [
-    -1.0198,
+    -0.3067,
     0.0001,
     -0.2781,
-    0.8271,
-    0.9062,
+    0.3067,
+    0.9813,
     0.2781
   ],
   "multi_cleaner_bottle": [

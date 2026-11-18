@@ -1043,6 +1043,13 @@ export function installRebuild({ THREE, scene, floors, world }) {
         //   주울 수 있는 물건은 world.js 가 pos.y 기준으로 ±3cm 떠서 돈다 → 본체 밑면이 받침 3cm 위가 되게 (쪽지는 회전하지 않으니 바로 위). 8cm 넘게 떠 있을 때만
         const note = it.kind === 'note', o = it.mesh.getWorldPosition(new THREE.Vector3()).y - b2.min.y, dy = sup <= it.rbY - .05 ? 0 : note ? sup + .004 - b2.min.y : sup + .035 + o - it.pos.y;
         if (dy < -.08) { if (it.mesh.parent !== group) group.attach(it.mesh); it.mesh.position.y += dy; it.pos.y += dy; if (it.baseY != null) it.baseY += dy; up++; } } }
+    // 줍는 소품(pick: 진정제 병 등)도 같은 방식으로 — 보건실 진정제 병이 창가 라디에이터 위 허공(1.05m)에 떠 있었다
+    for (const p of W.props) { if (p.kind !== 'pick' || !p.mesh || p.rbY == null || p.taken || p.done || p._pdrp || !shown(p.mesh)) continue; if (furnReady) p._pdrp = true;
+      const m = p.mesh; m.updateMatrixWorld(true); const b2 = new THREE.Box3(); m.traverse(o => { if (o.isMesh && !o.isSprite && o.geometry) { o.geometry.computeBoundingBox(); b2.union(T.copy(o.geometry.boundingBox).applyMatrix4(o.matrixWorld)); } }); if (b2.isEmpty()) continue;
+      const c = b2.getCenter(new THREE.Vector3()), mine = new Set(); m.traverse(o => mine.add(o)); const rc = new THREE.Raycaster(new THREE.Vector3(c.x, b2.min.y + .01, c.z), new THREE.Vector3(0, -1, 0), 0, 2); rc.camera = new THREE.PerspectiveCamera();
+      const hit = rc.intersectObjects(near(c.x, c.z, .1), false).find(h => h.object.isMesh && !h.object.isSprite && !fakeObj(h.object) && !mine.has(h.object) && shown(h.object) && !h.object.material?.transparent && h.point.y > p.rbY - .05);
+      const sup = Math.max(hit ? hit.point.y : -1e9, R._sup ? R._sup(c.x, c.z, b2.min.y) ?? -1e9 : -1e9), dy = sup > p.rbY - .05 ? sup + .004 - b2.min.y : 0;
+      if (dy < -.08) { if (m.parent !== group) group.attach(m); m.position.y += dy; if (p.y != null) p.y = Math.max(p.rbY + .3, p.y + dy); up++; } }
     // 바닥에 떨어진 옛 스위치 LED · 터미널 화면 잔재(초록 불빛) 숨기기: 초록 발광 소품이 그 층 바닥 60cm 안에 있으면 그 묶음째 감춘다
     if ((W._grn = (W._grn || 0) + 1) <= 8) { const P = new THREE.Vector3(), live = new Set(W.props.map(q => q.anim && q.anim.g).filter(Boolean)), isLive = o => { for (let a = o; a; a = a.parent) if (live.has(a)) return true; return false; };   // 살아 있는 조사 소품(무전기 화면 등)은 잔재가 아니다
       group.traverse(o => { if (!o.isMesh || !o.visible || !o.material || !o.material.isMeshBasicMaterial || isLive(o)) return; const h = o.material.color.getHex(); if (h !== 0x40ff80 && h !== 0x38c070 && h !== 0x1c3326) return;

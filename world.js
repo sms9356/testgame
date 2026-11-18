@@ -5368,7 +5368,7 @@ export function buildWorld(scene) {
     flickerMats.forEach((m, i) => { const v = blackout ? 0 : flickVal(t, i) * gain; m.userData.v = v; m.color.setRGB(cr * v + .02, cg * v + .02, cb * v + .02); });
     matLampOn.color.setRGB(blackout ? .02 : cr * gain, blackout ? .02 : cg * gain, blackout ? .02 : cb * gain); if (winMats[9]) winMats[9].emissiveIntensity = blackout ? 0 : .55 * gain;
     spEm.opacity = emerg * .9; matEmHead.color.setRGB(.16 + emerg * .84, .16 + emerg * .76, .15 + emerg * .6); matEmLed.color.setHex(emerg > .1 ? 0xff4020 : 0x30ff60);
-    for (const it of items) if (!it.taken && it.kind !== 'note') { it.mesh.position.y = it.pos.y - floors[it.floor].y0 + Math.sin(t * 2 + it.pos.x) * .03; it.mesh.rotation.y = t * 1.2; }
+    for (const it of items) if (!it.taken && it.kind !== 'note') { it.mesh.position.y = it.pos.y - floors[it.floor].y0 + (1 + Math.sin(t * 2 + it.pos.x)) * .015;   /* 위로만 떠오른다 — 받침면 속으로 파고들지 않게 */ it.mesh.rotation.y = t * 1.2; }
     lockGlow.material.opacity = .6 + .4 * Math.sin(t * 3);
   }
 

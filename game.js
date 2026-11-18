@@ -313,6 +313,15 @@ const npcVisuals = createNPCVisuals({ THREE, GLTFLoader, prepare: async obj => {
 const NPC_AVAIL = fetch('assets/characters/manifest.json').then(r => (r.ok ? r.json() : {})).catch(() => ({}));
 function npcLoad(id, holder, opts) { NPC_AVAIL.then(m => { if (m && m[id]) npcVisuals.load(id, holder, opts).catch(e => console.warn('[npc]', id, e && e.message)); }); }
 // 실사 스캔 소품 (Poly Haven CC0): 모델별 · 층별로 InstancedMesh 를 만들어 드로콜을 줄인다
+// Poly Haven metal_trash_can 원본은 두 통(새것 · 녹슨 것)이 나란히 있고 뚜껑이 통 옆에 75° 기울어져 기대 있다 → 한 자리에 두 통 + 기운 뚜껑이 '넘어진 통'처럼 보였다.
+//   새 통 하나만 남겨 원점(바닥 중심)으로 옮기고, 뚜껑은 통 위에 똑바로 덮는다 (손잡이는 통과 같이 이동).
+function fixTrashCan(root) {
+  const drop = []; root.traverse(o => { if (/rust/.test(o.name)) drop.push(o); }); drop.forEach(o => o.parent && o.parent.remove(o));
+  root.traverse(o => { if (!o.name.startsWith('metal_trash_can')) return;
+    if (o.name === 'metal_trash_can_lid') { o.position.set(0, .906 + .037, 0); o.quaternion.identity(); }
+    else if (o.name === 'metal_trash_can') o.position.x = 0;
+    else o.position.x -= .5; });
+}
 function loadModels() {
   world.modelAudit.duplicatesRemoved += removeDuplicateModels(world.MODELS);
   const byName = {}; world.MODELS.forEach(m => (byName[m.model] = byName[m.model] || []).push(m));
@@ -355,7 +364,7 @@ function loadModels() {
   const requestNext = () => { if (!pending.length) return; const [name,list] = pending.shift(); state.active++;
   const finish = () => { state.active--; done(); requestNext(); };
   loader.load(name.startsWith('sf_') ? `assets/models/sf/${name}.glb` : packed(name) ? `assets/models/${name}.glb` : `assets/models/${name}/${name}.gltf`, gltf => { queue.push(async () => { try {
-    const root = gltf.scene; root.updateMatrixWorld(true); const pairs = [];
+    const root = gltf.scene; if (name === 'metal_trash_can') fixTrashCan(root); root.updateMatrixWorld(true); const pairs = [];
     const cr = name.startsWith('cr101/') || name.startsWith('th102/');
     const parts = []; if (name.startsWith('th102/')) parts.push(...thParts(root)); else if (name.startsWith('sf_')) root.traverse(o => { if (!o.isMesh) return; const g2 = o.geometry.clone().applyMatrix4(o.matrixWorld); g2.computeBoundingBox(); g2.computeBoundingSphere(); parts.push(new THREE.Mesh(g2, o.material)); }); else if (packed(name)) parts.push(...h133Parts(root, name.split('/')[1], cr, name.startsWith('pr/') || (name.startsWith('v2/') && 'v2'))); else root.traverse(o => { if (o.isMesh) parts.push(o); });
     const byFloor = {}; list.forEach(m => (byFloor[m.f] = byFloor[m.f] || []).push(m));
@@ -9634,6 +9643,7 @@ async function itemUnbury() {
   for (let i = 0; i < list.length; i++) {
     if (i % 3 === 2) await new Promise(r => requestAnimationFrame(r)); // 프레임당 3개씩 비동기 분할하여 끊김(Hitch) 원천 차단!
     const it = list[i]; if (it.taken || !it.mesh) continue;
+    if (it.rbY != null) continue;   // 새 건물로 옮긴 아이템: 여기서 광선을 쏘는 F.interior 는 숨겨진 옛 층이다 — 옛 천장 슬래브(≈3.96m)에 맞아 2층 바닥 구급상자 · 건전지를 30cm 띄웠다. 새 건물은 rebuildGame 이 따로 정리한다
     const F = floors[it.floor]; if (!F || !F.interior) continue;
     rc.set(new THREE.Vector3(it.pos.x, it.pos.y + .9, it.pos.z), dn); rc.far = .88;
     let hits = []; try { hits = rc.intersectObjects([F.interior], true); } catch (e) { continue; }
@@ -9654,6 +9664,8 @@ function nearSolids(solids) {
   return (x, y, z, r) => { const out = []; for (const it of items) { const s = it.s, dx = s.center.x - x, dy = s.center.y - y, dz = s.center.z - z, R = s.radius + r; if (dx * dx + dy * dy + dz * dz < R * R) out.push(it.o); } return out; };
 }
 const SETTLED = new WeakMap();
+const _sbT = new THREE.Box3();
+function solidBox(m, out) { out.makeEmpty(); m.updateWorldMatrix(true, true); m.traverse(c => { if (!c.isMesh || c.isSprite || !c.geometry) return; if (c.isInstancedMesh) _sbT.setFromObject(c); else { if (!c.geometry.boundingBox) c.geometry.computeBoundingBox(); _sbT.copy(c.geometry.boundingBox).applyMatrix4(c.matrixWorld); } if (!_sbT.isEmpty()) out.union(_sbT); }); if (out.isEmpty()) out.setFromObject(m); return out; }
 async function settleFloating() {
   const T = THREE, rc = new T.Raycaster(), bb = new T.Box3(), c = new T.Vector3(), DN = new T.Vector3(0, -1, 0), solids = [];
   let tmpSet = new Set(); const vis = o => { for (let a = o; a; a = a.parent) if (!a.visible && !tmpSet.has(a)) return false; return true; };   // 광선 검사는 visible 을 보지 않는다 → 숨겨진 실내를 실제로 켜지 않고 '보이는 셈' 치고 잰다 (켜 둔 채 프레임을 넘기면 화면에 비쳤다)
@@ -9672,7 +9684,7 @@ async function settleFloating() {
       if (!fl && Math.hypot(wp.x - ox, wp.z - oz) > 1.2 && m.parent) { const lp = m.parent.worldToLocal(new T.Vector3(ox, wp.y, oz)); m.position.x = lp.x; m.position.z = lp.z; m.updateMatrixWorld(true); moved++; } }
     if (!vis(m)) continue;
     const own = new Set(); m.traverse(x => own.add(x));
-    bb.setFromObject(m); if (bb.isEmpty()) continue; bb.getCenter(c);
+    solidBox(m, bb); if (bb.isEmpty()) continue; bb.getCenter(c);   // 빛무리 스프라이트는 빼고 (넣으면 밑면이 바닥 39cm 아래로 잡혀 구급상자 · 건전지를 아래층 천장까지 떨어뜨렸다)
     const loc = near(c.x, c.y, c.z, 5); const first = (from, dir, far) => { rc.set(from, dir); rc.far = far; return rc.intersectObjects(loc, false).find(h => !own.has(h.object)); };
     // 벽걸이(얇은 판): 수평 0.25m 안에 벽이 있으면 건너뜀
     if (Math.min(bb.max.x - bb.min.x, bb.max.z - bb.min.z) < .06 && [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dz]) => first(new T.Vector3(c.x, c.y, c.z), new T.Vector3(dx, 0, dz), Math.max(bb.max.x - bb.min.x, bb.max.z - bb.min.z) / 2 + .25))) continue;

@@ -12,6 +12,17 @@
   var qs = location.search, local = /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
   var swOn = /^https?:$/.test(location.protocol) && 'serviceWorker' in navigator && !/[?&]nosw\b/.test(qs) && (!local || /[?&]sw\b/.test(qs));
   if (swOn) {
+    // 버전이 올라간 직후: 이 페이지를 아직 예전 워커가 잡고 있으면 예전 캐시의 코드를 받게 된다 →
+    // 로딩을 멈추고 새 워커가 넘겨받으면(또는 8초 뒤) 한 번만 새로고침한다.
+    var ctl = navigator.serviceWorker.controller, ctlVer = ctl && ((ctl.scriptURL.match(/[?&]v=([^&]+)/) || [])[1]);
+    var once = false; try { once = sessionStorage.getItem('swBump') === ver; } catch (e) { /* ignore */ }
+    if (ctl && ctlVer !== ver && !once) {
+      try { sessionStorage.setItem('swBump', ver); } catch (e) { /* ignore */ }
+      try { window.stop(); } catch (e) { /* ignore */ }
+      var go = function () { location.reload(); };
+      navigator.serviceWorker.addEventListener('controllerchange', go);
+      setTimeout(go, 8000);
+    }
     navigator.serviceWorker.register('sw.js?v=' + ver).catch(function () {});
     // 첫 방문: 워커가 페이지를 넘겨받기 전에 받은 파일(HTML · CSS · 폰트 · 첫 모듈)은 워커 캐시에 없다 →
     // 넘겨받은 직후 그 목록을 보내 브라우저 HTTP 캐시에서 옮겨 담게 한다(대개 서버 왕복 없음).

@@ -67,5 +67,5 @@
 
 ## System requirements (store page)
 - **Minimum:** Windows 10 64-bit, 4 GB RAM, NVIDIA GeForce GTX 1050 (or equivalent), keyboard + mouse
-- **Recommended:** Windows 10/11 64-bit, 16 GB RAM, GTX 1050 or better
+- **Recommended:** Windows 10/11 64-bit, 8 GB RAM, GTX 1050 or better
 - Weak PCs (<= 4 GB reported memory or <= 4 cores, or an integrated GPU) automatically start on the 저사양 quality preset.

@@ -2,14 +2,14 @@
 //   항상 켜진다 (예전 건물 모드는 폐지).
 //   예전 본관(1~3층 · 옥상) · 별관(8~10층) 건물은 감추고, 그 자리 땅(0층)에서 새 건물을 걷는다.
 //   높이는 P.sh(계단 높이 보정값)로 넘긴다 → 카메라 · 점프 · 가구 오르기 코드는 손대지 않아도 된다.
-import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN, grafMaterial } from './rebuild/mainBuilding.js?v=444';
-import { placeModels } from './rebuild/models.js?v=444';
-import { installArtFrames } from './rebuild/artFrames.js?v=444';
-import { carve, subdivide } from './rebuild/transplant.js?v=444';
+import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN, grafMaterial } from './rebuild/mainBuilding.js?v=445';
+import { placeModels } from './rebuild/models.js?v=445';
+import { installArtFrames } from './rebuild/artFrames.js?v=445';
+import { carve, subdivide } from './rebuild/transplant.js?v=445';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { turfMaterial } from './campusVisuals.js?v=444';
-import { ENGINE } from './engine.js?v=444';
-import { whenIdle, idleTimeout, idleInterval, setIdleProbe } from './idleTasks.js?v=444';
+import { turfMaterial } from './campusVisuals.js?v=445';
+import { ENGINE } from './engine.js?v=445';
+import { whenIdle, idleTimeout, idleInterval, setIdleProbe } from './idleTasks.js?v=445';
 
 // 예전 건물이 차지하던 땅 (이 안의 예전 메시 · 충돌 상자를 걷어 낸다)
 const OLD_MAIN = { x1: -51, x2: 51, z1: -10.6, z2: 10.9 };
@@ -139,7 +139,7 @@ export function installRebuild({ THREE, scene, floors, world }) {
       bx(mBand, a - .02, b + .02, yb, yb + .3, za, zb); bx(mBand, a - .02, b + .02, yt - .3, yt, za, zb);   // 층간 띠 (건물 백색 띠와 같은 높이)
       bx(mAlu, a - .01, b + .01, ys, ys + .06, za, zb); bx(mAlu, a - .01, b + .01, yh - .06, yh, za, zb);   // 창대 · 창머리
       const n = Math.max(1, Math.round((BRZ2 - BRZ1) / 1.5)); for (let k = 0; k <= n; k++) { const z = BRZ1 + .04 + k * (BRZ2 - BRZ1 - .08) / n; bx(mAlu, Math.min(xo, xo + s * .04) - .02, Math.max(xo, xo + s * .04) + .02, ys, yh, z - .04, z + .04, false); } }
-    bx(mWall, cx - so, cx + so, yb, yb + .05, za, zb);   // 밑면 (소핏)
+    bx(mWall, cx - so, cx + so, yb - .012, yb + .05, za, zb);   // 밑면 (소핏) — 1.2cm 내려 보 · 띠 밑면과 겹쳐 깜박이지 않게
     bx(mRoof, cx - so, cx + so, y0 + 3.1, y0 + 3.3, za, zb);   // 지붕 슬래브 (실내 천장 위)
     bx(mBand, cx - so - .03, cx + so + .03, yt, yt + .06, za, zb);   // 파라펫 갓돌
     for (const s of [-1, 1]) bx(mWall, s < 0 ? cx - so : cx + so - .16, s < 0 ? cx - so + .16 : cx + so, y0 + 3.3, yt, za, zb);

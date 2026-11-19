@@ -64,3 +64,8 @@
    - Write a privacy note: the microphone is used only locally, if that feature is enabled.
 9. **Pricing, release date, Coming Soon page** (it must be live for at least 2 weeks before release), and the build review submission.
 10. **Optional:** Steam Cloud. Point Auto-Cloud at `%APPDATA%/서린고 - 잊혀진 시간/Local Storage/` (Windows) to sync saves.
+
+## System requirements (store page)
+- **Minimum:** Windows 10 64-bit, 4 GB RAM, NVIDIA GeForce GTX 1050 (or equivalent), keyboard + mouse
+- **Recommended:** Windows 10/11 64-bit, 16 GB RAM, GTX 1050 or better
+- Weak PCs (<= 4 GB reported memory or <= 4 cores, or an integrated GPU) automatically start on the 저사양 quality preset.

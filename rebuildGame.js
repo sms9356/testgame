@@ -139,7 +139,7 @@ export function installRebuild({ THREE, scene, floors, world }) {
       bx(mBand, a - .02, b + .02, yb, yb + .3, za, zb); bx(mBand, a - .02, b + .02, yt - .3, yt, za, zb);   // 층간 띠 (건물 백색 띠와 같은 높이)
       bx(mAlu, a - .01, b + .01, ys, ys + .06, za, zb); bx(mAlu, a - .01, b + .01, yh - .06, yh, za, zb);   // 창대 · 창머리
       const n = Math.max(1, Math.round((BRZ2 - BRZ1) / 1.5)); for (let k = 0; k <= n; k++) { const z = BRZ1 + .04 + k * (BRZ2 - BRZ1 - .08) / n; bx(mAlu, Math.min(xo, xo + s * .04) - .02, Math.max(xo, xo + s * .04) + .02, ys, yh, z - .04, z + .04, false); } }
-    bx(mWall, cx - so, cx + so, yb, yb + .05, za, zb);   // 밑면 (소핏)
+    bx(mWall, cx - so, cx + so, yb - .012, yb + .05, za, zb);   // 밑면 (소핏) — 1.2cm 내려 보 · 띠 밑면과 겹쳐 깜박이지 않게
     bx(mRoof, cx - so, cx + so, y0 + 3.1, y0 + 3.3, za, zb);   // 지붕 슬래브 (실내 천장 위)
     bx(mBand, cx - so - .03, cx + so + .03, yt, yt + .06, za, zb);   // 파라펫 갓돌
     for (const s of [-1, 1]) bx(mWall, s < 0 ? cx - so : cx + so - .16, s < 0 ? cx - so + .16 : cx + so, y0 + 3.3, yt, za, zb);

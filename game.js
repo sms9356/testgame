@@ -64,7 +64,7 @@ import './school37RoomsPatch.js';    // 본관 · 별관 37개 특별실 가구 
 import './new37UniquePatch.js';     // 37개 구역 신규 특수 설비 · 벽면 레일 (사용자 제공) → window.new37UniquePatch
 import './megaExpansionPatch.js?v=443';   // 메가 익스팬션 · 최적화 · 4막 사건 기록 · 수집품 · 미니게임 (사용자 제공) → window.megaSchoolPatch
 import './poolMachineryPatch.js';     // 수영장 · 남/녀 탈의실·샤워실 · 기계실 철문 (사용자 제공) → window.poolAndMachineryPatch
-import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, sfxCtx, setSfxBusyCheck, setSpace, tickNight } from './audio.js?v=443'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=443'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera, perfInstanceSource } from './perfStabilizer.js?v=443'; window.__perfInst = perfInstanceSource; import { upgradePlainMaterials } from './plainUpgrade.js?v=443'; import { relayCampusPaths, cleanupCampus } from './campusPaths.js?v=443'; import { installStreetscape } from './streetV2.js?v=443'; import { installCampusGrounds } from './campusGrounds2008.js?v=443'; import { installHudV2, tickHudV2 } from './hudV2.js?v=443'; import { installPartnerRadio, tickPartnerRadio } from './partnerRadio.js?v=443';
+import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, setAudioHidden, sfxCtx, setSfxBusyCheck, setSpace, tickNight } from './audio.js?v=443'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=443'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera, perfInstanceSource } from './perfStabilizer.js?v=443'; window.__perfInst = perfInstanceSource; import { upgradePlainMaterials } from './plainUpgrade.js?v=443'; import { relayCampusPaths, cleanupCampus } from './campusPaths.js?v=443'; import { installStreetscape } from './streetV2.js?v=443'; import { installCampusGrounds } from './campusGrounds2008.js?v=443'; import { installHudV2, tickHudV2 } from './hudV2.js?v=443'; import { installPartnerRadio, tickPartnerRadio } from './partnerRadio.js?v=443';
 import { installRoomUI } from './roomUI.js?v=443';   // 방별 현장 조사 카드 · 상호작용 아이콘 · 획득/목표 애니메이션
 import { furnishRooms } from './furnishV2.js?v=443';
 import { installInteractionsPlus } from './interactionsPlus.js?v=443';   // 생활 상호작용 보강 (분리수거함 · 청소함 · 창밖 · 커튼 · 학급 게시판 · 수업 종 · 카세트 데크 · 정수기)   // 방 용도별 실사 가구 보강 (상담실 소파 · 교무실 냉온수기 · 창고 선반 …)
@@ -215,7 +215,7 @@ renderer.setPixelRatio(Math.min(devicePixelRatio, 1.75));
 // 내장 그래픽(Intel UHD/Iris Xe · AMD Vega · Apple) 감지: 처음 실행(자동 품질)이면 'iGPU / 저사양' 경로를 기본으로 — 사용자가 고른 값은 건드리지 않는다
 const GPU_INFO = ENGINE.webgpu ? detectIntegrated(null) : detectIntegrated(renderer);
 if (/[?&]igpu\b/.test(location.search)) SET.quality = 'igpu';   // 테스트용 강제
-else if (!SET.igpuSeen) { if (GPU_INFO.integrated && SET.quality === 'auto') SET.quality = 'igpu'; SET.igpuSeen = true; try { saveSET(); } catch (e) { /* ignore */ } }
+else if (!SET.igpuSeen) { if ((GPU_INFO.integrated || (navigator.deviceMemory && navigator.deviceMemory <= 4) || (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4)) && SET.quality === 'auto') SET.quality = 'igpu'; SET.igpuSeen = true; try { saveSET(); } catch (e) { /* ignore */ } }
 // GPU 확인: 브라우저 하드웨어 가속이 꺼져 소프트웨어 렌더러(SwiftShader · llvmpipe)로 그리면 안내한다
 { const gl = renderer.getContext(), ext = !ENGINE.webgpu && gl && gl.getExtension ? gl.getExtension('WEBGL_debug_renderer_info') : null, gpu = ENGINE.webgpu ? 'WebGPU' : ext ? String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL)) : '';
   window.__gpu = gpu; window.__gpuSoftware = /swiftshader|llvmpipe|software|basic render/i.test(gpu);
@@ -586,6 +586,7 @@ function say(text, ms = 3000) {
   }, ms);
 }
 setInterval(() => {
+  if (document.hidden) return;
   if (_sayQueue.length && !isDialogueActive() && !$('msg')?.classList.contains('show')) {
     const nx = _sayQueue.shift(); say(nx.text, nx.ms);
   }
@@ -3718,7 +3719,8 @@ function paceTick(now) {
 function frame(now) {
   requestAnimationFrame(frame);
   paceTick(now);
-  const cap = SET.fpsCap ?? 60;
+  if (document.hidden) return;   // 숨겨진 탭: 브라우저가 rAF 를 늦추더라도 본문은 돌리지 않는다
+  const cap = (state === 'menu' || state === 'paused') && !NORENDER ? Math.min(30, SET.fpsCap || 30) : (SET.fpsCap ?? 60);   // 타이틀 · 일시정지: 30fps 로 충분
   if (cap > 0 && !NORENDER) { PACE.div = Math.max(1, Math.round(1000 / PACE.vs / cap - .15)); if (++PACE.count % PACE.div) return; } else PACE.div = 1;
   perfFrameBegin();
   try { frameBody(now); }
@@ -9251,6 +9253,7 @@ auditAndFixFurnitureAndQuality();
 try { console.info('[캠퍼스 재배치]', relayoutCampus({ scene, floors, world })); } catch (e) { console.error('[campus relayout]', e); }
 try { installFacilityRebuild({ THREE, scene, floors, world }); } catch (e) { console.error('[facility rebuild]', e); }
 initSaveIds();
+document.addEventListener('visibilitychange', () => setAudioHidden(document.hidden));   // 숨겨진 탭: 오디오 그래프 정지 (CPU 절약)
 applyQuality(SET.quality === 'auto' ? 'mid' : SET.quality);   // 자동: 보통(해상도 1배)에서 시작해 여유가 있으면 올린다 (높음 1.5배로 시작하면 저사양에서 처음부터 버벅였다)
 applySettings();
 // 로딩 화면을 즉시 닫고(동기식), 텍스처 예산·성능 풀·모델 로드는 백그라운드에서 비동기로 진행한다 (초기 로딩 멈춤 원천 차단)
@@ -9609,7 +9612,7 @@ applyChar(); refreshTitle();
 
 // 휴대폰 · 무전기 HUD: 시계 · 배터리 · 신호(실내는 약함) / 무전 수신(초록) · 송신(빨강) 표시
 function devRadio(st, who) { const w = $('dvWt'); if (!w) return; w.classList.toggle('rx', st === 'rx'); w.classList.toggle('tx', st === 'tx'); $('dvWtTxt').textContent = st === 'rx' ? `수신 중 — ${who}` : st === 'tx' ? `송신 중 — ${who}` : '대기 중'; if (st === 'rx' && sfx.staticNoise) try { sfx.staticNoise(.12); } catch (e) {} }
-setInterval(() => { if (!$('hud').classList.contains('show')) return; try {
+setInterval(() => { if (document.hidden || !$('hud').classList.contains('show')) return; try {
   $('dvClock').textContent = clockText(); $('dvBat').textContent = `🔋 ${Math.round(P.pbat ?? 100)}%`; $('dvPKey').textContent = (K().phone || 'KeyP').replace('Key', '');
   const sig = P.floor === 4 ? 0 : (RBG && RBG.inBuilding && RBG.inBuilding(P.x, P.z)) ? 2 : 4; [...$('dvSig').children].forEach((b, i) => b.classList.toggle('on', i < sig)); } catch (e) {} }, 500);
 try { installPartnerRadio({ P, FL, char: () => CHAR, state: () => state, busy: isDialogueActive, speak, subtitle, chapter: () => objective().ch, introDone: () => introDone, inside: () => !!(RBG && RBG.inBuilding && RBG.inBuilding(P.x, P.z)), radio: devRadio }); } catch (e) { console.warn('[partner radio]', e); }

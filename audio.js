@@ -751,3 +751,7 @@ for (const k of ANOMALY_SFX) {
 // 사용자 제공 패치 모듈(자체 Web Audio 합성음)이 쓰는 컨텍스트: 게임 오디오 컨텍스트를 그대로 주되, 출력(destination)은 효과음 버스로 —
 // 설정의 마스터 · 효과음 볼륨이 패치 소리에도 적용된다
 export const sfxCtx = new Proxy({}, { get(_, k) { if (!ac) initAudio(); if (!ac) return undefined; if (k === 'destination') return bus.sfx; const v = ac[k]; return typeof v === 'function' ? v.bind(ac) : v; } });
+
+// 숨겨진 탭에서는 AudioContext 를 멈춘다 (이미 만들어져 실행 중일 때만 — 사용자 제스처 전에는 만들지 않는다)
+let hiddenSusp = false;
+export function setAudioHidden(h) { try { if (!ac) return; if (h) { if (ac.state === 'running') { hiddenSusp = true; ac.suspend(); } } else if (hiddenSusp) { hiddenSusp = false; ac.resume().catch(() => {}); } } catch (e) { /* ignore */ } }

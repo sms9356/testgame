@@ -1,17 +1,17 @@
 // 폐교 월드 빌더 — 레퍼런스(배치도/정문/교실/소품 시트)를 기반으로 학교 전체를 절차적으로 생성한다.
 import * as THREE from './vendor/three.module.js';
 import * as T from './tex.js';
-import * as PT from './rebuild/periodTex.js?v=449';
+import * as PT from './rebuild/periodTex.js?v=450';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { buildGuardAnnex, buildDutyRoom, ANNEX as GANX } from './guardAnnex.js?v=449';
-import { NOTES } from './story.js?v=449';
+import { buildGuardAnnex, buildDutyRoom, ANNEX as GANX } from './guardAnnex.js?v=450';
+import { NOTES } from './story.js?v=450';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { buildSafe } from './safeModel.js?v=449';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=449';
+import { buildSafe } from './safeModel.js?v=450';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=450';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -3940,7 +3940,13 @@ export function buildWorld(scene) {
     add(mWhite, .6, H, .6, -38.4 + 1.75, 0, 16.98, { col: true }); add(mDkW, .62, 1.0, .62, -38.4 + 1.75, 0, 16.98);
     plane(F.interior, new THREE.MeshBasicMaterial({ map: T.makeSign('건강한 식사 · 행복한 하루', '#f2ece0', '#3a2416', 18), color: 0xd8d4c8 }), .9, .6, -45.0, 2.6, kz + .11);
     addMedkit(x1 - t - .3, .87, 18.35); addNote('n13', -41.9, .74, 16.75); tapeRecorder('ts_cook', -41.2, .74, 16.8, .4);
-    addBattery(-34.9, .74, 18.65);
+    addBattery(-34.9, .74, 18.65);   // 식탁 상판(.74) 위 — 떠 있지 않음
+    // [2008 급식실 디테일] 우유 급식 상자(플라스틱 크레이트) · 급식 당번표 · 수저 소독 보관함 · 잔반 줄이기 표어
+    { const mCrate = S(null, { color: 0xd8c040, roughness: .55 }), mMilk = S(null, { color: 0xf0eee8, roughness: .5 });
+      for (let k = 0; k < 2; k++) { add(mCrate, .5, .3, .36, -30.62, k * .3, 21.05, { col: !k }); for (let q = 0; q < 6; q++) add(mMilk, .06, .1, .06, -30.79 + (q % 3) * .17, k * .3 + .2, 20.96 + ((q / 3) | 0) * .18); } }   // 대걸레 양동이(facilityDetail2 · z 19.3~19.9)와 겹치지 않게 남동 구석
+    plane(F.interior, new THREE.MeshStandardMaterial({ map: T.makeSign('10월 급식 당번 — 1학년 3반 · 2학년 5반 · 3학년 1반', '#f4f0e4', '#2a2a2a', 16), roughness: .7 }), 1.2, .5, x1 - t - .02, 1.75, 19.9, -Math.PI / 2);
+    add(mSS, .5, .26, .3, -31.9, .9, z0 + .4);   // 수저 소독 보관함 (배식 보조대 위)
+    plane(F.interior, new THREE.MeshStandardMaterial({ map: T.makeSign('잔반 ZERO — 먹을 만큼만 담아요', '#e8f0d8', '#2a5a2a', 18), roughness: .7 }), 1.25, .35, -42.3, 2.6, z1 - t - .02, Math.PI);
     for (let k = 0; k < 8; k++) { const m = new THREE.Mesh(new THREE.PlaneGeometry(.28, .2), mDirtPaper); m.rotation.set(-Math.PI / 2, 0, rnd() * 6); m.position.set(rr(-46, -33), .02, rr(12.5, 21)); F.interior.add(m); }
     add(mLockerT, .62, 1.85, .55, -47.2, 0, 21.2, { col: true }); add(mLockerT, .62, 1.85, .55, -46.54, 0, 21.2, { col: true });
     lockers.push({ floor: 7, x: -47.2, z: 20.6, y: 140, dir: { x: 0, z: -1 } });
@@ -4230,7 +4236,7 @@ export function buildWorld(scene) {
     const on = rnd() < .55, fx = Math.sin(ry) * .55, fz = Math.cos(ry) * .55;
     props.push({ kind: 'switch', floor: cur.f, x: x + fx, z: z + fz, px: x, pz: z, y: 1.3, room, on, key, led, name, label: '형광등 스위치' });
   }
-  function ball(x, z, mat) { const b = new THREE.Mesh(new THREE.SphereGeometry(.12, 10, 8), mat); b.position.set(x, .12, z); cur.interior.add(b); }
+  function ball(x, z, mat, y = 0) { const b = new THREE.Mesh(new THREE.SphereGeometry(.12, 10, 8), mat); b.position.set(x, y + .12, z); cur.interior.add(b); }
 
   function buildGym() {
     const F = areaFloor(5, 60), x0 = 28, x1 = 48, z0 = 8, z1 = 30, H = 8, t = .3;
@@ -4347,7 +4353,7 @@ export function buildWorld(scene) {
     col(22.5, 23.9, 23.9, 24.9);
     // 농구공 보관 철제 카트
     add(mMetal, 1.3, .85, .8, 26.2, 0, 24.2, { col: true });
-    for (let b = 0; b < 6; b++) ball(25.8 + (b % 3) * .38, 24.0 + ((b / 3) | 0) * .35, mBall);
+    for (let b = 0; b < 6; b++) ball(25.8 + (b % 3) * .38, 24.0 + ((b / 3) | 0) * .35, mBall, .73);   // 카트(높이 .85) 속에 묻혀 있던 공 → 바구니 안쪽 윗부분에 담긴 모양
     areaLamp(24, 15.5, gH - .3, 'gym'); areaLamp(24, 23.0, gH - .3, 'gym');
 
     // 기록석, 전광판 (코트 서쪽)
@@ -4357,7 +4363,7 @@ export function buildWorld(scene) {
     cur.photoHere = true; addPhoto('p2', 36.2, 1.1, 11.9, .3);
     for (let k = 0; k < 5; k++) { const b = new THREE.Mesh(new THREE.SphereGeometry(.12, 16, 12), mBall); b.position.set(rr(31, 42), .12, rr(14, 27)); b.rotation.set(rnd() * 3, rnd() * 3, 0); cur.interior.add(b); }
     // 코트 주변 기구
-    add(mMetal, 1, .9, .8, 30.4, 0, 14.5, { col: true }); [0, 1, 2].forEach(k => ball(30.1 + k * .3, 14.5, mBall));
+    add(mMetal, 1, .9, .8, 30.4, 0, 14.5, { col: true }); [0, 1, 2].forEach(k => ball(30.1 + k * .3, 14.5, mBall, .9));   // 용구함(높이 .9) 속에 박혀 있던 공 → 윗면
     add(mBlue, 1.6, .5, .8, 25.8, 0, 21.4, { col: true }); add(mGreen, 1.5, .4, .8, 25.8, .5, 21.4);
     add(mWood, .8, .5, .5, 31.5, 0, 25.5, { col: true }); add(mWood, .8, .3, .5, 31.5, .5, 25.5);
     add(mWood, .4, .45, 2.2, 33.5, 0, 28.3, { col: true });
@@ -4369,7 +4375,19 @@ export function buildWorld(scene) {
     // 기구함 사물함 (파밍용)
     for (let k = 0; k < 3; k++) add(mLockerT, .55, 1.85, .62, x0 + t + .28, 0, 24.2 + k * .66, { col: true });
     lockers.push({ floor: 5, x: x0 + t + .28, z: 24.86, y: 60, dir: { x: 1, z: 0 } });
-    addMedkit(25.8, .92, 21.4); addBattery(42.5, 0, 28.4);
+    addMedkit(33.5, .45, 28.0); addBattery(42.5, 0, 28.4);   // 구급상자: 용구실 매트 더미 위(옆 선반 · 사물함 사이라 장 속에 박힌 듯 보였다) → 코트 출구 옆 긴 나무 벤치 위
+    // [2008 체육관 디테일] 보건 비상 안내 · 기록석 출석부 · 호루라기 · 스톱워치 · 줄넘기 묶음 · 체력장 기록판 · 국기 액자 · 대걸레 · 무대 앞 접이식 의자 더미
+    plane(F.interior, new THREE.MeshBasicMaterial({ map: T.makeSign('응급 시 보건실 (본관 1층) · 구급상자 비치', '#f2f0ea', '#b01c1c', 18), color: 0xd8d4cc }), 1.3, .26, 33.5, 2.1, z1 - t - .03, Math.PI);
+    { const mClip = S(null, { color: 0x6a4a2a, roughness: .7 }), mPaperW = S(null, { color: 0xe8e2d0, roughness: .9 });
+      add(mClip, .24, .012, .32, 29.15, .8, 20.9, { ry: .2 }); add(mPaperW, .21, .006, .28, 29.15, .812, 20.92, { ry: .2 });   // 기록석 출석부 (클립보드)
+      add(S(null, { color: 0xc0c4c8, metalness: .7, roughness: .3 }), .06, .03, .03, 29.6, .8, 20.75);   // 호루라기
+      cyl(S(null, { color: 0x1c1c1e, roughness: .5 }), .035, .02, 29.75, .8, 21.0);   // 스톱워치
+      for (let k = 0; k < 4; k++) add(S(null, { color: [0xc83030, 0x2a5ab0, 0xd8b020, 0x2a8a4a][k], roughness: .6 }), .03, .02, .5, 23.0 + k * .05, .8, 24.4, { ry: k * .08 });   // 줄넘기 묶음 (뜀틀 윗면)
+      plane(F.interior, new THREE.MeshStandardMaterial({ map: T.makeSign('2008 2학기 체력장 기록 — 오래달리기 · 윗몸일으키기 · 제자리멀리뛰기', '#f0ece0', '#24303a', 14), roughness: .8 }), 1.6, .9, 22.8, 1.6, gz1 - t - .03, Math.PI);
+      plane(F.interior, new THREE.MeshStandardMaterial({ map: T.makeSign('국기에 대한 경례', '#f4f2ec', '#1a2a5a', 22), roughness: .6 }), 1.4, .9, 38, 5.3, z0 + t + .1);
+      cyl(mWoodDark, .02, 1.3, 28.55, 0, 25.0); add(S(null, { color: 0x8a8478, roughness: 1 }), .12, .12, .3, 28.55, 0, 25.0);   // 대걸레 (서벽 화장실 옆)
+      for (let k = 0; k < 6; k++) add(mDarkMetal, .45, .03, .5, 47.1, k * .035, 13.0, { ry: k * .04 });   // 무대 앞 동쪽 구석 접힌 철제 의자 더미
+    }
     [33, 38, 43].forEach(x => [12, 17, 22, 27].forEach(z => areaLamp(x, z, H - .9, 'gym'))); lightSwitch(39.6, z1 - t - .02, Math.PI, 'gym', '체육관');
     const xs = [33, 38, 41], zs = [14, 20, 26];
     xs.forEach(x => zs.forEach(z => F.nodes.push({ x, z })));
@@ -4543,7 +4561,13 @@ export function buildWorld(scene) {
     // 안전요원 의자 (플라스틱)
     const chairP = merge([bx(.42, .04, .42, 0, .44, 0), bx(.42, .4, .03, 0, .66, .2), ...[[-.18, -.18], [.18, -.18], [-.18, .18], [.18, .18]].map(([a, b]) => tube(.016, a, 0, b, a, .44, b))]);
     [[-36.9, 45.6, 2.6], [-47.6, 31.3, .3]].forEach(([x, z, r]) => meshAt(chairP, mWhiteP, x, 0, z, r));
-    add(mWood, .5, .45, 2.2, -35.2, 0, 40.4, { col: true }); addNote('n10', -35.2, .47, 40.0); addMedkit(-35.2, .47, 41.0);
+    add(mWood, .5, .45, 2.2, -35.2, 0, 40.4, { col: true }); addNote('n10', -35.2, .47, 40.0); addMedkit(-35.2, .47, 41.0);   // (벤치 윗면 .45 위 — 바닥에서 재면 0.5m 위지만 떠 있는 것 아님)
+    // [2008 수영장 디자인] 이용 수칙 게시판 · 수질 측정 기록부 · 수영모 바구니 · 벽 시계 아래 잔류염소 측정 키트
+    sign('수영장 이용 수칙 — 1. 입수 전 샤워  2. 수영모 착용  3. 안전요원 없을 때 입수 금지  4. 식후 30분 휴식', '#f2f0e8', '#1a3a6a', 14, 1.2, 1.5, x1 - t - .02, 1.9, 43.8, -Math.PI / 2);
+    add(S(null, { color: 0x2a4a2a, roughness: .7 }), .22, .025, .3, -35.55, .94, 35.38, { ry: .15 });   // 수질 측정 기록부 (데스크 위)
+    { const mBsk = S(null, { color: 0x3a7ac0, roughness: .6 }); add(mBsk, .42, .3, .34, -34.62, 0, 33.0, { col: true });
+      for (let k = 0; k < 5; k++) { const c = new THREE.Mesh(new THREE.SphereGeometry(.07, 8, 6, 0, Math.PI * 2, 0, Math.PI / 2), S(null, { color: pick([0xd8d8d0, 0x1a2a6a, 0xc02828, 0xd8b020]), roughness: .4 })); c.position.set(-34.75 + (k % 3) * .12, .3, 32.92 + ((k / 3) | 0) * .14); F.interior.add(c); } }
+    add(S(null, { color: 0xe8e4d8, roughness: .5 }), .18, .1, .1, -35.0, .94, 34.0);   // 잔류염소 측정 키트 (시약병 케이스)
     blood('drag', -41.5, .02, 46.8, 1.6, .3, true);
     // 수영장 장비 보관함 (북서쪽: 킥보드 · 레인 줄 릴 · 구명 튜브 'GUARD')
     { const sx = -48.3, sz = 48.6; shelf3D(sx, sz, Math.PI / 2, 2.2, 1.9, .5, 4, 0);

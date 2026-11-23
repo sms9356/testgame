@@ -4,10 +4,10 @@
 //   전기(분전반 · 2등용 형광등 · 콘센트 · 스위치) · 소방(소화전함 · 소화기 · 감지기 · 유도등 · 방화문) · 수도(세면대 · 배관)
 import * as THREE from '../vendor/three.module.js';
 import { mergeGeometries } from '../vendor/addons/utils/BufferGeometryUtils.js';
-import { makeFlag } from '../tex.js?v=447';
-import * as PT from './periodTex.js?v=447';
-import { collectRefs, dedupeMaterials, batchStaticChildren } from './staticBatch.js?v=447';
-import { classInfo, weekDuty, cleaningRota, shortSubj, DAYS, PERIOD_TIME } from './classData.js?v=447';
+import { makeFlag } from '../tex.js?v=448';
+import * as PT from './periodTex.js?v=448';
+import { collectRefs, dedupeMaterials, batchStaticChildren } from './staticBatch.js?v=448';
+import { classInfo, weekDuty, cleaningRota, shortSubj, DAYS, PERIOD_TIME } from './classData.js?v=448';
 // 교실 앞면 꾸밈 공용 (반 이름 · 텍스처 캐시)
 let flagTex = null; const decorTex = new Map();
 // 2008년 10월 복도 게시물 (현재 시점 — 1998 사건 증거물과 구분)
@@ -733,10 +733,14 @@ export function buildMainBuilding(opt = {}) {
         g.fillStyle = '#1a1a1a'; for (let i = 0; i < 60; i++) { const a = i / 60 * Math.PI * 2, r1 = c * (i % 5 ? .9 : .82); g.save(); g.translate(c, c); g.rotate(a); g.fillRect(i % 5 ? -2 : -6, -c * .96, i % 5 ? 4 : 12, c * .96 - r1); g.restore(); }
         g.font = `bold ${w * .1 | 0}px sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle'; for (let h = 1; h <= 12; h++) { const a = h / 12 * Math.PI * 2; g.fillText(String(h), c + Math.sin(a) * c * .68, c - Math.cos(a) * c * .68); }
         g.font = `${w * .04 | 0}px sans-serif`; g.fillText('서린고등학교', c, c * 1.38);
-        const hand = (a, len, wd, col) => { g.save(); g.translate(c, c); g.rotate(a); g.fillStyle = col; g.fillRect(-wd / 2, -len, wd, len + c * .1); g.restore(); };
-        hand((10 + 12 / 60) / 12 * Math.PI * 2, c * .48, 16, '#151515'); hand(12 / 60 * Math.PI * 2, c * .74, 10, '#151515'); hand(38 / 60 * Math.PI * 2, c * .8, 3, '#b01818');   // 멈춘 듯한 10:12
         g.fillStyle = '#151515'; g.beginPath(); g.arc(c, c, 14, 0, 7); g.fill(); }, 'facadeClock', true);
       face.material.alphaTest = .5; face.position.set(cx, cy, zw + .112); face.name = 'RB_facadeClock'; face.userData.noCull = true; root.add(face);
+      // 바늘: 문자판 위 별도 메시 — 1초에 한 번만 갱신 (게임 시계 10월 밤 23:40 부터 실시간 x5 로 천천히 간다)
+      { const hm = new THREE.MeshStandardMaterial({ color: 0x151515, roughness: .6 }), rm = new THREE.MeshStandardMaterial({ color: 0xb01818, roughness: .6 });
+        const mk = (len, wd, m, dz) => { const pv = new THREE.Group(); pv.position.set(cx, cy, zw + .118 + dz); const bar = new THREE.Mesh(new THREE.BoxGeometry(wd, len + .05, .008), m); bar.position.y = len / 2 - .025; bar.userData.noCull = true; pv.add(bar); pv.name = 'RB_facadeClockHand'; root.add(pv); return pv; };
+        const hH = mk(R * .48, .035, hm, 0), hM = mk(R * .74, .022, hm, .004), hS = mk(R * .8, .008, rm, .008), t0 = performance.now(), base = 23 * 3600 + 40 * 60;
+        const tick = () => { const t = (base + (performance.now() - t0) / 1000 * 5) % 43200; hH.rotation.z = -t / 43200 * Math.PI * 2; hM.rotation.z = -(t % 3600) / 3600 * Math.PI * 2; hS.rotation.z = -(t % 60) / 60 * Math.PI * 2; };
+        tick(); root.userData.clockTick = tick; setInterval(tick, 1000); }
       const glass = new THREE.CylinderGeometry(R - .05, R - .05, .004, 40); glass.rotateX(Math.PI / 2); glass.translate(cx, cy, zw + .13); G('glass', glass); }
     const LTR = opt.letters ?? null;   // (예전: 남쪽 파라펫 금속 글자 — 맨 위층 현판으로 옮겼다)
     if (LTR) { const txt = LTR, W = Math.min(coreR.x2 - coreR.x1 - 1.2, txt.length * 1.05), H = .78, cx = (coreR.x1 + coreR.x2) / 2;

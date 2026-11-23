@@ -5,11 +5,11 @@
 //   재질: F-01 ~ F-05 바닥 · W-01 ~ W-05 벽 · C-01 ~ C-04 천장 (Poly Haven CC0 실사 스캔 텍스처, assets/tex/fac_* · 미터 단위 UV)
 import * as THREE from './vendor/three.module.js';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { whenIdle, idleTimeout, idleInterval, setIdleProbe } from './idleTasks.js?v=447';
-import { pbr } from './tex.js?v=447';
-import { placeModels } from './rebuild/models.js?v=447';
-import * as PT from './rebuild/periodTex.js?v=447';
-import { installFacilityDetail2 } from './facilityDetail2.js?v=447';   // 본관 · 별관과 같은 시대 재질 (데코타일 · 인조석 · 걸레받이 · 외벽 풍화) — 모듈 캐시로 한 벌만 만든다
+import { whenIdle, idleTimeout, idleInterval, setIdleProbe } from './idleTasks.js?v=448';
+import { pbr } from './tex.js?v=448';
+import { placeModels } from './rebuild/models.js?v=448';
+import * as PT from './rebuild/periodTex.js?v=448';
+import { installFacilityDetail2 } from './facilityDetail2.js?v=448';   // 본관 · 별관과 같은 시대 재질 (데코타일 · 인조석 · 걸레받이 · 외벽 풍화) — 모듈 캐시로 한 벌만 만든다
 
 const FH = 3.6, CEIL = 2.9, WALL_T = .24, LIN = .06;
 const TL = new THREE.TextureLoader(), TEX = {};
@@ -420,9 +420,10 @@ const FURN = {
     B.box(w, .03, d, top, x, y + h - .015, z, { ry }); B.box(w - .06, .3, .02, 'GREYSTEEL', x + s * (d / 2 - .04), y + h - .2, z + c * (d / 2 - .04), { ry });
     [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([a, b]) => { const lx = a * (w / 2 - .04), lz = b * (d / 2 - .04); B.box(.035, h - .03, .035, 'GREYSTEEL', x + lx * c + lz * s, y + (h - .03) / 2, z - lx * s + lz * c); });
     const hw = (Math.abs(c) * w + Math.abs(s) * d) / 2, hd = (Math.abs(s) * w + Math.abs(c) * d) / 2; B.col(x - hw, x + hw, z - hd, z + hd, { lvl, h }); },
-  chair(B, x, z, ry = 0, lvl = 0, seat = 'FABRIC', w = .45, d = .5, h = .8) { const y = lvl * FH, c = Math.cos(ry), s = Math.sin(ry), sh = .45;
+  chair(B, x, z, ry = 0, lvl = 0, seat = 'FABRIC', w = .45, d = .5, h = .8, solid = false) { const y = lvl * FH, c = Math.cos(ry), s = Math.sin(ry), sh = .45;
     B.box(w, .05, d - .04, seat, x, y + sh, z, { ry }); B.box(w, h - sh - .05, .04, seat, x - s * (d / 2 - .03), y + sh + (h - sh) / 2, z - c * (d / 2 - .03), { ry });
-    [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([a, b]) => { const lx = a * (w / 2 - .03), lz = b * (d / 2 - .05); B.box(.022, sh, .022, 'FRAME', x + lx * c + lz * s, y + sh / 2, z - lx * s + lz * c); }); },
+    [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([a, b]) => { const lx = a * (w / 2 - .03), lz = b * (d / 2 - .05); B.box(.022, sh, .022, 'FRAME', x + lx * c + lz * s, y + sh / 2, z - lx * s + lz * c); });
+    if (solid) { const hw = (Math.abs(c) * w + Math.abs(s) * d) / 2, hd = (Math.abs(s) * w + Math.abs(c) * d) / 2; B.col(x - hw, x + hw, z - hd, z + hd, { lvl, h: .5 }); } },
   table(B, x, z, w, d, h, lvl = 0, top = 'LPM', leg = 'GREYSTEEL', ry = 0) { const y = lvl * FH, c = Math.cos(ry), s = Math.sin(ry);
     B.box(w, .035, d, top, x, y + h - .018, z, { ry }); B.box(w - .1, .06, d - .1, leg, x, y + h - .07, z, { ry });
     [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([a, b]) => { const lx = a * (w / 2 - .08), lz = b * (d / 2 - .08); B.box(.05, h - .04, .05, leg, x + lx * c + lz * s, y + (h - .04) / 2, z - lx * s + lz * c); });
@@ -546,7 +547,7 @@ function buildDorm(ctx, Z) {   // 청운학사 22 × 14m · 2층 (기숙사 · �
   // 공용부엌: 싱크대 2400 · 냉장고 · 상부장
   { const r = byName(R0, '공용부엌'), cx = (r.x1 + r.x2) / 2; F.sinkCounter(B, cx, r.z1 + .4, 0, 0); B.box(2.4, .7, .35, 'WHITE', cx, 1.9, r.z1 + .24); F.cabinet(B, r.x2 - .45, r.z1 + 1.7, -Math.PI / 2, 0, .7, .7, 1.8, 'WHITE', 2); F.table(B, cx, r.z2 - 1.2, 1.2, .7, .76, 0, 'LPM'); }
   // 식당 · 라운지: 식탁 2 (1800×900) + 의자 4
-  { const r = byName(R0, '식당 · 라운지'), cz = (r.z1 + r.z2) / 2 + .4; [r.x1 + 3.4, r.x1 + 6.6].forEach(x => { F.table(B, x, cz, 1.8, .9, .75, 0, 'LPM'); [-1, 1].forEach(s => F.chair(B, x + s * .45, cz + .75, Math.PI, 0)); }); B.model('sf_sofa', r.x2 - 1.4, 0, r.z2 - .55, Math.PI); B.col(r.x2 - 2.4, r.x2 - .4, r.z2 - 1.0, r.z2 - .1, { h: .45 }); }
+  { const r = byName(R0, '식당 · 라운지'), cz = (r.z1 + r.z2) / 2 + .4; [r.x1 + 3.4, r.x1 + 6.6].forEach(x => { F.table(B, x, cz, 1.8, .9, .75, 0, 'LPM'); [-1, 1].forEach(s => F.chair(B, x + s * .45, cz + .75, Math.PI, 0, 'FABRIC', .45, .5, .8, true)); }); B.model('sf_sofa', r.x2 - 1.4, 0, r.z2 - .55, Math.PI); B.col(r.x2 - 2.4, r.x2 - .4, r.z2 - 1.0, r.z2 - .1, { h: .45 }); }
   // 로비 · 계단: 신발장 · 게시판
   { const r = byName(R0, '로비 · 계단'); F.shelf(B, r.x1 + 3.2, r.z2 - .3, Math.PI, 0, 2.4, .35, 1.2, 'WOOD', 4); B.box(1.4, .9, .02, 'CORK', r.x1 + 4.6, 1.6, r.z1 + .08); notice08(B, 1.3, .49, r.x1 + 4.6, 1.6, r.z1 + .095, 0);
     // 신발장 안 실내화 · 운동화 (칸마다 몇 켤레 비움) + 호실 안내 표지

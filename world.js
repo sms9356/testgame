@@ -1,17 +1,17 @@
 // 폐교 월드 빌더 — 레퍼런스(배치도/정문/교실/소품 시트)를 기반으로 학교 전체를 절차적으로 생성한다.
 import * as THREE from './vendor/three.module.js';
 import * as T from './tex.js';
-import * as PT from './rebuild/periodTex.js?v=451';
+import * as PT from './rebuild/periodTex.js?v=452';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { buildGuardAnnex, buildDutyRoom, ANNEX as GANX } from './guardAnnex.js?v=451';
-import { NOTES } from './story.js?v=451';
+import { buildGuardAnnex, buildDutyRoom, ANNEX as GANX } from './guardAnnex.js?v=452';
+import { NOTES } from './story.js?v=452';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { buildSafe } from './safeModel.js?v=451';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=451';
+import { buildSafe } from './safeModel.js?v=452';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=452';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -1286,7 +1286,7 @@ export function buildWorld(scene) {
       const safeBody = dyn(SM.body); safeBody.position.set(sx, 0, sz); cur.interior.add(safeBody);
       const piv = dyn(SM.piv); piv.userData.dial = SM.dial; piv.position.x += sx; piv.position.z += sz; cur.interior.add(piv);
       col(sx - .34, sx + .37, sz - .36, sz + .36);
-      addKey('office', 0, sx, .38, sz); const key = items[items.length - 1]; key.locked = true; key.mesh.visible = false;
+      addKey('office', 0, sx, .38, sz); const key = items[items.length - 1]; key.locked = true; key.inSafe = true; key.mesh.visible = false;
       props.push({ kind: 'safe', floor: cur.f, x: sx + .9, z: sz, piv, body: safeBody, key, open: 0, label: '금고 조사하기' }); }   // body: 새 건물로 옮길 때 금고 몸체도 함께
     addNote('n3', cx - 2.35, .77, -5.4); tapeRecorder('tape_homeroom', cx - 1.95, .77, -5.15, .25); if (!cur.annex && cur.f === 0) { tapeRecorder('ts_vice', cx + 2.62, .42, -3.22, -.3); tapeRecorder('ts_mother', cx + 1.78, .42, -3.28, .5); }
     papers(cx, -8, -2.4, 14);

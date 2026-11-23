@@ -279,7 +279,7 @@ const FOG_DAY = C_(0xa69a92), FOG_IN_DAY = C_(0x2c2a28), BG_DAY = C_(0x8d97a6);
 const SUN_POS = new THREE.Vector3(-150, 42, 70), MOON_POS = new THREE.Vector3(-40, 90, -120);
 const SUN_COL = C_(0xffc896), MOON_COL = C_(0x7f9ae0), HEMI_SKY_N = C_(0x8aa0d0), HEMI_SKY_D = C_(0xc8ccd4), HEMI_GND_N = C_(0x2a2018), HEMI_GND_D = C_(0x6a5a48);
 const _c1 = new THREE.Color();
-const flash = new THREE.SpotLight(0xfff0d0, 0, 30, 0.56, 0.82, 1.3);   // 가장자리를 부드럽게 (딱딱한 원 밖이 완전히 깜깜해 보이던 문제)
+const flash = new THREE.SpotLight(0xfff0d0, 0, 30, 0.56, 0.95, 1.3);   // 가장자리를 부드럽게 (딱딱한 원 밖이 완전히 깜깜해 보이던 문제)
 // 손전등 산란광: 빛이 벽 · 바닥에 튀어 주변이 희미하게 보이는 효과 (항상 장면에 있어 셰이더 재컴파일 없음)
 const spill = new THREE.PointLight(0xffe8cc, 0, 7, 2); camera.add(spill); spill.position.set(0, .1, -1.2);
 flash.position.set(0.12, -0.08, 0); flash.target.position.set(0, 0, -6);
@@ -292,7 +292,7 @@ if (!ENGINE.webgpu) { const c = document.createElement('canvas'); c.width = c.he
   g.putImageData(id, 0, 0); const tx = new THREE.CanvasTexture(c); tx.colorSpace = THREE.SRGBColorSpace; flash.map = tx; }
 camera.add(flash, flash.target);
 flash.castShadow = true; flash.shadow.mapSize.set(1024, 1024); flash.shadow.camera.near = .15; flash.shadow.camera.far = 26;
-flash.shadow.bias = -.0006; flash.shadow.normalBias = .03;
+flash.shadow.bias = -.0004; flash.shadow.normalBias = .06; flash.shadow.radius = 2.5;   // 천장 얼룩(shadow acne) · 핫스팟 완화: normalBias 상향 + PCF 반경 (비용 거의 없음)
 const pool = []; let envLum = 1;
 for (let i = 0; i < 4; i++) { const l = new THREE.PointLight(0xcfe6d6, 0, 12, 1.7); scene.add(l); pool.push(l); }
 let IGPU = false; const IGPU_FAR = 170, BASE_FAR = 320;

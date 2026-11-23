@@ -36,8 +36,8 @@ export function installInteractionsPlus({ THREE, scene, world, RBG, sfx, showNot
         add(b, x1 + 1.9, (z1 + z2) / 2, y0, 1.0, '교탁 서랍 열어 보기', p => { sfx.locker(); return POD[p.n++ % POD.length]; }, 1.3);
       }
       if (r.type === 'office' || /^교무실/.test(r.label)) {
-        // 수동 차임(수업 종) 스위치함: 복도 쪽 벽 · 캐비닛(서쪽) 옆 — 회색 철함 · 빨간 누름단추 · 「수업 종」 라벨
-        const lx = x1 + .9, lz = z1 + .02, [wx, wz] = b.toWorld(lx, lz), grp = new THREE.Group(); grp.position.set(wx, y0 + 1.45, wz); grp.name = 'PLUS_chime'; grp.userData.rbKeep = true;
+        // 수동 차임(수업 종) 스위치함: 교무실 앞문 서쪽 벽(x1~x1+.6)의 복도 쪽 면 · 복도를 본다 — 동쪽 벽은 열린 미닫이문이 밀려 들어가는 자리라 문짝에 가린다 (예전 x1+.9 는 앞문(x1+.6~1.6) 한가운데라 문 앞 허공에 떠 있었다) — 회색 철함 · 빨간 누름단추 · 「수업 종」 라벨
+        const lx = x1 + .3, lz = z1 - .21, [wx, wz] = b.toWorld(lx, lz), [fx, fz] = b.toWorld(lx, lz - 1), grp = new THREE.Group(); grp.position.set(wx, y0 + 1.45, wz); grp.rotation.y = Math.atan2(fx - wx, fz - wz); grp.name = 'PLUS_chime'; grp.userData.rbKeep = true;   // 복도 쪽 벽면(z1 - 벽 두께 .2 - 마감 .01)에 붙여 복도를 본다
         const boxM = new THREE.MeshStandardMaterial({ color: 0x9aa0a4, roughness: .5, metalness: .4 }), red = new THREE.MeshStandardMaterial({ color: 0xc02020, roughness: .4 });
         const bx = new THREE.Mesh(new THREE.BoxGeometry(.22, .3, .06), boxM); bx.position.z = .03; grp.add(bx);
         const bt = new THREE.Mesh(new THREE.CylinderGeometry(.03, .03, .025, 14), red); bt.rotation.x = Math.PI / 2; bt.position.set(0, -.04, .07); grp.add(bt);
@@ -45,8 +45,14 @@ export function installInteractionsPlus({ THREE, scene, world, RBG, sfx, showNot
         const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; const lb = new THREE.Mesh(new THREE.PlaneGeometry(.16, .06), new THREE.MeshStandardMaterial({ map: t, roughness: .7 })); lb.position.set(0, .08, .061); grp.add(lb);
         scene.add(grp);
         // 교무실 일정 칠판 (반대편 벽)
-        add(b, x2 - .9, z1 + 1.1, y0, 1.6, '교무실 일정 칠판 읽기', () => { sfx.paper(); showNote({ title: '교무실 일정 칠판', text: '10월 행사 — 12(일) 개교 기념 방송 리허설 · 야간 자율학습 감독 3학년부 김 교사 · 14(화) 중간고사 성적 입력 마감. 칠판 구석에 누군가 빨간 분필로 덧썼다: “12일 밤, 방송실 열쇠 확인할 것.”' }); return ''; }, 1.5);
-        add(b, lx, lz + .7, y0, 1.45, '수업 종 울리기 (차임 스위치)', p => { if (p.cd && performance.now() - p.cd < 8000) return '스위치가 아직 뜨겁다. 조금 있다가.'; p.cd = performance.now(); sfx.classBell(); P.fear = Math.min(1, (P.fear || 0) + .05);
+        { const bw = 2.0, bh = 1.0, cx = x2 - 1.5, [wx2, wz2] = b.toWorld(cx, z1 + .02), [ix, iz] = b.toWorld(cx, z1 + 1), sg = new THREE.Group(); sg.position.set(wx2, y0 + 1.5, wz2); sg.rotation.y = Math.atan2(ix - wx2, iz - wz2); sg.name = 'PLUS_schedBoard'; sg.userData.rbKeep = true;   // 칠판 몸체 (예전엔 조사 지점만 있고 칠판이 없었다): 복도 쪽 벽 · 뒷문 동쪽 통벽
+          const c2 = document.createElement('canvas'); c2.width = 512; c2.height = 256; const q2 = c2.getContext('2d'); q2.fillStyle = '#23402f'; q2.fillRect(0, 0, 512, 256); q2.fillStyle = '#e8e8dc'; q2.font = 'bold 30px sans-serif'; q2.fillText('10월 행사 일정', 24, 46); q2.font = '22px sans-serif';
+          ['12(일) 개교 기념 방송 리허설', '야자 감독 — 3학년부 김 교사', '14(화) 중간고사 성적 입력 마감'].forEach((l, i) => q2.fillText(l, 30, 96 + i * 38)); q2.fillStyle = '#e05a4a'; q2.font = 'italic 22px sans-serif'; q2.fillText('12일 밤, 방송실 열쇠 확인할 것', 200, 226);
+          const t2 = new THREE.CanvasTexture(c2); t2.colorSpace = THREE.SRGBColorSpace; const bd = new THREE.Mesh(new THREE.PlaneGeometry(bw, bh), new THREE.MeshStandardMaterial({ map: t2, roughness: .9 })); bd.position.z = .03; sg.add(bd);
+          const fm = new THREE.MeshStandardMaterial({ color: 0x8a6a44, roughness: .6 }); [[0, bh / 2 + .02, bw + .08, .04], [0, -bh / 2 - .02, bw + .08, .04], [bw / 2 + .02, 0, .04, bh], [-bw / 2 - .02, 0, .04, bh]].forEach(([x, y, w, h]) => { const f2 = new THREE.Mesh(new THREE.BoxGeometry(w, h, .05), fm); f2.position.set(x, y, .025); sg.add(f2); });
+          scene.add(sg); }
+        add(b, x2 - 1.5, z1 + .9, y0, 1.5, '교무실 일정 칠판 읽기', () => { sfx.paper(); showNote({ title: '교무실 일정 칠판', text: '10월 행사 — 12(일) 개교 기념 방송 리허설 · 야간 자율학습 감독 3학년부 김 교사 · 14(화) 중간고사 성적 입력 마감. 칠판 구석에 누군가 빨간 분필로 덧썼다: “12일 밤, 방송실 열쇠 확인할 것.”' }); return ''; }, 1.5);
+        add(b, lx, lz - .7, y0, 1.45, '수업 종 울리기 (차임 스위치)', p => { if (p.cd && performance.now() - p.cd < 8000) return '스위치가 아직 뜨겁다. 조금 있다가.'; p.cd = performance.now(); sfx.classBell(); P.fear = Math.min(1, (P.fear || 0) + .05);
           return p.n++ ? '빈 학교에 종소리가 퍼진다. 아무도 일어서지 않는다.' : '딩동댕동— 텅 빈 복도마다 수업 종이 울려 퍼졌다. 어딘가에서 의자 끄는 소리가 따라 났다.'; }, 1.2);
       }
     }

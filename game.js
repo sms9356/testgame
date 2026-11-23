@@ -1653,6 +1653,8 @@ function findInteract() {
   return best;
 }
 // 금고가 열리면 안의 증거 봉투(열쇠 꾸러미)를 바로 챙긴다 — 새 건물로 옮긴 금고 안 열쇠가 벽·몸체 속에 묻혀 조준이 안 돼 진행이 막히던 문제
+// 금고 속 열쇠를 금고 안(바닥 +.38)으로 되돌린다 — 로드 뒤 정리 루틴이 '가구 속에 묻힌 물건'으로 보고 닫힌 금고 윗면(0.96m)에 올려 두어, 문을 열면 열쇠가 금고 위에 나타났다
+function seatSafeKey(sp) { const it = sp && sp.key; if (!it || it.taken || !it.mesh || !it.pos) return; const base = sp.rbY ?? (floors[sp.floor] ? floors[sp.floor].y0 : 0), dy = base + .38 - it.pos.y; if (Math.abs(dy) < .1) return; it.pos.y += dy; it.mesh.position.y += dy; if (it.baseY != null) it.baseY += dy; }
 function takeSafeKey(sp, n = 0) { const it = sp && sp.key; if (!it || it.taken || got[it.idx]) return; if (state !== 'playing') { if (n < 40) setTimeout(() => takeSafeKey(sp, n + 1), 800); return; } const prev = target; target = { type: 'item', it }; try { interact(); } finally { target = prev; } }
 function interact() {
   if (!target) return;
@@ -2563,7 +2565,7 @@ function restoreProp(p, s) {
   if (p.kind === 'clue' && s.done) { p.done = true; p.mesh.visible = false; return; }
   if (!s.done) return;
   p.done = true;
-  if (p.kind === 'safe') { p.open = 1; p.opening = true; if (p.piv) p.piv.rotation.y = 1.95; p.key.locked = false; p.key.mesh.visible = !p.key.taken; if (!p.key.taken && !got[p.key.idx]) setTimeout(() => takeSafeKey(p), 3000); }
+  if (p.kind === 'safe') { seatSafeKey(p); p.open = 1; p.opening = true; if (p.piv) p.piv.rotation.y = 1.95; p.key.locked = false; p.key.mesh.visible = !p.key.taken; if (!p.key.taken && !got[p.key.idx]) setTimeout(() => takeSafeKey(p), 3000); }
   else if (p.kind === 'lock') openLockVisual(p);
   else if (p.kind === 'mina') { if (FL.mina) minaFollowStart(); else { mina.visible = false; minaProps.visible = false; } }
 }
@@ -4412,7 +4414,7 @@ function keypadCheck() {
   if (kpBuf === '1012') {
     kpOpening=true;
     $('kpDisp').textContent = 'O P E N'; $('kpDisp').className = 'ok'; sfx.unlock();
-    setTimeout(() => { if(!current())return;closeUI();targetPad.opening = true; targetPad.done = true; targetPad.key.locked = false; targetPad.key.mesh.visible = true; toast('금고가 열렸다', '안에 열쇠 조각이 있다'); talk('safeOpen', 3000); addClue('safe'); setTimeout(() => takeSafeKey(targetPad), 1400); }, 700);
+    setTimeout(() => { if(!current())return;closeUI();targetPad.opening = true; targetPad.done = true; if (typeof seatSafeKey === "function") seatSafeKey(targetPad); targetPad.key.locked = false; targetPad.key.mesh.visible = true; toast('금고가 열렸다', '안에 열쇠 조각이 있다'); talk('safeOpen', 3000); addClue('safe'); setTimeout(() => takeSafeKey(targetPad), 1400); }, 700);
   } else {
     $('kpDisp').textContent = 'E R R'; $('kpDisp').className = 'err'; sfx.buzz(); kpBuf = '';
     setTimeout(()=>{if(current())renderKeypad();}, 700);

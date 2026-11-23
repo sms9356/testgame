@@ -397,6 +397,10 @@ export function installRebuild({ THREE, scene, floors, world }) {
         for (const o of objsOf(p)) { const w = o.getWorldPosition(new THREE.Vector3()); group.attach(o); o.position.set(w.x + dx, sh + (w.y - oldY0), w.z + dz); o.visible = true; }
         if (p.key && p.key.pos) { const kx = wx - .9, ky = sh + .38; p.key.pos.set(kx, ky, wz); if (p.key.baseY != null) p.key.baseY = ky; p.key.floor = 0; p.key.rbY = sh; p.key._rb = true; if (p.key.mesh) { group.attach(p.key.mesh); p.key.mesh.position.set(kx, ky, wz); } }
         p.floor = 0; p.rbY = sh; p.x = wx; p.z = wz; p.y = Math.max(.05, p.y ?? 1); moved++; continue; }
+      const gSpot = p.kind === 'ganx' && p.key === 'main' && (MAIN.props || []).find(q => q.kind === 'ganxSpot');   // 교무실 숙직 서류함: 정해 둔 자리 (예전: 빈자리 무작위 → 행정실 의자 다리와 겹쳐 통로에)
+      if (gSpot) { const [wx, wz] = MAIN.toWorld(gSpot.x, gSpot.z), sh = gSpot.y ?? 0, dx = wx - p.x, dz = wz - p.z, oldY0 = FL_[p.floor]?.y0 || 0;
+        for (const o of objsOf(p)) { const w = o.getWorldPosition(new THREE.Vector3()); group.attach(o); o.position.set(w.x + dx, sh + (w.y - oldY0), w.z + dz); o.visible = true; }
+        p.floor = 0; p.rbY = sh; p.x = wx; p.z = wz; moved++; continue; }
       const tgt = pickRoom(p.floor, p.x, roomForLabel(p.label)); if (!tgt) { p.floor = park(p.floor); dropped++; continue; }
       const small = ['tape', 'clue', 'pick', 'case5', 'phone'].includes(p.kind) || (p.kind === 'robj' && p.k === 'radio');   // 벽걸이 무전기(robj radio)도 탁자 위로 — 바닥에 두면 아래 '초록 불빛 잔재 숨기기'가 화면(초록)째 숨겨 별관 기술실 무전기가 안 보였다   // 탁자 위에 놓이는 작은 소품: 증언 녹음기 · 쪽지/단서 · 줍는 물건 · 녹음기 · 전화
       const su = small && tgt.room ? surfaceIn(tgt.b, tgt.room, tgt.f) : null, s = su || spotAny(tgt.b, tgt.room, tgt.f);
@@ -439,7 +443,7 @@ export function installRebuild({ THREE, scene, floors, world }) {
   // ── 3단계: 이름에 방이 적힌 조사 지점(예: '2-4 교실 냉난방기', '교사휴게실 자판기')이 엉뚱한 방에 들어가 있으면 그 방으로 옮긴다 ──
   //   예전 방 비율로 옮기다 보니 '2-4 교실 …' 이 회의실에, '교사휴게실 …' 이 교실에 남던 것. 새 건물에 없는 방은 성격이 가까운 방으로.
   const ROOM_ALIAS = { '교사휴게실': '교사 휴게실', '휴게실': '교사 휴게실', '교무실': '교무실 · 행정실', '행정실': '교무실 · 행정실', '주조정실': '방송실', '방송편집실': '방송실', '방송실 장비실': '방송실',
-    '요리실': '가정실', '조리실': '가정실', '공구실': '기술실', '과학준비실': '과학준비실', '과학 준비실': '과학준비실', '언어실': '영어전용실', '스마트교실': '컴퓨터실', '전산실': '컴퓨터실', '양호실': '보건실', '보건실보조': '보건실', '도서관': '도서실', '독서실': '자율학습실', '학생회실': '학생회실', '세척실': '과학실', '어학실': '영어전용실' };
+    '요리실': '가정실', '조리실': '가정실', '공구실': '기술실', '과학준비실': '과학준비실', '과학 준비실': '과학준비실', '언어실': '영어전용실', '스마트교실': '컴퓨터실', '전산실': '컴퓨터실', '양호실': '보건실', '보건실보조': '보건실', '도서관': '도서실', '독서실': '자율학습실', '학생회실': '학생회실', '세척실': '과학실', '어학실': '영어전용실', '멀티미디어실': '컴퓨터실' };
   const allRooms = () => [MAIN, ANX].flatMap(b => (b.props || []).filter(p => p.kind === 'room' && !p.exit && p.x2 - p.x1 > 2.5).map(r => ({ b, r, name: r.label || r.name || '' })));
   const refOf = label => { const L = (label || '').replace(/^\[E\]\s*/, '');
     let m = L.match(/^(\d)-(\d)(?!\d)/) || L.match(/^(\d)학년\s?(\d)반/); if (m) return { tok: m[0], name: `${m[1]}학년 ${m[2]}반` };
@@ -522,7 +526,7 @@ export function installRebuild({ THREE, scene, floors, world }) {
       if (WALL.test(label || '')) { const fl = Math.max(0, Math.floor((bx.min.y + .05) / FH)) * FH, h = bx.min.y - fl; if (h > .7 && h < 2.2) return; }   // 벽에 걸린 높이(0.7~2.2m)면 그대로, 천장 · 바닥 아래로 빠진 것만 바로잡는다
       const s = bx.getSize(new THREE.Vector3()); if (s.y > 2.2 || Math.max(s.x, s.z) > 3) return; const c = bx.getCenter(new THREE.Vector3()), sup = supportAt(c.x, c.z, bx.min.y); if (sup == null) return;
       const dy = sup - bx.min.y; if (Math.abs(dy) < .03) return; for (const o of objs) o.position.y += dy; onDy && onDy(dy); n++; };
-    for (const p of W.props) { if ((p.rbY == null && !R.inBuilding(p.x, p.z)) || p.floor !== 0 || p.kind === 'bell' || p.kind === 'cbreaker' || p.visMesh || p.hang) continue;
+    for (const p of W.props) { if ((p.rbY == null && !R.inBuilding(p.x, p.z)) || p.floor !== 0 || p.kind === 'bell' || p.kind === 'cbreaker' || p.visMesh || p.hang || p._wall) continue;   // _wall: 벽에 건 방 장치(수화기 · 복사 카운터 · 단말기) — 예전엔 아래 바닥으로 떨어뜨려 정수기 속 · 바닥에 놓였다
       settle(objsOf(p), p.label, dy => { if (p.y != null) p.y = Math.max(.15, p.y + dy); }); }
     for (const it of W.items) { if ((it.rbY == null && !R.inBuilding(it.pos.x, it.pos.z)) || it.taken || it.floor !== 0 || !it.mesh || it.locked) continue;
       settle([it.mesh], it.label || it.kind, dy => { it.pos.y += dy; if (it.baseY != null) it.baseY += dy; }); }
@@ -917,7 +921,7 @@ export function installRebuild({ THREE, scene, floors, world }) {
       for (const o of objs) { if (o.parent !== group) group.attach(o); o.position.y += dy; } onMove && onMove(dy); up++;
     };
     // 가구 속에 박힌 아이템(구급상자 등) → 그 가구 윗면 위로 (1.3m 이하) 아니면 바깥 빈 바닥으로
-    for (const it of W.items) { if (it.taken || it.rbY == null || !it.mesh || it._emb) continue; it._emb = true; const bb = new THREE.Box3().setFromObject(it.mesh); if (bb.isEmpty()) continue;
+    for (const it of W.items) { if (it.taken || it.locked || it.rbY == null || !it.mesh || it._emb) continue;   /* locked: 잠긴 금고 속 열쇠 — 금고 윗면으로 올려 문을 열면 열쇠가 금고 위에 있었다 */ it._emb = true; const bb = new THREE.Box3().setFromObject(it.mesh); if (bb.isEmpty()) continue;
       for (const B of [MAIN, ANX]) { const [lx, lz] = B.toLocal(it.pos.x, it.pos.z); if (lx < -B.layout.L / 2 || lx > B.layout.L / 2 || lz < B.layout.zN || lz > B.layout.zS) continue;
         const c = B.col.find(c => c.y2 != null && c.y2 > bb.min.y + .03 && (c.y1 ?? 0) < bb.max.y - .03 && lx > c.x1 - .05 && lx < c.x2 + .05 && lz > c.z1 - .05 && lz < c.z2 + .05 && c.x2 - c.x1 < 3.5 && c.z2 - c.z1 < 3.5); if (!c) break;
         if (c.y2 < it.rbY + 1.3) { const dy = c.y2 + .004 - bb.min.y; if (it.mesh.parent !== group) group.attach(it.mesh); it.mesh.position.y += dy; it.pos.y += dy; if (it.baseY != null) it.baseY += dy; up++; break; }
@@ -965,11 +969,16 @@ export function installRebuild({ THREE, scene, floors, world }) {
     // 벽걸이 방 장치(robj: 인터폰 · 복사 카운터 · 단말기 · 약품함 · 감정 카드판 등)가 옛 벽 자리 허공에 떠 있던 것 → 새 방에서 가장 가까운 벽면에 붙이고 방 안쪽을 보게
     for (const p of W.props) { if (p._wall || p.kind !== 'robj' || p.rbY == null || !p.anim || !p.anim.g || p.k === 'light_switch' || p.k === 'radio' || p._drop) continue; p._wall = true;   // 무전기는 탁자 위에 둔다 (relocate)
       const rr = roomRect(p.x, p.z, p.rbY); if (!rr) continue; const { B, r } = rr, g = p.anim.g, wp = g.getWorldPosition(new THREE.Vector3()), [lx, lz] = B.toLocal(wp.x, wp.z);
-      const ed = [[lx - r.x1, 'x1'], [r.x2 - lx, 'x2'], [lz - r.z1, 'z1'], [r.z2 - lz, 'z2']].sort((a, b) => a[0] - b[0])[0][1];
-      let nx = ed === 'x1' ? r.x1 + .12 : ed === 'x2' ? r.x2 - .12 : Math.min(r.x2 - .6, Math.max(r.x1 + .6, lx)), nz = ed === 'z1' ? r.z1 + .12 : ed === 'z2' ? r.z2 - .12 : Math.min(r.z2 - .6, Math.max(r.z1 + .6, lz));
-      let inn = ed === 'x1' ? [1, 0] : ed === 'x2' ? [-1, 0] : ed === 'z1' ? [0, 1] : [0, -1];
-      { const along = inn[0] ? [0, 1] : [1, 0], hy1 = p.rbY + 1.05, hy2 = p.rbY + 1.7, busy = (x, z) => B.col.some(c => c.y2 != null && c.y2 > hy1 && (c.y1 ?? 0) < hy2 && x + .3 > c.x1 && x - .3 < c.x2 && z + .3 > c.z1 && z - .3 < c.z2);   // 벽에 붙은 높은 장 · 사물함과 겹치면 벽을 따라 빈 자리로
-        for (const o of [0, .6, -.6, 1.2, -1.2, 1.8, -1.8, 2.6, -2.6, 3.4, -3.4]) { const tx = nx + along[0] * o, tz = nz + along[1] * o; if (tx < r.x1 + .3 || tx > r.x2 - .3 || tz < r.z1 + .3 || tz > r.z2 - .3) continue; if (!busy(tx, tz)) { nx = tx; nz = tz; break; } } }
+      const eds = [[lx - r.x1, 'x1'], [r.x2 - lx, 'x2'], [lz - r.z1, 'z1'], [r.z2 - lz, 'z2']].sort((a, b) => a[0] - b[0]).map(e => e[1]);
+      const hy1 = p.rbY + 1.05, hy2 = p.rbY + 1.7, inRoom = c => c.x2 > r.x1 + .01 && c.x1 < r.x2 - .01 && c.z2 > r.z1 + .01 && c.z1 < r.z2 - .01;   // 방 둘레 벽 자체는 '가구'가 아니다 — 예전엔 벽 충돌 상자가 늘 걸려 빈 자리를 못 찾고 첫 자리(정수기 · 장 속)에 박혔다
+      const busy = (x, z) => B.col.some(c => c.y2 != null && c.y2 > hy1 && (c.y1 ?? 0) < hy2 && inRoom(c) && x + .3 > c.x1 && x - .3 < c.x2 && z + .3 > c.z1 && z - .3 < c.z2);   // 벽에 붙은 높은 장 · 사물함과 겹치면 벽을 따라 빈 자리로
+      const wallAt = (x, z, inn) => { const bx2 = x - inn[0] * .25, bz2 = z - inn[1] * .25; return B.col.some(c => !c.door && (c.y1 ?? 0) <= p.rbY + 1.2 && c.y2 != null && c.y2 >= p.rbY + 1.5 && bx2 > c.x1 && bx2 < c.x2 && bz2 > c.z1 && bz2 < c.z2); };   // 뒤에 실제 벽(문 · 창 아님)이 있어야 건다
+      let nx = null, nz = null, inn = null;
+      for (const ed of eds) { const n0x = ed === 'x1' ? r.x1 + .12 : ed === 'x2' ? r.x2 - .12 : Math.min(r.x2 - .6, Math.max(r.x1 + .6, lx)), n0z = ed === 'z1' ? r.z1 + .12 : ed === 'z2' ? r.z2 - .12 : Math.min(r.z2 - .6, Math.max(r.z1 + .6, lz));
+        const in0 = ed === 'x1' ? [1, 0] : ed === 'x2' ? [-1, 0] : ed === 'z1' ? [0, 1] : [0, -1], along = in0[0] ? [0, 1] : [1, 0];
+        if (nx == null) { nx = n0x; nz = n0z; inn = in0; }   // 빈 자리가 어디에도 없으면 예전처럼 가장 가까운 벽
+        let ok = false; for (const o of [0, .6, -.6, 1.2, -1.2, 1.8, -1.8, 2.6, -2.6, 3.4, -3.4]) { const tx = n0x + along[0] * o, tz = n0z + along[1] * o; if (along[0] ? (tx < r.x1 + .3 || tx > r.x2 - .3) : (tz < r.z1 + .3 || tz > r.z2 - .3)) continue; if (!busy(tx, tz) && wallAt(tx, tz, in0)) { nx = tx; nz = tz; inn = in0; ok = true; break; } }
+        if (ok) break; }
       const [wx, wz] = B.toWorld(nx, nz), [ix, iz] = B.toWorld(nx + inn[0], nz + inn[1]);
       if (g.parent !== group) group.attach(g); g.position.set(wx, p.rbY + 1.35, wz); g.rotation.set(0, Math.atan2(ix - wx, iz - wz), 0);
       const [px, pz] = B.toWorld(nx + inn[0] * .55, nz + inn[1] * .55); p.x = px; p.z = pz; if (p.px != null) { p.px = px; p.pz = pz; } up++; }

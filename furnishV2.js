@@ -8,7 +8,7 @@ const SRC = n => n.startsWith('sf_') ? 'assets/models/sf/' + n + '.glb' : 'asset
 const M = { sofa: ['sf_sofa', .86, 1], cooler: ['sf_water_cooler', 1.12, 1], shelf: ['steel_frame_shelves_01', 1.85, 1], box: ['cardboard_box_01', .42, 0], chest: ['metal_tool_chest', 1.0, 1], vend: ['sf_vending', 1.82, 1], chair: ['plastic_monobloc_chair_01', .8, 0], board: ['standing_chalkboard_01', 1.65, 1] };
 const PLAN = [
   [/상담실/, ['sofa', 'cooler']],
-  [/교무실|행정실/, ['cooler', 'shelf']],
+  // 교무실 · 행정실: 보강하지 않는다 (실사 정수기가 이미 탕비 코너에 있다 — 두 번째 정수기 · 철제 선반이 북쪽 창 앞을 막았다)
   [/회의실/, ['cooler']],
   [/보건실/, ['cooler']],
   [/창고/, ['shelf', 'shelf', 'chest', 'box', 'box', 'box']],

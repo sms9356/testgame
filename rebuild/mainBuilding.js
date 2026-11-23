@@ -175,7 +175,7 @@ export function buildMainBuilding(opt = {}) {
   const lights = [];   // 형광등 위치 (게임 쪽 조명 예산이 고른다)
   const geo = new Map();  // 재질키 → 지오메트리 목록 (끝에서 병합 → 드로콜 최소화)
   const moonWins = [];   // 창 개구부 (달빛 기둥 · 먼지용)
-  const mats = {}, stairwells = [], doors = [], models = []; let s_sci = 0, s_lib = 0, s_staff = 0; let y_ = 0, rmx = 0, rmz = 0, bseed = 7; const br = () => (bseed = (bseed * 16807) % 2147483647) / 2147483647;   // rmx/rmz: 지금 꾸미는 방의 중심
+  const mats = {}, stairwells = [], doors = [], models = [], wallDeco = []; let s_sci = 0, s_lib = 0, s_staff = 0; let y_ = 0, rmx = 0, rmz = 0, bseed = 7; const br = () => (bseed = (bseed * 16807) % 2147483647) / 2147483647;   // rmx/rmz: 지금 꾸미는 방의 중심
   const mdl = (name, x, y, z, ry = 0, o = {}) => models.push({ name, x, y, z, ry, ...o });
   const deskGraffiti = (x, y, z) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(.34, .23), grafMaterial(grafN++ % GRAF.length)); m.rotation.set(-Math.PI / 2, 0, Math.PI / 2 + (br() - .5) * .6); m.position.set(x + (br() - .5) * .08, y, z + (br() - .5) * .2); m.renderOrder = 2; root.add(m); };
   // 캔버스로 그리는 무거운 재질은 본관 · 별관이 한 벌을 함께 쓴다 (예전엔 건물마다 같은 텍스처를 다시 그려 재질 · 캔버스가 두 벌씩)
@@ -398,7 +398,7 @@ export function buildMainBuilding(opt = {}) {
   // 코르크 게시판: 알루미늄 테두리 + 압정으로 꽂힌 공지 · 시간표 종이 (x 방향 벽용 / z 방향 벽용)
   const corkBoard = (xa, xb, ya, yb, z, side) => { const t = .02, zz = side > 0 ? [z, z + t] : [z - t, z]; box('cork', xa, xb, ya, yb, ...zz); box('alu', xa - .03, xb + .03, ya - .03, ya, zz[0], zz[1] + .01); box('alu', xa - .03, xb + .03, yb, yb + .03, zz[0], zz[1] + .01); box('alu', xa - .03, xa, ya, yb, zz[0], zz[1] + .01); box('alu', xb, xb + .03, ya, yb, zz[0], zz[1] + .01);
     for (let k = 0, x = xa + .15; x < xb - .3; k++, x += .32 + br() * .25) { const w = .21, h = .28 + br() * .05, y = ya + .15 + br() * (yb - ya - .55), zf = side > 0 ? zz[1] : zz[0] - .003; box(k % 5 === 2 ? 'book3' : 'white', x, x + w, y, y + h, Math.min(zf, zf + side * .003), Math.max(zf, zf + side * .003)); box('red', x + w / 2 - .01, x + w / 2 + .01, y + h - .03, y + h - .01, Math.min(zf, zf + side * .008), Math.max(zf, zf + side * .008)); } };
-  const corkBoardZ = (x, side, za, zb, ya, yb) => { const t = .02, xx = side > 0 ? [x, x + t] : [x - t, x]; box('cork', ...xx, ya, yb, za, zb); [[ya - .03, ya], [yb, yb + .03]].forEach(([a, b]) => box('alu', xx[0], xx[1] + .01, a, b, za - .03, zb + .03));
+  const corkBoardZ = (x, side, za, zb, ya, yb) => { wallDeco.push({ id: 'cork', x1: x - .05, x2: x + .05, y1: ya, y2: yb, z1: za, z2: zb }); const t = .02, xx = side > 0 ? [x, x + t] : [x - t, x]; box('cork', ...xx, ya, yb, za, zb); [[ya - .03, ya], [yb, yb + .03]].forEach(([a, b]) => box('alu', xx[0], xx[1] + .01, a, b, za - .03, zb + .03));
     for (let k = 0, z = za + .15; z < zb - .3; k++, z += .32 + br() * .25) { const w = .21, h = .28 + br() * .05, y = ya + .15 + br() * (yb - ya - .55), xf = side > 0 ? xx[1] : xx[0] - .003; box(k % 4 === 1 ? 'book3' : 'white', Math.min(xf, xf + side * .003), Math.max(xf, xf + side * .003), y, y + h, z, z + w); } };
   // 응접 소파: 좌판 쿠션 · 등받이 · 팔걸이 · 다리
   const sofa = (x1, x2, z1, z2, y, backSide) => { box('rubber', x1, x2, y + .12, y + .42, z1, z2, { solid: true }); [x1, x2 - .14].forEach(x => box('rubber', x, x + .14, y + .12, y + .62, z1, z2)); const bz = backSide > 0 ? z2 - .16 : z1; box('rubber', x1, x2, y + .42, y + .82, bz, bz + .16); for (let k = 1; k < 3; k++) { const x = x1 + k * (x2 - x1) / 3; box('screen', x - .004, x + .004, y + .42, y + .45, z1 + .02, z2 - .02); } [[x1 + .05, z1 + .05], [x2 - .05, z1 + .05], [x1 + .05, z2 - .05], [x2 - .05, z2 - .05]].forEach(([x, z]) => cyl('screen', x, y, z, .02, .12)); };
@@ -1003,8 +1003,10 @@ export function buildMainBuilding(opt = {}) {
       const p = canvasPlane(w, h, Math.round(w * 420), Math.round(h * 420), (g, W, H) => { g.fillStyle = bg; g.fillRect(0, 0, W, H); g.fillStyle = hc; g.fillRect(0, 0, W, H * .17); g.fillStyle = '#fff'; g.font = `bold ${Math.round(H * .095)}px sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(head, W / 2, H * .085, W - 12);
         g.fillStyle = '#222'; g.textAlign = 'left'; const fs = Math.round(H * .062); g.font = `${fs}px sans-serif`; lines.forEach((t, i) => g.fillText(t, W * .07, H * .26 + i * fs * 1.55, W * .88)); g.fillStyle = '#c82020'; g.beginPath(); g.arc(W / 2, H * .03, H * .012, 0, 7); g.fill(); }, 'rp_' + id);
       if (ax === 'x') { p.position.set(w0 + side * .016, y0 + y, pos); p.rotation.y = side > 0 ? Math.PI / 2 : -Math.PI / 2; } else { p.position.set(pos, y0 + y, w0 + side * .016); p.rotation.y = side > 0 ? 0 : Math.PI; }
-      root.add(p); };
-    const clock = (x, y, z, ry) => mdl('wall_clock', x, y0 + y, z, ry);
+      root.add(p);
+      if (ax === 'x') deco('rp_' + id, w0 - .05, w0 + .05, y0 + y - h / 2, y0 + y + h / 2, pos - w / 2, pos + w / 2); else deco('rp_' + id, pos - w / 2, pos + w / 2, y0 + y - h / 2, y0 + y + h / 2, w0 - .05, w0 + .05); };
+    const deco = (id, x1, x2, y1, y2, z1, z2) => wallDeco.push({ id, x1, x2, y1, y2, z1, z2 });
+    const clock = (x, y, z, ry) => { mdl('wall_clock', x, y0 + y, z, ry); deco('rp_clock', x - .22, x + .22, y0 + y - .22, y0 + y + .22, z - .22, z + .22); };
     if (type === 'counsel') {   // 상담실: 서쪽 칸막이 벽(빈 벽) · 탁자 위 소품
       post('cns1', 'x', x1, 1, z1 + 2.3, 1.55, .6, .85, '또래 상담', '#2a7a6a', ['고민이 있으면 언제든', '상담실 문을 두드려요', '', '월~금 점심시간 · 방과후', '비밀은 꼭 지켜 드립니다', '', '— 상담 선생님 —']);
       post('cns2', 'x', x1, 1, z1 + 3.4, 1.5, .5, .7, '진로 · 적성 검사', '#3a5aa0', ['2학기 검사 결과', '개별 상담 신청 받습니다', '', '※ 학생부 확인']);
@@ -2061,7 +2063,7 @@ export function buildMainBuilding(opt = {}) {
   // 세계 ↔ 건물 좌표 (건물은 원점 기준으로 지은 뒤 통째로 옮기고 돌린다)
   const toLocal = (x, z) => { const dx = x - OX, dz = z - OZ; return [dx * cR - dz * sR, dx * sR + dz * cR]; };
   const toWorld = (x, z) => [OX + x * cR + z * sR, OZ - x * sR + z * cR];
-  const API = { clsBoxes, moonWins, elevX: ELX, mats, root, col, walk, props, lights, groundAt, layout: LY, spec: S, stairwells, doors, tickDoors, nearDoor, models, toLocal, toWorld, name: opt.label || '본관' };
+  const API = { wallDeco, clsBoxes, moonWins, elevX: ELX, mats, root, col, walk, props, lights, groundAt, layout: LY, spec: S, stairwells, doors, tickDoors, nearDoor, models, toLocal, toWorld, name: opt.label || '본관' };
   { const refs = collectRefs({ ...API, root: null }); for (const k in mats) refs.mats.add(mats[k]); dedupeMaterials(root, refs); batchStaticChildren(root, { objs: refs.objs, band: S.FH }); }   // 중복 재질 · 정적 메시 합치기 (성능)
   return API;
 }

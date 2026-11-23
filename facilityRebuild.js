@@ -542,14 +542,19 @@ function colFree(B, x1, x2, z1, z2, lvl, pad = .08, tallOnly = false) {
 }
 function d08Group(B, x, y, z, ry, fn) { const g = new THREE.Group(); g.position.set(B.wx(x), y, B.wz(z)); g.rotation.y = ry; g.userData.dynamic = true; g.userData.d08 = true; fn(g); B.g.add(g); return g; }
 const d08Mesh = (g, geo, mk, x, y, z, o = {}) => { const m = new THREE.Mesh(geo, lib()[mk][0]); m.position.set(x, y, z); if (o.rx) m.rotation.x = o.rx; if (o.rz) m.rotation.z = o.rz; if (o.ry) m.rotation.y = o.ry; m.receiveShadow = true; g.add(m); return m; };
-function wallClock08(B, x, y, z, ry, t = 10.17) {   // 둥근 벽시계 (검은 테 · 흰 판 · 시침 · 분침) — 시각은 방마다 다르게
+// 벽 장식 등록(월드 상자): 벽시계 · 달력 — game.js 가 RBG.wallDeco 에 넣어 벽걸이 장치가 피하게 한다
+export const FAC_WALL_DECO = [];
+const facDeco = (id, B, x, y, z, hw, hh) => FAC_WALL_DECO.push({ id: 'fac_' + id, x1: B.wx(x) - hw, x2: B.wx(x) + hw, z1: B.wz(z) - hw, z2: B.wz(z) + hw, y1: y - hh, y2: y + hh });
+function wallClock08(B, x, y, z, ry, t = 10.17) {
+  facDeco('clock', B, x, y, z, .22, .22);   // 둥근 벽시계 (검은 테 · 흰 판 · 시침 · 분침) — 시각은 방마다 다르게
   d08Group(B, x, y, z, ry, g => { d08Mesh(g, new THREE.CylinderGeometry(.21, .21, .03, 24).rotateX(Math.PI / 2), 'BLACK', 0, 0, .015); d08Mesh(g, new THREE.CylinderGeometry(.185, .185, .01, 24).rotateX(Math.PI / 2), 'WHITE', 0, 0, .033);
     for (let k = 0; k < 4; k++) d08Mesh(g, new THREE.BoxGeometry(k % 2 ? .035 : .012, k % 2 ? .012 : .035, .006), 'BLACK', Math.sin(k * Math.PI / 2) * .15, Math.cos(k * Math.PI / 2) * .15, .04);
     const hr = Math.floor(t) % 12, mn = (t % 1) * 100, hand = (len, w, a) => { const m = d08Mesh(g, new THREE.BoxGeometry(w, len, .006).translate(0, len / 2, 0), 'BLACK', 0, 0, .044); m.rotation.z = -a; };
     hand(.1, .014, (hr + mn / 60) / 12 * Math.PI * 2); hand(.15, .01, mn / 60 * Math.PI * 2); d08Mesh(g, new THREE.CylinderGeometry(.014, .014, .012, 10).rotateX(Math.PI / 2), 'BRASS', 0, 0, .048); });
 }
 let CAL08 = null;
-function wallCalendar08(B, x, y, z, ry) {   // 2008년 10월 달력 (10월 1일 = 수요일) — 12일 붉은 동그라미
+function wallCalendar08(B, x, y, z, ry) {
+  facDeco('cal', B, x, y, z, .16, .22);   // 2008년 10월 달력 (10월 1일 = 수요일) — 12일 붉은 동그라미
   if (!CAL08) { const c = document.createElement('canvas'); c.width = 280; c.height = 400; const g = c.getContext('2d'); g.fillStyle = '#f4f1e6'; g.fillRect(0, 0, 280, 400); g.fillStyle = '#7a3a2a'; g.fillRect(0, 0, 280, 120); g.fillStyle = '#f4f1e6'; g.textAlign = 'center'; g.font = 'bold 64px "Noto Sans KR", sans-serif'; g.fillText('10월', 140, 78); g.font = '24px "Noto Sans KR", sans-serif'; g.fillText('2008', 140, 108);
     g.font = '22px "Noto Sans KR", sans-serif'; ['일', '월', '화', '수', '목', '금', '토'].forEach((d, i) => { g.fillStyle = i === 0 ? '#b02a2a' : i === 6 ? '#2a4a9a' : '#2a2a2a'; g.fillText(d, 22 + i * 39, 150); });
     for (let d = 1; d <= 31; d++) { const idx = d + 2, col = idx % 7, row = Math.floor(idx / 7); g.fillStyle = col === 0 || d === 3 || d === 9 ? '#b02a2a' : col === 6 ? '#2a4a9a' : '#2a2a2a'; g.fillText(String(d), 22 + col * 39, 190 + row * 42); if (d === 12) { g.strokeStyle = '#c03030'; g.lineWidth = 3; g.beginPath(); g.arc(22 + col * 39, 183 + row * 42, 19, 0, 7); g.stroke(); } }

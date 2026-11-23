@@ -1,7 +1,7 @@
 // UI 다듬기 — 게임패드로 메뉴 조작(일시정지 · 설정 · 소지품 · 휴대폰 · 문서) · 로딩 퍼센트 표시
 // 게임 코드와 독립: 보이는 오버레이 안의 버튼 사이를 십자키/스틱으로 옮기고 A=결정, B=닫기(Esc 전달). 타이틀/캐릭터 선택은 자체 처리.
 (function () {
-  const MENUS = ['pause', 'settings', 'inv', 'phone', 'noteBox', 'newConfirm', 'invZoom'];
+  const MENUS = ['pause', 'settings', 'inv', 'phone', 'noteBox', 'newConfirm', 'invZoom', 'mapOv', 'keypad', 'annexOv', 'chalk', 'gallery', 'credits'];
   const $ = id => document.getElementById(id);
   const visible = el => el && el.offsetParent !== null && getComputedStyle(el).visibility !== 'hidden';
   let cur = null, prev = {}, rep = 0;

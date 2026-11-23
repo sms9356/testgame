@@ -531,6 +531,62 @@ function exitPicto(B, x, y, z, ry) { B.mesh(new THREE.PlaneGeometry(.5, .19), PT
 // 코르크 게시판 위 2008년 10월 게시물 (가정통신문 · 방과후학교 안내 · 학교폭력 예방 포스터)
 function notice08(B, w, h, x, y, z, ry) { B.mesh(new THREE.PlaneGeometry(w, h), PT.MAT.notice08(), x, y, z, { ry }); }
 const byName = (R, n) => R.find(r => r.name === n);
+// ── 2008 소품 보강 (브랜드 · 로고 없음 · 작은 절차 생성물) ──
+//   방 종류별로 벽시계 · 월 달력 · 화분 · 정수기 · 상자 더미를 가구와 겹치지 않는 벽 · 모서리에 놓는다. 충돌 상자가 이미 있는 자리 · 출입문 앞 · 개구부는 건너뛴다.
+const D08_SKIP = /화장실|샤워|세면|계단|로비|현관|투영|돔|복도/;
+const D08_KIND = r => /창고|보관|보존|장비/.test(r.name) ? 'store' : /사무|사감|관리|학생회/.test(r.name) ? 'office' : /기숙사/.test(r.name) ? 'dorm' : /식당|부엌|매점|휴게|라운지/.test(r.name) ? 'food' : 'study';
+const colLevel = (B, k) => B.levels < 2 ? 0 : k.y0 != null ? (k.y0 >= FH - .3 ? 1 : 0) : k.h != null ? (k.h >= FH - .2 ? 1 : 0) : 0;
+function colFree(B, x1, x2, z1, z2, lvl, pad = .08, tallOnly = false) {
+  const a = B.wx(x1) - pad, b = B.wx(x2) + pad, c = B.wz(z1) - pad, d = B.wz(z2) + pad;
+  return !B.ctx.floors[0].col.some(k => !k.off && k.x1 < b && k.x2 > a && k.z1 < d && k.z2 > c && colLevel(B, k) === lvl && (!tallOnly || k.h == null || k.h - lvl * FH > 1.3));
+}
+function d08Group(B, x, y, z, ry, fn) { const g = new THREE.Group(); g.position.set(B.wx(x), y, B.wz(z)); g.rotation.y = ry; g.userData.dynamic = true; fn(g); B.g.add(g); return g; }
+const d08Mesh = (g, geo, mk, x, y, z, o = {}) => { const m = new THREE.Mesh(geo, lib()[mk][0]); m.position.set(x, y, z); if (o.rx) m.rotation.x = o.rx; if (o.rz) m.rotation.z = o.rz; if (o.ry) m.rotation.y = o.ry; m.receiveShadow = true; g.add(m); return m; };
+function wallClock08(B, x, y, z, ry, t = 10.17) {   // 둥근 벽시계 (검은 테 · 흰 판 · 시침 · 분침) — 시각은 방마다 다르게
+  d08Group(B, x, y, z, ry, g => { d08Mesh(g, new THREE.CylinderGeometry(.21, .21, .03, 24).rotateX(Math.PI / 2), 'BLACK', 0, 0, .015); d08Mesh(g, new THREE.CylinderGeometry(.185, .185, .01, 24).rotateX(Math.PI / 2), 'WHITE', 0, 0, .033);
+    for (let k = 0; k < 4; k++) d08Mesh(g, new THREE.BoxGeometry(k % 2 ? .035 : .012, k % 2 ? .012 : .035, .006), 'BLACK', Math.sin(k * Math.PI / 2) * .15, Math.cos(k * Math.PI / 2) * .15, .04);
+    const hr = Math.floor(t) % 12, mn = (t % 1) * 100, hand = (len, w, a) => { const m = d08Mesh(g, new THREE.BoxGeometry(w, len, .006).translate(0, len / 2, 0), 'BLACK', 0, 0, .044); m.rotation.z = -a; };
+    hand(.1, .014, (hr + mn / 60) / 12 * Math.PI * 2); hand(.15, .01, mn / 60 * Math.PI * 2); d08Mesh(g, new THREE.CylinderGeometry(.014, .014, .012, 10).rotateX(Math.PI / 2), 'BRASS', 0, 0, .048); });
+}
+let CAL08 = null;
+function wallCalendar08(B, x, y, z, ry) {   // 2008년 10월 달력 (10월 1일 = 수요일) — 12일 붉은 동그라미
+  if (!CAL08) { const c = document.createElement('canvas'); c.width = 280; c.height = 400; const g = c.getContext('2d'); g.fillStyle = '#f4f1e6'; g.fillRect(0, 0, 280, 400); g.fillStyle = '#7a3a2a'; g.fillRect(0, 0, 280, 120); g.fillStyle = '#f4f1e6'; g.textAlign = 'center'; g.font = 'bold 64px "Noto Sans KR", sans-serif'; g.fillText('10월', 140, 78); g.font = '24px "Noto Sans KR", sans-serif'; g.fillText('2008', 140, 108);
+    g.font = '22px "Noto Sans KR", sans-serif'; ['일', '월', '화', '수', '목', '금', '토'].forEach((d, i) => { g.fillStyle = i === 0 ? '#b02a2a' : i === 6 ? '#2a4a9a' : '#2a2a2a'; g.fillText(d, 22 + i * 39, 150); });
+    for (let d = 1; d <= 31; d++) { const idx = d + 2, col = idx % 7, row = Math.floor(idx / 7); g.fillStyle = col === 0 || d === 3 || d === 9 ? '#b02a2a' : col === 6 ? '#2a4a9a' : '#2a2a2a'; g.fillText(String(d), 22 + col * 39, 190 + row * 42); if (d === 12) { g.strokeStyle = '#c03030'; g.lineWidth = 3; g.beginPath(); g.arc(22 + col * 39, 183 + row * 42, 19, 0, 7); g.stroke(); } }
+    CAL08 = new THREE.CanvasTexture(c); CAL08.colorSpace = THREE.SRGBColorSpace; CAL08.anisotropy = 4; }
+  d08Group(B, x, y, z, ry, g => { const p = new THREE.Mesh(new THREE.PlaneGeometry(.26, .37), new THREE.MeshStandardMaterial({ map: CAL08, roughness: .85 })); p.position.z = .006; g.add(p); d08Mesh(g, new THREE.BoxGeometry(.04, .02, .01), 'RED', 0, .195, .006); });
+}
+function plant08(B, x, z, lvl) {   // 화분 (토분 + 고무나무 풍 잎) — 바닥에 놓인 작은 장식, 충돌 있음
+  const y = lvl * FH; d08Group(B, x, y, z, 0, g => { d08Mesh(g, new THREE.CylinderGeometry(.15, .11, .26, 14), 'REFRACT', 0, .13, 0); d08Mesh(g, new THREE.CylinderGeometry(.14, .14, .02, 14), 'SOOT', 0, .26, 0);
+    for (let k = 0; k < 6; k++) { const a = k / 6 * Math.PI * 2; d08Mesh(g, new THREE.ConeGeometry(.07, .5 + (k % 3) * .12, 5), 'GREEN', Math.cos(a) * .09, .55 + (k % 3) * .06, Math.sin(a) * .09, { rz: -Math.cos(a) * .35, rx: Math.sin(a) * .35 }); } });
+  B.col(x - .17, x + .17, z - .17, z + .17, { lvl });
+}
+function waterDispenser08(B, x, z, ry, lvl) {   // 냉온수기 (정수통 + 컵 받침) — 로고 없음
+  const y = lvl * FH; d08Group(B, x, y, z, ry, g => { d08Mesh(g, new THREE.BoxGeometry(.32, .98, .34), 'WHITE', 0, .49, 0); d08Mesh(g, new THREE.CylinderGeometry(.15, .15, .4, 16), 'HDPE_B', 0, 1.18, 0); d08Mesh(g, new THREE.BoxGeometry(.2, .03, .1), 'STEEL', 0, .66, .2); d08Mesh(g, new THREE.BoxGeometry(.04, .035, .04), 'RED', -.06, .78, .18); d08Mesh(g, new THREE.BoxGeometry(.04, .035, .04), 'HDPE_B', .06, .78, .18); d08Mesh(g, new THREE.CylinderGeometry(.03, .025, .07, 10), 'WHITE', .09, .7, .2); });
+  B.col(x - .22, x + .22, z - .22, z + .22, { lvl });
+}
+function boxStack08(B, x, z, ry, lvl) {   // 골판지 상자 더미 (바닥 2 + 위 1, 한쪽으로 살짝 틀어짐)
+  const y = lvl * FH; d08Group(B, x, y, z, ry, g => { d08Mesh(g, new THREE.BoxGeometry(.5, .32, .4), 'CORK', -.26, .16, 0); d08Mesh(g, new THREE.BoxGeometry(.46, .32, .4), 'PANEL', .24, .16, .02, { ry: .08 }); d08Mesh(g, new THREE.BoxGeometry(.44, .28, .36), 'CORK', -.2, .46, .01, { ry: -.12 }); d08Mesh(g, new THREE.BoxGeometry(.5, .01, .06), 'WHITE', -.26, .325, 0); });
+  B.col(x - .55, x + .55, z - .3, z + .3, { lvl });
+}
+function decor08(B, rooms) {
+  let n = 0, k = 0;
+  for (const r of rooms) {
+    if (r.corridor || r.lobby || r.stair || r.stairTop || r.open || !r.doorAt || D08_SKIP.test(r.name) || r.x2 - r.x1 < 3.6) continue; k++;
+    const lvl = r.lvl, y0 = lvl * FH, kind = D08_KIND(r), W = r.gaps || {}, inGap = (arr, a, b) => (arr || []).some(([p, q]) => a < q + .3 && b > p - .3);
+    const wallSpot = zs => { for (const side of (k % 2 ? ['E', 'W'] : ['W', 'E'])) for (const z of zs) { if (inGap(W[side], z - .3, z + .3)) continue; const x = side === 'W' ? r.x1 + LIN + .02 : r.x2 - LIN - .02; if (!colFree(B, side === 'W' ? r.x1 + .08 : r.x2 - .5, side === 'W' ? r.x1 + .5 : r.x2 - .08, Math.max(r.z1 + .08, z - .3), Math.min(r.z2 - .08, z + .3), lvl, 0, true)) continue; return [x, z, side === 'W' ? Math.PI / 2 : -Math.PI / 2]; } return null; };
+    const mid = (r.z1 + r.z2) / 2;
+    if (kind !== 'store') { const w = wallSpot([mid, r.z1 + 1.3, r.z2 - 1.3]); if (w) { wallClock08(B, w[0], y0 + 2.25, w[1], w[2], [10.17, 3.4, 7.25, 12.42, 9.08][(k + lvl) % 5]); n++; } }
+    if (kind === 'office' || kind === 'study') { const w = wallSpot([r.z1 + 1.0, r.z2 - 1.0, mid]); if (w) { wallCalendar08(B, w[0], y0 + 1.55, w[1], w[2]); n++; } }
+    // 바닥 소품: 문에서 먼 모서리부터 (출입문 앞 · 기존 충돌체 · 개구부는 제외)
+    const dc = (r.doorAt[0] + r.doorAt[1]) / 2, ext = r.north ? r.z1 + .45 : r.z2 - .45, inn = r.north ? r.z2 - .45 : r.z1 + .45, doorZ = r.north ? r.z2 : r.z1, xm = (r.x1 + r.x2) / 2;
+    const corners = [[r.x1 + .45, ext], [r.x2 - .45, ext], [r.x1 + .45, inn], [r.x2 - .45, inn]].filter(([x, z]) => Math.abs(x - dc) > 1.6 || Math.abs(z - doorZ) > 1.2).filter(([x, z]) => !inGap(W[x < xm ? 'W' : 'E'], z - .4, z + .4)).sort((a, b) => Math.abs(b[0] - dc) - Math.abs(a[0] - dc));
+    const want = kind === 'store' ? ['box', 'box'] : kind === 'office' ? ['plant', 'water'] : kind === 'food' ? ['water', 'plant'] : kind === 'dorm' ? ['plant'] : (k % 2 ? ['plant'] : ['water']);
+    for (const wt of want) { const c = corners.find(([x, z]) => colFree(B, Math.max(r.x1 + .08, x - .6), Math.min(r.x2 - .08, x + .6), Math.max(r.z1 + .08, z - .45), Math.min(r.z2 - .08, z + .45), lvl, 0)); if (!c) break; corners.splice(corners.indexOf(c), 1);
+      if (wt === 'plant') plant08(B, c[0], c[1], lvl); else if (wt === 'water') waterDispenser08(B, c[0], c[1], r.north ? 0 : Math.PI, lvl); else boxStack08(B, c[0] + (c[0] < xm ? .35 : -.35), c[1], 0, lvl); n++; }
+  }
+  return n;
+}
 
 function buildDorm(ctx, Z) {   // 청운학사 22 × 14m · 2층 (기숙사 · 생활)
   const B = new Fac(ctx, Z, { id: 'dorm', name: '청운학사', levels: 2 });
@@ -582,6 +638,7 @@ function buildDorm(ctx, Z) {   // 청운학사 22 × 14m · 2층 (기숙사 · �
   { const r = byName(R1, '화장실 (2층)'); F.toilets(B, r, 3); piv.wcAt = r.sinkAt; }
   { const r = byName(R1, '샤워실 (2층)'); F.showers(B, r, 4); }
   B.addSwitch(1.6, B.Z.D / 2 - WALL_T - LIN - .01, Math.PI, 0, '1층 형광등 스위치'); B.addSwitch(byName(R1, '계단홀').x2 - .3, byName(R1, '계단홀').z1 + LIN + .01, 0, 1, '2층 형광등 스위치');
+  decor08(B, [...R0, ...R1]);   // 2008 소품 보강: 벽시계 · 달력 · 화분 · 정수기 · 상자 더미
   B.finish();
   const sl = byName(R0, '사감실');
   return { B, anchors: { dorm_log: [(sl.x1 + sl.x2) / 2, sl.z1 + 1.15, .95, 0], dorm_locker: [...piv.lockerAt, 1.1, 1, { anim: { type: 'hinge', doorPiv: piv.locker, openAngle: 1.45, t: 0, active: false } }], dorm_study: [...piv.studyAt, 1.0, 1], campus_wc: [...piv.wcAt, .85, 1] } };
@@ -636,6 +693,7 @@ function buildUnion(ctx, Z) {   // 학생회관 22 × 14m · 2층 (학생자치 
   { const r = byName(R1, '휴게공간'); B.model('sf_sofa', (r.x1 + r.x2) / 2, FH, r.z2 - .55, Math.PI); B.col((r.x1 + r.x2) / 2 - 1, (r.x1 + r.x2) / 2 + 1, r.z2 - 1.0, r.z2 - .1, { lvl: 1, h: .45 }); F.table(B, (r.x1 + r.x2) / 2, (r.z1 + r.z2) / 2, .9, .6, .45, 1, 'WOOD'); }
   { const r = byName(R0, '중앙 로비 · 계단'); B.box(1.6, 1.0, .02, 'CORK', r.x1 + 4.5, 1.6, r.z1 + .08); F.table(B, r.x1 + 1.4, r.z2 - .6, 1.6, .6, .9, 0, 'WOOD', 'WOOD'); }
   B.addSwitch(1.6, B.Z.D / 2 - WALL_T - LIN - .01, Math.PI, 0, '1층 형광등 스위치'); B.addSwitch(byName(R1, '계단홀').x2 - .3, byName(R1, '계단홀').z1 + LIN + .01, 0, 1, '2층 형광등 스위치');
+  decor08(B, [...R0, ...R1]);   // 2008 소품 보강: 벽시계 · 달력 · 화분 · 정수기 · 상자 더미
   B.finish();
   return { B, anchors: { union_locker: [...piv.lockerAt, 1.1, 0, { anim: { type: 'hinge', doorPiv: piv.locker, openAngle: -1.5, t: 0, active: false } }], union_console: [...piv.consoleAt, 1.0, 1] } };
 }
@@ -686,6 +744,7 @@ function buildHistory(ctx, Z) {   // 역사관 15.6 × 10.6m · 2층 (학교 · 
   // 벽면 패널 (나머지 3): 복도 · 계단홀
   F.panel(B, 2.5, -1.0 + .1, 0, 1, 'PANEL', '연혁 1968 ~ 2008'); F.panel(B, 4.0, -1.0 + .1, 0, 1, 'PANEL', '교가 · 교훈'); F.panel(B, -2.0, 1.0 - .1, Math.PI, 0, 'PANEL', '관람 안내');
   B.addSwitch(1.6, B.Z.D / 2 - WALL_T - LIN - .01, Math.PI, 0, '1층 형광등 스위치'); B.addSwitch(byName(R1, '계단홀').x2 - .3, byName(R1, '계단홀').z1 + LIN + .01, 0, 1, '2층 형광등 스위치');
+  decor08(B, [...R0, ...R1]);   // 2008 소품 보강: 벽시계 · 달력 · 화분 · 정수기 · 상자 더미
   B.finish();
   return { B, anchors: { east_museum: [...an.museum, 1.1, 0] } };
 }
@@ -753,6 +812,7 @@ function buildAstro(ctx, Z) {   // 과학천문관 20 × 16m · 2층 (천문 교
     B.col(cx - .5, cx + .5, cz - .5, cz + .5, { lvl: 1 }); an.scopeAt = [cx, cz + 1.0];
     lampsGrid(B, { x1: r.x1, x2: r.x2, z1: r.z1, z2: r.z2, lvl: 1, ceil: 3.2 }, 3.2); }
   B.addSwitch(1.6, B.Z.D / 2 - WALL_T - LIN - .01, Math.PI, 0, '1층 형광등 스위치'); B.addSwitch(byName(R1, '계단홀').x2 - .3, byName(R1, '계단홀').z1 + LIN + .01, 0, 1, '2층 형광등 스위치');
+  decor08(B, [...R0, ...R1]);   // 2008 소품 보강: 벽시계 · 달력 · 화분 · 정수기 · 상자 더미
   B.finish();
   return { B, anchors: { astro_console: [...an.consoleAt, 1.1, 0], astro_orrery: [...an.orrery.at, 1.1, 0, { anim: { type: 'orrery', orreryPiv: an.orrery.piv, t: 0, active: false } }], astro_case: [...an.caseAt, 1.1, 0], astro_scope: [...an.scopeAt, 1.3, 1] } };
 }

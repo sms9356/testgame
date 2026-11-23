@@ -142,6 +142,11 @@ export function installCampusGrounds({ scene, world, floors, footprints = [] }) 
         const binC = [0xd8b020, 0x2a6a9a, 0x3a7a3a, 0x6a6a6a]; const bins = []; binC.forEach((c, i) => { const b = new THREE.Mesh(new THREE.BoxGeometry(.85, 1.0, .75), S(c, .55)); b.position.set(x0 - 1.4 + i * .93, .6, z0 + .4); root.add(b); bins.push(b); });
         const st = signTex((g, w, h) => { g.fillStyle = '#2a5a3a'; g.fillRect(0, 0, w, h); g.fillStyle = '#fff'; g.textAlign = 'center'; g.font = 'bold 60px sans-serif'; g.fillText('분리수거장', w / 2, 70); g.font = '34px sans-serif'; g.fillText('캔·병   플라스틱   종이   일반', w / 2, 128); }, 512, 160);
         const sm = add(new THREE.PlaneGeometry(1.8, .56), new THREE.MeshStandardMaterial({ map: st, roughness: .7 })); sm.position.set(x0, 1.9, z0 - 1.06); sm.rotation.y = Math.PI;
+        // 수거함 앞 (슬래브 안쪽): 노끈으로 묶은 폐신문 더미 · 흰 종량제 봉투 · 페트병 그물 자루 — 수거 전날 밤 모습 (상표 없음)
+        const pp = [0, 1, 2].map(k => new THREE.BoxGeometry(.42, .22, .32).rotateY((k - 1) * .12).translate(x0 + 1.5 + (k % 2) * .05, .21 + k * .22, z0 - .62));
+        add(mergeGeometries(pp), S(0xc8c0a8, .95)); add(new THREE.BoxGeometry(.43, .012, .025).translate(x0 + 1.5, .32, z0 - .62), S(0x8a6a3a, .9));
+        add(mergeGeometries([new THREE.SphereGeometry(.26, 8, 6).scale(1, 1.15, 1).translate(x0 - 1.55, .38, z0 - .6), new THREE.SphereGeometry(.22, 8, 6).scale(1, 1.1, 1).translate(x0 - 1.05, .34, z0 - .72)]), S(0xe6e6de, .55));
+        add(new THREE.CylinderGeometry(.24, .2, .8, 8).translate(x0 + .45, .5, z0 - .65), S(0x5a8aa8, .85));
         col(x0 - 2.1, x0 + 2.1, z0 - 1.1, z0 + 1.1, 2.4); used.push([x0, z0, 2.6]); info.recycle = true; } }
   }
 

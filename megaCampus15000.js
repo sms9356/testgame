@@ -592,6 +592,15 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
     pbox(1.0, .82, .9, woodDark, x0 + 9.8, .41, zS + 1.4, g); pbox(.55, .62, .55, darkMetal, x0 + 9.8, 1.12, zS + 1.4, g); addCol(x0 + 9.3, x0 + 10.3, zS + .95, zS + 1.85);
     pmesh(new THREE.PlaneGeometry(.46, .38), new THREE.MeshBasicMaterial({ map: makeSign('1998.10.13 호외 — 서린고 심야 실종 사건 특보', '#101814', '#80ffb8', 18) }), x0 + 9.8, 1.15, zS + 1.11, g, { ry: Math.PI, cast: false });
     world.props.push({ kind: 'robj', k: 'lib_microfilm', t: 'mega15k', floor: 0, x: x0 + 9.8, z: zS + .6, y: 1.1, r: 2.2, label: '마이크로필름 판독기로 1998년 신문 기사 복원하기' });
+    // [2008 도서관 디테일] 로비 대출 · 반납 데스크(바코드 PC · 도장 · 반납함) · 카드 목록함 · 정숙 / 신착 도서 안내 · 반납 도서 카트
+    pbox(2.0, .9, .7, woodDark, x0 + 5.2, .45, zN + 1.1, g); pbox(2.1, .04, .78, woodLight, x0 + 5.2, .92, zN + 1.1, g, { cast: false }); addCol(x0 + 4.2, x0 + 6.2, zN + .75, zN + 1.45, false, .94);
+    monitor(g, x0 + 4.7, .94, zN + .95, Math.PI); addChair(g, x0 + 5.2, zN + .4, 0, blueFabric);
+    pbox(.5, .45, .4, PM(0x5a5e62, .6, .3), x0 + 5.9, 1.165, zN + 1.05, g, { cast: false });
+    pmesh(new THREE.PlaneGeometry(1.5, .32), new THREE.MeshBasicMaterial({ map: makeSign('대출 · 반납', '#1e2a22', '#f0ead8', 26) }), x0 + 5.2, 2.2, zN + .14, g, { cast: false });
+    pbox(.9, 1.2, .45, woodLight, x0 + 5.2, .6, zS - .3, g); addCol(x0 + 4.75, x0 + 5.65, zS - .55, zS - .05);
+    for (let r = 0; r < 4; r++) for (let k = 0; k < 3; k++) pbox(.24, .2, .02, PM(0xd8c8a0, .7), x0 + 4.92 + k * .28, .2 + r * .26, zS - .535, g, { cast: false });
+    pmesh(new THREE.PlaneGeometry(1.6, .5), new THREE.MeshBasicMaterial({ map: makeSign('정숙 — 휴대전화는 진동으로 · 신착 도서 10월', '#f0ead8', '#2a2018', 18) }), x0 + 5.2, 2.0, zS - .14, g, { ry: Math.PI, cast: false });
+    pbox(.8, .7, .45, PM(0x6a6e72, .5, .5), x0 + 9.6, .55, zN + .6, g); for (let k = 0; k < 6; k++) pbox(.05, .26, .2, bookColors[k % 5], x0 + 9.3 + k * .11, 1.03, zN + .6, g, { cast: false, rz: (k % 3 - 1) * .12 }); addCol(x0 + 9.2, x0 + 10.0, zN + .37, zN + .83);
     // 북측(광장 조망면) 대도서관 현판 추가
     pbox(5.8, .62, .14, darkMetal, cx, 8.55, cz - D / 2 - .42, g, { cast: false });
     pmesh(new THREE.PlaneGeometry(5.6, .52), new THREE.MeshBasicMaterial({ map: makeSign('중앙학술정보관 · CENTRAL LIBRARY', '#221a14', '#f4e8c8', 22) }), cx, 8.55, cz - D / 2 - .50, g, { ry: Math.PI, cast: false });

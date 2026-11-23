@@ -64,3 +64,17 @@ html body #settings .setPage label,html body #settings .setPage>div{word-break:k
 #loading .ldPct{display:block;margin-top:6px;font:600 11px/1 'Nanum Gothic Coding',monospace;letter-spacing:.24em;color:#8a7a58}
 
 @media (prefers-reduced-motion:reduce){#noteBox.show #note,html body #toasts>.toast{animation:none}}
+
+/* 좁은 화면(휴대폰 세로 · 작은 창): 설정창이 가로로 넘쳐 슬라이더 · 선택 상자가 화면 밖으로 밀리던 문제 — 탭을 위로, 항목을 한 줄씩 */
+@media (max-width:560px){
+  html body #settings .win{width:96vw;padding-left:12px;padding-right:12px;max-height:94vh;overflow-y:auto;overflow-x:hidden}
+  html body #setBody{flex-direction:column;gap:10px;min-height:0}
+  html body #setTabs{flex-direction:row;flex-wrap:wrap;width:auto}
+  html body #setTabs button{padding:7px 9px;font-size:12px}
+  html body #settings .setgrid{grid-template-columns:minmax(0,1fr)}
+  html body #settings .setgrid h4{grid-column:1}
+  html body #settings .setgrid>*{min-width:0}
+  html body #settings .keys{grid-template-columns:minmax(0,1fr) auto}
+  html body #keyRemap{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+  html body #inv .win,html body #mapOv .win{max-width:100vw}
+}

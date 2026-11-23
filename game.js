@@ -7622,7 +7622,7 @@ async function useBcRead() {
 function installGuardWall() {
   if (installGuardWall.done) return; try { installGuardWall0(); } catch (e) { console.warn('[guard wall]', e); } }
 function installGuardWall0() {
-  const wx = 4.95, zK = 67.4, hit = () => wx;   // 경비실 서쪽 벽 안쪽 면 (실측: 창 남쪽 벽 구간 z 66.9~67.9 · 북쪽 z 65.5 부근)
+  const wx = 4.95, zK = 67.25, hit = () => wx;   // zK 67.4 → 67.25: 열린 유리문 · 출입 대장이 남쪽 벽(안쪽 면 z 67.79) 속으로 4~15cm 파묻혀 있었다   // 경비실 서쪽 벽 안쪽 면 (실측: 창 남쪽 벽 구간 z 66.9~67.9 · 북쪽 z 65.5 부근)
   installGuardWall.done = true; const g = new THREE.Group(); g.userData.rbKeep = true; g.name = 'guardWall'; scene.add(g);
   const mk = (c, r, m = 0) => new THREE.MeshStandardMaterial({ color: c, roughness: r, metalness: m });
   const bx = (m, x, y, z, w, h, d) => { const o = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m); o.position.set(x, y, z); o.userData.gw = true; g.add(o); return o; };
@@ -7630,15 +7630,21 @@ function installGuardWall0() {
   const KX = wx + .05, BOX = mk(0x7a8084, .5, .5), TAGY = mk(0xe8c840, .7), TAGW = mk(0xeeeae0, .8), KEY = mk(0xb8a060, .35, .8);
   bx(BOX, KX, 1.55, zK, .08, .7, .55); bx(mk(0x30343a, .6), KX + .041, 1.55, zK, .002, .64, .5);
   for (let i = 0; i < 4; i++) for (let j = 0; j < 6; j++) { const y = 1.78 - i * .15, z = zK - .2 + j * .08; bx(KEY, KX + .055, y, z, .02, .015, .006); if (!(i === 1 && j === 3)) { bx(KEY, KX + .065, y - .04, z, .004, .05, .012); bx((i + j) % 3 ? TAGW : TAGY, KX + .066, y - .085, z, .003, .04, .022); } }
-  const door = bx(mk(0xa8c8d8, .1, .2), KX + .08, 1.55, zK + .28, .004, .64, .5); door.material.transparent = true; door.material.opacity = .3; door.rotation.y = -.5;
+  const door = bx(mk(0xa8c8d8, .1, .2), KX + .045 + .12, 1.55, zK + .055, .004, .64, .5);   // 남쪽 모서리 경첩(zK + .275)을 축으로 바깥(+x)으로 열린 유리문 — 예전엔 문 가운데가 경첩 자리에 있어 반쪽이 함 속 · 벽 속에 박혔다 door.material.transparent = true; door.material.opacity = .3; door.rotation.y = -.5;
   // 라벨 「열쇠 관리함 · 무단 반출 금지」
   { const c = document.createElement('canvas'); c.width = 256; c.height = 48; const q = c.getContext('2d'); q.fillStyle = '#f2eee2'; q.fillRect(0, 0, 256, 48); q.fillStyle = '#a01818'; q.font = 'bold 24px sans-serif'; q.textAlign = 'center'; q.textBaseline = 'middle'; q.fillText('열쇠 관리함 · 무단 반출 금지', 128, 25);
     const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; const m = new THREE.Mesh(new THREE.PlaneGeometry(.5, .09), new THREE.MeshStandardMaterial({ map: t })); m.rotation.y = Math.PI / 2; m.position.set(KX + .045, 1.95, zK); m.userData.gw = true; g.add(m); }
   // 순찰 시계함 (가죽 케이스 · 어깨끈) — 열쇠함 북쪽 못에 걸림
-  const zP = 65.5, px = wx + .07; bx(mk(0x3a2a1c, .7), px, 1.35, zP, .1, .2, .18); bx(mk(0x2a1e14, .8), px - .01, 1.55, zP, .01, .3, .02);
+  const zP = 65.6, px = wx + .07;   // 65.5 → 65.6: 회색 사물함(z ~65.5) 옆판에 반쯤 박혀 있었다 (창틀 65.7 전까지) bx(mk(0x3a2a1c, .7), px, 1.35, zP, .1, .2, .18); bx(mk(0x2a1e14, .8), px - .01, 1.55, zP, .01, .3, .02);
   // 방문객 출입 대장 (클립보드 · 볼펜) — 열쇠함 남쪽
-  const zV = zK + .42, vx = wx + .03; bx(mk(0x6a4a2a, .7), vx, 1.3, zV, .01, .32, .23); bx(mk(0xf0ece0, .9), vx + .006, 1.28, zV, .002, .27, .2); bx(mk(0xb8b8b0, .3, .8), vx + .01, 1.44, zV, .012, .03, .1);
+  const zV = zK + .4, vx = wx + .03; bx(mk(0x6a4a2a, .7), vx, 1.3, zV, .01, .32, .23); bx(mk(0xf0ece0, .9), vx + .006, 1.28, zV, .002, .27, .2); bx(mk(0xb8b8b0, .3, .8), vx + .01, 1.44, zV, .012, .03, .1);
   world.props.push({ kind: 'eqKeyBox', floor: 0, x: KX + .6, z: zK, y: 1.5, r: 1.2, label: '경비실 열쇠함 살펴보기' });
+  // 2008 고증: 열쇠함 위 '2008년 10월 경비 근무 교대표' (A4 한 장 · 압정 2) — 주 · 야간 2교대, 마지막 칸 10.12 야간은 비어 있다
+  { const c = document.createElement('canvas'); c.width = 192; c.height = 256; const q = c.getContext('2d'); q.fillStyle = '#f3f0e4'; q.fillRect(0, 0, 192, 256); q.fillStyle = '#1a1a1a'; q.font = 'bold 15px sans-serif'; q.textAlign = 'center'; q.fillText('2008. 10 경비 근무 교대표', 96, 24);
+    q.font = '12px sans-serif'; q.textAlign = 'left'; q.strokeStyle = '#555'; for (let i = 0; i < 12; i++) { const y = 40 + i * 17; q.strokeRect(10, y, 172, 17); q.fillText(`10.${i + 1}`, 14, y + 13); q.fillText(i === 11 ? '주 박○○ / 야 ———' : i % 2 ? '주 박○○ / 야 김○○' : '주 김○○ / 야 박○○', 54, y + 13); }
+    q.fillStyle = '#a01818'; q.font = 'bold 11px sans-serif'; q.fillText('※ 22:30 본관 시건 확인 후 서명', 12, 250);
+    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; const m = new THREE.Mesh(new THREE.PlaneGeometry(.21, .28), new THREE.MeshStandardMaterial({ map: t, roughness: .9 })); m.rotation.set(0, Math.PI / 2, .03); m.position.set(wx + .012, 2.22, zK); m.userData.gw = true; g.add(m);
+    [-.08, .08].forEach(dz => bx(mk(0xc02020, .5), wx + .016, 2.34, zK + dz, .008, .012, .012)); }
   world.props.push({ kind: 'look', floor: 0, x: vx + .6, z: zV, y: 1.3, r: 1.0, label: '방문객 출입 대장 넘겨 보기', n: 0, fn: p => { sfx.paper(); return p.n++ % 2 ? '1998.10.12 — 22:20 “교무부장 권○○ · 용무: 방송실 점검” 퇴실 시각 칸은 비어 있다.' : '2008.10.12 — 마지막 줄에 낯익은 글씨: “서다은 · 동생 찾으러 옴.” 퇴실 칸은 비어 있다.'; } });
   try { upgradePlainMaterials(g); } catch (e) {}
 }
@@ -7684,6 +7690,14 @@ function refinishB1() {
     // 안전 표지: 「대피로 →」 · 「고압 위험」
     [[X1 + 8, '대피로 → 계단', '#0a5a2a'], [X2 - 9, '⚡ 고압 위험 · 전기실', '#a01818']].forEach(([x, t, bg]) => { const c = document.createElement('canvas'); c.width = 256; c.height = 64; const q = c.getContext('2d'); q.fillStyle = bg; q.fillRect(0, 0, 256, 64); q.fillStyle = '#fff'; q.font = 'bold 26px sans-serif'; q.textAlign = 'center'; q.textBaseline = 'middle'; q.fillText(t, 128, 33);
       const tx = new THREE.CanvasTexture(c); tx.colorSpace = THREE.SRGBColorSpace; const m = new THREE.Mesh(new THREE.PlaneGeometry(.8, .2), new THREE.MeshStandardMaterial({ map: tx, emissive: 0xffffff, emissiveMap: tx, emissiveIntensity: .35 })); m.position.set(x, y0 + 2.2, -1.73); m.userData.b1new = true; g.add(m); }); }
+  // 2008 고증: 복도 남벽 위 「민방위 대피소」 표지판 (노랑 바탕 · 검은 글씨 · 수용 인원) + 소화전함 옆 '2008년 10월 소방 · 전기 안전점검표' 클립보드
+  { const sgn = (w, h, cw, ch, draw) => { const c = document.createElement('canvas'); c.width = cw; c.height = ch; draw(c.getContext('2d'), cw, ch); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshStandardMaterial({ map: t, roughness: .7 })); m.userData.b1new = true; g.add(m); return m; };
+    const sh = sgn(.9, .3, 384, 128, (q, W, Hh) => { q.fillStyle = '#f2c81a'; q.fillRect(0, 0, W, Hh); q.strokeStyle = '#1a1a1a'; q.lineWidth = 6; q.strokeRect(4, 4, W - 8, Hh - 8); q.fillStyle = '#1a1a1a'; q.textAlign = 'center'; q.font = 'bold 44px sans-serif'; q.fillText('민방위 대피소', W / 2, 58); q.font = '22px sans-serif'; q.fillText('서린고 지하 1층 · 수용 300명 · 2008 지정', W / 2, 100); });
+    sh.position.set(X1 + 14, y0 + 2.55, 1.72); sh.rotation.y = Math.PI;
+    const cx2 = (F.stairCx ?? 0) + 1.75; box(mk(0x6a4a2a, .7), cx2 - .12, cx2 + .12, 1.32, 1.66, -1.75, -1.738);
+    const ck = sgn(.21, .28, 192, 256, (q, W, Hh) => { q.fillStyle = '#f2efe4'; q.fillRect(0, 0, W, Hh); q.fillStyle = '#1a1a1a'; q.font = 'bold 15px sans-serif'; q.textAlign = 'center'; q.fillText('소방 · 전기 안전점검표', W / 2, 24); q.font = '13px sans-serif'; q.fillText('2008년 10월 · 시설관리', W / 2, 44); q.textAlign = 'left'; q.font = '12px sans-serif';
+      ['소화전 압력', '비상조명', '배전반 누전', '양수펌프', '방화셔터', '유도등'].forEach((t, i) => { const y = 66 + i * 28; q.strokeStyle = '#666'; q.strokeRect(10, y - 14, 172, 22); q.fillText(t, 14, y); q.fillText(i === 2 ? '불량 — 재점검' : '이상 없음  ✓', 96, y); }); });
+    ck.position.set(cx2, y0 + 1.47, -1.735); }
   // 진입 계단실: 숨겨진 옛 계단 자리에 새 철골 계단 (콘크리트 디딤판 12단 · 철제 측판 · 난간) + 'B1 ↑ 본관 1층' 유도등 — 시각만 (오르내림은 계단 구역 판정 그대로)
   { const cx = F.stairCx ?? 0, sx1 = cx - 2.45, sx2 = cx - 1.2, zA = -2.4, zB = -8.6, n = 12;
     // 새 본관 중앙 계단과 같은 마감: 테라조 디딤판 · 시멘트 챌판 · 노란 미끄럼 방지 논슬립 · 계단실 벽(하부 녹색 도장 · 상부 미색) · 벽 손잡이 · 열린 쪽 스틸 난간(동자 기둥) — 예전 통짜 블록 · 두꺼운 경사 철판은 걷어 냈다

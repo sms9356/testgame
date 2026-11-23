@@ -538,9 +538,9 @@ const D08_KIND = r => /창고|보관|보존|장비/.test(r.name) ? 'store' : /�
 const colLevel = (B, k) => B.levels < 2 ? 0 : k.y0 != null ? (k.y0 >= FH - .3 ? 1 : 0) : k.h != null ? (k.h >= FH - .2 ? 1 : 0) : 0;
 function colFree(B, x1, x2, z1, z2, lvl, pad = .08, tallOnly = false) {
   const a = B.wx(x1) - pad, b = B.wx(x2) + pad, c = B.wz(z1) - pad, d = B.wz(z2) + pad;
-  return !B.ctx.floors[0].col.some(k => !k.off && k.x1 < b && k.x2 > a && k.z1 < d && k.z2 > c && colLevel(B, k) === lvl && (!tallOnly || k.h == null || k.h - lvl * FH > 1.3));
+  return !B.ctx.floors[0].col.some(k => !k.off && k.x1 < b && k.x2 > a && k.z1 < d && k.z2 > c && colLevel(B, k) === lvl && !(k.h != null && k.h - lvl * FH < .05) && (!tallOnly || k.h == null || k.h - lvl * FH > 1.3));   // 위층 바닥판(윗면 = 층 바닥 높이) 충돌체는 가구가 아니다 — 이걸 막힘으로 보아 2층 바닥 소품이 하나도 놓이지 않았다
 }
-function d08Group(B, x, y, z, ry, fn) { const g = new THREE.Group(); g.position.set(B.wx(x), y, B.wz(z)); g.rotation.y = ry; g.userData.dynamic = true; fn(g); B.g.add(g); return g; }
+function d08Group(B, x, y, z, ry, fn) { const g = new THREE.Group(); g.position.set(B.wx(x), y, B.wz(z)); g.rotation.y = ry; g.userData.dynamic = true; g.userData.d08 = true; fn(g); B.g.add(g); return g; }
 const d08Mesh = (g, geo, mk, x, y, z, o = {}) => { const m = new THREE.Mesh(geo, lib()[mk][0]); m.position.set(x, y, z); if (o.rx) m.rotation.x = o.rx; if (o.rz) m.rotation.z = o.rz; if (o.ry) m.rotation.y = o.ry; m.receiveShadow = true; g.add(m); return m; };
 function wallClock08(B, x, y, z, ry, t = 10.17) {   // 둥근 벽시계 (검은 테 · 흰 판 · 시침 · 분침) — 시각은 방마다 다르게
   d08Group(B, x, y, z, ry, g => { d08Mesh(g, new THREE.CylinderGeometry(.21, .21, .03, 24).rotateX(Math.PI / 2), 'BLACK', 0, 0, .015); d08Mesh(g, new THREE.CylinderGeometry(.185, .185, .01, 24).rotateX(Math.PI / 2), 'WHITE', 0, 0, .033);
@@ -572,17 +572,25 @@ function boxStack08(B, x, z, ry, lvl) {   // 골판지 상자 더미 (바닥 2 +
 function decor08(B, rooms) {
   let n = 0, k = 0;
   for (const r of rooms) {
-    if (r.corridor || r.lobby || r.stair || r.stairTop || r.open || !r.doorAt || D08_SKIP.test(r.name) || r.x2 - r.x1 < 3.6) continue; k++;
+    // 위층(lvl ≥ 1)의 개방형 방(휴게실 · 기획전시실 등 복도 쪽 전면 개방)도 꾸민다 — 개방된 복도 쪽 모서리는 비우고 바깥벽 쪽만
+    const openUp = r.open && r.lvl > 0 && !r.stairTop && !r.stair;
+    if (r.corridor || r.lobby || r.stair || r.stairTop || (r.open && !openUp) || (!r.doorAt && !openUp) || D08_SKIP.test(r.name) || r.x2 - r.x1 < 3.6) continue; k++;
     const lvl = r.lvl, y0 = lvl * FH, kind = D08_KIND(r), W = r.gaps || {}, inGap = (arr, a, b) => (arr || []).some(([p, q]) => a < q + .3 && b > p - .3);
-    const wallSpot = zs => { for (const side of (k % 2 ? ['E', 'W'] : ['W', 'E'])) for (const z of zs) { if (inGap(W[side], z - .3, z + .3)) continue; const x = side === 'W' ? r.x1 + LIN + .02 : r.x2 - LIN - .02; if (!colFree(B, side === 'W' ? r.x1 + .08 : r.x2 - .5, side === 'W' ? r.x1 + .5 : r.x2 - .08, Math.max(r.z1 + .08, z - .3), Math.min(r.z2 - .08, z + .3), lvl, 0, true)) continue; return [x, z, side === 'W' ? Math.PI / 2 : -Math.PI / 2]; } return null; };
-    const mid = (r.z1 + r.z2) / 2;
-    if (kind !== 'store') { const w = wallSpot([mid, r.z1 + 1.3, r.z2 - 1.3]); if (w) { wallClock08(B, w[0], y0 + 2.25, w[1], w[2], [10.17, 3.4, 7.25, 12.42, 9.08][(k + lvl) % 5]); n++; } }
-    if (kind === 'office' || kind === 'study') { const w = wallSpot([r.z1 + 1.0, r.z2 - 1.0, mid]); if (w) { wallCalendar08(B, w[0], y0 + 1.55, w[1], w[2]); n++; } }
+    const wallSpot = zs => { for (const side of (k % 2 ? ['E', 'W'] : ['W', 'E'])) for (const z of zs) { if (z < r.z1 + .5 || z > r.z2 - .5 || inGap(W[side], z - .3, z + .3)) continue; const x = side === 'W' ? r.x1 + LIN + .02 : r.x2 - LIN - .02; if (!colFree(B, side === 'W' ? r.x1 + .08 : r.x2 - .5, side === 'W' ? r.x1 + .5 : r.x2 - .08, Math.max(r.z1 + .08, z - .3), Math.min(r.z2 - .08, z + .3), lvl, 0, true)) continue; return [x, z, side === 'W' ? Math.PI / 2 : -Math.PI / 2]; } return null; };
+    const mid = (r.z1 + r.z2) / 2, q1 = r.z1 + (r.z2 - r.z1) * .3, q3 = r.z1 + (r.z2 - r.z1) * .7;
+    // 위층은 침대 · 책장 · 전시장이 옆벽을 많이 차지한다 → 후보 높이 · 위치를 더 둔다 (같은 규칙: 옆벽 · 개구부 밖 · 키 큰 충돌체 없는 곳)
+    const zsA = lvl > 0 ? [mid, r.z1 + 1.3, r.z2 - 1.3, q1, q3, r.z1 + .8, r.z2 - .8] : [mid, r.z1 + 1.3, r.z2 - 1.3];
+    let clockAt = null;
+    if (kind !== 'store') { const w = wallSpot(zsA); if (w) { clockAt = w; wallClock08(B, w[0], y0 + 2.25, w[1], w[2], [10.17, 3.4, 7.25, 12.42, 9.08][(k + lvl) % 5]); n++; } }
+    if (kind === 'office' || kind === 'study') { const zsC = (lvl > 0 ? [r.z1 + 1.0, r.z2 - 1.0, mid, q1, q3] : [r.z1 + 1.0, r.z2 - 1.0, mid]).filter(z => !clockAt || Math.abs(z - clockAt[1]) > .7); const w = wallSpot(zsC); if (w) { wallCalendar08(B, w[0], y0 + 1.55, w[1], w[2]); n++; } }
     // 바닥 소품: 문에서 먼 모서리부터 (출입문 앞 · 기존 충돌체 · 개구부는 제외)
-    const dc = (r.doorAt[0] + r.doorAt[1]) / 2, ext = r.north ? r.z1 + .45 : r.z2 - .45, inn = r.north ? r.z2 - .45 : r.z1 + .45, doorZ = r.north ? r.z2 : r.z1, xm = (r.x1 + r.x2) / 2;
-    const corners = [[r.x1 + .45, ext], [r.x2 - .45, ext], [r.x1 + .45, inn], [r.x2 - .45, inn]].filter(([x, z]) => Math.abs(x - dc) > 1.6 || Math.abs(z - doorZ) > 1.2).filter(([x, z]) => !inGap(W[x < xm ? 'W' : 'E'], z - .4, z + .4)).sort((a, b) => Math.abs(b[0] - dc) - Math.abs(a[0] - dc));
-    const want = kind === 'store' ? ['box', 'box'] : kind === 'office' ? ['plant', 'water'] : kind === 'food' ? ['water', 'plant'] : kind === 'dorm' ? ['plant'] : (k % 2 ? ['plant'] : ['water']);
-    for (const wt of want) { const c = corners.find(([x, z]) => colFree(B, Math.max(r.x1 + .08, x - .6), Math.min(r.x2 - .08, x + .6), Math.max(r.z1 + .08, z - .45), Math.min(r.z2 - .08, z + .45), lvl, 0)); if (!c) break; corners.splice(corners.indexOf(c), 1);
+    const xm = (r.x1 + r.x2) / 2, dc = r.doorAt ? (r.doorAt[0] + r.doorAt[1]) / 2 : xm, ext = r.north ? r.z1 + .45 : r.z2 - .45, inn = r.north ? r.z2 - .45 : r.z1 + .45, doorZ = r.north ? r.z2 : r.z1;
+    const cand = [[r.x1 + .45, ext], [r.x2 - .45, ext], ...(openUp ? [] : [[r.x1 + .45, inn], [r.x2 - .45, inn]])];
+    if (lvl > 0) cand.push([r.x1 + .45, mid], [r.x2 - .45, mid], [xm - (r.x2 - r.x1) * .25, ext], [xm + (r.x2 - r.x1) * .25, ext]);   // 위층: 옆벽 가운데 · 바깥벽 1/4 지점도 후보
+    const corners = cand.filter(([x, z]) => openUp || Math.abs(x - dc) > 1.6 || Math.abs(z - doorZ) > 1.2).filter(([x, z]) => !inGap(W[x < xm ? 'W' : 'E'], z - .4, z + .4)).sort((a, b) => Math.abs(b[0] - dc) - Math.abs(a[0] - dc));
+    const want = kind === 'store' ? ['box', 'box'] : kind === 'office' ? ['plant', 'water'] : kind === 'food' ? ['water', 'plant'] : kind === 'dorm' ? (lvl > 0 ? ['plant', 'box'] : ['plant']) : (k % 2 ? ['plant'] : ['water']);
+    if (lvl > 0 && kind === 'study') want.push(k % 2 ? 'water' : 'plant');
+    for (const wt of want) { const c = corners.find(([x, z]) => colFree(B, Math.max(r.x1 + .08, x - .6), Math.min(r.x2 - .08, x + .6), Math.max(r.z1 + .08, z - .45), Math.min(r.z2 - .08, z + .45), lvl, 0)); if (!c) { if (lvl === 0) break; continue; } corners.splice(corners.indexOf(c), 1);
       if (wt === 'plant') plant08(B, c[0], c[1], lvl); else if (wt === 'water') waterDispenser08(B, c[0], c[1], r.north ? 0 : Math.PI, lvl); else boxStack08(B, c[0] + (c[0] < xm ? .35 : -.35), c[1], 0, lvl); n++; }
   }
   return n;
@@ -1027,7 +1035,8 @@ export function installFacilityRebuild(ctx) {
   // 대강당: 단상 콘솔 → 강연대, 명찰 → 객석, 테이프 → 조정실 믹서, 숨는 곳 → 무대 커튼 뒤
   { const { B, anchors } = built.aud, Z = ZONES.aud; const fz = world.props.filter(p => p.kind === 'fz' && inZone(p, Z));
     fz.forEach(p => { const lab = p.label || ''; const a = /콘솔|단상/.test(lab) ? [...anchors.lectern, 2.2, 0] : /명찰/.test(lab) ? [...anchors.tag, .6, 0] : /테이프/.test(lab) ? [...anchors.mixer, .95, 0] : null; if (!a) return;
-      const [x, z, y] = a; const wx = B.wx(x), wz = B.wz(z); if (p.mesh) { const dx = wx - p.x, dz = wz - p.z; p.mesh.position.x += dx; p.mesh.position.z += dz; p.mesh.position.y += (y - (p.y ?? y)); } p.x = wx; p.z = wz; p.y = y; });
+      const [x, z, y] = a; const wx = B.wx(x), wz = B.wz(z); if (p.mesh) { const dx = wx - p.x, dz = wz - p.z; p.mesh.position.x += dx; p.mesh.position.z += dz; p.mesh.position.y += (y - (p.y ?? y)); } p.x = wx; p.z = wz; p.y = y;
+      if (/콘솔|단상/.test(lab) && p.mesh) p.mesh.visible = false; });   // 옛 체육관 연설대 상자(짙은 갈색 0.9 × 1.25m)가 새 강연대 0.9m 앞 무대 끝에 겹쳐 서 있었다 — 강연대가 같은 조사 지점이므로 상자만 감춘다
     (world.lockers || []).forEach(l => { if (l.floor === 0 && inZone(l, Z)) { l.x = B.wx(anchors.curtain[0]); l.z = B.wz(anchors.curtain[1]); l.y = 1.0; } }); }
   // 급식실 · 수영장: 외관 신축 + 실내 마감 재질 코드 (F-01/W-05/C-01 · F-04/W-05/C-03)
   const ext = [];

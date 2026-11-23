@@ -73,7 +73,7 @@ if (uMcLevel > 0.5 && uMc.x > 0.0) {
   vec3 col = diffuseColor.rgb * (1.0 + lum * amt);
   // 때 · 물자국: 갈색 기운이 도는 어두운 얼룩 (천장 · 벽은 강하게, 바닥은 약하게)
   float stain = smoothstep(.50, .95, a.g * .55 + b.r * .45);
-  float stainK = ce > .5 ? .55 : (wl > .5 ? .26 : .18);
+  float stainK = ce > .5 ? .55 : (wl > .5 ? .20 : .16);
   col *= mix(vec3(1.0), vec3(.80, .73, .62), stain * stainK * amt);
   // 가는 얼룩 선 (헤어라인 균열 · 물 흐름 자국)
   float crack = smoothstep(.45, .85, b.a) * smoothstep(.58, .78, a.r + (c.g - .5) * .3) * (1.0 - ce);

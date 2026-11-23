@@ -5,6 +5,7 @@
 //   새 건물 실사 모델: 정수기 물 마시기 · 벽시계 보기 · 소화기 · 화분
 // 메시는 처음 쓸 때만 만든다(커튼) — 평소 그리기 비용은 차임 스위치함 하나뿐. 전등 스위치는 전기팀 담당이라 손대지 않는다.
 export function installInteractionsPlus({ THREE, scene, world, RBG, sfx, showNote, P, FL, giveItem }) {
+  const wallDeco = o => { o.updateMatrixWorld(true); const bb = new THREE.Box3().setFromObject(o); if (!bb.isEmpty()) (RBG.wallDeco ||= []).push({ id: o.name, x1: bb.min.x, x2: bb.max.x, z1: bb.min.z, z2: bb.max.z, y1: bb.min.y, y2: bb.max.y }); };   // 벽 장식 등록 — 벽걸이 장치가 피한다
   if (!RBG || !RBG.BLD || installInteractionsPlus.done) return 0; installInteractionsPlus.done = true;
   const pk = a => a[Math.floor(Math.random() * a.length)];
   let n = 0;
@@ -43,14 +44,14 @@ export function installInteractionsPlus({ THREE, scene, world, RBG, sfx, showNot
         const bt = new THREE.Mesh(new THREE.CylinderGeometry(.03, .03, .025, 14), red); bt.rotation.x = Math.PI / 2; bt.position.set(0, -.04, .07); grp.add(bt);
         const c = document.createElement('canvas'); c.width = 128; c.height = 48; const q = c.getContext('2d'); q.fillStyle = '#f4f0e2'; q.fillRect(0, 0, 128, 48); q.fillStyle = '#222'; q.font = 'bold 26px sans-serif'; q.textAlign = 'center'; q.textBaseline = 'middle'; q.fillText('수업 종', 64, 25);
         const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; const lb = new THREE.Mesh(new THREE.PlaneGeometry(.16, .06), new THREE.MeshStandardMaterial({ map: t, roughness: .7 })); lb.position.set(0, .08, .061); grp.add(lb);
-        scene.add(grp);
+        scene.add(grp); wallDeco(grp);
         // 교무실 일정 칠판 (반대편 벽)
         { const bw = 2.0, bh = 1.0, cx = x2 - 1.5, [wx2, wz2] = b.toWorld(cx, z1 + .02), [ix, iz] = b.toWorld(cx, z1 + 1), sg = new THREE.Group(); sg.position.set(wx2, y0 + 1.5, wz2); sg.rotation.y = Math.atan2(ix - wx2, iz - wz2); sg.name = 'PLUS_schedBoard'; sg.userData.rbKeep = true;   // 칠판 몸체 (예전엔 조사 지점만 있고 칠판이 없었다): 복도 쪽 벽 · 뒷문 동쪽 통벽
           const c2 = document.createElement('canvas'); c2.width = 512; c2.height = 256; const q2 = c2.getContext('2d'); q2.fillStyle = '#23402f'; q2.fillRect(0, 0, 512, 256); q2.fillStyle = '#e8e8dc'; q2.font = 'bold 30px sans-serif'; q2.fillText('10월 행사 일정', 24, 46); q2.font = '22px sans-serif';
           ['12(일) 개교 기념 방송 리허설', '야자 감독 — 3학년부 김 교사', '14(화) 중간고사 성적 입력 마감'].forEach((l, i) => q2.fillText(l, 30, 96 + i * 38)); q2.fillStyle = '#e05a4a'; q2.font = 'italic 22px sans-serif'; q2.fillText('12일 밤, 방송실 열쇠 확인할 것', 200, 226);
           const t2 = new THREE.CanvasTexture(c2); t2.colorSpace = THREE.SRGBColorSpace; const bd = new THREE.Mesh(new THREE.PlaneGeometry(bw, bh), new THREE.MeshStandardMaterial({ map: t2, roughness: .9 })); bd.position.z = .03; sg.add(bd);
           const fm = new THREE.MeshStandardMaterial({ color: 0x8a6a44, roughness: .6 }); [[0, bh / 2 + .02, bw + .08, .04], [0, -bh / 2 - .02, bw + .08, .04], [bw / 2 + .02, 0, .04, bh], [-bw / 2 - .02, 0, .04, bh]].forEach(([x, y, w, h]) => { const f2 = new THREE.Mesh(new THREE.BoxGeometry(w, h, .05), fm); f2.position.set(x, y, .025); sg.add(f2); });
-          scene.add(sg); }
+          scene.add(sg); wallDeco(sg); }
         add(b, x2 - 1.5, z1 + .9, y0, 1.5, '교무실 일정 칠판 읽기', () => { sfx.paper(); showNote({ title: '교무실 일정 칠판', text: '10월 행사 — 12(일) 개교 기념 방송 리허설 · 야간 자율학습 감독 3학년부 김 교사 · 14(화) 중간고사 성적 입력 마감. 칠판 구석에 누군가 빨간 분필로 덧썼다: “12일 밤, 방송실 열쇠 확인할 것.”' }); return ''; }, 1.5);
         add(b, lx, lz - .7, y0, 1.45, '수업 종 울리기 (차임 스위치)', p => { if (p.cd && performance.now() - p.cd < 8000) return '스위치가 아직 뜨겁다. 조금 있다가.'; p.cd = performance.now(); sfx.classBell(); P.fear = Math.min(1, (P.fear || 0) + .05);
           return p.n++ ? '빈 학교에 종소리가 퍼진다. 아무도 일어서지 않는다.' : '딩동댕동— 텅 빈 복도마다 수업 종이 울려 퍼졌다. 어딘가에서 의자 끄는 소리가 따라 났다.'; }, 1.2);

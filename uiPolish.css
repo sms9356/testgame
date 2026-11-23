@@ -78,3 +78,4 @@ html body #settings .setPage label,html body #settings .setPage>div{word-break:k
   html body #keyRemap{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
   html body #inv .win,html body #mapOv .win{max-width:100vw}
 }
+#prompt kbd.gpGlyph{border-radius:50%;min-width:1.6em;text-align:center;background:#3d8b4a;color:#fff}body.gpMode #clickHint{display:none!important}

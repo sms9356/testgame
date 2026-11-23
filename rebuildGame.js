@@ -2,14 +2,14 @@
 //   항상 켜진다 (예전 건물 모드는 폐지).
 //   예전 본관(1~3층 · 옥상) · 별관(8~10층) 건물은 감추고, 그 자리 땅(0층)에서 새 건물을 걷는다.
 //   높이는 P.sh(계단 높이 보정값)로 넘긴다 → 카메라 · 점프 · 가구 오르기 코드는 손대지 않아도 된다.
-import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN, grafMaterial } from './rebuild/mainBuilding.js?v=448';
-import { placeModels } from './rebuild/models.js?v=448';
-import { installArtFrames } from './rebuild/artFrames.js?v=448';
-import { carve, subdivide } from './rebuild/transplant.js?v=448';
+import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN, grafMaterial } from './rebuild/mainBuilding.js?v=449';
+import { placeModels } from './rebuild/models.js?v=449';
+import { installArtFrames } from './rebuild/artFrames.js?v=449';
+import { carve, subdivide } from './rebuild/transplant.js?v=449';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { turfMaterial } from './campusVisuals.js?v=448';
-import { ENGINE } from './engine.js?v=448';
-import { whenIdle, idleTimeout, idleInterval, setIdleProbe } from './idleTasks.js?v=448';
+import { turfMaterial } from './campusVisuals.js?v=449';
+import { ENGINE } from './engine.js?v=449';
+import { whenIdle, idleTimeout, idleInterval, setIdleProbe } from './idleTasks.js?v=449';
 
 // 예전 건물이 차지하던 땅 (이 안의 예전 메시 · 충돌 상자를 걷어 낸다)
 const OLD_MAIN = { x1: -51, x2: 51, z1: -10.6, z2: 10.9 };
@@ -239,7 +239,8 @@ export function installRebuild({ THREE, scene, floors, world }) {
     cull(dt, P) { cullModels(dt, P); for (const F of OLD_FLOORS) { if (F.interior.visible) F.interior.visible = false; if (F.shell && F.shell.visible) F.shell.visible = false; } },   // 매 프레임(메뉴 · 인트로 포함) 예전 층을 끈다
     // 숨긴 예전 층에 남은 죽은 상호작용(옛 스위치 · 사물함 문 · 둘러보기 · 엘리베이터 호출 · 옥상 문) 정리 — 새 건물에 같은 것이 따로 있다
     pruneOld() { const OLDF = new Set([1, 2, 3, 8, 9, 10]), dead = new Set(['switch', 'ldoor', 'look', 'elevator', 'roofDoor']); for (let i = world.props.length - 1; i >= 0; i--) { const q = world.props[i]; if (OLDF.has(q.floor) && dead.has(q.kind)) world.props.splice(i, 1); } },
-    tick(dt, P, sfx) { if ((this._pt = (this._pt || 0) + dt) > 5) { this._pt = 0; this.pruneOld(); } BLD.forEach(b => b.tickDoors(dt)); OLD_FLOORS.forEach(F => { if (F.interior.visible) F.interior.visible = false; if (F.shell && F.shell.visible) F.shell.visible = false; }); /* 게임의 층 표시 로직이 예전 층을 다시 켜도 끈다 */ cullModels(dt, P); if (R.elevTick) R.elevTick(dt, P, sfx); },
+    tick(dt, P, sfx) { if (this._panelLeds && (this._lt = (this._lt || 0) - dt) <= 0) { this._lt = .5; const E = window.__elec; if (E) { const mc = MAIN.toWorld(0, 0), ac = ANX.toWorld(0, 0); for (const q of this._panelLeds) { const f = Math.round((q.p.rbY ?? 0) / MAIN.spec.FH), bid = Math.hypot(q.p.x - ac[0], q.p.z - ac[1]) < Math.hypot(q.p.x - mc[0], q.p.z - mc[1]) ? 'annex' : 'main', B = E.BLD.get(bid), k = B && B.brks.get(bid + ':' + f + 'F'), on = k ? E.brkOn(k) && B.live() : true; q.m.color.setHex(on ? 0x20ff50 : 0x401010); } } }
+      if ((this._pt = (this._pt || 0) + dt) > 5) { this._pt = 0; this.pruneOld(); } BLD.forEach(b => b.tickDoors(dt)); OLD_FLOORS.forEach(F => { if (F.interior.visible) F.interior.visible = false; if (F.shell && F.shell.visible) F.shell.visible = false; }); /* 게임의 층 표시 로직이 예전 층을 다시 켜도 끈다 */ cullModels(dt, P); if (R.elevTick) R.elevTick(dt, P, sfx); },
     // 새 건물 땅 위에 있나 (예전 건물 자리)
     inside(x, z) { return inOld(x, z); },
     floorOf(y) { return Math.max(0, Math.round(y / MAIN.spec.FH)); },
@@ -516,7 +517,8 @@ export function installRebuild({ THREE, scene, floors, world }) {
         for (const c of B.col) { if (c.y2 == null || c.y2 > below + .06 || c.y2 < best || c.y2 - (c.y1 ?? 0) > 2.4) continue; if (lx > c.x1 + .02 && lx < c.x2 - .02 && lz > c.z1 + .02 && lz < c.z2 - .02) best = c.y2; } } return best; };
     R._sup = supportAt;
     const WALL = /게시|액자|공지|시계|포스터|명패|달력|스위치|비상벨|배전반|분전반|거울|칠판|현판|안내|냉난방기|빔프로젝터|에어컨/;
-    const settle = (objs, label, onDy) => { if (!objs.length) return; bx.makeEmpty(); for (const o of objs) bx.expandByObject(o); if (bx.isEmpty()) return;
+    const sb = new THREE.Box3(), noSprite = o => { o.updateWorldMatrix(true, true); o.traverse(c => { if (!c.isMesh || c.isSprite || !c.geometry) return; if (c.isInstancedMesh) { sb.setFromObject(c); } else { if (!c.geometry.boundingBox) c.geometry.computeBoundingBox(); sb.copy(c.geometry.boundingBox).applyMatrix4(c.matrixWorld); } if (!sb.isEmpty()) bx.union(sb); }); };   // 빛무리 스프라이트(구급상자 · 건전지)는 빼고 잰다 — 넣으면 바닥이 상자 밑 0.3m 로 잡혀 놓일 때마다 그만큼 들어 올렸다
+    const settle = (objs, label, onDy) => { if (!objs.length) return; bx.makeEmpty(); for (const o of objs) noSprite(o); if (bx.isEmpty()) for (const o of objs) bx.expandByObject(o); if (bx.isEmpty()) return;
       if (WALL.test(label || '')) { const fl = Math.max(0, Math.floor((bx.min.y + .05) / FH)) * FH, h = bx.min.y - fl; if (h > .7 && h < 2.2) return; }   // 벽에 걸린 높이(0.7~2.2m)면 그대로, 천장 · 바닥 아래로 빠진 것만 바로잡는다
       const s = bx.getSize(new THREE.Vector3()); if (s.y > 2.2 || Math.max(s.x, s.z) > 3) return; const c = bx.getCenter(new THREE.Vector3()), sup = supportAt(c.x, c.z, bx.min.y); if (sup == null) return;
       const dy = sup - bx.min.y; if (Math.abs(dy) < .03) return; for (const o of objs) o.position.y += dy; onDy && onDy(dy); n++; };
@@ -556,7 +558,12 @@ export function installRebuild({ THREE, scene, floors, world }) {
       if (mk === 'tape') { const su = R.groundAt(p.x, p.z, y + 1.3), top = su != null && su - y > .4 && su - y < 1.3 ? su : y; { const bm = new THREE.Mesh(new THREE.BoxGeometry(.26, .08, .15), VIS.body); bm.position.y = .04; g.add(bm); }
         for (const sx of [-.055, .055]) { const r = new THREE.Mesh(new THREE.CylinderGeometry(.03, .03, .012, 14), VIS.reel); r.position.set(sx, .085, -.01); g.add(r); }
         const led = new THREE.Mesh(new THREE.BoxGeometry(.012, .008, .012), VIS.led); led.position.set(.1, .084, .05); g.add(led); g.position.set(p.x, top + .005, p.z); g.rotation.y = (p.x * 7 + p.z * 3) % 6.28; }
-      else if (mk === 'panel') { g.add(new THREE.Mesh(new THREE.BoxGeometry(.5, .7, .12), VIS.panel)); const lab = new THREE.Mesh(new THREE.BoxGeometry(.18, .06, .01), VIS.warn); lab.position.set(0, .26, .065); g.add(lab); g.position.set(p.x, y + 1.4, p.z);
+      else if (mk === 'panel') { g.add(new THREE.Mesh(new THREE.BoxGeometry(.5, .7, .12), VIS.panel)); const lab = new THREE.Mesh(new THREE.BoxGeometry(.18, .06, .01), VIS.warn); lab.position.set(0, .26, .065); g.add(lab);
+        { const cv = document.createElement('canvas'); cv.width = 256; cv.height = 64; const cx = cv.getContext('2d'); cx.fillStyle = '#d8d6c8'; cx.fillRect(0, 0, 256, 64); cx.strokeStyle = '#7a1c14'; cx.lineWidth = 4; cx.strokeRect(3, 3, 250, 58); cx.fillStyle = '#7a1c14'; cx.font = 'bold 34px sans-serif'; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText('전기실 · 분전반', 128, 33);
+          const tx = new THREE.CanvasTexture(cv); tx.colorSpace = THREE.SRGBColorSpace; const sg = new THREE.Mesh(new THREE.PlaneGeometry(.32, .08), new THREE.MeshBasicMaterial({ map: tx })); sg.position.set(0, .14, .063); g.add(sg);   // 함 앞면 한글 표찰
+          const lm = new THREE.MeshBasicMaterial({ color: 0x20ff50 }), ld = new THREE.Mesh(new THREE.SphereGeometry(.014, 10, 8), lm); ld.position.set(.19, .3, .066); g.add(ld);   // 전원 표시등 (electrical.js 차단기 상태 · tick 에서 갱신)
+          (R._panelLeds ||= []).push({ m: lm, p }); }
+        g.position.set(p.x, y + 1.4, p.z);
         { const sp = panelSpots.find(q => Math.hypot(q.x - p.x, q.z - p.z) < .05); if (sp) { const [lx] = sp.b.toLocal(p.x, p.z), [wx, wz] = sp.b.toWorld(lx, sp.wz + .065), [ix, iz] = sp.b.toWorld(lx, sp.wz + 1); g.position.x = wx; g.position.z = wz; g.rotation.y = Math.atan2(ix - wx, iz - wz); } } }   // 함 뒷면을 복도 북쪽 벽에 붙인다 (조사 지점은 벽에서 0.6m 앞 그대로)
       else { const bx = new THREE.Mesh(new THREE.BoxGeometry(.22, .3, .08), VIS.red); g.add(bx); const btn = new THREE.Mesh(new THREE.CylinderGeometry(.045, .045, .03, 16), VIS.btn); btn.rotation.x = Math.PI / 2; btn.position.set(0, -.03, .05); g.add(btn); g.position.set(p.x, y + 1.45, p.z); }
       if (mk !== 'tape') { let best = null, bd = 1e9; for (const B of [MAIN, ANX]) { const [lx, lz] = B.toLocal(p.x, p.z); if (Math.abs(lz - B.layout.zN) < bd) { bd = Math.abs(lz - B.layout.zN); best = B; } }   // 복도 외벽에 붙여 단다 (벽을 등지게)
@@ -1011,7 +1018,7 @@ export function installRebuild({ THREE, scene, floors, world }) {
         const dy = ty - bb.min.y; if (Math.abs(dy) < .005) continue; for (const o of os) { if (o.parent !== group) group.attach(o); o.position.y += dy; } up++; } }
     // 뜬 아이템(열쇠 · 쪽지 등) 내려놓기: 바로 아래 실제 그려진 면 위로 (6cm 넘게 떠 있을 때만)
     { const rc = new THREE.Raycaster(), dn = new THREE.Vector3(0, -1, 0); rc.camera = new THREE.PerspectiveCamera();
-      for (const it of W.items) { if (it.taken || it.floor !== 0 || it.rbY == null || !it.mesh || it._drp) continue; it._drp = true; const bb = new THREE.Box3().setFromObject(it.mesh); if (bb.isEmpty()) continue;
+      for (const it of W.items) { if (it.taken || it.floor !== 0 || it.rbY == null || !it.mesh || it._drp) continue; it._drp = true; const bb = new THREE.Box3(), tb = new THREE.Box3(); it.mesh.updateMatrixWorld(true); it.mesh.traverse(o => { if (o.isMesh && !o.isSprite && o.geometry) { if (!o.geometry.boundingBox) o.geometry.computeBoundingBox(); bb.union(tb.copy(o.geometry.boundingBox).applyMatrix4(o.matrixWorld)); } }); if (bb.isEmpty()) bb.setFromObject(it.mesh); if (bb.isEmpty()) continue;   // 빛무리 스프라이트(구급상자 · 건전지)는 빼고 잰다 — 넣으면 바닥이 상자 밑 39cm 로 잡혀 방송실 구급상자가 카펫 위 27cm 허공에 떠 있었다
         const mine = new Set(); it.mesh.traverse(c => mine.add(c)); const c = bb.getCenter(new THREE.Vector3()); rc.set(new THREE.Vector3(c.x, bb.min.y + .01, c.z), dn); rc.far = 1.4;
         const hit = rc.intersectObjects(near(c.x, c.z, .1), false).find(h => h.object.isMesh && !fakeObj(h.object) && !mine.has(h.object) && h.object.visible && !h.object.material?.transparent && h.point.y > it.rbY - .05); if (!hit) continue;
         const dy = hit.point.y + .004 - bb.min.y; if (dy > -.06) continue; if (it.mesh.parent !== group) group.attach(it.mesh); it.mesh.position.y += dy; it.pos.y += dy; if (it.baseY != null) it.baseY += dy; up++; } }

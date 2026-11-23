@@ -141,8 +141,11 @@ const cellPt = k => { const [a, b, c, d] = cellUV(k), u = (a + c) / 2, v = (b + 
 // 둥근 빛 웅덩이 · 후광
 function radialTex(inner = 'rgba(255,255,255,1)') { const [c, g] = canvas(128, 128), gr = g.createRadialGradient(64, 64, 0, 64, 64, 64); gr.addColorStop(0, inner); gr.addColorStop(.35, 'rgba(255,255,255,.45)'); gr.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = gr; g.fillRect(0, 0, 128, 128); return ctex(c); }
 
-export function installNeighborhood({ scene, camera }) {
-  const t0 = performance.now();
+// 가로수 몸통 충돌 상자(반폭 .22 — 은행나무 campusGrounds2008 과 같은 크기). 학교 담 안쪽(걸어 다니는 구역)은 만들지 않는다.
+export const TREE_HALF = .22, CAMPUS_BOX = [-114.5, 114.5, -108.5, 82];
+export function treeCollider(x, z) { const [a, b, c, d] = CAMPUS_BOX; if (x > a && x < b && z > c && z < d) return null; return { x1: x - TREE_HALF, x2: x + TREE_HALF, z1: z - TREE_HALF, z2: z + TREE_HALF, hood08: true }; }
+export function installNeighborhood({ scene, camera, colliders }) {
+  const t0 = performance.now(); let treeCols = 0;
   const [fMap, fEm] = facadeTextures(false), [farMap] = facadeTextures(true), [sMap, sEm] = shopTextures(), poolTex = radialTex(), haloTex = radialTex();
   const M = {
     props: glowPatch(new THREE.MeshLambertMaterial({ vertexColors: true, userData: { surface: 'asphalt' } }), .1),   // 발소리: 담장 너머 차도 · 보도
@@ -209,6 +212,7 @@ export function installNeighborhood({ scene, camera }) {
   const tree = (ch, x, z, ginkgo) => {
     const s = rr(.85, 1.2), h = rr(3.0, 3.8) * s, base = pick(ginkgo ? LEAF : PLANE);
     ch.props.geo(G.cyl, tr(x, 0, z, 0, .13 * s, h + .8, .13 * s), C.trunk);
+    const tc = colliders && treeCollider(x, z); if (tc) { colliders.push(tc); treeCols++; }
     const n = ginkgo ? 4 : 3;
     for (let k = 0; k < n; k++) { const a = rnd() * 6.28, r = (ginkgo ? .55 : .9) * s, y = h + (ginkgo ? .5 + k * .75 : .6 + rnd() * .7) * s, sc = (ginkgo ? 1.25 - k * .2 : 1.2) * s;
       ch.props.geo(G.crown, tr(x + Math.cos(a) * r * (k ? 1 : .3), y, z + Math.sin(a) * r * (k ? 1 : .3), rnd() * 6, sc, sc * (ginkgo ? 1.0 : .8), sc), jit(base, .14)); }
@@ -434,6 +438,6 @@ export function installNeighborhood({ scene, camera }) {
   };
 
   const tris = groups.reduce((s, g) => s + g.children.reduce((t, m) => t + (m.isMesh ? m.geometry.index.count / 3 : 0), 0), 0) + farMesh.geometry.index.count / 3;
-  const info = { chunks: groups.length, meshes: groups.reduce((s, g) => s + g.children.length, 0) + 3, buildings: footprints.length, lamps: lamps.length, tris: tris | 0, treesHidden, ms: Math.round(performance.now() - t0) };
+  const info = { chunks: groups.length, meshes: groups.reduce((s, g) => s + g.children.length, 0) + 3, buildings: footprints.length, lamps: lamps.length, tris: tris | 0, treesHidden, treeCols, ms: Math.round(performance.now() - t0) };
   window.__hood08 = info; return info;
 }

@@ -4,10 +4,10 @@
 //   전기(분전반 · 2등용 형광등 · 콘센트 · 스위치) · 소방(소화전함 · 소화기 · 감지기 · 유도등 · 방화문) · 수도(세면대 · 배관)
 import * as THREE from '../vendor/three.module.js';
 import { mergeGeometries } from '../vendor/addons/utils/BufferGeometryUtils.js';
-import { makeFlag } from '../tex.js?v=445';
-import * as PT from './periodTex.js?v=445';
-import { collectRefs, dedupeMaterials, batchStaticChildren } from './staticBatch.js?v=445';
-import { classInfo, weekDuty, cleaningRota, shortSubj, DAYS, PERIOD_TIME } from './classData.js?v=445';
+import { makeFlag } from '../tex.js?v=446';
+import * as PT from './periodTex.js?v=446';
+import { collectRefs, dedupeMaterials, batchStaticChildren } from './staticBatch.js?v=446';
+import { classInfo, weekDuty, cleaningRota, shortSubj, DAYS, PERIOD_TIME } from './classData.js?v=446';
 // 교실 앞면 꾸밈 공용 (반 이름 · 텍스처 캐시)
 let flagTex = null; const decorTex = new Map();
 // 2008년 10월 복도 게시물 (현재 시점 — 1998 사건 증거물과 구분)
@@ -1740,7 +1740,7 @@ export function buildMainBuilding(opt = {}) {
       box('tileD', a + .1, b - .1, y0, y0 + 1.2, zS - .012, zS); box('tileW', a + .1, b - .1, y0 + 1.2, y0 + S.CEIL, zS - .012, zS);
       // 대변기 칸 (안쪽 끝 벽 쪽부터)
       const n = man ? 3 : 4, cw = man ? .9 : 1.0, cd = man ? 1.5 : 1.6, ch = man ? 1.8 : 1.9, z0 = zS - .1 - (man ? .6 : 0) - n * cw;
-      for (let k = 0; k <= n; k++) { const z = z0 + k * cw; bx(SW, 'hpl', 0, cd, .15, .15 + ch, z - .012, z + .012, { solid: true }); bx(SW, 'alu', cd - .03, cd + .01, 0, .15, z - .02, z + .02); }
+      for (let k = 0; k <= n; k++) { const z = z0 + k * cw; bx(SW, 'hpl', .006, cd, .15, .15 + ch, z - .012, z + .012, { solid: true }); bx(SW, 'alu', cd - .03, cd + .01, 0, .15, z - .02, z + .02); }
       bx(SW, 'alu', cd - .02, cd + .02, .15 + ch - .03, .15 + ch, z0, z0 + n * cw);   // 상부 알루미늄 레일
       for (let k = 0; k < n; k++) { const za = z0 + k * cw, zc = za + cw / 2;
         bx(SW, 'hpl', cd - .015, cd + .015, .15, .15 + ch, za + .01, za + .08, { solid: true }); bx(SW, 'hpl', cd - .015, cd + .015, .15, .15 + ch, za + cw - .08, za + cw - .01, { solid: true });   // 앞판 기둥
@@ -1750,15 +1750,15 @@ export function buildMainBuilding(opt = {}) {
         if (!man) { bx(SW, 'hpl', .05, .35, 0, .6, za + cw - .3, za + cw - .1, { solid: true }); } }   // 위생용품 수거함 (부스 안)
       // 소변기 3 (400×700, 센서식) + 칸막이 — 남자만
       if (man) for (let k = 0; k < 3; k++) { const z = 2.2 + k * .8; // 벽걸이 소변기 (W450 D320 H880, 바닥에서 550): 백자 몸통 · 위 덮개 · 양 옆 날개 · 앞 턱 + 센서 창 · 플러시 밸브 · 청동 S트랩
-        bx(SW, 'porc', 0, .12, .55, 1.43, z - .225, z + .225, { solid: true }); bx(SW, 'porc', .12, .3, 1.22, 1.43, z - .2, z + .2); bx(SW, 'porc', .12, .32, .62, 1.22, z - .225, z - .17); bx(SW, 'porc', .12, .32, .62, 1.22, z + .17, z + .225);
+        bx(SW, 'porc', .006, .12, .55, 1.43, z - .225, z + .225, { solid: true }); bx(SW, 'porc', .12, .3, 1.22, 1.43, z - .2, z + .2); bx(SW, 'porc', .12, .32, .62, 1.22, z - .225, z - .17); bx(SW, 'porc', .12, .32, .62, 1.22, z + .17, z + .225);
         bx(SW, 'porc', .12, .34, .55, .68, z - .225, z + .225); bx(SW, 'porc', .3, .345, .66, .74, z - .2, z + .2); bx(SW, 'white', .12, .125, .68, 1.22, z - .17, z + .17); bx(SW, 'rubber', .2, .26, .681, .684, z - .035, z + .035);
         bx(SW, 'rubber', .3, .305, 1.27, 1.35, z - .07, z + .07); bx(SW, 'exitG', .305, .307, 1.3, 1.32, z - .04, z - .025);
         bx(SW, 'alu', .03, .07, 1.43, 1.62, z - .022, z + .022); bx(SW, 'alu', .02, .08, 1.6, 1.65, z - .04, z + .04);
         bx(SW, 'brass', .04, .18, .4, .55, z - .035, z + .035); bx(SW, 'brass', .04, .1, .22, .42, z - .03, z + .03); bx(SW, 'brass', .0, .1, .2, .26, z - .035, z + .035);
-        bx(SW, 'hpl', 0, .45, .4, 1.5, z + .4 - .015, z + .4 + .015); if (!k) bx(SW, 'hpl', 0, .45, .4, 1.5, z - .4 - .015, z - .4 + .015); }
+        bx(SW, 'hpl', .006, .45, .4, 1.5, z + .4 - .015, z + .4 + .015); if (!k) bx(SW, 'hpl', .006, .45, .4, 1.5, z - .4 - .015, z - .4 + .015); }
       // 세면대 카운터 (1800, 인조대리석 · 2구) + 거울 (1800×900) + 핸드타월기 + 휴지통
       { const za = man ? 3.6 : 3.0, zb = za + 1.8;   // 연립 세면대 (참고 규격도): 인조대리석 상판 + 앞 턱 · 들어간 회색 하부장(발 걸이) · 뒤 선반 · 강화유리 거울 판 · 구스넥 수전 3 · 물비누 디스펜서
-        bx(SS, 'white', 0, .58, .8, .86, za, zb, { solid: true }); bx(SS, 'white', .52, .58, .62, .8, za, zb); bx(SS, 'steelG', 0, .48, .08, .8, za + .03, zb - .03); bx(SS, 'rubber', 0, .44, 0, .08, za + .06, zb - .06);
+        bx(SS, 'white', .006, .58, .8, .86, za, zb, { solid: true }); bx(SS, 'white', .52, .58, .62, .8, za, zb); bx(SS, 'steelG', .006, .48, .08, .8, za + .03, zb - .03); bx(SS, 'rubber', .006, .44, 0, .08, za + .06, zb - .06);
         bx(SS, 'white', 0, .13, .86, .95, za, zb); bx(SS, 'alu', 0, .02, .95, 1.9, za - .01, za + .01); bx(SS, 'alu', 0, .02, .95, 1.9, zb - .01, zb + .01); bx(SS, 'glass', .015, .025, .95, 1.88, za, zb); bx(SS, 'alu', 0, .03, 1.88, 1.9, za, zb);
         [za + .32, za + .9, zb - .32].forEach(z => { bx(SS, 'porc', .16, .46, .845, .862, z - .2, z + .2); bx(SS, 'hpl', .19, .43, .846, .863, z - .16, z + .16); bx(SS, 'alu', .29, .33, .8635, .865, z - .02, z + .02);   // 하부 매입 세면볼 (안쪽 그림자 · 배수구)
           bx(SS, 'alu', .06, .09, .95, 1.17, z - .015, z + .015); bx(SS, 'alu', .06, .22, 1.15, 1.18, z - .015, z + .015); bx(SS, 'alu', .2, .225, 1.07, 1.17, z - .013, z + .013); });   // 구스넥 수전
@@ -1771,7 +1771,7 @@ export function buildMainBuilding(opt = {}) {
         sticker('물을 아껴 씁시다', '서린고 환경부', .7, .2, ws + dS * .035, 2.05, (man ? 3.6 : 3.0) + .9, dS, 'wcSave');
         if (man) for (let k = 0; k < 3; k++) sticker('한 걸음 앞으로!', '', .24, .1, w + dir * .02, 1.78, 2.2 + k * .8, dir, 'wcStep'); }
       // 청소도구함 (600×500×2100) — 안쪽 끝 세면대 쪽 모서리 · 바닥 배수구
-      bx(SS, 'hpl', 0, .5, 0, 2.1, zS - .7, zS - .1, { solid: true }); bx(SS, 'alu', .5, .52, 1.0, 1.15, zS - .62, zS - .58);
+      bx(SS, 'hpl', .006, .5, 0, 2.1, zS - .7, zS - .1, { solid: true }); bx(SS, 'alu', .5, .52, 1.0, 1.15, zS - .62, zS - .58);
       box('alu', (a + b) / 2 - .1, (a + b) / 2 + .1, y0 + .021, y0 + .024, zS / 2 - .1, zS / 2 + .1);
       props.push({ kind: 'toilet', label: `${g}자 화장실`, x: (a + b) / 2, y: y0, z: 1.2, floor: f });
       props.push({ kind: 'sink', label: `${g}자 화장실 세면대`, x: ws + dS * .7, y: y0 + .9, z: (man ? 3.6 : 3.0) + .9, floor: f });

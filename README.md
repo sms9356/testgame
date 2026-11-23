@@ -117,7 +117,4 @@ PW_CORE=<playwright-core> CHROME=<chromium> npm run test:e2e
 
 ## 라이선스 주의
 - three.js: MIT. 이미지 · 레퍼런스 시트: 프로젝트 소유자 제공.
-- **더빙**: 기본값 `자동` 은 감정 · 화자별로 만든 내장 신경망 더빙(한국어 214줄 전부 + 영어 · 일본어 · 중국어 팩)을 쓰고, 파일이 없는 대사만 브라우저 음성으로 읽습니다. 설정 › 더빙에서 끌 수 있습니다(자막은 그대로).
-- **내장 음성**: Microsoft Edge 신경망 음성(SunHi · InJoon · Hyunsu)으로 화자 나이 · 성별과 감정에 맞춰 합성했습니다 (`tools/gen_voice_edge.py`). Edge 의 '소리 내어 읽기' 서비스를 쓴 것이므로 **개인 · 비상업 용도만** 가능합니다. 유료 판매 · 상업적 배포 전에는 상업 라이선스 음성이나 성우 녹음으로 교체해야 합니다. 예전 오프라인 생성기(`tools/gen_voice.py`, KSS · CC BY-NC-SA 4.0)도 남아 있습니다.
-- **더 자연스러운 음성(무료 · 비상업)**: `pip install edge-tts` 후 `python3 tools/gen_voice_edge.py` — Microsoft Edge 신경망 음성으로 화자(나이 · 성별)와 감정에 맞춰 모든 대사를 다시 만듭니다. Edge 의 '소리 내어 읽기' 서비스를 쓰므로 개인 · 비상업 프로젝트에서만 사용하세요.
-- **다국어 · 실행 중 등록 대사 더빙 팩**: `node tools/dump_lines.mjs lines.json` (게임 서버 실행 중) → `python3 tools/gen_voice_pack.py lines.json` — 전화 · 쪽지 · 서브 유령 등 story.js 밖의 한국어 대사와 영어(Ava · Brian · Emma …) · 일본어(Nanami · Keita) · 중국어(Xiaoyi · Yunxi · Xiaoxiao …) 번역 대사를 화자별 목소리로 만듭니다. 원문이 바뀐 대사만 다시 만듭니다.
+- **더빙**: 한국어 대사 전부(648줄)를 ElevenLabs(eleven_v4)로 녹음해 `voice/` 에 내장했습니다. 사용한 음성 목록은 `voice/CASTING.md`, 상업 출시 전 확인 사항은 [docs/VOICE_LICENSES.md](docs/VOICE_LICENSES.md) 에 있습니다. 설정 › 더빙에서 끌 수 있고(자막은 그대로), 영어 · 일본어 · 중국어는 내장 더빙이 없어 자막과 기기 브라우저 음성(Web Speech)만 씁니다.

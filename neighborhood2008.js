@@ -282,7 +282,8 @@ export function installNeighborhood({ scene, camera }) {
   ['S0', 'S1'].forEach((nm, si) => {
     const ch = chunk(nm, false), xa = si ? 0 : -180, xb = si ? 180 : 0;
     walk(ch, xa, xb, 82, 86.3); curbZ(ch, 82, xa, xb);
-    flat(ch, xa, xb, 86.3, 100, .003, C.pad);
+    if (si) flat(ch, xa, xb, 86.3, 100, .003, C.pad);
+    else { flat(ch, xa, -126, 86.3, 100, .003, C.pad); flat(ch, -126, -115.5, 88, 100, .003, C.pad); flat(ch, -115.5, xb, 86.3, 100, .003, C.pad); }   // 서쪽 대로(x -126~-115.5, z ~88 까지 학교 쪽 도로면이 같은 높이)와 겹쳐 깜빡이던 2m 띠를 비운다
     if (si) { flat(ch, 120, 180, 73, 82, .004, C.asph); } else { flat(ch, -180, -126, 73, 82, .004, C.asph); }
     rowStreet(ch, { o: [0, 86.5], a: [1, 0], d: [0, 1] }, xa, xb, SG, { shop: true, wMin: 8, wMax: 15, dMin: 10, dMax: 13, d0: 0, floors: () => 2 + (rnd() * 3 | 0) });
     const poles = []; let k = 0;

@@ -4,10 +4,12 @@
 //   방송실 조정실: 카세트 데크에 꽂힌 테이프 틀기 (「학교종」 반주 — 늘어진 카세트 소리)
 //   새 건물 실사 모델: 정수기 물 마시기 · 벽시계 보기 · 소화기 · 화분
 // 메시는 처음 쓸 때만 만든다(커튼) — 평소 그리기 비용은 차임 스위치함 하나뿐. 전등 스위치는 전기팀 담당이라 손대지 않는다.
-export function installInteractionsPlus({ THREE, scene, world, RBG, sfx, showNote, P }) {
+export function installInteractionsPlus({ THREE, scene, world, RBG, sfx, showNote, P, FL, giveItem }) {
   if (!RBG || !RBG.BLD || installInteractionsPlus.done) return 0; installInteractionsPlus.done = true;
   const pk = a => a[Math.floor(Math.random() * a.length)];
   let n = 0;
+  const DESK = ['책상 위에 컴퍼스로 깊이 판 글씨 — “여기 앉으면 방송이 들린다.”', '샤프로 꾹꾹 눌러 쓴 낙서: “10월 12일 밤 열한 시, 방송실. 비밀.”', '지우다 만 하트와 이름 두 개. 한 이름 위에는 볼펜으로 줄이 그어져 있다.', '책상 서랍 안쪽에 접힌 쪽지 — “살려 줘”라고 쓰고 그 아래 “…장난이야”라고 덧썼다.', '“졸업하면 다시는 안 온다” 옆에 다른 필체로 “못 나가”.'];
+  const POD = ['출석부 — 10월 12일 칸에 결석 표시 대신 작은 동그라미만 줄지어 있다.', '분필 반 토막, 빨간 사인펜, 압수한 만화책 한 권. 표지에 “돌려받으러 안 왔음”이라고 적혀 있다.', '서랍이 뻑뻑하다. 안쪽에서 누군가 밀고 있는 것처럼 — 그러다 툭, 열렸다. 텅 비어 있다.'];
   const add = (b, lx, lz, y0, h, label, fn, r = 1.3) => { const [x, z] = b.toWorld(lx, lz); world.props.push({ kind: 'look', floor: 0, rbY: y0, x, z, y: y0 + h, r, label, fn, n: 0, _rb: true, plus: true }); n++; };
   for (const b of RBG.BLD) {
     if (!b.props || !b.spec) continue; const FH = b.spec.FH || 3.6;
@@ -28,6 +30,10 @@ export function installInteractionsPlus({ THREE, scene, world, RBG, sfx, showNot
           return cur.visible ? '레일이 드르륵 울리며 커튼이 닫혔다. 바깥 불빛이 가려지자 교실이 더 어두워졌다.' : '커튼을 걷었다. 창 너머로 운동장이 보인다.'; }, 1.4); }
         // 뒤쪽 학급 게시판 (급식 식단표 · 청소 당번표 · 수능 D-day)
         add(b, x2 - .75, z1 + 2.4, y0, 1.7, '학급 게시판 자세히 보기', () => { sfx.paper(); showNote({ title: `${r.label} 학급 게시판`, text: '<b>[10월 급식 식단표]</b><br>6(월) 쌀밥 · 된장국 · 불고기 / 7(화) 잡곡밥 · 김치찌개 · 계란말이 / 8(수) 카레라이스 · 깍두기 · 요구르트<br><br><b>[청소 당번표]</b><br>교실 바닥 1~6번 · 칠판 7~9번 · 복도 · 창틀 10~15번 · 화장실 16~20번 · 분리수거 21~24번<br>※ 매주 월요일 교대 · 대걸레는 빨아서 널 것<br><br><b>[2009학년도 수능 D-34]</b><br>2008. 11. 13 (목) — 지금 자면 꿈을 꾸지만, 지금 공부하면 꿈을 이룬다' }); return ''; }, 1.5);
+        // 책상 낙서 (교실 가운데 분단) — 읽을 때마다 다른 줄이 보인다
+        add(b, (x1 + x2) / 2, (z1 + z2) / 2, y0, 1.0, '책상 낙서 읽어 보기', p => { sfx.paper(); return DESK[p.n++ % DESK.length]; }, 1.6);
+        // 교탁 서랍 (칠판 쪽 앞자리)
+        add(b, x1 + 1.9, (z1 + z2) / 2, y0, 1.0, '교탁 서랍 열어 보기', p => { sfx.locker(); return POD[p.n++ % POD.length]; }, 1.3);
       }
       if (r.type === 'office' || /^교무실/.test(r.label)) {
         // 수동 차임(수업 종) 스위치함: 복도 쪽 벽 · 캐비닛(서쪽) 옆 — 회색 철함 · 빨간 누름단추 · 「수업 종」 라벨
@@ -38,6 +44,8 @@ export function installInteractionsPlus({ THREE, scene, world, RBG, sfx, showNot
         const c = document.createElement('canvas'); c.width = 128; c.height = 48; const q = c.getContext('2d'); q.fillStyle = '#f4f0e2'; q.fillRect(0, 0, 128, 48); q.fillStyle = '#222'; q.font = 'bold 26px sans-serif'; q.textAlign = 'center'; q.textBaseline = 'middle'; q.fillText('수업 종', 64, 25);
         const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; const lb = new THREE.Mesh(new THREE.PlaneGeometry(.16, .06), new THREE.MeshStandardMaterial({ map: t, roughness: .7 })); lb.position.set(0, .08, .061); grp.add(lb);
         scene.add(grp);
+        // 교무실 일정 칠판 (반대편 벽)
+        add(b, x2 - .9, z1 + 1.1, y0, 1.6, '교무실 일정 칠판 읽기', () => { sfx.paper(); showNote({ title: '교무실 일정 칠판', text: '10월 행사 — 12(일) 개교 기념 방송 리허설 · 야간 자율학습 감독 3학년부 김 교사 · 14(화) 중간고사 성적 입력 마감. 칠판 구석에 누군가 빨간 분필로 덧썼다: “12일 밤, 방송실 열쇠 확인할 것.”' }); return ''; }, 1.5);
         add(b, lx, lz + .7, y0, 1.45, '수업 종 울리기 (차임 스위치)', p => { if (p.cd && performance.now() - p.cd < 8000) return '스위치가 아직 뜨겁다. 조금 있다가.'; p.cd = performance.now(); sfx.classBell(); P.fear = Math.min(1, (P.fear || 0) + .05);
           return p.n++ ? '빈 학교에 종소리가 퍼진다. 아무도 일어서지 않는다.' : '딩동댕동— 텅 빈 복도마다 수업 종이 울려 퍼졌다. 어딘가에서 의자 끄는 소리가 따라 났다.'; }, 1.2);
       }
@@ -48,9 +56,12 @@ export function installInteractionsPlus({ THREE, scene, world, RBG, sfx, showNot
     const bc = rooms.find(r => r.type === 'bcast');
     if (bc) { const XP = bc.x1 + 9, y0 = bc.floor * FH; add(b, XP - 2.25, bc.z1 + 6.95, y0, .95, '카세트 데크 재생', p => { if (p.playing) return '테이프가 돌아가고 있다.'; p.playing = true; sfx.tape(); playTape(() => { p.playing = false; });
       return p.n++ ? '늘어진 반주가 다시 흐른다.' : '덜컥 — 데크에 꽂혀 있던 테이프가 돌기 시작한다. 늘어진 「학교종」 반주… 라벨: “기념 방송 리허설 98.10.12”'; }, 1.2); }
-    // 새 건물 실사 모델: 정수기 · 벽시계
+    if (bc) add(b, bc.x1 + 9 - 3.4, bc.z1 + 6.95, bc.floor * FH, .95, '방송 큐시트 읽기', () => { sfx.paper(); showNote({ title: '방송 큐시트 — 개교 기념 리허설', text: '22:00 시그널 · 22:05 교장 인사말(녹음) · 22:10 교가 · 22:20 학교종 반주. 마지막 줄만 펜 색이 다르다: “22:20 이후 마이크 끄지 말 것. 무슨 소리가 들려도.”' }); return ''; }, 1.2);
+    // 새 건물 실사 모델: 정수기 · 자판기 · 소파
     for (const m of b.models || []) {
       const y0 = Math.floor(((m.y || 0) + .2) / FH) * FH;
+      if (/sf_vending/.test(m.name)) { const key = 'vend' + Math.round(m.x) + '_' + Math.round(m.z) + '_' + Math.round(y0); add(b, m.x - .9, m.z, y0, 1.2, '자판기 살펴보기', p => { sfx.clank(.3); if (FL && giveItem && !(FL.plus ||= {})[key]) { FL.plus[key] = 1; giveItem('candy', 1); return '반환구에 사탕이 한 알 굴러 나왔다. 불도 안 들어오는 자판기인데 — 동전 소리가 들렸다.'; } return pk(['전원이 꺼진 자판기. 유리에 비친 내 뒤로 무언가 지나간 것 같다.', '모든 버튼에 “품절” 등이 켜져 있다. 하나만 빼고 — 음료 이름 칸이 비어 있다.', '반환구를 더듬었지만 먼지뿐이다.']); }, 1.4); }
+      if (/sf_sofa/.test(m.name)) add(b, m.x, m.z, y0, .7, '소파에 앉아 잠깐 쉬기', p => { if (p.cd && performance.now() - p.cd < 15000) return '방금 쉬었다. 이 이상 앉아 있으면 안 될 것 같다.'; p.cd = performance.now(); sfx.slide(); P.stamina = 100; P.tired = false; P.fear = Math.max(0, (P.fear || 0) - .1); return p.n++ ? '푹 꺼진 쿠션에 몸을 묻었다. 숨이 가라앉는다. (스태미나 회복)' : '오래된 가죽 소파에 앉자 먼지가 풀썩 일었다. 잠깐 눈을 감았다. (스태미나 회복)'; }, 1.4);
       if (/sf_water_cooler/.test(m.name)) add(b, m.x, m.z, y0, 1.0, '정수기에서 물 마시기', p => { sfx.sip ? sfx.sip() : sfx.drip(); P.stamina = 100; P.tired = false; P.fear = Math.max(0, (P.fear || 0) - .06); return p.n++ ? '종이컵에 미지근한 물이 반쯤 찬다.' : '종이컵을 뽑아 물을 받았다. 생수통에서 꾸르륵 거품이 올라온다. (스태미나 회복)'; }, 1.4);
     }
   }

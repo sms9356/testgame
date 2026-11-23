@@ -52,11 +52,11 @@ export function installInteractionsPlus({ THREE, scene, world, RBG, sfx, showNot
     }
     // 교실 분리수거함 (mainBuilding classBins 가 남긴 자리)
     for (const q of b.props.filter(p => p.kind === 'binLook')) add(b, q.x, q.z, q.y - .8, .8, '분리수거함 들여다보기', p => { sfx.clank(.4); return pk(['구겨진 방송 원고 한 장 — “모두, 집으로 돌아가세요.”', '찢어진 기사 스크랩. “서린고 ‘단순 실종’…”', '빈 우유팩과 매점 빵 봉지뿐이다.', '종이류 칸에 가정통신문 다발 — “10월 12일 야간 자율학습 없음”.']); }, 1.3);
-    // 방송실 조정실 카세트 데크 (콘솔 북쪽 끝 · 근접 모니터 옆): 「학교종」 반주 테이프
+    // 방송실 조정실 카세트 데크 (콘솔 위 카세트 케이스 3개 옆 — 예전 자리는 콘솔 끝 너머 빈 바닥) · 큐시트는 콘솔 운영자 쪽 원고 묶음 위: 「학교종」 반주 테이프
     const bc = rooms.find(r => r.type === 'bcast');
-    if (bc) { const XP = bc.x1 + 9, y0 = bc.floor * FH; add(b, XP - 2.25, bc.z1 + 6.95, y0, .95, '카세트 데크 재생', p => { if (p.playing) return '테이프가 돌아가고 있다.'; p.playing = true; sfx.tape(); playTape(() => { p.playing = false; });
+    if (bc) { const XP = bc.x1 + 9, y0 = bc.floor * FH; add(b, XP - 1.6, bc.z1 + 5.45, y0, .95, '카세트 데크 재생', p => { if (p.playing) return '테이프가 돌아가고 있다.'; p.playing = true; sfx.tape(); playTape(() => { p.playing = false; });
       return p.n++ ? '늘어진 반주가 다시 흐른다.' : '덜컥 — 데크에 꽂혀 있던 테이프가 돌기 시작한다. 늘어진 「학교종」 반주… 라벨: “기념 방송 리허설 98.10.12”'; }, 1.2); }
-    if (bc) add(b, bc.x1 + 9 - 3.4, bc.z1 + 6.95, bc.floor * FH, .95, '방송 큐시트 읽기', () => { sfx.paper(); showNote({ title: '방송 큐시트 — 개교 기념 리허설', text: '22:00 시그널 · 22:05 교장 인사말(녹음) · 22:10 교가 · 22:20 학교종 반주. 마지막 줄만 펜 색이 다르다: “22:20 이후 마이크 끄지 말 것. 무슨 소리가 들려도.”' }); return ''; }, 1.2);
+    if (bc) add(b, bc.x1 + 9 - 1.6, bc.z1 + 2.2, bc.floor * FH, .95, '방송 큐시트 읽기', () => { sfx.paper(); showNote({ title: '방송 큐시트 — 개교 기념 리허설', text: '22:00 시그널 · 22:05 교장 인사말(녹음) · 22:10 교가 · 22:20 학교종 반주. 마지막 줄만 펜 색이 다르다: “22:20 이후 마이크 끄지 말 것. 무슨 소리가 들려도.”' }); return ''; }, 1.2);
     // 새 건물 실사 모델: 정수기 · 자판기 · 소파
     for (const m of b.models || []) {
       const y0 = Math.floor(((m.y || 0) + .2) / FH) * FH;

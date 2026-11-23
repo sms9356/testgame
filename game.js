@@ -1654,7 +1654,7 @@ function findInteract() {
 }
 // 금고가 열리면 안의 증거 봉투(열쇠 꾸러미)를 바로 챙긴다 — 새 건물로 옮긴 금고 안 열쇠가 벽·몸체 속에 묻혀 조준이 안 돼 진행이 막히던 문제
 // 금고 속 열쇠를 금고 안(바닥 +.38)으로 되돌린다 — 로드 뒤 정리 루틴이 '가구 속에 묻힌 물건'으로 보고 닫힌 금고 윗면(0.96m)에 올려 두어, 문을 열면 열쇠가 금고 위에 나타났다
-function seatSafeKey(sp) { const it = sp && sp.key; if (!it || it.taken || !it.mesh || !it.pos) return; const base = sp.rbY ?? (floors[sp.floor] ? floors[sp.floor].y0 : 0), dy = base + .38 - it.pos.y; if (Math.abs(dy) < .1) return; it.pos.y += dy; it.mesh.position.y += dy; if (it.baseY != null) it.baseY += dy; }
+function seatSafeKey(sp) { const it = sp && sp.key; if (!it || it.taken || !it.mesh || !it.pos) return; const base = sp.rbY ?? (floors[sp.floor] ? floors[sp.floor].y0 : 0), y = base + .38, dy = y - it.pos.y; it.pos.y = y; if (it.baseY != null) it.baseY += dy; const m = it.mesh, w = new THREE.Vector3(it.pos.x, y, it.pos.z); if (m.parent) { m.parent.updateWorldMatrix(true, false); m.parent.worldToLocal(w); } m.position.copy(w); }   // 늘 금고 안 선반 높이로 (모형 · 상호작용 높이 모두 절대값)
 function takeSafeKey(sp, n = 0) { const it = sp && sp.key; if (!it || it.taken || got[it.idx]) return; if (state !== 'playing') { if (n < 40) setTimeout(() => takeSafeKey(sp, n + 1), 800); return; } const prev = target; target = { type: 'item', it }; try { interact(); } finally { target = prev; } }
 function interact() {
   if (!target) return;
@@ -5329,6 +5329,7 @@ function applyQuality(q) {
   if (MOONFX) MOONFX.setQuality(q); if (texWarm) texWarm.setQuality(q); dynRes.setEnabled(IGPU);   // 달빛 기둥 · 먼지: 높음 이상만
   const sh = c.sh > 0;
   if (sh && flash.shadow.mapSize.x !== c.sh) { flash.shadow.mapSize.set(c.sh, c.sh); if (flash.shadow.map) { flash.shadow.map.dispose(); flash.shadow.map = null; } }
+  if (sh) { const k = Math.max(1, 1024 / c.sh); flash.shadow.normalBias = .06 * k; flash.shadow.bias = -.0004 * k; }   // 작은 그림자 맵(보통 512 · 저사양 256): 텍셀이 커져 바닥 · 벽 접선에 점선 같은 밝은 점(shadow acne) → 편향을 텍셀 크기에 비례
   if (renderer.shadowMap.enabled !== sh || flash.castShadow !== sh) {
     renderer.shadowMap.enabled = sh; flash.castShadow = sh;
     scene.traverse(o => { if (o.material) (Array.isArray(o.material) ? o.material : [o.material]).forEach(m => { m.needsUpdate = true; }); });
@@ -9295,7 +9296,7 @@ function boardTex(head) { const c = document.createElement('canvas'); c.width = 
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; return t; }
 let _invMeshes = null;
 function invSpot(b, r, y) {   // 방 벽에서 가구 · 칠판 · 창문에 가리지 않는 빈 자리 (벽 쪽으로 쏜 광선이 모두 벽에 닿는 곳)
-  if (!_invMeshes) { _invMeshes = []; const v = new THREE.Vector3(); scene.updateMatrixWorld(); scene.traverse(o => { if (!o.isMesh || o.isInstancedMesh || !o.geometry || /^INV_BOARD_/.test(o.parent && o.parent.name || '')) return; const g = o.geometry; if (!g.boundingSphere) g.computeBoundingSphere(); const bs = g.boundingSphere; if (!bs || !isFinite(bs.radius)) return; v.copy(bs.center).applyMatrix4(o.matrixWorld); _invMeshes.push({ o, x: v.x, y: v.y, z: v.z, r: bs.radius * o.matrixWorld.getMaxScaleOnAxis() }); }); }
+  if (!_invMeshes) { _invMeshes = []; const v = new THREE.Vector3(); scene.updateMatrixWorld(); scene.traverse(o => { if (!o.isMesh || o.isInstancedMesh || !o.geometry || /^INV_BOARD_/.test(o.parent && o.parent.name || '')) return; for (let a = o; a; a = a.parent) if (a.userData && a.userData.wallDev) return;   /* 벽걸이 방 장치(단말기 · 수화기 등)는 게시판을 피해 나중에 다시 놓이므로 게시판 자리 계산에서 뺀다 — 장치가 먼저 놓였는지에 따라 게시판 자리가 달라졌다 */ const g = o.geometry; if (!g.boundingSphere) g.computeBoundingSphere(); const bs = g.boundingSphere; if (!bs || !isFinite(bs.radius)) return; v.copy(bs.center).applyMatrix4(o.matrixWorld); _invMeshes.push({ o, x: v.x, y: v.y, z: v.z, r: bs.radius * o.matrixWorld.getMaxScaleOnAxis() }); }); }
   // 이 방 둘레(±1.6m · 이 층 높이)에 걸친 메시만 광선 검사 (전체 씬 검사로 로딩 직후 1~2초 멈추던 것 방지)
   { const [ax, az] = b.toWorld(r.x1, r.z1), [bx, bz] = b.toWorld(r.x2, r.z2), x1 = Math.min(ax, bx) - 1.6, x2 = Math.max(ax, bx) + 1.6, z1 = Math.min(az, bz) - 1.6, z2 = Math.max(az, bz) + 1.6; invSpot.near = _invMeshes.filter(q => q.x + q.r > x1 && q.x - q.r < x2 && q.z + q.r > z1 && q.z - q.r < z2 && q.y + q.r > y - .2 && q.y - q.r < y + 3.6).map(q => q.o); }
   const rc = new THREE.Raycaster(), o = new THREE.Vector3(), d = new THREE.Vector3(), W = (lx, lz) => b.toWorld(lx, lz);
@@ -9326,9 +9327,11 @@ async function installInvestigationBoards() {
     const frame = new THREE.Mesh(new THREE.BoxGeometry(1.5, .96, .04), new THREE.MeshStandardMaterial({ color: 0x3a2a1c, roughness: .8 })); grp.add(frame);
     const face = new THREE.Mesh(new THREE.PlaneGeometry(1.42, .88), new THREE.MeshStandardMaterial({ map: boardTex(B.head), roughness: .9 })); face.position.z = .022; grp.add(face);
     grp.position.set(x, y + 1.55, z); grp.rotation.y = ry; scene.add(grp);
+    { grp.updateMatrixWorld(true); const bb = new THREE.Box3().setFromObject(grp); (RBG.wallDeco ||= []).push({ id: 'INV_BOARD_' + B.id, x1: bb.min.x, x2: bb.max.x, z1: bb.min.z, z2: bb.max.z, y1: bb.min.y, y2: bb.max.y }); }   // 벽 장식 등록 — 벽걸이 장치가 이 앞을 피한다
     const px = x + nx * .75, pz = z + nz * .75;
     world.props.push({ kind: 'look', _rb: true, floor: 0, x: px, z: pz, rbY: y, y: y + 1.5, r: 1.6, label: B.head + ' 읽기', n: 0, fn: () => { showNote({ kind: 'board', id: B.id, title: B.title, text: B.text }); return ''; } });
   } catch (e) { console.warn('[조사 게시물]', B.id, e); } }
+  try { window.__rbRel && window.__rbRel(); } catch (e) { console.warn('[조사 게시물] 장치 재배치', e); }   // 게시판을 다 건 뒤 벽걸이 장치를 다시 놓는다
 }
 // 상호작용 지점 위치 보정 (방 밖 · 외벽 속으로 밀려난 녹음기 · 쪽지 · 단서를 가장 가까운 방 안 가구 위로, 쪽지 상호작용 높이를 실제 쪽지 높이에 맞춤)
 function repairStrayInteractables() {
@@ -9385,7 +9388,7 @@ function declutterInteractables() {
   const IGN = new Set(['room', 'door', 'idoor', 'bed', 'switch', 'bell', 'robj', 'light', 'hide', 'locker', 'sit', 'look']);
   const objs = p => ['mesh', 'anim', 'visMesh', 'piv', 'grp', 'obj'].map(k => p[k]).filter(o => o && o.isObject3D);
   const E = [];
-  for (const it of world.items) if (!it.taken && !it.locked && it.pos) E.push({ o: it, item: true, kind: it.kind });
+  for (const it of world.items) if (!it.taken && !it.locked && !it.inSafe && it.pos) E.push({ o: it, item: true, kind: it.kind });
   for (const p of world.props) if (!p.done && p.x != null && !IGN.has(p.kind) && !(p.after && !p.after.done)) E.push({ o: p, kind: p.kind });
   const X = e => e.item ? e.o.pos.x : e.o.x, Z = e => e.item ? e.o.pos.z : e.o.z, base = e => e.o.rbY != null ? e.o.rbY : ((floors[e.o.floor] && floors[e.o.floor].y0) || 0);
   const lvl = e => e.o.floor + '|' + Math.round(base(e) / 1.8);
@@ -9666,7 +9669,7 @@ async function itemUnbury() {
   for (let i = 0; i < list.length; i++) {
     if (i % 3 === 2) await new Promise(r => requestAnimationFrame(r)); // 프레임당 3개씩 비동기 분할하여 끊김(Hitch) 원천 차단!
     const it = list[i]; if (it.taken || !it.mesh) continue;
-    if (it.rbY != null) continue;   // 새 건물로 옮긴 아이템: 여기서 광선을 쏘는 F.interior 는 숨겨진 옛 층이다 — 옛 천장 슬래브(≈3.96m)에 맞아 2층 바닥 구급상자 · 건전지를 30cm 띄웠다. 새 건물은 rebuildGame 이 따로 정리한다
+    if (it.rbY != null || it.inSafe) continue;   // inSafe: 금고 속 열쇠는 금고가 자리를 정한다 · 새 건물로 옮긴 아이템: 여기서 광선을 쏘는 F.interior 는 숨겨진 옛 층이다 — 옛 천장 슬래브(≈3.96m)에 맞아 2층 바닥 구급상자 · 건전지를 30cm 띄웠다. 새 건물은 rebuildGame 이 따로 정리한다
     const F = floors[it.floor]; if (!F || !F.interior) continue;
     rc.set(new THREE.Vector3(it.pos.x, it.pos.y + .9, it.pos.z), dn); rc.far = .88;
     let hits = []; try { hits = rc.intersectObjects([F.interior], true); } catch (e) { continue; }
@@ -9698,7 +9701,7 @@ async function settleFloating() {
   scene.updateMatrixWorld(true); solids.length = 0;
   scene.traverse(o => { if (o.isMesh && !o.isSkinnedMesh && !o.isInstancedMesh && vis(o)) { const m = [].concat(o.material)[0]; if (m && !m.transparent && m.opacity >= 1 && !m.isMeshBasicMaterial) solids.push(o); } });
   const near = nearSolids(solids);
-  const list = [...world.props.filter(q => q.floor === fl && !q.taken && (q.mesh || (q.kind === 'tape' && q.anim && q.anim.g))).map(q => ({ o: q, m: q.mesh || q.anim.g, prop: true, tape: !q.mesh })), ...world.items.filter(i => i.floor === fl && i.mesh && !i.taken).map(i => ({ o: i, m: i.mesh }))];
+  const list = [...world.props.filter(q => q.floor === fl && !q.taken && (q.mesh || (q.kind === 'tape' && q.anim && q.anim.g))).map(q => ({ o: q, m: q.mesh || q.anim.g, prop: true, tape: !q.mesh })), ...world.items.filter(i => i.floor === fl && i.mesh && !i.taken && !i.inSafe).map(i => ({ o: i, m: i.mesh }))];
   for (let n = 0; n < list.length; n++) {
     await sliceYield(st);   // 6ms 쓰면 한 프레임 쉰다 (실내 층을 한 번에 돌리던 것이 플레이 중 0.1~1초 멈춤을 만들었다)
     const { o, m, prop, tape } = list[n]; if ((o.anim && !tape) || o.hang) continue;

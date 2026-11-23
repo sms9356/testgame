@@ -1286,7 +1286,7 @@ export function buildWorld(scene) {
       const safeBody = dyn(SM.body); safeBody.position.set(sx, 0, sz); cur.interior.add(safeBody);
       const piv = dyn(SM.piv); piv.userData.dial = SM.dial; piv.position.x += sx; piv.position.z += sz; cur.interior.add(piv);
       col(sx - .34, sx + .37, sz - .36, sz + .36);
-      addKey('office', 0, sx, .38, sz); const key = items[items.length - 1]; key.locked = true; key.mesh.visible = false;
+      addKey('office', 0, sx, .38, sz); const key = items[items.length - 1]; key.locked = true; key.inSafe = true; key.mesh.visible = false;
       props.push({ kind: 'safe', floor: cur.f, x: sx + .9, z: sz, piv, body: safeBody, key, open: 0, label: '금고 조사하기' }); }   // body: 새 건물로 옮길 때 금고 몸체도 함께
     addNote('n3', cx - 2.35, .77, -5.4); tapeRecorder('tape_homeroom', cx - 1.95, .77, -5.15, .25); if (!cur.annex && cur.f === 0) { tapeRecorder('ts_vice', cx + 2.62, .42, -3.22, -.3); tapeRecorder('ts_mother', cx + 1.78, .42, -3.28, .5); }
     papers(cx, -8, -2.4, 14);

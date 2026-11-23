@@ -2,14 +2,14 @@
 //   항상 켜진다 (예전 건물 모드는 폐지).
 //   예전 본관(1~3층 · 옥상) · 별관(8~10층) 건물은 감추고, 그 자리 땅(0층)에서 새 건물을 걷는다.
 //   높이는 P.sh(계단 높이 보정값)로 넘긴다 → 카메라 · 점프 · 가구 오르기 코드는 손대지 않아도 된다.
-import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN, grafMaterial } from './rebuild/mainBuilding.js?v=452';
-import { placeModels } from './rebuild/models.js?v=452';
-import { installArtFrames } from './rebuild/artFrames.js?v=452';
-import { carve, subdivide } from './rebuild/transplant.js?v=452';
+import { buildMainBuilding, buildWalkway, ANNEX_SPEC, ANNEX_PLAN, grafMaterial } from './rebuild/mainBuilding.js?v=453';
+import { placeModels } from './rebuild/models.js?v=453';
+import { installArtFrames } from './rebuild/artFrames.js?v=453';
+import { carve, subdivide } from './rebuild/transplant.js?v=453';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import { turfMaterial } from './campusVisuals.js?v=452';
-import { ENGINE } from './engine.js?v=452';
-import { whenIdle, idleTimeout, idleInterval, setIdleProbe } from './idleTasks.js?v=452';
+import { turfMaterial } from './campusVisuals.js?v=453';
+import { ENGINE } from './engine.js?v=453';
+import { whenIdle, idleTimeout, idleInterval, setIdleProbe } from './idleTasks.js?v=453';
 
 // 예전 건물이 차지하던 땅 (이 안의 예전 메시 · 충돌 상자를 걷어 낸다)
 const OLD_MAIN = { x1: -51, x2: 51, z1: -10.6, z2: 10.9 };
@@ -215,6 +215,8 @@ export function installRebuild({ THREE, scene, floors, world }) {
   const R = {
     oldFloors: new Set(OLD_FLOORS),   // 숨긴 예전 층 (CCTV 등 다른 렌더 경로가 다시 켜지 않게)
     MAIN, ANX, WK, BLD, group, lamps,
+    // 벽 장식(게시물 · 시계 · 코르크판): 건물 로컬 상자 → 월드 상자. 벽걸이 장치 배치(fixVisible)가 이 앞을 피한다. 나중에 조사 게시판 · 생활 상호작용 · 시설 소품이 더 붙는다
+    wallDeco: [MAIN, ANX].flatMap(b => (b.wallDeco || []).map(d => { const cs = [[d.x1, d.z1], [d.x2, d.z1], [d.x1, d.z2], [d.x2, d.z2]].map(([x, z]) => b.toWorld(x, z)), xs = cs.map(c => c[0]), zs = cs.map(c => c[1]); return { id: b.name + ':' + d.id, x1: Math.min(...xs), x2: Math.max(...xs), z1: Math.min(...zs), z2: Math.max(...zs), y1: d.y1, y2: d.y2 }; })),
     groundAt(x, z, feet) { let best = null; for (const b of BLD) { const [lx, lz] = b.toLocal(x, z), g = b.groundAt(lx, lz, feet); if (g != null && (best == null || g > best)) best = g; } return best; },
     blocked(x, z, y, r) { if (R.gate && y > MAIN.spec.FH - .4 && y < MAIN.spec.FH + .6 && R.gate.closed() && Math.abs(z - R.gate.z) < r + .08 && x > R.gate.x1 && x < R.gate.x2) return true; for (const b of BLD) { const [lx, lz] = b.toLocal(x, z), L = colCells(b, lx, lz, r); if (L) for (let i = 0; i < L.length; i++) { const c = L[i]; if (!c.off && lx + r > c.x1 && lx - r < c.x2 && lz + r > c.z1 && lz - r < c.z2 && y + 1.7 > c.y1 + .001 && y + .35 < c.y2) return true; } } return false; },
     nearDoor(x, z, y) { let best = null, bd = 9; for (const b of BLD) { const [lx, lz] = b.toLocal(x, z), d = b.nearDoor(lx, lz, y); if (d) { const dd = Math.hypot(d.mx - lx, d.mz - lz); if (dd < bd) { bd = dd; best = d; } } } return best; },
@@ -268,7 +270,8 @@ export function installRebuild({ THREE, scene, floors, world }) {
     let g = ok(P.x, P.z);
     if (g == null) { g = ok(P.x, pz); if (g != null) P.z = pz; else { g = ok(px, P.z); if (g != null) P.x = px; else {   // 이미 가구 · 벽 충돌 상자 안에 서 있으면(저장 위치 · 순간이동 · 나중에 놓인 가구) 어느 쪽으로도 못 움직여 갇혔다 → 그 안에서는 걸어 나갈 수 있게
         const g0 = R.groundAt(px, pz, feet), inside = R.blocked(px, pz, g0 == null ? feet : Math.max(feet, g0), .3), gn = R.groundAt(P.x, P.z, feet);
-        if (inside && (gn == null ? feet < .3 : gn - feet <= .5)) g = gn == null ? feet : gn; else { P.x = px; P.z = pz; g = feet; } } } }
+        const hy = gn == null ? feet : Math.max(feet, gn), core = (x, z) => R.blocked(x, z, hy, .02);   // 몸 가운데가 벽 · 가구 속으로 들어가는 걸음은 '빠져나오기'가 아니다 (가구에 붙어 선 채 그 옆 벽을 뚫고 지나가던 문제)
+        if (inside && (gn == null ? feet < .3 : gn - feet <= .5) && (!core(P.x, P.z) || core(px, pz))) g = gn == null ? feet : gn; else { P.x = px; P.z = pz; g = feet; } } } }
     P.sh = g;
     return true;
   };

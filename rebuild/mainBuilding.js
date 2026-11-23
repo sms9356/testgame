@@ -829,8 +829,8 @@ export function buildMainBuilding(opt = {}) {
     const put = (mesh, y, z, dx = .046) => { mesh.position.set(x1 + dx, y, z); mesh.rotation.y = Math.PI / 2; root.add(mesh); };
     // 칠판 필기: 칠판 전체 크기의 투명 판 — 보는 사람 기준 오른쪽 1/3 에만 분필 글씨
     put(canvasPlane(4.8, 1.2, 1536, 384, (g, w, h) => { g.clearRect(0, 0, w, h); const x = w * .7; g.strokeStyle = 'rgba(235,235,225,.55)'; g.lineWidth = 3; g.beginPath(); g.moveTo(x - 30, 30); g.lineTo(x - 30, h - 30); g.stroke();
-      g.fillStyle = 'rgba(242,242,232,.85)'; g.font = 'bold 50px serif'; g.fillText('10월 10일 (금)  수능 D-34', x, 90); g.font = 'bold 44px serif'; g.fillText(`주번: ${a}`, x, 170); g.fillText(`        ${b}`, x, 230);
-      g.font = '36px serif'; g.fillStyle = 'rgba(242,242,232,.7)'; g.fillText('※ 7교시 후 청소', x, 310); }, null, true), y0 + 1.55, zc);
+      g.fillStyle = 'rgba(242,242,232,.85)'; g.font = 'bold 50px serif'; g.fillText(CI.grade === 3 ? '10월 10일 (금)  수능 D-34' : '10월 10일 (금)  학예제 D-5', x, 90); g.font = 'bold 44px serif'; g.fillText(`주번: ${a}`, x, 170); g.fillText(`        ${b}`, x, 230);
+      g.font = '36px serif'; g.fillStyle = 'rgba(242,242,232,.7)'; g.fillText(['※ 7교시 후 청소', '※ 석식 · 야자 신청서 제출', '※ 학예제 합창 연습 6교시', '※ 가정통신문 서명 받아 오기'][hsh % 4], x, 310); }, null, true), y0 + 1.55, zc);
     // 시간표 (칠판 오른쪽 벽): 흰 종이 + 요일 칸
     const z2 = zc - 2.4 - .65;
     put(canvasPlane(.8, 1.05, 480, 630, (g, w, h) => ttDraw(g, w, h, CI), 'tt:' + name), y0 + 1.6, z2, .018);   // 시간표는 칠판 옆 맨 벽에 붙인다 (제7차 교육과정 · 반마다 다른 과목 순서 · 담당 선생님)
@@ -840,7 +840,7 @@ export function buildMainBuilding(opt = {}) {
     frame(.6, .4, y0 + 2.68, zc, M('flagFrame', () => new THREE.MeshStandardMaterial({ map: flagTex, roughness: .7 })));
     frame(1.3, .34, y0 + 2.68, zc + 1.35, canvasPlane(1.3, .34, 520, 136, (g, w, h) => { g.fillStyle = '#f4f0e2'; g.fillRect(0, 0, w, h); g.fillStyle = '#7a1a1a'; g.font = 'bold 30px serif'; g.textAlign = 'center'; g.fillText('교  훈', w / 2, 44); g.fillStyle = '#1a1a1a'; g.font = 'bold 40px serif'; g.fillText('성실 · 정직 · 봉사', w / 2, 104); }, 'motto').material);
     // 칠판 위 오른쪽: 급훈 액자 (반마다 다른 문구, 붓글씨 느낌)
-    { const GH = ['하면 된다', '최선을 다하자', '꿈은 이루어진다', '서로 돕고 아끼자', '오늘 흘린 땀은 내일의 웃음'], gi = hsh % GH.length;
+    { const GH = ['하면 된다', '최선을 다하자', '꿈은 이루어진다', '서로 돕고 아끼자', '오늘 흘린 땀은 내일의 웃음', '정직한 사람이 되자', '인사 잘하는 우리 반', '지금 이 순간에 충실하자', '배려 · 존중 · 약속', '노력은 배신하지 않는다'], gi = hsh % GH.length;
       frame(1.3, .34, y0 + 2.68, zc - 1.35, canvasPlane(1.3, .34, 520, 136, (g, w, h) => { g.fillStyle = '#f6f2e6'; g.fillRect(0, 0, w, h); g.fillStyle = '#1a3a6a'; g.font = 'bold 30px serif'; g.textAlign = 'center'; g.fillText('급  훈', w / 2, 44); g.fillStyle = '#1a1a1a'; g.font = `bold ${GH[gi].length > 8 ? 32 : 40}px serif`; g.fillText(GH[gi], w / 2, 104); }, 'gh' + gi).material); }
   }
   function classroom(r, f, y0, type = 'class', name = '') {
@@ -909,7 +909,7 @@ export function buildMainBuilding(opt = {}) {
     // 3학년 2반(윤하늘의 반): 교탁 위 담임 수첩 · 교환일기 · 개근 스티커판 · 첫 번째 메모
     if (name === '3학년 2반' && !opt.noClues) { clueNote('n27', x1 + 1.8, y0 + 1.0, (z1 + z2) / 2, f, .2); clueNote('n28', x1 + 3.0, y0 + .74, zz0 + .36, f, -.3); clueNote('q1a', x2 - .03 - .05, y0 + 1.3, z1 + 2.0, f); clueNote('n29', x1 + 3.0, y0 + .74, zz0 + 1.08, f, .5); }
     // 태극기 액자 · 스피커 · 시계
-    box('white', x1 + .02, x1 + .08, y0 + 2.25, y0 + 2.55, (z1 + z2) / 2 - .35, (z1 + z2) / 2 + .35);   // 태극기 액자
+    if (type !== 'class') box('white', x1 + .02, x1 + .08, y0 + 2.25, y0 + 2.55, (z1 + z2) / 2 - .35, (z1 + z2) / 2 + .35);   // 태극기 액자 (일반 교실은 classDecor 의 액자가 있다 — 같은 자리에 흰 판이 겹쳐 튀어나오던 중복)
     box('white', x1 + .02, x1 + .06, y0 + 2.3, y0 + 2.6, z1 + .5, z1 + .8);   // 스피커
     mdl('wall_clock', x2 - .03, y0 + 2.4, (z1 + z2) / 2, -Math.PI / 2);   // 뒷벽 벽시계 (실사)
     mdl('ceiling_fan', x1 + 3.4, y0 + S.CEIL, (z1 + z2) / 2 - 1.8); mdl('ceiling_fan', x1 + 6.6, y0 + S.CEIL, (z1 + z2) / 2 + 1.8);   // 천장 선풍기 2대
@@ -994,7 +994,62 @@ export function buildMainBuilding(opt = {}) {
     const ctex = (w, h, draw) => { const c = document.createElement('canvas'); c.width = w; c.height = h; draw(c.getContext('2d'), w, h); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t; };
     return { plane, ctex };
   }
-  function special(type, x1, x2, z1, z2, y0, f) {
+  // ── 본관 특별실 보강 (2차 정비): 상담실 · 진로상담실 · 보건실 · 학생회실 · 시청각실 · 창고 · 컴퓨터실 · 암실 · 교사 휴게실 —
+  //   벽에 붙이는 게시물 · 시계 · 건의함 같은 납작한 것 위주 (충돌 · 동선 · 조사 지점은 건드리지 않는다). 방마다 쓰는 벽면은 아래 주석의 빈 구간만 골랐다.
+  function roomPlus(type, x1, x2, z1, z2, y0, f) {
+    y_ = y0; const zm = (z1 + z2) / 2, xm = (x1 + x2) / 2;
+    // 벽 게시물: ax 'x' = 서 · 동 벽(side +1 이면 동쪽을 본다), 'z' = 남 · 북 벽. 종이 한 장 — 제목 띠 + 본문 줄
+    const post = (id, ax, w0, side, pos, y, w, h, head, hc, lines, bg = '#f8f4e6') => {
+      const p = canvasPlane(w, h, Math.round(w * 420), Math.round(h * 420), (g, W, H) => { g.fillStyle = bg; g.fillRect(0, 0, W, H); g.fillStyle = hc; g.fillRect(0, 0, W, H * .17); g.fillStyle = '#fff'; g.font = `bold ${Math.round(H * .095)}px sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(head, W / 2, H * .085, W - 12);
+        g.fillStyle = '#222'; g.textAlign = 'left'; const fs = Math.round(H * .062); g.font = `${fs}px sans-serif`; lines.forEach((t, i) => g.fillText(t, W * .07, H * .26 + i * fs * 1.55, W * .88)); g.fillStyle = '#c82020'; g.beginPath(); g.arc(W / 2, H * .03, H * .012, 0, 7); g.fill(); }, 'rp_' + id);
+      if (ax === 'x') { p.position.set(w0 + side * .016, y0 + y, pos); p.rotation.y = side > 0 ? Math.PI / 2 : -Math.PI / 2; } else { p.position.set(pos, y0 + y, w0 + side * .016); p.rotation.y = side > 0 ? 0 : Math.PI; }
+      root.add(p); };
+    const clock = (x, y, z, ry) => mdl('wall_clock', x, y0 + y, z, ry);
+    if (type === 'counsel') {   // 상담실: 서쪽 칸막이 벽(빈 벽) · 탁자 위 소품
+      post('cns1', 'x', x1, 1, z1 + 2.3, 1.55, .6, .85, '또래 상담', '#2a7a6a', ['고민이 있으면 언제든', '상담실 문을 두드려요', '', '월~금 점심시간 · 방과후', '비밀은 꼭 지켜 드립니다', '', '— 상담 선생님 —']);
+      post('cns2', 'x', x1, 1, z1 + 3.4, 1.5, .5, .7, '진로 · 적성 검사', '#3a5aa0', ['2학기 검사 결과', '개별 상담 신청 받습니다', '', '※ 학생부 확인']);
+      clock(x1 + .03, 2.4, zm, Math.PI / 2);
+      box('lockerM', x1 + .02, x1 + .2, y0 + .95, y0 + 1.25, zm + 1.2, zm + 1.7); box('rubber', x1 + .2, x1 + .205, y0 + 1.12, y0 + 1.14, zm + 1.38, zm + 1.52);   // 상담 신청함 (투입구)
+      { const lb = canvasPlane(.17, .07, 170, 70, (g, W, H) => { g.fillStyle = '#f4f0e2'; g.fillRect(0, 0, W, H); g.fillStyle = '#7a3a1a'; g.font = 'bold 34px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('신청함', W / 2, H / 2); }, 'rp_cnsLbl'); lb.position.set(x1 + .206, y0 + 1.2, zm + 1.45); lb.rotation.y = Math.PI / 2; root.add(lb); }
+      box('white', xm - .08, xm + .1, y0 + .74, y0 + .83, zm - .1, zm + .08); box('recycY', xm - .5, xm - .2, y0 + .74, y0 + .755, zm + .1, zm + .4);   // 휴지갑 · 노란 상담 일지 철
+    } else if (type === 'career') {   // 진로상담실: 동쪽 책장 사이 · 서쪽 코르크판 위 · 시계
+      post('car1', 'x', x2, -1, zm, 1.55, .9, 1.1, '2009학년도 대입 일정', '#a03030', ['수능  2008. 11. 13', '성적 통지  12. 3', '수시 2학기 합격 발표 12월', '정시 원서 접수  12월 말', '', '※ 개별 상담 예약제', '   진로상담실 · 3학년부']);
+      clock(x2 - .03, 2.5, zm, -Math.PI / 2);
+      [[z1 + 2.2, 'u1', '대학 입학 설명회', '#2a5aa0', ['10. 18 (토) 오후 2시', '시청각실 · 3학년 대상']], [zm - .1, 'u2', '직업 체험의 날', '#2a8a5a', ['11월 중 신청서 제출', '학부모 직업 소개 환영']], [zm + 1.7, 'u3', '모의고사 일정', '#8a5a2a', ['11. 5 (수) 전국연합 모의', '시간표 별도 공지']]].forEach(([z, id, h, c, l]) =>
+        post('car' + id, 'x', x1 + .03, 1, z, 1.7, .5, .6, h, c, l));   // 코르크판 위에 핀으로 꽂은 안내문
+    } else if (type === 'nurse') {   // 보건실: 서쪽 벽 빈 구간 (약품장 남쪽 ~ 세면대 북쪽)
+      post('nur1', 'x', x1, 1, z1 + 3.7, 1.5, .5, .7, '손 씻기 6단계', '#2a8aa8', ['1 손바닥  2 손등', '3 손가락 사이  4 손톱 밑', '5 엄지  6 손목', '', '비누로 30초 이상']);
+      post('nur2', 'x', x1, 1, z1 + 4.5, 1.5, .4, .6, '시력 검사표', '#444', ['  ㄱ  ㄴ  ㄷ', '  ㅏ  ㅗ  ㅜ', '   가  나  다', '    라  마', '      바']);
+      post('nur3', 'x', x1, 1, z1 + 5.3, 1.5, .5, .7, '금연 · 건강 상담', '#a05030', ['담배는 NO! 건강은 YES!', '', '보건 선생님과 상담하세요', '월·수·금 점심시간']);
+      clock(x1 + .03, 2.45, z1 + 4.5, Math.PI / 2);
+      { const sx = x1 + .45, sz = z2 - 3.4; box('steelG', sx - .22, sx + .22, y0, y0 + .04, sz - .17, sz + .17); box('alu', sx - .015, sx + .015, y0 + .04, y0 + 1.95, sz - .015, sz + .015); box('rubber', sx - .2, sx + .2, y0 + .5, y0 + .54, sz - .15, sz + .15); box('alu', sx - .18, sx - .04, y0 + 1.0, y0 + 1.04, sz - .05, sz + .05);   // 신장 · 체중계 (눈금 기둥 + 발판 + 측정 바)
+        col.push({ x1: sx - .24, x2: sx + .24, z1: sz - .19, z2: sz + .19, y1: y0, y2: y0 + 1.95 }); }
+    } else if (type === 'council') {   // 학생회실: 서쪽 벽 (깃발 북쪽) · 동쪽 벽 서가 북쪽 · 시계
+      post('cou3', 'x', x1, 1, zm + .8, 1.5, .8, 1.0, '2008 학생회 공약', '#1f4f8a', ['· 야자 선택제 건의', '· 급식 만족도 조사', '· 학예제 학생 주도 운영', '· 교내 분실물 센터', '', '— 학생회장 · 부회장 —']);   // 예전: 남쪽 창 유리에 3.4m 현수막이 붙어 있었다 (창 위 부유물) → 빈 서쪽 벽으로
+      clock(x1 + .03, 2.5, zm - 1.7, Math.PI / 2);
+      corkBoardZ(x1 + .02, 1, z1 + 1.6, z1 + 3.4, y0 + 1.2, y0 + 2.0);
+      post('cou1', 'x', x1 + .03, 1, z1 + 2.5, 1.6, .55, .7, '10월 학생회 일정', '#1f4f8a', ['10/15~17  학예제', '10/20  임원 회의', '10/24  급식 만족도 조사', '10/31  전교 학생 총회']);
+      post('cou2', 'x', x2, -1, zm - 1.2, 1.55, .8, 1.1, '제42회 학예제', '#8a2a5a', ['2008. 10. 15 ~ 17', '합창 · 연극 · 밴드', '사진부 전시 (본관 4층)', '방송부 UCC 상영', '', '학생회 · 학예제 준비위']);
+      box('lockerM', x2 - .22, x2 - .02, y0 + .95, y0 + 1.25, zm + .2, zm + .7); box('rubber', x2 - .225, x2 - .22, y0 + 1.12, y0 + 1.14, zm + .38, zm + .52);   // 학생 건의함
+    } else if (type === 'avroom') {   // 시청각실: 동쪽 벽 (VHS 장 양옆) · 시계
+      clock(x2 - .03, 2.45, zm, -Math.PI / 2);
+      post('av1', 'x', x2, -1, zm - 1.5, 1.5, .5, .7, '시청각실 이용 안내', '#444', ['사용 후 전원 OFF', '비디오 · DVD 는', '교무부에서 대출', '암막 커튼은 원위치']);
+      post('av2', 'x', x2, -1, zm + 1.5, 1.5, .5, .7, '이번 주 상영', '#2a6a8a', ['10. 14 (화) 6교시', '1학년 안전 교육', '10. 16 (목) 7교시', '학예제 리허설']);
+    } else if (type === 'storage') {   // 창고: 서쪽 벽 (선반 줄 앞)
+      post('sto1', 'x', x1, 1, zm, 1.5, .6, .8, '물품 관리 대장', '#6a6a30', ['소모품 · 비품 반출 시', '관리대장에 기록', '', '※ 소화기 위치: 출입문 옆', '※ 퇴실 시 소등 · 시건']);
+    } else if (type === 'computer') {   // 컴퓨터실: 동쪽 벽 (수납장 사이)
+      post('com1', 'x', x2, -1, zm, 1.5, .9, .75, '컴퓨터실 이용 수칙', '#1f4f8a', ['1. 음식물 반입 금지', '2. 정품 소프트웨어만 사용', '3. 불법 다운로드 · 게임 금지', '4. 작업 파일은 USB 에 저장', '5. 퇴실 전 모니터 · 본체 종료']);
+    } else if (type === 'club') {   // 사진부 암실: 동쪽 벽
+      post('clb1', 'x', x2, -1, zm, 1.6, .6, .5, '암실 사용 중', '#a01818', ['빛 주의 · 문을 열지 마시오', '현상액 취급 주의 — 사진부']);
+      post('clb2', 'x', x2, -1, zm + 1.2, 1.4, .5, .6, '학예제 사진 전시', '#444', ['본관 4층 복도', '10. 15 ~ 17', '', '사진부 일동']);
+    } else if (type === 'teacher') {   // 교사 휴게실: 서쪽 벽
+      clock(x1 + .03, 2.4, zm, Math.PI / 2);
+      corkBoardZ(x1 + .02, 1, zm - 1.6, zm - .4, y0 + 1.25, y0 + 2.0);
+      post('tea1', 'x', x1 + .03, 1, zm - 1.0, 1.65, .55, .65, '10월 당직 근무표', '#2a5a3a', ['월 · 수  3학년부', '화 · 목  2학년부', '금  1학년부', '', '※ 22:30 순찰 · 시건 확인']);
+    }
+  }
+  function special(type, x1, x2, z1, z2, y0, f) { special0(type, x1, x2, z1, z2, y0, f); if (MAINB) roomPlus(type, x1, x2, z1, z2, y0, f); }
+  function special0(type, x1, x2, z1, z2, y0, f) {
     y_ = y0; const zm = (z1 + z2) / 2, xm = (x1 + x2) / 2; rmx = xm; rmz = zm;
     // x 방향을 보는 의자 · 원형 스툴 · 칠판 (별관 특별실 공용) — face -1 이면 서쪽(칠판)을 본다
     const chairX = (x, z, face = -1) => { box('rubber', x - .24, x + .24, y0 + .42, y0 + .5, z - .24, z + .24); const bx = x - face * .22; box('rubber', Math.min(bx, bx - face * .06), Math.max(bx, bx - face * .06), y0 + .5, y0 + 1.0, z - .22, z + .22);   // 등받이 · 기둥이 좌판 · 받침에 닿는다 (예전 5cm · 2cm 틈)
@@ -1016,7 +1071,7 @@ export function buildMainBuilding(opt = {}) {
         box('dkwood', x1, x2, y0 + .02, y0 + .03, z1, z2); table(xm, zm + .6, 3.6, 1.4, .75, 'dkwood'); for (let k = 0; k < 4; k++) { mdl('SchoolChair_01', xm - 1.35 + k * .9, y0, zm - .35, 0); mdl('SchoolChair_01', xm - 1.35 + k * .9, y0, zm + 1.55, Math.PI); }
         shelf(x2 - .5, x2 - .05, z2 - 3.4, z2 - .3, 1.9, 4, 'dkwood', false); for (let k = 0; k < 6; k++) cyl('brass', x2 - .27, y0 + .5 + (k % 3) * .48, z2 - 3.0 + ((k / 3) | 0) * 1.2, .05, .22, .09, 10);
         cyl('alu', x1 + .5, y0, z2 - .6, .02, 2.2); const fl = canvasPlane(.9, .6, 256, 170, (g, W, H) => { g.fillStyle = '#1f4f8a'; g.fillRect(0, 0, W, H); g.fillStyle = '#fff'; g.font = 'bold 36px sans-serif'; g.textAlign = 'center'; g.fillText('서린고 학생회', W / 2, H / 2 + 12); }, 'council_flag'); fl.position.set(x1 + .96, y0 + 1.8, z2 - .6); fl.rotation.y = Math.PI / 2; root.add(fl);
-        sign('2008 학생회 공약: 야자 선택제 · 급식 만족도 조사', xm, y0 + 1.75, z2 - .03, 3.4, Math.PI); search('학생회 회의록 철', xm + 1, zm + .6); }
+        search('학생회 회의록 철', xm + 1, zm + .6); }
       else if (type === 'avroom') {   // 시청각실: 계단식 대신 줄 맞춘 접이식 의자 · 대형 스크린 · 천장 프로젝터 · 암막 커튼
         box('dkwood', x1, x2, y0 + .02, y0 + .03, z1, z2); box('white', x1 + .03, x1 + .05, y0 + .7, y0 + 2.6, zm - 2, zm + 2); box('rubber', x1 + .05, x1 + .25, y0 + .7, y0 + .75, zm - 2.1, zm + 2.1);
         for (let r = 0; r < 4; r++) for (let c = 0; c < 6; c++) { const x = x1 + 2.6 + r * 1.3, z = Z0 + .4 + c * 1.15; if (z > z2 - .6) continue; mdl('SchoolChair_01', x, y0, z, -Math.PI / 2); }

@@ -516,7 +516,8 @@ export function installRebuild({ THREE, scene, floors, world }) {
         for (const c of B.col) { if (c.y2 == null || c.y2 > below + .06 || c.y2 < best || c.y2 - (c.y1 ?? 0) > 2.4) continue; if (lx > c.x1 + .02 && lx < c.x2 - .02 && lz > c.z1 + .02 && lz < c.z2 - .02) best = c.y2; } } return best; };
     R._sup = supportAt;
     const WALL = /게시|액자|공지|시계|포스터|명패|달력|스위치|비상벨|배전반|분전반|거울|칠판|현판|안내|냉난방기|빔프로젝터|에어컨/;
-    const settle = (objs, label, onDy) => { if (!objs.length) return; bx.makeEmpty(); for (const o of objs) bx.expandByObject(o); if (bx.isEmpty()) return;
+    const sb = new THREE.Box3(), noSprite = o => { o.updateWorldMatrix(true, true); o.traverse(c => { if (!c.isMesh || c.isSprite || !c.geometry) return; if (c.isInstancedMesh) { sb.setFromObject(c); } else { if (!c.geometry.boundingBox) c.geometry.computeBoundingBox(); sb.copy(c.geometry.boundingBox).applyMatrix4(c.matrixWorld); } if (!sb.isEmpty()) bx.union(sb); }); };   // 빛무리 스프라이트(구급상자 · 건전지)는 빼고 잰다 — 넣으면 바닥이 상자 밑 0.3m 로 잡혀 놓일 때마다 그만큼 들어 올렸다
+    const settle = (objs, label, onDy) => { if (!objs.length) return; bx.makeEmpty(); for (const o of objs) noSprite(o); if (bx.isEmpty()) for (const o of objs) bx.expandByObject(o); if (bx.isEmpty()) return;
       if (WALL.test(label || '')) { const fl = Math.max(0, Math.floor((bx.min.y + .05) / FH)) * FH, h = bx.min.y - fl; if (h > .7 && h < 2.2) return; }   // 벽에 걸린 높이(0.7~2.2m)면 그대로, 천장 · 바닥 아래로 빠진 것만 바로잡는다
       const s = bx.getSize(new THREE.Vector3()); if (s.y > 2.2 || Math.max(s.x, s.z) > 3) return; const c = bx.getCenter(new THREE.Vector3()), sup = supportAt(c.x, c.z, bx.min.y); if (sup == null) return;
       const dy = sup - bx.min.y; if (Math.abs(dy) < .03) return; for (const o of objs) o.position.y += dy; onDy && onDy(dy); n++; };
@@ -1011,7 +1012,7 @@ export function installRebuild({ THREE, scene, floors, world }) {
         const dy = ty - bb.min.y; if (Math.abs(dy) < .005) continue; for (const o of os) { if (o.parent !== group) group.attach(o); o.position.y += dy; } up++; } }
     // 뜬 아이템(열쇠 · 쪽지 등) 내려놓기: 바로 아래 실제 그려진 면 위로 (6cm 넘게 떠 있을 때만)
     { const rc = new THREE.Raycaster(), dn = new THREE.Vector3(0, -1, 0); rc.camera = new THREE.PerspectiveCamera();
-      for (const it of W.items) { if (it.taken || it.floor !== 0 || it.rbY == null || !it.mesh || it._drp) continue; it._drp = true; const bb = new THREE.Box3().setFromObject(it.mesh); if (bb.isEmpty()) continue;
+      for (const it of W.items) { if (it.taken || it.floor !== 0 || it.rbY == null || !it.mesh || it._drp) continue; it._drp = true; const bb = new THREE.Box3(), tb = new THREE.Box3(); it.mesh.updateMatrixWorld(true); it.mesh.traverse(o => { if (o.isMesh && !o.isSprite && o.geometry) { if (!o.geometry.boundingBox) o.geometry.computeBoundingBox(); bb.union(tb.copy(o.geometry.boundingBox).applyMatrix4(o.matrixWorld)); } }); if (bb.isEmpty()) bb.setFromObject(it.mesh); if (bb.isEmpty()) continue;   // 빛무리 스프라이트(구급상자 · 건전지)는 빼고 잰다 — 넣으면 바닥이 상자 밑 39cm 로 잡혀 방송실 구급상자가 카펫 위 27cm 허공에 떠 있었다
         const mine = new Set(); it.mesh.traverse(c => mine.add(c)); const c = bb.getCenter(new THREE.Vector3()); rc.set(new THREE.Vector3(c.x, bb.min.y + .01, c.z), dn); rc.far = 1.4;
         const hit = rc.intersectObjects(near(c.x, c.z, .1), false).find(h => h.object.isMesh && !fakeObj(h.object) && !mine.has(h.object) && h.object.visible && !h.object.material?.transparent && h.point.y > it.rbY - .05); if (!hit) continue;
         const dy = hit.point.y + .004 - bb.min.y; if (dy > -.06) continue; if (it.mesh.parent !== group) group.attach(it.mesh); it.mesh.position.y += dy; it.pos.y += dy; if (it.baseY != null) it.baseY += dy; up++; } }

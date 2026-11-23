@@ -4,10 +4,10 @@
 //   전기(분전반 · 2등용 형광등 · 콘센트 · 스위치) · 소방(소화전함 · 소화기 · 감지기 · 유도등 · 방화문) · 수도(세면대 · 배관)
 import * as THREE from '../vendor/three.module.js';
 import { mergeGeometries } from '../vendor/addons/utils/BufferGeometryUtils.js';
-import { makeFlag } from '../tex.js?v=450';
-import * as PT from './periodTex.js?v=450';
-import { collectRefs, dedupeMaterials, batchStaticChildren } from './staticBatch.js?v=450';
-import { classInfo, weekDuty, cleaningRota, shortSubj, DAYS, PERIOD_TIME } from './classData.js?v=450';
+import { makeFlag } from '../tex.js?v=451';
+import * as PT from './periodTex.js?v=451';
+import { collectRefs, dedupeMaterials, batchStaticChildren } from './staticBatch.js?v=451';
+import { classInfo, weekDuty, cleaningRota, shortSubj, DAYS, PERIOD_TIME } from './classData.js?v=451';
 // 교실 앞면 꾸밈 공용 (반 이름 · 텍스처 캐시)
 let flagTex = null; const decorTex = new Map();
 // 2008년 10월 복도 게시물 (현재 시점 — 1998 사건 증거물과 구분)
@@ -1275,6 +1275,7 @@ export function buildMainBuilding(opt = {}) {
       if (!opt.noClues && !s_staff++) { clueNote('n3', cxL - .62, y0 + .74, zr1 - .37, f, .3); clueNote('n22', cxR + .62, y0 + .74, zr2 - .37, f, -.2); clueTape('ts_vice', mx, y0 + .77, zm, f); clueNote('n21', x1 + 1.2, y0 + .76, z2 - .85, f, .1); }
       props.push({ kind: 'search', label: '교무실 서류함 뒤지기', x: x2 - .9, y: y0 + 1, z: z2 - 3.0, floor: f });
       props.push({ kind: 'search', label: '행정실 장부 확인', x: x1 + 1.9, y: y0 + 1, z: z2 - 1.6, floor: f });
+      props.push({ kind: 'ganxSpot', label: '교무실 숙직 서류함 자리', x: x1 + 2.7, z: z2 - .55, y: y0, floor: f });   // 북쪽 창 아래 · 행정실 책상 동쪽 빈 바닥 (rebuildGame 이 잠긴 숙직 서류함을 이 자리로)
     } else if (type === 'meeting') {   // 교사회의실 (참고 배치도 · 3D 평면도 · 가구 규격도): 다크 우드 바닥 · 모듈 회의 테이블 ㅁ자 (1600×800) + 회의 의자 10 · 연단 · 스크린 · 화이트보드 · 빔 프로젝터 · 복합기 코너 · 창가 하부장 · 유리 수납장 · 자료장 · 교훈 패널 · 게시판 · 옷걸이
       darkMats(); const { plane, ctex } = artHelpers();
       box('dkwood', x1, x2, y0 + .02, y0 + .03, z1, z2);

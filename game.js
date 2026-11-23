@@ -9,6 +9,7 @@ import { createMoveFeel, targetSpeed, stepVelocity, stopVelocity, advanceStride,
 import { createFXWebGPU } from './fxWebGPU.js?v=446';
 import * as PT from './rebuild/periodTex.js?v=446';
 import { autoDetail, setupEnv, sharpenTextures, slimHeavyProps } from './surfaceDetail.js?v=446';
+import { applyMacroDetail, setMacroLevel } from './surfaceMacro.js?v=446';
 // 광선 검사 가속 (three-mesh-bvh, MIT): 건물 통짜 메시에 광선을 쏘는 배치 보정 · 상호작용 검사가 삼각형을 전부 훑느라
 //   로딩 중 수십 초 멈추던 것('응답 없는 페이지') → 큰 정적 메시는 처음 검사할 때 BVH 를 한 번 만들어 쓴다
 { const base = THREE.Mesh.prototype.raycast, R = new THREE.Ray(), M4 = new THREE.Matrix4(), S = new THREE.Sphere();
@@ -5313,10 +5314,11 @@ const QUAL = { ultra: { pr: 2, sh: 2048, label: '최고' }, high: { pr: 1.5, sh:
 // iGPU / 저사양: 후처리 · 달빛 기둥 · 먼지 · LOD 는 '낮음' 단계로, 그림자는 끄지 않고(셰이더 재컴파일 방지) 512 맵, 텍스처 512 상한, 시야 거리 · 안개 단축, 풀 조명 2개, 동적 해상도 0.6~1.0
 let perfUp = 0; const perfDowned = {};
 let qCur = SET.quality === 'auto' ? 'mid' : SET.quality, perfAcc = 0, perfN = 0, perfWin = 0, fpsShown = 60;
+const macroLevel = () => IGPU ? 0 : (qCur === 'low' ? 1 : 2);   // 바닥 · 벽 · 천장 거시 변이: igpu 는 끄고, 낮음은 법선 요철 생략
 function applyQuality(q) {
   const ig = q === 'igpu'; const c = ig ? QUAL.igpu : SET.quality === 'auto' && q === 'low' ? { pr: .85, sh: 256 } : QUAL[q]; if (ig) q = 'low';
   if (IGPU !== ig) { IGPU = ig; pool.forEach((l, i) => { l.visible = i < poolMax(); }); camera.far = ig ? IGPU_FAR : BASE_FAR; camera.updateProjectionMatrix(); }
-  qCur = q;   // 자동 조정: 그림자를 끄면 모든 재질 셰이더를 다시 만들어 수 초 멈춘다 → 끄지 않고 해상도 · 그림자 크기만 줄인다
+  qCur = q; setMacroLevel(macroLevel());   // 자동 조정: 그림자를 끄면 모든 재질 셰이더를 다시 만들어 수 초 멈춘다 → 끄지 않고 해상도 · 그림자 크기만 줄인다
   const q3 = q === 'ultra' ? 'high' : q;   // 텍스처 예산 · 후처리는 high 와 같은 단계 (픽셀 비율 · 그림자만 더 높다)
   if (SET.quality !== 'auto' || !textureBudget._autoSet) { textureBudget._autoSet = SET.quality === 'auto'; textureBudget.setQuality(SET.quality === 'auto' ? 'high' : IGPU ? 'low' : q === 'ultra' ? 'ultra' : q3).catch(e => console.warn('[texture budget]', e)); }   // 자동 품질이 오르내릴 때마다 모든 텍스처를 줄였다 다시 올리며(수백 장 재업로드) 렉이 반복됐다 → 자동 조정은 해상도 · 그림자만
   renderer.setPixelRatio(Math.min(devicePixelRatio, c.pr) * SET.scale * (IGPU ? dynRes.scale : 1)); renderer.setSize(innerWidth, innerHeight); fx.resize(innerWidth, innerHeight, renderer.getPixelRatio()); fx.setQuality(q3); if (fx.setAO) fx.setAO(q === 'ultra' && SET.quality === 'ultra');   // 최고 품질을 직접 고른 경우에만 주변광 차폐
@@ -9422,7 +9424,7 @@ if (RBG) setTimeout(() => { try { const n = installInteractionsPlus({ THREE, sce
   try { const pr = relayCampusPaths({ world, footprints: RBG.footprints }); console.info('[인도 재배치]', pr); } catch (e) { console.error('[campus paths]', e); } try { const sv = installStreetscape({ scene, world, floors, footprints: RBG.footprints }); console.info('[가로 시설 v2]', sv); } catch (e) { console.error('[streetscape]', e); } try { const cg = installCampusGrounds({ scene, world, floors, footprints: RBG.footprints }); console.info('[캠퍼스 마당 2008]', cg); } catch (e) { console.error('[grounds08]', e); }
   import('./neighborhood2008.js?v=446').then(m => console.info('[서린동 2008]', m.installNeighborhood({ scene, camera }))).catch(e => console.error('[neighborhood]', e));   // 담장 밖 동네 배경 (상호작용 없음)
   { const cl = () => { try { const r = cleanupCampus({ scene, floors }); if (r.hid || r.inst) console.info('[캠퍼스 정리]', r); settleOutdoorProps(); try { setupEnv(renderer, scene); } catch (e) { console.warn('[env]', e); } if (RBG && campusCctv && RBG.cctvFeeds && !RBG._cctvSet) { RBG._cctvSet = true; const keep = collectCampusCctvFeeds(world.CCTV_CAMERAS).filter(f => !(f.floor >= 1 && f.floor <= 2) && !(f.floor >= 8) && !(f.floor === 0 && RBG.inside(f.position[0], f.position[2]))); campusCctv.setFeeds([...RBG.cctvFeeds(), ...keep]); if (RBG.oldFloors) campusCctv.setFloorRoots(floors.filter(F => F && !RBG.oldFloors.has(F)).map(F => ({ floor: F.f, interior: F.interior, shell: F.shell, windowFake: F.winFake }))); /* 옛 본관 · 별관 층 껍데기가 CCTV 바깥 화면에서 새 건물 · 마당에 겹쳐 보이던 것 */ campusCctv.restoreChannels(FL.guardCctvChannels || []); }   // CCTV: 옛 본관 · 별관 카메라 → 새 건물 복도 · 현관 · 구름다리
-    const nd = autoDetail(scene); try { sharpenTextures(scene, renderer); const sl = slimHeavyProps(scene); if (sl.n) console.info('[경량화]', sl); } catch (e) {} if (nd) console.info('[표면 디테일]', nd); } catch (e) { console.warn('[cleanup]', e); } }; cl(); [8000, 30000, 80000, 200000].forEach(ms => idleTimeout(cl, ms)); }   // 재배치 잔재 · 인도 위 소품 (늦게 오는 모델 포함)
+    const nd = autoDetail(scene); try { if (!IGPU && !ENGINE.webgpu && !/[?&]nomacro\b/.test(location.search)) { const mc = applyMacroDetail(scene, { renderer, level: macroLevel() }); if (mc.n) console.info('[표면 거시 변이]', mc); } } catch (e) { console.warn('[macro]', e); } try { sharpenTextures(scene, renderer); const sl = slimHeavyProps(scene); if (sl.n) console.info('[경량화]', sl); } catch (e) {} if (nd) console.info('[표면 디테일]', nd); } catch (e) { console.warn('[cleanup]', e); } }; cl(); [8000, 30000, 80000, 200000].forEach(ms => idleTimeout(cl, ms)); }   // 재배치 잔재 · 인도 위 소품 (늦게 오는 모델 포함)
   case5Place();   rel(); window.__rbRel = rel;
   // 끊김 방지: 예전엔 4초마다 무조건 전체 재배치·정착·가시성 검사를 돌렸다(떠다니는 물건의 흔들림 때문에 매번 '내려놓기'가 반복). 이제 조사 지점·물건 수가 바뀌었을 때만, 아니면 처음 2분은 20초·그 뒤 60초에 한 번
   { let sig = '', lastRun = performance.now(); const t0r = performance.now(); setInterval(() => { const s2 = world.props.length + ':' + world.items.length + ':' + (FL.b1Open ? 1 : 0); const now = performance.now(), gap = now - t0r < 120000 ? 20000 : 60000;

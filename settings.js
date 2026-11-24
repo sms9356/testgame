@@ -5,6 +5,7 @@ export const DEF = {
   subBg: .45, subNames: true,
   crouchToggle: true, idleHint: true, idleHintSec: 240, cbSafe: false,   // 편의: 앉기 방식 · 목표 다시 알림 · 색각 보조 강조
   diff: 'normal', jump: 'soft', flashReduce: false, fearFx: true, captions: true, tips: true, areaPhotos: false, contrast: false, motionBlur: false, classicBars: false, minimap: true, paperMap: false, ui: 1, mic: false, lang: 'ko',
+  hintFreq: 'normal',   // 힌트 빈도: low(적게) · normal(보통) · high(많이) — 민아 · 무전 · 단서 보드 공용 (minaDirector.js)
   minaAI: false, minaAIUrl: '',   // 민아와 자유 대화 (AI) — 기본 꺼짐 · 서버 주소가 비면 기능 숨김 (minaChat.js)
   keys: { interact: 'KeyE', flash: 'KeyF', inv: 'Tab', map: 'KeyM', phone: 'KeyP', throwCan: 'KeyG', view: 'KeyV', run: 'ShiftLeft', down: 'KeyQ', crouch: 'KeyC', jump: 'Space', scan: 'KeyH', camera: 'KeyX', quest: 'KeyO', quickSave: 'F5', quickLoad: 'F9', radio: 'KeyB' },
 };
@@ -16,6 +17,7 @@ export function parseSET(raw) {
   const out = { ...DEF, ...s, keys: migrateKeys(s.keys) };
   for (const k of ['crouchToggle', 'idleHint', 'cbSafe']) if (typeof out[k] !== 'boolean') out[k] = DEF[k];
   if (!Number.isFinite(out.idleHintSec)) out.idleHintSec = DEF.idleHintSec;
+  if (!['low', 'normal', 'high'].includes(out.hintFreq)) out.hintFreq = DEF.hintFreq;
   out.idleHintSec = Math.min(600, Math.max(60, out.idleHintSec));
   return out;
 }

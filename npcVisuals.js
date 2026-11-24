@@ -484,6 +484,7 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
   const _vO = THREE.Vector3 ? new THREE.Vector3() : null, _vE = THREE.Vector3 ? new THREE.Vector3() : null, _vFrom = THREE.Vector3 ? new THREE.Vector3() : null, _vTo = THREE.Vector3 ? new THREE.Vector3() : null;
   const _qDelta = THREE.Quaternion ? new THREE.Quaternion() : null, _qWorld = THREE.Quaternion ? new THREE.Quaternion() : null, _qParentInv = THREE.Quaternion ? new THREE.Quaternion() : null;
 
+  const _phoneTint = THREE.Color ? new THREE.Color(0xbfe3ff) : null;
   function aimBoneCharSpace(holderYaw, joint, end, lx, ly, lz, blend = 1.0) {
     if (!joint || !end || !_vO || !_qDelta) return;
     joint.updateWorldMatrix(true, false);
@@ -792,7 +793,39 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
         aimBoneCharSpace(curYaw, rig.armR, rig.foreR, -.16, -.82, .45, wk);
         aimBoneCharSpace(curYaw, rig.foreR, rig.handR, .18, -.2 + tap2, 1, wk);
       }
-      rig.idleK = (1 - rig.walkBlend) * (1 - wk);
+      // 대기 행동 자세 (민아 · userData.idlePose: hug 팔짱 · phone 휴대폰 · lean 벽 기대기 · sit 쪼그려 쉬기) — 걷기 · 콘솔 자세가 우선, 부드럽게 섞는다
+      const ip = holder.userData.idlePose, pw = (1 - rig.walkBlend) * (1 - wk), kr = Math.min(1, dt * 3);
+      rig.hugK = (rig.hugK || 0) + ((ip === 'hug' ? pw : 0) - (rig.hugK || 0)) * kr;
+      rig.phoneK = (rig.phoneK || 0) + ((ip === 'phone' ? pw : 0) - (rig.phoneK || 0)) * kr;
+      rig.leanK = (rig.leanK || 0) + ((ip === 'lean' ? pw : 0) - (rig.leanK || 0)) * kr;
+      rig.sitK = (rig.sitK || 0) + ((ip === 'sit' ? pw : 0) - (rig.sitK || 0)) * Math.min(1, dt * 2);
+      const hk = rig.hugK, pk = rig.phoneK, lk = rig.leanK, sk = rig.sitK;
+      if (entry.model && sk > .002) entry.model.position.y = entry.baseY - (entry.sitDrop || 0) * wk - (entry.sitDrop || .45) * .95 * sk;
+      if (rig.armL && rig.armR) {
+        if (hk > .01) { const b2 = breath * .03;
+          aimBoneCharSpace(curYaw, rig.armL, rig.foreL, .14, -.85, .32, hk); aimBoneCharSpace(curYaw, rig.foreL, rig.handL, -1, .12 + b2, .3, hk);
+          aimBoneCharSpace(curYaw, rig.armR, rig.foreR, -.14, -.85, .36, hk); aimBoneCharSpace(curYaw, rig.foreR, rig.handR, 1, .18 + b2, .28, hk);
+          aimBoneCharSpace(curYaw, rig.spine2, rig.spine3, 0, 1, .1, hk * .6); }
+        if (pk > .01) { aimBoneCharSpace(curYaw, rig.armR, rig.foreR, -.08, -.78, .42, pk); aimBoneCharSpace(curYaw, rig.foreR, rig.handR, .3, .5, .8, pk);
+          aimBoneCharSpace(curYaw, rig.armL, rig.foreL, .06, -.8, .45, pk * .8); aimBoneCharSpace(curYaw, rig.foreL, rig.handL, -.35, .45, .8, pk * .8); }
+        if (lk > .01) { aimBoneCharSpace(curYaw, rig.spine1, rig.spine2, 0, 1, -.1, lk * .7);
+          if (rig.thighR && rig.calfR) { aimBoneCharSpace(curYaw, rig.thighR, rig.calfR, .1, -1, .1, lk * .8); aimBoneCharSpace(curYaw, rig.calfR, rig.footR, .14, -1, -.02, lk * .8); }
+          aimBoneCharSpace(curYaw, rig.armL, rig.foreL, .16, -.9, -.12, lk * .7); aimBoneCharSpace(curYaw, rig.armR, rig.foreR, -.16, -.9, -.12, lk * .7); }
+        if (sk > .01 && rig.thighL && rig.calfL && rig.thighR && rig.calfR) {
+          aimBoneCharSpace(curYaw, rig.thighL, rig.calfL, .14, .2, 1, sk); aimBoneCharSpace(curYaw, rig.calfL, rig.footL, .04, -1, -.45, sk);
+          aimBoneCharSpace(curYaw, rig.thighR, rig.calfR, -.14, .2, 1, sk); aimBoneCharSpace(curYaw, rig.calfR, rig.footR, -.04, -1, -.45, sk);
+          aimBoneCharSpace(curYaw, rig.spine2, rig.spine3, 0, 1, .4, sk * .8);
+          aimBoneCharSpace(curYaw, rig.armL, rig.foreL, .12, -.55, .7, sk); aimBoneCharSpace(curYaw, rig.foreL, rig.handL, -.2, -.35, 1, sk);
+          aimBoneCharSpace(curYaw, rig.armR, rig.foreR, -.12, -.55, .7, sk); aimBoneCharSpace(curYaw, rig.foreR, rig.handR, .2, -.35, 1, sk); }
+      }
+      // 휴대폰 화면 빛: 손 앞 작은 화면(빛 없음 — 내장 그래픽 예산) · 한 번 만들어 둔다
+      if (pk > .05 || holder.userData.phoneTip) {
+        let ph = holder.userData.phoneTip;
+        if (!ph && rig.handR) { ph = new THREE.Mesh(new THREE.PlaneGeometry(.055, .1), new THREE.MeshBasicMaterial({ color: 0xbfe3ff, toneMapped: false, side: THREE.DoubleSide }));
+          ph.name = 'minaPhone'; ph.renderOrder = 2; rig.handR.add(ph); const ws = rig.handR.getWorldScale(new THREE.Vector3()).x || 1; ph.scale.setScalar(1 / ws); ph.position.set(0, .06 / ws, .03 / ws); holder.userData.phoneTip = ph; }   // 뼈 단위(cm 등)와 상관없이 실제 크기
+        if (ph) { ph.visible = pk > .35; if (ph.visible) ph.material.color.setScalar(.75 + Math.sin(tNow * 2.1) * .05).multiply(_phoneTint); }
+      }
+      rig.idleK = (1 - rig.walkBlend) * (1 - wk) * (1 - Math.max(hk, pk, lk, sk) * .8);
     }
 
     // ④ 시선 추적 IK (Smooth Head & Neck Look-At) — userData.lookTarget(Vector3) 가 있으면 그쪽(관심 지점), 없으면 플레이어

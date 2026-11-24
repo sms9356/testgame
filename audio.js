@@ -73,13 +73,18 @@ function panner(p) {
   return n;
 }
 let sfxPos = null;
+const occCut = o => 400 + 17600 * (1 - o) * (1 - o);   // 가림 0~1 → 저역 통과 차단 주파수
+// 위치 목소리(민아): 재생하는 동안 위치 · 가림 · 잔향을 계속 읽는다 — fn() → { x, y, z, occ, rev } 또는 null
+let voiceSpot = null; export function setVoiceSpot(fn) { voiceSpot = fn; }
 // at(x, y, z).doorBang() 처럼 쓰면 그 소리를 해당 3D 위치에서 재생한다
-export const at = (x, y, z) => new Proxy({}, { get: (_, k) => (...args) => { sfxPos = { x, y, z }; try { sfx[k](...args); } finally { sfxPos = null; } } });
+export const at = (x, y, z, occ = 0, rev = -1) => new Proxy({}, { get: (_, k) => (...args) => { sfxPos = { x, y, z, occ, rev }; try { sfx[k](...args); } finally { sfxPos = null; } } });
 
 function out(pan = 0, vol = 1, b = 'sfx') {
   const g = ac.createGain(); g.gain.value = vol;
   let dest = bus[b];
-  if (sfxPos) { const pn = panner(sfxPos); g.connect(pn); pn.connect(dest); const s2 = ac.createGain(); s2.gain.value = .6; pn.connect(s2); s2.connect(revSend); }
+  if (sfxPos) { const pn = panner(sfxPos); let src = pn;
+    if (sfxPos.occ > .05) { const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = occCut(sfxPos.occ); g.gain.value *= 1 - sfxPos.occ * .45; pn.connect(lp); src = lp; }   // 벽 · 닫힌 문 너머: 먹먹하게
+    src.connect(dest); const s2 = ac.createGain(); s2.gain.value = sfxPos.rev >= 0 ? sfxPos.rev * 1.6 : .6; src.connect(s2); s2.connect(revSend); }
   else if (ac.createStereoPanner) { const p = ac.createStereoPanner(); p.pan.value = Math.max(-1, Math.min(1, pan)); g.connect(p); p.connect(dest); g.connect(revSend); }
   else g.connect(dest);
   return g;
@@ -472,8 +477,18 @@ export async function playVoice(url, fx = 'none', emo = null) {
       s.addEventListener('ended', () => { source.stop(); source.disconnect(); n.disconnect(); ng.disconnect(); });
     }
   }
-  const g = ac.createGain(); g.gain.value = (fx === 'whisper' ? .82 : 1.08) * (emo && emo.gain || 1); node.connect(g); g.connect(bus.voice);
-  const sendG = ac.createGain(); sendG.gain.value = fx === 'pa' ? .35 : .03;
+  const g = ac.createGain(); g.gain.value = (fx === 'whisper' ? .82 : 1.08) * (emo && emo.gain || 1);
+  const sp0 = fx === 'spatial' && voiceSpot ? voiceSpot() : null;
+  if (sp0) {   // 민아 목소리: 3D 위치(거리 감쇠 · HRTF) + 벽/문 가림(저역 통과) + 방 크기 잔향 — 무전(phone)은 2D 그대로
+    const pn = panner(sp0); pn.refDistance = 2; pn.rolloffFactor = 1.1; const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = occCut(sp0.occ || 0);
+    node.connect(g); g.connect(pn); pn.connect(lp); lp.connect(bus.voice);
+    const sg = ac.createGain(); sg.gain.value = sp0.rev ?? .05; lp.connect(sg); sg.connect(revSend);
+    const iv = setInterval(() => { const q = voiceSpot && voiceSpot(); if (!q) return; const t = ac.currentTime + .1;
+      if (pn.positionX) { pn.positionX.linearRampToValueAtTime(q.x, t); pn.positionY.linearRampToValueAtTime(q.y, t); pn.positionZ.linearRampToValueAtTime(q.z, t); } else pn.setPosition(q.x, q.y, q.z);
+      lp.frequency.setTargetAtTime(occCut(q.occ || 0), ac.currentTime, .08); sg.gain.setTargetAtTime(q.rev ?? .05, ac.currentTime, .2); }, 120);
+    s.addEventListener('ended', () => clearInterval(iv), { once: true });
+  } else { node.connect(g); g.connect(bus.voice); }
+  const sendG = ac.createGain(); sendG.gain.value = fx === 'pa' ? .35 : sp0 ? 0 : .03;
   g.connect(sendG); sendG.connect(revSend);
   const finished = new Promise(resolve => s.addEventListener('ended', resolve, { once: true }));
   s.start(); curVoice = s; duckMusic(true); s.addEventListener('ended', () => { if (curVoice === s) { curVoice = null; duckMusic(false); } });

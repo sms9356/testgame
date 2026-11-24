@@ -799,13 +799,15 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
       rig.phoneK = (rig.phoneK || 0) + ((ip === 'phone' ? pw : 0) - (rig.phoneK || 0)) * kr;
       rig.leanK = (rig.leanK || 0) + ((ip === 'lean' ? pw : 0) - (rig.leanK || 0)) * kr;
       rig.sitK = (rig.sitK || 0) + ((ip === 'sit' ? pw : 0) - (rig.sitK || 0)) * Math.min(1, dt * 2);
-      const hk = rig.hugK, pk = rig.phoneK, lk = rig.leanK, sk = rig.sitK;
+      rig.touchK = (rig.touchK || 0) + ((ip === 'touch' ? pw : 0) - (rig.touchK || 0)) * Math.min(1, dt * 5);
+      const hk = rig.hugK, pk = rig.phoneK, lk = rig.leanK, sk = rig.sitK, tk = rig.touchK;
       if (entry.model && sk > .002) entry.model.position.y = entry.baseY - (entry.sitDrop || 0) * wk - (entry.sitDrop || .45) * .95 * sk;
       if (rig.armL && rig.armR) {
         if (hk > .01) { const b2 = breath * .03;
           aimBoneCharSpace(curYaw, rig.armL, rig.foreL, .14, -.85, .32, hk); aimBoneCharSpace(curYaw, rig.foreL, rig.handL, -1, .12 + b2, .3, hk);
           aimBoneCharSpace(curYaw, rig.armR, rig.foreR, -.14, -.85, .36, hk); aimBoneCharSpace(curYaw, rig.foreR, rig.handR, 1, .18 + b2, .28, hk);
           aimBoneCharSpace(curYaw, rig.spine2, rig.spine3, 0, 1, .1, hk * .6); }
+        if (tk > .01) { aimBoneCharSpace(curYaw, rig.armR, rig.foreR, -.12, -.45, .85, tk); aimBoneCharSpace(curYaw, rig.foreR, rig.handR, -.05, -.35, 1, tk); aimBoneCharSpace(curYaw, rig.spine2, rig.spine3, 0, 1, .25, tk * .7); }   // 손을 뻗어 만져 본다
         if (pk > .01) { aimBoneCharSpace(curYaw, rig.armR, rig.foreR, -.08, -.78, .42, pk); aimBoneCharSpace(curYaw, rig.foreR, rig.handR, .3, .5, .8, pk);
           aimBoneCharSpace(curYaw, rig.armL, rig.foreL, .06, -.8, .45, pk * .8); aimBoneCharSpace(curYaw, rig.foreL, rig.handL, -.35, .45, .8, pk * .8); }
         if (lk > .01) { aimBoneCharSpace(curYaw, rig.spine1, rig.spine2, 0, 1, -.1, lk * .7);
@@ -825,7 +827,7 @@ export function createNPCVisuals({ THREE, GLTFLoader, prepare }) {
           ph.name = 'minaPhone'; ph.renderOrder = 2; rig.handR.add(ph); const ws = rig.handR.getWorldScale(new THREE.Vector3()).x || 1; ph.scale.setScalar(1 / ws); ph.position.set(0, .06 / ws, .03 / ws); holder.userData.phoneTip = ph; }   // 뼈 단위(cm 등)와 상관없이 실제 크기
         if (ph) { ph.visible = pk > .35; if (ph.visible) ph.material.color.setScalar(.75 + Math.sin(tNow * 2.1) * .05).multiply(_phoneTint); }
       }
-      rig.idleK = (1 - rig.walkBlend) * (1 - wk) * (1 - Math.max(hk, pk, lk, sk) * .8);
+      rig.idleK = (1 - rig.walkBlend) * (1 - wk) * (1 - Math.max(hk, pk, lk, sk, tk) * .8);
     }
 
     // ④ 시선 추적 IK (Smooth Head & Neck Look-At) — userData.lookTarget(Vector3) 가 있으면 그쪽(관심 지점), 없으면 플레이어

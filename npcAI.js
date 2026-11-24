@@ -487,7 +487,7 @@ export function installNPCAI({ R, P, isPlaying, subtitle, objective, at, igpu, d
   function watchNotice(t) {   // 플레이어 곁(5m)의 아직 안 본 단서 · 조사 대상: 고개를 돌리고 한마디 (대상마다 한 번)
     let list = null; try { list = nearby && nearby(); } catch (e) { list = null; } if (!list || !list.length) return;
     let best = null, bd = 5; for (const q of list) { if (n.mem.told['n:' + q.id]) continue; const d = Math.hypot(q.x - P.x, q.z - P.z); if (d < bd) { bd = d; best = q; } }
-    if (!best) return; LOOK.x = best.x; LOOK.z = best.z; LOOK.t = 3;
+    if (!best) return; LOOK.x = best.x; LOOK.z = best.z; LOOK.t = 3; LOOK.pt = true;
     if (react('notice', best.label)) { n.mem.told['n:' + best.id] = 1; setEmo('curious', 20); } else n.mem.told['n:' + best.id] = 1;   // 못 말했으면(차례 · 반복) 조용히 넘긴다 — 같은 대상으로 되풀이하지 않게
   }
   function watchEmotion(t) { const prev = EMO.cur; EMO.cur = emotionOf(EMO, t); if (EMO.cur !== prev && EMO.cur !== 'calm' && canReact(n.mem, 'emo_' + EMO.cur, t, 120) && t - anyCd > 10 && say('emo_' + EMO.cur, EMO_LINE[EMO.cur], PRIO.comment, { ttl: 5 })) markReact(n.mem, 'emo_' + EMO.cur, t); }
@@ -512,7 +512,7 @@ export function installNPCAI({ R, P, isPlaying, subtitle, objective, at, igpu, d
     if (!ev || typeof ev !== 'object' || !enabled || !n.active) return false; const t = clock();
     exam.type = ev.type || ''; exam.kind = ev.kind || ''; exam.id = String(ev.id || ''); exam.has = Number.isFinite(ev.x) && Number.isFinite(ev.z); if (exam.has) { exam.x = ev.x; exam.z = ev.z; }
     // 고개: 조사한 물건 쪽 · 소리 난 방이면 둘러본다
-    if (exam.has) { LOOK.x = exam.x; LOOK.z = exam.z; LOOK.t = 2.6; } else if (exam.type === 'roomEvent') { const a = n.yaw + (env.rand() - .5) * 2.4; LOOK.x = n.x + Math.sin(a) * 4; LOOK.z = n.z + Math.cos(a) * 4; LOOK.t = 2.2; }
+    if (exam.has) { LOOK.x = exam.x; LOOK.z = exam.z; LOOK.t = 2.6; LOOK.pt = true; } else if (exam.type === 'roomEvent') { const a = n.yaw + (env.rand() - .5) * 2.4; LOOK.x = n.x + Math.sin(a) * 4; LOOK.z = n.z + Math.cos(a) * 4; LOOK.t = 2.2; }
     if (exam.type === 'roomEvent') setEmo('curious', 15);
     exam.due = t + (exam.type === 'roomEvent' ? 4.2 : 2.2); boardT = -1e9; stats.remembers = (stats.remembers || 0) + 1; return true;
   }
@@ -527,14 +527,15 @@ export function installNPCAI({ R, P, isPlaying, subtitle, objective, at, igpu, d
       const tg = l.tags[0], k = 'l:' + tg; if (n.mem.told[k]) continue; n.mem.told[k] = 1;
       if (say('link:' + tg, ML('exam_link').replace('{}', tagKo(tg)), PRIO.examine, { ttl: 8 })) return; }
     // 3) 물건 종류에 맞는 한마디 (반복 제어 · 절반만 — 수다스럽지 않게)
-    if (exam.type === 'roomEvent') { if (env.rand() < .55) say('exam_event', ML('exam_event'), PRIO.comment, { ttl: 6 }); return; }
+    if (exam.type === 'roomEvent') { const a = Math.atan2(LOOK.x - n.x, LOOK.z - n.z); errand(n.x + Math.sin(a) * 1.2, n.z + Math.cos(a) * 1.2, { pose: 'none', maxD: 3 }); if (env.rand() < .55) say('exam_event', ML('exam_event'), PRIO.comment, { ttl: 6 }); return; }
+    if (exam.has && exam.type === 'object' && Math.hypot(P.x - exam.x, P.z - exam.z) > 1.1 && env.rand() < .6) { const ids = EXAM_IDS[exam.kind] || EXAM_IDS.any, id = GATE.pick(ids, t, env.rand); if (errand(exam.x, exam.z, { line: id, maxD: 8 })) return; }
     if (env.rand() < .5) return;
     const ids = EXAM_IDS[exam.kind] || EXAM_IDS.any, id = GATE.pick(ids, t, env.rand) || GATE.pick(EXAM_IDS.any, t, env.rand); if (id) say(id, ML(id), PRIO.comment, { ttl: 6 });
   }
   // 혼잣말 (게임의 동행 잡담 차례에서 부른다): 10줄 중 오래 안 한 줄 · 같은 줄은 5분 안에 다시 안 한다
   function chatter() { const t = clock(), id = GATE.pick(MUTTER_IDS, t, env.rand); if (!id) return false; return say(id, ML(id), PRIO.idle, { ttl: 10 }); }
   // 매 프레임: 민아를 움직이고 자리 · 높이 · 방향 · 속도를 돌려준다. 새 길찾기를 쓸 수 없는 곳(예전 층 · 먼 바깥)이면 null → 게임의 예전 따라가기
-  const OUTV = { x: 0, y: 0, z: 0, yaw: 0, v: 0, stair: false, emotion: 'calm', look: false, lx: 0, lz: 0, pose: 'none' };
+  const OUTV = { x: 0, y: 0, z: 0, yaw: 0, v: 0, stair: false, emotion: 'calm', look: false, lx: 0, lz: 0, pose: 'none', point: false };
   // 대기 행동: 민아가 멈춘 시간 · 플레이어가 가만히 있는 시간 · 감정 · 등 뒤 벽 → 둘러보기 · 휴대폰 · 팔짱 · 벽 기대기 · 쪼그려 쉬기
   const IB = { still: 0, pIdle: 0, px: 0, pz: 0, pose: 'none', t: 0, wall: false, wallYaw: 0, scan: 0 };
   function wallBehind(G) {   // 등 뒤 0.55m 가 막혀 있고 옆은 트인 방향 → 기댈 벽 (8방향 중)
@@ -550,6 +551,33 @@ export function installNPCAI({ R, P, isPlaying, subtitle, objective, at, igpu, d
       if (IB.pose !== prev) { if (IB.pose === 'sit') say('idle_sit', ML('idle_sit'), PRIO.idle, { ttl: 4 }); else if (IB.pose === 'phone' && env.rand() < .3) say('idle_phone', ML('idle_phone'), PRIO.idle, { ttl: 4 }); }
       if (IB.pose === 'look' && LOOK.t <= 0) { const a = n.yaw + (env.rand() - .5) * 2.6; LOOK.x = n.x + Math.sin(a) * 5; LOOK.z = n.z + Math.cos(a) * 5; LOOK.t = 1.2 + env.rand(); } }
     if (IB.pose === 'lean') { const e = angTo(n.yaw, IB.wallYaw); n.yaw += Math.sign(e) * Math.min(Math.abs(e), dt * 2.2); }   // 벽에 등을 댄다
+  }
+  // ── 주변과 상호작용 (심부름): 조사한 사물 만져 보기 · 불 켜기 · 던진 캔 줍기 · 소리 쪽으로 다가가기 ──
+  //   같은 층 · 가까울 때만 · 플레이어가 멀어지거나(12m) 15초 넘으면 그만둔다 · 길/퍼즐을 막지 않는다(충돌체 없음 · 도착 뒤 바로 따라가기로)
+  const ER = { on: false, x: 0, z: 0, fx: 0, fz: 0, t: 0, act: 0, done: null, pose: 'touch', line: null, n: 0 };
+  function errand(x, z, { done = null, pose = 'touch', line = null, maxD = 10 } = {}) {
+    if (!n.active || ER.on || n.state === 'stair' || n.f !== env.player.f || !isPlaying()) return false;
+    const G = grids[n.f]; if (!G || Math.hypot(x - n.x, z - n.z) > maxD) return false;
+    const c = nearestFree(G, x + (n.x - x) * .25 / Math.max(.3, Math.hypot(n.x - x, n.z - z)), z + (n.z - z) * .25 / Math.max(.3, Math.hypot(n.x - x, n.z - z)), 1.4); if (c < 0) return false;
+    ER.on = true; ER.x = cellX(G, c); ER.z = cellZ(G, c); ER.fx = x; ER.fz = z; ER.t = 15; ER.act = 0; ER.done = done; ER.pose = pose; ER.line = line; ER.n++;
+    TASK.f = n.f; TASK.x = ER.x; TASK.z = ER.z; n.speed = 1.3; startTask(n, TASK, env); IB.pose = 'none'; stats.errands = (stats.errands || 0) + 1; return true;
+  }
+  function errandTick(dt) {
+    if (!ER.on) return false; ER.t -= dt; const dp = Math.hypot(P.x - n.x, P.z - n.z);
+    if (ER.t <= 0 || dp > 12 || n.f !== env.player.f || !isPlaying()) { ER.on = false; IB.pose = 'none'; return false; }
+    if (ER.act > 0) { ER.act -= dt; IB.pose = ER.pose; const e = angTo(n.yaw, Math.atan2(ER.fx - n.x, ER.fz - n.z)); n.yaw += Math.sign(e) * Math.min(Math.abs(e), dt * 4);
+      if (ER.act <= 0) { ER.on = false; IB.pose = 'none'; IB.still = 0; } return true; }
+    if (n.state !== 'walk' && Math.hypot(ER.x - n.x, ER.z - n.z) < .6) { ER.act = ER.pose === 'none' ? .6 : 1.3; LOOK.x = ER.fx; LOOK.z = ER.fz; LOOK.t = 1.6; LOOK.pt = true;
+      try { ER.done && ER.done(); } catch (e) { /* */ } if (ER.line) say(ER.line, ML(ER.line), PRIO.comment, { ttl: 5 }); stats.errandsDone = (stats.errandsDone || 0) + 1; return true; }
+    if (n.state === 'idle') { TASK.f = n.f; TASK.x = ER.x; TASK.z = ER.z; startTask(n, TASK, env); }
+    return true;
+  }
+  // 소리 · 가림 판정 (게임의 위치 소리 · 민아 목소리): 0 트임 ~ 1 막힘 — 벽(격자 시야) · 닫힌 문 · 다른 층
+  function hearOcc(x, z) {
+    const pf = env.player.f; if (!n.active) return 0; if (n.f !== pf || n.state === 'stair') return .8;
+    const G = grids[pf]; let o = G && gridLOS(G, P.x, P.z, x, z) ? 0 : .55; const y = layerY(pf), d = Math.hypot(x - P.x, z - P.z), k = Math.min(8, Math.ceil(d / 1.5));
+    for (let i = 1; i < k; i++) { const dd = R.nearDoor(P.x + (x - P.x) * i / k, P.z + (z - P.z) * i / k, y); if (dd && dd.target < .5 && Math.hypot(dd.mx - (P.x + (x - P.x) * i / k), dd.mz - (P.z + (z - P.z) * i / k)) < .7) { o += .35; break; } }
+    return Math.min(1, o);
   }
   // 플레이어 시야(카메라 → 보는 곳)를 가리면 옆으로 비켜선다 (조사 대상이 가려지지 않게)
   let occT = 0;
@@ -591,7 +619,8 @@ export function installNPCAI({ R, P, isPlaying, subtitle, objective, at, igpu, d
       if ((hid && teleportHidden(pf)) || (sepT > 12 && teleportBehind(pf))) { same = true; dp = Math.hypot(P.x - n.x, P.z - n.z); stats.hiddenTeleports = (stats.hiddenTeleports || 0) + (sepT > 12 ? 0 : 1); }
     } else if (dp < 6 && same) { sepT = 0; sepFar = false; }
     // 목표 갱신 (0.35초마다): 플레이어 뒤 · 같은 층이고 가까우면 멈추고 바라본다
-    if ((n.goalT -= dt) <= 0 && !onStairs && n.state !== 'stair' && n.state !== 'talk' && n.state !== 'yield') {
+    const busyErr = errandTick(Math.min(dt, .1));
+    if (!busyErr && (n.goalT -= dt) <= 0 && !onStairs && n.state !== 'stair' && n.state !== 'talk' && n.state !== 'yield') {
       n.goalT = .35; const EF = EMO_FOLLOW[EMO.cur] || EMO_FOLLOW.calm, sp = followSpeed(same, dp, EF[1]);
       if (sp === 0) { if (n.state !== 'idle' && !(n.state === 'walk' && (n.speed < 1.3 || (n.pn && Math.hypot(n.path[n.pn * 2 - 2] - n.x, n.path[n.pn * 2 - 1] - n.z) < 1.4)))) { n.state = 'idle'; n.t = 1e9; n.pn = 0; }   // 남은 길이 짧으면 끝까지 걸으며 멈춘다(급정거 없음)
         // 플레이어가 바로 붙으면(0.75m) 한 걸음 비켜선다
@@ -601,12 +630,13 @@ export function installNPCAI({ R, P, isPlaying, subtitle, objective, at, igpu, d
         if (moved || n.state === 'idle' || n.state === 'act') { TASK.f = pf; TASK.x = GOAL.x; TASK.z = GOAL.z; startTask(n, TASK, env); if (n.state === 'idle') { n.fails++; n.t = 1e9; } else n.fails = 0; } }
     }
     stepNPC(n, Math.min(dt, .1), env);
-    if (n.state === 'act' || (n.state === 'idle' && n.t < 1e8)) { n.state = 'idle'; n.t = 1e9; }   // 도착: 다음 목표는 위에서
+    if (n.state === 'act' || (n.state === 'idle' && n.t < 1e8)) { n.state = 'idle'; n.t = 1e9; }
+    if (ER.on && ER.act > 0) { /* 만지는 중: 플레이어 쪽으로 돌지 않는다 */ } else   // 도착: 다음 목표는 위에서
     if (n.state === 'idle') { const ty = Math.atan2(P.x - n.x, P.z - n.z), e = Math.atan2(Math.sin(ty - n.yaw), Math.cos(ty - n.yaw)); n.yaw += Math.sign(e) * Math.min(Math.abs(e), dt * 2.6); }
     closeDoors(n);
     if ((watchT -= dt) <= 0) { watchT = .5; if (pl.on) watch(pf); }
-    if (pl.on) { idleTick(Math.min(dt, .1), clock()); viewTick(Math.min(dt, .1)); } pumpSpeech();
-    OUTV.x = n.x; OUTV.z = n.z; OUTV.y = n.state === 'stair' && n.hop ? n.y : layerY(n.f); OUTV.yaw = n.yaw; OUTV.v = n.v; OUTV.stair = n.state === 'stair'; OUTV.emotion = EMO.cur; OUTV.pose = IB.pose; if (LOOK.t > 0) LOOK.t -= dt; OUTV.look = LOOK.t > 0; OUTV.lx = LOOK.x; OUTV.lz = LOOK.z;
+    if (pl.on && !ER.on) { idleTick(Math.min(dt, .1), clock()); viewTick(Math.min(dt, .1)); } pumpSpeech();
+    OUTV.x = n.x; OUTV.z = n.z; OUTV.y = n.state === 'stair' && n.hop ? n.y : layerY(n.f); OUTV.yaw = n.yaw; OUTV.v = n.v; OUTV.stair = n.state === 'stair'; OUTV.emotion = EMO.cur; OUTV.pose = IB.pose; if (LOOK.t > 0) LOOK.t -= dt; else LOOK.pt = false; OUTV.point = !!LOOK.pt && LOOK.t > 0; OUTV.look = LOOK.t > 0; OUTV.lx = LOOK.x; OUTV.lz = LOOK.z;
     const ms = performance.now() - t0; stats.tickMs += ms; stats.ticks++; if (ms > stats.tickMax) stats.tickMax = ms;
     return OUTV;
   }
@@ -625,7 +655,7 @@ export function installNPCAI({ R, P, isPlaying, subtitle, objective, at, igpu, d
     const t = clock(), c = context(), r = pickLine('mina', NPC_LINES.mina, c, n.mem, t, NPC_HINT_MAIN, () => HD.request('mina', NPC_LINES.mina, c, t, NPC_HINT_MAIN, { force: true })); lastLine = r;
     Q.clear(PRIO.hint); Q.hold(t, 5.6); IB.pose = 'none'; IB.still = 0; subtitle(NAMES.mina, r.text, 5); logSaid(r.text, t); GATE.mark(r.text, t); return r.text;
   }
-  function reset() { pend = null; Q.reset(); GATE.reset(); IB.pose = 'none'; IB.still = 0; sepT = 0; exam.due = 0; HD.reset(); EMO.emo = 'calm'; EMO.until = 0; EMO.cur = 'calm'; progKey = null; stuckCd = -1e9; LOOK.t = 0; n.mem = newMemory(); visited.clear(); n.active = false; n.opened.length = 0; n.lines = 0; wasDark = null; lastKeys = -1; lastRoom = ''; anyCd = -1e9; resetNPC(n); }
+  function reset() { pend = null; ER.on = false; Q.reset(); GATE.reset(); IB.pose = 'none'; IB.still = 0; sepT = 0; exam.due = 0; HD.reset(); EMO.emo = 'calm'; EMO.until = 0; EMO.cur = 'calm'; progKey = null; stuckCd = -1e9; LOOK.t = 0; n.mem = newMemory(); visited.clear(); n.active = false; n.opened.length = 0; n.lines = 0; wasDark = null; lastKeys = -1; lastRoom = ''; anyCd = -1e9; resetNPC(n); }
   // ── 저장 · 불러오기: 세이브의 npc 칸 { v, mina: { on, f, x, z, yaw, lines, mem }, visited } — v 가 다르거나 없으면 처음 상태 ──
   function serialize() {
     const st = n.state === 'stair' && n.hop ? (n.hop.dir > 0 ? { f: n.hop.p.la, x: n.hop.p.ax, z: n.hop.p.az } : { f: n.hop.p.lb, x: n.hop.p.bx, z: n.hop.p.bz }) : { f: n.f, x: n.x, z: n.z };
@@ -642,7 +672,7 @@ export function installNPCAI({ R, P, isPlaying, subtitle, objective, at, igpu, d
   }
   function setEnabled(v) { enabled = !!v; if (!enabled) n.active = false; }
   const api = { mina: n, npcs: [n], grids, portals, panels, layers: LYR, OUT, stats, follow, pick, talk, reset, serialize, restore, setEnabled, env, visited, context, react, lastLine: () => lastLine,
-    remember, chatter, say: (id, prio = PRIO.comment) => !!MINA_LINES[id] && say(id, ML(id), prio), queue: Q, gate: GATE, lineStats: () => ({ said: LS.said, repeats: LS.repeats, distinct: LS.byText.size, gate: { ...GATE.stats }, queue: { ...Q.stats } }),
+    remember, chatter, errand, errandBusy: () => ER.on, hearOcc, say: (id, prio = PRIO.comment) => !!MINA_LINES[id] && say(id, ML(id), prio), queue: Q, gate: GATE, lineStats: () => ({ said: LS.said, repeats: LS.repeats, distinct: LS.byText.size, gate: { ...GATE.stats }, queue: { ...Q.stats } }),
     quiet: sec => Q.size === 0 && clock() - Math.max(anyCd, -1e9) > sec, pose: () => IB.pose, hint: HD,
     emotion: () => EMO.cur, setEmotion: setEmo,
     buildAll() { while (!buildStep(1e9)); buildDone = true; stats.built = true; }, playerLayer, layerY, igpu };

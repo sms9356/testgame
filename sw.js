@@ -10,7 +10,10 @@
 // · 그 밖의 같은 출처 GET 은 캐시 우선. 캐시 키는 쿼리를 뗀 경로: 같은 버전 안에서 a.js 와 a.js?v=<n> 은 같은 파일이다.
 // · Range 요청(음악 스트리밍)은 손대지 않는다.
 // · 네트워크: 같은 파일 동시 요청은 한 번만, 동시 다운로드는 최대 LIMIT 개, 오류 · 5xx · 429 는 지수 백오프로 재시도.
-const VERSION = new URL(self.location.href).searchParams.get('v') || '0';
+// 브라우저는 sw.js 본문이 바이트 단위로 같으면 주소(?v=)가 바뀌어도 새 워커를 설치하지 않는다 → 버전마다 본문이 달라지도록
+// tools/bump-version.mjs 가 이 숫자를 version.js 와 함께 바꾼다(tests/versionConsistency.test.mjs 가 검사).
+const SW_BUILD = 456;
+const VERSION = new URL(self.location.href).searchParams.get('v') || String(SW_BUILD);
 const PREFIX = 'seorin-assets-', CACHE = PREFIX + VERSION;
 const LIMIT = 8, TRIES = 4;
 
@@ -64,7 +67,9 @@ async function asset(req) {
   const key = keyOf(req.url);
   // 예전 버전 페이지의 요청(?v=<이전>)은 그 버전 캐시에서 — 한 세션 안에서 예전/새 모듈이 섞이지 않게
   const rv = new URL(req.url).searchParams.get('v');
-  if (rv && rv !== VERSION && /^\d+$/.test(rv)) { const old = await caches.match(key, { cacheName: PREFIX + rv }).catch(() => null); if (old) return old; }
+  // 다른 버전(?v=) 요청은 이 버전 캐시에 넣지 않는다: 새 버전 페이지가 넘겨받기 전(예전 워커 아래)에 보낸 요청이
+  // 예전 캐시를 새 파일로 덮어 예전 탭에 섞이던 문제 방지 → 그 버전 캐시에 있으면 그것, 없으면 캐시 없이 네트워크
+  if (rv && rv !== VERSION && /^\d+$/.test(rv)) { const old = await caches.match(key, { cacheName: PREFIX + rv }).catch(() => null); return old || net(new Request(req.url, { credentials: 'same-origin', cache: 'no-cache' })); }
   const hit = await caches.match(key, { cacheName: CACHE });
   if (hit) return hit;
   let p = inflight.get(key);

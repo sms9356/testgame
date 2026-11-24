@@ -41,9 +41,18 @@
         var w = reg.installing; if (!w) return;
         w.addEventListener('statechange', function () { if (w.state === 'installed') offer(w); });
       });
-      // 오래 켜 둔 탭도 새 버전을 알아채도록 30분마다 · 탭으로 돌아올 때 확인
-      setInterval(function () { reg.update().catch(function () {}); }, 30 * 60 * 1000);
-      document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') reg.update().catch(function () {}); });
+      // 오래 켜 둔 탭도 새 버전을 알아채도록 30분마다 · 탭으로 돌아올 때 확인: sw.js 본문은 버전마다 같을 수 있어 reg.update() 로는
+      // 못 알아챈다 → index.html(네트워크)의 net.js?v= 를 읽어 다르면 그 버전의 sw.js?v= 를 등록(설치 → 대기 → 배너)
+      var check = function () {
+        fetch('index.html', { cache: 'no-store' }).then(function (r) { return r.ok ? r.text() : ''; }).then(function (t) {
+          var nv = (t.match(/net\.js\?v=(\d+)/) || [])[1];
+          if (nv && nv !== ver && Number(nv) > Number(ver)) navigator.serviceWorker.register('sw.js?v=' + nv).catch(function () {});
+          else reg.update().catch(function () {});
+        }).catch(function () {});
+      };
+      window.__checkUpdate = check;
+      setInterval(check, 30 * 60 * 1000);
+      document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') check(); });
     };
     navigator.serviceWorker.register('sw.js?v=' + ver).then(watch).catch(function () {});
     // 첫 방문: 워커가 페이지를 넘겨받기 전에 받은 파일(HTML · CSS · 폰트 · 첫 모듈)은 워커 캐시에 없다 →

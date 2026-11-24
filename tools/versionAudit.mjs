@@ -26,6 +26,12 @@ export function auditText(rel, src, ver, fix = false) {
     return m;
   });
   out = out.replace(V_RE, (m, f, v) => { if (v === V) return m; issues.push(`${rel}: ${f}?v=${v} ≠ ${V}`); return f + '?v=' + V; });
+  // sw.js: 본문이 버전마다 달라야 새 워커가 설치된다
+  if (rel === 'sw.js') {
+    const m = out.match(/const SW_BUILD = (\d+);/);
+    if (!m) issues.push('sw.js: const SW_BUILD = <버전>; 없음');
+    else if (m[1] !== V) { issues.push(`sw.js: SW_BUILD ${m[1]} ≠ ${V}`); out = out.replace(/const SW_BUILD = \d+;/, `const SW_BUILD = ${V};`); }
+  }
   return { issues: [...new Set(issues)], out: fix ? out : src };
 }
 // 같은 모듈을 서로 다른 주소(쿼리)로 가져오는지 — 두 벌 실행

@@ -25,4 +25,8 @@ test('감사기 자체: 누락 · 불일치 · vendor ?v 를 잡고 --fix 로 �
   assert.equal(r.issues.length, 5);
   assert.equal(r.out, "import a from './a.js?v=9';\nimport { b } from './b.js?v=9';\nimport * as T from './vendor/three.module.js';\nconst m = await import('./c.js?v=9');\nfetch('voice/manifest.json?v=9');");
   assert.deepEqual(auditText('x.js', r.out, 9).issues, []);
+  // sw.js 본문은 버전마다 달라야 한다(같으면 브라우저가 새 워커를 설치하지 않음)
+  const sw = auditText('sw.js', 'const SW_BUILD = 1;', 9, true);
+  assert.equal(sw.issues.length, 1); assert.equal(sw.out, 'const SW_BUILD = 9;');
+  assert.equal(auditText('sw.js', '//', 9).issues.length, 1);
 });

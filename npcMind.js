@@ -72,6 +72,46 @@ export const MINA_LINES = {
   radio_check_2: ["한참 연락이 없어서. 별일 없지?", "You've been quiet for a while. Everything all right?", "しばらく連絡がなかったから。何もない？", "好久没联系了。没事吧？"],
   radio_where: ["지금 {} 맞지? 거기선 서두르지 마.", "You're at {} now, right? Don't rush in there.", "今{}だよね？そこでは焦らないで。", "你现在在{}对吧？在那儿别着急。"],
   radio_stuck: ["한참 같은 데 있는 것 같아. 내가 아는 거 하나 말해 줄게.", "Seems like you've been in the same spot a while. Let me tell you something I know.", "ずっと同じところにいるみたい。知ってることを一つ教えるね。", "你好像在同一个地方待了很久。我告诉你一件我知道的事。"],
+  // ── 자연스러운 동행 (minaDirector.js): 혼잣말 · 조사 반응 · 단서 보드 · 소리 · 대기 행동 · 무전 3인 대화 ──
+  mutter_0: ["…발소리, 우리 둘 것만 맞지?","…Those footsteps are only ours, right?","…足音、私たち二人のだけだよね？","……脚步声，只有我们两个的吧？"],
+  mutter_1: ["하늘 언니 방송 원고, 내가 아직 외우고 있어.","I still know Ha-neul's broadcast script by heart.","ハヌル姉さんの放送原稿、私まだ覚えてる。","夏蓝姐的广播稿，我到现在还背得出来。"],
+  mutter_2: ["여기 말고 B1… 거기가 끝이야. 알잖아.","Not here — B1… that's where it ends. You know that.","ここじゃなくてB1…そこが終わりよ。わかってるでしょ。","不是这里，是B1……那里才是尽头。你知道的。"],
+  mutter_3: ["조금만 천천히 가. 숨이 차.","Go a little slower. I'm out of breath.","もう少しゆっくり行って。息が切れる。","走慢一点。我喘不过气了。"],
+  mutter_4: ["정문 경비실 아저씨… 그날 밤 다 들었대.","The guard at the front gate… he heard everything that night.","正門の警備員さん…あの夜、全部聞いたんだって。","正门警卫室的大叔……听说那天晚上他全都听见了。"],
+  mutter_5: ["손전등 꺼지면 말해. 내 거 아직 남았어.","Tell me if your flashlight dies. Mine still has some left.","懐中電灯が切れたら言って。私のはまだ残ってる。","手电筒没电了就跟我说。我的还有。"],
+  mutter_6: ["증거 다 모이면, 방송실 콘솔 내가 같이 잡아 줄게.","Once we have all the evidence, I'll run the broadcast console with you.","証拠が全部そろったら、放送室のコンソールは私が一緒に操作してあげる。","证据集齐了，广播室的控制台我陪你一起弄。"],
+  mutter_7: ["복도가 이렇게 길었나. 낮에는 몰랐어.","Was this hallway always this long? I never noticed in the daytime.","廊下ってこんなに長かったっけ。昼間は気づかなかった。","走廊有这么长吗？白天都没注意。"],
+  mutter_8: ["창밖에 비 소리… 그날도 이랬어.","Rain outside the window… it was like this that night too.","窓の外の雨音…あの日もこうだった。","窗外的雨声……那天也是这样。"],
+  mutter_9: ["괜찮아. 나 아직 버틸 만해.","I'm fine. I can still hold on.","大丈夫。まだ平気だよ。","没事。我还撑得住。"],
+  exam_cabinet: ["서랍 속은 다 그대로네. 누가 일부러 안 치운 것 같아.","Everything in the drawers is untouched. Like someone left it on purpose.","引き出しの中はそのまま。誰かがわざと片付けなかったみたい。","抽屉里都原封不动。像是有人故意没收拾。"],
+  exam_screen: ["화면 속 소리… 그 시절 그대로야. 소름 돋아.","That sound from the screen… it's exactly like back then. Gives me chills.","画面の音…あの頃のまま。鳥肌が立つ。","屏幕里的声音……跟那时一模一样。我起鸡皮疙瘩了。"],
+  exam_pc: ["게시판 글은 지워도 기록은 남아. 언니가 늘 그랬어.","You can delete a post, but the record stays. My sister always said that.","掲示板の書き込みは消しても記録は残る。お姉ちゃんがいつも言ってた。","帖子删了，记录也还在。姐姐总这么说。"],
+  exam_phone: ["아무도 안 받네. 그날 밤에도 그랬을까.","Nobody's picking up. I wonder if it was like that that night too.","誰も出ないね。あの夜もそうだったのかな。","没人接。那天晚上也是这样吗？"],
+  exam_wall: ["누가 남긴 글씨야? 글씨체, 어디서 본 것 같은데.","Who wrote that? I feel like I've seen that handwriting before.","誰が書いたの？この字、どこかで見た気がする。","谁写的？这字迹好像在哪儿见过。"],
+  exam_any_0: ["그거, 내가 단서 보드에 붙여 둘게.","I'll pin that to the evidence board.","それ、手がかりボードに貼っておくね。","这个我贴到线索板上。"],
+  exam_any_1: ["작은 거라도 놓치지 말자. 다 이어질지도 몰라.","Let's not miss even the small stuff. It might all connect.","小さなことも見逃さないでおこう。全部つながるかもしれない。","再小的东西也别放过。说不定都连得上。"],
+  exam_any_2: ["음… 이건 기억해 두자.","Hm… let's remember this one.","うーん…これは覚えておこう。","嗯……这个记下来。"],
+  exam_event: ["방금 그거… 너도 봤지? 나만 본 거 아니지?","That just now… you saw it too, right? It wasn't just me?","今の…あなたも見たよね？私だけじゃないよね？","刚才那个……你也看到了吧？不只是我吧？"],
+  exam_link: ["잠깐, 이거 아까 본 {} 얘기랑 이어져.","Wait, this connects to the {} thing we saw earlier.","待って、これさっき見た{}の話とつながる。","等等，这和刚才看到的{}的事连上了。"],
+  board_contra_0: ["이상해. {} 얘기가 서로 안 맞아. 누군가 거짓말을 했어.","That's strange. The {} accounts don't match. Someone lied.","変だよ。{}の話が食い違ってる。誰かが嘘をついた。","奇怪。关于{}的说法对不上。有人说了谎。"],
+  board_contra_1: ["단서 보드 봐. {} 쪽 기록이 앞뒤가 안 맞아.","Look at the evidence board. The {} records contradict each other.","手がかりボード見て。{}の記録がつじつま合わない。","看线索板。{}那边的记录前后矛盾。"],
+  board_sugg: ["보드에 {} 얘기가 자꾸 나와. 우리 아직 거긴 안 가 봤잖아.","{} keeps coming up on the board. We haven't been there yet.","ボードに{}の話が何度も出てくる。まだそこには行ってないよね。","线索板上一直出现{}。我们还没去过那儿。"],
+  sound_look: ["방금 그 소리… 들었어?","That sound just now… did you hear it?","今の音…聞こえた？","刚才那个声音……你听到了吗？"],
+  idle_sit: ["다리 아파. 잠깐 앉아 있을게, 다 보면 불러.","My legs hurt. I'll sit for a bit — call me when you're done.","足が痛い。ちょっと座ってるね、終わったら呼んで。","腿好酸。我坐一会儿，看完了叫我。"],
+  idle_phone: ["…여긴 신호가 안 잡혀. 시간만 보는 거야.","…No signal in here. I'm just checking the time.","…ここ電波が入らない。時間を見てるだけ。","……这里没信号。我只是看看时间。"],
+  sep_found: ["아, 여기 있었구나. 놓친 줄 알았잖아.","Oh, there you are. I thought I'd lost you.","あ、ここにいたんだ。はぐれたかと思った。","啊，你在这儿啊。我还以为跟丢了。"],
+  radio_banter0_a: ["민아 옆에 있지? 안부 좀 전해 줘.","Mina's with you, right? Say hi for me.","ミナ、そばにいるよね？よろしく伝えて。","敏雅在你旁边吧？替我问个好。"],
+  banter0_m: ["들려. 나 괜찮아. 걱정은 고마워.","I can hear you. I'm okay. Thanks for worrying.","聞こえてるよ。私は大丈夫。心配ありがとう。","听得到。我没事。谢谢你担心。"],
+  radio_banter0_b: ["둘 다 잘 있어. 금방 끝낼게.","We're both fine. We'll wrap this up soon.","二人とも無事だよ。すぐ終わらせる。","我们俩都好。很快就结束。"],
+  radio_banter1_a: ["거기 너무 조용하다. 둘이 싸운 거 아니지?","It's way too quiet over there. You two didn't fight, did you?","そっち静かすぎ。二人、けんかしてないよね？","你们那边也太安静了。俩人没吵架吧？"],
+  banter1_m: ["싸울 기운도 없어. 발소리 듣느라 바빠.","Too tired to fight. We're busy listening for footsteps.","けんかする元気もないよ。足音を聞くので精一杯。","哪有力气吵架。光听脚步声就够忙了。"],
+  radio_banter1_b: ["조용한 게 나아. 들어야 할 게 많거든.","Quiet is better. There's a lot to listen for.","静かな方がいい。聞かなきゃいけないことが多いから。","安静点好。要听的东西太多了。"],
+  radio_banter2_a: ["끝나면 떡볶이 먹으러 가자. 셋이서.","When this is over, let's get tteokbokki. The three of us.","終わったらトッポッキ食べに行こう。三人で。","结束了我们去吃炒年糕吧。我们三个。"],
+  banter2_m: ["…좋아. 언니가 좋아하던 집 알아.","…Okay. I know the place my sister loved.","…いいね。お姉ちゃんが好きだったお店、知ってる。","……好啊。我知道姐姐以前喜欢的那家。"],
+  radio_banter2_b: ["약속했다. 그러니까 조심해서 가자.","It's a promise. So let's be careful.","約束だよ。だから気をつけて行こう。","说好了。所以我们小心点。"],
+  radio_banter3_a: ["민아한테 물어봐. 방송부 비밀 통로 같은 거 없냐고.","Ask Mina if the broadcast club had a secret passage or something.","ミナに聞いてみて。放送部の秘密の通路とかないのか。","问问敏雅，广播部有没有什么秘密通道。"],
+  banter3_m: ["그런 게 있었으면 벌써 나갔지. 장난 그만해.","If there were, we'd be out already. Quit joking.","そんなのあったらとっくに出てるよ。ふざけないで。","要是有的话早就出去了。别开玩笑了。"],
+  radio_banter3_b: ["…농담 맞아. 긴장 좀 풀자고.","…It was a joke. Just trying to ease the tension.","…冗談だよ。緊張をほぐそうと思って。","……开玩笑的。想让大家放松点。"],
 };
 const K = id => MINA_LINES[id][0];
 export const lineId = ko => { for (const id in MINA_LINES) if (MINA_LINES[id][0] === ko) return id; return null; };
@@ -130,7 +170,7 @@ export function situations(c) {
 // 대사 고르기 → { key, text, topic, tier }.  L: NPC_LINES[id] (greet[] · hint 틀) · hintMain: '{}' 틀 (목표 문장)
 //  1) 처음 말 걸면 인사  2) 어두우면(정전 · 차단기) 그 얘기부터, 단계적으로  3) 홀수 번째마다 장 힌트 — 막연 → 장소 → 방법 (HINT_GAP 초 지나야 한 단계 올림)
 //  4) 아직 안 한 상황 대사(소지품 · 시간 · 돌아본 곳)  5) 인사 돌려 쓰기 (안 한 것 먼저)
-export function pickLine(id, L, c, mem, now, hintMain) {
+export function pickLine(id, L, c, mem, now, hintMain, hintFn = null) {   // hintFn: 공용 힌트 감독(minaDirector) — 없으면 이 기억(mem)의 단계
   const k = mem.n++, bump = key => { mem.told[key] = (mem.told[key] || 0) + 1; };
   const out = (key, text, topic, tier = 0) => { bump(key); return { key, text, topic, tier }; };
   if (k === 0) return out('g0', L.greet[0], 'greet');
@@ -138,7 +178,7 @@ export function pickLine(id, L, c, mem, now, hintMain) {
     const t = mem.tier.dark || 0, v = pickRole(SITU.dark, id);
     if (t < 2) { mem.tier.dark = t + 1; return out('dark' + t, tierOf(v, t), 'dark', t); }
   } else if (mem.tier.dark) mem.tier.dark = 0;   // 불이 다시 들어오면 다음 정전 땐 처음부터
-  if (k % 2 === 1) { const h = hintLine(L, c, mem, now, hintMain); if (h) { bump(h.key); return h; } }   // 너무 자주 물으면(HINT_GAP 안) 힌트 대신 다른 얘기
+  if (k % 2 === 1) { const h = hintFn ? hintFn() : hintLine(L, c, mem, now, hintMain); if (h) { bump(h.key); return h; } }   // 너무 자주 물으면(HINT_GAP 안) 힌트 대신 다른 얘기
   for (const s of situations(c)) { const key = 's:' + s; if (mem.told[key]) continue; const v = pickRole(SITU[s], id); if (v == null) continue; return out(key, tierOf(v, 0), s); }
   // 인사: 안 한 것 먼저, 다 했으면 돌려 쓰기
   let gi = -1; for (let i = 0; i < L.greet.length; i++) if (!mem.told['g' + i]) { gi = i; break; }
@@ -147,9 +187,9 @@ export function pickLine(id, L, c, mem, now, hintMain) {
 }
 
 // 장 힌트 한 단계: 막연(0) → 장소(1) → 방법(2). HINT_GAP 안에 다시 부르면 null (단계가 한꺼번에 올라가지 않게) — 말 걸 때 · 막혔을 때 함께 쓴다
-export function hintLine(L, c, mem, now, hintMain) {
+export function hintLine(L, c, mem, now, hintMain, gap = HINT_GAP) {
   const ch = c.ch || 1, ck = 'ch' + ch, H = L.ch || CH_HINT; if (!H[ch]) return null;
-  const t = mem.tier[ck] || 0, last = mem.hintAt[ck]; if (last != null && now - last < HINT_GAP && now >= last) return null;
+  const t = mem.tier[ck] || 0, last = mem.hintAt[ck]; if (last != null && now - last < gap && now >= last) return null;
   const text = t === 0 ? H[ch][0] : t === 1 ? (c.where ? L.hint.replace('{}', c.where) : c.main ? hintMain.replace('{}', c.main) : H[ch][0]) : H[ch][1];
   mem.tier[ck] = Math.min(2, t + 1); mem.hintAt[ck] = now;
   return { key: 'h' + ch + ':' + t, text, topic: 'hint', tier: t };

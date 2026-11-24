@@ -308,7 +308,7 @@ async function speakNow(id, fx) {
 }
 
 export function stopSpeak() {
-  clearTimeout(subTimer);
+  clearTimeout(subTimer); subUntil = 0;
   if (typeof document !== 'undefined') document.getElementById('sub')?.classList.remove('show');
   curLine = null; skipSig.fire();
   ++storyEpoch; pendingLines.clear(); storyPending = 0; storyTail = Promise.resolve(); protectedUntil = 0; ++speechRequest; ++gateEpoch; gate = Promise.resolve();
@@ -360,9 +360,11 @@ const SPK_COLOR = {
   ghost: '#ff5252',
 };
 
-let subTimer = 0;
+let subTimer = 0, subUntil = 0;
+// 자막이 아직 떠 있나 — 민아 · 무전 잡담이 다른 자막 위로 말하지 않게 (minaDirector 말 차례)
+export const subtitleBusy = () => typeof performance !== 'undefined' && performance.now() < subUntil;
 export function subtitle(who, text, sec, spkKey = null, stageDir = '') {
-  logLine(who, text);
+  logLine(who, text); if (typeof performance !== 'undefined' && text) subUntil = performance.now() + Math.max(0, +sec || 0) * 1000;
   if (typeof document === 'undefined') return;
   const el = document.getElementById('sub'); if (!el) return;
   if (!VS.subs) { el.classList.remove('show'); return; }

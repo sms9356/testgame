@@ -67,6 +67,7 @@ import './school37RoomsPatch.js?v=459';    // 본관 · 별관 37개 특별실 �
 import './new37UniquePatch.js?v=459';     // 37개 구역 신규 특수 설비 · 벽면 레일 (사용자 제공) → window.new37UniquePatch
 import './megaExpansionPatch.js?v=459';   // 메가 익스팬션 · 최적화 · 4막 사건 기록 · 수집품 · 미니게임 (사용자 제공) → window.megaSchoolPatch
 import './poolMachineryPatch.js?v=459';     // 수영장 · 남/녀 탈의실·샤워실 · 기계실 철문 (사용자 제공) → window.poolAndMachineryPatch
+import { setVoiceSpot } from './audio.js?v=459';
 import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, setAudioHidden, sfxCtx, setSfxBusyCheck, setSpace, tickNight } from './audio.js?v=459'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=459'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera, perfInstanceSource } from './perfStabilizer.js?v=459'; window.__perfInst = perfInstanceSource; import { upgradePlainMaterials } from './plainUpgrade.js?v=459'; import { relayCampusPaths, cleanupCampus } from './campusPaths.js?v=459'; import { installStreetscape } from './streetV2.js?v=459'; import { installCampusGrounds } from './campusGrounds2008.js?v=459'; import { installHudV2, tickHudV2 } from './hudV2.js?v=459'; import { installPartnerRadio, tickPartnerRadio, callPartner } from './partnerRadio.js?v=459';
 import { installGamepad, promptGlyphs, padActive } from './gamepad.js?v=459';   // 게임 중 게임패드 (이동 · 시점 · 버튼 → 키 동작)
 import { installRoomUI } from './roomUI.js?v=459';   // 방별 현장 조사 카드 · 상호작용 아이콘 · 획득/목표 애니메이션
@@ -75,15 +76,16 @@ import { installMinaChat } from './minaChat.js?v=459';   // 선택: 민아와 �
 import { installInteractionsPlus } from './interactionsPlus.js?v=459';   // 생활 상호작용 보강 (분리수거함 · 청소함 · 창밖 · 커튼 · 학급 게시판 · 수업 종 · 카세트 데크 · 정수기)   // 방 용도별 실사 가구 보강 (상담실 소파 · 교무실 냉온수기 · 창고 선반 …)
 import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js?v=459';
 import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, HYPOTHESES, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, COVER_END, ENDING_OUTRO, OUTRO_TYPE, SIDEQUESTS, INTRO_COLD, CHAPTER_BEATS, SMS_FROM, ENDING_EPILOGUE, ENDING_SHOT, ENDING_STINGER, OUTRO_EXTRA_TYPE, HEADQUEST, COLLECT, } from './story.js?v=459';
-import { isSpeechBusy, skipSeenLine } from './voice.js?v=459';
-import { createSmart } from './smartObjects.js?v=459';   // 스마트 사물(상태 · 시드 내용 · 2008 방송/인트라넷) + 조사 노트 · 단서 보드
+import { isSpeechBusy, skipSeenLine, subtitleBusy } from './voice.js?v=459';
+import { createSmart, tagName as smartTagName } from './smartObjects.js?v=459';
+import { hintDirector } from './minaDirector.js?v=459';   // 민아 · 무전 · 단서 보드 공용 힌트 단계 (힌트 빈도 설정)   // 스마트 사물(상태 · 시드 내용 · 2008 방송/인트라넷) + 조사 노트 · 단서 보드
 import { SET, saveSET, resetSET, DIFF, keyLabel } from './settings.js?v=459';
 import { detectIntegrated, createDynRes } from './igpu.js?v=459';
 import { initI18n, setLang, lang as curLang } from './i18n.js?v=459';   // 언어 패치 (한국어 · English · 日本語 · 中文)
 import { lineId as mindLineId } from './npcMind.js?v=459';
 initI18n();
 // 민아 · 무전 대사 녹음(voice/mn_*.mp3): 한국어일 때 자막과 같은 줄이면 그 클립을 재생 (무전 상대는 'phone' 필터) · 없으면 자막만
-const mindVoice = (text, spk, fx = 'none') => { if (curLang() !== 'ko' || !text) return; const id = mindLineId(text); if (!id) return; const k = id.startsWith('radio_') ? `mn_${id}_${spk === 'jihun' ? 'j' : 's'}` : 'mn_' + id, info = lineInfo(k); if (info && !info.nofile) speak(k, fx).catch(() => {}); };
+const mindVoice = (text, spk, fx = 'none') => { if (curLang() !== 'ko' || !text) return; const id = mindLineId(text); if (!id) return; const k = id.startsWith('radio_') ? `mn_${id}_${spk === 'jihun' ? 'j' : 's'}` : 'mn_' + id, info = lineInfo(k); if (info && !info.nofile) speak(k, spk === 'mina' && fx === 'none' ? 'spatial' : fx).catch(() => {}); };   // 민아 목소리는 3D 위치(가림 · 잔향) · 무전은 2D 전화 필터
 window.__mindVoice = mindVoice;   // 점검용
 const K = () => SET.keys;
 let guardRoomController = null, guardControlProps = [], guardCctvData = null, campusCctv = null;
@@ -1316,12 +1318,18 @@ function stepFx(s, x, y, z, mode) {
 }
 // 민아 발소리: 민아가 실제로 걸은 거리로 보폭을 세고, 민아 발밑 재질로 3D 위치에서 (조금 작게)
 const MINA_STEP = { s: 0, x: null, z: null };
+// 민아 소리의 3D 정보 (목소리 · 발소리 공용): 가림(벽 · 닫힌 문 · 다른 층) · 방 크기 잔향 — 객체 하나를 계속 쓴다
+const MINA_SPOT = { x: 0, y: 0, z: 0, occ: 0, rev: .05 };
+function minaRev() { const w = rbHere(); return /계단/.test(w) ? .42 : /체육관|강당|현관|복도|급식|도서/.test(w) ? .24 : w ? .08 : .14; }
+function minaSpot3d() { if (!mina || !MINA_F.on || !mina.visible) return null; MINA_SPOT.x = mina.position.x; MINA_SPOT.y = mina.position.y + 1.5; MINA_SPOT.z = mina.position.z;
+  MINA_SPOT.occ = NPCAI && NPCAI.mina.active ? NPCAI.hearOcc(mina.position.x, mina.position.z) : 0; MINA_SPOT.rev = minaRev(); return MINA_SPOT; }
+setVoiceSpot(minaSpot3d);
 function minaStepTick(running) {
   if (!mina) return; const x = mina.position.x, z = mina.position.z;
   if (MINA_STEP.x == null) { MINA_STEP.x = x; MINA_STEP.z = z; return; }
   const d = Math.hypot(x - MINA_STEP.x, z - MINA_STEP.z); MINA_STEP.x = x; MINA_STEP.z = z; if (d > 2) return;   // 순간 이동(재배치)은 세지 않는다
   const s0 = MINA_STEP.s; MINA_STEP.s += d / (running ? 1.6 : 1.25); if (Math.floor(MINA_STEP.s) === Math.floor(s0)) return;
-  const inf = surfaceInfo(x, z, P.floor, mina.position.y), r = at(x, mina.position.y + .05, z).step(running, .55, inf.surface, running ? 'run' : 'walk');
+  const inf = surfaceInfo(x, z, P.floor, mina.position.y), sp3 = minaSpot3d(), r = at(x, mina.position.y + .05, z, sp3 ? sp3.occ : 0, sp3 ? sp3.rev : -1).step(running, .55, inf.surface, running ? 'run' : 'walk');
   if (DEBUG && window.__stepLog) window.__stepLog.push({ who: 'mina', f: P.floor, x: +x.toFixed(1), z: +z.toFixed(1), surface: inf.surface, src: inf.src, variant: sfx.lastStep && sfx.lastStep.variant });
   if (Math.hypot(P.x - x, P.z - z) < 12) stepFx(inf.surface, x, mina.position.y, z, running ? 'run' : 'walk');
 }
@@ -4120,6 +4128,7 @@ function setupCase5() {
 /* ----- 민아 동행: 방송실에서 깨운 뒤 사라지지 않고 플레이어를 따라다닌다 ----- */
 const MINA_NOTICE = new Set(['note', 'robj', 'tape', 'photo', 'look', 'search', 'case5', 'ganx', 'lock', 'safe', 'clue', 'board', 'cam', 'footprints', 'glog', 'gradio']);
 const MINA_F = { on: false, anim: '', talkT: 40, lastFloor: -1 };
+const MINA_VIEW = { on: false, cx: 0, cz: 0, tx: 0, tz: 0, third: false }, _mvDir = new THREE.Vector3();   // 민아가 플레이어 시야를 가리는지 (매 프레임 같은 객체)
 const MINA_TALK = ['…발소리, 우리 둘 것만 맞지?', '하늘 언니 방송 원고, 내가 아직 외우고 있어.', '여기 말고 B1… 거기가 끝이야. 알잖아.', '조금만 천천히 가. 숨이 차.', '정문 경비실 아저씨… 그날 밤 다 들었대.', '손전등 꺼지면 말해. 내 거 아직 남았어.', '증거 다 모이면, 방송실 콘솔 내가 같이 잡아 줄게.'];
 function minaFollowStart() {
   if (!mina) return; MINA_F.on = true; FL.minaFollow = true;
@@ -4137,6 +4146,25 @@ function minaSpot() {
     if (Math.hypot(q.x - tx, q.z - tz) < .01) return q;
   }
   return { x: P.x, z: P.z };
+}
+// 민아가 가리키는 곳: 물건 위 부드러운 고리(거리에 따라 옅어짐 · 하나를 계속 씀 · 깊이 테스트 끔 없음)
+let MINA_PT = null;
+function minaPointTick(dt, ai) {
+  if (!MINA_PT) { MINA_PT = new THREE.Mesh(new THREE.RingGeometry(.16, .21, 28), new THREE.MeshBasicMaterial({ color: 0xffe2a8, transparent: true, opacity: 0, depthWrite: false, toneMapped: false, side: THREE.DoubleSide })); MINA_PT.rotation.x = -Math.PI / 2; MINA_PT.renderOrder = 3; MINA_PT.visible = false; scene.add(MINA_PT); }
+  const want = ai && ai.point ? Math.max(0, 1 - Math.hypot(ai.lx - P.x, ai.lz - P.z) / 12) * .55 : 0, m = MINA_PT.material;
+  m.opacity += (want - m.opacity) * Math.min(1, dt * 4); MINA_PT.visible = m.opacity > .02;
+  if (want > 0) { MINA_PT.position.set(ai.lx, mina.position.y + .04 + Math.sin(tNow * 2.4) * .01, ai.lz); MINA_PT.scale.setScalar(1 + Math.sin(tNow * 3) * .06); }
+}
+// 주변 상호작용 (2초마다): 어두운 방 형광등 켜기(전기 API — ELEC.use) · 던진 캔 줍기 — 같은 층 · 가까울 때만
+const MINA_ENV = { t: 2, sw: new Map(), cans: [] };
+function minaEnvTick(dt) {
+  if ((MINA_ENV.t -= dt) > 0 || !NPCAI || state !== 'playing' || NPCAI.errandBusy()) return; MINA_ENV.t = 2;
+  const n = NPCAI.mina, sh = P.sh || 0, now = playTime;
+  if (ELEC && RBG && RBG._pk > 0) for (const p of world.props) { if (p.k !== 'light_switch' || !p.sw || !p.sw._c || !/켜기$/.test(p.label || '') || Math.abs((p.y ?? 1.2) - 1.2 - sh) > 1.4) continue;
+    if (Math.hypot(p.x - n.x, p.z - n.z) > 6 || Math.hypot(p.x - P.x, p.z - P.z) > 8 || now - (MINA_ENV.sw.get(p) ?? -1e9) < 300) continue;
+    MINA_ENV.sw.set(p, now); if (NPCAI.errand(p.x, p.z, { done: () => { if (/켜기$/.test(p.label || '')) { ELEC.use(p); at(p.x, (p.y ?? 1.2), p.z).click(); } }, maxD: 7 })) return; }
+  if (!ghost.active) for (const o of MINA_ENV.cans) { if (!o.parent || o.userData.taken || Math.abs(o.position.y - sh) > 1.2 || Math.hypot(o.position.x - n.x, o.position.z - n.z) > 8) continue;
+    o.userData.taken = true; if (NPCAI.errand(o.position.x, o.position.z, { done: () => { o.parent?.remove(o); inv.can = (inv.can || 0) + 1; refreshHud(); sfx.click(); }, maxD: 9 })) return; o.userData.taken = false; }
 }
 // 민아 시선: 평소엔 주인공의 머리(눈높이), 가끔 소리 난 쪽(주인공 주변)이나 같은 층 귀신 쪽을 잠깐 본다
 const _minaLT = new THREE.Vector3();
@@ -4161,13 +4189,17 @@ function minaFollowTick(dt) {
   if (!MINA_F.on || !mina) return;
   if (MINA_F.hold) { mina.userData.workPose = true; minaPlay('Idle'); return; }   // 방송 중: 조정실 콘솔에 앉아 있다 (npcVisuals 절차적 착석 · 콘솔 조작 자세)
   mina.userData.workPose = false;
+  if (!NPCAI || !NPCAI.mina.active) mina.userData.idlePose = 'none';
   // 새 길찾기(npcAI.js): 본관 · 별관 · 구름다리 · 현관 밖에서 격자 A* 로 따라오고 계단을 실제로 오르내린다 — 그 밖(예전 층 등)은 아래 예전 방식
   perfMark('mina.pre'); const ai = NPCAI ? NPCAI.follow(dt, mina) : null; perfMark('npcAI');
   if (ai) {
     mina.position.set(ai.x, (floors[0]?.y0 || 0) + ai.y, ai.z); mina.rotation.y = ai.yaw; MINA_F.v = ai.v; MINA_F.turning = false; MINA_F.lastFloor = P.floor; MINA_F.stuck = 0;
     minaLookTick(dt, mina.position.y);
     if (ai.look) { _minaLT.set(ai.lx, mina.position.y + 1.1, ai.lz); mina.userData.lookTarget = _minaLT; }   // 단서를 알아채면 그쪽을 본다
+    minaPointTick(dt, ai); minaEnvTick(dt);
     if (ai.v > .15) { minaPlay(ai.v > 2.6 ? 'Run' : 'Walk'); minaStepTick(ai.v > 2.6); } else minaPlay(ai.emotion === 'uneasy' || (ghost.active && ghost.floor === P.floor) ? 'ScaredIdle' : 'Idle');   // 불안: 움츠린 자세
+    mina.userData.idlePose = ai.v > .15 ? 'none' : ai.pose;   // 대기 행동(npcVisuals 절차적 자세): 팔짱 · 휴대폰 · 벽 기대기 · 쪼그려 쉬기
+    if (ai.pose === 'phone' && ai.v <= .15 && !ai.look) { const h = mina.userData.phoneTip; if (h) { h.getWorldPosition(_minaLT); mina.userData.lookTarget = _minaLT; } }   // 휴대폰을 내려다본다
   } else {
   const fy = (floors[P.floor]?.y0 || 0) + (P.sh || 0), bx = P.x + Math.sin(P.yaw) * 1.5, bz = P.z + Math.cos(P.yaw) * 1.5;
   const dx = bx - mina.position.x, dz = bz - mina.position.z, d = Math.hypot(dx, dz), dp = Math.hypot(P.x - mina.position.x, P.z - mina.position.z);
@@ -4198,7 +4230,7 @@ function minaFollowTick(dt) {
     const c = MINA_CHAT.find(q => !MINA_F.used?.[q.id] && q.when());
     if (c) { (MINA_F.used ||= {})[c.id] = true; MINA_F.chatting = true; MINA_F.talkT = 28 + Math.random() * 20;
       (async () => { try { const a1 = c.mFirst ? 'mc_' + c.id + '_m' : 'mc_' + c.id + '_' + CK(), a2 = c.mFirst ? 'mc_' + c.id + '_' + CK() : 'mc_' + c.id + '_m'; await line(a1); await wait(350); if (MINA_F.on) await line(a2); } catch (e) {} finally { MINA_F.chatting = false; } })(); }
-    else { MINA_F.talkT = 70 + Math.random() * 60; subtitle('민아', MINA_TALK[(Math.random() * MINA_TALK.length) | 0], 3.4); }
+    else { MINA_F.talkT = 70 + Math.random() * 60; if (NPCAI && NPCAI.mina.active) NPCAI.chatter(); else subtitle('민아', MINA_TALK[(Math.random() * MINA_TALK.length) | 0], 3.4); }   // 혼잣말: 10줄 · 5분 안에 같은 줄 없음 · 말 차례 큐
   }
 }
 // 민아 동행 대화 (우선순위 순) — mFirst: 민아가 먼저 말을 건다
@@ -5126,7 +5158,7 @@ function updateThrows(dt) {
       at(T.b.x, T.b.y + .1, T.b.z).clank(1); fx.dust(T.b.x, T.b.y + .05, T.b.z, 6);
       const G = ghost;
       if (G.active && !G.enraged && G.floor === T.f && Math.hypot(G.x - T.b.x, G.z - T.b.z) < 30) { G.state = 'search'; G.target = { x: T.b.x, z: T.b.z }; G.path = []; G.replan = 0; G.wait = 0; G.hunt = null; G.lure2 = 6; say('깡— 소리가 복도에 울렸다', 1600); }
-      T.m.rotation.set(Math.PI / 2, Math.random() * 6, 0); T.m.position.y = T.b.y; floors[T.f].interior.attach(T.m);
+      T.m.rotation.set(Math.PI / 2, Math.random() * 6, 0); T.m.position.y = T.b.y; floors[T.f].interior.attach(T.m); if (T.kind === 'can' && T.f === 0) { MINA_ENV.cans.push(T.m); if (MINA_ENV.cans.length > 8) MINA_ENV.cans.shift(); }   // 민아가 주워 돌려준다(유령이 없을 때)
       throws.splice(i, 1);
     }
   }
@@ -9544,8 +9576,11 @@ function declutterInteractables() {
     if (!best) continue; shift(e, best.x - x0, v ? best.s + .004 - h0 : (best.s - (s0 ?? best.s)), best.z - z0); n++; }
   return n;
 }
+hintDirector.setFreq(SET.hintFreq);   // 힌트 빈도: 적게 · 보통 · 많이
 { RBG = installRebuild({ THREE, scene, floors, world }); window.__rbg = RBG;
- if (!params.has('nonpc')) try { NPCAI = installNPCAI({ voice: mindVoice, R: RBG, P, isPlaying: () => state === 'playing', subtitle, objective, at, igpu: () => IGPU, debug: DEBUG, elec: () => ELEC, now: () => playTime, busy: () => isSpeechBusy() || !!MINA_F.chatting,
+ if (!params.has('nonpc')) try { NPCAI = installNPCAI({ voice: mindVoice, R: RBG, P, isPlaying: () => state === 'playing', subtitle, objective, at, igpu: () => IGPU, debug: DEBUG, elec: () => ELEC, now: () => playTime, busy: () => isSpeechBusy() || subtitleBusy() || !!MINA_F.chatting,
+   board: () => SMART.infer(), tagName: smartTagName, view: () => { const V = MINA_VIEW; V.on = state === 'playing'; if (!V.on) return V; camera.getWorldDirection(_mvDir); const l = Math.hypot(_mvDir.x, _mvDir.z) || 1, d = Math.hypot(camera.position.x - P.x, camera.position.z - P.z) + 2.6;
+     V.cx = camera.position.x; V.cz = camera.position.z; V.tx = V.cx + _mvDir.x / l * d; V.tz = V.cz + _mvDir.z / l * d; V.third = view === 3; return V; },
    nearby: () => { const out = [], sh = P.sh || 0; if (P.floor !== 0) return out;   // 민아가 알아채는 단서 · 조사 대상: 플레이어 6m 안 · 같은 높이 · 아직 안 한 것
      for (const q of world.props) { if (q.floor !== 0 || q.done || !q.label || !MINA_NOTICE.has(q.kind) || Math.abs((q.rbY ?? 0) - sh) > 1.5 || Math.abs(q.x - P.x) > 6 || Math.abs(q.z - P.z) > 6) continue; out.push({ id: q.uid || q.kind + ':' + q.label, x: q.x, z: q.z, label: q.label }); }
      for (const it of world.items) { if (it.taken || it.locked || it.floor !== 0 || !it.pos || Math.abs((it.rbY ?? 0) - sh) > 1.5 || Math.hypot(it.pos.x - P.x, it.pos.z - P.z) > 6) continue; const nm = ITEMS[it.kind] && ITEMS[it.kind].name; if (nm) out.push({ id: it.uid || 'it:' + it.kind, x: it.pos.x, z: it.pos.z, label: nm }); }
@@ -9557,7 +9592,7 @@ function declutterInteractables() {
  try { MOONFX = installMoonShafts({ scene, blds: [RBG.MAIN, RBG.ANX], moonPos: MOON_POS }); MOONFX.setQuality(qCur); window.__moon = MOONFX; } catch (e) { console.warn('[moon shafts]', e); } idleTimeout(() => { try { refinishB1(); } catch (e) { console.warn('[B1 refinish]', e); } }, 12000); setTimeout(() => { for (const [nm, fn] of [['수영장 디테일', installPoolDetail], ['방송실 디테일', installBcastDetail], ['장비실 철문', installEqDoor]]) { try { const n = fn(); if (n) console.info('[' + nm + ']', n); } catch (e) { console.warn('[' + nm + ']', e); } } try { } catch (e) { console.warn('[pool detail]', e); } }, 13000); setTimeout(() => { try { (RBG.beds ? RBG.beds() : []).forEach((b, i) => world.props.push({ kind: 'bed', floor: 0, rbY: b.y, x: b.x, z: b.z, y: b.y + .7, r: 1.4, label: '침대에 눕기 — 잠시 숨 고르기', bed: b, _rb: true })); nurseChairFix(); } catch (e) { console.warn('[bed]', e); } }, 3500); try { RBG.allOff(); } catch (e) { console.warn('[all off]', e); } try { ELEC = installElectrical({ THREE, scene, world, floors, mergeGeometries, RBG, FL, audit: {}, blackout: () => blackout, tNow: () => tNow, genGain: () => GEN.gain, power: () => power, dayK: () => DAY.k, sfx, at, say: (t, ms) => say(t, ms), noise: v => { P.noiseT = Math.max(P.noiseT || 0, v); },
     enterUI: () => { state = 'ui'; for (const k in keys) keys[k] = false; document.exitPointerLock?.(); $('prompt').style.display = 'none'; }, exitUI: () => { if (state === 'ui') { state = 'playing'; refreshHud(); lock(); } } }); window.__elec = ELEC; } catch (e) { console.warn('[electrical]', e); } renderer.localClippingEnabled = true; setTimeout(() => { installInvestigationBoards().catch(e => console.warn('[조사 게시물]', e)); }, 2500); setTimeout(() => { furnishRooms({ scene, RBG, world, getP: () => P }).then(n => n && console.info('[가구 보강]', n)).catch(e => console.warn('[furnish v2]', e)); }, 4000); [20000, 45000].forEach(t => idleTimeout(() => { try { if (RBG && RBG.deskGraffiti && !RBG._graf) { const n = RBG.deskGraffiti(); if (n) console.info('[책상 낙서]', n); } } catch (e) { console.warn('[graffiti]', e); } }, t)); [6000, 16000, 32000].forEach(t => idleTimeout(() => { try { const n = repairStrayInteractables(); if (n) console.info('[상호작용 위치 보정]', n); } catch (e) { console.warn('[stray fix]', e); } }, t)); try { installRoomUI({ P, world, getRBG: () => RBG, getState: () => state, getTarget: () => target, keyInteract: () => (K().interact || 'KeyE') }); } catch (e) { console.warn('[room ui]', e); }
 if (RBG) setTimeout(() => { try { const n = installInteractionsPlus({ THREE, scene, world, RBG, sfx, showNote, P, FL, giveItem }); if (n) console.info('[생활 상호작용]', n); } catch (e) { console.warn('[interactions+]', e); } }, 5000);
-if (RBG) setTimeout(() => { try { const n = SMART.install({ THREE, scene, world, RBG, sfx, P, CLUES, say, showNote, openUI, closeUI, clues: () => clues, power: () => power, clockText, playTime: () => playTime, getState: () => state, lang: curLang, where: () => { try { return whereText(); } catch (e) { return ''; } } }); if (n) console.info('[스마트 사물]', n); } catch (e) { console.warn('[smart]', e); } }, 5200);
+if (RBG) setTimeout(() => { try { const n = SMART.install({ THREE, scene, world, RBG, sfx, P, CLUES, say, hintSugg: () => hintDirector.boardSuggestions(objective().ch), showNote, openUI, closeUI, clues: () => clues, power: () => power, clockText, playTime: () => playTime, getState: () => state, lang: curLang, where: () => { try { return whereText(); } catch (e) { return ''; } } }); if (n) console.info('[스마트 사물]', n); } catch (e) { console.warn('[smart]', e); } }, 5200);
   // 2단계: 예전 건물의 열쇠 · 쪽지 · 조사 지점을 새 방으로 (나중에 생기는 조사 지점도 몇 번 더 옮긴다)
   const sz4 = floors[4] && floors[4].stairZone, b1 = sz4 ? sz4.spawn : { x: ((floors[4] && floors[4].stairCx) || 0) + .8, z: -5.2 };
   const rel = () => { const r = RBG.relocate({ world, floors, stairSpawnB1: b1 }); if (r.moved || r.dropped) console.info('[rebuild] 옮김', r); const f = RBG.fixRoomRefs(world); if (f.moved || f.relabeled || f.dup) console.info('[rebuild] 방 이름 맞춤', f); const g2 = RBG.relinkGeneric(world); if (g2.n || g2.drop) console.info('[rebuild] 공용 조사 지점 다시 잇기', g2); const s3 = RBG.settleMoved(world); if (s3.n) console.info('[rebuild] 허공 물건 내려놓기', s3); nurseChairFix(); const fv = RBG.fixVisible(world); if (fv.re || fv.up) console.info('[rebuild] 안 보이던 · 묻힌 물건 바로잡기', fv); };
@@ -9619,7 +9654,7 @@ function fillSettings() {
   $('setSens').value = SET.sens * 100; $('setInvY').checked = SET.invertY; $('setRun').value = SET.runToggle ? 'toggle' : 'hold'; $('setCrouch').value = SET.crouchToggle === false ? 'hold' : 'toggle'; $('setHints').checked = SET.hints;
   $('setDub').checked = VS.dub; $('setVoice').value = VS.engine; $('setVoice').querySelector('[value=browser]').disabled = !hasBrowserVoice(); $('vEngine').textContent = '현재: ' + engineLabel() + (hasNaturalVoice() ? '' : ' · 이 브라우저에는 자연스러운 한국어 음성이 없습니다 (Edge 권장)');
   $('setSubs').checked = VS.subs; $('setNotes').checked = VS.readNotes; $('setSkipSeen').checked = !!VS.skipSeen; $('setSubSize').value = String(VS.subSize); $('setNames').checked = SET.subNames; $('setSubBg').value = SET.subBg * 100;
-  $('setCaps').checked = SET.captions; $('setTips').checked = SET.tips; $('setPhotos').checked = SET.areaPhotos; $('setMic').checked = !!SET.mic; $('setContrast').checked = SET.contrast; $('setCbSafe').checked = !!SET.cbSafe; $('setIdleHint').checked = SET.idleHint !== false; $('setIdleSec').value = String([120, 240, 420].includes(SET.idleHintSec) ? SET.idleHintSec : 240); $('setUi').value = Math.round(SET.ui * 100); renderKeys();
+  $('setCaps').checked = SET.captions; $('setTips').checked = SET.tips; $('setPhotos').checked = SET.areaPhotos; $('setMic').checked = !!SET.mic; $('setContrast').checked = SET.contrast; $('setCbSafe').checked = !!SET.cbSafe; $('setIdleHint').checked = SET.idleHint !== false; $('setIdleSec').value = String([120, 240, 420].includes(SET.idleHintSec) ? SET.idleHintSec : 240); $('setHintFreq').value = SET.hintFreq || 'normal'; $('setUi').value = Math.round(SET.ui * 100); renderKeys();
   $('setDiff').value = SET.diff; $('setLang').value = curLang(); $('setJump').value = SET.jump; $('setFlash').checked = SET.flashReduce; $('setFearFx').checked = SET.fearFx; $('setMBlur').checked = !!SET.motionBlur; $('setClassicBars').checked = !!SET.classicBars; $('setMinimap').checked = SET.minimap !== false; $('setPaperMap').checked = !!SET.paperMap;
   vals();
 }
@@ -9674,7 +9709,7 @@ $('setMic').onchange = async e => { setS('mic', e.target.checked); if (e.target.
 if (SET.mic) { SET.mic = false; saveSET(); }   // 마이크 소리 감지: 소리를 듣고 오는 존재가 없어져 게임에 쓸모가 없다 → 끔 (권한 요청도 하지 않는다)
 { const row = $('setMic') && $('setMic').closest('label, .row, div'); if (row) row.style.display = 'none'; }
 if (matchMedia('(pointer: coarse)').matches || !('exitPointerLock' in document)) $('mobileNote').style.display = 'block';
-$('setContrast').onchange = e => setS('contrast', e.target.checked); $('setCbSafe').onchange = e => setS('cbSafe', e.target.checked); $('setIdleHint').onchange = e => setS('idleHint', e.target.checked); $('setIdleSec').onchange = e => setS('idleHintSec', +e.target.value); $('setCrouch').onchange = e => { setS('crouchToggle', e.target.value === 'toggle'); P.crouch = false; }; $('setUi').oninput = e => setS('ui', e.target.value / 100);
+$('setContrast').onchange = e => setS('contrast', e.target.checked); $('setCbSafe').onchange = e => setS('cbSafe', e.target.checked); $('setIdleHint').onchange = e => setS('idleHint', e.target.checked); $('setIdleSec').onchange = e => setS('idleHintSec', +e.target.value); $('setHintFreq').onchange = e => { setS('hintFreq', e.target.value); hintDirector.setFreq(SET.hintFreq); }; $('setCrouch').onchange = e => { setS('crouchToggle', e.target.value === 'toggle'); P.crouch = false; }; $('setUi').oninput = e => setS('ui', e.target.value / 100);
 // 키 재지정
 const KEY_ACTIONS = [['radio', '무전기 호출'], ['camera', '휴대폰 야간 카메라'], ['crouch', '앉기 (웅크리기)'], ['jump', '점프'], ['interact', '조사 · 상호작용'], ['flash', '손전등'], ['inv', '소지품'], ['map', '지도'], ['phone', '휴대폰'], ['throwCan', '캔 던지기'], ['view', '시점 전환'], ['run', '달리기'], ['down', '계단 내려가기'], ['scan', '주변 살피기'], ['quest', '목표 바 펼치기 · 한 줄 · 숨기기'], ['quickSave', '빠른 저장'], ['quickLoad', '빠른 불러오기']];
 let remapping = null;
@@ -9773,7 +9808,7 @@ function devRadio(st, who) { const w = $('dvWt'); if (!w) return; w.classList.to
 setInterval(() => { if (document.hidden || !$('hud').classList.contains('show')) return; try {
   $('dvClock').textContent = clockText(); $('dvBat').textContent = `🔋 ${Math.round(P.pbat ?? 100)}%`; $('dvPKey').textContent = (K().phone || 'KeyP').replace('Key', '');
   const sig = P.floor === 4 ? 0 : (RBG && RBG.inBuilding && RBG.inBuilding(P.x, P.z)) ? 2 : 4; [...$('dvSig').children].forEach((b, i) => b.classList.toggle('on', i < sig)); } catch (e) {} }, 500);
-try { installPartnerRadio({ voice: mindVoice, P, FL, char: () => CHAR, state: () => state, busy: isDialogueActive, speak, subtitle, sfx, now: () => playTime,
+try { installPartnerRadio({ voice: mindVoice, mina: () => NPCAI, P, FL, char: () => CHAR, state: () => state, busy: isDialogueActive, speak, subtitle, sfx, now: () => playTime,
    mind: () => { const o = objective(), c = NPCAI ? NPCAI.context() : { ch: o.ch, main: o.main, where: o.loc && o.loc.where, keys: P.keys | 0, late: !!FL.night && playTime > 900 }; c.room = rbHere(); return c; },   // 무전 상대의 답: 장 · 목표 · 소지품 · 정전 · 지금 있는 곳
    chapter: () => objective().ch, introDone: () => introDone, inside: () => !!(RBG && RBG.inBuilding && RBG.inBuilding(P.x, P.z)), radio: devRadio }); } catch (e) { console.warn('[partner radio]', e); }
 try {   // 민아와 자유 대화 (AI): 민아가 동행 중이고 가까이(4m · 같은 높이) 있을 때만. 실패하면 규칙 기반 대사(MINA_TALK)로

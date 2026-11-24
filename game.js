@@ -9604,7 +9604,7 @@ $('setSkipSeen').onchange = e => { VS.skipSeen = e.target.checked; saveVS(); };
 $('setSubSize').onchange = e => { VS.subSize = +e.target.value; saveVS(); subtitle('미리보기', '자막 크기가 이렇게 보입니다.', 2.5); };
 $('setNames').onchange = e => { setS('subNames', e.target.checked); subtitle('미리보기', '화자 이름 표시', 2); };
 $('setSubBg').oninput = e => { setS('subBg', e.target.value / 100); subtitle('미리보기', '자막 배경 진하기', 1.5); };
-$('setLang').onchange = e => { if (state === 'playing' || state === 'paused' || state === 'ui') { try { save(true); } catch (er) { /* ignore */ } } setLang(e.target.value); };
+$('setLang').onchange = e => { if (state === 'playing' || state === 'paused' || state === 'ui') { try { save(true); sessionStorage.setItem(AUTO_KEY, 'continue'); } catch (er) { /* ignore */ } } setLang(e.target.value); };   // 플레이 중 언어 변경: 저장 후 새로고침 → 타이틀이 아니라 그 저장으로 바로 이어간다
 document.querySelectorAll('#tLang button').forEach(b => { b.classList.toggle('on', b.dataset.lang === curLang()); b.onclick = () => { if (b.dataset.lang !== curLang()) setLang(b.dataset.lang); }; });
 $('setDiff').onchange = e => setS('diff', e.target.value); $('setJump').onchange = e => setS('jump', e.target.value);
 $('setFlash').onchange = e => setS('flashReduce', e.target.checked); $('setFearFx').onchange = e => setS('fearFx', e.target.checked);

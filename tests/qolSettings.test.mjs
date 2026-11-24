@@ -6,6 +6,11 @@ const store = new Map();
 globalThis.localStorage = { getItem: k => (store.has(k) ? store.get(k) : null), setItem: (k, v) => store.set(k, String(v)), removeItem: k => store.delete(k) };
 const { DEF, SET, parseSET, saveSET, resetSET } = await import('../settings.js');
 
+test('mid-game language switch resumes the save instead of dropping to the title', async () => {
+  const fs = await import('node:fs'); const src = fs.readFileSync(new URL('../game.js', import.meta.url), 'utf8');
+  const line = src.split('\n').find(l => l.startsWith("$('setLang').onchange"));
+  assert.ok(line && /save\(true\);\s*sessionStorage\.setItem\(AUTO_KEY, 'continue'\)/.test(line));
+});
 test('QoL defaults exist', () => {
   assert.equal(DEF.crouchToggle, true); assert.equal(DEF.idleHint, true); assert.equal(DEF.cbSafe, false); assert.equal(DEF.idleHintSec, 240);
 });

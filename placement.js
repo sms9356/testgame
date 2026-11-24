@@ -1,5 +1,5 @@
 import * as THREE from './vendor/three.module.js';
-import { MODEL_BOUNDS } from './modelBounds.js';
+import { MODEL_BOUNDS } from './modelBounds.js?v=458';
 
 export const overlaps = (a, b, gap = 0) => a.x1 < b.x2 + gap && a.x2 > b.x1 - gap && a.z1 < b.z2 + gap && a.z2 > b.z1 - gap;
 

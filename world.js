@@ -1,17 +1,17 @@
 // 폐교 월드 빌더 — 레퍼런스(배치도/정문/교실/소품 시트)를 기반으로 학교 전체를 절차적으로 생성한다.
 import * as THREE from './vendor/three.module.js';
-import * as T from './tex.js';
-import * as PT from './rebuild/periodTex.js?v=456';
-import { rnd, rr, pick } from './tex.js';
-import { bakeStatic } from './bake.js';
-import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { buildGuardAnnex, buildDutyRoom, ANNEX as GANX } from './guardAnnex.js?v=456';
-import { NOTES } from './story.js?v=456';
-import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
-import { elevatorBay } from './elevatorLayout.js';
-import { removeDuplicateModels } from './placement.js';
-import { buildSafe } from './safeModel.js?v=456';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=456';
+import * as T from './tex.js?v=458';
+import * as PT from './rebuild/periodTex.js?v=458';
+import { rnd, rr, pick } from './tex.js?v=458';
+import { bakeStatic } from './bake.js?v=458';
+import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js?v=458';
+import { buildGuardAnnex, buildDutyRoom, ANNEX as GANX } from './guardAnnex.js?v=458';
+import { NOTES } from './story.js?v=458';
+import { buildCampusDesign, turfMaterial } from './campusVisuals.js?v=458';
+import { elevatorBay } from './elevatorLayout.js?v=458';
+import { removeDuplicateModels } from './placement.js?v=458';
+import { buildSafe } from './safeModel.js?v=458';
+import { loadSurfaceTexture } from './materialTextures.js?v=458'; import { buildWindowFakes } from './windowInteriors.js?v=458';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];

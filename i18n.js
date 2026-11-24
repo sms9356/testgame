@@ -4,7 +4,7 @@
 //   · 지도 · 미니맵 · 마이크 미터처럼 화면에 붙은 캔버스 글자도 번역 (3D 표지판 · 칠판 · 포스터는 학교 안의 한국어 그대로 둔다)
 //   · 음성: 영어 · 일본어 · 중국어는 voice/<언어>/ 의 신경망 음성 팩(미리 만든 파일)을 재생하고, 팩에 없는 대사만 브라우저 음성(그 언어 목소리)으로 읽는다
 // 사전: lang/<en|ja|zh>.json — { "한국어 원문": "번역" } · 원문 속 {} 는 실행 중 들어가는 값(이름 · 숫자 등)
-import { SET, saveSET } from './settings.js';
+import { SET, saveSET } from './settings.js?v=458';
 
 export const LANGS = { ko: '한국어', en: 'English', ja: '日本語', zh: '中文' };
 export const SPEECH_LANG = { ko: 'ko-KR', en: 'en-US', ja: 'ja-JP', zh: 'zh-CN' };
@@ -151,8 +151,8 @@ window.__i18n = { get miss() { return [...MISS]; }, tr, lang, LANGS, setLang, ha
 // 음성 연결 (영어 · 일본어 · 중국어):
 //   1) voice/<언어>/ 의 신경망 음성 팩(Microsoft Edge 신경망 음성으로 미리 만든 파일 — tools/gen_voice_pack.py)에 그 대사가 있으면 그것을 재생
 //   2) 없으면 번역된 대사를 브라우저 음성(그 언어 목소리)으로 읽는다. 그 언어 목소리도 없으면 null → 원래 한국어 더빙
-import { VHOOK, emoFor } from './voice.js?v=456';
-import { playVoice } from './audio.js?v=456';
+import { VHOOK, emoFor } from './voice.js?v=458';
+import { playVoice } from './audio.js?v=458';
 // 대사 → 번역문 (쪽지처럼 제목 · 본문 조각으로 등록된 대사는 조각별로 번역해 잇는다)
 export const voiceText = info => (info.parts ? info.parts.map(p => tr(p)).join('. ') : tr(info.text.replace(/<[^>]+>/g, ' '))).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
 VHOOK.speak = (id, info, fx) => {

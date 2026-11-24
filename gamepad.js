@@ -6,7 +6,7 @@
 // 버튼 번호 → 동작 이름 (동작 이름은 SET.keys 의 키, 또는 '#Code' 로 고정 키 코드)
 export const PAD_BUTTONS = {
   0: 'interact', 1: 'crouch', 2: 'flash', 3: 'inv', 4: 'down', 5: 'throwCan', 6: 'scan', 7: 'run',
-  8: 'map', 9: '#Escape', 10: 'jump', 11: 'view', 12: 'phone', 13: 'quest', 14: '#Digit2', 15: '#Digit3', 16: 'radio',
+  8: 'map', 9: '#Escape', 10: 'jump', 11: 'view', 12: 'phone', 13: 'quest', 14: '#Digit2', 15: '#Digit3',   // 16(Home/가이드)은 OS 가 가로채 브라우저에 거의 오지 않는다 — 무전 호출은 일시정지 메뉴의 '무전 호출'로
 };
 // 프롬프트 글자: 키보드 글자 → 패드 버튼 표시
 export const PAD_GLYPH = { E: 'A', Q: 'LB', G: 'RB', F: 'X', C: 'B', Esc: 'Start' };

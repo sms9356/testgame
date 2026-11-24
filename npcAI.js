@@ -269,11 +269,11 @@ export function followGoal(px, pz, yaw, ok, dist = 1.4, out = { x: 0, z: 0 }) {
 // 따라가기 속도: 같은 층에서 가까우면 멈춤(0), 멀면 뛰어 따라잡기
 export function followSpeed(sameLayer, d, stop = 2.1) { if (sameLayer && d < stop) return 0; if (!sameLayer || d > 7) return 3.4; return d > 4 ? 2.3 : 1.5; }
 
-export function installNPCAI({ R, P, isPlaying, subtitle, objective, at, igpu, debug, mind, elec, now, outdoor, busy, nearby, fails }) {
+export function installNPCAI({ R, P, isPlaying, subtitle, objective, at, igpu, debug, mind, elec, now, outdoor, busy, nearby, fails, voice }) {
   const MAIN = R.MAIN, ANX = R.ANX || null, FH = MAIN.spec.FH, BLDS = [MAIN, ANX].filter(Boolean);
   const clock = now || (() => performance.now() / 1000);
   const recent = [], subtitle0 = subtitle;   // 최근 민아 대사 (자유 대화 모듈이 읽는다)
-  subtitle = (who, text, dur) => { if (text) { recent.push(text); if (recent.length > 8) recent.shift(); } subtitle0(who, text, dur); };
+  subtitle = (who, text, dur) => { if (text) { recent.push(text); if (recent.length > 8) recent.shift(); try { voice && voice(text, 'mina'); } catch (e) { /* 자막만 */ } } subtitle0(who, text, dur); };   // 녹음된 민아 대사면 목소리도 (한국어만 · voice/mn_*.mp3)
   const stats = { stuck: 0, arrivals: 0, doorsOpened: 0, doorsClosed: 0, yields: 0, talks: 0, built: false, stairs: 0, floorsReached: 0, reacts: 0, plans: 0, planMs: 0, tickMs: 0, ticks: 0, tickMax: 0, teleports: 0, fails: 0 };
   // ── 층(layer) ──
   const bbOf = b => { const Lb = b.layout.L, xs = [], zs = []; for (const [lx, lz] of [[-Lb / 2 - .4, b.layout.zN - .4], [Lb / 2 + .4, b.layout.zN - .4], [-Lb / 2 - .4, b.layout.zS + .4], [Lb / 2 + .4, b.layout.zS + .4]]) { const [x, z] = b.toWorld(lx, lz); xs.push(x); zs.push(z); } return { x0: Math.min(...xs), x1: Math.max(...xs), z0: Math.min(...zs), z1: Math.max(...zs) }; };

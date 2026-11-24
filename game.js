@@ -80,7 +80,11 @@ import { createSmart } from './smartObjects.js?v=458';   // 스마트 사물(상
 import { SET, saveSET, resetSET, DIFF, keyLabel } from './settings.js?v=458';
 import { detectIntegrated, createDynRes } from './igpu.js?v=458';
 import { initI18n, setLang, lang as curLang } from './i18n.js?v=458';   // 언어 패치 (한국어 · English · 日本語 · 中文)
+import { lineId as mindLineId } from './npcMind.js?v=458';
 initI18n();
+// 민아 · 무전 대사 녹음(voice/mn_*.mp3): 한국어일 때 자막과 같은 줄이면 그 클립을 재생 (무전 상대는 'phone' 필터) · 없으면 자막만
+const mindVoice = (text, spk, fx = 'none') => { if (curLang() !== 'ko' || !text) return; const id = mindLineId(text); if (!id) return; const k = id.startsWith('radio_') ? `mn_${id}_${spk === 'jihun' ? 'j' : 's'}` : 'mn_' + id, info = lineInfo(k); if (info && !info.nofile) speak(k, fx).catch(() => {}); };
+window.__mindVoice = mindVoice;   // 점검용
 const K = () => SET.keys;
 let guardRoomController = null, guardControlProps = [], guardCctvData = null, campusCctv = null;
 function openGuardCctv() { if(!campusCctv) return; state='cctv'; for(const k in keys) keys[k]=false; $('prompt').style.display='none'; document.exitPointerLock?.(); campusCctv.open(); }
@@ -3099,6 +3103,7 @@ $('titleBtn').addEventListener('click', () => askConfirm('타이틀로 돌아갈
 $('bakBtn').addEventListener('click', () => askConfirm('이전 저장(백업)을 불러올까요?', '저장하지 않은 진행 상황은 사라집니다.', () => { try { sessionStorage.setItem(AUTO_KEY, 'backup'); } catch (e) { /* ignore */ } location.reload(); }));
 $('loadBtn2').addEventListener('click', () => askConfirm('마지막 저장을 불러올까요?', '저장하지 않은 진행 상황은 사라집니다.', reloadToSave));
 $('resumeBtn').addEventListener('click', () => { lock(); $('pause').classList.remove('show'); state = 'playing'; });
+$('radioBtn2').addEventListener('click', () => { if (!introDone) return; $('resumeBtn').click(); setTimeout(() => callPartner().catch(() => {}), 60); });   // 무전 호출: 패드(일시정지 메뉴) · 마우스 — 게임으로 돌아가 상대를 부른다
 $('retryBtn').addEventListener('click', () => { try { sessionStorage.setItem(AUTO_KEY, 'continue'); } catch (e) { /* ignore */ } location.reload(); });
 $('restartBtn').addEventListener('click', () => askConfirm('처음부터 다시 시작할까요?', '저장된 진행 상황이 지워집니다.', () => { try { clearSlot(localStorage, SKEYS); sessionStorage.setItem(AUTO_KEY, 'new'); } catch (e) { /* ignore */ } location.reload(); }));
 $('deadTitleBtn').addEventListener('click', () => location.reload());
@@ -9540,7 +9545,7 @@ function declutterInteractables() {
   return n;
 }
 { RBG = installRebuild({ THREE, scene, floors, world }); window.__rbg = RBG;
- if (!params.has('nonpc')) try { NPCAI = installNPCAI({ R: RBG, P, isPlaying: () => state === 'playing', subtitle, objective, at, igpu: () => IGPU, debug: DEBUG, elec: () => ELEC, now: () => playTime, busy: () => isSpeechBusy() || !!MINA_F.chatting,
+ if (!params.has('nonpc')) try { NPCAI = installNPCAI({ voice: mindVoice, R: RBG, P, isPlaying: () => state === 'playing', subtitle, objective, at, igpu: () => IGPU, debug: DEBUG, elec: () => ELEC, now: () => playTime, busy: () => isSpeechBusy() || !!MINA_F.chatting,
    nearby: () => { const out = [], sh = P.sh || 0; if (P.floor !== 0) return out;   // 민아가 알아채는 단서 · 조사 대상: 플레이어 6m 안 · 같은 높이 · 아직 안 한 것
      for (const q of world.props) { if (q.floor !== 0 || q.done || !q.label || !MINA_NOTICE.has(q.kind) || Math.abs((q.rbY ?? 0) - sh) > 1.5 || Math.abs(q.x - P.x) > 6 || Math.abs(q.z - P.z) > 6) continue; out.push({ id: q.uid || q.kind + ':' + q.label, x: q.x, z: q.z, label: q.label }); }
      for (const it of world.items) { if (it.taken || it.locked || it.floor !== 0 || !it.pos || Math.abs((it.rbY ?? 0) - sh) > 1.5 || Math.hypot(it.pos.x - P.x, it.pos.z - P.z) > 6) continue; const nm = ITEMS[it.kind] && ITEMS[it.kind].name; if (nm) out.push({ id: it.uid || 'it:' + it.kind, x: it.pos.x, z: it.pos.z, label: nm }); }
@@ -9768,7 +9773,7 @@ function devRadio(st, who) { const w = $('dvWt'); if (!w) return; w.classList.to
 setInterval(() => { if (document.hidden || !$('hud').classList.contains('show')) return; try {
   $('dvClock').textContent = clockText(); $('dvBat').textContent = `🔋 ${Math.round(P.pbat ?? 100)}%`; $('dvPKey').textContent = (K().phone || 'KeyP').replace('Key', '');
   const sig = P.floor === 4 ? 0 : (RBG && RBG.inBuilding && RBG.inBuilding(P.x, P.z)) ? 2 : 4; [...$('dvSig').children].forEach((b, i) => b.classList.toggle('on', i < sig)); } catch (e) {} }, 500);
-try { installPartnerRadio({ P, FL, char: () => CHAR, state: () => state, busy: isDialogueActive, speak, subtitle, sfx, now: () => playTime,
+try { installPartnerRadio({ voice: mindVoice, P, FL, char: () => CHAR, state: () => state, busy: isDialogueActive, speak, subtitle, sfx, now: () => playTime,
    mind: () => { const o = objective(), c = NPCAI ? NPCAI.context() : { ch: o.ch, main: o.main, where: o.loc && o.loc.where, keys: P.keys | 0, late: !!FL.night && playTime > 900 }; c.room = rbHere(); return c; },   // 무전 상대의 답: 장 · 목표 · 소지품 · 정전 · 지금 있는 곳
    chapter: () => objective().ch, introDone: () => introDone, inside: () => !!(RBG && RBG.inBuilding && RBG.inBuilding(P.x, P.z)), radio: devRadio }); } catch (e) { console.warn('[partner radio]', e); }
 try {   // 민아와 자유 대화 (AI): 민아가 동행 중이고 가까이(4m · 같은 높이) 있을 때만. 실패하면 규칙 기반 대사(MINA_TALK)로

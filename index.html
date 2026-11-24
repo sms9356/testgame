@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<script src="net.js?v=453"></script><!-- 서비스 워커 캐시(버전 = ?v=, game.js 와 함께 올린다) · 요청 중복 제거 · 재시도 -->
+<script src="net.js?v=454"></script><!-- 서비스 워커 캐시(버전 = ?v=, game.js 와 함께 올린다) · 요청 중복 제거 · 재시도 -->
 <link rel="stylesheet" href="style.css">
 <link rel="icon" href="data:,">
 <title>서린고 : 잊혀진 시간</title>
@@ -87,6 +87,7 @@
   #tTest{display:none;margin-top:12px;padding:6px 12px;border:1px solid #c06030;color:#ffd9a8;font-size:12px;letter-spacing:.1em;width:max-content}
   #tQuote{position:absolute;right:5vw;bottom:8vh;max-width:360px;text-align:right;font-family:'Noto Serif KR',serif;color:#cfc6b0;font-size:14px;line-height:1.9;text-shadow:0 2px 8px #000;opacity:.85}
   #newConfirm{z-index:24}
+  #qolConfirm{z-index:60}#qolConfirm .win{width:min(440px,92vw);text-align:center}
   #newConfirm .win{width:min(440px,92vw);text-align:center}
 
   /* ===== 캐릭터 선택 ===== */
@@ -672,6 +673,8 @@
   body.contrast #prompt{background:#000;border:2px solid #ffd84a;color:#fff;font-weight:700}
   body.contrast .toast,body.contrast #objP{background:rgba(0,0,0,.95);border-color:#ddd}
   body.contrast #sub{background:#000;color:#fff}
+  /* 색각 보조: 금색 · 빨강 강조 대신 파랑 · 주황 (적록 색약에서도 구분) */
+  body.cb-safe #prompt{border:2px solid #4da3ff!important;box-shadow:0 0 22px rgba(77,163,255,.3)!important}body.cb-safe #prompt kbd{background:#4da3ff!important;color:#06121f!important}body.cb-safe .toast.warn{border-color:#ff9a1f!important}body.cb-safe #cross{filter:hue-rotate(180deg) saturate(1.6)}
   #breath{position:fixed;z-index:7;left:50%;top:61%;transform:translateX(-50%);width:220px;text-align:center;font-size:12px;color:#cfd8e8;display:none}
   #breath.show{display:block}
   #breath .bar{height:8px;margin-top:4px}
@@ -752,7 +755,7 @@
 .missionNav{display:flex;gap:8px;position:sticky;top:0;background:#151a1c;padding:6px;z-index:1}.missionNav button{flex:1;background:#26323b;color:#e0e4e7;border:1px solid #42515c;border-radius:6px;padding:7px;font:inherit;cursor:pointer}.missionNav button:hover,.missionNav button:focus-visible{background:#3b4c59;outline:1px solid #c4b883}.missionGroup{margin:0 0 20px;scroll-margin-top:64px}.missionGroup h3{color:#d0c59f;margin-bottom:5px}.missionGroup p{font-size:12px;color:#a7aea8}.missionDone{opacity:.6}
 </style>
 <link rel="stylesheet" href="uiV3.css?v=296">
-<link rel="stylesheet" href="uiPolish.css?v=453">
+<link rel="stylesheet" href="uiPolish.css?v=454">
 <style id="invV4">
   /* 소지품 v4: 가죽 가방 안감 · 금속 테 슬롯 · 마우스 올리면 살짝 들어 올리는 3D 기울기 · 분류별 테 색 · 상세 창 회전 조명 */
   #inv .win{background:linear-gradient(160deg,#1a1410 0%,#120e0b 60%,#0d0a08 100%);border:1px solid #4a3a2a;box-shadow:0 30px 80px rgba(0,0,0,.7),inset 0 0 0 1px rgba(255,220,170,.05)}
@@ -882,6 +885,8 @@
   <div id="tLang"><button data-lang="ko">한국어</button><button data-lang="en">English</button><button data-lang="ja">日本語</button><button data-lang="zh">中文</button></div>
   <div id="tFoot">1인칭 미스터리 추리 어드벤처 · 헤드폰 권장<br><span id="tEnd"></span><a id="testLink" href="?test" style="display:none">테스트 모드로 실행</a></div>
 </div></div>
+<div id="qolConfirm" class="overlay"><div class="win"><p class="story" id="qcText" style="margin:0 auto 18px"></p>
+  <div style="display:flex;gap:10px;justify-content:center"><button class="btn pri" id="qcYes">예</button><button class="btn" id="qcNo">취소</button></div></div></div>
 <div id="newConfirm" class="overlay"><div class="win"><p class="story" style="margin:0 auto 18px">새 게임을 시작하면 저장된 진행 상황이 지워집니다.<br>계속할까요?</p>
   <div style="display:flex;gap:10px;justify-content:center"><button class="btn pri" id="ncYes">새로 시작</button><button class="btn" id="ncNo">취소</button></div></div></div>
 
@@ -943,6 +948,7 @@
     <span>상하 반전</span><label><input type="checkbox" id="setInvY"> Y축 반전</label>
     <h4>이동</h4>
     <span>달리기 방식</span><select id="setRun"><option value="hold">누르고 있기 (Shift)</option><option value="toggle">한 번 눌러 전환</option></select>
+    <span>앉기 방식</span><select id="setCrouch"><option value="toggle">한 번 눌러 전환</option><option value="hold">누르고 있기</option></select>
     <span>조작 안내 표시</span><label><input type="checkbox" id="setHints"> 화면 오른쪽 아래</label>
     <h4>시점</h4>
     <span>기본 시점</span><select id="setView"><option value="1">1인칭</option><option value="3">3인칭 (어깨 너머)</option></select>
@@ -975,6 +981,9 @@
     <span>도움말 팁</span><label><input type="checkbox" id="setTips"> 처음 10분 동안 조작 팁 표시</label>
     <span>장소 사진 카드</span><label><input type="checkbox" id="setPhotos"> 새 장소에 들어갈 때 사진 카드 표시 (끄면 이름만)</label>
     <span>고대비 표시</span><label><input type="checkbox" id="setContrast"> 상호작용 · 알림을 더 진하게</label>
+    <span>색각 보조</span><label><input type="checkbox" id="setCbSafe"> 상호작용 강조를 파랑 · 주황으로 (적록 색약)</label>
+    <span>목표 다시 알림</span><label><input type="checkbox" id="setIdleHint"> 한동안 진행이 없으면 현재 목표를 다시 알려 줌</label>
+    <span>알림 간격</span><select id="setIdleSec"><option value="120">2분</option><option value="240">4분</option><option value="420">7분</option></select>
     <span>UI 크기<em class="val" id="vUi"></em></span><input type="range" id="setUi" min="85" max="140" step="5">
   </div></div></div>
   <div id="setFoot"><button id="setReset">기본값 복원</button><button id="settingsClose2">확인</button></div></div></div>
@@ -991,8 +1000,8 @@
 <div id="bye" class="overlay"><p class="story">브라우저는 보안상 웹 게임이 탭을 직접 닫을 수 없습니다.<br>탭을 닫거나(<kbd>Ctrl</kbd>+<kbd>W</kbd>) 타이틀로 돌아가세요. 진행 상황은 자동 저장되어 있습니다.</p><button class="btn" id="byeBack" style="margin-top:20px">타이틀로 돌아가기</button></div>
 
 <script type="importmap">{ "imports": { "three": "./vendor/three.module.js", "three/webgpu": "./vendor/three.webgpu.js", "three/tsl": "./vendor/three.tsl.js" } }</script>
-<script type="module" src="game.js?v=453"></script>
-<script src="uiPolish.js?v=453" defer></script>
+<script type="module" src="game.js?v=454"></script>
+<script src="uiPolish.js?v=454" defer></script>
 <script src="steamBridge.js" defer></script>
 </body>
 </html>

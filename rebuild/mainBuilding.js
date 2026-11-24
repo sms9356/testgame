@@ -4,10 +4,10 @@
 //   전기(분전반 · 2등용 형광등 · 콘센트 · 스위치) · 소방(소화전함 · 소화기 · 감지기 · 유도등 · 방화문) · 수도(세면대 · 배관)
 import * as THREE from '../vendor/three.module.js';
 import { mergeGeometries } from '../vendor/addons/utils/BufferGeometryUtils.js';
-import { makeFlag } from '../tex.js?v=453';
-import * as PT from './periodTex.js?v=453';
-import { collectRefs, dedupeMaterials, batchStaticChildren } from './staticBatch.js?v=453';
-import { classInfo, weekDuty, cleaningRota, shortSubj, DAYS, PERIOD_TIME } from './classData.js?v=453';
+import { makeFlag } from '../tex.js?v=454';
+import * as PT from './periodTex.js?v=454';
+import { collectRefs, dedupeMaterials, batchStaticChildren } from './staticBatch.js?v=454';
+import { classInfo, weekDuty, cleaningRota, shortSubj, DAYS, PERIOD_TIME } from './classData.js?v=454';
 // 교실 앞면 꾸밈 공용 (반 이름 · 텍스처 캐시)
 let flagTex = null; const decorTex = new Map();
 // 2008년 10월 복도 게시물 (현재 시점 — 1998 사건 증거물과 구분)
@@ -1003,7 +1003,7 @@ export function buildMainBuilding(opt = {}) {
       const p = canvasPlane(w, h, Math.round(w * 420), Math.round(h * 420), (g, W, H) => { g.fillStyle = bg; g.fillRect(0, 0, W, H); g.fillStyle = hc; g.fillRect(0, 0, W, H * .17); g.fillStyle = '#fff'; g.font = `bold ${Math.round(H * .095)}px sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(head, W / 2, H * .085, W - 12);
         g.fillStyle = '#222'; g.textAlign = 'left'; const fs = Math.round(H * .062); g.font = `${fs}px sans-serif`; lines.forEach((t, i) => g.fillText(t, W * .07, H * .26 + i * fs * 1.55, W * .88)); g.fillStyle = '#c82020'; g.beginPath(); g.arc(W / 2, H * .03, H * .012, 0, 7); g.fill(); }, 'rp_' + id);
       if (ax === 'x') { p.position.set(w0 + side * .016, y0 + y, pos); p.rotation.y = side > 0 ? Math.PI / 2 : -Math.PI / 2; } else { p.position.set(pos, y0 + y, w0 + side * .016); p.rotation.y = side > 0 ? 0 : Math.PI; }
-      root.add(p);
+      p.name = 'rp_' + id; root.add(p);
       if (ax === 'x') deco('rp_' + id, w0 - .05, w0 + .05, y0 + y - h / 2, y0 + y + h / 2, pos - w / 2, pos + w / 2); else deco('rp_' + id, pos - w / 2, pos + w / 2, y0 + y - h / 2, y0 + y + h / 2, w0 - .05, w0 + .05); };
     const deco = (id, x1, x2, y1, y2, z1, z2) => wallDeco.push({ id, x1, x2, y1, y2, z1, z2 });
     const clock = (x, y, z, ry) => { mdl('wall_clock', x, y0 + y, z, ry); deco('rp_clock', x - .22, x + .22, y0 + y - .22, y0 + y + .22, z - .22, z + .22); };
@@ -1223,7 +1223,7 @@ export function buildMainBuilding(opt = {}) {
         box('rubber', xm - .25, xm + .25, y0 + .78, y0 + .8, dz - .15, dz + .02);   // 키보드
         cyl('gold', dx1 + .3, y0 + .78, dz + .2, .06, .02); cyl('gold', dx1 + .3, y0 + .8, dz + .2, .01, .28); cyl('white', dx1 + .3, y0 + 1.04, dz + .2, .1, .12, .06, 14);   // 스탠드
         box('rubber', dx2 - .5, dx2 - .28, y0 + .78, y0 + .84, dz + .05, dz + .25); box('dkwood', xm - .2, xm + .2, y0 + .78, y0 + .86, d1 + .04, d1 + .1); box('gold', xm - .19, xm + .19, y0 + .79, y0 + .85, d1 + .035, d1 + .04);   // 전화 · 명패
-        { const np = ctex(256, 64, (g, w, h) => { g.fillStyle = '#c8a040'; g.fillRect(0, 0, w, h); g.fillStyle = '#2a1a0a'; g.font = 'bold 40px serif'; g.textAlign = 'center'; g.fillText('교   장', 128, 46); }); plane(np, .37, .06, xm, y0 + .82, d1 + .033, Math.PI, true); }
+        { const np = ctex(256, 64, (g, w, h) => { g.fillStyle = '#c8a040'; g.fillRect(0, 0, w, h); g.fillStyle = '#2a1a0a'; g.font = 'bold 40px serif'; g.textAlign = 'center'; g.fillText('교   장', 128, 46); }); plane(np, .37, .06, xm, y0 + .82, d1 + .028, Math.PI, true); }
         mdl('potted_plant_04', dx2 - .2, y0 + .78, d1 + .2, 0, { s: 1.0 });
         // 하이백 가죽 의자 (책상 뒤 · 창 쪽): 5발 받침 · 좌판 · 높은 등받이 · 팔걸이
         { const cx = xm, cz = dz + .95; for (let k = 0; k < 5; k++) { const a = k * 1.2566, gg = new THREE.BoxGeometry(.32, .03, .045); gg.translate(.16, 0, 0); gg.rotateY(a); gg.translate(cx, y0 + .08, cz); G('rubber', gg); } cyl('alu', cx, y0 + .08, cz, .03, .34);
@@ -1545,7 +1545,7 @@ export function buildMainBuilding(opt = {}) {
       TX.forEach((cx, i) => TZ.forEach((cz, j) => {
         box('steelG', cx - .55, cx + .55, y0 + .66, y0 + .71, cz - .85, cz + .85); [[-.55, -.85], [.55, -.85], [-.55, .85], [.55, .85]].forEach(([a, b]) => box('steelG', cx + a - (a > 0 ? .04 : 0), cx + a + (a < 0 ? .04 : 0), y0, y0 + .71, cz + b - (b > 0 ? .04 : 0), cz + b + (b < 0 ? .04 : 0)));
         box('steelG', cx - .5, cx + .5, y0 + .12, y0 + .15, cz - .02, cz + .02);
-        box('wood', cx - .6, cx + .6, y0 + .71, y0 + .75, cz - .9, cz + .9); const p = plane(paint, 1.2, 1.8, cx, y0 + .752, cz, 0); p.rotation.x = -Math.PI / 2;
+        box('wood', cx - .6, cx + .6, y0 + .71, y0 + .75, cz - .9, cz + .9); const p = plane(paint, 1.2, 1.8, cx, y0 + .756, cz, 0); p.rotation.x = -Math.PI / 2;
         col.push({ x1: cx - .6, x2: cx + .6, z1: cz - .9, z2: cz + .9, y1: y0, y2: y0 + .75 });
         for (const s of [-1, 1]) for (let k = -1; k <= 1; k++) { const sx = cx + s * .95, sz = cz + k * .58; cyl('wood', sx, y0 + .42, sz, .165, .035, .165, 14); [[-.1, -.1], [.1, -.1], [-.1, .1], [.1, .1]].forEach(([a, b]) => box('deskLeg', sx + a - .012, sx + a + .012, y0, y0 + .42, sz + b - .012, sz + b + .012)); [-.1, .1].forEach(b => box('deskLeg', sx - .11, sx + .11, y0 + .15, y0 + .17, sz + b - .01, sz + b + .01)); }
         // 상판 소품: 연필꽂이 · 팔레트 · 스케치북 · 물통

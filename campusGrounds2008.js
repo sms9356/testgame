@@ -3,7 +3,7 @@
 //   ── 모두 InstancedMesh / 합친 메시 · 공용 재질 · 그림자 드리우는 조명 없음. 인도(window.__pathNET) · 금지 구역 · 충돌 상자 · 조사 지점은 피한다.
 import * as THREE from './vendor/three.module.js';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
-import * as PT from './rebuild/periodTex.js?v=453';   // 소품 사실감: 은행잎 · 나무껍질 · 향나무 · 차 도장 텍스처 (모듈 캐시 한 벌)
+import * as PT from './rebuild/periodTex.js?v=454';   // 소품 사실감: 은행잎 · 나무껍질 · 향나무 · 차 도장 텍스처 (모듈 캐시 한 벌)
 
 const S = (c, r = .7, m = 0, e) => new THREE.MeshStandardMaterial({ color: c, roughness: r, metalness: m, ...(e || {}) });
 const canvasTex = (w, h, draw) => { const c = document.createElement('canvas'); c.width = w; c.height = h; draw(c.getContext('2d'), w, h); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; return t; };
@@ -84,7 +84,7 @@ export function installCampusGrounds({ scene, world, floors, footprints = [] }) 
   const mStone = S(0x8a8478, .85), mDark = S(0x2a2c2e, .6, .3);
   { const x = -9.2, z = 68.3; if (!hitCol(x, z, .2)) {
       const base = new THREE.BoxGeometry(3.2, .35, 1.2).translate(x, .175, z), rock = new THREE.DodecahedronGeometry(1, 0).scale(1.45, .78, .42).translate(x, 1.05, z);
-      add(mergeGeometries([base.toNonIndexed(), rock.toNonIndexed()]), mStone, true);
+      add(mergeGeometries([base.toNonIndexed(), rock.index ? rock.toNonIndexed() : rock]), mStone, true);   // 정십이면체(Polyhedron)는 이미 non-indexed — toNonIndexed() 경고 방지
       const t = signTex((g, w, h) => { g.clearRect(0, 0, w, h); g.fillStyle = '#1a1612'; g.font = 'bold 96px "Noto Serif KR", serif'; g.textAlign = 'center'; g.fillText('서린고등학교', w / 2, 120); g.font = '40px "Noto Serif KR", serif'; g.fillText('誠實 · 勤勉 · 創意', w / 2, 190); }, 1024, 224);
       const p = add(new THREE.PlaneGeometry(2.2, .48), new THREE.MeshStandardMaterial({ map: t, transparent: true, depthWrite: false, roughness: .9, polygonOffset: true, polygonOffsetFactor: -2 }));
       p.position.set(x, 1.12, z - .37); p.rotation.y = Math.PI;

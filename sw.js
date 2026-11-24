@@ -12,7 +12,7 @@
 // · 네트워크: 같은 파일 동시 요청은 한 번만, 동시 다운로드는 최대 LIMIT 개, 오류 · 5xx · 429 는 지수 백오프로 재시도.
 // 브라우저는 sw.js 본문이 바이트 단위로 같으면 주소(?v=)가 바뀌어도 새 워커를 설치하지 않는다 → 버전마다 본문이 달라지도록
 // tools/bump-version.mjs 가 이 숫자를 version.js 와 함께 바꾼다(tests/versionConsistency.test.mjs 가 검사).
-const SW_BUILD = 458;
+const SW_BUILD = 459;
 const VERSION = new URL(self.location.href).searchParams.get('v') || String(SW_BUILD);
 const PREFIX = 'seorin-assets-', CACHE = PREFIX + VERSION;
 const LIMIT = 8, TRIES = 4;

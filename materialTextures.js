@@ -1,5 +1,5 @@
 import * as THREE from './vendor/three.module.js';
-import { refineModelTexture, bakedUrl } from './furnitureTextureDetail.js?v=459';
+import { refineModelTexture, bakedUrl } from './furnitureTextureDetail.js?v=460';
 
 // TextureLoader returns before image decoding. Expose readiness so a staged
 // model cannot reach initTexture/compile with a half-loaded material.

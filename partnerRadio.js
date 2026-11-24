@@ -1,7 +1,8 @@
 // 2인 1조 무전: 고른 주인공은 학교 안을 직접 수색하고, 다른 한 명은 바깥 · 별관 쪽을 맡아 무전기로 이어진다.
 //   이야기 고비마다 두 사람이 주고받는 대화 (주인공별로 대사가 다르다 — 서연은 민아의 방송부 후배, 지훈은 민아의 어릴 적 친구)
 //   대사 id: pr_<장면>_<s|j 주인공>_<순번> · 화자 spk: seoyeon / jihun · 무전 쪽은 'phone' 필터로 들린다
-import { MINA_LINES, pickLine, hintLine, newMemory, sanitizeMemory, canReact, markReact } from './npcMind.js?v=459';
+import { MINA_LINES, pickLine, hintLine, newMemory, sanitizeMemory, canReact, markReact } from './npcMind.js?v=460';
+import { hintDirector as HD, BANTER_N } from './minaDirector.js?v=460';
 export const PARTNER_SCENES = {
   start: {   // 정문이 잠긴 뒤 첫 무전
     s: [['j', '서연아, 들려? 정문 쪽은 내가 볼게. 넌 본관부터 가 봐. 무전기 절대 끄지 마.'], ['s', '응, 잘 들려. 지훈아… 너도 혼자 무리하지 마.'], ['j', '십 분마다 연락하자. 대답 없으면 바로 갈게.']],
@@ -78,6 +79,7 @@ export function tickPartnerRadio(dt) {
   for (let k = 2; k <= ch && k <= 6; k++) want.push('ch' + k);
   const next = want.find(s => !done().includes(s));
   if (next) { play(next).catch(() => { busyUntil = 0; }); return; }
+  if (banterReady()) { banter().catch(() => { busyUntil = 0; }); return; }
   checkIn().catch(() => { busyUntil = 0; });
 }
 
@@ -98,14 +100,15 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
 const say = (who, text, radio) => { try { C.voice && C.voice(text, who === 'j' ? 'jihun' : 'seoyeon', radio ? 'phone' : 'none'); } catch (e) { /* 자막만 */ } };
 function fx(kind) { try { if (kind === 'beep') C.sfx.beep(); else C.sfx.staticNoise ? C.sfx.staticNoise(.25) : C.sfx.beep(); } catch (e) { /* 소리 없음 */ } }
 // 상대의 답 고르기 (순수 — 테스트에서도 쓴다): 막힌 지 오래면 힌트 먼저 · 처음 온 곳이면 장소 얘기 · 그 밖엔 대사 규칙(npcMind.pickLine)
-export function partnerReply(c, m, t) {
-  if (c.stuckSec > 180) { const h = hintLine(RADIO_L, c, m, t, RL('radio_hint_main')); if (h) { m.n++; m.told[h.key] = (m.told[h.key] || 0) + 1; return { ...h, intro: RL('radio_stuck') }; } }
+export function partnerReply(c, m, t, hd = null) {   // hd: 공용 힌트 감독 — 민아와 같은 단계를 쓴다(겹치거나 어긋난 힌트 없음)
+  const H = () => (hd ? hd.request('radio', RADIO_L, c, t, RL('radio_hint_main')) : hintLine(RADIO_L, c, m, t, RL('radio_hint_main')));
+  if (c.stuckSec > (hd ? hd.stuckAfter(180) : 180)) { const h = H(); if (h) { m.n++; m.told[h.key] = (m.told[h.key] || 0) + 1; return { ...h, intro: RL('radio_stuck') }; } }
   if (c.room && !m.told['p:' + c.room] && m.n > 0 && m.n % 3 === 2) { m.n++; m.told['p:' + c.room] = 1; return { key: 'p:' + c.room, text: RL('radio_where').replace('{}', c.room), topic: 'place', tier: 0 }; }
-  return pickLine('partner', RADIO_L, c, m, t, RL('radio_hint_main'));
+  return pickLine('partner', RADIO_L, c, m, t, RL('radio_hint_main'), hd ? H : null);
 }
 export async function callPartner() {
   if (!C || C.state() !== 'playing' || performance.now() < busyUntil || C.busy()) return false;
-  const N = names(), c = ctxNow(), r = partnerReply(c, mem(), nowS()); busyUntil = performance.now() + 15000; lastRadio = nowS();
+  const N = names(), c = ctxNow(), r = partnerReply(c, mem(), nowS(), HD); busyUntil = performance.now() + 15000; lastRadio = nowS();
   try {
     C.radio && C.radio('tx', N.meN); fx('beep'); say(N.me, RL('radio_call'), false); C.subtitle(N.meN, RL('radio_call'), 1.8, N.meCls); await wait(1700);
     C.radio && C.radio('rx', N.paN); fx('static'); await wait(500);
@@ -114,12 +117,30 @@ export async function callPartner() {
   } finally { C.radio && C.radio('idle'); busyUntil = performance.now() + 2500; }
   return r;
 }
+// 세 사람 잡담 (무전 상대 → 민아 → 주인공): 조용할 때만(민아 큐 비었고 1분 넘게 아무도 말 안 함 · 이야기 대사 없음) · 짧게 · 세트마다 한 번
+const banterDone = () => (C.FL.prBanter ||= []);
+let lastBanter = -1e9;
+export function banterPick(done, n = BANTER_N) { for (let k = 0; k < n; k++) if (!done.includes(k)) return k; return -1; }
+function banterReady() {
+  const M = C.mina && C.mina(), t = nowS(); if (!M || !C.FL.minaFollow || !M.mina || !M.mina.active) return false;
+  if (t - lastRadio < 180 || t - lastBanter < 420 || !M.quiet(60) || Math.hypot(M.mina.x - C.P.x, M.mina.z - C.P.z) > 4.5) return false;
+  return banterPick(banterDone()) >= 0 && Math.random() < .03;
+}
+async function banter() {
+  const M = C.mina(), k = banterPick(banterDone()); if (k < 0) return; banterDone().push(k); const t = nowS(); lastBanter = t; lastRadio = t;
+  const N = names(), a = RL(`radio_banter${k}_a`), m = RL(`banter${k}_m`), b = RL(`radio_banter${k}_b`);
+  busyUntil = performance.now() + 16000; M.queue.hold(t, 14);
+  try { C.radio && C.radio('rx', N.paN); fx('static'); await wait(400); say(N.pa, a, true); C.subtitle(N.paN + ' 📻', a, 3.2, N.paCls); await wait(3300);
+    C.radio && C.radio('idle'); if (C.state() !== 'playing') return; try { C.voice && C.voice(m, 'mina'); } catch (e) { /* 자막만 */ } C.subtitle('민아', m, 3.2); await wait(3300);
+    if (C.state() !== 'playing') return; C.radio && C.radio('tx', N.meN); say(N.me, b, false); C.subtitle(N.meN, b, 3, N.meCls); await wait(3000); fx('beep');
+  } finally { C.radio && C.radio('idle'); busyUntil = performance.now() + 3000; }
+}
 // 먼저 걸어오는 확인 무전: 마지막 무전 뒤 4분 이상 · 같은 대사는 기억 · 오래 막혀 있으면 힌트 한 단계 덧붙임
 async function checkIn() {
   const t = nowS(), m = mem(); if (t - lastRadio < 240 || !canReact(m, 'checkin', t, 240) || Math.random() > .02) return;
   markReact(m, 'checkin', t); lastRadio = t; const N = names(), k = (m.told['r:checkin'] - 1) % 3, c = ctxNow();
   busyUntil = performance.now() + 12000;
   try { C.radio && C.radio('rx', N.paN); fx('static'); await wait(400); say(N.pa, RL('radio_check_' + k), true); C.subtitle(N.paN + ' 📻', RL('radio_check_' + k), 3.4, N.paCls); await wait(3500);
-    if (c.stuckSec > 300) { const h = hintLine(RADIO_L, c, m, t, RL('radio_hint_main')); if (h) { say(N.pa, h.text, true); C.subtitle(N.paN + ' 📻', h.text, 5, N.paCls); await wait(5000); } } fx('beep');
+    if (c.stuckSec > HD.stuckAfter(300) && !HD.recently(t, 90)) { const h = HD.request('radio', RADIO_L, c, t, RL('radio_hint_main')); if (h) { say(N.pa, h.text, true); C.subtitle(N.paN + ' 📻', h.text, 5, N.paCls); await wait(5000); } } fx('beep');
   } finally { C.radio && C.radio('idle'); busyUntil = performance.now() + 3000; }
 }

@@ -1,5 +1,5 @@
 import * as THREE from './vendor/three.module.js';
-import { localBounds } from './guardRoomV6.js?v=459';
+import { localBounds } from './guardRoomV6.js?v=460';
 
 // The supplied placement bakes XY into all meshes, but _hi_ details omit
 // the manifest's support/wall Z offset. Repair the game clone, never the GLB.

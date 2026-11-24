@@ -6,7 +6,7 @@
 //   · 메시는 방 가까이 갔을 때 처음 만든다(lazy) · 멀어지면 숨긴다. 충돌 상자는 처음부터 (보행 · 도달성 감사가 같은 세계를 보도록)
 // 순수 함수(시드 · 단서 연결 추론 · 상태 직렬화)는 DOM/THREE 없이 node 테스트에서 바로 검증한다.
 
-import { pickRoomEvent, shouldFire, ROOM_EVENTS } from './roomEvents.js?v=459';
+import { pickRoomEvent, shouldFire, ROOM_EVENTS } from './roomEvents.js?v=460';
 export { pickRoomEvent, shouldFire, ROOM_EVENTS };
 export const SMART_VERSION = 1;
 
@@ -272,9 +272,10 @@ export function createSmart() {
     const id = o.id; if (st.notes.some(n => n.id === id && n.ko === ko)) return;
     st.notes.push({ id: id + '#' + st.notes.filter(n => n.id.startsWith(id)).length, k: o.kind, room: o.room.label, ko, tags: [...new Set([...tags, ...tagsOf(ko)])], place: placeTagOfRoom(o.room.label), t: ctx.playTime ? ctx.playTime() : 0 });
     if (st.notes.length > 200) st.notes.splice(0, st.notes.length - 200);
-    try { const m = window.__mina; if (m && typeof m.remember === 'function') m.remember({ type: 'object', id, kind: o.kind, room: o.room.label, text: ko }); } catch (e) { /* 다른 모듈 */ }
+    try { const m = window.__mina; if (m && typeof m.remember === 'function') m.remember({ type: 'object', id, kind: o.kind, room: o.room.label, text: ko, x: o.wx, z: o.wz }); } catch (e) { /* 다른 모듈 */ }
   }
-  function mina(o) { try { const m = window.__mina, n = O(o.id).n || 0; if (!m || (n !== 1 && n % 5)) return; const line = minaLine(m, o.id + (O(o.id).n || 0), lg()); if (line) setTimeout(() => ctx.say && ctx.say(`${T('mina')}: ${line}`, 2600), 3300); } catch (e) { /* ignore */ } }
+  // 민아 AI(npcAI)가 동행 중이면 반응 · 말 차례는 민아 쪽이 정한다 (remember)
+  function mina(o) { try { const m = window.__mina, n = O(o.id).n || 0; if (!m || (n !== 1 && n % 5)) return; if (typeof m.remember === 'function' && m.active) { m.remember({ type: 'object', id: o.id, kind: o.kind, room: o.room.label, x: o.wx, z: o.wz }); return; } const line = minaLine(m, o.id + (O(o.id).n || 0), lg()); if (line) setTimeout(() => ctx.say && ctx.say(`${T('mina')}: ${line}`, 2600), 3300); } catch (e) { /* ignore */ } }
 
   // ── 사용 ──
   function use(o) {
@@ -399,7 +400,7 @@ export function createSmart() {
       try { if (ev.snd === 'notes') playNotes([67, 67, 69, 69, 67], .02 + .05 * vol); else if (sfx[ev.snd]) sfx[ev.snd](ev.snd === 'staticNoise' ? .25 : undefined); } catch (e) { /* ignore */ }
       ctx.say && ctx.say(r.text, 3600);
       if (ev.log || ev.tags) { const ko = r.progressed || !ev.log ? r.ko : ev.log; const id = 'ev:' + ev.id + ':' + label; if (!st.notes.some(n => n.id === id && n.ko === ko)) { st.notes.push({ id: id + (st.notes.some(n => n.id === id) ? '#' + st.notes.length : ''), k: 'event', room: label, ko, tags: [...new Set([...(ev.tags || []), ...tagsOf(ko)])], place: placeTagOfRoom(label), t: ctx.playTime ? ctx.playTime() : 0 }); if (st.notes.length > 200) st.notes.splice(0, st.notes.length - 200); } }
-      try { const m = window.__mina; if (m) { const line = minaLine(m, 'ev' + ev.id + visits, L); if (line) setTimeout(() => ctx.getState && ctx.getState() === 'playing' && ctx.say && ctx.say(`${T('mina')}: ${line}`, 2600), 3900); if (typeof m.remember === 'function') m.remember({ type: 'roomEvent', id: ev.id, room: label, text: r.ko }); } } catch (e) { /* 다른 모듈 */ }
+      try { const m = window.__mina; if (m && typeof m.remember === 'function' && m.active) m.remember({ type: 'roomEvent', id: ev.id, room: label, text: r.ko }); else if (m) { const line = minaLine(m, 'ev' + ev.id + visits, L); if (line) setTimeout(() => ctx.getState && ctx.getState() === 'playing' && ctx.say && ctx.say(`${T('mina')}: ${line}`, 2600), 3900); if (typeof m.remember === 'function') m.remember({ type: 'roomEvent', id: ev.id, room: label, text: r.ko }); } } catch (e) { /* 다른 모듈 */ }
     }, 700);
   }
   function startLoop() {
@@ -505,7 +506,8 @@ export function createSmart() {
     const byId = Object.fromEntries(E.map(e => [e.id, e])), nm = id => { const e = byId[id]; return e ? esc(tr(e.text)).slice(0, 60) + (e.text.length > 60 ? '…' : '') : id; };
     const lk = (sel ? inf.links.filter(l => l.a === sel || l.b === sel) : inf.links).slice(0, 8).map(l => `<div class="row">${nm(l.a)} ⇄ ${nm(l.b)} — ${esc(T('shared'))}: ${l.tags.map(tagH).join('')}</div>`).join('') || '<div class="row meta">—</div>';
     const ct = inf.contradictions.slice(0, 6).map(c => `<div class="row">⚠ ${nm(c.a)} ⟷ ${nm(c.b)} ${c.tags.map(tagH).join('')}</div>`).join('') || '<div class="row meta">—</div>';
-    const sg = inf.suggestions.map(s => `<div class="row">→ ${tagH(s.place)} (${s.n}${esc(T('mentioned'))})</div>`).join('') || '<div class="row meta">—</div>';
+    const sgN = ctx.hintSugg ? Math.max(0, ctx.hintSugg() | 0) : 3;   // 힌트 빈도(적게/보통/많이) · 공용 힌트 단계에 따라 보여 줄 제안 수
+    const sg = inf.suggestions.slice(0, sgN).map(s => `<div class="row">→ ${tagH(s.place)} (${s.n}${esc(T('mentioned'))})</div>`).join('') || '<div class="row meta">—</div>';
     show(`${head(T('board_t'))}<h4>${esc(T('sugg'))}</h4>${sg}<h4>${esc(T('contra'))}</h4>${ct}<h4>${esc(T('links'))}</h4>${lk}<h4>${esc(T('items'))} (${E.length})</h4>${sel && byId[sel] && byId[sel].src === 'obj' ? `<button data-act="insp" data-v="${esc(sel)}">${esc(T('inspect'))}</button>` : ''}${cards}`, 'board');
   }
   return api;

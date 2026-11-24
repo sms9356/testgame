@@ -1,7 +1,7 @@
 // 더빙 · 자막: voice/manifest.json 의 사전 생성 음성(내장) + 캐릭터별 성도 포먼트/피치 변조 및 브라우저 신경망 음성 합성(Web Speech) 하이브리드 엔진
-import { playVoice, stopVoice, loadVoice, isVoicePlaying } from './audio.js?v=459';
-import { isSeen, markSeen } from './seenLines.js?v=459';
-export { isSeen, markSeen, seenCount, clearSeen } from './seenLines.js?v=459';
+import { playVoice, stopVoice, loadVoice, isVoicePlaying } from './audio.js?v=460';
+import { isSeen, markSeen } from './seenLines.js?v=460';
+export { isSeen, markSeen, seenCount, clearSeen } from './seenLines.js?v=460';
 
 const SPEAKER = {
   seoyeon: '🎙 김서연 (방송부 2학년)',
@@ -151,7 +151,7 @@ applySubSize();
 let manifestPromise = null;
 export async function loadManifest() {
   if (!manifestPromise) {
-    manifestPromise = fetch('voice/manifest.json?v=459').then(r => r.json()).then(m => {
+    manifestPromise = fetch('voice/manifest.json?v=460').then(r => r.json()).then(m => {
       manifest = { ...manifest, ...m };
       for (const [k, val] of Object.entries(manifest)) {
         if (val && val.audioFile && m[val.audioFile]) {
@@ -308,7 +308,7 @@ async function speakNow(id, fx) {
 }
 
 export function stopSpeak() {
-  clearTimeout(subTimer);
+  clearTimeout(subTimer); subUntil = 0;
   if (typeof document !== 'undefined') document.getElementById('sub')?.classList.remove('show');
   curLine = null; skipSig.fire();
   ++storyEpoch; pendingLines.clear(); storyPending = 0; storyTail = Promise.resolve(); protectedUntil = 0; ++speechRequest; ++gateEpoch; gate = Promise.resolve();
@@ -360,9 +360,11 @@ const SPK_COLOR = {
   ghost: '#ff5252',
 };
 
-let subTimer = 0;
+let subTimer = 0, subUntil = 0;
+// 자막이 아직 떠 있나 — 민아 · 무전 잡담이 다른 자막 위로 말하지 않게 (minaDirector 말 차례)
+export const subtitleBusy = () => typeof performance !== 'undefined' && performance.now() < subUntil;
 export function subtitle(who, text, sec, spkKey = null, stageDir = '') {
-  logLine(who, text);
+  logLine(who, text); if (typeof performance !== 'undefined' && text) subUntil = performance.now() + Math.max(0, +sec || 0) * 1000;
   if (typeof document === 'undefined') return;
   const el = document.getElementById('sub'); if (!el) return;
   if (!VS.subs) { el.classList.remove('show'); return; }

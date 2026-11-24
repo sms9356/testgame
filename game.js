@@ -30,6 +30,7 @@ import { GLTFLoader } from './vendor/addons/loaders/GLTFLoader.js';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
 import { installElectrical } from './electrical.js?v=456';   // 전기 배선: 스위치 → 회로 → 등기구 · 건물별 분전반 · 외등 광센서
 import { createNPCVisuals } from './npcVisuals.js?v=456';
+import { installNPCAI } from './npcAI.js';   // 방과 후 학교의 사람들: 경비 · 당직 선생님 · 청소 · 남은 학생 (길찾기 · 일정 · 문 · 불 · 전화) — ?nonpc 로 끔
 import { createCampusCctvLive, collectCampusCctvFeeds } from './campusCctvLive.js';
 import { applyExteriorFloorVisibility, shouldStreamGuardCctv } from './exteriorRenderBudget.js?v=456';
 import { GUARD_LAYOUT } from './guardRoomLayout.js?v=456';
@@ -305,7 +306,7 @@ const _t0 = performance.now();
 await Promise.race([loadPBR(), new Promise(r => setTimeout(r, 2500))]);
 const _t1 = performance.now();
 const world = buildWorld(scene);
-let RBG = null, MOONFX = null, ELEC = null;   // 재건축 본관 · 별관 (항상 — 예전 건물 모드 ?oldmap 은 폐지) — rebuildGame.js
+let RBG = null, MOONFX = null, ELEC = null, NPCAI = null;   // 재건축 본관 · 별관 (항상 — 예전 건물 모드 ?oldmap 은 폐지) — rebuildGame.js
 const npcVisuals = createNPCVisuals({ THREE, GLTFLoader, prepare: async obj => {
   const tex = new Set(); obj.traverse(o => { if (o.material) [].concat(o.material).forEach(m => ['map', 'normalMap', 'roughnessMap', 'metalnessMap', 'aoMap', 'alphaMap', 'emissiveMap'].forEach(k => m[k] && tex.add(m[k]))); });
   await textureBudget.prepareTextures(tex);
@@ -1638,6 +1639,7 @@ function findInteract() {
     const f = (dx * fx + dz * fz) / Math.max(dd, .01), s = f - dd * .1 + (p.kind === 'search' ? -.05 : .1);   // 수색은 숨기(사물함)보다 뒤로 — 쫓길 때 숨는 게 먼저
     if (f > (p.kind === 'search' ? .6 : dd < .8 ? .2 : .55) && s > bs) { bs = s; best = { type: 'prop', p, label: p.label + needText(p) }; }   // 그 물건을 바라볼 때만 (약 ±55°)
   }
+  if (!best && NPCAI && P.floor === 0) { const n = NPCAI.pick(P.x, P.z, fx, fz); if (n) best = { type: 'npc', n: n.n, label: n.label }; }   // 방과 후 NPC: 다른 조사 대상이 없을 때만 (진행 대상을 가로채지 않는다)
   if (!best) {
     const si = STAIRS[P.floor];
     const inStair = !si || (RBG && P.floor === 0) ? false : P.floor === 3 ? (Math.abs(P.x) < 4.5 && P.z < -4.35 && P.z > -9.5) : (() => { const z = floors[P.floor].stairZone || { x1: -1, x2: 4, z1: -9.3, z2: -2 }; return P.x > z.x1 && P.x < z.x2 && P.z > z.z1 && P.z < z.z2; })();
@@ -1660,6 +1662,7 @@ function takeSafeKey(sp, n = 0) { const it = sp && sp.key; if (!it || it.taken |
 function interact() {
   if (!target) return;
   if (target.type === 'rbdoor') { RBG.toggleDoor(target.d); sfx.door && sfx.door(); return; }
+  if (target.type === 'npc') { NPCAI.talk(target.n); return; }
   if (target.type === 'rbelev') { rbElev(target.e, 1); return; }
   if (target.type === 'item') {
     triggerInteractAnim('low');
@@ -2624,7 +2627,7 @@ function trimShadowCasters() { const bb = new THREE.Box3(), sz = new THREE.Vecto
   if (n) console.info(`[그림자] 그림자 드리우기 끔 ${n}개 (큰 판 · 작은 소품)`); }
 { const tsc = () => { try { trimShadowCasters(); } catch (e) {} }; [20000, 60000].forEach(ms => idleTimeout(tsc, ms)); }
 function start(skipIntro = false) {
-  beginStorySession(); const epoch=storySession;
+  beginStorySession(); const epoch=storySession; if (NPCAI) NPCAI.reset();   // NPC 는 저장하지 않는다: 새 게임 · 이어하기 모두 일정 처음(같은 자리)에서
   initAudio(); closeMenus(); applyChar(); { const par = renderer.extensions.has('KHR_parallel_shader_compile');   // 병렬 컴파일이 없으면 씬 전체 컴파일이 동기라 한 번에 수십 초 멈춘다 → 한 번만
   // 플레이 중 다시 예열(씬 전체 순회 + 컴파일 요청)은 새 모델이 들어왔을 때만, 그리고 멈춰 서 있을 때 돌린다 — 예전엔 시작 6 · 15 · 30 · 50초에 걷는 도중 무조건 돌았다
   let warmDone; introWarm = new Promise(r => warmDone = r);   // 첫 셰이더 예열이 끝나야 인트로 더빙을 시작 — 예열로 화면이 멈춘 동안 더빙이 흘러가 버리던 문제
@@ -3690,7 +3693,7 @@ function frameBody(now) {
       updateEvents(dt); perfMark('events');
     }
     updateLighting(dt); perfMark('lighting'); if (RBG) { RBG.tick(dt, P, sfx); if (ELEC) ELEC.tick(dt); RBG.setPower(blackout > 0, GEN.gain, power); }
-    perfMark('rbg.tick'); ghostVisual(dt, tNow); perfMark('ghostVis');
+    perfMark('rbg.tick'); if (NPCAI) { NPCAI.tick(dt); perfMark('npcAI'); } ghostVisual(dt, tNow); perfMark('ghostVis');
     updateCamera(dt, tNow); perfMark('camera+hud');
   } else if (state === 'intro') {
     updateIntro(dt);
@@ -9493,7 +9496,9 @@ function declutterInteractables() {
     if (!best) continue; shift(e, best.x - x0, v ? best.s + .004 - h0 : (best.s - (s0 ?? best.s)), best.z - z0); n++; }
   return n;
 }
-{ RBG = installRebuild({ THREE, scene, floors, world }); window.__rbg = RBG; (RBG.wallDeco ||= []).push(...FAC_WALL_DECO);   // 시설(청운학사 · 학생회관 …) 벽시계 · 달력도 벽 장식으로
+{ RBG = installRebuild({ THREE, scene, floors, world }); window.__rbg = RBG;
+ if (!params.has('nonpc')) try { NPCAI = installNPCAI({ THREE, scene, R: RBG, P, isPlaying: () => state === 'playing', subtitle, objective, at, sfx, igpu: () => IGPU, debug: DEBUG }); } catch (e) { console.warn('[npcAI]', e); NPCAI = null; }
+ (RBG.wallDeco ||= []).push(...FAC_WALL_DECO);   // 시설(청운학사 · 학생회관 …) 벽시계 · 달력도 벽 장식으로
  try { MOONFX = installMoonShafts({ scene, blds: [RBG.MAIN, RBG.ANX], moonPos: MOON_POS }); MOONFX.setQuality(qCur); window.__moon = MOONFX; } catch (e) { console.warn('[moon shafts]', e); } idleTimeout(() => { try { refinishB1(); } catch (e) { console.warn('[B1 refinish]', e); } }, 12000); setTimeout(() => { for (const [nm, fn] of [['수영장 디테일', installPoolDetail], ['방송실 디테일', installBcastDetail], ['장비실 철문', installEqDoor]]) { try { const n = fn(); if (n) console.info('[' + nm + ']', n); } catch (e) { console.warn('[' + nm + ']', e); } } try { } catch (e) { console.warn('[pool detail]', e); } }, 13000); setTimeout(() => { try { (RBG.beds ? RBG.beds() : []).forEach((b, i) => world.props.push({ kind: 'bed', floor: 0, rbY: b.y, x: b.x, z: b.z, y: b.y + .7, r: 1.4, label: '침대에 눕기 — 잠시 숨 고르기', bed: b, _rb: true })); nurseChairFix(); } catch (e) { console.warn('[bed]', e); } }, 3500); try { RBG.allOff(); } catch (e) { console.warn('[all off]', e); } try { ELEC = installElectrical({ THREE, scene, world, floors, mergeGeometries, RBG, FL, audit: {}, blackout: () => blackout, tNow: () => tNow, genGain: () => GEN.gain, power: () => power, dayK: () => DAY.k, sfx, at, say: (t, ms) => say(t, ms), noise: v => { P.noiseT = Math.max(P.noiseT || 0, v); },
     enterUI: () => { state = 'ui'; for (const k in keys) keys[k] = false; document.exitPointerLock?.(); $('prompt').style.display = 'none'; }, exitUI: () => { if (state === 'ui') { state = 'playing'; refreshHud(); lock(); } } }); window.__elec = ELEC; } catch (e) { console.warn('[electrical]', e); } renderer.localClippingEnabled = true; setTimeout(() => { installInvestigationBoards().catch(e => console.warn('[조사 게시물]', e)); }, 2500); setTimeout(() => { furnishRooms({ scene, RBG, world, getP: () => P }).then(n => n && console.info('[가구 보강]', n)).catch(e => console.warn('[furnish v2]', e)); }, 4000); [20000, 45000].forEach(t => idleTimeout(() => { try { if (RBG && RBG.deskGraffiti && !RBG._graf) { const n = RBG.deskGraffiti(); if (n) console.info('[책상 낙서]', n); } } catch (e) { console.warn('[graffiti]', e); } }, t)); [6000, 16000, 32000].forEach(t => idleTimeout(() => { try { const n = repairStrayInteractables(); if (n) console.info('[상호작용 위치 보정]', n); } catch (e) { console.warn('[stray fix]', e); } }, t)); try { installRoomUI({ P, world, getRBG: () => RBG, getState: () => state, getTarget: () => target, keyInteract: () => (K().interact || 'KeyE') }); } catch (e) { console.warn('[room ui]', e); }
 if (RBG) setTimeout(() => { try { const n = installInteractionsPlus({ THREE, scene, world, RBG, sfx, showNote, P, FL, giveItem }); if (n) console.info('[생활 상호작용]', n); } catch (e) { console.warn('[interactions+]', e); } }, 5000);
@@ -9716,7 +9721,7 @@ try { installPartnerRadio({ P, FL, char: () => CHAR, state: () => state, busy: i
 try { installHudV2({ THREE, P, camera, objDir, getState: () => state, objArrow: () => SET.objArrow !== false }); } catch (e) { console.warn('[hud v2]', e); }
 if (DEBUG) {
   window.__g = {
-    P, ghost, floors, world, scene, camera, renderer, THREE, start: () => start(true),
+    P, ghost, floors, world, scene, camera, renderer, THREE, start: () => start(true), npcAI: () => NPCAI,
     setIntroT(t) { introText = false; introT = t; }, introSkippable, introInfo: () => ({ state, introT: +introT.toFixed(1), cue: introCue, cam: camera.position.toArray().map(v => +v.toFixed(1)) }),
     photoCheck, PHOTOQ,
     flashNearProbe: () => { FN.t = 0; return flashNear(); }, agProbe: () => { const t = performance.now(); AG.t = 0; antiGlareTick(); return performance.now() - t; },

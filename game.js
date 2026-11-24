@@ -23,58 +23,58 @@ import { applyPropDetail } from './propTextureDetail.js?v=456';
     const side = this.material && this.material.side != null ? this.material.side : THREE.FrontSide, list = raycaster.firstHitOnly ? [g.boundsTree.raycastFirst(R, side)].filter(Boolean) : g.boundsTree.raycast(R, side);
     for (const h of list) { h.point.applyMatrix4(this.matrixWorld); h.distance = h.point.distanceTo(raycaster.ray.origin); h.object = this; if (h.distance >= raycaster.near && h.distance <= raycaster.far) hits.push(h); }
   }; }
-import { elevatorLocal, elevatorWorld, elevatorRoute, restoreOutsideElevatorBay } from './elevatorLayout.js';
-import { buildMissionGroups, recordCompleted, normalizeCompletedLog } from './mysteryMissions.js';
-import { settleStoryGhost } from './storyGhost.js';
+import { elevatorLocal, elevatorWorld, elevatorRoute, restoreOutsideElevatorBay } from './elevatorLayout.js?v=456';
+import { buildMissionGroups, recordCompleted, normalizeCompletedLog } from './mysteryMissions.js?v=456';
+import { settleStoryGhost } from './storyGhost.js?v=456';
 import { GLTFLoader } from './vendor/addons/loaders/GLTFLoader.js';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
 import { installElectrical } from './electrical.js?v=456';   // 전기 배선: 스위치 → 회로 → 등기구 · 건물별 분전반 · 외등 광센서
 import { createNPCVisuals } from './npcVisuals.js?v=456';
-import { createCampusCctvLive, collectCampusCctvFeeds } from './campusCctvLive.js';
+import { createCampusCctvLive, collectCampusCctvFeeds } from './campusCctvLive.js?v=456';
 import { applyExteriorFloorVisibility, shouldStreamGuardCctv } from './exteriorRenderBudget.js?v=456';
 import { GUARD_LAYOUT } from './guardRoomLayout.js?v=456';
 import { ANNEX_KEYS, CABINET_CODE } from './guardAnnex.js?v=456';
 import { installGuardRoom } from './guardRoom.js?v=456';
 import { buildSafe, SAFE_OPEN_ANGLE } from './safeModel.js?v=456';
-import { prepareModelGeometry } from './modelGeometry.js';
-import { modelFootprint, overlaps, removeDuplicateModels } from './placement.js';
+import { prepareModelGeometry } from './modelGeometry.js?v=456';
+import { modelFootprint, overlaps, removeDuplicateModels } from './placement.js?v=456';
 import { turfMaterial } from './campusVisuals.js?v=456';
-import { installInfirmaryAssets, updateInfirmaryCabinets } from './infirmaryAssets.js';
+import { installInfirmaryAssets, updateInfirmaryCabinets } from './infirmaryAssets.js?v=456';
 import { installRebuild } from './rebuildGame.js?v=456';
-import { installMoonShafts } from './moonShafts.js';
+import { installMoonShafts } from './moonShafts.js?v=456';
 import { buildWorld, collide, los, FH, GATE_Z, KEY_NAMES, KEY_ROOMS, AREA_NAMES, SLOTS, LAYOUT, ANNEX, LAYOUT_S, ANNEX_S, MAIN_ZS, WALKWAY, NORTH_Z, MEGA, CH as CH_, ROOF_Y } from './world.js?v=456'; import { updateWindowFakes } from './windowInteriors.js?v=456';
 import { drawMap } from './map.js?v=456';
 import { buildMegaCampus15000, MEGA_CAMPUS_ZONES } from './megaCampus15000.js?v=456';
 import { installFacilityRebuild, inTwoStory, ZONES as FAC_ZONES, FAC_WALL_DECO } from './facilityRebuild.js?v=456';
 import { relayoutCampus } from './campusRelayout.js?v=456';
-import { makeDress, makeHair, makeGhostFace, makeGraffiti, makeKeypad, loadPBR, pbr, makeGlow as makeGlowTex, makePaintingStare, makeSign, makeBlood } from './tex.js';
-import { warmUp } from './bake.js';
-import { createStaticDistanceLOD } from './staticDistanceLOD.js';
-import { createTextureBudget } from './textureBudget.js';
-import { createTexWarm } from './texWarm.js';
-import { createFX } from './fx.js';
-import { GhostCameraSystem } from './ghostCamera.js';   // 야간 카메라 엔진 (사용자 제공)
-import { CraftingSystem } from './craftingSystem.js';   // 조합 · 생존 도구 (사용자 제공)
-import { SchoolPowerEventSystem } from './schoolPowerSystem.js';   // 배전반 · 차임벨 (사용자 제공)
-import { RestroomSystem } from './restroomSystem.js';   // 화장실 세면대 · 변기 (사용자 제공)
-import './fiveZonesPatch.js';         // 5대 구역 확장 (사용자 제공) → window.fiveZonesPatch
-import './indoorPassagePatch.js';     // 본관 ↔ 별관 실내 연결복도 (사용자 제공) → window.indoorPassagePatch
-import './corridorLockerPatch.js';    // 3D 철제 캐비닛 사물함 · 복도 리모델링 (사용자 제공) → window.corridorLockerPatch
-import './basementRoomsPatch.js';     // 지하 전기실 · 보일러실 (사용자 제공) → window.basementRoomsPatch
-import './classroomRemodelPatch.js';  // 교실 리모델링 · 의자에 앉기 (사용자 제공) → window.classroomRemodelPatch
-import './school37RoomsPatch.js';    // 본관 · 별관 37개 특별실 가구 · 동선 (사용자 제공) → window.school37RoomsPatch
-import './new37UniquePatch.js';     // 37개 구역 신규 특수 설비 · 벽면 레일 (사용자 제공) → window.new37UniquePatch
+import { makeDress, makeHair, makeGhostFace, makeGraffiti, makeKeypad, loadPBR, pbr, makeGlow as makeGlowTex, makePaintingStare, makeSign, makeBlood } from './tex.js?v=456';
+import { warmUp } from './bake.js?v=456';
+import { createStaticDistanceLOD } from './staticDistanceLOD.js?v=456';
+import { createTextureBudget } from './textureBudget.js?v=456';
+import { createTexWarm } from './texWarm.js?v=456';
+import { createFX } from './fx.js?v=456';
+import { GhostCameraSystem } from './ghostCamera.js?v=456';   // 야간 카메라 엔진 (사용자 제공)
+import { CraftingSystem } from './craftingSystem.js?v=456';   // 조합 · 생존 도구 (사용자 제공)
+import { SchoolPowerEventSystem } from './schoolPowerSystem.js?v=456';   // 배전반 · 차임벨 (사용자 제공)
+import { RestroomSystem } from './restroomSystem.js?v=456';   // 화장실 세면대 · 변기 (사용자 제공)
+import './fiveZonesPatch.js?v=456';         // 5대 구역 확장 (사용자 제공) → window.fiveZonesPatch
+import './indoorPassagePatch.js?v=456';     // 본관 ↔ 별관 실내 연결복도 (사용자 제공) → window.indoorPassagePatch
+import './corridorLockerPatch.js?v=456';    // 3D 철제 캐비닛 사물함 · 복도 리모델링 (사용자 제공) → window.corridorLockerPatch
+import './basementRoomsPatch.js?v=456';     // 지하 전기실 · 보일러실 (사용자 제공) → window.basementRoomsPatch
+import './classroomRemodelPatch.js?v=456';  // 교실 리모델링 · 의자에 앉기 (사용자 제공) → window.classroomRemodelPatch
+import './school37RoomsPatch.js?v=456';    // 본관 · 별관 37개 특별실 가구 · 동선 (사용자 제공) → window.school37RoomsPatch
+import './new37UniquePatch.js?v=456';     // 37개 구역 신규 특수 설비 · 벽면 레일 (사용자 제공) → window.new37UniquePatch
 import './megaExpansionPatch.js?v=456';   // 메가 익스팬션 · 최적화 · 4막 사건 기록 · 수집품 · 미니게임 (사용자 제공) → window.megaSchoolPatch
-import './poolMachineryPatch.js';     // 수영장 · 남/녀 탈의실·샤워실 · 기계실 철문 (사용자 제공) → window.poolAndMachineryPatch
+import './poolMachineryPatch.js?v=456';     // 수영장 · 남/녀 탈의실·샤워실 · 기계실 철문 (사용자 제공) → window.poolAndMachineryPatch
 import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, setAudioHidden, sfxCtx, setSfxBusyCheck, setSpace, tickNight } from './audio.js?v=456'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=456'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera, perfInstanceSource } from './perfStabilizer.js?v=456'; window.__perfInst = perfInstanceSource; import { upgradePlainMaterials } from './plainUpgrade.js?v=456'; import { relayCampusPaths, cleanupCampus } from './campusPaths.js?v=456'; import { installStreetscape } from './streetV2.js?v=456'; import { installCampusGrounds } from './campusGrounds2008.js?v=456'; import { installHudV2, tickHudV2 } from './hudV2.js?v=456'; import { installPartnerRadio, tickPartnerRadio } from './partnerRadio.js?v=456';
-import { installGamepad, promptGlyphs, padActive } from './gamepad.js';   // 게임 중 게임패드 (이동 · 시점 · 버튼 → 키 동작)
+import { installGamepad, promptGlyphs, padActive } from './gamepad.js?v=456';   // 게임 중 게임패드 (이동 · 시점 · 버튼 → 키 동작)
 import { installRoomUI } from './roomUI.js?v=456';   // 방별 현장 조사 카드 · 상호작용 아이콘 · 획득/목표 애니메이션
 import { furnishRooms } from './furnishV2.js?v=456';
 import { installInteractionsPlus } from './interactionsPlus.js?v=456';   // 생활 상호작용 보강 (분리수거함 · 청소함 · 창밖 · 커튼 · 학급 게시판 · 수업 종 · 카세트 데크 · 정수기)   // 방 용도별 실사 가구 보강 (상담실 소파 · 교무실 냉온수기 · 창고 선반 …)
 import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js?v=456';
 import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, HYPOTHESES, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, COVER_END, ENDING_OUTRO, OUTRO_TYPE, SIDEQUESTS, INTRO_COLD, CHAPTER_BEATS, SMS_FROM, ENDING_EPILOGUE, ENDING_SHOT, ENDING_STINGER, OUTRO_EXTRA_TYPE, HEADQUEST, COLLECT, } from './story.js?v=456';
 import { isSpeechBusy, skipSeenLine } from './voice.js?v=456';
-import { SET, saveSET, resetSET, DIFF, keyLabel } from './settings.js';
+import { SET, saveSET, resetSET, DIFF, keyLabel } from './settings.js?v=456';
 import { detectIntegrated, createDynRes } from './igpu.js?v=456';
 import { initI18n, setLang, lang as curLang } from './i18n.js?v=456';   // 언어 패치 (한국어 · English · 日本語 · 中文)
 initI18n();
@@ -96,7 +96,7 @@ function toggleGuardCCTV(persist = true) { FL.guardCctvOn = !(FL.guardCctvOn ?? 
 function toggleGuardLight() { FL.guardLightOn = !(FL.guardLightOn ?? false); sfx.click(); syncGuardDevices(); say(FL.guardLightOn ? '경비실 전등을 켰다' : '경비실 전등을 껐다', 1800); save(true); return FL.guardLightOn; }
 
 import { run as runMini, MG } from './minigames.js?v=456';
-import { SCHEMA, BUILD, storageKeys, itemUid, propUid, doorUid, assignUids, readSlot, writeSlot, hasSlot, clearSlot, repairProgress } from './saveSystem.js';
+import { SCHEMA, BUILD, storageKeys, itemUid, propUid, doorUid, assignUids, readSlot, writeSlot, hasSlot, clearSlot, repairProgress } from './saveSystem.js?v=456';
 const NOTE_CAST = {
   n_seomun_ilbo: { spk: 'reporter', audioId: 'call_119', stage: '(📰 서린일보 사회부 한진우 기자의 긴급 특보 리포팅)' },
   n_guard_diary: { spk: 'guard', audioId: 'mtape_2', stage: '(🔦 당직 경비원 박종철 아저씨의 순찰 기록 증언)' },

@@ -6,7 +6,7 @@
 //   · 외등(가로등): 경비실 분전반의 외등 회로 — 자동(광센서: 어두우면 점등) · 항상 켜짐 · 꺼짐
 //   · 점조명 개수는 바꾸지 않는다 (셰이더 재컴파일 방지): 세기 · 발광 · 덮개만 바꾼다
 //   · 상태는 FL.elec 에 남는다 (세이브 · 이어하기)
-import { SET } from './settings.js';
+import { SET } from './settings.js?v=456';
 
 export function installElectrical(ctx) {
   const { THREE, scene, world, floors, mergeGeometries } = ctx;

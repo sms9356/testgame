@@ -292,6 +292,7 @@ export function installNPCAI({ R, P, isPlaying, subtitle, objective, at, igpu, d
   // say: 대사 한 줄을 큐에 (key = 반복 제어 단위 · 보통 MINA_LINES id 나 문장). 막혔으면 false
   function say(key, text, prio, { dur = 3.4, ttl = 7, gate = true, then = null } = {}) {
     if (!text) return false; const t = clock(); if (gate && !GATE.canSay(key, t)) return false;
+    if (gate) { const p = LS.byText.get(text); if (p != null && t >= p && t - p < 300) return false; }   // 같은 문장이 다른 id(인사 · 혼잣말)로 5분 안에 다시 나오지 않게
     if (!Q.push({ key, text, prio, dur, ttl, then }, t)) return false; if (gate) GATE.mark(key, t); return true;
   }
   function pumpSpeech() {
@@ -592,7 +593,7 @@ export function installNPCAI({ R, P, isPlaying, subtitle, objective, at, igpu, d
   function errand(x, z, { done = null, pose = 'touch', line = null, maxD = 10 } = {}) {
     if (!n.active || ER.on || n.state === 'stair' || n.f !== env.player.f || !isPlaying()) return false;
     const G = grids[n.f]; if (!G || Math.hypot(x - n.x, z - n.z) > maxD) return false;
-    const sp = standPoint(n.f, x, z); if (!sp) return false; if (SE.on) seatLeave(true);
+    if (SE.on) return false; const sp = standPoint(n.f, x, z); if (!sp) return false;
     ER.on = true; ER.x = sp.x; ER.z = sp.z; ER.fx = x; ER.fz = z; ER.t = 15; ER.act = 0; ER.done = done; ER.pose = pose; ER.line = line; ER.n++;
     TASK.f = n.f; TASK.x = ER.x; TASK.z = ER.z; n.speed = 1.3; startTask(n, TASK, env); IB.pose = 'none'; stats.errands = (stats.errands || 0) + 1; return true;
   }
@@ -643,19 +644,19 @@ export function installNPCAI({ R, P, isPlaying, subtitle, objective, at, igpu, d
     const ps = across ? pSeat() : null;
     const s = (ps && seatAcross(L, ps, fy, ok)) || pickSeat(L, { floorY: fy, px: P.x, pz: P.z, mx: n.x, mz: n.z, ok, maxP: across ? 3.2 : 4.5 }); if (!s) return false;
     const fr = seatFront(s); const c = nearestFree(G, fr.x, fr.z, .9); if (c < 0) return false;
-    SE.on = true; SE.ph = 'go'; SE.s = s; SE.h = seatHeight(s, fy); SE.fx = cellX(G, c); SE.fz = cellZ(G, c); SE.t = 12; SE.across = !!(ps && across);
+    SE.on = true; SE.ph = 'go'; SE.s = s; SE.h = seatHeight(s, fy); SE.fx = cellX(G, c); SE.fz = cellZ(G, c); SE.t = 16; SE.across = !!(ps && across);
     TASK.f = n.f; TASK.x = SE.fx; TASK.z = SE.fz; n.speed = 1.2; startTask(n, TASK, env); IB.pose = 'none'; return true;
   }
-  function seatLeave(quiet) { if (!SE.on) return; if (SE.ph === 'sit' || SE.ph === 'in') { SE.ph = 'up'; SE.t = .7; if (!quiet) say('seat_up', ML('seat_up'), PRIO.idle, { ttl: 3 }); } else { SE.on = false; SE.ph = ''; } }
+  function seatLeave(quiet) { if (!SE.on) return; if (SE.ph === 'sit' || SE.ph === 'in') { SE.ph = 'up'; SE.t = .7; if (!quiet) say('seat_up', ML('seat_up'), PRIO.idle, { ttl: 3 }); } else { SE.on = false; SE.ph = ''; SE.why = 'leave'; } }
   // 앉기 진행 (true: 이번 프레임 민아를 이쪽에서 움직였다 — 따라가기 목표를 바꾸지 않는다)
   function seatTick(dt) {
     if (!SE.on) return false; const s = SE.s;
     { const pm = Math.hypot(P.x - IB.px, P.z - IB.pz); IB.px = P.x; IB.pz = P.z; IB.pIdle = pm > .02 ? 0 : IB.pIdle + dt; }
-    if (n.f !== env.player.f || !isPlaying() || n.state === 'stair') { if (SE.ph !== 'go') { n.x = SE.fx; n.z = SE.fz; } SE.on = false; SE.ph = ''; return false; }
-    if (SE.ph === 'go') { if ((SE.t -= dt) <= 0) { SE.on = false; return false; }
+    if (n.f !== env.player.f || !isPlaying() || n.state === 'stair') { if (SE.ph !== 'go') { n.x = SE.fx; n.z = SE.fz; } SE.on = false; SE.ph = ''; SE.why = 'ctx'; return false; }
+    if (SE.ph === 'go') { if ((SE.t -= dt) <= 0) { SE.on = false; SE.ph = ''; SE.why = 'timeout'; return false; }
       if (n.state !== 'walk' && Math.hypot(SE.fx - n.x, SE.fz - n.z) < .45) { SE.ph = 'in'; SE.t = .6; n.state = 'idle'; n.t = 1e9; n.pn = 0; n.v = 0; }
       else if (n.state === 'idle') { TASK.f = n.f; TASK.x = SE.fx; TASK.z = SE.fz; startTask(n, TASK, env); }
-      if (SE.across ? !pSeat() : IB.pIdle < .4 && Math.hypot(P.x - n.x, P.z - n.z) > 3) { SE.on = false; SE.ph = ''; }
+      if (SE.across ? !pSeat() : IB.pIdle < .4 && Math.hypot(P.x - s.x, P.z - s.z) > 5) { SE.on = false; SE.ph = ''; SE.why = 'moved'; }
       return true; }
     if (SE.ph === 'in' || SE.ph === 'up') {   // 앞자리 ↔ 의자 사이를 0.6초에 미끄러지듯 (몸을 돌리며)
       const k = Math.min(1, dt / Math.max(.05, SE.t)); SE.t -= dt; const tx = SE.ph === 'in' ? s.x : SE.fx, tz = SE.ph === 'in' ? s.z : SE.fz;
@@ -744,7 +745,7 @@ export function installNPCAI({ R, P, isPlaying, subtitle, objective, at, igpu, d
   }
   function setEnabled(v) { enabled = !!v; if (!enabled) n.active = false; }
   const api = { mina: n, npcs: [n], grids, portals, panels, layers: LYR, OUT, stats, follow, pick, talk, reset, serialize, restore, setEnabled, env, visited, context, react, lastLine: () => lastLine,
-    remember, chatter, errand, showItem, decorNotice, seat: () => ({ on: SE.on, ph: SE.ph, uses: SE.uses, tries: SE.tries, across: SE.across }), seatTry: across => seatTry(clock(), !!across), standUp: () => seatLeave(true), errandBusy: () => ER.on, hearOcc, say: (id, prio = PRIO.comment) => !!MINA_LINES[id] && say(id, ML(id), prio), queue: Q, gate: GATE, lineStats: () => ({ said: LS.said, repeats: LS.repeats, distinct: LS.byText.size, gate: { ...GATE.stats }, queue: { ...Q.stats } }),
+    remember, chatter, errand, showItem, decorNotice, seat: () => ({ on: SE.on, ph: SE.ph, uses: SE.uses, tries: SE.tries, across: SE.across, why: SE.why || '' }), seatTry: across => seatTry(clock(), !!across), standUp: () => seatLeave(true), errandBusy: () => ER.on, hearOcc, say: (id, prio = PRIO.comment) => !!MINA_LINES[id] && say(id, ML(id), prio), queue: Q, gate: GATE, lineStats: () => ({ said: LS.said, repeats: LS.repeats, distinct: LS.byText.size, gate: { ...GATE.stats }, queue: { ...Q.stats } }),
     quiet: sec => Q.size === 0 && clock() - Math.max(anyCd, -1e9) > sec, pose: () => IB.pose, hint: HD,
     emotion: () => EMO.cur, setEmotion: setEmo,
     buildAll() { while (!buildStep(1e9)); buildDone = true; stats.built = true; }, playerLayer, layerY, igpu };

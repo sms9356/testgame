@@ -7,7 +7,7 @@
 //   · 대사: npcMind.js — 장 · 소지품 · 시간 · 차단기 상태로 고르고, 한 말을 기억하며 힌트를 막연 → 구체로 · 사건 반응(정전 · 처음 온 방 · 증거 · 계단)
 //   · 끄기: ?nonpc (민아는 예전 따라가기로)
 // 앞부분(격자 · A* · 상태 기계)은 THREE 없이 동작한다 (tests/npcAI.test.mjs)
-import { MIND_VER, newMemory, sanitizeMemory, pickLine, reactLine, canReact, markReact } from './npcMind.js?v=457';
+import { MIND_VER, MINA_LINES, newMemory, sanitizeMemory, pickLine, reactLine, canReact, markReact, EMO_LINE, EMO_FOLLOW, emotionOf, hintLine, EMOTIONS, CH_HINT as CH_HINT_ } from './npcMind.js?v=457';
 
 // ───────────────────────── 1. 걷기 격자 ─────────────────────────
 export function createNavGrid({ x0, z0, x1, z1, cell = .3 }) {
@@ -252,11 +252,9 @@ export function stepNPC(n, dt, env) {
 // ───────────────────────── 3. 게임 연결: 동행 NPC 민아 ─────────────────────────
 //   방과 후 학교의 다른 사람들(경비 · 당직 선생님 · 청소 · 학생)은 걸어다니지 않는다 — 목소리(전화 · 방송 · 무전) · 회상 · 경비실 CCTV 녹화로만 나온다
 const NAMES = { mina: '민아' };
-export const NPC_LINES = {
-  mina: { greet: ['…발소리, 우리 둘 것만 맞지?', '조금만 천천히 가. 숨이 차.', '손전등 꺼지면 말해. 내 거 아직 남았어.'],
-    hint: '{} 쪽이 계속 마음에 걸려. 같이 가 보자.' },
-};
-export const NPC_HINT_MAIN = '지금 할 일이라… "{}" 말이지? 천천히 해 봐.';
+const ML = id => MINA_LINES[id][0];
+export const NPC_LINES = { mina: { greet: [ML('greet_0'), ML('greet_1'), ML('greet_2')], hint: ML('hint_where') } };
+export const NPC_HINT_MAIN = ML('hint_main');
 export const NPC_TALK_LABEL = '말 걸기';
 export { NAMES as NPC_NAMES };
 
@@ -269,11 +267,13 @@ export function followGoal(px, pz, yaw, ok, dist = 1.4, out = { x: 0, z: 0 }) {
   out.x = px; out.z = pz; return out;
 }
 // 따라가기 속도: 같은 층에서 가까우면 멈춤(0), 멀면 뛰어 따라잡기
-export function followSpeed(sameLayer, d) { if (sameLayer && d < 2.1) return 0; if (!sameLayer || d > 7) return 3.4; return d > 4 ? 2.3 : 1.5; }
+export function followSpeed(sameLayer, d, stop = 2.1) { if (sameLayer && d < stop) return 0; if (!sameLayer || d > 7) return 3.4; return d > 4 ? 2.3 : 1.5; }
 
-export function installNPCAI({ R, P, isPlaying, subtitle, objective, at, igpu, debug, mind, elec, now, outdoor, busy }) {
+export function installNPCAI({ R, P, isPlaying, subtitle, objective, at, igpu, debug, mind, elec, now, outdoor, busy, nearby, fails }) {
   const MAIN = R.MAIN, ANX = R.ANX || null, FH = MAIN.spec.FH, BLDS = [MAIN, ANX].filter(Boolean);
   const clock = now || (() => performance.now() / 1000);
+  const recent = [], subtitle0 = subtitle;   // 최근 민아 대사 (자유 대화 모듈이 읽는다)
+  subtitle = (who, text, dur) => { if (text) { recent.push(text); if (recent.length > 8) recent.shift(); } subtitle0(who, text, dur); };
   const stats = { stuck: 0, arrivals: 0, doorsOpened: 0, doorsClosed: 0, yields: 0, talks: 0, built: false, stairs: 0, floorsReached: 0, reacts: 0, plans: 0, planMs: 0, tickMs: 0, ticks: 0, tickMax: 0, teleports: 0, fails: 0 };
   // ── 층(layer) ──
   const bbOf = b => { const Lb = b.layout.L, xs = [], zs = []; for (const [lx, lz] of [[-Lb / 2 - .4, b.layout.zN - .4], [Lb / 2 + .4, b.layout.zN - .4], [-Lb / 2 - .4, b.layout.zS + .4], [Lb / 2 + .4, b.layout.zS + .4]]) { const [x, z] = b.toWorld(lx, lz); xs.push(x); zs.push(z); } return { x0: Math.min(...xs), x1: Math.max(...xs), z0: Math.min(...zs), z1: Math.max(...zs) }; };
@@ -305,7 +305,7 @@ export function installNPCAI({ R, P, isPlaying, subtitle, objective, at, igpu, d
     const t0 = performance.now();
     if (buildPhase === 0) {
       if (LYR[OUT] && !outCols) { const O = LYR[OUT], src = (outdoor.cols && outdoor.cols()) || []; outCols = src.filter(c => !c.off && !(c.h != null && c.h <= .34) && !(c.y0 != null && c.y0 > 1.5) && c.x2 > O.x0 - 1 && c.x1 < O.x1 + 1 && c.z2 > O.z0 - 1 && c.z1 < O.z1 + 1); if (outdoor.extra) outCols.push(...outdoor.extra()); }
-      for (const f of LIDS) { const Ly = LYR[f], G = grids[f] ||= createNavGrid({ x0: Ly.x0, z0: Ly.z0, x1: Ly.x1, z1: Ly.z1, cell: .3 }); if (G.ready) continue;
+      for (const f of LIDS) { const Ly = LYR[f], G = grids[f] ||= Object.assign(createNavGrid({ x0: Ly.x0, z0: Ly.z0, x1: Ly.x1, z1: Ly.z1, cell: .3 }), { maxIter: 30000 }); if (G.ready) continue;   // A* 상한: 한 번에 수 ms 이내
         doorsOpen(() => { const walk = walkFor(f); while (!G.ready && performance.now() - t0 < ms) buildNavGrid(G, walk, 400); });
         return false; }
       for (const f of LIDS) labelComponents(grids[f]);
@@ -356,7 +356,7 @@ export function installNPCAI({ R, P, isPlaying, subtitle, objective, at, igpu, d
   // 본관 남쪽 현관 ↔ 바깥: 문턱을 지나는 짧은 평지 길
   function entryPortal() {
     const G0 = grids[0], G1 = grids[OUT]; if (!G0 || !G1) return null;
-    const a = nearestFree(G0, coreX, zSw - 1.2, 1.2), b = nearestFree(G1, coreX, zSw + 1.4, 1.6); if (a < 0 || b < 0) return null;
+    const a = nearestFree(G0, coreX, zSw - 1.2, 2), b = nearestFree(G1, coreX, zSw + 1.4, 4); if (a < 0 || b < 0) return null;
     const cxy = (G, c) => [G.x0 + (c % G.nx + .5) * G.cell, G.z0 + (((c / G.nx) | 0) + .5) * G.cell], A = cxy(G0, a), Bp = cxy(G1, b);
     return makePortal(0, OUT, [A[0], 0, A[1], coreX, 0, zSw, Bp[0], 0, Bp[1]], { kind: 'door', flat: true });
   }
@@ -429,7 +429,7 @@ export function installNPCAI({ R, P, isPlaying, subtitle, objective, at, igpu, d
   function place(f, x, z) { const G = grids[f]; if (!G) return false; const c = nearestFree(G, x, z, 3); if (c < 0) return false; resetNPC(n); n.f = f; n.x = cellX(G, c); n.z = cellZ(G, c); n.state = 'idle'; n.t = 1e9; n.hop = null; n.toF = -1; n.stuckN = 0; return true; }
   function teleportBehind(pf) { const G = grids[pf]; followGoal(P.x, P.z, P.yaw, (x, z) => walkableAt(G, x, z) && gridLOS(G, P.x, P.z, x, z), 1.3, GOAL); stats.teleports++; n.fails = 0; return place(pf, GOAL.x, GOAL.z); }
   // 반응 대사: 같은 종류는 쿨다운 · 말하는 중(더빙 · 대화)이면 넘긴다
-  const CDS = { lightsOut: 45, lightsFixed: 45, room: 70, key: 20, run: 60, stairs: 1e9 };
+  const CDS = { lightsOut: 45, lightsFixed: 45, room: 70, key: 20, run: 60, stairs: 1e9, notice: 25 };
   let anyCd = -1e9;
   function react(kind, arg) {
     const t = clock(); if (t - anyCd < 8 || (busy && busy()) || !canReact(n.mem, kind, t, CDS[kind] || 60)) return false;
@@ -440,14 +440,39 @@ export function installNPCAI({ R, P, isPlaying, subtitle, objective, at, igpu, d
   let watchT = 0, wasDark = null, lastKeys = -1, lastRoom = '';
   const brkIsOn = (E, id) => { for (const B of E.BLD.values()) { const k = B.brks.get(id); if (k) return E.brkOn(k); } return true; };
   function darkHere(pf) { if (R._pk === 0) return true; const E = elec && elec(); if (!E || !E.BLD || pf < 0 || pf === OUT) return false; const bid = ANX && BB[1] && inBB(BB[1], P.x, P.z) ? 'annex' : 'main'; return !brkIsOn(E, bid + ':' + pf + 'F'); }
+  // 감정 · 막힘 · 단서 알아채기 상태
+  const EMO = { emo: 'calm', until: 0, dark: false, cur: 'calm' }, LOOK = { x: 0, z: 0, t: 0 };
+  const setEmo = (e, sec) => { EMO.emo = e; EMO.until = clock() + sec; };
+  let progKey = null, progT = 0, failBase = 0, stuckCd = -1e9, noticeT = 0, lastCtx = null;
+  const failsNow = () => { try { return (fails && fails()) | 0; } catch (e) { return 0; } };
+  function watchStuck(t) {   // 목표가 바뀌지 않은 채 오래 · 퍼즐 실패가 쌓이면 점점 구체적인 힌트 (답은 말하지 않는다)
+    let c = null; try { c = mind && mind(); } catch (e) { /* */ } const key = c ? (c.ch || 0) + '|' + (c.main || '') : '';
+    if (key !== progKey) { progKey = key; progT = t; failBase = failsNow(); return; }
+    const nf = failsNow() - failBase, idle = t - progT;
+    if (!((idle > 240 && t - stuckCd > 150) || (nf >= 3 && t - stuckCd > 60)) || (busy && busy()) || !c) return;
+    const h = hintLine(NPC_LINES.mina, { ...c, dark: false }, n.mem, t, NPC_HINT_MAIN); stuckCd = t; progT = t; failBase = failsNow(); if (!h) return;
+    stats.stuckHints = (stats.stuckHints || 0) + 1; n.mem.told[h.key] = (n.mem.told[h.key] || 0) + 1;
+    const intro = reactLine(nf >= 3 ? 'stuckFail' : 'stuck', 'mina', 0); subtitle(NAMES.mina, intro, 3.2); lastLine = h; anyCd = t;
+    setTimeout(() => { if (enabled && n.active) subtitle(NAMES.mina, h.text, 5); }, 3400);
+  }
+  function watchNotice(t) {   // 플레이어 곁(5m)의 아직 안 본 단서 · 조사 대상: 고개를 돌리고 한마디 (대상마다 한 번)
+    let list = null; try { list = nearby && nearby(); } catch (e) { list = null; } if (!list || !list.length) return;
+    let best = null, bd = 5; for (const q of list) { if (n.mem.told['n:' + q.id]) continue; const d = Math.hypot(q.x - P.x, q.z - P.z); if (d < bd) { bd = d; best = q; } }
+    if (!best) return; LOOK.x = best.x; LOOK.z = best.z; LOOK.t = 3;
+    if (react('notice', best.label)) { n.mem.told['n:' + best.id] = 1; setEmo('curious', 20); }
+  }
+  function watchEmotion(t) { const prev = EMO.cur; EMO.cur = emotionOf(EMO, t); if (EMO.cur !== prev && EMO.cur !== 'calm' && canReact(n.mem, 'emo_' + EMO.cur, t, 120) && t - anyCd > 10 && !(busy && busy())) { markReact(n.mem, 'emo_' + EMO.cur, t); anyCd = t; subtitle(NAMES.mina, EMO_LINE[EMO.cur], 3.4); } }
   function watch(pf) {
-    const dk = darkHere(pf); if (wasDark != null && dk !== wasDark) react(dk ? 'lightsOut' : 'lightsFixed'); wasDark = dk;
-    const keys = P.keys | 0; if (lastKeys >= 0 && keys > lastKeys) react('key'); lastKeys = keys;
+    const t = clock(), dk = darkHere(pf); EMO.dark = dk;
+    if (wasDark != null && dk !== wasDark) { react(dk ? 'lightsOut' : 'lightsFixed'); if (!dk) setEmo('relieved', 25); } wasDark = dk;
+    const keys = P.keys | 0; if (lastKeys >= 0 && keys > lastKeys) { react('key'); setEmo('relieved', 25); } lastKeys = keys;
+    if ((noticeT -= .5) <= 0) { noticeT = 1.5; watchNotice(t); }
+    watchStuck(t); watchEmotion(t);
     if (R.where && visited.size < 300) { const w0 = R.where(P.x, P.z, P.sh || 0), w = w0 && (typeof w0 === 'string' ? w0 : w0.name || ''); if (w && w !== lastRoom) { lastRoom = w; if (!visited.has(w)) { visited.add(w); if (!/복도|계단|현관/.test(w)) react('room', w); } } }
     if (P.sprinting && Math.hypot(P.x - n.x, P.z - n.z) > 6) react('run');
   }
   // 매 프레임: 민아를 움직이고 자리 · 높이 · 방향 · 속도를 돌려준다. 새 길찾기를 쓸 수 없는 곳(예전 층 · 먼 바깥)이면 null → 게임의 예전 따라가기
-  const OUTV = { x: 0, y: 0, z: 0, yaw: 0, v: 0, stair: false };
+  const OUTV = { x: 0, y: 0, z: 0, yaw: 0, v: 0, stair: false, emotion: 'calm', look: false, lx: 0, lz: 0 };
   function follow(dt, m) {
     if (!enabled) return null;
     if (!buildDone) { buildDone = buildStep(4); stats.built = buildDone; if (!buildDone) return null; }
@@ -459,16 +484,17 @@ export function installNPCAI({ R, P, isPlaying, subtitle, objective, at, igpu, d
       if (q && q.f === pf && Math.hypot(q.x - P.x, q.z - P.z) < 25 && place(q.f, q.x, q.z)) { /* 세이브 자리 */ } else
       if (!(m && f === pf && grids[f] && Math.abs(my - f * FH) < .4 && walkableAt(grids[f], m.position.x, m.position.z) && place(f, m.position.x, m.position.z))) teleportBehind(pf);
     }
+    const onStairs = pf !== OUT && Math.abs((P.sh || 0) - pf * FH) > .25;   // 플레이어가 계단 위: 층이 정해질 때까지 목표를 바꾸지 않는다 (계단실 안은 따로 떨어진 칸)
     let same = n.f === pf && n.state !== 'stair', dp = Math.hypot(P.x - n.x, P.z - n.z);
     // 너무 멀거나(40m) 길이 계속 끊기면 플레이어 뒤로 — 같은 층 가까이(보이는 곳)에선 순간이동하지 않는다
-    if ((dp > 40 || n.fails >= 3 || n.stuckN >= 3) && n.state !== 'stair' && !(same && dp < 12 && n.fails < 6)) { teleportBehind(pf); same = true; dp = Math.hypot(P.x - n.x, P.z - n.z); }
+    if ((dp > 40 || n.fails >= 3 || n.stuckN >= 3) && n.state !== 'stair' && !onStairs && !(same && dp < 12 && n.fails < 6)) { teleportBehind(pf); same = true; dp = Math.hypot(P.x - n.x, P.z - n.z); }
     // 목표 갱신 (0.35초마다): 플레이어 뒤 · 같은 층이고 가까우면 멈추고 바라본다
-    if ((n.goalT -= dt) <= 0 && n.state !== 'stair' && n.state !== 'talk' && n.state !== 'yield') {
-      n.goalT = .35; const sp = followSpeed(same, dp);
+    if ((n.goalT -= dt) <= 0 && !onStairs && n.state !== 'stair' && n.state !== 'talk' && n.state !== 'yield') {
+      n.goalT = .35; const EF = EMO_FOLLOW[EMO.cur] || EMO_FOLLOW.calm, sp = followSpeed(same, dp, EF[1]);
       if (sp === 0) { if (n.state !== 'idle' && !(n.state === 'walk' && n.speed < 1.3)) { n.state = 'idle'; n.t = 1e9; n.pn = 0; }
         // 플레이어가 바로 붙으면(0.75m) 한 걸음 비켜선다
         if (dp < .75 && n.state === 'idle') { const G = grids[n.f], ax = n.x - P.x, az = n.z - P.z, l = Math.hypot(ax, az) || 1, tx = n.x + ax / l * .9, tz = n.z + az / l * .9; if (walkableAt(G, tx, tz) && gridLOS(G, n.x, n.z, tx, tz)) { TASK.f = n.f; TASK.x = tx; TASK.z = tz; n.speed = 1.2; startTask(n, TASK, env); } } }
-      else { n.speed = sp; const G = grids[pf]; followGoal(P.x, P.z, P.yaw, (x, z) => walkableAt(G, x, z), 1.4, GOAL);
+      else { n.speed = sp; const G = grids[pf]; followGoal(P.x, P.z, P.yaw, (x, z) => walkableAt(G, x, z), EF[0], GOAL);
         const moved = TASK.f !== pf || Math.hypot(GOAL.x - TASK.x, GOAL.z - TASK.z) > 1.0;
         if (moved || n.state === 'idle' || n.state === 'act') { TASK.f = pf; TASK.x = GOAL.x; TASK.z = GOAL.z; startTask(n, TASK, env); if (n.state === 'idle') { n.fails++; n.t = 1e9; } else n.fails = 0; } }
     }
@@ -477,7 +503,7 @@ export function installNPCAI({ R, P, isPlaying, subtitle, objective, at, igpu, d
     if (n.state === 'idle') { const ty = Math.atan2(P.x - n.x, P.z - n.z), e = Math.atan2(Math.sin(ty - n.yaw), Math.cos(ty - n.yaw)); n.yaw += Math.sign(e) * Math.min(Math.abs(e), dt * 2.6); }
     closeDoors(n);
     if ((watchT -= dt) <= 0) { watchT = .5; if (pl.on) watch(pf); }
-    OUTV.x = n.x; OUTV.z = n.z; OUTV.y = n.state === 'stair' && n.hop ? n.y : layerY(n.f); OUTV.yaw = n.yaw; OUTV.v = n.v; OUTV.stair = n.state === 'stair';
+    OUTV.x = n.x; OUTV.z = n.z; OUTV.y = n.state === 'stair' && n.hop ? n.y : layerY(n.f); OUTV.yaw = n.yaw; OUTV.v = n.v; OUTV.stair = n.state === 'stair'; OUTV.emotion = EMO.cur; if (LOOK.t > 0) LOOK.t -= dt; OUTV.look = LOOK.t > 0; OUTV.lx = LOOK.x; OUTV.lz = LOOK.z;
     const ms = performance.now() - t0; stats.tickMs += ms; stats.ticks++; if (ms > stats.tickMax) stats.tickMax = ms;
     return OUTV;
   }
@@ -489,13 +515,13 @@ export function installNPCAI({ R, P, isPlaying, subtitle, objective, at, igpu, d
   function context() {
     let c = {}; try { c = (mind && mind()) || {}; } catch (e) { c = {}; }
     if (!c.ch || !c.main) { const o = objective && objective(); if (o) { c.ch ??= o.ch; c.main ??= o.main; c.where ??= o.loc && o.loc.where; } }
-    c.dark = darkHere(playerLayer()); c.visited = visited.size; return c;
+    c.dark = darkHere(playerLayer()); c.visited = visited.size; c.emotion = EMO.cur; lastCtx = c; return c;
   }
   function talk() {
     stats.talks++; talkTo(n, 4); n.lines++;
     const r = pickLine('mina', NPC_LINES.mina, context(), n.mem, clock(), NPC_HINT_MAIN); lastLine = r; subtitle(NAMES.mina, r.text, 5); return r.text;
   }
-  function reset() { pend = null; n.mem = newMemory(); visited.clear(); n.active = false; n.opened.length = 0; n.lines = 0; wasDark = null; lastKeys = -1; lastRoom = ''; anyCd = -1e9; resetNPC(n); }
+  function reset() { pend = null; EMO.emo = 'calm'; EMO.until = 0; EMO.cur = 'calm'; progKey = null; stuckCd = -1e9; LOOK.t = 0; n.mem = newMemory(); visited.clear(); n.active = false; n.opened.length = 0; n.lines = 0; wasDark = null; lastKeys = -1; lastRoom = ''; anyCd = -1e9; resetNPC(n); }
   // ── 저장 · 불러오기: 세이브의 npc 칸 { v, mina: { on, f, x, z, yaw, lines, mem }, visited } — v 가 다르거나 없으면 처음 상태 ──
   function serialize() {
     const st = n.state === 'stair' && n.hop ? (n.hop.dir > 0 ? { f: n.hop.p.la, x: n.hop.p.ax, z: n.hop.p.az } : { f: n.hop.p.lb, x: n.hop.p.bx, z: n.hop.p.bz }) : { f: n.f, x: n.x, z: n.z };
@@ -510,7 +536,23 @@ export function installNPCAI({ R, P, isPlaying, subtitle, objective, at, igpu, d
   }
   function setEnabled(v) { enabled = !!v; if (!enabled) n.active = false; }
   const api = { mina: n, npcs: [n], grids, portals, panels, layers: LYR, OUT, stats, follow, pick, talk, reset, serialize, restore, setEnabled, env, visited, context, react, lastLine: () => lastLine,
+    emotion: () => EMO.cur, setEmotion: setEmo,
     buildAll() { while (!buildStep(1e9)); buildDone = true; stats.built = true; }, playerLayer, layerY, igpu };
   if (debug) window.__npc = api;
+  // 읽기 전용 상태 (선택 기능 · 자유 대화 등이 읽는다): 읽을 때마다 새 사본 — 바꿔도 민아에겐 영향 없음
+  const snapshot = () => { let c = null; try { c = context(); } catch (e) { c = null; } const m = n.mem;
+    const tiers = Object.entries(m.tier).filter(([k]) => /^ch/.test(k)).map(([k, v]) => `${k} 힌트 ${v}/3단계`).join(', ');
+    const memorySummary = `말 건 횟수 ${m.n} · 감정 ${EMO.cur} · ${tiers || '힌트 아직 없음'} · 돌아본 곳 ${visited.size}곳${lastRoom ? ' (지금: ' + lastRoom + ')' : ''} · 막힌 시간 ${progKey == null ? 0 : Math.round(clock() - progT)}초`;
+    return Object.freeze({ memorySummary, recentLines: recent.slice(), hintLine: apiHint, fallbackLine: apiFallback, active: n.active, state: n.state, emotion: EMO.cur, emotions: EMOTIONS.slice(), layer: n.f, onStairs: n.state === 'stair', pos: { x: +n.x.toFixed(2), y: +(n.state === 'stair' && n.hop ? n.y : layerY(n.f)).toFixed(2), z: +n.z.toFixed(2) },
+      distToPlayer: +Math.hypot(P.x - n.x, P.z - n.z).toFixed(2), lookingAt: LOOK.t > 0 ? { x: LOOK.x, z: LOOK.z } : null,
+      memory: { talks: m.n, hintTiers: { ...m.tier }, toldCount: Object.keys(m.told).length, told: Object.keys(m.told).slice(-30), visitedRooms: [...visited].slice(-30), lastLine: lastLine ? { key: lastLine.key, text: lastLine.text, topic: lastLine.topic } : null },
+      objective: c ? { context: `제${c.ch || 1}장 · ${c.main || ''}${c.where ? ' · ' + c.where : ''}${c.dark ? ' · 정전' : ''}`, ch: c.ch, main: c.main, where: c.where, dark: c.dark, keys: c.keys, late: c.late } : null,
+      stuck: { secondsWithoutProgress: progKey == null ? 0 : Math.round(clock() - progT), failedAttempts: failsNow() - failBase } }); };
+  // 자유 대화 모듈용: 지금 장의 다음 힌트(규칙 · 단계 · 기억 그대로 — 너무 이르면 지금 단계 다시) · 규칙 기반 대사(대답 못 할 때)
+  function apiHint() { const c = context(), h = hintLine(NPC_LINES.mina, c, n.mem, clock(), NPC_HINT_MAIN); if (h) { n.mem.told[h.key] = (n.mem.told[h.key] || 0) + 1; lastLine = h; return h.text; }
+    const ch = c.ch || 1, t = Math.max(0, (n.mem.tier['ch' + ch] || 1) - 1), H = CH_HINT_[ch]; return !H ? null : t === 1 && c.where ? NPC_LINES.mina.hint.replace('{}', c.where) : H[t >= 2 ? 1 : 0]; }
+  function apiFallback() { const r = pickLine('mina', NPC_LINES.mina, context(), n.mem, clock(), NPC_HINT_MAIN); lastLine = r; return r.text; }
+  api.snapshot = snapshot; api.hintLine = apiHint; api.fallbackLine = apiFallback;
+  try { Object.defineProperty(window, '__mina', { get: snapshot, configurable: true }); } catch (e) { /* 브라우저 밖 */ }
   return api;
 }

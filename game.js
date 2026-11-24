@@ -67,7 +67,7 @@ import './school37RoomsPatch.js';    // 본관 · 별관 37개 특별실 가구 
 import './new37UniquePatch.js';     // 37개 구역 신규 특수 설비 · 벽면 레일 (사용자 제공) → window.new37UniquePatch
 import './megaExpansionPatch.js?v=457';   // 메가 익스팬션 · 최적화 · 4막 사건 기록 · 수집품 · 미니게임 (사용자 제공) → window.megaSchoolPatch
 import './poolMachineryPatch.js';     // 수영장 · 남/녀 탈의실·샤워실 · 기계실 철문 (사용자 제공) → window.poolAndMachineryPatch
-import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, setAudioHidden, sfxCtx, setSfxBusyCheck, setSpace, tickNight } from './audio.js?v=457'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=457'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera, perfInstanceSource } from './perfStabilizer.js?v=457'; window.__perfInst = perfInstanceSource; import { upgradePlainMaterials } from './plainUpgrade.js?v=457'; import { relayCampusPaths, cleanupCampus } from './campusPaths.js?v=457'; import { installStreetscape } from './streetV2.js?v=457'; import { installCampusGrounds } from './campusGrounds2008.js?v=457'; import { installHudV2, tickHudV2 } from './hudV2.js?v=457'; import { installPartnerRadio, tickPartnerRadio } from './partnerRadio.js?v=457';
+import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, setAudioHidden, sfxCtx, setSfxBusyCheck, setSpace, tickNight } from './audio.js?v=457'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=457'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera, perfInstanceSource } from './perfStabilizer.js?v=457'; window.__perfInst = perfInstanceSource; import { upgradePlainMaterials } from './plainUpgrade.js?v=457'; import { relayCampusPaths, cleanupCampus } from './campusPaths.js?v=457'; import { installStreetscape } from './streetV2.js?v=457'; import { installCampusGrounds } from './campusGrounds2008.js?v=457'; import { installHudV2, tickHudV2 } from './hudV2.js?v=457'; import { installPartnerRadio, tickPartnerRadio, callPartner } from './partnerRadio.js?v=457';
 import { installGamepad, promptGlyphs, padActive } from './gamepad.js';   // 게임 중 게임패드 (이동 · 시점 · 버튼 → 키 동작)
 import { installRoomUI } from './roomUI.js?v=457';   // 방별 현장 조사 카드 · 상호작용 아이콘 · 획득/목표 애니메이션
 import { furnishRooms } from './furnishV2.js?v=457';
@@ -2429,6 +2429,7 @@ addEventListener('keydown', e => {
   if (e.code === K().view) toggleView();
   if (e.code === K().camera) camMode(!CAM.on);
   if (e.code === 'KeyR' && CAM.on) camShoot();
+  if (e.code === K().radio && state === 'playing' && !e.repeat && introDone) { callPartner().catch(() => {}); return; }   // 무전기 호출 (지훈 ↔ 서연)
   if ((e.code === K().crouch || e.code === 'ControlLeft') && !e.repeat) { P.crouch = SET.crouchToggle === false ? true : !P.crouch; if (P.crouch) P.runOn = false; }
   if (e.code === K().jump && !e.repeat) tryJump();
   if (e.code === K().throwCan) { if (inv.shock > 0) throwShock(); else throwCan(); }   // 쇼트 폭탄이 있으면 캔 대신
@@ -4100,6 +4101,7 @@ function setupCase5() {
 }
 
 /* ----- 민아 동행: 방송실에서 깨운 뒤 사라지지 않고 플레이어를 따라다닌다 ----- */
+const MINA_NOTICE = new Set(['note', 'robj', 'tape', 'photo', 'look', 'search', 'case5', 'ganx', 'lock', 'safe', 'clue', 'board', 'cam', 'footprints', 'glog', 'gradio']);
 const MINA_F = { on: false, anim: '', talkT: 40, lastFloor: -1 };
 const MINA_TALK = ['…발소리, 우리 둘 것만 맞지?', '하늘 언니 방송 원고, 내가 아직 외우고 있어.', '여기 말고 B1… 거기가 끝이야. 알잖아.', '조금만 천천히 가. 숨이 차.', '정문 경비실 아저씨… 그날 밤 다 들었대.', '손전등 꺼지면 말해. 내 거 아직 남았어.', '증거 다 모이면, 방송실 콘솔 내가 같이 잡아 줄게.'];
 function minaFollowStart() {
@@ -4147,7 +4149,8 @@ function minaFollowTick(dt) {
   if (ai) {
     mina.position.set(ai.x, (floors[0]?.y0 || 0) + ai.y, ai.z); mina.rotation.y = ai.yaw; MINA_F.v = ai.v; MINA_F.turning = false; MINA_F.lastFloor = P.floor; MINA_F.stuck = 0;
     minaLookTick(dt, mina.position.y);
-    if (ai.v > .15) { minaPlay(ai.v > 2.6 ? 'Run' : 'Walk'); minaStepTick(ai.v > 2.6); } else minaPlay(ghost.active && ghost.floor === P.floor ? 'ScaredIdle' : 'Idle');
+    if (ai.look) { _minaLT.set(ai.lx, mina.position.y + 1.1, ai.lz); mina.userData.lookTarget = _minaLT; }   // 단서를 알아채면 그쪽을 본다
+    if (ai.v > .15) { minaPlay(ai.v > 2.6 ? 'Run' : 'Walk'); minaStepTick(ai.v > 2.6); } else minaPlay(ai.emotion === 'uneasy' || (ghost.active && ghost.floor === P.floor) ? 'ScaredIdle' : 'Idle');   // 불안: 움츠린 자세
   } else {
   const fy = (floors[P.floor]?.y0 || 0) + (P.sh || 0), bx = P.x + Math.sin(P.yaw) * 1.5, bz = P.z + Math.cos(P.yaw) * 1.5;
   const dx = bx - mina.position.x, dz = bz - mina.position.z, d = Math.hypot(dx, dz), dp = Math.hypot(P.x - mina.position.x, P.z - mina.position.z);
@@ -9526,6 +9529,11 @@ function declutterInteractables() {
 }
 { RBG = installRebuild({ THREE, scene, floors, world }); window.__rbg = RBG;
  if (!params.has('nonpc')) try { NPCAI = installNPCAI({ R: RBG, P, isPlaying: () => state === 'playing', subtitle, objective, at, igpu: () => IGPU, debug: DEBUG, elec: () => ELEC, now: () => playTime, busy: () => isSpeechBusy() || !!MINA_F.chatting,
+   nearby: () => { const out = [], sh = P.sh || 0; if (P.floor !== 0) return out;   // 민아가 알아채는 단서 · 조사 대상: 플레이어 6m 안 · 같은 높이 · 아직 안 한 것
+     for (const q of world.props) { if (q.floor !== 0 || q.done || !q.label || !MINA_NOTICE.has(q.kind) || Math.abs((q.rbY ?? 0) - sh) > 1.5 || Math.abs(q.x - P.x) > 6 || Math.abs(q.z - P.z) > 6) continue; out.push({ id: q.uid || q.kind + ':' + q.label, x: q.x, z: q.z, label: q.label }); }
+     for (const it of world.items) { if (it.taken || it.locked || it.floor !== 0 || !it.pos || Math.abs((it.rbY ?? 0) - sh) > 1.5 || Math.hypot(it.pos.x - P.x, it.pos.z - P.z) > 6) continue; const nm = ITEMS[it.kind] && ITEMS[it.kind].name; if (nm) out.push({ id: it.uid || 'it:' + it.kind, x: it.pos.x, z: it.pos.z, label: nm }); }
+     return out; },
+   fails: () => { let s = 0; for (const q of world.props) s += q.fails || 0; return s; },
    mind: () => { const o = objective(); return { ch: (o && o.ch) || 1, main: o && o.main, where: o && o.loc && o.loc.where, keys: P.keys | 0, cam: !!FL.cam, lowBattery: !!P.light && P.battery < 25, late: !!FL.night && playTime > 900 }; },   // 대사 고르기: 장 · 목표 · 소지품 · 시간
    outdoor: { gateZ: GATE_Z, door: { x: GUARD_LAYOUT.doorX, z: GUARD_LAYOUT.doorZ }, cols: () => floors[0].col } }); } catch (e) { console.warn('[npcAI]', e); NPCAI = null; }
  (RBG.wallDeco ||= []).push(...FAC_WALL_DECO);   // 시설(청운학사 · 학생회관 …) 벽시계 · 달력도 벽 장식으로
@@ -9650,7 +9658,7 @@ if (SET.mic) { SET.mic = false; saveSET(); }   // 마이크 소리 감지: 소�
 if (matchMedia('(pointer: coarse)').matches || !('exitPointerLock' in document)) $('mobileNote').style.display = 'block';
 $('setContrast').onchange = e => setS('contrast', e.target.checked); $('setCbSafe').onchange = e => setS('cbSafe', e.target.checked); $('setIdleHint').onchange = e => setS('idleHint', e.target.checked); $('setIdleSec').onchange = e => setS('idleHintSec', +e.target.value); $('setCrouch').onchange = e => { setS('crouchToggle', e.target.value === 'toggle'); P.crouch = false; }; $('setUi').oninput = e => setS('ui', e.target.value / 100);
 // 키 재지정
-const KEY_ACTIONS = [['camera', '휴대폰 야간 카메라'], ['crouch', '앉기 (웅크리기)'], ['jump', '점프'], ['interact', '조사 · 상호작용'], ['flash', '손전등'], ['inv', '소지품'], ['map', '지도'], ['phone', '휴대폰'], ['throwCan', '캔 던지기'], ['view', '시점 전환'], ['run', '달리기'], ['down', '계단 내려가기'], ['scan', '주변 살피기'], ['quest', '목표 바 펼치기 · 한 줄 · 숨기기'], ['quickSave', '빠른 저장'], ['quickLoad', '빠른 불러오기']];
+const KEY_ACTIONS = [['radio', '무전기 호출'], ['camera', '휴대폰 야간 카메라'], ['crouch', '앉기 (웅크리기)'], ['jump', '점프'], ['interact', '조사 · 상호작용'], ['flash', '손전등'], ['inv', '소지품'], ['map', '지도'], ['phone', '휴대폰'], ['throwCan', '캔 던지기'], ['view', '시점 전환'], ['run', '달리기'], ['down', '계단 내려가기'], ['scan', '주변 살피기'], ['quest', '목표 바 펼치기 · 한 줄 · 숨기기'], ['quickSave', '빠른 저장'], ['quickLoad', '빠른 불러오기']];
 let remapping = null;
 function renderKeys() {
   $('keyRemap').innerHTML = KEY_ACTIONS.map(([k, n]) => `<span>${n}</span><button data-k="${k}" class="${remapping === k ? 'wait' : ''}">${remapping === k ? '키를 누르세요…' : keyLabel(SET.keys[k])}</button>`).join('');
@@ -9747,7 +9755,9 @@ function devRadio(st, who) { const w = $('dvWt'); if (!w) return; w.classList.to
 setInterval(() => { if (document.hidden || !$('hud').classList.contains('show')) return; try {
   $('dvClock').textContent = clockText(); $('dvBat').textContent = `🔋 ${Math.round(P.pbat ?? 100)}%`; $('dvPKey').textContent = (K().phone || 'KeyP').replace('Key', '');
   const sig = P.floor === 4 ? 0 : (RBG && RBG.inBuilding && RBG.inBuilding(P.x, P.z)) ? 2 : 4; [...$('dvSig').children].forEach((b, i) => b.classList.toggle('on', i < sig)); } catch (e) {} }, 500);
-try { installPartnerRadio({ P, FL, char: () => CHAR, state: () => state, busy: isDialogueActive, speak, subtitle, chapter: () => objective().ch, introDone: () => introDone, inside: () => !!(RBG && RBG.inBuilding && RBG.inBuilding(P.x, P.z)), radio: devRadio }); } catch (e) { console.warn('[partner radio]', e); }
+try { installPartnerRadio({ P, FL, char: () => CHAR, state: () => state, busy: isDialogueActive, speak, subtitle, sfx, now: () => playTime,
+   mind: () => { const o = objective(), c = NPCAI ? NPCAI.context() : { ch: o.ch, main: o.main, where: o.loc && o.loc.where, keys: P.keys | 0, late: !!FL.night && playTime > 900 }; c.room = rbHere(); return c; },   // 무전 상대의 답: 장 · 목표 · 소지품 · 정전 · 지금 있는 곳
+   chapter: () => objective().ch, introDone: () => introDone, inside: () => !!(RBG && RBG.inBuilding && RBG.inBuilding(P.x, P.z)), radio: devRadio }); } catch (e) { console.warn('[partner radio]', e); }
 try { installHudV2({ THREE, P, camera, objDir, getState: () => state, objArrow: () => SET.objArrow !== false }); } catch (e) { console.warn('[hud v2]', e); }
 if (DEBUG) {
   window.__g = {

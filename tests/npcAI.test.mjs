@@ -1,7 +1,7 @@
 // NPC 길찾기(A*) · 상태 기계 — 브라우저 없이
 import test from 'node:test'; import assert from 'node:assert/strict'; import fs from 'node:fs';
 import { gridFromAscii, astar, gridLOS, nearestFree, walkableAt, createNPC, stepNPC, talkTo, resetNPC, NPC_LINES, NPC_NAMES, NPC_HINT_MAIN, NPC_TALK_LABEL, labelComponents, compAt, makePortal, portalPos, routeHop, followGoal, followSpeed } from '../npcAI.js';
-import { pickLine, newMemory, sanitizeMemory, mindStrings, CH_HINT, HINT_GAP, reactLine, canReact, markReact } from '../npcMind.js';
+import { pickLine, newMemory, sanitizeMemory, mindStrings, CH_HINT, HINT_GAP, reactLine, canReact, markReact, MINA_LINES, hintLine, emotionOf, EMO_FOLLOW, EMO_LINE, lineText } from '../npcMind.js';
 
 const MAP = [
   '##########',
@@ -138,4 +138,26 @@ test('memory persistence: JSON round-trip keeps hint tiers and told lines; junk/
   assert.deepEqual(sanitizeMemory(null), newMemory()); assert.deepEqual(sanitizeMemory({ n: 'x', told: [1], tier: { ch1: 9 } }).tier, { ch1: 2 });
   assert.ok(!canReact(m, 'room', 20, 60) && canReact(m, 'room', 80, 60) && canReact(m, 'room', 5, 60));   // 세이브 시각이 거꾸로면 허용
   assert.ok(reactLine('room', 'mina', 0).includes('{}'));
+});
+
+test('Mina line table: every id has ko/en/ja/zh and matches lang/*.json; emotions and stuck hints', () => {
+  const langs = ['en', 'ja', 'zh'].map(c => JSON.parse(fs.readFileSync(new URL(`../lang/${c}.json`, import.meta.url), 'utf8')));
+  for (const id in MINA_LINES) { const r = MINA_LINES[id]; assert.equal(r.length, 4, id); r.forEach(t => assert.ok(t && typeof t === 'string', id)); langs.forEach((d, i) => assert.equal(d[r[0]], r[i + 1], id)); }
+  for (const id of ['notice_0', 'notice_1', 'stuck_0', 'stuck_fail', 'emo_calm', 'emo_uneasy', 'emo_curious', 'emo_relieved']) assert.ok(MINA_LINES[id], id);
+  assert.equal(lineText('emo_uneasy', 'en'), MINA_LINES.emo_uneasy[1]);
+  assert.equal(emotionOf({ dark: true, emo: 'relieved', until: 99 }, 1), 'uneasy'); assert.equal(emotionOf({ emo: 'curious', until: 10 }, 5), 'curious'); assert.equal(emotionOf({ emo: 'curious', until: 10 }, 11), 'calm');
+  assert.ok(EMO_FOLLOW.uneasy[0] < EMO_FOLLOW.calm[0] && EMO_FOLLOW.curious[0] > EMO_FOLLOW.calm[0]); assert.ok(EMO_LINE.relieved);
+  const m = newMemory(), L = { greet: ['a'], hint: '{}?' }, c = { ch: 6, where: '방송실' };
+  assert.equal(hintLine(L, c, m, 0, '{}').tier, 0); assert.equal(hintLine(L, c, m, 5, '{}'), null); assert.equal(hintLine(L, c, m, 5 + HINT_GAP, '{}').text, '방송실?'); assert.equal(hintLine(L, c, m, 10 + 2 * HINT_GAP, '{}').tier, 2);
+});
+
+test('walkie-talkie partner: graded hints with memory, stuck -> hint first, no spoilers', async () => {
+  const { partnerReply, RADIO_L } = await import('../partnerRadio.js');
+  const m = newMemory(), c = { ch: 1, main: '캠코더를 찾아라', where: '1학년 1반' };
+  assert.equal(partnerReply(c, m, 0).topic, 'greet');
+  const h0 = partnerReply(c, m, 1); assert.equal(h0.text, RADIO_L.ch[1][0]);
+  const s = partnerReply({ ...c, stuckSec: 400 }, m, 1 + HINT_GAP); assert.ok(s.intro && s.tier === 1 && s.text.includes('1학년 1반'));
+  const back = sanitizeMemory(JSON.parse(JSON.stringify(m))); assert.deepEqual(back, m);
+  for (const k in RADIO_L.ch) RADIO_L.ch[k].forEach(t => assert.ok(!/\d{4}/.test(t)));
+  for (const id of Object.keys(MINA_LINES).filter(k => k.startsWith('radio_'))) assert.equal(MINA_LINES[id].length, 4);
 });

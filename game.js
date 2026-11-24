@@ -2445,7 +2445,7 @@ addEventListener('mousemove', e => {
   if (P.hiding) P.yaw = clamp(P.yaw, P.hiding.yaw - .7, P.hiding.yaw + .7);
 });
 canvas.addEventListener('click', () => { if (state === 'playing' && !document.pointerLockElement) lock(); });
-installGamepad({ getState: () => state, keys: () => K(), look: (x, y, dt) => {   // 오른쪽 스틱 시점: 마우스와 같은 감도 · 반전 · 확대 · 숨기 제한
+installGamepad({ getState: () => state, keys: () => K(), skipLine: () => state === 'playing' && skipSeenLine(), look: (x, y, dt) => {   // 오른쪽 스틱 시점: 마우스와 같은 감도 · 반전 · 확대 · 숨기 제한
   if (state !== 'playing' || lookBack > 0) return; const r = 2.6 * SET.sens * (1 - .55 * ZOOM.k) * dt;
   P.yaw -= x * r; P.pitch = clamp(P.pitch - y * r * .8 * (SET.invertY ? -1 : 1), -1.45, 1.45);
   if (P.hiding) P.yaw = clamp(P.yaw, P.hiding.yaw - .7, P.hiding.yaw + .7); } });
@@ -4818,8 +4818,28 @@ function lockBox(f, x, y, z, ry, type, o = {}) {
   }
   world.props.push(p); return p;
 }
+// 잠긴 보관함 속 열쇠를 본체 윗면(= 닫힌 뚜껑 밑면)에 다시 앉힌다 — 새 건물로 옮긴 뒤 다른 정리 단계가 닫힌 뚜껑 위로 올려 둔 것(도서실 idx1 · 과학실 idx2)
+function seatLockKey(p) {
+  const it = p && p.keyItem; if (!it || it.taken || !it.mesh || !p.lid) return; const bb = new THREE.Box3(), T3 = new THREE.Box3(), lb = new THREE.Box3();
+  const box = (o, out) => { o.updateWorldMatrix(true, true); o.traverse(m => { if (m.isMesh && !m.isSprite && m.geometry) { if (!m.geometry.boundingBox) m.geometry.computeBoundingBox(); out.union(T3.copy(m.geometry.boundingBox).applyMatrix4(m.matrixWorld)); } }); return out; };
+  if (p.lid.rotation.x) return; box(p.lid, lb); box(it.mesh, bb); if (lb.isEmpty() || bb.isEmpty()) return;
+  const dy = lb.min.y + .002 - bb.min.y; if (Math.abs(dy) > .001) { it.mesh.position.y += dy; it.pos.y += dy; if (it.baseY != null) it.baseY += dy; } it.seated = true;
+}
+// 별관 3층 학교 역사관 유리 진열장: 새 건물로 옮긴 건전지 2개가 진열장 받침면(≈+.818)보다 1~3cm 아래 · 가운데 전시물(상패 · 명패 받침) 속에 박혀 있었다
+//   → 전시물을 피해 앞/뒤(z ±.22)로 비켜 진열장 받침면 위에 앉힌다
+function seatHistoryCaseItems() {
+  const R = window.__rbg; if (!R || !R.roomAt) return; const rc = new THREE.Raycaster(), DN = new THREE.Vector3(0, -1, 0); rc.camera = camera;
+  for (const it of world.items) { if (it.taken || !it.mesh || it.seated || it.rbY == null || it.kind === 'note') continue; const rm = R.roomAt(it.pos.x, it.pos.z, it.rbY + .1); if (!rm || rm.name !== '학교 역사관') continue;
+    const own = new Set(); it.mesh.traverse(o => own.add(o)); let best = null;
+    for (const dz of [0, .22, -.22]) { rc.set(new THREE.Vector3(it.pos.x, it.rbY + 1.2, it.pos.z + dz), DN); rc.far = 1.25;
+      const h = rc.intersectObject(scene, true).find(h => h.object.isMesh && !h.object.isSprite && !own.has(h.object) && !h.object.material?.transparent); if (!h) continue;
+      const top = h.point.y - it.rbY; if (top > .78 && top < .86) { best = { dz, top: h.point.y }; break; } }
+    if (!best) continue; if (best.dz) { const w = it.mesh.getWorldPosition(new THREE.Vector3()); w.z += best.dz; it.mesh.position.copy(it.mesh.parent.worldToLocal(w)); it.pos.z += best.dz; }
+    const bb = new THREE.Box3(), T3 = new THREE.Box3(); it.mesh.updateWorldMatrix(true, true); it.mesh.traverse(m => { if (m.isMesh && !m.isSprite && m.geometry) { if (!m.geometry.boundingBox) m.geometry.computeBoundingBox(); bb.union(T3.copy(m.geometry.boundingBox).applyMatrix4(m.matrixWorld)); } }); if (bb.isEmpty()) continue;
+    const dy = best.top + .002 - bb.min.y; it.mesh.position.y += dy; it.pos.y += dy; if (it.baseY != null) it.baseY += dy; it.mesh.rotation.y = 0; it.seated = true; }
+}
 function openLockVisual(p) {
-  p.done = true; p.lockMesh.visible = false;
+  seatLockKey(p); p.done = true; p.lockMesh.visible = false;
   let t = 0; const iv = setInterval(() => { t = Math.min(1, t + .08); p.lid.rotation.x = -t * 1.9; if (t >= 1) clearInterval(iv); }, 30);
   if (p.keyItem && !p.keyItem.taken) { p.keyItem.locked = false; p.keyItem.mesh.visible = true; }
 }
@@ -4879,7 +4899,8 @@ function seatItem(it, top) {
 function seatFloatingItems() {
   const near = (it, f, x, z, r = .6) => it.floor === f && !it.taken && Math.hypot(it.pos.x - x, it.pos.z - z) < r;
   for (const it of world.items) { if (it.seated || it.taken || !it.mesh) continue; const F = floors[it.floor]; if (!F) continue;
-    if (it.kind === 'key' && it.idx === 3 && near(it, 5, 29.2, 20.6)) seatItem(it, F.y0 + .8 + .14);   // 체육관 기록석(.80) 위 다이얼 기구함 본체 윗면(+.14) — 뚜껑을 열면 그 안에
+    const box = it.kind === 'key' && world.props.find(p => p.kind === 'lock' && p.keyItem === it);
+    if (box) seatItem(it, F.y0 + (box.y - .1) + .14);   // 자물쇠 보관함(도서실 idx1 · 과학실 idx2 · 체육관 idx3) 본체 윗면(+.14) — 뚜껑을 열면 그 안에; itemUnbury 가 닫힌 뚜껑 위로 올리지 않게   // 체육관 기록석(.80) 위 다이얼 기구함 본체 윗면(+.14) — 뚜껑을 열면 그 안에
     else if (it.kind === 'medkit' && near(it, 7, -30.6, 18.35) && it.pos.y - F.y0 > .8) { it.pos.z = 18.43; it.mesh.position.z = 18.43; seatItem(it, F.y0 + .85); }   // 급식실 손세정대 상판(.85) — 세면대 그릇(z ≤ 18.35)을 피해 앞쪽 가장자리로
     else if ((it.kind === 'battery' || it.kind === 'medkit') && it.floor === 4 && it.pos.y - F.y0 < .16) seatItem(it, F.y0 + .02);   // 지하 B1 바닥 슬래브(refinishB1: y0 −.05 ~ +.02)
   }
@@ -9731,6 +9752,8 @@ async function itemUnbury() {
     if (!hit) continue; const top = hit.point.y;
     if (top > it.pos.y + .04 && top - F.y0 < 1.95) { const dy = top + .03 - it.pos.y; it.pos.y += dy; it.mesh.position.y += dy; moved++; }
   }
+  for (const p of world.props) if (p.kind === 'lock' && p.keyItem && !p.done) seatLockKey(p);
+  try { seatHistoryCaseItems(); } catch (e) {}   // 옮김 · 정리 단계가 모두 끝난 뒤 보관함 속 열쇠를 다시 앉힌다
   if (moved) console.info(`[아이템] 가구 속에 박힌 ${moved}개를 윗면으로 옮김`);
 }
 idleTimeout(() => itemUnbury().catch(() => {}), 1500);

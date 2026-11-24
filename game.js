@@ -2411,6 +2411,7 @@ addEventListener('keydown', e => {
   if (e.code === K().inv || e.code === 'KeyI') { openInv(); return; }
   if (e.code === K().map) { openMap(); return; }
   if (e.code === 'F5') { e.preventDefault(); phoneTool('save'); return; }
+  if (e.code === 'F9') { e.preventDefault(); quickLoad(); return; }
   if (e.code === K().scan) { scanAround(); return; }
   if (e.code === K().quest) { objModeCycle(); return; }
   if (e.code === 'KeyK') { objDoneOpen = !objDoneOpen; objDoneSplit(); return; }
@@ -2424,7 +2425,7 @@ addEventListener('keydown', e => {
   if (e.code === K().view) toggleView();
   if (e.code === K().camera) camMode(!CAM.on);
   if (e.code === 'KeyR' && CAM.on) camShoot();
-  if (e.code === K().crouch || e.code === 'ControlLeft') { P.crouch = !P.crouch; if (P.crouch) P.runOn = false; }
+  if ((e.code === K().crouch || e.code === 'ControlLeft') && !e.repeat) { P.crouch = SET.crouchToggle === false ? true : !P.crouch; if (P.crouch) P.runOn = false; }
   if (e.code === K().jump && !e.repeat) tryJump();
   if (e.code === K().throwCan) { if (inv.shock > 0) throwShock(); else throwCan(); }   // 쇼트 폭탄이 있으면 캔 대신
   if (target && target.type === 'rbelev' && e.code === K().down) { rbElev(target.e, -1); return; }
@@ -2432,7 +2433,7 @@ addEventListener('keydown', e => {
   if (target && target.type === 'stairs' && !P.hiding && e.code === K().interact) { if (!e.repeat) STH = { code: e.code, dir: 1, t: 0 }; return; }   // E 는 조사 키와 같아서 길게 눌러야 올라간다 (파밍 중 실수 방지)   // 계단: 길게 눌러야 층 이동 (파밍 중 실수 방지)
   if (e.code === K().interact) { if (P.hiding) leaveLocker(); else interact(); }
 });
-addEventListener('keyup', e => { keys[e.code] = false; });
+addEventListener('keyup', e => { keys[e.code] = false; if (SET.crouchToggle === false && (e.code === K().crouch || e.code === 'ControlLeft') && !P.sitting) P.crouch = false; });
 addEventListener('mousemove', e => {
   if (state !== 'playing' && state !== 'dead') return;
   if (!document.pointerLockElement && !DEBUG) return;
@@ -3062,12 +3063,25 @@ const titleFx = (() => {
   return { run };
 })();
 $('saveBtn').addEventListener('click', () => save());
-$('titleBtn').addEventListener('click', () => location.reload());
-$('bakBtn').addEventListener('click', () => { try { sessionStorage.setItem(AUTO_KEY, 'backup'); } catch (e) { /* ignore */ } location.reload(); });
-$('loadBtn2').addEventListener('click', () => { try { sessionStorage.setItem(AUTO_KEY, 'continue'); } catch (e) { /* ignore */ } location.reload(); });
+// 편의: 확인 창 (불러오기 · 타이틀 · 처음부터 — 저장 안 한 진행을 실수로 잃지 않게) · 빠른 불러오기 F9
+function reloadToSave() { try { sessionStorage.setItem(AUTO_KEY, 'continue'); } catch (e) { /* ignore */ } location.reload(); }
+let qcYesFn = null;
+function askConfirm(q, sub, yes) { qcYesFn = yes; $('qcText').innerHTML = q + (sub ? '<br>' + sub : ''); $('qolConfirm').classList.add('show'); }
+function closeConfirm() { qcYesFn = null; $('qolConfirm').classList.remove('show'); }
+$('qcYes').onclick = () => { const f = qcYesFn; closeConfirm(); if (f) f(); };
+$('qcNo').onclick = closeConfirm;
+addEventListener('keydown', e => { if (!$('qolConfirm').classList.contains('show')) return; e.preventDefault(); e.stopImmediatePropagation(); if (e.code === 'Escape') closeConfirm(); else if (e.code === 'Enter' || e.code === 'NumpadEnter') $('qcYes').click(); }, true);
+function quickLoad() {
+  if (!hasSave()) { toast('빠른 불러오기', '저장된 데이터가 없습니다', 'warn'); return; }
+  pauseGame(); document.exitPointerLock?.(); askConfirm('마지막 저장을 불러올까요?', '저장하지 않은 진행 상황은 사라집니다.', reloadToSave);
+}
+window.__qol = { askConfirm, closeConfirm, quickLoad };
+$('titleBtn').addEventListener('click', () => askConfirm('타이틀로 돌아갈까요?', '저장하지 않은 진행 상황은 사라집니다.', () => location.reload()));
+$('bakBtn').addEventListener('click', () => askConfirm('이전 저장(백업)을 불러올까요?', '저장하지 않은 진행 상황은 사라집니다.', () => { try { sessionStorage.setItem(AUTO_KEY, 'backup'); } catch (e) { /* ignore */ } location.reload(); }));
+$('loadBtn2').addEventListener('click', () => askConfirm('마지막 저장을 불러올까요?', '저장하지 않은 진행 상황은 사라집니다.', reloadToSave));
 $('resumeBtn').addEventListener('click', () => { lock(); $('pause').classList.remove('show'); state = 'playing'; });
 $('retryBtn').addEventListener('click', () => { try { sessionStorage.setItem(AUTO_KEY, 'continue'); } catch (e) { /* ignore */ } location.reload(); });
-$('restartBtn').addEventListener('click', () => { try { clearSlot(localStorage, SKEYS); sessionStorage.setItem(AUTO_KEY, 'new'); } catch (e) { /* ignore */ } location.reload(); });
+$('restartBtn').addEventListener('click', () => askConfirm('처음부터 다시 시작할까요?', '저장된 진행 상황이 지워집니다.', () => { try { clearSlot(localStorage, SKEYS); sessionStorage.setItem(AUTO_KEY, 'new'); } catch (e) { /* ignore */ } location.reload(); }));
 $('deadTitleBtn').addEventListener('click', () => location.reload());
 $('againBtn').addEventListener('click', () => location.reload());
 
@@ -5363,7 +5377,7 @@ function applySettings() {
   { const bc = document.body.classList; bc.toggle('hud-diegetic', !SET.classicBars); bc.toggle('map-off', SET.minimap === false); bc.toggle('map-paper', !!SET.paperMap); }   // 상태 막대 대신 숨소리 · 화면 가장자리 / 미니맵 끄기 · 종이 지도
   $('fps').classList.toggle('on', SET.showFps || TEST); $('ptime').classList.toggle('off', SET.showPlay === false); $('hints').style.display = SET.hints ? '' : 'none';
   document.documentElement.style.setProperty('--subBg', SET.subBg);
-  document.body.classList.toggle('noNames', !SET.subNames); document.body.classList.toggle('contrast', !!SET.contrast);
+  document.body.classList.toggle('noNames', !SET.subNames); document.body.classList.toggle('contrast', !!SET.contrast); document.body.classList.toggle('cb-safe', !!SET.cbSafe);
   document.documentElement.style.setProperty('--ui', SET.ui);
   if (state !== 'playing') { camera.fov = SET.fov; camera.updateProjectionMatrix(); }
 }
@@ -9479,6 +9493,16 @@ function menuPrewarm() { if (state !== 'menu') return;
   console.info('[메뉴 예열] 셰이더', renderer.info.programs ? renderer.info.programs.length : '?'); }
 [25000, 60000].forEach(ms => setTimeout(menuPrewarm, ms));
 
+/* ---------- 편의: 목표 다시 알림 — 같은 목표가 오래 이어지면 현재 목표와 위치를 토스트로 ---------- */
+const IDLE_HINT = { main: null, t: 0, shown: 0 };
+setInterval(() => { try {
+  if (state !== 'playing' || SET.idleHint === false) return;
+  const o = objective(); if (!o) return;
+  if (o.main !== IDLE_HINT.main) { IDLE_HINT.main = o.main; IDLE_HINT.t = 0; return; }
+  IDLE_HINT.t += 1;
+  if (IDLE_HINT.t >= (SET.idleHintSec || 240)) { IDLE_HINT.t = 0; IDLE_HINT.shown++; toast('목표 다시 보기', o.main + (o.loc && o.loc.where ? ' — ' + o.loc.where : ''), 'info'); }
+} catch (e) { /* ignore */ } }, 1000);
+window.__idleHint = IDLE_HINT;
 /* ---------- 설정 화면 ---------- */
 let settingsFrom = null, setTab = 'gfx';
 function showSetTab(t) { setTab = t; document.querySelectorAll('#setTabs button').forEach(b => b.classList.toggle('on', b.dataset.s === t)); document.querySelectorAll('.setPage').forEach(p => p.classList.toggle('on', p.dataset.s === t)); }
@@ -9488,10 +9512,10 @@ function fillSettings() {
   $('setNoFlicker').checked = !!SET.noFlicker; $('setObjArrow').checked = SET.objArrow; $('setBgm').checked = SET.bgm; $('setBgmVol').value = Math.round(SET.bgmVol * 100); $('setBloom').checked = SET.bloom; $('setGrain').checked = SET.grain; $('setBob').checked = SET.bob; $('setBobK').value = Math.round((SET.bobK ?? 1) * 100); $('setBobKV').textContent = Math.round((SET.bobK ?? 1) * 100) + '%'; $('setShake').checked = SET.shake; $('setFps').checked = SET.showFps; $('setPlay').checked = SET.showPlay !== false;
   const v = getVolumes(); ['master', 'sfx', 'voice', 'amb', 'music'].forEach(k => { $('vol_' + k).value = Math.round(v[k] * 100); });
   $('setView').value = String(SET.view); $('setDist').value = SET.camDist * 10;
-  $('setSens').value = SET.sens * 100; $('setInvY').checked = SET.invertY; $('setRun').value = SET.runToggle ? 'toggle' : 'hold'; $('setHints').checked = SET.hints;
+  $('setSens').value = SET.sens * 100; $('setInvY').checked = SET.invertY; $('setRun').value = SET.runToggle ? 'toggle' : 'hold'; $('setCrouch').value = SET.crouchToggle === false ? 'hold' : 'toggle'; $('setHints').checked = SET.hints;
   $('setDub').checked = VS.dub; $('setVoice').value = VS.engine; $('setVoice').querySelector('[value=browser]').disabled = !hasBrowserVoice(); $('vEngine').textContent = '현재: ' + engineLabel() + (hasNaturalVoice() ? '' : ' · 이 브라우저에는 자연스러운 한국어 음성이 없습니다 (Edge 권장)');
   $('setSubs').checked = VS.subs; $('setNotes').checked = VS.readNotes; $('setSubSize').value = String(VS.subSize); $('setNames').checked = SET.subNames; $('setSubBg').value = SET.subBg * 100;
-  $('setCaps').checked = SET.captions; $('setTips').checked = SET.tips; $('setPhotos').checked = SET.areaPhotos; $('setMic').checked = !!SET.mic; $('setContrast').checked = SET.contrast; $('setUi').value = Math.round(SET.ui * 100); renderKeys();
+  $('setCaps').checked = SET.captions; $('setTips').checked = SET.tips; $('setPhotos').checked = SET.areaPhotos; $('setMic').checked = !!SET.mic; $('setContrast').checked = SET.contrast; $('setCbSafe').checked = !!SET.cbSafe; $('setIdleHint').checked = SET.idleHint !== false; $('setIdleSec').value = String([120, 240, 420].includes(SET.idleHintSec) ? SET.idleHintSec : 240); $('setUi').value = Math.round(SET.ui * 100); renderKeys();
   $('setDiff').value = SET.diff; $('setLang').value = curLang(); $('setJump').value = SET.jump; $('setFlash').checked = SET.flashReduce; $('setFearFx').checked = SET.fearFx; $('setMBlur').checked = !!SET.motionBlur; $('setClassicBars').checked = !!SET.classicBars; $('setMinimap').checked = SET.minimap !== false; $('setPaperMap').checked = !!SET.paperMap;
   vals();
 }
@@ -9545,7 +9569,7 @@ $('setMic').onchange = async e => { setS('mic', e.target.checked); if (e.target.
 if (SET.mic) { SET.mic = false; saveSET(); }   // 마이크 소리 감지: 소리를 듣고 오는 존재가 없어져 게임에 쓸모가 없다 → 끔 (권한 요청도 하지 않는다)
 { const row = $('setMic') && $('setMic').closest('label, .row, div'); if (row) row.style.display = 'none'; }
 if (matchMedia('(pointer: coarse)').matches || !('exitPointerLock' in document)) $('mobileNote').style.display = 'block';
-$('setContrast').onchange = e => setS('contrast', e.target.checked); $('setUi').oninput = e => setS('ui', e.target.value / 100);
+$('setContrast').onchange = e => setS('contrast', e.target.checked); $('setCbSafe').onchange = e => setS('cbSafe', e.target.checked); $('setIdleHint').onchange = e => setS('idleHint', e.target.checked); $('setIdleSec').onchange = e => setS('idleHintSec', +e.target.value); $('setCrouch').onchange = e => { setS('crouchToggle', e.target.value === 'toggle'); P.crouch = false; }; $('setUi').oninput = e => setS('ui', e.target.value / 100);
 // 키 재지정
 const KEY_ACTIONS = [['camera', '휴대폰 야간 카메라'], ['crouch', '앉기 (웅크리기)'], ['jump', '점프'], ['interact', '조사 · 상호작용'], ['flash', '손전등'], ['inv', '소지품'], ['map', '지도'], ['phone', '휴대폰'], ['throwCan', '캔 던지기'], ['view', '시점 전환'], ['run', '달리기'], ['down', '계단 내려가기'], ['scan', '주변 살피기'], ['quest', '목표 바 펼치기 · 한 줄 · 숨기기']];
 let remapping = null;
@@ -9558,7 +9582,7 @@ addEventListener('keydown', e => {
   if (e.code !== 'Escape') { const old = SET.keys[remapping], dup = Object.keys(SET.keys).find(k => k !== remapping && SET.keys[k] === e.code); if (dup) SET.keys[dup] = old; SET.keys[remapping] = e.code; saveSET(); }
   remapping = null; renderKeys(); refreshHints();
 }, true);
-function refreshHints() { const k = SET.keys; $('hints').innerHTML = `<div>이동 <kbd>WASD</kbd></div><div>달리기 <kbd>${keyLabel(k.run)}</kbd></div><div>손전등 <kbd>${keyLabel(k.flash)}</kbd></div><div>상호작용 <kbd>${keyLabel(k.interact)}</kbd></div><div>던지기 <kbd>${keyLabel(k.throwCan)}</kbd></div><div>앉기 <kbd>${keyLabel(k.crouch)}</kbd> · 점프 <kbd>${keyLabel(k.jump)}</kbd></div><div>시점 <kbd>${keyLabel(k.view)}</kbd></div><div>주변 살피기 <kbd>${keyLabel(k.scan)}</kbd> · 빠른 저장 <kbd>F5</kbd></div><div>일시정지 <kbd>Esc</kbd></div>`; }
+function refreshHints() { const k = SET.keys; $('hints').innerHTML = `<div>이동 <kbd>WASD</kbd></div><div>달리기 <kbd>${keyLabel(k.run)}</kbd></div><div>손전등 <kbd>${keyLabel(k.flash)}</kbd></div><div>상호작용 <kbd>${keyLabel(k.interact)}</kbd></div><div>던지기 <kbd>${keyLabel(k.throwCan)}</kbd></div><div>앉기 <kbd>${keyLabel(k.crouch)}</kbd> · 점프 <kbd>${keyLabel(k.jump)}</kbd></div><div>시점 <kbd>${keyLabel(k.view)}</kbd></div><div>주변 살피기 <kbd>${keyLabel(k.scan)}</kbd> · 빠른 저장 <kbd>F5</kbd> · 빠른 불러오기 <kbd>F9</kbd></div><div>일시정지 <kbd>Esc</kbd></div>`; }
 refreshHints();
 $('setReset').onclick = () => { resetSET(); setVolumes({ master: 1, sfx: 1, voice: 1, amb: 1, music: 1 }); VS.dub = true; VS.engine = 'auto'; VS.subs = true; VS.readNotes = true; VS.subSize = 1; saveVS(); applySettings(); applyQuality(SET.quality === 'auto' ? 'mid' : SET.quality); fillSettings(); refreshHints(); toast('설정', '기본값으로 되돌렸습니다', 'info'); };
 document.querySelectorAll('.btn').forEach(b => b.addEventListener('mouseenter', () => sfx.ui()));

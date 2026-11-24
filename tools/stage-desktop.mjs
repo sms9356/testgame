@@ -4,7 +4,7 @@ import fs from 'node:fs'; import path from 'node:path';
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const OUT = path.join(ROOT, 'desktop', 'game');
 fs.rmSync(OUT, { recursive: true, force: true }); fs.mkdirSync(OUT, { recursive: true });
-const TOP = fs.readdirSync(ROOT).filter(f => /\.(js|css|html)$/.test(f) && !/^(bake|start)\b/.test(f));
+const TOP = fs.readdirSync(ROOT).filter(f => /\.(js|css|html)$/.test(f) && !/^start\b/.test(f)   /* bake.js 는 world.js · game.js 가 import 하는 런타임 모듈 — 빼면 패키지판이 뜨지 않는다 */);
 for (const f of TOP) fs.copyFileSync(path.join(ROOT, f), path.join(OUT, f));
 for (const d of ['assets', 'vendor', 'voice', 'music', 'lang', 'rebuild']) {
   if (fs.existsSync(path.join(ROOT, d))) fs.cpSync(path.join(ROOT, d), path.join(OUT, d), { recursive: true });

@@ -6,7 +6,8 @@ export const BUILD = '2026.10.14';
 // 저장소 키: 테스트 모드는 실제 세이브를 오염시키지 않도록 분리한다
 export function storageKeys(test) {
   const p = test ? 'haegyo_test_' : 'haegyo_';
-  return { main: p + 'save_v5', backup: p + 'save_v5_bak', legacy: test ? null : 'haegyo_save_v4', char: p + 'char', endings: p + 'endings', deaths: p + 'deaths', shots: p + 'shots', stats: p + 'stats', auto: p + 'auto' };
+  // corrupt: 읽을 수 없게 된 본 세이브 원문 보관 · future: 더 새 빌드가 쓴 세이브(schemaVersion > SCHEMA) 원문 보관 — 덮어써도 잃지 않는다
+  return { main: p + 'save_v5', backup: p + 'save_v5_bak', corrupt: p + 'save_corrupt', future: p + 'save_future', legacy: test ? null : 'haegyo_save_v4', char: p + 'char', endings: p + 'endings', deaths: p + 'deaths', shots: p + 'shots', stats: p + 'stats', auto: p + 'auto' };
 }
 
 // 고유 ID: 위치가 바뀌어도 의미가 같은 물건은 같은 ID 를 갖도록 (열쇠 조각 · 문서는 위치와 무관)
@@ -60,39 +61,60 @@ export function migrate(d, ctx) {
     inv: d.inv || {}, docs: d.docs || [], msgs: d.msgs || [], clues: d.clues || [],
     events: [], tips: [], cards: [],
     world: { items, props, doors: {} },
-    ghost: d.ghost || { active: false },
   };
 }
 
-// 읽기: 본 세이브 → (실패 시) 백업 → (없으면) 구버전 변환. { data, source, error }
+// 세이브 정규화(같은 스키마 안의 예전 · 새 빌드 차이 흡수): 빠진 선택 필드는 기본값, 모르는 필드는 그대로 둔다(새 빌드 필드 보존).
+// 유령(추격) 기능은 제거됨 — 예전 세이브의 ghost 상태는 읽지 않는다(game.js 도 무시).
+export function normalize(d) {
+  if (!isRecord(d)) return d;
+  for (const k of ['docs', 'msgs', 'clues', 'events', 'tips', 'cards']) if (!Array.isArray(d[k])) d[k] = [];
+  if (isRecord(d.progress) && !isRecord(d.progress.FL)) d.progress.FL = {};
+  if (isRecord(d.world) && !isRecord(d.world.doors)) d.world.doors = {};
+  if (isRecord(d.meta) && typeof d.meta.where !== 'string') d.meta.where = '';
+  if (d.inv == null) d.inv = {};
+  delete d.ghost;
+  return d;
+}
+
+// 원문을 보관 키에 복사(같은 내용이면 건너뜀) — 실패해도 진행은 막지 않는다
+function keepRaw(storage, key, raw) { if (!key || !raw) return; try { if (storage.getItem(key) !== raw) storage.setItem(key, raw); } catch (e) { /* ignore */ } }
+// 읽기: 본 세이브 → (실패 시) 백업 → (없으면) 구버전 변환. { data, source }
+// 손상된 본 세이브는 corrupt 키에, 더 새 빌드의 세이브는 future 키에 원문을 남긴다(절대 예외를 던지지 않는다).
 export function readSlot(storage, keys, ctx, preferBackup = false) {
-  const tryParse = k => { if (!k) return null; try { const s = storage.getItem(k); return s ? JSON.parse(s) : null; } catch (e) { return { __corrupt: true }; } };
   const order = [[keys.main, 'main'], [keys.backup, 'backup'], [keys.legacy, 'legacy']];
   if (preferBackup) order.unshift(order.splice(1, 1)[0]);
   for (const [k, src] of order) {
-    const raw = tryParse(k); if (!raw) continue;
-    if (raw.__corrupt) continue;
+    if (!k) continue;
+    let text = null, raw = null;
+    try { text = storage.getItem(k); } catch (e) { continue; }
+    if (!text) continue;
+    try { raw = JSON.parse(text); } catch (e) { if (src === 'main') keepRaw(storage, keys.corrupt, text); continue; }
+    if (isRecord(raw) && Number(raw.schemaVersion) > SCHEMA) { keepRaw(storage, keys.future, text); continue; }   // 다운그레이드: 읽지 않고 원문 보관
     try {
-      const d = migrate(raw, ctx); if (!d) continue;
+      const d = normalize(migrate(raw, ctx)); if (!d) { if (src === 'main') keepRaw(storage, keys.corrupt, text); continue; }
       if (validate(d).length === 0) return { data: d, source: src };
+      if (src === 'main') keepRaw(storage, keys.corrupt, text);
     } catch (e) {
       // 한 슬롯의 변환 실패가 정상 백업 복구까지 막지 않도록 한다.
+      if (src === 'main') keepRaw(storage, keys.corrupt, text);
       continue;
     }
   }
   return { data: null, source: null };
 }
-// 쓰기: 기존 본 세이브를 백업으로 밀어 두고 새로 쓴다
+// 쓰기: 기존 본 세이브를 백업으로 밀어 두고 새로 쓴다. 기존 본 세이브가 손상 · 미래 버전이면 버리지 않고 corrupt · future 키에 보관한다.
 export function writeSlot(storage, keys, data) {
   const errors = validate(data);
   if (errors.length) throw new Error('저장 데이터 검증 실패: ' + errors.join(', '));
   const next = JSON.stringify(data); // 직렬화 실패 시 기존 슬롯은 그대로 둔다.
   const prev = storage.getItem(keys.main);
-  let validPrevious = false;
   if (prev) {
-    try { validPrevious = validate(JSON.parse(prev)).length === 0; } catch (e) { /* 손상 본 저장은 백업하지 않는다. */ }
+    let parsed = null; try { parsed = JSON.parse(prev); } catch (e) { /* 손상 */ }
+    if (parsed && validate(parsed).length === 0) storage.setItem(keys.backup, prev);
+    else if (isRecord(parsed) && Number(parsed.schemaVersion) > SCHEMA) keepRaw(storage, keys.future, prev);
+    else keepRaw(storage, keys.corrupt, prev);
   }
-  if (validPrevious) storage.setItem(keys.backup, prev);
   storage.setItem(keys.main, next);
 }
 export function hasSlot(storage, keys) { return !!(storage.getItem(keys.main) || storage.getItem(keys.backup) || (keys.legacy && storage.getItem(keys.legacy))); }

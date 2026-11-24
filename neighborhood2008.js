@@ -4,7 +4,7 @@
 //   ── 상호작용 없는 배경: 충돌 상자 없음(플레이어는 기존 보이지 않는 벽 안) · 진짜 조명 없음(나트륨 빛은 정점 속성으로 구움 + 가산 바닥 웅덩이) ·
 //      구역(동서남북 × 앞줄/뒷줄)마다 재질별로 합친 메시 몇 개 · 거리 컬링 · 저사양(low/igpu)은 뒷줄 빌라를 끄고 컬링 거리를 줄인다.
 import * as THREE from './vendor/three.module.js';
-import { SET } from './settings.js';
+import { SET } from './settings.js?v=458';
 
 let seed = 20081012 ^ 0x5e11;
 const rnd = () => { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return seed / 4294967296; };

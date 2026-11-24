@@ -30,7 +30,7 @@ export const S = {
   shared: ['공통', 'shared', '共通', '共同'], mentioned: ['번 언급 · 아직 조사 안 함', 'mentions · not examined yet', '回言及・未調査', '次提及・尚未调查'],
   inspect: ['자세히 보기', 'Inspect', 'じっくり見る', '仔细看'], rotHint: ['드래그 · 방향키로 돌리기 · 휠/＋－ 확대', 'Drag / arrows to rotate · wheel / +- to zoom', 'ドラッグ・矢印で回転・ホイール/＋－で拡大', '拖动/方向键旋转・滚轮/＋－缩放'],
   clear: ['지우기', 'Erase', '消す', '擦掉'], done: ['완료', 'Done', '完了', '完成'], deleted: ['[삭제된 게시물입니다]', '[This post has been deleted]', '[この投稿は削除されました]', '[该帖子已被删除]'],
-  intranet: ['서린고 교내 통신망 — 자유게시판', 'Seorin High intranet — open board', 'ソリン高校内ネット — 自由掲示板', '瑞林高中校内网 — 自由留言板'], boardKey: ['단서 보드 (B)', 'Evidence board (B)', '手がかりボード (B)', '线索板 (B)'],
+  intranet: ['서린고 교내 통신망 — 자유게시판', 'Seorin High intranet — open board', 'ソリン高校内ネット — 自由掲示板', '瑞林高中校内网 — 自由留言板'], boardKey: ['단서 보드 (N)', 'Evidence board (N)', '手がかりボード (N)', '线索板 (N)'],
   mina: ['민아', 'Mina', 'ミナ', '敏雅'], drawer: ['서랍', 'drawer', '引き出し', '抽屉'], emptyDr: ['비어 있다.', 'Empty.', '空だ。', '空的。'],
 };
 export const tl = (k, lg = 'ko') => { const e = S[k]; return e ? e[LI[lg] ?? 0] : k; };
@@ -438,7 +438,7 @@ export function createSmart() {
     ov.addEventListener('click', e => { const a = e.target.closest('[data-act]'); if (!a) return; act(a.dataset.act, a.dataset.v, a); });
     ov.addEventListener('keydown', e => { if (e.target.tagName === 'INPUT') { e.stopPropagation(); if (e.code === 'Enter') act('wdone'); if (e.code === 'Escape') close(); } }, false);
     addEventListener('keydown', e => { if (!ov.classList.contains('show')) return; if (mode === 'insp') { const d = { ArrowLeft: [0, -15], ArrowRight: [0, 15], ArrowUp: [-12, 0], ArrowDown: [12, 0] }[e.code]; if (d) { e.preventDefault(); e.stopPropagation(); rot(d[0], d[1]); } if (e.code === 'Equal' || e.code === 'Minus') { e.stopPropagation(); zoom(e.code === 'Equal' ? 1.1 : .9); } } }, true);
-    addEventListener('keydown', e => { if (e.code === 'KeyB' && !e.repeat && ctx.getState && ctx.getState() === 'playing' && !(e.target && e.target.tagName === 'INPUT')) { openBoard(); } });
+    addEventListener('keydown', e => { if (e.code === 'KeyN' && !e.repeat && ctx.getState && ctx.getState() === 'playing' && !(e.target && e.target.tagName === 'INPUT')) { openBoard(); } });
     ov.addEventListener('pointerdown', e => { const st0 = e.target.closest('.stage'); if (st0) { insp.drag = [e.clientX, e.clientY, insp.rx, insp.ry]; } });
     addEventListener('pointermove', e => { if (!insp.drag) return; const [x0, y0, rx, ry] = insp.drag; insp.rx = Math.max(-80, Math.min(80, rx - (e.clientY - y0) * .5)); insp.ry = ry + (e.clientX - x0) * .6; applyRot(); });
     addEventListener('pointerup', () => { insp.drag = null; });

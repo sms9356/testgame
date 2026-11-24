@@ -5,7 +5,7 @@ export const DEF = {
   subBg: .45, subNames: true,
   crouchToggle: true, idleHint: true, idleHintSec: 240, cbSafe: false,   // 편의: 앉기 방식 · 목표 다시 알림 · 색각 보조 강조
   diff: 'normal', jump: 'soft', flashReduce: false, fearFx: true, captions: true, tips: true, areaPhotos: false, contrast: false, motionBlur: false, classicBars: false, minimap: true, paperMap: false, ui: 1, mic: false, lang: 'ko',
-  keys: { interact: 'KeyE', flash: 'KeyF', inv: 'Tab', map: 'KeyM', phone: 'KeyP', throwCan: 'KeyG', view: 'KeyV', run: 'ShiftLeft', down: 'KeyQ', crouch: 'KeyC', jump: 'Space', scan: 'KeyH', camera: 'KeyX', quest: 'KeyO' },
+  keys: { interact: 'KeyE', flash: 'KeyF', inv: 'Tab', map: 'KeyM', phone: 'KeyP', throwCan: 'KeyG', view: 'KeyV', run: 'ShiftLeft', down: 'KeyQ', crouch: 'KeyC', jump: 'Space', scan: 'KeyH', camera: 'KeyX', quest: 'KeyO', quickSave: 'F5', quickLoad: 'F9' },
 };
 export const SET = { ...DEF, keys: { ...DEF.keys } };
 // 저장된 설정 문자열 → 기본값과 합친 설정 (손상 · 이상값은 기본값으로). node 테스트에서 직접 검증한다.

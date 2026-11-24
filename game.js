@@ -2560,9 +2560,15 @@ function save(silent) {
     },
     ghost: { active: ghost.active, enraged: ghost.enraged, floor: ghost.floor, x: ghost.x, z: ghost.z },
   };
-  try { writeSlot(localStorage, SKEYS, d); lastSave = d.meta; toast('저장되었습니다', `${silent ? '자동 저장 · ' : ''}${d.meta.where} · ⏱ ${fmtPT(playTime)}`, 'info'); statFlush(); }
-  catch (e) { toast('저장 실패', '브라우저 저장 공간을 확인하세요', 'warn'); }
+  try { writeSlot(localStorage, SKEYS, d); lastSave = d.meta; toast('저장되었습니다', `${silent ? '자동 저장 · ' : ''}${d.meta.where} · ⏱ ${fmtPT(playTime)}`, 'info'); statFlush(); return true; }
+  catch (e) { toast('저장 실패', '브라우저 저장 공간을 확인하세요', 'warn'); return false; }
 }
+// 업데이트 배너(net.js)의 '저장 후 새로고침': 게임 중이면 저장이 성공해야만 새로고침한다(메뉴 · 인트로 · 엔딩 화면은 저장할 진행이 없음)
+window.__saveForUpdate = () => {
+  if (state === 'menu' || state === 'intro' || state === 'won') return true;
+  if (state === 'dead') return false;
+  return save(false) === true;
+};
 function readSave(preferBackup) { try { return readSlot(localStorage, SKEYS, SCTX, preferBackup).data; } catch (e) { return null; } }
 // 장치 상태 복원 (시각 연출까지 맞춘다)
 function restoreProp(p, s) {

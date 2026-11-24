@@ -42,7 +42,7 @@ let device = 'kb', installed = false;
 export const padActive = () => device === 'pad';
 export const promptGlyphs = html => device === 'pad' ? padGlyphHtml(html) : html;
 
-// ctx: { getState(): string, keys(): SET.keys, look(dx, dy, dt) }
+// ctx: { getState(): string, keys(): SET.keys, look(dx, dy, dt), skipLine?(): boolean — 이미 본 대사를 넘겼으면 true }
 export function installGamepad(ctx) {
   if (installed || typeof window === 'undefined') return; installed = true;
   let prev = new Set(), last = 0, raf = 0;
@@ -73,6 +73,9 @@ export function installGamepad(ctx) {
     if (tick.was !== 'playing') prev = new Set([...s.held].filter(c => !MOVE.has(c)));
     tick.was = st;
     const { down, up } = diffHeld(prev, s.held);
+    // A(상호작용)를 새로 눌렀고 지금 나오는 대사가 이미 본 줄이면(설정 '이미 본 대사 넘기기') 그 줄만 넘기고 상호작용은 보내지 않는다 — 키보드 E · Enter 와 같은 동작
+    const ia = codeOf('interact', ctx.keys()), ii = ia ? down.indexOf(ia) : -1;
+    if (ii >= 0 && pressed(gp.buttons[0]) && ctx.skipLine && ctx.skipLine()) down.splice(ii, 1);
     up.forEach(c => send('keyup', c)); down.forEach(c => send('keydown', c));
     prev = s.held;
     if (s.look.x || s.look.y) ctx.look(s.look.x, s.look.y, dt);

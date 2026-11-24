@@ -1639,7 +1639,7 @@ function findInteract() {
     const f = (dx * fx + dz * fz) / Math.max(dd, .01), s = f - dd * .1 + (p.kind === 'search' ? -.05 : .1);   // 수색은 숨기(사물함)보다 뒤로 — 쫓길 때 숨는 게 먼저
     if (f > (p.kind === 'search' ? .6 : dd < .8 ? .2 : .55) && s > bs) { bs = s; best = { type: 'prop', p, label: p.label + needText(p) }; }   // 그 물건을 바라볼 때만 (약 ±55°)
   }
-  if (!best && NPCAI && P.floor === 0) { const n = NPCAI.pick(P.x, P.z, fx, fz); if (n) best = { type: 'npc', n: n.n, label: n.label }; }   // 방과 후 NPC: 다른 조사 대상이 없을 때만 (진행 대상을 가로채지 않는다)
+  if (!best && NPCAI && MINA_F.on && !MINA_F.hold && P.floor === 0) { const n = NPCAI.pick(P.x, P.z, fx, fz); if (n) best = { type: 'npc', n: n.n, label: n.label }; }   // 동행 민아에게 말 걸기: 다른 조사 대상이 없을 때만 (진행 대상을 가로채지 않는다)
   if (!best) {
     const si = STAIRS[P.floor];
     const inStair = !si || (RBG && P.floor === 0) ? false : P.floor === 3 ? (Math.abs(P.x) < 4.5 && P.z < -4.35 && P.z > -9.5) : (() => { const z = floors[P.floor].stairZone || { x1: -1, x2: 4, z1: -9.3, z2: -2 }; return P.x > z.x1 && P.x < z.x2 && P.z > z.z1 && P.z < z.z2; })();
@@ -2562,6 +2562,7 @@ function save(silent) {
       doors: Object.fromEntries(world.doorList.map(dd => [dd.uid, dd.target > .5 ? 1 : 0])),
     },
     ghost: { active: ghost.active, enraged: ghost.enraged, floor: ghost.floor, x: ghost.x, z: ghost.z },
+    npc: NPCAI ? NPCAI.serialize() : undefined,   // 방과 후 NPC: 자리 · 일정 · 기억 (자체 버전 v — 없거나 다르면 처음 일정)
   };
   try { writeSlot(localStorage, SKEYS, d); lastSave = d.meta; toast('저장되었습니다', `${silent ? '자동 저장 · ' : ''}${d.meta.where} · ⏱ ${fmtPT(playTime)}`, 'info'); statFlush(); }
   catch (e) { toast('저장 실패', '브라우저 저장 공간을 확인하세요', 'warn'); }
@@ -2604,6 +2605,7 @@ function load(preferBackup) {
   world.items.forEach(it => { if (d.world.items[it.uid]) { it.taken = true; it.mesh.visible = false; } });
   world.props.forEach(p => { const s = d.world.props[p.uid]; if (s) restoreProp(p, s); });
   if (ELEC) ELEC.restore();   // 스위치 · 차단기 · 외등 모드 (FL.elec)
+  if (NPCAI) try { NPCAI.restore(d.npc); } catch (e) { console.warn('[npcAI] restore', e); NPCAI.reset(); }   // 차단기 복원 뒤 (NPC 가 꺼진 차단기를 '방금 꺼졌다'로 보지 않게)
   world.doorList.forEach(dd => { const v = d.world.doors && d.world.doors[dd.uid]; if (v != null) { dd.target = v; dd.open = v; dd.rect.off = v > .4; dd._slideE = -1; if (dd.leafCols) dd.leafCols.forEach(c => { c.off = true; c.o = -1; }); } }); updateSchoolDoors(world);
   // 4) 필수 아이템 영구 소실 방지: 열쇠 조각 상태를 진행 기록과 맞춘다
   world.items.filter(i => i.kind === 'key').forEach(it => {
@@ -2627,7 +2629,7 @@ function trimShadowCasters() { const bb = new THREE.Box3(), sz = new THREE.Vecto
   if (n) console.info(`[그림자] 그림자 드리우기 끔 ${n}개 (큰 판 · 작은 소품)`); }
 { const tsc = () => { try { trimShadowCasters(); } catch (e) {} }; [20000, 60000].forEach(ms => idleTimeout(tsc, ms)); }
 function start(skipIntro = false) {
-  beginStorySession(); const epoch=storySession; if (NPCAI) NPCAI.reset();   // NPC 는 저장하지 않는다: 새 게임 · 이어하기 모두 일정 처음(같은 자리)에서
+  beginStorySession(); const epoch=storySession; if (NPCAI) NPCAI.reset();   // 새 게임: 일정 처음(같은 자리) · 이어하기는 load() 에서 세이브의 npc 칸으로 되돌린다
   initAudio(); closeMenus(); applyChar(); { const par = renderer.extensions.has('KHR_parallel_shader_compile');   // 병렬 컴파일이 없으면 씬 전체 컴파일이 동기라 한 번에 수십 초 멈춘다 → 한 번만
   // 플레이 중 다시 예열(씬 전체 순회 + 컴파일 요청)은 새 모델이 들어왔을 때만, 그리고 멈춰 서 있을 때 돌린다 — 예전엔 시작 6 · 15 · 30 · 50초에 걷는 도중 무조건 돌았다
   let warmDone; introWarm = new Promise(r => warmDone = r);   // 첫 셰이더 예열이 끝나야 인트로 더빙을 시작 — 예열로 화면이 멈춘 동안 더빙이 흘러가 버리던 문제
@@ -3693,7 +3695,7 @@ function frameBody(now) {
       updateEvents(dt); perfMark('events');
     }
     updateLighting(dt); perfMark('lighting'); if (RBG) { RBG.tick(dt, P, sfx); if (ELEC) ELEC.tick(dt); RBG.setPower(blackout > 0, GEN.gain, power); }
-    perfMark('rbg.tick'); if (NPCAI) { NPCAI.tick(dt); perfMark('npcAI'); } ghostVisual(dt, tNow); perfMark('ghostVis');
+    perfMark('rbg.tick'); ghostVisual(dt, tNow); perfMark('ghostVis');
     updateCamera(dt, tNow); perfMark('camera+hud');
   } else if (state === 'intro') {
     updateIntro(dt);
@@ -3875,7 +3877,21 @@ const ANX_SCENES = {
   '1|22:50': { who: [{ x: .2, s: 1.1, c: '#4a5a6a', run: 1 }], cap: '경비원이 교무실 쪽으로 뛰어간다' },
   '0|05:50': { who: [{ x: .5, s: 1.2, c: '#30343a', key: 1 }], cap: '새벽 — 교무부장이 정문으로 들어온다. 구급차는 없다' },
 };
-const anxDark = (cam, i) => cam >= 1 && cam <= 3 && ANX_T0 + i * ANX_STEP >= 23 * 60 + 20 && ANX_T0 + i * ANX_STEP < 29 * 60 + 50;
+// 오늘 밤(2008-10-12) 테이프: 방과 후 학교에 남아 있던 사람들 — 플레이어가 오기 전 · 들어온 뒤 (증거는 없다, 이야기 배경)
+const ANX_SCENES_NOW = {
+  '0|21:00': { who: [{ x: .35, s: .9, c: '#e0e0d8' }, { x: .5, s: .9, c: '#1f2a44' }], cap: '야간 자율학습을 마친 학생 2명이 정문으로 나간다' },
+  '0|21:10': { who: [{ x: .6, s: 1.1, c: '#2d3646', light: 1 }], cap: '경비 아저씨가 손전등을 들고 정문 빗장을 확인한다' },
+  '1|21:20': { who: [{ x: .4, s: 1.05, c: '#7d8a6a', cart: 1 }], cap: '청소 아주머니가 카트를 밀고 1층 복도를 지나간다' },
+  '3|21:30': { who: [{ x: .55, s: 1.1, c: '#6a5a4c' }], cap: '당직 선생님이 교무실에 들어가 불을 켠다' },
+  '1|21:40': { who: [{ x: .3, s: .95, c: '#e8e6de' }], cap: '학생회 학생 1명이 가방을 메고 계단 쪽에서 내려온다' },
+  '3|21:50': { who: [{ x: .5, s: 1.1, c: '#6a5a4c', phone: 1 }], cap: '교무실 앞 — 당직 선생님이 전화를 받으며 시계를 본다' },
+  '0|22:00': { who: [{ x: .45, s: 1.1, c: '#7d8a6a' }, { x: .58, s: 1.1, c: '#2d3646' }], cap: '청소 아주머니가 퇴근 — 경비 아저씨가 배웅한다' },
+  '1|22:10': { who: [{ x: .65, s: 1.1, c: '#2d3646', light: 1 }], cap: '경비 아저씨가 1층 순찰을 돌고 경비실로 돌아간다' },
+  '3|22:20': { who: [], cap: '교무실 불이 꺼졌다 — 당직 선생님 퇴근' },
+};
+let anxTape = 0;   // 0: 1998.10.12 테이프 · 1: 오늘 밤(2008.10.12)
+const anxScene = (cam, t) => (anxTape ? ANX_SCENES_NOW : ANX_SCENES)[cam + '|' + t];
+const anxDark = (cam, i) => !anxTape && cam >= 1 && cam <= 3 && ANX_T0 + i * ANX_STEP >= 23 * 60 + 20 && ANX_T0 + i * ANX_STEP < 29 * 60 + 50;
 let anxCam = 2, anxIdx = 0, anxView = '';
 function anxDraw(cv) {
   const g = cv.getContext('2d'), W = cv.width, H = cv.height, t = anxTime(anxIdx);
@@ -3884,34 +3900,38 @@ function anxDraw(cv) {
   else {
     g.strokeStyle = '#2c3a33'; g.lineWidth = 2; g.beginPath(); g.moveTo(0, H); g.lineTo(W * .35, H * .38); g.lineTo(W * .65, H * .38); g.lineTo(W, H); g.moveTo(W * .35, H * .38); g.lineTo(W * .35, 0); g.moveTo(W * .65, H * .38); g.lineTo(W * .65, 0); g.stroke();
     if (anxCam === 2) { g.fillStyle = '#3a3226'; g.fillRect(W * .55, H * .2, W * .16, H * .45); g.fillStyle = '#c9b060'; g.fillRect(W * .69, H * .42, 4, 6); g.fillStyle = '#d0d0c0'; g.font = '10px sans-serif'; g.fillText('펌프실', W * .58, H * .18); }
-    const sc = ANX_SCENES[anxCam + '|' + t];
+    const sc = anxScene(anxCam, t);
     for (const w of sc?.who || []) {
       const x = w.x * W, base = H * .85, hh = 70 * w.s;
       g.fillStyle = w.c; g.beginPath(); g.ellipse(x, base - hh, 9 * w.s, 10 * w.s, 0, 0, 7); g.fill(); g.fillRect(x - 12 * w.s, base - hh + 10 * w.s, 24 * w.s, hh - 10 * w.s);
       if (w.badge) { g.fillStyle = '#e8e0b0'; g.fillRect(x - 8 * w.s, base - hh + 20 * w.s, 6, 3); }
+      if (w.cart) { g.fillStyle = '#2f6fb0'; g.fillRect(x + 14 * w.s, base - 34 * w.s, 30 * w.s, 30 * w.s); g.fillStyle = '#9aa0a6'; g.fillRect(x + 12 * w.s, base - 40 * w.s, 3, 12); }
+      if (w.light) { g.fillStyle = 'rgba(255,242,200,.22)'; g.beginPath(); g.moveTo(x + 12 * w.s, base - hh * .55); g.lineTo(x + 90 * w.s, base - hh * .9); g.lineTo(x + 90 * w.s, base - hh * .1); g.fill(); }
+      if (w.phone) { g.fillStyle = '#6b5d4a'; g.fillRect(x - 16 * w.s, base - hh + 4 * w.s, 5, 12); }
       if (w.key) { g.fillStyle = '#ffd860'; g.beginPath(); g.arc(x + 15 * w.s, base - hh * .45, 3.5, 0, 7); g.fill(); g.fillRect(x + 14 * w.s, base - hh * .45, 2, 8); }
     }
     for (let i = 0; i < 900; i++) { const v = Math.random() * 60 | 0; g.fillStyle = `rgba(${v},${v + 10},${v},.35)`; g.fillRect(Math.random() * W, Math.random() * H, 2, 1); }
   }
   for (let y = 0; y < H; y += 3) { g.fillStyle = 'rgba(0,0,0,.22)'; g.fillRect(0, y, W, 1); }
   g.fillStyle = 'rgba(0,0,0,.6)'; g.fillRect(0, 0, W, 20); g.fillStyle = '#c8ffd6'; g.font = '12px monospace'; g.fillText(ANX_CAMS[anxCam], 6, 14); g.fillStyle = '#ff5050'; g.fillText('▶ PLAY', W - 70, 14);
-  g.fillStyle = '#c8ffd6'; g.fillText('1998-10-' + (anxIdx * ANX_STEP + ANX_T0 >= 1440 ? '13' : '12') + '  ' + t, 6, H - 8);
-  const sc = !anxDark(anxCam, anxIdx) && ANX_SCENES[anxCam + '|' + t]; $('anxCap').textContent = sc ? '● ' + sc.cap : '— 움직임 없음 —';
+  g.fillStyle = '#c8ffd6'; g.fillText((anxTape ? '2008' : '1998') + '-10-' + (anxIdx * ANX_STEP + ANX_T0 >= 1440 ? '13' : '12') + '  ' + t, 6, H - 8);
+  const sc = !anxDark(anxCam, anxIdx) && anxScene(anxCam, t); $('anxCap').textContent = sc ? '● ' + sc.cap : '— 움직임 없음 —';
 }
 function anxRender() {
   const box = $('anxBody');
   if (anxView === 'archive') {
-    box.innerHTML = `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">${ANX_CAMS.map((c, i) => `<button data-cam="${i}" style="${i === anxCam ? 'background:#2f5a44' : ''}">${c}</button>`).join('')}</div>
+    box.innerHTML = `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px">${['1998.10.12 테이프', '오늘 밤 녹화 (2008.10.12)'].map((n, i) => `<button data-tape="${i}" style="${i === anxTape ? 'background:#5a4a2f' : ''}">📼 ${n}</button>`).join('')}</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">${ANX_CAMS.map((c, i) => `<button data-cam="${i}" style="${i === anxCam ? 'background:#2f5a44' : ''}">${c}</button>`).join('')}</div>
       <canvas id="anxCv" width="560" height="315" style="width:100%;background:#000;border:1px solid #3b5546"></canvas>
       <div id="anxCap" style="min-height:22px;margin:6px 0;color:#cfe"></div>
       <div style="display:flex;gap:8px;align-items:center"><button data-step="-6">◀◀ 1시간</button><button data-step="-1">◀ 10분</button>
       <input id="anxSlide" type="range" min="0" max="${ANX_N - 1}" value="${anxIdx}" style="flex:1"><button data-step="1">10분 ▶</button><button data-step="6">1시간 ▶▶</button></div>
       <div style="margin-top:10px;display:flex;gap:8px"><button id="anxCapture" style="background:#5a2f2f">📸 이 장면 증거로 캡처</button><span style="opacity:.75;font-size:12px">녹화 테이프 3개 · 21:00 ~ 06:00 · 장면을 찾아 캡처하세요 (${['cctv_b1', 'cctv_office'].filter(k => FL[k]).length}/2)</span></div>`;
     box.querySelectorAll('[data-cam]').forEach(b => b.onclick = () => { anxCam = +b.dataset.cam; sfx.click(); anxRender(); });
+    box.querySelectorAll('[data-tape]').forEach(b => b.onclick = () => { anxTape = +b.dataset.tape; sfx.click(); sfx.staticNoise?.(.2); anxRender(); });
     box.querySelectorAll('[data-step]').forEach(b => b.onclick = () => { anxIdx = Math.max(0, Math.min(ANX_N - 1, anxIdx + +b.dataset.step)); sfx.beep(); anxRender(); });
     $('anxSlide').oninput = e => { anxIdx = +e.target.value; anxDraw($('anxCv')); };
     $('anxCapture').onclick = () => {
-      const sc = !anxDark(anxCam, anxIdx) && ANX_SCENES[anxCam + '|' + anxTime(anxIdx)]; sfx.camera ? sfx.camera() : sfx.click();
+      const sc = !anxDark(anxCam, anxIdx) && anxScene(anxCam, anxTime(anxIdx)); sfx.camera ? sfx.camera() : sfx.click();
       if (!sc?.ev) { $('anxCap').textContent = '이 장면만으로는 아무것도 증명할 수 없다…'; return; }
       if (FL[sc.ev]) { $('anxCap').textContent = '이미 캡처한 장면이다.'; return; }
       FL[sc.ev] = true; const id = sc.ev === 'cctv_b1' ? 'n_cctv_b1' : 'n_cctv_office'; addDoc({ id, kind: 'note' }); addClue(id);
@@ -4122,6 +4142,13 @@ function minaFollowTick(dt) {
   if (!MINA_F.on || !mina) return;
   if (MINA_F.hold) { mina.userData.workPose = true; minaPlay('Idle'); return; }   // 방송 중: 조정실 콘솔에 앉아 있다 (npcVisuals 절차적 착석 · 콘솔 조작 자세)
   mina.userData.workPose = false;
+  // 새 길찾기(npcAI.js): 본관 · 별관 · 구름다리 · 현관 밖에서 격자 A* 로 따라오고 계단을 실제로 오르내린다 — 그 밖(예전 층 등)은 아래 예전 방식
+  perfMark('mina.pre'); const ai = NPCAI ? NPCAI.follow(dt, mina) : null; perfMark('npcAI');
+  if (ai) {
+    mina.position.set(ai.x, (floors[0]?.y0 || 0) + ai.y, ai.z); mina.rotation.y = ai.yaw; MINA_F.v = ai.v; MINA_F.turning = false; MINA_F.lastFloor = P.floor; MINA_F.stuck = 0;
+    minaLookTick(dt, mina.position.y);
+    if (ai.v > .15) { minaPlay(ai.v > 2.6 ? 'Run' : 'Walk'); minaStepTick(ai.v > 2.6); } else minaPlay(ghost.active && ghost.floor === P.floor ? 'ScaredIdle' : 'Idle');
+  } else {
   const fy = (floors[P.floor]?.y0 || 0) + (P.sh || 0), bx = P.x + Math.sin(P.yaw) * 1.5, bz = P.z + Math.cos(P.yaw) * 1.5;
   const dx = bx - mina.position.x, dz = bz - mina.position.z, d = Math.hypot(dx, dz), dp = Math.hypot(P.x - mina.position.x, P.z - mina.position.z);
   if (MINA_F.lastFloor !== P.floor || Math.abs(mina.position.y - fy) > 1.6 || dp > 14) { const q = minaSpot(fy); mina.position.set(q.x, fy, q.z); MINA_F.lastFloor = P.floor; minaPlay('Idle'); return; }
@@ -4143,6 +4170,7 @@ function minaFollowTick(dt) {
     MINA_F.turning = Math.abs(err) > (MINA_F.turning ? .18 : .7);
     if (MINA_F.turning) { minaPlay('Walk'); mina.rotation.y += Math.sign(err) * Math.min(Math.abs(err), dt * 2.6); }
     else { minaPlay(ghost.active && ghost.floor === P.floor ? 'ScaredIdle' : 'Idle'); mina.rotation.y += err * Math.min(1, dt * 3); }
+  }
   }
   // 동행 대화: 상황에 맞는 주고받기(더빙)를 한 번씩 — 다 쓰면 예전처럼 짧은 혼잣말 자막
   MINA_F.idleT = Math.hypot(P.x - (MINA_F.px ?? P.x), P.z - (MINA_F.pz ?? P.z)) < .05 ? (MINA_F.idleT || 0) + dt : 0; MINA_F.px = P.x; MINA_F.pz = P.z;
@@ -9497,7 +9525,9 @@ function declutterInteractables() {
   return n;
 }
 { RBG = installRebuild({ THREE, scene, floors, world }); window.__rbg = RBG;
- if (!params.has('nonpc')) try { NPCAI = installNPCAI({ THREE, scene, R: RBG, P, isPlaying: () => state === 'playing', subtitle, objective, at, sfx, igpu: () => IGPU, debug: DEBUG }); } catch (e) { console.warn('[npcAI]', e); NPCAI = null; }
+ if (!params.has('nonpc')) try { NPCAI = installNPCAI({ R: RBG, P, isPlaying: () => state === 'playing', subtitle, objective, at, igpu: () => IGPU, debug: DEBUG, elec: () => ELEC, now: () => playTime, busy: () => isSpeechBusy() || !!MINA_F.chatting,
+   mind: () => { const o = objective(); return { ch: (o && o.ch) || 1, main: o && o.main, where: o && o.loc && o.loc.where, keys: P.keys | 0, cam: !!FL.cam, lowBattery: !!P.light && P.battery < 25, late: !!FL.night && playTime > 900 }; },   // 대사 고르기: 장 · 목표 · 소지품 · 시간
+   outdoor: { gateZ: GATE_Z, door: { x: GUARD_LAYOUT.doorX, z: GUARD_LAYOUT.doorZ }, cols: () => floors[0].col } }); } catch (e) { console.warn('[npcAI]', e); NPCAI = null; }
  (RBG.wallDeco ||= []).push(...FAC_WALL_DECO);   // 시설(청운학사 · 학생회관 …) 벽시계 · 달력도 벽 장식으로
  try { MOONFX = installMoonShafts({ scene, blds: [RBG.MAIN, RBG.ANX], moonPos: MOON_POS }); MOONFX.setQuality(qCur); window.__moon = MOONFX; } catch (e) { console.warn('[moon shafts]', e); } idleTimeout(() => { try { refinishB1(); } catch (e) { console.warn('[B1 refinish]', e); } }, 12000); setTimeout(() => { for (const [nm, fn] of [['수영장 디테일', installPoolDetail], ['방송실 디테일', installBcastDetail], ['장비실 철문', installEqDoor]]) { try { const n = fn(); if (n) console.info('[' + nm + ']', n); } catch (e) { console.warn('[' + nm + ']', e); } } try { } catch (e) { console.warn('[pool detail]', e); } }, 13000); setTimeout(() => { try { (RBG.beds ? RBG.beds() : []).forEach((b, i) => world.props.push({ kind: 'bed', floor: 0, rbY: b.y, x: b.x, z: b.z, y: b.y + .7, r: 1.4, label: '침대에 눕기 — 잠시 숨 고르기', bed: b, _rb: true })); nurseChairFix(); } catch (e) { console.warn('[bed]', e); } }, 3500); try { RBG.allOff(); } catch (e) { console.warn('[all off]', e); } try { ELEC = installElectrical({ THREE, scene, world, floors, mergeGeometries, RBG, FL, audit: {}, blackout: () => blackout, tNow: () => tNow, genGain: () => GEN.gain, power: () => power, dayK: () => DAY.k, sfx, at, say: (t, ms) => say(t, ms), noise: v => { P.noiseT = Math.max(P.noiseT || 0, v); },
     enterUI: () => { state = 'ui'; for (const k in keys) keys[k] = false; document.exitPointerLock?.(); $('prompt').style.display = 'none'; }, exitUI: () => { if (state === 'ui') { state = 'playing'; refreshHud(); lock(); } } }); window.__elec = ELEC; } catch (e) { console.warn('[electrical]', e); } renderer.localClippingEnabled = true; setTimeout(() => { installInvestigationBoards().catch(e => console.warn('[조사 게시물]', e)); }, 2500); setTimeout(() => { furnishRooms({ scene, RBG, world, getP: () => P }).then(n => n && console.info('[가구 보강]', n)).catch(e => console.warn('[furnish v2]', e)); }, 4000); [20000, 45000].forEach(t => idleTimeout(() => { try { if (RBG && RBG.deskGraffiti && !RBG._graf) { const n = RBG.deskGraffiti(); if (n) console.info('[책상 낙서]', n); } } catch (e) { console.warn('[graffiti]', e); } }, t)); [6000, 16000, 32000].forEach(t => idleTimeout(() => { try { const n = repairStrayInteractables(); if (n) console.info('[상호작용 위치 보정]', n); } catch (e) { console.warn('[stray fix]', e); } }, t)); try { installRoomUI({ P, world, getRBG: () => RBG, getState: () => state, getTarget: () => target, keyInteract: () => (K().interact || 'KeyE') }); } catch (e) { console.warn('[room ui]', e); }

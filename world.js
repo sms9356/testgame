@@ -1,17 +1,17 @@
 // 폐교 월드 빌더 — 레퍼런스(배치도/정문/교실/소품 시트)를 기반으로 학교 전체를 절차적으로 생성한다.
 import * as THREE from './vendor/three.module.js';
 import * as T from './tex.js';
-import * as PT from './rebuild/periodTex.js?v=454';
+import * as PT from './rebuild/periodTex.js?v=455';
 import { rnd, rr, pick } from './tex.js';
 import { bakeStatic } from './bake.js';
 import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js';
-import { buildGuardAnnex, buildDutyRoom, ANNEX as GANX } from './guardAnnex.js?v=454';
-import { NOTES } from './story.js?v=454';
+import { buildGuardAnnex, buildDutyRoom, ANNEX as GANX } from './guardAnnex.js?v=455';
+import { NOTES } from './story.js?v=455';
 import { buildCampusDesign, turfMaterial } from './campusVisuals.js';
 import { elevatorBay } from './elevatorLayout.js';
 import { removeDuplicateModels } from './placement.js';
-import { buildSafe } from './safeModel.js?v=454';
-import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=454';
+import { buildSafe } from './safeModel.js?v=455';
+import { loadSurfaceTexture } from './materialTextures.js'; import { buildWindowFakes } from './windowInteriors.js?v=455';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];
@@ -5392,7 +5392,7 @@ export function buildWorld(scene) {
     flickerMats.forEach((m, i) => { const v = blackout ? 0 : flickVal(t, i) * gain; m.userData.v = v; m.color.setRGB(cr * v + .02, cg * v + .02, cb * v + .02); });
     matLampOn.color.setRGB(blackout ? .02 : cr * gain, blackout ? .02 : cg * gain, blackout ? .02 : cb * gain); if (winMats[9]) winMats[9].emissiveIntensity = blackout ? 0 : .55 * gain;
     spEm.opacity = emerg * .9; matEmHead.color.setRGB(.16 + emerg * .84, .16 + emerg * .76, .15 + emerg * .6); matEmLed.color.setHex(emerg > .1 ? 0xff4020 : 0x30ff60);
-    for (const it of items) if (!it.taken && it.kind !== 'note') { it.mesh.position.y = it.pos.y - floors[it.floor].y0 + (1 + Math.sin(t * 2 + it.pos.x)) * .015;   /* 위로만 떠오른다 — 받침면 속으로 파고들지 않게 */ it.mesh.rotation.y = t * 1.2; }
+    for (const it of items) if (!it.taken && it.kind !== 'note' && !it.seated) {   /* seated: 받침면에 딱 붙여 둔 아이템(game.js seatItem) — 띄우거나 돌리지 않는다 */ it.mesh.position.y = it.pos.y - floors[it.floor].y0 + (1 + Math.sin(t * 2 + it.pos.x)) * .015;   /* 위로만 떠오른다 — 받침면 속으로 파고들지 않게 */ it.mesh.rotation.y = t * 1.2; }
     lockGlow.material.opacity = .6 + .4 * Math.sin(t * 3);
   }
 

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<script src="net.js?v=454"></script><!-- 서비스 워커 캐시(버전 = ?v=, game.js 와 함께 올린다) · 요청 중복 제거 · 재시도 -->
+<script src="net.js?v=455"></script><!-- 서비스 워커 캐시(버전 = ?v=, game.js 와 함께 올린다) · 요청 중복 제거 · 재시도 -->
 <link rel="stylesheet" href="style.css">
 <link rel="icon" href="data:,">
 <title>서린고 : 잊혀진 시간</title>
@@ -755,7 +755,7 @@
 .missionNav{display:flex;gap:8px;position:sticky;top:0;background:#151a1c;padding:6px;z-index:1}.missionNav button{flex:1;background:#26323b;color:#e0e4e7;border:1px solid #42515c;border-radius:6px;padding:7px;font:inherit;cursor:pointer}.missionNav button:hover,.missionNav button:focus-visible{background:#3b4c59;outline:1px solid #c4b883}.missionGroup{margin:0 0 20px;scroll-margin-top:64px}.missionGroup h3{color:#d0c59f;margin-bottom:5px}.missionGroup p{font-size:12px;color:#a7aea8}.missionDone{opacity:.6}
 </style>
 <link rel="stylesheet" href="uiV3.css?v=296">
-<link rel="stylesheet" href="uiPolish.css?v=454">
+<link rel="stylesheet" href="uiPolish.css?v=455">
 <style id="invV4">
   /* 소지품 v4: 가죽 가방 안감 · 금속 테 슬롯 · 마우스 올리면 살짝 들어 올리는 3D 기울기 · 분류별 테 색 · 상세 창 회전 조명 */
   #inv .win{background:linear-gradient(160deg,#1a1410 0%,#120e0b 60%,#0d0a08 100%);border:1px solid #4a3a2a;box-shadow:0 30px 80px rgba(0,0,0,.7),inset 0 0 0 1px rgba(255,220,170,.05)}
@@ -963,6 +963,7 @@
     <span>더빙</span><label><input type="checkbox" id="setDub"> 켜기 (끄면 자막만)</label>
     <span>음성 엔진<em class="val" id="vEngine"></em></span><select id="setVoice"><option value="auto">자동 — 신경망 내장 더빙 우선</option><option value="file">내장 더빙</option><option value="browser">브라우저 한국어 음성</option></select>
     <span>쪽지 읽어주기</span><label><input type="checkbox" id="setNotes"> 내레이터가 쪽지를 읽음</label>
+    <span>이미 본 대사</span><label><input type="checkbox" id="setSkipSeen"> 상호작용 키로 넘기기 (한 번 본 대사만)</label>
     <h4>자막</h4>
     <span>자막 표시</span><label><input type="checkbox" id="setSubs"> 켜기</label>
     <span>화자 이름</span><label><input type="checkbox" id="setNames"> 표시</label>
@@ -1000,8 +1001,8 @@
 <div id="bye" class="overlay"><p class="story">브라우저는 보안상 웹 게임이 탭을 직접 닫을 수 없습니다.<br>탭을 닫거나(<kbd>Ctrl</kbd>+<kbd>W</kbd>) 타이틀로 돌아가세요. 진행 상황은 자동 저장되어 있습니다.</p><button class="btn" id="byeBack" style="margin-top:20px">타이틀로 돌아가기</button></div>
 
 <script type="importmap">{ "imports": { "three": "./vendor/three.module.js", "three/webgpu": "./vendor/three.webgpu.js", "three/tsl": "./vendor/three.tsl.js" } }</script>
-<script type="module" src="game.js?v=454"></script>
-<script src="uiPolish.js?v=454" defer></script>
+<script type="module" src="game.js?v=455"></script>
+<script src="uiPolish.js?v=455" defer></script>
 <script src="steamBridge.js" defer></script>
 </body>
 </html>

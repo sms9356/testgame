@@ -1,5 +1,7 @@
 // 더빙 · 자막: voice/manifest.json 의 사전 생성 음성(내장) + 캐릭터별 성도 포먼트/피치 변조 및 브라우저 신경망 음성 합성(Web Speech) 하이브리드 엔진
-import { playVoice, stopVoice, loadVoice, isVoicePlaying } from './audio.js?v=454';
+import { playVoice, stopVoice, loadVoice, isVoicePlaying } from './audio.js?v=455';
+import { isSeen, markSeen } from './seenLines.js?v=455';
+export { isSeen, markSeen, seenCount, clearSeen } from './seenLines.js?v=455';
 
 const SPEAKER = {
   seoyeon: '🎙 김서연 (방송부 2학년)',
@@ -133,7 +135,7 @@ export function emoFor(id) {
 }
 
 let manifest = {};
-export const VS = { dub: true, engine: 'auto', subs: true, readNotes: true, subSize: 1, prefsV: 2 };
+export const VS = { dub: true, engine: 'auto', subs: true, readNotes: true, subSize: 1, skipSeen: false, prefsV: 2 };   // skipSeen: 이미 본 대사를 상호작용 키로 넘기기 (기본 끔)
 try {
   const o = JSON.parse(localStorage.getItem('haegyo_voice') || '{}');
   if (o.mode) { if (o.mode === 'off') o.dub = false; else o.engine = o.mode === 'browser' ? 'browser' : 'auto'; delete o.mode; }
@@ -149,7 +151,7 @@ applySubSize();
 let manifestPromise = null;
 export async function loadManifest() {
   if (!manifestPromise) {
-    manifestPromise = fetch('voice/manifest.json?v=454').then(r => r.json()).then(m => {
+    manifestPromise = fetch('voice/manifest.json?v=455').then(r => r.json()).then(m => {
       manifest = { ...manifest, ...m };
       for (const [k, val] of Object.entries(manifest)) {
         if (val && val.audioFile && m[val.audioFile]) {
@@ -267,8 +269,8 @@ export async function speak(id, fx = 'none', story = false) {
   let sec = 0;
   try { sec = await speakNow(id, fx); } catch (e) { release(); throw e; }
   if (!VS.dub) { release(); return sec; }
-  const done = playbackDone, cap = new Promise(r => setTimeout(r, (sec || 0) * 1000 + 1200));
-  (done ? Promise.race([done, cap]) : new Promise(r => setTimeout(r, (sec || 0) * 1000))).then(release);
+  const done = playbackDone, cap = new Promise(r => setTimeout(r, (sec || 0) * 1000 + 1200)), sk = skipSig.p;
+  (done ? Promise.race([done, cap, sk]) : Promise.race([new Promise(r => setTimeout(r, (sec || 0) * 1000)), sk])).then(release);
   return sec;
 }
 async function speakNow(id, fx) {
@@ -308,9 +310,22 @@ async function speakNow(id, fx) {
 export function stopSpeak() {
   clearTimeout(subTimer);
   if (typeof document !== 'undefined') document.getElementById('sub')?.classList.remove('show');
+  curLine = null; skipSig.fire();
   ++storyEpoch; pendingLines.clear(); storyPending = 0; storyTail = Promise.resolve(); protectedUntil = 0; ++speechRequest; ++gateEpoch; gate = Promise.resolve();
   stopVoice();
   if (typeof window !== 'undefined' && 'speechSynthesis' in window) speechSynthesis.cancel();
+}
+
+// 이미 본 대사 넘기기: 지금 나오는 이야기 대사가 전에 본 줄이면(설정 켬) 상호작용 · 넘기기 키로 그 줄만 끊고 다음 줄로
+function newSkip() { let r; const p = new Promise(res => { r = res; }); const o = { p, done: false, fire: () => { if (!o.done) { o.done = true; r(); } } }; return o; }
+let skipSig = newSkip(), curLine = null;
+export const canSkipLine = () => !!(VS.skipSeen && curLine && curLine.wasSeen && !curLine.sig.done && (storyPending > 0 || isVoicePlaying()));
+export function skipSeenLine() {
+  if (!canSkipLine()) return false;
+  const c = curLine; curLine = null; c.sig.fire(); protectedUntil = 0; ++speechRequest;
+  stopVoice(); if (typeof window !== 'undefined' && 'speechSynthesis' in window) speechSynthesis.cancel();
+  clearTimeout(subTimer); if (typeof document !== 'undefined') document.getElementById('sub')?.classList.remove('show');
+  return true;
 }
 
 export const SUBLOG = [];
@@ -370,11 +385,15 @@ export function line(id, fx, whoOverride) {
   let completion = Promise.resolve();
   const job = storyTail.then(async () => {
     if (epoch !== storyEpoch) return 0;
+    const sig = skipSig = newSkip(), wasSeen = isSeen(id);   // 이 줄을 전에 본 적이 있는지 — 재생 전에 잰다(아래에서 바로 '봤음'으로 기록)
     const sec = await speak(id, fx, true);   // 순번을 기다린 뒤 재생 (그 사이 stopSpeak 가 오면 epoch 가 바뀐다)
     if (epoch !== storyEpoch) return 0;
     const timeout = new Promise(resolve => setTimeout(resolve, (playbackDone ? sec * 2 + 5 : sec) * 1000));
-    completion = playbackDone ? Promise.race([playbackDone, timeout]) : timeout;
+    completion = Promise.race([playbackDone ? Promise.race([playbackDone, timeout]) : timeout, sig.p]);
     protectedUntil = performance.now() + sec * 1000;
+    if (sig.done) { protectedUntil = 0; return sec; }   // 순번을 기다리는 사이에 넘기기를 눌렀다
+    curLine = { id, wasSeen, sig }; markSeen(id);
+    completion.then(() => { if (curLine && curLine.sig === sig) curLine = null; });
     subtitle(whoOverride ?? SPEAKER[info.spk], info.rawHtml || info.text, sec + .6, info.spk, info.stage || '');
     return sec;
   });

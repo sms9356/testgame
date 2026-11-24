@@ -28,8 +28,8 @@ const devices = p => p.evaluate(() => {
     for (const d of deco) if (bb.max.x > d.x1 && bb.min.x < d.x2 && bb.max.z > d.z1 && bb.min.z < d.z2 && bb.max.y > d.y1 && bb.min.y < d.y2) hits.push(key + ' × ' + d.id); }
   return { list: out.sort(), hits, deco: deco.length };
 });
-const walk = p => p.evaluate(() => {
-  const g = __g, P = g.P, B = g.RBG.MAIN, FH = B.spec.FH, L = B.layout, res = { n: 0, leaks: [] };
+const walk = (p, bk = 'MAIN') => p.evaluate(bk => {
+  const g = __g, P = g.P, B = g.RBG[bk], FH = B.spec.FH, L = B.layout, res = { n: 0, leaks: [] };
   const key = (c, d) => dispatchEvent(new KeyboardEvent(d ? 'keydown' : 'keyup', { code: c, key: c, bubbles: true }));
   const nearDoor = (lx, lz, f) => B.doors.some(d => d.floor === f && Math.hypot(d.mx - lx, d.mz - lz) < 1.3) || (L.rooms || []).some(r => /stair/.test(r.kind) && lx > r.x1 - .8 && lx < r.x2 + .8);
   // 시작점에서 (nx,nz) 방향 1.6m 안의 첫 번째 '실제 벽' 충돌 상자 (키 큰 · 얇은 · 문 아님)
@@ -64,7 +64,33 @@ const walk = p => p.evaluate(() => {
         probe(f, px - nx * 1.0, pz - nz * 1.0, nx, nz, '방→' + r.label + (ax === 'x' ? (nx < 0 ? ' 서벽' : ' 동벽') : (nz < 0 ? ' 북벽' : ' 남벽'))); } }
   }
   return res;
-});
+}, bk);
+// ③ 시설 · 실내 층: 그 층 충돌 상자 중 '벽'(얇고 · 키 큰 · 높이 제한 없는 것) 전부를 양쪽에서 1m 간격으로 향해 걷는다
+//   시설(2층 건물)은 floors[0].col 의 maxY(1층) / y0(2층) 로 층을 나누고, 2층은 P.jy = FH 에서 (위층 바닥판 위) 걷는다
+const ZONES = { 청운학사: [-86, -42, 22, 14, 2], 학생회관: [-88, 42, 22, 14, 2], 대강당: [-50, 41.8, 18, 24, 1], 과학천문관: [-88, 14, 20, 16, 2], 역사관: [-88, -16, 15.6, 10.6, 2], 식당외관: [-61, 13, 12.5, 18, 1], 수영장외관: [58, 35, 14, 20, 1], 체육관외관: [84, -39, 20, 22, 1] };
+const walkCols = (p, spec) => p.evaluate(spec => {
+  const g = __g, P = g.P, res = { n: 0, leaks: [], fell: 0 }, FH = 3.6;
+  const key = (c, d) => dispatchEvent(new KeyboardEvent(d ? 'keydown' : 'keyup', { code: c, key: c, bubbles: true }));
+  const F = g.floors[spec.floor], [x1, x2, z1, z2] = spec.rect;
+  const lvlOf = c => c.y0 != null ? (c.y0 >= FH - .3 ? 1 : 0) : c.maxY != null ? 0 : -1;   // -1: 모든 층
+  const walls = F.col.filter(c => !c.off && c.h == null && !(c.y0 > FH + 1) && Math.min(c.x2 - c.x1, c.z2 - c.z1) <= .45 && Math.max(c.x2 - c.x1, c.z2 - c.z1) >= .9 && (c.x1 + c.x2) / 2 > x1 && (c.x1 + c.x2) / 2 < x2 && (c.z1 + c.z2) / 2 > z1 && (c.z1 + c.z2) / 2 < z2);
+  const hitAny = (x, z, jy, lv) => F.col.some(c => !c.off && !(c.h != null && c.h <= jy + .34) && !(c.y0 != null && jy + 1.5 < c.y0) && !(c.maxY != null && jy > c.maxY) && x > c.x1 - .36 && x < c.x2 + .36 && z > c.z1 - .36 && z < c.z2 + .36);
+  for (const c of walls) { const lv0 = lvlOf(c); const lvls = lv0 < 0 ? [...Array(spec.levels).keys()] : [lv0];
+    const alongX = c.x2 - c.x1 > c.z2 - c.z1, a1 = alongX ? c.x1 : c.z1, a2 = alongX ? c.x2 : c.z2;
+    for (const lv of lvls) for (let a = a1 + .45; a < a2 - .35; a += 1.0) for (const s of [-1, 1]) {
+      const jy = lv * FH, far = alongX ? (s > 0 ? c.z2 : c.z1) : (s > 0 ? c.x2 : c.x1), near = alongX ? (s > 0 ? c.z1 : c.x1) : 0;
+      const sx = alongX ? a : (s > 0 ? c.x1 - 1.0 : c.x2 + 1.0), sz = alongX ? (s > 0 ? c.z1 - 1.0 : c.z2 + 1.0) : a;
+      if (hitAny(sx, sz, jy) ) continue;   // 시작점이 가구 · 다른 벽 속
+      g.state = 'playing'; P.floor = spec.floor; P.x = sx; P.z = sz; P.sh = P.shV = 0; P.jy = P.jyV = jy; P.vy = 0; P.inElev = false; P.hiding = null; P.sitting = null; P.crouch = false; P.runOn = false;
+      P.yaw = Math.atan2(-(alongX ? 0 : s), -(alongX ? s : 0)); P.pitch = 0; key('ShiftLeft', true); key('KeyW', true);
+      for (let i = 0; i < 100; i++) g.updatePlayer(1 / 60);
+      key('KeyW', false); key('ShiftLeft', false); for (let i = 0; i < 15; i++) g.updatePlayer(1 / 60);
+      if (P.floor !== spec.floor || Math.abs((P.jy || 0) - jy) > .5 || Math.abs(P.sh || 0) > .5) { res.fell++; continue; }
+      const along = alongX ? P.x : P.z, past = ((alongX ? P.z : P.x) - far) * s;
+      res.n++; if (past > 0 && Math.abs(along - a) < .4) res.leaks.push({ tag: spec.tag, lv, from: [+sx.toFixed(2), +sz.toFixed(2)], to: [+P.x.toFixed(2), +P.z.toFixed(2)], wall: [c.x1, c.x2, c.z1, c.z2].map(v => +v.toFixed(2)), y: [c.y0, c.maxY] });
+    } }
+  return res;
+}, spec);
 
 try {
   const A = await load();
@@ -74,6 +100,17 @@ try {
   const w = await walk(A.p);
   console.log(`walk probes: ${w.n}`);
   check('player cannot walk through 본관 corridor/room walls', w.n > 50 && w.leaks.length === 0, JSON.stringify(w.leaks.slice(0, 15)));
+  const wa = await walk(A.p, 'ANX');
+  console.log(`walk probes 별관: ${wa.n}`);
+  check('player cannot walk through 별관 corridor/room walls', wa.n > 50 && wa.leaks.length === 0, JSON.stringify(wa.leaks.slice(0, 15)));
+  const gd = await A.p.evaluate(() => { const d = __g.world.guardRoom && __g.world.guardRoom.doorCollider; return d ? [d.x1, d.z1] : null; });
+  const areas = [...Object.entries(ZONES).map(([tag, [cx, cz, W, D, levels]]) => ({ tag, floor: 0, levels, rect: [cx - W / 2 - .3, cx + W / 2 + .3, cz - D / 2 - .3, cz + D / 2 + .3] })),
+    ...(gd ? [{ tag: '경비실', floor: 0, levels: 1, rect: [gd[0] - 5, gd[0] + 5, gd[1] - 5, gd[1] + 5] }] : []),
+    { tag: 'B1', floor: 4, levels: 1, rect: [-200, 200, -200, 200] }, { tag: '체육관', floor: 5, levels: 1, rect: [-200, 200, -200, 200] },
+    { tag: '수영장', floor: 6, levels: 1, rect: [-200, 200, -200, 200] }, { tag: '식당', floor: 7, levels: 1, rect: [-200, 200, -200, 200] }];
+  for (const ar of areas) { const r = await walkCols(A.p, ar);
+    console.log(`walk probes ${ar.tag}: ${r.n} (skipped ${r.fell})`);
+    check(`player cannot walk through ${ar.tag} walls`, r.n > 3 && r.leaks.length === 0, JSON.stringify(r.leaks.slice(0, 10))); }
   await A.ctx.close();
   const B2 = await load(); const d2 = await devices(B2.p); await B2.ctx.close();
   const diff = d1.list.filter((s, i) => s !== d2.list[i]);

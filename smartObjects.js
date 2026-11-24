@@ -186,6 +186,10 @@ export function createSmart() {
     reset() { st = emptyState(); if (built) objs.forEach(o => { syncLabel(o); if (o.grp) applyVisual(o); }); },
     install(c) { if (built) return objs.length; ctx = c; try { place(); } catch (e) { console.warn('[smart]', e); } built = true; startLoop(); hookUI(); return objs.length; },
     openBoard: () => openBoard(), entries: () => boardEntries(), infer: () => inferLinks(boardEntries()),
+    // 민아(npcAI)용 상태 API: 열려 있는 캐비닛 · 블라인드 목록 · 닫기(겉모습 + 라벨만 — 노트 · 횟수는 그대로) · 보여 준 소지품을 단서 보드에
+    openObjects: () => objs.filter(o => (o.kind === 'cabinet' || o.kind === 'blinds') && st.objs[o.id] && st.objs[o.id].open).map(o => ({ id: o.id, kind: o.kind, x: o.wx, z: o.wz, y: o.y0 })),
+    close(id) { const o = objs.find(q => q.id === id); if (!o || !st.objs[id] || !st.objs[id].open) return false; st.objs[id].open = false; syncLabel(o); if (o.grp) applyVisual(o); try { ctx.sfx && ctx.sfx.locker && o.kind === 'cabinet' && ctx.sfx.locker(); } catch (e) { /* */ } return true; },
+    noteItem(itemId, name, cat) { const id = 'item:' + itemId; if (st.notes.some(n => n.id === id)) return false; const ko = String(name || itemId); st.notes.push({ id, k: 'item', room: '', ko, tags: [...new Set(tagsOf(ko))], place: null, t: ctx && ctx.playTime ? ctx.playTime() : 0, cat }); if (st.notes.length > 200) st.notes.splice(0, st.notes.length - 200); return true; },
   };
   const lg = () => (ctx && ctx.lang ? ctx.lang() : 'ko');
   const T = k => tl(k, lg());
@@ -482,7 +486,7 @@ export function createSmart() {
   function openBook(o) { cur = o; const s = O(o.id), p = s.page || 0, e = BOOK[p], L = lg(); s.seen = true; note(o, e[0], e[4]);
     show(`${head(T('book') + ' — ' + o.room.label)}<p style="font-family:serif;font-size:15px;background:#e9e2cf;color:#1d1a14;padding:14px;border-radius:4px">${esc(pick4(e, L))}</p><div class="meta">${p + 1} / ${BOOK.length}</div><div><button data-act="page" data-v="-1">◀</button><button data-act="page" data-v="1">▶</button><button data-act="insp">${esc(T('inspect'))}</button><button data-act="close">${esc(T('close'))}</button></div>`, 'book'); syncLabel(o); applyVisual(o); mina(o); }
   // 자세히 보기 — CSS 3D 상자(가벼움: WebGL 컨텍스트를 새로 만들지 않는다)
-  const ICON = { event: '✦', cabinet: '🗄', pc: '🖥', tv: '📺', radio: '📻', phone: '☎', intercom: '🔈', clock: '🕚', board: '📝', fan: '🌀', blinds: '🪟', vending: '🥤', fountain: '🚰', piano: '🎹', microscope: '🔬', book: '📖', shelf: '📚', plant: '🪴', metronome: '⏱', trophy: '🏆' };
+  const ICON = { item: '🎒', event: '✦', cabinet: '🗄', pc: '🖥', tv: '📺', radio: '📻', phone: '☎', intercom: '🔈', clock: '🕚', board: '📝', fan: '🌀', blinds: '🪟', vending: '🥤', fountain: '🚰', piano: '🎹', microscope: '🔬', book: '📖', shelf: '📚', plant: '🪴', metronome: '⏱', trophy: '🏆' };
   function openInspect(o) { if (!o) return; cur = o; const s = O(o.id), L = lg(), nts = st.notes.filter(n => n.id.startsWith(o.id)).map(n => n.ko), desc = o._last || (nts[nts.length - 1] || '');
     const faces = [['', 0, 0], ['', 0, 90], ['', 0, 180], ['', 0, -90], ['', 90, 0], ['', -90, 0]].map(([, x, y], i) => `<div style="transform:rotateX(${x}deg) rotateY(${y}deg) translateZ(75px)">${i === 0 ? `<span style="font-size:58px">${ICON[o.kind] || '?'}</span>` : i === 1 ? esc(T(o.kind)) : i === 2 ? esc(o.room.label) : i === 3 ? esc(stateText(o) || '—') : ''}</div>`).join('');
     show(`${head(T('inspect') + ' — ' + T(o.kind))}<div class="stage"><div class="cube">${faces}</div></div><div class="meta">${esc(T('rotHint'))}</div><div><button data-act="rot" data-v="0,-20">◀</button><button data-act="rot" data-v="0,20">▶</button><button data-act="rot" data-v="-15,0">▲</button><button data-act="rot" data-v="15,0">▼</button><button data-act="zoom" data-v="1.15">＋</button><button data-act="zoom" data-v="0.87">－</button><button data-act="close">${esc(T('close'))}</button></div><p class="row">${esc(desc && L === 'ko' ? desc : (o._last || desc))}</p>`, 'insp'); applyRot(); }

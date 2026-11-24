@@ -4,7 +4,7 @@
 //   3) HintDirector : 민아 · 무전 · 단서 보드가 함께 쓰는 힌트 단계 하나 (서로 다른/겹치는 힌트 금지) · 힌트 빈도(적게/보통/많이)
 //   4) 행동 고르기  : 대기 행동(둘러보기 · 휴대폰 · 팔짱 · 벽 기대기 · 앉기) · 가감속 · 시야 가림 판정
 //   매 프레임 부르는 함수(approach · turnSpeed · occludes · idleBehavior)는 객체를 만들지 않는다
-import { hintLine, HINT_GAP } from './npcMind.js?v=459';
+import { hintLine, HINT_GAP } from './npcMind.js?v=460';
 
 // ── 1. 반복 제어 ──
 //   window: 같은 줄을 다시 쓰기까지 최소 시간(초) · cd[id]: 줄마다 따로 정한 쿨다운

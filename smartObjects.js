@@ -6,7 +6,7 @@
 //   · 메시는 방 가까이 갔을 때 처음 만든다(lazy) · 멀어지면 숨긴다. 충돌 상자는 처음부터 (보행 · 도달성 감사가 같은 세계를 보도록)
 // 순수 함수(시드 · 단서 연결 추론 · 상태 직렬화)는 DOM/THREE 없이 node 테스트에서 바로 검증한다.
 
-import { pickRoomEvent, shouldFire, ROOM_EVENTS } from './roomEvents.js?v=459';
+import { pickRoomEvent, shouldFire, ROOM_EVENTS } from './roomEvents.js?v=460';
 export { pickRoomEvent, shouldFire, ROOM_EVENTS };
 export const SMART_VERSION = 1;
 

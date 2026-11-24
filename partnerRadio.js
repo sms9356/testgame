@@ -1,8 +1,8 @@
 // 2인 1조 무전: 고른 주인공은 학교 안을 직접 수색하고, 다른 한 명은 바깥 · 별관 쪽을 맡아 무전기로 이어진다.
 //   이야기 고비마다 두 사람이 주고받는 대화 (주인공별로 대사가 다르다 — 서연은 민아의 방송부 후배, 지훈은 민아의 어릴 적 친구)
 //   대사 id: pr_<장면>_<s|j 주인공>_<순번> · 화자 spk: seoyeon / jihun · 무전 쪽은 'phone' 필터로 들린다
-import { MINA_LINES, pickLine, hintLine, newMemory, sanitizeMemory, canReact, markReact } from './npcMind.js?v=459';
-import { hintDirector as HD, BANTER_N } from './minaDirector.js?v=459';
+import { MINA_LINES, pickLine, hintLine, newMemory, sanitizeMemory, canReact, markReact } from './npcMind.js?v=460';
+import { hintDirector as HD, BANTER_N } from './minaDirector.js?v=460';
 export const PARTNER_SCENES = {
   start: {   // 정문이 잠긴 뒤 첫 무전
     s: [['j', '서연아, 들려? 정문 쪽은 내가 볼게. 넌 본관부터 가 봐. 무전기 절대 끄지 마.'], ['s', '응, 잘 들려. 지훈아… 너도 혼자 무리하지 마.'], ['j', '십 분마다 연락하자. 대답 없으면 바로 갈게.']],

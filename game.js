@@ -30,7 +30,7 @@ import { GLTFLoader } from './vendor/addons/loaders/GLTFLoader.js';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
 import { installElectrical } from './electrical.js?v=457';   // 전기 배선: 스위치 → 회로 → 등기구 · 건물별 분전반 · 외등 광센서
 import { createNPCVisuals } from './npcVisuals.js?v=457';
-import { installNPCAI } from './npcAI.js';   // 방과 후 학교의 사람들: 경비 · 당직 선생님 · 청소 · 남은 학생 (길찾기 · 일정 · 문 · 불 · 전화) — ?nonpc 로 끔
+import { installNPCAI } from './npcAI.js?v=457';   // 방과 후 학교의 사람들: 경비 · 당직 선생님 · 청소 · 남은 학생 (길찾기 · 일정 · 문 · 불 · 전화) — ?nonpc 로 끔
 import { createCampusCctvLive, collectCampusCctvFeeds } from './campusCctvLive.js';
 import { applyExteriorFloorVisibility, shouldStreamGuardCctv } from './exteriorRenderBudget.js?v=457';
 import { GUARD_LAYOUT } from './guardRoomLayout.js?v=457';

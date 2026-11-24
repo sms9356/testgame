@@ -5,6 +5,7 @@ export const DEF = {
   subBg: .45, subNames: true,
   crouchToggle: true, idleHint: true, idleHintSec: 240, cbSafe: false,   // 편의: 앉기 방식 · 목표 다시 알림 · 색각 보조 강조
   diff: 'normal', jump: 'soft', flashReduce: false, fearFx: true, captions: true, tips: true, areaPhotos: false, contrast: false, motionBlur: false, classicBars: false, minimap: true, paperMap: false, ui: 1, mic: false, lang: 'ko',
+  minaAI: false, minaAIUrl: '',   // 민아와 자유 대화 (AI) — 기본 꺼짐 · 서버 주소가 비면 기능 숨김 (minaChat.js)
   keys: { interact: 'KeyE', flash: 'KeyF', inv: 'Tab', map: 'KeyM', phone: 'KeyP', throwCan: 'KeyG', view: 'KeyV', run: 'ShiftLeft', down: 'KeyQ', crouch: 'KeyC', jump: 'Space', scan: 'KeyH', camera: 'KeyX', quest: 'KeyO', quickSave: 'F5', quickLoad: 'F9' },
 };
 export const SET = { ...DEF, keys: { ...DEF.keys } };

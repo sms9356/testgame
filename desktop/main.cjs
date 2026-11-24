@@ -40,7 +40,16 @@ app.whenReady().then(() => {
     return net.fetch(pathToFileURL(file).toString());
   });
   // 오프라인 보장: app:// · data: · blob: 외의 요청은 막는다 (실수로 남은 CDN 링크가 있어도 밖으로 나가지 않음)
-  session.defaultSession.webRequest.onBeforeRequest((d, cb) => cb({ cancel: !/^(app|data|blob|devtools|chrome-extension):/.test(d.url) }));
+  //   예외 하나: 사용자가 설정에서 직접 넣은 '민아와 자유 대화 (AI)' 서버 주소의 /mina/chat 만 (https, 또는 내 컴퓨터의 http)
+  let aiEndpoint = '';
+  ipcMain.handle('ai:setEndpoint', (e, url) => {
+    aiEndpoint = '';
+    try { const u = new URL(String(url || '')); const local = u.protocol === 'http:' && ['localhost', '127.0.0.1', '[::1]'].includes(u.hostname);
+      if ((u.protocol === 'https:' || local) && /\/mina\/chat\/?$/.test(u.pathname)) aiEndpoint = u.origin + u.pathname; } catch (err) { /* ignore */ }
+    return !!aiEndpoint;
+  });
+  const aiAllowed = url => { if (!aiEndpoint) return false; try { const u = new URL(url); return u.origin + u.pathname === aiEndpoint; } catch (e) { return false; } };
+  session.defaultSession.webRequest.onBeforeRequest((d, cb) => cb({ cancel: !/^(app|data|blob|devtools|chrome-extension):/.test(d.url) && !aiAllowed(d.url) }));
   session.defaultSession.setPermissionRequestHandler((wc, perm, cb) => cb(['media', 'microphone', 'fullscreen', 'pointerLock'].includes(perm)));   // 마이크 감지 · 전체화면 · 마우스 고정
   Menu.setApplicationMenu(null);
 

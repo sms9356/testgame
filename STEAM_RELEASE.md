@@ -65,6 +65,14 @@
 9. **Pricing, release date, Coming Soon page** (it must be live for at least 2 weeks before release), and the build review submission.
 10. **Optional:** Steam Cloud. Point Auto-Cloud at `%APPDATA%/서린고 - 잊혀진 시간/Local Storage/` (Windows) to sync saves.
 
+## Optional AI feature — "민아와 자유 대화 (AI)" (free chat with Mina)
+- **What it is:** players can type to Mina when she is following them (key T; gamepad: Pause menu). Her replies are generated live by Anthropic Claude (`claude-opus-5-5`) through our own proxy, `server/minaChat/` (see its README). **Off by default**, and hidden entirely until a server URL is entered in Settings › 게임 · 접근성. The settings page shows a disclosure that typed messages and game state (objective, location, items, discovered clues) are sent to an AI service; the chat box repeats it.
+- **Steam AI content disclosure (Content Survey):** declare **Live-Generated AI content**: "Optional companion chat: if the player enables it and configures a server, the NPC Mina's dialogue replies are generated in real time by a large language model (Anthropic Claude). All other game content is pre-made." Also disclose any pre-generated AI content (e.g. synthesized voices) separately.
+- **Guardrails to describe in the survey:** fixed system prompt (in-character 2008 high-school student, stays in the game world, gently refuses out-of-game/meta topics, no sexual/graphic content), knows only clues the player already found, never gives puzzle answers or codes (server-side output filter also blocks known codes), 1–3 sentence replies, input length caps, per-IP rate limit, CORS allow-list; model refusals and any error/timeout fall back to Mina's pre-written lines. Players can report output through the usual Steam support channel; Steam's in-game overlay report for live AI content applies too.
+- **Key safety:** the API key lives only on the proxy server (`ANTHROPIC_API_KEY` env); the game/Electron bundle contains none (enforced by `tests/minaChat.test.mjs`). `tools/stage-desktop.mjs` copies only top-level files, so `server/` is never shipped in the Steam build.
+- **Electron:** the desktop build still blocks every non-`app://` request; the one exception is the exact `…/mina/chat` URL the player configured (https, or http on localhost).
+- **Before enabling it by default for a shipped build** (not done): host the proxy with TLS, set `MINA_ALLOWED_ORIGINS=app://game`, add a spend limit, update the privacy note (messages go to our server and Anthropic), and budget roughly $0.005–0.015 per message.
+
 ## System requirements (store page)
 - **Minimum:** Windows 10 64-bit, 4 GB RAM, NVIDIA GeForce GTX 1050 (or equivalent), keyboard + mouse
 - **Recommended:** Windows 10/11 64-bit, 8 GB RAM, GTX 1050 or better

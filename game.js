@@ -71,6 +71,7 @@ import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, 
 import { installGamepad, promptGlyphs, padActive } from './gamepad.js';   // 게임 중 게임패드 (이동 · 시점 · 버튼 → 키 동작)
 import { installRoomUI } from './roomUI.js?v=457';   // 방별 현장 조사 카드 · 상호작용 아이콘 · 획득/목표 애니메이션
 import { furnishRooms } from './furnishV2.js?v=457';
+import { installMinaChat } from './minaChat.js?v=457';   // 선택: 민아와 자유 대화 (AI · 서버 프록시 · 기본 꺼짐)
 import { installInteractionsPlus } from './interactionsPlus.js?v=457';   // 생활 상호작용 보강 (분리수거함 · 청소함 · 창밖 · 커튼 · 학급 게시판 · 수업 종 · 카세트 데크 · 정수기)   // 방 용도별 실사 가구 보강 (상담실 소파 · 교무실 냉온수기 · 창고 선반 …)
 import { VS, saveVS, loadManifest, speak, stopSpeak, subtitle, line, preload, hasBrowserVoice, hasNaturalVoice, engineLabel, lineInfo, registerLines, SUBLOG, logLine } from './voice.js?v=457';
 import { CHARACTERS, FACE, LINES, VO, ITEMS, RECIPES, CHAPTERS, CREDITS, OPTIONAL, CLUES, CHAR_NOTE, TIMELINE, HYPOTHESES, EPILOGUE, DEATH_LOG, NOTES as STORY_NOTES, MEMORIES, FINAL_CHOICE, FINAL_EPI, COVER_END, ENDING_OUTRO, OUTRO_TYPE, SIDEQUESTS, INTRO_COLD, CHAPTER_BEATS, SMS_FROM, ENDING_EPILOGUE, ENDING_SHOT, ENDING_STINGER, OUTRO_EXTRA_TYPE, HEADQUEST, COLLECT, } from './story.js?v=457';
@@ -9718,6 +9719,15 @@ setInterval(() => { if (document.hidden || !$('hud').classList.contains('show'))
   $('dvClock').textContent = clockText(); $('dvBat').textContent = `🔋 ${Math.round(P.pbat ?? 100)}%`; $('dvPKey').textContent = (K().phone || 'KeyP').replace('Key', '');
   const sig = P.floor === 4 ? 0 : (RBG && RBG.inBuilding && RBG.inBuilding(P.x, P.z)) ? 2 : 4; [...$('dvSig').children].forEach((b, i) => b.classList.toggle('on', i < sig)); } catch (e) {} }, 500);
 try { installPartnerRadio({ P, FL, char: () => CHAR, state: () => state, busy: isDialogueActive, speak, subtitle, chapter: () => objective().ch, introDone: () => introDone, inside: () => !!(RBG && RBG.inBuilding && RBG.inBuilding(P.x, P.z)), radio: devRadio }); } catch (e) { console.warn('[partner radio]', e); }
+try {   // 민아와 자유 대화 (AI): 민아가 동행 중이고 가까이(4m · 같은 높이) 있을 때만. 실패하면 규칙 기반 대사(MINA_TALK)로
+  const _mp = new THREE.Vector3();
+  installMinaChat({ SET, saveSET, lang: () => SET.lang || 'ko', playing: () => state === 'playing',
+    near: () => { if (!MINA_F.on || !mina || !mina.visible) return false; mina.getWorldPosition(_mp); const fy = floors[P.floor] ? floors[P.floor].y0 : 0; return Math.hypot(_mp.x - P.x, _mp.z - P.z) < 4 && Math.abs(_mp.y - fy) < 2.2; },
+    pause: () => { state = 'ui'; for (const k in keys) keys[k] = false; document.exitPointerLock?.(); },
+    resume: () => { if (state === 'ui') { state = 'playing'; lock(); } },
+    context: () => { const o = objective(); return { chapter: o.ch, objective: o.main, location: whereText(), itemsHeld: Object.keys(inv).filter(k => inv[k] > 0).map(k => (ITEMS[k] && ITEMS[k].name) || k), discovered: [...docs.map(d => d.title), ...(o.subs || []).filter(x => x[1]).map(x => x[0])], recentLines: [] }; },
+    ruleLine: () => MINA_TALK[Math.floor(Math.random() * MINA_TALK.length)] });
+} catch (e) { console.warn('[mina chat]', e); }
 try { installHudV2({ THREE, P, camera, objDir, getState: () => state, objArrow: () => SET.objArrow !== false }); } catch (e) { console.warn('[hud v2]', e); }
 if (DEBUG) {
   window.__g = {

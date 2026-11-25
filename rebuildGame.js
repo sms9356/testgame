@@ -10,6 +10,7 @@ import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
 import { turfMaterial } from './campusVisuals.js?v=460';
 import { ENGINE } from './engine.js?v=460';
 import { whenIdle, idleTimeout, idleInterval, setIdleProbe } from './idleTasks.js?v=460';
+import { setSeats, allSeats } from './decorKit.js?v=460';
 
 // 예전 건물이 차지하던 땅 (이 안의 예전 메시 · 충돌 상자를 걷어 낸다)
 const OLD_MAIN = { x1: -51, x2: 51, z1: -10.6, z2: 10.9 };
@@ -1101,6 +1102,10 @@ export function installRebuild({ THREE, scene, floors, world }) {
     return { re, up };
   };
   // 보건실 책상 의자 자리 (mainBuilding 'nurse': 책상 x1+2 · z2-1.2, 의자 z2-0.6)
+  // 앉을 자리 등록부 (decorKit — window.__seats · RBG.seats): 본관 · 별관 의자 · 소파 · 스툴 (건물 로컬 → 월드, 층은 0 = 땅 위 절대 높이)
+  { const yawN = a => Math.atan2(Math.sin(a), Math.cos(a));
+    for (const B of [MAIN, ANX]) setSeats('rb:' + B.name, (B.seats || []).map(q => { const [x, z] = B.toWorld(q.x, q.z); return { x, y: q.y, z, wy: q.y, floor: 0, level: Math.round((q.y - .45) / FH), yaw: yawN(q.yaw + (B === ANX ? Math.PI : 0)), kind: q.kind, building: B.name }; }));
+    R.seats = allSeats(); }
   R.nurseChairs = () => { const out = []; for (const B of [MAIN, ANX]) for (const r of (B.props || [])) { if (r.kind !== 'room' || r.type !== 'nurse') continue; const [x, z] = B.toWorld(r.x1 + 2, r.z2 - .6); out.push({ x, z, y: r.floor * FH }); } return out; };
   // 보건실 침대 3개의 실제 자리 (mainBuilding 'nurse': 방 동쪽 벽에 붙은 침대, z1+2.0 부터 1.9m 간격) — 눕기 상호작용용
   R.beds = () => { const out = []; for (const B of [MAIN, ANX]) for (const r of (B.props || [])) { if (r.kind !== 'room' || r.type !== 'nurse') continue;

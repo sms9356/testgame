@@ -9,7 +9,8 @@ import { whenIdle, idleTimeout, idleInterval, setIdleProbe } from './idleTasks.j
 import { pbr } from './tex.js?v=460';
 import { placeModels } from './rebuild/models.js?v=460';
 import * as PT from './rebuild/periodTex.js?v=460';
-import { installFacilityDetail2 } from './facilityDetail2.js?v=460';   // 본관 · 별관과 같은 시대 재질 (데코타일 · 인조석 · 걸레받이 · 외벽 풍화) — 모듈 캐시로 한 벌만 만든다
+import { installFacilityDetail2 } from './facilityDetail2.js?v=460';
+import { clutterKit, hsh, setSeats } from './decorKit.js?v=460';   // 본관 · 별관과 같은 시대 재질 (데코타일 · 인조석 · 걸레받이 · 외벽 풍화) — 모듈 캐시로 한 벌만 만든다
 
 const FH = 3.6, CEIL = 2.9, WALL_T = .24, LIN = .06;
 const TL = new THREE.TextureLoader(), TEX = {};
@@ -168,8 +169,19 @@ class Fac {
   plane(w, d, mk, x, y, z, o = {}) { const tile = o.tile ?? this.L[mk][1], g = new THREE.PlaneGeometry(w, d); const uv = g.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * w / tile, uv.getY(i) * d / tile); g.rotateX(o.up === false ? Math.PI / 2 : -Math.PI / 2); return this.geo(g, mk, x, y, z, o); }
   mesh(geom, mat, x, y, z, o = {}) { const m = new THREE.Mesh(geom, mat); m.position.set(this.wx(x), y, this.wz(z)); m.rotation.set(o.rx || 0, o.ry || 0, o.rz || 0); m.userData.dynamic = true; m.castShadow = !!o.cast; m.receiveShadow = true; (o.parent || this.g).add(m); return m; }
   sign(text, sub, w, h, x, y, z, ry = 0, colors) { const t = canvasSign(text, sub, 1024, sub ? 220 : 200, ...(colors || [])); return this.mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ map: t }), x, y, z, { ry }); }
+  // 앉을 자리 (decorKit 등록부): 로컬 → 월드, 층 0 (땅 위 절대 높이)
+  seat(x, y, z, yaw, kind) { (this.seats ||= []).push({ x: this.wx(x), y, z: this.wz(z), wy: y, floor: 0, yaw: Math.atan2(Math.sin(yaw), Math.cos(yaw)), kind, building: this.o.name || this.o.id }); }
+  // 생활감 (정점 색 한 메시 · 그림자 없음 · 시설당 드로콜 1): 책상 · 식탁 위 위치 해시 소품 — 책 · 공책 · 컵 · 펜꽂이 · 폴더폰
+  clut() { return this.ck ||= clutterKit('fac_' + this.o.id + '_clutter'); }
+  topClutter(x, y, z, w, d, ry, kind) { const K = this.clut(); if (K.lite) return; const c = Math.cos(ry), s = Math.sin(ry), h = k => hsh(this.wx(x), this.wz(z), k), P = (lx, lz) => [this.wx(x + lx * c + lz * s), this.wz(z - lx * s + lz * c)];
+    const BK = [0x2f4f8a, 0x8a2f2f, 0x2f7a4a, 0xd8c690, 0x6a4a8a, 0xc87830];
+    if (h(1) < .65) { let yy = y; const [bx, bz] = P((h(2) - .5) * w * .5, (h(3) - .5) * d * .3); for (let k = 0; k < 1 + (h(4) * 3 | 0); k++) { const t = .015 + h(5 + k) * .02; K.box(.19, t, .26, BK[(h(9 + k) * 6) | 0], bx, yy, bz, ry + (h(12 + k) - .5) * .5); yy += t; } }
+    if (h(20) < (kind === 'table' ? .7 : .4)) { const [cx, cz] = P((h(21) - .5) * w * .7, (h(22) - .5) * d * .5); K.cyl(.04, .035, .1, [0xf2eee4, 0x2a4a8a, 0xc8a040, 0xb8bcbe][(h(23) * 4) | 0], cx, y, cz, 10); }
+    if (kind === 'desk' && h(30) < .45) { const [px, pz] = P(w / 2 - .12, -d / 2 + .12); K.cyl(.04, .04, .11, 0x3a3a3e, px, y, pz, 8); for (let k = 0; k < 3; k++) K.cyl(.005, .005, .15, [0x10308a, 0x101010, 0xc02020][k], px + (k - 1) * .015, y + .05, pz, 5); }
+    if (h(40) < .12) { const [px, pz] = P((h(41) - .5) * w * .6, (h(42) - .5) * d * .4); K.box(.048, .018, .095, [0x1a1a1e, 0xb8bcc4, 0x8a1e2a][(h(43) * 3) | 0], px, y, pz, h(44) * 3); }
+    if (h(50) < .3) { const [px, pz] = P((h(51) - .5) * w * .5, (h(52) - .5) * d * .4); K.box(.21, .0015, .297, 0xf2efe4, px, y, pz, ry + (h(53) - .5) * 1.2); } }
   // 실사 GLB 소품 (assets/models — sf_ 팩 · Poly Haven): 자리만 기록하고 installFacilityRebuild 가 이름별 InstancedMesh 로 붙인다
-  model(name, x, y, z, ry = 0, s = 1) { this.models.push({ name, x: this.wx(x), y, z: this.wz(z), ry, s }); }
+  model(name, x, y, z, ry = 0, s = 1) { this.models.push({ name, x: this.wx(x), y, z: this.wz(z), ry, s }); if (name === 'sf_sofa') { const c = Math.cos(ry), sn = Math.sin(ry); for (const a of [-.6, 0, .6]) this.seat(x + a * c, y + .45, z - a * sn, ry + Math.PI, 'sofa'); } }
   // 충돌: lvl 0/1 (2층 건물은 층마다 높이 범위를 나눈다), h 가 있으면 올라설 수 있는 가구
   col(x1, x2, z1, z2, o = {}) {
     const r = { x1: this.wx(Math.min(x1, x2)), x2: this.wx(Math.max(x1, x2)), z1: this.wz(Math.min(z1, z2)), z2: this.wz(Math.max(z1, z2)) }, lvl = o.lvl || 0, F0 = this.ctx.floors[0];
@@ -193,6 +205,7 @@ class Fac {
     this.ctx.world.props.push({ kind: 'robj', k: 'light_switch', t: 'fac', floor: 0, x: this.wx(x + nx * .45), z: this.wz(z + nz * .45), y: y0 + 1.2, r: 1.5, label: label + ' 끄기', sw: { grp: this.g, rect, on: true, base: label, bName: this.o.name || this.o.id, bid: this.o.id, lvl, pose: { x: this.wx(x), y: y0 + 1.2, z: this.wz(z), nx, nz } } });
   }
   finish() {
+    if (this.ck) { this.ck.finish(this.g); this.ck = null; } if (this.seats) setSeats('fac:' + this.o.id, this.seats);
     const mats = this.L;
     for (const [k, list] of Object.entries(this.buckets)) {
       if (!list.length) continue;
@@ -419,14 +432,16 @@ const FURN = {
   desk(B, x, z, ry = 0, lvl = 0, w = 1.2, d = .6, h = .72, top = 'LPM') { const y = lvl * FH, c = Math.cos(ry), s = Math.sin(ry);
     B.box(w, .03, d, top, x, y + h - .015, z, { ry }); B.box(w - .06, .3, .02, 'GREYSTEEL', x + s * (d / 2 - .04), y + h - .2, z + c * (d / 2 - .04), { ry });
     [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([a, b]) => { const lx = a * (w / 2 - .04), lz = b * (d / 2 - .04); B.box(.035, h - .03, .035, 'GREYSTEEL', x + lx * c + lz * s, y + (h - .03) / 2, z - lx * s + lz * c); });
+    B.topClutter(x, y + h, z, w, d, ry, 'desk');
     const hw = (Math.abs(c) * w + Math.abs(s) * d) / 2, hd = (Math.abs(s) * w + Math.abs(c) * d) / 2; B.col(x - hw, x + hw, z - hd, z + hd, { lvl, h }); },
-  chair(B, x, z, ry = 0, lvl = 0, seat = 'FABRIC', w = .45, d = .5, h = .8, solid = false) { const y = lvl * FH, c = Math.cos(ry), s = Math.sin(ry), sh = .45;
+  chair(B, x, z, ry = 0, lvl = 0, seat = 'FABRIC', w = .45, d = .5, h = .8, solid = false) { const y = lvl * FH, c = Math.cos(ry), s = Math.sin(ry), sh = .45; B.seat(x, y + sh + .05, z, ry + Math.PI, 'chair');
     B.box(w, .05, d - .04, seat, x, y + sh, z, { ry }); B.box(w, h - sh - .05, .04, seat, x - s * (d / 2 - .03), y + sh + (h - sh) / 2, z - c * (d / 2 - .03), { ry });
     [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([a, b]) => { const lx = a * (w / 2 - .03), lz = b * (d / 2 - .05); B.box(.022, sh, .022, 'FRAME', x + lx * c + lz * s, y + sh / 2, z - lx * s + lz * c); });
     if (solid) { const hw = (Math.abs(c) * w + Math.abs(s) * d) / 2, hd = (Math.abs(s) * w + Math.abs(c) * d) / 2; B.col(x - hw, x + hw, z - hd, z + hd, { lvl, h: .5 }); } },
   table(B, x, z, w, d, h, lvl = 0, top = 'LPM', leg = 'GREYSTEEL', ry = 0) { const y = lvl * FH, c = Math.cos(ry), s = Math.sin(ry);
     B.box(w, .035, d, top, x, y + h - .018, z, { ry }); B.box(w - .1, .06, d - .1, leg, x, y + h - .07, z, { ry });
     [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([a, b]) => { const lx = a * (w / 2 - .08), lz = b * (d / 2 - .08); B.box(.05, h - .04, .05, leg, x + lx * c + lz * s, y + (h - .04) / 2, z - lx * s + lz * c); });
+    if (h > .6) B.topClutter(x, y + h, z, w, d, ry, 'table');
     const hw = (Math.abs(c) * w + Math.abs(s) * d) / 2, hd = (Math.abs(s) * w + Math.abs(c) * d) / 2; B.col(x - hw, x + hw, z - hd, z + hd, { lvl, h }); },
   cabinet(B, x, z, ry, lvl, w, d, h, mk = 'GREYSTEEL', doors = 2) { const y = lvl * FH, c = Math.cos(ry), s = Math.sin(ry);
     B.box(w, h, d, mk, x, y + h / 2, z, { ry });
@@ -935,7 +950,7 @@ function buildAuditorium(ctx, Z) {   // 대강당 18 × 26m · 1층 (공연 · �
   [-1, 1].forEach(s => { const x = s * (hx - 1.0), z = zStage + .6; B.box(.6, 1.0, .5, 'BLACK', x, .5, z); B.cyl(.18, .18, .02, 'RUBBER', x, .65, z + .26, { rx: Math.PI / 2 }); B.col(x - .3, x + .3, z - .25, z + .25, {}); });
   // 객석 200석 (550×650×900 패브릭/스틸): 좌우 블록 8석 × 12열 + 맨 앞 중앙 8석 · 가운데 통로 1.4m
   { const seatZ0 = zStage + 2.4, rowGap = .95, nRow = 12, sw = .55, gS = [], gF = [];
-    const seat = (x, z) => { gS.push(boxUV(.5, .08, .48, 1).translate(B.wx(x), .46, B.wz(z)), boxUV(.5, .5, .07, 1).translate(B.wx(x), .78, B.wz(z + .26)).rotateX(0)); gF.push(new THREE.BoxGeometry(.04, .46, .5).translate(B.wx(x + .27), .23, B.wz(z + .02)), new THREE.BoxGeometry(.05, .06, .42).translate(B.wx(x + .27), .62, B.wz(z))); };
+    const seat = (x, z) => { B.seat(x, .5, z, 0, 'auditorium'); gS.push(boxUV(.5, .08, .48, 1).translate(B.wx(x), .46, B.wz(z)), boxUV(.5, .5, .07, 1).translate(B.wx(x), .78, B.wz(z + .26)).rotateX(0)); gF.push(new THREE.BoxGeometry(.04, .46, .5).translate(B.wx(x + .27), .23, B.wz(z + .02)), new THREE.BoxGeometry(.05, .06, .42).translate(B.wx(x + .27), .62, B.wz(z))); };
     for (let rI = 0; rI < nRow; rI++) { const z = seatZ0 + rI * rowGap; [[-.7 - 8 * sw, -.7], [.7, .7 + 8 * sw]].forEach(([a, b]) => { for (let k = 0; k < 8; k++) seat(a + sw * (k + .5), z); B.col(a, b, z - .25, z + .32, { h: .5 }); }); }
     for (let k = 0; k < 8; k++) seat(-2.2 + sw * (k + .5), seatZ0 - 1.4); B.col(-2.2, 2.2, seatZ0 - 1.65, seatZ0 - 1.08, { h: .5 });   // 맨 앞 중앙 열: 가운데 통로 끝을 막지 않게 첫 열과 0.8m 띄운다 (로비 → 통로 → 무대 앞으로 들어가는 유일한 길)
     const ms = new THREE.Mesh(mergeGeometries(gS), lib().FABRIC[0]), mf = new THREE.Mesh(mergeGeometries(gF), lib().FRAME[0]); [ms, mf].forEach(m => { m.userData.dynamic = true; m.castShadow = true; B.g.add(m); });

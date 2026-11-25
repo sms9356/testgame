@@ -1,6 +1,7 @@
 // 15,000평(약 50,000㎡) 캠퍼스 3대 섹션(①학술·생활 건물 섹션 ②종합 운동·스포츠 섹션 ③제1·제2 대형 주차장 섹션) 및 10종 .glb 모델(애니메이션 5종 포함) 빌더
 import * as THREE from './vendor/three.module.js';
 import { dedupeMaterials } from './rebuild/staticBatch.js?v=461';
+import { pbr } from './tex.js?v=461';
 import { GLTFLoader } from './vendor/addons/loaders/GLTFLoader.js';
 import { mergeGeometries } from './vendor/addons/utils/BufferGeometryUtils.js';
 
@@ -67,11 +68,22 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
     pmesh(new THREE.PlaneGeometry(.9, .24), new THREE.MeshBasicMaterial({ map: makeSign('🚻 ' + label, '#1f3f6f', '#ffffff', 24) }), xa - sx * .07, y0 + 2.3, (d1 + d2) / 2, grp, { ry: sx > 0 ? -Math.PI / 2 : Math.PI / 2, cast: false });
     world.props.push({ kind: 'robj', k: 'campus_wc', t: 'mega15k', floor: 0, x: tx + sx * .6, z: tz - sz * .4, y: y0 + .6, r: 1.3, label: label + ' 세면대 · 변기 살펴보기' });
   };
-  const warmWinEm = new THREE.MeshStandardMaterial({ color: 0xd8eef8, emissive: 0xffe0a8, emissiveIntensity: .62, roughness: .18, metalness: .2 });
+  // 외벽 창 (2008 알루미늄 미서기창): 예전엔 창 자리에 emissive .62 흰 판 한 장(warmWinEm)만 붙어 있어 밤에 모든 창이 하얗게 빛났다.
+  //   → 은백색 창틀 · 가운데 살 · 위 고정창 가로살 + 어두운 반사 유리 (대부분 소등) · 몇 칸만 따뜻한 실내등 + 커튼. 재질은 공용 한 벌.
+  const winGlassM = new THREE.MeshStandardMaterial({ color: 0x1a232c, roughness: .08, metalness: .55, emissive: 0x0a1218, emissiveIntensity: .35 });
+  const winLitM = new THREE.MeshStandardMaterial({ color: 0x2a2218, roughness: .12, metalness: .2, emissive: 0xffc888, emissiveIntensity: .42 });
+  const sashM = PM(0xc8ccd0, .34, .55), curtainM = new THREE.MeshStandardMaterial({ color: 0xb8a888, roughness: .95, emissive: 0x6a5434, emissiveIntensity: .35 });
+  // 외벽 재질: 2008 학교 도장 콘크리트(미색) — 구운 PBR(facade)을 면 크기에 맞춘 UV 로 (늘어짐 방지)
+  const facT = pbr('facade', () => ({}));
+  const facadeM = new THREE.MeshStandardMaterial({ color: 0xe4dccb, map: facT.map || null, normalMap: facT.normalMap || null, roughnessMap: facT.roughnessMap || null, roughness: facT.roughnessMap ? 1 : .86, metalness: 0 });
+  const ceilT = pbr('ceil', () => ({})), ceilM = new THREE.MeshStandardMaterial({ color: 0xeeeae0, map: ceilT.map || null, normalMap: ceilT.normalMap || null, roughness: .9 });
+  const tbox = (w, h, d, mat, x, y, z, grp, o, tile = 3) => { const geo = new THREE.BoxGeometry(w, h, d), uv = geo.attributes.uv, dims = [[d, h], [d, h], [w, d], [w, d], [w, h], [w, h]];
+    for (let f = 0; f < 6; f++) for (let k = 0; k < 4; k++) { const i = f * 4 + k; uv.setXY(i, uv.getX(i) * dims[f][0] / tile, uv.getY(i) * dims[f][1] / tile); }
+    return pmesh(geo, mat, x, y, z, grp, o); };
   const buildShell = (grp, cx, cz, W, D, H, wallMat, roofMat, doorSide, flMat = woodFloor) => {
     const x0 = cx - W / 2, x1 = cx + W / 2, z0 = cz - D / 2, z1 = cz + D / 2, t = .32, dw = 3.0, dh = 2.6;
     pbox(W, .06, D, flMat, cx, .03, cz, grp, { cast: false });
-    pbox(W, .12, D, whiteWall, cx, 3.85, cz, grp, { cast: false });
+    tbox(W, .12, D, ceilM, cx, 3.85, cz, grp, { cast: false }, 1.2);   // 실내 천장: 텍스(석고 흡음) 천장판 — 예전엔 흰 단색 판이라 현관 너머가 미완성 상자처럼 보였다
     pbox(W + .76, .36, D + .76, stoneM, cx, H + .18, cz, grp);
     pbox(W + .42, .45, D + .42, roofMat, cx, H + .56, cz, grp);
     // 외벽 4면 하단 화강암 기단(Plinth) & 중간 층간 코니스 몰딩(Belt Course, y = 4.25m) & 코너 석조 기둥(Pilasters)
@@ -85,19 +97,16 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
     });
     // 4면 외벽 1층(y=2.15m) · 2층(y=6.15m) 입체 멀리언 창틀 & 석재 창턱/상인방 & 은은한 실내 채광창
     const addExtWin = (wx, wy, wz, alongZ = false) => {
-      if (alongZ) {
-        pmesh(new THREE.PlaneGeometry(1.62, 1.42), warmWinEm, wx, wy, wz, grp, { ry: wx < cx ? -Math.PI / 2 : Math.PI / 2, cast: false });
-        pbox(.18, .12, 1.82, stoneM, wx, wy - .74, wz, grp, { cast: false });
-        pbox(.20, .16, 1.86, stoneM, wx, wy + .75, wz, grp, { cast: false });
-        pbox(.12, 1.42, .06, darkMetal, wx, wy, wz, grp, { cast: false });
-        pbox(.12, .05, 1.62, darkMetal, wx, wy + .12, wz, grp, { cast: false });
-      } else {
-        pmesh(new THREE.PlaneGeometry(1.72, 1.42), warmWinEm, wx, wy, wz, grp, { ry: wz < cz ? Math.PI : 0, cast: false });
-        pbox(1.92, .12, .18, stoneM, wx, wy - .74, wz, grp, { cast: false });
-        pbox(1.96, .16, .20, stoneM, wx, wy + .75, wz, grp, { cast: false });
-        pbox(.06, 1.42, .12, darkMetal, wx, wy, wz, grp, { cast: false });
-        pbox(1.72, .05, .12, darkMetal, wx, wy + .12, wz, grp, { cast: false });
-      }
+      // 로컬 (u: 벽을 따라, n: 바깥쪽) — 유리는 벽면 바로 앞, 창틀은 6~10cm 튀어나와 깊이가 보인다
+      const out = alongZ ? Math.sign(wx - cx) : Math.sign(wz - cz), ww = alongZ ? 1.62 : 1.72, wh = 1.42;
+      const bx = (lu, lh, ln, mat, u, y, n, o = { cast: false }) => alongZ ? pbox(ln, lh, lu, mat, wx + out * n, y, wz + u, grp, o) : pbox(lu, lh, ln, mat, wx + u, y, wz + out * n, grp, o);
+      const lit = wy < 3.5 && ((Math.round(wx * 7 + wz * 13) % 5 + 5) % 5) === 0;   // 1층 몇 칸만 실내등 (야간 자습 · 사서실)
+      pmesh(new THREE.PlaneGeometry(ww, wh), lit ? winLitM : winGlassM, wx, wy, wz, grp, { ry: alongZ ? (out < 0 ? -Math.PI / 2 : Math.PI / 2) : (out < 0 ? Math.PI : 0), cast: false });
+      if (lit) bx(ww * .38, wh - .1, .02, curtainM, -ww * .29, wy, .015);   // 반쯤 친 커튼
+      bx(ww + .12, .07, .1, sashM, 0, wy + wh / 2, .05); bx(ww + .12, .07, .1, sashM, 0, wy - wh / 2, .05);   // 위 · 아래 틀
+      bx(.07, wh, .1, sashM, -ww / 2, wy, .05); bx(.07, wh, .1, sashM, ww / 2, wy, .05); bx(.05, wh - .45, .06, sashM, 0, wy - .2, .04);   // 옆 틀 · 미서기 짝 맞춤 살
+      bx(ww, .045, .07, sashM, 0, wy + wh / 2 - .42, .04);   // 위 고정창 가로살
+      bx(ww + .24, .1, .2, stoneM, 0, wy - wh / 2 - .06, .1); bx(ww + .2, .12, .14, stoneM, 0, wy + wh / 2 + .07, .07);   // 인조석 창대 · 상인방
     };
     for (const fy of [2.15, 6.15]) {
       if (fy > H - 1.2) continue;
@@ -116,30 +125,30 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
     if (doorSide !== 'S') pbox(W - .1, 1.1, .06, wainscotM, cx, .55, z1 - .04, grp, { cast: false });
     if (doorSide !== 'W') pbox(.06, 1.1, D - .1, wainscotM, x0 + .04, .55, cz, grp, { cast: false });
     if (doorSide !== 'E') pbox(.06, 1.1, D - .1, wainscotM, x1 - .04, .55, cz, grp, { cast: false });
-    pbox(W + 2 * t, H, t, wallMat, cx, H / 2, z0 - t / 2, grp); addCol(x0 - t, x1 + t, z0 - t, z0, true);
+    tbox(W + 2 * t, H, t, wallMat, cx, H / 2, z0 - t / 2, grp); addCol(x0 - t, x1 + t, z0 - t, z0, true);
     if (doorSide === 'S') {
       const sw = (W - dw) / 2;
-      pbox(sw, H, t, wallMat, x0 + sw / 2, H / 2, z1 + t / 2, grp); addCol(x0, cx - dw / 2, z1, z1 + t, true);
-      pbox(sw, H, t, wallMat, x1 - sw / 2, H / 2, z1 + t / 2, grp); addCol(cx + dw / 2, x1, z1, z1 + t, true);
-      pbox(dw, H - dh, t, wallMat, cx, dh + (H - dh) / 2, z1 + t / 2, grp);
+      tbox(sw, H, t, wallMat, x0 + sw / 2, H / 2, z1 + t / 2, grp); addCol(x0, cx - dw / 2, z1, z1 + t, true);
+      tbox(sw, H, t, wallMat, x1 - sw / 2, H / 2, z1 + t / 2, grp); addCol(cx + dw / 2, x1, z1, z1 + t, true);
+      tbox(dw, H - dh, t, wallMat, cx, dh + (H - dh) / 2, z1 + t / 2, grp);
     } else {
-      pbox(W + 2 * t, H, t, wallMat, cx, H / 2, z1 + t / 2, grp); addCol(x0 - t, x1 + t, z1, z1 + t, true);
+      tbox(W + 2 * t, H, t, wallMat, cx, H / 2, z1 + t / 2, grp); addCol(x0 - t, x1 + t, z1, z1 + t, true);
     }
     if (doorSide === 'W') {
       const sw = (D - dw) / 2;
-      pbox(t, H, sw, wallMat, x0 - t / 2, H / 2, z0 + sw / 2, grp); addCol(x0 - t, x0, z0, cz - dw / 2, true);
-      pbox(t, H, sw, wallMat, x0 - t / 2, H / 2, z1 - sw / 2, grp); addCol(x0 - t, x0, cz + dw / 2, z1, true);
-      pbox(t, H - dh, dw, wallMat, x0 - t / 2, dh + (H - dh) / 2, cz, grp);
+      tbox(t, H, sw, wallMat, x0 - t / 2, H / 2, z0 + sw / 2, grp); addCol(x0 - t, x0, z0, cz - dw / 2, true);
+      tbox(t, H, sw, wallMat, x0 - t / 2, H / 2, z1 - sw / 2, grp); addCol(x0 - t, x0, cz + dw / 2, z1, true);
+      tbox(t, H - dh, dw, wallMat, x0 - t / 2, dh + (H - dh) / 2, cz, grp);
     } else {
-      pbox(t, H, D, wallMat, x0 - t / 2, H / 2, cz, grp); addCol(x0 - t, x0, z0, z1, true);
+      tbox(t, H, D, wallMat, x0 - t / 2, H / 2, cz, grp); addCol(x0 - t, x0, z0, z1, true);
     }
     if (doorSide === 'E') {
       const sw = (D - dw) / 2;
-      pbox(t, H, sw, wallMat, x1 + t / 2, H / 2, z0 + sw / 2, grp); addCol(x1, x1 + t, z0, cz - dw / 2, true);
-      pbox(t, H, sw, wallMat, x1 + t / 2, H / 2, z1 - sw / 2, grp); addCol(x1, x1 + t, cz + dw / 2, z1, true);
-      pbox(t, H - dh, dw, wallMat, x1 + t / 2, dh + (H - dh) / 2, cz, grp);
+      tbox(t, H, sw, wallMat, x1 + t / 2, H / 2, z0 + sw / 2, grp); addCol(x1, x1 + t, z0, cz - dw / 2, true);
+      tbox(t, H, sw, wallMat, x1 + t / 2, H / 2, z1 - sw / 2, grp); addCol(x1, x1 + t, cz + dw / 2, z1, true);
+      tbox(t, H - dh, dw, wallMat, x1 + t / 2, dh + (H - dh) / 2, cz, grp);
     } else {
-      pbox(t, H, D, wallMat, x1 + t / 2, H / 2, cz, grp); addCol(x1, x1 + t, z0, z1, true);
+      tbox(t, H, D, wallMat, x1 + t / 2, H / 2, cz, grp); addCol(x1, x1 + t, z0, z1, true);
     }
     [[-W * .28, -D * .26], [0, -D * .26], [W * .28, -D * .26], [-W * .28, D * .26], [0, D * .26], [W * .28, D * .26]].forEach(([lx, lz]) => {
       pbox(1.35, .04, .32, darkMetal, cx + lx, 3.78, cz + lz, grp, { cast: false });
@@ -560,11 +569,21 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
   {
     const cx = 84, cz = 39, W = 22, D = 18, H = 9.4;
     const g = new THREE.Group(); g.name = 'chunk_library'; g.userData.dynamic = true; OUT.add(g);
-    buildShell(g, cx, cz, W, D, H, brickM, stoneM, 'W', woodFloor);
-    pbox(2.2, .28, 6.4, stoneM, cx - W / 2 - 1.2, 3.3, cz, g);
-    [-2.6, 2.6].forEach(dz => pcyl(.22, .24, 3.2, stoneM, cx - W / 2 - 2.0, 1.6, cz + dz, g));
-    pbox(.14, .68, 5.2, darkMetal, cx - W / 2 - 2.35, 3.68, cz, g, { cast: false });
-    pmesh(new THREE.PlaneGeometry(5.0, .56), new THREE.MeshBasicMaterial({ map: makeSign('서린 중앙학술정보관 · 대도서관', '#221a14', '#f4e8c8', 24) }), cx - W / 2 - 2.43, 3.68, cz, g, { ry: -Math.PI / 2, cast: false });
+    buildShell(g, cx, cz, W, D, H, facadeM, stoneM, 'W', woodFloor);
+    // 서측 정문 현관 (2008 리모델링): 벽에 붙은 콘크리트 캐노피 + 알루미늄 앞판에 간판을 평평하게 붙이고, 가는 사각 철주 2개로 받친다
+    //   예전: 석재 판(2.2 × 6.4m)이 굵은 원기둥 2개 위에 떠 있고, 간판은 캐노피 2.4m 앞 허공에 따로 서 있었다 (비스듬히 보면 기울어져 보이고 판은 벽에서 튀어나온 각목처럼 보였다)
+    { const wx = cx - W / 2 - .32, cw = 5.0, cd = 2.1, cy = 3.0, alu = PM(0xb8bcc0, .35, .8);
+      tbox(cd, .22, cw, stoneM, wx - cd / 2, cy, cz, g, undefined, 2);   // 캐노피 슬래브 (벽면에서 2.1m)
+      pbox(.06, .42, cw + .04, alu, wx - cd - .03, cy + .06, cz, g, { cast: false });   // 앞판 (알루미늄 복합판)
+      pbox(cd + .04, .06, .05, alu, wx - cd / 2, cy + .24, cz - cw / 2, g, { cast: false }); pbox(cd + .04, .06, .05, alu, wx - cd / 2, cy + .24, cz + cw / 2, g, { cast: false });
+      pmesh(new THREE.PlaneGeometry(4.7, .36), new THREE.MeshBasicMaterial({ map: makeSign('서린 중앙학술정보관 · 대도서관', '#f4f2ea', '#1f3a5a', 24) }), wx - cd - .065, cy + .06, cz, g, { ry: -Math.PI / 2, cast: false });
+      [-2.2, 2.2].forEach(dz => { pbox(.14, cy - .11, .14, darkMetal, wx - cd + .2, (cy - .11) / 2, cz + dz, g); addCol(wx - cd + .12, wx - cd + .28, cz + dz - .08, cz + dz + .08, false); });
+      pbox(cd - .1, .12, cw - .4, stoneM, wx - cd / 2, .06, cz, g, { cast: false });   // 화강석 디딤판
+      // 문틀 (벽 두께 덮개 · 바깥 케이싱) + 문 위 유리 채광창 · 벽면 현판
+      [-1, 1].forEach(sd => { pbox(.36, 2.6, .08, darkMetal, wx + .16, 1.3, cz + sd * 1.46, g, { cast: false }); pbox(.05, 2.7, .14, darkMetal, wx - .02, 1.35, cz + sd * 1.57, g, { cast: false }); });
+      pbox(.36, .08, 3.0, darkMetal, wx + .16, 2.56, cz, g, { cast: false }); pbox(.05, .12, 3.28, darkMetal, wx - .02, 2.66, cz, g, { cast: false });
+      pbox(.05, .32, 1.2, darkMetal, wx - .03, cy + .62, cz, g, { cast: false });
+      pmesh(new THREE.PlaneGeometry(1.14, .28), new THREE.MeshBasicMaterial({ map: makeSign('도서관 LIBRARY', '#1c2a34', '#f4eedc', 26) }), wx - .06, cy + .62, cz, g, { ry: -Math.PI / 2, cast: false }); }
     // 대도서관 1층 리모델링 (참고 1층 평면도 · 22.0 × 18.0m): 서측 정문 → 중앙 로비 (원형 열람 테이블 · 2층 계단) / 북측 자료정리실 · 사무실 / 남측 기록보관실 · 멀티미디어실 / 동북 열람실 A · 동남 열람실 B (양면 서가 · 열람 테이블)
     const x0 = cx - W / 2, x1 = cx + W / 2, z0 = cz - D / 2, z1 = cz + D / 2, xA = x0 + 11, zN = z0 + 5.5, zS = z1 - 5.5, zA = cz - 2.2, zB = cz + 2.2;
     iwall(g, x0, zN, xA, zN, [[x0 + 2.0, x0 + 3.2], [x0 + 7.4, x0 + 8.6]]); iwall(g, x0 + 5.2, z0, x0 + 5.2, zN);
@@ -602,8 +621,8 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
     pmesh(new THREE.PlaneGeometry(1.6, .5), new THREE.MeshBasicMaterial({ map: makeSign('정숙 — 휴대전화는 진동으로 · 신착 도서 10월', '#f0ead8', '#2a2018', 18) }), x0 + 5.2, 2.0, zS - .14, g, { ry: Math.PI, cast: false });
     pbox(.8, .7, .45, PM(0x6a6e72, .5, .5), x0 + 9.6, .55, zN + .6, g); for (let k = 0; k < 6; k++) pbox(.05, .26, .2, bookColors[k % 5], x0 + 9.3 + k * .11, 1.03, zN + .6, g, { cast: false, rz: (k % 3 - 1) * .12 }); addCol(x0 + 9.2, x0 + 10.0, zN + .37, zN + .83);
     // 북측(광장 조망면) 대도서관 현판 추가
-    pbox(5.8, .62, .14, darkMetal, cx, 8.55, cz - D / 2 - .42, g, { cast: false });
-    pmesh(new THREE.PlaneGeometry(5.6, .52), new THREE.MeshBasicMaterial({ map: makeSign('중앙학술정보관 · CENTRAL LIBRARY', '#221a14', '#f4e8c8', 22) }), cx, 8.55, cz - D / 2 - .50, g, { ry: Math.PI, cast: false });
+    pbox(5.8, .62, .1, darkMetal, cx, 8.55, cz - D / 2 - .37, g, { cast: false });   // 벽면(외벽 바깥면 -0.32)에 밀착
+    pmesh(new THREE.PlaneGeometry(5.6, .52), new THREE.MeshBasicMaterial({ map: makeSign('중앙학술정보관 · CENTRAL LIBRARY', '#221a14', '#f4e8c8', 22) }), cx, 8.55, cz - D / 2 - .425, g, { ry: Math.PI, cast: false });
     chunks.push({ id: 'chunk_library', g, x: cx, z: cz });
   }
 
@@ -1020,11 +1039,9 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
   }
 
   // ── 4대 확장 건물 정문에 실제로 여닫을 수 있는 양개 강화유리 출입문(world.doorList 연동) 설치 ──
+  //   청운학사 · 과학천문관 · 학생회관은 시설 재건축(facilityRebuild)이 새 자리 · 남측 현관으로 다시 지었다 → 옛 정문 3곳(새 건물 외벽 속 · 체육관 서벽 속에 박힌 유리문)은 철거, 도서관만 남긴다
   [
-    { name: '청운학사 정문', x: -75.0, z: -42.0, ry: Math.PI / 2, open: 1 },
-    { name: '과학천문관 정문', x: 74.0, z: -34.0, ry: -Math.PI / 2, open: 1 },
     { name: '중앙학술정보관 정문', x: 73.0, z: 39.0, ry: -Math.PI / 2, open: 1 },
-    { name: '학생회관 정문', x: -77.0, z: 42.0, ry: Math.PI / 2, open: 1 },
   ].forEach(dSpec => {
     const dGrp = new THREE.Group(); dGrp.position.set(dSpec.x, 0, dSpec.z); dGrp.rotation.y = dSpec.ry; dGrp.userData.dynamic = true; OUT.add(dGrp);
     const leaves = [[-1.35, -1], [1.35, 1]].map(([hx, s]) => {
@@ -1181,13 +1198,7 @@ export function buildMegaCampus15000({ THREE, OUT, F0, PM, pbox, pmesh, pcyl, ma
     // 2) 야구 스타디움 외야(x=-88, z=4.5) 전광판 .glb
     placeGlb('assets/models/sf/sf_baseball_scoreboard.glb', [[-88.0, 0, 1.5, 0, 1.15, 1.15, 1.15]]);
 
-    // 3) 4대 확장 건물 정문 양개 강화유리문 시스템 .glb
-    placeGlb('assets/models/sf/sf_campus_glass_door.glb', [
-      [-74.95, 0, -42.0, Math.PI / 2, 1, 1, 1],
-      [ 73.95, 0, -34.0, -Math.PI / 2, 1, 1, 1],
-      [ 72.95, 0,  39.0, -Math.PI / 2, 1, 1, 1],
-      [-76.95, 0,  42.0, Math.PI / 2, 1, 1, 1]
-    ]);
+    // 3) (철거) 정문 강화유리문 .glb — 같은 자리의 여닫이 유리문(world.doorList)과 겹친 두 번째 문틀이었다 (도서관 현관의 흰 문틀 · 다른 3곳은 새 건물 벽 속)
 
     // 4) 주차 차단기 · 회전 기상레이더 · 회전 플라네타리움 · 발광 자판기 · 진자 괘종시계 · 버스정류장 · 소화전/게시판
     placeGlb('assets/models/sf/sf_anim_parking_gate.glb', [

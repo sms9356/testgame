@@ -1,5 +1,5 @@
 // 절차적(프로시저럴) 텍스처 — 외부 이미지 없이 캔버스로 폐교의 낡은 질감을 만든다.
-import * as THREE from './vendor/three.module.js'; import { refineFurnitureTexture, clearFurnitureDetailCache, bakedUrl } from './furnitureTextureDetail.js?v=460';
+import * as THREE from './vendor/three.module.js'; import { refineFurnitureTexture, clearFurnitureDetailCache, bakedUrl } from './furnitureTextureDetail.js?v=461';
 
 let seed = 90210;
 export const rnd = () => {

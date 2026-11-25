@@ -7,9 +7,9 @@
 //   · 대사: npcMind.js — 장 · 소지품 · 시간 · 차단기 상태로 고르고, 한 말을 기억하며 힌트를 막연 → 구체로 · 사건 반응(정전 · 처음 온 방 · 증거 · 계단)
 //   · 끄기: ?nonpc (민아는 예전 따라가기로)
 // 앞부분(격자 · A* · 상태 기계)은 THREE 없이 동작한다 (tests/npcAI.test.mjs)
-import { approach, turnSpeed, createLineGate, createSpeechQueue, PRIO, hintDirector as HD, idleBehavior, occludes, canTeleportUnseen, MUTTER_IDS, EXAM_IDS } from './minaDirector.js?v=460';
-import { pickSeat, seatAcross, seatHeight, seatFront, itemComment, decorFor } from './minaInteract.js?v=460';
-import { MIND_VER, MINA_LINES, newMemory, sanitizeMemory, pickLine, reactLine, canReact, markReact, EMO_LINE, EMO_FOLLOW, emotionOf, hintLine, EMOTIONS, CH_HINT as CH_HINT_ } from './npcMind.js?v=460';
+import { approach, turnSpeed, createLineGate, createSpeechQueue, PRIO, hintDirector as HD, idleBehavior, occludes, canTeleportUnseen, MUTTER_IDS, EXAM_IDS } from './minaDirector.js?v=461';
+import { pickSeat, seatAcross, seatHeight, seatFront, itemComment, decorFor } from './minaInteract.js?v=461';
+import { MIND_VER, MINA_LINES, newMemory, sanitizeMemory, pickLine, reactLine, canReact, markReact, EMO_LINE, EMO_FOLLOW, emotionOf, hintLine, EMOTIONS, CH_HINT as CH_HINT_ } from './npcMind.js?v=461';
 
 // ───────────────────────── 1. 걷기 격자 ─────────────────────────
 export function createNavGrid({ x0, z0, x1, z1, cell = .3 }) {

@@ -1,18 +1,18 @@
 // 폐교 월드 빌더 — 레퍼런스(배치도/정문/교실/소품 시트)를 기반으로 학교 전체를 절차적으로 생성한다.
 import * as THREE from './vendor/three.module.js';
-import * as T from './tex.js?v=460';
-import * as PT from './rebuild/periodTex.js?v=460';
-import { rnd, rr, pick } from './tex.js?v=460';
-import { bakeStatic } from './bake.js?v=460';
-import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js?v=460';
-import { buildGuardAnnex, buildDutyRoom, ANNEX as GANX } from './guardAnnex.js?v=460';
-import { NOTES } from './story.js?v=460';
-import { buildCampusDesign, turfMaterial } from './campusVisuals.js?v=460';
-import { elevatorBay } from './elevatorLayout.js?v=460';
-import { removeDuplicateModels } from './placement.js?v=460';
-import { clutterKit, hsh, shade, setSeats, cafeMenuTexture as cafeMenuTex, bannerAtlas } from './decorKit.js?v=460';
-import { buildSafe } from './safeModel.js?v=460';
-import { loadSurfaceTexture } from './materialTextures.js?v=460'; import { buildWindowFakes } from './windowInteriors.js?v=460';
+import * as T from './tex.js?v=461';
+import * as PT from './rebuild/periodTex.js?v=461';
+import { rnd, rr, pick } from './tex.js?v=461';
+import { bakeStatic } from './bake.js?v=461';
+import { GUARD_LAYOUT, GUARD_SPUR, GUARD_NODES, guardCollisionRects } from './guardRoomLayout.js?v=461';
+import { buildGuardAnnex, buildDutyRoom, ANNEX as GANX } from './guardAnnex.js?v=461';
+import { NOTES } from './story.js?v=461';
+import { buildCampusDesign, turfMaterial } from './campusVisuals.js?v=461';
+import { elevatorBay } from './elevatorLayout.js?v=461';
+import { removeDuplicateModels } from './placement.js?v=461';
+import { clutterKit, hsh, shade, setSeats, cafeMenuTexture as cafeMenuTex, bannerAtlas } from './decorKit.js?v=461';
+import { buildSafe } from './safeModel.js?v=461';
+import { loadSurfaceTexture } from './materialTextures.js?v=461'; import { buildWindowFakes } from './windowInteriors.js?v=461';
 
 export const FH = 4, CH = 3.6;
 export const SLOTS = [-32, -24, -16, -8, 0, 8, 16, 24, 32];

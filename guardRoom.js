@@ -1,5 +1,5 @@
-import { cloneV6, batchV6, guardDoorSweepContains, localBounds } from './guardRoomV6.js?v=460';
-import { arrangeGuardRoomV6 } from './guardRoomV6Layout.js?v=460';
+import { cloneV6, batchV6, guardDoorSweepContains, localBounds } from './guardRoomV6.js?v=461';
+import { arrangeGuardRoomV6 } from './guardRoomV6Layout.js?v=461';
 import * as THREE from './vendor/three.module.js';
 import { GLTFLoader } from './vendor/addons/loaders/GLTFLoader.js';
 import { toCreasedNormals } from './vendor/addons/utils/BufferGeometryUtils.js';

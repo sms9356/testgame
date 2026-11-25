@@ -3,6 +3,7 @@
 //   대사 id: pr_<장면>_<s|j 주인공>_<순번> · 화자 spk: seoyeon / jihun · 무전 쪽은 'phone' 필터로 들린다
 import { MINA_LINES, pickLine, hintLine, newMemory, sanitizeMemory, canReact, markReact } from './npcMind.js?v=460';
 import { hintDirector as HD, BANTER_N } from './minaDirector.js?v=460';
+import { radioItemLine } from './minaInteract.js?v=460';
 export const PARTNER_SCENES = {
   start: {   // 정문이 잠긴 뒤 첫 무전
     s: [['j', '서연아, 들려? 정문 쪽은 내가 볼게. 넌 본관부터 가 봐. 무전기 절대 끄지 마.'], ['s', '응, 잘 들려. 지훈아… 너도 혼자 무리하지 마.'], ['j', '십 분마다 연락하자. 대답 없으면 바로 갈게.']],
@@ -68,6 +69,7 @@ export async function play(scene) {   // 점검용으로도 쓴다
 }
 
 export function tickPartnerRadio(dt) {
+  if (C && pumpPending()) return;
   if (!C || C.state() !== 'playing' || performance.now() < busyUntil || C.busy()) return;
   if ((C.t -= dt) > 0) return; C.t = .5; if ((C.pt = (C.pt || 0) - .5) <= 0) { C.pt = 5; ctxNow(); }   // 막힌 시간 추적 (5초마다)
   const { P, FL } = C, ch = C.chapter(), want = [];
@@ -106,8 +108,40 @@ export function partnerReply(c, m, t, hd = null) {   // hd: 공용 힌트 감독
   if (c.room && !m.told['p:' + c.room] && m.n > 0 && m.n % 3 === 2) { m.n++; m.told['p:' + c.room] = 1; return { key: 'p:' + c.room, text: RL('radio_where').replace('{}', c.room), topic: 'place', tier: 0 }; }
   return pickLine('partner', RADIO_L, c, m, t, RL('radio_hint_main'), hd ? H : null);
 }
-export async function callPartner() {
-  if (!C || C.state() !== 'playing' || performance.now() < busyUntil || C.busy()) return false;
+// 통화 대기: 다른 무전 · 이야기 대사 · 자막이 나오는 중에 부르면 조용히 실패하지 않고 '통화 중' 을 짧게 보여 주고 줄을 세운다 — 끝나면 바로 연결 (30초 지나면 취소)
+let pend = null;
+export const radioPending = () => !!pend;
+function blocked() { return performance.now() < busyUntil || C.busy(); }
+function enqueue(kind, arg) {
+  if (pend) return pend.p; let res; const p = new Promise(r => { res = r; }); pend = { kind, arg, res, p, until: performance.now() + 30000 };
+  try { const t = MINA_LINES.radio_busy[0]; if (C.toast) C.toast(t); else C.subtitle('📻', t, 1.6); } catch (e) { /* */ }
+  return p;
+}
+function pumpPending() {
+  if (!pend) return false; if (performance.now() > pend.until || (C.state() !== 'playing' && C.state() !== 'ui')) { pend.res(false); pend = null; return false; }
+  if (C.state() !== 'playing' || blocked()) return true;
+  const q = pend; pend = null; (q.kind === 'item' ? doAskItem(q.arg) : doCall()).then(q.res, () => q.res(false)); return true;
+}
+export function callPartner() {
+  if (!C || C.state() !== 'playing') return Promise.resolve(false);
+  if (blocked() || pend) return enqueue('call');
+  return doCall();
+}
+// 소지품을 무전으로 물어보기: 카테고리 한 줄 + (막힌 지 오래면) 공용 힌트 한 단계
+export function askPartnerItem(id, name = '') {
+  if (!C || C.state() !== 'playing' || !id) return Promise.resolve(false);
+  if (blocked() || pend) return enqueue('item', { id, name });
+  return doAskItem({ id, name });
+}
+async function doAskItem({ id, name }) {
+  const N = names(), line = RL(radioItemLine(id)), m = mem(); busyUntil = performance.now() + 12000; lastRadio = nowS(); m.told['ri:' + id] = (m.told['ri:' + id] || 0) + 1;
+  try {
+    C.radio && C.radio('tx', N.meN); fx('beep'); const q = name ? `${RL('radio_call')} ${name}…` : RL('radio_call'); say(N.me, RL('radio_call'), false); C.subtitle(N.meN, q, 1.8, N.meCls); await wait(1700);
+    C.radio && C.radio('rx', N.paN); fx('static'); await wait(400); say(N.pa, line, true); C.subtitle(N.paN + ' 📻', line, 4.2, N.paCls); await wait(4300); fx('beep');
+  } finally { C.radio && C.radio('idle'); busyUntil = performance.now() + 2500; }
+  return { key: 'ri:' + id, text: line, topic: 'item' };
+}
+async function doCall() {
   const N = names(), c = ctxNow(), r = partnerReply(c, mem(), nowS(), HD); busyUntil = performance.now() + 15000; lastRadio = nowS();
   try {
     C.radio && C.radio('tx', N.meN); fx('beep'); say(N.me, RL('radio_call'), false); C.subtitle(N.meN, RL('radio_call'), 1.8, N.meCls); await wait(1700);

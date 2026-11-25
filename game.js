@@ -68,7 +68,7 @@ import './new37UniquePatch.js?v=460';     // 37개 구역 신규 특수 설비 �
 import './megaExpansionPatch.js?v=460';   // 메가 익스팬션 · 최적화 · 4막 사건 기록 · 수집품 · 미니게임 (사용자 제공) → window.megaSchoolPatch
 import './poolMachineryPatch.js?v=460';     // 수영장 · 남/녀 탈의실·샤워실 · 기계실 철문 (사용자 제공) → window.poolAndMachineryPatch
 import { setVoiceSpot } from './audio.js?v=460';
-import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, setAudioHidden, sfxCtx, setSfxBusyCheck, setSpace, tickNight } from './audio.js?v=460'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=460'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera, perfInstanceSource } from './perfStabilizer.js?v=460'; window.__perfInst = perfInstanceSource; import { upgradePlainMaterials } from './plainUpgrade.js?v=460'; import { relayCampusPaths, cleanupCampus } from './campusPaths.js?v=460'; import { installStreetscape } from './streetV2.js?v=460'; import { installCampusGrounds } from './campusGrounds2008.js?v=460'; import { installHudV2, tickHudV2 } from './hudV2.js?v=460'; import { installPartnerRadio, tickPartnerRadio, callPartner } from './partnerRadio.js?v=460';
+import { initAudio, sfx, at, setProximity, setListener, setAmbience, setBreath, setGhostVoice, setMusic, setVolumes, getVolumes, setGenHum, setRainLevel, setCoil, setAudioHidden, sfxCtx, setSfxBusyCheck, setSpace, tickNight } from './audio.js?v=460'; import { installSchoolDoors, updateSchoolDoors } from './schoolDoors.js?v=460'; import { installPerf, perfTick as perfStabTick, prewarmFloors, withPerfCamera, perfInstanceSource } from './perfStabilizer.js?v=460'; window.__perfInst = perfInstanceSource; import { upgradePlainMaterials } from './plainUpgrade.js?v=460'; import { relayCampusPaths, cleanupCampus } from './campusPaths.js?v=460'; import { installStreetscape } from './streetV2.js?v=460'; import { installCampusGrounds } from './campusGrounds2008.js?v=460'; import { installHudV2, tickHudV2 } from './hudV2.js?v=460'; import { installPartnerRadio, tickPartnerRadio, callPartner, askPartnerItem } from './partnerRadio.js?v=460';
 import { installGamepad, promptGlyphs, padActive } from './gamepad.js?v=460';   // 게임 중 게임패드 (이동 · 시점 · 버튼 → 키 동작)
 import { installRoomUI } from './roomUI.js?v=460';   // 방별 현장 조사 카드 · 상호작용 아이콘 · 획득/목표 애니메이션
 import { furnishRooms } from './furnishV2.js?v=460';
@@ -961,8 +961,8 @@ function renderInv() {
     if (!it) { det.innerHTML = invTab === 'keys' ? keyPieceHTML() : '<p>비어 있다.</p>'; return; }
     newItems.delete(it.id);
     det.innerHTML = `<div class="big">${iconHTML(it.icon)}</div><h3>${it.name}${it.n > 1 ? ` <small style="color:var(--dim)">×${it.n}</small>` : ''}</h3><div class="cat">${it.cat === 'key' ? '열쇠 아이템' : '아이템'}</div><div>${itemDesc(it)}</div>${recipeHTML(it.id)}${invTab === 'keys' ? keyPieceHTML() : ''}` +
-      actBtns([['사용', 'Enter'], ['조합', 'C', !canCombine(it.id)], ['자세히', 'Z']]);
-    bindActs([() => invUse(it), () => startCombine(it.id), () => zoom(it.name, iconHTML(it.icon), itemDesc(it))]);
+      actBtns([['사용', 'Enter'], ['조합', 'C', !canCombine(it.id)], ['민아에게 보여주기', 'R', !minaCanSee()], ['무전으로 묻기', 'B', !introDone], ['자세히', 'Z']]);
+    bindActs([() => invUse(it), () => startCombine(it.id), () => showToMina(it), () => askRadioItem(it), () => zoom(it.name, iconHTML(it.icon), itemDesc(it))]);
   } else if (invTab === 'craft') {   // 조합 — CraftingSystem 레시피 목록 (재료 개수 · 클릭 / Enter 로 제작)
     grid.className = 'craftList'; const rs = craftingSystem.recipes; invSel = clamp(invSel, 0, rs.length - 1);
     const label = { can: '빈 캔', tape: '절연 테이프', battery: '건전지', bandage: '응급 밴드', pill: '보건실 진정제' }, own = { trap_can: 'alarm', short_bomb: 'shock', med_kit: 'firstaid' };
@@ -999,6 +999,10 @@ function recipeHTML(id) {
 function keyPieceHTML() {
   return `<div class="pieceList" style="margin-top:10px;border-top:1px solid #2c3640;padding-top:8px"><b style="font-size:12px;color:var(--dim)">정문 열쇠 조각 ${P.keys}/${TOTAL}</b>${KEY_NAMES.map((n, i) => `<div class="chk${got[i] ? ' done' : ''}">${KEY_WHERE[i]}</div>`).join('')}</div>`;
 }
+// 민아에게 보여주기: 동행 중 · 곁(5m · 같은 층) — 소지품 창을 닫고 민아가 물건을 보고 한마디(처음 · 다시 · 힌트 단계에 맞춘 귀띔) · 단서 보드에 남긴다
+function minaCanSee() { const A = NPCAI; return !!(A && A.mina.active && MINA_F.on && mina && Math.hypot(mina.position.x - P.x, mina.position.z - P.z) < 5 && Math.abs(mina.position.y - ((floors[0]?.y0 || 0) + (P.sh || 0))) < 1.6); }
+function showToMina(it) { if (!minaCanSee()) return; const used = false; closeUI(); setTimeout(() => { try { NPCAI.showItem(it.id, { used, name: `${it.name} — ${String(itemDesc(it)).replace(/<[^>]+>/g, '')}` }); } catch (e) { console.warn('[mina item]', e); } }, 80); }
+function askRadioItem(it) { if (!introDone) return; closeUI(); setTimeout(() => askPartnerItem(it.id, it.name).catch(() => {}), 80); }
 function invKey(e) {
   const c = e.code, list = invTab === 'craft' ? craftingSystem.recipes : invTab === 'docs' ? docs : invTab === 'col' ? COLLECT : bagList().filter(i => (i.cat === 'key') === (invTab === 'keys'));
   if ($('invZoom').classList.contains('show')) { if (['Escape', 'KeyZ', 'Enter', 'Tab'].includes(c)) $('invZoom').classList.remove('show'); return true; }
@@ -1011,6 +1015,7 @@ function invKey(e) {
   if (c === 'Enter' || c === 'Space') { const b = $('invActs') && $('invActs').querySelector('[data-a="0"]'); if (combineFrom && invTab !== 'docs') { const it = list[invSel]; if (it) tryCombine(combineFrom, it.id); } else if (b && !b.disabled) b.click(); return true; }
   if (c === 'KeyC' && invTab !== 'docs' && invTab !== 'col') { const it = list[invSel]; if (it && canCombine(it.id)) startCombine(it.id); return true; }
   if (c === 'KeyZ') { const b = $('invActs') && [...$('invActs').querySelectorAll('button')].pop(); if (b) b.click(); return true; }
+  if ((c === 'KeyR' || c === 'KeyB') && (invTab === 'items' || invTab === 'keys')) { const it = list[invSel]; if (it) (c === 'KeyR' ? showToMina : askRadioItem)(it); return true; }
   return false;
 }
 
@@ -4198,7 +4203,7 @@ function minaFollowTick(dt) {
     if (ai.look) { _minaLT.set(ai.lx, mina.position.y + 1.1, ai.lz); mina.userData.lookTarget = _minaLT; }   // 단서를 알아채면 그쪽을 본다
     minaPointTick(dt, ai); minaEnvTick(dt);
     if (ai.v > .15) { minaPlay(ai.v > 2.6 ? 'Run' : 'Walk'); minaStepTick(ai.v > 2.6); } else minaPlay(ai.emotion === 'uneasy' || (ghost.active && ghost.floor === P.floor) ? 'ScaredIdle' : 'Idle');   // 불안: 움츠린 자세
-    mina.userData.idlePose = ai.v > .15 ? 'none' : ai.pose;   // 대기 행동(npcVisuals 절차적 자세): 팔짱 · 휴대폰 · 벽 기대기 · 쪼그려 쉬기
+    mina.userData.idlePose = ai.v > .15 && ai.pose !== 'chair' ? 'none' : ai.pose; mina.userData.seatH = ai.seatH; mina.userData.seatK = ai.seatK;   // chair: 진짜 의자(window.__seats) — 앉는 높이에 맞춰   // 대기 행동(npcVisuals 절차적 자세): 팔짱 · 휴대폰 · 벽 기대기 · 쪼그려 쉬기
     if (ai.pose === 'phone' && ai.v <= .15 && !ai.look) { const h = mina.userData.phoneTip; if (h) { h.getWorldPosition(_minaLT); mina.userData.lookTarget = _minaLT; } }   // 휴대폰을 내려다본다
   } else {
   const fy = (floors[P.floor]?.y0 || 0) + (P.sh || 0), bx = P.x + Math.sin(P.yaw) * 1.5, bz = P.z + Math.cos(P.yaw) * 1.5;
@@ -9579,7 +9584,8 @@ function declutterInteractables() {
 hintDirector.setFreq(SET.hintFreq);   // 힌트 빈도: 적게 · 보통 · 많이
 { RBG = installRebuild({ THREE, scene, floors, world }); window.__rbg = RBG;
  if (!params.has('nonpc')) try { NPCAI = installNPCAI({ voice: mindVoice, R: RBG, P, isPlaying: () => state === 'playing', subtitle, objective, at, igpu: () => IGPU, debug: DEBUG, elec: () => ELEC, now: () => playTime, busy: () => isSpeechBusy() || subtitleBusy() || !!MINA_F.chatting,
-   board: () => SMART.infer(), tagName: smartTagName, view: () => { const V = MINA_VIEW; V.on = state === 'playing'; if (!V.on) return V; camera.getWorldDirection(_mvDir); const l = Math.hypot(_mvDir.x, _mvDir.z) || 1, d = Math.hypot(camera.position.x - P.x, camera.position.z - P.z) + 2.6;
+   board: () => SMART.infer(), tagName: smartTagName, seats: () => window.__seats, playerSeat: () => (SIT.chair && !SIT.chair.lie ? { x: P.x, z: P.z, yaw: SIT.chair.teacher ? Math.PI : 0 } : null),
+   smart: { openObjects: () => SMART.openObjects(), close: id => SMART.close(id), noteItem: (a, b, c) => SMART.noteItem(a, b, c) }, view: () => { const V = MINA_VIEW; V.on = state === 'playing'; if (!V.on) return V; camera.getWorldDirection(_mvDir); const l = Math.hypot(_mvDir.x, _mvDir.z) || 1, d = Math.hypot(camera.position.x - P.x, camera.position.z - P.z) + 2.6;
      V.cx = camera.position.x; V.cz = camera.position.z; V.tx = V.cx + _mvDir.x / l * d; V.tz = V.cz + _mvDir.z / l * d; V.third = view === 3; return V; },
    nearby: () => { const out = [], sh = P.sh || 0; if (P.floor !== 0) return out;   // 민아가 알아채는 단서 · 조사 대상: 플레이어 6m 안 · 같은 높이 · 아직 안 한 것
      for (const q of world.props) { if (q.floor !== 0 || q.done || !q.label || !MINA_NOTICE.has(q.kind) || Math.abs((q.rbY ?? 0) - sh) > 1.5 || Math.abs(q.x - P.x) > 6 || Math.abs(q.z - P.z) > 6) continue; out.push({ id: q.uid || q.kind + ':' + q.label, x: q.x, z: q.z, label: q.label }); }
@@ -9808,7 +9814,7 @@ function devRadio(st, who) { const w = $('dvWt'); if (!w) return; w.classList.to
 setInterval(() => { if (document.hidden || !$('hud').classList.contains('show')) return; try {
   $('dvClock').textContent = clockText(); $('dvBat').textContent = `🔋 ${Math.round(P.pbat ?? 100)}%`; $('dvPKey').textContent = (K().phone || 'KeyP').replace('Key', '');
   const sig = P.floor === 4 ? 0 : (RBG && RBG.inBuilding && RBG.inBuilding(P.x, P.z)) ? 2 : 4; [...$('dvSig').children].forEach((b, i) => b.classList.toggle('on', i < sig)); } catch (e) {} }, 500);
-try { installPartnerRadio({ voice: mindVoice, mina: () => NPCAI, P, FL, char: () => CHAR, state: () => state, busy: isDialogueActive, speak, subtitle, sfx, now: () => playTime,
+try { installPartnerRadio({ voice: mindVoice, mina: () => NPCAI, P, FL, char: () => CHAR, state: () => state, busy: isDialogueActive, speak, subtitle, sfx, now: () => playTime, toast: t => toast('무전', t, 'info'),
    mind: () => { const o = objective(), c = NPCAI ? NPCAI.context() : { ch: o.ch, main: o.main, where: o.loc && o.loc.where, keys: P.keys | 0, late: !!FL.night && playTime > 900 }; c.room = rbHere(); return c; },   // 무전 상대의 답: 장 · 목표 · 소지품 · 정전 · 지금 있는 곳
    chapter: () => objective().ch, introDone: () => introDone, inside: () => !!(RBG && RBG.inBuilding && RBG.inBuilding(P.x, P.z)), radio: devRadio }); } catch (e) { console.warn('[partner radio]', e); }
 try {   // 민아와 자유 대화 (AI): 민아가 동행 중이고 가까이(4m · 같은 높이) 있을 때만. 실패하면 규칙 기반 대사(MINA_TALK)로

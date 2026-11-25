@@ -14,26 +14,26 @@ export function pickSeat(seats, q) {
   for (const s of seats) {
     if (!s || !onLayer(s, q.floorY)) continue;
     const dP = Math.hypot(s.x - q.px, s.z - q.pz); if (dP > maxP || dP < (q.avoid ?? .8)) continue;
-    if (q.ok && !q.ok(s.x + Math.sin(s.yaw || 0) * .55, s.z + Math.cos(s.yaw || 0) * .55)) continue;
-    const dM = Math.hypot(s.x - q.mx, s.z - q.mz), fx = Math.sin(s.yaw || 0), fz = Math.cos(s.yaw || 0), face = ((q.px - s.x) * fx + (q.pz - s.z) * fz) / (dP || 1);
+    if (q.ok && !q.ok(s.x + (-Math.sin(s.yaw || 0)) * .55, s.z + (-Math.cos(s.yaw || 0)) * .55)) continue;
+    const dM = Math.hypot(s.x - q.mx, s.z - q.mz), fx = (-Math.sin(s.yaw || 0)), fz = (-Math.cos(s.yaw || 0)), face = ((q.px - s.x) * fx + (q.pz - s.z) * fz) / (dP || 1);
     const sc = dP + dM * .4 - face * 1.2; if (sc < bs) { bs = sc; best = s; }
   }
   return best;
 }
 // 플레이어가 앉은 자리(ps: {x,z,yaw}) 맞은편: 앞쪽 0.7~2.8m · 서로 마주 보는 자리 우선, 없으면 플레이어 쪽을 보는 가까운 자리
 export function seatAcross(seats, ps, floorY, ok = null) {
-  if (!Array.isArray(seats) || !ps) return null; const fx = Math.sin(ps.yaw || 0), fz = Math.cos(ps.yaw || 0); let best = null, bs = Infinity;
+  if (!Array.isArray(seats) || !ps) return null; const fx = (-Math.sin(ps.yaw || 0)), fz = (-Math.cos(ps.yaw || 0)); let best = null, bs = Infinity;
   for (const s of seats) {
     if (!s || !onLayer(s, floorY)) continue; const dx = s.x - ps.x, dz = s.z - ps.z, d = Math.hypot(dx, dz); if (d < .7 || d > 2.8) continue;
     const ahead = (dx * fx + dz * fz) / d; if (ahead < .3) continue;
     const opp = Math.cos((s.yaw || 0) - (ps.yaw || 0)); if (opp > -.3) continue;   // 같은 쪽을 보는 자리(옆 · 앞줄)는 마주 앉기가 아니다
-    if (ok && !ok(s.x + Math.sin(s.yaw || 0) * .55, s.z + Math.cos(s.yaw || 0) * .55)) continue;
+    if (ok && !ok(s.x + (-Math.sin(s.yaw || 0)) * .55, s.z + (-Math.cos(s.yaw || 0)) * .55)) continue;
     const sc = d * (1 - ahead * .5) + (1 + opp); if (sc < bs) { bs = sc; best = s; }
   }
   return best;
 }
 // 앉으러 갈 자리 앞(서는 곳): 자리에서 앉는 방향으로 0.55m
-export const seatFront = (s, d = .55) => ({ x: s.x + Math.sin(s.yaw || 0) * d, z: s.z + Math.cos(s.yaw || 0) * d });
+export const seatFront = (s, d = .55) => ({ x: s.x + (-Math.sin(s.yaw || 0)) * d, z: s.z + (-Math.cos(s.yaw || 0)) * d });
 
 // ── 2. 소지품 ──
 export const ITEM_CAT = {

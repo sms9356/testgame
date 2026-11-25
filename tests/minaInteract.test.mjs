@@ -6,11 +6,11 @@ import { MINA_LINES, newMemory, sanitizeMemory } from '../npcMind.js';
 import { ITEMS } from '../story.js';
 
 const seats = [
-  { x: 2, y: .45, z: 0, floor: 0, yaw: -Math.PI / 2, kind: 'chair', building: 'main' },   // 플레이어(0,0) 쪽을 본다
-  { x: 0, y: .45, z: 3, floor: 0, yaw: 0, kind: 'chair', building: 'main' },              // 등을 돌린 자리
-  { x: 1, y: 4.05, z: 0, floor: 1, yaw: 0, kind: 'chair', building: 'main' },             // 윗층
-  { x: 30, y: .45, z: 0, floor: 0, yaw: 0, kind: 'bench', building: 'main' },             // 멀다
-  { x: .3, y: .45, z: .2, floor: 0, yaw: 0, kind: 'chair', building: 'main' },            // 플레이어가 앉은 자리
+  { x: 2, y: .45, z: 0, floor: 0, yaw: Math.PI / 2, kind: 'chair', building: 'main' },   // 플레이어(0,0) 쪽을 본다
+  { x: 0, y: .45, z: 3, floor: 0, yaw: Math.PI, kind: 'chair', building: 'main' },              // 등을 돌린 자리
+  { x: 1, y: 4.05, z: 0, floor: 1, yaw: Math.PI, kind: 'chair', building: 'main' },             // 윗층
+  { x: 30, y: .45, z: 0, floor: 0, yaw: Math.PI, kind: 'bench', building: 'main' },             // 멀다
+  { x: .3, y: .45, z: .2, floor: 0, yaw: Math.PI, kind: 'chair', building: 'main' },            // 플레이어가 앉은 자리
 ];
 
 test('seat selection: same floor, near the player, prefers facing the player, skips the player seat; absent registry → null', () => {
@@ -20,15 +20,15 @@ test('seat selection: same floor, near the player, prefers facing the player, sk
   assert.equal(pickSeat([], { floorY: 0, px: 0, pz: 0, mx: 0, mz: 0 }), null);
   assert.equal(pickSeat(seats, { floorY: 3.6, px: -.5, pz: 0, mx: 1, mz: 0 }), seats[2], 'upper floor only');
   assert.equal(pickSeat(seats, { floorY: 0, px: 0, pz: 0, mx: 0, mz: 0, ok: () => false }), null, 'unreachable fronts skipped');
-  assert.equal(pickSeat([{ x: NaN, z: 0 }, null, { x: 1.5, z: 0, yaw: 0 }], { floorY: 0, px: 0, pz: 0, mx: 0, mz: 0 }).x, 1.5, 'tolerates junk; y missing = floor level');
+  assert.equal(pickSeat([{ x: NaN, z: 0 }, null, { x: 1.5, z: 0, yaw: Math.PI }], { floorY: 0, px: 0, pz: 0, mx: 0, mz: 0 }).x, 1.5, 'tolerates junk; y missing = floor level');
   assert.ok(Math.abs(seatHeight(seats[2], 3.6) - .45) < 1e-9); assert.equal(seatHeight({ y: .05 }, 0), .45); assert.ok(Math.abs(seatHeight({ y: .5 }, 0) - .5) < 1e-9);
   const f = seatFront(seats[0]); assert.ok(f.x < 2 && Math.abs(f.z) < 1e-9);
 });
 
 test('seat across: in front of the seated player and facing back; same-facing seats rejected', () => {
-  const ps = { x: 0, z: 0, yaw: Math.PI / 2 };   // +x 쪽을 본다
+  const ps = { x: 0, z: 0, yaw: -Math.PI / 2 };   // +x 쪽을 본다
   assert.equal(seatAcross(seats, ps, 0), seats[0]);
-  assert.equal(seatAcross(seats, { x: 0, z: 0, yaw: 0 }, 0), null, 'seat ahead but facing the same way is not across');
+  assert.equal(seatAcross(seats, { x: 0, z: 0, yaw: Math.PI }, 0), null, 'seat ahead but facing the same way is not across');
   assert.equal(seatAcross(null, ps, 0), null);
 });
 

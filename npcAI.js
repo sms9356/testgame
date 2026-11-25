@@ -660,12 +660,12 @@ export function installNPCAI({ R, P, isPlaying, subtitle, objective, at, igpu, d
       return true; }
     if (SE.ph === 'in' || SE.ph === 'up') {   // 앞자리 ↔ 의자 사이를 0.6초에 미끄러지듯 (몸을 돌리며)
       const k = Math.min(1, dt / Math.max(.05, SE.t)); SE.t -= dt; const tx = SE.ph === 'in' ? s.x : SE.fx, tz = SE.ph === 'in' ? s.z : SE.fz;
-      n.x += (tx - n.x) * k; n.z += (tz - n.z) * k; n.yaw += angTo(n.yaw, s.yaw || 0) * Math.min(1, dt * 6);
+      n.x += (tx - n.x) * k; n.z += (tz - n.z) * k; n.yaw += angTo(n.yaw, (s.yaw || 0) + Math.PI) * Math.min(1, dt * 6);
       if (SE.t <= 0) { if (SE.ph === 'in') { SE.ph = 'sit'; SE.uses++; stats.seatUses = (stats.seatUses || 0) + 1; n.x = s.x; n.z = s.z; say(SE.across ? 'seat_across' : 'seat_sit', ML(SE.across ? 'seat_across' : 'seat_sit'), PRIO.idle, { ttl: 4 }); }
         else { SE.on = false; SE.ph = ''; n.x = SE.fx; n.z = SE.fz; IB.still = 0; } }
       return true; }
     // 앉아 있음: 플레이어가 움직이면(다시 걷거나 일어서면) 일어선다
-    n.yaw += angTo(n.yaw, s.yaw || 0) * Math.min(1, dt * 4); n.v = 0;
+    n.yaw += angTo(n.yaw, (s.yaw || 0) + Math.PI) * Math.min(1, dt * 4); n.v = 0;
     const ps = pSeat(); if ((SE.across && !ps) || (!SE.across && (IB.pIdle < .01 || ps)) || Math.hypot(P.x - n.x, P.z - n.z) > 5) seatLeave(false);
     return true;
   }
